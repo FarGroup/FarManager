@@ -5,10 +5,21 @@ dialog.cpp
 
 */
 
-/* Revision: 1.70 12.02.2001 $ */
+/* Revision: 1.71 13.02.2001 $ */
 
 /*
 Modify:
+  13.02.2001 SVS
+   ! HISTORY_COUNT - константа для размера истории.
+   + Дополнительный параметр у FindInEditForAC, SelectFromEditHistory,
+     AddToEditHistory и SelectFromComboBox - MaxLen - максимальный размер
+     строки назначения.
+   + DI_COMBOBOX тоже мАгет работать с DIF_VAREDIT
+   ! Рисование "салазок" перенесено в DefDlgProc(DN_DRAWDIALOG,1)
+   ! Если функция обработчик в ответ на DN_DRAWDIALOG вернула FALSE,
+     то диалог отрисовываться не будет
+   ! Если функция обработчик в ответ на DN_DRAWDLGITEM вернула FALSE,
+     то элемент диалога отрисовываться не будет
   12.02.2001 SVS
    + Добавка на реакцию DOUBLE_CLICK - чекбоксы стали шустрее переключаться :-)
      AN> ...Пробелом те же чекбоксы переключаются очень шустро.
@@ -688,8 +699,7 @@ int Dialog::InitDialogObjects(int ID)
             ListItem.Selected=Items[J].Flags&LIF_SELECTED;
             ListItem.Checked=Items[J].Flags&LIF_CHECKED;
             ListItem.Disabled=Items[J].Flags&LIF_DISABLE;
-            strcpy(ListItem.Name,Items[J].Text);
-            strcpy(ListItem.UserData,Items[J].Text);
+            // здесь нужно добавить проверку на LIF_PTRDATA!!!
             ListItem.UserDataSize=strlen(Items[J].Text);
             ListItem.Flags=0;
             ListItem.PtrData=NULL;
@@ -730,7 +740,8 @@ int Dialog::InitDialogObjects(int ID)
       /* $ 15.10.2000 tran
         строка редакторирование должна иметь максимум в 511 символов */
       // DIF_VAREDIT - только для DI_EDIT!!!
-      if(CurItem->Type==DI_EDIT && (CurItem->Flags&DIF_VAREDIT))
+      if((CurItem->Type==DI_EDIT || CurItem->Type==DI_COMBOBOX) &&
+         (CurItem->Flags&DIF_VAREDIT))
         DialogEdit->SetMaxLength(CurItem->Ptr.PtrLength);
       else
         DialogEdit->SetMaxLength(511);
@@ -807,7 +818,7 @@ int Dialog::InitDialogObjects(int ID)
         char RegKey[80];
         char *PtrData;
         int PtrLength;
-        if(CurItem->Type==DI_EDIT && (CurItem->Flags&DIF_VAREDIT))
+        if((CurItem->Type==DI_EDIT || CurItem->Type==DI_COMBOBOX) && (CurItem->Flags&DIF_VAREDIT))
         {
           PtrData  =(char *)CurItem->Ptr.PtrData;
           PtrLength=CurItem->Ptr.PtrLength;
@@ -829,7 +840,10 @@ int Dialog::InitDialogObjects(int ID)
          Если это ComBoBox и данные не установлены, то берем из списка
          при условии, что хоть один из пунктов имеет Selected != 0
       */
-      if (Type==DI_COMBOBOX && CurItem->Data[0] == 0 && CurItem->ListItems)
+      if (Type==DI_COMBOBOX &&
+          (!(CurItem->Flags&DIF_VAREDIT) && CurItem->Data[0] == 0 ||
+            (CurItem->Flags&DIF_VAREDIT) && *(char*)CurItem->Ptr.PtrData == 0) &&
+          CurItem->ListItems)
       {
         struct FarListItem *ListItems=CurItem->ListItems->Items;
         int Length=CurItem->ListItems->ItemsNumber;
@@ -839,13 +853,27 @@ int Dialog::InitDialogObjects(int ID)
           if(ListItems[J].Flags & LIF_SELECTED)
           {
             // берем только первый пункт для области редактирования
-            strcpy(CurItem->Data, ListItems[J].Text);
+            if(CurItem->Flags&DIF_VAREDIT)
+            {
+              if(ListItems[J].Flags&LIF_PTRDATA)
+                strncpy((char *)CurItem->Ptr.PtrData, ListItems[J].Ptr.PtrData,CurItem->Ptr.PtrLength);
+              else
+                strncpy((char *)CurItem->Ptr.PtrData, ListItems[J].Text,CurItem->Ptr.PtrLength);
+            }
+            else
+            {
+              if(ListItems[J].Flags&LIF_PTRDATA)
+                strncpy((char *)CurItem->Data, ListItems[J].Ptr.PtrData,sizeof(CurItem->Data));
+              else
+                strcpy(CurItem->Data, ListItems[J].Text);
+            }
             break;
           }
         }
       }
       /* SVS $ */
-      if(CurItem->Type==DI_EDIT && (CurItem->Flags&DIF_VAREDIT))
+      if((CurItem->Type==DI_EDIT || CurItem->Type==DI_COMBOBOX) &&
+         (CurItem->Flags&DIF_VAREDIT))
         DialogEdit->SetString((char *)CurItem->Ptr.PtrData);
       else
         DialogEdit->SetString(CurItem->Data);
@@ -928,7 +956,8 @@ void Dialog::GetDialogObjectsData()
           int PtrLength;
           Edit *EditPtr=(Edit *)(CurItem->ObjPtr);
           // подготовим данные
-          if(CurItem->Type==DI_EDIT && (CurItem->Flags&DIF_VAREDIT))
+          if((CurItem->Type==DI_EDIT || CurItem->Type==DI_COMBOBOX) &&
+             (CurItem->Flags&DIF_VAREDIT))
           {
             PtrData  =(char *)CurItem->Ptr.PtrData;
             PtrLength=CurItem->Ptr.PtrLength;
@@ -946,7 +975,7 @@ void Dialog::GetDialogObjectsData()
               (CurItem->Flags & DIF_HISTORY) &&
               CurItem->History &&
               Opt.DialogsEditHistory)
-            AddToEditHistory(PtrData,CurItem->History);
+            AddToEditHistory(PtrData,CurItem->History,PtrLength);
           /* $ 01.08.2000 SVS
              ! В History должно заносится значение (для DIF_EXPAND...) перед
               расширением среды!
@@ -1005,7 +1034,11 @@ void Dialog::ShowDialog(int ID)
     /* $ 28.07.2000 SVS
        Перед прорисовкой диалога посылаем сообщение в обработчик
     */
-      DlgProc((HANDLE)this,DN_DRAWDIALOG,0,0);
+    if(!DlgProc((HANDLE)this,DN_DRAWDIALOG,0,0))
+    {
+      SkipDialogMode(DMODE_DRAWING);  // конец отрисовки диалога!!!
+      return;
+    }
     /* SVS $ */
 
     /* $ 28.07.2000 SVS
@@ -1038,7 +1071,8 @@ void Dialog::ShowDialog(int ID)
        Перед прорисовкой каждого элемента посылаем сообщение
        посредством функции SendDlgMessage - в ней делается все!
     */
-    Dialog::SendDlgMessage((HANDLE)this,DN_DRAWDLGITEM,I,0);
+    if(!Dialog::SendDlgMessage((HANDLE)this,DN_DRAWDLGITEM,I,0))
+       continue;
     /* SVS $ */
     /* $ 28.07.2000 SVS
        перед прорисовкой каждого элемента диалога выясним атритубы отрисовки
@@ -1403,16 +1437,7 @@ void Dialog::ShowDialog(int ID)
   */
   if ( CheckDialogMode(DMODE_DRAGGED) ) // если диалог таскается
   {
-    /* $ 03.08.2000 tran
-       вывод текста в углу может приводить к ошибкам изображения
-       1) когда диалог перемещается в угол
-       2) когда диалог перемещается из угла
-       сделал вывод красных палочек по углам */
-    //Text(0,0,0xCE,"Move");
-    Text(X1,Y1,0xCE,"\\");
-    Text(X1,Y2,0xCE,"/");
-    Text(X2,Y1,0xCE,"/");
-    Text(X2,Y2,0xCE,"\\");
+    DlgProc((HANDLE)this,DN_DRAWDIALOG,1,0);
   }
   /* SVS $ */
 
@@ -1865,12 +1890,12 @@ int Dialog::ProcessKey(int Key)
       }
       if (IsEdit(Type))
       {
-        ((Edit *)(Item[FocusPos].ObjPtr))->ProcessKey(Key);
         /* $ 28.07.2000 SVS
           При изменении состояния каждого элемента посылаем сообщение
           посредством функции SendDlgMessage - в ней делается все!
         */
-        Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,FocusPos,0);
+        if(((Edit *)(Item[FocusPos].ObjPtr))->ProcessKey(Key))
+          Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,FocusPos,0);
         /* SVS $ */
         return(TRUE);
       }
@@ -2047,8 +2072,18 @@ int Dialog::ProcessKey(int Key)
          для выделения нужного пункта в истории.
       */
       {
-        CurEditLine->GetString(Str,sizeof(Str));
-        SelectFromEditHistory(CurEditLine,Item[FocusPos].History,Str);
+        char *PStr=Str;
+        int MaxLen=sizeof(Item[FocusPos].Data);
+        if(Item[FocusPos].Flags&DIF_VAREDIT)
+        {
+          MaxLen=Item[FocusPos].Ptr.PtrLength;
+          if((PStr=(char*)malloc(MaxLen+1)) == NULL)
+            return TRUE;//???
+        }
+        CurEditLine->GetString(PStr,sizeof(MaxLen));
+        SelectFromEditHistory(CurEditLine,Item[FocusPos].History,PStr,MaxLen);
+        if(Item[FocusPos].Flags&DIF_VAREDIT)
+          free(PStr);
       }
       /* SVS $ */
       /* $ 18.07.2000 SVS
@@ -2056,9 +2091,19 @@ int Dialog::ProcessKey(int Key)
       */
       else if(Type == DI_COMBOBOX && Item[FocusPos].ListItems)
       {
-        CurEditLine->GetString(Str,sizeof(Str));
+        char *PStr=Str;
+        int MaxLen=sizeof(Item[FocusPos].Data);
+        if(Item[FocusPos].Flags&DIF_VAREDIT)
+        {
+          MaxLen=Item[FocusPos].Ptr.PtrLength;
+          if((PStr=(char*)malloc(MaxLen+1)) == NULL)
+            return TRUE;//???
+        }
+        CurEditLine->GetString(PStr,sizeof(MaxLen));
         SelectFromComboBox(CurEditLine,
-                      Item[FocusPos].ListItems,Str);
+                      Item[FocusPos].ListItems,PStr,MaxLen);
+        if(Item[FocusPos].Flags&DIF_VAREDIT)
+          free(PStr);
       }
       /* SVS $ */
       return(TRUE);
@@ -2268,10 +2313,18 @@ int Dialog::ProcessKey(int Key)
             /* $ 05.12.2000 IS
                Все удалил и написал заново ;)
             */
+            int MaxLen=sizeof(Item[FocusPos].Data);
+            char *PStr=Str;
+            if(Item[FocusPos].Flags & DIF_VAREDIT)
+            {
+              MaxLen=Item[FocusPos].Ptr.PtrLength;
+              if((PStr=(char*)malloc(MaxLen+1)) == NULL)
+                return TRUE; //???
+            }
             int DoAutoComplete=TRUE;
             int CurPos=edt->GetCurPos();
-            edt->GetString(Str,sizeof(Str));
-            int len=strlen(Str);
+            edt->GetString(PStr,MaxLen);
+            int len=strlen(PStr);
             edt->GetSelection(SelStart,SelEnd);
             if(SelStart < 0 || SelStart==SelEnd)
                 SelStart=len;
@@ -2285,27 +2338,27 @@ int Dialog::ProcessKey(int Key)
             {
               if(DoAutoComplete && CurPos <= SelEnd)
               {
-                Str[CurPos]=0;
-                edt->Select(CurPos,sizeof(Str)); //select the appropriate text
+                PStr[CurPos]=0;
+                edt->Select(CurPos,MaxLen); //select the appropriate text
                 edt->DeleteBlock();
                 edt->FastShow();
               }
             }
             /* IS $ */
 
-            SelEnd=strlen(Str);
+            SelEnd=strlen(PStr);
 
             //find the string in the list
             /* $ 03.12.2000 IS
                  Учитываем флаг DoAutoComplete
             */
             if (DoAutoComplete && FindInEditForAC(Type == DI_COMBOBOX,
-                         (void *)Item[FocusPos].Selected,Str))
+                         (void *)Item[FocusPos].Selected,PStr,MaxLen))
             /* IS $ */
             {
 //SysLog("Coplete: Str=%s SelStart=%d SelEnd=%d CurPos=%d",Str,SelStart,SelEnd, CurPos);
-              edt->SetString(Str);
-              edt->Select(SelEnd,sizeof(Str)); //select the appropriate text
+              edt->SetString(PStr);
+              edt->Select(SelEnd,MaxLen); //select the appropriate text
               //edt->Select(CurPos,sizeof(Str)); //select the appropriate text
               /* $ 01.08.2000 SVS
                  Небольшой глючек с AutoComplete
@@ -2320,6 +2373,8 @@ int Dialog::ProcessKey(int Key)
               /* SVS $ */
               Redraw();
             }
+            if(Item[FocusPos].Flags & DIF_VAREDIT)
+              free(PStr);
           }
           /* SVS 03.12.2000 $ */
           /* SVS $ */
@@ -2400,7 +2455,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
             break;
         }
         if(Send_DN)
-          if((J=DlgProc((HANDLE)this,DN_MOUSECLICK,I,(long)MouseEvent)))
+          if(DlgProc((HANDLE)this,DN_MOUSECLICK,I,(long)MouseEvent))
             return TRUE;
 
         if(Item[I].Type == DI_USERCONTROL)
@@ -2869,31 +2924,37 @@ int Dialog::IsFocused(int Type)
 /* $ 28.07.2000 SVS
    ! Переметр Edit *EditLine нафиг ненужен!
 */
-int Dialog::FindInEditForAC(int TypeFind,void *HistoryName,char *FindStr)
+int Dialog::FindInEditForAC(int TypeFind,void *HistoryName,char *FindStr,int MaxLen)
 {
-  char Str[1024];
-  int I, Count;
+  char *Str;
+  int I, Count, LenFindStr=strlen(FindStr);
 
   if(!TypeFind)
   {
     char RegKey[80],KeyValue[80];
+    if((Str=(char*)malloc(MaxLen+1)) == NULL)
+      return FALSE;
     sprintf(RegKey,fmtSavedDialogHistory,(char*)HistoryName);
     // просмотр пунктов истории
-    for (I=0; I < 16; I++)
+    for (I=0; I < HISTORY_COUNT; I++)
     {
       sprintf(KeyValue,fmtLine,I);
-      GetRegKey(RegKey,KeyValue,Str,"",sizeof(Str));
-      if (!LocalStrnicmp(Str,FindStr,strlen(FindStr)))
+      GetRegKey(RegKey,KeyValue,Str,"",MaxLen);
+      if (!LocalStrnicmp(Str,FindStr,LenFindStr))
         break;
     }
-    if (I == 16)
+    if (I == HISTORY_COUNT)
+    {
+      free(Str);
       return FALSE;
+    }
     /* $ 28.07.2000 SVS
        Введенные буковки не затрагиваем, а дополняем недостающее.
     */
 //SysLog("FindInEditForAC()  FindStr=%s Str=%s",FindStr,&Str[strlen(FindStr)]);
-    strcat(FindStr,&Str[strlen(FindStr)]);
+    strncat(FindStr,&Str[LenFindStr],MaxLen-LenFindStr);
     /* SVS $ */
+    free(Str);
   }
   else
   {
@@ -2902,17 +2963,166 @@ int Dialog::FindInEditForAC(int TypeFind,void *HistoryName,char *FindStr)
 
     for (I=0; I < Count ;I++)
     {
-      if (!LocalStrnicmp(ListItems[I].Text,FindStr,strlen(FindStr)))
+      if (!LocalStrnicmp(
+        ((ListItems[I].Flags&LIF_PTRDATA)?
+            ListItems[I].Ptr.PtrData:
+            ListItems[I].Text),
+        FindStr,LenFindStr))
         break;
     }
     if (I  == Count)
       return FALSE;
-    strcat(FindStr,&ListItems[I].Text[strlen(FindStr)]);
+
+    if(ListItems[I].Flags&LIF_PTRDATA)
+    {
+      // проверим "переполнение" - чтобы не вылезти за пределы строки.
+      if(ListItems[I].Ptr.PtrLength < LenFindStr)
+        strncat(FindStr,&ListItems[I].Ptr.PtrData[LenFindStr],MaxLen-LenFindStr);
+    }
+    else
+    {
+      if(sizeof(ListItems[I].Text) < LenFindStr)
+        strncat(FindStr,&ListItems[I].Text[LenFindStr],MaxLen-LenFindStr);
+    }
   }
   return TRUE;
 }
 /*  SVS $ */
 
+//////////////////////////////////////////////////////////////////////////
+/* Private:
+   Заполняем выпадающий список для ComboBox
+*/
+/*
+   $ 18.07.2000 SVS
+   Функция-обработчик выбора из списка и установки...
+*/
+void Dialog::SelectFromComboBox(
+         Edit *EditLine,                   // строка редактирования
+         struct FarList *List,    // список строк
+         char *IStr,
+         int MaxLen)
+{
+  char *Str;
+  struct MenuItem ComboBoxItem={0};
+  struct FarListItem *ListItems=List->Items;
+  int EditX1,EditY1,EditX2,EditY2;
+  int I,Dest;
+
+  if((Str=(char*)malloc(MaxLen)) != NULL)
+  {
+    // создание пустого вертикального меню
+    //  с обязательным показом ScrollBar
+    VMenu ComboBoxMenu("",NULL,0,8,VMENU_ALWAYSSCROLLBAR,NULL/*,this*/);
+
+    EditLine->GetPosition(EditX1,EditY1,EditX2,EditY2);
+    if (EditX2-EditX1<20)
+      EditX2=EditX1+20;
+    if (EditX2>ScrX)
+      EditX2=ScrX;
+  #if 0
+    if(!(Item[FocusPos].Flags&DIF_LISTNOAMPERSAND))
+  #endif
+      ComboBoxMenu.SetFlags(MENU_SHOWAMPERSAND);
+    ComboBoxMenu.SetPosition(EditX1,EditY1+1,EditX2,0);
+    ComboBoxMenu.SetBoxType(SHORT_SINGLE_BOX);
+
+    // заполнение пунктов меню
+    /* Последний пункт списка - ограничититель - в нем Tetx[0]
+       должен быть равен '\0'
+    */
+    for (Dest=I=0;I < List->ItemsNumber;I++)
+    {
+      memset(&ComboBoxItem,0,sizeof(ComboBoxItem));
+
+      /* $ 28.07.2000 SVS
+         Выставим Selected при полном совпадении строки ввода и списка
+      */
+
+      if(IStr && *IStr && !(ListItems[I].Flags&LIF_DISABLE))
+      {
+        if((ComboBoxItem.Selected=(!Dest &&
+         !strncmp(IStr,
+           ((ListItems[I].Flags&LIF_PTRDATA)?ListItems[I].Ptr.PtrData:ListItems[I].Text),
+           (ListItems[I].Flags&LIF_PTRDATA)?ListItems[I].Ptr.PtrLength:sizeof(ListItems[I].Text)))?
+           TRUE:FALSE) == TRUE)
+           Dest++;
+      }
+      else
+         ComboBoxItem.Selected=ListItems[I].Flags&LIF_SELECTED;
+
+      ComboBoxItem.Separator=ListItems[I].Flags&LIF_SEPARATOR;
+      ComboBoxItem.Checked=ListItems[I].Flags&LIF_CHECKED;
+      ComboBoxItem.Disabled=ListItems[I].Flags&LIF_DISABLE;
+      /* 01.08.2000 SVS $ */
+      /* SVS $ */
+      if(ListItems[I].Flags&LIF_PTRDATA)
+      {
+        // а может все таки влезим в нужные размеры?
+        if(ListItems[I].Ptr.PtrLength < sizeof(ComboBoxItem.UserData))
+        {
+          strncpy(ComboBoxItem.Name,ListItems[I].Ptr.PtrData,sizeof(ComboBoxItem.Name)-1);
+          strcpy(ComboBoxItem.UserData,ListItems[I].Ptr.PtrData);
+          ComboBoxItem.UserDataSize=strlen(ListItems[I].Ptr.PtrData);
+        }
+        else
+        {
+          ComboBoxItem.PtrData=ListItems[I].Ptr.PtrData;
+          ComboBoxItem.Flags=1;
+        }
+        ComboBoxItem.UserDataSize=strlen(ListItems[I].Ptr.PtrData);
+      }
+      else
+      {
+        strcpy(ComboBoxItem.Name,ListItems[I].Text);
+        strcpy(ComboBoxItem.UserData,ListItems[I].Text);
+        ComboBoxItem.UserDataSize=strlen(ListItems[I].Text);
+      }
+      ComboBoxMenu.AddItem(&ComboBoxItem);
+    }
+
+    /* $ 28.07.2000 SVS
+       Перед отрисовкой спросим об изменении цветовых атрибутов
+    */
+    short Colors[9];
+    ComboBoxMenu.GetColors(Colors);
+    if(DlgProc((HANDLE)this,DN_CTLCOLORDLGLIST,
+                    sizeof(Colors)/sizeof(Colors[0]),(long)Colors))
+      ComboBoxMenu.SetColors(Colors);
+    /* SVS $ */
+
+    ComboBoxMenu.Show();
+  //  Dest=ComboBoxMenu.GetSelectPos();
+    while (!ComboBoxMenu.Done())
+    {
+      int Key=ComboBoxMenu.ReadInput();
+      // здесь можно добавить что-то свое, например,
+  //    I=ComboBoxMenu.GetSelectPos();
+  //    if(I != Dest)
+  //    {
+  //      Dest=I;
+  //      DlgProc((HANDLE)this,DN_LISTCHANGE,,(long)List);
+  //    }
+      //  обработку multiselect ComboBox
+      ComboBoxMenu.ProcessInput();
+    }
+
+    int ExitCode=ComboBoxMenu.GetExitCode();
+    if (ExitCode<0)
+      return;
+    /* Запомним текущее состояние */
+    for (I=0; I < List->ItemsNumber; I++)
+      ListItems[I].Flags&=~LIF_SELECTED;
+    ListItems[ExitCode].Flags|=LIF_SELECTED;
+    ComboBoxMenu.GetUserData(Str,sizeof(Str),ExitCode);
+
+    EditLine->SetString(Str);
+    EditLine->SetLeftPos(0);
+    Redraw();
+    free(Str);
+  }
+}
+/* SVS $ */
 
 //////////////////////////////////////////////////////////////////////////
 /* Private:
@@ -2922,10 +3132,13 @@ int Dialog::FindInEditForAC(int TypeFind,void *HistoryName,char *FindStr)
   + Дополнительный параметр в SelectFromEditHistory для выделения
    нужной позиции в истории (если она соответствует строке ввода)
 */
-void Dialog::SelectFromEditHistory(Edit *EditLine,char *HistoryName,char *IStr)
+void Dialog::SelectFromEditHistory(Edit *EditLine,
+                                   char *HistoryName,
+                                   char *IStr,
+                                   int MaxLen)
 /* SVS $ */
 {
-  char RegKey[80],KeyValue[80],Str[512];
+  char RegKey[80],KeyValue[80],*Str[HISTORY_COUNT]={0};
   int I,Dest;
   int Checked;
 
@@ -2954,13 +3167,16 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,char *HistoryName,char *IStr)
 
     // заполнение пунктов меню
     ItemsCount=0;
-    for (Dest=I=0; I < 16; I++)
+    for (Dest=I=0; I < HISTORY_COUNT; I++)
     {
+      if((Str[I]=(char*)malloc(MaxLen+1)) == NULL)
+        break;
+
       memset(&HistoryItem,0,sizeof(HistoryItem));
 
       sprintf(KeyValue,fmtLine,I);
-      GetRegKey(RegKey,KeyValue,Str,"",sizeof(Str));
-      if (*Str==0)
+      GetRegKey(RegKey,KeyValue,Str[I],"",MaxLen);
+      if (*Str[I]==0)
         continue;
 
       sprintf(KeyValue,fmtLocked,I);
@@ -2970,17 +3186,23 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,char *HistoryName,char *IStr)
       /* $ 26.07.2000 SVS
          Выставим Selected при полном совпадении строки ввода и истории
       */
-      if((HistoryItem.Selected=(!Dest && !strcmp(IStr,Str))?TRUE:FALSE) == TRUE)
+      if((HistoryItem.Selected=(!Dest && !strcmp(IStr,Str[I]))?TRUE:FALSE) == TRUE)
          Dest++;
       /* SVS $ */
-      strncpy(HistoryItem.Name,Str,sizeof(HistoryItem.Name)-1);
-      strncpy(HistoryItem.UserData,Str,sizeof(HistoryItem.UserData));
-      HistoryItem.UserDataSize=strlen(Str)+1;
+      strncpy(HistoryItem.Name,Str[I],sizeof(HistoryItem.Name)-1);
+      if(MaxLen < sizeof(HistoryItem.UserData))
+        strncpy(HistoryItem.UserData,Str[I],sizeof(HistoryItem.UserData));
+      else
+      {
+        HistoryItem.PtrData=Str[I];
+        HistoryItem.Flags=1;
+      }
+      HistoryItem.UserDataSize=strlen(Str[I])+1;
       HistoryMenu.AddItem(&HistoryItem);
       ItemsCount++;
     }
     if (ItemsCount==0)
-      return;
+      goto final;
 
     /* $ 28.07.2000 SVS
        Перед отрисовкой спросим об изменении цветовых атрибутов
@@ -3000,10 +3222,10 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,char *HistoryName,char *IStr)
       if (Key==KEY_DEL)
       {
         int Locked;
-        for (I=0,Dest=0;I<16;I++)
+        for (I=0,Dest=0; I < HISTORY_COUNT;I++)
         {
           sprintf(KeyValue,fmtLine,I);
-          GetRegKey(RegKey,KeyValue,Str,"",sizeof(Str));
+          GetRegKey(RegKey,KeyValue,Str[I],"",MaxLen);
           DeleteRegValue(RegKey,KeyValue);
           sprintf(KeyValue,fmtLocked,I);
           GetRegKey(RegKey,KeyValue,Locked,0);
@@ -3013,15 +3235,15 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,char *HistoryName,char *IStr)
           if (Locked)
           {
             sprintf(KeyValue,fmtLine,Dest);
-            SetRegKey(RegKey,KeyValue,Str);
+            SetRegKey(RegKey,KeyValue,Str[I]);
             sprintf(KeyValue,fmtLocked,Dest);
             SetRegKey(RegKey,KeyValue,TRUE);
             Dest++;
           }
         }
         HistoryMenu.Hide();
-        SelectFromEditHistory(EditLine,HistoryName,IStr);
-        return;
+        SelectFromEditHistory(EditLine,HistoryName,IStr,MaxLen);
+        goto final;
       }
 
       // Ins защищает пункт истории от удаления.
@@ -3047,12 +3269,21 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,char *HistoryName,char *IStr)
 
     int ExitCode=HistoryMenu.GetExitCode();
     if (ExitCode<0)
-      return;
-    HistoryMenu.GetUserData(Str,sizeof(Str),ExitCode);
+      goto final;
+
+    HistoryMenu.GetUserData(Str[0],MaxLen,ExitCode);
   }
-  EditLine->SetString(Str);
-  EditLine->SetLeftPos(0);
-  Redraw();
+  if(Str[0])
+  {
+    EditLine->SetString(Str[0]);
+    EditLine->SetLeftPos(0);
+    Redraw();
+  }
+
+final:
+  for (I=0; I < HISTORY_COUNT; I++)
+    if(Str[I])
+      free(Str[I]);
 }
 
 
@@ -3060,17 +3291,21 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,char *HistoryName,char *IStr)
 /* Private:
    Работа с историей - добавление и reorder списка
 */
-void Dialog::AddToEditHistory(char *AddStr,char *HistoryName)
+void Dialog::AddToEditHistory(char *AddStr,char *HistoryName,int MaxLen)
 {
-  int LastLine=15,FirstLine=16, I, Locked;
+  int LastLine=HISTORY_COUNT-1,FirstLine=HISTORY_COUNT, I, Locked;
+  char *Str;
 
   if (*AddStr==0)
     return;
 
-  char RegKey[80],SrcKeyValue[80],DestKeyValue[80],Str[512];
+  if((Str=(char*)malloc(MaxLen+1)) == NULL)
+    return;
+
+  char RegKey[80],SrcKeyValue[80],DestKeyValue[80];
   sprintf(RegKey,fmtSavedDialogHistory,HistoryName);
 
-  for (I=0; I < 16; I++)
+  for (I=0; I < HISTORY_COUNT; I++)
   {
     sprintf(SrcKeyValue,fmtLocked,I);
     GetRegKey(RegKey,SrcKeyValue,Locked,0);
@@ -3081,10 +3316,10 @@ void Dialog::AddToEditHistory(char *AddStr,char *HistoryName)
     }
   }
 
-  for (I=0; I < 16; I++)
+  for (I=0; I < HISTORY_COUNT; I++)
   {
     sprintf(SrcKeyValue,fmtLine,I);
-    GetRegKey(RegKey,SrcKeyValue,Str,"",sizeof(Str));
+    GetRegKey(RegKey,SrcKeyValue,Str,"",MaxLen);
     if (strcmp(Str,AddStr)==0)
     {
       LastLine=I;
@@ -3107,7 +3342,7 @@ void Dialog::AddToEditHistory(char *AddStr,char *HistoryName)
         if (!Locked)
         {
           sprintf(SrcKeyValue,fmtLine,Src);
-          GetRegKey(RegKey,SrcKeyValue,Str,"",sizeof(Str));
+          GetRegKey(RegKey,SrcKeyValue,Str,"",MaxLen);
           sprintf(DestKeyValue,fmtLine,Dest);
           SetRegKey(RegKey,DestKeyValue,Str);
           break;
@@ -3118,6 +3353,7 @@ void Dialog::AddToEditHistory(char *AddStr,char *HistoryName)
     sprintf(FirstLineKeyValue,fmtLine,FirstLine);
     SetRegKey(RegKey,FirstLineKeyValue,AddStr);
   }
+  free(Str);
 }
 
 
@@ -3240,114 +3476,6 @@ int Dialog::ProcessHighlighting(int Key,int FocusPos,int Translate)
 
 
 //////////////////////////////////////////////////////////////////////////
-/* Private:
-   Заполняем выпадающий список для ComboBox
-*/
-/*
-   $ 18.07.2000 SVS
-   Функция-обработчик выбора из списка и установки...
-*/
-void Dialog::SelectFromComboBox(
-         Edit *EditLine,                   // строка редактирования
-         struct FarList *List,    // список строк
-         char *IStr)
-{
-  char Str[512];
-  struct MenuItem ComboBoxItem={0};
-  struct FarListItem *ListItems=List->Items;
-  int EditX1,EditY1,EditX2,EditY2;
-  int I,Dest;
-
-  // создание пустого вертикального меню
-  //  с обязательным показом ScrollBar
-  VMenu ComboBoxMenu("",NULL,0,8,VMENU_ALWAYSSCROLLBAR,NULL/*,this*/);
-
-  EditLine->GetPosition(EditX1,EditY1,EditX2,EditY2);
-  if (EditX2-EditX1<20)
-    EditX2=EditX1+20;
-  if (EditX2>ScrX)
-    EditX2=ScrX;
-#if 0
-  if(!(Item[FocusPos].Flags&DIF_LISTNOAMPERSAND))
-#endif
-    ComboBoxMenu.SetFlags(MENU_SHOWAMPERSAND);
-  ComboBoxMenu.SetPosition(EditX1,EditY1+1,EditX2,0);
-  ComboBoxMenu.SetBoxType(SHORT_SINGLE_BOX);
-
-  // заполнение пунктов меню
-  /* Последний пункт списка - ограничититель - в нем Tetx[0]
-     должен быть равен '\0'
-  */
-  for (Dest=I=0;I < List->ItemsNumber;I++)
-  {
-    memset(&ComboBoxItem,0,sizeof(ComboBoxItem));
-
-    /* $ 28.07.2000 SVS
-       Выставим Selected при полном совпадении строки ввода и списка
-    */
-
-    if(IStr && *IStr && !(ListItems[I].Flags&LIF_DISABLE))
-    {
-      if((ComboBoxItem.Selected=(!Dest && !strcmp(IStr,ListItems[I].Text))?TRUE:FALSE) == TRUE)
-         Dest++;
-    }
-    else
-       ComboBoxItem.Selected=ListItems[I].Flags&LIF_SELECTED;
-
-    ComboBoxItem.Separator=ListItems[I].Flags&LIF_SEPARATOR;
-    ComboBoxItem.Checked=ListItems[I].Flags&LIF_CHECKED;
-    ComboBoxItem.Disabled=ListItems[I].Flags&LIF_DISABLE;
-    /* 01.08.2000 SVS $ */
-    /* SVS $ */
-    strcpy(ComboBoxItem.Name,ListItems[I].Text);
-    strcpy(ComboBoxItem.UserData,ListItems[I].Text);
-    ComboBoxItem.UserDataSize=strlen(ListItems[I].Text);
-    ComboBoxMenu.AddItem(&ComboBoxItem);
-  }
-
-  /* $ 28.07.2000 SVS
-     Перед отрисовкой спросим об изменении цветовых атрибутов
-  */
-  short Colors[9];
-  ComboBoxMenu.GetColors(Colors);
-  if(DlgProc((HANDLE)this,DN_CTLCOLORDLGLIST,
-                  sizeof(Colors)/sizeof(Colors[0]),(long)Colors))
-    ComboBoxMenu.SetColors(Colors);
-  /* SVS $ */
-
-  ComboBoxMenu.Show();
-//  Dest=ComboBoxMenu.GetSelectPos();
-  while (!ComboBoxMenu.Done())
-  {
-    int Key=ComboBoxMenu.ReadInput();
-    // здесь можно добавить что-то свое, например,
-//    I=ComboBoxMenu.GetSelectPos();
-//    if(I != Dest)
-//    {
-//      Dest=I;
-//      DlgProc((HANDLE)this,DN_LISTCHANGE,,(long)List);
-//    }
-    //  обработку multiselect ComboBox
-    ComboBoxMenu.ProcessInput();
-  }
-
-  int ExitCode=ComboBoxMenu.GetExitCode();
-  if (ExitCode<0)
-    return;
-  /* Запомним текущее состояние */
-  for (I=0; I < List->ItemsNumber; I++)
-    ListItems[I].Flags&=~LIF_SELECTED;
-  ListItems[ExitCode].Flags|=LIF_SELECTED;
-  ComboBoxMenu.GetUserData(Str,sizeof(Str),ExitCode);
-
-  EditLine->SetString(Str);
-  EditLine->SetLeftPos(0);
-  Redraw();
-}
-/* SVS $ */
-
-
-//////////////////////////////////////////////////////////////////////////
 /* $ 31.07.2000 tran
    + функция подравнивания координат edit классов */
 /* $ 07.08.2000 SVS
@@ -3448,7 +3576,21 @@ long WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       return Param2; // что передали, то и...
 
     case DN_DRAWDIALOG:
-      return 0;
+    {
+      if(Param1 == 1)  // Нужно отрисовать "салазки"?
+      {
+        /* $ 03.08.2000 tran
+           вывод текста в углу может приводить к ошибкам изображения
+           1) когда диалог перемещается в угол
+           2) когда диалог перемещается из угла
+           сделал вывод красных палочек по углам */
+        Text(Dlg->X1,Dlg->Y1,0xCE,"\\");
+        Text(Dlg->X1,Dlg->Y2,0xCE,"/");
+        Text(Dlg->X2,Dlg->Y1,0xCE,"/");
+        Text(Dlg->X2,Dlg->Y2,0xCE,"\\");
+      }
+      return TRUE;
+    }
 
     case DN_CTLCOLORDIALOG:
       return Param2;
@@ -3498,7 +3640,7 @@ long WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     }
 
     case DN_DRAWDLGITEM:
-      return 0;
+      return TRUE;
 
     case DN_HOTKEY:
       return TRUE;
@@ -3625,9 +3767,9 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     case DN_DRAWDLGITEM:
       // преобразуем данные для!
       Dialog::ConvertItem(CVTITEM_TOPLUGIN,&PluginDialogItem,CurItem,1);
-      Dlg->DlgProc(hDlg,Msg,Param1,(long)&PluginDialogItem);
+      I=Dlg->DlgProc(hDlg,Msg,Param1,(long)&PluginDialogItem);
       Dialog::ConvertItem(CVTITEM_FROMPLUGIN,&PluginDialogItem,CurItem,1);
-      return 0;
+      return I;
 
     case DM_SETREDRAW:
       if(Dlg->CheckDialogMode(DMODE_INITOBJECTS))
@@ -3659,8 +3801,8 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       if(Param2)
       {
         struct FarDialogItemData IData;
-        IData.DataPtr=(char *)Param2;
-        IData.DataLength=0;
+        IData.PtrData=(char *)Param2;
+        IData.PtrLength=0;
         return Dialog::SendDlgMessage(hDlg,DM_GETTEXT,Param1,(long)&IData);
       }
 
@@ -3695,29 +3837,29 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
               Len-=4;
             }
 
-            if(!did->DataLength)
-              did->DataLength=Len;
-            else if(Len > did->DataLength)
-              Len=did->DataLength;
+            if(!did->PtrLength)
+              did->PtrLength=Len;
+            else if(Len > did->PtrLength)
+              Len=did->PtrLength;
 
-            if(Len > 0 && did->DataPtr)
+            if(Len > 0 && did->PtrData)
             {
-              memmove(did->DataPtr,Ptr,Len);
-              did->DataPtr[Len]=0;
+              memmove(did->PtrData,Ptr,Len);
+              did->PtrData[Len]=0;
             }
             break;
 
           case DI_USERCONTROL:
-            did->DataLength=CurItem->Ptr.PtrLength;
-            did->DataPtr=(char*)CurItem->Ptr.PtrData;
+            did->PtrLength=CurItem->Ptr.PtrLength;
+            did->PtrData=(char*)CurItem->Ptr.PtrData;
             break;
 
           case DI_LISTBOX: // пока не трогаем - не реализован
-            did->DataLength=0;
+            did->PtrLength=0;
             break;
 
           default:  // подразумеваем, что остались
-            did->DataLength=0;
+            did->PtrLength=0;
             break;
         }
         return Len;
@@ -3769,8 +3911,8 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         return 0;
 
       struct FarDialogItemData IData;
-      IData.DataPtr=(char *)Param2;
-      IData.DataLength=strlen(IData.DataPtr);
+      IData.PtrData=(char *)Param2;
+      IData.PtrLength=strlen(IData.PtrData);
       return Dialog::SendDlgMessage(hDlg,DM_SETTEXT,Param1,(long)&IData);
     }
 
@@ -3783,24 +3925,24 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         switch(Type)
         {
           case DI_USERCONTROL:
-            CurItem->Ptr.PtrLength=did->DataLength;
-            CurItem->Ptr.PtrData=did->DataPtr;
+            CurItem->Ptr.PtrLength=did->PtrLength;
+            CurItem->Ptr.PtrData=did->PtrData;
             return CurItem->Ptr.PtrLength;
 
           case DI_TEXT:
           case DI_VTEXT:
           case DI_SINGLEBOX:
           case DI_DOUBLEBOX:
-            if(!(Len=did->DataLength))
+            if((Len=did->PtrLength) == NULL)
             {
-              strncpy(Ptr,(char *)did->DataPtr,511);
+              strncpy(Ptr,(char *)did->PtrData,511);
               Len=strlen(Ptr)+1;
             }
             else
             {
-              if((unsigned)did->DataLength > 511)
+              if((unsigned)did->PtrLength > 511)
                 Len=511;
-              memmove(Ptr,(char *)did->DataPtr,Len);
+              memmove(Ptr,(char *)did->PtrData,Len);
               Ptr[Len]=0;
             }
             if(Dlg->CheckDialogMode(DMODE_SHOW))
@@ -3813,16 +3955,16 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
           case DI_BUTTON:
           case DI_CHECKBOX:
           case DI_RADIOBUTTON:
-            if(!(Len=did->DataLength))
+            if((Len=did->PtrLength) == NULL)
             {
-              strncpy(Ptr,(char *)did->DataPtr,511);
+              strncpy(Ptr,(char *)did->PtrData,511);
               Len=strlen(Ptr)+1;
             }
             else
             {
-              if((unsigned)did->DataLength > 511)
+              if((unsigned)did->PtrLength > 511)
                 Len=511;
-              memmove(Ptr,(char *)did->DataPtr,Len);
+              memmove(Ptr,(char *)did->PtrData,Len);
               Ptr[Len]=0;
             }
             break;
@@ -3831,16 +3973,16 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
           case DI_EDIT:
           case DI_PSWEDIT:
           case DI_FIXEDIT:
-            if(!(Len=did->DataLength))
+            if((Len=did->PtrLength) == NULL)
             {
-              strncpy(Ptr,(char *)did->DataPtr,511);
+              strncpy(Ptr,(char *)did->PtrData,511);
               Len=strlen(Ptr)+1;
             }
             else
             {
-              if((unsigned)did->DataLength > 511)
+              if((unsigned)did->PtrLength > 511)
                 Len=511;
-              memmove(Ptr,(char *)did->DataPtr,Len);
+              memmove(Ptr,(char *)did->PtrData,Len);
               Ptr[Len]=0;
             }
             if(CurItem->ObjPtr)

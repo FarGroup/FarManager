@@ -10,10 +10,14 @@ dialog.hpp
 
 */
 
-/* Revision: 1.19 24.09.2000 $ */
+/* Revision: 1.20 13.02.2001 $ */
 
 /*
 Modify:
+  13.02.2001 SVS
+   + Дополнительный параметр у FindInEditForAC, SelectFromEditHistory,
+     AddToEditHistory и SelectFromComboBox - MaxLen - максимальный размер
+     строки назначения.
   24.09.2000 SVS
    + DMODE_ALTDRAGGED - при движении диалога по Alt-стрелка
   08.09.2000 SVS
@@ -113,6 +117,9 @@ Modify:
 #define CVTITEM_TOPLUGIN	0
 #define CVTITEM_FROMPLUGIN	1
 
+// размер истории...
+#define HISTORY_COUNT 16
+
 class Dialog:public Modal
 {
   private:
@@ -192,19 +199,19 @@ class Dialog:public Modal
       + Дополнительный параметр в SelectFromEditHistory для выделения
        нужной позиции в истории (если она соответствует строке ввода)
     */
-    void SelectFromEditHistory(Edit *EditLine,char *HistoryName,char *Str);
+    void SelectFromEditHistory(Edit *EditLine,char *HistoryName,char *Str,int MaxLen);
     /* SVS $ */
     /* $ 18.07.2000 SVS
        + функция SelectFromComboBox для выбора из DI_COMBOBOX
     */
-    void SelectFromComboBox(Edit *EditLine,struct FarList *HistoryName,char *Str=NULL);
+    void SelectFromComboBox(Edit *EditLine,struct FarList *List,char *Str,int MaxLen);
     /* SVS $ */
     /* $ 26.07.2000 SVS
        AutoComplite: Поиск входжение подстроки в истории
     */
-    int FindInEditForAC(int TypeFind,void *HistoryName,char *FindStr);
+    int FindInEditForAC(int TypeFind,void *HistoryName,char *FindStr,int MaxLen);
     /* SVS $ */
-    void AddToEditHistory(char *AddStr,char *HistoryName);
+    void AddToEditHistory(char *AddStr,char *HistoryName,int MaxLen);
     int ProcessHighlighting(int Key,int FocusPos,int Translate);
 
     /* $ 08.09.2000 SVS
