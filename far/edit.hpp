@@ -7,10 +7,12 @@ edit.hpp
 
 */
 
-/* Revision: 1.09 16.11.2000 $ */
+/* Revision: 1.10 13.12.2000 $ */
 
 /*
 Modify:
+  13.12.2000 SVS
+    + Дополнительный параметр в функции  Xlat()
   16.11.2000 KM & SVS
     + KeyMatchedMask - Проверяет: попадает ли символ в разрешённый
       диапазон символов, пропускаемых маской
@@ -195,7 +197,11 @@ class Edit:public ScreenObject
     /* $ 24.09.2000 SVS $
       Функция Xlat - перекодировка по принципу QWERTY <-> ЙЦУКЕН
     */
-    void Xlat(void);
+    /* $ 13.12.2000 SVS
+       Дополнительный параметр в функции  Xlat()
+    */
+    void Xlat(BOOL All=FALSE);
+    /* SVS $ */
     /* SVS $ */
 
     static void DisableEditOut(int Disable);

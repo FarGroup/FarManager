@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.05 04.11.2000 $ */
+/* Revision: 1.06 13.12.2000 $ */
 
 /*
 Modify:
+  13.12.2000 SVS
+    ! Для CmdLine - если нет выделения, преобразуем всю строку (XLat)
   04.11.2000 SVS
     + Проверка на альтернативную клавишу при XLat-перекодировке
   24.09.2000 SVS
@@ -280,7 +282,11 @@ int CommandLine::ProcessKey(int Key)
       if((Opt.XLat.XLatCmdLineKey && Key == Opt.XLat.XLatCmdLineKey) ||
          (Opt.XLat.XLatAltCmdLineKey && Key == Opt.XLat.XLatAltCmdLineKey))
       {
-        CmdStr.Xlat();
+        /* 13.12.2000 SVS
+           ! Для CmdLine - если нет выделения, преобразуем всю строку (XLat)
+        */
+        CmdStr.Xlat(TRUE);
+        /* SVS $ */
         return(TRUE);
       }
       /* SVS $ */
