@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.08 05.01.2001 $ */
+/* Revision: 1.09 07.03.2001 $ */
 
 /*
 Modify:
+  07.03.2001 SVS
+    - Падение ФАРа у Веши :-)))
   05.01.2001 SVS
     ! в зависимости от числа ставим нужное окончание для удаления
   05.01.2001 IS
@@ -471,15 +473,13 @@ int RemoveToRecycleBin(char *Name)
 
   OemToChar(FullName,FullName);
   FullName[strlen(FullName)+1]=0;
-  fop.hwnd=NULL;
+
+  memset(&fop,0,sizeof(fop)); // говорят помогает :-)
   fop.wFunc=FO_DELETE;
   fop.pFrom=FullName;
-  fop.pTo=NULL;
   fop.fFlags=FOF_NOCONFIRMATION|FOF_SILENT;
-  fop.fAnyOperationsAborted=0;
   if (Opt.DeleteToRecycleBin)
     fop.fFlags|=FOF_ALLOWUNDO;
-  fop.lpszProgressTitle=NULL;
   SetFileApisToANSI();
   int RetCode=SHFileOperation(&fop)==0 && !fop.fAnyOperationsAborted;
   SetFileApisToOEM();

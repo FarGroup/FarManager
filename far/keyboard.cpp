@@ -5,10 +5,14 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.16 28.02.2001 $ */
+/* Revision: 1.17 07.03.2001 $ */
 
 /*
 Modify:
+  07.03.2001 SVS
+    ! Небольшое изменение - может быть и временное (как работает не пойму пока
+      и на что потом повлияет - тоже не знаю, но Shift-F4 Shift-Enter, не
+      отпуская Shift - работает корректно :-)
   28.02.2001 IS
     ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   25.02.2001 SVS
@@ -1042,7 +1046,9 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
     case VK_RWIN:
       return(Modif|KEY_RWIN);
     case VK_RETURN:
-      if (ShiftPressed && RealKey && !ShiftPressedLast && !CtrlPressed && !AltPressed)
+      //  !!!!!!!!!!!!!
+      if (!ShiftPressed && RealKey && !ShiftPressedLast && !CtrlPressed && !AltPressed)
+      //  !!!!!!!!!!!!!
         return(KEY_ENTER);
       return(Modif|KEY_ENTER);
     case VK_BACK:
