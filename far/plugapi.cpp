@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.88 09.09.2001 $ */
+/* Revision: 1.89 15.09.2001 $ */
 
 /*
 Modify:
+  15.09.2001 tran
+    + ACTL_GETFARHWND
   09.09.2001 IS
     + Обработка VF_DISABLEHISTORY/EF_DISABLEHISTORY - плагин может запрещать
       добавление имени файла в историю.
@@ -542,6 +544,11 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
             return FrameManager->PluginCommit();
         }
         return FALSE;
+    /* $ 15.09.2001 tran
+       пригодится плагинам */
+    case ACTL_GETFARHWND:
+        return (int)hFarWnd;
+    /* tran $ */
     /* SKV$*/
  }
  return FALSE;
