@@ -5,10 +5,24 @@ findfile.cpp
 
 */
 
-/* Revision: 1.43 31.07.2001 $ */
+/* Revision: 1.44 01.08.2001 $ */
 
 /*
 Modify:
+  01.08.2001 KM
+    ! Глобальный перетрях поиска. 2-я серия
+    ! С подачи OT синхронизацию процессов
+      перевёл на Mutex.
+    - Кажется удалось избавиться от иксепшенов.
+      Артефакты:
+        1. Если после F3 или F4 во время поиска
+           нажать CAS, то под спрятавшимся
+           вьювером/редактором будет видна тень
+           от диалога.
+        2. После F3 и F4 не восстанавливается
+           изображение под диалогом.
+        3. Не всегда рисуется количество и место
+           поиска.
   31.07.2001 KM
     ! Глобальный перетрях поиска. 1-я серия
       Артефакты:
@@ -167,10 +181,9 @@ static struct OpenPluginInfo Info;
 static int RecurseLevel;
 static int BreakMainThread;
 static int ContinueSearch;
-static int InViewEdit;
 static int PluginMode;
 
-static CRITICAL_SECTION CrSec;
+static HANDLE hMutex;
 static SaveScreen *FindSaveScr;
 
 /* $ 07.08.2000 KM
@@ -205,9 +218,11 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
   {
     case DN_INITDIALOG:
     {
-      if (strlen(AllChars)>(unsigned)(Dlg->Item[10].X1-Dlg->Item[9].X1-5))
+      unsigned int W=Dlg->Item[10].X1-Dlg->Item[9].X1-5;
+      if (strlen(AllChars)>W)
       {
-        strncpy(DataStr,AllChars,(Dlg->Item[10].X1-Dlg->Item[9].X1-5-3));
+        strncpy(DataStr,AllChars,W-3);
+        DataStr[W-4]=0;
         strcat(DataStr,"...");
       }
       else
@@ -365,7 +380,7 @@ FindFiles::FindFiles()
     FindAskDlg[8].Selected=WholeWords;
     FindAskDlg[9].Selected=UseAllTables;
     if (FindAskDlg[9].Selected)
-      FindAskDlg[10].Flags|=DIF_HIDDEN/*Dialog::SendDlgMessage((HANDLE)this,DM_SHOWITEM,10,FALSE)*/;
+      FindAskDlg[10].Flags|=DIF_HIDDEN;
 
     /* $ 14.05.2001 DJ
        не селектим чекбокс, если нельзя искать в архивах
@@ -495,18 +510,27 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
   {
     case DN_KEY:
     {
-      Sleep(50);
+      while (ListBox->GetCallCount())
+        Sleep(10);
       if (IsPluginGetsFile)
         return TRUE;
 
-      if (Param1==9 && (Param2==KEY_RIGHT || Param2==KEY_TAB)) //Stop button
+      if (Param1==9 && (Param2==KEY_RIGHT || Param2==KEY_TAB)) // [ Stop ] button
       {
-        Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,5/*New search*/,0);
+        WaitForSingleObject(hMutex,INFINITE);
+        while (ListBox->GetCallCount())
+          Sleep(10);
+        Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,5/* [ New search ] */,0);
+        ReleaseMutex(hMutex);
         return TRUE;
       }
-      else if (Param1==5 && (Param2==KEY_LEFT || Param2==KEY_SHIFTTAB)) //New search button
+      else if (Param1==5 && (Param2==KEY_LEFT || Param2==KEY_SHIFTTAB)) // [ New search ] button
       {
-        Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,9/*Stop*/,0);
+        WaitForSingleObject(hMutex,INFINITE);
+        while (ListBox->GetCallCount())
+          Sleep(10);
+        Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,9/* [ Stop ] */,0);
+        ReleaseMutex(hMutex);
         return TRUE;
       }
       else if (Param2==KEY_UP || Param2==KEY_DOWN || Param2==KEY_PGUP ||
@@ -515,9 +539,11 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       {
         if (ListBox && ListBox->GetItemCount())
         {
+          WaitForSingleObject(hMutex,INFINITE);
           while (ListBox->GetCallCount())
             Sleep(10);
           ListBox->ProcessKey(Param2);
+          ReleaseMutex(hMutex);
         }
         return TRUE;
       }
@@ -526,6 +552,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         if (!ListBox)
           return TRUE;
 
+        WaitForSingleObject(hMutex,INFINITE);
         if ((ListBox->GetUserData(&UserDataItem,sizeof(UserDataItem)))!=0 &&
              ListBox->GetUserDataSize()==sizeof(UserDataItem))
         {
@@ -552,37 +579,39 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
                   }
                 ViewList.SetCurName(UserDataItem.FileFindData.cFileName);
               }
-              InViewEdit=TRUE;
               Dialog::SendDlgMessage(hDlg,DM_SHOWDIALOG,FALSE,0);
+              Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
+              ReleaseMutex(hMutex);
               {
-                (*FrameManager)[0]->UnlockRefresh();
                 FileViewer ShellViewer (UserDataItem.FileFindData.cFileName,FALSE,FALSE,FALSE,-1,NULL,&ViewList);//?
                 ShellViewer.SetDynamicallyBorn(FALSE);
                 FrameManager->ExecuteModal ();
-                FrameManager->RefreshFrame();
-                (*FrameManager)[0]->LockRefresh();
               }
-              InViewEdit=FALSE;
+              WaitForSingleObject(hMutex,INFINITE);
+              Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
               Dialog::SendDlgMessage(hDlg,DM_SHOWDIALOG,TRUE,0);
+              ReleaseMutex(hMutex);
             }
             else
             {
-              InViewEdit=TRUE;
               Dialog::SendDlgMessage(hDlg,DM_SHOWDIALOG,FALSE,0);
+              Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
+              ReleaseMutex(hMutex);
               {
-                (*FrameManager)[0]->UnlockRefresh();
                 FileEditor ShellEditor (UserDataItem.FileFindData.cFileName,FALSE,FALSE);
                 ShellEditor.SetDynamicallyBorn(FALSE);
                 ShellEditor.SetEnableF6 (TRUE);
                 FrameManager->ExecuteModal ();
-//                (*FrameManager)[0]->LockRefresh();
               }
-              InViewEdit=FALSE;
+              WaitForSingleObject(hMutex,INFINITE);
+              Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
               Dialog::SendDlgMessage(hDlg,DM_SHOWDIALOG,TRUE,0);
+              ReleaseMutex(hMutex);
             }
             SetConsoleTitle(OldTitle);
           }
         }
+        ReleaseMutex(hMutex);
         return TRUE;
       }
       return FALSE;
@@ -607,7 +636,13 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         {
           delete FindSaveScr;
           FindSaveScr=NULL;
+
+          WaitForSingleObject(hMutex,INFINITE);
+          while (ListBox->GetCallCount())
+            Sleep(10);
           ListBox->GetUserData(&UserDataItem,sizeof(UserDataItem));
+          ReleaseMutex(hMutex);
+
           char *FileName=UserDataItem.FileFindData.cFileName;
           Panel *FindPanel=CtrlObject->Cp()->ActivePanel;
 
@@ -685,12 +720,18 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         {
           delete FindSaveScr;
           FindSaveScr=NULL;
+
+          WaitForSingleObject(hMutex,INFINITE);
+          while (ListBox->GetCallCount())
+            Sleep(10);
           int ListSize=ListBox->GetItemCount();
+
           PluginPanelItem *PanelItems=new PluginPanelItem[ListSize];
           if (PanelItems==NULL)
             ListSize=0;
           int ItemsNumber=0;
           for (int I=0;I<ListSize;I++)
+          {
             if ((ListBox->GetUserData(&UserDataItem,sizeof(UserDataItem),I))!=0 &&
                 ListBox->GetUserDataSize(I)==sizeof(UserDataItem))
             {
@@ -702,6 +743,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
                 pi->FindData=UserDataItem.FileFindData;
               }
             }
+          }
 
           HANDLE hNewPlugin=CtrlObject->Plugins.OpenFindListPlugin(PanelItems,ItemsNumber);
           if (hNewPlugin!=INVALID_HANDLE_VALUE)
@@ -717,6 +759,8 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
             NewPanel->SetFocus();
             hPlugin=NULL;
           }
+          ReleaseMutex(hMutex);
+
           /* $ 13.07.2000 SVS
              использовали new[]
           */
@@ -761,9 +805,8 @@ int FindFiles::FindFilesProcess()
 {
   FindSaveScr=new SaveScreen;
   ContinueSearch=FALSE;
-  InViewEdit=FALSE;
 
-  InitializeCriticalSection(&CrSec);
+  hMutex=CreateMutex(NULL,FALSE,NULL);
 
   static struct DialogData FindDlgData[]={
   /* 00 */DI_DOUBLEBOX,3,1,72,19,0,0,0,0,(char *)MFindFileTitle,
@@ -845,7 +888,7 @@ int FindFiles::FindFilesProcess()
     FindSaveScr=NULL;
   }
 
-  DeleteCriticalSection(&CrSec);
+  CloseHandle(hMutex);
 
   if (ContinueSearch)
     return TRUE;
@@ -889,7 +932,6 @@ void _cdecl FindFiles::PrepareFilesList(void *Param)
   DWORD DiskMask=FarGetLogicalDrives();
   CtrlObject->CmdLine->GetCurDir(Root);
 
-  Sleep(100);
   for (int CurrentDisk=0;DiskMask!=0;CurrentDisk++,DiskMask>>=1)
   {
     if (SearchMode==SEARCH_ALL)
@@ -938,7 +980,7 @@ void _cdecl FindFiles::PrepareFilesList(void *Param)
       FindMessage[sizeof(FindMessage)-1]=0;
       FindMessageReady=TRUE;
 
-      while (!StopSearch && !BreakMainThread && ScTree.GetNextName(&FindData,FullName))
+      while (!StopSearch && ScTree.GetNextName(&FindData,FullName))
       {
         if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
         {
@@ -960,12 +1002,11 @@ void _cdecl FindFiles::PrepareFilesList(void *Param)
       break;
   }
 
-  while (!StopSearch && !BreakMainThread && FindMessageReady)
+  while (!StopSearch && FindMessageReady)
     Sleep(10);
   sprintf(FindMessage,MSG(MFindDone),FileCount);
   SearchDone=TRUE;
   FindMessageReady=TRUE;
-//  _endthread(); излишество... по умолчанию процесс должен закончиться автоматом по выходу из процедуры
 }
 #if defined(__BORLANDC__)
 #pragma warn +par
@@ -1085,6 +1126,8 @@ void FindFiles::AddMenuRecord(char *FullName,char *Path,WIN32_FIND_DATA *FindDat
   if (!ListBox)
     return;
 
+  WaitForSingleObject(hMutex,INFINITE);
+
   memset(&ListItem,0,sizeof(ListItem));
 
   if (FindData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
@@ -1122,11 +1165,9 @@ void FindFiles::AddMenuRecord(char *FullName,char *Path,WIN32_FIND_DATA *FindDat
          курсор не останавливается на пустых строках между каталогами
       */
       ListItem.Flags|=LIF_DISABLE;
-      EnterCriticalSection(&CrSec);
       while (ListBox->GetCallCount())
         Sleep(10);
       ListBox->AddItem(&ListItem);
-      LeaveCriticalSection(&CrSec);
       ListItem.Flags&=~LIF_DISABLE;
       /* DJ $ */
     }
@@ -1150,12 +1191,10 @@ void FindFiles::AddMenuRecord(char *FullName,char *Path,WIN32_FIND_DATA *FindDat
     if (*FindFileArcName)
       strcpy(UserDataItem.FindFileArcName,FindFileArcName);
 
-    EnterCriticalSection(&CrSec);
     while (ListBox->GetCallCount())
       Sleep(10);
     ListBox->SetUserData(&UserDataItem,sizeof(UserDataItem),
             ListBox->AddItem(&ListItem));
-    LeaveCriticalSection(&CrSec);
   }
 
   memset(&UserDataItem,0,sizeof(UserDataItem));
@@ -1168,16 +1207,16 @@ void FindFiles::AddMenuRecord(char *FullName,char *Path,WIN32_FIND_DATA *FindDat
   strcpy(ListItem.Name,MenuText);
   ListItem.SetSelect(!FileCount);
 
-  EnterCriticalSection(&CrSec);
   while (ListBox->GetCallCount())
     Sleep(10);
   ListBox->SetUserData(&UserDataItem,sizeof(UserDataItem),
             ListBox->AddItem(&ListItem));
-  LeaveCriticalSection(&CrSec);
 
   LastFoundNumber++;
   FileCount++;
   FindCountReady=TRUE;
+
+  ReleaseMutex(hMutex);
 }
 
 
@@ -1382,14 +1421,13 @@ void _cdecl FindFiles::PreparePluginList(void *Param)
   ScanPluginTree();
   if (SearchMode==SEARCH_ROOT || SearchMode==SEARCH_ALL)
     CtrlObject->Plugins.SetDirectory(hPlugin,SaveDir,OPM_FIND);
-  while (!StopSearch && !BreakMainThread && FindMessageReady)
+  while (!StopSearch && FindMessageReady)
     Sleep(10);
   if (Param==NULL)
   {
     sprintf(FindMessage,MSG(MFindDone),FileCount);
     FindMessageReady=TRUE;
     SearchDone=TRUE;
-//ОТ  _endthread(); излишество... по умолчанию процесс должен закончиться автоматом по выходу из процедуры
   }
 }
 #if defined(__BORLANDC__)
@@ -1492,7 +1530,10 @@ void FindFiles::WriteDialogData(void *Param)
   {
     if (ListBox)
     {
-      EnterCriticalSection(&CrSec);
+      WaitForSingleObject(hMutex,INFINITE);
+
+      if (BreakMainThread)
+        StopSearch=TRUE;
 
       if (FindCountReady)
       {
@@ -1515,7 +1556,7 @@ void FindFiles::WriteDialogData(void *Param)
         {
           while (ListBox->GetCallCount())
             Sleep(10);
-          Dialog::SendDlgMessage(hDlg,DM_SHOWDIALOG,FALSE,0);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
 
           strcpy(DataStr,MSG(MFindCancel));
           ItemData.PtrData=DataStr;
@@ -1531,8 +1572,9 @@ void FindFiles::WriteDialogData(void *Param)
           ItemData.PtrLength=strlen(DataStr);
           Dialog::SendDlgMessage(hDlg,DM_SETTEXT,2,(long)&ItemData);
 
-          Dialog::SendDlgMessage(hDlg,DM_SHOWDIALOG,TRUE,0);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
           SetFarTitle(FindMessage);
+          StopSearch=TRUE;
         }
         else
         {
@@ -1546,14 +1588,14 @@ void FindFiles::WriteDialogData(void *Param)
         FindMessageReady=FALSE;
       }
 
-      if (!InViewEdit && LastFoundNumber && ListBox)
+      if (LastFoundNumber && ListBox)
       {
         LastFoundNumber=0;
         while (ListBox->GetCallCount())
           Sleep(10);
         Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,1,1);
       }
-      LeaveCriticalSection(&CrSec);
+      ReleaseMutex(hMutex);
     }
 
     if (StopSearch && SearchDone)

@@ -8,10 +8,14 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.49 31.07.2001 $ */
+/* Revision: 1.50 01.08.2001 $ */
 
 /*
 Modify:
+  01.08.2001 KM
+    ! Ещё однго небольшое исправление.
+      Добавлен инкремент/декремент CallCount
+      в ShowMenu.
   31.07.2001 SVS
     ! Небольшое исправление (с подачи KM)
     ! MACRO_OTHER -> MACRO_MENU
@@ -564,12 +568,17 @@ void VMenu::DisplayObject()
 */
 void VMenu::ShowMenu(int IsParent)
 {
-  char TmpStr[1024];
+  CallCount++;
+
 //_SVS(SysLog("VMenu::ShowMenu()"));
+  char TmpStr[1024];
   unsigned char BoxChar[2],BoxChar2[2];
   int Y,I;
   if (ItemCount==0 || X2<=X1 || Y2<=Y1)
+  {
+    CallCount--;
     return;
+  }
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
   BoxChar2[1]=BoxChar[1]=0;
 
@@ -617,6 +626,7 @@ void VMenu::ShowMenu(int IsParent)
   {
     GotoXY(X1,Y);
     if (I<ItemCount)
+    {
       if (Item[I].Flags&LIF_SEPARATOR)
       {
         int SepWidth=X2-X1+1;
@@ -705,6 +715,7 @@ void VMenu::ShowMenu(int IsParent)
 
         mprintf("%*s",X2-WhereX(),"");
       }
+    }
     else
     {
       /* $ 21.07.2001 KM
@@ -753,6 +764,7 @@ void VMenu::ShowMenu(int IsParent)
   /* 18.07.2000 SVS $ */
   /* SVS $ */
   /* tran $ */
+  CallCount--;
 }
 /* 28.07.2000 SVS $ */
 
