@@ -1178,9 +1178,8 @@ The search origin is saved in the configuration. Also while in the find
 dialog one can change disk drive of the search. This option is enabled
 when #Search from the root folder# is selected.
 
-    Для поиска только определённых файлов можно воспользоваться кнопкой #Фильтр#,
-которая позволяет настраивать ~фильтр операций~@OpFilter@ в FAR. Для быстрого
-включения и отключения фильтра в поиске служит переключатель #Использовать фильтр#.
+    Для поиска файлов, попадающих под определённые условия, используйте переключатель
+#Использовать фильтр#. Настройка условий ~фильтра~@OpFilter@ осуществляется кнопкой #Фильтр#.
 
 @FindFileResult
 $ #Результаты поиска файла#
@@ -2752,7 +2751,7 @@ For example, you have to do this when a mask contains any of the delimiter
 characters (a comma or a semicolon), so that the mask doesn't get confused
 with a list.
 
-    In some commands (~find files~@FindFile@,~operations filter~@OpFilter@,
+    In some commands (~find files~@FindFile@, ~operations filter~@OpFilter@,
 ~file panel filter~@Filter@, file ~selection~@SelectFiles@,
 file ~associations~@FileAssoc@, ~sort groups~@SortGroups@ and
 ~file highlighting~@Highlight@) you may use exclude masks. An #exclude mask#

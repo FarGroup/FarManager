@@ -5,10 +5,12 @@ filefilter.cpp
 
 */
 
-/* Revision: 1.00 04.10.2003 $ */
+/* Revision: 1.01 11.10.2003 $ */
 
 /*
 Modify:
+  11.10.2003 KM
+    ! Ускорение операции фильтрации файлов.
   04.10.2003 KM
     ! Введение в строй фильтра операций. Начало новой эры :-)
 */
@@ -91,9 +93,11 @@ FileFilter::FileFilter():
   FF=Opt.OpFilter;
 
   // Проверка на валидность текущих настроек фильтра
-  CFileMask FileMask;
-  if ((*FF.FMask.Mask==0) || (!FileMask.Set(FF.FMask.Mask,FMF_SILENT)))
+  if ((*FF.FMask.Mask==0) || (!FilterMask.Set(FF.FMask.Mask,FMF_SILENT)))
     strncpy(FF.FMask.Mask,"*.*",sizeof(FF.FMask.Mask));
+
+  // Сохраним маску фильтра в члене класса для ускорения процесса проверки файла.
+  FilterMask.Set(FF.FMask.Mask,FMF_SILENT);
 
   SizeType=FF.FSize.SizeType;
   if (SizeType>FSIZE_INKBYTES || SizeType<FSIZE_INBYTES)
@@ -286,6 +290,7 @@ void FileFilter::Configure()
 23  """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 */
 
+  // Временная маска.
   CFileMask FileMask;
 
   struct DialogData FilterDlgData[]={
@@ -417,6 +422,9 @@ void FileFilter::Configure()
       FF.FMask.Used=FilterDlg[2].Selected;
       strncpy(FF.FMask.Mask,FilterDlg[3].Data,sizeof(FF.FMask.Mask));
 
+      // Сохраним маску фильтра в члене класса для ускорения процесса проверки файла.
+      FilterMask.Set(FF.FMask.Mask,FMF_SILENT);
+
       FF.FSize.Used=FilterDlg[5].Selected;
       FF.FSize.SizeType=(FSizeType) SizeType;
       FF.FSize.SizeAbove=_atoi64(FilterDlg[8].Data);
@@ -534,14 +542,8 @@ int FileFilter::FileInFilter(WIN32_FIND_DATA *fd)
   // Режим проверки маски файла включен?
   if (FF.FMask.Used)
   {
-    CFileMask FileMask;
-
-    if (!FileMask.Set(FF.FMask.Mask,FMF_SILENT))
-      // Не смогли установить маску.
-      return FALSE;
-
     // Файл не попадает под маску введённую в фильтре?
-    if (!FileMask.Compare(fd->cFileName))
+    if (!FilterMask.Compare(fd->cFileName))
       // Не пропускаем этот файл
       return FALSE;
   }
