@@ -5,10 +5,12 @@ stddlg.cpp
 
 */
 
-/* Revision: 1.02 23.01.2001 $ */
+/* Revision: 1.03 23.01.2001 $ */
 
 /*
 Modify:
+  28.01.2001 SVS
+    ! DumpExeptionInfo -> DumpExceptionInfo ;-)
   23.01.2001 SVS
     + добавим немного эксепшина :-)
   23.01.2001 SVS
@@ -302,7 +304,7 @@ int WINAPI GetString(char *Title,char *Prompt,char *HistoryName,char *SrcText,
     Dlg.Process();
     ExitCode=Dlg.GetExitCode();
   }
-  __except (DumpExeptionInfo(GetExceptionInformation()))
+  __except (DumpExceptionInfo(GetExceptionInformation()))
   {
     return FALSE;
   }

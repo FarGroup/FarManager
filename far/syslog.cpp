@@ -5,10 +5,12 @@ syslog.cpp
 
 */
 
-/* Revision: 1.01 23.01.2001 $ */
+/* Revision: 1.02 26.01.2001 $ */
 
 /*
 Modify:
+  26.01.2001 SVS
+    ! DumpExeptionInfo -> DumpExceptionInfo ;-)
   23.01.2001 SVS
     + DumpExeptionInfo()
   22.12.2000 SVS
@@ -107,7 +109,7 @@ void SysLog(char *fmt,...)
 }
 
 
-int DumpExeptionInfo(EXCEPTION_POINTERS *xp)
+int DumpExceptionInfo(EXCEPTION_POINTERS *xp)
 {
 #if defined(SYSLOG)
   if(xp)

@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.50 25.01.2001 $ */
+/* Revision: 1.51 28.01.2001 $ */
 
 /*
 Modify:
+  28.01.2001 SVS
+    ! DumpExeptionInfo -> DumpExceptionInfo ;-)
   25.01.2001 SVS
     ! попытка локализовать причину исключения при неверно заполненных полях
       структур OpenPluginInfo и PluginInfo
@@ -344,7 +346,7 @@ static int xfilter(
      rc = EXCEPTION_CONTINUE_SEARCH;
    }
 
-   DumpExeptionInfo(xp);
+   DumpExceptionInfo(xp);
    if(xr->ExceptionFlags&EXCEPTION_NONCONTINUABLE)
      rc=EXCEPTION_CONTINUE_SEARCH; //?
    return rc;

@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.54 27.01.2001 $ */
+/* Revision: 1.55 28.01.2001 $ */
 
 /*
 Modify:
+  28.01.2001 SVS
+   ! DumpExeptionInfo -> DumpExceptionInfo ;-)
   27.01.2001 VVM
    + Дополнительный параметр у GetErrorString - резмер буфера
   25.01.2001 SVS
@@ -650,7 +652,7 @@ int WINAPI GetSearchReplaceString(
          int *WholeWords,
          int *Reverse);
 
-int DumpExeptionInfo(EXCEPTION_POINTERS *xp);
+int DumpExceptionInfo(EXCEPTION_POINTERS *xp);
 
 
 BOOL WINAPI KeyMacroToText(int Key,char *KeyText0,int Size);
