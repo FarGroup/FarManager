@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.55 13.11.2001 $ */
+/* Revision: 1.56 15.11.2001 $ */
 
 /*
 Modify:
+  15.11.2001 OT
+    "Нормальное" исправление предыдущего исправления (бацилла 97)
   13.11.2001 SVS
     - Bug: Shift-F4 и ввести что-нить типа длиннее ширины строки ввода в диалоге.
   08.11.2001 SVS
@@ -1344,8 +1346,10 @@ int Edit::ProcessKey(int Key)
         /* tran $ */
         if (ClipText==NULL)
           return(TRUE);
-        if (!PersistentBlocks)
+        if (!PersistentBlocks){
           DeleteBlock();
+        }
+
         for (I=strlen(Str)-1;I>=0 && iseol(Str[I]);I--)
           Str[I]=0;
         for (I=0;ClipText[I];I++)
@@ -1405,9 +1409,6 @@ int Edit::ProcessKey(int Key)
           SelEnd=PrevSelEnd;
         }
         DeleteBlock();
-        // OT: Проверка на корректность поведени строки при удалении и вставки
-        if (IsDialogParent)
-          LeftPos=(StrSize < ObjWidth)?0:CurPos-ObjWidth;
       }
       if (InsertKey(Key))
       {
@@ -2246,9 +2247,15 @@ void Edit::DeleteBlock()
         CurPos-=SelEnd-SelStart;
     Str=(char *)realloc(Str,StrSize+1);
   }
+
   /* KM $ */
   SelStart=-1;
   MarkingBlock=FALSE;
+  // OT: Проверка на корректность поведени строки при удалении и вставки
+  if (IsDialogParent){
+    if (LeftPos>CurPos)
+      LeftPos=CurPos;
+  }
 }
 
 
