@@ -5,13 +5,15 @@ vmenu.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 28.06.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  28.06.2000 tran
+    + вертикальный скролбар в меню при необходимости
 */
 
 #include "headers.hpp"
@@ -376,6 +378,15 @@ void VMenu::ShowMenu()
       mprintf("%*s",X2-X1-1,"");
     }
   }
+  /* $ 28.06.2000 tran
+     показываем скролбар если пунктов в меню больше чем
+     его высота */
+  if ((Y2-Y1-1)<ItemCount )
+  {
+    SetColor(COL_PANELSCROLLBAR);
+    ScrollBar(X2,Y1+1,Y2-Y1-1,SelectPos,ItemCount);
+  }
+  /* tran $ */
 }
 
 
