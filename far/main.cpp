@@ -5,10 +5,13 @@ main.cpp
 
 */
 
-/* Revision: 1.41 24.12.2001 $ */
+/* Revision: 1.42 09.01.2002 $ */
 
 /*
 Modify:
+  09.01.2002 IS
+    ! —делаем LocalUpperInit в самом начале main, в противном случае ловим
+      глюки, если используем LocalStricmp.
   24.12.2001 VVM
     ! ѕри ожидании окончани€ регистрации отдаем врем€ виндам...
   08.11.2001 SVS
@@ -200,6 +203,10 @@ int _cdecl main(int Argc, char *Argv[])
 //  Opt.ExceptRules=-1;
 //_SVS(SysLog("Opt.ExceptRules=%d",Opt.ExceptRules));
 
+  /* $ 09.01.2002 IS только после этого можно использовать Local* */
+  LocalUpperInit();
+  /* IS $ */
+
   /* $ 30.12.2000 SVS
      ѕроинициализируем функции работы с атрибутами Encryped сразу после
      старта FAR
@@ -341,7 +348,6 @@ int _cdecl main(int Argc, char *Argv[])
    + Opt.HotkeyRules - ѕравило на счет выбора механизма хоткеев */
   GetRegKey("Interface","HotkeyRules",Opt.HotkeyRules,1);
   /* SVS $*/
-  LocalUpperInit();
   GetModuleFileName(NULL,FarPath,sizeof(FarPath));
   /* $ 02.07.2001 IS
      ”чтем то, что GetModuleFileName иногда возвращает короткое им€, которое
