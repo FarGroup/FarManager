@@ -5,10 +5,13 @@ macro.cpp
 
 */
 
-/* Revision: 1.102 12.09.2003 $ */
+/* Revision: 1.103 22.09.2003 $ */
 
 /*
 Modify:
+  22.09.2003 SVS
+    + KeyMacro::KeyToBuffer() - поместить код в буфер
+    ! KeyMacro::IfCondition() - возвращает int
   12.09.2003 SVS
     + Добавлена функция KeyMacro::GetMacroPlainTextSize() - размер plain-text
   09.09.2003 SVS
@@ -792,7 +795,7 @@ int KeyMacro::GetMacroPlainTextSize()
   return strlen((char*)&MR->Buffer[ExecKeyPos]);
 }
 
-BOOL KeyMacro::IfCondition(DWORD Key,DWORD Flags,DWORD Code)
+int KeyMacro::IfCondition(DWORD Key,DWORD Flags,DWORD Code)
 {
   int I;
   BOOL Cond=TRUE;
@@ -2156,6 +2159,23 @@ void KeyMacro::Sort(void)
 DWORD KeyMacro::KeyFromBuffer(struct MacroRecord *MR,int KeyPos)
 {
   return (MR->BufferSize > 1)?MR->Buffer[KeyPos]:(DWORD)MR->Buffer;
+}
+
+// кинуть кей в буфер.
+DWORD KeyMacro::KeyToBuffer(struct MacroRecord *MR,int KeyPos,DWORD Key)
+{
+  DWORD OldKey;
+  if(MR->BufferSize > 1)
+  {
+    OldKey=MR->Buffer[KeyPos];
+    MR->Buffer[KeyPos]=Key;
+  }
+  else
+  {
+    OldKey=(DWORD)MR->Buffer;
+    MR->Buffer=(DWORD*)Key;
+  }
+  return OldKey;
 }
 
 // Вот это лечит вот ЭТО:

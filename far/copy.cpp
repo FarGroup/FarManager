@@ -5,10 +5,15 @@ copy.cpp
 
 */
 
-/* Revision: 1.128 15.09.2003 $ */
+/* Revision: 1.129 22.09.2003 $ */
 
 /*
 Modify:
+  22.09.2003 SVS
+    + CheckUpdatePanel(); выставляет флаг FCOPY_UPDATEPPANEL
+    + Если указано несколько таржетов - делаем подсчет _ВСЕГО_, в т.ч.
+      если есть Move в несколько целей, то и в заголовке панели делам Copy для первых
+      целей и, соответсвтенно, отображаем общий индикатор...
   15.09.2003 SVS
     ! Проверим target на недопустимые символы, перечисленные в ReservedFilenameSymbols
     ! Временно закомментим проверку апдейта пассивной панели.
@@ -466,6 +471,7 @@ static int64 TotalCopySize, TotalCopiedSize; // Общий индикатор копирования
 static int64 CurCopiedSize;                  // Текущий индикатор копирования
 static int64 TotalSkippedSize;               // Общий размер пропущенных файлов
 static int64 TotalCopiedSizeEx;
+static int   CountTarget;                    // всего целей.
 
 static bool ShowTotalCopySize;
 static int StaticMove;
@@ -919,9 +925,6 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   *DestDizPath=0;
   SrcPanel->SaveSelection();
 
-  CopyTitle = new ConsoleTitle(Move ? MSG(MCopyMovingTitle):MSG(MCopyCopyingTitle));
-  StaticCopyTitle=CopyTitle;
-
   for (int I=0;CopyDlgValue[I]!=0;I++)
     if (CopyDlgValue[I]=='/')
       CopyDlgValue[I]='\\';
@@ -936,6 +939,10 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
   int NeedDizUpdate=FALSE;
   int NeedUpdateAPanel=FALSE;
+
+  // ПОКА! принудительно выставим обновление.
+  // В последствии этот флаг будет выставляться в ShellCopy::CheckUpdatePanel()
+  ShellCopy::Flags|=FCOPY_UPDATEPPANEL;
 
   /*
      ЕСЛИ ПРИНЯТЬ В КАЧЕСТВЕ РАЗДЕЛИТЕЛЯ ПУТЕЙ, НАПРИМЕР ';',
@@ -957,12 +964,29 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
         CopyBufSize = CopyBufferSize;
         ReadOnlyDelMode=ReadOnlyOvrMode=OvrMode=SkipMode=-1;
 
+        // посчитаем количество целей.
         DestList.Reset();
+        CountTarget=0;
+        while(DestList.GetNext())
+          CountTarget++;
+
+        DestList.Reset();
+        TotalFiles=0;
+        TotalCopySize=TotalCopiedSize=TotalSkippedSize=0;
+        // Запомним время начала
+        if (ShowCopyTime)
+          CopyStartTime = clock();
+
+        CopyTitle = new ConsoleTitle(NULL);
+        StaticCopyTitle=CopyTitle;
+
+        if(CountTarget > 1)
+          StaticMove=WorkMove=0;
+
         while(NULL!=(NamePtr=DestList.GetNext()))
         {
-          TotalFiles=0;
-          TotalCopySize=TotalCopiedSize=0;
-          TotalSkippedSize=CurCopiedSize=0;
+          CurCopiedSize=0;
+          CopyTitle->Set((ShellCopy::Flags&FCOPY_MOVE) ? MSG(MCopyMovingTitle):MSG(MCopyCopyingTitle));
 
           strcpy(NameTmp, NamePtr);
           _LOGCOPYR(SysLog("NamePtr='%s', Move=%d",NamePtr,WorkMove));
@@ -977,11 +1001,12 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
             ShellCopy::Flags&=~FCOPY_MOVE;
             StaticMove=WorkMove=0;
           }
-          else
-            StaticMove=WorkMove=Move;
+//          else
+//            StaticMove=WorkMove=Move;
 
           if(DestList.IsEmpty()) // нужно учесть моменты связанные с операцией Move.
           {
+            StaticMove=WorkMove=Move;
             ShellCopy::Flags|=WorkMove?FCOPY_MOVE:0; // только для последней операции
             ShellCopy::Flags|=FCOPY_COPYLASTTIME;
           }
@@ -1050,6 +1075,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
             DestDiz.Flush(DestDizPath);
           }
         }
+        StaticCopyTitle=NULL;
+        delete CopyTitle;
     }
     _LOGCOPYR(else SysLog("Error: DestList.Set(CopyDlgValue) return FALSE"));
   }
@@ -1059,10 +1086,6 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   // *** заключительеая стадия процесса
   // *** восстанавливаем/дизим/редравим
   // ***********************************************************************
-
-  StaticCopyTitle=NULL;
-  delete CopyTitle;
-
 
   if(NeedDizUpdate) // при мультикопировании может быть обрыв, но нам все
   {                 // равно нужно апдейтить дизы!
@@ -1113,7 +1136,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   }
 #endif
   // проверим "нужность" апдейта пассивной панели
-//  if(CheckUpdateAnotherPanel(SrcPanel,SrcDir))
+  if(ShellCopy::Flags&FCOPY_UPDATEPPANEL)
   {
     DestPanel->SortFileList(TRUE);
     DestPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
@@ -1505,9 +1528,6 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
 
   ShellCopyMsg("","",MSG_LEFTALIGN);
 
-  // Запомним время начала
-  if (ShowCopyTime)
-    CopyStartTime = clock();
   CopyTime = 0;
   LastShowTime = 0;
 
@@ -3805,6 +3825,7 @@ bool ShellCopy::CalcTotalSize()
 
   SrcPanel->GetSelName(NULL,FileAttr);
   while (SrcPanel->GetSelName(SelName,FileAttr,SelShortName))
+  {
     if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
     {
       {
@@ -3827,6 +3848,9 @@ bool ShellCopy::CalcTotalSize()
       if (SrcPanel->GetLastSelectedSize(&FileSize)!=-1)
         TotalCopySize+=FileSize;
     }
+  }
+  // TODO: Это для варианта, когда "ВСЕГО = общий размер * количество целей"
+  TotalCopySize=TotalCopySize*(__int64)CountTarget;
 
   InsertCommas(TotalCopySize,TotalCopySizeText);
   return(true);
@@ -4216,4 +4240,8 @@ BOOL ShellCopy::CheckNulOrCon(const char *Src)
     )
     return TRUE;
   return FALSE;
+}
+
+void ShellCopy::CheckUpdatePanel() // выставляет флаг FCOPY_UPDATEPPANEL
+{
 }

@@ -7,10 +7,13 @@ macro.hpp
 
 */
 
-/* Revision: 1.26 12.09.2003 $ */
+/* Revision: 1.27 22.09.2003 $ */
 
 /*
 Modify:
+  22.09.2003 SVS
+    + KeyMacro::KeyToBuffer() - поместить код в буфер
+    ! KeyMacro::IfCondition() - возвращает int
   12.09.2003 SVS
     + Добавлена функция KeyMacro::GetMacroPlainTextSize() - размер plain-text
   15.07.2003 SVS
@@ -156,8 +159,9 @@ class KeyMacro
     BOOL CheckFileFolder(Panel *ActivePanel,DWORD CurFlags);
     BOOL CheckAll(DWORD CurFlags);
     void Sort(void);
-    BOOL IfCondition(DWORD Key,DWORD Flags,DWORD Code);
+    int  IfCondition(DWORD Key,DWORD Flags,DWORD Code);
     DWORD KeyFromBuffer(struct MacroRecord *MR,int KeyPos);
+    DWORD KeyToBuffer(struct MacroRecord *MR,int KeyPos,DWORD Key);
 
   public:
     KeyMacro();

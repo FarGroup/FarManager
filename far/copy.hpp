@@ -7,10 +7,13 @@ class ShellCopy -  опирование файлов
 
 */
 
-/* Revision: 1.25 08.07.2003 $ */
+/* Revision: 1.26 22.09.2003 $ */
 
 /*
 Modify:
+  22.09.2003 SVS
+    + FCOPY_UPDATEPPANEL необходимо обновить пассивную панель
+    + CheckUpdatePanel(); выставл€ет флаг FCOPY_UPDATEPPANEL
   08.07.2003 SVS
     + CheckNulOrCon()
   30.05.2003 SVS
@@ -113,6 +116,7 @@ enum COPY_FLAGS {
   FCOPY_SKIPSETATTRFLD          = 0x00002000, // больше не пытатьс€ ставить атрибуты дл€ каталогов - когда нажали Skip All
   FCOPY_COPYSYMLINKCONTENTS     = 0x00004000, //  опировать содержимое симолических св€зей?
   FCOPY_COPYLASTTIME            = 0x10000000, // ѕри копировании в несколько каталогов устанавливаетс€ дл€ последнего.
+  FCOPY_UPDATEPPANEL            = 0x80000000, // необходимо обновить пассивную панель
 };
 
 class ConsoleTitle;
@@ -202,6 +206,7 @@ class ShellCopy
     /* IS $ */
 
     BOOL CheckNulOrCon(const char *Src);
+    void CheckUpdatePanel(); // выставл€ет флаг FCOPY_UPDATEPPANEL
 
   public:
     ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,

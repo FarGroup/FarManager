@@ -5,10 +5,12 @@ stddlg.cpp
 
 */
 
-/* Revision: 1.26 04.04.2003 $ */
+/* Revision: 1.27 22.09.2003 $ */
 
 /*
 Modify:
+  22.09.2003 SVS
+    - BugZ#402 - Удаление хоткея
   04.04.2003 SVS
     - BugZ#845 - вылазит строка за рамки диалога
       Упс... а Prompt-то у нас может смело валить ФАР - "переполнение буфера"!!!
@@ -720,8 +722,7 @@ L========================================================-
     {
       RemoveLeadingSpaces(PluginDlg[2].Data);
       if (*PluginDlg[2].Data==0)
-        SetRegKey(RegKey,RegValueName,"");
-        //DeleteRegKey(RegKey);
+        DeleteRegValue(RegKey,RegValueName);
       else
         SetRegKey(RegKey,RegValueName,PluginDlg[2].Data);
     }
