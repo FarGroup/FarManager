@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.52 18.03.2002 $ */
+/* Revision: 1.53 25.03.2002 $ */
 
 /*
 Modify:
+  25.03.2002 VVM
+    + При погашенных панелях колесом крутим историю
   18.03.2002 SVS
     ! Уточнения, в связи с введением Opt.Dialogs
     ! Немного оптимизации и комментариния кода
@@ -229,6 +231,16 @@ int CommandLine::ProcessKey(int Key)
       return(FALSE);
     Key=KEY_CTRLX;
   }
+  /* $ 25.03.2002 VVM
+    + При погашенных панелях колесом крутим историю */
+  if (!CtrlObject->Cp()->LeftPanel->IsVisible() && !CtrlObject->Cp()->RightPanel->IsVisible())
+  {
+    if (Key == KEY_MSWHEEL_UP)
+      Key = KEY_CTRLE;
+    else if (Key == KEY_MSWHEEL_DOWN)
+      Key = KEY_CTRLX;
+  }
+  /* VVM $ */
 
   switch(Key)
   {
