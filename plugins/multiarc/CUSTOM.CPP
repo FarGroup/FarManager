@@ -6,7 +6,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2002 FAR group
 */
-/* Revision: 1.16 01.08.2002 $ */
+/* Revision: 1.17 15.08.2002 $ */
 
 #include <windows.h>
 #include <string.h>
@@ -51,8 +51,49 @@ char *OutData;
 DWORD OutDataPos,OutDataSize;
 
 char FormatFileName[NM];
-char StartText[256],EndText[256],Format[8][256];
-int FormatNumber,IgnoreErrors;
+enum {PROF_STR_LEN=256};
+char StartText[PROF_STR_LEN],EndText[PROF_STR_LEN];
+
+class StringList
+{
+public:
+	StringList() : pNext(0) {str[0]='\0';}
+	~StringList() {delete pNext;}
+	StringList* Add();
+	StringList* Next() {return pNext;}
+	char* Str() {return str;}
+	void Empty();
+	void* operator new(size_t nSize)
+	{
+		return HeapAlloc(GetProcessHeap(), HEAP_GENERATE_EXCEPTIONS|HEAP_ZERO_MEMORY, nSize);
+	}
+	void operator delete(void* p)
+	{
+		HeapFree(GetProcessHeap(), 0, p);
+	}
+protected:
+	char str[PROF_STR_LEN];
+	StringList* pNext;
+};
+
+StringList* StringList::Add()
+{
+	delete pNext;
+	pNext=new StringList;
+	return pNext;
+}
+
+void StringList::Empty()
+{
+	delete pNext;
+	pNext=0;
+	str[0]='\0';
+}
+
+StringList* Format=0;
+StringList* IgnoreStrings=0;
+
+int IgnoreErrors;
 
 const char Str_TypeName[]="TypeName";
 
@@ -335,14 +376,38 @@ BOOL WINAPI OpenArchivePipe(const char *Name,int *Type)
   return(ExitCode);
 }
 
+void MakeFiletime(SYSTEMTIME st, SYSTEMTIME syst, LPFILETIME pft)
+{
+      if (st.wDay==0)
+        st.wDay=syst.wDay;
+      if (st.wMonth==0)
+        st.wMonth=syst.wMonth;
+      if (st.wYear==0)
+        st.wYear=syst.wYear;
+      else
+      {
+        if (st.wYear<50)
+          st.wYear+=2000;
+        else if (st.wYear<100)
+          st.wYear+=1900;
+      }
+
+      FILETIME ft;
+      if (SystemTimeToFileTime(&st,&ft))
+	  {
+		LocalFileTimeToFileTime(&ft,pft);
+	  }
+}
 
 int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
 {
   char Str[512];
-  int FormatLine=0;
-  SYSTEMTIME st,syst;
+  StringList* CurFormatNode=Format;
+  SYSTEMTIME stModification,stCreation,stAccess,syst;
 
-  memset(&st,0,sizeof(st));
+  memset(&stModification,0,sizeof(stModification));
+  memset(&stCreation,0,sizeof(stCreation));
+  memset(&stAccess,0,sizeof(stAccess));
   GetSystemTime(&syst);
 
   while (GetString(Str,sizeof(Str)))
@@ -367,11 +432,32 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
           break;
     }
 
-    char *CurFormat=Format[FormatLine];
+	bool bFoundIgnoreString=false;
+	for (StringList* CurIgnoreString=IgnoreStrings; CurIgnoreString->Next(); CurIgnoreString=CurIgnoreString->Next())
+	{
+      if (*CurIgnoreString->Str()=='^')
+      {
+        if (strncmp(Str,CurIgnoreString->Str()+1,strlen(CurIgnoreString->Str()+1))==0)
+          bFoundIgnoreString=true;
+      }
+      else
+        if (strstr(Str,CurIgnoreString->Str())!=NULL)
+          bFoundIgnoreString=true;
+	}
+	if (bFoundIgnoreString) continue;
+
+    const char *CurFormat=CurFormatNode->Str();
     char *CurStr=Str;
 
+	enum {OP_OUTSIDE, OP_INSIDE, OP_SKIP} OptionalPart=OP_OUTSIDE;
     for (;*CurStr && *CurFormat;CurFormat++,CurStr++)
     {
+		if (OptionalPart==OP_SKIP)
+		{
+			if (*CurFormat==')') OptionalPart=OP_OUTSIDE;
+			CurStr--;
+			continue;
+		}
       switch(*CurFormat)
       {
         case '*':
@@ -399,10 +485,20 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
         case 'z':
           if (isdigit(*CurStr))
             Item->FindData.nFileSizeLow=Item->FindData.nFileSizeLow*10+(*CurStr-'0');
+		  else if (OP_INSIDE==OptionalPart)
+			{
+				CurStr--;
+				OptionalPart=OP_SKIP;
+			}
           break;
         case 'p':
           if (isdigit(*CurStr))
             Item->PackSize=Item->PackSize*10+(*CurStr-'0');
+		  else if (OP_INSIDE==OptionalPart)
+			{
+				CurStr--;
+				OptionalPart=OP_SKIP;
+			}
           break;
         case 'a':
           switch(toupper(*CurStr))
@@ -427,17 +523,33 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
               break;
           }
           break;
+// MODIFICATION DATETIME
         case 'y':
           if (isdigit(*CurStr))
-            st.wYear=st.wYear*10+(*CurStr-'0');
+            stModification.wYear=stModification.wYear*10+(*CurStr-'0');
+		  else if (OP_INSIDE==OptionalPart)
+			{
+				CurStr--;
+				OptionalPart=OP_SKIP;
+			}
           break;
         case 'd':
           if (isdigit(*CurStr))
-            st.wDay=st.wDay*10+(*CurStr-'0');
+            stModification.wDay=stModification.wDay*10+(*CurStr-'0');
+		  else if (OP_INSIDE==OptionalPart)
+			{
+				CurStr--;
+				OptionalPart=OP_SKIP;
+			}
           break;
         case 't':
           if (isdigit(*CurStr))
-            st.wMonth=st.wMonth*10+(*CurStr-'0');
+            stModification.wMonth=stModification.wMonth*10+(*CurStr-'0');
+		  else if (OP_INSIDE==OptionalPart)
+			{
+				CurStr--;
+				OptionalPart=OP_SKIP;
+			}
           break;
         case 'T':
           {
@@ -446,7 +558,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
             for (int I=0;I<sizeof(Months)/sizeof(Months[0]);I++)
               if (LStrnicmp(CurStr,Months[I],3)==0)
               {
-                st.wMonth=I+1;
+                stModification.wMonth=I+1;
                 while (CurFormat[1]=='T' && CurStr[1])
                 {
                   CurStr++;
@@ -458,51 +570,180 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
           break;
         case 'h':
           if (isdigit(*CurStr))
-            st.wHour=st.wHour*10+(*CurStr-'0');
+            stModification.wHour=stModification.wHour*10+(*CurStr-'0');
+		  else if (OP_INSIDE==OptionalPart)
+			{
+				CurStr--;
+				OptionalPart=OP_SKIP;
+			}
           break;
         case 'H':
           switch(toupper(*CurStr))
           {
             case 'A':
-              if (st.wHour==12)
-                st.wHour-=12;
+              if (stModification.wHour==12)
+                stModification.wHour-=12;
               break;
             case 'P':
-              if (st.wHour<12)
-                st.wHour+=12;
+              if (stModification.wHour<12)
+                stModification.wHour+=12;
               break;
           }
           break;
         case 'm':
           if (isdigit(*CurStr))
-            st.wMinute=st.wMinute*10+(*CurStr-'0');
+            stModification.wMinute=stModification.wMinute*10+(*CurStr-'0');
+		  else if (OP_INSIDE==OptionalPart)
+			{
+				CurStr--;
+				OptionalPart=OP_SKIP;
+			}
           break;
         case 's':
           if (isdigit(*CurStr))
-            st.wSecond=st.wSecond*10+(*CurStr-'0');
+            stModification.wSecond=stModification.wSecond*10+(*CurStr-'0');
+		  else if (OP_INSIDE==OptionalPart)
+			{
+				CurStr--;
+				OptionalPart=OP_SKIP;
+			}
           break;
+// ACCESS DATETIME
+		case 'b':
+          if (isdigit(*CurStr))
+            stAccess.wDay=stAccess.wDay*10+(*CurStr-'0');
+		  else if (OP_INSIDE==OptionalPart)
+			{
+				CurStr--;
+				OptionalPart=OP_SKIP;
+			}
+          break;
+        case 'v':
+          if (isdigit(*CurStr))
+            stAccess.wMonth=stAccess.wMonth*10+(*CurStr-'0');
+		  else if (OP_INSIDE==OptionalPart)
+			{
+				CurStr--;
+				OptionalPart=OP_SKIP;
+			}
+          break;
+        case 'e':
+          if (isdigit(*CurStr))
+            stAccess.wYear=stAccess.wYear*10+(*CurStr-'0');
+		  else if (OP_INSIDE==OptionalPart)
+			{
+				CurStr--;
+				OptionalPart=OP_SKIP;
+			}
+          break;
+        case 'x':
+          if (isdigit(*CurStr))
+            stAccess.wHour=stAccess.wHour*10+(*CurStr-'0');
+		  else if (OP_INSIDE==OptionalPart)
+			{
+				CurStr--;
+				OptionalPart=OP_SKIP;
+			}
+          break;
+        case 'l':
+          if (isdigit(*CurStr))
+            stAccess.wMinute=stAccess.wMinute*10+(*CurStr-'0');
+		  else if (OP_INSIDE==OptionalPart)
+			{
+				CurStr--;
+				OptionalPart=OP_SKIP;
+			}
+          break;
+        case 'k':
+          if (isdigit(*CurStr))
+            stAccess.wSecond=stAccess.wSecond*10+(*CurStr-'0');
+		  else if (OP_INSIDE==OptionalPart)
+			{
+				CurStr--;
+				OptionalPart=OP_SKIP;
+			}
+          break;
+// CREATION DATETIME
+        case 'j':
+          if (isdigit(*CurStr))
+            stCreation.wDay=stCreation.wDay*10+(*CurStr-'0');
+		  else if (OP_INSIDE==OptionalPart)
+			{
+				CurStr--;
+				OptionalPart=OP_SKIP;
+			}
+          break;
+        case 'g':
+          if (isdigit(*CurStr))
+            stCreation.wMonth=stCreation.wMonth*10+(*CurStr-'0');
+		  else if (OP_INSIDE==OptionalPart)
+			{
+				CurStr--;
+				OptionalPart=OP_SKIP;
+			}
+          break;
+        case 'f':
+          if (isdigit(*CurStr))
+            stCreation.wYear=stCreation.wYear*10+(*CurStr-'0');
+		  else if (OP_INSIDE==OptionalPart)
+			{
+				CurStr--;
+				OptionalPart=OP_SKIP;
+			}
+          break;
+        case 'o':
+          if (isdigit(*CurStr))
+            stCreation.wHour=stCreation.wHour*10+(*CurStr-'0');
+		  else if (OP_INSIDE==OptionalPart)
+			{
+				CurStr--;
+				OptionalPart=OP_SKIP;
+			}
+          break;
+        case 'i':
+          if (isdigit(*CurStr))
+            stCreation.wMinute=stCreation.wMinute*10+(*CurStr-'0');
+		  else if (OP_INSIDE==OptionalPart)
+			{
+				CurStr--;
+				OptionalPart=OP_SKIP;
+			}
+          break;
+        case 'u':
+          if (isdigit(*CurStr))
+            stCreation.wSecond=stCreation.wSecond*10+(*CurStr-'0');
+		  else if (OP_INSIDE==OptionalPart)
+			{
+				CurStr--;
+				OptionalPart=OP_SKIP;
+			}
+          break;
+		case 'r':
+		  if (isxdigit(toupper(*CurStr)))
+            Item->CRC32=Item->CRC32*16+*CurStr;
+		  else if (OP_INSIDE==OptionalPart)
+			{
+				CurStr--;
+				OptionalPart=OP_SKIP;
+			}
+			break;
+		case '(':
+			OptionalPart=OP_INSIDE;
+			CurStr--;
+			break;
+		case ')':
+			OptionalPart=OP_OUTSIDE;
+			CurStr--;
+			break;
       }
     }
 
-    if (++FormatLine==FormatNumber)
+	CurFormatNode=CurFormatNode->Next();
+    if (!CurFormatNode || !CurFormatNode->Next())
     {
-      if (st.wDay==0)
-        st.wDay=syst.wDay;
-      if (st.wMonth==0)
-        st.wMonth=syst.wMonth;
-      if (st.wYear==0)
-        st.wYear=syst.wYear;
-      else
-      {
-        if (st.wYear<50)
-          st.wYear+=2000;
-        else if (st.wYear<100)
-          st.wYear+=1900;
-      }
-
-      FILETIME ft;
-      SystemTimeToFileTime(&st,&ft);
-      LocalFileTimeToFileTime(&ft,&Item->FindData.ftLastWriteTime);
+	  MakeFiletime(stModification, syst, &Item->FindData.ftLastWriteTime);
+	  MakeFiletime(stCreation, syst, &Item->FindData.ftCreationTime);
+	  MakeFiletime(stAccess, syst, &Item->FindData.ftLastAccessTime);
 
       for (int I=strlen(Item->FindData.cFileName)-1;I>=0;I--)
       {
@@ -558,6 +799,11 @@ BOOL WINAPI _export CloseArchive(struct ArcInfo *Info)
     Info->Flags|=AF_IGNOREERRORS;
 
   GlobalFree((HGLOBAL)OutData);
+
+  delete Format;
+  delete IgnoreStrings;
+  Format=0;
+  IgnoreStrings=0;
 
   return(TRUE);
 }
@@ -661,12 +907,27 @@ void FillFormat(const char *TypeName)
   GetPrivateProfileString(TypeName,"Start","",StartText,sizeof(StartText),FormatFileName);
   GetPrivateProfileString(TypeName,"End","",EndText,sizeof(EndText),FormatFileName);
 
-  for (FormatNumber=0; FormatNumber <sizeof(Format)/sizeof(Format[0]); FormatNumber++)
+  int FormatNumber=0;
+  delete Format;
+  Format=new StringList;
+  for (StringList* CurFormat=Format; ; CurFormat=CurFormat->Add())
   {
     char FormatName[100];
-    SPrintf(FormatName,"Format%d",FormatNumber);
-    GetPrivateProfileString(TypeName,FormatName,"",Format[FormatNumber],sizeof(Format[0]),FormatFileName);
-    if (*Format[FormatNumber]==0)
+    SPrintf(FormatName,"Format%d",FormatNumber++);
+    GetPrivateProfileString(TypeName,FormatName,"",CurFormat->Str(),PROF_STR_LEN,FormatFileName);
+    if (*CurFormat->Str()==0)
+      break;
+  }
+
+  int Number=0;
+  delete IgnoreStrings;
+  IgnoreStrings=new StringList;
+  for (StringList* CurIgnoreString=IgnoreStrings; ; CurIgnoreString=CurIgnoreString->Add())
+  {
+    char Name[100];
+    SPrintf(Name,"IgnoreString%d",Number++);
+    GetPrivateProfileString(TypeName,Name,"",CurIgnoreString->Str(),PROF_STR_LEN,FormatFileName);
+    if (*CurIgnoreString->Str()==0)
       break;
   }
 }
