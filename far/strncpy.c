@@ -11,6 +11,9 @@ char * __cdecl xstrncpy (char * dest,const char * src,size_t maxlen)
   char *tmpsrc = dest;
   while (maxlen && 0 != (*dest++ = *src++))
     --maxlen;
-  *dest = 0;
+
+  if (maxlen)                              /* pad out with zeroes */
+    while (--maxlen)
+       *dest++ = '\0';
   return tmpsrc;
 }

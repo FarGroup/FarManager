@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.133 08.12.2004 $ */
+/* Revision: 1.134 05.01.2005 $ */
 
 /*
 Modify:
+  05.01.2005 SVS
+    - BugZ#1146 - Информационное сообщение о снятии макроса надо улучшить
   08.12.2004 SVS
     + Dlg.ItemCount, Dlg.CurPos, CmdLine.ItemCount, CmdLine.CurPos
     ! обработка типа контрола вынесена из macro.cpp в dialog.cpp
@@ -2489,11 +2491,18 @@ M1:
         BufKey[0]=0;
 #endif
 
-      sprintf(Buf,
-        MSG(!MacroDlg->RecBufferSize?
-           (DisFlags?MMacroDeleteAssign:MMacroDeleteKey):
-           MMacroReDefinedKey),
-        KeyText);
+      if((Mac->Flags&0xFF)==MACRO_COMMON)
+        sprintf(Buf,
+          MSG(!MacroDlg->RecBufferSize?
+             (DisFlags?MMacroCommonDeleteAssign:MMacroCommonDeleteKey):
+             MMacroCommonReDefinedKey),
+          KeyText);
+      else
+        sprintf(Buf,
+          MSG(!MacroDlg->RecBufferSize?
+             (DisFlags?MMacroDeleteAssign:MMacroDeleteKey):
+             MMacroReDefinedKey),
+          KeyText);
 
       // проверим "а не совпадает ли всё?"
       if(!DisFlags &&
@@ -2508,6 +2517,7 @@ M1:
       else
         I=Message(MSG_WARNING,2,MSG(MWarning),
             Buf,
+            MSG(MMacroSequence),
             BufKey,
             MSG(!MacroDlg->RecBufferSize?MMacroDeleteKey2:
                   (DisFlags?MMacroDisDisabledKey:MMacroReDefinedKey2)),

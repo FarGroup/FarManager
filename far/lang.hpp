@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.151 23.12.2004 $ */
+/* Revision: 1.152 05.01.2005 $ */
 
 /*
 Modify:
+  05.01.2005 SVS
+    + MMacroCommonReDefinedKey, MMacroCommonDeleteAssign, MMacroCommonDeleteKey, MMacroSequence,
   23.12.2004 WARP
     ! 3-х позиционный ExpandTab (стара€ функциональность возвращаетс€ компил€цией с USE_OLDEXPANDTABS)
   14.12.2004 SVS
@@ -1923,6 +1925,10 @@ enum
   MMacroReDefinedKey,
   MMacroDeleteAssign,
   MMacroDeleteKey,
+  MMacroCommonReDefinedKey,
+  MMacroCommonDeleteAssign,
+  MMacroCommonDeleteKey,
+  MMacroSequence,
   MMacroReDefinedKey2,
   MMacroDeleteKey2,
   MMacroDisDisabledKey,
