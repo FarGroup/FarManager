@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.51 30.03.2002 $ */
+/* Revision: 1.52 16.04.2002 $ */
 
 /*
 Modify:
+  16.04.2002 DJ
+    ! пропускаем встроенную обработку cd, если нажат Shift-Enter
   02.04.2002 SVS
     - BugZ#421 - Курсор в запускаемых программах
   30.03.2002 VVM
@@ -1384,7 +1386,11 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
   }
   /* SVS $ */
 
-  if ((strnicmp(CmdLine,"CD",Length=2)==0 || strnicmp(CmdLine,"CHDIR",Length=5)==0) &&
+  /* $ 16.04.2002 DJ
+     пропускаем обработку, если нажат Shift-Enter
+  */
+  if (!SeparateWindow &&  /* DJ $ */
+      (strnicmp(CmdLine,"CD",Length=2)==0 || strnicmp(CmdLine,"CHDIR",Length=5)==0) &&
       (isspace(CmdLine[Length]) || CmdLine[Length]=='\\' || strcmp(CmdLine+Length,"..")==0))
   {
     int ChDir=(Length==5);
