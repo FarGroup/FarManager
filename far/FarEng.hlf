@@ -895,6 +895,7 @@ user menu. The main user menu is called if no local menu for the current
 folder is available.  The local menu may be placed in any folder. You may
 switching between main menu and user menu by pressing SHIFT-F2 keys. Also
 you may call user menu from parent folder by pressing BkSpace key.
+
     You may add command separator to user menu. To do this, you must add
 new menu command, define "-" as "hot key" and leave field "Label" empty.
 To delete menu separator, you must switch to file mode with ALT+F4 key.
