@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.83 02.11.2001 $ */
+/* Revision: 1.84 09.11.2001 $ */
 
 /*
 Modify:
+  09.11.2001 IS
+    + MPanelBracketsForLongName
   02.11.2001 SVS
     + MHelpType, MVMenuType
   26.10.2001 KM
@@ -1786,6 +1788,8 @@ enum
   MVMenuType,
 
   MIncorrectMask,
+
+  MPanelBracketsForLongName,
 
   MListEval
 };

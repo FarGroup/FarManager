@@ -5,10 +5,13 @@ flshow.cpp
 
 */
 
-/* Revision: 1.20 01.10.2001 $ */
+/* Revision: 1.21 09.10.2001 $ */
 
 /*
 Modify:
+  09.11.2001 IS
+    ! Вместо явно прописанных фигурных скобок для обозначения границ длинных
+      имен файлов используем данные из lng.
   01.10.2001 IS
     ! демонстрация функции TruncStrFromEnd
   27.09.2001 IS
@@ -857,12 +860,15 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 }
                 Text(NewName);
                 int NameX=WhereX();
+                /* $ 09.11.2001 IS
+                     вместо фигурных скобок используем данные из lng
+                */
                 if (LeftBracket)
                 {
                   GotoXY(CurX-1,CurY);
                   if (K-1<0 || (ColumnTypes[K-1] & 0xff)==NAME_COLUMN)
                     SetColor(COL_PANELTEXT);
-                  Text("{");
+                  Text(openBracket);
                   if (!ShowStatus)
                     SetShowColor(ListPos);
                 }
@@ -871,9 +877,10 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                   if (K+1>=ColumnCount || (ColumnTypes[K+1] & 0xff)==NAME_COLUMN)
                     SetColor(COL_PANELTEXT);
                   GotoXY(NameX,CurY);
-                  Text("}");
+                  Text(closeBracket);
                   ShowDivider=FALSE;
                 }
+                /* IS $ */
               }
               WasNameColumn=TRUE;
               break;

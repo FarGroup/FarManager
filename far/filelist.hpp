@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.19 21.10.2001 $ */
+/* Revision: 1.20 09.11.2001 $ */
 
 /*
 Modify:
+  09.11.2001 IS
+    + openBracket, closeBracket
   25.10.2001 SVS
     ! У функции CopyNames() 2 параметра:
       FillPathName - при копировании вставлять полный путь
@@ -124,6 +126,12 @@ class FileList:public Panel
     PanelFilter *Filter;
     DizList Diz;
     int DizRead;
+    /* $ 09.11.2001 IS
+         Открывающий и закрывающий символ, которые используются для показа
+         имени, которое не помещается в панели. По умолчанию - фигурные скобки.
+    */
+    char openBracket[2], closeBracket[2];
+    /* IS $ */
     char PluginDizName[NM];
     struct FileListItem *ListData;
     long FileCount;

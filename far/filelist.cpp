@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.100 08.11.2001 $ */
+/* Revision: 1.101 09.11.2001 $ */
 
 /*
 Modify:
+  09.11.2001 IS
+    + ¬ конструкторе проинициализируем символы, которые используютс€ дл€
+      отрисовки границ имен файлов, не помещающихс€ в панели
   08.11.2001 SVS
     - Shift-Enter на каталогах запускал черти что, но только не проводник
   03.11.2001 IS
@@ -326,6 +329,24 @@ enum SELECT_MODES {SELECT_INVERT,SELECT_INVERTALL,SELECT_ADD,SELECT_REMOVE,
 FileList::FileList()
 {
   _OT(SysLog("[%p] FileList::FileList()", this));
+  /* $ 09.11.2001 IS
+       ѕроинициализируем наши "скобки"
+  */
+  {
+    char *data=MSG(MPanelBracketsForLongName);
+    if(strlen(data)>1)
+    {
+      *openBracket=data[0];
+      *closeBracket=data[1];
+    }
+    else
+    {
+      *openBracket='{';
+      *closeBracket='}';
+    }
+    openBracket[1]=closeBracket[1]=0;
+  }
+  /* IS $ */
   Type=FILE_PANEL;
   GetCurrentDirectory(sizeof(CurDir),CurDir);
   hPlugin=INVALID_HANDLE_VALUE;
