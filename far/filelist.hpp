@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.03 27.09.2000 $ */
+/* Revision: 1.04 04.01.2001 $ */
 
 /*
 Modify:
+  04.01.2001 SVS
+    ! TranslateKeyToVK() -> keyboard.cpp
   27.09.2000 SVS
     ! FileList::CallPlugin() перенесен в PluginsSet
   21.09.2000 SVS
@@ -124,7 +126,6 @@ class FileList:public Panel
     void PluginPutFilesToAnother(int Move,Panel *AnotherPanel);
     void ProcessPluginCommand();
     void PluginClearSelection(struct PluginPanelItem *ItemList,int ItemNumber);
-    int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState);
     void ProcessCopyKeys(int Key);
     void ReadSortGroups();
 

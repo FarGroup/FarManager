@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.45 04.01.2001 $ */
+/* Revision: 1.46 04.01.2001 $ */
 
 /*
 Modify:
+  04.01.2001 SVS
+   + KeyNameMacroToKey() и TranslateKeyToVK()
   04.01.2001 SVS
    ! Описания MkLink, GetNumberOfLinks переехали в flink.hpp
   03.01.2001 SVS
@@ -631,6 +633,8 @@ FILE *OpenLogStream(char *file);
 BOOL EjectVolume(char Letter,DWORD Flags);
 
 BOOL WINAPI KeyMacroToText(int Key,char *KeyText0,int Size);
+int WINAPI KeyNameMacroToKey(char *Name);
+int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState);
 
 /* $ 30.12.2000 SVS
    Функции работы с атрибутами файлов "опубликованы"

@@ -7,10 +7,14 @@ macro.hpp
 
 */
 
-/* Revision: 1.04 26.12.2000 $ */
+/* Revision: 1.05 04.01.2001 $ */
 
 /*
 Modify:
+  04.01.2001 SVS
+    ! изменен ReadMacros и GetMacroSettings
+    + функция AssignMacroKey
+    ! удалена структура struct TKeyNames
   26.12.2000 SVS
     + SwitchFlags()
   23.12.2000 SVS
@@ -41,11 +45,6 @@ class KeyMacro
     /* $ 10.09.2000 SVS
       ! Функция ReadMacros имеет дополнительные аргументы
     */
-    struct TKeyNames{
-      char Name[32];
-      int  Code;
-    };
-
     class LockScreen *LockScr;
 
     struct MacroRecord *Macros;
@@ -65,11 +64,13 @@ class KeyMacro
     int TempMacroType;             // тип этого буфера
 
   private:
-    int  ReadMacros(int ReadMode,struct TKeyNames *KeyNames,
-                    int CountKeyNames, char *Buffer, int BufferSize);
-    int GetMacroSettings(int &DisableOutput,int &RunAfterStart,
+    int ReadMacros(int ReadMode, char *Buffer, int BufferSize);
+    int AssignMacroKey();
+    int GetMacroSettings(int Key,
+                         int &DisableOutput,int &RunAfterStart,
                          int &EmptyCommandLine,int &NotEmptyCommandLine,
-                         int &FilePanels,int &PluginPanels);
+                         int &FilePanels,int &PluginPanels,
+                         int &NoFolders,int &NoFiles);
     void InitVars();
     void ReleaseTempBuffer(); // удалить временный буфер
 

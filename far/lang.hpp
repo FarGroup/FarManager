@@ -12,10 +12,14 @@ lang.hpp
            подряд.
 */
 
-/* Revision: 1.36 03.01.2001 $ */
+/* Revision: 1.37 04.01.2001 $ */
 
 /*
 Modify:
+  04.01.2001 SVS
+    + MMacroSettingsIgnoreFileFolders,
+    + MMacroSettingsFolders,
+    + MMacroSettingsFiles,
   03.01.2001 SVS
     + MSetAttrSelectedObjects
     -   MSetAttrChange,
@@ -1278,6 +1282,9 @@ enum
   MMacroSettingsIgnorePanels,
   MMacroSettingsFilePanels,
   MMacroSettingsPluginPanels,
+  MMacroSettingsIgnoreFileFolders,
+  MMacroSettingsFolders,
+  MMacroSettingsFiles,
 
   MPluginsHelpTitle,
 

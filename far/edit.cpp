@@ -5,10 +5,13 @@ edit.cpp
 
 */
 
-/* Revision: 1.30 26.12.2000 $ */
+/* Revision: 1.31 04.01.2001 $ */
 
 /*
 Modify:
+  04.01.2001 SVS
+    ! Недольшое безобразие с проникновением в "чужой огород" - дополнение 2 :-)
+      Часы, минуты, секунды - в диалогах у нас плагины пока не работают :-(
   26.12.2000 SVS
     ! KEY_DTDAY   -> KEY_MACRODAY
       KEY_DTMONTH -> KEY_MACROMONTH
@@ -1216,19 +1219,36 @@ int Edit::ProcessKey(int Key)
     /* $ 21.12.2000 SVS
        Недольшое безобразие с проникновением в "чужой огород" :-)
     */
+    /* $ 04.01.2001 SVS
+       Недольшое безобразие с проникновением в "чужой огород" - дополнение 2 :-)
+    */
     case KEY_MACRODAY:
     case KEY_MACROMONTH:
     case KEY_MACROYEAR:
+    case KEY_MACROHOUR:
+    case KEY_MACROMIN:
+    case KEY_MACROSEC:
     {
       SYSTEMTIME st;
       char Buf[16];
       GetLocalTime(&st);
-      sprintf(Buf,"%0*d",(Key==KEY_MACROYEAR?4:2),
-            (Key==KEY_MACROYEAR?st.wYear:(Key==KEY_MACRODAY?st.wDay:st.wMonth)));
+      sprintf(Buf,"%0*d",
+            (Key==KEY_MACROYEAR?4:2),
+            (Key==KEY_MACROYEAR?st.wYear:
+               (Key==KEY_MACRODAY?st.wDay:
+                 (Key==KEY_MACROMONTH?st.wMonth:
+                   (Key==KEY_MACROHOUR?st.wHour:
+                     (Key==KEY_MACROMIN?st.wMinute:st.wSecond)
+                   )
+                 )
+               )
+            )
+      );
       InsertString(Buf);
       Show();
       return(TRUE);
     }
+    /* SVS 04.01.2001 $ */
     /* SVS $ */
     default:
       if (Key==KEY_NONE || Key==KEY_IDLE || Key==KEY_ENTER || Key>=256)

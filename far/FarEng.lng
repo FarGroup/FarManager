@@ -1173,7 +1173,7 @@
 "Define macro"
 "Press the desired key"
 
-"Macro settings"
+"Macro settings for '%s'"
 "&Disable screen output while executing macro"
 "Execute after FAR &start"
 "&Ignore command line state"
@@ -1182,6 +1182,9 @@
 "Ignore panel &type"
 "Execute in &file panels"
 "Execute in &plugin panel"
+"Execute for files and folders"
+"Execute for folders"
+"Execute for files"
 
 "Plugins help"
 
