@@ -895,6 +895,12 @@ operations.
     FAR stores folder tree information in the file named #Tree.Far# at root
 folder of each drive. For read-only drives this information is stored in the
 hidden folder Tree.Cache within the folder containing FAR.EXE.
+По умалчиванию файл Tree.Far не создан, для его создания нужно хотя бы один
+раз воспользоваться командой #Поиск папки# или режимом панели #Дерево папок#.
+Если такой файл есть, то при изменении каталогов (удаление, создание,
+переименование, копирование) FAR отслеживает и соответственно изменяет его
+внутреннюю структуру. Если изменения были сделаны не в FAR Manager обновить
+содержимое файла Tree.Far можно клавишами #Ctrl-R#.
 
     You can find a folder quickly with the help of #speed search# action.
 Hold the Alt key and type the folder name until you point to the right

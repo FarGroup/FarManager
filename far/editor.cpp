@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.250 15.06.2004 $ */
+/* Revision: 1.251 16.06.2004 $ */
 
 /*
 Modify:
+  16.06.2004 SVS
+    - BugZ#1101 - по€вл€етс€ лишнее выделение
   15.06.2004 SVS
     - BugZ#1096 - shiftins в залоченном файле - двойное выделение.
   29.05.2004 SVS
@@ -3634,6 +3636,11 @@ int Editor::ProcessKey(int Key)
         /* SVS $ */
         /* SVS $ */
 
+        // <comment> - это требуетс€ дл€ корректной работы логики блоков дл€ Ctrl-K
+        int PreSelStart,PreSelEnd;
+        CurLine->EditLine.GetSelection(PreSelStart,PreSelEnd);
+        // </comment>
+
         if (CurLine->EditLine.ProcessKey(Key))
         {
           int SelStart,SelEnd;
@@ -3674,7 +3681,15 @@ int Editor::ProcessKey(int Key)
                if(CurPos)
                {
                  CurLine->EditLine.GetSelection(SelStart,SelEnd);
-                 CurLine->EditLine.Select(SelStart,CurPos);
+                 // 1. блок за концом строки (CurPos был ближе к началу, чем SelStart)
+                 if(SelEnd == -1 && PreSelStart > CurPos || SelEnd > CurPos)
+                   SelStart=SelEnd=-1; // в этом случае снимаем выделение
+                 // 2. CurPos внутри блока
+                 else if(SelEnd == -1 && PreSelEnd > CurPos && SelStart < CurPos)
+                   SelEnd=PreSelEnd;   // в этом случае усекаем блок
+                 // 3. блок осталс€ слева от CurPos или выделение нужно сн€ть (см. выше)
+                 if(SelEnd >= CurPos || SelStart==-1)
+                   CurLine->EditLine.Select(SelStart,CurPos);
                }
                else
                {
