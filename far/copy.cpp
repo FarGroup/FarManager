@@ -5,10 +5,13 @@ copy.cpp
 
 */
 
-/* Revision: 1.124 15.07.2003 $ */
+/* Revision: 1.125 19.07.2003 $ */
 
 /*
 Modify:
+  19.07.2003 IS
+    + Если цель содержит разделители, то возьмем ее в кавычки, дабы не получить
+      ерунду при F5, Enter в панелях, когда пользователь включит MultiCopy
   15.07.2003 VVM
     + При использовании SystemCopyRoutine прогресс так-же рисуется не чаще 5 раз в секунду.
   11.07.2003 SVS
@@ -721,6 +724,16 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
           AddEndSlash(strcpy(CopyDlg[2].Data,DestDir));
         }
         CDP.PluginFormat[0]=0;
+        /* $ 19.07.2003 IS
+           Если цель содержит разделители, то возьмем ее в кавычки, дабы не получить
+           ерунду при F5, Enter в панелях, когда пользователь включит MultiCopy
+        */
+        if(strpbrk(CopyDlg[2].Data,",;"))
+        {
+          Unquote(CopyDlg[2].Data);     // уберем все лишние кавычки
+          InsertQuote(CopyDlg[2].Data); // возьмем в кавычки, т.к. могут быть разделители
+        }
+        /* IS $ */
         break;
       case PLUGIN_PANEL:
         {
