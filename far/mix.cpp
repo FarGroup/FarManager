@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.88 14.09.2001 $ */
+/* Revision: 1.89 19.09.2001 $ */
 
 /*
 Modify:
+  19.09.2001 SVS
+    - Ёксперимент с применением RawConvertShortNameToLongName() в
+      ConvertNameToReal() оказалс€ неудачным :-(
   14.09.2001 SVS
     ! ƒл€ эксперимента в ConvertNameToReal() добавлен вызов функции
       RawConvertShortNameToLongName().
@@ -1043,7 +1046,7 @@ int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize)
 
   // ѕолучим сначала полный путь до объекта обычным способом
   int Ret=ConvertNameToFull(Src,TempDest,sizeof(TempDest));
-  RawConvertShortNameToLongName(TempDest,TempDest,sizeof(TempDest));
+  //RawConvertShortNameToLongName(TempDest,TempDest,sizeof(TempDest));
 
   // остальное касаетс€ Win2K, т.к. в виндах ниже рангом нету некоторых
   // функций, позвол€ющих узнать истинное им€ линка.
