@@ -128,6 +128,8 @@ int PluginClass::ReadArchive(char *Name)
       if (*NamePtr=='/')
         *NamePtr='\\';
 
+    CurArcData.UserData=0;
+
     NamePtr=CurArcData.FindData.cFileName;
     char *EndPos=NamePtr;
     if(*EndPos == '.') ++EndPos;
@@ -144,8 +146,6 @@ int PluginClass::ReadArchive(char *Name)
         CurArcData.UserData=(DWORD)Pref;
       }
     }
-    else
-      CurArcData.UserData=0;
 
     if (EndPos!=CurArcData.FindData.cFileName)
       memmove(CurArcData.FindData.cFileName,EndPos,strlen(EndPos)+1);

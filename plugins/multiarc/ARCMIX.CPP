@@ -146,7 +146,8 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,
 
   SetLastError(LastError);
   char ExecuteName[NM];
-  strcpy(ExecuteName,ExpandedCmd);
+  strncpy(ExecuteName,ExpandedCmd, NM-1);
+  ExecuteName[NM-1]=0;
   char *Ptr=strchr(ExecuteName,' ');
   if(Ptr)
     *Ptr=0;

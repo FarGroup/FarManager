@@ -6,7 +6,9 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2002 FAR group
 */
-/* $ Revision: 1.13 05.03.2002 $ */
+/* $ Revision: 1.14 05.03.2002 $ */
+
+//#define USE_TAR_H
 
 #include <windows.h>
 #include <string.h>
@@ -49,25 +51,59 @@ struct time {
 };
 #endif
 
-struct TarHeader
-{
-  char name[100];
-  char mode[8];
-  char userid[8];
-  char groupid[8];
-  char filesize[12];
-  char timestamp[12];
-  char checksum[8];
-  char linkflag;
-  char linkname[100];
-  char unused_chars[255];
+#if defined(USE_TAR_H)
+#include "tar.h"
+
+#else
+
+struct posix_header
+{                       /* byte offset */
+  char name[100];       /*   0 */
+  char mode[8];         /* 100 */
+  char userid[8];       /* 108 */
+  char groupid[8];      /* 116 */
+  char size[12];        /* 124 */
+  char mtime[12];       /* 136 */
+  char chksum[8];       /* 148 */
+  char typeflag;        /* 156 */
+  char linkname[100];   /* 157 */
+  char magic[6];        /* 257 */
+  char version[2];      /* 263 */
+  char uname[32];       /* 265 */
+  char gname[32];       /* 297 */
+  char devmajor[8];     /* 329 */
+  char devminor[8];     /* 337 */
+  char prefix[155];     /* 345 */
+                        /* 500 */
 };
+
+#define TMAGIC   "ustar"	/* ustar and a null */
+#define TMAGLEN  6
+
+#define BLOCKSIZE 512
+typedef union block {
+  char  buffer[BLOCKSIZE];
+  struct posix_header header;
+} TARHeader;
 
 /* Identifies the *next* file on the tape as having a long linkname.  */
 #define GNUTYPE_LONGLINK 'K'
 
 /* Identifies the *next* file on the tape as having a long name.  */
 #define GNUTYPE_LONGNAME 'L'
+
+/* Values used in typeflag field.  */
+#define REGTYPE   '0'    /* regular file */
+#define AREGTYPE '\0'    /* regular file */
+#define LNKTYPE  '1'    /* link */
+#define SYMTYPE  '2'    /* reserved */
+#define CHRTYPE  '3'    /* character special */
+#define BLKTYPE  '4'    /* block special */
+#define DIRTYPE  '5'    /* directory */
+#define FIFOTYPE '6'    /* FIFO special */
+#define CONTTYPE '7'    /* reserved */
+
+#endif
 
 void UnixToDos(long time, struct dosdate_t *d, struct time *t);
 int IsTarHeader(const unsigned char *Data,int DataSize);
@@ -93,22 +129,26 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
     ArcType=TAR_FORMAT;
     return(TRUE);
   }
+
   if (DataSize<2)
     return(FALSE);
+
   if (Data[0]==0x1f && Data[1]==0x8b)
+  {
     ArcType=GZ_FORMAT;
+  }
+  else if (Data[0]==0x1f && Data[1]==0x9d)
+    ArcType=Z_FORMAT;
+  else if (Data[0]=='B' && Data[1]=='Z')
+    ArcType=BZ_FORMAT;
   else
-    if (Data[0]==0x1f && Data[1]==0x9d)
-      ArcType=Z_FORMAT;
-    else
-      if (Data[0]=='B' && Data[1]=='Z')
-        ArcType=BZ_FORMAT;
-      else
-        return(FALSE);
+    return(FALSE);
+
   const char *NamePtr=(const char *)strrchr((char*)Name,'\\');
   NamePtr=(NamePtr==NULL) ? Name:NamePtr+1;
   strcpy(ZipName,NamePtr);
   const char *Dot=(const char *)strrchr((char*)NamePtr,'.');
+
   if (Dot!=NULL)
   {
     Dot++;
@@ -117,6 +157,7 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
     else
       ZipName[Dot-NamePtr-1]=0;
   }
+
   return(TRUE);
 }
 
@@ -215,23 +256,27 @@ int GetArcItemGZIP(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
 
 int GetArcItemTAR(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
 {
-  struct TarHeader Header;
+  TARHeader TAR_hdr;
   DWORD ReadSize;
   BOOL SkipItem=FALSE;
   char *LongName = NULL;
   do
   {
     NextPosition=SetFilePointer(ArcHandle,NextPosition,NULL,FILE_BEGIN);
+
     if (NextPosition==0xFFFFFFFF)
       return(GETARC_READERROR);
+
     if (NextPosition>FileSize)
       return(GETARC_UNEXPEOF);
-    if (!ReadFile(ArcHandle,&Header,sizeof(Header),&ReadSize,NULL))
+
+    if (!ReadFile(ArcHandle,&TAR_hdr,sizeof(TAR_hdr),&ReadSize,NULL))
       return(GETARC_READERROR);
-    if (ReadSize==0 || *Header.name==0)
+
+    if (ReadSize==0 || *TAR_hdr.header.name==0)
       return(GETARC_EOF);
 
-    if (Header.linkflag == GNUTYPE_LONGLINK || Header.linkflag == GNUTYPE_LONGNAME)
+    if (TAR_hdr.header.typeflag == GNUTYPE_LONGLINK || TAR_hdr.header.typeflag == GNUTYPE_LONGNAME)
       SkipItem=TRUE;
     else
     {
@@ -240,23 +285,27 @@ int GetArcItemTAR(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
       if (LongName != NULL)
         EndPos = AdjustTARFileName (LongName);
       else
-        EndPos = AdjustTARFileName (Header.name);
+        EndPos = AdjustTARFileName (TAR_hdr.header.name);
       strncpy(Item->FindData.cFileName,EndPos,sizeof(Item->FindData.cFileName)-1);
-      Item->FindData.dwFileAttributes=(GetOctal(Header.mode) & 0x4000) || ((Header.linkflag-'0') & 4) ? FILE_ATTRIBUTE_DIRECTORY:0;
-      UnixTimeToFileTime(GetOctal(Header.timestamp),&Item->FindData.ftLastWriteTime);
+      Item->FindData.cFileName[sizeof(Item->FindData.cFileName)-1]=0;
+      Item->FindData.dwFileAttributes=(GetOctal(TAR_hdr.header.mode) & 0x4000) || ((TAR_hdr.header.typeflag-'0') & 4) ? FILE_ATTRIBUTE_DIRECTORY:0;
+      UnixTimeToFileTime(GetOctal(TAR_hdr.header.mtime),&Item->FindData.ftLastWriteTime);
       Item->FindData.nFileSizeHigh=0;
     }
-    Item->PackSize=Item->FindData.nFileSizeLow=GetOctal(Header.filesize);
+    Item->PackSize=Item->FindData.nFileSizeLow=GetOctal(TAR_hdr.header.size);
+
     DWORD PrevPosition=NextPosition;
-    NextPosition+=sizeof(Header)+Item->PackSize;
+    NextPosition+=sizeof(TAR_hdr)+Item->PackSize;
+
     if (NextPosition & 511)
       NextPosition+=512-(NextPosition & 511);
+
     if (PrevPosition>=NextPosition)
       return(GETARC_BROKEN);
 
-    if (Header.linkflag == GNUTYPE_LONGNAME)
+    if (TAR_hdr.header.typeflag == GNUTYPE_LONGNAME)
     {
-      SetFilePointer (ArcHandle,PrevPosition+sizeof(Header),NULL,FILE_BEGIN);
+      SetFilePointer (ArcHandle,PrevPosition+sizeof(TAR_hdr),NULL,FILE_BEGIN);
       // we can't have two LONGNAME records in a row without a file between them
       if (LongName != NULL)
         return GETARC_BROKEN;
@@ -449,23 +498,38 @@ void UnixTimeToFileTime(DWORD UnixTime,FILETIME *FileTime)
 }
 
 
-int IsTarHeader(const unsigned char *Data,int DataSize)
+int IsTarHeader(const BYTE *Data,int DataSize)
 {
   int I;
-  struct TarHeader *Header;
-  if (DataSize<sizeof(TarHeader))
+  struct posix_header *Header;
+  if (DataSize<sizeof(struct posix_header))
     return(FALSE);
-  Header=(struct TarHeader *)Data;
+
+  Header=(struct posix_header *)Data;
+
+  if (!strncmp (Header->magic, TMAGIC, TMAGLEN - 1))
+  {
+    /* If we have what looks like a real ustar archive, we must
+    check the version number.  We only understand version 00.  */
+    if (Header->magic[TMAGLEN] == '\0' && (Header->version[0] != '0' || Header->version[1] != '0'))
+      return (FALSE);
+  }
+
   for (I=0;Header->name[I];I++)
     if (I==sizeof(Header->name) || Header->name[I]<' ')
       return(FALSE);
-  for (I=0;I<&Header->linkflag-Header->mode;I++)
+
+  for (I=0;I<&Header->typeflag-Header->mode;I++)
     if (Header->mode[I]>'7' || Header->mode[I]<'0' && Header->mode[I]!=0 &&
         Header->mode[I]!=' ')
       return(FALSE);
-  DWORD Seconds=GetOctal(Header->timestamp);
-  if (Seconds<300000000 || Seconds>1500000000)
-    return(FALSE);
+
+  if(strcmp(Header->name,"././@LongLink"))
+  {
+    DWORD Seconds=GetOctal(Header->mtime);
+    if (Seconds<300000000 || Seconds>1500000000)
+      return(FALSE);
+  }
   return(TRUE);
 }
 
