@@ -7,10 +7,13 @@ Files highlighting
 
 */
 
-/* Revision: 1.02 12.07.2000 $ */
+/* Revision: 1.03 23.04.2001 $ */
 
 /*
 Modify:
+  23.04.2001 SVS
+    ! КХЕ! Новый вз<ляд на %PATHEXT% - то что редактируем и то, что
+      юзаем - разные сущности.
   12.02.2001 SVS
     + Функция ClearData - очистка HiData
   07.07.2000 IS
@@ -25,11 +28,13 @@ Modify:
 class HighlightFiles
 {
   private:
-    void SaveHiData();
-    int EditRecord(int RecPos,int New);
     struct HighlightData *HiData;
     int HiDataCount;
     int StartHiDataCount;
+
+  private:
+    void SaveHiData();
+    int EditRecord(int RecPos,int New);
     /* $ 07.07.2000 IS
       В эту функцию я вынес содержимое конструктора, чтобы использовать его
       повторно при восстановлении значений раскраски файлов по умолчанию
@@ -37,9 +42,16 @@ class HighlightFiles
     void InitHighlightFiles();
     /* IS $ */
     void ClearData();
+
+    char *GetMask(int Idx);
+    BOOL AddMask(struct HighlightData *Dest,char *Mask,struct HighlightData *Src=NULL);
+    void DeleteMask(struct HighlightData *CurHighlightData);
+
   public:
     HighlightFiles();
     ~HighlightFiles();
+
+  public:
     void GetHiColor(char *Path,int Attr,unsigned char &Color,
                     unsigned char &SelColor,unsigned char &CursorColor,
                     unsigned char &CursorSelColor,unsigned char &MarkChar);

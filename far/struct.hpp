@@ -7,10 +7,14 @@ struct.hpp
 
 */
 
-/* Revision: 1.54 22.04.2001 $ */
+/* Revision: 1.55 23.04.2001 $ */
 
 /*
 Modify:
+  23.04.2001 SVS
+    ! Новые члены GroupSortData.OriginalMasks и HighlightData.OriginalMasks
+      новый вгляд на %PATHEXT% - то что редактируем и то, что юзаем -
+      разные сущности.
   22.04.2001 SVS
     + Opt.QuotedSymbols - разделители для QuoteSpace()
   16.04.2001 VVM
@@ -779,9 +783,10 @@ struct PluginHandle
 struct GroupSortData
 {
   char *Masks;
+  char *OriginalMasks;
   int Group;
+  int reserved; // для выравнивания на 16 :-)
 };
-
 
 // for class PanelFilter
 struct FilterDataRecord
@@ -799,6 +804,7 @@ struct FilterDataRecord
 struct HighlightData
 {
   char *Masks;
+  char *OriginalMasks;
   unsigned int IncludeAttr;
   unsigned int ExcludeAttr;
   unsigned int Color,SelColor,CursorColor,CursorSelColor,MarkChar;

@@ -5,10 +5,13 @@ Files highlighting
 
 */
 
-/* Revision: 1.17 08.04.2001 $ */
+/* Revision: 1.18 23.04.2001 $ */
 
 /*
 Modify:
+  23.04.2001 SVS
+    ! КХЕ! Новый вз<ляд на %PATHEXT% - то что редактируем и то, что
+      юзаем - разные сущности.
   08.04.2001 SVS
     ! Раскраска не поддерживает переменные среды. В морг! Ставим скорость
       во главу угла.
@@ -89,26 +92,27 @@ void HighlightFiles::InitHighlightFiles()
     if (!GetRegKey(RegKey,"Mask",Mask,"",sizeof(Mask)))
       break;
     struct HighlightData *NewHiData,*CurHiData;
-    if(!(Masks=(char*)malloc(strlen(Mask)+1)))
-      break;
-    if ((NewHiData=(struct HighlightData *)realloc(HiData,sizeof(*HiData)*(HiDataCount+1)))==NULL)
+    struct HighlightData HData={0};
+    if(AddMask(&HData,Mask))
     {
-      free(Masks);
-      break;
+      if ((NewHiData=(struct HighlightData *)realloc(HiData,sizeof(*HiData)*(HiDataCount+1)))==NULL)
+      {
+        DeleteMask(&HData);
+        break;
+      }
+      HiData=NewHiData;
+      HData.IncludeAttr=GetRegKey(RegKey,"IncludeAttributes",0);
+      HData.ExcludeAttr=GetRegKey(RegKey,"ExcludeAttributes",0);
+      HData.Color=GetRegKey(RegKey,"NormalColor",0);
+      HData.SelColor=GetRegKey(RegKey,"SelectedColor",0);
+      HData.CursorColor=GetRegKey(RegKey,"CursorColor",0);
+      HData.CursorSelColor=GetRegKey(RegKey,"SelectedCursorColor",0);
+      HData.MarkChar=GetRegKey(RegKey,"MarkChar",0);
+      memcpy(HiData+HiDataCount,&HData,sizeof(struct HighlightData));
+      HiDataCount++;
     }
-    HiData=NewHiData;
-    CurHiData=&HiData[HiDataCount];
-    memset(CurHiData,0,sizeof(*CurHiData));
-    CurHiData->Masks=Masks;
-    strcpy(CurHiData->Masks,Mask);
-    CurHiData->IncludeAttr=GetRegKey(RegKey,"IncludeAttributes",0);
-    CurHiData->ExcludeAttr=GetRegKey(RegKey,"ExcludeAttributes",0);
-    CurHiData->Color=GetRegKey(RegKey,"NormalColor",0);
-    CurHiData->SelColor=GetRegKey(RegKey,"SelectedColor",0);
-    CurHiData->CursorColor=GetRegKey(RegKey,"CursorColor",0);
-    CurHiData->CursorSelColor=GetRegKey(RegKey,"SelectedCursorColor",0);
-    CurHiData->MarkChar=GetRegKey(RegKey,"MarkChar",0);
-    HiDataCount++;
+    else
+      break;
   }
   StartHiDataCount=HiDataCount;
 }
@@ -119,13 +123,72 @@ HighlightFiles::~HighlightFiles()
   ClearData();
 }
 
+// вернуть шоумаску - маску, которая редактируется и отображается на экране
+// возможно это даже маска рабочая.
+char *HighlightFiles::GetMask(int Idx)
+{
+  struct HighlightData *HData=HiData+Idx;
+  return ((HData->OriginalMasks)?HData->OriginalMasks:HData->Masks);
+}
+
+BOOL HighlightFiles::AddMask(struct HighlightData *Dest,char *Mask,struct HighlightData *Src)
+{
+  char *Ptr, *OPtr;
+  /* Обработка %PATHEXT% */
+  // память под оригинал - OriginalMasks
+  if((OPtr=(char *)realloc(Dest->OriginalMasks,strlen(Mask)+1)) == NULL)
+    return FALSE;
+  strcpy(OPtr,Mask); // сохраняем оригинал.
+  // проверим
+  if((Ptr=strchr(Mask,'%')) != NULL && !strnicmp(Ptr,"%PATHEXT%",9))
+  {
+    int IQ1=(*(Ptr+9) == ',')?10:9;
+    // Если встречается %pathext%, то допишем в конец...
+    memmove(Ptr,Ptr+IQ1,strlen(Ptr+IQ1)+1);
+    Add_PATHEXT(Mask); // добавляем то, чего нету.
+    // в GroupStr находится рабочая маска
+  }
+  else
+  {
+    free(OPtr); // "съэкономи пару байт"
+    OPtr=NULL;
+  }
+  // память под рабочую маску
+  if((Ptr=(char *)realloc(Dest->Masks,strlen(Mask)+1)) == NULL)
+  {
+    if(OPtr) free(OPtr);
+    return FALSE;
+  }
+
+  if(Src)
+    memmove(Dest,Src,sizeof(struct HighlightData));
+
+  // корректирем ссылки на маски.
+  strcpy((Dest->Masks=Ptr),Mask);
+  Dest->OriginalMasks=OPtr;
+  return TRUE;
+}
+
+void HighlightFiles::DeleteMask(struct HighlightData *CurHighlightData)
+{
+  if(CurHighlightData->Masks)
+  {
+    free(CurHighlightData->Masks);
+    CurHighlightData->Masks=NULL;
+  }
+  if(CurHighlightData->OriginalMasks)
+  {
+    free(CurHighlightData->OriginalMasks);
+    CurHighlightData->OriginalMasks=NULL;
+  }
+}
+
 void HighlightFiles::ClearData()
 {
   if(HiData)
   {
     for(int I=0; I < HiDataCount; ++I)
-      if(HiData[I].Masks)
-        free(HiData[I].Masks);
+      DeleteMask(HiData+I);
     free(HiData);
   }
   HiData=NULL;
@@ -143,7 +206,7 @@ void HighlightFiles::GetHiColor(char *Path,int Attr,unsigned char &Color,
     if ((Attr & CurHiData->IncludeAttr)==CurHiData->IncludeAttr &&
         (Attr & CurHiData->ExcludeAttr)==0)
     {
-      char ArgName[NM], *NamePtr=CurHiData->Masks;
+      char ArgName[NM], *NamePtr=CurHiData->Masks; // ЗДЕСЬ МАСКА РАБОЧАЯ!!!
       while ((NamePtr=GetCommaWord(NamePtr,ArgName))!=NULL)
         if (Path==NULL && (strcmp(ArgName,"*")==0 || strcmp(ArgName,"*.*")==0) ||
             Path!=NULL && CmpName(ArgName,Path))
@@ -205,7 +268,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 
         VerticalLine,
 
-        CurHiData->Masks);
+        GetMask(I));
       HiMenuItem.Selected=(I==MenuPos);
       HiMenu.AddItem(&HiMenuItem);
     }
@@ -253,11 +316,10 @@ void HighlightFiles::HiEdit(int MenuPos)
               if (SelectPos<HiMenu.GetItemCount()-1)
               {
                 if (Message(MSG_WARNING,2,MSG(MHighlightTitle),
-                            MSG(MHighlightAskDel),HiData[SelectPos].Masks,
+                            MSG(MHighlightAskDel),GetMask(SelectPos),
                             MSG(MDelete),MSG(MCancel))!=0)
                   break;
-                if(HiData[SelectPos].Masks)
-                  free(HiData[SelectPos].Masks);
+                DeleteMask(HiData+SelectPos);
                 for (int I=SelectPos+1;I<ItemCount;I++)
                   HiData[I-1]=HiData[I];
                 HiDataCount--;
@@ -311,7 +373,7 @@ void HighlightFiles::SaveHiData()
   {
     struct HighlightData *CurHiData=&HiData[I];
     itoa(I,Ptr,10);
-    SetRegKey(RegKey,"Mask",CurHiData->Masks);
+    SetRegKey(RegKey,"Mask",GetMask(I));
     SetRegKey(RegKey,"IncludeAttributes",CurHiData->IncludeAttr);
     SetRegKey(RegKey,"ExcludeAttributes",CurHiData->ExcludeAttr);
     SetRegKey(RegKey,"NormalColor",CurHiData->Color);
@@ -377,15 +439,15 @@ int HighlightFiles::EditRecord(int RecPos,int New)
   MakeDialogItems(HiEditDlgData,HiEditDlg);
   struct HighlightData EditData;
   int ExitCode=0;
-  char Mask[HIGHLIGHT_MASK_SIZE];
+  char Mask[HIGHLIGHT_MASK_SIZE], *Ptr;
 
   *Mask=0;
 
   if (!New && RecPos<HiDataCount)
   {
     EditData=HiData[RecPos];
-    if(EditData.Masks)
-      strcpy(Mask,EditData.Masks);
+    if((Ptr=GetMask(RecPos)) != NULL)
+      strcpy(Mask,Ptr);
   }
   else
     memset(&EditData,0,sizeof(EditData));
@@ -516,24 +578,20 @@ int HighlightFiles::EditRecord(int RecPos,int New)
 
   if (!New && RecPos<HiDataCount)
   {
-    char *Ptr=(char*)realloc(HiData[RecPos].Masks,strlen(Mask)+1);
-    if(!Ptr)
+    if(!AddMask(HiData+RecPos,Mask,&EditData))
       return FALSE;
-    HiData[RecPos]=EditData;
-    HiData[RecPos].Masks=Ptr;
-    strcpy(HiData[RecPos].Masks,Mask);
   }
   if (New)
   {
     struct HighlightData *NewHiData;
-    char *Ptr;
+    struct HighlightData HData={0};
 
-    if(!(Ptr=(char*)malloc(strlen(Mask)+1)))
+    if(!AddMask(&HData,Mask,&EditData))
       return FALSE;
 
     if ((NewHiData=(struct HighlightData *)realloc(HiData,sizeof(*HiData)*(HiDataCount+1)))==NULL)
     {
-      free(Ptr);
+      DeleteMask(&HData);
       return(FALSE);
     }
 
@@ -541,9 +599,7 @@ int HighlightFiles::EditRecord(int RecPos,int New)
     HiData=NewHiData;
     for (int I=HiDataCount-1;I>RecPos;I--)
       HiData[I]=HiData[I-1];
-    HiData[RecPos]=EditData;
-    HiData[RecPos].Masks=Ptr;
-    strcpy(HiData[RecPos].Masks,Mask);
+    memcpy(HiData+RecPos,&HData,sizeof(struct HighlightData));
   }
   return(TRUE);
 }

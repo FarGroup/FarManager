@@ -5,10 +5,13 @@ far.cpp
 
 */
 
-/* Revision: 1.17 08.04.2001 $ */
+/* Revision: 1.18 23.04.2001 $ */
 
 /*
 Modify:
+  23.04.2001 SVS
+    ! КХЕ! Новый вз<ляд на %PATHEXT% - то что редактируем и то, что
+      юзаем - разные сущности.
   08.04.2001 SVS
     ! Изменена обработка PATHEXT - при старте FAR`а преобразуем к нужному виду.
   04.04.2001 SVS
@@ -366,19 +369,19 @@ void SetHighlighting()
      Mask                        NormalColor       SelectedCursorColor
                IncludeAttributes       SelectedColor     MarkChar
                        ExcludeAttributes     CursorColor             */
-    {Masks[0], 0x0002, 0x0000,   0x13, 0x00, 0x38, 0x00, 0x00},
-    {Masks[0], 0x0004, 0x0000,   0x13, 0x00, 0x38, 0x00, 0x00},
-    {Masks[0], 0x0010, 0x0000,   0x1F, 0x00, 0x3F, 0x00, 0x00},
-    {Masks[1], 0x0000, 0x0000,   0x1A, 0x00, 0x3A, 0x00, 0x00},
-    {Masks[2], 0x0000, 0x0000,   0x1D, 0x00, 0x3D, 0x00, 0x00},
-    {Masks[3], 0x0000, 0x0000,   0x16, 0x00, 0x36, 0x00, 0x00},
+    {Masks[0], NULL,     0x0002, 0x0000,   0x13, 0x00, 0x38, 0x00, 0x00},
+    {Masks[0], NULL,     0x0004, 0x0000,   0x13, 0x00, 0x38, 0x00, 0x00},
+    {Masks[0], NULL,     0x0010, 0x0000,   0x1F, 0x00, 0x3F, 0x00, 0x00},
+    {Masks[1], Masks[1], 0x0000, 0x0000,   0x1A, 0x00, 0x3A, 0x00, 0x00},
+    {Masks[2], NULL,     0x0000, 0x0000,   0x1D, 0x00, 0x3D, 0x00, 0x00},
+    {Masks[3], NULL,     0x0000, 0x0000,   0x16, 0x00, 0x36, 0x00, 0x00},
   };
 
   // для NT добавляем CMD
   if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
     strcat(CmdExt,",*.cmd");
 
-  Add_PATHEXT(CmdExt);
+//  Add_PATHEXT(CmdExt);
 
   Ptr=MkRegKeyHighlightName(RegKey);
   for(I=0; I < sizeof(StdHighlightData)/sizeof(StdHighlightData[0]); ++I)
