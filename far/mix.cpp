@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.26 18.09.2000 $ */
+/* Revision: 1.27 19.09.2000 $ */
 
 /*
 Modify:
+  19.09.2000 SVS
+    + IsFolderNotEmpty немного "ускорим"
+    ! Функция FarMkTemp - уточнение!
   18.09.2000 skv
     + в IsCommandExeGUI проверка на наличие .bat и .cmd в тек. директории
   18.09.2000 SVS
@@ -1389,18 +1392,27 @@ void ShowSeparator(int Length)
   }
 }
 
-
+/* $ 19.09.2000 SVS
+   немного "ускорим" за счет сокращения вызова функций `strcmp'
+*/
 int IsFolderNotEmpty(char *Name)
 {
+  register DWORD P;
   WIN32_FIND_DATA fdata;
   char FileName[NM];
   ScanTree ScTree(FALSE,FALSE);
   ScTree.SetFindPath(Name,"*.*");
   while (ScTree.GetNextName(&fdata,FileName))
-    if (strcmp(FileName,".")!=0 && strcmp(FileName,"..")!=0)
+  {
+    // немного ускорим.
+    P=(*(DWORD*)FileName)&0x00FFFFFF;
+    if((P&0xFFFF) != 0x002E && P != 0x002E2E )
+//    if (strcmp(FileName,".")!=0 && strcmp(FileName,"..")!=0)
       return(TRUE);
+  }
   return(FALSE);
 }
+/* SVS $ */
 
 
 void RemoveHighlights(char *Str)
@@ -2237,13 +2249,17 @@ void WINAPI FarRecursiveSearch(char *initdir,char *mask,FRSUSERFUNC func,DWORD f
 */
 char* WINAPI FarMkTemp(char *Dest, char *Template)
 {
-  char TempPath[NM];
-  TempPath[GetTempPath(sizeof(TempPath),TempPath)]=0;
-  strcat(TempPath,Template);
-  if(mktemp(TempPath) != NULL)
+  if(Dest && Template && *Template)
   {
-    strcpy(Dest,TempPath);
-    return Dest;
+    char TempPath[NM];
+    int Len;
+    TempPath[Len=GetTempPath(sizeof(TempPath),TempPath)]=0;
+    strcat(TempPath,Template);
+    if(mktemp(TempPath+Len) != NULL)
+    {
+      strcpy(Dest,TempPath);
+      return Dest;
+    }
   }
   return NULL;
 }
