@@ -5,10 +5,12 @@ help.cpp
 
 */
 
-/* Revision: 1.28 20.06.2001 $ */
+/* Revision: 1.29 10.07.2001 $ */
 
 /*
 Modify:
+  10.07.2001 OT
+    - Возвращены переменные static SaveScreen *TopScreen и TopLevel :)
   20.06.2001 SVS
     - Исправляем проблемы с Alt-F9
   14.06.2001 OT
@@ -107,6 +109,7 @@ Modify:
 #define MAX_HELP_STRING_LENGTH 300
 
 static int FullScreenHelp=0;
+static SaveScreen *TopScreen=NULL;
 
 static char *PluginContents="__PluginContents__";
 static char *HelpOnHelpTopic="Help";
@@ -149,6 +152,8 @@ Help::Help(char *Topic, char *Mask,DWORD Flags)
   /* $ 07.05.2001 DJ */
   KeyBarVisible = TRUE;
   /* DJ $ */
+  TopLevel=TRUE;
+  TopScreen=new SaveScreen;
   HelpData=NULL;
   strcpy(HelpTopic,Topic);
   *HelpPath=0;
@@ -207,6 +212,7 @@ Help::Help(char *Topic,int &ShowPrev,int PrevFullScreen,DWORD Flags,char *Mask)
   /* $ 07.05.2001 DJ */
   KeyBarVisible = TRUE;
   /* DJ $ */
+  TopLevel=FALSE;
   HelpData=NULL;
   Help::PrevFullScreen=PrevFullScreen;
   strcpy(HelpTopic,Topic);
@@ -265,6 +271,13 @@ Help::~Help()
   if(HelpMask)
     delete HelpMask;
   /* SVS $ */
+  if (TopLevel)
+  {
+    delete TopScreen;
+    TopScreen=NULL;
+  }
+  if (TopScreen!=NULL && (TopLevel || PrevFullScreen!=FullScreenHelp))
+    TopScreen->RestoreArea();
 
 }
 
