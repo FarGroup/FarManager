@@ -7,10 +7,13 @@ struct.hpp
 
 */
 
-/* Revision: 1.120 02.02.2005 $ */
+/* Revision: 1.121 01.03.2005 $ */
 
 /*
 Modify:
+  01.03.2005 SVS
+    + struct TreeOptions
+    ! Opt.AutoChangeFolder -> Opt.Tree.AutoChangeFolder
   02.02.2005 SVS
     + DialogsOptions.CBoxMaxHeight - максимальный размер открываемого списка (по умолчанию=8)
   30.08.2004 SVS
@@ -592,6 +595,15 @@ struct FindFileOptions{
   int FileSearchMode;
 };
 
+struct TreeOptions{
+  int LocalDisk;         // Хранить файл структуры папок для локальных дисков
+  int NetDisk;           // Хранить файл структуры папок для сетевых дисков
+  int NetPath;           // Хранить файл структуры папок для сетевых путей
+  int RemovableDisk;     // Хранить файл структуры папок для сменных дисков
+  int MinTreeCount;      // Минимальное количество папок для сохранения дерева в файле.
+  int AutoChangeFolder;  // автосмена папок при перемещении по дереву
+};
+
 struct Options
 {
   int Clock;
@@ -607,7 +619,6 @@ struct Options
   int InactivityExitTime;
   int ShowHidden;
   int Highlight;
-  int AutoChangeFolder;
   char LeftFolder[NM];
   char RightFolder[NM];
   /* $ 07.09.2000 tran
@@ -939,6 +950,7 @@ struct Options
   */
   struct FilterParams OpFilter;
   /* KM $ */
+  struct TreeOptions Tree;
 };
 
 

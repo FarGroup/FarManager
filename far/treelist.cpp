@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.63 14.02.2005 $ */
+/* Revision: 1.64 01.03.2005 $ */
 
 /*
 Modify:
+  01.03.2005 SVS
+    ! Opt.AutoChangeFolder -> Opt.Tree.AutoChangeFolder
   14.02.2005 SVS
     + В TreeList добавлены функции GetFileName(), FindFile()
   11.11.2004 SVS
@@ -1063,7 +1065,7 @@ int TreeList::ProcessKey(int Key)
         AnotherPanel->Redraw();
 
         Opt.DeleteToRecycleBin=SaveOpt;
-        if (Opt.AutoChangeFolder && !ModalMode)
+        if (Opt.Tree.AutoChangeFolder && !ModalMode)
           ProcessKey(KEY_ENTER);
       }
       return(TRUE);
@@ -1086,7 +1088,7 @@ int TreeList::ProcessKey(int Key)
     case KEY_HOME:        case KEY_SHIFTNUMPAD7:
     {
       Up(0x7fffff);
-      if (Opt.AutoChangeFolder && !ModalMode)
+      if (Opt.Tree.AutoChangeFolder && !ModalMode)
         ProcessKey(KEY_ENTER);
       return(TRUE);
     }
@@ -1094,7 +1096,7 @@ int TreeList::ProcessKey(int Key)
     case KEY_ADD: // OFM: Gray+/Gray- navigation
     {
       CurFile=GetNextNavPos();
-      if (Opt.AutoChangeFolder && !ModalMode)
+      if (Opt.Tree.AutoChangeFolder && !ModalMode)
         ProcessKey(KEY_ENTER);
       else
         DisplayTree(TRUE);
@@ -1104,7 +1106,7 @@ int TreeList::ProcessKey(int Key)
     case KEY_SUBTRACT: // OFM: Gray+/Gray- navigation
     {
       CurFile=GetPrevNavPos();
-      if (Opt.AutoChangeFolder && !ModalMode)
+      if (Opt.Tree.AutoChangeFolder && !ModalMode)
         ProcessKey(KEY_ENTER);
       else
         DisplayTree(TRUE);
@@ -1114,7 +1116,7 @@ int TreeList::ProcessKey(int Key)
     case KEY_END:         case KEY_SHIFTNUMPAD1:
     {
       Down(0x7fffff);
-      if (Opt.AutoChangeFolder && !ModalMode)
+      if (Opt.Tree.AutoChangeFolder && !ModalMode)
         ProcessKey(KEY_ENTER);
       return(TRUE);
     }
@@ -1122,7 +1124,7 @@ int TreeList::ProcessKey(int Key)
     case KEY_UP:          case KEY_SHIFTNUMPAD8:
     {
       Up(1);
-      if (Opt.AutoChangeFolder && !ModalMode)
+      if (Opt.Tree.AutoChangeFolder && !ModalMode)
         ProcessKey(KEY_ENTER);
       return(TRUE);
     }
@@ -1130,7 +1132,7 @@ int TreeList::ProcessKey(int Key)
     case KEY_DOWN:        case KEY_SHIFTNUMPAD2:
     {
       Down(1);
-      if (Opt.AutoChangeFolder && !ModalMode)
+      if (Opt.Tree.AutoChangeFolder && !ModalMode)
         ProcessKey(KEY_ENTER);
       return(TRUE);
     }
@@ -1140,7 +1142,7 @@ int TreeList::ProcessKey(int Key)
       CurTopFile-=Y2-Y1-3-ModalMode;
       CurFile-=Y2-Y1-3-ModalMode;
       DisplayTree(TRUE);
-      if (Opt.AutoChangeFolder && !ModalMode)
+      if (Opt.Tree.AutoChangeFolder && !ModalMode)
         ProcessKey(KEY_ENTER);
       return(TRUE);
     }
@@ -1150,7 +1152,7 @@ int TreeList::ProcessKey(int Key)
       CurTopFile+=Y2-Y1-3-ModalMode;
       CurFile+=Y2-Y1-3-ModalMode;
       DisplayTree(TRUE);
-      if (Opt.AutoChangeFolder && !ModalMode)
+      if (Opt.Tree.AutoChangeFolder && !ModalMode)
         ProcessKey(KEY_ENTER);
       return(TRUE);
     }
@@ -1160,7 +1162,7 @@ int TreeList::ProcessKey(int Key)
           Key>=KEY_ALTSHIFT_BASE+0x01 && Key<=KEY_ALTSHIFT_BASE+255)
       {
         FastFind(Key);
-        if (Opt.AutoChangeFolder && !ModalMode)
+        if (Opt.Tree.AutoChangeFolder && !ModalMode)
           ProcessKey(KEY_ENTER);
       }
       else
@@ -1352,7 +1354,7 @@ int TreeList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         MouseEvent->dwEventFlags==DOUBLE_CLICK ||
         (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED) &&
         MouseEvent->dwEventFlags==0 ||
-        OldFile!=CurFile && Opt.AutoChangeFolder && !ModalMode)
+        OldFile!=CurFile && Opt.Tree.AutoChangeFolder && !ModalMode)
     {
       ProcessEnter();
       return(TRUE);
@@ -1367,7 +1369,7 @@ int TreeList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       return(TRUE);
     while (IsMouseButtonPressed() && MouseY<=Y1+1)
       Up(1);
-    if (Opt.AutoChangeFolder && !ModalMode)
+    if (Opt.Tree.AutoChangeFolder && !ModalMode)
       ProcessKey(KEY_ENTER);
     return(TRUE);
   }
@@ -1379,7 +1381,7 @@ int TreeList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       return(TRUE);
     while (IsMouseButtonPressed() && MouseY>=Y2-2)
       Down(1);
-    if (Opt.AutoChangeFolder && !ModalMode)
+    if (Opt.Tree.AutoChangeFolder && !ModalMode)
       ProcessKey(KEY_ENTER);
     return(TRUE);
   }

@@ -5,10 +5,16 @@ config.cpp
 
 */
 
-/* Revision: 1.175 02.02.2005 $ */
+/* Revision: 1.176 01.03.2005 $ */
 
 /*
 Modify:
+  01.03.2005 SVS
+    ! Opt.AutoChangeFolder -> Opt.Tree.AutoChangeFolder
+    ! значение реестра "Panel\AutoChangeFolder" перемещено в "Panel\Tree\AutoChangeFolder"
+      Юзерам нужно это значение выставить по новой, но... так будет логичнее
+    + Opt.Tree.*
+    + XLAT_CONVERTALLCMDLINE
   02.02.2005 SVS
     + DialogsOptions.CBoxMaxHeight - максимальный размер открываемого списка (по умолчанию=8)
   06.01.2005 WARP
@@ -555,6 +561,7 @@ const char NKeyPanel[]="Panel";
 const char NKeyPanelLeft[]="Panel\\Left";
 const char NKeyPanelRight[]="Panel\\Right";
 const char NKeyPanelLayout[]="Panel\\Layout";
+const char NKeyPanelTree[]="Panel\\Tree";
 const char NKeyLayout[]="Layout";
 const char NKeyDescriptions[]="Descriptions";
 const char NKeyKeyMacros[]="KeyMacros";
@@ -717,7 +724,7 @@ void PanelSettings()
 
   CfgDlg[DLG_PANEL_HIDDEN].Selected=Opt.ShowHidden;
   CfgDlg[DLG_PANEL_HIGHLIGHT].Selected=Opt.Highlight;
-  CfgDlg[DLG_PANEL_CHANGEFOLDER].Selected=Opt.AutoChangeFolder;
+  CfgDlg[DLG_PANEL_CHANGEFOLDER].Selected=Opt.Tree.AutoChangeFolder;
   CfgDlg[DLG_PANEL_SELECTFOLDERS].Selected=Opt.SelectFolders;
   CfgDlg[DLG_PANEL_SORTFOLDEREXT].Selected=Opt.SortFolderExt;
   CfgDlg[DLG_PANEL_REVERSESORT].Selected=Opt.ReverseSort;
@@ -763,7 +770,7 @@ void PanelSettings()
 
   Opt.ShowHidden=CfgDlg[DLG_PANEL_HIDDEN].Selected;
   Opt.Highlight=CfgDlg[DLG_PANEL_HIGHLIGHT].Selected;
-  Opt.AutoChangeFolder=CfgDlg[DLG_PANEL_CHANGEFOLDER].Selected;
+  Opt.Tree.AutoChangeFolder=CfgDlg[DLG_PANEL_CHANGEFOLDER].Selected;
   Opt.SelectFolders=CfgDlg[DLG_PANEL_SELECTFOLDERS].Selected;
   Opt.SortFolderExt=CfgDlg[DLG_PANEL_SORTFOLDEREXT].Selected;
   Opt.ReverseSort=CfgDlg[DLG_PANEL_REVERSESORT].Selected;
@@ -1607,7 +1614,7 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeyEditor,"FileSizeLimitHi",&Opt.EditorFileSizeLimitHi,(DWORD)0, 0},
   {0, REG_DWORD,  NKeyEditor,"CharCodeBase",&Opt.EdOpt.CharCodeBase,1, 0},
 
-  {0, REG_DWORD,  NKeyXLat,"Flags",&Opt.XLat.Flags,(DWORD)XLAT_SWITCHKEYBLAYOUT, 0},
+  {0, REG_DWORD,  NKeyXLat,"Flags",&Opt.XLat.Flags,(DWORD)XLAT_SWITCHKEYBLAYOUT|XLAT_CONVERTALLCMDLINE, 0},
   {0, REG_BINARY, NKeyXLat,"Table1",(BYTE*)&Opt.XLat.Table[0][1],sizeof(Opt.XLat.Table[0])-1,NULL},
   {0, REG_BINARY, NKeyXLat,"Table2",(BYTE*)&Opt.XLat.Table[1][1],sizeof(Opt.XLat.Table[1])-1,NULL},
   {0, REG_BINARY, NKeyXLat,"Rules1",(BYTE*)&Opt.XLat.Rules[0][1],sizeof(Opt.XLat.Rules[0])-1,NULL},
@@ -1705,6 +1712,13 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeySystemExecutor,"UseAppPath",&Opt.ExecuteUseAppPath,1, 0},
   {0, REG_DWORD,  NKeySystemExecutor,"ShowErrorMessage",&Opt.ExecuteShowErrorMessage,1, 0},
 
+  {0, REG_DWORD,  NKeyPanelTree,"MinTreeCount",&Opt.Tree.MinTreeCount, 4, 0},
+  {0, REG_DWORD,  NKeyPanelTree,"LocalDisk",&Opt.Tree.LocalDisk, 2, 0},
+  {0, REG_DWORD,  NKeyPanelTree,"NetDisk",&Opt.Tree.NetDisk, 2, 0},
+  {0, REG_DWORD,  NKeyPanelTree,"RemovableDisk",&Opt.Tree.RemovableDisk, 2, 0},
+  {0, REG_DWORD,  NKeyPanelTree,"NetPath",&Opt.Tree.NetPath, 2, 0},
+  {1, REG_DWORD,  NKeyPanelTree,"AutoChangeFolder",&Opt.Tree.AutoChangeFolder,0, 0}, // ???
+
   {0, REG_DWORD,  NKeyHelp,"ActivateURL",&Opt.HelpURLRules,1, 0},
 
   {1, REG_SZ,     NKeyLanguage,"Main",Opt.Language,sizeof(Opt.Language),"English"},
@@ -1723,7 +1737,6 @@ static struct FARConfig{
 
   {1, REG_DWORD,  NKeyPanel,"ShowHidden",&Opt.ShowHidden,1, 0},
   {1, REG_DWORD,  NKeyPanel,"Highlight",&Opt.Highlight,1, 0},
-  {1, REG_DWORD,  NKeyPanel,"AutoChangeFolder",&Opt.AutoChangeFolder,0, 0},
   {1, REG_DWORD,  NKeyPanel,"SortFolderExt",&Opt.SortFolderExt,0, 0},
   {1, REG_DWORD,  NKeyPanel,"SelectFolders",&Opt.SelectFolders,0, 0},
   {1, REG_DWORD,  NKeyPanel,"ReverseSort",&Opt.ReverseSort,1, 0},

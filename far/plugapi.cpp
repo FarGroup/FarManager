@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.179 25.10.2004 $ */
+/* Revision: 1.180 01.03.2005 $ */
 
 /*
 Modify:
+  01.03.2005 SVS
+    ! Opt.AutoChangeFolder -> Opt.Tree.AutoChangeFolder
   25.10.2004 SVS
     - BugZ#1171 - срыв стека
   05.10.2004 SVS
@@ -994,7 +996,7 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
       static struct Opt2Flags OSys[]={
         {&Opt.ShowHidden,FPS_SHOWHIDDENANDSYSTEMFILES},
         {&Opt.Highlight,FPS_HIGHLIGHTFILES},
-        {&Opt.AutoChangeFolder,FPS_AUTOCHANGEFOLDER},
+        {&Opt.Tree.AutoChangeFolder,FPS_AUTOCHANGEFOLDER},
         {&Opt.SelectFolders,FPS_SELECTFOLDERS},
         {&Opt.ReverseSort,FPS_ALLOWREVERSESORTMODES},
         {&Opt.ShowColumnTitles,FPS_SHOWCOLUMNTITLES},

@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.249 21.01.2005 $ */
+/* Revision: 1.250 01.03.2005 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  01.03.2005 SVS
+    + XLAT_CONVERTALLCMDLINE
   21.01.2005 SVS
     ! Открытие Viewer API
     ! VE_READ и VE_CLOSE "загнаны" в enum
@@ -2300,10 +2302,11 @@ typedef DWORD (WINAPI *FARSTDEXPANDENVIRONMENTSTR)(
 );
 
 enum XLATMODE{
-  XLAT_SWITCHKEYBLAYOUT = 0x0000001UL,
-  XLAT_SWITCHKEYBBEEP   = 0x0000002UL,
+  XLAT_SWITCHKEYBLAYOUT  = 0x00000001UL,
+  XLAT_SWITCHKEYBBEEP    = 0x00000002UL,
 #ifdef FAR_USE_INTERNALS
-  XLAT_USEKEYBLAYOUTNAME= 0x0000004UL,
+  XLAT_USEKEYBLAYOUTNAME = 0x00000004UL,
+  XLAT_CONVERTALLCMDLINE = 0x00010000UL,
 #endif // END FAR_USE_INTERNALS
 };
 

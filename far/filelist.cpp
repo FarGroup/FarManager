@@ -5,10 +5,15 @@ filelist.cpp
 
 */
 
-/* Revision: 1.217 26.02.2005 $ */
+/* Revision: 1.218 01.03.2005 $ */
 
 /*
 Modify:
+  01.03.2005 SVS
+    ! уточнен набор клавиш, которые могут работать при погашенных панелях.
+      в основном это вставка пути, создание каталога, выполнить команду,
+      показать/спрятать скрытые файлы, длинные - короткие имена файлов,
+      конфигурирование плагиинов.
   26.02.2005 WARP
     ! Переписал (пересобрал) функцию execute
   14.02.2005 SVS
@@ -1095,24 +1100,43 @@ int FileList::ProcessKey(int Key)
   }
   else
   {
-    /*$ 23.07.2001 SKV
-      Пусть Ctrl-G, Ctrl-F, Ctrl-Shift-F, Ctrl-Enter работают
-      при погашенных панелях.
-    */
-    if (Key!=KEY_SHIFTF4                &&
-        Key!=KEY_CTRLG                  &&
-        Key!=KEY_CTRLF                  &&
-        Key!=KEY_CTRLALTF               &&
-        Key!=KEY_CTRLENTER              &&
-        Key!=KEY_CTRLBRACKET            &&
-        Key!=KEY_CTRLBACKBRACKET        &&
-        Key!=KEY_CTRLSHIFTBRACKET       &&
-        Key!=KEY_CTRLSHIFTBACKBRACKET   &&
-        Key!=KEY_F7                     &&
-        Key!=KEY_CTRLH
-        )
-    /* SKV$*/
-      return(FALSE);
+    // Те клавиши, которые работают при погашенных панелях:
+    switch(Key)
+    {
+      case KEY_CTRLF:
+      case KEY_CTRLALTF:
+      case KEY_CTRLENTER:
+      case KEY_CTRLBRACKET:
+      case KEY_CTRLBACKBRACKET:
+      case KEY_CTRLSHIFTBRACKET:
+      case KEY_CTRLSHIFTBACKBRACKET:
+      case KEY_CTRL|KEY_COLON:
+      case KEY_CTRL|KEY_ALT|KEY_COLON:
+      case KEY_CTRLALTBRACKET:
+      case KEY_CTRLALTBACKBRACKET:
+      case KEY_ALTSHIFTBRACKET:
+      case KEY_ALTSHIFTBACKBRACKET:
+        break;
+
+      case KEY_CTRLG:
+      case KEY_SHIFTF4:
+      case KEY_F7:
+      case KEY_CTRLH:
+      case KEY_ALTSHIFTF9:
+      case KEY_CTRLN:
+        break;
+
+      // эти спорные, хотя, если Ctrl-F работает, то и эти должны :-)
+/*
+      case KEY_CTRLINS:
+      case KEY_CTRLSHIFTINS:
+      case KEY_CTRLALTINS:
+      case KEY_ALTSHIFTINS:
+        break;
+*/
+      default:
+        return(FALSE);
+    }
   }
 
   if (!ShiftPressed && ShiftSelection!=-1)

@@ -5,10 +5,14 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.78 23.12.2004 $ */
+/* Revision: 1.79 28.02.2005 $ */
 
 /*
 Modify:
+  28.02.2005 SVS
+    ! В строках ввода (диалоги) и ком.строка - будет конвертироваться
+      ближайшее слово или выделение.
+    + XLAT_CONVERTALLCMDLINE
   23.12.2004 WARP
     ! Нафиг отрубаем показ дерева, если его создание прервали по Esc (нечего пустое дерево показывать).
       Ставим флаг IsPanel в FALSE. Мы ведь панель не создаем.
@@ -488,7 +492,7 @@ int CommandLine::ProcessKey(int Key)
         /* 13.12.2000 SVS
            ! Для CmdLine - если нет выделения, преобразуем всю строку (XLat)
         */
-        CmdStr.Xlat(TRUE);
+        CmdStr.Xlat(Opt.XLat.Flags&XLAT_CONVERTALLCMDLINE?TRUE:FALSE);
         /* SVS $ */
         /* $ 13.11.2001 IS иначе неправильно работает ctrl-end */
         if(SetLastCmdStr(CmdStr.GetStringAddr(),CmdStr.GetLength()))

@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.131 02.02.2005 $ */
+/* Revision: 1.132 28.02.2005 $ */
 
 /*
 Modify:
+  28.02.2005 SVS
+    - При потери окна фокуса Far, также выделение исчезает из строки.
   02.02.2005 SVS
     - BugZ#1246 - Макросы производящие манипулирование курсором не снимают выделение в полях ввода
   06.01.2005 WARP
@@ -980,9 +982,20 @@ int Edit::ProcessKey(int Key)
   // $ 04.07.2000 IG - добавлена проврерка на запуск макроса (00025.edit.cpp.txt)
   if (!ShiftPressed && (!_Macro_IsExecuting || IsNavKey(Key) && _Macro_IsExecuting) &&
       !IsShiftKey(Key) && !Recurse &&
-      Key!=KEY_SHIFT && Key!=KEY_CTRL && Key!=KEY_ALT && Key!=KEY_RCTRL && Key!=KEY_RALT && Key!=KEY_NONE)
+      Key!=KEY_SHIFT && Key!=KEY_CTRL && Key!=KEY_ALT &&
+      Key!=KEY_RCTRL && Key!=KEY_RALT && Key!=KEY_NONE &&
+      Key!=KEY_KILLFOCUS && Key != KEY_GOTFOCUS &&
+      ((Key&(~0xFF000000)) != KEY_LWIN && (Key&(~0xFF000000)) != KEY_RWIN && (Key&(~0xFF000000)) != KEY_APPS)
+     )
   {
-    Flags.Clear(FEDITLINE_MARKINGBLOCK);
+//_SVS(SysLog("Edit::ProcessKey(0x%08X ==> '%s')",Key,_FARKEY_ToName(Key)));
+//_SVS(SysLog("_Macro_IsExecuting = %d",_Macro_IsExecuting));
+//_SVS(SysLog("ShiftPressed       = %d",ShiftPressed));
+//_SVS(SysLog("IsNavKey(Key)      = %d",IsNavKey(Key)));
+//_SVS(SysLog("IsShiftKey(Key)    = %d",IsShiftKey(Key)));
+//_SVS(SysLog("Recurse            = %d",Recurse));
+    Flags.Clear(FEDITLINE_MARKINGBLOCK); // хмм... а это здесь должно быть?
+
     if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS) && !(Key==KEY_CTRLINS || Key==KEY_CTRLNUMPAD0) &&
         Key!=KEY_SHIFTDEL && !Flags.Check(FEDITLINE_EDITORMODE) && Key != KEY_CTRLQ &&
         !(Key == KEY_SHIFTINS || Key == KEY_SHIFTNUMPAD0)) //Key != KEY_SHIFTINS) //??
@@ -996,11 +1009,13 @@ int Edit::ProcessKey(int Key)
         PrevSelEnd=SelEnd;
         Select(-1,0);
         Show();
+//_SVS(SysLog("Edit::ProcessKey(), Select Kill"));
       }
       /* DJ $ */
     }
 
   }
+
   if (!EditEncodeDisabled && Key<256 && TableSet && !ReturnAltValue)
     Key=TableSet->EncodeTable[Key];
 
@@ -1689,7 +1704,7 @@ int Edit::ProcessKey(int Key)
           /* KM $ */
         }
         else
-          if (SelEnd<=StrSize)
+          if (SelEnd<=StrSize) // TODO: если в начало условия добавить "StrSize &&", то пропадет баг "Ctrl-Ins в пустой строке очищает клипборд"
           {
             int Ch=Str[SelEnd];
             Str[SelEnd]=0;
