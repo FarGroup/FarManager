@@ -5,10 +5,12 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.26 15.05.2001 $ */
+/* Revision: 1.27 16.05.2001 $ */
 
 /*
 Modify:
+  16.05.2001 DJ
+    ! proof-of-concept
   15.05.2001 OT
     ! NWZ -> NFZ
   12.05.2001 DJ
@@ -356,7 +358,7 @@ int ControlObject::ProcessKey(int Key)
     case KEY_F1:
       if (!Cp()->ActivePanel->ProcessKey(KEY_F1))
       {
-        Help *Hlp= new Help("Contents");
+        Help Hlp ("Contents");
       }
       return(TRUE);
     case KEY_CTRLF2:

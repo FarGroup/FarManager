@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.08 16.05.2001 $ */
+/* Revision: 1.09 16.05.2001 $ */
 
 /*
 Modify:
+  16.05.2001 DJ
+    ! proof-of-concept
   16.05.2001 SVS
     ! _D() -> _OT()
   15.05.2001 OT
@@ -290,7 +292,7 @@ int  FilePanels::ProcessKey(int Key)
     case KEY_F1:
       if (!ActivePanel->ProcessKey(KEY_F1))
       {
-        Help *Hlp= new Help("Contents");
+        Help Hlp ("Contents");
       }
       return(TRUE);
     case KEY_CTRLF2:

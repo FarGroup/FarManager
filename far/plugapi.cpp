@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.58 16.05.2001 $ */
+/* Revision: 1.59 16.05.2001 $ */
 
 /*
 Modify:
+  16.05.2001 DJ
+    ! proof-of-concept
   16.05.2001 SVS
     + #include "farexcpt.hpp"
   15.05.2001 OT
@@ -247,8 +249,8 @@ BOOL WINAPI FarShowHelp(char *ModuleName, char *HelpTopic,DWORD Flags)
       return FALSE;
   }
   {
-    Help *Hlp= new Help(Topic,Mask,OFlags);
-    if(Hlp->GetError())
+    Help Hlp (Topic,Mask,OFlags);
+    if(Hlp.GetError())
       return FALSE;
   }
   return TRUE;
@@ -1166,15 +1168,15 @@ int WINAPI FarViewer(char *FileName,char *Title,int X1,int Y1,int X2,
   }
   else
   {
-    FileViewer *Viewer=new FileViewer(FileName,FALSE,Title,X1,Y1,X2,Y2);
+    FileViewer Viewer (FileName,FALSE,Title,X1,Y1,X2,Y2);
     if (Flags & VF_DELETEONCLOSE)
-      Viewer->SetTempViewName(FileName);
+      Viewer.SetTempViewName(FileName);
     /* $ 12.05.2001 DJ */
-    Viewer->SetEnableF6 ((Flags & VF_ENABLE_F6) != 0);
+    Viewer.SetEnableF6 ((Flags & VF_ENABLE_F6) != 0);
     /* DJ $ */
     SetConsoleTitle(OldTitle);
-//    FrameManager->ModalizeFrame(Viewer);//##
-    return TRUE; //##
+    FrameManager->ExecuteModal(Viewer);
+    return TRUE;
   }
   return(TRUE);
 }
@@ -1213,12 +1215,12 @@ int WINAPI FarEditor(char *FileName,char *Title,int X1,int Y1,int X2,
   }
   else
   {
-   FileEditor *Editor=new FileEditor(FileName,CreateNew,FALSE,StartLine,StartChar,Title,X1,Y1,X2,Y2);//##
+   FileEditor Editor(FileName,CreateNew,FALSE,StartLine,StartChar,Title,X1,Y1,X2,Y2);
    /* $ 12.05.2001 DJ */
-   Editor->SetEnableF6 ((Flags & EF_ENABLE_F6) != 0);
+   Editor.SetEnableF6 ((Flags & EF_ENABLE_F6) != 0);
    /* DJ $ */
    SetConsoleTitle(OldTitle);
-   FrameManager->ModalizeFrame (Editor); //##
+   FrameManager->ExecuteModal (Editor); //##
    return TRUE;
   }
   return ExitCode;

@@ -5,10 +5,12 @@ Parent class для модальных объектов
 
 */
 
-/* Revision: 1.06 15.05.2001 $ */
+/* Revision: 1.07 16.05.2001 $ */
 
 /*
 Modify:
+  16.05.2001 DJ
+    ! proof-of-concept
   15.05.2001 OT
     ! NWZ -> NFZ
   06.05.2001 DJ
@@ -118,7 +120,7 @@ void Modal::SetHelp(char *Topic)
 void Modal::ShowHelp()
 {
   if (*HelpTopic)
-    Help *Hlp= new Help(HelpTopic);
+    Help Hlp (HelpTopic);
 }
 
 /* $ 29.06.2000 tran

@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.19 15.05.2001 $ */
+/* Revision: 1.20 16.05.2001 $ */
 
 /*
 Modify:
+  16.05.2001 DJ
+    ! возвращение ExecuteModal()
   15.05.2001 OT
     ! NWZ -> NFZ
   14.05.2001 OT
@@ -88,21 +90,26 @@ Manager::Manager()
 {
   FrameList=NULL;
   FrameCount=FramePos=FrameListSize=0;
+  ModalStack=NULL;
+  ModalStackSize = ModalStackCount = 0;
   EndLoop = FALSE;
 
-  CurrentFrame  =
-  InsertedFrame =
-  DeletedFrame  =
-  ActivatedFrame=
-  DeactivatedFrame=
+  CurrentFrame  = NULL;
+  InsertedFrame = NULL;
+  DeletedFrame  = NULL;
+  ActivatedFrame= NULL;
+  DeactivatedFrame=NULL;
   ModalizedFrame=NULL;
 
+  DisableDelete = FALSE;
 }
 
 Manager::~Manager()
 {
   if (FrameList)
     free(FrameList);
+  if (ModalStack)
+    free (ModalStack);
 }
 
 
@@ -159,18 +166,17 @@ void Manager::CloseAll()
 
 BOOL Manager::IsAnyFrameModified(int Activate)
 {
-/*
   for (int I=0;I<FrameCount;I++)
     if (FrameList[I]->IsFileModified())
     {
       if (Activate)
       {
-        FramePos=I;
-        NextFrame(0);
+        ActivateFrame(I);
+        Commit();
       }
       return(TRUE);
     }
-  */
+
   return(FALSE);
 }
 
@@ -313,7 +319,7 @@ void Manager::ReplaceFrame (Frame *NewFrame, int FramePos)
 {
   if (FramePos<0||FramePos>=FrameCount){
     return;
-  } 
+  }
   ReplaceFrame(NewFrame,this->FrameList[FramePos]);
 }
 
@@ -327,36 +333,45 @@ void Manager::ModalizeFrame (Frame *Modalized, int Mode)
   ModalizedFrame=Modalized;
 }
 
-/*
 int Manager::ExecuteModal (Frame &ModalFrame)
 {
+  _DJ(SysLog ("Executing modal %08x", &ModalFrame));
   ModalSaveState();
-  AddFrame (&ModalFrame);
+  InsertFrame (&ModalFrame);
+  Commit();
   DeletedFrame = NULL;
   Frame *CurModalFrame = &ModalFrame;
-  while (DeletedFrame != CurModalFrame)
+  while (1)
   {
     ProcessMainLoop();
-    if (FrameToReplace)
+    if (DeletedFrame)
     {
-      CurModalFrame = FrameToReplace;
-      if (DeletedFrame == &ModalFrame)
-        DeletedFrame = NULL;
+      if (InsertedFrame)
+        _DJ (SysLog ("Replaced %08x with %08x", DeletedFrame, InsertedFrame));
       else
-        DeleteDeletedFrame();
-      continue;
+        _DJ (SysLog ("Deleted %08x", DeletedFrame));
     }
+    if (DeletedFrame == &ModalFrame)
+      DisableDelete = TRUE;
+    if (DeletedFrame && InsertedFrame)
+      CurModalFrame = InsertedFrame;
+    if (DeletedFrame == CurModalFrame && !InsertedFrame)
+      break;
+    Commit();
   }
-  DeletedFrame = NULL;
-  return CurModalFrame->GetExitCode();
+  ActivatedFrame = ModalStack [--ModalStackCount];
+  _DJ (SysLog ("Activating %08x", ActivatedFrame));
+  Commit();
+  return ModalFrame.GetExitCode();
 }
 
-/* DJ * /
+/* DJ $ */
 
 void Manager::ModalSaveState()
 {
   if (ModalStackCount == ModalStackSize)
     ModalStack = (Frame **) realloc (ModalStack, ++ModalStackSize * sizeof (Frame *));
+  _DJ(SysLog ("ModalSaveState: CurrentFrame=%08x", CurrentFrame));
   ModalStack [ModalStackCount++] = CurrentFrame;
 }
 
@@ -557,7 +572,7 @@ void Manager::EnterMainLoop()
 
 void Manager::ProcessMainLoop()
 {
-  
+
   WaitInMainLoop=IsPanelsActive();
 
   WaitInFastFind++;
@@ -591,7 +606,7 @@ int  Manager::ProcessKey(int Key)
   _D(char kn[32]);
   _D(KeyToText(Key,kn));
   //    _D(SysLog(1,"Manager::ProcessKey(), key=%i, '%s'",Key,kn));
-  
+
   if ( CurrentFrame)
   {
     //      _D(SysLog("Manager::ProcessKey(), to CurrentFrame 0x%p, '%s'",CurrentFrame, CurrentFrame->GetTypeName()));
@@ -655,7 +670,7 @@ Frame *Manager::operator[](int Index)
 {
   if (Index<0||Index>=FrameCount){
     return NULL;
-  } 
+  }
   return FrameList[Index];
 }
 
@@ -702,7 +717,7 @@ BOOL Manager::Commit()
     Result=true;
   } else if (InsertedFrame||ModalizedFrame){
     InsertCommit();
-    InsertedFrame = 
+    InsertedFrame =
     ModalizedFrame = NULL;
     Result=true;
   } else if(ActivatedFrame||DeactivatedFrame){
@@ -773,7 +788,9 @@ void Manager::UpdateCommit()
     }
     ActivatedFrame=InsertedFrame;
     DeletedFrame->OnDestroy();
-    delete DeletedFrame;
+    if (!DisableDelete)
+      delete DeletedFrame;
+    DisableDelete = TRUE;
   } else {
     Frame *iFrame=NULL;
     for (int i=0;i<FrameCount;i++){
@@ -816,8 +833,11 @@ void Manager::DeleteCommit()
         break;
       }
     }
-    delete DeletedFrame;
-    ActivatedFrame=FrameList[FramePos];
+    if (!DisableDelete)
+      delete DeletedFrame;
+    DisableDelete = FALSE;
+    if (!ActivatedFrame)
+      ActivatedFrame=FrameList[FramePos];
   } else {
     for (int i=0;i<FrameCount;i++){
       Frame *iFrame=FrameList[i];
@@ -868,4 +888,3 @@ void Manager::InsertCommit()
     FrameCount++;
   }
 }
-

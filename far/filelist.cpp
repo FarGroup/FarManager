@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.54 15.05.2001 $ */
+/* Revision: 1.55 16.05.2001 $ */
 
 /*
 Modify:
+  16.05.2001 DJ
+    ! proof-of-concept
   15.05.2001 OT
     ! NWZ -> NFZ
   14.05.2001 OT
@@ -1121,9 +1123,9 @@ int FileList::ProcessKey(int Key)
               else
                 if (PluginMode)
                 {
-                  class FileEditor *ShellEditor = new FileEditor(FileName,Key==KEY_SHIFTF4,FALSE,-1,-1,TRUE,PluginData);
-                  FrameManager->ModalizeFrame(ShellEditor);
-                  UploadFile=ShellEditor->IsFileChanged();
+                  FileEditor ShellEditor (FileName,Key==KEY_SHIFTF4,FALSE,-1,-1,TRUE,PluginData);
+                  FrameManager->ExecuteModal(ShellEditor);
+                  UploadFile=ShellEditor.IsFileChanged();
                   Modaling=TRUE;///
                 }
                 else

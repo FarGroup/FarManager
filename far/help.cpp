@@ -5,10 +5,12 @@ help.cpp
 
 */
 
-/* Revision: 1.22 15.05.2001 $ */
+/* Revision: 1.23 16.05.2001 $ */
 
 /*
 Modify:
+  16.05.2001 DJ
+    ! proof-of-concept
   15.05.2001 OT
     ! NWZ -> NFZ
   07.05.2001 DJ
@@ -100,7 +102,7 @@ static int RunURL(char *Protocol, char *URLPath);
 
 Help::Help(char *Topic, char *Mask,DWORD Flags)
 {
-  CanLoseFocus=TRUE;
+  CanLoseFocus=FALSE;
   Help::Flags=Flags;
   /* $ 12.04.2001 SVS
      в конструкторе PrevMacroMode не инициализирован!
@@ -156,7 +158,7 @@ Help::Help(char *Topic, char *Mask,DWORD Flags)
   {
     InitKeyBar();
     MacroMode = MACRO_HELP;
-    FrameManager->ModalizeFrame (this);//##
+    FrameManager->ExecuteModal (*this);
   }
   else
   {
@@ -171,7 +173,7 @@ Help::Help(char *Topic, char *Mask,DWORD Flags)
 */
 Help::Help(char *Topic,int &ShowPrev,int PrevFullScreen,DWORD Flags,char *Mask)
 {
-  CanLoseFocus=TRUE;
+  CanLoseFocus=FALSE;
   Help::Flags=Flags;
   //if (PrevMacroMode!=MACRO_HELP) {
   PrevMacroMode=CtrlObject->Macro.GetMode();
@@ -215,7 +217,7 @@ Help::Help(char *Topic,int &ShowPrev,int PrevFullScreen,DWORD Flags,char *Mask)
   {
     InitKeyBar();
     MacroMode = MACRO_HELP;
-    FrameManager->ModalizeFrame (this);//##
+    FrameManager->ExecuteModal (*this);
     ShowPrev=Help::ShowPrev;
   }
   else
@@ -1011,13 +1013,13 @@ int Help::ProcessKey(int Key)
           Help *NewHelp=new Help(NewTopic,KeepHelp,FullScreenHelp,0,NewHelpMask);
           /* SVS $ */
         }
-        if (KeepHelp){
+        if (!KeepHelp)
+        {
           FrameManager->DeleteFrame();
           SetExitCode (XC_QUIT);
         }
         else
         {
-//          FrameManager->ModalizeFrame();
           if (CurFullScreen!=FullScreenHelp)
           {
             FullScreenHelp=!FullScreenHelp;

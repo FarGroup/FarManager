@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.22 15.05.2001 $ */
+/* Revision: 1.23 16.05.2001 $ */
 
 /*
 Modify:
+  16.05.2001 DJ
+    ! proof-of-concept
   15.05.2001 OT
     ! NWZ -> NFZ
   14.05.2001 DJ
@@ -475,9 +477,9 @@ int FindFiles::FindFilesProcess()
                     FindList.Hide();
                     Dlg.Hide();
                     {
-                      FileViewer *ShellViewer = new FileViewer(FileFindData.cFileName,FALSE,FALSE,FALSE,-1,NULL,&ViewList);//?
-                      FrameManager->ModalizeFrame (ShellViewer);
-                    }                                       
+                      FileViewer ShellViewer (FileFindData.cFileName,FALSE,FALSE,FALSE,-1,NULL,&ViewList);//?
+                      FrameManager->ExecuteModal (ShellViewer);
+                    }
                     Dlg.Show();
                     FindList.Show();
                   }
@@ -486,9 +488,9 @@ int FindFiles::FindFilesProcess()
                     FindList.Hide();
                     Dlg.Hide();
                     {
-                      FileEditor *ShellEditor = new FileEditor(FileFindData.cFileName,FALSE,FALSE);
-                      ShellEditor->SetEnableF6 (TRUE);
-                      FrameManager->ModalizeFrame (ShellEditor);
+                      FileEditor ShellEditor (FileFindData.cFileName,FALSE,FALSE);
+                      ShellEditor.SetEnableF6 (TRUE);
+                      FrameManager->ExecuteModal (ShellEditor);
                     }
                     Dlg.Show();
                     FindList.Show();
@@ -627,7 +629,7 @@ int FindFiles::FindFilesProcess()
           FindMessageReady=FALSE;
         }
 
-        /* $ 12.05.2001 DJ 
+        /* $ 12.05.2001 DJ
            нафига спать-то, если все уже нашли???
         */
         if (!SearchDone)

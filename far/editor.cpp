@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.94 15.05.2001 $ */
+/* Revision: 1.95 16.05.2001 $ */
 
 /*
 Modify:
+  16.05.2001 DJ
+    ! proof-of-concept
   15.05.2001 OT
     ! NWZ -> NFZ
   07.05.2001 SVS
@@ -1315,7 +1317,7 @@ int Editor::ProcessKey(int Key)
   {
     case KEY_F1:
       {
-        Help *Hlp= new Help("Editor");
+        Help Hlp ("Editor");
       }
       return(TRUE);
     case KEY_CTRLSHIFTPGUP:

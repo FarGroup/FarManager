@@ -7,10 +7,12 @@ manager.hpp
 
 */
 
-/* Revision: 1.10 15.05.2001 $ */
+/* Revision: 1.11 16.05.2001 $ */
 
 /*
 Modify:
+  16.05.2001 DJ
+    ! возвращение ExecuteModal()
   15.05.2001 OT
     ! NWZ -> NFZ
   14.05.2001 OT
@@ -45,20 +47,25 @@ class Manager
 {
   private:
     Frame **FrameList;
+    /* $ 16.05.2001 DJ */
+    Frame **ModalStack;
+    int ModalStackSize, ModalStackCount;
+    /* DJ $ */
+
     /*$ Претенденты на ... */
     Frame *InsertedFrame;
     Frame *DeletedFrame;   // DestroyedFrame
-    Frame *ActivatedFrame; // претендент на то, чтобы стать 
+    Frame *ActivatedFrame; // претендент на то, чтобы стать
 //    Frame *UpdatedFrame;   // FrameToReplace
-//    Frame *UpdatingFrame;  // 
+//    Frame *UpdatingFrame;  //
     Frame *ModalizedFrame;
     Frame *DeactivatedFrame;
     /* OT $*/
 
-
-
 //    Frame *ModalFrame;
     Frame *CurrentFrame;     // текущий модал
+
+    int DisableDelete;
 
     int  EndLoop;
     int  FrameCount,
@@ -75,7 +82,7 @@ class Manager
     void StartupMainloop();
     void FrameMenu(); //    вместо void SelectFrame(); // show window menu (F12)
 
-    // Исполнение приговора 
+    // Исполнение приговора
     BOOL Commit();
     void ActivateCommit();
     void UpdateCommit();
@@ -95,12 +102,12 @@ class Manager
     void ReplaceFrame (Frame *Inserted, Frame *Deleted=NULL);
     void ReplaceFrame (Frame *Inserted, int FramePos);
     void ModalizeFrame (Frame *Modalized=NULL, int Mode=TRUE); // вместо ExecuteModal
-    void DeactivateFrame (Frame *Deactivated,int Direction); 
+    void DeactivateFrame (Frame *Deactivated,int Direction);
     void ActivateFrame (Frame *Activated);
     void ActivateFrame (int Index);  //вместо NextFrame(int Increment);
 
 
-//    int ExecuteModal (Frame &ModalFrame);
+    int ExecuteModal (Frame &ModalFrame);
 
 //    void NextFrame(int Increment);
 //    void ActivateFrameByPos (int NewPos);
