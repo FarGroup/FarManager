@@ -5,10 +5,12 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.09 27.09.2000 $ */
+/* Revision: 1.10 25.11.2000 $ */
 
 /*
 Modify:
+  25.11.2000 SVS
+    ! Copyright в 2 строки
   27.09.2000 SVS
     ! Ctrl-Alt-Shift - реагируем, если надо.
   19.09.2000 IS
@@ -851,6 +853,9 @@ Panel* ControlObject::ChangePanel(Panel *Current,int NewType,int CreateNew,int F
 }
 
 
+/* $ 25.11.2000 SVS
+   Copyright в 2 строки
+*/
 void ControlObject::ShowCopyright()
 {
 /* $ 29.06.2000 tran
@@ -858,19 +863,34 @@ void ControlObject::ShowCopyright()
 #include "copyright.inc"
 /* tran $ */
   char Str[256];
+  char *Line2=NULL;
   strcpy(Str,Copyright);
   char Xor=17;
   for (int I=0;Str[I];I++)
   {
     Str[I]=(Str[I]&0x7f)^Xor;
     Xor^=Str[I];
+    if(Str[I] == '\n')
+    {
+      Line2=&Str[I+1];
+      Str[I]='\0';
+    }
   }
 #ifdef BETA
   mprintf("Beta version %d.%02d.%d",BETA/1000,(BETA%1000)/10,BETA%10);
 #else
-  Text(Str);
+  if(Line2)
+  {
+    GotoXY(0,ScrY-4);
+    Text(Str);
+    GotoXY(0,ScrY-3);
+    Text(Line2);
+  }
+  else
+    Text(Str);
 #endif
 }
+/* SVS$ */
 
 
 /* $ 15.07.2000 tran
