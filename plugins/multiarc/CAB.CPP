@@ -185,20 +185,20 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
   if (Type==0)
   {
     static char *Commands[]={
-      "extrac32 /Y %%a %%FQ512",
-      "extrac32 /Y %%a %%FQ512",
+      "MsCab x {%%S} %%A %%LMA",
+      "MsCab e {%%S} %%A %%LMA",
+      "MsCab t {%%S} %%A %%LMA",
+      "MsCab -i0 {%%S} d %%A %%LMA",
       "",
       "",
       "",
       "",
       "",
       "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
+      "MsCab -e -i0 {-p%%R} {%%S} a %%A %%LMA",
+      "MsCab -e -i0 {-p%%R} {%%S} m %%A %%LMA",
+      "MsCab -r -e -i0 {-p%%R} {%%S} a %%A %%LMA",
+      "MsCab -r -e -i0 {-p%%R} {%%S} m %%A %%LMA",
       "*.*"
     };
     if (Command<sizeof(Commands)/sizeof(Commands[0]))
