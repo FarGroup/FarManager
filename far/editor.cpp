@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.123 16.10.2001 $ */
+/* Revision: 1.124 19.10.2001 $ */
 
 /*
 Modify:
+  19.10.2001 OT
+    Исправление ошибки HyperViewer
   16.10.2001 SKV
     - баг при выделении вертикальных блоков
       после переключения EdOpt.CursorBeyondEOL туда сюда.
@@ -512,6 +514,7 @@ Editor::~Editor()
 
   if (!OpenFailed)
   {
+    Editor *save = CtrlObject->Plugins.CurEditor;
     CtrlObject->Plugins.CurEditor=this;
 //_D(SysLog("%08d EE_CLOSE",__LINE__));
     CtrlObject->Plugins.ProcessEditorEvent(EE_CLOSE,&EditorID);
@@ -522,6 +525,7 @@ Editor::~Editor()
     if (DeleteOnClose && !FrameManager->CountFramesWithName(FileName))
        DeleteFileWithFolder(FileName);
    /* IS $ */
+    CtrlObject->Plugins.CurEditor = save;
   }
 
   CurrentEditor=NULL;
@@ -5246,6 +5250,7 @@ int Editor::EditorControl(int Command,void *Param)
         return(SaveFile(Name,FALSE,EOL,!stricmp(Name,FileName)));
       }
     case ECTL_QUIT:
+      FrameManager->DeleteFrame(HostFileEditor);
       if (HostFileEditor!=NULL)
         HostFileEditor->SetExitCode(SAVEFILE_ERROR); // что-то меня терзают смутные сомнения ...
       return(TRUE);

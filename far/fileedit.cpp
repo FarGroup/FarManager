@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.66 15.10.2001 $ */
+/* Revision: 1.67 19.10.2001 $ */
 
 /*
 Modify:
+  19.10.2001 OT
+    Исправление ошибки HyperViewer
   15.10.2001 SVS
     + _KEYMACRO()
   10.10.2001 IS
@@ -818,6 +820,11 @@ void FileEditor::OnDestroy()
   _OT(SysLog("[%p] FileEditor::OnDestroy()",this));
   if (!DisableHistory)
     CtrlObject->ViewHistory->AddToHistory(FullFileName,MSG(MHistoryEdit),1);
+  /* $ 19.10.2001 OT
+  */
+  if (CtrlObject->Plugins.CurEditor==&this->FEdit){
+    CtrlObject->Plugins.CurEditor=NULL;
+  }
 }
 
 int FileEditor::GetCanLoseFocus(int DynamicMode)
