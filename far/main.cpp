@@ -5,10 +5,12 @@ main.cpp
 
 */
 
-/* Revision: 1.39 06.11.2001 $ */
+/* Revision: 1.40 08.11.2001 $ */
 
 /*
 Modify:
+  08.11.2001 SVS
+    ! Народ не понял предыдущей фишки :-(((
   06.11.2001 SVS
     + В момент старта ФАРа смотрим в [HKCU\Software\Far\System\Environment]
       Если определен, и в этой ветке имеются Values, то FAR при старте
@@ -151,7 +153,6 @@ static void ConvertOldSettings();
 //static void SetHighlighting();
 /* IS $ */
 static void CopyGlobalSettings();
-void SetFarEnv(void);
 
 static void show_help(void)
 {
@@ -377,7 +378,6 @@ int _cdecl main(int Argc, char *Argv[])
     /* SVS $ */
   }
   SetEnvironmentVariable("FARLANG",Opt.Language);
-  SetFarEnv();
   ConvertOldSettings();
   SetHighlighting();
   /* $ 07.03.2001 IS
@@ -499,17 +499,3 @@ void CopyGlobalSettings()
   SetRegKey("System","PersonalPluginsPath",Opt.PersonalPluginsPath);
 }
 /* SVS $ */
-
-void SetFarEnv(void)
-{
-  int I;
-  char RegValName[NM],RegValData[2048];
-  for (I=0;;I++)
-  {
-    if(!EnumRegValue("System\\Environment",I,RegValName,sizeof(RegValName),RegValData,sizeof(RegValData)))
-      break;
-    //CharToOem(RegValName,RegValName); //??
-    //CharToOem(RegValData,RegValData); //??
-    SetEnvironmentVariable(RegValName,RegValData);
-  }
-}

@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.34 06.11.2001 $ */
+/* Revision: 1.35 08.11.2001 $ */
 
 /*
 Modify:
+  08.11.2001 SVS
+    ! Уточнение ширины - прагала падлюка.
   06.11.2001 SVS
     ! Ширина месага при удалении файлов и выставлении атрибутов динамически
       меняется в сторону увеличения (с подачи SF), начиная с min 30 символов.
@@ -520,20 +522,27 @@ static void PR_ShellDeleteMsg(void)
 
 void ShellDeleteMsg(char *Name)
 {
-  char DelName[NM];
+  static int Width=30;
+  int WidthTemp;
+  char OutFileName[NM];
 
-  int Width=Max((int)strlen(Name),(int)30);
+  if(Name && *Name)
+    WidthTemp=Max((int)strlen(Name),(int)30);
+  else
+    Width=WidthTemp=30;
 
-  if(Width > WidthNameForMessage)
-    Width=WidthNameForMessage; // ширина месага - 38%
-  if(Width >= sizeof(DelName))
-    Width=sizeof(DelName)-1;
+  if(WidthTemp > WidthNameForMessage)
+    WidthTemp=WidthNameForMessage; // ширина месага - 38%
+  if(WidthTemp >= sizeof(OutFileName)-4)
+    WidthTemp=sizeof(OutFileName)-5;
+  if(Width < WidthTemp)
+    Width=WidthTemp;
 
-  strncpy(DelName,Name,sizeof(DelName)-1);
-  TruncPathStr(DelName,Width);
-  CenterStr(DelName,DelName,Width+4);
+  strncpy(OutFileName,Name,sizeof(OutFileName)-1);
+  TruncPathStr(OutFileName,Width);
+  CenterStr(OutFileName,OutFileName,Width+4);
 
-  Message(0,0,MSG(MDeleteTitle),MSG(MDeleting),DelName);
+  Message(0,0,MSG(MDeleteTitle),MSG(MDeleting),OutFileName);
   PreRedrawParam.Param1=Name;
 }
 

@@ -5,10 +5,12 @@ setattr.cpp
 
 */
 
-/* Revision: 1.43 06.11.2001 $ */
+/* Revision: 1.44 08.11.2001 $ */
 
 /*
 Modify:
+  08.11.2001 SVS
+    ! Уточнение ширины - прагала падлюка.
   06.11.2001 SVS
     ! Ширина месага при удалении файлов и выставлении атрибутов динамически
       меняется в сторону увеличения (с подачи SF), начиная с min 30 символов.
@@ -383,26 +385,33 @@ static void PR_ShellSetFileAttributesMsg(void)
 
 void ShellSetFileAttributesMsg(char *Name)
 {
+  static int Width=30;
+  int WidthTemp;
   char OutFileName[NM];
 
-  int Width=Max((int)strlen(NullToEmpty(Name)),(int)30);
+  if(Name && *Name)
+    WidthTemp=Max((int)strlen(Name),(int)30);
+  else
+    Width=WidthTemp=30;
 
-  if(Width > WidthNameForMessage)
-    Width=WidthNameForMessage; // ширина месага - 38%
+  if(WidthTemp > WidthNameForMessage)
+    WidthTemp=WidthNameForMessage; // ширина месага - 38%
+  if(WidthTemp >= sizeof(OutFileName)-4)
+    WidthTemp=sizeof(OutFileName)-5;
 
-  if(Width >= sizeof(OutFileName))
-    Width=sizeof(OutFileName)-1;
+  if(Width < WidthTemp)
+    Width=WidthTemp;
 
   if(Name && *Name)
   {
     strncpy(OutFileName,Name,sizeof(OutFileName)-1);
     TruncPathStr(OutFileName,Width);
-    CenterStr(OutFileName,OutFileName,Width+2);
+    CenterStr(OutFileName,OutFileName,Width+4);
   }
   else
   {
     *OutFileName=0;
-    CenterStr(OutFileName,OutFileName,Width+2); // подготавливаем нужную ширину (вид!)
+    CenterStr(OutFileName,OutFileName,Width+4); // подготавливаем нужную ширину (вид!)
   }
   Message(0,0,MSG(MSetAttrTitle),MSG(MSetAttrSetting),OutFileName);
   PreRedrawParam.Param1=Name;
