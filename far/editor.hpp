@@ -9,10 +9,12 @@ editor.hpp
 
 */
 
-/* Revision: 1.32 15.01.2002 $ */
+/* Revision: 1.33 28.01.2002 $ */
 
 /*
 Modify:
+  28.01.2002 VVM
+    + Освободить всю занятую память - void FreeAllocatedData()
   15.01.2002 SVS
     ! FileEditor - друг Editor`у (в последствии - для "отучения Editor от 'файл'")
     + GetHostFileEditor()
@@ -375,6 +377,11 @@ class Editor:public ScreenObject
     /* tran 21.07.2000 $ */
     void Xlat();
     static void PR_EditorShowMsg(void);
+
+    /* $ 28.01.2002 VVM
+      + Освободить всю занятую память */
+    void FreeAllocatedData();
+    /* VVM $ */
 };
 
 #endif // __EDITOR_HPP__

@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.85 23.01.2002 $ */
+/* Revision: 1.86 28.01.2002 $ */
 
 /*
 Modify:
+  28.01.2002 VVM
+    ! Если не прочитали файл - освободить память.
   23.01.2002 SVS
     ! MEditSavedChangedNonFile2
   21.01.2002 SVS
@@ -936,7 +938,10 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
 // сюды плавно переносить код из Editor::ReadFile()
 int FileEditor::ReadFile(const char *Name,int &UserBreak)
 {
-  return FEdit.ReadFile(Name,UserBreak);
+  int RetCode = FEdit.ReadFile(Name,UserBreak);
+  if (!RetCode)
+    FEdit.FreeAllocatedData();
+  return(RetCode);
 }
 
 // сюды плавно переносить код из Editor::SaveFile()

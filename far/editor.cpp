@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.148 19.01.2002 $ */
+/* Revision: 1.149 28.01.2002 $ */
 
 /*
 Modify:
+  28.01.2002 VVM
+    + FreeAllocatedDaat()
   19.01.2002 IS
     ! Переместим проверку выделения из ctrl-shift-(left|right) на уровень
       ниже - в shift-(left|right), чтобы добить жука 226.
@@ -576,23 +578,8 @@ Editor::~Editor()
                (EdOpt.SaveShortPos?SavePos.LeftPos:NULL));
   }
 
-  while (EndList!=NULL)
-  {
-    struct EditList *Prev=EndList->Prev;
-    delete EndList;
-    EndList=Prev;
-  }
-  /* $ 03.12.2001 IS
-     UndoData - указатель
-  */
-  if(UndoData)
-  {
-    for (int I=0;I<Opt.EditorUndoSize;++I)
-      if (UndoData[I].Type!=UNDO_NONE && UndoData[I].Str!=NULL)
-        delete UndoData[I].Str;
-    free(UndoData);
-  }
-  /* IS $ */
+  FreeAllocatedData();
+
   KeepInitParameters();
 
   if (!EFlags.Check(FEDITOR_OPENFAILED))
@@ -616,6 +603,27 @@ Editor::~Editor()
   _KEYMACRO(SysLog("Editor::~Editor()"));
 }
 
+void Editor::FreeAllocatedData()
+{
+  while (EndList!=NULL)
+  {
+    struct EditList *Prev=EndList->Prev;
+    delete EndList;
+    EndList=Prev;
+  }
+  /* $ 03.12.2001 IS
+     UndoData - указатель
+  */
+  if(UndoData)
+  {
+    for (int I=0;I<Opt.EditorUndoSize;++I)
+      if (UndoData[I].Type!=UNDO_NONE && UndoData[I].Str!=NULL)
+        delete UndoData[I].Str;
+    free(UndoData);
+    UndoData=NULL;
+  }
+  /* IS $ */
+}
 
 void Editor::KeepInitParameters()
 {
