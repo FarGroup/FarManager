@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.48 08.12.2001 $ */
+/* Revision: 1.49 17.12.2001 $ */
 
 /*
 Modify:
+  17.12.2001 KM
+    ! Если !GetCanLoseFocus() тогда на Alt-F11 рисуем пустую строку.
   08.12.2001 OT
     Bugzilla #144 Заходим в архив, F4 на файле, Ctrl-F10.
   27.11.2001 DJ
@@ -249,7 +251,11 @@ void FileViewer::InitKeyBar(void)
      добавил названия всех функциональных клавиш */
   char *FViewKeys[]={MSG(MViewF1),MSG(MViewF2),MSG(MViewF3),MSG(MViewF4),MSG(MViewF5),DisableEdit ? "":MSG(MViewF6),MSG(MViewF7),MSG(MViewF8),MSG(MViewF9),MSG(MViewF10),MSG(MViewF11),(GetCanLoseFocus())?MSG(MViewF12):""};
   char *FViewShiftKeys[]={MSG(MViewShiftF1),MSG(MViewShiftF2),MSG(MViewShiftF3),MSG(MViewShiftF4),MSG(MViewShiftF5),MSG(MViewShiftF6),MSG(MViewShiftF7),MSG(MViewShiftF8),MSG(MViewShiftF9),MSG(MViewShiftF10),MSG(MViewShiftF11),MSG(MViewShiftF12)};
-  char *FViewAltKeys[]={MSG(MViewAltF1),MSG(MViewAltF2),MSG(MViewAltF3),MSG(MViewAltF4),MSG(MViewAltF5),MSG(MViewAltF6),MSG(MViewAltF7),MSG(MViewAltF8),MSG(MViewAltF9),MSG(MViewAltF10),MSG(MViewAltF11),MSG(MViewAltF12)};
+  /* $ 17.12.2001 KM
+     ! Если !GetCanLoseFocus() тогда на Alt-F11 рисуем пустую строку.
+  */
+  char *FViewAltKeys[]={MSG(MViewAltF1),MSG(MViewAltF2),MSG(MViewAltF3),MSG(MViewAltF4),MSG(MViewAltF5),MSG(MViewAltF6),MSG(MViewAltF7),MSG(MViewAltF8),MSG(MViewAltF9),MSG(MViewAltF10),(GetCanLoseFocus())?MSG(MViewAltF11):"",MSG(MViewAltF12)};
+  /* KM $ */
   char *FViewCtrlKeys[]={MSG(MViewCtrlF1),MSG(MViewCtrlF2),MSG(MViewCtrlF3),MSG(MViewCtrlF4),MSG(MViewCtrlF5),MSG(MViewCtrlF6),MSG(MViewCtrlF7),MSG(MViewCtrlF8),MSG(MViewCtrlF9),MSG(MViewCtrlF10),MSG(MViewCtrlF11),MSG(MViewCtrlF12)};
 
   if(CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) == -1)

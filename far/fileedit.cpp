@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.74 08.12.2001 $ */
+/* Revision: 1.75 17.12.2001 $ */
 
 /*
 Modify:
+  17.12.2001 KM
+    ! Если !GetCanLoseFocus() тогда на Alt-F11 рисуем пустую строку.
   08.12.2001 OT
     Bugzilla #144 Заходим в архив, F4 на файле, Ctrl-F10.
   27.11.2001 DJ
@@ -426,7 +428,11 @@ void FileEditor::InitKeyBar(void)
   char *FEditKeys[]={MSG(MEditF1),(SaveToSaveAs)?MSG(MEditShiftF2):MSG(MEditF2),MSG(MEditF3),MSG(MEditF4),MSG(MEditF5),EnableF6 ? MSG(MEditF6):"",MSG(MEditF7),MSG(MEditF8),MSG(MEditF9),MSG(MEditF10),MSG(MEditF11),(GetCanLoseFocus())?MSG(MEditF12):""};
   /* DJ $ */
   char *FEditShiftKeys[]={MSG(MEditShiftF1),MSG(MEditShiftF2),MSG(MEditShiftF3),MSG(MEditShiftF4),MSG(MEditShiftF5),MSG(MEditShiftF6),MSG(MEditShiftF7),MSG(MEditShiftF8),MSG(MEditShiftF9),MSG(MEditShiftF10),MSG(MEditShiftF11),MSG(MEditShiftF12)};
-  char *FEditAltKeys[]={MSG(MEditAltF1),MSG(MEditAltF2),MSG(MEditAltF3),MSG(MEditAltF4),MSG(MEditAltF5),MSG(MEditAltF6),MSG(MEditAltF7),MSG(MEditAltF8),MSG(MEditAltF9),MSG(MEditAltF10),MSG(MEditAltF11),MSG(MEditAltF12)};
+  /* $ 17.12.2001 KM
+     ! Если !GetCanLoseFocus() тогда на Alt-F11 рисуем пустую строку.
+  */
+  char *FEditAltKeys[]={MSG(MEditAltF1),MSG(MEditAltF2),MSG(MEditAltF3),MSG(MEditAltF4),MSG(MEditAltF5),MSG(MEditAltF6),MSG(MEditAltF7),MSG(MEditAltF8),MSG(MEditAltF9),MSG(MEditAltF10),(GetCanLoseFocus())?MSG(MEditAltF11):"",MSG(MEditAltF12)};
+  /* KM $ */
   char *FEditCtrlKeys[]={MSG(MEditCtrlF1),MSG(MEditCtrlF2),MSG(MEditCtrlF3),MSG(MEditCtrlF4),MSG(MEditCtrlF5),MSG(MEditCtrlF6),MSG(MEditCtrlF7),MSG(MEditCtrlF8),MSG(MEditCtrlF9),MSG(MEditCtrlF10),MSG(MEditCtrlF11),MSG(MEditCtrlF12)};
 
   if(CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) == -1)
