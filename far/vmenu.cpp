@@ -7,10 +7,14 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.25 23.05.2001 $ */
+/* Revision: 1.26 23.05.2001 $ */
 
 /*
 Modify:
+  23.05.2001 SVS
+    - Проблемы с горячими клавишами в меню (Part II) - ни тебе инициализации
+      AmpPos при добавлении пунктов, да еще и разницу между имененм и
+      позицией... Срань.
   23.05.2001 SVS
     - Проблемы с горячими клавишами в меню.
   22.05.2001 SVS
@@ -295,6 +299,7 @@ void VMenu::Show()
   }
   if (X2>X1 && Y2>Y1)
   {
+//_SVS(SysLog("VMenu::Show()"));
     if(!(VMenu::VMFlags&VMENU_LISTBOX))
       ScreenObject::Show();
     else
@@ -312,6 +317,7 @@ void VMenu::Show()
 */
 void VMenu::DisplayObject()
 {
+//_SVS(SysLog("VMFlags&VMENU_UPDATEREQUIRED=%d",VMFlags&VMENU_UPDATEREQUIRED));
   if (!(VMFlags&VMENU_UPDATEREQUIRED))
     return;
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
@@ -380,6 +386,7 @@ void VMenu::DisplayObject()
 void VMenu::ShowMenu(int IsParent)
 {
   char TmpStr[1024];
+//_SVS(SysLog("VMenu::ShowMenu()"));
   unsigned char BoxChar[2],BoxChar2[2];
   int Y,I;
   if (ItemCount==0 || X2<=X1 || Y2<=Y1)
@@ -485,13 +492,13 @@ void VMenu::ShowMenu(int IsParent)
         else
         {
           short AmpPos=Item[I].AmpPos+2;
-_SVS(SysLog(">AmpPos=%d TmpStr='%s'",AmpPos,TmpStr));
+//_SVS(SysLog(">>> AmpPos=%d (%d) TmpStr='%s'",AmpPos,Item[I].AmpPos,TmpStr));
           if(AmpPos >= 2 && TmpStr[AmpPos] != '&')
           {
             memmove(TmpStr+AmpPos+1,TmpStr+AmpPos,strlen(TmpStr+AmpPos)+1);
             TmpStr[AmpPos]='&';
           }
-_SVS(SysLog("<AmpPos=%d TmpStr='%s'",AmpPos,TmpStr));
+//_SVS(SysLog("<<< AmpPos=%d TmpStr='%s'",AmpPos,TmpStr));
           HiText(TmpStr,Col);
         }
 
@@ -582,6 +589,13 @@ int VMenu::AddItem(struct MenuItem *NewItem,int PosAdd)
       Item[PosAdd].Flags&=~0x0000FFFF;
     Item[PosAdd].Flags|=LIF_CHECKED;
   }
+  Item[PosAdd].AmpPos=-1;
+  {
+    char *ChPtr=strchr(Item[PosAdd].Name,'&');
+    if (ChPtr!=NULL)// && !(VMFlags&VMENU_SHOWAMPERSAND))
+      Item[PosAdd].AmpPos=ChPtr-Item[PosAdd].Name;
+  }
+
   if(VMFlags&(VMENU_AUTOHIGHLIGHT|VMENU_REVERSIHLIGHT))
     AssignHighlights(VMFlags&VMENU_REVERSIHLIGHT);
 //  if(VMenu::VMFlags&VMENU_LISTBOXSORT)
@@ -1167,8 +1181,9 @@ void VMenu::AssignHighlights(int Reverse)
     {
       Used[LocalUpper(ChPtr[1])]=TRUE;
       Used[LocalLower(ChPtr[1])]=TRUE;
-      Item[I].AmpPos=Item[I].Name-ChPtr;
+      Item[I].AmpPos=ChPtr-Item[I].Name;
     }
+//_SVS(SysLog("Pre:   Item[I].AmpPos=%d Item[I].Name='%s'",Item[I].AmpPos,Item[I].Name));
   }
   for (I=Reverse ? ItemCount-1:0;I>=0 && I<ItemCount;I+=Reverse ? -1:1)
   {
@@ -1184,6 +1199,7 @@ void VMenu::AssignHighlights(int Reverse)
           //memmove(Name+J+1,Name+J,strlen(Name+J)+1);
           //Name[J]='&';
           Item[I].AmpPos=J;
+//_SVS(SysLog("Post:   Item[I].AmpPos=%d Item[I].Name='%s'",Item[I].AmpPos,Item[I].Name));
           break;
         }
   }
