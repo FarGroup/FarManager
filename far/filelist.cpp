@@ -5,10 +5,14 @@ filelist.cpp
 
 */
 
-/* Revision: 1.111 29.11.2001 $ */
+/* Revision: 1.112 29.11.2001 $ */
 
 /*
 Modify:
+  29.11.2001 SVS
+    - BugZ#142: Не сохраняются изменения в архиве
+      вместо IsFileModified нужно юзать IsFileChanged!
+      в самом редакторе поменяли, а здесь забыли?
   29.11.2001 SVS
     - BugZ#112: Extract... when passive panel is off
   29.11.2001 DJ
@@ -1313,7 +1317,7 @@ int FileList::ProcessKey(int Key)
                        Если мы создали новый файл, то не важно, изменялся он
                        или нет, все равно добавим его на панель плагина.
                   */
-                  UploadFile=ShellEditor.IsFileModified() || NewFile;
+                  UploadFile=ShellEditor.IsFileChanged() || NewFile;
                   /* IS $ */
                   Modaling=TRUE;///
                 }
