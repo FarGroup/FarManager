@@ -5,10 +5,14 @@ config.cpp
 
 */
 
-/* Revision: 1.60 21.03.2001 $ */
+/* Revision: 1.61 26.03.2001 $ */
 
 /*
 Modify:
+  26.03.2001 SVS
+    + SystemSettings() - путь к персональным плагинам - DIF_VAREDIT
+    ! Выставляем ограничение в SetDizConfig() в sizeof(DizOptions.ListNames)
+      для поля ввода.
   20.03.2001 SVS
     + В стандартные раздилители WordDiv0 добавлена тильда '~'
   20.03.2001 SVS
@@ -236,6 +240,8 @@ char NKeyKeyMacros[]="KeyMacros";
 
 void SystemSettings()
 {
+  const char *HistoryName="PersPath";
+  char PersonalPluginsPath[sizeof(Opt.PersonalPluginsPath)];
   /* $ 15.07.2000 SVS
      + Добавка в виде задания дополнительного пути для поиска плагинов
   */
@@ -257,7 +263,7 @@ void SystemSettings()
   /* 14 */  DI_CHECKBOX,5,14,0,0,0,0,0,0,(char *)MConfigAutoSave,
 
   /* 15 */  DI_TEXT,5,15,0,0,0,0,0,0,(char *)MConfigPersonalPath,
-  /* 16 */  DI_EDIT,5,16,50,15,0,0,0,0,"",
+  /* 16 */  DI_EDIT,5,16,50,15,0,(DWORD)HistoryName,DIF_HISTORY|DIF_VAREDIT,0,"",
 
   /* 17 */  DI_TEXT,5,17,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
   /* 18 */  DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
@@ -279,7 +285,10 @@ void SystemSettings()
   CfgDlg[12].Selected=Opt.UseRegisteredTypes;
   CfgDlg[13].Selected=Opt.SubstPluginPrefix;
   CfgDlg[14].Selected=Opt.AutoSaveSetup;
-  strcpy(CfgDlg[16].Data,Opt.PersonalPluginsPath);
+
+  strcpy(PersonalPluginsPath,Opt.PersonalPluginsPath);
+  CfgDlg[16].Ptr.PtrData=PersonalPluginsPath;
+  CfgDlg[16].Ptr.PtrLength=sizeof(PersonalPluginsPath);
 
   {
     Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
@@ -304,7 +313,7 @@ void SystemSettings()
   Opt.UseRegisteredTypes=CfgDlg[12].Selected;
   Opt.SubstPluginPrefix=CfgDlg[13].Selected;
   Opt.AutoSaveSetup=CfgDlg[14].Selected;
-  strncpy(Opt.PersonalPluginsPath,CfgDlg[16].Data,sizeof(Opt.PersonalPluginsPath));
+  strcpy(Opt.PersonalPluginsPath,PersonalPluginsPath);
   /* SVS $ */
 }
 
@@ -532,6 +541,8 @@ void SetDizConfig()
   Dialog Dlg(DizDlg,sizeof(DizDlg)/sizeof(DizDlg[0]));
   Dlg.SetPosition(-1,-1,76,15);
   Dlg.SetHelp("FileDiz");
+  // ограничим размер поля ввода.
+  Dialog::SendDlgMessage((HANDLE)&Dlg,DM_SETTEXTLENGTH,2,sizeof(Opt.Diz.ListNames)-1);
   strcpy(DizDlg[2].Data,Opt.Diz.ListNames);
   if (Opt.Diz.UpdateMode==DIZ_NOT_UPDATE)
     DizDlg[8].Selected=TRUE;
@@ -546,7 +557,7 @@ void SetDizConfig()
   Dlg.Process();
   if (Dlg.GetExitCode()!=12)
     return;
-  strcpy(Opt.Diz.ListNames,DizDlg[2].Data);
+  strncpy(Opt.Diz.ListNames,DizDlg[2].Data,sizeof(Opt.Diz.ListNames));
   if (DizDlg[8].Selected)
     Opt.Diz.UpdateMode=DIZ_NOT_UPDATE;
   else
