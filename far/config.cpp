@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.40 13.12.2000 $ */
+/* Revision: 1.41 16.12.2000 $ */
 
 /*
 Modify:
+  16.12.2000 IS
+    - баг: забыли считать опцию DLG_VIEW_AUTODETECT из диалога
   13.12.2000 SVS
     ! Уточняем алгоритм "взятия" палитры.
   10.12.2000 IS
@@ -555,6 +557,11 @@ void ViewerConfig()
   strcpy(Opt.ExternalViewer,CfgDlg[DLG_VIEW_EXTERNAL].Data);
   Opt.SaveViewerPos=CfgDlg[DLG_VIEW_SAVEFILEPOS].Selected;
   Opt.SaveViewerShortPos=CfgDlg[DLG_VIEW_SAVESHORTPOS].Selected;
+  /* $ 16.12.2000 IS
+    - баг: забыли считать опцию DLG_VIEW_AUTODETECT из диалога
+  */
+  Opt.ViewerAutoDetectTable=CfgDlg[DLG_VIEW_AUTODETECT].Selected;
+  /* IS $ */
   /* 15.09.2000 IS
      Отключение автоопределения таблицы символов, если отсутствует таблица с
      распределением частот символов
