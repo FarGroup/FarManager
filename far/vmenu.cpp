@@ -8,10 +8,13 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.45 22.07.2001 $ */
+/* Revision: 1.46 22.07.2001 $ */
 
 /*
 Modify:
+  22.07.2001 KM
+    ! Исправление неточности перехода по PgUp/PgDn
+      с установленным флагом VMENU_SHOWNOBOX (NO_BOX)
   22.07.2001 KM
     - Не устанавливался тип рамки при первом вызове
       ShowMenu с параметром TRUE, что давало неверную
@@ -933,17 +936,22 @@ int VMenu::ProcessKey(int Key)
       ShowMenu(TRUE);
       break;
     case KEY_PGUP:
-      if((I=SelectPos-(Y2-Y1-1)) < 0)
+      /* $ 22.07.2001 KM
+       ! Исправление неточности перехода по PgUp/PgDn
+         с установленным флагом VMENU_SHOWNOBOX (NO_BOX)
+      */
+      if((I=SelectPos-((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1)) < 0)
         I=0;
       SelectPos=SetSelectPos(I,1);
       ShowMenu(TRUE);
       break;
     case KEY_PGDN:
-      if((I=SelectPos+(Y2-Y1-1)) >= ItemCount)
+      if((I=SelectPos+((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1)) >= ItemCount)
         I=ItemCount-1;
       SelectPos=SetSelectPos(I,-1);
       ShowMenu(TRUE);
       break;
+      /* KM $ */
     /* $ 27.04.2001 VVM
       + Обработка KEY_MSWHEEL_XXXX */
     case KEY_MSWHEEL_UP:
