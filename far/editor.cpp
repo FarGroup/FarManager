@@ -6,18 +6,23 @@ editor.cpp
 
 */
 
-/* Revision: 1.111 24.07.2001 $ */
+/* Revision: 1.112 25.07.2001 $ */
 
 /*
 Modify:
+  25.07.2001 IS
+    - Баг: в меню по shift-f8 выделялась строка с той кодировкой, которая
+      автоматически определилась при открытии файла, даже если текущая
+      кодировка была другой. Решение: при открытии файла принудительно
+      сбросим номер таблицы символов, если UseDecodeTable==FALSE.
   24.07.2001 IS
-   ! Замена проверки на ' ' и '\t' на вызов isspace
+    ! Замена проверки на ' ' и '\t' на вызов isspace
   10.07.2001 SVS
-   + Обработка KEY_MACROXLAT
+    + Обработка KEY_MACROXLAT
   27.06.2001 SVS
-   - Stream Block можно двигать в залоченном состоянии :-((
+    - Stream Block можно двигать в залоченном состоянии :-((
   25.06.2001 IS
-   ! Внедрение const
+    ! Внедрение const
   25.06.2001 SVS
     ! Юзаем SEARCHSTRINGBUFSIZE
   22.06.2001 SVS
@@ -870,6 +875,13 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
   if (UseDecodeTable)
     for (struct EditList *CurPtr=TopList;CurPtr!=NULL;CurPtr=CurPtr->Next)
       CurPtr->EditLine.SetTables(&TableSet);
+  /* $ 25.07.2001 IS
+       Принудительно сбросим номер таблицы символов, т.к. никаких таблиц
+       символов не используется (UseDecodeTable==FALSE)
+  */
+  else
+    TableNum=0;
+  /* IS $ */
 
   CtrlObject->Plugins.CurEditor=this;
 //_D(SysLog("%08d EE_READ",__LINE__));

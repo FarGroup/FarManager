@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.26 19.07.2001 $ */
+/* Revision: 1.27 25.07.2001 $ */
 
 /*
 Modify:
+  25.07.2001 IS
+    ! При удалении размер сообщения такой же как и раньше (до 820).
   19.07.2001 SVS
     ! отмена 826-го до лучших времен (по просьбе VVM)
   18.07.2001 VVM
@@ -489,8 +491,8 @@ void ShellDeleteUpdatePanels(Panel *SrcPanel)
 void ShellDeleteMsg(char *Name,int Flags)
 {
   char DelName[NM];
-  CenterStr(Name,DelName,ScrX-16);
-  TruncPathStr(DelName,ScrX-16);
+  CenterStr(Name,DelName,30);
+  TruncPathStr(DelName,30);
   Message(Flags,0,MSG(MDeleteTitle),MSG(MDeleting),DelName);
 }
 
