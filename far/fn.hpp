@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.25 12.09.2000 $ */
+/* Revision: 1.26 14.09.2000 $ */
 
 /*
 Modify:
+  14.09.2000 SVS
+    + Функция FarMkTemp - получение имени временного файла с полным путем.
   12.09.2000 SVS
     ! FarShowHelp возвращает BOOL
   10.09.2000 SVS
@@ -502,6 +504,11 @@ void *WINAPI FarBsearch(const void *key, const void *base, size_t nelem, size_t 
 typedef int  (WINAPI *FRSUSERFUNC)(WIN32_FIND_DATA *FData,char *FullName);
 void WINAPI FarRecurseSearch(char *initdir,char *mask,FRSUSERFUNC func,DWORD flags);
 /* tran 10.09.2000 $ */
+/* $ 14.09.2000 SVS
+ + Функция FarMkTemp - получение имени временного файла с полным путем.
+*/
+char* WINAPI FarMkTemp(char *Dest, char *Template);
+/* SVS $*/
 
 #ifdef __cplusplus
 };

@@ -5,10 +5,14 @@ dialog.cpp
 
 */
 
-/* Revision: 1.39 12.09.2000 $ */
+/* Revision: 1.40 14.09.2000 $ */
 
 /*
 Modify:
+  14.09.2000 SVS
+   + Флаг DIF_LISTNOAMPERSAND. По умолчанию для DI_LISTBOX
+      выставляется флаг MENU_SHOWAMPERSAND. Этот флаг подавляет такое
+      поведение
   12.09.2000 SVS
    ! Задаем поведение для кнопки с DefaultButton=1:
      Такая кнопка независимо от стиля диалога инициирует сообщение DM_CLOSE.
@@ -553,7 +557,14 @@ int Dialog::InitDialogObjects(int ID)
         ListBox->DeleteItems();
 
         struct MenuItem ListItem;
-        ListBox->SetFlags(MENU_SHOWAMPERSAND);
+        /* $ 13.09.2000 SVS
+           + Флаг DIF_LISTNOAMPERSAND. По умолчанию для DI_LISTBOX &
+             DI_COMBOBOX выставляется флаг MENU_SHOWAMPERSAND. Этот флаг
+             подавляет такое поведение
+        */
+        if(!(CurItem->Flags&DIF_LISTNOAMPERSAND))
+          ListBox->SetFlags(MENU_SHOWAMPERSAND);
+        /* SVS $*/
         ListBox->SetPosition(X1+CurItem->X1,Y1+CurItem->Y1,
                              X1+CurItem->X2,Y1+CurItem->Y2);
         ListBox->SetBoxType(SHORT_SINGLE_BOX);
@@ -2839,7 +2850,10 @@ void Dialog::SelectFromComboBox(
     EditX2=EditX1+20;
   if (EditX2>ScrX)
     EditX2=ScrX;
-  ComboBoxMenu.SetFlags(MENU_SHOWAMPERSAND);
+#if 0
+  if(!(Item[FocusPos].Flags&DIF_LISTNOAMPERSAND))
+#endif
+    ComboBoxMenu.SetFlags(MENU_SHOWAMPERSAND);
   ComboBoxMenu.SetPosition(EditX1,EditY1+1,EditX2,0);
   ComboBoxMenu.SetBoxType(SHORT_SINGLE_BOX);
 

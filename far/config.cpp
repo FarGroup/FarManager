@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.18 12.09.2000 $ */
+/* Revision: 1.19 14.09.2000 $ */
 
 /*
 Modify:
+  14.09.2000 SVS
+    ! Ошибка в названии XLAT_SWITCHKEYBLAYOUT.
   12.09.2000 SVS
     ! Разделение Wrap/WWrap/UnWrap на 2 составляющих -
       Состояние (Wrap/UnWrap) и тип (Wrap/WWrap)
@@ -657,7 +659,7 @@ void ReadConfig()
   /* $ 05.09.2000 SVS
      CodeXLat - описывающая XLat-перекодировщик
   */
-  GetRegKey("Editor\\XLat","Flags",(int&)Opt.XLat.Flags,(DWORD)XLAT_SWITCHKEYBLAYOT);
+  GetRegKey("Editor\\XLat","Flags",(int&)Opt.XLat.Flags,(DWORD)XLAT_SWITCHKEYBLAYOUT);
   GetRegKey("Editor\\XLat","Table1",(BYTE*)Opt.XLat.Table[0],(BYTE*)NULL,sizeof(Opt.XLat.Table[0]));
   GetRegKey("Editor\\XLat","Table2",(BYTE*)Opt.XLat.Table[1],(BYTE*)NULL,sizeof(Opt.XLat.Table[1]));
   GetRegKey("Editor\\XLat","Rules1",(BYTE*)Opt.XLat.Rules[0],(BYTE*)NULL,sizeof(Opt.XLat.Rules[0]));

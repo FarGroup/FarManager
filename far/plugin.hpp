@@ -6,10 +6,16 @@
   Plugin API for FAR Manager 1.70
 
 */
-/* Revision: 1.49 13.09.2000 $ */
+/* Revision: 1.50 14.09.2000 $ */
 
 /*
 Modify:
+  14.09.2000 SVS
+    ! Ошибка в названии XLAT_SWITCHKEYBLAYOUT.
+    + FSF.MkTemp
+    + Флаг DIF_LISTNOAMPERSAND. По умолчанию для DI_LISTBOX
+      выставляется флаг MENU_SHOWAMPERSAND. Этот флаг подавляет такое
+      повдедение
   13.09.2000 skv
     + EEREDRAW_XXXXX defines
   12.09.2000 SVS
@@ -424,6 +430,11 @@ enum FarDialogItemFlags {
   + Флаг DIF_DISABLE переводящий элемент в состояние Disable
 */
   DIF_DISABLE         =0x80000000UL,
+/* SVS $ */
+/* $ 13.09.2000 SVS
+    + Флаг DIF_LISTNOAMPERSAND
+*/
+  DIF_LISTNOAMPERSAND =   0x20000UL,
 /* SVS $ */
 };
 /* KM $ */
@@ -1001,7 +1012,7 @@ typedef int  (WINAPI *FARSTDLOCALSTRNICMP)(char *s1,char *s2,int n);
   + XLat
 */
 enum XLATMODE{
-  XLAT_SWITCHKEYBLAYOT = 0x0000001UL, // переключить раскладку клавиатуры
+  XLAT_SWITCHKEYBLAYOUT = 0x0000001UL, // переключить раскладку клавиатуры
                                       // после преобразования XALT
 };
 
@@ -1012,6 +1023,7 @@ typedef char* (WINAPI *FARSTDXLAT)(char *Line,int StartPos,int EndPos,struct Cha
    FSF/FarRecurseSearch */
 typedef int  (WINAPI *FRSUSERFUNC)(WIN32_FIND_DATA *FData,char *FullName);
 typedef void (WINAPI *FARRECURSESEARCH)(char *InitDir,char *Mask,FRSUSERFUNC Func,DWORD Flags);
+typedef char* (WINAPI *FARSTDMKTEMP)(char *Dest, char *Template);
 
 enum FRSMODE{
   FRS_RETUPDIR = 0x0001,
@@ -1032,38 +1044,38 @@ typedef struct FarStandardFunctions
 {
   int StructSize;
 
-  FARSTDATOI             atoi;
-  FARSTDATOI64           atoi64;
-  FARSTDITOA             itoa;
-  FARSTDITOA64           itoa64;
+  FARSTDATOI                 atoi;
+  FARSTDATOI64               atoi64;
+  FARSTDITOA                 itoa;
+  FARSTDITOA64               itoa64;
   // <C&C++>
-  FARSTDSPRINTF          sprintf;
-  FARSTDSSCANF           sscanf;
+  FARSTDSPRINTF              sprintf;
+  FARSTDSSCANF               sscanf;
   // </C&C++>
-  FARSTDQSORT            qsort;
+  FARSTDQSORT                qsort;
   /* $ 07.09.2000 SVS
     Дополнения!
   */
-  FARSTDBSEARCH          bsearch;
+  FARSTDBSEARCH              bsearch;
 
   // вот сюда можно будет потом вместо
   //  DWORD ReservedX вставлять нужные
   //  функции из RTL-библиотеки.
-  DWORD                  Reserved[10];
+  DWORD                      Reserved[10];
   /* SVS $ */
 
-  FARSTDLOCALISLOWER     LIsLower;
-  FARSTDLOCALISUPPER     LIsUpper;
-  FARSTDLOCALISALPHA     LIsAlpha;
-  FARSTDLOCALISALPHANUM  LIsAlphanum;
-  FARSTDLOCALUPPER       LUpper;
-  FARSTDLOCALLOWER       LLower;
-  FARSTDLOCALUPPERBUF    LUpperBuf;
-  FARSTDLOCALLOWERBUF    LLowerBuf;
-  FARSTDLOCALSTRUPR      LStrupr;
-  FARSTDLOCALSTRLWR      LStrlwr;
-  FARSTDLOCALSTRICMP     LStricmp;
-  FARSTDLOCALSTRNICMP    LStrnicmp;
+  FARSTDLOCALISLOWER         LIsLower;
+  FARSTDLOCALISUPPER         LIsUpper;
+  FARSTDLOCALISALPHA         LIsAlpha;
+  FARSTDLOCALISALPHANUM      LIsAlphanum;
+  FARSTDLOCALUPPER           LUpper;
+  FARSTDLOCALLOWER           LLower;
+  FARSTDLOCALUPPERBUF        LUpperBuf;
+  FARSTDLOCALLOWERBUF        LLowerBuf;
+  FARSTDLOCALSTRUPR          LStrupr;
+  FARSTDLOCALSTRLWR          LStrlwr;
+  FARSTDLOCALSTRICMP         LStricmp;
+  FARSTDLOCALSTRNICMP        LStrnicmp;
 
   FARSTDUNQUOTE              Unquote;
   FARSTDEXPANDENVIRONMENTSTR ExpandEnvironmentStr;
@@ -1099,6 +1111,11 @@ typedef struct FarStandardFunctions
     + нижеуказанное */
   FARRECURSESEARCH           FarRecurseSearch;
   /* tran 10.09.2000 $ */
+  /* $ 14.09.2000 SVS
+    Функция получения временного файла с полным путем.
+  */
+  FARSTDMKTEMP               MkTemp;
+  /* SVS $ */
 }FARSTANDARDFUNCTIONS;
 /* IS $ */
 
@@ -1108,26 +1125,26 @@ struct PluginStartupInfo
   char ModuleName[NM];
   int ModuleNumber;
   char *RootKey;
-  FARAPIMENU Menu;
-  FARAPIDIALOG Dialog;
-  FARAPIMESSAGE Message;
-  FARAPIGETMSG GetMsg;
-  FARAPICONTROL Control;
-  FARAPISAVESCREEN SaveScreen;
-  FARAPIRESTORESCREEN RestoreScreen;
-  FARAPIGETDIRLIST GetDirList;
+  FARAPIMENU             Menu;
+  FARAPIDIALOG           Dialog;
+  FARAPIMESSAGE          Message;
+  FARAPIGETMSG           GetMsg;
+  FARAPICONTROL          Control;
+  FARAPISAVESCREEN       SaveScreen;
+  FARAPIRESTORESCREEN    RestoreScreen;
+  FARAPIGETDIRLIST       GetDirList;
   FARAPIGETPLUGINDIRLIST GetPluginDirList;
-  FARAPIFREEDIRLIST FreeDirList;
-  FARAPIVIEWER Viewer;
-  FARAPIEDITOR Editor;
-  FARAPICMPNAME CmpName;
-  FARAPICHARTABLE CharTable;
-  FARAPITEXT Text;
-  FARAPIEDITORCONTROL EditorControl;
+  FARAPIFREEDIRLIST      FreeDirList;
+  FARAPIVIEWER           Viewer;
+  FARAPIEDITOR           Editor;
+  FARAPICMPNAME          CmpName;
+  FARAPICHARTABLE        CharTable;
+  FARAPITEXT             Text;
+  FARAPIEDITORCONTROL    EditorControl;
   /* $ 06.07.2000 IS
      Функция, которая будет действовать и в редакторе, и в панелях, и...
   */
-  FARAPIADVCONTROL AdvControl;
+  FARAPIADVCONTROL       AdvControl;
   /* IS $ */
   /* $ 23.07.2000 SVS
      Функции для обработчика диалога
@@ -1136,20 +1153,20 @@ struct PluginStartupInfo
        - функция получения строки
        - функция переключения FulScreen <-> Windowed
   */
-  FARAPIDIALOGEX DialogEx;
-  FARAPISENDDLGMESSAGE SendDlgMessage;
-  FARAPIDEFDLGPROC DefDlgProc;
-  FARAPIINPUTBOX InputBox;
+  FARAPIDIALOGEX         DialogEx;
+  FARAPISENDDLGMESSAGE   SendDlgMessage;
+  FARAPIDEFDLGPROC       DefDlgProc;
+  FARAPIINPUTBOX         InputBox;
   /* SVS $ */
   /* $ 03.07.2000 IS
      Функция вывода помощи
   */
-  FARAPISHOWHELP ShowHelp;
+  FARAPISHOWHELP         ShowHelp;
   /* IS $ */
   /* $ 06.07.2000 IS
      Указатель на структуру с адресами полезных функций из far.exe
   */
-  FARSTANDARDFUNCTIONS *FSF;
+  FARSTANDARDFUNCTIONS  *FSF;
   /* IS $ */
 };
 

@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.24 10.09.2000 $ */
+/* Revision: 1.25 14.09.2000 $ */
 
 /*
 Modify:
+  14.09.2000 SVS
+    + Функция FarMkTemp - получение имени временного файла с полным путем.
   10.09.2000 SVS
     ! KeyToText возвращает BOOL
   10.09.2000 tran
@@ -2163,7 +2165,7 @@ char* WINAPI Xlat(
 
   // переключаем раскладку клавиатуры?
   //  к сожалению не работает под Win9x - ставьте WinNT и наслаждайтесь :-)
-  if(Flags & XLAT_SWITCHKEYBLAYOT)
+  if(Flags & XLAT_SWITCHKEYBLAYOUT)
     PostMessage(GetForegroundWindow(),WM_INPUTLANGCHANGEREQUEST, 1, HKL_NEXT);
 
   return Line;
@@ -2197,3 +2199,20 @@ void WINAPI FarRecurseSearch(char *initdir,char *mask,FRSUSERFUNC func,DWORD fla
     }
 }
 /* tran 10.09.2000 $ */
+
+/* $ 14.09.2000 SVS
+ + Функция FarMkTemp - получение имени временного файла с полным путем.
+    Dest - приемник результата (должен быть достаточно большим, например NM
+    Template - шаблон по правилам функции mktemp, например "FarTmpXXXXXX"
+   Вернет либо NULL, либо указатель на Dest.
+*/
+char* WINAPI FarMkTemp(char *Dest, char *Template)
+{
+  char TempPath[NM];
+  TempPath[GetTempPath(sizeof(TempPath),TempPath)]=0;
+  strcat(TempPath,Template);
+  if(mktemp(TempPath) != NULL)
+    return TempPath;
+  return NULL;
+}
+/* SVS */

@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.24 10.09.2000 $ */
+/* Revision: 1.25 14.09.2000 $ */
 
 /*
 Modify:
+  14.09.2000 SVS
+    + FSF.MkTemp
   10.09.2000 IS 1.21
     - Забыли проверку Info.CommandPrefix на NULL сделать, соответственно фар
       иногда с конвульсиями помирал, теперь - нет.
@@ -519,6 +521,11 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
       + нижеуказанное */
     StandardFunctions.FarRecurseSearch=FarRecurseSearch;
     /* tran 08.09.2000 $ */
+    /* $ 14.09.2000 SVS
+      Функция получения временного файла с полным путем.
+    */
+    StandardFunctions.MkTemp=FarMkTemp;
+    /* SVS $ */
 
 
     strcpy(StartupInfo.ModuleName,CurPlugin.ModuleName);

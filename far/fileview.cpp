@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.08 24.08.2000 $ */
+/* Revision: 1.09 14.09.2000 $ */
 
 /*
 Modify:
+  14.09.2000 SVS
+    - Bug #NN1 - Непонятки  поведением KeyBar (см. описание к Patch#191)
   24.08.2000 SVS
     + Добавляем реакцию показа бакграунда на клавишу CtrlAltShift
   07.08.2000 SVS
@@ -166,11 +168,18 @@ void FileViewer::Show()
   {
     /* $ 15.07.2000 tran
        + keybar hide/show support */
+    /* $ 14.09.2000 SVS
+        Bug #NN1 - Непонятки  поведением KeyBar (см. описание к Patch#191)
+    */
     if ( Opt.ShowKeyBarViewer )
     {
+        ViewKeyBar.Show();
         ViewKeyBar.SetPosition(0,ScrY,ScrX,ScrY);
         ViewKeyBar.Redraw();
     }
+    else
+      ViewKeyBar.Hide0(); // 0 mean - Don't purge saved screen
+    /* SVS $ */
     SetPosition(0,0,ScrX,ScrY-(Opt.ShowKeyBarViewer?1:0));
     View.SetPosition(0,0,ScrX,ScrY-(Opt.ShowKeyBarViewer?1:0));
     /* tran 15.07.2000 $ */
@@ -221,10 +230,6 @@ int FileViewer::ProcessKey(int Key)
        + CtrlB switch KeyBar*/
     case KEY_CTRLB:
       Opt.ShowKeyBarViewer=!Opt.ShowKeyBarViewer;
-      if ( Opt.ShowKeyBarViewer )
-        ViewKeyBar.Show();
-      else
-        ViewKeyBar.Hide0(); // 0 mean - Don't purge saved screen
       Show();
       return (TRUE);
     /* tran 15.07.2000 $ */
@@ -241,13 +246,6 @@ int FileViewer::ProcessKey(int Key)
         ViewKeyBar.Hide();
         WaitKey(Key==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:-1);
       }
-      /* $ 21.07.2000 tran
-         - артефакт при Ctrl-O*/
-      if ( Opt.ShowKeyBarViewer )
-        ViewKeyBar.Show();
-      else
-        ViewKeyBar.Hide0(); // 0 mean - Don't purge saved screen
-      /* tran 21.07.2000 $ */
       Show();
       return(TRUE);
     /* SVS $ */

@@ -7,10 +7,13 @@ Internal viewer
 
 */
 
-/* Revision: 1.08 12.09.2000 $ */
+/* Revision: 1.09 14.09.2000 $ */
 
 /*
 Modify:
+  14.06.2000 SVS
+    + Переменная FirstWord - первое слово из файла
+      (для автоопределения Unicode)
   12.09.2000 SVS
     + Введена переменная TypeWrap. Теперь
       Wrap - Состояние (Wrap/UnWrap) и
@@ -49,24 +52,12 @@ Modify:
 class Viewer:public ScreenObject
 {
   private:
-    void DisplayObject();
-    void Up();
-    void ShowHex();
-    void ShowUp();
-    void ShowStatus();
-    void ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSize);
-    int CalcStrSize(char *Str,int Length);
-    void ChangeViewKeyBar();
-    void SetCRSym();
-    void Search(int Next,int FirstChar);
-    void ConvertToHex(char *SearchStr,int &SearchLength);
-    int HexToNum(int Hex);
-    int vread(char *Buf,int Size,FILE *SrcFile);
-    int vseek(FILE *SrcFile,unsigned long Offset,int Whence);
-    unsigned long vtell(FILE *SrcFile);
-    int vgetc(FILE *SrcFile);
-    void GoTo();
-    void SetFileSize();
+    /* $ 14.06.2000 SVS
+      + Переменная FirstWord - первое слово из файла
+      (для автоопределения Unicode)
+    */
+    WORD FirstWord;
+    /* SVS $ */
 
     NamesList ViewNamesList;
     KeyBar *ViewKeyBar;
@@ -127,9 +118,33 @@ class Viewer:public ScreenObject
        новая переменная, используется при расчете ширины при скролбаре */
     int Width,XX2;
     /* tran 19.07.2000 $ */
+
+  private:
+    void DisplayObject();
+    void Up();
+    void ShowHex();
+    void ShowUp();
+    void ShowStatus();
+    void ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSize);
+    int CalcStrSize(char *Str,int Length);
+    void ChangeViewKeyBar();
+    void SetCRSym();
+    void Search(int Next,int FirstChar);
+    void ConvertToHex(char *SearchStr,int &SearchLength);
+    int HexToNum(int Hex);
+    int vread(char *Buf,int Size,FILE *SrcFile);
+    int vseek(FILE *SrcFile,unsigned long Offset,int Whence);
+    unsigned long vtell(FILE *SrcFile);
+    int vgetc(FILE *SrcFile);
+    void GoTo();
+    void SetFileSize();
+
   public:
     Viewer();
     ~Viewer();
+
+
+  public:
     /* $ 04.07.2000 tran
        + 'warning' parameter */
     int OpenFile(char *Name,int warning);

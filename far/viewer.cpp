@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.23 13.09.2000 $ */
+/* Revision: 1.24 14.09.2000 $ */
 
 /*
 Modify:
+  14.09.2000 SVS
+    + AutoDecode Unicode - те файлы, которые начинаются с 0xFEFF
   13.09.2000 tran 1.23
     + при WWrap обрезаются пробелы в начале строки
   12.09.2000 SVS
@@ -390,6 +392,18 @@ void Viewer::SetCRSym()
   int ReadSize,I;
   vseek(ViewFile,0,SEEK_SET);
   ReadSize=vread(Buf,sizeof(Buf),ViewFile);
+  /* $ 14.09.2000 SVS
+    AutoDecode Unicode
+  */
+  FirstWord=*(WORD*)Buf;
+  if(Opt.ViewerAutoDetectTable && FirstWord == 0x0FEFF)
+  {
+    AnsiText=UseDecodeTable=0;
+    Unicode=1;
+    FilePos=2;
+    TableChangedByUser=TRUE;
+  }
+  /* SVS $ */
   for (I=0;I<ReadSize;I++)
     switch(Buf[I])
     {
@@ -445,6 +459,15 @@ void Viewer::DisplayObject()
     MoveCursor(79,24);
     SetCursorType(0,10);
   }
+  /* $ 14.09.2000 SVS
+    Unicode
+  */
+//  if(Unicode && !FilePos && !Hex && FirstWord == 0x0FEFF)
+//    FilePos++;
+//  else if(Unicode && Hex && FilePos == 1)
+//    FilePos=0;
+  /* SVS $ */
+
   vseek(ViewFile,FilePos,SEEK_SET);
 
   if (Hex)
