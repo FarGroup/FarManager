@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.86 25.04.2001 $ */
+/* Revision: 1.87 26.04.2001 $ */
 
 /*
 Modify:
+  26.04.2001 SVS
+   - Проблема с DM_SETTEXTLENGTH: выставляем максимальный размер в том
+     случае, если он еще не выставлен.
   25.04.2001 SVS
    + уточнения по поводу DM_SETTEXTLENGTH & DIF_VAREDIT
   24.04.2001 SVS
@@ -792,12 +795,15 @@ int Dialog::InitDialogObjects(int ID)
       /* SVS $ */
       /* $ 15.10.2000 tran
         строка редакторирование должна иметь максимум в 511 символов */
-      // DIF_VAREDIT - только для DI_EDIT!!!
-      if((CurItem->Type==DI_EDIT || CurItem->Type==DI_COMBOBOX) &&
-         (CurItem->Flags&DIF_VAREDIT))
-        DialogEdit->SetMaxLength(CurItem->Ptr.PtrLength);
-      else
-        DialogEdit->SetMaxLength(511);
+      // выставляем максимальный размер в том случае, если он еще не выставлен
+      if(DialogEdit->GetMaxLength() == -1)
+      {
+        if((CurItem->Type==DI_EDIT || CurItem->Type==DI_COMBOBOX) &&
+           (CurItem->Flags&DIF_VAREDIT))
+          DialogEdit->SetMaxLength(CurItem->Ptr.PtrLength);
+        else
+          DialogEdit->SetMaxLength(511);
+      }
       /* tran $ */
       DialogEdit->SetPosition(X1+CurItem->X1,Y1+CurItem->Y1,
                               X1+CurItem->X2,Y1+CurItem->Y2);
@@ -1347,7 +1353,10 @@ void Dialog::ShowDialog(int ID)
           /* KM $ */
         }
         else
+        {
           EditPtr->FastShow();
+          EditPtr->SetLeftPos(0);
+        }
 
         /* $ 09.08.2000 KM
            Отключение мигающего курсора при перемещении диалога
@@ -4174,7 +4183,9 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       return 0;
 
     case DM_SETTEXTLENGTH:
-      if(IsEdit(Type) && !(CurItem->Flags & DIF_DROPDOWNLIST) && CurItem->ObjPtr)
+      if((Type==DI_EDIT || Type==DI_PSWEDIT ||
+          (Type==DI_COMBOBOX && !(CurItem->Flags & DIF_DROPDOWNLIST))) &&
+         CurItem->ObjPtr)
       {
         int MaxLen=((Edit *)(CurItem->ObjPtr))->GetMaxLength();
 
