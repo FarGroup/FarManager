@@ -5,10 +5,12 @@ farwinapi.cpp
 
 */
 
-/* Revision: 1.00 01.06.2003 $ */
+/* Revision: 1.01 09.10.2003 $ */
 
 /*
 Modify:
+  09.10.2003 SVS
+    + SetFileApisTo() с параметром APIS2ANSI или APIS2OEM вместо SetFileApisToANSI() и SetFileApisToOEM()
   01.06.2003 SVS
     ! Выделение в качестве самостоятельного модуля
     ! FAR_DeleteFile и FAR_RemoveDirectory переехали из delete.cpp в farwinapi.cpp
@@ -104,3 +106,16 @@ HANDLE WINAPI FAR_CreateFile(
   return hFile;
 }
 /* IS $ */
+
+void SetFileApisTo(int Type)
+{
+  switch(Type)
+  {
+    case APIS2OEM:
+      SetFileApisToOEM();
+      break;
+    case APIS2ANSI:
+      SetFileApisToANSI();
+      break;
+  }
+}

@@ -5,10 +5,13 @@ fileattr.cpp
 
 */
 
-/* Revision: 1.08 30.05.2003 $ */
+/* Revision: 1.09 09.10.2003 $ */
 
 /*
 Modify:
+  09.10.2003 SVS
+    ! SetFileApisToANSI() и SetFileApisToOEM() заменены на SetFileApisTo() с параметром
+      APIS2ANSI или APIS2OEM - задел на будущее
   30.05.2003 SVS
     - Не выставлялся атрибут Compressed для файлового объекта, имеющего ReadOnly.
       Вернее... При смене атрибута с Encripted на Compressed... имеющего ReadOnly.
@@ -163,8 +166,8 @@ static int SetFileEncryption(const char *Name,int State)
 {
   class ApisToANSI{
     public:
-     ApisToANSI() {SetFileApisToANSI();}
-    ~ApisToANSI() {SetFileApisToOEM();}
+     ApisToANSI() {SetFileApisTo(APIS2ANSI);}
+    ~ApisToANSI() {SetFileApisTo(APIS2OEM);}
   };
 
   char AnsiName[NM];

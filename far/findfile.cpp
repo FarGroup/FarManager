@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.147 05.10.2003 $ */
+/* Revision: 1.148 09.10.2003 $ */
 
 /*
 Modify:
+  09.10.2003 SVS
+    ! В диалоге результатов поиска вместо "FindFile" заюзаем новый раздел помощи "FindFileResult"
   05.10.2003 KM
     ! Размер в результатах поиска выводится с учётом 64-битной математики.
     + В результатах поиска выводятся атрибуты найденных папок и файлов.
@@ -1820,7 +1822,7 @@ int FindFiles::FindFilesProcess()
   Dialog *pDlg=new Dialog(FindDlg,sizeof(FindDlg)/sizeof(FindDlg[0]),FindDlgProc);
   hDlg=(HANDLE)pDlg;
   pDlg->SetDynamicallyBorn(TRUE);
-  pDlg->SetHelp("FindFile");
+  pDlg->SetHelp("FindFileResult");
   pDlg->SetPosition(-1,-1,DLG_WIDTH+4,DLG_HEIGHT-2+IncY);
   // Надо бы показать диалог, а то инициализация элементов запаздывает
   // иногда при поиске и первые элементы не добавляются

@@ -5,10 +5,13 @@ delete.cpp
 
 */
 
-/* Revision: 1.61 10.06.2003 $ */
+/* Revision: 1.62 09.10.2003 $ */
 
 /*
 Modify:
+  09.10.2003 SVS
+    ! SetFileApisToANSI() и SetFileApisToOEM() заменены на SetFileApisTo() с параметром
+      APIS2ANSI или APIS2OEM - задел на будущее
   10.06.2003 SVS
     - ƒл€ вложенных симлинков - получали ругань на отсутствие каталога
   01.06.2003 SVS
@@ -878,7 +881,7 @@ int RemoveToRecycleBin(const char *Name)
   fop.fFlags=FOF_NOCONFIRMATION|FOF_SILENT;
   if (Opt.DeleteToRecycleBin)
     fop.fFlags|=FOF_ALLOWUNDO;
-  SetFileApisToANSI();
+  SetFileApisTo(APIS2ANSI);
   DWORD RetCode=SHFileOperation(&fop);
   /* $ 26.01.2003 IS
        + ≈сли не удалось удалить объект (например, им€ имеет пробел на конце)
@@ -903,7 +906,7 @@ int RemoveToRecycleBin(const char *Name)
   }
   #endif
   /* IS $ */
-  SetFileApisToOEM();
+  SetFileApisTo(APIS2OEM);
   if(RetCode)
   {
     for(int I=0; I < sizeof(SHErrorCode2LastErrorCode)/sizeof(SHErrorCode2LastErrorCode[0]); ++I)

@@ -5,10 +5,13 @@ execute.cpp
 
 */
 
-/* Revision: 1.89 06.10.2003 $ */
+/* Revision: 1.90 09.10.2003 $ */
 
 /*
 Modify:
+  09.10.2003 SVS
+    ! SetFileApisToANSI() и SetFileApisToOEM() заменены на SetFileApisTo() с параметром
+      APIS2ANSI или APIS2OEM - задел на будущее
   06.10.2003 SVS
     - BugZ#955 - Alt-F9 + Mode CON: Lines=12
       Достаточно "получить" данные о размере консоли... иначе вылетаем
@@ -655,7 +658,7 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
   // будем.
   // IsExistExt=strrchr(FullName,'.')!=NULL;
 
-  SetFileApisToANSI();
+  SetFileApisTo(APIS2ANSI);
 
   {
     char *FilePart;
@@ -804,7 +807,7 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
       strncpy(Dest,FullName,DestSize);
   }
 
-  SetFileApisToOEM();
+  SetFileApisTo(APIS2OEM);
   return(Ret);
 }
 
@@ -834,7 +837,7 @@ DWORD IsCommandExeGUI(const char *Command)
   ExpandEnvironmentStrings(FullName,FileName,sizeof(FileName));
   /* VVM $ */
 
-  SetFileApisToANSI();
+  SetFileApisTo(APIS2ANSI);
   /*$ 18.09.2000 skv
     + to allow execution of c.bat in current directory,
       if gui program c.exe exists somewhere in PATH,
@@ -867,7 +870,7 @@ DWORD IsCommandExeGUI(const char *Command)
     break;
   }
   /* skv$*/
-  SetFileApisToOEM();
+  SetFileApisTo(APIS2OEM);
   return(GUIType);
 }
 #endif
@@ -1178,9 +1181,9 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
       si.nShow=SW_SHOWNORMAL;
       if (AnsiCmdPar[0])
         si.lpParameters = AnsiCmdPar;
-      SetFileApisToANSI();
+      SetFileApisTo(APIS2ANSI);
       ExitCode=ShellExecuteEx(&si);
-      SetFileApisToOEM();
+      SetFileApisTo(APIS2OEM);
       pi.hProcess=si.hProcess;
     }
     else

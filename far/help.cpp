@@ -8,10 +8,13 @@ help.cpp
 
 */
 
-/* Revision: 1.77 15.09.2003 $ */
+/* Revision: 1.78 09.10.2003 $ */
 
 /*
 Modify:
+  09.10.2003 SVS
+    ! SetFileApisToANSI() и SetFileApisToOEM() заменены на SetFileApisTo() с параметром
+      APIS2ANSI или APIS2OEM - задел на будущее
   15.09.2003 SVS
     - BugZ#457 - Форматирование в Help-файлах
       (ВНИМАНИЕ! НЕ УВЕРЕН! но бага излечилась :-))
@@ -2129,15 +2132,15 @@ static int RunURL(char *Protocol, char *URLPath)
               sei.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_DDEWAIT;
               sei.lpFile=RemoveExternalSpaces(Buf);
               sei.nShow=SW_SHOWNORMAL;
-              SetFileApisToANSI();
+              SetFileApisTo(APIS2ANSI);
               if(ShellExecuteEx(&sei))
                 EditCode=1;
-              SetFileApisToOEM();
+              SetFileApisTo(APIS2OEM);
 #else
               OemToChar(URLPath,Buf);
-              SetFileApisToANSI();
+              SetFileApisTo(APIS2ANSI);
               EditCode=ShellExecute(0, 0, RemoveExternalSpaces(Buf), 0, 0, SW_SHOWNORMAL)?1:2;
-              SetFileApisToOEM();
+              SetFileApisTo(APIS2OEM);
 #endif
             }
             else
@@ -2147,10 +2150,10 @@ static int RunURL(char *Protocol, char *URLPath)
               si.cb=sizeof(si);
               strcat(Buf,URLPath);
               OemToChar(Buf,Buf);
-              SetFileApisToANSI(); //????
+              SetFileApisTo(APIS2ANSI); //????
               if(!CreateProcess(NULL,Buf,NULL,NULL,TRUE,0,NULL,NULL,&si,&pi))
                  EditCode=1;
-              SetFileApisToOEM(); //????
+              SetFileApisTo(APIS2OEM); //????
             }
           }
         }

@@ -5,10 +5,16 @@ main.cpp
 
 */
 
-/* Revision: 1.70 06.06.2003 $ */
+/* Revision: 1.71 09.10.2003 $ */
 
 /*
 Modify:
+  09.10.2003 SVS
+    ! SetFileApisToANSI() и SetFileApisToOEM() заменены на SetFileApisTo() с параметром
+      APIS2ANSI или APIS2OEM - задел на будущее
+    + переменные среды: FARHOME
+    - Bug: "/p. все равно грузит плагины из %FARHOME%"
+    ! EditName и ViewName - как указатели. Этого вполне достаточно и стек экономим
   06.06.2003 SVS
     ! Отделение мух от котлет - ключ /p приоритетный
   19.05.2003 SVS
@@ -457,12 +463,14 @@ static int MainProcess(char *EditName,char *ViewName,char *DestName1,char *DestN
 int _cdecl main(int Argc, char *Argv[])
 {
   _OT(SysLog("[[[[[[[[New Session of FAR]]]]]]]]]"));
-  char EditName[NM],ViewName[NM];
+  //char EditName[NM],ViewName[NM];
+  char *EditName="",*ViewName="";
   char DestName[2][NM];
   int StartLine=-1,StartChar=-1,RegOpt=FALSE;
   int CntDestName=0; // количество параметров-имен каталогов
 
-  *EditName=*ViewName=DestName[0][0]=DestName[1][0]=0;
+  //*EditName=*ViewName=0;
+  DestName[0][0]=DestName[1][0]=0;
   CmdMode=FALSE;
 
   WinVer.dwOSVersionInfoSize=sizeof(WinVer);
@@ -548,14 +556,18 @@ int _cdecl main(int Argc, char *Argv[])
           }
           if (I+1<Argc)
           {
-            CharToOem(Argv[I+1],EditName);
+            //CharToOem(Argv[I+1],EditName);
+            CharToOem(Argv[I+1],Argv[I+1]);
+            EditName=Argv[I+1];
             I++;
           }
           break;
         case 'V':
           if (I+1<Argc)
           {
-            CharToOem(Argv[I+1],ViewName);
+            //CharToOem(Argv[I+1],ViewName);
+            CharToOem(Argv[I+1],Argv[I+1]);
+            ViewName=Argv[I+1];
             I++;
           }
           break;
@@ -598,7 +610,16 @@ int _cdecl main(int Argc, char *Argv[])
           */
           if (Argv[I][2])
           {
-            strncpy(Opt.LoadPlug.CustomPluginsPath,&Argv[I][2],sizeof(Opt.LoadPlug.CustomPluginsPath));
+            if(Argv[I][2]=='.' && (Argv[I][3]==0 || Argv[I][3]=='\\' || Argv[I][3]=='.'))
+            {
+              GetCurrentDirectory(sizeof(Opt.LoadPlug.CustomPluginsPath),Opt.LoadPlug.CustomPluginsPath);
+              AddEndSlash(Opt.LoadPlug.CustomPluginsPath);
+              strcat(Opt.LoadPlug.CustomPluginsPath,&Argv[I][2]);
+              //printf("%s\n",Opt.LoadPlug.CustomPluginsPath);
+              //Sleep(5000);
+            }
+            else
+              strncpy(Opt.LoadPlug.CustomPluginsPath,&Argv[I][2],sizeof(Opt.LoadPlug.CustomPluginsPath));
             /* 18.01.2003 IS
                - Не правильно обрабатывалась команда /p[<path>], если в пути
                  были буквы национального алфавита.
@@ -690,7 +711,7 @@ int _cdecl main(int Argc, char *Argv[])
     Opt.LoadPlug.PluginsPersonal=FALSE;
   }
 
-  SetFileApisToOEM();
+  SetFileApisTo(APIS2OEM);
   GetModuleFileName(NULL,FarPath,sizeof(FarPath));
 #if defined(USE_WFUNC)
 //  if(Opt.CleanAscii || Opt.NoGraphics)
@@ -708,6 +729,7 @@ int _cdecl main(int Argc, char *Argv[])
      if(s && s<sizeof(tmpFarPath))
         strcpy(FarPath, tmpFarPath);
   }
+  SetEnvironmentVariable("FARHOME",FarPath);
   AddEndSlash(FarPath);
   /* IS $ */
   /* $ 03.08.2000 SVS

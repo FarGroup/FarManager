@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.290 25.09.2003 $ */
+/* Revision: 1.291 03.10.2003 $ */
 
 /*
 Modify:
+  03.10.2003 SVS
+    - BugZ#962 - мигание курсора на окне диалога плагина без элементов с фокусом ввода
   25.09.2003 SVS
     ! KEY_MACROXLAT переименован в KEY_MACRO_XLAT
       KEY_MEDIT_ISSELECTED -> KEY_MACRO_EDITSELECTED
@@ -2525,6 +2527,7 @@ void Dialog::ShowDialog(int ID)
      другим контролом (по координатам), то для "позднего"
      контрола тоже нужна прорисовка.
   */
+  SetCursorType(0,0);
 
   for (I=ID,CurItem=&Item[I]; I < DrawItemCount; I++, ++CurItem)
   {
@@ -2915,6 +2918,8 @@ int Dialog::ProcessMoveDialog(DWORD Key)
      + перемещение диалога по экрану */
   if (DialogMode.Check(DMODE_DRAGGED)) // если диалог таскается
   {
+    // TODO: Здесь проверить "уже здесь" и не делать лишних движений
+    //       Т.е., если нажали End, то при следующем End ненужно ничего делать! - сравнить координаты !!!
     int rr=1;
     /* $ 15.12.2000 SVS
        При перемещении диалога повторяем поведение "бормандовых" сред.
@@ -5524,7 +5529,9 @@ void Dialog::Process()
 
   InitDialog();
   if(ExitCode == -1)
+  {
     FrameManager->ExecuteModal (this);
+  }
   /* DJ $ */
 }
 /* SVS $ */

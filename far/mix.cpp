@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.150 24.09.2003 $ */
+/* Revision: 1.151 09.10.2003 $ */
 
 /*
 Modify:
+  09.10.2003 SVS
+    ! SetFileApisToANSI() и SetFileApisToOEM() заменены на SetFileApisTo() с параметром
+      APIS2ANSI или APIS2OEM - задел на будущее
   24.09.2003 KM
     - Transform() некорректно преобразовывала из hex в строку.
   23.09.2003 KM
@@ -1358,13 +1361,13 @@ char* DriveLocalToRemoteName(int DriveType,char Letter,char *Dest)
 
   if (DriveType==DRIVE_REMOTE)
   {
-    SetFileApisToANSI();
+    SetFileApisTo(APIS2ANSI);
     if (WNetGetConnection(LocalName,RemoteName,&RemoteNameSize)==NO_ERROR)
     {
       NetPathShown=TRUE;
       IsOK=TRUE;
     }
-    SetFileApisToOEM();
+    SetFileApisTo(APIS2OEM);
   }
   if (!NetPathShown)
     if (GetSubstName(DriveType,LocalName,RemoteName,sizeof(RemoteName)))

@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.75 04.10.2003 $ */
+/* Revision: 1.76 09.10.2003 $ */
 
 /*
 Modify:
+  09.10.2003 SVS
+    + APIS2ANSI и APIS2OEM для SetFileApisTo()
   04.10.2003 SVS
     ! Изменения во флагам макрокоманд. В принципе все описано в комметариях
   12.09.2003 SVS
@@ -458,6 +460,11 @@ typedef union {
 enum QUOTEDNAMETYPE{
   QUOTEDNAME_INSERT         = 0x00000001,            // кавычить при сбросе в командную строку, в диалогах и редакторе
   QUOTEDNAME_CLIPBOARD      = 0x00000002,            // кавычить при помещении в буфер обмена
+};
+
+enum{
+  APIS2OEM,
+  APIS2ANSI,
 };
 
 #endif // __FARCONST_HPP__

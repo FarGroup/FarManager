@@ -5,10 +5,13 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.45 12.09.2003 $ */
+/* Revision: 1.46 09.10.2003 $ */
 
 /*
 Modify:
+  09.10.2003 SVS
+    ! SetFileApisToANSI() и SetFileApisToOEM() заменены на SetFileApisTo() с параметром
+      APIS2ANSI или APIS2OEM - задел на будущее
   12.09.2003 VVM
     + Очистить буфер, если не смогли сменить каталог.
   12.09.2003 SVS
@@ -346,10 +349,10 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
       LocalName[sizeof(LocalName)-1]=0;
       /* KM $ */
 
-      SetFileApisToANSI();
+      SetFileApisTo(APIS2ANSI);
       if (WNetGetConnection(LocalName,NetDir,&RemoteNameSize)==NO_ERROR)
         CharToOem(NetDir,NetDir);
-      SetFileApisToOEM();
+      SetFileApisTo(APIS2OEM);
     }
     if (NetDir[0]=='\\' && NetDir[1]=='\\')
     {
@@ -660,14 +663,14 @@ void FileList::CreateChangeNotification(int CheckTree)
   char AnsiName[NM];
   OemToChar(CurDir,AnsiName);
   CloseChangeNotification();
-  SetFileApisToANSI();
+  SetFileApisTo(APIS2ANSI);
   hListChange=FindFirstChangeNotification(AnsiName,CheckTree,
                       FILE_NOTIFY_CHANGE_FILE_NAME|
                       FILE_NOTIFY_CHANGE_DIR_NAME|
                       FILE_NOTIFY_CHANGE_ATTRIBUTES|
                       FILE_NOTIFY_CHANGE_SIZE|
                       FILE_NOTIFY_CHANGE_LAST_WRITE);
-  SetFileApisToOEM();
+  SetFileApisTo(APIS2OEM);
 }
 
 

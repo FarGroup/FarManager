@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.193 23.09.2003 $ */
+/* Revision: 1.194 09.10.2003 $ */
 
 /*
 Modify:
+  09.10.2003 SVS
+    + SetFileApisTo() с параметром APIS2ANSI или APIS2OEM вместо SetFileApisToANSI() и SetFileApisToOEM()
   23.09.2003 KM
     + Transform() - преобразует строку в hex представление и обратно.
   02.09.2003 SVS
@@ -667,6 +669,9 @@ HANDLE WINAPI FAR_CreateFile(
     HANDLE hTemplateFile          // handle to file with attributes to copy
    );
 /* IS $ */
+
+void SetFileApisTo(int Type);
+
 
 char* FarMSG(int MsgID);
 #define MSG(ID) FarMSG(ID)

@@ -5,10 +5,13 @@ copy.cpp
 
 */
 
-/* Revision: 1.129 22.09.2003 $ */
+/* Revision: 1.130 09.10.2003 $ */
 
 /*
 Modify:
+  09.10.2003 SVS
+    ! SetFileApisToANSI() и SetFileApisToOEM() заменены на SetFileApisTo() с параметром
+      APIS2ANSI или APIS2OEM - задел на будущее
   22.09.2003 SVS
     + CheckUpdatePanel(); выставляет флаг FCOPY_UPDATEPPANEL
     + Если указано несколько таржетов - делаем подсчет _ВСЕГО_, в т.ч.
@@ -3627,10 +3630,10 @@ int ShellCopy::GetSecurity(const char *FileName,SECURITY_ATTRIBUTES &sa)
   SECURITY_INFORMATION si=DACL_SECURITY_INFORMATION;
   SECURITY_DESCRIPTOR *sd=(SECURITY_DESCRIPTOR *)sddata;
   DWORD Needed;
-  SetFileApisToANSI();
+  SetFileApisTo(APIS2ANSI);
   OemToChar(FileName,AnsiName);
   BOOL RetSec=GetFileSecurity(AnsiName,si,sd,sizeof(sddata),&Needed);
-  SetFileApisToOEM();
+  SetFileApisTo(APIS2OEM);
   if (!RetSec)
   {
     sd=NULL;
@@ -3652,10 +3655,10 @@ int ShellCopy::SetSecurity(const char *FileName,const SECURITY_ATTRIBUTES &sa)
 {
   char AnsiName[NM];
   SECURITY_INFORMATION si=DACL_SECURITY_INFORMATION;
-  SetFileApisToANSI();
+  SetFileApisTo(APIS2ANSI);
   OemToChar(FileName,AnsiName);
   BOOL RetSec=SetFileSecurity(AnsiName,si,sa.lpSecurityDescriptor);
-  SetFileApisToOEM();
+  SetFileApisTo(APIS2OEM);
   if (!RetSec)
   {
     int LastError=GetLastError();

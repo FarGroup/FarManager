@@ -5,10 +5,14 @@ edit.cpp
 
 */
 
-/* Revision: 1.104 26.09.2003 $ */
+/* Revision: 1.106 08.10.2003 $ */
 
 /*
 Modify:
+  08.10.2003 SVS
+    ! Первое исправления "для колорера"
+    ! В Edit::Select() если обе компоненты == -1, сделам как
+      в конструкторе.
   26.09.2003 SVS
     ! Переименование
       GetMacroPlainText        -> GetPlainText
@@ -407,8 +411,6 @@ void Edit::DisplayObject()
   }
   /* tran 26.07.2000 $ */
 
-  if (EditOutDisabled)
-    return;
   /* $ 12.08.2000 KM
      Вычисление нового положения курсора в строке с учётом Mask.
   */
@@ -417,6 +419,8 @@ void Edit::DisplayObject()
   /* KM $ */
   FastShow();
 
+  if (EditOutDisabled)
+    return;
   /* $ 19.07.2001 KM
      - Под NT курсор мигал.
   */
@@ -577,7 +581,8 @@ void Edit::FastShow()
     CursorPos=CurPos;
     if (CurPos-LeftPos>EditLength-1)
       LeftPos=CurPos-EditLength+1;
-    ShowString(Str,TabSelStart,TabSelEnd);
+    if (!EditOutDisabled)
+      ShowString(Str,TabSelStart,TabSelEnd);
     memcpy(Str,SaveStr,SaveStrSize);
     Str[SaveStrSize]=0;
     /* $ 13.07.2000 SVS
@@ -597,7 +602,8 @@ void Edit::FastShow()
   }
   else
   {
-    ShowString(Str,TabSelStart,TabSelEnd);
+    if (!EditOutDisabled)
+      ShowString(Str,TabSelStart,TabSelEnd);
     CursorPos=CurPos;
   }
   /* $ 26.07.2000 tran
@@ -2570,6 +2576,11 @@ void Edit::Select(int Start,int End)
 */
   if (SelEnd<SelStart && SelEnd!=-1)
 /* SKV $ */
+  {
+    SelStart=-1;
+    SelEnd=0;
+  }
+  if (SelStart==-1 && SelEnd==-1)
   {
     SelStart=-1;
     SelEnd=0;

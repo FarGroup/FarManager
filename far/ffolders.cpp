@@ -5,10 +5,12 @@ Folder shortcuts
 
 */
 
-/* Revision: 1.11 29.04.2002 $ */
+/* Revision: 1.12 07.10.2003 $ */
 
 /*
 Modify:
+  07.10.2003 SVS
+    - Ошибочное сообщение об ошибке.
   29.04.2002 SVS
     - BugZ#482 Folder shortcuts (продолжение)
   27.04.2002 SVS
@@ -223,14 +225,15 @@ static int ShowFolderShortcutMenu(int Pos)
           strcpy(OldNewDir,NewDir);
 
           if (GetString(MSG(MFolderShortcutsTitle),MSG(MEnterShortcut),NULL,
-                        NewDir,NewDir,sizeof(NewDir),HelpFolderShortcuts) &&
+                        NewDir,NewDir,sizeof(NewDir),HelpFolderShortcuts,FIB_EDITPATH) &&
               strcmp(NewDir,OldNewDir) != 0)
           {
             Unquote(NewDir);
             if(!(NewDir[1] == ':' && NewDir[2] == '\\' && NewDir[3] == 0))
               DeleteEndSlash(NewDir);
             BOOL Saved=TRUE;
-            if(GetFileAttributes(NewDir) == -1)
+            ExpandEnvironmentStr(NewDir,OldNewDir,sizeof(OldNewDir)-1);
+            if(GetFileAttributes(OldNewDir) == -1)
             {
               TruncPathStr(NewDir, ScrX-16);
               SetLastError(ERROR_PATH_NOT_FOUND);

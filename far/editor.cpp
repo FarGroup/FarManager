@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.234 04.10.2003 $ */
+/* Revision: 1.235 09.10.2003 $ */
 
 /*
 Modify:
+  09.10.2003 SVS
+    ! Первое исправления "для колорера"
+    - Траблы с вертикальными постоянными блоками
   04.10.2003 SVS
     + KEY_MACRO_CHECKEOF - проверка конца файла
   26.09.2003 SVS
@@ -1652,9 +1655,15 @@ int Editor::ProcessKey(int Key)
 
   int isk=IsShiftKey(Key);
   //if ((!isk || CtrlObject->Macro.IsExecuting()) && !isk && !Pasting)
-  if (!isk && !Pasting)
+//  if (!isk && !Pasting && !(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE))
+  if (!isk && !Pasting && (Key < KEY_MACRO_BASE || Key > KEY_MACRO_ENDBASE))
   {
-    if (BlockStart!=NULL || VBlockStart!=NULL && !EdOpt.PersistentBlocks)
+    if (BlockStart!=NULL || VBlockStart!=NULL)
+    {
+      Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+    }
+    if ((BlockStart!=NULL || VBlockStart!=NULL) && !EdOpt.PersistentBlocks)
+//    if (BlockStart!=NULL || VBlockStart!=NULL && !EdOpt.PersistentBlocks)
     {
       Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
       if (!EdOpt.PersistentBlocks)
@@ -1690,6 +1699,8 @@ int Editor::ProcessKey(int Key)
       else
       {
         int StartSel,EndSel;
+//        struct EditList *BStart=!BlockStart?VBlockStart:BlockStart;
+//        BStart->EditLine.GetRealSelection(StartSel,EndSel);
         BlockStart->EditLine.GetRealSelection(StartSel,EndSel);
         if (StartSel==-1 || StartSel==EndSel)
           UnmarkBlock();
@@ -2624,7 +2635,10 @@ int Editor::ProcessKey(int Key)
           TopScreen=TopScreen->Prev;
         CurLine->EditLine.SetLeftPos(0);
         if (Key==KEY_CTRLEND)
+        {
           CurLine->EditLine.SetCurPos(CurLine->EditLine.GetLength());
+          CurLine->EditLine.FastShow();
+        }
         else
           CurLine->EditLine.SetTabCurPos(StartPos);
         Show();
@@ -2640,6 +2654,7 @@ int Editor::ProcessKey(int Key)
           DeleteBlock();
         Flags.Set(FEDITOR_NEWUNDO);
         InsertString();
+        CurLine->EditLine.FastShow();
         Show();
       }
       return(TRUE);

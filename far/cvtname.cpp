@@ -5,10 +5,13 @@ cvtname.cpp
 
 */
 
-/* Revision: 1.09 12.09.2003 $ */
+/* Revision: 1.10 09.10.2003 $ */
 
 /*
 Modify:
+  09.10.2003 SVS
+    ! SetFileApisToANSI() и SetFileApisToOEM() заменены на SetFileApisTo() с параметром
+      APIS2ANSI или APIS2OEM - задел на будущее
   12.09.2003 SVS
     ! Немного увеличим буфер для GetPathRootOne
   14.06.2003 IS
@@ -253,7 +256,7 @@ int ConvertNameToFull(const char *Src,char *Dest, int DestSize)
     }
   }
 
-  SetFileApisToANSI();
+  SetFileApisTo(APIS2ANSI);
   OemToChar(Src,AnsiName);
   /* $ 08.11.2000 SVS
      Вместо DestSize использовался sizeof(FullName)...
@@ -269,7 +272,7 @@ int ConvertNameToFull(const char *Src,char *Dest, int DestSize)
     memmove(Dest,Dest+2,strlen(Dest+2)+1);
 
   /* SVS $*/
-  SetFileApisToOEM();
+  SetFileApisTo(APIS2OEM);
 
   return Result;
 }
@@ -400,12 +403,12 @@ int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize)
 void ConvertNameToShort(const char *Src,char *Dest)
 {
   char ShortName[NM],AnsiName[NM];
-  SetFileApisToANSI();
+  SetFileApisTo(APIS2ANSI);
   OemToChar(Src,AnsiName);
   if (GetShortPathName(AnsiName,ShortName,sizeof(ShortName)))
     CharToOem(ShortName,Dest);
   else
     strcpy(Dest,Src);
-  SetFileApisToOEM();
+  SetFileApisTo(APIS2OEM);
   LocalUpperBuf(Dest,strlen(Dest));
 }

@@ -1144,6 +1144,11 @@ sensitive comparison.
 is separated from other text with spaces, tab characters, line breaks or
 standard separators, which by default are: #!%^&*()+|{}:"<>?`-=\[];',./#.
 
+    By checking the #Search for hex# option you can search for the files
+containing hexadecimal sequence of the specified bytes. In this case
+#Case sensitive#, #Whole words#, #Using character table# and #Search for folders#
+options are disabled and their values doesn't affect the search process.
+
     The #Using character table# combo box allows to select the concrete
 character table for the text search or forces usage of all character tables
 available to FAR by selecting #All character tables# item to search text in files
@@ -1156,11 +1161,6 @@ decreases the performance of the search. FAR cannot search in nested archives.
     The #Search for folders# option includes in search list those folders,
 that match the wildcards. Also the counter of found files takes account of
 found folders.
-
-    By checking the #Search for hex# option you can search for the files
-containing hexadecimal sequence of the specified bytes. In this case
-#Case sensitive#, #Whole words#, #Using character table# and #Search for folders#
-options are disabled and their values doesn't affect the search process.
 
     The #Search in symbolic links# option allows searching files in
 ~symbolic links~@HardSymLink@ along with normal sub-foledrs.
@@ -1182,7 +1182,9 @@ when #Search from the root folder# is selected.
 которая позволяет настраивать ~фильтр операций~@OpFilter@ в FAR. Для быстрого
 включения и отключения фильтра в поиске служит переключатель #Использовать фильтр#.
 
-    While search is in progress or when it is finished, you may use
+@FindFileResult
+$ #Результаты поиска файла#
+    While ~search~@FindFile@ is in progress or when it is finished, you may use
 the cursor keys to scroll the files list and the buttons to perform
 required actions.
 
@@ -1221,6 +1223,58 @@ characters of the folder.
     Press #Enter# to switch to the selected folder.
 
     #Ctrl-R# and #F2# force the rescan of the folders tree.
+
+
+@OpFilter
+$ #Operations filter#
+    Фильтр операций служит для обработки определённых групп файлов
+по заданным пользователем параметрам, при соблюдении которых файл
+будет обработан использующей его операцией. Фильтр может настраиваться
+по разным типам параметров, и может включать в себя:
+
+     - одну или несколько ~маскок файлов~@FileMasks@;
+
+     - минимальный и максимальный размер файла включительно,
+       указывая их как в байтах, так и в килобайтах;
+
+     - начальную дату и дату окончания действия фильтра,
+       указывая дату последней модификации, дату создания
+       файла или дату последнего доступа к файлу;
+
+     - атрибуты включения и атрибуты исключения.
+
+    Файл попадает в условия фильтра, если:
+
+     - включен анализ масок файла и его имя соответствует
+       хотя бы одной маске. Если анализ масок отключен, то
+       имя файла не имеет значения;
+
+     - включен анализ размера файла и он попадает в введённый
+       диапазон. Если в качестве одной или обеих границ
+       диапазона введён #0#, тогда размер по этой границе
+       не ограничивается;
+
+     - включен анализ даты файла и она попадает в введённый
+       диапазон и сответствует установленному типу:
+       дате последней модификации, дате создания или дате
+       последнего доступа к файлу. Если одно или оба поля
+       с датами пусто, тогда дата по этому полю не
+       ограничивается;
+
+     - включен анализ атрибутов файла и он имеет все атрибуты
+       включения и не имеет атрибутов исключения:
+       #[x]# - атрибут включения - файл должен иметь
+             указанный атрибут.
+       #[ ]# - атрибут исключения - файл не должен иметь
+             указанный атрибут.
+       #[?]# - указанный атрибут не влияет на фильтр.
+
+    Атрибуты #Сжатый# и #Зашифрованный# используются только
+на дисках с файловой системой NTFS. При этом атрибут #Зашифрованный#
+используется только в Windows 2000/XP.
+
+    Для быстрого отключения одного или нескольких условий фильтра
+отключите соответствующие опции.
 
 @History
 $ #History#
@@ -3058,10 +3112,12 @@ $ #Environment variables#
     On startup, FAR Manager sets the following environment variables
 available to child processes:
 
-    #FARUSER#            the name of the user given in the /u
-                       ~command line~@CmdLine@ parameter.
+    #FARHOME#            "домашний каталог" FAR Manager
 
     #FARLANG#            name of the current interface language.
+
+    #FARUSER#            the name of the user given in the /u
+                       ~command line~@CmdLine@ parameter.
 
 @KeyMacro
 $ #Keyboard macro commands (macro command)#
@@ -3161,7 +3217,8 @@ $ #Recording and playing-back macro commands#
        playing-back #will be# sent to plugins.
 
     2. Special mode: keys pressed during the recording or the
-       playing-back #will not be# sent to plugins.
+       playing-back #will not be# sent to plugins,
+       перехватывающим события в редакторе.
 
     For example, if some plugin processes the key combination - Ctrl+A,
 then in the special mode this plugin will not receive focus and will not
@@ -3560,54 +3617,3 @@ $ #$If-$Else - условный оператор#
 
    ~Keyboard macro commands (macro command)~@KeyMacro@
    ~Commands, used inside the text of a macro command~@KeyMacroCmds@
-
-@OpFilter
-$ #Operations filter#
-    Фильтр операций служит для обработки определённых групп файлов
-по заданным пользователем параметрам, при соблюдении которых файл
-будет обработан использующей его операцией. Фильтр может настраиваться
-по разным типам параметров, и может включать в себя:
-
-     - одну или несколько ~маскок файлов~@FileMasks@;
-
-     - минимальный и максимальный размер файла включительно,
-       указывая их как в байтах, так и в килобайтах;
-
-     - начальную дату и дату окончания действия фильтра,
-       указывая дату последней модификации, дату создания
-       файла или дату последнего доступа к файлу;
-
-     - атрибуты включения и атрибуты исключения.
-
-    Файл попадает в условия фильтра, если:
-
-     - включен анализ масок файла и его имя соответствует
-       хотя бы одной маске. Если анализ масок отключен, то
-       имя файла не имеет значения;
-
-     - включен анализ размера файла и он попадает в введённый
-       диапазон. Если в качестве одной или обеих границ
-       диапазона введён #0#, тогда размер по этой границе
-       не ограничивается;
-
-     - включен анализ даты файла и она попадает в введённый
-       диапазон и сответствует установленному типу:
-       дате последней модификации, дате создания или дате
-       последнего доступа к файлу. Если одно или оба поля
-       с датами пусто, тогда дата по этому полю не
-       ограничивается;
-
-     - включен анализ атрибутов файла и он имеет все атрибуты
-       включения и не имеет атрибутов исключения:
-       #[x]# - атрибут включения - файл должен иметь
-             указанный атрибут.
-       #[ ]# - атрибут исключения - файл не должен иметь
-             указанный атрибут.
-       #[?]# - указанный атрибут не влияет на фильтр.
-
-    Атрибуты #Сжатый# и #Зашифрованный# используются только
-на дисках с файловой системой NTFS. При этом атрибут #Зашифрованный#
-используется только в Windows 2000/XP.
-
-    Для быстрого отключения одного или нескольких условий фильтра
-отключите соответствующие опции.

@@ -5,10 +5,13 @@ fileowner.cpp
 
 */
 
-/* Revision: 1.00 06.06.2003 $ */
+/* Revision: 1.01 09.10.2003 $ */
 
 /*
 Modify:
+  09.10.2003 SVS
+    ! SetFileApisToANSI() и SetFileApisToOEM() заменены на SetFileApisTo() с параметром
+      APIS2ANSI или APIS2OEM - задел на будущее
   06.06.2003 SVS
     ! GetFileOwner уехала из mix.cpp в fileowner.cpp
     ! Создан
@@ -36,9 +39,9 @@ int WINAPI GetFileOwner(const char *Computer,const char *Name,char *Owner)
 
   char AnsiName[NM];
   OemToChar(Name,AnsiName);
-  SetFileApisToANSI();
+  SetFileApisTo(APIS2ANSI);
   int GetCode=GetFileSecurity(AnsiName,si,sd,sizeof(sddata),&Needed);
-  SetFileApisToOEM();
+  SetFileApisTo(APIS2OEM);
 
   /* $ 21.02.2001 VVM
       ! Под НТ/2000 переменная Needed устанавливается независимо от результат. */
@@ -165,9 +168,9 @@ int WINAPI GetFileOwner(const char *Computer,const char *Name,char *Owner)
 
   char AnsiName[NM];
   OemToChar(Name,AnsiName);
-  SetFileApisToANSI();
+  SetFileApisTo(APIS2ANSI);
   int GetCode=GetFileSecurity(AnsiName,si,sd,sizeof(sddata),&Needed);
-  SetFileApisToOEM();
+  SetFileApisTo(APIS2OEM);
 
   /* $ 21.02.2001 VVM
       ! Под НТ/2000 переменная Needed устанавливается независимо от результат. */
