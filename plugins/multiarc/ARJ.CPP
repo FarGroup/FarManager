@@ -388,7 +388,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     /*Add files             */"arj32 a -+ -y -a1 {-g%%P} {-w%%W} -p {%%S} -- %%A !%%LM",
     /*Move files            */"arj32 m -+ -y -a1 {-g%%P} {-w%%W} -p {%%S} -- %%A !%%LM",
     /*Add files and folders */"arj32 a -+ -r -y -a1 {-g%%P} {-w%%W} -p {%%S} -- %%A !%%LM",
-    /*Move files and folders*/"arj32 m -+ -r -y -a1 {-g%%P} {-w%%W} -p {%%S} -- %%A !%%LM"
+    /*Move files and folders*/"arj32 m -+ -r -y -a1 {-g%%P} {-w%%W} -p {%%S} -- %%A !%%LM",
     /*"All files" mask      */"*.*"
     };
     if (Command<sizeof(Commands)/sizeof(Commands[0]))
