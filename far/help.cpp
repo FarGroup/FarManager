@@ -5,10 +5,14 @@ help.cpp
 
 */
 
-/* Revision: 1.24 26.05.2001 $ */
+/* Revision: 1.25 31.05.2001 $ */
 
 /*
 Modify:
+  31.05.2001 OT
+    + ResizeConsole()
+    - Исправление F1->AltF9-> ?? Остались некоторые артефакты,
+      связанные со ScreenSaveом, но... это чуть позже :)
   26.05.2001 OT
     - Выпрямление логики вызовов в NFZ
     - По умолчанию хелпы создаются статически. 
@@ -861,21 +865,7 @@ int Help::ProcessKey(int Key)
     case KEY_F5:
       Hide();
       FullScreenHelp=!FullScreenHelp;
-      if (FullScreenHelp)
-      {
-        HelpKeyBar.Hide();
-        SetPosition(0,0,ScrX,ScrY);
-      }
-      else
-        SetPosition(4,2,ScrX-4,ScrY-2);
-      /* $ 26.04.2001 DJ
-         используем сохраненный Mask
-      */
-      ReadHelp(HelpMask);
-      /* DJ $ */
-      Show();
-      if(Opt.ShowKeyBar && !FullScreenHelp)
-         HelpKeyBar.Show();
+      ResizeConsole();
       return(TRUE);
     case KEY_ESC:
     case KEY_F10:
@@ -1495,4 +1485,23 @@ void Help::OnChangeFocus(int focus)
   if (focus) {
     DisplayObject();
   }
+}
+
+void Help::ResizeConsole()
+{
+  if (FullScreenHelp)
+  {
+    HelpKeyBar.Hide();
+    SetPosition(0,0,ScrX,ScrY);
+  }
+  else
+    SetPosition(4,2,ScrX-4,ScrY-2);
+    /* $ 26.04.2001 DJ
+    используем сохраненный Mask
+  */
+  ReadHelp(HelpMask);
+  /* DJ $ */
+  Show();
+  if(Opt.ShowKeyBar && !FullScreenHelp)
+    HelpKeyBar.Show();
 }

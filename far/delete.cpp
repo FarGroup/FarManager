@@ -5,11 +5,13 @@ delete.cpp
 
 */
 
-/* Revision: 1.18 28.05.2001 $ */
+/* Revision: 1.19 31.05.2001 $ */
 
 /*
 Modify:
-  28.05.2001 SVS
+  31.05.2001 OT
+    - Отрисовка MessageBox во время удаления.
+  31.05.2001 SVS
     - не обновлялась панель после операции Unlink
   06.05.2001 DJ
     ! перетрях #include
@@ -67,6 +69,7 @@ Modify:
 #include "treelist.hpp"
 #include "savescr.hpp"
 #include "ctrlobj.hpp"
+#include "manager.hpp"
 
 static void ShellDeleteMsg(char *Name,int Flags);
 static int AskDeleteReadOnly(char *Name,DWORD Attr);
@@ -87,7 +90,16 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   WIN32_FIND_DATA FindData;
   char DeleteFilesMsg[300],SelName[NM],SelShortName[NM],DizName[NM];
   int SelCount,FileAttr,UpdateDiz, UnlinkFolder=FALSE;
+  int DizPresent;
+  int Ret;
 
+
+/*& 31.05.2001 OT Запретить перерисовку текущего фрейма*/
+  Frame *FrameFromLaunched=FrameManager->GetCurrentFrame();
+  FrameFromLaunched->LockRefresh();
+/* OT &*/
+
+  
   DeleteAllFolders=!Opt.Confirm.DeleteFolder;
 
   UpdateDiz=(Opt.Diz.UpdateMode==DIZ_UPDATE_ALWAYS ||
@@ -95,14 +107,14 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
              Opt.Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED);
 
   if ((SelCount=SrcPanel->GetSelCount())==0)
-    return;
+    goto done;
 
   if (SelCount==1)
   {
     SrcPanel->GetSelName(NULL,FileAttr);
     SrcPanel->GetSelName(SelName,FileAttr);
     if (strcmp(SelName,"..")==0 || *SelName==0)
-      return;
+      goto done;
     strcpy(DeleteFilesMsg,SelName);
   }
   else
@@ -128,7 +140,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   /* IS $ */
   }
   /* SVS $ */
-  int Ret=1;
+  Ret=1;
 
   /* $ 13.02.2001 SVS
      Обработка "удаления" линков
@@ -156,10 +168,10 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
         }
         DeleteJunctionPoint(JuncName);
         ShellDeleteUpdatePanels(SrcPanel);
-        return;
+        goto done;
       }
       if(Ret != 0)
-        return;
+        goto done;
     }
   }
   /* SVS $ */
@@ -194,7 +206,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     }
     /* IS $ */
     if (Message(0,2,MSG(MDeleteTitle),DelMsg,DeleteFilesMsg,MSG(MDelete),MSG(MCancel))!=0)
-      return;
+      goto done;
   }
 
   if (Opt.Confirm.Delete && SelCount>1)
@@ -204,14 +216,14 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     ShellDeleteMsg("",0);
     if (Message(MSG_DOWN|MSG_WARNING,2,MSG(MDeleteFilesTitle),MSG(MAskDelete),
                 DeleteFilesMsg,MSG(MDeleteFileAll),MSG(MDeleteFileCancel))!=0)
-      return;
+      goto done;
   }
 
   if (UpdateDiz)
     SrcPanel->ReadDiz();
 
   SrcPanel->GetDizName(DizName);
-  int DizPresent=(*DizName && GetFileAttributes(DizName)!=0xFFFFFFFF);
+  DizPresent=(*DizName && GetFileAttributes(DizName)!=0xFFFFFFFF);
 
   char OldTitle[512];
   GetConsoleTitle(OldTitle,sizeof(OldTitle));
@@ -246,7 +258,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
           char FullName[NM];
 //          ConvertNameToFull(SelName,FullName, sizeof(FullName));
           if (ConvertNameToFull(SelName,FullName, sizeof(FullName)) >= sizeof(FullName)){
-            return;
+            goto done;
           }
           if (IsFolderNotEmpty(FullName))
           {
@@ -399,6 +411,12 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   SetConsoleTitle(OldTitle);
 
   ShellDeleteUpdatePanels(SrcPanel);
+
+done:
+/*& 31.05.2001 OT Разрешить перерисовку фрейма */
+  FrameFromLaunched->UnlockRefresh();
+/* OT &*/
+
 }
 
 
@@ -570,7 +588,7 @@ int RemoveToRecycleBin(char *Name)
   if (Opt.DeleteToRecycleBin)
     fop.fFlags|=FOF_ALLOWUNDO;
   SetFileApisToANSI();
-  int RetCode=SHFileOperation(&fop);
+  DWORD RetCode=SHFileOperation(&fop);
   SetFileApisToOEM();
   if(RetCode)
   {

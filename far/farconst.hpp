@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.36 23.05.2001 $ */
+/* Revision: 1.37 31.05.2001 $ */
 
 /*
 Modify:
+  31.05.2001 OT
+    ! Константы для FileEdit
   23.05.2001 SVS
     ! Перетасовка для MACRO_OTHER
   21.05.2001 SVS
@@ -211,10 +213,22 @@ enum FlagsNameAndPassword{
 
 ///
 
-/* 01.08.2000 tran
-   ExitCode values */
-#define XC_WORKING        0xffff
-#define XC_QUIT           0
+/* $ 27.05.2001 DJ         30.05.2001 OT
+   константы для ExitCode - перенесены из 
+*/
+
+enum {
+    XC_QUIT                = (unsigned long) -777,
+    XC_OPEN_ERROR          = 0,
+    XC_MODIFIED            = 1,
+    XC_NOT_MODIFIED        = 2,
+    XC_LOADING_INTERRUPTED = 3
+};
+
+/* DJ $ */
+
+
+
 
 /* $ 11.08.2000 tran
    мелочь для лучшей читабельности */

@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.98 25.05.2001 $ */
+/* Revision: 1.99 31.05.2001 $ */
 
 /*
 Modify:
+  31.05.2001 OT
+    ! Исправления в SaveFile() Вместо цифр - поименованные константы типа SAVEFILE_XXX
   25.05.2001 IS
     - При вставке поточного блока из буфера обмена первый символ вставлялся в
       неверной кодировке. Это мой глюк, сорри :)
@@ -857,7 +859,7 @@ int Editor::SaveFile(char *Name,int Ask,int TextFormat,int SaveAs)
      Редактировали, залочили, при выходе - потеряли файл :-(
   */
   if (LockMode && !Modified && !SaveAs)
-    return(1);
+    return(SAVEFILE_SUCCESS);
   /* SVS $ */
 
   FILE *EditFile;
@@ -882,7 +884,7 @@ int Editor::SaveFile(char *Name,int Ask,int TextFormat,int SaveAs)
     if (Ask)
     {
       if (!Modified)
-        return(1);
+        return(SAVEFILE_SUCCESS);
       AskSave=Message(MSG_WARNING,3,MSG(MEditTitle),MSG(MEditAskSave),
                       MSG(MEditSave),MSG(MEditNotSave),MSG(MEditContinue));
 
@@ -891,7 +893,7 @@ int Editor::SaveFile(char *Name,int Ask,int TextFormat,int SaveAs)
         case -1:
         case -2:
         case 2:
-          return(2);
+          return(SAVEFILE_CANCEL);
         case 0:
           break;
         case 1:
@@ -900,7 +902,7 @@ int Editor::SaveFile(char *Name,int Ask,int TextFormat,int SaveAs)
           */
           TextChanged(0);
           /* skv $*/
-          return(1);
+          return(SAVEFILE_SUCCESS);
       }
     }
 
@@ -913,7 +915,7 @@ int Editor::SaveFile(char *Name,int Ask,int TextFormat,int SaveAs)
         AskOverwrite=Message(MSG_WARNING,2,MSG(MEditTitle),Name,MSG(MEditRO),
                              MSG(MEditOvr),MSG(MYes),MSG(MNo));
         if (AskOverwrite!=0)
-          return(2);
+          return(SAVEFILE_CANCEL);
         SetFileAttributes(Name,FileAttributes & ~FA_RDONLY);
       }
       if (FileAttributes & (FA_HIDDEN|FA_SYSTEM))
@@ -934,12 +936,12 @@ int Editor::SaveFile(char *Name,int Ask,int TextFormat,int SaveAs)
       hEdit=CreateFile(Name,GENERIC_WRITE,FILE_SHARE_READ,NULL,TRUNCATE_EXISTING,
                        FILE_ATTRIBUTE_ARCHIVE|FILE_FLAG_SEQUENTIAL_SCAN,NULL);
     if (hEdit==INVALID_HANDLE_VALUE)
-      return(0);
+      return(SAVEFILE_ERROR);
     int EditHandle=_open_osfhandle((long)hEdit,O_BINARY);
     if (EditHandle==-1)
-      return(0);
+      return(SAVEFILE_ERROR);
     if ((EditFile=fdopen(EditHandle,"wb"))==NULL)
-      return(0);
+      return(SAVEFILE_ERROR);
 
     UndoSavePos=UndoDataPos;
     UndoOverflow=FALSE;
@@ -947,7 +949,7 @@ int Editor::SaveFile(char *Name,int Ask,int TextFormat,int SaveAs)
 //    ConvertNameToFull(Name,FileName, sizeof(FileName));
     if (ConvertNameToFull(Name,FileName, sizeof(FileName)) >= sizeof(FileName)){
       OpenFailed=true;
-      return FALSE;
+      return(SAVEFILE_ERROR);
     }
     SetCursorType(FALSE,0);
     Message(0,0,MSG(MEditTitle),MSG(MEditSaving),Name);
@@ -974,7 +976,7 @@ int Editor::SaveFile(char *Name,int Ask,int TextFormat,int SaveAs)
       {
         fclose(EditFile);
         remove(Name);
-        return(0);
+        return(SAVEFILE_ERROR);
       }
       CurPtr=CurPtr->Next;
     }
@@ -982,7 +984,7 @@ int Editor::SaveFile(char *Name,int Ask,int TextFormat,int SaveAs)
     {
       fclose(EditFile);
       remove(Name);
-      return(0);
+      return(SAVEFILE_ERROR);
     }
     SetEndOfFile(hEdit);
     fclose(EditFile);
@@ -1007,7 +1009,7 @@ int Editor::SaveFile(char *Name,int Ask,int TextFormat,int SaveAs)
   TextChanged(0);
   /* skv$*/
   Show();
-  return(1);
+  return(SAVEFILE_SUCCESS);
 }
 /* IS $ */
 
@@ -5020,7 +5022,7 @@ int Editor::EditorControl(int Command,void *Param)
       }
     case ECTL_QUIT:
       if (HostFileEditor!=NULL)
-        HostFileEditor->SetExitCode(0);
+        HostFileEditor->SetExitCode(SAVEFILE_ERROR); // что-то меня терзают смутные сомнения ...
       return(TRUE);
     /* $ 07.08.2000 SVS
        Функция установки Keybar Labels

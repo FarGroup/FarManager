@@ -7,10 +7,12 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.13 27.05.2001 $ */
+/* Revision: 1.14 31.05.2001 $ */
 
 /*
 Modify:
+  31.05.2001 OT
+    ! константы для ExitCode объединены с XC_QUIT и перенесены в farconst.cpp
   27.05.2001 DJ
     + константы для ExitCode
   15.05.2001 OT
@@ -49,18 +51,6 @@ Modify:
 #include "keybar.hpp"
 
 class NamesList;
-
-/* $ 27.05.2001 DJ 
-   константы для ExitCode
-*/
-
-enum {
-    XC_MODIFIED            = 1,
-    XC_NOT_MODIFIED        = 2,
-    XC_LOADING_INTERRUPTED = 3
-};
-
-/* DJ $ */
 
 class FileEditor:public Frame
 {

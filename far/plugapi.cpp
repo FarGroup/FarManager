@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.63 28.05.2001 $ */
+/* Revision: 1.64 31.05.2001 $ */
 
 /*
 Modify:
+  31.05.2001 OT
+    - ExitCode в соответствии с официальной документацией plugin.hlp
   27.05.2001 OT
     - Исправление вызовов конструкторов FileView и FileEdit в FarViewer() и FarEditor()
   26.05.2001 OT
@@ -1187,21 +1189,22 @@ int WINAPI FarViewer(char *FileName,char *Title,int X1,int Y1,int X2,
     /* $ 12.05.2001 DJ */
     Viewer->SetEnableF6 ((Flags & VF_ENABLE_F6) != 0);
     /* DJ $ */
-// OT    FrameManager->InsertFrame(Viewer);
   }
   else
   {
     FileViewer Viewer (FileName,FALSE,Title,X1,Y1,X2,Y2);
     /* $ 28.05.2001 По умолчанию Вьюер, поэтому нужно здесь признак выставиль явно */
     Viewer.SetDynamicallyBorn(false);
+    FrameManager->ExecuteModal();
     if (Flags & VF_DELETEONCLOSE)
       Viewer.SetTempViewName(FileName);
     /* $ 12.05.2001 DJ */
     Viewer.SetEnableF6 ((Flags & VF_ENABLE_F6) != 0);
     /* DJ $ */
     SetConsoleTitle(OldTitle);
-    FrameManager->ExecuteModal();//OT
-    return TRUE;
+    if (!Viewer.GetExitCode()){
+      return FALSE;
+    }
   }
   return(TRUE);
 }
@@ -1229,24 +1232,31 @@ int WINAPI FarEditor(char *FileName,char *Title,int X1,int Y1,int X2,
   {
     ExitCode=FALSE;
     FileEditor *Editor=new FileEditor(FileName,CreateNew,TRUE,StartLine,StartChar,Title,X1,Y1,X2,Y2);
-    if(Editor)
+    if (Editor)
     {
       /* $ 12.05.2001 DJ */
       Editor->SetEnableF6 ((Flags & EF_ENABLE_F6) != 0);
       /* DJ $ */
-// OT      FrameManager->InsertFrame(Editor);
       ExitCode=TRUE;
     }
   }
   else
   {
    FileEditor Editor(FileName,CreateNew,FALSE,StartLine,StartChar,Title,X1,Y1,X2,Y2);
+   Editor.SetDynamicallyBorn(false);
    /* $ 12.05.2001 DJ */
    Editor.SetEnableF6 ((Flags & EF_ENABLE_F6) != 0);
    /* DJ $ */
    SetConsoleTitle(OldTitle);
-   FrameManager->ExecuteModal(); //OT
-   return TRUE;
+   FrameManager->ExecuteModal();
+   ExitCode = Editor.GetExitCode();
+   if (ExitCode && ExitCode != XC_LOADING_INTERRUPTED){
+     if (Editor.IsFileChanged()){
+       ExitCode = XC_MODIFIED;
+     } else {
+       ExitCode = XC_NOT_MODIFIED;
+     }
+   }
   }
   return ExitCode;
   /* IS $ */
