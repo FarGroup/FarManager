@@ -93,6 +93,7 @@ enum LanguageID
   MInfoRecovery,
   MInfoLock,
   MInfoAuthVer,
+  MInfoChapters,
   MInfoDict,
   MInfoDictKb,
   MInfoTotalFiles,

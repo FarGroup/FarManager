@@ -391,7 +391,7 @@ void PluginClass::GetOpenPluginInfo(struct OpenPluginInfo *Info)
 
   Info->PanelTitle=Title;
 
-  static struct InfoPanelLine InfoLines[14];
+  static struct InfoPanelLine InfoLines[15];
 
   memset(InfoLines,0,sizeof(InfoLines));
   FSF.sprintf(InfoLines[0].Text,GetMsg(MInfoTitle),FSF.PointToName(ArcName));
@@ -447,14 +447,21 @@ void PluginClass::GetOpenPluginInfo(struct OpenPluginInfo *Info)
   else
     FSF.sprintf(InfoLines[9].Data,"%d %s",ItemsInfo.DictSize,GetMsg(MInfoDictKb));
 
-  strcpy(InfoLines[10].Text,GetMsg(MInfoTotalFiles));
-  FSF.sprintf(InfoLines[10].Data,"%d",ArcDataCount);
-  strcpy(InfoLines[11].Text,GetMsg(MInfoTotalSize));
-  InsertCommas(TotalSize,InfoLines[11].Data);
-  strcpy(InfoLines[12].Text,GetMsg(MInfoPackedSize));
-  InsertCommas(PackedSize,InfoLines[12].Data);
-  strcpy(InfoLines[13].Text,GetMsg(MInfoRatio));
-  FSF.sprintf(InfoLines[13].Data,"%d%%",ToPercent(PackedSize,TotalSize));
+  strcpy(InfoLines[10].Text,GetMsg(MInfoChapters));
+  if(CurArcInfo.Chapters)
+    //FSF.sprintf(InfoLines[10].Data,"%d/%d",ItemsInfo.Chapter,CurArcInfo.Chapters);
+    FSF.sprintf(InfoLines[10].Data,"%d",CurArcInfo.Chapters);
+  else
+    strcpy(InfoLines[10].Data,GetMsg(MInfoAbsent));
+
+  strcpy(InfoLines[11].Text,GetMsg(MInfoTotalFiles));
+  FSF.sprintf(InfoLines[11].Data,"%d",ArcDataCount);
+  strcpy(InfoLines[12].Text,GetMsg(MInfoTotalSize));
+  InsertCommas(TotalSize,InfoLines[12].Data);
+  strcpy(InfoLines[13].Text,GetMsg(MInfoPackedSize));
+  InsertCommas(PackedSize,InfoLines[13].Data);
+  strcpy(InfoLines[14].Text,GetMsg(MInfoRatio));
+  FSF.sprintf(InfoLines[14].Data,"%d%%",ToPercent(PackedSize,TotalSize));
 
   Info->InfoLines=InfoLines;
   Info->InfoLinesNumber=sizeof(InfoLines)/sizeof(InfoLines[0]);

@@ -6,7 +6,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2002 FAR group
 */
-/* Revision: 1.14 01.08.2002 $ */
+/* Revision: 1.15 06.05.2003 $ */
 
 #include <windows.h>
 #include <limits.h>
@@ -38,7 +38,7 @@
 
 static HANDLE ArcHandle;
 static DWORD NextPosition,SFXSize,FileSize;
-static int ArcComment, ArcVolume, ArcRecovery, ArcChapterPresent;
+static int ArcComment, ArcVolume, ArcRecovery, ArcLastChapter;
 
 #ifndef FNAME_MAX
 #define FNAME_MAX           512
@@ -206,7 +206,7 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
   ArcVolume=((ArjHeader.Flags & ARJFMAIN_VOLUME_FLAG)!=0);
   ArcRecovery=((ArjHeader.Flags & ARJFMAIN_ARJPROT_FLAG)!=0);
   ArcComment=(ARJComm!=0);
-  ArcChapterPresent=(ArjHeader.LastChapter!=0);
+  ArcLastChapter=ArjHeader.LastChapter;
 
   NextPosition=SetFilePointer(ArcHandle,4,NULL,FILE_CURRENT);
   ReadFile(ArcHandle,&ExtHdSize,sizeof(ExtHdSize),&ReadSize,NULL);
@@ -258,16 +258,14 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
     BYTE FirstChapter;      // first chapter of file's lifespan
     BYTE LastChapter;       // last chapter of file's lifespan
                             // ... extra data
+    ////////////////
+    //  ?   extra data
+    DWORD Extra1;           // 4 bytes for extended file position
+                            // the following twelve bytes may be present in ARJ 2.62 and above
+    DWORD atime;            // 4 bytes for date-time accessed
+    DWORD ctime;            // 4 bytes for date-time created
+    DWORD FSizeVol;         // 4 bytes for original file size even for volumes
     /*
-       ?   extra data
-           4 bytes for extended file position
-
-           the following twelve bytes may be present in ARJ 2.62 and above
-           4 bytes for date-time accessed
-           4 bytes for date-time created
-           4 bytes for original file size even for volumes
-
-
        ?   filename (null-terminated string)
        ?   comment  (null-terminated string)
 
@@ -314,7 +312,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
   SetFilePointer(ArcHandle,NextPosition,NULL,FILE_BEGIN);
 
   WORD ExtHdSize;
-  ReadFile(ArcHandle,&ExtHdSize,sizeof(ExtHdSize),&ReadSize,NULL);
+  ReadFile(ArcHandle,&ExtHdSize,sizeof(ExtHdSize),&ReadSize,NULL); //??
   NextPosition+=2+ArjHeader.PackSize;
   if (ExtHdSize>0)
     NextPosition+=ExtHdSize+4;
@@ -335,6 +333,17 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
   DosDateTimeToFileTime(HIWORD(ArjHeader.ftime),LOWORD(ArjHeader.ftime),&lft);
   LocalFileTimeToFileTime(&lft,&Item->FindData.ftLastWriteTime);
 
+  if(ArjHeader.ARJVer >= 0x09 &&                                 // ??? 2.62 ???
+     (sizeof(ArjHeader)-sizeof(DWORD)*5) < ArjHeader.FirstHeadSize) // 5 = (Mark+HeadSize)+Extra1+atime+ctime+FSizeVol
+  {
+    DosDateTimeToFileTime(HIWORD(ArjHeader.atime),LOWORD(ArjHeader.atime),&lft);
+    LocalFileTimeToFileTime(&lft,&Item->FindData.ftLastAccessTime);
+    DosDateTimeToFileTime(HIWORD(ArjHeader.ctime),LOWORD(ArjHeader.ctime),&lft);
+    LocalFileTimeToFileTime(&lft,&Item->FindData.ftCreationTime);
+  }
+
+  Info->Chapter=ArjHeader.LastChapter; //???? FirstChapter ????
+
   Info->UnpVer=(ArjHeader.ARJExtrVer/10)*256+(ArjHeader.ARJExtrVer%10);
   if (ArjHeader.HostOS<sizeof(ArjOS)/sizeof(ArjOS[0]))
     strcpy(Info->HostOS,ArjOS[ArjHeader.HostOS]);
@@ -349,6 +358,7 @@ BOOL WINAPI _export CloseArchive(struct ArcInfo *Info)
   Info->Volume=ArcVolume;
   Info->Comment=ArcComment;
   Info->Recovery=ArcRecovery;
+  Info->Chapters=ArcLastChapter;
   return(CloseHandle(ArcHandle));
 }
 

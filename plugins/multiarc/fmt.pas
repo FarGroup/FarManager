@@ -1,7 +1,7 @@
 (********************************************************
 * FMT.PAS
 * Archive Support API for FAR Manager 1.70 and MultiArc plugin
-* $Revision: 1.1.1.1 $
+* Revision: 1.10 06.05.2003 $
 *
 * Copyright (c) 1996-2000 Eugene Roshal
 * Copyrigth (c) 2000-<%YEAR%> FAR group
@@ -33,6 +33,7 @@ type
     Encrypted: integer;
     DictSize: integer;
     UnpVer: integer;
+    Chapter: integer;
   end; { TArcItemInfo record }
   PArcItemInfo = ^TArcItemInfo;
 
@@ -52,6 +53,7 @@ type
     Lock: integer;
     Flags: DWORD;
     Reserved: DWORD;
+    Chapters: integer;
   end; { TArcInfo record }
   PArcInfo = ^TArcInfo;
 

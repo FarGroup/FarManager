@@ -9,7 +9,7 @@
   Copyrigth (c) 2000-<%YEAR%> FAR group
 */
 
-/* Revision: 1.09 15.07.2002 $ */
+/* Revision: 1.10 06.05.2003 $ */
 
 #if defined(__BORLANDC__)
   #pragma option -a2
@@ -43,6 +43,7 @@ struct ArcItemInfo
   int Encrypted;
   int DictSize;
   int UnpVer;
+  int Chapter;
 };
 
 enum ARCINFO_FLAGS
@@ -60,6 +61,7 @@ struct ArcInfo
   int Lock;
   DWORD Flags;
   DWORD Reserved;
+  int Chapters;
 };
 
 

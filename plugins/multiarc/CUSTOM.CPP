@@ -94,6 +94,7 @@ StringList* Format=0;
 StringList* IgnoreStrings=0;
 
 int IgnoreErrors;
+int ArcChapters;
 
 const char Str_TypeName[]="TypeName";
 
@@ -209,6 +210,8 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
 
   IgnoreErrors=GetPrivateProfileInt(TypeName,"IgnoreErrors",0,FormatFileName);
   *Type=CurType;
+
+  ArcChapters=-1;
 
   char ShortName[NM];
   ConvertNameToShort(Name,ShortName);
@@ -450,6 +453,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
     char *CurStr=Str;
 
 	enum {OP_OUTSIDE, OP_INSIDE, OP_SKIP} OptionalPart=OP_OUTSIDE;
+	int IsChapter=0;
     for (;*CurStr && *CurFormat;CurFormat++,CurStr++)
     {
 		if (OptionalPart==OP_SKIP)
@@ -720,13 +724,30 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
           break;
 		case 'r':
 		  if (isxdigit(toupper(*CurStr)))
-            Item->CRC32=Item->CRC32*16+*CurStr;
+		  {
+		    char dig_sub=(*CurStr >= 'a'?'a':(*CurStr >= 'A'?'A':'0'));
+            Item->CRC32=Item->CRC32*16+(*CurStr-dig_sub);
+          }
 		  else if (OP_INSIDE==OptionalPart)
 			{
 				CurStr--;
 				OptionalPart=OP_SKIP;
 			}
 			break;
+		case 'C':
+		  if (*CurStr == '-')
+		  {
+		    IsChapter=1;
+	        ArcChapters=0;
+		  }
+		  else if(isdigit(*CurStr))
+		  {
+		    if(IsChapter)
+  		       ArcChapters=ArcChapters*10+ (*CurStr-'0');
+  		    else
+               Info->Chapter=Info->Chapter*10+ (*CurStr-'0');
+		  }
+          break;
 		case '(':
 			OptionalPart=OP_INSIDE;
 			CurStr--;
@@ -797,6 +818,10 @@ BOOL WINAPI _export CloseArchive(struct ArcInfo *Info)
 {
   if (IgnoreErrors)
     Info->Flags|=AF_IGNOREERRORS;
+
+  if(ArcChapters < 0)
+    ArcChapters=0;
+  Info->Chapters=ArcChapters;
 
   GlobalFree((HGLOBAL)OutData);
 
