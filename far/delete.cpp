@@ -5,10 +5,13 @@ delete.cpp
 
 */
 
-/* Revision: 1.28 26.09.2001 $ */
+/* Revision: 1.29 01.10.2001 $ */
 
 /*
 Modify:
+  01.10.2001 IS
+    ! перерисовка панелей после операции удаления, чтобы убрать все ошметки от
+      сообщений
   26.09.2001 SVS
     + Opt.AutoUpdateLimit -  выше этого количество не обновлять пассивную
       панель (если ее содержимое не равно активной).
@@ -462,14 +465,14 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 
   SetConsoleTitle(OldTitle);
 
-  ShellDeleteUpdatePanels(SrcPanel);
-
 done:
   Opt.DeleteToRecycleBin=Opt_DeleteToRecycleBin;
 /*& 31.05.2001 OT Разрешить перерисовку фрейма */
   FrameFromLaunched->UnlockRefresh();
 /* OT &*/
-
+  /* $ 01.10.2001 IS перерисуемся, чтобы не было артефактов */
+  ShellDeleteUpdatePanels(SrcPanel);
+  /* IS $ */
 }
 
 
