@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.41 26.02.2002 $ */
+/* Revision: 1.42 28.02.2002 $ */
 
 /*
 Modify:
+  28.02.2002 SVS
+    - BugZ#318 - dot Shift-Enter
   26.02.2002 SVS
     ! "." и ".." по Shift-Enter рисуем AS IS, без модификации.
   19.02.2002 SVS
@@ -589,9 +591,9 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
 
   // Проверим, а не папку ли мы хотим открыть по Shift-Enter?
   _SVS(SysLog("SeparateWindow=%d",SeparateWindow));
+  DWORD Attr=GetFileAttributes(NewCmdStr);
   if(SeparateWindow) //???
   {
-    DWORD Attr=GetFileAttributes(NewCmdStr);
     if(Attr != -1 && (Attr&FILE_ATTRIBUTE_DIRECTORY))
       SeparateWindow=2;
   }
@@ -843,7 +845,7 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
       si.cbSize=sizeof(si);
       si.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_DDEWAIT;
       si.lpFile=AnsiLine;
-      si.lpVerb=GetShellAction((char *)si.lpFile,GUIType);
+      si.lpVerb=(Attr&FILE_ATTRIBUTE_DIRECTORY)?NULL:GetShellAction((char *)si.lpFile,GUIType);
       si.nShow=SW_SHOWNORMAL;
       SetFileApisToANSI();
       ExitCode=ShellExecuteEx(&si);
@@ -1289,6 +1291,9 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
 
   if (!memicmp(CmdLine,"CLS",3))
   {
+    if(CmdLine[3])
+      return FALSE;
+
     SetScreen(0,0,ScrX,ScrY,' ',F_LIGHTGRAY|B_BLACK);
     ScrBuf.ResetShadow();
     ScrBuf.Flush();
