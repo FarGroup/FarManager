@@ -5,10 +5,14 @@ copy.cpp
 
 */
 
-/* Revision: 1.78 08.04.2002 $ */
+/* Revision: 1.79 18.04.2002 $ */
 
 /*
 Modify:
+  18.04.2002 SVS
+    - Ошибка при создании симлинка из дерева для корня (C:\, например)
+      В этом случае применяется операция монтирования диска и, если таржед
+      не задан - применяется стд. имя "Disk_%c"
   08.04.2002 SVS
     - BugZ#440 - Самопроизвольное снятие RO-атрибута при Append
   05.04.2002 SVS
@@ -1262,24 +1266,32 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
     else
       SelectedFolderNameLength=0;
 
-    // проверка на вшивость ;-)
-    if ((FindHandle=FindFirstFile(SelName,&SrcData))==INVALID_HANDLE_VALUE)
+    if(!stricmp(SrcDriveRoot,SelName) && (ShellCopy::Flags&FCOPY_CREATESYMLINK)) // но сначала посмотрим на "это корень диска?"
     {
-      CopyTime+= (clock() - CopyStartTime);
-      if (Message(MSG_DOWN|MSG_WARNING,2,MSG(MError),MSG(MCopyCannotFind),
-              SelName,MSG(MSkip),MSG(MCancel))==1)
-      {
-        return COPY_FAILURE;
-      }
-      CopyStartTime = clock();
-      /* $ 23.03.2002 VVM
-        ! Уберем это, т.к. состояние SrcData неизвестно */
-//      int64 SubSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
-//      TotalCopySize-=SubSize;
-      /* VVM $ */
-      continue;
+      SrcData.dwFileAttributes=FILE_ATTRIBUTE_DIRECTORY;
+      //_SVS(SysLog("Dest='%s'",Dest));
     }
-    FindClose(FindHandle);
+    else
+    {
+      // проверка на вшивость ;-)
+      if ((FindHandle=FindFirstFile(SelName,&SrcData))==INVALID_HANDLE_VALUE)
+      {
+        CopyTime+= (clock() - CopyStartTime);
+        if (Message(MSG_DOWN|MSG_WARNING,2,MSG(MError),MSG(MCopyCannotFind),
+                SelName,MSG(MSkip),MSG(MCancel))==1)
+        {
+          return COPY_FAILURE;
+        }
+        CopyStartTime = clock();
+        /* $ 23.03.2002 VVM
+          ! Уберем это, т.к. состояние SrcData неизвестно */
+  //      int64 SubSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
+  //      TotalCopySize-=SubSize;
+        /* VVM $ */
+        continue;
+      }
+      FindClose(FindHandle);
+    }
 
     // Если это каталог и трэба создать симлинк...
     if((SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
@@ -3043,12 +3055,12 @@ int ShellCopy::MkSymLink(const char *SelName,const char *Dest,DWORD Flags)
     char SrcFullName[NM], DestFullName[NM];
     char MsgBuf[NM],MsgBuf2[NM];
 
-    if(SelName[1] == ':' && SelName[2] == 0) // C:
+    if(SelName[1] == ':' && (SelName[2] == 0 || SelName[2] == '\\' && SelName[3] == 0)) // C: или C:/
     {
 //      if(Flags&FCOPY_VOLMOUNT)
       {
         strcpy(SrcFullName,SelName);
-        strcat(SrcFullName,"\\");
+        AddEndSlash(SrcFullName);
       }
 /*
     Вот здесь - ну очень умное поведение!
@@ -3068,10 +3080,18 @@ int ShellCopy::MkSymLink(const char *SelName,const char *Dest,DWORD Flags)
 //_SVS(SysLog("Dst: ConvertNameToFull('%s','%s')",Dest,DestFullName));
 
 //    char *EndDestFullName=DestFullName+strlen(DestFullName);
-    if(DestFullName[strlen(DestFullName)-1] == '\\' && !(Flags&FCOPY_VOLMOUNT))
+    if(DestFullName[strlen(DestFullName)-1] == '\\')
     {
-//      AddEndSlash(DestFullName);
-      strcat(DestFullName,SelName);
+      if(!(Flags&FCOPY_VOLMOUNT))
+      {
+        // AddEndSlash(DestFullName);
+        strcat(DestFullName,SelName);
+      }
+      else
+      {
+        // если таржед не задан - применяется стд. имя "Disk_%c"
+        sprintf(DestFullName+strlen(DestFullName),"Disk_%c",*SelName);
+      }
     }
 
     if(Flags&FCOPY_VOLMOUNT)

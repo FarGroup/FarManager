@@ -5,10 +5,14 @@ flink.cpp
 
 */
 
-/* Revision: 1.30 22.03.2002 $ */
+/* Revision: 1.31 18.04.2002 $ */
 
 /*
 Modify:
+  18.04.2002 SVS
+    - BugZ#466 - Ошибка создания симлинка
+      Так же, если не удавалось создать символическую связь... оставался
+      созданный пустой каталог. Теперь этот каталог удаляется.
   22.03.2002 SVS
     - strcpy - Fuck!
   20.03.2002 SVS
@@ -232,8 +236,8 @@ BOOL WINAPI CreateJunctionPoint(LPCTSTR SrcFolder,LPCTSTR LinkFolder)
   if (!LinkFolder || !SrcFolder || !*LinkFolder || !*SrcFolder)
     return FALSE;
 
-_SVS(SysLog("SrcFolder=%s",SrcFolder));
-_SVS(SysLog("LinkFolder=%s",LinkFolder));
+//_SVS(SysLog("SrcFolder ='%s'",SrcFolder));
+//_SVS(SysLog("LinkFolder='%s'",LinkFolder));
 
   char szDestDir[1024];
   if (SrcFolder[0] == '\\' && SrcFolder[1] == '?')
@@ -251,7 +255,6 @@ _SVS(SysLog("LinkFolder=%s",LinkFolder));
     }
     strcat(szDestDir, szFullDir);
   }
-_SVS(SysLog("szLinkDir=%s",szDestDir));
 
   char szBuff[MAXIMUM_REPARSE_DATA_BUFFER_SIZE] = { 0 };
   TMN_REPARSE_DATA_BUFFER& rdb = *(TMN_REPARSE_DATA_BUFFER*)szBuff;
@@ -260,26 +263,31 @@ _SVS(SysLog("szLinkDir=%s",szDestDir));
   if (cchDest > 512) {
     return FALSE;
   }
+
+  OemToChar(szDestDir,szDestDir); // !!!
   wchar_t wszDestMountPoint[512];
-  if (!MultiByteToWideChar(CP_THREAD_ACP,
-              MB_PRECOMPOSED,
-              szDestDir,
-              cchDest,
-              wszDestMountPoint,
-              cchDest))
+  if (!MultiByteToWideChar(CP_THREAD_ACP,           // code page
+                           MB_PRECOMPOSED,          // character-type options
+                           szDestDir,               // string to map
+                           cchDest,                 // number of bytes in string
+                           wszDestMountPoint,       // wide-character buffer
+                           cchDest))                // size of buffer
+
   {
     return FALSE;
   }
 
+  //_SVS(SysLog("szDestDir ='%s'",szDestDir));
   size_t nDestMountPointBytes = lstrlenW(wszDestMountPoint) * 2;
-  rdb.ReparseTag           = IO_REPARSE_TAG_MOUNT_POINT;
-  rdb.ReparseDataLength    = nDestMountPointBytes + 12;
-  rdb.Reserved             = 0;
-  rdb.SubstituteNameOffset = 0;
-  rdb.SubstituteNameLength = nDestMountPointBytes;
-  rdb.PrintNameOffset      = nDestMountPointBytes + 2;
-  rdb.PrintNameLength      = 0;
+  rdb.ReparseTag              = IO_REPARSE_TAG_MOUNT_POINT;
+  rdb.ReparseDataLength       = nDestMountPointBytes + 12;
+  rdb.Reserved                = 0;
+  rdb.SubstituteNameOffset    = 0;
+  rdb.SubstituteNameLength    = nDestMountPointBytes;
+  rdb.PrintNameOffset         = nDestMountPointBytes + 2;
+  rdb.PrintNameLength         = 0;
   lstrcpyW(rdb.PathBuffer, wszDestMountPoint);
+  //_SVS(SysLogDump("rdb",0,szBuff,MAXIMUM_REPARSE_DATA_BUFFER_SIZE/3,0));
 
 
   HANDLE hDir=CreateFile(LinkFolder,GENERIC_WRITE|GENERIC_READ,0,0,OPEN_EXISTING,
@@ -303,6 +311,7 @@ _SVS(SysLog("szLinkDir=%s",szDestDir));
             0))
   {
     CloseHandle(hDir);
+    DeleteFile(LinkFolder); // А нужно ли убивать, когда создали каталог, но симлинк не удалось ???
     return 0;
   }
   CloseHandle(hDir);

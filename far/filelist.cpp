@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.148 12.04.2002 $ */
+/* Revision: 1.149 17.04.2002 $ */
 
 /*
 Modify:
+  17.04.2002 SVS
+    - BugZ#461 - При задании дескрипшнов для нескольких файлов нужно предлагать последнее введенное
+    - BugZ#427 - Выход мышью (продолжение эпопеи)
   12.04.2002 IS
     + Учтем то, что Plugin.PutFiles может вернуть 2
   11.04.2002 SVS
@@ -967,6 +970,8 @@ int FileList::ProcessKey(int Key)
     }
   }
 
+  //Key=NumPadToNavigate(Key); //NUMPAD
+
   switch(Key)
   {
     case KEY_F1:
@@ -1032,9 +1037,9 @@ int FileList::ProcessKey(int Key)
     case KEY_CTRLINS:
       if (CmdLength>0)
         return(FALSE);
-    case KEY_CTRLSHIFTINS: // копировать имена
-    case KEY_CTRLALTINS:   // копировать UNC-имена
-    case KEY_ALTSHIFTINS:  // копировать полные имена
+    case KEY_CTRLSHIFTINS:     // копировать имена
+    case KEY_CTRLALTINS:       // копировать UNC-имена
+    case KEY_ALTSHIFTINS:      // копировать полные имена
       CopyNames(Key == KEY_CTRLALTINS || Key == KEY_ALTSHIFTINS,
                 (Key&(KEY_CTRL|KEY_ALT))==(KEY_CTRL|KEY_ALT));
       return(TRUE);
@@ -2530,10 +2535,12 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       */
       ShowFileList(TRUE);
       /* SKV$*/
+      FlushInputBuffer();
       ProcessEnter(1,ShiftPressed!=0);
       return(TRUE);
     }
     else
+    {
       /* $ 11.09.2000 SVS
          Bug #17: Выделяем при условии, что колонка ПОЛНОСТЬЮ пуста.
       */
@@ -2546,6 +2553,7 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
           SortFileList(TRUE);
       }
       /* SVS $ */
+    }
     ShowFileList(TRUE);
     return(TRUE);
   }
@@ -3642,7 +3650,7 @@ void FileList::DescribeFiles()
     */
     if (!GetString(MSG(MDescribeFiles),TruncMsg,"DizText",
                    PrevText!=NULL ? PrevText:"",DizText,sizeof(DizText),
-                   "FileDiz",FIB_ENABLEEMPTY|FIB_NOUSELASTHISTORY))
+                   "FileDiz",FIB_ENABLEEMPTY|(!DizCount?FIB_NOUSELASTHISTORY:0)))
       break;
     /* SVS $*/
     DizCount++;

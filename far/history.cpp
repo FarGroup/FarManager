@@ -5,10 +5,12 @@ history.cpp
 
 */
 
-/* Revision: 1.23 18.03.2002 $ */
+/* Revision: 1.24 18.04.2002 $ */
 
 /*
 Modify:
+  18.04.2002 SVS
+    - BugZ#463 - Ext.: -> Edit: (а про "Ext." то я и забыл :-()
   18.03.2002 SVS
     + ReloadTitle() и EqualType()
     ! Titles для истории редактирования/просмотра не сохраняем,
@@ -132,6 +134,10 @@ void History::ReloadTitle()
         case 1:
         case 4:
           strncpy(PtrLastStr->Title,MSG(MHistoryEdit),HISTORY_TITLESIZE-1);
+          break;
+        case 2:
+        case 3:
+          strncpy(PtrLastStr->Title,MSG(MHistoryExt),HISTORY_TITLESIZE-1);
           break;
       }
   }
