@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.214 06.08.2004 $ */
+/* Revision: 1.215 28.10.2004 $ */
 
 /*
 Modify:
+  28.10.2004 SVS
+    + UnquoteExternal() - удаление внешних кавычек
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   07.07.2004 SVS
@@ -1073,6 +1075,7 @@ BOOL UnExpandEnvString(const char *Path, const char *EnvVar, char* Dest, int Des
 BOOL PathUnExpandEnvStr(const char *Path, char* Dest, int DestSize);
 
 void WINAPI Unquote(char *Str);
+void UnquoteExternal(char *Str);
 
 /* $ 07.07.2000 SVS
    + удалить пробелы снаружи

@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.54 06.08.2004 $ */
+/* Revision: 1.55 28.10.2004 $ */
 
 /*
 Modify:
+  28.10.2004 SVS
+    + UnquoteExternal() - удаление внешних кавычек
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   30.07.2004 SVS
@@ -873,6 +875,17 @@ void WINAPI Unquote(char *Str)
 /* IS $ */
 /* VVM $ */
 /* VVM $ */
+
+void UnquoteExternal(char *Str)
+{
+  if (!Str)
+    return;
+  if (*Str == '\"' && Str[strlen(Str)-1] == '\"')
+  {
+    Str[strlen(Str)-1]=0;
+    memmove(Str,Str+1,strlen(Str));
+  }
+}
 
 /* FileSizeToStr()
    Форматирование размера файла в удобочитаемый вид.

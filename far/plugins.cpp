@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.156 06.08.2004 $ */
+/* Revision: 1.157 28.10.2004 $ */
 
 /*
 Modify:
+  28.10.2004 SVS
+    BugZ#825 - Не вызываются плагины по префиксу
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   02.08.2004 SVS
@@ -3040,9 +3042,16 @@ void PluginsSet::LoadIfCacheAbsent()
 }
 
 
-int PluginsSet::ProcessCommandLine(const char *Command)
+int PluginsSet::ProcessCommandLine(const char *CommandParam)
 {
   int PrefixLength=0;
+  char *Command=(char *)alloca(strlen(CommandParam)+1);
+  if(!Command)
+    return FALSE;
+  strcpy(Command,CommandParam);
+  UnquoteExternal(Command);
+  RemoveLeadingSpaces(Command);
+
   while (1)
   {
     int Ch=Command[PrefixLength];
@@ -3055,7 +3064,10 @@ int PluginsSet::ProcessCommandLine(const char *Command)
 
   LoadIfCacheAbsent();
 
-  char Prefix[256];
+  char *Prefix=(char *)alloca(PrefixLength+1);
+  if(!Prefix)
+    return FALSE;
+
   xstrncpy(Prefix,Command,PrefixLength);
   Prefix[PrefixLength]=0;
 
