@@ -8,13 +8,15 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000 [ FAR group ]
 */
-/* Revision: 1.64 25.10.2000 $ */
+/* Revision: 1.65 26.10.2000 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  26.10.2000 SVS
+    ! DM_SETEDITPOS/DM_GETEDITPOS -> DM_SETCURSORPOS/DM_GETCURSORPOS
   25.10.2000 IS
     + Изменил имя параметра в MkTemp с Template на Prefix
   23.10.2000 SVS
@@ -459,8 +461,8 @@ enum FarMessagesProc{
   DM_SETTEXTLENGTH,
   DM_SHOWDIALOG,
   DM_GETFOCUS,
-  DM_GETEDITPOS,
-  DM_SETEDITPOS,
+  DM_GETCURSORPOS,
+  DM_SETCURSORPOS,
 
   DN_FIRST=0x1000,
   DN_BTNCLICK,

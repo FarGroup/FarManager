@@ -5,12 +5,15 @@ dialog.cpp
 
 */
 
-/* Revision: 1.49 23.10.2000 $ */
+/* Revision: 1.50 26.10.2000 $ */
 
 /*
 Modify:
+  26.10.2000 SVS
+   ! DM_SETEDITPOS/DM_GETEDITPOS -> DM_SETCURSORPOS/DM_GETCURSORPOS
+   + Работа с курсором для DI_USERCONTROL в ограниченном варианте.
   23.10.2000 SVS
-    + DM_SETEDITPOS, DM_GETEDITPOS -
+   + DM_SETEDITPOS, DM_GETEDITPOS -
       позиционирование курсора в строках редактирования.
   20.10.2000 SVS
    + DM_GETFOCUS - получить ID элемента имеющего фокус ввода
@@ -740,6 +743,13 @@ int Dialog::InitDialogObjects(int ID)
 
       DialogEdit->FastShow();
     }
+    if (Type == DI_USERCONTROL)
+    {
+      if (!CheckDialogMode(DMODE_CREATEOBJECTS))
+        CurItem->ObjPtr=new COORD; // пока ограничимся хранением координат курсора
+      ((COORD *)(CurItem->ObjPtr))->X=-1;
+      ((COORD *)(CurItem->ObjPtr))->Y=-1;
+    }
   }
 
   // все объекты созданы!
@@ -877,6 +887,16 @@ void Dialog::ShowDialog(int ID)
         if(CurItem->VBuf)
         {
           PutText(X1+CurItem->X1,Y1+CurItem->Y1,X1+CurItem->X2,Y1+CurItem->Y2,CurItem->VBuf);
+          // не забудим переместить курсор, если он спозиционирован.
+          if(((COORD *)(CurItem->ObjPtr))->X != -1 &&
+             ((COORD *)(CurItem->ObjPtr))->Y != -1 &&
+             FocusPos == I)
+          {
+             MoveCursor(
+                ((COORD *)(CurItem->ObjPtr))->X+CurItem->X1+X1,
+                ((COORD *)(CurItem->ObjPtr))->Y+CurItem->Y1+Y1
+             );
+          }
         }
         break; //уже наприсовали :-)))
 
@@ -3183,19 +3203,50 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     /* $ 23.10.2000 SVS
        Получить/установить позицию в строках редактирования
     */
-    case DM_GETEDITPOS:
+    case DM_GETCURSORPOS:
       if (IsEdit(Type))
       {
         ((COORD*)Param2)->X=((Edit *)(CurItem->ObjPtr))->GetCurPos();
         ((COORD*)Param2)->Y=0;
         return TRUE;
       }
+      else if(Type == DI_USERCONTROL)
+      {
+        ((COORD*)Param2)->X=((COORD*)(CurItem->ObjPtr))->X;
+        ((COORD*)Param2)->Y=((COORD*)(CurItem->ObjPtr))->Y;
+        return TRUE;
+      }
       return FALSE;
 
-    case DM_SETEDITPOS:
+    case DM_SETCURSORPOS:
       if (IsEdit(Type))
       {
         ((Edit *)(CurItem->ObjPtr))->SetCurPos(((COORD*)Param2)->X);
+        return TRUE;
+      }
+      else if(Type == DI_USERCONTROL)
+      {
+        // учтем, что координаты для этого элемента всегда относительные!
+        //  и начинаются с 0,0
+        COORD Coord=*(COORD*)Param2;
+        Coord.X+=CurItem->X1;
+        if(Coord.X > CurItem->X2)
+          Coord.X=CurItem->X2;
+
+        Coord.Y+=CurItem->Y1;
+        if(Coord.Y > CurItem->Y2)
+          Coord.Y=CurItem->Y2;
+
+        // Запомним
+        ((COORD*)(CurItem->ObjPtr))->X=Coord.X-CurItem->X1;
+        ((COORD*)(CurItem->ObjPtr))->Y=Coord.Y-CurItem->Y1;
+        // переместим если надо
+        if(Dlg->CheckDialogMode(DMODE_SHOW) && Dlg->FocusPos == Param1)
+        {
+           // что-то одно надо убрать :-)
+           MoveCursor(Coord.X+Dlg->X1,Coord.Y+Dlg->Y1); // ???
+           Dlg->ShowDialog(); //???
+        }
         return TRUE;
       }
       return FALSE;

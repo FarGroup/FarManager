@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.39 23.10.2000 $ */
+/* Revision: 1.40 26.10.2000 $ */
 
 /*
 Modify:
+  26.10.2000 SVS
+    - ошибки с "int Ret;" :-)
   23.10.2000 SVS
     + Функция TestPluginInfo - проверка на вшивость переданных плагином данных
   19.10.2000 tran
@@ -1222,7 +1224,7 @@ int PluginsSet::GetVirtualFindData(HANDLE hPlugin,PluginPanelItem **pPanelData,
   {
     int Ret;
     TRY{
-      PluginsData[ph->PluginNumber].pGetVirtualFindData(ph->InternalHandle,pPanelData,pItemsNumber,Path);
+      Ret=PluginsData[ph->PluginNumber].pGetVirtualFindData(ph->InternalHandle,pPanelData,pItemsNumber,Path);
     }
     __except ( xfilter(EXCEPT_GETVIRTUALFINDDATA,
                      GetExceptionInformation(),&PluginsData[ph->PluginNumber],1) )
@@ -1262,7 +1264,7 @@ int PluginsSet::SetDirectory(HANDLE hPlugin,char *Dir,int OpMode)
   {
     int Ret;
     TRY{
-      PluginsData[ph->PluginNumber].pSetDirectory(ph->InternalHandle,Dir,OpMode);
+      Ret=PluginsData[ph->PluginNumber].pSetDirectory(ph->InternalHandle,Dir,OpMode);
     }
     __except ( xfilter(EXCEPT_SETDIRECTORY,
                      GetExceptionInformation(),&PluginsData[ph->PluginNumber],1) )

@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.39 25.10.2000 $ */
+/* Revision: 1.40 26.10.2000 $ */
 
 /*
 Modify:
+  26.10.2000 SVS
+    ! У MkTemp префикс нафиг ненужно переводить в ANSI
   25.10.2000 SVS
     ! Уточнения OpenLogStream
     ! У MkTemp префикс может быть и по русски, так что переведем в ANSI
@@ -2473,9 +2475,10 @@ char* WINAPI FarMkTemp(char *Dest, char *Prefix)
        Соблюдем условие, что префикс должен быть в ANSI
        А нужно ли???!!!
     */
-    char Pref[32];
-    OemToChar(Prefix,Pref);
-    if(GetTempFileName(TempPath,Pref,0,TempName))
+//    char Pref[32];
+//    OemToChar(Prefix,Pref);
+//    if(GetTempFileName(TempPath,Pref,0,TempName))
+    if(GetTempFileName(TempPath,Prefix,0,TempName))
     {
       strcpy(Dest,TempName);
       return Dest;
