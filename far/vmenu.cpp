@@ -7,10 +7,16 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.18 12.05.2001 $ */
+/* Revision: 1.19 15.05.2001 $ */
 
 /*
 Modify:
+  15.05.2001 KM
+    - Не работал флаг DIF_CHECKED в DI_LISTBOX
+    + Добавлена возможность назначать в DI_LISTBOX с флагом DIF_CHECKED
+      произвольный символ (в младшем слове Flags), который будет
+      использоваться в качестве Check mark, следующим образом:
+      MacroMenuItems[i].Flags|=(S[0]=='~')?LIF_CHECKED|'-':0;
   12.05.2001 SVS
     + AddItem(char *NewStrItem);
   07.05.2001 SVS
@@ -548,7 +554,14 @@ int VMenu::AddItem(struct FarList *List)
     {
       ListItem.Separator=Items[J].Flags&LIF_SEPARATOR;
       ListItem.Selected=Items[J].Flags&LIF_SELECTED;
-      ListItem.Checked=Items[J].Flags&LIF_CHECKED;
+      /* $ 15.05.2001 KM
+         Восстановлена работа Checked.
+      */
+      if (Items[J].Flags&LIF_CHECKED)
+        ListItem.Checked=Items[J].Flags&0xFFFF ? Items[J].Flags&0xFFFF : 1;
+      else
+        ListItem.Checked=FALSE;
+      /* KM $ */
       ListItem.Disabled=Items[J].Flags&LIF_DISABLE;
       // здесь нужно добавить проверку на LIF_PTRDATA!!!
       ListItem.Flags=0;

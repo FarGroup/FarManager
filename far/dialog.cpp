@@ -5,10 +5,16 @@ dialog.cpp
 
 */
 
-/* Revision: 1.96 14.05.2001 $ */
+/* Revision: 1.97 15.05.2001 $ */
 
 /*
 Modify:
+  15.05.2001 KM
+   - Терерь подсветка в DI_LISTBOX работает. Для её включения
+     используется флаг DIF_LISTNOAMPERSAND (блин горелый, он уже был).
+   ! В связи с предыдущим пунктом удалён дублирующий флаг DIF_LISTHIGHLIGHT.
+   ! Подсветка в DI_COMBOBOX сделана с использованием DIF_LISTNOAMPERSAND.
+   - Убран баг с зависанием при нажатии KEY_END в DI_LISTBOX.
   14.05.2001 SVS
    ! DMODE_SMALLDILAOG -> DMODE_SMALLDIALOG
    ! DIF_CENTERGROUP только для DI_BUTTON, DI_CHECKBOX, DI_RADIOBUTTON, DI_TEXT.
@@ -787,15 +793,15 @@ int Dialog::InitDialogObjects(int ID)
              DI_COMBOBOX выставляется флаг MENU_SHOWAMPERSAND. Этот флаг
              подавляет такое поведение
         */
+        /* $ 15.05.2001 KM
+           ! Исправлена подсветка в DI_LISTBOX
+        */
         if(!(ItemFlags&DIF_LISTNOAMPERSAND))
           CurItem->ListPtr->SetFlags(MENU_SHOWAMPERSAND);
         if(ItemFlags&DIF_LISTNOBOX)
           CurItem->ListPtr->SetFlags(VMENU_SHOWNOBOX);
         if(ItemFlags&DIF_LISTWRAPMODE)
           CurItem->ListPtr->SetFlags(MENU_WRAPMODE);
-        if(ItemFlags&DIF_LISTHIGHLIGHT)
-          CurItem->ListPtr->AssignHighlights(FALSE);
-        /* SVS $*/
         CurItem->ListPtr->SetPosition(X1+CurItem->X1,Y1+CurItem->Y1,
                              X1+CurItem->X2,Y1+CurItem->Y2);
         CurItem->ListPtr->SetBoxType(SHORT_SINGLE_BOX);
@@ -803,6 +809,9 @@ int Dialog::InitDialogObjects(int ID)
         //ListBox->DeleteItems(); //???? А НАДО ЛИ ????
         if(CurItem->ListItems)
           CurItem->ListPtr->AddItem(CurItem->ListItems);
+
+        CurItem->ListPtr->AssignHighlights(FALSE);
+        /* KM $ */
       }
     }
     /* SVS $*/
@@ -830,8 +839,14 @@ int Dialog::InitDialogObjects(int ID)
            DialogEdit->DropDownBox=1;
         if(ItemFlags&DIF_LISTWRAPMODE)
           CurItem->ListPtr->SetFlags(MENU_WRAPMODE);
-        if(ItemFlags&DIF_LISTHIGHLIGHT)
-          CurItem->ListPtr->AssignHighlights(FALSE);
+        /* $ 15.05.2001 KM
+           Добавим подсветку в DI_COMBOBOX
+        */
+        if(!(ItemFlags&DIF_LISTNOAMPERSAND))
+          CurItem->ListPtr->SetFlags(MENU_SHOWAMPERSAND);
+
+        CurItem->ListPtr->AssignHighlights(FALSE);
+        /* KM $ */
       }
 
       /* SVS $ */
@@ -1828,6 +1843,7 @@ int Dialog::ProcessKey(int Key)
     {
       case KEY_HOME:
       case KEY_LEFT:
+      case KEY_END:
       case KEY_RIGHT:
       case KEY_UP:
       case KEY_DOWN:

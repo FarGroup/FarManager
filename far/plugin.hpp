@@ -8,13 +8,16 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.103 14.05.2001 $ */
+/* Revision: 1.104 15.05.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  15.05.2001 KM
+    ! Убран флаг DIF_LISTHIGHLIGHT, так как его функцию
+      уже выполнял DIF_LISTNOAMPERSAND, только наоборот.
   14.05.2001 SVS
     ! FDLG_SMALLDILAOG -> FDLG_SMALLDIALOG
   13.05.2001 SVS
@@ -583,7 +586,6 @@ enum FarDialogItemFlags {
   DIF_SELECTONENTRY   =0x00800000UL,
   DIF_3STATE          =0x00800000UL,
   DIF_LISTWRAPMODE    =0x01000000UL,
-  DIF_LISTHIGHLIGHT   =0x02000000UL,
   DIF_HIDDEN          =0x10000000UL,
   DIF_READONLY        =0x20000000UL,
   DIF_NOFOCUS         =0x40000000UL,
