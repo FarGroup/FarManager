@@ -132,10 +132,11 @@ int PluginClass::ReadArchive(char *Name)
 
     NamePtr=CurArcData.FindData.cFileName;
     char *EndPos=NamePtr;
-    if(*EndPos == '.') ++EndPos;
-    if(*EndPos == '.') ++EndPos;
-    if(*EndPos == '\\') ++EndPos;
-    if(*EndPos == '\\') ++EndPos;
+    while(*EndPos == '.') EndPos++;
+    if(*EndPos == '\\')
+      while(*EndPos == '\\') EndPos++;
+    else
+      EndPos=NamePtr;
     if(EndPos != NamePtr)
     {
       char *Pref=(char *)malloc((int)(EndPos-NamePtr)+1);
