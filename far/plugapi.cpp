@@ -5,10 +5,14 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.46 09.04.2001 $ */
+/* Revision: 1.47 11.04.2001 $ */
 
 /*
 Modify:
+  11.09.2001 SVS
+    - FarMessageFn(): если установлен флаг FMSG_ERRORTYPE, ItemsNumber равное 1,
+      тоже должно позволять показывать сообщение.
+    - FarMessageFn(): неверно сделанный патч #530 - исправляем.
   09.04.2001 SVS
     ! Избавимся от некоторых варнингов
   08.04.2001 SVS
@@ -561,7 +565,7 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,char *HelpTopic,
   if (DisablePluginsOutput)
     return(-1);
 
-  if ((!(Flags&FMSG_ALLINONE) && ItemsNumber<2) || !Items)
+  if ((!(Flags&(FMSG_ALLINONE|FMSG_ERRORTYPE)) && ItemsNumber<2) || !Items)
     return(-1);
 
   char *MsgItems[MAXMSG], *SingleItems=NULL;
@@ -603,10 +607,11 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,char *HelpTopic,
 
       MsgItems[++ItemsNumber]=Msg;
     }
+    ItemsNumber++;
 
     if((Flags&0x000F0000) && ItemsNumber+ButtonsNumber >= MAXMSG)
       ItemsNumber=MAXMSG-ButtonsNumber;
-    for(I=ItemsNumber+1; I < MAXMSG; ++I)
+    for(I=ItemsNumber; I < MAXMSG; ++I)
       MsgItems[I]=NULL;
   }
   else
@@ -623,29 +628,29 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,char *HelpTopic,
   switch(Flags&0x000F0000)
   {
     case FMSG_MB_OK:
-      MsgItems[++ItemsNumber]=MSG(MOk);
+      MsgItems[ItemsNumber++]=MSG(MOk);
       break;
     case FMSG_MB_OKCANCEL:
-      MsgItems[++ItemsNumber]=MSG(MOk);
-      MsgItems[++ItemsNumber]=MSG(MCancel);
+      MsgItems[ItemsNumber++]=MSG(MOk);
+      MsgItems[ItemsNumber++]=MSG(MCancel);
       break;
     case FMSG_MB_ABORTRETRYIGNORE:
-      MsgItems[++ItemsNumber]=MSG(MAbort);
-      MsgItems[++ItemsNumber]=MSG(MRetry);
-      MsgItems[++ItemsNumber]=MSG(MIgnore);
+      MsgItems[ItemsNumber++]=MSG(MAbort);
+      MsgItems[ItemsNumber++]=MSG(MRetry);
+      MsgItems[ItemsNumber++]=MSG(MIgnore);
       break;
     case FMSG_MB_YESNO:
-      MsgItems[++ItemsNumber]=MSG(MYes);
-      MsgItems[++ItemsNumber]=MSG(MNo);
+      MsgItems[ItemsNumber++]=MSG(MYes);
+      MsgItems[ItemsNumber++]=MSG(MNo);
       break;
     case FMSG_MB_YESNOCANCEL:
-      MsgItems[++ItemsNumber]=MSG(MYes);
-      MsgItems[++ItemsNumber]=MSG(MNo);
-      MsgItems[++ItemsNumber]=MSG(MCancel);
+      MsgItems[ItemsNumber++]=MSG(MYes);
+      MsgItems[ItemsNumber++]=MSG(MNo);
+      MsgItems[ItemsNumber++]=MSG(MCancel);
       break;
     case FMSG_MB_RETRYCANCEL:
-      MsgItems[++ItemsNumber]=MSG(MRetry);
-      MsgItems[++ItemsNumber]=MSG(MCancel);
+      MsgItems[ItemsNumber++]=MSG(MRetry);
+      MsgItems[ItemsNumber++]=MSG(MCancel);
       break;
   }
   /* tran $ */
