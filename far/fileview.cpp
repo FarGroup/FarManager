@@ -5,7 +5,7 @@ fileview.cpp
 
 */
 
-/* Revision: 1.02 29.06.2000 $ */
+/* Revision: 1.03 04.07.2000 $ */
 
 /*
 Modify:
@@ -17,6 +17,8 @@ Modify:
       adding SetScreenPosition
   29.06.2000 tran
     + названия всех функциональных клавиш
+  04.07.2000 tran
+    + не показывать мессаг бакс при невозвожности открыть файл
 */
 
 #include "headers.hpp"
@@ -75,7 +77,10 @@ void FileViewer::Init(char *Name,int EnableSwitch,int DisableHistory,
   SetKeyBar(&ViewKeyBar);
   View.SetPosition(X1,Y1,X2,Y2-1);
   View.SetViewKeyBar(&ViewKeyBar);
-  if (!View.OpenFile(Name))
+  /* $ 04.07.2000 tran
+     + add TRUE as 'warning' parameter */
+  if (!View.OpenFile(Name,TRUE))
+  /* tran 04.07.2000 $ */
   {
     ExitCode=FALSE;
     return;

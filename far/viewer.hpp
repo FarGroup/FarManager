@@ -7,13 +7,15 @@ Internal viewer
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 04.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  04.07.2000 tran
+    + 'warning' parameter in OpenFile() method
 */
 
 
@@ -84,7 +86,10 @@ class Viewer:public ScreenObject
   public:
     Viewer();
     ~Viewer();
-    int OpenFile(char *Name);
+    /* $ 04.07.2000 tran
+       + 'warning' parameter */
+    int OpenFile(char *Name,int warning);
+    /* tran $ */
     void SetViewKeyBar(KeyBar *ViewKeyBar);
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);

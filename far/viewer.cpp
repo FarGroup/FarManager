@@ -5,7 +5,7 @@ Internal viewer
 
 */
 
-/* Revision: 1.04 03.07.2000 $ */
+/* Revision: 1.05 04.07.2000 $ */
 
 /*
 Modify:
@@ -23,6 +23,9 @@ Modify:
   03.07.2000 tran
     - баг с неверным показом последней строки в hex
       (внесенный мною патчем номер 2)
+  04.07.2000 tran
+    + параметер warning в методе OpenFile()
+      нужно для QuickView
 */
 
 #include "headers.hpp"
@@ -143,7 +146,7 @@ void Viewer::KeepInitParameters()
 }
 
 
-int Viewer::OpenFile(char *Name)
+int Viewer::OpenFile(char *Name,int warning)
 {
   FILE *NewViewFile=NULL;
   if (CmdMode && strcmp(Name,"-")==0)
@@ -195,8 +198,14 @@ int Viewer::OpenFile(char *Name)
 
   if (NewViewFile==NULL)
   {
-    Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MViewerTitle),
+    /* $ 04.07.2000 tran
+       + 'warning' flag processing, in QuickView it is FALSE
+         so don't show red message box */
+    if (warning)
+        Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MViewerTitle),
             MSG(MViewerCannotOpenFile),Name,MSG(MOk));
+    /* tran 04.07.2000 $ */
+
     return(FALSE);
   }
   if (ViewFile)
@@ -310,8 +319,17 @@ void Viewer::DisplayObject()
   int SelPos,SelSize,Y,I;
   int SaveSelectSize=SelectSize;
 
+  /* $ 04.07.2000 tran
+    + показ строки "Cannot open the file" красным цветом
+      в случае невозножности его открытия */
   if (ViewFile==NULL)
+  {
+    GotoXY(X1,Y1);
+    SetColor(COL_WARNDIALOGTEXT);
+    mprintf(MSG(MViewerCannotOpenFile));
     return;
+  }
+  /* tran $ */
 
   ViewY1=Y1+ShowStatusLine;
 
@@ -830,7 +848,11 @@ int Viewer::ProcessKey(int Key)
             ViewNamesList.GetCurDir(ViewDir);
             chdir(ViewDir);
           }
-          if (OpenFile(Name))
+          /* $ 04.07.2000 tran
+             + параметер 'warning' в OpenFile в данном месте он TRUE
+          */
+          if (OpenFile(Name,TRUE))
+          /* tran $ */
           {
             LeftPos=0;
             SecondPos=0;

@@ -5,7 +5,7 @@ Quick view panel
 
 */
 
-/* Revision: 1.01 28.06.2000 $ */
+/* Revision: 1.02 04.07.2000 $ */
 
 /*
 Modify:
@@ -14,6 +14,8 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
   28.06.2000 IS
     - Не показывать тип файла для каталогов в "Быстром просмотре"
+  04.07.2000 tran
+    + не показывать мессаг бакс при невозвожности открыть файл
 */
 
 #include "headers.hpp"
@@ -270,7 +272,11 @@ void QuickView::ShowFile(char *FileName,int TempFile,HANDLE hDirPlugin)
   }
   else
     if (*CurFileName)
-      QView->OpenFile(CurFileName);
+      /* $ 04.07.2000 tran
+         + add FALSE as 'warning' parameter*/
+      QView->OpenFile(CurFileName,FALSE);
+      /* tran 04.07.2000 $ */
+
   if (TempFile)
     ConvertNameToFull(CurFileName,TempName);
   Redraw();
