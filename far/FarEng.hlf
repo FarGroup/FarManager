@@ -412,7 +412,7 @@ $ #Command line commands#
 
  #Insertion commands#
 
-  Insert current file name from the active panel          #Ctrl-Enter#
+  Insert current file name from the active panel   #Ctrl-J,Ctrl-Enter#
 
      In the ~fast find~@FastFind@ mode, #Ctrl-Enter# does not insert a
      file name, but instead cycles the files matching the

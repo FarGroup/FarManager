@@ -5,10 +5,13 @@ macro.cpp
 
 */
 
-/* Revision: 1.129 17.10.2004 $ */
+/* Revision: 1.130 09.11.2004 $ */
 
 /*
 Modify:
+  09.11.2004 SVS
+    + MCODE_V_APANEL_TYPE, MCODE_V_PPANEL_TYPE, MCODE_C_APANEL_FILEPANEL, MCODE_C_PPANEL_FILEPANEL
+    - Òðàáëû ñ msgBox() - BugZ#1179 - Ôóíêöèÿ MsgBox
   17.10.2004 SVS
     + MACRO_FINDFOLDER
   17.09.2004 SVS
@@ -493,12 +496,16 @@ struct TMacroKeywords MKeywords[] ={
   {2,  "PPanel.Visible",     MCODE_C_PPANEL_VISIBLE,0},
   {2,  "APanel.Plugin",      MCODE_C_APANEL_PLUGIN,0},
   {2,  "PPanel.Plugin",      MCODE_C_PPANEL_PLUGIN,0},
+  {2,  "APanel.FilePanel",   MCODE_C_APANEL_FILEPANEL,0},
+  {2,  "PPanel.FilePanel",   MCODE_C_PPANEL_FILEPANEL,0},
   {2,  "APanel.Folder",      MCODE_C_APANEL_FOLDER,0},
   {2,  "PPanel.Folder",      MCODE_C_PPANEL_FOLDER,0},
   {2,  "APanel.Selected",    MCODE_C_APANEL_SELECTED,0},
   {2,  "PPanel.Selected",    MCODE_C_PPANEL_SELECTED,0},
   {2,  "APanel.Left",        MCODE_C_APANEL_LEFT,0},
   {2,  "PPanel.Left",        MCODE_C_PPANEL_LEFT,0},
+  {2,  "APanel.Type",        MCODE_V_APANEL_TYPE,0},
+  {2,  "PPanel.Type",        MCODE_V_PPANEL_TYPE,0},
 
   {2,  "APanel.Current",     MCODE_V_APANEL_CURRENT,0},
   {2,  "PPanel.Current",     MCODE_V_PPANEL_CURRENT,0},
@@ -1012,11 +1019,13 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
           Cond=UsedInternalClipboard;
           break;
 
+        // TODO: ÇÄÅÑÜ ÏÎËÍÀß ÕÐÅÍÜ!!! CurFrame äëÿ ìåíþõ (F2 èëè F11 èëè F9 Enter) âñåãäà ññûëàåòñÿ íà ïàíåëè. ÏÅÐÅÑÌÎÒÐÅÒÜ !!!!!
         case MCODE_C_BOF:
         case MCODE_C_EOF:
         {
           if(CurFrame)
           {
+            //Cond=CurFrame->GetType();//==MODALTYPE_VMENU;
             Cond=CurFrame->ProcessKey(CheckCode==MCODE_C_BOF?MCODE_C_BOF:MCODE_C_EOF)?1:0;
           }
           break;
@@ -1126,6 +1135,15 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
           break;
         }
 
+        case MCODE_C_APANEL_FILEPANEL: // APanel.FilePanel
+        case MCODE_C_PPANEL_FILEPANEL: // PPanel.FilePanel
+        {
+          Panel *SelPanel = CheckCode == MCODE_C_APANEL_FILEPANEL ? ActivePanel : PassivePanel;
+          if ( SelPanel != NULL )
+            Cond=SelPanel->GetType() == FILE_PANEL;
+          break;
+        }
+
         case MCODE_C_APANEL_PLUGIN: // APanel.Plugin
         case MCODE_C_PPANEL_PLUGIN: // PPanel.Plugin
         {
@@ -1207,6 +1225,16 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
             SelPanel->GetCurDir(FileName);
             Cond = FileName;
           }
+          break;
+        }
+
+        //FILE_PANEL,TREE_PANEL,QVIEW_PANEL,INFO_PANEL
+        case MCODE_V_APANEL_TYPE: // APanel.Type
+        case MCODE_V_PPANEL_TYPE: // PPanel.Type
+        {
+          Panel *SelPanel = CheckCode == MCODE_V_APANEL_TYPE ? ActivePanel : PassivePanel;
+          if ( SelPanel != NULL )
+            Cond=SelPanel->GetType();
           break;
         }
         // *****************
@@ -1425,7 +1453,7 @@ static TVar msgBoxFunc(TVar *param)
   DWORD Flags = (DWORD)param[2].toInteger();
   Flags&=~(FMSG_KEEPBACKGROUND|FMSG_ERRORTYPE);
   Flags|=FMSG_ALLINONE;
-  if(HIWORD(Flags) == 0 || HIWORD(Flags) > (WORD)FMSG_MB_RETRYCANCEL)
+  if(HIWORD(Flags) == 0 || HIWORD(Flags) > HIWORD(FMSG_MB_RETRYCANCEL))
     Flags|=FMSG_MB_OK;
 
   const char *title=NullToEmpty(param[0].toString());

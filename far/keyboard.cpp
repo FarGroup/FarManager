@@ -5,10 +5,15 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.112 21.08.2004 $ */
+/* Revision: 1.113 09.11.2004 $ */
 
 /*
 Modify:
+  09.11.2004 SVS
+    - Макросы. Если есть автостартующие макросы, то
+      Far -r
+      заваливается, т.к. файловые панели еще не созданы, соотвественно Cp() вернет NULL.
+      Проверим так же, что там Cp() вернет.
   21.08.2004 SVS
     ! Коррекция CheckForEscSilent() на предмет "завершенности" макроса - это когда последним в макросе стоит KEY_NONE.
   06.08.2004 SKV
@@ -554,7 +559,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec)
   DWORD ReadKey=0;
   int NotMacros=FALSE;
 
-  if (CtrlObject!=NULL)
+  if (CtrlObject && CtrlObject->Cp())
   {
 //     _KEYMACRO(CleverSysLog SL("GetInputRecord()"));
     int VirtKey,ControlState;

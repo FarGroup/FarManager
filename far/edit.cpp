@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.124 04.11.2004 $ */
+/* Revision: 1.125 09.11.2004 $ */
 
 /*
 Modify:
+  09.11.2004 SVS
+    ! пока пробел не добавляем для Shift-Enter. Это будет сделано позже, по человече.
   04.11.2004 SVS
     ! сделаем однообразную обработку "modify-]", "modify-[" и Ctrl-[Shift-]Enter
   10.10.2004 KM
@@ -898,7 +900,7 @@ int Edit::ProcessInsPath(int Key,int PrevSelStart,int PrevSelEnd)
 
             if(Opt.QuotedName&QUOTEDNAME_INSERT)
               QuoteSpace(PathName);
-            strncat(PathName," ",sizeof(PathName)-1);
+            //strncat(PathName," ",sizeof(PathName)-1);
           }
           else
           {

@@ -5,10 +5,12 @@ OpCode для макросов
 
 */
 
-/* Revision: 1.03 10.09.2004 $ */
+/* Revision: 1.04 09.11.2004 $ */
 
 /*
 Modify:
+  09.11.2004 SVS
+    + MCODE_V_APANEL_TYPE, MCODE_V_PPANEL_TYPE, MCODE_C_APANEL_FILEPANEL, MCODE_C_PPANEL_FILEPANEL
   10.09.2004 SVS
     + UCase (MCODE_F_UCASE), LCase (MCODE_F_UCASE)
   05.08.2004 SVS
@@ -138,6 +140,8 @@ enum MACRO_OP_CODE {
   MCODE_C_PPANEL_VISIBLE,           // пассивная панель: видима?
   MCODE_C_APANEL_PLUGIN,            // активная панель:  плагиновая?
   MCODE_C_PPANEL_PLUGIN,            // пассивная панель: плагиновая?
+  MCODE_C_APANEL_FILEPANEL,         // активная панель:  файловая?
+  MCODE_C_PPANEL_FILEPANEL,         // пассивная панель: файловая?
   MCODE_C_APANEL_FOLDER,            // активная панель:  текущий элемент каталог?
   MCODE_C_PPANEL_FOLDER,            // пассивная панель: текущий элемент каталог?
   MCODE_C_APANEL_LEFT,              // активная панель левая?
@@ -158,6 +162,8 @@ enum MACRO_OP_CODE {
   MCODE_V_PPANEL_PATH,              // PPanel.Path - пассивная панель: путь на панели
   MCODE_V_APANEL_WIDTH,             // APanel.Path - активная панель:  путь на панели
   MCODE_V_PPANEL_WIDTH,             // PPanel.Path - пассивная панель: путь на панели
+  MCODE_V_APANEL_TYPE,              // тип активной панели
+  MCODE_V_PPANEL_TYPE,              // тип пассивной панели
   MCODE_V_EDITORSTATE,              // Editor.State
   MCODE_V_VIEWERSTATE,              // Viewer.State
   MCODE_V_DLGITEMTYPE,              // Dlg.ItemType

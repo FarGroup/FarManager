@@ -5,10 +5,12 @@ checkver.cpp
 
 */
 
-/* Revision: 1.13 06.08.2004 $ */
+/* Revision: 1.14 09.11.2004 $ */
 
 /*
 Modify:
+  09.11.2004 SVS
+    - выравнивание :-( При регистрации ФАР падал...
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   09.02.2004 SVS
@@ -69,7 +71,7 @@ static const unsigned char MyName[]={
 
 static const char *GetDaysName(int wDayOfWeek)
 {
-  static unsigned char *Days[7]={
+  static unsigned char Days[7][16]={
     {(BYTE*)"\x0C\xF7\xF8\xB6\xF2\xB9\xFF\xBA\xF9\xF0\xB2\xFA"}, // "воскресенье",
     {(BYTE*)"\x0c\xFA\xF8\xFA\xFD\xFD\xFF\xF0\xB0\xF0\xF6\xF5"}, // "понедельник",
     {(BYTE*)"\x08\xF7\xB4\xF9\xB8\xF4\xF2\xF1"},                 // "вторник",
