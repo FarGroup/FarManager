@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.131 21.01.2003 $ */
+/* Revision: 1.132 04.02.2003 $ */
 
 /*
 Modify:
+  04.02.2003 SVS
+    - BugZ#784 - “екущий каталог при загрузке плагина
   21.01.2003 SVS
     + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
       ѕросьба блюсти пор€док и прописывать именно xf_* вместо простых.
@@ -417,6 +419,7 @@ int KeepUserScreen;
 char DirToSet[NM];
 
 static int _cdecl PluginsSort(const void *el1,const void *el2);
+static BOOL PrepareModulePath(const char *ModuleName);
 
 PluginsSet::PluginsSet()
 {
@@ -543,16 +546,23 @@ void PluginsSet::LoadPlugins()
         memset(&CurPlugin,0,sizeof(CurPlugin));
         strcpy(CurPlugin.ModuleName,FullName);
         int CachePos=GetCacheNumber(FullName,&FindData,0);
-        int LoadCached=(CachePos!=-1);
-        /* $ 12.10.2000 tran
-           Preload=1 нужно дл€ корректной обработки -co */
-        sprintf(RegKey,"PluginsCache\\Plugin%d",CachePos);
-        if ( GetRegKey(RegKey,"Preload",0)==1 )
+        int LoadCached;
+        if(CachePos!=-1)
         {
-          LoadCached=0;
-          CachePos=-1;
+          LoadCached=TRUE;
+          /* $ 12.10.2000 tran
+             Preload=1 нужно дл€ корректной обработки -co */
+          sprintf(RegKey,"PluginsCache\\Plugin%d",CachePos);
+          if ( GetRegKey(RegKey,"Preload",0)==1 )
+          {
+            LoadCached=FALSE;
+            CachePos=-1;
+          }
+          /* tran $ */
         }
-        /* tran $ */
+        else
+          LoadCached=FALSE;
+
         if (LoadCached)
         {
           char RegKey[100];
@@ -702,6 +712,13 @@ int _cdecl PluginsSort(const void *el1,const void *el2)
   return(LocalStricmp(PointToName(Plugin1->ModuleName),PointToName(Plugin2->ModuleName)));
 }
 
+static BOOL PrepareModulePath(const char *ModuleName)
+{
+  char ModulePath[NM];
+  strncpy(ModulePath,ModuleName,sizeof(ModulePath)-1);
+  *PointToName(ModulePath)=0;
+  return FarChDir(ModulePath,TRUE);
+}
 
 int PluginsSet::LoadPlugin(struct PluginItem &CurPlugin,int ModuleNumber,int Init)
 {
@@ -709,7 +726,14 @@ int PluginsSet::LoadPlugin(struct PluginItem &CurPlugin,int ModuleNumber,int Ini
   {
     return (FALSE);
   }
-  HMODULE hModule=CurPlugin.hModule ? CurPlugin.hModule:LoadLibraryEx(CurPlugin.ModuleName,NULL,LOAD_WITH_ALTERED_SEARCH_PATH);
+
+  HMODULE hModule=CurPlugin.hModule;
+  if(!hModule)
+  {
+    PrepareModulePath(CurPlugin.ModuleName);
+    hModule=LoadLibraryEx(CurPlugin.ModuleName,NULL,LOAD_WITH_ALTERED_SEARCH_PATH);
+  }
+
   if (hModule==NULL)
   {
     char PlgName[NM];
@@ -720,6 +744,7 @@ int PluginsSet::LoadPlugin(struct PluginItem &CurPlugin,int ModuleNumber,int Ini
     CurPlugin.WorkFlags.Set(PIWF_DONTLOADAGAIN);
     return(FALSE);
   }
+
   CurPlugin.hModule=hModule;
   CurPlugin.WorkFlags.Clear(PIWF_CACHED);
   CurPlugin.pSetStartupInfo=(PLUGINSETSTARTUPINFO)GetProcAddress(hModule,"SetStartupInfo");
@@ -1083,6 +1108,8 @@ void PluginsSet::CreatePluginStartupInfo(struct PluginStartupInfo *PSI,
 */
 int PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNumber)
 {
+  //PrepareModulePath(CurPlugin.ModuleName);
+
   /* $ 03.08.2000 tran
      проверка на минимальную версию фара */
   if (!CheckMinVersion(CurPlugin))

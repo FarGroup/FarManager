@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.89 21.01.2003 $ */
+/* Revision: 1.90 03.02.2003 $ */
 
 /*
 Modify:
+  03.02.2003 SVS
+    - BugZ#787 - Криво активируется QuickSearch при выполнении макроса.
   21.01.2003 SVS
     + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
       Просьба блюсти порядок и прописывать именно xf_* вместо простых.
@@ -1639,7 +1641,7 @@ BOOL WINAPI KeyToText(int Key0,char *KeyText0,int Size)
       {
         FKey=(Key&0xFF)&(~0x20);
         if (FKey >= 'A' && FKey <= 'Z')
-          KeyText[Len]=(char)Key&0xFF;
+          KeyText[Len]=(char)(Key&0xFF)&((Key&(KEY_RCTRL|KEY_CTRL|KEY_ALT|KEY_RCTRL))?(~0x20):0xFF);
         else if ((Key&0xFF) > 0 && (Key&0xFF) < 256)
           KeyText[Len]=(char)Key&0xFF;
       }
@@ -1859,7 +1861,7 @@ char *FARGetKeybLayoutName(char *Dest,int DestSize)
 int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
 {
   _SVS(CleverSysLog Clev("CalcKeyCode"));
-  _SVS(SysLog("CalcKeyCode -> %s| RealKey=%d  *NotMacros=%d",_INPUT_RECORD_Dump(rec),RealKey,*NotMacros));
+  _SVS(SysLog("CalcKeyCode -> %s| RealKey=%d  *NotMacros=%d",_INPUT_RECORD_Dump(rec),RealKey,(NotMacros?*NotMacros:0)));
   CHAR_WCHAR Char;
 
   unsigned int ScanCode,KeyCode,CtrlState;

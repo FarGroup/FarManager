@@ -5,10 +5,14 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.152 21.01.2003 $ */
+/* Revision: 1.153 04.02.2003 $ */
 
 /*
 Modify:
+  04.02.2003 SVS
+    - BugZ#788 -  риво считаетс€ ширина меню.
+      –азнесем применение флагов общих (до добавлени€ контента) и зависимых
+      от уже существующего контента.
   21.01.2003 SVS
     + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
       ѕросьба блюсти пор€док и прописывать именно xf_* вместо простых.
@@ -995,6 +999,14 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
     if (Bottom!=NULL)
       FarMenu.SetBottomTitle(Bottom);
 
+    // общие флаги меню
+    DWORD MenuFlags=0;
+    if (Flags & FMENU_SHOWAMPERSAND)
+      MenuFlags|=VMENU_SHOWAMPERSAND;
+    if (Flags & FMENU_WRAPMODE)
+      MenuFlags|=VMENU_WRAPMODE;
+    FarMenu.SetFlags(MenuFlags);
+
     struct MenuItem CurItem;
     memset(&CurItem,0,sizeof(CurItem));
     int Selected=0;
@@ -1055,16 +1067,11 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
     if(!Selected)
       FarMenu.SetSelectPos(0,1);
 
-    DWORD MenuFlags=0;
-    if (Flags & FMENU_SHOWAMPERSAND)
-      MenuFlags|=VMENU_SHOWAMPERSAND;
-    if (Flags & FMENU_WRAPMODE)
-      MenuFlags|=VMENU_WRAPMODE;
+    // флаги меню, с забитым контентом
     if (Flags & FMENU_AUTOHIGHLIGHT)
       FarMenu.AssignHighlights(FALSE);
     if (Flags & FMENU_REVERSEAUTOHIGHLIGHT)
       FarMenu.AssignHighlights(TRUE);
-    FarMenu.SetFlags(MenuFlags);
     FarMenu.Show();
     while (!FarMenu.Done() && !CloseFARMenu)
     {

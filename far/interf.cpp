@@ -5,10 +5,13 @@ interf.cpp
 
 */
 
-/* Revision: 1.70 10.12.2002 $ */
+/* Revision: 1.71 04.02.2003 $ */
 
 /*
 Modify:
+  04.02.2003 SVS
+    + В общем, теперь в дебажной версии есть ключ "/cr", отключающий трид
+      проверки регистрации. Под TD32 иногда жутчайшие тормоза наблюдаются.
   10.12.2002 SVS
     ! уберу SysLogDump("Oem2Unicode"...)
   18.09.2002 SVS
@@ -1055,6 +1058,12 @@ void ShowTime(int ShowAlways)
   Text(ClockText);
   ScrBuf.Flush();
   static int RegChecked=FALSE;
+
+#ifdef _DEBUGEXC
+  if(!CheckRegistration)
+    RegChecked=TRUE;
+#endif
+
   if (!RegChecked && clock()>10000)
   {
     RegChecked=TRUE;

@@ -5,10 +5,13 @@ main.cpp
 
 */
 
-/* Revision: 1.63 18.01.2003 $ */
+/* Revision: 1.64 04.02.2003 $ */
 
 /*
 Modify:
+  04.02.2003 SVS
+    + В общем, теперь в дебажной версии есть ключ "/cr", отключающий трид
+      проверки регистрации. Под TD32 иногда жутчайшие тормоза наблюдаются.
   18.01.2003 IS
     - Не правильно обрабатывалась команда /p[<path>], если в пути были
       буквы национального алфавита.
@@ -254,6 +257,7 @@ printf(
 " /x   Disable exception handling.\n"
 #if defined(_DEBUGEXC)
 " /xd  Enable exception handling.\n"
+" /cr  Disable check registration.\n"
 #endif
 #ifdef DIRECT_RT
 " /do  Direct output.\n"
@@ -333,12 +337,19 @@ static int MainProcess(char *EditName,char *ViewName,char *DestName1,char *DestN
       char Path[NM];
       Opt.OnlyEditorViewerUsed=0;
       NotUseCAS=FALSE;
-      if (RegOpt)
-        Register();
-      static struct RegInfo Reg;
-      _beginthread(CheckReg,0x10000,&Reg);
-      while (!Reg.Done)
-        Sleep(10);
+#ifdef _DEBUGEXC
+      if(CheckRegistration)
+      {
+#endif
+        if (RegOpt)
+          Register();
+        static struct RegInfo Reg;
+        _beginthread(CheckReg,0x10000,&Reg);
+        while (!Reg.Done)
+          Sleep(10);
+#ifdef _DEBUGEXC
+      }
+#endif
 
       Opt.SetupArgv=0;
 
@@ -612,9 +623,11 @@ int _cdecl main(int Argc, char *Argv[])
            /co switch support */
         case 'C':
             if (toupper(Argv[I][2])=='O')
-            {
-                Opt.PluginsCacheOnly=TRUE;
-            }
+              Opt.PluginsCacheOnly=TRUE;
+#ifdef _DEBUGEXC
+            else if (toupper(Argv[I][2])=='R')
+              CheckRegistration=FALSE;
+#endif
             break;
         /* tran $ */
         /* $ 19.01.2001 SVS

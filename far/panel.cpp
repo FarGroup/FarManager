@@ -5,10 +5,12 @@ Parent class дл€ панелей
 
 */
 
-/* Revision: 1.105 20.01.2003 $ */
+/* Revision: 1.106 03.02.2003 $ */
 
 /*
 Modify:
+  03.02.2003 SVS
+    - BugZ#787 -  риво активируетс€ QuickSearch при выполнении макроса.
   20.01.2003 SVS
     + ѕоказ по F1 в FastFind соответствующего раздела помощи
   15.01.2003 SVS
@@ -1167,7 +1169,7 @@ static DWORD _CorrectFastFindKbdLayout(INPUT_RECORD *rec,DWORD Key)
   if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && (Key&KEY_ALT))// && Key!=(KEY_ALT|0x3C))
   {
     _SVS(SysLog("_CorrectFastFindKbdLayout>>> %s | %s",_FARKEY_ToName(Key),_INPUT_RECORD_Dump(rec)));
-    if((Key&KEY_MASKF) != rec->Event.KeyEvent.uChar.AsciiChar) //???
+    if(rec->Event.KeyEvent.uChar.AsciiChar && (Key&KEY_MASKF) != rec->Event.KeyEvent.uChar.AsciiChar) //???
       Key=(Key&0xFFFFFF00)|rec->Event.KeyEvent.uChar.AsciiChar;   //???
     _SVS(SysLog("_CorrectFastFindKbdLayout<<< %s | %s",_FARKEY_ToName(Key),_INPUT_RECORD_Dump(rec)));
   }

@@ -5,10 +5,13 @@ global.cpp
 
 */
 
-/* Revision: 1.49 10.01.2003 $ */
+/* Revision: 1.50 04.02.2003 $ */
 
 /*
 Modify:
+  04.02.2003 SVS
+    + В общем, теперь в дебажной версии есть ключ "/cr", отключающий трид
+      проверки регистрации. Под TD32 иногда жутчайшие тормоза наблюдаются.
   10.01.2003 SVS
     + Глобальная переменная CriticalInternalError говорит, что
       нужно срочно терминировать ФАР, т.к. дальнейшее продолжение исполнения
@@ -260,3 +263,7 @@ SaveScreen *GlobalSaveScrPtr=NULL;
 int CriticalInternalError=FALSE;
 
 int UsedInternalClipboard=0;
+
+#ifdef _DEBUGEXC
+int CheckRegistration=TRUE;
+#endif

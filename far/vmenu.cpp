@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.111 30.01.2003 $ */
+/* Revision: 1.112 04.02.2003 $ */
 
 /*
 Modify:
+  04.02.2003 SVS
+    - BugZ#788 - Криво считается ширина меню.
   30.01.2003 KM
     - Нашёл ещё причину падения фара в поиске. Как выяснилось
       это происходило в SetSelectPos, если SelectPos был равен -1.
@@ -1474,7 +1476,12 @@ int VMenu::AddItem(const struct MenuItem *NewItem,int PosAdd)
     memmove(Item+PosAdd+1,Item+PosAdd,sizeof(struct MenuItem)*(ItemCount-PosAdd)); //??
 
   Item[PosAdd]=*NewItem;
-  Length=HiStrlen(Item[PosAdd].PtrName(),TRUE);
+
+  if(VMFlags.Check(VMENU_SHOWAMPERSAND))
+    Length=strlen(Item[PosAdd].PtrName());
+  else
+    Length=HiStrlen(Item[PosAdd].PtrName(),TRUE);
+
   if (Length>MaxLength)
     MaxLength=Length;
   if(MaxLength > ScrX-8)

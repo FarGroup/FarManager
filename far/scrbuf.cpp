@@ -5,10 +5,12 @@ scrbuf.cpp
 
 */
 
-/* Revision: 1.21 27.08.2002 $ */
+/* Revision: 1.22 04.02.2003 $ */
 
 /*
 Modify:
+  04.02.2003 SVS
+    ! Небольшая оптимизация
   27.08.2002 tran
     ! ::fillbuf() - на больших консолях берем по строкам
   25.06.2002 SVS
@@ -263,15 +265,15 @@ void ScreenBuf::Read(int X1,int Y1,int X2,int Y2,CHAR_INFO *Text)
 */
 void ScreenBuf::ApplyColorMask(int X1,int Y1,int X2,int Y2,WORD ColorMask)
 {
-int Width=X2-X1+1;
+  int Width=X2-X1+1;
   int Height=Y2-Y1+1;
-  int I, J, K;
+  int I, J;
 
   for (I=0;I < Height; I++)
   {
-    K=(Y1+I)*BufX+X1;
-    for (J=0; J < Width; J++)
-      Buf[K+J].Attributes&=~ColorMask;
+    CHAR_INFO *PtrBuf=Buf+(Y1+I)*BufX+X1;
+    for (J=0; J < Width; J++, ++PtrBuf)
+      PtrBuf->Attributes&=~ColorMask;
   }
 
 #ifdef DIRECT_SCREEN_OUT
@@ -288,12 +290,11 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,int Color)
 {
   int Width=X2-X1+1;
   int Height=Y2-Y1+1;
-  int I, J, K;
+  int I, J;
 
   for (I=0;I < Height; I++)
   {
-    K=(Y1+I)*BufX+X1;
-    CHAR_INFO *PtrBuf=Buf+K;
+    CHAR_INFO *PtrBuf=Buf+(Y1+I)*BufX+X1;
     for (J=0; J < Width; J++, ++PtrBuf)
       PtrBuf->Attributes=Color;
       //Buf[K+J].Attributes=Color;

@@ -5,10 +5,14 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.45 10.01.2003 $ */
+/* Revision: 1.46 04.02.2003 $ */
 
 /*
 Modify:
+  03.02.2003 SVS
+    + В общем, теперь в дебажной версии есть ключ "/cr", отключающий трид
+      проверки регистрации. Под TD32 иногда жутчайшие тормоза наблюдаются.
+    - BugZ#784 - Текущий каталог при загрузке плагина
   10.01.2003 SVS
     ! Если есть критическая внутренняя ошибка (переменная CriticalInternalError != 0),
       то фактически не исполняем деструктор ControlObject::~ControlObject()
@@ -176,6 +180,11 @@ ControlObject::ControlObject()
     FolderHistory->ReadHistory();
   if (Opt.SaveViewHistory)
     ViewHistory->ReadHistory();
+#ifdef _DEBUGEXC
+  if(!CheckRegistration)
+    RegVer=1;
+  else
+#endif
   RegVer=-1;
 }
 
@@ -211,7 +220,10 @@ void ControlObject::Init()
   FPanels->Init();
   FPanels->SetScreenPosition();
 
-  _beginthread(CheckVersion,0x10000,NULL);
+#ifdef _DEBUGEXC
+  if(CheckRegistration)
+#endif
+    _beginthread(CheckVersion,0x10000,NULL);
 
   CmdLine->Show();
   if(Opt.ShowKeyBar)
@@ -237,6 +249,7 @@ void ControlObject::Init()
 
   FrameManager->PluginCommit();
   Plugins.LoadPlugins();
+  chdir(StartCurDir);
 
 //  _SVS(SysLog("ActivePanel->GetCurDir='%s'",StartCurDir));
 //  _SVS(char PPP[NM];Cp()->GetAnotherPanel(Cp()->ActivePanel)->GetCurDir(PPP);SysLog("AnotherPanel->GetCurDir='%s'",PPP));
