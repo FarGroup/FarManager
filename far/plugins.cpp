@@ -5,10 +5,13 @@ plugins.cpp
 
 */
 
-/* Revision: 1.66 16.05.2001 $ */
+/* Revision: 1.67 16.05.2001 $ */
 
 /*
 Modify:
+  16.05.2001 SVS
+    ! Метод DumpPluginsInfo - в морг. Есть "штатные" средства записи
+      информации о плагинах :-)
   16.05.2001 SVS
     ! xfilter -> farexcpt.cpp
   14.05.2001 SVS
@@ -1860,7 +1863,7 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
       }
       /* SVS $ */
       case KEY_ALTF11:
-        DumpPluginsInfo();
+        WriteEvent(FLOG_PLUGINSINFO,NULL,NULL,NULL,0,0,NULL);
         break;
       case KEY_F4:
         if (SelPos<MenuItemNumber && GetHotKeyRegKey(Data[0],Data[1],RegKey))
@@ -2219,44 +2222,6 @@ int PluginsSet::FindPlugin(DWORD SysID)
   return -1;
 }
 /* SVS $ */
-
-/* $ 12.10.2000 tran
-  новый метод - сбрасывает в файл список плагинов */
-void PluginsSet::DumpPluginsInfo()
-{
-    char file[NM];
-    FILE *s;
-    PluginItem *p;
-
-    strcpy(file,FarPath);
-    strcat(file,"far_plugins.txt");
-
-    s=fopen(file,"w+t");
-
-    if ( s==0 )
-        return;
-
-    fprintf(s,"Plugins count = %3i\n"
-              "=======================================\n",PluginsCount);
-    for ( int i=0; i<PluginsCount; i++ )
-    {
-        p=&PluginsData[i];
-        fprintf(s,"#%3i. ModuleName      = '%s'\n"
-               "      hModule         = 0x%08x\n"
-               "      SysId           = 0x%08x\n"
-               "      Cached          = %s\n"
-               "      CachePos        = %i\n"
-               "      EditorPlugin    = %i\n"
-               "      RootKey         = '%s'\n"
-               "      pSetStartupInfo = 0x%p\n\n",
-               i,
-               p->ModuleName,p->hModule,p->SysID,
-               (p->Cached?"yes":"no"),p->CachePos,p->EditorPlugin,
-               p->RootKey,p->pSetStartupInfo);
-    }
-    fprintf(s,"=======================================\n");
-    fclose(s);
-}
 
 /* $ 23.10.2000 SVS
    Функция TestPluginInfo - проверка на вшивость переданных плагином данных

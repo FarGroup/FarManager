@@ -10,6 +10,9 @@ farexcpt.cpp
 /*
 Modify:
   16.05.2001 SVS
+    ! Добавлена пользовательская функция EVENTPROC в параметры WriteEvent
+    ! Запись рекорда PLUGINRECORD вынесена в отдельную функцию WritePLUGINRECORD()
+  16.05.2001 SVS
     + Created
     ! "farexcpt.dmp" переименован в более общее -  "farevent.dmp"
       А если дать плагинам возможность в него писать, то получим то,
@@ -36,12 +39,14 @@ Modify:
 
 BOOL GetLogicalAddress(void* addr, char *szModule, DWORD len, DWORD& section, DWORD& offset);
 void IntelStackWalk(HANDLE fp,PCONTEXT pContext, DWORD& SizeOfRecord, DWORD& StackCount);
+int WritePLUGINRECORD(HANDLE fp,struct PluginItem *Module,DWORD *DumpSize);
 
 int WriteEvent(DWORD DumpType, // FLOG_*
                EXCEPTION_POINTERS *xp,
                struct PluginItem *Module,
                void *RawData,DWORD RawDataSize,
-               DWORD RawDataFlags)
+               DWORD RawDataFlags,
+               EVENTPROC CallBackProc)
 {
   static char FarEventFileName[MAX_PATH];
   GetModuleFileName(NULL,FarEventFileName,sizeof(FarEventFileName));
@@ -99,57 +104,26 @@ int WriteEvent(DWORD DumpType, // FLOG_*
     DumpHeader.DumpSize+=sizeof(struct SYSINFOHEADER);
   }
 
-  if((DumpType&FLOG_PLUGIN) && Module)
+  // **** информация о плагинах
+  if(DumpType&FLOG_PLUGINSINFO)
   {
-    struct PLUGINRECORD Plug;
-    memset(&Plug,0,sizeof(Plug));
-    Plug.TypeRec=RTYPE_PLUGIN;
-    Plug.SizeRec=sizeof(struct PLUGINRECORD)-sizeof(struct RECHEADER);
-    Plug.hModule=Module->hModule;
-    memcpy(&Plug.FindData,&Module->FindData,sizeof(WIN32_FIND_DATA));
-    int Len=strlen(Plug.FindData.cFileName);
-    memset(&Plug.FindData.cFileName[Len],0,sizeof(Plug.FindData.cFileName)-Len); //??
-    Plug.SysID=Module->SysID;
-    Plug.Cached=Module->Cached;
-    Plug.CachePos=Module->CachePos;
-    Plug.EditorPlugin=Module->EditorPlugin;
-    Plug.DontLoadAgain=Module->DontLoadAgain;
-    Plug.pSetStartupInfo=Module->pSetStartupInfo;
-    Plug.pOpenPlugin=Module->pOpenPlugin;
-    Plug.pOpenFilePlugin=Module->pOpenFilePlugin;
-    Plug.pClosePlugin=Module->pClosePlugin;
-    Plug.pGetPluginInfo=Module->pGetPluginInfo;
-    Plug.pGetOpenPluginInfo=Module->pGetOpenPluginInfo;
-    Plug.pGetFindData=Module->pGetFindData;
-    Plug.pFreeFindData=Module->pFreeFindData;
-    Plug.pGetVirtualFindData=Module->pGetVirtualFindData;
-    Plug.pFreeVirtualFindData=Module->pFreeVirtualFindData;
-    Plug.pSetDirectory=Module->pSetDirectory;
-    Plug.pGetFiles=Module->pGetFiles;
-    Plug.pPutFiles=Module->pPutFiles;
-    Plug.pDeleteFiles=Module->pDeleteFiles;
-    Plug.pMakeDirectory=Module->pMakeDirectory;
-    Plug.pProcessHostFile=Module->pProcessHostFile;
-    Plug.pSetFindList=Module->pSetFindList;
-    Plug.pConfigure=Module->pConfigure;
-    Plug.pExitFAR=Module->pExitFAR;
-    Plug.pProcessKey=Module->pProcessKey;
-    Plug.pProcessEvent=Module->pProcessEvent;
-    Plug.pProcessEditorEvent=Module->pProcessEditorEvent;
-    Plug.pCompare=Module->pCompare;
-    Plug.pProcessEditorInput=Module->pProcessEditorInput;
-    Plug.pMinFarVersion=Module->pMinFarVersion;
-    Plug.pProcessViewerEvent=Module->pProcessViewerEvent;
-
-    Plug.SizeModuleName=strlen(Module->ModuleName);
-    Plug.SizeRec+=Plug.SizeModuleName;
-    WriteFile(fp,&Plug,sizeof(Plug),&Temp,NULL);
-    if(Plug.SizeModuleName)
-      WriteFile(fp,Module->ModuleName,Plug.SizeModuleName,&Temp,NULL);
-
+    struct PLUGINSINFORECORD PlugRecs;
+    PlugRecs.TypeRec=FLOG_PLUGINSINFO;
+    PlugRecs.SizeRec=sizeof(struct PLUGINSINFORECORD)-sizeof(struct RECHEADER);
+    PlugRecs.PluginsCount=CtrlObject->Plugins.PluginsCount;
+    WriteFile(fp,&PlugRecs,sizeof(PlugRecs),&Temp,NULL);
     DumpHeader.RecordsCount++;
-    DumpHeader.DumpSize+=Plug.SizeRec+sizeof(struct RECHEADER);
+    DumpHeader.DumpSize+=PlugRecs.SizeRec+sizeof(struct RECHEADER);
+
+    if(PlugRecs.PluginsCount)
+    {
+      for(int I=0; I < PlugRecs.PluginsCount; ++I)
+         DumpHeader.RecordsCount+=WritePLUGINRECORD(fp,CtrlObject->Plugins.PluginsData+I,&DumpHeader.DumpSize);
+    }
   }
+
+  if((DumpType&FLOG_PLUGIN) && Module)
+    DumpHeader.RecordsCount+=WritePLUGINRECORD(fp,Module,&DumpHeader.DumpSize);
 
   if(xp)
   {
@@ -301,11 +275,72 @@ int WriteEvent(DWORD DumpType, // FLOG_*
     DumpHeader.DumpSize+=FarArea.SizeRec+sizeof(struct RECHEADER);
   }
 
+  if(CallBackProc)
+  {
+    int Iteration=0;
+    while(CallBackProc(fp,&DumpHeader.DumpSize,Iteration++))
+      DumpHeader.RecordsCount++;
+  }
+
   // Вернемся для окончательной записи главного заголовка
   SetFilePointer(fp,BeginEventFilePos,NULL,FILE_BEGIN);
   WriteFile(fp,&DumpHeader,sizeof(DumpHeader),&Temp,NULL);
   CloseHandle(fp);
   return DumpHeader.RecordsCount;//EXCEPTION_EXECUTE_HANDLER; //??
+}
+
+
+static int WritePLUGINRECORD(HANDLE fp,struct PluginItem *Module,DWORD *DumpSize)
+{
+  DWORD Temp;
+  struct PLUGINRECORD Plug;
+  memset(&Plug,0,sizeof(Plug));
+  Plug.TypeRec=RTYPE_PLUGIN;
+  Plug.SizeRec=sizeof(struct PLUGINRECORD)-sizeof(struct RECHEADER);
+  Plug.hModule=Module->hModule;
+  memcpy(&Plug.FindData,&Module->FindData,sizeof(WIN32_FIND_DATA));
+  int Len=strlen(Plug.FindData.cFileName);
+  memset(&Plug.FindData.cFileName[Len],0,sizeof(Plug.FindData.cFileName)-Len); //??
+  Plug.SysID=Module->SysID;
+  Plug.Cached=Module->Cached;
+  Plug.CachePos=Module->CachePos;
+  Plug.EditorPlugin=Module->EditorPlugin;
+  Plug.DontLoadAgain=Module->DontLoadAgain;
+  Plug.pSetStartupInfo=Module->pSetStartupInfo;
+  Plug.pOpenPlugin=Module->pOpenPlugin;
+  Plug.pOpenFilePlugin=Module->pOpenFilePlugin;
+  Plug.pClosePlugin=Module->pClosePlugin;
+  Plug.pGetPluginInfo=Module->pGetPluginInfo;
+  Plug.pGetOpenPluginInfo=Module->pGetOpenPluginInfo;
+  Plug.pGetFindData=Module->pGetFindData;
+  Plug.pFreeFindData=Module->pFreeFindData;
+  Plug.pGetVirtualFindData=Module->pGetVirtualFindData;
+  Plug.pFreeVirtualFindData=Module->pFreeVirtualFindData;
+  Plug.pSetDirectory=Module->pSetDirectory;
+  Plug.pGetFiles=Module->pGetFiles;
+  Plug.pPutFiles=Module->pPutFiles;
+  Plug.pDeleteFiles=Module->pDeleteFiles;
+  Plug.pMakeDirectory=Module->pMakeDirectory;
+  Plug.pProcessHostFile=Module->pProcessHostFile;
+  Plug.pSetFindList=Module->pSetFindList;
+  Plug.pConfigure=Module->pConfigure;
+  Plug.pExitFAR=Module->pExitFAR;
+  Plug.pProcessKey=Module->pProcessKey;
+  Plug.pProcessEvent=Module->pProcessEvent;
+  Plug.pProcessEditorEvent=Module->pProcessEditorEvent;
+  Plug.pCompare=Module->pCompare;
+  Plug.pProcessEditorInput=Module->pProcessEditorInput;
+  Plug.pMinFarVersion=Module->pMinFarVersion;
+  Plug.pProcessViewerEvent=Module->pProcessViewerEvent;
+
+  Plug.SizeModuleName=strlen(Module->ModuleName);
+  Plug.SizeRec+=Plug.SizeModuleName;
+  WriteFile(fp,&Plug,sizeof(Plug),&Temp,NULL);
+  if(Plug.SizeModuleName)
+    WriteFile(fp,Module->ModuleName,Plug.SizeModuleName,&Temp,NULL);
+
+  *DumpSize+=Plug.SizeRec+sizeof(struct RECHEADER);
+  return 1;
 }
 
 
@@ -464,7 +499,7 @@ int xfilter(
 
    // выведим дамп перед выдачей сообщений
    if (xr->ExceptionCode != STATUS_INVALIDFUNCTIONRESULT)
-     WriteEvent(FLOG_ALL,xp,Module,NULL,0);
+     WriteEvent(FLOG_ALL&(~FLOG_PLUGINSINFO),xp,Module,NULL,0);
 
 
    // CONTEXT можно использовать для отображения или записи в лог

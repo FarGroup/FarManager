@@ -7,10 +7,13 @@ exception.cpp
 
 */
 
-/* Revision: 1.00 16.05.2001 $ */
+/* Revision: 1.01 16.05.2001 $ */
 
 /*
 Modify:
+  16.05.2001 SVS
+    ! Добавлена пользовательская функция EVENTPROC в параметры WriteEvent
+    + PLUGINSINFORECORD
   16.05.2001 SVS
     ! Created
 */
@@ -26,6 +29,7 @@ Modify:
 #define FLOG_MACRO       0x00000040 // Макросы
 #define FLOG_RAWDARA     0x00000080 // произвольные данные
 #define FLOG_FAULTCODE   0x00000100 // кусок кода
+#define FLOG_PLUGINSINFO 0x00000200 // информация о плагинах
 #define FLOG_ALL         0xFFFFFFFF
 
 enum {
@@ -147,6 +151,12 @@ struct PLUGINRECORD{      // информация о плагине
   //char ModuleName[0];
 };
 
+struct PLUGINSINFORECORD{ // информация о плагинах
+  WORD  TypeRec;          // Тип записи = FLOG_PLUGINSINFO
+  WORD  SizeRec;          // Размер данных
+  DWORD PluginsCount;     // количество записей
+}; // следом за этим рекордом идут PluginsCount рекорды PLUGINRECORD
+
 struct EXCEPTIONRECORD{   // про исключение
   WORD  TypeRec;          // Тип записи = RTYPE_EXCEPTION
   WORD  SizeRec;          // Размер данных
@@ -243,12 +253,19 @@ enum ExceptFunctionsType{
   EXCEPT_FARDIALOG,
 };
 
+/* Функция для записи порции рекордов под эгидой одного эвента :-)
+   Вызывается до тех пор, пока не вернет FALSE.
+   Функция должна добавлять к параметру SizeRec размер записанных данных.
+   Iteration - номер очередной итерации (начинается с 0)
+*/
+typedef BOOL (WINAPI *EVENTPROC)(HANDLE hFile,DWORD *SizeRec,int Iteration);
 
 int WriteEvent(DWORD DumpType, // FLOG_*
                EXCEPTION_POINTERS *xp,
                struct PluginItem *Module,
                void *RawData,DWORD RawDataSize,
-               DWORD RawDataFlags=0);
+               DWORD RawDataFlags=0,
+               EVENTPROC CallBackProc=NULL);
 int xfilter(
     int From,                 // откуда: 0 = OpenPlugin, 1 = OpenFilePlugin
     EXCEPTION_POINTERS *xp,   // данные ситуации

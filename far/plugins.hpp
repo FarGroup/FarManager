@@ -7,10 +7,13 @@ plugins.hpp
 
 */
 
-/* Revision: 1.11 16.05.2001 $ */
+/* Revision: 1.12 16.05.2001 $ */
 
 /*
 Modify:
+  16.05.2001 SVS
+    ! Метод DumpPluginsInfo - в морг. Есть "штатные" средства записи
+      информации о плагинах :-)
   16.05.2001 SVS
     ! enum ExceptFunctionsType переехала в farexcpt.hpp
   06.05.2001 DJ
@@ -210,11 +213,6 @@ class PluginsSet
     int CallPlugin(DWORD SysID,int OpenFrom, void *Data);
     int FindPlugin(DWORD SysID);
     /* SVS $ */
-
-    /* $ 12.10.2000 tran
-      new method - for debugging purpose */
-    void DumpPluginsInfo();
-    /* tran $ */
 };
 
 #endif  // __PLUGINS_HPP__
