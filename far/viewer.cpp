@@ -5,10 +5,13 @@ Internal viewer
 
 */
 
-/* Revision: 1.88 16.01.2002 $ */
+/* Revision: 1.89 22.01.2002 $ */
 
 /*
 Modify:
+  22.01.2002 IS
+    ! При обработке табуляции в конце строки при свертке обработаем ее так же
+      как и при свертке по словам (попытка избавиться от bz#250)
   16.01.2002 SVS
     ! Для масдая убираем FILE_SHARE_DELETE - бага имеет место быть
   14.01.2002 IS
@@ -1226,7 +1229,11 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
         /* $ 12.07.2000 SVS
           Wrap - 3-x позиционный и если есть регистрация :-)
         */
-        if ((VM.Wrap && (VM.TypeWrap && RegVer))
+        /* $ 22.01.2002 IS
+           Не забудем и про простую свертку не по словам
+        */
+        if ((VM.Wrap && (!VM.TypeWrap || (VM.TypeWrap && RegVer)))
+        /* IS $ */
         /* SVS $ */
             && OutPtr>XX2-X1)
           Str[XX2-X1+1]=0;
