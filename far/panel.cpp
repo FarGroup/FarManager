@@ -5,10 +5,12 @@ Parent class дл€ панелей
 
 */
 
-/* Revision: 1.50 14.06.2001 $ */
+/* Revision: 1.51 17.06.2001 $ */
 
 /*
 Modify:
+  17.06.2001 KM
+    ! ƒобавление WRAPMODE в меню.
   14.06.2001 KM
     + ƒобавлена установка переменных окружени€, определ€ющих
       текущие директории дисков как дл€ активной, так и дл€
@@ -254,6 +256,11 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
   {
     VMenu ChDisk(MSG(MChangeDriveTitle),NULL,0,ScrY-Y1-3);
     ChDisk.SetHelp("DriveDlg");
+    /* $ 17.06.2001 KM
+       ! ƒобавление WRAPMODE в меню.
+    */
+    ChDisk.SetFlags(VMENU_WRAPMODE);
+    /* KM $ */
 
     char MenuText[NM];
     int DriveType,MenuLine;
@@ -1170,12 +1177,12 @@ int Panel::SetCurPath()
     sprintf(Drive,"=%c:\x0",CurDir[0]);
     SetEnvironmentVariable(Drive,CurDir);
   }
-  
+
   Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
   if (AnotherPanel->GetType()==PLUGIN_PANEL)
     return TRUE;
 
-  if (isalpha(AnotherPanel->CurDir[0]) && AnotherPanel->CurDir[1]==':' && 
+  if (isalpha(AnotherPanel->CurDir[0]) && AnotherPanel->CurDir[1]==':' &&
       toupper(AnotherPanel->CurDir[0])!=toupper(CurDir[0]));
   {
     sprintf(Drive,"=%c:\x0",AnotherPanel->CurDir[0]);

@@ -5,10 +5,12 @@ flmodes.cpp
 
 */
 
-/* Revision: 1.04 14.06.2001 $ */
+/* Revision: 1.06 16.06.2001 $ */
 
 /*
 Modify:
+  16.06.2001 KM
+    ! Добавление WRAPMODE в меню.
   14.06.2001 OT
     ! "Бунт" ;-)
   21.05.2001 SVS
@@ -85,6 +87,11 @@ void FileList::SetFilePanelModes()
       VMenu ModeList(MSG(MEditPanelModes),ModeListMenu,sizeof(ModeListMenu)/sizeof(ModeListMenu[0]),ScrY-4);
       ModeList.SetPosition(-1,-1,0,0);
       ModeList.SetHelp("PanelViewModes");
+      /* $ 16.06.2001 KM
+         ! Добавление WRAPMODE в меню.
+      */
+      ModeList.SetFlags(VMENU_WRAPMODE);
+      /* KM $ */
       ModeList.Process();
       ModeNumber=ModeList.GetExitCode();
     }
