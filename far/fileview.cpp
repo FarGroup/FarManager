@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.05 21.07.2000 $ */
+/* Revision: 1.06 22.07.2000 $ */
 
 /*
 Modify:
+  22.07.2000 tran 1.06
+    + Ctrl-F10 выходит с установкой на файл на текущей панели
   21.07.2000 tran 1.05
       - артефакт при CtrlO при выключенном кейбаре
   15.07.2000 tran
@@ -159,6 +161,32 @@ int FileViewer::ProcessKey(int Key)
     F3KeyOnly=FALSE;
   switch(Key)
   {
+    /* $ 22.07.2000 tran
+       + выход по ctrl-f10 с установкой курсора на файл */
+    case KEY_CTRLF10:
+      {
+        if(GetEnableSwitch())
+        {
+          char DirTmp[NM],*NameTmp,FileName[NM];
+          View.GetFileName(FileName);
+          ProcessKey(KEY_F10);
+          if(strchr(FileName,'\\') || strchr(FileName,'/'))
+          {
+            strncpy(DirTmp,FileName,NM);
+            NameTmp=PointToName(DirTmp);
+            if(NameTmp>DirTmp)NameTmp[-1]=0;
+            CtrlObject->ActivePanel->SetCurDir(DirTmp,TRUE);
+            CtrlObject->ActivePanel->GoToFile(NameTmp);
+          }
+          /*else
+          {
+            CtrlObject->ActivePanel->SetCurDir(StartDir,TRUE);
+            CtrlObject->ActivePanel->GoToFile(FileName);
+          } */
+        }
+        return (TRUE);
+      }
+    /* tran 22.07.2000 $ */
     /* $ 15.07.2000 tran
        + CtrlB switch KeyBar*/
     case KEY_CTRLB:
