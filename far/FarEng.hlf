@@ -3132,15 +3132,15 @@ F1, Ctrl-F5) in the hotkey assignment dialog because of their special
 meanings. To assign a macro command to such key combination, select it from
 the dropdown list.
 
-    #Recording and playing macro commands#
+    #Recording and playing-back macro commands#
 
-    A macro command can be played in one of the two following modes:
+    A macro command can be played-back in one of the two following modes:
 
-    1. General mode: keys pressed during the recording or the playing
-       #will be# sent to plugins.
+    1. General mode: keys pressed during the recording or the
+       playing-back #will be# sent to plugins.
 
-    2. Special mode: keys pressed during the recording or the playing
-       #will not be# sent to plugins.
+    2. Special mode: keys pressed during the recording or the
+       playing-back #will not be# sent to plugins.
 
     For example, if some plugin processes the key combination - Ctrl+A,
 then in the special mode this plugin will not receive focus and will not
@@ -3337,6 +3337,15 @@ to the format used by the strftime function):
 
    Arbitrary text in the format string must be in the OEM codepage.
 
+     #$Text "string"#
+
+   Вставка текста. Вставляемый текст 'string' должен быть только
+в OEM-кодировке.
+
+   Макрокоманда '$Text' позволяет сократить расход памяти при хранении
+длинной макропоследовательности, содержащей произвольный вставляемый
+текст.
+
    #$MMode 1#
 
    Change macro mode. Toggles the display mode. Works as a trigger.
@@ -3345,3 +3354,15 @@ to the format used by the strftime function):
 
    Invokes the transliteration function. Works independently of
 what key is assigned in TechInfo##10.
+
+
+   Notes:
+
+   1. В макрокомандах '$Date' и '$Text' допускается применение следующих
+escape-последовательностей:
+
+        \"   Символ '"'
+        \\   Символ '\'
+        \n   Переводу строки `\n'
+        \t   Табуляции `\t'
+        \xNN 16-ричные символы из OEM кодировки

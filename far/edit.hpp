@@ -7,10 +7,12 @@ edit.hpp
 
 */
 
-/* Revision: 1.25 17.09.2002 $ */
+/* Revision: 1.26 08.09.2003 $ */
 
 /*
 Modify:
+  08.09.2003 SVS
+    + ProcessInsPlainText() - вставка plain-text`а
   17.09.2002 SKV
     + GetConvertTabs()
   04.09.2002 SVS
@@ -175,6 +177,7 @@ class Edit:public ScreenObject
 
     int ProcessCtrlQ(void);
     int ProcessInsDate(void);
+    int ProcessInsPlainText(void);
     int CheckCharMask(char Chr);
     int ProcessInsPath(int Key,int PrevSelStart=-1,int PrevSelEnd=0);
 

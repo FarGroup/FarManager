@@ -5,10 +5,12 @@ strftime.cpp
 
 */
 
-/* Revision: 1.08 05.12.2002 $ */
+/* Revision: 1.09 08.09.2003 $ */
 
 /*
 Modify:
+  08.09.2003 SVS
+    - траблы с wday (%a, %W, etc)
   05.12.2002 SVS
     ! Применим новую MkStrFTime(), сократив немного кода
   19.03.2002 SVS
@@ -50,12 +52,17 @@ static char Weekday[2][7][32];
 static char *AmPm[2] = { "AM", "PM" };
 static int   CurLang=-1;
 static char  Word[80];
+static int  WeekFirst=0;
 
 void PrepareStrFTime(void)
 {
   DWORD Loc[2]={LANG_ENGLISH,LANG_NEUTRAL}, ID;
   char TempBuf[100];
   int I;
+
+
+  GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_IFIRSTDAYOFWEEK,TempBuf,sizeof(TempBuf));
+  WeekFirst=atoi(TempBuf);
 
   for(I=0; I < 2; ++I)
   {
@@ -96,7 +103,7 @@ static int atime(char *dest,const struct tm *tmPtr)
 {
     // Thu Oct  7 12:37:32 1999
     return sprintf( dest, "%s %s %02d %02d:%02d:%02d %4d",
-        AWeekday[CurLang][tmPtr->tm_wday],
+        AWeekday[CurLang][!WeekFirst?((tmPtr->tm_wday+6)%7):(tmPtr->tm_wday == 0?6:tmPtr->tm_wday-1)],
         AMonth[CurLang][tmPtr->tm_mon],
         tmPtr->tm_mday,
         tmPtr->tm_hour,
@@ -342,12 +349,12 @@ int WINAPI StrFTime(char *Dest, size_t MaxSize, const char *Format,const struct 
         // Краткое имя дня недели (Sun,Mon,Tue,Wed,Thu,Fri,Sat)
         // abbreviated weekday name
         case 'a':
-          Ptr = AWeekday[CurLang][(t->tm_wday+6)%7];
+          Ptr = AWeekday[CurLang][!WeekFirst?((t->tm_wday+6)%7):(t->tm_wday == 0?6:t->tm_wday-1)];
           break;
         // Полное имя дня недели
         // full weekday name
         case 'A':
-          Ptr = Weekday[CurLang][(t->tm_wday+6)%7];
+          Ptr = Weekday[CurLang][!WeekFirst?((t->tm_wday+6)%7):(t->tm_wday == 0?6:t->tm_wday-1)];;
           break;
         // Краткое имя месяца (Jan,Feb,...)
         // abbreviated month name
@@ -425,29 +432,24 @@ int WINAPI StrFTime(char *Dest, size_t MaxSize, const char *Format,const struct 
         case 'S':
           ultoa((long)(t->tm_sec&0xffff), Buf + (t->tm_sec < 10),10);
           break;
-        // Две цифры номера недели, где Воскресенье (Sunday)
-        //   является первым днем недели (00 - 53)
-        // week of year, Sunday is first day of week
-        case 'U':
-          I = t->tm_wday - (t->tm_yday % 7);
-          if( I < 0 )
-            I += 7;
-          I = (t->tm_yday + I) / 7;
-          ultoa((long)(I&0xffff), Buf + (I < 10),10 );
-          break;
         // День недели где 0 - Воскресенье (Sunday) (0 - 6)
         // weekday, Sunday == 0, 0 - 6
         case 'w':
           ultoa((long)(t->tm_wday&0xffff), Buf ,10);
           break;
+        // Две цифры номера недели, где Воскресенье (Sunday)
+        //   является первым днем недели (00 - 53)
+        // week of year, Sunday is first day of week
+        case 'U':
         // Две цифры номера недели, где Понедельник (Monday)
         //    является первым днем недели (00 - 53)
         // week of year, Monday is first day of week
         case 'W':
           I = t->tm_wday - (t->tm_yday % 7);
+          //I = (chr == 'W'?(!WeekFirst?((t->tm_wday+6)%7):(t->tm_wday == 0?6:t->tm_wday-1)):(t->tm_wday)) - (t->tm_yday % 7);
           if( I < 0 )
              I += 7;
-          I = (t->tm_yday + I - 1) / 7;
+          I = (t->tm_yday + I - (chr == 'W'?1:0)) / 7;
           ultoa((long)(I&0xffff), Buf + (I < 10),10 );
           break;
         // date as dd-bbb-YYYY
@@ -478,7 +480,10 @@ int WINAPI StrFTime(char *Dest, size_t MaxSize, const char *Format,const struct 
           ultoa((unsigned long)((1900 + t->tm_year)), Buf,10 );
           break;
         // time zone offset east of GMT e.g. -0600
-//        case 'z':
+        //case 'z':
+          //sprintf(Ptr,"%d %d",WeekFirst,t->tm_wday);
+          //break;
+        //case 'z':
 //          sprintf(Ptr,"%+03d%02d",-(_timezone/3600),-(_timezone/60)%60);
 //          //Ptr = _tzname[ t->tm_isdst ];
 //          break;
@@ -489,14 +494,14 @@ int WINAPI StrFTime(char *Dest, size_t MaxSize, const char *Format,const struct 
             //Ptr = _tzname[ t->tm_isdst ];
             break;
           }
-        case 'n':	/* same as \n */
+        case 'n':  /* same as \n */
           Buf[0] = '\n';
           Buf[1] = '\0';
           break;
-        case 't':	/* same as \t */
+        case 't':  /* same as \t */
           Buf[0] = '\t';
           Buf[1] = '\0';
-	      break;
+          break;
 
         case '%':
           Ptr = "%"; break;
@@ -507,7 +512,7 @@ int WINAPI StrFTime(char *Dest, size_t MaxSize, const char *Format,const struct 
         // time as %H:%M
         case 'R':
           StrFTime(Buf, sizeof(Buf), "%H:%M", t); break;
-        case 'V':	/* week of year according ISO 8601 */
+        case 'V':  /* week of year according ISO 8601 */
           sprintf(Buf, "%02d", iso8601wknum(t));
           break;
       }

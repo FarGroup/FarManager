@@ -5,10 +5,13 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.160 21.08.2003 $ */
+/* Revision: 1.161 08.09.2003 $ */
 
 /*
 Modify:
+  08.09.2003 SVS
+    + Новая команда для ACTL_KEYMACRO: MCMD_POSTMACROSTRING - запостить макрос
+      в виде plain-text.
   21.08.2003 SVS
     - Заходим в достаточно большой архив, становимся на '..' и жмем F3.
       Пытаемся прервать. Отказываемся от прерывания - видим багу с прорисовкой
@@ -750,26 +753,27 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
         switch(KeyMacro->Command)
         {
           case MCMD_LOADALL: // из реестра в память ФАР с затиранием предыдущего
+          {
             if(Macro.IsRecording())
               return FALSE;
             return Macro.LoadMacros(!Macro.IsExecuting());
+          }
 
           case MCMD_SAVEALL: // из памяти ФАРа в реестра
+          {
             if(Macro.IsRecording() || Macro.IsExecuting())
               return FALSE;
             Macro.SaveMacros();
             return TRUE;
-#if 0
-          /* $ 23.12.2000 SVS
-               MCMD_PLAYSTRING - "проиграть" строку (строка в том виде,
-               как в реестре)
-             Param - указатель на структуру struct ActlKeyMacro.
-          */
-          case MCMD_PLAYSTRING:
-            if(KeyMacro->Str.KeyBuffer && *KeyMacro->Str.KeyBuffer)
-               return Macro.PlayKeyMacro(KeyMacro->Str.KeyBuffer);
+          }
+
+          case MCMD_POSTMACROSTRING:
+          {
+            if(KeyMacro->Param.PlainText && *KeyMacro->Param.PlainText)
+               return Macro.PostTempKeyMacro(KeyMacro->Param.PlainText);
             return FALSE;
-#endif
+          }
+
         }
       }
       return FALSE;

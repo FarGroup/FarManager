@@ -5,10 +5,13 @@ macro.cpp
 
 */
 
-/* Revision: 1.99 25.08.2003 $ */
+/* Revision: 1.100 08.09.2003 $ */
 
 /*
 Modify:
+  08.09.2003 SVS
+    ! уточнение $Date
+    + обработка KEY_MACROPLAINTEXT - новый оператор $Text - вставка текста.
   25.08.2003 SVS
     ! Ќе SendKeysToPlugins, но NoSendKeysToPlugins, иначе нифига не получаетс€.
     - BugZ#903 - неотображение правильного заголовка Title Far'a при макросах
@@ -425,8 +428,13 @@ static struct TKeyCodeName{
    { KEY_MACROMODE,                6, "$MMode" },
    { KEY_MACRODATE,                5, "$Date"  }, // $Date "%d-%a-%Y"
    { KEY_MACROSTOP,                5, "$Stop"  },
+   { KEY_MACROPLAINTEXT,           5, "$Text"  }, // $Text "Plain Text"
    { KEY_MACROXLAT,                5, "$XLat"  },
 };
+
+static char __code2symbol(BYTE b1, BYTE b2);
+static const char* ParsePlainText(char *CurKeyText, const char *BufPtr);
+
 
 // функци€ преобразовани€ кода макроклавиши в текст
 BOOL WINAPI KeyMacroToText(int Key,char *KeyText0,int Size)
@@ -652,14 +660,17 @@ int KeyMacro::ProcessKey(int Key)
       ScrBuf.RestoreMacroChar();
       WaitInFastFind++;
       KeyMacro::Sort();
+
       if (Opt.AutoSaveSetup)
         SaveMacros(FALSE); // записать только изменени€!
+
       return(TRUE);
     }
     else // процесс записи продолжаетс€.
     {
       if (Key>=KEY_NONE && Key<=KEY_END_SKEY) // специальные клавиши прокинем
         return(FALSE);
+
       RecBuffer=(DWORD *)xf_realloc(RecBuffer,sizeof(*RecBuffer)*(RecBufferSize+1));
       if (RecBuffer==NULL)
         return(FALSE);
@@ -1122,7 +1133,7 @@ char *KeyMacro::MkRegKeyName(int IdxMacro,char *RegKeyName)
 // после вызова этой функции нужно удалить пам€ть!!!
 char *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize)
 {
-  int I,J;
+  int I,J, Key;
   char MacroKeyText[50], *TextBuffer;
 
   // выдел€ем заведомо большой кусок
@@ -1137,16 +1148,24 @@ char *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize)
       strcpy(TextBuffer,MacroKeyText);
     return TextBuffer;
   }
+
   for (J=0; J < BufferSize; J++)
   {
-    if(KeyToText(Buffer[J],MacroKeyText))
+    Key=Buffer[J];
+    if(KeyToText(Key,MacroKeyText))
     {
       if(J)
         strcat(TextBuffer," ");
       strcat(TextBuffer,MacroKeyText);
 
-      switch(Buffer[J])
+      switch(Key)
       {
+        /* $Text
+           0: KEY_MACROPLAINTEXT
+           1: —трока выравненна на 4 байта
+              ≈сли строка пуста, то следующий за KEY_MACRODATE DWORD = 0
+        */
+        case KEY_MACROPLAINTEXT:
         /* $Date
            0: KEY_MACRODATE
            1: —трока выравненна на 4 байта
@@ -1158,8 +1177,28 @@ char *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize)
           int LenTextBuf=strlen((char*)&Buffer[J]);
           if(LenTextBuf)
           {
+            //strcat(TextBuffer,((Key == KEY_MACRODATE)?" \"":" "));
             strcat(TextBuffer," \"");
+            char *TextBufferPtr=TextBuffer+strlen(TextBuffer);
             strcat(TextBuffer,(char*)&Buffer[J]);
+            ReplaceStrings(TextBufferPtr,"\\","\\\\",-1);
+            ReplaceStrings(TextBufferPtr,"\"","\\\"",-1);
+            ReplaceStrings(TextBufferPtr,"\n","\\n",-1);
+            ReplaceStrings(TextBufferPtr,"\t","\\t",-1);
+            char *TextBufferPtr2=TextBufferPtr, TempBuf1[2],TempBuf2[16];
+            TempBuf1[1]=0;
+            TempBuf2[0]='\\';
+            TempBuf2[1]='x';
+            while(*TextBufferPtr2)
+            {
+              if(*TextBufferPtr2 < ' ')
+              {
+                TempBuf1[0]=*TextBufferPtr2;
+                itoa(*TextBufferPtr2,TempBuf2+2,16);
+                ReplaceStrings(TextBufferPtr2,TempBuf1,TempBuf2,-1);
+              }
+              ++TextBufferPtr2;
+            }
             strcat(TextBuffer,"\"");
           }
           // учтем что строка кратна 4
@@ -1623,7 +1662,11 @@ int KeyMacro::PostTempKeyMacro(char *KeyBuffer)
   // теперь попробуем выделить немного нужной пам€ти
   struct MacroRecord *NewMacroRAM;
   if((NewMacroRAM=(struct MacroRecord *)xf_realloc(MacroRAM,sizeof(MacroRecord)*(MacroRAMCount+1))) == NULL)
+  {
+    if(NewMacroRAM2.BufferSize > 1)
+      xf_free(NewMacroRAM2.Buffer);
     return FALSE;
+  }
 
   // теперь добавим в нашу "очередь" новые данные
   MacroRAM=NewMacroRAM;
@@ -1752,47 +1795,38 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
     IsKeyWord2=FALSE;
 
     Size=1;
-    /* $Date
-       0: KEY_MACRODATE
-       1: —трока, выровненна€ на 4 байта
-          ≈сли строка пуста, то следующий за KEY_MACRODATE DWORD = 0
-    */
     switch(KeyCode)
     {
+      /* $Text
+         0: KEY_MACROPLAINTEXT
+         1: —трока выравненна на 4 байта
+      */
+      case KEY_MACROPLAINTEXT:
+      /* $Date
+         0: KEY_MACRODATE
+         1: —трока, выровненна€ на 4 байта
+            ≈сли строка пуста, то следующий за KEY_MACRODATE DWORD = 0
+      */
       case KEY_MACRODATE:
       {
         const char *BufPtr2=BufPtr;
         memset(CurKeyText,0,sizeof(CurKeyText));
-        // ищем первую кавычку
-        while (*BufPtr && *BufPtr != '"')
-          BufPtr++;
-        if(*BufPtr)
+//        if(KeyCode == KEY_MACRODATE)
         {
-            ++BufPtr;
-          // ищем конечную кавычку
-          char *PtrCurKeyText=CurKeyText;
-          while (*BufPtr)
-          {
-            if(*BufPtr == '\\' && BufPtr[1] == '"')
-            {
-              *PtrCurKeyText++='\\';
-              *PtrCurKeyText++='"';
-              BufPtr+=2;
-            }
-            else if(*BufPtr == '"')
-            {
-              *PtrCurKeyText=0;
-              BufPtr++;
-              break;
-            }
-            else
-              *PtrCurKeyText++=*BufPtr++;
-          }
-          if(*BufPtr)
+          // ищем первую кавычку
+          while (*BufPtr && *BufPtr != '"')
             BufPtr++;
+          if(*BufPtr)
+            BufPtr=ParsePlainText(CurKeyText,BufPtr);
+          else
+            BufPtr=BufPtr2;
         }
+/*
         else
-          BufPtr=BufPtr2;
+        {
+          BufPtr=ParsePlainText(CurKeyText,BufPtr);
+        }
+*/
         Length=strlen(CurKeyText)+1;
         // строка должна быть выровнена на 4
         Size+=Length/sizeof(DWORD);
@@ -1819,7 +1853,7 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
       }
       CurMacro_Buffer[CurMacro->BufferSize]=KeyCode;
 
-      if(KeyCode == KEY_MACRODATE)
+      if(KeyCode == KEY_MACRODATE || KeyCode == KEY_MACROPLAINTEXT)
       {
         memcpy(&CurMacro_Buffer[CurMacro->BufferSize+1],CurKeyText,(Size-1)*sizeof(DWORD));
       }
@@ -2118,4 +2152,60 @@ void KeyMacro::DropProcess()
     Executing=MACROMODE_NOMACRO;
     ReleaseTempBuffer();
   }
+}
+
+static char __code2symbol(BYTE b1, BYTE b2)
+{
+  if(b1 >= '0' && b1 <= '9') b1-='0';
+  else { b1&=~0x20; b1=b1-'A'+10; }
+  if(b2 >= '0' && b2 <= '9') b2-='0';
+  else { b2&=~0x20; b2=b2-'A'+10; }
+  return ((b1<<4)&0x00F0)|(b2&0x000F);
+}
+
+static const char* ParsePlainText(char *CurKeyText, const char *BufPtr)
+{
+  char *PtrCurKeyText=CurKeyText;
+  ++BufPtr;
+  while (*BufPtr)
+  {
+    if(*BufPtr == '\\')
+    {
+      switch(BufPtr[1])
+      {
+        case '\\':
+          *PtrCurKeyText++='\\';
+          break;
+        case '"':
+          *PtrCurKeyText++='"';
+          break;
+        case 'n':
+          *PtrCurKeyText++='\n';
+          break;
+        case 't':
+          *PtrCurKeyText++='\t';
+          break;
+        case 'x':
+          BufPtr+=2;
+          if(isxdigit(BufPtr[0]) && isxdigit(BufPtr[1]))
+            *PtrCurKeyText++=__code2symbol((BYTE)BufPtr[0],(BYTE)BufPtr[1]);
+          break;
+        default:
+          *PtrCurKeyText++=BufPtr[1];
+          break;
+      }
+      BufPtr+=2;
+    }
+    else if(*BufPtr == '"')
+    {
+      *PtrCurKeyText=0;
+      BufPtr++;
+      break;
+    }
+    else
+      *PtrCurKeyText++=*BufPtr++;
+  }
+  if(*BufPtr)
+    BufPtr++;
+  return BufPtr;
 }

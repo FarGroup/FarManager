@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.233 14.07.2003 $ */
+/* Revision: 1.234 08.09.2003 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,11 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  08.09.2003 SVS
+    + Новая команда для ACTL_KEYMACRO: MCMD_POSTMACROSTRING - запостить макрос
+      в виде plain-text.
+    ! В связи с этим, уточнение структуры ActlKeyMacro - добавлен член
+      ActlKeyMacro.Param.PlainText
   14.07.2003 SVS
     ! Сделаем перечисления именованными
   15.06.2003 SVS
@@ -1348,16 +1353,16 @@ enum PLUGINPANELITEMFLAGS{
 
 struct FAR_FIND_DATA
 {
-    DWORD    dwFileAttributes;
-    FILETIME ftCreationTime;
-    FILETIME ftLastAccessTime;
-    FILETIME ftLastWriteTime;
-    DWORD    nFileSizeHigh;
-    DWORD    nFileSizeLow;
-    DWORD    dwReserved0;
-    DWORD    dwReserved1;
-    CHAR     cFileName[MAX_PATH];
-    CHAR     cAlternateFileName[14];
+  DWORD    dwFileAttributes;
+  FILETIME ftCreationTime;
+  FILETIME ftLastAccessTime;
+  FILETIME ftLastWriteTime;
+  DWORD    nFileSizeHigh;
+  DWORD    nFileSizeLow;
+  DWORD    dwReserved0;
+  DWORD    dwReserved1;
+  CHAR     cFileName[MAX_PATH];
+  CHAR     cAlternateFileName[14];
 };
 
 #endif
@@ -1763,16 +1768,6 @@ struct ActlEjectMedia {
 };
 
 
-enum FARMACROCOMMAND{
-  MCMD_LOADALL,
-  MCMD_SAVEALL
-};
-
-struct ActlKeyMacro{
-  int Command;
-  DWORD Reserved[3];
-};
-
 enum FARKEYSEQUENCEFLAGS {
   KSFLAGS_DISABLEOUTPUT       = 0x00000001,
 };
@@ -1781,6 +1776,20 @@ struct KeySequence{
   DWORD Flags;
   int Count;
   DWORD *Sequence;
+};
+
+enum FARMACROCOMMAND{
+  MCMD_LOADALL,
+  MCMD_SAVEALL,
+  MCMD_POSTMACROSTRING,
+};
+
+struct ActlKeyMacro{
+  int Command;
+  union{
+    char *PlainText;
+    DWORD Reserved[3];
+  } Param;
 };
 
 enum FARCOLORFLAGS{

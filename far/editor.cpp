@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.229 02.09.2003 $ */
+/* Revision: 1.230 08.09.2003 $ */
 
 /*
 Modify:
+  08.09.2003 SVS
+    + Обработка KEY_MACROPLAINTEXT
   02.09.2003 SKV
     - фикс выделения shift-up при отключенном cursor beyond end of line
   31.07.2003 SKV
@@ -3229,12 +3231,13 @@ int Editor::ProcessKey(int Key)
     /* SVS $ */
 
     case KEY_MACRODATE:
+    case KEY_MACROPLAINTEXT:
     {
       if (!Flags.Check(FEDITOR_LOCKMODE))
       {
         char TStr[NM],Fmt[NM];
-        CtrlObject->Macro.GetMacroPlainText(Fmt);
-        if(MkStrFTime(TStr,sizeof(TStr),Fmt))
+        CtrlObject->Macro.GetMacroPlainText((Key == KEY_MACROPLAINTEXT?TStr:Fmt));
+        if(Key == KEY_MACROPLAINTEXT || MkStrFTime(TStr,sizeof(TStr),Fmt))
         {
           char *Ptr=TStr;
           while(*Ptr) // заменим 0x0A на 0x0D по правилам Paset ;-)

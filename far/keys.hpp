@@ -24,11 +24,14 @@ keys.hpp
 */
 #endif // END FAR_USE_INTERNALS
 
-/* Revision: 1.23 02.12.2002 $ */
+/* Revision: 1.24 08.09.2003 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
 Modify:
+  08.09.2003 SVS
+    + KEY_CTRLMASK - маска для Ctrl-клавиш
+    + KEY_MACROPLAINTEXT - для $Text
   02.12.2002 SVS
     - нарушена структура FAR_USE_INTERNALS
   09.11.2002 SVS
@@ -124,6 +127,7 @@ enum BaseDefKeyboard
 #ifdef FAR_USE_INTERNALS
   KEY_ALTDIGIT             =0x40000000,
 #endif  // END FAR_USE_INTERNALS
+  KEY_CTRLMASK             =0xFF000000,
 
   KEY_BRACKET              ='[',
   KEY_BACKBRACKET          =']',
@@ -224,6 +228,7 @@ enum BaseDefKeyboard
   KEY_MACROXLAT,
 
   KEY_MEDIT_ISSELECTED,
+  KEY_MACROPLAINTEXT,
 
 #if defined(MOUSEKEY)
   KEY_MACROSELWORD,

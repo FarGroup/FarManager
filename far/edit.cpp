@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.99 03.09.2003 $ */
+/* Revision: 1.100 08.09.2003 $ */
 
 /*
 Modify:
+  08.09.2003 SVS
+    + Обработка KEY_MACROPLAINTEXT
   03.09.2003 SVS
     ! При откавычивании учтем биты QUOTEDNAME_
   25.08.2003 SVS
@@ -1257,6 +1259,15 @@ int Edit::ProcessKey(int Key)
       return TRUE;
     }
 
+    case KEY_MACROPLAINTEXT:
+    {
+      if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
+        RecurseProcessKey(KEY_DEL);
+      ProcessInsPlainText();
+      Show();
+      return TRUE;
+    }
+
     case KEY_CTRLT:
     case KEY_CTRLDEL:
     {
@@ -1679,6 +1690,14 @@ int Edit::ProcessInsDate(void)
     return TRUE;
   }
   return FALSE;
+}
+
+int Edit::ProcessInsPlainText(void)
+{
+  char Str[NM];
+  CtrlObject->Macro.GetMacroPlainText(Str);
+  InsertString(Str);
+  return TRUE;
 }
 
 int Edit::InsertKey(int Key)
