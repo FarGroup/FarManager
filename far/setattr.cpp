@@ -5,10 +5,14 @@ setattr.cpp
 
 */
 
-/* Revision: 1.63 21.01.2005 $ */
+/* Revision: 1.64 06.04.2005 $ */
 
 /*
 Modify:
+  06.04.2005 AY
+    ! В ShellSetFileAttributes() когда "[x] Process subfolders" IsFileWritable()
+      вызывалась всегда для начальной папки вместо обрабатываемого файла, что и приводило
+      к не работоспособности этого функционала.
   21.01.2005 SVS
     + GetVolumeInformation_Dump
   17.09.2004 SVS
@@ -1039,7 +1043,6 @@ int ShellSetFileAttributes(Panel *SrcPanel)
                 continue;
             }
           }
-
           RetCode=ESetFileAttributes(SelName,((FileAttr|SetAttr)&(~ClearAttr)));
           if(!RetCode)
             break;
@@ -1063,7 +1066,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
               break;
             }
 
-            RetCode=IsFileWritable(SelName,FileAttr,TRUE,MSetAttrCannotFor);
+            RetCode=IsFileWritable(FullName,FileAttr,TRUE,MSetAttrCannotFor);
             if(!RetCode)
             {
               Cancel=1;
