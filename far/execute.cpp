@@ -5,10 +5,13 @@ execute.cpp
 
 */
 
-/* Revision: 1.114 02.03.2005 $ */
+/* Revision: 1.115 28.03.2005 $ */
 
 /*
 Modify:
+  28.03.2005 SVS
+    - BugZ#1091 - Ќеполноценна€ команда cd
+    + добавил обработку "cd ~" - переход в "свой" каталог. —делал дл€ себ€ :-)
   02.03.2005 WARP
     ! ќткрытие папок во Shift-Enter.
     ! ѕодстановка значени€ из реестра дл€ lpVerb.
@@ -1810,6 +1813,23 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
     if(ExpandedDir[1] == ':' && isalpha(ExpandedDir[0]))
       ExpandedDir[0]=toupper(ExpandedDir[0]);
 
+#if 1
+    if(ExpandedDir[0] == '~' && !ExpandedDir[1] && GetFileAttributes(ExpandedDir) == (DWORD)-1)
+    {
+      GetRegKey(strSystemExecutor,"~",(char*)ExpandedDir,FarPath,sizeof(ExpandedDir)-1);
+      DeleteEndSlash(ExpandedDir);
+    }
+#endif
+    if(strpbrk(ExpandedDir,"?*")) // это маска?
+    {
+      WIN32_FIND_DATA wfd;
+      HANDLE hFile=FindFirstFile(ExpandedDir, &wfd);
+      if(hFile!=INVALID_HANDLE_VALUE)
+      {
+        strncpy(ExpandedDir,wfd.cFileName,sizeof(ExpandedDir)-1);
+        FindClose(hFile);
+      }
+    }
     /* $ 15.11.2001 OT
       —начала провер€ем есть ли така€ "обычна€" директори€.
       если уж нет, то тогда начинаем думать, что это директори€ плагинна€

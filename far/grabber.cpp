@@ -5,10 +5,12 @@ Screen grabber
 
 */
 
-/* Revision: 1.22 15.12.2004 $ */
+/* Revision: 1.23 28.03.2005 $ */
 
 /*
 Modify:
+  28.03.2005 SVS
+    ! уточнения граббера для M$9x
   15.12.2004 WARP
     ! Граббер запрещает фрейму перерисовываться.
     ! Граббер восстанавливает размер/видимость курсора при каждом нажатии клавиши.
@@ -176,11 +178,11 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
 
     for (int J=0;J<GWidth;J++, ++PtrCharBuf)
     {
-      WORD Chr2=PtrCharBuf->Char.UnicodeChar;
+      WORD Chr2=Opt.UseUnicodeConsole?PtrCharBuf->Char.UnicodeChar:(WORD)PtrCharBuf->Char.AsciiChar;
       Chr=GetVidChar(*PtrCharBuf);
 
-           if(Chr2 == 0xBB) Chr='>';
-      else if(Chr2 == 0xAB) Chr='<';
+           if(Chr2 == 0xBB) Chr=Opt.UseUnicodeConsole?'>':0xBB;
+      else if(Chr2 == 0xAB) Chr=Opt.UseUnicodeConsole?'<':0xAB;
       else if(Opt.CleanAscii)
       {
         switch(Chr2)
