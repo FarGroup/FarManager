@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.145 13.10.2003 $ */
+/* Revision: 1.146 16.10.2003 $ */
 
 /*
 Modify:
+  16.10.2003 SVS
+    - BugZ#821 - Удаление файла, редактор и вьювер
   13.10.2003 SVS
     ! Те плагин, кто работал по схеме
          while (!Done)
@@ -1302,13 +1304,24 @@ int FileEditor::ProcessKey(int Key)
         int FirstSave=1, NeedQuestion=1;
         if(Key != KEY_SHIFTF10)    // KEY_SHIFTF10 не учитываем!
         {
-          if(FEdit->IsFileChanged() &&  // в текущем сеансе были изменения?
-             ::GetFileAttributes(FullFileName) == -1 && !Flags.Check(FFILEEDIT_ISNEWFILE)) // а сам файл то еще на месте?
+          int FilePlased=::GetFileAttributes(FullFileName) == -1 && !Flags.Check(FFILEEDIT_ISNEWFILE);
+          if(FEdit->IsFileChanged() ||  // в текущем сеансе были изменения?
+             FilePlased) // а сам файл то еще на месте?
           {
-            switch(Message(MSG_WARNING,3,MSG(MEditTitle),
+            int Res;
+            if(FEdit->IsFileChanged() && FilePlased)
+                Res=Message(MSG_WARNING,3,MSG(MEditTitle),
                            MSG(MEditSavedChangedNonFile),
                            MSG(MEditSavedChangedNonFile2),
-                           MSG(MEditSave),MSG(MEditNotSave),MSG(MEditContinue)))
+                           MSG(MEditSave),MSG(MEditNotSave),MSG(MEditContinue));
+            else if(!FEdit->IsFileChanged() && FilePlased)
+                Res=Message(MSG_WARNING,3,MSG(MEditTitle),
+                           MSG(MEditSavedChangedNonFile1),
+                           MSG(MEditSavedChangedNonFile2),
+                           MSG(MEditSave),MSG(MEditNotSave),MSG(MEditContinue));
+            else
+               Res=100;
+            switch(Res)
             {
               case 0:
                 if(!ProcessKey(KEY_F2))  // попытка сначала сохранить
@@ -1318,6 +1331,9 @@ int FileEditor::ProcessKey(int Key)
               case 1:
                 NeedQuestion=0;
                 FirstSave=0;
+                break;
+              case 100:
+                FirstSave=NeedQuestion=1;
                 break;
               case 2:
               default:

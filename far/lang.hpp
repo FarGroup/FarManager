@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.133 16.10.2003 $ */
+/* Revision: 1.134 16.10.2003 $ */
 
 /*
 Modify:
+  16.10.2003 SVS
+    + MEditSavedChangedNonFile1
   16.10.2003 SVS
     + MErrorNoAssociation
   05.10.2003 KM
@@ -1001,6 +1003,7 @@ enum
   MEditSaveMac,
   MEditCannotSave,
   MEditSavedChangedNonFile,
+  MEditSavedChangedNonFile1,
   MEditSavedChangedNonFile2,
   MEditNewPath1,
   MEditNewPath2,
