@@ -5,10 +5,14 @@ dialog.cpp
 
 */
 
-/* Revision: 1.168 15.10.2001 $ */
+/* Revision: 1.169 18.10.2001 $ */
 
 /*
 Modify:
+  18.10.2001 SVS
+    + DIF_SEPARATOR2 - двойной сепаратор
+    + вызов CALLBACK-функции (в месаге DN_RESIZECONSOLE)
+      для избавления от BugZ#85
   15.10.2001 SVS
    + _DIALOG - для трассировки сообщений и событий в диалогах.
   15.10.2001 SVS
@@ -1422,7 +1426,7 @@ BOOL Dialog::GetItemRect(int I,RECT& Rect)
       Rect.bottom=Rect.top;
       Rect.right=Rect.left+Len;
 
-      if (ItemFlags & DIF_SEPARATOR)
+      if (ItemFlags & (DIF_SEPARATOR|DIF_SEPARATOR2))
       {
         Rect.bottom=Rect.top;
         Rect.left=(!CheckDialogMode(DMODE_SMALLDIALOG)?3:0); //???
@@ -1445,7 +1449,7 @@ BOOL Dialog::GetItemRect(int I,RECT& Rect)
       Rect.right=Rect.left;
       Rect.bottom=Rect.top+Len;
       /* Закроем до поры до времени.
-      if (ItemFlags & DIF_SEPARATOR)
+      if (ItemFlags & (DIF_SEPARATOR|DIF_SEPARATOR2))
       {
         Rect.right=Rect.left;
         Rect.top=(!CheckDialogMode(DMODE_SMALLDIALOG)?1:0); //???
@@ -1773,13 +1777,13 @@ void Dialog::ShowDialog(int ID)
         Attr=DlgProc((HANDLE)this,DN_CTLCOLORDLGITEM,I,Attr);
         SetColor(Attr&0xFF);
 
-        if (CurItem->Flags & DIF_SEPARATOR)
+        if (CurItem->Flags & (DIF_SEPARATOR|DIF_SEPARATOR2))
         {
           GotoXY(X1+(!CheckDialogMode(DMODE_SMALLDIALOG)?3:0),Y1+Y); //????
           if (DialogTooLong)
-            ShowSeparator(DialogTooLong-(!CheckDialogMode(DMODE_SMALLDIALOG)?5:0));
+            ShowSeparator(DialogTooLong-(!CheckDialogMode(DMODE_SMALLDIALOG)?5:0),(CurItem->Flags&DIF_SEPARATOR2?3:1));
           else
-            ShowSeparator(X2-X1-(!CheckDialogMode(DMODE_SMALLDIALOG)?5:0));
+            ShowSeparator(X2-X1-(!CheckDialogMode(DMODE_SMALLDIALOG)?5:0),(CurItem->Flags&DIF_SEPARATOR2?3:1));
         }
 
         GotoXY(X1+X,Y1+Y);
@@ -1821,7 +1825,7 @@ void Dialog::ShowDialog(int ID)
         SetColor(Attr&0xFF);
 
         /* Закроем до поры до времени.
-        if (CurItem->Flags & DIF_SEPARATOR)
+        if (CurItem->Flags & (DIF_SEPARATOR|DIF_SEPARATOR2))
         {
           GotoXY(X1+X,Y1+(!CheckDialogMode(DMODE_SMALLDIALOG)?1:0)); //????
           if (DialogTooLong)
@@ -4712,9 +4716,6 @@ long WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       return FALSE;
     /* SVS $ */
 
-    case DN_RESIZECONSOLE:
-      return TRUE;
-
     case DN_MOUSEEVENT:
       return TRUE;
   }
@@ -5733,6 +5734,11 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       }
       return State;
     }
+
+    case DN_RESIZECONSOLE:
+      if(PreRedrawFunc)
+        PreRedrawFunc();
+      break;
   }
 
   // Все, что сами не отрабатываем - посылаем на обработку обработчику.

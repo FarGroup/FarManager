@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.72 15.10.2001 $ */
+/* Revision: 1.73 19.10.2001 $ */
 
 /*
 Modify:
+  19.10.2001 SVS
+    + struct PreRedrawParamStruct - для исправления BugZ#85
   15.10.2001 SVS
     + Opt.DlgSelectFromHistory
   12.10.2001 SVS
@@ -697,6 +699,15 @@ struct HighlightDataColor
   BYTE CursorSelColor;
   BYTE MarkChar;
   BYTE Reserved[11];
+};
+
+struct PreRedrawParamStruct
+{
+  DWORD Flags;
+  void *Param1;
+  void *Param2;
+  void *Param3;
+  void *Param4;
 };
 
 #endif // __FARSTRUCT_HPP__

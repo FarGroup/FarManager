@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.25 03.10.2001 $ */
+/* Revision: 1.26 19.10.2001 $ */
 
 /*
 Modify:
+  19.10.2001 SVS
+    + PreRedraw* - дл€ исправлени€ BugZ#85
   03.10.2001 SVS
     ! ¬ некоторых источниках говоритс€, что IsDebuggerPresent() есть только
       в NT, так что... бум юзать ее динамически!
@@ -162,3 +164,6 @@ int DisablePluginsOutput;
 int CmdMode;
 
 PISDEBUGGERPRESENT pIsDebuggerPresent=NULL;
+
+PREREDRAWFUNC PreRedrawFunc=NULL;
+struct PreRedrawParamStruct PreRedrawParam={0};

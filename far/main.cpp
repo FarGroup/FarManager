@@ -5,10 +5,12 @@ main.cpp
 
 */
 
-/* Revision: 1.37 05.10.2001 $ */
+/* Revision: 1.38 18.10.2001 $ */
 
 /*
 Modify:
+  18.10.2001 SVS
+    ! "причесан" хелп
   05.10.2001 SVS
     ! Opt.ExceptRules и бедагер
   03.10.2001 SVS
@@ -153,7 +155,6 @@ printf(
 " /?   This help\n"
 " /a   Disable display of characters with codes 0 - 31 and 255.\n"
 " /ag  Disable display of pseudographics characters.\n"
-//" /co  Forces FAR to load plugins from the cache only.\n"
 " /e[<line>[:<pos>]] <filename>\n"
 "      Edit the specified file.\n"
 " /i   Set small (16x16) icon for FAR console window.\n"
@@ -163,17 +164,13 @@ printf(
 "      Allows to have separate settings for different users.\n"
 " /v <filename>\n"
 "      View the specified file. If <filename> is -, data is read from the stdin.\n"
-" /co\n"
-"      Forces FAR to load plugins from the cache only.\n"
-" /x\n"
-"      Disable exception handling.\n"
+" /co  Forces FAR to load plugins from the cache only.\n"
+" /x   Disable exception handling.\n"
 #ifdef DIRECT_RT
-" /do\n"
-"      Direct output.\n"
+" /do  Direct output.\n"
 #endif
 );
 }
-
 
 int _cdecl main(int Argc, char *Argv[])
 {

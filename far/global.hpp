@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.26 03.10.2001 $ */
+/* Revision: 1.27 19.10.2001 $ */
 
 /*
 Modify:
+  19.10.2001 SVS
+    + PreRedraw* - дл€ исправлени€ BugZ#85
   03.10.2001 SVS
     ! ¬ некоторых источниках говоритс€, что IsDebuggerPresent() есть только
       в NT, так что... бум юзать ее динамически!
@@ -178,6 +180,10 @@ extern BOOL LanguageLoaded;
 extern BOOL NotUseCAS;
 extern BOOL IsProcessAssignMacroKey;
 extern BOOL IsProcessVE_FindFile;
+
+typedef void (*PREREDRAWFUNC)(void);
+extern PREREDRAWFUNC PreRedrawFunc;
+extern struct PreRedrawParamStruct PreRedrawParam;
 
 extern char *Copyright;
 

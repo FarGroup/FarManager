@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.152 17.10.2001 $ */
+/* Revision: 1.153 19.10.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  19.10.2001 SVS
+    + DIF_SEPARATOR2 - двойной сепаратор
   17.10.2001 SVS
     + LINFO_* - хмм... почемуто не был описан :-(
     ! FARSTDMKLINK - const параметры
@@ -766,6 +768,7 @@ enum FarDialogItemFlags {
   DIF_MANUALADDHISTORY  =0x00008000UL,
   DIF_SEPARATOR         =0x00010000UL,
   DIF_VAREDIT           =0x00010000UL,
+  DIF_SEPARATOR2        =0x00020000UL,
   DIF_EDITOR            =0x00020000UL,
   DIF_LISTNOAMPERSAND   =0x00020000UL,
   DIF_LISTNOBOX         =0x00040000UL,
