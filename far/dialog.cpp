@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.216 11.03.2002 $ */
+/* Revision: 1.217 12.03.2002 $ */
 
 /*
 Modify:
+  12.03.2002 SVS
+    - Пропала история.
   11.03.2002 SVS
     !  Для DI_COMBOBOX и DI_LISTBOX если Param.Selected > 0x2000, то
        обнулим его (иначе... это не есть правильно)
@@ -3943,9 +3945,8 @@ void Dialog::ConvertItem(int FromPlugin,
       if(Data->X2 < Data->X1) Data->X2=Data->X1;
       if(Data->Y2 < Data->Y1) Data->Y2=Data->Y1;
       Data->Focus=Item->Focus;
-      if((Data->Type == DI_COMBOBOX || Data->Type == DI_LISTBOX) && Item->Param.Selected > 0x2000)
-        Data->Selected=Item->Param.Selected;
-      else
+      Data->Selected=Item->Param.Selected;
+      if((Data->Type == DI_COMBOBOX || Data->Type == DI_LISTBOX) && Item->Param.Selected < 0x2000)
         Data->Selected=0;
       Data->Flags=Item->Flags;
       Data->DefaultButton=Item->DefaultButton;
