@@ -8,10 +8,13 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.48 26.07.2001 $ */
+/* Revision: 1.49 31.07.2001 $ */
 
 /*
 Modify:
+  31.07.2001 SVS
+    ! Небольшое исправление (с подачи KM)
+    ! MACRO_OTHER -> MACRO_MENU
   26.07.2001 OT
     - Поправлен ResizeConsole()
   26.07.2001 SVS
@@ -292,10 +295,12 @@ VMenu::VMenu(const char *Title,       // заголовок меню
   if (!(VMenu::VMFlags&VMENU_LISTBOX) && CtrlObject!=NULL)
   {
     PrevMacroMode=CtrlObject->Macro.GetMode();
-    if (PrevMacroMode!=MACRO_MAINMENU)
-      CtrlObject->Macro.SetMode(MACRO_OTHER);
+    if (PrevMacroMode!=MACRO_MAINMENU &&
+        PrevMacroMode!=MACRO_DIALOG)
+      CtrlObject->Macro.SetMode(MACRO_MENU);
   }
-  FrameManager->ModalizeFrame(this);
+  if (!(VMenu::VMFlags&VMENU_LISTBOX))
+    FrameManager->ModalizeFrame(this);
 }
 
 
@@ -308,8 +313,11 @@ VMenu::~VMenu()
 /*& 28.05.2001 OT Разрешить перерисовку фрейма, в котором создавалось это меню */
 //  FrameFromLaunched->UnlockRefresh();
 /* OT &*/
-  FrameManager->UnmodalizeFrame(this);
-  FrameManager->RefreshFrame();
+  if (!(VMenu::VMFlags&VMENU_LISTBOX))
+  {
+    FrameManager->UnmodalizeFrame(this);
+    FrameManager->RefreshFrame();
+  }
 }
 
 

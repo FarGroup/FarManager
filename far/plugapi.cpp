@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.78 27.07.2001 $ */
+/* Revision: 1.79 31.07.2001 $ */
 
 /*
 Modify:
+  31.07.2001 SVS
+    + Обработка хелпов по шаблону: ~Text~@#Path#Topic@
   27.07.2001 SVS
     + кусок для тестовых выкрутасов с ACTL_POSTKEYSEQUENCE
     + Дадим возможность плагина при вызове GetPluginDirList
@@ -539,9 +541,16 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
         strcpy(Topic,HelpTopic+1);
       else
       {
-        strcpy(Path,CtrlObject->Plugins.PluginsData[PluginNumber].ModuleName);
-        *PointToName(Path)=0;
-        sprintf(Topic,"#%s#%s",Path,HelpTopic);
+        if(*HelpTopic == '#')
+        {
+          strncpy(Topic,HelpTopic,sizeof(Topic));
+        }
+        else
+        {
+          strcpy(Path,CtrlObject->Plugins.PluginsData[PluginNumber].ModuleName);
+          *PointToName(Path)=0;
+          sprintf(Topic,"#%s#%s",Path,HelpTopic);
+        }
       }
       FarMenu.SetHelp(Topic);
     }
@@ -724,9 +733,16 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
         strcpy(Topic,HelpTopic+1);
       else
       {
-        strcpy(Path,CtrlObject->Plugins.PluginsData[PluginNumber].ModuleName);
-        *PointToName(Path)=0;
-        sprintf(Topic,"#%s#%s",Path,HelpTopic);
+        if(*HelpTopic == '#')
+        {
+          strncpy(Topic,HelpTopic,sizeof(Topic));
+        }
+        else
+        {
+          strcpy(Path,CtrlObject->Plugins.PluginsData[PluginNumber].ModuleName);
+          *PointToName(Path)=0;
+          sprintf(Topic,"#%s#%s",Path,HelpTopic);
+        }
       }
       FarDialog->SetHelp(Topic);
     }
@@ -895,9 +911,16 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
       strcpy(Topic,HelpTopic+1);
     else
     {
-      strcpy(Path,CtrlObject->Plugins.PluginsData[PluginNumber].ModuleName);
-      *PointToName(Path)=0;
-      sprintf(Topic,"#%s#%s",Path,HelpTopic);
+      if(*HelpTopic == '#')
+      {
+        strncpy(Topic,HelpTopic,sizeof(Topic));
+      }
+      else
+      {
+        strcpy(Path,CtrlObject->Plugins.PluginsData[PluginNumber].ModuleName);
+        *PointToName(Path)=0;
+        sprintf(Topic,"#%s#%s",Path,HelpTopic);
+      }
     }
     SetMessageHelp(Topic);
   }

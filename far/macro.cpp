@@ -210,7 +210,7 @@ Modify:
 static const char *MacroModeName[]={
   "Other",
   "Shell", "Viewer", "Editor", "Dialog", "Search",
-  "Disks", "MainMenu", "Help",
+  "Disks", "MainMenu", "Menu", "Help",
   "Info", "QView", "Tree"
 };
 
