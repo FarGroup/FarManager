@@ -7,10 +7,12 @@ class ShellCopy - Копирование файлов
 
 */
 
-/* Revision: 1.13 21.10.2001 $ */
+/* Revision: 1.14 06.12.2001 $ */
 
 /*
 Modify:
+  06.12.2001 VVM
+    + FCOPY_COPYLASTTIME
   21.10.2001 SVS
     + CALLBACK-функция для избавления от BugZ#85
   17.10.2001 SVS
@@ -78,6 +80,8 @@ enum COPY_FLAGS {
   FCOPY_VOLMOUNT        = 0x00000400,
   FCOPY_STREAMSKIP      = 0x00000800,
   FCOPY_STREAMALL       = 0x00001000,
+  FCOPY_COPYLASTTIME    = 0x10000000, // При копировании в несколько каталогов
+                                      // устанавливается для последнего.
 };
 
 class ShellCopy

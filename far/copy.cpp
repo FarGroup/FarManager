@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.57 16.11.2001 $ */
+/* Revision: 1.58 06.12.2001 $ */
 
 /*
 Modify:
+  06.12.2001 VVM
+    + Сбрасывание выделения только при флаге FCOPY_COPYLASTTIME
   16.11.2001 SVS
     - ОЧепятка в ShellCopy::GetSecurity "sa->nLength=sizeof(sa);"
                                                             ^^ это указатель!
@@ -641,7 +643,10 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
         while(NULL!=(NamePtr=DestList.GetNext()))
         {
           if(DestList.IsEmpty()) // нужно учесть моменты связанные с операцией Move.
+          {
             ShellCopy::Flags|=Move?FCOPY_MOVE:0; // только для последней операции
+            ShellCopy::Flags|=FCOPY_COPYLASTTIME;
+          }
 
           strcpy(NameTmp, NamePtr);
 
@@ -1298,7 +1303,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
         if (DeleteCode==COPY_SUCCESS && *DestDizPath)
           SrcPanel->DeleteDiz(SelName,SelShortName);
       }
-    if (!(ShellCopy::Flags&FCOPY_CURRENTONLY))
+    if ((!(ShellCopy::Flags&FCOPY_CURRENTONLY)) && (ShellCopy::Flags&FCOPY_COPYLASTTIME))
     {
       SrcPanel->ClearLastGetSelection();
     }
