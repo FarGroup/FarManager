@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.229 08.04.2002 $ */
+/* Revision: 1.230 10.04.2002 $ */
 
 /*
 Modify:
+  10.04.2002 SVS
+    ! BugZ#453 - Обрезание длинных строк в диалогах.
   08.04.2002 SVS
     - BugZ#446 - unchanged в строках ввода
     + CtlColorDlgItem() - отделим мух от котлет. В CtlColorDlgItem()
@@ -2218,12 +2220,16 @@ void Dialog::ShowDialog(int ID)
             ! Пусть диалог сам заботится о ширине собственного заголовка.
           */
           strncpy(Str,CurItem->Data,sizeof(Str)-3);
-          TruncStrFromEnd(Str,CW-4); // 5 ???
-          memmove(Str+1,Str,strlen(Str)+1);
-          LenText=strlen(Str);
-          *Str=Str[LenText]=' ';
-          Str[LenText+1]=0;
+          TruncStrFromEnd(Str,CW-2); // 5 ???
           LenText=LenStrItem(I,Str);
+          if(LenText < CW-2)
+          {
+            memmove(Str+1,Str,strlen(Str)+1);
+            LenText=strlen(Str);
+            *Str=Str[LenText]=' ';
+            Str[LenText+1]=0;
+            LenText=LenStrItem(I,Str);
+          }
           X=X1+CX1+(CW-LenText)/2;
 
           if ((CurItem->Flags & DIF_LEFTTEXT) && X1+CX1+1 < X)
