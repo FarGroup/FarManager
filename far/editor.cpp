@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.228 31.07.2003 $ */
+/* Revision: 1.229 02.09.2003 $ */
 
 /*
 Modify:
+  02.09.2003 SKV
+    - фикс выделения shift-up при отключенном cursor beyond end of line
   31.07.2003 SKV
     - фикс выделения персистентных блоков после Shift-[A-Z0-9]
   25.07.2003 SVS
@@ -2148,9 +2150,10 @@ int Editor::ProcessKey(int Key)
       {
         CurLine->EditLine.Select(0,SelEnd);
         SelStart=CurLine->EditLine.RealPosToTab(CurPos);
-        if(!EdOpt.CursorBeyondEOL && CurPos>CurLine->Prev->EditLine.GetLength())
+        if(!EdOpt.CursorBeyondEOL &&
+            CurLine->Prev->EditLine.TabPosToReal(SelStart)>CurLine->Prev->EditLine.GetLength())
         {
-          SelStart=CurLine->Prev->EditLine.GetLength();
+          SelStart=CurLine->Prev->EditLine.RealPosToTab(CurLine->Prev->EditLine.GetLength());
         }
         SelStart=CurLine->Prev->EditLine.TabPosToReal(SelStart);
         CurLine->Prev->EditLine.Select(SelStart,-1);
