@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.22 27.09.2000 $ */
+/* Revision: 1.22 05.10.2000 $ */
 
 /*
 Modify:
+  05.10.2000 SVS
+   - бага с вызовом хелпа (FHELP_CUSTOMFILE)
   27.09.2000 SVS
    + FarViewerControl
   18.09.2000 SVS
@@ -117,7 +119,7 @@ BOOL WINAPI FarShowHelp(char *ModuleName, char *HelpTopic,DWORD Flags)
           Mask=PointToName(Path);
           if(Flags&FHELP_CUSTOMFILE)
           {
-            memmove(Mask+1,Mask,strlen(Mask));
+            memmove(Mask+1,Mask,strlen(Mask)+1);
             *Mask++=0;
           }
           else
