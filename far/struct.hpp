@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.59 06.05.2001 $ */
+/* Revision: 1.60 14.05.2001 $ */
 
 /*
 Modify:
+  14.05.2001 SVS
+    + Opt.ShowCheckingFile - щоб управлять мельканием в заголовке...
   06.05.2001 DJ
     ! перетрях #include
   04.05.2001 SVS
@@ -594,6 +596,7 @@ struct Options
       1 - если установлен, то опрашивать все остальные при GetSubstName() */
   int SubstNameRule;
   /* VVM $ */
+  int ShowCheckingFile;
 
   struct PoliciesOptions Policies;
 };

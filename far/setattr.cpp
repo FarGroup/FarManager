@@ -5,10 +5,18 @@ setattr.cpp
 
 */
 
-/* Revision: 1.27 07.05.2001 $ */
+/* Revision: 1.28 14.05.2001 $ */
 
 /*
 Modify:
+  14.05.2001 SVS
+    - Проблемы с выставлением времени файла
+    + DOUBLE_CLICK: ;-)
+      1) на лейбаках: Modification, Creation & Last access
+         выставляет текущую дату для всей строки (дата и время)
+      2) в отдельных едитах - только в них.
+    ! Логика выставления времени перенесена на уровень функции-обработчика
+      диалога
   07.05.2001 SVS
     ! SysLog(); -> _D(SysLog());
   06.05.2001 DJ
@@ -110,7 +118,7 @@ static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
   unsigned DateN[3],TimeN[3];
   int DigitCount,I;
   int SetTime,GetTime;
-  FILETIME OriginalFileTime;
+  FILETIME *OriginalFileTime, OFTModify, OFTCreate, OFTLast;
   char SrcDate[32], SrcTime[32];
   char *Ptr,Digit[16],*PtrDigit;
 
@@ -156,17 +164,27 @@ static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
                  (FileAttr & FA_DIREC) ? FILE_FLAG_BACKUP_SEMANTICS:0,NULL);
     if (hFile==INVALID_HANDLE_VALUE)
       return(FALSE);
-    GetTime=GetFileTime(hFile,
-                        (Type == 0?&OriginalFileTime:NULL),
-                        (Type == 1?&OriginalFileTime:NULL),
-                        (Type == 2?&OriginalFileTime:NULL));
+    GetTime=GetFileTime(hFile,&OFTCreate,&OFTLast,&OFTModify);
     CloseHandle(hFile);
 
     if(!GetTime)
       return(FALSE);
 
+    switch(Type)
+    {
+      case 0: // Modif
+        OriginalFileTime=&OFTModify;
+        break;
+      case 1: // Creat
+        OriginalFileTime=&OFTCreate;
+        break;
+      case 2: // Last
+        OriginalFileTime=&OFTLast;
+        break;
+    }
+
     // конвертнем в локальное время.
-    FileTimeToLocalFileTime(&OriginalFileTime,&oft);
+    FileTimeToLocalFileTime(OriginalFileTime,&oft);
     FileTimeToSystemTime(&oft,&ost);
     st.wDayOfWeek=ost.wDayOfWeek;
     st.wMilliseconds=ost.wMilliseconds;
@@ -208,7 +226,7 @@ static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
   SystemTimeToFileTime(&st,&ft);
   LocalFileTimeToFileTime(&ft,FileTime);
   if(DigitCount)
-    return (!CompareFileTime(FileTime,&OriginalFileTime))?FALSE:TRUE;
+    return (!CompareFileTime(FileTime,OriginalFileTime))?FALSE:TRUE;
   return TRUE;
 }
 
@@ -270,6 +288,7 @@ static void FillingOfFields(char *SelName,int FileAttr,
 }
 /* SVS $ */
 
+#define DM_SETATTR	(DM_USER+1)
 
 // обработчик диалога - пока это отлов нажатий нужных кнопок.
 long WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
@@ -282,6 +301,59 @@ long WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       OriginalCBAttr2[Param1-4] = 0;
     }
   }
+  /* $ 14.05.2001 SVS
+     Обработка двойного клика */
+  else if(Msg == DN_MOUSECLICK)
+  {
+    //_SVS(SysLog("Msg=DN_MOUSECLICK Param1=%d Param2=%d",Param1,Param2));
+    if(Param1 >= 15 && Param1 <= 23 &&
+       ((MOUSE_EVENT_RECORD*)Param2)->dwEventFlags == DOUBLE_CLICK)
+    {
+      // Дадим Менеджеру диалогов "попотеть"
+      Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
+      Dialog::SendDlgMessage(hDlg,DM_SETATTR,Param1,1);
+      if(Param1 == 15 || Param1 == 18 || Param1 == 21)
+        Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,Param1+1,0);
+      return TRUE;
+    }
+    else if(Param1 == 24 || Param1 == 25) // Set All? / Clear All?
+    {
+      Dialog::SendDlgMessage(hDlg,DM_SETATTR,15,Param1 == 24);
+      Dialog::SendDlgMessage(hDlg,DM_SETATTR,18,Param1 == 24);
+      Dialog::SendDlgMessage(hDlg,DM_SETATTR,21,Param1 == 24);
+      Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,16,0);
+      return TRUE;
+    }
+  }
+  else if(Msg == DM_SETATTR)
+  {
+    FILETIME ft;
+    char Date[16],Time[16];
+    int Set1, Set2;
+    if(Param2) // Set?
+    {
+      GetSystemTimeAsFileTime(&ft);
+      ConvertDate(&ft,Date,Time,8,FALSE,FALSE,TRUE,TRUE);
+    }
+    else // Clear
+    {
+       Date[0]=Time[0]=0;
+    }
+
+    // Глянем на место, где был клик
+         if(Param1 == 15) { Set1=16; Set2=17; }
+    else if(Param1 == 18) { Set1=19; Set2=20; }
+    else if(Param1 == 21) { Set1=22; Set2=23; }
+    else if(Param1 == 16 || Param1 == 19 || Param1 == 22) { Set1=Param1; Set2=-1; }
+    else { Set1=-1; Set2=Param1; }
+
+    if(Set1 != -1)
+      Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,Set1,(long)Date);
+    if(Set2 != -1)
+      Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,Set2,(long)Time);
+    return TRUE;
+  }
+  /* SVS $ */
   return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
@@ -552,60 +624,26 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       int NewAttr;
 
       {
-        Dialog Dlg(AttrDlg,DlgCountItems);
+        Dialog Dlg(AttrDlg,DlgCountItems,SetAttrDlgProc);
         Dlg.SetHelp("FileAttrDlg");
         Dlg.SetPosition(-1,-1,45,JunctionPresent?24:23);
-
-        while (1)
+        Dlg.Show();
+        while (!Dlg.Done())
         {
-          Dlg.Show();
-          while (!Dlg.Done())
+          Dlg.ReadInput();
+          Dlg.ProcessInput();
+          FocusPos=Dialog::SendDlgMessage((HANDLE)&Dlg,DM_GETFOCUS,0,0);
+          if(((FileSystemFlags & (FS_FILE_COMPRESSION|FS_FILE_ENCRYPTION))==
+               (FS_FILE_COMPRESSION|FS_FILE_ENCRYPTION)) &&
+             (FocusPos == 8 || FocusPos == 9))
           {
-            Dlg.ReadInput();
-            Dlg.ProcessInput();
-            FocusPos=Dialog::SendDlgMessage((HANDLE)&Dlg,DM_GETFOCUS,0,0);
-            if(((FileSystemFlags & (FS_FILE_COMPRESSION|FS_FILE_ENCRYPTION))==
-                 (FS_FILE_COMPRESSION|FS_FILE_ENCRYPTION)) &&
-               (FocusPos == 8 || FocusPos == 9))
-            {
-              IncludeExcludeAttrib(FocusPos,AttrDlg,8,9);
-              Dlg.FastShow();
-            }
+            IncludeExcludeAttrib(FocusPos,AttrDlg,8,9);
+            Dlg.FastShow();
           }
-          Dlg.GetDialogObjectsData();
-
-          int Code = Dlg.GetExitCode();
-
-          if ((Code!=24) && (Code!=25))
-            break;
-
-          if (Code == 24)
-          {
-            FILETIME ft;
-            GetSystemTimeAsFileTime(&ft);
-            ConvertDate(&ft,AttrDlg[16].Data,AttrDlg[17].Data,8,FALSE,FALSE,TRUE,TRUE);
-            ConvertDate(&ft,AttrDlg[19].Data,AttrDlg[20].Data,8,FALSE,FALSE,TRUE,TRUE);
-            ConvertDate(&ft,AttrDlg[22].Data,AttrDlg[23].Data,8,FALSE,FALSE,TRUE,TRUE);
-          }
-          else
-          {
-            AttrDlg[16].Data[0]=AttrDlg[17].Data[0]=0;
-            AttrDlg[19].Data[0]=AttrDlg[20].Data[0]=0;
-            AttrDlg[22].Data[0]=AttrDlg[23].Data[0]=0;
-          }
-          Dlg.SendDlgMessage((HANDLE)&Dlg,DM_SETFOCUS,16,0);
-          Dlg.ClearDone();
-          Dlg.InitDialogObjects();
         }
-
-        /* $ 08.04.2001 IS
-             Акелла промахнулся на охоте...
-        */
+        Dlg.Hide();
         if (Dlg.GetExitCode()!=27)
           return 0;
-        /* IS $ */
-
-        Dlg.Hide();
       }
 
       NewAttr=FileAttr & FA_DIREC;
@@ -621,11 +659,13 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       SetWriteTime=ReadFileTime(0,SelName,FileAttr,&LastWriteTime,AttrDlg[16].Data,AttrDlg[17].Data);
       SetCreationTime=ReadFileTime(1,SelName,FileAttr,&CreationTime,AttrDlg[19].Data,AttrDlg[20].Data);
       SetLastAccessTime=ReadFileTime(2,SelName,FileAttr,&LastAccessTime,AttrDlg[22].Data,AttrDlg[23].Data);
-
+//_SVS(SysLog("\n\tSetWriteTime=%d\n\tSetCreationTime=%d\n\tSetLastAccessTime=%d",SetWriteTime,SetCreationTime,SetLastAccessTime));
       if(SetWriteTime || SetCreationTime || SetLastAccessTime)
-        SetWriteTime=ESetFileTime(SelName,SetWriteTime ? &LastWriteTime:NULL,
-                     SetCreationTime ? &CreationTime:NULL,
-                     SetLastAccessTime ? &LastAccessTime:NULL,FileAttr);
+        SetWriteTime=ESetFileTime(SelName,
+                     (SetWriteTime ? &LastWriteTime:NULL),
+                     (SetCreationTime ? &CreationTime:NULL),
+                     (SetLastAccessTime ? &LastAccessTime:NULL),
+                     FileAttr);
       else
         SetWriteTime=TRUE;
 
@@ -659,7 +699,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         Dlg.SetPosition(-1,-1,45,JunctionPresent?24:23);
 
         Dlg.Show();
-        while (1)
+
         {
           int Sel11=AttrDlg[11].Selected;
           int Sel8=AttrDlg[8].Selected;
@@ -758,39 +798,9 @@ int ShellSetFileAttributes(Panel *SrcPanel)
               Dlg.Show();
             }
           }
-          Dlg.GetDialogObjectsData();
-
-          int Code = Dlg.GetExitCode();
-
-          if ((Code!=24) && (Code!=25))
-            break;
-
-          if (Code == 24)
-          {
-            FILETIME ft;
-            GetSystemTimeAsFileTime(&ft);
-            ConvertDate(&ft,AttrDlg[16].Data,AttrDlg[17].Data,8,FALSE,FALSE,TRUE,TRUE);
-            ConvertDate(&ft,AttrDlg[19].Data,AttrDlg[20].Data,8,FALSE,FALSE,TRUE,TRUE);
-            ConvertDate(&ft,AttrDlg[22].Data,AttrDlg[23].Data,8,FALSE,FALSE,TRUE,TRUE);
-          }
-          else
-          {
-            AttrDlg[16].Data[0]=AttrDlg[17].Data[0]=0;
-            AttrDlg[19].Data[0]=AttrDlg[20].Data[0]=0;
-            AttrDlg[22].Data[0]=AttrDlg[23].Data[0]=0;
-          }
-          Dlg.SendDlgMessage((HANDLE)&Dlg,DM_SETFOCUS,16,0);
-          Dlg.ClearDone();
-          Dlg.InitDialogObjects();
-          Dlg.Show();
         }
-
-        /* $ 08.04.2001 IS
-             Акелла промахнулся на охоте...
-        */
         if (Dlg.GetExitCode()!=27)
           return 0;
-        /* IS $ */
       }
 
       CtrlObject->Cp()->GetAnotherPanel(SrcPanel)->CloseFile();
@@ -828,8 +838,8 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       SrcPanel->GetSelName(NULL,FileAttr);
       while (SrcPanel->GetSelName(SelName,FileAttr) && !Cancel)
       {
-//_D(SysLog("SelName='%s'\n\tFileAttr =0x%08X\n\tSetAttr  =0x%08X\n\tClearAttr=0x%08X\n\tResult   =0x%08X",
-// SelName,FileAttr,SetAttr,ClearAttr,((FileAttr|SetAttr)&(~ClearAttr))));
+//_SVS(SysLog("SelName='%s'\n\tFileAttr =0x%08X\n\tSetAttr  =0x%08X\n\tClearAttr=0x%08X\n\tResult   =0x%08X",
+//    SelName,FileAttr,SetAttr,ClearAttr,((FileAttr|SetAttr)&(~ClearAttr))));
         Message(0,0,MSG(MSetAttrTitle),MSG(MSetAttrSetting),
           CenterStr(TruncPathStr(strcpy(OutFileName,SelName),40),OutFileName,44));
 
@@ -840,9 +850,11 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         SetCreationTime=ReadFileTime(1,SelName,FileAttr,&CreationTime,AttrDlg[19].Data,AttrDlg[20].Data);
         SetLastAccessTime=ReadFileTime(2,SelName,FileAttr,&LastAccessTime,AttrDlg[22].Data,AttrDlg[23].Data);
         if(SetWriteTime || SetCreationTime || SetLastAccessTime)
-          if (!ESetFileTime(SelName,SetWriteTime ? &LastWriteTime:NULL,
-                       SetCreationTime ? &CreationTime:NULL,
-                       SetLastAccessTime ? &LastAccessTime:NULL,FileAttr))
+          if (!ESetFileTime(SelName,
+                 (SetWriteTime ? &LastWriteTime:NULL),
+                 (SetCreationTime ? &CreationTime:NULL),
+                 (SetLastAccessTime ? &LastAccessTime:NULL),
+                 FileAttr))
             break;
 
         if(((FileAttr|SetAttr)&(~ClearAttr)) != FileAttr)
@@ -869,7 +881,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
               break; // неудача разшифровать :-(
           }
 
-          if (!ESetFileAttributes(SelName,(FileAttr|SetAttr)&(~ClearAttr)))
+          if (!ESetFileAttributes(SelName,((FileAttr|SetAttr)&(~ClearAttr))))
             break;
         }
 

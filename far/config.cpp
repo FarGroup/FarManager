@@ -5,10 +5,13 @@ config.cpp
 
 */
 
-/* Revision: 1.72 06.05.2001 $ */
+/* Revision: 1.73 14.05.2001 $ */
 
 /*
 Modify:
+  14.05.2001 SVS
+    + Opt.ShowCheckingFile - щоб управлять мельканием в заголовке...
+      По умолчанию - отлючено
   06.05.2001 DJ
     ! перетрях #include
   29.04.2001 ОТ
@@ -965,6 +968,7 @@ static struct FARConfig{
       1 - если установлен, то опрашивать все остальные при GetSubstName() */
   {0, REG_DWORD,  NKeySystem,"SubstNameRule", &Opt.SubstNameRule, 2, 0},
   /* VVM $ */
+  {0, REG_DWORD,  NKeySystem,"ShowCheckingFile", &Opt.ShowCheckingFile, 0, 0},
 
   {0, REG_SZ,     NKeySystem,"QuotedSymbols",Opt.QuotedSymbols,sizeof(Opt.QuotedSymbols)," &+,"},
 

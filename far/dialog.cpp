@@ -5,11 +5,17 @@ dialog.cpp
 
 */
 
-/* Revision: 1.95 14.05.2001 $ */
+/* Revision: 1.96 14.05.2001 $ */
 
 /*
 Modify:
   14.05.2001 SVS
+   ! DMODE_SMALLDILAOG -> DMODE_SMALLDIALOG
+   ! DIF_CENTERGROUP только для DI_BUTTON, DI_CHECKBOX, DI_RADIOBUTTON, DI_TEXT.
+   - небольшая опЯчатка в InitDialogObjects.
+   - В AdjustEditPos не был учтен тот факт, что ListBox "живет" в
+     DialogItem.ListPtr
+  13.05.2001 SVS
    + DIF_LISTWRAPMODE, DIF_LISTHIGHLIGHT
    ! Для DI_COMBOBOX&DIF_DROPDOWNLIST нажатие клавиши KEY_DOWN эквивалентно
      Ctrl-Down, т.е. список раскроется.
@@ -560,7 +566,7 @@ void Dialog::CheckDialogCoord(void)
     if (Y1>1)
       Y1--;
 
-    if(!CheckDialogMode(DMODE_SMALLDILAOG)) //????
+    if(!CheckDialogMode(DMODE_SMALLDIALOG)) //????
       if (Y1>5)
         Y1--;
 
@@ -591,7 +597,7 @@ void Dialog::Hide()
 void Dialog::DisplayObject()
 {
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
-  if(!CheckDialogMode(DMODE_SMALLDILAOG))
+  if(!CheckDialogMode(DMODE_SMALLDIALOG))
     Shadow();              // "наводим" тень
   ShowDialog();          // "нарисуем" диалог.
 }
@@ -643,10 +649,11 @@ int Dialog::InitDialogObjects(int ID)
   {
     CurItem=&Item[I];
     ItemFlags=CurItem->Flags;
+    Type=CurItem->Type;
 
     // для кнопок не имеющи стиля "Показывает заголовок кнопки без скобок"
     //  добавим энти самые скобки
-    if (CurItem->Type==DI_BUTTON &&
+    if (Type==DI_BUTTON &&
         (ItemFlags & DIF_NOBRACKETS)==0 &&
         *CurItem->Data != '[')
     {
@@ -657,9 +664,9 @@ int Dialog::InitDialogObjects(int ID)
 
     // по первому попавшемуся "тексту" установим заголовок консоли!
     if (!TitleSet &&             // при условии, что еще не устанавливали
-         (CurItem->Type==DI_TEXT ||
-          CurItem->Type==DI_DOUBLEBOX ||
-          CurItem->Type==DI_SINGLEBOX))
+         (Type==DI_TEXT ||
+          Type==DI_DOUBLEBOX ||
+          Type==DI_SINGLEBOX))
       for (J=0;CurItem->Data[J]!=0;J++)
         if (LocalIsalpha(CurItem->Data[J]))
         {
@@ -670,15 +677,25 @@ int Dialog::InitDialogObjects(int ID)
 
      // предварительный поик фокуса
      if(FocusPos == -1 &&
-        IsFocused(CurItem->Type) &&
+        IsFocused(Type) &&
         CurItem->Focus &&
         !(ItemFlags&(DIF_DISABLE|DIF_NOFOCUS|DIF_HIDDEN)))
        FocusPos=I; // запомним первый фокусный элемент
      CurItem->Focus=0; // сбросим для всех, чтобы не оказалось,
                        //   что фокусов - как у дурочка фантиков
+
      // сбросим флаг DIF_CENTERGROUP для редакторов
-     if((ItemFlags&DIF_CENTERGROUP) && IsEdit(Type))
-        CurItem->Flags&=~DIF_CENTERGROUP;
+     switch(Type)
+     {
+       case DI_BUTTON:
+       case DI_CHECKBOX:
+       case DI_RADIOBUTTON:
+       case DI_TEXT:
+         break;
+       default:
+         if(ItemFlags&DIF_CENTERGROUP)
+           CurItem->Flags&=~DIF_CENTERGROUP;
+     }
   }
 
   // Опять про фокус ввода - теперь, если "чудо" забыло выставить
@@ -1032,8 +1049,8 @@ BOOL Dialog::GetItemRect(int I,RECT& Rect)
       if (ItemFlags & DIF_SEPARATOR)
       {
         Rect.bottom=Rect.top;
-        Rect.left=(!CheckDialogMode(DMODE_SMALLDILAOG)?3:0); //???
-        Rect.right=X2-X1-(!CheckDialogMode(DMODE_SMALLDILAOG)?5:0); //???
+        Rect.left=(!CheckDialogMode(DMODE_SMALLDIALOG)?3:0); //???
+        Rect.right=X2-X1-(!CheckDialogMode(DMODE_SMALLDIALOG)?5:0); //???
         break;
       }
 
@@ -1226,7 +1243,7 @@ void Dialog::ShowDialog(int ID)
     /* $ 28.07.2000 SVS
        перед прорисовкой подложки окна диалога...
     */
-    if(!CheckDialogMode(DMODE_SMALLDILAOG))
+    if(!CheckDialogMode(DMODE_SMALLDIALOG))
     {
       Attr=DlgProc((HANDLE)this,DN_CTLCOLORDIALOG,0,
           CheckDialogMode(DMODE_WARNINGSTYLE) ? COL_WARNDIALOGTEXT:COL_DIALOGTEXT);
@@ -1356,11 +1373,11 @@ void Dialog::ShowDialog(int ID)
 
         if (CurItem->Flags & DIF_SEPARATOR)
         {
-          GotoXY(X1+(!CheckDialogMode(DMODE_SMALLDILAOG)?3:0),Y1+Y); //????
+          GotoXY(X1+(!CheckDialogMode(DMODE_SMALLDIALOG)?3:0),Y1+Y); //????
           if (DialogTooLong)
-            ShowSeparator(DialogTooLong-(!CheckDialogMode(DMODE_SMALLDILAOG)?5:0));
+            ShowSeparator(DialogTooLong-(!CheckDialogMode(DMODE_SMALLDIALOG)?5:0));
           else
-            ShowSeparator(X2-X1-(!CheckDialogMode(DMODE_SMALLDILAOG)?5:0));
+            ShowSeparator(X2-X1-(!CheckDialogMode(DMODE_SMALLDIALOG)?5:0));
         }
 
         GotoXY(X1+X,Y1+Y);
@@ -2635,7 +2652,6 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
       if(MsX >= Rect.left && MsY >= Rect.top && MsX <= Rect.right && MsY <= Rect.bottom)
       {
-//_D(SysLog("+ %2d) Rect (%2d,%2d) (%2d,%2d) '%s'",I,Rect.left,Rect.top,Rect.right,Rect.bottom,Item[I].Data));
         // для прозрачных :-)
         if(Item[I].Type == DI_SINGLEBOX || Item[I].Type == DI_DOUBLEBOX)
         {
@@ -2657,6 +2673,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
           MouseEvent->dwMousePosition.Y-=Rect.top;
         }
 
+//_SVS(SysLog("+ %2d) Rect (%2d,%2d) (%2d,%2d) '%s' Dbl=%d",I,Rect.left,Rect.top,Rect.right,Rect.bottom,Item[I].Data,MouseEvent->dwEventFlags==DOUBLE_CLICK));
         if(DlgProc((HANDLE)this,DN_MOUSECLICK,I,(long)MouseEvent))
           return TRUE;
 
@@ -3726,9 +3743,14 @@ void Dialog::AdjustEditPos(int dx, int dy)
   for (I=0; I < ItemCount; I++)
   {
     CurItem=&Item[I];
-    if (CurItem->ObjPtr && (IsEdit(CurItem->Type) || CurItem->Type == DI_LISTBOX))
+    int Type=CurItem->Type;
+    if (CurItem->ObjPtr  && IsEdit(Type) ||
+        CurItem->ListPtr && Type == DI_LISTBOX)
     {
-       DialogEdit=(ScreenObject *)CurItem->ObjPtr;
+       if(Type == DI_LISTBOX)
+         DialogEdit=(ScreenObject *)CurItem->ListPtr;
+       else
+         DialogEdit=(ScreenObject *)CurItem->ObjPtr;
        DialogEdit->GetPosition(x1,y1,x2,y2);
        x1+=dx;
        x2+=dx;

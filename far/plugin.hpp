@@ -8,7 +8,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.102 14.05.2001 $ */
+/* Revision: 1.103 14.05.2001 $ */
 
 /*
 ÂÍÈÌÀÍÈÅ!
@@ -16,6 +16,8 @@
 
 Modify:
   14.05.2001 SVS
+    ! FDLG_SMALLDILAOG -> FDLG_SMALLDIALOG
+  13.05.2001 SVS
     + DIF_LISTWRAPMODE, DIF_LISTHIGHLIGHT
     + DM_LISTADDSTR
   12.05.2001 DJ
@@ -504,7 +506,7 @@ typedef int (WINAPI *FARAPIDIALOGEX)(
 
 enum {
   FDLG_WARNING             =0x00000001,
-  FDLG_SMALLDILAOG         =0x00000002,
+  FDLG_SMALLDIALOG         =0x00000002,
 };
 
 enum {
@@ -721,6 +723,7 @@ struct FarDialogItemData
 #define DlgItem_Enable(Info,hDlg,ID)           Info.SendDlgMessage(hDlg,DM_ENABLE,ID,TRUE)
 #define DlgItem_Disable(Info,hDlg,ID)          Info.SendDlgMessage(hDlg,DM_ENABLE,ID,FALSE)
 #define DlgItem_IsEnable(Info,hDlg,ID)         Info.SendDlgMessage(hDlg,DM_ENABLE,ID,-1)
+#define DlgItem_SetText(Info,hDlg,ID,Str)      Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,ID,(long)Str)
 
 #define DlgEdit_AddHistory(Info,hDlg,ID,Str)   Info.SendDlgMessage(hDlg,DM_ADDHISTORY,ID,(long)Str)
 

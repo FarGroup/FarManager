@@ -5,10 +5,12 @@ fileattr.cpp
 
 */
 
-/* Revision: 1.01 06.05.2001 $ */
+/* Revision: 1.02 14.05.2001 $ */
 
 /*
 Modify:
+  14.05.2001 SVS
+    При выставлении даты/времени RO атрибут снимали, а возвращать забывали :-(
   06.05.2001 DJ
     ! перетрях #include
   30.12.2000 SVS
@@ -63,6 +65,7 @@ int GetEncryptFunctions(void)
 
 int ESetFileAttributes(const char *Name,int Attr)
 {
+//_SVS(SysLog("Attr=0x%08X",Attr));
   while (!SetFileAttributes(Name,Attr))
   {
     int Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
@@ -219,5 +222,10 @@ int ESetFileTime(const char *Name,FILETIME *LastWriteTime,FILETIME *CreationTime
     if (Code==2)
       return(FALSE);
   }
+  /* $ 14.05.2001 SVS
+     Кхе, RO сбросили (см. выше), а выставлять дядя будет?
+  */
+  SetFileAttributes(Name,FileAttr);
+  /* SVS $ */
   return(TRUE);
 }

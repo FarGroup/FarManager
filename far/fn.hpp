@@ -7,20 +7,22 @@ fn.hpp
 
 */
 
-/* Revision: 1.81 09.05.2001 $ */
+/* Revision: 1.82 14.05.2001 $ */
 
 /*
 Modify:
+  14.05.2001 SVS
+   + _D(x) Для Мельникова!
   09.05.2001 OT
-    ! Макросы, аналогичные _D(x), которые зависят от разработчика или функционала
+   ! Макросы, аналогичные _D(x), которые зависят от разработчика или функционала
   07.05.2001 SVS
-    ! _D(x) для SysLog
+   ! _D(x) для SysLog
   07.05.2001 DJ
    + LocalUpperFast(), LocalLowerFast(), CopyMaskStr()
   06.05.2001 DJ
-    ! перетрях #include
+   ! перетрях #include
   29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
+   + Внедрение NWZ от Третьякова
   28.04.2001 SVS
    + xfilter
    + Новый параметр у DumpExceptionInfo - указатель на PluginItem.
@@ -728,6 +730,12 @@ void SysLog(int l,char *fmt,...); ///
 #define _SKV(x)  x
 #else
 #define _SKV(x)
+#endif
+
+#if defined(_DEBUG) && defined(SYSLOG_KM)
+#define _KM(x)  x
+#else
+#define _KM(x)
 #endif
 
 #if defined(_DEBUG) && defined(SYSLOG_NWZ)

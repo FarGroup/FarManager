@@ -10,10 +10,12 @@ dialog.hpp
 
 */
 
-/* Revision: 1.27 12.05.2001 $ */
+/* Revision: 1.28 14.05.2001 $ */
 
 /*
 Modify:
+  14.05.2001 SVS
+   ! DMODE_SMALLDILAOG -> DMODE_SMALLDIALOG
   12.05.2001 SVS
    ! Изменился второй параметр у SelectFromComboBox();
    ! Функция SelectFromComboBox() теперь возвращает код возврата.
@@ -133,7 +135,7 @@ Modify:
 #define DMODE_DRAGGED       0x00000008 // диалог двигается?
 #define DMODE_ISCANMOVE     0x00000010 // можно ли двигать диалог?
 #define DMODE_ALTDRAGGED    0x00000020 // диалог двигается по Alt-Стрелка?
-#define DMODE_SMALLDILAOG   0x00000040 // "короткий диалог"
+#define DMODE_SMALLDIALOG   0x00000040 // "короткий диалог"
 #define DMODE_DRAWING       0x00001000 // диалог рисуется?
 #define DMODE_KEY           0x00002000 // Идет посылка клавиш?
 #define DMODE_SHOW          0x00004000 // Диалог виден?

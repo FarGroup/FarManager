@@ -7,10 +7,12 @@ constitle.hpp
 
 */
 
-/* Revision: 1.00 20.03.2001 $ */
+/* Revision: 1.01 14.05.2001 $ */
 
 /*
 Modify:
+  14.05.2001 SVS
+    + Изменен конструктор - по умолчанию title=NULL
   20.03.2001 tran
     ! created
 */
@@ -19,7 +21,7 @@ Modify:
 class ConsoleTitle
 {
     public:
-    ConsoleTitle(char *title);
+    ConsoleTitle(char *title=NULL);
     ~ConsoleTitle();
 
     void Set(char *fmt,...);

@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.64 06.05.2001 $ */
+/* Revision: 1.65 14.05.2001 $ */
 
 /*
 Modify:
+  14.05.2001 SVS
+    + Opt.ShowCheckingFile - щоб управлять мельканием в заголовке...
   06.05.2001 DJ
     ! перетрях #include
   04.05.2001 OT
@@ -1209,8 +1211,9 @@ HANDLE PluginsSet::OpenFilePlugin(char *Name,const unsigned char *Data,int DataS
 {
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
   /* $ 20.03.2001 tran */
-  ConsoleTitle ct(MSG(MCheckingFileInPlugin));
+  ConsoleTitle ct(Opt.ShowCheckingFile?MSG(MCheckingFileInPlugin):NULL);
   /* tran $ */
+
   for (int I=0;I<PluginsCount;I++)
     if (PluginsData[I].pOpenFilePlugin && PreparePlugin(I))
     {
@@ -1229,7 +1232,8 @@ HANDLE PluginsSet::OpenFilePlugin(char *Name,const unsigned char *Data,int DataS
       TRY
       {
          /* $ 20.03.2001 tran */
-         ct.Set("%s - [%s]...",MSG(MCheckingFileInPlugin),strrchr(PluginsData[I].ModuleName,'\\')+1);
+         if(Opt.ShowCheckingFile)
+           ct.Set("%s - [%s]...",MSG(MCheckingFileInPlugin),strrchr(PluginsData[I].ModuleName,'\\')+1);
          /* tran $ */
          hInternal=PluginsData[I].pOpenFilePlugin(NamePtr,Data,DataSize);
          if (!hInternal)

@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.55 12.05.2001 $ */
+/* Revision: 1.56 14.05.2001 $ */
 
 /*
 Modify:
+  14.05.2001 SVS
+    ! FDLG_SMALLDILAOG -> FDLG_SMALLDIALOG
   12.05.2001 DJ
     + EF_ENABLE_F6, VF_ENABLE_F6
   12.05.2001 DJ
@@ -552,8 +554,8 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
 
     if(Flags&FDLG_WARNING)
       FarDialog.SetDialogMode(DMODE_WARNINGSTYLE);
-    if(Flags&FDLG_SMALLDILAOG)
-      FarDialog.SetDialogMode(DMODE_SMALLDILAOG);
+    if(Flags&FDLG_SMALLDIALOG)
+      FarDialog.SetDialogMode(DMODE_SMALLDIALOG);
 
     if (HelpTopic!=NULL)
     {

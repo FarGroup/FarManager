@@ -5,10 +5,12 @@ constitle.cpp
 
 */
 
-/* Revision: 1.01 06.05.2001 $ */
+/* Revision: 1.02 14.05.2001 $ */
 
 /*
 Modify:
+  14.05.2001 SVS
+    + изменен конструктор
   06.05.2001 DJ
     + перетрях #include
   20.03.2001 tran
@@ -24,7 +26,8 @@ Modify:
 ConsoleTitle::ConsoleTitle(char *title)
 {
     GetConsoleTitle(OldTitle,512);
-    SetFarTitle(title);
+    if(title)
+      SetFarTitle(title);
 }
 
 ConsoleTitle::~ConsoleTitle()
