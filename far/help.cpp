@@ -5,10 +5,13 @@ help.cpp
 
 */
 
-/* Revision: 1.07 27.09.2000 $ */
+/* Revision: 1.08 07.12.2000 $ */
 
 /*
 Modify:
+  07.12.2000 SVS
+    ! Изменен механизм запуска URL приложения - были нарекания со стороны
+      владельцев оутглюка.
   27.09.2000 SVS
     ! Разрешения для активизации URL-ссылок.
     ! Ctrl-Alt-Shift - реагируем, если надо.
@@ -78,18 +81,15 @@ static int RunURL(char *Protocol, char *URLPath)
         RegCloseKey(hKey);
         if(Disposition == ERROR_SUCCESS)
         {
+          /* $ 07.12.2000 SVS
+            ! Изменен механизм запуска URL приложения - были нарекания
+              со стороны владельцев оутглюка.
+          */
           char *pp=strrchr(Buf,'%');
-
-          if(pp)
-            *pp='\0';
-          else
-            strcat(Buf," ");
-          STARTUPINFO si={0};
-          PROCESS_INFORMATION pi={0};
-          si.cb=sizeof(si);
+          if(pp) *pp='\0'; else strcat(Buf," ");
 
           Disposition=0;
-          if(Opt.HelpURLRules == 2)
+          if(Opt.HelpURLRules == 2 || Opt.HelpURLRules == 2+256)
             Disposition=Message(MSG_WARNING,2,MSG(MHelpTitle),
                         MSG(MHelpActivatorURL),
                         Buf,
@@ -102,9 +102,44 @@ static int RunURL(char *Protocol, char *URLPath)
           strcat(Buf,URLPath);
 
           EditCode=2; // Все Ok!
-          if(Disposition == 0 && Opt.HelpURLRules)
-            if(!CreateProcess(NULL,Buf,NULL,NULL,TRUE,0,NULL,NULL,&si,&pi))
-               EditCode=1;
+          if(Disposition == 0 && (Opt.HelpURLRules&0xFF))
+          {
+            /*
+              СЮДЫ НУЖНО ВПИНДЮЛИТЬ МЕНЮХУ С ВОЗМОЖНОСТЬЮ ВЫБОРА
+              ТОГО ИЛИ ИНОГО АКТИВАТОРА - ИХ МОЖЕТ БЫТЬ НЕСКОЛЬКО!!!!!
+            */
+            OemToChar(Buf,Buf);
+            if(Opt.HelpURLRules < 256) // SHELLEXECUTEEX_METHOD
+            {
+              SHELLEXECUTEINFO sei;
+
+              pp=strchr(Buf+1,'"');
+              if(pp) *++pp='\0'; ++pp;
+
+              memset(&sei,0,sizeof(sei));
+              sei.cbSize=sizeof(sei);
+              sei.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_DDEWAIT;
+              sei.lpFile=RemoveExternalSpaces(Buf);
+              sei.lpParameters=RemoveExternalSpaces(pp);
+              sei.lpVerb=GetShellAction((char *)sei.lpFile);
+              sei.nShow=SW_SHOWNORMAL;
+              SetFileApisToANSI();
+              if(ShellExecuteEx(&sei))
+                EditCode=1;
+              SetFileApisToOEM();
+            }
+            else
+            {
+              STARTUPINFO si={0};
+              PROCESS_INFORMATION pi={0};
+              si.cb=sizeof(si);
+              SetFileApisToANSI(); //????
+              if(!CreateProcess(NULL,Buf,NULL,NULL,TRUE,0,NULL,NULL,&si,&pi))
+                 EditCode=1;
+              SetFileApisToOEM(); //????
+            }
+          }
+          /* SVS $ */
         }
       }
       free(Buf);
