@@ -5,10 +5,12 @@ Eject съемных носителей
 
 */
 
-/* Revision: 1.10 22.05.2002 $ */
+/* Revision: 1.11 23.11.2002 $ */
 
 /*
 Modify:
+  22.11.2002 SVS
+    ! Некорректная компиляция куска кода под масдаем для Eject`а
   22.05.2002 SVS
     ! Откатимся обратно (про "вместо имени устройства") - есть сигнал про
       нерабочее состояние механизмУ.
@@ -53,7 +55,7 @@ Modify:
    Win9x & WinNT/2K
 */
 
-#if !defined(__USE_MCI)
+#if __USE_MCI == 1
 /*
    Program to programmatically eject removable media from a drive on
    Windows 95.
@@ -363,7 +365,7 @@ This code works on Windows 95 only.
 -----------------------------------------------------------------------*/
 BOOL EjectVolume95 (char Letter,DWORD Flags)
 {
-#if !defined(__USE_MCI)
+#if __USE_MCI == 1
    HANDLE hVWin32;
    BYTE   bDrive;
    BOOL   fDriveLocked;
@@ -443,7 +445,7 @@ CLEANUP_AND_EXIT_APP:
     /* $ 08.05.2002 VVM
       - Используем вместо имени устройства его ID */
     mciOpenParms.lpstrElementName=Buf;
-#if 1
+#if 0
     mciOpenParms.lpstrDeviceType = "cdaudio";
     if ((dwReturn = pmciSendCommand(NULL, MCI_OPEN, MCI_OPEN_TYPE|MCI_OPEN_ELEMENT, (DWORD)(LPVOID) &mciOpenParms)) != 0)
       return FALSE;

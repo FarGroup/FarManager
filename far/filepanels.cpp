@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.46 07.10.2002 $ */
+/* Revision: 1.47 18.11.2002 $ */
 
 /*
 Modify:
+  18.11.2002 SVS
+    - BugZ#705 - ¬осстановление ширины панелей при Alt-F9
   07.10.2002 SVS
     - BugZ#674 - far.exe c:\dir [c:\dir2] - не работает
   17.09.2002 SKV
@@ -294,6 +296,10 @@ void FilePanels::DisplayObject()
 
 void FilePanels::SetPanelPositions(int LeftFullScreen,int RightFullScreen)
 {
+  if (Opt.WidthDecrement < -(ScrX/2-10))
+    Opt.WidthDecrement=-(ScrX/2-10);
+  if (Opt.WidthDecrement > (ScrX/2-10))
+    Opt.WidthDecrement=(ScrX/2-10);
   if (Opt.HeightDecrement>ScrY-7)
     Opt.HeightDecrement=ScrY-7;
   if (Opt.HeightDecrement<0)

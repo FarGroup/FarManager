@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.82 09.11.2002 $ */
+/* Revision: 1.83 18.11.2002 $ */
 
 /*
 Modify:
+  18.11.2002 SVS
+    - FSF.FarNameToKey("aaa") возвращает вместо -1 0x40000000.
   09.11.2002 SVS
     ! В связи с коррекцией "ReturnAltValue" вводим в макросах понятие
       AltXXXXX - т.е. то, что было введено как Alt-Num. Для того, чтобы
@@ -1503,11 +1505,15 @@ int WINAPI KeyNameToKey(const char *Name)
            Pos++;
          }
        }
-       else
+       else if(Key & (KEY_ALT|KEY_RALT))
        {
-         // Было введение Alt-Num
-         Key=(Key|atoi(Ptr)|KEY_ALTDIGIT)&(~(KEY_ALT|KEY_RALT));
-         Pos=Len;
+         int K=atoi(Ptr);
+         if(K != -1)
+         {
+           // Было введение Alt-Num
+           Key=(Key|K|KEY_ALTDIGIT)&(~(KEY_ALT|KEY_RALT));
+           Pos=Len;
+         }
        }
      }
    }
