@@ -5,10 +5,17 @@ dialog.cpp
 
 */
 
-/* Revision: 1.296 18.12.2003 $ */
+/* Revision: 1.297 05.01.2004 $ */
 
 /*
 Modify:
+  05.01.2004 SVS
+    - если в диалоге не может быть получен заголовок окна Far (нет рамок), то не надо
+      делать его (заголовок) пустым, пусть уж лучше там будет "{bla-bla} - Far"
+    - гор€чие клавиши в листе лишь мен€ют текущий элемент, но никак
+      не оповещают обработчик диалога о пользовательском выборе,
+      поэтому нельз€ выбрать нужный элемент и закрыть диалог,
+      имитирую поведение меню
   18.12.2003 SVS
     - BugZ#997 - TechInfo. ќтключение воспри€тие правой/левой кнопки мышы как команд закрыти€ окна диалога
     - некорректно работал DM_SETCHECK (дл€ прорисовки)
@@ -1930,7 +1937,7 @@ const char *Dialog::GetDialogTitle()
   if(CurItemList)
     return (const char *)CurItemList->ListPtr->GetPtrTitle();
 
-  return "";
+  return NULL; //""
 }
 
 /* DJ $ */
@@ -3452,8 +3459,19 @@ int Dialog::ProcessKey(int Key)
 
       if(Item[FocusPos].Type == DI_LISTBOX)
       {
-        if(Item[FocusPos].ListPtr->ProcessKey(Key))
-          return(TRUE);
+        VMenu *List=Item[FocusPos].ListPtr;
+        int CurListPos=List->GetSelectPos();
+        int CheckedListItem=List->GetSelection(-1);
+
+        List->ProcessKey(Key);
+        int NewListPos=List->GetSelectPos();
+        if(NewListPos != CurListPos && !DlgProc((HANDLE)this,DN_LISTCHANGE,FocusPos,NewListPos))
+        {
+          List->SetSelection(CheckedListItem,CurListPos);
+          if(DialogMode.Check(DMODE_SHOW) && !(Item[FocusPos].Flags&DIF_HIDDEN))
+            ShowDialog(FocusPos); // FocusPos
+        }
+        return(TRUE);
       }
 
       /* $ 21.08.2000 SVS

@@ -5,10 +5,14 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.118 11.11.2003 $ */
+/* Revision: 1.119 07.01.2004 $ */
 
 /*
 Modify:
+  07.01.2004 SVS
+    - AA> вставляю из буфера обмена в пустое инксеч-окно всякую ерунду. чего-то
+      AA> находится и подсветка на это "чего-то" перемещается. но по CtrlEnter
+      AA> делается перебор всех файлов по порядку, словно окно инксеч все еще пустое
   11.11.2003 SVS
     ! несколько иной взгляд на Shift-Ins в быстром поиске
     ! Доп проверки на вшивость в Panel::SetPluginCommand()
@@ -1300,6 +1304,7 @@ void Panel::FastFind(int FirstKey)
                       *EndPtr=0;
                       FindEdit.SetString(Ptr);
                       strcpy(LastName,Ptr);
+                      strcpy(Name,Ptr);
                       FindEdit.Show();
                       FastFindShow(FindX,FindY);
                       break;

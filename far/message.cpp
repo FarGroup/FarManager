@@ -5,10 +5,12 @@ message.cpp
 
 */
 
-/* Revision: 1.36 16.10.2003 $ */
+/* Revision: 1.37 05.01.2004 $ */
 
 /*
 Modify:
+  05.01.2004 SVS
+    ! очередна€ корректировка MaxLength
   16.10.2003 SVS
     + ERROR_NO_ASSOCIATION
   10.10.2003 SVS
@@ -252,11 +254,13 @@ int Message(DWORD Flags,int Buttons,const char *Title,
     }
     else if(LenErrStr < MaxLength)
       LenErrStr=MaxLength;
-    MaxLength=LenErrStr;
+
+    if(MaxLength > LenErrStr && MaxLength >= MAX_WIDTH_MESSAGE)
+      MaxLength=LenErrStr;
 
     // а теперь проврапим
     //PtrStr=FarFormatText(ErrStr,MaxLength-(MaxLength > MAX_WIDTH_MESSAGE/2?1:0),ErrStr,sizeof(ErrStr),"\n",0); //?? MaxLength ??
-    PtrStr=FarFormatText(ErrStr,MaxLength,ErrStr,sizeof(ErrStr),"\n",0); //?? MaxLength ??
+    PtrStr=FarFormatText(ErrStr,LenErrStr,ErrStr,sizeof(ErrStr),"\n",0); //?? MaxLength ??
     while((PtrStr=strchr(PtrStr,'\n')) != NULL)
     {
       *PtrStr++=0;

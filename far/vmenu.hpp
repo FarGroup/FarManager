@@ -11,10 +11,12 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.52 05.11.2003 $ */
+/* Revision: 1.53 05.01.2004 $ */
 
 /*
 Modify:
+  05.01.2004 SVS
+    + VMENU_SELECTPOSNONE - признак того, что SelectPos не выставлен (например, все элементы списка задисаблены)
   05.11.2003 SVS
     + VMENU_CHANGECONSOLETITLE, OldTitle
   20.10.2003 SVS
@@ -233,6 +235,7 @@ enum{
 /* KM $ */
 #define VMENU_MOUSEDOWN             0x00800000
 #define VMENU_CHANGECONSOLETITLE    0x01000000
+#define VMENU_SELECTPOSNONE         0x02000000
 #define VMENU_DISABLED              0x80000000
 
 class Dialog;
@@ -455,7 +458,7 @@ class VMenu: virtual public Modal, virtual public Frame
     int  GetUserDataSize(int Position=-1);
     int  SetUserData(void *Data,int Size=0,int Position=-1);
 
-    int  GetSelectPos() {return SelectPos;}
+    int  GetSelectPos() {return VMFlags.Check(VMENU_SELECTPOSNONE)?-1:SelectPos;}
     int  GetSelectPos(struct FarListPos *ListPos);
     int  SetSelectPos(int Pos,int Direct);
     int  SetSelectPos(struct FarListPos *ListPos);

@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.93 05.01.2004 $ */
+/* Revision: 1.94 05.01.2004 $ */
 
 /*
 Modify:
+  05.01.2004 SVS
+    ! Уточнение запускатора (про "far.exe/?")
   05.01.2004 SVS
     - BugZ#1007 - Не передаются параметры прогам когда Executor\Type=1
   11.11.2003 SVS
@@ -292,6 +294,8 @@ Modify:
 #include "rdrwdsk.hpp"
 #include "udlist.hpp"
 
+static const char strSystemExecutor[]="System\\Executor";
+
 // Выдранный кусок из будущего GetFileInfo, получаем достоверную информацию о
 // ГУЯХ PE-модуля
 /* 14.06.2002 VVM
@@ -408,6 +412,7 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error)
   const char *ExtPtr;
   char *RetPtr;
   LONG ValueSize;
+  const char command_action[]="\\command";
 
   Error=0;
   ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
@@ -449,7 +454,7 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error)
       {
         strncpy(NewValue, Value, sizeof(NewValue) - 1);
         strcat(NewValue, ActionPtr);
-        strcat(NewValue, "\\command");
+        strcat(NewValue, command_action);
         if (RegOpenKey(HKEY_CLASSES_ROOT,NewValue,&hOpenKey)==ERROR_SUCCESS)
         {
           RegCloseKey(hOpenKey);
@@ -488,7 +493,7 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error)
     strcpy(Action,"open");
     strncpy(NewValue, Value, sizeof(NewValue) - 1);
     strcat(NewValue, Action);
-    strcat(NewValue, "\\command");
+    strcat(NewValue, command_action);
     if (RegOpenKey(HKEY_CLASSES_ROOT,NewValue,&hOpenKey)==ERROR_SUCCESS)
     {
       RegCloseKey(hOpenKey);
@@ -507,7 +512,7 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error)
         // Проверим наличие "команды" у этого ключа
         strncpy(NewValue, Value, sizeof(NewValue) - 1);
         strcat(NewValue, Action);
-        strcat(NewValue, "\\command");
+        strcat(NewValue, command_action);
         if (RegOpenKey(HKEY_CLASSES_ROOT,NewValue,&hOpenKey)==ERROR_SUCCESS)
         {
           RegCloseKey(hOpenKey);
@@ -522,7 +527,7 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error)
 
   if (RetPtr != NULL)
   {
-    strcat(Value,"\\command");
+    strcat(Value,command_action);
 
     // а теперь проверим ГУЕвость запускаемой проги
     if (RegOpenKey(HKEY_CLASSES_ROOT,Value,&hKey)==ERROR_SUCCESS)
@@ -614,18 +619,26 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
   */
   static char ExcludeCmds[4096]={0};
   static int PrepareExcludeCmds=FALSE;
-  if(!PrepareExcludeCmds && GetRegKey("System\\Executor","Type",0))
+  if(GetRegKey(strSystemExecutor,"Type",0))
   {
-    GetRegKey("System\\Executor","ExcludeCmds",(char*)ExcludeCmds,"",0);
-    Ptr=strcat(ExcludeCmds,";"); //!!!
-    ExcludeCmds[strlen(ExcludeCmds)]=0;
-    while(*Ptr)
+    if (!PrepareExcludeCmds)
     {
-      if(*Ptr == ';')
-        *Ptr=0;
-      ++Ptr;
+      GetRegKey(strSystemExecutor,"ExcludeCmds",(char*)ExcludeCmds,"",0);
+      Ptr=strcat(ExcludeCmds,";"); //!!!
+      ExcludeCmds[strlen(ExcludeCmds)]=0;
+      while(*Ptr)
+      {
+        if(*Ptr == ';')
+          *Ptr=0;
+        ++Ptr;
+      }
+      PrepareExcludeCmds=TRUE;
     }
-    PrepareExcludeCmds=TRUE;
+  }
+  else
+  {
+    *ExcludeCmds=0;
+    PrepareExcludeCmds=FALSE;
   }
 
   ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN; // GUIType всегда вначале инициализируется в FALSE
@@ -929,15 +942,17 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
     {
       if (*CmdPtr == '>' || *CmdPtr == '<' ||
           *CmdPtr == '|' || *CmdPtr == ' ' ||
+          *CmdPtr == '/' ||      // вариант "far.exe/?"
           (NT && *CmdPtr == '&') // Для НТ/2к обработаем разделитель команд
          )
       {
         if (!ParPtr)
           ParPtr = CmdPtr;
-        if (*CmdPtr != ' ')
+        if (*CmdPtr != ' ' && *CmdPtr != '/')
           PipeFound = TRUE;
       }
     }
+
     if (ParPtr && PipeFound)
     // Нам больше ничего не надо узнавать
       break;
@@ -947,7 +962,13 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
   if (ParPtr)
   // Мы нашли параметры и отделяем мух от котлет
   {
-    strcpy(NewCmdPar, ParPtr);
+    if (*ParPtr=='/')
+    {
+      *NewCmdPar=0x20;
+      strcpy(NewCmdPar+1, ParPtr);
+    }
+    else
+      strcpy(NewCmdPar, ParPtr);
     *ParPtr = 0;
   }
   Unquote(NewCmdStr);
@@ -989,7 +1010,7 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
   int ExitCode=1;
   DWORD _LastErrCode=0;
 
-  int ExecutorType = GetRegKey("System\\Executor","Type",0);
+  int ExecutorType = GetRegKey(strSystemExecutor,"Type",0);
   // частный случай - т.с. затычка, но нужно конкретное решение!
   if(*NewCmdStr && !((*NewCmdStr == '\\'|| *NewCmdStr == '/') && !NewCmdStr[1]))
   {
@@ -1073,9 +1094,9 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
           char TemplExecuteStart[512];
           char TemplExecuteWait[512];
           // <TODO: здесь надо по другому переделать>
-          GetRegKey("System\\Executor","Normal",TemplExecute,"%COMSPEC% /c",sizeof(TemplExecute));
-          GetRegKey("System\\Executor","Start",TemplExecuteStart,"%COMSPEC% /c start",sizeof(TemplExecuteStart));
-          GetRegKey("System\\Executor","Wait",TemplExecuteWait,"%COMSPEC% /c start /wait",sizeof(TemplExecuteWait));
+          GetRegKey(strSystemExecutor,"Normal",TemplExecute,"%COMSPEC% /c",sizeof(TemplExecute));
+          GetRegKey(strSystemExecutor,"Start",TemplExecuteStart,"%COMSPEC% /c start",sizeof(TemplExecuteStart));
+          GetRegKey(strSystemExecutor,"Wait",TemplExecuteWait,"%COMSPEC% /c start /wait",sizeof(TemplExecuteWait));
 
           char *Fmt=TemplExecute;
           if (SeparateWindow || ImageSubsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI && (NT || AlwaysWaitFinish))

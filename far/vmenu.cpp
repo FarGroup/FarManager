@@ -8,10 +8,13 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.124 25.11.2003 $ */
+/* Revision: 1.125 05.01.2004 $ */
 
 /*
 Modify:
+  05.01.2004 SVS
+    + VMENU_SELECTPOSNONE - признак того, что SelectPos не выставлен (например, все элементы списка задисаблены)
+    !  орректировка SelectPos (по флагу VMENU_SELECTPOSNONE)
   25.11.2003 SVS
     ! ConsoleTitle должен создаватьс€ по мере надобности, а не в конструкторе
   05.11.2003 SVS
@@ -540,8 +543,15 @@ VMenu::VMenu(const char *Title,       // заголовок меню
     if ((Item[I].Flags&LIF_SELECTED) && !(Item[I].Flags&LIF_DISABLE))
       SelectPos=I;
   }
-  if(SelectPos == -1)
+
+  VMFlags.Clear(VMENU_SELECTPOSNONE);
+  if(SelectPos < 0)
     SelectPos=SetSelectPos(0,1);
+  if(SelectPos < 0)
+  {
+    VMFlags.Set(VMENU_SELECTPOSNONE);
+    SelectPos=0;
+  }
 
   SetMaxHeight(MaxHeight);
   /* $ 28.07.2000 SVS
@@ -1085,6 +1095,8 @@ BOOL VMenu::CheckKeyHiOrAcc(DWORD Key,int Type,int Translate)
        )
       )
     {
+//      if(VMenu::ParentDialog)
+//        Dislog::SendDlgMessage((HANDLE)ParentDialog,DN_LISTHOTKEY,)ProcessKey(Key);
       Item[SelectPos].Flags&=~LIF_SELECTED;
       CurItem->Flags|=LIF_SELECTED;
       SelectPos=I;
@@ -1475,7 +1487,8 @@ void VMenu::DeleteItems()
   /* SVS $ */
   Item=NULL;
   ItemCount=0;
-  SelectPos=TopPos=0;
+  SelectPos=-1;
+  TopPos=0;
   MaxLength=strlen(VMenu::Title)+2;
   if(MaxLength > ScrX-8)
     MaxLength=ScrX-8;
@@ -1547,8 +1560,13 @@ int VMenu::DeleteItem(int ID,int Count)
       SelectPos--;
     /* DJ $ */
   }
+
+  VMFlags.Clear(VMENU_SELECTPOSNONE);
   if(SelectPos < 0)
+  {
+    VMFlags.Set(VMENU_SELECTPOSNONE);
     SelectPos=0;
+  }
 
   ItemCount-=Count;
 
@@ -1566,6 +1584,9 @@ int VMenu::DeleteItem(int ID,int Count)
   }
 
   SelectPos=SetSelectPos(OldItemSelected,1);
+  if (Item[SelectPos].Flags & (LIF_SEPARATOR | LIF_DISABLE))
+    VMFlags.Set(VMENU_SELECTPOSNONE);
+
   if(SelectPos > -1)
     Item[SelectPos].Flags|=LIF_SELECTED;
 
@@ -1631,6 +1652,13 @@ int VMenu::AddItem(const struct MenuItem *NewItem,int PosAdd)
       Item[PosAdd].Flags&=0xFFFF0000;
   }
   Item[PosAdd].AmpPos=-1;
+
+  VMFlags.Clear(VMENU_SELECTPOSNONE);
+  if(SelectPos < 0)
+  {
+    VMFlags.Set(VMENU_SELECTPOSNONE);
+    //SelectPos=0;
+  }
 
   // ¬ычисление размеров
   int I=0, J=0;
@@ -1882,6 +1910,8 @@ struct MenuItem *VMenu::FarList2MenuItem(const struct FarListItem *FItem,
 int VMenu::GetSelectPos(struct FarListPos *ListPos)
 {
   ListPos->SelectPos=GetSelectPos();
+  if(VMFlags.Check(VMENU_SELECTPOSNONE))
+    ListPos->SelectPos=-1;
   ListPos->TopPos=TopPos;
   return ListPos->SelectPos;
 }

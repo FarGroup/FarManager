@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.148 11.11.2003 $ */
+/* Revision: 1.149 07.01.2004 $ */
 
 /*
 Modify:
+  07.01.2004 SVS
+    ! небольша€ оптимизаци€.
   11.11.2003 SVS
     ! KeepUserScreen и DirToSet перенесены из plugins.cpp в global.cpp
   29.10.2003 SVS
@@ -446,9 +448,45 @@ Modify:
 
 
 static void CheckScreenLock();
-static char FmtPluginsCache_PluginD[]="PluginsCache\\Plugin%d";
-static char FmtDiskMenuStringD[]="DiskMenuString%d";
-static char FmtDiskMenuNumberD[]="DiskMenuNumber%d";
+
+static const char FmtPluginsCache_PluginD[]="PluginsCache\\Plugin%d";
+static const char FmtPluginsCache_PluginDExport[]="PluginsCache\\Plugin%d\\Exports";
+static const char FmtDiskMenuStringD[]="DiskMenuString%d";
+static const char FmtDiskMenuNumberD[]="DiskMenuNumber%d";
+static const char FmtPluginMenuStringD[]="PluginMenuString%d";
+static const char FmtPluginConfigStringD[]="PluginConfigString%d";
+
+static const char NFMP_Preload[]="Preload";
+static const char NFMP_SysID[]="SysID";
+
+static const char NFMP_OpenPlugin[]="OpenPlugin";
+static const char NFMP_OpenFilePlugin[]="OpenFilePlugin";
+static const char NFMP_SetFindList[]="SetFindList";
+static const char NFMP_ProcessEditorInput[]="ProcessEditorInput";
+static const char NFMP_ProcessEditorEvent[]="ProcessEditorEvent";
+static const char NFMP_ProcessViewerEvent[]="ProcessViewerEvent";
+static const char NFMP_SetStartupInfo[]="SetStartupInfo";
+static const char NFMP_ClosePlugin[]="ClosePlugin";
+static const char NFMP_GetPluginInfo[]="GetPluginInfo";
+static const char NFMP_GetOpenPluginInfo[]="GetOpenPluginInfo";
+static const char NFMP_GetFindData[]="GetFindData";
+static const char NFMP_FreeFindData[]="FreeFindData";
+static const char NFMP_GetVirtualFindData[]="GetVirtualFindData";
+static const char NFMP_FreeVirtualFindData[]="FreeVirtualFindData";
+static const char NFMP_SetDirectory[]="SetDirectory";
+static const char NFMP_GetFiles[]="GetFiles";
+static const char NFMP_PutFiles[]="PutFiles";
+static const char NFMP_DeleteFiles[]="DeleteFiles";
+static const char NFMP_MakeDirectory[]="MakeDirectory";
+static const char NFMP_ProcessHostFile[]="ProcessHostFile";
+static const char NFMP_Configure[]="Configure";
+static const char NFMP_ExitFAR[]="ExitFAR";
+static const char NFMP_ProcessKey[]="ProcessKey";
+static const char NFMP_ProcessEvent[]="ProcessEvent";
+static const char NFMP_Compare[]="Compare";
+static const char NFMP_GetMinFarVersion[]="GetMinFarVersion";
+
+static const char RKN_PluginsCache[]="PluginsCache";
 
 static int _cdecl PluginsSort(const void *el1,const void *el2);
 static BOOL PrepareModulePath(const char *ModuleName);
@@ -581,8 +619,8 @@ void PluginsSet::LoadPlugins()
             LoadCached=TRUE;
             /* $ 12.10.2000 tran
                Preload=1 нужно дл€ корректной обработки -co */
-            sprintf(RegKey,"PluginsCache\\Plugin%d",CachePos);
-            if ( GetRegKey(RegKey,"Preload",0)==1 )
+            sprintf(RegKey,FmtPluginsCache_PluginD,CachePos);
+            if ( GetRegKey(RegKey,NFMP_Preload,0)==1 )
             {
               LoadCached=FALSE;
               CachePos=-1;
@@ -595,14 +633,14 @@ void PluginsSet::LoadPlugins()
           if (LoadCached)
           {
             char RegKey[100];
-            sprintf(RegKey,"PluginsCache\\Plugin%d\\Exports",CachePos);
-            CurPlugin.SysID=GetRegKey(RegKey,"SysID",0);
-            CurPlugin.pOpenPlugin=(PLUGINOPENPLUGIN)GetRegKey(RegKey,"OpenPlugin",0);
-            CurPlugin.pOpenFilePlugin=(PLUGINOPENFILEPLUGIN)GetRegKey(RegKey,"OpenFilePlugin",0);
-            CurPlugin.pSetFindList=(PLUGINSETFINDLIST)GetRegKey(RegKey,"SetFindList",0);
-            CurPlugin.pProcessEditorInput=(PLUGINPROCESSEDITORINPUT)GetRegKey(RegKey,"ProcessEditorInput",0);
-            CurPlugin.pProcessEditorEvent=(PLUGINPROCESSEDITOREVENT)GetRegKey(RegKey,"ProcessEditorEvent",0);
-            CurPlugin.pProcessViewerEvent=(PLUGINPROCESSVIEWEREVENT)GetRegKey(RegKey,"ProcessViewerEvent",0);
+            sprintf(RegKey,FmtPluginsCache_PluginDExport,CachePos);
+            CurPlugin.SysID=GetRegKey(RegKey,NFMP_SysID,0);
+            CurPlugin.pOpenPlugin=(PLUGINOPENPLUGIN)GetRegKey(RegKey,NFMP_OpenPlugin,0);
+            CurPlugin.pOpenFilePlugin=(PLUGINOPENFILEPLUGIN)GetRegKey(RegKey,NFMP_OpenFilePlugin,0);
+            CurPlugin.pSetFindList=(PLUGINSETFINDLIST)GetRegKey(RegKey,NFMP_SetFindList,0);
+            CurPlugin.pProcessEditorInput=(PLUGINPROCESSEDITORINPUT)GetRegKey(RegKey,NFMP_ProcessEditorInput,0);
+            CurPlugin.pProcessEditorEvent=(PLUGINPROCESSEDITOREVENT)GetRegKey(RegKey,NFMP_ProcessEditorEvent,0);
+            CurPlugin.pProcessViewerEvent=(PLUGINPROCESSVIEWEREVENT)GetRegKey(RegKey,NFMP_ProcessViewerEvent,0);
             CurPlugin.CachePos=CachePos;
           }
           if (LoadCached || LoadPlugin(CurPlugin,-1,TRUE))
@@ -687,7 +725,7 @@ void PluginsSet::LoadPluginsFromCache()
 
   for (I=0;;I++)
   {
-    if (!EnumRegKey("PluginsCache",I,PlgKey,sizeof(PlgKey)))
+    if (!EnumRegKey(RKN_PluginsCache,I,PlgKey,sizeof(PlgKey)))
       break;
 
     memset(&CurPlugin,0,sizeof(CurPlugin));
@@ -696,7 +734,7 @@ void PluginsSet::LoadPluginsFromCache()
     GetRegKey(RegKey,"Name",CurPlugin.ModuleName,"",NM);
     /* $ 12.10.2000 tran
       -co должен понимать PRELOAD плагины */
-    if ( GetRegKey(RegKey,"Preload",0)==1 )
+    if ( GetRegKey(RegKey,NFMP_Preload,0)==1 )
     {
 
       if (!LoadPlugin(CurPlugin,-1,TRUE))
@@ -708,13 +746,13 @@ void PluginsSet::LoadPluginsFromCache()
     /* tran $ */
       strcat(RegKey,"\\");
       strcat(RegKey,"Exports");
-      CurPlugin.SysID=GetRegKey(RegKey,"SysID",0);
-      CurPlugin.pOpenPlugin=(PLUGINOPENPLUGIN)GetRegKey(RegKey,"OpenPlugin",0);
-      CurPlugin.pOpenFilePlugin=(PLUGINOPENFILEPLUGIN)GetRegKey(RegKey,"OpenFilePlugin",0);
-      CurPlugin.pSetFindList=(PLUGINSETFINDLIST)GetRegKey(RegKey,"SetFindList",0);
-      CurPlugin.pProcessEditorInput=(PLUGINPROCESSEDITORINPUT)GetRegKey(RegKey,"ProcessEditorInput",0);
-      CurPlugin.pProcessEditorEvent=(PLUGINPROCESSEDITOREVENT)GetRegKey(RegKey,"ProcessEditorEvent",0);
-      CurPlugin.pProcessViewerEvent=(PLUGINPROCESSVIEWEREVENT)GetRegKey(RegKey,"ProcessViewerEvent",0);
+      CurPlugin.SysID=GetRegKey(RegKey,NFMP_SysID,0);
+      CurPlugin.pOpenPlugin=(PLUGINOPENPLUGIN)GetRegKey(RegKey,NFMP_OpenPlugin,0);
+      CurPlugin.pOpenFilePlugin=(PLUGINOPENFILEPLUGIN)GetRegKey(RegKey,NFMP_OpenFilePlugin,0);
+      CurPlugin.pSetFindList=(PLUGINSETFINDLIST)GetRegKey(RegKey,NFMP_SetFindList,0);
+      CurPlugin.pProcessEditorInput=(PLUGINPROCESSEDITORINPUT)GetRegKey(RegKey,NFMP_ProcessEditorInput,0);
+      CurPlugin.pProcessEditorEvent=(PLUGINPROCESSEDITOREVENT)GetRegKey(RegKey,NFMP_ProcessEditorEvent,0);
+      CurPlugin.pProcessViewerEvent=(PLUGINPROCESSVIEWEREVENT)GetRegKey(RegKey,NFMP_ProcessViewerEvent,0);
       CurPlugin.CachePos=atoi(PlgKey+19);
       CurPlugin.WorkFlags.Set(PIWF_CACHED);
       // вот тут это поле не заполнено, надеюсь, что оно не критично
@@ -808,32 +846,32 @@ int PluginsSet::LoadPlugin(struct PluginItem &CurPlugin,int ModuleNumber,int Ini
 
   CurPlugin.hModule=hModule;
   CurPlugin.WorkFlags.Clear(PIWF_CACHED);
-  CurPlugin.pSetStartupInfo=(PLUGINSETSTARTUPINFO)GetProcAddress(hModule,"SetStartupInfo");
-  CurPlugin.pOpenPlugin=(PLUGINOPENPLUGIN)GetProcAddress(hModule,"OpenPlugin");
-  CurPlugin.pOpenFilePlugin=(PLUGINOPENFILEPLUGIN)GetProcAddress(hModule,"OpenFilePlugin");
-  CurPlugin.pClosePlugin=(PLUGINCLOSEPLUGIN)GetProcAddress(hModule,"ClosePlugin");
-  CurPlugin.pGetPluginInfo=(PLUGINGETPLUGININFO)GetProcAddress(hModule,"GetPluginInfo");
-  CurPlugin.pGetOpenPluginInfo=(PLUGINGETOPENPLUGININFO)GetProcAddress(hModule,"GetOpenPluginInfo");
-  CurPlugin.pGetFindData=(PLUGINGETFINDDATA)GetProcAddress(hModule,"GetFindData");
-  CurPlugin.pFreeFindData=(PLUGINFREEFINDDATA)GetProcAddress(hModule,"FreeFindData");
-  CurPlugin.pGetVirtualFindData=(PLUGINGETVIRTUALFINDDATA)GetProcAddress(hModule,"GetVirtualFindData");
-  CurPlugin.pFreeVirtualFindData=(PLUGINFREEVIRTUALFINDDATA)GetProcAddress(hModule,"FreeVirtualFindData");
-  CurPlugin.pSetDirectory=(PLUGINSETDIRECTORY)GetProcAddress(hModule,"SetDirectory");
-  CurPlugin.pGetFiles=(PLUGINGETFILES)GetProcAddress(hModule,"GetFiles");
-  CurPlugin.pPutFiles=(PLUGINPUTFILES)GetProcAddress(hModule,"PutFiles");
-  CurPlugin.pDeleteFiles=(PLUGINDELETEFILES)GetProcAddress(hModule,"DeleteFiles");
-  CurPlugin.pMakeDirectory=(PLUGINMAKEDIRECTORY)GetProcAddress(hModule,"MakeDirectory");
-  CurPlugin.pProcessHostFile=(PLUGINPROCESSHOSTFILE)GetProcAddress(hModule,"ProcessHostFile");
-  CurPlugin.pSetFindList=(PLUGINSETFINDLIST)GetProcAddress(hModule,"SetFindList");
-  CurPlugin.pConfigure=(PLUGINCONFIGURE)GetProcAddress(hModule,"Configure");
-  CurPlugin.pExitFAR=(PLUGINEXITFAR)GetProcAddress(hModule,"ExitFAR");
-  CurPlugin.pProcessKey=(PLUGINPROCESSKEY)GetProcAddress(hModule,"ProcessKey");
-  CurPlugin.pProcessEvent=(PLUGINPROCESSEVENT)GetProcAddress(hModule,"ProcessEvent");
-  CurPlugin.pCompare=(PLUGINCOMPARE)GetProcAddress(hModule,"Compare");
-  CurPlugin.pProcessEditorInput=(PLUGINPROCESSEDITORINPUT)GetProcAddress(hModule,"ProcessEditorInput");
-  CurPlugin.pProcessEditorEvent=(PLUGINPROCESSEDITOREVENT)GetProcAddress(hModule,"ProcessEditorEvent");
-  CurPlugin.pProcessViewerEvent=(PLUGINPROCESSVIEWEREVENT)GetProcAddress(hModule,"ProcessViewerEvent");
-  CurPlugin.pMinFarVersion=(PLUGINMINFARVERSION)GetProcAddress(hModule,"GetMinFarVersion");
+  CurPlugin.pSetStartupInfo=(PLUGINSETSTARTUPINFO)GetProcAddress(hModule,NFMP_SetStartupInfo);
+  CurPlugin.pOpenPlugin=(PLUGINOPENPLUGIN)GetProcAddress(hModule,NFMP_OpenPlugin);
+  CurPlugin.pOpenFilePlugin=(PLUGINOPENFILEPLUGIN)GetProcAddress(hModule,NFMP_OpenFilePlugin);
+  CurPlugin.pClosePlugin=(PLUGINCLOSEPLUGIN)GetProcAddress(hModule,NFMP_ClosePlugin);
+  CurPlugin.pGetPluginInfo=(PLUGINGETPLUGININFO)GetProcAddress(hModule,NFMP_GetPluginInfo);
+  CurPlugin.pGetOpenPluginInfo=(PLUGINGETOPENPLUGININFO)GetProcAddress(hModule,NFMP_GetOpenPluginInfo);
+  CurPlugin.pGetFindData=(PLUGINGETFINDDATA)GetProcAddress(hModule,NFMP_GetFindData);
+  CurPlugin.pFreeFindData=(PLUGINFREEFINDDATA)GetProcAddress(hModule,NFMP_FreeFindData);
+  CurPlugin.pGetVirtualFindData=(PLUGINGETVIRTUALFINDDATA)GetProcAddress(hModule,NFMP_GetVirtualFindData);
+  CurPlugin.pFreeVirtualFindData=(PLUGINFREEVIRTUALFINDDATA)GetProcAddress(hModule,NFMP_FreeVirtualFindData);
+  CurPlugin.pSetDirectory=(PLUGINSETDIRECTORY)GetProcAddress(hModule,NFMP_SetDirectory);
+  CurPlugin.pGetFiles=(PLUGINGETFILES)GetProcAddress(hModule,NFMP_GetFiles);
+  CurPlugin.pPutFiles=(PLUGINPUTFILES)GetProcAddress(hModule,NFMP_PutFiles);
+  CurPlugin.pDeleteFiles=(PLUGINDELETEFILES)GetProcAddress(hModule,NFMP_DeleteFiles);
+  CurPlugin.pMakeDirectory=(PLUGINMAKEDIRECTORY)GetProcAddress(hModule,NFMP_MakeDirectory);
+  CurPlugin.pProcessHostFile=(PLUGINPROCESSHOSTFILE)GetProcAddress(hModule,NFMP_ProcessHostFile);
+  CurPlugin.pSetFindList=(PLUGINSETFINDLIST)GetProcAddress(hModule,NFMP_SetFindList);
+  CurPlugin.pConfigure=(PLUGINCONFIGURE)GetProcAddress(hModule,NFMP_Configure);
+  CurPlugin.pExitFAR=(PLUGINEXITFAR)GetProcAddress(hModule,NFMP_ExitFAR);
+  CurPlugin.pProcessKey=(PLUGINPROCESSKEY)GetProcAddress(hModule,NFMP_ProcessKey);
+  CurPlugin.pProcessEvent=(PLUGINPROCESSEVENT)GetProcAddress(hModule,NFMP_ProcessEvent);
+  CurPlugin.pCompare=(PLUGINCOMPARE)GetProcAddress(hModule,NFMP_Compare);
+  CurPlugin.pProcessEditorInput=(PLUGINPROCESSEDITORINPUT)GetProcAddress(hModule,NFMP_ProcessEditorInput);
+  CurPlugin.pProcessEditorEvent=(PLUGINPROCESSEDITOREVENT)GetProcAddress(hModule,NFMP_ProcessEditorEvent);
+  CurPlugin.pProcessViewerEvent=(PLUGINPROCESSVIEWEREVENT)GetProcAddress(hModule,NFMP_ProcessViewerEvent);
+  CurPlugin.pMinFarVersion=(PLUGINMINFARVERSION)GetProcAddress(hModule,NFMP_GetMinFarVersion);
   CurPlugin.LinkedFrame=NULL;
   /*$ 13.09.2001 SKV
     ≈сли плагин не экспортирует ни одной
@@ -1338,13 +1376,13 @@ int PluginsSet::SavePluginSettings(struct PluginItem &CurPlugin,
          если плагин PRELOAD, в кеш пишетс€ об этом */
       if (Info.Flags & PF_PRELOAD)
       {
-        SetRegKey(RegKey,"Preload",1);
+        SetRegKey(RegKey,NFMP_Preload,1);
         CurPlugin.WorkFlags.Set(PIWF_PRELOADED);
         break;
       }
       else
       {
-        SetRegKey(RegKey,"Preload",(DWORD)0);
+        SetRegKey(RegKey,NFMP_Preload,(DWORD)0);
         CurPlugin.WorkFlags.Clear(PIWF_PRELOADED);
       }
       /* tran $ */
@@ -1363,25 +1401,25 @@ int PluginsSet::SavePluginSettings(struct PluginItem &CurPlugin,
       for (I=0;I<Info.PluginMenuStringsNumber;I++)
       {
         char Value[100];
-        sprintf(Value,"PluginMenuString%d",I);
+        sprintf(Value,FmtPluginMenuStringD,I);
         SetRegKey(RegKey,Value,Info.PluginMenuStrings[I]);
       }
       for (I=0;I<Info.PluginConfigStringsNumber;I++)
       {
         char Value[100];
-        sprintf(Value,"PluginConfigString%d",I);
+        sprintf(Value,FmtPluginConfigStringD,I);
         SetRegKey(RegKey,Value,Info.PluginConfigStrings[I]);
       }
       SetRegKey(RegKey,"CommandPrefix",NullToEmpty(Info.CommandPrefix));
       SetRegKey(RegKey,"Flags",Info.Flags);
-      sprintf(RegKey,"PluginsCache\\Plugin%d\\Exports",I0);
-      SetRegKey(RegKey,"SysID",CurPlugin.SysID);
-      SetRegKey(RegKey,"OpenPlugin",CurPlugin.pOpenPlugin!=NULL);
-      SetRegKey(RegKey,"OpenFilePlugin",CurPlugin.pOpenFilePlugin!=NULL);
-      SetRegKey(RegKey,"SetFindList",CurPlugin.pSetFindList!=NULL);
-      SetRegKey(RegKey,"ProcessEditorInput",CurPlugin.pProcessEditorInput!=NULL);
-      SetRegKey(RegKey,"ProcessEditorEvent",CurPlugin.pProcessEditorEvent!=NULL);
-      SetRegKey(RegKey,"ProcessViewerEvent",CurPlugin.pProcessViewerEvent!=NULL);
+      sprintf(RegKey,FmtPluginsCache_PluginDExport,I0);
+      SetRegKey(RegKey,NFMP_SysID,CurPlugin.SysID);
+      SetRegKey(RegKey,NFMP_OpenPlugin,CurPlugin.pOpenPlugin!=NULL);
+      SetRegKey(RegKey,NFMP_OpenFilePlugin,CurPlugin.pOpenFilePlugin!=NULL);
+      SetRegKey(RegKey,NFMP_SetFindList,CurPlugin.pSetFindList!=NULL);
+      SetRegKey(RegKey,NFMP_ProcessEditorInput,CurPlugin.pProcessEditorInput!=NULL);
+      SetRegKey(RegKey,NFMP_ProcessEditorEvent,CurPlugin.pProcessEditorEvent!=NULL);
+      SetRegKey(RegKey,NFMP_ProcessViewerEvent,CurPlugin.pProcessViewerEvent!=NULL);
       break;
     }
   }
@@ -1419,7 +1457,7 @@ HANDLE PluginsSet::OpenPlugin(int PluginNumber,int OpenFrom,int Item)
         Flags.Set(PSIF_ENTERTOOPENPLUGIN);
         if(Opt.ExceptRules)
         {
-          _ECTLLOG(CleverSysLog SL("OpenPlugin"));
+          _ECTLLOG(CleverSysLog SL(NFMP_OpenPlugin));
           TRY {
              _SVS(SysLog("OPENPLUGIN >>> '%s'",(char *)Item));
              hInternal=PData->pOpenPlugin(OpenFrom,Item);
@@ -2413,20 +2451,18 @@ void PluginsSet::ConfigureCurrent(int PNum,int INum)
 
     if (Ret)
     {
-      Panel *pPanel=NULL;
-      if (CtrlObject->Cp()->LeftPanel->GetMode()==PLUGIN_PANEL)
+      int PMode[2];
+      PMode[0]=CtrlObject->Cp()->LeftPanel->GetMode();
+      PMode[1]=CtrlObject->Cp()->RightPanel->GetMode();
+      for(int I=0; I < sizeof(PMode)/sizeof(PMode[0]); ++I)
       {
-        pPanel= CtrlObject->Cp()->LeftPanel;
-        pPanel->Update(UPDATE_KEEP_SELECTION);
-        pPanel->SetViewMode(pPanel->GetViewMode());
-        pPanel->Redraw();
-      }
-      if (CtrlObject->Cp()->RightPanel->GetMode()==PLUGIN_PANEL)
-      {
-        pPanel= CtrlObject->Cp()->RightPanel;
-        pPanel->Update(UPDATE_KEEP_SELECTION);
-        pPanel->SetViewMode(pPanel->GetViewMode());
-        pPanel->Redraw();
+        if(PMode[I] == PLUGIN_PANEL)
+        {
+          Panel *pPanel=(I==0?CtrlObject->Cp()->LeftPanel:CtrlObject->Cp()->RightPanel);
+          pPanel->Update(UPDATE_KEEP_SELECTION);
+          pPanel->SetViewMode(pPanel->GetViewMode());
+          pPanel->Redraw();
+        }
       }
     }
     SavePluginSettings(*PData,PData->FindData);
@@ -2487,7 +2523,7 @@ void PluginsSet::Configure(int StartPos)
                 struct MenuItem ListItem;
                 memset(&ListItem,0,sizeof(ListItem));
                 sprintf(RegKey,FmtPluginsCache_PluginD,RegNumber);
-                sprintf(Value,"PluginConfigString%d",J);
+                sprintf(Value,FmtPluginConfigStringD,J);
                 char Name[sizeof(ListItem.Name)];
                 GetRegKey(RegKey,Value,Name,"",sizeof(Name));
                 if (*Name==0)
@@ -2665,7 +2701,7 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
                   GetRegKey(HotRegKey,"Hotkey",HotKey,"",sizeof(HotKey));
                 struct MenuItem ListItem;
                 memset(&ListItem,0,sizeof(ListItem));
-                sprintf(Value,"PluginMenuString%d",J);
+                sprintf(Value,FmtPluginMenuStringD,J);
                 char Name[sizeof(ListItem.Name)];
                 GetRegKey(RegKey,Value,Name,"",sizeof(Name));
                 if (*Name==0)
@@ -2967,13 +3003,13 @@ void PluginsSet::DiscardCache()
 {
   for (int I=0;I<PluginsCount;I++)
     PreparePlugin(I);
-  DeleteKeyTree("PluginsCache");
+  DeleteKeyTree(RKN_PluginsCache);
 }
 
 
 void PluginsSet::LoadIfCacheAbsent()
 {
-  if (!CheckRegKey("PluginsCache"))
+  if (!CheckRegKey(RKN_PluginsCache))
     for (int I=0;I<PluginsCount;I++)
       PreparePlugin(I);
 }
