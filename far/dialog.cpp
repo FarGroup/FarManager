@@ -5,10 +5,15 @@ dialog.cpp
 
 */
 
-/* Revision: 1.104 23.05.2001 $ */
+/* Revision: 1.105 24.05.2001 $ */
 
 /*
 Modify:
+  24.05.2001 SVS
+   ! Если используется USeLastHistory, то учитываем флаг в реестре, который
+     нам подскажет - а нужно ли вообще...
+     Т.е. если последний раз мы оставили строку пустой, то в следующий раз
+     нефига заполнять поле ввода в следующий раз.
   23.05.2001 VVM
    ! Отменил раскрытие комбобокса по KEY_DOWN. Ну невозможно работать...
   23.05.2001 SVS
@@ -989,8 +994,11 @@ int Dialog::InitDialogObjects(int ID)
         }
         if(!PtrData[0])
         {
+          DWORD UseFlags;
           sprintf(RegKey,fmtSavedDialogHistory,(char*)CurItem->History);
-          GetRegKey(RegKey,"Line0",PtrData,"",PtrLength);
+          UseFlags=GetRegKey(RegKey,"Flags",1);
+          if(UseFlags)
+            GetRegKey(RegKey,"Line0",PtrData,"",PtrLength);
         }
       }
       /* SVS $ */
@@ -3610,15 +3618,17 @@ int Dialog::AddToEditHistory(char *AddStr,char *HistoryName,int MaxLen)
 {
   int LastLine=HISTORY_COUNT-1,FirstLine=HISTORY_COUNT, I, Locked;
   char *Str;
+  char RegKey[80];
 
-  if (*AddStr==0)
-    return FALSE;
-
-  if((Str=(char*)malloc(MaxLen+1)) == NULL)
-    return FALSE;
-
-  char RegKey[80],SrcKeyValue[80],DestKeyValue[80];
   sprintf(RegKey,fmtSavedDialogHistory,HistoryName);
+
+  if (*AddStr==0 || (Str=(char*)malloc(MaxLen+1)) == NULL)
+  {
+    SetRegKey(RegKey,"Flags",(DWORD)0);
+    return FALSE;
+  }
+
+  char SrcKeyValue[80],DestKeyValue[80];
 
   for (I=0; I < HISTORY_COUNT; I++)
   {
@@ -3669,6 +3679,7 @@ int Dialog::AddToEditHistory(char *AddStr,char *HistoryName,int MaxLen)
     SetRegKey(RegKey,FirstLineKeyValue,AddStr);
   }
   free(Str);
+  SetRegKey(RegKey,"Flags",1);
   return TRUE;
 }
 
