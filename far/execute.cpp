@@ -5,10 +5,13 @@ execute.cpp
 
 */
 
-/* Revision: 1.61 19.06.2002 $ */
+/* Revision: 1.62 05.07.2002 $ */
 
 /*
 Modify:
+  05.07.2002 SVS
+    - ФАР ждет завершения GUI-прилад с NE-заголовком.
+      Уточним этот факт (с подачи Andrzej Novosiolov <andrzej@se.kiev.ua>)
   19.02.2002 SVS
     - BugZ#558 - ShiftEnter из меню выбора диска
       Проверим так же на "корень диска" и выставим запуск через ShellExecuteEx()
@@ -259,7 +262,17 @@ static int IsCommandPEExeGUI(const char *FileName,DWORD& ImageSubsystem)
 //            }
             else if((WORD)signature == IMAGE_OS2_SIGNATURE) // NE
             {
-              ; // NE,  хмм...  а как определить что оно ГУЕВОЕ?
+              /*
+                 NE,  хмм...  а как определить что оно ГУЕВОЕ?
+
+                 Andrzej Novosiolov <andrzej@se.kiev.ua>
+                 AN> ориентироваться по флагу "Target operating system" NE-заголовка
+                 AN> (1 байт по смещению 0x36). Если там Windows (значения 2, 4) - подразумеваем
+                 AN> GUI, если OS/2 и прочая экзотика (остальные значения) - подразумеваем консоль.
+              */
+              BYTE ne_exetyp=((IMAGE_OS2_HEADER *)pheader)->ne_exetyp;
+              if(ne_exetyp == 2 || ne_exetyp == 4)
+                ImageSubsystem=IMAGE_SUBSYSTEM_WINDOWS_GUI;
             }
           }
           else
