@@ -1,3 +1,4 @@
+#include <windows.h>
 #include <string.h>
 #include <io.h>
 #include <process.h>
@@ -42,30 +43,30 @@ char* mktemp(char *temp)
 {
     register char *cp;
     int     len;
-    int     i, c;
+    int     i, c, j, k;
     int     pid;
 
     /* Verify that the template is of the proper form.
-     * Point cp at the start of the XXXXXX.
+     * Point cp at the start of the XXXXXXXX.
      */
     len = strlen(temp);
-    if (len < 6)
+    if (len < 8)
         return(0);
-    cp = temp + len - 6;
-    if (strcmp(cp, "XXXXXX") != 0)
+    cp = temp + len - 8;
+    if (strcmp(cp, "XXXXXXXX") != 0)
         return(0);
 
-    /* The XXXXXX is converted to the following format:
-     *      dpp.pp
-     * Where pppp is the low 20 bits of the process ID in mangled form
+    /* The XXXXXXXX is converted to the following format:
+     *      dpppp.pp
+     * Where pppppp is the low 20 bits of the process ID in mangled form
      * (ASCII base 32, backwards), and d is '0' or a lower-case letter.
      */
-    pid = getpid();
-    cp[2] = '.';
-    for (i = 1; i < 6; i++)
+    pid = MAKEWORD(GetCurrentProcessId(),GetCurrentThreadId());
+    cp[4] = '.';
+    for (i = 3; i < 8; i++)
     {
-        if (i == 2)         /* skip the '.' */
-            i = 3;
+        if (i == 4)         /* skip the '.' */
+            i = 5;
         c = pid & 0x1f;     /* convert low 5 bits to ASCII */
         cp[i] = c + (c < 10 ? '0' : 'A' - 10);
         pid >>= 5;          /* shift to get next 5 bits */
@@ -78,8 +79,16 @@ char* mktemp(char *temp)
     for (i = 'A'-1; i <= 'Z'; i++)
     {
         cp[0] = i == 'A'-1 ? '0' : i;
-        if (access(temp, 0) == -1)
-            return(temp);
+        for (j = 'A'-1; j <= 'Z'; j++)
+        {
+            cp[1] = j == 'A'-1 ? '0' : j;
+            for (k = 'A'-1; k <= 'Z'; k++)
+            {
+                cp[2] = k == 'A'-1 ? '0' : k;
+                if (access(temp, 0) == -1)
+                    return(temp);
+            }
+        }
     }
     return (NULL);
 }

@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.30 14.01.2002 $ */
+/* Revision: 1.31 15.01.2002 $ */
 
 /*
 Modify:
+  15.01.2002 SVS
+    ! Изменен формат шаблона для имен временных файлов FarTmpXXXXXX
   14.01.2002 SVS
     + DOS_EOL_fmt[], UNIX_EOL_fmt (из editor.cpp)
   26.11.2001 SVS
@@ -148,7 +150,7 @@ char MainPluginsPath[NM];
 /* SVS $ */
 
 char LastFarTitle[512];
-const char FarTmpXXXXXX[]="FARTMPXXXXXX";
+const char FarTmpXXXXXX[]="FTMPXXXXXXXX";
 char RegColorsHighlight[]="Colors\\Highlight";
 
 
