@@ -5,16 +5,18 @@ Parent class для немодальных объектов
 
 */
 
-/* Revision: 1.14 23.07.2001 $ */
+/* Revision: 1.15 26.07.2001 $ */
 
 /*
 Modify:
+  26.07.2001 OT
+    ! Исправление отрисовки меню
   23.07.2001 OT
-    Исправление отрисовки меню в новом MA в макросах
+    ! Исправление отрисовки меню в новом MA в макросах
   18.07.2001 OT
-    VFMenu
+    ! VFMenu
   11.07.2001 OT
-    Перенос CtrlAltShift в Manager
+    ! Перенос CtrlAltShift в Manager
   23.06.2001 OT
     - Решение проблемы "старика Мюллера"
   20.06.2001 tran
@@ -92,8 +94,10 @@ void Frame::OnChangeFocus (int focus)
 {
   if (focus) {
     Show();
-    if (NextModal) {
-      NextModal->Show();
+    Frame *iModal=NextModal;
+    while (iModal) {
+      iModal->Show();
+      iModal=iModal->NextModal;
     }
   } else {
     Hide();

@@ -5,10 +5,12 @@ language.cpp
 
 */
 
-/* Revision: 1.10 27.06.2001 $ */
+/* Revision: 1.11 26.07.2001 $ */
 
 /*
 Modify:
+  26.07.2001 SVS
+    ! VFMenu уничтожен как класс
   27.06.2001 SVS
     ! Позаботимся об информации про LanguageLoaded :-)
   03.06.2001 SVS
@@ -334,7 +336,7 @@ int Language::Select(int HelpLanguage,VMenu **MenuPtr)
   }
   LangMenu->AssignHighlights(FALSE);
   LangMenu->Process();
-  if (LangMenu->GetExitCode()<0)
+  if (LangMenu->Modal::GetExitCode()<0)
     return(FALSE);
   LangMenu->GetUserData(Dest,sizeof(Opt.Language));
   return(LangMenu->GetUserDataSize());

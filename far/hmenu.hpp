@@ -7,10 +7,12 @@ hmenu.hpp
 
 */
 
-/* Revision: 1.02 14.06.2001 $ */
+/* Revision: 1.03 26.07.2001 $ */
 
 /*
 Modify:
+  26.07.2001 SVS
+    ! HMenu прикручен к фреймам - попытка "раз"
   14.06.2001 OT
     ! "Бунт" ;-)
   06.05.2001 DJ
@@ -21,6 +23,7 @@ Modify:
 */
 
 #include "modal.hpp"
+#include "frame.hpp"
 
 struct HMenuData
 {
@@ -33,7 +36,7 @@ struct HMenuData
 
 class VMenu;
 
-class HMenu:public Modal
+class HMenu:virtual public Modal, virtual public Frame
 {
   private:
     void DisplayObject();
@@ -48,9 +51,11 @@ class HMenu:public Modal
     int ItemX[16];
   public:
     HMenu(struct HMenuData *Item,int ItemCount);
+    ~HMenu();
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     void GetExitCode(int &ExitCode,int &VExitCode);
+    void Process();
     void ResizeConsole();
 };
 

@@ -5,12 +5,14 @@ grpsort.cpp
 
 */
 
-/* Revision: 1.14 18.07.2001 $ */ 
+/* Revision: 1.15 26.07.2001 $ */
 
 /*
 Modify:
+  26.07.2001 SVS
+    ! VFMenu уничтожен как класс
   18.07.2001 OT
-    VFMenu
+    ! VFMenu
   06.07.2001 IS
     + Теперь в группах сортировки можно использовать маски исключения, маски
       файлов можно брать в кавычки, маски файлов проверяются на корректность,
@@ -278,7 +280,7 @@ int GroupSort::EditGroupsMenu(int Pos)
   struct MenuItem ListItem2;
   memset(&ListItem,0,sizeof(ListItem));
 
-  VFMenu GroupList(MSG(MSortGroupsTitle),NULL,0,ScrY-4);
+  VMenu GroupList(MSG(MSortGroupsTitle),NULL,0,ScrY-4);
   GroupList.SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
   GroupList.SetHelp(HelpSortGroups);
   GroupList.SetPosition(-1,-1,0,0);
@@ -437,7 +439,7 @@ int GroupSort::EditGroupsMenu(int Pos)
           break;
       }
     }
-    if (GroupList.VMenu::GetExitCode()!=-1)
+    if (GroupList.Modal::GetExitCode()!=-1)
     {
       GroupList.ClearDone();
       GroupList.WriteInput(KEY_F4);

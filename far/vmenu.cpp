@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.46 22.07.2001 $ */
+/* Revision: 1.47 26.07.2001 $ */
 
 /*
 Modify:
+  26.07.2001 SVS
+    ! VFMenu уничтожен как класс
   22.07.2001 KM
     ! »справление неточности перехода по PgUp/PgDn
       с установленным флагом VMENU_SHOWNOBOX (NO_BOX)
@@ -216,6 +218,8 @@ VMenu::VMenu(const char *Title,       // заголовок меню
              Dialog *ParentDialog)  // родитель дл€ ListBox
 {
   int I;
+  SetDynamicallyBorn(false);
+
   VMenu::VMFlags=Flags;
 /* SVS $ */
 
@@ -289,6 +293,7 @@ VMenu::VMenu(const char *Title,       // заголовок меню
     if (PrevMacroMode!=MACRO_MAINMENU)
       CtrlObject->Macro.SetMode(MACRO_OTHER);
   }
+  FrameManager->ModalizeFrame(this);
 }
 
 
@@ -301,6 +306,8 @@ VMenu::~VMenu()
 /*& 28.05.2001 OT –азрешить перерисовку фрейма, в котором создавалось это меню */
 //  FrameFromLaunched->UnlockRefresh();
 /* OT &*/
+  FrameManager->UnmodalizeFrame(this);
+  FrameManager->RefreshFrame();
 }
 
 
@@ -476,7 +483,7 @@ void VMenu::DisplayObject()
 //    return;
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
   VMFlags&=~VMENU_UPDATEREQUIRED;
-  ExitCode=-1;
+  Modal::ExitCode=-1;
 
   if (!(VMenu::VMFlags&VMENU_LISTBOX) && SaveScr==NULL)
   {
@@ -887,7 +894,7 @@ int VMenu::ProcessKey(int Key)
   if (ItemCount==0)
     if (Key!=KEY_F1 && Key!=KEY_SHIFTF1 && Key!=KEY_F10 && Key!=KEY_ESC)
     {
-      ExitCode=-1;
+      Modal::ExitCode=-1;
       return(FALSE);
     }
 
@@ -910,7 +917,7 @@ int VMenu::ProcessKey(int Key)
       else
       {
         EndLoop=TRUE;
-        ExitCode=SelectPos;
+        Modal::ExitCode=SelectPos;
       }
       break;
     case KEY_ESC:
@@ -920,7 +927,7 @@ int VMenu::ProcessKey(int Key)
       else
       {
         EndLoop=TRUE;
-        ExitCode=-1;
+        Modal::ExitCode=-1;
       }
       break;
     case KEY_HOME:
@@ -987,7 +994,7 @@ int VMenu::ProcessKey(int Key)
           ShowMenu(TRUE);
           if(!VMenu::ParentDialog)
           {
-            ExitCode=I;
+            Modal::ExitCode=I;
             EndLoop=TRUE;
           }
           break;
@@ -1002,7 +1009,7 @@ int VMenu::ProcessKey(int Key)
               ShowMenu(TRUE);
               if(!VMenu::ParentDialog)
               {
-                ExitCode=I;
+                Modal::ExitCode=I;
                 EndLoop=TRUE;
               }
               break;
@@ -1086,7 +1093,7 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   VMFlags|=VMENU_UPDATEREQUIRED;
   if (ItemCount==0)
   {
-    ExitCode=-1;
+    Modal::ExitCode=-1;
     return(FALSE);
   }
 
@@ -1590,29 +1597,12 @@ DWORD VMenu::ChangeFlags(DWORD Flags,BOOL Status)
 }
 
 
-VFMenu::VFMenu(const char *Title,
-       struct MenuData *Data,int ItemCount,
-       int MaxHeight,
-       DWORD Flags,
-       FARWINDOWPROC Proc,
-       Dialog *ParentDialog):VMenu(Title,Data,ItemCount,MaxHeight,Flags,Proc,ParentDialog)
+void VMenu::Process()
 {
-  SetDynamicallyBorn(false);
-  FrameManager->ModalizeFrame(this);
+  Modal::Process();
 }
 
-VFMenu::~VFMenu(){
-  FrameManager->UnmodalizeFrame(this);
-  FrameManager->RefreshFrame();
-}
-
-
-void VFMenu::Process()
-{
-  VMenu::Process();
-}
-
-void VFMenu::ResizeConsole()
+void VMenu::ResizeConsole()
 {
   ObjWidth=ObjHeight=0;
   if (!this->CheckFlags(VMENU_NOTCENTER)){

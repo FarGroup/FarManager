@@ -5,10 +5,13 @@ hmenu.cpp
 
 */
 
-/* Revision: 1.05 26.06.2001 $ */
+/* Revision: 1.06 26.07.2001 $ */
 
 /*
 Modify:
+  26.07.2001 SVS
+    ! VFMenu уничтожен как класс
+    ! HMenu прикручен к фреймам - попытка "раз"
   26.06.2001 SVS
     + Обработка KEY_TAB на внешних менюхах - для макросов.
   14.06.2001 OT
@@ -31,6 +34,7 @@ Modify:
 #include "fn.hpp"
 #include "colors.hpp"
 #include "keys.hpp"
+#include "global.hpp"
 #include "dialog.hpp"
 #include "vmenu.hpp"
 #include "ctrlobj.hpp"
@@ -39,12 +43,14 @@ Modify:
 
 HMenu::HMenu(struct HMenuData *Item,int ItemCount)
 {
+  SetDynamicallyBorn(FALSE);
   SubMenu=NULL;
   HMenu::Item=Item;
   HMenu::ItemCount=ItemCount;
   /* $ 12.05.2001 DJ */
   SetRestoreScreenMode (TRUE);
   /* DJ $ */
+  FrameManager->ModalizeFrame(this);
 }
 
 
@@ -104,7 +110,7 @@ int HMenu::ProcessKey(int Key)
         if (VExitCode!=-1)
         {
           EndLoop=TRUE;
-          ExitCode=SelectPos;
+          Modal::ExitCode=SelectPos;
         }
         return(TRUE);
       }
@@ -133,7 +139,7 @@ int HMenu::ProcessKey(int Key)
     case KEY_ESC:
     case KEY_F10:
       EndLoop=TRUE;
-      ExitCode=-1;
+      Modal::ExitCode=-1;
       return(FALSE);
     case KEY_HOME:
     case KEY_CTRLHOME:
@@ -228,7 +234,7 @@ int HMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 void HMenu::GetExitCode(int &ExitCode,int &VExitCode)
 {
-  ExitCode=HMenu::ExitCode;
+  ExitCode=Modal::ExitCode;
   VExitCode=HMenu::VExitCode;
 }
 
@@ -275,11 +281,23 @@ void HMenu::ProcessSubMenu(struct MenuData *Data,int DataCount,
     }
   }
 
-  Position=SubMenu->GetExitCode();
+  Position=SubMenu->Modal::GetExitCode();
   delete SubMenu;
   SubMenu=NULL;
 }
 
 void HMenu::ResizeConsole()
 {
+  SetScreen(0,0,ScrX,0,' ',COL_HMENUTEXT);
+}
+
+void HMenu::Process()
+{
+  Modal::Process();
+}
+
+HMenu::~HMenu()
+{
+  FrameManager->UnmodalizeFrame(this);
+  FrameManager->RefreshFrame();
 }

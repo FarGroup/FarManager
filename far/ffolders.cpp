@@ -5,10 +5,12 @@ Folder shortcuts
 
 */
 
-/* Revision: 1.07 17.06.2001 $ */
+/* Revision: 1.08 26.07.2001 $ */
 
 /*
 Modify:
+  26.07.2001 SVS
+    ! VFMenu уничтожен как класс
   17.06.2001 IS
     ! ExpandEnvironmentStrings -> ExpandEnvironmentStr, т.к. первая некорректно
       работает с символами, коды которых больше 0x7F
@@ -179,7 +181,7 @@ int ShowFolderShortcutMenu(int Pos)
         break;
     }
   }
-  int ExitCode=FolderList.GetExitCode();
+  int ExitCode=FolderList.Modal::GetExitCode();
   if (ExitCode>=0)
   {
     FolderList.Hide();

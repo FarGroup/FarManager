@@ -5,12 +5,14 @@ print.cpp
 
 */
 
-/* Revision: 1.09 18.07.2001 $ */ 
+/* Revision: 1.10 26.07.2001 $ */
 
 /*
 Modify:
+  26.07.2001 SVS
+    ! VFMenu уничтожен как класс
   18.07.2001 OT
-    VFMenu
+    ! VFMenu
   03.06.2001 SVS
     ! »зменени€ в св€зи с переделкой UserData в VMenu
   21.05.2001 SVS
@@ -93,7 +95,7 @@ void PrintFiles(Panel *SrcPanel)
     else
       sprintf(Title,MSG(MPrintFilesTo),SelCount);
 
-    VFMenu PrinterList(Title,NULL,0,ScrY-4);
+    VMenu PrinterList(Title,NULL,0,ScrY-4);
     PrinterList.SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
     PrinterList.SetPosition(-1,-1,0,0);
 
@@ -110,7 +112,7 @@ void PrintFiles(Panel *SrcPanel)
     }
 
     PrinterList.Process();
-    PrinterNumber=PrinterList.VMenu::GetExitCode();
+    PrinterNumber=PrinterList.Modal::GetExitCode();
     if (PrinterNumber<0)
     {
       /* $ 13.07.2000 SVS

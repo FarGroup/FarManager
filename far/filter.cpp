@@ -5,12 +5,14 @@ filter.cpp
 
 */
 
-/* Revision: 1.16 18.07.2001 $ */ 
+/* Revision: 1.17 26.07.2001 $ */
 
 /*
 Modify:
+  26.07.2001 SVS
+    ! VFMenu уничтожен как класс
   18.07.2001 OT
-    VFMenu
+    ! VFMenu
   02.07.2001 IS
     ! IncludeMask(ExcludeMask).Set(NULL) -> IncludeMask(ExcludeMask).Free()
   01.07.2001 IS
@@ -137,7 +139,7 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
   int ExitCode;
   {
     int I;
-    VFMenu FilterList(MSG(MFilterTitle),NULL,0,ScrY-6);
+    VMenu FilterList(MSG(MFilterTitle),NULL,0,ScrY-6);
 
     FilterList.SetHelp("Filter");
     FilterList.SetPosition(-1,-1,0,0);
@@ -407,7 +409,7 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
           break;
       }
     }
-    ExitCode=FilterList.VMenu::GetExitCode();
+    ExitCode=FilterList.Modal::GetExitCode();
     if (ExitCode!=-1 || *NeedUpdate)
       ProcessSelection(&FilterList);
   }

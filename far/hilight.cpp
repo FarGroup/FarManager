@@ -5,10 +5,12 @@ Files highlighting
 
 */
 
-/* Revision: 1.29 22.07.2001 $ */
+/* Revision: 1.30 26.07.2001 $ */
 
 /*
 Modify:
+  26.07.2001 SVS
+    ! VFMenu уничтожен как класс
   22.07.2001 SVS
     ! »збавл€емс€ от варнингов
   18.07.2001 OT
@@ -300,7 +302,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 
   {
     unsigned char VerticalLine=0x0B3;
-    VFMenu HiMenu(MSG(MHighlightTitle),NULL,0,ScrY-4);
+    VMenu HiMenu(MSG(MHighlightTitle),NULL,0,ScrY-4);
     HiMenu.SetHelp("HighlightList");
     HiMenu.SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
     HiMenu.SetPosition(-1,-1,0,0);
@@ -448,7 +450,7 @@ void HighlightFiles::HiEdit(int MenuPos)
              return;
           }
         }
-        if (HiMenu.VMenu::GetExitCode()!=-1)
+        if (HiMenu.Modal::GetExitCode()!=-1)
         {
           HiMenu.ClearDone();
           HiMenu.WriteInput(KEY_F4);

@@ -5,10 +5,12 @@ setcolor.cpp
 
 */
 
-/* Revision: 1.16 25.07.2001 $ */
+/* Revision: 1.17 26.07.2001 $ */
 
 /*
 Modify:
+  26.07.2001 SVS
+    ! VFMenu уничтожен как класс
   25.07.2001 OT
     + Разрезервируем "резерв" для "цветных часов" :-)
     - принудительно рефрешим активный фрейм после выбора цвета.
@@ -62,6 +64,7 @@ Modify:
 #include "filepanels.hpp"
 #include "ctrlobj.hpp"
 #include "savescr.hpp"
+#include "scrbuf.hpp"
 
 static void SetItemColors(struct MenuData *Items,int *PaletteItems,int Size);
 void GetColor(int PaletteIndex);
@@ -292,7 +295,7 @@ void SetColors()
 
   {
     int GroupsCode;
-    VFMenu GroupsMenu(MSG(MSetColorGroupsTitle),Groups,sizeof(Groups)/sizeof(Groups[0]),0);
+    VMenu GroupsMenu(MSG(MSetColorGroupsTitle),Groups,sizeof(Groups)/sizeof(Groups[0]),0);
     MenuToRedraw1=&GroupsMenu;
     GroupsMenu.SetPosition(2,1,0,0);
     /* $ 16.06.2001 KM
@@ -304,7 +307,7 @@ void SetColors()
     {
       GroupsMenu.ClearDone();
       GroupsMenu.Process();
-      if ((GroupsCode=GroupsMenu.VMenu::GetExitCode())<0)
+      if ((GroupsCode=GroupsMenu.Modal::GetExitCode())<0)
         break;
 
       if (GroupsCode==12)
@@ -364,14 +367,14 @@ void SetItemColors(struct MenuData *Items,int *PaletteItems,int Size)
 {
   int ItemsCode;
 
-  VFMenu ItemsMenu(MSG(MSetColorItemsTitle),Items,Size,0);
+  VMenu ItemsMenu(MSG(MSetColorItemsTitle),Items,Size,0);
   MenuToRedraw2=&ItemsMenu;
   while (1)
   {
     ItemsMenu.SetPosition(17,5,0,0);
     ItemsMenu.ClearDone();
     ItemsMenu.Process();
-    if ((ItemsCode=ItemsMenu.VMenu::GetExitCode())<0)
+    if ((ItemsCode=ItemsMenu.Modal::GetExitCode())<0)
       break;
     GetColor(PaletteItems[ItemsCode]);
   }
@@ -384,14 +387,18 @@ void GetColor(int PaletteIndex)
   if (GetColorDialog(NewColor))
   {
     Palette[PaletteIndex-COL_FIRSTPALETTECOLOR]=NewColor;
+    //ScrBuf.Lock();
     MenuToRedraw2->Hide();
     MenuToRedraw1->Hide();
+
     // принудительно рефрешим (КОСТЫЛЬ!)
     FrameManager->RefreshFrame();
     FrameManager->PluginCommit();
+
     //CtrlObject->Cp()->SetScreenPosition();
     MenuToRedraw1->Show();
     MenuToRedraw2->Show();
+    //ScrBuf.Unlock();
   }
 }
 

@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.77 19.07.2001 $ */ 
+/* Revision: 1.78 26.07.2001 $ */
 
 /*
 Modify:
+  26.07.2001 SVS
+    ! VFMenu уничтожен как класс
   19.07.2001 OT
     Мелкий баг с неотрисовкой
   18.07.2001 OT
@@ -500,7 +502,7 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
     return(-1);
   int ExitCode;
   {
-    VFMenu FarMenu(Title,NULL,0,MaxHeight);
+    VMenu FarMenu(Title,NULL,0,MaxHeight);
     FarMenu.SetPosition(X,Y,0,0);
     if (BreakCode!=NULL)
       *BreakCode=-1;
@@ -595,7 +597,7 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
           FarMenu.ProcessKey(ReadKey);
         }
     }
-    ExitCode=FarMenu.VMenu::GetExitCode();
+    ExitCode=FarMenu.Modal::GetExitCode();
   }
 //  CheckScreenLock();
   return(ExitCode);

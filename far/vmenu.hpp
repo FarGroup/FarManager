@@ -10,12 +10,14 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.23 18.07.2001 $ */ 
+/* Revision: 1.24 26.07.2001 $ */
 
 /*
 Modify:
+  26.07.2001 SVS
+    ! VFMenu уничтожен как класс
   18.07.2001 OT
-    Новый класс VFMenu. Добавлены константы, позоляющие ресайзить меню
+    ! Новый класс VFMenu. Добавлены константы, позоляющие ресайзить меню
   30.06.2001 KM
     + SetSelectPos(struct FarListPos *)
 	+ GetSelectPos(struct FarListPos *)
@@ -169,7 +171,7 @@ struct MenuData
   DWORD SetDisable(int Value){ if(Value) Flags|=LIF_DISABLE; else Flags&=~LIF_DISABLE; return Flags;}
 };
 
-class VMenu: virtual public Modal
+class VMenu: virtual public Modal, virtual public Frame
 {
   private:
     char Title[100];
@@ -209,6 +211,9 @@ class VMenu: virtual public Modal
     void DisplayObject();
     void ShowMenu(int IsParent=0);
     int  GetPosition(int Position);
+
+  public:
+    Frame *FrameFromLaunched;
 
   public:
     /* $ 18.07.2000 SVS
@@ -289,6 +294,9 @@ class VMenu: virtual public Modal
     int  GetSelection(int Position=-1);
     void SetSelection(int Selection,int Position=-1);
 
+    void Process();
+    void ResizeConsole();
+
     /* $ 20.09.2000 SVS
       + Функция GetItemPtr - получить указатель на нужный Item.
     */
@@ -308,29 +316,7 @@ class VMenu: virtual public Modal
     // функция посылки сообщений меню
     static long WINAPI SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,long Param2);
     /* SVS $ */
-
-    Frame *FrameFromLaunched;
-};
-
-class VFMenu: virtual public VMenu, virtual public Frame
-{
-#pragma warning(disable:4250)
-public:
-    VFMenu(const char *Title,
-          struct MenuData *Data,int ItemCount,
-          int MaxHeight=0,
-          DWORD Flags=0,
-          FARWINDOWPROC Proc=NULL,
-          Dialog *ParentDialog=NULL);
-
-    ~VFMenu();
-public:
-    void Process();
-    void ResizeConsole();
-
-  
 };
 
 
 #endif	// __VMENU_HPP__
-

@@ -5,12 +5,14 @@ flmodes.cpp
 
 */
 
-/* Revision: 1.08 18.07.2001 $ */ 
+/* Revision: 1.09 26.07.2001 $ */
 
 /*
 Modify:
+  26.07.2001 SVS
+    ! VFMenu уничтожен как класс
   18.07.2001 OT
-    VFMenu
+    ! VFMenu
   25.06.2001 IS
    ! Внедрение const
   16.06.2001 KM
@@ -88,7 +90,7 @@ void FileList::SetFilePanelModes()
     int ModeNumber;
     ModeListMenu[CurMode].SetSelect(1);
     {
-      VFMenu ModeList(MSG(MEditPanelModes),ModeListMenu,sizeof(ModeListMenu)/sizeof(ModeListMenu[0]),ScrY-4);
+      VMenu ModeList(MSG(MEditPanelModes),ModeListMenu,sizeof(ModeListMenu)/sizeof(ModeListMenu[0]),ScrY-4);
       ModeList.SetPosition(-1,-1,0,0);
       ModeList.SetHelp("PanelViewModes");
       /* $ 16.06.2001 KM
@@ -97,7 +99,7 @@ void FileList::SetFilePanelModes()
       ModeList.SetFlags(VMENU_WRAPMODE);
       /* KM $ */
       ModeList.Process();
-      ModeNumber=ModeList.VMenu::GetExitCode();
+      ModeNumber=ModeList.Modal::GetExitCode();
     }
     if (ModeNumber<0)
       return;

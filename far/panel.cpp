@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.57 24.07.2001 $ */
+/* Revision: 1.58 26.07.2001 $ */
 
 /*
 Modify:
+  26.07.2001 SVS
+    ! VFMenu уничтожен как класс
   24.07.2001 SVS
     + Opt.PgUpChangeDisk
   23.07.2001 SVS
@@ -271,7 +273,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
   DWORD UserData;
   {
     _tran(SysLog("create VMenu ChDisk"));
-    VFMenu ChDisk(MSG(MChangeDriveTitle),NULL,0,ScrY-Y1-3);
+    VMenu ChDisk(MSG(MChangeDriveTitle),NULL,0,ScrY-Y1-3);
     ChDisk.SetFlags(VMENU_NOTCENTER);
     if ( this==CtrlObject->Cp()->LeftPanel){
       ChDisk.SetFlags(VMENU_LEFTMOST);
@@ -732,7 +734,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
          и еще одна поправочка: не дает выйти из меню, если оно вызвано
          из quick view panel (в нем CurDir пустая)
       */
-      if (ChDisk.Done() && ChDisk.VMenu::GetExitCode()<0 && *CurDir && strncmp(CurDir,"\\\\",2)!=0)
+      if (ChDisk.Done() && ChDisk.Modal::GetExitCode()<0 && *CurDir && strncmp(CurDir,"\\\\",2)!=0)
       {
         char RootDir[10];
         strncpy(RootDir,CurDir,3);
@@ -745,10 +747,10 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
       /* tran $ */
       /* SVS $ */
     } // while (!Done)
-    if (ChDisk.VMenu::GetExitCode()<0)
+    if (ChDisk.Modal::GetExitCode()<0)
       return(-1);
     {
-      UserDataSize=ChDisk.VMenu::GetExitCode()>DiskCount?2:3;
+      UserDataSize=ChDisk.Modal::GetExitCode()>DiskCount?2:3;
       UserData=(DWORD)ChDisk.GetUserData(NULL,0);
     }
   }

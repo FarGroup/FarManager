@@ -5,12 +5,14 @@ User menu и есть
 
 */
 
-/* Revision: 1.34 18.07.2001 $ */ 
+/* Revision: 1.35 26.07.2001 $ */
 
 /*
 Modify:
+  26.07.2001 SVS
+    ! VFMenu уничтожен как класс
   18.07.2001 OT
-    VFMenu
+    ! VFMenu
   11.07.2001 SVS
     ! ≈сли слова "Register" в LNG-файле нету (нуста€ строка), то не выводит
       в заголовке меню круглые скобки
@@ -457,7 +459,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
             sprintf(MenuTitle,"%s",MSG(MMainMenuTitle));
         }
       } /* switch */
-      VFMenu UserMenu(MenuTitle,NULL,0,ScrY-4);
+      VMenu UserMenu(MenuTitle,NULL,0,ScrY-4);
       /* VVM $ */
 
       /* $ 05.06.2001 KM
@@ -605,7 +607,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
             int FuncItemPos;
             if ((FuncItemPos=FuncPos[Key-KEY_F1])!=-1)
             {
-              UserMenu.VMenu::SetExitCode(FuncItemPos);
+              UserMenu.Modal::SetExitCode(FuncItemPos);
               continue;
             }
           }
@@ -709,7 +711,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
           }
         }
       }
-      ExitCode=UserMenu.VMenu::GetExitCode();
+      ExitCode=UserMenu.Modal::GetExitCode();
     }
 
     if (ExitCode<0 || ExitCode>=NumLine)

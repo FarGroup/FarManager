@@ -5,10 +5,12 @@ history.cpp
 
 */
 
-/* Revision: 1.11 24.07.2001 $ */
+/* Revision: 1.12 26.07.2001 $ */
 
 /*
 Modify:
+  26.07.2001 SVS
+    ! VFMenu уничтожен как класс
   24.07.2001 SVS
     ! Учтем новую опцию Opt.Confirm.HistoryClear при очистки истории
   23.07.2001 VVM
@@ -245,7 +247,7 @@ int History::Select(char *Title,char *HelpTopic,char *Str,int &Type,char *ItemTi
   int RetCode=1;
 
   {
-    VFMenu HistoryMenu(Title,NULL,0,Height);
+    VMenu HistoryMenu(Title,NULL,0,Height);
     HistoryMenu.SetFlags(VMENU_SHOWAMPERSAND);
     if (HelpTopic!=NULL)
       HistoryMenu.SetHelp(HelpTopic);
@@ -279,7 +281,7 @@ int History::Select(char *Title,char *HelpTopic,char *Str,int &Type,char *ItemTi
       StrPos=HistoryMenu.GetSelectPos();
       if (Key==KEY_CTRLENTER || Key==KEY_SHIFTENTER)
       {
-        HistoryMenu.VMenu::SetExitCode(StrPos);
+        HistoryMenu.Modal::SetExitCode(StrPos);
         RetCode=(Key==KEY_SHIFTENTER ? 2 : 3);
         continue;
       }
@@ -321,7 +323,7 @@ int History::Select(char *Title,char *HelpTopic,char *Str,int &Type,char *ItemTi
           break;
       }
     }
-    if ((Code=HistoryMenu.VMenu::GetExitCode())<0)
+    if ((Code=HistoryMenu.Modal::GetExitCode())<0)
       return(0);
   }
 

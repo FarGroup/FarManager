@@ -5,10 +5,12 @@ gettable.cpp
 
 */
 
-/* Revision: 1.10 22.07.2001 $ */
+/* Revision: 1.11 26.07.2001 $ */
 
 /*
 Modify:
+  26.07.2001 SVS
+    ! VFMenu уничтожен как класс
   22.07.2001 SVS
     ! »збавл€емс€ от варнингов
   18.07.2001 OT
@@ -94,7 +96,7 @@ int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
     return(TRUE);
   }
 
-  VFMenu TableList(MSG(MGetTableTitle),NULL,0,ScrY-4);
+  VMenu TableList(MSG(MGetTableTitle),NULL,0,ScrY-4);
   TableList.SetFlags(VMENU_WRAPMODE);
   TableList.SetPosition(-1,-1,0,0);
 
@@ -126,7 +128,7 @@ int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
 
   TableList.AssignHighlights(FALSE);
   TableList.Process();
-  int Pos=TableList.VMenu::GetExitCode();
+  int Pos=TableList.Modal::GetExitCode();
 
   if (Pos>UseUnicode && !PrepareTable(TableSet,Pos-1-UseUnicode))
     return(FALSE);

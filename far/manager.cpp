@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.43 25.07.2001 $ */
+/* Revision: 1.44 26.07.2001 $ */
 
 /*
 Modify:
+  26.07.2001 SVS
+    ! VFMenu уничтожен как класс
   25.07.2001 SVS
     ! ѕринудительно вызовем ShowTime(1); в ActivateCommit() дл€ того, чтобы
       редравить часы (ибо теперь они могут быть трех цветов :-)
@@ -341,7 +343,7 @@ void Manager::FrameMenu()
   {
     struct MenuItem ModalMenuItem;
     memset(&ModalMenuItem,0,sizeof(ModalMenuItem));
-    VFMenu ModalMenu(MSG(MScreensTitle),NULL,0,ScrY-4);
+    VMenu ModalMenu(MSG(MScreensTitle),NULL,0,ScrY-4);
     ModalMenu.SetHelp("ScrSwitch");
     ModalMenu.SetFlags(VMENU_WRAPMODE);
     ModalMenu.SetPosition(-1,-1,0,0);
@@ -371,7 +373,7 @@ void Manager::FrameMenu()
       ModalMenu.AddItem(&ModalMenuItem);
     }
     ModalMenu.Process();
-    ExitCode=ModalMenu.VMenu::GetExitCode();
+    ExitCode=ModalMenu.Modal::GetExitCode();
   }
   if (ExitCode>=0)
   {

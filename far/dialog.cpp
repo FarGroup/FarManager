@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.145 24.07.2001 $ */
+/* Revision: 1.146 26.07.2001 $ */
 
 /*
 Modify:
+  26.07.2001 SVS
+   ! VFMenu уничтожен как класс
   24.07.2001 SVS
    ! Учтем новую опцию Opt.Confirm.HistoryClear при очистки истории
   23.07.2001 OT
@@ -3693,7 +3695,7 @@ int Dialog::SelectFromComboBox(
     ComboBox->ClearDone();
     ComboBox->Hide();
     if (GetDropDownOpened()) // Закрылся не программным путём?
-      Dest=ComboBox->GetExitCode();
+      Dest=ComboBox->Modal::GetExitCode();
     else
       Dest=-1;
     SetDropDownOpened(FALSE); // Установим флаг "закрытия" комбобокса.
@@ -3923,7 +3925,7 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
       if(IsUpdate)
         continue;
 
-      int ExitCode=HistoryMenu.GetExitCode();
+      int ExitCode=HistoryMenu.Modal::GetExitCode();
       if (ExitCode<0)
       {
         Done=TRUE;

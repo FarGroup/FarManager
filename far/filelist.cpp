@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.78 24.07.2001 $ */
+/* Revision: 1.79 26.07.2001 $ */
 
 /*
 Modify:
+  26.07.2001 SVS
+    ! VFMenu уничтожен как класс
   24.07.2001 SVS
     + Opt.PgUpChangeDisk
   23.07.2001 SVS
@@ -2890,7 +2892,7 @@ void FileList::SelectSortMode()
 
   int SortCode;
   {
-    VFMenu SortModeMenu(MSG(MMenuSortTitle),SortMenu,sizeof(SortMenu)/sizeof(SortMenu[0]),0);
+    VMenu SortModeMenu(MSG(MMenuSortTitle),SortMenu,sizeof(SortMenu)/sizeof(SortMenu[0]),0);
     /* $ 16.06.2001 KM
        ! ƒобавление WRAPMODE в меню.
     */
@@ -2898,7 +2900,7 @@ void FileList::SelectSortMode()
     /* KM $ */
     SortModeMenu.SetFlags(VMENU_WRAPMODE);
     SortModeMenu.Process();
-    if ((SortCode=SortModeMenu.VMenu::GetExitCode())<0)
+    if ((SortCode=SortModeMenu.Modal::GetExitCode())<0)
       return;
   }
   if (SortCode<sizeof(SortModes)/sizeof(SortModes[0]))

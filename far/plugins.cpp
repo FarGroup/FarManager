@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.82 24.07.2001 $ */
+/* Revision: 1.83 26.07.2001 $ */
 
 /*
 Modify:
+  26.07.2001 SVS
+    ! VFMenu уничтожен как класс
   24.07.2001 IS
     ! Замена проверки на ' ' и '\t' на вызов isspace
   23.07.2001 SVS
@@ -1698,7 +1700,7 @@ void PluginsSet::Configure(int StartPos)
     int I, J;
     {
       int MenuItemNumber=0;
-      VFMenu PluginList(MSG(MPluginConfigTitle),NULL,0,ScrY-4);
+      VMenu PluginList(MSG(MPluginConfigTitle),NULL,0,ScrY-4);
       PluginList.SetFlags(VMENU_WRAPMODE);
       PluginList.SetPosition(-1,-1,0,0);
       PluginList.SetHelp("PluginsConfig");
@@ -1837,7 +1839,7 @@ void PluginsSet::Configure(int StartPos)
       }
       /* SVS $ */
 
-      StartPos=PluginList.VMenu::GetExitCode();
+      StartPos=PluginList.Modal::GetExitCode();
       PluginList.Hide();
       if (StartPos<0)
         break;
@@ -1864,7 +1866,7 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
 
   DWORD Data;
   {
-    VFMenu PluginList(MSG(MPluginCommandsMenuTitle),NULL,0,ScrY-4);
+    VMenu PluginList(MSG(MPluginCommandsMenuTitle),NULL,0,ScrY-4);
     PluginList.SetFlags(VMENU_WRAPMODE);
     PluginList.SetPosition(-1,-1,0,0);
     PluginList.SetHelp("Plugins");
@@ -2014,7 +2016,7 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
         break;
       }
     }
-    int ExitCode=PluginList.VMenu::GetExitCode();
+    int ExitCode=PluginList.Modal::GetExitCode();
 
     PluginList.Hide();
     if (ExitCode<0)
