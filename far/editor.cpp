@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.180 14.06.2002 $ */
+/* Revision: 1.181 17.06.2002 $ */
 
 /*
 Modify:
+  17.06.2002 SVS
+    - BugZ#557 - FAR builtin editor crash on invalid attributes of LastPositions
   14.06.2002 IS
     ! Тело SetDeleteOnClose переехало в editor.cpp
     ! Параметр у SetDeleteOnClose стал int:
@@ -1035,6 +1037,11 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
                (EdOpt.SaveShortPos?SavePos.ScreenLine:NULL),
                (EdOpt.SaveShortPos?SavePos.LeftPos:NULL));
       //_D(SysLog("after Get cache, LeftPos=%i",LeftPos));
+      if((int)Line < 0) Line=0;
+      if((int)ScreenLine < 0) ScreenLine=0;
+      if((int)LinePos < 0) LinePos=0;
+      if((int)LeftPos < 0) LeftPos=0;
+      if((int)Table < 0) Table=0;
       Flags.Change(FEDITOR_TABLECHANGEDBYUSER,(Table!=0));
       switch(Table)
       {
@@ -1105,6 +1112,11 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
                (EdOpt.SaveShortPos?SavePos.ScreenLine:NULL),
                (EdOpt.SaveShortPos?SavePos.LeftPos:NULL));
         //_D(SysLog("after Get cache 2, LeftPos=%i",LeftPos));
+        if((int)Line < 0) Line=0;
+        if((int)ScreenLine < 0) ScreenLine=0;
+        if((int)LinePos < 0) LinePos=0;
+        if((int)LeftPos < 0) LeftPos=0;
+        if((int)Table < 0) Table=0;
         Flags.Change(FEDITOR_TABLECHANGEDBYUSER,(Table!=0));
         switch(Table)
         {

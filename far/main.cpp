@@ -5,10 +5,13 @@ main.cpp
 
 */
 
-/* Revision: 1.54 04.06.2002 $ */
+/* Revision: 1.55 17.06.2002 $ */
 
 /*
 Modify:
+  17.06.2002 SVS
+    ! Опция /ttf заменена на /w
+    ! Для "far /?" в масдае не выводится
   04.06.2002 SVS
     - BugZ#547 - No dot in help description
   30.05.2002 SVS
@@ -212,9 +215,6 @@ printf(
 "      View the specified file. If <filename> is -, data is read from the stdin.\n"
 " /co  Forces FAR to load plugins from the cache only.\n"
 " /x   Disable exception handling.\n"
-#if defined(USE_WFUNC)
-" /ttf Specify this if you are using a TrueType font for the console.\n"
-#endif
 #if defined(_DEBUGEXC)
 " /xd  Enable exception handling.\n"
 #endif
@@ -222,6 +222,14 @@ printf(
 " /do  Direct output.\n"
 #endif
 );
+#if defined(USE_WFUNC)
+  if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+  {
+    printf(
+" /w   Specify this if you are using a TrueType font for the console.\n"
+    );
+  }
+#endif
 }
 
 int _cdecl main(int Argc, char *Argv[])
@@ -321,7 +329,7 @@ int _cdecl main(int Argc, char *Argv[])
           Opt.SmallIcon=TRUE;
           break;
 #if defined(USE_WFUNC)
-        case 'T':
+        case 'W':
           Opt.UseTTFFont=(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)?TRUE:FALSE;
           break;
 #endif

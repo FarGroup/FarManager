@@ -576,10 +576,13 @@ $ #Command line switches#
         it during normal operation.
 
 #ifdef USE_WFUNC
-  #/ttf#  Specify this option if you are using a TrueType font for
-        the console window. This option has effect only under
-        Windows NT 4 or higher.
+  #/w#    Specify this option if you use a TrueType font
+        (for example, Lucida Console) for the console window.
+        This will allow FAR to display characters with code less
+        than the space character correctly.
+        The option works only under Windows NT 4 or higher.
 #endif // END USE_WFUNC
+
   FAR <filename> command starts FAR and forces it to show <filename>
 contents if it is an archive or show folder contents if <filename>
 is a folder.
@@ -1103,10 +1106,11 @@ found folders.
 
     Search may be performed in all non-removable disks, in all disks, except
 removable and network, in all folders from the disk root, from the current
-folder, in the current folder only or in selected folders. The search origin
-is saved in the configuration. Also while in the find dialog one can change
-disk drive of the search. This option is enabled when #Search from the root folder#
-is selected.
+folder, in the current folder only or in selected folders (the current version
+of FAR does not search in directories that are ~symbolic links~@HardSymLink@).
+The search origin is saved in the configuration. Also while in the find
+dialog one can change disk drive of the search. This option is enabled
+when #Search from the root folder# is selected.
 
     While search is in progress or when it is finished, you may use
 the cursor keys to scroll the files list and the buttons to perform
