@@ -33,6 +33,20 @@ struct time {
 };
 #endif
 
+struct TarHeader
+{
+  char name[100];
+  char mode[8];
+  char userid[8];
+  char groupid[8];
+  char filesize[12];
+  char timestamp[12];
+  char checksum[8];
+  char linkflag;
+  char linkname[100];
+  char unused_chars[255];
+};
+
 void UnixToDos(long time, struct dosdate_t *d, struct time *t);
 int IsTarHeader(const unsigned char *Data,int DataSize);
 DWORD GetOctal(const char *Str);
@@ -110,6 +124,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
 {
   DWORD ReadSize;
   if (ArcType!=TAR_FORMAT)
+  {
     if (*ZipName)
     {
       if (ArcType==BZ_FORMAT)
@@ -176,19 +191,8 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
     }
     else
       return(GETARC_EOF);
-  struct TarHeader
-  {
-    char name[100];
-    char mode[8];
-    char userid[8];
-    char groupid[8];
-    char filesize[12];
-    char timestamp[12];
-    char checksum[8];
-    char linkflag;
-    char linkname[100];
-    char unused_chars[255];
-  } Header;
+  }
+  struct TarHeader Header;
   NextPosition=SetFilePointer(ArcHandle,NextPosition,NULL,FILE_BEGIN);
   if (NextPosition==0xFFFFFFFF)
     return(GETARC_READERROR);
@@ -211,7 +215,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
   if( *EndPos == '.') ++EndPos;
   if( EndPos[0] == '\\' && EndPos[1] != '\\') ++EndPos;
 
-  if(EndPos != Header.name && !Prefix[0])
+  if(EndPos != Header.name && !Prefix[0] && strcmp(Header.name,".\\"))
     memcpy(Prefix,Header.name,min((int)sizeof(Prefix)-1,(int)(EndPos-Header.name)));
 
   strncpy(Item->FindData.cFileName,EndPos,sizeof(Item->FindData.cFileName));
@@ -433,19 +437,7 @@ void UnixToDos(long time, struct dosdate_t *d, struct time *t)
 int IsTarHeader(const unsigned char *Data,int DataSize)
 {
   int I;
-  struct TarHeader
-  {
-    char name[100];
-    char mode[8];
-    char userid[8];
-    char groupid[8];
-    char filesize[12];
-    char timestamp[12];
-    char checksum[8];
-    char linkflag;
-    char linkname[100];
-    char unused_chars[255];
-  } *Header;
+  struct TarHeader *Header;
   if (DataSize<sizeof(TarHeader))
     return(FALSE);
   Header=(struct TarHeader *)Data;

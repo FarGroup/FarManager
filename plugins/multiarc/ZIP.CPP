@@ -207,7 +207,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
 
   if(EndPos != Item->FindData.cFileName)
   {
-    if(!Prefix[0])
+    if(!Prefix[0] && strcmp(Item->FindData.cFileName,".\\"))
       memcpy(Prefix,Item->FindData.cFileName,min((int)sizeof(Prefix)-1,(int)(EndPos-Item->FindData.cFileName)));
     memmove(Item->FindData.cFileName,Item->FindData.cFileName+strlen(Prefix),strlen(EndPos)+1);
   }
