@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.154 11.08.2001 $ */
+/* Revision: 1.155 13.08.2001 $ */
 
 /*
 Modify:
+  13.10.2001 SVS
+   - Если у элемента X2 < X1, то ФАР отжирает кучу памяти и сваливается в пике.
   11.10.2001 KM
    - Ещё одно уточнение при ресайзинге, с учётом предполагаемого
      выхода краёв диалога за границу экрана.
@@ -3453,6 +3455,8 @@ void Dialog::ConvertItem(int FromPlugin,
       Item->Y1=Data->Y1;
       Item->X2=Data->X2;
       Item->Y2=Data->Y2;
+      if(Item->X2 < Item->X1) Item->X2=Item->X1;
+      if(Item->Y2 < Item->Y1) Item->Y2=Item->Y1;
       Item->Focus=Data->Focus;
       Item->Selected=Data->Selected;
       Item->Flags=Data->Flags;
@@ -3494,6 +3498,8 @@ void Dialog::ConvertItem(int FromPlugin,
       Data->Y1=Item->Y1;
       Data->X2=Item->X2;
       Data->Y2=Item->Y2;
+      if(Data->X2 < Data->X1) Data->X2=Data->X1;
+      if(Data->Y2 < Data->Y1) Data->Y2=Data->Y1;
       Data->Focus=Item->Focus;
       Data->Selected=Item->Selected;
       Data->Flags=Item->Flags;
@@ -3554,6 +3560,8 @@ void Dialog::DataToItem(struct DialogData *Data,struct DialogItem *Item,
     Item->Y1=Data->Y1;
     Item->X2=Data->X2;
     Item->Y2=Data->Y2;
+    if(Item->X2 < Item->X1) Item->X2=Item->X1;
+    if(Item->Y2 < Item->Y1) Item->Y2=Item->Y1;
     Item->Focus=Data->Focus;
     Item->Selected=Data->Selected;
     Item->Flags=Data->Flags;

@@ -5,10 +5,12 @@ filetype.cpp
 
 */
 
-/* Revision: 1.27 03.08.2001 $ */
+/* Revision: 1.28 13.08.2001 $ */
 
 /*
 Modify:
+  13.08.2001 SVS
+    - Проблемы с отрисовкой - это все рекурсия нам жизнь поганит
   03.08.2001 SVS
     ! Коррекция размера диалога
     ! Для меню выбора ассоциации и диалога изменения ассоциации используются
@@ -480,20 +482,13 @@ void ProcessExternal(char *Command,char *Name,char *ShortName,int AlwaysWaitFini
     remove(ShortListName+NM);
 }
 
-
-void EditFileTypes(int MenuPos)
+static int FillFileTypesMenu(VMenu *TypesMenu,int MenuPos)
 {
-  struct MenuItem TypesMenuItem;
   int NumLine=0;
-
-  VMenu TypesMenu(MSG(MAssocTitle),NULL,0,ScrY-4);
-  TypesMenu.SetHelp(FTS.Help);
-  TypesMenu.SetFlags(VMENU_WRAPMODE);
-  TypesMenu.SetPosition(-1,-1,0,0);
-  TypesMenu.SetBottomTitle(MSG(MAssocBottom));
-
   int DizWidth=GetDescriptionWidth();
+  struct MenuItem TypesMenuItem;
 
+  TypesMenu->DeleteItems();
   while (1)
   {
     char RegKey[80],Mask[512],MenuText[512];
@@ -519,48 +514,56 @@ void EditFileTypes(int MenuPos)
     TruncStr(MenuText,sizeof(TypesMenuItem.Name)-1);
     strcpy(TypesMenuItem.Name,MenuText);
     TypesMenuItem.SetSelect(NumLine==MenuPos);
-    TypesMenu.AddItem(&TypesMenuItem);
+    TypesMenu->AddItem(&TypesMenuItem);
     NumLine++;
   }
   *TypesMenuItem.Name=0;
   TypesMenuItem.SetSelect(NumLine==MenuPos);
-  TypesMenu.AddItem(&TypesMenuItem);
+  TypesMenu->AddItem(&TypesMenuItem);
+  return NumLine;
+}
+
+void EditFileTypes(int MenuPos)
+{
+  int NumLine;
+  BOOL MenuModified;
+
+  VMenu TypesMenu(MSG(MAssocTitle),NULL,0,ScrY-4);
+  TypesMenu.SetHelp(FTS.Help);
+  TypesMenu.SetFlags(VMENU_WRAPMODE);
+  TypesMenu.SetPosition(-1,-1,0,0);
+  TypesMenu.SetBottomTitle(MSG(MAssocBottom));
 
   {
-    TypesMenu.Show();
     while (1)
     {
+      MenuModified=TRUE;
       while (!TypesMenu.Done())
       {
-        int SelectPos=TypesMenu.GetSelectPos();
+        if (MenuModified==TRUE){
+          TypesMenu.Hide();
+          NumLine=FillFileTypesMenu(&TypesMenu,MenuPos);
+          TypesMenu.SetPosition(-1,-1,-1,-1);
+          TypesMenu.Show();
+          MenuModified=FALSE;
+        }
+        MenuPos=TypesMenu.GetSelectPos();
         switch(TypesMenu.ReadInput())
         {
           case KEY_DEL:
-            if (SelectPos<NumLine)
-              if (DeleteTypeRecord(SelectPos))
-              {
-                TypesMenu.Hide();
-                EditFileTypes(SelectPos);
-                return;
-              }
+            if (MenuPos<NumLine)
+              if (DeleteTypeRecord(MenuPos))
+                MenuModified=TRUE;
             break;
           case KEY_INS:
-            if (EditTypeRecord(SelectPos,NumLine,1))
-            {
-              TypesMenu.Hide();
-              EditFileTypes(SelectPos);
-              return;
-            }
+            if (EditTypeRecord(MenuPos,NumLine,1))
+              MenuModified=TRUE;
             break;
           case KEY_ENTER:
           case KEY_F4:
-            if (SelectPos<NumLine)
-              if (EditTypeRecord(SelectPos,NumLine,0))
-              {
-                TypesMenu.Hide();
-                EditFileTypes(SelectPos);
-                return;
-              }
+            if (MenuPos<NumLine)
+              if (EditTypeRecord(MenuPos,NumLine,0))
+                MenuModified=TRUE;
             break;
           default:
             TypesMenu.ProcessInput();
