@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.289 25.07.2003 $ */
+/* Revision: 1.290 25.09.2003 $ */
 
 /*
 Modify:
+  25.09.2003 SVS
+    ! KEY_MACROXLAT переименован в KEY_MACRO_XLAT
+      KEY_MEDIT_ISSELECTED -> KEY_MACRO_EDITSELECTED
   25.07.2003 SVS
     ! учтем новые коды возврата для KeyMacro::GetCurRecord()
     - в предыдущем патче нужное закомментировал ;-)
@@ -3130,7 +3133,7 @@ int Dialog::ProcessKey(int Key)
   switch(Key)
   {
     // $ 20.03.2002 DJ -  для корректной обработки [x] Selection exists в диалогах
-    case KEY_MEDIT_ISSELECTED:
+    case KEY_MACRO_EDITSELECTED:
       if (IsEdit(Item[FocusPos].Type))
         return ((DlgEdit *)(Item[FocusPos].ObjPtr))->ProcessKey(Key);
       return FALSE;
@@ -3592,7 +3595,7 @@ int Dialog::ProcessKey(int Key)
         */
         if((Opt.XLat.XLatDialogKey && Key == Opt.XLat.XLatDialogKey ||
            Opt.XLat.XLatAltDialogKey && Key == Opt.XLat.XLatAltDialogKey) ||
-           Key == KEY_MACROXLAT && !(Item[FocusPos].Flags & DIF_READONLY))
+           Key == KEY_MACRO_XLAT && !(Item[FocusPos].Flags & DIF_READONLY))
         {
           edt->SetClearFlag(0);
           edt->Xlat();

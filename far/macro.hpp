@@ -7,10 +7,14 @@ macro.hpp
 
 */
 
-/* Revision: 1.27 22.09.2003 $ */
+/* Revision: 1.28 26.09.2003 $ */
 
 /*
 Modify:
+  26.09.2003 SVS
+    ! Переименование
+      GetMacroPlainText        -> GetPlainText
+      GetMacroPlainTextSize    -> GetPlainTextSize
   22.09.2003 SVS
     + KeyMacro::KeyToBuffer() - поместить код в буфер
     ! KeyMacro::IfCondition() - возвращает int
@@ -195,8 +199,8 @@ class KeyMacro
     // получение размера, занимаемого указанным макросом
     int GetRecordSize(int Key, int Mode);
 
-    char *GetMacroPlainText(char *Dest);
-    int   GetMacroPlainTextSize();
+    char *GetPlainText(char *Dest);
+    int   GetPlainTextSize();
 
     void SetRedrawEditor(int Sets){IsRedrawEditor=Sets;}
 

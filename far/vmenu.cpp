@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.117 17.06.2003 $ */
+/* Revision: 1.118 26.09.2003 $ */
 
 /*
 Modify:
+  26.09.2003 SVS
+    ! Изменения в названиях макроклавиш
   17.06.2003
    - Bug: теперь в плагинах заголовки на листах появляются только на
           пустых листах, а на листах с элементами - нет.
@@ -1089,7 +1091,7 @@ int VMenu::ProcessKey(int Key)
     Sleep(10);
   InterlockedIncrement(&CallCount);
 
-  if(!(Key&(KEY_MACRO_BASE|KEY_MACROSPEC_BASE)))
+  if(!(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE || (Key&MCODE_OP_SENDKEY)))
   {
     DWORD S=Key&(KEY_CTRL|KEY_ALT|KEY_SHIFT|KEY_RCTRL|KEY_RALT);
     DWORD K=Key&(~(KEY_CTRL|KEY_ALT|KEY_SHIFT|KEY_RCTRL|KEY_RALT));

@@ -5,10 +5,12 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.39 04.09.2003 $ */
+/* Revision: 1.40 26.09.2003 $ */
 
 /*
 Modify:
+  26.09.2003 SVS
+    - BugZ#886 - FAR неверно реагирует на смену типа панели на лету.
   04.09.2003 SVS
     ! Вместо юзания CompareFileTime() применим трюк с сортировщиком файлов:
       приведем FILETIME к __int64
@@ -1027,6 +1029,8 @@ void FileList::ProcessPluginCommand()
     {
       case FCTL_CLOSEPLUGIN:
         SetCurDir((char *)PluginParam,TRUE);
+        if(!PluginParam || !*(char *)PluginParam)
+          Update(UPDATE_KEEP_SELECTION);
         Redraw();
         break;
     }

@@ -1,4 +1,6 @@
 .Language=English,English
+.Options CtrlColorChar=\
+
 @Contents
 $^#File and archive manager#
 $^#<%FV1%>.<%FV2%><%FV3%> build <%FV4%>#
@@ -1971,6 +1973,7 @@ $ #Internal editor#
    #F1#                      Help
    #F2#                      Save file
    #Shift-F2#                ~Save file as...~@FileSaveAs@
+   #Shift-F4#                Edit new file
    #Alt-F5#                  Print file or selected block
                            ("Print manager" plugin is used).
    #F6#                      Switch to ~viewer~@Viewer@

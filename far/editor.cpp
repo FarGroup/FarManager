@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.232 17.09.2003 $ */
+/* Revision: 1.233 26.09.2003 $ */
 
 /*
 Modify:
+  26.09.2003 SVS
+    ! »зменени€ в названи€х макроклавиш
+    + ƒобавлена индикаци€ Ctrl-Q в статусной строке - символ '"'
   17.09.2003 SVS
     - Ќеправильно "исправил" в прошлый раз вставку KEY_MACROPLAINTEXT и KEY_MACRODATE.
       не учел тот факт, что $Date может быть без аргументов
@@ -3223,6 +3226,8 @@ int Editor::ProcessKey(int Key)
     {
       if (!Flags.Check(FEDITOR_LOCKMODE))
       {
+        Flags.Set(FEDITOR_PROCESSCTRLQ);
+        if(HostFileEditor) HostFileEditor->ShowStatus();
         Pasting++;
         TextChanged(1);
         if (!EdOpt.PersistentBlocks && BlockStart!=NULL)
@@ -3233,6 +3238,7 @@ int Editor::ProcessKey(int Key)
         AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
                         CurLine->EditLine.GetCurPos(),UNDO_EDIT);
         CurLine->EditLine.ProcessCtrlQ();
+        Flags.Clear(FEDITOR_PROCESSCTRLQ);
         Pasting--;
         Show();
       }
@@ -3240,25 +3246,25 @@ int Editor::ProcessKey(int Key)
     }
     /* SVS $ */
 
-    case KEY_MACRODATE:
-    case KEY_MACROPLAINTEXT:
+    case KEY_MACRO_DATE:
+    case KEY_MACRO_PLAINTEXT:
     {
       if (!Flags.Check(FEDITOR_LOCKMODE))
       {
         char *Fmt=NULL;
-        int SizeMacroText=CtrlObject->Macro.GetMacroPlainTextSize();
-        SizeMacroText+=16+(Key == KEY_MACRODATE && !SizeMacroText?strlen(Opt.DateFormat)*4:0);
+        int SizeMacroText=CtrlObject->Macro.GetPlainTextSize();
+        SizeMacroText+=16+(Key == KEY_MACRO_DATE && !SizeMacroText?strlen(Opt.DateFormat)*4:0);
         char *TStr=(char*)alloca(SizeMacroText);
         if(!TStr)
           return(FALSE);
 
-        if(Key == KEY_MACRODATE)
+        if(Key == KEY_MACRO_DATE)
           Fmt=(char*)alloca(SizeMacroText);
-        if(Key == KEY_MACRODATE && !Fmt)
+        if(Key == KEY_MACRO_DATE && !Fmt)
           return(FALSE);
 
-        CtrlObject->Macro.GetMacroPlainText((Key == KEY_MACROPLAINTEXT?TStr:Fmt));
-        if(Key == KEY_MACROPLAINTEXT || MkStrFTime(TStr,SizeMacroText,Fmt))
+        CtrlObject->Macro.GetPlainText((Key == KEY_MACRO_PLAINTEXT?TStr:Fmt));
+        if(Key == KEY_MACRO_PLAINTEXT || MkStrFTime(TStr,SizeMacroText,Fmt))
         {
           char *Ptr=TStr;
           while(*Ptr) // заменим 0x0A на 0x0D по правилам Paset ;-)
@@ -3291,7 +3297,7 @@ int Editor::ProcessKey(int Key)
     /* $ 25.04.2001 SVS
        ƒл€ макросов - есть блок или нету
     */
-    case KEY_MEDIT_ISSELECTED:
+    case KEY_MACRO_EDITSELECTED:
       return BlockStart || VBlockStart?TRUE:FALSE;
     /* SVS $ */
     default:
@@ -3435,7 +3441,7 @@ int Editor::ProcessKey(int Key)
         */
         if((Opt.XLat.XLatEditorKey && Key == Opt.XLat.XLatEditorKey ||
             Opt.XLat.XLatAltEditorKey && Key == Opt.XLat.XLatAltEditorKey) ||
-            Key == KEY_MACROXLAT)
+            Key == KEY_MACRO_XLAT)
         /* IS  $ */
         {
           Xlat();

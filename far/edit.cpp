@@ -5,10 +5,15 @@ edit.cpp
 
 */
 
-/* Revision: 1.103 21.09.2003 $ */
+/* Revision: 1.104 26.09.2003 $ */
 
 /*
 Modify:
+  26.09.2003 SVS
+    ! Переименование
+      GetMacroPlainText        -> GetPlainText
+      GetMacroPlainTextSize    -> GetPlainTextSize
+    ! Изменения в названиях макроклавиш
   21.09.2003 KM
     ! Уточнения работы с маской.
     + Добавление EDMASK_HEX для ввода только шестнадцатиричных символов.
@@ -935,9 +940,9 @@ int Edit::ProcessKey(int Key)
   }
 
   /* $ 20.03.2002 DJ
-     обработаем KEY_MEDIT_ISSELECTED
+     обработаем KEY_MACRO_EDITSELECTED
   */
-  if (Key == KEY_MEDIT_ISSELECTED)
+  if (Key == KEY_MACRO_EDITSELECTED)
     return SelStart != -1 && SelStart < SelEnd;
   /* DJ $ */
 
@@ -1039,7 +1044,7 @@ int Edit::ProcessKey(int Key)
       (Key<KEY_F1 || Key>KEY_F12) && Key!=KEY_ALT && Key!=KEY_SHIFT &&
       Key!=KEY_CTRL && Key!=KEY_RALT && Key!=KEY_RCTRL &&
       (Key<KEY_ALT_BASE || Key>=KEY_ALT_BASE+256) &&
-      (Key<KEY_MACRO_BASE || Key>KEY_MACROSPEC_BASE) && Key!=KEY_CTRLQ)
+      (Key<KEY_MACRO_BASE || (Key>KEY_MACRO_ENDBASE && !(Key&MCODE_OP_SENDKEY))) && Key!=KEY_CTRLQ)
   {
     Flags.Clear(FEDITLINE_CLEARFLAG);
     Show();
@@ -1303,20 +1308,15 @@ int Edit::ProcessKey(int Key)
     }
 #endif
 
-    case KEY_MACRODATE:
+    case KEY_MACRO_DATE:
+    case KEY_MACRO_PLAINTEXT:
     {
       if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
         RecurseProcessKey(KEY_DEL);
-      ProcessInsDate();
-      Show();
-      return TRUE;
-    }
-
-    case KEY_MACROPLAINTEXT:
-    {
-      if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
-        RecurseProcessKey(KEY_DEL);
-      ProcessInsPlainText();
+      if(Key == KEY_MACRO_DATE)
+        ProcessInsDate();
+      else
+        ProcessInsPlainText();
       Show();
       return TRUE;
     }
@@ -1389,7 +1389,7 @@ int Edit::ProcessKey(int Key)
       /* $ 15.08.2000 KM */
       PrevCurPos=CurPos;
       /* KM $ */
-      CurPos=0;
+      LeftPos=CurPos=0;
       *Str=0;
       StrSize=0;
       Str=(char *)xf_realloc(Str,1);
@@ -1791,14 +1791,14 @@ int Edit::ProcessCtrlQ(void)
 
 int Edit::ProcessInsDate(void)
 {
-  int SizeMacroText=CtrlObject->Macro.GetMacroPlainTextSize()+8;
+  int SizeMacroText=CtrlObject->Macro.GetPlainTextSize()+8;
   SizeMacroText+=8+(!SizeMacroText?strlen(Opt.DateFormat)*4:0);
   char *TStr=(char*)alloca(SizeMacroText);
   char *Fmt=(char*)alloca(SizeMacroText);
   if(!TStr || !Fmt)
     return FALSE;
 
-  CtrlObject->Macro.GetMacroPlainText(Fmt);
+  CtrlObject->Macro.GetPlainText(Fmt);
   if(MkStrFTime(TStr,SizeMacroText,Fmt))
   {
     InsertString(TStr);
@@ -1809,7 +1809,7 @@ int Edit::ProcessInsDate(void)
 
 int Edit::ProcessInsPlainText(void)
 {
-  int SizeMacroText=CtrlObject->Macro.GetMacroPlainTextSize();
+  int SizeMacroText=CtrlObject->Macro.GetPlainTextSize();
   if(SizeMacroText)
   {
     SizeMacroText+=8;
@@ -1817,7 +1817,7 @@ int Edit::ProcessInsPlainText(void)
     if(!TStr)
       return FALSE;
 
-    CtrlObject->Macro.GetMacroPlainText(TStr);
+    CtrlObject->Macro.GetPlainText(TStr);
     InsertString(TStr);
     return TRUE;
   }

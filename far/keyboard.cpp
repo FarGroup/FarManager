@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.97 25.07.2003 $ */
+/* Revision: 1.98 26.09.2003 $ */
 
 /*
 Modify:
+  26.09.2003 SVS
+    ! Изменения в названиях макроклавиш
   25.07.2003 SVS
     ! учтем новые коды возврата для KeyMacro::GetCurRecord()
     ! учтем новый FARMACRO_KEY_EVENT в CalcKeyCode(), иначе плагины получат KEY_NONE
@@ -521,7 +523,7 @@ int GetInputRecord(INPUT_RECORD *rec)
     {
       ScrBuf.Flush();
       TranslateKeyToVK(MacroKey,VirtKey,ControlState,rec);
-      rec->EventType=((MacroKey&KEY_MACROSPEC_BASE) || (MacroKey&(~0xFF000000)) >= KEY_END_FKEY)?0:FARMACRO_KEY_EVENT;
+      rec->EventType=((MacroKey >= KEY_MACRO_BASE && MacroKey <= KEY_MACRO_ENDBASE || (MacroKey&MCODE_OP_SENDKEY)) || (MacroKey&(~0xFF000000)) >= KEY_END_FKEY)?0:FARMACRO_KEY_EVENT;
       if(!(MacroKey&KEY_SHIFT))
         ShiftPressed=0;
       _KEYMACRO(SysLog("MacroKey1 =%s",_FARKEY_ToName(MacroKey)));
@@ -536,7 +538,7 @@ int GetInputRecord(INPUT_RECORD *rec)
     {
       ScrBuf.Flush();
       TranslateKeyToVK(MacroKey,VirtKey,ControlState,rec);
-      rec->EventType=((MacroKey&KEY_MACROSPEC_BASE) || (MacroKey&(~0xFF000000)) >= KEY_END_FKEY)?0:FARMACRO_KEY_EVENT;
+      rec->EventType=((MacroKey >= KEY_MACRO_BASE && MacroKey <= KEY_MACRO_ENDBASE || (MacroKey&MCODE_OP_SENDKEY)) || (MacroKey&(~0xFF000000)) >= KEY_END_FKEY)?0:FARMACRO_KEY_EVENT;
       if(!(MacroKey&KEY_SHIFT))
         ShiftPressed=0;
       _KEYMACRO(SysLog("MacroKey2 =%s",_FARKEY_ToName(MacroKey)));
@@ -1754,7 +1756,7 @@ BOOL WINAPI KeyToText(int Key0,char *KeyText0,int Size)
   int I, Len;
   DWORD Key=(DWORD)Key0, FKey=(DWORD)Key0&0xFFFF;
 
-  if(Key&KEY_MACRO_BASE)
+  if(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE || (Key&MCODE_OP_SENDKEY))
     return KeyMacroToText(Key0,KeyText0,Size);
 
   if(Key&KEY_ALTDIGIT)

@@ -5,10 +5,13 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.141 15.09.2003 $ */
+/* Revision: 1.142 26.09.2003 $ */
 
 /*
 Modify:
+  26.09.2003 SVS
+    ! Изменения в названиях макроклавиш
+    + Добавлена индикация Ctrl-Q в статусной строке - символ '"'
   15.09.2003 SVS
     ! Проверим target на недопустимые символы, перечисленные в ReservedFilenameSymbols
     + Если по Shift-F2 было кривое имя - то выдадим диалог и вернемся опять в диалог.
@@ -904,7 +907,7 @@ int FileEditor::ProcessKey(int Key)
      никак не соответствует обрабатываемой клавише, возникают разномастные
      глюки
   */
-  if(Key&KEY_MACROSPEC_BASE) // исключаем MACRO
+  if(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE || (Key&MCODE_OP_SENDKEY)) // исключаем MACRO
      return(FEdit->ProcessKey(Key));
   /* DJ $ */
 
@@ -1920,9 +1923,10 @@ void FileEditor::ShowStatus()
   else
     TableName=FEdit->AnsiText ? "Win":"DOS";
 
-  sprintf(StatusStr,"%-*s %c%c %10.10s %7s %*.*s %5s %-4d %3s",
-          NameLength,TruncFileName,FEdit->Flags.Check(FEDITOR_MODIFIED) ? '*':' ',
+  sprintf(StatusStr,"%-*s %c%c%c%10.10s %7s %*.*s %5s %-4d %3s",
+          NameLength,TruncFileName,(FEdit->Flags.Check(FEDITOR_MODIFIED) ? '*':' '),
           (FEdit->Flags.Check(FEDITOR_LOCKMODE) ? '-':' '),
+          (FEdit->Flags.Check(FEDITOR_PROCESSCTRLQ) ? '"':' '),
           TableName,
           MSG(MEditStatusLine),SizeLineStr,SizeLineStr,LineStr,
           MSG(MEditStatusCol),FEdit->CurLine->EditLine.GetTabCurPos()+1,AttrStr);

@@ -24,11 +24,13 @@ keys.hpp
 */
 #endif // END FAR_USE_INTERNALS
 
-/* Revision: 1.24 08.09.2003 $ */
+/* Revision: 1.25 26.09.2003 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
 Modify:
+  26.09.2003 SVS
+    ! Изменения в названиях макроклавиш
   08.09.2003 SVS
     + KEY_CTRLMASK - маска для Ctrl-клавиш
     + KEY_MACROPLAINTEXT - для $Text
@@ -221,22 +223,21 @@ enum BaseDefKeyboard
   KEY_END_SKEY             =0x0000FFFF,
   KEY_LAST_BASE            =KEY_END_SKEY,
 #ifdef FAR_USE_INTERNALS
-  // сюды писать обобщенные макро-команды, которые доступны в других модулях
-  KEY_MACRO_BASE           =0x00800000,
-  //
-  KEY_MACRODATE,
-  KEY_MACROXLAT,
-
-  KEY_MEDIT_ISSELECTED,
-  KEY_MACROPLAINTEXT,
+  // сюды писать обобщенные макро-клавиши, которые доступны в других модулях
+  KEY_MACRO_BASE           =0x00080000,
+  KEY_MACRO_DATE           =KEY_MACRO_BASE,
+  KEY_MACRO_XLAT,
+  KEY_MACRO_EDITSELECTED,
+  KEY_MACRO_PLAINTEXT,
 
 #if defined(MOUSEKEY)
   KEY_MACROSELWORD,
 #endif
 
-  KEY_MACROSPEC_BASE       =0x00C00000,
-  // отсюда начинаются коды специализированных макро-кодов,
-  // объявленных в macro.cpp
+  KEY_MACROSPEC_BASE       =0x000F0000,
+  KEY_MACRO_ENDBASE        =0x000FFFFF,
+  // признак того, что остальные биты - обычная клавиша
+  MCODE_OP_SENDKEY         =0x00800000,
 #endif // END FAR_USE_INTERNALS
 };
 

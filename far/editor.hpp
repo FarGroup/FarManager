@@ -9,10 +9,12 @@ editor.hpp
 
 */
 
-/* Revision: 1.44 06.05.2003 $ */
+/* Revision: 1.45 26.09.2003 $ */
 
 /*
 Modify:
+  26.09.2003 SVS
+    + FEDITOR_PROCESSCTRLQ - нажата Ctrl-Q и идет процесс вставки кода символа
   06.05.2003 SVS
     ! Работа с закладками вынесена в отдельные функции SetBookmark() и GotoBookmark()
   28.04.2003 SVS
@@ -202,6 +204,7 @@ enum FLAGS_CLASS_EDITOR{
   */
   FEDITOR_DELETEONLYFILEONCLOSE = 0x01000000,
   /* IS $ */
+  FEDITOR_PROCESSCTRLQ          = 0x02000000, // нажата Ctrl-Q и идет процесс вставки кода символа
 };
 
 struct EditList;

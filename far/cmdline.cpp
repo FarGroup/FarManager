@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.65 09.09.2003 $ */
+/* Revision: 1.66 25.09.2003 $ */
 
 /*
 Modify:
+  25.09.2003 SVS
+    ! KEY_MACROXLAT переименован в KEY_MACRO_XLAT
   09.09.2003 SVS
     - Автодополнение по ^End в пустой строке сразу после старта не работает.
   03.09.2003 SVS
@@ -441,7 +443,7 @@ int CommandLine::ProcessKey(int Key)
       */
       if((Opt.XLat.XLatCmdLineKey && Key == Opt.XLat.XLatCmdLineKey) ||
          (Opt.XLat.XLatAltCmdLineKey && Key == Opt.XLat.XLatAltCmdLineKey) ||
-         Key == KEY_MACROXLAT)
+         Key == KEY_MACRO_XLAT)
       {
         /* 13.12.2000 SVS
            ! Для CmdLine - если нет выделения, преобразуем всю строку (XLat)

@@ -5,10 +5,15 @@ macro.cpp
 
 */
 
-/* Revision: 1.103 22.09.2003 $ */
+/* Revision: 1.104 26.09.2003 $ */
 
 /*
 Modify:
+  26.09.2003 SVS
+    ! ѕереименование
+      GetMacroPlainText        -> GetPlainText
+      GetMacroPlainTextSize    -> GetPlainTextSize
+    ! »зменени€ в названи€х макроклавиш
   22.09.2003 SVS
     + KeyMacro::KeyToBuffer() - поместить код в буфер
     ! KeyMacro::IfCondition() - возвращает int
@@ -19,7 +24,7 @@ Modify:
       —делаем CurKeyText динамическим
   08.09.2003 SVS
     ! уточнение $Date
-    + обработка KEY_MACROPLAINTEXT - новый оператор $Text - вставка текста.
+    + обработка KEY_MACRO_PLAINTEXT - новый оператор $Text - вставка текста.
   25.08.2003 SVS
     ! Ќе SendKeysToPlugins, но NoSendKeysToPlugins, иначе нифига не получаетс€.
     - BugZ#903 - неотображение правильного заголовка Title Far'a при макросах
@@ -182,7 +187,7 @@ Modify:
       ѕосле окончани€ работы макроса принудительно рефрешим и комитим
       то, на чем остановились.
   10.07.2001 SVS
-    + KEY_MACROXLAT - в макросах "$XLat" замен€етс€ на клавишу вызова XLat
+    + KEY_MACRO_XLAT - в макросах "$XLat" замен€етс€ на клавишу вызова XLat
   25.06.2001 IS
     ! ¬недрение const
   25.06.2001 SVS
@@ -431,13 +436,13 @@ static struct TKeyCodeName{
 //   { KEY_MACROSTOPIFNOT,          10, "$StopIfNot"}, // $StopIfNot условие
 //   { KEY_MACROSTOPIF,              7, "$StopIf"},  // $StopIf условие
 #if defined(MOUSEKEY)
-   { KEY_MACROSELWORD,             8, "$SelWord" },
+   { KEY_MACROSELWORD,              8, "$SelWord" },
 #endif
-   { KEY_MACROMODE,                6, "$MMode" },
-   { KEY_MACRODATE,                5, "$Date"  }, // $Date "%d-%a-%Y"
-   { KEY_MACROSTOP,                5, "$Stop"  },
-   { KEY_MACROPLAINTEXT,           5, "$Text"  }, // $Text "Plain Text"
-   { KEY_MACROXLAT,                5, "$XLat"  },
+   { KEY_MACROMODE,                 6, "$MMode" },
+   { KEY_MACRO_DATE,                5, "$Date"  }, // $Date "%d-%a-%Y"
+   { KEY_MACROSTOP,                 5, "$Stop"  },
+   { KEY_MACRO_PLAINTEXT,           5, "$Text"  }, // $Text "Plain Text"
+   { KEY_MACRO_XLAT,                5, "$XLat"  },
 };
 
 static char __code2symbol(BYTE b1, BYTE b2);
@@ -768,7 +773,7 @@ int KeyMacro::ProcessKey(int Key)
   }
 }
 
-char *KeyMacro::GetMacroPlainText(char *Dest)
+char *KeyMacro::GetPlainText(char *Dest)
 {
   struct MacroRecord *MR;
 
@@ -789,7 +794,7 @@ char *KeyMacro::GetMacroPlainText(char *Dest)
   return NULL;
 }
 
-int KeyMacro::GetMacroPlainTextSize()
+int KeyMacro::GetPlainTextSize()
 {
   struct MacroRecord *MR=!MacroRAM?MacroPROM+ExecMacroPos:MacroRAM;
   return strlen((char*)&MR->Buffer[ExecKeyPos]);
@@ -873,7 +878,7 @@ int KeyMacro::IfCondition(DWORD Key,DWORD Flags,DWORD Code)
             Frame* CurFrame=FrameManager->GetCurrentFrame();
             if (CurFrame && CurFrame->GetType()==MODALTYPE_EDITOR)
             {
-              int CurSelected=CurFrame->ProcessKey(KEY_MEDIT_ISSELECTED);
+              int CurSelected=CurFrame->ProcessKey(KEY_MACRO_EDITSELECTED);
               if(Code == MFLAGS_SELECTION)
                 Cond=CurSelected?TRUE:FALSE;
               else
@@ -1175,23 +1180,23 @@ char *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize)
       switch(Key)
       {
         /* $Text
-           0: KEY_MACROPLAINTEXT
+           0: KEY_MACRO_PLAINTEXT
            1: —трока выравненна на 4 байта
-              ≈сли строка пуста, то следующий за KEY_MACRODATE DWORD = 0
+              ≈сли строка пуста, то следующий за KEY_MACRO_DATE DWORD = 0
         */
-        case KEY_MACROPLAINTEXT:
+        case KEY_MACRO_PLAINTEXT:
         /* $Date
-           0: KEY_MACRODATE
+           0: KEY_MACRO_DATE
            1: —трока выравненна на 4 байта
-              ≈сли строка пуста, то следующий за KEY_MACRODATE DWORD = 0
+              ≈сли строка пуста, то следующий за KEY_MACRO_DATE DWORD = 0
         */
-        case KEY_MACRODATE:
+        case KEY_MACRO_DATE:
         {
           ++J;
           int LenTextBuf=strlen((char*)&Buffer[J]);
           if(LenTextBuf)
           {
-            //strcat(TextBuffer,((Key == KEY_MACRODATE)?" \"":" "));
+            //strcat(TextBuffer,((Key == KEY_MACRO_DATE)?" \"":" "));
             strcat(TextBuffer," \"");
             char *TextBufferPtr=TextBuffer+strlen(TextBuffer);
             strcat(TextBuffer,(char*)&Buffer[J]);
@@ -1818,20 +1823,20 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
     switch(KeyCode)
     {
       /* $Text
-         0: KEY_MACROPLAINTEXT
+         0: KEY_MACRO_PLAINTEXT
          1: —трока выравненна на 4 байта
       */
-      case KEY_MACROPLAINTEXT:
+      case KEY_MACRO_PLAINTEXT:
       /* $Date
-         0: KEY_MACRODATE
+         0: KEY_MACRO_DATE
          1: —трока, выровненна€ на 4 байта
-            ≈сли строка пуста, то следующий за KEY_MACRODATE DWORD = 0
+            ≈сли строка пуста, то следующий за KEY_MACRO_DATE DWORD = 0
       */
-      case KEY_MACRODATE:
+      case KEY_MACRO_DATE:
       {
         const char *BufPtr2=BufPtr;
         memset(CurKeyText,0,SizeCurKeyText);
-//        if(KeyCode == KEY_MACRODATE)
+//        if(KeyCode == KEY_MACRO_DATE)
         {
           // ищем первую кавычку
           while (*BufPtr)
@@ -1883,7 +1888,7 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
       }
       CurMacro_Buffer[CurMacro->BufferSize]=KeyCode;
 
-      if(KeyCode == KEY_MACRODATE || KeyCode == KEY_MACROPLAINTEXT)
+      if(KeyCode == KEY_MACRO_DATE || KeyCode == KEY_MACRO_PLAINTEXT)
       {
         memcpy(&CurMacro_Buffer[CurMacro->BufferSize+1],CurKeyText,(Size-1)*sizeof(DWORD));
       }
@@ -1983,7 +1988,7 @@ BOOL KeyMacro::CheckEditSelected(DWORD CurFlags)
     Frame* CurFrame=FrameManager->GetCurrentFrame();
     if (CurFrame && CurFrame->GetType()==NeedType)
     {
-      int CurSelected=CurFrame->ProcessKey(KEY_MEDIT_ISSELECTED);
+      int CurSelected=CurFrame->ProcessKey(KEY_MACRO_EDITSELECTED);
       if((CurFlags&MFLAGS_SELECTION) && !CurSelected ||
          (CurFlags&MFLAGS_NOSELECTION) && CurSelected)
           return FALSE;
