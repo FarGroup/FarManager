@@ -5,10 +5,13 @@ manager.cpp
 
 */
 
-/* Revision: 1.03 13.07.2000 $ */
+/* Revision: 1.04 28.07.2000 $ */
 
 /*
 Modify:
+  28.07.2000 tran 1.04
+    + косметика при выводе списка окон -
+      измененные файлы в редакторе маркируются "*"
   13.07.2000 SVS
     ! Некоторые коррекции при использовании new/delete/realloc
   11.07.2000 SVS
@@ -206,8 +209,12 @@ void Manager::SelectModal()
         sprintf(NumText,"&%d. ",I+1);
       else
         strcpy(NumText,"&   ");
-      TruncStr(Name,30);
-      sprintf(ModalMenuItem.Name,"%s%-30s %s",NumText,Type,PointToName(Name));
+      /* $ 28.07.2000 tran
+         файл усекает по ширине экрана */
+      TruncStr(Name,ScrX-40);
+      /*  добавляется "*" если файл изменен */
+      sprintf(ModalMenuItem.Name,"%s%-20s %c %s",NumText,Type,(ModalList[I]->IsFileModified()?'*':' '),Name);
+      /* tran 28.07.2000 $ */
       ModalMenuItem.Selected=(I==ModalPos);
       ModalMenu.AddItem(&ModalMenuItem);
     }
