@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.43 30.12.2000 $ */
+/* Revision: 1.44 03.01.2001 $ */
 
 /*
 Modify:
+  03.01.2001 SVS
+   ! Дополнительный параметр у ConvertDate -
+     "как взять формат даты - динамически или статически?"
   30.12.2000 SVS
    + Функции работы с атрибутами файлов "опубликованы"
   26.12.2000 SVS
@@ -337,7 +340,7 @@ int GetInputRecord(INPUT_RECORD *rec);
 int PeekInputRecord(INPUT_RECORD *rec);
 int CalcKeyCode(INPUT_RECORD *rec,int RealKey);
 void ConvertDate(FILETIME *ft,char *DateText,char *TimeText,int TimeLength,
-                 int Brief=FALSE,int TextMonth=FALSE,int FullYear=FALSE);
+        int Brief=FALSE,int TextMonth=FALSE,int FullYear=FALSE,int DynInit=FALSE);
 void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent);
 void SetRegRootKey(HKEY hRootKey);
 void SetRegKey(char *Key,char *ValueName,char *ValueData);

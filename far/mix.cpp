@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.49 22.12.2000 $ */
+/* Revision: 1.50 03.01.2001 $ */
 
 /*
 Modify:
+  03.01.2001 SVS
+    ! ConvertDate - динамически получает форматы (если ее об этом попросить)
   22.12.2000 SVS
     ! Немного разгрузим файл:
       KeyNameToKey -> keyboard.cpp
@@ -183,19 +185,24 @@ DWORD NTTimeToDos(FILETIME *ft)
 
 
 void ConvertDate(FILETIME *ft,char *DateText,char *TimeText,int TimeLength,
-                 int Brief,int TextMonth,int FullYear)
+                 int Brief,int TextMonth,int FullYear,int DynInit)
 {
-  static int DateFormat,DateSeparator,TimeSeparator;
+  static int WDateFormat,WDateSeparator,WTimeSeparator;
   static int Init=FALSE;
   static SYSTEMTIME lt;
+  int DateFormat,DateSeparator,TimeSeparator;
   if (!Init)
   {
-    DateFormat=GetDateFormat();
-    DateSeparator=GetDateSeparator();
-    TimeSeparator=GetTimeSeparator();
+    WDateFormat=GetDateFormat();
+    WDateSeparator=GetDateSeparator();
+    WTimeSeparator=GetTimeSeparator();
     GetLocalTime(&lt);
     Init=TRUE;
   }
+  DateFormat=DynInit?GetDateFormat():WDateFormat;
+  DateSeparator=DynInit?GetDateSeparator():WDateSeparator;
+  TimeSeparator=DynInit?GetTimeSeparator():WTimeSeparator;
+
   int CurDateFormat=DateFormat;
   if (Brief && CurDateFormat==2)
     CurDateFormat=0;

@@ -900,6 +900,7 @@
 
 "Attributes"
 "Change file attributes for"
+"selected objects"
 "&Read only"
 "&Archive"
 "&Hidden"
@@ -913,9 +914,6 @@
 "&Last access"
 "Curre&nt"
 "Set"
-
-"Change file attributes"
-"Set  Clear"
 
 "MM%cDD%cYYYY hh%cmm%css"
 "DD%cMM%cYYYY hh%cmm%css"

@@ -12,10 +12,14 @@ lang.hpp
            подряд.
 */
 
-/* Revision: 1.35 30.12.2000 $ */
+/* Revision: 1.36 03.01.2001 $ */
 
 /*
 Modify:
+  03.01.2001 SVS
+    + MSetAttrSelectedObjects
+    -   MSetAttrChange,
+    -   MSetAttrSetClear,
   30.12.2000 SVS
     + MHelp*F1-12
   21.12.2000 SVS
@@ -992,6 +996,7 @@ enum
 
   MSetAttrTitle,
   MSetAttrFor,
+  MSetAttrSelectedObjects,
   MSetAttrRO,
   MSetAttrArchive,
   MSetAttrHidden,
@@ -1005,9 +1010,6 @@ enum
   MSetAttrLastAccess,
   MSetAttrCurrent,
   MSetAttrSet,
-
-  MSetAttrChange,
-  MSetAttrSetClear,
 
   MSetAttrTimeTitle1,
   MSetAttrTimeTitle2,
