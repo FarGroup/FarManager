@@ -7,10 +7,12 @@ plugins.hpp
 
 */
 
-/* Revision: 1.27 25.06.2002 $ */
+/* Revision: 1.28 21.08.2002 $ */
 
 /*
 Modify:
+  21.08.2002 IS
+    + Параметр PluginTextSize в GetDiskMenuItem, чтобы знать, сколько брать
   25.06.2002 SVS
     ! Косметика:  BitFlags::Skip -> BitFlags::Clear
   27.05.2002 SVS
@@ -296,7 +298,12 @@ class PluginsSet
     void Configure(int StartPos=0);
     void ConfigureCurrent(int PluginNumber,int INum);
     int CommandsMenu(int ModalType,int StartPos,char *HistoryName=NULL);
-    int GetDiskMenuItem(int PluginNumber,int PluginItem,int &ItemPresent,int &PluginTextNumber,char *PluginText);
+    /* $ 21.08.2002 IS
+       + Параметр PluginTextSize, чтобы знать, сколько брать
+    */
+    int GetDiskMenuItem(int PluginNumber,int PluginItem,int &ItemPresent,
+      int &PluginTextNumber, char *PluginText, DWORD PluginTextSize);
+    /* IS $ */
     int UseFarCommand(HANDLE hPlugin,int CommandType);
     void ReloadLanguage();
     void DiscardCache();

@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.97 18.06.2002 $ */
+/* Revision: 1.98 21.08.2002 $ */
 
 /*
 Modify:
+  21.01.2002 IS
+    + Снимем ограничение на количество пунктов плагинов в меню выбора дисков
   18.06.2002 SVS
     + Panel::IfGoHome()
     ! Код из Panel::ProcessDelDisk(), отвечающий за извлечение CD вынесен
@@ -295,6 +297,7 @@ Modify:
 #include "manager.hpp"
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
+#include "array.hpp"
 
 static int DragX,DragY,DragMove;
 static Panel *SrcDragPanel;
@@ -304,6 +307,51 @@ static char DragName[NM];
 static unsigned char VerticalLine=0x0B3;
 
 static int MessageRemoveConnection(char Letter, int &UpdateProfile);
+
+/* $ 21.08.2002 IS
+   Класс для хранения пункта плагина в меню выбора дисков
+*/
+class ChDiskPluginItem
+{
+  public:
+   MenuItem Item;
+   unsigned int HotKey;
+   ChDiskPluginItem():HotKey(0)
+   {
+     memset(&Item,0,sizeof(Item));
+   }
+   bool operator==(const ChDiskPluginItem &rhs) const;
+   int operator<(const ChDiskPluginItem &rhs) const;
+   const ChDiskPluginItem& operator=(const ChDiskPluginItem &rhs);
+   ~ChDiskPluginItem()
+   {
+   }
+};
+
+bool ChDiskPluginItem::operator==(const ChDiskPluginItem &rhs) const
+{
+  return HotKey==rhs.HotKey &&
+    !LocalStricmp(Item.Name,rhs.Item.Name) &&
+    Item.UserData==rhs.Item.UserData;
+}
+
+int ChDiskPluginItem::operator<(const ChDiskPluginItem &rhs) const
+{
+  if(HotKey==rhs.HotKey)
+    return LocalStricmp(Item.Name,rhs.Item.Name)<0;
+  else if(HotKey && rhs.HotKey)
+    return HotKey < rhs.HotKey;
+  else
+    return HotKey && !rhs.HotKey;
+}
+
+const ChDiskPluginItem& ChDiskPluginItem::operator=(const ChDiskPluginItem &rhs)
+{
+  Item=rhs.Item;
+  HotKey=rhs.HotKey;
+  return *this;
+}
+/* IS $ */
 
 
 Panel::Panel()
@@ -512,118 +560,108 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
     } // for
     /* VVM $ */
 
-    int UsedNumbers[10];
-    memset(UsedNumbers,0,sizeof(UsedNumbers));
-
-    struct MenuItem PluginMenuItems[20];
-    int PluginMenuItemsCount=0;
-    memset(PluginMenuItems,0,sizeof(PluginMenuItems));
-    /* $ 15.03.2001 IS
-         Список дополнительных хоткеев, для случая, когда плагинов, добавляющих
-         пункт в меню, больше 9. Всего, btw, обрабатывается не больше 20
-         плагинов, поэтому дополнительных хоткеев нужно МИНИМУМ 11(=20-9)
-         штук.
+    /* $ 21.01.2002 IS
+       Снимем ограничение на количество пунктов плагинов в меню вообще(!)
     */
-    char *AdditionalHotKey=MSG(MAdditionalHotKey);
-    int AHKPos=0,                           // индекс в списке хоткеев
-        AHKSize=strlen(AdditionalHotKey);   /* для предотвращения выхода за
-                                               границу массива */
-    /* IS $ */
-
+    int PluginMenuItemsCount=0;
     if (Opt.ChangeDriveMode & DRIVE_SHOW_PLUGINS)
     {
-      int PluginNumber;
-      int PluginItem,Done;
-      for (PluginNumber=0;PluginMenuItemsCount<sizeof(PluginMenuItems)/sizeof(PluginMenuItems[0]);PluginNumber++)
+      int UsedNumbers[10];
+      memset(UsedNumbers,0,sizeof(UsedNumbers));
+      TArray<ChDiskPluginItem> MPItems;
+      ChDiskPluginItem OneItem;
+      /* $ 15.03.2001 IS
+           Список дополнительных хоткеев, для случая, когда плагинов,
+           добавляющих пункт в меню, больше 9.
+      */
+      char *AdditionalHotKey=MSG(MAdditionalHotKey);
+      int AHKPos=0,                           // индекс в списке хоткеев
+          AHKSize=strlen(AdditionalHotKey);   /* для предотвращения выхода за
+                                                 границу массива */
+      /* IS $ */
+
+      int PluginNumber=0, PluginItem; // IS: счетчики - плагинов и пунктов плагина
+      int PluginTextNumber, ItemPresent, HotKey, Done=FALSE;
+      char PluginText[100];
+
+      while(!Done)
       {
-        Done=FALSE;
-        for (PluginItem=0;;PluginItem++)
+        for (PluginItem=0;;++PluginItem)
         {
-          char PluginText[100];
-          int PluginTextNumber,ItemPresent;
           if (!CtrlObject->Plugins.GetDiskMenuItem(PluginNumber,PluginItem,
-                                   ItemPresent,PluginTextNumber,PluginText))
+              ItemPresent,PluginTextNumber,PluginText,sizeof(PluginText)))
           {
             Done=TRUE;
             break;
           }
           if (!ItemPresent)
             break;
-          if (PluginTextNumber==0)
-            continue;
-          while (PluginTextNumber<10 && UsedNumbers[PluginTextNumber])
-            PluginTextNumber++;
-          UsedNumbers[PluginTextNumber%10]=1;
-          /* $ 15.03.2001 IS
+
+          if(PluginTextNumber<10) // IS: хотей указан явно
+          {
+            // IS: проверим, а не занят ли хоткей
+            // IS: если занят, то будем искать его с самого начала - нуля,
+            // IS: а не со следующего
+            if(UsedNumbers[PluginTextNumber])
+            {
+              PluginTextNumber=0;
+              while (PluginTextNumber<10 && UsedNumbers[PluginTextNumber])
+                PluginTextNumber++;
+            }
+            UsedNumbers[PluginTextNumber%10]=1;
+          }
+
+          /* $ 21.08.2002 IS
                Используем дополнительные хоткеи, а не просто '#', как раньше.
           */
-          sprintf(MenuText,"&%c: %s",
-                  PluginTextNumber>9 ? AdditionalHotKey[(AHKPos++)%AHKSize]:
-                  PluginTextNumber+'0', ShowSpecial ? PluginText:"");
+          if(PluginTextNumber<10)
+          {
+            HotKey=PluginTextNumber+'0';
+            sprintf(MenuText,"&%c: %s", HotKey,
+              ShowSpecial ? PluginText:"");
+          }
+          else if(AHKPos<AHKSize)
+          {
+            HotKey=AdditionalHotKey[AHKPos];
+            sprintf(MenuText,"&%c: %s", HotKey,
+              ShowSpecial ? PluginText:"");
+            ++AHKPos;
+          }
+          else if(ShowSpecial) // не добавляем пустые строки!
+          {
+            HotKey=0;
+            sprintf(MenuText,"   %s", PluginText);
+          }
           /* IS $ */
-          strncpy(ChDiskItem.Name,MenuText,sizeof(ChDiskItem.Name)-1);
-          ChDiskItem.UserDataSize=0;
-          ChDiskItem.UserData=(char*)MAKELONG(PluginNumber,PluginItem);
-          PluginMenuItems[PluginMenuItemsCount++]=ChDiskItem;
-        }
-        if (Done)
-          break;
-      }
-      for (PluginNumber=0;PluginMenuItemsCount<sizeof(PluginMenuItems)/sizeof(PluginMenuItems[0]);PluginNumber++)
-      {
-        Done=FALSE;
-        for (PluginItem=0;;PluginItem++)
-        {
-          char PluginText[100];
-          int PluginTextNumber,ItemPresent;
-          if (!CtrlObject->Plugins.GetDiskMenuItem(PluginNumber,PluginItem,
-                                   ItemPresent,PluginTextNumber,PluginText))
+          strncpy(OneItem.Item.Name,MenuText,sizeof(ChDiskItem.Name)-1);
+          OneItem.Item.UserDataSize=0;
+          OneItem.Item.UserData=(char*)MAKELONG(PluginNumber,PluginItem);
+          OneItem.HotKey=HotKey;
+          if(!MPItems.addItem(OneItem))
           {
             Done=TRUE;
             break;
           }
-          if (!ItemPresent)
-            break;
-          if (PluginTextNumber!=0)
-            continue;
-          PluginTextNumber++;
-          while (PluginTextNumber<10 && UsedNumbers[PluginTextNumber])
-            PluginTextNumber++;
-          UsedNumbers[PluginTextNumber%10]=1;
-          /* $ 15.03.2001 IS
-               Используем дополнительные хоткеи, а не просто '#', как раньше.
-          */
-          sprintf(MenuText,"&%c: %s",
-                  PluginTextNumber>9 ? AdditionalHotKey[(AHKPos++)%AHKSize]:
-                  PluginTextNumber+'0', ShowSpecial ? PluginText:"");
-          /* IS $ */
-          strncpy(ChDiskItem.Name,MenuText,sizeof(ChDiskItem.Name)-1);
-          ChDiskItem.UserDataSize=0;
-          ChDiskItem.UserData=(char*)MAKELONG(PluginNumber,PluginItem);
-          PluginMenuItems[PluginMenuItemsCount++]=ChDiskItem;
         }
-        if (Done)
-          break;
+        ++PluginNumber;
       }
-      if (PluginMenuItemsCount>0)
+
+      MPItems.Sort();
+      MPItems.Pack(); // выкинем дубли
+      PluginMenuItemsCount=MPItems.getSize();
+      if(PluginMenuItemsCount)
       {
         memset(&ChDiskItem,0,sizeof(ChDiskItem));
         ChDiskItem.Flags|=LIF_SEPARATOR;
         ChDiskItem.UserDataSize=0;
         ChDisk.AddItem(&ChDiskItem);
+
         ChDiskItem.Flags&=~LIF_SEPARATOR;
-        for (int I=0;I<PluginMenuItemsCount;I++)
-        {
-          int MinPos=0;
-          for (int J=0;J<PluginMenuItemsCount;J++)
-            if (PluginMenuItems[J].Name[1]<PluginMenuItems[MinPos].Name[1])
-              MinPos=J;
-          PluginMenuItems[MinPos].SetSelect(!FirstCall && (Pos==DiskCount+1+I));
-          ChDisk.AddItem(&PluginMenuItems[MinPos]);
-          PluginMenuItems[MinPos].Name[1]='9'+1;
-        }
+        for (int I=0;I<PluginMenuItemsCount;++I)
+          ChDisk.AddItem(&MPItems.getItem(I)->Item);
       }
     }
+    /* IS 21.08.2002 $ */
 
     int X=X1+5;
     if (this==CtrlObject->Cp()->RightPanel && IsFullScreen() && X2-X1>40)

@@ -13,10 +13,12 @@ array.hpp
  //  const Object& operator=(const Object &)
 */
 
-/* Revision: 1.00 15.08.2002 $ */
+/* Revision: 1.01 21.08.2002 $ */
 
 /*
 Modify:
+  21.08.2002 IS
+   ! Не дергаем Sort, если массив пуст
   15.08.2002 IS
    + введено в строй (перетащено из исходников S&R)
 */
@@ -112,10 +114,13 @@ Object *TArray<Object>::getItem(unsigned int index)
 template <class Object>
 void TArray<Object>::Sort(TARRAYCMPFUNC user_cmp_func)
 {
-  if(!user_cmp_func)
-    user_cmp_func=reinterpret_cast<TARRAYCMPFUNC>(CmpItems);
-  qsort(reinterpret_cast<char*>(items),Count,
-    sizeof(Object*),user_cmp_func);
+  if(Count)
+  {
+    if(!user_cmp_func)
+      user_cmp_func=reinterpret_cast<TARRAYCMPFUNC>(CmpItems);
+    qsort(reinterpret_cast<char*>(items),Count,
+      sizeof(Object*),user_cmp_func);
+  }
 }
 
 template <class Object>

@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.122 25.06.2002 $ */
+/* Revision: 1.123 21.08.2002 $ */
 
 /*
 Modify:
+  21.08.2002 IS
+    + Параметр PluginTextSize в GetDiskMenuItem, чтобы знать, сколько брать
   25.06.2002 SVS
     ! Косметика:  BitFlags::Skip -> BitFlags::Clear
   21.05.2002 IS
@@ -2616,9 +2618,12 @@ C:\MultiArc\MULTIARC.DLL                            -> DLL
 #endif
 }
 
-
+/* $ 21.08.2002 IS
+   + Параметр PluginTextSize, чтобы знать, сколько брать
+*/
 int PluginsSet::GetDiskMenuItem(int PluginNumber,int PluginItem,
-                int &ItemPresent,int &PluginTextNumber,char *PluginText)
+                int &ItemPresent,int &PluginTextNumber,char *PluginText,
+                DWORD PluginTextSize)
 {
   if (PluginNumber>=PluginsCount)
     return(FALSE);
@@ -2636,7 +2641,7 @@ int PluginsSet::GetDiskMenuItem(int PluginNumber,int PluginItem,
     {
       sprintf(RegKey,FmtPluginsCache_PluginD,RegNumber);
       sprintf(Value,FmtDiskMenuStringD,PluginItem);
-      GetRegKey(RegKey,Value,PluginText,"",100);
+      GetRegKey(RegKey,Value,PluginText,"",PluginTextSize);
       sprintf(Value,FmtDiskMenuNumberD,PluginItem);
       GetRegKey(RegKey,Value,PluginTextNumber,0);
       ItemPresent=*PluginText!=0;
@@ -2653,12 +2658,12 @@ int PluginsSet::GetDiskMenuItem(int PluginNumber,int PluginItem,
       PluginTextNumber=Info.DiskMenuNumbers[PluginItem];
     else
       PluginTextNumber=0;
-    strcpy(PluginText,Info.DiskMenuStrings[PluginItem]);
+    strncpy(PluginText,Info.DiskMenuStrings[PluginItem],PluginTextSize-1);
     ItemPresent=TRUE;
   }
   return(TRUE);
 }
-
+/* IS $ */
 
 int PluginsSet::UseFarCommand(HANDLE hPlugin,int CommandType)
 {
