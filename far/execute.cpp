@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.81 06.03.2003 $ */
+/* Revision: 1.82 17.03.2003 $ */
 
 /*
 Modify:
+  17.03.2003 SVS
+    - BugZ#831 - Неверный заголовок окна при запуске из командной строки
   06.03.2003 SVS
     - BugZ#678 - Незапуск .msi по Shift-Enter
     ! Закоментим _SVS
@@ -1080,7 +1082,7 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
       {
         char FarTitle[2*NM];
         int size=Min((DWORD)strlen(CmdStr),(DWORD)sizeof(FarTitle)-1);
-        OemToCharBuff(CmdPtr,FarTitle,size);
+        OemToCharBuff(CmdStr,FarTitle,size);
         FarTitle[size]=0;
         SetConsoleTitle(FarTitle);
       }
