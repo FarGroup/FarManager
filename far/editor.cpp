@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.63 13.02.2001 $ */
+/* Revision: 1.64 14.02.2001 $ */
 
 /*
 Modify:
+  14.02.2001 VVM
+    + При отсутствии блока AltU/AltI сдвигают текущую строчку
   13.02.2001 IS
     ! Строчка с атрибутами подготавливается при их считывании, а не при каждом
       обновлении экрана. Т.с., оптимизация кода после себя самого ;)
@@ -3791,11 +3793,26 @@ void Editor::BlockLeft()
   }
   struct EditList *CurPtr=BlockStart;
   int LineNum=BlockStartLine;
-
+/* $ 14.02.2001 VVM
+    + При отсутствии блока AltU/AltI сдвигают текущую строчку */
+  int MoveLine = 0;
+  if (CurPtr==NULL)
+  {
+    MoveLine = 1;
+    CurPtr = CurLine;
+    LineNum = NumLine;
+  }
+/* VVM $ */
   while (CurPtr!=NULL)
   {
     int StartSel,EndSel;
     CurPtr->EditLine.GetSelection(StartSel,EndSel);
+    /* $ 14.02.2001 VVM
+      + Блока нет - сделаем его искусственно */
+    if (MoveLine) {
+      StartSel = 0; EndSel = -1; 
+    }
+    /* VVM $ */
     if (StartSel==-1)
       break;
 
@@ -3827,7 +3844,11 @@ void Editor::BlockLeft()
       int CurPos=CurPtr->EditLine.GetCurPos();
       CurPtr->EditLine.SetBinaryString(TmpStr,Length);
       CurPtr->EditLine.SetCurPos(CurPos>0 ? CurPos-1:CurPos);
-      CurPtr->EditLine.Select(StartSel>0 ? StartSel-1:StartSel,EndSel>0 ? EndSel-1:EndSel);
+      /* $ 14.02.2001 VVM
+        + Выделить только если двигаем блок */
+      if (!MoveLine)
+      /* VVM $ */
+        CurPtr->EditLine.Select(StartSel>0 ? StartSel-1:StartSel,EndSel>0 ? EndSel-1:EndSel);
       /*$ 10.08.2000 skv
         Modified->TextChanged
       */
@@ -3838,6 +3859,7 @@ void Editor::BlockLeft()
     delete[] TmpStr;
     CurPtr=CurPtr->Next;
     LineNum++;
+    MoveLine = 0;
   }
   BlockUndo=FALSE;
 }
@@ -3852,11 +3874,26 @@ void Editor::BlockRight()
   }
   struct EditList *CurPtr=BlockStart;
   int LineNum=BlockStartLine;
-
+/* $ 14.02.2001 VVM
+    + При отсутствии блока AltU/AltI сдвигают текущую строчку */
+  int MoveLine = 0;
+  if (CurPtr==NULL)
+  {
+    MoveLine = 1;
+    CurPtr = CurLine;
+    LineNum = NumLine;
+  }
+/* VVM $ */
   while (CurPtr!=NULL)
   {
     int StartSel,EndSel;
     CurPtr->EditLine.GetSelection(StartSel,EndSel);
+    /* $ 14.02.2001 VVM
+      + Блока нет - сделаем его искусственно */
+    if (MoveLine) {
+      StartSel = 0; EndSel = -1; 
+    }
+    /* VVM $ */
     if (StartSel==-1)
       break;
 
@@ -3865,7 +3902,6 @@ void Editor::BlockRight()
 
     char *CurStr,*EndSeq;
     CurPtr->EditLine.GetBinaryString(&CurStr,&EndSeq,Length);
-
     *TmpStr=' ';
     memcpy(TmpStr+1,CurStr,Length);
     Length++;
@@ -3881,7 +3917,11 @@ void Editor::BlockRight()
       if (Length>1)
         CurPtr->EditLine.SetBinaryString(TmpStr,Length+EndLength);
       CurPtr->EditLine.SetCurPos(CurPos+1);
-      CurPtr->EditLine.Select(StartSel>0 ? StartSel+1:StartSel,EndSel>0 ? EndSel+1:EndSel);
+      /* $ 14.02.2001 VVM
+        + Выделить только если двигаем блок */
+      if (!MoveLine)
+      /* VVM $ */
+        CurPtr->EditLine.Select(StartSel>0 ? StartSel+1:StartSel,EndSel>0 ? EndSel+1:EndSel);
       /*$ 10.08.2000 skv
         Modified->TextChanged
       */
@@ -3892,6 +3932,7 @@ void Editor::BlockRight()
     delete[] TmpStr;
     CurPtr=CurPtr->Next;
     LineNum++;
+    MoveLine = 0;
   }
   BlockUndo=FALSE;
 }
