@@ -5,10 +5,12 @@ Parent class для немодальных объектов
 
 */
 
-/* Revision: 1.09 26.05.2001 $ */
+/* Revision: 1.10 20.06.2001 $ */
 
 /*
 Modify:
+  20.06.2001 tran
+    * Refresh* внес в cpp из hpp - удобней отлаживать.
   26.05.2001 OT
     + Новый атрибут - DynamicallyBorn - показывает, статически или динамически был создан объект
     + Возможность блокировки перерисовки фрейма: LockRefreshCount, LockRefresh(),UnlockRefresh(),Refreshable()
@@ -146,3 +148,19 @@ int Frame::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   return FALSE;
 }
 */
+
+void Frame::LockRefresh()
+{
+    LockRefreshCount++;
+}
+
+void Frame::UnlockRefresh()
+{
+    LockRefreshCount=(LockRefreshCount>0)?LockRefreshCount-1:0;
+}
+
+
+int Frame::Refreshable()
+{
+    return LockRefreshCount==0;
+}

@@ -542,6 +542,8 @@ static char fmtSavedDialogHistory[]="SavedDialogHistory\\%s";
 Dialog::Dialog(struct DialogItem *Item,int ItemCount,
                FARWINDOWPROC DlgProc,long InitParam)
 {
+  _tran(SysLog("[%p] Dialog::Dialog()",this));
+
   if(!PHisLocked)
   {
     PHisLocked=HisLocked+strlen(HisLocked);
@@ -621,6 +623,7 @@ Dialog::Dialog(struct DialogItem *Item,int ItemCount,
 */
 Dialog::~Dialog()
 {
+  _tran(SysLog("[%p] Dialog::~Dialog()",this));
   INPUT_RECORD rec;
 
   GetDialogObjectsData();
@@ -656,6 +659,7 @@ Dialog::~Dialog()
 */
 void Dialog::Show()
 {
+  _tran(SysLog("[%p] Dialog::Show()",this));
   if (!CheckDialogMode(DMODE_INITOBJECTS))      // самодостаточный вариант, когда
   {                      //  элементы инициализируются при первом вызове.
     /* $ 28.07.2000 SVS
@@ -717,6 +721,7 @@ void Dialog::CheckDialogCoord(void)
 */
 void Dialog::Hide()
 {
+  _tran(SysLog("[%p] Dialog::Hide()",this));
   ScreenObject::Hide();
   SkipDialogMode(DMODE_SHOW);
 }
@@ -5102,6 +5107,7 @@ int Dialog::GetTypeAndName (char *Type, char *Name)
 
 void Dialog::OnChangeFocus (int Focus)
 {
+  _tran(SysLog("[%p] Dialog::OnChangeFocus() focus=%i",this,Focus));
   if (Focus)
     Show();
   else

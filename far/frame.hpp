@@ -8,10 +8,12 @@ frame.hpp
 
 */
 
-/* Revision: 1.09 30.05.2001 */
+/* Revision: 1.10 20.06.2001 */
 
 /*
 Modify:
+  20.06.2001 tran
+    * Refresh* внес в cpp из hpp - удобней отлаживать.
   30.05.2001 OT
     - Небольшая корректировка UnlockRefresh()
   26.05.2001 OT
@@ -103,9 +105,9 @@ class Frame: public ScreenObject
     void DestroyAllModal();
     void SetDynamicallyBorn(int Born) {DynamicallyBorn=Born;}
     int GetDynamicallyBorn(){return DynamicallyBorn;};
-    void LockRefresh() {LockRefreshCount++;}
-    void UnlockRefresh() {LockRefreshCount=(LockRefreshCount>0)?LockRefreshCount-1:0;}
-    int Refreshable() {return !LockRefreshCount;}
+    void LockRefresh();
+    void UnlockRefresh();
+    int Refreshable();
 };
 
 #endif // __FRAME_HPP__

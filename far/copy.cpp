@@ -242,6 +242,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   _tran(SysLog("[%p] ShellCopy::ShellCopy() 3",this));
 
   /* $ 26.05.2001 OT Запретить перерисовку панелей во время копирования */
+  _tran(SysLog("call (*FrameManager)[0]->LockRefresh()"));
   (*FrameManager)[0]->LockRefresh();
   /* OT $ */
 
@@ -855,6 +856,7 @@ ShellCopy::~ShellCopy()
   /* SVS $ */
   /* $ 26.05.2001 OT
      Разрешить перерисовку панелей */
+  _tran(SysLog("call (*FrameManager)[0]->UnlockRefresh()"));
   (*FrameManager)[0]->UnlockRefresh();
   /* OT $ */
 }
@@ -865,6 +867,8 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
   SaveScreen SaveScr;
   DWORD DestAttr;
+  _tran(SysLog("[%p] ShellCopy::CopyFileTree()",this));  
+
   int DestNew=FALSE;
   char SelName[NM],SelShortName[NM];
   int Length,FileAttr;
@@ -1136,6 +1140,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
     if (!(ShellCopy::Flags&FCOPY_CURRENTONLY))
       SrcPanel->ClearLastGetSelection();
   }
+  _tran(SysLog("[%p] ShellCopy::CopyFileTree() end",this));  
   return COPY_SUCCESS; //COPY_SUCCESS_MOVE???
 }
 
@@ -1460,6 +1465,7 @@ void ShellCopy::ShellCopyMsg(char *Src,char *Dest,int Flags)
 {
   char FilesStr[100],BarStr[100],SrcName[NM],DestName[NM];
 
+  _tran(SysLog("[%p] ShellCopy::ShellCopyMsg()",this));  
   #define BAR_SIZE  40
   static char Bar[BAR_SIZE+2]={0};
   if(!Bar[0])

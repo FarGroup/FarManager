@@ -5,10 +5,13 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.14 14.06.2001 $ */
+/* Revision: 1.15 20.06.2001 $ */
 
 /*
 Modify:
+  20.06.2001 tran
+    - bug с отрисовкой при копировании
+      смотреть в OnChangeFocus
   14.06.2001 OT
     ! "Бунт" ;-)
   03.06.2001 IS
@@ -775,7 +778,10 @@ void FilePanels::OnChangeFocus(int f)
 {
   _OT(SysLog("FilePanels::OnChangeFocus(%i)",f));
   Focus=f;
-  if ( f ) {
+  /* $ 20.06.2001 tran
+     баг с отрисовкой при копировании и удалении 
+     не учитывался LockRefreshCount */
+  if ( f && LockRefreshCount==0) {
     Redraw();
   }
 }
