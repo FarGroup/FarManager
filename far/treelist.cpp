@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.25 24.10.2001 $ */
+/* Revision: 1.26 24.10.2001 $ */
 
 /*
 Modify:
+  24.10.2001 VVM
+    ! После сканирования диска перерисовать другую панель.
   24.10.2001 VVM
     ! Рисуем ветки дерева только при установленном TreeIsPrepared.
   23.10.2001 SVS
@@ -340,6 +342,11 @@ int TreeList::ReadTree()
   if ((ListData=(struct TreeItem*)malloc(sizeof(struct TreeItem)))==NULL)
     return FALSE;
   /* SVS $ */
+
+  /* Т.к. мы можем вызвать диалог подтверждения (который не перерисовывает панельки,
+     а восстанавливает сохраненный образ экрана, то нарисуем чистую панель */
+  Redraw();
+
   memset(&ListData[0], 0, sizeof(ListData[0]));
   strcpy(ListData->Name,Root);
   if (RootLength>0 && Root[RootLength-1]!=':' && Root[RootLength]=='\\')
@@ -372,6 +379,11 @@ int TreeList::ReadTree()
 
   FillLastData();
   SaveTreeFile();
+  if (!FirstCall)
+  { // Перерисуем другую панель - удалим следы сообщений :)
+    Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+    AnotherPanel->Redraw();
+  }
   return TRUE;
 }
 
