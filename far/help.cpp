@@ -8,10 +8,12 @@ help.cpp
 
 */
 
-/* Revision: 1.50 01.11.2001 $ */
+/* Revision: 1.51 26.11.2001 $ */
 
 /*
 Modify:
+  26.11.2001 VVM
+    ! Теперь хелп не реагирует на отпускание клавиши мышки, если клавиша была нажата не в хелпе.
   01.11.2001 SVS
     + немного про "типы" - GetType*()
   26.10.2001 VVM
@@ -239,6 +241,8 @@ Help::Help(char *Topic, char *Mask,DWORD Flags)
 
   ErrorHelp=TRUE;
   IsNewTopic=TRUE;
+
+  MouseDown = FALSE;
 
   Stack=new CallBackStack;
 
@@ -1224,8 +1228,22 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   StackData.CurX=MouseEvent->dwMousePosition.X-X1-1;
   StackData.CurY=MouseEvent->dwMousePosition.Y-Y1-1-FixSize;
   FastShow();
-  if ((MouseEvent->dwButtonState & 3)==0 && *StackData.SelTopic)
+  /* $ 26.11.2001 VVM
+    + Запомнить нажатие клавиши мышки и только в этом случае реагировать при отпускании */
+  if (MouseEvent->dwEventFlags==0 &&
+     (MouseEvent->dwButtonState & (FROM_LEFT_1ST_BUTTON_PRESSED|RIGHTMOST_BUTTON_PRESSED)))
+    MouseDown = TRUE;
+  if (MouseEvent->dwEventFlags==0 &&
+     (MouseEvent->dwButtonState & (FROM_LEFT_1ST_BUTTON_PRESSED|RIGHTMOST_BUTTON_PRESSED))==0 &&
+      MouseDown &&
+      *StackData.SelTopic)
+  {
+    MouseDown = FALSE;
     ProcessKey(KEY_ENTER);
+  }
+  /* VVM $ */
+//  if ((MouseEvent->dwButtonState & 3)==0 && *StackData.SelTopic)
+//    ProcessKey(KEY_ENTER);
   return(TRUE);
 }
 

@@ -10,10 +10,12 @@ help.hpp
 
 */
 
-/* Revision: 1.21 01.11.2001 $ */
+/* Revision: 1.22 26.11.2001 $ */
 
 /*
 Modify:
+  26.11.2001 VVM
+    ! Теперь хелп не реагирует на отпускание клавиши мышки, если клавиша была нажата не в хелпе.
   01.11.2001 SVS
     + немного про "типы" - GetType*()
   01.10.2001 SVS
@@ -109,6 +111,7 @@ class Help:public Frame
     int   TopicFound;           // TRUE - топик найден
     int   IsNewTopic;           // это новый топик?
     char *HelpMask;             // значение маски, переданной в конструктор
+    int   MouseDown;
 
     int   DisableOut;           // TRUE - не выводить на экран
     BYTE  CtrlColorChar;        // CtrlColorChar - опция! для спецсимвола-
