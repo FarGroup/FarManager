@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.93 12.11.2002 $ */
+/* Revision: 1.94 05.12.2002 $ */
 
 /*
 Modify:
+  05.12.2002 SVS
+    ! ѕрименим новую MkStrFTime(), сократив немного кода
   12.11.2002 DJ
     ! убираем лишнюю перерисовку в случае, когда позици€ выделенного блока
       не изменилась
@@ -1650,15 +1652,8 @@ int Edit::ProcessCtrlQ(void)
 int Edit::ProcessInsDate(void)
 {
   char Str[NM],Fmt[NM];
-  struct tm *time_now;
-  time_t secs_now;
-  tzset();
-  time(&secs_now);
-  time_now = localtime(&secs_now);
   CtrlObject->Macro.GetMacroPlainText(Fmt);
-  if(!Fmt[0])
-    strcpy(Fmt,Opt.DateFormat);
-  if(StrFTime(Str, sizeof(Str),Fmt,time_now))
+  if(MkStrFTime(Str,sizeof(Str),Fmt))
   {
     InsertString(Str);
     return TRUE;

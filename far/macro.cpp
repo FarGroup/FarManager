@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.87 09.11.2002 $ */
+/* Revision: 1.88 03.12.2002 $ */
 
 /*
 Modify:
+  03.12.2002 SVS
+    - BugZ#699 - Бесконечный цикл при использовании ACTL_POSTKEYSEQUENCE
   09.11.2002 SVS
     ! В связи с коррекцией "ReturnAltValue" вводим в макросах понятие
       AltXXXXX - т.е. то, что было введено как Alt-Num. Для того, чтобы
@@ -930,6 +932,14 @@ done:
   }
 
   DWORD Key=KeyFromBuffer(MR,ExecKeyPos++);
+
+  if(MR==MacroRAM && ExecKeyPos>=MR->BufferSize)
+  {
+    if(LockScr) delete LockScr;
+    LockScr=NULL;
+    ReleaseTempBuffer();
+    Executing=FALSE;
+  }
 
   if(Key&KEY_ALTDIGIT) // "подтасовка" фактов ;-)
   {

@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.128 09.11.2002 $ */
+/* Revision: 1.129 03.12.2002 $ */
 
 /*
 Modify:
+  03.12.2002 SVS
+    - BugZ#713 - Не выдается сообщения об ошибке
   09.11.2002 SVS
     - F4 Esc в меню конфигурации и вызова плагинов: менюха становится выше
       на 1 строку. + блокируем клавиши (AltF9), т.к. после распахивания
@@ -703,7 +705,14 @@ int PluginsSet::LoadPlugin(struct PluginItem &CurPlugin,int ModuleNumber,int Ini
   }
   HMODULE hModule=CurPlugin.hModule ? CurPlugin.hModule:LoadLibraryEx(CurPlugin.ModuleName,NULL,LOAD_WITH_ALTERED_SEARCH_PATH);
   if (hModule==NULL)
+  {
+    char PlgName[NM];
+    strncpy(PlgName,CurPlugin.ModuleName,sizeof(PlgName)-1);
+    TruncPathStr(PlgName,ScrX-20);
+    SetMessageHelp("ErrLoadPlugin");
+    Message(MSG_WARNING,1,MSG(MError),MSG(MPlgLoadPluginError),PlgName,MSG(MOk));
     return(FALSE);
+  }
   CurPlugin.hModule=hModule;
   CurPlugin.WorkFlags.Clear(PIWF_CACHED);
   CurPlugin.pSetStartupInfo=(PLUGINSETSTARTUPINFO)GetProcAddress(hModule,"SetStartupInfo");

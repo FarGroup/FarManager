@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.209 12.11.2002 $ */
+/* Revision: 1.210 05.12.2002 $ */
 
 /*
 Modify:
+  05.12.2002 SVS
+    ! Применим новую MkStrFTime(), сократив немного кода
   12.11.2002 DJ
     - исправление поведения Ctrl-Shift-Left за концом строки
     ! теперь ECTL_GETSTRING для выделения за концом строки возвращает настоящие
@@ -3001,15 +3003,8 @@ int Editor::ProcessKey(int Key)
       if (!Flags.Check(FEDITOR_LOCKMODE))
       {
         char TStr[NM],Fmt[NM];
-        struct tm *time_now;
-        time_t secs_now;
-        tzset();
-        time(&secs_now);
-        time_now = localtime(&secs_now);
         CtrlObject->Macro.GetMacroPlainText(Fmt);
-        if(!Fmt[0])
-          strcpy(Fmt,Opt.DateFormat);
-        if(StrFTime(TStr, sizeof(TStr),Fmt,time_now))
+        if(MkStrFTime(TStr,sizeof(TStr),Fmt))
         {
           char *Ptr=TStr;
           while(*Ptr) // заменим 0x0A на 0x0D по правилам Paset ;-)

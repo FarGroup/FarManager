@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.169 04.11.2002 $ */
+/* Revision: 1.170 05.12.2002 $ */
 
 /*
 Modify:
+  05.12.2002 SVS
+    + MkStrFTime()
   07.11.2002 SVS
     + Для отладочных целей, для плагинов - FarSysLog_INPUT_RECORD_Dump()
       (доступно только под дебугинфой)
@@ -1285,6 +1287,7 @@ void GenerateWINDOW_BUFFER_SIZE_EVENT(int Sx=-1, int Sy=-1);
 
 void PrepareStrFTime(void);
 int WINAPI StrFTime(char *Dest, size_t MaxSize, const char *Format,const struct tm *t);
+int MkStrFTime(char *Dest,int DestSize,const char *Fmt=NULL);
 
 BOOL WINAPI GetMenuHotKey(char *HotKey,int LenHotKey,
                           char *DlgHotKeyTitle,

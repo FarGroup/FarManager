@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.129 28.10.2002 $ */
+/* Revision: 1.130 03.12.2002 $ */
 
 /*
 Modify:
+  03.12.2002 SVS
+    - BugZ#680 - Несанкционированное запоминание настроек поиска
   28.10.2002 SVS
     ! При юзании PrepareTable*() параметр UseTableName=TRUE.
       Этим избавляемся от BugZ#689
@@ -516,7 +518,8 @@ static int PluginMode;
 static HANDLE hDialogMutex, hPluginMutex;
 
 static int UseDecodeTable=FALSE,UseUnicode=FALSE,TableNum=0;
-static struct CharTableSet TableSet;
+static int InitUseDecodeTable=FALSE,InitUseUnicode=FALSE,InitTableNum=0;
+static struct CharTableSet TableSet, InitTableSet;
 
 /* $ 01.07.2001 IS
    Объект "маска файлов". Именно его будем использовать для проверки имени
@@ -775,7 +778,7 @@ FindFiles::FindFiles()
       /* 04 */DI_TEXT,5,5,0,0,0,0,0,0,"",
       /* 05 */DI_EDIT,5,6,36,16,0,(DWORD)TextHistoryName,DIF_HISTORY,0,"",
       /* 06 */DI_TEXT,40,5,0,0,0,0,0,0,"",
-      /* 07 */DI_COMBOBOX,40,6,70,10,0,0,DIF_DROPDOWNLIST,0,"",
+      /* 07 */DI_COMBOBOX,40,6,70,10,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,"",
       /* 08 */DI_TEXT,3,7,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
       /* 09 */DI_VTEXT,38,4,0,0,0,0,DIF_BOXCOLOR,0,"\xD1\xB3\xB3\xC1",
       /* 10 */DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MFindFileCase,
@@ -852,8 +855,16 @@ FindFiles::FindFiles()
       if (ExitCode!=23)
       {
         free(TableItem);
+        UseDecodeTable=InitUseDecodeTable;
+        UseUnicode=InitUseUnicode;
+        TableNum=InitTableNum;
+        memcpy(&TableSet,&InitTableSet,sizeof(TableSet));
         return;
       }
+      InitUseDecodeTable=UseDecodeTable;
+      InitUseUnicode=UseUnicode;
+      InitTableNum=TableNum;
+      memcpy(&InitTableSet,&TableSet,sizeof(TableSet));
       /* $ 01.07.2001 IS
          Проверим маску на корректность
       */

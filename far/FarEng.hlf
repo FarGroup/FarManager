@@ -2751,6 +2751,18 @@ stream will be copied.
    If a directory has multiple streams, the additional streams will be
 copied only when the directory is moved (F6).
 
+@ErrLoadPlugin
+$ #Error: plugin not loaded#
+   This error message can appear in the following cases:
+
+   1. A dynamic link library not present on your system is required
+      for correct operation of the plugin module.
+
+   2. For some reason, the module returned an error code
+      telling the system to abort plugin loading.
+
+   3. The DLL file of the plugin is corrupt.
+
 @ScrSwitch
 $ #Screens switching#
     FAR allows to open several instances of the internal viewer and editor

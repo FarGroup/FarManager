@@ -5,10 +5,12 @@ strftime.cpp
 
 */
 
-/* Revision: 1.07 19.03.2002 $ */
+/* Revision: 1.08 05.12.2002 $ */
 
 /*
 Modify:
+  05.12.2002 SVS
+    ! Применим новую MkStrFTime(), сократив немного кода
   19.03.2002 SVS
     - Неверно работали %a и %A (t->tm_wday=0 это воскресенье!)
   03.01.2002 SVS
@@ -275,6 +277,21 @@ static int iso8601wknum(const struct tm *timeptr)
 
 	return weeknum;
 }
+
+int MkStrFTime(char *Dest,int DestSize,const char *Fmt)
+{
+  struct tm *time_now;
+  time_t secs_now;
+  char Fmt0[NM];
+
+  tzset();
+  time(&secs_now);
+  time_now = localtime(&secs_now);
+  strncpy(Fmt0,!Fmt || !Fmt[0]?Opt.DateFormat:Fmt,sizeof(Fmt0));
+  return StrFTime(Dest, DestSize, Fmt0, time_now);
+}
+
+
 /*
 Вызов:
 struct tm *time_now;
@@ -291,7 +308,6 @@ StrFTime(str, 80,
 
 $Date(%d-%a-%Y)
 */
-
 int WINAPI StrFTime(char *Dest, size_t MaxSize, const char *Format,const struct tm *t)
 {
   char Buf[32];

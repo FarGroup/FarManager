@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.113 07.10.2002 $ */
+/* Revision: 1.114 03.12.2002 $ */
 
 /*
 Modify:
+  03.12.2002 SVS
+    + MPlgLoadPluginError
   07.10.2002 SVS
     ! Пересмотрены MSetColorDialog* и удалены MSetColorWarning*, т.к.
       оба вида диалога настраиваются однотипно (имеют одинаковый набор цветов)
@@ -1668,6 +1670,7 @@ enum
   MPlgBadVers,
   MPlgRequired,
   MPlgRequired2,
+  MPlgLoadPluginError,
 
   MBuffSizeTooSmall_1,
   MBuffSizeTooSmall_2,

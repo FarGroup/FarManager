@@ -24,11 +24,13 @@ keys.hpp
 */
 #endif // END FAR_USE_INTERNALS
 
-/* Revision: 1.22 09.11.2002 $ */
+/* Revision: 1.23 02.12.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
 Modify:
+  02.12.2002 SVS
+    - нарушена структура FAR_USE_INTERNALS
   09.11.2002 SVS
     + KEY_ALTDIGIT - типа... "ввод был аля Alt-Num
   24.05.2002 SVS
@@ -121,7 +123,7 @@ enum BaseDefKeyboard
   KEY_RALT                 =0x20000000,
 #ifdef FAR_USE_INTERNALS
   KEY_ALTDIGIT             =0x40000000,
-#endif
+#endif  // END FAR_USE_INTERNALS
 
   KEY_BRACKET              ='[',
   KEY_BACKBRACKET          =']',
@@ -197,7 +199,7 @@ enum BaseDefKeyboard
   KEY_MSLDBLCLICK          =0x00000205,
   KEY_MSRDBLCLICK          =0x00000206,
 #endif
-#endif
+#endif // END FAR_USE_INTERNALS
 
   KEY_END_FKEY             =0x00000FFF,
 

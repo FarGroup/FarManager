@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.44 04.11.2002 $ */
+/* Revision: 1.45 05.12.2002 $ */
 
 /*
 Modify:
+  05.12.2002 SVS
+    - неверно проинициализированы PrevScrX и PrevScrY
   04.11.2002 SVS
     ! ReturnAltValue уехала из keyboard.cpp в global.cpp
   14.07.2002 SVS
@@ -170,7 +172,7 @@ int ReturnAltValue=0;
 CONSOLE_SCREEN_BUFFER_INFO InitScreenBufferInfo={0};
 CONSOLE_SCREEN_BUFFER_INFO CurScreenBufferInfo={0};
 int ScrX=0,ScrY=0;
-int PrevScrX=0,PrevScrY=0;
+int PrevScrX=-1,PrevScrY=-1;
 HANDLE hConOut=NULL,hConInp=NULL;
 
 clock_t StartIdleTime=0;
