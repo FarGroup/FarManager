@@ -10,10 +10,12 @@ dialog.hpp
 
 */
 
-/* Revision: 1.59 06.05.2002 $ */
+/* Revision: 1.60 15.05.2002 $ */
 
 /*
 Modify:
+  15.05.2002 SVS
+    ! Вместо Edit юзаем новый класс DlgEdit
   06.05.2002 SVS
     + InitDialog() - инициализация диалога. Инициализируется в Process()
       или самостоятельно, но до вызова Show()
@@ -321,7 +323,7 @@ struct DialogData
   char *Data;
 };
 
-class Edit;
+class DlgEdit;
 class ConsoleTitle;
 
 class Dialog: public Frame
@@ -415,12 +417,12 @@ class Dialog: public Frame
       + Дополнительный параметр в SelectFromEditHistory для выделения
        нужной позиции в истории (если она соответствует строке ввода)
     */
-    BOOL SelectFromEditHistory(struct DialogItem *CurItem,Edit *EditLine,char *HistoryName,char *Str,int MaxLen);
+    BOOL SelectFromEditHistory(struct DialogItem *CurItem,DlgEdit *EditLine,char *HistoryName,char *Str,int MaxLen);
     /* SVS $ */
     /* $ 18.07.2000 SVS
        + функция SelectFromComboBox для выбора из DI_COMBOBOX
     */
-    int SelectFromComboBox(Edit *EditLine,VMenu *List,int MaxLen);
+    int SelectFromComboBox(DlgEdit*EditLine,VMenu *List,int MaxLen);
     /* SVS $ */
     /* $ 26.07.2000 SVS
        AutoComplite: Поиск входжение подстроки в истории

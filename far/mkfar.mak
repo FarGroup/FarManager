@@ -120,6 +120,7 @@ FAROBJ=\
    $(OBJPATH)\dialog.obj\
    $(OBJPATH)\dizlist.obj\
    $(OBJPATH)\edit.obj\
+   $(OBJPATH)\dlgedit.obj\
    $(OBJPATH)\editor.obj\
    $(OBJPATH)\eject.obj\
    $(OBJPATH)\farqueue.obj\

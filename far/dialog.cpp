@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.242 11.05.2002 $ */
+/* Revision: 1.243 15.05.2002 $ */
 
 /*
 Modify:
+  15.05.2002 SVS
+    ! Вместо Edit юзаем новый класс DlgEdit
   11.05.2002 SVS
     ! Удаляем LIF_UPDATEKEEPUSERDATA
   08.05.2002 SVS
@@ -909,7 +911,7 @@ Modify:
 #include "ctrlobj.hpp"
 #include "chgprior.hpp"
 #include "vmenu.hpp"
-#include "edit.hpp"
+#include "dlgedit.hpp"
 #include "help.hpp"
 #include "scrbuf.hpp"
 #include "manager.hpp"
@@ -1418,7 +1420,7 @@ int Dialog::InitDialogObjects(int ID)
         }
       }
 
-      Edit *DialogEdit=(Edit *)CurItem->ObjPtr;
+      DlgEdit *DialogEdit=(DlgEdit *)CurItem->ObjPtr;
       DialogEdit->SetDialogParent((Type != DI_COMBOBOX && (ItemFlags & DIF_EDITOR))?
                                   EDPARENT_MULTILINE:EDPARENT_SINGLELINE);
       DialogEdit->ReadOnly=0;
@@ -1709,7 +1711,7 @@ BOOL Dialog::SetItemRect(int ID,SMALL_RECT *Rect)
 
   if (IsEdit(Type))
   {
-      Edit *DialogEdit=(Edit *)CurItem->ObjPtr;
+      DlgEdit *DialogEdit=(DlgEdit *)CurItem->ObjPtr;
       CurItem->X2=(short)Rect->Right;
       CurItem->Y2=0;
       DialogEdit->SetPosition(X1+Rect->Left, Y1+Rect->Top,
@@ -1861,7 +1863,7 @@ void Dialog::DeleteDialogObjects()
       case DI_PSWEDIT:
       case DI_COMBOBOX:
         if(CurItem->ObjPtr)
-          delete (Edit *)(CurItem->ObjPtr);
+          delete (DlgEdit *)(CurItem->ObjPtr);
       case DI_LISTBOX:
         if((CurItem->Type == DI_COMBOBOX || CurItem->Type == DI_LISTBOX) &&
             CurItem->ListPtr)
@@ -1903,7 +1905,7 @@ void Dialog::GetDialogObjectsData()
         {
           char *PtrData;
           int PtrLength;
-          Edit *EditPtr=(Edit *)(CurItem->ObjPtr);
+          DlgEdit *EditPtr=(DlgEdit *)(CurItem->ObjPtr);
           // подготовим данные
           if((Type==DI_EDIT || Type==DI_COMBOBOX) && (IFlags&DIF_VAREDIT))
           {
@@ -2464,7 +2466,7 @@ void Dialog::ShowDialog(int ID)
       case DI_PSWEDIT:
       case DI_COMBOBOX:
       {
-        Edit *EditPtr=(Edit *)(CurItem->ObjPtr);
+        DlgEdit *EditPtr=(DlgEdit *)(CurItem->ObjPtr);
         if(!EditPtr)
           break;
 
@@ -2613,7 +2615,7 @@ int Dialog::ProcessKey(int Key)
 {
   int I,J;
   char Str[1024];
-  Edit *CurEditLine;
+  DlgEdit *CurEditLine;
 
   if (Key==KEY_NONE || Key==KEY_IDLE)
   {
@@ -2848,7 +2850,7 @@ int Dialog::ProcessKey(int Key)
         if (Key==KEY_SHIFTTAB)
           while (I>0 && (Item[I].Flags & DIF_EDITOR)!=0 &&
                  (Item[I-1].Flags & DIF_EDITOR)!=0 &&
-                 ((Edit *)Item[I].ObjPtr)->GetLength()==0)
+                 ((DlgEdit *)Item[I].ObjPtr)->GetLength()==0)
             I--;
       }
       ChangeFocus2(CurFocusPos,I);
@@ -2887,22 +2889,22 @@ int Dialog::ProcessKey(int Key)
             EditorLastPos=I;
           else
             break;
-        if (((Edit *)(Item[EditorLastPos].ObjPtr))->GetLength()!=0)
+        if (((DlgEdit *)(Item[EditorLastPos].ObjPtr))->GetLength()!=0)
           return(TRUE);
         for (I=EditorLastPos;I>CurFocusPos;I--)
         {
           int CurPos;
           if (I==CurFocusPos+1)
-            CurPos=((Edit *)(Item[I-1].ObjPtr))->GetCurPos();
+            CurPos=((DlgEdit *)(Item[I-1].ObjPtr))->GetCurPos();
           else
             CurPos=0;
-          ((Edit *)(Item[I-1].ObjPtr))->GetString(Str,sizeof(Str));
+          ((DlgEdit *)(Item[I-1].ObjPtr))->GetString(Str,sizeof(Str));
           int Length=strlen(Str);
-          ((Edit *)(Item[I].ObjPtr))->SetString(CurPos>=Length ? "":Str+CurPos);
+          ((DlgEdit *)(Item[I].ObjPtr))->SetString(CurPos>=Length ? "":Str+CurPos);
           if (CurPos<Length)
             Str[CurPos]=0;
-          ((Edit *)(Item[I].ObjPtr))->SetCurPos(0);
-          ((Edit *)(Item[I-1].ObjPtr))->SetString(Str);
+          ((DlgEdit *)(Item[I].ObjPtr))->SetCurPos(0);
+          ((DlgEdit *)(Item[I-1].ObjPtr))->SetString(Str);
           /* $ 28.07.2000 SVS
             При изменении состояния каждого элемента посылаем сообщение
             посредством функции SendDlgMessage - в ней делается все!
@@ -2913,7 +2915,7 @@ int Dialog::ProcessKey(int Key)
         }
         if (EditorLastPos>CurFocusPos)
         {
-          ((Edit *)(CurItem->ObjPtr))->SetCurPos(0);
+          ((DlgEdit *)(CurItem->ObjPtr))->SetCurPos(0);
           ProcessKey(KEY_DOWN);
         }
         else
@@ -3056,7 +3058,7 @@ int Dialog::ProcessKey(int Key)
           При изменении состояния каждого элемента посылаем сообщение
           посредством функции SendDlgMessage - в ней делается все!
         */
-        if(((Edit *)(CurItem->ObjPtr))->ProcessKey(Key))
+        if(((DlgEdit *)(CurItem->ObjPtr))->ProcessKey(Key))
         {
           Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,CurFocusPos,0);
           Redraw(); // Перерисовка должна идти после DN_EDITCHANGE (imho)
@@ -3072,7 +3074,7 @@ int Dialog::ProcessKey(int Key)
 
       else if (IsEdit(Type))
       {
-        ((Edit *)(CurItem->ObjPtr))->ProcessKey(Key);
+        ((DlgEdit *)(CurItem->ObjPtr))->ProcessKey(Key);
         return(TRUE);
       }
       else
@@ -3101,7 +3103,7 @@ int Dialog::ProcessKey(int Key)
         return TRUE;
       else if (IsEdit(Type))
       {
-        ((Edit *)(CurItem->ObjPtr))->ProcessKey(Key);
+        ((DlgEdit *)(CurItem->ObjPtr))->ProcessKey(Key);
         return(TRUE);
       }
       else
@@ -3144,13 +3146,13 @@ int Dialog::ProcessKey(int Key)
       {
         int PrevPos=0;
         if (CurItem->Flags & DIF_EDITOR)
-          PrevPos=((Edit *)(CurItem->ObjPtr))->GetCurPos();
+          PrevPos=((DlgEdit *)(CurItem->ObjPtr))->GetCurPos();
         I=ChangeFocus(CurFocusPos,(Key==KEY_LEFT || Key==KEY_UP) ? -1:1,FALSE);
         CurItem->Focus=0;
         Item[I].Focus=1;
         ChangeFocus2(CurFocusPos,I);
         if (Item[I].Flags & DIF_EDITOR)
-          ((Edit *)(Item[I].ObjPtr))->SetCurPos(PrevPos);
+          ((DlgEdit *)(Item[I].ObjPtr))->SetCurPos(PrevPos);
         if (Item[I].Flags & DIF_MOVESELECT)
           ProcessKey(KEY_SPACE);
         else
@@ -3166,7 +3168,7 @@ int Dialog::ProcessKey(int Key)
         return TRUE;
       else if (IsEdit(Type))
       {
-        ((Edit *)(CurItem->ObjPtr))->ProcessKey(Key);
+        ((DlgEdit *)(CurItem->ObjPtr))->ProcessKey(Key);
         return(TRUE);
       }
     case KEY_PGDN:
@@ -3201,7 +3203,7 @@ int Dialog::ProcessKey(int Key)
       if(Type == DI_USERCONTROL)
         return TRUE;
 
-      CurEditLine=((Edit *)(CurItem->ObjPtr));
+      CurEditLine=((DlgEdit *)(CurItem->ObjPtr));
       if (IsEdit(Type) &&
            (CurItem->Flags & DIF_HISTORY) &&
            Opt.Dialogs.EditHistory &&
@@ -3252,7 +3254,7 @@ int Dialog::ProcessKey(int Key)
     */
     case KEY_MEDIT_ISSELECTED:
       if (IsEdit(Type))
-        return ((Edit *)(CurItem->ObjPtr))->ProcessKey(Key);
+        return ((DlgEdit *)(CurItem->ObjPtr))->ProcessKey(Key);
       return FALSE;
     /* DJ $ */
 
@@ -3276,7 +3278,7 @@ int Dialog::ProcessKey(int Key)
       */
       if (IsEdit(Type))
       {
-        Edit *edt=(Edit *)CurItem->ObjPtr;
+        DlgEdit *edt=(DlgEdit *)CurItem->ObjPtr;
         int SelStart, SelEnd;
 
         if(Key == KEY_CTRLL) // исключим смену режима RO для поля ввода с клавиатуры
@@ -3316,7 +3318,7 @@ int Dialog::ProcessKey(int Key)
                 if(CurFocusPos > 0 && (Item[CurFocusPos-1].Flags&DIF_EDITOR))
                 {
                   // добавляем к предыдущему и...
-                  Edit *edt_1=(Edit *)Item[CurFocusPos-1].ObjPtr;
+                  DlgEdit *edt_1=(DlgEdit *)Item[CurFocusPos-1].ObjPtr;
                   edt_1->GetString(Str,sizeof(Str));
                   CurPos=strlen(Str);
                   edt->GetString(Str+CurPos,sizeof(Str)-CurPos);
@@ -3328,14 +3330,14 @@ int Dialog::ProcessKey(int Key)
                     {
                       if (I>CurFocusPos)
                       {
-                        ((Edit *)(Item[I].ObjPtr))->GetString(Str,sizeof(Str));
-                        ((Edit *)(Item[I-1].ObjPtr))->SetString(Str);
+                        ((DlgEdit *)(Item[I].ObjPtr))->GetString(Str,sizeof(Str));
+                        ((DlgEdit *)(Item[I-1].ObjPtr))->SetString(Str);
                       }
-                      ((Edit *)(Item[I].ObjPtr))->SetString("");
+                      ((DlgEdit *)(Item[I].ObjPtr))->SetString("");
                     }
                     else // ага, значит  FocusPos это есть последний из DIF_EDITOR
                     {
-                      ((Edit *)(Item[I-1].ObjPtr))->SetString("");
+                      ((DlgEdit *)(Item[I-1].ObjPtr))->SetString("");
                       break;
                     }
                   }
@@ -3360,10 +3362,10 @@ int Dialog::ProcessKey(int Key)
                 {
                   if (I>CurFocusPos)
                   {
-                    ((Edit *)(Item[I].ObjPtr))->GetString(Str,sizeof(Str));
-                    ((Edit *)(Item[I-1].ObjPtr))->SetString(Str);
+                    ((DlgEdit *)(Item[I].ObjPtr))->GetString(Str,sizeof(Str));
+                    ((DlgEdit *)(Item[I-1].ObjPtr))->SetString(Str);
                   }
-                  ((Edit *)(Item[I].ObjPtr))->SetString("");
+                  ((DlgEdit *)(Item[I].ObjPtr))->SetString("");
                 }
                 else
                   break;
@@ -3408,7 +3410,7 @@ int Dialog::ProcessKey(int Key)
                 }
                 else if (CurPos>=Length)
                 {
-                  Edit *edt_1=(Edit *)Item[CurFocusPos+1].ObjPtr;
+                  DlgEdit *edt_1=(DlgEdit *)Item[CurFocusPos+1].ObjPtr;
                   /* $ 12.09.2000 SVS
                      Решаем проблему, если Del нажали в позиции
                      большей, чем длина строки
@@ -3724,7 +3726,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
                но перехода реального на указанный элемент диалога не происходит
             */
             int EditX1,EditY1,EditX2,EditY2;
-            Edit *EditLine=(Edit *)(Item[I].ObjPtr);
+            DlgEdit *EditLine=(DlgEdit *)(Item[I].ObjPtr);
             EditLine->GetPosition(EditX1,EditY1,EditX2,EditY2);
 
             if(MsY==EditY1 && Type == DI_COMBOBOX &&
@@ -4115,7 +4117,7 @@ void Dialog::SelectOnEntry(int Pos,BOOL Selected)
 //     && PrevFocusPos != -1 && PrevFocusPos != Pos
     )
   {
-    Edit *edt=(Edit *)Item[Pos].ObjPtr;
+    DlgEdit *edt=(DlgEdit *)Item[Pos].ObjPtr;
     if(edt)
     {
       if(Selected)
@@ -4149,7 +4151,7 @@ void Dialog::ConvertItem(int FromPlugin,
 
   char *PtrData;
   int PtrLength;
-  Edit *EditPtr;
+  DlgEdit *EditPtr;
 
   if(FromPlugin == CVTITEM_TOPLUGIN)
     for (I=0; I < Count; I++, ++Item, ++Data)
@@ -4167,7 +4169,7 @@ void Dialog::ConvertItem(int FromPlugin,
       Item->DefaultButton=Data->DefaultButton;
       if(InternalCall)
       {
-        if(Dialog::IsEdit(Data->Type) && (EditPtr=(Edit *)(Data->ObjPtr)) != NULL)
+        if(Dialog::IsEdit(Data->Type) && (EditPtr=(DlgEdit *)(Data->ObjPtr)) != NULL)
         {
           // Заполним значения
           if((Data->Type==DI_EDIT || Data->Type==DI_COMBOBOX) &&
@@ -4207,7 +4209,7 @@ void Dialog::ConvertItem(int FromPlugin,
       Он позволит менять данные в ответ на DN_EDITCHANGE
       if(InternalCall)
       {
-        if(Dialog::IsEdit(Data->Type) && (EditPtr=(Edit *)(Data->ObjPtr)) != NULL)
+        if(Dialog::IsEdit(Data->Type) && (EditPtr=(DlgEdit *)(Data->ObjPtr)) != NULL)
         {
           // обновим
           if((Data->Type==DI_EDIT || Data->Type==DI_COMBOBOX) &&
@@ -4340,7 +4342,7 @@ int Dialog::IsFocused(int Type)
    AutoComplite: Поиск входжение подстроки в истории
 */
 /* $ 28.07.2000 SVS
-   ! Переметр Edit *EditLine нафиг ненужен!
+   ! Переметр DlgEdit *EditLine нафиг ненужен!
 */
 int Dialog::FindInEditForAC(int TypeFind,void *HistoryName,char *FindStr,int MaxLen)
 {
@@ -4403,7 +4405,7 @@ int Dialog::FindInEditForAC(int TypeFind,void *HistoryName,char *FindStr,int Max
    Функция-обработчик выбора из списка и установки...
 */
 int Dialog::SelectFromComboBox(
-         Edit *EditLine,                   // строка редактирования
+         DlgEdit *EditLine,                   // строка редактирования
          VMenu *ComboBox,    // список строк
          int MaxLen)
 {
@@ -4507,7 +4509,7 @@ int Dialog::SelectFromComboBox(
    нужной позиции в истории (если она соответствует строке ввода)
 */
 BOOL Dialog::SelectFromEditHistory(struct DialogItem *CurItem,
-                                   Edit *EditLine,
+                                   DlgEdit *EditLine,
                                    char *HistoryName,
                                    char *IStr,
                                    int MaxLen)
@@ -5966,14 +5968,14 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
               return OldSets;
             }
           }
-          // уточнение для DI_COMBOBOX - здесь еще и Edit нужно корректно заполнить
+          // уточнение для DI_COMBOBOX - здесь еще и DlgEdit нужно корректно заполнить
           if(Type==DI_COMBOBOX && CurItem->ObjPtr)
           {
             struct MenuItem *ListMenuItem;
             if((ListMenuItem=ListBox->GetItemPtr(ListBox->GetSelectPos())) != NULL)
             {
-              ((Edit *)(CurItem->ObjPtr))->SetString(ListMenuItem->Name);
-              ((Edit *)(CurItem->ObjPtr))->Select(-1,-1); // снимаем выделение
+              ((DlgEdit *)(CurItem->ObjPtr))->SetString(ListMenuItem->Name);
+              ((DlgEdit *)(CurItem->ObjPtr))->Select(-1,-1); // снимаем выделение
             }
           }
 
@@ -6043,7 +6045,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         return FALSE;
       if (IsEdit(Type) && CurItem->ObjPtr)
       {
-        ((COORD*)Param2)->X=((Edit *)(CurItem->ObjPtr))->GetCurPos();
+        ((COORD*)Param2)->X=((DlgEdit *)(CurItem->ObjPtr))->GetCurPos();
         ((COORD*)Param2)->Y=0;
         return TRUE;
       }
@@ -6061,7 +6063,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     {
       if (IsEdit(Type) && CurItem->ObjPtr)
       {
-        ((Edit *)(CurItem->ObjPtr))->SetCurPos(((COORD*)Param2)->X);
+        ((DlgEdit *)(CurItem->ObjPtr))->SetCurPos(((COORD*)Param2)->X);
         return TRUE;
       }
       else if(Type == DI_USERCONTROL && CurItem->UCData)
@@ -6103,7 +6105,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       if (IsEdit(Type) && CurItem->ObjPtr)
       {
         int Visible,Size;
-        ((Edit *)(CurItem->ObjPtr))->GetCursorType(Visible,Size);
+        ((DlgEdit *)(CurItem->ObjPtr))->GetCursorType(Visible,Size);
         return MAKELONG(Visible,Size);
       }
       else if(Type == DI_USERCONTROL && CurItem->UCData)
@@ -6121,8 +6123,8 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       int Visible=0,Size=0;
       if (IsEdit(Type) && CurItem->ObjPtr)
       {
-        ((Edit *)(CurItem->ObjPtr))->GetCursorType(Visible,Size);
-        ((Edit *)(CurItem->ObjPtr))->SetCursorType(LOWORD(Param2),HIWORD(Param2));
+        ((DlgEdit *)(CurItem->ObjPtr))->GetCursorType(Visible,Size);
+        ((DlgEdit *)(CurItem->ObjPtr))->SetCursorType(LOWORD(Param2),HIWORD(Param2));
       }
       else if(Type == DI_USERCONTROL && CurItem->UCData)
       {
@@ -6288,7 +6290,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
           case DI_FIXEDIT:
             if(!CurItem->ObjPtr)
               break;
-            ((Edit *)(CurItem->ObjPtr))->GetString(Str,sizeof(Str));
+            ((DlgEdit *)(CurItem->ObjPtr))->GetString(Str,sizeof(Str));
             Ptr=Str;
 
           case DI_TEXT:
@@ -6370,7 +6372,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         case DI_FIXEDIT:
           if(CurItem->ObjPtr)
           {
-            Len=((Edit *)(CurItem->ObjPtr))->GetLength()+1;
+            Len=((DlgEdit *)(CurItem->ObjPtr))->GetLength()+1;
             break;
           }
 
@@ -6474,7 +6476,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
             NeedInit=FALSE;
             if(CurItem->ObjPtr)
             {
-              Edit *EditLine=(Edit *)(CurItem->ObjPtr);
+              DlgEdit *EditLine=(DlgEdit *)(CurItem->ObjPtr);
               int ReadOnly=EditLine->ReadOnly;
               EditLine->ReadOnly=0;
               EditLine->SetString((char *)Ptr);
@@ -6528,7 +6530,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
           (Type==DI_COMBOBOX && !(CurItem->Flags & DIF_DROPDOWNLIST))) &&
          CurItem->ObjPtr)
       {
-        int MaxLen=((Edit *)(CurItem->ObjPtr))->GetMaxLength();
+        int MaxLen=((DlgEdit *)(CurItem->ObjPtr))->GetMaxLength();
 
         if((CurItem->Type==DI_EDIT || CurItem->Type==DI_COMBOBOX) &&
            (CurItem->Flags&DIF_VAREDIT))
@@ -6536,7 +6538,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         else if(Param2 > 511)
           Param2=511;
 
-        ((Edit *)(CurItem->ObjPtr))->SetMaxLength(Param2);
+        ((DlgEdit *)(CurItem->ObjPtr))->SetMaxLength(Param2);
 
         //if (DialogMode.Check(DMODE_INITOBJECTS)) //???
         Dlg->InitDialogObjects(Param1); // переинициализируем элементы диалога
@@ -6557,7 +6559,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 /*
         if(IsEdit(Type))
         {
-          ((Edit *)(CurItem->ObjPtr))->GetString(Str,sizeof(Str));
+          ((DlgEdit *)(CurItem->ObjPtr))->GetString(Str,sizeof(Str));
           strcpy((char *)Param2,Str);
         }
         else
@@ -6723,7 +6725,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     {
       if(IsEdit(Type))
       {
-        Edit *EditLine=(Edit *)(CurItem->ObjPtr);
+        DlgEdit *EditLine=(DlgEdit *)(CurItem->ObjPtr);
         int ClearFlag=EditLine->GetClearFlag();
         if(Param2 >= 0)
         {

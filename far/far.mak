@@ -81,6 +81,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\dialog.obj" \
 	"$(INTDIR)\dizlist.obj" \
 	"$(INTDIR)\edit.obj" \
+	"$(INTDIR)\dlgedit.obj" \
 	"$(INTDIR)\farqueue.obj" \
 	"$(INTDIR)\editor.obj" \
 	"$(INTDIR)\ffolders.obj" \

@@ -148,6 +148,10 @@ SOURCE=.\dizlist.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\dlgedit.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\edit.cpp
 # End Source File
 # Begin Source File
@@ -580,6 +584,10 @@ SOURCE=.\dialog.hpp
 # Begin Source File
 
 SOURCE=.\dizlist.hpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\dlgedit.hpp
 # End Source File
 # Begin Source File
 

@@ -188,6 +188,10 @@ $ #Panel control commands#
   Create a ~folder shortcut~@FolderShortcuts@              #Ctrl-Shift-0# to #Ctrl-Shift-9#
   Jump to a folder shortcut               #RightCtrl-0# to #RightCtrl-9#
 
+      If the active panel is a ~quick view panel~@QViewPanel@, a ~tree panel~@TreePanel@ or
+    an ~information panel~@InfoPanel@, the directory is changed not on the
+    active, but on the passive panel.
+
   Copy the names of selected files to the clipboard         #Ctrl-Ins#
    (if the command line is empty)
   Copy the names of selected files to the clipboard   #Ctrl-Shift-Ins#

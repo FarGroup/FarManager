@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.82 06.05.2002 $ */
+/* Revision: 1.83 15.05.2002 $ */
 
 /*
 Modify:
+  15.05.2002 SVS
+    ! Поправим копир на предмет "некопирования в сетевые симлинки"
   06.05.2002 VVM
     - При подтверждении прерывания копирования скорректируем время копирования :)
   26.04.2002 SVS
@@ -3280,8 +3282,13 @@ int ShellCopy::ShellSetAttr(const char *Dest,DWORD Attr)
 
   ConvertNameToFull(Dest,Root, sizeof(Root));
   GetPathRoot(Root,Root);
-  if(GetFileAttributes(Root) == -1)
-    return FALSE;
+  if(GetFileAttributes(Root) == -1) // Неудача, когда сетевой путь, да еще и симлинк
+  { // ... в этом случае проверим AS IS
+    ConvertNameToFull(Dest,Root, sizeof(Root));
+    GetPathRootOne(Root,Root);
+    if(GetFileAttributes(Root) == -1)
+      return FALSE;
+  }
 
 //_SVS(SysLog("Copy: 0x%08X Dest='%s' Root='%s'",Attr,Dest,Root));
   if(GetVolumeInformation(Root,NULL,0,NULL,NULL,&FileSystemFlagsDst,FSysNameDst,sizeof(FSysNameDst)))

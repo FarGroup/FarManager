@@ -5,10 +5,14 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.70 14.04.2002 $ */
+/* Revision: 1.71 15.05.2002 $ */
 
 /*
 Modify:
+  15.05.2002 SVS
+    ! Уточнения в WriteInput (особенно про Key > 255 :-)
+    + В обработчике мыши... сравним Ctrl-keys и... если надо дадим сигнал на
+      прорисовку, путем засыла в очередь VK_F16
   14.05.2002 VVM
     - Если крутим колесо мыши, то сбрасываем тип события EventType;
   05.04.2002 SVS
@@ -487,7 +491,7 @@ int GetInputRecord(INPUT_RECORD *rec)
           SysLog("GetInputRecord(KEY_EVENT), %s KState=0x%08X VK=0x%04X,",
                (rec->Event.KeyEvent.bKeyDown?"Up":"Dn"),
                rec->Event.KeyEvent.dwControlKeyState,
-               rec->Event.KeyEvent.wVirtualKeyCode);
+               _VK_KEY_ToName(rec->Event.KeyEvent.wVirtualKeyCode));
           break;
         case MOUSE_EVENT:
           //SysLog("GetInputRecord(MENU_EVENT)");
@@ -596,8 +600,10 @@ int GetInputRecord(INPUT_RECORD *rec)
       }
     }
     LoopCount++;
-  }
+  } // while (1)
+
   clock_t CurClock=clock();
+
   if (rec->EventType==FOCUS_EVENT)
   {
     /* $ 28.04.2001 VVM
@@ -619,6 +625,7 @@ int GetInputRecord(INPUT_RECORD *rec)
     return(rec->Event.FocusEvent.bSetFocus?KEY_GOTFOCUS:KEY_KILLFOCUS);
     /* VVM $ */
   }
+
   if (rec->EventType==KEY_EVENT)
   {
     DWORD CtrlState=rec->Event.KeyEvent.dwControlKeyState;
@@ -788,17 +795,21 @@ int GetInputRecord(INPUT_RECORD *rec)
       if (ShiftPressedLast && KeyCode==VK_SHIFT)
         Key=KEY_SHIFT;
       if (KeyCode==VK_CONTROL)
+      {
         if (CtrlPressedLast)
           Key=KEY_CTRL;
-        else
-          if (RightCtrlPressedLast)
-            Key=KEY_RCTRL;
+        else if (RightCtrlPressedLast)
+          Key=KEY_RCTRL;
+      }
+
       if (KeyCode==VK_MENU)
+      {
         if (AltPressedLast)
           Key=KEY_ALT;
-        else
-          if (RightAltPressedLast)
-            Key=KEY_RALT;
+        else if (RightAltPressedLast)
+          Key=KEY_RALT;
+      }
+
       if (Key!=-1 && !NotMacros && CtrlObject!=NULL && CtrlObject->Macro.ProcessKey(Key))
         Key=KEY_NONE;
       if (Key!=-1)
@@ -867,19 +878,43 @@ int GetInputRecord(INPUT_RECORD *rec)
     PreMouseEventFlags=MouseEventFlags;
     MouseEventFlags=rec->Event.MouseEvent.dwEventFlags;
 
+    DWORD CtrlState=rec->Event.MouseEvent.dwControlKeyState;
+
+    // Сигнал на прорисовку ;-) Помогает прорисовать кейбар при движении мышью
+    if(CtrlState != (CtrlPressed|AltPressed|ShiftPressed))
+    {
+      static INPUT_RECORD TempRec[2]={
+        {KEY_EVENT,{1,1,VK_F16,0,{0},0}},
+        {KEY_EVENT,{0,1,VK_F16,0,{0},0}}
+      };
+      DWORD WriteCount;
+      TempRec[0].Event.KeyEvent.dwControlKeyState=TempRec[1].Event.KeyEvent.dwControlKeyState=CtrlState;
+      #if defined(USE_WFUNC)
+      if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+        WriteConsoleInputW(hConInp,TempRec,2,&WriteCount);
+      else
+        WriteConsoleInputA(hConInp,TempRec,2,&WriteCount);
+      #else
+      WriteConsoleInput(hConInp,TempRec,2,&WriteCount);
+      #endif
+    }
+
+    CtrlPressed=(CtrlState & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED));
+    AltPressed=(CtrlState & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED));
+    ShiftPressed=(CtrlState & SHIFT_PRESSED);
+
+    DWORD BtnState=rec->Event.MouseEvent.dwButtonState;
     if (SwapButton && WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS && !IsWindowed())
     {
-      DWORD CtrlState=rec->Event.MouseEvent.dwButtonState;
-      if (CtrlState & FROM_LEFT_1ST_BUTTON_PRESSED)
+      if (BtnState & FROM_LEFT_1ST_BUTTON_PRESSED)
         rec->Event.MouseEvent.dwButtonState|=RIGHTMOST_BUTTON_PRESSED;
       else
         rec->Event.MouseEvent.dwButtonState&=~RIGHTMOST_BUTTON_PRESSED;
-      if (CtrlState & RIGHTMOST_BUTTON_PRESSED)
+      if (BtnState & RIGHTMOST_BUTTON_PRESSED)
         rec->Event.MouseEvent.dwButtonState|=FROM_LEFT_1ST_BUTTON_PRESSED;
       else
         rec->Event.MouseEvent.dwButtonState&=~FROM_LEFT_1ST_BUTTON_PRESSED;
     }
-    DWORD CtrlState=rec->Event.MouseEvent.dwButtonState;
 
     if(MouseEventFlags != MOUSE_MOVED)
     {
@@ -889,10 +924,10 @@ int GetInputRecord(INPUT_RECORD *rec)
       PrevMButtonPressed=MButtonPressed;
     }
 
-    LButtonPressed=(CtrlState & FROM_LEFT_1ST_BUTTON_PRESSED);
-    RButtonPressed=(CtrlState & RIGHTMOST_BUTTON_PRESSED);
-    MButtonPressed=(CtrlState & FROM_LEFT_2ND_BUTTON_PRESSED);
-//_SVS(SysLog("2. CtrlState=%X PrevRButtonPressed=%d,RButtonPressed=%d",CtrlState,PrevRButtonPressed,RButtonPressed));
+    LButtonPressed=(BtnState & FROM_LEFT_1ST_BUTTON_PRESSED);
+    RButtonPressed=(BtnState & RIGHTMOST_BUTTON_PRESSED);
+    MButtonPressed=(BtnState & FROM_LEFT_2ND_BUTTON_PRESSED);
+//_SVS(SysLog("2. BtnState=%X PrevRButtonPressed=%d,RButtonPressed=%d",BtnState,PrevRButtonPressed,RButtonPressed));
 
     PrevMouseX=MouseX;
     PrevMouseY=MouseY;
@@ -907,10 +942,9 @@ int GetInputRecord(INPUT_RECORD *rec)
     if (MouseEventFlags == DOUBLE_CLICK && (LButtonPressed || RButtonPressed))
     {
       CalcKey=LButtonPressed?KEY_MSLDBLCLICK:KEY_MSRDBLCLICK;
-      DWORD SMState=rec->Event.MouseEvent.dwControlKeyState;
-      CalcKey |= (SMState&SHIFT_PRESSED?KEY_SHIFT:0)|
-                 (SMState&(LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED)?KEY_CTRL:0)|
-                 (SMState&(LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED)?KEY_ALT:0);
+      CalcKey |= (CtrlState&SHIFT_PRESSED?KEY_SHIFT:0)|
+                 (CtrlState&(LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED)?KEY_CTRL:0)|
+                 (CtrlState&(LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED)?KEY_ALT:0);
       rec->EventType = KEY_EVENT;
     }
     else
@@ -925,10 +959,9 @@ int GetInputRecord(INPUT_RECORD *rec)
          Не были учтены шифтовые клавиши при прокрутке колеса, из-за чего
          нельзя было использовать в макросах нечто вроде "ShiftMsWheelUp"
       */
-      DWORD SMState=rec->Event.MouseEvent.dwControlKeyState;
-      CalcKey |= (SMState&SHIFT_PRESSED?KEY_SHIFT:0)|
-                 (SMState&(LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED)?KEY_CTRL:0)|
-                 (SMState&(LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED)?KEY_ALT:0);
+      CalcKey |= (CtrlState&SHIFT_PRESSED?KEY_SHIFT:0)|
+                 (CtrlState&(LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED)?KEY_CTRL:0)|
+                 (CtrlState&(LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED)?KEY_ALT:0);
       /* SVS $ */
       /* $ 14.05.2002 VVM
         - сбросим тип евента вообще. Иначе бывают глюки (ProcessEditorInput) */
@@ -1002,24 +1035,31 @@ void WaitKey(int KeyWait)
 }
 /* SVS $ */
 
-
 int WriteInput(int Key,DWORD Flags)
 {
-  if(Flags&SKEY_VK_KEYS)
+  if(Flags&(SKEY_VK_KEYS|SKEY_IDLE))
   {
     INPUT_RECORD Rec;
     DWORD WriteCount;
 
-    Rec.EventType=KEY_EVENT;
-    Rec.Event.KeyEvent.bKeyDown=1;
-    Rec.Event.KeyEvent.wRepeatCount=1;
-    Rec.Event.KeyEvent.wVirtualKeyCode=Key;
-    Rec.Event.KeyEvent.wVirtualScanCode=MapVirtualKey(
+    if(Flags&SKEY_IDLE)
+    {
+      Rec.EventType=FOCUS_EVENT;
+      Rec.Event.FocusEvent.bSetFocus=TRUE;
+    }
+    else
+    {
+      Rec.EventType=KEY_EVENT;
+      Rec.Event.KeyEvent.bKeyDown=1;
+      Rec.Event.KeyEvent.wRepeatCount=1;
+      Rec.Event.KeyEvent.wVirtualKeyCode=Key;
+      Rec.Event.KeyEvent.wVirtualScanCode=MapVirtualKey(
                     Rec.Event.KeyEvent.wVirtualKeyCode, 0);
-    if (Key>255)
-      Key=0;
-    Rec.Event.KeyEvent.uChar.UnicodeChar=Rec.Event.KeyEvent.uChar.AsciiChar=Key;
-    Rec.Event.KeyEvent.dwControlKeyState=0;
+      if (Key < 0x30 || Key > 0x5A) // 0-9:;<=>?@@ A..Z  //?????
+        Key=0;
+      Rec.Event.KeyEvent.uChar.UnicodeChar=Rec.Event.KeyEvent.uChar.AsciiChar=Key;
+      Rec.Event.KeyEvent.dwControlKeyState=0;
+    }
 #if defined(USE_WFUNC)
     if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
       return WriteConsoleInputW(hConInp,&Rec,1,&WriteCount);
@@ -1271,6 +1311,9 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 int IsNavKey(DWORD Key)
 {
   static DWORD NavKeys[][2]={
+    {0,KEY_CTRLC},
+    {0,KEY_INS},
+    {0,KEY_CTRLINS},
     {1,KEY_LEFT},
     {1,KEY_RIGHT},
     {1,KEY_HOME},
@@ -1279,9 +1322,6 @@ int IsNavKey(DWORD Key)
     {1,KEY_DOWN},
     {1,KEY_PGUP},
     {1,KEY_PGDN},
-    {0,KEY_CTRLC},
-    {0,KEY_INS},
-    {0,KEY_CTRLINS},
   };
 
   for (int I=0; I < sizeof(NavKeys)/sizeof(NavKeys[0]); I++)

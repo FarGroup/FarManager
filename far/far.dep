@@ -140,14 +140,17 @@
 	".\constitle.hpp"\
 	".\farconst.hpp"\
 	".\fn.hpp"\
+	".\global.hpp"\
 	".\headers.hpp"\
 	".\int64.hpp"\
+	".\struct.hpp"\
 	
 
 .\copy.cpp : \
 	".\bitflags.hpp"\
 	".\chgprior.hpp"\
 	".\colors.hpp"\
+	".\constitle.hpp"\
 	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
@@ -230,6 +233,7 @@
 .\delete.cpp : \
 	".\bitflags.hpp"\
 	".\chgprior.hpp"\
+	".\constitle.hpp"\
 	".\ctrlobj.hpp"\
 	".\dizlist.hpp"\
 	".\farconst.hpp"\
@@ -260,8 +264,10 @@
 	".\bitflags.hpp"\
 	".\chgprior.hpp"\
 	".\colors.hpp"\
+	".\constitle.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
+	".\dlgedit.hpp"\
 	".\edit.hpp"\
 	".\farconst.hpp"\
 	".\fn.hpp"\
@@ -296,6 +302,14 @@
 	".\lang.hpp"\
 	".\savescr.hpp"\
 	".\struct.hpp"\
+	
+
+.\dlgedit.cpp : \
+	".\colors.hpp"\
+	".\dlgedit.hpp"\
+	".\edit.hpp"\
+	".\headers.hpp"\
+	".\scrobj.hpp"\
 	
 
 .\edit.cpp : \
@@ -449,8 +463,10 @@
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\ctrlobj.hpp"\
+	".\dizlist.hpp"\
 	".\edit.hpp"\
 	".\farconst.hpp"\
+	".\filelist.hpp"\
 	".\filepanels.hpp"\
 	".\fn.hpp"\
 	".\frame.hpp"\
@@ -1230,6 +1246,7 @@
 	".\farconst.hpp"\
 	".\global.hpp"\
 	".\headers.hpp"\
+	".\plugin.hpp"\
 	".\struct.hpp"\
 	
 
@@ -1450,6 +1467,7 @@
 	".\bitflags.hpp"\
 	".\CFileMask.hpp"\
 	".\chgprior.hpp"\
+	".\constitle.hpp"\
 	".\ctrlobj.hpp"\
 	".\farconst.hpp"\
 	".\filepanels.hpp"\
@@ -1888,6 +1906,7 @@
 .\setattr.cpp : \
 	".\bitflags.hpp"\
 	".\chgprior.hpp"\
+	".\constitle.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
 	".\farconst.hpp"\
@@ -1985,6 +2004,7 @@
 	".\headers.hpp"\
 	".\int64.hpp"\
 	".\lang.hpp"\
+	".\plugin.hpp"\
 	".\struct.hpp"\
 	
 
@@ -2052,6 +2072,7 @@
 	".\bitflags.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
+	".\constitle.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
 	".\edit.hpp"\

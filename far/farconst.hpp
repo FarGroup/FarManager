@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.60 04.04.2002 $ */
+/* Revision: 1.61 15.05.2002 $ */
 
 /*
 Modify:
+  15.05.2002 SVS
+    + SKEY_IDLE - вместо VK_ послать FOCUS
   04.04.2002 SVS
     + FFTMODE
   22.02.2002 SVS
@@ -274,8 +276,9 @@ enum ReadDizFlags {
 
 
 enum {
-  SKEY_VK_KEYS    = 0x40000000,
-  SKEY_NOTMACROS  = 0x00000001,
+  SKEY_VK_KEYS           = 0x40000000,
+  SKEY_IDLE              = 0x80000000,
+  SKEY_NOTMACROS         = 0x00000001,
 };
 
 // размеры для полей ввода
