@@ -5,10 +5,13 @@ execute.cpp
 
 */
 
-/* Revision: 1.71 20.09.2002 $ */
+/* Revision: 1.72 03.10.2002 $ */
 
 /*
 Modify:
+  03.10.2002 VVM
+    + Default action может содержать несколько команнд через запятую.
+    + При поиске в App paths учтем кавычки и переменные окружения.
   20.09.2002 SKV
     | Отключил cd net:server
   03.09.2002 SVS
@@ -231,6 +234,7 @@ Modify:
 #include "panel.hpp"
 #include "fn.hpp"
 #include "rdrwdsk.hpp"
+#include "udlist.hpp"
 
 // Выдранный кусок из будущего GetFileInfo, получаем достоверную информацию о
 // ГУЯХ PE-модуля
@@ -369,7 +373,34 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem)
   if (RetQuery == ERROR_SUCCESS)
   {
     RetPtr=(*Action==0 ? NULL:Action);
-    strcat(Value,Action);
+    /* $ 03.10.2002 VVM
+      + Команд в одной строке может быть несколько. */
+    const char *ActionPtr;
+    UserDefinedList ActionList(0,0,ULF_UNIQUE);
+
+    if (RetPtr != NULL && ActionList.Set(Action))
+    {
+      LONG RetEnum = ERROR_SUCCESS;
+      char NewValue[512];
+      HKEY hOpenKey;
+      ActionList.Reset();
+      while (RetEnum == ERROR_SUCCESS && (ActionPtr = ActionList.GetNext()) != NULL)
+      {
+        strncpy(NewValue, Value, sizeof(NewValue) - 1);
+        strcat(NewValue, ActionPtr);
+        strcat(NewValue, "\\command");
+        if (RegOpenKey(HKEY_CLASSES_ROOT,NewValue,&hOpenKey)==ERROR_SUCCESS)
+        {
+          RegCloseKey(hOpenKey);
+          strcat(Value, ActionPtr);
+          RetPtr = Action;
+          RetEnum = ERROR_NO_MORE_ITEMS;
+        } /* if */
+      } /* while */
+    } /* if */
+    else
+      strcat(Value,Action);
+    /* VVM $ */
   }
   else
   {
@@ -632,6 +663,10 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
             DWORD Type, DataSize=sizeof(FullName);
             RegQueryValueEx(hKey,"", 0, &Type, (LPBYTE)FullName,&DataSize);
             RegCloseKey(hKey);
+            /* $ 03.10.2001 VVM Обработать переменные окружения */
+            strcpy(FileName, FullName);
+            Unquote(FileName);
+            ExpandEnvironmentStrings(FileName,FullName,sizeof(FullName));
             Ret=TRUE;
             break;
           }
@@ -652,6 +687,10 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
                 DWORD Type, DataSize=sizeof(FullName);
                 RegQueryValueEx(hKey,"", 0, &Type, (LPBYTE)FullName,&DataSize);
                 RegCloseKey(hKey);
+                /* $ 03.10.2001 VVM Обработать переменные окружения */
+                strcpy(FileName, FullName);
+                Unquote(FileName);
+                ExpandEnvironmentStrings(FileName,FullName,sizeof(FullName));
                 Ret=TRUE;
                 break;
               }

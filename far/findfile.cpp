@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.126 01.10.2002 $ */
+/* Revision: 1.127 03.10.2002 $ */
 
 /*
 Modify:
+  03.10.2002 SVS
+    - перелудил в прошлом патче (PluginMode уже объявлена)
   01.10.2002 SVS
     - BugZ#665 - Новая кнопка [Drive]
   01.10.2002 SVS
@@ -639,7 +641,7 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         ItemData.PtrLength=strlen(SearchFromRoot);
         ItemData.PtrData=SearchFromRoot;
         Dialog::SendDlgMessage(hDlg,DM_SETTEXT,18,(long)&ItemData);
-        int PluginMode=CtrlObject->Cp()->ActivePanel->GetMode()==PLUGIN_PANEL;
+        PluginMode=CtrlObject->Cp()->ActivePanel->GetMode()==PLUGIN_PANEL;
         Dialog::SendDlgMessage(hDlg,DM_ENABLE,12,PluginMode?FALSE:TRUE);
         Dialog::SendDlgMessage(hDlg,DM_ENABLE,16,PluginMode?FALSE:TRUE);
         Dialog::SendDlgMessage(hDlg,DM_ENABLE,17,PluginMode?FALSE:TRUE);
