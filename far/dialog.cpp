@@ -9,6 +9,11 @@ dialog.cpp
 
 /*
 Modify:
+  04.05.2001 SVS
+    ! Наконец то дошли руки до DI_LISTBOX ;-) - новый член FarDialogItem.ListPos
+    - Бага с DN_INIT* - переведен "на уровень выше", т.е. до запоминания
+      области отображения диалога.
+    - какого хрена засунули DialogEdit->FastShow() в функцию инициализации?
   28.04.2001 SVS
    + Функция GetItemRect() получения геометрии итема.
    - DN_MOUSECLICK фактически не работал, если рамка стояла первой в списке.
@@ -500,8 +505,21 @@ Dialog::~Dialog()
 */
 void Dialog::Show()
 {
+  if (!CheckDialogMode(DMODE_INITOBJECTS))      // самодостаточный вариант, когда
+  {                      //  элементы инициализируются при первом вызове.
+    /* $ 28.07.2000 SVS
+       Укажем процедуре, что у нас все Ок!
+    */
+    CheckDialogCoord();
+    if(DlgProc((HANDLE)this,DN_INITDIALOG,InitDialogObjects(),DataDialog))
+    {
+      // еще разок, т.к. данные могли быть изменены
+      InitDialogObjects();
+    }
+    // все объекты проинициализированы!
+    SetDialogMode(DMODE_INITOBJECTS);
+  }
   CheckDialogCoord();
-  // вызывает DisplayObject()
   ScreenObject::Show();
 }
 
@@ -556,23 +574,7 @@ void Dialog::Hide()
 void Dialog::DisplayObject()
 {
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
-
   Shadow();              // "наводим" тень
-
-  if (!CheckDialogMode(DMODE_INITOBJECTS))      // самодостаточный вариант, когда
-  {                      //  элементы инициализируются при первом вызове.
-    /* $ 28.07.2000 SVS
-       Укажем процедуре, что у нас все Ок!
-    */
-    if(DlgProc((HANDLE)this,DN_INITDIALOG,InitDialogObjects(),DataDialog))
-    {
-      // еще разок, т.к. данные могли быть изменены
-      InitDialogObjects();
-    }
-    // все объекты проинициализированы!
-    SetDialogMode(DMODE_INITOBJECTS);
-  }
-
   ShowDialog();          // "нарисуем" диалог.
 }
 
@@ -768,9 +770,26 @@ int Dialog::InitDialogObjects(int ID)
             ListItem.Checked=Items[J].Flags&LIF_CHECKED;
             ListItem.Disabled=Items[J].Flags&LIF_DISABLE;
             // здесь нужно добавить проверку на LIF_PTRDATA!!!
-            ListItem.UserDataSize=strlen(Items[J].Text);
             ListItem.Flags=0;
             ListItem.PtrData=NULL;
+            if(Items[J].Flags&LIF_PTRDATA)
+            {
+              strncpy(ListItem.Name,Items[J].Ptr.PtrData,sizeof(ListItem.Name));
+              ListItem.UserDataSize=Items[J].Ptr.PtrLength;
+              if(Items[J].Ptr.PtrLength > sizeof(ListItem.UserData))
+              {
+                ListItem.PtrData=Items[J].Ptr.PtrData;
+                ListItem.Flags=1;
+              }
+              else
+                memmove(ListItem.UserData,Items[J].Ptr.PtrData,Items[J].Ptr.PtrLength);
+            }
+            else
+            {
+              strncpy(ListItem.Name,Items[J].Text,sizeof(ListItem.Name));
+              strncpy(ListItem.UserData,Items[J].Text,sizeof(ListItem.UserData));
+              ListItem.UserDataSize=strlen(Items[J].Text);
+            }
 
             ListBox->AddItem(&ListItem);
           }
@@ -953,8 +972,6 @@ int Dialog::InitDialogObjects(int ID)
 
       if (Type==DI_FIXEDIT)
         DialogEdit->SetCurPos(0);
-
-      DialogEdit->FastShow();
     }
     if (Type == DI_USERCONTROL)
     {
@@ -971,7 +988,7 @@ int Dialog::InitDialogObjects(int ID)
 
   // все объекты созданы!
   SetDialogMode(DMODE_CREATEOBJECTS);
-  return I;
+  return FocusPos;
 }
 /* 24.08.2000 SVS $ */
 
@@ -1145,6 +1162,15 @@ void Dialog::GetDialogObjectsData()
           /* 01.08.2000 SVS $ */
           break;
         }
+
+        case DI_LISTBOX:
+        {
+          VMenu *VMenuPtr=(VMenu *)(CurItem->ObjPtr);
+          CurItem->ListPos=VMenuPtr->GetSelectPos();
+          break;
+        }
+
+        /**/
       }
    }
 }
@@ -1169,7 +1195,8 @@ void Dialog::ShowDialog(int ID)
   */
   if(IsEnableRedraw ||                 // разрешена прорисовка ?
      (ID+1 > ItemCount) ||             // а номер в рамках дозволенного?
-     CheckDialogMode(DMODE_DRAWING))   // диалог рисуется?
+     CheckDialogMode(DMODE_DRAWING) || // диалог рисуется?
+     !CheckDialogMode(DMODE_INITOBJECTS))
     return;
   /* SVS $ */
 
@@ -1597,7 +1624,6 @@ void Dialog::ShowDialog(int ID)
   }
   /* SVS $ */
 
-
   SkipDialogMode(DMODE_DRAWING);  // конец отрисовки диалога!!!
   SetDialogMode(DMODE_SHOW); // диалог на экране!
 }
@@ -1772,6 +1798,32 @@ int Dialog::ProcessKey(int Key)
     Key='-';
   else if(Key == KEY_MULTIPLY)
     Key='*';
+
+  if(Type == DI_LISTBOX)
+  {
+    switch(Key)
+    {
+      case KEY_HOME:
+      case KEY_LEFT:
+      case KEY_RIGHT:
+      case KEY_UP:
+      case KEY_DOWN:
+      case KEY_PGUP:
+      case KEY_PGDN:
+        VMenu *List=(VMenu *)Item[FocusPos].ObjPtr;
+        int CurListPos=List->GetSelectPos();
+        int CheckedListItem=List->GetSelection(-1);
+        List->ProcessKey(Key);
+        int NewListPos=List->GetSelectPos();
+        if(NewListPos != CurListPos)
+          if(!DlgProc((HANDLE)this,DN_LISTCHANGE,FocusPos,NewListPos))
+          {
+            List->SetSelection(CheckedListItem,CurListPos);
+            ShowDialog(FocusPos);
+          }
+        return(TRUE);
+    }
+  }
 
   switch(Key)
   {
@@ -2068,19 +2120,6 @@ int Dialog::ProcessKey(int Key)
         return(TRUE);
       }
 
-      /* $ 01.08.2000 SVS
-         Обычный ListBox
-      */
-      if(Type == DI_LISTBOX)
-      {
-
-        ((VMenu *)(Item[FocusPos].ObjPtr))->ProcessKey(Key);
-//        if(!DlgProc((HANDLE)this,DN_LISTCHANGE,((FocusPos<<16)|I),(long)List))
-//          ComboBoxMenu.SetSelectPos(Dest,Dest<I?-1:1);
-        return(TRUE);
-      }
-      /* SVS $ */
-
       for (I=0;I<ItemCount;I++)
         if (IsFocused(Item[I].Type))
         {
@@ -2108,15 +2147,6 @@ int Dialog::ProcessKey(int Key)
         ((Edit *)(Item[FocusPos].ObjPtr))->ProcessKey(Key);
         return(TRUE);
       }
-      /* $ 01.08.2000 SVS
-         Обычный ListBox
-      */
-      if(Type == DI_LISTBOX)
-      {
-        ((VMenu *)(Item[FocusPos].ObjPtr))->ProcessKey(Key);
-        return(TRUE);
-      }
-      /* SVS $ */
       {
         int MinDist=1000,MinPos;
         for (I=0;I<ItemCount;I++)
@@ -2148,15 +2178,6 @@ int Dialog::ProcessKey(int Key)
       if(Type == DI_USERCONTROL)
         return TRUE;
 
-      /* $ 01.08.2000 SVS
-         Обычный ListBox
-      */
-      if(Type == DI_LISTBOX)
-      {
-        ((VMenu *)(Item[FocusPos].ObjPtr))->ProcessKey(Key);
-        return(TRUE);
-      }
-      /* SVS $ */
       {
         int PrevPos=0;
         if (Item[FocusPos].Flags & DIF_EDITOR)
@@ -2189,16 +2210,7 @@ int Dialog::ProcessKey(int Key)
       if(Type == DI_USERCONTROL)
         return TRUE;
 
-      /* $ 01.08.2000 SVS
-         Обычный ListBox
-      */
-      if(Type == DI_LISTBOX)
-      {
-        ((VMenu *)(Item[FocusPos].ObjPtr))->ProcessKey(Key);
-        return(TRUE);
-      }
-      /* SVS $ */
-      else if (!(Item[FocusPos].Flags & DIF_EDITOR))
+      if (!(Item[FocusPos].Flags & DIF_EDITOR))
       {
         for (I=0;I<ItemCount;I++)
           if (Item[I].DefaultButton)
@@ -3322,17 +3334,15 @@ void Dialog::SelectFromComboBox(
     while (!ComboBoxMenu.Done())
     {
       int Key=ComboBoxMenu.ReadInput();
-/*
       // здесь можно добавить что-то свое, например,
       I=ComboBoxMenu.GetSelectPos();
       if(I != Dest)
       {
-        if(!DlgProc((HANDLE)this,DN_LISTCHANGE,((FocusPos<<16)|I),(long)List))
-          ComboBoxMenu.SetSelectPos(Dest,Dest<I?-1:1);
+        if(!DlgProc((HANDLE)this,DN_LISTCHANGE,FocusPos,I))
+          ComboBoxMenu.SetSelectPos(Dest,Dest<I?-1:1); //????
         else
           Dest=I;
       }
-*/
       //  обработку multiselect ComboBox
 
       ComboBoxMenu.ProcessInput();
@@ -3511,6 +3521,8 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
         HistoryMenu.ProcessKey(KEY_ENTER);
         continue;
       }
+
+      // Сюды надо добавить DN_LISTCHANGE
 
       HistoryMenu.ProcessInput();
     }
@@ -3761,6 +3773,9 @@ void Dialog::AdjustEditPos(int dx, int dy)
   struct DialogItem *CurItem;
   int I;
   int x1,x2,y1,y2;
+
+  if(!CheckDialogMode(DMODE_CREATEOBJECTS))
+    return;
 
   ScreenObject *DialogEdit;
   for (I=0; I < ItemCount; I++)
@@ -4016,7 +4031,9 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 
 
     case DN_LISTCHANGE:
-      return Dlg->DlgProc(hDlg,Msg,Param1,(long)&CurItem->ListItems);
+    {
+      return Dlg->DlgProc(hDlg,Msg,Param1,Param2);
+    }
 
     case DN_EDITCHANGE:
     {
@@ -4120,8 +4137,13 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
             break;
 
           case DI_LISTBOX: // пока не трогаем - не реализован
-            did->PtrLength=0;
+          {
+            if(!CurItem->ObjPtr)
+              break;
+            VMenu *VMenuPtr=(VMenu *)(CurItem->ObjPtr);
+            did->PtrLength=VMenuPtr->GetUserData(did->PtrData,did->PtrLength,-1);
             break;
+          }
 
           default:  // подразумеваем, что остались
             did->PtrLength=0;
@@ -4133,10 +4155,10 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       // следовательно сразу должен идти "case DM_GETTEXTLENGTH"!!!
 
     case DM_GETTEXTLENGTH:
-      Len=strlen(Ptr)+1;
       switch(Type)
       {
         case DI_BUTTON:
+          Len=strlen(Ptr)+1;
           if (!(CurItem->Flags & DIF_NOBRACKETS))
             Len-=4;
           break;
@@ -4151,6 +4173,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         case DI_DOUBLEBOX:
         case DI_CHECKBOX:
         case DI_RADIOBUTTON:
+          Len=strlen(Ptr)+1;
           break;
 
         case DI_COMBOBOX:
@@ -4160,8 +4183,13 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
           if(CurItem->ObjPtr)
             Len=((Edit *)(CurItem->ObjPtr))->GetLength();
 
-        case DI_LISTBOX: // пока не трогаем - не реализован
+        case DI_LISTBOX:
           Len=0;
+          if(CurItem->ObjPtr)
+          {
+            VMenu *VMenuPtr=(VMenu *)(CurItem->ObjPtr);
+            Len=VMenuPtr->GetUserData(NULL,0,-1);
+          }
           break;
 
         default:
@@ -4463,7 +4491,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       ((COORD*)Param2)->X=Dlg->X1;
       ((COORD*)Param2)->Y=Dlg->Y1;
 
-      I=Dlg->IsVisible();
+      I=Dlg->IsVisible();// && Dlg->CheckDialogMode(DMODE_INITOBJECTS);
       if(I) Dlg->Hide();
       // приняли.
       Dlg->AdjustEditPos(Dlg->X1-Dlg->OldX1,Dlg->Y1-Dlg->OldY1);

@@ -8,13 +8,15 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.97 24.04.2001 $ */
+/* Revision: 1.98 04.05.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  04.05.2001 SVS
+    ! Наконец то дошли руки до DI_LISTBOX ;-) - новый член FarDialogItem.ListPos
   24.04.2001 SVS
     + PanelInfo.Flags, флаги PANELINFOFLAGS.
   22.04.2001 SVS
@@ -659,6 +661,7 @@ struct FarDialogItem
   int DefaultButton;
   union {
     char Data[512];
+    int  ListPos;
     struct {
       DWORD PtrFlags;
       int   PtrLength;

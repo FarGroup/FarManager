@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.57 28.04.2001 $ */
+/* Revision: 1.58 04.05.2001 $ */
 
 /*
 Modify:
+  04.05.2001 SVS
+    ! Наконец то дошли руки до DI_LISTBOX ;-) - новый член FarDialogItem.ListPos
   28.04.2001 VVM
     + Opt.SubstNameRule битовая маска:
       0 - если установлен, то опрашивать сменные диски при GetSubstName()
@@ -699,6 +701,7 @@ struct DialogItem
   unsigned char DefaultButton;
   union {
     char Data[512];
+    int  ListPos;
     struct {
       DWORD PtrFlags;
       int   PtrLength;

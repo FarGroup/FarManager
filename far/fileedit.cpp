@@ -5,10 +5,14 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.32 29.04.2001 $ */
+/* Revision: 1.33 04.05.2001 $ */
 
 /*
 Modify:
+  04.05.2001 DJ
+    - В процессе наложения 623-го был выкинут патч 616:
+      "не передаем KEY_MACRO* в ProcessEditorInput()"
+      Вернул его обратно.
   29.04.2001 ОТ
     + Внедрение NWZ от Третьякова
   28.04.2001 VVM
@@ -533,6 +537,14 @@ int FileEditor::ProcessKey(int Key)
     /* SVS $ */
 
     default:
+      /* $ 28.04.2001 DJ
+         не передаем KEY_MACRO* плагину - поскольку ReadRec в этом случае
+         никак не соответствует обрабатываемой клавише, возникают разномастные
+         глюки
+      */
+      if(Key&KEY_MACROSPEC_BASE) // исключаем MACRO
+         return(FEdit.ProcessKey(Key));
+      /* DJ $ */
       if (CtrlObject->Macro.IsExecuting() || !FEdit.ProcessEditorInput(&ReadRec))
       {
         /* $ 22.03.2001 SVS
@@ -601,4 +613,3 @@ void FileEditor::OnChangeFocus(int f)
         Show();
     }
 }
-
