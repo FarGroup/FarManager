@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.159 25.10.2004 $ */
+/* Revision: 1.160 09.11.2004 $ */
 
 /*
 Modify:
+  09.11.2004 WARP
+    - Неверное позиционирование в архиве после просмотра файла во время поиска
   25.10.2004 SVS
     ! В процессе поиска: нажатие F3 не тормозит процесс, Enter (при активной кнопки [ View ]) - тормозит.
   06.08.2004 SKV
@@ -1290,7 +1292,7 @@ int FindFiles::GetPluginFile(DWORD ArcIndex, struct PluginPanelItem *PanelItem,
   int Result = CtrlObject->Plugins.GetFile(hPlugin,&NewItem,DestPath,ResultName,OPM_SILENT|OPM_FIND);
 
   CtrlObject->Plugins.SetDirectory(hPlugin,"\\",OPM_SILENT|OPM_FIND);
-  SetPluginDirectory(ArcList[ArcIndex].RootPath,hPlugin);
+//  SetPluginDirectory(ArcList[ArcIndex].RootPath,hPlugin);
   SetPluginDirectory(SaveDir,hPlugin);
   return(Result);
 }
