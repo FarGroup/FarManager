@@ -5,10 +5,12 @@ headers.cpp
 
 */
 
-/* Revision: 1.07 20.10.2000 $ */
+/* Revision: 1.08 24.10.2000 $ */
 
 /*
 Modify:
+  24.10.2000 SVS
+    + share.h
   20.10.2000 SVS
     + FILE_SUPPORTS_ENCRYPTION,
       FILE_ATTRIBUTE_ENCRYPTED,
@@ -122,6 +124,9 @@ Modify:
 #endif
 #ifndef __STDARG_H
 #include <stdarg.h>
+#endif
+#ifndef __SHARE_H
+#include <share.h>
 #endif
 #if _MSC_VER
   #define _export
