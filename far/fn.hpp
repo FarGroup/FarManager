@@ -7,12 +7,15 @@ fn.hpp
 
 */
 
-/* Revision: 1.18 31.08.2000 $ */
+/* Revision: 1.19 05.09.2000 $ */
 
 /*
 Modify:
+  05.09.2000 SVS
+    + QWERTY-перекодировка!
+      На основе плагина EditSwap by SVS :-)))
   31.08.2000 tran
-    + FSF/FarInputRecordToKey 
+    + FSF/FarInputRecordToKey
   29.08.2000 SVS
     + Дополнительный параметр у Message* - номер плагина.
   28.08.2000 SVS
@@ -456,6 +459,18 @@ int WINAPI InputRecordToKey(INPUT_RECORD *r);
            1 - FulScreen
 */
 int FarAltEnter(int mode);
+
+
+/* $ 05.09.2000 SVS
+  QWERTY-перекодировка!
+  На основе плагина EditSwap by SVS :-)))
+*/
+char* WINAPI QWERTY(char *Line,
+                    int StartPos,
+                    int EndPos,
+                    struct CharTableSet *TableSet,
+                    DWORD Flags);
+/* SVS $ */
 
 /* $ 14.08.2000 SVS
     + Функции семейства seek под __int64

@@ -7,10 +7,13 @@ struct.hpp
 
 */
 
-/* Revision: 1.11 01.09.2000 $ */
+/* Revision: 1.12 05.09.2000 $ */
 
 /*
 Modify:
+  05.09.2000 SVS 1.12
+    + Структура CodeQWERTY, описывающая QWERTY-перекодировщик
+    ! В Opt добавлен блок переменный, касаемых QWERTY-перекодировки
   01.09.2000 tran 1.11
     + Options.PluginsCacheOnly - грузить плагины только из кеша
   31.08.2000 SVS
@@ -120,6 +123,18 @@ struct DizOptions
   int StartPos;
 };
 
+/* $ 05.09.2000 SVS
+   Структура CodeQWERTY, описывающая QWERTY-перекодировщик
+*/
+struct CodeQWERTY{
+  DWORD Flags;       // дополнительные флаги
+  BYTE Table[2][81]; // [0] non-english буквы, [1] english буквы
+  BYTE Rules[3][20]; // 3 по 10 правил:
+                    //  [0] "если предыдущий символ латинский"
+                    //  [1] "если предыдущий символ нелатинский символ"
+                    //  [2] "если предыдущий символ не рус/lat"
+};
+/* SVS $*/
 
 struct Options
 {
@@ -238,6 +253,11 @@ struct Options
      seting by '/co' switch, not saved in registry. */
   int PluginsCacheOnly;
   /* tran $ */
+  /* $ 05.09.2000 SVS
+     В Opt добавлен блок переменный, касаемых QWERTY-перекодировки
+  */
+  struct CodeQWERTY QWERTY;
+  /* SVS $*/
 };
 
 

@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.12 31.08.2000 $ */
+/* Revision: 1.13 05.09.2000 $ */
 
 /*
 Modify:
+  05.09.2000 SVS 1.13
+    + QWERTY - поддержка
   31.08.2000 SVS
     + Теперь FAR помнит тип Wrap
   04.08.2000 SVS
@@ -629,6 +631,16 @@ void ReadConfig()
   if(!strlen(Opt.WordDiv))
      strcpy(Opt.WordDiv,WordDiv0);
   /* SVS $ */
+  /* $ 05.09.2000 SVS
+     CodeQWERTY - описывающая QWERTY-перекодировщик
+  */
+  GetRegKey("Editor\\QWERTY","Flags",(int&)Opt.QWERTY.Flags,(DWORD)QWED_SWITCHKEYBLAYER);
+  GetRegKey("Editor\\QWERTY","Table1",(BYTE*)Opt.QWERTY.Table[0],(BYTE*)NULL,sizeof(Opt.QWERTY.Table[0]));
+  GetRegKey("Editor\\QWERTY","Table2",(BYTE*)Opt.QWERTY.Table[1],(BYTE*)NULL,sizeof(Opt.QWERTY.Table[1]));
+  GetRegKey("Editor\\QWERTY","Rules1",(BYTE*)Opt.QWERTY.Rules[0],(BYTE*)NULL,sizeof(Opt.QWERTY.Rules[0]));
+  GetRegKey("Editor\\QWERTY","Rules2",(BYTE*)Opt.QWERTY.Rules[1],(BYTE*)NULL,sizeof(Opt.QWERTY.Rules[1]));
+  GetRegKey("Editor\\QWERTY","Rules3",(BYTE*)Opt.QWERTY.Rules[2],(BYTE*)NULL,sizeof(Opt.QWERTY.Rules[2]));
+  /* SVS $ */
 
   GetRegKey("System","SaveHistory",Opt.SaveHistory,0);
   GetRegKey("System","SaveFoldersHistory",Opt.SaveFoldersHistory,0);
@@ -793,6 +805,17 @@ void SaveConfig(int Ask)
   */
   SetRegKey("Editor","WordDiv",Opt.WordDiv);
   /* SVS $ */
+  /* $ 05.09.2000 SVS
+     CodeQWERTY - описывающая QWERTY-перекодировщик
+  */
+  SetRegKey("Editor\\QWERTY","Flags",Opt.QWERTY.Flags);
+  SetRegKey("Editor\\QWERTY","Table1",(BYTE*)Opt.QWERTY.Table[0],sizeof(Opt.QWERTY.Table[0]));
+  SetRegKey("Editor\\QWERTY","Table2",(BYTE*)Opt.QWERTY.Table[1],sizeof(Opt.QWERTY.Table[1]));
+  SetRegKey("Editor\\QWERTY","Rules1",(BYTE*)Opt.QWERTY.Rules[0],sizeof(Opt.QWERTY.Rules[0]));
+  SetRegKey("Editor\\QWERTY","Rules2",(BYTE*)Opt.QWERTY.Rules[1],sizeof(Opt.QWERTY.Rules[1]));
+  SetRegKey("Editor\\QWERTY","Rules3",(BYTE*)Opt.QWERTY.Rules[2],sizeof(Opt.QWERTY.Rules[2]));
+  /* SVS $ */
+
   SetRegKey("System","SaveHistory",Opt.SaveHistory);
   SetRegKey("System","SaveFoldersHistory",Opt.SaveFoldersHistory);
   SetRegKey("System","SaveViewHistory",Opt.SaveViewHistory);

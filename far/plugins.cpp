@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.16 01.09.2000 $ */
+/* Revision: 1.17 05.09.2000 $ */
 
 /*
 Modify:
+  05.09.2000 SVS 1.17
+    + QWERTY - перекодировщик - StandardFunctions.EDQwerty
   01.09.2000 tran 1.16
     + PluginsSet::LoadPluginsFromCache()
   31.08.2000 tran
@@ -270,7 +272,7 @@ void PluginsSet::LoadPluginsFromCache()
     "ProcessEditorInput"=dword:00000000
     "ProcessEditorEvent"=dword:00000000
   */
-    int I;  
+    int I;
     char PlgKey[512];
     char RegKey[100];
     struct PluginItem CurPlugin;
@@ -476,6 +478,11 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
        + InputRecordToKey*/
     StandardFunctions.FarInputRecordToKey=InputRecordToKey;
     /* tran 31.08.2000 $ */
+    /* $ 05.09.2000 SVS 1.17
+       + QWERTY - перекодировщик
+    */
+    StandardFunctions.EDQwerty=QWERTY;
+    /* SVS $ */
 
     strcpy(StartupInfo.ModuleName,CurPlugin.ModuleName);
     StartupInfo.ModuleNumber=ModuleNumber;

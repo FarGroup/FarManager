@@ -6,10 +6,12 @@
   Plugin API for FAR Manager 1.70
 
 */
-/* Revision: 1.36 01.09.2000 $ */
+/* Revision: 1.37 05.09.2000 $ */
 
 /*
 Modify:
+  05.09.2000 SVS 1.17
+    + QWERTY - перекодировщик - StandardFunctions.EDQwerty
   01.09.2000 SVS
     + конструкция (с подачи MY)
       #ifndef _WINCON_
@@ -919,6 +921,18 @@ typedef int  (WINAPI *FARSTDLOCALSTRNICMP)(char *s1,char *s2,int n);
 /* SVS $ */
 
 /* SVS $*/
+
+/* $ 05.09.2000 SVS
+  + QWERTY
+*/
+enum QWERTYMODE{
+  QWED_SWITCHKEYBLAYER = 0x0000001UL, // переключить раскладку клавиатуры
+                                      // после преобразования QWERTY
+};
+
+typedef char* (WINAPI *FARSTDEDQWERTY)(char *Line,int StartPos,int EndPos,struct CharTableSet *TableSet,DWORD Flags);
+/* SVS $*/
+
 /* $ 06.07.2000 IS
    Полезные функции из far.exe
 */
@@ -955,25 +969,30 @@ typedef struct FarStandardFunctions
   FARSTDLOCALSTRICMP     LStricmp;
   FARSTDLOCALSTRNICMP    LStrnicmp;
 
-  FARSTDUNQUOTE Unquote;
+  FARSTDUNQUOTE              Unquote;
   FARSTDEXPANDENVIRONMENTSTR ExpandEnvironmentStr;
-  FARSTDLTRIM LTrim;
-  FARSTDRTRIM RTrim;
-  FARSTDTRIM  Trim;
-  FARSTDTRUNCSTR TruncStr;
-  FARSTDTRUNCPATHSTR TruncPathStr;
-  FARSTDQUOTESPACEONLY QuoteSpaceOnly;
-  FARSTDPOINTTONAME PointToName;
-  FARSTDGETPATHROOT GetPathRoot;
-  FARSTDADDENDSLASH AddEndSlash;
-  FARSTDCOPYTOCLIPBOARD CopyToClipboard;
-  FARSTDPASTEFROMCLIPBOARD PasteFromClipboard;
-  FARSTDKEYTOTEXT FarKeyToText;
+  FARSTDLTRIM                LTrim;
+  FARSTDRTRIM                RTrim;
+  FARSTDTRIM                 Trim;
+  FARSTDTRUNCSTR             TruncStr;
+  FARSTDTRUNCPATHSTR         TruncPathStr;
+  FARSTDQUOTESPACEONLY       QuoteSpaceOnly;
+  FARSTDPOINTTONAME          PointToName;
+  FARSTDGETPATHROOT          GetPathRoot;
+  FARSTDADDENDSLASH          AddEndSlash;
+  FARSTDCOPYTOCLIPBOARD      CopyToClipboard;
+  FARSTDPASTEFROMCLIPBOARD   PasteFromClipboard;
+  FARSTDKEYTOTEXT            FarKeyToText;
   /* IS $ */
   /* $ 31.08.2000 tran
     + FarInputRecordToKey*/
-  FARSTDINPUTRECORDTOKEY FarInputRecordToKey;
+  FARSTDINPUTRECORDTOKEY     FarInputRecordToKey;
   /* tran 31.08.2000 $ */
+  /* $ 05.09.2000 SVS
+    + QWERTY
+  */
+  FARSTDEDQWERTY             EDQwerty;
+  /* SVS 05.09.2000 $ */
 }FARSTANDARDFUNCTIONS;
 /* IS $ */
 
