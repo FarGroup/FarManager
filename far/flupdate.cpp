@@ -5,10 +5,12 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.24 25.12.2001 $ */
+/* Revision: 1.25 27.12.2001 $ */
 
 /*
 Modify:
+  27.12.2001 SVS
+    ! "Ошибки производства".
   25.12.2001 SVS
     ! Небольшое уточнение
   25.12.2001 SVS
@@ -653,9 +655,10 @@ void FileList::UpdatePlugin(int KeepSelection)
   int FileListCount=0;
 
   struct PluginPanelItem *CurPanelData=PanelData;
-  struct FileListItem *CurListData=ListData+FileListCount;
-  for (I=0; I < FileCount; I++, CurPanelData++, CurListData++)
+  for (I=0; I < FileCount; I++, CurPanelData++)
   {
+    struct FileListItem *CurListData=ListData+FileListCount;
+
     if (Info.Flags & OPIF_USEFILTER)
       if ((CurPanelData->FindData.dwFileAttributes & FA_DIREC)==0)
         if (!Filter->CheckName(CurPanelData->FindData.cFileName))
