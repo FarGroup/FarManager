@@ -32,30 +32,30 @@ char Prefix[32];
 
 struct ZipHeader
 {
-	DWORD Signature;
-	WORD VerToExtract;
-	WORD BitFlag;
-	WORD Method;
-	WORD LastModTime;
-	WORD LastModDate;
-	DWORD Crc32;
-	DWORD SizeCompr;
-	DWORD SizeUncompr;
-	WORD FileNameLen;
-	WORD ExtraFieldLen;
-	// FileName[];
-	// ExtraField[];
+  DWORD Signature;
+  WORD VerToExtract;
+  WORD BitFlag;
+  WORD Method;
+  WORD LastModTime;
+  WORD LastModDate;
+  DWORD Crc32;
+  DWORD SizeCompr;
+  DWORD SizeUncompr;
+  WORD FileNameLen;
+  WORD ExtraFieldLen;
+  // FileName[];
+  // ExtraField[];
 };
 
 const size_t MIN_HEADER_LEN=sizeof(ZipHeader);
 
 inline BOOL IsValidHeader(const unsigned char *Data, const unsigned char *DataEnd)
 {
-	ZipHeader* pHdr=(ZipHeader*)Data;
-	const WORD Zip64=45;
-	return (0x04034b50==pHdr->Signature
-		&& pHdr->Method<15
-		&& Data+MIN_HEADER_LEN+pHdr->FileNameLen+pHdr->ExtraFieldLen<DataEnd);
+  ZipHeader* pHdr=(ZipHeader*)Data;
+  const WORD Zip64=45;
+  return (0x04034b50==pHdr->Signature
+    && pHdr->Method<15
+    && Data+MIN_HEADER_LEN+pHdr->FileNameLen+pHdr->ExtraFieldLen<DataEnd);
 }
 
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
@@ -239,14 +239,15 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
 
   EndPos = Item->FindData.cFileName;
   if( *EndPos == '.') ++EndPos;
+  if( *EndPos == '.') ++EndPos;
   if( EndPos[0] == '\\' && EndPos[1] != '\\') ++EndPos;
 
   if(EndPos != Item->FindData.cFileName)
   {
-    if(!Prefix[0] && strcmp(Item->FindData.cFileName,".\\"))
+    if(!Prefix[0] && (strcmp(Item->FindData.cFileName,".\\") || strcmp(Item->FindData.cFileName,"..\\")))
       memcpy(Prefix,Item->FindData.cFileName,min((int)sizeof(Prefix)-1,(int)(EndPos-Item->FindData.cFileName)));
-      Item->FindData.cFileName[0]='\0';
-      strcat(Item->FindData.cFileName,Item->FindData.cFileName+strlen(Prefix));
+    Item->FindData.cFileName[0]='\0';
+    strcat(Item->FindData.cFileName,Item->FindData.cFileName+strlen(Prefix));
   }
 
 

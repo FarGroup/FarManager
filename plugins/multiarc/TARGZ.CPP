@@ -479,9 +479,10 @@ char *AdjustTARFileName(char *FileName)
 
   EndPos = FileName;
   if( *EndPos == '.') ++EndPos;
+  if( *EndPos == '.') ++EndPos;
   if( EndPos[0] == '\\' && EndPos[1] != '\\') ++EndPos;
 
-  if(EndPos != FileName && !Prefix[0] && strcmp(FileName,".\\"))
+  if(EndPos != FileName && !Prefix[0] && (strcmp(FileName,".\\") || strcmp(FileName,"..\\")))
     memcpy(Prefix,FileName,min((int)sizeof(Prefix)-1,(int)(EndPos-FileName)));
   return EndPos;
 }
