@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.50 05.05.2001 $ */
+/* Revision: 1.51 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 ОТ
+    ! Переименование Window в Frame :)
   05.05.2001 DJ
     + перетрях NWZ
   29.04.2001 ОТ
@@ -1122,7 +1124,7 @@ int WINAPI FarViewer(char *FileName,char *Title,int X1,int Y1,int X2,
     FileViewer *Viewer=new FileViewer(FileName,TRUE,Title,X1,Y1,X2,Y2);
     if (Flags & VF_DELETEONCLOSE)
       Viewer->SetTempViewName(FileName);
-    CtrlObject->ModalManager.AddWindow(Viewer);
+    CtrlObject->ModalManager.AddFrame(Viewer);
   }
   else
   {
@@ -1161,7 +1163,7 @@ int WINAPI FarEditor(char *FileName,char *Title,int X1,int Y1,int X2,
    FileEditor *Editor=new FileEditor(FileName,CreateNew,TRUE,StartLine,StartChar,Title,X1,Y1,X2,Y2);
    if(Editor)
      {
-      CtrlObject->ModalManager.AddWindow(Editor);
+      CtrlObject->ModalManager.AddFrame(Editor);
       ExitCode=TRUE;
      }
   }

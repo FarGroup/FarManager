@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.34 05.05.2001 $ */
+/* Revision: 1.35 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 ОТ
+    ! Переименование Window в Frame :)
   05.05.2001 DJ
     + перетрях NWZ
   04.05.2001 DJ
@@ -146,16 +148,16 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
 
   if (EnableSwitch)
   {
-    int ModalPos=CtrlObject->ModalManager.FindWindowByFile(MODALTYPE_EDITOR,FullFileName);
-    if (ModalPos!=-1)
+    int FramePos=CtrlObject->ModalManager.FindFrameByFile(MODALTYPE_EDITOR,FullFileName);
+    if (FramePos!=-1)
     {
       int MsgCode=Message(0,2,MSG(MEditTitle),FullFileName,MSG(MAskReload),
                           MSG(MCurrent),MSG(MReload));
       switch(MsgCode)
       {
         case 0:
-          CtrlObject->ModalManager.SetWindowPos(ModalPos);
-          CtrlObject->ModalManager.NextWindow(0);
+          CtrlObject->ModalManager.SetFramePos(FramePos);
+          CtrlObject->ModalManager.NextFrame(0);
           return;
         case 1:
           break;
@@ -405,7 +407,7 @@ int FileEditor::ProcessKey(int Key)
            ! Открываем вьюер с указанием длинного имени файла, а не короткого
         */
         if (ProcessQuitKey())
-          CtrlObject->ModalManager.SetNextWindow(TRUE,FullFileName,FilePos);
+          CtrlObject->ModalManager.SetNextFrame(TRUE,FullFileName,FilePos);
         /* IS $ */
         ShowTime(2);
       }

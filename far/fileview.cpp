@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.22 05.05.2001 $ */
+/* Revision: 1.23 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 ОТ
+    ! Переименование Window в Frame :)
   05.05.2001 DJ
     + перетрях NWZ
   29.04.2001 ОТ
@@ -341,7 +343,7 @@ int FileViewer::ProcessKey(int Key)
         char ViewFileName[NM];
         View.GetFileName(ViewFileName);
         long FilePos=View.GetFilePos();
-        CtrlObject->ModalManager.SetNextWindow(FALSE,ViewFileName,FilePos);
+        CtrlObject->ModalManager.SetNextFrame(FALSE,ViewFileName,FilePos);
         ShowTime(2);
       }
       return(TRUE);

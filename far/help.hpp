@@ -7,10 +7,12 @@ help.hpp
 
 */
 
-/* Revision: 1.08 05.05.2001 $ */
+/* Revision: 1.09 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 ОТ
+    ! Переименование Window в Frame :)
   05.05.2001 DJ
     + перетрях NWZ
   12.04.2001 SVS
@@ -38,7 +40,7 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
 */
 
-class Help:public Window
+class Help:public Frame
 {
   private:
     KeyBar HelpKeyBar;

@@ -7,10 +7,12 @@ classes.hpp
 
 */
 
-/* Revision: 1.04 29.04.2001 $ */
+/* Revision: 1.05 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 ОТ
+    ! Переименование Window в Frame :)
   29.04.2001 ОТ
     + Внедрение NWZ от Третьякова
   20.03.2001 tran
@@ -57,7 +59,7 @@ class History;
 #include "viewer.hpp"
 #include "hilight.hpp"
 #include "poscache.hpp"
-#include "window.hpp"
+#include "frame.hpp"
 #include "manager.hpp"
 #include "modal.hpp"
 #include "filepanels.hpp"

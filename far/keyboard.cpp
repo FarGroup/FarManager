@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.26 05.05.2001 $ */
+/* Revision: 1.27 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 ОТ
+    ! Переименование Window в Frame :)
   05.05.2001 DJ
     + перетрях NWZ
   29.04.2001 ОТ
@@ -310,7 +312,7 @@ int GetInputRecord(INPUT_RECORD *rec)
     if (CloseFAR)
     {
       CloseFAR=FALSE;
-      CtrlObject->ModalManager.IsAnyWindowModified(TRUE);
+      CtrlObject->ModalManager.IsAnyFrameModified(TRUE);
     }
 
     if ((LoopCount & 15)==0)
@@ -323,7 +325,7 @@ int GetInputRecord(INPUT_RECORD *rec)
       {
         if (Opt.InactivityExit && Opt.InactivityExitTime>0 &&
             CurTime-StartIdleTime>Opt.InactivityExitTime*60000 &&
-            CtrlObject->ModalManager.GetWindowCount()==1)
+            CtrlObject->ModalManager.GetFrameCount()==1)
         {
           CtrlObject->ModalManager.ExitMainLoop(FALSE);
           return(KEY_NONE);

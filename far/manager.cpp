@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.08 05.05.2001 $ */
+/* Revision: 1.09 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 ОТ
+    ! Переименование Window в Frame :)
   05.05.2001 DJ
     + перетрях NWZ
   04.05.2001 OT
@@ -46,20 +48,20 @@ Modify:
 
 Manager::Manager()
 {
-  WindowList=NULL;
-  WindowCount=WindowPos=WindowListSize=0;
+  FrameList=NULL;
+  FrameCount=FramePos=FrameListSize=0;
 
   *NextName=0;
 
-  CurrentWindow=NULL;
-  DestroyedWindow = NULL;
+  CurrentFrame=NULL;
+  DestroyedFrame = NULL;
   EndLoop = FALSE;
 }
 
 Manager::~Manager()
 {
-  if (WindowList)
-    free(WindowList);
+  if (FrameList)
+    free(FrameList);
 }
 
 
@@ -128,15 +130,15 @@ void Manager::CloseAll()
 #endif
 }
 
-BOOL Manager::IsAnyWindowModified(int Activate)
+BOOL Manager::IsAnyFrameModified(int Activate)
 {
-  for (int I=0;I<WindowCount;I++)
-    if (WindowList[I]->IsFileModified())
+  for (int I=0;I<FrameCount;I++)
+    if (FrameList[I]->IsFileModified())
     {
       if (Activate)
       {
-        WindowPos=I;
-        NextWindow(0);
+        FramePos=I;
+        NextFrame(0);
       }
       return(TRUE);
     }
@@ -144,101 +146,101 @@ BOOL Manager::IsAnyWindowModified(int Activate)
 }
 
 
-void Manager::AddWindow(Window *NewWindow)
+void Manager::AddFrame(Frame *NewFrame)
 {
-  SysLog(1,"Manager::AddWindow(), NewWindow=0x%p, Type=%s",NewWindow,NewWindow->GetTypeName());
+  SysLog(1,"Manager::AddFrame(), NewFrame=0x%p, Type=%s",NewFrame,NewFrame->GetTypeName());
 
-  if (WindowListSize < WindowCount+1)
+  if (FrameListSize < FrameCount+1)
   {
-    SysLog("Manager::AddWindow(), realloc list");
-    WindowList=(Window **)realloc(WindowList,sizeof(*WindowList)*(WindowCount+1));
-    WindowListSize++;
+    SysLog("Manager::AddFrame(), realloc list");
+    FrameList=(Frame **)realloc(FrameList,sizeof(*FrameList)*(FrameCount+1));
+    FrameListSize++;
   }
-  WindowPos=WindowCount;
-  WindowList[WindowCount]=NewWindow;
-  WindowCount++;
+  FramePos=FrameCount;
+  FrameList[FrameCount]=NewFrame;
+  FrameCount++;
 
 //  NewModal->Hide();
 
-  NextWindow(0);
+  NextFrame(0);
 
-  SysLog("Manager::AddWindow(), end.");
+  SysLog("Manager::AddFrame(), end.");
   SysLog(-1);
   WaitInMainLoop=IsPanelsActive();
 }
 
-void Manager::DestroyWindow(Window *Killed)
+void Manager::DestroyFrame(Frame *Killed)
 {
     int i,j;
-    SysLog(1,"Manager::DestroyWindow(), Killed=0x%p, '%s'",Killed,Killed->GetTypeName());
-    for ( i=0; i<WindowCount; i++ )
+    SysLog(1,"Manager::DestroyFrame(), Killed=0x%p, '%s'",Killed,Killed->GetTypeName());
+    for ( i=0; i<FrameCount; i++ )
     {
-        if ( WindowList[i]==Killed )
+        if ( FrameList[i]==Killed )
         {
-            SysLog("Manager::DestroyWindow(), found at i=%i,WindowPos=%i delete and shrink list",i,WindowPos);
+            SysLog("Manager::DestroyFrame(), found at i=%i,FramePos=%i delete and shrink list",i,FramePos);
             Killed->OnDestroy();
-            for ( j=i+1; j<WindowCount; j++ )
-                WindowList[j-1]=WindowList[j];
-            if ( WindowPos>=i )
-                WindowPos--;
-            WindowCount--;
-            SysLog("Manager::DestroyWindow(), new WindowCount=%i, WindowPos=%i",WindowCount,WindowPos);
+            for ( j=i+1; j<FrameCount; j++ )
+                FrameList[j-1]=FrameList[j];
+            if ( FramePos>=i )
+                FramePos--;
+            FrameCount--;
+            SysLog("Manager::DestroyFrame(), new FrameCount=%i, FramePos=%i",FrameCount,FramePos);
             break;
         }
     }
-    if ( CurrentWindow==Killed )
+    if ( CurrentFrame==Killed )
     {
-        if ( WindowCount )
+        if ( FrameCount )
         {
-          SetCurrentWindow (WindowList[WindowPos]);
-          SysLog("Manager::DestroyWindow(), Killed==CurrentWindow, set new Current to 0x%p, '%s'",CurrentWindow,
-            CurrentWindow->GetTypeName());
+          SetCurrentFrame (FrameList[FramePos]);
+          SysLog("Manager::DestroyFrame(), Killed==CurrentFrame, set new Current to 0x%p, '%s'",CurrentFrame,
+            CurrentFrame->GetTypeName());
         }
         else
         {
-            CurrentWindow=0;
-            SysLog("Manager::DestroyWindow(), Killed==CurrentWindow, set new Current to 0");
+            CurrentFrame=0;
+            SysLog("Manager::DestroyFrame(), Killed==CurrentFrame, set new Current to 0");
         }
     }
-    SysLog("Manager::DestroyWindow() end.");
+    SysLog("Manager::DestroyFrame() end.");
     SysLog(-1);
-    DestroyedWindow = Killed;
+    DestroyedFrame = Killed;
 }
 
-int Manager::ExecuteModal (Window &ModalWindow)
+int Manager::ExecuteModal (Frame &ModalFrame)
 {
-  AddWindow (&ModalWindow);
-  ModalWindow.Show();
-  DestroyedWindow = NULL;
-  while (DestroyedWindow != &ModalWindow)
+  AddFrame (&ModalFrame);
+  ModalFrame.Show();
+  DestroyedFrame = NULL;
+  while (DestroyedFrame != &ModalFrame)
     ProcessMainLoop();
-  int exitCode = ModalWindow.GetExitCode();
-  DestroyedWindow = NULL;
+  int exitCode = ModalFrame.GetExitCode();
+  DestroyedFrame = NULL;
   return exitCode;
 }
 
-void Manager::NextWindow(int Increment)
+void Manager::NextFrame(int Increment)
 {
-  SysLog(1,"Manager::NextWindow(), WindowPos=%i, Increment=%i, WindowCount=%i",WindowPos,Increment,WindowCount);
-  if (WindowCount>0)
+  SysLog(1,"Manager::NextFrame(), FramePos=%i, Increment=%i, FrameCount=%i",FramePos,Increment,FrameCount);
+  if (FrameCount>0)
   {
-    WindowPos+=Increment;
-    if (WindowPos<0)
-      WindowPos=WindowCount-1;
+    FramePos+=Increment;
+    if (FramePos<0)
+      FramePos=FrameCount-1;
   }
-  if (WindowPos>=WindowCount)
-    WindowPos=0;
-  SysLog("Manager::NextWindow(), new WindowPos=%i",WindowPos);
-  Window *CurWindow=WindowList[WindowPos];
+  if (FramePos>=FrameCount)
+    FramePos=0;
+  SysLog("Manager::NextFrame(), new FramePos=%i",FramePos);
+  Frame *CurFrame=FrameList[FramePos];
 
-  if (CurrentWindow)
-    CurrentWindow->OnChangeFocus(0);
+  if (CurrentFrame)
+    CurrentFrame->OnChangeFocus(0);
 
-  SetCurrentWindow (CurWindow);
+  SetCurrentFrame (CurFrame);
 
-  SysLog("Manager::NextWindow(), set CurrentWindow=0x%p, %s",CurrentWindow,CurrentWindow->GetTypeName());
+  SysLog("Manager::NextFrame(), set CurrentFrame=0x%p, %s",CurrentFrame,CurrentFrame->GetTypeName());
 
-  if (CurWindow->GetType()==MODALTYPE_EDITOR)
+  if (CurFrame->GetType()==MODALTYPE_EDITOR)
     UpdateRequired=TRUE;
 
 /*    int ExitCode=CurModal->GetExitCode();
@@ -250,7 +252,7 @@ void Manager::NextWindow(int Increment)
       ModalCount--;
       if (*NextName)
       {
-        ActivateNextWindow();
+        ActivateNextFrame();
         return;
       }
     }
@@ -285,16 +287,16 @@ void Manager::NextWindow(int Increment)
 }
 
 
-void Manager::SetCurrentWindow (Window *NewCurWindow)
+void Manager::SetCurrentFrame (Frame *NewCurFrame)
 {
-  CurrentWindow = NewCurWindow;
-  CurrentWindow->ShowConsoleTitle();
-  CurrentWindow->OnChangeFocus(1);
-  CtrlObject->Macro.SetMode(CurrentWindow->MacroMode);
+  CurrentFrame = NewCurFrame;
+  CurrentFrame->ShowConsoleTitle();
+  CurrentFrame->OnChangeFocus(1);
+  CtrlObject->Macro.SetMode(CurrentFrame->MacroMode);
 }
 
 
-void Manager::SelectWindow()
+void Manager::SelectFrame()
 {
   int ExitCode;
   {
@@ -309,10 +311,10 @@ void Manager::SelectWindow()
 //    ModalMenuItem.Selected=(ModalPos==ModalCount);
 //    ModalMenu.AddItem(&ModalMenuItem);
 
-    for (int I=0;I<WindowCount;I++)
+    for (int I=0;I<FrameCount;I++)
     {
       char Type[200],Name[NM],NumText[100];
-      WindowList[I]->GetTypeAndName(Type,Name);
+      FrameList[I]->GetTypeAndName(Type,Name);
       if (I<10)
         sprintf(NumText,"&%d. ",I);
       else
@@ -321,9 +323,9 @@ void Manager::SelectWindow()
          файл усекает по ширине экрана */
       TruncPathStr(Name,ScrX-40);
       /*  добавляется "*" если файл изменен */
-      sprintf(ModalMenuItem.Name,"%s%-20s %c %s",NumText,Type,(WindowList[I]->IsFileModified()?'*':' '),Name);
+      sprintf(ModalMenuItem.Name,"%s%-20s %c %s",NumText,Type,(FrameList[I]->IsFileModified()?'*':' '),Name);
       /* tran 28.07.2000 $ */
-      ModalMenuItem.Selected=(I==WindowPos);
+      ModalMenuItem.Selected=(I==FramePos);
       ModalMenu.AddItem(&ModalMenuItem);
     }
     ModalMenu.Process();
@@ -331,17 +333,17 @@ void Manager::SelectWindow()
   }
   if (ExitCode>=0)
   {
-    NextWindow(ExitCode-WindowPos);
+    NextFrame(ExitCode-FramePos);
   }
 }
 
 
-void Manager::GetWindowTypesCount(int &Viewers,int &Editors)
+void Manager::GetFrameTypesCount(int &Viewers,int &Editors)
 {
   Viewers=Editors=0;
-  for (int I=0;I<WindowCount;I++)
+  for (int I=0;I<FrameCount;I++)
   {
-    switch(WindowList[I]->GetType())
+    switch(FrameList[I]->GetType())
     {
       case MODALTYPE_VIEWER:
         Viewers++;
@@ -353,29 +355,29 @@ void Manager::GetWindowTypesCount(int &Viewers,int &Editors)
   }
 }
 
-int  Manager::GetWindowCountByType(int Type)
+int  Manager::GetFrameCountByType(int Type)
 {
   int ret=0;
-  for (int I=0;I<WindowCount;I++)
+  for (int I=0;I<FrameCount;I++)
   {
-    if (WindowList[I]->GetType()==Type)
+    if (FrameList[I]->GetType()==Type)
       ret++;
   }
   return ret;
 }
 
-void Manager::SetWindowPos(int NewPos)
+void Manager::SetFramePos(int NewPos)
 {
-  SysLog("Manager::SetWindowPos(), NewPos=%i",NewPos);
-  WindowPos=NewPos;
+  SysLog("Manager::SetFramePos(), NewPos=%i",NewPos);
+  FramePos=NewPos;
 }
 
-int  Manager::FindWindowByFile(int ModalType,char *FileName)
+int  Manager::FindFrameByFile(int ModalType,char *FileName)
 {
-  for (int I=0;I<WindowCount;I++)
+  for (int I=0;I<FrameCount;I++)
   {
     char Type[200],Name[NM];
-    if (WindowList[I]->GetTypeAndName(Type,Name)==ModalType)
+    if (FrameList[I]->GetTypeAndName(Type,Name)==ModalType)
       if (LocalStricmp(Name,FileName)==0)
         return(I);
   }
@@ -412,7 +414,7 @@ void Manager::ShowBackground()
   } */
 }
 
-void Manager::SetNextWindow(int Viewer,char *Name,long Pos)
+void Manager::SetNextFrame(int Viewer,char *Name,long Pos)
 {
   NextViewer=Viewer;
   strcpy(NextName,Name);
@@ -420,20 +422,20 @@ void Manager::SetNextWindow(int Viewer,char *Name,long Pos)
 }
 
 
-void Manager::ActivateNextWindow()
+void Manager::ActivateNextFrame()
 {
  // int es;
   if (*NextName)
   {
-    Window *NewWindow;
+    Frame *NewFrame;
     char NewName[NM];
     strcpy(NewName,NextName);
     *NextName=0;
     if (NextViewer)
-      NewWindow=new FileViewer(NewName,TRUE,FALSE,FALSE,NextPos);
+      NewFrame=new FileViewer(NewName,TRUE,FALSE,FALSE,NextPos);
     else
-      NewWindow=new FileEditor(NewName,FALSE,TRUE,-2,NextPos,FALSE);
-    AddWindow(NewWindow);
+      NewFrame=new FileEditor(NewName,FALSE,TRUE,-2,NextPos,FALSE);
+    AddFrame(NewFrame);
   }
 }
 
@@ -443,10 +445,10 @@ void Manager::EnterMainLoop()
   while (!EndLoop)
   {
     ProcessMainLoop();
-    if (DestroyedWindow)
+    if (DestroyedFrame)
     {
-      delete DestroyedWindow;
-      DestroyedWindow = NULL;
+      delete DestroyedFrame;
+      DestroyedFrame = NULL;
     }
   }
 }
@@ -491,10 +493,10 @@ int  Manager::ProcessKey(int Key)
     KeyToText(Key,kn);
     SysLog(1,"Manager::ProcessKey(), key=%i, '%s'",Key,kn);
 
-    if ( CurrentWindow)
+    if ( CurrentFrame)
     {
-      es=CurrentWindow->GetEnableSwitch();
-      SysLog("Manager::ProcessKey(), es=%i, to CurrentWindow 0x%p, '%s'",es,CurrentWindow, CurrentWindow->GetTypeName());;
+      es=CurrentFrame->GetEnableSwitch();
+      SysLog("Manager::ProcessKey(), es=%i, to CurrentFrame 0x%p, '%s'",es,CurrentFrame, CurrentFrame->GetTypeName());;
       switch(Key)
         {
             case KEY_F11:
@@ -503,32 +505,32 @@ int  Manager::ProcessKey(int Key)
                 return TRUE;
             case KEY_F12:
                 if ( es )
-                    SelectWindow();
+                    SelectFrame();
                 SysLog(-1);
                 return TRUE;
             case KEY_CTRLTAB:
                 if ( es )
-                    NextWindow(1);
+                    NextFrame(1);
                 SysLog(-1);
                 return TRUE;
             case KEY_CTRLSHIFTTAB:
                 if ( es )
-                    NextWindow(-1);
+                    NextFrame(-1);
                 SysLog(-1);
                 return TRUE;
         }
-        SysLog("Manager::ProcessKey(), to CurrentWindow 0x%p, '%s'",CurrentWindow, CurrentWindow->GetTypeName());;
-        CurrentWindow->UpdateKeyBar();
+        SysLog("Manager::ProcessKey(), to CurrentFrame 0x%p, '%s'",CurrentFrame, CurrentFrame->GetTypeName());;
+        CurrentFrame->UpdateKeyBar();
         // сохраняем, потому что внутри ProcessKey
         // может быть вызван AddModal и
         // CurrentModal будет изменен.
-        Window *cw=CurrentWindow;
-        ret=CurrentWindow->ProcessKey(Key);
+        Frame *cw=CurrentFrame;
+        ret=CurrentFrame->ProcessKey(Key);
         if ( ret )
         {
             // а так проверяем код выхода у того, кого надо
             if ( cw->GetExitCode()==XC_QUIT )
-                DestroyWindow(cw);
+                DestroyFrame(cw);
         }
     }
     SysLog("Manager::ProcessKey() ret=%i",ret);
@@ -540,8 +542,8 @@ int  Manager::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
     int ret=FALSE;
 //    SysLog(1,"Manager::ProcessMouse()");
-    if ( CurrentWindow)
-        ret=CurrentWindow->ProcessMouse(MouseEvent);
+    if ( CurrentFrame)
+        ret=CurrentFrame->ProcessMouse(MouseEvent);
 //    SysLog("Manager::ProcessMouse() ret=%i",ret);
     SysLog(-1);
     return ret;
@@ -550,9 +552,9 @@ int  Manager::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 void Manager::PluginsMenu()
 {
   SysLog(1);
- // ╧юьхэ ыё  т√чют ъюььрэфё ╨рчюсЁрЄ№ё 
+ // Поменялся вызов коммандс Разобраться
 ///    CtrlObject->Plugins.CommandsMenu(CurrentModal->GetTypeAndName(0,0),0,0);
-  int curType = CurrentWindow->GetType();
+  int curType = CurrentFrame->GetType();
   if (curType == MODALTYPE_PANELS || curType == MODALTYPE_EDITOR || curType == MODALTYPE_VIEWER)
     CtrlObject->Plugins.CommandsMenu(curType,0,0);
   SysLog(-1);
@@ -560,7 +562,7 @@ void Manager::PluginsMenu()
 
 BOOL Manager::IsPanelsActive()
 {
-    if (CurrentWindow->GetTypeAndName(0,0)==MODALTYPE_PANELS )
+    if (CurrentFrame->GetTypeAndName(0,0)==MODALTYPE_PANELS )
         return TRUE;
     return FALSE;
 }

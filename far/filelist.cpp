@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.47 29.04.2001 $ */
+/* Revision: 1.48 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 ОТ
+    ! Переименование Window в Frame :)
   29.04.2001 ОТ
     + Внедрение NWZ от Третьякова
   30.04.2001 DJ
@@ -1086,7 +1088,7 @@ int FileList::ProcessKey(int Key)
                 else
                 {
                   FileEditor *ShellEditor=new FileEditor(FileName,Key==KEY_SHIFTF4,TRUE);
-                  CtrlObject->ModalManager.AddWindow(ShellEditor);
+                  CtrlObject->ModalManager.AddFrame(ShellEditor);
                   Modaling=FALSE;///
                 }
             if (PluginMode && UploadFile)
@@ -1145,7 +1147,7 @@ int FileList::ProcessKey(int Key)
                 FileViewer *ShellViewer=new FileViewer(FileName,TRUE,PluginMode,PluginMode,-1,PluginData,&ViewList);
                 if (PluginMode)
                   ShellViewer->SetTempViewName(FileName);
-                CtrlObject->ModalManager.AddWindow(ShellViewer);
+                CtrlObject->ModalManager.AddFrame(ShellViewer);
                 Modaling=TRUE; ///
               }
           }

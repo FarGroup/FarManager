@@ -89,7 +89,7 @@ CLEAN :
 	-@erase "$(INTDIR)\keybar.obj"
 	-@erase "$(INTDIR)\language.obj"
 	-@erase "$(INTDIR)\local.obj"
-	-@erase "$(INTDIR)\window.obj"
+	-@erase "$(INTDIR)\frame.obj"
 	-@erase "$(INTDIR)\lockscrn.obj"
 	-@erase "$(INTDIR)\macro.obj"
 	-@erase "$(INTDIR)\main.obj"
@@ -154,7 +154,7 @@ DEF_FILE= \
 LINK32_OBJS= \
 	"$(INTDIR)\stddlg.obj" \
 	"$(INTDIR)\constitle.obj" \
-	"$(INTDIR)\window.obj" \
+	"$(INTDIR)\frame.obj" \
 	"$(INTDIR)\strmix.obj" \
 	"$(INTDIR)\flink.obj" \
 	"$(INTDIR)\filepanels.obj" \
@@ -272,7 +272,7 @@ CLEAN :
 	-@erase "$(INTDIR)\farqueue.obj"
 	-@erase "$(INTDIR)\stddlg.obj"
 	-@erase "$(INTDIR)\strmix.obj"
-	-@erase "$(INTDIR)\window.obj"
+	-@erase "$(INTDIR)\frame.obj"
 	-@erase "$(INTDIR)\flink.obj"
 	-@erase "$(INTDIR)\checkver.obj"
 	-@erase "$(INTDIR)\chgmmode.obj"
@@ -392,7 +392,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\config.obj" \
 	"$(INTDIR)\copy.obj" \
 	"$(INTDIR)\ctrlobj.obj" \
-	"$(INTDIR)\window.obj" \
+	"$(INTDIR)\frame.obj" \
 	"$(INTDIR)\delete.obj" \
 	"$(INTDIR)\dialog.obj" \
 	"$(INTDIR)\dizlist.obj" \
@@ -941,8 +941,8 @@ SOURCE=.\filepanels.cpp
 
 "$(INTDIR)\filepanels.obj" : $(SOURCE) "$(INTDIR)"
 
-SOURCE=.\window.cpp
+SOURCE=.\frame.cpp
 
-"$(INTDIR)\window.obj" : $(SOURCE) "$(INTDIR)"
+"$(INTDIR)\frame.obj" : $(SOURCE) "$(INTDIR)"
 
 !ENDIF

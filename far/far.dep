@@ -1,8 +1,8 @@
 # Microsoft Developer Studio Generated Dependency File, included by far.mak
 
-.\window.cpp : \
+.\frame.cpp : \
 	".\baseinp.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
     ".\filepanels.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
@@ -68,7 +68,7 @@
 
 .\filepanels.cpp : \
 	".\baseinp.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
     ".\filepanels.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
@@ -153,7 +153,7 @@
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\fileview.hpp"\
 	".\filter.hpp"\
 	".\findfile.hpp"\
@@ -214,7 +214,7 @@
 	".\dizlist.hpp"\
 	".\edit.hpp"\
 	".\editor.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
 	".\farqueue.hpp"\
@@ -281,7 +281,7 @@
 	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\constitle.hpp"\
 	".\copy.hpp"\
 	".\ctrlobj.hpp"\
@@ -372,7 +372,7 @@
 	".\global.hpp"\
 	".\grabber.hpp"\
 	".\grpsort.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\headers.hpp"\
 	".\help.hpp"\
 	".\hilight.hpp"\
@@ -433,7 +433,7 @@
 	".\filestr.hpp"\
 	".\fileview.hpp"\
 	".\filter.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\findfile.hpp"\
 	".\flink.hpp"\
 	".\fn.hpp"\
@@ -494,7 +494,7 @@
 	".\edit.hpp"\
 	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\farftp.hpp"\
 	".\farqueue.hpp"\
 	".\fileedit.hpp"\
@@ -555,7 +555,7 @@
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
@@ -616,7 +616,7 @@
 
 .\ctrlobj.cpp : \
 	".\baseinp.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
 	".\classes.hpp"\
@@ -707,7 +707,7 @@
 	".\fileview.hpp"\
 	".\filter.hpp"\
 	".\findfile.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\flink.hpp"\
 	".\fn.hpp"\
 	".\foldtree.hpp"\
@@ -768,7 +768,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\farqueue.hpp"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
@@ -829,7 +829,7 @@
     ".\filepanels.hpp"\
 	".\constitle.hpp"\
 	".\copy.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
 	".\dizlist.hpp"\
@@ -890,7 +890,7 @@
 .\edit.cpp : \
 	".\baseinp.hpp"\
     ".\filepanels.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
 	".\classes.hpp"\
@@ -981,7 +981,7 @@
 	".\flink.hpp"\
 	".\fn.hpp"\
 	".\foldtree.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
     ".\filepanels.hpp"\
 	".\global.hpp"\
 	".\grabber.hpp"\
@@ -1042,7 +1042,7 @@
 	".\farqueue.hpp"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\filestr.hpp"\
     ".\filepanels.hpp"\
 	".\fileview.hpp"\
@@ -1103,7 +1103,7 @@
 	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\constitle.hpp"\
     ".\filepanels.hpp"\
 	".\copy.hpp"\
@@ -1194,7 +1194,7 @@
 	".\filter.hpp"\
 	".\findfile.hpp"\
 	".\flink.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\fn.hpp"\
 	".\foldtree.hpp"\
 	".\global.hpp"\
@@ -1255,7 +1255,7 @@
 	".\farconst.hpp"\
 	".\farftp.hpp"\
 	".\farqueue.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -1316,7 +1316,7 @@
 	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\dizlist.hpp"\
 	".\edit.hpp"\
 	".\editor.hpp"\
@@ -1377,7 +1377,7 @@
 	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
@@ -1468,7 +1468,7 @@
 	".\flink.hpp"\
 	".\fn.hpp"\
 	".\foldtree.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
 	".\grabber.hpp"\
 	".\grpsort.hpp"\
@@ -1529,7 +1529,7 @@
 	".\farqueue.hpp"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\filestr.hpp"\
 	".\fileview.hpp"\
 	".\filter.hpp"\
@@ -1590,7 +1590,7 @@
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
 	".\dizlist.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\edit.hpp"\
 	".\editor.hpp"\
 	".\farconst.hpp"\
@@ -1651,7 +1651,7 @@
 	".\chgprior.hpp"\
 	".\classes.hpp"\
 	".\cmdline.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
 	".\copy.hpp"\
@@ -1742,7 +1742,7 @@
 	".\foldtree.hpp"\
 	".\global.hpp"\
 	".\grabber.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\grpsort.hpp"\
 	".\headers.hpp"\
 	".\help.hpp"\
@@ -1803,7 +1803,7 @@
 	".\filelist.hpp"\
 	".\filestr.hpp"\
 	".\fileview.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\filter.hpp"\
 	".\findfile.hpp"\
 	".\flink.hpp"\
@@ -1864,7 +1864,7 @@
 	".\dizlist.hpp"\
 	".\edit.hpp"\
 	".\editor.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
 	".\farqueue.hpp"\
@@ -1925,7 +1925,7 @@
 	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\constitle.hpp"\
 	".\copy.hpp"\
 	".\ctrlobj.hpp"\
@@ -1986,7 +1986,7 @@
 
 
 .\flshow.cpp : \
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
@@ -2077,7 +2077,7 @@
     ".\filepanels.hpp"\
 	".\filter.hpp"\
 	".\findfile.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\flink.hpp"\
 	".\fn.hpp"\
 	".\foldtree.hpp"\
@@ -2138,7 +2138,7 @@
 	".\farconst.hpp"\
     ".\filepanels.hpp"\
 	".\farftp.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\farqueue.hpp"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
@@ -2199,7 +2199,7 @@
 	".\constitle.hpp"\
 	".\copy.hpp"\
     ".\filepanels.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
 	".\dizlist.hpp"\
@@ -2260,7 +2260,7 @@
 .\global.cpp : \
 	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
     ".\filepanels.hpp"\
 	".\chgprior.hpp"\
 	".\classes.hpp"\
@@ -2351,7 +2351,7 @@
 	".\findfile.hpp"\
 	".\flink.hpp"\
 	".\fn.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\foldtree.hpp"\
 	".\global.hpp"\
 	".\grabber.hpp"\
@@ -2412,7 +2412,7 @@
 	".\farftp.hpp"\
 	".\farqueue.hpp"\
 	".\fileedit.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
 	".\fileview.hpp"\
@@ -2473,7 +2473,7 @@
 	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\dizlist.hpp"\
 	".\edit.hpp"\
 	".\editor.hpp"\
@@ -2534,7 +2534,7 @@
 	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
@@ -2625,7 +2625,7 @@
 	".\fn.hpp"\
 	".\foldtree.hpp"\
 	".\global.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\grabber.hpp"\
 	".\grpsort.hpp"\
 	".\headers.hpp"\
@@ -2686,7 +2686,7 @@
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\fileview.hpp"\
 	".\filter.hpp"\
 	".\findfile.hpp"\
@@ -2747,7 +2747,7 @@
 	".\dialog.hpp"\
 	".\dizlist.hpp"\
 	".\edit.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
@@ -2834,7 +2834,7 @@
 	".\foldtree.hpp"\
 	".\global.hpp"\
 	".\grabber.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\grpsort.hpp"\
 	".\headers.hpp"\
 	".\help.hpp"\
@@ -2895,7 +2895,7 @@
 	".\filelist.hpp"\
 	".\filestr.hpp"\
 	".\fileview.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\filter.hpp"\
 	".\findfile.hpp"\
 	".\flink.hpp"\
@@ -2956,7 +2956,7 @@
 	".\edit.hpp"\
 	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\farftp.hpp"\
 	".\farqueue.hpp"\
 	".\fileedit.hpp"\
@@ -3017,7 +3017,7 @@
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
@@ -3078,7 +3078,7 @@
 
 
 .\language.cpp : \
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
@@ -3169,7 +3169,7 @@
 	".\fileview.hpp"\
 	".\filter.hpp"\
 	".\findfile.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\flink.hpp"\
 	".\fn.hpp"\
 	".\foldtree.hpp"\
@@ -3230,7 +3230,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\farqueue.hpp"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
@@ -3291,7 +3291,7 @@
 	".\constitle.hpp"\
 	".\copy.hpp"\
 	".\ctrlobj.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\dialog.hpp"\
 	".\dizlist.hpp"\
 	".\edit.hpp"\
@@ -3352,7 +3352,7 @@
 .\main.cpp : \
 	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\chgprior.hpp"\
 	".\classes.hpp"\
 	".\cmdline.hpp"\
@@ -3443,7 +3443,7 @@
 	".\findfile.hpp"\
 	".\flink.hpp"\
 	".\fn.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\foldtree.hpp"\
 	".\global.hpp"\
 	".\grabber.hpp"\
@@ -3504,7 +3504,7 @@
 	".\farftp.hpp"\
 	".\farqueue.hpp"\
 	".\fileedit.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
 	".\fileview.hpp"\
@@ -3565,7 +3565,7 @@
 	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\dizlist.hpp"\
 	".\edit.hpp"\
 	".\editor.hpp"\
@@ -3626,7 +3626,7 @@
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
 	".\classes.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -3717,7 +3717,7 @@
 	".\fn.hpp"\
 	".\foldtree.hpp"\
 	".\global.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\grabber.hpp"\
 	".\grpsort.hpp"\
 	".\headers.hpp"\
@@ -3778,7 +3778,7 @@
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\fileview.hpp"\
 	".\filter.hpp"\
 	".\findfile.hpp"\
@@ -3839,7 +3839,7 @@
 	".\dialog.hpp"\
 	".\dizlist.hpp"\
 	".\edit.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
@@ -3900,7 +3900,7 @@
 	".\chgprior.hpp"\
 	".\classes.hpp"\
 	".\cmdline.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
 	".\copy.hpp"\
@@ -3991,7 +3991,7 @@
 	".\global.hpp"\
 	".\grabber.hpp"\
 	".\grpsort.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\headers.hpp"\
 	".\help.hpp"\
 	".\hilight.hpp"\
@@ -4052,7 +4052,7 @@
     ".\filepanels.hpp"\
 	".\fileview.hpp"\
 	".\filter.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\findfile.hpp"\
 	".\flink.hpp"\
 	".\fn.hpp"\
@@ -4113,7 +4113,7 @@
 	".\editor.hpp"\
     ".\filepanels.hpp"\
 	".\farconst.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\farftp.hpp"\
 	".\farqueue.hpp"\
 	".\fileedit.hpp"\
@@ -4174,7 +4174,7 @@
 	".\colors.hpp"\
 	".\constitle.hpp"\
     ".\filepanels.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
@@ -4235,7 +4235,7 @@
 
 .\plugapi.cpp : \
 	".\baseinp.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
     ".\filepanels.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
@@ -4326,7 +4326,7 @@
 	".\findfile.hpp"\
 	".\flink.hpp"\
 	".\fn.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\foldtree.hpp"\
     ".\filepanels.hpp"\
 	".\global.hpp"\
@@ -4387,7 +4387,7 @@
 	".\farftp.hpp"\
 	".\farqueue.hpp"\
 	".\fileedit.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
     ".\filepanels.hpp"\
@@ -4448,7 +4448,7 @@
 	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\dizlist.hpp"\
 	".\edit.hpp"\
 	".\editor.hpp"\
@@ -4509,7 +4509,7 @@
 	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
@@ -4600,7 +4600,7 @@
 	".\fn.hpp"\
 	".\foldtree.hpp"\
 	".\global.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\grabber.hpp"\
 	".\grpsort.hpp"\
 	".\headers.hpp"\
@@ -4661,7 +4661,7 @@
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\fileview.hpp"\
 	".\filter.hpp"\
 	".\findfile.hpp"\
@@ -4722,7 +4722,7 @@
 	".\dialog.hpp"\
 	".\dizlist.hpp"\
 	".\edit.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
@@ -4783,7 +4783,7 @@
 	".\chgprior.hpp"\
 	".\classes.hpp"\
 	".\cmdline.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
 	".\copy.hpp"\
@@ -4874,7 +4874,7 @@
 	".\foldtree.hpp"\
 	".\global.hpp"\
 	".\grabber.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\grpsort.hpp"\
 	".\headers.hpp"\
 	".\help.hpp"\
@@ -4935,7 +4935,7 @@
 	".\filelist.hpp"\
 	".\filestr.hpp"\
 	".\fileview.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\filter.hpp"\
 	".\findfile.hpp"\
 	".\flink.hpp"\
@@ -4996,7 +4996,7 @@
 	".\edit.hpp"\
 	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\farftp.hpp"\
 	".\farqueue.hpp"\
 	".\fileedit.hpp"\
@@ -5057,7 +5057,7 @@
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
@@ -5148,7 +5148,7 @@
 	".\grabber.hpp"\
 	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\help.hpp"\
 	".\hilight.hpp"\
 	".\history.hpp"\
@@ -5209,7 +5209,7 @@
 	".\fileview.hpp"\
 	".\filter.hpp"\
 	".\findfile.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\flink.hpp"\
 	".\fn.hpp"\
 	".\foldtree.hpp"\
@@ -5270,7 +5270,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\farqueue.hpp"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
@@ -5331,7 +5331,7 @@
 	".\constitle.hpp"\
 	".\copy.hpp"\
 	".\ctrlobj.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\dialog.hpp"\
 	".\dizlist.hpp"\
 	".\edit.hpp"\
@@ -5392,7 +5392,7 @@
 .\syslog.cpp : \
 	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\chgprior.hpp"\
 	".\classes.hpp"\
 	".\cmdline.hpp"\
@@ -5483,7 +5483,7 @@
 	".\findfile.hpp"\
 	".\flink.hpp"\
 	".\fn.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\foldtree.hpp"\
 	".\global.hpp"\
 	".\grabber.hpp"\
@@ -5544,7 +5544,7 @@
 	".\farftp.hpp"\
 	".\farqueue.hpp"\
 	".\fileedit.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
 	".\fileview.hpp"\
@@ -5605,7 +5605,7 @@
 	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\dizlist.hpp"\
 	".\edit.hpp"\
 	".\editor.hpp"\
@@ -5666,7 +5666,7 @@
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
 	".\classes.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -5757,7 +5757,7 @@
 	".\fn.hpp"\
 	".\foldtree.hpp"\
 	".\global.hpp"\
-	".\window.hpp"\
+	".\frame.hpp"\
 	".\grabber.hpp"\
 	".\grpsort.hpp"\
 	".\headers.hpp"\

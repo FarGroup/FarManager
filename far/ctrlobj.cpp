@@ -5,10 +5,12 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.20 05.05.2001 $ */
+/* Revision: 1.21 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 ОТ
+    ! Переименование Window в Frame :)
   05.05.2001 DJ
     + перетрях NWZ
   29.04.2001 ОТ
@@ -191,7 +193,7 @@ _beginthread(CheckVersion,0x10000,NULL);
   Cp()->HideState=(!Opt.LeftPanel.Visible && !Opt.RightPanel.Visible);
   CmdLine->Redraw();
 
-  ModalManager.AddWindow(FPanels);
+  ModalManager.AddFrame(FPanels);
   Plugins.LoadPlugins();
 }
 

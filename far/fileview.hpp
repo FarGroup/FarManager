@@ -7,10 +7,12 @@ fileview.hpp
 
 */
 
-/* Revision: 1.04 05.05.2001 $ */
+/* Revision: 1.05 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 ОТ
+    ! Переименование Window в Frame :)
   05.05.2001 DJ
     + Перетрях NWZ
   29.04.2001 ОТ
@@ -25,7 +27,7 @@ Modify:
     ! Выделение в каµестве самостоятельного модуля
 */
 
-class FileViewer:public Window
+class FileViewer:public Frame
 {
   private:
     void Show();

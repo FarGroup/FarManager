@@ -5,10 +5,12 @@ infolist.cpp
 
 */
 
-/* Revision: 1.15 05.05.2001 $ */
+/* Revision: 1.16 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 ОТ
+    ! Переименование Window в Frame :)
   05.05.2001 DJ
     + перетрях NWZ
   29.04.2001 ОТ
@@ -312,7 +314,7 @@ int InfoList::ProcessKey(int Key)
         CtrlObject->Cp()->GetAnotherPanel(this)->GetCurDir(CurDir);
         chdir(CurDir);
         FileViewer *ShellViewer=new FileViewer(DizFileName,TRUE);
-        CtrlObject->ModalManager.AddWindow(ShellViewer);
+        CtrlObject->ModalManager.AddFrame(ShellViewer);
       }
       /* $ 20.07.2000 tran
          после показа перерисовываем панели */
@@ -332,7 +334,7 @@ int InfoList::ProcessKey(int Key)
         if (*DizFileName)
         {
           FileEditor *ShellEditor=new FileEditor(DizFileName,FALSE,TRUE);
-          CtrlObject->ModalManager.AddWindow(ShellEditor);
+          CtrlObject->ModalManager.AddFrame(ShellEditor);
         }
         else if (*Opt.FolderInfoFiles)
         {
@@ -343,7 +345,7 @@ int InfoList::ProcessKey(int Key)
             if (!strpbrk (ArgName, "*?"))
             {
               FileEditor *ShellEditor = new FileEditor(ArgName,TRUE,TRUE);
-              CtrlObject->ModalManager.AddWindow(ShellEditor);
+              CtrlObject->ModalManager.AddFrame(ShellEditor);
               break;
             }
           }

@@ -7,10 +7,12 @@ manager.hpp
 
 */
 
-/* Revision: 1.04 04.05.2001 $ */
+/* Revision: 1.05 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 ОТ
+    ! Переименование Window в Frame :)
   04.05.2001 DJ
     + доделка и переделка NWZ
   29.04.2001 ОТ
@@ -29,16 +31,16 @@ class Manager
 {
   private:
 
-    void ActivateNextWindow();
+    void ActivateNextFrame();
 
-    Window **WindowList;
-    Window *DestroyedWindow;
+    Frame **FrameList;
+    Frame *DestroyedFrame;
 
     int  EndLoop;
 
-    int  WindowCount,
-         WindowListSize;
-    int  WindowPos;
+    int  FrameCount,
+         FrameListSize;
+    int  FramePos;
     int  UpdateRequired;
 
     int  NextViewer;
@@ -47,19 +49,19 @@ class Manager
 
     INPUT_RECORD LastInputRecord;
 
-    void SetCurrentWindow (Window *NewCurWindow);
+    void SetCurrentFrame (Frame *NewCurFrame);
 
   public:
 
     Manager();
     ~Manager();
 
-    void AddWindow(Window *NewWindow);
-    void DestroyWindow(Window *Killed);
-    int ExecuteModal(Window &ModalWindow);
+    void AddFrame(Frame *NewFrame);
+    void DestroyFrame(Frame *Killed);
+    int ExecuteModal(Frame &ModalFrame);
 
-    void NextWindow(int Increment);
-    void SelectWindow(); // show window menu (F12)
+    void NextFrame(int Increment);
+    void SelectFrame(); // show window menu (F12)
 
     void CloseAll();
     /* $ 29.12.2000 IS
@@ -69,21 +71,21 @@ class Manager
     */
     BOOL ExitAll();
     /* IS $ */
-    BOOL IsAnyWindowModified(int Activate);
+    BOOL IsAnyFrameModified(int Activate);
 
-    int  GetWindowCount() {return(WindowCount);};
-    void GetWindowTypesCount(int &Viewers,int &Editors);
-    int  GetWindowCountByType(int Type);
+    int  GetFrameCount() {return(FrameCount);};
+    void GetFrameTypesCount(int &Viewers,int &Editors);
+    int  GetFrameCountByType(int Type);
 
     BOOL IsPanelsActive(); // используется как признак WaitInMainLoop
 
-    void SetWindowPos(int NewPos);
+    void SetFramePos(int NewPos);
 
-    int  FindWindowByFile(int ModalType,char *FileName);
+    int  FindFrameByFile(int ModalType,char *FileName);
 
     void ShowBackground();
 
-    void SetNextWindow(int Viewer,char *Name,long Pos);
+    void SetNextFrame(int Viewer,char *Name,long Pos);
 
     // new methods
     void EnterMainLoop();
@@ -95,7 +97,7 @@ class Manager
     void PluginsMenu(); // вызываем меню по F11
     void CheckExited();
 
-    Window *CurrentWindow;  // текущий модал,
+    Frame *CurrentFrame;  // текущий модал,
                           // присутсвует в списке, но может быть не активным
     int    EnableSwitch;  // разрешено ли переключение из модала
 

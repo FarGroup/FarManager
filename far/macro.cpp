@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.32 05.05.2001 $ */
+/* Revision: 1.33 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 ОТ
+    ! Переименование Window в Frame :)
   05.05.2001 DJ
     + перетрях NWZ
   29.04.2001 ОТ
@@ -1083,10 +1085,10 @@ BOOL KeyMacro::CheckEditSelected(DWORD CurFlags)
 {
   if(Mode==MACRO_EDITOR)
   {
-    Window* CurWindow=CtrlObject->ModalManager.CurrentWindow;
-    if (CurWindow && CurWindow->GetType()==MODALTYPE_EDITOR)
+    Frame* CurFrame=CtrlObject->ModalManager.CurrentFrame;
+    if (CurFrame && CurFrame->GetType()==MODALTYPE_EDITOR)
     {
-      int CurSelected=CurWindow->ProcessKey(KEY_MEDIT_ISSELECTED);
+      int CurSelected=CurFrame->ProcessKey(KEY_MEDIT_ISSELECTED);
       if((CurFlags&MFLAGS_SELECTION) && !CurSelected ||
          (CurFlags&MFLAGS_NOSELECTION) && CurSelected)
           return FALSE;

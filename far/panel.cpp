@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.39 05.05.2001 $ */
+/* Revision: 1.40 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 ОТ
+    ! Переименование Window в Frame :)
   05.05.2001 DJ
     + перетрях NWZ
   29.04.2001 ОТ
@@ -1167,7 +1169,7 @@ void Panel::ShowScreensCount()
   if (Opt.ShowScreensNumber && X1==0)
   {
     int Viewers,Editors;
-    CtrlObject->ModalManager.GetWindowTypesCount(Viewers,Editors);
+    CtrlObject->ModalManager.GetFrameTypesCount(Viewers,Editors);
     if (Viewers>0 || Editors>0)
     {
       char ScreensText[100];

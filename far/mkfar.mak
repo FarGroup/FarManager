@@ -202,7 +202,7 @@ FAROBJ=\
    $(OBJPATH)\usermenu.obj\
    $(OBJPATH)\viewer.obj\
    $(OBJPATH)\vmenu.obj\
-   $(OBJPATH)\window.obj\
+   $(OBJPATH)\frame.obj\
    $(OBJPATH)\xlat.obj\
    $(OBJPATH)\main.obj
 

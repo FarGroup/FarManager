@@ -5,10 +5,12 @@ ScreenSaver
 
 */
 
-/* Revision: 1.04 05.05.2001 $ */
+/* Revision: 1.05 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 ОТ
+    ! Переименование Window в Frame :)
   05.05.2001 DJ
     - правка под NWZ: в списке окон теперь на одно окно больше (панели)
   27.02.2001 VVM
@@ -21,7 +23,6 @@ Modify:
   10.10.2000 SVS
     ! Незначительное уточнение в строке:
       if (Star[I].Type!=STAR_NONE && (Step%Star[I].Speed)==0)
-                                     ^                  ^
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
@@ -93,7 +94,7 @@ int ScreenSaver(int EnableExit)
       */
       if (EnableExit && Opt.InactivityExit && Opt.InactivityExitTime>0 &&
           CurTime-StartIdleTime>Opt.InactivityExitTime*60000 &&
-          CtrlObject->ModalManager.GetWindowCount()==1)
+          CtrlObject->ModalManager.GetFrameCount()==1)
       {
         CtrlObject->ModalManager.ExitMainLoop(FALSE);
         return(0);
