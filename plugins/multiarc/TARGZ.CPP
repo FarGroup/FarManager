@@ -6,7 +6,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2002 FAR group
 */
-/* Revision: 1.25 02.05.2003 $ */
+/* Revision: 1.26 08.06.2004 $ */
 
 //#define USE_TAR_H
 
@@ -35,6 +35,7 @@
 #pragma comment(linker, "/ignore:4078")
 #pragma comment(linker, "-merge:.rdata=.text")
 #endif
+static __int64 __cdecl _strtoi64(const char *nptr,char **endptr,int ibase);
 
 #if defined(USE_TAR_H)
 #include "tar.h"
@@ -62,25 +63,27 @@ struct posix_header
                                 /* 500 = 0x1F4 */
 };
 
-#define TMAGIC   "ustar"	// ustar and a null
+#define TMAGIC   "ustar"    // ustar and a null
 #define TMAGLEN  6
-#define TVERSION "00"		// 00 and no null
+#define GNUTMAGIC  "GNUtar"    // 7 chars and a null
+#define GNUTMAGLEN 7
+#define TVERSION "00"       // 00 and no null
 #define TVERSLEN 2
 
 /* OLDGNU_MAGIC uses both magic and version fields, which are contiguous.
    Found in an archive, it indicates an old GNU header format, which will be
    hopefully become obsolescent.  With OLDGNU_MAGIC, uname and gname are
    valid, though the header is not truly POSIX conforming.  */
-#define OLDGNU_MAGIC "ustar  "	/* 7 chars and a null */
+#define OLDGNU_MAGIC "ustar  "  /* 7 chars and a null */
 
 
 enum archive_format
 {
-  DEFAULT_FORMAT,		/* format to be decided later */
-  V7_FORMAT,			/* old V7 tar format */
-  OLDGNU_FORMAT,		/* GNU format as per before tar 1.12 */
-  POSIX_FORMAT,			/* restricted, pure POSIX format */
-  GNU_FORMAT			/* POSIX format with GNU extensions */
+  DEFAULT_FORMAT,       /* format to be decided later */
+  V7_FORMAT,            /* old V7 tar format */
+  OLDGNU_FORMAT,        /* GNU format as per before tar 1.12 */
+  POSIX_FORMAT,         /* restricted, pure POSIX format */
+  GNU_FORMAT            /* POSIX format with GNU extensions */
 };
 
 
@@ -109,13 +112,6 @@ typedef union block {
 
 #endif
 
-int IsTarHeader(const unsigned char *Data,int DataSize);
-DWORD GetOctal(const char *Str);
-int GetArcItemGZIP(struct PluginPanelItem *Item,struct ArcItemInfo *Info);
-int GetArcItemTAR(struct PluginPanelItem *Item,struct ArcItemInfo *Info);
-char *AdjustTARFileName(char *FileName);
-static __int64 Oct2Size (const char *where0, size_t digs0);
-
 enum {TAR_FORMAT,GZ_FORMAT,Z_FORMAT,BZ_FORMAT};
 
 typedef union {
@@ -126,6 +122,14 @@ typedef union {
   } Part;
 } FAR_INT64;
 
+
+
+int IsTarHeader(const unsigned char *Data,int DataSize);
+__int64 GetOctal(const char *Str);
+int GetArcItemGZIP(struct PluginPanelItem *Item,struct ArcItemInfo *Info);
+int GetArcItemTAR(struct PluginPanelItem *Item,struct ArcItemInfo *Info);
+char *AdjustTARFileName(char *FileName);
+static __int64 Oct2Size (const char *where0, size_t digs0);
 
 HANDLE ArcHandle;
 DWORD SFXSize;
@@ -218,6 +222,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
       if (ArcType==BZ_FORMAT)
       {
         Item->PackSize=Item->FindData.nFileSizeLow=FileSize.Part.LowPart;
+        Item->PackSizeHigh=Item->FindData.nFileSizeHigh=FileSize.Part.HighPart;
         strcpy(Item->FindData.cFileName,ZipName);
         *ZipName=0;
         return(GETARC_SUCCESS);
@@ -248,12 +253,14 @@ int GetArcItemGZIP(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
     return(GETARC_READERROR);
 
   Item->PackSize=FileSize.Part.LowPart;
+  Item->PackSizeHigh=FileSize.Part.HighPart;
 
   if (ArcType==Z_FORMAT)
   {
     strcpy(Item->FindData.cFileName,ZipName);
     *ZipName=0;
     Item->FindData.nFileSizeLow=FileSize.Part.LowPart;
+    Item->FindData.nFileSizeHigh=FileSize.Part.HighPart;
     return(GETARC_SUCCESS);
   }
 
@@ -294,15 +301,16 @@ int GetArcItemTAR(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
 {
   TARHeader TAR_hdr;
   DWORD ReadSize;
-  BOOL SkipItem;//=FALSE;
+  BOOL SkipItem=FALSE;
   char *LongName = NULL;
   do
   {
     NextPosition.Part.LowPart=SetFilePointer(ArcHandle,NextPosition.Part.LowPart,&NextPosition.Part.HighPart,FILE_BEGIN);
-    if (NextPosition.Part.LowPart==0xFFFFFFFF && GetLastError() != NO_ERROR)
+
+    if (NextPosition.i64 == (__int64)-1 && GetLastError() != NO_ERROR)
       return(GETARC_READERROR);
 
-    if (NextPosition.i64>FileSize.i64)
+    if (NextPosition.i64 > FileSize.i64)
       return(GETARC_UNEXPEOF);
 
     if (!ReadFile(ArcHandle,&TAR_hdr,sizeof(TAR_hdr),&ReadSize,NULL))
@@ -323,30 +331,33 @@ int GetArcItemTAR(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
         EndPos = AdjustTARFileName (TAR_hdr.header.name);
       strncpy(Item->FindData.cFileName,EndPos,sizeof(Item->FindData.cFileName)-1);
       Item->FindData.cFileName[sizeof(Item->FindData.cFileName)-1]=0;
-      Item->FindData.dwFileAttributes=(GetOctal(TAR_hdr.header.mode) & 0x4000) || ((TAR_hdr.header.typeflag-'0') & 4) ? FILE_ATTRIBUTE_DIRECTORY:0;
-      UnixTimeToFileTime(GetOctal(TAR_hdr.header.mtime),&Item->FindData.ftLastWriteTime);
+      Item->FindData.dwFileAttributes=((DWORD)GetOctal(TAR_hdr.header.mode) & 0x4000) || ((TAR_hdr.header.typeflag-'0') & 4) ? FILE_ATTRIBUTE_DIRECTORY:0;
+      Item->FindData.nFileSizeHigh=0;
+
+      UnixTimeToFileTime((DWORD)GetOctal(TAR_hdr.header.mtime),&Item->FindData.ftLastWriteTime);
     }
     FAR_INT64 TarItemSize;
     TarItemSize.i64=Oct2Size(TAR_hdr.header.size,sizeof(TAR_hdr.header.size));
-    Item->PackSizeHigh=Item->FindData.nFileSizeHigh=TarItemSize.Part.HighPart;
     Item->PackSize=Item->FindData.nFileSizeLow=TarItemSize.Part.LowPart;
+    Item->PackSizeHigh=Item->FindData.nFileSizeHigh=TarItemSize.Part.HighPart;
 
     strcpy(Info->HostOS,TarArchiveFormat==POSIX_FORMAT?"POSIX":(TarArchiveFormat==V7_FORMAT?"V7":""));
     Info->UnpVer=256+11+(TarArchiveFormat >= POSIX_FORMAT?1:0); //!!!
 
     FAR_INT64 PrevPosition=NextPosition;
     // for LNKTYPE - only sizeof(TAR_hdr)
-    NextPosition.i64+=sizeof(TAR_hdr)+(TAR_hdr.header.typeflag == LNKTYPE?0:Item->PackSize);
+    NextPosition.i64+=(__int64)sizeof(TAR_hdr)+(TAR_hdr.header.typeflag == LNKTYPE?0i64:TarItemSize.i64);
 
-    if (NextPosition.i64 & 511)
-      NextPosition.i64+=512-(NextPosition.i64 & 511);
+    if (NextPosition.i64 & 511i64)
+      NextPosition.i64+=512i64-(NextPosition.i64 & 511i64);
 
-    if (PrevPosition.i64>=NextPosition.i64)
+    if (PrevPosition.i64 >= NextPosition.i64)
       return(GETARC_BROKEN);
 
     if (TAR_hdr.header.typeflag == GNUTYPE_LONGNAME)
     {
-      SetFilePointer (ArcHandle,PrevPosition.Part.LowPart+sizeof(TAR_hdr),&PrevPosition.Part.HighPart,FILE_BEGIN);
+      PrevPosition.i64+=(__int64)sizeof(TAR_hdr);
+      SetFilePointer (ArcHandle,PrevPosition.Part.LowPart,&PrevPosition.Part.HighPart,FILE_BEGIN);
       // we can't have two LONGNAME records in a row without a file between them
       if (LongName != NULL)
         return GETARC_BROKEN;
@@ -499,14 +510,15 @@ int IsTarHeader(const BYTE *Data,int DataSize)
     if (I==sizeof(Header->name) || Header->name[I] < ' ')
       return(FALSE);
 
+  //for (I=0; I < (&Header->typeflag - &Header->mode[0]); I++)
   for (I=0;I < 8;I++)
     if (Header->mode[I] > '7' || Header->mode[I]<'0' && Header->mode[I]!=0 && Header->mode[I]!=' ')
       return(FALSE);
 
   if(strcmp(Header->name,"././@LongLink"))
   {
-    DWORD Seconds=GetOctal(Header->mtime);
-    if (Seconds<300000000 || Seconds>1500000000)
+    __int64 Seconds=GetOctal(Header->mtime);
+    if (Seconds < 300000000i64 || Seconds > 1500000000i64)
     {
       if(Header->typeflag != DIRTYPE)
         return(FALSE);
@@ -529,10 +541,11 @@ char *AdjustTARFileName(char *FileName)
 }
 
 
-DWORD GetOctal(const char *Str)
+__int64 GetOctal(const char *Str)
 {
   char *endptr;
-  return(strtoul(Str,&endptr,8));
+  return _strtoi64(Str,&endptr,8);
+//  return(strtoul(Str,&endptr,8));
 }
 
 static __int64 Oct2Size (const char *where0, size_t digs0)
@@ -570,4 +583,185 @@ static __int64 Oct2Size (const char *where0, size_t digs0)
 
 out_of_range:
   return -1;
+}
+
+// strtoq.c
+
+/***
+*strtoi64, strtoui64(nptr,endptr,ibase) - Convert ascii string to __int64 un/signed
+*    int.
+*
+*Purpose:
+*    Convert an ascii string to a 64-bit __int64 value.  The base
+*    used for the caculations is supplied by the caller.  The base
+*    must be in the range 0, 2-36.  If a base of 0 is supplied, the
+*    ascii string must be examined to determine the base of the
+*    number:
+*        (a) First char = '0', second char = 'x' or 'X',
+*            use base 16.
+*        (b) First char = '0', use base 8
+*        (c) First char in range '1' - '9', use base 10.
+*
+*    If the 'endptr' value is non-NULL, then strtoq/strtouq places
+*    a pointer to the terminating character in this value.
+*    See ANSI standard for details
+*
+*Entry:
+*    nptr == NEAR/FAR pointer to the start of string.
+*    endptr == NEAR/FAR pointer to the end of the string.
+*    ibase == integer base to use for the calculations.
+*
+*    string format: [whitespace] [sign] [0] [x] [digits/letters]
+*
+*Exit:
+*    Good return:
+*        result
+*
+*    Overflow return:
+*        strtoi64 -- _I64_MAX or _I64_MIN
+*        strtoui64 -- _UI64_MAX
+*        strtoi64/strtoui64 -- errno == ERANGE
+*
+*    No digits or bad base return:
+*        0
+*        endptr = nptr*
+*
+*Exceptions:
+*    None.
+*******************************************************************************/
+
+static unsigned __int64 __cdecl strtoxq (const char *nptr,const char **endptr,int ibase,int flags)
+{
+/* flag values */
+#define FL_UNSIGNED   1       /* strtouq called */
+#define FL_NEG        2       /* negative sign found */
+#define FL_OVERFLOW   4       /* overflow occured */
+#define FL_READDIGIT  8       /* we've read at least one correct digit */
+#define _UI64_MAX     0xffffffffffffffffui64
+#define _I64_MIN    (-9223372036854775807i64 - 1)
+#define _I64_MAX      9223372036854775807i64
+
+    const char *p;
+    char c;
+    unsigned __int64 number;
+    unsigned digval;
+    unsigned __int64 maxval;
+
+    p = nptr;            /* p is our scanning pointer */
+    number = 0;            /* start with zero */
+
+    c = *p++;            /* read char */
+    while ( isspace((int)(unsigned char)c) )
+        c = *p++;        /* skip whitespace */
+
+    if (c == '-') {
+        flags |= FL_NEG;    /* remember minus sign */
+        c = *p++;
+    }
+    else if (c == '+')
+        c = *p++;        /* skip sign */
+
+    if (ibase < 0 || ibase == 1 || ibase > 36) {
+        /* bad base! */
+        if (endptr)
+            /* store beginning of string in endptr */
+            *endptr = nptr;
+        return 0L;        /* return 0 */
+    }
+    else if (ibase == 0) {
+        /* determine base free-lance, based on first two chars of
+           string */
+        if (c != '0')
+            ibase = 10;
+        else if (*p == 'x' || *p == 'X')
+            ibase = 16;
+        else
+            ibase = 8;
+    }
+
+    if (ibase == 16) {
+        /* we might have 0x in front of number; remove if there */
+        if (c == '0' && (*p == 'x' || *p == 'X')) {
+            ++p;
+            c = *p++;    /* advance past prefix */
+        }
+    }
+
+    /* if our number exceeds this, we will overflow on multiply */
+    maxval = _UI64_MAX / ibase;
+
+
+    for (;;) {    /* exit in middle of loop */
+        /* convert c to value */
+        if ( isdigit((int)(unsigned char)c) )
+            digval = c - '0';
+        else if ( isalpha((int)(unsigned char)c) )
+            digval = toupper(c) - 'A' + 10;
+        else
+            break;
+        if (digval >= (unsigned)ibase)
+            break;        /* exit loop if bad digit found */
+
+        /* record the fact we have read one digit */
+        flags |= FL_READDIGIT;
+
+        /* we now need to compute number = number * base + digval,
+           but we need to know if overflow occured.  This requires
+           a tricky pre-check. */
+
+        if (number < maxval || (number == maxval &&
+        (unsigned __int64)digval <= _UI64_MAX % ibase)) {
+            /* we won't overflow, go ahead and multiply */
+            number = number * ibase + digval;
+        }
+        else {
+            /* we would have overflowed -- set the overflow flag */
+            flags |= FL_OVERFLOW;
+        }
+
+        c = *p++;        /* read next digit */
+    }
+
+    --p;                /* point to place that stopped scan */
+
+    if (!(flags & FL_READDIGIT)) {
+        /* no number there; return 0 and point to beginning of
+           string */
+        if (endptr)
+            /* store beginning of string in endptr later on */
+            p = nptr;
+        number = 0L;        /* return 0 */
+    }
+    else if ( (flags & FL_OVERFLOW) ||
+              ( !(flags & FL_UNSIGNED) &&
+                ( ( (flags & FL_NEG) && (number > -_I64_MIN) ) ||
+                  ( !(flags & FL_NEG) && (number > _I64_MAX) ) ) ) )
+    {
+        /* overflow or signed overflow occurred */
+//        errno = ERANGE;
+        if ( flags & FL_UNSIGNED )
+            number = _UI64_MAX;
+        else if ( flags & FL_NEG )
+            number = _I64_MIN;
+        else
+            number = _I64_MAX;
+    }
+    if (endptr != NULL)
+        /* store pointer to char that stopped the scan */
+        *endptr = p;
+
+    if (flags & FL_NEG)
+        /* negate result if there was a neg sign */
+        number = (unsigned __int64)(-(__int64)number);
+
+    return number;            /* done. */
+}
+
+__int64 __cdecl _strtoi64(const char *nptr,char **endptr,int ibase)
+{
+    return (__int64) strtoxq(nptr, (const char **)endptr, ibase, 0);
+}
+unsigned __int64 __cdecl _strtoui64 (const char *nptr,char **endptr,int ibase)
+{
+    return strtoxq(nptr, (const char **)endptr, ibase, FL_UNSIGNED);
 }
