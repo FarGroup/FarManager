@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.100 15.03.2002 $ */
+/* Revision: 1.101 21.03.2002 $ */
 
 /*
 Modify:
+  21.03.2002 VVM
+    + Передаем имена каталогов на панель без заключительного "\"
   15.01.2002 VVM
     ! Неправильно передавались имена архивов в панель
   15.03.2002 KM
@@ -1416,6 +1418,15 @@ int FindFiles::FindFilesProcess()
             pi->FindData=FindList[i].FindData;
             if (IsArchive)
               pi->FindData.dwFileAttributes = 0;
+            /* $ 21.03.2002 VVM
+              + Передаем имена каталогов без заключительного "\" */
+            if (pi->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+            {
+              int Length = strlen(pi->FindData.cFileName);
+              if ((Length) && (pi->FindData.cFileName[Length-1]=='\\'))
+                pi->FindData.cFileName[Length-1] = 0;
+            }
+            /* VVM $ */
           }
         } /* if */
       } /* for */
