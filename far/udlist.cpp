@@ -3,14 +3,18 @@ udlist.cpp
 
 —писок чего-либо, перечисленного через символ-разделитель. ≈сли нужно, чтобы
 элемент списка содержал разделитель, то этот элемент следует заключить в
-кавычки.
+кавычки. ≈сли кроме разделител€ ничего больше в строке нет, то считаетс€, что
+это не разделитель, а простой символ.
 
 */
 
-/* Revision: 1.01 09.06.2001 $ */
+/* Revision: 1.02 12.06.2001 $ */
 
 /*
 Modify:
+  12.06.2001 IS
+    + ≈сли кроме разделител€ ничего больше в строке нет,
+      то считаетс€, что это не разделитель, а простой символ
   09.06.2001 IS
     + ѕереписано с учетом второго разделител€. “еперь разделителей два. ѕо
       умолчанию они равны ';' и ','
@@ -64,35 +68,55 @@ BOOL UserDefinedList::Set(const char *List)
   Free();
   BOOL rc=FALSE;
 
-  if(List && *List && *List!=Separator1 && *List!=Separator2)
+  if(List && *List)
   {
-    int Length=strlen(List), RealLength;
-    {
-      Data=(char *)malloc(4+Length);
-      DataEnd=Data;
-      if(Data)
+    if(*List!=Separator1 && *List!=Separator2)
       {
-        BOOL Error=FALSE;
-        const char *CurList=List;
-        while(NULL!=(CurList=Skip(CurList, Length, RealLength, Error)))
+        int Length=strlen(List), RealLength;
         {
-          if(Length)
+          Data=(char *)malloc(4+Length);
+          DataEnd=Data;
+          if(Data)
           {
-            strncpy(DataEnd, CurList, Length);
-            CurList+=RealLength;
-            DataEnd[Length]=0;
-            DataEnd+=Length+1;
-          }
-          else
-          {
-            Error=TRUE;
-            break;
+            BOOL Error=FALSE;
+            const char *CurList=List;
+            while(NULL!=(CurList=Skip(CurList, Length, RealLength, Error)))
+            {
+              if(Length)
+              {
+                strncpy(DataEnd, CurList, Length);
+                CurList+=RealLength;
+                DataEnd[Length]=0;
+                DataEnd+=Length+1;
+              }
+              else
+              {
+                Error=TRUE;
+                break;
+              }
+            }
+
+            rc=!Error;
           }
         }
-
-        rc=!Error;
       }
-    }
+    else
+      {
+         const char *End=List+1;
+         while(isspace(*End)) ++End; // пропустим мусор
+         if(!*End) // ≈сли кроме разделител€ ничего больше в строке нет,
+                   // то считаетс€, что это не разделитель, а простой символ
+         {
+           Data=(char *)malloc(4);
+           if(Data)
+           {
+             DataEnd=Data+2;
+             *Data=*List;
+             Data[1]=0;
+             rc=TRUE;
+           }
+         }
+      }
   }
 
   if(rc)
@@ -108,20 +132,20 @@ const char *UserDefinedList::Skip(const char *Str, int &Length, int &RealLength,
    Length=RealLength=0;
    Error=FALSE;
 
-   while(isspace(*Str)) Str++;
-   if(*Str==Separator1 || *Str==Separator2) Str++;
+   while(isspace(*Str)) ++Str;
+   if(*Str==Separator1 || *Str==Separator2) ++Str;
    if(!*Str) return NULL;
 
    const char *cur=Str;
    // важно! проверка *cur!=0 должна сто€ть первой
-   while(*cur && *cur!=Separator1 && *cur!=Separator2 && *cur!='\"') cur++;
+   while(*cur && *cur!=Separator1 && *cur!=Separator2 && *cur!='\"') ++cur;
    if(*cur!='\"' || !*cur)
     {
       RealLength=Length=cur-Str;
       return Str;
     }
 
-   cur++;
+   ++cur;
    const char *QuoteEnd=strchr(cur, '\"');
    if(QuoteEnd==NULL)
     {
@@ -130,7 +154,7 @@ const char *UserDefinedList::Skip(const char *Str, int &Length, int &RealLength,
     }
 
    const char *End=QuoteEnd+1;
-   while(isspace(*End)) End++;
+   while(isspace(*End)) ++End;
    if(!*End || *End==Separator1 || *End==Separator2)
    {
      Length=QuoteEnd-cur;
