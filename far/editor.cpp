@@ -1028,7 +1028,7 @@ int Editor::ProcessKey(int Key)
         static int UnmarkKeys[]={KEY_LEFT,KEY_RIGHT,KEY_HOME,KEY_END,KEY_UP,
                    KEY_DOWN,KEY_PGUP,KEY_PGDN,KEY_CTRLHOME,KEY_CTRLPGUP,
                    KEY_CTRLEND,KEY_CTRLPGDN,KEY_CTRLLEFT,KEY_CTRLRIGHT,
-                   KEY_CTRLUP,KEY_CTRLDOWN,KEY_CTRLN,KEY_CTRLE};
+                   KEY_CTRLUP,KEY_CTRLDOWN,KEY_CTRLN,KEY_CTRLE,KEY_CTRLS};
         for (int I=0;I<sizeof(UnmarkKeys)/sizeof(UnmarkKeys[0]);I++)
           if (Key==UnmarkKeys[I])
           {
