@@ -5,13 +5,16 @@ Parent class для всех screen objects
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 15.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  15.07.2000 tran
+    + add new dirty method - Hide0(), jys set Visible to False
+      used in FileViewer, for keybar hiding
 */
 
 #include "headers.hpp"
@@ -81,6 +84,13 @@ void ScreenObject::Hide()
   SaveScr=NULL;
 }
 
+/* $ 15.07.2000 tran
+   add ugly new method */
+void ScreenObject::Hide0()
+{
+  Visible=FALSE;
+}
+/* tran 15.07.2000 $ */
 
 void ScreenObject::Show()
 {

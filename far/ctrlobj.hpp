@@ -7,13 +7,15 @@ ctrlobj.hpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 15.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  15.07.2000 tran
+    + new method Redraw()
 */
 
 class ControlObject:public BaseInput
@@ -40,6 +42,10 @@ class ControlObject:public BaseInput
     void SetPanelPositions(int LeftFullScreen,int RightFullScreen);
     void SetScreenPositions();
     void RedrawKeyBar();
+    /* $ 15.07.2000 tran
+       here is :) */
+    void Redraw();
+    /* tran 15.07.2000 $ */
 
     Panel *LeftPanel,*RightPanel,*ActivePanel;
 

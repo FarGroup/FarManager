@@ -5,7 +5,7 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.03 13.07.2000 $ */
+/* Revision: 1.04 15.07.2000 $ */
 
 /*
 Modify:
@@ -18,6 +18,8 @@ Modify:
     ! Изменения для возможности компиляции под BC & VC
   13.07.2000 SVS
     ! Некоторые коррекция по сокращению кода ;-)
+  15.07.2000 tran
+    + а я код раздуваю :) вводя новый метод Redraw
 */
 
 #include "headers.hpp"
@@ -786,3 +788,18 @@ void ControlObject::ShowCopyright()
   Text(Str);
 #endif
 }
+
+
+/* $ 15.07.2000 tran
+   + этот метод просто перерисовывает панели, ком.строку и кейбар */
+void ControlObject::Redraw()
+{
+    if (LeftPanel->IsVisible())
+        LeftPanel->Show();
+    if (RightPanel->IsVisible())
+        RightPanel->Show();
+    CmdLine.Show();
+    MainKeyBar.Redraw();
+}
+/* tran 15.07.2000 $ */
+

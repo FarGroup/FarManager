@@ -5,7 +5,7 @@ fileview.cpp
 
 */
 
-/* Revision: 1.03 04.07.2000 $ */
+/* Revision: 1.04 15.07.2000 $ */
 
 /*
 Modify:
@@ -19,6 +19,8 @@ Modify:
     + названия всех функциональных клавиш
   04.07.2000 tran
     + не показывать мессаг бакс при невозвожности открыть файл
+  15.07.2000 tran
+    + CtrlB выключает/включает keybar
 */
 
 #include "headers.hpp"
@@ -75,7 +77,11 @@ void FileViewer::Init(char *Name,int EnableSwitch,int DisableHistory,
   ViewKeyBar.SetCtrl(FViewCtrlKeys,sizeof(FViewCtrlKeys)/sizeof(FViewCtrlKeys[0]));
   /* tran $ */
   SetKeyBar(&ViewKeyBar);
-  View.SetPosition(X1,Y1,X2,Y2-1);
+  /* $ 15.07.2000 tran
+     ShowKeyBarViewer support*/
+  View.SetPosition(X1,Y1,X2,Y2-(Opt.ShowKeyBarViewer?1:0));
+  /* tran 15.07.2000 $ */
+
   View.SetViewKeyBar(&ViewKeyBar);
   /* $ 04.07.2000 tran
      + add TRUE as 'warning' parameter */
@@ -92,6 +98,13 @@ void FileViewer::Init(char *Name,int EnableSwitch,int DisableHistory,
     View.SetNamesList(ViewNamesList);
   ExitCode=TRUE;
   ViewKeyBar.Show();
+  /* $ 15.07.2000 tran
+     dirty trick :( */
+  if ( Opt.ShowKeyBarViewer==0 )
+    ViewKeyBar.Hide0();
+  /* tran 15.07.2000 $ */
+
+
   sprintf(NewTitle,MSG(MInViewer),PointToName(Name));
   SetFarTitle(NewTitle);
   ShowConsoleTitle();
@@ -117,10 +130,16 @@ void FileViewer::Show()
 {
   if (FullScreen)
   {
-    ViewKeyBar.SetPosition(0,ScrY,ScrX,ScrY);
-    ViewKeyBar.Redraw();
-    SetPosition(0,0,ScrX,ScrY-1);
-    View.SetPosition(0,0,ScrX,ScrY-1);
+    /* $ 15.07.2000 tran
+       + keybar hide/show support */
+    if ( Opt.ShowKeyBarViewer )
+    {
+        ViewKeyBar.SetPosition(0,ScrY,ScrX,ScrY);
+        ViewKeyBar.Redraw();
+    }
+    SetPosition(0,0,ScrX,ScrY-(Opt.ShowKeyBarViewer?1:0));
+    View.SetPosition(0,0,ScrX,ScrY-(Opt.ShowKeyBarViewer?1:0));
+    /* tran 15.07.2000 $ */
   }
   ScreenObject::Show();
 }
@@ -138,6 +157,17 @@ int FileViewer::ProcessKey(int Key)
     F3KeyOnly=FALSE;
   switch(Key)
   {
+    /* $ 15.07.2000 tran
+       + CtrlB switch KeyBar*/
+    case KEY_CTRLB:
+      Opt.ShowKeyBarViewer=!Opt.ShowKeyBarViewer;
+      if ( Opt.ShowKeyBarViewer )
+        ViewKeyBar.Show();
+      else
+        ViewKeyBar.Hide0(); // 0 mean - Don't purge saved screen
+      Show();
+      return (TRUE);
+    /* tran 15.07.2000 $ */
     case KEY_CTRLO:
       Hide();
       if (CtrlObject->LeftPanel!=CtrlObject->RightPanel)

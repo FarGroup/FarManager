@@ -7,7 +7,7 @@ struct.hpp
 
 */
 
-/* Revision: 1.02 15.07.2000 $ */
+/* Revision: 1.03 15.07.2000 $ */
 
 /*
 Modify:
@@ -18,6 +18,8 @@ Modify:
     + Добавлен атрибут показа Scroll Bar в меню - Options::ShowMenuScrollbar
   15.07.2000 SVS
     + Opt.PersonalPluginsPath - путь для поиска персональных плагинов
+  15.07.2000 tran
+    + добавлен аттрибут показа KeyBar в Viewer - Options::ShowKeyBarViewer
 */
 
 struct PanelOptions
@@ -163,6 +165,10 @@ struct Options
   int ShowScreensNumber;
   int ShowSortMode;
   int ShowMenuBar;
+  /* $ 15.07.2000 tran
+    + ShowKeyBarViewer*/
+  int ShowKeyBarViewer;
+  /* tran 15.07.2000 $ */
   int CleanAscii;
   int NoGraphics;
   char FolderInfoFiles[1024];

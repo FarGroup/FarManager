@@ -5,7 +5,7 @@ filelist.cpp
 
 */
 
-/* Revision: 1.02 13.07.2000 $ */
+/* Revision: 1.03 15.07.2000 $ */
 
 /*
 Modify:
@@ -16,6 +16,9 @@ Modify:
     ! Изменения для возможности компиляции под BC & VC
   13.07.2000 SVS
     ! Некоторые коррекции при использовании new/delete/realloc
+  15.07.2000 tran
+    ! "...вызываем перерисовку панелей потому что этот viewer,
+      editor могут нам неверно восстановить..."
 */
 
 #include "headers.hpp"
@@ -883,6 +886,12 @@ int FileList::ProcessKey(int Key)
           if (PanelMode==NORMAL_PANEL)
             AccessTimeUpdateRequired=TRUE;
       }
+      /* $ 15.07.2000 tran
+         а тут мы вызываем перерисовку панелей
+         потому что этот viewer, editor могут нам неверно восстановить
+         */
+      CtrlObject->Redraw();
+      /* tran 15.07.2000 $ */
       return(TRUE);
     case KEY_F5:
     case KEY_F6:

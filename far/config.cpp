@@ -5,7 +5,7 @@ config.cpp
 
 */
 
-/* Revision: 1.03 15.07.2000 $ */
+/* Revision: 1.04 15.07.2000 $ */
 
 /*
 Modify:
@@ -24,6 +24,8 @@ Modify:
       стоят нули)
   15.07.2000 SVS
      + Добавка в виде задания дополнительного пути для поиска плагинов
+  15.07.2000 tran
+    + Opt.ShowKeyBarViewer
 */
 
 #include "headers.hpp"
@@ -506,6 +508,10 @@ void ReadConfig()
   GetRegKey("Viewer","SaveViewerPos",Opt.SaveViewerPos,0);
   GetRegKey("Viewer","AutoDetectTable",Opt.ViewerAutoDetectTable,0);
   GetRegKey("Viewer","TabSize",Opt.ViewTabSize,8);
+  /* $ 15.07.2000 tran
+     + Opt.ShowKeyBarViewer */
+  GetRegKey("Viewer","ShowKeyBar",Opt.ShowKeyBarViewer,1);
+  /* tran 15.07.2000 $ */
 
   GetRegKey("Editor","ExternalEditorName",Opt.ExternalEditor,"",sizeof(Opt.ExternalEditor));
   GetRegKey("Editor","UseExternalEditor",Opt.UseExternalEditor,0);
@@ -640,6 +646,10 @@ void SaveConfig(int Ask)
   SetRegKey("Viewer","SaveViewerPos",Opt.SaveViewerPos);
   SetRegKey("Viewer","AutoDetectTable",Opt.ViewerAutoDetectTable);
   SetRegKey("Viewer","TabSize",Opt.ViewTabSize);
+  /* $ 15.07.2000 tran
+     + Opt.ShowKeyBarViewer */
+  SetRegKey("Viewer","ShowKeyBar",Opt.ShowKeyBarViewer);
+  /* tran 15.07.2000 $ */
 
   SetRegKey("Editor","ExternalEditorName",Opt.ExternalEditor);
   SetRegKey("Editor","UseExternalEditor",Opt.UseExternalEditor);

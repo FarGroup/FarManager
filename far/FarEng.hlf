@@ -1143,6 +1143,8 @@ $ #Internal viewer#
     #+#                  Go to next file
     #-#                  Go to previous file
     #Ctrl-O#             Show user screen
+    #Ctrl-B#             Show/Hide functional key bar at the bottom
+                          line.
     #Alt-BS, Ctrl-Z#     Undo position change
     #RightCtrl+<N>#      Save current position
                        (N must be '0'..'9')
@@ -1252,6 +1254,9 @@ $ #Go to specified line and column#
  Number must delemited one of follow chars - "," "." ";" ":" or space.
 
  If you enter value in form ",Col", editor jump to COl in current line.
+
+ If you enter row with "%" at end, editor jump to percent.
+ Enter #50%# and editor jump to middle of text.
 
 @DriveDlg
 $ #Change drive#
