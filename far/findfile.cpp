@@ -5,10 +5,14 @@ findfile.cpp
 
 */
 
-/* Revision: 1.30 05.06.2001 $ */
+/* Revision: 1.31 09.06.2001 $ */
 
 /*
 Modify:
+  09.06.2001 IS
+    ! При переходе к найденному не меняем каталог, если мы уже в нем находимся.
+      Тем самым добиваемся того, что выделение с элементов панели не
+      сбрасывается.
   05.06.2001 SVS
     + Обработчик диалога (без него нажатие на пимпу "[View]" заваливает ФАР)
   04.06.2001 OT
@@ -786,7 +790,20 @@ int FindFiles::FindFilesProcess()
         if (FindPanel->GetType()!=FILE_PANEL &&
             CtrlObject->Cp()->GetAnotherPanel(FindPanel)->GetType()==FILE_PANEL)
           FindPanel=CtrlObject->Cp()->GetAnotherPanel(FindPanel);
-        FindPanel->SetCurDir(FileName,TRUE);
+        /* $ 09.06.2001 IS
+           ! Не меняем каталог, если мы уже в нем находимся. Тем самым
+             добиваемся того, что выделение с элементов панели не сбрасывается.
+        */
+        {
+          char DirTmp[NM];
+          FindPanel->GetCurDir(DirTmp);
+          Length=strlen(DirTmp);
+          if (Length>1 && DirTmp[Length-1]=='\\' && DirTmp[Length-2]!=':')
+            DirTmp[Length-1]=0;
+          if(0!=LocalStricmp(FileName, DirTmp))
+            FindPanel->SetCurDir(FileName,TRUE);
+        }
+        /* IS $ */
         if (*SetName)
           FindPanel->GoToFile(SetName);
         FindPanel->Show();
