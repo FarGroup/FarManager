@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.104 13.12.2002 $ */
+/* Revision: 1.105 16.12.2002 $ */
 
 /*
 Modify:
+  16.12.2002 SVS
+    - BugZ#728 - непрорисовка во время сканирования директорий при копировании
   13.12.2002 VVM
     - Не рисовался процент копирования в заголовке окна.
   11.12.2002 SVS
@@ -3319,7 +3321,7 @@ bool ShellCopy::CalcTotalSize()
     {
       unsigned long DirCount,FileCount,ClusterSize;
       int64 FileSize,CompressedSize,RealFileSize;
-      ShellCopyMsg(NULL,SelName,MSG_LEFTALIGN|MSG_KEEPBACKGROUND);
+      ShellCopyMsg(NULL,SelName,MSG_LEFTALIGN);
       if (!GetDirInfo("",SelName,DirCount,FileCount,FileSize,CompressedSize,
                       RealFileSize,ClusterSize,0xffffffff,FALSE))
       {

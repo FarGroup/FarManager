@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.104 04.11.2002 $ */
+/* Revision: 1.105 16.12.2002 $ */
 
 /*
 Modify:
+  16.12.2002 SVS
+    - BugZ#729 - некорректная отрисовка в диалоге найденных файлов
   04.11.2002 SVS
     - ListBox некорректно отрисовывается при отрисовки диалога,
       расположенного вплотную к по правому краю экрана
@@ -908,7 +910,8 @@ void VMenu::ShowMenu(int IsParent)
       else
         GotoXY(X1,Y);
       SetColor(VMenu::Colors[VMenuColorText]);
-      mprintf("%*s",((BoxType!=NO_BOX)?X2-X1-1:X2-X1),"");
+                                                     // сделаем добавочку для NO_BOX
+      mprintf("%*s",((BoxType!=NO_BOX)?X2-X1-1:X2-X1)+(BoxType==NO_BOX?1:0),"");
       /* KM $ */
     }
   }

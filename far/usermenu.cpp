@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.60 23.09.2002 $ */
+/* Revision: 1.61 16.12.2002 $ */
 
 /*
 Modify:
+  16.12.2002 SVS
+    - BugZ#458 - Съезжает user menu
   23.09.2002 SVS
     - BugZ#634 - Лишний пробел после хоткея в юзер меню
   20.09.2002 SVS
@@ -579,8 +581,8 @@ int FillUserMenu(VMenu& UserMenu,char *MenuKey,int MenuPos,int *FuncPos,char *Na
   }
 
   // коррекция максимальной длины
-  if(MaxLen > ScrX-15)
-    MaxLen = ScrX-15;
+  if(MaxLen > ScrX-14) // по полной программе!
+    MaxLen = ScrX-14;
 
   NumLine=0;
   while (1)
@@ -851,6 +853,10 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
 /* VVM $ */
             default:
               UserMenu.ProcessInput();
+              if(Key == KEY_F1)
+              {
+                MenuNeedRefresh=TRUE;
+              }
               break;
           }
         }
