@@ -1631,17 +1631,42 @@ file time. Either single file or group of files may be processed.
 If you do not want to process files in subfolders, clear
 the "Process subfolders" option.
 
+  #File attributes#
+
+    Checkboxes used in the dialog can have the following 3 states:
+
+     #[x]# - attribute is set for all selected items
+           (set the attribute for all items)
+
+     #[ ]# - attribute is not set for all selected items
+           (clear the attribute for all items)
+
+     #[?]# - attribute state is not the same for selected items
+           (don't change the attribute)
+
+    When all selected files have the same attribute value, the corresponding
+checkbox will be in 2-state mode - set/clear only. When there are selected
+folders, all checkboxes will always be 3-state.
+
+    Only those attributes will be changed which corresponding checkboxes'
+state was changed comparing to initial value.
+
     The "Compressed" and "Encrypted" attributes may be changed only on NTFS
 drives. The "Encrypted" attribute can be used in Windows 2000 only. These two
 attributes are mutually exclusive, that is, you can set only one of them.
 
+    For folder links the dialog will display the original folder information
+(NTFS/Windows 2000 only).
+
+  #File date and time#
+
     Three different file times are supported:
 
- - last modification time;
+    - last modification time;
 
- - creation time;
+    - creation time;
 
- - last access time.
+    - last access time.
 
     On the FAT drives hours, minutes and seconds of last access time
 are always equal to zero.

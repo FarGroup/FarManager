@@ -5,10 +5,13 @@ setattr.cpp
 
 */
 
-/* Revision: 1.16 23.01.2001 $ */
+/* Revision: 1.17 30.01.2001 $ */
 
 /*
 Modify:
+  30.01.2001 SVS
+    ! снимаем 3-state, если "есть все или нет ничего"
+      за исключением случая, если есть Фолдер среди объектов
   23.01.2001 SVS
     + Немного оптимизации кода :-)
   22.01.2001 SVS
@@ -61,6 +64,10 @@ Modify:
 */
 #include "internalheaders.hpp"
 /* IS $ */
+
+int OriginalCBAttr[16]; // значения CheckBox`ов на момент старта диалога
+int OriginalCBAttr2[16]; //
+DWORD OriginalCBFlag[16];
 
 static int ReadFileTime(FILETIME *FileTime,char *SrcDate,char *SrcTime)
 {
@@ -187,6 +194,20 @@ static void FillFileldDir(char *SelName,int FileAttr,
 }
 /* SVS $ */
 
+
+// обработчик диалога - пока это отлов нажатий нужных кнопок.
+long WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
+{
+  if(Msg == DN_BTNCLICK)
+  {
+    if(Param1 >= 4 && Param2 <= 9)
+    {
+      OriginalCBAttr[Param1-4] = Param2;
+      OriginalCBAttr2[Param1-4] = 0;
+    }
+  }
+  return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
+}
 
 int ShellSetFileAttributes(Panel *SrcPanel)
 {
@@ -427,8 +448,21 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       for(I=4; I <= 9; ++I)
       {
         J=AttrDlg[I].Selected;
-        AttrDlg[I].Selected=(J >= SelCount)?1:((!J)?0:2);
+        // снимаем 3-state, если "есть все или нет ничего"
+        // за исключением случая, если есть Фолдер среди объектов
+        if((!J || J >= SelCount) && !FolderPresent)
+          AttrDlg[I].Flags&=~DIF_3STATE;
+
+        AttrDlg[I].Selected=(J >= SelCount)?1:(!J?0:2);
       }
+    }
+
+    // запомним состояние переключателей.
+    for(I=4; I <= 9; ++I)
+    {
+      OriginalCBAttr[I-4]=AttrDlg[I].Selected;
+      OriginalCBAttr2[I-4]=-1;
+      OriginalCBFlag[I-4]=AttrDlg[I].Flags;
     }
 
     if (SelCount==1 && (FileAttr & FA_DIREC)==0)
@@ -528,7 +562,8 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 //      EmptyDialog(AttrDlg,1,SelCount==1);
 
       {
-        Dialog Dlg(AttrDlg,DlgCountItems);
+        int RefreshNeed=FALSE;
+        Dialog Dlg(AttrDlg,DlgCountItems,SetAttrDlgProc);
         Dlg.SetHelp("FileAttrDlg");
         Dlg.SetPosition(-1,-1,45,JunctionPresent?24:23);
 
@@ -547,30 +582,70 @@ int ShellSetFileAttributes(Panel *SrcPanel)
                (FocusPos == 8 || FocusPos == 9))
             {
               IncludeExcludeAttrib(FocusPos,AttrDlg,8,9);
-              Dlg.FastShow();
+              RefreshNeed=TRUE;
             }
             // если снимаем атрибуты для SubFolders
-            if(FocusPos == 11 && Sel11 != AttrDlg[11].Selected)
+            // этот кусок всегда работает если есть хотя бы одна папка
+            // иначе 11-й недоступен и всегда снят.
+            if(FocusPos == 11)
             {
-              // убираем 3-State
-              for(I=4; I <= 9; ++I)
-               if(!AttrDlg[11].Selected)
-                 AttrDlg[I].Flags&=~DIF_3STATE;
-               else
-                 AttrDlg[I].Flags|=DIF_3STATE;
-
-              if((FileAttr & FA_DIREC) &&
-                 Sel11 != AttrDlg[11].Selected &&
-                 SelCount==1)
+              if(SelCount==1) // каталог однозначно!
               {
-                EmptyDialog(AttrDlg,0,SelCount==1);
-
-                if(!AttrDlg[11].Selected)
-                  FillFileldDir(SelName,FileAttr,AttrDlg,0);
-                Dlg.InitDialogObjects();
-                Dlg.Show();
+                if(Sel11 != AttrDlg[11].Selected) // Состояние изменилось?
+                {
+//                  EmptyDialog(AttrDlg,1,1);
+                  // убираем 3-State
+                  for(I=4; I <= 9; ++I)
+                  {
+                    if(!AttrDlg[11].Selected) // сняли?
+                    {
+                      AttrDlg[I].Selected=OriginalCBAttr[I-4];
+                      AttrDlg[I].Flags&=~DIF_3STATE;
+                    }
+                    else                      // установили?
+                    {
+                      AttrDlg[I].Flags|=DIF_3STATE;
+                      if(OriginalCBAttr2[I-4] == -1)
+                        AttrDlg[I].Selected=2;
+                    }
+                  }
+                  if(!AttrDlg[11].Selected)
+                    FillFileldDir(SelName,FileAttr,AttrDlg,0);
+                  RefreshNeed=TRUE;
+                }
+              }
+              else  // много объектов
+              {
+                if(Sel11 != AttrDlg[11].Selected) // Состояние изменилось?
+                {
+//                  EmptyDialog(AttrDlg,1,0);
+                  for(I=4; I <= 9; ++I)
+                  {
+                    if(!AttrDlg[11].Selected) // сняли?
+                    {
+                      AttrDlg[I].Selected=OriginalCBAttr[I-4];
+                      AttrDlg[I].Flags=OriginalCBFlag[I-4];
+                    }
+                    else                      // установили?
+                    {
+                      if(OriginalCBAttr2[I-4] == -1)
+                      {
+                        AttrDlg[I].Flags|=DIF_3STATE;
+                        AttrDlg[I].Selected=2;
+                      }
+                    }
+                  }
+                  RefreshNeed=TRUE;
+                }
               }
               Sel11=AttrDlg[11].Selected;
+            }
+
+            if(RefreshNeed)
+            {
+              RefreshNeed=FALSE;
+              Dlg.InitDialogObjects();
+              Dlg.Show();
             }
           }
           Dlg.GetDialogObjectsData();
@@ -594,6 +669,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         if (Dlg.GetExitCode()!=26)
           return 0;
       }
+
       CtrlObject->GetAnotherPanel(SrcPanel)->CloseFile();
 
       FILETIME LastWriteTime,CreationTime,LastAccessTime;
