@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.129 18.06.2002 $ */
+/* Revision: 1.130 06.07.2002 $ */
 
 /*
 Modify:
+  06.07.2002 VVM
+    ! Поправлена PathMayBeAbsolute
   18.06.2002 SVS
     ! Функция IsFolderNotEmpty переименована в CheckFolder и теперь умеет
       делать больше, чем возвращать состояние FolderNotEmpty, а именно
@@ -1333,7 +1335,10 @@ int PathMayBeAbsolute(const char *Path)
 {
   return (Path &&
            (
-             (isalpha(*Path) && Path[1]==':' && Path[2]) ||
+//             (isalpha(*Path) && Path[1]==':' && Path[2]) ||
+//           Абсолютный путь не обязательно после ":" содержит еще что-то.
+//           Бывают случаи и "а:"
+             (isalpha(*Path) && Path[1]==':') ||
              (Path[0]=='\\'  && Path[1]=='\\') ||
              (Path[0]=='/'   && Path[1]=='/')
            )
