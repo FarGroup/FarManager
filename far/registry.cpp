@@ -5,10 +5,12 @@ registry.cpp
 
 */
 
-/* Revision: 1.15 27.06.2002 $ */
+/* Revision: 1.16 12.05.2003 $ */
 
 /*
 Modify:
+  12.05.2003 SVS
+    + RenumKeyRecord() делает перенумерацию итемов
   27.06.2002 SVS
     ! Новый взгляд на EnumRegValue - сказано же ведь: только REG_SZ
   19.02.2002 SVS
@@ -55,6 +57,7 @@ Modify:
 
 #include "fn.hpp"
 #include "global.hpp"
+#include "array.hpp"
 
 static LONG CloseRegKey(HKEY hKey);
 int CopyKeyTree(const char *Src,const char *Dest,const char *Skip=NULL);
@@ -293,7 +296,6 @@ void DeleteRegValue(const char *Key,const char *Value)
   }
 }
 
-
 void DeleteKeyRecord(const char *KeyMask,int Position)
 {
   char FullKeyName[512],NextFullKeyName[512],MaskKeyName[512];
@@ -324,6 +326,73 @@ void InsertKeyRecord(const char *KeyMask,int Position,int TotalKeys)
   }
   sprintf(FullKeyName,MaskKeyName,Position);
   DeleteFullKeyTree(FullKeyName);
+}
+
+class KeyRecordItem
+{
+  public:
+   int ItemIdx;
+   KeyRecordItem() { ItemIdx=0; }
+   bool operator==(const KeyRecordItem &rhs) const{
+     return ItemIdx == rhs.ItemIdx;
+   };
+   int operator<(const KeyRecordItem &rhs) const{
+     return ItemIdx < rhs.ItemIdx;
+   };
+   const KeyRecordItem& operator=(const KeyRecordItem &rhs)
+   {
+     ItemIdx = rhs.ItemIdx;
+     return *this;
+   };
+
+   ~KeyRecordItem()
+   {
+   }
+};
+
+void RenumKeyRecord(const char *KeyRoot,const char *KeyMask,const char *KeyMask0)
+{
+  TArray<KeyRecordItem> KAItems;
+  KeyRecordItem KItem;
+  int CurPos;
+  char RegKey[80];
+  char FullKeyName[512],PrevFullKeyName[512],MaskKeyName[512];
+  BOOL Processed=FALSE;
+
+  // сбор данных
+  for (CurPos=0;;CurPos++)
+  {
+    if(!EnumRegKey(KeyRoot,CurPos,RegKey,sizeof(RegKey)))
+      break;
+    KItem.ItemIdx=atoi(RegKey+strlen(KeyMask0));
+    if(KItem.ItemIdx != CurPos)
+      Processed=TRUE;
+    KAItems.addItem(KItem);
+  }
+
+  if(Processed)
+  {
+    KAItems.Sort();
+
+    sprintf(MaskKeyName,"%s%s%s",Opt.RegRoot,*KeyMask ? "\\":"",KeyMask);
+    for(int CurPos=0;;++CurPos)
+    {
+      KeyRecordItem *Item=KAItems.getItem(CurPos);
+      if(!Item)
+        break;
+
+      // проверям существование CurPos
+      sprintf(FullKeyName,KeyMask,CurPos);
+      if(!CheckRegKey(FullKeyName))
+      {
+        sprintf(FullKeyName,MaskKeyName,CurPos);
+        sprintf(PrevFullKeyName,MaskKeyName,Item->ItemIdx);
+        if (!CopyKeyTree(PrevFullKeyName,FullKeyName))
+          break;
+        DeleteFullKeyTree(PrevFullKeyName);
+      }
+    }
+  }
 }
 
 
@@ -432,8 +501,7 @@ void DeleteKeyTreePart(const char *KeyName)
 int DeleteEmptyKey(HKEY hRoot, const char *FullKeyName)
 {
   HKEY hKey;
-  int Exist=RegOpenKeyEx(hRoot,FullKeyName,0,KEY_ALL_ACCESS,
-                         &hKey)==ERROR_SUCCESS;
+  int Exist=RegOpenKeyEx(hRoot,FullKeyName,0,KEY_ALL_ACCESS,&hKey)==ERROR_SUCCESS;
   if(Exist)
   {
      int RetCode=FALSE;
@@ -458,8 +526,7 @@ int DeleteEmptyKey(HKEY hRoot, const char *FullKeyName)
               {
                  *pSubKey=0;
                  pSubKey++;
-                 Exist=RegOpenKeyEx(hRoot,KeyName,0,KEY_ALL_ACCESS,
-                                    &hKey)==ERROR_SUCCESS;
+                 Exist=RegOpenKeyEx(hRoot,KeyName,0,KEY_ALL_ACCESS,&hKey)==ERROR_SUCCESS;
                  if(Exist && hKey)
                  {
                    RetCode=RegDeleteKey(hKey, pSubKey)==ERROR_SUCCESS;

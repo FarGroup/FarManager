@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.182 06.05.2003 $ */
+/* Revision: 1.183 12.05.2003 $ */
 
 /*
 Modify:
+  12.05.2003 SVS
+    ! EditFileTypes() теперь без параметра.
+    + RenumKeyRecord() делает перенумерацию итемов
   06.05.2003 SVS
     ! W-Console!!!
     + SetRealColor()
@@ -700,7 +703,7 @@ int SubstFileName(char *Str,int StrSize, char *Name,char *ShortName,
                   char *ListName=NULL,char *ShortListName=NULL,
                   int IgnoreInput=FALSE,char *CmdLineDir=NULL);
 BOOL ExtractIfExistCommand(char *CommandText);
-void EditFileTypes(int MenuPos);
+void EditFileTypes();
 void ProcessUserMenu(int EditMenu);
 DWORD RawConvertShortNameToLongName(const char *src, char *dest, DWORD maxsize);
 int ConvertNameToFull(const char *Src,char *Dest, int DestSize);
@@ -812,6 +815,7 @@ void DeleteRegKey(const char *Key);
 void DeleteRegValue(const char *Key,const char *Value);
 void DeleteKeyRecord(const char *KeyMask,int Position);
 void InsertKeyRecord(const char *KeyMask,int Position,int TotalKeys);
+void RenumKeyRecord(const char *KeyRoot,const char *KeyMask,const char *KeyMask0);
 void DeleteKeyTree(const char *KeyName);
 int CheckRegKey(const char *Key);
 int CheckRegValue(const char *Key,const char *ValueName);

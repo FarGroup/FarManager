@@ -15,7 +15,7 @@
 	".\lang.hpp"\
 	".\struct.hpp"\
 	".\udlist.hpp"\
-	
+
 
 "$(INTDIR)\checkver.obj" : \
 	".\checkver.cpp"\
@@ -34,7 +34,7 @@
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\vmenu.hpp"\
-	
+
 
 "$(INTDIR)\chgmmode.obj" : \
 	".\chgmmode.cpp"\
@@ -46,13 +46,13 @@
 	".\language.hpp"\
 	".\macro.hpp"\
 	".\plugins.hpp"\
-	
+
 
 "$(INTDIR)\chgprior.obj" : \
 	".\chgprior.cpp"\
 	".\chgprior.hpp"\
 	".\headers.hpp"\
-	
+
 
 "$(INTDIR)\clipboard.obj" : \
 	".\clipboard.cpp"\
@@ -62,7 +62,7 @@
 	".\headers.hpp"\
 	".\int64.hpp"\
 	".\struct.hpp"\
-	
+
 
 "$(INTDIR)\cmdline.obj" : \
 	".\cmdline.cpp"\
@@ -101,12 +101,12 @@
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\viewer.hpp"\
-	
+
 
 "$(INTDIR)\cmem.obj" : \
 	".\cmem.cpp"\
 	".\headers.hpp"\
-	
+
 
 "$(INTDIR)\config.obj" : \
 	".\config.cpp"\
@@ -148,7 +148,7 @@
 	".\struct.hpp"\
 	".\udlist.hpp"\
 	".\vmenu.hpp"\
-	
+
 
 "$(INTDIR)\constitle.obj" : \
 	".\constitle.cpp"\
@@ -160,7 +160,7 @@
 	".\int64.hpp"\
 	".\udlist.hpp"\
 	".\struct.hpp"\
-	
+
 
 "$(INTDIR)\copy.obj" : \
 	".\copy.cpp"\
@@ -201,7 +201,7 @@
 	".\treelist.hpp"\
 	".\udlist.hpp"\
 	".\vmenu.hpp"\
-	
+
 
 "$(INTDIR)\ctrlobj.obj" : \
 	".\ctrlobj.cpp"\
@@ -237,7 +237,7 @@
 	".\struct.hpp"\
 	".\treelist.hpp"\
 	".\udlist.hpp"\
-	
+
 
 "$(INTDIR)\cvtname.obj" : \
 	".\cvtname.cpp"\
@@ -250,7 +250,7 @@
 	".\lang.hpp"\
 	".\plugin.hpp"\
 	".\struct.hpp"\
-	
+
 
 "$(INTDIR)\delete.obj" : \
 	".\delete.cpp"\
@@ -281,7 +281,7 @@
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\treelist.hpp"\
-	
+
 
 "$(INTDIR)\dialog.obj" : \
 	".\dialog.cpp"\
@@ -315,7 +315,7 @@
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\vmenu.hpp"\
-	
+
 
 "$(INTDIR)\dizlist.obj" : \
 	".\dizlist.cpp"\
@@ -328,7 +328,7 @@
 	".\lang.hpp"\
 	".\savescr.hpp"\
 	".\struct.hpp"\
-	
+
 
 "$(INTDIR)\dlgedit.obj" : \
 	".\dlgedit.cpp"\
@@ -338,7 +338,7 @@
 	".\edit.hpp"\
 	".\headers.hpp"\
 	".\scrobj.hpp"\
-	
+
 
 "$(INTDIR)\edit.obj" : \
 	".\edit.cpp"\
@@ -367,7 +367,7 @@
 	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	
+
 
 "$(INTDIR)\editor.obj" : \
 	".\editor.cpp"\
@@ -404,7 +404,7 @@
 	".\struct.hpp"\
 	".\udlist.hpp"\
 	".\vmenu.hpp"\
-	
+
 
 "$(INTDIR)\eject.obj" : \
 	".\eject.cpp"\
@@ -416,7 +416,7 @@
 	".\lang.hpp"\
 	".\plugin.hpp"\
 	".\struct.hpp"\
-	
+
 
 "$(INTDIR)\farexcpt.obj" : \
 	".\farexcpt.cpp"\
@@ -441,7 +441,7 @@
 	".\plugins.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	
+
 
 "$(INTDIR)\execute.obj" : \
 	".\execute.cpp"\
@@ -475,19 +475,19 @@
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\udlist.hpp"\
-	
+
 
 .\far.res : \
 	".\far.rc"\
 	".\Far.ico"\
 	".\res.hpp"\
-	
+
 
 "$(INTDIR)\farqueue.obj" : \
 	".\farqueue.cpp"\
 	".\farqueue.hpp"\
 	".\headers.hpp"\
-	
+
 
 "$(INTDIR)\farrtl.obj" : \
 	".\farrtl.cpp"\
@@ -497,7 +497,7 @@
 	".\headers.hpp"\
 	".\int64.hpp"\
 	".\struct.hpp"\
-	
+
 
 "$(INTDIR)\ffolders.obj" : \
 	".\ffolders.cpp"\
@@ -529,7 +529,7 @@
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\vmenu.hpp"\
-	
+
 
 "$(INTDIR)\fileattr.obj" : \
 	".\fileattr.cpp"\
@@ -540,7 +540,7 @@
 	".\int64.hpp"\
 	".\lang.hpp"\
 	".\struct.hpp"\
-	
+
 
 "$(INTDIR)\fileedit.obj" : \
 	".\fileedit.cpp"\
@@ -583,7 +583,7 @@
 	".\udlist.hpp"\
 	".\viewer.hpp"\
 	".\vmenu.hpp"\
-	
+
 
 "$(INTDIR)\filelist.obj" : \
 	".\filelist.cpp"\
@@ -634,7 +634,7 @@
 	".\udlist.hpp"\
 	".\viewer.hpp"\
 	".\vmenu.hpp"\
-	
+
 
 "$(INTDIR)\FileMasksProcessor.obj" : \
 	".\FileMasksProcessor.cpp"\
@@ -648,7 +648,7 @@
 	".\int64.hpp"\
 	".\struct.hpp"\
 	".\udlist.hpp"\
-	
+
 
 "$(INTDIR)\FileMasksWithExclude.obj" : \
 	".\FileMasksWithExclude.cpp"\
@@ -660,7 +660,7 @@
 	".\FileMasksWithExclude.hpp"\
 	".\headers.hpp"\
 	".\udlist.hpp"\
-	
+
 
 "$(INTDIR)\filepanels.obj" : \
 	".\filepanels.cpp"\
@@ -702,7 +702,7 @@
 	".\struct.hpp"\
 	".\treelist.hpp"\
 	".\viewer.hpp"\
-	
+
 
 "$(INTDIR)\filestr.obj" : \
 	".\filestr.cpp"\
@@ -713,7 +713,7 @@
 	".\headers.hpp"\
 	".\int64.hpp"\
 	".\struct.hpp"\
-	
+
 
 "$(INTDIR)\filetype.obj" : \
 	".\filetype.cpp"\
@@ -750,7 +750,7 @@
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\vmenu.hpp"\
-	
+
 
 "$(INTDIR)\fileview.obj" : \
 	".\fileview.cpp"\
@@ -785,7 +785,7 @@
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\viewer.hpp"\
-	
+
 
 "$(INTDIR)\filter.obj" : \
 	".\filter.cpp"\
@@ -817,7 +817,7 @@
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\vmenu.hpp"\
-	
+
 
 "$(INTDIR)\findfile.obj" : \
 	".\findfile.cpp"\
@@ -863,7 +863,7 @@
 	".\struct.hpp"\
 	".\viewer.hpp"\
 	".\vmenu.hpp"\
-	
+
 
 "$(INTDIR)\flink.obj" : \
 	".\flink.cpp"\
@@ -879,7 +879,7 @@
 	".\plugin.hpp"\
 	".\struct.hpp"\
 	".\udlist.hpp"\
-	
+
 
 "$(INTDIR)\flmodes.obj" : \
 	".\flmodes.cpp"\
@@ -908,7 +908,7 @@
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\vmenu.hpp"\
-	
+
 
 "$(INTDIR)\flplugin.obj" : \
 	".\flplugin.cpp"\
@@ -933,7 +933,7 @@
 	".\plugins.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	
+
 
 "$(INTDIR)\flshow.obj" : \
 	".\flshow.cpp"\
@@ -964,7 +964,7 @@
 	".\plugins.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	
+
 
 "$(INTDIR)\flupdate.obj" : \
 	".\flupdate.cpp"\
@@ -999,7 +999,7 @@
 	".\plugins.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	
+
 
 "$(INTDIR)\fnparce.obj" : \
 	".\fnparce.cpp"\
@@ -1029,7 +1029,7 @@
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\vmenu.hpp"\
-	
+
 
 "$(INTDIR)\foldtree.obj" : \
 	".\foldtree.cpp"\
@@ -1053,7 +1053,7 @@
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\treelist.hpp"\
-	
+
 
 "$(INTDIR)\frame.obj" : \
 	".\frame.cpp"\
@@ -1068,7 +1068,7 @@
 	".\manager.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	
+
 
 "$(INTDIR)\gettable.obj" : \
 	".\gettable.cpp"\
@@ -1087,7 +1087,7 @@
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\vmenu.hpp"\
-	
+
 
 "$(INTDIR)\global.obj" : \
 	".\global.cpp"\
@@ -1098,7 +1098,7 @@
 	".\global.hpp"\
 	".\headers.hpp"\
 	".\struct.hpp"\
-	
+
 
 "$(INTDIR)\grabber.obj" : \
 	".\grabber.cpp"\
@@ -1119,7 +1119,7 @@
 	".\savescr.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	
+
 
 "$(INTDIR)\grpsort.obj" : \
 	".\grpsort.cpp"\
@@ -1149,7 +1149,7 @@
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\vmenu.hpp"\
-	
+
 
 "$(INTDIR)\help.obj" : \
 	".\help.cpp"\
@@ -1175,7 +1175,7 @@
 	".\scantree.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	
+
 
 "$(INTDIR)\hilight.obj" : \
 	".\hilight.cpp"\
@@ -1211,7 +1211,7 @@
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\vmenu.hpp"\
-	
+
 
 "$(INTDIR)\history.obj" : \
 	".\history.cpp"\
@@ -1231,7 +1231,7 @@
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\vmenu.hpp"\
-	
+
 
 "$(INTDIR)\hmenu.obj" : \
 	".\hmenu.cpp"\
@@ -1262,7 +1262,7 @@
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\vmenu.hpp"\
-	
+
 
 "$(INTDIR)\infolist.obj" : \
 	".\infolist.cpp"\
@@ -1296,14 +1296,14 @@
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\viewer.hpp"\
-	
+
 
 "$(INTDIR)\int64.obj" : \
 	".\int64.cpp"\
 	".\farconst.hpp"\
 	".\headers.hpp"\
 	".\int64.hpp"\
-	
+
 
 "$(INTDIR)\interf.obj" : \
 	".\interf.cpp"\
@@ -1332,7 +1332,7 @@
 	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	
+
 
 "$(INTDIR)\iswind.obj" : \
 	".\iswind.cpp"\
@@ -1341,7 +1341,7 @@
 	".\headers.hpp"\
 	".\plugin.hpp"\
 	".\struct.hpp"\
-	
+
 
 "$(INTDIR)\keybar.obj" : \
 	".\keybar.cpp"\
@@ -1357,7 +1357,7 @@
 	".\manager.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	
+
 
 "$(INTDIR)\keyboard.obj" : \
 	".\keyboard.cpp"\
@@ -1391,7 +1391,7 @@
 	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	
+
 
 "$(INTDIR)\language.obj" : \
 	".\language.cpp"\
@@ -1411,7 +1411,7 @@
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\vmenu.hpp"\
-	
+
 
 "$(INTDIR)\local.obj" : \
 	".\local.cpp"\
@@ -1421,7 +1421,7 @@
 	".\headers.hpp"\
 	".\int64.hpp"\
 	".\struct.hpp"\
-	
+
 
 "$(INTDIR)\lockscrn.obj" : \
 	".\lockscrn.cpp"\
@@ -1429,7 +1429,7 @@
 	".\headers.hpp"\
 	".\lockscrn.hpp"\
 	".\scrbuf.hpp"\
-	
+
 
 "$(INTDIR)\macro.obj" : \
 	".\macro.cpp"\
@@ -1465,7 +1465,7 @@
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\vmenu.hpp"\
-	
+
 
 "$(INTDIR)\main.obj" : \
 	".\main.cpp"\
@@ -1504,7 +1504,7 @@
 	".\struct.hpp"\
 	".\udlist.hpp"\
 	".\viewer.hpp"\
-	
+
 
 "$(INTDIR)\manager.obj" : \
 	".\manager.cpp"\
@@ -1535,7 +1535,7 @@
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\vmenu.hpp"\
-	
+
 
 "$(INTDIR)\menubar.obj" : \
 	".\menubar.cpp"\
@@ -1550,7 +1550,7 @@
 	".\menubar.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	
+
 
 "$(INTDIR)\message.obj" : \
 	".\message.cpp"\
@@ -1573,7 +1573,7 @@
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\vmenu.hpp"\
-	
+
 
 "$(INTDIR)\mix.obj" : \
 	".\mix.cpp"\
@@ -1613,7 +1613,7 @@
 	".\struct.hpp"\
 	".\treelist.hpp"\
 	".\udlist.hpp"\
-	
+
 
 "$(INTDIR)\mkdir.obj" : \
 	".\mkdir.cpp"\
@@ -1639,12 +1639,12 @@
 	".\struct.hpp"\
 	".\treelist.hpp"\
 	".\udlist.hpp"\
-	
+
 
 "$(INTDIR)\mktemp.obj" : \
 	".\mktemp.c"\
 	".\headers.hpp"\
-	
+
 
 "$(INTDIR)\modal.obj" : \
 	".\modal.cpp"\
@@ -1662,7 +1662,7 @@
 	".\modal.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	
+
 
 "$(INTDIR)\namelist.obj" : \
 	".\namelist.cpp"\
@@ -1673,7 +1673,7 @@
 	".\int64.hpp"\
 	".\namelist.hpp"\
 	".\struct.hpp"\
-	
+
 
 "$(INTDIR)\options.obj" : \
 	".\options.cpp"\
@@ -1712,13 +1712,13 @@
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\vmenu.hpp"\
-	
+
 
 "$(INTDIR)\palette.obj" : \
 	".\palette.cpp"\
 	".\colors.hpp"\
 	".\headers.hpp"\
-	
+
 
 "$(INTDIR)\panel.obj" : \
 	".\panel.cpp"\
@@ -1759,7 +1759,7 @@
 	".\struct.hpp"\
 	".\treelist.hpp"\
 	".\vmenu.hpp"\
-	
+
 
 "$(INTDIR)\plist.obj" : \
 	".\plist.cpp"\
@@ -1778,7 +1778,7 @@
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\vmenu.hpp"\
-	
+
 
 "$(INTDIR)\plognmn.obj" : \
 	".\plognmn.cpp"\
@@ -1789,7 +1789,7 @@
 	".\int64.hpp"\
 	".\plognmn.hpp"\
 	".\struct.hpp"\
-	
+
 
 "$(INTDIR)\plugapi.obj" : \
 	".\plugapi.cpp"\
@@ -1832,7 +1832,7 @@
 	".\struct.hpp"\
 	".\viewer.hpp"\
 	".\vmenu.hpp"\
-	
+
 
 "$(INTDIR)\plugins.obj" : \
 	".\plugins.cpp"\
@@ -1874,7 +1874,7 @@
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\vmenu.hpp"\
-	
+
 
 "$(INTDIR)\poscache.obj" : \
 	".\poscache.cpp"\
@@ -1888,7 +1888,7 @@
 	".\struct.hpp"\
 	".\udlist.hpp"\
 	".\array.hpp"\
-	
+
 
 "$(INTDIR)\print.obj" : \
 	".\print.cpp"\
@@ -1914,12 +1914,12 @@
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\vmenu.hpp"\
-	
+
 
 "$(INTDIR)\qsortex.obj" : \
 	".\qsortex.c"\
 	".\headers.hpp"\
-	
+
 
 "$(INTDIR)\qview.obj" : \
 	".\qview.cpp"\
@@ -1951,7 +1951,7 @@
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\viewer.hpp"\
-	
+
 
 "$(INTDIR)\rdrwdsk.obj" : \
 	".\rdrwdsk.cpp"\
@@ -1977,7 +1977,7 @@
 	".\rdrwdsk.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	
+
 
 "$(INTDIR)\registry.obj" : \
 	".\registry.cpp"\
@@ -1986,8 +1986,9 @@
 	".\global.hpp"\
 	".\headers.hpp"\
 	".\int64.hpp"\
+	".\array.hpp"\
 	".\struct.hpp"\
-	
+
 
 "$(INTDIR)\savefpos.obj" : \
 	".\savefpos.cpp"\
@@ -1998,7 +1999,7 @@
 	".\int64.hpp"\
 	".\savefpos.hpp"\
 	".\struct.hpp"\
-	
+
 
 "$(INTDIR)\savescr.obj" : \
 	".\savescr.cpp"\
@@ -2009,7 +2010,7 @@
 	".\int64.hpp"\
 	".\savescr.hpp"\
 	".\struct.hpp"\
-	
+
 
 "$(INTDIR)\scantree.obj" : \
 	".\scantree.cpp"\
@@ -2020,7 +2021,7 @@
 	".\int64.hpp"\
 	".\scantree.hpp"\
 	".\struct.hpp"\
-	
+
 
 "$(INTDIR)\scrbuf.obj" : \
 	".\scrbuf.cpp"\
@@ -2037,7 +2038,7 @@
 	".\plugins.hpp"\
 	".\scrbuf.hpp"\
 	".\struct.hpp"\
-	
+
 
 "$(INTDIR)\scrobj.obj" : \
 	".\scrobj.cpp"\
@@ -2050,7 +2051,7 @@
 	".\savescr.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	
+
 
 "$(INTDIR)\scrsaver.obj" : \
 	".\scrsaver.cpp"\
@@ -2064,7 +2065,7 @@
 	".\manager.hpp"\
 	".\savescr.hpp"\
 	".\struct.hpp"\
-	
+
 
 "$(INTDIR)\setattr.obj" : \
 	".\setattr.cpp"\
@@ -2096,7 +2097,7 @@
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\vmenu.hpp"\
-	
+
 
 "$(INTDIR)\setcolor.obj" : \
 	".\setcolor.cpp"\
@@ -2126,7 +2127,7 @@
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\vmenu.hpp"\
-	
+
 
 "$(INTDIR)\stddlg.obj" : \
 	".\stddlg.cpp"\
@@ -2151,7 +2152,7 @@
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\vmenu.hpp"\
-	
+
 
 "$(INTDIR)\strftime.obj" : \
 	".\strftime.cpp"\
@@ -2162,7 +2163,7 @@
 	".\int64.hpp"\
 	".\lang.hpp"\
 	".\struct.hpp"\
-	
+
 
 "$(INTDIR)\strmix.obj" : \
 	".\strmix.cpp"\
@@ -2174,27 +2175,27 @@
 	".\lang.hpp"\
 	".\plugin.hpp"\
 	".\struct.hpp"\
-	
+
 
 "$(INTDIR)\strncpy.obj" : \
 	".\strncpy.c"\
 	".\headers.hpp"\
-	
+
 
 "$(INTDIR)\strdup.obj" : \
 	".\strdup.c"\
 	".\headers.hpp"\
-	
+
 
 "$(INTDIR)\del.obj" : \
 	".\del.cpp"\
 	".\headers.hpp"\
-	
+
 
 "$(INTDIR)\new.obj" : \
 	".\new.cpp"\
 	".\headers.hpp"\
-	
+
 
 "$(INTDIR)\syslog.obj" : \
 	".\syslog.cpp"\
@@ -2214,7 +2215,7 @@
 	".\plugins.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	
+
 
 "$(INTDIR)\treelist.obj" : \
 	".\array.hpp"\
@@ -2255,7 +2256,7 @@
 	".\struct.hpp"\
 	".\treelist.hpp"\
 	".\udlist.hpp"\
-	
+
 
 "$(INTDIR)\udlist.obj" : \
 	".\udlist.cpp"\
@@ -2267,7 +2268,7 @@
 	".\int64.hpp"\
 	".\struct.hpp"\
 	".\udlist.hpp"\
-	
+
 
 "$(INTDIR)\usermenu.obj" : \
 	".\usermenu.cpp"\
@@ -2303,7 +2304,7 @@
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\vmenu.hpp"\
-	
+
 
 "$(INTDIR)\viewer.obj" : \
 	".\viewer.cpp"\
@@ -2343,7 +2344,7 @@
 	".\udlist.hpp"\
 	".\viewer.hpp"\
 	".\vmenu.hpp"\
-	
+
 
 "$(INTDIR)\vmenu.obj" : \
 	".\vmenu.cpp"\
@@ -2370,7 +2371,7 @@
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\vmenu.hpp"\
-	
+
 
 "$(INTDIR)\xlat.obj" : \
 	".\xlat.cpp"\
@@ -2381,5 +2382,3 @@
 	".\int64.hpp"\
 	".\plugin.hpp"\
 	".\struct.hpp"\
-	
-

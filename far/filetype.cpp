@@ -5,10 +5,13 @@ filetype.cpp
 
 */
 
-/* Revision: 1.41 09.09.2002 $ */
+/* Revision: 1.42 12.05.2003 $ */
 
 /*
 Modify:
+  12.05.2003 SVS
+    ! EditFileTypes() теперь без параметра.
+    - BugZ#829 - Траблы с ассоциациями (в реестре пропущен TypeN)...
   09.09.2002 SVS
     - BugZ#627 - зачем показывать меню если только одна ассоциация активна
   26.03.2002 VVM
@@ -152,13 +155,15 @@ static unsigned char VerticalLine=0x0B3;
 struct FileTypeStrings
 {
   char *Help,*HelpModify,
-  *TypeFmt, *Execute, *Desc, *Mask, *View, *Edit,
+  *Associations,*TypeFmt, *Type0,
+  *Execute, *Desc, *Mask, *View, *Edit,
   *AltExec, *AltView, *AltEdit;
 };
 const FileTypeStrings FTS=
 {
   "FileAssoc","FileAssocModify",
-  "Associations\\Type%d","Execute","Description","Mask","View","Edit",
+  "Associations","Associations\\Type%d","Associations\\Type",
+  "Execute","Description","Mask","View","Edit",
   "AltExec","AltView","AltEdit"
 };
 /* IS $ */
@@ -210,6 +215,9 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
   char Commands[32][512],Descriptions[32][128],Command[4096];
   int NumCommands[32];
   int CommandCount=0;
+
+  RenumKeyRecord(FTS.Associations,FTS.TypeFmt,FTS.Type0);
+
   for (int I=0;;I++)
   {
     char RegKey[80],Mask[512];
@@ -597,11 +605,14 @@ static int FillFileTypesMenu(VMenu *TypesMenu,int MenuPos)
   return NumLine;
 }
 
-void EditFileTypes(int MenuPos)
+void EditFileTypes()
 {
   int NumLine;
+  int MenuPos=0;
   int m;
   BOOL MenuModified;
+
+  RenumKeyRecord(FTS.Associations,FTS.TypeFmt,FTS.Type0);
 
   VMenu TypesMenu(MSG(MAssocTitle),NULL,0,ScrY-4);
   TypesMenu.SetHelp(FTS.Help);
@@ -775,6 +786,7 @@ int EditTypeRecord(int EditPos,int TotalRecords,int NewRec)
 int GetDescriptionWidth (char *Name, char *ShortName)
 {
   int Width=0,NumLine=0;
+  RenumKeyRecord(FTS.Associations,FTS.TypeFmt,FTS.Type0);
   while (1)
   {
     CFileMask FMask;

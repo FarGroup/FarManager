@@ -5,10 +5,12 @@ options.cpp
 
 */
 
-/* Revision: 1.18 15.05.2002 $ */
+/* Revision: 1.19 12.05.2003 $ */
 
 /*
 Modify:
+  12.05.2003 SVS
+    ! EditFileTypes() теперь без параметра.
   15.05.2002 SVS
     ! При изменении языка вызовем Manager::InitKeyBar, который "изменит" язык
       ранее открытых фреймов.
@@ -452,7 +454,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
           ProcessUserMenu(1);
           break;
         case 12: // File associations
-          EditFileTypes(0);
+          EditFileTypes();
           break;
         case 13: // Folder shortcuts
           ShowFolderShortcut();
