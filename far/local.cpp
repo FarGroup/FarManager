@@ -5,10 +5,12 @@ local.cpp
 
 */
 
-/* Revision: 1.18 01.03.2004 $ */
+/* Revision: 1.19 29.03.2004 $ */
 
 /*
 Modify:
+  29.03.2004 SVS
+    ! InitLCIDSort() и KeyToKey[] не совместимы!
   01.03.2004 SVS
     ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
       (задел на будущее + править впоследствии только 1 файл)
@@ -147,8 +149,9 @@ void InitLCIDSort()
   for (I=0;I<sizeof(LCOrder)/sizeof(LCOrder[0]);I++)
     LCOrder[I]=LCOrder[UpperToLower[I]];
 
-  for (I=0;I<sizeof(KeyToKey)/sizeof(KeyToKey[0]);I++)
+/*  for (I=0;I<sizeof(KeyToKey)/sizeof(KeyToKey[0]);I++)
     KeyToKey[I]=I;
+*/
 }
 /* IS $ */
 

@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.83 01.03.2004 $ */
+/* Revision: 1.84 29.03.2004 $ */
 
 /*
 Modify:
+  29.03.2004 SVS
+    - предыдущая реализация GetVidCharW() была ошибочной
   01.03.2004 SVS
     ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
       (задел на будущее + править впоследствии только 1 файл)
@@ -1774,8 +1776,8 @@ char* MakeSeparator(int Length,char *DestStr,int Type)
 #if defined(USE_WFUNC)
 WORD GetVidCharW(CHAR_INFO CI)
 {
-  if(CI.Char.UnicodeChar < 0x100)
-    return CI.Char.UnicodeChar;
+//  if(CI.Char.UnicodeChar < 0x100)
+//    return CI.Char.UnicodeChar;
   for(int I=0; I < 256; ++I)
     if(CI.Char.UnicodeChar == Oem2Unicode[I])
       return (BYTE)I;

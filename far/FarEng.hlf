@@ -2793,7 +2793,7 @@ $ #File masks#
 and folders or groups of them. Masks may contain common valid file name
 symbols, wildcards ('*' and '?') and special expressions:
 
-    #*#           any number of characters;
+    #*#           zero or more characters;
 
     #?#           any single character;
 
@@ -2809,7 +2809,7 @@ mask [c-f,t]*.txt can select config.txt, demo.txt, faq.txt and tips.txt.
 with commas or semicolons. For example, to select all the documents,
 you can enter #*.doc,*.txt,*.wri# in the "Select" command.
 
-    You may enclose any mask (but not the entire list) in quotes.
+    It is allowed to put any of the masks in quotes but not the whole list.
 For example, you have to do this when a mask contains any of the delimiter
 characters (a comma or a semicolon), so that the mask doesn't get confused
 with a list.

@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.100 15.03.2004 $ */
+/* Revision: 1.101 29.03.2004 $ */
 
 /*
 Modify:
+  29.03.2004 SVS
+    ! CHCP: сначала вызываем LocalUpperInit(), потом InitLCIDSort(), а не наоборот
   15.03.2004 SVS
     - не работает "C:\Program Files\Far\Far.exe" /p"C:\Program Files\Far\plugins"
       и вариации на эту тему (по Shift-Enter).
@@ -1820,8 +1822,8 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
     if(r1 && r2) // Если все ОБИ, то так  и...
     {
       InitRecodeOutTable(cp);
-      InitLCIDSort();
       LocalUpperInit();
+      InitLCIDSort();
       InitKeysArray();
       CtrlObject->Cp()->Redraw();
       ScrBuf.Flush();
