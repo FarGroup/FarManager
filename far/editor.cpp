@@ -6,51 +6,53 @@ editor.cpp
 
 */
 
-/* Revision: 1.39 16.10.2000 $ */
+/* Revision: 1.40 23.10.2000 $ */
 
 /*
 Modify:
-   16.10.2000 tran 1.39
+  23.10.2000 tran 1.40
+    ! ВБ, табуляция и CurBeyondEOL 
+  16.10.2000 tran 1.39
     ! первый поиск идет с текущей позиции, а следующий - со следующей (FGWL#10)
-   11.10.2000 SVS
+  11.10.2000 SVS
     ! Bs удаляет блок так же, как и Del
     - "Редактировали, залочили, при выходе - потеряли файл :-("
-   01.10.2000 IS
+  01.10.2000 IS
     ! Показывать букву диска в статусной строке
-   24.09.2000 SVS
+  24.09.2000 SVS
     + Работа по сохранению/восстановлению позиций в файле по RCtrl+<N>
     + Перекодировка Xlat
-   20.09.2000 SVS
+  20.09.2000 SVS
     - Bugs с "наездом" заголовка (от плагина) на всё прочеЯ!
-   20.09.2000 SVS
+  20.09.2000 SVS
     ! В Replace диалоге для строки replace удален флаг DIF_USELASTHISTORY
     ! Если при замене жмакнули All, то при повторном Shift-F7 снова
       появляется диалог о подтверждении действий.
-   13.09.2000 skv
+  13.09.2000 skv
     ! EE_REDRAW вызывается с константами. 1 и 2 поменяны.
-   07.09.2000 skv
+  07.09.2000 skv
     + ECTL_PROCESSKEY
-   07.09.2000 skv
+  07.09.2000 skv
     - пофиксан быстрый replace при установленной перекодировке
-   30.08.2000 tran 1.21
+  30.08.2000 tran 1.21
     - bug в автоотступе, внесенный патчем 66
-   15.08.2000 skv
+  15.08.2000 skv
     ! Оптимизация Replace.
-   10.08.2000 skv
+  10.08.2000 skv
     ! Оптимизация работы EE_REDRAW события редактора.
-   07.08.2000 SVS
+  07.08.2000 SVS
     + ECTL_SETKEYBAR - Функция установки Keybar Labels
-   03.08.2000 KM 1.17
+  03.08.2000 KM 1.17
     ! В функцию Search добавлена возможность поиска целых слов.
-   03.08.2000 SVS 1.16
+  03.08.2000 SVS 1.16
     ! WordDiv -> Opt.WordDiv
-   01.08.2000 tran 1.15
+  01.08.2000 tran 1.15
     + DIF_USELASTHISTORY в диалогах поиска,замены и перехода
-   25.07.2000 tran 1.14
+  25.07.2000 tran 1.14
     - Bug 22 (остатки)
       подправлены обработки alt-left,alt-right
       на предмет перебега за границу блока
-   21.07.2000 tran 1.13
+  21.07.2000 tran 1.13
     - Bug 22
       вот теперь это верно решение.
       предыдущие просба считать неверным.
@@ -1774,8 +1776,14 @@ int Editor::ProcessKey(int Key)
       return(TRUE);
     case KEY_ALTSHIFTRIGHT:
     case KEY_ALTRIGHT:
-      if (!Opt.EditorCursorBeyondEOL && CurLine->EditLine.GetTabCurPos()>=CurLine->EditLine.GetLength())
+      /* $ 23.10.2000 tran
+         вместо GetTabCurPos надо вызывать GetCurPos - 
+         сравнивать реальную позицию с реальной длиной
+         а было сравнение видимой позицией с реальной длиной*/
+      if (!Opt.EditorCursorBeyondEOL && CurLine->EditLine.GetCurPos()>=CurLine->EditLine.GetLength())
         return(TRUE);
+      /* tran 23.10.2000 $ */
+
       /* $ 21.07.2000 tran
          код вынес в BeginVBlockMarking */
       if (!MarkingVBlock)
@@ -1800,7 +1808,7 @@ int Editor::ProcessKey(int Key)
         //    CurPos,VisPos, NextVisPos); //,CurLine->EditLine.GetTabCurPos());
 
         Delta=NextVisPos-VisPos;
-        // SysLog("Delta=%i",Delta);
+         //SysLog("Delta=%i",Delta);
         /* tran $ */
 
         if (CurLine->EditLine.GetTabCurPos()>=VBlockX+VBlockSizeX)
