@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.08 14.01.2001 $ */
+/* Revision: 1.09 19.02.2001 $ */
 
 /*
 Modify:
+  19.02.2001 IS
+    - баг: не сбрасывалось выделение в командной строке по enter и shift-enter
   14.01.2001 SVS
     + В ProcessOSCommands добавлена обработка
        "IF [NOT] EXIST filename command"
@@ -256,6 +258,12 @@ int CommandLine::ProcessKey(int Key)
     case KEY_SHIFTENTER:
       {
         Panel *ActivePanel=CtrlObject->ActivePanel;
+        /* $ 19.02.2001 IS
+             - выделение нам уже не нужно
+        */
+        CmdStr.Select(-1,0);
+        CmdStr.Show();
+        /* IS $ */
         CmdStr.GetString(Str,sizeof(Str));
         if (*Str==0)
           break;
