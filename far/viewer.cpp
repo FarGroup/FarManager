@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.118 23.01.2003 $ */
+/* Revision: 1.119 24.01.2003 $ */
 
 /*
 Modify:
+  24.01.2003 VVM
+    - Поправлена бага с новым поиском после неудачного продолжения предыдущего
   23.01.2003 VVM
     + Выделение не сбрасывается после перемещения по файлу.
     + Новое сочетание CTRL+U - сбросить выделение.
@@ -1499,7 +1501,7 @@ int Viewer::ProcessKey(int Key)
     {
       FilePos=BMSavePos.SavePosAddr[Pos];
       LeftPos=BMSavePos.SavePosLeft[Pos];
-      LastSelPos=FilePos;
+//      LastSelPos=FilePos;
       Show();
     }
     return(TRUE);
@@ -1641,7 +1643,7 @@ int Viewer::ProcessKey(int Key)
         UndoData[sizeof(UndoData)/sizeof(UndoData[0])-1].UndoLeft=-1;
 
         Show();
-        LastSelPos=FilePos;
+//        LastSelPos=FilePos;
       }
       return(TRUE);
     }
@@ -1712,7 +1714,7 @@ int Viewer::ProcessKey(int Key)
           {
             LeftPos=0;
             SecondPos=0;
-            LastSelPos=FilePos;
+//            LastSelPos=FilePos;
             Show();
             ShowConsoleTitle();
           }
@@ -1731,7 +1733,7 @@ int Viewer::ProcessKey(int Key)
         ChangeViewKeyBar();
         Show();
         Opt.ViewerWrap=VM.TypeWrap;
-        LastSelPos=FilePos;
+//        LastSelPos=FilePos;
       }
       return TRUE;
     }
@@ -1749,7 +1751,7 @@ int Viewer::ProcessKey(int Key)
       */
       Opt.ViewerIsWrap=VM.Wrap;
       /* SVS $ */
-      LastSelPos=FilePos;
+//      LastSelPos=FilePos;
       return(TRUE);
     }
 
@@ -1758,7 +1760,7 @@ int Viewer::ProcessKey(int Key)
       VM.Hex=!VM.Hex;
       ChangeViewKeyBar();
       Show();
-      LastSelPos=FilePos;
+//      LastSelPos=FilePos;
       return(TRUE);
     }
 
@@ -1792,7 +1794,7 @@ int Viewer::ProcessKey(int Key)
       VM.UseDecodeTable=VM.AnsiMode;
       ChangeViewKeyBar();
       Show();
-      LastSelPos=FilePos;
+//      LastSelPos=FilePos;
       TableChangedByUser=TRUE;
       return(TRUE);
     }
@@ -1814,7 +1816,7 @@ int Viewer::ProcessKey(int Key)
           VM.AnsiMode=FALSE;
           ChangeViewKeyBar();
           Show();
-          LastSelPos=FilePos;
+//          LastSelPos=FilePos;
           TableChangedByUser=TRUE;
         }
       }
@@ -1872,7 +1874,7 @@ int Viewer::ProcessKey(int Key)
         else
           ShowUp();
       }
-      LastSelPos=FilePos;
+//      LastSelPos=FilePos;
       return(TRUE);
     }
 
@@ -1883,7 +1885,7 @@ int Viewer::ProcessKey(int Key)
         FilePos=SecondPos;
         Show();
       }
-      LastSelPos=FilePos;
+//      LastSelPos=FilePos;
       return(TRUE);
     }
 
@@ -1894,7 +1896,7 @@ int Viewer::ProcessKey(int Key)
         for (I=ViewY1;I<Y2;I++)
           Up();
         Show();
-        LastSelPos=FilePos;
+//        LastSelPos=FilePos;
       }
       return(TRUE);
     }
@@ -1921,7 +1923,7 @@ int Viewer::ProcessKey(int Key)
         return(TRUE);
       }
       Show();
-      LastSelPos=FilePos;
+//      LastSelPos=FilePos;
       return(TRUE);
     }
 
@@ -1934,7 +1936,7 @@ int Viewer::ProcessKey(int Key)
         LeftPos--;
         Show();
       }
-      LastSelPos=FilePos;
+//      LastSelPos=FilePos;
       return(TRUE);
     }
 
@@ -1945,7 +1947,7 @@ int Viewer::ProcessKey(int Key)
         LeftPos++;
         Show();
       }
-      LastSelPos=FilePos;
+//      LastSelPos=FilePos;
       return(TRUE);
     }
 
@@ -1957,7 +1959,7 @@ int Viewer::ProcessKey(int Key)
         if (LeftPos<0)
           LeftPos=0;
         Show();
-        LastSelPos=FilePos;
+//        LastSelPos=FilePos;
       }
       return(TRUE);
     }
@@ -1970,7 +1972,7 @@ int Viewer::ProcessKey(int Key)
         if (LeftPos>MAX_VIEWLINE)
           LeftPos=MAX_VIEWLINE;
         Show();
-        LastSelPos=FilePos;
+//        LastSelPos=FilePos;
       }
       return(TRUE);
     }
@@ -1984,7 +1986,7 @@ int Viewer::ProcessKey(int Key)
       {
         FilePos=0;
         Show();
-        LastSelPos=FilePos;
+//        LastSelPos=FilePos;
       }
       return(TRUE);
 
@@ -2040,7 +2042,7 @@ int Viewer::ProcessKey(int Key)
         }
 */
         Show();
-        LastSelPos=FilePos;
+//        LastSelPos=FilePos;
       }
       return(TRUE);
 
@@ -2485,6 +2487,8 @@ void Viewer::Search(int Next,int FirstChar)
     SelectSize = 0;
 	if (Next)
 		LastSelPos = SelectPos + 1;
+	else
+		LastSelPos = FilePos;
 
     vseek(ViewFile,LastSelPos,SEEK_SET);
     Match=0;
@@ -3013,7 +3017,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
   */
   AdjustFilePos();
   /* DJ $ */
-  LastSelPos=FilePos;
+//  LastSelPos=FilePos;
   if(!(Flags&VSP_NOREDRAW))
     Show();
 }
@@ -3084,7 +3088,7 @@ void Viewer::SelectText(__int64 MatchPos,int SearchLength, DWORD Flags)
   vseek(ViewFile,MatchPos+1,SEEK_SET);
   SelectPos=FilePos=MatchPos;
   SelectSize=SearchLength;
-  LastSelPos=SelectPos+((Flags&0x2) ? -1:1);
+//  LastSelPos=SelectPos+((Flags&0x2) ? -1:1);
   /* $ 13.03.2001 IS
      Если найденное расположено в самой первой строке юникодного файла и файл
      имеет в начале fffe или feff, то для более правильного выделения, его
