@@ -7,10 +7,12 @@ class ShellCopy - Копирование файлов
 
 */
 
-/* Revision: 1.15 12.02.2002 $ */
+/* Revision: 1.16 02.03.2002 $ */
 
 /*
 Modify:
+  02.03.2002 KM
+    + SkipMode - пропуск при копировании залоченных файлов
   12.02.2002 SVS
     + COPY_FAILUREREAD
   06.12.2001 VVM
@@ -110,7 +112,12 @@ class ShellCopy
     /* VVM $ */
 
     char RenamedName[NM],CopiedName[NM];
-    int OvrMode,ReadOnlyOvrMode,ReadOnlyDelMode;
+    /* $ 02.03.2002 KM
+      + Новое свойство SkipMode - для пропуска при копировании
+        залоченных файлов.
+    */
+    int OvrMode,ReadOnlyOvrMode,ReadOnlyDelMode,SkipMode;
+    /* KM $ */
     long TotalFiles;
     int SrcDriveType;
     char SrcDriveRoot[NM];

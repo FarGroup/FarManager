@@ -5,10 +5,16 @@ copy.cpp
 
 */
 
-/* Revision: 1.66 02.03.2002 $ */
+/* Revision: 1.67 03.03.2002 $ */
 
 /*
 Modify:
+  02.03.2002 KM
+    ! Достало: при большом объёме копирования (часто винт на винт)
+      при попадании залоченных файлов (а они обязательно попадаются
+      на системном диске) выскакивает "Retry Skip Cancel", так вот
+      когда всё равно нужно скопировать оставшиеся файлы надоедает
+      жать Skip постоянно, поэтому добавлено Skip all.
   02.03.2002 SVS
     ! Копирование в "con" аналогично копированию в "nul".
   11.02.2002 SVS
@@ -669,7 +675,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
         // переинициализируем переменные в самом начале (BugZ#171)
         CopyBufSize=1024; // Начинаем с 1к
-        ReadOnlyDelMode=ReadOnlyOvrMode=OvrMode=-1;
+        ReadOnlyDelMode=ReadOnlyOvrMode=OvrMode=SkipMode=-1;
 
         DestList.Start();
         while(NULL!=(NamePtr=DestList.GetNext()))
@@ -1701,13 +1707,33 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
     sprintf(Msg2,MSG(MCannotCopyTo),DestPath);
     {
       int MsgCode;
-      CopyTime+= (clock() - CopyStartTime);
-      MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
-                      Msg1,Msg2,MSG(MCopyRetry),MSG(MCopySkip),
-                      MSG(MCopyCancel));
-      CopyStartTime = clock();
-      if (MsgCode!=0)
-        return((MsgCode==-2 || MsgCode==2) ? COPY_CANCEL:COPY_NEXT);
+      /* $ 02.03.2002 KM
+        ! Пропуск залоченных файлов.
+          Реализация "Skip all".
+      */
+      if (SkipMode!=-1)
+        MsgCode=SkipMode;
+      else
+      {
+        CopyTime+= (clock() - CopyStartTime);
+        MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
+                        Msg1,Msg2,MSG(MCopyRetry),MSG(MCopySkip),
+                        MSG(MCopySkipAll),MSG(MCopyCancel));
+        CopyStartTime = clock();
+      }
+      switch(MsgCode)
+      {
+        case -1:
+        case  1:
+          return COPY_NEXT;
+        case  2:
+          SkipMode=1;
+          return COPY_NEXT;
+        case -2:
+        case  3:
+          return COPY_CANCEL;
+      }
+      /* KM $ */
     }
     CurCopySize=SaveCopySize;
     TotalCopySize=SaveTotalSize;

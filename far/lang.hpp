@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.96 21.02.2002 $ */
+/* Revision: 1.97 02.03.2002 $ */
 
 /*
 Modify:
+  02.03.2002 KM
+  	+ MCopySkipAll
   21.02.2002 SVS
     + MChangeWaitingLoadDisk, MPlgRequired2
   23.01.2002 SVS
@@ -561,6 +563,7 @@ enum
   MCopyIgnore,
   MCopyRetry,
   MCopySkip,
+  MCopySkipAll,
   MCopyCancel,
 
   MCopyCannotCreateJunction,
