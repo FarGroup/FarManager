@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.15 25.05.2001 $ */
+/* Revision: 1.16 14.06.2001 $ */
 
 /*
 Modify:
+  14.06.2001 SVS
+    + KEY_CTRLALTINS - вставл€ет в клипборд полное им€ каталога
   25.05.2001 SVS
     + ƒобавим возможность создавать линк с дерева
   06.05.2001 DJ
@@ -546,14 +548,18 @@ int TreeList::ProcessKey(int Key)
   {
     case KEY_CTRLENTER:
     case KEY_CTRLF:
+    case KEY_CTRLALTINS:
       {
         char QuotedName[NM+2];
         CurPtr=ListData+CurFile;
         if (strchr(CurPtr->Name,' ')!=NULL)
-          sprintf(QuotedName,"\"%s\" ",CurPtr->Name);
+          sprintf(QuotedName,"\"%s\"%s",CurPtr->Name,(Key == KEY_CTRLALTINS?"":" "));
         else
-          sprintf(QuotedName,"%s ",CurPtr->Name);
-        CtrlObject->CmdLine->InsertString(QuotedName);
+          sprintf(QuotedName,"%s%s",CurPtr->Name,(Key == KEY_CTRLALTINS?"":" "));
+        if(Key == KEY_CTRLALTINS)
+          CopyToClipboard(QuotedName);
+        else
+          CtrlObject->CmdLine->InsertString(QuotedName);
       }
       return(TRUE);
     case KEY_CTRLBACKSLASH:

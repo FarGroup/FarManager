@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.64 10.06.2001 $ */
+/* Revision: 1.65 14.06.2001 $ */
 
 /*
 Modify:
+  14.06.2001 SVS
+    + KEY_CTRLALTINS - вставляет в клипборд полное имя файла
   10.06.2001 KM
     - Бага с выходом из подкаталогов сетевого ресурса. Из любого уровня вложенности
       принажатии Enter на ".." появлялось меню выбора дисков.
@@ -735,6 +737,7 @@ int FileList::ProcessKey(int Key)
       + По CTRL+ALT+F в командную строку сбрасывается UNC-имя текущего файла. */
     case KEY_CTRLALTF:
     /* VVM $ */
+    case KEY_CTRLALTINS:
       if (FileCount>0 && SetCurPath())
       {
         char FileName[NM],temp[NM];
@@ -747,7 +750,7 @@ int FileList::ProcessKey(int Key)
           Key=(Key==KEY_CTRLALTF)?KEY_CTRLALTF:KEY_CTRLF;
           CurrentPath=TRUE;
         }
-        if (Key==KEY_CTRLF || Key==KEY_CTRLALTF)
+        if (Key==KEY_CTRLF || Key==KEY_CTRLALTF || Key == KEY_CTRLALTINS)
         {
           struct OpenPluginInfo Info;
           if (PanelMode==PLUGIN_PANEL)
@@ -820,7 +823,6 @@ int FileList::ProcessKey(int Key)
                     GetPathRootOne(JuncName+4,FileName);
                   else
                     strcpy(FileName,JuncName+4);
-_SVS(SysLog("FileName='%s'",FileName));
                 }
               }
             } /* if */
@@ -890,8 +892,15 @@ _SVS(SysLog("FileName='%s'",FileName));
         if (CurrentPath)
           AddEndSlash(FileName);
         QuoteSpace(FileName);
-        strcat(FileName," ");
-        CtrlObject->CmdLine->InsertString(FileName);
+        if(Key == KEY_CTRLALTINS)
+        {
+          CopyToClipboard(FileName);
+        }
+        else
+        {
+          strcat(FileName," ");
+          CtrlObject->CmdLine->InsertString(FileName);
+        }
       }
       return(TRUE);
     case KEY_CTRLBRACKET:

@@ -7,10 +7,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.36 13.06.2001 $ */
+/* Revision: 1.37 14.06.2001 $ */
 
 /*
 Modify:
+  14.06.2001 SVS
+    - Установка позиции всегда приводит к выбору 0 итема.
   13.06.2001 SVS
     - приведение типов.
   12.06.2001 KM
@@ -957,6 +959,7 @@ int VMenu::SetSelectPos(int Pos,int Direct)
 
   Item[SelectPos].Flags&=~LIF_SELECTED;
   Item[Pos].Flags|=LIF_SELECTED;
+  SelectPos=Pos;
   return Pos;
 }
 
