@@ -7,12 +7,12 @@ manager.hpp
 
 */
 
-/* Revision: 1.21 22.09.2001 $ */
+/* Revision: 1.22 08.10.2001 $ */
 
 /*
 Modify:
-  22.09.2001 OT
-    Вызов Viewer и Editor из меню плагина засовывает куда-то в background window
+  04.10.2001 OT
+    Запуск немодального фрейма в модальном режиме
   19.07.2001 OT
     Добавились новые члены и методв типа UnmodalizeХХХ + мини документация
   18.07.2001 OT
@@ -92,17 +92,21 @@ class Manager
 
     Frame *CurrentFrame;     // текущий фрейм. Он может нахлодиться как в немодальной очереди, так и в можальном стеке
                              // его можно получить с помощью FrameManager->GetCurrentFrame();
+    Frame *SemiModalBackFrame;
+
 
 
     int  EndLoop;            // Признак выхода из цикла
     INPUT_RECORD LastInputRecord;
     void StartupMainloop();
-    void FrameMenu(); //    вместо void SelectFrame(); // show window menu (F12)
+    Frame *FrameMenu(); //    вместо void SelectFrame(); // show window menu (F12)
 
     BOOL Commit();         // завершает транзакцию по изменениям в очереди и стеке фреймов
                            // Она в цикле вызывает себя, пока хотябы один из указателей отличен от NULL
     // Функции, "подмастерья начальника" - Commit'a
+    // Иногда вызываются не только из него и из других мест
     void RefreshCommit();  //
+    void DeactivateCommit(); //
     void ActivateCommit(); //
     void UpdateCommit();   // выполняется тогда, когда нужно заменить один фрейм на другой
     void InsertCommit();
@@ -110,8 +114,6 @@ class Manager
     void ExecuteCommit();
     void ModalizeCommit();
     void UnmodalizeCommit();
-    // Удаляет фрейм из модального стека, помещая его в немодальную очередь.
-    void SwapModeFrame(Frame *);
 
   public:
     Manager();
@@ -125,15 +127,22 @@ class Manager
     void DeleteFrame(int Index);
     void DeactivateFrame (Frame *Deactivated,int Direction);
     void ActivateFrame (Frame *Activated);
-    void ActivateFrame (int Index);  //вместо ActivateFrameByPos (int NewPos);
+    void ActivateFrame (int Index);
     void RefreshFrame(Frame *Refreshed=NULL);
     void RefreshFrame(int Index);
 
-    // Функции для запуска модальных фреймов.
+    //! Функции для запуска модальных фреймов.
     void ExecuteFrame(Frame *Executed);
-    void ExecuteModal (Frame *Executed=NULL); // возвращает то, что возвращает ModalExitCode();
 
-    //  Функции, которые работают с очередью немодально фрейма.
+
+    //! Входит в новый цикл обработки событий
+    void ExecuteModal (Frame *Executed=NULL);
+    //! Запускает немодальный фрейм в модальном режиме
+    void ExecuteNonModal();
+    //! Проверка того, что немодальный фрейм находится еще и на вершине стека.
+    BOOL ifDoubleInstance();
+
+    //!  Функции, которые работают с очередью немодально фрейма.
     //  Сейчас используются только для хранения информаци о наличии запущенных объектов типа VFMenu
     void ModalizeFrame (Frame *Modalized=NULL, int Mode=TRUE);
     void UnmodalizeFrame (Frame *Unmodalized);

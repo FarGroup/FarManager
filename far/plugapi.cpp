@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.95 07.10.2001 $ */
+/* Revision: 1.96 08.10.2001 $ */
 
 /*
 Modify:
+  08.10.2001 OT
+    ! Запуск немодального фрейма в модальном режиме
   07.10.2001 SVS
     - Нету у нас немодальных диалогов!
   27.09.2001 IS
@@ -1415,22 +1417,16 @@ int WINAPI FarViewer(const char *FileName,const char *Title,
   if (Flags & VF_NONMODAL)
   {
     /* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
-    FileViewer *Viewer=new FileViewer(FileName,FALSE,DisableHistory,Title,X1,Y1,X2,Y2);
+    FileViewer *Viewer=new FileViewer(FileName,TRUE,DisableHistory,Title,X1,Y1,X2,Y2);
     /* IS $ */
+    if(!Viewer)
+      return FALSE;
     if (Flags & VF_DELETEONCLOSE)
       Viewer->SetTempViewName(FileName);
     /* $ 12.05.2001 DJ */
     Viewer->SetEnableF6 ((Flags & VF_ENABLE_F6) != 0);
     /* DJ $ */
-    //* Обработка ситуации, */
-    // Чтобы манагер справился по клавишам CtrlTab и CtrlShiftTab выйти из модального цикла
-    Viewer->SetModalBehaviour(MBT_NONMODAL);
-    // Чтобы впоследствии фрейм правильно переключался
-    Viewer->SetCanLoseFocus(TRUE);
-    /* Запускем фрейм в модальном режиме.
-    Манагер сам должен разобраться,
-    по esc или по Ctrl[Shift]Tab */
-    FrameManager->ExecuteModal();
+    FrameManager->ExecuteNonModal();
   }
   else
   {
@@ -1480,18 +1476,16 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
   {
     ExitCode=FALSE;
     /* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
-    FileEditor *Editor=new FileEditor(FileName,CreateNew,FALSE,StartLine,StartChar,Title,X1,Y1,X2,Y2,DisableHistory);
+    FileEditor *Editor=new FileEditor(FileName,CreateNew,TRUE,StartLine,StartChar,Title,X1,Y1,X2,Y2,DisableHistory);
     /* IS $ */
-
-    Editor->SetEnableF6 ((Flags & EF_ENABLE_F6) != 0);
-    Editor->SetModalBehaviour(MBT_NONMODAL);
-    // Чтобы впоследствии фрейм правильно переключался
-    Editor->SetCanLoseFocus(TRUE);
-    /* Запускем фрейм в модальном режиме.
-    Манагер сам должен разобраться,
-    по esc или по Ctrl[Shift]Tab */
-    FrameManager->ExecuteModal();
-    ExitCode=TRUE;
+    if (Editor)
+    {
+      /* $ 12.05.2001 DJ */
+      Editor->SetEnableF6 ((Flags & EF_ENABLE_F6) != 0);
+      /* DJ $ */
+      FrameManager->ExecuteNonModal();
+      ExitCode=TRUE;
+    }
   }
   else
   {

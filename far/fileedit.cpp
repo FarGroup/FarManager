@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.63 27.09.2001 $ */
+/* Revision: 1.64 08.10.2001 $ */
 
 /*
 Modify:
+  04.10.2001 OT
+    - исправлен баг в fileEditor, когда на вопрос How to open this file? ответить Current не удалался созданный, уже не нужный никому пустой фрейм.
   27.09.2001 IS
     - Левый размер при использовании strncpy
   26.09.2001 SVS
@@ -262,6 +264,7 @@ void FileEditor::Init(const char *Name,int CreateNewFile,int EnableSwitch,
         {
           case 0:
             SwitchTo=TRUE;
+            FrameManager->DeleteFrame(this);
             break;
           case 2:
             FrameManager->DeleteFrame(FramePos);
