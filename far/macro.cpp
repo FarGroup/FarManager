@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.43 22.06.2001 $ */
+/* Revision: 1.44 24.06.2001 $ */
 
 /*
 Modify:
+  24.06.2001 SVS
+    ! »справление поведени€ макросов после 771-го.
   22.06.2001 SVS
     ! ћакрокоманды "$Year", "$Month", "$Day", "$Hour", "$Min" и "$Sec" больше
       не поддерживаютс€ и заменены на одну макрокоманду "$Date"
@@ -464,10 +466,10 @@ int KeyMacro::ProcessKey(int Key)
     if (!Executing) // Ёто еще не режим исполнени€?
     {
       DWORD CurFlags;
-      if((Key&0x00FFFFFF) < 0xFF)
-        Key=LocalKeyToKey(LocalUpper(Key&0x000000FF))|(Key&(~0x000000FF));
-      else
-        Key=LocalUpper(Key);
+//_SVS(SysLog(">Key=0x%08X",Key));
+      if((Key&0x00FFFFFF) > 0x7F && (Key&0x00FFFFFF) < 0xFF)
+        Key=LocalKeyToKey(Key&0x000000FF)|(Key&(~0x000000FF));
+//_SVS(SysLog("<Key=0x%08X",Key));
       int I=GetIndex(Key,
                     (Mode==MACRO_SHELL && !WaitInMainLoop) ? MACRO_OTHER:Mode);
       if(I != -1 && !((CurFlags=Macros[I].Flags)&MFLAGS_DISABLEMACRO) && CtrlObject)
@@ -831,6 +833,9 @@ long WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Par
     // </ќбработка особых клавиш: F1 & Enter>
 
     KeyMacro *MacroDlg=KMParam->Handle;
+
+    if((Param2&0x00FFFFFF) > 0x7F && (Param2&0x00FFFFFF) < 0xFF)
+      Param2=LocalKeyToKey(Param2&0x000000FF)|(Param2&(~0x000000FF));
 
     KMParam->Key=(DWORD)Param2;
     KeyToText(Param2,KeyText);
