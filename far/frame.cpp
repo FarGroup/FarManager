@@ -5,10 +5,12 @@ Parent class для немодальных объектов
 
 */
 
-/* Revision: 1.15 26.07.2001 $ */
+/* Revision: 1.16 30.07.2001 $ */
 
 /*
 Modify:
+  30.07.2001 OT
+    - Очередное исправление отрисовки меню
   26.07.2001 OT
     ! Исправление отрисовки меню
   23.07.2001 OT
@@ -96,6 +98,9 @@ void Frame::OnChangeFocus (int focus)
     Show();
     Frame *iModal=NextModal;
     while (iModal) {
+      if (!iModal->IsVisible()){
+        break;
+      }
       iModal->Show();
       iModal=iModal->NextModal;
     }
