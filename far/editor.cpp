@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.245 02.03.2004 $ */
+/* Revision: 1.246 11.05.2004 $ */
 
 /*
 Modify:
+  11.05.2004 SVS
+    ! В связи с введением макрокоманды $IClip уточним работу с
+      UsedInternalClipboard для Ctrl-P и Ctrl-M
   02.03.2004 SVS
     ! Уточнение Editor::SaveData()
   24.02.2004 SVS
@@ -1738,10 +1741,12 @@ int Editor::ProcessKey(int Key)
   CurVisPos=GetLineCurPos();
 
   int isk=IsShiftKey(Key);
+  _SVS(SysLog("[%d] isk=%d",__LINE__,isk));
   //if ((!isk || CtrlObject->Macro.IsExecuting()) && !isk && !Pasting)
 //  if (!isk && !Pasting && !(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE))
   if (!isk && !Pasting && (Key < KEY_MACRO_BASE || Key > KEY_MACRO_ENDBASE))
   {
+    _SVS(SysLog("[%d] BlockStart=(%d,%d)",__LINE__,BlockStart,VBlockStart));
     if (BlockStart!=NULL || VBlockStart!=NULL)
     {
       Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
@@ -1786,6 +1791,7 @@ int Editor::ProcessKey(int Key)
 //        struct EditList *BStart=!BlockStart?VBlockStart:BlockStart;
 //        BStart->EditLine.GetRealSelection(StartSel,EndSel);
         BlockStart->EditLine.GetRealSelection(StartSel,EndSel);
+        _SVS(SysLog("[%d] PersistentBlocks! StartSel=%d, EndSel=%d",__LINE__,StartSel,EndSel));
         if (StartSel==-1 || StartSel==EndSel)
           UnmarkBlock();
       }
@@ -1835,6 +1841,8 @@ int Editor::ProcessKey(int Key)
     case KEY_SHIFTNUMPAD7: case KEY_SHIFTNUMPAD1:
     case KEY_CTRLSHIFTLEFT:  case KEY_CTRLSHIFTNUMPAD4:   /* 12.11.2002 DJ */
     {
+      _KEYMACRO(CleverSysLog SL("Editor::ProcessKey(KEY_SHIFT*)"));
+      _SVS(SysLog("[%d] SelStart=%d, SelEnd=%d",__LINE__,SelStart,SelEnd));
       UnmarkEmptyBlock(); // уберем выделение, если его размер равен 0
       _bg.needCheckUnmark=true;
       CurLine->EditLine.GetRealSelection(SelStart,SelEnd);
@@ -1847,6 +1855,8 @@ int Editor::ProcessKey(int Key)
           Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
         Flags.Clear(FEDITOR_CURPOSCHANGEDBYPLUGIN);
       }
+
+      _SVS(SysLog("[%d] SelStart=%d, SelEnd=%d",__LINE__,SelStart,SelEnd));
       if (!Flags.Check(FEDITOR_MARKINGBLOCK))
       /* IS $ */
       {
@@ -1856,7 +1866,8 @@ int Editor::ProcessKey(int Key)
         BlockStartLine=NumLine;
         SelFirst=TRUE;
         SelStart=SelEnd=CurPos;
-      }else
+      }
+      else
       {
         SelAtBeginning=CurLine==BlockStart && CurPos==SelStart;
         if(SelStart==-1)
@@ -1864,6 +1875,7 @@ int Editor::ProcessKey(int Key)
           SelStart=SelEnd=CurPos;
         }
       }
+      _SVS(SysLog("[%d] SelStart=%d, SelEnd=%d",__LINE__,SelStart,SelEnd));
     }
   }
 
@@ -2039,6 +2051,7 @@ int Editor::ProcessKey(int Key)
 
     case KEY_SHIFTLEFT:  case KEY_SHIFTNUMPAD4:
     {
+      _SVS(CleverSysLog SL("case KEY_SHIFTLEFT"));
       if (CurPos==0 && CurLine->Prev==NULL)return TRUE;
       if (CurPos==0) //курсор в начале строки
       {
@@ -2046,18 +2059,21 @@ int Editor::ProcessKey(int Key)
         {
           BlockStart=CurLine->Prev;
           CurLine->Prev->EditLine.Select(CurLine->Prev->EditLine.GetLength(),-1);
-        }else // курсор в конце блока
+        }
+        else // курсор в конце блока
         {
           CurLine->EditLine.Select(-1,0);
           CurLine->Prev->EditLine.GetRealSelection(SelStart,SelEnd);
           CurLine->Prev->EditLine.Select(SelStart,CurLine->Prev->EditLine.GetLength());
         }
-      }else
+      }
+      else
       {
         if(SelAtBeginning || SelFirst)
         {
           CurLine->EditLine.Select(SelStart-1,SelEnd);
-        }else
+        }
+        else
         {
           CurLine->EditLine.Select(SelStart,SelEnd-1);
         }
@@ -2074,15 +2090,17 @@ int Editor::ProcessKey(int Key)
 
     case KEY_SHIFTRIGHT:  case KEY_SHIFTNUMPAD6:
     {
-      if(CurLine->Next==NULL && CurPos==CurLine->EditLine.GetLength() &&
-         !EdOpt.CursorBeyondEOL)
+      _SVS(CleverSysLog SL("case KEY_SHIFTRIGHT"));
+      if(CurLine->Next==NULL && CurPos==CurLine->EditLine.GetLength() && !EdOpt.CursorBeyondEOL)
       {
         return TRUE;
       }
+
       if(SelAtBeginning)
       {
         CurLine->EditLine.Select(SelStart+1,SelEnd);
-      }else
+      }
+      else
       {
         CurLine->EditLine.Select(SelStart,SelEnd+1);
       }
@@ -2098,7 +2116,8 @@ int Editor::ProcessKey(int Key)
           OldCur->EditLine.Select(-1,0);
           BlockStart=CurLine;
           BlockStartLine=NumLine;
-        }else
+        }
+        else
         {
           OldCur->EditLine.Select(SelStart,-1);
         }
@@ -2109,6 +2128,8 @@ int Editor::ProcessKey(int Key)
 
     case KEY_CTRLSHIFTLEFT:  case KEY_CTRLSHIFTNUMPAD4:
     {
+      _SVS(CleverSysLog SL("case KEY_CTRLSHIFTLEFT"));
+      _SVS(SysLog("[%d] Pasting=%d, SelEnd=%d",__LINE__,Pasting,DisableOut));
       {
         int SkipSpace=TRUE;
         Pasting++;
@@ -2178,6 +2199,8 @@ int Editor::ProcessKey(int Key)
 
     case KEY_CTRLSHIFTRIGHT:  case KEY_CTRLSHIFTNUMPAD6:
     {
+      _SVS(CleverSysLog SL("case KEY_CTRLSHIFTRIGHT"));
+      _SVS(SysLog("[%d] Pasting=%d, SelEnd=%d",__LINE__,Pasting,DisableOut));
       {
         int SkipSpace=TRUE;
         Pasting++;
@@ -2392,7 +2415,8 @@ int Editor::ProcessKey(int Key)
         CurLine->EditLine.GetSelection(SelStart,SelEnd);
 
         Pasting++;
-        UsedInternalClipboard++;
+        int OldUsedInternalClipboard=UsedInternalClipboard;
+        UsedInternalClipboard=1;
         ProcessKey(Key==KEY_CTRLP ? KEY_CTRLINS:KEY_SHIFTDEL);
 
         /* $ 10.04.2001 SVS
@@ -2408,7 +2432,7 @@ int Editor::ProcessKey(int Key)
         ProcessKey(KEY_SHIFTINS);
         Pasting--;
         FAR_EmptyClipboard();
-        UsedInternalClipboard--;
+        UsedInternalClipboard=OldUsedInternalClipboard;
 
         /*$ 08.02.2001 SKV
           всё делалось с pasting'ом, поэтому redraw плагинам не ушел.
@@ -4809,6 +4833,7 @@ void Editor::UnmarkBlock()
   if (BlockStart==NULL && VBlockStart==NULL)
     return;
   VBlockStart=NULL;
+  _SVS(SysLog("[%d] Editor::UnmarkBlock()",__LINE__));
   Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
   while (BlockStart!=NULL)
   {
@@ -4846,6 +4871,7 @@ void Editor::UnmarkBlock()
 */
 void Editor::UnmarkEmptyBlock()
 {
+  _SVS(SysLog("[%d] Editor::UnmarkEmptyBlock()",__LINE__));
   if(BlockStart || VBlockStart)  // присутствует выделение
   {
     int Lines=0,StartSel,EndSel;

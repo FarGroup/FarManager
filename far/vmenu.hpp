@@ -11,10 +11,12 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.53 05.01.2004 $ */
+/* Revision: 1.54 11.05.2004 $ */
 
 /*
 Modify:
+  11.05.2004 SVS
+    + DialogItemID и пара функция для получения/установки этого DialogItemID
   05.01.2004 SVS
     + VMENU_SELECTPOSNONE - признак того, что SelectPos не выставлен (например, все элементы списка задисаблены)
   05.11.2003 SVS
@@ -256,8 +258,8 @@ struct MenuItem
   };
 
   short AmpPos;                  // Позиция автоназначенной подсветки
-  short Len[2];		             // размеры 2-х частей
-  short Idx2;		             // начало 2-й части
+  short Len[2];                  // размеры 2-х частей
+  short Idx2;                    // начало 2-й части
 
   /* $ 01.12.2001 DJ
      исправим баг, заодно нормально отформатируем код
@@ -341,10 +343,11 @@ class VMenu: virtual public Modal, virtual public Frame
        + Обработчик меню!
     */
     Dialog *ParentDialog;
+    int DialogItemID;
     FARWINDOWPROC VMenuProc;      // функция обработки меню
     /* SVS $ */
 
-    short RLen[2];	              // реальные размеры 2-х половин
+    short RLen[2];                // реальные размеры 2-х половин
     CRITICAL_SECTION CSection;
     ConsoleTitle *OldTitle;     // предыдущий заголовок
 
@@ -493,6 +496,8 @@ class VMenu: virtual public Modal, virtual public Frame
     /* KM $ */
     void SetMaxHeight(int NewMaxHeight);
 
+    int GetVDialogItemID() const {return DialogItemID;};
+    void SetVDialogItemID(int NewDialogItemID) {DialogItemID=NewDialogItemID;};
 
   public:
     static struct MenuItem *FarList2MenuItem(const struct FarListItem *Item,struct MenuItem *ListItem);

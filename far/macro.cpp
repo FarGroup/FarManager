@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.116 14.04.2004 $ */
+/* Revision: 1.117 11.05.2004 $ */
 
 /*
 Modify:
+  11.05.2004 SVS
+    + $IClip, IClip - работа с внутренним клипбордом
   14.04.2004 SVS
     - BugZ#1052 - Неправильно работает логика определения где мы сейчас в MainMenu и Menu
   09.02.2004 SVS
@@ -418,6 +420,7 @@ enum MACRO_OP_CODE {
   // функции
   MCODE_F_XLAT,                  // вызывать XLat: Param=0 или 1
   MCODE_F_SWITCHKBD,             // переключить раскладку клавиатуры
+  MCODE_F_ICLIP,                 // внутренний или внешний клипборд
 
   // булевые условия
   MCODE_C_DISABLEOUTPUT,         // вывод запрещен?
@@ -426,6 +429,7 @@ enum MACRO_OP_CODE {
   MCODE_C_EOF,                   // конец файла/активного каталога?
   MCODE_C_BOF,                   // начало файла/активного каталога?
   MCODE_C_ISEMPTY,               // ком.строка пуста?
+  MCODE_C_ICLIP,                 // внутренний или внешний клипборд
 
   MCODE_C_APANEL_ISEMPTY,        // активная панель:  пуста?
   MCODE_C_PPANEL_ISEMPTY,        // пассивная панель: пуста?
@@ -485,6 +489,7 @@ static struct TMacroKeywords {
   {2,  "Empty",              MCODE_C_ISEMPTY,0},
   {2,  "DisableOutput",      MCODE_C_DISABLEOUTPUT,0},
   {2,  "Selected",           MCODE_C_SELECTED,0},
+  {2,  "IClip",              MCODE_C_ICLIP,0},
 
   {2,  "APanel.Empty",       MCODE_C_APANEL_ISEMPTY,0},
   {2,  "PPanel.Empty",       MCODE_C_PPANEL_ISEMPTY,0},
@@ -548,6 +553,7 @@ static struct TKeyCodeName{
    { MCODE_F_SWITCHKBD,            10, "$KbdSwitch"},
    { MCODE_OP_ENDREP,               7, "$EndRep"  },
    { MCODE_OP_ENDIF,                6, "$EndIf"   },
+   { MCODE_F_ICLIP,                 6, "$IClip"   },
    { MCODE_OP_MACROMODE,            6, "$MMode"   },
    { KEY_MACRO_DATE,                5, "$Date"    }, // $Date "%d-%a-%Y"
    { MCODE_OP_ELSE,                 5, "$Else"    },
@@ -979,6 +985,10 @@ int KeyMacro::IfCondition(DWORD OpCode,DWORD Flags,DWORD CheckCode)
           Cond=FarAltEnter(-2)==0?1:0;
           break;
 
+        case MCODE_C_ICLIP:
+          Cond=UsedInternalClipboard;
+          break;
+
         case MCODE_C_BOF:
         case MCODE_C_EOF:
         {
@@ -1146,6 +1156,7 @@ int KeyMacro::GetKey()
         LockScr=NULL;
       }
       if(TitleModified) SetFarTitle(NULL);
+      UsedInternalClipboard=0; //??
       return(FALSE);
     }
 /*
@@ -1205,6 +1216,7 @@ done:
       if(LockScr) delete LockScr;
       LockScr=NULL;
     }
+    UsedInternalClipboard=0; //??
     Work.Executing=MACROMODE_NOMACRO;
     ReleaseWORKBuffer();
     // проверим - "а есть ли в временном стеке еще макрЫсы"?
@@ -1248,6 +1260,15 @@ done:
 
   switch(Key)
   {
+    /* $IClip
+       0: MCODE_F_ICLIP
+    */
+    case MCODE_F_ICLIP:
+    {
+      UsedInternalClipboard=UsedInternalClipboard==0?1:0;
+      goto begin;
+    }
+
     case MCODE_F_SWITCHKBD:
     {
       if(hFarWnd)
@@ -1354,7 +1375,7 @@ done:
       if (Work.ExecLIBPos<MR->BufferSize)
       {
         Key=GetOpCode(MR,Work.ExecLIBPos++);
-        if(Key == '1')
+        if(Key == '1') // Изменяет режим отображения ("DisableOutput").
         {
           DWORD Flags=MR->Flags;
           if(Flags&MFLAGS_DISABLEOUTPUT) // если был - удалим
@@ -1373,6 +1394,7 @@ done:
         }
         goto begin;
       }
+      break;
 
     default:
       ;//if(Key&MCODE_OP_SENDKEY)   Key&=~MCODE_OP_SENDKEY;
@@ -2920,6 +2942,7 @@ void KeyMacro::DropProcess()
   {
     if(LockScr) delete LockScr;
     LockScr=NULL;
+    UsedInternalClipboard=0; //??
     Work.Executing=MACROMODE_NOMACRO;
     ReleaseWORKBuffer();
   }

@@ -2082,9 +2082,11 @@ $ #Internal editor#
    #Ctrl-<Gray +>#           Append block to clipboard
    #Ctrl-D#                  Delete block
    #Ctrl-P#                  Copy block to current cursor position
-                           (in persistent blocks mode only)
+                           (in persistent blocks mode only, Буфер
+                           Обмена не изменяется)
    #Ctrl-M#                  Move block to current cursor position
-                           (in persistent blocks mode only)
+                           (in persistent blocks mode only, Буфер
+                           Обмена не изменяется)
    #Alt-U#                   Shift block left
    #Alt-I#                   Shift block right
 
@@ -3419,6 +3421,7 @@ $ #Commands, used inside the text of a macro command#
 
      ~$Date~@KeyMacroODate@       - insert current date/time
      ~$Exit~@KeyMacroOExit@       - stop macro playback
+     ~$IClip~@KeyMacroOIClip@      - работа с буфером обмена
      ~$If-$Else~@KeyMacroOIf@   - condition operator
      ~$MMode~@KeyMacroOMMode@      - toggle macro display mode
      ~$Rep~@KeyMacroORep@        - loop operator
@@ -3553,6 +3556,22 @@ usage in such macro sequences.
    ~Keyboard macro commands (macro command)~@KeyMacro@
    ~Commands, used inside the text of a macro command~@KeyMacroCmds@
 
+@KeyMacroOIClip
+$ #$IClip - работа с буфером обмена#
+    По умолчанию FAR, в операциях запоминания/вставки данных, работает
+с Буфером Обмена Windows. Макрокоманда '$IClip' позволяет в пределах
+одного макроса переключать внутренние механизмы FAR для работы с/без
+использования Буфера Обмена Windows.
+
+    #$IClip#
+
+    Работает как триггер.
+
+    См. так же:
+
+    ~Клавиатурные макрокоманды (макросы)~@KeyMacro@
+    ~Команды, используемы в тексте макросов~@KeyMacroCmds@
+
 @KeyMacroOMMode
 $ #$MMode - toggle macro display mode#
    Special macro command '$MMode' allows to toggle the display
@@ -3674,6 +3693,8 @@ execution inside a macro sequence.
                             cursor is positioned on the last item.
        #Selected#             selection block exists in input lines,
                             editor, viewer or the command line.
+       #IClip#                FAR работает с внутренним буфером
+                            обмена (см. ~$IClip~@KeyMacroOIClip@)
 
    'Condition' can be preceded by an '!' symbol which represents a logical
 "NOT" operator (negation). In this case the subsequent 'then-sequence' will be

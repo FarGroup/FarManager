@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.244 01.03.2004 $ */
+/* Revision: 1.245 11.05.2004 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 ¬ этом файле писать все изменени€ только в в этом блоке!!!!
 
 Modify:
+  11.05.2004 SVS
+    + DN_LISTHOTKEY - хоткеи в листах
   01.03.2004 SVS
     + дл€ внутреннего использовани€ SetFileApisTo
     ! SETFILEAPISTO_TYPE - так же определен в farconst.hpp
@@ -1036,6 +1038,8 @@ enum FarMessagesProc{
 
   DM_GETSELECTION,
   DM_SETSELECTION,
+
+  DN_LISTHOTKEY,
 
   DN_FIRST=0x1000,
   DN_BTNCLICK,

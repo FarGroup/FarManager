@@ -5,10 +5,14 @@ dialog.cpp
 
 */
 
-/* Revision: 1.300 07.05.2004 $ */
+/* Revision: 1.301 11.05.2004 $ */
 
 /*
 Modify:
+  11.05.2004 SVS
+    ! для листа передадим в конструкторе this диалога и установим ItemID.
+    - кривая обработка DN_LISTCHANGE - начиная с того, что... водим мышкой
+      по листу, не меняя позиции в списке и... получаем туеву хчу DN_LISTCHANGE
   07.05.2004 SVS
     - BugZ#1053 - Неточности в $Text
   28.02.2004 SVS
@@ -1637,12 +1641,13 @@ int Dialog::InitDialogObjects(int ID)
       if (!DialogMode.Check(DMODE_CREATEOBJECTS))
       {
         CurItem->ListPtr=new VMenu(NULL,NULL,0,CurItem->Y2-CurItem->Y1+1,
-                        VMENU_ALWAYSSCROLLBAR|VMENU_LISTBOX,NULL/*,this*/);
+                        VMENU_ALWAYSSCROLLBAR|VMENU_LISTBOX,NULL,this);
       }
 
       if(CurItem->ListPtr)
       {
         VMenu *ListPtr=CurItem->ListPtr;
+        ListPtr->SetVDialogItemID(I);
         /* $ 13.09.2000 SVS
            + Флаг DIF_LISTNOAMPERSAND. По умолчанию для DI_LISTBOX &
              DI_COMBOBOX выставляется флаг MENU_SHOWAMPERSAND. Этот флаг
@@ -3845,6 +3850,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       /* $ 30.06.2001 KM */
       VMenu *List=Item[I].ListPtr;
       int Pos=List->GetSelectPos();
+      int CheckedListItem=List->GetSelection(-1);
       if((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED))
       {
         if(FocusPos != I)
@@ -3855,14 +3861,42 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
         if((Item[I].IFlags.Flags&(DLGIIF_LISTREACTIONFOCUS|DLGIIF_LISTREACTIONNOFOCUS)) == 0)
         {
-          if (SendDlgMessage((HANDLE)this,DN_LISTCHANGE,I,(long)Pos))
+          List->ProcessMouse(MouseEvent);
+          int NewListPos=List->GetSelectPos();
+
+          if(NewListPos != Pos && !SendDlgMessage((HANDLE)this,DN_LISTCHANGE,I,(long)NewListPos))
           {
-            List->ProcessMouse(MouseEvent);
-            Pos=List->GetSelectPos();
+            List->SetSelection(CheckedListItem,Pos);
+            if(DialogMode.Check(DMODE_SHOW) && !(Item[I].Flags&DIF_HIDDEN))
+              ShowDialog(I); // FocusPos
           }
+          else
+            Pos=NewListPos;
         }
         else if (!SendDlgMessage((HANDLE)this,DN_MOUSECLICK,I,(long)MouseEvent))
         {
+#if 1
+          List->ProcessMouse(MouseEvent);
+          int NewListPos=List->GetSelectPos();
+          if(!(MsX==X1+Item[I].X2 && MsY >= Y1+Item[I].Y1 && MsY <= Y1+Item[I].Y2) &&              // вне скроллбара и
+              NewListPos != Pos &&                                                                 // позиция изменилась и
+              !SendDlgMessage((HANDLE)this,DN_LISTCHANGE,I,(long)NewListPos))                      // и плагин сказал в морг
+          {
+            List->SetSelection(CheckedListItem,Pos);
+            if(DialogMode.Check(DMODE_SHOW) && !(Item[I].Flags&DIF_HIDDEN))
+              ShowDialog(I); // FocusPos
+          }
+          else
+          {
+            Pos=NewListPos;
+            if(!(Item[I].Flags&DIF_LISTNOCLOSE))
+            {
+              ExitCode=I;
+              CloseDialog();
+              return TRUE;
+            }
+          }
+#else
           if (SendDlgMessage((HANDLE)this,DN_LISTCHANGE,I,(long)Pos))
           {
             if (MsX==X1+Item[I].X2 && MsY >= Y1+Item[I].Y1 && MsY <= Y1+Item[I].Y2)
@@ -3870,21 +3904,28 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
             else
               ProcessKey(KEY_ENTER);
           }
+#endif
         }
         return TRUE;
       }
       else
       {
-        if(
-           (
-            I == FocusPos && (Item[I].IFlags.Flags&DLGIIF_LISTREACTIONFOCUS)
+        if(I == FocusPos && (Item[I].IFlags.Flags&DLGIIF_LISTREACTIONFOCUS)
             ||
-            I != FocusPos && (Item[I].IFlags.Flags&DLGIIF_LISTREACTIONNOFOCUS)
-           )
-           &&
-           SendDlgMessage((HANDLE)this,DN_LISTCHANGE,I,(long)Pos)
+           I != FocusPos && (Item[I].IFlags.Flags&DLGIIF_LISTREACTIONNOFOCUS)
           )
+        {
           List->ProcessMouse(MouseEvent);
+          int NewListPos=List->GetSelectPos();
+          if(NewListPos != Pos && !SendDlgMessage((HANDLE)this,DN_LISTCHANGE,I,(long)NewListPos))
+          {
+            List->SetSelection(CheckedListItem,Pos);
+            if(DialogMode.Check(DMODE_SHOW) && !(Item[I].Flags&DIF_HIDDEN))
+              ShowDialog(I); // FocusPos
+          }
+          else
+            Pos=NewListPos;
+        }
       }
       /* KM $ */
       return(TRUE);

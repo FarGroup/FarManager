@@ -8,10 +8,14 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.129 24.02.2004 $ */
+/* Revision: 1.130 11.05.2004 $ */
 
 /*
 Modify:
+  11.05.2004 SVS
+    ! Вызов VMenu::ParentDialog->ProcessKey() в VMenu::ProcessKey уберем, т.к.
+      в этом случае получаем зацикливание.
+    + Из VMenu сделаем нотификацию DN_LISTHOTKEY для диалоговой процедуры.
   24.02.2004 SVS
     ! Проверка на макро USE_WFUNC
   19.02.2004 SVS
@@ -1112,8 +1116,6 @@ BOOL VMenu::CheckKeyHiOrAcc(DWORD Key,int Type,int Translate)
        )
       )
     {
-//      if(VMenu::ParentDialog)
-//        Dislog::SendDlgMessage((HANDLE)ParentDialog,DN_LISTHOTKEY,)ProcessKey(Key);
       Item[SelectPos].Flags&=~LIF_SELECTED;
       CurItem->Flags|=LIF_SELECTED;
       SelectPos=I;
@@ -1179,9 +1181,7 @@ int VMenu::ProcessKey(int Key)
   {
     case KEY_ENTER:
     {
-      if(VMenu::ParentDialog)
-        VMenu::ParentDialog->ProcessKey(Key);
-      else
+      if(!VMenu::ParentDialog)
       {
         if(!(Item[SelectPos].Flags&LIF_DISABLE))
         {
@@ -1195,9 +1195,7 @@ int VMenu::ProcessKey(int Key)
     case KEY_ESC:
     case KEY_F10:
     {
-      if(VMenu::ParentDialog)
-        VMenu::ParentDialog->ProcessKey(Key);
-      else
+      if(!VMenu::ParentDialog)
       {
         EndLoop=TRUE;
         Modal::ExitCode=-1;
@@ -1272,18 +1270,16 @@ int VMenu::ProcessKey(int Key)
 
     case KEY_TAB:
     case KEY_SHIFTTAB:
-      if(VMenu::ParentDialog)
-      {
-        VMenu::ParentDialog->ProcessKey(Key);
-        break;
-      }
     default:
+    {
+      int OldSelectPos=SelectPos;
+
       if(!CheckKeyHiOrAcc(Key,0,0))
       {
         if(Key == KEY_SHIFTF1 || Key == KEY_F1)
         {
           if(VMenu::ParentDialog)
-            VMenu::ParentDialog->ProcessKey(Key);
+            ;//VMenu::ParentDialog->ProcessKey(Key);
           else
             ShowHelp();
           break;
@@ -1294,8 +1290,18 @@ int VMenu::ProcessKey(int Key)
             CheckKeyHiOrAcc(Key,1,TRUE);
         }
       }
+
+      if(VMenu::ParentDialog && OldSelectPos!=SelectPos && Dialog::SendDlgMessage((HANDLE)ParentDialog,DN_LISTHOTKEY,DialogItemID,SelectPos))
+      {
+        Item[SelectPos].Flags&=~LIF_SELECTED;
+        Item[OldSelectPos].Flags|=LIF_SELECTED;
+        SelectPos=OldSelectPos;
+        ShowMenu(TRUE);
+      }
+
       InterlockedDecrement(&CallCount);
       return(FALSE);
+    }
   }
   InterlockedDecrement(&CallCount);
   return(TRUE);
