@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.126 17.09.2002 $ */
+/* Revision: 1.127 18.09.2002 $ */
 
 /*
 Modify:
+  18.09.2002 SVS
+    ! Вернем обратно сортировку модулей после сбора инфы.
   17.09.2002 SVS
     - Сортировка плагинов
     ! при старте ФАРа после "сбора" плагинов стояла сортировка по имени
@@ -566,8 +568,7 @@ void PluginsSet::LoadPlugins()
       }
   }
 
-  // SVS> IMHO лишнее, ибо сортировка теперь по имени идет (или нет?)
-  //qsort(PluginsData,PluginsCount,sizeof(*PluginsData),PluginsSort);
+  qsort(PluginsData,PluginsCount,sizeof(*PluginsData),PluginsSort);
 
   int NewPlugin=FALSE;
 
