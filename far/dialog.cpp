@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.117 10.06.2001 $ */
+/* Revision: 1.118 11.06.2001 $ */
 
 /*
 Modify:
+  11.06.2001 KM
+   ! Сделана нормальная работа мыши в DI_LISTBOX.
   10.06.2001 SVS
    ! Для DM_LISTFINDSTRING вызовен немного другу функцию.
   08.06.2001 SVS
@@ -2821,13 +2823,42 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   int Type;
   RECT Rect;
 
-  if (MouseEvent->dwButtonState==0)
-    return(FALSE);
+  /* $ 11.06.2001 KM
+     ! Сделана нормальная работа мыши в DI_LISTBOX.
+  */
   if(!CheckDialogMode(DMODE_SHOW))
     return FALSE;
 
   MsX=MouseEvent->dwMousePosition.X;
   MsY=MouseEvent->dwMousePosition.Y;
+
+  for (I=0;I<ItemCount;I++)
+  {
+    if(Item[I].Flags&(DIF_DISABLE|DIF_HIDDEN))
+      continue;
+    Type=Item[I].Type;
+    if (Type == DI_LISTBOX && MsY >= Y1+Item[I].Y1 &&
+        MsY <= Y1+Item[I].Y2 && MsX <= X1+Item[I].X2)
+    {
+      if((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED))
+      {
+        if(FocusPos != I)
+          ChangeFocus2(FocusPos,I);
+        ShowDialog();
+
+        if (!SendDlgMessage((HANDLE)this,DN_MOUSECLICK,I,(long)MouseEvent))
+          ProcessKey(KEY_ENTER);
+        return TRUE;
+      }
+      else
+        Item[I].ListPtr->ProcessMouse(MouseEvent);
+      return(TRUE);
+    }
+  }
+  /* KM $ */
+
+  if (MouseEvent->dwButtonState==0)
+    return(FALSE);
 
   if (MsX<X1 || MsY<Y1 || MsX>X2 || MsY>Y2)
   {
@@ -2905,22 +2936,6 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         Type=Item[I].Type;
         if (MsX>=X1+Item[I].X1)
         {
-          /* $ 01.08.2000 SVS
-             Обычный ListBox
-          */
-          if(Type == DI_LISTBOX    &&
-              MsY >= Y1+Item[I].Y1 &&
-              MsY <= Y1+Item[I].Y2 &&
-              MsX <= X1+Item[I].X2)
-          {
-            if(FocusPos != I)
-              ChangeFocus2(FocusPos,I);
-            ShowDialog();
-            Item[I].ListPtr->ProcessMouse(MouseEvent);
-            return(TRUE);
-          }
-          /* SVS $ */
-
           if (IsEdit(Type))
           {
             /* $ 15.08.2000 SVS
