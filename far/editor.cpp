@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.114 30.08.2001 $ */
+/* Revision: 1.115 13.09.2001 $ */
 
 /*
 Modify:
+  13.09.2001 SKV
+    - Shift-End на длииинной строке в блоке с изменённым цветом фона.
   30.08.2001 IS
     - Неопределенное поведение при использовании ECTL_SETPOSITION: режим
       Overtype не менялся, хотя и должен был в этой функции.
@@ -1521,6 +1523,7 @@ int Editor::ProcessKey(int Key)
       return(TRUE);
     case KEY_SHIFTEND:
       {
+        int LeftPos=CurLine->EditLine.GetLeftPos();
         Pasting++;
         DisableOut++;
         Edit::DisableEditOut(TRUE);
@@ -1579,7 +1582,13 @@ int Editor::ProcessKey(int Key)
         Pasting--;
         DisableOut--;
         Edit::DisableEditOut(FALSE);
-        Show();
+
+        /* $ 13.9.2001 SKV
+          Однако LeftPos апдейтится только в FastShow :-\
+        */
+        CurLine->EditLine.FastShow();
+        ShowEditor(LeftPos==CurLine->EditLine.GetLeftPos());
+        /* SKV$*/
       }
       return(TRUE);
     case KEY_SHIFTLEFT:
