@@ -5,10 +5,12 @@ help.cpp
 
 */
 
-/* Revision: 1.86 18.12.2004 $ */
+/* Revision: 1.87 17.01.2005 $ */
 
 /*
 Modify:
+  17.01.2005 WARP
+    ! Некоторые уточнения в спецификатор переноса строки.
   18.12.2004 WARP
     ! Спецификатор переноса строки в .hlf файлах (BugZ#1084)
   06.08.2004 SKV
@@ -588,7 +590,7 @@ int Help::ReadHelp(const char *Mask)
 
     RemoveTrailingSpaces(ReadStr);
 
-    if ( strstr (ReadStr, CtrlStartPosChar) )
+    if ( *CtrlStartPosChar && strstr (ReadStr, CtrlStartPosChar) )
     {
         char Line[MAX_HELP_STRING_LENGTH];
         int Length = strstr (ReadStr, CtrlStartPosChar)-ReadStr;
@@ -598,7 +600,6 @@ int Help::ReadHelp(const char *Mask)
 
         strcpy (ReadStr+Length, ReadStr+Length+strlen(CtrlStartPosChar));
     }
-
 
     if (TopicFound)
     {
@@ -809,7 +810,7 @@ void Help::AddLine(const char *Line)
     for (int i = 0; i < StartPos; i++)
       HelpStr[i] = ' ';
 
-    xstrncpy(HelpStr+StartPos, Line+1, MAX_HELP_STRING_LENGTH-1);
+    xstrncpy(HelpStr+StartPos, (*Line == ' ')?Line+1:Line, MAX_HELP_STRING_LENGTH-1);
   }
   else
     xstrncpy(HelpStr, Line, MAX_HELP_STRING_LENGTH-1);
