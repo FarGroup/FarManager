@@ -8,13 +8,18 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.104 15.05.2001 $ */
+/* Revision: 1.105 17.05.2001 $ */
 
 /*
 ¬Ќ»ћјЌ»≈!
 ¬ этом файле писать все изменени€ только в в этом блоке!!!!
 
 Modify:
+  17.05.2001 SVS
+    + DM_LISTUPDATE
+    + FMENU_SHOWNOBOX (Ё“ќ Ќ≈ ѕ”ЅЋ» ”≈“—я, Ё“ќ ƒЋя ¬Ќ”“–≈ЌЌ≈√ќ »—ѕќЋ№«ќ¬јЌ»я!)
+    + структура FarListUpdate дл€ DM_LISTUPDATE, по сути то же самое что и
+      FarList - т.с. дл€ лучшего понимани€ :-)
   15.05.2001 KM
     ! ”бран флаг DIF_LISTHIGHLIGHT, так как его функцию
       уже выполн€л DIF_LISTNOAMPERSAND, только наоборот.
@@ -432,10 +437,11 @@ struct PluginPanelItem
 #define PPIF_USERDATA     0x20000000
 
 enum {
-  FMENU_SHOWAMPERSAND=1,
-  FMENU_WRAPMODE=2,
-  FMENU_AUTOHIGHLIGHT=4,
-  FMENU_REVERSEAUTOHIGHLIGHT=8
+  FMENU_SHOWAMPERSAND       =0x0001,
+  FMENU_WRAPMODE            =0x0002,
+  FMENU_AUTOHIGHLIGHT       =0x0004,
+  FMENU_REVERSEAUTOHIGHLIGHT=0x0008,
+  FMENU_SHOWNOBOX           =0x0010,
 };
 
 enum {
@@ -626,6 +632,7 @@ enum FarMessagesProc{
   DM_LISTDELETE,
   DM_LISTADD,
   DM_LISTADDSTR,
+  DM_LISTUPDATE,
 
   DN_FIRST=0x1000,
   DN_BTNCLICK,
@@ -676,6 +683,12 @@ struct FarListItem
 struct FarList
 {
   int ItemsNumber;
+  struct FarListItem *Items;
+};
+
+struct FarListUpdate
+{
+  int Index;
   struct FarListItem *Items;
 };
 

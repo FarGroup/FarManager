@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.97 15.05.2001 $ */
+/* Revision: 1.98 17.05.2001 $ */
 
 /*
 Modify:
+  17.05.2001 SVS
+   + DM_LISTUPDATE - совсем забыл про эту хрень ;-(
   15.05.2001 KM
    - Терерь подсветка в DI_LISTBOX работает. Для её включения
      используется флаг DIF_LISTNOAMPERSAND (блин горелый, он уже был).
@@ -3955,6 +3957,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     case DM_LISTGET: // Param1=ID Param2=FarList: ItemsNumber=Index, Items=Dest
     case DM_LISTGETCURPOS: // Param1=ID Param2=0
     case DM_LISTSETCURPOS: // Param1=ID Param2=NewPos Ret: RealPos
+    case DM_LISTUPDATE: // Param1=ID Param2=FarList: ItemsNumber=Index, Items=Src
     //case DM_LISTINS: // Param1=ID Param2=FarList: ItemsNumber=Index, Items=Dest
       if(Type==DI_LISTBOX || Type==DI_COMBOBOX)
       {
@@ -4001,6 +4004,13 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
             {
               Ret=ListBox->SetSelectPos(Param2,1);
               break; // т.к. нужно перерисовать!
+            }
+            case DM_LISTUPDATE: // Param1=ID Param2=FarList: Index=Index, Items=Src
+            {
+              struct FarList *ListItems=(struct FarList *)Param2;
+              if(ListItems && ListBox->UpdateItem(ListItems))
+                break;
+              return FALSE;
             }
             case DM_LISTGET: // Param1=ID Param2=FarList: ItemsNumber=Index, Items=Dest
             {

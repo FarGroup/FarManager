@@ -10,10 +10,16 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.09 12.05.2001 $ */
+/* Revision: 1.10 17.05.2001 $ */
 
 /*
 Modify:
+  17.05.2001 SVS
+   + UpdateItem()
+   + FarList2MenuItem()
+   + MenuItem2FarList()
+   + MenuItem.AmpPos - позици€ автоназначенной подсветки - дл€ того, чтобы
+     вернуть владельцу листа те данные, которые он передавал!
   12.05.2001 SVS
    + AddItem(char *NewStrItem);
   07.05.2001 SVS
@@ -78,7 +84,8 @@ enum{
 #define VMENU_ALWAYSSCROLLBAR 0x0100
 #define VMENU_LISTBOX	      0x0200
 #define VMENU_SHOWNOBOX       0x0400
-//#define VMENU_LISTBOXSORT	  0x0800
+#define VMENU_AUTOHIGHLIGHT	  0x0800
+#define VMENU_REVERSIHLIGHT	  0x1000
 /* SVS $ */
 
 class Dialog;
@@ -95,6 +102,7 @@ struct MenuItem
   char  UserData[sizeof(WIN32_FIND_DATA)+NM+10];
   int   UserDataSize;
   char *PtrData;
+  short AmpPos;              // ѕозици€ автоназначенной подсветки
 };
 
 
@@ -118,7 +126,6 @@ class VMenu: public Modal
     int DrawBackground,BoxType,WrapMode,ShowAmpersand;
     int UpdateRequired;
     int DialogStyle;
-    int AutoHighlight;
     int CallCount;
     int PrevMacroMode;
     /* $ 18.07.2000 SVS
@@ -197,6 +204,8 @@ class VMenu: public Modal
     int  AddItem(struct FarList *NewItem);
     int  AddItem(char *NewStrItem);
 
+    int  UpdateItem(struct FarList *NewItem);
+
     int  GetItemCount() {return(ItemCount);};
     int  GetUserData(void *Data,int Size,int Position=-1);
     int  GetSelectPos();
@@ -219,6 +228,8 @@ class VMenu: public Modal
     // функци€ посылки сообщений меню
     static long WINAPI SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,long Param2);
     /* SVS $ */
+    static struct MenuItem *FarList2MenuItem(struct FarListItem *Items,struct MenuItem *ListItem);
+    static struct FarListItem *MenuItem2FarList(struct MenuItem *ListItem,struct FarListItem *Items);
 };
 
 #endif	// __VMENU_HPP__

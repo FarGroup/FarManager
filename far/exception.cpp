@@ -5,10 +5,12 @@ farexcpt.cpp
 
 */
 
-/* Revision: 1.01 16.05.2001 $ */
+/* Revision: 1.02 17.05.2001 $ */
 
 /*
 Modify:
+  17.05.2001 SVS
+    -  local variable 'xpn' used without having been initialized
   16.05.2001 SVS
     ! Добавлена пользовательская функция EVENTPROC в параметры WriteEvent
     ! Запись рекорда PLUGINRECORD вынесена в отдельную функцию WritePLUGINRECORD()
@@ -154,9 +156,8 @@ int WriteEvent(DWORD DumpType, // FLOG_*
     }
 
     // исключения
-    if((DumpType&FLOG_EXCEPTION) && xpn)
+    if((DumpType&FLOG_EXCEPTION) && (xpn=xp->ExceptionRecord) != NULL)
     {
-      xpn=xp->ExceptionRecord;
       Excpt.TypeRec=RTYPE_EXCEPTION;
       while(xpn)
       {

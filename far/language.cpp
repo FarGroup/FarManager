@@ -5,10 +5,12 @@ language.cpp
 
 */
 
-/* Revision: 1.06 06.05.2001 $ */
+/* Revision: 1.07 17.05.2001 $ */
 
 /*
 Modify:
+  17.05.2001 OT
+    ! выравнивание сообщений на границу 4 байт.
   06.05.2001 DJ
     ! перетрях #include
   11.02.2001 SVS
@@ -39,6 +41,13 @@ Modify:
 #include "vmenu.hpp"
 
 #define LangFileMask "*.lng"
+
+#ifndef pack
+ #define _PACK_BITS 2
+ #define _PACK (1 << _PACK_BITS)
+ #define pck(x,N)            ( ((x) + ((1<<(N))-1) )  & ~((1<<(N))-1) )
+ #define pack(x)             pck(x,_PACK_BITS)
+#endif
 
 Language Lang;
 
@@ -74,12 +83,13 @@ int Language::Init(char *Path,int CountNeed)
     if (ReadStr[SrcLength-1]=='\"')
       ReadStr[SrcLength-1]=0;
     ConvertString(ReadStr+1,DestStr);
-    int DestLength=strlen(DestStr)+1;
+    int DestLength=pack(strlen(DestStr)+1);
     if ((MsgList=(char *)realloc(MsgList,MsgSize+DestLength))==NULL)
     {
       fclose(LangFile);
       return(FALSE);
     }
+    *(int*)&MsgList[MsgSize+DestLength-_PACK]=0;
     strcpy(MsgList+MsgSize,DestStr);
     MsgSize+=DestLength;
     MsgCount++;
@@ -102,7 +112,7 @@ int Language::Init(char *Path,int CountNeed)
   for (int I=0;I<MsgCount;I++)
   {
     MsgAddr[I]=CurAddr;
-    CurAddr+=strlen(CurAddr)+1;
+    CurAddr+=pack(strlen(CurAddr)+1);
   }
   fclose(LangFile);
   SetLastError(LastError);

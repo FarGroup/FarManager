@@ -5,10 +5,13 @@ filetype.cpp
 
 */
 
-/* Revision: 1.17 07.05.2001 $ */
+/* Revision: 1.18 17.05.2001 $ */
 
 /*
 Modify:
+  17.05.2001 SVS
+    ! Для конструкции !? для строки редактирования добавлен флаг
+      DIF_USELASTHISTORY - при однотипных операциях ооох как помогает :-)
   07.05.2001 SVS
     ! SysLog(); -> _D(SysLog());
   06.05.2001 DJ
@@ -1009,7 +1012,7 @@ void ReplaceVariables(char *Str)
     DlgData[DlgSize+1].X1=5;
     DlgData[DlgSize+1].X2=70;
     DlgData[DlgSize+1].Y1=DlgSize+3;
-    DlgData[DlgSize+1].Flags|=DIF_HISTORY;
+    DlgData[DlgSize+1].Flags|=DIF_HISTORY|DIF_USELASTHISTORY;
 
     char HistoryName[MaxSize][20];
     int HistoryNumber=DlgSize/2;

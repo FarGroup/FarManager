@@ -5,10 +5,12 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.10 06.05.2001 $ */
+/* Revision: 1.11 17.05.2001 $ */
 
 /*
 Modify:
+  17.05.2001 SVS
+    ! Немного модификации типов параметров (чтобы doxygen матом не ругался :-)
   06.05.2001 DJ
     ! перетрях #include
   29.04.2001 ОТ
@@ -134,7 +136,7 @@ int FileList::FileNameToPluginItem(char *Name,PluginPanelItem *pi)
 }
 
 
-void FileList::FileListToPluginItem(FileListItem *fi,PluginPanelItem *pi)
+void FileList::FileListToPluginItem(struct FileListItem *fi,struct PluginPanelItem *pi)
 {
   strcpy(pi->FindData.cFileName,fi->Name);
   strcpy(pi->FindData.cAlternateFileName,fi->ShortName);
@@ -171,7 +173,7 @@ void FileList::FileListToPluginItem(FileListItem *fi,PluginPanelItem *pi)
 }
 
 
-void FileList::PluginToFileListItem(PluginPanelItem *pi,FileListItem *fi)
+void FileList::PluginToFileListItem(struct PluginPanelItem *pi,struct FileListItem *fi)
 {
   strncpy(fi->Name,pi->FindData.cFileName,sizeof(fi->Name));
   strncpy(fi->ShortName,pi->FindData.cAlternateFileName,sizeof(fi->ShortName));

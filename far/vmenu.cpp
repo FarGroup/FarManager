@@ -7,10 +7,16 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.19 15.05.2001 $ */
+/* Revision: 1.20 17.05.2001 $ */
 
 /*
 Modify:
+  17.05.2001 SVS
+    + UpdateItem() - обновить пункт
+    + FarList2MenuItem() \ функции преобразовани€ "туда-сюда"
+    + MenuItem2FarList() /
+    ! табул€ции мен€ем только при показе - дл€ сохранение оригинальной строки
+    ! ѕри автоназначении учтем факт того, что должны вернуть оригинал не тронутым
   15.05.2001 KM
     - Ќе работал флаг DIF_CHECKED в DI_LISTBOX
     + ƒобавлена возможность назначать в DI_LISTBOX с флагом DIF_CHECKED
@@ -146,6 +152,7 @@ VMenu::VMenu(char *Title,       // заголовок меню
       strcpy(NewItem.Name,MSG((unsigned int)Data[I].Name));
     else
       strcpy(NewItem.Name,Data[I].Name);
+    NewItem.AmpPos=-1;
     NewItem.Selected=Data[I].Selected;
     NewItem.Checked=Data[I].Checked;
     NewItem.Separator=Data[I].Separator;
@@ -440,16 +447,23 @@ void VMenu::ShowMenu(int IsParent)
           else
             Check=Item[I].Checked;
         sprintf(TmpStr,"%c %.*s",Check,X2-X1-3,Item[I].Name);
+        { // табул€ции мен€ем только при показе!!!
+          // дл€ сохранение оригинальной строки!!!
+          char *TabPtr;
+          while ((TabPtr=strchr(TmpStr,'\t'))!=NULL)
+            *TabPtr=' ';
+        }
         int Col;
 
         if (Item[I].Selected)
             Col=VMenu::Colors[7];
         else
             Col=VMenu::Colors[4];
-        if (ShowAmpersand)
+        if(ShowAmpersand)
           Text(TmpStr);
         else
           HiText(TmpStr,Col);
+
         mprintf("%*s",X2-WhereX(),"");
       }
     else
@@ -502,13 +516,12 @@ int VMenu::AddItem(struct MenuItem *NewItem)
   }
   Item[ItemCount]=*NewItem;
   Length=strlen(Item[ItemCount].Name);
-  char *TabPtr;
-  while ((TabPtr=strchr(Item[ItemCount].Name,'\t'))!=NULL)
-    *TabPtr=' ';
   if (Length>MaxLength)
     MaxLength=Length;
   if (Item[ItemCount].Selected)
     SelectPos=ItemCount;
+  if(VMFlags&(VMENU_AUTOHIGHLIGHT|VMENU_REVERSIHLIGHT))
+    AssignHighlights(VMFlags&VMENU_REVERSIHLIGHT);
 //  if(VMenu::VMFlags&VMENU_LISTBOXSORT)
 //    SortItems(0);
   CallCount--;
@@ -546,50 +559,99 @@ int  VMenu::AddItem(char *NewStrItem)
 
 int VMenu::AddItem(struct FarList *List)
 {
-  struct MenuItem ListItem={0};
   if(List && List->Items)
   {
-    struct FarListItem *Items=List->Items;
-    for (int J=0; J < List->ItemsNumber; J++)
-    {
-      ListItem.Separator=Items[J].Flags&LIF_SEPARATOR;
-      ListItem.Selected=Items[J].Flags&LIF_SELECTED;
-      /* $ 15.05.2001 KM
-         ¬осстановлена работа Checked.
-      */
-      if (Items[J].Flags&LIF_CHECKED)
-        ListItem.Checked=Items[J].Flags&0xFFFF ? Items[J].Flags&0xFFFF : 1;
-      else
-        ListItem.Checked=FALSE;
-      /* KM $ */
-      ListItem.Disabled=Items[J].Flags&LIF_DISABLE;
-      // здесь нужно добавить проверку на LIF_PTRDATA!!!
-      ListItem.Flags=0;
-      ListItem.PtrData=NULL;
-      if(Items[J].Flags&LIF_PTRDATA)
-      {
-        strncpy(ListItem.Name,Items[J].Ptr.PtrData,sizeof(ListItem.Name));
-        ListItem.UserDataSize=Items[J].Ptr.PtrLength;
-        if(Items[J].Ptr.PtrLength > sizeof(ListItem.UserData))
-        {
-          ListItem.PtrData=Items[J].Ptr.PtrData;
-          ListItem.Flags=1;
-        }
-        else
-          memmove(ListItem.UserData,Items[J].Ptr.PtrData,Items[J].Ptr.PtrLength);
-      }
-      else
-      {
-        strncpy(ListItem.Name,Items[J].Text,sizeof(ListItem.Name));
-        strncpy(ListItem.UserData,Items[J].Text,sizeof(ListItem.UserData));
-        ListItem.UserDataSize=strlen(Items[J].Text);
-      }
-      AddItem(&ListItem);
-    }
+    struct MenuItem MItem;
+    struct FarListItem *FItem=List->Items;
+    for (int J=0; J < List->ItemsNumber; J++, ++FItem)
+      AddItem(FarList2MenuItem(FItem,&MItem));
   }
   return ItemCount;
 }
 
+int VMenu::UpdateItem(struct FarList *NewItem)
+{
+  if(NewItem && NewItem->Items && (DWORD)NewItem->ItemsNumber < (DWORD)ItemCount)
+  {
+    struct MenuItem MItem;
+    memcpy(Item+NewItem->ItemsNumber,FarList2MenuItem(NewItem->Items,&MItem),sizeof(struct MenuItem));
+    return TRUE;
+  }
+  return FALSE;
+}
+
+struct FarListItem *VMenu::MenuItem2FarList(struct MenuItem *MItem,
+                                            struct FarListItem *FItem)
+{
+  if(FItem && MItem)
+  {
+    memset(FItem,0,sizeof(struct FarListItem));
+    FItem->Flags|=MItem->Separator?LIF_SEPARATOR:0;
+    FItem->Flags|=MItem->Selected?LIF_SELECTED:0;
+    FItem->Flags|=MItem->Disabled?LIF_DISABLE:0;
+
+    if(MItem->Checked)
+      FItem->Flags|=LIF_CHECKED|(MItem->Checked!=1?(MItem->Checked&0xFFFF):0);
+
+    if(!MItem->Flags) // != LIF_PTRDATA
+    {
+      strncpy(FItem->Text,MItem->Name,sizeof(FItem->Text)); // MItem->UserData?
+      // коррекци€ на &
+      short AmpPos=MItem->AmpPos;
+      if(AmpPos >= 0)
+        memmove(FItem->Text+AmpPos,FItem->Text+AmpPos+1,strlen(FItem->Text+AmpPos+1));
+    }
+    else
+    {
+      // здесь нужно добавить проверку на LIF_PTRDATA!!!
+      FItem->Ptr.PtrLength=MItem->UserDataSize;
+      FItem->Ptr.PtrData=MItem->PtrData;
+      FItem->Flags|=LIF_PTRDATA;
+    }
+    return FItem;
+  }
+  return NULL;
+}
+
+struct MenuItem *VMenu::FarList2MenuItem(struct FarListItem *FItem,
+                                         struct MenuItem *MItem)
+{
+  if(FItem && MItem)
+  {
+    memset(MItem,0,sizeof(struct MenuItem));
+    MItem->Separator=FItem->Flags&LIF_SEPARATOR;
+    MItem->Selected=FItem->Flags&LIF_SELECTED;
+    /* $ 15.05.2001 KM
+       ¬осстановлена работа Checked.
+    */
+    if (FItem->Flags&LIF_CHECKED)
+      MItem->Checked=FItem->Flags&0xFFFF ? FItem->Flags&0xFFFF : 1;
+    else
+      MItem->Checked=FALSE;
+    /* KM $ */
+    MItem->Disabled=FItem->Flags&LIF_DISABLE;
+    // здесь нужно добавить проверку на LIF_PTRDATA!!!
+    MItem->Flags=0;
+    MItem->PtrData=NULL;
+    if(FItem->Flags&LIF_PTRDATA)
+    {
+      memcpy(MItem->Name,FItem->Ptr.PtrData,sizeof(MItem->Name));
+      MItem->UserDataSize=FItem->Ptr.PtrLength;
+      MItem->PtrData=FItem->Ptr.PtrData;
+      MItem->Flags=1;
+      if(FItem->Ptr.PtrLength < sizeof(MItem->UserData))
+        memcpy(MItem->UserData,FItem->Ptr.PtrData,FItem->Ptr.PtrLength);
+    }
+    else
+    {
+      strncpy(MItem->Name,FItem->Text,sizeof(MItem->Name));
+      strncpy(MItem->UserData,FItem->Text,sizeof(MItem->UserData));
+      MItem->UserDataSize=strlen(FItem->Text);
+    }
+    return MItem;
+  }
+  return NULL;
+}
 
 /* $ 01.08.2000 SVS
    функци€ удалени€ N пунктов меню
@@ -979,7 +1041,7 @@ void VMenu::SetFlags(unsigned int Flags)
   ShowAmpersand=(Flags & MENU_SHOWAMPERSAND);
   if(VMenu::VMFlags&VMENU_LISTBOX)
   {
-    if(Flags&VMENU_SHOWNOBOX)
+    if(Flags&FMENU_SHOWNOBOX)
       VMenu::VMFlags|=VMENU_SHOWNOBOX;
   }
 }
@@ -1095,9 +1157,11 @@ void VMenu::AssignHighlights(int Reverse)
           Used[LocalLower(Name[J])]=TRUE;
           memmove(Name+J+1,Name+J,strlen(Name+J)+1);
           Name[J]='&';
+          Item[I].AmpPos=J;
           break;
         }
   }
+  VMFlags|=VMENU_AUTOHIGHLIGHT|(Reverse?VMENU_REVERSIHLIGHT:0);
   ShowAmpersand=FALSE;
 }
 
