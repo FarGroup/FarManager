@@ -5,10 +5,15 @@ findfile.cpp
 
 */
 
-/* Revision: 1.87 16.01.2002 $ */
+/* Revision: 1.88 17.01.2002 $ */
 
 /*
 Modify:
+  17.01.2002 VVM
+    ! Выделять элементы в списке будем через ListBox, а не в структуре.
+      Убираем возможность двойного выделения
+    ! Поскольку работу с поиском в папках вынесли в диалог -
+      флаг OPIF_FINDFOLDERS в плагине потерял свою актуальность
   16.01.2002 VVM
     ! В функцию AddMenuRecord не передается параметр Path, он там лишний...
       исправление бага № 236
@@ -1643,11 +1648,14 @@ int FindFiles::IsFileIncluded(PluginPanelItem *FileItem,char *FullName,DWORD Fil
     hPlugin = ArcList[FindFileArcIndex].hPlugin;
   while(FileFound)
   {
-    if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) &&
-        (Opt.FindFolders==0) &&
-        ((hPlugin == INVALID_HANDLE_VALUE) ||
-        (ArcList[FindFileArcIndex].Flags & OPIF_FINDFOLDERS)==0))
+    /* $ 17.01.2002 VVM
+      ! Поскольку работу с поиском в папках вынесли в диалог -
+        флаг в плагине потерял свою актуальность */
+    if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) && (Opt.FindFolders==0))
+//        ((hPlugin == INVALID_HANDLE_VALUE) ||
+//        (ArcList[FindFileArcIndex].Flags & OPIF_FINDFOLDERS)==0))
       return FALSE;
+    /* VVM $ */
 
     if (*FindStr && FileFound)
     {
@@ -1802,12 +1810,19 @@ void FindFiles::AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData)
         FindList[ItemIndex].ArcIndex = FindFileArcIndex;
     }
     strcpy(ListItem.Name,MenuText);
-    ListItem.SetSelect(!FindFileCount);
+    /* $ 17.01.2002 VVM
+      ! Выделять будем не в структуре, а в списке. Дабы не двоилось выделение */
+//    ListItem.SetSelect(!FindFileCount);
 
     while (ListBox->GetCallCount())
       Sleep(10);
-    ListBox->SetUserData((void*)ItemIndex,sizeof(ItemIndex),
-                         ListBox->AddItem(&ListItem));
+
+    int ListPos = ListBox->AddItem(&ListItem);
+    ListBox->SetUserData((void*)ItemIndex,sizeof(ItemIndex), ListPos);
+    // Выделим как положено - в списке.
+    if (!FindFileCount)
+      ListBox->SetSelectPos(ListPos, -1);
+    /* VVM $ */
     FindFileCount++;
   }
   else
