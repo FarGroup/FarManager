@@ -1,3 +1,6 @@
+#if defined(DMACRO2)
+#include "macro2.hpp"
+#else
 #ifndef __KEYMACRO_HPP__
 #define __KEYMACRO_HPP__
 /*
@@ -7,10 +10,12 @@ macro.hpp
 
 */
 
-/* Revision: 1.15 09.08.2001 $ */
+/* Revision: 1.16 15.08.2001 $ */
 
 /*
 Modify:
+  15.08.2001 SVS
+    ! косметика - для собственных нужд (по поводу macro2.?pp)
   09.08.2001 SVS
     + IfCondition() - вернет TRUE/FALSE в зависимости от условия
   22.06.2001 SVS
@@ -164,3 +169,4 @@ class KeyMacro
 };
 
 #endif	// __KEYMACRO_HPP__
+#endif // defined(DMACRO2)

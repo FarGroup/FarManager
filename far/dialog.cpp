@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.155 13.08.2001 $ */
+/* Revision: 1.156 15.08.2001 $ */
 
 /*
 Modify:
+  15.08.2001 SVS
+   + DN_MOUSEEVENT, DM_SETNOTIFYMOUSEEVENT, DMODE_MOUSEEVENT
   13.10.2001 SVS
    - Если у элемента X2 < X1, то ФАР отжирает кучу памяти и сваливается в пике.
   11.10.2001 KM
@@ -3024,6 +3026,10 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   if(!CheckDialogMode(DMODE_SHOW))
     return FALSE;
 
+  if(!CheckDialogMode(DMODE_MOUSEEVENT))
+   if(!DlgProc((HANDLE)this,DN_MOUSEEVENT,0,(long)MouseEvent))
+     return TRUE;
+
   MsX=MouseEvent->dwMousePosition.X;
   MsY=MouseEvent->dwMousePosition.Y;
 
@@ -4485,6 +4491,9 @@ long WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
     case DN_RESIZECONSOLE:
       return TRUE;
+
+    case DN_MOUSEEVENT:
+      return TRUE;
   }
 
   return 0;
@@ -5483,6 +5492,19 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         }
       }
       return FALSE;
+
+    case DM_SETNOTIFYMOUSEEVENT: // Param1 = 0 on, 1 off, -1 - get
+    {
+      int State=Dlg->CheckDialogMode(DMODE_MOUSEEVENT)?TRUE:FALSE;
+      if(Param1 != -1)
+      {
+        if(!Param1)
+          Dlg->SkipDialogMode(DMODE_MOUSEEVENT);
+        else
+          Dlg->SetDialogMode(DMODE_MOUSEEVENT);
+      }
+      return State;
+    }
   }
 
   // Все, что сами не отрабатываем - посылаем на обработку обработчику.

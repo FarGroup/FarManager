@@ -5,10 +5,12 @@ scrbuf.cpp
 
 */
 
-/* Revision: 1.11 25.07.2001 $ */
+/* Revision: 1.12 15.08.2001 $ */
 
 /*
 Modify:
+  15.08.2001 SVS
+    ! Добавим Flush() в некоторые функции (трудно в бедагере гонять без этого)
   25.07.2001 SVS
     ! Документирование
   24.07.2001 SVS
@@ -183,6 +185,12 @@ void ScreenBuf::AppliColorMask(int X1,int Y1,int X2,int Y2,WORD ColorMask)
   for (int I=0;I<Y2-Y1+1;I++)
     for (int J=0;J<Width;J++)
       Buf[(Y1+I)*BufX+(X1+J)].Attributes&=~ColorMask;
+#ifdef DIRECT_SCREEN_OUT
+  Flush();
+#elif defined(DIRECT_RT)
+  if ( DirectRT  )
+    Flush();
+#endif
 }
 
 /* Закрасить прямоугольник символом Ch и цветом Color
@@ -201,6 +209,12 @@ void ScreenBuf::FillRect(int X1,int Y1,int X2,int Y2,int Ch,int Color)
       Buf[Pos].Char.AsciiChar=Ch;
 #endif
     }
+#ifdef DIRECT_SCREEN_OUT
+  Flush();
+#elif defined(DIRECT_RT)
+  if ( DirectRT  )
+    Flush();
+#endif
 }
 
 /* "Сбросить" виртуальный буфер на консоль
@@ -393,5 +407,11 @@ void ScreenBuf::Scroll(int Num)
 {
   if(Num > 0 && Num < BufY)
     memcpy(Buf,Buf+Num*BufX,(BufY-Num)*BufX*sizeof(CHAR_INFO));
+#ifdef DIRECT_SCREEN_OUT
+  Flush();
+#elif defined(DIRECT_RT)
+  if ( DirectRT  )
+    Flush();
+#endif
 }
 /* SKV$*/

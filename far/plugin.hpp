@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.136 13.08.2001 $ */
+/* Revision: 1.137 15.08.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  15.08.2001 SVS
+    + DN_MOUSE, DM_SETNOTIFYMOUSEEVENT
   13.08.2001 SKV
     + FCTL_GETCMDLINESELECTION, FCTL_SETCMDLINESELECTION, struct CmdLineSelect.
   08.08.2001 SVS
@@ -805,6 +807,7 @@ enum FarMessagesProc{
   DM_SETHISTORY,
 
   DM_GETITEMPOSITION,
+  DM_SETNOTIFYMOUSEEVENT,
 
   DN_FIRST=0x1000,
   DN_BTNCLICK,
@@ -824,6 +827,7 @@ enum FarMessagesProc{
   DN_MOUSECLICK,
   DN_DRAGGED,
   DN_RESIZECONSOLE,
+  DN_MOUSEEVENT,
 
   DN_CLOSE=DM_CLOSE,
   DN_KEY=DM_KEY,

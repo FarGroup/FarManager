@@ -1,3 +1,6 @@
+#if defined(DMACRO2)
+#include "macro2.cpp"
+#else
 /*
 macro.cpp
 
@@ -5,10 +8,13 @@ macro.cpp
 
 */
 
-/* Revision: 1.53 09.08.2001 $ */
+/* Revision: 1.54 15.08.2001 $ */
 
 /*
 Modify:
+  15.08.2001 SVS
+    ! косметика - для собственных нужд (по поводу macro2.?pp)
+    ! исключены $StopIf
   09.08.2001 SVS
     + IfCondition() - вернет TRUE/FALSE в зависимости от условия
     + KEY_MACROSTOPIFNOT, KEY_MACROSTOPIF - условное прекращение исполнения
@@ -286,8 +292,8 @@ static struct TKeyCodeName{
   int Len;
   char *Name;
 } KeyMacroCodes[]={
-   { KEY_MACROSTOPIFNOT,          10, "$StopIfNot"}, // $StopIfNot условие
-   { KEY_MACROSTOPIF,              7, "$StopIf"},  // $StopIf условие
+//   { KEY_MACROSTOPIFNOT,          10, "$StopIfNot"}, // $StopIfNot условие
+//   { KEY_MACROSTOPIF,              7, "$StopIf"},  // $StopIf условие
    { KEY_MACROMODE,                6, "$MMode" },
    { KEY_MACRODATE,                5, "$Date"  }, // $Date "%d-%a-%Y"
    { KEY_MACROSTOP,                5, "$Stop"  },
@@ -1672,3 +1678,4 @@ void KeyMacro::Sort(void)
 
 //_SVS(for(I=0; I < sizeof(IndexMode)/sizeof(IndexMode[0]); ++I)SysLog("IndexMode[%02d.%s]=%d,%d",I,GetSubKey(I),IndexMode[I][0],IndexMode[I][1]));
 }
+#endif // defined(DMACRO2)

@@ -5,10 +5,14 @@ copy.cpp
 
 */
 
-/* Revision: 1.44 03.08.2001 $ */
+/* Revision: 1.45 15.08.2001 $ */
 
 /*
 Modify:
+  15.08.2001 SVS
+    - Бага - Win2K. создание хардлинков. несколько объектов (не каталогов)
+      - забыл снять дизабле флаг с кнопки Link.
+      Плюс к этому - криво работал SameDisk без учета симлинков.
   03.08.2001 IS
     + Новая опция для мультикопирования в диалоге и соответствующая ее
       обработка.
@@ -192,6 +196,7 @@ struct CopyDlgParam {
   int FileAttr;
   int SelCount;
   int FolderPresent;
+  int FilesPresent;
   char FSysNTFS;
   DWORD FileSystemFlagsSrc;
   int IsDTSrcFixed;
@@ -272,6 +277,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   CDP.thisClass=this;
   CDP.AltF10=0;
   CDP.FolderPresent=0;
+  CDP.FilesPresent=0;
 
   ShellCopy::Flags=0;
   ShellCopy::Flags|=Move?FCOPY_MOVE:0;
@@ -430,14 +436,18 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     {
       CDP.FolderPresent=TRUE;
       AddSlash=TRUE;
-      break;
+//      break;
     }
+    else
+      CDP.FilesPresent=TRUE;
   }
 
   if(Link) // рулесы по поводу линков (предварительные!)
   {
     char SrcDir[NM];
     int Selected5=CopyDlg[5].Selected;
+    if(CDP.SelCount > 1 && !CDP.FilesPresent && CDP.FolderPresent)
+      Selected5=1;
     SrcPanel->GetCurDir(SrcDir);
     if(!LinkRules(&CopyDlg[8].Flags,
                   &CopyDlg[5].Flags,
@@ -858,15 +868,22 @@ BOOL ShellCopy::LinkRules(DWORD *Flags8,DWORD* Flags5,int* Selected5,
       }
       else
       {
-        if(NT5 && (FileSystemFlagsDst&FILE_SUPPORTS_REPARSE_POINTS))
+        if(CDP->FolderPresent)
         {
-          if(CDP->FolderPresent)
+          if(NT5 && (FileSystemFlagsDst&FILE_SUPPORTS_REPARSE_POINTS))
           {
             *Flags5 &=~ DIF_DISABLE;
+            if(!CDP->FilesPresent)
+            {
+              *Flags8 &=~ DIF_DISABLE;
+            }
+          }
+
+          if(CDP->FilesPresent && SameDisk && CDP->FSysNTFS)
+          {
+//            *Selected5=0;
             *Flags8 &=~ DIF_DISABLE;
           }
-          else if(CDP->FileSystemFlagsSrc&FILE_SUPPORTS_REPARSE_POINTS)
-            *Selected5=0;
         }
         else if(SameDisk && CDP->FSysNTFS) // это файл!
         {
@@ -2458,9 +2475,9 @@ int ShellCopy::IsSameDisk(char *SrcPath,char *DestPath)
   if ((SrcRoot[0]=='\\' && SrcRoot[1]=='\\' || DestRoot[0]=='\\' && DestRoot[1]=='\\') &&
       LocalStricmp(SrcRoot,DestRoot)!=0)
     return(FALSE);
-  if (*SrcPath==0 || *DestPath==0 || SrcPath[1]!=':' || DestPath[1]!=':')
+  if (*SrcPath==0 || *DestPath==0 || SrcPath[1]!=':' || DestPath[1]!=':') //????
     return(TRUE);
-  if (toupper(DestPath[0])==toupper(SrcPath[0]))
+  if (toupper(DestRoot[0])==toupper(SrcRoot[0]))
     return(TRUE);
   DWORD SrcVolumeNumber=0,DestVolumeNumber=0;
   char SrcVolumeName[NM],DestVolumeName[NM];
