@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.75 22.11.2001 $ */
+/* Revision: 1.76 23.11.2001 $ */
 
 /*
 Modify:
+  23.11.2001 VVM
+    ! Ќемного изменений, что-бы отрисовка диалога не перекрывала сообщение.
   22.11.2001 KM
     - «абыли однако, что DN_BTNCLICK работает со всеми "нажимающимис€"
       контролами, только с кнопками немного по-другому, поэтому простое
@@ -733,6 +735,11 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
     case DN_KEY:
     {
+      if (!ListBox)
+        return TRUE;
+
+      WaitForSingleObject(hMutex,INFINITE);
+
       if (!StopSearch && Param2==KEY_ESC)
       {
         PauseSearch=TRUE;
@@ -745,13 +752,9 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         IsProcessAssignMacroKey--;
         PauseSearch=FALSE;
         StopSearch=LocalRes;
+        ReleaseMutex(hMutex);
         return TRUE;
       }
-
-      if (!ListBox)
-        return TRUE;
-
-      WaitForSingleObject(hMutex,INFINITE);
 
       while (ListBox->GetCallCount())
         Sleep(10);
