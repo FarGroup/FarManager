@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.43 22.07.2001 $ */
+/* Revision: 1.44 24.07.2001 $ */
 
 /*
 Modify:
+  24.07.2001 IS
+    ! isspace и iseol теперь не макросы, а inline функции
   22.07.2001 SVS
     + Оконстантим SysID для Network Browse плагина - SYSID_NETWORK
   26.06.2001 SVS
@@ -122,8 +124,8 @@ template <class T>
 inline const T&Max(const T &a, const T &b) { return a>b?a:b; }
 
 #undef isspace
-#define  isspace(x) ((x)==' ' || (x)=='\t')
-#define  iseol(x) ((x)=='\r' || (x)=='\n')
+inline int isspace(int x) { return x==' ' || x=='\t'; }
+inline int iseol(int x)  { return x=='\r' || x=='\n'; }
 
 #define  FALSE        0
 #define  TRUE         1
@@ -190,14 +192,14 @@ enum {
 };
 /* SVS $ */
 
-#define SYSID_PRINTMANAGER	0x6E614D50
-#define SYSID_NETWORK		0x5774654E
+#define SYSID_PRINTMANAGER      0x6E614D50
+#define SYSID_NETWORK           0x5774654E
 
 
 /* $ 25.02.2001 VVM
   + Флаги для ReadDiz() */
 enum ReadDizFlags {
-  RDF_NO_UPDATE		= 0x00000001UL,
+  RDF_NO_UPDATE         = 0x00000001UL,
 };
 /* VVM $ */
 
@@ -206,9 +208,9 @@ enum ReadDizFlags {
 
 #if defined(FARTRY)
  #if defined(__BORLANDC__)
-  #define TRY	   try
+  #define TRY      try
  #else
-  #define TRY	__try
+  #define TRY   __try
  #endif
  #define EXCEPT __except
 #else

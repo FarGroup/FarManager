@@ -5,10 +5,13 @@ findfile.cpp
 
 */
 
-/* Revision: 1.40 22.07.2001 $ */
+/* Revision: 1.41 24.07.2001 $ */
 
 /*
 Modify:
+  24.07.2001 IS
+    ! Замена проверки на ' ' и '\t' на вызов isspace
+    ! Замена проверки на '\n' и '\r' на вызов iseol
   22.07.2001 KM
     ! Данное изменение было сделано из-за изменений в обработке
       в vmenu.cpp флага NO_BOX, после чего неверно отрисовался
@@ -1285,13 +1288,12 @@ int LookForString(char *Name)
           int locResultRight=FALSE;
           if (!FirstIteration)
           {
-            if (Buf[I]==' ' || Buf[I]=='\t' || Buf[I]=='\n' || Buf[I]=='\r')
+            if (isspace(Buf[I]) || iseol(Buf[I]))
               locResultLeft=TRUE;
             if (RealReadSize!=sizeof(Buf) && I+1+Length>=RealReadSize)
               locResultRight=TRUE;
             else
-              if (Buf[I+1+Length]==' ' || Buf[I+1+Length]=='\t' ||
-                  Buf[I+1+Length]=='\n' || Buf[I+1+Length]=='\r')
+              if (isspace(Buf[I+1+Length]) || iseol(Buf[I+1+Length]))
                 locResultRight=TRUE;
 
             if (!locResultLeft)
@@ -1312,8 +1314,7 @@ int LookForString(char *Name)
             if (RealReadSize!=sizeof(Buf) && I+Length>=RealReadSize)
               locResultRight=TRUE;
             else
-              if (Buf[I+Length]==' ' || Buf[I+Length]=='\t' ||
-                  Buf[I+Length]=='\n' || Buf[I+Length]=='\r')
+              if (isspace(Buf[I+Length]) || iseol(Buf[I+Length]))
                 locResultRight=TRUE;
 
             if (!locResultRight)

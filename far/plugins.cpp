@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.81 23.07.2001 $ */
+/* Revision: 1.82 24.07.2001 $ */
 
 /*
 Modify:
+  24.07.2001 IS
+    ! Замена проверки на ' ' и '\t' на вызов isspace
   23.07.2001 SVS
     - бага при прорисовке меню вызова конфигруации плагинов!
       Очередной костыль.
@@ -2161,7 +2163,7 @@ int PluginsSet::ProcessCommandLine(char *Command)
   while (1)
   {
     int Ch=Command[PrefixLength];
-    if (Ch==0 || Ch==' ' || Ch=='\t' || Ch=='/' || PrefixLength>64)
+    if (Ch==0 || isspace(Ch) || Ch=='/' || PrefixLength>64)
       return(FALSE);
     if (Ch==':' && PrefixLength>0)
       break;

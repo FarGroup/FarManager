@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.110 10.07.2001 $ */
+/* Revision: 1.111 24.07.2001 $ */
 
 /*
 Modify:
+  24.07.2001 IS
+   ! Замена проверки на ' ' и '\t' на вызов isspace
   10.07.2001 SVS
    + Обработка KEY_MACROXLAT
   27.06.2001 SVS
@@ -3067,7 +3069,9 @@ void Editor::InsertString()
       int Length,Found=FALSE;
       PrevLine->EditLine.GetBinaryString(&Str,NULL,Length);
       for (int I=0;I<Length;I++)
-        if (Str[I]!=' ' && Str[I]!='\t')
+        /* $ 24.07.2001 IS isspace для этого и придумали */
+        if (!isspace(Str[I]))
+        /* IS $ */
         {
           PrevLine->EditLine.SetCurPos(I);
           IndentPos=PrevLine->EditLine.GetTabCurPos();
@@ -3094,7 +3098,9 @@ void Editor::InsertString()
        - закоментировал код, как не нужный*/
     if (IndentPos>0)
       for (int I=0;I<CurPos;I++)
-        if (CurLineStr[I]!=' ' && CurLineStr[I]!='\t')
+        /* $ 24.07.2001 IS isspace для этого и придумали */
+        if (!isspace(CurLineStr[I]))
+        /* IS $ */
         {
           SpaceOnly=FALSE;
           break;
@@ -3107,7 +3113,9 @@ void Editor::InsertString()
     */
     for ( int i0=0; i0<Length-CurPos; i0++ )
     {
-        if (!(CurLineStr[i0+CurPos]==' ' || CurLineStr[i0+CurPos]=='\t'))
+        /* $ 24.07.2001 IS isspace для этого и придумали */
+        if (!isspace(CurLineStr[i0+CurPos]))
+        /* IS $ */
         {
             NewLineEmpty=FALSE;
             break;
@@ -3187,7 +3195,9 @@ void Editor::InsertString()
       int Decrement=0;
       for (int I=0;I<IndentPos && I<Length;I++)
       {
-        if (CurLineStr[I]!=' ' && CurLineStr[I]!='\t')
+        /* $ 24.07.2001 IS isspace для этого и придумали */
+        if (!isspace(CurLineStr[I]))
+        /* IS $ */
           break;
         if (CurLineStr[I]==' ')
           Decrement++;
@@ -3244,7 +3254,9 @@ void Editor::InsertString()
       for (int I=0;I<Length;I++)
       {
         NewPos=I;
-        if (CurLineStr[I]!=' ' && CurLineStr[I]!='\t')
+        /* $ 24.07.2001 IS isspace для этого и придумали */
+        if (!isspace(CurLineStr[I]))
+        /* IS $ */
           break;
       }
       if (NewPos>OrgIndentPos)
@@ -4348,7 +4360,9 @@ void Editor::BlockLeft()
         Length+=EdOpt.TabSize-1;
       }
 
-    if ((EndSel==-1 || EndSel>StartSel) && (*CurStr==' ' || *CurStr=='\t'))
+    /* $ 24.07.2001 IS isspace для этого и придумали */
+    if ((EndSel==-1 || EndSel>StartSel) && isspace(*CurStr))
+    /* IS $ */
     {
       int EndLength=strlen(EndSeq);
       memcpy(TmpStr+Length,EndSeq,EndLength);

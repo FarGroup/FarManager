@@ -5,10 +5,13 @@ Internal viewer
 
 */
 
-/* Revision: 1.70 10.07.2001 $ */
+/* Revision: 1.71 24.07.2001 $ */
 
 /*
 Modify:
+  24.07.2001 IS
+    ! «амена проверки на ' ' и '\t' на вызов isspace
+    ! «амена проверки на '\n' и '\r' на вызов iseol
   10.07.2001 IS
     - Ѕаг: при копировании строки заголовка бралс€ немного не тот размер
       (€ напортачил в 732).
@@ -1091,18 +1094,18 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
           vseek(ViewFile,SavePos,SEEK_SET);
           if (VM.TypeWrap && RegVer) // только дл€ зарегестрированных
           {
-            if ( ! (Ch==' ' || Ch=='\t'  ) && !(Str[OutPtr]==' ' || Str[OutPtr]=='\t'))
+            if ( !isspace(Ch) && !isspace(Str[OutPtr]))
             {
                unsigned long SavePtr=OutPtr;
                /* $ 18.07.2000 tran
                   добавил в качестве wordwrap разделителей , ; > ) */
-               while (OutPtr && !(Str[OutPtr]==' ' || Str[OutPtr]=='\t' || Str[OutPtr]==',' || Str[OutPtr]==';' || Str[OutPtr]=='>'|| Str[OutPtr]==')'))
+               while (OutPtr && !(isspace(Str[OutPtr]) || Str[OutPtr]==',' || Str[OutPtr]==';' || Str[OutPtr]=='>'|| Str[OutPtr]==')'))
                /* tran 18.07.2000 $ */
                   OutPtr--;
                if ( Str[OutPtr]==',' || Str[OutPtr]==';' || Str[OutPtr]==')' || Str[OutPtr]=='>' )
                    OutPtr++;
                else
-                   while ((Str[OutPtr]==' ' || Str[OutPtr]=='\t' ) && OutPtr<=SavePtr)
+                   while (isspace(Str[OutPtr]) && OutPtr<=SavePtr)
                       OutPtr++;
 
                if ( OutPtr )
@@ -1117,7 +1120,7 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
             /* $ 13.09.2000 tran
                remove space at WWrap */
             unsigned long savepos=vtell(ViewFile);
-            while (Ch==' '|| Ch=='\t')
+            while (isspace(Ch))
                 Ch=vgetc(ViewFile);
             if ( vtell(ViewFile)!=savepos)
                 vseek(ViewFile,-1,SEEK_CUR);
@@ -2088,13 +2091,13 @@ void Viewer::Search(int Next,int FirstChar)
             int locResultRight=FALSE;
             if (I!=0)
             {
-              if (Buf[I]==' ' || Buf[I]=='\t' || Buf[I]=='\n' || Buf[I]=='\r')
+              if (isspace(Buf[I]) || iseol(Buf[I]))
                 locResultLeft=TRUE;
               if (ReadSize!=BufSize && I+1+SearchLength>=ReadSize)
                 locResultRight=TRUE;
               else
-                if (Buf[I+1+SearchLength]==' ' || Buf[I+1+SearchLength]=='\t' ||
-                    Buf[I+1+SearchLength]=='\n' || Buf[I+1+SearchLength]=='\r')
+                if (isspace(Buf[I+1+SearchLength]) ||
+                    iseol(Buf[I+1+SearchLength]))
                   locResultRight=TRUE;
 
               if (!locResultLeft)
@@ -2113,8 +2116,7 @@ void Viewer::Search(int Next,int FirstChar)
               if (ReadSize!=BufSize && I+SearchLength>=ReadSize)
                 locResultRight=TRUE;
               else
-                if (Buf[I+SearchLength]==' ' || Buf[I+SearchLength]=='\t' ||
-                    Buf[I+SearchLength]=='\n' || Buf[I+SearchLength]=='\r')
+                if (isspace(Buf[I+SearchLength]) || iseol(Buf[I+SearchLength]))
                   locResultRight=TRUE;
 
               if (!locResultRight)

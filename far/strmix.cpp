@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.18 11.07.2001 $ */
+/* Revision: 1.19 24.07.2001 $ */
 
 /*
 Modify:
+  24.07.2001 IS
+    ! «амена проверки на '\r' и '\n' на вызов iseol
   11.07.2001 SVS
     ! HiStrlen и RemoveChar - дополнительный параметр - при дубл€х, типа '&&'
       "удал€ть ли все или оставл€ть только один символ"
@@ -456,7 +458,7 @@ char* WINAPI RemoveUnprintableCharacters(char *Str)
  char *p=Str;
  while(*p)
  {
-   if('\n'==*p || '\r'==*p) *p=' ';
+   if(iseol(*p)) *p=' ';
    p++;
  }
  return RemoveExternalSpaces(Str);

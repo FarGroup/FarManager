@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.46 19.07.2001 $ */
+/* Revision: 1.47 24.07.2001 $ */
 
 /*
 Modify:
+  24.07.2001 IS
+    ! Замена проверки на ' ' и '\t' на вызов isspace
   19.07.2001 KM
     - Под NT курсор мигал.
   16.07.2001 KM
@@ -1884,14 +1886,14 @@ int Edit::Search(char *Str,int Position,int Case,int WholeWords,int Reverse)
              Исправление глюка при поиске по целым словам.
           */
           if (I>0)
-            locResultLeft=(ChLeft==' ' || ChLeft=='\t' || strchr(Opt.WordDiv,ChLeft)!=NULL);
+            locResultLeft=(isspace(ChLeft) || strchr(Opt.WordDiv,ChLeft)!=NULL);
           else
             locResultLeft=TRUE;
           /* KM $ */
           if (I+Length<StrSize)
           {
             ChRight=(TableSet==NULL) ? Edit::Str[I+Length]:TableSet->DecodeTable[Edit::Str[I+Length]];
-            locResultRight=(ChRight==' ' || ChRight=='\t' || strchr(Opt.WordDiv,ChRight)!=NULL);
+            locResultRight=(isspace(ChRight) || strchr(Opt.WordDiv,ChRight)!=NULL);
           }
           else
             locResultRight=TRUE;
