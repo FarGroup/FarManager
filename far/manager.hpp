@@ -7,10 +7,12 @@ manager.hpp
 
 */
 
-/* Revision: 1.14 26.05.2001 $ */
+/* Revision: 1.15 28.05.2001 $ */
 
 /*
 Modify:
+  28.05.2001 OT
+    ! RefreshFrame() по умолчанию обновляет текущий фрейм
   26.05.2001 OT
     + Новые методы ExecuteComit(), ExecuteFrame(), IndexOfStack()
     + Новый член Frame *ExecutedFrameж
@@ -120,7 +122,7 @@ class Manager
     void DeactivateFrame (Frame *Deactivated,int Direction);
     void ActivateFrame (Frame *Activated);
     void ActivateFrame (int Index);  //вместо ActivateFrameByPos (int NewPos);
-    void RefreshFrame(Frame *Refreshed);
+    void RefreshFrame(Frame *Refreshed=NULL);
     void RefreshFrame(int Index);
 // Функции для запуска модальных фреймов.
     void ExecuteFrame(Frame *Executed, int DynamicallyBorn=FALSE);

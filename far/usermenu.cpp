@@ -5,10 +5,13 @@ User menu и есть
 
 */
 
-/* Revision: 1.22 21.05.2001 $ */
+/* Revision: 1.23 28.05.2001 $ */
 
 /*
 Modify:
+  28.05.2001 OT
+    - Исправление ALTF4 в меню
+    ! Добавление кода вызова модального редактора, в соответствии с NFZ
   21.05.2001 SVS
     ! struct MenuData|MenuItem
       Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
@@ -87,6 +90,7 @@ Modify:
 #include "plognmn.hpp"
 #include "savefpos.hpp"
 #include "ctrlobj.hpp"
+#include "manager.hpp"
 
 static int ProcessSingleMenu(char *MenuKey,int MenuPos);
 static int DeleteMenuRecord(char *MenuKey,int DeletePos);
@@ -130,7 +134,7 @@ void ProcessUserMenu(int EditMenu)
 */
   FILE *MenuFile;
 //  char MenuFileName[NM];
-  char MenuKey[512];
+//  char MenuKey[512];
 //  char CurDir[NM];
   char MenuFilePath[NM];    // Путь к текущему каталогу с файлом LocalMenuFileName
   char *ChPtr;
@@ -550,9 +554,13 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
       UserMenu.AddItem(&UserMenuItem);
 
       {
-        UserMenu.Show();
+        MenuModified=TRUE;
         while (!UserMenu.Done())
         {
+          if (MenuModified==TRUE){
+            UserMenu.Show();
+            MenuModified=FALSE;
+          }
           int SelectPos=UserMenu.GetSelectPos();
           int Key=UserMenu.ReadInput();
           if (Key>=KEY_F1 && Key<=KEY_F12)
@@ -605,24 +613,26 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
                 {
                   char OldTitle[512];
                   GetConsoleTitle(OldTitle,sizeof(OldTitle));
-                  FileEditor ShellEditor(MenuFileName,FALSE,FALSE,-1,-1,FALSE);
+                  FileEditor ShellEditor(MenuFileName,FALSE,FALSE,-1,-1,TRUE,NULL);
+                  ShellEditor.SetDynamicallyBorn(false);
                   SetConsoleTitle(OldTitle);
-                  if (ShellEditor.GetExitCode()!=1 || (MenuFile=fopen(MenuFileName,"rb"))==NULL)
+                  FrameManager->ExecuteModal();
+                  if (!ShellEditor.IsFileChanged() || (MenuFile=fopen(MenuFileName,"rb"))==NULL)
                   {
                     remove(MenuFileName);
                     break;
                   }
                 }
+                MenuModified=TRUE;
                 DeleteKeyTree(MenuRootKey);
                 MenuFileToReg(MenuRootKey,MenuFile);
                 fclose(MenuFile);
                 remove(MenuFileName);
                 UserMenu.Hide();
-                MenuModified=TRUE;
 /* $ 14.07.2000 VVM
    ! Закрыть меню
 */
-                return(EC_CLOSE_MENU);
+//                return(EC_CLOSE_MENU);
 /* VVM $ */
               }
               else

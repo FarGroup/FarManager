@@ -5,12 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.27 27.05.2001 $ */
+/* Revision: 1.27 28.05.2001 $ */
 
 /*
 Modify:
-  27.05.2001 DJ
-    + добавлена возможность отмены ExecuteFrame()
+  28.05.2001 OT 
+    - Исправление "Файл после F3 остается залоченным" (переписан DeleteCommit())
   26.05.2001 OT
     - Исправление ExucuteModal()
     + Новые методы ExecuteComit(), ExecuteFrame(), IndexOfStack()
@@ -253,10 +253,13 @@ void Manager::ExecuteModal (Frame *Executed)
   } 
 
   int ModalStartLevel=ModalStackCount;
-  do {
+  while (1){
     Commit();
+    if (ModalStackCount<=ModalStartLevel){
+      break;
+    }
     ProcessMainLoop();
-  } while (ModalStackCount>ModalStartLevel);
+  }
   return;// GetModalExitCode();
 }
 
@@ -393,7 +396,11 @@ void Manager::RefreshFrame(Frame *Refreshed)
   _OT(SysLog("RefreshFrame(), Refreshed=%p",Refreshed));
   if (ActivatedFrame)
     return;
-  RefreshedFrame=Refreshed;
+  if (Refreshed){
+    RefreshedFrame=Refreshed;
+  } else {
+    RefreshedFrame=CurrentFrame;
+  }
 }
 
 void Manager::RefreshFrame(int Index)
@@ -404,12 +411,7 @@ void Manager::RefreshFrame(int Index)
 void Manager::ExecuteFrame(Frame *Executed, int DynamicallyBorn)
 {
   _OT(SysLog("ExecuteFrame(), Executed=%p, DynamicallyBorn=%i",Executed,DynamicallyBorn));
-  /* $ 27.05.2001 DJ
-     возможность отмены ExecuteFrame()
-  */
-  if (Executed)
-    Executed->SetDynamicallyBorn(DynamicallyBorn);
-  /* DJ $ */
+  Executed->SetDynamicallyBorn(DynamicallyBorn);
   ExecutedFrame=Executed;
 }
 
@@ -487,6 +489,7 @@ int  Manager::ProcessKey(int Key)
       return TRUE;
     case KEY_F11:
       PluginsMenu();
+      FrameManager->RefreshFrame();
       _D(SysLog(-1));
       return TRUE;
     case KEY_F12:
@@ -682,10 +685,12 @@ void Manager::UpdateCommit()
     ActivatedFrame=InsertedFrame;
   } else {
     Frame *iFrame=NULL;
+    Frame *FoundModal=NULL;
     for (int i=0;i<FrameCount;i++){
       iFrame=FrameList[i];
       int ModalDeletedIndex=(*iFrame)[DeletedFrame];
       if(ModalDeletedIndex>=0){
+        FoundModal=iFrame;
         if (ModalDeletedIndex>0){
           int iModalCount=iFrame->ModalCount();
           for (int i=iModalCount-1;i>ModalDeletedIndex;i--){
@@ -698,7 +703,11 @@ void Manager::UpdateCommit()
         break;
       }
     }
-    ActivatedFrame = (*iFrame)[iFrame->ModalCount()-1];
+    if (FoundModal){
+      ActivatedFrame = (*iFrame)[iFrame->ModalCount()-1];
+    } else {
+      DeleteCommit();
+    }
   }
 }
 
@@ -709,60 +718,47 @@ void Manager::DeleteCommit()
     return;
   }
   if (ModalStackCount&&(DeletedFrame==ModalStack[ModalStackCount-1])){
-    DeletedFrame->OnDestroy();
-    if (DeletedFrame->GetDynamicallyBorn()){
-      delete DeletedFrame;
-    }
     ModalStackCount--;
     if (ModalStackCount){
       ActivatedFrame=ModalStack[ModalStackCount-1];
     } else {
       ActivatedFrame=FrameList[FramePos];
     }
-    return;
-  }
-  int FrameIndex=IndexOf(DeletedFrame);
-  if (-1!=FrameIndex){
-    DeletedFrame->DestroyAllModal();
-    for (int i=0; i<FrameCount; i++ ){
-      if ( FrameList[i]==DeletedFrame){
-        for (int j=i+1; j<FrameCount; j++ )
-          FrameList[j-1]=FrameList[j];
-        FrameCount--;
-        if ( FramePos>=FrameCount ){
-          FramePos=0;
-        }
-        break;
-      }
-    }
-    if (!ActivatedFrame)
-      ActivatedFrame=FrameList[FramePos];
   } else {
-    bool fFound=false;
-    for (int i=0;i<FrameCount;i++){
-      Frame *iFrame=FrameList[i];
-      int ModalDeletedIndex=(*iFrame)[DeletedFrame];
-      if(ModalDeletedIndex>=0){
-        fFound=true;
-        if (ModalDeletedIndex>0){
-          int iModalCount=iFrame->ModalCount();
-          for (int j=iModalCount;j>ModalDeletedIndex;j--){
-            iFrame->Pop();
+    int FrameIndex=IndexOf(DeletedFrame);
+    if (-1!=FrameIndex){
+      DeletedFrame->DestroyAllModal();
+      for (int j=FrameIndex; j<FrameCount-1; j++ ){
+        FrameList[j]=FrameList[j+1];
+      }
+      FrameCount--;
+      if ( FramePos>=FrameCount ){
+        FramePos=0;
+      }
+      ActivatedFrame=FrameList[FramePos];
+    } else {
+      for (int i=0;i<FrameCount;i++){
+        Frame *iFrame=FrameList[i];
+        int ModalDeletedIndex=(*iFrame)[DeletedFrame];
+        if(ModalDeletedIndex>=0){
+          if (ModalDeletedIndex>0){
+            int iModalCount=iFrame->ModalCount();
+            for (int j=iModalCount;j>ModalDeletedIndex;j--){
+              iFrame->Pop();
+            }
+            ActivatedFrame = (*iFrame)[iFrame->ModalCount()-1];
+          } else {
+            ActivatedFrame = iFrame;
+            iFrame->DestroyAllModal();
           }
-          ActivatedFrame = (*iFrame)[iFrame->ModalCount()-1];
-        } else {
-          ActivatedFrame = iFrame;
-          iFrame->DestroyAllModal();
+          break;
         }
-        break;
       }
     }
-    if (!fFound){
-      DeletedFrame->OnDestroy();
-      if (DeletedFrame->GetDynamicallyBorn()){
-        delete DeletedFrame;
-      }
-    }
+  }
+  DeletedFrame->OnDestroy();
+  if (DeletedFrame->GetDynamicallyBorn()){
+    delete DeletedFrame;
   }
 }
 
@@ -799,7 +795,7 @@ void Manager::InsertCommit()
 
 void Manager::RefreshCommit()
 {
-  _OT(SysLog("RefreshCommit(), RefreshedFrame=%p",RefreshedFrame));
+  _OT(SysLog("RefreshCommit(), RefreshedFrame=%p,Refreshable()=%i",RefreshedFrame,RefreshedFrame->Refreshable()));
   if (!RefreshedFrame)
     return;
   if (RefreshedFrame->Refreshable()){
