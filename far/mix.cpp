@@ -5,7 +5,7 @@ mix.cpp
 
 */
 
-/* Revision: 1.06 13.07.2000 $ */
+/* Revision: 1.07 14.07.2000 $ */
 
 /*
 Modify:
@@ -29,6 +29,9 @@ Modify:
     ! Изменения для возможности компиляции под BC & VC
   13.07.2000 SVS
     ! Некоторые коррекции при использовании new/delete/realloc
+  13.07.2000 IG
+    - в VC, похоже, нельзя сказать так: 0x4550 == 'PE', надо
+      делать проверку побайтово (функция IsCommandExeGUI)
 */
 
 #include "headers.hpp"
@@ -368,7 +371,12 @@ DWORD IsCommandExeGUI(char *Command)
     SHFILEINFO sfi;
     DWORD ExeType=SHGetFileInfo(FullName,0,&sfi,sizeof(sfi),SHGFI_EXETYPE);
     GUIType=HIWORD(ExeType)>=0x0300 && HIWORD(ExeType)<=0x1000 &&
-            (LOWORD(ExeType)=='NE' || LOWORD(ExeType)=='PE');
+            /* $ 13.07.2000 IG
+               в VC, похоже, нельзя сказать так: 0x4550 == 'PE', надо
+               делать проверку побайтово.
+            */
+            HIBYTE(ExeType)=='E' && (LOBYTE(ExeType)=='N' || LOBYTE(ExeType)=='P');
+            /* IG $ */
   }
   SetFileApisToOEM();
   return(GUIType);
