@@ -5,10 +5,13 @@ gettable.cpp
 
 */
 
-/* Revision: 1.11 26.07.2001 $ */
+/* Revision: 1.12 07.08.2001 $ */
 
 /*
 Modify:
+  07.08.2001 IS
+    - Баги: некоторые символы считались буквами, даже если они таковыми не
+      являлись.
   26.07.2001 SVS
     ! VFMenu уничтожен как класс
   22.07.2001 SVS
@@ -75,23 +78,28 @@ int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
 
   if (AnsiText)
   {
+    /* $ 07.08.2001 IS
+       + Для "небукв" нет смысла извращаться с UpperTable и LowerTable
+       ! Исключим лишний цикл
+    */
+    char toUpper[2], toLower[2], decode[2], encode[2];
+    toUpper[1] = toLower[1] = decode[1] = encode[1] = 0;
     for (I=0;I<256;I++)
     {
-      TableSet->DecodeTable[I]=TableSet->EncodeTable[I]=I;
-      TableSet->LowerTable[I]=TableSet->UpperTable[I]=I;
+       *toUpper=*toLower=*decode=*encode=I;
+       CharToOem(decode, decode);
+       OemToChar(encode, encode);
+       if(IsCharAlpha(I))
+       {
+         CharUpper(toUpper);
+         CharLower(toLower);
+       }
+       TableSet->EncodeTable[I] = *encode;
+       TableSet->DecodeTable[I] = *decode;
+       TableSet->UpperTable[I] = *toUpper;
+       TableSet->LowerTable[I] = *toLower;
     }
-    for (I=0;I<256;I++)
-    {
-      char Str[1];
-      Str[0]=I;
-      CharToOemBuff(Str,Str,1);
-      TableSet->DecodeTable[I]=Str[0];
-      Str[0]=I;
-      OemToCharBuff(Str,Str,1);
-      TableSet->EncodeTable[I]=Str[0];
-      TableSet->LowerTable[I]=(unsigned char)CharLower((LPTSTR)I);
-      TableSet->UpperTable[I]=(unsigned char)CharUpper((LPTSTR)I);
-    }
+    /* IS $ */
     strcpy(TableSet->TableName,"Win");
     return(TRUE);
   }
@@ -321,13 +329,13 @@ int PrepareTable(struct CharTableSet *TableSet,int TableNum)
       EncodeSet[Ch]=TRUE;
     }
   }
-  /* $ 03.06.2001 IS
+  /* $ 07.08.2001 IS
      + Для "небукв" нет смысла извращаться с UpperTable и LowerTable
   */
   for (I=0;I<256;I++)
   {
-    int Ch=TableSet->DecodeTable[I];
-    if(LocalIsalpha(Ch))
+    int Ch=(BYTE)TableSet->DecodeTable[I];
+    if(I==(BYTE)TableSet->EncodeTable[Ch] && LocalIsalpha(Ch))
     {
       TableSet->LowerTable[I]=TableSet->EncodeTable[LocalLower(Ch)];
       TableSet->UpperTable[I]=TableSet->EncodeTable[LocalUpper(Ch)];

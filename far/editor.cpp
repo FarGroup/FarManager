@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.112 25.07.2001 $ */
+/* Revision: 1.113 07.08.2001 $ */
 
 /*
 Modify:
+  07.08.2001 IS
+    + Обработка ESPT_SETTABLE - смена кодировки.
   25.07.2001 IS
     - Баг: в меню по shift-f8 выделялась строка с той кодировкой, которая
       автоматически определилась при открытии файла, даже если текущая
@@ -5232,6 +5234,27 @@ int Editor::EditorControl(int Command,void *Param)
           case ESPT_CHARCODEBASE:
             SetCharCodeBase(espar->iParam);
             break;
+          /* $ 07.08.2001 IS сменить кодировку из плагина */
+          case ESPT_SETTABLE:
+          {
+            int UseUnicode=FALSE;
+            AnsiText=espar->iParam==2,
+            UseDecodeTable=espar->iParam>1,
+            TableNum=UseDecodeTable?espar->iParam-3:-1;
+            TableChangedByUser=TRUE;
+
+            if(AnsiText)
+               GetTable(&TableSet,TRUE,TableNum,UseUnicode);
+            else if(UseDecodeTable)
+               rc=PrepareTable(&TableSet, TableNum);
+
+            if(!rc) UseDecodeTable=AnsiText=0;
+
+            SetStringsTable();
+            ChangeEditKeyBar();
+            Show();
+          }
+          /* IS $ */
           default:
             return FALSE;
         }

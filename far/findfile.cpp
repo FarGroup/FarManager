@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.45 07.08.2001 $ */
+/* Revision: 1.46 07.08.2001 $ */
 
 /*
 Modify:
+  07.08.2001 IS
+    ! Изменились параметры у FarCharTable
   07.08.2001 SVS
     ! удален FindSaveScr - нафиг, к теропевту. И без него жизнь полна прекрас.
     ! если идет режим поиска (все еще ищем), то отключим вывод помощи,
@@ -310,7 +312,7 @@ FindFiles::FindFiles()
   for (int I=0;;I++)
   {
     CharTableSet cts;
-    int RetVal=FarCharTable(I,(const char *)&cts,sizeof(cts));
+    int RetVal=FarCharTable(I,(char *)&cts,sizeof(cts));
     if (RetVal==-1)
       break;
     TableItem=(FarListItem *)realloc(TableItem,sizeof(FarListItem)*(I+3));

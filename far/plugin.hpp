@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.133 07.08.2001 $ */
+/* Revision: 1.134 07.08.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,80 +20,84 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  07.08.2001 IS
+    + ESPT_SETTABLE
+    ! FARAPICHARTABLE - второй параметр теперь не const, потому что он может
+      изменяться в FarCharTable.
   07.08.2001 SVS
-   + DN_RESIZECONSOLE
+    + DN_RESIZECONSOLE
   01.08.2001 SVS
-   ! Флаги FMENU_CUSTOMNAME, FDLG_CUSTOMNAME, FMSG_CUSTOMNAME в морг
+    ! Флаги FMENU_CUSTOMNAME, FDLG_CUSTOMNAME, FMSG_CUSTOMNAME в морг
   31.07.2001 IS
-   + Флаги FMENU_CUSTOMNAME, FDLG_CUSTOMNAME, FMSG_CUSTOMNAME
+    + Флаги FMENU_CUSTOMNAME, FDLG_CUSTOMNAME, FMSG_CUSTOMNAME
   31.07.2001 SVS
-   + Маркеры про FAR_USE_INTERNALS. Просьба не убирать! Это для скрипта,
-     который будет генерить одноименный файл для дистрибутива. Если нужно
-     исключить что либо от внешнего взгляда - заключить вот в такие "скобки":
-     1 # ifdef FAR_USE_INTERNALS
-     2   то, что должно быть скрыто
-     3 # else // ELSE FAR_USE_INTERNALS
-     4   замена!
-     5 # endif // END FAR_USE_INTERNALS
+    + Маркеры про FAR_USE_INTERNALS. Просьба не убирать! Это для скрипта,
+      который будет генерить одноименный файл для дистрибутива. Если нужно
+      исключить что либо от внешнего взгляда - заключить вот в такие "скобки":
+      1 # ifdef FAR_USE_INTERNALS
+      2   то, что должно быть скрыто
+      3 # else // ELSE FAR_USE_INTERNALS
+      4   замена!
+      5 # endif // END FAR_USE_INTERNALS
   31.07.2001 IS
-   + Внедрение const (FARAPIGETMSG)
+    + Внедрение const (FARAPIGETMSG)
   27.07.2001 SVS
-   + DM_ALLKEYMODE - для нужд MacroBrowse (пока только для него :-)
+    + DM_ALLKEYMODE - для нужд MacroBrowse (пока только для него :-)
   16.07.2001 SVS
-   + FMENU_USEEXT & MENUITEMFLAGS & FarMenuItemEx
-   + DM_SETHISTORY - управление наличием истории у DI_EDIT & DI_FIXEDIT
+    + FMENU_USEEXT & MENUITEMFLAGS & FarMenuItemEx
+    + DM_SETHISTORY - управление наличием истории у DI_EDIT & DI_FIXEDIT
   11.07.2001 OT
-   + Новое "техническое" сообщения диалогу - DM_KILLSAVESCREEN
+    + Новое "техническое" сообщения диалогу - DM_KILLSAVESCREEN
   30.06.2001 KM
-   ! Языковое уточнение: LIFIND_NOPATTER -> LIFIND_NOPATTERN
-   + Новая структура FarListPos.
+    ! Языковое уточнение: LIFIND_NOPATTER -> LIFIND_NOPATTERN
+    + Новая структура FarListPos.
   29.06.2001 SVS
-   ! Уточнение FarListFind.
-   + LIFIND_NOPATTER - точное (без учета регистра букв) соответствие при
-     поиске в списке
+    ! Уточнение FarListFind.
+    + LIFIND_NOPATTER - точное (без учета регистра букв) соответствие при
+      поиске в списке
   26.06.2001 SKV
-   + ACTL_COMMIT
+    + ACTL_COMMIT
   26.06.2001 SVS
-   ! Перенесем DM_GETDROPDOWNOPENED и DM_SETDROPDOWNOPENED в "обычное"
-     место и дадим ход в публику :-)
+    ! Перенесем DM_GETDROPDOWNOPENED и DM_SETDROPDOWNOPENED в "обычное"
+      место и дадим ход в публику :-)
   25.06.2001 IS
-   ! Внедрение const, чтобы было как можно меньше отличий от "официального"
+    ! Внедрение const, чтобы было как можно меньше отличий от "официального"
      plugin.hpp
   23.06.2001 KM
-   + DM_GETDROPDOWNOPENED - определить, открыт ли в диалоге комбобокс или хистори.
-   + DM_SETDROPDOWNOPENED - открыть или закрыть программным путём комбобокс или хистори.
+    + DM_GETDROPDOWNOPENED - определить, открыт ли в диалоге комбобокс или хистори.
+    + DM_SETDROPDOWNOPENED - открыть или закрыть программным путём комбобокс или хистори.
   21.06.2001 SVS
-   ! ACTL_POSTSEQUENCEKEY  -> ACTL_POSTKEYSEQUENCE - (с точки зрения eng)
-   ! SKFLAGS_DISABLEOUTPUT -> KSFLAGS_DISABLEOUTPUT
-   ! SequenceKey           -> KeySequence
+    ! ACTL_POSTSEQUENCEKEY  -> ACTL_POSTKEYSEQUENCE - (с точки зрения eng)
+    ! SKFLAGS_DISABLEOUTPUT -> KSFLAGS_DISABLEOUTPUT
+    ! SequenceKey           -> KeySequence
   20.06.2001 SVS
-   ! ACTL_PROCESSSEQUENCEKEY -> ACTL_POSTSEQUENCEKEY
-   ! SKEY_NOTMACROS -> SKFLAGS_DISABLEOUTPUT
+    ! ACTL_PROCESSSEQUENCEKEY -> ACTL_POSTSEQUENCEKEY
+    ! SKEY_NOTMACROS -> SKFLAGS_DISABLEOUTPUT
   19.06.2001 SVS
-   + DN_DRAGGED
+    + DN_DRAGGED
   14.06.2001 SVS
-   + Дополнение к ACTL_*WINDOW* - WTYPE_* - типы окон
-     2AT: если что-то не так - изменяй.
+    + Дополнение к ACTL_*WINDOW* - WTYPE_* - типы окон
+      2AT: если что-то не так - изменяй.
   06.06.2001 SVS
-   + EditorBookMark, ECTL_GETBOOKMARK
-   + EditorInfo.BookMarkCount - дабы не вызывать несколько раз ECTL_GETBOOKMARK.
+    + EditorBookMark, ECTL_GETBOOKMARK
+    + EditorInfo.BookMarkCount - дабы не вызывать несколько раз ECTL_GETBOOKMARK.
   05.06.2001 tran
-   + ACTL_GETWINDOWCOUNT,ACTL_GETWINDOWINFO,ACTL_SETCURRENTWINDOW
-   + struct WindowInfo
+    + ACTL_GETWINDOWCOUNT,ACTL_GETWINDOWINFO,ACTL_SETCURRENTWINDOW
+    + struct WindowInfo
   04.06.2001 SVS
-   ! выкинут LIF_PTRDATA - изжил себя как класс :-)
-   ! Соответственно изменилась структура FarListItem
+    ! выкинут LIF_PTRDATA - изжил себя как класс :-)
+    ! Соответственно изменилась структура FarListItem
   03.06.2001 KM
-   + Два новых сообщения:
-     DM_LISTSETTITLE
-     DM_LISTGETTITLE
-     для установки/получения заголовков в DI_LISTBOX.
-   + Вернулся флаг DIF_LISTAUTOHIGHLIGHT.
+    + Два новых сообщения:
+      DM_LISTSETTITLE
+      DM_LISTGETTITLE
+      для установки/получения заголовков в DI_LISTBOX.
+    + Вернулся флаг DIF_LISTAUTOHIGHLIGHT.
   03.06.2001 SVS
-   ! Небольшое уточнение структуры FarListItemData (до 16 байт :-)
-   + Пара макросов для листа
+    ! Небольшое уточнение структуры FarListItemData (до 16 байт :-)
+    + Пара макросов для листа
   03.06.2001 SVS
-   + DM_LISTGETDATA, DM_LISTSETDATA, FarListItemData
+    + DM_LISTGETDATA, DM_LISTSETDATA, FarListItemData
   30.05.2001 SVS
     + MKLINKOP, FARSTDMKLINK
   29.05.2001 tran
@@ -1133,7 +1137,7 @@ struct CharTableSet
 
 typedef int (WINAPI *FARAPICHARTABLE)(
   int Command,
-  const char *Buffer,
+  char *Buffer,
   int BufferSize
 );
 
@@ -1336,7 +1340,7 @@ enum EDITOR_CONTROL_COMMANDS {
 
 enum EDITOR_SETPARAMETER_TYPES {
   ESPT_TABSIZE, ESPT_EXPANDTABS, ESPT_AUTOINDENT, ESPT_CURSORBEYONDEOL,
-  ESPT_CHARCODEBASE,
+  ESPT_CHARCODEBASE, ESPT_SETTABLE,
 };
 
 struct EditorSetParameter

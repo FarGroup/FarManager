@@ -7,10 +7,14 @@ fn.hpp
 
 */
 
-/* Revision: 1.100 03.08.2001 $ */
+/* Revision: 1.101 07.08.2001 $ */
 
 /*
 Modify:
+  07.08.2001 IS
+    ! FarCharTable: второй параметр теперь не const, потому что он может
+      меняться.
+ в FarCharTable.
   03.08.2001 IS
     + InsertQuote
   31.07.2001 IS
@@ -580,7 +584,7 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
                      int X1,int Y1,int X2, int Y2,DWORD Flags,
                      int StartLine,int StartChar);
 int WINAPI FarCmpName(const char *pattern,const char *string,int skippath);
-int WINAPI FarCharTable(int Command,const char *Buffer,int BufferSize);
+int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize);
 void WINAPI FarText(int X,int Y,int Color,const char *Str);
 int WINAPI FarEditorControl(int Command,void *Param);
 

@@ -5,10 +5,14 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.83 05.08.2001 $ */
+/* Revision: 1.84 07.08.2001 $ */
 
 /*
 Modify:
+  07.08.2001 IS
+    + Фича в FarCharTable: при неудаче считывания настроек по определенной
+      символьной таблице структура CharTableSet заполняется данными для OEM.
+    ! FarCharTable: второй параметр теперь не const, т.к. он меняется в функции.
   05.08.2001 SVS
     - Бага с вызовом хелпа в диалогах из плагинов
     ! Убираем из борланда ненужные (тупорылые) варнинги
@@ -1435,7 +1439,7 @@ int WINAPI FarCmpName(const char *pattern,const char *string,int skippath)
 }
 
 
-int WINAPI FarCharTable(int Command,const char *Buffer,int BufferSize)
+int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize)
 {
   if (Command==FCT_DETECT)
   {
@@ -1461,8 +1465,22 @@ int WINAPI FarCharTable(int Command,const char *Buffer,int BufferSize)
   }
   if (BufferSize!=sizeof(CharTableSet))
     return(-1);
-  if (!PrepareTable((CharTableSet *)Buffer,Command))
+  /* $ 07.08.2001 IS
+       При неудаче заполним структуру данными для OEM
+  */
+  CharTableSet *CTS=reinterpret_cast<CharTableSet*>(Buffer);
+  if (!PrepareTable(CTS,Command))
+  {
+    for(unsigned int i=0;i<256;++i)
+    {
+      CTS->EncodeTable[i]=CTS->DecodeTable[i]=i;
+      CTS->UpperTable[i]=LocalUpper(i);
+      CTS->LowerTable[i]=LocalLower(i);
+    }
+    strcpy(CTS->TableName,MSG(MGetTableNormalText));
     return(-1);
+  }
+  /* IS $ */
   return(Command);
 }
 
