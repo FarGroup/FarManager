@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.141 20.03.2002 $ */
+/* Revision: 1.142 26.03.2002 $ */
 
 /*
 Modify:
+  26.03.2002 DJ
+    ! вынесем CharBufferTooSmallWarn() на всеобщее обозрение
   20.03.2002 SVS
     + FarGetCurDir()
   20.03.2002 IS
@@ -1175,6 +1177,8 @@ char* PrepareDiskPath(char *Path,int MaxSize,BOOL CheckFullPath=TRUE);
 #if defined(MOUSEKEY)
 const char * const CalcWordFromString(const char *Str,int CurPos,int *Start,int *End);
 #endif
+
+void CharBufferTooSmallWarn(int BufSize, int FileNameSize);
 
 long filelen(FILE *FPtr);
 __int64 filelen64(FILE *FPtr);

@@ -6,10 +6,12 @@ scantree.cpp
 
 */
 
-/* Revision: 1.03 25.05.2001 $ */
+/* Revision: 1.04 26.03.2002 $ */
 
 /*
 Modify:
+  26.03.2002 DJ
+    ! GetNextName() принимает размер буфера для имени файла
   25.06.2001 IS
     ! Внедрение const
   06.05.2001 DJ
@@ -64,7 +66,7 @@ void ScanTree::SetFindPath(const char *Path,const char *Mask)
 }
 
 
-int ScanTree::GetNextName(WIN32_FIND_DATA *fdata,char *FullName)
+int ScanTree::GetNextName(WIN32_FIND_DATA *fdata,char *FullName, size_t BufSize)
 {
   int Done;
   char *ChPtr;
@@ -125,7 +127,7 @@ int ScanTree::GetNextName(WIN32_FIND_DATA *fdata,char *FullName)
         SecondDirName=1;
         return(TRUE);
       }
-      return(GetNextName(fdata,FullName));
+      return(GetNextName(fdata,FullName, BufSize));
     }
   }
   else
@@ -150,11 +152,22 @@ int ScanTree::GetNextName(WIN32_FIND_DATA *fdata,char *FullName)
       SecondPass[FindHandleCount]=0;
       return(TRUE);
     }
-  strcpy(FullName,FindPath);
-  if ((ChPtr=strrchr(FullName,'\\'))!=NULL)
-    *(ChPtr+1)=0;
-  strcat(FullName,fdata->cFileName);
-  return(TRUE);
+  /* $ 26.03.2002 DJ
+     если имя слишком длинное - пропустим и вернем следующее
+  */
+  if (strlen (FindPath) < BufSize)
+  {
+    strcpy(FullName,FindPath);
+    if ((ChPtr=strrchr(FullName,'\\'))!=NULL)
+      *(ChPtr+1)=0;
+    if (strlen (FullName) + strlen (fdata->cFileName) < BufSize)
+    {
+      strcat (FullName, fdata->cFileName);
+      return TRUE;
+    }
+  }
+  return GetNextName (fdata, FullName, BufSize);
+  /* DJ $ */
 }
 
 

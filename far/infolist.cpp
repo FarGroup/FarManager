@@ -5,10 +5,13 @@ infolist.cpp
 
 */
 
-/* Revision: 1.30 22.03.2002 $ */
+/* Revision: 1.31 26.03.2002 $ */
 
 /*
 Modify:
+  26.03.2002 DJ
+    ! реализация Update() перенесена из .h; перерисовка делается, только если
+      мы активный фрейм
   22.03.2002 SVS
     - strcpy - Fuck!
   20.03.2002 SVS
@@ -134,6 +137,16 @@ InfoList::~InfoList()
   /* DJ $ */
   SetMacroMode(TRUE);
 }
+
+/* $ 26.03.2002 DJ
+   перерисовка, только если мы текущий фрейм
+*/
+void InfoList::Update (int Mode)
+{
+  if (CtrlObject->Cp() == FrameManager->GetCurrentFrame())
+    Redraw();
+}
+/* DJ $ */
 
 void InfoList::DisplayObject()
 {

@@ -5,10 +5,13 @@ language.cpp
 
 */
 
-/* Revision: 1.19 19.03.2002 $ */
+/* Revision: 1.20 26.03.2002 $ */
 
 /*
 Modify:
+  26.03.2002 DJ
+    ! не выводим сообщение в GetMsg(), если менеджер уже в дауне
+    ! ScanTree::GetNextName() принимает размер буфера для имени файла
   19.03.2002 DJ
     ! не вылетаем при отрицательном индексе в GetMsg()
   27.02.2002 SVS
@@ -68,6 +71,7 @@ Modify:
 #include "lang.hpp"
 #include "scantree.hpp"
 #include "vmenu.hpp"
+#include "manager.hpp"
 
 #define LangFileMask "*.lng"
 
@@ -225,19 +229,26 @@ char* Language::GetMsg(int MsgId)
   */
   if (MsgId>=MsgCount || MsgId < 0)  /* DJ $ */
   {
-    /* $ 03.09.2000 IS
-       ! Нормальное сообщение об отсутствии строки в языковом файле
-         (раньше имя файла обрезалось справа и приходилось иногда гадать - в
-         каком же файле ошибка)
+    /* $ 26.03.2002 DJ
+       если менеджер уже в дауне - сообщение не выводим
     */
-    char Msg1[100],Msg2[100],Tmp[NM];
-    strcpy(Tmp,MessageFile);
-    TruncPathStr(Tmp,41);
-    sprintf(Msg1,"Incorrect or damaged %s",Tmp);
-    /* IS $ */
-    sprintf(Msg2,"Message %d not found",MsgId);
-    if (Message(MSG_WARNING,2,"Error",Msg1,Msg2,"Ok","Quit")==1)
-      exit(0);
+    if (!FrameManager->ManagerIsDown())
+    {
+      /* $ 03.09.2000 IS
+         ! Нормальное сообщение об отсутствии строки в языковом файле
+           (раньше имя файла обрезалось справа и приходилось иногда гадать - в
+           каком же файле ошибка)
+      */
+      char Msg1[100],Msg2[100],Tmp[NM];
+      strcpy(Tmp,MessageFile);
+      TruncPathStr(Tmp,41);
+      sprintf(Msg1,"Incorrect or damaged %s",Tmp);
+      /* IS $ */
+      sprintf(Msg2,"Message %d not found",MsgId);
+      if (Message(MSG_WARNING,2,"Error",Msg1,Msg2,"Ok","Quit")==1)
+        exit(0);
+    }
+    /* DJ $ */
     return("");
   }
   return(MsgAddr[MsgId]);
@@ -255,7 +266,7 @@ FILE* Language::OpenLangFile(char *Path,char *Mask,char *Language,char *FileName
 
   ScanTree ScTree(FALSE,FALSE);
   ScTree.SetFindPath(Path,Mask);
-  while (ScTree.GetNextName(&FindData,FullName))
+  while (ScTree.GetNextName(&FindData,FullName, sizeof (FullName)-1))
   {
     strcpy(FileName,FullName);
     if (Language==NULL)
@@ -359,7 +370,7 @@ int Language::Select(int HelpLanguage,VMenu **MenuPtr)
   WIN32_FIND_DATA FindData;
   ScanTree ScTree(FALSE,FALSE);
   ScTree.SetFindPath(FarPath,Mask);
-  while (ScTree.GetNextName(&FindData,FullName))
+  while (ScTree.GetNextName(&FindData,FullName, sizeof (FullName)-1))
   {
     FILE *LangFile=fopen(FullName,"rb");
     if (LangFile==NULL)

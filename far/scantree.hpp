@@ -8,10 +8,12 @@ scantree.hpp
 
 */
 
-/* Revision: 1.02 25.05.2000 $ */
+/* Revision: 1.03 26.03.2002 $ */
 
 /*
 Modify:
+  26.03.2002 DJ
+    ! GetNextName() принимает размер буфера для имени файла
   25.06.2001 IS
     ! Внедрение const
   06.05.2001 DJ
@@ -40,7 +42,7 @@ class ScanTree
     ScanTree(int RetUpDir,int Recurse=1);
     ~ScanTree();
     void SetFindPath(const char *Path,const char *Mask);
-    int GetNextName(WIN32_FIND_DATA *fdata,char *FullName);
+    int GetNextName(WIN32_FIND_DATA *fdata,char *FullName, size_t BufSize);
     void SkipDir();
     int IsDirSearchDone() {return(SecondDirName);};
 };

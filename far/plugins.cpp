@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.115 22.03.2002 $ */
+/* Revision: 1.116 26.03.2002 $ */
 
 /*
 Modify:
+  26.03.2002 DJ
+    ! ScanTree::GetNextName() принимает размер буфера для имени файла
   22.03.2002 SVS
     - strcpy - Fuck!
   20.03.2002 IS
@@ -487,7 +489,7 @@ void PluginsSet::LoadPlugins()
     /* SVS $ */
 
     ScTree.SetFindPath(PluginsDir,"*.*");
-    while (ScTree.GetNextName(&FindData,FullName))
+    while (ScTree.GetNextName(&FindData,FullName,sizeof (FullName)-1))
       if (CmpName("*.dll",FindData.cFileName,FALSE) && (FindData.dwFileAttributes & FA_DIREC)==0)
       {
         struct PluginItem CurPlugin;

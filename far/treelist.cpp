@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.36 22.03.2002 $ */
+/* Revision: 1.37 26.03.2002 $ */
 
 /*
 Modify:
+  26.03.2002 DJ
+    ! ScanTree::GetNextName() принимает размер буфера для имени файла
   22.03.2002 SVS
     - strcpy - Fuck!
   21.02.2002 SVS
@@ -399,7 +401,7 @@ int TreeList::ReadTree()
   TreeStartTime = clock();
   ScTree.SetFindPath(Root,"*.*");
   SetPreRedrawFunc(TreeList::PR_MsgReadTree);
-  while (ScTree.GetNextName(&fdata,FullName))
+  while (ScTree.GetNextName(&fdata,FullName, sizeof (FullName)-1))
   {
     if (!(fdata.dwFileAttributes & FA_DIREC))
       continue;
@@ -1344,7 +1346,7 @@ void TreeList::ReadSubTree(char *Path)
   int FirstCall=TRUE;
   ScTree.SetFindPath(DirName,"*.*");
   SetPreRedrawFunc(TreeList::PR_MsgReadTree);
-  while (ScTree.GetNextName(&fdata,FullName))
+  while (ScTree.GetNextName(&fdata,FullName, sizeof (FullName)-1))
     if (fdata.dwFileAttributes & FA_DIREC)
     {
       if (!MsgReadTree(++Count,FirstCall))

@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.72 23.03.2002 $ */
+/* Revision: 1.73 26.03.2002 $ */
 
 /*
 Modify:
+  26.03.2002 DJ
+    ! ScanTree::GetNextName() принимает размер буфера для имени файла
   23.03.2002 VVM
     ! Уберем дырку по совету DJ. bug#390
   23.03.2002 IS
@@ -823,7 +825,6 @@ long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 {
 #define DM_CALLTREE (DM_USER+1)
   struct CopyDlgParam *DlgParam;
-  struct FarDialogItem DItem;
   DlgParam=(struct CopyDlgParam *)Dialog::SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
 
   switch(Msg)
@@ -1340,7 +1341,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
       if (DestAttr==(DWORD)-1)
         KeepPathPos=strlen(SubName);
       ScTree.SetFindPath(SubName,"*.*");
-      while (ScTree.GetNextName(&SrcData,FullName))
+      while (ScTree.GetNextName(&SrcData,FullName, sizeof (FullName)-1))
       {
         int AttemptToMove=FALSE;
         if ((ShellCopy::Flags&FCOPY_MOVE) && SameDisk && (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0)

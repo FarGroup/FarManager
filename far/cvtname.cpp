@@ -30,7 +30,7 @@ Modify:
   получить размер буфера и выдать длину полученного имени файла.
   Если размер буфера мал, то копирование не происходит
 */
-void CharBufferToSmallWarn(int BufSize, int FileNameSize)
+void CharBufferTooSmallWarn(int BufSize, int FileNameSize)
 {
   char Buf2 [80];
   sprintf (Buf2,MSG(MBuffSizeTooSmall_2), FileNameSize, BufSize);
@@ -213,7 +213,7 @@ int ConvertNameToFull(const char *Src,char *Dest, int DestSize)
     }
     else
     {
-      CharBufferToSmallWarn(DestSize,Result+1);
+      CharBufferTooSmallWarn(DestSize,Result+1);
     }
     return Result;
   }

@@ -7,10 +7,12 @@ infolist.hpp
 
 */
 
-/* Revision: 1.06 16.01.2002 $ */
+/* Revision: 1.07 26.03.2002 $ */
 
 /*
 Modify:
+  26.03.2002 DJ
+    ! перенесем реализацию Update() в .cpp
   16.01.2002 SVS
     + DizPresent
   02.01.2002 IS
@@ -90,7 +92,7 @@ class InfoList:public Panel
   public:
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-    void Update(int Mode) {Redraw();};
+    void Update(int Mode);
     virtual void SetFocus();
     virtual void KillFocus();
     /* $ 30.04.2001 DJ */

@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.45 22.03.2002 $ */
+/* Revision: 1.46 26.03.2002 $ */
 
 /*
 Modify:
+  26.03.2002 DJ
+    ! ScanTree::GetNextName() принимает размер буфера для имени файла
   22.03.2002 SVS
     - strcpy - Fuck!
   22.03.2002 SVS
@@ -390,7 +392,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
           char FullName[NM];
           ScanTree ScTree(TRUE);
           ScTree.SetFindPath(SelName,"*.*");
-          while (ScTree.GetNextName(&FindData,FullName))
+          while (ScTree.GetNextName(&FindData,FullName, sizeof (FullName)-1))
           {
             if (CheckForEsc())
             {
@@ -859,7 +861,7 @@ void DeleteDirTree(char *Dir)
   ScanTree ScTree(TRUE);
 
   ScTree.SetFindPath(Dir,"*.*");
-  while (ScTree.GetNextName(&FindData,FullName))
+  while (ScTree.GetNextName(&FindData,FullName, sizeof (FullName)-1))
   {
     SetFileAttributes(FullName,0);
     if (FindData.dwFileAttributes & FA_DIREC)

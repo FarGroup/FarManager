@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.53 22.03.2002 $ */
+/* Revision: 1.54 26.03.2002 $ */
 
 /*
 Modify:
+  26.03.2002 DJ
+    ! при неудаче открытия - не пишем мусор в историю
   22.03.2002 SVS
     - strcpy - Fuck!
   19.03.2002 SVS
@@ -221,6 +223,11 @@ void FileViewer::Init(const char *name,int EnableSwitch,int disableHistory, ///
   if (!View.OpenFile(Name,TRUE))
   /* tran 04.07.2000 $ */
   {
+    /* $ 26.03.2002 DJ
+       при неудаче открытия - не пишем мусор в историю
+    */
+    DisableHistory = TRUE;
+    /* DJ $ */
     FrameManager->DeleteFrame(this);
     ExitCode=FALSE;
     return;

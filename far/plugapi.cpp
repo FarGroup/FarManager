@@ -5,10 +5,13 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.124 25.03.2002 $ */
+/* Revision: 1.125 26.03.2002 $ */
 
 /*
 Modify:
+  26.03.2002 DJ
+    ! разрешим GetMsg() при ManagerIsDown()
+    ! ScanTree::GetNextName() принимает размер буфера для имени файла
   25.03.2002 SVS
     ! Запрет вызовов некторых функций АПИ, если ManagerIsDown() == FALSE
   22.03.2002 SVS
@@ -1146,9 +1149,6 @@ const char* WINAPI FarGetMsgFn(int PluginNumber,int MsgId)
 
 char* PluginsSet::FarGetMsg(int PluginNumber,int MsgId)
 {
-  if (FrameManager->ManagerIsDown())
-    return "";
-
   if (PluginNumber<PluginsCount)
   {
     struct PluginItem *CurPlugin=&PluginsData[PluginNumber];
@@ -1480,7 +1480,7 @@ int WINAPI FarGetDirList(const char *Dir,struct PluginPanelItem **pPanelItem,
   ScTree.SetFindPath(DirName,"*.*");
   *PointToName(DirName)=0;
   int DirLength=strlen(DirName);
-  while (ScTree.GetNextName(&FindData,FullName))
+  while (ScTree.GetNextName(&FindData,FullName, sizeof (FullName)-1))
   {
     if ((ItemsNumber & 31)==0)
     {

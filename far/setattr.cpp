@@ -5,10 +5,12 @@ setattr.cpp
 
 */
 
-/* Revision: 1.48 22.03.2002 $ */
+/* Revision: 1.49 26.03.2002 $ */
 
 /*
 Modify:
+  26.03.2002 DJ
+    ! ScanTree::GetNextName() принимает размер буфера для имени файла
   22.03.2002 DJ
     ! зачем-то была переменная FullName, с которой не делалось ничего, кроме
       порчи стека
@@ -935,7 +937,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           WIN32_FIND_DATA FindData;
 
           ScTree.SetFindPath(SelName,"*.*");
-          while (ScTree.GetNextName(&FindData,FullName))
+          while (ScTree.GetNextName(&FindData,FullName, sizeof (FullName)-1))
           {
             ShellSetFileAttributesMsg(FullName);
             if (CheckForEsc())

@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.102 24.03.2002 $ */
+/* Revision: 1.103 26.03.2002 $ */
 
 /*
 Modify:
+  26.03.2002 DJ
+    ! ScanTree::GetNextName() принимает размер буфера для имени файла
   24.03.2002 KM
     - Неверно выкидывались во временную панель список файлов
       с папками. При поиске по маске, в которую каталоги не
@@ -1648,7 +1650,7 @@ void _cdecl FindFiles::PrepareFilesList(void *Param)
       FindMessage[sizeof(FindMessage)-1]=0;
       FindMessageReady=TRUE;
 
-      while (!StopSearch && ScTree.GetNextName(&FindData,FullName))
+      while (!StopSearch && ScTree.GetNextName(&FindData,FullName, sizeof (FullName)-1))
       {
         while (PauseSearch)
           Sleep(10);

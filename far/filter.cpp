@@ -5,10 +5,12 @@ filter.cpp
 
 */
 
-/* Revision: 1.22 16.03.2002 $ */
+/* Revision: 1.23 26.03.2002 $ */
 
 /*
 Modify:
+  26.03.2002 DJ
+    ! ScanTree::GetNextName() принимает размер буфера для имени файла
   16.03.2002 IS
     ! В Фильтрах тоже можно использовать маски-иключения.
   13.02.2002 SVS
@@ -216,7 +218,7 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
       ScanTree ScTree(FALSE,FALSE);
       ScTree.SetFindPath(CurDir,"*.*");
 
-      while (ScTree.GetNextName(&fdata,FileName))
+      while (ScTree.GetNextName(&fdata,FileName, sizeof (FileName)-1))
       {
         if (strcmp(fdata.cFileName,".")==0 || (fdata.cFileName,"..")==0 ||
             (fdata.dwFileAttributes & FA_DIREC))

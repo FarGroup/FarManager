@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.119 22.03.2002 $ */
+/* Revision: 1.120 26.03.2002 $ */
 
 /*
 Modify:
+  26.03.2002 DJ
+    ! ScanTree::GetNextName() принимает размер буфера для имени файла
   22.03.2002 SVS
     ! переезд функций FarBsearch, FarSscanf, FarSprintf, FarQsortEx,
       FarQsort, FarAtoi64, FarAtoi, FarItoa64, FarItoa из mix.cpp
@@ -726,7 +728,7 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
   DirCount=FileCount=0;
   FileSize=CompressedFileSize=RealSize=0;
   ScTree.SetFindPath(DirName,"*.*");
-  while (ScTree.GetNextName(&FindData,FullName))
+  while (ScTree.GetNextName(&FindData,FullName, sizeof (FullName)-1))
   {
     if (!CtrlObject->Macro.IsExecuting())
     {
@@ -902,7 +904,7 @@ int IsFolderNotEmpty(char *Name)
   char FileName[NM];
   ScanTree ScTree(FALSE,FALSE);
   ScTree.SetFindPath(Name,"*.*");
-  while (ScTree.GetNextName(&fdata,FileName))
+  while (ScTree.GetNextName(&fdata,FileName, sizeof (FileName)-1))
   {
     // немного ускорим.
     P=(*(DWORD*)FileName)&0x00FFFFFF;
@@ -1051,7 +1053,7 @@ DWORD WINAPI ExpandEnvironmentStr(const char *src, char *dest, size_t size)
      /* $ 15.02.2002 VVM
        ! Если строка не помещалась в буфер, то ExpandEnvironmetStr портила ее. */
 //     if(ExpandEnvironmentStrings(tmpSrc,tmpDest,size))
-     int Len = ExpandEnvironmentStrings(tmpSrc,tmpDest,size);
+     DWORD Len = ExpandEnvironmentStrings(tmpSrc,tmpDest,size);
      if (Len <= size)
      /* VVM $ */
        strncpy(dest, tmpDest, size-1);
@@ -1092,7 +1094,7 @@ void WINAPI FarRecursiveSearch(const char *InitDir,const char *Mask,FRSUSERFUNC 
     char FullName[NM];
 
     ScTree.SetFindPath(InitDir,"*");
-    while (ScTree.GetNextName(&FindData,FullName))
+    while (ScTree.GetNextName(&FindData,FullName, sizeof (FullName)-1))
     {
       if (FMask.Compare(FindData.cFileName) &&
           Func(&FindData,FullName,Param) == 0)
