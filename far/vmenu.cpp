@@ -8,10 +8,12 @@ vmenu.cpp
 
 */
 
-/* Revision: 1.10 20.09.2000 $ */
+/* Revision: 1.11 11.12.2000 $ */
 
 /*
 Modify:
+  11.12.2000 tran
+   + прокрутка мышью не должна врапить меню
   20.09.2000 SVS
    + Функция GetItemPtr - получить указатель на нужный Item.
   29.08.2000 tran 1.09
@@ -65,13 +67,13 @@ Modify:
    ! изменен вызов конструктора (isListBoxControl) с учетом необходимости
      scrollbar в DI_LISTBOX & DI_COMBOBOX
 */
-VMenu::VMenu(char *Title,		// заголовок меню
-             struct MenuData *Data,	// пункты меню
-             int ItemCount,		// количество пунктов меню
-             int MaxHeight,		// максимальная высота
-             DWORD Flags,		// нужен ScrollBar?
-             FARWINDOWPROC Proc,	// обработчик
-             Dialog *ParentDialog)	// родитель для ListBox
+VMenu::VMenu(char *Title,       // заголовок меню
+             struct MenuData *Data, // пункты меню
+             int ItemCount,     // количество пунктов меню
+             int MaxHeight,     // максимальная высота
+             DWORD Flags,       // нужен ScrollBar?
+             FARWINDOWPROC Proc,    // обработчик
+             Dialog *ParentDialog)  // родитель для ListBox
 {
   int I;
   VMenu::VMFlags=Flags;
@@ -732,8 +734,13 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     {
       while (IsMouseButtonPressed())
       {
-        ProcessKey(KEY_UP);
+        /* $ 11.12.2000 tran
+           прокрутка мышью не должна врапить меню
+        */
+        if (SelectPos!=0)
+            ProcessKey(KEY_UP);
         ShowMenu(TRUE);
+        /* tran $ */
       }
       return(TRUE);
     }
@@ -741,7 +748,12 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     {
       while (IsMouseButtonPressed())
       {
-        ProcessKey(KEY_DOWN);
+        /* $ 11.12.2000 tran
+           прокрутка мышью не должна врапить меню
+        */
+        if (SelectPos!=ItemCount-1)
+            ProcessKey(KEY_DOWN);
+        /* tran $ */
         ShowMenu(TRUE);
       }
       return(TRUE);
