@@ -5,10 +5,15 @@ copy.cpp
 
 */
 
-/* Revision: 1.49 15.10.2001 $ */
+/* Revision: 1.50 16.10.2001 $ */
 
 /*
 Modify:
+  16.10.2001 SVS
+    + проверка очередного монстрика на потоки - для случая когда:
+      1) не включена системная функция копирования
+      2) это NT
+      3) диск назначения не NTFS
   15.10.2001 SVS
     - strncpy - начало пробелем :-)
       "посмотрите на разделительную линейку между прогресс-индикаторами"
@@ -990,6 +995,8 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
   ReadOnlyDelMode=ReadOnlyOvrMode=OvrMode=-1;
   SetCursorType(FALSE,0);
 
+  ShellCopy::Flags&=~(FCOPY_STREAMSKIP|FCOPY_STREAMALL);
+
   if(TotalCopySize == 0)
   {
     *TotalCopySizeText=0;
@@ -1315,7 +1322,6 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
     DestAttr=DestData.dwFileAttributes;
   }
 
-
   if (DestAttr!=(DWORD)-1 && (DestAttr & FILE_ATTRIBUTE_DIRECTORY))
   {
     int CmpCode;
@@ -1362,6 +1368,13 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
 
   if(!(ShellCopy::Flags&FCOPY_COPYTONUL))
   {
+    // проверка очередного монстрика на потоки
+    switch(CheckStreams(Src,DestPath))
+    {
+      case COPY_NEXT: return COPY_NEXT;
+      case COPY_CANCEL: return COPY_CANCEL;
+    }
+
     if (SrcData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
     {
       if (!Rename)
@@ -1606,6 +1619,43 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
   }
 }
 
+// проверка очередного монстрика на потоки
+COPY_CODES ShellCopy::CheckStreams(const char *Src,const char *DestPath)
+{
+  int AscStreams=(ShellCopy::Flags&FCOPY_STREAMSKIP)?2:((ShellCopy::Flags&FCOPY_STREAMALL)?0:1);
+  if(!Opt.UseSystemCopy && NT && AscStreams)
+  {
+    int CountStreams=EnumNTFSStreams(Src,NULL,NULL);
+    if(CountStreams > 1 ||
+       (CountStreams >= 1 && (GetFileAttributes(Src)&FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY))
+    {
+      if(AscStreams == 2)
+      {
+        return(COPY_NEXT);
+      }
+
+      SetMessageHelp("WarnCopyStream");
+      //char SrcFullName[NM];
+      //ConvertNameToFull(Src,SrcFullName, sizeof(SrcFullName));
+      //TruncPathStr(SrcFullName,ScrX-16);
+      int MsgCode=Message(MSG_DOWN|MSG_WARNING,5,MSG(MWarning),
+              MSG(MCopyStream1),
+              MSG(CanCreateHardLinks(DestPath,NULL)?MCopyStream2:MCopyStream3),
+              MSG(MCopyStream4),"\1",//SrcFullName,"\1",
+              MSG(MCopyResume),MSG(MCopyOverwriteAll),MSG(MCopySkipOvr),MSG(MCopySkipAllOvr),MSG(MCopyCancelOvr));
+      switch(MsgCode)
+      {
+        case 0: break;
+        case 1: ShellCopy::Flags|=FCOPY_STREAMALL; break;
+        case 2: return(COPY_NEXT);
+        case 3: ShellCopy::Flags|=FCOPY_STREAMSKIP; return(COPY_NEXT);
+        default:
+          return COPY_CANCEL;
+      }
+    }
+  }
+  return COPY_SUCCESS;
+}
 
 void ShellCopy::ShellCopyMsg(char *Src,char *Dest,int Flags)
 {

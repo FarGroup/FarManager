@@ -273,6 +273,11 @@
 "Cannot copy the file"
 "onto itself"
 
+"The source file contains more than one data stream."
+"but since you do not use a system copy routine."
+"but the destination volume does not support this feature."
+"Some data will not be preserved as a result."
+
 "File already exists"
 "New"
 "Existing"

@@ -7,10 +7,12 @@ class ShellCopy - Копирование файлов
 
 */
 
-/* Revision: 1.10 19.08.2001 $ */
+/* Revision: 1.11 16.10.2001 $ */
 
 /*
 Modify:
+  16.10.2001 SVS
+    + CheckStreams() - проверка наличия потоков
   03.08.2001 IS
     ! Убрал "#ifndef COPY_NOMULTICOPY", т.к. теперь опциональность
       обеспечивается на программном уровне.
@@ -70,6 +72,8 @@ enum COPY_FLAGS {
   FCOPY_COPYSECURITY    = 0x00000100,
   FCOPY_NOSHOWMSGLINK   = 0x00000200,
   FCOPY_VOLMOUNT        = 0x00000400,
+  FCOPY_STREAMSKIP      = 0x00000800,
+  FCOPY_STREAMALL       = 0x00001000,
 };
 
 class ShellCopy
@@ -106,6 +110,7 @@ class ShellCopy
     COPY_CODES CopyFileTree(char *Dest);
     COPY_CODES ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,char *Dest,
                                 int KeepPathPos,int Rename);
+    COPY_CODES CheckStreams(const char *Src,const char *DestPath);
     int ShellCopyFile(char *SrcName,WIN32_FIND_DATA *SrcData,char *DestName,
                       DWORD DestAttr,int Append);
     int ShellSystemCopy(char *SrcName,char *DestName,WIN32_FIND_DATA *SrcData);

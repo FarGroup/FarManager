@@ -5,10 +5,15 @@ flink.cpp
 
 */
 
-/* Revision: 1.24 01.10.2001 $ */
+/* Revision: 1.25 16.10.2001 $ */
 
 /*
 Modify:
+  16.10.2001 SVS
+    + EnumNTFSStreams() - получить информацию о потоках
+    ! У функции CanCreateHardLinks второй параметр можно не указывать (это
+      позволяет проверять "а не NTFS ли ЭТО?"
+    ! немного const-модификаторов
   01.10.2001 SVS
     ! FarGetRepasePointInfo -> FarGetRepa_R_sePointInfo
   27.09.2001 IS
@@ -526,6 +531,116 @@ int WINAPI MkLink(char *Src,char *Dest)
 
   return(bSuccess);
 }
+
+/*
+  Функция EnumNTFSStreams позволяет получить количество потоков,
+  привязанных к файлу FileName.
+  Параметры:
+   FileName - имя файла
+   fpEnum   - функция, получающая 2 параметра - номер потока (Idx) и имя
+              потока в Unicode. Перечисление прерывается, если функция
+              вернет FALSE. Этот параметр может быть равен NULL.
+              Простейший вариант CALLBACK-перечислителя:
+
+              BOOL WINAPI EnumFileStreams(int Idx,WCHAR *StreamName,const WIN32_STREAM_ID *sid)
+              {
+                char Buf[260];
+                UnicodeToAscii(StreamName,Buf,sizeof(Buf));
+                printf("%2d) '%s' StreamId=%d",Idx,Buf,sid->dwStreamId);
+                switch(sid->dwStreamId)
+                {
+                  case BACKUP_DATA: printf(" (Standard data)\n");break;
+                  case BACKUP_EA_DATA: printf(" (Extended attribute data)\n");break;
+                  case BACKUP_SECURITY_DATA: printf(" (Windows NT security descriptor data)\n");break;
+                  case BACKUP_ALTERNATE_DATA: printf(" (Alternative data streams)\n");break;
+                  case BACKUP_LINK: printf(" (Hard link information)\n");break;
+                }
+                return TRUE;
+              }
+   SizeStreams - указатель на паременную типа __int64, в которую будет помещен
+                 общий размер всех потоков (актуально для копира!).
+                 Параметр необязательный.
+
+  Return: Количество потоков в файле.
+          -1 - ошибка открытия файла
+           0 - FileName - каталог и в нем еще нет потоков, по умолчанию
+               каталоги не имеют потоков (файлы имеют один - {Data})
+           1 - файл имеет основной поток данных...
+          >1 - ... и несколько дополнительных.
+*/
+int WINAPI EnumNTFSStreams(const char *FileName,ENUMFILESTREAMS fpEnum,__int64 *SizeStreams)
+{
+  int StreamsCount=-1;
+
+  HANDLE hFile = CreateFile(FileName, GENERIC_READ, FILE_SHARE_READ, NULL,
+                     OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
+  if (hFile != INVALID_HANDLE_VALUE)
+  {
+    // Prepare for execution
+    LPVOID lpContext = NULL;
+    WIN32_STREAM_ID sid;
+    DWORD dwRead;
+    WCHAR wszStreamName[MAX_PATH];
+
+    StreamsCount=0;
+
+    // Enumerate the streams...
+    BOOL bContinue = TRUE;
+    while (bContinue)
+    {
+      // Calculate the size of the variable length
+      // WIN32_STREAM_ID structure
+      memset(&sid,0,sizeof(WIN32_STREAM_ID));
+      memset(wszStreamName,0,MAX_PATH);
+      DWORD dwStreamHeaderSize = (LPBYTE)&sid.cStreamName -
+           (LPBYTE)&sid+ sid.dwStreamNameSize;
+
+      bContinue = BackupRead(hFile, (LPBYTE) &sid,
+        dwStreamHeaderSize, &dwRead, FALSE, FALSE,
+        &lpContext);
+
+      if (!dwRead)
+        break;
+      if (dwRead != dwStreamHeaderSize)
+        break;
+      // At this point, we've read the header of the i.th
+      // stream. What follows is the name of the stream and
+      // next its content.
+
+      // Read the stream name
+      BackupRead(hFile,(LPBYTE)wszStreamName,sid.dwStreamNameSize,&dwRead,FALSE,FALSE,&lpContext);
+      if (dwRead != sid.dwStreamNameSize)
+        break;
+
+      // A stream name is stored enclosed in a pair of colons
+      // plus a $DATA default trailer. If the stream name is
+      // VersionInfo it's stored (and retrieved) as:
+      // :VersionInfo:$DATA
+      if (wcslen(wszStreamName))
+      {
+        WCHAR Wsz[MAX_PATH], *pwsz=Wsz;
+        lstrcpyW(pwsz, wszStreamName + sizeof(CHAR));
+        LPWSTR wp = wcsstr(pwsz, L":");
+        pwsz[wp-pwsz] = 0;
+        lstrcpyW(wszStreamName, pwsz);
+      }
+
+      StreamsCount++;
+      if(SizeStreams)
+        *SizeStreams+=sid.Size.QuadPart;
+      if(fpEnum && !fpEnum(StreamsCount,wszStreamName,&sid))
+        break;
+
+      // Skip the stream body
+      DWORD dw1, dw2;
+      if(!BackupSeek(hFile, sid.Size.u.LowPart, sid.Size.u.HighPart,&dw1, &dw2, &lpContext))
+         break;
+    }
+
+    CloseHandle(hFile);
+  }
+  return StreamsCount;
+}
 #if defined(__BORLANDC__)
 #pragma option -a.
 #endif
@@ -699,11 +814,17 @@ void WINAPI GetPathRoot(const char *Path,char *Root)
 }
 
 // Verify that both files are on the same NTFS disk
-BOOL WINAPI CanCreateHardLinks(char *TargetFile,char *HardLinkName)
+BOOL WINAPI CanCreateHardLinks(const char *TargetFile,const char *HardLinkName)
 {
+  if(!TargetFile)
+    return FALSE;
+
   char Root[2][512],FSysName[NM];
   GetPathRoot(TargetFile,Root[0]);
-  GetPathRoot(HardLinkName,Root[1]);
+  if(HardLinkName)
+    GetPathRoot(HardLinkName,Root[1]);
+  else
+    strcpy(Root[1],Root[0]);
 
    // same drive?
   if(!strcmp(Root[0],Root[1]))

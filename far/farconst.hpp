@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.50 16.09.2001 $ */
+/* Revision: 1.51 16.10.2001 $ */
 
 /*
 Modify:
+  16.10.2001 SVS
+    + Макросы-преобразовалки: UnicodeToAscii() и UnicodeToOEM()
   16.09.2001 SVS
     ! Отключаемые исключения
   07.09.2001 SVS
@@ -309,5 +311,8 @@ enum {
 #define MFLAGS_NOSELECTION         0x08000000
 #define MFLAGS_RUNAFTERFARSTART2   0x40000000
 #define MFLAGS_DISABLEMACRO        0x80000000
+
+#define UnicodeToAscii(src,dst,lendst) WideCharToMultiByte(CP_ACP,0,(src),-1,(dst),(lendst),NULL,FALSE)
+#define UnicodeToOEM(src,dst,lendst) WideCharToMultiByte(CP_OEMCP,0,(src),-1,(dst),(lendst),NULL,FALSE)
 
 #endif // __FARCONST_HPP__

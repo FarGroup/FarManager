@@ -5,10 +5,12 @@ clipboard.cpp
 
 */
 
-/* Revision: 1.04 25.09.2001 $ */
+/* Revision: 1.05 16.10.2001 $ */
 
 /*
 Modify:
+  16.10.2001 SVS
+    ! ѕрименим макрос UnicodeToOEM дл€ прозрачности понимани€ действий
   27.09.2001 IS
     - Ћевый размер при использовании strncpy
   25.06.2001 IS
@@ -131,7 +133,7 @@ char* WINAPI PasteFromClipboard(void)
     ClipText=new char[BufferSize];
     if (ClipText!=NULL)
       if (Unicode)
-        WideCharToMultiByte(CP_OEMCP,0,(LPCWSTR)ClipAddr,-1,ClipText,BufferSize,NULL,NULL);
+        UnicodeToOEM((LPCWSTR)ClipAddr,ClipText,BufferSize);
       else
         if (ReadType==CF_TEXT)
           CharToOem(ClipAddr,ClipText);
@@ -187,7 +189,7 @@ char* WINAPI PasteFromClipboardEx(int max)
     {
       memset(ClipText,0,BufferSize+2);
       if (Unicode)
-        WideCharToMultiByte(CP_OEMCP,0,(LPCWSTR)ClipAddr,-1,ClipText,BufferSize,NULL,NULL);
+        UnicodeToOEM((LPCWSTR)ClipAddr,ClipText,BufferSize);
       else
       {
         if (ReadType==CF_TEXT)

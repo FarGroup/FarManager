@@ -8,10 +8,13 @@ flink.hpp
 
 */
 
-/* Revision: 1.10 01.10.2001 $ */
+/* Revision: 1.11 16.10.2001 $ */
 
 /*
 Modify:
+  16.10.2001 SVS
+    + EnumNTFSStreams() - получить информацию о потоках
+    ! немного const-модификаторов
   01.10.2001 SVS
     ! FarGetRepasePointInfo -> FarGetRepa_R_sePointInfo
   24.09.2001 SVS
@@ -41,7 +44,7 @@ Modify:
 
 int   WINAPI MkLink(char *Src,char *Dest);
 int   WINAPI FarMkLink(char *Src,char *Dest,DWORD Flags);
-BOOL  WINAPI CanCreateHardLinks(char *TargetFile,char *HardLinkName);
+BOOL  WINAPI CanCreateHardLinks(const char *TargetFile,const char *HardLinkName);
 int   WINAPI GetNumberOfLinks(const char *Name);
 int   WINAPI CreateVolumeMountPoint(LPCTSTR SrcVolume,LPCTSTR LinkFolder);
 BOOL  WINAPI CreateJunctionPoint(LPCTSTR szMountDir, LPCTSTR szDestDir);
@@ -55,5 +58,11 @@ BOOL GetSubstName(int DriveType,char *LocalName,char *SubstName,int SubstSize);
 int DelSubstDrive(char *DosDeviceName);
 void  WINAPI GetPathRoot(const char *Path,char *Root);
 void GetPathRootOne(const char *Path,char *Root);
+
+// перечислятель для EnumNTFSStreams
+// в параметре sid поле cStreamName не актуально, т.к. готовое имя потока
+//    передается в параметре StreamName
+typedef BOOL (WINAPI *ENUMFILESTREAMS)(int Idx,const WCHAR *StreamName,const WIN32_STREAM_ID *sid);
+int WINAPI EnumNTFSStreams(const char *FileName,ENUMFILESTREAMS fpEnum,__int64 *SizeStreams);
 
 #endif // __FLINK_HPP__

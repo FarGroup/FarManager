@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.79 12.10.2001 $ */
+/* Revision: 1.80 16.10.2001 $ */
 
 /*
 Modify:
+  16.10.2001 SVS
+    + MCopyStreamN
   12.10.2001 SVS
     + MSetAttrOriginal
   05.10.2001 SVS
@@ -525,6 +527,11 @@ enum
 
   MCannotCopyFileToItself1,
   MCannotCopyFileToItself2,
+
+  MCopyStream1,
+  MCopyStream2,
+  MCopyStream3,
+  MCopyStream4,
 
   MCopyFileExist,
   MCopySource,
