@@ -5,10 +5,14 @@ help.cpp
 
 */
 
-/* Revision: 1.16 26.03.2001 $ */
+/* Revision: 1.17 12.04.2001 $ */
 
 /*
 Modify:
+  12.04.2001 SVS
+    + сохранение значения Mask, переданного в конструктор (для корректной
+      работы HlfViewer)
+    - не работало последовательное нажатие F1, Shift-F1, Enter
   26.03.2001 SVS
     + FHELP_USECONTENTS - если не найден требует топик, то отобразить "Contents"
     ! ReadHelp возвращает TRUE/FALSE
@@ -81,16 +85,31 @@ static int RunURL(char *Protocol, char *URLPath);
 Help::Help(char *Topic, char *Mask,DWORD Flags)
 {
   Help::Flags=Flags;
-  if (PrevMacroMode!=MACRO_HELP)
-  {
-    PrevMacroMode=CtrlObject->Macro.GetMode();
-    CtrlObject->Macro.SetMode(MACRO_HELP);
-  }
+  /* $ 12.04.2001 SVS
+     в конструкторе PrevMacroMode не инициализирован!
+  */
+  //if (PrevMacroMode!=MACRO_HELP) {
+  PrevMacroMode=CtrlObject->Macro.GetMode();
+  CtrlObject->Macro.SetMode(MACRO_HELP);
+  //}
+  /* $ SVS */
+
   ErrorHelp=TRUE;
   /* $ 01.09.2000 SVS
      Установим по умолчанию текущий цвет отрисовки...
   */
   CurColor=COL_HELPTEXT;
+  /* SVS $ */
+  /* $ 12.04.2001 SVS
+     сохраним Mask
+  */
+  if(Mask)
+  {
+    HelpMask=new char[strlen(Mask)+1];
+    strcpy(HelpMask,Mask);
+  }
+  else
+    HelpMask=NULL;
   /* SVS $ */
   TopLevel=TRUE;
   TopScreen=new SaveScreen;
@@ -126,16 +145,24 @@ Help::Help(char *Topic, char *Mask,DWORD Flags)
   }
 }
 
-
-Help::Help(char *Topic,int &ShowPrev,int PrevFullScreen,DWORD Flags)
+/* $ 12.04.2001 SVS
+   передаем в конструктор Mask, запоминаем
+*/
+Help::Help(char *Topic,int &ShowPrev,int PrevFullScreen,DWORD Flags,char *Mask)
 {
   Help::Flags=Flags;
-  if (PrevMacroMode!=MACRO_HELP)
-  {
-    PrevMacroMode=CtrlObject->Macro.GetMode();
-    CtrlObject->Macro.SetMode(MACRO_HELP);
-  }
+  //if (PrevMacroMode!=MACRO_HELP) {
+  PrevMacroMode=CtrlObject->Macro.GetMode();
+  CtrlObject->Macro.SetMode(MACRO_HELP);
+  //}
   ErrorHelp=TRUE;
+  if(Mask)
+  {
+    HelpMask=new char[strlen(Mask)+1];
+    strcpy(HelpMask,Mask);
+  }
+  else
+    HelpMask=NULL;
   TopLevel=FALSE;
   HelpData=NULL;
   Help::PrevFullScreen=PrevFullScreen;
@@ -145,7 +172,7 @@ Help::Help(char *Topic,int &ShowPrev,int PrevFullScreen,DWORD Flags)
     SetPosition(0,0,ScrX,ScrY);
   else
     SetPosition(4,2,ScrX-4,ScrY-2);
-  if(!ReadHelp() && (Flags&FHELP_USECONTENTS))
+  if(!ReadHelp(Mask) && (Flags&FHELP_USECONTENTS))
   {
     strcpy(HelpTopic,Topic);
     if(*HelpTopic == '#')
@@ -155,7 +182,7 @@ Help::Help(char *Topic,int &ShowPrev,int PrevFullScreen,DWORD Flags)
         strcpy(++Ptr,"Contents");
     }
     *HelpPath=0;
-    ReadHelp();
+    ReadHelp(Mask);
   }
   /* $ 16.03.2001 VVM
     ! Если топик не найден - остаемся, где были */
@@ -174,6 +201,7 @@ Help::Help(char *Topic,int &ShowPrev,int PrevFullScreen,DWORD Flags)
   }
   /* VVM $ */
 }
+/* SVS $ */
 
 
 Help::~Help()
@@ -184,6 +212,12 @@ Help::~Help()
     для выделения памяти использовалась функция realloc
   */
   free(HelpData);
+  /* SVS $ */
+  /* $ 12.04.2001 SVS
+     удаляем HelpMask
+  */
+  if(HelpMask)
+    delete HelpMask;
   /* SVS $ */
   if (TopLevel)
   {
@@ -912,7 +946,14 @@ int Help::ProcessKey(int Key)
           else
             strcpy(NewTopic,SelTopic);
 
-          Help NewHelp(NewTopic,KeepHelp,FullScreenHelp);
+          /* $ 12.04.2001 SVS
+             передаем запомненный HelpMask
+          */
+          char *NewHelpMask=NULL;
+          if(*SelTopic != ':' && LocalStricmp(SelTopic,PluginContents) != 0)
+            NewHelpMask=HelpMask;
+          Help NewHelp(NewTopic,KeepHelp,FullScreenHelp,0,NewHelpMask);
+          /* SVS $ */
         }
         if (!KeepHelp)
           EndLoop=TRUE;
@@ -928,12 +969,26 @@ int Help::ProcessKey(int Key)
       }
       return(TRUE);
     case KEY_SHIFTF1:
-      strcpy(SelTopic,"Contents");
-      ProcessKey(KEY_ENTER);
+      /* $ 12.04.2001 SVS
+         не поганим SelTopic, если и так в теме Contents
+      */
+      if(LocalStricmp(HelpTopic,"Contents")!=0)
+      {
+        strcpy(SelTopic,"Contents");
+        ProcessKey(KEY_ENTER);
+      }
+      /* SVS $ */
       return(TRUE);
     case KEY_SHIFTF2:
-      strcpy(SelTopic,PluginContents);
-      ProcessKey(KEY_ENTER);
+      /* $ 12.04.2001 SVS
+         не поганим SelTopic, если и так в PluginContents
+      */
+      if(LocalStricmp(HelpTopic,PluginContents)!=0)
+      {
+        strcpy(SelTopic,PluginContents);
+        ProcessKey(KEY_ENTER);
+      }
+      /* SVS $ */
       return(TRUE);
     case KEY_RIGHT:
     case KEY_TAB:

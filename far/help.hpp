@@ -7,10 +7,13 @@ help.hpp
 
 */
 
-/* Revision: 1.06 26.03.2001 $ */
+/* Revision: 1.07 12.04.2001 $ */
 
 /*
 Modify:
+  12.04.2001 SVS
+    + сохранение значения Mask, переданного в конструктор
+    + передача сохраненной Mask в конструктор с ShowPrev
   26.03.2001 SVS
     ! ReadHelp возвращает TRUE/FALSE
   30.12.2000 SVS
@@ -42,6 +45,11 @@ class Help:public Modal
     char HelpTopic[512];
     char SelTopic[512];
     char HelpPath[NM];
+    /* $ 12.04.2001 SVS
+       Значение маски, переданной в конструктор
+    */
+    char *HelpMask;
+    /* SVS $ */
 
     DWORD Flags;
     /* $ 01.09.2000 SVS
@@ -82,7 +90,11 @@ class Help:public Modal
 
   public:
     Help(char *Topic,char *Mask=NULL,DWORD Flags=0);
-    Help(char *Topic,int &ShowPrev,int PrevFullScreen,DWORD Flags=0);
+    /* $ 12.04.2001 SVS
+       передача Mask
+    */
+    Help(char *Topic,int &ShowPrev,int PrevFullScreen,DWORD Flags=0,char *Mask=NULL);
+    /* SVS $ */
     ~Help();
 
   public:
