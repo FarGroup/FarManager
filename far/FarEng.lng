@@ -1206,15 +1206,6 @@
 "Cannot save file"
 "Edited text is stored in"
 
-"Register FAR"
-"Registration name"
-"Registration code"
-"Registration failed"
-"Thank you for support!"
-"This function is available in registered version only"
-"available in registered version"
-"Evaluation version"
-
 "Jan"
 "Feb"
 "Mar"
@@ -1318,3 +1309,13 @@
 ""
 ""
 ""
+
+"Register FAR"
+"Registration name"
+"Registration code"
+"Registration failed"
+"Thank you for support!"
+"This function is available in registered version only"
+"available in registered version"
+
+"Evaluation version"

@@ -5,10 +5,13 @@ far.cpp
 
 */
 
-/* Revision: 1.08 30.12.2000 $ */
+/* Revision: 1.09 19.01.2001 $ */
 
 /*
 Modify:
+  19.01.2001 SVS
+    + FAR.EXE /?
+    + проверка на количество строк (MListEval)
   30.12.2000 SVS
     + Проинициализируем функции работы с атрибутами Encryped сразу после
       старта FAR
@@ -53,6 +56,26 @@ static void ConvertOldSettings();
 //static void SetHighlighting();
 /* IS $ */
 static void CopyGlobalSettings();
+
+static void show_help(void)
+{
+printf(
+"The following switches may be used in the command line:\n\n"
+" /?   This help\n"
+" /a   Disable display of characters with codes 0 - 31 and 255.\n"
+" /ag  Disable display of pseudographics characters.\n"
+//" /co  Forces FAR to load plugins from the cache only.\n"
+" /e[<line>[:<pos>]] <filename>\n"
+"      Edit the specified file.\n"
+" /i   Set small (16x16) icon for FAR console window.\n"
+" /p[<path>]\n"
+"      Search for \"common\" plugins in the directory, specified by <path>.\n"
+" /u <username>\n"
+"      Allows to have separate settings for different users.\n"
+" /v <filename>\n"
+"      View the specified file. If <filename> is -, data is read from the stdin.\n"
+);
+}
 
 int _cdecl main(int Argc, char *Argv[])
 {
@@ -162,6 +185,15 @@ int _cdecl main(int Argc, char *Argv[])
             }
             break;
         /* tran $ */
+        /* $ 19.01.2001 SVS
+           FAR.EXE /?
+        */
+        case '?':
+        case 'H':
+          ControlObject::ShowCopyright(1);
+          show_help();
+          exit(0);
+        /* SVS $ */
       }
     }
     else
@@ -192,7 +224,7 @@ int _cdecl main(int Argc, char *Argv[])
   InitDetectWindowedMode();
   InitConsole();
   GetRegKey("Language","Main",Opt.Language,"English",sizeof(Opt.Language));
-  if (!Lang.Init(FarPath))
+  if (!Lang.Init(FarPath,MListEval))
   {
     /* $ 15.12.2000 SVS
        В случае, если не нашли нужных LNG-файлов - выдаем простое сообщение

@@ -10,12 +10,18 @@ lang.hpp
 
            также в lng Файле не ставьте более 2х комментариев
            подряд.
+
+  MListEval - должен быть всегда последним - за ним ни чего не писать
+
 */
 
-/* Revision: 1.42 17.01.2001 $ */
+/* Revision: 1.43 19.01.2001 $ */
 
 /*
 Modify:
+  19.01.2001 SVS
+    ! данные с MRegTitle по MListEval перенесены в конец списка.
+      MListEval - должен быть всегда последним - за ним ни чего не писать
   17.01.2001 SVS
     + MMacroReDefinedKey, MMacroReDefinedKey2, MMacroDeleteKey, MMacroDeleteKey2,
   14.01.2001 SVS
@@ -1317,15 +1323,6 @@ enum
   MCannotSaveFile,
   MTextSavedToTemp,
 
-  MRegTitle,
-  MRegUser,
-  MRegCode,
-  MRegFailed,
-  MRegThanks,
-  MRegOnly,
-  MRegOnlyShort,
-  MListEval,
-
   MMonthJan,
   MMonthFeb,
   MMonthMar,
@@ -1425,6 +1422,16 @@ enum
   MHelpCtrlF10,
   MHelpCtrlF11,
   MHelpCtrlF12,
+
+  MRegTitle,
+  MRegUser,
+  MRegCode,
+  MRegFailed,
+  MRegThanks,
+  MRegOnly,
+  MRegOnlyShort,
+
+  MListEval
 };
 
 #endif	// __FARLANG_HPP__

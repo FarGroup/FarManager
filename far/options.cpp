@@ -416,7 +416,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
             if (Language::Select(FALSE,&LangMenu))
             {
               Lang.Close();
-              if (!Lang.Init(FarPath))
+              if (!Lang.Init(FarPath,MListEval))
               {
                 Message(MSG_WARNING,1,"Error","Cannot load language data","Ok");
                 exit(0);

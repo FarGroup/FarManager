@@ -7,10 +7,13 @@ Internal viewer
 
 */
 
-/* Revision: 1.10 27.09.2000 $ */
+/* Revision: 1.11 19.01.2001 $ */
 
 /*
 Modify:
+  19.01.2001 SVS
+    ! GoTo - с параметрами & public member
+    + SelectText()
   27.09.2000 SVS
     + ViewerControl - "Ядро" будущего Viewer API :-)
     + FileViewer *HostFileViewer;
@@ -143,7 +146,6 @@ class Viewer:public ScreenObject
     int vseek(FILE *SrcFile,unsigned long Offset,int Whence);
     unsigned long vtell(FILE *SrcFile);
     int vgetc(FILE *SrcFile);
-    void GoTo();
     void SetFileSize();
 
   public:
@@ -179,6 +181,10 @@ class Viewer:public ScreenObject
     int  ViewerControl(int Command,void *Param);
     void SetHostFileViewer(FileViewer *Viewer) {HostFileViewer=Viewer;};
     /* SVS $ */
+
+    void GoTo(int ShowDlg=TRUE,__int64 NewPos=0,DWORD Flags=0);
+    // Функция выделения - как самостоятельная функция
+    void SelectText(long MatchPos,int SearchLength, DWORD Flags=0x1);
 };
 
 #endif // __VIEWER_HPP__

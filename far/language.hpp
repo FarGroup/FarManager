@@ -7,10 +7,12 @@ language.hpp
 
 */
 
-/* Revision: 1.01 01.09.2000 $ */
+/* Revision: 1.02 19.01.2001 $ */
 
 /*
 Modify:
+  19.01.2001 SVS
+    + дополнительный параметр для Init - количество нужных строк
   01.09.2000 SVS
     + Новый метод, для получения параметров для .Options
   25.06.2000 SVS
@@ -33,7 +35,7 @@ class Language
     char MessageFile[NM];
   public:
     Language();
-    int Init(char *Path);
+    int Init(char *Path,int CountNeed=-1);
     void Close();
     char* GetMsg(int MsgId);
     static FILE* OpenLangFile(char *Path,char *Mask,char *Language,char *FileName);

@@ -5,10 +5,12 @@ language.cpp
 
 */
 
-/* Revision: 1.03 03.09.2000 $ */
+/* Revision: 1.04 19.01.2001 $ */
 
 /*
 Modify:
+  19.01.2001 SVS
+    + Проведем проверку на количество строк в LNG-файлах
   03.09.2000 IS
     ! Нормальное сообщение об отсутствии строки в языковом файле
       (раньше имя файла обрезалось справа и приходилось иногда гадать - в
@@ -40,7 +42,7 @@ Language::Language()
 }
 
 
-int Language::Init(char *Path)
+int Language::Init(char *Path,int CountNeed)
 {
   if (MsgList!=NULL)
     return(TRUE);
@@ -73,6 +75,14 @@ int Language::Init(char *Path)
     MsgSize+=DestLength;
     MsgCount++;
   }
+  /* $ 19.01.2001 SVS
+     Проведем проверку на количество строк в LNG-файлах  */
+  if(CountNeed != -1 && CountNeed != MsgCount-1)
+  {
+    fclose(LangFile);
+    return(FALSE);
+  }
+  /* SVS $ */
   char *CurAddr=MsgList;
   MsgAddr=new LPSTR[MsgCount];
   if (MsgAddr==NULL)

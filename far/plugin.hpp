@@ -8,13 +8,17 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000 [ FAR group ]
 */
-/* Revision: 1.77 03.01.2001 $ */
+/* Revision: 1.78 19.01.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  19.01.2001 SVS
+    ! перестановки в командах VIEWER_CONTROL_COMMANDS
+    + некоторые структуры для Viewer API: ViewerSelect, ViewerSetPosition и
+      перечисление VIEWER_SETPOS_FLAGS
   03.01.2001 SVS
     + DIF_HIDDEN - элемент не видим
     + DM_SHOWITEM показать/скрыть элемент
@@ -768,15 +772,38 @@ typedef int (WINAPI *FARAPIADVCONTROL)(
 
 enum VIEWER_CONTROL_COMMANDS {
   VCTL_GETINFO,
-  VCTL_SETPOS,
+  VCTL_QUIT,
   VCTL_REDRAW,
   VCTL_SETKEYBAR,
-  VCTL_QUIT,
+  VCTL_SETPOS,
+  VCTL_SELECT,
 };
 
 enum VIEWER_OPTIONS {
   VOPT_SAVEFILEPOSITION=1,
   VOPT_AUTODETECTTABLE=2,
+};
+
+struct ViewerSelect
+{
+   long  BlockStartPos;
+   long  Reserved1;
+   int   BlockLen;
+};
+
+enum VIEWER_SETPOS_FLAGS {
+  VSP_NOREDRAW    = 0x0001,
+  VSP_PERCENT     = 0x0002,
+  VSP_RELATIVE    = 0x0004,
+  VSP_NORETNEWPOS = 0x0008,
+};
+
+struct ViewerSetPosition
+{
+  DWORD Flags;
+  long  StartPos;
+  long  Reserved1;
+  int   LeftPos;
 };
 
 struct ViewerMode{

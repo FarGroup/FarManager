@@ -5,10 +5,13 @@ config.cpp
 
 */
 
-/* Revision: 1.43 17.01.2001 $ */
+/* Revision: 1.44 19.01.2001 $ */
 
 /*
 Modify:
+  19.01.2001 SVS
+    + Opt.MacroReuseRules - Правило на счет повторно использования забинденных
+      клавиш
   17.01.2001 SVS
     ! Opt.ShiftsKeyRules
   07.01.2001 SVS
@@ -1035,6 +1038,13 @@ void ReadConfig()
   GetRegKey("Descriptions","UpdateMode",Opt.Diz.UpdateMode,DIZ_UPDATE_IF_DISPLAYED);
   GetRegKey("Descriptions","SetHidden",Opt.Diz.SetHidden,TRUE);
   GetRegKey("Descriptions","StartPos",Opt.Diz.StartPos,0);
+
+  /* $ 19.01.2001 SVS
+   + Opt.MacroReuseRules - Правило на счет повторно использования забинденных
+     клавиш */
+  GetRegKey("KeyMacros","MacroReuseRules",Opt.MacroReuseRules,0);
+  /* SVS $ */
+
 
   FileList::ReadPanelModes();
   GetTempPath(sizeof(Opt.TempPath),Opt.TempPath);

@@ -372,43 +372,54 @@ have them in history.
   This key combination is valid for all edit controls except the command
 line including dialogs and the ~internal editor~@Editor@.
 
+  In dialogs, when current management element is a Check Box:
+
+  - turn On (#[x]#)                                           #Gray +#
+  - turn Off (#[ ]#)                                          #Gray -#
+  - condition change to vague (#[?]#)                         #Gray *#
+    (if check box has three-positional condition)
+
+  Right click of mouse outside the dialog is similar keystroke Esc.
+
+  Left click of mouse outside the dialog is similar keystroke Enter.
+
 @CmdLine
 $ #Command line switches#
   The following switches may be used in the command line:
 
-  /a       Disable display of characters with codes 0 - 31
-           and 255.
-           May be useful when executing FAR under telnet.
+  #/a#    Disable display of characters with codes 0 - 31
+        and 255.
+        May be useful when executing FAR under telnet.
 
-  /ag      Disable display of pseudographics characters.
+  #/ag#   Disable display of pseudographics characters.
 
-  /e[<line>[:<pos>]] <filename>
-           Edit the specified file. After /e you may optionally
-           specify editor start line and line position.
+  #/e[<line>[:<pos>]] <filename>#
+        Edit the specified file. After /e you may optionally
+        specify editor start line and line position.
 
-           For example: far /e70:2 readme.
+        For example: far /e70:2 readme.
 
-  /i       Set small (16x16) icon for FAR console window.
-           In some configurations this switch may lead to
-           unstable work.
+  #/i#    Set small (16x16) icon for FAR console window.
+        In some configurations this switch may lead to
+        unstable work.
 
-  /u <username>
-           Allows to have separate settings for different users.
+  #/p[<path>]#
+        Search for "common" plugins in the directory, specified by
+        <path>. If <path> not specified, "main" plugins will not
+        be loaded. It is also possible to type the Environment
+        variables in the "/p" command line switch.
 
-           For example: far /u guest
+        For example: far /p%SystemRoot%\Profiles\%USERNAME%\FAR
 
-  /v <filename>
-           View the specified file. If <filename> is -, data
-           is read from the stdin. For example, "dir|far /v -"
-           will view dir command output.
+  #/u <username>#
+        Allows to have separate settings for different users.
 
-  /p[<path>]
-           It is also possible to use the Environment variables in
-           the <path>. If <path> not specified, "main" plugins will not
-           be loaded. It is also possible to type the Environment
-           variables in the "/p" command line switch.
+        For example: far /u guest
 
-           For example: far /p%SystemRoot%\Profiles\%USERNAME%\FAR
+  #/v <filename>#
+        View the specified file. If <filename> is `#-#', data
+        is read from the stdin. For example, "dir|far /v -"
+        will view dir command output.
 
   FAR <filename> command starts FAR and forces it to show <filename>
 contents if it is an archive or show folder contents if <filename>

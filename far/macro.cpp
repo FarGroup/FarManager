@@ -5,10 +5,14 @@ macro.cpp
 
 */
 
-/* Revision: 1.20 18.01.2001 $ */
+/* Revision: 1.21 19.01.2001 $ */
 
 /*
 Modify:
+  19.01.2001 SVS
+    + Зарезервировано: MFLAGS_REUSEMACRO - повторное использование макросов
+      Это чуть позже, когда будет механизм линеризации...
+      А пока пусть будет :-)
   18.01.2001 SVS
     ! немного оптимизации кода
     + Функции поиска макроклавиши и определения размера этой клавиши
@@ -100,6 +104,7 @@ Modify:
 #define MFLAGS_NOPLUGINPANELS      0x00200000
 #define MFLAGS_NOFOLDERS           0x00400000
 #define MFLAGS_NOFILES             0x00800000
+#define MFLAGS_REUSEMACRO          0x01000000
 
 
 static const char *MacroModeName[]={
@@ -589,6 +594,11 @@ void KeyMacro::SaveMacros()
       SetRegKey(RegKeyName,"NoFiles",1);
     else
       DeleteRegValue(RegKeyName,"NoFiles");
+    if (Macros[I].Flags&MFLAGS_REUSEMACRO)
+      SetRegKey(RegKeyName,"ReuseMacro",1);
+    else
+      DeleteRegValue(RegKeyName,"ReuseMacro");
+
     delete TextBuffer;
   }
 }
@@ -637,6 +647,7 @@ int KeyMacro::ReadMacros(int ReadMode,char *Buffer,int BufferSize)
     CurMacro->Flags|=GetRegKey(RegKeyName,"NoPluginPanels",0)?MFLAGS_NOPLUGINPANELS:0;
     CurMacro->Flags|=GetRegKey(RegKeyName,"NoFolders",0)?MFLAGS_NOFOLDERS:0;
     CurMacro->Flags|=GetRegKey(RegKeyName,"NoFiles",0)?MFLAGS_NOFILES:0;
+    CurMacro->Flags|=GetRegKey(RegKeyName,"ReuseMacro",0)?MFLAGS_REUSEMACRO:0;
 
     if(!ParseMacroString(CurMacro,Buffer))
       return FALSE;

@@ -5,10 +5,21 @@ Internal viewer
 
 */
 
-/* Revision: 1.39 11.01.2001 $ */
+/* Revision: 1.40 19.01.2001 $ */
 
 /*
 Modify:
+  19.01.2001 SVS
+    ! Изменен вызов функции GoTo() - три дополнительных параметра
+    - Устранение висячих строк при переходе (функция GoTo)
+    + Функция выделения SelectText() - как самостоятельная функция
+    + VCTL_SELECT
+    ! Изменения в VCTL_SETPOS
+    + Хотелка:
+       "чтобы запоминался режим просмотра файла Hex/норм.
+       отдельно для каждого файла"
+      стала возможной потому, что были резервы при кешировании :-)
+      Остался еще один пункт :-)
   11.01.2000 VVM
     ! Левый край считается за раз, а не итерациями по +4
   21.12.2000 SVS
@@ -230,7 +241,7 @@ Viewer::~Viewer()
             if (VM.UseDecodeTable)
               Table=VM.TableNum+3;
       }
-      CtrlObject->ViewerPosCache.AddPosition(CacheName,FilePos,LeftPos,0,0,Table,
+      CtrlObject->ViewerPosCache.AddPosition(CacheName,FilePos,LeftPos,VM.Hex,0,Table,
           (long*)(Opt.SaveViewerShortPos?SavePosAddr:NULL),
           (long*)(Opt.SaveViewerShortPos?SavePosLeft:NULL),NULL,NULL);
     }
@@ -433,6 +444,7 @@ int Viewer::OpenFile(char *Name,int warning)
     }
     LastSelPos=FilePos=NewFilePos;
     LeftPos=NewLeftPos;
+    VM.Hex=TempPos1;
   }
   else
     FilePos=0;
@@ -1179,7 +1191,7 @@ int Viewer::ProcessKey(int Key)
                   if (VM.UseDecodeTable)
                     Table=VM.TableNum+3;
             }
-            CtrlObject->ViewerPosCache.AddPosition(CacheName,FilePos,LeftPos,0,0,Table,
+            CtrlObject->ViewerPosCache.AddPosition(CacheName,FilePos,LeftPos,VM.Hex,0,Table,
                     (long*)(Opt.SaveViewerShortPos?SavePosAddr:NULL),
                     (long*)(Opt.SaveViewerShortPos?SavePosLeft:NULL),NULL,NULL);
           }
@@ -1933,47 +1945,7 @@ void Viewer::Search(int Next,int FirstChar)
   }
 
   if (Match)
-  {
-    char Buf[1024];
-    long StartLinePos=-1,SearchLinePos=MatchPos-sizeof(Buf);
-    if (SearchLinePos<0)
-      SearchLinePos=0;
-    vseek(ViewFile,SearchLinePos,SEEK_SET);
-    int ReadSize=Min(sizeof(Buf),MatchPos-SearchLinePos);
-    ReadSize=vread(Buf,ReadSize,ViewFile);
-    for (int I=ReadSize-1;I>=0;I--)
-      if (Buf[I]==CRSym)
-      {
-        StartLinePos=SearchLinePos+I;
-        break;
-      }
-    vseek(ViewFile,MatchPos+1,SEEK_SET);
-    SelectPos=FilePos=MatchPos;
-    SelectSize=SearchLength;
-    LastSelPos=SelectPos+(ReverseSearch ? -1:1);
-    if (VM.Hex)
-      FilePos&=~(VM.Unicode ? 0x7:0xf);
-    else
-    {
-      if (SelectPos!=StartLinePos)
-        Up();
-      int Length=SelectPos-StartLinePos-1;
-      if (VM.Wrap)
-        Length%=ScrX+1;
-      if (Length<=Width)
-          LeftPos=0;
-      if (Length-LeftPos>Width || Length<LeftPos)
-      {
-        LeftPos=Length;
-        if (LeftPos>(MAX_VIEWLINE-1) || LeftPos<0)
-          LeftPos=0;
-        else
-          if (LeftPos>10)
-            LeftPos-=10;
-      }
-    }
-    Show();
-  }
+    SelectText(MatchPos,SearchLength,0x1|(ReverseSearch?0x2:0));
   else
     Message(MSG_DOWN|MSG_WARNING,1,MSG(MViewSearchTitle),
             MSG(MViewSearchCannotFind),MsgStr,MSG(MOk));
@@ -2165,7 +2137,9 @@ int Viewer::vgetc(FILE *SrcFile)
 #define RB_HEX 4
 #define RB_DEC 5
 
-void Viewer::GoTo()
+//   ! Изменен вызов функции GoTo() - два дополнительных параметра
+//   - Устранение висячих строк при переходе (функция GoTo)
+void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
 {
   /* $ 17.07.2000 tran
      + new variable*/
@@ -2194,82 +2168,102 @@ void Viewer::GoTo()
   GoToDlg[PrevMode+3].Selected=TRUE;
 
   {
-    Dialog Dlg(GoToDlg,sizeof(GoToDlg)/sizeof(GoToDlg[0]));
-    Dlg.SetHelp("ViewerGotoPos");
-    Dlg.SetPosition(-1,-1,35,9);
-    Dlg.Process();
-    /* $ 17.07.2000 tran
-       - remove isdigit check()
-         кстати, тут баг был
-         если ввести ffff при hex offset, то фар все равно никуда не шел */
-    if (Dlg.GetExitCode()!=1 ) //|| !isdigit(*GoToDlg[1].Data))
-      return;
-    // strncpy(PrevLine,GoToDlg[1].Data,sizeof(PrevLine));
-    DWORD Offset;
-    /* $ 17.07.2000 tran
-       тут для сокращения кода ввел ptr, который и анализирую */
-    char *ptr=&GoToDlg[1].Data[0];
-    if ( ptr[0]=='+' || ptr[0]=='-' )     // юзер хочет относительности
+    if(ShowDlg)
     {
-        if (ptr[0]=='+')
-            Relative=1;
-        else
-            Relative=-1;
-        memmove(ptr,ptr+1,strlen(ptr)); // если вы думаете про strlen(ptr)-1,
-                                        // то вы ошибаетесь :)
-    }
-    if ( strchr(ptr,'%') )   // он хочет процентов
-    {
-        GoToDlg[RB_HEX].Selected=GoToDlg[RB_DEC].Selected=0;
-        GoToDlg[RB_PRC].Selected=1;
-    }
-    else if ( strnicmp(ptr,"0x",2)==0 || ptr[0]=='$' || strchr(ptr,'h') ||strchr(ptr,'H') ) // он умный - hex код ввел!
-    {
-        GoToDlg[RB_PRC].Selected=GoToDlg[RB_DEC].Selected=0;
-        GoToDlg[RB_HEX].Selected=1;
-        if ( strnicmp(ptr,"0x",2)==0)
-            memmove(ptr,ptr+2,strlen(ptr)-1); // а тут надо -1, а не -2  // сдвинем строку
-        else if (ptr[0]=='$')
-            memmove(ptr,ptr+1,strlen(ptr));
-        //Relative=0; // при hex значении никаких относительных значений?
-    }
-    /* $ 19.07.2000 tran
-       при форме NNNd - десятичная форма */
-    else if (strchr(ptr,'d') || strchr(ptr,'D'))
-    {
-        GoToDlg[RB_HEX].Selected=GoToDlg[RB_PRC].Selected=0;
-        GoToDlg[RB_DEC].Selected=1;
-    }
-    /* tran 19.07.2000 $ */
-    if (GoToDlg[RB_PRC].Selected)
-    {
-      //int cPercent=ToPercent(FilePos,FileSize);
-      PrevMode=0;
-      int Percent=atoi(GoToDlg[1].Data);
-      //if ( Relative  && (cPercent+Percent*Relative<0) || (cPercent+Percent*Relative>100)) // за пределы - низя
-      //  return;
-      if (Percent>100)
+      Dialog Dlg(GoToDlg,sizeof(GoToDlg)/sizeof(GoToDlg[0]));
+      Dlg.SetHelp("ViewerGotoPos");
+      Dlg.SetPosition(-1,-1,35,9);
+      Dlg.Process();
+      /* $ 17.07.2000 tran
+         - remove isdigit check()
+           кстати, тут баг был
+           если ввести ffff при hex offset, то фар все равно никуда не шел */
+      if (Dlg.GetExitCode()!=1 ) //|| !isdigit(*GoToDlg[1].Data))
         return;
-      //if ( Percent<0 )
-      //  Percent=0;
-      Offset=FileSize/100*Percent;
-      if (VM.Unicode)
-        Offset*=2;
-      while (ToPercent(Offset,FileSize)<Percent)
-        Offset++;
-    }
-    if (GoToDlg[RB_HEX].Selected)
+      // strncpy(PrevLine,GoToDlg[1].Data,sizeof(PrevLine));
+      /* $ 17.07.2000 tran
+         тут для сокращения кода ввел ptr, который и анализирую */
+      char *ptr=&GoToDlg[1].Data[0];
+      if ( ptr[0]=='+' || ptr[0]=='-' )     // юзер хочет относительности
+      {
+          if (ptr[0]=='+')
+              Relative=1;
+          else
+              Relative=-1;
+          memmove(ptr,ptr+1,strlen(ptr)); // если вы думаете про strlen(ptr)-1,
+                                          // то вы ошибаетесь :)
+      }
+      if ( strchr(ptr,'%') )   // он хочет процентов
+      {
+          GoToDlg[RB_HEX].Selected=GoToDlg[RB_DEC].Selected=0;
+          GoToDlg[RB_PRC].Selected=1;
+      }
+      else if ( strnicmp(ptr,"0x",2)==0 || ptr[0]=='$' || strchr(ptr,'h') ||strchr(ptr,'H') ) // он умный - hex код ввел!
+      {
+          GoToDlg[RB_PRC].Selected=GoToDlg[RB_DEC].Selected=0;
+          GoToDlg[RB_HEX].Selected=1;
+          if ( strnicmp(ptr,"0x",2)==0)
+              memmove(ptr,ptr+2,strlen(ptr)-1); // а тут надо -1, а не -2  // сдвинем строку
+          else if (ptr[0]=='$')
+              memmove(ptr,ptr+1,strlen(ptr));
+          //Relative=0; // при hex значении никаких относительных значений?
+      }
+      /* $ 19.07.2000 tran
+         при форме NNNd - десятичная форма */
+      else if (strchr(ptr,'d') || strchr(ptr,'D'))
+      {
+          GoToDlg[RB_HEX].Selected=GoToDlg[RB_PRC].Selected=0;
+          GoToDlg[RB_DEC].Selected=1;
+      }
+      /* tran 19.07.2000 $ */
+      if (GoToDlg[RB_PRC].Selected)
+      {
+        //int cPercent=ToPercent(FilePos,FileSize);
+        PrevMode=0;
+        int Percent=atoi(GoToDlg[1].Data);
+        //if ( Relative  && (cPercent+Percent*Relative<0) || (cPercent+Percent*Relative>100)) // за пределы - низя
+        //  return;
+        if (Percent>100)
+          return;
+        //if ( Percent<0 )
+        //  Percent=0;
+        Offset=FileSize/100*Percent;
+        if (VM.Unicode)
+          Offset*=2;
+        while (ToPercent(Offset,FileSize)<Percent)
+          Offset++;
+      }
+      if (GoToDlg[RB_HEX].Selected)
+      {
+        PrevMode=1;
+        char *endptr;
+        Offset=strtoul(GoToDlg[1].Data,&endptr,16);
+      }
+      if (GoToDlg[RB_DEC].Selected)
+      {
+        PrevMode=2;
+        char *endptr;
+        Offset=strtoul(GoToDlg[1].Data,&endptr,10);
+      }
+    }// ShowDlg
+    else
     {
-      PrevMode=1;
-      char *endptr;
-      Offset=strtoul(GoToDlg[1].Data,&endptr,16);
+      Relative=(Flags&VSP_RELATIVE)*(Offset<0?-1:1);
+      if(Flags&VSP_PERCENT)
+      {
+        int Percent=Offset;
+        if (Percent>100)
+          return;
+        //if ( Percent<0 )
+        //  Percent=0;
+        Offset=FileSize/100*Percent;
+        if (VM.Unicode)
+          Offset*=2;
+        while (ToPercent(Offset,FileSize)<Percent)
+          Offset++;
+      }
     }
-    if (GoToDlg[RB_DEC].Selected)
-    {
-      PrevMode=2;
-      char *endptr;
-      Offset=strtoul(GoToDlg[1].Data,&endptr,10);
-    }
+
     if ( Relative )
     {
         if ( Relative==-1 && Offset>FilePos ) // меньше нуля, if (FilePos<0) не пройдет - FilePos у нас unsigned long
@@ -2283,8 +2277,34 @@ void Viewer::GoTo()
         FilePos=FileSize;     // там все равно ничего нету
     /* tran 17.07.2000 $ */
   }
+  // коррекция
+  if (!VM.Hex)
+  {
+    char Buf[1024];
+    long StartLinePos=-1,GotoLinePos=FilePos-sizeof(Buf);
+    if (GotoLinePos<0)
+      GotoLinePos=0;
+    vseek(ViewFile,GotoLinePos,SEEK_SET);
+    int ReadSize=Min(sizeof(Buf),FilePos-GotoLinePos);
+    ReadSize=vread(Buf,ReadSize,ViewFile);
+    for (int I=ReadSize-1;I>=0;I--)
+      if (Buf[I]==CRSym)
+      {
+        StartLinePos=GotoLinePos+I;
+        break;
+      }
+    vseek(ViewFile,FilePos+1,SEEK_SET);
+    if (VM.Hex)
+      FilePos&=~(VM.Unicode ? 0x7:0xf);
+    else
+    {
+      if (FilePos!=StartLinePos)
+        Up();
+    }
+  }
   LastSelPos=FilePos;
-  Show();
+  if(!(Flags&VSP_NOREDRAW))
+    Show();
 }
 
 
@@ -2294,6 +2314,59 @@ void Viewer::SetFileSize()
   vseek(ViewFile,0,SEEK_END);
   FileSize=vtell(ViewFile);
 }
+
+
+/* $ 19.01.2001 SVS
+   Выделение - в качестве самостоятельной функции.
+   Flags=0x01 - показывать (делать Show())
+         0x02 - "обратный поиск" ?
+*/
+void Viewer::SelectText(long MatchPos,int SearchLength, DWORD Flags)
+{
+  char Buf[1024];
+  long StartLinePos=-1,SearchLinePos=MatchPos-sizeof(Buf);
+  if (SearchLinePos<0)
+    SearchLinePos=0;
+  vseek(ViewFile,SearchLinePos,SEEK_SET);
+  int ReadSize=Min(sizeof(Buf),MatchPos-SearchLinePos);
+  ReadSize=vread(Buf,ReadSize,ViewFile);
+  for (int I=ReadSize-1;I>=0;I--)
+    if (Buf[I]==CRSym)
+    {
+      StartLinePos=SearchLinePos+I;
+      break;
+    }
+//MessageBeep(0);
+  vseek(ViewFile,MatchPos+1,SEEK_SET);
+  SelectPos=FilePos=MatchPos;
+  SelectSize=SearchLength;
+  LastSelPos=SelectPos+((Flags&0x2) ? -1:1);
+  if (VM.Hex)
+    FilePos&=~(VM.Unicode ? 0x7:0xf);
+  else
+  {
+    if (SelectPos!=StartLinePos)
+      Up();
+    int Length=SelectPos-StartLinePos-1;
+    if (VM.Wrap)
+      Length%=ScrX+1;
+    if (Length<=Width)
+        LeftPos=0;
+    if (Length-LeftPos>Width || Length<LeftPos)
+    {
+      LeftPos=Length;
+      if (LeftPos>(MAX_VIEWLINE-1) || LeftPos<0)
+        LeftPos=0;
+      else
+        if (LeftPos>10)
+          LeftPos-=10;
+    }
+  }
+  if(Flags&1)
+    Show();
+}
+/* SVS $ */
+
 
 /* $ 27.09.2000 SVS
    "Ядро" будущего Viewer API :-)
@@ -2329,28 +2402,51 @@ int Viewer::ViewerControl(int Command,void *Param)
       }
       break;
     }
-    /* Param = LPDWORD на переменную, содержащую
-               новое смещение - сюда же будет записано новое смещение
-               В основном совпадает с передеанным
-
-        Здесь нужно выравнивать до перевода строки (т.к. неверное отображение)
+    /*
+       Param = struct ViewerSetPosition
+               сюда же будет записано новое смещение
+               В основном совпадает с переданным
     */
     case VCTL_SETPOS:
     {
       if(Param)
       {
-        unsigned long NewPos=*(unsigned long*)Param;
-        bool isReShow=NewPos != FilePos ;
-        if ( NewPos > FileSize )   // и куда его несет?
-          *(unsigned long*)Param=FilePos=FileSize;     // там все равно ничего нету
-        else
-          FilePos=NewPos;
-        if (isReShow)
-        {
-          Show();
+        struct ViewerSetPosition vsp=*(struct ViewerSetPosition*)Param;
+        bool isReShow=vsp.StartPos != FilePos;
+        if((LeftPos=vsp.LeftPos) < 0)
+          LeftPos=0;
+        GoTo(FALSE, vsp.StartPos, vsp.Flags);
+        if (isReShow && !(vsp.Flags&VSP_NOREDRAW))
           ScrBuf.Flush();
+        if(!(vsp.Flags&VSP_NORETNEWPOS))
+        {
+          ((struct ViewerSetPosition*)Param)->StartPos=FilePos;
+          ((struct ViewerSetPosition*)Param)->LeftPos=LeftPos;
         }
         return(TRUE);
+      }
+      break;
+    }
+
+    // Param=ViewerSelect
+    case VCTL_SELECT:
+    {
+      if(Param)
+      {
+        long SPos;
+        int SSize;
+        SPos=((ViewerSelect*)Param)->BlockStartPos;
+        SSize=((ViewerSelect*)Param)->BlockLen;
+        if(SPos < FileSize)
+        {
+          if(SPos+SSize > FileSize)
+          {
+            SSize=FileSize-SPos;
+          }
+          SelectText(SPos,SSize,0x1);
+          ScrBuf.Flush();
+          return(TRUE);
+        }
       }
       break;
     }
@@ -2391,6 +2487,7 @@ int Viewer::ViewerControl(int Command,void *Param)
           }
         }
         ViewKeyBar->Show();
+        ScrBuf.Flush(); //?????
       }
       return(TRUE);
     }
