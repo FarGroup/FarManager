@@ -7,10 +7,12 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.27 18.03.2002 $ */
+/* Revision: 1.28 13.05.2002 $ */
 
 /*
 Modify:
+  13.05.2002 VVM
+    + Перерисуем заголовок консоли после позиционирования на файл.
   18.03.2002 SVS
     + SetLockEditor() - возможноть программно лочить редактор
   15.01.2002 SVS
@@ -103,6 +105,7 @@ class FileEditor:public Frame
     typedef class Frame inherited;
 
     Editor FEdit;
+    int RedrawTitle;
     KeyBar EditKeyBar;
 
     /* $ 07.05.2001 DJ */

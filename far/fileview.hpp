@@ -7,10 +7,12 @@ fileview.hpp
 
 */
 
-/* Revision: 1.16 02.11.2001 $ */
+/* Revision: 1.17 13.05.2002 $ */
 
 /*
 Modify:
+  13.05.2002 VVM
+    + Перерисуем заголовок консоли после позиционирования на файл.
   02.11.2001 SVS
     ! возвращаемое значение у GetTypeName() - модификатор const
   08.09.2001 IS
@@ -65,6 +67,7 @@ class FileViewer:public Frame
     void Show();
     void DisplayObject();
     Viewer View;
+    int RedrawTitle;
     KeyBar ViewKeyBar;
     char NewTitle[NM];
     int F3KeyOnly;

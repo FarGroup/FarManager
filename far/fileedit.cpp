@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.99 11.05.2002 $ */
+/* Revision: 1.101 13.05.2002 $ */
 
 /*
 Modify:
+  13.05.2002 VVM
+    + Перерисуем заголовок консоли после позиционирования на файл.
   11.05.2002 SVS
     - BugZ#468 - File saving after, cancelation.
   29.04.2002 SVS
@@ -330,6 +332,7 @@ void FileEditor::Init(const char *Name,int CreateNewFile,int EnableSwitch,
                       char *PluginData,int ToSaveAs,BOOL DeleteOnClose,
                       int OpenModeExstFile)
 {
+  RedrawTitle = FALSE;
   /* $ 07.05.2001 DJ */
   EditNamesList = NULL;
   KeyBarVisible = TRUE;
@@ -612,6 +615,9 @@ int FileEditor::ProcessKey(int Key)
   DWORD FNAttr;
   char *Ptr, Chr;
 
+  if (RedrawTitle && ((Key & 0x00ffffff) < KEY_END_FKEY))
+    ShowConsoleTitle();
+
   // BugZ#488 - Shift=enter
   if(ShiftPressed && Key == KEY_ENTER && !CtrlObject->Macro.IsExecuting())
   {
@@ -842,6 +848,7 @@ int FileEditor::ProcessKey(int Key)
         {
           SaveScreen Sc;
           CtrlObject->Cp()->GoToFile (FullFileName);
+          RedrawTitle = TRUE;
         }
         /* DJ $ */
         /* VVM $ */
@@ -1130,6 +1137,7 @@ void FileEditor::ShowConsoleTitle()
   char Title[NM+20];
   sprintf(Title,MSG(MInEditor),PointToName(FileName));
   SetFarTitle(Title);
+  RedrawTitle = FALSE;
 }
 
 

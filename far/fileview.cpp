@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.54 26.03.2002 $ */
+/* Revision: 1.55 13.05.2002 $ */
 
 /*
 Modify:
+  13.05.2002 VVM
+    + Перерисуем заголовок консоли после позиционирования на файл.
   26.03.2002 DJ
     ! при неудаче открытия - не пишем мусор в историю
   22.03.2002 SVS
@@ -188,6 +190,7 @@ void FileViewer::Init(const char *name,int EnableSwitch,int disableHistory, ///
                       long ViewStartPos,char *PluginData,
                       NamesList *ViewNamesList,int ToSaveAs)
 {
+  RedrawTitle = FALSE;
   ViewKeyBar.SetOwner(this);
   ViewKeyBar.SetPosition(X1,Y2,X2,Y2);
   /* $ 07.05.2001 DJ */
@@ -333,6 +336,9 @@ void FileViewer::DisplayObject()
 
 int FileViewer::ProcessKey(int Key)
 {
+  if (RedrawTitle && ((Key & 0x00ffffff) < KEY_END_FKEY))
+    ShowConsoleTitle();
+
   if (Key!=KEY_F3 && Key!=KEY_NUMPAD5)
     F3KeyOnly=FALSE;
   switch(Key)
@@ -351,6 +357,7 @@ int FileViewer::ProcessKey(int Key)
         char FileName[NM];
         View.GetFileName(FileName);
         CtrlObject->Cp()->GoToFile (FileName);
+        RedrawTitle = TRUE;
         /* DJ $ */
         return (TRUE);
       }
@@ -505,6 +512,7 @@ int FileViewer::GetTypeAndName(char *Type,char *Name)
 void FileViewer::ShowConsoleTitle()
 {
   View.ShowConsoleTitle();
+  RedrawTitle = FALSE;
 }
 
 
