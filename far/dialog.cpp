@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.141 23.07.2001 $ */
+/* Revision: 1.142 23.07.2001 $ */
 
 /*
 Modify:
+  23.07.2001 SVS
+   ! DIF_SEPARATOR пока не обрабатываем дл€ DI_VTEXT
   23.07.2001 SVS
    - Ќе освобождалась пам€ть, зан€та€ под списки в DeleteDialogObjects()
   22.07.2001 SVS
@@ -1332,6 +1334,7 @@ BOOL Dialog::GetItemRect(int I,RECT& Rect)
       if(Rect.top < 0)
         Rect.top=0;
 
+      /* «акроем до поры до времени.
       if (ItemFlags & DIF_SEPARATOR)
       {
         Rect.right=Rect.left;
@@ -1339,6 +1342,7 @@ BOOL Dialog::GetItemRect(int I,RECT& Rect)
         Rect.bottom=Y2-Y1-(!CheckDialogMode(DMODE_SMALLDIALOG)?1:0); //???
         break;
       }
+      */
       break;
 
     case DI_BUTTON:
@@ -1701,6 +1705,7 @@ void Dialog::ShowDialog(int ID)
         Attr=DlgProc((HANDLE)this,DN_CTLCOLORDLGITEM,I,FarColorToReal(Attr));
         SetColor(Attr&0xFF);
 
+        /* «акроем до поры до времени.
         if (CurItem->Flags & DIF_SEPARATOR)
         {
           GotoXY(X1+X,Y1+(!CheckDialogMode(DMODE_SMALLDIALOG)?1:0)); //????
@@ -1709,6 +1714,7 @@ void Dialog::ShowDialog(int ID)
           else
             ShowSeparator(Y2-Y1-(!CheckDialogMode(DMODE_SMALLDIALOG)?1:0),5);
         }
+        */
 
         GotoXY(X1+X,Y1+Y);
         VText(CurItem->Data);

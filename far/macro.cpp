@@ -5,10 +5,14 @@ macro.cpp
 
 */
 
-/* Revision: 1.47 10.07.2001 $ */
+/* Revision: 1.48 22.07.2001 $ */
 
 /*
 Modify:
+  23.07.2001 SVS
+    - Костыль и в макросы поставим. По другому не назовешь, блин.
+      После окончания работы макроса принудительно рефрешим и комитим
+      то, на чем остановились.
   10.07.2001 SVS
     + KEY_MACROXLAT - в макросах "$XLat" заменяется на клавишу вызова XLat
   25.06.2001 IS
@@ -573,6 +577,8 @@ done:
     LockScr=NULL;
     Executing=FALSE;
     ReleaseTempBuffer();
+    FrameManager->RefreshFrame();
+    FrameManager->PluginCommit();
     return(FALSE);
   }
 

@@ -5,10 +5,13 @@ plugins.cpp
 
 */
 
-/* Revision: 1.80 19.07.2001 $ */ 
+/* Revision: 1.81 23.07.2001 $ */
 
 /*
 Modify:
+  23.07.2001 SVS
+    - бага при прорисовке меню вызова конфигруации плагинов!
+      ќчередной костыль.
   19.07.2001 OT
     - F11->плагин с диалогом->CAS -> зачем-то по€вл€лось меню :)
   18.07.2001 OT
@@ -1837,8 +1840,11 @@ void PluginsSet::Configure(int StartPos)
       if (StartPos<0)
         break;
       Data=(DWORD)PluginList.GetUserData(NULL,NULL,StartPos);
-      ConfigureCurrent(LOWORD(Data),HIWORD(Data));
     }
+    // ќ„≈–≈ƒЌќ…  ќ—“џЋ№, »Ѕќ ¬—≈ Ќ≈ѕ–ј¬»Ћ№Ќќ!
+    //  ћеню уже погашено, так зачем же его где оп€ть высвечивать,
+    //  если об это не просили?
+    ConfigureCurrent(LOWORD(Data),HIWORD(Data));
   }
 }
 /* IS $ */
@@ -1860,12 +1866,12 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
     PluginList.SetFlags(VMENU_WRAPMODE);
     PluginList.SetPosition(-1,-1,0,0);
     PluginList.SetHelp("Plugins");
-    
+
     LoadIfCacheAbsent();
-    
+
     char FirstHotKey[512];
     int HotKeysPresent=EnumRegKey("PluginHotkeys",0,FirstHotKey,sizeof(FirstHotKey));
-    
+
     for (int I=0;I<PluginsCount;I++)
     {
       char HotRegKey[512],HotKey[100];
@@ -1944,14 +1950,14 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
     }
     PluginList.AssignHighlights(FALSE);
     PluginList.SetBottomTitle(MSG(MPluginHotKeyBottom));
-    
+
     PluginList.Show();
-    
+
     while (!PluginList.Done())
     {
       int SelPos=PluginList.GetSelectPos();
       char RegKey[512];
-      
+
       Data=(DWORD)PluginList.GetUserData(NULL,NULL,SelPos);
       switch(PluginList.ReadInput())
       {
@@ -1979,7 +1985,7 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
               DI_FIXEDIT,5,3,5,3,1,0,0,1,""
           };
           MakeDialogItems(PluginDlgData,PluginDlg);
-          
+
           {
             GetRegKey(RegKey,"Hotkey",PluginDlg[2].Data,"",sizeof(PluginDlg[2].Data));
             Dialog Dlg(PluginDlg,sizeof(PluginDlg)/sizeof(PluginDlg[0]));
@@ -2007,7 +2013,7 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
       }
     }
     int ExitCode=PluginList.VMenu::GetExitCode();
-    
+
     PluginList.Hide();
     if (ExitCode<0)
       return(FALSE);

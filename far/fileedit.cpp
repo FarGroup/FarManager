@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.57 22.07.2001 $ */
+/* Revision: 1.58 23.07.2001 $ */
 
 /*
 Modify:
+  23.07.2001 SVS
+    ! Изменен порядок кнопок  MNewOpen и MReload
   22.07.2001 SVS
     + Добавлен хелп для месага про "релоад"
     ! Имя файла в месага про "релоад" усекается.
@@ -235,17 +237,17 @@ void FileEditor::Init(const char *Name,int CreateNewFile,int EnableSwitch,
         int MsgCode=Message(0,3,MSG(MEditTitle),
               TruncPathStr(MsgFullFileName,ScrX-16),
               MSG(MAskReload),
-              MSG(MCurrent),MSG(MReload),MSG(MNewOpen));
+              MSG(MCurrent),MSG(MNewOpen),MSG(MReload));
         switch(MsgCode)
         {
           case 0:
             SwitchTo=TRUE;
             break;
-          case 1:
+          case 2:
             FrameManager->DeleteFrame(FramePos);
             SetExitCode(-2);
             break;
-          case 2:
+          case 1:
             SwitchTo=FALSE;
             break;
           default:
