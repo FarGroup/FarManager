@@ -394,6 +394,11 @@ details.
   Extract files from archive                                #Shift-F2#
   Perform archive managing commands                         #Shift-F3#
   Edit new file                                             #Shift-F4#
+
+    When a new file is opened, the same codepage is used as in
+    the last opened editor. If the editor is opened for the first
+    time in the current FAR session, the DOS codepage is used.
+
   Copy file under cursor                                    #Shift-F5#
   Rename or move file under cursor                          #Shift-F6#
   Delete file under cursor                                  #Shift-F8#

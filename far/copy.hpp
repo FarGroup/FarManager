@@ -7,10 +7,13 @@ class ShellCopy - Копирование файлов
 
 */
 
-/* Revision: 1.19 26.04.2002 $ */
+/* Revision: 1.20 24.05.2002 $ */
 
 /*
 Modify:
+  24.05.2002 SVS
+    + FCOPY_RENAMESAME - переименование типа abcdefghi.txt -> abcdef~1.txt,
+      когда это про один и тотже файл
   26.04.2002 SVS
     - BugZ#484 - Addons\Macros\Space.reg (про заголовки консоли)
   01.04.2002 SVS
@@ -81,16 +84,17 @@ enum COPY_FLAGS {
   FCOPY_COPYTONUL       = 0x00000001, // Признак копирования в NUL
   FCOPY_CURRENTONLY     = 0x00000002, //
   FCOPY_ONLYNEWERFILES  = 0x00000004, // Copy only newer files
-  FCOPY_CREATESYMLINK   = 0x00000004,
+  FCOPY_CREATESYMLINK   = 0x00000004, // создание симлинка
   FCOPY_OVERWRITENEXT   = 0x00000008,
-  FCOPY_LINK            = 0x00000010,
-  FCOPY_MOVE            = 0x00000040,
+  FCOPY_LINK            = 0x00000010, // создание связи
+  FCOPY_MOVE            = 0x00000040, // перенос/переименование
   FCOPY_DIZREAD         = 0x00000080,
   FCOPY_COPYSECURITY    = 0x00000100,
   FCOPY_NOSHOWMSGLINK   = 0x00000200,
-  FCOPY_VOLMOUNT        = 0x00000400,
+  FCOPY_VOLMOUNT        = 0x00000400, // операция монтированния тома
   FCOPY_STREAMSKIP      = 0x00000800,
   FCOPY_STREAMALL       = 0x00001000,
+  FCOPY_RENAMESAME      = 0x00002000, // переименование типа abcdefghi.txt -> abcdef~1.txt, когда это про один и тотже файл
   FCOPY_COPYLASTTIME    = 0x10000000, // При копировании в несколько каталогов
                                       // устанавливается для последнего.
 };

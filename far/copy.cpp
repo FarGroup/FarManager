@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.84 18.05.2002 $ */
+/* Revision: 1.85 24.05.2002 $ */
 
 /*
 Modify:
+  24.05.2002 SVS
+    + BugZ#521 - Попытка переименовать abcdefghi.txt в abcdef~1.txt
   18.05.2002 SVS
     ! В операции перемещения (F6) в "nul" или "con" удаления файлов не производится.
   15.05.2002 SVS
@@ -1759,30 +1761,57 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
 
     if (DestAttr!=(DWORD)-1 && (DestAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
     {
-      if (SrcData->nFileSizeLow==DestData.nFileSizeLow)
+      // Случай, когда файл переименовываем из длинного в собственное короткое
+      ShellCopy::Flags&=~FCOPY_RENAMESAME;
+      if (!LocalStricmp(DestData.cFileName,SrcData->cFileName) &&
+           LocalStricmp(DestData.cAlternateFileName,SrcData->cFileName)
+         )
       {
-        int CmpCode;
-        if ((CmpCode=CmpFullNames(Src,DestPath))!=0)
+        char SrcFullName[1024],DestFullName[1024], *Ptr;
+        if (ConvertNameToReal(Src,SrcFullName, sizeof(SrcFullName)) < sizeof(SrcFullName))
         {
-          SameName=1;
-          if (CmpCode==2 || !Rename)
+          Ptr=strrchr(SrcFullName,'\\');
+          if(Ptr) *Ptr=0;
+          if (ConvertNameToReal(DestPath,DestFullName, sizeof(DestFullName)) < sizeof(DestFullName))
           {
-            CopyTime+= (clock() - CopyStartTime);
-            Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),MSG(MCannotCopyFileToItself1),
-                    Src,MSG(MCannotCopyFileToItself2),MSG(MOk));
-            CopyStartTime = clock();
-            return(COPY_CANCEL);
+            Ptr=strrchr(DestFullName,'\\');
+            if(Ptr) *Ptr=0;
+            if(!LocalStricmp(DestFullName,SrcFullName))
+            {
+              ShellCopy::Flags|=FCOPY_RENAMESAME;
+              _SVS(SysLog("FCOPY_RENAMESAME"));
+            }
           }
         }
       }
 
-      int RetCode, AskCode;
-      CopyTime+= (clock() - CopyStartTime);
-      AskCode = AskOverwrite(SrcData,DestPath,DestAttr,SameName,Rename,((ShellCopy::Flags&FCOPY_LINK)?0:1),Append,RetCode);
-      CopyStartTime = clock();
+      if(!(ShellCopy::Flags&FCOPY_RENAMESAME))
+      {
+        if (SrcData->nFileSizeLow==DestData.nFileSizeLow)
+        {
+          int CmpCode;
+          if ((CmpCode=CmpFullNames(Src,DestPath))!=0)
+          {
+            SameName=1;
+            if (CmpCode==2 || !Rename)
+            {
+              CopyTime+= (clock() - CopyStartTime);
+              Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),MSG(MCannotCopyFileToItself1),
+                      Src,MSG(MCannotCopyFileToItself2),MSG(MOk));
+              CopyStartTime = clock();
+              return(COPY_CANCEL);
+            }
+          }
+        }
 
-      if (!AskCode)
-        return((COPY_CODES)RetCode);
+        int RetCode, AskCode;
+        CopyTime+= (clock() - CopyStartTime);
+        AskCode = AskOverwrite(SrcData,DestPath,DestAttr,SameName,Rename,((ShellCopy::Flags&FCOPY_LINK)?0:1),Append,RetCode);
+        CopyStartTime = clock();
+
+        if (!AskCode)
+          return((COPY_CODES)RetCode);
+      }
     }
   }
   else
@@ -1811,7 +1840,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
     {
       int MoveCode=FALSE,AskDelete;
 
-      if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT && !Append && DestAttr!=(DWORD)-1 && !SameName)
+      if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT && !Append && DestAttr!=(DWORD)-1 && !SameName &&
+          !(ShellCopy::Flags&FCOPY_RENAMESAME)) // !!!
       {
         remove(DestPath);
       }
@@ -1823,11 +1853,23 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
 
         if (NWFS_Attr)
           SetFileAttributes(SrcFullName,SrcData->dwFileAttributes&(~FA_RDONLY));
-
-        if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT || !strcmp(DestFSName,"NWFS"))
-          MoveCode=MoveFile(SrcFullName,DestPath);
+        if(ShellCopy::Flags&FCOPY_RENAMESAME) // переименование типа abcdefghi.txt -> abcdef~1.txt, когда это про один и тотже файл
+        {
+          char TempBuf[NM];
+          MoveCode=0;
+          if(FarMkTempEx(TempBuf,NULL, FALSE))
+          {
+            if(MoveFile(SrcFullName,TempBuf))
+              MoveCode=MoveFile(TempBuf,DestPath);
+          }
+        }
         else
-          MoveCode=MoveFileEx(SrcFullName,DestPath,SameName ? MOVEFILE_COPY_ALLOWED:MOVEFILE_COPY_ALLOWED|MOVEFILE_REPLACE_EXISTING);
+        {
+          if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT || !strcmp(DestFSName,"NWFS"))
+            MoveCode=MoveFile(SrcFullName,DestPath);
+          else
+            MoveCode=MoveFileEx(SrcFullName,DestPath,SameName ? MOVEFILE_COPY_ALLOWED:MOVEFILE_COPY_ALLOWED|MOVEFILE_REPLACE_EXISTING);
+        }
 
         if (!MoveCode)
         {
@@ -3058,7 +3100,8 @@ int ShellCopy::CmpFullNames(const char *Src,const char *Dest)
     return(2);
   if (ConvertNameToReal(Dest,DestFullName, sizeof(DestFullName)) >= sizeof(DestFullName))
     return(2);
-
+_SVS(SysLog("SrcFullName=%s",SrcFullName));
+_SVS(SysLog("DestFullName=%s",DestFullName));
   for (I=strlen(SrcFullName)-1;I>0 && SrcFullName[I]=='.';I--)
     SrcFullName[I]=0;
 
