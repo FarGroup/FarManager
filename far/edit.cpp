@@ -5,10 +5,14 @@ edit.cpp
 
 */
 
-/* Revision: 1.41 07.05.2001 $ */
+/* Revision: 1.42 08.06.2001 $ */
 
 /*
 Modify:
+  08.06.2001 SVS
+    - Бага при отрисовке строки с установленным ClearFlag - круто, блин,
+      по всей отрисовке стоит контроль за размером, а тут на тебе
+      "Text(&ShowStr[LeftPos]);" и хрен с ним :-(
   07.05.2001 SVS
     ! SysLog(); -> _D(SysLog());
   06.05.2001 DJ
@@ -464,11 +468,16 @@ void Edit::ShowString(char *ShowStr,int TabSelStart,int TabSelEnd)
     if (ClearFlag && LeftPos<StrSize)
     {
       SetColor(ColorUnChanged);
-      Text(&ShowStr[LeftPos]);
+      int Len=strlen(&ShowStr[LeftPos]);
+      if(Len > EditLength)
+        Len=EditLength;
+      mprintf("%-*.*s",Len,Len,&ShowStr[LeftPos]);
       SetColor(Color);
       int BlankLength=EditLength-(StrSize-LeftPos);
-      if (BlankLength>0)
+      if (BlankLength > 0)
+      {
         mprintf("%*s",BlankLength,"");
+      }
     }
     else
       mprintf("%-*.*s",EditLength,EditLength,LeftPos>StrSize ? "":&ShowStr[LeftPos]);
@@ -1792,6 +1801,7 @@ int Edit::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   if (MouseEvent->dwMousePosition.X<X1 || MouseEvent->dwMousePosition.X>X2 ||
       MouseEvent->dwMousePosition.Y!=Y1)
     return(FALSE);
+  //SetClearFlag(0); // пусть едитор сам заботится о снятии клеар-текста?
   SetTabCurPos(MouseEvent->dwMousePosition.X - X1 + LeftPos);
   Show();
   return(TRUE);

@@ -5,10 +5,12 @@ scrbuf.cpp
 
 */
 
-/* Revision: 1.07 06.06.2001 $ */
+/* Revision: 1.08 08.06.2001 $ */
 
 /*
 Modify:
+  08.06.2001 SVS
+    ! небольшая чистка (в т.ч. BC матюкался на "#elif DIRECT_RT")
   06.06.2001 SVS
     ! W-функции юзаем пока только в режиме USE_WFUNC
   06.06.2001 SVS
@@ -133,20 +135,18 @@ void ScreenBuf::Write(int X,int Y,CHAR_INFO *Text,int TextLength)
 {
   if (Y>=BufY || TextLength==0)
     return;
-  int Pos=Y*BufX;
+  int Pos=Y*BufX, PosX;
   for (int I=0;I<TextLength;I++)
   {
-    int PosX=I+X;
-    if (PosX>=BufX)
+    if ((PosX=I+X)>=BufX)
       break;
-    int CurPos=Pos+PosX;
-    Buf[CurPos]=Text[I];
+    Buf[Pos+PosX]=Text[I];
   }
   Flushed=FALSE;
 
 #ifdef DIRECT_SCREEN_OUT
   Flush();
-#elif DIRECT_RT
+#elif defined(DIRECT_RT)
   if ( DirectRT  )
     Flush();
 #endif

@@ -5,12 +5,16 @@ dialog.cpp
 
 */
 
-/* Revision: 1.115 06.06.2001 $ */
+/* Revision: 1.116 08.06.2001 $ */
 
 /*
 Modify:
+  08.06.2001 SVS
+   + Пока возился с "вылезанием" клеаред-строки за пределы диалога...
+     подумалось - а фигля это так несправедливо, что когда раскрываем
+     хистори со строки редактирования не снимается клеаред-флаг?
   06.06.2001 SVS
-    ! Mix/Max
+   ! Mix/Max
   05.06.2001 KM
    ! Изменился тип возвращаемого значения у DM_LISTSETTITLE - стал TRUE и
      DM_LISTGETTITLE - стал TRUE, если получен Title или Bottom и FALSE если
@@ -2942,9 +2946,9 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
             if (EditLine->ProcessMouse(MouseEvent))
             {
-              EditLine->SetClearFlag(0);
+              EditLine->SetClearFlag(0); // а может это делать в самом edit?
               ChangeFocus2(FocusPos,I);
-              ShowDialog();
+              ShowDialog(I); // нужен ли только один контрол или весь диалог?
               return(TRUE);
             }
             else
@@ -2957,7 +2961,9 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
                    || Type == DI_COMBOBOX))
               /* SVS $ */
               {
+                EditLine->SetClearFlag(0); // раз уж покусились на, то и...
                 ChangeFocus2(FocusPos,I);
+                ShowDialog(I);
                 ProcessKey(KEY_CTRLDOWN);
                 return(TRUE);
               }

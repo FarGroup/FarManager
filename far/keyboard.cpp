@@ -5,10 +5,14 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.34 06.06.2001 $ */
+/* Revision: 1.35 08.06.2001 $ */
 
 /*
 Modify:
+  08.06.2001 SVS
+    ! Исправление ситуации (влоб) с блокировкой мыши при запуске некоторых
+      PE приложений!
+    ! ENABLE_MOUSE_INPUT -> ENABLE_WINDOW_INPUT с подаче ER ;-)
   06.06.2001 SVS
     ! Уточнение в функции WriteInput - теперь wVirtualScanCode
       корректно транслируется.
@@ -346,7 +350,10 @@ int GetInputRecord(INPUT_RECORD *rec)
 
     ScrBuf.Flush();
 
-    Sleep(20);
+    Sleep(15);
+    // Позволяет избежать ситуации блокирования мыши
+    if(Opt.Mouse) // А нужно ли это условие???
+      SetFarConsoleMode();
 
     if (CloseFAR)
     {
@@ -408,7 +415,7 @@ int GetInputRecord(INPUT_RECORD *rec)
         if (!IsWindowed() && !Opt.Mouse)
         {
           SetConsoleMode(hConInp,ENABLE_WINDOW_INPUT|ENABLE_MOUSE_INPUT);
-          SetConsoleMode(hConInp,ENABLE_MOUSE_INPUT);
+          SetConsoleMode(hConInp,ENABLE_WINDOW_INPUT);
         }
         SetFarTitle(LastFarTitle);
       }
