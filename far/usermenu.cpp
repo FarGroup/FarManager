@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.45 03.09.2001 $ */
+/* Revision: 1.46 05.09.2001 $ */
 
 /*
 Modify:
+  05.09.2001 VVM
+    ! При показе заголовка обрабатываем макроподстановки
   03.09.2001 VVM
     ! Коррекция максимальной длины для меню.
   31.08.2001 VVM
@@ -804,16 +806,18 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
     {
       /* $ 20.08.2001 VVM
         + При вложенных меню показывает заголовки предыдущих */
-      char SubMenuKey[512],SubMenuLabel[128],SubMenuTitle[512];
+      char SubMenuKey[512],SubMenuLabel[512],SubMenuTitle[512];
       sprintf(SubMenuKey,"%s\\Item%d",MenuKey,ExitCode);
       SubMenuTitle[0]=0;
       if(GetRegKey(SubMenuKey,"Label",SubMenuLabel,"",sizeof(SubMenuLabel)))
       {
+        SubstFileName(SubMenuLabel,Name,ShortName,NULL,NULL,TRUE);
+        ExpandEnvironmentStr(SubMenuLabel, SubMenuLabel, sizeof(SubMenuLabel));
         char *HotKeyInLabel = strchr(SubMenuLabel, '&');
         if (HotKeyInLabel)
           strcpy(HotKeyInLabel, HotKeyInLabel+1);
         if (Title && *Title)
-          sprintf(SubMenuTitle, "%s\\%s", Title, SubMenuLabel);
+          sprintf(SubMenuTitle, "%s -> %s", Title, SubMenuLabel);
         else
           strcpy(SubMenuTitle, SubMenuLabel);
       } /* if */
