@@ -5,10 +5,13 @@ macro.cpp
 
 */
 
-/* Revision: 1.18 09.01.2001 $ */
+/* Revision: 1.19 09.01.2001 $ */
 
 /*
 Modify:
+  09.01.2001 SVS
+    - Бага с пропаданием диалога назначения во время изменения файловой
+      структуры в панелях.
   09.01.2001 SVS
     + Учтем правило Opt.ShiftsKeyRules (WaitInFastFind)
   04.01.2001 SVS
@@ -269,9 +272,14 @@ int KeyMacro::ProcessKey(int Key)
         InternalInput=FALSE;
       }
 #else
-      InternalInput=TRUE;
-      MacroKey=AssignMacroKey();
-      InternalInput=FALSE;
+      {
+        InternalInput=TRUE;
+        int WaitInMainLoop0=WaitInMainLoop;
+        WaitInMainLoop=FALSE;
+        MacroKey=AssignMacroKey();
+        WaitInMainLoop=WaitInMainLoop0;
+        InternalInput=FALSE;
+      }
 #endif
 /*
 {
