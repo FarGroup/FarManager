@@ -5,10 +5,14 @@ filetype.cpp
 
 */
 
-/* Revision: 1.26 02.08.2001 $ */
+/* Revision: 1.27 03.08.2001 $ */
 
 /*
 Modify:
+  03.08.2001 SVS
+    ! Коррекция размера диалога
+    ! Для меню выбора ассоциации и диалога изменения ассоциации используются
+      свои собственные темы помощи.
   02.08.2001 IS
     ! Все строковые константы, относящиеся к ассоциациям, хранятся в одном
       месте.
@@ -108,13 +112,13 @@ static unsigned char VerticalLine=0x0B3;
 */
 struct FileTypeStrings
 {
-  char *Help,
+  char *Help,*HelpModify,
   *TypeFmt, *Execute, *Desc, *Mask, *View, *Edit,
   *AltExec, *AltView, *AltEdit;
 };
 const FileTypeStrings FTS=
 {
-  "FileAssoc",
+  "FileAssoc","FileAssocModify",
   "Associations\\Type%d","Execute","Description","Mask","View","Edit",
   "AltExec","AltView","AltEdit"
 };
@@ -637,8 +641,8 @@ int EditTypeRecord(int EditPos,int TotalRecords,int NewRec)
 
   {
     Dialog Dlg(EditDlg,sizeof(EditDlg)/sizeof(EditDlg[0]));
-    Dlg.SetHelp(FTS.Help);
-    Dlg.SetPosition(-1,-1,76,22);
+    Dlg.SetHelp(FTS.HelpModify);
+    Dlg.SetPosition(-1,-1,76,23);
     /* $ 06.07.2001 IS
        Проверяем вводимую маску файлов на корректность
     */

@@ -5,10 +5,12 @@ help.cpp
 
 */
 
-/* Revision: 1.36 01.08.2001 $ */
+/* Revision: 1.37 03.08.2001 $ */
 
 /*
 Modify:
+  03.08.2001 SVS
+    - бага с вызовом хелпа.
   01.08.2001 SVS
     + Новый взгляд на линки
     + Понятие - "Коллекция документов" (часть первая)
@@ -1308,10 +1310,19 @@ char *Help::MkTopic(int PluginNumber,const char *HelpTopic,char *Topic)
       strcpy(Topic,HelpTopic+1);
     else
     {
-      if(*HelpTopic==HelpBeginLink)
+      if(PluginNumber != -1)
+      {
+         sprintf(Topic,HelpFormatLink,
+                CtrlObject->Plugins.PluginsData[PluginNumber].ModuleName,
+                HelpTopic);
+      }
+      else
+        strncpy(Topic,HelpTopic,512);
+
+      if(*Topic==HelpBeginLink)
       {
         char *Ptr, *Ptr2;
-        if((Ptr=strchr(strncpy(Topic,HelpTopic,512),HelpEndLink)) == NULL)
+        if((Ptr=strchr(Topic,HelpEndLink)) == NULL)
           *Topic=0;
         else
         {
@@ -1338,12 +1349,6 @@ char *Help::MkTopic(int PluginNumber,const char *HelpTopic,char *Topic)
             // А вот ЗДЕСЬ теперь все по правилам Help API!
           }
         }
-      }
-      else if(PluginNumber != -1)
-      {
-         sprintf(Topic,HelpFormatLink,
-                CtrlObject->Plugins.PluginsData[PluginNumber].ModuleName,
-                HelpTopic);
       }
     }
   }

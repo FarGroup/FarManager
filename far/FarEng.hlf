@@ -1182,10 +1182,10 @@ $ #User menu#
     The user menu exists to facilitate calls of frequently used
 operations. It contains a number of user defined commands and command
 sequences, which may be executed when invoking the user menu. The menu
-may contain submenus. Special symbols, described in
-~File associations~@FileAssoc@ are supported both in the commands
-and in the command titles. Note, that !?<title>?<init>! symbol may be
-used to enter additional parameters directly before executing commands.
+may contain submenus. ~Special symbols~@MetaSymbols@ are supported
+both in the commands and in the command titles. Note, that
+!?<title>?<init>! symbol may be used to enter additional parameters
+directly before executing commands.
 
     With the #Edit user menu# command from the ~Commands menu~@CmdMenu@,
 you may edit or create main or local user menu. There may only be one main
@@ -1224,8 +1224,32 @@ it will be used instead of the main menu saved in the registry.
 
 @FileAssoc
 $ #File associations#
-    FAR allows up to six commands to be associated with a particular
-file type, defined by wildcard mask:
+    FAR Manager поддерживает ассоциации файлов, которые позволяют задавать
+разнообразные действия на запуск, редактирование и просмотр файлов,
+заданных ~маской~@FileMasks@.
+
+    You may add new associations with the #Edit associations# command
+in the ~Commands menu~@CmdMenu@.
+
+    You may define several associations for one file type and select
+the desired association from the menu.
+
+    В списке ассоциаций доступны следующие действия:
+
+    #Ins#        - ~добавить~@FileAssocModify@ новую ассоциацию
+
+    #F4#         - ~изменить~@FileAssocModify@ настройки текущей ассоциации
+
+    #Del#        - удалить текущую ассоциацию
+
+    If no execute command is associated with file and
+#Use Windows registered types# option in ~System settings~@SystemSettings@
+is on, FAR tries to use Windows association to execute this file type;
+
+@FileAssocModify
+$ #Изменение ассоциации файлов#
+    FAR позволяет задать шесть команд, ассоциированных с определенным
+типом файла, заданным ~маской~@FileMasks@:
 
    #Execute command#               Performed if Enter is pressed
 
@@ -1247,10 +1271,25 @@ field.
     If you do not wish to switch panels off before executing
 the associated program, start its command line with '#@@#' character.
 
-    You may add new associations with the #Edit associations# command
-in the ~Commands menu~@CmdMenu@.
+    The following ~special symbols~@MetaSymbols@ may be used in the
+associated command.
 
-    The following special symbols may be used in the associated command:
+  Notes:
+
+  1. If no execute command is associated with file and
+#Use Windows registered types# option in ~System settings~@SystemSettings@
+is on, FAR tries to use Windows association to execute this file type;
+
+  2. ~Команды~@OSCommands@ операционной системы "IF EXIST" и "IF DEFINED"
+позволяют сделать ассоциации более "умными" - если вы назначили несколько
+ассоциаций для одного типа файлов, то в меню попадут только те ассоциации,
+у которых условия будут выполнятся.
+
+@MetaSymbols
+$ #Special symbols#
+    В ~ассоциированных командах~@FileAssoc@, ~пользовательском меню~@UserMenu@
+и команде ~"Применить команду"~@ApplyCmd@ могут использоваться специальные
+метасимволы:
 
     #!!#       '!' character
     #!#        Long file name without extension
@@ -1293,24 +1332,14 @@ in the ~Commands menu~@CmdMenu@.
 
   Notes:
 
-  1. If no execute command is associated with file and
-#Use Windows registered types# option in ~System settings~@SystemSettings@
-is on, FAR tries to use Windows association to execute this file type;
-
-  2. FAR при обработке метасимволов подставляется только то, что
+  1. FAR при обработке метасимволов подставляется только то, что
 они означают (имя файла, расширение и т.д.). Никаких дополнительных символов
 (например, кавычки или фамилии разработчиков FAR) не подставляется и вы
 должны это сделать сами, если потребуется. Например, если используемая
 в ассоциациях программа требует, чтобы имя файла было в кавычках, то вы
 должны писать #program.exe "!.!"#, а не #program.exe !.!#.
 
-  3. You may define several associations for one file type and select
-the desired association from the menu.  "IF EXIST" and "IF DEFINED"
-~commands~@OSCommands@ allow to create "smarter" associations -
-the menu will show only the associations for which the specified condition
-is true.
-
-  4. The following modifiers may be used with the associations !@@! and !$! :
+  2. The following modifiers may be used with the associations !@@! and !$! :
 
      'Q' - enclose names containing spaces in quotes;
      'S' - use '/' instead of '\' in pathnames;
@@ -1321,7 +1350,7 @@ is true.
 list of selected file names, in ANSI encoding, include full pathnames,
 names with spaces will be in quotes".
 
-  5. The prefixes "!##" and "!^" work as toggles for associations. The
+  3. The prefixes "!##" and "!^" work as toggles for associations. The
 effect of these prefixes continues up to the next similar prefix. For
 example:
 
@@ -1908,12 +1937,11 @@ settings.
   #Use for Alt-F3#          Run external viewer using Alt-F3.
 
   #Viewer command#          Command to execute external viewer.
-                          Use special symbols described in
-                          ~File associations~@FileAssoc@ to specify the name of
-                          the file to view. If you do not wish to
-                          switch panels off before executing
-                          the external viewer, start command from
-                          '@@' character.
+                          Use ~special symbols~@MetaSymbols@ to specify the
+                          name of the file to view. If you do
+                          not wish to switch panels off before
+                          executing the external viewer, start
+                          command from '@@' character.
 
     Internal viewer
 
@@ -1961,10 +1989,9 @@ settings.
   #Use for Alt-F4#          Run external editor using Alt-F4.
 
   #Editor command#          Command to execute the external editor.
-                          Use special symbols described in
-                          ~File associations~@FileAssoc@ to specify the name of
-                          the file to edit. If you do not wish to
-                          switch panels off before executing
+                          Use ~special symbols~@MetaSymbols@ to specify the name
+                          of the file to edit. If you do not wish
+                          to switch panels off before executing
                           the external editor, start command from
                           '@@' character.
 
@@ -2459,8 +2486,9 @@ dialog.
 @ApplyCmd
 $ #Apply command#
     With #Apply command# item in ~Files menu~@FilesMenu@ it is possible
-to apply a command to each selected file. The same special symbols as in
-~File associations~@FileAssoc@ should be used to denote the file name.
+to apply a command to each selected file. The same
+~special symbols~@MetaSymbols@ as in ~File associations~@FileAssoc@
+should be used to denote the file name.
 
     For example, 'type !.!' will output to the screen all selected files,
 one at a time, а команда 'rar32 m !.!.rar !.!' перенесет все отмеченные файлы
