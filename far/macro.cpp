@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.137 15.02.2005 $ */
+/* Revision: 1.138 02.03.2005 $ */
 
 /*
 Modify:
+  02.03.2005 SVS
+    + MCODE_V_FAR_WIDTH (Far.Width)
   15.02.2005 SVS
     + функция "S=itoa(N,Radix)"
   14.02.2005 SVS
@@ -518,6 +520,7 @@ struct TMacroKeywords MKeywords[] ={
   {2,  "Selected",           MCODE_C_SELECTED,0},
   {2,  "IClip",              MCODE_C_ICLIP,0},
 
+  {2,  "Far.Width",          MCODE_V_FAR_WIDTH,0},
   {2,  "ItemCount",          MCODE_V_ITEMCOUNT,0},  // ItemCount - число элементов в текущем объекте
   {2,  "CurPos",             MCODE_V_CURPOS,0},    // CurPos - текущий индекс в текущем объекте
 
@@ -1065,6 +1068,10 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
 
       switch(CheckCode)
       {
+        case MCODE_V_FAR_WIDTH:
+          Cond=(long)ScrX+1;
+          break;
+
         case MCODE_C_DISABLEOUTPUT: // DisableOutput?
           Cond=Flags&CheckCode?1:0;
           break;

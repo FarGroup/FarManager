@@ -5,10 +5,12 @@ OpCode для макросов
 
 */
 
-/* Revision: 1.10 15.02.2005 $ */
+/* Revision: 1.11 02.03.2005 $ */
 
 /*
 Modify:
+  02.03.2005 SVS
+    + MCODE_V_FAR_WIDTH
   15.02.2005 SVS
     + MCODE_F_ITOA
   14.02.2005 SVS
@@ -181,8 +183,8 @@ enum MACRO_OP_CODE {
   MCODE_V_PPANEL_PATH,              // PPanel.Path - пассивная панель: путь на панели
   MCODE_V_APANEL_UNCPATH,           // APanel.UNCPath - активная панель:  UNC-путь на панели
   MCODE_V_PPANEL_UNCPATH,           // PPanel.UNCPath - пассивная панель: UNC-путь на панели
-  MCODE_V_APANEL_WIDTH,             // APanel.Path - активная панель:  путь на панели
-  MCODE_V_PPANEL_WIDTH,             // PPanel.Path - пассивная панель: путь на панели
+  MCODE_V_APANEL_WIDTH,             // APanel.Width - активная панель:  ширина панели
+  MCODE_V_PPANEL_WIDTH,             // PPanel.Width - пассивная панель: ширина панели
   MCODE_V_APANEL_TYPE,              // тип активной панели
   MCODE_V_PPANEL_TYPE,              // тип пассивной панели
   MCODE_V_APANEL_ITEMCOUNT,         // APanel.ItemCount - активная панель:  число элементов
@@ -191,6 +193,7 @@ enum MACRO_OP_CODE {
   MCODE_V_PPANEL_CURPOS,            // PPanel.CurPos - пассивная панель: текущий индекс
   MCODE_V_APANEL_OPIFLAGS,          // APanel.OPIFlags - активная панель: флаги открытого плагина
   MCODE_V_PPANEL_OPIFLAGS,          // PPanel.OPIFlags - пассивная панель: флаги открытого плагина
+  MCODE_V_FAR_WIDTH,                // Far.Width - ширина консольного окна
   MCODE_V_ITEMCOUNT,                // ItemCount - число элементов в текущем объекте
   MCODE_V_CURPOS,                   // CurPos - текущий индекс в текущем объекте
   MCODE_V_EDITORLINES,              // Editor.Lines - количество строк в редакторе
