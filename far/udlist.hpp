@@ -10,10 +10,13 @@ udlist.hpp
 
 */
 
-/* Revision: 1.00 02.06.2001 $ */
+/* Revision: 1.01 09.06.2001 $ */
 
 /*
 Modify:
+  09.06.2001 IS
+    + ѕереписано с учетом второго разделител€. “еперь разделителей два. ѕо
+      умолчанию они равны ';' и ','
   02.06.2001 IS
     + ¬первые в эфире
 */
@@ -24,9 +27,10 @@ class UserDefinedList
 {
   private:
     char *Data, *DataEnd, *DataCurrent;
-    BYTE Separator;
+    BYTE Separator1, Separator2;
 
   private:
+    void SetDefaultSeparators();
     void Free();
     const char *Skip(const char *Str, int &Length, int &RealLength, BOOL &Error);
 
@@ -35,15 +39,18 @@ class UserDefinedList
     UserDefinedList(const UserDefinedList& rhs); // генерировалось по умолчанию
 
   public:
-    UserDefinedList();               // по умолчанию разделителем считаетс€ ';'
-    UserDefinedList(BYTE separator); // €вно указываетс€ разделитель
+    UserDefinedList(); // по умолчанию разделителем считаетс€ ';' и ','
+    UserDefinedList(BYTE separator1, BYTE separator2); // €вно указываетс€ разделитель
     ~UserDefinedList() { Free(); }
 
   public:
-    // —менить символ-разделитель
-    void SetSeparator(BYTE Separator);
+    // —менить символы-разделитель
+    // если один из Separator* равен 0x00, то он игнорируетс€
+    // если оба разделител€ равны 0x00, то восстанавливаютс€ разделители по
+    // умолчанию (';' & ',')
+    void SetSeparator(BYTE Separator1, BYTE Separator2);
 
-    // »нициализирует список. ѕринимает список, разделенный символом separator.
+    // »нициализирует список. ѕринимает список, разделенный разделител€ми.
     // ¬озвращает FALSE при неудаче.
     // ‘ича: если List==NULL, то происходит освобождение зан€той ранее пам€ти
     BOOL Set(const char *List);

@@ -7,10 +7,13 @@ udlist.cpp
 
 */
 
-/* Revision: 1.00 02.06.2001 $ */
+/* Revision: 1.01 09.06.2001 $ */
 
 /*
 Modify:
+  09.06.2001 IS
+    + Переписано с учетом второго разделителя. Теперь разделителей два. По
+      умолчанию они равны ';' и ','
   02.06.2001 IS
     + Впервые в эфире
 */
@@ -24,19 +27,29 @@ Modify:
 UserDefinedList::UserDefinedList()
 {
   DataCurrent=Data=DataEnd=NULL;
-  Separator=';';
+  SetDefaultSeparators();
 }
 
-UserDefinedList::UserDefinedList(BYTE separator)
+UserDefinedList::UserDefinedList(BYTE separator1, BYTE separator2)
 {
   DataCurrent=Data=DataEnd=NULL;
-  Separator=separator;
+  Separator1=separator1;
+  Separator2=separator2;
+  if(!Separator2 && !Separator2) SetDefaultSeparators();
 }
 
-void UserDefinedList::SetSeparator(BYTE Separator)
+void UserDefinedList::SetDefaultSeparators()
+{
+  Separator1=';';
+  Separator2=',';
+}
+
+void UserDefinedList::SetSeparator(BYTE separator1, BYTE separator2)
 {
   Free();
-  UserDefinedList::Separator=Separator;
+  Separator1=separator1;
+  Separator2=separator2;
+  if(!Separator2 && !Separator2) SetDefaultSeparators();
 }
 
 void UserDefinedList::Free()
@@ -51,7 +64,7 @@ BOOL UserDefinedList::Set(const char *List)
   Free();
   BOOL rc=FALSE;
 
-  if(List && *List && *List!=Separator)
+  if(List && *List && *List!=Separator1 && *List!=Separator2)
   {
     int Length=strlen(List), RealLength;
     {
@@ -96,11 +109,12 @@ const char *UserDefinedList::Skip(const char *Str, int &Length, int &RealLength,
    Error=FALSE;
 
    while(isspace(*Str)) Str++;
-   if(*Str==Separator) Str++;
+   if(*Str==Separator1 || *Str==Separator2) Str++;
    if(!*Str) return NULL;
 
    const char *cur=Str;
-   while(*cur && *cur!=Separator && *cur!='\"') cur++;
+   // важно! проверка *cur!=0 должна стоять первой
+   while(*cur && *cur!=Separator1 && *cur!=Separator2 && *cur!='\"') cur++;
    if(*cur!='\"' || !*cur)
     {
       RealLength=Length=cur-Str;
@@ -117,7 +131,7 @@ const char *UserDefinedList::Skip(const char *Str, int &Length, int &RealLength,
 
    const char *End=QuoteEnd+1;
    while(isspace(*End)) End++;
-   if(*End==Separator || !*End)
+   if(!*End || *End==Separator1 || *End==Separator2)
    {
      Length=QuoteEnd-cur;
      RealLength=End-cur;
