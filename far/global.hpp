@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.52 01.06.2003 $ */
+/* Revision: 1.53 06.06.2003 $ */
 
 /*
 Modify:
+  06.06.2003 SVS
+    ! MainPluginsPath переехал в Opt.LoadPlug.
   01.06.2003 SVS
     + _localLastError
   06.05.2003 SVS
@@ -182,11 +184,6 @@ extern int WaitInMainLoop;
 extern int WaitInFastFind;
 
 extern char FarPath[NM];
-/* $ 03.08.2000 SVS
-    + путь для поиска основных плагинов
-*/
-extern char MainPluginsPath[NM];
-/* SVS $ */
 
 extern char GlobalSearchString[SEARCHSTRINGBUFSIZE];
 extern int GlobalSearchCase;

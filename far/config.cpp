@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.150 27.05.2003 $ */
+/* Revision: 1.151 06.06.2003 $ */
 
 /*
 Modify:
+  06.06.2003 SVS
+    ! Все, что связано с загрузкой плагинов объединено в структуру LoadPluginsOptions
   27.05.2003 SVS
     ! Для Opt.PluginMaxReadData верхний предел вместо 0x40000 ставим в 0x80000,
       т.к. InstallShield файлики НИХРЕНА не опознаются!
@@ -495,7 +497,7 @@ const char NKeyPolicies[]="Policies";
 void SystemSettings()
 {
   const char *HistoryName="PersPath";
-  char PersonalPluginsPath[sizeof(Opt.PersonalPluginsPath)];
+  char PersonalPluginsPath[sizeof(Opt.LoadPlug.PersonalPluginsPath)];
   /* $ 15.07.2000 SVS
      + Добавка в виде задания дополнительного пути для поиска плагинов
   */
@@ -542,7 +544,7 @@ void SystemSettings()
   CfgDlg[11].Selected=Opt.SaveViewHistory;
   CfgDlg[12].Selected=Opt.UseRegisteredTypes;
   CfgDlg[13].Selected=Opt.CloseCDGate;
-  strcpy(PersonalPluginsPath,Opt.PersonalPluginsPath);
+  strcpy(PersonalPluginsPath,Opt.LoadPlug.PersonalPluginsPath);
   CfgDlg[15].Ptr.PtrData=PersonalPluginsPath;
   CfgDlg[15].Ptr.PtrLength=sizeof(PersonalPluginsPath);
   CfgDlg[16].Selected=Opt.AutoSaveSetup;
@@ -572,7 +574,7 @@ void SystemSettings()
   Opt.UseRegisteredTypes=CfgDlg[12].Selected;
   Opt.CloseCDGate=CfgDlg[13].Selected;
   Opt.AutoSaveSetup=CfgDlg[16].Selected;
-  strcpy(Opt.PersonalPluginsPath,PersonalPluginsPath);
+  strcpy(Opt.LoadPlug.PersonalPluginsPath,PersonalPluginsPath);
   /* SVS $ */
 }
 
@@ -1380,7 +1382,7 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeySystem,"AllCtrlAltShiftRule",&Opt.AllCtrlAltShiftRule,0x0000FFFF, 0},
   {1, REG_DWORD,  NKeySystem,"CopyTimeRule",  &Opt.CopyTimeRule, 3, 0},
   {0, REG_SZ,     NKeySystem,"ConsoleDetachKey", KeyNameConsoleDetachKey, sizeof(KeyNameConsoleDetachKey),"CtrlAltTab"},
-  {1, REG_SZ,     NKeySystem,"PersonalPluginsPath",Opt.PersonalPluginsPath,sizeof(Opt.PersonalPluginsPath),PersonalPluginsPath},
+  {1, REG_SZ,     NKeySystem,"PersonalPluginsPath",Opt.LoadPlug.PersonalPluginsPath,sizeof(Opt.LoadPlug.PersonalPluginsPath),PersonalPluginsPath},
   /* $ 07.12.2001 IS
      ! опция "разрешить мультикопирование/перемещение/создание связей"
      + опция "создание нескольких каталогов за один раз"
@@ -1524,7 +1526,7 @@ void ReadConfig()
   /* <ПРЕПРОЦЕССЫ> *************************************************** */
   // "Вспомним" путь для дополнительного поиска плагинов
   SetRegRootKey(HKEY_LOCAL_MACHINE);
-  GetRegKey(NKeySystem,"TemplatePluginsPath",PersonalPluginsPath,"",sizeof(Opt.PersonalPluginsPath));
+  GetRegKey(NKeySystem,"TemplatePluginsPath",PersonalPluginsPath,"",sizeof(Opt.LoadPlug.PersonalPluginsPath));
   OptPolicies_ShowHiddenDrives=GetRegKey(NKeyPolicies,"ShowHiddenDrives",1)&1;
   OptPolicies_DisabledOptions=GetRegKey(NKeyPolicies,"DisabledOptions",0);
   SetRegRootKey(HKEY_CURRENT_USER);

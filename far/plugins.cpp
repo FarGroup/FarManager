@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.140 19.05.2003 $ */
+/* Revision: 1.141 06.06.2003 $ */
 
 /*
 Modify:
+  06.06.2003 SVS
+    ! переделаем алгоритм обхода путей при загрузке плагинов, применив класс UserDefinedList
   19.05.2003 SVS
     + ƒобавим при загрузке плагинов проверку на ERROR_PROC_NOT_FOUND
       (про BugZ#884)
@@ -419,6 +421,7 @@ Modify:
 #include "savescr.hpp"
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
+#include "udlist.hpp"
 #include "farexcpt.hpp"
 #include "fileedit.hpp"
 #include "BlockExtKey.hpp"
@@ -491,151 +494,144 @@ void PluginsSet::SendExit()
 
 void PluginsSet::LoadPlugins()
 {
-  /* $ 15.07.2000 SVS
-     ѕлагины ищутс€ сначала в персональном каталоге, а потом в "системном"
-     дл€ того, чтобы перекрыть "системные" своими... :-)
-  */
-  int IPath,I;
-  char PluginsDir[NM],FullName[NM];
-  WIN32_FIND_DATA FindData;
-  struct PluginItem *PData;
-
   BlockExtKey blockExtKey;
   Flags.Clear(PSIF_PLUGINSLOADDED);
 
-  /* $ 01.09.2000 tran
-     '/co' switch */
-  if ( Opt.PluginsCacheOnly )
+  if (Opt.LoadPlug.PluginsCacheOnly)  // $ 01.09.2000 tran  '/co' switch
   {
-      LoadPluginsFromCache();
-      return ;
+     LoadPluginsFromCache();
+     return;
   }
-  /* tran $ */
-  ScanTree ScTree(FALSE,TRUE);
-  for(IPath=0; IPath < 2; ++IPath)
+
+  if(Opt.LoadPlug.MainPluginDir || *Opt.LoadPlug.CustomPluginsPath || (Opt.LoadPlug.PluginsPersonal && *Opt.LoadPlug.PersonalPluginsPath))
   {
-    /* $ 03.08.2000 SVS
-       ”чтем, что можут быть указан параметр -P в командной строке
-    */
-    if(Opt.MainPluginDir)
+    ScanTree ScTree(FALSE,TRUE);
+    UserDefinedList PluginPathList;  // хранение списка каталогов
+
+    int I;
+    char PluginsDir[1024],FullName[1024];
+    WIN32_FIND_DATA FindData;
+    struct PluginItem *PData;
+
+    PluginPathList.SetParameters(0,0,ULF_UNIQUE);
+    // сначала подготовим список
+    if(Opt.LoadPlug.MainPluginDir) // только основные и персональные?
+    {
       sprintf(PluginsDir,"%s%s",FarPath,PluginsFolderName);
-    else
-      strcpy(PluginsDir,MainPluginsPath);
-    /* SVS $ */
-
-    if(!IPath)
-    {
-      // если пусто то прерываем поиск :-) независимо ни от чего...
-                                       // ѕолици€ 20
-      if(Opt.PersonalPluginsPath[0] && !(Opt.Policies.DisabledOptions&FFPOL_PERSONALPATH))
-      {
-        /* $ 01.08.2000 SVS
-           ¬от здесь и расшир€ем значение пути!!!
-        */
-        ExpandEnvironmentStr(Opt.PersonalPluginsPath,FullName,sizeof(FullName));
-        /* $ 21.05.2002 IS
-             ѕолучим реальное значение полного длинного пути с учетом
-             символических св€зей.
-        */
-        ConvertNameToReal(FullName,FullName,sizeof(FullName));
-        RawConvertShortNameToLongName(FullName,FullName,sizeof(FullName));
-        /* IS $ */
-        // проверка на вшивость!
-        if(LocalStricmp(PluginsDir,FullName))
-          strncpy(PluginsDir,FullName,sizeof(PluginsDir)-1);
-        else
-          continue; // продолжем дальше
-        /* SVS $ */
-      }
-      else
-        continue; // продолжем дальше
+      PluginPathList.AddItem(PluginsDir);
+      // ...а персональные есть?
+      if(Opt.LoadPlug.PluginsPersonal && *Opt.LoadPlug.PersonalPluginsPath && !(Opt.Policies.DisabledOptions&FFPOL_PERSONALPATH))
+        PluginPathList.AddItem(Opt.LoadPlug.PersonalPluginsPath);
     }
-    /* $ 03.08.2000 SVS
-       ћожет быть случай, когда вообще без плагинов запускаемс€!!!
-    */
-    if(!PluginsDir[0])
-      continue;
-    /* SVS $ */
+    else if(*Opt.LoadPlug.CustomPluginsPath) // только "заказные" пути?
+      PluginPathList.AddItem(Opt.LoadPlug.CustomPluginsPath);
 
-    ScTree.SetFindPath(PluginsDir,"*.*");
-    while (ScTree.GetNextName(&FindData,FullName,sizeof (FullName)-1))
-      if (CmpName("*.dll",FindData.cFileName,FALSE) && (FindData.dwFileAttributes & FA_DIREC)==0)
+    const char *NamePtr;
+    PluginPathList.Reset();
+    // теперь пройдемс€ по всему ранее собранному списку
+    while(NULL!=(NamePtr=PluginPathList.GetNext()))
+    {
+      // расшир€ем значение пути
+      ExpandEnvironmentStr(NamePtr,FullName,sizeof(FullName));
+      Unquote(FullName); //??? здесь ’«
+      // ѕолучим реальное значение полного длинного пути с учетом символических св€зей.
+      ConvertNameToReal(FullName,FullName,sizeof(FullName));
+      RawConvertShortNameToLongName(FullName,FullName,sizeof(FullName));
+      strncpy(PluginsDir,FullName,sizeof(PluginsDir)-1);
+
+      if(!PluginsDir[0]) // ’мм... а нужно ли Ё“ќ условие после такой модернизации алгоритма загрузки?
+        continue;
+
+      // ставим на поток очередной путь из списка...
+      ScTree.SetFindPath(PluginsDir,"*.*");
+
+      // ...и пройдемс€ по нему
+      while (ScTree.GetNextName(&FindData,FullName,sizeof (FullName)-1))
       {
-        struct PluginItem CurPlugin;
-        char RegKey[100];
-        memset(&CurPlugin,0,sizeof(CurPlugin));
-        strcpy(CurPlugin.ModuleName,FullName);
-        int CachePos=GetCacheNumber(FullName,&FindData,0);
-        int LoadCached;
-        if(CachePos!=-1)
+        if (CmpName("*.dll",FindData.cFileName,FALSE) && (FindData.dwFileAttributes & FA_DIREC)==0)
         {
-          LoadCached=TRUE;
-          /* $ 12.10.2000 tran
-             Preload=1 нужно дл€ корректной обработки -co */
-          sprintf(RegKey,"PluginsCache\\Plugin%d",CachePos);
-          if ( GetRegKey(RegKey,"Preload",0)==1 )
-          {
-            LoadCached=FALSE;
-            CachePos=-1;
-          }
-          /* tran $ */
-        }
-        else
-          LoadCached=FALSE;
-
-        if (LoadCached)
-        {
+          struct PluginItem CurPlugin;
           char RegKey[100];
-          sprintf(RegKey,"PluginsCache\\Plugin%d\\Exports",CachePos);
-          CurPlugin.SysID=GetRegKey(RegKey,"SysID",0);
-          CurPlugin.pOpenPlugin=(PLUGINOPENPLUGIN)GetRegKey(RegKey,"OpenPlugin",0);
-          CurPlugin.pOpenFilePlugin=(PLUGINOPENFILEPLUGIN)GetRegKey(RegKey,"OpenFilePlugin",0);
-          CurPlugin.pSetFindList=(PLUGINSETFINDLIST)GetRegKey(RegKey,"SetFindList",0);
-          CurPlugin.pProcessEditorInput=(PLUGINPROCESSEDITORINPUT)GetRegKey(RegKey,"ProcessEditorInput",0);
-          CurPlugin.pProcessEditorEvent=(PLUGINPROCESSEDITOREVENT)GetRegKey(RegKey,"ProcessEditorEvent",0);
-          CurPlugin.pProcessViewerEvent=(PLUGINPROCESSVIEWEREVENT)GetRegKey(RegKey,"ProcessViewerEvent",0);
-          CurPlugin.CachePos=CachePos;
+          memset(&CurPlugin,0,sizeof(CurPlugin));
+          strcpy(CurPlugin.ModuleName,FullName);
+          int CachePos=GetCacheNumber(FullName,&FindData,0);
+          int LoadCached;
+          if(CachePos!=-1)
+          {
+            LoadCached=TRUE;
+            /* $ 12.10.2000 tran
+               Preload=1 нужно дл€ корректной обработки -co */
+            sprintf(RegKey,"PluginsCache\\Plugin%d",CachePos);
+            if ( GetRegKey(RegKey,"Preload",0)==1 )
+            {
+              LoadCached=FALSE;
+              CachePos=-1;
+            }
+            /* tran $ */
+          }
+          else
+            LoadCached=FALSE;
+
+          if (LoadCached)
+          {
+            char RegKey[100];
+            sprintf(RegKey,"PluginsCache\\Plugin%d\\Exports",CachePos);
+            CurPlugin.SysID=GetRegKey(RegKey,"SysID",0);
+            CurPlugin.pOpenPlugin=(PLUGINOPENPLUGIN)GetRegKey(RegKey,"OpenPlugin",0);
+            CurPlugin.pOpenFilePlugin=(PLUGINOPENFILEPLUGIN)GetRegKey(RegKey,"OpenFilePlugin",0);
+            CurPlugin.pSetFindList=(PLUGINSETFINDLIST)GetRegKey(RegKey,"SetFindList",0);
+            CurPlugin.pProcessEditorInput=(PLUGINPROCESSEDITORINPUT)GetRegKey(RegKey,"ProcessEditorInput",0);
+            CurPlugin.pProcessEditorEvent=(PLUGINPROCESSEDITOREVENT)GetRegKey(RegKey,"ProcessEditorEvent",0);
+            CurPlugin.pProcessViewerEvent=(PLUGINPROCESSVIEWEREVENT)GetRegKey(RegKey,"ProcessViewerEvent",0);
+            CurPlugin.CachePos=CachePos;
+          }
+          if (LoadCached || LoadPlugin(CurPlugin,-1,TRUE))
+          {
+            struct PluginItem *NewPluginsData=(struct PluginItem *)xf_realloc(PluginsData,sizeof(*PluginsData)*(PluginsCount+1));
+            if (NewPluginsData==NULL)
+              break;
+
+            PluginsData=NewPluginsData;
+            CurPlugin.WorkFlags.Change(PIWF_CACHED,LoadCached);
+            CurPlugin.FindData=FindData;
+            PluginsData[PluginsCount]=CurPlugin;
+            PluginsCount++;
+          }
         }
-        if (LoadCached || LoadPlugin(CurPlugin,-1,TRUE))
-        {
-          struct PluginItem *NewPluginsData=(struct PluginItem *)xf_realloc(PluginsData,sizeof(*PluginsData)*(PluginsCount+1));
-          if (NewPluginsData==NULL)
-            break;
-          PluginsData=NewPluginsData;
-          CurPlugin.WorkFlags.Change(PIWF_CACHED,LoadCached);
-          CurPlugin.FindData=FindData;
-          PluginsData[PluginsCount]=CurPlugin;
-          PluginsCount++;
-        }
-      }
-  }
-
-  qsort(PluginsData,PluginsCount,sizeof(*PluginsData),PluginsSort);
-
-  int NewPlugin=FALSE;
-
-  for (PData=PluginsData,I=0;I<PluginsCount;I++,PData++)
-    if (!PData->WorkFlags.Check(PIWF_CACHED))
-    {
-      SetPluginStartupInfo(*PData,I);
-      if (SavePluginSettings(*PData,PData->FindData))
-        NewPlugin=TRUE;
+      } // end while
     }
 
-  if (NewPlugin)
-    for (int I=0;;I++)
+    qsort(PluginsData,PluginsCount,sizeof(*PluginsData),PluginsSort);
+
+    int NewPlugin=FALSE;
+
+    for (PData=PluginsData,I=0;I<PluginsCount;I++,PData++)
     {
-      char RegKey[100],PluginName[NM];
-      sprintf(RegKey,FmtPluginsCache_PluginD,I);
-      GetRegKey(RegKey,"Name",PluginName,"",sizeof(PluginName));
-      if (*PluginName==0)
-        break;
-      if (GetFileAttributes(PluginName)==0xFFFFFFFF)
+      if (!PData->WorkFlags.Check(PIWF_CACHED))
       {
-        DeleteKeyRecord(FmtPluginsCache_PluginD,I);
-        I--;
+        SetPluginStartupInfo(*PData,I);
+        if (SavePluginSettings(*PData,PData->FindData))
+          NewPlugin=TRUE;
       }
     }
+
+    if (NewPlugin)
+    {
+      for (int I=0;;I++)
+      {
+        char RegKey[100],PluginName[NM];
+        sprintf(RegKey,FmtPluginsCache_PluginD,I);
+        GetRegKey(RegKey,"Name",PluginName,"",sizeof(PluginName));
+        if (*PluginName==0)
+          break;
+        if (GetFileAttributes(PluginName)==0xFFFFFFFF)
+        {
+          DeleteKeyRecord(FmtPluginsCache_PluginD,I);
+          I--;
+        }
+      }
+    }
+  }
   Flags.Set(PSIF_PLUGINSLOADDED);
 }
 

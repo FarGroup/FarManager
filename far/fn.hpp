@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.186 05.06.2003 $ */
+/* Revision: 1.187 06.06.2003 $ */
 
 /*
 Modify:
+  06.06.2003 SVS
+    + SIDCacheFlush()
   05.06.2003 SVS
     ! SetFarConsoleMode имеет параметр - нужно ли активировать буфер
   19.05.2003 SVS
@@ -799,6 +801,7 @@ char* CenterStr(char *Src,char *Dest,int Length);
 const char *GetCommaWord(const char *Src,char *Word,char Separator=',');
 void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Total);
 int WINAPI GetFileOwner(const char *Computer,const char *Name,char *Owner);
+void SIDCacheFlush(void);
 
 void ConvertDate(const FILETIME &ft,char *DateText,char *TimeText,int TimeLength,
         int Brief=FALSE,int TextMonth=FALSE,int FullYear=FALSE,int DynInit=FALSE);

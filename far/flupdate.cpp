@@ -5,10 +5,12 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.42 25.02.2003 $ */
+/* Revision: 1.43 06.06.2003 $ */
 
 /*
 Modify:
+  06.06.2003 SVS
+    + сброс кэша SID`ов
   25.02.2003 SVS
     ! "free/malloc/realloc -> xf_*" - что-то в прошлый раз пропустил.
     ! Вернем схему наложения раскраски взад - все за один цикл
@@ -351,6 +353,8 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
       else
         *EndSlash=0;
     }
+    // сбросим кэш SID`ов
+    SIDCacheFlush();
   }
 
   SetLastError(0);

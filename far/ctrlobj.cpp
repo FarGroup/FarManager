@@ -5,10 +5,12 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.50 22.04.2003 $ */
+/* Revision: 1.51 06.06.2003 $ */
 
 /*
 Modify:
+  06.06.2003 SVS
+    + סבנמס ך‎רא SID`מג
   22.04.2003 SVS
     ! strcpy -> strNcpy
   21.04.2003 SVS
@@ -323,6 +325,8 @@ ControlObject::~ControlObject()
   delete EditorPosCache;
   delete FrameManager;
   /* DJ $ */
+
+  SIDCacheFlush();
   Lang.Close();
   CtrlObject=NULL;
 }

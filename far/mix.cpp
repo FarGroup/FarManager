@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.139 01.06.2003 $ */
+/* Revision: 1.140 06.06.2003 $ */
 
 /*
 Modify:
+  06.06.2003 SVS
+    ! GetFileOwner уехала из mix.cpp в fileowner.cpp
   01.06.2003 SVS
     ! В FarRecursiveSearch() учтем новый параметр конструктора ScanTree - FRS_SCANJUNCTION.
   17.04.2003 SVS
@@ -960,46 +962,6 @@ int GetPluginDirInfo(HANDLE hPlugin,char *DirName,unsigned long &DirCount,
     FarFreeDirList(PanelItem);
   return(ExitCode);
 }
-
-
-/* $ 07.09.2000 SVS
-   Функция GetFileOwner тоже доступна плагинам :-)
-*/
-int WINAPI GetFileOwner(const char *Computer,const char *Name,char *Owner)
-{
-  SECURITY_INFORMATION si;
-  SECURITY_DESCRIPTOR *sd;
-  char sddata[500];
-  DWORD Needed;
-  *Owner=0;
-  si=OWNER_SECURITY_INFORMATION|GROUP_SECURITY_INFORMATION;
-  sd=(SECURITY_DESCRIPTOR *)sddata;
-
-  char AnsiName[NM];
-  OemToChar(Name,AnsiName);
-  SetFileApisToANSI();
-  int GetCode=GetFileSecurity(AnsiName,si,sd,sizeof(sddata),&Needed);
-  SetFileApisToOEM();
-
-  /* $ 21.02.2001 VVM
-      ! Под НТ/2000 переменная Needed устанавливается независимо от результат. */
-  if (!GetCode || (Needed>sizeof(sddata)))
-    return(FALSE);
-  /* VVM $ */
-  PSID pOwner;
-  BOOL OwnerDefaulted;
-  if (!GetSecurityDescriptorOwner(sd,&pOwner,&OwnerDefaulted))
-    return(FALSE);
-  char AccountName[200],DomainName[200];
-  DWORD AccountLength=sizeof(AccountName),DomainLength=sizeof(DomainName);
-  SID_NAME_USE snu;
-  if (!LookupAccountSid(Computer,pOwner,AccountName,&AccountLength,DomainName,&DomainLength,&snu))
-    return(FALSE);
-  CharToOem(AccountName,Owner);
-  return(TRUE);
-}
-/* SVS $*/
-
 
 /*
    1 - не пусто

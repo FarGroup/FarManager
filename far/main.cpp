@@ -5,10 +5,12 @@ main.cpp
 
 */
 
-/* Revision: 1.69 19.05.2003 $ */
+/* Revision: 1.70 06.06.2003 $ */
 
 /*
 Modify:
+  06.06.2003 SVS
+    ! ќтделение мух от котлет - ключ /p приоритетный
   19.05.2003 SVS
     ! DetectTTFFont уехал из main.cpp в interf.cpp
   06.05.2003 SVS
@@ -264,11 +266,11 @@ printf(
 " /i   Set small (16x16) icon for FAR console window.\n"
 " /p[<path>]\n"
 "      Search for \"common\" plugins in the directory, specified by <path>.\n"
+" /co  Forces FAR to load plugins from the cache only.\n"
 " /u <username>\n"
 "      Allows to have separate settings for different users.\n"
 " /v <filename>\n"
 "      View the specified file. If <filename> is -, data is read from the stdin.\n"
-" /co  Forces FAR to load plugins from the cache only.\n"
 " /x   Disable exception handling.\n"
 #if defined(_DEBUGEXC)
 " /xd  Enable exception handling.\n"
@@ -503,11 +505,12 @@ int _cdecl main(int Argc, char *Argv[])
   /* $ 03.08.2000 SVS
      ѕо умолчанию - брать плагины из основного каталога
   */
-  Opt.MainPluginDir=TRUE;
+  Opt.LoadPlug.MainPluginDir=TRUE;
   /* SVS $ */
+  Opt.LoadPlug.PluginsPersonal=TRUE;
   /* $ 01.09.2000 tran
      /co - cache only, */
-  Opt.PluginsCacheOnly=FALSE;
+  Opt.LoadPlug.PluginsCacheOnly=FALSE;
   /* tran $ */
   /* $ 09.01.2002 IS только после этого можно использовать Local* */
   LocalUpperInit();
@@ -581,9 +584,11 @@ int _cdecl main(int Argc, char *Argv[])
           break;
         case 'P':
         {
-           // ѕолици€ 19
-           if(Opt.Policies.DisabledOptions&FFPOL_USEPSWITCH)
-              break;
+          // ѕолици€ 19
+          if(Opt.Policies.DisabledOptions&FFPOL_USEPSWITCH)
+             break;
+          Opt.LoadPlug.PluginsPersonal=FALSE;
+          Opt.LoadPlug.MainPluginDir=FALSE;
           /* $ 03.08.2000 SVS
             + Ќовый параметр "¬место стандарного %FAR%\Plugins искать плагины из
               указанного пути". ѕри этом персональные тоже грузитс€ будут.
@@ -593,21 +598,20 @@ int _cdecl main(int Argc, char *Argv[])
           */
           if (Argv[I][2])
           {
-            strncpy(MainPluginsPath,&Argv[I][2],sizeof(MainPluginsPath));
+            strncpy(Opt.LoadPlug.CustomPluginsPath,&Argv[I][2],sizeof(Opt.LoadPlug.CustomPluginsPath));
             /* 18.01.2003 IS
                - Ќе правильно обрабатывалась команда /p[<path>], если в пути
                  были буквы национального алфавита.
             */
-            CharToOem(MainPluginsPath,MainPluginsPath);
+            CharToOem(Opt.LoadPlug.CustomPluginsPath,Opt.LoadPlug.CustomPluginsPath);
             /* IS $ */
           }
           else
           {
             // если указан -P без <путь>, то, считаем, что основные
             //  плагины не загружать вооообще!!!
-            MainPluginsPath[0]=0;
+            Opt.LoadPlug.CustomPluginsPath[0]=0;
           }
-          Opt.MainPluginDir=FALSE;
           break;
           /* SVS $*/
         }
@@ -615,7 +619,10 @@ int _cdecl main(int Argc, char *Argv[])
            /co switch support */
         case 'C':
             if (toupper(Argv[I][2])=='O')
-              Opt.PluginsCacheOnly=TRUE;
+            {
+              Opt.LoadPlug.PluginsCacheOnly=TRUE;
+              Opt.LoadPlug.PluginsPersonal=FALSE;
+            }
 #ifdef _DEBUGEXC
             else if (toupper(Argv[I][2])=='R')
               CheckRegistration=FALSE;
@@ -673,22 +680,15 @@ int _cdecl main(int Argc, char *Argv[])
   /* $ 08.01.2003 SVS
      BugZ#765 -  лючи командной строки парс€тс€ неоднозначно.
   */
-  if(Opt.PluginsCacheOnly)
-    *MainPluginsPath=0;
+  if(Opt.LoadPlug.MainPluginDir)
+    Opt.LoadPlug.PluginsCacheOnly=FALSE;
 
-  if(*MainPluginsPath)
+  if(Opt.LoadPlug.PluginsCacheOnly)
   {
-    ExpandEnvironmentStr(MainPluginsPath,MainPluginsPath,sizeof(MainPluginsPath));
-    Unquote(MainPluginsPath);
-    /* $ 21.05.2002 IS
-       ѕолучим реальное значение полного длинного пути с учетом
-       символических св€зей.
-    */
-    ConvertNameToReal(MainPluginsPath,MainPluginsPath,sizeof(MainPluginsPath));
-    RawConvertShortNameToLongName(MainPluginsPath,MainPluginsPath,sizeof(MainPluginsPath));
-    /* IS $ */
+    *Opt.LoadPlug.CustomPluginsPath=0;
+    Opt.LoadPlug.MainPluginDir=FALSE;
+    Opt.LoadPlug.PluginsPersonal=FALSE;
   }
-  /* SVS $ */
 
   SetFileApisToOEM();
   GetModuleFileName(NULL,FarPath,sizeof(FarPath));
@@ -713,8 +713,8 @@ int _cdecl main(int Argc, char *Argv[])
   /* $ 03.08.2000 SVS
      ≈сли не указан параметр -P
   */
-  if(Opt.MainPluginDir)
-    sprintf(MainPluginsPath,"%s%s",FarPath,PluginsFolderName);
+//  if(Opt.LoadPlug.MainPluginDir)
+//    sprintf(Opt.LoadPlug.CustomPluginsPath,"%s%s",FarPath,PluginsFolderName);
   /* SVS $*/
   InitDetectWindowedMode();
   InitConsole();
@@ -796,11 +796,11 @@ void CopyGlobalSettings()
   CopyKeyTree("Software\\Far",Opt.RegRoot,"Software\\Far\\Users\0Software\\Far\\PluginsCache\0");
   //  "¬спомним" путь по шаблону!!!
   SetRegRootKey(HKEY_LOCAL_MACHINE);
-  GetRegKey("System","TemplatePluginsPath",Opt.PersonalPluginsPath,"",sizeof(Opt.PersonalPluginsPath));
+  GetRegKey("System","TemplatePluginsPath",Opt.LoadPlug.PersonalPluginsPath,"",sizeof(Opt.LoadPlug.PersonalPluginsPath));
   // удалим!!!
   DeleteRegKey("System");
   // запишем новое значение!
   SetRegRootKey(HKEY_CURRENT_USER);
-  SetRegKey("System","PersonalPluginsPath",Opt.PersonalPluginsPath);
+  SetRegKey("System","PersonalPluginsPath",Opt.LoadPlug.PersonalPluginsPath);
 }
 /* SVS $ */

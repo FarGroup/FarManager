@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.54 01.06.2003 $ */
+/* Revision: 1.55 06.06.2003 $ */
 
 /*
 Modify:
+  06.06.2003 SVS
+    ! MainPluginsPath переехал в Opt.LoadPlug.
   01.06.2003 SVS
     + _localLastError
   06.05.2003 SVS
@@ -206,11 +208,6 @@ DWORD InitialConsoleMode=0;
 clock_t StartExecTime=0;
 
 char FarPath[NM];
-/* $ 03.08.2000 SVS
-    + путь для поиска основных плагинов
-*/
-char MainPluginsPath[NM];
-/* SVS $ */
 
 char LastFarTitle[512];
 char RegColorsHighlight[]="Colors\\Highlight";

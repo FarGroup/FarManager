@@ -187,6 +187,7 @@ FAROBJ=\
    $(OBJPATH)\qsortex.obj\
    $(OBJPATH)\qview.obj\
    $(OBJPATH)\rdrwdsk.obj\
+   $(OBJPATH)\fileowner.obj\
    $(OBJPATH)\registry.obj\
    $(OBJPATH)\savefpos.obj\
    $(OBJPATH)\savescr.obj\

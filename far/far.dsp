@@ -216,6 +216,10 @@ SOURCE=.\FileMasksWithExclude.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\fileowner.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\filepanels.cpp
 # End Source File
 # Begin Source File

@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.100 19.05.2003 $ */
+/* Revision: 1.101 06.06.2003 $ */
 
 /*
 Modify:
+  06.06.2003 SVS
+    ! Все, что связано с загрузкой плагинов объединено в структуру LoadPluginsOptions
   19.05.2003 SVS
     - неправильные комментарии в struct DialogsOptions
     ! DialogsOptions.SelectedType -> DialogsOptions.EditLine
@@ -469,13 +471,30 @@ struct ScreenSizes{
 };
 #endif
 
-struct Options
-{
+struct LoadPluginsOptions{
+//  DWORD TypeLoadPlugins;       // see TYPELOADPLUGINSOPTIONS
   /* $ 03.08.2000 SVS
      TRUE - использовать стандартный путь к основным плагинам
   */
   int MainPluginDir;
   /* SVS $*/
+  /* $ 01.09.2000 tran
+     seting by '/co' switch, not saved in registry. */
+  int PluginsCacheOnly;
+  /* tran $ */
+  int PluginsPersonal;
+
+  char CustomPluginsPath[NM];  // путь для поиска плагинов, указанный в /p
+  /* $ 15.07.2000 SVS
+    + путь для поиска персональных плагинов, большой размер из-за того,
+      что здесь может стоять сетевой путь...
+  */
+  char PersonalPluginsPath[1024];
+  /* SVS $*/
+};
+
+struct Options
+{
   int Clock;
   int ViewerEditorClock;
   int Mouse;
@@ -604,12 +623,6 @@ struct Options
   char Language[80];
   int SmallIcon;
   char RegRoot[NM];
-  /* $ 15.07.2000 SVS
-    + путь для поиска персональных плагинов, большой размер из-за того,
-      что здесь может стоять сетевой путь...
-  */
-  char PersonalPluginsPath[1024];
-  /* SVS $*/
   /* $ 31.08.2000 SVS
      Добавлена переменная Options.ViewerTypeWrap
   */
@@ -621,10 +634,6 @@ struct Options
   int ViewerWrap; // Wrap=0|WordWarp=1
   /* SVS 12.09.2000 $*/
   /* SVS $*/
-  /* $ 01.09.2000 tran
-     seting by '/co' switch, not saved in registry. */
-  int PluginsCacheOnly;
-  /* tran $ */
   /* $ 12.09.2000 SVS
    + Opt.PanelRightClickRule задает поведение правой клавиши мыши
      (это по поводу Bug#17)
@@ -795,6 +804,7 @@ struct Options
                   // Highly experimental feature, use at your own risk"
 
   char DateFormat[80]; // Для $Date
+  struct LoadPluginsOptions LoadPlug;
 
   struct DialogsOptions Dialogs;
   struct PoliciesOptions Policies;

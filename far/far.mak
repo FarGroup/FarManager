@@ -95,6 +95,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\filestr.obj" \
 	"$(INTDIR)\filetype.obj" \
 	"$(INTDIR)\fileview.obj" \
+	"$(INTDIR)\fileowner.obj" \
 	"$(INTDIR)\fnparce.obj" \
 	"$(INTDIR)\filter.obj" \
 	"$(INTDIR)\findfile.obj" \

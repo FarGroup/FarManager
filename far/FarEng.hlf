@@ -104,6 +104,90 @@ may read the latest version of this list on:
 
     ~http://www.rarlab.com~@http://www.rarlab.com@
 
+@CmdLine
+$ #Command line switches#
+  The following switches may be used in the command line:
+
+  #/a#    Disable display of characters with codes 0 - 31
+        and 255.
+        May be useful when executing FAR under telnet.
+
+  #/ag#   Disable display of pseudographics characters.
+
+  #/8#    Forces FAR to work with console, not using
+        unicode capabilies.
+        The option works only under Windows NT 4 or later.
+
+  #/e[<line>[:<pos>]] <filename>#
+        Edit the specified file. After /e you may optionally
+        specify editor start line and line position.
+
+        For example: far /e70:2 readme.
+
+  #/i#    Set small (16x16) icon for FAR console window.
+        In some configurations this switch may lead to
+        unstable work.
+
+  #/p[<path>]#
+        Искать "основные" плагины в папке, указанной в <path>.
+        Можно указать несколько путей поиска, разделенных символом
+        ';'. При указании пути поиска можно использовать переменные
+        среды.
+
+        Например: far /p%SystemRoot%\Profiles\%USERNAME%\FAR
+
+  #/co#   Заставляет FAR грузить плагины только из кэша.
+        Загрузка при этом происходит быстрее, но новые или измененные
+        плагины не обнаруживаются. Имеет смысл применять ТОЛЬКО при
+        стабильном списке плагинов. После добавления, замены или
+        удаления плагинов надо загрузить FAR без этого параметра.
+        Если кэша нет, то плагины грузиться не будут.
+
+     Замечания относительно ключей /p и /co:
+
+     - если указан пустой /p, то FAR запустится без плагинов;
+     - если указан /p<path>, то загрузятся только плагины из <path>
+     - если указан только ключ /co и кэш плагинов не пуст, то
+       загружаются плагины из кэша
+     - ключ /co игнорируется, если также указан /p
+     - если не указаны ключи /p и /co, то загрузятся плагины
+       из основного каталога и из каталога, указанного в
+       параметре "~Путь к персональным плагинам~@SystemSettings@"
+
+  #/u <username>#
+        Allows to have separate settings for different users.
+
+        For example: far /u guest
+
+        FAR Manager will set the ~environment variable~@FAREnv@
+        "FARUSER" to the value <username>.
+
+  #/v <filename>#
+        View the specified file. If <filename> is `#-#', data
+        is read from the stdin.
+
+        For example, "dir|far /v -" will view dir command output.
+
+        If the input stream is empty when using '-' (for example,
+        you have not specified the "dir" command in the provided
+        example), FAR will wait forever for the end of data in the
+        input stream. This will probably be fixed in a later
+        version of FAR.
+
+
+  #/x#    Disable exception handling. This option has been designed
+        for plugin developers, and it is not recommended to specify
+        it during normal operation.
+
+  It is possible to specify at most two paths to folder, files or
+archives in the command line. The first path applies to the active
+panel, the second path - to the passive one:
+
+  - if a folder or archive is specified, FAR will show its contents
+
+  - if a file is specified, FAR will change to the folder where it
+    resides and place the cursor on the file, if it exists.
+
 
 @KeyRef
 $ #Keyboard reference#
@@ -546,81 +630,6 @@ $ #Mouse wheel support#
 
    You can specify the number of lines to scroll at a time in the
 panels, editor and viewer (see TechInfo##33).
-
-@CmdLine
-$ #Command line switches#
-  The following switches may be used in the command line:
-
-  #/a#    Disable display of characters with codes 0 - 31
-        and 255.
-        May be useful when executing FAR under telnet.
-
-  #/ag#   Disable display of pseudographics characters.
-
-  #/8#    Forces FAR to work with console, not using
-        unicode capabilies.
-        The option works only under Windows NT 4 or later.
-
-  #/e[<line>[:<pos>]] <filename>#
-        Edit the specified file. After /e you may optionally
-        specify editor start line and line position.
-
-        For example: far /e70:2 readme.
-
-  #/i#    Set small (16x16) icon for FAR console window.
-        In some configurations this switch may lead to
-        unstable work.
-
-  #/p[<path>]#
-        Search for "common" plugins in the directory specified by
-        <path>. If <path> not specified, "common" plugins will not
-        be loaded. It is also possible to use environment
-        variables in the "/p" command line switch.
-
-        For example: far /p%SystemRoot%\Profiles\%USERNAME%\FAR
-
-  #/u <username>#
-        Allows to have separate settings for different users.
-
-        For example: far /u guest
-
-        FAR Manager will set the ~environment variable~@FAREnv@
-        "FARUSER" to the value <username>.
-
-  #/v <filename>#
-        View the specified file. If <filename> is `#-#', data
-        is read from the stdin.
-
-        For example, "dir|far /v -" will view dir command output.
-
-        If the input stream is empty when using '-' (for example,
-        you have not specified the "dir" command in the provided
-        example), FAR will wait forever for the end of data in the
-        input stream. This will probably be fixed in a later
-        version of FAR.
-
-
-  #/co#   Forces FAR to load plugins from the cache only.
-        In this mode FAR loads faster, but new or updated plugins
-        are not recognized. When "/co" command line parameter is
-        used, "/p" is ignored. Using this parameter makes
-        sense ONLY if the list of installed plugins is stable.
-        After updating plugins it is necessary to load FAR without
-        this parameter.
-        If there is no plugins cache, no plugins will be loaded.
-
-  #/x#    Disable exception handling. This option has been designed
-        for plugin developers, and it is not recommended to specify
-        it during normal operation.
-
-  It is possible to specify at most two paths to folder, files or
-archives in the command line. The first path applies to the active
-panel, the second path - to the passive one:
-
-  - if a folder or archive is specified, FAR will show its contents
-
-  - if a file is specified, FAR will change to the folder where it
-    resides and place the cursor on the file, if it exists.
 
 @Plugins
 $ #Plugins support#
@@ -1571,9 +1580,15 @@ $ #System settings dialog#
                           correctly (this can happen because of bugs
                           in the drivers of some CD-ROM drives).
 
-  #Path for#                Specify a full path, where FAR will look
-  #personal plugins#        for "personal" plugins (it is possible to
-                          use environment variables).
+  #Path for#                Укажите полный путь, где FAR будет искать
+  #personal plugins#        "персональные" плагины в дополнение
+                          к "основным". Можно указать несколько путей
+                          поиска, разделенных символом ';'. При
+                          указании пути поиска можно использовать
+                          переменные среды.
+                          Персональные плагины не будут загружаться,
+                          если в параметрах ~командной строки~@CmdLine@ указан
+                          один из ключей /p или /co.
 
   #Auto save setup#         If checked, FAR will save setup
                           automatically. The current folders for
