@@ -5,10 +5,12 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.44 12.09.2003 $ */
+/* Revision: 1.45 12.09.2003 $ */
 
 /*
 Modify:
+  12.09.2003 VVM
+    + Очистить буфер, если не смогли сменить каталог.
   12.09.2003 SVS
     ! Немного увеличим буфер для GetPathRootOne
   06.06.2003 SVS
@@ -251,6 +253,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
     strncpy(OldCurDir, CurDir, NM-1);
     if (!SetCurPath())
     {
+      FlushInputBuffer(); // Очистим буффер ввода, т.к. мы уже можем быть в другом месте...
       if (strcmp(CurDir, OldCurDir) == 0)
       {
         GetPathRootOne(OldCurDir,OldCurDir);
