@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.105 26.07.2002 $ */
+/* Revision: 1.106 01.08.2002 $ */
 
 /*
 Modify:
+  01.08.2002 tran
+    ! в hex режиме при показе unicode не показывался текст при обратном порядке
   26.07.2002 IS
     ! Автоопределение Unicode не должно зависеть от опции
       "Автоопределение таблицы символов", т.к. Unicode не есть
@@ -949,8 +951,20 @@ void Viewer::ShowHex()
         {
           sprintf(&OutStr[strlen(OutStr)],"%02X%02X ",Ch1,Ch);
           char TmpBuf[2],NewCh;
-          TmpBuf[0]=Ch;
-          TmpBuf[1]=Ch1;
+
+          /* $ 01.08.2002 tran
+          обратный порядок байтов */
+          if ( FirstWord == 0x0FFFE )
+          {
+              TmpBuf[0]=Ch1;
+              TmpBuf[1]=Ch;
+          }
+          else
+          {
+              TmpBuf[0]=Ch;
+              TmpBuf[1]=Ch1;
+          }
+          /* tran $ */
           WideCharToMultiByte(CP_OEMCP,0,(LPCWSTR)TmpBuf,1,&NewCh,1," ",NULL);
           if (NewCh==0)
             NewCh=' ';
