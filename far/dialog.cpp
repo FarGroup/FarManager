@@ -5,12 +5,14 @@ dialog.cpp
 
 */
 
-/* Revision: 1.76 21.02.2001 $ */
+/* Revision: 1.77 05.03.2001 $ */
 
 /*
 Modify:
+  05.03.2001 SVS
+   - Бага в хоткеях :-(
   21.02.2001 IS
-    ! Opt.EditorPersistentBlocks -> Opt.EdOpt.PersistentBlocks
+   ! Opt.EditorPersistentBlocks -> Opt.EdOpt.PersistentBlocks
   21.02.2001 IS
    - Избавился от утечки памяти в SelectFromEditHistory (проявлялось не у всех,
      но проявлялось же!)
@@ -3419,19 +3421,22 @@ int Dialog::IsKeyHighlighted(char *Str,int Key,int Translate)
   if(Key&KEY_ALT)
   {
     int AltKey=Key&(~KEY_ALT);
-    if (AltKey >= '0' && AltKey <= '9')
-      return(AltKey==UpperStrKey);
-
-    int AltKeyToKey=LocalKeyToKey(AltKey);
-    if (AltKey > ' ' && AltKey <= 255)
-//         (AltKey=='-'  || AltKey=='/' || AltKey==','  || AltKey=='.' ||
-//          AltKey=='\\' || AltKey=='=' || AltKey=='['  || AltKey==']' ||
-//          AltKey==':'  || AltKey=='"' || AltKey=='~'))
+    if(AltKey < 256)
     {
-      return(UpperStrKey==LocalUpper(AltKey) ||
-             Translate &&
-             (!Opt.HotkeyRules && UpperStrKey==LocalUpper(AltKeyToKey) ||
-                Opt.HotkeyRules && LocalKeyToKey(UpperStrKey)==AltKeyToKey));
+      if (AltKey >= '0' && AltKey <= '9')
+        return(AltKey==UpperStrKey);
+
+      int AltKeyToKey=LocalKeyToKey(AltKey);
+      if (AltKey > ' ' && AltKey <= 255)
+  //         (AltKey=='-'  || AltKey=='/' || AltKey==','  || AltKey=='.' ||
+  //          AltKey=='\\' || AltKey=='=' || AltKey=='['  || AltKey==']' ||
+  //          AltKey==':'  || AltKey=='"' || AltKey=='~'))
+      {
+        return(UpperStrKey==LocalUpper(AltKey) ||
+               Translate &&
+               (!Opt.HotkeyRules && UpperStrKey==LocalUpper(AltKeyToKey) ||
+                  Opt.HotkeyRules && LocalKeyToKey(UpperStrKey)==AltKeyToKey));
+      }
     }
   }
   /* SVS $*/
