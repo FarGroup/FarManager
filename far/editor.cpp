@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.65 14.02.2001 $ */
+/* Revision: 1.66 14.02.2001 $ */
 
 /*
 Modify:
+  14.02.2001 IS
+    + Размер табуляции хранится в TabSize, манипулировать им можно при помощи
+      GetTabSize, SetTabSize
   14.02.2000 SVS
     ! Динамический размер под количество строк
   14.02.2001 VVM
@@ -198,6 +201,11 @@ static int EditorID=0;
 
 Editor::Editor()
 {
+  /* $ 14.02.2001 IS
+       Размер табуляции по умолчанию равен Opt.TabSize;
+  */
+  TabSize=Opt.TabSize;
+  /* IS $ */
   EditKeyBar=NULL;
   strcpy((char *)LastSearchStr,GlobalSearchString);
   LastSearchCase=GlobalSearchCase;
@@ -233,6 +241,11 @@ Editor::Editor()
   BlockStartLine=0;
   TopList=EndList=TopScreen=CurLine=new struct EditList;
   TopList->EditLine.SetObjectColor(COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
+  /* $ 14.02.2001 IS
+       Установим нужный размер табуляции
+  */
+  TopList->EditLine.SetTabSize(TabSize);
+  /* IS $ */
   TopList->EditLine.SetConvertTabs(Opt.EditorExpandTabs);
   TopList->EditLine.SetEditorMode(TRUE);
   TopList->Prev=NULL;
@@ -507,6 +520,11 @@ int Editor::ReadFile(char *Name,int &UserBreak)
       }
 
       EndList->EditLine.SetConvertTabs(Opt.EditorExpandTabs);
+      /* $ 14.02.2001 IS
+           Установим нужный размер табуляции
+      */
+      EndList->EditLine.SetTabSize(TabSize);
+      /* IS $ */
       EndList->EditLine.SetBinaryString(Str,StrLength);
       EndList->EditLine.SetCurPos(0);
       EndList->EditLine.SetObjectColor(COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
@@ -522,6 +540,11 @@ int Editor::ReadFile(char *Name,int &UserBreak)
         EndList->Prev=PrevPtr;
         EndList->Next=NULL;
         EndList->EditLine.SetConvertTabs(Opt.EditorExpandTabs);
+        /* $ 14.02.2001 IS
+           Установим нужный размер табуляции
+        */
+        EndList->EditLine.SetTabSize(TabSize);
+        /* IS $ */
         EndList->EditLine.SetString("");
         EndList->EditLine.SetCurPos(0);
         EndList->EditLine.SetObjectColor(COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
@@ -2579,6 +2602,11 @@ void Editor::InsertString()
     return;
 
   NewString->EditLine.SetObjectColor(COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
+  /* $ 14.02.2001 IS
+       Установим нужный размер табуляции
+  */
+  NewString->EditLine.SetTabSize(TabSize);
+  /* IS $ */
   NewString->EditLine.SetConvertTabs(Opt.EditorExpandTabs);
   NewString->EditLine.SetTables(UseDecodeTable ? &TableSet:NULL);
   NewString->EditLine.SetEditBeyondEnd(Opt.EditorCursorBeyondEOL);
@@ -2739,7 +2767,7 @@ void Editor::InsertString()
         else
         {
           int TabPos=CurLine->EditLine.RealPosToTab(I);
-          Decrement+=Opt.TabSize - (TabPos % Opt.TabSize);
+          Decrement+=TabSize - (TabPos % TabSize);
         }
       }
       IndentPos-=Decrement;
@@ -3831,7 +3859,7 @@ void Editor::BlockLeft()
       break;
 
     int Length=CurPtr->EditLine.GetLength();
-    char *TmpStr=new char[Length+Opt.TabSize+5];
+    char *TmpStr=new char[Length+TabSize+5];
 
     char *CurStr,*EndSeq;
     CurPtr->EditLine.GetBinaryString(&CurStr,&EndSeq,Length);
@@ -3842,9 +3870,9 @@ void Editor::BlockLeft()
     else
       if (*CurStr=='\t')
       {
-        memset(TmpStr,' ',Opt.TabSize-1);
-        memcpy(TmpStr+Opt.TabSize-1,CurStr+1,Length);
-        Length+=Opt.TabSize-1;
+        memset(TmpStr,' ',TabSize-1);
+        memcpy(TmpStr+TabSize-1,CurStr+1,Length);
+        Length+=TabSize-1;
       }
 
     if ((EndSel==-1 || EndSel>StartSel) && (*CurStr==' ' || *CurStr=='\t'))
@@ -4415,7 +4443,7 @@ int Editor::EditorControl(int Command,void *Param)
           Info->Options|=EOPT_AUTODETECTTABLE;
         if (Opt.EditorCursorBeyondEOL)
           Info->Options|=EOPT_CURSORBEYONDEOL;
-        Info->TabSize=Opt.TabSize;
+        Info->TabSize=TabSize;
       }
       return(TRUE);
     case ECTL_SETPOSITION:

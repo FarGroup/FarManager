@@ -5,10 +5,13 @@ edit.cpp
 
 */
 
-/* Revision: 1.33 13.02.2001 $ */
+/* Revision: 1.34 14.02.2001 $ */
 
 /*
 Modify:
+  14.02.2001 IS
+    + За размер табуляции отвечает TabSize, а поэтому произведена замена
+      "Opt.TabSize" на "TabSize"
   13.02.2001 VVM
     + Обработка SHIFT+SPACE
   23.01.2001 SVS
@@ -185,7 +188,11 @@ Edit::Edit()
      + DropDownBox style */
   DropDownBox=0;
   /* tran 26.07.2000 $ */
-
+  /* $ 14.02.2001 IS
+       Размер табуляции по умолчанию равен Opt.TabSize;
+  */
+  TabSize=Opt.TabSize;
+  /* IS $ */
 }
 
 
@@ -1221,7 +1228,7 @@ int Edit::ProcessKey(int Key)
         PrevCurPos=CurPos;
         /* KM $ */
         /* $ 12.12.2000 OT KEY_SHIFTTAB Bug Fix*/
-        CursorPos-=(CursorPos-1) % Opt.TabSize+1;
+        CursorPos-=(CursorPos-1) % TabSize+1;
         SetTabCurPos(CursorPos);
         /* OT $ */
         Show();
@@ -1309,7 +1316,7 @@ int Edit::InsertKey(int Key)
   {
     PrevCurPos=CurPos;
     /* $ 14.12.2000 OT KEY_TAB Bug Fix*/
-    CursorPos+=Opt.TabSize - (CursorPos % Opt.TabSize);
+    CursorPos+=TabSize - (CursorPos % TabSize);
     SetTabCurPos(CursorPos);
     /* OT $ */
 
@@ -1841,7 +1848,7 @@ void Edit::ReplaceTabs()
   while ((TabPtr=(char *)memchr(Str,'\t',StrSize))!=NULL)
   {
     Pos=TabPtr-Str;
-    S=Opt.TabSize-((TabPtr-Str) % Opt.TabSize);
+    S=TabSize-((TabPtr-Str) % TabSize);
     int PrevStrSize=StrSize;
     StrSize+=S-1;
     if (CurPos>Pos)
@@ -1908,7 +1915,7 @@ int Edit::RealPosToTab(int Pos)
   for (TabPos=0,I=0;I<Pos;I++)
   {
     if (Str[I]=='\t')
-      TabPos+=Opt.TabSize - (TabPos % Opt.TabSize);
+      TabPos+=TabSize - (TabPos % TabSize);
     else
       if (Str[I]==0)
       {
@@ -1933,7 +1940,7 @@ int Edit::TabPosToReal(int Pos)
   {
     if (Str[I]=='\t')
     {
-      int NewTabPos=TabPos+Opt.TabSize - (TabPos % Opt.TabSize);
+      int NewTabPos=TabPos+TabSize - (TabPos % TabSize);
       if (NewTabPos>Pos)
         break;
       TabPos=NewTabPos;

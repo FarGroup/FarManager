@@ -7,10 +7,13 @@ edit.hpp
 
 */
 
-/* Revision: 1.10 13.12.2000 $ */
+/* Revision: 1.11 14.02.2001 $ */
 
 /*
 Modify:
+  14.02.2001 IS
+    + Размер табуляции хранится в TabSize, манипулировать им можно при помощи
+      GetTabSize, SetTabSize
   13.12.2000 SVS
     + Дополнительный параметр в функции  Xlat()
   16.11.2000 KM & SVS
@@ -94,6 +97,11 @@ class Edit:public ScreenObject
        + ReadOnly style*/
     int    ReadOnly;
     /* tran 03.07.2000 $ */
+    /* $ 14.02.2001 IS
+         Размер табуляции - по умолчанию равен Opt.TabSize;
+    */
+    int	   TabSize;
+    /* IS $ */
 
   private:
     void   DisplayObject();
@@ -134,6 +142,12 @@ class Edit:public ScreenObject
     long  GetObjectColor() {return MAKELONG(Color,SelColor);}
     int   GetObjectColorUnChanged() {return ColorUnChanged;}
     /* SVS $*/
+    /* $ 14.02.2001 IS
+         Функции чтения/установления размера табуляции
+    */
+    void SetTabSize(int NewSize) { TabSize=NewSize; }
+    int  GetTabSize(void) {return TabSize; }
+    /* IS $ */
     void  GetString(char *Str,int MaxSize);
     char* GetStringAddr();
     void  SetString(char *Str);

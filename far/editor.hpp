@@ -9,10 +9,13 @@ editor.hpp
 
 */
 
-/* Revision: 1.10 13.02.2001 $ */
+/* Revision: 1.11 14.02.2001 $ */
 
 /*
 Modify:
+  14.02.2001 IS
+    + Размер табуляции хранится в TabSize, манипулировать им можно при помощи
+      GetTabSize, SetTabSize
   13.02.2001 IS
     + Переменная AttrStr
     + Функция GetFileAttributes;
@@ -69,6 +72,12 @@ class Editor:public ScreenObject
          Сюда запомним буквы атрибутов, чтобы не вычислять их много раз
     */
     char AttrStr[4];
+    /* IS $ */
+    /* $ 14.02.2001 IS
+         Сюда запомним размер табуляции и в дальнейшем будем использовать его,
+         а не Opt.TabSize
+    */
+    int TabSize;
     /* IS $ */
     int WasChanged;
     int Overtype;
@@ -200,6 +209,13 @@ class Editor:public ScreenObject
     void SetHostFileEditor(FileEditor *Editor) {HostFileEditor=Editor;};
     static int IsShiftKey(int Key);
     static void SetReplaceMode(int Mode);
+
+    /* $ 14.02.2001 IS
+         Функции чтения/установления размера табуляции
+    */
+    void SetTabSize(int NewSize) { TabSize=NewSize; }
+    int  GetTabSize(void) {return TabSize; }
+    /* IS $ */
 
     /* $ tran 14.07.2000
       + goto to percent support */
