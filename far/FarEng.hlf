@@ -875,7 +875,9 @@ used to enter additional parameters directly before executing commands.
     With the #Edit user menu# command from the ~Commands menu~@CmdMenu@,
 you may edit or create main or local user menu. There may only be one main
 user menu. The main user menu is called if no local menu for the current
-folder is available.  The local menu may be placed in any folder.
+folder is available.  The local menu may be placed in any folder. You may
+switching between main menu and user menu by pressing SHIFT-F2 keys. Also
+you may call user menu from parent folder by pressing BkSpace key.
 
     For execution of a user menu command select it with cursor movement
 keys and press Enter. You may press the hot key, assigned to required

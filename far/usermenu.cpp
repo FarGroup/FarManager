@@ -5,7 +5,7 @@ User menu и есть
 
 */
 
-/* Revision: 1.02 14.07.2000 $ */
+/* Revision: 1.03 17.07.2000 $ */
 
 /*
 Modify:
@@ -17,6 +17,9 @@ Modify:
   14.07.2000 MVV
     + Вызов главного меню по SHIFT+F2
     + Показ меню из родительского каталога по BkSpace
+  17.07.2000 MVV
+    + При первом вызове не ищет меню из родительского каталога
+    + SHIFT+F2 переключает Главное меню/локальное в цикле
 */
 
 #include "headers.hpp"
@@ -116,13 +119,17 @@ void ProcessUserMenu(int EditMenu)
         else
           if (!EditMenu)
           {
-            ChPtr=strrchr(MenuFilePath, '\\');
-            if (ChPtr!=NULL)
-            {
-              *(ChPtr--)=0;
-              if (*ChPtr!=':')
-                continue;
-            } /* if */
+/* $ 14.07.2000 VVM
+    + При первом вызове не ищет меню из родительского каталога
+*/
+//            ChPtr=strrchr(MenuFilePath, '\\');
+//            if (ChPtr!=NULL)
+//            {
+//              *(ChPtr--)=0;
+//              if (*ChPtr!=':')
+//                continue;
+//            } /* if */
+/* VVM $ */
             strcpy(MenuFilePath, FarPath);
             MenuMode=MM_FAR;
             continue;
@@ -164,32 +171,59 @@ void ProcessUserMenu(int EditMenu)
 
     switch(ExitCode)
     {
-    case EC_PARENT_MENU:
-      if (MenuMode==MM_LOCAL)
+      case EC_PARENT_MENU:
       {
-        ChPtr=strrchr(MenuFilePath, '\\');
-        if (ChPtr!=NULL)
+        if (MenuMode==MM_LOCAL)
         {
-          *(ChPtr--)=0;
-          if (*ChPtr!=':')
-            continue;
+          ChPtr=strrchr(MenuFilePath, '\\');
+          if (ChPtr!=NULL)
+          {
+            *(ChPtr--)=0;
+            if (*ChPtr!=':')
+              continue;
+          } /* if */
+          strcpy(MenuFilePath, FarPath);
+          MenuMode=MM_FAR;
         } /* if */
-        strcpy(MenuFilePath, FarPath);
-        MenuMode=MM_FAR;
-      } /* if */
-      else
-        MenuMode=MM_MAIN;
-      break;
-
-    case EC_MAIN_MENU:
-      if (MenuMode==MM_LOCAL)
-      {
-        strcpy(MenuFilePath, FarPath);
-        MenuMode=MM_FAR;
+        else
+          MenuMode=MM_MAIN;
+        break;
       }
-      else
-        MenuMode=MM_MAIN;
-      break;
+      case EC_MAIN_MENU:
+      {
+/* $ 14.07.2000 VVM
+    + SHIFT+F2 переключает Главное меню/локальное в цикле
+*/
+        switch(MenuMode)
+        {
+          case MM_LOCAL:
+          {
+            strcpy(MenuFilePath, FarPath);
+            MenuMode=MM_FAR;
+            break;
+          }
+          case MM_FAR:
+          {
+            MenuMode=MM_MAIN;
+            break;
+          }
+
+          default: // MM_MAIN
+          {
+            CtrlObject->CmdLine.GetCurDir(MenuFilePath);
+            MenuMode=MM_LOCAL;
+          }
+        } /* switch */
+//      if (MenuMode==MM_LOCAL)
+//      {
+//        strcpy(MenuFilePath, FarPath);
+//        MenuMode=MM_FAR;
+//      }
+//      else
+//        MenuMode=MM_MAIN;
+/* $ VVM */
+        break;
+      } /* case */
     } /* switch */
   } /* while */
 
@@ -404,16 +438,16 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
               return(EC_CLOSE_MENU);
              /* tran $ */
 /* $ 14.07.2000 VVM
-   + Показать меню из родительского каталога
-*/
-            case KEY_BS:
-                return(EC_PARENT_MENU);
-/* VVM $ */
-/* $ 14.07.2000 VVM
    + Показать главное меню
 */
             case KEY_SHIFTF2:
                 return(EC_MAIN_MENU);
+/* $ 17.07.2000 VVM
+   + Показать меню из родительского каталога только в MM_LOCAL режиме
+*/
+            case KEY_BS:
+              if (MenuMode!=MM_MAIN)
+                return(EC_PARENT_MENU);
 /* VVM $ */
             default:
               UserMenu.ProcessInput();
