@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.17 04.01.2001 $ */
+/* Revision: 1.18 09.01.2001 $ */
 
 /*
 Modify:
+  09.01.2001 SVS
+    + Учтем правило Opt.ShiftsKeyRules (WaitInFastFind)
   04.01.2001 SVS
     ! Конкретная переделка некоторых интересненьких функций :-)
     ! Новый диалог назначений клавиши
@@ -310,6 +312,7 @@ SysLog("ProcessKey) MacroKey=0x%08X  %s",MacroKey,KeyText);
           if (Macros==NULL)
           {
             MacrosNumber=0;
+            WaitInFastFind++;
             return(FALSE);
           }
           MacrosNumber++;
@@ -345,6 +348,7 @@ for(J=0; J < RecBufferSize; ++J)
       if (Opt.AutoSaveSetup)
         SaveMacros();
       ScrBuf.RestoreMacroChar();
+      WaitInFastFind++;
       return(TRUE);
     }
     else
@@ -354,11 +358,6 @@ for(J=0; J < RecBufferSize; ++J)
       RecBuffer=(int *)realloc(RecBuffer,sizeof(*RecBuffer)*(RecBufferSize+1));
       if (RecBuffer==NULL)
         return(FALSE);
-/*{
-char KeyText[50];
-::KeyToText(Key,KeyText);
-SysLog("RecBuffer[%d]=0x%08X  %s\n",RecBufferSize,Key,KeyText);
-} */
       RecBuffer[RecBufferSize++]=Key;
       return(FALSE);
     }
@@ -379,6 +378,7 @@ SysLog("RecBuffer[%d]=0x%08X  %s\n",RecBufferSize,Key,KeyText);
       RecBufferSize=0;
       ScrBuf.ResetShadow();
       ScrBuf.Flush();
+      WaitInFastFind--;
       return(TRUE);
     }
     else
@@ -773,6 +773,7 @@ long WINAPI AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
     *Key=Param2;
     KeyToText(Param2,KeyText);
+//SysLog("0x%08X (%s)",Param2,KeyText);
     Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,2,(long)KeyText);
     LastKey=Param2;
     if(Param2 == KEY_F1 && LastKey==KEY_F1)

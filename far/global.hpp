@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.11 30.12.2000 $ */
+/* Revision: 1.12 09.01.2001 $ */
 
 /*
 Modify:
+  09.01.2001 SVS
+    + WaitInFastFind - требуется ли трасляция буковок для правила ShiftsKeyRules
   30.12.2000 SVS
     + IsCryptFileASupport
   22.12.2000 SVS
@@ -86,6 +88,7 @@ extern int MButtonPressed;
 /* SVS $ */
 
 extern int WaitInMainLoop;
+extern int WaitInFastFind;
 
 extern char FarPath[NM];
 /* $ 03.08.2000 SVS

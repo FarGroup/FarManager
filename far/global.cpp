@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.09 30.12.2000 $ */
+/* Revision: 1.10 09.01.2001 $ */
 
 /*
 Modify:
+  09.01.2001 SVS
+    + WaitInFastFind - требуется ли трасляция буковок для правила ShiftsKeyRules
   30.12.2000 SVS
     + IsCryptFileASupport
   22.12.2000 SVS
@@ -66,7 +68,10 @@ clock_t StartIdleTime;
 
 DWORD InitialConsoleMode;
 
-int WaitInMainLoop;
+int WaitInMainLoop=FALSE;
+int WaitInFastFind=0;
+
+
 clock_t StartExecTime;
 
 struct Options Opt;

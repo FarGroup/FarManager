@@ -7,10 +7,14 @@ struct.hpp
 
 */
 
-/* Revision: 1.31 28.12.2000 $ */
+/* Revision: 1.32 09.01.2001 $ */
 
 /*
 Modify:
+  09.01.2001 SVS
+   + Opt.ShiftsKeyRules - Правило на счет выбора механизма трансляции
+     Alt-Буква для нелатинским буковок и символов "`-=[]\;',./" с
+     модификаторами Alt-, Ctrl-, Alt-Shift-, Ctrl-Shift-, Ctrl-Alt-
   28.12.2000 SVS
    + Opt.HotkeyRules - Правило на счет выбора механизма хоткеев
   21.12.2000 SVS
@@ -448,6 +452,12 @@ struct Options
   /* $ 28.12.2000 SVS
    + Opt.HotkeyRules - Правило на счет выбора механизма хоткеев */
   int HotkeyRules;
+  /* SVS $ */
+  /* $ 09.01.2001 SVS
+   + Opt.ShiftsKeyRules - Правило на счет выбора механизма трансляции
+     Alt-Буква для нелатинским буковок и символов "`-=[]\;',./" с
+     модификаторами Alt-, Ctrl-, Alt-Shift-, Ctrl-Shift-, Ctrl-Alt- */
+  int ShiftsKeyRules;
   /* SVS $ */
   /* $ 05.09.2000 SVS
      В Opt добавлен блок переменный, касаемых QWERTY-перекодировки

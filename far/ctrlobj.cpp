@@ -5,10 +5,12 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.12 29.12.2000 $ */
+/* Revision: 1.13 09.01.2001 $ */
 
 /*
 Modify:
+  09.01.2001 SVS
+    + Учтем правило Opt.ShiftsKeyRules (WaitInFastFind)
   29.12.2000 IS
     + Проверяем при выходе, сохранены ли все измененные файлы. Если нет, то
       не выходим из фара.
@@ -682,10 +684,13 @@ void ControlObject::EnterMainLoop()
   INPUT_RECORD rec;
   int Key;
 
+  WaitInFastFind=0;
   while (!EndLoop)
   {
     WaitInMainLoop=TRUE;
+    WaitInFastFind++;
     Key=GetInputRecord(&rec);
+    WaitInFastFind--;
     WaitInMainLoop=FALSE;
     if (EndLoop)
       break;
