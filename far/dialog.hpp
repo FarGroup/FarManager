@@ -10,10 +10,17 @@ dialog.hpp
 
 */
 
-/* Revision: 1.13 22.08.2000 $ */
+/* Revision: 1.14 23.08.2000 $ */
 
 /*
 Modify:
+  23.08.2000 SVS
+   ! изменения для DataDialog.
+   + Переменная класса FocusPos - всегда известно какой элемент в фокусе
+   ! Переменные IsCanMove, InitObjects, CreateObjects, WarningStyle, Dragged
+     удалены -> битовые флаги в DialogMode
+   ! Массив LV удален за ненадобностью.
+   + CheckDialogMode - функция проверки флага DialogMode
   22.08.2000 SVS
    ! С моим английским вообще ни как :-((
      IsMovedDialog -> IsCanMove
@@ -75,9 +82,27 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
 */
 
+// Флаги текущего режима диалога
+#define DMODE_DRAWING		0x00001000 // диалог рисуется?
+#define DMODE_INITOBJECTS	0x00000001 // элементы инициализарованы?
+#define DMODE_CREATEOBJECTS	0x00000002 // объекты (Edit,...) созданы?
+#define DMODE_WARNINGSTYLE	0x00000004 // Warning Dialog Style?
+#define DMODE_DRAGGED		0x00000008 // диалог двигается?
+#define DMODE_ISCANMOVE		0x00000010 // можно ли двигать диалог?
+#define DMODE_KEY		0x00002000 // Идет посылка клавиш?
+
+// Флаги для функции ConvertItem
+#define CVTITEM_TOPLUGIN	0
+#define CVTITEM_FROMPLUGIN	1
+
 class Dialog:public Modal
 {
   private:
+    /* $ 23.08.2000 SVS
+       + Переменная класса FocusPos
+    */
+    int FocusPos;               // всегда известно какой элемент в фокусе
+    /* SVS $ */
     /* $ 18.08.2000 SVS
       + Флаг IsEnableRedraw - разрешающий/запрещающий перерисовку диалога
       + DialogMode - Флаги текущего режима диалога
@@ -85,41 +110,25 @@ class Dialog:public Modal
     int IsEnableRedraw;         // Разрешена перерисовка диалога? ( 0 - разрешена)
     DWORD DialogMode;		// Флаги текущего режима диалога
     /* SVS $ */
-    /* $ 10.08.2000 SVS
-       можно ли двигать диалог :-)
-    */
-    int IsCanMove;
-    /* SVS $ */
-
     /* $ 11.08.2000 SVS
       + Данные, специфические для конкретного экземпляра диалога
     */
-    void *DataDialog;
+    long DataDialog;            // первоначально здесь параметр,
+                                //   переданный в конструктор
     /* SVS $ */
     struct DialogItem *Item;    // массив элементов диалога
     int ItemCount;              // количество элементов диалога
 
     char OldConsoleTitle[512];  // предыдущий заголовок консоли
-    int InitObjects;            // элементы инициализарованы?
-    int CreateObjects;          // объекты (Edit,...) созданы?
-    int WarningStyle;           // TRUE - Warning Dialog Style
     int DialogTooLong;          //
     int PrevMacroMode;          // предыдущий режим макро
 
-    long InitParam;		// параметр, переданный в конструктор
     FARWINDOWPROC DlgProc;      // функция обработки диалога
 
     /* $ 31.07.2000 tran
        переменные для перемещения диалога */
-    int  Dragged;
     int  OldX1,OldX2,OldY1,OldY2;
     /* tran 31.07.2000 $ */
-
-    /* $ 31.07.2000 SVS
-       Сохранение того, что под индикатором перемещения диалога
-    */
-    CHAR_INFO LV[4];
-    /* SVS $ */
 
   private:
     /* $ 18.08.2000 SVS
@@ -127,6 +136,11 @@ class Dialog:public Modal
     */
     void SetDialogMode(DWORD Flags){ DialogMode|=Flags; }
     void SkipDialogMode(DWORD Flags){ DialogMode&=~Flags; }
+    /* SVS $ */
+    /* $ 23.08.2000 SVS
+       + Проверка флага
+    */
+    int CheckDialogMode(DWORD Flags){ return(DialogMode&Flags); }
     /* SVS $ */
 
     void DisplayObject();
@@ -185,7 +199,10 @@ class Dialog:public Modal
     int  InitDialogObjects();
     /* SVS $ */
     void GetDialogObjectsData();
-    void SetWarningStyle(int Style) {WarningStyle=Style;};
+    void SetWarningStyle(int Style) {
+      if(Style) SetDialogMode(DMODE_WARNINGSTYLE);
+      else      SkipDialogMode(DMODE_WARNINGSTYLE);
+    };
 
     /* $ 28.07.2000 SVS
        + Функция ConvertItem - преобразования из внутреннего представления
@@ -217,19 +234,24 @@ class Dialog:public Modal
        Добавление функции, которая позволяет проверить
        находится ли диалог в режиме перемещения.
     */
-    int IsMoving() {return Dragged;}
+    int IsMoving() {return CheckDialogMode(DMODE_DRAGGED);}
     /* KM $ */
     /* $ 10.08.2000 SVS
        можно ли двигать диалог :-)
     */
-    void SetModeMoving(int IsMoving) {IsCanMove=IsMoving;};
-    int  GetModeMoving(void) {return IsCanMove;};
+    void SetModeMoving(int IsMoving) {
+      if(IsMoving)
+        SetDialogMode(DMODE_ISCANMOVE);
+      else
+        SkipDialogMode(DMODE_ISCANMOVE);
+    };
+    int  GetModeMoving(void) {return CheckDialogMode(DMODE_ISCANMOVE);};
     /* SVS $ */
     /* $ 11.08.2000 SVS
        Работа с доп. данными экземпляра диалога
     */
-    void SetDialogData(void* NewDataDialog);
-    void* GetDialogData(void) {return DataDialog;};
+    void SetDialogData(long NewDataDialog);
+    long GetDialogData(void) {return DataDialog;};
     /* SVS $ */
 
     /* $ 11.08.2000 SVS

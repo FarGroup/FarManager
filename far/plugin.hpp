@@ -6,17 +6,27 @@
   Plugin API for FAR Manager 1.70
 
 */
-/* Revision: 1.25 22.08.2000 $ */
+/* Revision: 1.26 23.08.2000 $ */
 
 /*
 Modify:
+  23.08.2000 SVS
+    ! Уточнения категорий DMSG_* -> DM_ (месаг) & DN_ (нотифи)
+    + DM_KEY        - послать/получить клавишу(ы)
+    + DM_GETDLGDATA - взять данные диалога.
+    + DM_SETDLGDATA - установить данные диалога.
+    + DM_SHOWDIALOG - показать/спрятать диалог
+    ! Все Flags приведены к одному виду -> DWORD.
+      Модифицированы:
+        * функции   FarMenuFn, FarMessageFn, FarShowHelp
+        * структуры FarListItem, FarDialogItem
   22.08.2000 SVS
-   ! DMSG_PAINT -> DMSG_DRAWDIALOG
-   ! DMSG_DRAWITEM -> DMSG_DRAWDLGITEM
-   ! DMSG_CHANGELIST -> DMSG_LISTCHANGE
+    ! DMSG_PAINT -> DMSG_DRAWDIALOG
+    ! DMSG_DRAWITEM -> DMSG_DRAWDLGITEM
+    ! DMSG_CHANGELIST -> DMSG_LISTCHANGE
   21.08.2000 SVS 1.23
-   ! DMSG_CHANGEITEM -> DMSG_EDITCHANGE
-   + DMSG_BTNCLICK
+    ! DMSG_CHANGEITEM -> DMSG_EDITCHANGE
+    + DMSG_BTNCLICK
   18.08.2000 tran
     + Flags in ShowHelp
   12.08.2000 KM 1.22
@@ -164,7 +174,7 @@ typedef int (WINAPI *FARAPIMENU)(
   int                 X,
   int                 Y,
   int                 MaxHeight,
-  unsigned int        Flags,
+  DWORD               Flags,
   char               *Title,
   char               *Bottom,
   char               *HelpTopic,
@@ -242,7 +252,7 @@ enum {
 
 typedef int (WINAPI *FARAPIMESSAGE)(
   int PluginNumber,
-  unsigned int Flags,
+  DWORD Flags,
   char *HelpTopic,
   char **Items,
   int ItemsNumber,
@@ -315,35 +325,43 @@ enum FarDialogItemFlags {
 
 
 /* $ 28.07.2000 SVS
-   Сообщения для обработчиков, имееющий место быть :-)
+   Сообщения и события для обработчиков для Dialog API
 */
 enum FarMessagesProc{
-  DMSG_INITDIALOG=0,
-  DMSG_CLOSE,
-  DMSG_ENTERIDLE,
-  DMSG_HELP,
-  DMSG_DRAWDIALOG,
-  DMSG_DRAWDLGITEM,
-  DMSG_SETREDRAW,
-  DMSG_EDITCHANGE,
-  DMSG_LISTCHANGE,
-  DMSG_GETDLGITEM,
-  DMSG_SETDLGITEM,
-  DMSG_KILLFOCUS,
-  DMSG_GOTFOCUS,
-  DMSG_SETFOCUS,
-  DMSG_GETTEXTLENGTH,
-  DMSG_SETTEXTLENGTH,
-  DMSG_GETTEXT,
-  DMSG_SETTEXT,
-  DMSG_CTLCOLORDIALOG,
-  DMSG_CTLCOLORDLGITEM,
-  DMSG_CTLCOLORDLGLIST,
-  DMSG_HOTKEY,
-  DMSG_ENABLEREDRAW,
-  DMSG_MOUSECLICK,
-  DMSG_BTNCLICK,
+  DM_FIRST=0,
+  DM_CLOSE,
+  DM_ENABLEREDRAW,
+  DM_GETDLGDATA,
+  DM_GETDLGITEM,
+  DM_GETTEXT,
+  DM_GETTEXTLENGTH,
+  DM_KEY,
+  DM_SETDLGDATA,
+  DM_SETDLGITEM,
+  DM_SETFOCUS,
+  DM_SETREDRAW,
+  DM_SETTEXT,
+  DM_SETTEXTLENGTH,
+  DM_SHOWDIALOG,
+
+  DN_FIRST=1000,
+  DN_BTNCLICK,
+  DN_CTLCOLORDIALOG,
+  DN_CTLCOLORDLGITEM,
+  DN_CTLCOLORDLGLIST,
+  DN_DRAWDIALOG,
+  DN_DRAWDLGITEM,
+  DN_EDITCHANGE,
+  DN_ENTERIDLE,
+  DN_GOTFOCUS,
+  DN_HELP,
+  DN_HOTKEY,
+  DN_INITDIALOG,
+  DN_KILLFOCUS,
+  DN_LISTCHANGE,
+  DN_MOUSECLICK,
 };
+
 /* SVS $*/
 
 /* $ 18.07.2000 SVS
@@ -363,7 +381,7 @@ enum LISTITEMFLAGS{
 // описывает один пункт списка
 struct FarListItem
 {
-  unsigned int Flags;       // набор флагов, описывающих состояние пункта
+  DWORD Flags;       // набор флагов, описывающих состояние пункта
   char Text[124];   // данные пункта
 };
 
@@ -398,7 +416,7 @@ struct FarDialogItem
     char *Mask;
     struct FarList *ListItems;
   };
-  unsigned int Flags;
+  DWORD Flags;
   int DefaultButton;
   char Data[512];
 };
@@ -579,9 +597,9 @@ typedef int (WINAPI *FARAPIEDITORCONTROL)(
    Функция вывода помощи
   */
 typedef void (WINAPI *FARAPISHOWHELP)(
-  char *ModuleName,
-  char *HelpTopic,
-  int   Flags
+  char   *ModuleName,
+  char   *HelpTopic,
+  DWORD   Flags
 );
 /* IS $ */
 /* tran 18.08.2000 $ */
@@ -1018,27 +1036,27 @@ struct KeyBarTitles
 
 struct OpenPluginInfo
 {
-  int StructSize;
-  DWORD Flags;
-  char *HostFile;
-  char *CurDir;
-  char *Format;
-  char *PanelTitle;
+  int                   StructSize;
+  DWORD                 Flags;
+  char                 *HostFile;
+  char                 *CurDir;
+  char                 *Format;
+  char                 *PanelTitle;
   struct InfoPanelLine *InfoLines;
-  int InfoLinesNumber;
-  char **DescrFiles;
-  int DescrFilesNumber;
-  struct PanelMode *PanelModesArray;
-  int PanelModesNumber;
-  int StartPanelMode;
-  int StartSortMode;
-  int StartSortOrder;
-  struct KeyBarTitles *KeyBar;
-  char *ShortcutData;
+  int                   InfoLinesNumber;
+  char                **DescrFiles;
+  int                   DescrFilesNumber;
+  struct PanelMode     *PanelModesArray;
+  int                   PanelModesNumber;
+  int                   StartPanelMode;
+  int                   StartSortMode;
+  int                   StartSortOrder;
+  struct KeyBarTitles  *KeyBar;
+  char                 *ShortcutData;
   /* $ 02.08.2000 SVS
      + добавка, для того, чтобы различить FAR <= 1.65 и > 1.65
   */
-  long Reserverd;
+  long                  Reserverd;
   /* SVS $*/
 };
 

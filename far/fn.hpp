@@ -7,10 +7,15 @@ fn.hpp
 
 */
 
-/* Revision: 1.13 23.08.2000 $ */
+/* Revision: 1.14 23.08.2000 $ */
 
 /*
 Modify:
+  23.08.2000 SVS
+    ! Все Flags приведены к одному виду -> DWORD.
+      Модифицированы:
+        * функции   FarMenuFn, FarMessageFn, FarShowHelp
+        * структуры FarListItem, FarDialogItem
   23.08.2000 SVS
     + Уточнения (комментарий) для IsMouseButtonPressed()
   18.08.2000 tran
@@ -304,13 +309,13 @@ int WINAPI FarGetPluginDirList(int PluginNumber,HANDLE hPlugin,
                   char *Dir,struct PluginPanelItem **pPanelItem,
                   int *pItemsNumber);
 int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
-           unsigned int Flags,char *Title,char *Bottom,char *HelpTopic,
+           DWORD Flags,char *Title,char *Bottom,char *HelpTopic,
            int *BreakKeys,int *BreakCode,struct FarMenuItem *Item,
            int ItemsNumber);
 int WINAPI FarDialogFn(int PluginNumber,int X1,int Y1,int X2,int Y2,
            char *HelpTopic,struct FarDialogItem *Item,int ItemsNumber);
 char* WINAPI FarGetMsgFn(int PluginNumber,int MsgId);
-int WINAPI FarMessageFn(int PluginNumber,unsigned int Flags,
+int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,
            char *HelpTopic,char **Items,int ItemsNumber,
            int ButtonsNumber);
 int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param);
@@ -332,7 +337,7 @@ int WINAPI FarEditorControl(int Command,void *Param);
 /* $ 03.07.2000 IS
   Функция вывода помощи
 */
-void WINAPI FarShowHelp(char *ModuleName, char *HelpTopic,int Flags);
+void WINAPI FarShowHelp(char *ModuleName, char *HelpTopic,DWORD Flags);
 /* IS $ */
 /* tran 18.08.2000 $ */
 

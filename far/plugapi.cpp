@@ -5,10 +5,15 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.13 22.08.2000 $ */
+/* Revision: 1.14 23.08.2000 $ */
 
 /*
 Modify:
+  23.08.2000 SVS
+    ! Все Flags приведены к одному виду -> DWORD.
+      Модифицированы:
+        * функции   FarMenuFn, FarMessageFn, FarShowHelp
+        * структуры FarListItem, FarDialogItem
   22.08.2000 SVS
     ! Исключаем ненужные вызовы из FarText.
   18.08.2000 tran 1.12
@@ -65,7 +70,7 @@ void ScanPluginDir();
 /* $ 03.07.2000 IS
   Функция вывода помощи
 */
-void WINAPI FarShowHelp(char *ModuleName, char *HelpTopic,int Flags)
+void WINAPI FarShowHelp(char *ModuleName, char *HelpTopic,DWORD Flags)
 {
   if (HelpTopic!=NULL)
   {
@@ -129,7 +134,7 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
 /* IS $ */
 
 int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
-           unsigned int Flags,char *Title,char *Bottom,char *HelpTopic,
+           DWORD Flags,char *Title,char *Bottom,char *HelpTopic,
            int *BreakKeys,int *BreakCode,struct FarMenuItem *Item,
            int ItemsNumber)
 {
@@ -166,7 +171,8 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
       strncpy(CurItem.Name,Item[I].Text,sizeof(CurItem.Name));
       FarMenu.AddItem(&CurItem);
     }
-    unsigned int MenuFlags=0;
+
+    DWORD MenuFlags=0;
     if (Flags & FMENU_SHOWAMPERSAND)
       MenuFlags|=MENU_SHOWAMPERSAND;
     if (Flags & FMENU_WRAPMODE)
@@ -337,7 +343,7 @@ char* PluginsSet::FarGetMsg(int PluginNumber,int MsgId)
 }
 
 
-int WINAPI FarMessageFn(int PluginNumber,unsigned int Flags,char *HelpTopic,
+int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,char *HelpTopic,
                         char **Items,int ItemsNumber,int ButtonsNumber)
 {
   if (DisablePluginsOutput)
