@@ -5,13 +5,18 @@ edit.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.02 03.06.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  03.07.2000 tran
+    + обработка SHIFT_BS - удаление до начала строки
+    - Bug #10 ( ^[,^], ShiftEnter не удаляли выделнный текст)
+    + ReadOnly флаг
+    + Ctrl-L переключает ReadOnly флаг
 */
 
 #include "headers.hpp"
@@ -54,6 +59,10 @@ Edit::Edit()
   EditorMode=FALSE;
   ColorList=NULL;
   ColorCount=0;
+  /* $ 03.07.2000 tran
+    + ReadOnly deafult value */
+  ReadOnly=0;
+  /* tran 03.07.2000 $ */
 }
 
 
@@ -263,6 +272,14 @@ int Edit::ProcessKey(int Key)
 
   int PrevSelStart=-1,PrevSelEnd=0;
 
+  /* $ 03.07.2000 tran
+     + обработка Ctrl-L как переключателя состояния ReadOnly  */
+  if ( Key==KEY_CTRLL )
+  {
+    ReadOnly=ReadOnly?0:1;
+  }
+  /* tran 03.07.2000 $ */
+
   if ((Key==KEY_DEL && Opt.EditorDelRemovesBlocks || Key==KEY_CTRLD) &&
       !EditorMode && SelStart!=-1 && SelStart<SelEnd)
   {
@@ -310,6 +327,15 @@ int Edit::ProcessKey(int Key)
         LeftPos=0;
         SetString("");
       }
+      /* $ 03.07.2000 tran
+         - bug#10, если был выделен текст, то удаляем его */
+      if (PrevSelStart!=-1)
+      {
+        SelStart=PrevSelStart;
+        SelEnd=PrevSelEnd;
+      }
+      DeleteBlock();
+      /* tran 03.07.2000 $ */
       InsertString(ShortcutFolder);
       Show();
       return(TRUE);
@@ -332,6 +358,15 @@ int Edit::ProcessKey(int Key)
         char FileName[NM],ShortFileName[NM];
         if (CtrlObject->ActivePanel!=NULL && CtrlObject->ActivePanel->GetCurName(FileName,ShortFileName))
         {
+          /* $ 03.07.2000 tran
+             - bug#10, если был выделен текст, то удаляем его */
+          if (PrevSelStart!=-1)
+          {
+            SelStart=PrevSelStart;
+            SelEnd=PrevSelEnd;
+          }
+          DeleteBlock();
+          /* tran 03.07.2000 $ */
           InsertString(FileName);
           Show();
         }
@@ -365,6 +400,15 @@ int Edit::ProcessKey(int Key)
           if (SrcPanel->GetShowShortNamesMode())
             ConvertNameToShort(PanelDir,PanelDir);
           AddEndSlash(PanelDir);
+          /* $ 03.07.2000 tran
+             - bug#10, если был выделен текст, то удаляем его */
+          if (PrevSelStart!=-1)
+          {
+            SelStart=PrevSelStart;
+            SelEnd=PrevSelEnd;
+          }
+          DeleteBlock();
+          /* tran 03.07.2000 $ */
           for (int I=0;PanelDir[I]!=0;I++)
             InsertKey(PanelDir[I]);
           Show();
@@ -468,6 +512,16 @@ int Edit::ProcessKey(int Key)
       if (!RecurseProcessKey(KEY_DEL))
         Show();
       return(TRUE);
+
+    /* $ 03.07.2000 tran
+       + KEY_SHIFTBS - удялем от курсора до начала строки */
+    case KEY_SHIFTBS:
+      while (CurPos!=0)
+        RecurseProcessKey(KEY_BS);
+      Show();
+      return(TRUE);
+    /* tran 03.07.2000 $ */
+
     case KEY_CTRLBS:
       if (CurPos>StrSize)
         CurPos=StrSize;
@@ -524,6 +578,11 @@ int Edit::ProcessKey(int Key)
       Show();
       return(TRUE);
     case KEY_CTRLY:
+      /* $ 03.07.2000 tran
+         + обработка ReadOnly */
+      if ( ReadOnly )
+        return (TRUE);
+      /* tran 03.07.2000 $ */
       CurPos=0;
       *Str=0;
       StrSize=0;
@@ -532,6 +591,11 @@ int Edit::ProcessKey(int Key)
       Show();
       return(TRUE);
     case KEY_CTRLK:
+      /* $ 03.07.2000 tran
+         + обработка ReadOnly */
+      if ( ReadOnly )
+        return (TRUE);
+      /* tran 03.07.2000 $ */
       if (CurPos>=StrSize)
         return(FALSE);
       if (!EditBeyondEnd)
@@ -577,6 +641,11 @@ int Edit::ProcessKey(int Key)
       Show();
       return(TRUE);
     case KEY_DEL:
+      /* $ 03.07.2000 tran
+         + обработка ReadOnly */
+      if ( ReadOnly )
+        return (TRUE);
+      /* tran 03.07.2000 $ */
       if (CurPos>=StrSize)
         return(FALSE);
       if (SelStart!=-1)
@@ -710,6 +779,11 @@ int Edit::ProcessKey(int Key)
 int Edit::InsertKey(int Key)
 {
   char *NewStr;
+  /* $ 03.07.2000 tran
+     + обработка ReadOnly */
+  if ( ReadOnly )
+    return (TRUE);
+  /* tran 03.07.2000 $ */
   if (Key==KEY_TAB && Overtype)
   {
     CurPos+=Opt.TabSize - (CurPos % Opt.TabSize);
@@ -769,6 +843,11 @@ char* Edit::GetStringAddr()
 
 void Edit::SetString(char *Str)
 {
+  /* $ 03.07.2000 tran
+     + обработка ReadOnly */
+  if ( ReadOnly )
+    return;
+  /* tran 03.07.2000 $ */
   Select(-1,0);
   SetBinaryString(Str,strlen(Str));
 }
@@ -791,6 +870,11 @@ void Edit::SetEOL(char *EOL)
 
 void Edit::SetBinaryString(char *Str,int Length)
 {
+  /* $ 03.07.2000 tran
+     + обработка ReadOnly */
+  if ( ReadOnly )
+    return;
+  /* tran 03.07.2000 $ */
   if (Length>0)
     if (Str[Length-1]=='\r')
     {
@@ -868,6 +952,11 @@ int Edit::GetSelString(char *Str,int MaxSize)
 
 void Edit::InsertString(char *Str)
 {
+  /* $ 03.07.2000 tran
+     + обработка ReadOnly */
+  if ( ReadOnly )
+    return;
+  /* tran 03.07.2000 $ */
   Select(-1,0);
   InsertBinaryString(Str,strlen(Str));
 }
@@ -876,6 +965,12 @@ void Edit::InsertString(char *Str)
 void Edit::InsertBinaryString(char *Str,int Length)
 {
   char *NewStr;
+
+  /* $ 03.07.2000 tran
+     + обработка ReadOnly */
+  if ( ReadOnly )
+    return;
+  /* tran 03.07.2000 $ */
 
   ClearFlag=0;
 
@@ -962,6 +1057,12 @@ void Edit::ReplaceTabs()
 {
   char *TabPtr;
   int Pos,S;
+  /* $ 03.07.2000 tran
+     + обработка ReadOnly */
+  if ( ReadOnly )
+    return;
+  /* tran 03.07.2000 $ */
+
   while ((TabPtr=(char *)memchr(Str,'\t',StrSize))!=NULL)
   {
     Pos=TabPtr-Str;
@@ -1118,6 +1219,11 @@ void Edit::SetTables(struct CharTableSet *TableSet)
 
 void Edit::DeleteBlock()
 {
+  /* $ 03.07.2000 tran
+     + обработка ReadOnly */
+  if ( ReadOnly )
+    return;
+  /* tran 03.07.2000 $ */
   if (SelStart==-1 || SelStart>=SelEnd)
     return;
   memmove(Str+SelStart,Str+SelEnd,StrSize-SelEnd+1);
