@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.129 15.04.2002 $ */
+/* Revision: 1.130 30.04.2002 $ */
 
 /*
 Modify:
+  30.04.2002 SVS
+    - Снова Message :-(
   15.04.2002 SVS
     - Message(FMSG_ALLINONE,"\n\nFoobar") приводил к падению
   11.04.2002 SVS
@@ -1251,6 +1253,10 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
       if(*Msg == '\0')
         break;
       ++I;
+    }
+    if(*Msg)
+    {
+      MsgItems[I]=Msg;
     }
   }
   else
