@@ -5,10 +5,12 @@ fnparce.cpp
 
 */
 
-/* Revision: 1.21 06.08.2004 $ */
+/* Revision: 1.22 25.03.2005 $ */
 
 /*
 Modify:
+  25.03.2005 WARP
+    - Произвольное удаление файлов!
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   01.03.2004 SVS
@@ -623,6 +625,19 @@ int SubstFileName(char *Str,            // результирующая строка
 {
   //_SVS(CleverSysLog clv(Str));
 
+  // подготовим имена файлов-списков (если нужно)
+  if (ListName!=NULL)
+  {
+    *ListName=0;
+    ListName[NM]=0;
+  }
+
+  if (ShortListName!=NULL)
+  {
+    *ShortListName=0;
+    ShortListName[NM]=0;
+  }
+
   /* $ 19.06.2001 SVS
     ВНИМАНИЕ! Для альтернативных метасимволов, не основанных на "!",
     нужно будет либо убрать эту проверку либо изменить условие (последнее
@@ -657,18 +672,6 @@ int SubstFileName(char *Str,            // результирующая строка
   else // ...спросим у ком.строки
     CtrlObject->CmdLine->GetCurDir(PSubstData->CmdDir);
 
-  // подготовим имена файлов-списков (если нужно)
-  if (ListName!=NULL)
-  {
-    *ListName=0;
-    ListName[NM]=0;
-  }
-
-  if (ShortListName!=NULL)
-  {
-    *ShortListName=0;
-    ShortListName[NM]=0;
-  }
 
   // Предварительно получим некоторые "константы" :-)
   strcpy(PSubstData->NameOnly,Name);
