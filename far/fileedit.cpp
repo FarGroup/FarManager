@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.70 02.11.2001 $ */
+/* Revision: 1.71 14.11.2001 $ */
 
 /*
 Modify:
+  14.11.2001 SVS
+    ! Ctrl-F10 не выходит, а только позиционирует
   02.11.2001 IS
     - отрицательные координаты левого верхнего угла замен€ютс€ на нулевые
   29.10.2001 IS
@@ -203,6 +205,7 @@ Modify:
 #include "namelist.hpp"
 #include "history.hpp"
 #include "cmdline.hpp"
+#include "savescr.hpp"
 
 FileEditor::FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
                        int StartLine,int StartChar,int DisableHistory,
@@ -618,57 +621,43 @@ int FileEditor::ProcessKey(int Key)
     */
     case KEY_CTRLF10:
       {
-        if(GetCanLoseFocus())
+        SaveScreen Sc;
+        if(strchr(FileName,'\\') || strchr(FileName,'/'))
         {
-          /* $ 01.03.2001 IS
-               - Ѕаг: не учитывалось, закрылс€ ли файл на самом деле
-          */
-          if(!ProcessQuitKey()) return TRUE;
-          /* IS $ */
-          if(strchr(FileName,'\\') || strchr(FileName,'/'))
+          char DirTmp[NM],ADir[NM],PDir[NM],NameFile[NM],*NameTmp;
+          strncpy(DirTmp,FileName,sizeof(DirTmp)-1);
+          NameTmp=PointToName(DirTmp);
+          if(NameTmp>DirTmp)
           {
-            char DirTmp[NM],ADir[NM],PDir[NM],NameFile[NM],*NameTmp;
-            strncpy(DirTmp,FileName,sizeof(DirTmp)-1);
-            NameTmp=PointToName(DirTmp);
-            if(NameTmp>DirTmp)
-            {
-              strcpy(NameFile,NameTmp);
-              *NameTmp=0;
-            }
-            CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel)->GetCurDir(PDir);
-            CtrlObject->Cp()->ActivePanel->GetCurDir(ADir);
-//  _SVS(SysLog("Editor:APanel->GetCurDir='%s'",ADir));
-//  _SVS(SysLog("Editor:PPanel->GetCurDir='%s'",PDir));
-//  _SVS(SysLog("Editor:DirTmp='%s'",DirTmp));
-            /* $ 10.04.2001 IS
-                 Ќе делаем SetCurDir, если нужный путь уже есть на открытых
-                 панел€х, тем самым добиваемс€ того, что выделение с элементов
-                 панелей не сбрасываетс€.
-            */
-            BOOL AExist=LocalStricmp(ADir,DirTmp)==0,
-                 PExist=LocalStricmp(PDir,DirTmp)==0;
-            // если нужный путь есть на пассивной панели
-            if ( !AExist && PExist)
-            {
-                CtrlObject->Cp()->ProcessKey(KEY_TAB);
-            }
-            if(!AExist && !PExist)
-                CtrlObject->Cp()->ActivePanel->SetCurDir(DirTmp,TRUE);
-            /* IS */
-            CtrlObject->Cp()->ActivePanel->GoToFile(NameFile);
-          }else
-          {
-            CtrlObject->Cp()->ActivePanel->SetCurDir(StartDir,TRUE);
-            CtrlObject->Cp()->ActivePanel->GoToFile(FileName);
+            strcpy(NameFile,NameTmp);
+            *NameTmp=0;
           }
-          /* $ 10.05.2001 DJ
-             переключаемс€ в панели
+          CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel)->GetCurDir(PDir);
+          CtrlObject->Cp()->ActivePanel->GetCurDir(ADir);
+          /* $ 10.04.2001 IS
+               Ќе делаем SetCurDir, если нужный путь уже есть на открытых
+               панел€х, тем самым добиваемс€ того, что выделение с элементов
+               панелей не сбрасываетс€.
           */
-          FrameManager->SwitchToPanels();
-          /* DJ $ */
+          BOOL AExist=LocalStricmp(ADir,DirTmp)==0,
+               PExist=LocalStricmp(PDir,DirTmp)==0;
+          // если нужный путь есть на пассивной панели
+          if ( !AExist && PExist)
+          {
+            CtrlObject->Cp()->ProcessKey(KEY_TAB);
+          }
+          if(!AExist && !PExist)
+              CtrlObject->Cp()->ActivePanel->SetCurDir(DirTmp,TRUE);
+          /* IS */
+          CtrlObject->Cp()->ActivePanel->GoToFile(NameFile);
         }
-        return (TRUE);
+        else
+        {
+          CtrlObject->Cp()->ActivePanel->SetCurDir(StartDir,TRUE);
+          CtrlObject->Cp()->ActivePanel->GoToFile(FileName);
+        }
       }
+      return (TRUE);
     /* SKV $*/
 
     case KEY_SHIFTF10:

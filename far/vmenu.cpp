@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.66 12.11.2001 $ */
+/* Revision: 1.67 14.11.2001 $ */
 
 /*
 Modify:
+  14.11.2001 SVS
+    ! Уточнение позиционирования при TopPos=-1 - возможно ошибся
   12.11.2001 SVS
     ! Небольшие уточнения.
   06.11.2001 SVS
@@ -1127,11 +1129,14 @@ int VMenu::SetSelectPos(struct FarListPos *ListPos)
     TopPos=ListPos->TopPos;
     if(ListPos->TopPos == -1)
     {
-      ; // TODO!
-      /*
-        Здесь нужно корректно выставить TopPos
-        КАК? Ума пока не дам.
-      */
+      if(ItemCount < MaxHeight)
+        TopPos=0;
+      else
+      {
+        TopPos=Ret-MaxHeight/2;
+        if(TopPos+MaxHeight > ItemCount)
+          TopPos=ItemCount-MaxHeight;
+      }
     }
   }
   return Ret;

@@ -1611,7 +1611,7 @@ $ #Internal viewer#
     #Alt-F9#             Toggles the size of the FAR console window
     #Alt-Shift-F9#       Call ~Viewer settings~@EditorSettings@ dialog
     #Numpad5,F3,F10,Esc# Quit
-    #Ctrl-F10#           Quit and position to the current file
+    #Ctrl-F10#           Position to the current file.
     #F11#                Call "~Plugin commands~@Plugins@" menu
 
     #+#                  Go to next file
@@ -1766,7 +1766,7 @@ $ #Internal editor#
    #Alt-Shift-F9#            Call ~Editor settings~@EditorSettings@ dialog
    #F10, Esc#                Quit
    #Shift-F10#               Save and quit
-   #Ctrl-F10#                Quit and position to the current file
+   #Ctrl-F10#                Position to the current file
    #F11#                     Call "~Plugin commands~@Plugins@" menu
    #Alt-BS, Ctrl-Z#          Undo
    #Ctrl-L#                  Disable edited text modification

@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.161 12.11.2001 $ */
+/* Revision: 1.162 14.11.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  14.11.2001 SVS
+    ! FarMenuItemEx.Reserved -> FarMenuItemEx.UserData
   12.11.2001 SVS
     - Какой нахрен const у FarDialogItem.ListItems??? ;-(((
   08.11.2001 SVS
@@ -1078,7 +1080,7 @@ struct FarMenuItemEx
 {
   DWORD Flags;
   char Text[128];
-  DWORD Reserved;
+  DWORD UserData;
 };
 
 struct CmdLineSelect

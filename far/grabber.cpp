@@ -5,10 +5,13 @@ Screen grabber
 
 */
 
-/* Revision: 1.07 06.06.2001 $ */
+/* Revision: 1.08 14.11.2001 $ */
 
 /*
 Modify:
+  14.11.2001 SVS
+    + В режиме грабера курсор по нажатию Shift-Ctrl-Arrows скачет на
+      N позиций с выделением.
   06.06.2001 SVS
     ! W-функции юзаем пока только в режиме USE_WFUNC
   06.05.2001 DJ
@@ -263,20 +266,32 @@ int Grabber::ProcessKey(int Key)
       GArea.CurY=ScrY;
       break;
     case KEY_CTRLLEFT:
+    case KEY_CTRLSHIFTLEFT:
       if ((GArea.CurX-=10)<0)
         GArea.CurX=0;
+      if(Key == KEY_CTRLSHIFTLEFT)
+        GArea.X1=GArea.CurX;
       break;
+    case KEY_CTRLSHIFTRIGHT:
     case KEY_CTRLRIGHT:
       if ((GArea.CurX+=10)>ScrX)
         GArea.CurX=ScrX;
+      if(Key == KEY_CTRLSHIFTRIGHT)
+        GArea.X1=GArea.CurX;
       break;
+    case KEY_CTRLSHIFTUP:
     case KEY_CTRLUP:
       if ((GArea.CurY-=5)<0)
         GArea.CurY=0;
+      if(Key == KEY_CTRLSHIFTUP)
+        GArea.Y1=GArea.CurY;
       break;
+    case KEY_CTRLSHIFTDOWN:
     case KEY_CTRLDOWN:
       if ((GArea.CurY+=5)>ScrY)
         GArea.CurY=ScrY;
+      if(Key == KEY_CTRLSHIFTDOWN)
+        GArea.Y1=GArea.CurY;
       break;
     case KEY_SHIFTLEFT:
       if (GArea.X1>0)

@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.04 12.11.2001 $ */
+/* Revision: 1.05 14.11.2001 $ */
 
 /*
 Modify:
+  14.11.2001 SVS
+    - ѕоследстви€ исправлений BugZ#90 - панели не обновл€лись
   12.11.2001 SVS
     - BugZ#90: панель остаетс€ на экране
   12.11.2001 SVS
@@ -456,12 +458,10 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
     //CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
     //CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
     //CtrlObject->Cp()->Redraw();
-    /*
     if (CtrlObject->Cp()->LeftPanel->UpdateIfChanged(1))
       CtrlObject->Cp()->LeftPanel->Show();
     if (CtrlObject->Cp()->RightPanel->UpdateIfChanged(1))
       CtrlObject->Cp()->RightPanel->Show();
-    */
     /* SKV$*/
   }
   ScrBuf.Flush();

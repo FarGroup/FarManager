@@ -5,10 +5,17 @@ dialog.cpp
 
 */
 
-/* Revision: 1.178 12.11.2001 $ */
+/* Revision: 1.179 14.11.2001 $ */
 
 /*
 Modify:
+  14.11.2001 SVS
+    ! DN_EDITCHANGE: Path#1047:
+      "...Уточнение повендения DN_EDITCHANGE при выборе из истории..."
+      "...баг прибит в лучших традициях прогрАммерского искусства, те
+      наполовину :). почему отмена выбора ESC'ом в комбобоксе все равно
+      генерит DN_EDITCHANGE?..."
+      Блин,  урод он. Так бы и говорил,  что это про COMBOBOX.
   12.11.2001 SVS
     ! Уточнение по поводу поведения DN_LISTCHANGE (в т.ч. прорисовка во время
       открытого комбобокса)
@@ -2831,8 +2838,8 @@ int Dialog::ProcessKey(int Key)
         int MaxLen=(Item[FocusPos].Flags&DIF_VAREDIT)?
                      Item[FocusPos].Ptr.PtrLength:
                      sizeof(Item[FocusPos].Data);
-        SelectFromComboBox(CurEditLine,Item[FocusPos].ListPtr,MaxLen);
-        Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,FocusPos,0);
+        if(SelectFromComboBox(CurEditLine,Item[FocusPos].ListPtr,MaxLen) != KEY_ESC)
+          Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,FocusPos,0);
       }
       /* SVS $ */
       return(TRUE);

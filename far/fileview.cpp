@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.45 02.11.2001 $ */
+/* Revision: 1.46 14.11.2001 $ */
 
 /*
 Modify:
+  14.11.2001 SVS
+    ! Ctrl-F10 не выходит, а только позиционирует
   02.11.2001 IS
     - отрицательные координаты левого верхнего угла заменяются на нулевые
   12.10.2001 VVM
@@ -134,6 +136,7 @@ Modify:
 #include "manager.hpp"
 #include "fileedit.hpp"
 #include "cmdline.hpp"
+#include "savescr.hpp"
 
 FileViewer::FileViewer(const char *Name,int EnableSwitch,int DisableHistory,
                        int DisableEdit,long ViewStartPos,char *PluginData,
@@ -312,45 +315,32 @@ int FileViewer::ProcessKey(int Key)
        + выход по ctrl-f10 с установкой курсора на файл */
     case KEY_CTRLF10:
       {
-        if(GetCanLoseFocus())
+        SaveScreen Sc;
+        char DirTmp[NM],ADir[NM],PDir[NM],*NameTmp,FileName[NM];
+        View.GetFileName(FileName);
+        if(strchr(FileName,'\\') || strchr(FileName,'/'))
         {
-          char DirTmp[NM],ADir[NM],PDir[NM],*NameTmp,FileName[NM];
-          View.GetFileName(FileName);
-          ProcessKey(KEY_F10);
-          if(strchr(FileName,'\\') || strchr(FileName,'/'))
+          strncpy(DirTmp,FileName,sizeof(DirTmp)-1);
+          NameTmp=PointToName(DirTmp);
+          if(NameTmp>DirTmp)NameTmp[-1]=0;
+          CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel)->GetCurDir(PDir);
+          CtrlObject->Cp()->ActivePanel->GetCurDir(ADir);
+          /* $ 10.04.2001 IS
+               Не делаем SetCurDir, если нужный путь уже есть на открытых
+               панелях, тем самым добиваемся того, что выделение с элементов
+               панелей не сбрасывается.
+          */
+          BOOL AExist=LocalStricmp(ADir,DirTmp)==0,
+               PExist=LocalStricmp(PDir,DirTmp)==0;
+          // если нужный путь есть на пассивной панели
+          if ( !AExist && PExist)
           {
-            strncpy(DirTmp,FileName,sizeof(DirTmp)-1);
-            NameTmp=PointToName(DirTmp);
-            if(NameTmp>DirTmp)NameTmp[-1]=0;
-            CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel)->GetCurDir(PDir);
-            CtrlObject->Cp()->ActivePanel->GetCurDir(ADir);
-            /* $ 10.04.2001 IS
-                 Не делаем SetCurDir, если нужный путь уже есть на открытых
-                 панелях, тем самым добиваемся того, что выделение с элементов
-                 панелей не сбрасывается.
-            */
-            BOOL AExist=LocalStricmp(ADir,DirTmp)==0,
-                 PExist=LocalStricmp(PDir,DirTmp)==0;
-            // если нужный путь есть на пассивной панели
-            if ( !AExist && PExist)
-            {
-                CtrlObject->Cp()->ProcessKey(KEY_TAB);
-            }
-            if(!AExist && !PExist)
-                CtrlObject->Cp()->ActivePanel->SetCurDir(DirTmp,TRUE);
-            /* IS */
-            CtrlObject->Cp()->ActivePanel->GoToFile(NameTmp);
-            /* $ 10.05.2001 DJ
-               переключаемся на панели
-            */
-            FrameManager->SwitchToPanels();
-            /* DJ $ */
+            CtrlObject->Cp()->ProcessKey(KEY_TAB);
           }
-          /*else
-          {
-            CtrlObject->Cp()->ActivePanel->SetCurDir(StartDir,TRUE);
-            CtrlObject->Cp()->ActivePanel->GoToFile(FileName);
-          } */
+          if(!AExist && !PExist)
+            CtrlObject->Cp()->ActivePanel->SetCurDir(DirTmp,TRUE);
+          /* IS */
+          CtrlObject->Cp()->ActivePanel->GoToFile(NameTmp);
         }
         return (TRUE);
       }

@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.102 12.11.2001 $ */
+/* Revision: 1.103 14.11.2001 $ */
 
 /*
 Modify:
+  14.11.2001 SVS
+    ! Ctrl-Alt-Ins теперь корректно работает и с панельными плагинами
   12.11.2001 SVS
     ! откат 1041 до лучших времен.
   09.11.2001 IS
@@ -2882,11 +2884,6 @@ void FileList::CopyNames(int FillPathName,int UNC)
   }
   GetSelName(NULL,FileAttr);
 
-  if (FillPathName && (PanelMode!=PLUGIN_PANEL || (Info.Flags & OPIF_REALNAMES)))
-    ; // ;-)
-  else
-    FillPathName=FALSE;
-
   while (GetSelName(SelName,FileAttr,SelShortName))
   {
     if (DataSize>0)
@@ -2897,11 +2894,45 @@ void FileList::CopyNames(int FillPathName,int UNC)
     strcpy(QuotedName,ShowShortNames && *SelShortName ? SelShortName:SelName);
     if(FillPathName)
     {
-      if(!CreateFullPathName(QuotedName,SelShortName,FileAttr,QuotedName,sizeof(QuotedName)-1,UNC))
+
+      if (PanelMode!=PLUGIN_PANEL || (Info.Flags & OPIF_REALNAMES))
       {
-        free(CopyData);
-        CopyData=NULL;
-        break;
+        if(!CreateFullPathName(QuotedName,SelShortName,FileAttr,QuotedName,sizeof(QuotedName)-1,UNC))
+        {
+          free(CopyData);
+          CopyData=NULL;
+          break;
+        }
+      }
+      else
+      {
+        char FullName[NM];
+        strcpy(FullName,NullToEmpty(Info.CurDir));
+        if (Opt.PanelCtrlFRule && ViewSettings.FolderUpperCase)
+          LocalStrupr(FullName);
+        for (int I=0;FullName[I]!=0;I++)
+          if (FullName[I]=='/')
+            FullName[I]='\\';
+        if (*FullName)
+          AddEndSlash(FullName);
+        if(Opt.PanelCtrlFRule)
+        {
+          // имя должно отвечать условиям на панели
+          if (ViewSettings.FileLowerCase && !(FileAttr & FA_DIREC))
+            LocalStrlwr(QuotedName);
+          if (ViewSettings.FileUpperToLowerCase)
+            if (!(FileAttr & FA_DIREC) && !IsCaseMixed(QuotedName))
+               LocalStrlwr(QuotedName);
+        }
+        strcat(FullName,QuotedName);
+        strcpy(QuotedName,FullName);
+        // добавим первый префикс!
+        if(PanelMode==PLUGIN_PANEL && Opt.SubstPluginPrefix)
+        {
+          char Prefix[NM*2];
+          strcat(AddPluginPrefix((FileList *)CtrlObject->Cp()->ActivePanel,Prefix),QuotedName);
+          strncpy(QuotedName,Prefix,sizeof(QuotedName)-1);
+        }
       }
     }
     QuoteSpace(QuotedName);
