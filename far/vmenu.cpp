@@ -8,10 +8,13 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.108 13.01.2003 $ */
+/* Revision: 1.109 16.01.2003 $ */
 
 /*
 Modify:
+  16.01.2003 KM
+    ! Убрал свою правку, чтобы не загромождать код.
+      После Валиной онп не имеет смысла (почти).
   13.01.2003 SVS
     - дополнение к двум предыдущим патчам :-)
   11.01.2003 KM
@@ -800,12 +803,8 @@ void VMenu::ShowMenu(int IsParent)
     return;
   }
 
-  /* $ 11.01.2002 KM
-     ! При ItemCount=0 Item[SelectPos] не имеет смысла.
-  */
   if (SelectPos<ItemCount)
     Item[SelectPos].Flags|=LIF_SELECTED;
-  /* KM $ */
 
   /* $ 02.12.2001 KM
      ! Предварительно, если нужно, настроим "горячие" клавиши.
@@ -826,11 +825,7 @@ void VMenu::ShowMenu(int IsParent)
   /* KM $ */
   {
     GotoXY(X1,Y);
-    /* $ 11.01.2003 KM
-       Проверим, есть ли у нас итемы в списке
-    */
-    if ((ItemCount) && (I<ItemCount))
-    /* KM $ */
+    if (I<ItemCount)
     {
       if (Item[I].Flags&LIF_SEPARATOR)
       {

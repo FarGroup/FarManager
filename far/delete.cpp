@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.53 05.01.2003 $ */
+/* Revision: 1.54 17.01.2003 $ */
 
 /*
 Modify:
+  17.01.2003 VVM
+    ! При удалении первый файл рисовать всегда, а уже потом раз в секунду.
   05.01.2003 VVM
     ! Показывать сообщения об удалении не чаще чем раз в секунду.
   05.12.2002 SVS
@@ -577,10 +579,11 @@ void ShellDeleteMsg(char *Name)
 
   if (Name == NULL || *Name == 0 || ((clock() - DeleteStartTime) > 1000))
   {
-    DeleteStartTime = clock();
-
     if(Name && *Name)
+    {
+      DeleteStartTime = clock();     // Первый файл рисуется всегда
       WidthTemp=Max((int)strlen(Name),(int)30);
+    }
     else
       Width=WidthTemp=30;
 
