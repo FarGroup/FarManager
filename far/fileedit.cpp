@@ -5,12 +5,15 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.54 25.06.2001 $ */
+/* Revision: 1.55 06.07.2001 $ */
 
 /*
 Modify:
+  06.07.2001 IS
+    - При создании файла с нуля так же посылаем плагинам событие EE_READ, дабы
+      не нарушать однообразие.
   25.06.2001 IS
-   ! Внедрение const
+    ! Внедрение const
   14.06.2001 OT
     ! "Бунт" ;-)
   07.06.2001 IS
@@ -296,17 +299,27 @@ void FileEditor::Init(const char *Name,int CreateNewFile,int EnableSwitch,
   FEdit.SetPosition(X1,Y1,X2,Y2-1);
   FEdit.SetStartPos(StartLine,StartChar);
   int UserBreak;
-  if (!FEdit.ReadFile(FileName,UserBreak) && (!CreateNewFile || UserBreak))
+  /* $ 06.07.2001 IS
+     При создании файла с нуля так же посылаем плагинам событие EE_READ, дабы
+     не нарушать однообразие.
+  */
+  if (!FEdit.ReadFile(FileName,UserBreak))
   {
-    if (UserBreak!=1)
+    if(!CreateNewFile || UserBreak)
     {
-      Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MEditTitle),MSG(MEditCannotOpen),FileName,MSG(MOk));
-      ExitCode=0;
+      if (UserBreak!=1)
+      {
+        Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MEditTitle),MSG(MEditCannotOpen),FileName,MSG(MOk));
+        ExitCode=0;
+      }
+      else
+        ExitCode=XC_LOADING_INTERRUPTED;
+      return;
     }
-    else
-      ExitCode=XC_LOADING_INTERRUPTED;
-    return;
+    CtrlObject->Plugins.CurEditor=&FEdit;
+    CtrlObject->Plugins.ProcessEditorEvent(EE_READ,NULL);
   }
+  /* IS $ */
   ShowConsoleTitle();
   EditKeyBar.SetOwner(this);
   EditKeyBar.SetPosition(X1,Y2,X2,Y2);
