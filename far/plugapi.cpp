@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.30 14.12.2000 $ */
+/* Revision: 1.31 18.12.2000 $ */
 
 /*
 Modify:
+  18.12.2000 SVS
+    ! Коррекции в FarShowHelp
   14.12.2000 SVS
     + ACTL_EJECTMEDIA
   13.12.2000 SVS
@@ -118,6 +120,8 @@ BOOL WINAPI FarShowHelp(char *ModuleName, char *HelpTopic,DWORD Flags)
   if (!HelpTopic)
     HelpTopic="Contents";
 
+  DWORD OFlags=Flags;
+  Flags&=~0x80000000;
   char Path[2*NM],Topic[512];
   char *Mask=NULL;
 
@@ -161,7 +165,7 @@ BOOL WINAPI FarShowHelp(char *ModuleName, char *HelpTopic,DWORD Flags)
       return FALSE;
   }
   {
-    Help Hlp(Topic,Mask);
+    Help Hlp(Topic,Mask,OFlags);
     if(Hlp.GetError())
       return FALSE;
   }

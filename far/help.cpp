@@ -5,10 +5,13 @@ help.cpp
 
 */
 
-/* Revision: 1.09 18.12.2000 $ */
+/* Revision: 1.10 18.12.2000 $ */
 
 /*
 Modify:
+  18.12.2000 SVS
+    + Дополнительный параметр у конструктора - DWORD Flags.
+    + учитываем флаг FHELP_NOSHOWERROR
   18.12.2000 SVS
     - ExpandEnv забыл поставить в активаторе :-(
   07.12.2000 SVS
@@ -156,8 +159,9 @@ static int RunURL(char *Protocol, char *URLPath)
 }
 /* SVS $ */
 
-Help::Help(char *Topic, char *Mask)
+Help::Help(char *Topic, char *Mask,DWORD Flags)
 {
+  Help::Flags=Flags;
   if (PrevMacroMode!=MACRO_HELP)
   {
     PrevMacroMode=CtrlObject->Macro.GetMode();
@@ -182,12 +186,17 @@ Help::Help(char *Topic, char *Mask)
   if (HelpData!=NULL)
     Process();
   else
-    Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MHelpTopicNotFound),MSG(MOk));
+  {
+    if(!(Flags&FHELP_NOSHOWERROR))
+      Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MHelpTopicNotFound),MSG(MOk));
+    ErrorHelp=TRUE;
+  }
 }
 
 
-Help::Help(char *Topic,int &ShowPrev,int PrevFullScreen)
+Help::Help(char *Topic,int &ShowPrev,int PrevFullScreen,DWORD Flags)
 {
+  Help::Flags=Flags;
   if (PrevMacroMode!=MACRO_HELP)
   {
     PrevMacroMode=CtrlObject->Macro.GetMode();
@@ -207,7 +216,11 @@ Help::Help(char *Topic,int &ShowPrev,int PrevFullScreen)
   if (HelpData!=NULL)
     Process();
   else
-    Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MHelpTopicNotFound),MSG(MOk));
+  {
+    if(!(Flags&FHELP_NOSHOWERROR))
+      Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MHelpTopicNotFound),MSG(MOk));
+    ErrorHelp=TRUE;
+  }
   ShowPrev=Help::ShowPrev;
 }
 
@@ -272,7 +285,8 @@ void Help::ReadHelp(char *Mask)
 
   if (HelpFile==NULL)
   {
-    Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MHelpTitle),MSG(MCannotOpenHelp),FileName,MSG(MOk));
+    if(!(Flags&FHELP_NOSHOWERROR))
+      Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MHelpTitle),MSG(MCannotOpenHelp),FileName,MSG(MOk));
     ErrorHelp=TRUE;
     return;
   }
@@ -471,7 +485,8 @@ void Help::DisplayObject()
 {
   if (!TopicFound)
   {
-    Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MHelpTopicNotFound),MSG(MOk));
+    if(!(Flags&FHELP_NOSHOWERROR))
+      Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MHelpTopicNotFound),MSG(MOk));
     ProcessKey(KEY_ALTF1);
     ErrorHelp=TRUE;
     return;

@@ -443,8 +443,18 @@ in the "Find file" command requires less functionality than search from the
 root folder, so try to use it if search from the root folder does not work
 correctly.
 
-    Plugins have their own messages and help files. You may obtain a list of
-all available plugins help if you press #Shift-F2# in main FAR help.
+    The modules have their own message and help files. You can get a
+list of available help on the modules by pressing
+
+    #Shift-F2# - for the basic help FAR
+
+    #Shift-F1# - in the list of plugins (context-dependent help).
+
+    If the plugin has no help file, then context-dependent prompt will
+not pop out. While calling for a context prompt in  the  list
+#Plugin configuration# FAR will try to show the theme with the name
+#Config#. If this theme is not in the plugin help, then the basic help theme
+on this plugin will be shown.
 
     If the active panel shows a plugin emulated file system, the command
 "CD" in the command line may be used to change the plugin file system

@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.44 07.12.2000 $ */
+/* Revision: 1.45 18.12.2000 $ */
 
 /*
 Modify:
+  18.12.2000 SVS
+    + Shift-F1 в списке плагинов вызывает хелп по данному плагину
   07.12.2000 SVS
     + Проверка не только версии, но и номера билда в функции проверки версии.
   27.11.2000 SVS
@@ -1616,6 +1618,7 @@ int PluginsSet::Compare(HANDLE hPlugin,struct PluginPanelItem *Item1,struct Plug
 
 void PluginsSet::Configure()
 {
+  unsigned char Data[2];
   int MenuItemNumber=0;
   int I, J;
   VMenu PluginList(MSG(MPluginConfigTitle),NULL,0,ScrY-4);
@@ -1668,12 +1671,40 @@ void PluginsSet::Configure()
     }
   }
   PluginList.AssignHighlights(FALSE);
-  PluginList.Process();
+
+  /* $ 18.12.2000 SVS
+     Shift-F1 в списке плагинов вызывает хелп по данному плагину
+  */
+  PluginList.Show();
+  while (!PluginList.Done())
+  {
+    int SelPos=PluginList.GetSelectPos();
+    PluginList.GetUserData(Data,2,SelPos);
+    switch(PluginList.ReadInput())
+    {
+      case KEY_F1:
+      case KEY_SHIFTF1:
+        char PluginModuleName[NM*2];
+        strcpy(PluginModuleName,PluginsData[Data[0]].ModuleName);
+        if(!FarShowHelp(PluginModuleName,"Config",FHELP_SELFHELP|FHELP_NOSHOWERROR) &&
+           !FarShowHelp(PluginModuleName,"Configure",FHELP_SELFHELP|FHELP_NOSHOWERROR))
+        {
+          //strcpy(PluginModuleName,PluginsData[Data[0]].ModuleName);
+          FarShowHelp(PluginModuleName,NULL,FHELP_SELFHELP|FHELP_NOSHOWERROR);
+        }
+        break;
+      default:
+        PluginList.ProcessInput();
+        break;
+    }
+  }
+  /* SVS $ */
+
   int ExitCode=PluginList.GetExitCode();
   PluginList.Hide();
   if (ExitCode<0)
     return;
-  unsigned char Data[2];
+
   PluginList.GetUserData(Data,2,ExitCode);
   int PNum=Data[0];
   if (PreparePlugin(PNum) && PluginsData[PNum].pConfigure!=NULL)
@@ -1811,6 +1842,15 @@ int PluginsSet::CommandsMenu(int Editor,int Viewer,int StartPos)
     PluginList.GetUserData(Data,2,SelPos);
     switch(PluginList.ReadInput())
     {
+      /* $ 18.12.2000 SVS
+         Shift-F1 в списке плагинов вызывает хелп по данному плагину
+      */
+      case KEY_SHIFTF1:
+      {
+        FarShowHelp(PluginsData[Data[0]].ModuleName,NULL,FHELP_SELFHELP|FHELP_NOSHOWERROR);
+        break;
+      }
+      /* SVS $ */
       case KEY_ALTF11:
         DumpPluginsInfo();
         break;

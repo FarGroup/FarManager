@@ -7,10 +7,13 @@ help.hpp
 
 */
 
-/* Revision: 1.03 12.09.2000 $ */
+/* Revision: 1.04 18.12.2000 $ */
 
 /*
 Modify:
+  18.12.2000 SVS
+    + Дополнительный параметр у конструктора - DWORD Flags.
+    + Член класса - Flags
   12.09.2000 SVS
     + Параметры у функции ReadHelp и конструктора, задающие маску поиска
       файлов.
@@ -34,6 +37,7 @@ class Help:public Modal
     char SelTopic[512];
     char HelpPath[NM];
 
+    DWORD Flags;
     /* $ 01.09.2000 SVS
       CurColor - текущий цвет отрисовки
     */
@@ -71,8 +75,8 @@ class Help:public Modal
     void ReadPluginsHelp();
 
   public:
-    Help(char *Topic,char *Mask=NULL);
-    Help(char *Topic,int &ShowPrev,int PrevFullScreen);
+    Help(char *Topic,char *Mask=NULL,DWORD Flags=0);
+    Help(char *Topic,int &ShowPrev,int PrevFullScreen,DWORD Flags=0);
     ~Help();
 
   public:

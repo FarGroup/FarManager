@@ -8,13 +8,15 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000 [ FAR group ]
 */
-/* Revision: 1.71 14.12.2000 $ */
+/* Revision: 1.72 18.12.2000 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  18.12.2000 SVS
+    + FHELP_NOSHOWERROR
   14.12.2000 SVS
     + ACTL_EJECTMEDIA & struct ActlEjectMedia & EJECT_NO_MESSAGE
   08.12.2000 SVS 1.70
@@ -691,10 +693,11 @@ typedef int (WINAPI *FARAPIEDITORCONTROL)(
 );
 
 enum FarHelpFlags{
-  FHELP_SELFHELP   =0x0000,
-  FHELP_FARHELP    =0x0001,
-  FHELP_CUSTOMFILE =0x0002,
-  FHELP_CUSTOMPATH =0x0004,
+  FHELP_NOSHOWERROR=0x80000000,
+  FHELP_SELFHELP   =0x00000000,
+  FHELP_FARHELP    =0x00000001,
+  FHELP_CUSTOMFILE =0x00000002,
+  FHELP_CUSTOMPATH =0x00000004,
 };
 
 typedef BOOL (WINAPI *FARAPISHOWHELP)(char *ModuleName,char *Topic,DWORD Flags);
