@@ -11,10 +11,12 @@ udlist.hpp
 
 */
 
-/* Revision: 1.03 02.07.2001 $ */
+/* Revision: 1.04 01.08.2001 $ */
 
 /*
 Modify:
+  01.08.2001 IS
+    + GetTotal
   02.07.2001 IS
     + AddAsterisk
     ! Метод Free стал public
@@ -33,6 +35,7 @@ Modify:
 class UserDefinedList
 {
   private:
+    DWORD Total;
     char *Data, *DataEnd, *DataCurrent;
     BYTE Separator1, Separator2;
     BOOL ProcessBrackets, AddAsterisk;
@@ -87,6 +90,9 @@ class UserDefinedList
 
     // TRUE, если больше элементов в списке нет
     BOOL IsEmpty();
+
+    // Вернуть количество элементов в списке
+    DWORD GetTotal () const { return Total; }
 };
 
 #endif // __UserDefinedList_HPP

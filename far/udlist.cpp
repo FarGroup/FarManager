@@ -8,10 +8,12 @@ udlist.cpp
 
 */
 
-/* Revision: 1.04 02.07.2001 $ */
+/* Revision: 1.05 01.08.2001 $ */
 
 /*
 Modify:
+  01.08.2001 IS
+    + Подсчет элементов в списке (Total)
   02.07.2001 IS
     + AddAsterisk
   12.06.2001 IS
@@ -39,6 +41,7 @@ Modify:
 
 UserDefinedList::UserDefinedList()
 {
+  Total=0;
   DataCurrent=Data=DataEnd=NULL;
   SetSeparators(0,0,FALSE,FALSE);
 }
@@ -46,6 +49,7 @@ UserDefinedList::UserDefinedList()
 UserDefinedList::UserDefinedList(BYTE separator1, BYTE separator2,
                                  BOOL processbrackets, BOOL addasterisk)
 {
+  Total=0;
   DataCurrent=Data=DataEnd=NULL;
   SetSeparators(separator1, separator2, processbrackets, addasterisk);
 }
@@ -83,6 +87,7 @@ void UserDefinedList::Free()
   if(Data)
      free (Data);
   DataCurrent=Data=DataEnd=NULL;
+  Total=0;
 }
 
 BOOL UserDefinedList::Set(const char *List)
@@ -126,6 +131,7 @@ BOOL UserDefinedList::Set(const char *List)
                   DataEnd[Length]=0;
                 }
                 DataEnd+=Length+1;
+                ++Total;
               }
               else
               {
@@ -152,6 +158,7 @@ BOOL UserDefinedList::Set(const char *List)
              *Data=*List;
              Data[1]=0;
              rc=TRUE;
+             ++Total;
            }
          }
       }
