@@ -5,10 +5,12 @@ options.cpp
 
 */
 
-/* Revision: 1.02 21.02.2001 $ */
+/* Revision: 1.03 28.02.2001 $ */
 
 /*
 Modify:
+  28.02.2001 IS
+    ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   21.02.2001 IS
     + EditorConfig вызывается с Opt.EdOpt
   05.09.2000 tran
@@ -502,7 +504,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
         }
       break;
   }
-  CtrlObject->CmdLine.Show();
+  CtrlObject->CmdLine->Show();
   if (HItem!=-1 && VItem!=-1)
   {
     LastHItem=HItem;

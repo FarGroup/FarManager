@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.05 27.02.2001 $ */
+/* Revision: 1.06 28.02.2001 $ */
 
 /*
 Modify:
+  28.02.2001 IS
+    ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   27.02.2001 VVM
     ! Символы, зависимые от кодовой страницы
       /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
@@ -189,8 +191,8 @@ void FileList::ShowFileList(int Fast)
 
   if (!Fast && GetFocus())
   {
-    CtrlObject->CmdLine.SetCurDir(PanelMode==PLUGIN_PANEL ? Info.CurDir:CurDir);
-    CtrlObject->CmdLine.Show();
+    CtrlObject->CmdLine->SetCurDir(PanelMode==PLUGIN_PANEL ? Info.CurDir:CurDir);
+    CtrlObject->CmdLine->Show();
   }
   int TitleX2=Opt.Clock ? Min(ScrX-4,X2):X2;
   int TruncSize=TitleX2-X1-3;
@@ -248,8 +250,8 @@ void FileList::ShowFileList(int Fast)
           *(NamePtr+1)=0;
       if (GetFocus())
       {
-        CtrlObject->CmdLine.SetCurDir(CurDir);
-        CtrlObject->CmdLine.Show();
+        CtrlObject->CmdLine->SetCurDir(CurDir);
+        CtrlObject->CmdLine->Show();
       }
     }
   }

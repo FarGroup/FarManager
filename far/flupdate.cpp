@@ -5,10 +5,12 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.05 27.02.2001 $ */
+/* Revision: 1.06 28.02.2001 $ */
 
 /*
 Modify:
+  28.02.2001 IS
+    ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   27.02.2001 VVM
     ! Символы, зависимые от кодовой страницы
       /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
@@ -95,7 +97,7 @@ void FileList::ReadFileNames(int KeepSelection)
     Filter=new PanelFilter(this);
 
   if (GetFocus())
-    CtrlObject->CmdLine.SetCurDir(CurDir);
+    CtrlObject->CmdLine->SetCurDir(CurDir);
 
   LastCurFile=-1;
 

@@ -5,10 +5,12 @@ Quick view panel
 
 */
 
-/* Revision: 1.11 20.02.2001 $ */
+/* Revision: 1.12 28.02.2001 $ */
 
 /*
 Modify:
+  28.02.2001 IS
+    ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   20.02.2001 VVM
     ! Исправление поведения врапа. (Оторвал зависимость от вьюере)
   12.02.2001 SVS
@@ -440,7 +442,7 @@ void QuickView::SetTitle()
     else
     {
       char CmdText[512];
-      CtrlObject->CmdLine.GetString(CmdText,sizeof(CmdText));
+      CtrlObject->CmdLine->GetString(CmdText,sizeof(CmdText));
       sprintf(TitleDir,"{%s}",CmdText);
     }
     strcpy(LastFarTitle,TitleDir);

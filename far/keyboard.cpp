@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.15 25.02.2001 $ */
+/* Revision: 1.16 28.02.2001 $ */
 
 /*
 Modify:
+  28.02.2001 IS
+    ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   25.02.2001 SVS
     ! Уточнения для Alt-Shift-...
   09.02.2001 IS
@@ -300,7 +302,7 @@ int GetInputRecord(INPUT_RECORD *rec)
             Reenter++;
             int X,Y;
             GetRealCursorPos(X,Y);
-            if (X==0 && Y==ScrY && CtrlObject->CmdLine.IsVisible())
+            if (X==0 && Y==ScrY && CtrlObject->CmdLine->IsVisible())
             {
               while (1)
               {

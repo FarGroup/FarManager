@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.13 27.02.2001 $ */
+/* Revision: 1.14 28.02.2001 $ */
 
 /*
 Modify:
+  28.02.2001 IS
+    ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   27.02.2001 VVM
     ! Символы, зависимые от кодовой страницы
       /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
@@ -727,7 +729,7 @@ void _cdecl PrepareFilesList(void *Param)
   char FullName[NM],Root[NM];
 
   DWORD DiskMask=GetLogicalDrives();
-  CtrlObject->CmdLine.GetCurDir(Root);
+  CtrlObject->CmdLine->GetCurDir(Root);
 
   for (int CurrentDisk=0;DiskMask!=0;CurrentDisk++,DiskMask>>=1)
   {

@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.15 27.02.2001 $ */
+/* Revision: 1.16 28.02.2001 $ */
 
 /*
 Modify:
+  28.02.2001 IS
+    ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   27.02.2001 VVM
     ! Символы, зависимые от кодовой страницы
       /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
@@ -96,7 +98,7 @@ void ProcessUserMenu(int EditMenu)
   int RunFirst  = 1;
 /* VVM $ */
 
-  CtrlObject->CmdLine.GetCurDir(MenuFilePath);
+  CtrlObject->CmdLine->GetCurDir(MenuFilePath);
 /* $ 14.07.2000 VVM
   ! Менять пока ничего не надо - потом сменим.
 */
@@ -251,7 +253,7 @@ void ProcessUserMenu(int EditMenu)
 
           default: // MM_MAIN
           {
-            CtrlObject->CmdLine.GetCurDir(MenuFilePath);
+            CtrlObject->CmdLine->GetCurDir(MenuFilePath);
             MenuMode=MM_LOCAL;
           }
         } /* switch */
@@ -268,7 +270,7 @@ void ProcessUserMenu(int EditMenu)
     } /* switch */
   } /* while */
 
-  CtrlObject->CmdLine.GetCurDir(MenuFilePath);
+  CtrlObject->CmdLine->GetCurDir(MenuFilePath);
   chdir(MenuFilePath);
   CtrlObject->ActivePanel->Update(UPDATE_KEEP_SELECTION);
   CtrlObject->ActivePanel->Redraw();
@@ -623,7 +625,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
     int CurLine=0;
 
     char CmdLineDir[NM];
-    CtrlObject->CmdLine.GetCurDir(CmdLineDir);
+    CtrlObject->CmdLine->GetCurDir(CmdLineDir);
 
     while (1)
     {
@@ -647,7 +649,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
           PanelsHidden=TRUE;
         }
         if (*Command)
-          CtrlObject->CmdLine.ExecString(Command,FALSE);
+          CtrlObject->CmdLine->ExecString(Command,FALSE);
       }
       if (*ListName)
           remove(ListName);

@@ -7,10 +7,12 @@ ctrlobj.hpp
 
 */
 
-/* Revision: 1.02 15.12.2000 $ */
+/* Revision: 1.03 28.02.2001 $ */
 
 /*
 Modify:
+  28.02.2001 IS
+    ! CmdLine теперь указатель
   15.12.2000 SVS
     ! Метод ShowCopyright - public static & параметр Flags.
   15.07.2000 tran
@@ -57,7 +59,7 @@ class ControlObject:public BaseInput
     Panel *LeftPanel,*RightPanel,*ActivePanel;
 
     Manager ModalManager;
-    CommandLine CmdLine;
+    CommandLine *CmdLine;
     History *CmdHistory,*FolderHistory,*ViewHistory;
     KeyBar MainKeyBar;
     MenuBar TopMenuBar;

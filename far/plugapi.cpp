@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.39 11.02.2001 $ */
+/* Revision: 1.40 28.02.2001 $ */
 
 /*
 Modify:
+  28.02.2001 IS
+    ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   11.02.2001 SVS
     ! Сократим повторяющийся код в FarDialogEx
   11.02.2001 SVS
@@ -732,22 +734,22 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
         return(Processed);
       }
     case FCTL_GETCMDLINE:
-      CtrlObject->CmdLine.GetString((char *)Param,1024);
+      CtrlObject->CmdLine->GetString((char *)Param,1024);
       return(TRUE);
     case FCTL_SETCMDLINE:
     case FCTL_INSERTCMDLINE:
       if (Command==FCTL_SETCMDLINE)
-        CtrlObject->CmdLine.SetString((char *)Param);
+        CtrlObject->CmdLine->SetString((char *)Param);
       else
-        CtrlObject->CmdLine.InsertString((char *)Param);
-      CtrlObject->CmdLine.Redraw();
+        CtrlObject->CmdLine->InsertString((char *)Param);
+      CtrlObject->CmdLine->Redraw();
       return(TRUE);
     case FCTL_SETCMDLINEPOS:
-      CtrlObject->CmdLine.SetCurPos(*(int *)Param);
-      CtrlObject->CmdLine.Redraw();
+      CtrlObject->CmdLine->SetCurPos(*(int *)Param);
+      CtrlObject->CmdLine->Redraw();
       return(TRUE);
     case FCTL_GETCMDLINEPOS:
-      *(int *)Param=CtrlObject->CmdLine.GetCurPos();
+      *(int *)Param=CtrlObject->CmdLine->GetCurPos();
       return(TRUE);
     case FCTL_SETUSERSCREEN:
       if (CtrlObject->LeftPanel==NULL || CtrlObject->RightPanel==NULL)
@@ -759,7 +761,7 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
       SaveScreen SaveScr;
       {
         RedrawDesktop Redraw;
-        CtrlObject->CmdLine.Hide();
+        CtrlObject->CmdLine->Hide();
         SaveScr.RestoreArea(FALSE);
       }
       CtrlObject->LeftPanel->ProcessingPluginCommand--;

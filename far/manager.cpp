@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.06 11.02.2001 $ */
+/* Revision: 1.07 28.02.2001 $ */
 
 /*
 Modify:
+  28.02.2001 IS
+    ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   11.02.2001 SVS
     ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
   29.12.2000 IS
@@ -219,7 +221,7 @@ void Manager::NextModal(int Increment)
   }
   CtrlObject->LeftPanel->Redraw();
   CtrlObject->RightPanel->Redraw();
-  CtrlObject->CmdLine.Redraw();
+  CtrlObject->CmdLine->Redraw();
   CtrlObject->MainKeyBar.Redraw();
 }
 
@@ -322,10 +324,10 @@ void Manager::ShowBackground()
   }
   {
     RedrawDesktop Redraw;
-    CtrlObject->CmdLine.Hide();
+    CtrlObject->CmdLine->Hide();
     SetCursorType(FALSE,10);
     WaitKey();
-    CtrlObject->CmdLine.Show();
+    CtrlObject->CmdLine->Show();
   }
   for (I=0;I<ModalCount;I++)
   {

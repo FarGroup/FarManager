@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.18 27.02.2001 $ */
+/* Revision: 1.19 28.02.2001 $ */
 
 /*
 Modify:
+  28.02.2001 IS
+    ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   27.02.2001 VVM
     ! Символы, зависимые от кодовой страницы
       /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
@@ -563,7 +565,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
       int NumDisk=*DiskLetter-'A';
       char MsgStr[200],NewDir[NM];
       setdisk(NumDisk);
-      CtrlObject->CmdLine.GetCurDir(NewDir);
+      CtrlObject->CmdLine->GetCurDir(NewDir);
       if (toupper(*NewDir)==*DiskLetter)
         chdir(NewDir);
       if (getdisk()!=NumDisk)
@@ -1084,7 +1086,7 @@ void Panel::SetTitle()
       /* $ 21.07.2000 IG
          Bug 21 (заголовок после Ctrl-Q, Tab, F3, Esc был кривой)
       */
-      CtrlObject->CmdLine.GetCurDir(CmdText);
+      CtrlObject->CmdLine->GetCurDir(CmdText);
       /* IG $*/
       sprintf(TitleDir,"{%s}",CmdText);
     }

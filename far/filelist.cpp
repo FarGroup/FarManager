@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.30 26.02.2001 $ */
+/* Revision: 1.31 28.02.2001 $ */
 
 /*
 Modify:
+  28.02.2001 IS
+    ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   26.02.2001 VVM
     - Отмена предыдущего патча
   26.02.2001 VVM
@@ -420,7 +422,7 @@ int FileList::ProcessKey(int Key)
 {
   struct FileListItem *CurPtr;
   int N;
-  int CmdLength=CtrlObject->CmdLine.GetLength();
+  int CmdLength=CtrlObject->CmdLine->GetLength();
 
   if (IsVisible())
   {
@@ -709,7 +711,7 @@ int FileList::ProcessKey(int Key)
           AddEndSlash(FileName);
         QuoteSpace(FileName);
         strcat(FileName," ");
-        CtrlObject->CmdLine.InsertString(FileName);
+        CtrlObject->CmdLine->InsertString(FileName);
       }
       return(TRUE);
     case KEY_CTRLBRACKET:
@@ -769,7 +771,7 @@ int FileList::ProcessKey(int Key)
           /* SVS $ */
         }
         QuoteSpace(PanelDir);
-        CtrlObject->CmdLine.InsertString(PanelDir);
+        CtrlObject->CmdLine->InsertString(PanelDir);
       }
       return(TRUE);
     case KEY_CTRLA:
@@ -1421,7 +1423,7 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
       if (!PluginMode)
         CtrlObject->CmdHistory->AddToHistory(FileName);
       int DirectRun=(CurDir[0]=='\\' && CurDir[1]=='\\' && ExeType);
-      CtrlObject->CmdLine.ExecString(FileName,PluginMode,SeparateWindow,DirectRun);
+      CtrlObject->CmdLine->ExecString(FileName,PluginMode,SeparateWindow,DirectRun);
       if (PluginMode)
         DeleteFileWithFolder(FileName);
     }
@@ -1591,8 +1593,8 @@ void FileList::ChangeDir(char *NewDir)
 
   if (GetFocus())
   {
-    CtrlObject->CmdLine.SetCurDir(CurDir);
-    CtrlObject->CmdLine.Show();
+    CtrlObject->CmdLine->SetCurDir(CurDir);
+    CtrlObject->CmdLine->Show();
   }
   AnotherPanel=CtrlObject->GetAnotherPanel(this);
   if (AnotherPanel->GetType()!=FILE_PANEL)

@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.06 27.02.2001 $ */
+/* Revision: 1.07 28.02.2001 $ */
 
 /*
 Modify:
+  28.02.2001 IS
+    ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   27.02.2001 VVM
     ! Символы, зависимые от кодовой страницы
       /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
@@ -506,7 +508,7 @@ int TreeList::ProcessKey(int Key)
           sprintf(QuotedName,"\"%s\" ",CurPtr->Name);
         else
           sprintf(QuotedName,"%s ",CurPtr->Name);
-        CtrlObject->CmdLine.InsertString(QuotedName);
+        CtrlObject->CmdLine->InsertString(QuotedName);
       }
       return(TRUE);
     case KEY_CTRLBACKSLASH:
@@ -514,7 +516,7 @@ int TreeList::ProcessKey(int Key)
       ProcessEnter();
       return(TRUE);
     case KEY_ENTER:
-      if (!ModalMode && CtrlObject->CmdLine.GetLength()>0)
+      if (!ModalMode && CtrlObject->CmdLine->GetLength()>0)
         break;
       ProcessEnter();
       return(TRUE);
@@ -690,8 +692,8 @@ void TreeList::SetCurDir(char *NewDir,int ClosePlugin)
   }
   if (GetFocus())
   {
-    CtrlObject->CmdLine.SetCurDir(SetDir);
-    CtrlObject->CmdLine.Show();
+    CtrlObject->CmdLine->SetCurDir(SetDir);
+    CtrlObject->CmdLine->Show();
   }
 }
 #if defined(__BORLANDC__)

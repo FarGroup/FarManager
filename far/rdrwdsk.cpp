@@ -5,10 +5,12 @@ class RedrawDesktop
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 28.02.2001 $ */
 
 /*
 Modify:
+  28.02.2001 IS
+    ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
@@ -40,7 +42,7 @@ RedrawDesktop::~RedrawDesktop()
     CtrlObject->MainKeyBar.Show();
   if (Opt.ShowMenuBar)
     CtrlObject->TopMenuBar.Show();
-  CtrlObject->CmdLine.Show();
+  CtrlObject->CmdLine->Show();
   int RightType=CtrlObject->RightPanel->GetType();
   if (RightVisible && RightType!=QVIEW_PANEL)
     CtrlObject->RightPanel->Show();

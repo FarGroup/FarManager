@@ -5,10 +5,12 @@ Folder shortcuts
 
 */
 
-/* Revision: 1.01 11.02.2001 $ */
+/* Revision: 1.02 28.02.2001 $ */
 
 /*
 Modify:
+  28.02.2001 IS
+    ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   11.02.2001 SVS
     ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
   25.06.2000 SVS
@@ -119,7 +121,7 @@ int ShowFolderShortcutMenu(int Pos)
       case KEY_INS:
         {
           char ValueName[100],NewDir[NM];
-          CtrlObject->CmdLine.GetCurDir(NewDir);
+          CtrlObject->CmdLine->GetCurDir(NewDir);
           sprintf(ValueName,"Shortcut%d",SelPos);
           SetRegKey("FolderShortcuts",ValueName,NewDir);
           sprintf(ValueName,"PluginModule%d",SelPos);

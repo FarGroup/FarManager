@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.55 26.02.2001 $ */
+/* Revision: 1.56 28.02.2001 $ */
 
 /*
 Modify:
+  28.02.2001 IS
+    ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   26.02.2001 VVM
     ! Уточнение для обработки NULL в OpenPlugin
     + Обработка исключения при OpenPlugin(OPEN_FINDLIST)
@@ -254,7 +256,7 @@ static int xfilter(
 
    /* $ 26.02.2001 VVM
        ! Обработка STATUS_INVALIDFUNCTIONRESULT */
-   if (From == EXCEPT_GETPLUGININFO_DATA || From == EXCEPT_GETOPENPLUGININFO_DATA) 
+   if (From == EXCEPT_GETPLUGININFO_DATA || From == EXCEPT_GETOPENPLUGININFO_DATA)
    {
      I = 0;
      static const char *NameField[2][3]={
@@ -271,7 +273,7 @@ static int xfilter(
          I = 1;
          break;
      }
-    
+
      if(xr->ExceptionCode >= STATUS_STRUCTWRONGFILLED &&
         xr->ExceptionCode <= STATUS_STRUCTWRONGFILLED+2)
      {
@@ -282,7 +284,7 @@ static int xfilter(
      }
      else
        sprintf(Buf[0],MSG(MExcStructWrongFilled),pName);
-    
+
      Ret=Message(MSG_WARNING,
             (Opt.ExceptCallDebugger?2:1),
             xFromMSGTitle(From),
@@ -294,7 +296,7 @@ static int xfilter(
             MSG(MExcUnloadYes),
             (Opt.ExceptCallDebugger?MSG(MExcDebugger):MSG(MOk)),
             (Opt.ExceptCallDebugger?MSG(MOk):NULL));
-    
+
      if (!Opt.ExceptCallDebugger || Ret!=0)
        Unload = TRUE;
 //       CtrlObject->Plugins.UnloadPlugin(*Module);
@@ -341,9 +343,9 @@ static int xfilter(
          }
          break;
        }
-     
+
      if (!pName) pName=MSG(MExcUnknown);
-     
+
      sprintf(Buf[0],MSG(MExcAddress),xr->ExceptionAddress);
      if (Flags&1)
      {
@@ -353,11 +355,11 @@ static int xfilter(
                pName,
                Buf[0],
                TruncPathStr(TruncFileName,40),"\1",
-               MSG(MExcUnload),       
+               MSG(MExcUnload),
                (Opt.ExceptCallDebugger?MSG(MExcDebugger):MSG(MYes)),
                (Opt.ExceptCallDebugger?MSG(MYes):MSG(MNo)),
                (Opt.ExceptCallDebugger?MSG(MNo):NULL));
-       if ((Opt.ExceptCallDebugger && Ret == 1) || 
+       if ((Opt.ExceptCallDebugger && Ret == 1) ||
            (!Opt.ExceptCallDebugger && Ret == 0))
          Unload = TRUE; // CtrlObject->Plugins.UnloadPlugin(*Module);
      }
@@ -1100,7 +1102,7 @@ HANDLE PluginsSet::OpenPlugin(int PluginNumber,int OpenFrom,int Item)
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
   CheckScreenLock();
   char CurDir[NM];
-  CtrlObject->CmdLine.GetCurDir(CurDir);
+  CtrlObject->CmdLine->GetCurDir(CurDir);
   chdir(CurDir);
   *DirToSet=0;
   if (PluginNumber<PluginsCount && PluginsData[PluginNumber].pOpenPlugin)
@@ -2245,7 +2247,7 @@ int PluginsSet::ProcessCommandLine(char *Command)
   Panel *ActivePanel=CtrlObject->ActivePanel;
   if (ActivePanel->ProcessPluginEvent(FE_CLOSE,NULL))
     return(FALSE);
-  CtrlObject->CmdLine.SetString("");
+  CtrlObject->CmdLine->SetString("");
 
   char PluginCommand[512];
   /* $ 07.09.2000 VVM 1.18

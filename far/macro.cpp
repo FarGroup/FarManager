@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.25 22.02.2001 $ */
+/* Revision: 1.26 28.02.2001 $ */
 
 /*
 Modify:
+  28.02.2001 IS
+    ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   22.02.2001 SVS
     + MFLAGS_DISABLEMACRO - ЭТОТ макрос задисаблен!
     ! Учтем, что символ '~' в начале названия макроса - это задисабленный
@@ -392,7 +394,7 @@ int KeyMacro::ProcessKey(int Key)
       {
 //SysLog("KeyMacro: %d (I=%d Key=0x%08X)",__LINE__,I,Key);
         // проверка на пусто/не пусто в ком.строке (а в редакторе? :-)
-        int CmdLength=CtrlObject->CmdLine.GetLength();
+        int CmdLength=CtrlObject->CmdLine->GetLength();
         if ((Macros[I].Flags&MFLAGS_EMPTYCOMMANDLINE) && CmdLength!=0 ||
             (Macros[I].Flags&MFLAGS_NOTEMPTYCOMMANDLINE) && CmdLength==0)
           return(FALSE);
@@ -705,7 +707,7 @@ void KeyMacro::RunStartMacro()
         !(Macros[CurPos].Flags&MFLAGS_DISABLEMACRO) &&
         (Macros[CurPos].Flags&MFLAGS_RUNAFTERSTART))
     {
-      int CmdLength=CtrlObject->CmdLine.GetLength();
+      int CmdLength=CtrlObject->CmdLine->GetLength();
       if ((Macros[CurPos].Flags&MFLAGS_EMPTYCOMMANDLINE) && CmdLength!=0 ||
           (Macros[CurPos].Flags&MFLAGS_NOTEMPTYCOMMANDLINE) && CmdLength==0)
         return;

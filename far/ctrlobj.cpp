@@ -5,10 +5,14 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.14 09.02.2001 $ */
+/* Revision: 1.15 28.02.2001 $ */
 
 /*
 Modify:
+  28.02.2001 IS
+    ! Т.е. CmdLine теперь указатель, то произведем замену
+      "CmdLine." на "CmdLine->" и собственно создадим/удалим ее в конструкторе
+      и деструкторе CtrlObject.
   09.02.2001 IS
     + восстановим состояние опций "помеченное вперед"
   09.01.2001 SVS
@@ -58,6 +62,11 @@ ControlObject::ControlObject()
 {
   CtrlObject=this;
   ReadConfig();
+  /* $ 28.02.2001 IS
+       Создадим обязательно только после того, как прочитали настройки
+  */
+  CmdLine=new CommandLine;
+  /* IS $ */
   CmdHistory=new History("SavedHistory",&Opt.SaveHistory,FALSE,FALSE);
   FolderHistory=new History("SavedFolderHistory",&Opt.SaveFoldersHistory,FALSE,TRUE);
   ViewHistory=new History("SavedViewHistory",&Opt.SaveViewHistory,TRUE,TRUE);
@@ -167,7 +176,7 @@ void ControlObject::Init()
   else
     RightPanel->Hide();
   HideState=(!Opt.LeftPanel.Visible && !Opt.RightPanel.Visible);
-  CmdLine.Redraw();
+  CmdLine->Redraw();
 }
 
 
@@ -202,6 +211,7 @@ ControlObject::~ControlObject()
   delete CmdHistory;
   delete FolderHistory;
   delete ViewHistory;
+  delete CmdLine;
   Lang.Close();
   CtrlObject=NULL;
 }
@@ -227,9 +237,9 @@ void ControlObject::SetPanelPositions(int LeftFullScreen,int RightFullScreen)
 void ControlObject::SetScreenPositions()
 {
   RedrawDesktop Redraw;
-  CmdLine.Hide();
+  CmdLine->Hide();
 
-  CmdLine.SetPosition(0,ScrY-(Opt.ShowKeyBar!=0),ScrX,ScrY-(Opt.ShowKeyBar!=0));
+  CmdLine->SetPosition(0,ScrY-(Opt.ShowKeyBar!=0),ScrX,ScrY-(Opt.ShowKeyBar!=0));
   TopMenuBar.SetPosition(0,0,ScrX,0);
   MainKeyBar.SetPosition(0,ScrY,ScrX,ScrY);
   SetPanelPositions(LeftPanel->IsFullScreen(),RightPanel->IsFullScreen());
@@ -334,10 +344,10 @@ int ControlObject::ProcessKey(int Key)
   if (!Key)
     return(TRUE);
 
-  if ((Key==KEY_CTRLLEFT || Key==KEY_CTRLRIGHT) && (CmdLine.GetLength()>0 ||
+  if ((Key==KEY_CTRLLEFT || Key==KEY_CTRLRIGHT) && (CmdLine->GetLength()>0 ||
       !LeftPanel->IsVisible() && !RightPanel->IsVisible()))
   {
-    CmdLine.ProcessKey(Key);
+    CmdLine->ProcessKey(Key);
     return(TRUE);
   }
 
@@ -372,7 +382,7 @@ int ControlObject::ProcessKey(int Key)
           LeftPanel->SetFocus();
         LeftPanel->Show();
       }
-      CmdLine.Show();
+      CmdLine->Show();
       break;
     case KEY_F1:
       if (!ActivePanel->ProcessKey(KEY_F1))
@@ -393,7 +403,7 @@ int ControlObject::ProcessKey(int Key)
           RightPanel->SetFocus();
         RightPanel->Show();
       }
-      CmdLine.Show();
+      CmdLine->Show();
       break;
     case KEY_CTRLB:
       Opt.ShowKeyBar=!Opt.ShowKeyBar;
@@ -445,20 +455,20 @@ int ControlObject::ProcessKey(int Key)
         */
         int LeftVisible=LeftPanel->IsVisible();
         int RightVisible=RightPanel->IsVisible();
-        int CmdLineVisible=CmdLine.IsVisible();
+        int CmdLineVisible=CmdLine->IsVisible();
         int KeyBarVisible=MainKeyBar.IsVisible();
         LeftPanel->Hide();
         RightPanel->Hide();
         if(!Opt.PanelCtrlAltShiftRule)
-          CmdLine.Show();
+          CmdLine->Show();
         if(Opt.PanelCtrlAltShiftRule == 2)
           MainKeyBar.Hide();
         if(Opt.PanelCtrlAltShiftRule)
-          CmdLine.Hide();
+          CmdLine->Hide();
         WaitKey(Key==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:-1);
         if (LeftVisible)      LeftPanel->Show();
         if (RightVisible)     RightPanel->Show();
-        if (CmdLineVisible)   CmdLine.Show();
+        if (CmdLineVisible)   CmdLine->Show();
         if (KeyBarVisible)    MainKeyBar.Show();
         /* SVS $ */
       }
@@ -489,7 +499,7 @@ int ControlObject::ProcessKey(int Key)
           HideState=FALSE;
         }
       }
-      CmdLine.Show();
+      CmdLine->Show();
       break;
     case KEY_CTRLP:
       if (ActivePanel->IsVisible())
@@ -499,7 +509,7 @@ int ControlObject::ProcessKey(int Key)
           AnotherPanel->Hide();
         else
           AnotherPanel->Show();
-        CmdLine.Redraw();
+        CmdLine->Redraw();
       }
       break;
     case KEY_CTRLI:
@@ -655,7 +665,7 @@ int ControlObject::ProcessKey(int Key)
       break;
     default:
       if (!ActivePanel->ProcessKey(Key))
-        CmdLine.ProcessKey(Key);
+        CmdLine->ProcessKey(Key);
       break;
   }
   return(TRUE);
@@ -682,7 +692,7 @@ int ControlObject::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   if (!ActivePanel->ProcessMouse(MouseEvent))
     if (!GetAnotherPanel(ActivePanel)->ProcessMouse(MouseEvent))
       if (!MainKeyBar.ProcessMouse(MouseEvent))
-        CmdLine.ProcessMouse(MouseEvent);
+        CmdLine->ProcessMouse(MouseEvent);
   return(TRUE);
 }
 
@@ -937,7 +947,7 @@ void ControlObject::Redraw()
         LeftPanel->Show();
     if (RightPanel->IsVisible())
         RightPanel->Show();
-    CmdLine.Show();
+    CmdLine->Show();
     MainKeyBar.Redraw();
 }
 /* tran 15.07.2000 $ */

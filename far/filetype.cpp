@@ -5,10 +5,12 @@ filetype.cpp
 
 */
 
-/* Revision: 1.12 27.02.2001 $ */
+/* Revision: 1.13 28.02.2001 $ */
 
 /*
 Modify:
+  28.02.2001 IS
+    ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   27.02.2001 VVM
     ! Символы, зависимые от кодовой страницы
       /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
@@ -190,7 +192,7 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
     if (*Command)
       if (*Command!='@')
       {
-        CtrlObject->CmdLine.ExecString(Command,AlwaysWaitFinish);
+        CtrlObject->CmdLine->ExecString(Command,AlwaysWaitFinish);
         if (!AlwaysWaitFinish)
           CtrlObject->CmdHistory->AddToHistory(Command);
       }
@@ -288,7 +290,7 @@ int ProcessGlobalFileTypes(char *Name,int AlwaysWaitFinish)
           }
           break;
         }
-    CtrlObject->CmdLine.ExecString(ExpAssocStr,AlwaysWaitFinish);
+    CtrlObject->CmdLine->ExecString(ExpAssocStr,AlwaysWaitFinish);
   }
   else
   {
@@ -306,7 +308,7 @@ int ProcessGlobalFileTypes(char *Name,int AlwaysWaitFinish)
 
     QuoteSpace(Name);
 */
-    CtrlObject->CmdLine.ExecString(Name,AlwaysWaitFinish,2,FALSE);
+    CtrlObject->CmdLine->ExecString(Name,AlwaysWaitFinish,2,FALSE);
     if (!AlwaysWaitFinish)
     {
       char QuotedName[2*NM];
@@ -367,7 +369,7 @@ void ProcessExternal(char *Command,char *Name,char *ShortName,int AlwaysWaitFini
     CtrlObject->ViewHistory->AddToHistory(FullExecStr,MSG(MHistoryExt),AlwaysWaitFinish+2);
 
     if (*ExecStr!='@')
-      CtrlObject->CmdLine.ExecString(ExecStr,AlwaysWaitFinish);
+      CtrlObject->CmdLine->ExecString(ExecStr,AlwaysWaitFinish);
     else
     {
       SaveScreen SaveScr;
@@ -409,7 +411,7 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
   if (CmdLineDir!=NULL)
     strcpy(CmdDir,CmdLineDir);
   else
-    CtrlObject->CmdLine.GetCurDir(CmdDir);
+    CtrlObject->CmdLine->GetCurDir(CmdDir);
 
   int PreserveLFN=FALSE;
   *TmpStr=0;
