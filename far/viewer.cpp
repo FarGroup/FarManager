@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.33 18.10.2000 $ */
+/* Revision: 1.34 20.10.2000 $ */
 
 /*
 Modify:
+  20.10.2000 tran
+    + обратный порядок байтов в юникоде (fffe)
   18.10.2000 SVS
     - бага: DownDownUp в Уникод-файлах (FEFF)
   02.10.2000 SVS
@@ -361,7 +363,7 @@ int Viewer::OpenFile(char *Name,int warning)
     vseek(ViewFile,0,SEEK_SET);
     ReadSize=vread((char *)&FirstWord,sizeof(FirstWord),ViewFile);
     //if(ReadSize == sizeof(FirstWord) &&
-    if(FirstWord == 0x0FEFF)
+    if(FirstWord == 0x0FEFF || FirstWord == 0x0FFFE)
     {
       VM.AnsiText=VM.UseDecodeTable=0;
       VM.Unicode=1;
@@ -541,7 +543,9 @@ void Viewer::DisplayObject()
         /* $ 18.10.2000 SVS
            -Bug: Down Down Up & первый пробел
         */
-        if(VM.Unicode && FirstWord == 0x0FEFF && !I && !LeftPos && !StrFilePos[I])
+        if(VM.Unicode && 
+             (FirstWord == 0x0FEFF || FirstWord == 0x0FFFE)
+             && !I && !LeftPos && !StrFilePos[I])
           mprintf("%-*.*s",Width,Width,&OutStr[I][LeftPos+1]);
         else
           mprintf("%-*.*s",Width,Width,&OutStr[I][LeftPos]);
@@ -774,7 +778,7 @@ void Viewer::ShowUp()
       /* $ 18.10.2000 SVS
          -Bug: Down Down Up & первый пробел
       */
-      if(VM.Unicode && FirstWord == 0x0FEFF && !I && !LeftPos && !StrFilePos[I])
+      if(VM.Unicode && (FirstWord == 0x0FEFF || FirstWord == 0x0FFFE) && !I && !LeftPos && !StrFilePos[I])
         mprintf("%-*.*s",Width,Width,&OutStr[I][LeftPos+1]);
       else
         mprintf("%-*.*s",Width,Width,&OutStr[I][LeftPos]);
@@ -1436,6 +1440,9 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       {
         INPUT_RECORD rec;
         FilePos=(FileSize-1)*(MsY-Y1)/(Y2-Y1-1);
+        if ( FilePos>FileSize )
+            FilePos=FileSize;
+        SysLog("Viewer/ ToPercent()=%i, %i, %i",ToPercent(FilePos,FileSize),FilePos,FileSize);
         if(ToPercent(FilePos,FileSize) == 100)
           ProcessKey(KEY_CTRLEND);
         else
@@ -2046,8 +2053,23 @@ int Viewer::vread(char *Buf,int Size,FILE *SrcFile)
   if (VM.Unicode)
   {
     char TmpBuf[16384+10];
+    int i;
+    char t;
     int ReadSize=fread(TmpBuf,1,Size*2,SrcFile);
     TmpBuf[ReadSize]=0;
+    /* $ 20.10.2000 tran
+       обратный порядок байтов */
+    TmpBuf[ReadSize+1]=0;
+    if ( FirstWord == 0x0FFFE )
+    {
+        for ( i=0; i<ReadSize; i+=2 )
+        {
+            t=TmpBuf[i];
+            TmpBuf[i]=TmpBuf[i+1];
+            TmpBuf[i+1]=t;   
+        }
+    }
+    /* tran $ */    
     ReadSize+=(ReadSize & 1);
     WideCharToMultiByte(CP_OEMCP,0,(LPCWSTR)TmpBuf,ReadSize/2,Buf,Size," ",NULL);
     return(ReadSize/2);
