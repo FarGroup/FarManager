@@ -5,10 +5,12 @@ filter.cpp
 
 */
 
-/* Revision: 1.05 12.02.2001 $ */
+/* Revision: 1.06 13.02.2001 $ */
 
 /*
 Modify:
+  13.02.2001 SVS
+    - Ошибка, синтаксическая :-( "ListItem.Flags==0;"
   12.02.2001 SVS
     - Баги после #440-го
   11.02.2001 SVS
@@ -211,7 +213,7 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
         continue;
       sprintf(ListItem.Name,"%-30.30s │ %-30.30s",MSG(MPanelFileType),CurExtPtr);
       ListItem.Selected=0;
-      ListItem.Flags==0;
+      ListItem.Flags=0;
       ListItem.UserDataSize=strlen(CurExtPtr)+1;
       if(ListItem.UserDataSize >= sizeof(ListItem.UserData))
       {
