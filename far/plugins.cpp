@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.97 05.12.2001 $ */
+/* Revision: 1.98 07.12.2001 $ */
 
 /*
 Modify:
+  07.12.2001 IS
+    ! GetString -> FarInputBox
   05.12.2001 SVS
     ! Небольшое уточненение по поводу исключений
   01.11.2001 SVS
@@ -922,7 +924,7 @@ int PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNumb
       /* $ 25.07.2000 SVS
          Функция-стандартный диалог ввода текста
       */
-      StartupInfo.InputBox=GetString;
+      StartupInfo.InputBox=FarInputBox;
       /* SVS $ */
     }
 

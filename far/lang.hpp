@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.85 20.11.2001 $ */
+/* Revision: 1.86 07.12.2001 $ */
 
 /*
 Modify:
+  07.12.2001 IS
+    + MMultiMakeDir - опция для диалога создания каталога
   20.11.2001 SVS
     + MConfigCopyTimeRule, MConfigAutoUpdateLimit, MConfigAutoUpdateLimit2
     ! удален MConfigSubstPluginPrefix, MConfigShowMenuScrollbar
@@ -1066,6 +1068,7 @@ enum
 
   MMakeFolderTitle,
   MCreateFolder,
+  MMultiMakeDir,
   MIncorrectDirList,
   MCannotCreateFolder,
 

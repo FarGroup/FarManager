@@ -5,10 +5,12 @@ mkdir.cpp
 
 */
 
-/* Revision: 1.11 26.09.2001 $ */
+/* Revision: 1.12 07.12.2001 $ */
 
 /*
 Modify:
+  07.12.2001 IS
+    + Cоздание нескольких каталогов за раз теперь опционально.
   26.09.2001 SVS
     + Opt.AutoUpdateLimit -  выше этого количество не обновлять пассивную
       панель (если ее содержимое не равно активной).
@@ -67,25 +69,37 @@ void ShellMakeDir(Panel *SrcPanel)
   *DirName=0;
   UserDefinedList DirList;
 
+  /* $ 07.12.2001 IS
+     создание нескольких каталогов за раз теперь опционально
+  */
+  BOOL MultiMakeDir=Opt.MultiMakeDir;
   for(;;)
   {
-    if (!GetString(MSG(MMakeFolderTitle),MSG(MCreateFolder),"NewFolder",DirName,DirName,sizeof(DirName),"MakeFolder",FIB_BUTTONS|FIB_EXPANDENV))
+    if (!GetString(MSG(MMakeFolderTitle),MSG(MCreateFolder),"NewFolder",
+         DirName,DirName,sizeof(DirName),"MakeFolder",
+         FIB_BUTTONS|FIB_EXPANDENV|FIB_CHECKBOX,&MultiMakeDir,
+         MSG(MMultiMakeDir)))
       return;
+
+    Opt.MultiMakeDir=MultiMakeDir;
 
     // это по поводу создания одиночного каталога, который
     // начинается с пробела! Чтобы ручками не заключать
     // такой каталог в кавычки
-    if(strpbrk(DirName,";,\"") == NULL)
+    if(Opt.MultiMakeDir && strpbrk(DirName,";,\"") == NULL)
        QuoteSpaceOnly(DirName);
 
-    // оставил в назидание потомкам. ни в коем случае нельзя убирать кавычки из
-    // DirName, т.к. из-за этого нарушается логика работы в DirList.Set
-    //Unquote(DirName);
+    if(!Opt.MultiMakeDir)   // нужно создать только ОДИН каталог
+    {
+      Unquote(DirName);     // уберем все лишние кавычки
+      InsertQuote(DirName); // возьмем в кавычки, т.к. могут быть разделители
+    }
 
     if(DirList.Set(DirName)) break;
     else Message(MSG_DOWN|MSG_WARNING,1,MSG(MWarning),
                  MSG(MIncorrectDirList), MSG(MOk));
   }
+  /* IS $ */
   /* KM $ */
   *DirName=0;
   const char *OneDir;

@@ -5,10 +5,13 @@ config.cpp
 
 */
 
-/* Revision: 1.111 03.12.2001 $ */
+/* Revision: 1.112 07.12.2001 $ */
 
 /*
 Modify:
+  07.12.2001 IS
+    + Работа с Opt.MultiMakeDir
+    ! Opt.MultiCopy хранится не в NKeyInterface, а в NKeySystem
   03.12.2001 IS
     + Считываем Opt.EditorUndoSize - размер буфера undo
   27.11.2001 SVS
@@ -1118,10 +1121,6 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyInterface, "Mouse",&Opt.Mouse,1, 0},
   {1, REG_DWORD,  NKeyInterface, "AltGr",&Opt.AltGr,1, 0},
   {1, REG_DWORD,  NKeyInterface, "CopyShowTotal",&Opt.CopyShowTotal,0, 0},
-  /* $ 03.08.2001 IS
-       опция "разрешить мультикопирование/перемещение/создание связей" */
-  {1, REG_DWORD,  NKeyInterface, "MultiCopy",&Opt.MultiCopy,0, 0},
-  /* IS $ */
   {1, REG_DWORD,  NKeyInterface, "ShowMenuBar",&Opt.ShowMenuBar,0, 0},
   {1, REG_DWORD,  NKeyInterface, "AutoComplete",&Opt.AutoComplete,0, 0},
   {0, REG_DWORD,  NKeyInterface, "CursorSize1",&Opt.CursorSize[0],15, 0},
@@ -1205,6 +1204,13 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeySystem,"CopyTimeRule",  &Opt.CopyTimeRule, 3, 0},
   {0, REG_SZ,     NKeySystem,"ConsoleDetachKey", KeyNameConsoleDetachKey, sizeof(KeyNameConsoleDetachKey),"CtrlAltTab"},
   {1, REG_SZ,     NKeySystem,"PersonalPluginsPath",Opt.PersonalPluginsPath,sizeof(Opt.PersonalPluginsPath),PersonalPluginsPath},
+  /* $ 07.12.2001 IS
+     ! опция "разрешить мультикопирование/перемещение/создание связей"
+     + опция "создание нескольких каталогов за один раз"
+  */
+  {1, REG_DWORD,  NKeySystem, "MultiCopy",&Opt.MultiCopy,0, 0},
+  {1, REG_DWORD,  NKeySystem, "MultiMakeDir",&Opt.MultiMakeDir,0, 0},
+  /* IS $ */
   /* $ 02.04.2001 VVM
     + Будет влиять на:
         добавление файлов в историю с разным регистром

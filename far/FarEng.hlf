@@ -1028,12 +1028,13 @@ simply separate the folder names with the backslash character. For example:
 
     #%USERDOMAIN%\%USERNAME%\Folder3#
 
-    It is also possible to create multiple folders at the same time.
-In order to do this, you should separate the folder names with semicolons
-("#;#") or comma ("#,#"). If the name of a folder contains a semicolon (or
-comma), it should be enclosed in quotation marks. For example:
-
-    #C:\Foo1;"E:\foo2;";D:\foo3#
+    Если включена опция "#Обрабатывать несколько имен каталогов#", то
+можно создавать несколько папок за один раз. В этом случае имена папок
+должны быть разделены символом-разделителем "#;#" или "#,#". Если эта опция
+включена и имя каталога содержит в себе символ "#;#" (или "#,#"), то оно
+должно быть взято в кавычки. Например, если будет введено
+#C:\Foo1;"E:\foo,2;";D:\foo3#, то будут созданы каталоги с именами:
+"#C:\Foo1#", "#E:\foo,2#" и "#D:\foo3#".
 
 @FindFile
 $ #Find file#

@@ -5,10 +5,13 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.107 05.12.2001 $ */
+/* Revision: 1.108 07.12.2001 $ */
 
 /*
 Modify:
+  07.12.2001 IS
+    + FarInputBox - обертка вокруг GetString для плагинов - с меньшей
+      функциональностью. Сделано для того, чтобы не дублировать код GetString.
   05.12.2001 SVS
     ! Временно отключаем обработку исключений на этом уровне.
   30.11.2001 DJ
@@ -319,6 +322,19 @@ extern char DirToSet[NM];
 
 
 void ScanPluginDir();
+
+/* $ 07.12.2001 IS
+   Обертка вокруг GetString для плагинов - с меньшей функциональностью.
+   Сделано для того, чтобы не дублировать код GetString.
+*/
+int WINAPI FarInputBox(const char *Title,const char *Prompt,
+                     const char *HistoryName,const char *SrcText,
+    char *DestText,int DestLength,const char *HelpTopic,DWORD Flags)
+{
+   return GetString(Title,Prompt,HistoryName,SrcText,DestText,DestLength,
+     HelpTopic,Flags&~FIB_CHECKBOX,NULL,NULL);
+}
+/* IS $ */
 
 /* $ 12.09.2000 SVS
   + Реализация флагов для вывода помощи.

@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.170 03.12.2001 $ */
+/* Revision: 1.171 07.12.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,9 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  07.12.2001 IS
+    + FIB_CHECKBOX - добавить пользовательский чек-бокс к InputBox.
+      Только для внутренних нужд Фара!
   03.12.2001 SVS
     ! Нефига портить стройные ряды DM_* (по поводу вставки DM_LISTSET в
       середину списка)
@@ -1702,6 +1705,9 @@ enum INPUTBOXFLAGS{
   FIB_EXPANDENV        = 0x0004,
   FIB_NOUSELASTHISTORY = 0x0008,
   FIB_BUTTONS          = 0x0010,
+#ifdef FAR_USE_INTERNALS
+  FIB_CHECKBOX         = 0x10000,
+#endif // END FAR_USE_INTERNALS
 };
 
 typedef int (WINAPI *FARAPIINPUTBOX)(

@@ -7,10 +7,15 @@ fn.hpp
 
 */
 
-/* Revision: 1.120 06.12.2001 $ */
+/* Revision: 1.121 07.12.2001 $ */
 
 /*
 Modify:
+  07.12.2001 IS
+    ! Два дополнительных параметра у GetString, которые используются
+      при добавлении чек-бокса.
+    + FarInputBox - обертка вокруг GetString для плагинов - с меньшей
+      функциональностью. Сделано для того, чтобы не дублировать код GetString.
   06.12.2001 SVS
     ! PrepareDiskPath() - имеет доп.параметр - максимальный размер буфера
   02.12.2001 SVS
@@ -652,7 +657,14 @@ BOOL WINAPI FarShowHelp(const char *ModuleName,
                         const char *HelpTopic,DWORD Flags);
 /* IS $ */
 /* tran 18.08.2000 $ */
-
+/* $ 07.12.2001 IS
+   Обертка вокруг GetString для плагинов - с меньшей функциональностью.
+   Сделано для того, чтобы не дублировать код GetString.
+*/
+int WINAPI FarInputBox(const char *Title,const char *Prompt,
+                     const char *HistoryName,const char *SrcText,
+    char *DestText,int DestLength,const char *HelpTopic,DWORD Flags);
+/* IS $ */
 /* $ 06.07.2000 IS
   Функция, которая будет действовать и в редакторе, и в панелях, и...
 */
@@ -722,9 +734,15 @@ char* WINAPI PasteFromClipboard(void);
 /* $ 31.07.2000 SVS
     ! функция GetString имеет еще один параметр - расширение среды
 */
+/* $ 07.12.2001 IS
+   ! Два дополнительных параметра, которые используются при добавлении
+     чек-бокса
+*/
 int WINAPI GetString(const char *Title,const char *SubTitle,
                      const char *HistoryName,const char *SrcText,
-    char *DestText,int DestLength,const char *HelpTopic=NULL,DWORD Flags=0);
+    char *DestText,int DestLength,const char *HelpTopic=NULL,DWORD Flags=0,
+    int *CheckBoxValue=NULL,const char *CheckBoxText=NULL);
+/* IS $ */
 /* SVS $ */
 int WINAPI GetNameAndPassword(char *Title,char *UserName,char *Password,char *HelpTopic,DWORD Flags);
 

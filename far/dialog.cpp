@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.191 04.12.2001 $ */
+/* Revision: 1.192 07.12.2001 $ */
 
 /*
 Modify:
+  07.12.2001 IS
+    ! флаг DIF_EDITOR не сбрасывается также для DI_FIXEDIT и DI_PSWEDIT
+      (теряли совместимость со старым api)
   04.12.2001 SVS
     ! забыли отцентрировать кпопки (DIF_CENTERGROUP) после расширябильности
   04.12.2001 SVS
@@ -1195,8 +1198,10 @@ int Dialog::InitDialogObjects(int ID)
     // "редакторы" - разговор особый...
     if (IsEdit(Type))
     {
-      // сбросим флаг DIF_EDITOR для строки ввода, отличной от DI_EDIT
-      if((ItemFlags&DIF_EDITOR) && Type != DI_EDIT)
+      // сбросим флаг DIF_EDITOR для строки ввода, отличной от DI_EDIT,
+      // DI_FIXEDIT и DI_PSWEDIT
+      if((ItemFlags&DIF_EDITOR) &&
+         Type != DI_EDIT && Type != DI_FIXEDIT && Type != DI_PSWEDIT)
         ItemFlags&=~DIF_EDITOR;
 
       if (!DialogMode.Check(DMODE_CREATEOBJECTS))
@@ -1212,7 +1217,7 @@ int Dialog::InitDialogObjects(int ID)
       /* $ 26.07.2000 SVS
          Ну наконец-то - долгожданный нередактируемый ComboBox
       */
-      /* $ 30.11.200 SVS
+      /* $ 30.11.200? SVS
          Уточним на что влияет флаг DIF_DROPDOWNLIST
       */
       if (Type == DI_COMBOBOX)

@@ -5,10 +5,12 @@ stddlg.cpp
 
 */
 
-/* Revision: 1.19 05.12.2001 $ */
+/* Revision: 1.20 07.12.2001 $ */
 
 /*
 Modify:
+  07.12.2001 IS
+    + В GetString можно добавлять CheckBox
   05.12.2001 SVS
     ! Временно отключаем обработку исключений на этом уровне.
   27.09.2001 IS
@@ -396,12 +398,18 @@ static long WINAPI GetStringDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
   return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
+/* $ 07.12.2001 IS
+   + Обработка пользовательского чек-бокса
+*/
 int WINAPI GetString(const char *Title,const char *Prompt,
                      const char *HistoryName,const char *SrcText,
-    char *DestText,int DestLength,const char *HelpTopic,DWORD Flags)
+    char *DestText,int DestLength,const char *HelpTopic,DWORD Flags,
+    int *CheckBoxValue,const char *CheckBoxText)
 {
-  int Substract=3; // дополнительная величина :-)
+  int Substract=5; // дополнительная величина :-)
   int ExitCode;
+  bool addCheckBox=Flags&FIB_CHECKBOX && CheckBoxValue && CheckBoxText;
+  int offset=addCheckBox?2:0;
 /*
   0         1         2         3         4         5         6         7
   0123456789012345678901234567890123456789012345678901234567890123456789012345
@@ -410,9 +418,11 @@ int WINAPI GetString(const char *Title,const char *Prompt,
 |2   | Prompt                                                              |   |
 |3   | *******************************************************************|   |
 |4   +---------------------------------------------------------------------+   |
-|5   |                         [ Ok ]   [ Cancel ]                         |   |
+|5   + [x] CheckBox                                                        +   |
 |6   +---------------------------------------------------------------------+   |
-|7                                                                             |
+|7   |                         [ Ok ]   [ Cancel ]                         |   |
+|8   +---------------------------------------------------------------------+   |
+|9                                                                             |
 */
   static struct DialogData StrDlgData[]=
   {
@@ -422,20 +432,33 @@ int WINAPI GetString(const char *Title,const char *Prompt,
 /* 0 */ DI_DOUBLEBOX, 3, 1, 72, 4, 0, 0, 0,                0,"",
 /* 1 */ DI_TEXT,      5, 2,  0, 0, 0, 0, DIF_SHOWAMPERSAND,0,"",
 /* 2 */ DI_EDIT,      5, 3, 70, 3, 1, 0, 0,                1,"",
-/* 3 */ DI_TEXT,      0, 4,  0, 4, 0, 0, DIF_SEPARATOR,    0,"",
-/* 4 */ DI_BUTTON,    0, 5,  0, 0, 0, 0, DIF_CENTERGROUP,  0,"",
-/* 5 */ DI_BUTTON,    0, 5,  0, 0, 0, 0, DIF_CENTERGROUP,  0,""
+/* 3 */ DI_TEXT,      0, 4,  0, 0, 0, 0, DIF_SEPARATOR,    0,"",
+/* 4 */ DI_CHECKBOX,  5, 5,  0, 0, 0, 0, 0,                0,"",
+/* 5 */ DI_TEXT,      0, 6,  0, 0, 0, 0, DIF_SEPARATOR,    0,"",
+/* 6 */ DI_BUTTON,    0, 7,  0, 0, 0, 0, DIF_CENTERGROUP,  0,"",
+/* 7 */ DI_BUTTON,    0, 7,  0, 0, 0, 0, DIF_CENTERGROUP,  0,""
   };
   MakeDialogItems(StrDlgData,StrDlg);
 
+  if(addCheckBox)
+  {
+    Substract-=2;
+    StrDlg[0].Y2+=2;
+    StrDlg[4].Selected=(*CheckBoxValue)?TRUE:FALSE;
+    strcpy(StrDlg[4].Data,CheckBoxText);
+  }
+
   if(Flags&FIB_BUTTONS)
   {
-    Substract=0;
+    Substract-=3;
     StrDlg[0].Y2+=2;
     StrDlg[2].DefaultButton=0;
-    StrDlg[4].DefaultButton=1;
-    strcpy(StrDlg[4].Data,FarMSG(MOk));
-    strcpy(StrDlg[5].Data,FarMSG(MCancel));
+    StrDlg[4+offset].DefaultButton=1;
+    StrDlg[5+offset].Y1=StrDlg[4+offset].Y1=5+offset;
+    StrDlg[4+offset].Type=StrDlg[5+offset].Type=DI_BUTTON;
+    StrDlg[4+offset].Flags=StrDlg[5+offset].Flags=DIF_CENTERGROUP;
+    strcpy(StrDlg[4+offset].Data,FarMSG(MOk));
+    strcpy(StrDlg[5+offset].Data,FarMSG(MCancel));
   }
 
   if(Flags&FIB_EXPANDENV)
@@ -478,7 +501,7 @@ int WINAPI GetString(const char *Title,const char *Prompt,
 
   {
     Dialog Dlg(StrDlg,sizeof(StrDlg)/sizeof(StrDlg[0])-Substract,GetStringDlgProc);
-    Dlg.SetPosition(-1,-1,76,(Flags&FIB_BUTTONS)?8:6);
+    Dlg.SetPosition(-1,-1,76,offset+((Flags&FIB_BUTTONS)?8:6));
 
     if (HelpTopic!=NULL)
       Dlg.SetHelp(HelpTopic);
@@ -502,7 +525,9 @@ int WINAPI GetString(const char *Title,const char *Prompt,
     ExitCode=Dlg.GetExitCode();
   }
 
-  if (DestLength >= 1 && (ExitCode == 2 || ExitCode == 4))
+  if (DestLength >= 1 && (ExitCode == 2 || ExitCode == 4 ||
+      (addCheckBox && ExitCode == 6))
+     )
   {
     if(!(Flags&FIB_ENABLEEMPTY) &&
        (!(StrDlg[2].Flags&DIF_VAREDIT) && *StrDlg[2].Data==0 ||
@@ -515,14 +540,16 @@ int WINAPI GetString(const char *Title,const char *Prompt,
       strncpy(DestText,StrDlg[2].Data,DestLength-1);
       DestText[DestLength-1]=0;
     }
+    if(addCheckBox)
+      *CheckBoxValue=StrDlg[4].Selected;
     return(TRUE);
   }
   return(FALSE);
 }
+/* IS $ */
 /* SVS $*/
 /* 01.08.2000 SVS $*/
 /* 25.08.2000 SVS $*/
-
 
 /*
   Стандартный диалог ввода пароля.
