@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.36 02.04.2001 $ */
+/* Revision: 1.37 06.04.2001 $ */
 
 /*
 Modify:
+  06.04.2001 SVS
+    - забыли перерисовать панели после вызова диалога атрибутов по CtrlShiftF4
   04.04.2001 SVS
     + дополнительная проверка в FileList::ChangeDir()
       *RemoteName != 0 перед вызовом нетворк плагина
@@ -832,7 +834,10 @@ int FileList::ProcessKey(int Key)
       if (PanelMode!=PLUGIN_PANEL ||
           CtrlObject->Plugins.UseFarCommand(hPlugin,PLUGIN_FAROTHER))
         if (FileCount>0 && SetCurPath())
+        {
           ShellSetFileAttributes(this);
+          Show();
+        }
       return(TRUE);
     case KEY_CTRLG:
       if (PanelMode!=PLUGIN_PANEL ||
