@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.03 14.01.2001 $ */
+/* Revision: 1.04 14.01.200116.02.2001 $ */
 
 /*
 Modify:
+  16.02.2001 OT
+    - БАГА при очень широком столбце в панели
   14.01.2001 SVS
     ! 'P' - обозначающий reparse point заменен на 'L'
   20.10.2000 SVS
@@ -123,7 +125,7 @@ void FileList::ShowFileList(int Fast)
         if (NewTitle!=NULL)
           Title=NewTitle;
       }
-      char TitleMsg[100];
+      char TitleMsg[256];
       CenterStr(Title,TitleMsg,ViewSettings.ColumnWidth[I]);
       SetColor(COL_PANELCOLUMNTITLE);
       GotoXY(ColumnPos,Y1+1);
