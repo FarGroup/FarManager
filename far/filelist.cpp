@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.39 24.04.2001 $ */
+/* Revision: 1.40 24.04.2001 $ */
 
 /*
 Modify:
+  24.04.2001 IS
+    - По ctrlpgup проинициализируем заново режим панели (иначе некоторые
+      параметры теряются, почему - ХЗ).
   24.04.2001 VVM
     + Функция смены порядка сортировки
   09.04.2001 SVS
@@ -1402,7 +1405,14 @@ int FileList::ProcessKey(int Key)
          Не перерисовываем, если ChangeDir закрыла панель
       */
       if(ChangeDir(".."))
+      /* $ 24.04.2001 IS
+           Проинициализируем заново режим панели.
+      */
+      {
+        SetViewMode(GetViewMode());
         Show();
+      }
+      /* IS $ */
       /* SVS $ */
       return(TRUE);
     case KEY_CTRLPGDN:
