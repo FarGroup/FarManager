@@ -11,7 +11,7 @@ $^#Copyright (C) 2000-2001 FAR Group.#
    ~Keyboard reference~@KeyRef@
    ~Command line switches~@CmdLine@
    ~Plugins support~@Plugins@
-   ~Plugins possibilities review~@PluginsReviews@
+   ~Overview of plugin capabilities~@PluginsReviews@
 
    ~Panels:~@Panels@  ~File panel~@FilePanel@
             ~Tree panel~@TreePanel@
@@ -63,7 +63,7 @@ $ #How to use help#
     Help screens may have reference items on them that lead to another help
 screen. You may use #Tab# and #Shift-Tab# keys to move the cursor from one
 reference item to another, then press Enter to go to a help screen
-describing that item. With the mouse, you my click a reference to go to the
+describing that item. With the mouse, you may click a reference to go to the
 help screen about that item.
 
     If text does not completely fit in the help window, a scroll bar is
@@ -78,9 +78,9 @@ and #Shift-F1# to view the help contents.
 
 @About
 $ #About FAR#
-    FAR is a text mode file and archive manager for Windows 95, 98 and
-Windows NT. It supports #long file names# and provides a wide set of file
-and folder operations.
+    FAR is a text mode file and archive manager for Windows 95/98/Me,
+Windows NT and Windows 2000. It supports #long file names# and provides
+a wide set of file and folder operations.
 
     FAR is #shareware# software. You must ~register~@Register@ it to continue to
 use after 40-days trial period.
@@ -97,8 +97,8 @@ $ #How to register#
 after the 40-days trial period. Please read License.txt file for user license.
 
     Detailed registration instructions are provided in Register.txt.
-File Far_Site.txt contains list of FAR registration sites. You also
-may read latest version of this list on:
+File Far_Site.txt contains a list of FAR registration sites. You also
+may read the latest version of this list on:
 
     ~http://www.rarsoft.com~@http://www.rarsoft.com@
 
@@ -227,15 +227,16 @@ $ #Command line commands#
      names from a panel to the clipboard like #Ctrl-Shift-Ins#;
 
   2. #Ctrl-End# pressed at the end of the command line, replaces
-     its current contents with command from ~history~@History@, started
-     from already entered characters, if such a command exists.
-     You may press Ctrl-End again to go to the next such command.
+     its current contents with a command from ~history~@History@
+     beginning with the characters that are in the command line,
+     if such a command exists. You may press Ctrl-End again to go
+     to the next such command.
 
   3. Most of the described above commands are valid for all edit
      strings including edit controls in dialogs and internal editor.
 
-  4. #Ctrl-Alt-F# (#Ctrl-Alt-:#) works only for network drivers. For
-     local drivers no differences with #Ctrl-F# (#Ctrl-:#)
+  4. #Ctrl-Alt-F# (#Ctrl-Alt-:#) works only for network drives. For
+     local drives it has the same function as #Ctrl-F# (#Ctrl-:#)
 
 @FuncCmd
 $ #File management and service commands#
@@ -265,12 +266,12 @@ depending upon the file type and ~external editor settings~@EditorSettings@.
 
   Copy                                                            #F5#
 
-  Copies files and folders. If you wish to create a destination folder
+  Copies files and folders. If you wish to create the destination folder
 before copying, terminate the name with a backslash.
 
   Rename or move                                                  #F6#
 
-  Moves or renames files and folders. If you wish to create a destination
+  Moves or renames files and folders. If you wish to create the destination
 folder before moving, terminate the name with a backslash.
 
   Create new folder                                               #F7#
@@ -280,12 +281,12 @@ folder before moving, terminate the name with a backslash.
   Delete files and folders. F8 and Shift-Del process all selected files,
 Shift-F8 - only the file under the cursor. Shift-Del deletes files
 immediately, not to Recycle Bin as opposed to F8 and Shift-F8 if they are
-tuned to utilize the Recycle Bin method.
+configured to utilize the Recycle Bin method.
 
   Wipe                                                       #Alt-Del#
 
   Wipe files and folders. Before file deletion its data are overwritten
-with zeroes, after which the file is truncated and renamed to the temporary
+with zeroes, after which the file is truncated and renamed to a temporary
 name.
 
   Show ~menus~@Menus@ bar                                                  #F9#
@@ -314,8 +315,8 @@ editor if internal is default.
 
   Create hard link (NTFS only)                                #Alt-F6#
 
-  Using hard file links you may have several different file names,
-which refer to the same data.
+  Using hard file links you may have several different file names
+referring to the same data.
 
   Perform ~find file~@FindFile@ command                                   #Alt-F7#
 
@@ -360,34 +361,34 @@ $ #Miscellaneous#
 Use arrow keys or click the left mouse button to move the cursor. To select
 text use Shift-arrow keys or press the left mouse button. Enter, Ctrl-Ins,
 right mouse button or doubleclick copy selected text to clipboard, Ctrl-
-<Gray +> adds it to the clipboard contents, Esc discards grabbing.
+<Gray +> adds it to the clipboard contents, Esc leaves the grabbing mode.
 
   Record ~keyboard macro~@KeyMacro@                                     #Ctrl-<.>#
 
   History in dialog edit controls                 #Ctrl-Up, Ctrl-Down#
 
-  In dialog edit control history you may use Enter to copy a current item
-to edit control and Ins to mark or unmark item. Marked items are not pushed
-out of history by new items, so you may mark frequently used strings to always
-have them in history.
+  In dialog edit control history you may use Enter to copy the current item
+to the edit control and Ins to mark or unmark an item. Marked items are not
+pushed out of history by new items, so you may mark frequently used strings
+so that you will always have them in the history.
 
   Clear history in dialog edit controls                          #Del#
 
   Insert a file name under cursor to dialog              #Shift-Enter#
 
   This key combination is valid for all edit controls except the command
-line including dialogs and the ~internal editor~@Editor@.
+line, including dialogs and the ~internal editor~@Editor@.
 
-  In dialogs, when current management element is a Check Box:
+  In dialogs, when the current control is a check box:
 
   - turn On (#[x]#)                                           #Gray +#
   - turn Off (#[ ]#)                                          #Gray -#
-  - condition change to vague (#[?]#)                         #Gray *#
-    (if check box has three-positional condition)
+  - change to undefined (#[?]#)                               #Gray *#
+    (for three-state checkboxes)
 
-  Right click of mouse outside the dialog is similar keystroke Esc.
+  Right clicking outside the dialog works the same as pressing Esc.
 
-  Left click of mouse outside the dialog is similar keystroke Enter.
+  Left clicking outside the dialog works the same as pressing Enter.
 
 @CmdLine
 $ #Command line switches#
@@ -412,7 +413,7 @@ $ #Command line switches#
   #/p[<path>]#
         Search for "common" plugins in the directory, specified by
         <path>. If <path> not specified, "main" plugins will not
-        be loaded. It is also possible to type the Environment
+        be loaded. It is also possible to use environment
         variables in the "/p" command line switch.
 
         For example: far /p%SystemRoot%\Profiles\%USERNAME%\FAR
@@ -435,7 +436,7 @@ is a folder.
 $ #Plugins support#
     External DLL modules (plugins) may be used to implement new FAR commands
 and emulate file systems. For example, archives support, FTP client,
-temporary panel and network browser are emulating file system plugins.
+temporary panel and network browser are plugins that emulate file systems.
 
     All plugins are stored in separate folders within the 'Plugins' folder,
 which is in the same folder as FAR.EXE. When detecting a new plugin FAR
@@ -457,7 +458,7 @@ from ~Options menu~@OptMenu@.
 
     File processing operations like copy, move, delete, edit or ~Find
 file~@FindFile@ work with plugins, which emulate file systems, if these
-plugins provide necessary the functionality. Search from the current folder
+plugins provide necessary functionality. Search from the current folder
 in the "Find file" command requires less functionality than search from the
 root folder, so try to use it if search from the root folder does not work
 correctly.
@@ -465,14 +466,14 @@ correctly.
     The modules have their own message and help files. You can get a
 list of available help on the modules by pressing
 
-    #Shift-F2# - for the basic help FAR
+    #Shift-F2# - anywhere in the FAR help system
 
     #Shift-F1# - in the list of plugins (context-dependent help).
 
     If the plugin has no help file, then context-dependent prompt will
-not pop out. While calling for a context prompt in  the  list
-#Plugin configuration# FAR will try to show the theme with the name
-#Config#. If this theme is not in the plugin help, then the basic help theme
+not pop out. While calling for a context prompt in the  list
+#Plugin configuration# FAR will try to show the topic with the name
+#Config#. If this topic is not in the plugin help, then the basic help topic
 on this plugin will be shown.
 
     If the active panel shows a plugin emulated file system, the command
@@ -481,31 +482,28 @@ folder. Unlike "CD" "CHDIR" command always treats the specified parameter as
 a real folder name regardless a file panel type.
 
 @PluginsReviews
-$ #Plugins possibilities review#
-    The FAR manager shell as far as possible integrated with its
-plugins, so to talk about FAR and do not talk about plugins is simply
-senselessly. Plugins are extremely widen FAR manager possibilities,
-adding and modifying them.
+$ #Overview of plugin capabilites#
+    The FAR manager is so tightly integrated with its plugins that it
+is simply meaningless to talk about FAR and not to mention the plugins.
+Plugins present an almost limitless expansion of the features of FAR.
 
-    Not falling into details one can note only some of these
-possibilities:
+    Without going into details, some of the capabililities can be noted:
 
   * syntax highlighting in program source texts.
   * working with FTP-servers (including access through proxy).
-  * simultaneous symbols search and replace in much number of files,
-    using regular expressions.
-  * files groups renaming with possibility of use a complex
-    compound masks, consisting of substitution symbols and
-    templates.
-  * NNTP/SMTP/POP3/IMAP4 clients and sending a messages to a pager.
+  * search and replace in many files at the same time, using regular
+    expressions.
+  * renaming groups of files with support for complex compound masks
+    consisting of substitution symbols and templates.
+  * NNTP/SMTP/POP3/IMAP4 clients and sending messages to a pager.
   * working with non-standard text screen resolutions.
-  * Texts code conversion in view of national code tables.
-  * Manipulating with contents of Recycle Bin.
+  * conversion of texts from one national code page to another.
+  * manipulating the contents of the Recycle Bin.
   * Process priority control on local or network PC.
   * Words autocomplete in editor and working with templates.
   * Windows system registry editing.
   * Creating and modifying Windows shortcuts.
-  * Files an text manipulating, making FIDO working more comfortable.
+  * File and text operations making it more comfortable to use FidoNet.
   * Files UU-encode and UU-decode.
   * WinAmp control and MP3-tags modifying.
   * Quake PAK-files processing.
@@ -517,13 +515,13 @@ possibilities:
     editing text in FAR editor.
   * Windows help files contents displaying (.hlp and .chm)
   * Calculators with different possibilities.
-  * Different games :-)
+  * Several games :-)
   * Spell checker functions while editing text in FAR editor.
-  * Removable drives directory preparation and much more...
+  * Removable drives catalog preparation and much more...
 
-    It is useless to enumerate all the functions, which are provided
-by FAR and its plugins, because their list is constantly increased. As
-an information source, which can be used to search for concrete
+    It is useless to list all the functions, which are provided
+by FAR and its plugins, because this list is constantly growing. As
+an information source, which can be used to search for specific
 plugins, one can recommend:
   - PlugRinG site
     ~http://www.uic.nnov.ru/~~ruiv/plugring/downld/~@http://www.uic.nnov.ru/~ruiv/plugring/cgi-bin/downld.cgi?Lang=Eng@
