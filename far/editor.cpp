@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.142 10.01.2002 $ */
+/* Revision: 1.143 11.01.2002 $ */
 
 /*
 Modify:
+  11.01.2002 IS
+    - Странное поведение после 1160
   10.01.2002 SVS
     + ECTLToName - для логов
   07.01.2002 IS
@@ -479,6 +481,7 @@ Editor::Editor()
   DisableOut=0;
   Pasting=0;
   Modified=0;
+  CurPosChangedByPlugin=FALSE;
   /*$ 10.08.2000 skv
     Initialization
   */
@@ -1840,15 +1843,23 @@ int Editor::ProcessKey(int Key)
         DisableOut++;
         Edit::DisableEditOut(TRUE);
         /* OT $ */
+
         /* $ 07.01.2002 IS
            Сверим позицию курсора и существующего выделения, если есть
            противоречие, то начнем новое выделение
         */
-        int SelStart, SelEnd, CurPos=CurLine->EditLine.GetCurPos();
-        CurLine->EditLine.GetSelection(SelStart,SelEnd);
-        if(CurPos<=SelStart)
-          MarkingBlock=MarkingVBlock=FALSE;
+        int CurPos;
+        if(CurPosChangedByPlugin)
+        {
+          int SelStart, SelEnd;
+          CurPos=CurLine->EditLine.GetCurPos();
+          CurLine->EditLine.GetSelection(SelStart,SelEnd);
+          if(SelStart!=-1 && (CurPos<SelStart || CurPos>SelEnd))
+            MarkingBlock=MarkingVBlock=FALSE;
+          CurPosChangedByPlugin=FALSE;
+        }
         /* IS 07.02.2002 $ */
+
         while (1)
         {
           char *Str;
@@ -1891,15 +1902,23 @@ int Editor::ProcessKey(int Key)
         Pasting++;
         DisableOut++;
         Edit::DisableEditOut(TRUE);
-        /* $ 07.01.2002 IS
+
+        /* $ 11.01.2002 IS
            Сверим позицию курсора и существующего выделения, если есть
            противоречие, то начнем новое выделение
         */
-        int SelStart, SelEnd, CurPos=CurLine->EditLine.GetCurPos();
-        CurLine->EditLine.GetSelection(SelStart,SelEnd);
-        if(CurPos<=SelStart)
-          MarkingBlock=MarkingVBlock=FALSE;
+        int CurPos;
+        if(CurPosChangedByPlugin)
+        {
+          int SelStart, SelEnd;
+          CurPos=CurLine->EditLine.GetCurPos();
+          CurLine->EditLine.GetSelection(SelStart,SelEnd);
+          if(CurPos<=SelStart)
+            MarkingBlock=MarkingVBlock=FALSE;
+          CurPosChangedByPlugin=FALSE;
+        }
         /* IS 07.02.2002 $ */
+
         while (1)
         {
           char *Str;
@@ -5250,7 +5269,10 @@ int Editor::EditorControl(int Command,void *Param)
       {
         struct EditorSetPosition *Pos=(struct EditorSetPosition *)Param;
         DisableOut++;
+        if (Pos->CurLine!=-1 || Pos->CurPos!=-1)
+          CurPosChangedByPlugin=TRUE;
         if (Pos->CurLine!=-1)
+        {
           if (Pos->CurLine==NumLine-1)
             Up();
           else
@@ -5258,6 +5280,7 @@ int Editor::EditorControl(int Command,void *Param)
               Down();
             else
               GoToLine(Pos->CurLine);
+        }
         if (Pos->TopScreenLine!=-1 && Pos->TopScreenLine<=NumLine)
         {
           TopScreen=CurLine;

@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.63 26.12.2001 $ */
+/* Revision: 1.64 11.01.2002 $ */
 
 /*
 Modify:
+  11.01.2002 SVS
+    - Не квочились пути с пробелами при вставке.
   26.12.2001 SVS
     + Свой курсор для Overtype режима
   21.12.2001 SVS
@@ -904,7 +906,7 @@ int Edit::ProcessKey(int Key)
             strcat(FileList::AddPluginPrefix(SrcFilePanel,PanelDir),NullToEmpty(Info.CurDir));
           }
           AddEndSlash(PanelDir);
-
+          QuoteSpace(PanelDir);
 
           /* $ 03.07.2000 tran
              - bug#10, если был выделен текст, то удаляем его */

@@ -9,10 +9,12 @@ editor.hpp
 
 */
 
-/* Revision: 1.30 25.12.2001 $ */
+/* Revision: 1.31 11.01.2002 $ */
 
 /*
 Modify:
+  11.11.2002 IS
+    + CurPosChangedByPlugin
   25.12.2001 SVS
     + ResizedConsole - при изменении консоли = 1
   14.12.2001 IS
@@ -198,6 +200,8 @@ class Editor:public ScreenObject
     int BlockUndo;
 
     int MaxRightPos;
+    int CurPosChangedByPlugin; // TRUE, если позиция в редакторе была изменена
+                               // плагином (ECTL_SETPOSITION)
 
     unsigned char LastSearchStr[SEARCHSTRINGBUFSIZE];
     /* $ 30.07.2000 KM
