@@ -5,10 +5,14 @@ ScreenSaver
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 10.10.2000 $ */
 
 /*
 Modify:
+  10.10.2000 SVS
+    ! Незначительное уточнение в строке:
+      if (Star[I].Type!=STAR_NONE && (Step%Star[I].Speed)==0)
+                                     ^                  ^
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
@@ -86,7 +90,7 @@ static void ShowSaver(int Step)
 {
   int I;
   for (I=0;I<sizeof(Star)/sizeof(Star[0]);I++)
-    if (Star[I].Type!=STAR_NONE && Step%Star[I].Speed==0)
+    if (Star[I].Type!=STAR_NONE && (Step%Star[I].Speed)==0)
     {
       SetColor(F_LIGHTCYAN|B_BLACK);
       GotoXY(Star[I].X/100,Star[I].Y/100);

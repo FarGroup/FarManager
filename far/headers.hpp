@@ -5,10 +5,12 @@ headers.cpp
 
 */
 
-/* Revision: 1.05 19.09.2000 $ */
+/* Revision: 1.06 11.10.2000 $ */
 
 /*
 Modify:
+  11.10.2000 SVS
+    ! В BC RAND_MAX = 0x7fffU, а не 0x7fff
   19.09.2000 SVS
     + выравнивание на 2 байта
   19.07.2000 SVS
@@ -115,10 +117,10 @@ Modify:
       компиляции VC++
   */
   #ifndef RAND_MAX
-  #define RAND_MAX 0x7fff
+  #define RAND_MAX 0x7fffU
   #endif
   #define randomize() srand(67898)
-  #define random(x) ((int) (((x) *  rand()) / RAND_MAX) )
+  #define random(x) ((int) (((x) *  rand()) / (RAND_MAX+1)) )
   /* OT $ */
 
   /* $ 19.07.2000 SVS

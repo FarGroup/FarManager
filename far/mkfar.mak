@@ -36,9 +36,9 @@ FINALPATH=final
 .path.exe = $(FINALPATH)
 
 !ifdef TRY
-OPTEXT=-k
+OPTEXT=-x
 !else
-OPTEXT=-k-
+OPTEXT=-x-
 !endif
 
 !ifdef DEBUG
@@ -203,6 +203,7 @@ $<,$*
 $(LIBPATH)\import32.lib $(LIBPATH)\cw32mt.lib
 far.def
 |
+   @copy far.map $(FINALPATH)\far.map
    @$(BRC32) $(OBJPATH)\far.res $(OBJPATH)\far.res $<
 !endif
 
@@ -240,7 +241,6 @@ BccW32.cfg : mkfar.mak cc.bat
 -f-
 -R-
 -k-
--x-
 -RT
 -Og
 -Ot

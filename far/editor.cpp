@@ -6,12 +6,15 @@ editor.cpp
 
 */
 
-/* Revision: 1.37 01.10.2000 $ */
+/* Revision: 1.38 11.10.2000 $ */
 
 /*
 Modify:
+   11.10.2000 SVS
+    ! Bs удаляет блок так же, как и Del
+    - "Редактировали, залочили, при выходе - потеряли файл :-("
    01.10.2000 IS
-      ! Показывать букву диска в статусной строке
+    ! Показывать букву диска в статусной строке
    24.09.2000 SVS
     + Работа по сохранению/восстановлению позиций в файле по RCtrl+<N>
     + Перекодировка Xlat
@@ -527,8 +530,12 @@ int Editor::ReadFile(char *Name,int &UserBreak)
 
 int Editor::SaveFile(char *Name,int Ask,int TextFormat)
 {
-  if (LockMode)
+  /* $ 11.10.2000 SVS
+     Редактировали, залочили, при выходе - потеряли файл :-(
+  */
+  if (LockMode && !Modified)
     return(1);
+  /* SVS $ */
 
   FILE *EditFile;
   struct EditList *CurPtr;
@@ -1438,7 +1445,22 @@ int Editor::ProcessKey(int Key)
         */
         TextChanged(1);
         /* skv $*/
-        if (!Pasting && !Opt.EditorPersistentBlocks && BlockStart!=NULL)
+        /* $ 11.10.2000 SVS
+           Bs удаляет блок так же, как и Del
+        */
+        int IsDelBlock=FALSE;
+        if(Opt.EditorBSLikeDel)
+        {
+          if (!Pasting && Opt.EditorDelRemovesBlocks && (BlockStart!=NULL || VBlockStart!=NULL))
+            IsDelBlock=TRUE;
+        }
+        else
+        {
+          if (!Pasting && !Opt.EditorPersistentBlocks && BlockStart!=NULL)
+            IsDelBlock=TRUE;
+        }
+        if (IsDelBlock)
+        /* SVS $ */
           DeleteBlock();
         else
           if (CurPos==0 && CurLine->Prev!=NULL)

@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.08 14.08.2000 $ */
+/* Revision: 1.09 11.10.2000 $ */
 
 /*
 Modify:
+  11.10.2000 SVS
+   ! Если Dest-панель плагиновая, то не показываем "[ ] Only never..."
   14.08.2000 SVS
    ! Данные, усеченные до 40 символов... :-(
      А потом используются (CopyDlg[2].Data) по полной программе...
@@ -103,6 +105,18 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
   AnotherPanel=CtrlObject->GetAnotherPanel(SrcPanel);
   PanelMode=DestPlugin ? AnotherPanel->GetMode():NORMAL_PANEL;
   SrcPanelMode=SrcPanel->GetMode();
+
+  /* $ 11.10.2000 SVS
+     Если противоположная панель - плагин, то не показываем
+     "[ ] Только новые/обновленные файлы"
+  */
+  if(PanelMode == PLUGIN_PANEL)
+  {
+    CopyDlg[5].Data[0]=0;
+    CopyDlg[5].Selected=0;
+    CopyDlg[5].Type=DI_TEXT;
+  }
+  /* SVS $ */
 
   CopyBuffer=NULL;
   *RenamedName=*CopiedName=0;

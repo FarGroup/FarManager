@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.26 05.10.2000 $ */
+/* Revision: 1.27 11.10.2000 $ */
 
 /*
 Modify:
+  11.10.2000 SVS
+   + Opt.EditorBSLikeDel - если = 0, то BS действует как в FAR 1.65
   05.10.2000 SVS
     ! Все новые фишки (из TechInfo) только читаем...
   27.09.2000 SVS
@@ -722,6 +724,8 @@ void ReadConfig()
   */
   GetRegKey("Editor","WordDiv",Opt.WordDiv,WordDiv0,79);
   /* SVS $ */
+  GetRegKey("Editor","BSLikeDel",Opt.EditorBSLikeDel,1);
+
   /* $ 03.08.2000 SVS
      Исключаем случайное стирание разделителей ;-)
   */

@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.20 27.09.2000 $ */
+/* Revision: 1.21 10.10.2000 $ */
 
 /*
 Modify:
+  10.10.2000 SVS
+   + Opt.EditorBSLikeDel
   27.09.2000 SVS
    + Opt.HelpURLRules - =0 отключить возможность запуска URL-приложений
    + Opt.AllCtrlAltShiftRule - битовые флаги, задают поведение Ctrl-Alt-Shift
@@ -226,6 +228,7 @@ struct Options
   int EditorAutoIndent;
   int EditorAutoDetectTable;
   int EditorCursorBeyondEOL;
+  int EditorBSLikeDel;
   /* $ 03.08.2000 SVS
      Разграничитель слов из реестра
   */
