@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.166 15.12.2003 $ */
+/* Revision: 1.167 25.12.2003 $ */
 
 /*
 Modify:
+  25.12.2003 SVS
+    ! принудительная инициализация структуры MRec
   15.12.2003 SVS
     ! Инициализация MacroRecord в ACTL_POSTKEYSEQUENCE
   25.11.2003 SVS
@@ -802,7 +804,8 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     {
       if(CtrlObject && Param && ((struct KeySequence*)Param)->Count > 0)
       {
-        struct MacroRecord MRec={0};
+        struct MacroRecord MRec;
+        memset(&MRec,0,sizeof(struct MacroRecord));
         MRec.Flags=(((struct KeySequence*)Param)->Flags)<<8;
         MRec.BufferSize=((struct KeySequence*)Param)->Count;
         if(MRec.BufferSize == 1)

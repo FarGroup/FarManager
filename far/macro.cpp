@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.113 20.12.2003 $ */
+/* Revision: 1.114 25.12.2003 $ */
 
 /*
 Modify:
+  25.12.2003 SVS
+    - падение ФАРа при повторном использовании макроса - не инициализ. Src
   20.12.2003 IS
     - Падение при выполнении только что записанного макроса после предыдущего изменения
       (Ctrl-., a Ctrl-., Ctrl-~, Ctrl-~ -> падение)
@@ -775,8 +777,14 @@ int KeyMacro::ProcessKey(int Key)
           }
           MacroLIBCount++;
         }
-        else if(MacroLIB[Pos].BufferSize > 1 && MacroLIB[Pos].Buffer)
-          xf_free(MacroLIB[Pos].Buffer);
+        else
+        {
+          if(MacroLIB[Pos].BufferSize > 1 && MacroLIB[Pos].Buffer)
+            xf_free(MacroLIB[Pos].Buffer);
+          if(MacroLIB[Pos].Src)
+            xf_free(MacroLIB[Pos].Src);
+        }
+        MacroLIB[Pos].Src=NULL;
         MacroLIB[Pos].Key=MacroKey;
         if(RecBufferSize > 1)
           MacroLIB[Pos].Buffer=RecBuffer;
@@ -1643,6 +1651,7 @@ int KeyMacro::ReadMacros(int ReadMode,char *Buffer,int BufferSize)
     CurMacro.BufferSize=0;
     CurMacro.Flags=MFlags|(ReadMode&MFLAGS_MODEMASK);
     GetRegKey(RegKeyName,"Sequence",Buffer,"",BufferSize);
+    CurMacro.Src=NULL;
     //CurMacro.Src=strdup(Buffer);
 
     for(J=0; J < sizeof(MKeywordsFlags)/sizeof(MKeywordsFlags[0]); ++J)
@@ -2117,7 +2126,8 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
 
 int KeyMacro::PostNewMacro(char *PlainText,DWORD Flags)
 {
-  struct MacroRecord NewMacroWORK2={0};
+  struct MacroRecord NewMacroWORK2;
+  memset(&NewMacroWORK2,0,sizeof(struct MacroRecord));
 
   // сначала смотрим на парсер
   if(!ParseMacroString(&NewMacroWORK2,PlainText))
@@ -2154,7 +2164,7 @@ int KeyMacro::PostNewMacro(struct MacroRecord *MRec,BOOL NeedAddSendFlag)
   if(!MRec)
     return FALSE;
 
-  struct MacroRecord NewMacroWORK2={0};
+  struct MacroRecord NewMacroWORK2;
   memcpy(&NewMacroWORK2,MRec,sizeof(struct MacroRecord));
 
 //  if(MRec->BufferSize > 1)
