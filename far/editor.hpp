@@ -7,7 +7,7 @@ editor.hpp
 
 */
 
-/* Revision: 1.01 05.07.2000 $ */
+/* Revision: 1.02 14.07.2000 $ */
 
 /*
 Modify:
@@ -18,6 +18,8 @@ Modify:
     ! изменил тип возврата у GoToLine() с 'void ' на 'int'
       возвращаемое значение - это колонка, введенная пользователем
       используется только в одном месте - в обработке Alt-F8
+  14.07.2000 tran
+    ! функцию GetRowCol сделал методом класса
 */
 
 class Editor:public ScreenObject
@@ -134,6 +136,11 @@ class Editor:public ScreenObject
     void SetHostFileEditor(FileEditor *Editor) {HostFileEditor=Editor;};
     static int IsShiftKey(int Key);
     static void SetReplaceMode(int Mode);
+
+    /* $ tran 14.07.2000
+      + goto to percent support */
+    BOOL GetRowCol(char *argv,int *row,int *col);
+    /* tran 14.07.2000 $ */
 };
 
 struct EditList

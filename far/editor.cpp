@@ -5,7 +5,7 @@ editor.cpp
 
 */
 
-/* Revision: 1.07 13.07.2000 $ */
+/* Revision: 1.08 14.07.2000 $ */
 
 /*
 Modify:
@@ -27,6 +27,10 @@ Modify:
     + строка статуса рисуется с учетом ширины консоли.
   13.07.2000 SVS
     ! Некоторые коррекции при использовании new/delete/realloc
+  14.07.2000 tran
+    + переход на проценты
+      вводим 50%, попадаем прямо в середину
+      функция GetRowCol стала методом класса
 */
 
 #include "headers.hpp"
@@ -42,7 +46,6 @@ static struct CharTableSet InitTableSet;
 static int InitUseDecodeTable=FALSE,InitTableNum=0,InitAnsiText=FALSE;
 
 static int ReplaceMode,ReplaceAll;
-static BOOL GetRowCol(char *argv,int *row,int *col);
 
 static int EditorID=0;
 
@@ -2924,7 +2927,7 @@ int Editor::GoToLine(int Line)
       TRUE  - абсолютное смещение
       FALSE - относительное
 */
-static BOOL GetRowCol(char *argv,int *row,int *col)
+BOOL Editor::GetRowCol(char *argv,int *row,int *col)
 {
   int x=0,y=0,l;
   BOOL IsAbsMode=TRUE;
@@ -2954,6 +2957,11 @@ static BOOL GetRowCol(char *argv,int *row,int *col)
   {
     y=atoi(argv);
   }
+  /* $ 14.07.2000 tran
+    + переход на проценты */
+  if ( strchr(argv,'%')!=0 )
+    y=NumLastLine * y / 100;
+  /* tran $ */
   *row=y;
   *col=x;
   return IsAbsMode;
