@@ -7,8 +7,11 @@ copy.cpp
 
 /* Revision: 1.133 16.04.2004 $ */
 
+
 /*
 Modify:
+  21.04.2004 SVS
+    - BugZ#1059 - возможно надо форматирование строки пути улучшить
   16.04.2004 SVS
     - BugZ#1049 - градусник прогресса копирования неправильно инициализируется
     ! для года отдадим 4 цифры (в месаг боксе на перезапись)
@@ -2635,11 +2638,10 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
     //????
 
     char Msg1[2*NM],Msg2[2*NM];
-    sprintf(Msg1,(ShellCopy::Flags&FCOPY_LINK) ? MSG(MCannotLink):
-                   (ShellCopy::Flags&FCOPY_MOVE) ? MSG(MCannotMove):
-                     MSG(MCannotCopy),
-            Src);
-    sprintf(Msg2,MSG(MCannotCopyTo),DestPath);
+    int MsgMCannot=(ShellCopy::Flags&FCOPY_LINK) ? MCannotLink: (ShellCopy::Flags&FCOPY_MOVE) ? MCannotMove: MCannotCopy;
+    InsertQuote(TruncPathStr(strcpy(Msg1,Src),64));
+    InsertQuote(TruncPathStr(strcpy(Msg2,DestPath),64));
+
     {
       int MsgCode;
       /* $ 02.03.2002 KM
@@ -2652,7 +2654,11 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
       {
         CopyTime+= (clock() - CopyStartTime);
         MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
-                        Msg1,Msg2,MSG(MCopyRetry),MSG(MCopySkip),
+                        MSG(MsgMCannot),
+                        Msg1,
+                        MSG(MCannotCopyTo),
+                        Msg2,
+                        MSG(MCopyRetry),MSG(MCopySkip),
                         MSG(MCopySkipAll),MSG(MCopyCancel));
         CopyStartTime = clock();
       }

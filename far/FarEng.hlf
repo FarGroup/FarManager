@@ -3635,7 +3635,7 @@ execution inside a macro sequence.
        #Info#                 info panel
        #QView#                quick view panel
        #Tree#                 tree panel
-       #Other#                screen grabber, vertical menus
+       #Other#                screen grabber
 
      - check panel state
 

@@ -326,10 +326,10 @@
 "S&kip all"
 "&Cancel"
 
-"Cannot copy %s"
-"Cannot move %s"
-"Cannot link %s"
-"to %s"
+"Cannot copy"
+"Cannot move"
+"Cannot link"
+"to"
 
 "Cannot read data from"
 "Cannot write data to"
