@@ -17,27 +17,11 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-#ifndef __FARCONST_HPP__
-#include "farconst.hpp"
-#endif
-#ifndef __FARLANG_HPP__
-#include "lang.hpp"
-#endif
-#ifndef __FARSTRUCT_HPP__
-#include "struct.hpp"
-#endif
-#ifndef __PLUGIN_HPP__
-#include "plugin.hpp"
-#endif
-#ifndef __CLASSES_HPP__
-#include "classes.hpp"
-#endif
-#ifndef __FARFUNC_HPP__
-#include "fn.hpp"
-#endif
-#ifndef __FARGLOBAL_HPP__
-#include "global.hpp"
-#endif
+/* $ 30.06.2000 IS
+   Стандартные заголовки
+*/
+#include "internalheaders.hpp"
+/* IS $ */
 
 
 unsigned char MyName[]={'E'^0x50,'u'^0x51,'g'^0x52,'e'^0x53,'n'^0x54,'e'^0x55,' '^0x56,'R'^0x57,'o'^0x58,'s'^0x59,'h'^0x5a,'a'^0x5b,'l'^0x5c};

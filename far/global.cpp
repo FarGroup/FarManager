@@ -17,22 +17,11 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-#ifndef __FARCONST_HPP__
-#include "farconst.hpp"
-#endif
-#ifndef __FARSTRUCT_HPP__
-#include "struct.hpp"
-#endif
-#ifndef __PLUGIN_HPP__
-#include "plugin.hpp"
-#endif
-#ifndef __CLASSES_HPP__
-#include "classes.hpp"
-#endif
-#ifndef __FARGLOBAL_HPP__
-#include "global.hpp"
-#endif
-
+/* $ 30.06.2000 IS
+   Стандартные заголовки
+*/
+#include "internalheaders.hpp"
+/* IS $ */
 
 Language Lang;
 
