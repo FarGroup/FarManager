@@ -5,10 +5,20 @@ mix.cpp
 
 */
 
-/* Revision: 1.164 03.03.2005 $ */
+/* Revision: 1.165 06.04.2005 $ */
 
 /*
 Modify:
+  06.04.2005 AY
+   ! PartCmdLine() - убираю вообще Remove*() после Unquote() так как это является
+     лишней интеллигенцией, например файл "ааа .exe" могут запустить как "ааа ".
+   ! PartCmdLine() - Меняем вызов RemoveExternalSpaces() на RemoveTrailingSpaces()
+     после того как Unquote() имя экзешника. Вполне легальное имя файла " .exe",
+     а вот в конце пробелы уже быть не могут.
+   ! PartCmdLine() - первый пробел между командой и параметрами не нужен,
+     он добавляется заново в Execute.
+   - Убрал в PartCmdLine() добавку пробела если / отделяет exe от параметров
+     это вроде как остатки прошлого, нафиг нам это надо.
   03.03.2005 SVS
     ! Изменен алгоритм CreatePath()
     + Ctrl-[] формирует корректное значение пути в панели дерева
@@ -1924,18 +1934,29 @@ int PartCmdLine(const char *CmdStr,char *NewCmdStr,int SizeNewCmdStr,char *NewCm
 
   if (ParPtr) // Мы нашли параметры и отделяем мух от котлет
   {
-    if (*ParPtr=='/')
-    {
-      *NewCmdPar=0x20;
-      xstrncpy(NewCmdPar+1, ParPtr, SizeNewCmdPar-2);
-    }
-    else
-      xstrncpy(NewCmdPar, ParPtr, SizeNewCmdPar-1);
+    /* $ 05.04.2005 AY: это вроде как остатки прошлого, нафиг нам это надо */
+    //if (*ParPtr=='/')
+    //{
+      //*NewCmdPar=0x20;
+      //xstrncpy(NewCmdPar+1, ParPtr, SizeNewCmdPar-2);
+    //}
+    //else
+    /* AY $ */
+
+    if (*ParPtr == 0x20) //AY: первый пробел между командой и параметрами не нужен,
+      *(ParPtr++)=0;     //    он добавляется заново в Execute.
+
+    xstrncpy(NewCmdPar, ParPtr, SizeNewCmdPar-1);
     *ParPtr = 0;
   }
 
   Unquote(NewCmdStr);
-  RemoveExternalSpaces(NewCmdStr);
+  //RemoveExternalSpaces(NewCmdStr);
+  //AY: Вполне легальное имя файла " .exe"
+  //    а вот в конце пробелы уже быть не могут.
+
+  //RemoveTrailingSpaces(NewCmdStr);
+  //AY: это является лишней интеллигенцией, например файл "ааа .exe" могут запустить как "ааа ".
 
   return PipeFound;
 }

@@ -5,10 +5,13 @@ execute.cpp
 
 */
 
-/* Revision: 1.118 05.04.2005 $ */
+/* Revision: 1.119 05.04.2005 $ */
 
 /*
 Modify:
+  05.04.2005 AY
+    - Это не правильно (предыдущий фикс), надо убирать только первый пробел,
+      что теперь и делает PartCmdLine.
   05.04.2005 SVS
     - Ctrl-G "echo L:\Foo\Bar" приводит к "echo  L:\Foo\Bar", т.е. добавляется доп.пробел между "echo" и "L"
   05.04.2005 AY
@@ -1004,34 +1007,37 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
 
   bool bIsNT = (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT);
 
-    char NewCmdStr[4096];
-    char NewCmdPar[4096];
-    char ExecLine[4096];
+  char NewCmdStr[4096];
+  char NewCmdPar[4096];
+  char ExecLine[4096];
 
-    memset (&NewCmdStr, 0, sizeof (NewCmdStr));
-    memset (&NewCmdPar, 0, sizeof (NewCmdPar));
+  memset (&NewCmdStr, 0, sizeof (NewCmdStr));
+  memset (&NewCmdPar, 0, sizeof (NewCmdPar));
 
-    PartCmdLine (
-            CmdStr,
-            NewCmdStr,
-            sizeof(NewCmdStr),
-            NewCmdPar,
-            sizeof(NewCmdPar)
-            );
+  PartCmdLine (
+          CmdStr,
+          NewCmdStr,
+          sizeof(NewCmdStr),
+          NewCmdPar,
+          sizeof(NewCmdPar)
+          );
 
-    if(*NewCmdPar)
-      RemoveExternalSpaces(NewCmdPar);
+  /* $ 05.04.2005 AY: Это не правильно, надо убирать только первый пробел,
+                      что теперь и делает PartCmdLine.
+  if(*NewCmdPar)
+    RemoveExternalSpaces(NewCmdPar);
+  AY $ */
 
-    DWORD dwAttr = GetFileAttributes(NewCmdStr);
+  DWORD dwAttr = GetFileAttributes(NewCmdStr);
 
-    if ( SeparateWindow == 1 )
-    {
-        if ( !*NewCmdPar && dwAttr != -1 && (dwAttr & FILE_ATTRIBUTE_DIRECTORY) )
-        {
-            ConvertNameToFull(NewCmdStr,NewCmdStr,sizeof(NewCmdStr));
-            SeparateWindow=2;
-        }
-    }
+  if ( SeparateWindow == 1 )
+  {
+      if ( !*NewCmdPar && dwAttr != -1 && (dwAttr & FILE_ATTRIBUTE_DIRECTORY) )
+      {
+          ConvertNameToFull(NewCmdStr,NewCmdStr,sizeof(NewCmdStr));
+          SeparateWindow=2;
+      }
+  }
 
 
   SHELLEXECUTEINFO seInfo;
