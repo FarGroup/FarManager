@@ -5,10 +5,14 @@ plugins.cpp
 
 */
 
-/* Revision: 1.40 26.10.2000 $ */
+/* Revision: 1.41 31.10.2000 $ */
 
 /*
 Modify:
+  31.10.2000 SVS
+    + Функция TestOpenPluginInfo - проверка на вшивость переданных
+      плагином данных
+    ! Уточнения в эксепшинах
   26.10.2000 SVS
     - ошибки с "int Ret;" :-)
   23.10.2000 SVS
@@ -204,10 +208,11 @@ static int xfilter(
    // CONTEXT *xc = xp->ContextRecord;
 
    // Вот здесь есть подозрение - нужно ли вообще это EXCEPTION_CONTINUE_SEARCH?
-   rc = EXCEPTION_CONTINUE_SEARCH;
+//   rc = EXCEPTION_CONTINUE_SEARCH;
+   rc = EXCEPTION_EXECUTE_HANDLER;
 
    Ptr=NULL;
-   strcpy(TruncFileName,Module->ModuleName);
+   strcpy(TruncFileName,NullToEmpty(Module->ModuleName));
    if(From != EXCEPT_GETPLUGININFO_DATA)
    {
      // просмотрим "знакомые" FAR`у исключения и обработаем...
@@ -1137,8 +1142,9 @@ void PluginsSet::ProcessEditorEvent(int Event,void *Param)
   for (int I=0;I<PluginsCount;I++)
     if (PluginsData[I].pProcessEditorEvent && PreparePlugin(I))
     {
+      int Ret=0;
       TRY {
-        PluginsData[I].pProcessEditorEvent(Event,Param);
+        Ret=PluginsData[I].pProcessEditorEvent(Event,Param);
       }
       __except ( xfilter(EXCEPT_PROCESSEDITOREVENT,
                      GetExceptionInformation(),&PluginsData[I],1) )
@@ -1158,8 +1164,9 @@ void PluginsSet::ProcessViewerEvent(int Event,void *Param)
   for (int I=0;I<PluginsCount;I++)
     if (PluginsData[I].pProcessViewerEvent && PreparePlugin(I))
     {
+      int Ret=0;
       TRY {
-        PluginsData[I].pProcessViewerEvent(Event,Param);
+        Ret=PluginsData[I].pProcessViewerEvent(Event,Param);
       }
       __except ( xfilter(EXCEPT_PROCESSVIEWEREVENT,
                        GetExceptionInformation(),&PluginsData[I],1) )
@@ -1436,7 +1443,7 @@ int PluginsSet::GetFiles(HANDLE hPlugin,struct PluginPanelItem *PanelItem,
       __except ( xfilter(EXCEPT_GETFILES,
                      GetExceptionInformation(),&PluginsData[ph->PluginNumber],1))
       {
-        ExitCode=FALSE;
+        ExitCode=0;
       }
     }
   }
@@ -1460,7 +1467,7 @@ int PluginsSet::PutFiles(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int It
     __except ( xfilter(EXCEPT_PUTFILES,
                       GetExceptionInformation(),&PluginsData[ph->PluginNumber],1) )
     {
-      Code=FALSE;
+      Code=0;
     }
     ReadUserBackgound(&SaveScr);
     return(Code);
@@ -1507,6 +1514,8 @@ void PluginsSet::GetOpenPluginInfo(HANDLE hPlugin,struct OpenPluginInfo *Info)
     {
       return;
     }
+    if(!TestOpenPluginInfo(PluginsData[ph->PluginNumber],Info))
+      return;
   }
   if (Info->CurDir==NULL)
     Info->CurDir="";
@@ -2187,6 +2196,38 @@ BOOL PluginsSet::TestPluginInfo(struct PluginItem& Item,struct PluginInfo *Info)
   }
   __except ( xfilter(EXCEPT_GETPLUGININFO_DATA,
                      GetExceptionInformation(),&Item,0) )
+  {
+     I=FALSE;
+  }
+  return I;
+}
+/* SVS $ */
+
+/* $ 31.10.2000 SVS
+   Функция TestOpenPluginInfo - проверка на вшивость переданных плагином данных
+*/
+BOOL PluginsSet::TestOpenPluginInfo(struct PluginItem& Item,struct OpenPluginInfo *Info)
+{
+  char Buf[1];
+  int I;
+  //EXCEPTION_POINTERS *xp;
+  TRY {
+    if(Info->HostFile) memcpy(Buf,Info->HostFile,1);
+    if(Info->CurDir) memcpy(Buf,Info->CurDir,1);
+    if(Info->Format) memcpy(Buf,Info->Format,1);
+    if(Info->PanelTitle) memcpy(Buf,Info->PanelTitle,1);
+    for (I=0; I<Info->InfoLinesNumber; I++)
+      memcpy(Buf,&Info->InfoLines[I],1);
+    for (I=0; I<Info->DescrFilesNumber; I++)
+      memcpy(Buf,Info->DescrFiles[I],1);
+    for (I=0; I<Info->PanelModesNumber; I++)
+      memcpy(Buf,&Info->PanelModesArray[I],1);
+    if(Info->KeyBar) memcpy(Buf,Info->KeyBar,1);
+    if(Info->ShortcutData) memcpy(Buf,Info->ShortcutData,1);
+    I=TRUE;
+  }
+  __except ( xfilter(EXCEPT_GETOPENPLUGININFO_DATA,
+                     GetExceptionInformation(),&Item,1) )
   {
      I=FALSE;
   }

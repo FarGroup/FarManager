@@ -7,10 +7,13 @@ plugins.hpp
 
 */
 
-/* Revision: 1.06 23.10.2000 $ */
+/* Revision: 1.07 31.10.2000 $ */
 
 /*
 Modify:
+  31.10.2000 SVS
+    + Функция TestOpenPluginInfo - проверка на вшивость переданных плагином
+      данных
   23.10.2000 SVS
     + Функция TestPluginInfo - проверка на вшивость переданных плагином данных
   12.10.2000 tran 1.05
@@ -140,6 +143,7 @@ class PluginsSet
     void ReadUserBackgound(SaveScreen *SaveScr);
     int GetHotKeyRegKey(int PluginNumber,int ItemNumber,char *RegKey);
     BOOL TestPluginInfo(struct PluginItem& Item,struct PluginInfo *Info);
+    BOOL TestOpenPluginInfo(struct PluginItem& Item,struct OpenPluginInfo *Info);
 
   public:
     PluginsSet();

@@ -4,10 +4,12 @@ farrtl.cpp
 Переопределение функций работы с памятью: new/delete/malloc/realloc/free
 */
 
-/* Revision: 1.07 29.08.2000 $ */
+/* Revision: 1.08 31.10.2000 $ */
 
 /*
 Modify:
+  31.10.2000 SVS
+    ! Нормально можно и без объявления _nfile прожить (BC5.5.1 ругается)
   29.08.2000 SVS
     ! Уточнения для функций семейства seek под __int64
   14.08.2000 SVS
@@ -205,7 +207,7 @@ int  __NTerror     (void);              /* returns -1 */
 
 #define RETURN(code)    {rc=(code); goto exit;}
 
-extern unsigned  _nfile;
+//extern unsigned  _nfile;
 
 /* Array of open file flags.
  */
