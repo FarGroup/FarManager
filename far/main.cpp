@@ -5,10 +5,13 @@ main.cpp
 
 */
 
-/* Revision: 1.47 22.01.2002 $ */
+/* Revision: 1.48 28.01.2002 $ */
 
 /*
 Modify:
+  28.01.2002 VVM
+    + Если не смогли считать .лнг файл - то перед выдачей сообщения очистим
+      буфер ввода - на всякий случай...
   22.01.2002 SVS
     + Опция /xd  "Enable exception handling" - эт, чтобы в отладчике с
       исключениями работать. В "нормальном" ФАРе ЭТОГО нету. Для включения
@@ -407,6 +410,7 @@ int _cdecl main(int Argc, char *Argv[])
     //Message(MSG_WARNING,1,"Error","Cannot load language data","Ok");
     ControlObject::ShowCopyright(1);
     fprintf(stderr,"\nError: Cannot load language data\n\nPress any key...");
+    FlushConsoleInputBuffer(hConInp);
     WaitKey(-1); // А стоит ли ожидать клавишу??? Стоит
     exit(0);
     /* SVS $ */
