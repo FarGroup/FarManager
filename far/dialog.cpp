@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.205 21.01.2002 $ */
+/* Revision: 1.206 30.01.2002 $ */
 
 /*
 Modify:
+  30.01.2002 DJ
+    ! DM_SETLISTMOUSEREACTION -> DM_LISTSETMOUSEREACTION
   21.01.2002 SVS
     + Добавлены 2 месага - DM_SETCURSORSIZE/DM_GETCURSORSIZE. Работают с
       редакторами и UserControl
@@ -5108,7 +5110,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     case DM_LISTSETDATA: // Param1=ID Param2=struct FarListItemData
     case DM_LISTSETTITLES: // Param1=ID Param2=struct FarListTitles: TitleLen=strlen(Title), BottomLen=strlen(Bottom)
     case DM_LISTGETTITLES: // Param1=ID Param2=struct FarListTitles: TitleLen=strlen(Title), BottomLen=strlen(Bottom)
-    case DM_SETLISTMOUSEREACTION: // Param1=ID Param2=TRUE/FALSE Ret=OldSets
+    case DM_LISTSETMOUSEREACTION: // Param1=ID Param2=TRUE/FALSE Ret=OldSets
     {
       if(Type==DI_LISTBOX || Type==DI_COMBOBOX)
       {
@@ -5258,7 +5260,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
             /* KM $ */
             //case DM_LISTINS: // Param1=ID Param2=FarList: ItemsNumber=Index, Items=Dest
 
-            case DM_SETLISTMOUSEREACTION: // Param1=ID Param2=TRUE/FALSE Ret=OldSets
+            case DM_LISTSETMOUSEREACTION: // Param1=ID Param2=TRUE/FALSE Ret=OldSets
             {
               DWORD OldSets=Dlg->DialogMode.Check(DMODE_MOUSELIST)?TRUE:FALSE;
               Dlg->SetListMouseReaction(Param2);

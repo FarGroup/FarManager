@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.113 22.01.2002 $ */
+/* Revision: 1.114 30.01.2002 $ */
 
 /*
 Modify:
+  30.01.2002 DJ
+    + ACTL_GETDESCSETTINGS
   22.01.2002 SVS
     ! ¬ключим обратно Opt.ExceptRules в диалогах, ибо теперь € точно знаю,
       что падение было в ƒ»јЋќ√≈! ;-)
@@ -759,6 +761,25 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
       return Options;
     }
     /* IS $ */
+
+    /* $ 30.01.2002 DJ
+       ACTL_GETDESCSETTINGS
+    */
+    case ACTL_GETDESCSETTINGS:
+    {
+      // опций мало - с массивом не заморачиваемс€
+      DWORD Options=0;
+      if (Opt.Diz.UpdateMode == DIZ_UPDATE_IF_DISPLAYED)
+        Options |= FDS_UPDATEIFDISPLAYED;
+      else if (Opt.Diz.UpdateMode == DIZ_UPDATE_ALWAYS)
+        Options |= FDS_UPDATEALWAYS;
+      if (Opt.Diz.SetHidden)
+        Options |= FDS_SETHIDDEN;
+      if (Opt.Diz.ROUpdate)
+        Options |= FDS_UPDATEREADONLY;
+      return Options;
+    }
+    /* DJ $ */
   }
   return FALSE;
 }

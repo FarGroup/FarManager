@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.183 21.01.2002 $ */
+/* Revision: 1.184 30.01.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,9 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  30.01.2002 DJ
+    + ACTL_GETDESCSETTINGS, FarDescriptionSettings
+    ! DM_SETLISTMOUSEREACTION -> DM_LISTSETMOUSEREACTION
   21.01.2002 SVS
     + DM_GETCURSORSIZE, DM_SETCURSORSIZE
   14.01.2002 SVS
@@ -823,7 +826,7 @@ enum FarMessagesProc{
   DM_SETITEMDATA,
 
   DM_LISTSET,
-  DM_SETLISTMOUSEREACTION,
+  DM_LISTSETMOUSEREACTION,
 
   DM_GETCURSORSIZE,
   DM_SETCURSORSIZE,
@@ -1400,6 +1403,7 @@ enum ADVANCED_CONTROL_COMMANDS{
   ACTL_GETPANELSETTINGS,
   ACTL_GETINTERFACESETTINGS,
   ACTL_GETCONFIRMATIONS,
+  ACTL_GETDESCSETTINGS,
 };
 
 enum FarSystemSettings{
@@ -1456,6 +1460,13 @@ enum FarConfirmationsSettings{
   FCS_RELOADEDITEDFILE               = 0x00000080,
   FCS_CLEARHISTORYLIST               = 0x00000100,
   FCS_EXIT                           = 0x00000200,
+};
+
+enum FarDescriptionSettings {
+  FDS_UPDATEALWAYS                   = 0x00000001,
+  FDS_UPDATEIFDISPLAYED              = 0x00000002,
+  FDS_SETHIDDEN                      = 0x00000004,
+  FDS_UPDATEREADONLY                 = 0x00000008,
 };
 
 #define CONSOLE_GET_MODE       (-2)
