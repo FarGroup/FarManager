@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.43 08.11.2004 $ */
+/* Revision: 1.44 18.12.2004 $ */
 
 /*
 Modify:
+  18.12.2004 WARP
+    - PanelMode.CaseConversion игнорирует тип колонки "NO" (Bugz#1139)
   08.11.2004 WARP
     ! Исправления в раксраске и работе панелей
   01.11.2004 SVS
@@ -917,13 +919,15 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 }
                 char *NamePtr=ShowShortNames && *CurPtr->ShortName && !ShowStatus ?
                               CurPtr->ShortName:CurPtr->Name;
-                char *SrcNamePtr=NamePtr;
+
                 if (ViewFlags & COLUMN_NAMEONLY)
                 {
                   // !!! НЕ УВЕРЕН, но то, что отображается пустое
                   // пространство вместо названия - бага
                   NamePtr=PointToFolderNameIfFolder(NamePtr);
                 }
+
+                char *SrcNamePtr=NamePtr;
 
                 int CurLeftPos=0;
                 int RightAlign=(ViewFlags & COLUMN_RIGHTALIGN);
