@@ -5,10 +5,12 @@ mkdir.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 25.07.2000 $ */
 
 /*
 Modify:
+  25.07.2000 IG
+    - Bug 24 (не перечитывалась панель, после неудачного вложенного создания директорий)
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
@@ -33,15 +35,26 @@ void ShellMakeDir(Panel *SrcPanel)
     LocalStrupr(DirName);
 
   int Length=strlen(DirName);
+  /* $ 25.07.2000 IG
+     Bug 24 (не перечитывалась панель, после неудачного вложенного создания директорий)
+  */
+  while (Length>0 && DirName[Length-1]==' ')
+    Length--;
+  DirName[Length]=0;
   if (Length>0 && (DirName[Length-1]=='/' || DirName[Length-1]=='\\'))
     DirName[Length-1]=0;
+
+  char bSuccess = 0;
 
   for (char *ChPtr=DirName;*ChPtr!=0;ChPtr++)
     if (*ChPtr=='\\' || *ChPtr=='/')
     {
       *ChPtr=0;
       if (CreateDirectory(DirName,NULL))
+      {
         TreeList::AddTreeName(DirName);
+        bSuccess = 1;
+      }
       *ChPtr='\\';
     }
 
@@ -52,12 +65,15 @@ void ShellMakeDir(Panel *SrcPanel)
         LastError==ERROR_INVALID_NAME)
     {
       Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotCreateFolder),DirName,MSG(MOk));
-      return;
+      if (bSuccess) break;
+        else return;
     }
     else
       if (Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),MSG(MCannotCreateFolder),DirName,MSG(MRetry),MSG(MCancel))!=0)
-        return;
+        if (bSuccess) break;
+          else return;
   }
+  /* IG $ */
   TreeList::AddTreeName(DirName);
   SrcPanel->Update(UPDATE_KEEP_SELECTION);
 
