@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.259 27.08.2002 $ */
+/* Revision: 1.260 31.08.2002 $ */
 
 /*
 Modify:
+  31.08.2002 SVS
+    - Бага с DM_USER - нужно отдать его плагиновому обработчику AS IS
   27.08.2002 SVS
     - BugZ#601 - DM_CLOSE из DN_INITDIALOG не срабатывает.
   17.08.2002 SVS
@@ -5805,7 +5807,13 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     }
   }
 
+  /*****************************************************************/
+  if(Msg >= DM_USER)
+  {
+    return Dlg->DlgProc(hDlg,Msg,Param1,Param2);
+  }
 
+  /*****************************************************************/
   struct DialogItem *CurItem=NULL;
   int Type=0;
   char *Ptr=NULL;
@@ -5815,7 +5823,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
   /* $ 09.12.2001 DJ
      для DM_USER проверять _не_надо_!
   */
-  if((Msg < DM_USER && (Param1 < 0 || Param1 >= Dlg->ItemCount)) || !Dlg->Item)
+  if((Param1 < 0 || Param1 >= Dlg->ItemCount) || !Dlg->Item)
     return 0;
   /* DJ $ */
 

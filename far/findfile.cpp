@@ -5,10 +5,14 @@ findfile.cpp
 
 */
 
-/* Revision: 1.120 14.08.2002 $ */
+/* Revision: 1.121 31.08.2002 $ */
 
 /*
 Modify:
+  31.08.2002 KM
+    ! При поиске в плагине опции поиска "Search in all non-removable drives"
+      и "Search in all, except removable and network drives" не
+      имеют смысла и поэтому задизаблены.
   14.08.2002 VVM
     ! Уберем возможность переключения в активный редактор из окна поиска.
       Манагер это не умеет...
@@ -479,6 +483,7 @@ static char FindMask[NM],FindStr[SEARCHSTRINGBUFSIZE];
 static int SearchMode,CmpCase,WholeWords,UseAllTables,SearchInArchives;
 /* KM $ */
 static int FindFoldersChanged;
+static int SearchFromChanged;
 static int DlgWidth,DlgHeight;
 static volatile int StopSearch,PauseSearch,SearchDone,LastFoundNumber,FindFileCount,FindDirCount,WriteDataUsed;
 static char FindMessage[200],LastDirName[2*NM];
@@ -559,6 +564,7 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,7,(long)TableSet.TableName);
 
       FindFoldersChanged = FALSE;
+      SearchFromChanged=FALSE;
 
       if (Dlg->Item[18].Selected==1)
         Dialog::SendDlgMessage(hDlg,DM_ENABLE,24,TRUE);
@@ -622,9 +628,15 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         Dialog::SendDlgMessage(hDlg,DM_ENABLE,12,(ActivePanel->GetMode()==PLUGIN_PANEL)?FALSE:TRUE);
       }
       else if (Param1==18)
+      {
         Dialog::SendDlgMessage(hDlg,DM_ENABLE,24,TRUE);
+		SearchFromChanged=TRUE;
+      }
       else if (Param1==16 || Param1==17 || Param1==19 || Param1==20 || Param1==21)
+      {
         Dialog::SendDlgMessage(hDlg,DM_ENABLE,24,FALSE);
+		SearchFromChanged=TRUE;
+      }
       else if (Param1==13)
         FindFoldersChanged = TRUE;
       return TRUE;
@@ -759,6 +771,13 @@ FindFiles::FindFiles()
     /* KM $ */
     MakeDialogItems(FindAskDlgData,FindAskDlg);
 
+    if (!*FindStr)
+      FindAskDlg[13].Selected=Opt.FindFolders;
+    FindAskDlg[16].Selected=FindAskDlg[17].Selected=0;
+    FindAskDlg[18].Selected=FindAskDlg[19].Selected=0;
+    FindAskDlg[20].Selected=FindAskDlg[21].Selected=0;
+    FindAskDlg[16+SearchMode].Selected=1;
+
     {
       if (PluginMode)
       {
@@ -771,13 +790,14 @@ FindFiles::FindFiles()
         if ((Info.Flags & OPIF_REALNAMES)==0)
           FindAskDlg[12].Flags |= DIF_DISABLE;
         /* DJ $ */
+        if (FindAskDlg[16].Selected || FindAskDlg[17].Selected)
+        {
+          FindAskDlg[16].Selected=FindAskDlg[17].Selected=0;
+          FindAskDlg[18].Selected=1;
+        }
+        FindAskDlg[16].Flags=FindAskDlg[17].Flags|=DIF_DISABLE;
       }
     }
-
-    strncpy(FindAskDlg[2].Data,FindMask,sizeof(FindAskDlg[2].Data)-1);
-    strncpy(FindAskDlg[5].Data,FindStr,sizeof(FindAskDlg[5].Data)-1);
-    FindAskDlg[10].Selected=CmpCase;
-    FindAskDlg[11].Selected=WholeWords;
 
     /* $ 14.05.2001 DJ
        не селектим чекбокс, если нельзя искать в архивах
@@ -785,12 +805,11 @@ FindFiles::FindFiles()
     if (!(FindAskDlg[12].Flags & DIF_DISABLE))
       FindAskDlg[12].Selected=SearchInArchives;
     /* DJ $ */
-    if (!*FindStr)
-      FindAskDlg[13].Selected=Opt.FindFolders;
-    FindAskDlg[16].Selected=FindAskDlg[17].Selected=0;
-    FindAskDlg[18].Selected=FindAskDlg[19].Selected=0;
-    FindAskDlg[20].Selected=FindAskDlg[21].Selected=0;
-    FindAskDlg[16+SearchMode].Selected=1;
+
+    strncpy(FindAskDlg[2].Data,FindMask,sizeof(FindAskDlg[2].Data)-1);
+    strncpy(FindAskDlg[5].Data,FindStr,sizeof(FindAskDlg[5].Data)-1);
+    FindAskDlg[10].Selected=CmpCase;
+    FindAskDlg[11].Selected=WholeWords;
 
     while (1)
     {
@@ -874,7 +893,10 @@ FindFiles::FindFiles()
       SearchMode=SEARCH_CURRENT_ONLY;
     if (FindAskDlg[21].Selected)
         SearchMode=SEARCH_SELECTED;
-    Opt.FileSearchMode=SearchMode;
+    if (SearchFromChanged)
+    {
+      Opt.FileSearchMode=SearchMode;
+    }
     LastCmpCase=CmpCase;
     /* $ 30.07.2000 KM
        Добавлена переменная
