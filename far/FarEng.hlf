@@ -316,19 +316,17 @@ name.
 
   Internal/external viewer                                    #Alt-F3#
 
-  Вызывает в зависимости от типа файла
-~ассоциированную программу просмотра~@FileAssoc@ или внешнюю программу
-просмотра, указанную в ~настройках~@ViewerSettings@, если по умолчанию
-используется внутренняя, или внутреннюю, если по умолчанию используется
-внешняя.
+  If the internal viewer is used by default, invokes the
+external viewer specified in the ~settings~@ViewerSetting@
+or the ~associated viewer program~@FileAssoc@ for the file type.
+If the external viewer is used by default, invokes the internal viewer.
 
   Internal/external editor                                    #Alt-F4#
 
-  Вызывает в зависимости от типа файла
-~ассоциированную программу просмотра~@FileAssoc@ или внешнюю программу
-просмотра, указанную в ~настройках~@ViewerSettings@, если по умолчанию
-используется внутренняя, или внутреннюю, если по умолчанию используется
-внешняя.
+  If the internal editor is used by default, invokes the
+external editor specified in the ~settings~@EditorSetting@
+or the ~associated editor program~@FileAssoc@ for the file type.
+If the external editor is used by default, invokes the internal editor.
 
   Print files                                                 #Alt-F5#
 
@@ -371,25 +369,25 @@ details.
   Execute, change folder, enter to an archive                  #Enter#
   Execute in the separate window                         #Shift-Enter#
 
-    Shift-Enter для каталога вызывает Проводник с
-    показом содержимого выбранного каталога. Для того,
-    чтобы в Проводнике показать корневой каталог, нужно
-    нажать Shift-Enter на требуемом диске в меню
-    ~выбора дисков~@DriveDlg@.
+    Pressing Shift-Enter on a directory invokes the
+    Windows Explorer and shows the selected directory.
+    To show a root directory in the Explorer, you
+    should press Shift-Enter on the required drive
+    in the ~drive selection menu@DriveDlg@.
 
   Change to the root folder                                   #Ctrl-\#
 
   Change folder, enter an archive (also a SFX archive)     #Ctrl-PgDn#
 
-  Если курсор указывает на каталог, то производится смена текущего каталога
-на указываемый. Если курсор указывает на файл, то в зависимости от типа файла
-или выполняется ~ассоциированная команда~@FileAssoc@, или происходит вход в
-архив.
+  If the cursor points to a directory, pressing Ctrl-PgDn changes to that
+directory. If the cursor points to a file, then, depending on the file type,
+an ~associated command~@FileAssoc@ is executed or the archive is opened.
 
   Change to the parent folder                              #Ctrl-PgUp#
 
-    На Ctrl-PgUp в корневом каталоге влияет опция
-    "~Использовать Ctrl-PgUp для выбора диска~@InterfSettings@".
+    If the option "~Use Ctrl-PgUp to change drive~@InterfSettings@" is
+    enabled, pressing Ctrl-PgUp in the root directory switches to
+    the network plugin or shows the ~drive selection menu~@DriveDlg@.
 
   Create shortcut to the current folder               #Ctrl-Shift-<N>#
   Use folder shortcut                                  #RightCtrl-<N>#
@@ -501,8 +499,8 @@ $ #Command line switches#
 
         For example: far /u guest
 
-        FAR Manager установит ~переменную среды~@FAREnv@ "FARUSER"
-        в значение, равное <username>.
+        FAR Manager will set the ~environment variable~@FAREnv@
+        "FARUSER" to the value <username>.
 
   #/v <filename>#
         View the specified file. If <filename> is `#-#', data
@@ -778,11 +776,11 @@ $ #Menus#
     To choose an action from the menu you may press F9 or click on top
 of the screen.
 
-    При активизации по клавише #F9# автоматически выбирается меню,
-соответствующее активной панели. При активном меню клавиша #Tab# позволяет
-переключаться между меню левой и правой панелей. Если выбрано меню "Файлы",
-"Команды" или "Параметры", клавиша #Tab# переключает на меню пассивной
-панели.
+    When the menu is activated by pressing #F9#, the menu for the active
+panel is selected automatically. When the menu is active, pressing #Tab#
+switches between the menus for the left and right panel. If the menus "Files",
+"Commands" or "Options" are active, pressing #Tab# switches to the menu of
+the passive panel.
 
     Use the Shift-F10 key combination to select the last used menu command.
 
@@ -984,10 +982,9 @@ for following operations:
 
     - ~disconnect network drives~@DisconnectDrive@ from the Disks menu;
 
-    - ~повторное открытие~@EditorReload@ файла в редакторе;
+    - ~reloading~@EditorReload@ a file in the editor;
 
-    - очистка списка историй редактирования/просмотра, переходов и
-      выполненных команд;
+    - clearing the view/edit, folder and command history lists;
 
     - exit from FAR.
 
@@ -1226,9 +1223,9 @@ it will be used instead of the main menu saved in the registry.
 
 @FileAssoc
 $ #File associations#
-    FAR Manager поддерживает ассоциации файлов, которые позволяют задавать
-разнообразные действия на запуск, редактирование и просмотр файлов,
-заданных ~маской~@FileMasks@.
+    FAR Manager supports file associations, that allow to associate
+various actions to running, viewing and editing files with a specified
+~mask~@FileMasks@.
 
     You may add new associations with the #Edit associations# command
 in the ~Commands menu~@CmdMenu@.
@@ -1236,36 +1233,40 @@ in the ~Commands menu~@CmdMenu@.
     You may define several associations for one file type and select
 the desired association from the menu.
 
-    В списке ассоциаций доступны следующие действия:
+    The following actions are available in the associations list:
 
-    #Ins#        - ~добавить~@FileAssocModify@ новую ассоциацию
+    #Ins#        - ~add~@FileAssocModify@ a new association
 
-    #F4#         - ~изменить~@FileAssocModify@ настройки текущей ассоциации
+    #F4#         - ~edit~@FileAssocModify@ the current association
 
-    #Del#        - удалить текущую ассоциацию
+    #Del#        - delete the current association
 
     If no execute command is associated with file and
 #Use Windows registered types# option in ~System settings~@SystemSettings@
 is on, FAR tries to use Windows association to execute this file type;
 
 @FileAssocModify
-$ #Изменение ассоциации файлов#
-    FAR позволяет задать шесть команд, ассоциированных с определенным
-типом файла, заданным ~маской~@FileMasks@:
+$ #Editing file associations#
+    FAR allows to specify six commands associated with each file type
+specified as a ~mask~@FileMasks@:
 
    #Execute command#               Performed if Enter is pressed
+   #(used for Enter)#
 
-   #Команда запуска по Ctrl-PgDn#  Performed if Ctrl-PgDn is pressed
+   #Execute command#               Performed if Ctrl-PgDn is pressed
+   #(used for Ctrl-PgDn)#
 
    #View command#                  Performed if F3 is pressed
+   #(used for F3)#
 
-   #Альтернативная команда#        Performed if Alt-F3 is pressed
-   #просмотра#
+   #View command#                  Performed if Alt-F3 is pressed
+   #(used for Alt-F3)#
 
    #Edit command#                  Performed if F4 is pressed
+   #(used for F4)#
 
-   #Альтернативная команда#        Performed if Alt-F4 is pressed
-   #редактирования#
+   #Edit command#                  Performed if Alt-F4 is pressed
+   #(used for Alt-F4)#
 
     The association can be described in the #Description of the association#
 field.
@@ -1282,16 +1283,15 @@ associated command.
 #Use Windows registered types# option in ~System settings~@SystemSettings@
 is on, FAR tries to use Windows association to execute this file type;
 
-  2. ~Команды~@OSCommands@ операционной системы "IF EXIST" и "IF DEFINED"
-позволяют сделать ассоциации более "умными" - если вы назначили несколько
-ассоциаций для одного типа файлов, то в меню попадут только те ассоциации,
-у которых условия будут выполнятся.
+  2. Operating system ~commands~@OSCommands@ "IF EXIST" and "IF DEFINED"
+allow to configure "smarter" associations - if you have specified several
+associations for a file type, the menu will show only the associations
+for which the conditions are true.
 
 @MetaSymbols
 $ #Special symbols#
-    В ~ассоциированных командах~@FileAssoc@, ~пользовательском меню~@UserMenu@
-и команде ~"Применить команду"~@ApplyCmd@ могут использоваться специальные
-метасимволы:
+    The following special symbols can be used in ~associated commands~@FileAssoc@,
+~user menu~@UserMenu@ and the command ~"Apply command"~@ApplyCmd@:
 
     #!!#       '!' character
     #!#        Long file name without extension
@@ -1334,12 +1334,12 @@ $ #Special symbols#
 
   Notes:
 
-  1. FAR при обработке метасимволов подставляется только то, что
-они означают (имя файла, расширение и т.д.). Никаких дополнительных символов
-(например, кавычки или фамилии разработчиков FAR) не подставляется и вы
-должны это сделать сами, если потребуется. Например, если используемая
-в ассоциациях программа требует, чтобы имя файла было в кавычках, то вы
-должны писать #program.exe "!.!"#, а не #program.exe !.!#.
+  1. When handling special characters, FAR substitutes only the string
+corresponding to the special character. No additional characters (for
+example, quotes) are added, and you should add them yourself if it is
+needed. For example, if a program used in the associations requires
+a file name to be enclosed in quptes, you should specify #program.exe "!.!"#
+and not #program.exe !.!#.
 
   2. The following modifiers may be used with the associations !@@! and !$! :
 
@@ -1359,7 +1359,7 @@ example:
     if exist !##!\!^!.! diff -c -p !##!\!^!.! !\!.!
 
   "If the same file exists on the passive panel as the file under
-   the cursor on the active panel, show the differences betweent
+   the cursor on the active panel, show the differences between
    the file on the passive panel and the file on the active panel,
    regardless of the name of the current file on the passive panel"
 
@@ -1502,10 +1502,10 @@ $ #Interface settings dialog#
   #prompt format#           FAR command line prompt. You may use
                           the following format variables:
 
-                          $p - current path;
-                          $n - current drive letter;
-                          $g - the > character;
-                          $$ - the $ character.
+                          #$p# - current path;
+                          #$n# - current drive letter;
+                          #$g# - the > character;
+                          #$$# - the $ character.
 
   #Use right Alt#           Set this option, if you experience
   #as AltGr#                problems with using right Alt combinations
@@ -1533,14 +1533,13 @@ $ #Interface settings dialog#
                           feature is disabled while a macro is
                           being recorded or executed.
 
-  #Использовать Ctrl-PgUp#  Комбинация клавиш Ctrl-PgUp в корневом
-  #для выбора диска#        каталоге:
-                          - для локальных дисков вызовет меню
-                            выбора дисков;
-                          - для сетевых дисков вызовет плагин
-                            Network (если плагин есть) или меню
-                            выбора дисков (если плагин Network
-                            отсутствует).
+  #Use Ctrl-PgUp#           Pressing Ctrl-PgUp in the root directory:
+  #to change drives#        - for local drives - shows the drive
+                            selection menu;
+                          - for network drives - activates the
+                            Network plugin (if it is available)
+                            or the drive selection menu (if the
+                            Network plugin is not available).
 
 @Viewer
 $ #Internal viewer#
@@ -1627,29 +1626,34 @@ or by format specifiers added before or after the value.
 '$', 'd'), the radio buttons selected in the dialog will be ignored.
 
 @ViewerSearch
-$ #Поиск в программе просмотра#
-    Для поиска в ~программе просмотра~@Viewer@ вам доступны следующие
-режимы и опции:
+$ #Searching in the viewer#
+    For searching in the ~viewer~@Viewer@, the following modes and
+options are available:
 
-    #Искать текст#
+    #Search for text#
 
-      Поиск произвольного теста, набранного в строке #Искать#.
-      В этом режиме доступны следующие опции:
+      Search for any text entered in the #Search for# edit line.
+      The following options are available in that mode:
 
-        #Учитывать регистр#   - при поиске будет учитываться
-                              регистр введенных символов
+        #Case sensitive#      - the case of the characters
+                              entered will be taken into account
+                              while searching (so, for example,
+                              #Text# will not be found when
+                              searching for #text#).
 
-        #Только целые слова#  - при поиске будет произведен
-                              поиск только целого слова
+        #Whole words#         - the given text will be found only
+                              if it occurs in the text as a whole
+                              word.
 
-    #Искать 16-ричный код#
+    #Search for hex#
 
-      Поиск фрагмента, соответствующего шестнадцатеричным кодам,
-      набранного в строке #Искать#.
+      Search for a string corresponding to hexadecimal codes
+      entered in the #Search for# string.
 
-    #Обратный поиск#
+    #Reverse search#
 
-      Изменить поиск на обратный - искать от конца файла к началу.
+      Reverse the search direction - search from the end of file
+      towards the beginning.
 
 @Editor
 $ #Internal editor#
@@ -1783,29 +1787,29 @@ to the specified percent of the file. For example, if you enter #50%#,
 the editor will jump to the middle of the text.
 
 @EditorReload
-$ #Повторное открытие файла в редакторе#
-    FAR Manager отслеживает все попытки повторного открытия в редакторе
-уже редактируемых файлов. Правила повторного открытия следующие:
+$ #Reloading a file in the editor#
+    FAR Manager tracks all attempts to repeatedly open for editing a
+file that is already being edited. The rules for reloading files are
+as follows:
 
-    1. Если файл не был изменен, то при отключенной опции
-"Повторное открытие файла в редакторе" в диалоге ~подтверждений~@ConfirmDlg@
-происходит переход к редактированию текущего файла без дополнительных
-запросов.
+    1. If the file was not changed and the option "Reload edited file"
+in the ~confirmations~@ConfirmDlg@ dialog is not enabled, FAR switches
+to the open editor instance without further prompts.
 
-    2. Если файл был изменен или включена опция "Повторное открытие файла
-в редакторе", то существует три варианта действий:
+    2. If the file was changed or the option "Reload edited file" is
+enabled, there are three possible options:
 
-    #Текущий#     - Продолжить редактирование того же файла.
+    #Current#      - Continue editing the same file
 
-    #Новая копия# - Файл будет открыт для редактирования в новой
-                  копии редактора. В этом случае будьте внимательны:
-                  содержимое файла на диске будет соответствовать
-                  тому, в какой из копий редактора последний раз
-                  сохраняли этот файл.
+    #New instance# - The file will be opened for editing in a new
+                   editor instance. In this case, be attentive: the
+                   contents of the file on the disk will correspond
+                   to the contents of the editor instance where the
+                   file was last saved.
 
-    #Перегрузить# - Текущие изменения не сохраняются и в редактор
-                  загружается прежнее содержимое файла (с момента
-                  последнего сохранения).
+    #Reload#       - The current changes are not saved and the
+                   contents of the file on the disk is reloaded into
+                   the editor.
 
 @DriveDlg
 $ #Change drive#
@@ -1844,12 +1848,13 @@ to the file panel.
 
     #Change drive# menu settings are saved in the FAR configuration.
 
-    При включенной опции "~Использовать Ctrl-PgUp для выбора диска~@InterfSettings@",
-комбинация клавиш #Ctrl-PgUp# аналогична клавише #Esc# - отказаться
-от выбора диска и закрыть меню.
+    If the option "~Use Ctrl-PgUp to change drive"~@InterfSettigs@" is
+enabled, pressing #Ctrl-PgUp# works the same as pressing #Esc# -
+cancels drive selection and closes the menu.
 
-    #Shift-Enter# вызывает Проводник с показом корневого каталога
-указанного диска (работает только для дисков).
+    Pressing #Shift-Enter# invokes the Windows Explorer showing the
+root directory of the selected drives (works only for disk drives and
+not for plugins).
 
 @DisconnectDrive
 $ #Disconnect network drive#
@@ -1862,46 +1867,45 @@ connected network drives.
   The confirmation can be disabled in the ~confirmations~@ConfirmDlg@ dialog.
 
 @Highlight
-$ #Раскраска файлов#
-    Для более удобного и наглядного представления файлов и каталогов на панелях
-в FAR Manager предусмотрена возможность цветовыделения файловых объектов.
-Файловые объекты можно объединять по разным критериям (~маски файлов~@FileMasks@,
-файловые атрибуты) в группы и назначать собственные цвета.
+$ #Files highlighting#
+    For more convenient and obvious display of files and directories in
+the panels, FAR Manager has the possibility of color highlighting for
+file objects. You can group file objects by different criteria
+(~file masks~@FileMasks@, file attributes) and assign colors to those groups.
 
-    Раскраску файлов можно включить или отключить в диалоге
-~настройки панелей~@PanelSettings@ (пункт "Параметры|Раскраска файлов").
+    File highlighting can be enabled or disabled in the ~panel settings~@PanelSettings@
+dialog (menu item Options | Panel settings).
 
-    ~Изменить~@HighlightEdit@ параметры любой группы раскраски можно из меню
-"~Параметры~@OptMenu@" (пункт "Раскраска файлов").
+    You can ~edit~@HighlightEdit@ the parameters of any highlight group
+through the "~Options~@OptMenu@" menu (item "Files highlighting").
 
 @HighlightList
-$ #Список групп раскраски файлов#
-    Меню групп ~раскраски файлов~@Highlight@ позволяет манипулировать списком. Доступны
-следующие сочетания клавиш:
+$ #List of file highlighting groups#
+    The ~file highlighting~@Highlight@ groups menu allows you to perform
+various operations with the list of the groups. The following key
+combinations are available:
 
-  #Ins#          - Добавить новую группу раскраски
+  #Ins#          - Add a new highlighting group
 
-  #F5#           - Дублировать текущую группу
+  #F5#           - Duplicate the current group
 
-  #Del#          - Удалить текущую группу
+  #Del#          - Delete the current group
 
-  #Enter# или #F4# - ~Изменить параметры~@HighlightEdit@ текущей группы раскраски
+  #Enter# or #F4#  - ~Edit~@HighlightEdit@ the current highlighting group
 
-  #Ctrl-R#       - Восстановить предопределенные группы раскраски
-                 файлов.
+  #Ctrl-R#       - Restore the default file highlighting groups
 
-  #Ctrl-Up#      - Передвинуть группу вверх.
+  #Ctrl-Up#      - Move a group up.
 
-  #Ctrl-Down#    - Передвинуть группу вниз.
+  #Ctrl-Down#    - Move a group down.
 
-    Группы раскраски анализируются от начала к концу. Если обнаружено, что
-файл принадлежит к какой-либо группе, то принадлежность к остальным группам
-не проверяется.
+    The highlighting groups are checked from top to bottom. If it is
+detected that a file belongs to a group, no further groups are checked.
 
 @HighlightEdit
 $ #Files highlighting#
-    #Files highlighting# dialog in the ~Options menu~@OptMenu@ allows to
-define file highlighting groups. Each group definition includes:
+    The #Files highlighting# dialog in the ~Options menu~@OptMenu@ allows
+to define file highlighting groups. Each group definition includes:
 
      - one or more ~file masks~@FileMasks@;
 
@@ -2317,33 +2321,35 @@ symbols, wildcards ('*' and '?') and special expressions:
 using mask f*.ex?, mask *co* will select both color.ini and edit.com,
 mask [c-f,t]*.txt can select config.txt, demo.txt, faq.txt and tips.txt.
 
-    Во многих командах FAR можно задать несколько разделенных запятыми
-или точкой с запятой масок. Например, чтобы выбрать все документы, вы можете
-ввести *.doc,*.txt,*.wri в команде "Пометить группу".
+    In many FAR commands you may enter several file masks separated
+with commas or semicolons. For example, to select all the documents,
+you can enter #*.doc,*.txt,*.wri# in the "Select" command.
 
-    Допускается заключать любую из масок (но не весь список) в кавычки.
-Например, это нужно делать, когда маска содержит один из символов-разделителей
-(запятую или точку с запятой), чтобы такая маска не была спутана со списком.
+    You may enclose any mask (but not the entire list) in quotes.
+For example, you have to do this when a mask contains any of the delimiter
+characters (a comma or a semicolon), so that the mask doesn't get confused
+with a list.
 
-    В некоторых ситуациях (~поиск~@FindFile@ файлов,
-~пометка~@SelectFiles@ файлов, ~ассоциации~@FileAssoc@ файлов,
-~группы сортировки~@SortGroups@ и ~раскраска~@Highlight@ файлов) можно
-использовать маски исключения. #Маска исключения# есть одна или несколько масок
-файлов, которой не должны соответствовать имена требуемых файлов, она
-отделяется от основной маски символом '#|#'.
+    In some commands (~Find files~@FindFile@, file ~selection~@SelectFiles@,
+file ~associations~@FileAssoc@, ~sort groups~@SortGroups@ and
+~file highlighting~@Highlight@) you may use exclude masks. An #exclude mask#
+is one or multiple file masks that must not be matched by the files
+matching the mask. The exclude mask is delimited from the main mask by
+the character '#|#'.
 
-^Примеры использования масок исключения:
+^Usage examples of exclude masks:
  1. *.cpp
-    Все файлы с расширением cpp.
+    All files with the extension #cpp#.
  2. *.*|*.bak,*.tmp
-    Все файлы, кроме файлов с расширением bak и tmp.
+    All files except for the files with extensions #bak# and #tmp#.
  3. *.*|
-    Ошибка - введен спецсимвол |, но сама маска исключения не
-    указана.
+    This mask has an error - the character | is entered, but the
+    mask itself is not specified.
  4. *.*|*.bak|*.tmp
-    Ошибка - спецсимвол | не может встречаться более одного раза.
+    Also an error - the character | may not be contained in the mask
+    more than once.
  5. |*.bak
-    Обрабатывается как *|*.bak
+    The same as *|*.bak
 
 
 @SelectFiles
@@ -2422,11 +2428,11 @@ is not available) instead of the internal copy implementation to copy files.
 It may be useful on NTFS, because CopyFileEx performs a more rational
 disk space allocation and copies file extended attributes.
 
-    Если включена опция "#Выполнить сразу несколько операций#", то в строке
-ввода может указываться как одна цель для копирования или
-перемещения, так и несколько. В последнем случае цели должны быть разделены
-символом-разделителем "#;#" или "#,#". Если цель содержит в своем имени
-символ ";" (или ","), то эта цель должна быть взята в кавычки.
+    If the option "#Execute multiple operations#" is enabled, you
+may specify multiple copy or move targets in the input line. In this
+case, targets should be separated with a character "#;#" or "#,#". If
+the name of a target contains the character ";" or ",", it must be
+enclosed in quotes.
 
 @HardSymLink
 $ #Hard and Symbolic link#
@@ -2449,8 +2455,8 @@ seen from DOS programs.
     When the file size or date changes, all of the corresponding directory
 entries are updated automatically. When a file is deleted, it is not
 deleted physically until all the hard links pointing at it will be
-deleted. The deletion order doesn't matter.  При удалении хардлинка в
-корзину количество связей у файла сохраняется.
+deleted. The deletion order doesn't matter. When a hard link is deleted
+into the recycle bin, the number of links of a file does not change.
 
     FAR can create hard links and can show the number of the file's hard
 links in a separate column (by default, it's the last column in the 9th
@@ -2496,9 +2502,10 @@ to apply a command to each selected file. The same
 should be used to denote the file name.
 
     For example, 'type !.!' will output to the screen all selected files,
-one at a time, а команда 'rar32 m !.!.rar !.!' перенесет все отмеченные файлы
-в одноименные RAR-архивы. Команда 'explorer /select,!.!' запустит проводник
-и установит курсор на текущем файле или каталоге.
+one at a time, and the command 'rar32 m !.!.rar !.!' will move all selected
+files into RAR archives with the same names. The command 'explorer /select,!.!'
+will start the Windows Explorer and set the cursor to the current file or
+directory.
 
     See also ~"Operating system commands"~@OSCommands@
 
@@ -2527,8 +2534,8 @@ specified parameter as a real folder name, regardless of the file panel type.
 
     Set environment variable "variable" to the value "string". If "string"
 is not specified, the environment variable "variable" will be removed.
-Некоторые ~переменные среды~@FAREnv@ FAR Manager устанавливает при старте
-самостоятельно.
+On startup, FAR Manager sets several ~environment variables~@FAREnv@ by
+itself.
 
     #IF [NOT] EXIST filename command#
 
@@ -2561,14 +2568,14 @@ exist and the environment variable "variable" is defined.
        - ~File associations~@FileAssoc@
 
 @FAREnv
-$ #Переменные среды#
-    После запуска FAR Manager выставляет следующие переменные среды,
-доступные дочерним процессам:
+$ #Environment variables#
+    On startup, FAR Manager sets the following environment variables
+available to child processes:
 
-    #FARUSER#            имя пользователя, указанное в параметре /u
-                       ~командной строки~@CmdLine@.
+    #FARUSER#            the name of the user given in the /u
+                       ~command line~@CmdLine@ parameter.
 
-    #FARLANG#            название текущего языка интерфейса.
+    #FARLANG#            name of the current interface language.
 
 @KeyMacro
 $ #Keyboard macros#
