@@ -5,10 +5,13 @@ Eject съемных носителей
 
 */
 
-/* Revision: 1.11 23.11.2002 $ */
+/* Revision: 1.12 27.11.2002 $ */
 
 /*
 Modify:
+  27.11.2002 SVS
+    ! BugZ#700 - CD tray insertion: <Ins> began to work as <Del>
+      Изменения для масдая по Sergei Antonov <project@quake.ru>
   22.11.2002 SVS
     ! Некорректная компиляция куска кода под масдаем для Eject`а
   22.05.2002 SVS
@@ -49,13 +52,11 @@ Modify:
 #include "lang.hpp"
 #include "global.hpp"
 
-
 /* $ 14.12.2000 SVS
    Добавлен код для выполнения Eject съемных носителей для
    Win9x & WinNT/2K
 */
 
-#if __USE_MCI == 1
 /*
    Program to programmatically eject removable media from a drive on
    Windows 95.
@@ -357,7 +358,7 @@ ATTEMPT_AGAIN:
    }
    return fResult;
 }
-#endif
+
 /*-----------------------------------------------------------------------
 This program ejects media from the specified drive, if the media is
 removable and the device supports software-controlled media removal.
@@ -365,7 +366,6 @@ This code works on Windows 95 only.
 -----------------------------------------------------------------------*/
 BOOL EjectVolume95 (char Letter,DWORD Flags)
 {
-#if __USE_MCI == 1
    HANDLE hVWin32;
    BYTE   bDrive;
    BOOL   fDriveLocked;
@@ -385,105 +385,70 @@ BOOL EjectVolume95 (char Letter,DWORD Flags)
      return FALSE;
 
    BOOL Ret=FALSE;
-   // Make sure no other applications are using the drive.
-   fDriveLocked = LockLogicalVolume (hVWin32, bDrive, 0, 0);
-   if (!fDriveLocked)
-   {
-      if(!(Flags&EJECT_NO_MESSAGE))
-      {
-        sprintf(MsgText,MSG(MChangeVolumeInUse),Letter);
-        Message(MSG_WARNING,1,MSG(MError),MsgText,MSG(MChangeVolumeInUse2),MSG(MOk));
-      }
-      goto CLEANUP_AND_EXIT_APP;
-   }
 
-   // Make sure there is no software lock keeping the media in the drive.
-   if (!UnlockMedia (hVWin32, bDrive))
+   if (!(Flags&EJECT_LOAD_MEDIA))
    {
-      if(!(Flags&EJECT_NO_MESSAGE))
+      // Make sure no other applications are using the drive.
+      fDriveLocked = LockLogicalVolume (hVWin32, bDrive, 0, 0);
+      if (!fDriveLocked)
       {
-        sprintf(MsgText,MSG(MChangeCouldNotUnlockMedia),Letter);
-        Message(MSG_WARNING,1,MSG(MError),MsgText,MSG(MOk));
+         if(!(Flags&EJECT_NO_MESSAGE))
+         {
+           sprintf(MsgText,MSG(MChangeVolumeInUse),Letter);
+           Message(MSG_WARNING,1,MSG(MError),MsgText,MSG(MChangeVolumeInUse2),MSG(MOk));
+         }
+         goto CLEANUP_AND_EXIT_APP;
       }
-      goto CLEANUP_AND_EXIT_APP;
-   }
 
-   // Eject the media
-   if ((Ret=EjectMedia (hVWin32, bDrive)) == 0)
-   {
-      if(!(Flags&EJECT_NO_MESSAGE))
+      // Make sure there is no software lock keeping the media in the drive.
+      if (!UnlockMedia (hVWin32, bDrive))
       {
-        sprintf(MsgText,MSG(MChangeCouldNotEjectMedia),Letter);
-        Message(MSG_WARNING,1,MSG(MError),MsgText,MSG(MOk));
+         if(!(Flags&EJECT_NO_MESSAGE))
+         {
+           sprintf(MsgText,MSG(MChangeCouldNotUnlockMedia),Letter);
+           Message(MSG_WARNING,1,MSG(MError),MsgText,MSG(MOk));
+         }
+         goto CLEANUP_AND_EXIT_APP;
       }
-   }
+
+      // Eject the media
+      if ((Ret=EjectMedia (hVWin32, bDrive)) == 0)
+      {
+         if(!(Flags&EJECT_NO_MESSAGE))
+         {
+           sprintf(MsgText,MSG(MChangeCouldNotEjectMedia),Letter);
+           Message(MSG_WARNING,1,MSG(MError),MsgText,MSG(MOk));
+         }
+      }
 
 CLEANUP_AND_EXIT_APP:
-   if (fDriveLocked)
-      UnlockLogicalVolume (hVWin32, bDrive);
+      if (fDriveLocked)
+         UnlockLogicalVolume (hVWin32, bDrive);
+   }
+   else
+   {
+      // возврашаемые значения не проверяю, по моему так лучше
+      UnlockMedia (hVWin32, bDrive);
+      char cmd[100];
+      sprintf(cmd, "open %c: type cdaudio alias ejcd shareable", toupper (Letter));
 
+      typedef MCIERROR (WINAPI *PMCISENDSTRING)(LPCSTR lpstrCommand, LPSTR lpstrReturnString, UINT uReturnLength, HWND hwndCallback);
+      static PMCISENDSTRING pmciSendString=NULL;
+      if(!pmciSendString)
+        pmciSendString=(PMCISENDSTRING)GetProcAddress(LoadLibrary("WINMM.DLL"),"mciSendStringA");
+
+      if(!pmciSendString)
+        return FALSE;
+
+      pmciSendString(cmd, 0, 0, 0);
+      pmciSendString("set ejcd door closed", 0, 0, 0);
+      pmciSendString("close ejcd", 0, 0, 0);
+      Ret = TRUE;
+   }
    if (hVWin32 != INVALID_HANDLE_VALUE)
       CloseHandle (hVWin32);
 
    return Ret;
-#else
-    typedef MCIERROR (WINAPI *PMCISENDCOMMAND)(MCIDEVICEID IDDevice,UINT uMsg,DWORD fdwCommand,DWORD dwParam);
-    static PMCISENDCOMMAND pmciSendCommand=NULL;
-    if(!pmciSendCommand)
-      pmciSendCommand=(PMCISENDCOMMAND)GetProcAddress(LoadLibrary("WINMM.DLL"),"mciSendCommandA");
-
-    if(!pmciSendCommand)
-      return FALSE;
-
-    UINT wDeviceID;
-    DWORD dwReturn;
-    MCI_OPEN_PARMS mciOpenParms;
-
-    char Buf[4]="A:";
-    *Buf=Letter;
-    // Opens a CD audio device by specifying the device name.
-    /* $ 08.05.2002 VVM
-      - Используем вместо имени устройства его ID */
-    mciOpenParms.lpstrElementName=Buf;
-#if 0
-    mciOpenParms.lpstrDeviceType = "cdaudio";
-    if ((dwReturn = pmciSendCommand(NULL, MCI_OPEN, MCI_OPEN_TYPE|MCI_OPEN_ELEMENT, (DWORD)(LPVOID) &mciOpenParms)) != 0)
-      return FALSE;
-#else
-    mciOpenParms.lpstrDeviceType = (char *)MCI_ALL_DEVICE_ID;
-    if ((dwReturn = pmciSendCommand(NULL, MCI_OPEN, MCI_OPEN_TYPE|MCI_OPEN_TYPE_ID|MCI_OPEN_ELEMENT, (DWORD)(LPVOID) &mciOpenParms)) != 0)
-      return FALSE;
-#endif
-    /* VVM $ */
-    wDeviceID = mciOpenParms.wDeviceID;
-    if(Flags&EJECT_READY)
-    {
-      MCI_STATUS_PARMS mciStatParam;
-      mciStatParam.dwItem=MCI_STATUS_READY ;
-      dwReturn=pmciSendCommand(wDeviceID, MCI_STATUS, MCI_STATUS_ITEM|MCI_STATUS_MODE, (DWORD)(LPVOID) &mciStatParam);
-      if(!dwReturn)
-      {
-        dwReturn=mciStatParam.dwReturn==TRUE?FALSE:TRUE;
-      }
-#if defined(_DEBUG) && defined(__BORLANDC__)
-      // Трохе для сэбэ :-)
-      else
-      {
-        char Buf[200];
-        mciGetErrorString(dwReturn,Buf,sizeof(Buf));
-        Message(0,1,"MCI Error",Buf,"Ok");
-      }
-#endif
-    }
-    else
-    {
-      MCI_SET_PARMS mciSetParms;
-      dwReturn=pmciSendCommand(wDeviceID, MCI_SET, ((Flags&EJECT_LOAD_MEDIA)?MCI_SET_DOOR_CLOSED|MCI_WAIT:MCI_SET_DOOR_OPEN), (DWORD)(LPVOID) &mciSetParms);
-    }
-    pmciSendCommand(wDeviceID, MCI_CLOSE, MCI_WAIT, NULL);
-    return dwReturn==0;
-#endif
-
 }
 
 /* Функция by Vadim Yegorov <zg@matrica.apollo.lv>
