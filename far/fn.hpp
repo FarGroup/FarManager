@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.24 10.09.2000 $ */
+/* Revision: 1.25 12.09.2000 $ */
 
 /*
 Modify:
+  12.09.2000 SVS
+    ! FarShowHelp возвращает BOOL
   10.09.2000 SVS
     ! KeyToText возвращает BOOL
   10.09.2000 tran 1.23
@@ -380,7 +382,7 @@ int WINAPI FarEditorControl(int Command,void *Param);
 /* $ 03.07.2000 IS
   Функция вывода помощи
 */
-void WINAPI FarShowHelp(char *ModuleName, char *HelpTopic,DWORD Flags);
+BOOL WINAPI FarShowHelp(char *ModuleName, char *HelpTopic,DWORD Flags);
 /* IS $ */
 /* tran 18.08.2000 $ */
 

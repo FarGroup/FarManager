@@ -7,10 +7,14 @@ help.hpp
 
 */
 
-/* Revision: 1.02 01.09.2000 $ */
+/* Revision: 1.03 12.09.2000 $ */
 
 /*
 Modify:
+  12.09.2000 SVS
+    + Параметры у функции ReadHelp и конструктора, задающие маску поиска
+      файлов.
+    + GetError() - возвращает ErrorHelp.
   01.09.2000 SVS
     + CtrlColorChar - опция! для спецсимвола-символа - для атрибутов
     + CurColor - текущий цвет отрисовки
@@ -51,10 +55,11 @@ class Help:public Modal
     */
     BYTE CtrlColorChar;
     /* SVS $ */
+    BOOL ErrorHelp;
 
   private:
     void DisplayObject();
-    void ReadHelp();
+    void ReadHelp(char *Mask=NULL);
     void AddLine(char *Line);
     void HighlightsCorrection(char *Str);
     void FastShow();
@@ -66,7 +71,7 @@ class Help:public Modal
     void ReadPluginsHelp();
 
   public:
-    Help(char *Topic);
+    Help(char *Topic,char *Mask=NULL);
     Help(char *Topic,int &ShowPrev,int PrevFullScreen);
     ~Help();
 
@@ -74,6 +79,7 @@ class Help:public Modal
     void Hide();
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+    BOOL GetError() {return ErrorHelp;}
     static int GetFullScreenMode();
     static void SetFullScreenMode(int Mode);
     static int PluginPanelHelp(HANDLE hPlugin);

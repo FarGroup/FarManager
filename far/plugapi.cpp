@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.19 08.09.2000 $ */
+/* Revision: 1.20 12.09.2000 $ */
 
 /*
 Modify:
+  12.09.2000 SVS
+    + Реализация флагов FHELP_* для вывода помощи.
   08.09.2000 VVM
     + Обработка команд
       FCTL_SETSORTMODE, FCTL_SETANOTHERSORTMODE
@@ -79,29 +81,66 @@ extern char DirToSet[NM];
 
 void ScanPluginDir();
 
+/* $ 12.09.2000 SVS
+  + Реализация флагов для вывода помощи.
+*/
 /* $ 18.08.2000 tran
    + Flags parameter */
 /* $ 03.07.2000 IS
   Функция вывода помощи
 */
-void WINAPI FarShowHelp(char *ModuleName, char *HelpTopic,DWORD Flags)
+BOOL WINAPI FarShowHelp(char *ModuleName, char *HelpTopic,DWORD Flags)
 {
-  if (HelpTopic!=NULL)
+  if (!HelpTopic)
+    HelpTopic="Contents";
+
+  char Path[2*NM],Topic[512];
+  char *Mask=NULL;
+
+  if((Flags&FHELP_FARHELP) || *HelpTopic==':')
+    strcpy(Topic,HelpTopic+((Flags&FHELP_FARHELP)?0:1));
+  else
   {
-    char Path[NM],Topic[512];
-    if (*HelpTopic==':')
-      strcpy(Topic,HelpTopic+1);
-    else
+    if(ModuleName)
     {
-      strcpy(Path,ModuleName);
-      *PointToName(Path)=0;
+      // FHELP_SELFHELP=0 - трактовать первый пар-р как Info.ModuleName
+      //                   и показать топик из хелпа вызвавшего плагина
+      if(Flags&(FHELP_SELFHELP|FHELP_CUSTOMFILE|FHELP_CUSTOMPATH))
+      {
+        strcpy(Path,ModuleName);
+        if(Flags&(FHELP_SELFHELP|FHELP_CUSTOMFILE))
+        {
+          Mask=PointToName(Path);
+          if(Flags&FHELP_CUSTOMFILE)
+          {
+            memmove(Mask+1,Mask,strlen(Mask));
+            *Mask++=0;
+          }
+          else
+          {
+            *Mask=0;
+            Mask=NULL;
+          }
+        }
+      }
+      else
+        return FALSE;
+
       sprintf(Topic,"#%s#%s",Path,HelpTopic);
     }
-    Help Hlp(Topic);
+    else
+      return FALSE;
   }
+  {
+    Help Hlp(Topic,Mask);
+    if(Hlp.GetError())
+      return FALSE;
+  }
+  return TRUE;
 }
 /* IS $ */
 /* tran 18.08.2000 $ */
+/* SVS 12.09.2000 $ */
 
 
 /* $ 05.07.2000 IS

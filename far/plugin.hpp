@@ -6,10 +6,13 @@
   Plugin API for FAR Manager 1.70
 
 */
-/* Revision: 1.47 10.09.2000 $ */
+/* Revision: 1.48 12.09.2000 $ */
 
 /*
 Modify:
+  12.09.2000 SVS
+    + Флаги FHELP_* для функции ShowHelp
+    ! FSF.ShowHelp возвращает BOOL
   10.09.2000 SVS
     ! KeyToText возвращает BOOL, если нет такой клавиши.
   10.09.2000 SVS 1.46
@@ -702,12 +705,23 @@ typedef int (WINAPI *FARAPIEDITORCONTROL)(
   void *Param
 );
 
+/* $ 12.09.2000 SVS
+  + Флаги FHELP_* для функции ShowHelp
+*/
+enum FarHelpFlags{
+  FHELP_SELFHELP   =0x0000,
+  FHELP_FARHELP    =0x0001,
+  FHELP_CUSTOMFILE =0x0002,
+  FHELP_CUSTOMPATH =0x0004,
+};
+/* SVS $ */
+
 /* $ 18.08.2000 tran
   add Flags parameter for future */
 /* $ 03.07.2000 IS
    Функция вывода помощи
   */
-typedef void (WINAPI *FARAPISHOWHELP)(
+typedef BOOL (WINAPI *FARAPISHOWHELP)(
   char   *ModuleName,
   char   *HelpTopic,
   DWORD   Flags

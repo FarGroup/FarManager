@@ -5,10 +5,13 @@ help.cpp
 
 */
 
-/* Revision: 1.04 25.08.2000 $ */
+/* Revision: 1.05 12.09.2000 $ */
 
 /*
 Modify:
+  12.09.2000 SVS
+    + Параметры у функции ReadHelp и конструктора, задающие маску поиска
+      файлов.
   01.09.2000 SVS
     + Мои любимые цветовые атрибуты - Учтем символ CtrlColorChar
   25.08.2000 SVS
@@ -87,13 +90,14 @@ static BOOL RunURL(char *Protocol, char *URLPath)
 }
 /* SVS $ */
 
-Help::Help(char *Topic)
+Help::Help(char *Topic, char *Mask)
 {
   if (PrevMacroMode!=MACRO_HELP)
   {
     PrevMacroMode=CtrlObject->Macro.GetMode();
     CtrlObject->Macro.SetMode(MACRO_HELP);
   }
+  ErrorHelp=TRUE;
   /* $ 01.09.2000 SVS
      Установим по умолчанию текущий цвет отрисовки...
   */
@@ -108,7 +112,7 @@ Help::Help(char *Topic)
     SetPosition(0,0,ScrX,ScrY);
   else
     SetPosition(4,2,ScrX-4,ScrY-2);
-  ReadHelp();
+  ReadHelp(Mask);
   if (HelpData!=NULL)
     Process();
   else
@@ -123,6 +127,7 @@ Help::Help(char *Topic,int &ShowPrev,int PrevFullScreen)
     PrevMacroMode=CtrlObject->Macro.GetMode();
     CtrlObject->Macro.SetMode(MACRO_HELP);
   }
+  ErrorHelp=TRUE;
   TopLevel=FALSE;
   HelpData=NULL;
   Help::PrevFullScreen=PrevFullScreen;
@@ -168,7 +173,7 @@ void Help::Hide()
 }
 
 
-void Help::ReadHelp()
+void Help::ReadHelp(char *Mask)
 {
   char FileName[NM],ReadStr[MAX_HELP_STRING_LENGTH];
   char SplitLine[2*MAX_HELP_STRING_LENGTH];
@@ -197,11 +202,12 @@ void Help::ReadHelp()
     return;
   }
 
-  FILE *HelpFile=Language::OpenLangFile(Path,HelpFileMask,Opt.HelpLanguage,FileName);
+  FILE *HelpFile=Language::OpenLangFile(Path,(!Mask?HelpFileMask:Mask),Opt.HelpLanguage,FileName);
 
   if (HelpFile==NULL)
   {
     Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MHelpTitle),MSG(MCannotOpenHelp),FileName,MSG(MOk));
+    ErrorHelp=TRUE;
     return;
   }
   if (Language::GetOptionsParam(HelpFile,"CtrlColorChar",ReadStr))
@@ -364,6 +370,7 @@ void Help::ReadHelp()
 
   fclose(HelpFile);
   FixSize=FixCount+(FixCount!=0);
+  ErrorHelp=FALSE;
 }
 
 
@@ -400,6 +407,7 @@ void Help::DisplayObject()
   {
     Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MHelpTopicNotFound),MSG(MOk));
     ProcessKey(KEY_ALTF1);
+    ErrorHelp=TRUE;
     return;
   }
   SetCursorType(0,10);
