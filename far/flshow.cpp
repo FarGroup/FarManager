@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.44 18.12.2004 $ */
+/* Revision: 1.45 05.01.2005 $ */
 
 /*
 Modify:
+  05.01.2005 WARP
+    - Немного зажевало раскраску скобок { и } при длинном имени.
   18.12.2004 WARP
     - PanelMode.CaseConversion игнорирует тип колонки "NO" (Bugz#1139)
   08.11.2004 WARP
@@ -994,29 +996,35 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 /* $ 09.11.2001 IS
                      вместо фигурных скобок используем данные из lng
                 */
-                if (LeftBracket)
+
+                if ( !ShowStatus )
                 {
-                  GotoXY(CurX-1,CurY);
+                  if (LeftBracket)
+                  {
+                    GotoXY(CurX-1,CurY);
 
-                  if ( Level == 1 )
-                    SetColor (COL_PANELBOX);
+                    if ( Level == 1 )
+                      SetColor (COL_PANELBOX);
 
-                  Text(openBracket);
+                    Text(openBracket);
 
-                  if ( Level == 1 )
-                    SetColor (COL_PANELTEXT);
-                }
-                if (RightBracket)
-                {
-                  if ( Level == ColumnsInGlobal )
-                    SetColor(COL_PANELBOX);
+                    SetShowColor(J);
+                  }
 
-                  GotoXY(NameX,CurY);
-                  Text(closeBracket);
-                  ShowDivider=FALSE;
+                  if (RightBracket)
+                  {
+                    if ( Level == ColumnsInGlobal )
+                      SetColor(COL_PANELBOX);
 
-                  if ( Level == ColumnsInGlobal )
-                    SetColor(COL_PANELTEXT);
+                    GotoXY(NameX,CurY);
+                    Text(closeBracket);
+                    ShowDivider=FALSE;
+
+                    if ( Level == ColumnsInGlobal )
+                      SetColor(COL_PANELTEXT);
+                    else
+                      SetShowColor(J);
+                  }
                 }
                 /* IS $ */
               }
