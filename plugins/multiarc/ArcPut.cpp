@@ -91,7 +91,7 @@ SelectFormatComboBox::SelectFormatComboBox(FarDialogItem *DialogItem, char *ArcF
       if(!ArcPlugin->GetFormatName(i, j, Format, DefExt))
         break;
 
-      char Buffer[512];
+      char Buffer[MA_MAX_SIZE_COMMAND_NAME];
 
       //*Buffer=0; //$ AA סבנמסטעסÿ ג GetDefaultCommands
       ArcPlugin->GetDefaultCommands(i, j, CMD_ADD, Buffer);
@@ -400,7 +400,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
     return 0;
 
   int I;
-  char Command[512],AllFilesMask[32];
+  char Command[MA_MAX_SIZE_COMMAND_NAME],AllFilesMask[MA_MAX_SIZE_COMMAND_NAME];
   int ArcExitCode=1;
   BOOL OldExactState=Opt.AdvFlags.AutoResetExactArcName?FALSE:Opt.AdvFlags.ExactArcName;
   BOOL RestoreExactState=FALSE, NewArchive=TRUE;

@@ -87,7 +87,7 @@ int PluginClass::ProcessHostFile(struct PluginPanelItem *PanelItem,int ItemsNumb
     {MArcCmdLock,         CMD_LOCK        },
   };
 
-  char Command[512],AllFilesMask[32];
+  char Command[MA_MAX_SIZE_COMMAND_NAME],AllFilesMask[MA_MAX_SIZE_COMMAND_NAME];
   int CommandType;
   int ExitCode=0;
 
@@ -234,7 +234,7 @@ int PluginClass::SelectFormat(char *ArcFormat,int AddOnly)
 
         if(AddOnly) // Only add to archive?
         {
-          char Buffer[512];
+          char Buffer[MA_MAX_SIZE_COMMAND_NAME];
           ArcPlugin->GetDefaultCommands(i, j, CMD_ADD, Buffer);
           GetRegKey(Format,CmdNames[CMD_ADD],Buffer,Buffer,sizeof(Buffer));
           if(*Buffer==0)

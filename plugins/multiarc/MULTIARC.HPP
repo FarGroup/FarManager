@@ -47,6 +47,7 @@ Modify:
 
 #define F_ENCRYPTED 1
 #define MAX_COMMAND_LENGTH 32768
+#define MA_MAX_SIZE_COMMAND_NAME 512
 
 #define SUPER_PUPER_ZERO (0)
 

@@ -106,7 +106,7 @@ long WINAPI CfgCmdProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     case DM_INITCONFIG:
     {
       int I,J;
-      char Command[512];
+      char Command[MA_MAX_SIZE_COMMAND_NAME];
       FORMATINFO *FormatInfo=(FORMATINFO*)Info.SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
       for (I=2,J=0;I<=32;I+=2,J++)
       {
