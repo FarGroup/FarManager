@@ -5,10 +5,12 @@ Parent class для всех screen objects
 
 */
 
-/* Revision: 1.02 06.05.2001 $ */
+/* Revision: 1.03 09.05.2001 $ */
 
 /*
 Modify:
+  09.05.2001 OT
+    - Отключние в конструкторе EnableRestoreScreen=FALSE;
   06.05.2001 DJ
     ! перетрях #include
   15.07.2000 tran
@@ -28,11 +30,13 @@ Modify:
 
 ScreenObject::ScreenObject()
 {
+  _OT(SysLog("[%p] ScreenObject::ScreenObject()", this));
   Visible=0;
   X1=Y1=X2=Y2=0;
   SaveScr=NULL;
   ShadowSaveScr=NULL;
-  EnableRestoreScreen=TRUE;
+//  EnableRestoreScreen=TRUE;
+  EnableRestoreScreen=FALSE;
   SetPositionDone=FALSE;
   ObjWidth=ObjHeight=0;
 }
@@ -40,6 +44,7 @@ ScreenObject::ScreenObject()
 
 ScreenObject::~ScreenObject()
 {
+  _OT(SysLog("[%p] ScreenObject::~ScreenObject()", this));
   if (!EnableRestoreScreen)
   {
     if (ShadowSaveScr)

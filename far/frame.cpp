@@ -30,10 +30,16 @@ Modify:
 
 Frame::Frame()
 {
+  _OT(SysLog("[%p] Frame::Frame()", this));
   CanLoseFocus=FALSE;
   ExitCode=-1;
   KeyBarVisible=MacroMode=0;
   ModalKeyBar=NULL;
+}
+
+Frame::~Frame()
+{
+  _OT(SysLog("[%p] Frame::~Frame()", this));
 }
 
 void Frame::SetKeyBar(KeyBar *ModalKeyBar)

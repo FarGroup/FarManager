@@ -29,7 +29,9 @@ Modify:
 #include "fn.hpp"
 #include "colors.hpp"
 
-//#define DIRECT_SCREEN_OUT
+#if defined(SYSLOG_OT)
+ #define DIRECT_SCREEN_OUT
+#endif
 
 ScreenBuf::ScreenBuf()
 {

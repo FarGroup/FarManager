@@ -45,6 +45,7 @@ Modify:
 
 FilePanels::FilePanels()
 {
+  _OT(SysLog("[%p] FilePanels::FilePanels()", this));
   LeftPanel=CreatePanel(Opt.LeftPanel.Type);
   RightPanel=CreatePanel(Opt.RightPanel.Type);
   CmdLine=0;
@@ -107,6 +108,7 @@ void FilePanels::Init()
 
 FilePanels::~FilePanels()
 {
+  _OT(SysLog("[%p] FilePanels::~FilePanels()", this));
   if (LastLeftFilePanel!=LeftPanel && LastLeftFilePanel!=RightPanel)
     DeletePanel(LastLeftFilePanel);
   if (LastRightFilePanel!=LeftPanel && LastRightFilePanel!=RightPanel)

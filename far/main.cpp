@@ -119,6 +119,7 @@ printf(
 
 int _cdecl main(int Argc, char *Argv[])
 {
+  _OT(SysLog("[[[[[[[[New Session of FAR]]]]]]]]]"));
   char EditName[NM],ViewName[NM],DestName[NM];
   int StartLine=-1,StartChar=-1,RegOpt=FALSE;
   *EditName=*ViewName=*DestName=0;
@@ -334,9 +335,11 @@ int _cdecl main(int Argc, char *Argv[])
       CtrlObj.FrameManager->EnterMainLoop();
     }
   }
+
   SetConsoleTitle(OldTitle);
   CloseConsole();
   RestoreIcons();
+  _OT(SysLog("[[[[[Exit of FAR]]]]]]]]]"));
   return(0);
 }
 

@@ -212,9 +212,11 @@ static char BorderLine[]={0x0B3,0x020,0x00};
 
 Viewer::Viewer()
 {
+  _OT(SysLog("[%p] Viewer::Viewer()", this));
   /* $ 29.03.2001 IS
        "Наследуем" некоторые глобальные
   */
+
   memcpy(&ViOpt, &Opt.ViOpt, sizeof(ViewerOptions));
   /* IS $ */
   /* $ 12.07.2000 tran

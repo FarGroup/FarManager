@@ -83,6 +83,7 @@ Modify:
 
 ControlObject::ControlObject()
 {
+  _OT(SysLog("[%p] ControlObject::ControlObject()", this));
   FPanels=0;
   CtrlObject=this;
   /* $ 06.05.2001 DJ
@@ -221,6 +222,7 @@ _beginthread(CheckVersion,0x10000,NULL);
 ControlObject::~ControlObject()
 {
 ///  ModalManager.CloseAll();
+  _OT(SysLog("[%p] ControlObject::~ControlObject()", this));
   if (Cp()->ActivePanel!=NULL)
   {
     if (Opt.AutoSaveSetup)

@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.42 07.05.2001 $ */
+/* Revision: 1.43 09.05.2001 $ */
 
 /*
 Modify:
+  09.05.2001 OT
+    - исправление Panel::Show
   07.05.2001 SVS
     ! SysLog(); -> _D(SysLog());
   06.05.2001 DJ
@@ -157,6 +159,7 @@ static int MessageRemoveConnection(char Letter, int &UpdateProfile);
 
 Panel::Panel()
 {
+  _OT(SysLog("[%p] Panel::Panel()", this));
   Focus=0;
   *CurDir=0;
   PanelMode=NORMAL_PANEL;
@@ -172,6 +175,7 @@ Panel::Panel()
 
 Panel::~Panel()
 {
+  _OT(SysLog("[%p] Panel::~Panel()", this));
   EndDrag();
 }
 
@@ -490,7 +494,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
         case KEY_INS:
           if (SelPos<DiskCount && WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
           {
-            char MsgText[200], LocalName[50];
+//            char MsgText[200], LocalName[50];
             if (ChDisk.GetUserData(DiskLetter,sizeof(DiskLetter)))
             {
               DriveType=(DWORD)(BYTE)DiskLetter[2];
@@ -1147,11 +1151,15 @@ void Panel::Hide()
 
 void Panel::Show()
 {
-  SavePrevScreen();
+  /* $ 09.05.2001 OT */
+//  SavePrevScreen();
   Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
   if (AnotherPanel->IsVisible() && !GetModalMode())
   {
-    SaveScr->AppendArea(AnotherPanel->SaveScr);
+  /* $ 09.05.2001 OT */
+    if (SaveScr) {
+      SaveScr->AppendArea(AnotherPanel->SaveScr);
+    }
     if (AnotherPanel->GetFocus())
     {
       if (AnotherPanel->IsFullScreen())

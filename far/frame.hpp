@@ -44,6 +44,7 @@ class Frame: public ScreenObject
 
   public:
     Frame();
+    ~Frame();
 
     int  GetCanLoseFocus() { return(CanLoseFocus); };
     void SetCanLoseFocus(int Mode) { CanLoseFocus=Mode; };

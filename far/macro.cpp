@@ -250,6 +250,7 @@ BOOL WINAPI KeyMacroToText(int Key,char *KeyText0,int Size)
 
 KeyMacro::KeyMacro()
 {
+  _OT(SysLog("[%p] KeyMacro::KeyMacro()", this));
   TempMacroType=MTEMP_POINTER;
   TempMacro=NULL;
   LockScr=NULL;
@@ -260,6 +261,7 @@ KeyMacro::KeyMacro()
 
 KeyMacro::~KeyMacro()
 {
+  _OT(SysLog("[%p] KeyMacro::~KeyMacro()", this));
   InitVars();
 }
 

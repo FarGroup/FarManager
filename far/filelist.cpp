@@ -189,6 +189,7 @@ enum SELECT_MODES {SELECT_INVERT,SELECT_INVERTALL,SELECT_ADD,SELECT_REMOVE,
 
 FileList::FileList()
 {
+  _OT(SysLog("[%p] FileList::FileList()", this));
   Type=FILE_PANEL;
   GetCurrentDirectory(sizeof(CurDir),CurDir);
   hPlugin=INVALID_HANDLE_VALUE;
@@ -235,6 +236,7 @@ FileList::FileList()
 
 FileList::~FileList()
 {
+  _OT(SysLog("[%p] FileList::~FileList()", this));
   CloseChangeNotification();
   for (int I=0;I<PrevDataStackSize;I++)
     DeleteListData(PrevDataStack[I].PrevListData,PrevDataStack[I].PrevFileCount);
@@ -1211,7 +1213,7 @@ int FileList::ProcessKey(int Key)
          а тут мы вызываем перерисовку панелей
          потому что этот viewer, editor могут нам неверно восстановить
          */
-      CtrlObject->Cp()->Redraw();
+//      CtrlObject->Cp()->Redraw();
       /* tran 15.07.2000 $ */
       return(TRUE);
     case KEY_F5:

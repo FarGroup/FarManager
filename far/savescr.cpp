@@ -27,6 +27,7 @@ Modify:
 
 SaveScreen::SaveScreen()
 {
+  _OT(SysLog("[%p] SaveScreen::SaveScreen()", this));
   RealScreen=FALSE;
   SaveArea(0,0,ScrX,ScrY);
 }
@@ -34,6 +35,7 @@ SaveScreen::SaveScreen()
 
 SaveScreen::SaveScreen(int RealScreen)
 {
+  _OT(SysLog("[%p] SaveScreen::SaveScreen(RealScreen=%i)",this,RealScreen));
   SaveScreen::RealScreen=RealScreen;
   SaveArea(0,0,ScrX,ScrY);
 }
@@ -41,6 +43,7 @@ SaveScreen::SaveScreen(int RealScreen)
 
 SaveScreen::SaveScreen(int X1,int Y1,int X2,int Y2,int RealScreen)
 {
+  _OT(SysLog("[%p] SaveScreen::SaveScreen(X1=%i,Y1=%i,X2=%i,Y2=%i)",this,X1,Y1,X2,Y2));
   SaveScreen::RealScreen=RealScreen;
   SaveArea(X1,Y1,X2,Y2);
 }
@@ -50,6 +53,7 @@ SaveScreen::~SaveScreen()
 {
   if (!ScreenBuf)
     return;
+  _OT(SysLog("[%p] SaveScreen::~SaveScreen()", this));
   RestoreArea();
   /* $ 13.07.2000 SVS
      раз уж вызвали new[], то и нужно delete[]

@@ -91,6 +91,7 @@ FileViewer::FileViewer(char *Name,int EnableSwitch,int DisableHistory,
                        int DisableEdit,long ViewStartPos,char *PluginData,
                        NamesList *ViewNamesList)
 {
+  _OT(SysLog("[%p] FileViewer::FileViewer(I variant...)", this));
   FileViewer::DisableEdit=DisableEdit;
   SetPosition(0,0,ScrX,ScrY);
   FullScreen=TRUE;
@@ -101,6 +102,7 @@ FileViewer::FileViewer(char *Name,int EnableSwitch,int DisableHistory,
 FileViewer::FileViewer(char *Name,int EnableSwitch,char *Title,
                        int X1,int Y1,int X2,int Y2)
 {
+  _OT(SysLog("[%p] FileViewer::FileViewer(II variant...)", this));
   DisableEdit=TRUE;
   SetPosition(X1,Y1,X2,Y2);
   FullScreen=(X1==0 && Y1==0 && X2==ScrX && Y2==ScrY);
