@@ -6,10 +6,14 @@ editor.cpp
 
 */
 
-/* Revision: 1.33 13.09.2000 $ */
+/* Revision: 1.34 20.09.2000 $ */
 
 /*
 Modify:
+   20.09.2000 SVS
+    ! В Replace диалоге для строки replace удален флаг DIF_USELASTHISTORY
+    ! Если при замене жмакнули All, то при повторном Shift-F7 снова
+      появляется диалог о подтверждении действий.
    13.09.2000 skv
     ! EE_REDRAW вызывается с константами. 1 и 2 поменяны.
    07.09.2000 skv
@@ -1601,6 +1605,11 @@ int Editor::ProcessKey(int Key)
       }
       return(TRUE);
     case KEY_SHIFTF7:
+      /* $ 20.09.2000 SVS
+         При All после нажатия Shift-F7 надобно снова спросить...
+      */
+      ReplaceAll=FALSE;
+      /* SVS $*/
       MarkingBlock=FALSE;
       MarkingVBlock=FALSE;
       Search(TRUE);
@@ -2585,32 +2594,32 @@ void Editor::Search(int Next)
      Добавление checkbox'ов в диалоги для поиска целых слов
   */
   static struct DialogData SearchDlgData[]={
-    DI_DOUBLEBOX,3,1,72,10,0,0,0,0,(char *)MEditSearchTitle,
-    DI_TEXT,5,2,0,0,0,0,0,0,(char *)MEditSearchFor,
-    DI_EDIT,5,3,70,3,1,(DWORD)TextHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,0,"",
-    DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MEditSearchCase,
-    DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MEditSearchWholeWords,
-    DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MEditSearchReverse,
-    DI_TEXT,3,8,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,1,(char *)MEditSearchSearch,
-    DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,0,(char *)MEditSearchCancel
+  /*  0 */DI_DOUBLEBOX,3,1,72,10,0,0,0,0,(char *)MEditSearchTitle,
+  /*  1 */DI_TEXT,5,2,0,0,0,0,0,0,(char *)MEditSearchFor,
+  /*  2 */DI_EDIT,5,3,70,3,1,(DWORD)TextHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,0,"",
+  /*  3 */DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /*  4 */DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MEditSearchCase,
+  /*  5 */DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MEditSearchWholeWords,
+  /*  6 */DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MEditSearchReverse,
+  /*  7 */DI_TEXT,3,8,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /*  8 */DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,1,(char *)MEditSearchSearch,
+  /*  9 */DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,0,(char *)MEditSearchCancel
   };
   MakeDialogItems(SearchDlgData,SearchDlg);
 
   static struct DialogData ReplaceDlgData[]={
-    DI_DOUBLEBOX,3,1,72,12,0,0,0,0,(char *)MEditReplaceTitle,
-    DI_TEXT,5,2,0,0,0,0,0,0,(char *)MEditSearchFor,
-    DI_EDIT,5,3,70,3,1,(DWORD)TextHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,0,"",
-    DI_TEXT,5,4,0,0,0,0,0,0,(char *)MEditReplaceWith,
-    DI_EDIT,5,5,70,3,0,(DWORD)ReplaceHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,0,"",
-    DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MEditSearchCase,
-    DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MEditSearchWholeWords,
-    DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MEditSearchReverse,
-    DI_TEXT,3,10,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,1,(char *)MEditReplaceReplace,
-    DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,0,(char *)MEditSearchCancel
+  /*  0 */DI_DOUBLEBOX,3,1,72,12,0,0,0,0,(char *)MEditReplaceTitle,
+  /*  1 */DI_TEXT,5,2,0,0,0,0,0,0,(char *)MEditSearchFor,
+  /*  2 */DI_EDIT,5,3,70,3,1,(DWORD)TextHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,0,"",
+  /*  3 */DI_TEXT,5,4,0,0,0,0,0,0,(char *)MEditReplaceWith,
+  /*  4 */DI_EDIT,5,5,70,3,0,(DWORD)ReplaceHistoryName,DIF_HISTORY/*|DIF_USELASTHISTORY*/,0,"",
+  /*  5 */DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /*  6 */DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MEditSearchCase,
+  /*  7 */DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MEditSearchWholeWords,
+  /*  8 */DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MEditSearchReverse,
+  /*  9 */DI_TEXT,3,10,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 10 */DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,1,(char *)MEditReplaceReplace,
+  /* 11 */DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,0,(char *)MEditSearchCancel
   };
   /* KM $ */
   MakeDialogItems(ReplaceDlgData,ReplaceDlg);
