@@ -5,10 +5,13 @@ copy.cpp
 
 */
 
-/* Revision: 1.91 15.06.2002 $ */
+/* Revision: 1.92 18.06.2002 $ */
 
 /*
 Modify:
+  18.06.2002 VVM
+    ! ShellSetAttr: ƒаже если не смогли получить информацию о томе - попытаемс€ выставить атрибуты
+      ” мен€ на новеловском томе при UNC-пути почему-то обламываетс€ GetVolumeInformation()
   15.06.2002 IS
     - Ѕаг: копирование не производилось, если не было диалога подтверждени€
   10.06.2002 SVS
@@ -3461,24 +3464,29 @@ int ShellCopy::ShellSetAttr(const char *Dest,DWORD Attr)
       return FALSE;
   }
 
+  /* 18.06.2002 VVM
+    ! ƒаже если не смогли получить информацию о томе - попытаемс€ выставить атрибуты
+      ” мен€ на новеловском томе при UNC-пути почему-то обламываетс€ GetVolumeInformation() */
 //_SVS(SysLog("Copy: 0x%08X Dest='%s' Root='%s'",Attr,Dest,Root));
-  if(GetVolumeInformation(Root,NULL,0,NULL,NULL,&FileSystemFlagsDst,FSysNameDst,sizeof(FSysNameDst)))
+  int GetInfoSuccess = GetVolumeInformation(Root,NULL,0,NULL,NULL,&FileSystemFlagsDst,FSysNameDst,sizeof(FSysNameDst));
+  if (GetInfoSuccess)
   {
 //_SVS(SysLog("Copy: %s (0x%08X) %c%c",FSysNameDst,FileSystemFlagsDst,(FileSystemFlagsDst&FS_FILE_COMPRESSION?'C':'.'),(FileSystemFlagsDst&FILE_SUPPORTS_ENCRYPTION?'E':'.')));
      if(!(FileSystemFlagsDst&FS_FILE_COMPRESSION))
        Attr&=~FILE_ATTRIBUTE_COMPRESSED;
      if(!(FileSystemFlagsDst&FILE_SUPPORTS_ENCRYPTION))
        Attr&=~FILE_ATTRIBUTE_ENCRYPTED;
-    SetFileAttributes(Dest,Attr);
+  }
+  if (!SetFileAttributes(Dest,Attr))
+    return FALSE;
     // ѕри копировании/переносе выставл€ем FILE_ATTRIBUTE_ENCRYPTED
     // дл€ каталога, если он есть
-    if((FileSystemFlagsDst&FILE_SUPPORTS_ENCRYPTION) &&
-        (Attr&(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_DIRECTORY)) == (FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_DIRECTORY))
-      if(!ESetFileEncryption(Dest,1,0))
-        return FALSE;
-    return TRUE;
-  }
-  return FALSE;
+  if (GetInfoSuccess && (FileSystemFlagsDst&FILE_SUPPORTS_ENCRYPTION) &&
+     (Attr&(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_DIRECTORY)) == (FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_DIRECTORY))
+    if (!ESetFileEncryption(Dest,1,0))
+      return FALSE;
+  return TRUE;
+  /* VVM $ */
 }
 
 BOOL ShellCopy::MoveFileThroughTemp(const char *Src, const char *Dest)
