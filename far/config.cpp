@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.84 16.07.2001 $ */
+/* Revision: 1.85 17.07.2001 $ */
 
 /*
 Modify:
+  17.07.2001 SVS
+    ! Opt.AltF9 - уточнение поведения для разных платформ
   16.07.2001 SVS
     ! Opt.AltF9 - по умолчанию = 0, т.е. отключено (подробнее см. описалово)
   10.07.2001 SKV
@@ -926,7 +928,7 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeyInterface, "CursorSize1",&Opt.CursorSize[0],15, 0},
   {0, REG_DWORD,  NKeyInterface, "CursorSize2",&Opt.CursorSize[1],10, 0},
   {0, REG_DWORD,  NKeyInterface, "ShiftsKeyRules",&Opt.ShiftsKeyRules,1, 0},
-  {0, REG_DWORD,  NKeyInterface, "AltF9",&Opt.AltF9, 0, 0},
+  {0, REG_DWORD,  NKeyInterface, "AltF9",&Opt.AltF9, -1, 0},
 
   {1, REG_SZ,     NKeyViewer,"ExternalViewerName",Opt.ExternalViewer,sizeof(Opt.ExternalViewer),""},
   {1, REG_DWORD,  NKeyViewer,"UseExternalViewer",&Opt.UseExternalViewer,0, 0},
@@ -1134,6 +1136,11 @@ void ReadConfig()
   if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
     Opt.FlagPosixSemantics=0;
   /* VVM $ */
+
+  // Умолчание разное для разных платформ.
+  if(Opt.AltF9 == -1)
+    Opt.AltF9=WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT?1:0;
+
   //   Уточняем алгоритм "взятия" палитры.
   for(I=COL_PRIVATEPOSITION_FOR_XRENZNAETCHEGO-COL_FIRSTPALETTECOLOR+1;
       I < (COL_LASTPALETTECOLOR-COL_FIRSTPALETTECOLOR);

@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.70 02.07.2001 $ */
+/* Revision: 1.71 17.07.2001 $ */
 
 /*
 Modify:
+  17.07.2001 SVS
+    + Shift-Enter на каталоге вызывает проводник
   02.07.2001 IS
     + ѕри выделении файлов (серый плюс и прочие команды) можно использовать
       маски исключени€, можно использовать в качестве разделител€ не только
@@ -1635,18 +1637,32 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
   strcpy(ShortFileName,*CurPtr->ShortName ? CurPtr->ShortName:CurPtr->Name);
   if (CurPtr->FileAttr & FA_DIREC)
   {
-    /* $ 09.04.2001 SVS
-       Ќе перерисовываем, если ChangeDir закрыла панель
-    */
-    BOOL res;
-    if (PanelMode==PLUGIN_PANEL || strchr(CurPtr->Name,'?')==NULL ||
-        *CurPtr->ShortName==0)
-      res=ChangeDir(CurPtr->Name);
+    // Shift-Enter на каталоге вызывает проводник
+    if(PanelMode!=PLUGIN_PANEL && SeparateWindow)
+    {
+      char FullPath[NM];
+      AddEndSlash(strcpy(FullPath,CurDir));
+      strcat(FullPath,CurPtr->Name);
+      QuoteSpace(FullPath);
+      Execute(FullPath,FALSE,SeparateWindow,TRUE);
+    }
     else
-      res=ChangeDir(CurPtr->ShortName);
-    if(res)
-      Show();
-    /* SVS $ */
+    {
+      /* $ 09.04.2001 SVS
+         Ќе перерисовываем, если ChangeDir закрыла панель
+      */
+      BOOL res=FALSE;
+      if (PanelMode==PLUGIN_PANEL || strchr(CurPtr->Name,'?')==NULL ||
+          *CurPtr->ShortName==0)
+      {
+        res=ChangeDir(CurPtr->Name);
+      }
+      else
+        res=ChangeDir(CurPtr->ShortName);
+      if(res)
+        Show();
+      /* SVS $ */
+    }
   }
   else
   {
