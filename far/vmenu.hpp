@@ -11,10 +11,12 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.32 30.11.2001 $ */
+/* Revision: 1.33 02.12.2001 $ */
 
 /*
 Modify:
+  02.12.2001 KM
+    + VMOldFlags
   30.11.2001 DJ
     - значение VMENU_COLOR_COUNT приведено в соответствие с действительностью
   06.11.2001 SVS
@@ -216,6 +218,7 @@ class VMenu: virtual public Modal, virtual public Frame
          DI_LISTBOX & DI_COMBOBOX
     */
     DWORD VMFlags;
+    DWORD VMOldFlags;
     /* SVS $ */
 
     /* $ 01.08.2000 SVS

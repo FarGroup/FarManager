@@ -8,10 +8,17 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.68 30.11.2001 $ */
+/* Revision: 1.69 02.12.2001 $ */
 
 /*
 Modify:
+  02.12.2001 KM
+    + Поелику VMENU_SHOWAMPERSAND сбрасывается в AssignHighlights
+      для корректной работы ShowMenu сделаем сохранение энтого флага
+      в переменной VMOldFlags, в противном случае если в диалоге
+      использовался DI_LISTBOX без флага DIF_LISTNOAMPERSAND, то
+      амперсанды отображались в списке только один раз до следующего
+      ShowMenu.
   30.11.2001 DJ
     - не забудем инициализировать MaxLength
   14.11.2001 SVS
@@ -277,6 +284,11 @@ VMenu::VMenu(const char *Title,       // заголовок меню
 
   MouseDown = FALSE;
   VMenu::VMFlags=Flags;
+  /* $ 02.12.2001 KM
+     + Сохраняшка для VMFlags
+  */
+  VMenu::VMOldFlags=0;
+  /* KM $ */
 /* SVS $ */
 
 /*& 28.05.2001 OT Запретить перерисовку фрема во время запуска меню */
@@ -682,6 +694,14 @@ void VMenu::ShowMenu(int IsParent)
   }
   if (SelectPos<ItemCount)
     Item[SelectPos].Flags|=LIF_SELECTED;
+
+  /* $ 02.12.2001 KM
+     ! Предварительно, если нужно, настроим "горячие" клавиши.
+  */
+  if(VMFlags&(VMENU_AUTOHIGHLIGHT|VMENU_REVERSEHIGHLIGHT))
+    AssignHighlights(VMFlags&VMENU_REVERSEHIGHLIGHT);
+  /* KM $ */
+
   /* $ 21.07.2001 KM
    ! Переработка отрисовки меню с флагом VMENU_SHOWNOBOX.
   */
@@ -1585,6 +1605,19 @@ void VMenu::AssignHighlights(int Reverse)
 {
   char Used[256];
   memset(Used,0,sizeof(Used));
+
+  /* $ 02.12.2001 KM
+     + Поелику VMENU_SHOWAMPERSAND сбрасывается для корректной
+       работы ShowMenu сделаем сохранение энтого флага, в противном
+       случае если в диалоге использовался DI_LISTBOX без флага
+       DIF_LISTNOAMPERSAND, то амперсанды отображались в списке
+       только один раз до следующего ShowMenu.
+  */
+  if (VMFlags&VMENU_SHOWAMPERSAND)
+    VMOldFlags|=VMENU_SHOWAMPERSAND;
+  if (VMOldFlags&VMENU_SHOWAMPERSAND)
+    VMFlags|=VMENU_SHOWAMPERSAND;
+  /* KM $ */
   int I;
   for (I=Reverse ? ItemCount-1:0;I>=0 && I<ItemCount;I+=Reverse ? -1:1)
   {
@@ -1625,7 +1658,6 @@ void VMenu::AssignHighlights(int Reverse)
 */
 void VMenu::SetColors(short *Colors)
 {
-  int I;
   if(Colors)
     memmove(VMenu::Colors,Colors,sizeof(VMenu::Colors));
   else

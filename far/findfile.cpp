@@ -5,10 +5,16 @@ findfile.cpp
 
 */
 
-/* Revision: 1.77 23.11.2001 $ */
+/* Revision: 1.78 01.12.2001 $ */
 
 /*
 Modify:
+  01.12.2001 KM
+    - [Bug#145] М-да... Такая невнимательность до добра не доведёт :(
+      Перепутать Param1 с Param2 это надо суметь...
+    + Добавлена в заголовок окна поиска информация о маске поиска:
+      "=== Find files: mask*.ext ==="
+      Сам много раз на длинных поисках забывал что ищу...
   23.11.2001 KM
     - БЛИН! Правил глюк и глюк добавил :-(
       Перестали работать чекбоксы и радиобатоны.
@@ -444,7 +450,7 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
            контролами, только с кнопками немного по-другому, поэтому простое
            нажатие ENTER на кнопках Find или Cancel ни к чему не приводило.
       */
-      if (Param1==22 || Param2==23) // [ Find ] или [ Cancel ]
+      if (Param1==22 || Param1==23) // [ Find ] или [ Cancel ]
         return FALSE;
       else if (Param1==13)
         FindFoldersChanged = TRUE;
@@ -650,6 +656,7 @@ FindFiles::FindFiles()
       memset (Buf1, 0, sizeof(Buf1));
       memset (Buf2, 0, sizeof(Buf2));
       strncpy (Buf1, MSG(MFindFileText), sizeof(Buf1)-1);
+      RemoveHighlights(Buf1);
       sprintf (Buf2,MSG(MEditInputSize), Buf1, sizeof(FindStr)-1);
       Message(MSG_WARNING,1,MSG(MWarning),
         Buf2,
@@ -1114,10 +1121,16 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
 int FindFiles::FindFilesProcess()
 {
+  char Title[2*NM];
   hMutex=CreateMutex(NULL,FALSE,NULL);
 
+  if (*FindMask)
+    sprintf(Title,"%s: %s",MSG(MFindFileTitle),FindMask);
+  else
+    sprintf(Title,"%s",MSG(MFindFileTitle));
+
   static struct DialogData FindDlgData[]={
-  /* 00 */DI_DOUBLEBOX,3,1,72,DLG_HEIGHT-2,0,0,0,0,(char *)MFindFileTitle,
+  /* 00 */DI_DOUBLEBOX,3,1,72,DLG_HEIGHT-2,0,0,0,0,Title,
   /* 01 */DI_LISTBOX,4,2,71,14,0,0,DIF_LISTNOBOX,0,(char*)0,
   /* 02 */DI_TEXT,-1,15,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
   /* 03 */DI_TEXT,5,16,0,0,0,0,0,0,(char *)MFindSearchingIn,

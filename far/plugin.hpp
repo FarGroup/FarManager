@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.168 28.11.2001 $ */
+/* Revision: 1.169 02.12.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,10 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  01.12.2001 KM
+    + DM_LISTSET - новое сообщение, отличается от DM_LISTADD тем, что
+      если в списке есть строки, то сначала удалим их, т.с. "чистая"
+      установка.
   28.11.2001 SVS
     ! DM_EDITCLEARFLAG заменен на более корректное DM_EDITUNCHANGEDFLAG
     + FIS_SHOWCOPYINGTIMEINFO
@@ -868,6 +872,7 @@ enum FarMessagesProc{
 
   DM_LISTSORT,
   DM_LISTGET,
+  DM_LISTSET,
   DM_LISTGETCURPOS,
   DM_LISTSETCURPOS,
   DM_LISTDELETE,
