@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.210 10.11.2004 $ */
+/* Revision: 1.211 11.11.2004 $ */
 
 /*
 Modify:
+  11.11.2004 WARP
+    - BugZ#1098 После захода в плагин с панели, расширенной до fullscreen, надо перерисовывать обе панели
   10.11.2004 WARP
     - BugZ#1130 Alt-Shift-Ins берет неверные данные после смены каталога через User menu
   08.11.2004 WARP
@@ -4493,6 +4495,9 @@ HANDLE FileList::OpenFilePlugin(char *FileName,int PushPrev)
       ListData=NULL;
       FileCount=0;
     }
+
+    BOOL WasFullscreen = IsFullScreen();
+
     SetPluginMode(hNewPlugin,FileName);
     PanelMode=PLUGIN_PANEL;
     UpperFolderTopFile=CurTopFile;
@@ -4500,7 +4505,7 @@ HANDLE FileList::OpenFilePlugin(char *FileName,int PushPrev)
     Update(0);
     Redraw();
     Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
-    if (AnotherPanel->GetType()==INFO_PANEL)
+    if ( (AnotherPanel->GetType()==INFO_PANEL) || WasFullscreen )
       AnotherPanel->Redraw();
   }
   return(hNewPlugin);
