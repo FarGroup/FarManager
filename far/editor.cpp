@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.47 03.12.2000 $ */
+/* Revision: 1.48 03.12.2000 $ */
 
 /*
 Modify:
+  03.12.2000 IS
+    + Показывать в статусной строке буквами RSH соответствующие атрибуты файла,
+      если они установлены.
   03.12.2000 SVS
     + "Если файл имеет атрибут ReadOnly..." здесь System и Hidden - задаются
       отдельно.
@@ -923,11 +926,26 @@ void Editor::ShowStatus()
     TruncPathStr(TruncFileName,NameLength);
     /* IS $ */
   sprintf(LineStr,"%d/%d",NumLine+1,NumLastLine);
-  sprintf(StatusStr,"%-*s %c%c %10.10s %7s %-13.13s %5s %-4d",
+  /* $ 03.12.2000 IS
+    + Показывать буквами RSH соответствующие атрибуты файла, если они
+      установлены
+  */
+  char attrStr[4];
+  int ind=0;
+  DWORD attr=GetFileAttributes(FileName);
+  if(attr!=0xFFFFFFFF)
+  {
+    if(attr&FILE_ATTRIBUTE_READONLY) attrStr[ind++]='R';
+    if(attr&FILE_ATTRIBUTE_SYSTEM) attrStr[ind++]='S';
+    if(attr&FILE_ATTRIBUTE_HIDDEN) attrStr[ind++]='H';
+  }
+  attrStr[ind]=0;
+  sprintf(StatusStr,"%-*s %c%c %10.10s %7s %-12.12s %5s %-4d %3s",
           NameLength,TruncFileName,Modified ? '*':' ',LockMode ? '-':' ',
           UseDecodeTable ? TableSet.TableName:AnsiText ? "Win":"DOS",
           MSG(MEditStatusLine),LineStr,
-          MSG(MEditStatusCol),CurLine->EditLine.GetTabCurPos()+1);
+          MSG(MEditStatusCol),CurLine->EditLine.GetTabCurPos()+1,attrStr);
+  /* IS $ */
   int StatusWidth=Opt.ViewerEditorClock ? ObjWidth-5:ObjWidth;
   if (StatusWidth<0)
     StatusWidth=0;
