@@ -5,10 +5,12 @@ filetype.cpp
 
 */
 
-/* Revision: 1.37 18.03.2002 $ */
+/* Revision: 1.38 20.03.2002 $ */
 
 /*
 Modify:
+  20.03.2002 IS
+    ! немного const (из-за PrepareOSIfExist)
   18.03.2002 SVS
     ! Мааааханькое уточнение (про историю)
   05.03.2002 DJ
@@ -156,7 +158,7 @@ const FileTypeStrings FTS=
 
 BOOL ExtractIfExistCommand (char *CommandText)
 {
-  char *PtrCmd=PrepareOSIfExist(CommandText);
+  const char *PtrCmd=PrepareOSIfExist(CommandText);
   if(PtrCmd)
   {
     if(!*PtrCmd) // Во! Условие не выполнено!!!

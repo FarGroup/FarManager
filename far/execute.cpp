@@ -5,10 +5,13 @@ execute.cpp
 
 */
 
-/* Revision: 1.43 18.03.2002 $ */
+/* Revision: 1.44 20.03.2002 $ */
 
 /*
 Modify:
+  20.03.2002 IS
+    + "if [not] exist" дружит теперь с масками файлов
+    ! PrepareOSIfExist теперь принимает и возвращает const
   18.03.2002 SVS
     ! Ѕад€га про курсор - там где нужно гасить, выставл€лас€ 1
   28.02.2002 SVS
@@ -1099,6 +1102,10 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
 }
 
 
+/* 20.03.2002 IS
+   "if [not] exist" дружит теперь с масками файлов
+   PrepareOSIfExist теперь принимает и возвращает const
+*/
 /* $ 14.01.2001 SVS
    + ¬ ProcessOSCommands добавлена обработка
      "IF [NOT] EXIST filename command"
@@ -1110,18 +1117,20 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
    Return - указатель на "command"
             пуска€ строка - условие не выполнимо
             NULL - не попалс€ "IF" или ошибки в предложении, например
-                   не exist, а esist или предложение неполно.
+                   не exist, а exist или предложение неполно.
 
    DEFINED - подобно EXIST, но оперирует с переменными среды
 
-   »сходна€ строка (CmdLine) не модифицируетс€!!!
+   »сходна€ строка (CmdLine) не модифицируетс€!!! - на что €вно указывает const
+                                                    IS 20.03.2002 :-)
 */
-char* WINAPI PrepareOSIfExist(char *CmdLine)
+const char* WINAPI PrepareOSIfExist(const char *CmdLine)
 {
   if(!CmdLine || !*CmdLine)
     return NULL;
 
-  char Cmd[1024], *PtrCmd=CmdLine, *CmdStart;
+  char Cmd[1024];
+  const char *PtrCmd=CmdLine, *CmdStart;
   int Not=FALSE;
   int Exist=0; // признак наличи€ конструкции "IF [NOT] EXIST filename command"
                // > 0 - эсть така€ конструкци€
@@ -1187,8 +1196,22 @@ char* WINAPI PrepareOSIfExist(char *CmdLine)
             AddEndSlash(FullPath);
           }
           strcat(FullPath,ExpandedStr);
-          ConvertNameToFull(FullPath,FullPath, sizeof(FullPath));
-          DWORD FileAttr=GetFileAttributes(FullPath);
+          DWORD FileAttr=-1;
+          if(strpbrk(ExpandedStr,"*?")) // это маска?
+          {
+            WIN32_FIND_DATA wfd;
+            HANDLE hFile=FindFirstFile(FullPath, &wfd);
+            if(hFile!=INVALID_HANDLE_VALUE)
+            {
+              FileAttr=wfd.dwFileAttributes;
+              FindClose(hFile);
+            }
+          }
+          else
+          {
+            ConvertNameToFull(FullPath, FullPath, sizeof(FullPath));
+            FileAttr=GetFileAttributes(FullPath);
+          }
 //_SVS(SysLog("%08X FullPath=%s",FileAttr,FullPath));
           if(FileAttr != (DWORD)-1 && !Not || FileAttr == (DWORD)-1 && Not)
           {
@@ -1233,7 +1256,7 @@ char* WINAPI PrepareOSIfExist(char *CmdLine)
   return Exist?PtrCmd:NULL;
 }
 /* SVS $ */
-
+/* IS $ */
 
 int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
 {
@@ -1309,7 +1332,7 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
   */
   if (memicmp(CmdLine,"IF ",3)==0)
   {
-    char *PtrCmd=PrepareOSIfExist(CmdLine);
+    const char *PtrCmd=PrepareOSIfExist(CmdLine);
     // здесь PtrCmd - уже готова€ команда, без IF
     if(PtrCmd && *PtrCmd && CtrlObject->Plugins.ProcessCommandLine(PtrCmd))
     {

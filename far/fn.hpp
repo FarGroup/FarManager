@@ -7,10 +7,15 @@ fn.hpp
 
 */
 
-/* Revision: 1.139 17.03.2002 $ */
+/* Revision: 1.140 20.03.2002 $ */
 
 /*
 Modify:
+  20.03.2002 IS
+    ! PrepareOSIfExist теперь принимает и возвращает const
+    + PointToFolderNameIfFolder - аналог PointToName, только для строк типа
+      "name\" (оканчивается на слеш) возвращает указатель на name, а не
+      на пустую строку
   17.03.2002 IS
     + PrepareTable: параметр UseTableName - в качестве имени таблицы
       использовать не имя ключа реестра, а соответствующую переменную.
@@ -776,6 +781,13 @@ char* WINAPI TruncStrFromEnd(char *Str, int MaxLength);
 char* WINAPI TruncPathStr(char *Str,int MaxLength);
 char* WINAPI QuoteSpaceOnly(char *Str);
 char* WINAPI PointToName(char *Path);
+/* $ 20.03.2002 IS
+    + PointToFolderNameIfFolder - аналог PointToName, только для строк типа
+      "name\" (оканчивается на слеш) возвращает указатель на name, а не
+      на пустую строку
+*/
+char* WINAPI PointToFolderNameIfFolder(const char *Path);
+/* IS $ */
 BOOL  AddEndSlash(char *Path,char TypeSlash);
 BOOL  WINAPI AddEndSlash(char *Path);
 BOOL  WINAPI DeleteEndSlash(char *Path);
@@ -1041,7 +1053,7 @@ int ESetFileTime(const char *Name,FILETIME *LastWriteTime,
 /* SVS $ */
 int ConvertWildcards(const char *Src,char *Dest, int SelectedFolderNameLength);
 
-char* WINAPI PrepareOSIfExist(char *CmdLine);
+const char* WINAPI PrepareOSIfExist(const char *CmdLine);
 
 int WINAPI GetSearchReplaceString(
          int IsReplaceMode,

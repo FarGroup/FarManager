@@ -5,10 +5,14 @@ strmix.cpp
 
 */
 
-/* Revision: 1.34 05.03.2002 $ */
+/* Revision: 1.35 20.03.2002 $ */
 
 /*
 Modify:
+  20.03.2002 IS
+    + PointToFolderNameIfFolder - аналог PointToName, только для строк типа
+      "name\" (оканчивается на слеш) возвращает указатель на name, а не
+      на пустую строку
   05.03.2002 DJ
     - такая вот, блин, хреновая косметика
   23.02.2002 DJ
@@ -151,6 +155,28 @@ char* WINAPI PointToName(char *Path)
   }
   return(NamePtr);
 }
+
+/* $ 20.03.2002 IS
+   Аналог PointToName, только для строк типа
+   "name\" (оканчивается на слеш) возвращает указатель на name, а не на пустую
+   строку
+*/
+char* WINAPI PointToFolderNameIfFolder(const char *Path)
+{
+  const char *NamePtr=Path, *prevNamePtr=Path;
+  while (*Path)
+  {
+    if (*Path=='\\' || *Path=='/' ||
+        *Path==':' && Path==NamePtr+1)
+    {
+      prevNamePtr=NamePtr;
+      NamePtr=Path+1;
+    }
+    ++Path;
+  }
+  return const_cast<char*>((*NamePtr)?NamePtr:prevNamePtr);
+}
+/* IS $ */
 
 int CmpName(const char *pattern,const char *string,int skippath)
 {

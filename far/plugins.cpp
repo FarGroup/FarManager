@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.113 19.03.2002 $ */
+/* Revision: 1.114 20.03.2002 $ */
 
 /*
 Modify:
+  20.03.2002 IS
+    ! ProcessCommandLine принимает const
   19.03.2002 OT
     - Исправление #96
   05.03.2002 DJ
@@ -2679,7 +2681,7 @@ void PluginsSet::LoadIfCacheAbsent()
 }
 
 
-int PluginsSet::ProcessCommandLine(char *Command)
+int PluginsSet::ProcessCommandLine(const char *Command)
 {
   int PrefixLength=0;
   while (1)

@@ -7,10 +7,12 @@ plugins.hpp
 
 */
 
-/* Revision: 1.22 28.01.2002 $ */
+/* Revision: 1.23 20.03.2002 $ */
 
 /*
 Modify:
+  20.03.2002 IS
+    ! ProcessCommandLine принимает const
   28.01.2002 SVS
     + CreatePluginStartupInfo() - создание/заполнение PSI & FSF
   25.01.2002 SVS
@@ -289,7 +291,7 @@ class PluginsSet
     int UseFarCommand(HANDLE hPlugin,int CommandType);
     void ReloadLanguage();
     void DiscardCache();
-    int ProcessCommandLine(char *Command);
+    int ProcessCommandLine(const char *Command);
 
     void UnloadPlugin(struct PluginItem &CurPlg,DWORD Exception);
 

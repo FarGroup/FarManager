@@ -5,10 +5,13 @@ flshow.cpp
 
 */
 
-/* Revision: 1.23 19.03.2002 $ */
+/* Revision: 1.23 20.03.2002 $ */
 
 /*
 Modify:
+  20.03.2002 IS
+    ! Косметика для предыдущего патча от SVS - вызываем
+      PointToFolderNameIfFolder
   19.03.2002 SVS
     - BugZ#375 - Неправильное отображение каталогов в Alt-F7.
   02.03.2002 SVS
@@ -807,13 +810,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 {
                   // !!! НЕ УВЕРЕН, но то, что отображается пустое
                   // пространство вместо названия - бага
-                  int LenNamePtr=strlen(NamePtr);
-                  int TestSlash=(NamePtr[LenNamePtr-1] == '\\')?TRUE:FALSE;
-                  if(TestSlash)
-                    NamePtr[LenNamePtr-1]=0;
-                  NamePtr=PointToName(NamePtr);
-                  if(TestSlash)
-                    NamePtr[LenNamePtr-1]='\\';
+                  NamePtr=PointToFolderNameIfFolder(NamePtr);
                 }
 
                 int CurLeftPos=0;
