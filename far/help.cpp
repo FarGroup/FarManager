@@ -5,10 +5,12 @@ help.cpp
 
 */
 
-/* Revision: 1.17 12.04.2001 $ */
+/* Revision: 1.18 16.04.2001 $ */
 
 /*
 Modify:
+  16.04.2001 SVS
+    - не поганим SelTopic, если и так в "Help on Help"
   12.04.2001 SVS
     + сохранение значения Mask, переданного в конструктор (для корректной
       работы HlfViewer)
@@ -809,8 +811,15 @@ int Help::ProcessKey(int Key)
     }
     /* SVS $ */
     case KEY_F1:
-      strcpy(SelTopic,HelpOnHelpTopic);
-      ProcessKey(KEY_ENTER);
+      /* $ 16.04.2001 SVS
+         - не поганим SelTopic, если и так в Help on Help
+      */
+      if(LocalStricmp(HelpTopic,HelpOnHelpTopic)!=0)
+      {
+        strcpy(SelTopic,HelpOnHelpTopic);
+        ProcessKey(KEY_ENTER);
+      }
+      /* SVS $ */
       return(TRUE);
     case KEY_F5:
       Hide();
