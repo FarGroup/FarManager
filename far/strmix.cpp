@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.51 12.01.2004 $ */
+/* Revision: 1.52 31.05.2004 $ */
 
 /*
 Modify:
+  31.05.2004 SVS
+    ! ReplaceStrings - последний параметр - не различать "высоту" букв
   12.01.2004 SVS
     ! Корректировка CalcWordFromString с учетом IsWordDiv()
   12.01.2004 IS
@@ -951,16 +953,17 @@ char *InsertString(char *Str,int Pos,const char *InsStr,int InsSize)
 // Заменить в строке Str Count вхождений подстроки FindStr на подстроку ReplStr
 // Если Count < 0 - заменять "до полной победы"
 // Return - количество замен
-int ReplaceStrings(char *Str,const char *FindStr,const char *ReplStr,int Count)
+int ReplaceStrings(char *Str,const char *FindStr,const char *ReplStr,int Count,BOOL IgnoreCase)
 {
-  int I=0, J=0;
+  int I=0, J=0, Res;
   int LenReplStr=strlen(ReplStr);
   int LenFindStr=strlen(FindStr);
   int L=strlen(Str);
 
   while(I <= L-LenFindStr)
   {
-    if(memcmp(Str+I, FindStr, LenFindStr) == 0)
+    Res=IgnoreCase?memicmp(Str+I, FindStr, LenFindStr):memcmp(Str+I, FindStr, LenFindStr);
+    if(Res == 0)
     {
       if(LenReplStr > LenFindStr)
         memmove(Str+I+(LenReplStr-LenFindStr),Str+I,strlen(Str+I)+1); // >>

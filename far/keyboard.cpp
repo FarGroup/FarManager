@@ -5,10 +5,13 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.109 27.05.2004 $ */
+/* Revision: 1.110 31.05.2004 $ */
 
 /*
 Modify:
+  31.05.2004 SVS
+    ! выкинем нафиг MCODE_OP_SENDKEY - ненужен
+    ! ReplaceStrings - последний параметр TRUE (не различать "высоту" букв)
   27.05.2004 SVS
     ! Для wVirtualKeyCode >= 0xFF возвращаем KEY_IDLE
   22.04.2004 SVS
@@ -558,7 +561,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec)
     {
       ScrBuf.Flush();
       TranslateKeyToVK(MacroKey,VirtKey,ControlState,rec);
-      rec->EventType=((MacroKey >= KEY_MACRO_BASE && MacroKey <= KEY_MACRO_ENDBASE || (MacroKey&MCODE_OP_SENDKEY)) || (MacroKey&(~0xFF000000)) >= KEY_END_FKEY)?0:FARMACRO_KEY_EVENT;
+      rec->EventType=((MacroKey >= KEY_MACRO_BASE && MacroKey <= KEY_MACRO_ENDBASE) || (MacroKey&(~0xFF000000)) >= KEY_END_FKEY)?0:FARMACRO_KEY_EVENT;
       if(!(MacroKey&KEY_SHIFT))
         ShiftPressed=0;
 //      _KEYMACRO(SysLog("MacroKey1 =%s",_FARKEY_ToName(MacroKey)));
@@ -1765,7 +1768,7 @@ int WINAPI KeyNameToKey(const char *Name)
    {
      if(LocalStrstri(TmpName,ModifKeyName[I].Name) && !(Key&ModifKeyName[I].Key))
      {
-       ReplaceStrings(TmpName,ModifKeyName[I].Name,"",-1);
+       ReplaceStrings(TmpName,ModifKeyName[I].Name,"",-1,TRUE);
        Key|=ModifKeyName[I].Key;
        Pos+=ModifKeyName[I].Len;
      }
@@ -1836,7 +1839,7 @@ BOOL WINAPI KeyToText(int Key0,char *KeyText0,int Size)
   int I, Len;
   DWORD Key=(DWORD)Key0, FKey=(DWORD)Key0&0xFFFF;
 
-  if(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE || (Key&MCODE_OP_SENDKEY))
+  if(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE)
     return KeyMacroToText(Key0,KeyText0,Size);
 
   if(Key&KEY_ALTDIGIT)

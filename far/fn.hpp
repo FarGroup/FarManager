@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.204 07.05.2004 $ */
+/* Revision: 1.205 31.05.2004 $ */
 
 /*
 Modify:
+  31.05.2004 SVS
+    ! ReplaceStrings - последний параметр - не различать "высоту" букв
   07.05.2004 SVS
     + PartCmdLine(), ProcessOSAliases()
   05.05.2004 SVS
@@ -664,7 +666,7 @@ void ConvertCurrentPalette();
 void ReopenConsole();
 char *RemoveChar(char *Str,char Target,BOOL Dup=TRUE);
 char *InsertString(char *Str,int Pos,const char *InsStr,int InsSize=0);
-int ReplaceStrings(char *Str,const char *FindStr,const char *ReplStr,int Count=-1);
+int ReplaceStrings(char *Str,const char *FindStr,const char *ReplStr,int Count=-1,BOOL IgnoreCase=FALSE);
 #define RemoveHighlights(Str) RemoveChar(Str,'&')
 int IsCaseMixed(char *Str);
 int IsCaseLower(char *Str);

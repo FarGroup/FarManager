@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.153 19.05.2004 $ */
+/* Revision: 1.154 31.05.2004 $ */
 
 /*
 Modify:
+  31.05.2004 SVS
+    ! выкинем нафиг MCODE_OP_SENDKEY - ненужен
   19.05.2004 SVS
     ! вместо "SetFileAttributes(Name,0)" выставим "SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL)"
       пусть баундчекер не блюет.
@@ -956,7 +958,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
      никак не соответствует обрабатываемой клавише, возникают разномастные
      глюки
   */
-  if(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE || (Key&MCODE_OP_SENDKEY)) // исключаем MACRO
+  if(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE) // исключаем MACRO
      return(FEdit->ProcessKey(Key));
   /* DJ $ */
 

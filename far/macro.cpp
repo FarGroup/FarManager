@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.118 26.05.2004 $ */
+/* Revision: 1.119 31.05.2004 $ */
 
 /*
 Modify:
+  31.05.2004 SVS
+    ! выкинем нафиг MCODE_OP_SENDKEY - ненужен
   26.05.2004 SVS
     ! MkTextSequence() - третий параметр - некомпиленный текст макроса
     ! В ReadMacros запоминается исходный текст макроса
@@ -412,7 +414,6 @@ Modify:
 
 enum MACRO_OP_CODE {
   // 1 словные операторы
-//MCODE_OP_SENDKEY=0x00800000,   // признак того, что остальные биты - обычная клавиша
   MCODE_OP_JMP=0x80000000,       // Jump, оставшиеся байты
   MCODE_OP_EXIT=KEY_MACROSPEC_BASE,// принудительно закончить выполнение макропоследовательности
   MCODE_OP_MACROMODE,            // сменить режим блокировки вывода на экран
@@ -838,7 +839,7 @@ int KeyMacro::ProcessKey(int Key)
       if(ReturnAltValue) // "подтасовка" фактов ;-)
         Key|=KEY_ALTDIGIT;
 
-      RecBuffer[RecBufferSize++]=Key;//|MCODE_OP_SENDKEY;
+      RecBuffer[RecBufferSize++]=Key;
       return(FALSE);
     }
   }
@@ -1405,7 +1406,7 @@ done:
       break;
 
     default:
-      ;//if(Key&MCODE_OP_SENDKEY)   Key&=~MCODE_OP_SENDKEY;
+      ;
   }
 
   if(MR==Work.MacroWORK && Work.ExecLIBPos>=MR->BufferSize)
@@ -1430,7 +1431,6 @@ int KeyMacro::PeekKey()
     return(FALSE);
 
   DWORD OpCode=GetOpCode(MR,Work.ExecLIBPos);
-  //if(OpCode&MCODE_OP_SENDKEY) OpCode&=~MCODE_OP_SENDKEY;
   return OpCode;
 }
 
@@ -1475,7 +1475,6 @@ char *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize,const char *Src)
       return Src?strdup(Src):NULL;
     }
 
-    //if(KeyToText(((DWORD)Buffer)&(~MCODE_OP_SENDKEY),MacroKeyText))
     if(KeyToText((DWORD)Buffer,MacroKeyText))
       strcpy(TextBuffer,MacroKeyText);
 
@@ -1485,7 +1484,6 @@ char *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize,const char *Src)
   for (J=0; J < BufferSize; J++)
   {
     Key=Buffer[J];
-    //if(Key&MCODE_OP_SENDKEY) Key&=~MCODE_OP_SENDKEY;
 
     if((Key&KEY_MACRO_ENDBASE) >= KEY_MACRO_BASE && (Key&KEY_MACRO_ENDBASE) <= KEY_MACRO_ENDBASE || (Key&MCODE_OP_JMP))
     {
@@ -2280,14 +2278,6 @@ int KeyMacro::PostNewMacro(struct MacroRecord *MRec,BOOL NeedAddSendFlag)
     NewMacroWORK2.Buffer[0]=(DWORD)MRec->Buffer;
   NewMacroWORK2.Buffer[NewMacroWORK2.BufferSize++]=KEY_NONE; // доп.клавиша/пустышка
 
-/*
-  if(NeedAddSendFlag)
-  {
-    for(int I=0; I < MRec->BufferSize; ++I)
-      NewMacroWORK2.Buffer[I]|=MCODE_OP_SENDKEY;
-  }
-*/
-
   Work.MacroWORK=NewMacroWORK;
   NewMacroWORK=Work.MacroWORK+Work.MacroWORKCount;
   memcpy(NewMacroWORK,&NewMacroWORK2,sizeof(struct MacroRecord));
@@ -2506,7 +2496,7 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
           break;
         }
         default:
-          CurMacro_Buffer[CurMacro->BufferSize]=KeyCode;//|MCODE_OP_SENDKEY;
+          CurMacro_Buffer[CurMacro->BufferSize]=KeyCode;
       } // end switch(KeyCode)
 
 

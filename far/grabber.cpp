@@ -5,10 +5,13 @@ Screen grabber
 
 */
 
-/* Revision: 1.18 29.05.2004 $ */
+/* Revision: 1.19 31.05.2004 $ */
 
 /*
 Modify:
+  31.05.2004 SVS
+    - BugZ#566 - Недограбливаются диалоги, содержащие точки
+      Дополнительное уточнение
   29.05.2004 SVS
     - BugZ#566 - Недограбливаются диалоги, содержащие точки
       Дополнительное уточнение
@@ -152,15 +155,14 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
 
     for (int J=0;J<GWidth;J++, ++PtrCharBuf)
     {
-      BOOL NeedWorkUnicode=FALSE;
-      Chr=PtrCharBuf->Char.UnicodeChar;
-           if(Chr == 0xBB) Chr='>';
-      else if(Chr == 0xAB) Chr='<';
+      WORD Chr2=PtrCharBuf->Char.UnicodeChar;
+      Chr=GetVidChar(*PtrCharBuf);
+
+           if(Chr2 == 0xBB) Chr='>';
+      else if(Chr2 == 0xAB) Chr='<';
       else if(Opt.CleanAscii)
       {
-        if(Chr < 0x20)
-          Chr='.';
-        switch(Chr)
+        switch(Chr2)
         {
           case '.':  Chr='.'; break;
           case 0x07: Chr='*'; break;
@@ -171,14 +173,16 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
           case 0x1E:
           case 0x1F: Chr='X'; break;
           case 0xFF: Chr=' '; break;
-          default:  NeedWorkUnicode=TRUE; break;
+          default:
+            if(Chr2 < 0x20)
+              Chr='.';
+            break;
         }
-
       }
 
-      if (Opt.NoGraphics && Chr >=0xB3 && Chr <= 0xDA)
+      if (Opt.NoGraphics && Chr2 >=0xB3 && Chr2 <= 0xDA)
       {
-        switch(Chr)
+        switch(Chr2)
         {
           case 0xB3:
           case 0xBA: Chr='|'; break;
@@ -186,11 +190,8 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
           case 0xCD: Chr='='; break;
           default:   Chr='+'; break;
         }
-        NeedWorkUnicode=FALSE;
       }
 
-      if(NeedWorkUnicode)
-         Chr=GetVidChar(*PtrCharBuf);
       *PtrCopyBuf++=Chr;
       *PtrCopyBuf=0;
     }

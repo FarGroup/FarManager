@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.117 29.05.2004 $ */
+/* Revision: 1.118 31.05.2004 $ */
 
 /*
 Modify:
+  31.05.2004 SVS
+    ! выкинем нафиг MCODE_OP_SENDKEY - ненужен
   29.05.2004 SVS
     - Bugz#794 - пометка блока остается при удалении текста
   24.05.2004 SVS
@@ -1084,7 +1086,7 @@ int Edit::ProcessKey(int Key)
       (Key<KEY_F1 || Key>KEY_F12) && Key!=KEY_ALT && Key!=KEY_SHIFT &&
       Key!=KEY_CTRL && Key!=KEY_RALT && Key!=KEY_RCTRL &&
       (Key<KEY_ALT_BASE || Key>=KEY_ALT_BASE+256) &&
-      (Key<KEY_MACRO_BASE || (Key>KEY_MACRO_ENDBASE && !(Key&MCODE_OP_SENDKEY))) && Key!=KEY_CTRLQ)
+      (Key<KEY_MACRO_BASE || Key>KEY_MACRO_ENDBASE) && Key!=KEY_CTRLQ)
   {
     Flags.Clear(FEDITLINE_CLEARFLAG);
     Show();

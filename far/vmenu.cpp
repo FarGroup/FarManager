@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.130 11.05.2004 $ */
+/* Revision: 1.131 31.05.2004 $ */
 
 /*
 Modify:
+  31.05.2004 SVS
+    ! выкинем нафиг MCODE_OP_SENDKEY - ненужен
   11.05.2004 SVS
     ! Вызов VMenu::ParentDialog->ProcessKey() в VMenu::ProcessKey уберем, т.к.
       в этом случае получаем зацикливание.
@@ -1162,7 +1164,7 @@ int VMenu::ProcessKey(int Key)
     Sleep(10);
   InterlockedIncrement(&CallCount);
 
-  if(!(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE || (Key&MCODE_OP_SENDKEY)))
+  if(!(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE))
   {
     DWORD S=Key&(KEY_CTRL|KEY_ALT|KEY_SHIFT|KEY_RCTRL|KEY_RALT);
     DWORD K=Key&(~(KEY_CTRL|KEY_ALT|KEY_SHIFT|KEY_RCTRL|KEY_RALT));

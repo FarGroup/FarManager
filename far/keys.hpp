@@ -24,11 +24,13 @@ keys.hpp
 */
 #endif // END FAR_USE_INTERNALS
 
-/* Revision: 1.29 18.12.2003 $ */
+/* Revision: 1.30 31.05.2004 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
 Modify:
+  31.05.2004 SVS
+    ! выкинем нафиг MCODE_OP_SENDKEY - ненужен
   18.12.2003 SVS
     + KEY_RSHIFT, KEY_RCTRLALTSHIFTPRESS, KEY_RCTRLALTSHIFTRELEASE
   28.10.2003 SVS
@@ -254,8 +256,6 @@ enum BaseDefKeyboard
 
   KEY_MACROSPEC_BASE       =0x000F0000,
   KEY_MACRO_ENDBASE        =0x000FFFFF,
-  // признак того, что остальные биты - обычная клавиша
-  MCODE_OP_SENDKEY         =0x00800000,
 #endif // END FAR_USE_INTERNALS
 };
 
