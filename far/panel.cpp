@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.56 23.07.2001 $ */
+/* Revision: 1.57 24.07.2001 $ */
 
 /*
 Modify:
+  24.07.2001 SVS
+    + Opt.PgUpChangeDisk
   23.07.2001 SVS
     ! В функции FastFind() код ограничим WaitInFastFind++ и WaitInFastFind--
       ибо здесь ему место (сама переменная как раз за ЭТО и отвечает)
@@ -549,7 +551,9 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
           }
           break;
         case KEY_CTRLPGUP:
-          return -1;
+          if(Opt.PgUpChangeDisk)
+            return -1;
+          break;
         /* $ 27.04.2001 SVS
            Т.к. нет способа получить состояние "открытости" устройства,
            то добавим обработку Ins для CD - "закрыть диск"

@@ -374,11 +374,8 @@ details.
   Change folder, enter an archive (also a SFX archive)     #Ctrl-PgDn#
   Change to the parent folder                              #Ctrl-PgUp#
 
-    Pressing Ctrl-PgUp in the root folder:
-      - for local drives - shows the drive selection menu;
-      - для сетевых дисков вызовет плагин Network (если
-        плагин есть) или меню выбора дисков (если плагин
-        Network отсутствует).
+    На Ctrl-PgUp в корневом каталоге влияет опция
+    "~Использовать Ctrl-PgUp для выбора диска~@InterfSettings@".
 
   Create shortcut to the current folder               #Ctrl-Shift-<N>#
   Use folder shortcut                                  #RightCtrl-<N>#
@@ -949,23 +946,26 @@ $ #Confirmations#
     In the #Confirmations# dialog you can switch on or off confirmations
 for following operations:
 
- - overwrite destination files when performing file copying;
+    - overwrite destination files when performing file copying;
 
- - overwrite destination files when performing file moving;
+    - overwrite destination files when performing file moving;
 
- - ~drag and drop~@DragAndDrop@ files;
+    - ~drag and drop~@DragAndDrop@ files;
 
- - delete files;
+    - delete files;
 
- - delete folders;
+    - delete folders;
 
- - interrupt operation;
+    - interrupt operation;
 
- - ~disconnect network drives~@DisconnectDrive@ from the Disks menu;
+    - ~disconnect network drives~@DisconnectDrive@ from the Disks menu;
 
- - ~повторное открытие~@EditorReload@ файла в редакторе;
+    - ~повторное открытие~@EditorReload@ файла в редакторе;
 
- - exit from FAR.
+    - очистка списка историй редактирования/просмотра, переходов и
+      выполненных команд;
+
+    - exit from FAR.
 
 
 @MakeFolder
@@ -1471,6 +1471,15 @@ $ #Interface settings dialog#
                           feature is disabled while a macro is
                           being recorded or executed.
 
+  #Использовать Ctrl-PgUp#  Комбинация клавиш Ctrl-PgUp в корневом
+  #для выбора диска#        каталоге:
+                          - для локальных дисков вызовет меню
+                            выбора дисков;
+                          - для сетевых дисков вызовет плагин
+                            Network (если плагин есть) или меню
+                            выбора дисков (если плагин Network
+                            отсутствует).
+
 @Viewer
 $ #Internal viewer#
    Viewer commands
@@ -1771,7 +1780,9 @@ to the file panel.
 
     #Change drive# menu settings are saved in the FAR configuration.
 
-    #Ctrl-PgUp# аналогична #Esc# - отказаться от выбора.
+    При включенной опции "~Использовать Ctrl-PgUp для выбора диска~@InterfSettings@",
+комбинация клавиш #Ctrl-PgUp# аналогична клавише #Esc# - отказаться
+от выбора диска и закрыть меню.
 
     #Shift-Enter# вызывает Проводник с показом корневого каталога
 указанного диска (работает только для дисков).

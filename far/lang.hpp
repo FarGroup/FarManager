@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.67 23.07.2001 $ */
+/* Revision: 1.68 24.07.2001 $ */
 
 /*
 Modify:
+  24.07.2001 SVS
+    + MConfigPgUpChangeDisk, MSetConfirmHistoryClear
   23.07.2001 VVM
     + MHistoryClear
     + MClear
@@ -395,6 +397,7 @@ enum
   MConfigCopyTotal,
   MConfigShowMenuScrollbar,
   MConfigAutoComplete,
+  MConfigPgUpChangeDisk,
 
   MViewConfigTitle,
   MViewConfigExternal,
@@ -1317,6 +1320,7 @@ enum
   MSetConfirmEsc,
   MSetConfirmRemoveConnection,
   MSetConfirmAllowReedit,
+  MSetConfirmHistoryClear,
   MSetConfirmExit,
 
   MFindFolderTitle,

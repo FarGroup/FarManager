@@ -7,10 +7,13 @@ struct.hpp
 
 */
 
-/* Revision: 1.63 04.07.2001 $ */
+/* Revision: 1.64 24.07.2001 $ */
 
 /*
 Modify:
+  24.07.2001 SVS
+    + Opt.PgUpChangeDisk
+    + Opt.Confirmation.HistoryClear
   04.07.2001 SVS
     + Opt.LCIDSort
   22.06.2001 SVS
@@ -240,6 +243,7 @@ struct Confirmation
           либо загружается новая версия редактора.
       */
   int AllowReedit;
+  int HistoryClear;
 };
 
 
@@ -625,6 +629,7 @@ struct Options
          консольного окна и обратно.*/
   int AltF9;
   /* OT $ */
+  int PgUpChangeDisk;
   int ShowCheckingFile;
 
   DWORD LCIDSort;

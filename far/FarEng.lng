@@ -171,7 +171,8 @@
 "Use right Alt as &AltGr"
 "Show &total copy progress indicator"
 "Show scrollbar in M&enus"
-"AutoComplete in input lines"
+"AutoCompl&ete in input lines"
+"Use Ctrl-Pg&Up for change drive"
 
 "Viewer"
 "External viewer"
@@ -1114,6 +1115,7 @@
 "&Interrupt operation"
 "Disconnect &network drive"
 "&Reload edited file"
+"Clear &history list"
 "E&xit"
 
 "Find folder"

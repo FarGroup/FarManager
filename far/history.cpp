@@ -5,10 +5,12 @@ history.cpp
 
 */
 
-/* Revision: 1.10 18.07.2001 $ */
+/* Revision: 1.11 24.07.2001 $ */
 
 /*
 Modify:
+  24.07.2001 SVS
+    ! Учтем новую опцию Opt.Confirm.HistoryClear при очистки истории
   23.07.2001 VVM
     + Спросить подтверждение перед очищением истории
   18.07.2001 OT
@@ -298,7 +300,11 @@ int History::Select(char *Title,char *HelpTopic,char *Str,int &Type,char *ItemTi
         /* $ 23.07.2001 VVM
           + Спросить подтверждение перед удалением */
         {
-          if (Message(MSG_WARNING,2,MSG(MHistoryTitle),MSG(MHistoryClear),MSG(MClear),MSG(MCancel))==0)
+          if (!Opt.Confirm.HistoryClear ||
+              (Opt.Confirm.HistoryClear &&
+              Message(MSG_WARNING,2,MSG(MHistoryTitle),
+                       MSG(MHistoryClear),
+                       MSG(MClear),MSG(MCancel))==0))
           {
             memset(LastStr,0,sizeof(LastStr));
             CurLastPtr=LastPtr=0;

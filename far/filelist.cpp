@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.77 23.07.2001 $ */
+/* Revision: 1.78 24.07.2001 $ */
 
 /*
 Modify:
+  24.07.2001 SVS
+    + Opt.PgUpChangeDisk
   23.07.2001 SVS
     - При первом старте ФАРа серая звездочка не работала до тех пор пока не
       жмакним курсорную клавишу. Проблема в том, что Mask в SelectFiles() не
@@ -1905,8 +1907,9 @@ BOOL FileList::ChangeDir(char *NewDir)
         char DirName[NM];
         strncpy(DirName,CurDir,NM);
         AddEndSlash(DirName);
-        if(GetDriveType(DirName) != DRIVE_REMOTE ||
-           CtrlObject->Plugins.FindPlugin(SYSID_NETWORK) == -1)
+        if(Opt.PgUpChangeDisk &&
+          (GetDriveType(DirName) != DRIVE_REMOTE ||
+           CtrlObject->Plugins.FindPlugin(SYSID_NETWORK) == -1))
         {
           CtrlObject->Cp()->ActivePanel->ChangeDisk();
           return TRUE;

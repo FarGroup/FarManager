@@ -5,10 +5,13 @@ config.cpp
 
 */
 
-/* Revision: 1.88 22.07.2001 $ */
+/* Revision: 1.89 24.07.2001 $ */
 
 /*
 Modify:
+  24.07.2001 SVS
+    + Учтем новую опцию Opt.Confirm.HistoryClear при очистки истории
+    + Opt.PgUpChangeDisk
   22.07.2001 SVS
     + Опция про релоад файла в редакторе
   19.07.2001 SVS
@@ -477,25 +480,27 @@ void InterfaceSettings()
     /* $ 26.07.2000 SVS
        + Разрешить ли автодополнение в строках ввода
     */
-    DI_DOUBLEBOX,3,1,52,18,0,0,0,0,(char *)MConfigInterfaceTitle,
-    DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MConfigClock,
-    DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MConfigViewerEditorClock,
-    DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MConfigMouse,
-    DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MConfigKeyBar,
-    DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MConfigMenuBar,
-    DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MConfigSaver,
-    DI_FIXEDIT,9,8,11,5,0,0,0,0,"",
-    DI_TEXT,13,8,0,0,0,0,0,0,(char *)MConfigSaverMinutes,
-    DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MConfigDialogsEditHistory,
-    DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MConfigUsePromptFormat,
-    DI_EDIT,9,11,24,10,0,0,0,0,"",
-    DI_CHECKBOX,5,12,0,0,0,0,0,0,(char *)MConfigAltGr,
-    DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MConfigCopyTotal,
-    DI_CHECKBOX,5,14,0,0,0,0,0,0,(char *)MConfigShowMenuScrollbar,
-    DI_CHECKBOX,5,15,0,0,0,0,0,0,(char *)MConfigAutoComplete,
-    DI_TEXT,3,16,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-    DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  /* 00 */DI_DOUBLEBOX,3,1,52,19,0,0,0,0,(char *)MConfigInterfaceTitle,
+  /* 01 */DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MConfigClock,
+  /* 02 */DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MConfigViewerEditorClock,
+  /* 03 */DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MConfigMouse,
+  /* 04 */DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MConfigKeyBar,
+  /* 05 */DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MConfigMenuBar,
+  /* 06 */DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MConfigSaver,
+  /* 07 */DI_FIXEDIT,9,8,11,5,0,0,0,0,"",
+  /* 08 */DI_TEXT,13,8,0,0,0,0,0,0,(char *)MConfigSaverMinutes,
+  /* 09 */DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MConfigDialogsEditHistory,
+  /* 10 */DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MConfigUsePromptFormat,
+  /* 11 */DI_EDIT,9,11,24,10,0,0,0,0,"",
+  /* 12 */DI_CHECKBOX,5,12,0,0,0,0,0,0,(char *)MConfigAltGr,
+  /* 13 */DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MConfigCopyTotal,
+  /* 14 */DI_CHECKBOX,5,14,0,0,0,0,0,0,(char *)MConfigShowMenuScrollbar,
+  /* 15 */DI_CHECKBOX,5,15,0,0,0,0,0,0,(char *)MConfigAutoComplete,
+  /* 16 */DI_CHECKBOX,5,16,0,0,0,0,0,0,(char *)MConfigPgUpChangeDisk,
+  /* 17 */DI_TEXT,3,17,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 18 */DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 19 */DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+
   };
   MakeDialogItems(CfgDlgData,CfgDlg);
 
@@ -519,13 +524,14 @@ void InterfaceSettings()
   CfgDlg[13].Selected=Opt.CopyShowTotal;
   CfgDlg[14].Selected=Opt.ShowMenuScrollbar;
   CfgDlg[15].Selected=Opt.AutoComplete;
+  CfgDlg[16].Selected=Opt.PgUpChangeDisk;
 
   {
     Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
     Dlg.SetHelp("InterfSettings");
-    Dlg.SetPosition(-1,-1,56,20);
+    Dlg.SetPosition(-1,-1,56,21);
     Dlg.Process();
-    if (Dlg.GetExitCode()!=17)
+    if (Dlg.GetExitCode()!=18)
       return;
   }
 
@@ -544,7 +550,8 @@ void InterfaceSettings()
   Opt.CopyShowTotal=CfgDlg[13].Selected;
   Opt.ShowMenuScrollbar=CfgDlg[14].Selected;
   Opt.AutoComplete=CfgDlg[15].Selected;
-  /* SVS $ */
+  Opt.PgUpChangeDisk=CfgDlg[16].Selected;
+
   SetFarConsoleMode();
   CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
   CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
@@ -567,7 +574,7 @@ void InterfaceSettings()
 void SetConfirmations()
 {
   static struct DialogData ConfDlgData[]={
-  /* 00 */DI_DOUBLEBOX,3,1,41,13,0,0,0,0,(char *)MSetConfirmTitle,
+  /* 00 */DI_DOUBLEBOX,3,1,46,14,0,0,0,0,(char *)MSetConfirmTitle,
   /* 01 */DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MSetConfirmCopy,
   /* 02 */DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MSetConfirmMove,
   /* 03 */DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MSetConfirmDrag,
@@ -576,10 +583,11 @@ void SetConfirmations()
   /* 06 */DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MSetConfirmEsc,
   /* 07 */DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MSetConfirmRemoveConnection,
   /* 08 */DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MSetConfirmAllowReedit,
-  /* 09 */DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MSetConfirmExit,
-  /* 10 */DI_TEXT,3,11,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 11 */DI_BUTTON,0,12,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-  /* 12 */DI_BUTTON,0,12,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  /* 08 */DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MSetConfirmHistoryClear,
+  /* 09 */DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MSetConfirmExit,
+  /* 11 */DI_TEXT,3,12,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 12 */DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 13 */DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
 
   };
   MakeDialogItems(ConfDlgData,ConfDlg);
@@ -591,13 +599,14 @@ void SetConfirmations()
   ConfDlg[6].Selected=Opt.Confirm.Esc;
   ConfDlg[7].Selected=Opt.Confirm.RemoveConnection;
   ConfDlg[8].Selected=Opt.Confirm.AllowReedit;
-  ConfDlg[9].Selected=Opt.Confirm.Exit;
+  ConfDlg[9].Selected=Opt.Confirm.HistoryClear;
+  ConfDlg[10].Selected=Opt.Confirm.Exit;
 
   Dialog Dlg(ConfDlg,sizeof(ConfDlg)/sizeof(ConfDlg[0]));
   Dlg.SetHelp("ConfirmDlg");
-  Dlg.SetPosition(-1,-1,45,15);
+  Dlg.SetPosition(-1,-1,50,16);
   Dlg.Process();
-  if (Dlg.GetExitCode()!=11)
+  if (Dlg.GetExitCode()!=12)
     return;
   Opt.Confirm.Copy=ConfDlg[1].Selected;
   Opt.Confirm.Move=ConfDlg[2].Selected;
@@ -607,7 +616,8 @@ void SetConfirmations()
   Opt.Confirm.Esc=ConfDlg[6].Selected;
   Opt.Confirm.RemoveConnection=ConfDlg[7].Selected;
   Opt.Confirm.AllowReedit=ConfDlg[8].Selected;
-  Opt.Confirm.Exit=ConfDlg[9].Selected;
+  Opt.Confirm.HistoryClear=ConfDlg[9].Selected;
+  Opt.Confirm.Exit=ConfDlg[10].Selected;
 }
 /* SVS $ */
 /* IS $ */
@@ -939,6 +949,7 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeyInterface, "CursorSize2",&Opt.CursorSize[1],10, 0},
   {0, REG_DWORD,  NKeyInterface, "ShiftsKeyRules",&Opt.ShiftsKeyRules,1, 0},
   {0, REG_DWORD,  NKeyInterface, "AltF9",&Opt.AltF9, 1, 0},
+  {1, REG_DWORD,  NKeyInterface, "CtrlPgUp",&Opt.PgUpChangeDisk, 1, 0},
 
   {1, REG_SZ,     NKeyViewer,"ExternalViewerName",Opt.ExternalViewer,sizeof(Opt.ExternalViewer),""},
   {1, REG_DWORD,  NKeyViewer,"UseExternalViewer",&Opt.UseExternalViewer,0, 0},
@@ -1048,6 +1059,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyConfirmations,"Esc",&Opt.Confirm.Esc,0, 0},
   {1, REG_DWORD,  NKeyConfirmations,"RemoveConnection",&Opt.Confirm.RemoveConnection,1, 0},
   {1, REG_DWORD,  NKeyConfirmations,"AllowReedit",&Opt.Confirm.AllowReedit,1, 0},
+  {1, REG_DWORD,  NKeyConfirmations,"HistoryClear",&Opt.Confirm.HistoryClear,1, 0},
   {1, REG_DWORD,  NKeyConfirmations,"Exit",&Opt.Confirm.Exit,1, 0},
 
   {1, REG_DWORD,  NKeyPanel,"ShowHidden",&Opt.ShowHidden,1, 0},
