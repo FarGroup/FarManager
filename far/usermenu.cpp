@@ -5,10 +5,14 @@ User menu и есть
 
 */
 
-/* Revision: 1.10 11.11.2000 $ */
+/* Revision: 1.11 22.11.2000 $ */
 
 /*
 Modify:
+  22.12.2000 IS
+    ! Если не ввели метку и нажали "продолжить", то не выходим из диалога
+      редактирования команд, т.к. теряем те команды, что, возможно, ввели.
+      Для выхода из меню нужно воспользоваться esc или кнопкой "отменить".
   11.11.2000 SVS
     ! FarMkTemp() - убираем (как всегда - то ставим, то тут же убираем :-(((
   11.11.2000 SVS
@@ -745,11 +749,22 @@ int EditMenuRecord(char *MenuKey,int EditPos,int TotalRecords,int NewRec)
     Dialog Dlg(EditDlg,sizeof(EditDlg)/sizeof(EditDlg[0]));
     Dlg.SetHelp("UserMenu");
     Dlg.SetPosition(-1,-1,76,22);
-    Dlg.Process();
-    if (Dlg.GetExitCode()!=18 ||
-        ((*EditDlg[4].Data==0) && (strcmp(EditDlg[2].Data,"-")!=0))
-       )
-      return(FALSE);
+    /* $ 22.12.2000 IS
+       ! Если не ввели метку и нажали "продолжить", то не выходим из диалога
+         редактирования команд, т.к. теряем те команды, что, возможно, ввели.
+         Для выхода из меню нужно воспользоваться esc или кнопкой "отменить".
+    */
+    while(1)
+    {
+      Dlg.Process();
+      if(18==Dlg.GetExitCode())
+      {
+       if(!strcmp(EditDlg[2].Data,"-") || strlen(EditDlg[4].Data)) break;
+       Dlg.ClearDone();
+      }
+      else return FALSE;
+    }
+    /* IS $ */
   }
 
   if (NewRec)
@@ -909,4 +924,3 @@ void MenuFileToReg(char *MenuKey,FILE *MenuFile)
       }
   }
 }
-
