@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.09 31.07.2000 $ */
+/* Revision: 1.10 01.08.2000 $ */
 
 /*
 Modify:
+  01.08.2000 SVS
+    ! Функция ввода строки GetString имеет один параметр для всех флагов
+    ! дополнительный параметра у KeyToText - размер данных
   31.07.2000 SVS
     ! функция GetString имеет еще один параметр - расширение среды
   24.07.2000 SVS
@@ -333,7 +336,7 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param);
 //  Функция расширенного диалога
 int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
       char *HelpTopic,struct FarDialogItem *Item,int ItemsNumber,
-      FARDIALOGPROC Proc,long Param);
+      FARWINDOWPROC Proc,long Param);
 //  Функция обработки диалога по умолчанию
 long WINAPI FarDefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
 // Посылка сообщения диалогу
@@ -376,15 +379,20 @@ int WINAPIV FarSprintf(char *buffer,const char *format,...);
 int WINAPIV FarSscanf(const char *buffer, const char *format,...);
 int WINAPI CopyToClipboard(char *Data);
 char* WINAPI PasteFromClipboard(void);
+/* $ 01.08.2000 SVS
+   ! Функция ввода строки GetString имеет один параметр для всех флагов
+*/
 /* $ 31.07.2000 SVS
     ! функция GetString имеет еще один параметр - расширение среды
 */
 int WINAPI GetString(char *Title,char *SubTitle,char *HistoryName,char *SrcText,
-    char *DestText,int DestLength,char *HelpTopic=NULL,int EnableEmpty=FALSE,
-    int Password=FALSE,int ExpandEnv=FALSE);
+    char *DestText,int DestLength,char *HelpTopic=NULL,DWORD Flags=0);
 /* SVS $ */
-void WINAPI KeyToText(int Key,char *KeyText);
+// ! дополнительный параметра у KeyToText - размер данных
+//   Size=0 - по максимуму!
+void WINAPI KeyToText(int Key,char *KeyText,int Size=0);
 /* SVS $ */
+/* 01.08.2000 SVS $ */
 
 
 /* Программое переключение FulScreen <-> Windowed

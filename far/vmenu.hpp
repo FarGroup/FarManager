@@ -10,10 +10,20 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.03 28.07.2000 $ */
+/* Revision: 1.04 01.08.2000 $ */
 
 /*
 Modify:
+  01.08.2000 SVS
+   + В ShowMenu добавлен параметр, сообщающий - вызвали ли функцию
+     самостоятельно или из другой функции ;-)
+   ! Вызов конструктора
+   ! ListBoxControl -> VMFlags
+   + Флаги для параметра Flags в конструкторе
+   + функция обработки меню (по умолчанию)
+   + функция посылки сообщений меню
+   + функция удаления N пунктов меню
+   ! Изменен вызов конструктора для указания функции-обработчика!
   28.07.2000 SVS
    + Добавлены цветовые атрибуты (в переменных) и функции, связанные с
      атрибутами:
@@ -45,6 +55,15 @@ enum{
 };
 /* SVS */
 
+/* $ 01.08.2000 SVS
+   Константы для флагов - для конструктора
+*/
+#define VMENU_ALWAYSSCROLLBAR 0x0100
+#define VMENU_LISTBOX	      0x0200
+/* SVS $ */
+
+class Dialog;
+
 class VMenu:public Modal
 {
   private:
@@ -64,7 +83,15 @@ class VMenu:public Modal
        + переменная, отвечающая за отображение scrollbar в
          DI_LISTBOX & DI_COMBOBOX
     */
-    int ListBoxControl;
+    DWORD VMFlags;
+    /* SVS $ */
+
+    /* $ 01.08.2000 SVS
+       + Для LisBox - родитель в виде диалога
+       + Обработчик меню!
+    */
+    Dialog *ParentDialog;
+    FARWINDOWPROC VMenuProc;      // функция обработки меню
     /* SVS $ */
 
   protected:
@@ -78,7 +105,7 @@ class VMenu:public Modal
 
   private:
     void DisplayObject();
-    void ShowMenu();
+    void ShowMenu(int IsParent=0);
 
   public:
     /* $ 18.07.2000 SVS
@@ -88,7 +115,16 @@ class VMenu:public Modal
          т.е. не требуется. Для данных элементов (DI_LISTBOX & DI_COMBOBOX)
          параметр isListBoxControl должен быть равен TRUE.
     */
-    VMenu(char *Title,struct MenuData *Data,int ItemCount,int MaxHeight=0,int isListBoxControl=FALSE);
+    /* $ 01.08.2000 SVS
+       Изменен вызов конструктора для указания функции-обработчика и родителя!
+    */
+    VMenu(char *Title,
+          struct MenuData *Data,int ItemCount,
+          int MaxHeight=0,
+          DWORD Flags=0,
+          FARWINDOWPROC Proc=NULL,
+          Dialog *ParentDialog=NULL);
+    /* 01.08.2000 SVS $ */
     /* SVS $ */
     ~VMenu();
     void FastShow() {ShowMenu();}
@@ -109,12 +145,25 @@ class VMenu:public Modal
     int  ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 
     void DeleteItems();
+    /* $ 01.08.2000 SVS
+       функция удаления N пунктов меню
+    */
+    int  DeleteItem(int ID,int Count=1);
+    /* SVS $ */
     int  AddItem(struct MenuItem *NewItem);
     int  GetItemCount() {return(ItemCount);};
     int  GetUserData(void *Data,int Size,int Position=-1);
     int  GetSelectPos();
     int  GetSelection(int Position=-1);
     void SetSelection(int Selection,int Position=-1);
+
+    /* $ 01.08.2000 SVS
+       функция обработки меню (по умолчанию)
+    */
+    static long WINAPI DefMenuProc(HANDLE hVMenu,int Msg,int Param1,long Param2);
+    // функция посылки сообщений меню
+    static long WINAPI SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,long Param2);
+    /* SVS $ */
 };
 
 #endif	// __VMENU_HPP__

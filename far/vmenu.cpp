@@ -8,10 +8,19 @@ vmenu.cpp
 
 */
 
-/* Revision: 1.07 28.07.2000 $ */
+/* Revision: 1.08 01.08.2000 $ */
 
 /*
 Modify:
+  01.08.2000 SVS
+   + В ShowMenu добавлен параметр, сообщающий - вызвали ли функцию
+     самостоятельно или из другой функции ;-)
+   - Bug в конструкторе, если передали NULL для Title
+   ! ListBoxControl -> VMFlags
+   + функция удаления N пунктов меню
+   + функция обработки меню (по умолчанию)
+   + функция посылки сообщений меню
+   ! Изменен вызов конструктора для указания функции-обработчика и родителя!
   28.07.2000 SVS
    + Добавлены цветовые атрибуты (в переменных) и функции, связанные с
      атрибутами:
@@ -56,17 +65,25 @@ VMenu::VMenu(char *Title,		// заголовок меню
              struct MenuData *Data,	// пункты меню
              int ItemCount,		// количество пунктов меню
              int MaxHeight,		// максимальная высота
-             int isListBoxControl)	// нужен ScrollBar?
+             DWORD Flags,		// нужен ScrollBar?
+             FARWINDOWPROC Proc,	// обработчик
+             Dialog *ParentDialog)	// родитель для ListBox
 {
   int I;
-  ListBoxControl=isListBoxControl;
+  VMenu::VMFlags=Flags;
 /* SVS $ */
+
+  VMenu::ParentDialog=ParentDialog;
   UpdateRequired=TRUE;
   WrapMode=TRUE;
   CallCount=0;
   TopPos=0;
   ShowAmpersand=FALSE;
   SaveScr=NULL;
+
+  if(!Proc) // функция должна быть всегда!!!
+    Proc=(FARWINDOWPROC)VMenu::DefMenuProc;
+  VMenuProc=Proc;
 
   if (Title!=NULL)
     strcpy(VMenu::Title,Title);
@@ -77,6 +94,7 @@ VMenu::VMenu(char *Title,		// заголовок меню
   VMenu::Item=NULL;
   VMenu::ItemCount=0;
   DrawBackground=TRUE;
+
 
   for (I=0; I < ItemCount; I++)
   {
@@ -95,7 +113,11 @@ VMenu::VMenu(char *Title,		// заголовок меню
   VMenu::MaxHeight=MaxHeight;
   DialogStyle=0;
   BoxType=DOUBLE_BOX;
-  MaxLength=strlen(Title)+2;
+  /* $ 01.08.2000 SVS
+   - Bug в конструкторе, если передали NULL для Title
+  */
+  MaxLength=strlen(VMenu::Title)+2;
+  /* SVS $ */
   for (SelectPos=0,I=0;I<ItemCount;I++)
   {
     int Length=strlen(Item[I].Name);
@@ -109,7 +131,7 @@ VMenu::VMenu(char *Title,		// заголовок меню
   */
   SetColors(NULL);
   /* SVS $*/
-  if (CtrlObject!=NULL)
+  if (!(VMenu::VMFlags&VMENU_LISTBOX) && CtrlObject!=NULL)
   {
     PrevMacroMode=CtrlObject->Macro.GetMode();
     if (PrevMacroMode!=MACRO_MAINMENU)
@@ -120,7 +142,7 @@ VMenu::VMenu(char *Title,		// заголовок меню
 
 VMenu::~VMenu()
 {
-  if (CtrlObject!=NULL)
+  if (!(VMenu::VMFlags&VMENU_LISTBOX) && CtrlObject!=NULL)
     CtrlObject->Macro.SetMode(PrevMacroMode);
   Hide();
   DeleteItems();
@@ -132,7 +154,8 @@ void VMenu::DeleteItems()
   /* $ 13.07.2000 SVS
      ни кто не вызывал запрос памяти через new :-)
   */
-  free(Item);
+  if(Item)
+    free(Item);
   /* SVS $ */
   Item=NULL;
   ItemCount=0;
@@ -146,10 +169,13 @@ void VMenu::Hide()
   CallCount++;
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 
-  delete SaveScr;
-  SaveScr=NULL;
+  if(!(VMenu::VMFlags&VMENU_LISTBOX) && SaveScr)
+  {
+    delete SaveScr;
+    SaveScr=NULL;
+    ScreenObject::Hide();
+  }
 
-  ScreenObject::Hide();
   UpdateRequired=TRUE;
   CallCount--;
 }
@@ -160,6 +186,9 @@ void VMenu::Show()
   while (CallCount>0)
     Sleep(10);
   CallCount++;
+  if(VMenu::VMFlags&VMENU_LISTBOX)
+    BoxType=SHORT_DOUBLE_BOX;
+
   int AutoCenter=FALSE,AutoHeight=FALSE;
   if (X1==-1)
   {
@@ -201,7 +230,15 @@ void VMenu::Show()
     Y2=ScrY-2;
   }
   if (X2>X1 && Y2>Y1)
-    ScreenObject::Show();
+  {
+    if(!(VMenu::VMFlags&VMENU_LISTBOX))
+      ScreenObject::Show();
+    else
+    {
+      UpdateRequired=TRUE;
+      DisplayObject();
+    }
+  }
   CallCount--;
 }
 
@@ -216,11 +253,14 @@ void VMenu::DisplayObject()
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
   UpdateRequired=0;
   ExitCode=-1;
-  if (SaveScr==NULL)
+
+  if (!(VMenu::VMFlags&VMENU_LISTBOX) && SaveScr==NULL)
+  {
     if (DrawBackground && !(BoxType==SHORT_DOUBLE_BOX || BoxType==SHORT_SINGLE_BOX))
       SaveScr=new SaveScreen(X1-2,Y1-1,X2+4,Y2+2);
     else
       SaveScr=new SaveScreen(X1,Y1,X2+2,Y2+1);
+  }
   if (DrawBackground)
   {
     /* $ 23.07.2000 SVS
@@ -229,7 +269,7 @@ void VMenu::DisplayObject()
     if (BoxType==SHORT_DOUBLE_BOX || BoxType==SHORT_SINGLE_BOX)
     {
       Box(X1,Y1,X2,Y2,VMenu::Colors[1],BoxType);
-      if(!ListBoxControl)
+      if(!(VMenu::VMFlags&(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR)))
       {
         MakeShadow(X1+2,Y2+1,X2+1,Y2+1);
         MakeShadow(X2+1,Y1+1,X2+2,Y2+1);
@@ -238,7 +278,7 @@ void VMenu::DisplayObject()
     else
     {
       SetScreen(X1-2,Y1-1,X2+2,Y2+1,' ',VMenu::Colors[0]);
-      if(!ListBoxControl)
+      if(!(VMenu::VMFlags&(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR)))
       {
         MakeShadow(X1,Y2+2,X2+3,Y2+2);
         MakeShadow(X2+3,Y1,X2+4,Y2+2);
@@ -248,64 +288,47 @@ void VMenu::DisplayObject()
     }
     /* SVS $*/
   }
-  if (*Title)
+  if(!(VMenu::VMFlags&VMENU_LISTBOX))
   {
-    GotoXY(X1+(X2-X1-1-strlen(Title))/2,Y1);
-    SetColor(VMenu::Colors[2]);
-    mprintf(" %s ",Title);
-  }
-  if (*BottomTitle)
-  {
-    GotoXY(X1+(X2-X1-1-strlen(BottomTitle))/2,Y2);
-    SetColor(VMenu::Colors[2]);
-    mprintf(" %s ",BottomTitle);
+    if (*Title)
+    {
+      GotoXY(X1+(X2-X1-1-strlen(Title))/2,Y1);
+      SetColor(VMenu::Colors[2]);
+      mprintf(" %s ",Title);
+    }
+    if (*BottomTitle)
+    {
+      GotoXY(X1+(X2-X1-1-strlen(BottomTitle))/2,Y2);
+      SetColor(VMenu::Colors[2]);
+      mprintf(" %s ",BottomTitle);
+    }
   }
   SetCursorType(0,10);
-  ShowMenu();
+  ShowMenu(TRUE);
 }
 /* SVS $ */
-
-
-int VMenu::AddItem(struct MenuItem *NewItem)
-{
-  while (CallCount>0)
-    Sleep(10);
-  CallCount++;
-  struct MenuItem *NewPtr;
-  int Length;
-  if (ItemCount>=TopPos && ItemCount<TopPos+Y2-Y1)
-    UpdateRequired=1;
-  if ((ItemCount & 255)==0)
-  {
-    if ((NewPtr=(struct MenuItem *)realloc(Item,sizeof(struct MenuItem)*(ItemCount+256+1)))==NULL)
-      return(0);
-    Item=NewPtr;
-  }
-  Item[ItemCount]=*NewItem;
-  Length=strlen(Item[ItemCount].Name);
-  char *TabPtr;
-  while ((TabPtr=strchr(Item[ItemCount].Name,'\t'))!=NULL)
-    *TabPtr=' ';
-  if (Length>MaxLength)
-    MaxLength=Length;
-  if (Item[ItemCount].Selected)
-    SelectPos=ItemCount;
-  CallCount--;
-  return(ItemCount++);
-}
 
 
 /* $ 28.07.2000 SVS
    Переработка функции с учетом VMenu::Colors[] -
       заменены константы на VMenu::Colors[]
 */
-void VMenu::ShowMenu()
+void VMenu::ShowMenu(int IsParent)
 {
   char TmpStr[256],*BoxChar;
   int Y,I;
   if (ItemCount==0 || X2<=X1 || Y2<=Y1)
     return;
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+
+  if(!IsParent && (VMenu::VMFlags&VMENU_LISTBOX))
+  {
+    BoxType=SHORT_SINGLE_BOX;
+    SetScreen(X1,Y1,X2,Y2,' ',VMenu::Colors[0]);
+    if (BoxType!=NO_BOX)
+      Box(X1,Y1,X2,Y2,VMenu::Colors[1],BoxType);
+  }
+
   switch(BoxType)
   {
     case NO_BOX:
@@ -423,7 +446,9 @@ void VMenu::ShowMenu()
        + всегда покажет scrollbar для DI_LISTBOX & DI_COMBOBOX и опционально
          для вертикального меню
   */
-  if ((ListBoxControl || Opt.ShowMenuScrollbar) && (Y2-Y1-1)<ItemCount )
+  if (((VMenu::VMFlags&(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR)) ||
+       Opt.ShowMenuScrollbar) &&
+      (Y2-Y1-1)<ItemCount)
   {
     SetColor(VMenu::Colors[8]);
     ScrollBar(X2,Y1+1,Y2-Y1-1,SelectPos,ItemCount);
@@ -433,6 +458,84 @@ void VMenu::ShowMenu()
   /* tran $ */
 }
 /* 28.07.2000 SVS $ */
+
+int VMenu::AddItem(struct MenuItem *NewItem)
+{
+  while (CallCount>0)
+    Sleep(10);
+  CallCount++;
+  struct MenuItem *NewPtr;
+  int Length;
+  if (ItemCount>=TopPos && ItemCount<TopPos+Y2-Y1)
+    UpdateRequired=1;
+  if ((ItemCount & 255)==0)
+  {
+    if ((NewPtr=(struct MenuItem *)realloc(Item,sizeof(struct MenuItem)*(ItemCount+256+1)))==NULL)
+      return(0);
+    Item=NewPtr;
+  }
+  Item[ItemCount]=*NewItem;
+  Length=strlen(Item[ItemCount].Name);
+  char *TabPtr;
+  while ((TabPtr=strchr(Item[ItemCount].Name,'\t'))!=NULL)
+    *TabPtr=' ';
+  if (Length>MaxLength)
+    MaxLength=Length;
+  if (Item[ItemCount].Selected)
+    SelectPos=ItemCount;
+  CallCount--;
+  return(ItemCount++);
+}
+/* $ 01.08.2000 SVS
+   функция удаления N пунктов меню
+*/
+int VMenu::DeleteItem(int ID,int Count)
+{
+  if(ID > 0)
+  {
+    if(ID >= ItemCount)
+      return ItemCount;
+    if(ID+Count >= ItemCount)
+      Count=ItemCount-ID; //???
+  }
+  else // Если ID < 0, то подразумеваем, что счет ведется с конца списка
+  {
+    if(ItemCount+ID < 0)
+      return ItemCount;
+    else
+    {
+      ID+=ItemCount;
+      if(ID+Count >= ItemCount)
+        Count=ItemCount-ID; //???
+    }
+  }
+  if(Count <= 0)
+    return ItemCount;
+
+  while (CallCount>0)
+    Sleep(10);
+  CallCount++;
+
+
+  if ((ID >= TopPos && ID < TopPos+Y2-Y1) ||
+      (ID+Count >= TopPos && ID+Count < TopPos+Y2-Y1) //???
+     )
+    UpdateRequired=1;
+
+  memmove(Item+ID,Item+ID+Count,sizeof(struct MenuItem)*Count); //???
+
+  if (Item[ID].Selected)
+  {
+    if(ID == ItemCount)
+      SelectPos--;
+  }
+
+  ItemCount-=Count;
+
+  CallCount--;
+  return(ItemCount);
+}
+/* SVS $ */
 
 
 int VMenu::ProcessKey(int Key)
@@ -457,16 +560,29 @@ int VMenu::ProcessKey(int Key)
   switch(Key)
   {
     case KEY_F1:
-      ShowHelp();
+      if(VMenu::ParentDialog)
+        VMenu::ParentDialog->ProcessKey(Key);
+      else
+        ShowHelp();
       break;
     case KEY_ENTER:
-      EndLoop=TRUE;
-      ExitCode=SelectPos;
+      if(VMenu::ParentDialog)
+        VMenu::ParentDialog->ProcessKey(Key);
+      else
+      {
+        EndLoop=TRUE;
+        ExitCode=SelectPos;
+      }
       break;
     case KEY_ESC:
     case KEY_F10:
-      EndLoop=TRUE;
-      ExitCode=-1;
+      if(VMenu::ParentDialog)
+        VMenu::ParentDialog->ProcessKey(Key);
+      else
+      {
+        EndLoop=TRUE;
+        ExitCode=-1;
+      }
       break;
     case KEY_HOME:
     case KEY_CTRLHOME:
@@ -474,7 +590,7 @@ int VMenu::ProcessKey(int Key)
       Item[SelectPos].Selected=0;
       Item[0].Selected=1;
       SelectPos=0;
-      ShowMenu();
+      ShowMenu(TRUE);
       break;
     case KEY_END:
     case KEY_CTRLEND:
@@ -482,7 +598,7 @@ int VMenu::ProcessKey(int Key)
       Item[SelectPos].Selected=0;
       Item[ItemCount-1].Selected=1;
       SelectPos=ItemCount-1;
-      ShowMenu();
+      ShowMenu(TRUE);
       break;
     case KEY_PGUP:
       Item[SelectPos].Selected=0;
@@ -492,7 +608,7 @@ int VMenu::ProcessKey(int Key)
       if (Item[SelectPos].Separator && SelectPos>0)
         SelectPos--;
       Item[SelectPos].Selected=1;
-      ShowMenu();
+      ShowMenu(TRUE);
       break;
     case KEY_PGDN:
       Item[SelectPos].Selected=0;
@@ -502,7 +618,7 @@ int VMenu::ProcessKey(int Key)
       if (Item[SelectPos].Separator && SelectPos<ItemCount-1)
         SelectPos++;
       Item[SelectPos].Selected=1;
-      ShowMenu();
+      ShowMenu(TRUE);
       break;
     case KEY_LEFT:
     case KEY_UP:
@@ -518,7 +634,7 @@ int VMenu::ProcessKey(int Key)
           }
       } while (Item[SelectPos].Separator);
       Item[SelectPos].Selected=1;
-      ShowMenu();
+      ShowMenu(TRUE);
       break;
     case KEY_RIGHT:
     case KEY_DOWN:
@@ -534,8 +650,15 @@ int VMenu::ProcessKey(int Key)
           }
       } while (Item[SelectPos].Separator);
       Item[SelectPos].Selected=1;
-      ShowMenu();
+      ShowMenu(TRUE);
       break;
+    case KEY_TAB:
+    case KEY_SHIFTTAB:
+      if(VMenu::ParentDialog)
+      {
+        VMenu::ParentDialog->ProcessKey(Key);
+        break;
+      }
     default:
       for (I=0;I<ItemCount;I++)
         if (Dialog::IsKeyHighlighted(Item[I].Name,Key,FALSE))
@@ -543,9 +666,12 @@ int VMenu::ProcessKey(int Key)
           Item[SelectPos].Selected=0;
           Item[I].Selected=1;
           SelectPos=I;
-          ShowMenu();
-          ExitCode=I;
-          EndLoop=TRUE;
+          ShowMenu(TRUE);
+          if(!VMenu::ParentDialog)
+          {
+            ExitCode=I;
+            EndLoop=TRUE;
+          }
           break;
         }
       if (!EndLoop)
@@ -555,9 +681,12 @@ int VMenu::ProcessKey(int Key)
               Item[SelectPos].Selected=0;
               Item[I].Selected=1;
               SelectPos=I;
-              ShowMenu();
-              ExitCode=I;
-              EndLoop=TRUE;
+              ShowMenu(TRUE);
+              if(!VMenu::ParentDialog)
+              {
+                ExitCode=I;
+                EndLoop=TRUE;
+              }
               break;
             }
       CallCount--;
@@ -600,7 +729,7 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       while (IsMouseButtonPressed())
       {
         ProcessKey(KEY_UP);
-        ShowMenu();
+        ShowMenu(TRUE);
       }
       return(TRUE);
     }
@@ -609,7 +738,7 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       while (IsMouseButtonPressed())
       {
         ProcessKey(KEY_DOWN);
-        ShowMenu();
+        ShowMenu(TRUE);
       }
       return(TRUE);
     }
@@ -620,7 +749,7 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       Item[SelectPos].Selected=0;
       SelectPos=(ItemCount-1)*(MsY-Y1)/(SbHeight);
       Item[SelectPos].Selected=1;
-      ShowMenu();
+      ShowMenu(TRUE);
       return(TRUE);
     }
   }
@@ -660,7 +789,7 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         Item[SelectPos].Selected=0;
         Item[MsPos].Selected=1;
         SelectPos=MsPos;
-        ShowMenu();
+        ShowMenu(TRUE);
       }
       if (MouseEvent->dwEventFlags==0 && (MouseEvent->dwButtonState & 3)==0)
         ProcessKey(KEY_ENTER);
@@ -824,3 +953,16 @@ void VMenu::GetColors(short *Colors)
 
 /* SVS $*/
 
+// функция обработки меню (по умолчанию)
+long WINAPI VMenu::DefMenuProc(HANDLE hVMenu,int Msg,int Param1,long Param2)
+{
+  return 0;
+}
+
+// функция посылки сообщений меню
+long WINAPI VMenu::SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,long Param2)
+{
+  if(hVMenu)
+    return ((VMenu*)hVMenu)->VMenuProc(hVMenu,Msg,Param1,Param2);
+  return 0;
+}

@@ -5,10 +5,13 @@ filetype.cpp
 
 */
 
-/* Revision: 1.03 21.07.2000 $ */
+/* Revision: 1.04 01.08.2000 $ */
 
 /*
 Modify:
+  01.08.2000 SVS
+    ! Изменения, касаемые измений в структурах DialogItem
+    ! в usermenu конструкция !?<title>?<init>! с расширением переменных среды!
   21.07.2000 IG
     - Bug 15 (не работала комманда executable.exe !.!?ext:?!)
   13.07.2000 SVS
@@ -750,7 +753,11 @@ void ReplaceVariables(char *Str)
     char HistoryName[MaxSize][20];
     int HistoryNumber=DlgSize/2;
     sprintf(HistoryName[HistoryNumber],"UserVar%d",HistoryNumber);
-    DlgData[DlgSize+1].Selected=(DWORD)HistoryName[HistoryNumber];
+    /* $ 01.08.2000 SVS
+       + .History
+    */
+    DlgData[DlgSize+1].Selected=(int)HistoryName[HistoryNumber];
+    /* SVS $*/
 
     if (DlgSize==0)
     {
@@ -768,6 +775,11 @@ void ReplaceVariables(char *Str)
       strcpy(DlgData[DlgSize+1].Data,SrcText+1);
     }
     strcpy(DlgData[DlgSize].Data,Title);
+    /* $ 01.08.2000 SVS
+       "расширяем" заголовок
+    */
+    ExpandEnvironmentStr(DlgData[DlgSize].Data,DlgData[DlgSize].Data,sizeof(DlgData[DlgSize].Data));
+    /* SVS $*/
     DlgSize+=2;
   }
   if (DlgSize==0)
@@ -813,6 +825,11 @@ void ReplaceVariables(char *Str)
       strncat(TmpStr,Str,1);
   }
   strcpy(StartStr,TmpStr);
+  /* $ 01.08.2000 SVS
+     после "жмаканья" Enter "расширяем" данные
+  */
+  ExpandEnvironmentStr(TmpStr,StartStr,sizeof(DlgData[0].Data));
+  /* SVS $ */
   /* $ 13.07.2000 SVS
      запрос был по realloc
   */

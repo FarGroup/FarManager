@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.11 31.07.2000 $ */
+/* Revision: 1.12 01.08.2000 $ */
 
 /*
 Modify:
+  01.08.2000 SVS
+    ! Функция ввода строки GetString имеет один параметр для всех флагов
+    ! дополнительный параметра у KeyToText - размер данных
   31.07.2000 SVS
     ! Функция GetString имеет еще один параметр - расширять ли переменные среды!
     ! Если в GetString указан History, то добавляется еще и DIF_USELASTHISTORY
@@ -1133,12 +1136,15 @@ char *GetCommaWord(char *Src,char *Word)
 }
 
 
+/* $ 01.08.2000 SVS
+  ! Функция ввода строки GetString имеет один параметр для всех флагов
+*/
 /* $ 31.07.2000 SVS
    ! Функция GetString имеет еще один параметр - расширять ли переменные среды!
 */
 int WINAPI GetString(char *Title,char *SubTitle,char *HistoryName,char *SrcText,
-    char *DestText,int DestLength,char *HelpTopic,int EnableEmpty,int Password,
-    int ExpandEnv)
+    char *DestText,int DestLength,char *HelpTopic,DWORD Flags)
+//int EnableEmpty,int Password, int ExpandEnv)
 {
   static struct DialogData StrDlgData[]=
   {
@@ -1148,7 +1154,7 @@ int WINAPI GetString(char *Title,char *SubTitle,char *HistoryName,char *SrcText,
   };
   MakeDialogItems(StrDlgData,StrDlg);
 
-  if(ExpandEnv)
+  if(Flags&FIB_EXPANDENV)
   {
     StrDlg[2].Flags|=DIF_EDITEXPAND;
   }
@@ -1157,7 +1163,7 @@ int WINAPI GetString(char *Title,char *SubTitle,char *HistoryName,char *SrcText,
     StrDlg[2].Selected=(int)HistoryName;
     StrDlg[2].Flags|=DIF_HISTORY|DIF_USELASTHISTORY;
   }
-  if (Password)
+  if (Flags&FIB_PASSWORD)
     StrDlg[2].Type=DI_PSWEDIT;
   strcpy(StrDlg[0].Data,Title);
   strcpy(StrDlg[1].Data,SubTitle);
@@ -1168,13 +1174,14 @@ int WINAPI GetString(char *Title,char *SubTitle,char *HistoryName,char *SrcText,
   if (HelpTopic!=NULL)
     Dlg.SetHelp(HelpTopic);
   Dlg.Process();
-  if (DestLength<1 || Dlg.GetExitCode()!=2 || !EnableEmpty && *StrDlg[2].Data==0)
+  if (DestLength<1 || Dlg.GetExitCode()!=2 || !(Flags&FIB_ENABLEEMPTY) && *StrDlg[2].Data==0)
     return(FALSE);
   strncpy(DestText,StrDlg[2].Data,DestLength-1);
   DestText[DestLength-1]=0;
   return(TRUE);
 }
 /* SVS $*/
+/* 01.08.2000 SVS $*/
 
 void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Total)
 {
@@ -1646,187 +1653,245 @@ int WINAPIV FarSscanf(const char *buffer, const char *format,...)
 /* $ 25.07.2000 SVS
     ! Функция KeyToText сделана самосотоятельной - вошла в состав FSF
 */
-void WINAPI KeyToText(int Key,char *KeyText)
+/* $ 01.08.2000 SVS
+   ! дополнительный параметра у KeyToText - размер данных
+   Size=0 - по максимуму!
+*/
+void WINAPI KeyToText(int Key0,char *KeyText0,int Size)
 {
+  int I;
+  char KeyText[32];
+  int fmtNum, Key=Key0;
+  char *fmtKey[]={
+  /* 00 */ "F%d",
+  /* 01 */ "CtrlF%d",
+  /* 02 */ "AltF%d",
+  /* 03 */ "ShiftF%d",
+  /* 04 */ "Ctrl%c",
+  /* 05 */ "RCtrl%c",
+  /* 06 */ "CtrlShiftF%d",
+  /* 07 */ "AltShiftF%d",
+  /* 08 */ "CtrlAltF%d",
+  /* 09 */ "CtrlShift%c",
+  /* 10 */ "AltShift%c",
+  /* 11 */ "CtrlAlt%c",
+  /* 12 */ "Alt%c",
+  /* 13 */ "%s",
+  /* 14 */ "%c",
+  };
+
   if (Key>=KEY_F1 && Key<=KEY_F12)
   {
-    sprintf(KeyText,"F%d",Key-KEY_F1+1);
-    return;
+    fmtNum=0;
+    Key=Key0-KEY_F1+1;
   }
-  if (Key>=KEY_CTRLF1 && Key<=KEY_CTRLF12)
+  else if (Key>=KEY_CTRLF1 && Key<=KEY_CTRLF12)
   {
-    sprintf(KeyText,"CtrlF%d",Key-KEY_CTRLF1+1);
-    return;
+    fmtNum=1;
+    Key=Key0-KEY_CTRLF1+1;
   }
-  if (Key>=KEY_ALTF1 && Key<=KEY_ALTF12)
+  else if (Key>=KEY_ALTF1 && Key<=KEY_ALTF12)
   {
-    sprintf(KeyText,"AltF%d",Key-KEY_ALTF1+1);
-    return;
+    fmtNum=2;
+    Key=Key0-KEY_ALTF1+1;
   }
-  if (Key>=KEY_SHIFTF1 && Key<=KEY_SHIFTF12)
+  else if (Key>=KEY_SHIFTF1 && Key<=KEY_SHIFTF12)
   {
-    sprintf(KeyText,"ShiftF%d",Key-KEY_SHIFTF1+1);
-    return;
+    fmtNum=3;
+    Key=Key0-KEY_SHIFTF1+1;
   }
-  if (Key>=KEY_CTRLA && Key<=KEY_CTRLZ)
+  else if (Key>=KEY_CTRLA && Key<=KEY_CTRLZ)
   {
-    sprintf(KeyText,"Ctrl%c",Key-KEY_CTRLA+'A');
-    return;
+    fmtNum=4;
+    Key=Key0-KEY_CTRLA+'A';
   }
-  if (Key>=KEY_CTRL0 && Key<=KEY_CTRL9)
+  else if (Key>=KEY_CTRL0 && Key<=KEY_CTRL9)
   {
-    sprintf(KeyText,"Ctrl%c",Key-KEY_CTRL0+'0');
-    return;
+    fmtNum=4;
+    Key=Key0-KEY_CTRL0+'0';
   }
-  if (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9)
+  else if (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9)
   {
-    sprintf(KeyText,"RCtrl%c",Key-KEY_RCTRL0+'0');
-    return;
+    fmtNum=5;
+    Key=Key0-KEY_RCTRL0+'0';
   }
-  if (Key>=KEY_CTRLSHIFTF1 && Key<=KEY_CTRLSHIFTF12)
+  else if (Key>=KEY_CTRLSHIFTF1 && Key<=KEY_CTRLSHIFTF12)
   {
-    sprintf(KeyText,"CtrlShiftF%d",Key-KEY_CTRLSHIFTF1+1);
-    return;
+    fmtNum=6;
+    Key=Key0-KEY_CTRLSHIFTF1+1;
   }
-  if (Key>=KEY_ALTSHIFTF1 && Key<=KEY_ALTSHIFTF12)
+  else if (Key>=KEY_ALTSHIFTF1 && Key<=KEY_ALTSHIFTF12)
   {
-    sprintf(KeyText,"AltShiftF%d",Key-KEY_ALTSHIFTF1+1);
-    return;
+    fmtNum=7;
+    Key=Key0-KEY_ALTSHIFTF1+1;
   }
-  if (Key>=KEY_CTRLALTF1 && Key<=KEY_CTRLALTF12)
+  else if (Key>=KEY_CTRLALTF1 && Key<=KEY_CTRLALTF12)
   {
-    sprintf(KeyText,"CtrlAltF%d",Key-KEY_CTRLALTF1+1);
-    return;
+    fmtNum=8;
+    Key=Key0-KEY_CTRLALTF1+1;
   }
-  if (Key>=KEY_CTRLSHIFT0 && Key<=KEY_CTRLSHIFT9)
+  else if (Key>=KEY_CTRLSHIFT0 && Key<=KEY_CTRLSHIFT9)
   {
-    sprintf(KeyText,"CtrlShift%c",Key-KEY_CTRLSHIFT0+'0');
-    return;
+    fmtNum=9;
+    Key=Key0-KEY_CTRLSHIFT0+'0';
   }
-  if (Key>=KEY_CTRLSHIFTA && Key<=KEY_CTRLSHIFTZ)
+  else if (Key>=KEY_CTRLSHIFTA && Key<=KEY_CTRLSHIFTZ)
   {
-    sprintf(KeyText,"CtrlShift%c",Key-KEY_CTRLSHIFTA+'A');
-    return;
+    fmtNum=9;
+    Key=Key0-KEY_CTRLSHIFTA+'A';
   }
-  if (Key>=KEY_ALTSHIFTA && Key<=KEY_ALTSHIFTZ)
+  else if (Key>=KEY_ALTSHIFTA && Key<=KEY_ALTSHIFTZ)
   {
-    sprintf(KeyText,"AltShift%c",Key-KEY_ALTSHIFTA+'A');
-    return;
+    fmtNum=10;
+    Key=Key0-KEY_ALTSHIFTA+'A';
   }
-  if (Key>=KEY_CTRLALTA && Key<=KEY_CTRLALTZ)
+  else if (Key>=KEY_CTRLALTA && Key<=KEY_CTRLALTZ)
   {
-    sprintf(KeyText,"CtrlAlt%c",Key-KEY_CTRLALTA+'A');
-    return;
+    fmtNum=11;
+    Key=Key0-KEY_CTRLALTA+'A';
   }
-  if (Key>=KEY_ALT0 && Key<=KEY_ALT9)
+  else if (Key>=KEY_ALT0 && Key<=KEY_ALT9)
   {
-    sprintf(KeyText,"Alt%c",Key-KEY_ALT0+'0');
-    return;
+    fmtNum=12;
+    Key=Key0-KEY_ALT0+'0';
   }
-  if (Key>=KEY_ALTA && Key<=KEY_ALTZ)
+  else if (Key>=KEY_ALTA && Key<=KEY_ALTZ)
   {
-    sprintf(KeyText,"Alt%c",Key-KEY_ALTA+'A');
-    return;
+    fmtNum=12;
+    Key=Key0-KEY_ALTA+'A';
   }
-  /* $ 23.07.2000 SVS
-     + KEY_LWIN (VK_LWIN), KEY_RWIN (VK_RWIN)
-  */
-  static int KeyCodes[]={
-    KEY_BS,KEY_TAB,KEY_ENTER,KEY_ESC,KEY_SPACE,KEY_HOME,KEY_END,KEY_UP,
-    KEY_DOWN,KEY_LEFT,KEY_RIGHT,KEY_PGUP,KEY_PGDN,KEY_INS,KEY_DEL,KEY_NUMPAD5,
-    KEY_CTRLBRACKET,KEY_CTRLBACKBRACKET,KEY_CTRLCOMMA,KEY_CTRLDOT,KEY_CTRLBS,
-    KEY_CTRLQUOTE,KEY_CTRLSLASH,
-    KEY_CTRLENTER,KEY_CTRLTAB,KEY_CTRLSHIFTINS,KEY_CTRLSHIFTDOWN,
-    KEY_CTRLSHIFTLEFT,KEY_CTRLSHIFTRIGHT,KEY_CTRLSHIFTUP,KEY_CTRLSHIFTEND,
-    KEY_CTRLSHIFTHOME,KEY_CTRLSHIFTPGDN,KEY_CTRLSHIFTPGUP,
-    KEY_CTRLSHIFTSLASH,KEY_CTRLSHIFTBACKSLASH,
-    KEY_CTRLSHIFTSUBTRACT,KEY_CTRLSHIFTADD,KEY_CTRLSHIFTENTER,KEY_ALTADD,
-    KEY_ALTSUBTRACT,KEY_ALTMULTIPLY,KEY_ALTDOT,KEY_ALTCOMMA,KEY_ALTINS,
-    KEY_ALTDEL,KEY_ALTBS,KEY_ALTHOME,KEY_ALTEND,KEY_ALTPGUP,KEY_ALTPGDN,
-    KEY_ALTUP,KEY_ALTDOWN,KEY_ALTLEFT,KEY_ALTRIGHT,
-    KEY_CTRLDOWN,KEY_CTRLLEFT,KEY_CTRLRIGHT,KEY_CTRLUP,
-    KEY_CTRLEND,KEY_CTRLHOME,KEY_CTRLPGDN,KEY_CTRLPGUP,KEY_CTRLBACKSLASH,
-    KEY_CTRLSUBTRACT,KEY_CTRLADD,KEY_CTRLMULTIPLY,KEY_CTRLCLEAR,KEY_ADD,
-    KEY_SUBTRACT,KEY_MULTIPLY,KEY_BREAK,KEY_SHIFTINS,KEY_SHIFTDEL,
-    KEY_SHIFTEND,KEY_SHIFTHOME,KEY_SHIFTLEFT,KEY_SHIFTUP,KEY_SHIFTRIGHT,
-    KEY_SHIFTDOWN,KEY_SHIFTPGUP,KEY_SHIFTPGDN,KEY_SHIFTENTER,KEY_SHIFTTAB,
-    KEY_SHIFTADD,KEY_SHIFTSUBTRACT,KEY_CTRLINS,KEY_CTRLDEL,KEY_CTRLSHIFTDOT,
-    KEY_CTRLSHIFTTAB,KEY_DIVIDE,KEY_CTRLSHIFTBS,KEY_ALT,KEY_CTRL,KEY_SHIFT,
-    KEY_RALT,KEY_RCTRL,KEY_CTRLSHIFTBRACKET,KEY_CTRLSHIFTBACKBRACKET,
-    KEY_ALTSHIFTINS,KEY_ALTSHIFTDOWN,KEY_ALTSHIFTLEFT,KEY_ALTSHIFTRIGHT,
-    KEY_ALTSHIFTUP,KEY_ALTSHIFTEND,KEY_ALTSHIFTHOME,KEY_ALTSHIFTPGDN,
-    KEY_ALTSHIFTPGUP,KEY_ALTSHIFTENTER,
-    KEY_CTRLALTINS,KEY_CTRLALTDOWN,KEY_CTRLALTLEFT,KEY_CTRLALTRIGHT,
-    KEY_CTRLALTUP,KEY_CTRLALTEND,KEY_CTRLALTHOME,KEY_CTRLALTPGDN,
-    KEY_CTRLALTPGUP,KEY_CTRLALTENTER,KEY_SHIFTBS,KEY_APPS,
-    KEY_CTRLAPPS,KEY_ALTAPPS,KEY_SHIFTAPPS,
-    KEY_CTRLSHIFTAPPS,KEY_ALTSHIFTAPPS,KEY_CTRLALTAPPS,
-    KEY_LWIN,KEY_RWIN
-  };
-  static char *KeyNames[]={
-    "BS","Tab","Enter","Esc","Space","Home","End","Up",
-    "Down","Left","Right","PgUp","PgDn","Ins","Del","Clear",
-    "Ctrl[","Ctrl]","Ctrl,","Ctrl.","CtrlBS",
-    "Ctrl\"","Ctrl/",
-    "CtrlEnter","CtrlTab","CtrlShiftIns","CtrlShiftDown",
-    "CtrlShiftLeft","CtrlShiftRight","CtrlShiftUp","CtrlShiftEnd",
-    "CtrlShiftHome","CtrlShiftPgDn","CtrlShiftPgUp",
-    "CtrlShiftSlash","CtrlShiftBackSlash",
-    "CtrlShiftSubtract","CtrlShiftAdd","CtrlShiftEnter","AltAdd",
-    "AltSubtract","AltMultiply","Alt.","Alt,","AltIns",
-    "AltDel","AltBS","AltHome","AltEnd","AltPgUp","AltPgDn",
-    "AltUp","AltDown","AltLeft","AltRight",
-    "CtrlDown","CtrlLeft","CtrlRight","CtrlUp",
-    "CtrlEnd","CtrlHome","CtrlPgDn","CtrlPgUp","CtrlBackSlash",
-    "CtrlSubtract","CtrlAdd","CtrlMultiply","CtrlClear","Add",
-    "Subtract","Multiply","Break","ShiftIns","ShiftDel",
-    "ShiftEnd","ShiftHome","ShiftLeft","ShiftUp","ShiftRight",
-    "ShiftDown","ShiftPgUp","ShiftPgDn","ShiftEnter","ShiftTab",
-    "ShiftAdd","ShiftSubtract","CtrlIns","CtrlDel","CtrlShiftDot",
-    "CtrlShiftTab","Divide","CtrlShiftBS","Alt","Ctrl","Shift",
-    "RAlt","RCtrl","CtrlShift[","CtrlShift]",
-    "AltShiftIns","AltShiftDown","AltShiftLeft","AltShiftRight",
-    "AltShiftUp","AltShiftEnd","AltShiftHome","AltShiftPgDn",
-    "AltShiftPgUp","AltShiftEnter",
-    "CtrlAltIns","CtrlAltDown","CtrlAltLeft","CtrlAltRight",
-    "CtrlAltUp","CtrlAltEnd","CtrlAltHome","CtrlAltPgDn","CtrlAltPgUp",
-    "CtrlAltEnter","ShiftBS",
-    "Apps","CtrlApps","AltApps","ShiftApps",
-    "CtrlShiftApps","AltShiftApps","CtrlAltApps",
-    "LWin","RWin"
-  };
-  /* SVS $ */
-  int I;
-
-  for (I=0;I<sizeof(KeyCodes)/sizeof(KeyCodes[0]);I++)
-    if (Key==KeyCodes[I])
-    {
-      strcpy(KeyText,KeyNames[I]);
-      return;
-    }
-  if (Key<256)
-    sprintf(KeyText,"%c",Key);
   else
-    if (Key>KEY_CTRL_BASE && Key<KEY_END_CTRL_BASE)
-      sprintf(KeyText,"Ctrl%c",Key-KEY_CTRL_BASE);
-    else
-      if (Key>KEY_ALT_BASE && Key<KEY_END_ALT_BASE)
-        sprintf(KeyText,"Alt%c",Key-KEY_ALT_BASE);
-      else
-        if (Key>KEY_CTRLSHIFT_BASE && Key<KEY_END_CTRLSHIFT_BASE)
-          sprintf(KeyText,"CtrlShift%c",Key-KEY_CTRLSHIFT_BASE);
-        else
-          if (Key>KEY_ALTSHIFT_BASE && Key<KEY_END_ALTSHIFT_BASE)
-            sprintf(KeyText,"AltShift%c",Key-KEY_ALTSHIFT_BASE);
-          else
-            if (Key>KEY_CTRLALT_BASE && Key<KEY_END_CTRLALT_BASE)
-              sprintf(KeyText,"CtrlAlt%c",Key-KEY_CTRLALT_BASE);
-            else
-              *KeyText=0;
-  for (I=0;KeyText[I]!=0;I++)
-    if (KeyText[I]=='\\')
+  {
+    /* $ 23.07.2000 SVS
+       + KEY_LWIN (VK_LWIN), KEY_RWIN (VK_RWIN)
+    */
+    static int KeyCodes[]={
+      KEY_BS,KEY_TAB,KEY_ENTER,KEY_ESC,KEY_SPACE,KEY_HOME,KEY_END,KEY_UP,
+      KEY_DOWN,KEY_LEFT,KEY_RIGHT,KEY_PGUP,KEY_PGDN,KEY_INS,KEY_DEL,KEY_NUMPAD5,
+      KEY_CTRLBRACKET,KEY_CTRLBACKBRACKET,KEY_CTRLCOMMA,KEY_CTRLDOT,KEY_CTRLBS,
+      KEY_CTRLQUOTE,KEY_CTRLSLASH,
+      KEY_CTRLENTER,KEY_CTRLTAB,KEY_CTRLSHIFTINS,KEY_CTRLSHIFTDOWN,
+      KEY_CTRLSHIFTLEFT,KEY_CTRLSHIFTRIGHT,KEY_CTRLSHIFTUP,KEY_CTRLSHIFTEND,
+      KEY_CTRLSHIFTHOME,KEY_CTRLSHIFTPGDN,KEY_CTRLSHIFTPGUP,
+      KEY_CTRLSHIFTSLASH,KEY_CTRLSHIFTBACKSLASH,
+      KEY_CTRLSHIFTSUBTRACT,KEY_CTRLSHIFTADD,KEY_CTRLSHIFTENTER,KEY_ALTADD,
+      KEY_ALTSUBTRACT,KEY_ALTMULTIPLY,KEY_ALTDOT,KEY_ALTCOMMA,KEY_ALTINS,
+      KEY_ALTDEL,KEY_ALTBS,KEY_ALTHOME,KEY_ALTEND,KEY_ALTPGUP,KEY_ALTPGDN,
+      KEY_ALTUP,KEY_ALTDOWN,KEY_ALTLEFT,KEY_ALTRIGHT,
+      KEY_CTRLDOWN,KEY_CTRLLEFT,KEY_CTRLRIGHT,KEY_CTRLUP,
+      KEY_CTRLEND,KEY_CTRLHOME,KEY_CTRLPGDN,KEY_CTRLPGUP,KEY_CTRLBACKSLASH,
+      KEY_CTRLSUBTRACT,KEY_CTRLADD,KEY_CTRLMULTIPLY,KEY_CTRLCLEAR,KEY_ADD,
+      KEY_SUBTRACT,KEY_MULTIPLY,KEY_BREAK,KEY_SHIFTINS,KEY_SHIFTDEL,
+      KEY_SHIFTEND,KEY_SHIFTHOME,KEY_SHIFTLEFT,KEY_SHIFTUP,KEY_SHIFTRIGHT,
+      KEY_SHIFTDOWN,KEY_SHIFTPGUP,KEY_SHIFTPGDN,KEY_SHIFTENTER,KEY_SHIFTTAB,
+      KEY_SHIFTADD,KEY_SHIFTSUBTRACT,KEY_CTRLINS,KEY_CTRLDEL,KEY_CTRLSHIFTDOT,
+      KEY_CTRLSHIFTTAB,KEY_DIVIDE,KEY_CTRLSHIFTBS,KEY_ALT,KEY_CTRL,KEY_SHIFT,
+      KEY_RALT,KEY_RCTRL,KEY_CTRLSHIFTBRACKET,KEY_CTRLSHIFTBACKBRACKET,
+      KEY_ALTSHIFTINS,KEY_ALTSHIFTDOWN,KEY_ALTSHIFTLEFT,KEY_ALTSHIFTRIGHT,
+      KEY_ALTSHIFTUP,KEY_ALTSHIFTEND,KEY_ALTSHIFTHOME,KEY_ALTSHIFTPGDN,
+      KEY_ALTSHIFTPGUP,KEY_ALTSHIFTENTER,
+      KEY_CTRLALTINS,KEY_CTRLALTDOWN,KEY_CTRLALTLEFT,KEY_CTRLALTRIGHT,
+      KEY_CTRLALTUP,KEY_CTRLALTEND,KEY_CTRLALTHOME,KEY_CTRLALTPGDN,
+      KEY_CTRLALTPGUP,KEY_CTRLALTENTER,KEY_SHIFTBS,KEY_APPS,
+      KEY_CTRLAPPS,KEY_ALTAPPS,KEY_SHIFTAPPS,
+      KEY_CTRLSHIFTAPPS,KEY_ALTSHIFTAPPS,KEY_CTRLALTAPPS,
+      KEY_LWIN,KEY_RWIN
+    };
+    static char *KeyNames[]={
+      "BS","Tab","Enter","Esc","Space","Home","End","Up",
+      "Down","Left","Right","PgUp","PgDn","Ins","Del","Clear",
+      "Ctrl[","Ctrl]","Ctrl,","Ctrl.","CtrlBS",
+      "Ctrl\"","Ctrl/",
+      "CtrlEnter","CtrlTab","CtrlShiftIns","CtrlShiftDown",
+      "CtrlShiftLeft","CtrlShiftRight","CtrlShiftUp","CtrlShiftEnd",
+      "CtrlShiftHome","CtrlShiftPgDn","CtrlShiftPgUp",
+      "CtrlShiftSlash","CtrlShiftBackSlash",
+      "CtrlShiftSubtract","CtrlShiftAdd","CtrlShiftEnter","AltAdd",
+      "AltSubtract","AltMultiply","Alt.","Alt,","AltIns",
+      "AltDel","AltBS","AltHome","AltEnd","AltPgUp","AltPgDn",
+      "AltUp","AltDown","AltLeft","AltRight",
+      "CtrlDown","CtrlLeft","CtrlRight","CtrlUp",
+      "CtrlEnd","CtrlHome","CtrlPgDn","CtrlPgUp","CtrlBackSlash",
+      "CtrlSubtract","CtrlAdd","CtrlMultiply","CtrlClear","Add",
+      "Subtract","Multiply","Break","ShiftIns","ShiftDel",
+      "ShiftEnd","ShiftHome","ShiftLeft","ShiftUp","ShiftRight",
+      "ShiftDown","ShiftPgUp","ShiftPgDn","ShiftEnter","ShiftTab",
+      "ShiftAdd","ShiftSubtract","CtrlIns","CtrlDel","CtrlShiftDot",
+      "CtrlShiftTab","Divide","CtrlShiftBS","Alt","Ctrl","Shift",
+      "RAlt","RCtrl","CtrlShift[","CtrlShift]",
+      "AltShiftIns","AltShiftDown","AltShiftLeft","AltShiftRight",
+      "AltShiftUp","AltShiftEnd","AltShiftHome","AltShiftPgDn",
+      "AltShiftPgUp","AltShiftEnter",
+      "CtrlAltIns","CtrlAltDown","CtrlAltLeft","CtrlAltRight",
+      "CtrlAltUp","CtrlAltEnd","CtrlAltHome","CtrlAltPgDn","CtrlAltPgUp",
+      "CtrlAltEnter","ShiftBS",
+      "Apps","CtrlApps","AltApps","ShiftApps",
+      "CtrlShiftApps","AltShiftApps","CtrlAltApps",
+      "LWin","RWin"
+    };
+    /* SVS $ */
+
+    for (I=0;I<sizeof(KeyCodes)/sizeof(KeyCodes[0]);I++)
+      if (Key==KeyCodes[I])
+      {
+        strcpy(KeyText,KeyNames[I]);
+        break;
+      }
+    if(I  == sizeof(KeyCodes)/sizeof(KeyCodes[0]))
     {
-      strcpy(KeyText+I,"BackSlash");
-      break;
+      if (Key<256)
+      {
+        fmtNum=14;
+        Key=Key0;
+      }
+      else if (Key>KEY_CTRL_BASE && Key<KEY_END_CTRL_BASE)
+      {
+        fmtNum=4;
+        Key=Key0-KEY_CTRL_BASE;
+      }
+      else if (Key>KEY_ALT_BASE && Key<KEY_END_ALT_BASE)
+      {
+        fmtNum=12;
+        Key=Key0-KEY_ALT_BASE;
+      }
+      else if (Key>KEY_CTRLSHIFT_BASE && Key<KEY_END_CTRLSHIFT_BASE)
+      {
+        fmtNum=9;
+        Key=Key0-KEY_CTRLSHIFT_BASE;
+      }
+      else if (Key>KEY_ALTSHIFT_BASE && Key<KEY_END_ALTSHIFT_BASE)
+      {
+        fmtNum=10;
+        Key=Key0-KEY_ALTSHIFT_BASE;
+      }
+      else if (Key>KEY_CTRLALT_BASE && Key<KEY_END_CTRLALT_BASE)
+      {
+        fmtNum=11;
+        Key=Key0-KEY_CTRLALT_BASE;
+      }
+      else
+      {
+        Key=-1;
+        *KeyText=0;
+      }
     }
+    else
+      Key=-1;
+  }
+  if(Key != -1)
+  {
+    sprintf(KeyText,fmtKey[fmtNum],Key);
+    for (I=0;KeyText[I]!=0;I++)
+      if (KeyText[I]=='\\')
+      {
+        strcpy(KeyText+I,"BackSlash");
+        break;
+      }
+  }
+
+  if(Size > 0)
+    strncpy(KeyText0,KeyText,Size);
+  else
+    strcpy(KeyText0,KeyText);
 }
+/* SVS $ */

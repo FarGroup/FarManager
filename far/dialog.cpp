@@ -5,20 +5,25 @@ dialog.cpp
 
 */
 
-/* Revision: 1.11 31.07.2000 $ */
+/* Revision: 1.12 01.08.2000 $ */
 
 /*
 Modify:
-  31.07.2000 tran & SVS
-   + перемещение диалога по экрану клавишами. Ctrl-F5 включает режим
-     перемещения. Индикация перемещения - "Move" в левом верхнем углу
-  31.07.2000 SVS
+  01.08.2000 SVS
+   ! History теперь ВСЕГДА имеет ScrollBar, т.к. этот элемент ближе
+     к ComboBox`у, нежели к меню.
+   - переменная класса lastKey удалена за ненадобностью :-)
+   + Обычный ListBox
+   - Небольшой глючек с AutoComplete
    ! В History должно заносится значение (для DIF_EXPAND...) перед
      расширением среды!
    + Еже ли стоит флаг DIF_USELASTHISTORY и непустая строка ввода,
      то подстанавливаем первое значение из History
    - Отключена возможность для DI_PSWEDIT иметь History...
      ...Что бы небыло повадно... и для повыщения защиты, т.с.
+  31.07.2000 tran & SVS
+   + перемещение диалога по экрану клавишами. Ctrl-F5 включает режим
+     перемещения. Индикация перемещения - "Move" в левом верхнем углу
   28.07.2000 SVS
    ! Переметр Edit *EditLine в функции FindInEditForAC нафиг ненужен!
    - Небольшой баг с автозавершением:
@@ -90,16 +95,15 @@ static char fmtSavedDialogHistory[]="SavedDialogHistory\\%s";
    Конструктор класса Dialog
 */
 Dialog::Dialog(struct DialogItem *Item,int ItemCount,
-               FARDIALOGPROC DlgProc,long InitParam)
+               FARWINDOWPROC DlgProc,long InitParam)
 {
   CreateObjects=FALSE;
   InitObjects=FALSE;
   DialogTooLong=FALSE;
   WarningStyle=0;
-  lastKey=0;
 
   if(!DlgProc) // функция должна быть всегда!!!
-    DlgProc=(FARDIALOGPROC)Dialog::DefDlgProc;
+    DlgProc=(FARWINDOWPROC)Dialog::DefDlgProc;
   Dialog::DlgProc=DlgProc;
 
   Dialog::InitParam=InitParam;
@@ -219,10 +223,11 @@ int Dialog::InitDialogObjects()
 {
   int I, J, TitleSet;
   int Length,StartX;
+  int FocusSet, Type;
   struct DialogItem *CurItem;
 
   // предварительный цикл по поводу кнопок и заголовка консоли
-  for(I=0, TitleSet=0; I < ItemCount; I++)
+  for(I=0, FocusSet=0, TitleSet=0; I < ItemCount; I++)
   {
     CurItem=&Item[I];
 
@@ -249,13 +254,24 @@ int Dialog::InitDialogObjects()
           TitleSet=TRUE;
           break;
         }
+
+     // предварительный поик фокуса
+     if(IsFocused(CurItem->Type) && CurItem->Focus)
+       FocusSet++;
   }
 
   // а теперь все сначала и по полной программе...
   for (I=0; I < ItemCount; I++)
   {
     CurItem=&Item[I];
+    Type=CurItem->Type;
 
+    // Если фокус не установлен - найдем!
+    if(!FocusSet && IsFocused(Type))
+    {
+      FocusSet++;
+      CurItem->Focus=1;
+    }
     // Последовательно объявленные элементы с флагом DIF_CENTERGROUP
     // и одинаковой вертикальной позицией будут отцентрированы в диалоге.
     // Их координаты X не важны. Удобно использовать для центрирования
@@ -296,9 +312,49 @@ int Dialog::InitDialogObjects()
           StartX+=2;
       }
     }
+    /* $ 01.08.2000 SVS
+       Обычный ListBox
+    */
+    if (Type==DI_LISTBOX)
+    {
+      if (!CreateObjects)
+        CurItem->ObjPtr=new VMenu(NULL,NULL,0,CurItem->Y2-CurItem->Y1+1,
+                               VMENU_ALWAYSSCROLLBAR|VMENU_LISTBOX,NULL);
 
+      VMenu *ListBox=(VMenu *)CurItem->ObjPtr;
+
+      if(ListBox)
+      {
+        // удалим все итемы
+        ListBox->DeleteItems();
+
+        struct MenuItem ListItem;
+        ListBox->SetFlags(MENU_SHOWAMPERSAND);
+        ListBox->SetPosition(X1+CurItem->X1,Y1+CurItem->Y1,
+                             X1+CurItem->X2,Y1+CurItem->Y2);
+        ListBox->SetBoxType(SHORT_SINGLE_BOX);
+
+        struct FarListItems *List=CurItem->ListItems;
+        if(List && List->Items)
+        {
+          struct FarListItem *Items=List->Items;
+          for (J=0; J < List->CountItems; J++)
+          {
+            ListItem.Separator=Items[J].Flags&LIF_SEPARATOR;
+            ListItem.Selected=Items[J].Flags&LIF_SELECTED;
+            ListItem.Checked=Items[J].Flags&LIF_CHECKED;
+            strcpy(ListItem.Name,Items[J].Text);
+            strcpy(ListItem.UserData,Items[J].Text);
+            ListItem.UserDataSize=strlen(Items[J].Text);
+
+            ListBox->AddItem(&ListItem);
+          }
+        }
+      }
+    }
+    /* SVS $*/
     // "редакторы" - разговор особый...
-    if (IsEdit(CurItem->Type))
+    if (IsEdit(Type))
     {
       if (!CreateObjects)
         CurItem->ObjPtr=new Edit;
@@ -320,14 +376,14 @@ int Dialog::InitDialogObjects()
       if (CurItem->Type==DI_PSWEDIT)
       {
         DialogEdit->SetPasswordMode(TRUE);
-        /* $ 31.07.2000 SVS
+        /* $ 01.08.2000 SVS
           ...Что бы небыло повадно... и для повыщения защиты, т.с.
         */
         CurItem->Flags&=~DIF_HISTORY;
         /* SVS $ */
       }
 
-      if (CurItem->Type==DI_FIXEDIT)
+      if (Type==DI_FIXEDIT)
       {
         // если DI_FIXEDIT, то курсор сразу ставится на замену...
         //   ай-ай - было недокументированно :-)
@@ -345,7 +401,7 @@ int Dialog::InitDialogObjects()
           DialogEdit->SetClearFlag(1);
         }
 
-      /* $ 31.07.2000 SVS
+      /* $ 01.08.2000 SVS
          Еже ли стоит флаг DIF_USELASTHISTORY и непустая строка ввода,
          то подстанавливаем первое значение из History
       */
@@ -353,7 +409,7 @@ int Dialog::InitDialogObjects()
          !CurItem->Data[0])
       {
         char RegKey[80],KeyValue[80];
-        sprintf(RegKey,fmtSavedDialogHistory,(char*)CurItem->Selected);
+        sprintf(RegKey,fmtSavedDialogHistory,(char*)CurItem->History);
         GetRegKey(RegKey,"Line0",CurItem->Data,"",sizeof(CurItem->Data));
       }
       /* SVS $ */
@@ -362,13 +418,15 @@ int Dialog::InitDialogObjects()
          Если это ComBoBox и данные не установлены, то берем из списка
          при условии, что хоть один из пунктов имеет Selected != 0
       */
-      if (CurItem->Type==DI_COMBOBOX && CurItem->Data[0] == 0)
+      if (Type==DI_COMBOBOX && CurItem->Data[0] == 0 && CurItem->ListItems)
       {
-        struct FarListItem *ListItems=(struct FarListItem *)CurItem->Selected;
+        struct FarListItem *ListItems=
+                   ((struct FarListItems *)CurItem->ListItems)->Items;
+        int Length=((struct FarListItems *)CurItem->ListItems)->CountItems;
 
-        for (J=0; ListItems[J].Text[0]; J++)
+        for (J=0; J < Length; J++)
         {
-          if(ListItems[J].Selected)
+          if(ListItems[J].Flags & LIF_SELECTED)
           {
             // берем только первый пункт для области редактирования
             strcpy(CurItem->Data, ListItems[J].Text);
@@ -379,7 +437,7 @@ int Dialog::InitDialogObjects()
       /* SVS $ */
       DialogEdit->SetString(CurItem->Data);
 
-      if (CurItem->Type==DI_FIXEDIT)
+      if (Type==DI_FIXEDIT)
         DialogEdit->SetCurPos(0);
 
       DialogEdit->FastShow();
@@ -422,6 +480,8 @@ void Dialog::DeleteDialogObjects()
       /* SVS */
       delete (Edit *)(Item[I].ObjPtr);
     }
+    else if(Item[I].Type == DI_LISTBOX && Item[I].ObjPtr)
+      delete (VMenu *)(Item[I].ObjPtr);
 }
 
 /* Public:
@@ -435,9 +495,9 @@ void Dialog::GetDialogObjectsData()
     if (IsEdit(Item[I].Type))
     {
       ((Edit *)(Item[I].ObjPtr))->GetString(Item[I].Data,sizeof(Item[I].Data));
-      if (ExitCode>=0 && (Item[I].Flags & DIF_HISTORY) && Item[I].Selected && Opt.DialogsEditHistory)
-        AddToEditHistory(Item[I].Data,(char *)Item[I].Selected);
-      /* $ 31.07.2000 SVS
+      if (ExitCode>=0 && (Item[I].Flags & DIF_HISTORY) && Item[I].History && Opt.DialogsEditHistory)
+        AddToEditHistory(Item[I].Data,Item[I].History);
+      /* $ 01.08.2000 SVS
          ! В History должно заносится значение (для DIF_EXPAND...) перед
           расширением среды!
       */
@@ -448,7 +508,7 @@ void Dialog::GetDialogObjectsData()
       if(Item[I].Flags&DIF_EDITEXPAND)
          ExpandEnvironmentStr(Item[I].Data, Item[I].Data,sizeof(Item[I].Data));
       /* SVS $ */
-      /* 31.07.2000 SVS $ */
+      /* 01.08.2000 SVS $ */
     }
 }
 
@@ -611,7 +671,7 @@ void Dialog::ShowDialog()
         else
           EditPtr->FastShow();
 
-        if (CurItem->Selected &&
+        if (CurItem->History &&
              ((CurItem->Flags & DIF_HISTORY) &&
               Opt.DialogsEditHistory
               || CurItem->Type == DI_COMBOBOX))
@@ -625,6 +685,23 @@ void Dialog::ShowDialog()
         break;
         /* SVS $ */
       }
+
+      /* $ 01.08.2000 SVS
+         Обычный ListBox
+      */
+      case DI_LISTBOX:
+      {
+        VMenu *ListBox=(VMenu *)(CurItem->ObjPtr);
+        if(ListBox)
+        {
+          if (CurItem->Focus)
+            ListBox->Show();
+          else
+            ListBox->FastShow();
+        }
+        break;
+      }
+      /* 01.08.2000 SVS $ */
 
       case DI_CHECKBOX:
       case DI_RADIOBUTTON:
@@ -678,8 +755,8 @@ void Dialog::ShowDialog()
         Attr=DlgProc((HANDLE)this,DMSG_CTLCOLORDLGITEM,I,Attr);
         SetColor(Attr&0xFF);
         HiText(CurItem->Data,HIBYTE(LOWORD(Attr)));
-
         break;
+
     } // end switch(...
     /* 28.07.2000 SVS $ */
   } // end for (I=...
@@ -817,13 +894,6 @@ int Dialog::ProcessKey(int Key)
 
   int Type=Item[FocusPos].Type;
 
-  /* $ 26.07.2000 SVS
-     AutoComplite: Если установлен DIF_HISTORY, то запоминаем клавишу.
-  */
-  if(Item[FocusPos].Flags & DIF_HISTORY)
-    lastKey = Key; //get the last key the user hit in the ComboBox
-  /* SVS $ */
-
   switch(Key)
   {
     case KEY_F1:
@@ -959,7 +1029,7 @@ int Dialog::ProcessKey(int Key)
         return(ProcessKey(KEY_ENTER));
       if (Type==DI_CHECKBOX)
       {
-        Item[FocusPos].Selected=!Item[FocusPos].Selected;
+        Item[FocusPos].Selected =! Item[FocusPos].Selected;
         /* $ 28.07.2000 SVS
           При изменении состояния каждого элемента посылаем сообщение
            посредством функции SendDlgMessage - в ней делается все!
@@ -1017,6 +1087,17 @@ int Dialog::ProcessKey(int Key)
         ((Edit *)(Item[FocusPos].ObjPtr))->ProcessKey(Key);
         return(TRUE);
       }
+
+      /* $ 01.08.2000 SVS
+         Обычный ListBox
+      */
+      if(Type == DI_LISTBOX)
+      {
+        ((VMenu *)(Item[FocusPos].ObjPtr))->ProcessKey(Key);
+        return(TRUE);
+      }
+      /* SVS $ */
+
       for (I=0;I<ItemCount;I++)
         if (IsFocused(Item[I].Type))
         {
@@ -1040,6 +1121,15 @@ int Dialog::ProcessKey(int Key)
         ((Edit *)(Item[FocusPos].ObjPtr))->ProcessKey(Key);
         return(TRUE);
       }
+      /* $ 01.08.2000 SVS
+         Обычный ListBox
+      */
+      if(Type == DI_LISTBOX)
+      {
+        ((VMenu *)(Item[FocusPos].ObjPtr))->ProcessKey(Key);
+        return(TRUE);
+      }
+      /* SVS $ */
       {
         int MinDist=1000,MinPos;
         for (I=0;I<ItemCount;I++)
@@ -1067,6 +1157,15 @@ int Dialog::ProcessKey(int Key)
 
     case KEY_UP:
     case KEY_DOWN:
+      /* $ 01.08.2000 SVS
+         Обычный ListBox
+      */
+      if(Type == DI_LISTBOX)
+      {
+        ((VMenu *)(Item[FocusPos].ObjPtr))->ProcessKey(Key);
+        return(TRUE);
+      }
+      /* SVS $ */
       {
         int PrevPos=0;
         if (Item[FocusPos].Flags & DIF_EDITOR)
@@ -1091,7 +1190,16 @@ int Dialog::ProcessKey(int Key)
         return(TRUE);
       }
     case KEY_PGDN:
-      if (!(Item[FocusPos].Flags & DIF_EDITOR))
+      /* $ 01.08.2000 SVS
+         Обычный ListBox
+      */
+      if(Type == DI_LISTBOX)
+      {
+        ((VMenu *)(Item[FocusPos].ObjPtr))->ProcessKey(Key);
+        return(TRUE);
+      }
+      /* SVS $ */
+      else if (!(Item[FocusPos].Flags & DIF_EDITOR))
       {
         for (I=0;I<ItemCount;I++)
           if (Item[I].DefaultButton)
@@ -1114,29 +1222,38 @@ int Dialog::ProcessKey(int Key)
       if (IsEdit(Type) &&
            (Item[FocusPos].Flags & DIF_HISTORY) &&
            Opt.DialogsEditHistory &&
-           Item[FocusPos].Selected)
+           Item[FocusPos].History)
       /* $ 26.07.2000 SVS
          Передаем то, что в строке ввода в функцию выбора из истории
          для выделения нужного пункта в истории.
       */
       {
         CurEditLine->GetString(Str,sizeof(Str));
-        SelectFromEditHistory(CurEditLine,(char *)Item[FocusPos].Selected,Str);
+        SelectFromEditHistory(CurEditLine,Item[FocusPos].History,Str);
       }
       /* SVS $ */
       /* $ 18.07.2000 SVS
          + обработка DI_COMBOBOX - выбор из списка!
       */
-      else if(Type == DI_COMBOBOX && Item[FocusPos].Selected)
+      else if(Type == DI_COMBOBOX && Item[FocusPos].ListItems)
       {
         CurEditLine->GetString(Str,sizeof(Str));
         SelectFromComboBox(CurEditLine,
-                      (struct FarListItem *)Item[FocusPos].Selected,Str);
+                      Item[FocusPos].ListItems,Str);
       }
       /* SVS $ */
       return(TRUE);
 
     default:
+      /* $ 01.08.2000 SVS
+         Обычный ListBox
+      */
+      if(Type == DI_LISTBOX)
+      {
+        ((VMenu *)(Item[FocusPos].ObjPtr))->ProcessKey(Key);
+        return(TRUE);
+      }
+      /* SVS $ */
       if (IsEdit(Type))
       {
         if (Item[FocusPos].Flags & DIF_EDITOR)
@@ -1225,8 +1342,12 @@ int Dialog::ProcessKey(int Key)
           {
             Edit *cb=((Edit *)(Item[FocusPos].ObjPtr));
             int SelStart, SelEnd, IX;
-            lastKey = 0;
 
+            /* $ 01.08.2000 SVS
+               Небольшой глючек с AutoComplete
+            */
+            int CurPos=cb->GetCurPos();
+            /* SVS $*/
             //text to search for
             cb->GetString(Str,sizeof(Str));
             cb->GetSelection(SelStart,SelEnd);
@@ -1241,7 +1362,11 @@ int Dialog::ProcessKey(int Key)
             {
               cb->SetString(Str);
               cb->Select(SelEnd,sizeof(Str)); //select the appropriate text
-              cb->SetCurPos(SelEnd);
+              /* $ 01.08.2000 SVS
+                 Небольшой глючек с AutoComplete
+              */
+              cb->SetCurPos(CurPos); // SelEnd
+              /* SVS $*/
               /* $ 28.07.2000 SVS
                 При изменении состояния каждого элемента посылаем сообщение
                 посредством функции SendDlgMessage - в ней делается все!
@@ -1272,6 +1397,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
   int FocusPos=0,I;
   int MsX,MsY;
+  int Type;
 
   if (MouseEvent->dwButtonState==0)
     return(FALSE);
@@ -1285,7 +1411,6 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
   MsX=MouseEvent->dwMousePosition.X;
   MsY=MouseEvent->dwMousePosition.Y;
-
   if (MsX<X1 || MsY<Y1 || MsX>X2 || MsY>Y2)
   {
     if (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED)
@@ -1298,9 +1423,27 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   if (MouseEvent->dwEventFlags==0 && (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED))
   {
     for (I=0;I<ItemCount;I++)
+    {
+      Type=Item[I].Type;
       if (MsX>=X1+Item[I].X1)
       {
-        if (IsEdit(Item[I].Type))
+        /* $ 01.08.2000 SVS
+           Обычный ListBox
+        */
+        if(Type == DI_LISTBOX    &&
+            MsY >= Y1+Item[I].Y1 &&
+            MsY <= Y1+Item[I].Y2 &&
+            MsX <= X1+Item[I].X2)
+        {
+          if(FocusPos != I)
+            ChangeFocus2(FocusPos,I);
+          ShowDialog();
+          ((VMenu *)(Item[I].ObjPtr))->ProcessMouse(MouseEvent);
+          return(TRUE);
+        }
+        /* SVS $ */
+
+        if (IsEdit(Type))
         {
           Edit *EditLine=(Edit *)(Item[I].ObjPtr);
           if (EditLine->ProcessMouse(MouseEvent))
@@ -1317,9 +1460,9 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
             /* $ 18.07.2000 SVS
                + Проверка на тип элемента DI_COMBOBOX
             */
-            if (MsX==EditX2+1 && MsY==EditY1 && Item[I].Selected &&
+            if (MsX==EditX2+1 && MsY==EditY1 && Item[I].History &&
                 ((Item[I].Flags & DIF_HISTORY) && Opt.DialogsEditHistory
-                 || Item[I].Type == DI_COMBOBOX))
+                 || Type == DI_COMBOBOX))
             /* SVS $ */
             {
               ChangeFocus2(FocusPos,I);
@@ -1328,7 +1471,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
             }
           }
         }
-        if (Item[I].Type==DI_BUTTON &&
+        if (Type==DI_BUTTON &&
             MsY==Y1+Item[I].Y1 &&
             MsX < X1+Item[I].X1+HiStrlen(Item[I].Data))
         {
@@ -1348,8 +1491,8 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
           return(TRUE);
         }
 
-        if ((Item[I].Type == DI_CHECKBOX ||
-             Item[I].Type == DI_RADIOBUTTON) &&
+        if ((Type == DI_CHECKBOX ||
+             Type == DI_RADIOBUTTON) &&
             MsY==Y1+Item[I].Y1 &&
             MsX < (X1+Item[I].X1+HiStrlen(Item[I].Data)+4-((Item[I].Flags & DIF_MOVESELECT)!=0)))
         {
@@ -1361,6 +1504,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     // ДЛЯ MOUSE-Перемещалки:
     //   Сюда попадаем в том случае, если мышь не попала на активные элементы
     //
+    }
   }
   return(FALSE);
 }
@@ -1396,7 +1540,7 @@ int Dialog::ChangeFocus(int FocusPos,int Step,int SkipGroup)
 
       Type=Item[FocusPos].Type;
 
-      if (Type==DI_BUTTON || Type==DI_CHECKBOX || IsEdit(Type))
+      if (Type==DI_LISTBOX || Type==DI_BUTTON || Type==DI_CHECKBOX || IsEdit(Type))
         break;
       if (Type==DI_RADIOBUTTON && (!SkipGroup || Item[FocusPos].Selected))
         break;
@@ -1546,7 +1690,7 @@ int Dialog::IsFocused(int Type)
 int Dialog::FindInEditForAC(int TypeFind,void *HistoryName,char *FindStr)
 {
   char Str[1024];
-  int I;
+  int I, Count;
 
   if(!TypeFind)
   {
@@ -1570,13 +1714,15 @@ int Dialog::FindInEditForAC(int TypeFind,void *HistoryName,char *FindStr)
   }
   else
   {
-    struct FarListItem *ListItems=(struct FarListItem *)HistoryName;
-    for (I=0;ListItems[I].Text[0];I++)
+    struct FarListItem *ListItems=((struct FarListItems *)HistoryName)->Items;
+    int Count=((struct FarListItems *)HistoryName)->CountItems;
+
+    for (I=0; I < Count ;I++)
     {
       if (!LocalStrnicmp(ListItems[I].Text,FindStr,strlen(FindStr)))
         break;
     }
-    if (!ListItems[I].Text[0])
+    if (I  == Count)
       return FALSE;
     strcat(FindStr,&ListItems[I].Text[strlen(FindStr)]);
   }
@@ -1601,7 +1747,7 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,char *HistoryName,char *IStr)
   sprintf(RegKey,fmtSavedDialogHistory,HistoryName);
   {
     // создание пустого вертикального меню
-    VMenu HistoryMenu("",NULL,0,8);
+    VMenu HistoryMenu("",NULL,0,8,VMENU_ALWAYSSCROLLBAR);
 
     struct MenuItem HistoryItem;
     int EditX1,EditY1,EditX2,EditY2;
@@ -1869,34 +2015,33 @@ int Dialog::ProcessHighlighting(int Key,int FocusPos,int Translate)
 */
 void Dialog::SelectFromComboBox(
          Edit *EditLine,                   // строка редактирования
-         struct FarListItem *ListItems,    // список строк
+         struct FarListItems *List,    // список строк
          char *IStr)
 {
   char Str[512];
   struct MenuItem ComboBoxItem;
+  struct FarListItem *ListItems=List->Items;
   int EditX1,EditY1,EditX2,EditY2;
   int I,Dest;
   {
     // создание пустого вертикального меню
     //  с обязательным показом ScrollBar
-    VMenu ComboBoxMenu("",NULL,0,8,TRUE);
+    VMenu ComboBoxMenu("",NULL,0,8,VMENU_ALWAYSSCROLLBAR);
 
     EditLine->GetPosition(EditX1,EditY1,EditX2,EditY2);
     if (EditX2-EditX1<20)
       EditX2=EditX1+20;
     if (EditX2>ScrX)
       EditX2=ScrX;
-    ComboBoxItem.Checked=ComboBoxItem.Separator=0;
     ComboBoxMenu.SetFlags(MENU_SHOWAMPERSAND);
     ComboBoxMenu.SetPosition(EditX1,EditY1+1,EditX2,0);
     ComboBoxMenu.SetBoxType(SHORT_SINGLE_BOX);
 
     // заполнение пунктов меню
-    int ItemsCount=0;
     /* Последний пункт списка - ограничититель - в нем Tetx[0]
        должен быть равен '\0'
     */
-    for (Dest=I=0;ListItems[I].Text[0];I++)
+    for (Dest=I=0;I < List->CountItems;I++)
     {
       /* $ 28.07.2000 SVS
          Выставим Selected при полном совпадении строки ввода и списка
@@ -1907,16 +2052,17 @@ void Dialog::SelectFromComboBox(
            Dest++;
       }
       else
-         ComboBoxItem.Selected=ListItems[I].Selected;
+         ComboBoxItem.Selected=ListItems[I].Flags&LIF_SELECTED;
+
+      ComboBoxItem.Separator=ListItems[I].Flags&LIF_SEPARATOR;
+      ComboBoxItem.Checked=ListItems[I].Flags&LIF_CHECKED;
+      /* 01.08.2000 SVS $ */
       /* SVS $ */
       strcpy(ComboBoxItem.Name,ListItems[I].Text);
       strcpy(ComboBoxItem.UserData,ListItems[I].Text);
       ComboBoxItem.UserDataSize=strlen(ListItems[I].Text);
       ComboBoxMenu.AddItem(&ComboBoxItem);
-      ItemsCount++;
     }
-    if (ItemsCount==0)
-      return;
 
     /* $ 28.07.2000 SVS
        Перед отрисовкой спросим об изменении цветовых атрибутов
@@ -1943,8 +2089,8 @@ void Dialog::SelectFromComboBox(
     ComboBoxMenu.GetUserData(Str,sizeof(Str),ExitCode);
     /* Запомним текущее состояние */
     for (I=0;ListItems[I].Text[0];I++)
-      ListItems[I].Selected=0;
-    ListItems[ComboBoxMenu.GetSelectPos()].Selected=1;
+      ListItems[I].Flags&=~LIF_SELECTED;
+    ListItems[ComboBoxMenu.GetSelectPos()].Flags|=LIF_SELECTED;
   }
   EditLine->SetString(Str);
   EditLine->SetLeftPos(0);
@@ -2132,6 +2278,20 @@ long WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     */
     case DMSG_CHANGEITEM:
       return TRUE;
+
+
+    /* Сообщение LMSG_CHANGELIST оповещает обработчик об изменении состояния
+       элемента списка (DI_COMBOBOX, DI_LISTBOX, DIF_HISTORY).
+       Param1 = ID элемента (DI_COMBOBOX, DI_LISTBOX, DIF_HISTORY).
+       Param2 = Указатель на структуру FarListItems, описывающую
+                измененный элемент.
+       Return = TRUE - разрешить изменение (и соответственно отрисовку того,
+                что пользователь ввёл)
+                FALSE - запретить изменение.
+       Здесь это сообшение формирует запрос к функции диалога!
+    */
+    case DMSG_CHANGELIST:
+      return TRUE;
   }
 
   return 0;
@@ -2224,18 +2384,37 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       }
       return 0;
 
+    /* Сообщение LMSG_CHANGELIST оповещает обработчик об изменении состояния
+       элемента списка (DI_COMBOBOX, DI_LISTBOX, DIF_HISTORY).
+       Param1 = ID элемента (DI_COMBOBOX, DI_LISTBOX, DIF_HISTORY).
+       Param2 = Указатель на структуру FarListItems, описывающую
+                измененный элемент.
+       Return = TRUE - разрешить изменение (и соответственно отрисовку того,
+                что пользователь ввёл)
+                FALSE - запретить изменение.
+       Здесь это сообшение формирует запрос к функции диалога!
+    */
+    case DMSG_CHANGELIST:
+      return Dlg->DlgProc(hDlg,Msg,Param1,(long)&CurItem->ListItems);
+
     /* Сообщение DMSG_CHANGEITEM оповещает обработчик об изменении состояния
        элемента диалога - ввели символ в окне редактирования, переключили
        CheckBox (RadioButton),...
        Param1 = ID элемента диалога.
-       Param2 = Указатель на структуру FarDialogItem, описывающую элемент для
-                отрисовки.
+       Param2 = Указатель на структуру FarDialogItem, описывающую измененный
+                элемент.
        Return = TRUE - разрешить изменение (и соответственно отрисовку того,
                 что пользователь ввёл)
                 FALSE - запретить изменение.
        Здесь это сообшение формирует запрос к функции диалога!
     */
     case DMSG_CHANGEITEM:
+      // преобразуем данные для!
+      Dialog::ConvertItem(0,&PluginDialogItem,CurItem,1);
+      I=Dlg->DlgProc(hDlg,Msg,Param1,(long)&PluginDialogItem);
+      Dialog::ConvertItem(1,&PluginDialogItem,CurItem,1);
+      return I;
+
     /* Сообщение DMSG_DRAWITEM посылается обработчику диалога перед отрисовкой
        элемента диалога.
        Param1 = ID элемента диалога, который будет отрисован.
@@ -2244,12 +2423,6 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
        Return = 0
        Здесь это сообшение формирует запрос к функции диалога!
     */
-      // преобразуем данные для!
-      Dialog::ConvertItem(0,&PluginDialogItem,CurItem,1);
-      I=Dlg->DlgProc(hDlg,Msg,Param1,(long)&PluginDialogItem);
-      Dialog::ConvertItem(1,&PluginDialogItem,CurItem,1);
-      return I;
-
     case DMSG_DRAWITEM:
       // преобразуем данные для!
       Dialog::ConvertItem(0,&PluginDialogItem,CurItem,1);
@@ -2390,6 +2563,23 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         }
         else
           strcpy(((struct FarDialogItem *)Param2)->Data,CurItem->Data);
+        return TRUE;
+      }
+      return FALSE;
+
+    /* Сообщение DMSG_SETDLGITEM посылается стандартному обработчику диалога
+       для изменения информации о заданном элементе.
+       Param1 = ID элемента диалога
+       Param2 = Указатель на структуру FarDialogItem
+       Return = TRUE - данные обработаны!
+    */
+    case DMSG_SETDLGITEM:
+      if(Param2)
+      {
+        Dialog::ConvertItem(TRUE,(struct FarDialogItem *)Param2,CurItem,1);
+        CurItem->Type=Type;
+        // еще разок, т.к. данные могли быть изменены
+        Dlg->InitDialogObjects();
         return TRUE;
       }
       return FALSE;

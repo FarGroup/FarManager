@@ -6,14 +6,23 @@
   Plugin API for FAR Manager 1.66
 
 */
-/* Revision: 1.12 31.07.2000 $ */
+/* Revision: 1.12 01.08.2000 $ */
 
 /*
 Modify:
-  31.07.2000 SVS
+  01.08.2000 SVS
+    ! Функция ввода строки имеет один параметр для всех флагов
+    ! дополнительный параметра у KeyToText - размер данных
     + Флаг DIF_USELASTHISTORY для строк ввода.
       если у строки ввода есть история то начальное значение брать первым
       из истории
+    ! Полная переделка структуры списка и "оболочка" вокруг списка
+    + флаги для FarListItem.Flags
+      LIF_SELECTED, LIF_CHECKED, LIF_SEPARATOR
+    + Сообщения для обработки диалога, имееющий место быть :-)
+      DMSG_SETDLGITEM, DMSG_CHANGELIST
+    ! Изменено наименование типа функции обработчика на универсальное
+      FARDIALOGPROC -> FARWINDOWPROC
   28.07.2000 SVS
     + Введен новый элемент DI_LISTBOX (зарезервировано место)
     + Сообщения для обработки диалога, имееющий место быть :-)
@@ -130,8 +139,11 @@ typedef int (WINAPI *FARAPIMENU)(
 /* $ 23.07.2000 SVS
    Для обработчика диалога
 */
-// тип функции обработчика диалога
-typedef long (WINAPI *FARDIALOGPROC)(
+// тип функции обработчика окна
+/* $ 01.08.2000 SVS
+   Изменено наименование типа функции обработчика на универсальное
+*/
+typedef long (WINAPI *FARWINDOWPROC)(
   HANDLE hDlg,
   int    Msg,
   int    Param1,
@@ -177,7 +189,7 @@ typedef int (WINAPI *FARAPIDIALOGEX)(
   char                 *HelpTopic,
   struct FarDialogItem *Item,
   int                   ItemsNumber,
-  FARDIALOGPROC         DlgProc,
+  FARWINDOWPROC         DlgProc,
   long                  Param
 );
 /* SVS $ */
@@ -242,7 +254,7 @@ enum FarDialogItemFlags {
   DIF_HISTORY         = 0x40000,
   DIF_EDITEXPAND      = 0x80000,
   DIF_DROPDOWNLIST    =0x100000,
-/* $ 31.07.2000 SVS
+/* $ 01.08.2000 SVS
   если у строки ввода есть история
   то начальное значение брать первым из истории
 */
@@ -253,9 +265,9 @@ enum FarDialogItemFlags {
 
 
 /* $ 28.07.2000 SVS
-   Сообщения для обработки диалога, имееющий место быть :-)
+   Сообщения для обработчиков, имееющий место быть :-)
 */
-enum DialogMessages{
+enum FarMessagesProc{
   DMSG_INITDIALOG=0,
   DMSG_CLOSE,
   DMSG_ENTERIDLE,
@@ -263,11 +275,13 @@ enum DialogMessages{
   DMSG_PAINT,
   DMSG_SETREDRAW,
   DMSG_DRAWITEM,
+  DMSG_CHANGEITEM,
+  DMSG_CHANGELIST,
   DMSG_GETDLGITEM,
+  DMSG_SETDLGITEM,
   DMSG_KILLFOCUS,
   DMSG_GOTFOCUS,
   DMSG_SETFOCUS,
-  DMSG_CHANGEITEM,
   DMSG_GETTEXTLENGTH,
   DMSG_SETTEXTLENGTH,
   DMSG_GETTEXT,
@@ -282,21 +296,45 @@ enum DialogMessages{
 /* $ 18.07.2000 SVS
    Список Items для DI_COMBOBOX & DI_LISTBOX
 */
+/* $ 01.08.2000 SVS
+   Полная переделка структуры списка и "оболочка" вокрус списка
+*/
+
+// флаги для FarListItem.Flags
+enum LISTITEMFLAGS{
+  LIF_SELECTED = 0x0001,
+  LIF_CHECKED  = 0x0002,
+  LIF_SEPARATOR= 0x0004,
+};
+
+// описывает один пункт списка
 struct FarListItem
 {
-  char Text[128];
-  int Selected;
-  int Checked;
-  int Separator;
+  unsigned int Flags;       // набор флагов, описывающих состояние пункта
+  char Text[124];   // данные пункта
 };
+
+// весь список
+struct FarListItems
+{
+  int CountItems;
+  struct FarListItem *Items;
+};
+
+/* 01.08.2000 SVS $ */
 /* SVS $ */
+
 
 struct FarDialogItem
 {
   int Type;
   int X1,Y1,X2,Y2;
   int Focus;
-  int Selected;
+  union {
+    int Selected;
+    char *History;
+    struct FarListItems *ListItems;
+  };
   unsigned int Flags;
   int DefaultButton;
   char Data[512];
@@ -615,6 +653,16 @@ typedef DWORD (WINAPI *FARSTDEXPANDENVIRONMENTSTR)(
 );
 /* IS $ */
 
+
+/* $ 01.08.2000 SVS
+   Функция ввода строки имеет один параметр для всех флагов
+*/
+enum INPUTBOXFLAGS{
+  FIB_ENABLEEMPTY = 0x0001,
+  FIB_PASSWORD    = 0x0002,
+  FIB_EXPANDENV   = 0x0004,
+};
+
 /* $ 25.07.2000 SVS
    Функция ввода строки
 */
@@ -626,11 +674,10 @@ typedef int (WINAPI *FARAPIINPUTBOX)(
   char *DestText,
   int   DestLength,
   char *HelpTopic,
-  int   EnableEmpty,
-  int   Password,
-  int   ExpandEnv
+  DWORD Flags
 );
 /* SVS $*/
+/* 01.08.2000 SVS $*/
 
 /* $ 06.07.2000 IS
   А это что? Отгадайте сами :-)
@@ -686,7 +733,11 @@ typedef void  (WINAPI *FARSTDADDENDSLASH)(char *Path);
 */
 typedef int (WINAPI *FARSTDCOPYTOCLIPBOARD)(char *Data);
 typedef char* (WINAPI *FARSTDPASTEFROMCLIPBOARD)(void);
-typedef void (WINAPI *FARSTDKEYTOTEXT)(int Key,char *KeyText);
+/* $ 01.08.2000 SVS
+   ! дополнительный параметра у KeyToText - размер данных
+*/
+typedef void (WINAPI *FARSTDKEYTOTEXT)(int Key,char *KeyText,int Size);
+/* 01.08.2000 SVS $*/
 
 /* SVS $*/
 /* $ 06.07.2000 IS
@@ -966,4 +1017,4 @@ int    WINAPI _export ProcessEditorEvent(int Event,void *Param);
   #pragma pack(pop)
 #endif
 
-#endif /* __PLUGINS_HPP__ */
+#endif /* __PLUGIN_HPP__ */

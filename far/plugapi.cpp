@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.08 28.07.2000 $ */
+/* Revision: 1.09 01.08.2000 $ */
 
 /*
 Modify:
+  01.08.2000 SVS
+    ! FARDIALOGPROC -> FARWINDOWPROC
   28.07.2000 SVS
     ! В связи с появлением SendDlgMessage в классе Dialog
       вносим некоторые изменения!
@@ -220,7 +222,7 @@ int WINAPI FarDialogFn(int PluginNumber,int X1,int Y1,int X2,int Y2,
 
 int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
            char *HelpTopic,struct FarDialogItem *Item,int ItemsNumber,
-           FARDIALOGPROC DlgProc,long Param)
+           FARWINDOWPROC DlgProc,long Param)
 
 {
   if (DisablePluginsOutput)

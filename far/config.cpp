@@ -5,10 +5,15 @@ config.cpp
 
 */
 
-/* Revision: 1.07 27.07.2000 $ */
+/* Revision: 1.08 01.08.2000 $ */
 
 /*
 Modify:
+  01.08.2000 SVS
+    ! Добавка в виде задания дополнительного пути для поиска плагинов
+      расширяется на месте - не имеет флаг по умолчанию!
+    + "Вспомним" путь для дополнительных плагинов по шаблону!!!
+      Сам шаблон берем из ключика в реестре!
   27.07.2000 SVS
     ! Opt.AutoComplete по умолчанию не активизирован,
       дабы не шокировать публику :-)
@@ -20,7 +25,7 @@ Modify:
   15.07.2000 tran
     + Opt.ShowKeyBarViewer
   15.07.2000 SVS
-     + Добавка в виде задания дополнительного пути для поиска плагинов
+    + Добавка в виде задания дополнительного пути для поиска плагинов
   11.07.2000 SVS
     ! Последниие 5 индексов внаглую перезаписываются (если на этих местах
       стоят нули)
@@ -67,7 +72,7 @@ void SystemSettings()
   /* 13 */  DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MConfigAutoSave,
 
   /* 14 */  DI_TEXT,5,14,0,0,0,0,0,0,(char *)MConfigPersonalPath,
-  /* 15 */  DI_EDIT,5,15,50,15,0,0,DIF_EDITEXPAND,0,"", // расширяемый!
+  /* 15 */  DI_EDIT,5,15,50,15,0,0,0,0,"",
 
   /* 16 */  DI_TEXT,5,16,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
   /* 17 */  DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
@@ -510,7 +515,7 @@ void EditorConfig()
 
 void SetFolderInfoFiles()
 {
-  GetString(MSG(MSetFolderInfoTitle),MSG(MSetFolderInfoNames),NULL,Opt.FolderInfoFiles,Opt.FolderInfoFiles,sizeof(Opt.FolderInfoFiles),"OptMenu",TRUE);
+  GetString(MSG(MSetFolderInfoTitle),MSG(MSetFolderInfoNames),NULL,Opt.FolderInfoFiles,Opt.FolderInfoFiles,sizeof(Opt.FolderInfoFiles),"OptMenu",FIB_ENABLEEMPTY);
 }
 
 
@@ -595,7 +600,17 @@ void ReadConfig()
   /* $ 15.07.2000 SVS
      "Вспомним" путь для дополнительного поиска плагинов
   */
-  GetRegKey("System","PersonalPluginsPath",Opt.PersonalPluginsPath,"",sizeof(Opt.PersonalPluginsPath));
+  {
+   /* $ 01.08.2000 SVS
+      "Вспомним" путь по шаблону!!!
+   */
+   SetRegRootKey(HKEY_LOCAL_MACHINE);
+   char PersonalPluginsPath[1024];
+   GetRegKey("System","TemplatePluginsPath",PersonalPluginsPath,"",sizeof(Opt.PersonalPluginsPath));
+   SetRegRootKey(HKEY_CURRENT_USER); //???????????????????????
+   GetRegKey("System","PersonalPluginsPath",Opt.PersonalPluginsPath,PersonalPluginsPath,sizeof(Opt.PersonalPluginsPath));
+   /* 01.08.2000 SVS $ */
+  }
   /* SVS $ */
   GetRegKey("System","ClearReadOnly",Opt.ClearReadOnly,0);
   GetRegKey("System","DeleteToRecycleBin",Opt.DeleteToRecycleBin,1);

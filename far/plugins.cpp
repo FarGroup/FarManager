@@ -5,22 +5,26 @@ plugins.cpp
 
 */
 
-/* Revision: 1.10 25.07.2000 $ */
+/* Revision: 1.11 01.08.2000 $ */
 
 /*
 Modify:
+  01.08.2000 SVS
+    ! Расширение дополнительного пути для поиска персональных плагином
+      происходит непосредственно перед поиском
+    + Исключаем фичу при совпадении двух путей поиска
   23.07.2000 SVS
-     + Функции
+    + Функции
        - Ввод тестовой строки
        - FSF-функция KeyToName
        - FSF: работа с буфером обмена CopyToClipboard, PasteFromClipboard
   23.07.2000 SVS
-     + Функции для обработчика диалога
+    + Функции для обработчика диалога
        - расширенная функция диалога FarDialogEx;
        - обмен сообщениями SendDlgMessage;
        - функция по умолчанию DefDlgProc;
   15.07.2000 SVS
-     + Добавка в виде задания дополнительного пути для поиска плагинов
+    + Добавка в виде задания дополнительного пути для поиска плагинов
   13.07.2000 SVS
     ! Некоторые коррекции при использовании new/delete/realloc
   13.07.2000 IS
@@ -112,16 +116,26 @@ void PluginsSet::LoadPlugins()
   ScanTree ScTree(FALSE,TRUE);
   for(IPath=0; IPath < 2; ++IPath)
   {
+    sprintf(PluginsDir,"%s%s",FarPath,PluginsFolderName);
     if(!IPath)
     {
       // если пусто то прерываем поиск :-) независимо ни от чего...
       if(Opt.PersonalPluginsPath[0])
-        strcpy(PluginsDir,Opt.PersonalPluginsPath);
+      {
+        /* $ 01.08.2000 SVS
+           Вот здесь и расширяем значение пути!!!
+        */
+        ExpandEnvironmentStr(Opt.PersonalPluginsPath,FullName,sizeof(FullName));
+        // проверка на вшивость!
+        if(stricmp(PluginsDir,FullName))
+          strcpy(PluginsDir,FullName);
+        else
+          continue; // продолжем дальше
+        /* SVS $ */
+      }
       else
         continue; // продолжем дальше
     }
-    else
-      sprintf(PluginsDir,"%s%s",FarPath,PluginsFolderName);
 
     ScTree.SetFindPath(PluginsDir,"*.*");
     while (ScTree.GetNextName(&FindData,FullName))

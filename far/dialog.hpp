@@ -10,10 +10,12 @@ dialog.hpp
 
 */
 
-/* Revision: 1.06 31.07.2000 $ */
+/* Revision: 1.07 01.08.2000 $ */
 
 /*
 Modify:
+  01.08.2000 SVS
+   - переменная класса lastKey удалена за ненадобностью :-)
   31.07.2000 tran & SVS
    + переменная класса Dragged - флаг перемещения
      а также OldX*, OldY*,
@@ -62,14 +64,13 @@ class Dialog:public Modal
     int ItemCount;              // количество элементов диалога
 
     char OldConsoleTitle[512];  // предыдущий заголовок консоли
-    int lastKey;		// для AutoComplit последняя клавиша
     int InitObjects;            // элементы инициализарованы?
     int CreateObjects;          // объекты (Edit,...) созданы?
     int WarningStyle;           // TRUE - Warning Dialog Style
     int DialogTooLong;          //
     int PrevMacroMode;          // предыдущий режим макро
     long InitParam;		// параметр, переданный в конструктор
-    FARDIALOGPROC DlgProc;      // функция обработки диалога
+    FARWINDOWPROC DlgProc;      // функция обработки диалога
 
     /* $ 31.07.2000 tran
        переменные для перемещения диалога */
@@ -110,7 +111,7 @@ class Dialog:public Modal
     /* $ 18.07.2000 SVS
        + функция SelectFromComboBox для выбора из DI_COMBOBOX
     */
-    void SelectFromComboBox(Edit *EditLine,struct FarListItem *HistoryName,char *Str=NULL);
+    void SelectFromComboBox(Edit *EditLine,struct FarListItems *HistoryName,char *Str=NULL);
     /* SVS $ */
     /* $ 26.07.2000 SVS
        AutoComplite: Поиск входжение подстроки в истории
@@ -121,7 +122,7 @@ class Dialog:public Modal
     int ProcessHighlighting(int Key,int FocusPos,int Translate);
 
   public:
-    Dialog(struct DialogItem *Item,int ItemCount,FARDIALOGPROC DlgProc=NULL,long Param=NULL);
+    Dialog(struct DialogItem *Item,int ItemCount,FARWINDOWPROC DlgProc=NULL,long Param=NULL);
     ~Dialog();
 
   public:

@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.05 26.07.2000 $ */
+/* Revision: 1.06 01.08.2000 $ */
 
 /*
 Modify:
+  01.08.2000 SVS
+    ! Изменения в структурах Dialog*
   26.07.2000 SVS
     + Opt.AutoComplete
   18.07.2000 tran 1.04
@@ -232,6 +234,15 @@ struct EditorUndoData
 };
 
 
+/* $ 01.08.2000 SVS
+  У структур DialogI* изменены:
+  union {
+    unsigned int Selected;
+    char *History;
+    struct FarListItems *ListItems;
+  } Addons;
+
+*/
 // for class Dialog
 /*
 Описывает один элемент диалога - внутренне представление.
@@ -242,7 +253,11 @@ struct DialogItem
   unsigned char Type;
   unsigned char X1,Y1,X2,Y2;
   unsigned char Focus;
-  unsigned int Selected;
+  union {
+    unsigned int Selected;
+    char *History;
+    struct FarListItems *ListItems;
+  };
   unsigned int Flags;
   unsigned char DefaultButton;
   char Data[512];
@@ -260,11 +275,16 @@ struct DialogData
   unsigned char Type;
   unsigned char X1,Y1,X2,Y2;
   unsigned char Focus;
-  unsigned int Selected;
+  union {
+    unsigned int Selected;
+    char *History;
+    struct FarListItems *ListItems;
+  };
   int Flags;
   unsigned char DefaultButton;
   char *Data;
 };
+/* SVS $*/
 
 // for class FileList
 struct FileListItem

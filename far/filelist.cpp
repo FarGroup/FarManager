@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.03 15.07.2000 $ */
+/* Revision: 1.04 01.08.2000 $ */
 
 /*
 Modify:
+  01.08.2000 SVS
+    ! Изменения при вызове GetString
   15.07.2000 tran
     ! "...вызываем перерисовку панелей потому что этот viewer,
       editor могут нам неверно восстановить..."
@@ -2264,7 +2266,7 @@ void FileList::DescribeFiles()
     QuoteSpaceOnly(QuotedName);
     sprintf(Msg,MSG(MEnterDescription),QuotedName);
     sprintf(TruncMsg,"%.65s",Msg);
-    if (!GetString(MSG(MDescribeFiles),TruncMsg,"DizText",PrevText!=NULL ? PrevText:"",DizText,sizeof(DizText),"FileDiz",TRUE))
+    if (!GetString(MSG(MDescribeFiles),TruncMsg,"DizText",PrevText!=NULL ? PrevText:"",DizText,sizeof(DizText),"FileDiz",FIB_ENABLEEMPTY))
       break;
     DizCount++;
     if (*DizText==0)
@@ -2299,7 +2301,7 @@ void FileList::ApplyCommand()
 {
   static char PrevCommand[512];
   char Command[512];
-  if (!GetString(MSG(MAskApplyCommandTitle),MSG(MAskApplyCommand),"ApplyCmd",PrevCommand,Command,sizeof(Command),"ApplyCmd",FALSE,FALSE))
+  if (!GetString(MSG(MAskApplyCommandTitle),MSG(MAskApplyCommand),"ApplyCmd",PrevCommand,Command,sizeof(Command),"ApplyCmd"))
     return;
   strcpy(PrevCommand,Command);
   char SelName[NM],SelShortName[NM];
