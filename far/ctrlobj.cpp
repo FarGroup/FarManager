@@ -5,10 +5,12 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.29 23.06.2001 $ */
+/* Revision: 1.30 06.07.2001 $ */
 
 /*
 Modify:
+  06.07.2001 OT
+    - баг с зацикливанием при выдаче сообщения о неправильной загрузки плагина 
   23.06.2001 OT
     - far -r
   30.05.2001 OT
@@ -174,8 +176,8 @@ void ControlObject::Init()
       Cp()->RightPanel->GoToFile(Opt.RightCurFile);
   }
   /* tran 07.09.2000 $ */
-  FrameManager->InsertFrame(FPanels);
   Plugins.LoadPlugins();
+  FrameManager->InsertFrame(FPanels);
 }
 
 void ControlObject::CreateFilePanels()
