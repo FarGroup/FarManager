@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.120 10.10.2001 $ */
+/* Revision: 1.121 11.10.2001 $ */
 
 /*
 Modify:
+  11.10.2001 VVM
+    ! Полное имя файла вставляет CTRL+F (вместо CTRL+SHIFT+ENTER)
   10.10.2001 SVS
     + EditorInfo.CurState
   27.09.2001 IS
@@ -2735,7 +2737,7 @@ int Editor::ProcessKey(int Key)
     /* $ 25.04.2001 IS
          ctrl-shift-enter - вставить в строку полное имя редактируемого файла
     */
-    case KEY_CTRLSHIFTENTER:
+    case KEY_CTRLF:
       if(!LockMode)
       {
         if(EditorControl(ECTL_INSERTTEXT, FileName))

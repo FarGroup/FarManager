@@ -222,6 +222,7 @@ $ #Command line commands#
   Next command                                                #Ctrl-X#
   Clear command line                                          #Ctrl-Y#
   Insert file name from the active panel                  #Ctrl-Enter#
+  Insert file name from the passive panel           #Ctrl-Shift-Enter#
   Insert full file name from the active panel                 #Ctrl-F#
   Insert UNC file name from the active panel              #Ctrl-Alt-F#
   Insert full file name from the passive panel                #Ctrl-:#
@@ -421,6 +422,8 @@ you will always have them in the history.
   list (if it is not locked)                               #Shift-Del#
 
   Insert a file name under cursor to dialog              #Shift-Enter#
+
+  Insert a file name from passive panel to dialog   #Ctrl-Shift-Enter#
 
   This key combination is valid for all edit controls except the command
 line, including dialogs and the ~internal editor~@Editor@.
@@ -1749,8 +1752,10 @@ $ #Internal editor#
                            (N must be '0'..'9')
    #LeftCtrl-<N>#            Go to bookmark <N>
    #Shift-Enter#             Insert the name of the current file on
-                           the panel at the cursor position.
-   #Ctrl-Shift-Enter#        Insert the full name of the file being
+                           the active panel at the cursor position.
+   #Ctrl-Shift-Enter#        Insert the name of the current file on
+                           the passive panel at the cursor position.
+   #Ctrl-F#                  Insert the full name of the file being
                            edited at the cursor position.
 
     Notes:
