@@ -8,10 +8,14 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.101 10.10.2002 $ */
+/* Revision: 1.102 22.10.2002 $ */
 
 /*
 Modify:
+  22.10.2002 SVS
+    ! PrevCursorSize, PrevMacroMode - для пред.курсора
+     > у меня сразу после выбора DrawLine из меню F11 пропадает курсор.
+     > проявляется после практически любого нажатия на кнопки
   10.10.2002 SVS
     ! Уточнение BugZ#675.
   08.10.2002 SVS
@@ -412,6 +416,8 @@ VMenu::VMenu(const char *Title,       // заголовок меню
   TopPos=0;
   SaveScr=NULL;
 
+  GetCursorType(PrevCursorVisible,PrevCursorSize);
+
   if(!Proc) // функция должна быть всегда!!!
     Proc=(FARWINDOWPROC)VMenu::DefMenuProc;
   VMenuProc=Proc;
@@ -487,6 +493,7 @@ VMenu::~VMenu()
 /*& 28.05.2001 OT Разрешить перерисовку фрейма, в котором создавалось это меню */
 //  FrameFromLaunched->UnlockRefresh();
 /* OT &*/
+  SetCursorType(PrevCursorVisible,PrevCursorSize);
   if (!VMFlags.Check(VMENU_LISTBOX))
   {
     FrameManager->UnmodalizeFrame(this);

@@ -5,10 +5,15 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.145 30.09.2002 $ */
+/* Revision: 1.146 22.10.2002 $ */
 
 /*
 Modify:
+  22.10.2002 SVS
+    ! переделана FarCharTable() - немного "обезопасим" себ€, т.е. сначала все
+      сформируем в локальной переменной, а потом "вернем" результат плагину
+    ! так же добавка CharTableSet.RFCCharset, но закомменченна€ - чтобы потом
+      не думать как Ё“ќ сделать ;-)
   30.09.2002 SVS
     ! немного по другому прорешрешим консоль при изменении цветов
     ! проинициализируем ID у элементов диалога!
@@ -2160,6 +2165,10 @@ int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize)
 {
   if (FrameManager->ManagerIsDown())
     return -1;
+
+  struct CharTableSet TableSet;
+  memset(&TableSet,0,sizeof(TableSet));
+
   if (Command==FCT_DETECT)
   {
     char DataFileName[NM];
@@ -2173,30 +2182,34 @@ int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize)
     /* IS $ */
     fwrite(Buffer,1,BufferSize,DataFile);
     fseek(DataFile,0,SEEK_SET);
-    CharTableSet TableSet;
     int TableNum;
     int DetectCode=DetectTable(DataFile,&TableSet,TableNum);
     fclose(DataFile);
     remove(DataFileName);
     return(DetectCode ? TableNum-1:-1);
   }
-  if (BufferSize!=sizeof(CharTableSet))
+
+  if (BufferSize > sizeof(CharTableSet))
     return(-1);
+
   /* $ 07.08.2001 IS
        ѕри неудаче заполним структуру данными дл€ OEM
   */
-  CharTableSet *CTS=reinterpret_cast<CharTableSet*>(Buffer);
-  /* $ 17.03.2002 IS ѕо возможности используем значение TableName */
-  if (!PrepareTable(CTS,Command,TRUE))
-  /* IS $ */
+  // $ 17.03.2002 IS ѕо возможности используем значение TableName
+  if (!PrepareTable(&TableSet,Command,TRUE))
   {
     for(unsigned int i=0;i<256;++i)
     {
-      CTS->EncodeTable[i]=CTS->DecodeTable[i]=i;
-      CTS->UpperTable[i]=LocalUpper(i);
-      CTS->LowerTable[i]=LocalLower(i);
+      TableSet.EncodeTable[i]=TableSet.DecodeTable[i]=i;
+      TableSet.UpperTable[i]=LocalUpper(i);
+      TableSet.LowerTable[i]=LocalLower(i);
     }
-    strcpy(CTS->TableName,MSG(MGetTableNormalText));
+    strncpy(TableSet.TableName,MSG(MGetTableNormalText),sizeof(TableSet.TableName));
+
+    // *TableSet.RFCCharset=0; // пока так!
+
+    memcpy(Buffer,&TableSet,BufferSize);
+
     return(-1);
   }
   /* IS $ */

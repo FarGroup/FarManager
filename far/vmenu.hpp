@@ -11,10 +11,12 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.45 04.10.2002 $ */
+/* Revision: 1.46 22.10.2002 $ */
 
 /*
 Modify:
+  22.10.2002 SVS
+    + PrevCursorSize, PrevMacroMode - дл€ пред.курсора
   04.10.2002 SVS
     + VMENU_DISABLED - говорит о том, что ¬≈—№ список (как элемент диалога) заблокирован
   30.09.2002 SVS
@@ -300,6 +302,8 @@ class VMenu: virtual public Modal, virtual public Frame
     int MaxLength;
     int BoxType;
     int CallCount;
+    int PrevCursorVisible;
+    int PrevCursorSize;
     int PrevMacroMode;
     /* $ 18.07.2000 SVS
        + переменна€, отвечающа€ за отображение scrollbar в

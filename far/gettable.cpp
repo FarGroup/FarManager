@@ -5,10 +5,14 @@ gettable.cpp
 
 */
 
-/* Revision: 1.14 17.03.2002 $ */
+/* Revision: 1.15 22.10.2002 $ */
 
 /*
 Modify:
+  22.10.2002 SVS
+    ! добавка CharTableSet.RFCCharset, но закомменченная - чтобы потом не
+      думать как ЭТО сделать ;-)
+    ! изменена GetTable() - сортируем 1 раз, после заполнения списка.
   17.03.2002 IS
     + PrepareTable: параметр UseTableName - в качестве имени таблицы
       использовать не имя ключа реестра, а соответствующую переменную.
@@ -116,13 +120,13 @@ int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
 
   struct MenuItem ListItem;
   memset(&ListItem,0,sizeof(ListItem));
-  ListItem.SetSelect(!TableNum);
+  //ListItem.SetSelect(!TableNum);
   strcpy(ListItem.Name,MSG(MGetTableNormalText));
   TableList.AddItem(&ListItem);
 
   if (UseUnicode)
   {
-    ListItem.SetSelect(TableNum==1);
+    //ListItem.SetSelect(TableNum==1);
     strcpy(ListItem.Name,"Unicode");
     TableList.AddItem(&ListItem);
   }
@@ -136,10 +140,12 @@ int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
     sprintf(t,"CodeTables\\%s",ItemName);
     GetRegKey(t,"TableName",t2,ItemName,128);
     strcpy(ListItem.Name,t2);
-    ListItem.SetSelect(I+1+UseUnicode == TableNum);
+    //ListItem.SetSelect(I+1+UseUnicode == TableNum);
     TableList.AddItem(&ListItem);
   }
 
+  TableList.SortItems(0,0);
+  TableList.SetSelectPos(1+UseUnicode == TableNum,1);
   TableList.AssignHighlights(FALSE);
   TableList.Process();
   int Pos=TableList.Modal::GetExitCode();
@@ -332,6 +338,8 @@ int PrepareTable(struct CharTableSet *TableSet,int TableNum,BOOL UseTableName)
     GetRegKey(TableKey,"TableName",TableSet->TableName,PointToName(TableKey),sizeof(TableSet->TableName));
   else
     strncpy(TableSet->TableName,PointToName(TableKey),sizeof(TableSet->TableName)-1);
+
+  //GetRegKey(TableKey,"RFCCharset",TableSet->RFCCharset,"",sizeof(TableSet->RFCCharset));
 
   int EncodeSet[256];
   memset(EncodeSet,0,sizeof(EncodeSet));

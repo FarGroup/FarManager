@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.220 30.09.2002 $ */
+/* Revision: 1.221 22.10.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,9 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  22.10.2002 SVS
+    ! добавка CharTableSet.RFCCharset, но закомменченная - чтобы потом не думать как
+      ЭТО сделать ;-)
   30.09.2002 SVS
     + struct FarListColors - описание цветовой схемы листов
   25.09.2002 SVS
@@ -1527,7 +1530,9 @@ typedef int (WINAPI *FARAPICMPNAME)(
 );
 
 
-enum { FCT_DETECT=0x40000000 };
+enum {
+  FCT_DETECT=0x40000000,
+};
 
 struct CharTableSet
 {
@@ -1536,6 +1541,9 @@ struct CharTableSet
   unsigned char UpperTable[256];
   unsigned char LowerTable[256];
   char TableName[128];
+#ifdef FAR_USE_INTERNALS
+  //char RFCCharset[128];
+#endif // END FAR_USE_INTERNALS
 };
 
 typedef int (WINAPI *FARAPICHARTABLE)(
