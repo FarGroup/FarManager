@@ -6,10 +6,13 @@
   Plugin API for FAR Manager 1.70
 
 */
-/* Revision: 1.28 25.08.2000 $ */
+/* Revision: 1.29 25.08.2000 $ */
 
 /*
 Modify:
+  25.08.2000 SVS
+    + DM_GETDLGRECT - получить координаты диалогового окна
+    + DM_USER - эт для юзеровских месагов :-)
   25.08.2000 SVS
     ! Удалены из FSF функции:
       memset, memcpy, memmove, memcmp,
@@ -349,6 +352,7 @@ enum FarMessagesProc{
   DM_ENABLEREDRAW,
   DM_GETDLGDATA,
   DM_GETDLGITEM,
+  DM_GETDLGRECT,
   DM_GETTEXT,
   DM_GETTEXTLENGTH,
   DM_KEY,
@@ -360,7 +364,7 @@ enum FarMessagesProc{
   DM_SETTEXTLENGTH,
   DM_SHOWDIALOG,
 
-  DN_FIRST=1000,
+  DN_FIRST=0x1000,
   DN_BTNCLICK,
   DN_CTLCOLORDIALOG,
   DN_CTLCOLORDLGITEM,
@@ -376,6 +380,8 @@ enum FarMessagesProc{
   DN_KILLFOCUS,
   DN_LISTCHANGE,
   DN_MOUSECLICK,
+
+  DM_USER=0x4000,
 };
 
 /* SVS $*/

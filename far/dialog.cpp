@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.29 25.08.2000 $ */
+/* Revision: 1.30 25.08.2000 $ */
 
 /*
 Modify:
+  25.08.2000 SVS
+   + DM_GETDLGRECT - получить координаты диалогового окна
+   ! Уточнение для DN_MOUSECLICK
   25.08.2000 SVS
    ! Уточнения, относительно фокуса ввода - ох уж эти сказочки, блин.
   24.08.2000 SVS
@@ -325,7 +328,6 @@ void Dialog::DisplayObject()
       // еще разок, т.к. данные могли быть изменены
       InitDialogObjects();
     }
-    /* SVS $ */
     // все объекты проинициализированы!
     SetDialogMode(DMODE_INITOBJECTS);
   }
@@ -631,6 +633,7 @@ int Dialog::InitDialogObjects(int ID)
 void Dialog::DeleteDialogObjects()
 {
   int I;
+
   for (I=0; I < ItemCount; I++)
     if (IsEdit(Item[I].Type))
     {
@@ -1766,239 +1769,263 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     return(TRUE);
   }
 
-  if (MouseEvent->dwEventFlags==0 && (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED))
+  if (MouseEvent->dwEventFlags==0)
   {
+    /* $ 21.08.2000 SVS
+       DN_MOUSECLICK - первично.
+    */
     for (I=0;I<ItemCount;I++)
     {
-      Type=Item[I].Type;
-      if (MsX>=X1+Item[I].X1)
+      int IX1=Item[I].X1+X1,
+          IY1=Item[I].Y1+Y1,
+          IX2=Item[I].X2+X1,
+          IY2=Item[I].Y2+Y1;
+      BOOL Send_DN=TRUE;
+
+      if(MsX >= IX1 && MsY >= IY1 && MsY <= IY2 && MsX <= IX2)
       {
-        /* $ 21.08.2000 SVS
-           DN_MOUSECLICK - первично.
-        */
-        if(MsY >= Y1+Item[I].Y1 && MsY <= Y1+Item[I].Y2 && MsX <= X1+Item[I].X2)
+        switch(Item[I].Type)
         {
-           // для user-типа подготовим координаты мыши
-           if(Type == DI_USERCONTROL)
-           {
-             MouseEvent->dwMousePosition.X-=X1;
-             MouseEvent->dwMousePosition.Y-=Y1;
-           }
-           DlgProc((HANDLE)this,DN_MOUSECLICK,I,(long)MouseEvent);
-           if(Type == DI_USERCONTROL)
-           {
-              ChangeFocus2(FocusPos,I);
-              return(TRUE);
-           }
+          case DI_SINGLEBOX:
+          case DI_DOUBLEBOX:
+            if(((MsX == IX1 || MsX == IX2) && MsY >= IY1 && MsY <= IY2) || // vert
+               ((MsY == IY1 || MsY == IY2) && MsX >= IX1 && MsX <= IX2) )   // hor
+                break;
+            Send_DN=FALSE;
+            break;
+          case DI_USERCONTROL:
+            // для user-типа подготовим координаты мыши
+            MouseEvent->dwMousePosition.X-=IX1;
+            MouseEvent->dwMousePosition.Y-=IY1;
+            break;
         }
-        /* SVS $ */
+        if(Send_DN)
+          DlgProc((HANDLE)this,DN_MOUSECLICK,I,(long)MouseEvent);
 
-        /* $ 01.08.2000 SVS
-           Обычный ListBox
-        */
-        if(Type == DI_LISTBOX    &&
-            MsY >= Y1+Item[I].Y1 &&
-            MsY <= Y1+Item[I].Y2 &&
-            MsX <= X1+Item[I].X2)
+        if(Type == DI_USERCONTROL)
         {
-          if(FocusPos != I)
-            ChangeFocus2(FocusPos,I);
-          ShowDialog();
-          ((VMenu *)(Item[I].ObjPtr))->ProcessMouse(MouseEvent);
-          return(TRUE);
+           ChangeFocus2(FocusPos,I);
+           ShowDialog();
+           return(TRUE);
         }
-        /* SVS $ */
+      }
+    }
+    /* SVS $ */
 
-        if (IsEdit(Type))
+    if((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED))
+    {
+      for (I=0;I<ItemCount;I++)
+      {
+        Type=Item[I].Type;
+        if (MsX>=X1+Item[I].X1)
         {
-          /* $ 15.08.2000 SVS
-             + Сделаем так, чтобы ткнув мышкой в DropDownList
-               список раскрывался сам.
-             Есть некоторая глюкавость - когда список раскрыт и мы
-             мышой переваливаем на другой элемент, то список закрывается
-             но перехода реального на указанный элемент диалога не происходит
+          /* $ 01.08.2000 SVS
+             Обычный ListBox
           */
-          int EditX1,EditY1,EditX2,EditY2;
-          Edit *EditLine=(Edit *)(Item[I].ObjPtr);
-          EditLine->GetPosition(EditX1,EditY1,EditX2,EditY2);
-
-          if(MsY==EditY1 && Type == DI_COMBOBOX &&
-             (Item[I].Flags & DIF_DROPDOWNLIST) &&
-             MsX >= EditX1 && MsX <= EditX2+1)
+          if(Type == DI_LISTBOX    &&
+              MsY >= Y1+Item[I].Y1 &&
+              MsY <= Y1+Item[I].Y2 &&
+              MsX <= X1+Item[I].X2)
           {
-            EditLine->SetClearFlag(0);
-            ChangeFocus2(FocusPos,I);
+            if(FocusPos != I)
+              ChangeFocus2(FocusPos,I);
             ShowDialog();
-            ProcessKey(KEY_CTRLDOWN);
+            ((VMenu *)(Item[I].ObjPtr))->ProcessMouse(MouseEvent);
             return(TRUE);
           }
           /* SVS $ */
 
-          if (EditLine->ProcessMouse(MouseEvent))
+          if (IsEdit(Type))
           {
-            EditLine->SetClearFlag(0);
-            ChangeFocus2(FocusPos,I);
-            ShowDialog();
-            return(TRUE);
-          }
-          else
-          {
-            /* $ 18.07.2000 SVS
-               + Проверка на тип элемента DI_COMBOBOX
+            /* $ 15.08.2000 SVS
+               + Сделаем так, чтобы ткнув мышкой в DropDownList
+                 список раскрывался сам.
+               Есть некоторая глюкавость - когда список раскрыт и мы
+               мышой переваливаем на другой элемент, то список закрывается
+               но перехода реального на указанный элемент диалога не происходит
             */
-            if (MsX==EditX2+1 && MsY==EditY1 && Item[I].History &&
-                ((Item[I].Flags & DIF_HISTORY) && Opt.DialogsEditHistory
-                 || Type == DI_COMBOBOX))
-            /* SVS $ */
+            int EditX1,EditY1,EditX2,EditY2;
+            Edit *EditLine=(Edit *)(Item[I].ObjPtr);
+            EditLine->GetPosition(EditX1,EditY1,EditX2,EditY2);
+
+            if(MsY==EditY1 && Type == DI_COMBOBOX &&
+               (Item[I].Flags & DIF_DROPDOWNLIST) &&
+               MsX >= EditX1 && MsX <= EditX2+1)
             {
+              EditLine->SetClearFlag(0);
               ChangeFocus2(FocusPos,I);
+              ShowDialog();
               ProcessKey(KEY_CTRLDOWN);
               return(TRUE);
             }
+            /* SVS $ */
+
+            if (EditLine->ProcessMouse(MouseEvent))
+            {
+              EditLine->SetClearFlag(0);
+              ChangeFocus2(FocusPos,I);
+              ShowDialog();
+              return(TRUE);
+            }
+            else
+            {
+              /* $ 18.07.2000 SVS
+                 + Проверка на тип элемента DI_COMBOBOX
+              */
+              if (MsX==EditX2+1 && MsY==EditY1 && Item[I].History &&
+                  ((Item[I].Flags & DIF_HISTORY) && Opt.DialogsEditHistory
+                   || Type == DI_COMBOBOX))
+              /* SVS $ */
+              {
+                ChangeFocus2(FocusPos,I);
+                ProcessKey(KEY_CTRLDOWN);
+                return(TRUE);
+              }
+            }
           }
-        }
-        if (Type==DI_BUTTON &&
-            MsY==Y1+Item[I].Y1 &&
-            MsX < X1+Item[I].X1+HiStrlen(Item[I].Data))
-        {
-          ChangeFocus2(FocusPos,I);
-          ShowDialog();
-          while (IsMouseButtonPressed())
-            ;
-          if (MouseX <  X1 ||
-              MouseX >  X1+Item[I].X1+HiStrlen(Item[I].Data)+4 ||
-              MouseY != Y1+Item[I].Y1)
+          if (Type==DI_BUTTON &&
+              MsY==Y1+Item[I].Y1 &&
+              MsX < X1+Item[I].X1+HiStrlen(Item[I].Data))
           {
             ChangeFocus2(FocusPos,I);
             ShowDialog();
+            while (IsMouseButtonPressed())
+              ;
+            if (MouseX <  X1 ||
+                MouseX >  X1+Item[I].X1+HiStrlen(Item[I].Data)+4 ||
+                MouseY != Y1+Item[I].Y1)
+            {
+              ChangeFocus2(FocusPos,I);
+              ShowDialog();
+              return(TRUE);
+            }
+            ProcessKey(KEY_ENTER);
             return(TRUE);
           }
-          ProcessKey(KEY_ENTER);
-          return(TRUE);
-        }
 
-        if ((Type == DI_CHECKBOX ||
-             Type == DI_RADIOBUTTON) &&
-            MsY==Y1+Item[I].Y1 &&
-            MsX < (X1+Item[I].X1+HiStrlen(Item[I].Data)+4-((Item[I].Flags & DIF_MOVESELECT)!=0)))
-        {
-          ChangeFocus2(FocusPos,I);
-          ProcessKey(KEY_SPACE);
-          return(TRUE);
+          if ((Type == DI_CHECKBOX ||
+               Type == DI_RADIOBUTTON) &&
+              MsY==Y1+Item[I].Y1 &&
+              MsX < (X1+Item[I].X1+HiStrlen(Item[I].Data)+4-((Item[I].Flags & DIF_MOVESELECT)!=0)))
+          {
+            ChangeFocus2(FocusPos,I);
+            ProcessKey(KEY_SPACE);
+            return(TRUE);
+          }
         }
-      }
-    } // for (I=0;I<ItemCount;I++)
-    // ДЛЯ MOUSE-Перемещалки:
-    //   Сюда попадаем в том случае, если мышь не попала на активные элементы
-    //
-    /* $ 10.08.2000 SVS
-       Двигаем, если разрешено! (IsCanMove)
-    */
-    if (CheckDialogMode(DMODE_ISCANMOVE))
-    {
-      /* $ 03.08.2000 tran
-         ну раз попадаем - то будем перемещать */
-      SetDialogMode(DMODE_DRAGGED);
-      OldX1=X1; OldX2=X2; OldY1=Y1; OldY2=Y2;
-      MsX=MouseX;
-      MsY=MouseY;
-      /* $ 11.08.2000 KM
-         Переменная, индицирующая первое попадание в процедуру
-         перемещения диалога.
+      } // for (I=0;I<ItemCount;I++)
+      // ДЛЯ MOUSE-Перемещалки:
+      //   Сюда попадаем в том случае, если мышь не попала на активные элементы
+      //
+      /* $ 10.08.2000 SVS
+         Двигаем, если разрешено! (IsCanMove)
       */
-      static int First=TRUE;
-      /* KM $ */
-      while (1)
+      if (CheckDialogMode(DMODE_ISCANMOVE))
       {
-          int mb=IsMouseButtonPressed();
-          /* $ 09.08.2000 tran
-             - долой "салазки" :) */
-          /* $ 11.08.2000 KM
-             Если первый раз пришло сообщение о нажатой кнопке мыши,
-             то естественно мы проходим в процедуру перемещения, чтобы
-             корректно отобразить включение этого режима сразу же, а
-             не после начала движения.
-          */
-          if ( mb==1 && MouseX==MsX && MouseY==MsY && !First )
-              continue;
-          MsX=MouseX;
-          MsY=MouseY;
-          /* KM $ */
-          /* tran 09.08.2000 $ */
+        /* $ 03.08.2000 tran
+           ну раз попадаем - то будем перемещать */
+        SetDialogMode(DMODE_DRAGGED);
+        OldX1=X1; OldX2=X2; OldY1=Y1; OldY2=Y2;
+        MsX=MouseX;
+        MsY=MouseY;
+        /* $ 11.08.2000 KM
+           Переменная, индицирующая первое попадание в процедуру
+           перемещения диалога.
+        */
+        static int First=TRUE;
+        /* KM $ */
+        while (1)
+        {
+            int mb=IsMouseButtonPressed();
+            /* $ 09.08.2000 tran
+               - долой "салазки" :) */
+            /* $ 11.08.2000 KM
+               Если первый раз пришло сообщение о нажатой кнопке мыши,
+               то естественно мы проходим в процедуру перемещения, чтобы
+               корректно отобразить включение этого режима сразу же, а
+               не после начала движения.
+            */
+            if ( mb==1 && MouseX==MsX && MouseY==MsY && !First )
+                continue;
+            MsX=MouseX;
+            MsY=MouseY;
+            /* KM $ */
+            /* tran 09.08.2000 $ */
 
-          int mx,my;
-//          SysLog("MouseMove:(), MouseX=%i, MousePrevX=%i,MouseY=%i, MousePrevY=%i",MouseX,PrevMouseX,MouseY,PrevMouseY);
-          if ( mb==1 ) // left key, still dragging
-          {
-              Hide();
-              /* 11.08.2000 KM
-                 Артефакт: если после первого запуска фара, не пермещая мышь
-                 нажать левую кнопку, чтобы переместить диалог, то из-за
-                 того, что к этому моменту PrevMouseX и PrevMouseY ещё не определены,
-                 также неопределённым получался прыжок диалога. Поэтому по первому
-                 входу в режим перемещения инициализируем переменные 0.
-              */
-              if (First)
-                mx=my=0;
-              else
-              {
-                mx=MouseX-PrevMouseX;
-                my=MouseY-PrevMouseY;
-              }
-              /* KM $ */
-              if ( X1+mx>=0 && X2+mx<=ScrX )
-              {
-                  X1+=mx;
-                  X2+=mx;
-                  AdjustEditPos(mx,0);
-              }
-              if ( Y1+my>=0 && Y2+my<=ScrY )
-              {
-                  Y1+=my;
-                  Y2+=my;
-                  AdjustEditPos(0,my);
-              }
-              Show();
-          }
-          else if (mb==2) // right key, abort
-          {
-              Hide();
-              AdjustEditPos(OldX1-X1,OldY1-Y1);
-              X1=OldX1;
-              X2=OldX2;
-              Y1=OldY1;
-              Y2=OldY2;
-              /* $ 11.08.2000 KM
-                 При выходе из режима перемещения подготовим
-                 переменную для последующего корректного входа.
-              */
-              First=TRUE;
-              /* KM $ */
-              SkipDialogMode(DMODE_DRAGGED);
-              Show();
-              break;
-          }
-          else  // release key, drop dialog
-          {
-              /* $ 11.08.2000 KM
-                 При выходе из режима перемещения подготовим
-                 переменную для последующего корректного входа.
-              */
-              First=TRUE;
-              /* KM $ */
-              SkipDialogMode(DMODE_DRAGGED);
-              Show();
-              break;
-          }
-          /* $ 11.08.2000 KM
-             Всё хватит, первый раз мы уже заходили...
-          */
-          First=FALSE;
-          /* KM $ */
-      }// while (1)
-      /* tran 03.08.2000 $ */
+            int mx,my;
+//            SysLog("MouseMove:(), MouseX=%i, MousePrevX=%i,MouseY=%i, MousePrevY=%i",MouseX,PrevMouseX,MouseY,PrevMouseY);
+            if ( mb==1 ) // left key, still dragging
+            {
+                Hide();
+                /* 11.08.2000 KM
+                   Артефакт: если после первого запуска фара, не пермещая мышь
+                   нажать левую кнопку, чтобы переместить диалог, то из-за
+                   того, что к этому моменту PrevMouseX и PrevMouseY ещё не определены,
+                   также неопределённым получался прыжок диалога. Поэтому по первому
+                   входу в режим перемещения инициализируем переменные 0.
+                */
+                if (First)
+                  mx=my=0;
+                else
+                {
+                  mx=MouseX-PrevMouseX;
+                  my=MouseY-PrevMouseY;
+                }
+                /* KM $ */
+                if ( X1+mx>=0 && X2+mx<=ScrX )
+                {
+                    X1+=mx;
+                    X2+=mx;
+                    AdjustEditPos(mx,0);
+                }
+                if ( Y1+my>=0 && Y2+my<=ScrY )
+                {
+                    Y1+=my;
+                    Y2+=my;
+                    AdjustEditPos(0,my);
+                }
+                Show();
+            }
+            else if (mb==2) // right key, abort
+            {
+                Hide();
+                AdjustEditPos(OldX1-X1,OldY1-Y1);
+                X1=OldX1;
+                X2=OldX2;
+                Y1=OldY1;
+                Y2=OldY2;
+                /* $ 11.08.2000 KM
+                   При выходе из режима перемещения подготовим
+                   переменную для последующего корректного входа.
+                */
+                First=TRUE;
+                /* KM $ */
+                SkipDialogMode(DMODE_DRAGGED);
+                Show();
+                break;
+            }
+            else  // release key, drop dialog
+            {
+                /* $ 11.08.2000 KM
+                   При выходе из режима перемещения подготовим
+                   переменную для последующего корректного входа.
+                */
+                First=TRUE;
+                /* KM $ */
+                SkipDialogMode(DMODE_DRAGGED);
+                Show();
+                break;
+            }
+            /* $ 11.08.2000 KM
+               Всё хватит, первый раз мы уже заходили...
+            */
+            First=FALSE;
+            /* KM $ */
+        }// while (1)
+        /* tran 03.08.2000 $ */
+      }
+      /* SVS 10.08.2000 $*/
     }
-    /* SVS 10.08.2000 $*/
   }
   return(FALSE);
 }
@@ -3084,6 +3111,25 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       Dlg->EndLoop=TRUE;
       Dlg->ExitCode=Dlg->FocusPos;
       return TRUE;  // согласен с закрытием
+    /* SVS $ */
+
+    /* $ 25.08.2000 SVS
+        + получить координаты диалогового окна
+    */
+    case DM_GETDLGRECT:
+    {
+      if(Param2)
+      {
+        int x1,y1,x2,y2;
+        Dlg->GetPosition(x1,y1,x2,y2);
+        ((SMALL_RECT*)Param2)->Left=x1;
+        ((SMALL_RECT*)Param2)->Top=y1;
+        ((SMALL_RECT*)Param2)->Right=x2;
+        ((SMALL_RECT*)Param2)->Bottom=y2;
+        return TRUE;
+      }
+      return FALSE;
+    }
     /* SVS $ */
   }
 
