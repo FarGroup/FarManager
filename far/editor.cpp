@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.49 08.12.2000 $ */
+/* Revision: 1.50 10.12.2000 $ */
 
 /*
 Modify:
+  10.12.2000 IS
+    ! Обрабатываем при Xlat только то слово, на котором стоит курсор, или то
+      слово, что находится левее позиции курсора на 1 символ
   08.12.2000 SLV
     - Ctrl-Del в начале строки при выделенном блоке и
       включенном Opt.EditorDelRemovesBlocks.
@@ -4792,16 +4795,29 @@ void Editor::Xlat()
     {
      char *Str=CurLine->EditLine.Str;
      int start=CurLine->EditLine.GetCurPos(), end, StrSize=strlen(Str);
-     end=start+1;
-     if(StrSize>start)
-     {
-       while (start>0 && !(strchr(Opt.XLat.WordDivForXlat,Str[start])==NULL &&
-              strchr(Opt.XLat.WordDivForXlat,Str[start-1])!=NULL)) start--;
+     /* $ 10.12.2000 IS
+        Обрабатываем только то слово, на котором стоит курсор, или то слово,
+        что находится левее позиции курсора на 1 символ
+     */
+     BOOL DoXlat=TRUE;
 
-       while (end<StrSize && !(strchr(Opt.XLat.WordDivForXlat,Str[end])==NULL &&
-               strchr(Opt.XLat.WordDivForXlat,Str[end-1])!=NULL)) end++;
-       ::Xlat(Str,start,end,CurLine->EditLine.TableSet,Opt.XLat.Flags);
+     if(strchr(Opt.XLat.WordDivForXlat,Str[start])!=NULL)
+     {
+        if(start) start--;
+        DoXlat=(strchr(Opt.XLat.WordDivForXlat,Str[start])==NULL);
      }
+
+     if(DoXlat)
+     {
+        while(start>=0 && strchr(Opt.XLat.WordDivForXlat,Str[start])==NULL)
+          start--;
+        start++;
+        end=start+1;
+        while(end<StrSize && strchr(Opt.XLat.WordDivForXlat,Str[end])==NULL)
+          end++;
+        ::Xlat(Str,start,end,CurLine->EditLine.TableSet,Opt.XLat.Flags);
+     }
+     /* IS $ */
     }
     /* IS $ */
   }

@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.38 29.11.2000 $ */
+/* Revision: 1.39 12.12.2000 $ */
 
 /*
 Modify:
+  10.12.2000 IS
+    ! Убрал из WordDivForXlat кавычки и квадратные скобки
   29.11.2000 SVS
     + Opt.EditorReadOnlyLock - лочить файл при открытии в редакторе, если
       он имеет атрибуты R|S|H
@@ -146,10 +148,10 @@ Modify:
 static char WordDiv0[257]="!%^&*()+|{}:\"<>?`-=\\[];',./";
 /* SVS $ */
 
-/* $ 25.11.2000 IS
+/* $ 12.10.2000 IS
    Стандартный набор разделителей для функции Xlat
 */
-static char WordDivForXlat0[257]=" \t!#$%^&*()+|\"=\\[]/@?";
+static char WordDivForXlat0[257]=" \t!#$%^&*()+|=\\/@?";
 /* IS $ */
 
 void SystemSettings()

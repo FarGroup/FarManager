@@ -5,10 +5,14 @@ edit.cpp
 
 */
 
-/* Revision: 1.24 25.11.2000 $ */
+/* Revision: 1.25 10.12.2000 $ */
 
 /*
 Modify:
+   10.12.2000 IS
+    ! Обрабатываем при Xlat только то слово, на котором стоит курсор, или то
+      слово, что находится левее позиции курсора на 1 символ
+    - иногда не работала конвертация из-за того, что было SelStart==SelEnd
    25.11.2000 IS
     + Если нет выделения, то обработаем текущее слово. Слово определяется на
       основе специальной группы разделителей.
@@ -2063,7 +2067,11 @@ void Edit::ApplyColor()
 */
 void Edit::Xlat(void)
 {
-  if(SelStart != -1)
+  /* $ 10.10.2000 IS
+     - иногда не работала конвертация из-за того, что было SelStart==SelEnd
+  */
+  if(SelStart != -1 && SelStart != SelEnd)
+  /* IS $ */
   {
     if(SelEnd == -1)
       SelEnd=strlen(Str);
@@ -2076,17 +2084,31 @@ void Edit::Xlat(void)
 */
   else
   {
-   int start=CurPos, end=CurPos+1, StrSize=strlen(Str);
-   if(StrSize>CurPos)
-   {
-    while (start>0 && !(strchr(Opt.XLat.WordDivForXlat,Str[start])==NULL &&
-           strchr(Opt.XLat.WordDivForXlat,Str[start-1])!=NULL)) start--;
+   /* $ 10.12.2000 IS
+      Обрабатываем только то слово, на котором стоит курсор, или то слово, что
+      находится левее позиции курсора на 1 символ
+   */
+   int start=CurPos, end, StrSize=strlen(Str);
+   BOOL DoXlat=TRUE;
 
-    while (end<StrSize && !(strchr(Opt.XLat.WordDivForXlat,Str[end])==NULL &&
-           strchr(Opt.XLat.WordDivForXlat,Str[end-1])!=NULL)) end++;
+   if(strchr(Opt.XLat.WordDivForXlat,Str[start])!=NULL)
+   {
+      if(start) start--;
+      DoXlat=(strchr(Opt.XLat.WordDivForXlat,Str[start])==NULL);
+   }
+
+   if(DoXlat)
+   {
+    while(start>=0 && strchr(Opt.XLat.WordDivForXlat,Str[start])==NULL)
+      start--;
+    start++;
+    end=start+1;
+    while(end<StrSize && strchr(Opt.XLat.WordDivForXlat,Str[end])==NULL)
+      end++;
     ::Xlat(Str,start,end,TableSet,Opt.XLat.Flags);
     Show();
    }
+   /* IS $ */
   }
 /* IS $ */
 }
