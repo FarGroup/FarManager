@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.111 15.02.2002 $ */
+/* Revision: 1.112 15.02.2002 $ */
 
 /*
 Modify:
+  15.02.2002 IS
+    + Ќовый параметр ChangeDir у FarChDir, если FALSE, то не мен€ем текущий
+      диск, а только устанавливаем переменные окружени€. ѕо умолчанию - TRUE.
   15.02.2002 VVM
     ! ≈сли строка не помещалась в буфер, то ExpandEnvironmetStr портила ее.
   15.02.2002 VVM
@@ -363,9 +366,13 @@ long filelen(FILE *FPtr)
 /* $ 22.01.2002 IS
    + ќбработаем самосто€тельно пути типа "буква:"
 */
-BOOL FarChDir(const char *NewDir)
+/* $ 15.02.2002 IS
+   + Ќовый параметр ChangeDir, если FALSE, то не мен€ем текущий диск, а только
+     устанавливаем переменные окружени€. ѕо умолчанию - TRUE.
+*/
+BOOL FarChDir(const char *NewDir, BOOL ChangeDir)
 {
-  BOOL rc;
+  BOOL rc=FALSE;
   char CurDir[NM*2], Drive[4]="=A:";
   if(isalpha(*NewDir) && NewDir[1]==':' && NewDir[2]==0)// если указана только
   {                                                     // буква диска, то путь
@@ -374,12 +381,15 @@ BOOL FarChDir(const char *NewDir)
       CharToOem(CurDir,CurDir);
     else
       sprintf(CurDir,"%s\\",NewDir); // при неудаче переключимс€ в корень диска
-    rc=SetCurrentDirectory(CurDir);
+    if(ChangeDir)
+      rc=SetCurrentDirectory(CurDir);
   }
-  else
+  else if(ChangeDir)
     rc=SetCurrentDirectory(NewDir);
+  else
+    strncpy(CurDir,NewDir,sizeof(CurDir)-1);
 
-  if (GetCurrentDirectory(sizeof(CurDir),CurDir) &&
+  if ((!ChangeDir || GetCurrentDirectory(sizeof(CurDir),CurDir)) &&
       isalpha(*CurDir) && CurDir[1]==':')
   {
     Drive[1]=toupper(*CurDir);
@@ -388,7 +398,8 @@ BOOL FarChDir(const char *NewDir)
   }
   return rc;
 }
-/* IS 22.01.200@ $ */
+/* IS 15.02.2002 $ */
+/* IS 22.01.2002 $ */
 /* IS 14.01.2002 $ */
 
 DWORD NTTimeToDos(FILETIME *ft)

@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.87 09.02.2002 $ */
+/* Revision: 1.88 15.02.2002 $ */
 
 /*
 Modify:
+  15.02.2002 IS
+    - Не дергаем пассивный каталог в SetCurPath
   09.02.2002 VVM
     ! Когда жмет Del на сидюке - не надо сдвигать позицию.
   06.02.2002 tran
@@ -1307,9 +1309,10 @@ int  Panel::SetCurPath()
     if (isalpha(AnotherPanel->CurDir[0]) && AnotherPanel->CurDir[1]==':' &&
         toupper(AnotherPanel->CurDir[0])!=toupper(CurDir[0]))
     {
-      // сначала установим путь на пассивной панели
-      // переменные окружения здесь теперь не меняем, это делается в FarChDir
-      FarChDir(AnotherPanel->CurDir);
+      // сначала установим переменные окружения для пассивной панели
+      // (без реальной смены пути, чтобы лишний раз пассивный каталог
+      // не перечитывать)
+      FarChDir(AnotherPanel->CurDir,FALSE);
     }
   }
 

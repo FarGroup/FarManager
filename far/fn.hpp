@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.132 13.02.2002 $ */
+/* Revision: 1.133 15.02.2002 $ */
 
 /*
 Modify:
+  15.02.2002 IS
+    + Новый параметр ChangeDir у FarChDir, если FALSE, то не меняем текущий
+      диск, а только устанавливаем переменные окружения. По умолчанию - TRUE.
   13.02.2002 SVS
     + SysLogLastError()
   11.02.2002 SVS
@@ -828,11 +831,13 @@ char* WINAPI FarMkTemp(char *Dest, const char *Prefix);
 
 void CreatePath(char *Path);
 
-/* $ 14.01.2002 IS
+/* $ 15.02.2002 IS
    Установка нужного диска и каталога и установление соответствующей переменной
    окружения. В случае успеха возвращается не ноль.
+   Если ChangeDir==FALSE, то не меняем текущий  диск, а только устанавливаем
+   переменные окружения.
 */
-BOOL FarChDir(const char *NewDir);
+BOOL FarChDir(const char *NewDir,BOOL ChangeDir=TRUE);
 /* IS $ */
 /*$ 27.09.2000 skv
 */

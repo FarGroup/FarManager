@@ -81,7 +81,7 @@ BRC32   = $(BCCPATH)\bin\Brc32
 #
 # Options
 #
-LINKFLAGS =  -L$(LIBPATH) -Tpe -ap -c $(OPTDEBUG) -s
+LINKFLAGS =  -L$(LIBPATH) -Tpe -ap -c $(OPTDEBUG) -s -V4.0
 
 # а зачем дублировать опции тут и в bccw32.cfg?
 #CCFLAGS = -WC -WM -K -d -f- $(OPTDEBUG) -R- -k- -x- -RT -Og -Ot -Z -O -Oe -Ol -Ob -Om -Op -Ov -w-csu $(PRECOMPOPT) -I$(INCLUDEPATH)
