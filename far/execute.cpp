@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.109 15.12.2004 $ */
+/* Revision: 1.110 05.01.2005 $ */
 
 /*
 Modify:
+  05.01.2005 WARP
+    ! Временно убрал экранирование & и ^ в исполняторе.
   15.12.2004 WARP
     ! Поменял метод окавычивания ком. строки
   15.12.2004 SVS
@@ -1212,11 +1214,13 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
       }
     }
 
+/*
     if (SeparateWindow)
     {
       ReplaceStrings(ExecLine,"^","^^",-1);
       ReplaceStrings(ExecLine,"&","^&",-1);
     }
+*/
 
 //_SVS(SysLog("ExecLine='%s'",ExecLine));
     // если запуск через ShellExecuteEx(), то нефига ставить заголовок
