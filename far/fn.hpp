@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.63 06.03.2001 $ */
+/* Revision: 1.64 07.03.2001 $ */
 
 /*
 Modify:
+  07.03.2001 IS
+   + DeleteEmptyKey
   06.03.2001 SVS
    ! InsertCommas возвращает знчение на Dest
   28.02.2001 SVS
@@ -250,12 +252,8 @@ void InsertKeyRecord(char *KeyMask,int Position,int TotalKeys);
 void DeleteKeyTree(char *KeyName);
 void _cdecl CheckReg(void *Param);
 int CheckRegKey(char *Key);
-/* 15.09.2000 IS
-   Возвращает FALSE, если указанная переменная не содержит данные
-   или размер данных равен нулю.
-*/
 int CheckRegValue(char *Key,char *ValueName);
-/* IS $ */
+int DeleteEmptyKey(HKEY hRoot, char *FullKeyName);
 int EnumRegKey(char *Key,DWORD Index,char *DestName,DWORD DestSize);
 int IsFolderNotEmpty(char *Name);
 char *RemoveChar(char *Str,char Target);

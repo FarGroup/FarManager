@@ -5,10 +5,14 @@ far.cpp
 
 */
 
-/* Revision: 1.12 05.03.2001 $ */
+/* Revision: 1.13 07.03.2001 $ */
 
 /*
 Modify:
+  07.03.2001 IS
+    - Избавление от падения при удалении папок в корзину (на основе информации
+      от Веши).Удаляем неугодную ветку, если она пуста, потому что в этом
+      случае Фар может упасть при удалении каталогов в корзину.
   05.03.2001 SVS
     + Закомментированный /co для /?
   02.03.2001 SVS
@@ -87,6 +91,7 @@ printf(
 //"      Forces FAR to load plugins from the cache only.\n"
 );
 }
+
 
 int _cdecl main(int Argc, char *Argv[])
 {
@@ -250,6 +255,15 @@ int _cdecl main(int Argc, char *Argv[])
   }
   ConvertOldSettings();
   SetHighlighting();
+  /* $ 07.03.2001 IS
+     - Избавление от падения при удалении папок в корзину (на основе информации
+       от Веши).Удаляем неугодную ветку, если она пуста, потому что в этом
+       случае Фар может упасть при удалении каталогов в корзину.
+  */
+  {
+    DeleteEmptyKey(HKEY_CLASSES_ROOT,"Directory\\shellex\\CopyHookHandlers");
+  }
+  /* IS $ */
   {
     ChangePriority ChPriority(WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS ? THREAD_PRIORITY_ABOVE_NORMAL:THREAD_PRIORITY_NORMAL);
     ControlObject CtrlObj;

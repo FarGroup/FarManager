@@ -5,10 +5,13 @@ registry.cpp
 
 */
 
-/* Revision: 1.03 22.02.2001 $ */
+/* Revision: 1.04 07.03.2001 $ */
 
 /*
 Modify:
+  07.03.2001 IS
+    + DeleteEmptyKey - удаление пустого ключа в том случае, если он не содержит
+      никаких переменных и подключей. Возвращает TRUE при успехе.
   22.02.2001 SVS
     ! Для получения строки (GetRegKey) отработаем ситуацию с ERROR_MORE_DATA
       Если такая ситуация встретилась - получим сколько надо в любом случае
@@ -375,6 +378,56 @@ void DeleteKeyTreePart(char *KeyName)
 }
 
 
+/* 07.03.2001 IS
+   Удаление пустого ключа в том случае, если он не содержит никаких переменных
+   и подключей. Возвращает TRUE при успехе.
+*/
+int DeleteEmptyKey(HKEY hRoot, char *FullKeyName)
+{
+  HKEY hKey;
+  int Exist=RegOpenKeyEx(hRoot,FullKeyName,0,KEY_ALL_ACCESS,
+                         &hKey)==ERROR_SUCCESS;
+  if(Exist)
+  {
+     int RetCode=FALSE;
+     if(hKey)
+     {
+        FILETIME LastWriteTime;
+        char SubName[512];
+        DWORD SubSize=sizeof(SubName);
+
+        LONG ExitCode=RegEnumKeyEx(hKey,0,SubName,&SubSize,NULL,NULL,NULL,
+                                   &LastWriteTime);
+
+        if(ExitCode!=ERROR_SUCCESS)
+           ExitCode=RegEnumValue(hKey,0,SubName,&SubSize,NULL,NULL,NULL, NULL);
+        CloseRegKey(hKey);
+
+        if(ExitCode!=ERROR_SUCCESS)
+          {
+            char KeyName[512], *pSubKey;
+            strncpy(KeyName, FullKeyName, sizeof(KeyName));
+            if(NULL!=(pSubKey=strrchr(KeyName,'\\')))
+              {
+                 *pSubKey=0;
+                 pSubKey++;
+                 Exist=RegOpenKeyEx(hRoot,KeyName,0,KEY_ALL_ACCESS,
+                                    &hKey)==ERROR_SUCCESS;
+                 if(Exist && hKey)
+                 {
+                   RetCode=RegDeleteKey(hKey, pSubKey)==ERROR_SUCCESS;
+                   CloseRegKey(hKey);
+                 }
+              }
+          }
+     }
+     return RetCode;
+  }
+  return TRUE;
+}
+/* IS $ */
+
+
 int CheckRegKey(char *Key)
 {
   HKEY hKey;
@@ -405,6 +458,7 @@ int CheckRegValue(char *Key,char *ValueName)
   return(TRUE);
 }
 /* IS $ */
+
 
 int EnumRegKey(char *Key,DWORD Index,char *DestName,DWORD DestSize)
 {
