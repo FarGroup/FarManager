@@ -6,7 +6,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 FAR group
 */
-/* Revision: 1.20 25.09.2002 $ */
+/* Revision: 1.21 17.02.2003 $ */
 
 #include <windows.h>
 #include <string.h>
@@ -282,7 +282,9 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
 //NTFS file times support
 
   // Search for NTFS extra block
-  for(  DWORD dwExtraFieldEnd = SetFilePointer(ArcHandle, 0, NULL, FILE_CURRENT)
+  DWORD dwExtraFieldEnd;
+
+  for(dwExtraFieldEnd = SetFilePointer(ArcHandle, 0, NULL, FILE_CURRENT)
           +ZipHeader.AddLen;
         dwExtraFieldEnd > SetFilePointer(ArcHandle, 0, NULL, FILE_CURRENT);
   )
@@ -349,6 +351,8 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
       }
     }
   }
+  // ZipHeader.AddLen is more reliable than the sum of all BlockHead.Length
+  SetFilePointer(ArcHandle, dwExtraFieldEnd, NULL, FILE_BEGIN);
 // End of NTFS file times support
 
 // Read the in-archive file comment if any
