@@ -120,6 +120,15 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,
   if (ShowTitle)
     SetConsoleTitle(ExpandedCmd);
 
+  /* $ 14.02.2001 raVen
+     делать окошку minimize, если в фоне */
+  if (Opt.Background)
+  {
+    si.dwFlags=si.dwFlags || STARTF_USESHOWWINDOW;
+    si.wShowWindow=SW_MINIMIZE;
+  }
+  /* raVen $ */
+
   ExitCode=CreateProcess(NULL,ExpandedCmd,NULL,NULL,HideOutput,
             Opt.Background?CREATE_NEW_CONSOLE:0,NULL,NULL,&si,&pi);
 

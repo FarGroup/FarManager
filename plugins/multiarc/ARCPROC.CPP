@@ -163,6 +163,11 @@ int PluginClass::GetFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       }
   }
 
+  /* $ 14.02.2001 raVen
+     сброс галки "фоновая архивация" */
+  Opt.UserBackground=0;
+  /* raVen $ */
+
   DialogItems[8].Selected=Opt.UserBackground;
 
   if ((OpMode & OPM_SILENT)==0)
@@ -340,6 +345,10 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
     strcpy(DialogItems[7].Data,Password1);
     strcpy(DialogItems[9].Data,Password2);
     DialogItems[11].Selected=Move;
+    /* $ 14.02.2001 raVen
+       сброс галки "фоновая архивация" */
+    Opt.Background=0;
+    /* raVen $ */
     DialogItems[12].Selected=Opt.Background;
 
     if ((OpMode & OPM_SILENT)==0)
@@ -560,4 +569,3 @@ int PluginClass::ProcessKey(int Key,unsigned int ControlState)
   }
   return(FALSE);
 }
-
