@@ -5,10 +5,15 @@ Screen grabber
 
 */
 
-/* Revision: 1.04 07.02.2001 $ */
+/* Revision: 1.05 14.03.2001 $ */
 
 /*
 Modify:
+  14.03.2001 SVS
+    - Неправильно воспроизводился макрос в режиме грабления экрана.
+      При воспроизведении клавиша Home перемещала курсор в координаты
+      0,0 консоли.
+      Не было учтено режима выполнения макроса.
   07.02.2001 SVS
     - Бага с грабилкой... Забыли ввести проверку на "вынос" координат мыши за
       пределы экрана.
@@ -174,15 +179,24 @@ void Grabber::DisplayObject()
 
 int Grabber::ProcessKey(int Key)
 {
-  if (ShiftPressed && Key!=KEY_NONE && ResetArea)
+  /* $ 14.03.2001 SVS
+    [-] Неправильно воспроизводился макрос в режиме грабления экрана.
+        При воспроизведении клавиша Home перемещала курсор в координаты
+        0,0 консоли.
+    Не было учтено режима выполнения макроса.
+  */
+  if ((ShiftPressed || CtrlObject->Macro.IsExecuting() && (Key&KEY_SHIFT)) &&
+     Key!=KEY_NONE && ResetArea)
   {
     GArea.X1=GArea.X2=GArea.CurX;
     GArea.Y1=GArea.Y2=GArea.CurY;
     ResetArea=FALSE;
   }
   else
-    if (Key!=KEY_NONE && Key!=KEY_SHIFT && !ShiftPressed)
+    if (Key!=KEY_NONE && Key!=KEY_SHIFT &&
+        (!ShiftPressed || (CtrlObject->Macro.IsExecuting() && !(Key&KEY_SHIFT))))
       ResetArea=TRUE;
+  /* SVS $ */
 
   switch(Key)
   {
@@ -318,4 +332,3 @@ int Grabber::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   DisplayObject();
   return(TRUE);
 }
-
