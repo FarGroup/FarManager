@@ -5,10 +5,13 @@ ScreenSaver
 
 */
 
-/* Revision: 1.01 10.10.2000 $ */
+/* Revision: 1.02 12.10.2000 $ */
 
 /*
 Modify:
+  12.10.2000 tran
+    - trap in scrsaver
+      причина трапа - неинициализированное поле проявлялось под VC/release.
   10.10.2000 SVS
     ! Незначительное уточнение в строке:
       if (Star[I].Type!=STAR_NONE && (Step%Star[I].Speed)==0)
@@ -61,7 +64,10 @@ int ScreenSaver(int EnableExit)
     SetScreen(0,0,ScrX,ScrY,' ',F_LIGHTGRAY|B_BLACK);
 
     for (int I=0;I<sizeof(Star)/sizeof(Star[0]);I++)
+    {
       Star[I].Type=STAR_NONE;
+      Star[I].Color=0;
+    }
 
     int Step=0;
     while (!PeekInputRecord(&rec))
