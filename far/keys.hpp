@@ -20,15 +20,17 @@ keys.hpp
   Inside KeyName for FAR Manager 1.70
 
   Copyright (c) 1996-2000 Eugene Roshal
-  Copyrigth (c) 2000-2001 FAR group
+  Copyrigth (c) 2000-<%YEAR%> FAR group
 */
 #endif // END FAR_USE_INTERNALS
 
-/* Revision: 1.18 21.12.2001 $ */
+/* Revision: 1.19 08.01.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
 Modify:
+  08.01.2002 SVS
+    ! Вместо 2001 вставлен макрос "<%YEAR%>"
   21.12.2001 SVS
     + KEY_MACROSELWORD, KEY_MSLDBLCLICK, KEY_MSRDBLCLICK
   25.10.2001 SVS

@@ -12,17 +12,17 @@ colors.hpp
 */
 #else // ELSE FAR_USE_INTERNALS
 /*
-  FARCOLOR.HPP
+  farcolor.hpp
 
   Colors Index for FAR Manager 1.70
   HKCU\Software\Far\Colors\CurrentPalette
 
   Copyright (c) 1996-2000 Eugene Roshal
-  Copyrigth (c) 2000-2001 FAR group
+  Copyrigth (c) 2000-<%YEAR%> FAR group
 */
 #endif // END FAR_USE_INTERNALS
 
-/* Revision: 1.08 09.08.2001 $ */
+/* Revision: 1.09 08.01.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -31,6 +31,8 @@ colors.hpp
 */
 /*
 Modify:
+  08.01.2002 SVS
+    ! Вместо 2001 вставлен макрос "<%YEAR%>"
   09.08.2001 SVS
     + Маркеры про FAR_USE_INTERNALS. Просьба не убирать! Это для скрипта,
       который будет генерить одноименный файл для дистрибутива. Если нужно

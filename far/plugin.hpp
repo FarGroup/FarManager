@@ -5,14 +5,14 @@
 #define FAR_USE_INTERNALS
 #endif // END FAR_USE_INTERNALS
 /*
-  PLUGIN.HPP
+  plugin.hpp
 
   Plugin API for FAR Manager 1.70
 
   Copyright (c) 1996-2000 Eugene Roshal
-  Copyrigth (c) 2000-2001 [ FAR group ]
+  Copyrigth (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.179 08.01.2002 $ */
+/* Revision: 1.180 08.01.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  08.01.2002 IS
+    ! Доведем начатое SVS 28.12.2001 дело до конца.
   08.01.2002 SVS
     + DM_SETLISTMOUSEREACTION
   28.12.2001 SVS
@@ -1073,7 +1075,6 @@ struct FarListTitles
   char *Bottom;
 };
 
-#ifdef FAR_USE_INTERNALS
 struct FarDialogItem
 {
   int Type;
@@ -1102,36 +1103,6 @@ struct FarDialogItem
     } Ptr;
   } Data;
 };
-#else // ELSE FAR_USE_INTERNALS
-struct FarDialogItem
-{
-  int Type;
-  int X1,Y1,X2,Y2;
-  int Focus;
-  union
-  {
-    int Selected;
-    const char *History;
-    const char *Mask;
-    struct FarList *ListItems;
-    CHAR_INFO *VBuf;
-  };
-  DWORD Flags;
-  int DefaultButton;
-  union
-  {
-    char Data[512];
-    int  ListPos;
-    struct
-    {
-      DWORD PtrFlags;
-      int   PtrLength;
-      char *PtrData;
-      char  PtrTail[1];
-    } Ptr;
-  };
-};
-#endif // END FAR_USE_INTERNALS
 
 struct FarDialogItemData
 {
