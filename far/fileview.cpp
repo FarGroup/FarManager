@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.50 28.12.2001 $ */
+/* Revision: 1.51 28.01.2002 $ */
 
 /*
 Modify:
+  28.01.2002 OT
+    - При неудачном открытии файла не удалялся фрейм
   28.12.2001 DJ
     ! унифицируем обработку Ctrl-F10
   17.12.2001 KM
@@ -215,6 +217,7 @@ void FileViewer::Init(const char *name,int EnableSwitch,int disableHistory, ///
   if (!View.OpenFile(Name,TRUE))
   /* tran 04.07.2000 $ */
   {
+    FrameManager->DeleteFrame(this);
     ExitCode=FALSE;
     return;
   }

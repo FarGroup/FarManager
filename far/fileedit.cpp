@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.86 28.01.2002 $ */
+/* Revision: 1.87 28.01.2002 $ */
 
 /*
 Modify:
+  28.01.2002 OT
+    При неудачном открытии файла не удалялся фрейм (частичная отмена 1210)
   28.01.2002 VVM
     ! Если не прочитали файл - освободить память.
   23.01.2002 SVS
@@ -438,7 +440,10 @@ void FileEditor::Init(const char *Name,int CreateNewFile,int EnableSwitch,
         ExitCode=XC_OPEN_ERROR;
       }
       else
+      {
         ExitCode=XC_LOADING_INTERRUPTED;
+      }
+      FrameManager->DeleteFrame(this);
       CtrlObject->Cp()->Redraw();
       return;
     }
@@ -938,10 +943,7 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
 // сюды плавно переносить код из Editor::ReadFile()
 int FileEditor::ReadFile(const char *Name,int &UserBreak)
 {
-  int RetCode = FEdit.ReadFile(Name,UserBreak);
-  if (!RetCode)
-    FEdit.FreeAllocatedData();
-  return(RetCode);
+  return FEdit.ReadFile(Name,UserBreak);
 }
 
 // сюды плавно переносить код из Editor::SaveFile()
