@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.161 27.09.2001 $ */
+/* Revision: 1.162 04.10.2001 $ */
 
 /*
 Modify:
+  04.10.2001 SVS
+    - Для DI_USERCONTROL не высвечивался курсор
   27.09.2001 IS
     - Левый размер при использовании strncpy
   16.09.2001 SVS
@@ -1646,8 +1648,16 @@ void Dialog::ShowDialog(int ID)
           COORD *Coord=(COORD *)(CurItem->ObjPtr);
           PutText(X1+CurItem->X1,Y1+CurItem->Y1,X1+CurItem->X2,Y1+CurItem->Y2,CurItem->VBuf);
           // не забудим переместить курсор, если он спозиционирован.
-          if(Coord->X != -1 && Coord->Y != -1 && FocusPos == I)
-            MoveCursor(Coord->X+CurItem->X1+X1,Coord->Y+CurItem->Y1+Y1);
+          if(FocusPos == I)
+          {
+            if(Coord->X != -1 && Coord->Y != -1)
+            {
+              MoveCursor(Coord->X+CurItem->X1+X1,Coord->Y+CurItem->Y1+Y1);
+              SetCursorType(1,-1);
+            }
+            else
+              SetCursorType(0,-1);
+          }
         }
         break; //уже наприсовали :-)))
 

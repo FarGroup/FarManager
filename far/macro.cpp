@@ -8,10 +8,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.59 26.09.2001 $ */
+/* Revision: 1.60 04.10.2001 $ */
 
 /*
 Modify:
+  04.10.2001 SVS
+    - лок/унлок после диалога параметров макроса.
   26.09.2001 SVS
     + Полиция 18 - если у "полиции" выставлен 18-й бит - не дать возможности
       писать макросы.
@@ -1263,7 +1265,9 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
   Dialog Dlg(MacroSettingsDlg,sizeof(MacroSettingsDlg)/sizeof(MacroSettingsDlg[0]));
   Dlg.SetPosition(-1,-1,66,13);
   Dlg.SetHelp("KeyMacroSetting");
+  FrameManager->GetBottomFrame()->LockRefresh(); // отменим прорисовку фрейма
   Dlg.Process();
+  FrameManager->GetBottomFrame()->UnlockRefresh(); // теперь можно :-)
   if (Dlg.GetExitCode()!=9)
     return(FALSE);
 

@@ -5,10 +5,14 @@ interf.cpp
 
 */
 
-/* Revision: 1.38 27.09.2001 $ */
+/* Revision: 1.39 04.10.2001 $ */
 
 /*
 Modify:
+  04.10.2001 SVS
+    ! В SetFarTitle сначала сравним старое значение заголовка консоли,
+      а уж потом выставим значение... Инача получаем моргание (при
+      перетаскивании диалога, например)
   27.09.2001 IS
     - Левый размер при использовании strncpy
   30.08.2001 IS
@@ -931,10 +935,13 @@ void GetRealText(int X1,int Y1,int X2,int Y2,void *Dest)
 void SetFarTitle(const char *Title)
 {
   char FarTitle[2*NM];
+  char OldFarTitle[2*NM];
   sprintf(FarTitle,"%.256s - Far",Title);
   if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
     OemToChar(FarTitle,FarTitle);
-  SetConsoleTitle(FarTitle);
+  GetConsoleTitle(OldFarTitle,sizeof(OldFarTitle));
+  if(strcmp(OldFarTitle,FarTitle))
+    SetConsoleTitle(FarTitle);
 }
 
 void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Total)
