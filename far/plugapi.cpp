@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.42 22.03.2001 $ */
+/* Revision: 1.43 26.03.2001 $ */
 
 /*
 Modify:
+  26.03.2001 SVS
+    + добавлена обработка флага FHELP_USECONTENTS
   22.03.2001 tran 1.42
     ! мелкий баг в FarMessageFn/FMSG_ALLINONE
   21.03.2001 VVM
@@ -145,7 +147,7 @@ BOOL WINAPI FarShowHelp(char *ModuleName, char *HelpTopic,DWORD Flags)
     HelpTopic="Contents";
 
   DWORD OFlags=Flags;
-  Flags&=~0x80000000;
+  Flags&=~(FHELP_NOSHOWERROR|FHELP_USECONTENTS);
   char Path[2*NM],Topic[512];
   char *Mask=NULL;
 
@@ -622,7 +624,7 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,char *HelpTopic,
   }
 
   /* $ 22.03.2001 tran
-     ItemsNumber++ -> ++ItemsNumber 
+     ItemsNumber++ -> ++ItemsNumber
      тереялся последний элемент */
   switch(Flags&0x000F0000)
   {
@@ -641,7 +643,7 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,char *HelpTopic,
     case FMSG_MB_YESNO:
       MsgItems[++ItemsNumber]=MSG(MYes);
       MsgItems[++ItemsNumber]=MSG(MNo);
-      break;   
+      break;
     case FMSG_MB_YESNOCANCEL:
       MsgItems[++ItemsNumber]=MSG(MYes);
       MsgItems[++ItemsNumber]=MSG(MNo);
@@ -650,7 +652,7 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,char *HelpTopic,
     case FMSG_MB_RETRYCANCEL:
       MsgItems[++ItemsNumber]=MSG(MRetry);
       MsgItems[++ItemsNumber]=MSG(MCancel);
-      break;   
+      break;
   }
   /* tran $ */
 

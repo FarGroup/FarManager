@@ -5,10 +5,13 @@ help.cpp
 
 */
 
-/* Revision: 1.15 21.03.2001 $ */
+/* Revision: 1.16 26.03.2001 $ */
 
 /*
 Modify:
+  26.03.2001 SVS
+    + FHELP_USECONTENTS - если не найден требует топик, то отобразить "Contents"
+    ! ReadHelp возвращает TRUE/FALSE
   21.03.2001 VVM
     ! уточнение поведения символа '$'
   16.03.2001 VVM
@@ -98,7 +101,18 @@ Help::Help(char *Topic, char *Mask,DWORD Flags)
     SetPosition(0,0,ScrX,ScrY);
   else
     SetPosition(4,2,ScrX-4,ScrY-2);
-  ReadHelp(Mask);
+  if(!ReadHelp(Mask) && (Flags&FHELP_USECONTENTS))
+  {
+    strcpy(HelpTopic,Topic);
+    if(*HelpTopic == '#')
+    {
+      char *Ptr=strrchr(HelpTopic,'#');
+      if(Ptr)
+        strcpy(++Ptr,"Contents");
+    }
+    *HelpPath=0;
+    ReadHelp(Mask);
+  }
   if (HelpData!=NULL)
   {
     InitKeyBar();
@@ -131,7 +145,18 @@ Help::Help(char *Topic,int &ShowPrev,int PrevFullScreen,DWORD Flags)
     SetPosition(0,0,ScrX,ScrY);
   else
     SetPosition(4,2,ScrX-4,ScrY-2);
-  ReadHelp();
+  if(!ReadHelp() && (Flags&FHELP_USECONTENTS))
+  {
+    strcpy(HelpTopic,Topic);
+    if(*HelpTopic == '#')
+    {
+      char *Ptr=strrchr(HelpTopic,'#');
+      if(Ptr)
+        strcpy(++Ptr,"Contents");
+    }
+    *HelpPath=0;
+    ReadHelp();
+  }
   /* $ 16.03.2001 VVM
     ! Если топик не найден - остаемся, где были */
   if (HelpData!=NULL)
@@ -178,7 +203,7 @@ void Help::Hide()
 }
 
 
-void Help::ReadHelp(char *Mask)
+int Help::ReadHelp(char *Mask)
 {
   char FileName[NM],ReadStr[MAX_HELP_STRING_LENGTH];
   char SplitLine[2*MAX_HELP_STRING_LENGTH];
@@ -193,7 +218,7 @@ void Help::ReadHelp(char *Mask)
   {
     strcpy(Path,HelpTopic+1);
     if ((TopicPtr=strchr(Path,'#'))==NULL)
-      return;
+      return FALSE;
     strcpy(HelpTopic,TopicPtr+1);
     *TopicPtr=0;
     strcpy(HelpPath,Path);
@@ -204,7 +229,7 @@ void Help::ReadHelp(char *Mask)
   if (strcmp(HelpTopic,PluginContents)==0)
   {
     ReadPluginsHelp();
-    return;
+    return TRUE;
   }
 
   FILE *HelpFile=Language::OpenLangFile(Path,(!Mask?HelpFileMask:Mask),Opt.HelpLanguage,FileName);
@@ -214,7 +239,7 @@ void Help::ReadHelp(char *Mask)
     if(!(Flags&FHELP_NOSHOWERROR))
       Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MHelpTitle),MSG(MCannotOpenHelp),FileName,MSG(MOk));
     ErrorHelp=TRUE;
-    return;
+    return FALSE;
   }
   if (Language::GetOptionsParam(HelpFile,"CtrlColorChar",ReadStr))
   {
@@ -389,6 +414,7 @@ void Help::ReadHelp(char *Mask)
   fclose(HelpFile);
   FixSize=FixCount+(FixCount!=0);
   ErrorHelp=FALSE;
+  return TopicFound != 0;
 }
 
 

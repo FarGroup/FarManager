@@ -7,10 +7,12 @@ help.hpp
 
 */
 
-/* Revision: 1.05 30.12.2000 $ */
+/* Revision: 1.06 26.03.2001 $ */
 
 /*
 Modify:
+  26.03.2001 SVS
+    ! ReadHelp возвращает TRUE/FALSE
   30.12.2000 SVS
     + KeyBar в Help`е
   18.12.2000 SVS
@@ -67,7 +69,7 @@ class Help:public Modal
 
   private:
     void DisplayObject();
-    void ReadHelp(char *Mask=NULL);
+    int  ReadHelp(char *Mask=NULL);
     void AddLine(char *Line);
     void HighlightsCorrection(char *Str);
     void FastShow();

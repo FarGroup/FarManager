@@ -8,13 +8,15 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.92 24.03.2001 $ */
+/* Revision: 1.93 26.03.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  26.03.2001 SVS
+    + FHELP_USECONTENTS - если не найден требует топик, то отобразить "Contents"
   24.03.2001 tran
     + qsortex
   21.03.2001 VVM
@@ -809,11 +811,12 @@ typedef int (WINAPI *FARAPIEDITORCONTROL)(
 );
 
 enum FarHelpFlags{
-  FHELP_NOSHOWERROR=0x80000000,
-  FHELP_SELFHELP   =0x00000000,
-  FHELP_FARHELP    =0x00000001,
-  FHELP_CUSTOMFILE =0x00000002,
-  FHELP_CUSTOMPATH =0x00000004,
+  FHELP_NOSHOWERROR =0x80000000,
+  FHELP_SELFHELP    =0x00000000,
+  FHELP_FARHELP     =0x00000001,
+  FHELP_CUSTOMFILE  =0x00000002,
+  FHELP_CUSTOMPATH  =0x00000004,
+  FHELP_USECONTENTS =0x40000000,
 };
 
 typedef BOOL (WINAPI *FARAPISHOWHELP)(char *ModuleName,char *Topic,DWORD Flags);

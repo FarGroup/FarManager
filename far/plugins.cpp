@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.58 24.03.2001 $ */
+/* Revision: 1.59 26.03.2001 $ */
 
 /*
 Modify:
+  26.03.2001 SVS
+    + дополнительный параметр у CommandsMenu() - HistoryName
   24.03.2001 tran
     + qsortex
   20.03.2001 tran
@@ -1881,7 +1883,7 @@ void PluginsSet::Configure()
 }
 
 
-int PluginsSet::CommandsMenu(int Editor,int Viewer,int StartPos)
+int PluginsSet::CommandsMenu(int Editor,int Viewer,int StartPos,char *HistoryName)
 {
   int MenuItemNumber=0;
   VMenu PluginList(MSG(MPluginCommandsMenuTitle),NULL,0,ScrY-4);
@@ -1991,7 +1993,8 @@ int PluginsSet::CommandsMenu(int Editor,int Viewer,int StartPos)
       */
       case KEY_SHIFTF1:
       {
-        FarShowHelp(PluginsData[Data[0]].ModuleName,NULL,FHELP_SELFHELP|FHELP_NOSHOWERROR);
+        // Вызываем нужный топик, который передали в CommandsMenu()
+        FarShowHelp(PluginsData[Data[0]].ModuleName,HistoryName,FHELP_SELFHELP|FHELP_NOSHOWERROR|FHELP_USECONTENTS);
         break;
       }
       /* SVS $ */

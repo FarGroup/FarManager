@@ -5,10 +5,13 @@ Internal viewer
 
 */
 
-/* Revision: 1.50 22.03.2001 $ */
+/* Revision: 1.51 26.03.2001 $ */
 
 /*
 Modify:
+  26.03.2001 SVS
+    + При вызове списка плагинов говорим манагеру о том, чтобы он искал
+      предопределенный топик "Viewer" для Shift-F1 из списка плагинов
   22.03.2001 IS
     - Баг с переходом по alt-f8: переход происходил только тогда, когда в
       момент закрытия диалога курсор находился в строке ввода (была неверная
@@ -1379,7 +1382,7 @@ int Viewer::ProcessKey(int Key)
         GoTo();
       return(TRUE);
     case KEY_F11:
-      CtrlObject->Plugins.CommandsMenu(FALSE,TRUE,0);
+      CtrlObject->Plugins.CommandsMenu(FALSE,TRUE,0,"Viewer");
       Show();
       return(TRUE);
     case KEY_UP:

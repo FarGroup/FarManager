@@ -7,10 +7,12 @@ plugins.hpp
 
 */
 
-/* Revision: 1.07 31.10.2000 $ */
+/* Revision: 1.08 26.03.2001 $ */
 
 /*
 Modify:
+  26.03.2001 SVS
+    + дополнительный параметр у CommandsMenu() - HistoryName
   31.10.2000 SVS
     + Функция TestOpenPluginInfo - проверка на вшивость переданных плагином
       данных
@@ -178,7 +180,7 @@ class PluginsSet
     void SendExit();
     char* FarGetMsg(int PluginNumber,int MsgId);
     void Configure();
-    int CommandsMenu(int Editor,int Viewer,int StartPos);
+    int CommandsMenu(int Editor,int Viewer,int StartPos,char *HistoryName=NULL);
     int GetDiskMenuItem(int PluginNumber,int PluginItem,int &ItemPresent,int &PluginTextNumber,char *PluginText);
     int UseFarCommand(HANDLE hPlugin,int CommandType);
     void ReloadLanguage();

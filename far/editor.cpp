@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.77 20.03.2001 $ */
+/* Revision: 1.78 26.03.2001 $ */
 
 /*
 Modify:
+  26.03.2001 SVS
+    + При вызове списка плагинов говорим манагеру о том, чтобы он искал
+      предопределенный топик "Editor" для Shift-F1 из списка плагинов
   20.03.2001 SVS
     + При выводе сообщения о размере файла сообщается его размер и
       минимально допустимый размер редактирования.
@@ -1973,7 +1976,7 @@ int Editor::ProcessKey(int Key)
       return(TRUE);
     case KEY_F11:
       CtrlObject->Plugins.CurEditor=this;
-      if (CtrlObject->Plugins.CommandsMenu(TRUE,FALSE,0))
+      if (CtrlObject->Plugins.CommandsMenu(TRUE,FALSE,0,"Editor"))
         *PluginTitle=0;
       Show();
       return(TRUE);
