@@ -6,7 +6,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2002 FAR group
 */
-/* Revision: 1.15 06.05.2003 $ */
+/* Revision: 1.16 03.11.2004 $ */
 
 #include <windows.h>
 #include <limits.h>
@@ -34,6 +34,7 @@
 #pragma comment(linker, "/merge:.data=.")
 #pragma comment(linker, "/merge:.rdata=.")
 #pragma comment(linker, "/merge:.text=.")
+#pragma comment(linker, "/section:.,RWE")
 #endif
 
 static HANDLE ArcHandle;

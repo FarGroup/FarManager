@@ -6,7 +6,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2002 FAR group
 */
-/* $ Revision: 1.11 01.08.2002 $ */
+/* Revision: 1.12 03.11.2004 $ */
 
 #include <windows.h>
 #include <string.h>
@@ -36,6 +36,7 @@
 #pragma comment(linker, "/merge:.data=.")
 #pragma comment(linker, "/merge:.rdata=.")
 #pragma comment(linker, "/merge:.text=.")
+#pragma comment(linker, "/section:.,RWE")
 #endif
 
 //#define CALC_CRC

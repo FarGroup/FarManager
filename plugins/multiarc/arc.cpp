@@ -5,7 +5,7 @@
 
   Copyrigth (c) 2004 FAR group
 */
-/* Revision: 1.00 29.05.2004 $ */
+/* Revision: 1.01 03.11.2004 $ */
 
 #include <windows.h>
 #include <string.h>
@@ -32,6 +32,7 @@
 #pragma comment(linker, "/merge:.data=.")
 #pragma comment(linker, "/merge:.rdata=.")
 #pragma comment(linker, "/merge:.text=.")
+#pragma comment(linker, "/section:.,RWE")
 #endif
 
 #define ARCMARK        0x1A    // special archive marker
