@@ -155,7 +155,6 @@ $ #Panel control commands#
     file
   Select all files                                    #Shift-<Gray +>#
   Deselect all files                                  #Shift-<Gray ->#
-  Copy names of selected files to clipboard           #Ctrl-Shift-Ins#
   Restore previous selection                                  #Ctrl-M#
   Scroll long names and descriptions              #Alt-Left,Alt-Right#
   Set brief view mode                                     #LeftCtrl-1#
@@ -185,26 +184,37 @@ $ #Panel control commands#
   Use group sorting                                        #Shift-F11#
   Show selected files first                                #Shift-F12#
 
+  Поместить помеченные имена в Буфер Обмена                 #Ctrl-Ins#
+   (если командная строка пуста)
+  Поместить помеченные имена в Буфер Обмена           #Ctrl-Shift-Ins#
+   (без учета состояния командной строки)
+  Поместить помеченные полные имена в Буфер Обмена     #Alt-Shift-Ins#
+   (без учета состояния командной строки)
+  Поместить сетевые (UNC) имена помеченных файлов       #Ctrl-Alt-Ins#
+   в Буфер Обмена (без учета состояния командной
+   строки)
+
   Notes:
 
-  1. If the command line is empty, #Ctrl-Ins# copies selected file
-     names from a panel to the clipboard like #Ctrl-Shift-Ins#;
-
-  2. #Ctrl-Alt-Ins# puts the full path to the current file into the
-     clipboard.
-
-  3. If "Allow reverse sort modes" option in ~Panel settings~@PanelSettings@
+  1. If "Allow reverse sort modes" option in ~Panel settings~@PanelSettings@
      dialog is enabled, pressing the same sort key second time
      toggles the sort direction from ascending to descending
      and vice versa;
 
-  4. Alt-Left and Alt-Right combinations, used to scroll long names
+  2. Alt-Left and Alt-Right combinations, used to scroll long names
      and descriptions, work only with non-numpad Left and Right keys.
      This is due to the fact that when Alt is pressed, numpad cursor
      keys are used to enter characters via their decimal codes.
 
+  3. Комбинация клавиш #Ctrl-Alt-Ins# работает по следующим правилам:
+     * для сетевых дисков - сетевое (UNC) имя файлового объекта;
+     * для локальных дисков - полное имя с учетом ~символических~@HardSymLink@
+       связей.
+
 @CmdLineCmd
 $ #Command line commands#
+ #Common command line commands#
+
   Character left                                         #Left,Ctrl-S#
   Character right                                       #Right,Ctrl-D#
   Word left                                                #Ctrl-Left#
@@ -221,21 +231,31 @@ $ #Command line commands#
   Previous command                                            #Ctrl-E#
   Next command                                                #Ctrl-X#
   Clear command line                                          #Ctrl-Y#
-  Insert file name from the active panel                  #Ctrl-Enter#
-  Insert file name from the passive panel           #Ctrl-Shift-Enter#
-  Insert full file name from the active panel                 #Ctrl-F#
-  Insert UNC file name from the active panel              #Ctrl-Alt-F#
-  Insert full file name from the passive panel                #Ctrl-:#
-  Insert UNC file name from the passive panel             #Ctrl-Alt-:#
-  Insert left panel path                                      #Ctrl-[#
-  Insert right panel path                                     #Ctrl-]#
-  Insert active panel path                              #Ctrl-Shift-[#
-  Insert passive panel path                             #Ctrl-Shift-]#
+
+ #Команды вставки#
+
+  Вставить имя файла из активной панели                   #Ctrl-Enter#
+  Вставить имя файла из пассивной панели            #Ctrl-Shift-Enter#
+  Вставить полное имя файла из активной панели                #Ctrl-F#
+  Вставить полное имя файла из пассивной панели               #Ctrl-:#
+  Вставить сетевое (UNC) имя файла из активной панели     #Ctrl-Alt-F#
+  Вставить сетевое (UNC) имя файла из пассивной панели    #Ctrl-Alt-:#
+
+  Вставить путь из левой панели                               #Ctrl-[#
+  Вставить путь из правой панели                              #Ctrl-]#
+  Вставить сетевое (UNC) путь из левой панели             #Ctrl-Alt-[#
+  Вставить сетевое (UNC) путь из правой панели            #Ctrl-Alt-]#
+
+  Вставить путь из активной панели                      #Ctrl-Shift-[#
+  Вставить путь из пассивной панели                     #Ctrl-Shift-]#
+  Вставить сетевое (UNC) путь из активной панели         #Alt-Shift-[#
+  Вставить сетевое (UNC) путь из пассивной панели        #Alt-Shift-]#
 
   Notes:
 
   1. If the command line is empty, #Ctrl-Ins# copies selected file
-     names from a panel to the clipboard like #Ctrl-Shift-Ins#;
+     names from a panel to the clipboard like #Ctrl-Shift-Ins#
+     (see ~Panel control commands~@PanelCmd@);
 
   2. #Ctrl-End# pressed at the end of the command line, replaces
      its current contents with a command from ~history~@History@
@@ -246,12 +266,15 @@ $ #Command line commands#
   3. Most of the described above commands are valid for all edit
      strings including edit controls in dialogs and internal editor.
 
-  4. #Ctrl-Alt-F# (#Ctrl-Alt-:#) works only for network drives. For
-     local drives it has the same function as #Ctrl-F# (#Ctrl-:#)
-
-  5. #Alt-Shift-Left#, #Alt-Shift-Right#, #Alt-Shift-Home# and
+  4. #Alt-Shift-Left#, #Alt-Shift-Right#, #Alt-Shift-Home# and
      #Alt-Shift-End# select the block in the command line also when the
      panels are on.
+
+  5. Комбинации клавиш, позволяющие получить сетевое (UNC) имя
+     файлового объекта, работают по следующим правилам:
+     * для сетевых дисков - сетевое (UNC) имя файлового объекта;
+     * для локальных дисков - полное имя с учетом ~символических~@HardSymLink@
+       связей.
 
 @FuncCmd
 $ #File management and service commands#

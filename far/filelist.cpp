@@ -5,10 +5,20 @@ filelist.cpp
 
 */
 
-/* Revision: 1.96 21.10.2001 $ */
+/* Revision: 1.97 25.10.2001 $ */
 
 /*
 Modify:
+  25.10.2001 SVS
+    - Ctrl-F - неверно работал.
+    ! У функции CopyNames() 2 параметра:
+      FillPathName - при копировании вставлять полный путь
+      UNC          - учитывать так же UNC-путь (а так же с учетом symlink)
+    + Функция CreateFullPathName() - конструирует на основе некоторых сведений
+      полное имя файлового объекта.
+    ! Ctrl-Alt-Ins по аналогии с  Ctrl-Shift-Ins работает СО ВСЕМИ помеченными
+      файлами, а не с одним.
+    + добавки для вставки путей и файлов.
   21.10.2001 SVS
     + Для Ctrl-F и еже с ним добавим ПЕРВЫЙ(!) префикс плагина
   11.10.2001 VVM
@@ -627,7 +637,7 @@ void FileList::SetFocus()
 int FileList::ProcessKey(int Key)
 {
   struct FileListItem *CurPtr;
-  int N;
+  int N, NeedRealName=FALSE;
   int CmdLength=CtrlObject->CmdLine->GetLength();
 
   if (IsVisible())
@@ -794,12 +804,6 @@ int FileList::ProcessKey(int Key)
     case KEY_CTRLMULTIPLY:
       SelectFiles(SELECT_INVERTALL);
       return(TRUE);
-    case KEY_CTRLINS:
-      if (CmdLength>0)
-        return(FALSE);
-    case KEY_CTRLSHIFTINS:
-      CopyNames();
-      return(TRUE);
     case KEY_ALTLEFT:
       LeftPos--;
       Redraw();
@@ -808,6 +812,17 @@ int FileList::ProcessKey(int Key)
       LeftPos++;
       Redraw();
       return(TRUE);
+
+    case KEY_CTRLINS:
+      if (CmdLength>0)
+        return(FALSE);
+    case KEY_CTRLSHIFTINS: // копировать имена
+    case KEY_CTRLALTINS:   // копировать UNC-имена
+    case KEY_ALTSHIFTINS:  // копировать полные имена
+      CopyNames(Key == KEY_CTRLALTINS || Key == KEY_ALTSHIFTINS,
+                (Key&(KEY_CTRL|KEY_ALT))==(KEY_CTRL|KEY_ALT));
+      return(TRUE);
+
     /* $ 14.02.2001 VVM
       + Ctrl: вставляет имя файла с пассивной панели.
       + CtrlAlt: вставляет UNC-имя файла с пассивной панели */
@@ -832,21 +847,19 @@ int FileList::ProcessKey(int Key)
       + По CTRL+ALT+F в командную строку сбрасывается UNC-имя текущего файла. */
     case KEY_CTRLALTF:
     /* VVM $ */
-    case KEY_CTRLALTINS:
       if (FileCount>0 && SetCurPath())
       {
-        char FileName[NM],temp[NM];
+        char FileName[2048],temp[NM];
         int CurrentPath=FALSE;
         CurPtr=ListData+CurFile;
         strcpy(FileName,ShowShortNames && *CurPtr->ShortName ? CurPtr->ShortName:CurPtr->Name);
         if (strcmp(FileName,"..")==0)
         {
           strcpy(FileName,".");
-          if(Key != KEY_CTRLALTINS)
-            Key=(Key==KEY_CTRLALTF)?KEY_CTRLALTF:KEY_CTRLF;
+          Key=(Key==KEY_CTRLALTF)?KEY_CTRLALTF:KEY_CTRLF;
           CurrentPath=TRUE;
         }
-        if (Key==KEY_CTRLF || Key==KEY_CTRLALTF || Key == KEY_CTRLALTINS)
+        if (Key==KEY_CTRLF || Key==KEY_CTRLALTF)
         {
           struct OpenPluginInfo Info;
           if (PanelMode==PLUGIN_PANEL)
@@ -855,102 +868,9 @@ int FileList::ProcessKey(int Key)
           }
           if (PanelMode!=PLUGIN_PANEL || (Info.Flags & OPIF_REALNAMES))
           {
-            /* $ 02.04.2001 IS
-                 Исправляю баг:
-                 -----
-1) в Temporary panel Ctrl+F на .. выдает: C:\dr_dr_dr\ (где "C:\dr_dr_dr\" путь
-до переключения в Temporary panel)
-
-2) в Temporary panel -> Ctrl+N (включаем короткие имена) -> Ctrl+F на любом
-файле получаем: C:\dr_dr_dr\FILENAME.EXT (где "C:\dr_dr_dr\" не путь до файла,
-а см.1)
-                 -----
-                 Пункт 1 объявляется фичей, пункт 2 исправляется ниже.
-                 Базовые предпосылки:
-                 1. Если имя содержит '\\', то оно содержит путь
-                 2. Если короткое имя содержит путь, то длинное имя также
-                    содержит путь.
-                 3. Если имя содержит путь, то вызывать ConvertNameToFull не
-                    нужно.
-            */
-            char *ShortNameLastSlash=strrchr(CurPtr->ShortName, '\\'),
-                 *NameLastSlash=strrchr(CurPtr->Name, '\\');
-            if (NULL==ShortNameLastSlash && NULL==NameLastSlash)
-            {
-              if(ConvertNameToFull(FileName,FileName, sizeof(FileName)) >= sizeof(FileName)){
+            if(!CreateFullPathName(CurPtr->Name,CurPtr->ShortName,CurPtr->FileAttr,
+                               FileName,sizeof(FileName)-1,Key==KEY_CTRLALTF))
               return FALSE;
-             }
-            }
-            else if(ShowShortNames)
-            {
-              strcpy(temp, CurPtr->Name);
-              if(NameLastSlash) temp[1+NameLastSlash-CurPtr->Name]=0;
-
-              char *Name=strrchr(FileName, '\\');
-              if(Name) Name++;
-              else Name=FileName;
-
-              strcat(temp, Name);
-              strcpy(FileName, temp);
-            }
-            /* IS $ */
-            if (ShowShortNames)
-              ConvertNameToShort(FileName,FileName);
-
-            /* $ 29.01.2001 VVM
-              + По CTRL+ALT+F в командную строку сбрасывается UNC-имя текущего файла. */
-            if (Key==KEY_CTRLALTF)
-            {
-              Key = KEY_CTRLF;
-              char uni[1024];
-              DWORD uniSize = sizeof(uni);
-              if (WNetGetUniversalName(FileName, UNIVERSAL_NAME_INFO_LEVEL,
-                                           &uni, &uniSize) == NOERROR)
-              {
-                UNIVERSAL_NAME_INFO *lpuni = (UNIVERSAL_NAME_INFO *)&uni;
-                strncpy(FileName, lpuni->lpUniversalName, sizeof(FileName)-1);
-              } /* if */
-
-              if(GetFileAttributes(FileName)&FILE_ATTRIBUTE_REPARSE_POINT)
-              {
-                char JuncName[NM];
-                if(GetJunctionPointInfo(FileName,JuncName,sizeof(JuncName)))
-                {
-                  TruncPathStr(JuncName+4,sizeof(JuncName));
-                  if(!strncmp(JuncName+4,"Volume{",7))
-                    GetPathRootOne(JuncName+4,FileName);
-                  else
-                    strcpy(FileName,JuncName+4);
-                }
-              }
-            } /* if */
-            /* VVM $ */
-            /* $ 20.10.2000 SVS
-               Сделаем фичу Ctrl-F опциональной!*/
-            if(Opt.PanelCtrlFRule)
-            {
-              /* $ 13.10.2000 tran
-                по Ctrl-f имя должно отвечать условиям на панели */
-              if (ViewSettings.FolderUpperCase)
-              {
-                if ( CurPtr->FileAttr & FA_DIREC )
-                  LocalStrupr(FileName);
-                else
-                {
-                    strcpy(temp,FileName);
-                    *strrchr(temp,'\\')=0;
-                    LocalStrupr(temp);
-                    strcpy(FileName,temp);
-                }
-              }
-              if (ViewSettings.FileUpperToLowerCase)
-                if (!(CurPtr->FileAttr & FA_DIREC) && strrchr(FileName,'\\') && !IsCaseMixed(strrchr(FileName,'\\')))
-                   LocalStrlwr(strrchr(FileName,'\\'));
-              if ( ViewSettings.FileLowerCase && strrchr(FileName,'\\') && !(CurPtr->FileAttr & FA_DIREC))
-                LocalStrlwr(strrchr(FileName,'\\'));
-              /* tran $ */
-            }
-            /* SVS $ */
           }
           else
           {
@@ -999,34 +919,37 @@ int FileList::ProcessKey(int Key)
         }
 
         QuoteSpace(FileName);
-        if(Key == KEY_CTRLALTINS)
-        {
-          CopyToClipboard(FileName);
-        }
-        else
-        {
-          strcat(FileName," ");
-          CtrlObject->CmdLine->InsertString(FileName);
-        }
+        strcat(FileName," ");
+        CtrlObject->CmdLine->InsertString(FileName);
       }
       return(TRUE);
-    case KEY_CTRLBRACKET:
-    case KEY_CTRLBACKBRACKET:
-    case KEY_CTRLSHIFTBRACKET:
-    case KEY_CTRLSHIFTBACKBRACKET:
+
+    case KEY_CTRLALTBRACKET:       // Вставить сетевое (UNC) путь из левой панели
+    case KEY_CTRLALTBACKBRACKET:   // Вставить сетевое (UNC) путь из правой панели
+    case KEY_ALTSHIFTBRACKET:      // Вставить сетевое (UNC) путь из активной панели
+    case KEY_ALTSHIFTBACKBRACKET:  // Вставить сетевое (UNC) путь из пассивной панели
+      NeedRealName=TRUE;
+    case KEY_CTRLBRACKET:          // Вставить путь из левой панели
+    case KEY_CTRLBACKBRACKET:      // Вставить путь из правой панели
+    case KEY_CTRLSHIFTBRACKET:     // Вставить путь из активной панели
+    case KEY_CTRLSHIFTBACKBRACKET: // Вставить путь из пассивной панели
       {
         Panel *SrcPanel;
         switch(Key)
         {
+          case KEY_CTRLALTBRACKET:
           case KEY_CTRLBRACKET:
             SrcPanel=CtrlObject->Cp()->LeftPanel;
             break;
+          case KEY_CTRLALTBACKBRACKET:
           case KEY_CTRLBACKBRACKET:
             SrcPanel=CtrlObject->Cp()->RightPanel;
             break;
+          case KEY_ALTSHIFTBRACKET:
           case KEY_CTRLSHIFTBRACKET:
             SrcPanel=CtrlObject->Cp()->ActivePanel;
             break;
+          case KEY_ALTSHIFTBACKBRACKET:
           case KEY_CTRLSHIFTBACKBRACKET:
             SrcPanel=CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel);
             break;
@@ -1035,10 +958,22 @@ int FileList::ProcessKey(int Key)
           return(FALSE);
 
         FileList *SrcFilePanel=(FileList *)SrcPanel;
-        char PanelDir[NM];
+        char PanelDir[2048];
         if (SrcPanel->GetMode()!=PLUGIN_PANEL)
         {
           SrcPanel->GetCurDir(PanelDir);
+          if(NeedRealName)
+          {
+            char uni[1024];
+            DWORD uniSize = sizeof(uni);
+            if (WNetGetUniversalName(PanelDir, UNIVERSAL_NAME_INFO_LEVEL,
+                                         &uni, &uniSize) == NOERROR)
+            {
+              UNIVERSAL_NAME_INFO *lpuni = (UNIVERSAL_NAME_INFO *)&uni;
+              strncpy(PanelDir, lpuni->lpUniversalName, sizeof(PanelDir)-1);
+            }
+            ConvertNameToReal(PanelDir,PanelDir, sizeof(PanelDir));
+          }
           if (SrcPanel->GetShowShortNamesMode())
             ConvertNameToShort(PanelDir,PanelDir);
           AddEndSlash(PanelDir);
@@ -2896,14 +2831,25 @@ void FileList::CompareDir()
     Message(0,1,MSG(MCompareTitle),MSG(MCompareSameFolders1),MSG(MCompareSameFolders2),MSG(MOk));
 }
 
-
-void FileList::CopyNames()
+void FileList::CopyNames(int FillPathName,int UNC)
 {
+  struct OpenPluginInfo Info;
   char *CopyData=NULL;
   long DataSize=0;
-  char SelName[NM],SelShortName[NM];
+  char SelName[NM], SelShortName[NM], QuotedName[2048];
   int FileAttr;
+
+  if (PanelMode==PLUGIN_PANEL)
+  {
+    CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
+  }
   GetSelName(NULL,FileAttr);
+
+  if (FillPathName && (PanelMode!=PLUGIN_PANEL || (Info.Flags & OPIF_REALNAMES)))
+    ; // ;-)
+  else
+    FillPathName=FALSE;
+
   while (GetSelName(SelName,FileAttr,SelShortName))
   {
     if (DataSize>0)
@@ -2911,14 +2857,22 @@ void FileList::CopyNames()
       strcat(CopyData+DataSize,"\r\n");
       DataSize+=2;
     }
-    char QuotedName[NM];
     strcpy(QuotedName,ShowShortNames && *SelShortName ? SelShortName:SelName);
+    if(FillPathName)
+    {
+      if(!CreateFullPathName(QuotedName,SelShortName,FileAttr,QuotedName,sizeof(QuotedName)-1,UNC))
+      {
+        free(CopyData);
+        CopyData=NULL;
+        break;
+      }
+    }
     QuoteSpace(QuotedName);
     int Length=strlen(QuotedName);
     char *NewPtr=(char *)realloc(CopyData,DataSize+Length+3);
     if (NewPtr==NULL)
     {
-      delete CopyData;
+      free(CopyData);
       CopyData=NULL;
       break;
     }
@@ -2929,9 +2883,105 @@ void FileList::CopyNames()
   }
 
   CopyToClipboard(CopyData);
-  delete CopyData;
+  free(CopyData);
 }
 
+char *FileList::CreateFullPathName(char *Name, char *ShortName,DWORD FileAttr,
+                                   char *Dest,int SizeDest,int UNC)
+{
+  char Temp[2048], FileName[2048];
+  char *NamePtr, Chr;
+  /* $ 02.04.2001 IS
+   Исправляю баг:
+   -----
+   1) в Temporary panel Ctrl+F на .. выдает: C:\dr_dr_dr\ (где
+      "C:\dr_dr_dr\" путь до переключения в Temporary panel)
+
+   2) в Temporary panel -> Ctrl+N (включаем короткие имена) -> Ctrl+F на
+      любом файле получаем: C:\dr_dr_dr\FILENAME.EXT (где "C:\dr_dr_dr\"
+      не путь до файла, а см.1)
+       -----
+   Пункт 1 объявляется фичей, пункт 2 исправляется ниже.
+   Базовые предпосылки:
+   1. Если имя содержит '\\', то оно содержит путь
+   2. Если короткое имя содержит путь, то длинное имя также
+      содержит путь.
+   3. Если имя содержит путь, то вызывать ConvertNameToFull не
+      нужно.
+  */
+  strncpy(FileName,Dest,sizeof(FileName)-1);
+  char *ShortNameLastSlash=strrchr(ShortName, '\\'),
+       *NameLastSlash=strrchr(Name, '\\');
+  if (NULL==ShortNameLastSlash && NULL==NameLastSlash)
+  {
+    if(ConvertNameToFull(FileName,FileName, sizeof(FileName)) >= sizeof(FileName))
+    {
+      return NULL;
+    }
+  }
+  else if(ShowShortNames)
+  {
+    strcpy(Temp, Name);
+    if(NameLastSlash)
+      Temp[1+NameLastSlash-Name]=0;
+
+    if((NamePtr=strrchr(FileName, '\\')) != NULL)
+      NamePtr++;
+    else
+      NamePtr=FileName;
+
+    strcat(Temp, Name);
+    strcpy(FileName, Temp);
+  }
+  /* IS $ */
+  if (ShowShortNames)
+    ConvertNameToShort(FileName,FileName);
+
+  /* $ 29.01.2001 VVM
+    + По CTRL+ALT+F в командную строку сбрасывается UNC-имя текущего файла. */
+  if (UNC)
+  {
+    DWORD uniSize = sizeof(Temp);
+    if (WNetGetUniversalName(FileName, UNIVERSAL_NAME_INFO_LEVEL,
+                                 &Temp, &uniSize) == NOERROR)
+    {
+      UNIVERSAL_NAME_INFO *lpuni = (UNIVERSAL_NAME_INFO *)&Temp;
+      strncpy(FileName, lpuni->lpUniversalName, sizeof(FileName)-1);
+    }
+
+    ConvertNameToReal(FileName,FileName, sizeof(FileName));
+  } /* if */
+  /* VVM $ */
+  // $ 20.10.2000 SVS Сделаем фичу Ctrl-F опциональной!
+  if(Opt.PanelCtrlFRule)
+  {
+    /* $ 13.10.2000 tran
+      по Ctrl-f имя должно отвечать условиям на панели */
+    if (ViewSettings.FolderUpperCase)
+    {
+      if ( FileAttr & FA_DIREC )
+        LocalStrupr(FileName);
+      else
+      {
+          if((NamePtr=strrchr(FileName,'\\')) != NULL)
+          {
+            Chr=*NamePtr;
+            *NamePtr=0;
+          }
+          LocalStrupr(FileName);
+          if(NamePtr)
+            *NamePtr=Chr;
+      }
+    }
+    if (ViewSettings.FileUpperToLowerCase)
+      if (!(FileAttr & FA_DIREC) && strrchr(FileName,'\\') && !IsCaseMixed(strrchr(FileName,'\\')))
+         LocalStrlwr(strrchr(FileName,'\\'));
+    if ( ViewSettings.FileLowerCase && strrchr(FileName,'\\') && !(FileAttr & FA_DIREC))
+      LocalStrlwr(strrchr(FileName,'\\'));
+  }
+
+  return strncpy(Dest,FileName,SizeDest);
+}
 
 void FileList::SetTitle()
 {

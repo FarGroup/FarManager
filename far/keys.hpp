@@ -24,11 +24,14 @@ keys.hpp
 */
 #endif // END FAR_USE_INTERNALS
 
-/* Revision: 1.16 09.08.2001 $ */
+/* Revision: 1.17 25.10.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
 Modify:
+  25.10.2001 SVS
+    + KEY_ALTSHIFTBRACKET, KEY_ALTSHIFTBACKBRACKET, KEY_CTRLALTBRACKET
+      KEY_CTRLALTBACKBRACKET
   09.08.2001 SVS
     + Маркеры про FAR_USE_INTERNALS. Просьба не убирать! Это для скрипта,
       который будет генерить одноименный файл для дистрибутива. Если нужно
@@ -397,6 +400,8 @@ enum AddDefKeyboard
   KEY_ALTSHIFTY            =KEY_ALT|KEY_SHIFT+'Y',
   KEY_ALTSHIFTZ            =KEY_ALT|KEY_SHIFT+'Z',
 
+  KEY_ALTSHIFTBRACKET      =KEY_ALT|KEY_SHIFT|KEY_BRACKET,
+  KEY_ALTSHIFTBACKBRACKET  =KEY_ALT|KEY_SHIFT|KEY_BACKBRACKET,
 
   KEY_CTRLALT0             =KEY_CTRL|KEY_ALT+'0',
   KEY_CTRLALT1             =KEY_CTRL|KEY_ALT+'1',
@@ -436,6 +441,8 @@ enum AddDefKeyboard
   KEY_CTRLALTY             =KEY_CTRL|KEY_ALT+'Y',
   KEY_CTRLALTZ             =KEY_CTRL|KEY_ALT+'Z',
 
+  KEY_CTRLALTBRACKET       =KEY_CTRL|KEY_ALT|KEY_BRACKET,
+  KEY_CTRLALTBACKBRACKET   =KEY_CTRL|KEY_ALT|KEY_BACKBRACKET,
 
   KEY_CTRLF1               =KEY_CTRL|KEY_F1,
   KEY_CTRLF2               =KEY_CTRL|KEY_F2,
@@ -621,4 +628,4 @@ enum AddDefKeyboard
   KEY_ALTSHIFT_BASE        =KEY_ALTSHIFT,
 };
 
-#endif	// __FARKEYS_HPP__
+#endif  // __FARKEYS_HPP__

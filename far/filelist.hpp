@@ -11,6 +11,12 @@ filelist.hpp
 
 /*
 Modify:
+  25.10.2001 SVS
+    ! У функции CopyNames() 2 параметра:
+      FillPathName - при копировании вставлять полный путь
+      UNC          - учитывать так же UNC-путь (а так же с учетом symlink)
+    + Функция CreateFullPathName() - конструирует на основе некоторых сведений
+      полное имя файлового объекта.
   21.10.2001 SVS
     + AddPluginPrefix()
   01.10.2001 SVS
@@ -199,7 +205,7 @@ class FileList:public Panel
     void PushPlugin(HANDLE hPlugin,char *HostFile);
     int PopPlugin(int EnableRestoreViewMode);
     int FindFile(char *Name);
-    void CopyNames();
+    void CopyNames(int FillPathName=FALSE,int UNC=FALSE);
     void SelectSortMode();
     void ApplyCommand();
     void DescribeFiles();
@@ -292,6 +298,8 @@ class FileList:public Panel
     void SetTitle();
     int PluginPanelHelp(HANDLE hPlugin);
     long GetFileCount() {return FileCount;}
+    char *CreateFullPathName(char *Name,char *ShortName,DWORD FileAttr,
+                            char *Dest,int SizeDest,int UNC);
 
     /* $ 30.04.2001 DJ
        добавлен UpdateKeyBar()
@@ -312,4 +320,4 @@ class FileList:public Panel
     static char* AddPluginPrefix(FileList *SrcPanel,char *Prefix);
 };
 
-#endif	// __FILELIST_HPP__
+#endif  // __FILELIST_HPP__
