@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.127 03.10.2002 $ */
+/* Revision: 1.128 14.10.2002 $ */
 
 /*
 Modify:
+  14.10.2002 VVM
+    ! После использования плагин будем закрывать. (bug # 590)
   03.10.2002 SVS
     - перелудил в прошлом патче (PluginMode уже объявлена)
   01.10.2002 SVS
@@ -1084,6 +1086,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         if (ItemIndex != LIST_INDEX_NONE)
         {
           int RemoveTemp=FALSE;
+          int ClosePlugin=FALSE; // Плагины надо закрывать, если открыли.
           char SearchFileName[NM];
           char TempDir[NM];
 
@@ -1128,6 +1131,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
                 ArcList[FindList[ItemIndex].ArcIndex].hPlugin = INVALID_HANDLE_VALUE;
                 return TRUE;
               }
+              ClosePlugin = TRUE;
             }
 
             PluginPanelItem FileItem;
@@ -1140,12 +1144,24 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
             if (!GetPluginFile(FindList[ItemIndex].ArcIndex,&FileItem,TempDir,SearchFileName))
             {
               RemoveDirectory(TempDir);
+              if (ClosePlugin)
+              {
+                CtrlObject->Plugins.ClosePlugin(ArcList[FindList[ItemIndex].ArcIndex].hPlugin);
+                ArcList[FindList[ItemIndex].ArcIndex].hPlugin = INVALID_HANDLE_VALUE;
+              }
               ReleaseMutex(hPluginMutex);
               ReleaseMutex(hDialogMutex);
               return FALSE;
             }
             else
+            {
+              if (ClosePlugin)
+              {
+                CtrlObject->Plugins.ClosePlugin(ArcList[FindList[ItemIndex].ArcIndex].hPlugin);
+                ArcList[FindList[ItemIndex].ArcIndex].hPlugin = INVALID_HANDLE_VALUE;
+              }
               ReleaseMutex(hPluginMutex);
+            }
             RemoveTemp=TRUE;
           }
           else
