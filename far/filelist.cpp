@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.209 08.11.2004 $ */
+/* Revision: 1.210 10.11.2004 $ */
 
 /*
 Modify:
+  10.11.2004 WARP
+    - BugZ#1130 Alt-Shift-Ins берет неверные данные после смены каталога через User menu
   08.11.2004 WARP
     ! Исправления в раксраске и работе панелей
   04.11.2004 SVS
@@ -1324,6 +1326,10 @@ int FileList::ProcessKey(int Key)
     case KEY_CTRLSHIFTINS: case KEY_CTRLSHIFTNUMPAD0:  // копировать имена
     case KEY_CTRLALTINS:   case KEY_CTRLALTNUMPAD0:    // копировать UNC-имена
     case KEY_ALTSHIFTINS:                              // копировать полные имена
+
+      //if (FileCount>0 && SetCurPath()) // ?????
+      SetCurPath ();
+
       CopyNames(Key == KEY_CTRLALTINS || Key == KEY_ALTSHIFTINS || Key == KEY_CTRLALTNUMPAD0,
                 (Key&(KEY_CTRL|KEY_ALT))==(KEY_CTRL|KEY_ALT));
       return(TRUE);
