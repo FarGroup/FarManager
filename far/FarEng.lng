@@ -303,23 +303,64 @@
 "<none>"
 "Enter new shortcut:"
 
-//functional keys - 6 characters max
+//functional keys - 6 characters max, 12 keys, "DOS" is F8 dupe!
 "Help"
 "Save"
+""
+""
+""
 "View"
 "Search"
 "Win"
 "DOS"
+// don't count this - it's a F8 another text
 "Quit"
+""
 "Plugin"
 "Screen"
+
+// editor functional keys, Shift state, 12 keys
+""
 "SaveAs"
+""
+""
+""
+""
 "Next"
 "Table"
+""
 "SaveQ"
+""
+""
+
+// editor functional keys, Alt state, 12 keys
+""
+""
+""
+""
+""
+""
+""
 "Goto"
-"Replac"
+""
+""
+""
+""
+
+// editor functional keys, Ctrl state, 12 keys
+""
+""
+""
+""
+""
+""
 //end of functional keys
+"Replac"
+""
+""
+""
+""
+""
 
 "Save file as"
 "Save in &original format"
@@ -373,13 +414,16 @@
 "&View command (used for F3):"
 "&Edit command (used for F4):"
 
-//functional keys - 6 characters max
+// viewer functional keys, 12 keys, except F2 - 2 keys, and F8 - 2 keys
 "Help"
 "Wrap"
+// this is another text for F2
 "Unwrap"
 "Quit"
 "Hex"
+// this is another text for F4
 "Text"
+""
 "Edit"
 "Search"
 "Win"
@@ -387,9 +431,48 @@
 "Quit"
 "Plugins"
 "Screen"
+
+// Viewer functional keys, Shift state, 12 keys
+""
+""
+""
+""
+""
+""
 "Next"
 "Table"
+""
+""
+""
+""
+
+// Viewer functional keys, Alt state, 12 keys
+""
+""
+""
+""
+""
+""
+""
 "Goto"
+""
+""
+""
+""
+
+// Viewer functional keys, Ctrl state, 12 keys
+""
+""
+""
+""
+""
+""
+""
+""
+""
+""
+""
+""
 //end of functional keys
 
 "view %s"
@@ -539,6 +622,7 @@
 "File own&ers        LCtrl-8"
 "File lin&ks         LCtrl-9"
 "&Alternative full   LCtrl-0"
+
 "&Info panel         Ctrl-L"
 "&Tree panel         Ctrl-T"
 "Quick &view         Ctrl-Q"
@@ -780,7 +864,8 @@
 "Selected reference"
 "Border"
 "Title"
-"Scrollbar"
+"Scrollbar (Panel)"
+"ScrollBar (Menu)"
 
 "Color groups"
 "Group items"

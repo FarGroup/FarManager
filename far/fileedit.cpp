@@ -5,7 +5,7 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.01 29.06.2000 $ */
+/* Revision: 1.02 29.06.2000 $ */
 
 /*
 Modify:
@@ -15,6 +15,8 @@ Modify:
   28.06.2000 tran
     - (NT Console resize bug)
       adding FileEditor::SetScreenPosition
+  29.06.2000 tran
+    + названия всех функциональных клавиш
 */
 
 #include "headers.hpp"
@@ -119,10 +121,13 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
   EditKeyBar.SetOwner(this);
   EditKeyBar.SetPosition(X1,Y2,X2,Y2);
 
-  char *FEditKeys[]={MSG(MEditF1),MSG(MEditF2),"","","",EnableSwitch ? MSG(MEditF6):"",MSG(MEditF7),MSG(MEditF8),"",MSG(MEditF10),MSG(MEditF11),MSG(MEditF12)};
-  char *FEditShiftKeys[]={"",MSG(MEditShiftF2),"","","","",MSG(MEditShiftF7),MSG(MEditShiftF8),"",MSG(MEditShiftF10)};
-  char *FEditAltKeys[]={"","","","","","","",MSG(MEditAltF8),"",""};
-  char *FEditCtrlKeys[]={"","","","","","",MSG(MEditCtrlF7),"","",""};
+  /* $ 29.06.2000 tran
+     добавил названия всех функциональных клавиш */
+  char *FEditKeys[]={MSG(MEditF1),MSG(MEditF2),MSG(MEditF3),MSG(MEditF4),MSG(MEditF5),EnableSwitch ? MSG(MEditF6):"",MSG(MEditF7),MSG(MEditF8),MSG(MEditF9),MSG(MEditF10),MSG(MEditF11),MSG(MEditF12)};
+  char *FEditShiftKeys[]={MSG(MEditShiftF1),MSG(MEditShiftF2),MSG(MEditShiftF3),MSG(MEditShiftF4),MSG(MEditShiftF5),MSG(MEditShiftF6),MSG(MEditShiftF7),MSG(MEditShiftF8),MSG(MEditShiftF9),MSG(MEditShiftF10),MSG(MEditShiftF11),MSG(MEditShiftF12)};
+  char *FEditAltKeys[]={MSG(MEditAltF1),MSG(MEditAltF2),MSG(MEditAltF3),MSG(MEditAltF4),MSG(MEditAltF5),MSG(MEditAltF6),MSG(MEditAltF7),MSG(MEditAltF8),MSG(MEditAltF9),MSG(MEditAltF10),MSG(MEditAltF11),MSG(MEditAltF12)};
+  char *FEditCtrlKeys[]={MSG(MEditCtrlF1),MSG(MEditCtrlF2),MSG(MEditCtrlF3),MSG(MEditCtrlF4),MSG(MEditCtrlF5),MSG(MEditCtrlF6),MSG(MEditCtrlF7),MSG(MEditCtrlF8),MSG(MEditCtrlF9),MSG(MEditCtrlF10),MSG(MEditCtrlF11),MSG(MEditCtrlF12)};
+  /* tran $ */
 
   EditKeyBar.Set(FEditKeys,sizeof(FEditKeys)/sizeof(FEditKeys[0]));
   EditKeyBar.SetShift(FEditShiftKeys,sizeof(FEditShiftKeys)/sizeof(FEditShiftKeys[0]));

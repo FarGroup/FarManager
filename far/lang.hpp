@@ -5,9 +5,15 @@ lang.hpp
 
 Идентификаторы фаровских строк
 
+Внимание - не ставьте комментарии внутри enum!
+           а lngedit собъется
+           только в истории изменений
+
+           также в lng Файле не ставьте более 2х комментариев
+           подряд.
 */
 
-/* Revision: 1.01 29.06.2000 $ */
+/* Revision: 1.02 29.06.2000 $ */
 
 /*
 Modify:
@@ -18,15 +24,20 @@ Modify:
     + Новый пункт для Options|Panel settings
       [ ] Show scrollbar into Menus
     + Новый пункт для настройки цветов Menu для Menu Scrollbar
+  29.06.2000 tran
+    + пустышки для всех функциональных клавиш в viewer & editor
 */
 
 enum
 {
+
   MShareware=0,
   MRegistered,
   MYes,
   MNo,
+
   MOk,
+
   MCancel,
   MRetry,
   MSkip,
@@ -38,6 +49,7 @@ enum
 
   MQuit,
   MAskQuit,
+
   MF1,
   MF2,
   MF3,
@@ -285,6 +297,7 @@ enum
   MEditCannotOpen,
   MEditReading,
   MEditAskSave,
+
   MEditSave,
   MEditNotSave,
   MEditContinue,
@@ -326,22 +339,56 @@ enum
 
   MEditF1,
   MEditF2,
+  MEditF3,
+  MEditF4,
+  MEditF5,
   MEditF6,
   MEditF7,
   MEditF8,
   MEditF8DOS,
+  MEditF9,
   MEditF10,
   MEditF11,
   MEditF12,
 
+  MEditShiftF1,
   MEditShiftF2,
+  MEditShiftF3,
+  MEditShiftF4,
+  MEditShiftF5,
+  MEditShiftF6,
   MEditShiftF7,
   MEditShiftF8,
+  MEditShiftF9,
   MEditShiftF10,
+  MEditShiftF11,
+  MEditShiftF12,
 
+  MEditAltF1,
+  MEditAltF2,
+  MEditAltF3,
+  MEditAltF4,
+  MEditAltF5,
+  MEditAltF6,
+  MEditAltF7,
   MEditAltF8,
+  MEditAltF9,
+  MEditAltF10,
+  MEditAltF11,
+  MEditAltF12,
 
+  MEditCtrlF1,
+  MEditCtrlF2,
+  MEditCtrlF3,
+  MEditCtrlF4,
+  MEditCtrlF5,
+  MEditCtrlF6,
   MEditCtrlF7,
+  MEditCtrlF8,
+  MEditCtrlF9,
+  MEditCtrlF10,
+  MEditCtrlF11,
+  MEditCtrlF12,
 
   MEditSaveAs,
   MEditSaveOriginal,
@@ -401,6 +448,7 @@ enum
   MViewF3,
   MViewF4,
   MViewF4Text,
+  MViewF5,
   MViewF6,
   MViewF7,
   MViewF8,
@@ -408,12 +456,48 @@ enum
   MViewF10,
   MViewF11,
   MViewF12,
+  MViewShiftF1,
+  MViewShiftF2,
+  MViewShiftF3,
+  MViewShiftF4,
+  MViewShiftF5,
+  MViewShiftF6,
   MViewShiftF7,
   MViewShiftF8,
+  MViewShiftF9,
+  MViewShiftF10,
+  MViewShiftF11,
+  MViewShiftF12,
+
+  MViewAltF1,
+  MViewAltF2,
+  MViewAltF3,
+  MViewAltF4,
+  MViewAltF5,
+  MViewAltF6,
+  MViewAltF7,
   MViewAltF8,
+  MViewAltF9,
+  MViewAltF10,
+  MViewAltF11,
+  MViewAltF12,
+
+  MViewCtrlF1,
+  MViewCtrlF2,
+  MViewCtrlF3,
+  MViewCtrlF4,
+  MViewCtrlF5,
+  MViewCtrlF6,
+  MViewCtrlF7,
+  MViewCtrlF8,
+  MViewCtrlF9,
+  MViewCtrlF10,
+  MViewCtrlF11,
+  MViewCtrlF12,
 
   MInViewer,
   MInEditor,
+
   MFilterTitle,
   MFilterBottom,
   MNoCustomFilters,
@@ -804,6 +888,7 @@ enum
   MSetColorHelpBox,
   MSetColorHelpBoxTitle,
   MSetColorHelpScrollbar,
+  MSetColorHelpScrollbarMenu,
 
   MSetColorGroupsTitle,
   MSetColorItemsTitle,
@@ -835,6 +920,7 @@ enum
   MMainMenuTitle,
   MLocalMenuTitle,
   MAskDeleteMenuItem,
+
   MEditMenuTitle,
   MEditMenuHotKey,
   MEditMenuLabel,
@@ -921,6 +1007,7 @@ enum
   MEditPanelModeUpperToLowerCase,
   MEditPanelModeCaseSensitiveSort,
   MEditPanelReadHelp,
+
   MSetFolderInfoTitle,
   MSetFolderInfoNames,
 
