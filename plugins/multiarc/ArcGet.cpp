@@ -7,6 +7,26 @@ public:
 };
 int TRecur::Count=0;
 
+inline void CreateDirectory(char *FullPath) //$ 16.05.2002 AA
+{
+  if(!FileExists(FullPath))
+    for(char *c=FullPath; *c; c++)
+    {
+      if(*c!=' ')
+      {
+        for(; *c; c++)
+          if(*c=='\\')
+          {
+            *c=0;
+            CreateDirectory(FullPath, NULL);
+            *c='\\';
+          }
+        CreateDirectory(FullPath, NULL);
+        break;
+      }
+    }
+}
+
 int PluginClass::GetFiles(PluginPanelItem *PanelItem, int ItemsNumber,
                           int Move, char *DestPath, int OpMode)
 {
@@ -75,7 +95,7 @@ int PluginClass::GetFiles(PluginPanelItem *PanelItem, int ItemsNumber,
 
   Opt.Background=OpMode & OPM_SILENT ? 0 : Opt.UserBackground;
 
-  int SpaceOnly=TRUE;
+  /*int SpaceOnly=TRUE;
   for (int I=0;DestPath[I]!=0;I++)
     if (DestPath[I]!=' ')
     {
@@ -93,7 +113,8 @@ int PluginClass::GetFiles(PluginPanelItem *PanelItem, int ItemsNumber,
         *ChPtr='\\';
       }
     CreateDirectory(DestPath,NULL);
-  }
+  }*/
+  CreateDirectory(DestPath); //$ 16.05.2002 AA
 
 
   if (*DestPath && DestPath[strlen(DestPath)-1]!=':')
