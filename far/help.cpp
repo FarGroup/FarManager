@@ -8,10 +8,13 @@ help.cpp
 
 */
 
-/* Revision: 1.76 03.06.2003 $ */
+/* Revision: 1.77 15.09.2003 $ */
 
 /*
 Modify:
+  15.09.2003 SVS
+    - BugZ#457 - Форматирование в Help-файлах
+      (ВНИМАНИЕ! НЕ УВЕРЕН! но бага излечилась :-))
   03.06.2003 SVS
     + HELPMODE_CLICKOUTSIDE  - было нажатие мыши вне хелпа?
     ! Теперь в кейбар можно тыкать мышой
@@ -616,6 +619,11 @@ m1:
                 AddLine(ReadStr);
                 continue;
               }
+            }
+            else if(!*ReadStr && !*SplitLine)
+            {
+              AddLine("");
+              continue;
             }
           }
 

@@ -5,10 +5,13 @@ flshow.cpp
 
 */
 
-/* Revision: 1.34 11.07.2003 $ */
+/* Revision: 1.35 15.09.2003 $ */
 
 /*
 Modify:
+  15.09.2003 SVS
+    ! Корректировка на часы (X2) ведется только в том случае, если
+      Opt.ShowMenuBar == 0
   11.07.2003 SVS
     + FileList::IsNumeric()
   05.07.2003 SVS
@@ -307,7 +310,7 @@ void FileList::ShowFileList(int Fast)
     CtrlObject->CmdLine->SetCurDir(PanelMode==PLUGIN_PANEL ? Info.CurDir:CurDir);
     CtrlObject->CmdLine->Show();
   }
-  int TitleX2=Opt.Clock ? Min(ScrX-4,X2):X2;
+  int TitleX2=Opt.Clock && !Opt.ShowMenuBar ? Min(ScrX-4,X2):X2;
   int TruncSize=TitleX2-X1-3;
   if (!Opt.ShowColumnTitles && Opt.ShowSortMode && Filter!=NULL && Filter->IsEnabled())
     TruncSize-=2;
@@ -332,7 +335,7 @@ void FileList::ShowFileList(int Fast)
   }
   Length=strlen(Title);
   int ClockCorrection=FALSE;
-  if (Opt.Clock && TitleX2==ScrX-4)
+  if ((Opt.Clock && !Opt.ShowMenuBar) && TitleX2==ScrX-4)
   {
     ClockCorrection=TRUE;
     TitleX2+=4;
