@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.83 22.04.2001 $ */
+/* Revision: 1.84 23.04.2001 $ */
 
 /*
 Modify:
+  23.04.2001 SVS
+   - Забыл послать месаг DN_EDITCHANGE при выборе из хистори.
   22.04.2001 SVS
    + DIF_SHOWAMPERSAND для DI_BUTTON, DI_CHECKBOX, DI_RADIOBUTTON
   16.04.2001 SVS
@@ -2136,6 +2138,7 @@ int Dialog::ProcessKey(int Key)
         }
         CurEditLine->GetString(PStr,sizeof(MaxLen));
         SelectFromEditHistory(CurEditLine,Item[FocusPos].History,PStr,MaxLen);
+        Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,FocusPos,0);
         if(Item[FocusPos].Flags&DIF_VAREDIT)
           free(PStr);
       }
