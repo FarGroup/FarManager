@@ -24,11 +24,13 @@ keys.hpp
 */
 #endif // END FAR_USE_INTERNALS
 
-/* Revision: 1.19 08.01.2002 $ */
+/* Revision: 1.20 01.04.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
 Modify:
+  01.04.2002 SVS
+    ! Вместо KEY_FOCUS_CHANGED заведем KEY_KILLFOCUS и KEY_GOTFOCUS.
   08.01.2002 SVS
     ! Вместо 2001 вставлен макрос "<%YEAR%>"
   21.12.2001 SVS
@@ -190,8 +192,9 @@ enum BaseDefKeyboard
   KEY_DRAGMOVE             =0x00001004,
   KEY_LOCKSCREEN           =0x00001005,
 
-  KEY_FOCUS_CHANGED        =0x00001006,
-  KEY_CONSOLE_BUFFER_RESIZE=0x00001007,
+  KEY_KILLFOCUS            =0x00001006,
+  KEY_GOTFOCUS             =0x00001007,
+  KEY_CONSOLE_BUFFER_RESIZE=0x00001008,
 #endif // END FAR_USE_INTERNALS
   KEY_END_SKEY             =0x0000FFFF,
   KEY_LAST_BASE            =KEY_END_SKEY,

@@ -5,10 +5,12 @@ Keybar
 
 */
 
-/* Revision: 1.13 03.03.2002 $ */
+/* Revision: 1.14 01.04.2002 $ */
 
 /*
 Modify:
+  01.04.2002 SVS
+    ! ¬место KEY_FOCUS_CHANGED заведем KEY_KILLFOCUS и KEY_GOTFOCUS.
   03.03.2002 SVS
     ! «ачем делать лишние телодвижени€, когда все за один раз можно сделать.
   27.09.2001 IS
@@ -204,7 +206,8 @@ int KeyBar::ProcessKey(int Key)
 {
   switch (Key)
   {
-    case KEY_FOCUS_CHANGED:
+    case KEY_KILLFOCUS:
+    case KEY_GOTFOCUS:
       RedrawIfChanged();
       return(TRUE);
   } /* switch */
@@ -299,7 +302,10 @@ void KeyBar::RedrawIfChanged()
   if (ShiftPressed!=ShiftState ||
       CtrlPressed!=CtrlState ||
       AltPressed!=AltState)
+  {
+    //_SVS("KeyBar::RedrawIfChanged()");
     Redraw();
+  }
 }
 
 

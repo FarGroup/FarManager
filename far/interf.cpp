@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.51 28.03.2002 $ */
+/* Revision: 1.52 01.04.2002 $ */
 
 /*
 Modify:
+  01.04.2002 SVS
+    ! Про заголовок
   28.03.2002 SVS
     + ClearScreen()
   22.03.2002 SVS
@@ -1046,14 +1048,18 @@ void SetFarTitle(const char *Title)
 {
   static char FarTitle[2*NM];
   char OldFarTitle[2*NM];
+//_SVS(SysLog("SetFarTitle('%s')",Title));
   GetConsoleTitle(OldFarTitle,sizeof(OldFarTitle));
   if(Title)
   {
-    sprintf(FarTitle,"%.256s - Far",Title);
+    sprintf(FarTitle,"%.256s%s",Title,FarTitleAddons);
     if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
       OemToChar(FarTitle,FarTitle);
     if(strcmp(OldFarTitle,FarTitle) && !CtrlObject->Macro.IsDsableOutput())
+    {
+     //_SVS(SysLog("  FarTitle='%s'",FarTitle));
       SetConsoleTitle(FarTitle);
+    }
   }
   else
   {
@@ -1063,6 +1069,7 @@ void SetFarTitle(const char *Title)
       Этот вызов имеет право делать только макро-движок!
     */
     SetConsoleTitle(FarTitle);
+     //_SVS(SysLog("  (NULL)FarTitle='%s'",FarTitle));
   }
 }
 

@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.67 19.03.2002 $ */
+/* Revision: 1.68 01.04.2002 $ */
 
 /*
 Modify:
+  01.04.2002 SVS
+    ! Вместо KEY_FOCUS_CHANGED заведем KEY_KILLFOCUS и KEY_GOTFOCUS.
   19.03.2002 SVS
     - BugZ#364 - alt+break
   12.03.2002 VVM
@@ -344,8 +346,9 @@ static struct TFKey3 ModifKeyName[]={
 #if defined(SYSLOG)
 static struct TFKey3 SpecKeyName[]={
   { KEY_CONSOLE_BUFFER_RESIZE,19, "ConsoleBufferResize"},
-  { KEY_FOCUS_CHANGED        ,12, "FocusChanged"},
   { KEY_LOCKSCREEN           ,10, "LockScreen"},
+  { KEY_KILLFOCUS             ,9, "KillFocus"},
+  { KEY_GOTFOCUS              ,8, "GotFocus"},
   { KEY_DRAGCOPY             , 8, "DragCopy"},
   { KEY_DRAGMOVE             , 8, "DragMove"},
   { KEY_NONE                 , 4, "None"},
@@ -609,7 +612,7 @@ int GetInputRecord(INPUT_RECORD *rec)
     ReadConsoleInput(hConInp,rec,1,&ReadCount);
 #endif
     rec->EventType=KEY_EVENT;
-    return(KEY_FOCUS_CHANGED);
+    return(rec->Event.FocusEvent.bSetFocus?KEY_GOTFOCUS:KEY_KILLFOCUS);
     /* VVM $ */
   }
   if (rec->EventType==KEY_EVENT)

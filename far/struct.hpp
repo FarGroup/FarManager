@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.84 18.03.2002 $ */
+/* Revision: 1.85 01.04.2002 $ */
 
 /*
 Modify:
+  01.04.2002 SVS
+    + struct NowellOptions
   18.03.2002 SVS
     ! Опции, ответственные за диалоги вынесены в отдельную
       структуру DialogsOptions
@@ -408,6 +410,9 @@ struct DialogsOptions{
   DWORD SelectedType;       // позволяет управлять выделением в строках ввода в диалогах.
 };
 
+struct NowellOptions{
+  int MoveRO;               // перед операцией Move снимать R/S/H атрибуты, после переноса - выставлять обратно
+};
 
 struct Options
 {
@@ -722,6 +727,7 @@ struct Options
 
   struct DialogsOptions Dialogs;
   struct PoliciesOptions Policies;
+  struct NowellOptions Nowell;
 };
 
 

@@ -7,10 +7,12 @@ class ShellCopy - Копирование файлов
 
 */
 
-/* Revision: 1.17 28.03.2002 $ */
+/* Revision: 1.18 01.04.2002 $ */
 
 /*
 Modify:
+  01.04.2002 SVS
+    ! Косметика ;-)
   28.03.2002 SVS
     ! Немного const
   02.03.2002 KM
@@ -96,8 +98,19 @@ class ShellCopy
   private:
     DWORD Flags;
 
-    Panel *SrcPanel,*AnotherPanel;
-    int PanelMode,SrcPanelMode;
+    Panel *SrcPanel;
+    int    SrcPanelMode;
+    int    SrcDriveType;
+    char   SrcDriveRoot[NM];
+    char   SrcFSName[16];
+    DWORD  SrcFSFlags;
+
+    Panel *DestPanel;
+    int    DestPanelMode;
+    int    DestDriveType;
+    char   DestDriveRoot[NM];
+    char   DestFSName[16];
+    DWORD  DestFSFlags;
 
     char sddata[16000]; // Security
 
@@ -113,17 +126,22 @@ class ShellCopy
     clock_t StopTime;
     /* VVM $ */
 
-    char RenamedName[NM],CopiedName[NM];
+    char RenamedName[NM];
+    char CopiedName[NM];
+
     /* $ 02.03.2002 KM
       + Новое свойство SkipMode - для пропуска при копировании
         залоченных файлов.
     */
-    int OvrMode,ReadOnlyOvrMode,ReadOnlyDelMode,SkipMode;
+    int OvrMode;
+    int ReadOnlyOvrMode;
+    int ReadOnlyDelMode;
+    int SkipMode;
     /* KM $ */
+
     long TotalFiles;
-    int SrcDriveType;
-    char SrcDriveRoot[NM];
     int SelectedFolderNameLength;
+
     UserDefinedList DestList; // хранение списка целей
 
   private:
@@ -131,23 +149,23 @@ class ShellCopy
     COPY_CODES ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,char *Dest,
                                 int KeepPathPos,int Rename);
     COPY_CODES CheckStreams(const char *Src,const char *DestPath);
-    int ShellCopyFile(char *SrcName,WIN32_FIND_DATA *SrcData,char *DestName,
-                      DWORD DestAttr,int Append);
-    int ShellSystemCopy(char *SrcName,char *DestName,WIN32_FIND_DATA *SrcData);
+    int  ShellCopyFile(char *SrcName,WIN32_FIND_DATA *SrcData,char *DestName,
+                       DWORD DestAttr,int Append);
+    int  ShellSystemCopy(char *SrcName,char *DestName,WIN32_FIND_DATA *SrcData);
     void ShellCopyMsg(char *Src,char *Dest,int Flags);
-    int ShellCopyConvertWildcards(char *Src,char *Dest);
-    int DeleteAfterMove(const char *Name,int Attr);
+    int  ShellCopyConvertWildcards(char *Src,char *Dest);
+    int  DeleteAfterMove(const char *Name,int Attr);
     void SetDestDizPath(const char *DestPath);
-    int AskOverwrite(WIN32_FIND_DATA *SrcData,char *DestName,
-        DWORD DestAttr,int SameName,int Rename,int AskAppend,
-        int &Append,int &RetCode);
-    int GetSecurity(char *FileName,SECURITY_ATTRIBUTES *sa);
-    int SetSecurity(char *FileName,SECURITY_ATTRIBUTES *sa);
-    int IsSameDisk(const char *SrcPath,const char *DestPath);
+    int  AskOverwrite(WIN32_FIND_DATA *SrcData,char *DestName,
+                      DWORD DestAttr,int SameName,int Rename,int AskAppend,
+                      int &Append,int &RetCode);
+    int  GetSecurity(char *FileName,SECURITY_ATTRIBUTES *sa);
+    int  SetSecurity(char *FileName,SECURITY_ATTRIBUTES *sa);
+    int  IsSameDisk(const char *SrcPath,const char *DestPath);
     bool CalcTotalSize();
-    int CmpFullNames(const char *Src,const char *Dest);
+    int  CmpFullNames(const char *Src,const char *Dest);
     BOOL LinkRules(DWORD *Flags7,DWORD* Flags5,int* Selected5,char *SrcDir,char *DstDir,struct CopyDlgParam *CDP);
-    int ShellSetAttr(const char *Dest,DWORD Attr);
+    int  ShellSetAttr(const char *Dest,DWORD Attr);
 
   public:
     ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
@@ -158,7 +176,7 @@ class ShellCopy
     static void ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar);
     static void ShowTitle(int FirstTime);
     static long WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
-    static int MkSymLink(const char *SelName,const char *Dest,DWORD Flags);
+    static int  MkSymLink(const char *SelName,const char *Dest,DWORD Flags);
     static void PR_ShellCopyMsg(void);
 };
 

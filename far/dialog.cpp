@@ -5,10 +5,17 @@ dialog.cpp
 
 */
 
-/* Revision: 1.223 26.03.2002 $ */
+/* Revision: 1.224 01.04.2002 $ */
 
 /*
 Modify:
+  01.04.2002 SVS
+    - DN_CLOSE два раза приваливало, когда жмакали на пимпу.
+    + При потере/получении фокуса консольным окном произведем уведомление
+      обработчика о столь радостном событии.
+    - BugZ#388 - DI_EDITCHANGE
+       Есть подозрение, что DI_EDITCHANGE посылается даже для
+       таких безобидных команд, как Ctrl-Ins.
   26.03.2002 SVS
     * проблемы с цветами в строках ввода - конфликт между unchanged и disabled.
    .! В строках ввода в диалоге для клавишь IsNavKey() не кидаем
@@ -2470,6 +2477,12 @@ int Dialog::ProcessKey(int Key)
     return(FALSE);
   }
 
+  if(Key == KEY_KILLFOCUS || Key == KEY_GOTFOCUS)
+  {
+    DlgProc((HANDLE)this,Key == KEY_KILLFOCUS?DN_KILLFOCUS:DN_GOTFOCUS,-1,0);
+    return(FALSE);
+  }
+
   /* $ 31.07.2000 tran
      + перемещение диалога по экрану */
   if (DialogMode.Check(DMODE_DRAGGED)) // если диалог таскается
@@ -2781,6 +2794,7 @@ int Dialog::ProcessKey(int Key)
         /* DJ $ */
         /* SVS $ */
         /* SVS $ */
+        return(TRUE);
       }
 #if 0
       else if(IsEdit(Type) || DialogMode.Check(DMODE_OLDSTYLE))
@@ -3417,11 +3431,11 @@ int Dialog::ProcessKey(int Key)
                 free(PStr);
             }
             /* SVS 03.12.2000 $ */
-            if(IsNavKey(Key)) //???????????????????????????????????????????
+            if(!IsNavKey(Key)) //???????????????????????????????????????????
               Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,FocusPos,0);
             /* SVS $ */
   //          if(RedrawNeed)
-              Redraw(); // Перерисовка должна идти после DN_EDITCHANGE (imho)
+            Redraw(); // Перерисовка должна идти после DN_EDITCHANGE (imho)
             return(TRUE);
           }
         }

@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.133 26.03.2002 $ */
+/* Revision: 1.134 01.04.2002 $ */
 
 /*
 Modify:
+  01.04.2002 SVS
+    + struct NowellOptions
   26.03.2002 IS
     ! Убрано считывание Opt.LCIDSort (оно считывается непосредственно перед
       использованием).
@@ -431,6 +433,7 @@ const char NKeyEditor[]="Editor";
 const char NKeyXLat[]="XLat";
 const char NKeySystem[]="System";
 const char NKeySystemExecutor[]="System\\Executor";
+const char NKeySystemNowell[]="System\\Nowell";
 const char NKeyHelp[]="Help";
 const char NKeyLanguage[]="Language";
 const char NKeyConfirmations[]="Confirmations";
@@ -1328,6 +1331,8 @@ static struct FARConfig{
   {0, REG_SZ,     NKeySystem,"QuotedSymbols",Opt.QuotedSymbols,sizeof(Opt.QuotedSymbols)," &+,"},
   //{0, REG_DWORD,  NKeySystem,"CPAJHefuayor",&Opt.CPAJHefuayor,0, 0},
   {0, REG_DWORD,  NKeySystem,"CloseConsoleRule",&Opt.CloseConsoleRule,1, 0},
+
+  {0, REG_DWORD,  NKeySystemNowell,"MoveRO",&Opt.Nowell.MoveRO,1, 0},
 
   {0, REG_DWORD,  NKeySystemExecutor,"RestoreCP",&Opt.RestoreCPAfterExecute,1, 0},
 

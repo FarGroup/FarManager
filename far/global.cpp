@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.36 30.03.2002 $ */
+/* Revision: 1.37 01.04.2002 $ */
 
 /*
 Modify:
+  01.04.2002 SVS
+    ! Про заголовок - FarTitleAddons
   30.03.2002 OT
     - После исправления бага №314 (патч 1250) отвалилось закрытие
       фара по кресту.
@@ -200,3 +202,5 @@ const char DOS_EOL_fmt[]  ="\r\n",
 int OnliEditorViewerUsed=FALSE;
 
 BOOL ProcessException=FALSE;
+
+const char *FarTitleAddons=" - Far";

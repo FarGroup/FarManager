@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.36 30.03.2002 $ */
+/* Revision: 1.37 01.04.2002 $ */
 
 /*
 Modify:
+  01.04.2002 SVS
+    ! Про заголовок - FarTitleAddons
   30.03.2002 OT
     - После исправления бага №314 (патч 1250) отвалилось закрытие
       фара по кресту.
@@ -213,5 +215,7 @@ extern const char DOS_EOL_fmt[], UNIX_EOL_fmt[], MAC_EOL_fmt[];
 extern int OnliEditorViewerUsed;
 
 extern BOOL ProcessException;
+
+extern const char *FarTitleAddons;
 
 #endif  // __FARGLOBAL_HPP__
