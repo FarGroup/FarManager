@@ -10,7 +10,7 @@
   Plugin API for FAR Manager 1.70
 
   Copyright (c) 1996-2000 Eugene Roshal
-  Copyrigth (c) 2000-<%YEAR%> FAR group
+  Copyright (c) 2000-<%YEAR%> FAR group
 */
 /* Revision: 1.184 30.01.2002 $ */
 
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  30.01.2002 DJ
+    ! _FAR_NO_NAMELESS_UNIONS
   30.01.2002 DJ
     + ACTL_GETDESCSETTINGS, FarDescriptionSettings
     ! DM_SETLISTMOUSEREACTION -> DM_LISTSETMOUSEREACTION
@@ -671,6 +673,16 @@ Modify:
 
 #define NM 260
 
+#ifdef FAR_USE_INTERNALS
+#define _FAR_NO_NAMELESS_UNIONS
+#else // ELSE FAR_USE_INTERNALS
+// To ensure compatibility of plugin.hpp with compilers not supporting C++,
+// you can #define _FAR_NO_NAMELESS_UNIONS. In this case, to access,
+// for example, the Data field of the FarDialogItem structure
+//  you will need to use Data.Data, and the Selected field - Param.Selected
+//#define _FAR_NO_NAMELESS_UNIONS
+#endif // END FAR_USE_INTERNALS
+
 #ifndef _WINCON_
 typedef struct _INPUT_RECORD INPUT_RECORD;
 typedef struct _CHAR_INFO    CHAR_INFO;
@@ -978,7 +990,11 @@ struct FarDialogItem
     const char *Mask;
     struct FarList *ListItems;
     CHAR_INFO *VBuf;
-  } Param;
+  }
+#ifdef _FAR_NO_NAMELESS_UNIONS
+  Param
+#endif
+  ;
   DWORD Flags;
   int DefaultButton;
   union
@@ -992,7 +1008,11 @@ struct FarDialogItem
       char *PtrData;
       char  PtrTail[1];
     } Ptr;
-  } Data;
+  }
+#ifdef _FAR_NO_NAMELESS_UNIONS
+  Data
+#endif
+  ;
 };
 
 struct FarDialogItemData
