@@ -139,7 +139,7 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
     FilesNumber = MainHeader.nFiles;
   UnpVer=MainHeader.versionMajor*256+MainHeader.versionMinor;
 
-  if( FilesNumber && (MainHeader.flags & 1) )
+  while (FilesNumber && (MainHeader.flags & 1))
   {
     char *EndPos;
     struct CFFILE FileHeader;
@@ -161,6 +161,7 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
     else
     {
       SetFilePointer( ArcHandle, 0 - ReadSize, NULL, FILE_CURRENT );
+      break;
     }
   }
 ///
@@ -255,10 +256,10 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     /*Lock archive          */"",
     /*Protect archive       */"",
     /*Recover archive       */"",
-    /*Add files             */"MsCab -i0 -dirs {-ap%%R} {-p%%P} {%%S} a %%A @%%LNA",
-    /*Move files            */"MsCab -i0 -dirs {-ap%%R} {-p%%P} {%%S} m %%A @%%LNA",
-    /*Add files and folders */"MsCab -r0 -i0 -dirs {-ap%%R} {-p%%P} {%%S} a %%A @%%LNA",
-    /*Move files and folders*/"MsCab -r0 -i0 -dirs {-ap%%R} {-p%%P} {%%S} m %%A @%%LNA",
+    /*Add files             */"MsCab -i0 -dirs {-ap%%R} {-p%%P} {%%S} a %%A @%%LNMA",
+    /*Move files            */"MsCab -i0 -dirs {-ap%%R} {-p%%P} {%%S} m %%A @%%LNMA",
+    /*Add files and folders */"MsCab -r0 -i0 -dirs {-ap%%R} {-p%%P} {%%S} a %%A @%%LNMA",
+    /*Move files and folders*/"MsCab -r0 -i0 -dirs {-ap%%R} {-p%%P} {%%S} m %%A @%%LNMA",
     /*"All files" mask      */"*"
     };
     if (Command < sizeof(Commands)/sizeof(Commands[0]))
