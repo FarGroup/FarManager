@@ -1324,4 +1324,6 @@
 "This function is available in registered version only"
 "available in registered version"
 
+"Time: %8s Left: %8s  %5d%sb/s"
+
 "Evaluation version"

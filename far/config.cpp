@@ -5,10 +5,13 @@ config.cpp
 
 */
 
-/* Revision: 1.45 22.01.2001 $ */
+/* Revision: 1.46 30.01.2001 $ */
 
 /*
 Modify:
+  30.01.2001 VVM
+    + Показывает время копирования,оставшееся время и среднюю скорость.
+      Зависит от настроек в реестре CopyTimeRule 
   22.01.2001 SVS
     + Opt.CursorSize - Размер курсора ФАРа :-)
   19.01.2001 SVS
@@ -1055,6 +1058,11 @@ void ReadConfig()
   GetRegKey("KeyMacros","MacroReuseRules",Opt.MacroReuseRules,0);
   /* SVS $ */
 
+  /* $ 30.01.2001 VVM
+    + Показывает время копирования,оставшееся время и среднюю скорость.
+      Зависит от настроек в реестре CopyTimeRule */
+  GetRegKey("System", "CopyTimeRule", Opt.CopyTimeRule, 0);
+  /* VVM $ */
 
   FileList::ReadPanelModes();
   GetTempPath(sizeof(Opt.TempPath),Opt.TempPath);

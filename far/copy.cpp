@@ -5,10 +5,13 @@ copy.cpp
 
 */
 
-/* Revision: 1.18 25.01.2001 $ */
+/* Revision: 1.19 30.01.2001 $ */
 
 /*
 Modify:
+  30.01.2001 VVM
+    + Показывает время копирования,оставшееся время и среднюю скорость.
+      Зависит от настроек в реестре CopyTimeRule
   25.01.2001 IS
     - Не очень правильно обрезалось имя в диалоге копирования/перемещения
   17.01.2001 SVS
@@ -69,6 +72,17 @@ Modify:
 /* IS $ */
 
 #define COPY_BUFFER_SIZE 0x10000
+
+/* $ 30.01.2001 VVM
+   + Константы для правил показа
+   + Рабочие перменные */
+#define COPY_RULE_NUL   0x0001;
+#define COPY_RULE_FILES 0x0002;
+
+static int ShowCopyTime;
+static clock_t CopyStartTime;
+static clock_t LastShowTime;
+/* VVM $ */
 
 static DWORD WINAPI CopyProgressRoutine(LARGE_INTEGER TotalFileSize,
        LARGE_INTEGER TotalBytesTransferred,LARGE_INTEGER StreamSize,
@@ -382,6 +396,15 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
   if (SelCount==1 && Move && strpbrk(CopyDlg[2].Data,":\\")==NULL)
     ShowTotalCopySize=FALSE;
 
+/* $ 30.01.2001 VVM
+    + Определем, нужно ли показывать время копирования
+      Зависит от настроек в реестре CopyTimeRule */
+  if (CopyToNUL) {
+    ShowCopyTime = Opt.CopyTimeRule & COPY_RULE_NUL; }
+  else {
+    ShowCopyTime = Opt.CopyTimeRule & COPY_RULE_FILES; }
+/* VVM $ */
+
   CopyFileTree(CopyDlg[2].Data);
 
   SetConsoleTitle(OldTitle);
@@ -430,6 +453,13 @@ void ShellCopy::CopyFileTree(char *Dest)
   *TotalCopySizeText=0;
   if (ShowTotalCopySize && !CalcTotalSize())
     return;
+
+/* $ 30.01.2001 VVM
+    + Запомним время начала. */
+  if (ShowCopyTime)
+    CopyStartTime = clock();
+  LastShowTime = 0;
+/* VVM $ */
 
   ShellCopyMsg("","",MSG_LEFTALIGN);
 
@@ -987,7 +1017,18 @@ void ShellCopy::ShellCopyMsg(char *Src,char *Dest,int Flags)
     *FilesStr=0;
   }
   else
+  {
     sprintf(FilesStr,MSG(MCopyProcessed),TotalFiles);
+    /* $ 30.01.2001 VVM
+        + Запомнить время начала.
+          Работает для каждого файла при выключенном ShowTotalIndicator  */
+    if ((Src!=NULL) && (ShowCopyTime))
+    {
+      CopyStartTime = clock();
+      LastShowTime = 0;
+    }
+    /* VVM $ */
+  }
 
   if (Src!=NULL)
   {
@@ -1001,11 +1042,23 @@ void ShellCopy::ShellCopyMsg(char *Src,char *Dest,int Flags)
   if (Src==NULL)
     Message(Flags,0,Move ? MSG(MMoveDlgTitle):MSG(MCopyDlgTitle),"",MSG(MCopyScanning),DestName,"","",BarStr,"");
   else
+/* $ 30.01.2001 VVM
+    + Показывает время копирования,оставшееся время и среднюю скорость. */
     if (Move)
-      Message(Flags,0,MSG(MMoveDlgTitle),MSG(MCopyMoving),SrcName,MSG(MCopyTo),DestName,"",BarStr,FilesStr);
+    {
+      if (ShowCopyTime)
+        Message(Flags,0,MSG(MMoveDlgTitle),MSG(MCopyMoving),SrcName,MSG(MCopyTo),DestName,"",BarStr,FilesStr,BarStr,"");
+      else
+        Message(Flags,0,MSG(MMoveDlgTitle),MSG(MCopyMoving),SrcName,MSG(MCopyTo),DestName,"",BarStr,FilesStr);
+    }
     else
-      Message(Flags,0,MSG(MCopyDlgTitle),MSG(MCopyCopying),SrcName,MSG(MCopyTo),DestName,"",BarStr,FilesStr);
-
+    {
+      if (ShowCopyTime)
+        Message(Flags,0,MSG(MCopyDlgTitle),MSG(MCopyCopying),SrcName,MSG(MCopyTo),DestName,"",BarStr,FilesStr,BarStr,"");
+      else
+        Message(Flags,0,MSG(MCopyDlgTitle),MSG(MCopyCopying),SrcName,MSG(MCopyTo),DestName,"",BarStr,FilesStr);
+    }
+/* VVM $ */
   int MessageX1,MessageY1,MessageX2,MessageY2;
   GetMessagePosition(MessageX1,MessageY1,MessageX2,MessageY2);
   BarX=MessageX1+5;
@@ -1444,9 +1497,26 @@ int ShellCopy::ShellCopyFile(char *SrcName,WIN32_FIND_DATA *SrcData,
   return(COPY_SUCCESS);
 }
 
+/* $ 30.01.2001 VVM
+    + Перевод секунд в текст */
+void static GetTimeText(int Time, char *TimeText)
+{
+  int Sec = Time;
+  int Min = Sec/60;
+  Sec-=(Min * 60);
+  int Hour = Min/24;
+  Min-=(Hour*24);
+  sprintf(TimeText,"%02d:%02d:%02d",Hour,Min,Sec);
+}
+/* VVM $ */
 
 void ShellCopy::ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar)
 {
+/* $ 30.01.2001 VVM
+    + Запомнить размеры */
+  int64 OldWrittenSize = WrittenSize;
+  int64 OldTotalSize = TotalSize;
+/* VVM $ */
   WrittenSize=WrittenSize>>8;
   TotalSize=TotalSize>>8;
 
@@ -1468,6 +1538,45 @@ void ShellCopy::ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar)
   SetColor(COL_DIALOGTEXT);
   GotoXY(BarX,BarY+(TotalBar ? 2:0));
   Text(ProgressBar);
+/* $ 30.01.2001 VVM
+    + Показывает время копирования,оставшееся время и среднюю скорость. */
+  if (ShowCopyTime && 
+      (!ShowTotalCopySize || TotalBar) && 
+      (clock() - LastShowTime > 1000))
+  {
+    LastShowTime = clock();
+    int WorkTime = (clock() - CopyStartTime)/1000;
+    int64 SizeLeft = OldTotalSize - OldWrittenSize;
+
+    int TimeLeft;
+    char TimeStr[100];
+    char c[2];
+
+    if (OldTotalSize == 0 || WorkTime == 0)
+      sprintf(TimeStr,MSG(MCopyTimeInfo), " ", " ", 0, " ");
+    else
+    {
+      int CPS = (OldWrittenSize/WorkTime).LowPart;
+      TimeLeft = (CPS)?(SizeLeft/CPS).LowPart:0;
+      strcpy(c," ");
+      if (CPS > 99999) {
+        strcpy(c,"K");
+        CPS = CPS/1024;
+      }
+      if (CPS > 99999) {
+        strcpy(c,"M");
+        CPS = CPS/1024;
+      }
+      char WorkTimeStr[12];
+      char TimeLeftStr[12];
+      GetTimeText(WorkTime, WorkTimeStr);
+      GetTimeText(TimeLeft, TimeLeftStr);
+      sprintf(TimeStr,MSG(MCopyTimeInfo), WorkTimeStr, TimeLeftStr, CPS, c);
+    }
+    GotoXY(BarX,BarY+4);
+    Text(TimeStr);
+  }
+/* VVM $ */
 }
 
 

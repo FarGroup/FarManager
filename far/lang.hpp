@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.46 28.01.2001 $ */
+/* Revision: 1.47 30.01.2001 $ */
 
 /*
 Modify:
+  30.01.2001 VVM
+    + MCopyTimeInfo
   28.01.2001 SVS
     + MAbort,  MIgnore
   25.01.2001 SVS
@@ -1443,7 +1445,10 @@ enum
   MRegOnly,
   MRegOnlyShort,
 
+  MCopyTimeInfo,
+
   MListEval
+
 };
 
 #endif	// __FARLANG_HPP__
