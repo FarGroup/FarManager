@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.145 31.07.2003 $ */
+/* Revision: 1.146 06.10.2003 $ */
 
 /*
 Modify:
+  06.10.2003 SVS
+    ! PluginsSet::ProcessEditorEvent() и PluginsSet::ProcessViewerEvent() возвращают значение типа int
   31.07.2003 SVS
     ! Оставим CurPluginItem только для OpenPlugin. Есть подозрения что...
   22.07.2003 SVS
@@ -1705,12 +1707,12 @@ int PluginsSet::ProcessEditorInput(INPUT_RECORD *Rec)
 }
 
 
-void PluginsSet::ProcessEditorEvent(int Event,void *Param)
+int PluginsSet::ProcessEditorEvent(int Event,void *Param)
 {
   _ALGO(CleverSysLog clv("PluginsSet::ProcessEditorEvent()"));
   _ALGO(SysLog("Params: Event=%s, Param=%s",_EE_ToName(Event),_EEREDRAW_ToName((int)Param)));
   _ECTLLOG(CleverSysLog Clev("PluginsSet::ProcessEditorEvent()"));
-  int Ret;
+  int Ret=0;
   //EXCEPTION_POINTERS *xp;
   if(CtrlObject->Plugins.CurEditor)
   {
@@ -1741,25 +1743,28 @@ void PluginsSet::ProcessEditorEvent(int Event,void *Param)
       }
     }
   }
+  return Ret;
 }
 
 
 /* $ 27.09.2000 SVS
    События во вьювере
 */
-void PluginsSet::ProcessViewerEvent(int Event,void *Param)
+int PluginsSet::ProcessViewerEvent(int Event,void *Param)
 {
   _ALGO(CleverSysLog clv("PluginsSet::ProcessViewerEvent()"));
   //EXCEPTION_POINTERS *xp;
   struct PluginItem *PData=PluginsData;
+  int Ret=0;
   for (int I=0;I<PluginsCount;I++,PData++)
+  {
     if (PData->pProcessViewerEvent && PreparePlugin(I) && !ProcessException)
     {
       PData->FuncFlags.Set(PICFF_PROCESSVIEWEREVENT);
       if(Opt.ExceptRules)
       {
         TRY {
-          PData->pProcessViewerEvent(Event,Param);
+          Ret=PData->pProcessViewerEvent(Event,Param);
         }
         EXCEPT(xfilter(EXCEPT_PROCESSVIEWEREVENT,GetExceptionInformation(),PData,1))
         {
@@ -1768,9 +1773,11 @@ void PluginsSet::ProcessViewerEvent(int Event,void *Param)
         }
       }
       else
-        PData->pProcessViewerEvent(Event,Param);
+        Ret=PData->pProcessViewerEvent(Event,Param);
       PData->FuncFlags.Clear(PICFF_PROCESSVIEWEREVENT);
     }
+  }
+  return Ret;
 }
 /* SVS $ */
 

@@ -5,10 +5,16 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.40 26.09.2003 $ */
+/* Revision: 1.41 06.10.2003 $ */
 
 /*
 Modify:
+  06.10.2003 SVS
+    - BugZ#964 - Ћожное сообщение об Access Denied
+      Ќе передавались атрибуты "файла"
+    ! FileList::CreatePluginItemList() имеет доп.параметр - "добавл€ть '..'?"
+      по умолчанию - "добавл€ть".
+      ¬ FileList::PluginGetPanelInfo() этот параметр = FALSE ("не добавл€ть")
   26.09.2003 SVS
     - BugZ#886 - FAR неверно реагирует на смену типа панели на лету.
   04.09.2003 SVS
@@ -386,7 +392,7 @@ HANDLE FileList::OpenPluginForFile(char *FileName,DWORD FileAttr)
 }
 
 
-void FileList::CreatePluginItemList(struct PluginPanelItem *(&ItemList),int &ItemNumber)
+void FileList::CreatePluginItemList(struct PluginPanelItem *(&ItemList),int &ItemNumber,BOOL AddTwoDot)
 {
   if (!ListData)
     return;
@@ -408,7 +414,7 @@ void FileList::CreatePluginItemList(struct PluginPanelItem *(&ItemList),int &Ite
         ItemNumber++;
       }
 
-    if(!ItemNumber && (FileAttr & FA_DIREC)) // это про ".."
+    if(AddTwoDot && !ItemNumber && (FileAttr & FA_DIREC)) // это про ".."
     {
       strcpy(ItemList->FindData.cFileName,ListData->Name);
       ItemList->FindData.dwFileAttributes=ListData->FileAttr;
@@ -665,7 +671,7 @@ void FileList::PluginHostGetFiles()
   {
     HANDLE hCurPlugin;
     _ALGO(SysLog("call OpenPluginForFile('%s')",NullToEmpty(SelName)));
-    if ((hCurPlugin=OpenPluginForFile(SelName))!=INVALID_HANDLE_VALUE &&
+    if ((hCurPlugin=OpenPluginForFile(SelName,FileAttr))!=INVALID_HANDLE_VALUE &&
         hCurPlugin!=(HANDLE)-2)
     {
       struct PluginPanelItem *ItemList;
@@ -974,7 +980,7 @@ void FileList::PluginGetPanelInfo(struct PanelInfo *Info,int FullInfo)
     DataToDelete[DataToDeleteCount]=Info->PanelItems;
     DataSizeToDelete[DataToDeleteCount++]=Info->ItemsNumber;
 
-    CreatePluginItemList(Info->SelectedItems,Info->SelectedItemsNumber);
+    CreatePluginItemList(Info->SelectedItems,Info->SelectedItemsNumber,FALSE);
 
     DataToDelete[DataToDeleteCount]=Info->SelectedItems;
     DataSizeToDelete[DataToDeleteCount++]=Info->SelectedItemsNumber;

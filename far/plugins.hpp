@@ -7,10 +7,12 @@ plugins.hpp
 
 */
 
-/* Revision: 1.30 15.07.2003 $ */
+/* Revision: 1.31 06.10.2003 $ */
 
 /*
 Modify:
+  06.10.2003 SVS
+    ! PluginsSet::ProcessEditorEvent() и PluginsSet::ProcessViewerEvent() возвращают значение типа int
   15.07.2003 SVS
     + CurPluginItem - NULL или указатель на текущий плагин
   21.04.2003 SVS
@@ -298,8 +300,8 @@ class PluginsSet
     int ProcessEvent(HANDLE hPlugin,int Event,void *Param);
     int Compare(HANDLE hPlugin,const struct PluginPanelItem *Item1,const struct PluginPanelItem *Item2,unsigned int Mode);
     int ProcessEditorInput(INPUT_RECORD *Rec);
-    void ProcessEditorEvent(int Event,void *Param);
-    void ProcessViewerEvent(int Event,void *Param);
+    int ProcessEditorEvent(int Event,void *Param);
+    int ProcessViewerEvent(int Event,void *Param);
     void SendExit();
     char* FarGetMsg(int PluginNumber,int MsgId);
     void Configure(int StartPos=0);

@@ -5,10 +5,14 @@ execute.cpp
 
 */
 
-/* Revision: 1.88 26.09.2003 $ */
+/* Revision: 1.89 06.10.2003 $ */
 
 /*
 Modify:
+  06.10.2003 SVS
+    - BugZ#955 - Alt-F9 + Mode CON: Lines=12
+      ƒостаточно "получить" данные о размере консоли... иначе вылетаем
+      в ScrBuf.FillBuf(), там ScrY неверное значение имеет
   26.09.2003 VVM
     ! ѕри поиске файла сначала ищем по переменной PATH и только потом в остальных местах
   03.09.2003 SVS
@@ -1314,16 +1318,15 @@ int Execute(const char *CmdStr,          //  ом.строка дл€ исполнени€
       WaitForSingleObject(pi.hProcess,INFINITE);//INFINITE);
     }
 
-//    int CurScrX=ScrX,CurScrY=ScrY;
-//    ReopenConsole();
-
-//OT    GetVideoMode();
-//OT    if (CurScrX!=ScrX || CurScrY!=ScrY)
-//OT      CtrlObject->Cp()->SetScreenPositions();
     GetExitCodeProcess(pi.hProcess,(LPDWORD)&ExitCode);
     if (SeparateWindow!=2)
       CloseHandle(pi.hThread);
     CloseHandle(pi.hProcess);
+
+    {
+      CONSOLE_SCREEN_BUFFER_INFO csbi;
+      GetVideoMode(csbi);
+    }
     ScrBuf.FillBuf();
     ScrBuf.SetLockCount(PrevLockCount);
   }

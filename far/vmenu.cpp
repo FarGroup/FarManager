@@ -8,10 +8,13 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.118 26.09.2003 $ */
+/* Revision: 1.119 06.10.2003 $ */
 
 /*
 Modify:
+  06.10.2003 SVS
+    - BugZ#966 - У диалога съезжает рамка при его перещении
+      Для VMENU_LISTBOX не делаем операцию "X2=ScrX-2;"
   26.09.2003 SVS
     ! Изменения в названиях макроклавиш
   17.06.2003
@@ -634,7 +637,7 @@ void VMenu::Show()
       X2=ScrX-2;
     }
   }
-  if (X2>ScrX-2)
+  if (!VMFlags.Check(VMENU_LISTBOX) && X2>ScrX-2)
     X2=ScrX-2;
 
   if (Y1==-1)

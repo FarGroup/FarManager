@@ -7,10 +7,14 @@ filelist.hpp
 
 */
 
-/* Revision: 1.37 31.08.2003 $ */
+/* Revision: 1.38 06.10.2003 $ */
 
 /*
 Modify:
+  06.10.2003 SVS
+    ! FileList::CreatePluginItemList() имеет доп.параметр - "добавл€ть '..'?"
+      по умолчанию - "добавл€ть"
+      ¬ FileList::PluginGetPanelInfo() этот параметр = FALSE ("не добавл€ть")
   31.08.2003 SVS
     ! ¬ FileList::CountDirSize() передаетс€ 1 параметр - DWORD, флаги плагина
   11.07.2003 SVS
@@ -261,7 +265,7 @@ class FileList:public Panel
     void SelectSortMode();
     void ApplyCommand();
     void DescribeFiles();
-    void CreatePluginItemList(struct PluginPanelItem *(&ItemList),int &ItemNumber);
+    void CreatePluginItemList(struct PluginPanelItem *(&ItemList),int &ItemNumber,BOOL AddTwoDot=TRUE);
     void DeletePluginItemList(struct PluginPanelItem *(&ItemList),int &ItemNumber);
     HANDLE OpenPluginForFile(char *FileName,DWORD FileAttr=0);
     int PreparePanelView(struct PanelViewSettings *PanelView);
