@@ -5,10 +5,13 @@ filetype.cpp
 
 */
 
-/* Revision: 1.39 20.03.2002 $ */
+/* Revision: 1.40 26.03.2002 $ */
 
 /*
 Modify:
+  26.03.2002 VVM
+    ! ѕри запуске программы она не бралась в кавычки, если содержала пробелы
+    + «апускаем всегда по полному пути.
   20.03.2002 DJ
     ! если введена пуста€ маска, выдадим предупреждение, а не будем
       молча закрывать диалог
@@ -456,9 +459,11 @@ int ProcessGlobalFileTypes(char *Name,int AlwaysWaitFinish)
   }
   else
   {
-/*
     char FullName[2*NM];
-    ConvertNameToFull(Name,FullName, sizeof(FullName));
+    if (!ConvertNameToFull(Name,FullName, sizeof(FullName)))
+    // „то-ж, пробуем запускать по короткому имени...
+      strncpy(FullName,Name,sizeof(FullName)-1);
+/*
     if (FullName[0]=='\\' && FullName[1]=='\\')
       strcpy(Name,FullName);
     else
@@ -467,10 +472,9 @@ int ProcessGlobalFileTypes(char *Name,int AlwaysWaitFinish)
         sprintf(FullName,".\\%s",Name);
         strcpy(Name,FullName);
       }
-
-    QuoteSpace(Name);
 */
-    CtrlObject->CmdLine->ExecString(Name,AlwaysWaitFinish,2,FALSE);
+    QuoteSpace(FullName);
+    CtrlObject->CmdLine->ExecString(FullName,AlwaysWaitFinish,2,FALSE);
     if (!AlwaysWaitFinish)
     {
       char QuotedName[2*NM];
