@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.167 30.03.2002 $ */
+/* Revision: 1.168 04.04.2002 $ */
 
 /*
 Modify:
+  04.04.2002 IS
+    + ECTL_TURNOFFMARKINGBLOK: убрать флаг редактора "осуществляется
+      выделение блока"
   30.03.2002 IS
     - Уберем пока установление FEDITOR_WASCHANGED в Undo (см. комментарии в теле
       функции) в надежде убрать баг, когда Фар пытается запихнуть файл в архив,
@@ -5796,6 +5799,15 @@ int Editor::EditorControl(int Command,void *Param)
       }
       return FALSE;
     }
+    /* $ 04.04.2002 IS
+       Убрать флаг редактора "осуществляется выделение блока"
+    */
+    case ECTL_TURNOFFMARKINGBLOK:
+    {
+      EFlags.Skip(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+      return TRUE;
+    }
+    /* IS $ */
   }
   return(FALSE);
 }

@@ -5,10 +5,12 @@ syslog.cpp
 
 */
 
-/* Revision: 1.25 04.04.2002 $ */
+/* Revision: 1.26 04.04.2002 $ */
 
 /*
 Modify:
+  04.04.2002 IS
+    + ECTL_TURNOFFMARKINGBLOK â _ECTL_ToName
   04.04.2002 SVS
     + DN_ACTIVATEAPP
     + _ACTL_ToName()
@@ -436,6 +438,7 @@ const char *_ECTL_ToName(int Command)
     DEF_ECTL_(SAVEFILE),       DEF_ECTL_(QUIT),
     DEF_ECTL_(SETKEYBAR),      DEF_ECTL_(PROCESSKEY),
     DEF_ECTL_(SETPARAM),       DEF_ECTL_(GETBOOKMARKS),
+    DEF_ECTL_(TURNOFFMARKINGBLOK),
   };
   int I;
   static char Name[512];
