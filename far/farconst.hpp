@@ -7,10 +7,14 @@ farconst.hpp
 
 */
 
-/* Revision: 1.63 18.06.2002 $ */
+/* Revision: 1.64 14.07.2002 $ */
 
 /*
 Modify:
+  14.07.2002 IS & SVS
+    ! IS> PluginsFolderName, HelpFileMask и HelpFormatLinkModule теперь не
+      IS> "#define", а "const char *" - дл€ уменьшени€ размера данных
+      SVS> ...и переехали в global.?pp
   18.06.2002 SVS
     +  оды возврата CHECKFOLDERCONST дл€ CheckFolder()
   18.05.2002 SVS
@@ -147,12 +151,9 @@ Modify:
     ! ¬ыделение в качестве самосто€тельного модул€
 */
 
-#define PluginsFolderName "Plugins"
-#define HelpFileMask "*.hlf"
 #define HelpBeginLink '<'
 #define HelpEndLink '>'
 #define HelpFormatLink "<%s\\>%s"
-#define HelpFormatLinkModule "<%s>%s"
 
 typedef unsigned char    UBYTE;
 typedef unsigned short   UWORD;

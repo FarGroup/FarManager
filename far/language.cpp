@@ -5,10 +5,12 @@ language.cpp
 
 */
 
-/* Revision: 1.21 24.05.2002 $ */
+/* Revision: 1.22 14.07.2002 $ */
 
 /*
 Modify:
+  14.07.2002 IS
+    ! внедрение const
   24.05.2002 SKV
     - На всякий случай проверяем на NULL то, от чего вызывается delete [] в Close()
   26.03.2002 DJ
@@ -256,7 +258,7 @@ char* Language::GetMsg(int MsgId)
   return(MsgAddr[MsgId]);
 }
 
-FILE* Language::OpenLangFile(char *Path,char *Mask,char *Language,char *FileName,BOOL StrongLang)
+FILE* Language::OpenLangFile(const char *Path,const char *Mask,const char *Language,char *FileName,BOOL StrongLang)
 {
   *FileName=0;
 
@@ -347,7 +349,8 @@ int Language::GetLangParam(FILE *SrcFile,char *ParamName,char *Param1,char *Para
 
 int Language::Select(int HelpLanguage,VMenu **MenuPtr)
 {
-  char *Title,*Mask,*Dest;
+  const char *Title,*Mask;
+  char *Dest;
   if (HelpLanguage)
   {
     Title=MSG(MHelpLangTitle);

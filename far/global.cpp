@@ -5,10 +5,13 @@ global.cpp
 
 */
 
-/* Revision: 1.42 24.05.2002 $ */
+/* Revision: 1.43 14.07.2002 $ */
 
 /*
 Modify:
+  14.07.2002 SVS
+    ! новые константы PluginsFolderName, HelpFileMask, HelpFormatLinkModule
+      переехали из farconst.hpp в global.?pp
   24.05.2002 SVS
     + InGrabber, FAR_VerticalBlock
   22.05.2002 SVS
@@ -224,3 +227,7 @@ const char *FarTitleAddons=" - Far";
 const char FAR_VerticalBlock[]= "FAR_VerticalBlock";
 
 int InGrabber=FALSE;
+
+const char *PluginsFolderName="Plugins";
+const char *HelpFileMask="*.hlf";
+const char *HelpFormatLinkModule="<%s>%s";

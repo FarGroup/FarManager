@@ -10,10 +10,12 @@ help.hpp
 
 */
 
-/* Revision: 1.24 24.12.2001 $ */
+/* Revision: 1.25 14.07.2002 $ */
 
 /*
 Modify:
+  14.07.2002 IS
+    ! внедрение const
   24.12.2001 SVS
     ! HelpMask переехала в StackHelpData.
     + Математика поиска в хелпе (зачатки, серия первая)
@@ -146,9 +148,9 @@ class Help:public Frame
 
   private:
     void DisplayObject();
-    int  ReadHelp(char *Mask=NULL);
-    void AddLine(char *Line);
-    void AddTitle(char *Title);
+    int  ReadHelp(const char *Mask=NULL);
+    void AddLine(const char *Line);
+    void AddTitle(const char *Title);
     void HighlightsCorrection(char *Str);
     void FastShow();
     /* $ 29.11.2001 DJ
@@ -156,8 +158,8 @@ class Help:public Frame
     */
     void DrawWindowFrame();
     /* DJ $ */
-    void OutString(char *Str);
-    int  StringLen(char *Str);
+    void OutString(const char *Str);
+    int  StringLen(const char *Str);
     void CorrectPosition();
     int  IsReferencePresent();
     void MoveToReference(int Forward,int CurScreen);
@@ -165,7 +167,7 @@ class Help:public Frame
     int  JumpTopic(const char *JumpTopic=NULL);
 
   public:
-    Help(char *Topic,char *Mask=NULL,DWORD Flags=0);
+    Help(const char *Topic,const char *Mask=NULL,DWORD Flags=0);
     ~Help();
 
   public:

@@ -8,10 +8,15 @@ help.cpp
 
 */
 
-/* Revision: 1.71 02.07.2002 $ */
+/* Revision: 1.72 14.07.2002 $ */
 
 /*
 Modify:
+  14.07.2002 IS
+    ! внедрение const
+    ! '>' -> HelpEndLink
+    ! JumpTopic: при переходе по ссылкам используем всегда только
+      абсолютные пути, если это возможно.
   02.07.2002 SVS
     - BugZ#400 - скролбар и проблемы из-за него
   24.05.2002 SVS
@@ -287,7 +292,7 @@ static const char *HelpContents="Contents";
 
 static int RunURL(char *Protocol, char *URLPath);
 
-Help::Help(char *Topic, char *Mask,DWORD Flags)
+Help::Help(const char *Topic, const char *Mask,DWORD Flags)
 {
   /* $ OT По умолчанию все хелпы создаются статически*/
   SetDynamicallyBorn(FALSE);
@@ -399,7 +404,7 @@ void Help::Hide()
 }
 
 
-int Help::ReadHelp(char *Mask)
+int Help::ReadHelp(const char *Mask)
 {
   char FileName[NM],ReadStr[2*MAX_HELP_STRING_LENGTH];
   char SplitLine[2*MAX_HELP_STRING_LENGTH+8],*Ptr;
@@ -686,7 +691,7 @@ m1:
 }
 
 
-void Help::AddLine(char *Line)
+void Help::AddLine(const char *Line)
 {
   char *NewHelpData=(char *)realloc(HelpData,(StrCount+1)*MAX_HELP_STRING_LENGTH);
   if (NewHelpData==NULL)
@@ -696,7 +701,7 @@ void Help::AddLine(char *Line)
   StrCount++;
 }
 
-void Help::AddTitle(char *Title)
+void Help::AddTitle(const char *Title)
 {
   char IndexHelpTitle[100];
   sprintf(IndexHelpTitle,"^ #%s#",Title);
@@ -842,9 +847,10 @@ void Help::DrawWindowFrame()
 /* $ 01.09.2000 SVS
   Учтем символ CtrlColorChar & CurColor
 */
-void Help::OutString(char *Str)
+void Help::OutString(const char *Str)
 {
-  char OutStr[512],*StartTopic=NULL;
+  char OutStr[512];
+  const char *StartTopic=NULL;
   int OutPos=0,Highlight=0,Topic=0;
   while (OutPos<sizeof(OutStr)-10)
   {
@@ -983,7 +989,7 @@ void Help::OutString(char *Str)
 }
 
 
-int Help::StringLen(char *Str)
+int Help::StringLen(const char *Str)
 {
   int Length=0;
   while (*Str)
@@ -1397,6 +1403,45 @@ int Help::JumpTopic(const char *JumpTopic)
 
   if(JumpTopic)
     strcpy(StackData.SelTopic,JumpTopic);
+  /* $ 14.07.2002 IS
+       При переходе по ссылкам используем всегда только абсолютные пути,
+       если это возможно.
+  */
+  // Если ссылка на другой файл, путь относительный и есть то, от чего можно
+  // вычислить абсолютный путь, то сделаем это
+  if(*StackData.SelTopic==HelpBeginLink &&
+     NULL!=(p=strchr(StackData.SelTopic+2,HelpEndLink))&&
+     !PathMayBeAbsolute(StackData.SelTopic+1) &&
+     *StackData.HelpPath)
+  {
+    char FullPath[sizeof(NewTopic)*2];
+    strncpy(NewTopic, StackData.SelTopic+1,p-StackData.SelTopic-1);
+    strcpy(FullPath,StackData.HelpPath);
+
+    // уберем _все_ конечные слеши и добавим один
+    int Len=strlen(FullPath)-1;
+    while(Len>-1 && FullPath[Len]=='\\')
+    {
+      FullPath[Len]=0;
+      --Len;
+    }
+    if(Len<0)
+      Len=0;
+    else
+      ++Len;
+    FullPath[Len]='\\';
+    FullPath[Len+1]=0;
+
+    strcat(FullPath,NewTopic+((*NewTopic=='\\' || *NewTopic=='/')?1:0));
+    bool addSlash=DeleteEndSlash(FullPath);
+    if(ConvertNameToFull(FullPath,NewTopic,sizeof(NewTopic))<sizeof(NewTopic))
+    {
+      sprintf(FullPath,addSlash?HelpFormatLink:HelpFormatLinkModule,
+        NewTopic,p+1);
+      strncpy(StackData.SelTopic,FullPath,sizeof(StackData.SelTopic));
+    }
+  }
+  /* IS 14.07.2002 $ */
 //_SVS(SysLog("JumpTopic() = SelTopic=%s",StackData.SelTopic));
   // URL активатор - это ведь так просто :-)))
   {
@@ -1431,7 +1476,7 @@ int Help::JumpTopic(const char *JumpTopic)
   }
 
   // удалим ссылку на .DLL
-  p=strrchr(NewTopic,'>');
+  p=strrchr(NewTopic,HelpEndLink);
   if(p)
   {
     if(*(p-1) != '\\')
@@ -1446,7 +1491,7 @@ int Help::JumpTopic(const char *JumpTopic)
           {
             StackData.Flags|=FHELP_CUSTOMFILE;
             strcpy(StackData.HelpMask,p);
-            *strrchr(StackData.HelpMask,'>')=0;
+            *strrchr(StackData.HelpMask,HelpEndLink)=0;
           }
           memmove(p,p2,strlen(p2)+1);
           p=strrchr(StackData.HelpMask,'.');
@@ -1472,7 +1517,7 @@ int Help::JumpTopic(const char *JumpTopic)
 #endif
     )
   {
-    if(!(StackData.Flags&FHELP_CUSTOMFILE) && strrchr(NewTopic,'>'))
+    if(!(StackData.Flags&FHELP_CUSTOMFILE) && strrchr(NewTopic,HelpEndLink))
     {
       if(StackData.HelpMask)
         *StackData.HelpMask=0;
