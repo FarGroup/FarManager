@@ -8,10 +8,13 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.96 05.09.2002 $ */
+/* Revision: 1.97 20.09.2002 $ */
 
 /*
 Modify:
+  20.09.2002 SVS
+    - BugZ#635 - Плавающая ширина Plugin Configuration
+    - BugZ#646 - Color groups\Dialog\*List* где они бывают?
   05.09.2002 SVS
     ! Уточнение BugZ#611
   03.09.2002 SVS
@@ -1388,7 +1391,7 @@ int VMenu::AddItem(const struct MenuItem *NewItem,int PosAdd)
     memmove(Item+PosAdd+1,Item+PosAdd,sizeof(struct MenuItem)*(ItemCount-PosAdd)); //??
 
   Item[PosAdd]=*NewItem;
-  Length=strlen(Item[PosAdd].PtrName());
+  Length=HiStrlen(Item[PosAdd].PtrName(),TRUE);
   if (Length>MaxLength)
     MaxLength=Length;
   if(MaxLength > ScrX-8)
@@ -1971,7 +1974,7 @@ void VMenu::SetColors(short *Colors)
     memmove(VMenu::Colors,Colors,sizeof(VMenu::Colors));
   else
   {
-    int DialogStyle=CheckFlags(VMENU_WARNDIALOG);
+    int DialogStyle=CheckFlags(VMENU_LISTBOX);
     VMenu::Colors[0]=DialogStyle ? COL_DIALOGMENUTEXT:COL_MENUTEXT;
     VMenu::Colors[1]=DialogStyle ? COL_DIALOGMENUTEXT:COL_MENUBOX;
     VMenu::Colors[2]=COL_MENUTITLE;

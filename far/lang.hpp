@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.110 04.09.2002 $ */
+/* Revision: 1.111 20.09.2002 $ */
 
 /*
 Modify:
+  20.09.2002 SVS
+    - BugZ#645 - Не подряд ооднотипные настройки цветов
   04.09.2002 SVS
     + MEditAskSaveExt, MEditBtnSaveAs
   06.07.2002 VVM
@@ -1369,12 +1371,14 @@ enum
 
   MSetColorDialogNormal,
   MSetColorDialogHighlighted,
+  MSetColorDialogDisabled,
   MSetColorDialogBox,
   MSetColorDialogBoxTitle,
   MSetColorDialogHighlightedBoxTitle,
   MSetColorDialogTextInput,
   MSetColorDialogUnchangedTextInput,
   MSetColorDialogSelectedTextInput,
+  MSetColorDialogEditDisabled,
   MSetColorDialogButtons,
   MSetColorDialogSelectedButtons,
   MSetColorDialogHighlightedButtons,
@@ -1383,23 +1387,21 @@ enum
   MSetColorDialogSelectedListText,
   MSetColorDialogMenuHighLight,
   MSetColorDialogMenuSelectedHighLight,
-  MSetColorDialogMenuScrollBar,
-  MSetColorDialogDisabled,
-  MSetColorDialogEditDisabled,
   MSetColorDialogListDisabled,
+  MSetColorDialogMenuScrollBar,
 
   MSetColorWarningNormal,
   MSetColorWarningHighlighted,
+  MSetColorWarningDisabled,
   MSetColorWarningBox,
   MSetColorWarningBoxTitle,
   MSetColorWarningHighlightedBoxTitle,
   MSetColorWarningTextInput,
+  MSetColorWarningEditDisabled,
   MSetColorWarningButtons,
   MSetColorWarningSelectedButtons,
   MSetColorWarningHighlightedButtons,
   MSetColorWarningSelectedHighlightedButtons,
-  MSetColorWarningDisabled,
-  MSetColorWarningEditDisabled,
   MSetColorWarningListDisabled,
 
   MSetColorMenuNormal,

@@ -5,10 +5,12 @@ setcolor.cpp
 
 */
 
-/* Revision: 1.20 13.04.2002 $ */
+/* Revision: 1.21 20.09.2002 $ */
 
 /*
 Modify:
+  20.09.2002 SVS
+    - BugZ#645 - Ќе подр€д ооднотипные настройки цветов
   13.04.2002 KM
     - ƒобавлен VMENU_NOTCHANGE, который предотвращает скачки
       меню по экрану при AltF9 в диалоге редактировани€ цветов.
@@ -134,39 +136,32 @@ void SetColors()
   {
     (char *)MSetColorDialogNormal,LIF_SELECTED,0,
     (char *)MSetColorDialogHighlighted,0,0,
+    (char *)MSetColorDialogDisabled,0,0,
     (char *)MSetColorDialogBox,0,0,
     (char *)MSetColorDialogBoxTitle,0,0,
     (char *)MSetColorDialogHighlightedBoxTitle,0,0,
     (char *)MSetColorDialogTextInput,0,0,
     (char *)MSetColorDialogUnchangedTextInput,0,0,
     (char *)MSetColorDialogSelectedTextInput,0,0,
+    (char *)MSetColorDialogEditDisabled,0,0,
     (char *)MSetColorDialogButtons,0,0,
     (char *)MSetColorDialogSelectedButtons,0,0,
     (char *)MSetColorDialogHighlightedButtons,0,0,
     (char *)MSetColorDialogSelectedHighlightedButtons,0,0,
     (char *)MSetColorDialogListText,0,0,
     (char *)MSetColorDialogSelectedListText,0,0,
-    /* 06.07.2000 SVS
-       + добавил в меню два ранее "скрытых пункта" :-)))
-    */
     (char *)MSetColorDialogMenuHighLight,0,0,
     (char *)MSetColorDialogMenuSelectedHighLight,0,0,
-    /* SVS $ */
-    (char *)MSetColorDialogMenuScrollBar,0,0, // полоса прокрутки дл€ списка
-
-    (char *)MSetColorDialogDisabled,0,0,
-    (char *)MSetColorDialogEditDisabled,0,0,
     (char *)MSetColorDialogListDisabled,0,0,
+    (char *)MSetColorDialogMenuScrollBar,0,0, // полоса прокрутки дл€ списка
   };
   int DialogPaletteItems[]={
-    COL_DIALOGTEXT,COL_DIALOGHIGHLIGHTTEXT,COL_DIALOGBOX,
-    COL_DIALOGBOXTITLE, COL_DIALOGHIGHLIGHTBOXTITLE,COL_DIALOGEDIT,
-    COL_DIALOGEDITUNCHANGED, COL_DIALOGEDITSELECTED,COL_DIALOGBUTTON,
-    COL_DIALOGSELECTEDBUTTON, COL_DIALOGHIGHLIGHTBUTTON,
-    COL_DIALOGHIGHLIGHTSELECTEDBUTTON, COL_DIALOGMENUTEXT,
-    COL_DIALOGMENUSELECTEDTEXT,COL_DIALOGMENUHIGHLIGHT,
-    COL_DIALOGMENUSELECTEDHIGHLIGHT, COL_DIALOGMENUSCROLLBAR,
-    COL_DIALOGDISABLED, COL_DIALOGEDITDISABLED, COL_DIALOGLISTDISABLED,
+    COL_DIALOGTEXT,COL_DIALOGHIGHLIGHTTEXT,COL_DIALOGDISABLED,
+    COL_DIALOGBOX,COL_DIALOGBOXTITLE, COL_DIALOGHIGHLIGHTBOXTITLE,
+    COL_DIALOGEDIT,COL_DIALOGEDITUNCHANGED, COL_DIALOGEDITSELECTED,COL_DIALOGEDITDISABLED,
+    COL_DIALOGBUTTON,COL_DIALOGSELECTEDBUTTON, COL_DIALOGHIGHLIGHTBUTTON,COL_DIALOGHIGHLIGHTSELECTEDBUTTON,
+    COL_DIALOGMENUTEXT, COL_DIALOGMENUSELECTEDTEXT,COL_DIALOGMENUHIGHLIGHT,
+    COL_DIALOGMENUSELECTEDHIGHLIGHT, COL_DIALOGLISTDISABLED,COL_DIALOGMENUSCROLLBAR,
 
   };
   /* SVS 04.12.2000 $ */
@@ -176,25 +171,26 @@ void SetColors()
   {
     (char *)MSetColorWarningNormal,LIF_SELECTED,0,
     (char *)MSetColorWarningHighlighted,0,0,
+    (char *)MSetColorWarningDisabled,0,0,
     (char *)MSetColorWarningBox,0,0,
     (char *)MSetColorWarningBoxTitle,0,0,
     (char *)MSetColorWarningHighlightedBoxTitle,0,0,
     (char *)MSetColorWarningTextInput,0,0,
+    (char *)MSetColorWarningEditDisabled,0,0,
     (char *)MSetColorWarningButtons,0,0,
     (char *)MSetColorWarningSelectedButtons,0,0,
     (char *)MSetColorWarningHighlightedButtons,0,0,
     (char *)MSetColorWarningSelectedHighlightedButtons,0,0,
-
-    (char *)MSetColorWarningDisabled,0,0,
-    (char *)MSetColorWarningEditDisabled,0,0,
     (char *)MSetColorWarningListDisabled,0,0,
   };
   int WarnDialogPaletteItems[]={
-    COL_WARNDIALOGTEXT,COL_WARNDIALOGHIGHLIGHTTEXT,COL_WARNDIALOGBOX,
+    COL_WARNDIALOGTEXT,COL_WARNDIALOGHIGHLIGHTTEXT,COL_WARNDIALOGDISABLED,
+    COL_WARNDIALOGBOX,
     COL_WARNDIALOGBOXTITLE,COL_WARNDIALOGHIGHLIGHTBOXTITLE,
-    COL_WARNDIALOGEDIT,COL_WARNDIALOGBUTTON,COL_WARNDIALOGSELECTEDBUTTON,
+    COL_WARNDIALOGEDIT,COL_WARNDIALOGEDITDISABLED,
+    COL_WARNDIALOGBUTTON,COL_WARNDIALOGSELECTEDBUTTON,
     COL_WARNDIALOGHIGHLIGHTBUTTON,COL_WARNDIALOGHIGHLIGHTSELECTEDBUTTON,
-    COL_WARNDIALOGDISABLED, COL_WARNDIALOGEDITDISABLED, COL_WARNDIALOGLISTDISABLED,
+    COL_WARNDIALOGLISTDISABLED,
   };
 
     /* $ 29.06.2000 SVS

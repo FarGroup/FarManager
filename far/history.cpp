@@ -5,10 +5,13 @@ history.cpp
 
 */
 
-/* Revision: 1.26 24.05.2002 $ */
+/* Revision: 1.27 20.09.2002 $ */
 
 /*
 Modify:
+  20.09.2002 SVS
+    - BugZ#637 - delete history do not work correctly
+    - BugZ#638 - command line history
   24.05.2002 SVS
     + ƒублирование Numpad-клавиш
   25.04.2002 IS
@@ -315,40 +318,41 @@ BOOL History::SaveHistory()
     }
   }
 
-  if(!BufferLines)
-    return FALSE;
-
-  BufferLines[SizeLines++]=0;
-
-  if (SaveTitle && TypeHistory != HISTORYTYPE_VIEW)
+  if(BufferLines)
   {
-    BufferTitles=(char*)malloc(HISTORY_COUNT*(HISTORY_TITLESIZE+2));
-    if(!BufferTitles)
+    BufferLines[SizeLines++]=0;
+
+    if (SaveTitle && TypeHistory != HISTORYTYPE_VIEW)
     {
-      free(BufferLines);
-      return FALSE;
+      BufferTitles=(char*)malloc(HISTORY_COUNT*(HISTORY_TITLESIZE+2));
+      if(BufferTitles)
+      {
+        for (I=0; I < HISTORY_COUNT; I++)
+        {
+          strcpy(BufferTitles+SizeTitles,LastStr[I].Title);
+          SizeTitles+=strlen(LastStr[I].Title)+1;
+        }
+        BufferTitles[SizeTitles++]=0;
+      }
     }
 
-    for (I=0; I < HISTORY_COUNT; I++)
+    if (SaveType)
     {
-      strcpy(BufferTitles+SizeTitles,LastStr[I].Title);
-      SizeTitles+=strlen(LastStr[I].Title)+1;
+      memset(TypesBuffer,0,sizeof(TypesBuffer));
+      for (SizeTypes=0; SizeTypes < HISTORY_COUNT; SizeTypes++)
+        TypesBuffer[SizeTypes]=LastStr[SizeTypes].Type+'0';
+      TypesBuffer[SizeTypes++]=0;
     }
-    BufferTitles[SizeTitles++]=0;
   }
 
-  if (SaveType)
-  {
-    memset(TypesBuffer,0,sizeof(TypesBuffer));
-    for (SizeTypes=0; SizeTypes < HISTORY_COUNT; SizeTypes++)
-      TypesBuffer[SizeTypes]=LastStr[SizeTypes].Type+'0';
-    TypesBuffer[SizeTypes++]=0;
-  }
+
 
   HKEY hKey;
   if ((hKey=CreateRegKey(RegKey))!=NULL)
   {
-    RegSetValueEx(hKey,"Lines",0,REG_BINARY,(unsigned char *)BufferLines,SizeLines);
+    if(!BufferLines)
+      SizeLines=1;
+    RegSetValueEx(hKey,"Lines",0,REG_BINARY,(unsigned char *)(BufferLines?BufferLines:""),SizeLines);
 
     if (SaveTitle && BufferTitles)
       RegSetValueEx(hKey,"Titles",0,REG_BINARY,(unsigned char *)BufferTitles,SizeTitles);
@@ -365,6 +369,12 @@ BOOL History::SaveHistory()
 
     return TRUE;
   }
+
+  if(BufferLines)
+    free(BufferLines);
+  if(BufferTitles)
+    free(BufferTitles);
+
   return FALSE;
 }
 
@@ -604,6 +614,7 @@ int History::Select(const char *Title,const char *HelpTopic,char *Str,int StrLen
             {
               HistoryMenu.Hide();
               FreeHistory(TRUE); // пам€ть тоже нужно очистить!
+              SaveHistory();
               HistoryMenu.Modal::SetExitCode(StrPos);
               HistoryMenu.SetUpdateRequired(TRUE);
               IsUpdate=TRUE; //??
@@ -671,7 +682,7 @@ void History::GetPrev(char *Str,int StrLength)
       CurLastPtr=NewPtr;
     else
       break;
-  } while (LastStr[CurLastPtr].Name && *LastStr[CurLastPtr].Name==0);
+  } while (!LastStr[CurLastPtr].Name || *LastStr[CurLastPtr].Name==0);
 
   if(LastStr[CurLastPtr].Name)
     strncpy(Str,LastStr[CurLastPtr].Name,StrLength-1);
@@ -688,7 +699,7 @@ void History::GetNext(char *Str,int StrLength)
       CurLastPtr=(CurLastPtr+1)%(HISTORY_COUNT);
     else
       break;
-  } while (LastStr[CurLastPtr].Name && *LastStr[CurLastPtr].Name==0);
+  } while (!LastStr[CurLastPtr].Name || *LastStr[CurLastPtr].Name==0);
   if(LastStr[CurLastPtr].Name)
     strncpy(Str,CurLastPtr==LastPtr ? "":LastStr[CurLastPtr].Name,StrLength-1);
   else

@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.59 06.08.2002 $ */
+/* Revision: 1.60 20.09.2002 $ */
 
 /*
 Modify:
+  20.09.2002 SVS
+    - BugZ#619 - ftp: /pub в истории папок
   06.08.2002 SVS
     - после открытия дерева по Alt-F10 и после отмены диалога не по esc,
       а нажатием мыши вне его, не восстанавливается текст линейки клавиш
@@ -347,7 +349,9 @@ int CommandLine::ProcessKey(int Key)
         {
           if (SelectType==2)
             CtrlObject->FolderHistory->SetAddMode(FALSE,2,TRUE);
-          if(CheckShortcutFolder(Str,sizeof(Str)-1,FALSE))
+          // пусть плагин сам прыгает... ;-)
+          if(CtrlObject->Cp()->ActivePanel->GetMode() == PLUGIN_PANEL ||
+             CheckShortcutFolder(Str,sizeof(Str)-1,FALSE))
           {
             CtrlObject->Cp()->ActivePanel->SetCurDir(Str,Type==0 ? TRUE:FALSE);
             CtrlObject->Cp()->ActivePanel->Redraw();
