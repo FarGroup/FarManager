@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.54 08.11.2001 $ */
+/* Revision: 1.55 13.11.2001 $ */
 
 /*
 Modify:
+  13.11.2001 SVS
+    - Bug: Shift-F4 и ввести что-нить типа длиннее ширины строки ввода в диалоге.
   08.11.2001 SVS
     - BugZ#97: Недочет в диалогах копирования/переименования итд
   28.10.2001 SVS
@@ -1405,7 +1407,7 @@ int Edit::ProcessKey(int Key)
         DeleteBlock();
         // OT: Проверка на корректность поведени строки при удалении и вставки
         if (IsDialogParent)
-          LeftPos=(StrSize < ObjWidth)?0:CurPos;
+          LeftPos=(StrSize < ObjWidth)?0:CurPos-ObjWidth;
       }
       if (InsertKey(Key))
       {
