@@ -7,13 +7,15 @@ classes.hpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 17.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  17.07.2000 OT
+    + Застолбить место под разработку "моего" редактора
 */
 
 class Panel;
@@ -58,7 +60,11 @@ class History;
 #include "dialog.hpp"
 #include "scantree.hpp"
 #include "struct.hpp"
-#include "editor.hpp"
+#if defined(EDITOR2)
+ #include "editor2.hpp"
+#else defined(EDITOR2)
+ #include "editor.hpp"
+#endif defined(EDITOR2)
 #include "fileedit.hpp"
 #include "help.hpp"
 #include "copy.hpp"

@@ -1,3 +1,4 @@
+#if !defined(EDITOR2)
 /*
 editor.cpp
 
@@ -5,7 +6,7 @@ editor.cpp
 
 */
 
-/* Revision: 1.08 14.07.2000 $ */
+/* Revision: 1.09 17.07.2000 $ */
 
 /*
 Modify:
@@ -31,6 +32,8 @@ Modify:
     + переход на проценты
       вводим 50%, попадаем прямо в середину
       функция GetRowCol стала методом класса
+  17.07.2000 OT
+    + Застолбить место под разработку "моего" редактора
 */
 
 #include "headers.hpp"
@@ -3993,3 +3996,5 @@ void Editor::SetReplaceMode(int Mode)
 {
   ::ReplaceMode=Mode;
 }
+
+#endif //!defined(EDITOR2)

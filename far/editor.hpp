@@ -1,3 +1,5 @@
+#if !defined(EDITOR2)
+
 #ifndef __EDITOR_HPP__
 #define __EDITOR_HPP__
 /*
@@ -7,7 +9,7 @@ editor.hpp
 
 */
 
-/* Revision: 1.02 14.07.2000 $ */
+/* Revision: 1.03 17.07.2000 $ */
 
 /*
 Modify:
@@ -20,6 +22,8 @@ Modify:
       используется только в одном месте - в обработке Alt-F8
   14.07.2000 tran
     ! функцию GetRowCol сделал методом класса
+  17.07.2000 OT
+    + Застолбить место под разработку "моего" редактора
 */
 
 class Editor:public ScreenObject
@@ -151,3 +155,4 @@ struct EditList
 };
 
 #endif // __EDITOR_HPP__
+#endif //defined(EDITOR2)
