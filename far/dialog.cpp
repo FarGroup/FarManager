@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.315 27.12.2004 $ */
+/* Revision: 1.316 05.01.2005 $ */
 
 /*
 Modify:
+  05.01.2005 WARP
+    - BugZ#1213 Исправляем косяки с новым центрированием диалогов
   27.12.2004 WARP
     ! Сделал критические секции при практически всех вызовах Dialog & VMenu
   25.12.2004 WARP
@@ -1299,6 +1301,13 @@ Dialog::~Dialog()
 void Dialog::CheckDialogCoord(void)
 {
   CriticalSectionLock Lock(CS);
+
+  if ( X1 >= 0 )
+    X2 = X1+RealWidth-1;
+
+  if ( Y1 >= 0 )
+    Y2 = Y1+RealHeight-1;
+
 
   DialogTooLong=0; // Т.к. консоль у нас может постоянно изменяться, то эта
                    // инициализация необходима как воздух
@@ -6192,12 +6201,6 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     {
       int W1,H1;
 
-      if ( Param1 >= 0 ) //если это не ресайз, вернем настоящую длину/ширину
-                         //(мало ли, что там CheckCoord натворил).
-      {
-         Dlg->X2 = Dlg->X1+Dlg->RealWidth;
-         Dlg->Y2 = Dlg->Y1+Dlg->RealHeight;
-      }
       /* $ 10.08.2001 KM
         - Неверно вычислялась ширина диалога.
       */
@@ -6245,8 +6248,8 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         W1=((COORD*)Param2)->X;
         H1=((COORD*)Param2)->Y;
 
-        Dlg->RealWidth = W1-1;
-        Dlg->RealHeight = H1-1;
+        Dlg->RealWidth = W1;
+        Dlg->RealHeight = H1;
         /* $ 11.10.2001 KM
           - Ещё одно уточнение при ресайзинге, с учётом предполагаемого
             выхода краёв диалога за границу экрана.
@@ -7702,8 +7705,15 @@ void Dialog::SetPosition(int X1,int Y1,int X2,int Y2)
 {
   CriticalSectionLock Lock(CS);
 
-  RealWidth = X2-X1-2;
-  RealHeight = Y2-Y1-2;
+  if ( X1 >= 0 )
+    RealWidth = X2-X1+1;
+  else
+    RealWidth = X2;
+
+  if ( Y1 >= 0 )
+    RealHeight = Y2-Y1+1;
+  else
+    RealHeight = Y2;
 
   ScreenObject::SetPosition (X1, Y1, X2, Y2);
 }
