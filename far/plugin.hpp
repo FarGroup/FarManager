@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.140 09.09.2001 $ */
+/* Revision: 1.141 12.09.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  12.09.2001 SVS
+    + FSF.ConvertNameToReal
   09.09.2001 IS
     + VF_DISABLEHISTORY, EF_DISABLEHISTORY
   31.08.2001 IS
@@ -494,7 +496,7 @@ Modify:
 */
 #endif // END FAR_USE_INTERNALS
 
-#define FARMANAGERVERSION 0x03660146UL
+#define FARMANAGERVERSION 0x03A90146UL
 
 #define MAKEFARVERSION(major,minor,build) ( ((major)<<8) | (minor) | ((build)<<16))
 
@@ -1583,6 +1585,8 @@ enum MKLINKOP{
 };
 typedef int     (WINAPI *FARSTDMKLINK)(char *Src,char *Dest,DWORD Flags);
 
+typedef int     (WINAPI *FARCONVERTNAMETOREAL)(const char *Src,char *Dest, int DestSize);
+
 enum FRSMODE{
   FRS_RETUPDIR = 0x0001,
   FRS_RECUR    = 0x0002
@@ -1643,6 +1647,7 @@ typedef struct FarStandardFunctions
   FARSTDDELETEBUFFER         DeleteBuffer;
   FARSTDPROCESSNAME          ProcessName;
   FARSTDMKLINK               MkLink;
+  FARCONVERTNAMETOREAL       ConvertNameToReal;
 } FARSTANDARDFUNCTIONS;
 
 struct PluginStartupInfo

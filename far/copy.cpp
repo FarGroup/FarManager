@@ -5,10 +5,15 @@ copy.cpp
 
 */
 
-/* Revision: 1.45 15.08.2001 $ */
+/* Revision: 1.46 12.09.2001 $ */
 
 /*
 Modify:
+  12.09.2001 SVS
+    - BugZ#15: Рекурсивное копирование Junction каталога самого на себя.
+      В функции ShellCopy::CmpFullNames() вместо ConvertNameToFull()
+      используем новую функцию ConvertNameToReal(), которая возвращает
+      полный реальный путь с учетом reparse point в Win2K.
   15.08.2001 SVS
     - Бага - Win2K. создание хардлинков. несколько объектов (не каталогов)
       - забыл снять дизабле флаг с кнопки Link.
@@ -1263,6 +1268,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
       if (CmpCode==2 || !Rename)
       {
         CopyTime+= (clock() - CopyStartTime);
+        SetMessageHelp("ErrCopyItSelf");
         Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),MSG(MCannotCopyFolderToItself1),
                 Src,MSG(MCannotCopyFolderToItself2),MSG(MOk));
         CopyStartTime = clock();
@@ -2569,22 +2575,30 @@ void ShellCopy::ShowTitle(int FirstTime)
 
 int ShellCopy::CmpFullNames(char *Src,char *Dest)
 {
-  char SrcFullName[NM],DestFullName[NM];
-
-  if (ConvertNameToFull(Src,SrcFullName, sizeof(SrcFullName)) >= sizeof(SrcFullName)){
-    return(2);
-  }
-  if (ConvertNameToFull(Dest,DestFullName, sizeof(DestFullName)) >= sizeof(DestFullName)){
-    return(2);
-  }
-//  ConvertNameToFull(Dest,DestFullName, sizeof(DestFullName));
+  char SrcFullName[1024],DestFullName[1024];
   int I;
+
+  if (ConvertNameToReal(Src,SrcFullName, sizeof(SrcFullName)) >= sizeof(SrcFullName))
+    return(2);
+  if (ConvertNameToReal(Dest,DestFullName, sizeof(DestFullName)) >= sizeof(DestFullName))
+    return(2);
+
   for (I=strlen(SrcFullName)-1;I>0 && SrcFullName[I]=='.';I--)
     SrcFullName[I]=0;
+
+  if(SrcFullName[strlen(SrcFullName)-1] == '\\')
+    SrcFullName[strlen(SrcFullName)-1]=0;
+
   for (I=strlen(DestFullName)-1;I>0 && DestFullName[I]=='.';I--)
     DestFullName[I]=0;
+
+  if(DestFullName[strlen(DestFullName)-1] == '\\')
+    DestFullName[strlen(DestFullName)-1]=0;
+
+//_SVS(SysLog("\nSrcFullName ='%s'\nDestFullName='%s'",SrcFullName,DestFullName));
   if (LocalStricmp(SrcFullName,DestFullName)!=0)
     return(0);
+
   return(strcmp(PointToName(SrcFullName),PointToName(DestFullName))==0 ? 2:1);
 }
 

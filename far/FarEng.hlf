@@ -2440,6 +2440,9 @@ case, targets should be separated with a character "#;#" or "#,#". If
 the name of a target contains the character ";" or ",", it must be
 enclosed in quotes.
 
+    При копировании/переносе файлов и каталогов FAR также учитывает
+реальные пути с учетом ~симолических связей~@HardSymLink@ в Windows 2000.
+
 @HardSymLink
 $ #Hard and Symbolic link#
     On NTFS partitions you can create #hard links# and #symbolic links#
@@ -2488,6 +2491,14 @@ drive.
     It is not allowed to create symbolic links directly to CD-ROM
 directories, but this restriction can be overcome by mounting a CD-ROM
 to a directory on an NTFS partition.
+
+@ErrCopyItSelf
+$ #Ошибка: копирование/перенос "в самого себя"#
+    Вы не можете копировать/переносить файл или каталог "в самого себя".
+
+    Данная ошибка также возникает в Windows 2000, если имеются два
+каталога, один из которых является ~символической связью~@HardSymLink@ на
+другой.
 
 @ScrSwitch
 $ #Screens switching#

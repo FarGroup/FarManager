@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.85 12.09.2001 $ */
+/* Revision: 1.86 12.09.2001 $ */
 
 /*
 Modify:
+  12.09.2001 SVS
+    + FSF.ConvertNameToReal
   12.09.2001 SVS
     - BugZ#9 - кусок кода, ответственный за прорисоку редактора по окончания
           макроса перенесен из KeyMacro::GetKey() в PluginsSet::OpenPlugin()
@@ -802,6 +804,7 @@ int PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNumb
       StandardFunctions.ProcessName=ProcessName;
       /* IS $ */
       StandardFunctions.MkLink=FarMkLink;
+      StandardFunctions.ConvertNameToReal=ConvertNameToReal;
     }
 
     if(!StartupInfo.StructSize)

@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.102 09.09.2001 $ */
+/* Revision: 1.103 12.09.2001 $ */
 
 /*
 Modify:
+  12.09.2001 SVS
+    + ConvertNameToReal()
   09.09.2001 SVS
     + GetMenuHotKey()
   07.08.2001 IS
@@ -407,6 +409,7 @@ void EditFileTypes(int MenuPos);
 void ProcessUserMenu(int EditMenu);
 DWORD RawConvertShortNameToLongName(const char *src, char *dest, DWORD maxsize);
 int ConvertNameToFull(const char *Src,char *Dest, int DestSize);
+int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize);
 void ConvertNameToShort(const char *Src,char *Dest);
 void ChangeConsoleMode(int Mode);
 void FlushInputBuffer();

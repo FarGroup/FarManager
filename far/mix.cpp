@@ -5,10 +5,14 @@ mix.cpp
 
 */
 
-/* Revision: 1.86 07.09.2001 $ */
+/* Revision: 1.87 12.09.2001 $ */
 
 /*
 Modify:
+  12.09.2001 SVS
+    + ConvertNameToReal() - преобразует Src в полный РЕАЛЬНЫЙ путь с
+      учетом reparse point в Win2K; если OS ниже, то вызывается обычный
+      ConvertNameToFull()
   07.09.2001 VVM
     + Перед проверкой на "гуевость" обработать переменные окружения.
   30.07.2001 IS
@@ -1022,6 +1026,73 @@ end:
 //  free (FullName);
 //  free (AnsiName);
   return Result;
+}
+
+/*
+  Преобразует Src в полный РЕАЛЬНЫЙ путь с учетом reparse point в Win2K
+  Если OS ниже, то вызывается обычный ConvertNameToFull()
+*/
+int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize)
+{
+  char TempDest[1024];
+
+  // Получим сначала полный путь до объекта обычным способом
+  int Ret=ConvertNameToFull(Src,TempDest,sizeof(TempDest));
+
+  // остальное касается Win2K, т.к. в виндах ниже рангом нету некоторых
+  // функций, позволяющих узнать истинное имя линка.
+  if (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5)
+  {
+    DWORD FileAttr;
+    char *Ptr, Chr;
+
+    Ptr=TempDest;
+    // обычный цикл прохода имени от корня
+    while(1)
+    {
+      if((Ptr=strchr(Ptr,'\\')) == NULL)
+        break;
+
+      Chr=*++Ptr;
+      *Ptr=0;
+      FileAttr=GetFileAttributes(TempDest);
+
+      // О! Это наш клиент - одна из "компонент" пути - симлинк
+      if(FileAttr != (DWORD)-1 && (FileAttr&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
+      {
+        char TempDest2[1024];
+
+        // Получим инфу симлинке
+        if(GetJunctionPointInfo(TempDest,TempDest2,sizeof(TempDest2)))
+        {
+          // для случая монтированного диска (не имеющего букву)...
+          if(!strncmp(TempDest2+4,"Volume{",7))
+          {
+            char JuncRoot[NM];
+            JuncRoot[0]=JuncRoot[1]=0;
+            // получим либо букву диска, либо...
+            GetPathRootOne(TempDest2+4,JuncRoot);
+            // ...но в любом случае пишем полностью.
+            strcpy(TempDest2+4,JuncRoot);
+          }
+          // небольшая метаморфоза с именем, дабы удалить ведущие "\\?\"
+          // но для "Volume{" начало всегда будет корректным!
+          memmove(TempDest2,TempDest2+4,strlen(TempDest2+4)+1);
+          *Ptr=Chr; // восстановим символ
+          if(TempDest2[strlen(TempDest2)-1] != '\\')
+            strcat(TempDest2,"\\");
+          strcat(TempDest2,Ptr);
+          strcpy(TempDest,TempDest2);
+          Ret=strlen(TempDest);
+          // ВСЕ. Реальный путь у нас в кармане...
+          break;
+        }
+      }
+      *Ptr=Chr;
+    }
+  }
+  strncpy(Dest,TempDest,DestSize);
+  return Ret;
 }
 
 
