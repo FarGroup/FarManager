@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.19 31.08.2000 $ */
+/* Revision: 1.20 01.09.2000 $ */
 
 /*
 Modify:
+  01.09.2000 SVS
+    - Небольшая бага с тыканием в верхнюю позицию ScrollBar`а
   31.08.2000 SVS
     + Теперь FAR помнит тип Wrap
     - Бага - без часиков и со ScrollBar неверно отображается верхний статус
@@ -1282,8 +1284,12 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
      обработка сколбара */
   if ( Opt.ViewerShowScrollbar && MsX==X2)
   {
-    if ( MsY==Y1 )
+    /* $ 01.09.2000 SVS
+       Небольшая бага с тыканием в верхнюю позицию ScrollBar`а
+    */
+    if ( MsY==Y1+1 )
         ProcessKey(KEY_UP);
+    /* SVS $*/
     else if (MsY==Y2)
         ProcessKey(KEY_DOWN);
     else

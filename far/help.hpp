@@ -7,10 +7,13 @@ help.hpp
 
 */
 
-/* Revision: 1.01 29.06.2000 $ */
+/* Revision: 1.02 01.09.2000 $ */
 
 /*
 Modify:
+  01.09.2000 SVS
+    + CtrlColorChar - опция! для спецсимвола-символа - для атрибутов
+    + CurColor - текущий цвет отрисовки
   28.06.2000 tran
     - NT Console resize bug
       adding SetScreenPosition method
@@ -21,6 +24,34 @@ Modify:
 
 class Help:public Modal
 {
+  private:
+    char *HelpData;
+    char HelpTopic[512];
+    char SelTopic[512];
+    char HelpPath[NM];
+
+    /* $ 01.09.2000 SVS
+      CurColor - текущий цвет отрисовки
+    */
+    int CurColor;
+    /* SVS $ */
+
+    int TopLevel;
+    int PrevFullScreen;
+    int StrCount,FixCount,FixSize;
+    int TopStr;
+    int CurX,CurY;
+    int ShowPrev;
+    int DisableOut;
+    int TopicFound;
+    int PrevMacroMode;
+
+    /* $ 01.09.2000 SVS
+      CtrlColorChar - опция! для спецсимвола-символа - для атрибутов
+    */
+    BYTE CtrlColorChar;
+    /* SVS $ */
+
   private:
     void DisplayObject();
     void ReadHelp();
@@ -33,23 +64,13 @@ class Help:public Modal
     int IsReferencePresent();
     void MoveToReference(int Forward,int CurScreen);
     void ReadPluginsHelp();
-    char *HelpData;
-    char HelpTopic[512];
-    char SelTopic[512];
-    char HelpPath[NM];
-    int TopLevel;
-    int PrevFullScreen;
-    int StrCount,FixCount,FixSize;
-    int TopStr;
-    int CurX,CurY;
-    int ShowPrev;
-    int DisableOut;
-    int TopicFound;
-    int PrevMacroMode;
+
   public:
     Help(char *Topic);
     Help(char *Topic,int &ShowPrev,int PrevFullScreen);
     ~Help();
+
+  public:
     void Hide();
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);

@@ -5,10 +5,12 @@ language.cpp
 
 */
 
-/* Revision: 1.01 13.07.2000 $ */
+/* Revision: 1.02 01.09.2000 $ */
 
 /*
 Modify:
+  01.09.2000 SVS
+    + Новый метод, для получения параметров для .Options
   13.07.2000 SVS
     ! Некоторые коррекции при использовании new/delete/realloc
   25.06.2000 SVS
@@ -171,7 +173,7 @@ FILE* Language::OpenLangFile(char *Path,char *Mask,char *Language,char *FileName
   *FileName=0;
 
   FILE *LangFile=NULL;
-  char FullName[NM],EngFileName[NM];
+  char FullName[NM], EngFileName[NM];
   WIN32_FIND_DATA FindData;
 
   *EngFileName=0;
@@ -287,3 +289,32 @@ int Language::Select(int HelpLanguage,VMenu **MenuPtr)
     return(FALSE);
   return(LangMenu->GetUserData(Dest,100));
 }
+
+/* $ 01.09.2000 SVS
+  + Новый метод, для получения параметров для .Options
+   .Options <KeyName>=<Value>
+*/
+int Language::GetOptionsParam(FILE *SrcFile,char *KeyName,char *Value)
+{
+  char ReadStr[1024],FullParamName[64], *Ptr;
+  strcpy(FullParamName,".Options");
+  int Length=strlen(FullParamName);
+  long CurFilePos=ftell(SrcFile);
+  fseek(SrcFile,0,SEEK_SET);
+  while (fgets(ReadStr,sizeof(ReadStr),SrcFile)!=NULL)
+    if (!strnicmp(ReadStr,FullParamName,Length))
+    {
+      strcpy(FullParamName,RemoveExternalSpaces(ReadStr+Length));
+      if(!(Ptr=strchr(FullParamName,'=')))
+        continue;
+      *Ptr++=0;
+      if (!stricmp(RemoveExternalSpaces(FullParamName),KeyName))
+      {
+        strcpy(Value,RemoveExternalSpaces(Ptr));
+        return(TRUE);
+      }
+    }
+  fseek(SrcFile,CurFilePos,SEEK_SET);
+  return(FALSE);
+}
+/* SVS $ */

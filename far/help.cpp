@@ -9,6 +9,8 @@ help.cpp
 
 /*
 Modify:
+  01.09.2000 SVS
+    + Мои любимые цветовые атрибуты - Учтем символ CtrlColorChar
   25.08.2000 SVS
     + CtrlAltShift - спрятать/показать помощь...
     + URL активатор - это ведь так просто :-)))
@@ -92,6 +94,11 @@ Help::Help(char *Topic)
     PrevMacroMode=CtrlObject->Macro.GetMode();
     CtrlObject->Macro.SetMode(MACRO_HELP);
   }
+  /* $ 01.09.2000 SVS
+     Установим по умолчанию текущий цвет отрисовки...
+  */
+  CurColor=COL_HELPTEXT;
+  /* SVS $ */
   TopLevel=TRUE;
   TopScreen=new SaveScreen;
   HelpData=NULL;
@@ -197,6 +204,13 @@ void Help::ReadHelp()
     Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MHelpTitle),MSG(MCannotOpenHelp),FileName,MSG(MOk));
     return;
   }
+  if (Language::GetOptionsParam(HelpFile,"CtrlColorChar",ReadStr))
+  {
+    CtrlColorChar=ReadStr[0];
+  }
+  else
+    CtrlColorChar=0;
+
   *SplitLine=0;
   CurX=CurY=0;
   if (HelpData!=NULL)
@@ -347,6 +361,7 @@ void Help::ReadHelp()
         }
       }
   }
+
   fclose(HelpFile);
   FixSize=FixCount+(FixCount!=0);
 }
@@ -406,6 +421,12 @@ void Help::FastShow()
   }
   CorrectPosition();
   *SelTopic=0;
+  /* $ 01.09.2000 SVS
+     Установим по умолчанию текущий цвет отрисовки...
+     чтобы новая тема начиналась с нормальными атрибутами
+  */
+  CurColor=COL_HELPTEXT;
+  /* SVS $ */
   for (I=0;I<Y2-Y1-1;I++)
   {
     int StrPos;
@@ -451,21 +472,27 @@ void Help::FastShow()
   }
 }
 
-
+/* $ 01.09.2000 SVS
+  Учтем символ CtrlColorChar & CurColor
+*/
 void Help::OutString(char *Str)
 {
   char OutStr[512],*StartTopic=NULL;
   int OutPos=0,Highlight=0,Topic=0;
   while (OutPos<sizeof(OutStr)-10)
   {
-    if (Str[0]=='~' && Str[1]=='~' || Str[0]=='#' && Str[1]=='#' ||
-        Str[0]=='@' && Str[1]=='@')
+    if (Str[0]=='~' && Str[1]=='~' ||
+        Str[0]=='#' && Str[1]=='#' ||
+        Str[0]=='@' && Str[1]=='@' ||
+        (CtrlColorChar && Str[0]==CtrlColorChar && Str[1]==CtrlColorChar)
+        )
     {
       OutStr[OutPos++]=*Str;
       Str+=2;
       continue;
     }
-    if (*Str=='~' || *Str=='#' || *Str==0)
+
+    if (*Str=='~' || *Str=='#' || *Str==0 || *Str == CtrlColorChar)
     {
       OutStr[OutPos]=0;
       if (Topic)
@@ -487,11 +514,7 @@ void Help::OutString(char *Str)
             */
             if (EndPtr!=NULL)
             {
-              if(*(EndPtr-1) == '\\')
-              {
-                memmove(EndPtr-1,EndPtr,strlen(EndPtr)+1);
-              }
-              else if(*(EndPtr+1) == '@')
+              if(*(EndPtr+1) == '@')
               {
                 memmove(EndPtr,EndPtr+1,strlen(EndPtr)+1);
                 EndPtr++;
@@ -510,11 +533,12 @@ void Help::OutString(char *Str)
         if (Highlight)
           SetColor(COL_HELPHIGHLIGHTTEXT);
         else
-          SetColor(COL_HELPTEXT);
+          SetColor(CurColor);
       if (DisableOut)
         GotoXY(WhereX()+strlen(OutStr),WhereY());
       else
         Text(OutStr);
+//if(WhereX()>=X2-10) MessageBeep(0);
       OutPos=0;
     }
 
@@ -532,13 +556,12 @@ void Help::OutString(char *Str)
     if (*Str=='@')
     {
       /* $ 25.08.2000 SVS
-         учтем, что может быть такой вариант: @@ или \@
+         учтем, что может быть такой вариант: @@
          этот вариант только для URL!
       */
       while (*Str)
-        if (*(++Str)=='@')
-         if (*(Str-1)!='@' && *(Str-1)!='\\')
-           break;
+        if (*(++Str)=='@' && *(Str-1)!='@')
+          break;
       /* SVS $ */
       Str++;
       continue;
@@ -549,11 +572,40 @@ void Help::OutString(char *Str)
       Str++;
       continue;
     }
+    if(*Str == CtrlColorChar)
+    {
+      WORD Chr;
+
+      Chr=(BYTE)Str[1];
+      if(Chr == '-') // "\-" - установить дефолтовый цвет
+      {
+        Str+=2;
+        CurColor=COL_HELPTEXT;
+        continue;
+      }
+      if(isxdigit(Chr) && isxdigit(Str[2]))
+      {
+        WORD Attr;
+
+        if(Chr >= '0' && Chr <= '9') Chr-='0';
+        else { Chr&=~0x20; Chr=Chr-'A'+10; }
+        Attr=(Chr<<4)&0x00F0;
+
+        // next char
+        Chr=Str[2];
+        if(Chr >= '0' && Chr <= '9') Chr-='0';
+        else { Chr&=~0x20; Chr=Chr-'A'+10; }
+        Attr|=(Chr&0x000F);
+        CurColor=Attr;
+        Str+=3;
+        continue;
+      }
+    }
     OutStr[OutPos++]=*(Str++);
   }
   if (!DisableOut && WhereX()<X2)
   {
-    SetColor(COL_HELPTEXT);
+    SetColor(CurColor);
     mprintf("%*s",X2-WhereX(),"");
   }
 }
@@ -564,8 +616,11 @@ int Help::StringLen(char *Str)
   int Length=0;
   while (*Str)
   {
-    if (Str[0]=='~' && Str[1]=='~' || Str[0]=='#' && Str[1]=='#' ||
-        Str[0]=='@' && Str[1]=='@')
+    if (Str[0]=='~' && Str[1]=='~' ||
+        Str[0]=='#' && Str[1]=='#' ||
+        Str[0]=='@' && Str[1]=='@' ||
+        (CtrlColorChar && Str[0]==CtrlColorChar && Str[1]==CtrlColorChar)
+       )
     {
       Length++;
       Str+=2;
@@ -574,17 +629,35 @@ int Help::StringLen(char *Str)
     if (*Str=='@')
     {
       /* $ 25.08.2000 SVS
-         учтем, что может быть такой вариант: @@ или \@
+         учтем, что может быть такой вариант: @@
          этот вариант только для URL!
       */
       while (*Str)
-        if (*(++Str)=='@')
-          if (*(Str-1)!='@' && *(Str-1)!='\\')
-            break;
+        if (*(++Str)=='@' && *(Str-1)!='@')
+          break;
       /* SVS $ */
       Str++;
       continue;
     }
+    /* $ 01.09.2000 SVS
+       учтем наше нововведение \XX или \-
+    */
+    if(*Str == CtrlColorChar)
+    {
+      if(Str[1] == '-')
+      {
+        Str+=2;
+        continue;
+      }
+
+      if(isxdigit(Str[1]) && isxdigit(Str[2]))
+      {
+        Str+=3;
+        continue;
+      }
+    }
+    /* SVS $ */
+
     if (*Str!='#' && *Str!='~')
       Length++;
     Str++;
@@ -965,6 +1038,7 @@ void Help::ReadPluginsHelp()
           sprintf(HelpLine,"   ~%s~@#%s#Contents@",EntryName,Path);
         AddLine(HelpLine);
       }
+
       fclose(HelpFile);
     }
   }

@@ -7,10 +7,12 @@ language.hpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 01.09.2000 $ */
 
 /*
 Modify:
+  01.09.2000 SVS
+    + Новый метод, для получения параметров для .Options
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
@@ -36,6 +38,12 @@ class Language
     char* GetMsg(int MsgId);
     static FILE* OpenLangFile(char *Path,char *Mask,char *Language,char *FileName);
     static int GetLangParam(FILE *SrcFile,char *ParamName,char *Param1,char *Param2);
+    /* $ 01.09.2000 SVS
+      + Новый метод, для получения параметров для .Options
+        .Options <KeyName>=<Value>
+    */
+    static int GetOptionsParam(FILE *SrcFile,char *KeyName,char *Value);
+    /* SVS $ */
     static int Select(int HelpLanguage,VMenu **MenuPtr);
 };
 

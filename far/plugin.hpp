@@ -6,11 +6,16 @@
   Plugin API for FAR Manager 1.70
 
 */
-/* Revision: 1.35 31.08.2000 $ */
+/* Revision: 1.36 01.09.2000 $ */
 
 /*
 Modify:
-  31.08.2000 tran 1.33
+  01.09.2000 SVS
+    + конструкция (с подачи MY)
+      #ifndef _WINCON_
+      typedef struct _INPUT_RECORD INPUT_RECORD;
+      #endif
+  31.08.2000 tran 1.35
     + FSF: int FarInputRecordToKey(INPUT_RECORD*r);
   31.08.2000 SVS
     ! изменение FSF-функций
@@ -177,6 +182,10 @@ Modify:
 #endif
 
 #define NM 260
+
+#ifndef _WINCON_
+typedef struct _INPUT_RECORD INPUT_RECORD;
+#endif
 
 struct PluginPanelItem
 {
