@@ -7,7 +7,7 @@ fn.hpp
 
 */
 
-/* Revision: 1.02 05.07.2000 $ */
+/* Revision: 1.03 07.07.2000 $ */
 
 /*
 Modify:
@@ -18,6 +18,8 @@ Modify:
     + Функция вывода помощи
   05.07.2000 SVS
     + Функция ExpandEnvironmentStr
+  07.07.2000 SVS
+    + Дополнительная функция обработки строк: RemoveExternalSpaces
 */
 
 
@@ -118,8 +120,14 @@ char* QuoteSpace(char *Str);
 char* QuoteSpaceOnly(char *Str);
 char* TruncStr(char *Str,int MaxLength);
 char* TruncPathStr(char *Str,int MaxLength);
-void RemoveLeadingSpaces(unsigned char *Str);
-void RemoveTrailingSpaces(unsigned char *Str);
+/* $ 07.07.2000 SVS
+   + удалить пробелы снаружи
+   ! изменен тип возврата
+*/
+unsigned char* RemoveLeadingSpaces(unsigned char *Str);
+unsigned char* RemoveTrailingSpaces(unsigned char *Str);
+unsigned char* RemoveExternalSpaces(unsigned char *Str);
+/* SVS $ */
 int ProcessGlobalFileTypes(char *Name,int AlwaysWaitFinish);
 int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFinish);
 void ProcessExternal(char *Command,char *Name,char *ShortName,int AlwaysWaitFinish);
@@ -303,11 +311,12 @@ int WINAPI FarEditorControl(int Command,void *Param);
 */
 void WINAPI FarShowHelp(char *ModuleName, char *HelpTopic);
 /* IS $ */
+
+#endif
 /* $ 05.07.2000 SVS
    Расширение переменной среды
 */
 DWORD ExpandEnvironmentStr(char *src, char *dst, size_t size=8192);
 /* SVS $ */
 
-#endif
 #endif	// __FARFUNC_HPP__

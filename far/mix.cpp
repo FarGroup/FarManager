@@ -5,7 +5,7 @@ mix.cpp
 
 */
 
-/* Revision: 1.02 05.07.2000 $ */
+/* Revision: 1.03 07.07.2000 $ */
 
 /*
 Modify:
@@ -16,6 +16,12 @@ Modify:
     ! Функция Unquote стала универсальной
   05.07.2000 SVS
     + Добавлена функция ExpandEnvironmentStr
+  07.07.2000 SVS
+    + Дополнительная функция обработки строк: RemoveExternalSpaces
+    ! Изменен тип 2-х функций:
+        RemoveLeadingSpaces
+        RemoveTrailingSpaces
+      Возвращают char*
 */
 
 #include "headers.hpp"
@@ -656,25 +662,39 @@ char* TruncPathStr(char *Str,int MaxLength)
   return(Str);
 }
 
-
-void RemoveLeadingSpaces(unsigned char *Str)
+/* $ 07.07.2000 SVS
+    + Дополнительная функция обработки строк: RemoveExternalSpaces
+    ! Функции Remove*Spaces возвращают char*
+*/
+// удалить ведущие пробелы
+unsigned char* RemoveLeadingSpaces(unsigned char *Str)
 {
   char *ChPtr;
   for (ChPtr=Str;isspace(*ChPtr);ChPtr++)
          ;
   if (ChPtr!=Str)
     memmove(Str,ChPtr,strlen(ChPtr)+1);
+  return Str;
 }
 
 
-void RemoveTrailingSpaces(unsigned char *Str)
+// удалить конечные пробелы
+unsigned char* RemoveTrailingSpaces(unsigned char *Str)
 {
   for (int I=strlen(Str)-1;I>=0;I--)
     if (isspace(Str[I]) || iseol(Str[I]))
       Str[I]=0;
     else
       break;
+  return Str;
 }
+
+// удалить пробелы снаружи
+unsigned char* RemoveExternalSpaces(unsigned char *Str)
+{
+  return RemoveTrailingSpaces(RemoveLeadingSpaces(Str));
+}
+/* SVS $ */
 
 
 void ConvertNameToFull(char *Src,char *Dest)
@@ -1526,3 +1546,4 @@ DWORD ExpandEnvironmentStr(char *src, char *dest, size_t size)
  return ret;
 }
 /* SVS $ */
+

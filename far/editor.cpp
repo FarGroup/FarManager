@@ -5,7 +5,7 @@ editor.cpp
 
 */
 
-/* Revision: 1.02 29.06.2000 $ */
+/* Revision: 1.03 07.07.2000 $ */
 
 /*
 Modify:
@@ -16,7 +16,8 @@ Modify:
     - trap при размере вертикального блока более 1000 колонок
   29.06.2000 IG
     + CtrlAltLeft, CtrlAltRight для вертикальный блоков
-
+  07.07.2000 tran & SVS
+    + in AltF8 - row,col support
 */
 
 #include "headers.hpp"
@@ -33,6 +34,7 @@ static int InitUseDecodeTable=FALSE,InitTableNum=0,InitAnsiText=FALSE;
 
 static const char *WordDiv="!%^&*()+|{}:\"<>?`-=\\[];',./";
 static int ReplaceMode,ReplaceAll;
+static BOOL GetRowCol(char *argv,int *row,int *col);
 
 static int EditorID=0;
 
@@ -1493,10 +1495,19 @@ int Editor::ProcessKey(int Key)
       return(TRUE);
     case KEY_ALTF8:
       {
+        /* $ 05.07.2000 tran
+           + возможность переходить не только на строку, но и на колонку */
         int LeftPos=CurLine->EditLine.GetLeftPos();
-        GoToLine(-1);
-        CurLine->EditLine.SetTabCurPos(CurPos);
-        CurLine->EditLine.SetLeftPos(LeftPos);
+        int NewPos;
+        NewPos=GoToLine(-1);
+        if ( NewPos == -1)
+        {
+            CurLine->EditLine.SetTabCurPos(CurPos);
+            CurLine->EditLine.SetLeftPos(LeftPos);
+        }
+        else
+            CurLine->EditLine.SetTabCurPos(NewPos);
+        /* tran 05.07.2000 $ */
         Show();
       }
       return(TRUE);
@@ -2827,43 +2838,112 @@ void Editor::UnmarkBlock()
 }
 
 
-void Editor::GoToLine(int Line)
+/* $ 07.07.2000 tran & SVS
+   + добавлена возможность переходить на колонку
+     по формату [!][ROW][,COL]
+     вынужден был изменить тип возвращаемого значения с void на int
+     не хотелось вводить переменную в класс
+     '!' - задает относительное смещение (пока не реализовано ;-)
+*/
+int Editor::GoToLine(int Line)
 {
-  int NewLine;
+  int NewLine=-1;
+  int NewCol=-1;
+  BOOL IsAbsMode=TRUE; // Абсолютное смещение?
+
   if (Line==-1)
   {
     const char *LineHistoryName="LineNumber";
     static struct DialogData GoToDlgData[]=
     {
       DI_DOUBLEBOX,3,1,21,3,0,0,0,0,(char *)MEditGoToLine,
-      DI_EDIT,5,2,19,2,1,(DWORD)LineHistoryName,DIF_HISTORY,1,""
+      DI_EDIT,5,2,19,2,1,(DWORD)LineHistoryName,DIF_HISTORY,1,"",
     };
     MakeDialogItems(GoToDlgData,GoToDlg);
-    static char PrevLine[20];
-
+    static char PrevLine[40]={0};
     {
       strcpy(GoToDlg[1].Data,PrevLine);
       Dialog Dlg(GoToDlg,sizeof(GoToDlg)/sizeof(GoToDlg[0]));
       Dlg.SetPosition(-1,-1,25,5);
+      Dlg.SetHelp("EditorGotoPos");
       Dlg.Process();
-      if (Dlg.GetExitCode()!=1 || !isdigit(*GoToDlg[1].Data))
-        return;
+      // tran: was if (Dlg.GetExitCode()!=1 || !isdigit(*GoToDlg[1].Data))
+      if (Dlg.GetExitCode()!=1 )
+        return -1;
+      // Запомним ранее введенное значение в текущем сеансе работы FAR`а
       strncpy(PrevLine,GoToDlg[1].Data,sizeof(PrevLine));
+
+      //  IsAbsMode - на будущее - это про относительное или абс. смещение
+      IsAbsMode=GetRowCol(GoToDlg[1].Data,&NewLine,&NewCol);
+
+      NewLine--;
+      if (NewLine < 0)   // если ввели ",Col"
+        NewLine=NumLine;  //   то переходим на текущую строку и колонку
+      NewCol--;
+      if (NewCol < -1)
+        NewCol=-1;
     }
-    NewLine=atoi(GoToDlg[1].Data)-1;
   }
   else
     NewLine=Line;
+
   int LastNumLine=NumLine;
   int CurScrLine=CalcDistance(TopScreen,CurLine,-1);
-  for (NumLine=0,CurLine=TopList;NumLine<NewLine && CurLine->Next!=NULL;NumLine++)
+  for (NumLine=0,CurLine=TopList;
+         NumLine<NewLine && CurLine->Next!=NULL;
+         NumLine++)
     CurLine=CurLine->Next;
   CurScrLine+=NumLine-LastNumLine;
+
   if (CurScrLine<0 || CurScrLine>=Y2-Y1)
     TopScreen=CurLine;
   Show();
+  return NewCol;
 }
+/* tran 07.07.2000 $ */
 
+
+/* $ 07.07.2000 tran & SVS
+   function for AltF8 user answer parsing
+   Возвращает:
+      TRUE  - абсолютное смещение
+      FALSE - относительное
+*/
+static BOOL GetRowCol(char *argv,int *row,int *col)
+{
+  int x=0,y=0,l;
+  BOOL IsAbsMode=TRUE;
+
+  // что бы не оставить "врагу" выбора - только то, что мы хотим ;-)
+  // "прибьем" все внешние пробелы.
+  RemoveExternalSpaces(argv);
+
+  if(*argv == '!') // если стоит '!', то считаем, что смещение относительное
+  {
+    IsAbsMode=FALSE;
+    ++argv;
+  }
+  // получаем индекс вхождения любого разделителя
+  // в искомой строке
+  l=strcspn(argv,",:;. ");
+  // если разделителя нету, то l=strlen(argv)
+
+  if(l < strlen(argv)) // Варианты: "row,col" или ",col"?
+  {
+    argv[l]='\0'; // Вместо разделителя впиндюлим "конец строки" :-)
+    if(l) // Only: "row,col"?
+      y=atoi(argv);
+    x=atoi(argv+l+1);
+  }
+  else // Варианты: "row" или "row," - однозначно
+  {
+    y=atoi(argv);
+  }
+  *row=y;
+  *col=x;
+  return IsAbsMode;
+}
+/* tran 07.07.2000 $ */
 
 void Editor::SetEditKeyBar(KeyBar *EditKeyBar)
 {

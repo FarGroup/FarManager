@@ -7,13 +7,17 @@ editor.hpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 05.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  05.07.2000 tran
+    ! изменил тип возврата у GoToLine() с 'void ' на 'int'
+      возвращаемое значение - это колонка, введенная пользователем
+      используется только в одном месте - в обработке Alt-F8
 */
 
 class Editor:public ScreenObject
@@ -29,8 +33,14 @@ class Editor:public ScreenObject
     void ScrollDown();
     void ScrollUp();
     void Search(int Next);
-    void GoToLine(int Line);
-    int CalcDistance(struct EditList *From,struct EditList *To,int MaxDist);
+    /* $ 05.07.2000 tran
+       ! изменил тип возврата у GoToLine() с 'void ' на 'int'
+       возвращаемое значение - это колонка, введенная пользователем
+       используется только в одном месте - в обработке Alt-F8
+    */
+    int  GoToLine(int Line);
+    /* tran 05.07.2000 $ */
+    int  CalcDistance(struct EditList *From,struct EditList *To,int MaxDist);
     void Paste();
     void Copy(int Append);
     void DeleteBlock();

@@ -1219,7 +1219,7 @@ $ #Internal editor#
    #F8#                      Toggle DOS/Windows text
    #Shift-F8#                Select custom character table
                            (see notes below)
-   #Alt-F8#                  Go to specified line
+   #Alt-F8#                  ~Go to specified line and column~@EditorGotoPos@
    #F10, Esc#                Quit
    #Shift-F10#               Save and quit
    #F11#                     Call "Plugin commands" menu
@@ -1238,6 +1238,17 @@ $ #Internal editor#
        subfolder of the Far folder in the form of .reg files.
        Before any table may be used it must be installed: just press
        Shift-Enter on the corresponding file.
+
+@EditorGotoPos
+$ #Go to specified line and column#
+ This dialog allows chnage position in internal editor.
+
+ You can enter row or col, or both.
+
+ Fist number interpreted as a ROW number, second as a COL.
+ Number must delemited one of follow chars - "," "." ";" ":" or space.
+
+ If you enter value in form ",Col", editor jump to COl in current line.
 
 @DriveDlg
 $ #Change drive#
