@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.52 21.10.2001 $ */
+/* Revision: 1.53 22.10.2001 $ */
 
 /*
 Modify:
+  16.10.2001 SVS
+    + ADDSPACEFORPSTRFORMESSAGE - для Message (вместо числа 16)
   21.10.2001 SVS
     ! PREREDRAWFUNC и PISDEBUGGERPRESENT переехали из global.hpp
   16.10.2001 SVS
@@ -319,5 +321,7 @@ enum {
 
 typedef void (*PREREDRAWFUNC)(void);
 typedef BOOL (WINAPI *PISDEBUGGERPRESENT)(VOID);
+
+#define ADDSPACEFORPSTRFORMESSAGE 16
 
 #endif // __FARCONST_HPP__

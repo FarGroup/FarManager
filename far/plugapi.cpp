@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.98 21.10.2001 $ */
+/* Revision: 1.99 22.10.2001 $ */
 
 /*
 Modify:
+  22.10.2001 SVS
+    ! Заюзаем вместо +16 константу ADDSPACEFORPSTRFORMESSAGE
   21.10.2001 SVS
     + CALLBACK-функция для избавления от BugZ#85
     ! Переработанный Message для плагинов (снято ограничение на 13 строк)
@@ -904,7 +906,7 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
     ItemsNumber++; //??
   }
 
-  const char **MsgItems=(const char **)malloc(sizeof(char*)*(ItemsNumber+16));
+  const char **MsgItems=(const char **)malloc(sizeof(char*)*(ItemsNumber+ADDSPACEFORPSTRFORMESSAGE));
   if(!MsgItems)
   {
     free(SingleItems);

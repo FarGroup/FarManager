@@ -7,10 +7,12 @@ Tree panel
 
 */
 
-/* Revision: 1.05 21.10.2001 $ */
+/* Revision: 1.06 22.10.2001 $ */
 
 /*
 Modify:
+  22.10.2001 SVS
+    ! ReadTree() возвращает TRUE/FALSE
   21.10.2001 SVS
     + PR_MsgReadTree
   06.05.2001 DJ
@@ -74,7 +76,7 @@ class TreeList: public Panel
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 //    void KillFocus();
     void Update(int Mode);
-    void ReadTree();
+    int  ReadTree();
     void SetCurDir(char *NewDir,int ClosePlugin);
     void SetRootDir(char *NewRootDir);
     void GetCurDir(char *CurDir);

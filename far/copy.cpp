@@ -5,10 +5,13 @@ copy.cpp
 
 */
 
-/* Revision: 1.52 21.10.2001 $ */
+/* Revision: 1.53 22.10.2001 $ */
 
 /*
 Modify:
+  22.10.2001 SVS
+    - Артефакт с прорисовкой после внедрения CALLBACK-функции (когда 1 панель
+      погашена - остается кусок месагбокса)
   21.10.2001 SVS
     + CALLBACK-функция для избавления от BugZ#85
   17.10.2001 SVS
@@ -711,11 +714,18 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   SrcPanel->Update(UPDATE_KEEP_SELECTION);
   if (CDP.SelCount==1 && *RenamedName)
     SrcPanel->GoToFile(RenamedName);
+
+  AnotherPanel->SortFileList(TRUE);
+  AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
+
+  CtrlObject->Cp()->Redraw();
+  /*
   SrcPanel->Redraw();
 
   AnotherPanel->SortFileList(TRUE);
   AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
   AnotherPanel->Redraw();
+  */
 }
 
 

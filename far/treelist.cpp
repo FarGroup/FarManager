@@ -5,10 +5,14 @@ Tree panel
 
 */
 
-/* Revision: 1.22 21.10.2001 $ */
+/* Revision: 1.23 22.10.2001 $ */
 
 /*
 Modify:
+  22.10.2001 SVS
+    - Забыл прибить CALLBACK-функцию при выходе :-(
+    ! исправление отрисовки после CALLBACK
+    ! ReadTree() возвращает TRUE/FALSE
   21.10.2001 SVS
     + CALLBACK-функция для избавления от BugZ#85
   27.09.2001 IS
@@ -279,9 +283,12 @@ void TreeList::Update(int Mode)
   UpdateRequired=FALSE;
   GetRoot();
   int LastTreeCount=TreeCount;
+  int RetFromReadTree=TRUE;
+
   if (!ReadTreeFile())
-    ReadTree();
-  if (TreeCount>0 && ((Mode & UPDATE_KEEP_SELECTION)==0 || LastTreeCount!=TreeCount))
+    RetFromReadTree=ReadTree();
+
+  if (RetFromReadTree && TreeCount>0 && ((Mode & UPDATE_KEEP_SELECTION)==0 || LastTreeCount!=TreeCount))
   {
     SyncDir();
 
@@ -293,10 +300,17 @@ void TreeList::Update(int Mode)
       Show();
     }
   }
+  else if(!RetFromReadTree)
+  {
+    Show();
+    Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+    AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
+    AnotherPanel->Redraw();
+  }
 }
 
 
-void TreeList::ReadTree()
+int TreeList::ReadTree()
 {
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
   //SaveScreen SaveScr;
@@ -317,7 +331,7 @@ void TreeList::ReadTree()
   free(ListData);
   TreeCount=0;
   if ((ListData=(struct TreeItem*)malloc(sizeof(struct TreeItem)))==NULL)
-    return;
+    return FALSE;
   /* SVS $ */
   strcpy(ListData->Name,Root);
   if (RootLength>0 && Root[RootLength-1]!=':' && Root[RootLength]=='\\')
@@ -335,14 +349,11 @@ void TreeList::ReadTree()
     if (TreeCount>3 && !MsgReadTree(TreeCount,FirstCall) ||
         (ListData=(struct TreeItem *)realloc(ListData,(TreeCount+1)*sizeof(struct TreeItem)))==0)
     {
-      /* $ 13.07.2000 SVS
-         не надо смешивать new/delete с realloc
-      */
       free(ListData);
-      /* SVS $ */
       ListData=NULL;
       TreeCount=0;
-      return;
+      SetPreRedrawFunc(NULL);
+      return FALSE;
     }
     strcpy(ListData[TreeCount++].Name,FullName);
   }
@@ -352,6 +363,7 @@ void TreeList::ReadTree()
 
   FillLastData();
   SaveTreeFile();
+  return TRUE;
 }
 
 #ifdef _MSC_VER

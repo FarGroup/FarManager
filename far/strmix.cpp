@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.25 21.10.2001 $ */
+/* Revision: 1.26 22.10.2001 $ */
 
 /*
 Modify:
+  22.10.2001 SVS
+    ! strncpy() ;-(
   21.10.2001 SVS
     + Addeded WordWrap
   07.10.2001 SVS
@@ -954,7 +956,7 @@ char *WINAPI WordWrap(const char *SrcText,int Width,
       strcat(newtext, text+last);
     }
   }
-  strncpy(DestText,newtext,MaxLen);
+  strncpy(DestText,newtext,MaxLen-1);
   free(newtext);
   return DestText;
 }

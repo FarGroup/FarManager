@@ -5,10 +5,14 @@ message.cpp
 
 */
 
-/* Revision: 1.15 18.10.2001 $ */
+/* Revision: 1.16 22.10.2001 $ */
 
 /*
 Modify:
+  22.10.2001 SVS
+    - Не проинициализированная переменная
+    ! Заюзаем вместо +16 константу ADDSPACEFORPSTRFORMESSAGE
+    - strncpy
   18.10.2001 SVS
     ! У функций Message параметр Flags имеет суть "DWORD"
     + Новый вариант Message - без ограничения на количество строк
@@ -121,7 +125,7 @@ int Message(DWORD Flags,int Buttons,const char *Title,
   char TmpStr[256],ErrStr[2048];
   int X1,Y1,X2,Y2;
   int Length,MaxLength,BtnLength,I, J, StrCount;
-  BOOL ErrorSets;
+  BOOL ErrorSets=FALSE;
   const char **Str;
   char *PtrStr;
   const char *CPtrStr;
@@ -131,7 +135,7 @@ int Message(DWORD Flags,int Buttons,const char *Title,
     ErrorSets=GetErrorString(ErrStr, sizeof(ErrStr));
 
   // выделим память под рабочий массив указателей на строки (+запас 16)
-  Str=(const char **)malloc((ItemsNumber+16) * sizeof(char*));
+  Str=(const char **)malloc((ItemsNumber+ADDSPACEFORPSTRFORMESSAGE) * sizeof(char*));
   if(!Str)
     return -1;
 
@@ -267,7 +271,7 @@ int Message(DWORD Flags,int Buttons,const char *Title,
     MsgDlg[0].Y2=Y2-Y1-1;
 
     if(Title && *Title)
-      strcpy(MsgDlg[0].Data,Title);
+      strncpy(MsgDlg[0].Data,Title,sizeof(MsgDlg[0].Data)-1);
 
     int TypeItem=DI_TEXT;
     DWORD FlagsItem=DIF_SHOWAMPERSAND;
@@ -451,7 +455,7 @@ int GetErrorString(char *ErrStr, DWORD StrSize)
   for(I=0; I < sizeof(ErrMsgs)/sizeof(ErrMsgs[0]); ++I)
     if(ErrMsgs[I].WinMsg == LastError)
     {
-      strcpy(ErrStr,MSG(ErrMsgs[I].FarMsg));
+      strncpy(ErrStr,MSG(ErrMsgs[I].FarMsg),StrSize-1);
       break;
     }
 

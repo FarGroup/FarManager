@@ -5,10 +5,13 @@ delete.cpp
 
 */
 
-/* Revision: 1.30 21.10.2001 $ */
+/* Revision: 1.31 22.10.2001 $ */
 
 /*
 Modify:
+  22.10.2001 SVS
+    - Артефакт с прорисовкой после внедрения CALLBACK-функции (когда 1 панель
+      погашена - остается кусок месагбокса)
   21.10.2001 SVS
     + CALLBACK-функция для избавления от BugZ#85
   01.10.2001 IS
@@ -490,16 +493,17 @@ void ShellDeleteUpdatePanels(Panel *SrcPanel)
     if(AnotherPanel->NeedUpdatePanel(SrcPanel))
     {
       AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
-      AnotherPanel->Redraw();
+//      AnotherPanel->Redraw();
     }
   }
   SrcPanel->Update(UPDATE_KEEP_SELECTION);
-  SrcPanel->Redraw();
+//  SrcPanel->Redraw();
   if (AnotherType==QVIEW_PANEL)
   {
     AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
-    AnotherPanel->Redraw();
+//    AnotherPanel->Redraw();
   }
+  CtrlObject->Cp()->Redraw();
 }
 
 static void PR_ShellDeleteMsg(void)
