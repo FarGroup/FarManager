@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.54 24.10.2001 $ */
+/* Revision: 1.55 29.10.2001 $ */
 
 /*
 Modify:
+  29.10.2001 SVS
+    ! временно отменим проверку на потоки, т.к. не совсем доделано
   24.10.2001 SVS
     + выставим дополнительный параметр у FolderTree - "ЭТО НЕ ПАНЕЛЬ!"
   22.10.2001 SVS
@@ -1642,6 +1644,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
 // проверка очередного монстрика на потоки
 COPY_CODES ShellCopy::CheckStreams(const char *Src,const char *DestPath)
 {
+#if 0
   int AscStreams=(ShellCopy::Flags&FCOPY_STREAMSKIP)?2:((ShellCopy::Flags&FCOPY_STREAMALL)?0:1);
   if(!Opt.UseSystemCopy && NT && AscStreams)
   {
@@ -1674,6 +1677,7 @@ COPY_CODES ShellCopy::CheckStreams(const char *Src,const char *DestPath)
       }
     }
   }
+#endif
   return COPY_SUCCESS;
 }
 

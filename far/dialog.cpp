@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.171 23.10.2001 $ */
+/* Revision: 1.172 29.10.2001 $ */
 
 /*
 Modify:
+  29.10.2001 SVS
+    ! DM_RESIZEDIALOG возвращает новый размер!
   23.10.2001 SVS
     ! FarListTitle -> FarListTitles
     ! Эксперимент - в ProcessMouse делаем обход контролов с конца на начало,
@@ -5677,8 +5679,16 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       Dlg->Y2=Dlg->Y1+H1-1;
       /* KM $ */
 
-      ((COORD*)Param2)->X=Dlg->X1;
-      ((COORD*)Param2)->Y=Dlg->Y1;
+      if(Param1 < 0)   // размер?
+      {
+        ((COORD*)Param2)->X=Dlg->X2-Dlg->X1+1;
+        ((COORD*)Param2)->Y=Dlg->Y2-Dlg->Y1+1;
+      }
+      else
+      {
+        ((COORD*)Param2)->X=Dlg->X1;
+        ((COORD*)Param2)->Y=Dlg->Y1;
+      }
 
       I=Dlg->IsVisible();// && Dlg->CheckDialogMode(DMODE_INITOBJECTS);
       if(I) Dlg->Hide();

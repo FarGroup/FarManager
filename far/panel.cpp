@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.65 24.10.2001 $ */
+/* Revision: 1.66 29.10.2001 $ */
 
 /*
 Modify:
+  29.10.2001 SVS
+    ! уточнение Panel::SetCurPath()
   24.10.2001 SVS
     ! Немного оптимизации в SetCurPath()
   05.10.2001 SVS
@@ -1167,6 +1169,9 @@ void Panel::InitCurDir(char *CurDir)
 */
 int  Panel::SetCurPath()
 {
+  if (GetMode()==PLUGIN_PANEL)
+    return TRUE;
+
   char UpDir[NM],Drive[4],*ChPtr;
 
   strcpy(Drive,"=A:");
@@ -1181,9 +1186,6 @@ int  Panel::SetCurPath()
       SetEnvironmentVariable(Drive,AnotherPanel->CurDir);
     }
   }
-
-  if (GetMode()==PLUGIN_PANEL)
-    return TRUE;
 
   strcpy(UpDir,CurDir);
   if ((ChPtr=strrchr(UpDir,'\\'))!=NULL)
