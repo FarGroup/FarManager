@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.86 05.04.2002 $ */
+/* Revision: 1.87 22.05.2002 $ */
 
 /*
 Modify:
+  22.05.2002 SVS
+    + Opt.CloseCDGate
   05.04.2002 SVS
     + Opt.PluginMaxReadData
   01.04.2002 SVS
@@ -719,6 +721,7 @@ struct Options
   int PgUpChangeDisk;
   int ShowCheckingFile;
   int CloseConsoleRule;
+  int CloseCDGate;       // автомонтирование CD
 
   DWORD LCIDSort;
   int FindFolders;

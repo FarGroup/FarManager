@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.135 05.04.2002 $ */
+/* Revision: 1.136 22.05.2002 $ */
 
 /*
 Modify:
+  22.05.2002 SVS
+    + Opt.CloseCDGate
   05.04.2002 SVS
     + Opt.PluginMaxReadData, по умолчанию = 0x20000
   01.04.2002 SVS
@@ -456,7 +458,7 @@ void SystemSettings()
      + ƒобавка в виде задани€ дополнительного пути дл€ поиска плагинов
   */
   static struct DialogData CfgDlgData[]={
-  /*  0 */  DI_DOUBLEBOX,3,1,52,18,0,0,0,0,(char *)MConfigSystemTitle,
+  /*  0 */  DI_DOUBLEBOX,3,1,52,19,0,0,0,0,(char *)MConfigSystemTitle,
   /*  1 */  DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MConfigRO,
   /*  2 */  DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MConfigRecycleBin,
   /*  3 */  DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MConfigSystemCopy,
@@ -469,12 +471,13 @@ void SystemSettings()
   /* 10 */  DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MConfigSaveFoldersHistory,
   /* 11 */  DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MConfigSaveViewHistory,
   /* 12 */  DI_CHECKBOX,5,12,0,0,0,0,0,0,(char *)MConfigRegisteredTypes,
-  /* 13 */  DI_TEXT,5,13,0,0,0,0,0,0,(char *)MConfigPersonalPath,
-  /* 14 */  DI_EDIT,5,14,50,14,0,(DWORD)HistoryName,DIF_HISTORY|DIF_VAREDIT,0,"",
-  /* 15 */  DI_CHECKBOX,5,15,0,0,0,0,0,0,(char *)MConfigAutoSave,
-  /* 16 */  DI_TEXT,5,16,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 17 */  DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-  /* 18 */  DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  /* 13 */  DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MConfigCloseCDGate,
+  /* 14 */  DI_TEXT,5,14,0,0,0,0,0,0,(char *)MConfigPersonalPath,
+  /* 15 */  DI_EDIT,5,15,50,15,0,(DWORD)HistoryName,DIF_HISTORY|DIF_VAREDIT,0,"",
+  /* 16 */  DI_CHECKBOX,5,16,0,0,0,0,0,0,(char *)MConfigAutoSave,
+  /* 17 */  DI_TEXT,5,17,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 18 */  DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 19 */  DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
   MakeDialogItems(CfgDlgData,CfgDlg);
 
@@ -496,20 +499,20 @@ void SystemSettings()
   CfgDlg[10].Selected=Opt.SaveFoldersHistory;
   CfgDlg[11].Selected=Opt.SaveViewHistory;
   CfgDlg[12].Selected=Opt.UseRegisteredTypes;
-
+  CfgDlg[13].Selected=Opt.CloseCDGate;
   strcpy(PersonalPluginsPath,Opt.PersonalPluginsPath);
-  CfgDlg[14].Ptr.PtrData=PersonalPluginsPath;
-  CfgDlg[14].Ptr.PtrLength=sizeof(PersonalPluginsPath);
-  CfgDlg[15].Selected=Opt.AutoSaveSetup;
+  CfgDlg[15].Ptr.PtrData=PersonalPluginsPath;
+  CfgDlg[15].Ptr.PtrLength=sizeof(PersonalPluginsPath);
+  CfgDlg[16].Selected=Opt.AutoSaveSetup;
 
   {
     Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
     Dlg.SetHelp("SystemSettings");
-    Dlg.SetPosition(-1,-1,56,20);
+    Dlg.SetPosition(-1,-1,56,21);
     Dlg.SetAutomation(6,7,DIF_DISABLE,0,0,DIF_DISABLE);
     Dlg.SetAutomation(6,8,DIF_DISABLE,0,0,DIF_DISABLE);
     Dlg.Process();
-    if (Dlg.GetExitCode()!=17)
+    if (Dlg.GetExitCode()!=18)
       return;
   }
 
@@ -525,7 +528,8 @@ void SystemSettings()
   Opt.SaveFoldersHistory=CfgDlg[10].Selected;
   Opt.SaveViewHistory=CfgDlg[11].Selected;
   Opt.UseRegisteredTypes=CfgDlg[12].Selected;
-  Opt.AutoSaveSetup=CfgDlg[15].Selected;
+  Opt.CloseCDGate=CfgDlg[13].Selected;
+  Opt.AutoSaveSetup=CfgDlg[16].Selected;
   strcpy(Opt.PersonalPluginsPath,PersonalPluginsPath);
   /* SVS $ */
 }
@@ -1334,6 +1338,8 @@ static struct FARConfig{
   //{0, REG_DWORD,  NKeySystem,"CPAJHefuayor",&Opt.CPAJHefuayor,0, 0},
   {0, REG_DWORD,  NKeySystem,"CloseConsoleRule",&Opt.CloseConsoleRule,1, 0},
   {0, REG_DWORD,  NKeySystem,"PluginMaxReadData",&Opt.PluginMaxReadData,0x20000, 0},
+  {1, REG_DWORD,  NKeySystem,"CloseCDGate",&Opt.CloseCDGate,-1, 0},
+
 
   {0, REG_DWORD,  NKeySystemNowell,"MoveRO",&Opt.Nowell.MoveRO,1, 0},
 
@@ -1474,6 +1480,9 @@ void ReadConfig()
   // ”молчание разное дл€ разных платформ.
   if(Opt.AltF9 == -1)
     Opt.AltF9=WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT?1:0;
+
+  if(Opt.CloseCDGate == -1)
+    Opt.CloseCDGate=WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT?1:0;
 
   Opt.HelpTabSize=8; // пока жестко пропишем...
 

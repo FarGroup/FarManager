@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.107 29.04.2002 $ */
+/* Revision: 1.108 22.05.2002 $ */
 
 /*
 Modify:
+  22.05.2002 SVS
+    + MConfigCloseCDGate
   29.04.2002 SVS
     + MShortcutPlugin
   27.04.2002 SVS
@@ -464,8 +466,9 @@ enum
   MConfigSaveFoldersHistory,
   MConfigSaveViewHistory,
   MConfigRegisteredTypes,
-  MConfigAutoSave,
+  MConfigCloseCDGate,
   MConfigPersonalPath,
+  MConfigAutoSave,
 
   MConfigPanelTitle,
   MConfigHidden,

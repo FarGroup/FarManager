@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.94 16.05.2002 $ */
+/* Revision: 1.95 22.05.2002 $ */
 
 /*
 Modify:
+  22.05.2002 SVS
+    ! Opt.CloseCDGate + IsDiskInDrive() перед монтированием CD
   15.05.2002 SVS
     ! Вместо прямого присвоения значения переменной воспользуемся
       вызовом функции
@@ -789,13 +791,17 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
     }
   }
 
-  if(UserData != NULL && HIWORD(UserData) == DRIVE_CDROM && UserDataSize == 3)
+  if(Opt.CloseCDGate && UserData != NULL && HIWORD(UserData) == DRIVE_CDROM && UserDataSize == 3)
   {
-    if(!EjectVolume(LOBYTE(LOWORD(UserData)),EJECT_READY|EJECT_NO_MESSAGE))
+    sprintf(RootDir,"%c:",LOBYTE(LOWORD(UserData)));
+    if(!IsDiskInDrive(RootDir))
     {
-      SaveScreen SvScrn;
-      Message(0,0,"",MSG(MChangeWaitingLoadDisk));
-      EjectVolume(LOBYTE(LOWORD(UserData)),EJECT_LOAD_MEDIA|EJECT_NO_MESSAGE);
+      if(!EjectVolume(LOBYTE(LOWORD(UserData)),EJECT_READY|EJECT_NO_MESSAGE))
+      {
+        SaveScreen SvScrn;
+        Message(0,0,"",MSG(MChangeWaitingLoadDisk));
+        EjectVolume(LOBYTE(LOWORD(UserData)),EJECT_LOAD_MEDIA|EJECT_NO_MESSAGE);
+      }
     }
   }
 

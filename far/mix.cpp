@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.124 29.04.2002 $ */
+/* Revision: 1.125 22.05.2002 $ */
 
 /*
 Modify:
+  22.05.2002 SVS
+    + IsDiskInDrive()
   29.04.2002 SVS
     - BugZ#239 - Folder shortcuts для несуществующих папок
   26.04.2002 SVS
@@ -1389,4 +1391,21 @@ int CheckShortcutFolder(char *TestPath,int LengthPath,int IsHostFile)
   if(CtrlObject->Cp()->ActivePanel->ProcessPluginEvent(FE_CLOSE,NULL))
     return -1;
   return 1;
+}
+
+BOOL IsDiskInDrive(const char *Root)
+{
+  char   VolName[256];
+  char   Drive[NM];
+  DWORD  MaxComSize;
+  DWORD  Flags;
+  char   FS[256];
+
+  strcpy(Drive,Root);
+  AddEndSlash(Drive);
+  UINT ErrMode = SetErrorMode ( SEM_FAILCRITICALERRORS );
+  //если не сделать SetErrorMode - выскочит стандартное окошко "Drive Not Ready"
+  BOOL Res = GetVolumeInformation (Drive, VolName, sizeof(VolName), NULL, &MaxComSize, &Flags, FS, sizeof(FS));
+  SetErrorMode(ErrMode);
+  return Res;
 }
