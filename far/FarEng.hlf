@@ -213,6 +213,7 @@ $ #Command line commands#
   Clear command line                                          #Ctrl-Y#
   Insert file name from the active panel                  #Ctrl-Enter#
   Insert full file name from the active panel                 #Ctrl-F#
+  Insert UNC file name from the active panel              #Ctrl-Alt-F#
   Insert left panel path                                      #Ctrl-[#
   Insert right panel path                                     #Ctrl-]#
   Insert active panel path                              #Ctrl-Shift-[#
@@ -230,6 +231,9 @@ $ #Command line commands#
 
   3. Most of the described above commands are valid for all edit
      strings including edit controls in dialogs and internal editor.
+
+  4. #Ctrl-Alt-F# works only for network drivers. For local drivers no
+     differences with #Ctrl-F#
 
 @FuncCmd
 $ #File management and service commands#
