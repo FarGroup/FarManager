@@ -5,10 +5,13 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.60 10.01.2002 $ */
+/* Revision: 1.61 29.01.2002 $ */
 
 /*
 Modify:
+  29.01.2002 SVS
+    - Была неверная отложенная установка заголовка консоли (неверное,
+      старое значение выставлялось)
   10.01.2002 SVS
     ! Устем правило Opt.HotkeyRules для Alt-буква
   27.12.2001 KM
@@ -546,7 +549,7 @@ int GetInputRecord(INPUT_RECORD *rec)
           SetConsoleMode(hConInp,ENABLE_WINDOW_INPUT|ENABLE_MOUSE_INPUT);
           SetConsoleMode(hConInp,ENABLE_WINDOW_INPUT);
         }
-        SetFarTitle(LastFarTitle);
+        SetFarTitle(NULL);//LastFarTitle);
       }
       if (Opt.ScreenSaver && Opt.ScreenSaverTime>0 &&
           CurTime-StartIdleTime>Opt.ScreenSaverTime*60000)

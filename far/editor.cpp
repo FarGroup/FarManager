@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.149 28.01.2002 $ */
+/* Revision: 1.150 29.01.2002 $ */
 
 /*
 Modify:
+  29.01.2002 SVS
+    - непостоянные блоки, Alt-F8 Enter - выделение блока не снимается
   28.01.2002 VVM
     + FreeAllocatedDaat()
   19.01.2002 IS
@@ -2472,9 +2474,15 @@ int Editor::ProcessKey(int Key)
            + возможность переходить не только на строку, но и на колонку */
         /* $ 21.07.2000 tran
            Все внутри функции */
+        DisableOut++;
         GoToPosition();
+        DisableOut--;
         /* tran 21.07.2000 $ */
         /* tran 05.07.2000 $ */
+        // <GOTO_UNMARK:1>
+        if (!EdOpt.PersistentBlocks)
+          UnmarkBlock();
+        // </GOTO_UNMARK>
         Show();
       }
       return(TRUE);
@@ -4233,6 +4241,11 @@ void Editor::GoToLine(int Line)
   if (CurScrLine<0 || CurScrLine>=Y2-Y1)
     TopScreen=CurLine;
 
+// <GOTO_UNMARK:2>
+//  if (!EdOpt.PersistentBlocks)
+//     UnmarkBlock();
+// </GOTO_UNMARK>
+
   Show();
   return ;
 }
@@ -4288,6 +4301,11 @@ void Editor::GoToPosition()
   }
   else
     CurLine->EditLine.SetTabCurPos(NewCol);
+
+// <GOTO_UNMARK:3>
+//  if (!EdOpt.PersistentBlocks)
+//     UnmarkBlock();
+// </GOTO_UNMARK>
 
   Show();
   return ;
