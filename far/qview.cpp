@@ -5,7 +5,7 @@ Quick view panel
 
 */
 
-/* Revision: 1.03 11.07.2000 $ */
+/* Revision: 1.04 12.07.2000 $ */
 
 /*
 Modify:
@@ -18,6 +18,9 @@ Modify:
     + не показывать мессаг бакс при невозвожности открыть файл
   11.07.2000 SVS
     ! Изменения для возможности компиляции под BC & VC
+  12.07.2000 SVS
+    ! Для возможности 3-х позиционного Wrap`а статическая переменная
+      LastWrapMode имеет не булевое значение, а обычный int
 */
 
 #include "headers.hpp"
@@ -29,7 +32,12 @@ Modify:
 #include "internalheaders.hpp"
 /* IS $ */
 
-static int LastWrapMode=FALSE;
+/* $ 12.07.2000 SVS
+    ! Для возможности 3-х позиционного Wrap`а статическая переменная
+      LastWrapMode имеет не булевое значение, а обычный int
+*/
+static int LastWrapMode=VIEW_UNWRAP;
+/* SVS $ */
 
 QuickView::QuickView()
 {

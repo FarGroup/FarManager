@@ -13,7 +13,7 @@ lang.hpp
            подряд.
 */
 
-/* Revision: 1.05 07.07.2000 $ */
+/* Revision: 1.06 12.07.2000 $ */
 
 /*
 Modify:
@@ -40,6 +40,8 @@ Modify:
       умолчанию: MHighlightWarning, MHighlightAskRestore,
     ! В lng-файлах изменилась строка MHighlightBottom - добавил информацию о
       "Ctrl+R"
+  12.07.2000 SVS
+    + Константа MViewF2WWrap
 */
 
 enum
@@ -453,6 +455,7 @@ enum
 
   MViewF1,
   MViewF2,
+  MViewF2WWrap,
   MViewF2Unwrap,
   MViewF3,
   MViewF4,

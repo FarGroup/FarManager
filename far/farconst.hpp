@@ -7,7 +7,7 @@ farconst.hpp
 
 */
 
-/* Revision: 1.03 11.07.2000 $ */
+/* Revision: 1.04 12.07.2000 $ */
 
 /*
 Modify:
@@ -24,6 +24,8 @@ Modify:
       увеличивать выше не имеет смысла...
   11.07.2000 SVS
     ! Изменения для возможности компиляции под BC & VC
+  12.07.2000 SVS
+    + Константы для WrapMode во вьювере.
 */
 
 /* $ 29.06.2000 tran
@@ -156,5 +158,11 @@ enum {NAME_COLUMN=0,SIZE_COLUMN,PACKED_COLUMN,DATE_COLUMN,TIME_COLUMN,
 
 // from scrsaver.cpp
 enum {STAR_NONE,STAR_NORMAL,STAR_PLANET};
+
+/* $ 12.07.2000 SVS
+   + Константы для WrapMode во вьювере.
+*/
+enum {VIEW_UNWRAP=0,VIEW_WRAP=1, VIEW_WORDWRAP=2};
+/* SVS $ */
 
 #endif // __FARCONST_HPP__

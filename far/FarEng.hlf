@@ -1125,7 +1125,7 @@ $ #Internal viewer#
     #End#                End of file
 
     #F1#                 Help
-    #F2#                 Toggle strings wrap/unwrap
+    #F2#                 Toggle strings wrap/wordwrap/unwrap
     #F4#                 Toggle text/hex mode
     #F6#                 Switch to editor
     #F7#                 Search

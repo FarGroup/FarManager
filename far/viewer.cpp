@@ -5,7 +5,7 @@ Internal viewer
 
 */
 
-/* Revision: 1.07 11.07.2000 $ */
+/* Revision: 1.09 12.07.2000 $ */
 
 /*
 Modify:
@@ -32,6 +32,10 @@ Modify:
       а "511" на MAX_VIEWLINE-1
   11.07.2000 SVS
     ! Изменения для возможности компиляции под BC & VC
+  11.07.2000 tran
+    + wrap are now WORD-WRAP
+  12.07.2000 SVS
+    + wrap имеет 3 положения :-) Но только для зарегестрированных.
 */
 
 #include "headers.hpp"
@@ -48,7 +52,7 @@ static int InitLastSearchHex=0;
 static struct CharTableSet InitTableSet;
 static int InitUseDecodeTable=FALSE,InitTableNum=0,InitAnsiText=FALSE;
 
-static int InitWrap=TRUE,InitHex=FALSE;
+static int InitWrap=VIEW_WRAP,InitHex=FALSE;
 
 Viewer::Viewer()
 {
@@ -385,7 +389,12 @@ void Viewer::DisplayObject()
       if (SelSize && SelPos>=LeftPos)
       {
         int SelX1=X1+SelPos-LeftPos;
-        if (!Wrap && SelX1+SaveSelectSize-1>X2 && LeftPos<MAX_VIEWLINE)
+        /* $ 12.07.2000 SVS
+           ! Wrap - трех позиционный
+        */
+        if (Wrap == VIEW_UNWRAP &&
+        /* SVS $ */
+           SelX1+SaveSelectSize-1>X2 && LeftPos<MAX_VIEWLINE)
         {
           LeftPos+=4;
           SelectSize=SaveSelectSize;
@@ -653,11 +662,39 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
     {
       if (OutPtr>=StrSize-16)
         break;
-      if (Wrap && OutPtr>X2-X1)
+      /* $ 12.07.2000 SVS
+        ! Wrap - трехпозиционный
+      */
+      if (Wrap != VIEW_UNWRAP && OutPtr>X2-X1)
       {
+        /* $ 11.07.2000 tran
+           + warp are now WORD-WRAP */
         long SavePos=vtell(ViewFile);
         if ((Ch=vgetc(ViewFile))!=CRSym && (Ch!=13 || vgetc(ViewFile)!=CRSym))
+        {
           vseek(ViewFile,SavePos,SEEK_SET);
+          if (Wrap == VIEW_WORDWRAP && RegVer) // только для зарегестрированных
+          {
+            if ( ! (Ch==' ' || Ch=='\t'  ) && !(Str[OutPtr]==' ' || Str[OutPtr]=='\t'))
+            {
+               long SavePtr=OutPtr;
+               while (OutPtr && !(Str[OutPtr]==' ' || Str[OutPtr]=='\t'))
+                  OutPtr--;
+               while ((Str[OutPtr]==' ' || Str[OutPtr]=='\t') && OutPtr<=SavePtr)
+                  OutPtr++;
+
+               if ( OutPtr )
+               {
+                  vseek(ViewFile,OutPtr-SavePtr,SEEK_CUR);
+                  //
+               }
+               else
+                  OutPtr=SavePtr;
+            }
+            /* tran 11.07.2000 $ */
+          }
+          /* SVS $ */
+        }
         break;
       }
 
@@ -686,7 +723,12 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
         {
           Str[OutPtr++]=' ';
         } while ((OutPtr % Opt.ViewTabSize)!=0);
-        if (Wrap && OutPtr>X2-X1)
+        /* $ 12.07.2000 SVS
+          Wrap - 3-x позиционный и если есть регистрация :-)
+        */
+        if ((Wrap == VIEW_WRAP || (Wrap == VIEW_WORDWRAP && RegVer))
+        /* SVS $ */
+            && OutPtr>X2-X1)
           Str[X2-X1+1]=0;
         continue;
       }
@@ -875,7 +917,15 @@ int Viewer::ProcessKey(int Key)
       }
       return(TRUE);
     case KEY_F2:
-      Wrap=!Wrap;
+      /* $ 12.07.200 SVS
+        ! Wrap имеет 3 положения и...
+      */
+      Wrap=(++Wrap)%3;
+      /* ... третье положение - перенос по словам -
+         доступно только для зарегистрированных!!! */
+      if(Wrap == VIEW_WORDWRAP && !RegVer)
+        Wrap=VIEW_UNWRAP;
+      /* SVS $ */
       ChangeViewKeyBar();
       Show();
       LastSelPos=FilePos;
@@ -1117,7 +1167,7 @@ void Viewer::Up()
   for (I=BufSize-1;I>=-1;I--)
   {
     if (Buf[I]==CRSym || I==-1)
-      if (!Wrap)
+      if (Wrap == VIEW_UNWRAP)
       {
         FilePos-=BufSize-(I+1)+Skipped;
         return;
@@ -1196,10 +1246,16 @@ void Viewer::ChangeViewKeyBar()
 {
   if (ViewKeyBar)
   {
-    if (Wrap)
+    /* $ 12.07.2000 SVS
+       Wrap имеет 3 позиции
+    */
+    if (Wrap == VIEW_UNWRAP)
       ViewKeyBar->Change(MSG(MViewF2Unwrap),1);
-    else
+    else if (Wrap == VIEW_WRAP)
       ViewKeyBar->Change(MSG(MViewF2),1);
+    else
+      ViewKeyBar->Change(MSG(MViewF2WWrap),1);
+    /* SVS $ */
 
     if (Hex)
       ViewKeyBar->Change(MSG(MViewF4Text),3);
@@ -1401,7 +1457,7 @@ void Viewer::Search(int Next,int FirstChar)
       if (SelectPos!=StartLinePos)
         Up();
       int Length=SelectPos-StartLinePos-1;
-      if (Wrap)
+      if (Wrap != VIEW_UNWRAP)
         Length%=ScrX+1;
       if (Length<=ObjWidth)
         LeftPos=0;
