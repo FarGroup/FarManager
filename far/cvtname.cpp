@@ -5,10 +5,13 @@ cvtname.cpp
 
 */
 
-/* Revision: 1.04 07.01.2003 $ */
+/* Revision: 1.05 21.01.2003 $ */
 
 /*
 Modify:
+  21.01.2003 SVS
+    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
+      ѕросьба блюсти пор€док и прописывать именно xf_* вместо простых.
   07.01.2003 IS
     - ошибка в ConvertNameToReal: зачем-то обрабатывали путь "буква:" - он
       равен текущему каталогу на диске "буква", что ведет к непредсказуемым
@@ -84,7 +87,7 @@ DWORD RawConvertShortNameToLongName(const char *src, char *dest, DWORD maxsize)
   BOOL Error=FALSE;
 
   char *Src, *Dest, *DestBuf=NULL,
-       *SrcBuf=(char *)malloc(SrcSize+1);
+       *SrcBuf=(char *)xf_malloc(SrcSize+1);
 
   while(SrcBuf)
   {
@@ -104,7 +107,7 @@ DWORD RawConvertShortNameToLongName(const char *src, char *dest, DWORD maxsize)
        *Dots=0;
        AddSize=strlen(Src);
        FinalSize=AddSize;
-       DestBuf=(char *)malloc(AddSize+64);
+       DestBuf=(char *)xf_malloc(AddSize+64);
        if(DestBuf)
        {
          DestSize=AddSize+64;
@@ -138,7 +141,7 @@ DWORD RawConvertShortNameToLongName(const char *src, char *dest, DWORD maxsize)
          FinalSize+=AddSize;
          if(FinalSize>=DestSize)
          {
-           DestBuf=(char *)realloc(DestBuf, FinalSize+64);
+           DestBuf=(char *)xf_realloc(DestBuf, FinalSize+64);
            if(DestBuf)
            {
              DestSize+=64;
@@ -199,8 +202,8 @@ DWORD RawConvertShortNameToLongName(const char *src, char *dest, DWORD maxsize)
 int ConvertNameToFull(const char *Src,char *Dest, int DestSize)
 {
   int Result = 0;
-//  char *FullName = (char *) malloc (DestSize);
-//  char *AnsiName = (char *) malloc (DestSize);
+//  char *FullName = (char *) xf_malloc (DestSize);
+//  char *AnsiName = (char *) xf_malloc (DestSize);
   char *FullName = (char *) alloca (DestSize);
   char *AnsiName = (char *) alloca (DestSize);
   *FullName = 0;

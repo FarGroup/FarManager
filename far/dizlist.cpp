@@ -5,10 +5,13 @@ dizlist.cpp
 
 */
 
-/* Revision: 1.10 18.05.2002 $ */
+/* Revision: 1.11 21.01.2003 $ */
 
 /*
 Modify:
+  21.01.2003 SVS
+    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
+      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
   18.05.2002 SVS
     ! Возможность компиляции под BC 5.5
   08.05.2002 SVS
@@ -159,7 +162,7 @@ void DizList::AddRecord(char *DizText)
 {
   struct DizRecord *NewDizData=DizData;
   if ((DizCount & 15)==0)
-    NewDizData=(struct DizRecord *)realloc(DizData,(DizCount+16+1)*sizeof(*DizData));
+    NewDizData=(struct DizRecord *)xf_realloc(DizData,(DizCount+16+1)*sizeof(*DizData));
 
   if (NewDizData!=NULL)
   {

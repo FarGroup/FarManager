@@ -5,10 +5,13 @@ findfile.cpp
 
 */
 
-/* Revision: 1.131 19.01.2003 $ */
+/* Revision: 1.132 21.01.2003 $ */
 
 /*
 Modify:
+  21.01.2003 SVS
+    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
+      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
   19.01.2003 KM
     - Падение в поиске на панели плагина YaCat с включенной
       опцией "Искать в архивах".
@@ -715,7 +718,7 @@ FindFiles::FindFiles()
   strncpy(FindStr,LastFindStr,sizeof(FindStr)-1);
   BreakMainThread=0;
   FarList TableList;
-  FarListItem *TableItem=(FarListItem *)malloc(sizeof(FarListItem)*4);
+  FarListItem *TableItem=(FarListItem *)xf_malloc(sizeof(FarListItem)*4);
   TableList.Items=TableItem;
   TableList.ItemsNumber=4;
 
@@ -737,7 +740,7 @@ FindFiles::FindFiles()
 
     if (I==0)
     {
-      TableItem=(FarListItem *)realloc(TableItem,sizeof(FarListItem)*5);
+      TableItem=(FarListItem *)xf_realloc(TableItem,sizeof(FarListItem)*5);
       if (TableItem==NULL)
         return;
       memset(&TableItem[4],0,sizeof(FarListItem));
@@ -746,7 +749,7 @@ FindFiles::FindFiles()
       TableList.ItemsNumber++;
     }
 
-    TableItem=(FarListItem *)realloc(TableItem,sizeof(FarListItem)*(I+6));
+    TableItem=(FarListItem *)xf_realloc(TableItem,sizeof(FarListItem)*(I+6));
     if (TableItem==NULL)
       return;
     memset(&TableItem[I+5],0,sizeof(FarListItem));
@@ -858,7 +861,7 @@ FindFiles::FindFiles()
       }
       if (ExitCode!=23)
       {
-        free(TableItem);
+        xf_free(TableItem);
         UseDecodeTable=InitUseDecodeTable;
         UseUnicode=InitUseUnicode;
         TableNum=InitTableNum;
@@ -957,7 +960,7 @@ FindFiles::FindFiles()
       Editor::SetReplaceMode(FALSE);
   } while (FindFilesProcess());
   CloseHandle(hPluginMutex);
-  free(TableItem);
+  xf_free(TableItem);
 }
 
 
@@ -2626,7 +2629,7 @@ void FindFiles::WriteDialogData(void *Param)
 BOOL FindFiles::FindListGrow()
 {
   DWORD Delta = (FindListCapacity < 256)?LIST_DELTA:FindListCapacity/2;
-  LPFINDLIST NewList = (LPFINDLIST)realloc(FindList, (FindListCapacity + Delta) * sizeof(FINDLIST));
+  LPFINDLIST NewList = (LPFINDLIST)xf_realloc(FindList, (FindListCapacity + Delta) * sizeof(FINDLIST));
   if (NewList)
   {
     FindList = NewList;
@@ -2639,7 +2642,7 @@ BOOL FindFiles::FindListGrow()
 BOOL FindFiles::ArcListGrow()
 {
   DWORD Delta = (ArcListCapacity < 256)?LIST_DELTA:ArcListCapacity/2;
-  LPARCLIST NewList = (LPARCLIST)realloc(ArcList, (ArcListCapacity + Delta) * sizeof(ARCLIST));
+  LPARCLIST NewList = (LPARCLIST)xf_realloc(ArcList, (ArcListCapacity + Delta) * sizeof(ARCLIST));
   if (NewList)
   {
     ArcList = NewList;
@@ -2678,9 +2681,9 @@ DWORD FindFiles::AddArcListItem(const char *ArcName, HANDLE hPlugin,
 void FindFiles::ClearAllLists()
 {
   if (FindList)
-    free(FindList);
+    xf_free(FindList);
   if (ArcList)
-    free(ArcList);
+    xf_free(ArcList);
   FindList = NULL;
   FindListCapacity = FindListCount = 0;
   ArcList = NULL;

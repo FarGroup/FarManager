@@ -223,6 +223,19 @@ $ #Panel control commands#
   4. If #Alt-Shift-Ins# or #Ctrl-Alt-Ins# is pressed when the cursor
      is on the file "#..#", the name of the current folder is copied.
 
+@FastFind
+$ #Fast find in panels#
+   To locate a file quickly, you can use the #fast find# operation
+and enter the starting characters of the file name. In order to use
+that, hold down the #Alt# (or #Alt-Shift#) keys and start typing the
+name of the needed file, until the cursor is positioned to it.
+
+   By pressing #Ctrl-Enter#, you can cycle through the files matching
+the part of the filename that you have already entered.
+
+   Besides the filename characters, you can also use the wildcard
+characters '*' and '?'.
+
 @CmdLineCmd
 $ #Command line commands#
  #Common command line commands#
@@ -247,6 +260,11 @@ $ #Command line commands#
  #Insertion commands#
 
   Insert current file name from the active panel          #Ctrl-Enter#
+
+     In the ~fast find~@FastFind@ mode, Ctrl-Enter does not insert a
+     file name, but instead cycles the files matching the
+     filemask entered in the fast find box.
+
   Insert current file name from the passive panel   #Ctrl-Shift-Enter#
   Insert full file name from the active panel                 #Ctrl-F#
   Insert full file name from the passive panel                #Ctrl-:#
@@ -774,11 +792,8 @@ the ~panel menu~@LeftRightMenu@. After the mode change or drive change
 action, if the initial panel type differs it will be automatically
 set to the file panel.
 
-    #Speed search# action may be used to point to the required file by the
-first letters of its name. Hold the Alt key and type the file name until
-the required file is selected. Pressing #Ctrl-Enter# keys simultaneously will
-point to the next match if one exists.  Wildcards '*' and '?' may be used
-freely.
+    ~Speed search~@FastFind@ action may be used to point to the required file by the
+first letters of its name.
 
 @TreePanel
 $ #Tree panel#

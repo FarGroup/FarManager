@@ -5,10 +5,13 @@ edit.cpp
 
 */
 
-/* Revision: 1.95 11.12.2002 $ */
+/* Revision: 1.96 21.01.2003 $ */
 
 /*
 Modify:
+  21.01.2003 SVS
+    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
+      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
   11.12.2002 SVS
     - В ProcessCtrlQ полечим вариант события для KEY_CONSOLE_BUFFER_RESIZE
   05.12.2002 SVS
@@ -312,7 +315,7 @@ Edit::Edit()
         Str=new char[1];
      Будет malloc :-)
   */
-  Str=(char*) malloc(1);
+  Str=(char*) xf_malloc(1);
   /* SVS $ */
   StrSize=0;
   *Str=0;
@@ -358,11 +361,11 @@ Edit::Edit()
 Edit::~Edit()
 {
   if (ColorList)
-    free (ColorList);
+    xf_free (ColorList);
   if (Mask)
-    free(Mask);
+    xf_free(Mask);
   if(Str)
-    free(Str);
+    xf_free(Str);
 }
 
 
@@ -565,7 +568,7 @@ void Edit::FastShow()
     SelStart=SaveSelStart;
     SelEnd=SaveSelEnd;
     /* SKV $ */
-    Str=(char *)realloc(Str,StrSize+1);
+    Str=(char *)xf_realloc(Str,StrSize+1);
   }
   else
   {
@@ -1318,7 +1321,7 @@ int Edit::ProcessKey(int Key)
       CurPos=0;
       *Str=0;
       StrSize=0;
-      Str=(char *)realloc(Str,1);
+      Str=(char *)xf_realloc(Str,1);
       Select(-1,0);
       Show();
       return(TRUE);
@@ -1348,7 +1351,7 @@ int Edit::ProcessKey(int Key)
       }
       Str[CurPos]=0;
       StrSize=CurPos;
-      Str=(char *)realloc(Str,StrSize+1);
+      Str=(char *)xf_realloc(Str,StrSize+1);
       Show();
       return(TRUE);
     }
@@ -1454,7 +1457,7 @@ int Edit::ProcessKey(int Key)
       {
         memmove(Str+CurPos,Str+CurPos+1,StrSize-CurPos);
         StrSize--;
-        Str=(char *)realloc(Str,StrSize+1);
+        Str=(char *)xf_realloc(Str,StrSize+1);
       }
       /* KM $ */
       Show();
@@ -1747,7 +1750,7 @@ int Edit::InsertKey(int Key)
     {
       if (CurPos>=StrSize)
       {
-        if ((NewStr=(char *)realloc(Str,CurPos+2))==NULL)
+        if ((NewStr=(char *)xf_realloc(Str,CurPos+2))==NULL)
           return(FALSE);
         Str=NewStr;
         sprintf(&Str[StrSize],"%*s",CurPos-StrSize,"");
@@ -1757,7 +1760,7 @@ int Edit::InsertKey(int Key)
       else
         if (!Flags.Check(FEDITLINE_OVERTYPE))
           StrSize++;
-      if ((NewStr=(char *)realloc(Str,StrSize+1))==NULL)
+      if ((NewStr=(char *)xf_realloc(Str,StrSize+1))==NULL)
         return(TRUE);
       Str=NewStr;
 
@@ -1919,7 +1922,7 @@ void Edit::SetBinaryString(const char *Str,int Length)
   /* KM $ */
   else
   {
-    char *NewStr=(char *)realloc(Edit::Str,Length+1);
+    char *NewStr=(char *)xf_realloc(Edit::Str,Length+1);
     if (NewStr==NULL)
       return;
     Edit::Str=NewStr;
@@ -2045,7 +2048,7 @@ void Edit::InsertBinaryString(const char *Str,int Length)
     {
       if (CurPos>StrSize)
       {
-        if ((NewStr=(char *)realloc(Edit::Str,CurPos+1))==NULL)
+        if ((NewStr=(char *)xf_realloc(Edit::Str,CurPos+1))==NULL)
           return;
         Edit::Str=NewStr;
         sprintf(&Edit::Str[StrSize],"%*s",CurPos-StrSize,"");
@@ -2061,7 +2064,7 @@ void Edit::InsertBinaryString(const char *Str,int Length)
       memcpy(TmpStr,&Edit::Str[CurPos],TmpSize);
 
       StrSize+=Length;
-      if ((NewStr=(char *)realloc(Edit::Str,StrSize+1))==NULL)
+      if ((NewStr=(char *)xf_realloc(Edit::Str,StrSize+1))==NULL)
       {
         delete[] TmpStr;
         return;
@@ -2101,7 +2104,7 @@ int Edit::GetLength()
 void Edit::SetInputMask(const char *InputMask)
 {
   if (Mask)
-    free(Mask);
+    xf_free(Mask);
 
   if (InputMask && *InputMask)
   {
@@ -2128,7 +2131,7 @@ void Edit::RefreshStrByMask(int InitMode)
     */
     if (StrSize!=MaskLen)
     {
-      char *NewStr=(char *)realloc(Str,MaskLen+1);
+      char *NewStr=(char *)xf_realloc(Str,MaskLen+1);
       if (NewStr==NULL)
         return;
       Str=NewStr;
@@ -2272,7 +2275,7 @@ void Edit::ReplaceTabs()
     StrSize+=S-1;
     if (CurPos>Pos)
       CurPos+=S-1;
-    Str=(char *)realloc(Str,StrSize+1);
+    Str=(char *)xf_realloc(Str,StrSize+1);
     TabPtr=Str+Pos;
     memmove(TabPtr+S,TabPtr+1,PrevStrSize-Pos);
     memset(TabPtr,' ',S);
@@ -2500,7 +2503,7 @@ void Edit::DeleteBlock()
         CurPos=From;
       else
         CurPos-=To-From;
-    Str=(char *)realloc(Str,StrSize+1);
+    Str=(char *)xf_realloc(Str,StrSize+1);
   }
 
   /* KM $ */
@@ -2519,7 +2522,7 @@ void Edit::DeleteBlock()
 void Edit::AddColor(struct ColorItem *col)
 {
   if ((ColorCount & 15)==0)
-    ColorList=(ColorItem *)realloc(ColorList,(ColorCount+16)*sizeof(*ColorList));
+    ColorList=(ColorItem *)xf_realloc(ColorList,(ColorCount+16)*sizeof(*ColorList));
   ColorList[ColorCount++]=*col;
 }
 
@@ -2541,7 +2544,7 @@ int Edit::DeleteColor(int ColorPos)
   ColorCount=Dest;
   if (ColorCount==0)
   {
-    free (ColorList);
+    xf_free (ColorList);
     ColorList=NULL;
   }
   return(DelCount!=0);

@@ -5,10 +5,13 @@ message.cpp
 
 */
 
-/* Revision: 1.26 13.01.2003 $ */
+/* Revision: 1.27 21.01.2003 $ */
 
 /*
 Modify:
+  21.01.2003 SVS
+    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
+      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
   13.01.2003 IS
     - Принудительно уберем запрет отрисовки экрана, если количество кнопок
       в сообщении равно нулю и макрос закончил выполняться. Это необходимо,
@@ -161,7 +164,7 @@ int Message(DWORD Flags,int Buttons,const char *Title,
     ErrorSets=GetErrorString(ErrStr, sizeof(ErrStr));
 
   // выделим память под рабочий массив указателей на строки (+запас 16)
-  Str=(const char **)malloc((ItemsNumber+ADDSPACEFORPSTRFORMESSAGE) * sizeof(char*));
+  Str=(const char **)xf_malloc((ItemsNumber+ADDSPACEFORPSTRFORMESSAGE) * sizeof(char*));
   if(!Str)
     return -1;
 
@@ -280,11 +283,11 @@ int Message(DWORD Flags,int Buttons,const char *Title,
     int ItemCount;
     struct DialogItem *PtrMsgDlg;
     struct DialogItem *MsgDlg=(struct DialogItem *)
-                              malloc((ItemCount=StrCount+Buttons+1)*
+                              xf_malloc((ItemCount=StrCount+Buttons+1)*
                                      sizeof(struct DialogItem));
     if(!MsgDlg)
     {
-      free(Str);
+      xf_free(Str);
       return -1;
     }
 
@@ -353,8 +356,8 @@ int Message(DWORD Flags,int Buttons,const char *Title,
       Dlg.Process();
       RetCode=Dlg.GetExitCode();
     }
-    free(MsgDlg);
-    free(Str);
+    xf_free(MsgDlg);
+    xf_free(Str);
     return(RetCode<0?RetCode:RetCode-StrCount-1);
   }
 
@@ -423,7 +426,7 @@ int Message(DWORD Flags,int Buttons,const char *Title,
        чтобы заработал прогресс-бар от плагина, который был запущен при помощи
        макроса запретом отрисовки (bugz#533).
   */
-  free(Str);
+  xf_free(Str);
   if (Buttons==0)
   {
     if (ScrBuf.GetLockCount()>0 && !CtrlObject->Macro.PeekKey())

@@ -5,10 +5,13 @@ filestr.cpp
 
 */
 
-/* Revision: 1.05 26.02.2002 $ */
+/* Revision: 1.06 21.01.2003 $ */
 
 /*
 Modify:
+  21.01.2003 SVS
+    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
+      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
   26.02.2002 SVS
     ! Удалим тестовый кусок.
   25.01.2002 SVS
@@ -40,7 +43,7 @@ GetFileString::GetFileString(FILE *SrcFile)
      Т.к. в последствии память перераспределяется через realloc, то
      конструкция Str=new char[1024]; не применима...
   */
-  Str=(char*)malloc(1024);
+  Str=(char*)xf_malloc(1024);
   /* SVS $ */
   StrLength=1024;
   GetFileString::SrcFile=SrcFile;
@@ -54,7 +57,7 @@ GetFileString::~GetFileString()
   /* $ 13.07.2000 SVS
      используем free
   */
-  free(Str);
+  xf_free(Str);
   /* SVS $ */
 }
 
@@ -81,7 +84,7 @@ int GetFileString::GetString(char **DestStr,int &Length)
     ReadPos++;
     if (CurLength>=StrLength-1)
     {
-      char *NewStr=(char *)realloc(Str,StrLength+1024);
+      char *NewStr=(char *)xf_realloc(Str,StrLength+1024);
       if (NewStr==NULL)
         return(-1);
       Str=NewStr;

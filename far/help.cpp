@@ -8,10 +8,13 @@ help.cpp
 
 */
 
-/* Revision: 1.72 14.07.2002 $ */
+/* Revision: 1.73 21.01.2003 $ */
 
 /*
 Modify:
+  21.01.2003 SVS
+    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
+      ѕросьба блюсти пор€док и прописывать именно xf_* вместо простых.
   14.07.2002 IS
     ! внедрение const
     ! '>' -> HelpEndLink
@@ -257,10 +260,10 @@ class CallBackStack
       }
       ~ListNode()
       {
-        if(HelpTopic) free(HelpTopic);
-        if(HelpPath)  free(HelpPath);
-        if(SelTopic)  free(SelTopic);
-        if(HelpMask)  free(HelpMask);
+        if(HelpTopic) xf_free(HelpTopic);
+        if(HelpPath)  xf_free(HelpPath);
+        if(SelTopic)  xf_free(SelTopic);
+        if(HelpMask)  xf_free(HelpMask);
       }
     };
 
@@ -376,7 +379,7 @@ Help::~Help()
   CtrlObject->Macro.SetMode(PrevMacroMode);
   SetRestoreScreenMode(FALSE);
 
-  if(HelpData)     free(HelpData);
+  if(HelpData)     xf_free(HelpData);
   if(Stack)        delete Stack;
   if(TopScreen)    delete TopScreen;
 
@@ -476,7 +479,7 @@ int Help::ReadHelp(const char *Mask)
 
   *SplitLine=0;
   if (HelpData)
-    free(HelpData);
+    xf_free(HelpData);
   HelpData=NULL;
   StrCount=0;
   FixCount=0;
@@ -693,7 +696,7 @@ m1:
 
 void Help::AddLine(const char *Line)
 {
-  char *NewHelpData=(char *)realloc(HelpData,(StrCount+1)*MAX_HELP_STRING_LENGTH);
+  char *NewHelpData=(char *)xf_realloc(HelpData,(StrCount+1)*MAX_HELP_STRING_LENGTH);
   if (NewHelpData==NULL)
     return;
   HelpData=NewHelpData;
@@ -1757,7 +1760,7 @@ void Help::MoveToReference(int Forward,int CurScreen)
 void Help::ReadDocumentsHelp(int TypeIndex)
 {
   if(HelpData)
-    free(HelpData);
+    xf_free(HelpData);
   HelpData=NULL;
   /* $ 29.11.2001 DJ
      это не плагин -> чистим CurPluginContents
@@ -2030,7 +2033,7 @@ static int RunURL(char *Protocol, char *URLPath)
   int EditCode=0;
   if(Protocol && *Protocol && URLPath && *URLPath && (Opt.HelpURLRules&0xFF))
   {
-    char *Buf=(char*)malloc(2048);
+    char *Buf=(char*)xf_malloc(2048);
     if(Buf)
     {
       HKEY hKey;
@@ -2117,7 +2120,7 @@ static int RunURL(char *Protocol, char *URLPath)
           }
         }
       }
-      free(Buf);
+      xf_free(Buf);
     }
   }
   return EditCode;

@@ -5,10 +5,13 @@ strmix.cpp
 
 */
 
-/* Revision: 1.41 27.06.2002 $ */
+/* Revision: 1.42 21.01.2003 $ */
 
 /*
 Modify:
+  21.01.2003 SVS
+    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
+      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
   27.06.2002 SVS
     - В ReplaceStrings (с наводки все того же Мамаева) цикл
       while(I <= strlen(Str)-LenFindStr) получался бесконечным, т.к. в
@@ -1033,7 +1036,7 @@ char *WINAPI FarFormatText(const char *SrcText,     // источник
   else
   {
     /* Multiple character line break */
-    newtext = (char*)malloc(strlen(SrcText) * (breakcharlen+1)+1);
+    newtext = (char*)xf_malloc(strlen(SrcText) * (breakcharlen+1)+1);
     if(!newtext)
       return NULL;
 
@@ -1115,7 +1118,7 @@ char *WINAPI FarFormatText(const char *SrcText,     // источник
 
   if(DestText && MaxLen > 0)
     strncpy(DestText,newtext,MaxLen-1);
-  free(newtext);
+  xf_free(newtext);
   return DestText;
 }
 

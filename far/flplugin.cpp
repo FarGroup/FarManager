@@ -5,10 +5,13 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.31 02.07.2002 $ */
+/* Revision: 1.32 21.01.2003 $ */
 
 /*
 Modify:
+  21.01.2003 SVS
+    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
+      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
   02.07.2002 SVS
     + _PluginsStackItem_Dump() - дамп стека плагинов
   25.06.2002 SVS
@@ -104,7 +107,7 @@ void FileList::PushPlugin(HANDLE hPlugin,char *HostFile)
 {
   _SVS(CleverSysLog("FileList::PushPlugin()"));
   DeleteAllDataToDelete();
-  PluginsStack=(struct PluginsStackItem *)realloc(PluginsStack,(PluginsStackSize+1)*sizeof(*PluginsStack));
+  PluginsStack=(struct PluginsStackItem *)xf_realloc(PluginsStack,(PluginsStackSize+1)*sizeof(*PluginsStack));
   struct PluginsStackItem *PStack=PluginsStack+PluginsStackSize;
   PStack->hPlugin=hPlugin;
   strcpy(PStack->HostFile,HostFile);
@@ -185,7 +188,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
     */
     /* </TODO>*/
   }
-  PluginsStack=(struct PluginsStackItem *)realloc(PluginsStack,PluginsStackSize*sizeof(*PluginsStack));
+  PluginsStack=(struct PluginsStackItem *)xf_realloc(PluginsStack,PluginsStackSize*sizeof(*PluginsStack));
   if (EnableRestoreViewMode)
     CtrlObject->Cp()->RedrawKeyBar();
   return(TRUE);
@@ -236,7 +239,7 @@ void FileList::FileListToPluginItem(struct FileListItem *fi,struct PluginPanelIt
     /* $ 13.07.2000 SVS
        заменим new на malloc
     */
-    pi->UserData=(DWORD)malloc(Size);
+    pi->UserData=(DWORD)xf_malloc(Size);
     /* SVS $ */
     memcpy((void *)pi->UserData,(void *)fi->UserData,Size);
   }
@@ -278,7 +281,7 @@ void FileList::PluginToFileListItem(struct PluginPanelItem *pi,struct FileListIt
     /* $ 13.07.2000 SVS
        заменим new на malloc
     */
-    fi->UserData=(DWORD)malloc(Size);
+    fi->UserData=(DWORD)xf_malloc(Size);
     /* SVS $ */
     memcpy((void *)fi->UserData,(void *)pi->UserData,Size);
   }
@@ -350,7 +353,7 @@ void FileList::DeletePluginItemList(struct PluginPanelItem *(&ItemList),int &Ite
   {
     for (int I=0;I<ItemNumber;I++,PItemList++)
       if ((PItemList->Flags & PPIF_USERDATA) && PItemList->UserData)
-        free((void *)PItemList->UserData);
+        xf_free((void *)PItemList->UserData);
     delete[] ItemList;
   }
 }

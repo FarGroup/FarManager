@@ -5,10 +5,13 @@ language.cpp
 
 */
 
-/* Revision: 1.22 14.07.2002 $ */
+/* Revision: 1.23 21.01.2003 $ */
 
 /*
 Modify:
+  21.01.2003 SVS
+    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
+      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
   14.07.2002 IS
     ! внедрение const
   24.05.2002 SKV
@@ -121,7 +124,7 @@ int Language::Init(char *Path,int CountNeed)
       ReadStr[SrcLength-1]=0;
     ConvertString(ReadStr+1,DestStr);
     int DestLength=pack(strlen(DestStr)+1);
-    if ((MsgList=(char *)realloc(MsgList,MsgSize+DestLength))==NULL)
+    if ((MsgList=(char *)xf_realloc(MsgList,MsgSize+DestLength))==NULL)
     {
       fclose(LangFile);
       return(FALSE);
@@ -163,7 +166,7 @@ void Language::Close()
   /* $ 13.07.2000 SVS
      ни кто не вызывал запрос памяти через new :-)
   */
-  if(MsgList)free(MsgList);
+  if(MsgList)xf_free(MsgList);
   MsgList=NULL;
   /* ну а здесь раз уж вызвали new[], то в придачу и delete[] надо... */
   if(MsgAddr)delete[] MsgAddr;

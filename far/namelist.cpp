@@ -5,10 +5,13 @@ namelist.cpp
 
 */
 
-/* Revision: 1.06 08.05.2002 $ */
+/* Revision: 1.07 21.01.2003 $ */
 
 /*
 Modify:
+  21.01.2003 SVS
+    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
+      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
   08.05.2002 SVS
     ! Проверка на NULL перед free()
   06.12.2001 SVS
@@ -45,7 +48,7 @@ NamesList::~NamesList()
   /* $ 13.07.2000 SVS
      распределение памяти было чрезе realloc
   */
-  if(Names) free(Names);
+  if(Names) xf_free(Names);
   /* SVS $ */
 }
 
@@ -53,7 +56,7 @@ NamesList::~NamesList()
 void NamesList::AddName(char *Name)
 {
   int Length=strlen(Name)+1;
-  char *NewNames=(char *)realloc(Names,NamesSize+Length);
+  char *NewNames=(char *)xf_realloc(Names,NamesSize+Length);
   if (NewNames==NULL)
     return;
   Names=NewNames;

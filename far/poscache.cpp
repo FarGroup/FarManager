@@ -5,10 +5,13 @@ poscache.cpp
 
 */
 
-/* Revision: 1.15 17.12.2002 $ */
+/* Revision: 1.16 21.01.2003 $ */
 
 /*
 Modify:
+  21.01.2003 SVS
+    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
+      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
   17.12.2002 SVS
     ! класс FilePositionCache подвергся значительным переделкам,
      т.к. позиции вьювере измеряются в терминах __int64, а редактора - DWORD
@@ -94,10 +97,10 @@ FilePositionCache::FilePositionCache(int TypeCache)
   IsMemory=0;
   CurPos=0;
 
-  if((Names=(char*)malloc(Opt.MaxPositionCache*3*NM)) != NULL)
+  if((Names=(char*)xf_malloc(Opt.MaxPositionCache*3*NM)) != NULL)
   {
-    Param=(BYTE*)malloc(MSIZE_PARAM);
-    Position=(BYTE*)malloc(MSIZE_POSITION);
+    Param=(BYTE*)xf_malloc(MSIZE_PARAM);
+    Position=(BYTE*)xf_malloc(MSIZE_POSITION);
     if(Param && Position)
     {
       memset(Names,0,Opt.MaxPositionCache*3*NM);
@@ -107,17 +110,17 @@ FilePositionCache::FilePositionCache(int TypeCache)
     }
     else
     {
-      if(Param)       free(Param);       Param=NULL;
-      if(Position)    free(Position);    Position=NULL;
+      if(Param)       xf_free(Param);       Param=NULL;
+      if(Position)    xf_free(Position);    Position=NULL;
     }
   }
 }
 
 FilePositionCache::~FilePositionCache()
 {
-  if(Names)     free(Names);
-  if(Param)     free(Param);
-  if(Position)  free(Position);
+  if(Names)     xf_free(Names);
+  if(Param)     xf_free(Param);
+  if(Position)  xf_free(Position);
 }
 
 void FilePositionCache::AddPosition(const char *Name,void *PosCache)

@@ -5,10 +5,13 @@ FileMasksWithExclude.cpp
 исключения).
 */
 
-/* Revision: 1.02 10.07.2001 $ */
+/* Revision: 1.03 21.01.2003 $ */
 
 /*
 Modify:
+  21.01.2003 SVS
+    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
+      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
   10.07.2001 SVS
     ! В морг для CPP-файлов if/endif
   02.07.2001 IS
@@ -21,6 +24,7 @@ Modify:
 #pragma hdrstop
 
 #include "FileMasksWithExclude.hpp"
+#include "fn.hpp"
 
 FileMasksWithExclude::FileMasksWithExclude():BaseFileMask()
 {
@@ -44,7 +48,7 @@ BOOL FileMasksWithExclude::Set(const char *masks, DWORD Flags)
   if(NULL==masks || !*masks) return FALSE;
 
   int len=strlen(masks)+2, rc=FALSE;
-  char *MasksStr=(char *) malloc(len);
+  char *MasksStr=(char *) xf_malloc(len);
   if(MasksStr)
   {
      rc=TRUE;
@@ -69,7 +73,7 @@ BOOL FileMasksWithExclude::Set(const char *masks, DWORD Flags)
     Free();
 
   if(MasksStr)
-    free (MasksStr);
+    xf_free (MasksStr);
 
   return rc;
 }

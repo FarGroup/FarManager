@@ -5,10 +5,13 @@ Files highlighting
 
 */
 
-/* Revision: 1.41 27.11.2002 $ */
+/* Revision: 1.42 21.01.2003 $ */
 
 /*
 Modify:
+  21.01.2003 SVS
+    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
+      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
   27.11.2002 SVS
     - BugZ#771 - Подсветка файлов по умолчанию
   17.09.2002 SVS
@@ -178,7 +181,7 @@ HighlightFiles::HighlightFiles()
 
 void HighlightFiles::InitHighlightFiles()
 {
-  if(HiData) free(HiData); HiData=NULL;
+  if(HiData) xf_free(HiData); HiData=NULL;
   HiDataCount=0;
   char RegKey[80],Mask[HIGHLIGHT_MASK_SIZE];
   char *Ptr=MkRegKeyHighlightName(RegKey); // Ptr указывает на нужное место :-)
@@ -193,7 +196,7 @@ void HighlightFiles::InitHighlightFiles()
     HData.IgnoreMask=GetRegKey(RegKey,HLS.IgnoreMask,FALSE);
     if(AddMask(&HData,Mask,HData.IgnoreMask))
     {
-      if ((NewHiData=(struct HighlightData *)realloc(HiData,sizeof(*HiData)*(HiDataCount+1)))==NULL)
+      if ((NewHiData=(struct HighlightData *)xf_realloc(HiData,sizeof(*HiData)*(HiDataCount+1)))==NULL)
       {
         DeleteMask(&HData);
         break;
@@ -242,14 +245,14 @@ BOOL HighlightFiles::AddMask(struct HighlightData *Dest,char *Mask,BOOL IgnoreMa
   if(Src)
   {
     // память под оригинал - OriginalMasks
-    if((OPtr=(char *)malloc(strlen(Mask)+1)) == NULL)
+    if((OPtr=(char *)xf_malloc(strlen(Mask)+1)) == NULL)
       return FALSE;
     memmove(Dest,Src,sizeof(struct HighlightData));
   }
   else
   {
     // память под оригинал - OriginalMasks
-    if((OPtr=(char *)realloc(Dest->OriginalMasks,strlen(Mask)+1)) == NULL)
+    if((OPtr=(char *)xf_realloc(Dest->OriginalMasks,strlen(Mask)+1)) == NULL)
       return FALSE;
   }
   /* Обработка %PATHEXT% */
@@ -291,14 +294,14 @@ BOOL HighlightFiles::AddMask(struct HighlightData *Dest,char *Mask,BOOL IgnoreMa
   {
     if((FMasks=new CFileMask) == NULL)
     {
-      free(OPtr);
+      xf_free(OPtr);
       return FALSE;
     }
 
     if(!FMasks->Set(Mask, FMF_SILENT)) // проверим корректность маски
     {
       delete FMasks;
-      free(OPtr);
+      xf_free(OPtr);
       return FALSE;
     }
   }
@@ -323,7 +326,7 @@ void HighlightFiles::DeleteMask(struct HighlightData *CurHighlightData)
   }
   if(CurHighlightData->OriginalMasks)
   {
-    free(CurHighlightData->OriginalMasks);
+    xf_free(CurHighlightData->OriginalMasks);
     CurHighlightData->OriginalMasks=NULL;
   }
 }
@@ -335,7 +338,7 @@ void HighlightFiles::ClearData()
   {
     for(int I=0; I < HiDataCount; ++I)
       DeleteMask(HiData+I);
-    free(HiData);
+    xf_free(HiData);
   }
   HiData=NULL;
   HiDataCount=0;
@@ -518,7 +521,7 @@ void HighlightFiles::HiEdit(int MenuPos)
             for (int I=SelectPos+1;I<ItemCount;I++)
               HiData[I-1]=HiData[I];
             HiDataCount--;
-            HiData=(struct HighlightData *)realloc(HiData,sizeof(*HiData)*(HiDataCount+1));
+            HiData=(struct HighlightData *)xf_realloc(HiData,sizeof(*HiData)*(HiDataCount+1));
             NeedUpdate=TRUE;
           }
           break;
@@ -866,7 +869,7 @@ int HighlightFiles::DupHighlightData(struct HighlightData *EditData,char *Mask,B
   if(!AddMask(&HData,TmpMask,IgnoreMask,EditData))
     return FALSE;
 
-  if ((NewHiData=(struct HighlightData *)realloc(HiData,sizeof(*HiData)*(HiDataCount+1)))==NULL)
+  if ((NewHiData=(struct HighlightData *)xf_realloc(HiData,sizeof(*HiData)*(HiDataCount+1)))==NULL)
   {
     DeleteMask(&HData);
     return(FALSE);

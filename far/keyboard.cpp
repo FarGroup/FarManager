@@ -5,10 +5,13 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.88 15.01.2003 $ */
+/* Revision: 1.89 21.01.2003 $ */
 
 /*
 Modify:
+  21.01.2003 SVS
+    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
+      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
   15.01.2003 SVS
     ! У FARGetKeybLayoutName первый параметр может быть NULL
   10.01.2003 SVS
@@ -476,7 +479,7 @@ int IsMouseButtonPressed()
 
 int GetInputRecord(INPUT_RECORD *rec)
 {
-//  _SVS(CleverSysLog Clev("GetInputRecord - main"));
+  _SVS(CleverSysLog Clev("GetInputRecord - main"));
   static int LastEventIdle=FALSE;
   DWORD ReadCount;
   DWORD LoopCount=0,CalcKey;
@@ -554,6 +557,9 @@ int GetInputRecord(INPUT_RECORD *rec)
        ! Убрал подмену колесика */
     if (ReadCount!=0)
     {
+      _SVS(if(rec->EventType==KEY_EVENT))
+        _SVS(SysLog("@@@> %s",_INPUT_RECORD_Dump(rec)));
+
       // в масдае хрен знает что творится с расширенными курсорными клавишами ;-(
       // Эта фигня нужна только в диалоге назначения макро - остальное по барабану - и так работает
       // ... иначе хреновень с эфектом залипшего шифта проскакивает
@@ -619,6 +625,8 @@ int GetInputRecord(INPUT_RECORD *rec)
           rec->Event.KeyEvent.dwControlKeyState|=SHIFT_PRESSED;
       }
 
+      _SVS(INPUT_RECORD_DumpBuffer());
+
 #if 0
       if(rec->EventType==KEY_EVENT)
       {
@@ -628,7 +636,7 @@ int GetInputRecord(INPUT_RECORD *rec)
         // если их безобразно много, то просмотрим все на предмет KEY_EVENT
         if(ReadCount2 > 1)
         {
-          INPUT_RECORD *TmpRec=(INPUT_RECORD*)malloc(sizeof(INPUT_RECORD)*ReadCount2);
+          INPUT_RECORD *TmpRec=(INPUT_RECORD*)xf_malloc(sizeof(INPUT_RECORD)*ReadCount2);
           if(TmpRec)
           {
             DWORD ReadCount3;
@@ -647,6 +655,8 @@ int GetInputRecord(INPUT_RECORD *rec)
             {
               if(TmpRec[I].EventType!=KEY_EVENT)
                 break;
+
+              _SVS(SysLog("%d> %s",I,_INPUT_RECORD_Dump(rec)));
 
               // удаляем из очереди
               #if defined(USE_WFUNC_IN)
@@ -670,15 +680,13 @@ int GetInputRecord(INPUT_RECORD *rec)
               }
             }
             // освободим память
-            free(TmpRec);
+            xf_free(TmpRec);
             return KEY_NONE;
           }
         }
       }
 #endif
 
-//      _SVS(if(rec->EventType==KEY_EVENT))
-//        _SVS(SysLog("@@@> %s",_INPUT_RECORD_Dump(rec)));
 #if defined(USE_WFUNC_IN)
       WCHAR UnicodeChar=rec->Event.KeyEvent.uChar.UnicodeChar;
       if((UnicodeChar&0xFF00) && WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
@@ -1850,7 +1858,8 @@ char *FARGetKeybLayoutName(char *Dest,int DestSize)
 // GetAsyncKeyState(VK_RSHIFT)
 int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
 {
-  //_SVS(CleverSysLog Clev("CalcKeyCode"));
+  _SVS(CleverSysLog Clev("CalcKeyCode"));
+  _SVS(SysLog("CalcKeyCode -> %s| RealKey=%d  *NotMacros=%d",_INPUT_RECORD_Dump(rec),RealKey,*NotMacros));
   CHAR_WCHAR Char;
 
   unsigned int ScanCode,KeyCode,CtrlState;
@@ -2271,7 +2280,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   /* ------------------------------------------------------------- */
   if (AltPressed && ShiftPressed)
   {
-//_SVS(if(KeyCode!=VK_MENU && KeyCode!=VK_SHIFT) SysLog("AltShift -> NotMacros=%d %9s|0x%08X (%c)|0x%08X (%c)|WaitInMainLoop=%d WaitInFastFind=%d",*NotMacros,"AltShift",KeyCode,(KeyCode?KeyCode:' '),Char.AsciiChar,(Char.AsciiChar?Char.AsciiChar:' '),WaitInMainLoop,WaitInFastFind));
+_SVS(if(KeyCode!=VK_MENU && KeyCode!=VK_SHIFT) SysLog("AltShift -> %s",_INPUT_RECORD_Dump(rec)));
     if (KeyCode>='0' && KeyCode<='9')
     {
       if(WaitInFastFind>0 &&
@@ -2473,7 +2482,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   /* ------------------------------------------------------------- */
   if (AltPressed)
   {
-//_SVS(if(KeyCode!=VK_MENU) SysLog("Alt -> |0x%08X (%c)|0x%08X (%c)|",KeyCode,(KeyCode?KeyCode:' '),Char.AsciiChar,(Char.AsciiChar?Char.AsciiChar:' ')));
+_SVS(if(KeyCode!=VK_MENU) SysLog("Alt -> %s",_INPUT_RECORD_Dump(rec)));
     if(Opt.ShiftsKeyRules) //???
       switch(KeyCode)
       {

@@ -8,10 +8,13 @@ udlist.cpp
 
 */
 
-/* Revision: 1.10 18.09.2002 $ */
+/* Revision: 1.11 21.01.2003 $ */
 
 /*
 Modify:
+  21.01.2003 SVS
+    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
+      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
   18.09.2002 DJ
     - При ULF_ADDASTERISK выделялось на 1 байт памяти меньше, чем надо,
       что приводило к падению после find files
@@ -57,7 +60,7 @@ Modify:
 UserDefinedListItem::~UserDefinedListItem()
 {
   if(Str)
-    free(Str);
+    xf_free(Str);
 }
 
 bool UserDefinedListItem::operator==(const UserDefinedListItem &rhs) const
@@ -82,7 +85,7 @@ const UserDefinedListItem& UserDefinedListItem::operator=(const
   {
     if(Str)
     {
-      free(Str);
+      xf_free(Str);
       Str=NULL;
     }
     if(rhs.Str)
@@ -98,7 +101,7 @@ const UserDefinedListItem& UserDefinedListItem::operator=(const char *rhs)
   {
     if(Str)
     {
-      free(Str);
+      xf_free(Str);
       Str=NULL;
     }
     if(rhs)
@@ -113,10 +116,10 @@ char *UserDefinedListItem::set(const char *Src, unsigned int size)
   {
     if(Str)
     {
-      free(Str);
+      xf_free(Str);
       Str=NULL;
     }
-    Str=static_cast<char*>(malloc(size+1));
+    Str=static_cast<char*>(xf_malloc(size+1));
     if(Str)
     {
       memcpy(Str, Src, size);
@@ -246,7 +249,7 @@ BOOL UserDefinedList::Set(const char *List, BOOL AddToList)
                 /* $ 18.09.2002 DJ
                    выделялось на 1 байт меньше, чем надо
                 */
-                item.Str=static_cast<char*>(realloc(item.Str, Length+2));
+                item.Str=static_cast<char*>(xf_realloc(item.Str, Length+2));
                 /* DJ $ */
                 if(item.Str)
                 {

@@ -5,10 +5,13 @@ fnparce.cpp
 
 */
 
-/* Revision: 1.14 13.12.2002 $ */
+/* Revision: 1.15 21.01.2003 $ */
 
 /*
 Modify:
+  21.01.2003 SVS
+    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
+      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
   13.12.2002 SVS
     ! Из функции SubstFileName парсер метасимволов вынесен в отдельную процедуру.
       Это позволит сделать функцию рекурсивной... а в последствии
@@ -632,7 +635,7 @@ void ReplaceVariables(char *Str)
     if (strchr(Str,'!')==NULL)
       return;
     StrPos[StrPosSize++]=Str-StartStr-2;
-    DlgData=(struct DialogItem *)realloc(DlgData,(DlgSize+2)*sizeof(*DlgData));
+    DlgData=(struct DialogItem *)xf_realloc(DlgData,(DlgSize+2)*sizeof(*DlgData));
     memset(&DlgData[DlgSize],0,2*sizeof(*DlgData));
     DlgData[DlgSize].Type=DI_TEXT;
     DlgData[DlgSize].X1=5;
@@ -677,7 +680,7 @@ void ReplaceVariables(char *Str)
   }
   if (DlgSize==0)
     return;
-  DlgData=(struct DialogItem *)realloc(DlgData,(DlgSize+1)*sizeof(*DlgData));
+  DlgData=(struct DialogItem *)xf_realloc(DlgData,(DlgSize+1)*sizeof(*DlgData));
   memset(&DlgData[DlgSize],0,sizeof(*DlgData));
   DlgData[DlgSize].Type=DI_DOUBLEBOX;
   DlgData[DlgSize].X1=3;
@@ -696,7 +699,7 @@ void ReplaceVariables(char *Str)
 
   if (ExitCode==-1)
   {
-    free(DlgData);
+    xf_free(DlgData);
     *StartStr=0;
     return;
   }
@@ -729,7 +732,7 @@ void ReplaceVariables(char *Str)
   /* $ 13.07.2000 SVS
      запрос был по realloc
   */
-  free(DlgData);
+  xf_free(DlgData);
   /* SVS $ */
 }
 

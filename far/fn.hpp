@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.174 10.01.2003 $ */
+/* Revision: 1.175 20.01.2003 $ */
 
 /*
 Modify:
+  21.01.2003 SVS
+    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
+    + INPUT_RECORD_DumpBuffer() - дамп оставшихся эвентов в консольной очереди
   10.01.2003 SVS
     + FAR_EmptyClipboard()
   03.01.2003 SVS
@@ -1033,6 +1036,7 @@ const char *_DLGMSG_ToName(int Msg);
 const char *_ACTL_ToName(int Command);
 const char *_VCTL_ToName(int Command);
 const char *_INPUT_RECORD_Dump(INPUT_RECORD *Rec);
+void INPUT_RECORD_DumpBuffer(FILE *fp=NULL);
 void PluginsStackItem_Dump(char *Title,const struct PluginsStackItem *StackItems,int ItemNumber,FILE *fp=NULL);
 void SaveScreenDumpBuffer(const char *Title,const CHAR_INFO *Buffer,int X1,int Y1,int X2,int Y2,int RealScreen,FILE *fp=NULL);
 class Manager;
@@ -1334,5 +1338,9 @@ BOOL IsDiskInDrive(const char *Drive);
 BOOL IsLocalPath(const char *Path);
 
 BOOL RunGraber(void);
+
+void  xf_free(void *__block);
+void *xf_malloc(size_t __size);
+void *xf_realloc(void *__block, size_t __size);
 
 #endif  // __FARFUNC_HPP__

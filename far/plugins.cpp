@@ -5,10 +5,13 @@ plugins.cpp
 
 */
 
-/* Revision: 1.130 10.01.2003 $ */
+/* Revision: 1.131 21.01.2003 $ */
 
 /*
 Modify:
+  21.01.2003 SVS
+    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
+      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
   10.01.2002 SVS
     - BugZ#767 - Неправильно ругается на отсутствие длл
       Сделаем, так, чтобы ругался _только 1 раз_
@@ -435,7 +438,7 @@ PluginsSet::~PluginsSet()
     FreeLibrary(PData->hModule);
     PData->Lang.Close();
   }
-  if(PluginsData) free(PluginsData);
+  if(PluginsData) xf_free(PluginsData);
 }
 
 void PluginsSet::SendExit()
@@ -565,7 +568,7 @@ void PluginsSet::LoadPlugins()
         }
         if (LoadCached || LoadPlugin(CurPlugin,-1,TRUE))
         {
-          struct PluginItem *NewPluginsData=(struct PluginItem *)realloc(PluginsData,sizeof(*PluginsData)*(PluginsCount+1));
+          struct PluginItem *NewPluginsData=(struct PluginItem *)xf_realloc(PluginsData,sizeof(*PluginsData)*(PluginsCount+1));
           if (NewPluginsData==NULL)
             break;
           PluginsData=NewPluginsData;
@@ -670,7 +673,7 @@ void PluginsSet::LoadPluginsFromCache()
       // вот тут это поле не заполнено, надеюсь, что оно не критично
       // CurPlugin.FindData=FindData;
     }
-    struct PluginItem *NewPluginsData=(struct PluginItem *)realloc(PluginsData,sizeof(*PluginsData)*(PluginsCount+1));
+    struct PluginItem *NewPluginsData=(struct PluginItem *)xf_realloc(PluginsData,sizeof(*PluginsData)*(PluginsCount+1));
     if (NewPluginsData==NULL)
         break;
     PluginsData=NewPluginsData;

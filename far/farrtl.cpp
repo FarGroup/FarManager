@@ -4,12 +4,15 @@ farrtl.cpp
 Переопределение функций работы с памятью: new/delete/malloc/realloc/free
 */
 
-/* Revision: 1.13 21.03.2002 $ */
+/* Revision: 1.14 21.01.2003 $ */
 
 /*
 Modify:
+  21.01.2003 SVS
+    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
+      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
   21.03.2002 SVS
-    ! переезд функций FarBsearch, FarSscanf, FarSprintf, FarQsortEx, 
+    ! переезд функций FarBsearch, FarSscanf, FarSprintf, FarQsortEx,
       FarQsort, FarAtoi64, FarAtoi, FarItoa64, FarItoa из mix.cpp
       в farrtl.cpp
   27.02.2002 SVS
@@ -360,3 +363,19 @@ void *WINAPI FarBsearch(const void *key, const void *base, size_t nelem, size_t 
 }
 /* SVS $ */
 
+void  xf_free(void *__block)
+{
+  free(__block);
+}
+
+void *xf_malloc(size_t __size)
+{
+  void *Ptr=malloc(__size);
+  return Ptr;
+}
+
+void *xf_realloc(void *__block, size_t __size)
+{
+  void *Ptr=realloc(__block,__size);
+  return Ptr;
+}

@@ -5,10 +5,13 @@ filter.cpp
 
 */
 
-/* Revision: 1.25 18.09.2002 $ */
+/* Revision: 1.26 21.01.2003 $ */
 
 /*
 Modify:
+  21.01.2003 SVS
+    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
+      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
   18.09.2002 DJ
     ! Исправлено падение после закрытия диалога Find files, если
       в нем была введена маска, не заканчивающаяся на звездочку.
@@ -141,8 +144,8 @@ PanelFilter::PanelFilter(Panel *HostPanel)
 
 PanelFilter::~PanelFilter()
 {
-  if(IncludeMaskStr) free(IncludeMaskStr);
-  if(ExcludeMaskStr) free(ExcludeMaskStr);
+  if(IncludeMaskStr) xf_free(IncludeMaskStr);
+  if(ExcludeMaskStr) xf_free(ExcludeMaskStr);
 }
 
 
@@ -265,7 +268,7 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
     /* $ 13.07.2000 SVS
        ни кто не вызывал запрос памяти через new :-)
     */
-    free(ExtPtr);
+    xf_free(ExtPtr);
     /* SVS $ */
 
     if (!FirstCall)
@@ -316,7 +319,7 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
             if (EditRecord(Title,Masks))
             {
               char *Ptr;
-              if((Ptr=(char *)realloc(FilterData[SelPos].Masks,strlen(Masks)+1)) != NULL)
+              if((Ptr=(char *)xf_realloc(FilterData[SelPos].Masks,strlen(Masks)+1)) != NULL)
               {
                 strcpy(FilterData[SelPos].Title,Title);
                 FilterData[SelPos].Masks=Ptr;
@@ -349,12 +352,12 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
           {
             struct FilterDataRecord *NewFilterData;
 
-            if((Ptr=(char *)malloc(strlen(Masks)+1)) == NULL)
+            if((Ptr=(char *)xf_malloc(strlen(Masks)+1)) == NULL)
               break;
 
-            if ((NewFilterData=(struct FilterDataRecord *)realloc(FilterData,sizeof(*FilterData)*(FilterDataCount+1)))==NULL)
+            if ((NewFilterData=(struct FilterDataRecord *)xf_realloc(FilterData,sizeof(*FilterData)*(FilterDataCount+1)))==NULL)
             {
-              free(Ptr);
+              xf_free(Ptr);
               break;
             }
 
@@ -392,7 +395,7 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
                         QuotedTitle,MSG(MDelete),MSG(MCancel))==0)
             {
               if(FilterData[SelPos].Masks)
-                free(FilterData[SelPos].Masks);
+                xf_free(FilterData[SelPos].Masks);
 
               for (int I=SelPos+1;I<FilterDataCount;I++)
                 FilterData[I-1]=FilterData[I];
@@ -491,10 +494,10 @@ void PanelFilter::AddMasks(const char *Masks,int Exclude)
     ExcludeMask.Free();
 
     if(IncludeMaskStr)
-      free(IncludeMaskStr);
+      xf_free(IncludeMaskStr);
 
     if(ExcludeMaskStr)
-      free(ExcludeMaskStr);
+      xf_free(ExcludeMaskStr);
 
     IncludeMaskStr=ExcludeMaskStr=NULL;
     IncludeMaskIsOK=ExcludeMaskIsOK=FALSE;
@@ -509,7 +512,7 @@ void PanelFilter::AddMasks(const char *Masks,int Exclude)
     ExcludeMask.Free();
 
     OldSize=ExcludeMaskStr?strlen(ExcludeMaskStr):0;
-    char *NewExcludeMaskStr=(char *)realloc(ExcludeMaskStr,AddSize+OldSize);
+    char *NewExcludeMaskStr=(char *)xf_realloc(ExcludeMaskStr,AddSize+OldSize);
     if (NewExcludeMaskStr==NULL)
        return;
 
@@ -533,7 +536,7 @@ void PanelFilter::AddMasks(const char *Masks,int Exclude)
     IncludeMask.Free();
 
     OldSize=IncludeMaskStr?strlen(IncludeMaskStr):0;
-    char *NewIncludeMaskStr=(char *)realloc(IncludeMaskStr,AddSize+OldSize);
+    char *NewIncludeMaskStr=(char *)xf_realloc(IncludeMaskStr,AddSize+OldSize);
 
     if (NewIncludeMaskStr==NULL)
        return;
@@ -593,13 +596,13 @@ void PanelFilter::InitFilter()
     if (!GetRegKey(RegKey,"Mask",FilterMask,"",sizeof(FilterMask)))
       break;
 
-    if((Ptr=(char *)malloc(strlen(FilterMask)+1)) == NULL)
+    if((Ptr=(char *)xf_malloc(strlen(FilterMask)+1)) == NULL)
       break;
 
     struct FilterDataRecord *NewFilterData;
-    if ((NewFilterData=(struct FilterDataRecord *)realloc(FilterData,sizeof(*FilterData)*(FilterDataCount+1)))==NULL)
+    if ((NewFilterData=(struct FilterDataRecord *)xf_realloc(FilterData,sizeof(*FilterData)*(FilterDataCount+1)))==NULL)
     {
-      free(Ptr);
+      xf_free(Ptr);
       break;
     }
     FilterData=NewFilterData;
@@ -622,9 +625,9 @@ void PanelFilter::CloseFilter()
   {
     for(int I=0; I < FilterDataCount; ++I)
       if(FilterData[I].Masks)
-        free(FilterData[I].Masks);
+        xf_free(FilterData[I].Masks);
 
-    free(FilterData);
+    xf_free(FilterData);
   }
 }
 
@@ -770,7 +773,7 @@ int PanelFilter::ParseAndAddMasks(char **ExtPtr,const char *FileName,DWORD FileA
 
   // ... а потом уже выделение памяти!
   char *NewPtr;
-  if ((NewPtr=(char *)realloc(*ExtPtr,NM*(ExtCount+1))) == NULL)
+  if ((NewPtr=(char *)xf_realloc(*ExtPtr,NM*(ExtCount+1))) == NULL)
     return 0;
   *ExtPtr=NewPtr;
 

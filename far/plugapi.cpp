@@ -5,10 +5,13 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.151 26.12.2002 $ */
+/* Revision: 1.152 21.01.2003 $ */
 
 /*
 Modify:
+  21.01.2003 SVS
+    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
+      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
   26.12.2002 SVS
     ! Из FarViewer и FarEditor проверка координат вынесена в конструкторы этих объектов
   11.12.2002 SVS
@@ -1359,7 +1362,7 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
   {
     ItemsNumber=0;
     I=strlen((char *)Items)+2;
-    if((SingleItems=(char *)malloc(I)) == NULL)
+    if((SingleItems=(char *)xf_malloc(I)) == NULL)
       return -1;
 
     Msg=strcpy(SingleItems,(char *)Items);
@@ -1374,10 +1377,10 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
     ItemsNumber++; //??
   }
 
-  const char **MsgItems=(const char **)malloc(sizeof(char*)*(ItemsNumber+ADDSPACEFORPSTRFORMESSAGE));
+  const char **MsgItems=(const char **)xf_malloc(sizeof(char*)*(ItemsNumber+ADDSPACEFORPSTRFORMESSAGE));
   if(!MsgItems)
   {
-    free(SingleItems);
+    xf_free(SingleItems);
     return(-1);
   }
 
@@ -1478,8 +1481,8 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
   //CheckScreenLock();
 
   if(SingleItems)
-    free(SingleItems);
-  free(MsgItems);
+    xf_free(SingleItems);
+  xf_free(MsgItems);
   return(MsgCode);
 }
 
@@ -1678,7 +1681,7 @@ int WINAPI FarGetDirList(const char *Dir,struct PluginPanelItem **pPanelItem,
       if (CheckForEsc())
       {
         if(ItemsList)
-          free(ItemsList);
+          xf_free(ItemsList);
         SetPreRedrawFunc(NULL);
         return(FALSE);
       }
@@ -1689,7 +1692,7 @@ int WINAPI FarGetDirList(const char *Dir,struct PluginPanelItem **pPanelItem,
         PR_FarGetDirListMsg();
         MsgOut=1;
       }
-      ItemsList=(PluginPanelItem *)realloc(ItemsList,sizeof(*ItemsList)*(ItemsNumber+32+1));
+      ItemsList=(PluginPanelItem *)xf_realloc(ItemsList,sizeof(*ItemsList)*(ItemsNumber+32+1));
       if (ItemsList==NULL)
       {
         *pItemsNumber=0;
@@ -1838,7 +1841,7 @@ static void CopyPluginDirItem (PluginPanelItem *CurPanelItem)
     /* $ 13.07.2000 SVS
        вместо new будем использовать malloc
     */
-    DestItem->UserData=(DWORD)malloc(Size);
+    DestItem->UserData=(DWORD)xf_malloc(Size);
     /* SVS $*/
     memcpy((void *)DestItem->UserData,(void *)CurPanelItem->UserData,Size);
   }
@@ -1871,7 +1874,7 @@ void ScanPluginDir()
 
   if (StopSearch || !CtrlObject->Plugins.GetFindData(hDirListPlugin,&PanelData,&ItemCount,OPM_FIND))
     return;
-  struct PluginPanelItem *NewList=(struct PluginPanelItem *)realloc(PluginDirList,1+sizeof(*PluginDirList)*(DirListItemsNumber+ItemCount));
+  struct PluginPanelItem *NewList=(struct PluginPanelItem *)xf_realloc(PluginDirList,1+sizeof(*PluginDirList)*(DirListItemsNumber+ItemCount));
   if (NewList==NULL)
   {
     StopSearch=TRUE;
@@ -1896,7 +1899,7 @@ void ScanPluginDir()
         strcmp(CurPanelItem->FindData.cFileName,"..")!=0)
 
     {
-      struct PluginPanelItem *NewList=(struct PluginPanelItem *)realloc(PluginDirList,sizeof(*PluginDirList)*(DirListItemsNumber+1));
+      struct PluginPanelItem *NewList=(struct PluginPanelItem *)xf_realloc(PluginDirList,sizeof(*PluginDirList)*(DirListItemsNumber+1));
       if (NewList==NULL)
       {
         StopSearch=TRUE;
@@ -1954,15 +1957,15 @@ void WINAPI FarFreeDirList(const struct PluginPanelItem *PanelItem)
       /* $ 13.07.2000 SVS
         для запроса использовали malloc
       */
-      free((void *)CurPanelItem->UserData);
+      xf_free((void *)CurPanelItem->UserData);
       /* SVS $*/
   }
   /* $ 13.07.2000 SVS
     для запроса использовали realloc
   */
   // Что ЭТО ЗА ИЗВРАТ??????????
-  //free(static_cast<void*>(const_cast<PluginPanelItem *>(PanelItem)));
-  free((void*)PanelItem);
+  //xf_free(static_cast<void*>(const_cast<PluginPanelItem *>(PanelItem)));
+  xf_free((void*)PanelItem);
   /* SVS $*/
 }
 

@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.104 15.01.2003 $ */
+/* Revision: 1.105 20.01.2003 $ */
 
 /*
 Modify:
+  20.01.2003 SVS
+    + Показ по F1 в FastFind соответствующего раздела помощи
   15.01.2003 SVS
     ! Корректировка Fastind на предмет Alt-Б и еже с ним
   11.12.2002 VVM
@@ -314,6 +316,7 @@ Modify:
 #include "scrbuf.hpp"
 #include "array.hpp"
 #include "lockscrn.hpp"
+#include "help.hpp"
 
 static int DragX,DragY,DragMove;
 static Panel *SrcDragPanel;
@@ -1161,19 +1164,19 @@ int Panel::ProcessDelDisk (char Drive, int DriveType,VMenu *ChDiskMenu)
 // корректировка букв
 static DWORD _CorrectFastFindKbdLayout(INPUT_RECORD *rec,DWORD Key)
 {
-  if(Key&KEY_ALT)// && Key!=(KEY_ALT|0x3C))
+  if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && (Key&KEY_ALT))// && Key!=(KEY_ALT|0x3C))
   {
-    //_SVS(SysLog("_CorrectFastFindKbdLayout>>> %s",_FARKEY_ToName(Key)));
+    _SVS(SysLog("_CorrectFastFindKbdLayout>>> %s | %s",_FARKEY_ToName(Key),_INPUT_RECORD_Dump(rec)));
     if((Key&KEY_MASKF) != rec->Event.KeyEvent.uChar.AsciiChar) //???
       Key=(Key&0xFFFFFF00)|rec->Event.KeyEvent.uChar.AsciiChar;   //???
-    //_SVS(SysLog("_CorrectFastFindKbdLayout<<< %s",_FARKEY_ToName(Key)));
+    _SVS(SysLog("_CorrectFastFindKbdLayout<<< %s | %s",_FARKEY_ToName(Key),_INPUT_RECORD_Dump(rec)));
   }
   return Key;
 }
 
 void Panel::FastFind(int FirstKey)
 {
-//  _SVS(CleverSysLog Clev("Panel::FastFind"));
+  _SVS(CleverSysLog Clev("Panel::FastFind"));
   INPUT_RECORD rec;
   char LastName[NM],Name[NM];
   int Key,KeyToProcess=0;
@@ -1196,13 +1199,13 @@ void Panel::FastFind(int FirstKey)
       if (FirstKey)
       {
         FirstKey=_CorrectFastFindKbdLayout(FrameManager->GetLastInputRecord(),FirstKey);
-//      _SVS(SysLog("Panel::FastFind  FirstKey=%s  %s",_FARKEY_ToName(FirstKey),_INPUT_RECORD_Dump(FrameManager->GetLastInputRecord())));
-//        _SVS(SysLog("if (FirstKey)"));
+        _SVS(SysLog("Panel::FastFind  FirstKey=%s  %s",_FARKEY_ToName(FirstKey),_INPUT_RECORD_Dump(FrameManager->GetLastInputRecord())));
+        _SVS(SysLog("if (FirstKey)"));
         Key=FirstKey;
       }
       else
       {
-//        _SVS(SysLog("else if (FirstKey)"));
+        _SVS(SysLog("else if (FirstKey)"));
         Key=GetInputRecord(&rec);
         if (rec.EventType==MOUSE_EVENT)
         {
@@ -1219,7 +1222,7 @@ void Panel::FastFind(int FirstKey)
         KeyToProcess=KEY_NONE;
         break;
       }
-//      _SVS(SysLog("Panel::FastFind  Key=%s  %s",_FARKEY_ToName(Key),_INPUT_RECORD_Dump(&rec)));
+      _SVS(if (!FirstKey) SysLog("Panel::FastFind  Key=%s  %s",_FARKEY_ToName(Key),_INPUT_RECORD_Dump(&rec)));
       if (Key>=KEY_ALT_BASE+0x01 && Key<=KEY_ALT_BASE+255)
         Key=tolower(Key-KEY_ALT_BASE);
       if (Key>=KEY_ALTSHIFT_BASE+0x01 && Key<=KEY_ALTSHIFT_BASE+255)
@@ -1230,6 +1233,17 @@ void Panel::FastFind(int FirstKey)
 
       switch (Key)
       {
+        case KEY_F1:
+        {
+          FindEdit.Hide();
+          SaveScr.RestoreArea();
+          {
+            Help Hlp ("FastFind");
+          }
+          FindEdit.Show();
+          FastFindShow(FindX,FindY);
+          break;
+        }
         case KEY_CTRLENTER:
           FindPartName(Name,TRUE);
           FindEdit.Show();

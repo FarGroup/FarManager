@@ -5,10 +5,13 @@ Tree panel
 
 */
 
-/* Revision: 1.46 04.01.2003 $ */
+/* Revision: 1.47 21.01.2003 $ */
 
 /*
 Modify:
+  21.01.2003 SVS
+    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
+      ѕросьба блюсти пор€док и прописывать именно xf_* вместо простых.
   04.01.2003 VVM
     - ѕри изменении размера консоли прогресс начинал глючить.
   27.12.2002 VVM
@@ -194,7 +197,7 @@ static struct TreeListCache
     if(TreeCount==TreeSize)
     {
       TreeSize+=TreeSize?TreeSize>>2:32;
-      char **NewPtr=(char**)realloc(ListName,sizeof(char*)*TreeSize);
+      char **NewPtr=(char**)xf_realloc(ListName,sizeof(char*)*TreeSize);
       if(!NewPtr)return;
       ListName=NewPtr;
     }
@@ -213,7 +216,7 @@ static struct TreeListCache
   }
   void Delete(int idx)
   {
-    free(ListName[idx]);
+    xf_free(ListName[idx]);
     memmove(ListName+idx,ListName+idx+1,sizeof(char*)*(TreeCount-idx-1));
     TreeCount--;
   }
@@ -223,9 +226,9 @@ static struct TreeListCache
     if(!TreeSize)return;
     for(int i=0;i<TreeCount;i++)
     {
-      free(ListName[i]);
+      xf_free(ListName[i]);
     }
-    free(ListName);
+    xf_free(ListName);
     ListName=NULL;
     TreeCount=0;
     TreeSize=0;
@@ -256,7 +259,7 @@ TreeList::~TreeList()
   /* $ 13.07.2000 SVS
      не надо смешивать new/delete с realloc
   */
-  free(ListData);
+  xf_free(ListData);
   /* SVS $ */
   FlushCache();
   SetMacroMode(TRUE);
@@ -456,10 +459,10 @@ int TreeList::ReadTree()
   /* $ 13.07.2000 SVS
      не надо смешивать new/delete с realloc
   */
-  free(ListData);
+  xf_free(ListData);
   TreeCount=0;
-  if ((ListData=(struct TreeItem*)malloc((TreeCount+256+1)*sizeof(struct TreeItem)))==NULL)
-//  if ((ListData=(struct TreeItem*)malloc(sizeof(struct TreeItem)))==NULL)
+  if ((ListData=(struct TreeItem*)xf_malloc((TreeCount+256+1)*sizeof(struct TreeItem)))==NULL)
+//  if ((ListData=(struct TreeItem*)xf_malloc(sizeof(struct TreeItem)))==NULL)
     return FALSE;
   /* SVS $ */
 
@@ -491,8 +494,8 @@ int TreeList::ReadTree()
     }
     if(AscAbort)
       break;
-    if ((TreeCount & 255)==0 && (ListData=(struct TreeItem *)realloc(ListData,(TreeCount+256+1)*sizeof(struct TreeItem)))==NULL)
-//    if ((ListData=(struct TreeItem *)realloc(ListData,(TreeCount+1)*sizeof(struct TreeItem)))==NULL)
+    if ((TreeCount & 255)==0 && (ListData=(struct TreeItem *)xf_realloc(ListData,(TreeCount+256+1)*sizeof(struct TreeItem)))==NULL)
+//    if ((ListData=(struct TreeItem *)xf_realloc(ListData,(TreeCount+1)*sizeof(struct TreeItem)))==NULL)
     {
       AscAbort=TRUE;
       break;
@@ -507,7 +510,7 @@ int TreeList::ReadTree()
 
   if(AscAbort)
   {
-    free(ListData);
+    xf_free(ListData);
     ListData=NULL;
     TreeCount=0;
     SetPreRedrawFunc(NULL);
@@ -875,7 +878,7 @@ int TreeList::ProcessKey(int Key)
           /* $ 13.07.2000 SVS
              не надо смешивать new/delete с realloc
           */
-          free(ItemList);
+          xf_free(ItemList);
           /* SVS $ */
           if (Move)
             ReadSubTree(ListData[CurFile].Name);
@@ -1241,7 +1244,7 @@ int TreeList::ReadTreeFile()
   /* $ 13.07.2000 SVS
      не надо смешивать new/delete с realloc
   */
-  free(ListData);
+  xf_free(ListData);
   /* SVS $ */
   ListData=NULL;
   TreeCount=0;
@@ -1257,12 +1260,12 @@ int TreeList::ReadTreeFile()
     if (RootLength>0 && DirName[RootLength-1]!=':' &&
         DirName[RootLength]=='\\' && DirName[RootLength+1]==0)
       DirName[RootLength]=0;
-    if ((TreeCount & 255)==0 && (ListData=(struct TreeItem *)realloc(ListData,(TreeCount+256+1)*sizeof(struct TreeItem)))==0)
+    if ((TreeCount & 255)==0 && (ListData=(struct TreeItem *)xf_realloc(ListData,(TreeCount+256+1)*sizeof(struct TreeItem)))==0)
     {
       /* $ 13.07.2000 SVS
          не надо смешивать new/delete с realloc
       */
-      free(ListData);
+      xf_free(ListData);
       /* SVS $ */
       ListData=NULL;
       TreeCount=0;
@@ -1436,7 +1439,7 @@ void TreeList::RenTreeName(char *SrcName,char *DestName)
       strcpy(NewName,DestName);
       strcat(NewName,DirName+SrcLength);
       //strncpy(DirName,NewName,NM-1);
-      free(TreeCache.ListName[CachePos]);
+      xf_free(TreeCache.ListName[CachePos]);
       TreeCache.ListName[CachePos]=strdup(NewName);
     }
   }

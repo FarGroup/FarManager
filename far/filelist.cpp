@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.172 18.01.2003 $ */
+/* Revision: 1.173 21.01.2003 $ */
 
 /*
 Modify:
+  21.01.2003 SVS
+    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
+      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
   18.01.2003 IS
     - Аналогично предыдущему исправлению VVM - выделяли память по new[],
       а удаляли при помощи простого delete
@@ -607,7 +610,7 @@ FileList::~FileList()
   /* $ 29.11.2001 DJ
      выделяли через realloc - освобождать надо через free
   */
-  if(PrevDataStack) free (PrevDataStack);
+  if(PrevDataStack) xf_free (PrevDataStack);
   /* DJ $ */
   DeleteListData(ListData,FileCount);
   if (PanelMode==PLUGIN_PANEL)
@@ -635,12 +638,12 @@ void FileList::DeleteListData(struct FileListItem *(&ListData),long &FileCount)
     /* $ 18.01.2003 VVM
       - Выделяли через malloc() и освобождать будем через free() */
     if (CurPtr->UserFlags & PPIF_USERDATA)
-      free((void *)CurPtr->UserData);
+      xf_free((void *)CurPtr->UserData);
     /* VVM $ */
     if (CurPtr->DizText && CurPtr->DeleteDiz)
       delete[] CurPtr->DizText;
   }
-  free(ListData);
+  xf_free(ListData);
   ListData=NULL;
   FileCount=0;
 }
@@ -3532,7 +3535,7 @@ void FileList::CopyNames(int FillPathName,int UNC)
         /* IS $ */
         if(!CreateFullPathName(QuotedName,SelShortName,FileAttr,QuotedName,sizeof(QuotedName)-1,UNC))
         {
-          free(CopyData);
+          xf_free(CopyData);
           CopyData=NULL;
           break;
         }
@@ -3574,10 +3577,10 @@ void FileList::CopyNames(int FillPathName,int UNC)
     }
     QuoteSpace(QuotedName);
     int Length=strlen(QuotedName);
-    char *NewPtr=(char *)realloc(CopyData,DataSize+Length+3);
+    char *NewPtr=(char *)xf_realloc(CopyData,DataSize+Length+3);
     if (NewPtr==NULL)
     {
-      free(CopyData);
+      xf_free(CopyData);
       CopyData=NULL;
       break;
     }
@@ -3588,7 +3591,7 @@ void FileList::CopyNames(int FillPathName,int UNC)
   }
 
   CopyToClipboard(CopyData);
-  free(CopyData);
+  xf_free(CopyData);
 }
 
 char *FileList::CreateFullPathName(char *Name, char *ShortName,DWORD FileAttr,
@@ -4142,7 +4145,7 @@ HANDLE FileList::OpenFilePlugin(char *FileName,int PushPrev)
   {
     if (PushPrev)
     {
-      PrevDataStack=(struct PrevDataItem *)realloc(PrevDataStack,(PrevDataStackSize+1)*sizeof(*PrevDataStack));
+      PrevDataStack=(struct PrevDataItem *)xf_realloc(PrevDataStack,(PrevDataStackSize+1)*sizeof(*PrevDataStack));
       PrevDataStack[PrevDataStackSize].PrevListData=ListData;
       PrevDataStack[PrevDataStackSize].PrevFileCount=FileCount;
       PrevDataStack[PrevDataStackSize].PrevTopFile = CurTopFile;

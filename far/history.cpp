@@ -5,10 +5,13 @@ history.cpp
 
 */
 
-/* Revision: 1.28 08.10.2002 $ */
+/* Revision: 1.29 21.01.2003 $ */
 
 /*
 Modify:
+  21.01.2003 SVS
+    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
+      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
   08.10.2002 SVS
     - BugZ#675 - Неправильно вычисляется ширина меню со списком окон
   20.09.2002 SVS
@@ -118,7 +121,7 @@ void History::FreeHistory(BOOL FreeMemory)
   if(FreeMemory)
     for (int I=0; I < HISTORY_COUNT;I++)
       if(LastStr[I].Name)
-        free(LastStr[I].Name);
+        xf_free(LastStr[I].Name);
   memset(LastStr,0,sizeof(LastStr));
   CurLastPtr=LastPtr=CurLastPtr0=LastPtr0=0;
   LastSimilar=0;
@@ -256,7 +259,7 @@ void History::AddToHistoryLocal(const char *Str,const char *Title,int Type)
 
             if(LastStr[Dest].Name)
             {
-              free(LastStr[Dest].Name);
+              xf_free(LastStr[Dest].Name);
               LastStr[Dest].Name=NULL;
             }
             memmove(LastStr+Dest,LastStr+Src,sizeof(HistoryRecord));
@@ -278,7 +281,7 @@ void History::AddToHistoryLocal(const char *Str,const char *Title,int Type)
       (strcmp(AddRecord.Name,LastStr[Pos].Name) != 0 ||
         strcmp(AddRecord.Title,LastStr[Pos].Title) != 0 ||
         !EqualType(AddRecord.Type,LastStr[Pos].Type)))
-    free(LastStr[LastPtr].Name);
+    xf_free(LastStr[LastPtr].Name);
 
   memcpy(LastStr+LastPtr,&AddRecord,sizeof(HistoryRecord));
 
@@ -309,9 +312,9 @@ BOOL History::SaveHistory()
       if(WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS && Len > 511)
         Len=511;
 
-      if((PtrBuffer=(char*)realloc(BufferLines,SizeLines+Len+2)) == NULL)
+      if((PtrBuffer=(char*)xf_realloc(BufferLines,SizeLines+Len+2)) == NULL)
       {
-        free(BufferLines);
+        xf_free(BufferLines);
         return FALSE;
       }
       BufferLines=PtrBuffer;
@@ -326,7 +329,7 @@ BOOL History::SaveHistory()
 
     if (SaveTitle && TypeHistory != HISTORYTYPE_VIEW)
     {
-      BufferTitles=(char*)malloc(HISTORY_COUNT*(HISTORY_TITLESIZE+2));
+      BufferTitles=(char*)xf_malloc(HISTORY_COUNT*(HISTORY_TITLESIZE+2));
       if(BufferTitles)
       {
         for (I=0; I < HISTORY_COUNT; I++)
@@ -366,16 +369,16 @@ BOOL History::SaveHistory()
     RegCloseKey(hKey);
 
     if (SaveTitle && BufferTitles)
-      free(BufferTitles);
-    free(BufferLines);
+      xf_free(BufferTitles);
+    xf_free(BufferLines);
 
     return TRUE;
   }
 
   if(BufferLines)
-    free(BufferLines);
+    xf_free(BufferLines);
   if(BufferTitles)
-    free(BufferTitles);
+    xf_free(BufferTitles);
 
   return FALSE;
 }
@@ -398,7 +401,7 @@ BOOL History::ReadHistory()
   if(!Size) // Нету ничерта
     return TRUE;
 
-  if((Buffer=(char*)malloc(Size)) == NULL)
+  if((Buffer=(char*)xf_malloc(Size)) == NULL)
   {
     RegCloseKey(hKey);
     return FALSE;
@@ -412,9 +415,9 @@ BOOL History::ReadHistory()
     while ((int)Size > 1 && StrPos < HISTORY_COUNT)
     {
       Length=strlen(Buf)+1;
-      if((LastStr[StrPos].Name=(char*)malloc(Length)) == NULL)
+      if((LastStr[StrPos].Name=(char*)xf_malloc(Length)) == NULL)
       {
-        free(Buffer);
+        xf_free(Buffer);
         FreeHistory(TRUE);
         RegCloseKey(hKey);
         return FALSE;
@@ -427,7 +430,7 @@ BOOL History::ReadHistory()
   }
   else
   {
-    free(Buffer);
+    xf_free(Buffer);
     RegCloseKey(hKey);
     return FALSE;
   }
@@ -435,9 +438,9 @@ BOOL History::ReadHistory()
   if (NeedReadTitle)
   {
     Size=GetRegKeySize(hKey,"Titles");
-    if((Buf=(char*)realloc(Buffer,Size)) == NULL)
+    if((Buf=(char*)xf_realloc(Buffer,Size)) == NULL)
     {
-      free(Buffer);
+      xf_free(Buffer);
       FreeHistory(TRUE);
       RegCloseKey(hKey);
       return FALSE;
@@ -457,13 +460,13 @@ BOOL History::ReadHistory()
     }
     else // раз требовали Title, но ничего не получили, значит _ВСЕ_ в морг.
     {
-      free(Buffer);
+      xf_free(Buffer);
       FreeHistory(TRUE);
       RegCloseKey(hKey);
       return FALSE;
     }
   }
-  free(Buffer);
+  xf_free(Buffer);
 
   if (NeedReadType)
   {

@@ -5,10 +5,13 @@ Parent class для немодальных объектов
 
 */
 
-/* Revision: 1.20 28.04.2002 $ */
+/* Revision: 1.21 21.01.2003 $ */
 
 /*
 Modify:
+  21.01.2003 SVS
+    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
+      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
   28.04.2002 KM
     - Уточнения в отрисовке меню.
   13.04.2002 KM
@@ -83,7 +86,7 @@ Frame::~Frame()
 {
   _OT(SysLog("[%p] Frame::~Frame()", this));
   DestroyAllModal();
-//  free(ModalStack);
+//  xf_free(ModalStack);
 }
 
 void Frame::SetKeyBar(KeyBar *FrameKeyBar)

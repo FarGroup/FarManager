@@ -5,10 +5,14 @@ Screen grabber
 
 */
 
-/* Revision: 1.11 04.06.2002 $ */
+/* Revision: 1.12 21.01.2003 $ */
 
 /*
 Modify:
+  21.01.2003 SVS
+    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
+      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
+    ! new/delete заменены на malloc/free, т.к. есть промежуточный вызов realloc
   04.06.2002 SVS
     - не обновлялся указатель PtrCopyBuf при преобразовании в CHAR_INFO
   02.06.2002 SVS
@@ -117,7 +121,7 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
   int GWidth=X2-X1+1,GHeight=Y2-Y1+1;
   int BufSize=(GWidth+3)*GHeight;
   CHAR_INFO *CharBuf=new CHAR_INFO[BufSize], *PtrCharBuf;
-  char *CopyBuf=new char[BufSize], *PtrCopyBuf;
+  char *CopyBuf=(char *)xf_malloc(BufSize), *PtrCopyBuf;
   GetText(X1,Y1,X2,Y2,CharBuf);
   *CopyBuf=0;
   PtrCharBuf=CharBuf;
@@ -150,14 +154,14 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
       {
         add=2;
       }
-      AppendBuf=(char *)realloc(AppendBuf,DataSize+BufSize+add);
+      AppendBuf=(char *)xf_realloc(AppendBuf,DataSize+BufSize+add);
       memcpy(AppendBuf+DataSize+add,CopyBuf,BufSize);
       if ( add )
         memcpy(AppendBuf+DataSize,"\r\n",2);
       /* $ 13.07.2000 SVS
          раз вызывали new[], то нужно вызывать delete[]
       */
-      delete[] CopyBuf;
+      free(CopyBuf);
       /* SVS $ */
       CopyBuf=AppendBuf;
     }
@@ -169,7 +173,8 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
   /* $ 13.07.2000 SVS
      раз вызывали new[], то нужно вызывать delete[]
   */
-  delete[] CopyBuf;
+  if(CopyBuf)
+    free(CopyBuf);
   delete[] CharBuf;
   /* SVS $ */
 }

@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.108 30.12.2002 $ */
+/* Revision: 1.109 21.01.2003 $ */
 
 /*
 Modify:
+  16.01.2003 SVS
+    - Отметим (Ins) несколько каталогов, ALT-F6 Enter - выделение с папок не снялось.
   30.12.2002 VVM
     - При копировании в несколько каталогов после первого копирования прогресс замораживался.
       Перенесли инициализацию внутрь цикла :)
@@ -1481,11 +1483,20 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
        (ShellCopy::Flags&FCOPY_CREATESYMLINK)
       )
     {
-      // ... создадим и...
+      /*
+      ЭТОТ кусок, если хотим не делать ссылку на ссылку!
+      char SrcRealName[NM*2];
+      ConvertNameToReal(SelName,SrcRealName,sizeof(SrcRealName));
+      switch(MkSymLink(SrcRealName,Dest,ShellCopy::Flags))
+      */
       switch(MkSymLink(SelName,Dest,ShellCopy::Flags))
       {
         case 2: break;
-        case 1: continue;
+        case 1:
+            // Отметим (Ins) несколько каталогов, ALT-F6 Enter - выделение с папок не снялось.
+            if ((!(ShellCopy::Flags&FCOPY_CURRENTONLY)) && (ShellCopy::Flags&FCOPY_COPYLASTTIME))
+              SrcPanel->ClearLastGetSelection();
+            continue;
         case 0: return COPY_FAILURE;
       }
     }
@@ -1590,7 +1601,19 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
       while (ScTree.GetNextName(&SrcData,FullName, sizeof (FullName)-1))
       {
         int AttemptToMove=FALSE;
-
+#if 0
+        if(!SameDisk && (SrcData.dwFileAttributes & (FILE_ATTRIBUTE_DIRECTORY|FILE_ATTRIBUTE_REPARSE_POINT) == (FILE_ATTRIBUTE_DIRECTORY|FILE_ATTRIBUTE_REPARSE_POINT))
+        {
+          /*
+            ЕСЛИ приемник на одном из локальных NTFS-дисков ТО
+              делаем симлинки
+            ИНАЧЕ ЕСЛИ НЕ (приемник на одном из локальных NTFS-дисков) ТО
+              копируем структуру
+          */
+          char RootScrDir[NM];
+          GetPathRoot(FullName,RootScrDir);
+        }
+#endif
         if ((ShellCopy::Flags&FCOPY_MOVE) && SameDisk && (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0)
         {
           AttemptToMove=TRUE;
@@ -1635,21 +1658,28 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
           TotalSkippedSize = TotalSkippedSize + CurSize - CurCopiedSize;
         }
 
-        if ((ShellCopy::Flags&FCOPY_MOVE) && SubCopyCode==COPY_SUCCESS)
+        if (SubCopyCode==COPY_SUCCESS)
         {
-          if (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+          if(ShellCopy::Flags&FCOPY_MOVE)
           {
-            if (ScTree.IsDirSearchDone())
+            if (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
             {
-              if (SrcData.dwFileAttributes & FA_RDONLY)
-                SetFileAttributes(FullName,0);
-              if (RemoveDirectory(FullName))
-                TreeList::DelTreeName(FullName);
+                  _SVS(SysLog("************* %d (%s) ******************",__LINE__,FullName));
+              if (ScTree.IsDirSearchDone() || (SrcData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT))
+              {
+                if (SrcData.dwFileAttributes & FA_RDONLY)
+                  SetFileAttributes(FullName,0);
+                  _SVS(SysLog("************* %d (%s) Pred RemoveDirectory ******************",__LINE__,FullName));
+                if (RemoveDirectory(FullName))
+                  TreeList::DelTreeName(FullName);
+                else
+                  _SVS(SysLog("************* %d (%s) ******************",__LINE__,FullName));
+              }
             }
-          }
-          else if (DeleteAfterMove(FullName,SrcData.dwFileAttributes)==COPY_CANCEL)
-          {
-            return COPY_CANCEL;
+            else if (DeleteAfterMove(FullName,SrcData.dwFileAttributes)==COPY_CANCEL)
+            {
+              return COPY_CANCEL;
+            }
           }
         }
       }
@@ -1917,6 +1947,20 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
 //              if (ConvertNameToFull(Dest,DestFullName, sizeof(DestFullName)) >= sizeof(DestFullName))
 //                return(COPY_NEXT);
 //              TreeList::RenTreeName(SrcFullName,DestFullName);
+#if 0
+              // для источника, имеющего суть симлинка - создадим симлинк
+              if(SrcData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
+              {
+                char SrcRealName[NM*2];
+                ConvertNameToReal(Src,SrcRealName,sizeof(SrcRealName));
+                switch(MkSymLink(SrcRealName,DestPath,FCOPY_LINK))
+                {
+                  case 2: return COPY_CANCEL;
+                  case 1: break;
+                  case 0: return COPY_FAILURE;
+                }
+              }
+#endif
               TreeList::AddTreeName(DestPath);
               return(COPY_SUCCESS);
             }
@@ -1968,7 +2012,20 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
          RemoveDirectory(DestPath);
          return COPY_CANCEL;
       }
-
+#if 0
+      // для источника, имеющего суть симлинка - создадим симлинк
+      if(SrcData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
+      {
+        char SrcRealName[NM*2];
+        ConvertNameToReal(Src,SrcRealName,sizeof(SrcRealName));
+        switch(MkSymLink(SrcRealName,DestPath,FCOPY_LINK))
+        {
+          case 2: return COPY_CANCEL;
+          case 1: break;
+          case 0: return COPY_FAILURE;
+        }
+      }
+#endif
       TreeList::AddTreeName(DestPath);
       return(COPY_SUCCESS);
     }

@@ -8,10 +8,13 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.109 16.01.2003 $ */
+/* Revision: 1.110 21.01.2003 $ */
 
 /*
 Modify:
+  21.01.2003 SVS
+    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
+      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
   16.01.2003 KM
     ! Убрал свою правку, чтобы не загромождать код.
       После Валиной онп не имеет смысла (почти).
@@ -1356,8 +1359,8 @@ void VMenu::DeleteItems()
   {
     for(int I=0; I < ItemCount; ++I)
       if(Item[I].UserDataSize > sizeof(Item[I].UserData) && Item[I].UserData)
-        free(Item[I].UserData);
-    free(Item);
+        xf_free(Item[I].UserData);
+    xf_free(Item);
   }
   /* SVS $ */
   Item=NULL;
@@ -1395,7 +1398,7 @@ int VMenu::DeleteItem(int ID,int Count)
   {
     struct MenuItem *PtrItem=Item+ID+I;
     if(PtrItem->UserDataSize > sizeof(PtrItem->UserData) && PtrItem->UserData)
-      free(PtrItem->UserData);
+      xf_free(PtrItem->UserData);
   }
 
   // а вот теперь перемещения
@@ -1455,7 +1458,7 @@ int VMenu::AddItem(const struct MenuItem *NewItem,int PosAdd)
 
   if ((ItemCount & 255)==0)
   {
-    if ((NewPtr=(struct MenuItem *)realloc(Item,sizeof(struct MenuItem)*(ItemCount+256+1)))==NULL)
+    if ((NewPtr=(struct MenuItem *)xf_realloc(Item,sizeof(struct MenuItem)*(ItemCount+256+1)))==NULL)
       return(0);
     Item=NewPtr;
   }
@@ -1560,7 +1563,7 @@ int VMenu::UpdateItem(const struct FarListUpdate *NewItem)
     struct MenuItem *PItem=Item+NewItem->Index;
     if(PItem->UserDataSize > sizeof(PItem->UserData) && PItem->UserData && (NewItem->Item.Flags&LIF_DELETEUSERDATA))
     {
-      free(PItem->UserData);
+      xf_free(PItem->UserData);
       PItem->UserData=NULL;
       PItem->UserDataSize=0;
     }
@@ -1611,7 +1614,7 @@ int VMenu::_SetUserData(struct MenuItem *PItem,
                        int Size)     // Размер, если =0 то предполагается, что в Data-строка
 {
   if(PItem->UserDataSize > sizeof(PItem->UserData) && PItem->UserData)
-    free(PItem->UserData);
+    xf_free(PItem->UserData);
 
   PItem->UserDataSize=0;
   PItem->UserData=NULL;
@@ -1632,7 +1635,7 @@ int VMenu::_SetUserData(struct MenuItem *PItem,
       if(SizeReal > sizeof(PItem->UserData))
       {
         // ...значит выделяем нужную память.
-        if((PItem->UserData=(char*)malloc(SizeReal)) != NULL)
+        if((PItem->UserData=(char*)xf_malloc(SizeReal)) != NULL)
         {
           PItem->UserDataSize=SizeReal;
           memcpy(PItem->UserData,Data,SizeReal);

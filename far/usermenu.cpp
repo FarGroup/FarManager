@@ -5,10 +5,13 @@ User menu и есть
 
 */
 
-/* Revision: 1.61 16.12.2002 $ */
+/* Revision: 1.62 21.01.2003 $ */
 
 /*
 Modify:
+  21.01.2003 SVS
+    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
+      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
   16.12.2002 SVS
     - BugZ#458 - Съезжает user menu
   23.09.2002 SVS
@@ -984,7 +987,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
     {
        CtrlObject->CmdLine->SetString(OldCmdLine,FrameManager->IsPanelsActive());
        CtrlObject->CmdLine->Select(OldCmdLineSelStart,OldCmdLineSelEnd);
-       free(OldCmdLine);
+       xf_free(OldCmdLine);
        OldCmdLine=NULL;
     }
     /* IS $ */

@@ -5,10 +5,13 @@ grpsort.cpp
 
 */
 
-/* Revision: 1.17 22.03.2002 $ */
+/* Revision: 1.18 21.01.2003 $ */
 
 /*
 Modify:
+  21.01.2003 SVS
+    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
+      ѕросьба блюсти пор€док и прописывать именно xf_* вместо простых.
   22.03.2002 SVS
     - strcpy - Fuck!
   27.09.2001 IS
@@ -106,7 +109,7 @@ GroupSort::GroupSort()
       struct GroupSortData NewGroup={0}; // об€зательно проинициализируем
       if(AddMask(&NewGroup,GroupStr,I+GroupDelta[J]))
       {
-        struct GroupSortData *NewGroupData=(struct GroupSortData *)realloc(GroupData,sizeof(*GroupData)*(GroupCount+1));
+        struct GroupSortData *NewGroupData=(struct GroupSortData *)xf_realloc(GroupData,sizeof(*GroupData)*(GroupCount+1));
         if (NewGroupData==NULL)
         {
           DeleteMask(&NewGroup);
@@ -128,7 +131,7 @@ GroupSort::~GroupSort()
   {
     for(int I=0; I < GroupCount; ++I)
       DeleteMask(GroupData+I);
-    free(GroupData);
+    xf_free(GroupData);
   }
 }
 
@@ -144,7 +147,7 @@ BOOL GroupSort::AddMask(struct GroupSortData *Dest,char *Mask,int Group)
   char *Ptr, *OPtr;
   /* ќбработка %PATHEXT% */
   // пам€ть под оригинал - OriginalMasks
-  if((OPtr=(char *)realloc(Dest->OriginalMasks,strlen(Mask)+1)) == NULL)
+  if((OPtr=(char *)xf_realloc(Dest->OriginalMasks,strlen(Mask)+1)) == NULL)
     return FALSE;
   strcpy(OPtr,Mask); // сохран€ем оригинал.
   // проверим
@@ -177,7 +180,7 @@ BOOL GroupSort::AddMask(struct GroupSortData *Dest,char *Mask,int Group)
   // пам€ть под рабочую маску
   if((Dest->FMasks=new CFileMask) == NULL)
   {
-    free(OPtr);
+    xf_free(OPtr);
     return FALSE;
   }
 
@@ -185,7 +188,7 @@ BOOL GroupSort::AddMask(struct GroupSortData *Dest,char *Mask,int Group)
   {
     delete Dest->FMasks;
     Dest->FMasks=NULL;
-    free(OPtr);
+    xf_free(OPtr);
     return FALSE;
   }
 
@@ -206,7 +209,7 @@ void GroupSort::DeleteMask(struct GroupSortData *CurGroupData)
   }
   if(CurGroupData->OriginalMasks)
   {
-    free(CurGroupData->OriginalMasks);
+    xf_free(CurGroupData->OriginalMasks);
     CurGroupData->OriginalMasks=NULL;
   }
 }
@@ -390,7 +393,7 @@ int GroupSort::EditGroupsMenu(int Pos)
               memset(&NewGroup,0,sizeof(struct GroupSortData));
               if(AddMask(&NewGroup,NewMasks,UpperGroup ? 0:DEFAULT_SORT_GROUP+1))
               {
-                struct GroupSortData *NewGroupData=(struct GroupSortData *)realloc(GroupData,sizeof(*GroupData)*(GroupCount+1));
+                struct GroupSortData *NewGroupData=(struct GroupSortData *)xf_realloc(GroupData,sizeof(*GroupData)*(GroupCount+1));
                 if (NewGroupData==NULL)
                 {
                   DeleteMask(&NewGroup);

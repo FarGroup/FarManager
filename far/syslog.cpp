@@ -5,10 +5,16 @@ syslog.cpp
 
 */
 
-/* Revision: 1.35 10.12.2002 $ */
+/* Revision: 1.36 21.01.2003 $ */
 
 /*
 Modify:
+  21.01.2003 SVS
+    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
+      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
+    + INPUT_RECORD_DumpBuffer() - дамп оставшихся эвентов в консольной очереди
+    + IsLogON() - теперь любые логи будут писаться (только в дебажной версии)
+      если включен ScrollLock
   10.12.2002 SVS
     + ManagerClass_Dump()
   04.11.2002 SVS
@@ -130,7 +136,14 @@ static char *PrintTime(char *timebuf);
 #endif
 
 #if defined(SYSLOG)
-char *MakeSpace(void)
+static BOOL IsLogON(void)
+{
+  return GetKeyState(VK_SCROLL)?TRUE:FALSE;
+}
+#endif
+
+#if defined(SYSLOG)
+static char *MakeSpace(void)
 {
   static char Buf[60]=" ";
   if(Indent)
@@ -194,8 +207,11 @@ void CloseSysLog(void)
 void ShowHeap()
 {
 #if defined(SYSLOG) && defined(HEAPLOG)
+  if(!IsLogON())
+    return;
+
   OpenSysLog();
-  if ( LogStream )
+  if ( LogStream)
   {
     char timebuf[64];
     fprintf(LogStream,"%s %s%s\n",PrintTime(timebuf),MakeSpace(),"Heap Status");
@@ -225,6 +241,9 @@ void ShowHeap()
 void CheckHeap(int NumLine)
 {
 #if defined(SYSLOG) && defined(HEAPLOG)
+  if(!IsLogON())
+    return;
+
   int HeapStatus=_heapchk();
   if (HeapStatus ==_HEAPBADNODE)
   {
@@ -264,6 +283,9 @@ static char *PrintTime(char *timebuf)
 void SysLog(char *fmt,...)
 {
 #if defined(SYSLOG)
+  if(!IsLogON())
+    return;
+
   char msg[MAX_LOG_LINE];
 
   va_list argptr;
@@ -293,6 +315,9 @@ void SysLog(char *fmt,...)
 void SysLogLastError(void)
 {
 #if defined(SYSLOG)
+  if(!IsLogON())
+    return;
+
   LPSTR lpMsgBuf;
 
   DWORD LastErr=GetLastError();
@@ -325,6 +350,9 @@ void SysLogLastError(void)
 void SysLog(int l,char *fmt,...)
 {
 #if defined(SYSLOG)
+  if(!IsLogON())
+    return;
+
   char msg[MAX_LOG_LINE];
 
   va_list argptr;
@@ -355,6 +383,9 @@ void SysLog(int l,char *fmt,...)
 void SysLogDump(char *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,FILE *fp)
 {
 #if defined(SYSLOG)
+  if(!IsLogON())
+    return;
+
   int CY=(SizeBuf+15)/16;
   int X,Y;
   int InternalLog=fp==NULL?TRUE:FALSE;
@@ -408,6 +439,9 @@ void SysLogDump(char *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,FILE *fp)
 void SaveScreenDumpBuffer(const char *Title,const CHAR_INFO *Buffer,int X1,int Y1,int X2,int Y2,int RealScreen,FILE *fp)
 {
 #if defined(SYSLOG)
+  if(!IsLogON())
+    return;
+
   int InternalLog=fp==NULL?TRUE:FALSE;
 
   if(InternalLog)
@@ -459,6 +493,9 @@ void SaveScreenDumpBuffer(const char *Title,const CHAR_INFO *Buffer,int X1,int Y
 void PluginsStackItem_Dump(char *Title,const struct PluginsStackItem *StackItems,int ItemNumber,FILE *fp)
 {
 #if defined(SYSLOG)
+  if(!IsLogON())
+    return;
+
   int InternalLog=fp==NULL?TRUE:FALSE;
 
   if(InternalLog)
@@ -518,6 +555,9 @@ void PluginsStackItem_Dump(char *Title,const struct PluginsStackItem *StackItems
 void ManagerClass_Dump(char *Title,const Manager *m,FILE *fp)
 {
 #if defined(SYSLOG)
+  if(!IsLogON())
+    return;
+
   int InternalLog=fp==NULL?TRUE:FALSE;
 
   if(InternalLog)
@@ -1067,6 +1107,66 @@ const char *_INPUT_RECORD_Dump(INPUT_RECORD *rec)
   return Records;
 #else
   return "";
+#endif
+}
+
+void INPUT_RECORD_DumpBuffer(FILE *fp)
+{
+#if defined(SYSLOG)
+  if(!IsLogON())
+    return;
+
+  int InternalLog=fp==NULL?TRUE:FALSE;
+  DWORD ReadCount2;
+  // берем количество оставшейся порции эвентов
+  GetNumberOfConsoleInputEvents(hConInp,&ReadCount2);
+  if(ReadCount2 <= 1)
+    return;
+
+  if(InternalLog)
+  {
+    OpenSysLog();
+    fp=LogStream;
+    if(fp)
+    {
+      char timebuf[64];
+      fprintf(fp,"%s %s(Number Of Console Input Events = %d)\n",PrintTime(timebuf),MakeSpace(),ReadCount2);
+    }
+  }
+
+  if (fp)
+  {
+    if(ReadCount2 > 1)
+    {
+      INPUT_RECORD *TmpRec=(INPUT_RECORD*)xf_malloc(sizeof(INPUT_RECORD)*ReadCount2);
+      if(TmpRec)
+      {
+        DWORD ReadCount3;
+        INPUT_RECORD TmpRec2;
+        int I;
+
+        #if defined(USE_WFUNC_IN)
+        if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+          PeekConsoleInputW(hConInp,TmpRec,ReadCount2,&ReadCount3);
+        else
+          PeekConsoleInputA(hConInp,TmpRec,ReadCount2,&ReadCount3);
+        #else
+        PeekConsoleInput(hConInp,TmpRec,ReadCount2,&ReadCount3);
+        #endif
+
+        for(I=0; I < ReadCount2; ++I)
+        {
+          fprintf(fp,"             %s%04d: %s\n",MakeSpace(),I,_INPUT_RECORD_Dump(TmpRec+I));
+        }
+        // освободим память
+        xf_free(TmpRec);
+      }
+    }
+    fflush(fp);
+  }
+
+  if(InternalLog)
+    CloseSysLog();
 #endif
 }
 

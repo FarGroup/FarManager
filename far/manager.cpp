@@ -5,10 +5,13 @@ manager.cpp
 
 */
 
-/* Revision: 1.81 10.01.2003 $ */
+/* Revision: 1.82 21.01.2003 $ */
 
 /*
 Modify:
+  21.01.2003 SVS
+    + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
+      Просьба блюсти порядок и прописывать именно xf_* вместо простых.
   10.01.2003 SVS
     + Для отработки процесса исключений самого ФАРа (эмуляция) в manager.cpp
       добавлен код, вызывающий менюху по Ctrl-Alt-Apps с последующим
@@ -277,7 +280,7 @@ Manager::Manager()
   FrameCount=FrameListSize=0;
   FramePos=-1;
   ModalStack=NULL;
-  FrameList=(Frame **)realloc(FrameList,sizeof(*FrameList)*(FrameCount+1));
+  FrameList=(Frame **)xf_realloc(FrameList,sizeof(*FrameList)*(FrameCount+1));
 
   ModalStack=NULL;
   ModalStackSize = ModalStackCount = 0;
@@ -302,11 +305,11 @@ Manager::Manager()
 Manager::~Manager()
 {
   if (FrameList)
-    free(FrameList);
+    xf_free(FrameList);
   if (ModalStack)
-    free (ModalStack);
+    xf_free (ModalStack);
   /*if (SemiModalBackFrames)
-    free(SemiModalBackFrames);*/
+    xf_free(SemiModalBackFrames);*/
 }
 
 
@@ -366,7 +369,7 @@ void Manager::CloseAll()
      Здесь было "delete ModalList;", но перераспределение массива ссылок
      идет через realloc...
   */
-  free(FrameList);
+  xf_free(FrameList);
   /* SVS $ */
   FrameList=NULL;
   FrameCount=FramePos=0;
@@ -814,6 +817,18 @@ void Manager::ExitMainLoop(int Ask)
    }
 }
 
+#if defined(FAR_ALPHA_VERSION)
+#include <float.h>
+
+static void Test_EXCEPTION_STACK_OVERFLOW(char* target)
+{
+   char Buffer[1024]; /* чтобы быстрее рвануло */
+   strcpy( Buffer, "zzzz" );
+   Test_EXCEPTION_STACK_OVERFLOW( Buffer );
+}
+#endif
+
+
 int  Manager::ProcessKey(int Key)
 {
   int ret=FALSE;
@@ -836,25 +851,25 @@ int  Manager::ProcessKey(int Key)
       } ECode[]={
         {EXCEPTION_ACCESS_VIOLATION,"Access Violation (Read)"},
         {EXCEPTION_ACCESS_VIOLATION,"Access Violation (Write)"},
-        {EXCEPTION_INT_DIVIDE_BY_ZERO,"INT Divide By Zero"},
+        {EXCEPTION_INT_DIVIDE_BY_ZERO,"Divide by zero"},
+        {EXCEPTION_ILLEGAL_INSTRUCTION,"Illegal instruction"},
+        {EXCEPTION_STACK_OVERFLOW,"Stack Overflow"},
+        {EXCEPTION_FLT_DIVIDE_BY_ZERO,"Floating-point divide by zero"},
 /*
+        {EXCEPTION_FLT_OVERFLOW,"EXCEPTION_FLT_OVERFLOW"},
         {EXCEPTION_DATATYPE_MISALIGNMENT,"EXCEPTION_DATATYPE_MISALIGNMENT",},
         {EXCEPTION_BREAKPOINT,"EXCEPTION_BREAKPOINT",},
         {EXCEPTION_SINGLE_STEP,"EXCEPTION_SINGLE_STEP",},
         {EXCEPTION_ARRAY_BOUNDS_EXCEEDED,"EXCEPTION_ARRAY_BOUNDS_EXCEEDED",},
         {EXCEPTION_FLT_DENORMAL_OPERAND,"EXCEPTION_FLT_DENORMAL_OPERAND",},
-        {EXCEPTION_FLT_DIVIDE_BY_ZERO,"EXCEPTION_FLT_DIVIDE_BY_ZERO",},
         {EXCEPTION_FLT_INEXACT_RESULT,"EXCEPTION_FLT_INEXACT_RESULT",},
         {EXCEPTION_FLT_INVALID_OPERATION,"EXCEPTION_FLT_INVALID_OPERATION",},
-        {EXCEPTION_FLT_OVERFLOW,"EXCEPTION_FLT_OVERFLOW",},
         {EXCEPTION_FLT_STACK_CHECK,"EXCEPTION_FLT_STACK_CHECK",},
         {EXCEPTION_FLT_UNDERFLOW,"EXCEPTION_FLT_UNDERFLOW",},
         {EXCEPTION_INT_OVERFLOW,"EXCEPTION_INT_OVERFLOW",0},
         {EXCEPTION_PRIV_INSTRUCTION,"EXCEPTION_PRIV_INSTRUCTION",0},
         {EXCEPTION_IN_PAGE_ERROR,"EXCEPTION_IN_PAGE_ERROR",0},
-        {EXCEPTION_ILLEGAL_INSTRUCTION,"EXCEPTION_ILLEGAL_INSTRUCTION",0},
         {EXCEPTION_NONCONTINUABLE_EXCEPTION,"EXCEPTION_NONCONTINUABLE_EXCEPTION",0},
-        {EXCEPTION_STACK_OVERFLOW,"EXCEPTION_STACK_OVERFLOW",0},
         {EXCEPTION_INVALID_DISPOSITION,"EXCEPTION_INVALID_DISPOSITION",0},
         {EXCEPTION_GUARD_PAGE,"EXCEPTION_GUARD_PAGE",0},
         {EXCEPTION_INVALID_HANDLE,"EXCEPTION_INVALID_HANDLE",0},
@@ -885,6 +900,21 @@ int  Manager::ProcessKey(int Key)
           break;
         case 2:
           return i / 0;
+        case 3:
+          #if !defined(SYSLOG)
+          // у компилера под дебаг крышу сносит от такой наглости :-)
+          ((void (*)(void))(void *)"\xF0\x0F\xC7\xC8\xCF")();
+          #endif
+          return 0;
+        case 4:
+          Test_EXCEPTION_STACK_OVERFLOW(NULL);
+          return 0;
+        case 5:
+        {
+          double a = 0;
+          a = 1 / a;
+          return 0;
+        }
       }
       return TRUE;
     }
@@ -1334,7 +1364,7 @@ void Manager::DeleteCommit()
     if(i==ModalStackCount)
     {
       if (ModalStackCount == ModalStackSize){
-        ModalStack = (Frame **) realloc (ModalStack, ++ModalStackSize * sizeof (Frame *));
+        ModalStack = (Frame **) xf_realloc (ModalStack, ++ModalStackSize * sizeof (Frame *));
       }
       ModalStack[ModalStackCount++]=ActivatedFrame;
     }
@@ -1373,7 +1403,7 @@ void Manager::InsertCommit()
   if (InsertedFrame){
     if (FrameListSize <= FrameCount)
     {
-      FrameList=(Frame **)realloc(FrameList,sizeof(*FrameList)*(FrameCount+1));
+      FrameList=(Frame **)xf_realloc(FrameList,sizeof(*FrameList)*(FrameCount+1));
       FrameListSize++;
     }
     InsertedFrame->FrameToBack=CurrentFrame;
@@ -1417,7 +1447,7 @@ void Manager::ExecuteCommit()
     return;
   }
   if (ModalStackCount == ModalStackSize){
-    ModalStack = (Frame **) realloc (ModalStack, ++ModalStackSize * sizeof (Frame *));
+    ModalStack = (Frame **) xf_realloc (ModalStack, ++ModalStackSize * sizeof (Frame *));
   }
   ModalStack [ModalStackCount++] = ExecutedFrame;
   ActivatedFrame=ExecutedFrame;
@@ -1613,7 +1643,7 @@ void Manager::InitKeyBar(void)
   {
     SemiModalBackFramesSize+=4;
     SemiModalBackFrames=
-      (Frame**)realloc(SemiModalBackFrames,sizeof(Frame*)*SemiModalBackFramesSize);
+      (Frame**)xf_realloc(SemiModalBackFrames,sizeof(Frame*)*SemiModalBackFramesSize);
 
   }
   SemiModalBackFrames[SemiModalBackFramesCount]=frame;
