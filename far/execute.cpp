@@ -5,10 +5,14 @@ execute.cpp
 
 */
 
-/* Revision: 1.17 03.12.2001 $ */
+/* Revision: 1.18 04.12.2001 $ */
 
 /*
 Modify:
+  04.12.2001 SVS
+    ! Очередное уточнение пусковика. На этот раз... при старте DOC-файлов
+      ФАР ждет завершения. Выход из положения - "посмотрить" на гуевость
+      пусковика.
   03.12.2001 SVS
     ! Уточнение для... пути со скобками :-)
     ! Новое поведение - убрали DETACHED_PROCESS и ждем завершение процесса.
@@ -158,15 +162,24 @@ static int IsCommandPEExeGUI(const char *FileName,DWORD *IsPEGUI)
   return Ret;
 }
 
-char* GetShellAction(char *FileName)
+// по имени файла (по его расширению) получить команду активации
+// Дополнительно смотрится гуевость команды-активатора
+// (чтобы не ждать завершения)
+char* GetShellAction(char *FileName,DWORD *GUIType)
 {
-  char Value[80],*ExtPtr;
+  char Value[512],*ExtPtr, *RetPtr;
   LONG ValueSize;
+
+  *GUIType=0;
+
   if ((ExtPtr=strrchr(FileName,'.'))==NULL)
     return(NULL);
+
   ValueSize=sizeof(Value);
+
   if (RegQueryValue(HKEY_CLASSES_ROOT,(LPCTSTR)ExtPtr,(LPTSTR)Value,&ValueSize)!=ERROR_SUCCESS)
     return(NULL);
+
   strcat(Value,"\\shell");
 
   HKEY hKey;
@@ -175,10 +188,41 @@ char* GetShellAction(char *FileName)
 
   static char Action[80];
   ValueSize=sizeof(Action);
-  if (RegQueryValueEx(hKey,"",NULL,NULL,(unsigned char *)Action,(LPDWORD)&ValueSize)!=ERROR_SUCCESS)
-    return(NULL);
+  LONG RetQuery=RegQueryValueEx(hKey,"",NULL,NULL,(unsigned char *)Action,(LPDWORD)&ValueSize);
   RegCloseKey(hKey);
-  return(*Action==0 ? NULL:Action);
+
+  if (RetQuery == ERROR_SUCCESS)
+  {
+    RetPtr=(*Action==0 ? NULL:Action);
+    strcat(Value,"\\");
+    strcat(Value,Action);
+  }
+  else
+  {
+    // This member defaults to "Open" if no verb is specified.
+    // Т.е. если мы вернули NULL, то подразумевается команда "Open"
+    RetPtr=NULL;
+    strcat(Value,"\\open");
+  }
+  strcat(Value,"\\command");
+
+  // а теперь проверим ГУЕвость запускаемой проги
+  if (RegOpenKey(HKEY_CLASSES_ROOT,Value,&hKey)==ERROR_SUCCESS)
+  {
+    char Command[1024];
+    ValueSize=sizeof(Command);
+    RetQuery=RegQueryValueEx(hKey,"",NULL,NULL,(unsigned char *)Command,(LPDWORD)&ValueSize);
+    RegCloseKey(hKey);
+    if(RetQuery == ERROR_SUCCESS)
+    {
+      char *Ptr;
+      if ((Ptr=strpbrk(Command," \t/"))!=NULL)
+        *Ptr=0;
+      IsCommandPEExeGUI(Command,GUIType);
+    }
+  }
+
+  return RetPtr;
 }
 
 
@@ -510,7 +554,7 @@ int Execute(char *CmdStr,          // Ком.строка для исполнения
       si.cbSize=sizeof(si);
       si.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_DDEWAIT;
       si.lpFile=AnsiLine;
-      si.lpVerb=GetShellAction((char *)si.lpFile);
+      si.lpVerb=GetShellAction((char *)si.lpFile,&GUIType);
       si.nShow=SW_SHOWNORMAL;
       SetFileApisToANSI();
       ExitCode=ShellExecuteEx(&si);
@@ -632,7 +676,7 @@ int Execute(char *CmdStr,          // Ком.строка для исполнения
       }
       /* SKV$*/
     }
-    else if (!AlwaysWaitFinish)
+    else if (!GUIType) //(!AlwaysWaitFinish)
     {
       WaitForSingleObject(pi.hProcess,INFINITE);
     }

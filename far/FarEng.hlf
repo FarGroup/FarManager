@@ -312,7 +312,7 @@ before copying, terminate the name with a backslash.
   Moves or renames files and folders. If you wish to create the destination
 folder before moving, terminate the name with a backslash.
 
-  Create new folder                                               #F7#
+  ~Create new folder~@MakeFolder@                                               #F7#
 
   Delete                                     #Shift-Del, Shift-F8, F8#
 

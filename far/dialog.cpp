@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.189 03.12.2001 $ */
+/* Revision: 1.190 04.12.2001 $ */
 
 /*
 Modify:
+  04.12.2001 SVS
+    ! сбросим флаг DIF_EDITOR для строки ввода, отличной от DI_EDIT
   03.12.2001 SVS
     ! Уточнение работы DM_SETHISTORY: для DI_EDIT с флагом DIF_USELASTHISTORY
       ФАР сам подставит Line0 из истории, при условии, что строка ввода пуста.
@@ -1159,6 +1161,10 @@ int Dialog::InitDialogObjects(int ID)
     // "редакторы" - разговор особый...
     if (IsEdit(Type))
     {
+      // сбросим флаг DIF_EDITOR для строки ввода, отличной от DI_EDIT
+      if((ItemFlags&DIF_EDITOR) && Type != DI_EDIT)
+        ItemFlags&=~DIF_EDITOR;
+
       if (!DialogMode.Check(DMODE_CREATEOBJECTS))
       {
         CurItem->ObjPtr=new Edit;
