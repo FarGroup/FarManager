@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.88 17.01.2002 $ */
+/* Revision: 1.89 18.01.2002 $ */
 
 /*
 Modify:
+  18.01.2002 VVM
+    ! При вызове просмотра забыли создать временный каталог.
   17.01.2002 VVM
     ! Выделять элементы в списке будем через ListBox, а не в структуре.
       Убираем возможность двойного выделения
@@ -819,16 +821,16 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
       if (Param1==9 && (Param2==KEY_RIGHT || Param2==KEY_TAB)) // [ Stop ] button
       {
-        while (ListBox->GetCallCount())
-          Sleep(10);
+//        while (ListBox->GetCallCount())
+//          Sleep(10);
         Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,5/* [ New search ] */,0);
         ReleaseMutex(hMutex);
         return TRUE;
       }
       else if (Param1==5 && (Param2==KEY_LEFT || Param2==KEY_SHIFTTAB)) // [ New search ] button
       {
-        while (ListBox->GetCallCount())
-          Sleep(10);
+//        while (ListBox->GetCallCount())
+//          Sleep(10);
         Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,9/* [ Stop ] */,0);
         ReleaseMutex(hMutex);
         return TRUE;
@@ -837,8 +839,8 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
                Param2==KEY_PGDN || Param2==KEY_HOME || Param2==KEY_END ||
                Param2==KEY_MSWHEEL_UP || Param2==KEY_MSWHEEL_DOWN)
       {
-        while (ListBox->GetCallCount())
-          Sleep(10);
+//        while (ListBox->GetCallCount())
+//          Sleep(10);
         ListBox->ProcessKey(Param2);
         ReleaseMutex(hMutex);
         return TRUE;
@@ -904,6 +906,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
             FileItem.FindData=FindList[ItemIndex].FindData;
             sprintf(TempDir,"%s%s",Opt.TempPath,FarTmpXXXXXX);
             mktemp(TempDir);
+            CreateDirectory(TempDir, NULL);
             if (!CtrlObject->Plugins.GetFile(ArcList[FindList[ItemIndex].ArcIndex].hPlugin,&FileItem,TempDir,SearchFileName,OPM_SILENT|OPM_FIND))
             {
               RemoveDirectory(TempDir);
