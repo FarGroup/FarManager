@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.136 06.05.2003 $ */
+/* Revision: 1.137 07.05.2003 $ */
 
 /*
 Modify:
+  07.05.2003 VVM
+    - При 16-ном просмотре не работал скроллинг вниз.
   06.05.2003 SVS
     ! Вместо mprintf("<>"); применим BoxText(), который в зависимости от
       Opt.UseUnicodeConsole будет выводить 0xbb/0xab или >/<
@@ -2058,8 +2060,13 @@ int Viewer::ProcessKey(int Key)
     {
       if (!LastPage && ViewFile)
       {
-        //FilePos=SecondPos;
-        ShowDown();
+        if (VM.Hex)
+        {
+          FilePos=SecondPos;
+          Show();
+        }
+        else
+          ShowDown();
       }
 //      LastSelPos=FilePos;
       return(TRUE);
