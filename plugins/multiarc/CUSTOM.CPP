@@ -1,6 +1,7 @@
 #include <windows.h>
 #include <string.h>
 #include <dos.h>
+#include <ctype.h>
 #include "plugin.hpp"
 #include "fmt.hpp"
 
@@ -176,7 +177,7 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
   si.dwFlags=STARTF_USESTDHANDLES;
   si.hStdInput=StdInput;
   si.hStdOutput=OutHandle;
-  si.hStdError=GetStdHandle(STD_ERROR_HANDLE);
+  si.hStdError=/*GetStdHandle(STD_ERROR_HANDLE)*/OutHandle;
   DWORD ConsoleMode;
   GetConsoleMode(StdInput,&ConsoleMode);
   SetConsoleMode(StdInput,ENABLE_PROCESSED_INPUT|ENABLE_LINE_INPUT|
@@ -357,8 +358,11 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
       switch(*CurFormat)
       {
         case '*':
-          while (CurStr[0] && CurStr[1] && !isspace(CurStr[0]) && !isspace(CurStr[1]))
-            CurStr++;
+          if(isspace(*CurStr) || !CurStr)
+            CurStr--;
+          else
+            while (/*CurStr[0] &&*/ CurStr[1] /*&& !isspace(CurStr[0])*/ && !isspace(CurStr[1]))
+              CurStr++;
           break;
         case 'n':
           strncat(Item->FindData.cFileName,CurStr,1);
