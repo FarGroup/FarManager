@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.100 12.10.2001 $ */
+/* Revision: 1.101 15.10.2001 $ */
 
 /*
 Modify:
+  15.10.2001 SVS
+    + Opt.DlgSelectFromHistory
   12.10.2001 SVS
     ! Ну охренеть (Opt.FolderSetAttr165!!!) - уже и так есть то, что надо:
       Opt.SetAttrFolderRules!
@@ -999,6 +1001,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyViewer,"Wrap",&Opt.ViewerWrap,0, 0},
 
   {0, REG_DWORD,  NKeyDialog,"EULBsClear",&Opt.DlgEULBsClear,0, 0},
+  {0, REG_DWORD,  NKeyDialog,"SelectFromHistory",&Opt.DlgSelectFromHistory,0, 0},
 
   {1, REG_SZ,     NKeyEditor,"ExternalEditorName",Opt.ExternalEditor,sizeof(Opt.ExternalEditor),""},
   {1, REG_DWORD,  NKeyEditor,"UseExternalEditor",&Opt.UseExternalEditor,0, 0},

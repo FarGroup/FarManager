@@ -5,10 +5,14 @@ dialog.cpp
 
 */
 
-/* Revision: 1.165 10.10.2001 $ */
+/* Revision: 1.166 15.10.2001 $ */
 
 /*
 Modify:
+  15.10.2001 SVS
+   ! if Opt.DlgSelectFromHistory == 0 then (ctrl-down в строке с историей
+     курсор устанавливался на самую верхнюю строку)
+   - "Если в истории диалоги все 64 элемента залочены..."
   10.10.2001 SVS
    ! Если "редактор" имеет флаг DIF_NOFOCUS, то показывать его нефокусным
      цветом (BugZ#71)
@@ -3932,7 +3936,7 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
         break;
 
       // выставим селекшин
-      Dest=HistoryMenu.FindItem(0,IStr,LIFIND_NOPATTERN);
+      Dest=Opt.DlgSelectFromHistory?HistoryMenu.FindItem(0,IStr,LIFIND_NOPATTERN):-1;
       HistoryMenu.SetSelectPos(Dest!=-1?Dest:0, 1);
       //  Перед отрисовкой спросим об изменении цветовых атрибутов
       /*$ 14.06.2001 OT */
@@ -4095,7 +4099,7 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
 int Dialog::AddToEditHistory(char *AddStr,char *HistoryName)
 {
 #define MAXSIZESTRING 4096
-  int AddLine=-1, I, J, Locked, HistCount;
+  int AddLine=-1, I, J, Locked, HistCount, LockedCount=0;
   char Str[MAXSIZESTRING];
   char RegKey[NM];
   struct HistArray{
@@ -4127,6 +4131,7 @@ int Dialog::AddToEditHistory(char *AddStr,char *HistoryName)
       if((His[HistCount].Str=strdup(Str)) != NULL)
       {
         His[HistCount].Locked=Locked;
+        LockedCount+=Locked;
         DeleteRegValue(RegKey,HisLocked);
         DeleteRegValue(RegKey,HisLine);
         ++HistCount;
@@ -4142,11 +4147,22 @@ int Dialog::AddToEditHistory(char *AddStr,char *HistoryName)
       if(AddLine == -1 || AddLine != -1 && His[I].Locked)
         AddLine=I;
     }
+  /*
+    Здесь у нас:
+      если AddLine == -1, то такой строки нету в истории
+      если LockedCount == HISTORY_COUNT, все залочено!
+  */
 
-  // добавляем в начало
-  HisTemp[0].Str=(AddLine == -1)?strdup(AddStr):His[AddLine].Str;
-  HisTemp[0].Locked=(AddLine == -1)?0:His[AddLine].Locked;
-  J=1;
+  // А можно ли добавлять то?...
+  if(LockedCount == HISTORY_COUNT && AddLine == -1)
+    J=0;
+  else // ...не только можно, но и нужно!
+  {
+    // добавляем в начало
+    HisTemp[0].Str=(AddLine == -1)?strdup(AddStr):His[AddLine].Str;
+    HisTemp[0].Locked=(AddLine == -1)?0:His[AddLine].Locked;
+    J=1;
+  }
 
   // Locked вперед
   for (I=0; I < HistCount; I++)

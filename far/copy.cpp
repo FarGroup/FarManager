@@ -5,10 +5,14 @@ copy.cpp
 
 */
 
-/* Revision: 1.48 13.10.2001 $ */
+/* Revision: 1.49 15.10.2001 $ */
 
 /*
 Modify:
+  15.10.2001 SVS
+    - strncpy - начало пробелем :-)
+      "посмотрите на разделительную линейку между прогресс-индикаторами"
+       (во время копирования)
   13.10.2001 IS
     + При мультикопировании добавляем выбранный в "дереве" каталог к уже
       существующему списку через точку с запятой.
@@ -1623,7 +1627,7 @@ void ShellCopy::ShellCopyMsg(char *Src,char *Dest,int Flags)
     else
       sprintf(TotalMsg," %s ",MSG(MCopyDlgTotal));
     int TotalLength=strlen(TotalMsg);
-    strncpy(BarStr+(strlen(BarStr)-TotalLength+1)/2,TotalMsg,TotalLength);
+    memcpy(BarStr+(strlen(BarStr)-TotalLength+1)/2,TotalMsg,TotalLength);
     *FilesStr=0;
   }
   else

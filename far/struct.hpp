@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.71 12.10.2001 $ */
+/* Revision: 1.72 15.10.2001 $ */
 
 /*
 Modify:
+  15.10.2001 SVS
+    + Opt.DlgSelectFromHistory
   12.10.2001 SVS
     ! Ну охренеть (Opt.FolderSetAttr165!!!) - уже и так есть то, что надо:
       Opt.SetAttrFolderRules!
@@ -663,6 +665,7 @@ struct Options
 
   DWORD LCIDSort;
   int HelpTabSize;
+  int DlgSelectFromHistory;
 
   char DateFormat[80]; // Для $Date
   struct PoliciesOptions Policies;
