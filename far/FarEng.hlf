@@ -2708,9 +2708,9 @@ active file panel.
 
     Use #Space#, '#+#' and '#-#' keys to select filter menu items. Selected
 items will be indicated by '+' marks. If filters are present, only files which
-are filtered will be shown. Items selected with '-' will be indicated by '-'
+are filtered will be shown. Items selected with '#-#' will be indicated by '-'
 mark, and all files matching these items will be excluded from the file panel.
-#Shift-GrayMinus# combination will clear all marks.
+#Shift-<Gray Minus># combination will clear all marks.
 
     Custom filters selection is stored in the FAR configuration.
 
@@ -2718,8 +2718,9 @@ mark, and all files matching these items will be excluded from the file panel.
 mode letter in the upper left corner of the panel.
 
     To remove the filter from the panel it is necessary to remove all "+" or
-"-" marks from user's filters and from file masks of the current panel,
-and press Enter.
+"-" marks from user's filters and from file masks of the current panel, and
+press #Enter#.
+
 
 @FileDiz
 $ #File descriptions#

@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.177 26.08.2004 $ */
+/* Revision: 1.178 05.10.2004 $ */
 
 /*
 Modify:
+  05.10.2004 SVS
+    - Отвалился F3 на каталогах в панели плагинов
   26.08.2004 SVS
     - В функциях FarGetPluginDirList и FarGetDirList проверим параметры и..., если есть "траблы" - вернем FALSE
   06.08.2004 SKV
@@ -1831,7 +1833,7 @@ static void PR_FarGetDirListMsg(void)
 
 int WINAPI FarGetDirList(const char *Dir,struct PluginPanelItem **pPanelItem,int *pItemsNumber)
 {
-  if (FrameManager->ManagerIsDown() || !Dir || !*Dir || !pItemsNumber || !*pPanelItem)
+  if (FrameManager->ManagerIsDown() || !Dir || !*Dir || !pItemsNumber || !pPanelItem)
     return FALSE;
 
   char DirName[NM];
@@ -1928,7 +1930,7 @@ int WINAPI FarGetPluginDirList(int PluginNumber,
                                struct PluginPanelItem **pPanelItem,
                                int *pItemsNumber)
 {
-  if (FrameManager->ManagerIsDown() || !Dir || !*Dir || !pItemsNumber || !*pPanelItem)
+  if (FrameManager->ManagerIsDown() || !Dir || !*Dir || !pItemsNumber || !pPanelItem)
     return FALSE;
 
   {
