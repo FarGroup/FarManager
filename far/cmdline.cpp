@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.39 23.09.2001 $ */
+/* Revision: 1.40 26.09.2001 $ */
 
 /*
 Modify:
+  26.09.2001 VVM
+    ! Перерисовать панели, если были изменения. В догонку к предыдущему патчу.
   23.09.2001 VVM
     ! CmdExecute: RedrawDesktop должен уничтожиться _до_ вызова UpdateIfChanged.
       Иначе InfoPanel перерисовывается при изменении каталога и портит background
@@ -462,8 +464,10 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
     */
     //CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
     //CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
-    CtrlObject->Cp()->LeftPanel->UpdateIfChanged(1);
-    CtrlObject->Cp()->RightPanel->UpdateIfChanged(1);
+    if (CtrlObject->Cp()->LeftPanel->UpdateIfChanged(1))
+      CtrlObject->Cp()->LeftPanel->Show();
+    if (CtrlObject->Cp()->RightPanel->UpdateIfChanged(1))
+      CtrlObject->Cp()->RightPanel->Show();
     /* SKV$*/
   }
   ScrBuf.Flush();
