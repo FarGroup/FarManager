@@ -5,10 +5,17 @@ dialog.cpp
 
 */
 
-/* Revision: 1.108 29.05.2001 $ */
+/* Revision: 1.109 30.05.2001 $ */
 
 /*
 Modify:
+  30.05.2001 KM
+   -  ос€чило центрирование диалога и изменение размера диалога
+     при использовании DM_MOVEDIALOG и DM_RESIZEDIALOG
+   + «апущен в действие DM_SETITEMPOSITION:
+     Param1 = ID элемента диалога.
+     Param2 = ”казатель на структуру SMALL_RECT с новыми координатами.
+     ¬озвращает TRUE дл€ верного ID, FALSE в противном случае.
   28.05.2001 SVS
    ! RegKey[80] -> RegKey[NM]
   27.05.2001 SVS
@@ -1098,6 +1105,55 @@ char *Dialog::GetDialogTitle()
 }
 
 /* DJ $ */
+
+
+/* $ 30.05.2001 KM
+   »зменение координат и/или размеров итема диалога.
+*/
+BOOL Dialog::SetItemRect(int ID,SMALL_RECT *Rect)
+{
+  if (ID >= ItemCount)
+    return FALSE;
+
+  DialogItem *CurItem=&Item[ID];
+  int Type=CurItem->Type;
+
+  CurItem->X1=(Rect->Left<0)?0:Rect->Left;
+  CurItem->Y1=(Rect->Top<0)?0:Rect->Top;
+
+  if (IsEdit(Type))
+  {
+      Edit *DialogEdit=(Edit *)CurItem->ObjPtr;
+      CurItem->X2=Rect->Right;
+      CurItem->Y2=0;
+      DialogEdit->SetPosition(X1+Rect->Left, Y1+Rect->Top,
+                                   X1+Rect->Right,Y1+Rect->Top);
+  }
+  else if (Type==DI_LISTBOX)
+  {
+      CurItem->X2=Rect->Right;
+      CurItem->Y2=Rect->Bottom;
+      CurItem->ListPtr->SetPosition(X1+Rect->Left, Y1+Rect->Top,
+                                    X1+Rect->Right,Y1+Rect->Bottom);
+  }
+  switch(Type)
+  {
+    case DI_DOUBLEBOX:
+    case DI_SINGLEBOX:
+    case DI_USERCONTROL:
+      CurItem->X2=Rect->Right;
+      CurItem->Y2=Rect->Bottom;
+      break;
+  }
+
+  if(CheckDialogMode(DMODE_SHOW))
+  {
+    ShowDialog(-1);
+    ScrBuf.Flush();
+  }
+  return TRUE;
+}
+/* KM $ */
 
 BOOL Dialog::GetItemRect(int I,RECT& Rect)
 {
@@ -4696,11 +4752,8 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     }
     /* SVS $ */
 
-    case DM_SETITEMPOSITION: // Param2 = SMALL_RECT
-    {
-      // Dlg->ResizeItem(Param1,)
-      return FALSE;
-    }
+    case DM_SETITEMPOSITION: // Param1 = ID; Param2 = SMALL_RECT
+      return Dlg->SetItemRect((int)Param1,(SMALL_RECT*)Param2);
 
     case DM_RESIZEDIALOG:
       return Dialog::SendDlgMessage(hDlg,DM_MOVEDIALOG,-1,Param2);
@@ -4719,12 +4772,16 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       Dlg->OldY1=Dlg->Y1;
       Dlg->OldX2=Dlg->X2;
       Dlg->OldY2=Dlg->Y2;
+      /* $ 30.05.2001 KM
+         -  ос€чило центрирование диалога и изменение размера
+      */
       // переместили
       if(Param1>0)   // абсолютно?
       {
         Dlg->X1=((COORD*)Param2)->X;
         Dlg->Y1=((COORD*)Param2)->Y;
-//        if(Dlg->X1 == -1 || Dlg->Y1 == -1)
+        Dlg->X2=W1;
+        Dlg->Y2=H1;
         Dlg->CheckDialogCoord();
       }
       else if(Param1 == 0)   // значит относительно
@@ -4734,12 +4791,41 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       }
       else // Resize, Param2=width/height
       {
-        Dlg->X2=((COORD*)Param2)->X;
-        Dlg->Y2=((COORD*)Param2)->Y;
-        W1=Dlg->X2-Dlg->X1;
-        H1=Dlg->Y2-Dlg->Y1;
-      }
+        int OldW1,OldH1;
+        OldW1=W1;
+        OldH1=H1;
+        W1=((COORD*)Param2)->X;
+        H1=((COORD*)Param2)->Y;
+        if(Dlg->X1+W1 >= ScrX)  Dlg->X1=ScrX-W1;
+        if(Dlg->Y1+H1 >= ScrY)  Dlg->Y1=ScrY-H1;
 
+        if (W1<OldW1 || H1<OldH1)
+        {
+          Dlg->SetDialogMode(DMODE_DRAWING);
+          DialogItem *Item;
+          SMALL_RECT Rect;
+          for (I=0; I<Dlg->ItemCount; I++)
+          {
+            Item=Dlg->Item+I;
+            Rect.Left=Item->X1;
+            Rect.Top=Item->Y1;
+            if (Item->X2>=W1)
+            {
+              Rect.Right=Item->X2-(OldW1-W1);
+              Rect.Bottom=Item->Y2;
+              Dlg->SetItemRect(I,&Rect);
+            }
+            if (Item->Y2>=H1)
+            {
+              Rect.Right=Item->X2;
+              Rect.Bottom=Item->Y2-(OldH1-H1);
+              Dlg->SetItemRect(I,&Rect);
+            }
+          }
+          Dlg->SkipDialogMode(DMODE_DRAWING);
+        }
+      }
+      /* KM $ */
       // проверили и скорректировали
       if(Dlg->X1 < 0)         Dlg->X1=0;
       if(Dlg->Y1 < 0)         Dlg->Y1=0;

@@ -10,10 +10,13 @@ dialog.hpp
 
 */
 
-/* Revision: 1.30 19.05.2001 $ */
+/* Revision: 1.31 30.05.2001 $ */
 
 /*
 Modify:
+  30.05.2001 KM
+   + SetItemRect - функция для изменения размеров и/или положения
+     итема в диалоге.
   23.05.2001 SVS
    - Проблемы с горячими клавишами в меню. Добавлен 4-й параметр в
      IsKeyHighlighted - позиция амперсанта (по умолчанию = -1)
@@ -350,6 +353,12 @@ class Dialog: public Frame
     */
     char *GetDialogTitle();
     /* DJ $ */
+
+    /* $ 30.05.2000 KM
+       Меняет координаты или размер итема диалога.
+    */
+    BOOL SetItemRect(int ID,SMALL_RECT *Rect);
+    /* KM $ */
 
   public:
     Dialog(struct DialogItem *Item,int ItemCount,FARWINDOWPROC DlgProc=NULL,long Param=NULL);
