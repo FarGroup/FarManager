@@ -5,10 +5,14 @@ dialog.cpp
 
 */
 
-/* Revision: 1.113 04.06.2001 $ */
+/* Revision: 1.114 05.06.2001 $ */
 
 /*
 Modify:
+  05.06.2001 KM
+   ! Изменился тип возвращаемого значения у DM_LISTSETTITLE - стал TRUE и
+     DM_LISTGETTITLE - стал TRUE, если получен Title или Bottom и FALSE если
+     не получили ни того ни другого.
   04.06.2001 SVS
    + Shift-Del очищает текущий пункт истории команд.
   04.06.2001 SVS
@@ -4248,16 +4252,20 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
             case DM_LISTSETTITLE: // Param1=ID Param2=struct FarListTitle
             {
               struct FarListTitle *ListTitle=(struct FarListTitle *)Param2;
-              ListBox->SetTitle(ListTitle->Title);
-              ListBox->SetBottomTitle(ListTitle->Bottom);
-              return 0;
+              ListBox->SetTitle((!ListTitle)?NULL:ListTitle->Title);
+              ListBox->SetBottomTitle((!ListTitle)?NULL:ListTitle->Bottom);
+              return TRUE;
             }
             case DM_LISTGETTITLE: // Param1=ID Param2=struct FarListTitle
             {
               struct FarListTitle *ListTitle=(struct FarListTitle *)Param2;
-              ListBox->GetTitle(ListTitle->Title,ListTitle->TitleLen);
-              ListBox->GetTitle(ListTitle->Bottom,ListTitle->BottomLen);
-              return 0;
+              if(ListTitle)
+              {
+                if (ListBox->GetTitle(ListTitle->Title,ListTitle->TitleLen) ||
+                    ListBox->GetTitle(ListTitle->Bottom,ListTitle->BottomLen))
+                  return TRUE;
+              }
+              return FALSE;
             }
             case DM_LISTGETCURPOS: // Param1=ID Param2=0
             {

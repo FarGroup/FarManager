@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.25 30.05.2001 $ */
+/* Revision: 1.26 05.06.2001 $ */
 
 /*
 Modify:
+  05.06.2001 KM
+    ! Поправочка. UserMenu не выставлял флаг VMENU_WRAPMODE.
   30.05.2001 OT
     - Борьба с отрисовкой панелей после исправления для борьбы с отрисовкой меню :))
   29.01.2001 VVM
@@ -432,6 +434,11 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
       VMenu UserMenu(MenuTitle,NULL,0,ScrY-4);
       /* VVM $ */
 
+      /* $ 05.06.2001 KM
+         ! Поправочка. UserMenu не выставлял флаг VMENU_WRAPMODE
+      */
+      UserMenu.SetFlags(VMENU_WRAPMODE);
+      /* KM $ */
       UserMenu.SetHelp("UserMenu");
       UserMenu.SetPosition(-1,-1,0,0);
 

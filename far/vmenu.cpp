@@ -7,10 +7,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.32 04.06.2001 $ */
+/* Revision: 1.33 05.06.2001 $ */
 
 /*
 Modify:
+  05.06.2001 KM
+    - »збавление от маленькой дырочки в Set*Title.
   04.06.2001 SVS
     - «лостна€ бага в DeleteItem :-(
   04.06.2001 SVS
@@ -1093,6 +1095,7 @@ void VMenu::SetTitle(char *Title)
 {
   int Length;
   VMFlags|=VMENU_UPDATEREQUIRED;
+  Title=NullToEmpty(Title);
   strncpy(VMenu::Title,Title,sizeof(VMenu::Title));
   Length=strlen(Title)+2;
   if (Length > MaxLength)
@@ -1112,6 +1115,7 @@ void VMenu::SetBottomTitle(char *BottomTitle)
 {
   int Length;
   VMFlags|=VMENU_UPDATEREQUIRED;
+  BottomTitle=NullToEmpty(BottomTitle);
   strncpy(VMenu::BottomTitle,BottomTitle,sizeof(VMenu::BottomTitle));
   Length=strlen(BottomTitle)+2;
   if (Length > MaxLength)
