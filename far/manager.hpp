@@ -7,10 +7,12 @@ manager.hpp
 
 */
 
-/* Revision: 1.24 21.02.2002 $ */
+/* Revision: 1.25 25.03.2002 $ */
 
 /*
 Modify:
+  25.03.2002 SVS
+    + ManagerIsDown()
   21.02.2002 SVS
     + ResetLastInputRecord() - вызываетс€ после назначени€ макроса.
   11.10.2001 IS
@@ -216,6 +218,8 @@ class Manager
 /* $ ¬ведена дл€ нужд CtrlAltShift OT */
     void ImmediateHide();
     Frame *GetBottomFrame() { return (*this)[FramePos]; }
+
+    BOOL ManagerIsDown() {return EndLoop;}
 };
 
 extern Manager *FrameManager;

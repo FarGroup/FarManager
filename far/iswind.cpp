@@ -5,10 +5,12 @@ iswind.cpp
 
 */
 
-/* Revision: 1.06 17.01.2002 $ */
+/* Revision: 1.07 25.03.2002 $ */
 
 /*
 Modify:
+  25.03.2002 SVS
+    ! Вместо чисел - константы FAR_CONSOLE_*
   17.01.2002 SVS
     - какой хрен меня понес... нужно было GetWindowText() юзать!
   16.01.2002 SVS
@@ -33,6 +35,7 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
+#include "plugin.hpp"
 #include "global.hpp"
 
 static BOOL CALLBACK IsWindowedEnumProc(HWND hwnd,LPARAM lParam);
@@ -157,7 +160,7 @@ void RestoreIcons()
 */
 int FarAltEnter(int mode)
 {
-  if(mode != -2)
+  if(mode != FAR_CONSOLE_GET_MODE)
   {
     if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
     {
@@ -169,7 +172,7 @@ int FarAltEnter(int mode)
         GetConsoleDisplayMode = (PROCGETCONSOLEDISPLAYMODE)GetProcAddress(hKernel32,"GetConsoleDisplayMode");
       }
       SetConsoleDisplayMode(GetStdHandle(STD_OUTPUT_HANDLE),
-           (mode == -1)?(IsWindowed()?1:0):(mode&1),&dwOldMode);
+           (mode == FAR_CONSOLE_TRIGGER)?(IsWindowed()?FAR_CONSOLE_SET_FULLSCREEN:FAR_CONSOLE_SET_WINDOWED):(mode&1),&dwOldMode);
     }
     else if (hFarWnd) // win9x
     {
@@ -177,10 +180,10 @@ int FarAltEnter(int mode)
       //когда пользователь нажимает ALT+ENTER:
       #define ID_SWITCH_CONSOLEMODE 0xE00F
       SendMessage(hFarWnd,WM_COMMAND,ID_SWITCH_CONSOLEMODE,
-           (mode == -1)?(IsWindowed()?1:0):(mode&1));
+           (mode == FAR_CONSOLE_TRIGGER)?(IsWindowed()?FAR_CONSOLE_SET_FULLSCREEN:FAR_CONSOLE_SET_WINDOWED):(mode&1));
     }
   }
   DetectWindowedMode();
-  return IsWindowed()?0:1;
+  return IsWindowed()?FAR_CONSOLE_WINDOWED:FAR_CONSOLE_FULLSCREEN;
 }
 /* SVS $*/

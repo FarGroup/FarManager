@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.193 23.03.2002 $ */
+/* Revision: 1.194 25.03.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  25.03.2002 SVS
+    ! CONSOLE_* -> FAR_CONSOLE_* (ибо с мелкософтом не поспоришь :-(()
   23.03.2002 IS
     + ESPT_LOCKMODE
   13.02.2002 SVS
@@ -1559,12 +1561,12 @@ enum FarDescriptionSettings {
   FDS_UPDATEREADONLY                 = 0x00000008,
 };
 
-#define CONSOLE_GET_MODE       (-2)
-#define CONSOLE_TRIGGER        (-1)
-#define CONSOLE_SET_WINDOWED   (0)
-#define CONSOLE_SET_FULLSCREEN (1)
-#define CONSOLE_WINDOWED       (0)
-#define CONSOLE_FULLSCREEN     (1)
+#define FAR_CONSOLE_GET_MODE       (-2)
+#define FAR_CONSOLE_TRIGGER        (-1)
+#define FAR_CONSOLE_SET_WINDOWED   (0)
+#define FAR_CONSOLE_SET_FULLSCREEN (1)
+#define FAR_CONSOLE_WINDOWED       (0)
+#define FAR_CONSOLE_FULLSCREEN     (1)
 
 enum {
  EJECT_NO_MESSAGE                    = 0x00000001,

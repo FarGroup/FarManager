@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.123 22.03.2002 $ */
+/* Revision: 1.124 25.03.2002 $ */
 
 /*
 Modify:
+  25.03.2002 SVS
+    ! Запрет вызовов некторых функций АПИ, если ManagerIsDown() == FALSE
   22.03.2002 SVS
     - strcpy - Fuck!
   18.03.2002 SVS
@@ -374,6 +376,8 @@ int WINAPI FarInputBox(const char *Title,const char *Prompt,
                      const char *HistoryName,const char *SrcText,
     char *DestText,int DestLength,const char *HelpTopic,DWORD Flags)
 {
+  if (FrameManager->ManagerIsDown())
+    return FALSE;
    return GetString(Title,Prompt,HistoryName,SrcText,DestText,DestLength,
      HelpTopic,Flags&~FIB_CHECKBOX,NULL,NULL);
 }
@@ -390,6 +394,8 @@ int WINAPI FarInputBox(const char *Title,const char *Prompt,
 BOOL WINAPI FarShowHelp(const char *ModuleName,
                         const char *HelpTopic,DWORD Flags)
 {
+  if (FrameManager->ManagerIsDown())
+    return FALSE;
   if (!HelpTopic)
     HelpTopic="Contents";
 
@@ -464,6 +470,24 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     DWORD Flags;
   };
   int I;
+
+  switch(Command)
+  {
+    case ACTL_GETFARVERSION:
+    case ACTL_GETSYSWORDDIV:
+    case ACTL_GETCOLOR:
+    case ACTL_GETARRAYCOLOR:
+    case ACTL_GETFARHWND:
+    case ACTL_GETSYSTEMSETTINGS:
+    case ACTL_GETPANELSETTINGS:
+    case ACTL_GETINTERFACESETTINGS:
+    case ACTL_GETCONFIRMATIONS:
+    case ACTL_GETDESCSETTINGS:
+      break;
+    default:
+     if (FrameManager->ManagerIsDown())
+       return 0;
+  }
 
   switch(Command)
   {
@@ -814,6 +838,9 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
 {
   int I;
 
+  if (FrameManager->ManagerIsDown())
+    return -1;
+
   if (DisablePluginsOutput)
     return(-1);
 
@@ -1021,6 +1048,9 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
            FARWINDOWPROC DlgProc,long Param)
 
 {
+  if (FrameManager->ManagerIsDown())
+    return -1;
+
   if (DisablePluginsOutput ||
       ItemsNumber <= 0 ||
       !Item ||
@@ -1116,6 +1146,9 @@ const char* WINAPI FarGetMsgFn(int PluginNumber,int MsgId)
 
 char* PluginsSet::FarGetMsg(int PluginNumber,int MsgId)
 {
+  if (FrameManager->ManagerIsDown())
+    return "";
+
   if (PluginNumber<PluginsCount)
   {
     struct PluginItem *CurPlugin=&PluginsData[PluginNumber];
@@ -1136,6 +1169,9 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
                         const char * const *Items,int ItemsNumber,
                         int ButtonsNumber)
 {
+  if (FrameManager->ManagerIsDown())
+    return -1;
+
   if (DisablePluginsOutput)
     return(-1);
 
@@ -1266,6 +1302,9 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
 
 int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
 {
+  if (FrameManager->ManagerIsDown())
+    return 0;
+
   if (CtrlObject->Cp()->LeftPanel==NULL || CtrlObject->Cp()->RightPanel==NULL)
     return(0);
 
@@ -1389,6 +1428,9 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
 
 HANDLE WINAPI FarSaveScreen(int X1,int Y1,int X2,int Y2)
 {
+  if (FrameManager->ManagerIsDown())
+    return NULL;
+
   if (X2==-1)
     X2=ScrX;
   if (Y2==-1)
@@ -1399,6 +1441,8 @@ HANDLE WINAPI FarSaveScreen(int X1,int Y1,int X2,int Y2)
 
 void WINAPI FarRestoreScreen(HANDLE hScreen)
 {
+  if (FrameManager->ManagerIsDown())
+    return;
   if (hScreen==NULL)
     ScrBuf.FillBuf();
   if (hScreen)
@@ -1414,6 +1458,9 @@ static void PR_FarGetDirListMsg(void)
 int WINAPI FarGetDirList(const char *Dir,struct PluginPanelItem **pPanelItem,
                   int *pItemsNumber)
 {
+  if (FrameManager->ManagerIsDown())
+    return 0;
+
   PluginPanelItem *ItemsList=NULL;
   int ItemsNumber=0;
   SaveScreen SaveScr;
@@ -1499,6 +1546,9 @@ int WINAPI FarGetPluginDirList(int PluginNumber,HANDLE hPlugin,
                   const char *Dir,struct PluginPanelItem **pPanelItem,
                   int *pItemsNumber)
 {
+  if (FrameManager->ManagerIsDown())
+    return FALSE;
+
   {
     if (strcmp(Dir,".")==0 || strcmp(Dir,"..")==0)
       return(FALSE);
@@ -1732,6 +1782,8 @@ void WINAPI FarFreeDirList(const struct PluginPanelItem *PanelItem)
 int WINAPI FarViewer(const char *FileName,const char *Title,
                      int X1,int Y1,int X2, int Y2,DWORD Flags)
 {
+  if (FrameManager->ManagerIsDown())
+    return FALSE;
   if (X2==-1)
     X2=ScrX;
   if (Y2==-1)
@@ -1781,6 +1833,8 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
                      int X1,int Y1,int X2,
                      int Y2,DWORD Flags,int StartLine,int StartChar)
 {
+  if (FrameManager->ManagerIsDown())
+    return EEC_OPEN_ERROR;
   if (X2==-1)
     X2=ScrX;
   if (Y2==-1)
@@ -1865,6 +1919,8 @@ int WINAPI FarCmpName(const char *pattern,const char *string,int skippath)
 
 int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize)
 {
+  if (FrameManager->ManagerIsDown())
+    return -1;
   if (Command==FCT_DETECT)
   {
     char DataFileName[NM];
@@ -1911,6 +1967,8 @@ int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize)
 
 void WINAPI FarText(int X,int Y,int Color,const char *Str)
 {
+  if (FrameManager->ManagerIsDown())
+    return;
   if (Str==NULL)
   {
     int PrevLockCount=ScrBuf.GetLockCount();
@@ -1931,6 +1989,8 @@ void WINAPI FarText(int X,int Y,int Color,const char *Str)
 
 int WINAPI FarEditorControl(int Command,void *Param)
 {
+  if (CtrlObject->Plugins.CurEditor==NULL || FrameManager->ManagerIsDown())
+    return(0);
 #if defined(SYSLOG_KEYMACRO) || defined(SYSLOG_ECTL)
   {
 #if defined(SYSLOG_KEYMACRO)
@@ -1954,7 +2014,7 @@ int WINAPI FarEditorControl(int Command,void *Param)
 */
 int WINAPI FarViewerControl(int Command,void *Param)
 {
-  if (CtrlObject->Plugins.CurViewer==NULL)
+  if (CtrlObject->Plugins.CurViewer==NULL || FrameManager->ManagerIsDown())
     return(0);
   return(CtrlObject->Plugins.CurViewer->ViewerControl(Command,Param));
 }
