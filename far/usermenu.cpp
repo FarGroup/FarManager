@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.41 24.08.2001 $ */
+/* Revision: 1.42 28.08.2001 $ */
 
 /*
 Modify:
+  28.08.2001 VVM
+    ! Бага с однобуквенными хоткеями в меню. Теперь вроде-бы все учел :)
   24.08.2001 VVM
     + Стрелки вправо/влево открывают/закрывают подменю соответственно
   20.08.2001 VVM
@@ -494,7 +496,8 @@ int FillUserMenu(VMenu& UserMenu,char *MenuKey,int MenuPos,int *FuncPos,char *Na
 //        sprintf(MenuText,"%-3.3s& %-20.*s",HotKey,ScrX-12,Label);
 //      else
 //        sprintf(MenuText,"%s%-3.3s %-20.*s",(*HotKey?"&":""),HotKey,ScrX-12,Label);
-      sprintf(MenuText,"%-3.3s %-20.*s%s",HotKey,ScrX-12,Label,((strchr(Label, '&')!=NULL)?" ":""));
+//      sprintf(MenuText,"%s%-3.3s %-20.*s%s",(*HotKey?"&":""),HotKey,ScrX-12,Label,((strchr(Label, '&')!=NULL)?" ":""));
+      sprintf(MenuText,"%s%-3.3s %-20.*s%s",(*HotKey?"&":""),HotKey,ScrX-12,Label,(((strchr(Label, '&')==NULL)||(*HotKey))?"":" "));
       /* VVM $ */
       MenuTextLen=strlen(MenuText)-(FuncNum>0?1:0);
       MaxLen=(MaxLen<MenuTextLen ? MenuTextLen : MaxLen);
@@ -556,7 +559,7 @@ int FillUserMenu(VMenu& UserMenu,char *MenuKey,int MenuPos,int *FuncPos,char *Na
 //        sprintf(MenuText,"%-3.3s& %-*.*s",HotKey,MaxLen,MaxLen,Label);
 //      else
 //        sprintf(MenuText,"%s%-3.3s %-*.*s",(*HotKey?"&":""),HotKey,MaxLen,MaxLen,Label);
-      sprintf(MenuText,"%-3.3s %-*.*s%s",HotKey,MaxLen,MaxLen,Label,((strchr(Label, '&')!=NULL)?" ":""));
+      sprintf(MenuText,"%s%-3.3s %-20.*s%s",(*HotKey?"&":""),HotKey,ScrX-12,Label,(((strchr(Label, '&')==NULL)||(*HotKey))?"":" "));
       /* VVM $ */
 
     /* tran 20.07.2000 $ */
