@@ -5,10 +5,13 @@ strmix.cpp
 
 */
 
-/* Revision: 1.15 25.06.2001 $ */
+/* Revision: 1.16 25.76.2001 $ */
 
 /*
 Modify:
+  02.07.2001 ШЫ
+    ! Убрал обработку '-' и '^' из QuoteSpace. Это разрешенные символы, не
+      нужно их брать в кавычки. Кому приспичит - настроят сами.
   25.06.2001 IS
     ! Внедрение const
   06.06.2001 VVM
@@ -321,8 +324,13 @@ static char *InsertQuote(char *Str)
 
 char* QuoteSpace(char *Str)
 {
-  if (*Str=='-' || *Str=='^' || strpbrk(Str,Opt.QuotedSymbols)!=NULL)
+  /* $ 02.07.2001 IS
+     А нафига брать в кавычки имена с '^' и '-'?? Нормальные же разрешенные
+     символы...
+  */
+  if (/**Str=='-' || *Str=='^' || */strpbrk(Str,Opt.QuotedSymbols)!=NULL)
     InsertQuote(Str);
+  /* IS $ */
   return(Str);
 }
 
