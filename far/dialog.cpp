@@ -5,10 +5,14 @@ dialog.cpp
 
 */
 
-/* Revision: 1.130 30.06.2001 $ */
+/* Revision: 1.131 02.07.2001 $ */
 
 /*
 Modify:
+  02.07.2001 KM
+   - Избавимся от потенциального (и кажется не только) бага
+     при Param1==-1 в SendDlgMessage (в основном) и DefDlgProc.
+   - Убраны некоторые ворнинги об неиспользуемых переменных.
   30.06.2001 KM
    ! LIFIND_NOPATTER -> LIFIND_NOPATTERN
    ! DM_LISTGETCURPOS: Param2 содержит указатель на FarListPos.
@@ -2884,7 +2888,7 @@ int Dialog::ProcessKey(int Key)
 */
 int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
-  int I, J;
+  int I;
   int MsX,MsY;
   int Type;
   RECT Rect;
@@ -3498,7 +3502,7 @@ int Dialog::IsFocused(int Type)
 int Dialog::FindInEditForAC(int TypeFind,void *HistoryName,char *FindStr,int MaxLen)
 {
   char *Str;
-  int I, Count, LenFindStr=strlen(FindStr);
+  int I, LenFindStr=strlen(FindStr);
 
   if(!TypeFind)
   {
@@ -4188,12 +4192,16 @@ void Dialog::CloseDialog()
    Вот именно эта функция и является последним рубежом обработки диалога.
    Т.е. здесь должна быть ВСЯ обработка ВСЕХ сообщений!!!
 */
+/* $ 02.07.2001 KM
+   - Избавимся от потенциального (и кажется не только) бага
+     при Param1==-1.
+*/
 long WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 {
   Dialog* Dlg=(Dialog*)hDlg;
-  struct DialogItem *CurItem;
-  char *Ptr, Str[1024];
-  int Len, Type, I;
+  struct DialogItem *CurItem=NULL;
+  char *Ptr=NULL;
+  int Type=0;
 
   if(!Dlg)
     return 0;
@@ -4252,10 +4260,12 @@ long WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
   if(Param1 >= Dlg->ItemCount)
     return 0;
 
-  CurItem=&Dlg->Item[Param1];
-  Type=CurItem->Type;
-
-  Ptr=CurItem->Data;
+  if (Param1>=0)
+  {
+    CurItem=&Dlg->Item[Param1];
+    Type=CurItem->Type;
+    Ptr=CurItem->Data;
+  }
 
   switch(Msg)
   {
@@ -4296,12 +4306,18 @@ long WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
    Некоторые сообщения эта функция обрабатывает сама, не передавая управление
    обработчику диалога.
 */
+/* $ 02.07.2001 KM
+   - Избавимся от потенциального (и кажется не только) бага
+     при Param1==-1.
+*/
 long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 {
   Dialog* Dlg=(Dialog*)hDlg;
-  struct DialogItem *CurItem;
-  char *Ptr, Str[1024];
-  int Len, Type, I;
+  struct DialogItem *CurItem=NULL;
+  int Type=0;
+  char *Ptr=NULL;
+  char Str[1024];
+  int Len, I;
   struct FarDialogItem PluginDialogItem;
 
   if(!Dlg)
@@ -4311,9 +4327,12 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     return 0;
 
 //  CurItem=&Dlg->Item[Param1];
-  CurItem=Dlg->Item+Param1;
-  Type=CurItem->Type;
-  Ptr=CurItem->Data;
+  if (Param1>=0)
+  {
+    CurItem=Dlg->Item+Param1;
+    Type=CurItem->Type;
+    Ptr=CurItem->Data;
+  }
 
   switch(Msg)
   {
@@ -4322,7 +4341,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     case DM_LISTADDSTR: // Param1=ID Param2=String
     case DM_LISTDELETE: // Param1=ID Param2=FarListDelete: StartIndex=BeginIndex, Count=количество (<=0 - все!)
     case DM_LISTGET: // Param1=ID Param2=FarList: ItemsNumber=Index, Items=Dest
-    case DM_LISTGETCURPOS: // Param1=ID Param2=0
+    case DM_LISTGETCURPOS: // Param1=ID Param2=FarListPos
     case DM_LISTSETCURPOS: // Param1=ID Param2=FarListPos Ret: RealPos
     case DM_LISTUPDATE: // Param1=ID Param2=FarList: ItemsNumber=Index, Items=Src
     case DM_LISTINFO:// Param1=ID Param2=FarListInfo
@@ -4425,7 +4444,10 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
             }
             case DM_LISTGETCURPOS: // Param1=ID Param2=FarListPos
             {
-              return ListBox->GetSelectPos((struct FarListPos *)Param2);
+              if (Param2)
+                return ListBox->GetSelectPos((struct FarListPos *)Param2);
+              else
+                return ListBox->GetSelectPos();
             }
             case DM_LISTSETCURPOS: // Param1=ID Param2=FarListPos Ret: RealPos
             {
