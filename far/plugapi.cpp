@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.162 04.10.2003 $ */
+/* Revision: 1.163 17.10.2003 $ */
 
 /*
 Modify:
+  17.10.2003 SVS
+    + Забыл про опцию в диалоге настройки диалогов - FDIS_BSDELETEUNCHANGEDTEXT
   04.10.2003 SVS
     ! Уточнение структуры ActlKeyMacro: добавлен член Param.PlainText -
       указатель на строку, содержащую макропоследовательность.
@@ -904,6 +906,7 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
         {&Opt.Dialogs.EditHistory,FDIS_HISTORYINDIALOGEDITCONTROLS},
         {&Opt.Dialogs.EditBlock,FDIS_PERSISTENTBLOCKSINEDITCONTROLS},
         {&Opt.Dialogs.AutoComplete,FDIS_AUTOCOMPLETEININPUTLINES},
+        {&Opt.Dialogs.EULBsClear,FDIS_BSDELETEUNCHANGEDTEXT},
       };
       for(I=0; I < sizeof(ODlg)/sizeof(ODlg[0]); ++I)
         if(*ODlg[I].Opt)

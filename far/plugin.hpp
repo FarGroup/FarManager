@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.237 13.10.2003 $ */
+/* Revision: 1.238 17.10.2003 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  17.10.2003 SVS
+    + Забыл про опцию в диалоге настройки диалогов - FDIS_BSDELETEUNCHANGEDTEXT
   13.10.2003 SVS
     ! ESPT_WORDDIV -> ESPT_SETWORDDIV (NotInternal)
   10.10.2003 SVS
@@ -1722,6 +1724,7 @@ enum FarDialogSettings{
   FDIS_HISTORYINDIALOGEDITCONTROLS    = 0x00000001,
   FDIS_PERSISTENTBLOCKSINEDITCONTROLS = 0x00000002,
   FDIS_AUTOCOMPLETEININPUTLINES       = 0x00000004,
+  FDIS_BSDELETEUNCHANGEDTEXT          = 0x00000008,
 };
 
 enum FarInterfaceSettings{
