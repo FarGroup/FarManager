@@ -589,6 +589,8 @@ int IsCaseLower(char *Str)
 }
 
 
+/* $ 08.06.2001 VVM
+  + Винда убирает _все_ кавычки. А чем мы хуже? */
 /* $ 05.06.2001 VVM
   Теперь мы будем жить по новому :)
   И удалять весь квотинг и внутри строки */
@@ -600,33 +602,18 @@ int IsCaseLower(char *Str)
 */
 void WINAPI Unquote(char *Str)
 {
-  if(!(Str && *Str))
+  if (!Str)
     return;
-  char *P = Str;
-  char *LastQuote = NULL;
-  while (*P)
+  while (*Str)
   {
-    if (*P=='\"')
-    {
-      if (*(P+1)=='\"')
-        strcpy(P, P+1);
-      else
-      {
-        if (LastQuote)
-        {
-          strcpy(LastQuote, LastQuote+1);
-          strcpy(P-1, P);
-          P = P-2;
-          LastQuote = NULL;
-        }
-        else
-          LastQuote = P;
-      } /* else */
-    } /* while */
-    P++;
+    if (*Str=='\"')
+      strcpy(Str, Str+1);
+    else
+      Str++;
   }
 }
 /* IS $ */
+/* VVM $ */
 /* VVM $ */
 
 /* FileSizeToStr()
