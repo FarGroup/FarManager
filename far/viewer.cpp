@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.52 26.03.2001 $ */
+/* Revision: 1.53 29.03.2001 $ */
 
 /*
 Modify:
+  29.03.2001 IS
+    + структура ViOpt и Get/Set для ее обслуживания
   26.03.2001 SVS
     ! Корректировка ScrollBar`а по алгоритму "от процентов"
   26.03.2001 SVS
@@ -186,6 +188,11 @@ static char BorderLine[]={0x0B3,0x020,0x00};
 
 Viewer::Viewer()
 {
+  /* $ 29.03.2001 IS
+       "Наследуем" некоторые глобальные
+  */
+  memcpy(&ViOpt, &Opt.ViOpt, sizeof(ViewerOptions));
+  /* IS $ */
   /* $ 12.07.2000 tran
      alloc memory for OutStr */
   for ( int i=0; i<=MAXSCRY; i++ )
@@ -423,7 +430,7 @@ int Viewer::OpenFile(char *Name,int warning)
   */
   BOOL IsDecode=FALSE;
 
-  if(Opt.ViewerAutoDetectTable)
+  if(ViOpt.AutoDetectTable)
   {
     DWORD ReadSize;
     VM.Unicode=0;
@@ -495,7 +502,7 @@ int Viewer::OpenFile(char *Name,int warning)
   if (FilePos>FileSize)
     FilePos=0;
   SetCRSym();
-  if (Opt.ViewerAutoDetectTable && !TableChangedByUser)
+  if (ViOpt.AutoDetectTable && !TableChangedByUser)
   {
     VM.UseDecodeTable=DetectTable(ViewFile,&TableSet,VM.TableNum);
     if (VM.TableNum>0)
@@ -517,7 +524,7 @@ int Viewer::OpenFile(char *Name,int warning)
   Width=X2-X1+1;
   XX2=X2;
 
-  if ( Opt.ViewerShowScrollbar )
+  if ( ViOpt.ShowScrollbar )
   {
      Width--;
      XX2--;
@@ -564,7 +571,7 @@ void Viewer::DisplayObject()
   Width=X2-X1+1;
   XX2=X2;
 
-  if ( Opt.ViewerShowScrollbar )
+  if ( ViOpt.ShowScrollbar )
   {
      Width--;
      XX2--;
@@ -622,7 +629,7 @@ void Viewer::DisplayObject()
         /* $ 18.07.2000 tran -
            проверка флага
         */
-        if (strlen(&OutStr[I][LeftPos])>Width && Opt.ViewerShowArrows)
+        if (strlen(&OutStr[I][LeftPos])>Width && ViOpt.ShowArrows)
         {
           GotoXY(XX2,Y);
           SetColor(COL_VIEWERARROWS);
@@ -634,7 +641,7 @@ void Viewer::DisplayObject()
       /* $ 18.07.2000 tran -
          проверка флага
       */
-      if (LeftPos>0 && *OutStr[I]!=0  && Opt.ViewerShowArrows)
+      if (LeftPos>0 && *OutStr[I]!=0  && ViOpt.ShowArrows)
       {
         GotoXY(X1,Y);
         SetColor(COL_VIEWERARROWS);
@@ -682,7 +689,7 @@ void Viewer::DisplayObject()
   } // if (Hex)  - else
   /* $ 18.07.2000 tran
      рисование скролбара */
-  if ( Opt.ViewerShowScrollbar )
+  if ( ViOpt.ShowScrollbar )
   {
     SetColor(COL_VIEWERSCROLLBAR);
     ScrollBar(X2,Y1+1,Y2-Y1,LastPage ? (!FilePos?0:100):ToPercent(FilePos,FileSize),100);
@@ -836,7 +843,7 @@ void Viewer::ShowUp()
     + вычисление нужного */
   Width=X2-X1+1;
   XX2=X2;
-  if ( Opt.ViewerShowScrollbar )
+  if ( ViOpt.ShowScrollbar )
   {
      Width--;
      XX2--;
@@ -872,7 +879,7 @@ void Viewer::ShowUp()
       else
         mprintf("%-*.*s",Width,Width,&OutStr[I][LeftPos]);
       /* SVS $ */
-      if (strlen(&OutStr[I][LeftPos])>Width && Opt.ViewerShowArrows)
+      if (strlen(&OutStr[I][LeftPos])>Width && ViOpt.ShowArrows)
       {
         GotoXY(XX2,Y);
         SetColor(COL_VIEWERARROWS);
@@ -881,7 +888,7 @@ void Viewer::ShowUp()
     }
     else
       mprintf("%*s",Width,"");
-    if (LeftPos>0 && *OutStr[I]!=0 && Opt.ViewerShowArrows)
+    if (LeftPos>0 && *OutStr[I]!=0 && ViOpt.ShowArrows)
     {
       GotoXY(X1,Y);
       SetColor(COL_VIEWERARROWS);
@@ -890,7 +897,7 @@ void Viewer::ShowUp()
   }
   /* $ 18.07.2000 tran
      рисование скролбара */
-  if ( Opt.ViewerShowScrollbar )
+  if ( ViOpt.ShowScrollbar )
   {
     SetColor(COL_VIEWERSCROLLBAR);
     ScrollBar(X2,Y1+1,Y2-Y1,LastPage ? (!FilePos?0:100):ToPercent(FilePos,FileSize),100);
@@ -958,8 +965,8 @@ void Viewer::ShowStatus()
   /* $ 31.08.2000 SVS
      Бага - без часиков неверно отображается верхний статус
   */
-  mprintf("%-*.*s",Width+(Opt.ViewerShowScrollbar?1:0),
-                   Width+(Opt.ViewerShowScrollbar?1:0),Status);
+  mprintf("%-*.*s",Width+(ViOpt.ShowScrollbar?1:0),
+                   Width+(ViOpt.ShowScrollbar?1:0),Status);
   /* SVS $ */
   if (Opt.ViewerEditorClock)
     ShowTime(FALSE);
@@ -981,7 +988,7 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
     + вычисление нужного */
   Width=X2-X1+1;
   XX2=X2;
-  if ( Opt.ViewerShowScrollbar )
+  if ( ViOpt.ShowScrollbar )
   {
      Width--;
      XX2--;
@@ -1082,7 +1089,7 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
         do
         {
           Str[OutPtr++]=' ';
-        } while ((OutPtr % Opt.ViewTabSize)!=0);
+        } while ((OutPtr % ViOpt.TabSize)!=0);
         /* $ 12.07.2000 SVS
           Wrap - 3-x позиционный и если есть регистрация :-)
         */
@@ -1166,7 +1173,7 @@ int Viewer::ProcessKey(int Key)
     /* $ 18.07.2000 tran
        включить/выключить скролбар */
     case KEY_CTRLS:
-        Opt.ViewerShowScrollbar=!Opt.ViewerShowScrollbar;
+        ViOpt.ShowScrollbar=!ViOpt.ShowScrollbar;
         Show();
         return (TRUE);
     /* tran 18.07.2000 $ */
@@ -1549,7 +1556,7 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     > Если нажать в самом низу скролбара, вьюер отмотается на страницу
     > ниже нижней границы текста. Перед глазами будет пустой экран.
   */
-  if ( Opt.ViewerShowScrollbar && MsX==X2)
+  if ( ViOpt.ShowScrollbar && MsX==X2)
   {
     /* $ 01.09.2000 SVS
        Небольшая бага с тыканием в верхнюю позицию ScrollBar`а
@@ -1698,7 +1705,7 @@ void Viewer::Up()
           }
           if (J<BufSize)
             if (Buf[J]=='\t')
-              StrPos+=Opt.ViewTabSize-(StrPos % Opt.ViewTabSize);
+              StrPos+=ViOpt.TabSize-(StrPos % ViOpt.TabSize);
             else
               if (Buf[J]!=13)
                 StrPos++;
@@ -1721,7 +1728,7 @@ int Viewer::CalcStrSize(char *Str,int Length)
     switch(Str[I])
     {
       case '\t':
-        Size+=Opt.ViewTabSize-(Size % Opt.ViewTabSize);
+        Size+=ViOpt.TabSize-(Size % ViOpt.TabSize);
         break;
       case 10:
       case 13:
@@ -2523,8 +2530,8 @@ int Viewer::ViewerControl(int Command,void *Param)
         Info->CurMode.TableNum=VM.UseDecodeTable ? VM.TableNum-2:-1;
         Info->Options=0;
         if (Opt.SaveViewerPos)         Info->Options|=VOPT_SAVEFILEPOSITION;
-        if (Opt.ViewerAutoDetectTable) Info->Options|=VOPT_AUTODETECTTABLE;
-        Info->TabSize=Opt.ViewTabSize;
+        if (ViOpt.AutoDetectTable)     Info->Options|=VOPT_AUTODETECTTABLE;
+        Info->TabSize=ViOpt.TabSize;
 
         // сюды писать добавки
         if(Info->StructSize >= sizeof(struct ViewerInfo))

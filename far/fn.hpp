@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.69 24.03.2001 $ */
+/* Revision: 1.70 29.03.2001 $ */
 
 /*
 Modify:
+  29.03.2001 IS
+   ! void ViewerConfig() -> void ViewerConfig(struct ViewerOptions &ViOpt);
   24.03.2001 tran 1.69
    + FarQsortEx, qsortex
   20.03.2001 tran 1.67
@@ -326,7 +328,7 @@ void PanelSettings();
 void InterfaceSettings();
 void SetConfirmations();
 void SetDizConfig();
-void ViewerConfig();
+void ViewerConfig(struct ViewerOptions &ViOpt);
 void EditorConfig(struct EditorOptions &EdOpt);
 void SetFolderInfoFiles();
 void ReadConfig();

@@ -5,10 +5,12 @@ options.cpp
 
 */
 
-/* Revision: 1.03 28.02.2001 $ */
+/* Revision: 1.04 29.03.2001 $ */
 
 /*
 Modify:
+  29.03.2001 IS
+    + ViewerConfig вызывается с Opt.ViOpt
   28.02.2001 IS
     ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   21.02.2001 IS
@@ -451,7 +453,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
           SetFolderInfoFiles();
           break;
         case 11:
-          ViewerConfig();
+          ViewerConfig(Opt.ViOpt);
           break;
         case 12:
           EditorConfig(Opt.EdOpt);

@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.17 22.03.2001 $ */
+/* Revision: 1.18 29.03.2001 $ */
 
 /*
 Modify:
+  29.03.2001 IS
+    + Работа с локальной копией ViewerOptions при KEY_ALTSHIFTF9
   22.03.2001 SVS
     - "Залипание" кейбара после исполнения макроса
   03.01.2001 SVS
@@ -347,7 +349,23 @@ int FileViewer::ProcessKey(int Key)
        Вызов диалога настроек (с подачи IS)
     */
     case KEY_ALTSHIFTF9:
-      ViewerConfig();
+      /* $ 29.03.2001 IS
+           Работа с локальной копией ViewerOptions
+      */
+      struct ViewerOptions ViOpt;
+
+      ViOpt.TabSize=View.GetTabSize();
+      ViOpt.AutoDetectTable=View.GetAutoDetectTable();
+      ViOpt.ShowScrollbar=View.GetShowScrollbar();
+      ViOpt.ShowArrows=View.GetShowArrows();
+
+      ViewerConfig(ViOpt);
+
+      View.SetTabSize(ViOpt.TabSize);
+      View.SetAutoDetectTable(ViOpt.AutoDetectTable);
+      View.SetShowScrollbar(ViOpt.ShowScrollbar);
+      View.SetShowArrows(ViOpt.ShowArrows);
+      /* IS $ */
       if ( Opt.ShowKeyBarViewer )
         ViewKeyBar.Show();
       View.Show();

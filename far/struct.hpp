@@ -7,12 +7,14 @@ struct.hpp
 
 */
 
-/* Revision: 1.49 28.03.2001 $ */
+/* Revision: 1.50 29.03.2001 $ */
 
 /*
 Modify:
+  29.03.2001 IS
+   + struct ViewerOptions
   28.03.2001 VVM
-   + Opt.RememberLogicalDrives = запоминать логические диски и не опрашивать 
+   + Opt.RememberLogicalDrives = запоминать логические диски и не опрашивать
      каждый раз. Для предотвращения "просыпания" "зеленых" винтов.
   20.03.2001 SVS
    + Opt.FullScreenHelp - для унификации интерфейса конфигурации
@@ -298,6 +300,21 @@ struct EditorOptions
 };
 /* IS $ */
 
+
+/* $ 29.03.2001 IS
+     Тут следует хранить "локальные" настройки для программы просмотра
+*/
+struct ViewerOptions
+{
+  int TabSize;
+  int AutoDetectTable;
+  /* $ 18.07.2000 tran
+    + пара настроек для viewer*/
+  int ShowScrollbar;
+  int ShowArrows;
+  /* tran 18.07.2000 $ */
+};
+/* IS $ */
 struct Options
 {
   /* $ 03.08.2000 SVS
@@ -354,6 +371,11 @@ struct Options
   */
   struct EditorOptions EdOpt;
   /* IS $ */
+  /* $ 29.03.2001 IS
+       Некоторые переменные для вьюера переехали в соответствующую структуру
+  */
+  struct ViewerOptions ViOpt;
+  /* IS $ */
   /* $ 29.11.2000 SVS
    + Opt.EditorReadOnlyLock - лочить файл при открытии в редакторе, если
      он имеет атрибуты R|S|H
@@ -373,8 +395,6 @@ struct Options
   */
   char WordDiv[256];
   /* SVS $ */
-  int ViewerAutoDetectTable;
-  int ViewTabSize;
   int SaveEditorPos;
   int SaveEditorShortPos;
   int SaveHistory;
@@ -422,11 +442,6 @@ struct Options
   */
   char PersonalPluginsPath[1024];
   /* SVS $*/
-  /* $ 18.07.2000 tran
-    + пара настроек для viewer*/
-  int ViewerShowScrollbar;
-  int ViewerShowArrows;
-  /* tran 18.07.2000 $ */
   /* $ 26.07.2000 SVS
      Разрешение для функции автозавершения в строках ввода в диалогах
      имеющих History
@@ -562,7 +577,7 @@ struct Options
   /* SKV$*/
   int FullScreenHelp;
   /* $ 28.03.2001 VVM
-    + RememberLogicalDrives = запоминать логические диски и не опрашивать 
+    + RememberLogicalDrives = запоминать логические диски и не опрашивать
       каждый раз. Для предотвращения "просыпания" "зеленых" винтов. */
   int RememberLogicalDrives;
   /* VVM $ */

@@ -5,10 +5,12 @@ infolist.cpp
 
 */
 
-/* Revision: 1.06 27.02.2001 $ */
+/* Revision: 1.07 29.03.2001 $ */
 
 /*
 Modify:
+  29.03.2001 IS
+    ! Opt.ViewerAutoDetectTable -> Opt.ViOpt.AutoDetectTable
   27.02.2001 VVM
     ! Символы, зависимые от кодовой страницы
       /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
@@ -386,7 +388,7 @@ void InfoList::ShowDirDescription()
       struct CharTableSet TableSet;
       int TableNum;
       int UseDecodeTable=FALSE;
-      if (Opt.ViewerAutoDetectTable)
+      if (Opt.ViOpt.AutoDetectTable)
         UseDecodeTable=DetectTable(DizFile,&TableSet,TableNum);
       strcpy(DizFileName,FullDizName);
       sprintf(Title," %s ",PointToName(DizFileName));

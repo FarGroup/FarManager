@@ -5,12 +5,16 @@ config.cpp
 
 */
 
-/* Revision: 1.62 28.03.2001 $ */
+/* Revision: 1.63 29.03.2001 $ */
 
 /*
 Modify:
+  29.03.2001 IS
+    + По аналогии с редактором часть настроек переехала в ViewerOptions,
+      соответственно произведены замены по всему файлу типа
+      Opt.ViewerTabSize -> Opt.ViOpt.TabSize и т.п.
   28.03.2001 VVM
-    + Opt.RememberLogicalDrives = запоминать логические диски и не опрашивать 
+    + Opt.RememberLogicalDrives = запоминать логические диски и не опрашивать
       каждый раз. Для предотвращения "просыпания" "зеленых" винтов.
   26.03.2001 SVS
     + SystemSettings() - путь к персональным плагинам - DIF_VAREDIT
@@ -604,7 +608,10 @@ void SetDizConfig()
 #define DLG_VIEW_ARROWS     13
 #define DLG_VIEW_OK         14
 
-void ViewerConfig()
+/* $ 29.03.2001 IS
+  + По аналогии с редактором часть настроек переехала в ViewerOptions
+*/
+void ViewerConfig(struct ViewerOptions &ViOpt)
 {
   static struct DialogData CfgDlgData[]={
   /*  0 */  DI_DOUBLEBOX , 3, 1,47,17,0,0,0,0,(char *)MViewConfigTitle,                  //   0
@@ -635,11 +642,11 @@ void ViewerConfig()
      Отключение автоопределения таблицы символов, если отсутствует таблица с
      распределением частот символов
   */
-  CfgDlg[DLG_VIEW_AUTODETECT].Selected=Opt.ViewerAutoDetectTable&&DistrTableExist();
+  CfgDlg[DLG_VIEW_AUTODETECT].Selected=ViOpt.AutoDetectTable&&DistrTableExist();
   /* IS $ */
-  CfgDlg[DLG_VIEW_SCROLLBAR].Selected=Opt.ViewerShowScrollbar;
-  CfgDlg[DLG_VIEW_ARROWS].Selected=Opt.ViewerShowArrows;
-  sprintf(CfgDlg[DLG_VIEW_TABSIZE].Data,"%d",Opt.ViewTabSize);
+  CfgDlg[DLG_VIEW_SCROLLBAR].Selected=ViOpt.ShowScrollbar;
+  CfgDlg[DLG_VIEW_ARROWS].Selected=ViOpt.ShowArrows;
+  sprintf(CfgDlg[DLG_VIEW_TABSIZE].Data,"%d",ViOpt.TabSize);
 
   if (!RegVer)
   {
@@ -664,26 +671,27 @@ void ViewerConfig()
   /* $ 16.12.2000 IS
     - баг: забыли считать опцию DLG_VIEW_AUTODETECT из диалога
   */
-  Opt.ViewerAutoDetectTable=CfgDlg[DLG_VIEW_AUTODETECT].Selected;
+  ViOpt.AutoDetectTable=CfgDlg[DLG_VIEW_AUTODETECT].Selected;
   /* IS $ */
   /* 15.09.2000 IS
      Отключение автоопределения таблицы символов, если отсутствует таблица с
      распределением частот символов
   */
-  if(!DistrTableExist() && Opt.ViewerAutoDetectTable)
+  if(!DistrTableExist() && ViOpt.AutoDetectTable)
   {
-    Opt.ViewerAutoDetectTable=0;
+    ViOpt.AutoDetectTable=0;
     Message(MSG_WARNING,1,MSG(MWarning),
               MSG(MDistributionTableWasNotFound),MSG(MAutoDetectWillNotWork),
               MSG(MOk));
   }
   /* IS $ */
-  Opt.ViewTabSize=atoi(CfgDlg[DLG_VIEW_TABSIZE].Data);
-  Opt.ViewerShowScrollbar=CfgDlg[DLG_VIEW_SCROLLBAR].Selected;
-  Opt.ViewerShowArrows=CfgDlg[DLG_VIEW_ARROWS].Selected;
-  if (Opt.ViewTabSize<1 || Opt.ViewTabSize>512)
-    Opt.ViewTabSize=8;
+  ViOpt.TabSize=atoi(CfgDlg[DLG_VIEW_TABSIZE].Data);
+  ViOpt.ShowScrollbar=CfgDlg[DLG_VIEW_SCROLLBAR].Selected;
+  ViOpt.ShowArrows=CfgDlg[DLG_VIEW_ARROWS].Selected;
+  if (ViOpt.TabSize<1 || ViOpt.TabSize>512)
+    ViOpt.TabSize=8;
 }
+/* IS $ */
 /* tran 18.07.2000 $ */
 
 /* $ 04.08.2000 SVS
@@ -824,11 +832,11 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyViewer,"UseExternalViewer",&Opt.UseExternalViewer,0, 0},
   {1, REG_DWORD,  NKeyViewer,"SaveViewerPos",&Opt.SaveViewerPos,0, 0},
   {1, REG_DWORD,  NKeyViewer,"SaveViewerShortPos",&Opt.SaveViewerShortPos,0, 0},
-  {1, REG_DWORD,  NKeyViewer,"AutoDetectTable",&Opt.ViewerAutoDetectTable,0, 0},
-  {1, REG_DWORD,  NKeyViewer,"TabSize",&Opt.ViewTabSize,8, 0},
+  {1, REG_DWORD,  NKeyViewer,"AutoDetectTable",&Opt.ViOpt.AutoDetectTable,0, 0},
+  {1, REG_DWORD,  NKeyViewer,"TabSize",&Opt.ViOpt.TabSize,8, 0},
   {1, REG_DWORD,  NKeyViewer,"ShowKeyBar",&Opt.ShowKeyBarViewer,1, 0},
-  {1, REG_DWORD,  NKeyViewer,"ShowArrows",&Opt.ViewerShowArrows,1, 0},
-  {1, REG_DWORD,  NKeyViewer,"ShowScrollbar",&Opt.ViewerShowScrollbar,0, 0},
+  {1, REG_DWORD,  NKeyViewer,"ShowArrows",&Opt.ViOpt.ShowArrows,1, 0},
+  {1, REG_DWORD,  NKeyViewer,"ShowScrollbar",&Opt.ViOpt.ShowScrollbar,0, 0},
   {1, REG_DWORD,  NKeyViewer,"IsWrap",&Opt.ViewerIsWrap,1, 0},
   {1, REG_DWORD,  NKeyViewer,"Wrap",&Opt.ViewerWrap,0, 0},
 
@@ -1023,8 +1031,8 @@ void ReadConfig()
   Opt.ConsoleDetachKey=KeyNameToKey(KeyNameConsoleDetachKey);
   if (Opt.EdOpt.TabSize<1 || Opt.EdOpt.TabSize>512)
     Opt.EdOpt.TabSize=8;
-  if (Opt.ViewTabSize<1 || Opt.ViewTabSize>512)
-    Opt.ViewTabSize=8;
+  if (Opt.ViOpt.TabSize<1 || Opt.ViOpt.TabSize>512)
+    Opt.ViOpt.TabSize=8;
 
   GetRegKey(NKeyXLat,"EditorKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
   if((Opt.XLat.XLatEditorKey=KeyNameToKey(KeyNameFromReg)) == -1)

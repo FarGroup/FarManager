@@ -7,10 +7,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.13 20.02.2001 $ */
+/* Revision: 1.14 29.03.2001 $ */
 
 /*
 Modify:
+  29.03.2001 IS
+    + структура ViOpt и Get/Set для ее обслуживания
   20.02.2001 VVM
     + GetWrapType()/SetWrapType()
   06.02.2001 IS
@@ -65,6 +67,11 @@ class FileViewer;
 class Viewer:public ScreenObject
 {
   private:
+    /* $ 29.03.2001 IS
+         Часть локальных настроек переехала в ViewerOptions
+    */
+    struct ViewerOptions ViOpt;
+    /* IS $ */
     /* $ 14.06.2000 SVS
       + Переменная FirstWord - первое слово из файла
       (для автоопределения Unicode)
@@ -196,6 +203,21 @@ class Viewer:public ScreenObject
     void GoTo(int ShowDlg=TRUE,__int64 NewPos=0,DWORD Flags=0);
     // Функция выделения - как самостоятельная функция
     void SelectText(long MatchPos,int SearchLength, DWORD Flags=0x1);
+    /* $ 29.03.2001 IS
+         Манипуляции с ViewerOptions
+    */
+    int GetTabSize() const { return ViOpt.TabSize; }
+    void SetTabSize(int newValue) { ViOpt.TabSize=newValue; }
+
+    int GetAutoDetectTable() const { return ViOpt.AutoDetectTable; }
+    void SetAutoDetectTable(int newValue) { ViOpt.AutoDetectTable=newValue; }
+
+    int GetShowScrollbar() const { return ViOpt.ShowScrollbar; }
+    void SetShowScrollbar(int newValue) { ViOpt.ShowScrollbar=newValue; }
+
+    int GetShowArrows() const { return ViOpt.ShowArrows; }
+    void SetShowArrows(int newValue) { ViOpt.ShowArrows=newValue; }
+    /* IS $ */
 };
 
 #endif // __VIEWER_HPP__
