@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.112 29.11.2001 $ */
+/* Revision: 1.113 06.12.2001 $ */
 
 /*
 Modify:
+  06.12.2001 SVS
+    ! PrepareDiskPath() - имеет доп.параметр - максимальный размер буфера
   29.11.2001 SVS
     - BugZ#142: Не сохраняются изменения в архиве
       вместо IsFileModified нужно юзать IsFileChanged!
@@ -1935,9 +1937,9 @@ void FileList::SetCurDir(char *NewDir,int ClosePlugin)
 BOOL FileList::ChangeDir(char *NewDir)
 {
   Panel *AnotherPanel;
-  char FindDir[NM],SetDir[NM];
+  char FindDir[1024],SetDir[1024];
 
-  PrepareDiskPath(strcpy(SetDir,NewDir));
+  PrepareDiskPath(strcpy(SetDir,NewDir),sizeof(SetDir)-1);
 
   if (strcmp(SetDir,"..")!=0 && strcmp(SetDir,"\\")!=0)
     UpperFolderTopFile=CurTopFile;

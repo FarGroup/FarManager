@@ -5,10 +5,15 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.74 03.12.2001 $ */
+/* Revision: 1.75 06.12.2001 $ */
 
 /*
 Modify:
+  06.12.2001 SVS
+    ! PrepareDiskPath() - имеет доп.параметр - максимальный размер буфера
+    ! Во время вызова команд FCTL_SETANOTHERPANELDIR и FCTL_SETPANELDIR не
+      вызываем PrepareDiskPath(), это делается потом (исключаем лишний вызов
+      функции)
   03.12.2001 DJ
     - вызываем PrepareDiskPath() для пути, переданного в FCTL_SETPANELDIR
       и FCTL_SETANOTHERPANELDIR
@@ -1164,7 +1169,7 @@ void Panel::GetCurDir(char *CurDir)
 #endif
 void Panel::SetCurDir(char *CurDir,int ClosePlugin)
 {
-  PrepareDiskPath(strcpy(Panel::CurDir,CurDir));
+  PrepareDiskPath(strcpy(Panel::CurDir,CurDir),sizeof(Panel::CurDir)-1);
 }
 #if defined(__BORLANDC__)
 #pragma warn +par
@@ -1173,7 +1178,7 @@ void Panel::SetCurDir(char *CurDir,int ClosePlugin)
 
 void Panel::InitCurDir(char *CurDir)
 {
-  PrepareDiskPath(strcpy(Panel::CurDir,CurDir));
+  PrepareDiskPath(strcpy(Panel::CurDir,CurDir),sizeof(Panel::CurDir)-1);
 }
 
 
@@ -1530,13 +1535,18 @@ void Panel::SetPluginCommand(int Command,void *Param)
        скорректируем путь
     */
     case FCTL_SETANOTHERPANELDIR:
+    {
       if (Param!=NULL && AnotherPanel!=NULL)
-        AnotherPanel->SetCurDir (PrepareDiskPath ((char *)Param, TRUE), TRUE);
+        AnotherPanel->SetCurDir((char *)Param,TRUE);
       break;
+    }
+
     case FCTL_SETPANELDIR:
+    {
       if (Param!=NULL)
-        SetCurDir (PrepareDiskPath ((char *)Param, TRUE), TRUE);
+        SetCurDir((char *)Param,TRUE);
       break;
+    }
     /* DJ $ */
   }
   ProcessingPluginCommand--;

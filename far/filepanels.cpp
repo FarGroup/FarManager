@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.28 27.11.2001 $ */
+/* Revision: 1.29 06.12.2001 $ */
 
 /*
 Modify:
+  06.12.2001 SVS
+    - при понашенных панелях не забыть бы выставить корректно каталог в CmdLine
   27.11.2001 DJ
     - мелочевка
   19.11.2001 OT
@@ -138,11 +140,14 @@ void FilePanels::Init()
   Panel *PassivePanel=NULL;
   int PassiveIsLeftFlag=TRUE;
 
-  if (Opt.LeftPanel.Focus){
+  if (Opt.LeftPanel.Focus)
+  {
     ActivePanel=LeftPanel;
     PassivePanel=RightPanel;
     PassiveIsLeftFlag=FALSE;
-  } else {
+  }
+  else
+  {
     ActivePanel=RightPanel;
     PassivePanel=LeftPanel;
     PassiveIsLeftFlag=TRUE;
@@ -156,29 +161,44 @@ void FilePanels::Init()
       LeftPanel->InitCurDir(Opt.LeftFolder);
     if (GetFileAttributes(Opt.RightFolder)!=0xffffffff)
       RightPanel->InitCurDir(Opt.RightFolder);
-  } else {
-    if (*Opt.PassiveFolder && (GetFileAttributes(Opt.PassiveFolder)!=0xffffffff)) {
+  }
+  else
+  {
+    if (*Opt.PassiveFolder && (GetFileAttributes(Opt.PassiveFolder)!=0xffffffff))
+    {
       PassivePanel->InitCurDir(Opt.PassiveFolder);
     }
   }
 
   //! Вначале "показываем" пассивную панель
-  if(PassiveIsLeftFlag) {
-    if (Opt.LeftPanel.Visible){
+  if(PassiveIsLeftFlag)
+  {
+    if (Opt.LeftPanel.Visible)
+    {
       LeftPanel->Show();
     }
-    if (Opt.RightPanel.Visible){
+    if (Opt.RightPanel.Visible)
+    {
       RightPanel->Show();
     }
-  } else {
-    if (Opt.RightPanel.Visible){
+  }
+  else
+  {
+    if (Opt.RightPanel.Visible)
+    {
       RightPanel->Show();
     }
-    if (Opt.LeftPanel.Visible){
+    if (Opt.LeftPanel.Visible)
+    {
       LeftPanel->Show();
     }
   }
 
+  // при понашенных панелях не забыть бы выставить корректно каталог в CmdLine
+  if (!Opt.RightPanel.Visible && !Opt.LeftPanel.Visible)
+  {
+    CtrlObject->CmdLine->SetCurDir(PassiveIsLeftFlag?Opt.RightFolder:Opt.LeftFolder);
+  }
 
   SetKeyBar(&MainKeyBar);
   MainKeyBar.SetOwner(this);

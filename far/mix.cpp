@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.103 03.12.2001 $ */
+/* Revision: 1.104 06.12.2001 $ */
 
 /*
 Modify:
+  06.12.2001 SVS
+    ! PrepareDiskPath() - имеет доп.параметр - максимальный размер буфера
   03.12.2001 SVS
     - небольшая бага в RawConvertShortNameToLongName() - для каталогов,
       имеющих один символ! Например, имеем "D:\1", функция возвращает "D:\"
@@ -1608,7 +1610,7 @@ int PathMayBeAbsolute(const char *Src)
 
 // Косметические преобразования строки пути.
 // CheckFullPath используется в FCTL_SET[ANOTHER]PANELDIR
-char* PrepareDiskPath(char *Path,BOOL CheckFullPath)
+char* PrepareDiskPath(char *Path,int MaxSize,BOOL CheckFullPath)
 {
   if(Path)
   {
@@ -1620,7 +1622,7 @@ char* PrepareDiskPath(char *Path,BOOL CheckFullPath)
         *NPath=0;
         RawConvertShortNameToLongName(Path,NPath,sizeof(NPath));
         if(*NPath)
-          strncpy(Path,NPath,strlen(Path));
+          strncpy(Path,NPath,MaxSize);
       }
       /* $ 03.12.2001 DJ
          RawConvertShortNameToLongName() не апперкейсит первую букву Path

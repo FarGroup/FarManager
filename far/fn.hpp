@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.119 02.12.2001 $ */
+/* Revision: 1.120 06.12.2001 $ */
 
 /*
 Modify:
+  06.12.2001 SVS
+    ! PrepareDiskPath() - имеет доп.параметр - максимальный размер буфера
   02.12.2001 SVS
     ! PrepareDiskPath() имеет второй параметр по умолчанию TRUE
   27.11.2001 DJ
@@ -1044,6 +1046,6 @@ char *WINAPI WordWrap(const char *SrcText,int Width,
 void SetPreRedrawFunc(PREREDRAWFUNC Func);
 
 int PathMayBeAbsolute(const char *Src);
-char* PrepareDiskPath(char *Path,BOOL CheckFullPath=TRUE);
+char* PrepareDiskPath(char *Path,int MaxSize,BOOL CheckFullPath=TRUE);
 
 #endif  // __FARFUNC_HPP__

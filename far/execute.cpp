@@ -5,10 +5,13 @@ execute.cpp
 
 */
 
-/* Revision: 1.20 05.12.2001 $ */
+/* Revision: 1.21 06.12.2001 $ */
 
 /*
 Modify:
+  06.12.2001 SVS
+    ! Откат к старому обработчику с возможностью работы с новым.
+      Детельное описание читайте в 01104.Mix.txt
   05.12.2001 SVS
     - При определении ассоциации забыл "расширить" переменные среды :-(
   04.12.2001 SVS
@@ -241,7 +244,6 @@ char* GetShellAction(char *FileName,DWORD *GUIType)
   return RetPtr;
 }
 
-
 /*
  Фунция PrepareExecuteModule пытается найти исполняемый модуль (в т.ч. и по
  %PATHEXT%). В случае успеха заменяет в Command порцию, ответственную за
@@ -427,12 +429,72 @@ int WINAPI PrepareExecuteModule(char *Command,char *Dest,int DestSize,DWORD *GUI
   return(Ret);
 }
 
+DWORD IsCommandExeGUI(char *Command)
+{
+  char FileName[4096],FullName[4096],*EndName,*FilePart;
+  if (*Command=='\"')
+  {
+    OemToChar(Command+1,FileName);
+    if ((EndName=strchr(FileName,'\"'))!=NULL)
+      *EndName=0;
+  }
+  else
+  {
+    OemToChar(Command,FileName);
+    if ((EndName=strpbrk(FileName," \t/"))!=NULL)
+      *EndName=0;
+  }
+  int GUIType=FALSE;
+
+  /* $ 07.09.2001 VVM
+    + Обработать переменные окружения */
+  ExpandEnvironmentStr(FileName,FileName,sizeof(FileName));
+  /* VVM $ */
+
+  SetFileApisToANSI();
+
+  /*$ 18.09.2000 skv
+    + to allow execution of c.bat in current directory,
+      if gui program c.exe exists somewhere in PATH,
+      in FAR's console and not in separate window.
+      for(;;) is just to prevent multiple nested ifs.
+  */
+  for(;;)
+  {
+    sprintf(FullName,"%s.bat",FileName);
+    if(GetFileAttributes(FullName)!=-1)break;
+    sprintf(FullName,"%s.cmd",FileName);
+    if(GetFileAttributes(FullName)!=-1)break;
+  /* skv$*/
+
+    if (SearchPath(NULL,FileName,".exe",sizeof(FullName),FullName,&FilePart))
+    {
+      SHFILEINFO sfi;
+      DWORD ExeType=SHGetFileInfo(FullName,0,&sfi,sizeof(sfi),SHGFI_EXETYPE);
+      GUIType=HIWORD(ExeType)>=0x0300 && HIWORD(ExeType)<=0x1000 &&
+              /* $ 13.07.2000 IG
+                 в VC, похоже, нельзя сказать так: 0x4550 == 'PE', надо
+                 делать проверку побайтово.
+              */
+              HIBYTE(ExeType)=='E' && (LOBYTE(ExeType)=='N' || LOBYTE(ExeType)=='P');
+              /* IG $ */
+    }
+/*$ 18.09.2000 skv
+    little trick.
+*/
+    break;
+  }
+  /* skv$*/
+  SetFileApisToOEM();
+  return(GUIType);
+}
+
 /* Функция-пускатель внешних процессов
    Возвращает -1 в случае ошибки или...
 */
 int Execute(char *CmdStr,          // Ком.строка для исполнения
             int AlwaysWaitFinish,  // Ждать завершение процесса?
-            int SeparateWindow,    // Выполнить в отдельном окне?
+            int SeparateWindow,    // Выполнить в отдельном окне? =2 для вызова ShellExecuteEx()
             int DirectRun,         // Выполнять директом? (без CMD)
             int SetUpDirs)         // Нужно устанавливать каталоги?
 {
@@ -509,34 +571,75 @@ int Execute(char *CmdStr,          // Ком.строка для исполнения
   //while (isspace(*CmdPtr))
   //  CmdPtr++;
 
-  // Поиск исполнятора....
-  PrepareExecuteModule(NewCmdStr,NewCmdStr,sizeof(NewCmdStr)-1,&GUIType);
+  int  ExecutorType;
+  ExecutorType=GetRegKey("System\\Executor","Type",0);
+
+  if(ExecutorType)
+  {
+    // Поиск исполнятора....
+    if (SeparateWindow!=2)
+      PrepareExecuteModule(NewCmdStr,NewCmdStr,sizeof(NewCmdStr)-1,&GUIType);
+  }
+  else
+    GUIType=IsCommandExeGUI(CmdPtr);
 
   {
     if (DirectRun && !SeparateWindow)
       strcpy(ExecLine,CmdPtr);
     else
     {
-      sprintf(ExecLine,"%s /C",CommandName);
-      if (!OldNT && (SeparateWindow || GUIType && (NT || AlwaysWaitFinish)))
+      if(ExecutorType)
       {
-        strcat(ExecLine," start");
-        if (AlwaysWaitFinish)
-          strcat(ExecLine," /wait");
-        if (NT && *CmdPtr=='\"')
-          strcat(ExecLine," \"\"");
-      }
-      strcat(ExecLine," ");
-
-      char *CmdEnd=CmdPtr+strlen (CmdPtr)-1;
-      if (NT && *CmdPtr == '\"' && *CmdEnd == '\"' && strchr (CmdPtr+1, '\"') != CmdEnd)
-      {
-        strcat (ExecLine, "\"");
-        strcat (ExecLine, CmdPtr);
-        strcat (ExecLine, "\"");
+        char TemplExecute[512];
+        char TemplExecuteStart[512];
+        char TemplExecuteWait[512];
+        GetRegKey("System\\Executor","Normal",TemplExecute,"%s /c %s %s",sizeof(TemplExecute));
+        GetRegKey("System\\Executor","Start",TemplExecuteStart,"%s /c start %s %s",sizeof(TemplExecuteStart));
+        GetRegKey("System\\Executor","Wait",TemplExecuteWait,"%s /c start /wait %s %s",sizeof(TemplExecuteWait));
+        if(GUIType && !AlwaysWaitFinish)
+          strcpy(ExecLine,NewCmdStr);
+        else
+        {
+          char *Fmt=TemplExecute;
+          if (!OldNT && (SeparateWindow || GUIType && (NT || AlwaysWaitFinish)))
+          {
+            Fmt=TemplExecuteStart;
+            if (AlwaysWaitFinish)
+              Fmt=TemplExecuteWait;
+          }
+          char *CmdEnd=NewCmdStr+strlen(NewCmdStr)-1;
+          if (NT && *NewCmdStr == '\"' && *CmdEnd == '\"' &&
+             strchr(NewCmdStr+1, '\"') != CmdEnd && SeparateWindow!=2)
+            InsertQuote(NewCmdStr);
+          sprintf(ExecLine,Fmt,
+                           CommandName,
+                           (Fmt!=TemplExecute && NT && *CmdPtr=='\"'?"\"\"":""),
+                           NewCmdStr);
+        }
       }
       else
-        strcat(ExecLine,CmdPtr);
+      {
+        sprintf(ExecLine,"%s /C",CommandName);
+        if (!OldNT && (SeparateWindow || GUIType && (NT || AlwaysWaitFinish)))
+        {
+          strcat(ExecLine," start");
+          if (AlwaysWaitFinish)
+            strcat(ExecLine," /wait");
+          if (NT && *CmdPtr=='\"')
+            strcat(ExecLine," \"\"");
+        }
+        strcat(ExecLine," ");
+
+        char *CmdEnd=CmdPtr+strlen (CmdPtr)-1;
+        if (NT && *CmdPtr == '\"' && *CmdEnd == '\"' && strchr (CmdPtr+1, '\"') != CmdEnd)
+        {
+          strcat (ExecLine, "\"");
+          strcat (ExecLine, CmdPtr);
+          strcat (ExecLine, "\"");
+        }
+        else
+          strcat(ExecLine,CmdPtr);
+      }
     }
 
     SetFarTitle(CmdPtr);
@@ -555,7 +658,7 @@ int Execute(char *CmdStr,          // Ком.строка для исполнения
 
     if (SeparateWindow==2)
     {
-      char AnsiLine[NM];
+      char AnsiLine[4096];
       SHELLEXECUTEINFO si;
       OemToChar(CmdPtr,AnsiLine);
 
@@ -565,6 +668,7 @@ int Execute(char *CmdStr,          // Ком.строка для исполнения
         sprintf(FullName,".\\%s",AnsiLine);
         strcpy(AnsiLine,FullName);
       }
+      Unquote(AnsiLine); // т.к. нафиг это ненужно?
 
       memset(&si,0,sizeof(si));
       si.cbSize=sizeof(si);
@@ -692,9 +796,9 @@ int Execute(char *CmdStr,          // Ком.строка для исполнения
       }
       /* SKV$*/
     }
-    else if (!GUIType) //(!AlwaysWaitFinish)
+    else if(ExecutorType && !GUIType) //(!AlwaysWaitFinish)
     {
-      WaitForSingleObject(pi.hProcess,INFINITE);
+      WaitForSingleObject(pi.hProcess,INFINITE); //800
     }
 
     int CurScrX=ScrX,CurScrY=ScrY;

@@ -5,10 +5,12 @@ namelist.cpp
 
 */
 
-/* Revision: 1.04 26.11.2001 $ */
+/* Revision: 1.05 06.12.2001 $ */
 
 /*
 Modify:
+  06.12.2001 SVS
+    ! PrepareDiskPath() - имеет доп.параметр - максимальный размер буфера
   26.11.2001 SVS
     ! Заюзаем PrepareDiskPath() для преобразования пути.
   06.05.2001 DJ
@@ -122,5 +124,5 @@ void NamesList::GetCurDir(char *Dir)
 
 void NamesList::SetCurDir(char *Dir)
 {
-  PrepareDiskPath(strcpy(CurDir,Dir));
+  PrepareDiskPath(strcpy(CurDir,Dir),sizeof(CurDir)-1);
 }

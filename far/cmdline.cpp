@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.47 26.11.2001 $ */
+/* Revision: 1.48 06.12.2001 $ */
 
 /*
 Modify:
+  06.12.2001 SVS
+    ! PrepareDiskPath() - имеет доп.параметр - максимальный размер буфера
   26.11.2001 SVS
     ! Заюзаем PrepareDiskPath() для преобразования пути.
   15.11.2001 IS
@@ -164,7 +166,7 @@ void CommandLine::SetPersistentBlocks(int Mode)
 void CommandLine::DisplayObject()
 {
   _OT(SysLog("[%p] CommandLine::DisplayObject()",this));
-  char TruncDir[NM];
+  char TruncDir[1024];
   GetPrompt(TruncDir);
   TruncPathStr(TruncDir,(X2-X1)/2);
   GotoXY(X1,Y1);
@@ -411,7 +413,7 @@ int CommandLine::ProcessKey(int Key)
 
 void CommandLine::SetCurDir(char *CurDir)
 {
-  PrepareDiskPath(strcpy(CommandLine::CurDir,CurDir));
+  PrepareDiskPath(strcpy(CommandLine::CurDir,CurDir),sizeof(CommandLine::CurDir)-1);
 }
 
 
