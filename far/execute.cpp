@@ -5,10 +5,13 @@ execute.cpp
 
 */
 
-/* Revision: 1.69 21.08.2002 $ */
+/* Revision: 1.70 03.09.2002 $ */
 
 /*
 Modify:
+  03.09.2002 SVS
+    - BugZ#606 - не работают переменные окружения в ассоциациях
+      не стояла проверка на символы ":\" для "распахнутой" строки...
   21.08.2002 SVS
     - Исправления 1493 патча. Сначала нужно в обязательном порядке проверить
       кей "open", а если его нету, то... что первое попадется ;-)
@@ -1393,7 +1396,7 @@ const char* WINAPI PrepareOSIfExist(const char *CmdLine)
         if (ExpandEnvironmentStr(Cmd,ExpandedStr,sizeof(ExpandedStr))!=0)
         {
           char FullPath[8192]="";
-          if(!(Cmd[1] == ':' || (Cmd[0] == '\\' && Cmd[1]=='\\')))
+          if(!(Cmd[1] == ':' || (Cmd[0] == '\\' && Cmd[1]=='\\') || ExpandedStr[1] == ':' || (ExpandedStr[0] == '\\' && ExpandedStr[1]=='\\')))
           {
             if(CtrlObject)
               CtrlObject->CmdLine->GetCurDir(FullPath);

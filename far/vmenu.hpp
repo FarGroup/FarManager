@@ -11,10 +11,12 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.42 25.06.2002 $ */
+/* Revision: 1.43 03.09.2002 $ */
 
 /*
 Modify:
+  03.09.2002 SVS
+    ! функция SortItems имеет доп параметр Offset
   25.06.2002 SVS
     ! Косметика:  BitFlags::Skip -> BitFlags::Clear
   31.05.2002 SVS
@@ -437,7 +439,7 @@ class VMenu: virtual public Modal, virtual public Frame
     struct MenuItem *GetItemPtr(int Position=-1);
     /* SVS $*/
 
-    void SortItems(int Direction=0);
+    void SortItems(int Direction=0,int Offset=0);
     BOOL GetVMenuInfo(struct FarListInfo* Info);
 
     static struct MenuItem *FarList2MenuItem(const struct FarListItem *Item,struct MenuItem *ListItem);

@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.123 21.08.2002 $ */
+/* Revision: 1.124 03.09.2002 $ */
 
 /*
 Modify:
+  03.09.2002 SVS
+    - BugZ#611 - Нелепая сортировка в меню плагинов
   21.08.2002 IS
     + Параметр PluginTextSize в GetDiskMenuItem, чтобы знать, сколько брать
   25.06.2002 SVS
@@ -2219,46 +2221,82 @@ void PluginsSet::Configure(int StartPos)
   if((Opt.Policies.DisabledOptions >> 4) & 1)
     return;
 
-  for(;;)
   {
-    DWORD Data;
-    int I, J;
+    VMenu PluginList(MSG(MPluginConfigTitle),NULL,0,ScrY-4);
+    PluginList.SetFlags(VMENU_WRAPMODE);
+    PluginList.SetHelp("PluginsConfig");
+
+    for(;;)
     {
+      DWORD Data;
+      int I, J;
+      BOOL NeedUpdateItems=TRUE;
+      BOOL Done=FALSE;
       int MenuItemNumber=0;
-      VMenu PluginList(MSG(MPluginConfigTitle),NULL,0,ScrY-4);
-      PluginList.SetFlags(VMENU_WRAPMODE);
-      PluginList.SetPosition(-1,-1,0,0);
-      PluginList.SetHelp("PluginsConfig");
 
-      LoadIfCacheAbsent();
-      char FirstHotKey[512];
-      char HotRegKey[512],HotKey[100];
-      int HotKeysPresent=EnumRegKey("PluginHotkeys",0,FirstHotKey,sizeof(FirstHotKey));
-
-      *HotKey=0;
-
-      for (I=0;I<PluginsCount;I++)
+      if(NeedUpdateItems)
       {
-        if (PluginsData[I].WorkFlags.Check(PIWF_CACHED))
+        PluginList.ClearDone();
+        PluginList.DeleteItems();
+        PluginList.SetPosition(-1,-1,0,0);
+        MenuItemNumber=0;
+
+        LoadIfCacheAbsent();
+        char FirstHotKey[512];
+        char HotRegKey[512],HotKey[100];
+        int HotKeysPresent=EnumRegKey("PluginHotkeys",0,FirstHotKey,sizeof(FirstHotKey));
+
+        *HotKey=0;
+
+        for (I=0;I<PluginsCount;I++)
         {
-          char RegKey[100],Value[100];
-          int RegNumber=GetCacheNumber(PluginsData[I].ModuleName,NULL,PluginsData[I].CachePos);
-          if (RegNumber==-1)
-            continue;
+          if (PluginsData[I].WorkFlags.Check(PIWF_CACHED))
+          {
+            char RegKey[100],Value[100];
+            int RegNumber=GetCacheNumber(PluginsData[I].ModuleName,NULL,PluginsData[I].CachePos);
+            if (RegNumber==-1)
+              continue;
+            else
+              for (J=0;;J++)
+              {
+                *HotKey=0;
+                if (GetHotKeyRegKey(I,J,HotRegKey))
+                  GetRegKey(HotRegKey,"ConfHotkey",HotKey,"",sizeof(HotKey));
+                struct MenuItem ListItem;
+                memset(&ListItem,0,sizeof(ListItem));
+                sprintf(RegKey,FmtPluginsCache_PluginD,RegNumber);
+                sprintf(Value,"PluginConfigString%d",J);
+                char Name[sizeof(ListItem.Name)];
+                GetRegKey(RegKey,Value,Name,"",sizeof(Name));
+                if (*Name==0)
+                  break;
+                if (!HotKeysPresent)
+                  strcpy(ListItem.Name,Name);
+                else
+                  if (*HotKey)
+                    sprintf(ListItem.Name,"&%c  %s",*HotKey,Name);
+                  else
+                    sprintf(ListItem.Name,"   %s",Name);
+                //ListItem.SetSelect(MenuItemNumber++ == StartPos);
+                MenuItemNumber++;
+                Data=MAKELONG(I,J);
+                PluginList.SetUserData((void*)Data,sizeof(Data),PluginList.AddItem(&ListItem));
+              }
+          }
           else
-            for (J=0;;J++)
+          {
+            struct PluginInfo Info;
+            if (!GetPluginInfo(I,&Info))
+              continue;
+            for (J=0;J<Info.PluginConfigStringsNumber;J++)
             {
               *HotKey=0;
               if (GetHotKeyRegKey(I,J,HotRegKey))
                 GetRegKey(HotRegKey,"ConfHotkey",HotKey,"",sizeof(HotKey));
               struct MenuItem ListItem;
               memset(&ListItem,0,sizeof(ListItem));
-              sprintf(RegKey,FmtPluginsCache_PluginD,RegNumber);
-              sprintf(Value,"PluginConfigString%d",J);
               char Name[sizeof(ListItem.Name)];
-              GetRegKey(RegKey,Value,Name,"",sizeof(Name));
-              if (*Name==0)
-                break;
+              strncpy(Name,NullToEmpty(Info.PluginConfigStrings[J]),sizeof(Name)-1);
               if (!HotKeysPresent)
                 strcpy(ListItem.Name,Name);
               else
@@ -2266,42 +2304,21 @@ void PluginsSet::Configure(int StartPos)
                   sprintf(ListItem.Name,"&%c  %s",*HotKey,Name);
                 else
                   sprintf(ListItem.Name,"   %s",Name);
-              ListItem.SetSelect(MenuItemNumber++ == StartPos);
+              //ListItem.SetSelect(MenuItemNumber++ == StartPos);
+              MenuItemNumber++;
               Data=MAKELONG(I,J);
               PluginList.SetUserData((void*)Data,sizeof(Data),PluginList.AddItem(&ListItem));
             }
-        }
-        else
-        {
-          struct PluginInfo Info;
-          if (!GetPluginInfo(I,&Info))
-            continue;
-          for (J=0;J<Info.PluginConfigStringsNumber;J++)
-          {
-            *HotKey=0;
-            if (GetHotKeyRegKey(I,J,HotRegKey))
-              GetRegKey(HotRegKey,"ConfHotkey",HotKey,"",sizeof(HotKey));
-            struct MenuItem ListItem;
-            memset(&ListItem,0,sizeof(ListItem));
-            char Name[sizeof(ListItem.Name)];
-            strncpy(Name,NullToEmpty(Info.PluginConfigStrings[J]),sizeof(Name)-1);
-            if (!HotKeysPresent)
-              strcpy(ListItem.Name,Name);
-            else
-              if (*HotKey)
-                sprintf(ListItem.Name,"&%c  %s",*HotKey,Name);
-              else
-                sprintf(ListItem.Name,"   %s",Name);
-            ListItem.SetSelect(MenuItemNumber++ == StartPos);
-            Data=MAKELONG(I,J);
-            PluginList.SetUserData((void*)Data,sizeof(Data),PluginList.AddItem(&ListItem));
           }
         }
-      }
-      PluginList.AssignHighlights(FALSE);
-      PluginList.SetBottomTitle(MSG(MPluginHotKeyBottom));
+        PluginList.AssignHighlights(FALSE);
+        PluginList.SetBottomTitle(MSG(MPluginHotKeyBottom));
 
-      PluginList.ClearDone();
+        PluginList.ClearDone();
+        PluginList.SortItems(0,3);
+        PluginList.SetSelectPos(StartPos,1);
+        NeedUpdateItems=FALSE;
+      }
 
       /* $ 18.12.2000 SVS
          Shift-F1 в списке плагинов вызывает хелп по данному плагину
@@ -2333,8 +2350,10 @@ void PluginsSet::Configure(int StartPos)
                         NULL,RegKey,"ConfHotkey"))
               {
                 PluginList.Hide();
-                Configure(SelPos);
-                return;
+                NeedUpdateItems=TRUE;
+                StartPos=SelPos;
+                PluginList.SetExitCode(SelPos);
+                break;
               }
               /* Грязный хак :-( */
               PluginList.Hide();
@@ -2346,18 +2365,20 @@ void PluginsSet::Configure(int StartPos)
             break;
         }
       }
-      /* SVS $ */
 
-      StartPos=PluginList.Modal::GetExitCode();
-      PluginList.Hide();
-      if (StartPos<0)
-        break;
-      Data=(DWORD)PluginList.GetUserData(NULL,NULL,StartPos);
+      if(!NeedUpdateItems)
+      {
+        StartPos=PluginList.Modal::GetExitCode();
+        PluginList.Hide();
+        if (StartPos<0)
+          break;
+        Data=(DWORD)PluginList.GetUserData(NULL,NULL,StartPos);
+        // ОЧЕРЕДНОЙ КОСТЫЛЬ, ИБО ВСЕ НЕПРАВИЛЬНО!
+        //  Меню уже погашено, так зачем же его где опять высвечивать,
+        //  если об это не просили?
+        ConfigureCurrent(LOWORD(Data),HIWORD(Data));
+      }
     }
-    // ОЧЕРЕДНОЙ КОСТЫЛЬ, ИБО ВСЕ НЕПРАВИЛЬНО!
-    //  Меню уже погашено, так зачем же его где опять высвечивать,
-    //  если об это не просили?
-    ConfigureCurrent(LOWORD(Data),HIWORD(Data));
   }
 }
 /* IS $ */
@@ -2377,138 +2398,159 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
   {
     VMenu PluginList(MSG(MPluginCommandsMenuTitle),NULL,0,ScrY-4);
     PluginList.SetFlags(VMENU_WRAPMODE);
-    PluginList.SetPosition(-1,-1,0,0);
     PluginList.SetHelp("Plugins");
+    BOOL NeedUpdateItems=TRUE;
+    BOOL Done=FALSE;
 
-    LoadIfCacheAbsent();
-
-    char FirstHotKey[512];
-    int HotKeysPresent=EnumRegKey("PluginHotkeys",0,FirstHotKey,sizeof(FirstHotKey));
-
-    for (int I=0;I<PluginsCount;I++)
+    while(!Done)
     {
-      char HotRegKey[512],HotKey[100];
-      *HotKey=0;
-      if (PluginsData[I].WorkFlags.Check(PIWF_CACHED))
+      if(NeedUpdateItems)
       {
-        char RegKey[100],Value[100];
-        int RegNumber=GetCacheNumber(PluginsData[I].ModuleName,NULL,PluginsData[I].CachePos);
-        if (RegNumber==-1)
-          continue;
-        else
+        PluginList.ClearDone();
+        PluginList.DeleteItems();
+        PluginList.SetPosition(-1,-1,0,0);
+
+        LoadIfCacheAbsent();
+
+        char FirstHotKey[512];
+        int HotKeysPresent=EnumRegKey("PluginHotkeys",0,FirstHotKey,sizeof(FirstHotKey));
+
+        for (int I=0;I<PluginsCount;I++)
         {
-          sprintf(RegKey,FmtPluginsCache_PluginD,RegNumber);
-          int IFlags=GetRegKey(RegKey,"Flags",0);
-          /* todo: тут надо не смотреть на Editor/Viewer
-          а сделать четкий анализ на ModalType */
-          if (Editor && (IFlags & PF_EDITOR)==0 ||
-            Viewer && (IFlags & PF_VIEWER)==0 ||
-            !Editor && !Viewer && (IFlags & PF_DISABLEPANELS))
-            continue;
-          for (int J=0;;J++)
+          char HotRegKey[512],HotKey[100];
+          *HotKey=0;
+          if (PluginsData[I].WorkFlags.Check(PIWF_CACHED))
           {
-            *HotKey=0;
-            if (GetHotKeyRegKey(I,J,HotRegKey))
-              GetRegKey(HotRegKey,"Hotkey",HotKey,"",sizeof(HotKey));
-            struct MenuItem ListItem;
-            memset(&ListItem,0,sizeof(ListItem));
-            sprintf(Value,"PluginMenuString%d",J);
-            char Name[sizeof(ListItem.Name)];
-            GetRegKey(RegKey,Value,Name,"",sizeof(Name));
-            if (*Name==0)
-              break;
-            if (!HotKeysPresent)
-              strcpy(ListItem.Name,Name);
+            char RegKey[100],Value[100];
+            int RegNumber=GetCacheNumber(PluginsData[I].ModuleName,NULL,PluginsData[I].CachePos);
+            if (RegNumber==-1)
+              continue;
             else
-              if (*HotKey)
-                sprintf(ListItem.Name,"&%c  %s",*HotKey,Name);
+            {
+              sprintf(RegKey,FmtPluginsCache_PluginD,RegNumber);
+              int IFlags=GetRegKey(RegKey,"Flags",0);
+              /* todo: тут надо не смотреть на Editor/Viewer
+              а сделать четкий анализ на ModalType */
+              if (Editor && (IFlags & PF_EDITOR)==0 ||
+                Viewer && (IFlags & PF_VIEWER)==0 ||
+                !Editor && !Viewer && (IFlags & PF_DISABLEPANELS))
+                continue;
+              for (int J=0;;J++)
+              {
+                *HotKey=0;
+                if (GetHotKeyRegKey(I,J,HotRegKey))
+                  GetRegKey(HotRegKey,"Hotkey",HotKey,"",sizeof(HotKey));
+                struct MenuItem ListItem;
+                memset(&ListItem,0,sizeof(ListItem));
+                sprintf(Value,"PluginMenuString%d",J);
+                char Name[sizeof(ListItem.Name)];
+                GetRegKey(RegKey,Value,Name,"",sizeof(Name));
+                if (*Name==0)
+                  break;
+                if (!HotKeysPresent)
+                  strcpy(ListItem.Name,Name);
+                else
+                  if (*HotKey)
+                    sprintf(ListItem.Name,"&%c  %s",*HotKey,Name);
+                  else
+                    sprintf(ListItem.Name,"   %s",Name);
+                  //ListItem.SetSelect(MenuItemNumber++ == StartPos);
+                  MenuItemNumber++;
+                  Data=MAKELONG(I,J);
+                  PluginList.SetUserData((void*)Data,sizeof(Data),PluginList.AddItem(&ListItem));
+              }
+            }
+          }
+          else
+          {
+            struct PluginInfo Info;
+            if (!GetPluginInfo(I,&Info))
+              continue;
+            if (Editor && (Info.Flags & PF_EDITOR)==0 ||
+              Viewer && (Info.Flags & PF_VIEWER)==0 ||
+              !Editor && !Viewer && (Info.Flags & PF_DISABLEPANELS))
+              continue;
+            for (int J=0;J<Info.PluginMenuStringsNumber;J++)
+            {
+              *HotKey=0;
+              if (GetHotKeyRegKey(I,J,HotRegKey))
+                GetRegKey(HotRegKey,"Hotkey",HotKey,"",sizeof(HotKey));
+              struct MenuItem ListItem;
+              memset(&ListItem,0,sizeof(ListItem));
+              char Name[sizeof(ListItem.Name)];
+              strncpy(Name,NullToEmpty(Info.PluginMenuStrings[J]),sizeof(Name)-1);
+              if (!HotKeysPresent)
+                strcpy(ListItem.Name,Name);
               else
-                sprintf(ListItem.Name,"   %s",Name);
-              ListItem.SetSelect(MenuItemNumber++ == StartPos);
-              Data=MAKELONG(I,J);
-              PluginList.SetUserData((void*)Data,sizeof(Data),PluginList.AddItem(&ListItem));
+                if (*HotKey)
+                  sprintf(ListItem.Name,"&%c  %s",*HotKey,Name);
+                else
+                  sprintf(ListItem.Name,"   %s",Name);
+                //ListItem.SetSelect(MenuItemNumber++ == StartPos);
+                MenuItemNumber++;
+                Data=MAKELONG(I,J);
+                PluginList.SetUserData((void*)Data,sizeof(Data),PluginList.AddItem(&ListItem));
+            }
           }
         }
+
+        PluginList.AssignHighlights(FALSE);
+        PluginList.SetBottomTitle(MSG(MPluginHotKeyBottom));
+
+        PluginList.SortItems(0,3);
+        PluginList.SetSelectPos(StartPos,1);
+        NeedUpdateItems=FALSE;
       }
-      else
+
+      PluginList.Show();
+
+      while (!PluginList.Done())
       {
-        struct PluginInfo Info;
-        if (!GetPluginInfo(I,&Info))
-          continue;
-        if (Editor && (Info.Flags & PF_EDITOR)==0 ||
-          Viewer && (Info.Flags & PF_VIEWER)==0 ||
-          !Editor && !Viewer && (Info.Flags & PF_DISABLEPANELS))
-          continue;
-        for (int J=0;J<Info.PluginMenuStringsNumber;J++)
+        int SelPos=PluginList.GetSelectPos();
+        char RegKey[512];
+
+        Data=(DWORD)PluginList.GetUserData(NULL,NULL,SelPos);
+        switch(PluginList.ReadInput())
         {
-          *HotKey=0;
-          if (GetHotKeyRegKey(I,J,HotRegKey))
-            GetRegKey(HotRegKey,"Hotkey",HotKey,"",sizeof(HotKey));
-          struct MenuItem ListItem;
-          memset(&ListItem,0,sizeof(ListItem));
-          char Name[sizeof(ListItem.Name)];
-          strncpy(Name,NullToEmpty(Info.PluginMenuStrings[J]),sizeof(Name)-1);
-          if (!HotKeysPresent)
-            strcpy(ListItem.Name,Name);
-          else
-            if (*HotKey)
-              sprintf(ListItem.Name,"&%c  %s",*HotKey,Name);
-            else
-              sprintf(ListItem.Name,"   %s",Name);
-            ListItem.SetSelect(MenuItemNumber++ == StartPos);
-            Data=MAKELONG(I,J);
-            PluginList.SetUserData((void*)Data,sizeof(Data),PluginList.AddItem(&ListItem));
-        }
-      }
-    }
-    PluginList.AssignHighlights(FALSE);
-    PluginList.SetBottomTitle(MSG(MPluginHotKeyBottom));
-
-    PluginList.Show();
-
-    while (!PluginList.Done())
-    {
-      int SelPos=PluginList.GetSelectPos();
-      char RegKey[512];
-
-      Data=(DWORD)PluginList.GetUserData(NULL,NULL,SelPos);
-      switch(PluginList.ReadInput())
-      {
-      /* $ 18.12.2000 SVS
-      Shift-F1 в списке плагинов вызывает хелп по данному плагину
-        */
-      case KEY_SHIFTF1:
-        {
-          // Вызываем нужный топик, который передали в CommandsMenu()
-          FarShowHelp(PluginsData[LOWORD(Data)].ModuleName,HistoryName,FHELP_SELFHELP|FHELP_NOSHOWERROR|FHELP_USECONTENTS);
+        /* $ 18.12.2000 SVS
+        Shift-F1 в списке плагинов вызывает хелп по данному плагину
+          */
+        case KEY_SHIFTF1:
+          {
+            // Вызываем нужный топик, который передали в CommandsMenu()
+            FarShowHelp(PluginsData[LOWORD(Data)].ModuleName,HistoryName,FHELP_SELFHELP|FHELP_NOSHOWERROR|FHELP_USECONTENTS);
+            break;
+          }
+          /* SVS $ */
+        case KEY_ALTF11:
+          WriteEvent(FLOG_PLUGINSINFO);
+          break;
+        case KEY_F4:
+          if (SelPos<MenuItemNumber && GetHotKeyRegKey(LOWORD(Data),HIWORD(Data),RegKey))
+          {
+            if(GetMenuHotKey(NULL,1,(char *)MPluginHotKeyTitle,(char *)MPluginHotKey,NULL,RegKey,"Hotkey"))
+            {
+              PluginList.Hide();
+              NeedUpdateItems=TRUE;
+              StartPos=SelPos;
+              PluginList.SetExitCode(SelPos);
+              break;
+            }
+            /* Грязный хак :-( */
+            PluginList.Hide();
+            PluginList.Show();
+          }
+          break;
+        default:
+          PluginList.ProcessInput();
           break;
         }
-        /* SVS $ */
-      case KEY_ALTF11:
-        WriteEvent(FLOG_PLUGINSINFO);
-        break;
-      case KEY_F4:
-        if (SelPos<MenuItemNumber && GetHotKeyRegKey(LOWORD(Data),HIWORD(Data),RegKey))
-        {
-          if(GetMenuHotKey(NULL,1,
-                           (char *)MPluginHotKeyTitle,
-                           (char *)MPluginHotKey,
-                           NULL,RegKey,"Hotkey"))
-          {
-            PluginList.Hide();
-            ///            return(CommandsMenu(Editor,Viewer,SelPos));
-            return(CommandsMenu(ModalType,SelPos));///
-          }
-          /* Грязный хак :-( */
-          PluginList.Hide();
-          PluginList.Show();
-        }
-        break;
-      default:
-        PluginList.ProcessInput();
-        break;
       }
+
+      if(!NeedUpdateItems && PluginList.Done())
+        break;
     }
+
     int ExitCode=PluginList.Modal::GetExitCode();
 
     PluginList.Hide();

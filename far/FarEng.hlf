@@ -429,8 +429,9 @@ an ~associated command~@FileAssoc@ is executed or the archive is opened.
     enabled, pressing Ctrl-PgUp in the root directory switches to
     the network plugin or shows the ~drive selection menu~@DriveDlg@.
 
-  Create shortcut to the current folder               #Ctrl-Shift-<N>#
-  Use folder shortcut                                  #RightCtrl-<N>#
+  Create shortcut to the current folder              #Ctrl-Shift-0..9#
+
+  Use folder shortcut                                 #RightCtrl-0..9#
 
   Set ~file attributes~@FileAttrDlg@                                         #Ctrl-A#
   ~Apply command~@ApplyCmd@ to selected files                             #Ctrl-G#
@@ -1723,9 +1724,9 @@ $ #Internal viewer#
                        line.
     #Ctrl-S#             Show/Hide the scrollbar.
     #Alt-BS, Ctrl-Z#     Undo position change
-    #RightCtrl-<N>#      Set a bookmark at the current position
-                       (N must be '0'..'9')
-    #LeftCtrl-<N>#       Go to bookmark <N>
+    #RightCtrl-0..9#     Set a bookmark 0..9 at the current
+                       position
+    #LeftCtrl-0..9#      Go to bookmark 0..9
 
     #Ctrl-Ins, Ctrl-C#   Copy selection to clipboard
 
@@ -1878,9 +1879,9 @@ $ #Internal editor#
                            (as long as these keys are held down)
    #Ctrl-Q#                  Treat the next key combination
                            as a character code
-   #RightCtrl-<N>#           Set a bookmark at the current position
-                           (N must be '0'..'9')
-   #LeftCtrl-<N>#            Go to bookmark <N>
+   #RightCtrl-0..9#          Set a bookmark 0..9 at the current
+                           position
+   #LeftCtrl-0..9#           Go to bookmark 0..9
    #Shift-Enter#             Insert the name of the current file on
                            the active panel at the cursor position.
    #Ctrl-Shift-Enter#        Insert the name of the current file on
@@ -2125,7 +2126,7 @@ settings.
 
   #Save bookmarks#          Save and restore bookmarks (current
                           positions) in recently viewed files
-                          (created with RightCtrl-<N>)
+                          (created with RightCtrl-0..9)
 
   #Auto detect#             If you use several character tables,
   #character table#         you can set this option on to ~auto detect~@DistTable@
@@ -2193,7 +2194,7 @@ settings.
 
   #Save bookmarks#          Save and restore bookmarks (current
                           positions) in recently edited files
-                          (created with RightCtrl-<N>)
+                          (created with RightCtrl-0..9)
 
   #Auto detect#             If you use several character tables,
   #character table#         you can set this option on to ~auto detect~@DistTable@
@@ -2302,9 +2303,9 @@ values. Available only when the dialog is invoked for a single file object.
 @FolderShortcuts
 $ #Folder shortcuts#
     Folder shortcuts are designed to provide fast access to frequently
-used folders. Press Ctrl-Shift-<N>, where N is '0'..'9', to create a shortcut
+used folders. Press Ctrl-Shift-0..9, to create a shortcut
 to the current folder. To change to the folder recorded in the shortcut,
-press RightCtrl-<N>. If RightCtrl-<N> pressed in edit line, it inserts
+press RightCtrl-0..9. If RightCtrl-0..9 pressed in edit line, it inserts
 the shortcut path into the line.
 
     The #Show folder shortcuts# item in the ~Commands menu~@CmdMenu@ may be

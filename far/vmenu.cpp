@@ -8,10 +8,15 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.94 27.08.2002 $ */
+/* Revision: 1.95 03.09.2002 $ */
 
 /*
 Modify:
+  03.09.2002 SVS
+    - BugZ#611 - Нелепая сортировка в меню плагинов
+    ! функция SortItems имеет доп параметр Offset
+    - BugZ#601 - DM_LISTSETCURPOS & TopPos=-1
+      Уточнение.
   27.08.2002 SVS
     - BugZ#601 - DM_LISTSETCURPOS & TopPos=-1
   25.06.2002 SVS
@@ -1668,14 +1673,17 @@ int VMenu::SetSelectPos(struct FarListPos *ListPos)
         TopPos=0;
       else
       {
-        TopPos=Ret-MaxHeight/2;               //?????????
+
+        //TopPos=Ret-MaxHeight/2;               //?????????
+        TopPos = (ListPos->SelectPos-ListPos->TopPos+1) > MaxHeight?ListPos->TopPos+1:ListPos->TopPos;
         if(TopPos+MaxHeight > ItemCount)
           TopPos=ItemCount-MaxHeight;
+
       }
     }
 
     if(TopPos < 0)
-      TopPos=0;
+      TopPos = 0;
   }
   return Ret;
 }
@@ -1994,23 +2002,38 @@ void VMenu::SetOneColor (int Index, short Color)
 
 /* DJ $ */
 
+struct SortItemParam{
+  int Direction;
+  int Offset;
+};
+
 static int __cdecl  SortItem(const struct MenuItem *el1,
                            const struct MenuItem *el2,
-                           const int *Direction)
+                           const struct SortItemParam *Param)
 {
-  int Res=strcmp(((struct MenuItem *)el1)->PtrName(),((struct MenuItem *)el2)->PtrName());
-  return(*Direction==0?Res:(Res<0?1:(Res>0?-1:0)));
+  char Name1[2*NM],Name2[2*NM];
+  strncpy(Name1,((struct MenuItem *)el1)->PtrName(),sizeof(Name1));
+  RemoveChar(Name1,'&',FALSE); // TRUE ???
+  strncpy(Name2,((struct MenuItem *)el2)->PtrName(),sizeof(Name2));
+  RemoveChar(Name2,'&',FALSE); // TRUE ???
+  int Res=LocalStricmp(Name1+Param->Offset,Name2+Param->Offset);
+  return(Param->Direction==0?Res:(Res<0?1:(Res>0?-1:0)));
 }
 
 // Сортировка элементов списка
-void VMenu::SortItems(int Direction)
+// Offset - начало сравнения! по умолчанию =0
+void VMenu::SortItems(int Direction,int Offset)
 {
   typedef int (__cdecl *qsortex_fn)(const void*,const void*,void*);
+  struct SortItemParam Param;
+  Param.Direction=Direction;
+  Param.Offset=Offset;
+
   qsortex((char *)Item,
           ItemCount,
           sizeof(*Item),
           (qsortex_fn)SortItem,
-          &Direction);
+          &Param);
   VMFlags.Set(VMENU_UPDATEREQUIRED);
 }
 
