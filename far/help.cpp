@@ -8,10 +8,12 @@ help.cpp
 
 */
 
-/* Revision: 1.41 21.08.2001 $ */
+/* Revision: 1.42 19.09.2001 $ */
 
 /*
 Modify:
+  19.09.2001 VVM
+    + Заменить ТАБУЛЯЦИЮ на пробел.
   21.08.2001 KM
     - Неверно создавался топик с учётом нового правила,
       в котором путь для топика должен заканчиваться "/".
@@ -757,7 +759,18 @@ void Help::OutString(char *Str)
         continue;
       }
     }
-    OutStr[OutPos++]=*(Str++);
+
+    /* $ 19.09.2001 VVM
+      + Заменить ТАБУЛЯЦИЮ на пробел. */
+    if (*Str == 9)
+    {
+      OutStr[OutPos++]=32;
+      Str++;
+    }
+    else
+      OutStr[OutPos++]=*(Str++);
+    /* VVM $ */
+
   }
   if (!DisableOut && WhereX()<X2)
   {
