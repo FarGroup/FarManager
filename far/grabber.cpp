@@ -5,10 +5,13 @@ Screen grabber
 
 */
 
-/* Revision: 1.03 17.10.2000 $ */
+/* Revision: 1.04 07.02.2001 $ */
 
 /*
 Modify:
+  07.02.2001 SVS
+    - Бага с грабилкой... Забыли ввести проверку на "вынос" координат мыши за
+      пределы экрана.
   17.10.2000 tran
     !  screen grabber (Alt-Ins) при добавлении к содержимому clipboard (Ctrl-Gray+)
        не вставляет <CR> в конце, из-за чего несколько фрагментов "слипаются"
@@ -291,8 +294,13 @@ int Grabber::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   }
   if (!LButtonPressed)
     return(FALSE);
-  GArea.CurX=MouseX;
-  GArea.CurY=MouseY;
+  /* $ 07.02.2001 SVS
+     Бага с грабилкой...
+     Забыли ввести проверку на вынос координат за пределы экрана.
+  */
+  GArea.CurX=(MouseX<ScrX?(MouseX<0?0:MouseX):ScrX);
+  GArea.CurY=(MouseY<ScrY?(MouseY<0?0:MouseY):ScrY);
+  /* SVS $ */
   if (MouseEvent->dwEventFlags==0)
     ResetArea=TRUE;
   else
