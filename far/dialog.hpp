@@ -10,10 +10,14 @@ dialog.hpp
 
 */
 
-/* Revision: 1.25 06.05.2001 $ */
+/* Revision: 1.26 10.05.2001 $ */
 
 /*
 Modify:
+  10.05.2001 SVS
+   + FDLG_SMALLDILAOG - не рисовать "платформу"
+   ! SetWarningStyle удалена
+   ! Функция SetDialogMode перенесена в public секцию.
   06.05.2001 DJ
    + перетрях #include
   28.04.2001 SVS
@@ -118,23 +122,24 @@ Modify:
 #include "edit.hpp"
 
 // Флаги текущего режима диалога
-#define DMODE_INITOBJECTS	0x00000001 // элементы инициализарованы?
-#define DMODE_CREATEOBJECTS	0x00000002 // объекты (Edit,...) созданы?
-#define DMODE_WARNINGSTYLE	0x00000004 // Warning Dialog Style?
-#define DMODE_DRAGGED		0x00000008 // диалог двигается?
-#define DMODE_ISCANMOVE		0x00000010 // можно ли двигать диалог?
-#define DMODE_ALTDRAGGED	0x00000020 // диалог двигается по Alt-Стрелка?
-#define DMODE_DRAWING		0x00001000 // диалог рисуется?
-#define DMODE_KEY		0x00002000 // Идет посылка клавиш?
-#define DMODE_SHOW              0x00004000 // Диалог виден?
-#define DMODE_OLDSTYLE		0x80000000 // Диалог в старом (до 1.70) стиле
+#define DMODE_INITOBJECTS   0x00000001 // элементы инициализарованы?
+#define DMODE_CREATEOBJECTS 0x00000002 // объекты (Edit,...) созданы?
+#define DMODE_WARNINGSTYLE  0x00000004 // Warning Dialog Style?
+#define DMODE_DRAGGED       0x00000008 // диалог двигается?
+#define DMODE_ISCANMOVE     0x00000010 // можно ли двигать диалог?
+#define DMODE_ALTDRAGGED    0x00000020 // диалог двигается по Alt-Стрелка?
+#define DMODE_SMALLDILAOG   0x00000040 // "короткий диалог"
+#define DMODE_DRAWING       0x00001000 // диалог рисуется?
+#define DMODE_KEY           0x00002000 // Идет посылка клавиш?
+#define DMODE_SHOW          0x00004000 // Диалог виден?
+#define DMODE_OLDSTYLE      0x80000000 // Диалог в старом (до 1.70) стиле
 
 // Флаги для функции ConvertItem
-#define CVTITEM_TOPLUGIN	0
-#define CVTITEM_FROMPLUGIN	1
+#define CVTITEM_TOPLUGIN    0
+#define CVTITEM_FROMPLUGIN  1
 
 // размер истории...
-#define HISTORY_COUNT 16
+#define HISTORY_COUNT       16
 
 /* $ 01.08.2000 SVS
   У структур DialogI* изменены:
@@ -254,7 +259,6 @@ class Dialog:public Modal
     /* $ 18.08.2000 SVS
       + SetDialogMode - Управление флагами текущего режима диалога
     */
-    void SetDialogMode(DWORD Flags){ DialogMode|=Flags; }
     void SkipDialogMode(DWORD Flags){ DialogMode&=~Flags; }
     /* SVS $ */
     /* $ 23.08.2000 SVS
@@ -339,10 +343,8 @@ class Dialog:public Modal
     /* 24.08.2000 SVS $ */
     /* SVS $ */
     void GetDialogObjectsData();
-    void SetWarningStyle(int Style) {
-      if(Style) SetDialogMode(DMODE_WARNINGSTYLE);
-      else      SkipDialogMode(DMODE_WARNINGSTYLE);
-    };
+
+    void SetDialogMode(DWORD Flags){ DialogMode|=Flags; }
 
     /* $ 28.07.2000 SVS
        + Функция ConvertItem - преобразования из внутреннего представления

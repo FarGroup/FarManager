@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.52 06.05.2001 $ */
+/* Revision: 1.53 10.05.2001 $ */
 
 /*
 Modify:
+  10.05.2001 SVS
+    + В FarDialogEx() добавлена установка флагов FDLG_WARNING и FDLG_SMALLDILAOG.
   06.05.2001 DJ
     ! перетрях #include
   06.05.2001 ОТ
@@ -541,6 +543,12 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
   {
     Dialog FarDialog(InternalItem,ItemsNumber,DlgProc,Param);
     FarDialog.SetPosition(X1,Y1,X2,Y2);
+
+    if(Flags&FDLG_WARNING)
+      FarDialog.SetDialogMode(DMODE_WARNINGSTYLE);
+    if(Flags&FDLG_SMALLDILAOG)
+      FarDialog.SetDialogMode(DMODE_SMALLDILAOG);
+
     if (HelpTopic!=NULL)
     {
       char Path[NM],Topic[512];

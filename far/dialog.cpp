@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.93 07.05.2001 $ */
+/* Revision: 1.94 08.05.2001 $ */
 
 /*
 Modify:
+  08.05.2001 SVS
+    + обработка флага DMODE_SMALLDILAOG
   07.05.2001 SVS
     + DM_LISTSORT, DM_LISTADD, DM_LISTDELETE, DM_LISTGET, DM_LISTGETCURPOS,
       DM_LISTSETCURPOS
@@ -555,8 +557,11 @@ void Dialog::CheckDialogCoord(void)
 
     if (Y1>1)
       Y1--;
-    if (Y1>5)
-      Y1--;
+
+    if(!CheckDialogMode(DMODE_SMALLDILAOG)) //????
+      if (Y1>5)
+        Y1--;
+
     if (Y1<0)
     {
        Y1=0;
@@ -584,7 +589,8 @@ void Dialog::Hide()
 void Dialog::DisplayObject()
 {
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
-  Shadow();              // "наводим" тень
+  if(!CheckDialogMode(DMODE_SMALLDILAOG))
+    Shadow();              // "наводим" тень
   ShowDialog();          // "нарисуем" диалог.
 }
 
@@ -706,8 +712,12 @@ int Dialog::InitDialogObjects(int ID)
     // групп кнопок.
     if ((ItemFlags & DIF_CENTERGROUP) &&
         (I==0 ||
-        (Item[I-1].Flags & DIF_CENTERGROUP)==0 ||
-        Item[I-1].Y1!=CurItem->Y1))
+          (I > 0 &&
+            ((Item[I-1].Flags & DIF_CENTERGROUP)==0 ||
+             Item[I-1].Y1!=CurItem->Y1)
+          )
+        )
+       )
     {
       Length=0;
 
@@ -768,7 +778,8 @@ int Dialog::InitDialogObjects(int ID)
         ListBox->SetBoxType(SHORT_SINGLE_BOX);
         // удалим все итемы
         //ListBox->DeleteItems(); //???? А НАДО ЛИ ????
-        ListBox->AddItem(CurItem->ListItems);
+        if(CurItem->ListItems)
+          ListBox->AddItem(CurItem->ListItems);
       }
     }
     /* SVS $*/
@@ -1001,8 +1012,8 @@ BOOL Dialog::GetItemRect(int I,RECT& Rect)
       if (ItemFlags & DIF_SEPARATOR)
       {
         Rect.bottom=Rect.top;
-        Rect.left=3;
-        Rect.right=X2-X1-5; //???
+        Rect.left=!CheckDialogMode(DMODE_SMALLDILAOG)?3:0; //???
+        Rect.right=X2-X1-!CheckDialogMode(DMODE_SMALLDILAOG)?5:0; //???
         break;
       }
 
@@ -1194,9 +1205,12 @@ void Dialog::ShowDialog(int ID)
     /* $ 28.07.2000 SVS
        перед прорисовкой подложки окна диалога...
     */
-    Attr=DlgProc((HANDLE)this,DN_CTLCOLORDIALOG,0,
-        CheckDialogMode(DMODE_WARNINGSTYLE) ? COL_WARNDIALOGTEXT:COL_DIALOGTEXT);
-    SetScreen(X1,Y1,X2,Y2,' ',Attr);
+    if(!CheckDialogMode(DMODE_SMALLDILAOG))
+    {
+      Attr=DlgProc((HANDLE)this,DN_CTLCOLORDIALOG,0,
+          CheckDialogMode(DMODE_WARNINGSTYLE) ? COL_WARNDIALOGTEXT:COL_DIALOGTEXT);
+      SetScreen(X1,Y1,X2,Y2,' ',Attr);
+    }
     /* SVS $ */
   }
 
@@ -1327,11 +1341,11 @@ void Dialog::ShowDialog(int ID)
 
         if (CurItem->Flags & DIF_SEPARATOR)
         {
-          GotoXY(X1+3,Y1+Y);
+          GotoXY(X1+!CheckDialogMode(DMODE_SMALLDILAOG)?3:0,Y1+Y); //????
           if (DialogTooLong)
-            ShowSeparator(DialogTooLong-5);
+            ShowSeparator(DialogTooLong-!CheckDialogMode(DMODE_SMALLDILAOG)?5:0);
           else
-            ShowSeparator(X2-X1-5);
+            ShowSeparator(X2-X1-!CheckDialogMode(DMODE_SMALLDILAOG)?5:0);
         }
 
         GotoXY(X1+X,Y1+Y);

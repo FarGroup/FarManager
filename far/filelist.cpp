@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.50 07.05.2001 $ */
+/* Revision: 1.51 08.05.2001 $ */
 
 /*
 Modify:
+  08.05.2001 SVS
+    + CtrlPgUp: Для неремотных дисков ПОКА покажем меню выбора дисков
   07.05.2001 SVS
     ! SysLog(); -> _D(SysLog());
   06.05.2001 DJ
@@ -1752,9 +1754,21 @@ BOOL FileList::ChangeDir(char *NewDir)
     if(!strcmp(SetDir,".."))
     {
       if(CurDir[0] == '\\' && CurDir[1] == '\\' ||
-         CurDir[1] == ':'  && CurDir[2] == '\\' && CurDir[3]==0 &&
-           GetDriveType(CurDir) == DRIVE_REMOTE)
+         CurDir[1] == ':'  && CurDir[2] == '\\' && CurDir[3]==0)
       {
+        /* $ 08.05.2001 SVS
+           Для неремотных дисков ПОКА покажем меню выбора дисков
+           Потом сюды можно воткнуть вызов какого-нить плагина.
+           Например, при нынешнем SysID
+           CtrlObject->Plugins.CallPlugin(PLG_MYCOMP_SYSID,OPEN_FILEPANEL,CurDir);
+           который будет показывать панель типа "Майн комп" :-)
+        */
+        if(GetDriveType(CurDir) != DRIVE_REMOTE)
+        {
+          CtrlObject->Cp()->ActivePanel->ChangeDisk();
+          return TRUE;
+        }
+        /* SVS $ */
         /* $ 26.03.2001 SVS
            Добавим возможность вызова Network-плагина из корня зашаренных
            дисков.

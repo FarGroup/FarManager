@@ -5,10 +5,13 @@ message.cpp
 
 */
 
-/* Revision: 1.07 06.05.2001 $ */
+/* Revision: 1.08 10.05.2001 $ */
 
 /*
 Modify:
+  10.05.2001 SVS
+    ! Вызываем SetDialogMode(DMODE_WARNINGSTYLE) влоб, т.к. функция
+      Dialog::SetWarningStyle() удалена.
   06.05.2001 DJ
     ! перетрях #include
   14.03.2001 SVS
@@ -210,7 +213,7 @@ int Message(int Flags,int Buttons,char *Title,char *Str1,char *Str2,
     Dlg.SetPluginNumber(PluginNumber);
     /* SVS $ */
     if (Flags & MSG_WARNING)
-      Dlg.SetWarningStyle(TRUE);
+      Dlg.SetDialogMode(DMODE_WARNINGSTYLE);
     FlushInputBuffer();
     Dlg.Process();
     RetCode=Dlg.GetExitCode();

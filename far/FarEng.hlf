@@ -356,6 +356,10 @@ referring to the same data.
   Change folder, enter to archive (also to SFX archive)    #Ctrl-PgDn#
   Change folder to parent                                  #Ctrl-PgUp#
 
+  Pressing Ctrl-PgUp in the root directory:
+    - for local drives - shows the drive selection menu;
+    - for network drives - activates the Network Browser plugin.
+
   Create shortcut to the current folder               #Ctrl-Shift-<N>#
   Use folder shortcut                                  #RightCtrl-<N>#
 
@@ -396,9 +400,9 @@ line, including dialogs and the ~internal editor~@Editor@.
   - change to undefined (#[?]#)                                 #Gray *#
     (for three-state checkboxes)
 
-  Right clicking outside the dialog works the same as pressing Esc.
+  Left clicking outside the dialog works the same as pressing Esc.
 
-  Left clicking outside the dialog works the same as pressing Enter.
+  Right clicking outside the dialog works the same as pressing Enter.
 
   Under Windows 2000, FAR Manager supports the ~mouse wheel~@MsWheel@.
 

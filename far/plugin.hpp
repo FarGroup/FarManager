@@ -8,13 +8,15 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.99 07.05.2001 $ */
+/* Revision: 1.100 08.05.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  08.05.2001 SVS
+    + FDLG_* - флаги для DialogEx
   07.05.2001 SVS
     + DM_LISTADD, DM_LISTDELETE, DM_LISTGET, DM_LISTSORT, DM_LISTGETCURPOS,
       DM_LISTSETCURPOS
@@ -494,6 +496,11 @@ typedef int (WINAPI *FARAPIDIALOGEX)(
   FARWINDOWPROC         DlgProc,
   long                  Param
 );
+
+enum {
+  FDLG_WARNING             =0x00000001,
+  FDLG_SMALLDILAOG         =0x00000002,
+};
 
 enum {
   FMSG_WARNING             =0x00000001,
