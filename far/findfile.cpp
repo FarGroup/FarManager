@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.99 12.03.2002 $ */
+/* Revision: 1.100 15.03.2002 $ */
 
 /*
 Modify:
+  15.01.2002 VVM
+    ! Неправильно передавались имена архивов в панель
   15.03.2002 KM
     - Заголовок окна показывался без амперсанда, но с подсветкой
       если в имени искомого файла был амперсанд.
@@ -1392,9 +1394,7 @@ int FindFiles::FindFilesProcess()
       int ItemsNumber=0;
       for (int i=0;i<ListSize;i++)
       {
-        char *FileName=FindList[i].FindData.cFileName;
-        int Length=strlen(FileName);
-        if (Length>0)
+        if (strlen(FindList[i].FindData.cFileName)>0)
         // Добавляем всегда, если имя задано
         {
           // Для плагинов с виртуальными именами заменим имя файла на имя архива.
@@ -1409,7 +1409,8 @@ int FindFiles::FindFilesProcess()
           /* VVM $ */
           {
             if (IsArchive)
-              strncpy(FileName,ArcList[FindList[i].ArcIndex].ArcName,sizeof(FileName)-1);
+              strncpy(FindList[i].FindData.cFileName, ArcList[FindList[i].ArcIndex].ArcName,
+                      sizeof(FindList[i].FindData.cFileName)-1);
             PluginPanelItem *pi=&PanelItems[ItemsNumber++];
             memset(pi,0,sizeof(*pi));
             pi->FindData=FindList[i].FindData;
