@@ -532,7 +532,7 @@
 "&Dos/Windows format (CR LF)"
 "&Unix format (LF)"
 "Cannot save the file"
-"The file is changed but the folder containing"
+"The file is changed but the file or the folder containing"
 "this file was moved or deleted."
 "The path to the edited file does not exist,"
 "but will be created when the file is saved."

@@ -185,6 +185,9 @@ $ #Panel control commands#
   Use group sorting                                        #Shift-F11#
   Show selected files first                                #Shift-F12#
 
+  Create a ~folder shortcut~@FolderShortcuts@              #Ctrl-Shift-0# to #Ctrl-Shift-9#
+  Jump to a folder shortcut               #RightCtrl-0# to #RightCtrl-9#
+
   Copy the names of selected files to the clipboard         #Ctrl-Ins#
    (if the command line is empty)
   Copy the names of selected files to the clipboard   #Ctrl-Shift-Ins#
@@ -213,8 +216,8 @@ $ #Panel control commands#
      * for local drives - the local name of the file taking into
        account ~symbolic links~@HardSymLink@.
 
-  4. The key combination #Alt-Shift-Ins# and #Ctrl-Alt-Ins# processes
-     name "#..#" the same as the name of the current folder.
+  4. If #Alt-Shift-Ins# or #Ctrl-Alt-Ins# is pressed when the cursor
+     is on the file "#..#", the name of the current folder is copied.
 
 @CmdLineCmd
 $ #Command line commands#
@@ -534,8 +537,8 @@ $ #Command line switches#
         unstable work.
 
   #/p[<path>]#
-        Search for "common" plugins in the directory, specified by
-        <path>. If <path> not specified, "main" plugins will not
+        Search for "common" plugins in the directory specified by
+        <path>. If <path> not specified, "common" plugins will not
         be loaded. It is also possible to use environment
         variables in the "/p" command line switch.
 
@@ -558,7 +561,7 @@ $ #Command line switches#
         Forces FAR to load plugins from the cache only.
         In this mode FAR loads faster, but new or updated plugins
         are not recognized. When "/co" command line parameter is
-        used then "/p" is ignored. Using this parameter makes
+        used, "/p" is ignored. Using this parameter makes
         sense ONLY if the list of installed plugins is stable.
         After updating plugins it is necessary to load FAR without
         this parameter.
