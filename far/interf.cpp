@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.86 05.01.2005 $ */
+/* Revision: 1.87 21.03.2005 $ */
 
 /*
 Modify:
+  21.03.2005 WARP
+    - BugZ#1928 мерцает экран при поиске в просмотре при включенных часах.
   05.01.2005 WARP
     - При использовании DIF_LISTNOBOX обрезались сепараторы в листе.
   06.08.2004 SKV
@@ -757,7 +759,7 @@ void ShowTime(int ShowAlways)
   SetColor(ModType==MODALTYPE_VIEWER?COL_VIEWERCLOCK:
            (ModType==MODALTYPE_EDITOR?COL_EDITORCLOCK:COL_CLOCK));
   Text(ClockText);
-  ScrBuf.Flush();
+//  ScrBuf.Flush();
   static int RegChecked=FALSE;
 
 #ifdef _DEBUGEXC
