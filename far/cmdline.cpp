@@ -5,10 +5,13 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.10 21.02.2001 $ */
+/* Revision: 1.11 12.03.2001 $ */
 
 /*
 Modify:
+  12.03.2001 SVS
+    + Alt-Shift-Left, Alt-Shift-Right, Alt-Shift-Home и Alt-Shift-End выделяют
+      блок в командной строке независимо от состояния панелей.
   21.02.2001 IS
     ! Opt.EditorPersistentBlocks -> Opt.EdOpt.PersistentBlocks
   19.02.2001 IS
@@ -288,6 +291,17 @@ int CommandLine::ProcessKey(int Key)
       CmdStr.Show();
       LastCmdPartLength=-1;
       return(TRUE);
+
+    /* дополнительные клавиши для выделения в ком строке.
+       ВНИМАНИЕ!
+       Для сокращения кода этот кусок должен стоять перед "default"
+    */
+    case KEY_ALTSHIFTLEFT:
+    case KEY_ALTSHIFTRIGHT:
+    case KEY_ALTSHIFTEND:
+    case KEY_ALTSHIFTHOME:
+      Key&=~KEY_ALT;
+
     default:
       /* $ 24.09.2000 SVS
          Если попалась клавиша вызова функции Xlat, то

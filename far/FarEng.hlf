@@ -242,6 +242,10 @@ $ #Command line commands#
   4. #Ctrl-Alt-F# (#Ctrl-Alt-:#) works only for network drives. For
      local drives it has the same function as #Ctrl-F# (#Ctrl-:#)
 
+  5. #Alt-Shift-Left#, #Alt-Shift-Right#, #Alt-Shift-Home# and
+     #Alt-Shift-End# select the block in the command line also when the
+     panels are on.
+
 @FuncCmd
 $ #File management and service commands#
   Online help                                                     #F1#
