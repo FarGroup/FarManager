@@ -6,10 +6,12 @@
   Plugin API for FAR Manager 1.66
 
 */
-/* Revision: 1.14 03.08.2000 $ */
+/* Revision: 1.15 03.08.2000 $ */
 
 /*
 Modify:
+  03.08.2000 SVS
+    + Функция от AT: GetMinFarVersion
   03.08.2000 SVS
     + ACTL_GETSYSWORDDIV получить строку с символами разделителями слов
   02.08.2000 SVS
@@ -1000,6 +1002,7 @@ extern "C"{
 #endif
 // Exported Functions
 
+int    WINAPI _export GetMinFarVersion(void);
 void   WINAPI _export ClosePlugin(HANDLE hPlugin);
 int    WINAPI _export Compare(HANDLE hPlugin,struct PluginPanelItem *Item1,struct PluginPanelItem *Item2,unsigned int Mode);
 int    WINAPI _export Configure(int ItemNumber);

@@ -7,10 +7,13 @@ plugins.hpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 03.08.2000 $ */
 
 /*
 Modify:
+  03.08.2000 tran 1.01
+    + GetFarMinVersion
+      и три новых метода
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
@@ -43,6 +46,7 @@ typedef int (WINAPI *PLUGINCONFIGURE)(int ItemNumber);
 typedef void (WINAPI *PLUGINEXITFAR)();
 typedef int (WINAPI *PLUGINCOMPARE)(HANDLE hPlugin,struct PluginPanelItem *Item1,struct PluginPanelItem *Item2,unsigned int Mode);
 typedef int (WINAPI *PLUGINPROCESSEDITORINPUT)(INPUT_RECORD *Rec);
+typedef int (WINAPI *PLUGINMINFARVERSION)();
 
 struct PluginItem
 {
@@ -53,6 +57,11 @@ struct PluginItem
   int Cached;
   int CachePos;
   int EditorPlugin;
+  /* $ 03.08.2000 tran
+     поле - не загружать плагин снова
+     ставится в результате проверки требуемой версии фара */
+  int DontLoadAgain;
+  /* tran 03.08.2000 $ */
   char RootKey[512];
   PLUGINSETSTARTUPINFO pSetStartupInfo;
   PLUGINOPENPLUGIN pOpenPlugin;
@@ -78,6 +87,7 @@ struct PluginItem
   PLUGINPROCESSEDITOREVENT pProcessEditorEvent;
   PLUGINCOMPARE pCompare;
   PLUGINPROCESSEDITORINPUT pProcessEditorInput;
+  PLUGINMINFARVERSION pMinFarVersion;
 };
 
 class PluginsSet
@@ -127,10 +137,17 @@ class PluginsSet
     void DiscardCache();
     int ProcessCommandLine(char *Command);
 
+    /* $ 03.08.2000 tran
+       новые методы для проверки минимальной версии */
+    int  CheckMinVersion(struct PluginItem &CurPlg);
+    void UnloadPlugin(struct PluginItem &CurPlg);
+    void ShowMessageAboutIllegialPluginVersion(char* plg,int required);
+    /* tran 03.08.2000 $ */
+
     struct PluginItem *PluginsData;
     int PluginsCount;
 
     Editor *CurEditor;
 };
 
-#endif	// __PLUGINS_HPP__
+#endif  // __PLUGINS_HPP__

@@ -12,10 +12,12 @@ lang.hpp
            подряд.
 */
 
-/* Revision: 1.13 03.08.2000 $ */
+/* Revision: 1.14 03.08.2000 $ */
 
 /*
 Modify:
+  03.08.2000 tran
+    + Новые константы для "версии" MPlgBadVers, MPlgRequired
   03.08.2000 KM 1.12
     + Новые константы MFindFileWholeWords,MViewSearchWholeWords,
       MEditSearchWholeWords для поиска по целым словам в Find file (Alt-F7),
@@ -1233,5 +1235,7 @@ enum
   MGoToDecimal,
 
   MReadFolderError,
+  MPlgBadVers,
+  MPlgRequired,
 };
 #endif	// __FARLANG_HPP__

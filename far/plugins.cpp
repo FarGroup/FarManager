@@ -5,10 +5,13 @@ plugins.cpp
 
 */
 
-/* Revision: 1.12 03.08.2000 $ */
+/* Revision: 1.13 03.08.2000 $ */
 
 /*
 Modify:
+  03.08.2000 tran 1.12
+    + GetMinFarVersion export
+      для определения минимально-неодходимой версии фара.
   03.08.2000 SVS
     + Учтем, что можут быть указан параметр -P в командной строке...
   01.08.2000 SVS
@@ -226,6 +229,10 @@ int _cdecl PluginsSort(const void *el1,const void *el2)
 int PluginsSet::LoadPlugin(struct PluginItem &CurPlugin,int ModuleNumber,int Init)
 {
   HMODULE hModule=CurPlugin.hModule ? CurPlugin.hModule:LoadLibraryEx(CurPlugin.ModuleName,NULL,LOAD_WITH_ALTERED_SEARCH_PATH);
+  if ( CurPlugin.DontLoadAgain )
+  {
+    return (FALSE);
+  }
   if (hModule==NULL)
     return(FALSE);
   CurPlugin.hModule=hModule;
@@ -254,11 +261,65 @@ int PluginsSet::LoadPlugin(struct PluginItem &CurPlugin,int ModuleNumber,int Ini
   CurPlugin.pCompare=(PLUGINCOMPARE)GetProcAddress(hModule,"Compare");
   CurPlugin.pProcessEditorInput=(PLUGINPROCESSEDITORINPUT)GetProcAddress(hModule,"ProcessEditorInput");
   CurPlugin.pProcessEditorEvent=(PLUGINPROCESSEDITOREVENT)GetProcAddress(hModule,"ProcessEditorEvent");
+  CurPlugin.pMinFarVersion=(PLUGINMINFARVERSION)GetProcAddress(hModule,"GetMinFarVersion");
   if (ModuleNumber!=-1 && Init)
-    SetPluginStartupInfo(CurPlugin,ModuleNumber);
+  {
+    /* $ 03.08.2000 tran
+       проверка на минимальную версию фара */
+    if ( CheckMinVersion(CurPlugin) )
+        SetPluginStartupInfo(CurPlugin,ModuleNumber);
+    else
+    {
+        UnloadPlugin(CurPlugin); // тест не пройден, выгружаем его
+        return (FALSE);
+    }
+  }
   return(TRUE);
 }
 
+/* $ 03.08.2000 tran
+   функция проверки минимальной версии */
+int  PluginsSet::CheckMinVersion(struct PluginItem &CurPlg)
+{
+    if ( CurPlg.pMinFarVersion==0 ) // плагин не эскпортирует, ему или неважно, или он для <1.65
+    {
+        //SysLog("PluginsSet::CheckMinVersion(), ==0, return TRUE");
+        return (TRUE);
+    }
+    long v,cv;
+
+    v=CurPlg.pMinFarVersion();
+    v&=0xffff; // уберем верхние биты
+    cv=FAR_VERSION&0xffff;
+    //SysLog("PluginsSet::CheckMinVersion(), v=0x%04x, cv=0x%04x",v,cv);
+
+    if (v > cv) // кранты - плагин требует старший фар
+    {
+        ShowMessageAboutIllegialPluginVersion(CurPlg.ModuleName,v);
+        return (FALSE);
+    }
+    return (TRUE); // нормально, свой парень
+}
+
+// выгрузка плагина
+// причем без всяких ему объяснений
+void PluginsSet::UnloadPlugin(struct PluginItem &CurPlg)
+{
+    FreeLibrary(CurPlg.hModule);
+    memset(&CurPlg,0,sizeof(CurPlg));
+    CurPlg.DontLoadAgain=1;
+}
+
+void PluginsSet::ShowMessageAboutIllegialPluginVersion(char* plg,int required)
+{
+    char msg[512];
+    char PlgName[NM];
+    strcpy(PlgName,plg);
+    TruncPathStr(PlgName,ScrX-20);
+    sprintf(msg,MSG(MPlgRequired),(required&0xff00)>>8,(required&0xff),(FAR_VERSION&0xff00)>>8,(FAR_VERSION&0xff));
+    Message(MSG_WARNING,1,MSG(MError),MSG(MPlgBadVers),PlgName,msg,MSG(MOk));
+}
+/* tran 03.08.2000 $ */
 
 void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNumber)
 {
