@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.126 12.01.2004 $ */
+/* Revision: 1.127 19.01.2004 $ */
 
 /*
 Modify:
+  19.01.2004 SVS
+    ! уточнение VMENU_SELECTPOSNONE
   12.01.2004 SVS
     - падение в VMenu::GetUserData,  если GetPosition(Position) вернул -1
     - BugZ#1010 -   не работает DM_LISTGETCURPOS
@@ -2066,6 +2068,11 @@ void VMenu::AdjustSelectPos()
     SelectPos = OldSelectPos;
     Item [SelectPos].SetSelect (TRUE);
   }
+
+  if (SelectPos == -1)
+    VMFlags.Set(VMENU_SELECTPOSNONE); //??
+  else
+    VMFlags.Clear(VMENU_SELECTPOSNONE);
 }
 
 /* DJ $ */
