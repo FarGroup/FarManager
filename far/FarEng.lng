@@ -1610,7 +1610,7 @@
 "This function is available in registered version only"
 "available in registered version"
 
-"Time: %8s Left: %8s  %5d%sb/s"
+"Time: %8.8s Left: %8.8s  %5d%1.1sb/s"
 
 "Operation has been interrupted"
 "Do you really want to cancel it?"
