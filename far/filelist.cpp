@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.72 18.07.2001 $ */ 
+/* Revision: 1.73 20.07.2001 $ */
 
 /*
 Modify:
+  20.07.2001 VVM
+    ! ≈сли в SetCurDir передали пустую строку - каталог не мен€ть.
   18.07.2001 OT
     VFMenu
   17.07.2001 SVS
@@ -1745,7 +1747,11 @@ void FileList::SetCurDir(char *NewDir,int ClosePlugin)
     }
     CtrlObject->Cp()->RedrawKeyBar();
   }
-  ChangeDir(NewDir);
+  /* $ 20.07.2001 VVM
+    ! ѕроверить на непустую строку */
+  if ((NewDir) && (*NewDir))
+    ChangeDir(NewDir);
+  /* VVM $ */
 }
 
 
