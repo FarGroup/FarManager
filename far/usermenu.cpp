@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.28 17.06.2001 $ */
+/* Revision: 1.29 19.06.2001 $ */
 
 /*
 Modify:
+  19.06.2001 IS
+    + Первая стадия: корректировка "if exist"
   17.06.2001 IS
     - Баг: выбиралось каким-то чудом то, что выбираться не должно, а именно -
       разделители.
@@ -742,24 +744,27 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
           ЭТО выполняется всегда, т.к. парсинг всей строки идет, а надо
           проверить фазу "if exist ..\a.bat", а уж потом делать выводы...
         */
-        int PreserveLFN=SubstFileName(Command,Name,ShortName,ListName,ShortListName,FALSE,CmdLineDir);
-        PreserveLongName PreserveName(ShortName,PreserveLFN);
-        /* $ 01.05.2001 IS
-           Отключим до лучших времен
-        */
-        /*if (!PanelsHidden)
+        if(ExtractIfExistCommand(Command))
         {
-          LeftVisible=CtrlObject->Cp()->LeftPanel->IsVisible();
-          RightVisible=CtrlObject->Cp()->RightPanel->IsVisible();
-          CtrlObject->Cp()->LeftPanel->Hide();
-          CtrlObject->Cp()->RightPanel->Hide();
-          CtrlObject->Cp()->LeftPanel->SetUpdateMode(FALSE);
-          CtrlObject->Cp()->RightPanel->SetUpdateMode(FALSE);
-          PanelsHidden=TRUE;
-        }*/
-        /* IS $ */
-        if (*Command)
-          CtrlObject->CmdLine->ExecString(Command,FALSE);
+          int PreserveLFN=SubstFileName(Command,Name,ShortName,ListName,ShortListName,FALSE,CmdLineDir);
+          PreserveLongName PreserveName(ShortName,PreserveLFN);
+          /* $ 01.05.2001 IS
+             Отключим до лучших времен
+          */
+          /*if (!PanelsHidden)
+          {
+            LeftVisible=CtrlObject->Cp()->LeftPanel->IsVisible();
+            RightVisible=CtrlObject->Cp()->RightPanel->IsVisible();
+            CtrlObject->Cp()->LeftPanel->Hide();
+            CtrlObject->Cp()->RightPanel->Hide();
+            CtrlObject->Cp()->LeftPanel->SetUpdateMode(FALSE);
+            CtrlObject->Cp()->RightPanel->SetUpdateMode(FALSE);
+            PanelsHidden=TRUE;
+          }*/
+          /* IS $ */
+          if (*Command)
+            CtrlObject->CmdLine->ExecString(Command,FALSE);
+        }
       }
       if (*ListName)
           remove(ListName);

@@ -152,6 +152,10 @@ SOURCE=.\editor.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\fnparce.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\eject.cpp
 # End Source File
 # Begin Source File

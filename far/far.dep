@@ -1,1035 +1,347 @@
 # Microsoft Developer Studio Generated Dependency File, included by far.mak
 
-.\udlist.cpp : \
-	".\udlist.hpp"\
-
-.\farexcpt.cpp : \
-	".\farexcpt.hpp"\
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
-	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
-	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-    ".\filepanels.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
-	".\fn.hpp"\
-	".\foldtree.hpp"\
-	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
-	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
-	".\int64.hpp"\
-	".\keybar.hpp"\
-	".\keys.hpp"\
-	".\lang.hpp"\
-	".\language.hpp"\
-	".\lockscrn.hpp"\
-	".\macro.hpp"\
-	".\manager.hpp"\
-	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
-	".\plugin.hpp"\
-	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
-	".\scrobj.hpp"\
-	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
-.\filepanels.cpp : \
-    ".\filepanels.hpp"\
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
-	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
-	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
-	".\fn.hpp"\
-	".\foldtree.hpp"\
-	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
-	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
-	".\int64.hpp"\
-	".\keybar.hpp"\
-	".\keys.hpp"\
-	".\lang.hpp"\
-	".\language.hpp"\
-	".\lockscrn.hpp"\
-	".\macro.hpp"\
-	".\manager.hpp"\
-	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
-	".\plugin.hpp"\
-	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
-	".\scrobj.hpp"\
-	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 .\checkver.cpp : \
-    ".\filepanels.hpp"\
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
-	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\keybar.hpp"\
-	".\keys.hpp"\
 	".\lang.hpp"\
-	".\language.hpp"\
-	".\lockscrn.hpp"\
-	".\macro.hpp"\
 	".\manager.hpp"\
-	".\menubar.hpp"\
 	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
-	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
 	".\vmenu.hpp"\
 
 
 .\chgmmode.cpp : \
-    ".\filepanels.hpp"\
 	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
-	".\fn.hpp"\
-	".\foldtree.hpp"\
-	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
-	".\int64.hpp"\
-	".\keybar.hpp"\
-	".\keys.hpp"\
-	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
-	".\manager.hpp"\
-	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
-	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
-	".\scrobj.hpp"\
-	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\chgprior.cpp : \
-    ".\filepanels.hpp"\
 	".\chgprior.hpp"\
 	".\headers.hpp"\
-
 
 
 .\clipboard.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
-	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
-	".\fn.hpp"\
-    ".\filepanels.hpp"\
-	".\foldtree.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
-	".\int64.hpp"\
-	".\keybar.hpp"\
-	".\keys.hpp"\
-	".\lang.hpp"\
-	".\language.hpp"\
-	".\lockscrn.hpp"\
-	".\macro.hpp"\
-	".\manager.hpp"\
-	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
-	".\plugin.hpp"\
-	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
-	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\cmdline.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
 	".\edit.hpp"\
 	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
 	".\fileedit.hpp"\
-	".\filelist.hpp"\
-    ".\filepanels.hpp"\
-	".\filestr.hpp"\
+	".\filepanels.hpp"\
 	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
 	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
 	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
 	".\modal.hpp"\
 	".\namelist.hpp"\
 	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
 	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
 	".\savescr.hpp"\
-	".\scantree.hpp"\
 	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
 	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\config.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
 	".\dizlist.hpp"\
-	".\edit.hpp"\
-    ".\filepanels.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
 	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
+	".\filepanels.hpp"\
 	".\filter.hpp"\
 	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
 	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
 	".\modal.hpp"\
-	".\namelist.hpp"\
 	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
 	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
+	".\udlist.hpp"\
 	".\vmenu.hpp"\
-
 
 
 .\constitle.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-    ".\filepanels.hpp"\
 	".\constitle.hpp"\
-	".\copy.hpp"\
-	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
-	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\keybar.hpp"\
-	".\keys.hpp"\
-	".\lang.hpp"\
-	".\language.hpp"\
-	".\lockscrn.hpp"\
-	".\macro.hpp"\
-	".\manager.hpp"\
-	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
-	".\plugin.hpp"\
-	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
-	".\scrobj.hpp"\
-	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\copy.cpp : \
-    ".\filepanels.hpp"\
-	".\udlist.hpp"\
-	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
 	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
 	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
+	".\filepanels.hpp"\
 	".\flink.hpp"\
 	".\fn.hpp"\
 	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
 	".\modal.hpp"\
-	".\namelist.hpp"\
 	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
 	".\savescr.hpp"\
 	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\treelist.hpp"\
-	".\viewer.hpp"\
+	".\udlist.hpp"\
 	".\vmenu.hpp"\
-
 
 
 .\ctrlobj.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
 	".\copyright.inc"\
 	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
 	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
+	".\filepanels.hpp"\
 	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-    ".\filepanels.hpp"\
-	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
 	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
 	".\hilight.hpp"\
 	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
-	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
 	".\panel.hpp"\
-	".\plognmn.hpp"\
-	".\plugin.hpp"\
 	".\plugins.hpp"\
 	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
+	".\udlist.hpp"\
 
 
 .\delete.cpp : \
-	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-    ".\filepanels.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
+	".\filepanels.hpp"\
 	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
-	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
 	".\panel.hpp"\
-	".\plognmn.hpp"\
-	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
 	".\savescr.hpp"\
 	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\dialog.cpp : \
-	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
-	".\dizlist.hpp"\
 	".\edit.hpp"\
-    ".\filepanels.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
 	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
-	".\menubar.hpp"\
 	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
 	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
 	".\vmenu.hpp"\
-
 
 
 .\dizlist.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-    ".\filepanels.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
-	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
 	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\keybar.hpp"\
-	".\keys.hpp"\
 	".\lang.hpp"\
-	".\language.hpp"\
-	".\lockscrn.hpp"\
-	".\macro.hpp"\
-	".\manager.hpp"\
-	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
-	".\plugin.hpp"\
-	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
 	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
-	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\edit.cpp : \
-    ".\filepanels.hpp"\
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
 	".\edit.hpp"\
 	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
+	".\filepanels.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
-	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
-	".\manager.hpp"\
 	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
 	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
 	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\editor.cpp : \
-	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
-	".\dizlist.hpp"\
 	".\edit.hpp"\
 	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
 	".\fileedit.hpp"\
-	".\filelist.hpp"\
 	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
-    ".\filepanels.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
 	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
-	".\menubar.hpp"\
 	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
 	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
 	".\savescr.hpp"\
-	".\scantree.hpp"\
 	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
+	".\udlist.hpp"\
 	".\vmenu.hpp"\
-
 
 
 .\eject.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
-	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-    ".\filepanels.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
+	".\int64.hpp"\
+	".\lang.hpp"\
+	".\plugin.hpp"\
+	".\struct.hpp"\
+
+
+.\farexcpt.cpp : \
+	".\ctrlobj.hpp"\
+	".\farexcpt.hpp"\
+	".\farconst.hpp"\
+	".\filepanels.hpp"\
+	".\fn.hpp"\
+	".\frame.hpp"\
+	".\global.hpp"\
+	".\headers.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
-	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\far.rc : \
@@ -1038,272 +350,90 @@
 
 
 .\farqueue.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-    ".\filepanels.hpp"\
-	".\copy.hpp"\
-	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
-	".\farconst.hpp"\
-	".\farftp.hpp"\
 	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
-	".\fn.hpp"\
-	".\foldtree.hpp"\
-	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
-	".\int64.hpp"\
-	".\keybar.hpp"\
-	".\keys.hpp"\
-	".\lang.hpp"\
-	".\language.hpp"\
-	".\lockscrn.hpp"\
-	".\macro.hpp"\
-	".\manager.hpp"\
-	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
-	".\plugin.hpp"\
-	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
-	".\scrobj.hpp"\
-	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\farrtl.cpp : \
 	".\headers.hpp"\
 
 
-
 .\ffolders.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
-    ".\filepanels.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
 	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
+	".\filepanels.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
 	".\modal.hpp"\
-	".\namelist.hpp"\
 	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
 	".\vmenu.hpp"\
-
 
 
 .\fileattr.cpp : \
-	".\chgmmode.hpp"\
-    ".\filepanels.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
-	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\keybar.hpp"\
-	".\keys.hpp"\
 	".\lang.hpp"\
-	".\language.hpp"\
-	".\lockscrn.hpp"\
-	".\macro.hpp"\
-	".\manager.hpp"\
-	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
-	".\plugin.hpp"\
-	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
-	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\fileedit.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
-	".\dizlist.hpp"\
 	".\edit.hpp"\
 	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
 	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
+	".\filepanels.hpp"\
 	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-    ".\filepanels.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
 	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
 	".\modal.hpp"\
 	".\namelist.hpp"\
 	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
 	".\viewer.hpp"\
 	".\vmenu.hpp"\
-
 
 
 .\filelist.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
 	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
@@ -1311,33 +441,23 @@
 	".\edit.hpp"\
 	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
-	".\filestr.hpp"\
+	".\filepanels.hpp"\
 	".\fileview.hpp"\
-    ".\filepanels.hpp"\
 	".\filter.hpp"\
-	".\findfile.hpp"\
 	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
 	".\help.hpp"\
-	".\hilight.hpp"\
 	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
@@ -1347,1848 +467,686 @@
 	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
 	".\qview.hpp"\
 	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
 	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
+	".\udlist.hpp"\
 	".\viewer.hpp"\
 	".\vmenu.hpp"\
 
+
+.\filepanels.cpp : \
+	".\cmdline.hpp"\
+	".\colors.hpp"\
+	".\ctrlobj.hpp"\
+	".\dizlist.hpp"\
+	".\edit.hpp"\
+	".\farconst.hpp"\
+	".\filelist.hpp"\
+	".\filepanels.hpp"\
+	".\filter.hpp"\
+	".\findfile.hpp"\
+	".\fn.hpp"\
+	".\frame.hpp"\
+	".\global.hpp"\
+	".\headers.hpp"\
+	".\help.hpp"\
+	".\infolist.hpp"\
+	".\int64.hpp"\
+	".\keybar.hpp"\
+	".\keys.hpp"\
+	".\lang.hpp"\
+	".\language.hpp"\
+	".\macro.hpp"\
+	".\manager.hpp"\
+	".\menubar.hpp"\
+	".\panel.hpp"\
+	".\plugin.hpp"\
+	".\plugins.hpp"\
+	".\qview.hpp"\
+	".\rdrwdsk.hpp"\
+	".\savescr.hpp"\
+	".\scrobj.hpp"\
+	".\struct.hpp"\
+	".\treelist.hpp"\
 
 
 .\filestr.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
+	".\filestr.hpp"\
+	".\headers.hpp"\
+
+.\fnparce.cpp : \
 	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
-	".\dizlist.hpp"\
 	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-    ".\filepanels.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
+	".\filepanels.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
 	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
 	".\modal.hpp"\
-	".\namelist.hpp"\
 	".\panel.hpp"\
 	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
 	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
 	".\vmenu.hpp"\
-
-
 
 .\filetype.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
-    ".\filepanels.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
-	".\dizlist.hpp"\
 	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
+	".\filepanels.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
 	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
 	".\modal.hpp"\
-	".\namelist.hpp"\
 	".\panel.hpp"\
 	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
 	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
 	".\vmenu.hpp"\
-
 
 
 .\fileview.cpp : \
-	".\chgmmode.hpp"\
-    ".\filepanels.hpp"\
-	".\chgprior.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
 	".\edit.hpp"\
 	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
 	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
+	".\filepanels.hpp"\
 	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
 	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
-	".\modal.hpp"\
 	".\namelist.hpp"\
 	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
 	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\filter.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
+	".\filepanels.hpp"\
 	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-    ".\filepanels.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
 	".\modal.hpp"\
-	".\namelist.hpp"\
 	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
 	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
 	".\vmenu.hpp"\
-
 
 
 .\findfile.cpp : \
-	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
 	".\dizlist.hpp"\
 	".\edit.hpp"\
 	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
-	".\filestr.hpp"\
+	".\filepanels.hpp"\
 	".\fileview.hpp"\
-    ".\filepanels.hpp"\
-	".\filter.hpp"\
 	".\findfile.hpp"\
 	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
 	".\modal.hpp"\
 	".\namelist.hpp"\
 	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
 	".\savescr.hpp"\
 	".\scantree.hpp"\
 	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
 	".\viewer.hpp"\
 	".\vmenu.hpp"\
-
 
 
 .\flink.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
 	".\copy.hpp"\
-	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
 	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-    ".\filepanels.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
 	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\keybar.hpp"\
-	".\keys.hpp"\
-	".\lang.hpp"\
-	".\language.hpp"\
-	".\lockscrn.hpp"\
-	".\macro.hpp"\
-	".\manager.hpp"\
-	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
-	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
-	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
+	".\udlist.hpp"\
 
 
 .\flmodes.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
-    ".\filepanels.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
 	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
 	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
+	".\filepanels.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
-	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
 	".\modal.hpp"\
-	".\namelist.hpp"\
 	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
 	".\vmenu.hpp"\
-
 
 
 .\flplugin.cpp : \
-	".\chgmmode.hpp"\
-    ".\filepanels.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
 	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
 	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
+	".\filepanels.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
 	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
-	".\keys.hpp"\
-	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
-	".\manager.hpp"\
 	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
 	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\flshow.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
 	".\dizlist.hpp"\
 	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
 	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
+	".\filepanels.hpp"\
 	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-    ".\filepanels.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
-	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
-	".\manager.hpp"\
 	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
 	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\flupdate.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
 	".\dizlist.hpp"\
 	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
 	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-    ".\filepanels.hpp"\
+	".\filepanels.hpp"\
 	".\filter.hpp"\
-	".\findfile.hpp"\
 	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
 	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
 	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
-	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
-	".\manager.hpp"\
 	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
 	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\foldtree.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
-	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
 	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-    ".\filepanels.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
 	".\foldtree.hpp"\
-	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
+	".\frame.hpp"\
 	".\headers.hpp"\
 	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
-	".\language.hpp"\
-	".\lockscrn.hpp"\
-	".\macro.hpp"\
-	".\manager.hpp"\
-	".\menubar.hpp"\
 	".\modal.hpp"\
-	".\namelist.hpp"\
 	".\panel.hpp"\
-	".\plognmn.hpp"\
-	".\plugin.hpp"\
-	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
 	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
 
+
+.\frame.cpp : \
+	".\farconst.hpp"\
+	".\fn.hpp"\
+	".\frame.hpp"\
+	".\headers.hpp"\
+	".\int64.hpp"\
+	".\keybar.hpp"\
+	".\manager.hpp"\
+	".\scrobj.hpp"\
 
 
 .\gettable.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
-    ".\filepanels.hpp"\
-	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\keybar.hpp"\
-	".\keys.hpp"\
 	".\lang.hpp"\
-	".\language.hpp"\
-	".\lockscrn.hpp"\
-	".\macro.hpp"\
 	".\manager.hpp"\
-	".\menubar.hpp"\
 	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
-	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
 	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
 	".\vmenu.hpp"\
-
 
 
 .\global.cpp : \
-	".\chgmmode.hpp"\
-    ".\filepanels.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
-	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
 	".\farqueue.hpp"\
 	".\farversion.inc"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
-	".\fn.hpp"\
-	".\foldtree.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
-	".\int64.hpp"\
-	".\keybar.hpp"\
-	".\keys.hpp"\
-	".\lang.hpp"\
-	".\language.hpp"\
-	".\lockscrn.hpp"\
-	".\macro.hpp"\
-	".\manager.hpp"\
-	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
-	".\plugin.hpp"\
-	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
-	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\grabber.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
 	".\global.hpp"\
 	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\keybar.hpp"\
 	".\keys.hpp"\
-	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
-	".\manager.hpp"\
-	".\menubar.hpp"\
 	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
-	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
 	".\savescr.hpp"\
-    ".\filepanels.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\grpsort.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
+	".\filepanels.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
 	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
 	".\modal.hpp"\
-	".\namelist.hpp"\
 	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
-    ".\filepanels.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
 	".\vmenu.hpp"\
-
 
 
 .\help.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
 	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
-    ".\filepanels.hpp"\
-	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
 	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\hilight.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
+	".\filepanels.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
 	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
-    ".\filepanels.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
 	".\modal.hpp"\
-	".\namelist.hpp"\
 	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
 	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
 	".\vmenu.hpp"\
-
 
 
 .\history.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
-	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-    ".\filepanels.hpp"\
 	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\keybar.hpp"\
 	".\keys.hpp"\
-	".\lang.hpp"\
-	".\language.hpp"\
-	".\lockscrn.hpp"\
-	".\macro.hpp"\
 	".\manager.hpp"\
-	".\menubar.hpp"\
 	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
-	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
 	".\vmenu.hpp"\
-
 
 
 .\hmenu.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
-	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
-    ".\filepanels.hpp"\
-	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
+	".\frame.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
 	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\keybar.hpp"\
 	".\keys.hpp"\
-	".\lang.hpp"\
-	".\language.hpp"\
-	".\lockscrn.hpp"\
-	".\macro.hpp"\
 	".\manager.hpp"\
-	".\menubar.hpp"\
 	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
-	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
-	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
 	".\vmenu.hpp"\
-
 
 
 .\infolist.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
 	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
 	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-    ".\filepanels.hpp"\
+	".\filepanels.hpp"\
 	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
 	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
 	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
-	".\modal.hpp"\
 	".\namelist.hpp"\
 	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
 	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\int64.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
-	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
-    ".\filepanels.hpp"\
-	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
-	".\fn.hpp"\
-	".\foldtree.hpp"\
-	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\keybar.hpp"\
-	".\keys.hpp"\
-	".\lang.hpp"\
-	".\language.hpp"\
-	".\lockscrn.hpp"\
-	".\macro.hpp"\
-	".\manager.hpp"\
-	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
-	".\plugin.hpp"\
-	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
-	".\scrobj.hpp"\
-	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\interf.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
-    ".\filepanels.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
 	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
 	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
+	".\filepanels.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
-	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
 	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
 	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\iswind.cpp : \
-    ".\filepanels.hpp"\
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
-	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
-	".\fn.hpp"\
-	".\foldtree.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
-	".\int64.hpp"\
-	".\keybar.hpp"\
-	".\keys.hpp"\
-	".\lang.hpp"\
-	".\language.hpp"\
-	".\lockscrn.hpp"\
-	".\macro.hpp"\
-	".\manager.hpp"\
-	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
-	".\plugin.hpp"\
-	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
-	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\keybar.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
-	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
-    ".\filepanels.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
-	".\lang.hpp"\
-	".\language.hpp"\
-	".\lockscrn.hpp"\
-	".\macro.hpp"\
-	".\manager.hpp"\
-	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
-	".\plugin.hpp"\
-	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\keyboard.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
 	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
 	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-    ".\filepanels.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
+	".\filepanels.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
 	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
 	".\modal.hpp"\
-	".\namelist.hpp"\
 	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
 	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\language.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
-	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
-    ".\filepanels.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\keybar.hpp"\
-	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
-	".\macro.hpp"\
 	".\manager.hpp"\
-	".\menubar.hpp"\
 	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
-	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
 	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
 	".\vmenu.hpp"\
-
 
 
 .\local.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-    ".\filepanels.hpp"\
-	".\copy.hpp"\
-	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\keybar.hpp"\
-	".\keys.hpp"\
-	".\lang.hpp"\
-	".\language.hpp"\
-	".\lockscrn.hpp"\
-	".\macro.hpp"\
-	".\manager.hpp"\
-	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
-	".\plugin.hpp"\
-	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
-	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\lockscrn.cpp : \
-    ".\filepanels.hpp"\
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
-	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
-	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
-	".\fn.hpp"\
-	".\foldtree.hpp"\
-	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
-	".\int64.hpp"\
-	".\keybar.hpp"\
-	".\keys.hpp"\
-	".\lang.hpp"\
-	".\language.hpp"\
 	".\lockscrn.hpp"\
-	".\macro.hpp"\
-	".\manager.hpp"\
-	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
-	".\plugin.hpp"\
-	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
 	".\scrbuf.hpp"\
-	".\scrobj.hpp"\
-	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\macro.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
-	".\dizlist.hpp"\
 	".\edit.hpp"\
 	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
+	".\filepanels.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
-    ".\filepanels.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
@@ -3199,60 +1157,28 @@
 	".\manager.hpp"\
 	".\menubar.hpp"\
 	".\modal.hpp"\
-	".\namelist.hpp"\
 	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
 	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
 	".\vmenu.hpp"\
-
 
 
 .\main.cpp : \
-	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
 	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
 	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-    ".\filepanels.hpp"\
+	".\filepanels.hpp"\
 	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
 	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
@@ -3262,271 +1188,95 @@
 	".\macro.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
-	".\modal.hpp"\
 	".\namelist.hpp"\
 	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
 	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\manager.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
 	".\edit.hpp"\
-	".\editor.hpp"\
-    ".\filepanels.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
+	".\filepanels.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
 	".\modal.hpp"\
-	".\namelist.hpp"\
 	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
 	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
 	".\vmenu.hpp"\
-
 
 
 .\menubar.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
-    ".\filepanels.hpp"\
-	".\copy.hpp"\
-	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
-	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\keybar.hpp"\
-	".\keys.hpp"\
 	".\lang.hpp"\
-	".\language.hpp"\
-	".\lockscrn.hpp"\
-	".\macro.hpp"\
-	".\manager.hpp"\
 	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
-	".\plugin.hpp"\
-	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
-	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\message.cpp : \
-    ".\filepanels.hpp"\
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
-	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\keybar.hpp"\
-	".\keys.hpp"\
 	".\lang.hpp"\
-	".\language.hpp"\
-	".\lockscrn.hpp"\
-	".\macro.hpp"\
 	".\manager.hpp"\
-	".\menubar.hpp"\
 	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
-	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
 	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
 	".\vmenu.hpp"\
-
 
 
 .\mix.cpp : \
-	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
+	".\filepanels.hpp"\
 	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
-    ".\filepanels.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
-	".\manager.hpp"\
 	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
 	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
 	".\savefpos.hpp"\
 	".\savescr.hpp"\
 	".\scantree.hpp"\
@@ -3534,329 +1284,86 @@
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\mkdir.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-    ".\filepanels.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
+	".\filepanels.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
-	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
-	".\manager.hpp"\
 	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
 	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
+	".\udlist.hpp"\
 
 
 .\modal.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
-	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
-    ".\filepanels.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
-	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
+	".\frame.hpp"\
 	".\headers.hpp"\
 	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
-	".\keys.hpp"\
-	".\lang.hpp"\
-	".\language.hpp"\
-	".\lockscrn.hpp"\
-	".\macro.hpp"\
-	".\manager.hpp"\
-	".\menubar.hpp"\
 	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
-	".\plugin.hpp"\
-	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
-	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\namelist.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-    ".\filepanels.hpp"\
-	".\copy.hpp"\
-	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
-	".\fn.hpp"\
-	".\foldtree.hpp"\
-	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
-	".\int64.hpp"\
-	".\keybar.hpp"\
-	".\keys.hpp"\
-	".\lang.hpp"\
-	".\language.hpp"\
-	".\lockscrn.hpp"\
-	".\macro.hpp"\
-	".\manager.hpp"\
-	".\menubar.hpp"\
-	".\modal.hpp"\
 	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
-	".\plugin.hpp"\
-	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
-	".\scrobj.hpp"\
-	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\options.cpp : \
-    ".\filepanels.hpp"\
 	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
 	".\dizlist.hpp"\
 	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
 	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
+	".\filepanels.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
 	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
 	".\hilight.hpp"\
-	".\history.hpp"\
 	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
 	".\modal.hpp"\
-	".\namelist.hpp"\
 	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
 	".\vmenu.hpp"\
-
 
 
 .\palette.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
-	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
-	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
-	".\fn.hpp"\
-	".\foldtree.hpp"\
-    ".\filepanels.hpp"\
-	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
-	".\int64.hpp"\
-	".\keybar.hpp"\
-	".\keys.hpp"\
-	".\lang.hpp"\
-	".\language.hpp"\
-	".\lockscrn.hpp"\
-	".\macro.hpp"\
-	".\manager.hpp"\
-	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
-	".\plugin.hpp"\
-	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
-	".\scrobj.hpp"\
-	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\panel.cpp : \
@@ -3864,1661 +1371,532 @@
 	".\chgprior.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
 	".\dizlist.hpp"\
 	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
 	".\filelist.hpp"\
-	".\filestr.hpp"\
-    ".\filepanels.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
+	".\filepanels.hpp"\
 	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
 	".\modal.hpp"\
-	".\namelist.hpp"\
 	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
 	".\savescr.hpp"\
-	".\scantree.hpp"\
 	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\treelist.hpp"\
-	".\viewer.hpp"\
 	".\vmenu.hpp"\
-
 
 
 .\plist.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
-	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
-    ".\filepanels.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
-	".\language.hpp"\
-	".\lockscrn.hpp"\
-	".\macro.hpp"\
 	".\manager.hpp"\
-	".\menubar.hpp"\
 	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
-	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
 	".\vmenu.hpp"\
-
 
 
 .\plognmn.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-    ".\filepanels.hpp"\
-	".\copy.hpp"\
-	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
-	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\keybar.hpp"\
-	".\keys.hpp"\
-	".\lang.hpp"\
-	".\language.hpp"\
-	".\lockscrn.hpp"\
-	".\macro.hpp"\
-	".\manager.hpp"\
-	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
 	".\plognmn.hpp"\
-	".\plugin.hpp"\
-	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
-	".\scrobj.hpp"\
-	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\plugapi.cpp : \
-    ".\filepanels.hpp"\
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
-	".\dizlist.hpp"\
 	".\edit.hpp"\
 	".\editor.hpp"\
+	".\farexcpt.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
 	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
+	".\filepanels.hpp"\
 	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
 	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
 	".\modal.hpp"\
 	".\namelist.hpp"\
 	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
 	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
 	".\savescr.hpp"\
 	".\scantree.hpp"\
 	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
 	".\viewer.hpp"\
 	".\vmenu.hpp"\
-
 
 
 .\plugins.cpp : \
-	".\farexcpt.hpp"\
-	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
-	".\dizlist.hpp"\
 	".\edit.hpp"\
 	".\editor.hpp"\
+	".\farexcpt.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
+	".\filepanels.hpp"\
 	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
-    ".\filepanels.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
 	".\modal.hpp"\
-	".\namelist.hpp"\
 	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
 	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
 	".\savescr.hpp"\
 	".\scantree.hpp"\
 	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
 	".\vmenu.hpp"\
-
 
 
 .\poscache.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
-	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-    ".\filepanels.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\keybar.hpp"\
-	".\keys.hpp"\
-	".\lang.hpp"\
-	".\language.hpp"\
-	".\lockscrn.hpp"\
-	".\macro.hpp"\
-	".\manager.hpp"\
-	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
-	".\plugin.hpp"\
-	".\plugins.hpp"\
 	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
-	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
+	".\udlist.hpp"\
 
 
 .\print.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
 	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
-    ".\filepanels.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
 	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\keybar.hpp"\
-	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
-	".\menubar.hpp"\
 	".\modal.hpp"\
-	".\namelist.hpp"\
 	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
 	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
 	".\vmenu.hpp"\
-
 
 
 .\qview.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
-    ".\filepanels.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
 	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
+	".\filepanels.hpp"\
 	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
 	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
-	".\manager.hpp"\
 	".\menubar.hpp"\
-	".\modal.hpp"\
 	".\namelist.hpp"\
 	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
 	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
 	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\rdrwdsk.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
 	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
-	".\fn.hpp"\
-	".\foldtree.hpp"\
+	".\filepanels.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-    ".\filepanels.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
-	".\keys.hpp"\
-	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
-	".\manager.hpp"\
 	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
 	".\panel.hpp"\
-	".\plognmn.hpp"\
-	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
 	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\registry.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
-	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
-    ".\filepanels.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\keybar.hpp"\
-	".\keys.hpp"\
-	".\lang.hpp"\
-	".\language.hpp"\
-	".\lockscrn.hpp"\
-	".\macro.hpp"\
-	".\manager.hpp"\
-	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
-	".\plugin.hpp"\
-	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
-	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\savefpos.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
-	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
-	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-    ".\filepanels.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
-	".\fn.hpp"\
-	".\foldtree.hpp"\
-	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
-	".\int64.hpp"\
-	".\keybar.hpp"\
-	".\keys.hpp"\
-	".\lang.hpp"\
-	".\language.hpp"\
-	".\lockscrn.hpp"\
-	".\macro.hpp"\
-	".\manager.hpp"\
-	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
-	".\plugin.hpp"\
-	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
 	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
-	".\scrobj.hpp"\
-	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\savescr.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
-	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
-    ".\filepanels.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\keybar.hpp"\
-	".\keys.hpp"\
-	".\lang.hpp"\
-	".\language.hpp"\
-	".\lockscrn.hpp"\
-	".\macro.hpp"\
-	".\manager.hpp"\
-	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
-	".\plugin.hpp"\
-	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
 	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
-	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\scantree.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-    ".\filepanels.hpp"\
-	".\copy.hpp"\
-	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
-	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\keybar.hpp"\
-	".\keys.hpp"\
-	".\lang.hpp"\
-	".\language.hpp"\
-	".\lockscrn.hpp"\
-	".\macro.hpp"\
-	".\manager.hpp"\
-	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
-	".\plugin.hpp"\
-	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
 	".\scantree.hpp"\
-	".\scrbuf.hpp"\
-	".\scrobj.hpp"\
-	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\scrbuf.cpp : \
-    ".\filepanels.hpp"\
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\keybar.hpp"\
-	".\keys.hpp"\
-	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
-	".\manager.hpp"\
-	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
-	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
 	".\scrbuf.hpp"\
-	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\scrobj.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
-	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
-    ".\filepanels.hpp"\
-	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\keybar.hpp"\
-	".\keys.hpp"\
-	".\lang.hpp"\
-	".\language.hpp"\
-	".\lockscrn.hpp"\
-	".\macro.hpp"\
-	".\manager.hpp"\
-	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
-	".\plugin.hpp"\
-	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
 	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
-	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\scrsaver.cpp : \
-	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
-	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-    ".\filepanels.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\keybar.hpp"\
-	".\keys.hpp"\
-	".\lang.hpp"\
-	".\language.hpp"\
-	".\lockscrn.hpp"\
-	".\macro.hpp"\
 	".\manager.hpp"\
-	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
-	".\plugin.hpp"\
-	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
 	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
-	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\setattr.cpp : \
-	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
-    ".\filepanels.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
+	".\filepanels.hpp"\
 	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
-	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
 	".\modal.hpp"\
-	".\namelist.hpp"\
 	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
 	".\savescr.hpp"\
 	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
 	".\vmenu.hpp"\
-
 
 
 .\setcolor.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
-    ".\filepanels.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
+	".\filepanels.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
-	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
 	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
 	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
 	".\vmenu.hpp"\
-
 
 
 .\stddlg.cpp : \
-    ".\filepanels.hpp"\
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
-	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
 	".\farexcpt.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
+	".\farconst.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
-	".\menubar.hpp"\
 	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
 	".\vmenu.hpp"\
-
 
 
 .\strmix.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
-	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
-    ".\filepanels.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\keybar.hpp"\
-	".\keys.hpp"\
 	".\lang.hpp"\
-	".\language.hpp"\
-	".\lockscrn.hpp"\
-	".\macro.hpp"\
-	".\manager.hpp"\
-	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
-	".\plugin.hpp"\
-	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
-	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\syslog.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
-	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-    ".\filepanels.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\keybar.hpp"\
-	".\keys.hpp"\
-	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
-	".\macro.hpp"\
-	".\manager.hpp"\
-	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
-	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
-
 
 
 .\treelist.cpp : \
-	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
 	".\copy.hpp"\
 	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
 	".\dizlist.hpp"\
 	".\edit.hpp"\
-	".\editor.hpp"\
-    ".\filepanels.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
 	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
+	".\filepanels.hpp"\
 	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
-	".\manager.hpp"\
 	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
 	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
 	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
 	".\savescr.hpp"\
 	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\
+	".\udlist.hpp"\
 
+
+.\udlist.cpp : \
+	".\farconst.hpp"\
+	".\headers.hpp"\
+	".\udlist.hpp"\
 
 
 .\usermenu.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
-    ".\filepanels.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
-	".\dizlist.hpp"\
 	".\edit.hpp"\
 	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
 	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
+	".\filepanels.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
 	".\modal.hpp"\
-	".\namelist.hpp"\
 	".\panel.hpp"\
 	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
 	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
 	".\vmenu.hpp"\
-
 
 
 .\viewer.cpp : \
-    ".\filepanels.hpp"\
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
 	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
 	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
 	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
-	".\menubar.hpp"\
 	".\modal.hpp"\
 	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
 	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
 	".\savefpos.hpp"\
 	".\savescr.hpp"\
-	".\scantree.hpp"\
 	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
+	".\udlist.hpp"\
 	".\viewer.hpp"\
 	".\vmenu.hpp"\
-
 
 
 .\vmenu.cpp : \
-	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
-    ".\filepanels.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\keybar.hpp"\
 	".\keys.hpp"\
-	".\lang.hpp"\
 	".\language.hpp"\
-	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
-	".\menubar.hpp"\
 	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
 	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
 	".\vmenu.hpp"\
-
 
 
 .\xlat.cpp : \
-	".\chgmmode.hpp"\
-	".\chgprior.hpp"\
-	".\cmdline.hpp"\
-	".\colors.hpp"\
-	".\constitle.hpp"\
-	".\copy.hpp"\
-	".\ctrlobj.hpp"\
-	".\dialog.hpp"\
-	".\dizlist.hpp"\
-	".\edit.hpp"\
-	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farftp.hpp"\
-	".\farqueue.hpp"\
-	".\fileedit.hpp"\
-	".\filelist.hpp"\
-	".\filestr.hpp"\
-    ".\filepanels.hpp"\
-	".\fileview.hpp"\
-	".\filter.hpp"\
-	".\findfile.hpp"\
-	".\flink.hpp"\
 	".\fn.hpp"\
-	".\foldtree.hpp"\
 	".\global.hpp"\
-	".\grabber.hpp"\
-	".\grpsort.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
-	".\hilight.hpp"\
-	".\history.hpp"\
-	".\hmenu.hpp"\
-	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\keybar.hpp"\
-	".\keys.hpp"\
-	".\lang.hpp"\
-	".\language.hpp"\
-	".\lockscrn.hpp"\
-	".\macro.hpp"\
-	".\manager.hpp"\
-	".\menubar.hpp"\
-	".\modal.hpp"\
-	".\namelist.hpp"\
-	".\panel.hpp"\
-	".\plognmn.hpp"\
 	".\plugin.hpp"\
-	".\plugins.hpp"\
-	".\poscache.hpp"\
-	".\qview.hpp"\
-	".\rdrwdsk.hpp"\
-	".\savefpos.hpp"\
-	".\savescr.hpp"\
-	".\scantree.hpp"\
-	".\scrbuf.hpp"\
-	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\treelist.hpp"\
-	".\viewer.hpp"\
-	".\vmenu.hpp"\

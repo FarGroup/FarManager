@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.88 11.06.2001 $ */
+/* Revision: 1.89 18.06.2001 $ */
 
 /*
 Modify:
+  18.06.2001 SVS
+    + ExtractIfExistCommand()
   11.06.2001 SVS
     ! Новые параметры у GetSearchReplaceString()
   08.06.2001 SVS
@@ -366,6 +368,7 @@ void ProcessExternal(char *Command,char *Name,char *ShortName,int AlwaysWaitFini
 int SubstFileName(char *Str,char *Name,char *ShortName,
                   char *ListName=NULL,char *ShortListName=NULL,
                   int IgnoreInput=FALSE,char *CmdLineDir=NULL);
+BOOL ExtractIfExistCommand(char *CommandText);
 void EditFileTypes(int MenuPos);
 void ProcessUserMenu(int EditMenu);
 int ConvertNameToFull(char *Src,char *Dest, int DestSize);

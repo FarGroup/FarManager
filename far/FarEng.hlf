@@ -1192,57 +1192,51 @@ file type, defined by wildcard mask:
 field.
 
     If you do not wish to switch panels off before executing
-the associated program, start its command line with '@@' character.
+the associated program, start its command line with '#@@#' character.
 
     You may add new associations with the #Edit associations# command
 in the ~Commands menu~@CmdMenu@.
 
     The following special symbols may be used in the associated command:
 
-        !!       '!' character
-        !        Long file name without extension
-        !~~       Short file name without extension
-        !.!      Long file name with extension
-        !-!      Short file name with extension
-        !+!      Similar to !-! but if a long file name was lost
-                 after performing the command, FAR will restore it
-        !@@!      Name of file with selected file names list
-        !$!      Name of file with selected short file names list
-        !&       List of selected files
-        !&~~      List of selected short file names
-        !:       Current drive
-        !\       Current path
-        !/       Short name of the current path
+    #!!#       '!' character
+    #!#        Long file name without extension
+    #!~~#       Short file name without extension
+    #!`#       Long extension without file name (.ext)
+    #!`~~#      Short extension without file name (.ext)
+    #!.!#      Long file name with extension
+    #!-!#      Short file name with extension
+    #!+!#      Similar to !-! but if a long file name was lost
+             after performing the command, FAR will restore it
+    #!@@!#      Name of file with selected file names list
+    #!$!#      Name of file with selected short file names list
+    #!&#       List of selected files
+    #!&~~#      List of selected short file names
+    #!:#       Current drive
+    #!\#       Current path
+    #!/#       Short name of the current path
 
-        !?<title>?<init>!
-                 This symbol is replaced by user input, when
-                 executing command. <title> and <init> - title
-                 and initial text of edit control.
+    #!?<title>?<init>!#
+             This symbol is replaced by user input, when
+             executing command. <title> and <init> - title
+             and initial text of edit control.
 
-                 Several such symbols are allowed in the same line,
-                 for example:
+             Several such symbols are allowed in the same line,
+             for example:
 
-                 grep !?Search for:?! !?In:?*.*!|c:\far\far.exe -v -
+             grep !?Search for:?! !?In:?*.*!|c:\far\far.exe -v -
 
-    "!##" modifier specified before a file association symbol forces it
-to refer to the passive panel. For example, !##!.! denotes the name of
-the current file on the passive panel.
+    #!###       "!##" modifier specified before a file association
+             symbol forces it to refer to the passive panel. For
+             example, !##!.! denotes the name of the current file
+             on the passive panel.
 
-    "!^" modifier specified before a file association symbol forces it
-to refer to the active panel. For example, !^!.! denotes a current file
-name on the active panel, !##!\!^!.! - a file on the passive panel with the
-same name as the name of the current file on the active panel.
-
-    The prefixes "!##" and "!^" work as toggles for associations. The
-effect of these prefixes continues up to the next similar prefix. For
-example:
-
-    if exist !##!\!^!.! diff -c -p !##!\!^!.! !\!.!
-
-    "If the same file exists on the passive panel as the file under
-     the cursor on the active panel, show the differences betweent
-     the file on the passive panel and the file on the active panel,
-     regardless of the name of the current file on the passive panel"
+    #!^#       "!^" modifier specified before a file association
+             symbol forces it to refer to the active panel. For
+             example, !^!.! denotes a current file name on the
+             active panel, !##!\!^!.! - a file on the passive
+             panel with the same name as the name of the current
+             file on the active panel.
 
   Notes:
 
@@ -1266,6 +1260,18 @@ is true.
   For example, the association #!@@AFQ!# means "name of file with the
 list of selected file names, in ANSI encoding, include full pathnames,
 names with spaces will be in quotes".
+
+  4. The prefixes "!##" and "!^" work as toggles for associations. The
+effect of these prefixes continues up to the next similar prefix. For
+example:
+
+    if exist !##!\!^!.! diff -c -p !##!\!^!.! !\!.!
+
+  "If the same file exists on the passive panel as the file under
+   the cursor on the active panel, show the differences betweent
+   the file on the passive panel and the file on the active panel,
+   regardless of the name of the current file on the passive panel"
+
 
 @SystemSettings
 $ #System settings dialog#

@@ -62,6 +62,7 @@ CLEAN :
 	-@erase "$(INTDIR)\edit.obj"
 	-@erase "$(INTDIR)\editor.obj"
 	-@erase "$(INTDIR)\filepanels.obj"
+	-@erase "$(INTDIR)\fnparce.obj"
 	-@erase "$(INTDIR)\far.res"
 	-@erase "$(INTDIR)\ffolders.obj"
 	-@erase "$(INTDIR)\fileedit.obj"
@@ -182,6 +183,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\filestr.obj" \
 	"$(INTDIR)\filetype.obj" \
 	"$(INTDIR)\fileview.obj" \
+	"$(INTDIR)\fnparce.obj" \
 	"$(INTDIR)\filter.obj" \
 	"$(INTDIR)\findfile.obj" \
 	"$(INTDIR)\flmodes.obj" \
@@ -301,6 +303,7 @@ CLEAN :
 	-@erase "$(INTDIR)\qsortex.obj"
 	-@erase "$(INTDIR)\far.res"
 	-@erase "$(INTDIR)\ffolders.obj"
+	-@erase "$(INTDIR)\fnparce.obj"
 	-@erase "$(INTDIR)\fileedit.obj"
 	-@erase "$(INTDIR)\filelist.obj"
 	-@erase "$(INTDIR)\filestr.obj"
@@ -420,6 +423,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\filetype.obj" \
 	"$(INTDIR)\fileview.obj" \
 	"$(INTDIR)\filter.obj" \
+	"$(INTDIR)\fnparce.obj" \
 	"$(INTDIR)\findfile.obj" \
 	"$(INTDIR)\flmodes.obj" \
 	"$(INTDIR)\flplugin.obj" \
@@ -570,6 +574,11 @@ SOURCE=.\config.cpp
 SOURCE=.\udlist.cpp
 
 "$(INTDIR)\udlist.obj" : $(SOURCE) "$(INTDIR)"
+
+
+SOURCE=.\fnparce.cpp
+
+"$(INTDIR)\fnparce.obj" : $(SOURCE) "$(INTDIR)"
 
 
 SOURCE=.\copy.cpp

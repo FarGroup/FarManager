@@ -5,11 +5,13 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.28 17.06.2001 $ */
+/* Revision: 1.29 18.06.2001 $ */
 
 /*
 Modify:
-  $ 17.06.2001 IS
+  18.06.2001 SVS
+    - Во время проверки "If exist" не учитывался текущий каталог.
+  17.06.2001 IS
     ! Вместо ExpandEnvironmentStrings применяем ExpandEnvironmentStr, т.к. она
       корректно работает с символами, коды которых выше 0x7F.
     + Перекодируем строки перед SetEnvironmentVariable из OEM в ANSI
@@ -497,11 +499,19 @@ char* WINAPI PrepareOSIfExist(char *CmdLine)
         memmove(Cmd,CmdStart,PtrCmd-CmdStart+1);
         Cmd[PtrCmd-CmdStart]=0;
         Unquote(Cmd);
-//_D(SysLog(Cmd));
+//_SVS(SysLog("Cmd='%s'",Cmd));
         if (ExpandEnvironmentStr(Cmd,ExpandedStr,sizeof(ExpandedStr))!=0)
         {
-          DWORD FileAttr=GetFileAttributes(ExpandedStr);
-//_D(SysLog("%08X ExpandedStr=%s",FileAttr,ExpandedStr));
+          char FullPath[8192];
+          if(CtrlObject)
+            CtrlObject->CmdLine->GetCurDir(FullPath);
+          else
+            GetCurrentDirectory(sizeof(FullPath),FullPath);
+          AddEndSlash(FullPath);
+          strcat(FullPath,ExpandedStr);
+          ConvertNameToFull(FullPath,FullPath, sizeof(FullPath));
+          DWORD FileAttr=GetFileAttributes(FullPath);
+//_SVS(SysLog("%08X FullPath=%s",FileAttr,FullPath));
           if(FileAttr != (DWORD)-1 && !Not || FileAttr == (DWORD)-1 && Not)
           {
             while(*PtrCmd && isspace(*PtrCmd)) ++PtrCmd;
@@ -530,7 +540,7 @@ char* WINAPI PrepareOSIfExist(char *CmdLine)
           memmove(Cmd,CmdStart,PtrCmd-CmdStart+1);
           Cmd[PtrCmd-CmdStart]=0;
           DWORD ERet=GetEnvironmentVariable(Cmd,ExpandedStr,sizeof(ExpandedStr));
-//_D(SysLog(Cmd));
+//_SVS(SysLog(Cmd));
           if(ERet && !Not || !ERet && Not)
           {
             while(*PtrCmd && isspace(*PtrCmd)) ++PtrCmd;
