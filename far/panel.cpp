@@ -5,10 +5,14 @@ Parent class дл€ панелей
 
 */
 
-/* Revision: 1.88 15.02.2002 $ */
+/* Revision: 1.89 21.02.2002 $ */
 
 /*
 Modify:
+  21.02.2002 SVS
+    + Ќебольшой сервис, ал€ WC ;-) ≈сли CD-диск выдвинут и мы при выборе
+      этого диска из меню жмакаем Enter, то... сначала всунем онный, а потом
+      только прочтем оглавление ;-)
   15.02.2002 IS
     - Ќе дергаем пассивный каталог в SetCurPath
   09.02.2002 VVM
@@ -343,8 +347,8 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
   for (DiskMask=Mask,DiskCount=0;DiskMask!=0;DiskMask>>=1)
     DiskCount+=DiskMask & 1;
 
-  int UserDataSize;
-  DWORD UserData;
+  int UserDataSize=0;
+  DWORD UserData=NULL;
   {
     _tran(SysLog("create VMenu ChDisk"));
     VMenu ChDisk(MSG(MChangeDriveTitle),NULL,0,ScrY-Y1-3);
@@ -637,7 +641,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
            то добавим обработку Ins дл€ CD - "закрыть диск"
         */
         case KEY_INS:
-          if (SelPos<DiskCount && WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+          if (SelPos<DiskCount)// && WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
           {
 //            char MsgText[200], LocalName[50];
             if ((UserData=(DWORD)ChDisk.GetUserData(NULL,0)) != NULL)
@@ -645,6 +649,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
               DriveType=HIWORD(UserData);
               if(DriveType == DRIVE_CDROM /* || DriveType == DRIVE_REMOVABLE*/)
               {
+                SaveScreen SvScrn;
                 EjectVolume(LOBYTE(LOWORD(UserData)),EJECT_LOAD_MEDIA);
                 return(SelPos);
               }
@@ -768,6 +773,16 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
     {
       UserDataSize=ChDisk.Modal::GetExitCode()>DiskCount?2:3;
       UserData=(DWORD)ChDisk.GetUserData(NULL,0);
+    }
+  }
+
+  if(UserData != NULL && HIWORD(UserData) == DRIVE_CDROM && UserDataSize == 3)
+  {
+    if(!EjectVolume(LOBYTE(LOWORD(UserData)),EJECT_READY|EJECT_NO_MESSAGE))
+    {
+      SaveScreen SvScrn;
+      Message(0,0,"",MSG(MChangeWaitingLoadDisk));
+      EjectVolume(LOBYTE(LOWORD(UserData)),EJECT_LOAD_MEDIA|EJECT_NO_MESSAGE);
     }
   }
 

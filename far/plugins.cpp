@@ -5,10 +5,15 @@ plugins.cpp
 
 */
 
-/* Revision: 1.109 19.02.2002 $ */
+/* Revision: 1.110 21.02.2002 $ */
 
 /*
 Modify:
+  21.02.2002 SVS
+    - BugZ#317 - Сообщение о требуемой версии ФАРа
+      Для второй части - класс BlockExtKey, который блокирует некоторые
+      клавиши манагера, в т.ч. и Alt-F9 - блокирует до тех пор, пока
+      плагине не прогрузятся.
   19.02.2002 SVS
     ! Вернем обратно поведение хоткеев... до поры до времени. Заодно одну
       багу исправим (в комментариях видно что за бага ;-)
@@ -408,6 +413,19 @@ void PluginsSet::SendExit()
 
 void PluginsSet::LoadPlugins()
 {
+  class BlockExtKey{
+      int OldIsProcessAssignMacroKey, OldIsProcessVE_FindFile;
+    public:
+      BlockExtKey()
+      {
+        OldIsProcessAssignMacroKey=IsProcessAssignMacroKey;
+        IsProcessAssignMacroKey=1;
+        OldIsProcessVE_FindFile=IsProcessVE_FindFile;
+        IsProcessVE_FindFile=0;
+      }
+     ~BlockExtKey(){IsProcessAssignMacroKey=OldIsProcessAssignMacroKey; IsProcessVE_FindFile=OldIsProcessVE_FindFile;}
+  };
+
   /* $ 15.07.2000 SVS
      Плагины ищутся сначала в персональном каталоге, а потом в "системном"
      для того, чтобы перекрыть "системные" своими... :-)
@@ -416,6 +434,8 @@ void PluginsSet::LoadPlugins()
   char PluginsDir[NM],FullName[NM];
   WIN32_FIND_DATA FindData;
   struct PluginItem *PData;
+
+  BlockExtKey blockExtKey;
 
   /* $ 01.09.2000 tran
      '/co' switch */
@@ -808,14 +828,15 @@ void PluginsSet::UnloadPlugin(struct PluginItem &CurPlugin,DWORD Exception)
 
 void PluginsSet::ShowMessageAboutIllegalPluginVersion(char* plg,int required)
 {
-    char msg[512];
+    char msg[2][512];
     char PlgName[NM];
     strcpy(PlgName,plg);
     TruncPathStr(PlgName,ScrX-20);
-    sprintf(msg,MSG(MPlgRequired),
-           HIBYTE(LOWORD(required)),LOBYTE(LOWORD(required)),HIWORD(required),
+    sprintf(msg[0],MSG(MPlgRequired),
+           HIBYTE(LOWORD(required)),LOBYTE(LOWORD(required)),HIWORD(required));
+    sprintf(msg[1],MSG(MPlgRequired2),
            HIBYTE(LOWORD(FAR_VERSION)),LOBYTE(LOWORD(FAR_VERSION)),HIWORD(FAR_VERSION));
-    Message(MSG_WARNING,1,MSG(MError),MSG(MPlgBadVers),PlgName,msg,MSG(MOk));
+    Message(MSG_WARNING,1,MSG(MError),MSG(MPlgBadVers),PlgName,msg[0],msg[1],MSG(MOk));
 }
 /* tran 03.08.2000 $ */
 /* SVS $ */

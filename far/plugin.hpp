@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.188 13.02.2002 $ */
+/* Revision: 1.189 21.02.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  21.02.2002 SVS
+    + EJECT_READY - только для внутренних целей...
   13.02.2002 SVS
     + MIF_USETEXTPTR - щоб юзать FarMenuItemEx.Text.TextPtr
     ! 130 -> 128 - так вот и живем...
@@ -1553,8 +1555,13 @@ enum FarDescriptionSettings {
 #define CONSOLE_WINDOWED       (0)
 #define CONSOLE_FULLSCREEN     (1)
 
-#define EJECT_NO_MESSAGE       0x00000001
-#define EJECT_LOAD_MEDIA       0x00000002
+enum {
+ EJECT_NO_MESSAGE                    = 0x00000001,
+ EJECT_LOAD_MEDIA                    = 0x00000002,
+#ifdef FAR_USE_INTERNALS
+ EJECT_READY                         = 0x80000000,
+#endif // END FAR_USE_INTERNALS
+};
 
 struct ActlEjectMedia {
   DWORD Letter;

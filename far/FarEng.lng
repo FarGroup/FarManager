@@ -956,6 +956,8 @@
 "Do you want to disconnect the device anyway?"
 "Volume %c: it cannot be ejected."
 "It use by another application"
+; "Waiting a loading a disk..."
+"Waiting for disk to mount..."
 "Could not unlock media from drive %c:"
 "Could not eject media from drive %c:"
 "#!$%*+-/(),."
@@ -1350,8 +1352,10 @@
 "User password"
 
 "Cannot read folder contents"
+
 "This plugin requires higher FAR version"
-"Required FAR version is %d.%d.%d. Current FAR version is %d.%d.%d"
+"Required FAR version is %d.%d.%d."
+"Current FAR version is %d.%d.%d"
 
 "Buffer allocated for file name too small."
 "Required %d bytes, but allocated only %d ones"

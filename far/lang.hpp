@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.95 23.01.2002 $ */
+/* Revision: 1.96 21.02.2002 $ */
 
 /*
 Modify:
+  21.02.2002 SVS
+    + MChangeWaitingLoadDisk, MPlgRequired2
   23.01.2002 SVS
     + MEditSavedChangedNonFile2, MEditNewPath?
   10.01.2002 SVS
@@ -1225,6 +1227,7 @@ enum
   MChangeDriveAskDisconnect,
   MChangeVolumeInUse,
   MChangeVolumeInUse2,
+  MChangeWaitingLoadDisk,
   MChangeCouldNotUnlockMedia,
   MChangeCouldNotEjectMedia,
   MAdditionalHotKey,
@@ -1618,8 +1621,10 @@ enum
   MNetUserPassword,
 
   MReadFolderError,
+
   MPlgBadVers,
   MPlgRequired,
+  MPlgRequired2,
 
   MBuffSizeTooSmall_1,
   MBuffSizeTooSmall_2,

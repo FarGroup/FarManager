@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.211 21.02.2002 $ */
+/* Revision: 1.212 21.02.2002 $ */
 
 /*
 Modify:
+  21.02.2002 SVS
+    ! Проверим фрейм на NULL в OnDestroy().
   21.02.2002 DJ
     ! корректная отрисовка списков, не имеющих фокуса
     + скорректируем позицию после DM_LISTADD и DM_LISTSET
@@ -1118,6 +1120,7 @@ void Dialog::ProcessCenterGroup(void)
 int Dialog::InitDialogObjects(int ID)
 {
   int I, J;
+  int Length,StartX;
   int Type;
   struct DialogItem *CurItem;
   int InitItemCount;
@@ -1257,11 +1260,11 @@ int Dialog::InitDialogObjects(int ID)
           ListPtr->AddItem(CurItem->ListItems);
         /* KM $ */
         /* KM $ */
-		/* $ 21.02.2002 DJ
-		   и еще про фокус сообщить надо!
-		*/
-		if (CurItem->Focus)
-		  ListPtr->SetFlags (VMENU_LISTHASFOCUS);
+        /* $ 21.02.2002 DJ
+           и еще про фокус сообщить надо!
+        */
+        if (CurItem->Focus)
+          ListPtr->SetFlags (VMENU_LISTHASFOCUS);
 		/* DJ $ */
       }
     }
@@ -3813,14 +3816,14 @@ int Dialog::ChangeFocus2(int KillFocusPos,int SetFocusPos)
 
     Item[KillFocusPos].Focus=0;
     Item[SetFocusPos].Focus=1;
-	/* $ 21.02.2002 DJ
-	   проинформируем листбокс, есть ли у него фокус
-	*/
-	if (Item[KillFocusPos].Type == DI_LISTBOX)
+    /* $ 21.02.2002 DJ
+       проинформируем листбокс, есть ли у него фокус
+    */
+    if (Item[KillFocusPos].Type == DI_LISTBOX)
       Item[KillFocusPos].ListPtr->SkipFlags (VMENU_LISTHASFOCUS);
     if (Item[SetFocusPos].Type == DI_LISTBOX)
       Item[SetFocusPos].ListPtr->SetFlags (VMENU_LISTHASFOCUS);
-	/* DJ */
+    /* DJ */
 
     Dialog::PrevFocusPos=Dialog::FocusPos;
     Dialog::FocusPos=SetFocusPos;
@@ -4944,7 +4947,9 @@ void Dialog::OnDestroy()
 {
   if(DialogMode.Check(DMODE_RESIZED))
   {
-    FrameManager->GetBottomFrame()->UnlockRefresh();
+    Frame *BFrame=FrameManager->GetBottomFrame();
+    if(BFrame)
+      BFrame->UnlockRefresh();
     Dialog::SendDlgMessage((HANDLE)this,DM_KILLSAVESCREEN,0,0);
   }
 };

@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.34 12.02.2002 $ */
+/* Revision: 1.35 21.02.2002 $ */
 
 /*
 Modify:
+  21.02.2002 SVS
+    - BugZ#316 - Нет разделителя.
   12.02.2002 SVS
     - BugZ#303 - Колёсико мыши в дереве
       Сделаем по аналогии с наФигацией в обычной панели.
@@ -271,7 +273,7 @@ void TreeList::DisplayTree(int Fast)
   }
   SetColor(COL_PANELTEXT);
 
-  SetScreen(X1+1,Y2-2,X2-1,Y2-1,' ',COL_PANELTEXT);
+  SetScreen(X1+1,Y2-(ModalMode?2:1),X2-1,Y2-1,' ',COL_PANELTEXT);
   if (TreeCount>0)
   {
     GotoXY(X1+1,Y2-1);

@@ -5,10 +5,13 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.37 31.01.2002 $ */
+/* Revision: 1.38 21.02.2002 $ */
 
 /*
 Modify:
+  21.02.2002 SVS
+    ! Покажим кейбар (если надо) и командную строку перед загрузкой
+      плагинов, а мало того, что пустые панели, так они еще и подвешены
   31.01.2002 SVS
     - BugZ#194 - Не сохраняются позиции в фоновых вьюверах/редакторах при
       выходе из FARа
@@ -198,6 +201,10 @@ void ControlObject::Init()
       Cp()->RightPanel->GoToFile(Opt.RightCurFile);
   }
   /* tran 07.09.2000 $ */
+
+  CmdLine->Show();
+  if(Opt.ShowKeyBar)
+    this->MainKeyBar->Show();
 
   Plugins.LoadPlugins();
   FrameManager->InsertFrame(FPanels);

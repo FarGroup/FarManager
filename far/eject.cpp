@@ -5,10 +5,12 @@ Eject съемных носителей
 
 */
 
-/* Revision: 1.05 13.02.2002 $ */
+/* Revision: 1.06 21.02.2002 $ */
 
 /*
 Modify:
+  21.02.2002 SVS
+    ! Юзание mci-команд для масдая (хотя, WC, падла, не юзает msiSend...)
   13.02.2002 SVS
     ! Уборка варнингов
     - Упс. Потаенная бага... - проверка результата CreateFile
@@ -28,6 +30,7 @@ Modify:
 */
 
 #include "headers.hpp"
+#include "mmsystem.h"
 #pragma hdrstop
 
 #include "plugin.hpp"
@@ -35,11 +38,14 @@ Modify:
 #include "lang.hpp"
 #include "global.hpp"
 
+#define __USE_MCI    1
+
 /* $ 14.12.2000 SVS
    Добавлен код для выполнения Eject съемных носителей для
    Win9x & WinNT/2K
 */
 
+#if !defined(__USE_MCI)
 /*
    Program to programmatically eject removable media from a drive on
    Windows 95.
@@ -209,7 +215,6 @@ static BOOL EjectMedia (HANDLE hVWin32, BYTE bDrive)
    return fResult;
 }
 
-
 /*-----------------------------------------------------------------------
 LockLogicalVolume (hVWin32, bDriveNum, bLockLevel, wPermissions)
 
@@ -342,7 +347,7 @@ ATTEMPT_AGAIN:
    }
    return fResult;
 }
-
+#endif
 /*-----------------------------------------------------------------------
 This program ejects media from the specified drive, if the media is
 removable and the device supports software-controlled media removal.
@@ -350,6 +355,7 @@ This code works on Windows 95 only.
 -----------------------------------------------------------------------*/
 BOOL EjectVolume95 (char Letter,DWORD Flags)
 {
+#if !defined(__USE_MCI)
    HANDLE hVWin32;
    BYTE   bDrive;
    BOOL   fDriveLocked;
@@ -410,6 +416,55 @@ CLEANUP_AND_EXIT_APP:
       CloseHandle (hVWin32);
 
    return Ret;
+#else
+    typedef MCIERROR (WINAPI *PMCISENDCOMMAND)(MCIDEVICEID IDDevice,UINT uMsg,DWORD fdwCommand,DWORD dwParam);
+    static PMCISENDCOMMAND pmciSendCommand=NULL;
+    if(!pmciSendCommand)
+      pmciSendCommand=(PMCISENDCOMMAND)GetProcAddress(LoadLibrary("WINMM.DLL"),"mciSendCommandA");
+
+    if(!pmciSendCommand)
+      return FALSE;
+
+    UINT wDeviceID;
+    DWORD dwReturn;
+    MCI_OPEN_PARMS mciOpenParms;
+
+    char Buf[4]="A:";
+    *Buf=Letter;
+    // Opens a CD audio device by specifying the device name.
+    mciOpenParms.lpstrDeviceType = "cdaudio";
+    mciOpenParms.lpstrElementName=Buf;
+    if ((dwReturn = pmciSendCommand(NULL, MCI_OPEN, MCI_OPEN_TYPE|MCI_OPEN_ELEMENT, (DWORD)(LPVOID) &mciOpenParms)) != 0)
+      return FALSE;
+
+    wDeviceID = mciOpenParms.wDeviceID;
+    if(Flags&EJECT_READY)
+    {
+      MCI_STATUS_PARMS mciStatParam;
+      mciStatParam.dwItem=MCI_STATUS_READY ;
+      dwReturn=pmciSendCommand(wDeviceID, MCI_STATUS, MCI_STATUS_ITEM|MCI_STATUS_MODE, (DWORD)(LPVOID) &mciStatParam);
+      if(!dwReturn)
+      {
+        dwReturn=mciStatParam.dwReturn==TRUE?FALSE:TRUE;
+      }
+#if defined(_DEBUG)
+      else
+      {
+        char Buf[200];
+        mciGetErrorString(dwReturn,Buf,sizeof(Buf));
+        Message(0,1,"MCI Error",Buf,"Ok");
+      }
+#endif
+    }
+    else
+    {
+      MCI_SET_PARMS mciSetParms;
+      dwReturn=pmciSendCommand(wDeviceID, MCI_SET, ((Flags&EJECT_LOAD_MEDIA)?MCI_SET_DOOR_CLOSED|MCI_WAIT:MCI_SET_DOOR_OPEN), (DWORD)(LPVOID) &mciSetParms);
+    }
+    pmciSendCommand(wDeviceID, MCI_CLOSE, MCI_WAIT, NULL);
+    return dwReturn==0;
+#endif
+
 }
 
 /* Функция by Vadim Yegorov <zg@matrica.apollo.lv>
@@ -469,6 +524,22 @@ BOOL EjectVolume(char Letter,DWORD Flags)
 
         if(DeviceIoControl(DiskHandle,IOCTL_STORAGE_MEDIA_REMOVAL,&PreventMediaRemoval,sizeof(PreventMediaRemoval),NULL,0,&temp,NULL))
         {
+#if 1
+          // чистой воды шаманство...
+          if(Flags&EJECT_READY)
+          {
+            fAutoEject=DeviceIoControl(DiskHandle,
+                         IOCTL_STORAGE_CHECK_VERIFY,
+                         NULL,0,0,0,&temp,NULL);
+            // ...если ошибка = "нет доступа", то это похоже на то,
+            // что диск вставлен
+            // Способ экспериментальный, потому афишировать не имеет смысла.
+            if(!fAutoEject && GetLastError() == 5)
+              fAutoEject=TRUE;
+            Retry=FALSE;
+          }
+          else
+#endif
           fAutoEject=DeviceIoControl(DiskHandle,
               (Flags&EJECT_LOAD_MEDIA)?IOCTL_STORAGE_LOAD_MEDIA:IOCTL_STORAGE_EJECT_MEDIA,
               NULL,0,NULL,0,&temp,NULL);
@@ -484,6 +555,8 @@ BOOL EjectVolume(char Letter,DWORD Flags)
           if(Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),MsgText,MSG(MRetry),MSG(MCancel)))
             Retry=FALSE;
         }
+        else
+          Retry=FALSE;
       }
     DeviceIoControl(DiskHandle,FSCTL_UNLOCK_VOLUME,NULL,0,NULL,0,&temp,NULL);
     CloseHandle(DiskHandle);

@@ -8,10 +8,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.70 05.02.2002 $ */
+/* Revision: 1.71 21.02.2002 $ */
 
 /*
 Modify:
+  21.02.2002 SVS
+    - BugZ#308. Enter попадает в редактор - дропнем LastRecord в манагере
   05.02.2002 SVS
     ! технологический патч - про сислоги
   16.01.2002 SVS
@@ -480,6 +482,7 @@ int KeyMacro::ProcessKey(int Key)
         ! Залочить _текущий_ фрейм, а не _последний немодальный_ */
       FrameManager->GetCurrentFrame()->LockRefresh(); // отменим прорисовку фрейма
       MacroKey=AssignMacroKey();
+      FrameManager->ResetLastInputRecord();
       FrameManager->GetCurrentFrame()->UnlockRefresh(); // теперь можно :-)
       /* VVM $ */
 //_SVS(SysLog(-1));

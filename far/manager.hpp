@@ -7,10 +7,12 @@ manager.hpp
 
 */
 
-/* Revision: 1.23 11.10.2001 $ */
+/* Revision: 1.24 21.02.2002 $ */
 
 /*
 Modify:
+  21.02.2002 SVS
+    + ResetLastInputRecord() - вызывается после назначения макроса.
   11.10.2001 IS
     + CountFramesWithName
   04.10.2001 OT
@@ -194,6 +196,7 @@ class Manager
     /* DJ $ */
 
     INPUT_RECORD *GetLastInputRecord() { return &LastInputRecord; }
+    void ResetLastInputRecord() { LastInputRecord.EventType=0; }
 
     /* $ 12.05.2001 DJ */
     Frame *GetCurrentFrame() { return CurrentFrame; }
