@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.145 09.04.2002 $ */
+/* Revision: 1.146 10.04.2002 $ */
 
 /*
 Modify:
+  10.04.2002 SVS
+    - Ќа панел€х разные диски. Ctrl-Alt-: Esc Ctrl-Alt-Ins Shift-Ins
+      имеем неверную подстановку пути. ¬се дело в "текущем каталоге"
   09.04.2002 SVS
     - BugZ#449 - Ќеверна€ работа CtrlAltF с ресурсами Novell DS
   08.04.2002 SVS
@@ -1040,14 +1043,18 @@ int FileList::ProcessKey(int Key)
       int NewKey = KEY_CTRLF;
       if (Key & KEY_ALT)
         NewKey|=KEY_ALT;
+
       Panel *SrcPanel = CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel);
       int OldState = SrcPanel->IsVisible();
       SrcPanel->SetVisible(1);
       SrcPanel->ProcessKey(NewKey);
       SrcPanel->SetVisible(OldState);
+
+      SetCurPath();
       return(TRUE);
     }
     /* VVM $ */
+
     case KEY_CTRLENTER:
     case KEY_CTRLJ:
     case KEY_CTRLF:
@@ -3237,8 +3244,8 @@ void FileList::CopyNames(int FillPathName,int UNC)
   {
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
   }
-  GetSelName(NULL,FileAttr);
 
+  GetSelName(NULL,FileAttr);
   while (GetSelName(SelName,FileAttr,SelShortName))
   {
     if (DataSize>0)
