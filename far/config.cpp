@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.41 16.12.2000 $ */
+/* Revision: 1.42 07.01.2001 $ */
 
 /*
 Modify:
+  07.01.2001 SVS
+    ! Opt.EditorReadOnlyLock = 2, т.е. выдавать предупреждение.
   16.12.2000 IS
     - баг: забыли считать опцию DLG_VIEW_AUTODETECT из диалога
   13.12.2000 SVS
@@ -778,7 +780,7 @@ void ReadConfig()
    + Opt.EditorReadOnlyLock - лочить файл при открытии в редакторе, если
      он имеет атрибуты R|S|H
   */
-  GetRegKey("Editor","ReadOnlyLock",Opt.EditorReadOnlyLock,1);
+  GetRegKey("Editor","ReadOnlyLock",Opt.EditorReadOnlyLock,2);
   /* SVS $ */
   /* $ 03.08.2000 SVS
      Записать разграничитель слов из реестра
