@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.30 25.12.2001 $ */
+/* Revision: 1.31 19.01.2002 $ */
 
 /*
 Modify:
+  19.01.2002 VVM
+    ! Ќебольшое уточнение в CenterStr
   25.12.2001 SVS
     + AddEndSlash(char *Path,char TypeSlash) - с €вно заданным слешем
     ! оптимизаци€ в RemoveTrailingSpaces,  RemoveLeadingSpaces,
@@ -624,7 +626,9 @@ char* CenterStr(char *Src,char *Dest,int Length)
   strncpy(TempSrc,Src,sizeof(TempSrc)-1);
   int SrcLength=strlen(Src);
   if (SrcLength >= Length)
-    strncpy(Dest,TempSrc,Length-1);
+    /* «десь не надо отнимать 1 от длины, т.к. strlen не учитывает \0
+       и мы получали обрезанные строки */
+    strncpy(Dest,TempSrc,Length);
   else
   {
     int Space=(Length-SrcLength)/2;
