@@ -5,10 +5,13 @@ findfile.cpp
 
 */
 
-/* Revision: 1.152 23.10.2003 $ */
+/* Revision: 1.153 26.10.2003 $ */
 
 /*
 Modify:
+  26.10.2003 KM
+    ! Если используем 16-ричный поиск, то поиск также должен искать
+      0 байты: "00 00 00"
   23.10.2003 SVS
     ! вернем обратно вайлы и слипы
   16.10.2003 SVS
@@ -812,29 +815,30 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
            Переключение видимости строки ввода искомого текста
            в зависимости от установленного чекбокса hex mode
         */
+        int LenDataStr=sizeof(DataStr);
         if (Param2)
         {
+          Transform((unsigned char *)DataStr,LenDataStr,Dlg->Item[5].Data,'X');
+          Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,6,(long)DataStr);
+
           Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,5,FALSE);
           Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,6,TRUE);
           Dialog::SendDlgMessage(hDlg,DM_ENABLE,8,FALSE);
           Dialog::SendDlgMessage(hDlg,DM_ENABLE,11,FALSE);
           Dialog::SendDlgMessage(hDlg,DM_ENABLE,12,FALSE);
           Dialog::SendDlgMessage(hDlg,DM_ENABLE,15,FALSE);
-
-          Transform(DataStr,Dlg->Item[5].Data,sizeof(DataStr),'X');
-          Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,6,(long)DataStr);
         }
         else
         {
+          Transform((unsigned char *)DataStr,LenDataStr,Dlg->Item[6].Data,'S');
+          Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,5,(long)DataStr);
+
           Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,5,TRUE);
           Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,6,FALSE);
           Dialog::SendDlgMessage(hDlg,DM_ENABLE,8,TRUE);
           Dialog::SendDlgMessage(hDlg,DM_ENABLE,11,TRUE);
           Dialog::SendDlgMessage(hDlg,DM_ENABLE,12,TRUE);
           Dialog::SendDlgMessage(hDlg,DM_ENABLE,15,TRUE);
-
-          Transform(DataStr,Dlg->Item[6].Data,sizeof(DataStr),'S');
-          Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,5,(long)DataStr);
         }
         /* KM $ */
 
@@ -873,17 +877,6 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
           Dialog::SendDlgMessage(hDlg, DM_SETCHECK, 15, BSTATE_CHECKED);
         else
           Dialog::SendDlgMessage(hDlg, DM_SETCHECK, 15, BSTATE_UNCHECKED);
-      }
-
-      if (Param1==5) // Containing text
-      {
-        Transform(DataStr,Item.Data.Data,sizeof(DataStr),'X');
-        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,6,(long)DataStr);
-      }
-      else if (Param1==6) // Containing hexadecimal code
-      {
-        Transform(DataStr,Item.Data.Data,sizeof(DataStr),'S');
-        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,5,(long)DataStr);
       }
       return TRUE;
     }
@@ -1087,11 +1080,13 @@ FindFiles::FindFiles()
     /* DJ $ */
 
     strncpy(FindAskDlg[2].Data,FindMask,sizeof(FindAskDlg[2].Data)-1);
-    strncpy(FindAskDlg[5].Data,FindStr,sizeof(FindAskDlg[5].Data)-1);
 
-    char HexStr[NM*2];
-    Transform(HexStr,(char *)FindStr,sizeof(HexStr),'X');
-    strncpy(FindAskDlg[6].Data,HexStr,sizeof(FindAskDlg[6].Data)-1);
+    /* $ 26.10.2003 KM */
+    if (SearchHex)
+      strncpy(FindAskDlg[6].Data,FindStr,sizeof(FindAskDlg[6].Data)-1);
+    else
+      strncpy(FindAskDlg[5].Data,FindStr,sizeof(FindAskDlg[5].Data)-1);
+    /* KM $ */
 
     FindAskDlg[11].Selected=CmpCase;
     FindAskDlg[12].Selected=WholeWords;
@@ -1122,14 +1117,14 @@ FindFiles::FindFiles()
       }
 
       /* Запоминание установленных параметров */
-	  Opt.CharTable.AllTables=UseAllTables;
-	  Opt.CharTable.AnsiTable=UseANSI;
-	  Opt.CharTable.UnicodeTable=UseUnicode;
-	  if (UseDecodeTable)
-	    Opt.CharTable.TableNum=TableNum+1;
-	  else
-      Opt.CharTable.TableNum=0;
-	  /****************************************/
+      Opt.CharTable.AllTables=UseAllTables;
+      Opt.CharTable.AnsiTable=UseANSI;
+      Opt.CharTable.UnicodeTable=UseUnicode;
+      if (UseDecodeTable)
+        Opt.CharTable.TableNum=TableNum+1;
+      else
+        Opt.CharTable.TableNum=0;
+      /****************************************/
 
       /* $ 01.07.2001 IS
          Проверим маску на корректность
@@ -1141,31 +1136,7 @@ FindFiles::FindFiles()
            break;
       /* IS $ */
     }
-    /* $ 14.12.2000 OT */
-    char Buf1 [24];
-    char Buf2 [128];
-    if (strlen (FindAskDlg[2].Data) > sizeof(FindMask) )
-    {
-      memset (Buf1, 0, sizeof(Buf1));
-      memset (Buf2, 0, sizeof(Buf2));
-      strncpy (Buf1, MSG(MFindFileMasks), sizeof(Buf1)-1);
-      sprintf (Buf2,MSG(MEditInputSize), Buf1, sizeof(FindMask)-1);
-      Message(MSG_WARNING,1,MSG(MWarning),Buf2,MSG(MOk));
-    }
 
-    strncpy(FindMask,*FindAskDlg[2].Data ? FindAskDlg[2].Data:"*",sizeof(FindMask)-1);
-
-    if (strlen (FindAskDlg[5].Data) > sizeof(FindStr) )
-    {
-      memset (Buf1, 0, sizeof(Buf1));
-      memset (Buf2, 0, sizeof(Buf2));
-      strncpy (Buf1, MSG(MFindFileText), sizeof(Buf1)-1);
-      RemoveHighlights(Buf1);
-      sprintf (Buf2,MSG(MEditInputSize), Buf1, sizeof(FindStr)-1);
-      Message(MSG_WARNING,1,MSG(MWarning),Buf2,MSG(MOk));
-    }
-    strncpy(FindStr,FindAskDlg[5].Data,sizeof(FindStr)-1);
-    /* OT $ */
     CmpCase=FindAskDlg[11].Selected;
     /* $ 30.07.2000 KM
        Добавлена переменная
@@ -1182,6 +1153,42 @@ FindFiles::FindFiles()
 
     // Запомнить признак использования фильтра. KM
     UseFilter=FindAskDlg[26].Selected;
+
+    /* $ 14.12.2000 OT */
+    char Buf1 [24];
+    char Buf2 [128];
+    if (strlen (FindAskDlg[2].Data) > sizeof(FindMask) )
+    {
+      memset (Buf1, 0, sizeof(Buf1));
+      memset (Buf2, 0, sizeof(Buf2));
+      strncpy (Buf1, MSG(MFindFileMasks), sizeof(Buf1)-1);
+      sprintf (Buf2,MSG(MEditInputSize), Buf1, sizeof(FindMask)-1);
+      Message(MSG_WARNING,1,MSG(MWarning),Buf2,MSG(MOk));
+    }
+
+    strncpy(FindMask,*FindAskDlg[2].Data ? FindAskDlg[2].Data:"*",sizeof(FindMask)-1);
+
+    if (strlen((SearchHex)?FindAskDlg[5].Data:FindAskDlg[6].Data) > sizeof(FindStr))
+    {
+      memset (Buf1, 0, sizeof(Buf1));
+      memset (Buf2, 0, sizeof(Buf2));
+      strncpy (Buf1, MSG(MFindFileText), sizeof(Buf1)-1);
+      RemoveHighlights(Buf1);
+      sprintf (Buf2,MSG(MEditInputSize), Buf1, sizeof(FindStr)-1);
+      Message(MSG_WARNING,1,MSG(MWarning),Buf2,MSG(MOk));
+    }
+
+    /* $ 26.10.2003 KM */
+    if (SearchHex)
+    {
+      strncpy(FindStr,FindAskDlg[6].Data,sizeof(FindStr)-1);
+      RemoveTrailingSpaces((char *)FindStr);
+    }
+    else
+      strncpy(FindStr,FindAskDlg[5].Data,sizeof(FindStr)-1);
+    /* KM $ */
+
+    /* OT $ */
 
     if (*FindStr)
     {
@@ -1774,14 +1781,14 @@ int FindFiles::FindFilesProcess()
   /* KM $ */
   if (*FindStr)
   {
+    /* $ 26.10.2003 KM */
     /* $ 24.09.2003 KM */
     char Temp[NM],FStr[NM*2];
-    if (SearchHex)
-      Transform(FStr,(char *)FindStr,sizeof(FStr),'X');
-    else
-      strncpy(FStr,FindStr,sizeof(FStr)-1);
+
+    strncpy(FStr,FindStr,sizeof(FStr)-1);
     sprintf(Temp," \"%s\"",TruncStrFromEnd(FStr,10));
     sprintf(SearchStr,MSG(MFindSearchingIn),Temp);
+    /* KM $ */
     /* KM $ */
   }
   else
@@ -2588,7 +2595,19 @@ int FindFiles::LookForString(char *Name)
 
   FILETIME LastAccess;
   int TimeRead=GetFileTime(FileHandle,NULL,&LastAccess,NULL);
-  strncpy(CmpStr,FindStr,sizeof(CmpStr)-1);
+
+  /* $ 26.10.2003 KM */
+  if (SearchHex)
+  {
+    int LenCmpStr=sizeof(CmpStr);
+
+    Transform((unsigned char *)CmpStr,LenCmpStr,(char *)FindStr,'S');
+    Length=LenCmpStr;
+  }
+  else
+    strncpy(CmpStr,FindStr,sizeof(CmpStr)-1);
+  /* KM $ */
+
   if (!CmpCase && !SearchHex)
     LocalStrupr(CmpStr);
   /* $ 30.07.2000 KM
@@ -2993,14 +3012,14 @@ void _cdecl FindFiles::WriteDialogData(void *Param)
         char SearchStr[NM];
         if (*FindStr)
         {
+          /* $ 26.10.2003 KM */
           /* $ 24.09.2003 KM */
           char Temp[NM],FStr[NM*2];
-          if (SearchHex)
-            Transform(FStr,(char *)FindStr,sizeof(FStr),'X');
-          else
-            strncpy(FStr,FindStr,sizeof(FStr)-1);
+
+          strncpy(FStr,FindStr,sizeof(FStr)-1);
           sprintf(Temp," \"%s\"",TruncStrFromEnd(FStr,10));
           sprintf(SearchStr,MSG(MFindSearchingIn),Temp);
+          /* KM $ */
           /* KM $ */
         }
         else

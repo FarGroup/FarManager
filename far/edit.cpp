@@ -5,10 +5,13 @@ edit.cpp
 
 */
 
-/* Revision: 1.108 20.10.2003 $ */
+/* Revision: 1.109 26.10.2003 $ */
 
 /*
 Modify:
+  26.10.2003 KM
+    ! Уточнение копирования маскированной строки в клипборд.
+    ! Скорректируем вставку из клипборда с учётом маски
   20.10.2003 SVS
     ! переименование
         KEY_MACRO_EDITSELECTED -> KEY_MACRO_SELECTED
@@ -1669,7 +1672,24 @@ int Edit::ProcessKey(int Key)
     {
       if (!Flags.Check(FEDITLINE_PASSWORDMODE))
         if (SelStart==-1 || SelStart>=SelEnd)
-          CopyToClipboard(Str);
+        {
+          /* $ 26.10.2003 KM
+             ! Уточнение копирования маскированной строки в клипборд.
+          */
+          if (Mask && *Mask)
+          {
+            char *ShortStr=new char[StrSize+1];
+            if (ShortStr==NULL)
+              return FALSE;
+            strncpy(ShortStr,Str,StrSize);
+            RemoveTrailingSpaces(ShortStr);
+            CopyToClipboard(ShortStr);
+            delete[] ShortStr;
+          }
+          else
+            CopyToClipboard(Str);
+          /* KM $ */
+        }
         else
           if (SelEnd<=StrSize)
           {
@@ -2082,16 +2102,30 @@ void Edit::SetBinaryString(const char *Str,int Length)
     RefreshStrByMask(TRUE);
     /* KM $ */
 
-    for (int i=0;i<strlen(Mask),i<strlen(Str);i++)
+    /* $ 26.10.2003 KM
+       ! Скорректируем вставку из клипборда с учётом маски
+    */
+    for (int i=0,j=0;j<strlen(Mask),j<Length;)
     {
       if (CheckCharMask(Mask[i]))
-        InsertKey(Str[i]);
+      {
+        int goLoop=FALSE;
+        if (KeyMatchedMask(Str[j]))
+          InsertKey(Str[j]);
+        else
+          goLoop=TRUE;
+        j++;
+        if (goLoop) continue;
+      }
       else
       {
         PrevCurPos=CurPos;
         CurPos++;
       }
+      i++;
     }
+    /* KM $ */
+
     /* Здесь необходимо условие (*Str==0), т.к. для очистки строки
        обычно вводится нечто вроде SetBinaryString("",0)
        Т.е. таким образом мы добиваемся "инициализации" строки с маской
@@ -2189,7 +2223,7 @@ void Edit::InsertBinaryString(const char *Str,int Length)
          Внесены исправления для правильной работы PasteFromClipboard
          в строке с маской
       */
-      for (int i=Pos,j=0;j<StrLen+Pos && Str[j];)
+      for (int i=Pos,j=0;j<StrLen+Pos;)
       {
         if (CheckCharMask(Mask[i]))
         {

@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.152 20.10.2003 $ */
+/* Revision: 1.153 26.10.2003 $ */
 
 /*
 Modify:
+  26.10.2003 KM
+    - Исправление ошибки переполнения буфера в Transform.
+    ! Изменение входных параметров и логики трансформирования в Transform.
   20.10.2003 SVS
     - FSF.FarRecursiveSearch, не может найти файл если в качестве маски задано
       его короткое имя.
@@ -1696,47 +1699,74 @@ int CheckUpdateAnotherPanel(Panel *SrcPanel,const char *SelName)
   return FALSE;
 }
 
+/* $ 26.10.2003 KM
+   Исправление и изменение внутренней логики
+*/
 /* $ 21.09.2003 KM
    Трансформация строки по заданному типу.
 */
-char *Transform(char *Str,const char *ConvStr,int StrLen,char TransformType)
+void Transform(unsigned char *Buffer,int &BufLen,const char *ConvStr,char TransformType)
 {
-  int I,L,N;
-  char *stop;
+  int I,J,L,N;
+  char *stop,HexNum[3];
 
   switch(TransformType)
   {
-    case 'X': // Convert common string to hexadecimal string representation using "HH " template
+    case 'X': // Convert common string to hexadecimal string representation
     {
-      *Str=0;
+      *(char *)Buffer=0;
       L=strlen(ConvStr);
-      N=min(StrLen,L);
-      for (I=0;I<N;I++)
-        // "%02X " - три выходящих символа на каждый один входящий
-        sprintf(Str+strlen(Str),"%02X ",ConvStr[I]);
-
-      RemoveTrailingSpaces(Str);
-      break;
-    }
-    case 'S': // Convert hexadecimal string representation using "HH " template to common string
-    {
-      *Str=0;
-      L=strlen(ConvStr);
-      N=min(StrLen,L);
-      for (I=0;I<N;I+=3)
+      N=min((BufLen-1)/2,L);
+      for (I=0,J=0;I<N;I++,J+=2)
       {
-        // "HH " - три входящих символа на каждый один выходящий
-        unsigned long value=strtoul(&ConvStr[I],&stop,16);
-        if (value==0)
-          break;
-        sprintf(Str+strlen(Str),"%c",value);
+        // "%02X" - два выходящих символа на каждый один входящий
+        sprintf((char *)Buffer+J,"%02X",ConvStr[I]);
+        BufLen=J+1;
       }
 
+      RemoveTrailingSpaces((char *)Buffer);
+      break;
+    }
+    case 'S': // Convert hexadecimal string representation to common string
+    {
+      *(char *)Buffer=0;
+
+      L=strlen(ConvStr);
+      char *NewStr=new char[L+1];
+      if (NewStr==NULL)
+        return;
+
+      // Подготовка временной строки
+      memset(NewStr,0,L+1);
+
+      // Обработка hex-строки: убираем пробелы между байтами.
+      for (I=0,J=0;ConvStr[I];++I)
+      {
+        if (ConvStr[I]==' ')
+          continue;
+        NewStr[J]=ConvStr[I];
+        ++J;
+      }
+
+      L=strlen(NewStr);
+      N=min(BufLen-1,L);
+      for (I=0,J=0;I<N;I+=2,J++)
+      {
+        // "HH" - два входящих символа на каждый один выходящий
+        strncpy(HexNum,&NewStr[I],2);
+        HexNum[2]=0;
+        unsigned long value=strtoul(HexNum,&stop,16);
+        Buffer[J]=value;
+        BufLen=J+1;
+      }
+      Buffer[J]=0;
+
+      delete []NewStr;
       break;
     }
     default:
       break;
   }
-  return Str;
 }
+/* KM $ */
 /* KM $ */

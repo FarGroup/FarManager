@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.195 16.10.2003 $ */
+/* Revision: 1.196 26.10.2003 $ */
 
 /*
 Modify:
+  26.10.2003 KM
+    ! Изменение входных параметров у Transform.
   16.10.2003 SVS
     ! функции, возвращающие код клавиши возвращают не int, а DWORD
   09.10.2003 SVS
@@ -829,10 +831,14 @@ void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Tota
 int WINAPI GetFileOwner(const char *Computer,const char *Name,char *Owner);
 void SIDCacheFlush(void);
 
+/* $ 26.10.2003 KM
+   Изменение входных параметров
+*/
 /* $ 21.09.2003 KM
    Трансформирует строку по заданному типу.
 */
-char *Transform(char *Str,const char *ConvStr,int MaxLen,char TransformType);
+void Transform(unsigned char *Buffer,int &BufLen,const char *ConvStr,char TransformType);
+/* KM $ */
 /* KM $ */
 
 void ConvertDate(const FILETIME &ft,char *DateText,char *TimeText,int TimeLength,

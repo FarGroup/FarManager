@@ -6,10 +6,14 @@ editor.cpp
 
 */
 
-/* Revision: 1.239 20.10.2003 $ */
+/* Revision: 1.240 26.10.2003 $ */
 
 /*
 Modify:
+  26.10.2003 KM
+    ! ѕоскольку теперь GlobalSearchString может хранить строку в 16 представлении,
+      тогда перед копированием еЄ в LastSearchStr проверим этот режим и при необходимости
+      сконвертируем в обычный строковый формат.
   20.10.2003 SVS
     ! переименование
         KEY_MACRO_EDITSELECTED -> KEY_MACRO_SELECTED
@@ -734,7 +738,20 @@ Editor::Editor()
   memcpy(&EdOpt, &Opt.EdOpt, sizeof(EditorOptions));
   /* IS $ */
 
-  strncpy((char *)LastSearchStr,GlobalSearchString,sizeof(LastSearchStr)-1);
+  /* $ 26.10.2003 KM
+     ≈сли установлен глобальный режим поиска 16-ричных кодов, тогда
+     сконвертируем GlobalSearchString в строку, ибо она содержит строку в
+     16-ричном представлении.
+  */
+  if (GlobalSearchHex)
+  {
+    int LenSearchStr=sizeof(LastSearchStr);
+    Transform(LastSearchStr,LenSearchStr,GlobalSearchString,'S');
+  }
+  else
+    strncpy((char *)LastSearchStr,GlobalSearchString,sizeof(LastSearchStr)-1);
+  /* KM $ */
+
   LastSearchCase=GlobalSearchCase;
   /* $ 03.08.2000 KM
      ѕеременна€ дл€ поиска "Whole words"
@@ -836,7 +853,32 @@ void Editor::FreeAllocatedData()
 
 void Editor::KeepInitParameters()
 {
-  strcpy(GlobalSearchString,(char *)LastSearchStr);
+  /* $ 26.10.2003 KM
+     ! ¬осстановление GlobalSearchString в случае глобального 16-ричного поиска,
+       а также если мы ничего не искали или если искома€ строка не измен€лась
+       после работы в редакторе.
+  */
+  // ”становлен глобальный режим поиска 16-ричных данных?
+  if (GlobalSearchHex)
+  {
+    // ƒа! “огда проверим, отличаетс€ ли LastSearchStr и строковое представление GlobalSearchString...
+    char SearchStr[2*NM];
+    int LenSearchStr=sizeof(SearchStr);
+    Transform((unsigned char *)SearchStr,LenSearchStr,(char *)GlobalSearchString,'S');
+
+    // LastSearchStr отличаетс€ от строкового представлени€ GlobalSearchString
+    if (memcmp(LastSearchStr,SearchStr,LenSearchStr)!=0)
+    {
+      // ƒа! ќтличаетс€, значит осуществл€лс€ поиск из редактора, поэтому
+      // сконвертируем это значение в 16-ричное представление.
+      int LenSearchStr=sizeof(GlobalSearchString);
+      Transform((unsigned char *)GlobalSearchString,LenSearchStr,(char *)LastSearchStr,'X');
+    }
+  }
+  else
+    strcpy(GlobalSearchString,(char *)LastSearchStr);
+  /* KM $ */
+
   GlobalSearchCase=LastSearchCase;
   /* $ 03.08.2000 KM
     Ќова€ переменна€ дл€ поиска "Whole words"

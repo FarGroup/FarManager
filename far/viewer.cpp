@@ -5,10 +5,13 @@ Internal viewer
 
 */
 
-/* Revision: 1.153 24.10.2003 $ */
+/* Revision: 1.154 26.10.2003 $ */
 
 /*
 Modify:
+  26.10.2003 KM
+    ! Если используем 16-ричный поиск, то поиск также должен искать
+      0 байты: "00 00 00"
   24.10.2003 SVS
     - в продолжении вчерашнего - подправим заголовок консоли.
   23.10.2003 SVS
@@ -2718,58 +2721,55 @@ long WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
       return TRUE;
     }
-    case DN_EDITCHANGE:
-    {
-      FarDialogItem &Item=*reinterpret_cast<FarDialogItem*>(Param2);
-
-      if (Param1==2) // Containing text
-      {
-        Transform(DataStr,Item.Data.Data,sizeof(DataStr),'X');
-        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,3,(long)DataStr);
-      }
-
-      if (Param1==3) // Containing hexadecimal code
-      {
-        Transform(DataStr,Item.Data.Data,sizeof(DataStr),'S');
-        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,2,(long)DataStr);
-      }
-      return TRUE;
-    }
     case DN_BTNCLICK:
     {
       if(Param1 == 5 || Param1 == 6)
       {
 	      Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
 
+        /* $ 26.10.2003 KM */
         /* $ 22.09.2003 KM
            Переключение видимости строки ввода искомого текста
            в зависимости от установленного режима hex search
         */
+        int LenDataStr=sizeof(DataStr);
         if (Param1 == 6 && Param2)
         {
+          Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,2,(long)&Item);
+          Transform((unsigned char *)DataStr,LenDataStr,Item.Data.Data,'X');
+          Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,3,(long)DataStr);
+
           Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,2,FALSE);
           Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,3,TRUE);
           Dialog::SendDlgMessage(hDlg,DM_ENABLE,7,FALSE);
           Dialog::SendDlgMessage(hDlg,DM_ENABLE,8,FALSE);
+
+          if (strlen(DataStr)>0)
+          {
+            int UnchangeFlag=Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,2,-1);
+            Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,3,UnchangeFlag);
+          }
         }
-        else
+
+        if (Param1 == 5 && Param2)
         {
+          Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,3,(long)&Item);
+          Transform((unsigned char *)DataStr,LenDataStr,Item.Data.Data,'S');
+          Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,2,(long)DataStr);
+
           Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,2,TRUE);
           Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,3,FALSE);
           Dialog::SendDlgMessage(hDlg,DM_ENABLE,7,TRUE);
           Dialog::SendDlgMessage(hDlg,DM_ENABLE,8,TRUE);
+
+          if (strlen(DataStr)>0)
+          {
+            int UnchangeFlag=Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,3,-1);
+            Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,2,UnchangeFlag);
+          }
         }
         /* KM $ */
-
-        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,2,(long)&Item);
-        Transform(DataStr,Item.Data.Data,sizeof(DataStr),'X');
-        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,3,(long)DataStr);
-
-        if (strlen(DataStr)>0)
-        {
-          int UnchangeFlag=Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,2,-1);
-          Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,3,UnchangeFlag);
-        }
+        /* KM $ */
 
 	      Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
         return TRUE;
@@ -2859,11 +2859,11 @@ void Viewer::Search(int Next,int FirstChar)
   else
     *SearchStr=0;
 
-  strncpy(SearchDlg[2].Data,(char *)SearchStr,sizeof(SearchDlg[2].Data)-1);
   SearchDlg[5].Selected=!LastSearchHex;
   SearchDlg[6].Selected=LastSearchHex;
   SearchDlg[7].Selected=LastSearchCase;
   /* KM $ */
+
   /* $ 01.08.2000 KM
      Инициализация checkbox'а "Whole words"
   */
@@ -2882,14 +2882,13 @@ void Viewer::Search(int Next,int FirstChar)
   }
 
   if(SearchDlg[6].Selected)
-  {
     SearchDlg[7].Flags|=DIF_DISABLE;
-  }
 
-  /* $ 22.09.2003 KM */
-  char HexStr[NM*2];
-  Transform(HexStr,(char *)SearchStr,sizeof(HexStr),'X');
-  strncpy(SearchDlg[3].Data,HexStr,sizeof(SearchDlg[3].Data)-1);
+  /* $ 26.10.2003 KM */
+  if(SearchDlg[6].Selected)
+    strncpy(SearchDlg[3].Data,(char *)SearchStr,sizeof(SearchDlg[3].Data)-1);
+  else
+    strncpy(SearchDlg[2].Data,(char *)SearchStr,sizeof(SearchDlg[2].Data)-1);
   /* KM $ */
 
   if (!Next)
@@ -2908,7 +2907,7 @@ void Viewer::Search(int Next,int FirstChar)
     if (Dlg.GetExitCode()!=11)
       return;
   }
-  strncpy((char *)SearchStr,SearchDlg[2].Data,sizeof(SearchStr)-1);
+
   SearchHex=SearchDlg[6].Selected;
   Case=SearchDlg[7].Selected;
   /* $ 01.08.2000 KM
@@ -2917,6 +2916,16 @@ void Viewer::Search(int Next,int FirstChar)
   WholeWords=SearchDlg[8].Selected;
   /* KM $ */
   ReverseSearch=SearchDlg[9].Selected;
+
+  /* $ 26.10.2003 KM */
+  if(SearchHex)
+  {
+    strncpy((char *)SearchStr,SearchDlg[3].Data,sizeof(SearchStr)-1);
+    RemoveTrailingSpaces((char *)SearchStr);
+  }
+  else
+    strncpy((char *)SearchStr,SearchDlg[2].Data,sizeof(SearchStr)-1);
+  /* KM $ */
 
   strncpy((char *)LastSearchStr,(char *)SearchStr,sizeof(LastSearchStr)-1);
   LastSearchHex=SearchHex;
@@ -2935,13 +2944,8 @@ void Viewer::Search(int Next,int FirstChar)
   {
     //SaveScreen SaveScr;
     SetCursorType(FALSE,0);
-    if (SearchHex)
-    {
-      strncpy(MsgStr,(char *)SearchDlg[3].Data,sizeof(MsgStr)-1);
-      RemoveTrailingSpaces(MsgStr);
-    }
-    else
-      strncpy(MsgStr,(char *)SearchStr,sizeof(MsgStr)-1);
+
+    strncpy(MsgStr,(char *)SearchStr,sizeof(MsgStr)-1);
 
     if(strlen(MsgStr)+16 >= X2)
       TruncStrFromEnd(MsgStr, ObjWidth-17);
@@ -2949,6 +2953,19 @@ void Viewer::Search(int Next,int FirstChar)
 
     SetPreRedrawFunc(PR_ViewerSearchMsg);
     ViewerSearchMsg(MsgStr);
+
+    /* $ 26.10.2003 KM */
+    if (SearchHex)
+    {
+      unsigned char HexStr[NM*2];
+      int LenHexStr=sizeof(HexStr);
+
+      Transform(HexStr,LenHexStr,(char *)SearchStr,'S');
+      SearchLength=LenHexStr;
+
+      memmove(SearchStr,HexStr,sizeof(SearchStr));
+    }
+    /* KM $ */
 
     if (!Case && !SearchHex)
       for (int I=0;I<SearchLength;I++)
