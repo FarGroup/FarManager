@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.38 05.04.2002 $ */
+/* Revision: 1.39 07.04.2002 $ */
 
 /*
 Modify:
+  07.04.2002 KM
+    + IsRedrawFramesInProcess
   05.04.2002 SVS
     + Prev?ButtonPressed
   01.04.2002 SVS
@@ -199,6 +201,7 @@ extern BOOL LanguageLoaded;
 extern BOOL NotUseCAS;
 extern BOOL IsProcessAssignMacroKey;
 extern BOOL IsProcessVE_FindFile;
+extern BOOL IsRedrawFramesInProcess;
 
 extern PREREDRAWFUNC PreRedrawFunc;
 extern struct PreRedrawParamStruct PreRedrawParam;

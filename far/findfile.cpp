@@ -5,10 +5,18 @@ findfile.cpp
 
 */
 
-/* Revision: 1.106 05.04.2002 $ */
+/* Revision: 1.107 07.04.2002 $ */
 
 /*
 Modify:
+  07.04.2002 KM
+    - Вроде должен исчезнуть нестабильный баг с однократным
+      отображением "||||" вместо строки "Искать в корня диска".
+    - Неперерисовка подложки диалога поиска при выборе
+      нового диска.
+    - Сломался переход на каталог из списка найденных файлов
+      во время починки попадания лишних каталогов во временную
+      панель.
   05.04.2002 SVS
     ! MAX_READ -> Opt.PluginMaxReadData
   04.04.2002 KM
@@ -570,7 +578,13 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         return FALSE;
       else if (Param1==24) // [ Drive ]
       {
+        IsRedrawFramesInProcess++;
         ActivePanel->ChangeDisk();
+        // Ну что ж, раз пошла такая пьянка рефрешить фреймы
+        // будем таким способом.
+        FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
+        IsRedrawFramesInProcess--;
+
         PrepareDriveNameStr(SearchFromRoot,sizeof(SearchFromRoot));
         ItemData.PtrLength=strlen(SearchFromRoot);
         ItemData.PtrData=SearchFromRoot;
@@ -610,7 +624,8 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 FindFiles::FindFiles()
 {
   static char LastFindMask[NM]="*.*",LastFindStr[SEARCHSTRINGBUFSIZE];
-  char SearchFromRoot[128];
+  // Статической структуре и статические переменные
+  static char SearchFromRoot[128]="";
   /* $ 30.07.2000 KM
      Добавлена переменная LastWholeWords для поиска по точному совпадению
   */
@@ -634,6 +649,9 @@ FindFiles::FindFiles()
   TableItem[1].Flags=LIF_SEPARATOR;
   strncpy(TableItem[2].Text,MSG(MGetTableNormalText),sizeof(TableItem[2].Text)-1);
   strncpy(TableItem[3].Text,"Unicode",sizeof(TableItem[3].Text)-1);
+
+  strncpy(SearchFromRoot,MSG(MSearchFromRoot),sizeof(SearchFromRoot)-1);
+  SearchFromRoot[sizeof(SearchFromRoot)-1]=0;
 
   for (int I=0;;I++)
   {
@@ -751,7 +769,7 @@ FindFiles::FindFiles()
         Dialog Dlg(FindAskDlg,sizeof(FindAskDlg)/sizeof(FindAskDlg[0]),MainDlgProc);
 
         Dlg.SetHelp("FindFile");
-        Dlg.SetPosition(-1,-1,76,21);
+        Dlg.SetPosition(-1,-1,DLG_WIDTH+4,DLG_HEIGHT);
         Dlg.Process();
         ExitCode=Dlg.GetExitCode();
       }
@@ -1328,8 +1346,9 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
 int FindFiles::FindFilesProcess()
 {
-  char Title[2*NM];
-  char SearchStr[NM];
+  // В статической структуре нужны и статические переменные
+  static char Title[2*NM]="";
+  static char SearchStr[NM]="";
   hDialogMutex=CreateMutex(NULL,FALSE,NULL);
 
   if (*FindMask)
@@ -1353,7 +1372,7 @@ int FindFiles::FindFilesProcess()
      корректный показ имен файлов с амперсандами
   */
   static struct DialogData FindDlgData[]={
-  /* 00 */DI_DOUBLEBOX,3,1,72,DLG_HEIGHT-2,0,0,DIF_SHOWAMPERSAND,0,Title,
+  /* 00 */DI_DOUBLEBOX,3,1,DLG_WIDTH,DLG_HEIGHT-2,0,0,DIF_SHOWAMPERSAND,0,Title,
   /* 01 */DI_LISTBOX,4,2,71,14,0,0,DIF_LISTNOBOX,0,(char*)0,
   /* 02 */DI_TEXT,-1,15,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
   /* 03 */DI_TEXT,5,16,0,0,0,0,DIF_SHOWAMPERSAND,0,SearchStr,
@@ -1409,7 +1428,7 @@ int FindFiles::FindFilesProcess()
   hDlg=(HANDLE)pDlg;
   pDlg->SetDynamicallyBorn(TRUE);
   pDlg->SetHelp("FindFile");
-  pDlg->SetPosition(-1,-1,76,DLG_HEIGHT+IncY);
+  pDlg->SetPosition(-1,-1,DLG_WIDTH+4,DLG_HEIGHT+IncY);
   // Надо бы показать диалог, а то инициализация элементов запаздывает
   // иногда при поиске и первые элементы не добавляются
   pDlg->Show();
@@ -1461,7 +1480,7 @@ int FindFiles::FindFilesProcess()
       int ItemsNumber=0;
       for (int i=0;i<ListSize;i++)
       {
-        if (strlen(FindList[i].FindData.cFileName)>0)
+        if (strlen(FindList[i].FindData.cFileName)>0 && FindList[i].Used)
         // Добавляем всегда, если имя задано
         {
           // Для плагинов с виртуальными именами заменим имя файла на имя архива.
@@ -1938,14 +1957,15 @@ void FindFiles::AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData)
     {
       // Сбросим данные в FindData. Они там от файла
       memset(&FindList[ItemIndex].FindData,0,sizeof(FindList[ItemIndex].FindData));
-      /* $ 24.03.2002 KM
-         Для каталога, в котором производится поиск, выставим
-         пустое имя, для того чтобы в дальнейшем это имя
-         не попало во временную панель. Найденные по маске
-         каталоги при использовании опции "Искать папки"
-         добавляются в список отдельно далее.
+      // Используем LastDirName, т.к. PathName уже может быть искажена
+      strncpy(FindList[ItemIndex].FindData.cFileName, LastDirName,
+              sizeof(FindList[ItemIndex].FindData.cFileName)-1);
+      /* $ 07.04.2002 KM
+        - Вместо пустого имени используем флаг, в противном
+          случае не работает переход на каталог из списка.
+          Used=0 - Имя не попададёт во временную панель.
       */
-      *FindList[ItemIndex].FindData.cFileName=0;
+      FindList[ItemIndex].Used=0;
       /* KM $ */
       // Поставим атрибут у каталога, что-бы он не был файлом :)
       FindList[ItemIndex].FindData.dwFileAttributes = FILE_ATTRIBUTE_DIRECTORY;
@@ -1970,6 +1990,11 @@ void FindFiles::AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData)
   {
     strncpy(FindList[ItemIndex].FindData.cFileName, FullName,
             sizeof(FindList[ItemIndex].FindData.cFileName)-1);
+    /* $ 07.04.2002 KM
+       Used=1 - Имя попададёт во временную панель.
+    */
+    FindList[ItemIndex].Used=1;
+    /* KM $ */
     if (FindFileArcIndex != LIST_INDEX_NONE)
       FindList[ItemIndex].ArcIndex = FindFileArcIndex;
   }

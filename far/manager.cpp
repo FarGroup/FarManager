@@ -5,10 +5,15 @@ manager.cpp
 
 */
 
-/* Revision: 1.67 04.04.2002 $ */
+/* Revision: 1.68 07.04.2002 $ */
 
 /*
 Modify:
+  07.04.2002 KM
+    - Надо бы ещё и прорефрешить меню, находящееся над диалогом,
+      иначе при активации ещё одного диалога поверх меню, с
+      последующим его закрытием, меню перемещалось под первый
+      диалог (точнее первый диалог рисовался поверх меню).
   04.04.2002 KM
     - Удавлен ещё один артефакт, приводящий к неперерисовке
       меню, вызванного из модального объекта. Проверялось так:
@@ -239,8 +244,6 @@ Manager::Manager()
   UnmodalizedFrame=NULL;
   ExecutedFrame=NULL;
   SemiModalBackFrame=NULL;
-
-  RedrawFramesInProcess=0;
 }
 
 Manager::~Manager()
@@ -1113,9 +1116,21 @@ void Manager::RefreshCommit()
   if (!RefreshedFrame)
     return;
   if (RefreshedFrame->Refreshable()){
-    if (RedrawFramesInProcess==0)
+    if (!IsRedrawFramesInProcess)
       RefreshedFrame->ShowConsoleTitle();
     RefreshedFrame->Refresh();
+    /* $ 07.04.2002 KM
+      - Надо бы ещё и прорефрешить меню, находящееся
+        над диалогом, иначе при активации диалога над меню
+        и удалении его, меню перемещалось под первый
+        диалог (точнее первый диалог рисовался поверх меню).
+    */
+    if (RefreshedFrame && RefreshedFrame->NextModal)
+    {
+      RefreshFrame(RefreshedFrame->NextModal);
+      Commit();
+    }
+    /* KM $ */
     if (!RefreshedFrame)
       return;
     CtrlObject->Macro.SetMode(RefreshedFrame->GetMacroMode());
@@ -1165,8 +1180,8 @@ void Manager::ImmediateHide()
   // не выставляем заголовок консоли, чтобы не мелькал.
   if (ModalStackCount>0){
     int UnlockCount=0;
-    /* $ 04.04.2002 KM */
-    RedrawFramesInProcess++;
+    /* $ 07.04.2002 KM */
+    IsRedrawFramesInProcess++;
     /* KM $ */
 
     while (!(*this)[FramePos]->Refreshable()){
@@ -1185,16 +1200,6 @@ void Manager::ImmediateHide()
         if (!(ModalStack[i]->FastHide() & CASR_HELP)){
           RefreshFrame(ModalStack[i]);
           Commit();
-          /* $ 04.04.2002 KM
-             Удавлен глюк. Забыли перерисовать меню, вызванное
-             из модального объекта из-за чего происходили
-             некоторые артефакты неперерисовки.
-          */
-          if (ModalStack[i]->NextModal){
-            RefreshFrame(ModalStack[i]->NextModal);
-            Commit();
-          }
-          /* KM $ */
         } else {
           break;
         }
@@ -1205,7 +1210,7 @@ void Manager::ImmediateHide()
        Этим мы предотвращаем мелькание заголовка консоли
        при перерисовке всех фреймов.
     */
-    RedrawFramesInProcess--;
+    IsRedrawFramesInProcess--;
     CurrentFrame->ShowConsoleTitle();
     /* KM $ */
 

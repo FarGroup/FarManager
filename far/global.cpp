@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.38 05.04.2002 $ */
+/* Revision: 1.39 07.04.2002 $ */
 
 /*
 Modify:
+  07.04.2002 KM
+    + IsRedrawFramesInProcess
   05.04.2002 SVS
     + Prev?ButtonPressed
   01.04.2002 SVS
@@ -131,6 +133,9 @@ BOOL IsProcessAssignMacroKey=FALSE;
 
 // идет процесс "вьювер/редактор" во время поиска файлов?
 BOOL IsProcessVE_FindFile=FALSE;
+
+// Идёт процесс перерисовки всех фреймов
+BOOL IsRedrawFramesInProcess=FALSE;
 
 // идет процесс быстрого поиска в панелях?
 int WaitInFastFind=FALSE;

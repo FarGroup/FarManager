@@ -7,10 +7,13 @@ findfile.hpp
 
 */
 
-/* Revision: 1.11 02.04.2002 $ */
+/* Revision: 1.12 07.04.2002 $ */
 
 /*
 Modify:
+  07.04.2002 KM
+    + _FINDLIST.Used - член структуры дл€ определени€ необходимости
+      попадани€ имени файла из списка во временную панель.
   02.04.2002 KM
    + SEARCH_ALL_BUTNETWORK - ѕоиск по всем дискам, кроме сменных и сетевых.
    + PrepareDriveNameStr - поскольку используетс€ из двух мест дл€ подготовки
@@ -68,6 +71,7 @@ typedef struct _ARCLIST {
 typedef struct _FINDLIST {
   WIN32_FIND_DATA   FindData;
   DWORD             ArcIndex;
+  DWORD             Used;
 //  BYTE Addons[6];
 } FINDLIST, *LPFINDLIST;
 
