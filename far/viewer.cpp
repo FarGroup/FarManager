@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.81 27.10.2001 $ */
+/* Revision: 1.82 08.12.2001 $ */
 
 /*
 Modify:
+  08.12.2001 OT
+    Bugzilla #144 Заходим в архив, F4 на файле, Ctrl-F10.
   27.11.2001 DJ
     - косметика от BoundsChecker
   12.10.2001 SKV
@@ -2883,3 +2885,8 @@ int Viewer::ViewerControl(int Command,void *Param)
   return(FALSE);
 }
 /* SVS $ */
+
+BOOL Viewer::isTemporary() const
+{
+  return (*TempViewName);
+}

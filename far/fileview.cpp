@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.47 27.11.2001 $ */
+/* Revision: 1.48 08.12.2001 $ */
 
 /*
 Modify:
+  08.12.2001 OT
+    Bugzilla #144 Заходим в архив, F4 на файле, Ctrl-F10.
   27.11.2001 DJ
     + Local в ViewerConfig
   14.11.2001 SVS
@@ -317,6 +319,9 @@ int FileViewer::ProcessKey(int Key)
        + выход по ctrl-f10 с установкой курсора на файл */
     case KEY_CTRLF10:
       {
+        if (View.isTemporary()){
+          return(TRUE);
+        }
         SaveScreen Sc;
         char DirTmp[NM],ADir[NM],PDir[NM],*NameTmp,FileName[NM];
         View.GetFileName(FileName);

@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.73 27.11.2001 $ */
+/* Revision: 1.74 08.12.2001 $ */
 
 /*
 Modify:
+  08.12.2001 OT
+    Bugzilla #144 Заходим в архив, F4 на файле, Ctrl-F10.
   27.11.2001 DJ
     + Local в EditorConfig
   26.11.2001 VVM
@@ -625,6 +627,9 @@ int FileEditor::ProcessKey(int Key)
     */
     case KEY_CTRLF10:
       {
+        if (isTemporary()){
+          return(TRUE);
+        }
         SaveScreen Sc;
         if(strchr(FileName,'\\') || strchr(FileName,'/'))
         {
@@ -858,4 +863,9 @@ int FileEditor::GetCanLoseFocus(int DynamicMode)
 int FileEditor::FastHide()
 {
   return Opt.AllCtrlAltShiftRule & CASR_EDITOR;
+}
+
+BOOL FileEditor::isTemporary()
+{
+  return (!GetDynamicallyBorn());
 }

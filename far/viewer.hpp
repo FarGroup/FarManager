@@ -7,10 +7,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.20 25.06.2001 $ */
+/* Revision: 1.21 08.12.2001 $ */
 
 /*
 Modify:
+  08.12.2001 OT
+    Bugzilla #144 Заходим в архив, F4 на файле, Ctrl-F10.
   25.06.2001 IS
    ! Внедрение const
   25.06.2001 SVS
@@ -267,6 +269,11 @@ class Viewer:public ScreenObject
     /* $ 07.05.2001 DJ */
     NamesList *GetNamesList() { return &ViewNamesList; }
     /* DJ $ */
+
+    /* $ 08.12.2001 OT
+      возвращает признак того, является ли файл временным
+      используется для принятия решения переходить в каталог по */
+    BOOL isTemporary() const;
 };
 
 #endif // __VIEWER_HPP__

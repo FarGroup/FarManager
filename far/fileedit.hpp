@@ -7,10 +7,12 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.21 02.11.2001 $ */
+/* Revision: 1.22 08.12.2001 $ */
 
 /*
 Modify:
+  08.12.2001 OT
+    Bugzilla #144 «аходим в архив, F4 на файле, Ctrl-F10.
   02.11.2001 SVS
     ! возвращаемое значение у GetTypeName() - модификатор const
   10.10.2001 IS
@@ -156,6 +158,11 @@ class FileEditor:public Frame
     */
     void SetSaveToSaveAs(int ToSaveAs) { SaveToSaveAs=ToSaveAs; InitKeyBar(); }
     /* KM $ */
+
+    /* $ 08.12.2001 OT
+      возвращает признак того, €вл€етс€ ли файл временным
+      используетс€ дл€ прин€ти€ решени€ переходить в каталог по CtrlF10*/
+    BOOL isTemporary();
 };
 
 #endif  // __FILEEDITOR_HPP__
