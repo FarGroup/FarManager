@@ -5,12 +5,14 @@ filelist.cpp
 
 */
 
-/* Revision: 1.61 03.06.2001 $ */
+/* Revision: 1.62 03.06.2001 $ */
 
 /*
 Modify:
   03.06.2001 OT
-    - мусор в %temp% после неверно выкинутого куска кода 
+    + ”законим Alt-Shift-F9
+  03.06.2001 OT
+    - мусор в %temp% после неверно выкинутого куска кода
   02.06.2001 KM
     + Ќу уж так народ настаивает на кнопках в диалоге при открытии
       файла по Shift-F4.
@@ -644,6 +646,12 @@ int FileList::ProcessKey(int Key)
       if (PanelMode==PLUGIN_PANEL && Help::PluginPanelHelp(hPlugin))
         return(TRUE);
       return(FALSE);
+    case KEY_ALTSHIFTF9:
+      if (PanelMode==PLUGIN_PANEL)
+        CtrlObject->Plugins.ConfigureCurrent(((struct PluginHandle *)hPlugin)->PluginNumber,0);
+      else
+        CtrlObject->Plugins.Configure();
+      return TRUE;
     case KEY_SHIFTSUBTRACT:
       SaveSelection();
       ClearSelection();

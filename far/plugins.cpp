@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.73 03.06.2001 $ */
+/* Revision: 1.74 03.06.2001 $ */
 
 /*
 Modify:
+  03.06.2001 SVS
+    + ConfigureCurrent() - вызов конфига конкретного плагина
   03.06.2001 SVS
     ! Изменения в связи с переделкой UserData в VMenu
   03.06.2001 OT
@@ -1632,6 +1634,37 @@ int PluginsSet::Compare(HANDLE hPlugin,struct PluginPanelItem *Item1,struct Plug
   return(-3);
 }
 
+void PluginsSet::ConfigureCurrent(int PNum,int INum)
+{
+  if (PreparePlugin(PNum) && PluginsData[PNum].pConfigure!=NULL)
+  {
+    //EXCEPTION_POINTERS *xp;
+    int Ret;
+    TRY{
+      Ret=PluginsData[PNum].pConfigure(INum);
+    }
+    __except ( xfilter(EXCEPT_CONFIGURE,
+                      GetExceptionInformation(),&PluginsData[PNum],1) )
+    {
+      return;
+    }
+    if (Ret)
+    {
+      if (CtrlObject->Cp()->LeftPanel->GetMode()==PLUGIN_PANEL)
+      {
+        CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
+        CtrlObject->Cp()->LeftPanel->Redraw();
+      }
+      if (CtrlObject->Cp()->RightPanel->GetMode()==PLUGIN_PANEL)
+      {
+        CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
+        CtrlObject->Cp()->RightPanel->Redraw();
+      }
+    }
+    SavePluginSettings(PluginsData[PNum],PluginsData[PNum].FindData);
+  }
+}
+
 /* $ 29.05.2001 IS
    ! При настройке "параметров внешних модулей" закрывать окно с их
      списком только при нажатии на ESC
@@ -1726,34 +1759,7 @@ void PluginsSet::Configure()
       break;
 
     Data=(DWORD)PluginList.GetUserData(NULL,NULL,ExitCode);
-    int PNum=LOWORD(Data);
-    if (PreparePlugin(PNum) && PluginsData[PNum].pConfigure!=NULL)
-    {
-      //EXCEPTION_POINTERS *xp;
-      int Ret;
-      TRY{
-        Ret=PluginsData[PNum].pConfigure(HIWORD(Data));
-      }
-      __except ( xfilter(EXCEPT_CONFIGURE,
-                        GetExceptionInformation(),&PluginsData[PNum],1) )
-      {
-        return;
-      }
-      if (Ret)
-      {
-        if (CtrlObject->Cp()->LeftPanel->GetMode()==PLUGIN_PANEL)
-        {
-          CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
-          CtrlObject->Cp()->LeftPanel->Redraw();
-        }
-        if (CtrlObject->Cp()->RightPanel->GetMode()==PLUGIN_PANEL)
-        {
-          CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
-          CtrlObject->Cp()->RightPanel->Redraw();
-        }
-      }
-      SavePluginSettings(PluginsData[PNum],PluginsData[PNum].FindData);
-    }
+    ConfigureCurrent(LOWORD(Data),HIWORD(Data));
   }
 }
 /* IS $ */

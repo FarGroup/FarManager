@@ -7,10 +7,12 @@ plugins.hpp
 
 */
 
-/* Revision: 1.13 22.05.2001 $ */
+/* Revision: 1.14 03.06.2001 $ */
 
 /*
 Modify:
+  03.06.2001 SVS
+    + ConfigureCurrent() - вызов конфига конкретного плагина
   22.05.2001 DJ
     ! SetPluginStartupInfo() возвращает TRUE при удачной загрузке
   16.05.2001 SVS
@@ -205,6 +207,7 @@ class PluginsSet
     void SendExit();
     char* FarGetMsg(int PluginNumber,int MsgId);
     void Configure();
+    void ConfigureCurrent(int PluginNumber,int INum);
     int CommandsMenu(int ModalType,int StartPos,char *HistoryName=NULL);
     int GetDiskMenuItem(int PluginNumber,int PluginItem,int &ItemPresent,int &PluginTextNumber,char *PluginText);
     int UseFarCommand(HANDLE hPlugin,int CommandType);

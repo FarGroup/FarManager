@@ -339,6 +339,8 @@ maximum possible size of a console window. n the fullscreen mode, Alt-F9
 toggles the screen height between 25 and 50 lines. See TechInfo##38 for
 details.
 
+  Configure ~plugin~@Plugins@ modules.                             #Alt-Shift-F9#
+
   Perform ~find folder~@FindFolder@ command                                #Alt-F10#
 
   Display ~view and edit history~@HistoryViews@                              #Alt-F11#
