@@ -21,9 +21,8 @@ void PluginClass::GetCommandFormat(int Command,char *Format,int FormatSize)
     return;*/
   if(!GetFormatName(ArcFormat))
     return;
-  GetRegKey(HKEY_LOCAL_MACHINE,ArcFormat,CmdNames[Command],Format,"",FormatSize);
-  if (*Format==0)
-    ArcPlugin->GetDefaultCommands(ArcPluginNumber,ArcPluginType,Command,Format);
+  ArcPlugin->GetDefaultCommands(ArcPluginNumber,ArcPluginType,Command,Format);
+  GetRegKey(HKEY_LOCAL_MACHINE,ArcFormat,CmdNames[Command],Format,Format,FormatSize);
 }
 
 
@@ -236,7 +235,7 @@ int PluginClass::GetFiles(struct PluginPanelItem *PanelItem, int ItemsNumber,
       return -1;
     strcpy(DestPath,DialogItems[2].Data);
     Opt.UserBackground=DialogItems[8].Selected;
-    SetRegKey(HKEY_CURRENT_USER,"","Background",Opt.UserBackground);
+    //SetRegKey(HKEY_CURRENT_USER,"","Background",Opt.UserBackground); // $ 06.02.2002 AA
   }
 
   LastWithoutPathsState=DialogItems[7].Selected;
@@ -315,6 +314,9 @@ int PluginClass::GetFiles(struct PluginPanelItem *PanelItem, int ItemsNumber,
              DialogItems[5].Data,AllFilesMask,IgnoreErrors,
              (OpMode & OPM_VIEW)!=0,(OpMode & OPM_FIND),CurDir,CurArcInfo.Prefix);
 
+  //последующие операции (тестирование и тд) не должны быть фоновыми
+  Opt.Background=0; // $ 06.02.2002 AA
+
   Opt.HideOutput=SaveHideOut;
   SetCurrentDirectory(SaveDir);
   if (!IgnoreErrors && ArcCmd.GetExecCode()!=0)
@@ -375,13 +377,10 @@ int PluginClass::SelectFormat(char *ArcFormat,int AddOnly)
         if(AddOnly) // Only add to archive?
         {
           char Buffer[512];
-          GetRegKey(HKEY_LOCAL_MACHINE,Format,CmdNames[CMD_ADD],Buffer,"",sizeof(Buffer));
+          ArcPlugin->GetDefaultCommands(I,J,CMD_ADD,Buffer);
+          GetRegKey(HKEY_LOCAL_MACHINE,Format,CmdNames[CMD_ADD],Buffer,Buffer,sizeof(Buffer));
           if(*Buffer == 0)
-          {
-            ArcPlugin->GetDefaultCommands(I,J,CMD_ADD,Buffer);
-            if(*Buffer == 0)
-              Add=FALSE;
-          }
+            Add=FALSE;
         }
 
         if(Add) //

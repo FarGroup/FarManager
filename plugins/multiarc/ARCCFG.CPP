@@ -87,30 +87,22 @@ long WINAPI CfgCmdProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       char *ArcFormat=(char*)Info.SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
       for (I=2,J=0;I<=32;I+=2,J++)
       {
+        *Command=0;
         if(Param1) // Reset?
-        {
-          *Command=0;
           DeleteRegKey(HKEY_LOCAL_MACHINE,ArcFormat);
-        }
-        else
-          GetRegKey(HKEY_LOCAL_MACHINE,ArcFormat,CmdNames[J],Command,"",sizeof(Command));
-
-        if (*Command==0)
+        int PluginNumber,PluginType;
+        if (PluginClass::FormatToPlugin(ArcFormat,PluginNumber,PluginType))
         {
-          int PluginNumber,PluginType;
-          if (PluginClass::FormatToPlugin(ArcFormat,PluginNumber,PluginType))
+          if(I == 32)
           {
-            if(I == 32)
-            {
-              char PluginFormat[NM];
-              ArcPlugin->GetFormatName(PluginNumber,PluginType,PluginFormat,Command);
-            }
-            else
-            {
-              ArcPlugin->GetDefaultCommands(PluginNumber,PluginType,J,Command);
-            }
+            char PluginFormat[NM];
+            ArcPlugin->GetFormatName(PluginNumber,PluginType,PluginFormat,Command);
           }
+          else
+            ArcPlugin->GetDefaultCommands(PluginNumber,PluginType,J,Command);
         }
+        //хитрый прием - передача Command в качестве дефолта для Command
+        GetRegKey(HKEY_LOCAL_MACHINE,ArcFormat,CmdNames[J],Command,Command,sizeof(Command));
         Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,I,(long)Command);
       }
       return TRUE;

@@ -84,13 +84,13 @@ SelectFormatComboBox::SelectFormatComboBox(FarDialogItem *DialogItem, char *ArcF
         break;
 
       char Buffer[512];
-      GetRegKey(HKEY_LOCAL_MACHINE, Format, CmdNames[CMD_ADD], Buffer, "", sizeof(Buffer));
+
+      //*Buffer=0; //$ AA сбросится в GetDefaultCommands
+      ArcPlugin->GetDefaultCommands(i, j, CMD_ADD, Buffer);
+      //хитрый финт - подстановка Buffer в качестве дефолта для самого Buffer
+      GetRegKey(HKEY_LOCAL_MACHINE, Format, CmdNames[CMD_ADD], Buffer, Buffer, sizeof(Buffer));
       if(*Buffer == 0)
-      {
-        ArcPlugin->GetDefaultCommands(i, j, CMD_ADD, Buffer);
-        if(*Buffer == 0)
-          continue;
-      }
+        continue;
 
       NewItems=(FarListItem *)realloc(Items, (Count+1)*sizeof(FarListItem));
       if(NewItems==NULL)
@@ -268,9 +268,8 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
   }
   else if(Msg == MAM_SETDISABLE)
   {
-    GetRegKey(HKEY_LOCAL_MACHINE,pdd->ArcFormat,CmdNames[CMD_ADD],Buffer,"",sizeof(Buffer));
-    if(*Buffer == 0)
-      ArcPlugin->GetDefaultCommands(pdd->Self->ArcPluginNumber,pdd->Self->ArcPluginType,CMD_ADD,Buffer);
+    ArcPlugin->GetDefaultCommands(pdd->Self->ArcPluginNumber,pdd->Self->ArcPluginType,CMD_ADD,Buffer);
+    GetRegKey(HKEY_LOCAL_MACHINE,pdd->ArcFormat,CmdNames[CMD_ADD],Buffer,Buffer,sizeof(Buffer));
     Info.SendDlgMessage(hDlg, DM_ENABLE, PDI_ADDBTN, *Buffer != 0);
   }
   else if(Msg == MAM_ARCSWITCHES)
@@ -526,7 +525,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       Opt.UserBackground=DialogItems[PDI_BGROUNDCHECK].Selected;
       if (AskCode!=PDI_ADDBTN || *DialogItems[PDI_ARCNAMEEDT].Data==0)
         return -1;
-      SetRegKey(HKEY_CURRENT_USER,"","Background",Opt.UserBackground);
+      //SetRegKey(HKEY_CURRENT_USER,"","Background",Opt.UserBackground); // $ 06.02.2002 AA
       Opt.ExactArcName=DialogItems[PDI_EXACTNAMECHECK].Selected;
       SetRegKey(HKEY_CURRENT_USER, "", "ExactArcName", Opt.ExactArcName);
     }
@@ -556,12 +555,10 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
 
     Opt.Background=OpMode & OPM_SILENT ? 0 : Opt.UserBackground;
 
-    GetRegKey(HKEY_LOCAL_MACHINE,pdd.ArcFormat,CmdNames[CommandType],Command,"",sizeof(Command));
-    if (*Command==0)
-      ArcPlugin->GetDefaultCommands(ArcPluginNumber,ArcPluginType,CommandType,Command);
-    GetRegKey(HKEY_LOCAL_MACHINE,pdd.ArcFormat,"AllFilesMask",AllFilesMask,"",sizeof(AllFilesMask));
-    if (*AllFilesMask==0)
-      ArcPlugin->GetDefaultCommands(ArcPluginNumber,ArcPluginType,CMD_ALLFILESMASK,AllFilesMask);
+    ArcPlugin->GetDefaultCommands(ArcPluginNumber,ArcPluginType,CommandType,Command);
+    GetRegKey(HKEY_LOCAL_MACHINE,pdd.ArcFormat,CmdNames[CommandType],Command,Command,sizeof(Command));
+    ArcPlugin->GetDefaultCommands(ArcPluginNumber,ArcPluginType,CMD_ALLFILESMASK,AllFilesMask);
+    GetRegKey(HKEY_LOCAL_MACHINE,pdd.ArcFormat,"AllFilesMask",AllFilesMask,AllFilesMask,sizeof(AllFilesMask));
     if (*CurDir && strstr(Command,"%%R")==NULL)
     {
       const char *MsgItems[]={GetMsg(MWarning),GetMsg(MCannotPutToFolder),
@@ -592,6 +589,9 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
     ArcCommand ArcCmd(PanelItem,ItemsNumber,Command,
                       DialogItems[PDI_ARCNAMEEDT].Data,"",pdd.Password1,
                       AllFilesMask,IgnoreErrors,0,0,CurDir,CurArcInfo.Prefix);
+
+    //последующие операции (тестирование и тд) не должны быть фоновыми
+    Opt.Background=0; // $ 06.02.2002 AA
 
 #ifdef _NEW_ARC_SORT_
     int Rate=GetPrivateProfileInt("RunRate", pdd.ArcFormat, 0, IniFile);
