@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.116 24.05.2004 $ */
+/* Revision: 1.117 29.05.2004 $ */
 
 /*
 Modify:
+  29.05.2004 SVS
+    - Bugz#794 - пометка блока остается при удалении текста
   24.05.2004 SVS
     - BugZ#1030 - множественная вставка из буфера обмена в окно поиска сигнатур
   22.04.2004 SVS
@@ -1469,7 +1471,7 @@ int Edit::ProcessKey(int Key)
       {
         if (CurPos<SelEnd)
           SelEnd=CurPos;
-        if (SelEnd<SelStart)
+        if (SelEnd<SelStart && SelEnd!=-1)
         {
           SelEnd=0;
           SelStart=-1;

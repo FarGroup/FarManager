@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.247 17.05.2004 $ */
+/* Revision: 1.248 29.05.2004 $ */
 
 /*
 Modify:
+  29.05.2004 SVS
+    - Bugz#794 - пометка блока остается при удалении текста
   17.05.2004 SVS
     - BugZ#1080 - Редактор. CtrlIns/CtrlC без выделения не работают
   11.05.2004 SVS
@@ -3623,6 +3625,7 @@ int Editor::ProcessKey(int Key)
 
         if (CurLine->EditLine.ProcessKey(Key))
         {
+          int SelStart,SelEnd;
           /* $ 17.09.2002 SKV
             Если находимся в середине блока,
             в начале строки, и нажимаем tab, который заменяется
@@ -3631,7 +3634,6 @@ int Editor::ProcessKey(int Key)
           if(Key==KEY_TAB && CurLine->EditLine.GetConvertTabs() &&
              BlockStart!=NULL && BlockStart!=CurLine)
           {
-            int SelStart,SelEnd;
             CurLine->EditLine.GetSelection(SelStart,SelEnd);
             CurLine->EditLine.Select(0,SelEnd);
           }
@@ -3652,6 +3654,54 @@ int Editor::ProcessKey(int Key)
             }
             delete[] CmpStr;
           }
+          // <Bug 794>
+          // обработаем только первую и последнюю строку с блоком
+          if(Key == KEY_CTRLK && EdOpt.PersistentBlocks)
+          {
+             if(CurLine==BlockStart)
+             {
+               if(CurPos)
+               {
+                 CurLine->EditLine.GetSelection(SelStart,SelEnd);
+                 CurLine->EditLine.Select(SelStart,CurPos);
+               }
+               else
+               {
+                 CurLine->EditLine.Select(-1,-1);
+                 BlockStart=BlockStart->Next;
+               }
+             }
+             else // ЗДЕСЬ ЗАСАДА !!! ЕСЛИ ВЫДЕЛЕННЫЙ БЛОК ДОСТАТОЧНО БОЛЬШОЙ (ПО СТРОКАМ), ТО ЦИКЛ ПЕРЕБОРА... МОЖЕТ ЗАТЯНУТЬ...
+             {
+               // найдем эту последнюю строку (и последняя ли она)
+               struct EditList *CurPtrBlock=BlockStart,*CurPtrBlock2=BlockStart;
+               while (CurPtrBlock!=NULL)
+               {
+                 CurPtrBlock->EditLine.GetRealSelection(SelStart,SelEnd);
+                 if (SelStart==-1)
+                   break;
+                 CurPtrBlock2=CurPtrBlock;
+                 CurPtrBlock=CurPtrBlock->Next;
+               }
+
+               if(CurLine==CurPtrBlock2)
+               {
+                 if(CurPos)
+                 {
+                   CurLine->EditLine.GetSelection(SelStart,SelEnd);
+                   CurLine->EditLine.Select(SelStart,CurPos);
+                 }
+                 else
+                 {
+                   CurLine->EditLine.Select(-1,-1);
+                   CurPtrBlock2=CurPtrBlock2->Next;
+                 }
+               }
+
+             }
+          }
+          // </Bug 794>
+
           ShowEditor(LeftPos==CurLine->EditLine.GetLeftPos());
           return(TRUE);
         }
@@ -4707,7 +4757,8 @@ void Editor::DeleteBlock()
       меняем на Real что б ловить выделение за концом строки.
     */
     CurPtr->EditLine.GetRealSelection(StartSel,EndSel);
-    if(EndSel!=-1 && EndSel>CurPtr->EditLine.GetLength())EndSel=-1;
+    if(EndSel!=-1 && EndSel>CurPtr->EditLine.GetLength())
+      EndSel=-1;
     /* SKV $ */
     if (StartSel==-1)
       break;
