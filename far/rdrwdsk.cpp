@@ -5,10 +5,12 @@ class RedrawDesktop
 
 */
 
-/* Revision: 1.09 07.12.2001 $ */
+/* Revision: 1.10 04.03.2002 $ */
 
 /*
 Modify:
+  04.03.2002 SVS
+    ! Лечим багу с прорисовкой...
   07.12.2001 SVS
     + В RedrawDesktop перенесена логика гашения и восстановления доски.
     - бага - кейбар и полоса меню гасились, а переменные Opt.ShowKeyBar и
@@ -57,8 +59,18 @@ RedrawDesktop::RedrawDesktop(BOOL IsHidden)
   {
     CtrlObject->Cp()->LeftPanel->CloseFile();
     CtrlObject->Cp()->RightPanel->CloseFile();
-    CtrlObject->Cp()->LeftPanel->Hide();
-    CtrlObject->Cp()->RightPanel->Hide();
+    // ВНИМАНИЕ! КОСТЫЛЬ!
+    // соблюдем очередность, в зависимости от!
+    if(CtrlObject->Cp()->ActivePanel == CtrlObject->Cp()->LeftPanel)
+    {
+      CtrlObject->Cp()->LeftPanel->Hide();
+      CtrlObject->Cp()->RightPanel->Hide();
+    }
+    else
+    {
+      CtrlObject->Cp()->RightPanel->Hide();
+      CtrlObject->Cp()->LeftPanel->Hide();
+    }
     CtrlObject->MainKeyBar->Hide();
     CtrlObject->TopMenuBar->Hide();
     Opt.ShowKeyBar=0;
