@@ -5,7 +5,7 @@ mix.cpp
 
 */
 
-/* Revision: 1.07 14.07.2000 $ */
+/* Revision: 1.08 18.07.2000 $ */
 
 /*
 Modify:
@@ -32,6 +32,8 @@ Modify:
   13.07.2000 IG
     - в VC, похоже, нельзя сказать так: 0x4550 == 'PE', надо
       делать проверку побайтово (функция IsCommandExeGUI)
+  18.07.2000 tran 1.08
+    ! изменил типа аргумента у ScrollBar
 */
 
 #include "headers.hpp"
@@ -1169,7 +1171,7 @@ int GetString(char *Title,char *SubTitle,char *HistoryName,char *SrcText,
 }
 
 
-void ScrollBar(int X1,int Y1,int Length,int Current,int Total)
+void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Total)
 {
   /* $ 06.07.2000 tran
      - trap under NT with console height > 210

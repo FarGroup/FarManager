@@ -7,7 +7,7 @@ colors.hpp
 
 */
 
-/* Revision: 1.01 11.07.2000 $ */
+/* Revision: 1.02 18.07.2000 $ */
 
 /*
 Modify:
@@ -18,6 +18,8 @@ Modify:
     + Цветовые атрибуты для Menu ScrollBar
   11.07.2000 SVS
     + 1 Служебная позиция перед новыми цветами :-)
+  18.07.2000 tran 1.02
+    + COL_VIEWERSCROLLBAR
 */
 
 // Стандартные цвета FAR Manager
@@ -158,6 +160,10 @@ enum PaletteColors
   COL_DIALOGMENUSCROLLBAR,	// для случая History
   COL_MENUSCROLLBAR,            // для обычного меню
   /* SVS $ */
+  /* $ 18.07.2000 tran
+     scrollbar для viewer*/
+  COL_VIEWERSCROLLBAR,
+  /* tran 18.07.2000 $ */
 };
 
 #endif	// __COLORS_HPP__

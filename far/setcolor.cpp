@@ -5,7 +5,7 @@ setcolor.cpp
 
 */
 
-/* Revision: 1.02 06.07.2000 $ */
+/* Revision: 1.03 18.07.2000 $ */
 
 /*
 Modify:
@@ -18,6 +18,8 @@ Modify:
     + Новый пункт для настройки цветов
         COL_DIALOGMENUHIGHLIGHT
         COL_DIALOGMENUSELECTEDHIGHLIGHT
+  18.03.2000 tran 1.03
+    + COL_VIEWERSCROLLBAR
 */
 
 #include "headers.hpp"
@@ -189,16 +191,21 @@ void SetColors()
     COL_CLOCK
   };
 
+  /* $ 18.07.2000 tran
+     новый пунт для MenuScrollbar*/
   struct MenuData ViewerItems[]=
   {
     (char *)MSetColorViewerNormal,1,0,0,
     (char *)MSetColorViewerSelected,0,0,0,
     (char *)MSetColorViewerStatus,0,0,0,
-    (char *)MSetColorViewerArrows,0,0,0
+    (char *)MSetColorViewerArrows,0,0,0,
+    (char *)MSetColorViewerScrollbar,0,0,0
   };
   int ViewerPaletteItems[]={
-    COL_VIEWERTEXT,COL_VIEWERSELECTEDTEXT,COL_VIEWERSTATUS,COL_VIEWERARROWS
+    COL_VIEWERTEXT,COL_VIEWERSELECTEDTEXT,COL_VIEWERSTATUS,COL_VIEWERARROWS,COL_VIEWERSCROLLBAR
   };
+  /* tran 18.07.2000 $ */
+
 
   struct MenuData EditorItems[]=
   {

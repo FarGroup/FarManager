@@ -7,7 +7,7 @@ fn.hpp
 
 */
 
-/* Revision: 1.05 11.07.2000 $ */
+/* Revision: 1.06 18.07.2000 $ */
 
 /*
 Modify:
@@ -26,6 +26,9 @@ Modify:
     + SetHighlighting из main.cpp
   11.07.2000 SVS
     ! Изменения для возможности компиляции под BC & VC
+  18.07.2000 tran 1.06
+    ! изменил тип аргумента у ScrollBar с 'int' на 'unsigned long'
+      нужно для Viewer
 */
 
 
@@ -210,7 +213,7 @@ char *GetCommaWord(char *Src,char *Word);
 int GetString(char *Title,char *SubTitle,char *HistoryName,char *SrcText,
     char *DestText,int DestLength,char *HelpTopic=NULL,int EnableEmpty=FALSE,
     int Password=FALSE);
-void ScrollBar(int X1,int Y1,int Length,int Current,int Total);
+void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Total);
 int GetFileOwner(char *Computer,char *Name,char *Owner);
 int GetNumberOfLinks(char *Name);
 void ShowSeparator(int Length);
@@ -345,4 +348,4 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param);
 DWORD ExpandEnvironmentStr(char *src, char *dst, size_t size=8192);
 /* SVS $ */
 
-#endif	// __FARFUNC_HPP__
+#endif  // __FARFUNC_HPP__

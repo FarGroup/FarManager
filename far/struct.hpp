@@ -7,7 +7,7 @@ struct.hpp
 
 */
 
-/* Revision: 1.03 15.07.2000 $ */
+/* Revision: 1.04 18.07.2000 $ */
 
 /*
 Modify:
@@ -20,6 +20,8 @@ Modify:
     + Opt.PersonalPluginsPath - путь для поиска персональных плагинов
   15.07.2000 tran
     + добавлен аттрибут показа KeyBar в Viewer - Options::ShowKeyBarViewer
+  18.07.2000 tran 1.04
+    + Opt.ViewerShowScrollBar, Opt.ViewerShowArrows
 */
 
 struct PanelOptions
@@ -181,11 +183,16 @@ struct Options
   int SmallIcon;
   char RegRoot[NM];
   /* $ 15.07.2000 SVS
-    + путь для поиска персональных плагинов, большой размер из-зи того,
+    + путь для поиска персональных плагинов, большой размер из-за того,
       что здесь может стоять сетевой путь...
   */
   char PersonalPluginsPath[1024];
   /* SVS $*/
+  /* $ 18.07.2000 tran
+    + пара настроек для viewer*/
+  int ViewerShowScrollbar;
+  int ViewerShowArrows;
+  /* tran 18.07.2000 $ */
 };
 
 

@@ -1374,6 +1374,11 @@ $ #Viewer settings#
 
   #Tab size#                Tab display spacing.
 
+  #Show scrollbar#          Show scrollbar in internal viewer. This option
+                          also can be swithced by Ctrl-S in internal viewer.
+
+  #Show arrows#             Show scrolling arrows in viewer.
+
     If external viewer is assigned to F3 key, it will be executed
 only if ~associated~@FileAssoc@ viewer for the current file type is absent.
 

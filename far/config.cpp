@@ -5,7 +5,7 @@ config.cpp
 
 */
 
-/* Revision: 1.04 15.07.2000 $ */
+/* Revision: 1.05 18.07.2000 $ */
 
 /*
 Modify:
@@ -26,6 +26,10 @@ Modify:
      + „®¡ ¢ª  ¢ ¢¨¤¥ § ¤ ­¨ï ¤®¯®«­¨â¥«ì­®£® ¯ãâ¨ ¤«ï ¯®¨áª  ¯« £¨­®¢
   15.07.2000 tran
     + Opt.ShowKeyBarViewer
+  18.07.2000 tran 1.05
+    + Opt.ShowViewerArrows, Opt.ShowViewerScrollbar
+      ¨§¬¥­¨« ¤¨ «®£ ViewerSetting
+
 */
 
 #include "headers.hpp"
@@ -338,57 +342,93 @@ void SetDizConfig()
   Opt.Diz.StartPos=atoi(DizDlg[5].Data);
 }
 
+/* $ 18.07.2000 tran
+   ­ áâà®©ª  ¤¢ãå ­®¢ëå ¯ à ¬¥âà®¢ ¤«ï ¢ìî¢¥à  */
+/*
+ ÉÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ Viewer ÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ»
+ º Ú External viewer ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿ º
+ º ³ ( ) Use for F3                        ³ º
+ º ³ () Use for Alt-F3                    ³ º
+ º ³ Viewer command:                       ³ º
+ º ³                                       ³ º
+ º ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ º
+ º Ú Internal viewer ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿ º
+ º ³ [x] Save file position                ³ º
+ º ³ [x] Autodetect character table        ³ º
+ º ³ 8   Tab size                          ³ º
+ º ³ [x] Show scrollbar                    ³ º
+ º ³ [x] Show arrows                       ³ º
+ º ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ º
+ º            [ Ok ]  [ Cancel ]             º
+ ÈÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼
+*/
+#define DLG_VIEW_USE_F3      2
+#define DLG_VIEW_USE_ALTF3   3
+#define DLG_VIEW_EXTERNAL    5
+#define DLG_VIEW_SAVEFILEPOS 7
+#define DLG_VIEW_AUTODETECT  8
+#define DLG_VIEW_TABSIZE     9
+#define DLG_VIEW_SCROLLBAR  11
+#define DLG_VIEW_ARROWS     12
+#define DLG_VIEW_OK         13
 
 void ViewerConfig()
 {
   static struct DialogData CfgDlgData[]={
-    DI_DOUBLEBOX,3,1,47,14,0,0,0,0,(char *)MViewConfigTitle,
-    DI_SINGLEBOX,5,2,45,7,0,0,DIF_LEFTTEXT,0,(char *)MViewConfigExternal,
-    DI_RADIOBUTTON,7,3,0,0,1,0,DIF_GROUP,0,(char *)MViewConfigExternalF3,
-    DI_RADIOBUTTON,7,4,0,0,0,0,0,0,(char *)MViewConfigExternalAltF3,
-    DI_TEXT,7,5,0,0,0,0,0,0,(char *)MViewConfigExternalCommand,
-    DI_EDIT,7,6,43,6,0,0,0,0,"",
-    DI_SINGLEBOX,5,8,45,12,0,0,DIF_LEFTTEXT,0,(char *)MViewConfigInternal,
-    DI_CHECKBOX,7,9,0,0,0,0,0,0,(char *)MViewConfigSavePos,
-    DI_CHECKBOX,7,10,0,0,0,0,0,0,(char *)MViewAutoDetectTable,
-    DI_FIXEDIT,7,11,9,15,0,0,0,0,"",
-    DI_TEXT,11,11,0,0,0,0,0,0,(char *)MViewConfigTabSize,
-    DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-    DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
-  };
-  MakeDialogItems(CfgDlgData,CfgDlg);
+    DI_DOUBLEBOX , 3, 1,47,16,0,0,0,0,(char *)MViewConfigTitle,                  //   0
+    DI_SINGLEBOX , 5, 2,45, 7,0,0,DIF_LEFTTEXT,0,(char *)MViewConfigExternal,    //   1
+    DI_RADIOBUTTON,7, 3, 0, 0,1,0,DIF_GROUP,0,(char *)MViewConfigExternalF3,     //   2
+    DI_RADIOBUTTON,7, 4, 0, 0,0,0,0,0,(char *)MViewConfigExternalAltF3,          //   3
+    DI_TEXT      , 7, 5, 0, 0,0,0,0,0,(char *)MViewConfigExternalCommand,        //   4
+    DI_EDIT      , 7, 6,43, 6,0,0,0,0,"",                                        //   5
+    DI_SINGLEBOX , 5, 8,45,14,0,0,DIF_LEFTTEXT,0,(char *)MViewConfigInternal,    //   6
+    DI_CHECKBOX  , 7, 9, 0, 0,0,0,0,0,(char *)MViewConfigSavePos,                //   7
+    DI_CHECKBOX  , 7,10, 0, 0,0,0,0,0,(char *)MViewAutoDetectTable,              //   8
+    DI_FIXEDIT   , 7,11, 9,15,0,0,0,0,"",                                        //   9
+    DI_TEXT      ,11,11, 0, 0,0,0,0,0,(char *)MViewConfigTabSize,                //  10
+    DI_CHECKBOX  , 7,12, 0, 0,0,0,0,0,(char *)MViewConfigScrollbar,              //  11 *new
+    DI_CHECKBOX  , 7,13, 0, 0,0,0,0,0,(char *)MViewConfigArrows,                 //  12 *new
+    DI_BUTTON    , 0,15, 0, 0,0,0,DIF_CENTERGROUP,1,(char *)MOk,                 //  13 , was 11
+    DI_BUTTON    , 0,15, 0, 0,0,0,DIF_CENTERGROUP,0,(char *)MCancel              //  14 , was 12
+  };                                                                          
+  MakeDialogItems(CfgDlgData,CfgDlg);                                         
 
-  CfgDlg[2].Selected=Opt.UseExternalViewer;
-  CfgDlg[3].Selected=!Opt.UseExternalViewer;
-  strcpy(CfgDlg[5].Data,Opt.ExternalViewer);
-  CfgDlg[7].Selected=Opt.SaveViewerPos;
-  CfgDlg[8].Selected=Opt.ViewerAutoDetectTable;
-  sprintf(CfgDlg[9].Data,"%d",Opt.ViewTabSize);
+  CfgDlg[DLG_VIEW_USE_F3].Selected=Opt.UseExternalViewer;
+  CfgDlg[DLG_VIEW_USE_ALTF3].Selected=!Opt.UseExternalViewer;
+  strcpy(CfgDlg[DLG_VIEW_EXTERNAL].Data,Opt.ExternalViewer);
+  CfgDlg[DLG_VIEW_SAVEFILEPOS].Selected=Opt.SaveViewerPos;
+  CfgDlg[DLG_VIEW_AUTODETECT].Selected=Opt.ViewerAutoDetectTable;
+  CfgDlg[DLG_VIEW_SCROLLBAR].Selected=Opt.ViewerShowScrollbar;
+  CfgDlg[DLG_VIEW_ARROWS].Selected=Opt.ViewerShowArrows;
+  sprintf(CfgDlg[DLG_VIEW_TABSIZE].Data,"%d",Opt.ViewTabSize);
 
   if (!RegVer)
   {
-    CfgDlg[9].Type=CfgDlg[10].Type=DI_TEXT;
-    sprintf(CfgDlg[9].Data," *  %s",MSG(MRegOnlyShort));
+    CfgDlg[DLG_VIEW_TABSIZE].Type=CfgDlg[10].Type=DI_TEXT;
+    sprintf(CfgDlg[DLG_VIEW_TABSIZE].Data," *  %s",MSG(MRegOnlyShort));
     *CfgDlg[10].Data=0;
   }
 
   {
     Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
     Dlg.SetHelp("ViewerSettings");
-    Dlg.SetPosition(-1,-1,51,16);
+    Dlg.SetPosition(-1,-1,51,18);
     Dlg.Process();
-    if (Dlg.GetExitCode()!=11)
+    if (Dlg.GetExitCode()!=DLG_VIEW_OK)
       return;
   }
 
-  Opt.UseExternalViewer=CfgDlg[2].Selected;
-  strcpy(Opt.ExternalViewer,CfgDlg[5].Data);
-  Opt.SaveViewerPos=CfgDlg[7].Selected;
-  Opt.ViewerAutoDetectTable=CfgDlg[8].Selected;
-  Opt.ViewTabSize=atoi(CfgDlg[9].Data);
+  Opt.UseExternalViewer=CfgDlg[DLG_VIEW_USE_F3].Selected;
+  strcpy(Opt.ExternalViewer,CfgDlg[DLG_VIEW_EXTERNAL].Data);
+  Opt.SaveViewerPos=CfgDlg[DLG_VIEW_SAVEFILEPOS].Selected;
+  Opt.ViewerAutoDetectTable=CfgDlg[DLG_VIEW_AUTODETECT].Selected;
+  Opt.ViewTabSize=atoi(CfgDlg[DLG_VIEW_TABSIZE].Data);
+  Opt.ViewerShowScrollbar=CfgDlg[DLG_VIEW_SCROLLBAR].Selected;
+  Opt.ViewerShowArrows=CfgDlg[DLG_VIEW_ARROWS].Selected;
   if (Opt.ViewTabSize<1 || Opt.ViewTabSize>512)
     Opt.ViewTabSize=8;
 }
+/* tran 18.07.2000 $ */
 
 
 void EditorConfig()
@@ -512,6 +552,12 @@ void ReadConfig()
      + Opt.ShowKeyBarViewer */
   GetRegKey("Viewer","ShowKeyBar",Opt.ShowKeyBarViewer,1);
   /* tran 15.07.2000 $ */
+  /* $ 18.07.2000 tran
+     + Opt.ViewerShowArrows, Opt.ViewerShowScrollbar*/
+  GetRegKey("Viewer","ShowArrows",Opt.ViewerShowArrows,1);
+  GetRegKey("Viewer","ShowScrollbar",Opt.ViewerShowScrollbar,0);
+  /* tran 18.07.2000 $ */
+
 
   GetRegKey("Editor","ExternalEditorName",Opt.ExternalEditor,"",sizeof(Opt.ExternalEditor));
   GetRegKey("Editor","UseExternalEditor",Opt.UseExternalEditor,0);
@@ -650,6 +696,11 @@ void SaveConfig(int Ask)
      + Opt.ShowKeyBarViewer */
   SetRegKey("Viewer","ShowKeyBar",Opt.ShowKeyBarViewer);
   /* tran 15.07.2000 $ */
+  /* $ 18.07.2000 tran
+     + Opt.ViewerShowArrows, Opt.ViewerShowScrollbar*/
+  SetRegKey("Viewer","ShowArrows",Opt.ViewerShowArrows);
+  SetRegKey("Viewer","ShowScrollbar",Opt.ViewerShowScrollbar);
+  /* tran 18.07.2000 $ */
 
   SetRegKey("Editor","ExternalEditorName",Opt.ExternalEditor);
   SetRegKey("Editor","UseExternalEditor",Opt.UseExternalEditor);

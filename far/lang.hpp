@@ -13,7 +13,7 @@ lang.hpp
            подряд.
 */
 
-/* Revision: 1.07 15.07.2000 $ */
+/* Revision: 1.08 18.07.2000 $ */
 
 /*
 Modify:
@@ -43,7 +43,9 @@ Modify:
   12.07.2000 SVS
     + Константа MViewF2WWrap
   15.07.2000 SVS
-     + Константа MConfigPersonalPath
+    + Константа MConfigPersonalPath
+  18.07.2000 tran
+    + Новые константы в связи с ScrollBar in Viewer
 */
 
 enum
@@ -53,8 +55,8 @@ enum
   MRegistered,
   MYes,
   MNo,
-
   MOk,
+
 
   MCancel,
   MRetry,
@@ -180,6 +182,8 @@ enum
   MViewConfigSavePos,
   MViewAutoDetectTable,
   MViewConfigTabSize,
+  MViewConfigScrollbar,
+  MViewConfigArrows,
 
   MEditConfigTitle,
   MEditConfigExternal,
@@ -893,6 +897,7 @@ enum
   MSetColorViewerSelected,
   MSetColorViewerStatus,
   MSetColorViewerArrows,
+  MSetColorViewerScrollbar,
 
   MSetColorEditorNormal,
   MSetColorEditorSelected,

@@ -5,7 +5,7 @@ palette.cpp
 
 */
 
-/* Revision: 1.02 11.07.2000 $ */
+/* Revision: 1.03 18.07.2000 $ */
 
 /*
 Modify:
@@ -16,6 +16,8 @@ Modify:
     + Цветовые атрибуты для Menu ScrollBar
   11.07.2000
     + 1 Служебная позиция перед новыми цветами :-)
+  18.07.2000 tran 1.03
+    + скролбар во вьювере
 */
 
 #include "headers.hpp"
@@ -81,6 +83,12 @@ unsigned char DefaultPalette[]=
   F_BLACK|B_LIGHTGRAY,
   F_WHITE|B_CYAN,
   /* SVS $ */
+  /* $ 18.07.2000 tran
+     скролбар во вьювере */
+  F_LIGHTCYAN|B_BLUE,
+  /* tran 18.07.2000 $ */
+
+
   0,0
 };
 
@@ -140,6 +148,10 @@ unsigned char BlackPalette[]=
   F_BLACK|B_LIGHTGRAY,
   F_BLACK|B_LIGHTGRAY,
   /* SVS $ */
+  /* $ 18.07.2000 tran
+     скролбар во вьювере */
+  F_LIGHTGRAY|B_BLACK,
+  /* tran 18.07.2000 $ */
   0,0
 };
 

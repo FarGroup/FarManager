@@ -5,7 +5,7 @@ Internal viewer
 
 */
 
-/* Revision: 1.13 17.07.2000 $ */
+/* Revision: 1.14 18.07.2000 $ */
 
 /*
 Modify:
@@ -49,6 +49,10 @@ Modify:
       nn% - проценты
       0xnn, nnh, nn$ - hex offset
       +/-nn - относительное смещение
+  18.07.2000 tran 1.14
+    + рисование сколбара и стрелок в зависимости от настроек
+      скролбар также реагирует на мышку
+      и переключается Ctrl-S
 */
 
 #include "headers.hpp"
@@ -384,6 +388,7 @@ void Viewer::DisplayObject()
   if (Hex)
     ShowHex();
   else
+  {
     for (I=0,Y=ViewY1;Y<=Y2;Y++,I++)
     {
       StrFilePos[I]=vtell(ViewFile);
@@ -395,7 +400,10 @@ void Viewer::DisplayObject()
       if (strlen((char *)OutStr[I])>LeftPos)
       {
         mprintf("%-*.*s",ObjWidth,ObjWidth,&OutStr[I][LeftPos]);
-        if (strlen(&OutStr[I][LeftPos])>ObjWidth)
+        /* $ 18.07.2000 tran -
+           проверка флага
+        */
+        if (strlen(&OutStr[I][LeftPos])>ObjWidth && Opt.ViewerShowArrows)
         {
           GotoXY(X2,Y);
           SetColor(COL_VIEWERARROWS);
@@ -404,7 +412,10 @@ void Viewer::DisplayObject()
       }
       else
         mprintf("%*s",ObjWidth,"");
-      if (LeftPos>0 && *OutStr[I]!=0)
+      /* $ 18.07.2000 tran -
+         проверка флага
+      */
+      if (LeftPos>0 && *OutStr[I]!=0  && Opt.ViewerShowArrows)
       {
         GotoXY(X1,Y);
         SetColor(COL_VIEWERARROWS);
@@ -440,6 +451,17 @@ void Viewer::DisplayObject()
           mprintf("%.*s",SelSize,&OutStr[I][SelPos]);
       }
     }
+  } // if (Hex)  - else
+  /* $ 18.07.2000 tran
+     рисование скролбара */
+  if ( Opt.ViewerShowScrollbar )
+  {
+    SetColor(COL_VIEWERSCROLLBAR);
+    ScrollBar(X2,Y1+1,Y2-Y1,FilePos,FileSize);
+  }
+  /* tran 18.07.2000 $ */
+
+
   ShowStatus();
 }
 
@@ -592,7 +614,7 @@ void Viewer::ShowUp()
     if (strlen(OutStr[I])>LeftPos)
     {
       mprintf("%-*.*s",ObjWidth,ObjWidth,&OutStr[I][LeftPos]);
-      if (strlen(&OutStr[I][LeftPos])>ObjWidth)
+      if (strlen(&OutStr[I][LeftPos])>ObjWidth && Opt.ViewerShowArrows)
       {
         GotoXY(X2,Y);
         SetColor(COL_VIEWERARROWS);
@@ -601,7 +623,7 @@ void Viewer::ShowUp()
     }
     else
       mprintf("%*s",ObjWidth,"");
-    if (LeftPos>0 && *OutStr[I]!=0)
+    if (LeftPos>0 && *OutStr[I]!=0 && Opt.ViewerShowArrows)
     {
       GotoXY(X1,Y);
       SetColor(COL_VIEWERARROWS);
@@ -609,6 +631,15 @@ void Viewer::ShowUp()
     }
   }
   ShowStatus();
+  /* $ 18.07.2000 tran
+     рисование скролбара */
+  if ( Opt.ViewerShowScrollbar )
+  {
+    SetColor(COL_VIEWERSCROLLBAR);
+    ScrollBar(X2,Y1+1,Y2-Y1,FilePos,FileSize);
+  }
+  /* tran 18.07.2000 $ */
+
 }
 
 
@@ -709,10 +740,16 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
             if ( ! (Ch==' ' || Ch=='\t'  ) && !(Str[OutPtr]==' ' || Str[OutPtr]=='\t'))
             {
                long SavePtr=OutPtr;
-               while (OutPtr && !(Str[OutPtr]==' ' || Str[OutPtr]=='\t'))
+               /* $ 18.07.2000 tran
+                  добавил в качестве wordwrap разделителей , ; > ) */
+               while (OutPtr && !(Str[OutPtr]==' ' || Str[OutPtr]=='\t' || Str[OutPtr]==',' || Str[OutPtr]==';' || Str[OutPtr]=='>'|| Str[OutPtr]==')'))
+               /* tran 18.07.2000 $ */
                   OutPtr--;
-               while ((Str[OutPtr]==' ' || Str[OutPtr]=='\t') && OutPtr<=SavePtr)
-                  OutPtr++;
+               if ( Str[OutPtr]==',' || Str[OutPtr]==';' || Str[OutPtr]==')' || Str[OutPtr]=='>' )
+                   OutPtr++;
+               else
+                   while ((Str[OutPtr]==' ' || Str[OutPtr]=='\t' ) && OutPtr<=SavePtr)
+                      OutPtr++;
 
                if ( OutPtr )
                {
@@ -825,6 +862,13 @@ int Viewer::ProcessKey(int Key)
 
   switch(Key)
   {
+    /* $ 18.07.2000 tran
+       включить/выключить скролбар */
+    case KEY_CTRLS:
+        Opt.ViewerShowScrollbar=!Opt.ViewerShowScrollbar;
+        Show();
+        return (TRUE);
+    /* tran 18.07.2000 $ */
     case KEY_IDLE:
       {
         char Root[NM];
@@ -1141,21 +1185,44 @@ int Viewer::ProcessKey(int Key)
 
 int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
+  /* $ 18.07.2000 tran
+     просто для сокращения кода*/
+  int MsX=MouseEvent->dwMousePosition.X;
+  int MsY=MouseEvent->dwMousePosition.Y;
+  /* tran 18.07.2000 $ */
+
+
   if ((MouseEvent->dwButtonState & 3)==0)
     return(FALSE);
 
-  if (MouseEvent->dwMousePosition.X<X1 || MouseEvent->dwMousePosition.X>X2 ||
-      MouseEvent->dwMousePosition.Y<ViewY1 || MouseEvent->dwMousePosition.Y>Y2)
+  /* $ 18.07.2000 tran
+     обработка сколбара */
+  if ( Opt.ViewerShowScrollbar && MsX==X2)
+  {
+    if ( MsY==Y1 )
+        ProcessKey(KEY_UP);
+    else if (MsY==Y2)
+        ProcessKey(KEY_DOWN);
+    else
+    {
+        FilePos=(FileSize-1)*(MsY-Y1)/(Y2-Y1-1);
+        Show();
+    }
+    return (TRUE);
+  }
+  /* tran 18.07.2000 $ */
+
+  if (MsX<X1 || MsX>X2 || MsY<ViewY1 || MsY>Y2)
     return(FALSE);
-  if (MouseEvent->dwMousePosition.X<X1+7)
+  if (MsX<X1+7)
     while (IsMouseButtonPressed() && MouseX<X1+7)
       ProcessKey(KEY_LEFT);
   else
-    if (MouseEvent->dwMousePosition.X>X2-7)
+    if (MsX>X2-7)
       while (IsMouseButtonPressed() && MouseX>X2-7)
         ProcessKey(KEY_RIGHT);
     else
-      if (MouseEvent->dwMousePosition.Y<ViewY1+(Y2-ViewY1)/2)
+      if (MsY<ViewY1+(Y2-ViewY1)/2)
         while (IsMouseButtonPressed() && MouseY<ViewY1+(Y2-ViewY1)/2)
           ProcessKey(KEY_UP);
       else
@@ -1608,7 +1675,9 @@ long Viewer::GetFilePos()
 }
 
 
-void Viewer::SetFilePos(long Pos)
+/* $ 18.07.2000 tran
+   * changes 'long' to 'unsigned long' */
+void Viewer::SetFilePos(unsigned long Pos)
 {
   FilePos=Pos;
 };
@@ -1688,12 +1757,12 @@ void Viewer::GoTo()
   const char *LineHistoryName="ViewerOffset";
   static struct DialogData GoToDlgData[]=
   {
-    DI_DOUBLEBOX,3,1,31,7,0,0,0,0,(char *)MViewerGoTo,                 // 0
-    DI_EDIT,5,2,29,2,1,(DWORD)LineHistoryName,DIF_HISTORY,1,"",        // 1
-    DI_TEXT,3,3,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",               // 2
-    DI_RADIOBUTTON,5,4,0,0,0,0,DIF_GROUP,0,(char *)MGoToPercent,       // 3
-    DI_RADIOBUTTON,5,5,0,0,0,0,0,0,(char *)MGoToHex,                   // 4
-    DI_RADIOBUTTON,5,6,0,0,0,0,0,0,(char *)MGoToDecimal,               // 5
+    /* 0 */ DI_DOUBLEBOX,3,1,31,7,0,0,0,0,(char *)MViewerGoTo,
+    /* 1 */ DI_EDIT,5,2,29,2,1,(DWORD)LineHistoryName,DIF_HISTORY,1,"",
+    /* 2 */ DI_TEXT,3,3,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+    /* 3 */ DI_RADIOBUTTON,5,4,0,0,0,0,DIF_GROUP,0,(char *)MGoToPercent,
+    /* 4 */ DI_RADIOBUTTON,5,5,0,0,0,0,0,0,(char *)MGoToHex,
+    /* 5 */ DI_RADIOBUTTON,5,6,0,0,0,0,0,0,(char *)MGoToDecimal,
   };
   MakeDialogItems(GoToDlgData,GoToDlg);
   static char PrevLine[20];

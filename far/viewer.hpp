@@ -7,7 +7,7 @@ Internal viewer
 
 */
 
-/* Revision: 1.04 12.07.2000 $ */
+/* Revision: 1.05 18.07.2000 $ */
 
 /*
 Modify:
@@ -25,6 +25,9 @@ Modify:
   12.07.2000 tran
     ! OutStr are dynamic, new, delete,
       and sizeof(OutStr[i]) changed to MAX_VIEWLINEB
+  18.07.2000 tran 1.05
+    * изменил тип параметра у SetFilePos()
+      на unsigned
 */
 
 /* $ 12.07.2000 SVS
@@ -122,7 +125,8 @@ class Viewer:public ScreenObject
     void SetTempViewName(char *Name);
     void SetTitle(char *Title);
     long GetFilePos();
-    void SetFilePos(long Pos);
+    /* $ 18.07.2000 tran - change 'long' to 'unsigned long' */
+    void SetFilePos(unsigned long Pos);
     void SetPluginData(char *PluginData);
     void SetNamesList(NamesList *List);
 };

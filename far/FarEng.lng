@@ -4,8 +4,8 @@
 "Registered to"
 "Yes"
 "No"
-
 "Ok"
+
 
 "Cancel"
 "Retry"
@@ -133,6 +133,8 @@
 "&Save file position"
 "&Autodetect character table"
 "Tab si&ze"
+"Show scollbar"
+"Show scrolling arrows"
 
 "Editor"
 "External editor"
@@ -859,6 +861,7 @@
 "Selected text"
 "Status line"
 "Screen scrolling arrows"
+"Scrollbar"
 
 "Normal text"
 "Selected text"
