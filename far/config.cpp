@@ -5,10 +5,13 @@ config.cpp
 
 */
 
-/* Revision: 1.61 26.03.2001 $ */
+/* Revision: 1.62 28.03.2001 $ */
 
 /*
 Modify:
+  28.03.2001 VVM
+    + Opt.RememberLogicalDrives = запоминать логические диски и не опрашивать 
+      каждый раз. Для предотвращения "просыпания" "зеленых" винтов.
   26.03.2001 SVS
     + SystemSettings() - путь к персональным плагинам - DIF_VAREDIT
     ! Выставляем ограничение в SetDizConfig() в sizeof(DizOptions.ListNames)
@@ -907,6 +910,7 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeyPanel,"RightClickRule",&Opt.PanelRightClickRule,2, 0},
   {0, REG_DWORD,  NKeyPanel,"CtrlFRule",&Opt.PanelCtrlFRule,1, 0},
   {0, REG_DWORD,  NKeyPanel,"CtrlAltShiftRule",&Opt.PanelCtrlAltShiftRule,0, 0},
+  {0, REG_DWORD,  NKeyPanel,"RememberLogicalDrives",&Opt.RememberLogicalDrives, 0, 0},
 
   {1, REG_DWORD,  NKeyPanelLeft,"Type",&Opt.LeftPanel.Type,0, 0},
   {1, REG_DWORD,  NKeyPanelLeft,"Visible",&Opt.LeftPanel.Visible,1, 0},

@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.24 27.03.2001 $ */
+/* Revision: 1.25 28.03.2001 $ */
 
 /*
 Modify:
+  28.03.2001 VVM
+    + Обработка Opt.RememberLogicalDrives.
   27.03.2001 SVS
     + Shift-F1 на пункте плагина в меню выбора дисков тоже покажет хелп...
   16.03.2001 SVS
@@ -97,6 +99,11 @@ static char DragName[NM];
 
 static unsigned char VerticalLine=0x0B3;
 
+/* $ 28.03.2001 VVM
+    + Обработка Opt.RememberLogicalDrives. */
+static DWORD LogicalDrivesMask = 0;
+/* VVM $ */
+
 static int MessageRemoveConnection(char Letter, int &UpdateProfile);
 
 
@@ -162,7 +169,12 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
   *DiskLetter=0;
 
-  Mask=GetLogicalDrives();
+  /* $ 28.03.2001 VVM
+    + Обработка Opt.RememberLogicalDrives. */
+  if ((!Opt.RememberLogicalDrives) || (LogicalDrivesMask==0))
+    LogicalDrivesMask=GetLogicalDrives();
+  Mask = LogicalDrivesMask;
+  /* VVM $ */
 
   for (DiskMask=Mask,DiskCount=0;DiskMask!=0;DiskMask>>=1)
     DiskCount+=DiskMask & 1;

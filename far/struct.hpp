@@ -7,10 +7,13 @@ struct.hpp
 
 */
 
-/* Revision: 1.48 20.03.2001 $ */
+/* Revision: 1.49 28.03.2001 $ */
 
 /*
 Modify:
+  28.03.2001 VVM
+   + Opt.RememberLogicalDrives = запоминать логические диски и не опрашивать 
+     каждый раз. Для предотвращения "просыпания" "зеленых" винтов.
   20.03.2001 SVS
    + Opt.FullScreenHelp - для унификации интерфейса конфигурации
   16.03.2001 SVS
@@ -558,6 +561,11 @@ struct Options
   int ConsoleDetachKey;
   /* SKV$*/
   int FullScreenHelp;
+  /* $ 28.03.2001 VVM
+    + RememberLogicalDrives = запоминать логические диски и не опрашивать 
+      каждый раз. Для предотвращения "просыпания" "зеленых" винтов. */
+  int RememberLogicalDrives;
+  /* VVM $ */
 };
 
 
