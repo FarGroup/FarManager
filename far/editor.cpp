@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.147 18.01.2002 $ */
+/* Revision: 1.148 19.01.2002 $ */
 
 /*
 Modify:
+  19.01.2002 IS
+    ! Переместим проверку выделения из ctrl-shift-(left|right) на уровень
+      ниже - в shift-(left|right), чтобы добить жука 226.
   18.01.2002 SKV
     - CtrlShiftEnd bug fix
   15.01.2002 SVS
@@ -1699,7 +1702,20 @@ int Editor::ProcessKey(int Key)
     case KEY_SHIFTLEFT:
       if (CurPos>0 || CurLine->Prev!=NULL)
       {
+        /* $ 19.01.2002 IS
+           Сверим позицию курсора и существующего выделения, если есть
+           противоречие, то начнем новое выделение
+        */
         int SelStart,SelEnd;
+        if(EFlags.Check(FEDITOR_CURPOSCHANGEDBYPLUGIN))
+        {
+          CurLine->EditLine.GetSelection(SelStart,SelEnd);
+          if(SelStart!=-1 && (CurPos<SelStart || CurPos>SelEnd))
+            EFlags.Skip(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+          EFlags.Skip(FEDITOR_CURPOSCHANGEDBYPLUGIN);
+        }
+        /* IS 19.01.2002 $ */
+
         if (!EFlags.Check(FEDITOR_MARKINGBLOCK))
         {
           UnmarkBlock();
@@ -1739,7 +1755,19 @@ int Editor::ProcessKey(int Key)
       return(TRUE);
     case KEY_SHIFTRIGHT:
       {
+        /* $ 19.01.2002 IS
+           Сверим позицию курсора и существующего выделения, если есть
+           противоречие, то начнем новое выделение
+        */
         int SelStart,SelEnd;
+        if(EFlags.Check(FEDITOR_CURPOSCHANGEDBYPLUGIN))
+        {
+          CurLine->EditLine.GetSelection(SelStart,SelEnd);
+          if(SelStart!=-1 && (CurPos<SelStart || CurPos>SelEnd))
+            EFlags.Skip(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+          EFlags.Skip(FEDITOR_CURPOSCHANGEDBYPLUGIN);
+        }
+        /* IS 19.01.2002 $ */
         if (!EFlags.Check(FEDITOR_MARKINGBLOCK))
         {
           UnmarkBlock();
@@ -1809,22 +1837,7 @@ int Editor::ProcessKey(int Key)
         Edit::DisableEditOut(TRUE);
         /* OT $ */
 
-        /* $ 07.01.2002 IS
-           Сверим позицию курсора и существующего выделения, если есть
-           противоречие, то начнем новое выделение
-        */
         int CurPos;
-        if(EFlags.Check(FEDITOR_CURPOSCHANGEDBYPLUGIN))
-        {
-          int SelStart, SelEnd;
-          CurPos=CurLine->EditLine.GetCurPos();
-          CurLine->EditLine.GetSelection(SelStart,SelEnd);
-          if(SelStart!=-1 && (CurPos<SelStart || CurPos>SelEnd))
-            EFlags.Skip(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
-          EFlags.Skip(FEDITOR_CURPOSCHANGEDBYPLUGIN);
-        }
-        /* IS 07.02.2002 $ */
-
         while (1)
         {
           const char *Str;
@@ -1868,22 +1881,7 @@ int Editor::ProcessKey(int Key)
         DisableOut++;
         Edit::DisableEditOut(TRUE);
 
-        /* $ 11.01.2002 IS
-           Сверим позицию курсора и существующего выделения, если есть
-           противоречие, то начнем новое выделение
-        */
         int CurPos;
-        if(EFlags.Check(FEDITOR_CURPOSCHANGEDBYPLUGIN))
-        {
-          int SelStart, SelEnd;
-          CurPos=CurLine->EditLine.GetCurPos();
-          CurLine->EditLine.GetSelection(SelStart,SelEnd);
-          if(SelStart!=-1 && (CurPos<SelStart || CurPos>SelEnd))
-            EFlags.Skip(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
-          EFlags.Skip(FEDITOR_CURPOSCHANGEDBYPLUGIN);
-        }
-        /* IS 07.02.2002 $ */
-
         while (1)
         {
           const char *Str;
