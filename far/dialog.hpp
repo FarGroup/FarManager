@@ -10,10 +10,12 @@ dialog.hpp
 
 */
 
-/* Revision: 1.79 29.01.2005 $ */
+/* Revision: 1.80 22.03.2005 $ */
 
 /*
 Modify:
+  22.03.2005 SVS
+    + DMODE_BEGINLOOP
   29.01.2005 WARP
     ! Небольшой cleanup (см. 01920.vmenu_dialog_cleanup.txt)
   27.12.2004 WARP
@@ -281,6 +283,7 @@ Modify:
 #define DMODE_MOUSEEVENT    0x00008000 // Нужно посылать MouseMove в обработчик?
 #define DMODE_RESIZED       0x00010000 //
 #define DMODE_ENDLOOP       0x00020000 // Конец цикла обработки диалога?
+#define DMODE_BEGINLOOP     0x00040000 // Начало цикла обработки диалога?
 #define DMODE_OWNSITEMS     0x00080000 // если TRUE, Dialog освобождает список Item в деструкторе
 #define DMODE_NODRAWSHADOW  0x00100000 // не рисовать тень?
 #define DMODE_NODRAWPANEL   0x00200000 // не рисовать подложку?

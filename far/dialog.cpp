@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.331 27.02.2005 $ */
+/* Revision: 1.332 22.03.2005 $ */
 
 /*
 Modify:
+  22.03.2005 SVS
+    - BugZ#1303 - Падение, вроде как из за DM_CLOSE в DN_INITDIALOG
   27.02.2005 SVS
     - BugZ#1279 - Сочетание устанавливающие флажок в третье состояние не должно работать на обычных флажках
     - BugZ#1278 - Различное поведение Tab в раскрытом списке и раскрытом списке истории ввода
@@ -1324,6 +1326,8 @@ Dialog::~Dialog()
   INPUT_RECORD rec;
   PeekInputRecord(&rec);
   delete OldTitle;
+
+
   _DIALOG(CleverSysLog CL("Destroy Dialog"));
 }
 
@@ -5968,6 +5972,7 @@ void Dialog::Process()
   InitDialog();
   if(ExitCode == -1)
   {
+    DialogMode.Set(DMODE_BEGINLOOP);
     FrameManager->ExecuteModal (this);
   }
   /* DJ $ */
@@ -5986,7 +5991,7 @@ void Dialog::CloseDialog()
     DialogMode.Set(DMODE_ENDLOOP);
     Hide();
 
-    if(DialogMode.Check(DMODE_MSGINTERNAL) || FrameManager->ManagerStarted())
+    if(DialogMode.Check(DMODE_BEGINLOOP) && (DialogMode.Check(DMODE_MSGINTERNAL) || FrameManager->ManagerStarted()))
       FrameManager->DeleteFrame (this);
 
     _DIALOG(CleverSysLog CL("Close Dialog"));

@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.91 22.03.2005 $ */
+/* Revision: 1.92 22.03.2005 $ */
 
 /*
 Modify:
+  22.03.2005 SVS
+    - откат предыдущего изменения, не туда копал :-(
   22.03.2005 SVS
     - BugZ#1303 - Падение, вроде как из за DM_CLOSE в DN_INITDIALOG
   02.02.2005 SVS
@@ -1418,26 +1420,21 @@ void Manager::DeleteCommit()
   /* SKV $ */
 
 
-  if(IndexOf(DeletedFrame) != -1)
+  DeletedFrame->OnDestroy();
+  if (DeletedFrame->GetDynamicallyBorn())
   {
-    DeletedFrame->OnDestroy();
-    if (DeletedFrame->GetDynamicallyBorn())
-    {
-      _tran(SysLog("delete DeletedFrame %p, CurrentFrame=%p",DeletedFrame,CurrentFrame));
-      if ( CurrentFrame==DeletedFrame )
-        CurrentFrame=0;
-      /* $ 14.05.2002 SKV
-        Так как в деструкторе фрэйма неявно может быть
-        вызван commit, то надо подстраховаться.
-      */
-      Frame *tmp=DeletedFrame;
-      DeletedFrame=NULL;
-      delete tmp;
-      /* SKV $ */
-    }
-  }
-  else
+    _tran(SysLog("delete DeletedFrame %p, CurrentFrame=%p",DeletedFrame,CurrentFrame));
+    if ( CurrentFrame==DeletedFrame )
+      CurrentFrame=0;
+    /* $ 14.05.2002 SKV
+      Так как в деструкторе фрэйма неявно может быть
+      вызван commit, то надо подстраховаться.
+    */
+    Frame *tmp=DeletedFrame;
     DeletedFrame=NULL;
+    delete tmp;
+    /* SKV $ */
+  }
 
   // Полагаемся на то, что в ActevateFrame не будет переписан уже
   // присвоенный  ActivatedFrame
