@@ -5,10 +5,13 @@ plugins.cpp
 
 */
 
-/* Revision: 1.69 21.05.2001 $ */
+/* Revision: 1.70 29.05.2001 $ */
 
 /*
 Modify:
+  29.05.2001 IS
+    - При настройке "параметров внешних модулей" не обновлялись строчки
+      плагинов в меню.
   22.05.2001 DJ
     - GetMinFarVersion() не вызывался в двух местах из трех нужных;
       вызов перенесен в SetPluginStartupInfo()
@@ -1621,136 +1624,135 @@ int PluginsSet::Compare(HANDLE hPlugin,struct PluginPanelItem *Item1,struct Plug
   return(-3);
 }
 
-
+/* $ 29.05.2001 IS
+   ! При настройке "параметров внешних модулей" закрывать окно с их
+     списком только при нажатии на ESC
+*/
 void PluginsSet::Configure()
 {
-  unsigned char Data[2];
-  int MenuItemNumber=0;
-  int I, J;
-  VMenu PluginList(MSG(MPluginConfigTitle),NULL,0,ScrY-4);
-  PluginList.SetFlags(VMENU_WRAPMODE);
-  PluginList.SetPosition(-1,-1,0,0);
-
-  LoadIfCacheAbsent();
-
-  for (I=0;I<PluginsCount;I++)
+  for(;;)
   {
-    if (PluginsData[I].Cached)
+    unsigned char Data[2];
+    int MenuItemNumber=0;
+    int I, J;
+    VMenu PluginList(MSG(MPluginConfigTitle),NULL,0,ScrY-4);
+    PluginList.SetFlags(VMENU_WRAPMODE);
+    PluginList.SetPosition(-1,-1,0,0);
+
+    LoadIfCacheAbsent();
+
+    for (I=0;I<PluginsCount;I++)
     {
-      char RegKey[100],Value[100];
-      int RegNumber=GetCacheNumber(PluginsData[I].ModuleName,NULL,PluginsData[I].CachePos);
-      if (RegNumber==-1)
-        continue;
+      if (PluginsData[I].Cached)
+      {
+        char RegKey[100],Value[100];
+        int RegNumber=GetCacheNumber(PluginsData[I].ModuleName,NULL,PluginsData[I].CachePos);
+        if (RegNumber==-1)
+          continue;
+        else
+          for (J=0;;J++)
+          {
+            struct MenuItem ListItem;
+            memset(&ListItem,0,sizeof(ListItem));
+            ListItem.UserData[0]=I;
+            ListItem.UserData[1]=J;
+            ListItem.UserDataSize=2;
+            sprintf(RegKey,FmtPluginsCache_PluginD,RegNumber);
+            sprintf(Value,"PluginConfigString%d",J);
+            GetRegKey(RegKey,Value,ListItem.Name,"",sizeof(ListItem.Name));
+            if (*ListItem.Name==0)
+              break;
+            ListItem.SetSelect(MenuItemNumber++ == 0);
+            PluginList.AddItem(&ListItem);
+          }
+      }
       else
-        for (J=0;;J++)
+      {
+        struct PluginInfo Info;
+        if (!GetPluginInfo(I,&Info))
+          continue;
+        for (J=0;J<Info.PluginConfigStringsNumber;J++)
         {
           struct MenuItem ListItem;
           memset(&ListItem,0,sizeof(ListItem));
           ListItem.UserData[0]=I;
           ListItem.UserData[1]=J;
           ListItem.UserDataSize=2;
-          sprintf(RegKey,FmtPluginsCache_PluginD,RegNumber);
-          sprintf(Value,"PluginConfigString%d",J);
-          GetRegKey(RegKey,Value,ListItem.Name,"",sizeof(ListItem.Name));
-          if (*ListItem.Name==0)
-            break;
+          strcpy(ListItem.Name,NullToEmpty(Info.PluginConfigStrings[J]));
           ListItem.SetSelect(MenuItemNumber++ == 0);
           PluginList.AddItem(&ListItem);
         }
+      }
     }
-    else
+    PluginList.AssignHighlights(FALSE);
+
+    PluginList.ClearDone();
+
+    /* $ 18.12.2000 SVS
+       Shift-F1 в списке плагинов вызывает хелп по данному плагину
+    */
+    PluginList.Show();
+    while (!PluginList.Done())
     {
-      struct PluginInfo Info;
-      if (!GetPluginInfo(I,&Info))
-        continue;
-      for (J=0;J<Info.PluginConfigStringsNumber;J++)
+      int SelPos=PluginList.GetSelectPos();
+      PluginList.GetUserData(Data,2,SelPos);
+      switch(PluginList.ReadInput())
       {
-        struct MenuItem ListItem;
-        memset(&ListItem,0,sizeof(ListItem));
-        ListItem.UserData[0]=I;
-        ListItem.UserData[1]=J;
-        ListItem.UserDataSize=2;
-        strcpy(ListItem.Name,NullToEmpty(Info.PluginConfigStrings[J]));
-        ListItem.SetSelect(MenuItemNumber++ == 0);
-        PluginList.AddItem(&ListItem);
+        case KEY_F1:
+        case KEY_SHIFTF1:
+          char PluginModuleName[NM*2];
+          strcpy(PluginModuleName,PluginsData[Data[0]].ModuleName);
+          if(!FarShowHelp(PluginModuleName,"Config",FHELP_SELFHELP|FHELP_NOSHOWERROR) &&
+             !FarShowHelp(PluginModuleName,"Configure",FHELP_SELFHELP|FHELP_NOSHOWERROR))
+          {
+            //strcpy(PluginModuleName,PluginsData[Data[0]].ModuleName);
+            FarShowHelp(PluginModuleName,NULL,FHELP_SELFHELP|FHELP_NOSHOWERROR);
+          }
+          break;
+        default:
+          PluginList.ProcessInput();
+          break;
       }
     }
-  }
-  PluginList.AssignHighlights(FALSE);
+    /* SVS $ */
 
-  /* $ 29.12.2000 IS
-     ! При настройке "параметров внешних модулей" закрывать окно с их
-       списком только при нажатии на ESC
-  */
-  while(1)
-  {
-      PluginList.ClearDone();
-      /* $ 18.12.2000 SVS
-         Shift-F1 в списке плагинов вызывает хелп по данному плагину
-      */
-      PluginList.Show();
-      while (!PluginList.Done())
-      {
-        int SelPos=PluginList.GetSelectPos();
-        PluginList.GetUserData(Data,2,SelPos);
-        switch(PluginList.ReadInput())
-        {
-          case KEY_F1:
-          case KEY_SHIFTF1:
-            char PluginModuleName[NM*2];
-            strcpy(PluginModuleName,PluginsData[Data[0]].ModuleName);
-            if(!FarShowHelp(PluginModuleName,"Config",FHELP_SELFHELP|FHELP_NOSHOWERROR) &&
-               !FarShowHelp(PluginModuleName,"Configure",FHELP_SELFHELP|FHELP_NOSHOWERROR))
-            {
-              //strcpy(PluginModuleName,PluginsData[Data[0]].ModuleName);
-              FarShowHelp(PluginModuleName,NULL,FHELP_SELFHELP|FHELP_NOSHOWERROR);
-            }
-            break;
-          default:
-            PluginList.ProcessInput();
-            break;
-        }
+    int ExitCode=PluginList.GetExitCode();
+    PluginList.Hide();
+    if (ExitCode<0)
+      break;
+
+    PluginList.GetUserData(Data,2,ExitCode);
+    int PNum=Data[0];
+    if (PreparePlugin(PNum) && PluginsData[PNum].pConfigure!=NULL)
+    {
+      //EXCEPTION_POINTERS *xp;
+      int Ret;
+      TRY{
+        Ret=PluginsData[PNum].pConfigure(Data[1]);
       }
-      /* SVS $ */
-
-      int ExitCode=PluginList.GetExitCode();
-      PluginList.Hide();
-      if (ExitCode<0)
+      __except ( xfilter(EXCEPT_CONFIGURE,
+                        GetExceptionInformation(),&PluginsData[PNum],1) )
+      {
         return;
-
-      PluginList.GetUserData(Data,2,ExitCode);
-      int PNum=Data[0];
-      if (PreparePlugin(PNum) && PluginsData[PNum].pConfigure!=NULL)
-      {
-        //EXCEPTION_POINTERS *xp;
-        int Ret;
-        TRY{
-          Ret=PluginsData[PNum].pConfigure(Data[1]);
-        }
-        __except ( xfilter(EXCEPT_CONFIGURE,
-                          GetExceptionInformation(),&PluginsData[PNum],1) )
-        {
-          return;
-        }
-        if (Ret)
-        {
-          if (CtrlObject->Cp()->LeftPanel->GetMode()==PLUGIN_PANEL)
-          {
-            CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
-            CtrlObject->Cp()->LeftPanel->Redraw();
-          }
-          if (CtrlObject->Cp()->RightPanel->GetMode()==PLUGIN_PANEL)
-          {
-            CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
-            CtrlObject->Cp()->RightPanel->Redraw();
-          }
-        }
-        SavePluginSettings(PluginsData[PNum],PluginsData[PNum].FindData);
       }
+      if (Ret)
+      {
+        if (CtrlObject->Cp()->LeftPanel->GetMode()==PLUGIN_PANEL)
+        {
+          CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
+          CtrlObject->Cp()->LeftPanel->Redraw();
+        }
+        if (CtrlObject->Cp()->RightPanel->GetMode()==PLUGIN_PANEL)
+        {
+          CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
+          CtrlObject->Cp()->RightPanel->Redraw();
+        }
+      }
+      SavePluginSettings(PluginsData[PNum],PluginsData[PNum].FindData);
+    }
   }
-  /* IS $ */
 }
-
+/* IS $ */
 
 ///int PluginsSet::CommandsMenu(int Editor,int Viewer,int StartPos,char *HistoryName)
 int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
