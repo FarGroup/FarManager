@@ -5,10 +5,12 @@ Files highlighting
 
 */
 
-/* Revision: 1.39 06.09.2002 $ */
+/* Revision: 1.40 17.09.2002 $ */
 
 /*
 Modify:
+  17.09.2002 SVS
+    - Bug#639 - Фар падает при создании дефолтных настроек
   06.09.2002 SVS
     ! Изменены и упорядочены маски расширений для архиваторов (добавлен 7z)
   11.06.2002 SVS
@@ -903,48 +905,49 @@ void SetHighlighting()
   // сделает.
   char CmdExt[512]="*.exe,*.com,*.bat,%PATHEXT%";
   static char *Masks[]={
-    "*.*",
-    CmdExt,
-    "*.rar,*.zip,*.[zj],*.[bg7]z,*.[bg]zip,*.tar,*.t[ag]z,*.ar[cj],*.r[0-9][0-9],*.a[0-9][0-9],*.bz2,*.cab,*.msi,*.jar,*.lha,*.lzh,*.ha,*.ac[bei],*.pa[ck],*.rk,*.cpio,*.rpm,*.zoo,*.hqx,*.sit,*.ice,*.uc2,*.ain,*.imp,*.777,*.ufa,*.boa,*.bs[2a],*.sea,*.hpk,*.ddi,*.x2,*.rkv,*.[lw]sz,*.h[ay]p,*.lim,*.sqz,*.chz"
-    "*.bak,*.tmp",                                                                                                                                                                                //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -> может к терапевту? ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    /* $ 25.09.2001  IS
-       Эта маска для каталогов: обрабатывать все каталоги, кроме тех, что
-       являются родительскими (их имена - две точки).
-    */
-    "*.*|..", // маска для каталогов
-    "..",     // такие каталоги окрашивать как простые файлы
-    /* IS $ */
+  /* 0 */ "*.*",
+  /* 1 */ "",
+  /* 2 */ "*.rar,*.zip,*.[zj],*.[bg7]z,*.[bg]zip,*.tar,*.t[ag]z,*.ar[cj],*.r[0-9][0-9],*.a[0-9][0-9],*.bz2,*.cab,*.msi,*.jar,*.lha,*.lzh,*.ha,*.ac[bei],*.pa[ck],*.rk,*.cpio,*.rpm,*.zoo,*.hqx,*.sit,*.ice,*.uc2,*.ain,*.imp,*.777,*.ufa,*.boa,*.bs[2a],*.sea,*.hpk,*.ddi,*.x2,*.rkv,*.[lw]sz,*.h[ay]p,*.lim,*.sqz,*.chz",
+  /* 3 */ "*.bak,*.tmp",                                                                                                                                                                                //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -> может к терапевту? ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+          /* $ 25.09.2001  IS
+              Эта маска для каталогов: обрабатывать все каталоги, кроме тех, что
+              являются родительскими (их имена - две точки).
+          */
+  /* 4 */ "*.*|..", // маска для каталогов
+  /* 5 */ "..",     // такие каталоги окрашивать как простые файлы
+          /* IS $ */
   };
   /* $ 06.07.2001 IS
      Нечего дразнить судьбу - используем только OriginalMasks
   */
   struct HighlightData  StdHighlightData[]=
   { /*
-     OriginalMask                        NormalColor       SelectedCursorColor
-                        IncludeAttributes       SelectedColor     MarkChar
-               FMasks           ExcludeAttributes     CursorColor             */
-    {Masks[0], NULL, 0, 0x0002, 0x0000, {0x13, 0x00, 0x38, 0x00, 0x00, 0x00, 0x00, 0x00}},
-    {Masks[0], NULL, 0, 0x0004, 0x0000, {0x13, 0x00, 0x38, 0x00, 0x00, 0x00, 0x00, 0x00}},
-    {Masks[4], NULL, 0, 0x0010, 0x0000, {0x1F, 0x00, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00}},
-    {Masks[5], NULL, 0, 0x0010, 0x0000, {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
-    {Masks[1], NULL, 0, 0x0000, 0x0000, {0x1A, 0x00, 0x3A, 0x00, 0x00, 0x00, 0x00, 0x00}},
-    {Masks[2], NULL, 0, 0x0000, 0x0000, {0x1D, 0x00, 0x3D, 0x00, 0x00, 0x00, 0x00, 0x00}},
-    {Masks[3], NULL, 0, 0x0000, 0x0000, {0x16, 0x00, 0x36, 0x00, 0x00, 0x00, 0x00, 0x00}},
-    // это настройка для каталогов на тех панелях, которые должны раскрашиваться
-    // без учета масок (например, список хостов в "far navigator")
-    {Masks[0], NULL, 1, 0x0010, 0x0000, {0x1F, 0x00, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00}},
+             OriginalMask                        NormalColor       SelectedCursorColor
+                                IncludeAttributes       SelectedColor     MarkChar
+                       FMasks           ExcludeAttributes     CursorColor             */
+     /* 0 */{Masks[0], NULL, 0, 0x0002, 0x0000, {0x13, 0x00, 0x38, 0x00, 0x00, 0x00, 0x00, 0x00}},
+     /* 1 */{Masks[0], NULL, 0, 0x0004, 0x0000, {0x13, 0x00, 0x38, 0x00, 0x00, 0x00, 0x00, 0x00}},
+     /* 2 */{Masks[4], NULL, 0, 0x0010, 0x0000, {0x1F, 0x00, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00}},
+     /* 3 */{Masks[5], NULL, 0, 0x0010, 0x0000, {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
+     /* 4 */{Masks[1], NULL, 0, 0x0000, 0x0000, {0x1A, 0x00, 0x3A, 0x00, 0x00, 0x00, 0x00, 0x00}},
+     /* 5 */{Masks[2], NULL, 0, 0x0000, 0x0000, {0x1D, 0x00, 0x3D, 0x00, 0x00, 0x00, 0x00, 0x00}},
+     /* 6 */{Masks[3], NULL, 0, 0x0000, 0x0000, {0x16, 0x00, 0x36, 0x00, 0x00, 0x00, 0x00, 0x00}},
+            // это настройка для каталогов на тех панелях, которые должны раскрашиваться
+            // без учета масок (например, список хостов в "far navigator")
+     /* 7 */{Masks[0], NULL, 1, 0x0010, 0x0000, {0x1F, 0x00, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00}},
   };
 
   // для NT добавляем CMD
   if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
     strcat(CmdExt,",*.cmd");
 
+  Masks[1]=CmdExt;
+
   Ptr=MkRegKeyHighlightName(RegKey);
   for(I=0; I < sizeof(StdHighlightData)/sizeof(StdHighlightData[0]); ++I)
   {
     itoa(I,Ptr,10);
     SetRegKey(RegKey,HLS.Mask,StdHighlightData[I].OriginalMasks);
-  /* IS $ */
     SetRegKey(RegKey,HLS.IgnoreMask,StdHighlightData[I].IgnoreMask);
     if(StdHighlightData[I].IncludeAttr)
       SetRegKey(RegKey,HLS.IncludeAttributes,StdHighlightData[I].IncludeAttr);

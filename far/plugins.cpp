@@ -5,10 +5,15 @@ plugins.cpp
 
 */
 
-/* Revision: 1.125 10.09.2002 $ */
+/* Revision: 1.126 17.09.2002 $ */
 
 /*
 Modify:
+  17.09.2002 SVS
+    - Сортировка плагинов
+    ! при старте ФАРа после "сбора" плагинов стояла сортировка по имени
+      модуля. Отключил сортировку ибо все равно теперь сортируем каждый
+      раз по имени, выдаваемым модулем.
   10.09.2002 SVS
     ! Добавим обработку исключений про диалоги - если флаг PSIF_DIALOG
       установлен - инициируем выгрузку плагина.
@@ -560,7 +565,9 @@ void PluginsSet::LoadPlugins()
         }
       }
   }
-  qsort(PluginsData,PluginsCount,sizeof(*PluginsData),PluginsSort);
+
+  // SVS> IMHO лишнее, ибо сортировка теперь по имени идет (или нет?)
+  //qsort(PluginsData,PluginsCount,sizeof(*PluginsData),PluginsSort);
 
   int NewPlugin=FALSE;
 
@@ -2453,7 +2460,7 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
                 if (*Name==0)
                   break;
                 if (!HotKeysPresent)
-                  strcpy(ListItem.Name,Name);
+                  sprintf(ListItem.Name,"   %s",Name);//strcpy(ListItem.Name,Name);
                 else
                   if (*HotKey)
                     sprintf(ListItem.Name,"&%c  %s",*HotKey,Name);
@@ -2485,7 +2492,7 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
               char Name[sizeof(ListItem.Name)];
               strncpy(Name,NullToEmpty(Info.PluginMenuStrings[J]),sizeof(Name)-1);
               if (!HotKeysPresent)
-                strcpy(ListItem.Name,Name);
+                sprintf(ListItem.Name,"   %s",Name);//strcpy(ListItem.Name,Name);
               else
                 if (*HotKey)
                   sprintf(ListItem.Name,"&%c  %s",*HotKey,Name);

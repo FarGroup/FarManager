@@ -5,10 +5,15 @@ dialog.cpp
 
 */
 
-/* Revision: 1.261 10.09.2002 $ */
+/* Revision: 1.262 17.09.2002 $ */
 
 /*
 Modify:
+  17.09.2002 SVS
+    ! Если у DI_SINGLEBOX (DI_DOUBLEBOX) координаты X1==X2 или Y1==Y2, то
+      рисуется соответствующая линия (вертикальная или горизонтальная)
+    ! Если у DI_SINGLEBOX (DI_DOUBLEBOX) указан флаг DIF_SETCOLOR, то
+      младший байт позволяет задавать первоначальный цвет _рамки_.
   10.09.2002 SVS
     - BugZ#628 - Неправильная длина редактируемого текста.
     - BugZ#626 - User Menu hotkey bug
@@ -2070,6 +2075,15 @@ DWORD Dialog::CtlColorDlgItem(int ItemPos,int Type,int Focus,DWORD Flags)
     case DI_SINGLEBOX:
     case DI_DOUBLEBOX:
     {
+      if (Flags & DIF_SETCOLOR)
+        Attr=Flags & DIF_COLORMASK;
+      else
+      {
+        Attr=DialogMode.Check(DMODE_WARNINGSTYLE) ?
+                    (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOX):
+                    (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGBOX);
+      }
+
       Attr=MAKELONG(
           MAKEWORD(FarColorToReal(DialogMode.Check(DMODE_WARNINGSTYLE) ?
                       (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOXTITLE):
@@ -2080,11 +2094,8 @@ DWORD Dialog::CtlColorDlgItem(int ItemPos,int Type,int Focus,DWORD Flags)
                       (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGHIGHLIGHTTEXT)
                    )
           ),// HiText HIBYTE
-          MAKEWORD(FarColorToReal(DialogMode.Check(DMODE_WARNINGSTYLE) ?
-                    (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOX):
-                    (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGBOX)
-                  ), // Box LOBYTE
-                  0)                                               // HIBYTE
+          MAKEWORD(FarColorToReal(Attr), // Box LOBYTE
+                   0)                     // HIBYTE
       );
       break;
     }
@@ -2369,11 +2380,22 @@ void Dialog::ShowDialog(int ID)
       case DI_SINGLEBOX:
       case DI_DOUBLEBOX:
       {
-        Box(X1+CX1,Y1+CY1,X1+CX2,Y1+CY2,
-            LOBYTE(HIWORD(Attr)),
-            (CurItem->Type==DI_SINGLEBOX) ? SINGLE_BOX:DOUBLE_BOX);
+        BOOL IsDrawTitle=TRUE;
+        GotoXY(X1+CX1,Y1+CY1);
+        SetColor(LOBYTE(HIWORD(Attr)));
+        if(CY1 == CY2)
+          DrawLine(CX2-CX1+1,CurItem->Type==DI_SINGLEBOX?8:9); //???
+        else if(CX1 == CX2)
+        {
+          DrawLine(CY2-CY1+1,CurItem->Type==DI_SINGLEBOX?10:11);
+          IsDrawTitle=FALSE;
+        }
+        else
+          Box(X1+CX1,Y1+CY1,X1+CX2,Y1+CY2,
+             LOBYTE(HIWORD(Attr)),
+             (CurItem->Type==DI_SINGLEBOX) ? SINGLE_BOX:DOUBLE_BOX);
 
-        if (*CurItem->Data)
+        if (*CurItem->Data && IsDrawTitle)
         {
           /* $ 17.12.2001 KM
             ! Пусть диалог сам заботится о ширине собственного заголовка.

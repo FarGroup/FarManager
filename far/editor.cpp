@@ -6,10 +6,15 @@ editor.cpp
 
 */
 
-/* Revision: 1.193 17.09.2002 $ */
+/* Revision: 1.194 17.09.2002 $ */
 
 /*
 Modify:
+  17.09.2002 SVS
+    - BugZ#616 - ctrl-shift-alt в редакторе
+      "На экране диалог замены ("replace"). Нажимаю ctrl-shift-alt,
+      он исчезает, но под ним оказывается еще один - "search".
+      Не совсем логично."
   17.09.2002 SKV
     - выделение
   04.09.2002 SVS
@@ -3911,7 +3916,7 @@ BOOL Editor::Search(int Next)
 
     sprintf(MsgStr,"\"%s\"",SearchStr);
     SetCursorType(FALSE,0);
-    SetPreRedrawFunc(Editor::PR_EditorShowMsg);
+    //SetPreRedrawFunc(Editor::PR_EditorShowMsg);
     EditorShowMsg(MSG(MEditSearchTitle),MSG(MEditSearchingFor),MsgStr);
 
     Count=0;
@@ -4140,7 +4145,7 @@ BOOL Editor::Search(int Next)
           NewNumLine++;
         }
     }
-    SetPreRedrawFunc(NULL);
+    //SetPreRedrawFunc(NULL);
   }
   Show();
   if (!Match && !UserBreak)

@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.165 23.08.2002 $ */
+/* Revision: 1.166 17.09.2002 $ */
 
 /*
 Modify:
+  17.09.2002 SVS
+    + DrawLine()
   23.08.2002 SVS
     + SaveScreenDumpBuffer()
     + _GetRealText/_PutRealText - обобщенные функции
@@ -460,6 +462,7 @@ void Text(int MsgId);
 void VText(const char *Str);
 void HiText(const char *Str,int HiColor);
 void ShowSeparator(int Length,int Type=1);
+void DrawLine(int Length,int Type);
 char* MakeSeparator(int Length,char *DestStr,int Type=1);
 void SetScreen(int X1,int Y1,int X2,int Y2,int Ch,int Color);
 void MakeShadow(int X1,int Y1,int X2,int Y2);
