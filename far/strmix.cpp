@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.33 23.02.2002 $ */
+/* Revision: 1.34 05.03.2002 $ */
 
 /*
 Modify:
+  05.03.2002 DJ
+    - такая вот, блин, хреновая косметика
   23.02.2002 DJ
     - косметика от BoundsChecker
   23.01.2002 SVS
@@ -460,8 +462,10 @@ char* WINAPI RemoveLeadingSpaces(char *Str)
 // удалить конечные пробелы
 char* WINAPI RemoveTrailingSpaces(char *Str)
 {
-  if(!Str || !*Str)
+  if(!Str)
     return NULL;
+  if (*Str == '\0')
+    return Str;
 
   char *ChPtr;
   int I;
