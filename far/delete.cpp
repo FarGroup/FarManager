@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.37 15.01.2002 $ */
+/* Revision: 1.38 19.01.2002 $ */
 
 /*
 Modify:
+  19.01.2002 VVM
+    ! bug#253 - сначала спросим, а уж потом выставим функцию для сообщений SetPreredrawFunc()
   15.01.2002 SVS
     - Бага - при удалении каталога не учитывался факт того, что на
       противоположной подкаталог удаляемого каталога, а ФАР перед этим просил
@@ -285,14 +287,14 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   {
     //SaveScreen SaveScr;
     SetCursorType(FALSE,0);
-    SetPreRedrawFunc(PR_ShellDeleteMsg);
-    ShellDeleteMsg("");
-    if (Message(MSG_DOWN|MSG_WARNING,2,MSG(MDeleteFilesTitle),MSG(MAskDelete),
+    if (Message(MSG_WARNING,2,MSG(MDeleteFilesTitle),MSG(MAskDelete),
                 DeleteFilesMsg,MSG(MDeleteFileAll),MSG(MDeleteFileCancel))!=0)
     {
       NeedUpdate=FALSE;
       goto done;
     }
+    SetPreRedrawFunc(PR_ShellDeleteMsg);
+    ShellDeleteMsg("");
   }
 
   if (UpdateDiz)
