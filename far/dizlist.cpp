@@ -5,10 +5,14 @@ dizlist.cpp
 
 */
 
-/* Revision: 1.07 25.03.2002 $ */
+/* Revision: 1.08 27.03.2002 $ */
 
 /*
 Modify:
+  27.03.2002 SVS
+    - имело место быть обрезаение имени файла, если оно было более, чем
+      указано в "Position of new descriptions in the string"
+    + Добавим месаг, если результирующее имя к DIZ-файлу превышает NM
   25.03.2002 SVS
     - Конструкция "%-*.*s" при OptDizStartPos=0 НИЧЕГО не рисует
   22.03.2002 SVS
@@ -356,7 +360,10 @@ int DizList::Flush(char *Path,char *DizName)
     if(strlen(DizFileName)+strlen(ArgName) < sizeof(DizFileName))
       strcat(DizFileName,ArgName);
     else
+    {
+      Message(MSG_WARNING,1,MSG(MError),MSG(MErrorFullPathNameLong),MSG(MCannotUpdateDiz),MSG(MOk));
       return(FALSE);
+    }
   }
 
   FILE *DizFile;
@@ -436,8 +443,9 @@ int DizList::CopyDiz(char *Name,char *ShortName,char *DestName,
   strncpy(QuotedName,DestName,sizeof(QuotedName)-3);
   QuoteSpaceOnly(QuotedName);
   int OptDizStartPos=(Opt.Diz.StartPos>1 ? Opt.Diz.StartPos-2:0);
+  int LenQuotedName=strlen(QuotedName);
 
-  if(!OptDizStartPos)
+  if(!OptDizStartPos || OptDizStartPos < LenQuotedName)
     OptDizStartPos=strlen(QuotedName);
 
   sprintf(DizText,"%-*.*s %.*s",

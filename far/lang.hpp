@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.102 22.03.2002 $ */
+/* Revision: 1.103 27.03.2002 $ */
 
 /*
 Modify:
+  27.03.2002 SVS
+    + MErrorFullPathNameLong
   22.03.2002 SVS
     ! перемещение MNeedNearPath
   21.03.2002 SVS
@@ -1117,6 +1119,8 @@ enum
   MErrorEncryptionFailed,
   MErrorDecryptionFailed,
   MErrorFileNotEncrypted,
+
+  MErrorFullPathNameLong,
 
   MCannotExecute,
   MScanningFolder,

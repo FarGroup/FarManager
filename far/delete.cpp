@@ -5,10 +5,13 @@ delete.cpp
 
 */
 
-/* Revision: 1.46 26.03.2002 $ */
+/* Revision: 1.47 27.03.2002 $ */
 
 /*
 Modify:
+  27.03.2002 SVS
+    + Уточнение типа ошибки (MErrorFullPathNameLong) для больших размеров
+      имен.
   26.03.2002 DJ
     ! ScanTree::GetNextName() принимает размер буфера для имени файла
   22.03.2002 SVS
@@ -666,6 +669,10 @@ int AskDeleteReadOnly(char *Name,DWORD Attr)
 
 int ShellRemoveFile(char *Name,char *ShortName,int Wipe)
 {
+  char FullName[NM*2];
+  if (ConvertNameToFull(Name,FullName, sizeof(FullName)) >= sizeof(FullName))
+    return DELETE_CANCEL;
+
   while (1)
   {
     if (Wipe)
@@ -697,7 +704,14 @@ int ShellRemoveFile(char *Name,char *ShortName,int Wipe)
     char MsgName[NM];
     strncpy(MsgName, Name,sizeof(MsgName)-1);
     TruncPathStr(MsgName, ScrX-16);
-    MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
+    if(strlen(FullName) > NM-1)
+    {
+      MsgCode=Message(MSG_DOWN|MSG_WARNING,3,MSG(MError),MSG(MErrorFullPathNameLong),
+                    MSG(MCannotDeleteFile),MsgName,MSG(MDeleteRetry),
+                    MSG(MDeleteSkip),MSG(MDeleteCancel));
+    }
+    else
+      MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
                     MSG(MCannotDeleteFile),MsgName,MSG(MDeleteRetry),
                     MSG(MDeleteSkip),MSG(MDeleteCancel));
     /* IS */
@@ -718,6 +732,10 @@ int ShellRemoveFile(char *Name,char *ShortName,int Wipe)
 int ERemoveDirectory(char *Name,char *ShortName,int Wipe)
 {
   int RetCode;
+  char FullName[NM*2];
+  if (ConvertNameToFull(Name,FullName, sizeof(FullName)) >= sizeof(FullName))
+    return DELETE_CANCEL;
+
   while (1)
   {
     if (Wipe)
@@ -732,11 +750,20 @@ int ERemoveDirectory(char *Name,char *ShortName,int Wipe)
     char MsgName[NM];
     strncpy(MsgName, Name,sizeof(MsgName)-1);
     TruncPathStr(MsgName, ScrX-16);
-    if (Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
+    if(strlen(FullName) > NM-1)
+    {
+      if (Message(MSG_DOWN|MSG_WARNING,2,MSG(MError),MSG(MErrorFullPathNameLong),
                 MSG(MCannotDeleteFolder),MsgName,MSG(MDeleteRetry),
                 MSG(MDeleteCancel))!=0)
-    /* IS $ */
-      break;
+        break;
+    }
+    else
+    {
+      if (Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
+                  MSG(MCannotDeleteFolder),MsgName,MSG(MDeleteRetry),
+                  MSG(MDeleteCancel))!=0)
+        break;
+    }
   }
   return(RetCode);
 }

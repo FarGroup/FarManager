@@ -835,6 +835,8 @@
 "The specified file could not be decrypted"
 "The specified file is not encrypted"
 
+"The full pathname is too long"
+
 "Cannot execute"
 "Scanning the folder"
 
