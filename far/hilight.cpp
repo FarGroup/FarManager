@@ -5,10 +5,13 @@ Files highlighting
 
 */
 
-/* Revision: 1.42 21.01.2003 $ */
+/* Revision: 1.43 22.01.2003 $ */
 
 /*
 Modify:
+  22.01.2003 IS
+    ! В меню символ для пометки файлов показываем в кавычках, чтобы можно
+      было отличить пробел от пустоты
   21.01.2003 SVS
     + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
       Просьба блюсти порядок и прописывать именно xf_* вместо простых.
@@ -426,12 +429,31 @@ void HighlightFiles::FillMenu(VMenu *HiMenu,int MenuPos)
   HiMenu->DeleteItems();
   memset(&HiMenuItem,0,sizeof(HiMenuItem));
 
-  for (int I=0;I<HiDataCount;I++)
+  /* $ 22.01.2003 IS
+     Символ для пометки файлов показываем в кавычках, чтобы можно было
+     отличить пробел от пустоты
+  */
+  char MarkChar[]="\" \"";
+  int I, Short=1;
+  // сначала проверим - а есть ли символы пометки файлов в меню вообще?
+  for (I=0;I<HiDataCount;I++)
+  {
+    if(HiData[I].Colors.MarkChar)
+    {
+      Short=0;
+      break;
+    }
+  }
+  // если символов пометки в меню нет, то отводим под это поле только 1 знакоместо
+  const char *emptyMarkChar=Short?" ":"   ";
+  for (I=0;I<HiDataCount;I++)
   {
     struct HighlightData *CurHiData=&HiData[I];
-    sprintf(HiMenuItem.Name,"%c %c %c%c%c%c%c%c%c %c %c%c%c%c%c%c%c %c %.60s",
-      (CurHiData->Colors.MarkChar?CurHiData->Colors.MarkChar:' '), // добавим показ символа
-
+    MarkChar[1]=CurHiData->Colors.MarkChar;
+    sprintf(HiMenuItem.Name,"%s %c %c%c%c%c%c%c%c %c %c%c%c%c%c%c%c %c %.60s",
+      // добавим показ символа в кавычках
+      (CurHiData->Colors.MarkChar?MarkChar:emptyMarkChar),
+  /* IS $ */
       VerticalLine,
 
       (CurHiData->IncludeAttr & FILE_ATTRIBUTE_READONLY) ? 'R':'.',
