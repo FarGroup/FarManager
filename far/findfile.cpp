@@ -5,10 +5,13 @@ findfile.cpp
 
 */
 
-/* Revision: 1.63 15.10.2001 $ */
+/* Revision: 1.64 15.10.2001 $ */
 
 /*
 Modify:
+  15.10.2001 VVM
+    ! Отмена предыдущего патча про хост-файл. Факт отсутсвия хост-файла должен
+      учитываться по-другому.
   15.10.2001 KM
     - Фар валился при попытке поиска в плагинах типа Temporary panel
       и Network browser. Не учитывался факт отсутствия хостфайла в этих
@@ -1142,14 +1145,17 @@ int FindFiles::FindFilesProcess()
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
 
     /* Надо бы проверить, что хостфайл вообще есть */
-    if (Info.HostFile)
-    {
+    /* $ 15.10.2001 VVM
+      ! Не надо так проверять!!!*/
+//    if (Info.HostFile)
+//    {
       FindFileArcIndex = AddArcListItem(Info.HostFile);
       if (FindFileArcIndex == LIST_INDEX_NONE)
         return(FALSE);
       ArcList[FindFileArcIndex].hPlugin = hPlugin;
       ArcList[FindFileArcIndex].Flags = Info.Flags;
-    }
+//    }
+    /* VVM ! */
     if ((Info.Flags & OPIF_REALNAMES)==0)
     {
       FindDlg[8].Type=DI_TEXT;
@@ -1744,7 +1750,10 @@ void _cdecl FindFiles::PreparePluginList(void *Param)
   *PluginSearchPath=0;
   Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
   // Теперь убедимся, что FindFileArcIndex имеет реальное значение.
-  HANDLE hPlugin=(FindFileArcIndex==LIST_INDEX_NONE)?ActivePanel->GetPluginHandle():ArcList[FindFileArcIndex].hPlugin;
+  /* $ 15.10.2001 VVM
+    ! Не надо убеждаться. Он имеет реальное значение. */
+//  HANDLE hPlugin=(FindFileArcIndex==LIST_INDEX_NONE)?ActivePanel->GetPluginHandle():ArcList[FindFileArcIndex].hPlugin;
+  HANDLE hPlugin=ArcList[FindFileArcIndex].hPlugin;
   struct OpenPluginInfo Info;
   CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
   strcpy(SaveDir,Info.CurDir);
@@ -1752,7 +1761,9 @@ void _cdecl FindFiles::PreparePluginList(void *Param)
     CtrlObject->Plugins.SetDirectory(hPlugin,"\\",OPM_FIND);
   RecurseLevel=0;
   // Теперь убедимся, что FindFileArcIndex имеет реальное значение.
-  ScanPluginTree(hPlugin,(FindFileArcIndex==LIST_INDEX_NONE)?Info.Flags:ArcList[FindFileArcIndex].Flags);
+//  ScanPluginTree(hPlugin,(FindFileArcIndex==LIST_INDEX_NONE)?Info.Flags:ArcList[FindFileArcIndex].Flags);
+  ScanPluginTree(hPlugin,ArcList[FindFileArcIndex].Flags);
+  /* VVM $ */
   if (SearchMode==SEARCH_ROOT || SearchMode==SEARCH_ALL)
     CtrlObject->Plugins.SetDirectory(hPlugin,SaveDir,OPM_FIND);
   while (!StopSearch && FindMessageReady)
