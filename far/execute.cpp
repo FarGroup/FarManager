@@ -5,10 +5,15 @@ execute.cpp
 
 */
 
-/* Revision: 1.64 15.07.2002 $ */
+/* Revision: 1.65 17.07.2002 $ */
 
 /*
 Modify:
+  17.07.2002 VVM
+    - Если пускаем из текущего каталога, то не делаем "развертку" пути.
+    ! Команды из ExcludeCmds имеют ImageSubsystem == IMAGE_SUBSYSTEM_WINDOWS_CUI
+    + Если ImageSubsystem == IMAGE_SUBSYSTEM_UNKNOWN, то детачим запускаемый процесс.
+    - Плюс затычка для "\ Enter"
   15.07.2002 VVM
     + Для виндовс-ГУИ сделаем всегда запуск через ShellExecuteEx(). По идее SVS
   06.07.2002 VVM
@@ -217,12 +222,18 @@ Modify:
 /* 14.06.2002 VVM
   + Возвращаем константы IMAGE_SUBSYSTEM_*
     Дабы консоль отличать */
+
+// При выходе из процедуры IMAGE_SUBSYTEM_UNKNOWN означает
+// "файл не является исполняемым".
+// Для DOS-приложений определим еще одно значение флага.
+#define IMAGE_SUBSYSTEM_DOS_EXECUTABLE	255
+
 static int IsCommandPEExeGUI(const char *FileName,DWORD& ImageSubsystem)
 {
 //  char NameFile[NM];
   HANDLE hFile;
   int Ret=FALSE;
-  ImageSubsystem = IMAGE_SUBSYSTEM_NATIVE;
+  ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
 
   if((hFile=CreateFile(FileName,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,0,NULL)) != INVALID_HANDLE_VALUE)
   {
@@ -235,6 +246,7 @@ static int IsCommandPEExeGUI(const char *FileName,DWORD& ImageSubsystem)
        dos_head.e_magic == IMAGE_DOS_SIGNATURE)
     {
       Ret=TRUE;
+      ImageSubsystem = IMAGE_SUBSYSTEM_DOS_EXECUTABLE;
       /*  Если значение слова по смещению 18h (OldEXE - MZ) >= 40h,
       то значение слова в 3Ch является смещением заголовка Windows. */
       if (dos_head.e_lfarlc >= 0x40)
@@ -304,9 +316,6 @@ static int IsCommandPEExeGUI(const char *FileName,DWORD& ImageSubsystem)
     CloseHandle(hFile);
   }
 
-  if (ImageSubsystem == IMAGE_SUBSYSTEM_UNKNOWN)
-    ImageSubsystem = IMAGE_SUBSYSTEM_NATIVE;
-
   return Ret;
 }
 /* VVM $ */
@@ -321,7 +330,7 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem)
   char *RetPtr;
   LONG ValueSize;
 
-  ImageSubsystem = IMAGE_SUBSYSTEM_NATIVE;
+  ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
 
   if ((ExtPtr=strrchr(FileName,'.'))==NULL)
     return(NULL);
@@ -454,7 +463,7 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
     PrepareExcludeCmds=TRUE;
   }
 
-  ImageSubsystem = IMAGE_SUBSYSTEM_NATIVE; // GUIType всегда вначале инициализируется в FALSE
+  ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN; // GUIType всегда вначале инициализируется в FALSE
   Ret=FALSE;
 
   /* $ 14.06.2002 VVM
@@ -489,6 +498,7 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
     {
       if(!LocalStricmp(FileName,Ptr))
       {
+        ImageSubsystem = IMAGE_SUBSYSTEM_WINDOWS_CUI;
         return TRUE;
       }
       Ptr+=strlen(Ptr)+1;
@@ -518,7 +528,10 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
         // GetFullPathName - это нужно, т.к. если тыкаем в date.exe
         // в текущем каталоге, то нифига ничего доброго не получаем
         // cmd.exe по каким то причинам вызыват внутренний date
+        /* $ 17.07.2002 VVM
+          - Уберем эту штуку. Т.к. бага не замечено
         GetFullPathName(FullName,sizeof(FullName),FullName,&FilePart);
+        /* VVM $ */
 
         Ret=TRUE;
         break;
@@ -776,11 +789,13 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
   int PrevLockCount;
   char ExecLine[4096];
   char OldTitle[512];
-  DWORD ImageSubsystem = IMAGE_SUBSYSTEM_NATIVE;
+  DWORD ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
   int ExitCode=1;
 
   int ExecutorType = GetRegKey("System\\Executor","Type",0);
-  ExitCode=PrepareExecuteModule(NewCmdStr,NewCmdStr,sizeof(NewCmdStr)-1,ImageSubsystem);
+  // частный случай - т.с. затычка, но нужно конкретное решение!
+  if(*NewCmdStr && !((*NewCmdStr == '\\'|| *NewCmdStr == '/') && !NewCmdStr[1]))
+    ExitCode=PrepareExecuteModule(NewCmdStr,NewCmdStr,sizeof(NewCmdStr)-1,ImageSubsystem);
   // Для Виндовс-ГУИ всегда сделаем запуск через ShellExecuteEx()
   if (ImageSubsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI && !AlwaysWaitFinish)
     SeparateWindow=2;
@@ -955,40 +970,37 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
 
     ChangeConsoleMode(InitialConsoleMode);
 
-    if (SeparateWindow)
-    {
-//      CreateFlags|=(OldNT)?CREATE_NEW_CONSOLE:0;//DETACHED_PROCESS;
-      if(ExecutorType &&
-         (ImageSubsystem != IMAGE_SUBSYSTEM_NATIVE) &&
-         (ImageSubsystem != IMAGE_SUBSYSTEM_WINDOWS_GUI))
-        CreateFlags|=CREATE_NEW_CONSOLE;
-    }
-
+    if (SeparateWindow && (ImageSubsystem == IMAGE_SUBSYSTEM_UNKNOWN))
+        CreateFlags|=DETACHED_PROCESS;
 
     if (SeparateWindow==2)
     {
-      char AnsiLine[4096];
+      char AnsiCmdStr[4096];
+	  char AnsiCmdPar[4096];
       SHELLEXECUTEINFO si;
-      OemToChar(CmdPtr,AnsiLine);
+      OemToChar(CmdPtr, AnsiCmdStr);
+      OemToChar(NewCmdPar, AnsiCmdPar);
 
-      if (PointToName(AnsiLine)==AnsiLine && strcmp(AnsiLine,".") && strcmp(AnsiLine,".."))
+      if (PointToName(AnsiCmdStr)==AnsiCmdStr && strcmp(AnsiCmdStr,".") && strcmp(AnsiCmdStr,".."))
       {
         char FullName[4096];
-        sprintf(FullName,".\\%s",AnsiLine);
-        strcpy(AnsiLine,FullName);
+        sprintf(FullName,".\\%s",AnsiCmdStr);
+        strcpy(AnsiCmdStr,FullName);
       }
-      Unquote(AnsiLine); // т.к. нафиг это ненужно?
+      Unquote(AnsiCmdStr); // т.к. нафиг это ненужно?
       // ???
-      if(Attr != -1 && (Attr&FILE_ATTRIBUTE_DIRECTORY) && !(!strcmp(AnsiLine,".") || !strcmp(AnsiLine,"..")))
-        strcat(AnsiLine,".");
+      if(Attr != -1 && (Attr&FILE_ATTRIBUTE_DIRECTORY) && !(!strcmp(AnsiCmdStr,".") || !strcmp(AnsiCmdStr,"..")))
+        strcat(AnsiCmdStr,".");
       // ???
 
       memset(&si,0,sizeof(si));
       si.cbSize=sizeof(si);
       si.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_DDEWAIT;
-      si.lpFile=AnsiLine;
+      si.lpFile=AnsiCmdStr;
       si.lpVerb=(Attr&FILE_ATTRIBUTE_DIRECTORY)?NULL:GetShellAction((char *)si.lpFile,ImageSubsystem);
       si.nShow=SW_SHOWNORMAL;
+      if (AnsiCmdPar[0])
+        si.lpParameters = AnsiCmdPar;
       SetFileApisToANSI();
       ExitCode=ShellExecuteEx(&si);
       SetFileApisToOEM();
