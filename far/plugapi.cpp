@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.32 21.12.2000 $ */
+/* Revision: 1.33 23.12.2000 $ */
 
 /*
 Modify:
+  23.12.2000 SVS
+    + MCMD_PLAYSTRING - "проиграть" строку (строка в том виде, как в реестре)
   21.12.2000 SVS
     + ACTL_KEYMACRO - зачатки будущего KeyMacro API
   18.12.2000 SVS
@@ -276,6 +278,16 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
           case MCMD_SAVEALL: // из памяти ФАРа в реестра
             Macro.SaveMacros();
             return TRUE;
+
+          /* $ 23.12.2000 SVS
+               MCMD_PLAYSTRING - "проиграть" строку (строка в том виде,
+               как в реестре)
+             Param - указатель на структуру struct ActlKeyMacro.
+          */
+          case MCMD_PLAYSTRING:
+            if(KeyMacro->Str.KeyBuffer && *KeyMacro->Str.KeyBuffer)
+               return Macro.PlayKeyMacro(KeyMacro->Str.KeyBuffer);
+            return FALSE;
         }
       }
       return FALSE;

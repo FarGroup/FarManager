@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.12 21.12.2000 $ */
+/* Revision: 1.13 23.12.2000 $ */
 
 /*
 Modify:
+  23.12.2000 SVS
+    ! MACRO_ переехали в plugin.hpp
   21.12.2000 SVS
     ! Изменения в константах MACRO_*
   07.12.2000 SVS
@@ -107,13 +109,6 @@ enum {UNDO_NONE=0,UNDO_EDIT,UNDO_INSSTR,UNDO_DELSTR};
 enum {ARCHIVE_NONE,ARCHIVE_RAR,ARCHIVE_ZIP,ARCHIVE_ARJ,ARCHIVE_LZH};
 
 #define MAX_MSG 5000
-
-// for class KeyMacro
-enum {
-  MACRO_SHELL,MACRO_VIEWER,MACRO_EDITOR,MACRO_DIALOG,MACRO_SEARCH,
-  MACRO_DISKS,MACRO_MAINMENU,MACRO_HELP,
-  MACRO_OTHER=0x1000
-};
 
 // for class Panel
 enum {

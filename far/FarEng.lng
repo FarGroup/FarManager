@@ -1182,8 +1182,8 @@
 "&Execute only if command line is empty"
 "Execute only if command line is &not empty"
 "Ignore panel &type"
-"Execute for the &file panels"
-"Execute for the &plugin panel"
+"Execute in &file panels"
+"Execute in &plugin panel"
 
 "Plugins help"
 

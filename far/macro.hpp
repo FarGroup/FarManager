@@ -7,10 +7,14 @@ macro.hpp
 
 */
 
-/* Revision: 1.02 21.12.2000 $ */
+/* Revision: 1.03 23.12.2000 $ */
 
 /*
 Modify:
+  23.12.2000 SVS
+    + int ParseMacroString(struct MacroRecord *CurMacro,char *BufPtr)
+    + int PlayKeyMacro(struct MacroRecord *MRec)
+    + int PlayKeyMacro(char *KeyBuffer)
   21.12.2000 SVS
     ! структура MacroRecord перенесена из struct.hpp и "сжата"
     ! Функция KeyToText удалена за ненадобностью
@@ -67,6 +71,9 @@ class KeyMacro
     void InitVars();
     void ReleaseTempBuffer(); // удалить временный буфер
 
+    // из строкового представления макроса сделать MacroRecord
+    int ParseMacroString(struct MacroRecord *CurMacro,char *BufPtr);
+
   public:
     KeyMacro();
     ~KeyMacro();
@@ -82,6 +89,11 @@ class KeyMacro
     int  GetMode() {return(Mode);};
 
     void RunStartMacro();
+
+    // "играть" строковое представление макроса
+    int PlayKeyMacro(char *KeyBuffer);
+    // "играть" рекорд (бинарное представление)
+    int PlayKeyMacro(struct MacroRecord *MRec);
 
     int  LoadMacros();
     void SaveMacros();

@@ -5,10 +5,15 @@ macro.cpp
 
 */
 
-/* Revision: 1.12 22.12.2000 $ */
+/* Revision: 1.13 23.12.2000 $ */
 
 /*
 Modify:
+  23.12.2000 SVS
+    ! MFLAGS_ переехали в plugin.hpp
+    + int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,char *BufPtr)
+    + int KeyMacro::PlayKeyMacro(struct MacroRecord *MRec)
+    + int KeyMacro::PlayKeyMacro(char *KeyBuffer)
   22.12.2000 SVS
     - Отвлекли - забыл сбросить новые 2 флага :-(
   22.12.2000 SVS
@@ -62,14 +67,6 @@ Modify:
 */
 #include "internalheaders.hpp"
 /* IS $ */
-
-#define MFLAGS_MODEMASK            0x0000FFFF
-#define MFLAGS_DISABLEOUTPUT       0x00010000
-#define MFLAGS_RUNAFTERSTART       0x00020000
-#define MFLAGS_EMPTYCOMMANDLINE    0x00040000
-#define MFLAGS_NOTEMPTYCOMMANDLINE 0x00080000
-#define MFLAGS_NOFILEPANELS        0x00100000
-#define MFLAGS_NOPLUGINPANELS      0x00200000
 
 static const char *MacroModeName[]={
   "Shell", "Viewer", "Editor", "Dialog", "Search",
@@ -662,3 +659,94 @@ int KeyMacro::GetMacroSettings(
 
   return(TRUE);
 }
+
+int KeyMacro::PlayKeyMacro(char *KeyBuffer)
+{
+  ReleaseTempBuffer();
+
+  if((TempMacro=(struct MacroRecord *)malloc(sizeof(MacroRecord))) == NULL)
+    return FALSE;
+  TempMacro->Buffer=NULL;
+  TempMacro->Flags=0;
+  TempMacro->Key=0;
+  TempMacro->BufferSize=0;
+
+  if(!ParseMacroString(TempMacro,KeyBuffer))
+  {
+    ReleaseTempBuffer();
+    return FALSE;
+  }
+
+  TempMacroType=MTEMP_DYNAMIC;
+  if (TempMacro->Flags&MFLAGS_DISABLEOUTPUT)
+  {
+    if(LockScr) delete LockScr;
+    LockScr=new LockScreen;
+  }
+  Executing=TRUE;
+  ExecKeyPos=0;
+  return TRUE;
+}
+
+int KeyMacro::PlayKeyMacro(struct MacroRecord *MRec)
+{
+  ReleaseTempBuffer();
+
+  TempMacro=MRec;
+
+  if(!TempMacro)
+    return FALSE;
+
+  if (TempMacro->Flags&MFLAGS_DISABLEOUTPUT)
+  {
+    if(LockScr) delete LockScr;
+    LockScr=new LockScreen;
+  }
+  Executing=TRUE;
+  ExecKeyPos=0;
+  return TRUE;
+}
+
+
+int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,char *BufPtr)
+{
+  int J;
+  if(!CurMacro || !BufPtr || !*BufPtr)
+    return FALSE;
+  // здесь структура сформирована, начинаем разбор последовательности,
+  // которая находится в Buffer
+  while (1)
+  {
+    // пропускаем ведущие пробельные символы
+    while (isspace(*BufPtr))
+      BufPtr++;
+    if (*BufPtr==0)
+      break;
+
+    char *CurBufPtr=BufPtr;
+
+    // ищем конец очередного названия клавиши
+    while (*BufPtr && !isspace(*BufPtr))
+      BufPtr++;
+    int Length=BufPtr-CurBufPtr;
+    char CurKeyText[50];
+    memcpy(CurKeyText,CurBufPtr,Length);
+    CurKeyText[Length]=0;
+
+    // в CurKeyText - название клавиши. Попробуем отыскать ее код...
+    int KeyCode=KeyNameToKey(CurKeyText);
+    // код найден, добавим этот код в буфер последовательности.
+    if (KeyCode!=-1)
+    {
+      CurMacro->Buffer=(int *)realloc(CurMacro->Buffer,sizeof(*CurMacro->Buffer)*(CurMacro->BufferSize+1));
+      if (CurMacro->Buffer==NULL)
+      {
+        return FALSE;
+      }
+      CurMacro->Buffer[CurMacro->BufferSize]=KeyCode;
+      CurMacro->BufferSize++;
+    }
+  }
+  return TRUE;
+}
+
