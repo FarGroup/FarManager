@@ -123,6 +123,10 @@ SOURCE=.\chgprior.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\qsortex.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\constitle.cpp
 # End Source File
 # Begin Source File

@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.57 20.03.2001 $ */
+/* Revision: 1.58 24.03.2001 $ */
 
 /*
 Modify:
+  24.03.2001 tran
+    + qsortex
   20.03.2001 tran
     + при прогонке файла через OpenFilePlugin
       в заголовке окна показывается имя плагина
@@ -808,12 +810,18 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
     StandardFunctions.sprintf=FarSprintf;
     StandardFunctions.sscanf=FarSscanf;
     StandardFunctions.qsort=FarQsort;
+    /* $ 24.03.2001 tran
+      + qsortex */
+    StandardFunctions.qsortex=FarQsortEx;
     StandardFunctions.atoi=FarAtoi;
     StandardFunctions.atoi64=FarAtoi64;
     StandardFunctions.itoa=FarItoa;
     StandardFunctions.itoa64=FarItoa64;
 
-    StandardFunctions.qsort=FarQsort;
+    //StandardFunctions.qsort=FarQsort;
+    // ??? почему дважды?
+    /* tran $ */
+
     StandardFunctions.bsearch=FarBsearch;
 
     /* $ 28.08.2000 SVS

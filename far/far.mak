@@ -42,6 +42,7 @@ ALL : "$(OUTDIR)\far.exe"
 
 CLEAN :
 	-@erase "$(INTDIR)\farqueue.obj"
+	-@erase "$(INTDIR)\qsortex.obj"
 	-@erase "$(INTDIR)\constitle.obj"
 	-@erase "$(INTDIR)\stddlg.obj"
 	-@erase "$(INTDIR)\strmix.obj"
@@ -161,6 +162,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\copy.obj" \
 	"$(INTDIR)\ctrlobj.obj" \
 	"$(INTDIR)\delete.obj" \
+	"$(INTDIR)\qsortex.obj" \
 	"$(INTDIR)\dialog.obj" \
 	"$(INTDIR)\dizlist.obj" \
 	"$(INTDIR)\edit.obj" \
@@ -280,6 +282,7 @@ CLEAN :
 	-@erase "$(INTDIR)\dizlist.obj"
 	-@erase "$(INTDIR)\edit.obj"
 	-@erase "$(INTDIR)\editor.obj"
+	-@erase "$(INTDIR)\qsortex.obj"
 	-@erase "$(INTDIR)\far.res"
 	-@erase "$(INTDIR)\ffolders.obj"
 	-@erase "$(INTDIR)\fileedit.obj"
@@ -374,6 +377,7 @@ DEF_FILE= \
 LINK32_OBJS= \
 	"$(INTDIR)\stddlg.obj" \
 	"$(INTDIR)\strmix.obj" \
+	"$(INTDIR)\qsortex.obj" \
 	"$(INTDIR)\flink.obj" \
 	"$(INTDIR)\checkver.obj" \
 	"$(INTDIR)\chgmmode.obj" \

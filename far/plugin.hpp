@@ -8,13 +8,15 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.91 21.03.2001 $ */
+/* Revision: 1.92 24.03.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  24.03.2001 tran
+    + qsortex
   21.03.2001 VVM
     + Флаг EF_CREATENEW для редактора - создать новый файл (аналог SHIFT+F4)
   20.03.2001 tran 1.89
@@ -1106,6 +1108,7 @@ typedef int     (WINAPIV *FARSTDSPRINTF)(char *buffer,const char *format,...);
 typedef int     (WINAPIV *FARSTDSSCANF)(const char *s, const char *format,...);
 // </C&C++>
 typedef void    (WINAPI *FARSTDQSORT)(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
+typedef void    (WINAPI *FARSTDQSORTEX)(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(void *, void *,void *userparam),void *userparam);
 typedef void   *(WINAPI *FARSTDBSEARCH)(const void *key, const void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
 typedef int     (WINAPI *FARSTDGETFILEOWNER)(char *Computer,char *Name,char *Owner);
 typedef int     (WINAPI *FARSTDGETNUMBEROFLINKS)(char *Name);
@@ -1171,8 +1174,9 @@ typedef struct FarStandardFunctions
   // </C&C++>
   FARSTDQSORT                qsort;
   FARSTDBSEARCH              bsearch;
+  FARSTDQSORTEX              qsortex;
 
-  DWORD                      Reserved[10];
+  DWORD                      Reserved[9];
 
   FARSTDLOCALISLOWER         LIsLower;
   FARSTDLOCALISUPPER         LIsUpper;

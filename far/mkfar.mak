@@ -37,6 +37,7 @@ FINALPATH=final
 
 .path.obj = $(OBJPATH)
 .path.cpp = .
+.path.c   = .
 .path.exe = $(FINALPATH)
 
 !ifdef TRY
@@ -101,6 +102,10 @@ Far : BccW32.cfg $(Dep_Far)
 # просто описываем одно правило и все %)
 
 .cpp.obj:
+  @settitle "{$.} - Compiling..."
+  @$(BCC32) -c -o$@ {$. }
+
+.c.obj:
   @settitle "{$.} - Compiling..."
   @$(BCC32) -c -o$@ {$. }
 
@@ -190,6 +195,7 @@ FAROBJ=\
    $(OBJPATH)\ctrlobj.obj\
    $(OBJPATH)\flmodes.obj\
    $(OBJPATH)\flshow.obj\
+   $(OBJPATH)\qsortex.obj\
    $(OBJPATH)\stddlg.obj\
    $(OBJPATH)\farrtl.obj\
    $(OBJPATH)\syslog.obj\

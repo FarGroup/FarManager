@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.68 20.03.2001 $ */
+/* Revision: 1.69 24.03.2001 $ */
 
 /*
 Modify:
+  24.03.2001 tran 1.69
+   + FarQsortEx, qsortex
   20.03.2001 tran 1.67
    + FarRecursiveSearch - добавлен void *param
   20.03.2001 SVS
@@ -562,6 +564,7 @@ __int64 WINAPI FarAtoi64(const char *s);
 char *WINAPI FarItoa64(__int64 value, char *string, int radix);
 int WINAPI FarAtoi(const char *s);
 void WINAPI FarQsort(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
+void WINAPI FarQsortEx(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(void *, void *,void *),void*);
 int WINAPIV FarSprintf(char *buffer,const char *format,...);
 int WINAPIV FarSscanf(const char *buffer, const char *format,...);
 int WINAPI CopyToClipboard(char *Data);
@@ -729,5 +732,17 @@ int WriteInput(int Key,DWORD Flags=0);
 char* DriveLocalToRemoteName(int DriveType,char Letter,char *Dest);
 char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size,
                                 int Width=-1, int ViewFlags=COLUMN_COMMAS);
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void qsortex(char *base, unsigned int nel, unsigned int width,
+            int (*comp_fp)(void *, void *,void*), void *user);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  // __FARFUNC_HPP__

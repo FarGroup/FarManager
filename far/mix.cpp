@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.63 20.03.2001 $ */
+/* Revision: 1.64 24.03.2001 $ */
 
 /*
 Modify:
+  24.03.2001 tran
+    + qsortex
   20.03.2001 tran
     + FarRecursiveSearch - добавлен void *param
   20.03.2001 SKV
@@ -1264,12 +1266,23 @@ __int64 WINAPI FarAtoi64(const char *s)
     return _atoi64(s);
   return 0i64;
 }
+
 void WINAPI FarQsort(void *base, size_t nelem, size_t width,
                      int (__cdecl *fcmp)(const void *, const void *))
 {
   if(base && fcmp)
     qsort(base,nelem,width,fcmp);
 }
+
+/* $ 24.03.2001 tran
+   новая фишка...*/
+void WINAPI FarQsortEx(void *base, size_t nelem, size_t width,
+                     int (__cdecl *fcmp)(void *, void *,void *user),void *user)
+{
+  if(base && fcmp)
+    qsortex((char*)base,nelem,width,fcmp,user);
+}
+/* tran $ */
 
 int WINAPIV FarSprintf(char *buffer,const char *format,...)
 {
