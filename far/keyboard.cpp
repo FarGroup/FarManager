@@ -1,14 +1,16 @@
 /*
-keymix.cpp
+keyboard.cpp
 
 Функций, имеющие отношение к клавитуре
 
 */
 
-/* Revision: 1.02 04.01.2001 $ */
+/* Revision: 1.03 05.01.2001 $ */
 
 /*
 Modify:
+  05.01.2001 SVS
+    - База в "вычислителе" клавиш :-(
   04.01.2001 SVS
     + Переделка алгоритмов декодирования клавиш...
     + TranslateKeyToVK
@@ -964,6 +966,8 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey)
 
   if (CtrlPressed && ShiftPressed)
   {
+    if (KeyCode>='0' && KeyCode<='9')
+      return(KEY_CTRLSHIFT0+KeyCode-'0');
     if (KeyCode>='A' && KeyCode<='Z')
       return(KEY_CTRLSHIFTA+KeyCode-'A');
     switch(KeyCode)
@@ -987,11 +991,10 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey)
       return(KEY_CTRL|KEY_SHIFT+KeyCode);
   }
 
-  if (KeyCode>='0' && KeyCode<='9')
+  if ((CtrlState & RIGHT_CTRL_PRESSED)==RIGHT_CTRL_PRESSED)
   {
-    if ((CtrlState & RIGHT_CTRL_PRESSED)==RIGHT_CTRL_PRESSED)
-      return(KEY_RCTRL|(Modif&(~KEY_CTRL))|KeyCode);
-    return(Modif|KeyCode);
+    if (KeyCode>='0' && KeyCode<='9')
+      return(KEY_RCTRL0+KeyCode-'0');
   }
 
   if (!CtrlPressed && !AltPressed && !ShiftPressed)
@@ -1008,6 +1011,8 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey)
 
   if (CtrlPressed)
   {
+    if (KeyCode>='0' && KeyCode<='9')
+      return(KEY_CTRL0+KeyCode-'0');
     if (KeyCode>='A' && KeyCode<='Z')
       return(KEY_CTRL+KeyCode);
     switch(KeyCode)
