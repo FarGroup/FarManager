@@ -5,7 +5,7 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.03 11.07.2000 $ */
+/* Revision: 1.04 13.07.2000 $ */
 
 /*
 Modify:
@@ -19,6 +19,9 @@ Modify:
     + Команда ACTL_GETFARVERSION (в FarAdvControl)
   11.07.2000 SVS
     ! Изменения для возможности компиляции под BC & VC
+  12.07.2000 IS
+    + Проверка флагов редактора в FarEditor (раньше они игнорировались) и
+      открытие _немодального_ редактора, если есть соответствующий флаг.
 */
 
 #include "headers.hpp"
@@ -682,9 +685,29 @@ int WINAPI FarEditor(char *FileName,char *Title,int X1,int Y1,int X2,
   char OldTitle[512];
   GetConsoleTitle(OldTitle,sizeof(OldTitle));
   SaveScreen SaveScr;
-  FileEditor Editor(FileName,FALSE,FALSE,StartLine,StartChar,Title,X1,Y1,X2,Y2);
-  SetConsoleTitle(OldTitle);
-  return(Editor.GetExitCode());
+  /* $ 12.07.2000 IS
+   Проверка флагов редактора (раньше они игнорировались) и открытие
+   немодального редактора, если есть соответствующий флаг
+  */
+  int ExitCode;
+  if (Flags & EF_NONMODAL)
+  {
+   ExitCode=FALSE;
+   FileEditor *Editor=new FileEditor(FileName,FALSE,TRUE,StartLine,StartChar,Title,X1,Y1,X2,Y2);
+   if(Editor)
+     {
+      CtrlObject->ModalManager.AddModal(Editor);
+      ExitCode=TRUE;
+     }
+  }
+  else
+  {
+   FileEditor Editor(FileName,FALSE,FALSE,StartLine,StartChar,Title,X1,Y1,X2,Y2);
+   SetConsoleTitle(OldTitle);
+   return(Editor.GetExitCode());
+  }
+  return ExitCode;
+  /* IS $ */
 }
 #if defined(__BORLANDC__)
 #pragma warn +par

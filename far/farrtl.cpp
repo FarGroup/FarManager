@@ -6,7 +6,7 @@ farrtl.cpp
 Переопределение функций работы с памятью: new/delete/malloc/realloc/free
 */
 
-/* Revision: 1.03 11.07.2000 $ */
+/* Revision: 1.04 13.07.2000 $ */
 
 /*
 Modify:
@@ -23,6 +23,9 @@ Modify:
     ! Увеличение MEM_DELTA до 4095
     + Включение операторов new/delete by IS
     + Включение cmem в качестве смотрелки памяти.
+  12.07.2000 IS
+    ! В new заменил "void *p" на "void *p=NULL" (SVS забыл это сделать...)
+    ! Проверка на NULL "переехала" из delete в free
 */
 
 #ifdef __cplusplus
@@ -32,6 +35,7 @@ typedef unsigned size_t;
 
 void *malloc(size_t size);
 void *realloc(void *block, size_t size);
+void *calloc(size_t nitems, size_t size);
 void free(void *block);
 
 #ifdef __cplusplus
@@ -45,6 +49,12 @@ void free(void *block);
 #define MEM_DELTA	4095
 
 static HANDLE FARHeapForNew=NULL;
+
+void *calloc(size_t nitems, size_t size)
+{
+  return realloc(NULL,size*nitems);
+}
+
 
 void *malloc(size_t size)
 {
@@ -88,8 +98,11 @@ void *realloc(void *block, size_t size)
 
 void free(void *block)
 {
+ if(block!=NULL)
+ {
   if(!FARHeapForNew) FARHeapForNew=GetProcessHeap();
   if(FARHeapForNew) HeapFree(FARHeapForNew,0,block);
+ }
 }
 
 #ifdef CMEM_INCLUDE
@@ -109,7 +122,7 @@ void free(void *block)
 void *operator new(size_t size)
  {
   extern new_handler _new_handler;
-  void *p;
+  void *p=NULL;
   size=size?size:1;
   while((p=malloc(size))==NULL)
    {
@@ -120,7 +133,7 @@ void *operator new(size_t size)
  }
 void *operator new[](size_t size) {return ::operator new(size);}
 void *operator new(size_t size, void *p) {return p;}
-void operator delete(void *p) {if(p)free(p);}
+void operator delete(void *p) {free(p);}
 void operator delete[](void *ptr) {::operator delete(ptr);}
 #endif
 

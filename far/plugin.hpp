@@ -6,7 +6,7 @@
   Plugin API for FAR Manager 1.66
 
 */
-/* Revision: 1.06 11.07.2000 $ */
+/* Revision: 1.07 13.07.2000 $ */
 
 /*
 Modify:
@@ -39,6 +39,9 @@ Modify:
     ! Некоторые изменения с учетом голого C (по совету SVS)
   11.07.2000 SVS
     ! Изменения для возможности компиляции под BC & VC
+  12.07.2000 IS
+    + Флаги  редактора:
+      EF_NONMODAL - открытие немодального редактора
 */
 
 #if defined(__BORLANDC__) && (__BORLANDC__ <= 0x550)
@@ -259,6 +262,15 @@ typedef void (WINAPI *FARAPIFREEDIRLIST)(struct PluginPanelItem *PanelItem);
 enum VIEWER_FLAGS {
   VF_NONMODAL=1,VF_DELETEONCLOSE=2
 };
+
+/* $ 12.07.2000 IS
+  Флаги редактора:
+  EF_NONMODAL - открытие немодального редактора
+*/
+enum EDITOR_FLAGS {
+  EF_NONMODAL=1
+};
+/* IS $ */
 
 typedef int (WINAPI *FARAPIVIEWER)(
   char *FileName,

@@ -5,7 +5,7 @@ plugins.cpp
 
 */
 
-/* Revision: 1.05 11.07.2000 $ */
+/* Revision: 1.06 13.07.2000 $ */
 
 /*
 Modify:
@@ -28,6 +28,13 @@ Modify:
       QuoteSpaceOnly, PointToName, GetPathRoot, AddEndSlash
   11.07.2000 SVS
     ! Изменения для возможности компиляции под BC & VC
+  13.07.2000 IS
+    - Пофикшен трап при входе в редактор (PluginsSet::ProcessEditorInput)
+      Решения подсказал tran.
+    - Исправлен глюк в PluginsSet::SavePluginSettings, допущенный при
+      неправильном переводе под VC: переменная I изменялась во всех циклах
+      (внимательнее над быть, вашу мать $%#...)
+      Решения подсказал tran.
 */
 
 #include "headers.hpp"
@@ -328,11 +335,17 @@ int PluginsSet::SavePluginSettings(struct PluginItem &CurPlugin,
   CurPlugin.pGetPluginInfo(&Info);
   if (Info.Flags & PF_PRELOAD)
     return(FALSE);
-  int I;
-  for (I=0;;I++)
+  /* $ 13.07.2000 IS
+    Исправлен глюк, допущенный при неправильном переводе под VC:
+    переменная I изменялась во всех циклах (внимательнее над быть,
+    вашу мать $%#...)
+    (подсказал tran)
+  */
+  int I,I0;
+  for (I0=0;;I0++)
   {
     char RegKey[100],PluginName[NM],CurPluginID[100];
-    sprintf(RegKey,"PluginsCache\\Plugin%d",I);
+    sprintf(RegKey,"PluginsCache\\Plugin%d",I0);
     GetRegKey(RegKey,"Name",PluginName,"",sizeof(PluginName));
     if (*PluginName==0 || LocalStricmp(PluginName,CurPlugin.ModuleName)==0)
     {
@@ -368,7 +381,7 @@ int PluginsSet::SavePluginSettings(struct PluginItem &CurPlugin,
       }
       SetRegKey(RegKey,"CommandPrefix",NullToEmpty(Info.CommandPrefix));
       SetRegKey(RegKey,"Flags",Info.Flags);
-      sprintf(RegKey,"PluginsCache\\Plugin%d\\Exports",I);
+      sprintf(RegKey,"PluginsCache\\Plugin%d\\Exports",I0);
       SetRegKey(RegKey,"OpenPlugin",CurPlugin.pOpenPlugin!=NULL);
       SetRegKey(RegKey,"OpenFilePlugin",CurPlugin.pOpenFilePlugin!=NULL);
       SetRegKey(RegKey,"SetFindList",CurPlugin.pSetFindList!=NULL);
@@ -377,6 +390,7 @@ int PluginsSet::SavePluginSettings(struct PluginItem &CurPlugin,
       break;
     }
   }
+  /* IS $ */
   return(TRUE);
 }
 
@@ -474,7 +488,12 @@ int PluginsSet::ProcessEditorInput(INPUT_RECORD *Rec)
 {
   for (int I=0;I<PluginsCount;I++)
     if (PluginsData[I].pProcessEditorInput && PreparePlugin(I))
-      if (PluginsData[I].pProcessEditorInput(Rec))
+    /* $ 13.07.2000 IS
+       Фиксит трап при входе в редактор (подсказал tran)
+    */
+      if (PluginsData[I].pProcessEditorInput &&
+         PluginsData[I].pProcessEditorInput(Rec))
+    /* IS $ */
         return(TRUE);
   return(FALSE);
 }
