@@ -5,10 +5,14 @@ mix.cpp
 
 */
 
-/* Revision: 1.45 24.11.2000 $ */
+/* Revision: 1.46 06.12.2000 $ */
 
 /*
 Modify:
+  06.12.2000 IS
+    ! Теперь функция AddEndSlash работает с обоими видами слешей, также
+      происходит изменение уже существующего конечного слеша на такой, который
+      встречается чаще.
   24.11.2000 SVS
     ! XLat сделаем несколько совершенной :-))) Что бы не зависеть от размера!
   08.11.2000 SVS
@@ -1423,15 +1427,40 @@ int WINAPI AddEndSlash(char *Path)
   int Result=0;
   if(Path)
   {
-    int Length=strlen(Path);
-    if (Length==0 || Path[Length-1]!='\\')
+    /* $ 06.12.2000 IS
+      ! Теперь функция работает с обоими видами слешей, также происходит
+        изменение уже существующего конечного слеша на такой, который
+        встречается чаще.
+    */
+    char *end=Path;
+    int Slash=0, BackSlash=0;
+    while(*end)
     {
-      strcat(Path,"\\");
-      Result = 1;
+     Slash+=(*end=='\\');
+     BackSlash+=(*end=='/');
+     end++;
     }
+    int Length=end-Path;
+    char c=(Slash<BackSlash)?'/':'\\';
+    Result = 1;
+    if (Length==0)
+    {
+       *end=c;
+       end[1]=0;
+    }
+    else
+    {
+     end--;
+     if (*end!='\\' && *end!='/')
+     {
+       end[1]=c;
+       end[2]=0;
+     }
+     else *end=c;
+    }
+    /* IS $ */
   }
   return Result;
-
 }
 
 
