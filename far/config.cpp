@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.107 20.11.2001 $ */
+/* Revision: 1.108 21.11.2001 $ */
 
 /*
 Modify:
+  21.11.2001 SVS
+    ! Внедрение DIF_AUTOMATION (с удаленем диалоговых процедур)
   20.11.2001 SVS
     ! Перетасовка в некоторых настройках
     + Логика блокировок в диалогах (DIF_DISABLE)
@@ -369,21 +371,6 @@ char NKeyDescriptions[]="Descriptions";
 char NKeyKeyMacros[]="KeyMacros";
 char NKeyPolicies[]="Policies";
 
-long WINAPI SystemSettingsDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
-{
-  switch(Msg)
-  {
-    case DN_BTNCLICK:
-      if(Param1 == 6)
-      {
-        Dialog::SendDlgMessage(hDlg,DM_ENABLE,7,Param2);
-        Dialog::SendDlgMessage(hDlg,DM_ENABLE,8,Param2);
-      }
-      break;
-  }
-  return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
-}
-
 void SystemSettings()
 {
   const char *HistoryName="PersPath";
@@ -398,7 +385,7 @@ void SystemSettings()
   /*  3 */  DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MConfigSystemCopy,
   /*  4 */  DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MConfigCopySharing,
   /*  5 */  DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MConfigCreateUppercaseFolders,
-  /*  6 */  DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MConfigInactivity,
+  /*  6 */  DI_CHECKBOX,5,7,0,0,0,0,DIF_AUTOMATION,0,(char *)MConfigInactivity,
   /*  7 */  DI_FIXEDIT,9,8,11,6,0,0,0,0,"",
   /*  8 */  DI_TEXT,13,8,0,0,0,0,0,0,(char *)MConfigInactivityMinutes,
   /*  9 */  DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MConfigSaveHistory,
@@ -441,9 +428,11 @@ void SystemSettings()
   CfgDlg[15].Ptr.PtrLength=sizeof(PersonalPluginsPath);
 
   {
-    Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]),SystemSettingsDlgProc);
+    Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
     Dlg.SetHelp("SystemSettings");
     Dlg.SetPosition(-1,-1,56,20);
+    Dlg.SetAutomation(6,7,DIF_DISABLE,0,0,DIF_DISABLE);
+    Dlg.SetAutomation(6,8,DIF_DISABLE,0,0,DIF_DISABLE);
     Dlg.Process();
     if (Dlg.GetExitCode()!=17)
       return;
@@ -485,19 +474,6 @@ void SystemSettings()
 #define DLG_PANEL_SHOWSORTMODE       16
 #define DLG_PANEL_OK                 18
 
-long WINAPI PanelSettingsDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
-{
-  switch(Msg)
-  {
-    case DN_BTNCLICK:
-      if(Param1 == DLG_PANEL_AUTOUPDATELIMIT)
-        Dialog::SendDlgMessage(hDlg,DM_ENABLE,DLG_PANEL_AUTOUPDATELIMITVAL,Param2);
-      break;
-  }
-  return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
-}
-
-
 void PanelSettings()
 {
   static struct DialogData CfgDlgData[]={
@@ -507,7 +483,7 @@ void PanelSettings()
   /* 03 */DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MConfigAutoChange,
   /* 04 */DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MConfigSelectFolders,
   /* 05 */DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MConfigReverseSort,
-  /* 06 */DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MConfigAutoUpdateLimit,
+  /* 06 */DI_CHECKBOX,5,7,0,0,0,0,DIF_AUTOMATION,0,(char *)MConfigAutoUpdateLimit,
   /* 07 */DI_TEXT,9,8,0,0,0,0,0,0,(char *)MConfigAutoUpdateLimit2,
   /* 08 */DI_EDIT,9,8,15,8,0,0,0,0,"",
   /* 09 */DI_TEXT,3,9,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
@@ -549,9 +525,10 @@ void PanelSettings()
     ultoa(Opt.AutoUpdateLimit,CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].Data,10);
 
   {
-    Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]),RegVer?PanelSettingsDlgProc:NULL);
+    Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
     Dlg.SetHelp("PanelSettings");
     Dlg.SetPosition(-1,-1,56,21);
+    Dlg.SetAutomation(DLG_PANEL_AUTOUPDATELIMIT,DLG_PANEL_AUTOUPDATELIMITVAL,DIF_DISABLE,0,0,DIF_DISABLE);
     Dlg.Process();
     if (Dlg.GetExitCode() != DLG_PANEL_OK)
       return;
@@ -599,23 +576,6 @@ void PanelSettings()
 #define DLG_INTERF_PGUPCHANGEDISK      17
 #define DLG_INTERF_OK                  19
 
-long WINAPI InterfaceSettingsDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
-{
-  switch(Msg)
-  {
-    case DN_BTNCLICK:
-      if(Param1 == DLG_INTERF_SCREENSAVER)
-      {
-        Dialog::SendDlgMessage(hDlg,DM_ENABLE,DLG_INTERF_SCREENSAVERTIME,Param2);
-        Dialog::SendDlgMessage(hDlg,DM_ENABLE,DLG_INTERF_SAVERMINUTES,Param2);
-      }
-      else if(Param1 == DLG_INTERF_USEPROMPTFORMAT)
-        Dialog::SendDlgMessage(hDlg,DM_ENABLE,DLG_INTERF_PROMPTFORMAT,Param2);
-      break;
-  }
-  return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
-}
-
 void InterfaceSettings()
 {
   static struct DialogData CfgDlgData[]={
@@ -631,12 +591,12 @@ void InterfaceSettings()
   /* 03 */DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MConfigMouse,
   /* 04 */DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MConfigKeyBar,
   /* 05 */DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MConfigMenuBar,
-  /* 06 */DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MConfigSaver,
+  /* 06 */DI_CHECKBOX,5,7,0,0,0,0,DIF_AUTOMATION,0,(char *)MConfigSaver,
   /* 07 */DI_FIXEDIT,9,8,11,8,0,0,0,0,"",
   /* 08 */DI_TEXT,13,8,0,0,0,0,0,0,(char *)MConfigSaverMinutes,
   /* 09 */DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MConfigDialogsEditHistory,
   /* 10 */DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MConfigDialogsEditBlock,
-  /* 11 */DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MConfigUsePromptFormat,
+  /* 11 */DI_CHECKBOX,5,11,0,0,0,0,DIF_AUTOMATION,0,(char *)MConfigUsePromptFormat,
   /* 12 */DI_EDIT,9,12,24,12,0,0,0,0,"",
   /* 13 */DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MConfigAltGr,
   /* 14 */DI_CHECKBOX,5,14,0,0,0,0,0,0,(char *)MConfigCopyTotal,
@@ -682,9 +642,12 @@ void InterfaceSettings()
   CfgDlg[DLG_INTERF_PGUPCHANGEDISK].Selected=Opt.PgUpChangeDisk;
 
   {
-    Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]),RegVer?InterfaceSettingsDlgProc:NULL);
+    Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
     Dlg.SetHelp("InterfSettings");
     Dlg.SetPosition(-1,-1,58,22);
+    Dlg.SetAutomation(DLG_INTERF_SCREENSAVER,DLG_INTERF_SCREENSAVERTIME,DIF_DISABLE,0,0,DIF_DISABLE);
+    Dlg.SetAutomation(DLG_INTERF_SCREENSAVER,DLG_INTERF_SAVERMINUTES,DIF_DISABLE,0,0,DIF_DISABLE);
+    Dlg.SetAutomation(DLG_INTERF_USEPROMPTFORMAT,DLG_INTERF_PROMPTFORMAT,DIF_DISABLE,0,0,DIF_DISABLE);
     Dlg.Process();
     if (Dlg.GetExitCode() != DLG_INTERF_OK)
       return;

@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.163 19.11.2001 $ */
+/* Revision: 1.164 21.11.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  21.11.2001 SVS
+    + DIF_AUTOMATION, DM_GETITEMDATA, DM_SETITEMDATA
   19.11.2001 SVS
     ! FARMANAGERVERSION в виде MAKEFARVERSION (с подачи JouriM)
   14.11.2001 SVS
@@ -551,7 +553,7 @@ Modify:
 
 #define MAKEFARVERSION(major,minor,build) ( ((major)<<8) | (minor) | ((build)<<16))
 
-#define FARMANAGERVERSION  MAKEFARVERSION(1,70,1061)
+#define FARMANAGERVERSION  MAKEFARVERSION(1,70,1069)
 
 
 #ifdef FAR_USE_INTERNALS
@@ -810,6 +812,9 @@ enum FarDialogItemFlags {
   DIF_3STATE            =0x00800000UL,
   DIF_LISTWRAPMODE      =0x01000000UL,
   DIF_LISTAUTOHIGHLIGHT =0x02000000UL,
+#ifdef FAR_USE_INTERNALS
+  DIF_AUTOMATION        =0x08000000UL,
+#endif // END FAR_USE_INTERNALS
   DIF_HIDDEN            =0x10000000UL,
   DIF_READONLY          =0x20000000UL,
   DIF_NOFOCUS           =0x40000000UL,
@@ -873,6 +878,9 @@ enum FarMessagesProc{
 
   DM_GETITEMPOSITION,
   DM_SETMOUSEEVENTNOTIFY,
+
+  DM_GETITEMDATA,
+  DM_SETITEMDATA,
 
   DN_FIRST=0x1000,
   DN_BTNCLICK,
@@ -1040,6 +1048,9 @@ struct FarDialogItemData
 
 #define Dlg_GetDlgData(Info,hDlg)              Info.SendDlgMessage(hDlg,DM_GETDLGDATA,0,0)
 #define Dlg_SetDlgData(Info,hDlg,Data)         Info.SendDlgMessage(hDlg,DM_SETDLGDATA,0,(long)Data)
+
+#define Dlg_GetDlgItemData(Info,hDlg,ID)       Info.SendDlgMessage(hDlg,DM_GETITEMDATA,0,0)
+#define Dlg_SetDlgItemData(Info,hDlg,ID,Data)  Info.SendDlgMessage(hDlg,DM_SETITEMDATA,0,(long)Data)
 
 #define DlgItem_GetFocus(Info,hDlg)            Info.SendDlgMessage(hDlg,DM_GETFOCUS,0,0)
 #define DlgItem_SetFocus(Info,hDlg,ID)         Info.SendDlgMessage(hDlg,DM_SETFOCUS,ID,0)

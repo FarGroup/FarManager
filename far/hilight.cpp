@@ -5,10 +5,15 @@ Files highlighting
 
 */
 
-/* Revision: 1.32 25.09.2001 $ */
+/* Revision: 1.33 21.11.2001 $ */
 
 /*
 Modify:
+  21.11.2001 SVS
+    - Бага в обработчике - если стоять на чекбоксе, например про RO и жмакать
+      пробел, то после второго такого нажатия появляется... диалог выбора
+      цвета :-(
+    ! Внедрение DIF_AUTOMATION
   25.09.2001 IS
     ! Строковые константы собраны для удобства в одну кучу.
     + Можно исключать анализ масок для конкретной группы раскраски
@@ -568,17 +573,6 @@ void HighlightFiles::SaveHiData()
    обработка взаимоисключений (вместо обработки в явном цикле диалога)
 */
 
-static void UncheckCheckbox(HANDLE hDlg, int ItemID)
-{
-  FarDialogItem DlgItem;
-  Dialog::SendDlgMessage (hDlg, DM_GETDLGITEM, ItemID, (long) &DlgItem);
-  if (DlgItem.Selected)
-  {
-    DlgItem.Selected = 0;
-    Dialog::SendDlgMessage (hDlg, DM_SETDLGITEM, ItemID, (long) &DlgItem);
-  }
-}
-
 static long WINAPI HighlightDlgProc(HANDLE hDlg, int Msg, int Param1, long Param2)
 {
   switch (Msg)
@@ -587,20 +581,12 @@ static long WINAPI HighlightDlgProc(HANDLE hDlg, int Msg, int Param1, long Param
       if (Param1 >= 5 && Param1 <= 21 && Param2)
       {
         // обработаем взаимоисключения
-        if (Param1 >= 5 && Param1 <= 12)
-          UncheckCheckbox (hDlg, Param1 + 9);
-        else if (Param1 >= 14 && Param1 <= 21)
-          UncheckCheckbox (hDlg, Param1 - 9);
+        int Delta=(Param1<14?9:-9);
+        if(Dialog::SendDlgMessage(hDlg,DM_GETCHECK,Param1+Delta,0) == BSTATE_CHECKED)
+          Dialog::SendDlgMessage(hDlg,DM_SETCHECK,Param1+Delta,BSTATE_UNCHECKED);
       }
-      /* $ 25.09.2001 IS
-           Выключим/включим строку масок.
-      */
-      else if(Param1 == 1)
+      else if(Param1 >= 23 && Param1 <= 26)
       {
-         Dialog::SendDlgMessage(hDlg,DM_ENABLE,2,Param2);
-      }
-      /* IS $ */
-      else {
         HighlightData *EditData = (HighlightData *) Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
         unsigned int Color;
         switch (Param1)
@@ -617,9 +603,6 @@ static long WINAPI HighlightDlgProc(HANDLE hDlg, int Msg, int Param1, long Param
           case 26:
             Color=(DWORD)EditData->Colors.CursorSelColor;
             break;
-          case 31:
-          case 32:
-            return FALSE;
         }
         GetColorDialog(Color);
         switch (Param1)
@@ -638,6 +621,8 @@ static long WINAPI HighlightDlgProc(HANDLE hDlg, int Msg, int Param1, long Param
             break;
         }
       }
+      else if(Param1 >= 31 && Param1 <= 32)
+        return FALSE;
       return TRUE;
   }
   return Dialog::DefDlgProc (hDlg, Msg, Param1, Param2);
@@ -653,7 +638,7 @@ int HighlightFiles::EditRecord(int RecPos,int New)
   const char *HistoryName="Masks";
   static struct DialogData HiEditDlgData[]={
   /* 00 */DI_DOUBLEBOX,3,1,72,21,0,0,0,0,(char *)MHighlightEditTitle,
-  /* 01 */DI_CHECKBOX,5,2,0,0,0,0,0,0,(char *)MHighlightMasks,
+  /* 01 */DI_CHECKBOX,5,2,0,0,0,0,DIF_AUTOMATION,0,(char *)MHighlightMasks,
   /* 02 */DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY|DIF_VAREDIT,0,"",
   /* 03 */DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
   /* 04 */DI_TEXT,5,5,0,0,0,0,DIF_BOXCOLOR,0,(char *)MHighlightIncludeAttr,
@@ -733,6 +718,8 @@ int HighlightFiles::EditRecord(int RecPos,int New)
   Dialog Dlg(HiEditDlg,sizeof(HiEditDlg)/sizeof(HiEditDlg[0]),HighlightDlgProc,(long) &EditData);
   Dlg.SetHelp(HLS.HighlightEdit);
   Dlg.SetPosition(-1,-1,76,23);
+  Dlg.SetAutomation(1,2,DIF_DISABLE,0,0,DIF_DISABLE);
+
 
   /* $ 06.07.2001 IS
      Проверим маску на корректность

@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.180 15.11.2001 $ */
+/* Revision: 1.181 21.11.2001 $ */
 
 /*
 Modify:
+  21.11.2001 SVS
+    + Автоматизация (часть I - для внутренного использования).
+    + DM_GETITEMDATA, DM_SETITEMDATA
   15.11.2001 SVS
     - уточнение для DI_COMBOBOX - здесь еще и Edit нужно корректно заполнить
   14.11.2001 SVS
@@ -1511,7 +1514,7 @@ BOOL Dialog::GetItemRect(int I,RECT& Rect)
     case DI_CHECKBOX:
     case DI_RADIOBUTTON:
       Rect.bottom=Rect.top;
-      Rect.right=Rect.left+Len+(Type == DI_CHECKBOX?4:
+      Rect.right=Rect.left+Len+((Type == DI_CHECKBOX)?4:
                                  (ItemFlags & DIF_MOVESELECT?3:4)
                                );
       break;
@@ -1557,6 +1560,9 @@ void Dialog::DeleteDialogObjects()
           delete (COORD *)(CurItem->ObjPtr);
         break;
     }
+    if(CurItem->Flags&DIF_AUTOMATION)
+      if(CurItem->AutoPtr)
+        free(CurItem->AutoPtr);
   }
 }
 
@@ -2708,8 +2714,11 @@ int Dialog::ProcessKey(int Key)
       {
         int MinDist=1000,MinPos;
         for (I=0;I<ItemCount;I++)
-          if (I!=FocusPos && (IsEdit(Item[I].Type) || Item[I].Type==DI_CHECKBOX ||
-              Item[I].Type==DI_RADIOBUTTON) && Item[I].Y1==Item[FocusPos].Y1)
+          if (I!=FocusPos &&
+              (IsEdit(Item[I].Type) ||
+               Item[I].Type==DI_CHECKBOX ||
+               Item[I].Type==DI_RADIOBUTTON) &&
+              Item[I].Y1==Item[FocusPos].Y1)
           {
             int Dist=Item[I].X1-Item[FocusPos].X1;
             if (Key==KEY_LEFT && Dist<0 || Key==KEY_RIGHT && Dist>0)
@@ -3682,8 +3691,10 @@ void Dialog::DataToItem(struct DialogData *Data,struct DialogItem *Item,int Coun
   if(!Item || !Data)
     return;
 
+  memset(Item,0,sizeof(struct DialogItem)*Count);
   for (I=0; I < Count; I++, ++Item, ++Data)
   {
+    Item->ID=I;
     Item->Type=Data->Type;
     Item->X1=Data->X1;
     Item->Y1=Data->Y1;
@@ -3699,12 +3710,38 @@ void Dialog::DataToItem(struct DialogData *Data,struct DialogItem *Item,int Coun
       strcpy(Item->Data,MSG((unsigned int)Data->Data));
     else
       memcpy(Item->Data,Data->Data,sizeof(Item->Data));
-    Item->ObjPtr=NULL;
-    Item->ListPtr=NULL;
   }
 }
 /* SVS 04.12.2000 $ */
 
+int Dialog::SetAutomation(WORD IDParent,WORD id,
+                             DWORD UncheckedSet,DWORD UncheckedSkip,
+                             DWORD CheckedSet,DWORD CheckedSkip,
+                             DWORD Checked3Set,DWORD Checked3Skip)
+{
+  int Ret=FALSE;
+  if(IDParent < ItemCount && (Item[IDParent].Flags&DIF_AUTOMATION) &&
+     id < ItemCount && IDParent != id) // Сами себя не юзаем!
+  {
+    DialogItemAutomation *Auto;
+    int AutoCount=Item[IDParent].AutoCount;
+    if((Auto=(DialogItemAutomation*)realloc(Item[IDParent].AutoPtr,sizeof(DialogItemAutomation)*(AutoCount+1))) != NULL)
+    {
+      Item[IDParent].AutoPtr=Auto;
+      Auto=Item[IDParent].AutoPtr+AutoCount;
+      Auto->ID=id;
+      Auto->Flags[0][0]=UncheckedSet;
+      Auto->Flags[0][1]=UncheckedSkip;
+      Auto->Flags[1][0]=CheckedSet;
+      Auto->Flags[1][1]=CheckedSkip;
+      Auto->Flags[2][0]=Checked3Set;
+      Auto->Flags[2][1]=Checked3Skip;
+      Item[IDParent].AutoCount++;
+      Ret=TRUE;
+    }
+  }
+  return Ret;
+}
 
 //////////////////////////////////////////////////////////////////////////
 /* Private:
@@ -5111,13 +5148,26 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     /*****************************************************************/
     case DN_BTNCLICK:
     {
-      return Dlg->DlgProc(hDlg,Msg,Param1,Param2);
+      int Ret=Dlg->DlgProc(hDlg,Msg,Param1,Param2);
+      if(Ret && (CurItem->Flags&DIF_AUTOMATION) && CurItem->AutoCount && CurItem->AutoPtr)
+      {
+        DialogItemAutomation* Auto=CurItem->AutoPtr;
+        Param2%=3;
+        for(I=0; I < CurItem->AutoCount; ++I, ++Auto)
+        {
+          DWORD NewFlags=Dlg->Item[Auto->ID].Flags;
+          Dlg->Item[Auto->ID].Flags=(NewFlags&(~Auto->Flags[Param2][1]))|Auto->Flags[Param2][0];
+          // здесь намеренно в обработчик не посылаются эвенты об изменении
+          // состояния...
+        }
+      }
+      return Ret;
     }
 
     /*****************************************************************/
     case DM_GETCHECK:
     {
-      if(Type == DI_CHECKBOX || Type == DI_RADIOBUTTON)
+      if(Type==DI_CHECKBOX || Type==DI_RADIOBUTTON)
         return CurItem->Selected;
       return 0;
     }
@@ -5893,6 +5943,20 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     case DN_RESIZECONSOLE:
     {
       break;
+    }
+
+    /*****************************************************************/
+    case DM_SETITEMDATA:
+    {
+      long PrewDataDialog=CurItem->UserData;
+      CurItem->UserData=Param2;
+      return PrewDataDialog;
+    }
+
+    /*****************************************************************/
+    case DM_GETITEMDATA:
+    {
+      return CurItem->UserData;
     }
   }
 

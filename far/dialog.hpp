@@ -10,10 +10,15 @@ dialog.hpp
 
 */
 
-/* Revision: 1.44 12.11.2001 $ */
+/* Revision: 1.45 21.11.2001 $ */
 
 /*
 Modify:
+  21.11.2001 SVS
+   + Автоматизация (часть I)
+   ! Изменения в структуре DialogItem: +DialogItem.ID, +DialogItem.AutoCount
+     DialogItem.ID - пока зарезервированное поле, но потом это будет основным
+     идентификатором контрола!
   12.11.2001 SVS
    ! SelectFromEditHistory() возвращает значение.
    ! SelectOnEntry() имеет доп.параметр - выделять или не выделять.
@@ -199,32 +204,27 @@ Modify:
   Dialog::DataToItem(Data,Item,sizeof(Data)/sizeof(Data[0]));
 
 
-/* $ 01.08.2000 SVS
-  У структур DialogI* изменены:
-  union {
-    unsigned int Selected;
-    char *History;
-    char *Mask;
-    struct FarList *ListItems;
-  } Addons;
+// Структура, описывающая автоматизацию для DIF_AUTOMATION
+// на первом этапе - примитивная - выставление флагов у элементов для CheckBox
+struct DialogItemAutomation{
+  WORD ID;                    // Для этого элемента...
+  DWORD Flags[3][2];          // ...выставить вот эти флаги
+                              // [0] - Unchecked, [1] - Checked, [2] - 3Checked
+                              // [][0] - Set, [][1] - Skip
+};
 
-*/
-// for class Dialog
+
 /*
 Описывает один элемент диалога - внутренне представление.
 Для плагинов это FarDialogItem (за исключением ObjPtr)
 */
-/* $ 12.08.2000 KM
-   Дополнительное поле, содержащее маску ввода
-*/
-/* $ 08.12.2000 SVS
-   Data "объединен" с новой структурой
-*/
 struct DialogItem
 {
-  unsigned char Type;
-  unsigned char X1,Y1,X2,Y2;
-  unsigned char Focus;
+  WORD ID;
+  WORD Type;
+  BYTE X1,Y1,X2,Y2;
+  BYTE Focus;
+  BYTE Reserved;
   union {
     unsigned int Selected;
     char *History;
@@ -244,10 +244,14 @@ struct DialogItem
       char  PtrTail[1];
     } Ptr;
   };
+
+  int AutoCount;   // Автоматизация
+  struct DialogItemAutomation* AutoPtr;
+  DWORD UserData; // ассоциированные данные
+  // прочее
   void *ObjPtr;
   VMenu *ListPtr;
 };
-/* SVS $ */
 
 /*
 Описывает один элемент диалога - для сокращения объемов
@@ -270,8 +274,6 @@ struct DialogData
   unsigned char DefaultButton;
   char *Data;
 };
-/* SVS $*/
-/* KM $*/
 
 class Edit;
 
@@ -518,6 +520,11 @@ class Dialog: public Frame
     int FastHide();
     void ResizeConsole();
     void OnDestroy();
+
+    int SetAutomation(WORD IDParent,WORD id,
+                        DWORD UncheckedSet,DWORD UncheckedSkip,
+                        DWORD CheckedSet,DWORD CheckedSkip,
+                        DWORD Checked3Set=0,DWORD Checked3Skip=0);
 };
 
 #endif // __DIALOG_HPP__

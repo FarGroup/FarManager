@@ -5,10 +5,14 @@ execute.cpp
 
 */
 
-/* Revision: 1.10 21.11.2001 $ */
+/* Revision: 1.11 21.11.2001 $ */
 
 /*
 Modify:
+  21.11.2001 SVS
+    ! Объединение и небольшое "усиление" кода пусковика, а так же
+      переименование IsCommandExeGUI в PrepareExecuteModule (фактически
+      новая функция). GetExistAppPaths удалена за ненадобностью.
   21.11.2001 VVM
     ! Очереднйо перетрях прорисовки при запуске программ.
   20.11.2001 SVS
@@ -157,134 +161,151 @@ char* GetShellAction(char *FileName)
   return(*Action==0 ? NULL:Action);
 }
 
-// В строке Command заменть исполняемый модуль на полный путь, который
-// берется из SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths
-// Сначала смотрим в HKCU, затем - в HKLM
-// Return: Это ГУЯ?
-DWORD GetExistAppPaths(const char *Command,char *Dest,int DestSize)
+
+/*
+ Фунция PrepareExecuteModule пытается найти исполняемый модуль (в т.ч. и по
+ %PATHEXT%). В случае успеха заменяет в Command порцию, ответственную за
+ исполянемый модуль на найденное значение, копирует результат в Dest и
+ пытается проверить заголовок PE на ГУЕВОСТЬ (чтобы запустить процесс
+ в отдельном окне и не ждать завершения).
+ В случае неудачи Dest не заполняется!
+ Return: TRUE/FALSE - нашли/не нашли.
+*/
+int WINAPI PrepareExecuteModule(char *Command,char *Dest,int DestSize,DWORD *GUIType)
 {
-  HKEY hKey;
-  char FullKeyName[4096];
-  char TempStr[4096];
-  char FileName[4096],*EndName, *Ptr;
-  HKEY RootFindKey[2]={HKEY_CURRENT_USER,HKEY_LOCAL_MACHINE};
-  DWORD GUIType;
-  int I;
+  int Ret, I;
+  char FileName[4096],FullName[4096], *Ptr;
 
-  if (*Command=='\"')
+  // Здесь порядок важен! Сначала батники,  а потом остальная фигня.
+  static char StdExecuteExt[NM]=".BAT;.CMD;.EXE;.COM;";
+  static int IsPrepareExt=FALSE;
+  if(!IsPrepareExt) // самоинициилизирующийся кусок
   {
-    OemToChar(Command+1,FileName);
-    if ((EndName=strchr(FileName,'\"'))!=NULL)
-      *EndName=0;
-  }
-  else
-  {
-    OemToChar(Command,FileName);
-    if ((EndName=strpbrk(FileName," \t/"))!=NULL)
-      *EndName=0;
-  }
-
-  for(I=0; I < sizeof(RootFindKey)/sizeof(RootFindKey[0]); ++I)
-  {
-    sprintf(FullKeyName,"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\%s",FileName);
-    Ptr=strrchr(FullKeyName,'.');
-    if(!Ptr)
-      strcat(FullKeyName,".exe");
-    OemToChar(FullKeyName, FullKeyName);
-
-    if (RegOpenKeyEx(RootFindKey[I], FullKeyName, 0,KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
+#if 1
+    // если переменная %PATHEXT% доступна...
+    if((I=GetEnvironmentVariable("PATHEXT",FullName,sizeof(FullName)-1)) != 0)
     {
-      DWORD Type, DataSize=sizeof(FullKeyName);
-      RegQueryValueEx(hKey,"", 0, &Type, (LPBYTE)FullKeyName,&DataSize);
-      RegCloseKey(hKey);
-      QuoteSpaceOnly(FullKeyName);
-      IsCommandPEExeGUI(FullKeyName,&GUIType);
-      strncpy(TempStr,Command,sizeof(TempStr)-1);
-      ReplaceStrings(TempStr,FileName,FullKeyName);
-      strncpy(Dest,TempStr,DestSize);
-      return GUIType;
+      FullName[I]=0;
+      // удаляем дубляжи из PATHEXT
+      static char const * const StdExecuteExt0[4]={".BAT;",".CMD;",".EXE;",".COM;"};
+      for(I=0; I < sizeof(StdExecuteExt0)/sizeof(StdExecuteExt0[0]); ++I)
+        ReplaceStrings(FullName,StdExecuteExt0[I],"",-1);
     }
-  }
-  return 0;
-}
 
-// Фунция возвращает тип файла и полный путь к нему (если он нашелся)
-int IsCommandExeGUI(char *Command,char *FindName,DWORD *GUIType)
-{
-  int Ret=FALSE;
-  char FileName[4096],FullName[4096],*EndName,*FilePart;
+    Ptr=strcat(StdExecuteExt,strcat(FullName,";")); //!!!
+#else
+    Ptr=StdExecuteExt;
+#endif
+    StdExecuteExt[strlen(StdExecuteExt)]=0;
+    while(*Ptr)
+    {
+      if(*Ptr == ';')
+        *Ptr=0;
+      ++Ptr;
+    }
+    IsPrepareExt=TRUE;
+  }
+
+  *GUIType=FALSE; // GUIType всегда вначале инициализируется в FALSE
+
+  // Выделяем имя модуля
   if (*Command=='\"')
   {
     OemToChar(Command+1,FileName);
-    if ((EndName=strchr(FileName,'\"'))!=NULL)
-      *EndName=0;
+    if ((Ptr=strchr(FileName,'\"'))!=NULL)
+      *Ptr=0;
   }
   else
   {
     OemToChar(Command,FileName);
-    if ((EndName=strpbrk(FileName," \t/"))!=NULL)
-      *EndName=0;
+    if ((Ptr=strpbrk(FileName," \t/"))!=NULL)
+      *Ptr=0;
   }
-  *GUIType=FALSE;
 
-  /* $ 07.09.2001 VVM
-    + Обработать переменные окружения */
+  /* $ 07.09.2001 VVM Обработать переменные окружения */
   ExpandEnvironmentStr(FileName,FileName,sizeof(FileName));
-  /* VVM $ */
 
   SetFileApisToANSI();
 
-  /*$ 18.09.2000 skv
-    + to allow execution of c.bat in current directory,
-      if gui program c.exe exists somewhere in PATH,
-      in FAR's console and not in separate window.
-      for(;;) is just to prevent multiple nested ifs.
-  */
-  for(;;)
   {
-    sprintf(FullName,"%s.bat",FileName);
-    if(GetFileAttributes(FullName)!=-1)
-    {
-      Ret=TRUE;
-      break;
-    }
-    sprintf(FullName,"%s.cmd",FileName);
-    if(GetFileAttributes(FullName)!=-1)
-    {
-      Ret=TRUE;
-      break;
-    }
-  /* skv$*/
+    Ret=FALSE;
+    char *PtrFName=strrchr(strcpy(FullName,FileName),'.');
+    char *WorkPtrFName;
+    if(!PtrFName)
+      WorkPtrFName=FullName+strlen(FullName);
 
-    if (SearchPath(NULL,FileName,".exe",sizeof(FindName),FindName,&FilePart))
+    char *PtrExt=StdExecuteExt;
+    while(*PtrExt) // первый проход - в текущем каталоге
     {
-// ВНИМАНИЕ!!!!!!!!!!
-// ОЧЕНЬ спорный кусок!!!!!!
-#if 1
-      char *Ptr=strrchr(FindName,'.');
-      if(!Ptr)
-        strcat(FindName,".exe");
-      IsCommandPEExeGUI(FindName,GUIType);
-#else
-      SHFILEINFO sfi;
-      DWORD ExeType=SHGetFileInfo(FindName,0,&sfi,sizeof(sfi),SHGFI_EXETYPE);
-      GUIType=HIWORD(ExeType)>=0x0300 && HIWORD(ExeType)<=0x1000 &&
-              /* $ 13.07.2000 IG
-                 в VC, похоже, нельзя сказать так: 0x4550 == 'PE', надо
-                 делать проверку побайтово.
-              */
-              HIBYTE(ExeType)=='E' && (LOBYTE(ExeType)=='N' || LOBYTE(ExeType)=='P');
-              /* IG $ */
-#endif
-      Ret=TRUE;
+      if(!PtrFName)
+        strcat(WorkPtrFName,PtrExt);
+      if(GetFileAttributes(FullName)!=-1)
+      {
+        Ret=TRUE;
+        break;
+      }
+      PtrExt+=strlen(PtrExt)+1;
     }
-/*$ 18.09.2000 skv
-    little trick.
-*/
-    break;
+
+    if(!Ret) // второй проход - по правилам SearchPath
+    {
+      char *FilePart;
+      PtrExt=StdExecuteExt;
+      while(*PtrExt)
+      {
+        if(!PtrFName)
+          strcat(WorkPtrFName,PtrExt);
+        if(SearchPath(NULL,FullName,PtrExt,sizeof(FullName),FullName,&FilePart))
+        {
+          Ret=TRUE;
+          break;
+        }
+        PtrExt+=strlen(PtrExt)+1;
+      }
+
+      if(!Ret) // третий проход - лезим в реестр в "App Paths"
+      {
+        // В строке Command заменть исполняемый модуль на полный путь, который
+        // берется из SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths
+        // Сначала смотрим в HKCU, затем - в HKLM
+        HKEY hKey;
+        HKEY RootFindKey[2]={HKEY_CURRENT_USER,HKEY_LOCAL_MACHINE};
+        PtrExt=StdExecuteExt;
+        while(*PtrExt)
+        {
+          if(!PtrFName)
+            strcat(WorkPtrFName,PtrExt);
+          for(I=0; I < sizeof(RootFindKey)/sizeof(RootFindKey[0]); ++I)
+          {
+            sprintf(FullName,"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\%s",FileName);
+            if (RegOpenKeyEx(RootFindKey[I], FullName, 0,KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
+            {
+              DWORD Type, DataSize=sizeof(FullName);
+              RegQueryValueEx(hKey,"", 0, &Type, (LPBYTE)FullName,&DataSize);
+              RegCloseKey(hKey);
+              Ret=TRUE;
+              break;
+            }
+          }
+          if(Ret)
+            break;
+          PtrExt+=strlen(PtrExt)+1;
+        }
+      }
+    }
   }
-  /* skv$*/
   SetFileApisToOEM();
+
+  if(Ret) // некоторые "подмены" данных
+  {
+    char TempStr[4096];
+    QuoteSpaceOnly(FullName);
+    IsCommandPEExeGUI(FullName,GUIType);
+    strncpy(TempStr,Command,sizeof(TempStr)-1);
+    ReplaceStrings(TempStr,FileName,FullName);
+    strncpy(Dest,TempStr,DestSize);
+  }
+
   return(Ret);
 }
 
@@ -294,6 +315,7 @@ int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
   PROCESS_INFORMATION pi;
   char ExecLine[1024],CommandName[NM];
   char OldTitle[512],NewCmdStr[4096];
+  DWORD GUIType;
   int ExitCode;
   /* $ 13.04.2001 VVM
     + Флаг CREATE_DEFAULT_ERROR_MODE. Что-бы показывал все ошибки */
@@ -345,10 +367,8 @@ int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
 //  while (isspace(*CmdPtr))
 //    CmdPtr++;
 
-  // Сначала посомтрим по правилам функции SearchPath
-  DWORD GUIType;
-  if(!IsCommandExeGUI(NewCmdStr,NewCmdStr,&GUIType)) // ... если не нашли - лезим в реестр в "App Paths"
-    GUIType=GetExistAppPaths(NewCmdStr,NewCmdStr,sizeof(NewCmdStr)-1);
+  // Поиск исполнятора....
+  PrepareExecuteModule(NewCmdStr,NewCmdStr,sizeof(NewCmdStr)-1,&GUIType);
 
   if (DirectRun && !SeparateWindow)
     strcpy(ExecLine,CmdPtr);
