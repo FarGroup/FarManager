@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.43 04.11.2000 $ */
+/* Revision: 1.44 08.11.2000 $ */
 
 /*
 Modify:
+  08.11.2000 SVS
+    - Бага в функции ConvertNameToFull.
   04.11.2000 SVS
     + XLAT_SWITCHKEYBBEEP в XLat перекодировке.
     ! несколько проверок в FarBsearch, InputRecordToKey, FarQsort, FarSprintf,
@@ -1017,10 +1019,14 @@ int ConvertNameToFull(char *Src,char *Dest, int DestSize)
 
   SetFileApisToANSI();
   OemToChar(Src,AnsiName);
-  if (GetFullPathName(AnsiName,sizeof(FullName),FullName,&NamePtr))
+  /* $ 08.11.2000 SVS
+     Вместо DestSize использовался sizeof(FullName)...
+  */
+  if (GetFullPathName(AnsiName,DestSize,FullName,&NamePtr))
     CharToOem(FullName,Dest);
   else
     strcpy(Dest,Src);
+  /* SVS $*/
   SetFileApisToOEM();
 end:
   free (FullName);
