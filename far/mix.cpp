@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.23 10.09.2000 $ */
+/* Revision: 1.24 10.09.2000 $ */
 
 /*
 Modify:
+  10.09.2000 SVS
+    ! KeyToText возвращает BOOL
   10.09.2000 tran
     + FSF/FarRecurseSearch
   10.09.2000 SVS
@@ -1790,7 +1792,10 @@ int WINAPIV FarSscanf(const char *buffer, const char *format,...)
    ! дополнительный параметра у KeyToText - размер данных
    Size=0 - по максимуму!
 */
-void WINAPI KeyToText(int Key0,char *KeyText0,int Size)
+/* $ 10.09.2000 SVS
+  ! KeyToText возвращает BOOL
+*/
+BOOL WINAPI KeyToText(int Key0,char *KeyText0,int Size)
 {
   int I;
   char KeyText[32];
@@ -2030,11 +2035,18 @@ void WINAPI KeyToText(int Key0,char *KeyText0,int Size)
       }
   }
 
+  if(!KeyText[0])
+  {
+    *KeyText0='\0';
+    return FALSE;
+  }
   if(Size > 0)
     strncpy(KeyText0,KeyText,Size);
   else
     strcpy(KeyText0,KeyText);
+  return TRUE;
 }
+/* SVS 10.09.2000 $ */
 /* SVS $ */
 
 /* tran 31.08.2000 $

@@ -6,10 +6,12 @@
   Plugin API for FAR Manager 1.70
 
 */
-/* Revision: 1.46 10.09.2000 $ */
+/* Revision: 1.47 10.09.2000 $ */
 
 /*
 Modify:
+  10.09.2000 SVS
+    ! KeyToText возвращает BOOL, если нет такой клавиши.
   10.09.2000 SVS 1.46
     + typedef struct _CHAR_INFO    CHAR_INFO;
       На тот случай, если wincon.h не был загружен.
@@ -945,7 +947,7 @@ typedef char* (WINAPI *FARSTDPASTEFROMCLIPBOARD)(void);
 /* $ 01.08.2000 SVS
    ! дополнительный параметра у KeyToText - размер данных
 */
-typedef void (WINAPI *FARSTDKEYTOTEXT)(int Key,char *KeyText,int Size);
+typedef BOOL (WINAPI *FARSTDKEYTOTEXT)(int Key,char *KeyText,int Size);
 /* 01.08.2000 SVS $*/
 /* $ 31.08.2000 tran
    функция для преобразования INPUT_RECORD в int Key*/

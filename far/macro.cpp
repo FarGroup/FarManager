@@ -5,10 +5,13 @@ macro.cpp
 
 */
 
-/* Revision: 1.05 10.08.2000 $ */
+/* Revision: 1.06 10.09.2000 $ */
 
 /*
 Modify:
+  10.09.2000 SVS
+    ! Исправим ситуацию с макросами в связи с переработаными кодами клавиш
+    ! Функция ReadMacros имеет дополнительные аргументы
   10.08.2000 skv
     ! Изменение а GetKey для отработки окончания макро в Едиторе.
   25.07.2000 SVS
@@ -46,15 +49,47 @@ KeyMacro::KeyMacro()
   RecBuffer=NULL;
   RecBufferSize=0;
   InternalInput=FALSE;
-  ReadMacros(MACRO_SHELL);
-  ReadMacros(MACRO_VIEWER);
-  ReadMacros(MACRO_EDITOR);
-  ReadMacros(MACRO_DIALOG);
-  ReadMacros(MACRO_SEARCH);
-  ReadMacros(MACRO_DISKS);
-  ReadMacros(MACRO_MAINMENU);
-  ReadMacros(MACRO_HELP);
-  ReadMacros(MACRO_OTHER);
+
+  /* $ 10.09.2000 SVS
+    Повторяющийся кусок вынесем за пределы функции ReadMacros
+  */
+  #define TEMP_BUFFER_SIZE 32768
+
+  char *Buffer=new char[TEMP_BUFFER_SIZE];
+  if(Buffer)
+  {
+    struct TKeyNames *KeyNames=new TKeyNames[KEY_LAST_BASE];
+    if(KeyNames)
+    {
+      int CountKeyNames, I;
+
+      for (CountKeyNames=I=0; CountKeyNames < KEY_LAST_BASE;++I)
+      {
+        if(I == KEY_LAST_BASE)
+          break;
+        if(::KeyToText(I,KeyNames[CountKeyNames].Name))
+        {
+          KeyNames[CountKeyNames].Code=I;
+          CountKeyNames++;
+        }
+      }
+
+      ReadMacros(MACRO_SHELL,KeyNames,CountKeyNames,Buffer,TEMP_BUFFER_SIZE);
+      ReadMacros(MACRO_VIEWER,KeyNames,CountKeyNames,Buffer,TEMP_BUFFER_SIZE);
+      ReadMacros(MACRO_EDITOR,KeyNames,CountKeyNames,Buffer,TEMP_BUFFER_SIZE);
+      ReadMacros(MACRO_DIALOG,KeyNames,CountKeyNames,Buffer,TEMP_BUFFER_SIZE);
+      ReadMacros(MACRO_SEARCH,KeyNames,CountKeyNames,Buffer,TEMP_BUFFER_SIZE);
+      ReadMacros(MACRO_DISKS,KeyNames,CountKeyNames,Buffer,TEMP_BUFFER_SIZE);
+      ReadMacros(MACRO_MAINMENU,KeyNames,CountKeyNames,Buffer,TEMP_BUFFER_SIZE);
+      ReadMacros(MACRO_HELP,KeyNames,CountKeyNames,Buffer,TEMP_BUFFER_SIZE);
+      ReadMacros(MACRO_OTHER,KeyNames,CountKeyNames,Buffer,TEMP_BUFFER_SIZE);
+
+      delete KeyNames;
+    }
+    delete Buffer;
+  }
+  /* SVS $ */
+
   Mode=MACRO_SHELL;
   LockScr=NULL;
 }
@@ -338,14 +373,18 @@ void KeyMacro::KeyToText(int Key,char *KeyText)
 /* SVS $ */
 
 
-void KeyMacro::ReadMacros(int ReadMode)
+/* $ 10.09.2000 SVS
+  ! Исправим ситуацию с макросами в связи с переработаными кодами клавиш
+  ! Функция ReadMacros имеет дополнительные аргументы
+*/
+void KeyMacro::ReadMacros(int ReadMode,
+                          struct TKeyNames *KeyNames,
+                          int CountKeyNames,
+                          char *Buffer,
+                          int BufferSize)
 {
-  char KeyNames[2048][32];
-  char Buffer[32768];
-  int I;
+  int I, J;
 
-  for (I=0;I<sizeof(KeyNames)/sizeof(KeyNames[0]);I++)
-    KeyToText(I,KeyNames[I]);
   for (I=0;;I++)
   {
     char RegKeyName[50],KeyText[50],*Subkey;
@@ -389,10 +428,10 @@ void KeyMacro::ReadMacros(int ReadMode)
     else
       *KeyText=0;
     int KeyCode=-1;
-    for (int J=0;J<sizeof(KeyNames)/sizeof(KeyNames[0]);J++)
-      if (stricmp(KeyText,KeyNames[J])==0)
+    for (J=0; J < CountKeyNames; J++)
+      if (stricmp(KeyText,KeyNames[J].Name)==0)
       {
-        KeyCode=J;
+        KeyCode=KeyNames[J].Code;
         break;
       }
     if (KeyCode==-1)
@@ -408,7 +447,7 @@ void KeyMacro::ReadMacros(int ReadMode)
     CurMacro->Buffer=NULL;
     CurMacro->BufferSize=0;
     CurMacro->Mode=ReadMode;
-    GetRegKey(RegKeyName,"Sequence",Buffer,"",sizeof(Buffer));
+    GetRegKey(RegKeyName,"Sequence",Buffer,"",BufferSize);
     CurMacro->DisableOutput=GetRegKey(RegKeyName,"DisableOutput",0);
     CurMacro->RunAfterStart=GetRegKey(RegKeyName,"RunAfterFARStart",0);
     CurMacro->EmptyCommandLine=GetRegKey(RegKeyName,"EmptyCommandLine",0);
@@ -428,18 +467,20 @@ void KeyMacro::ReadMacros(int ReadMode)
       memcpy(CurKeyText,CurBufPtr,Length);
       CurKeyText[Length]=0;
       int KeyCode=-1;
-      for (int J=0;J<sizeof(KeyNames)/sizeof(KeyNames[0]);J++)
-        if (Length==1 && strcmp(CurKeyText,KeyNames[J])==0 ||
-            Length>1 && stricmp(CurKeyText,KeyNames[J])==0)
+      for (J=0; J < CountKeyNames; J++)
+        if (Length==1 && strcmp(CurKeyText,KeyNames[J].Name)==0 ||
+            Length>1 && stricmp(CurKeyText,KeyNames[J].Name)==0)
         {
-          KeyCode=J;
+          KeyCode=KeyNames[J].Code;
           break;
         }
       if (KeyCode!=-1)
       {
         CurMacro->Buffer=(int *)realloc(CurMacro->Buffer,sizeof(*CurMacro->Buffer)*(CurMacro->BufferSize+1));
         if (CurMacro->Buffer==NULL)
+        {
           return;
+        }
         CurMacro->Buffer[CurMacro->BufferSize]=KeyCode;
         CurMacro->BufferSize++;
       }
@@ -447,6 +488,7 @@ void KeyMacro::ReadMacros(int ReadMode)
     MacrosNumber++;
   }
 }
+/* SVS $ */
 
 
 int KeyMacro::GetMacroSettings(int &DisableOutput,int &RunAfterStart,

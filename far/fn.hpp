@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.23 10.09.2000 $ */
+/* Revision: 1.24 10.09.2000 $ */
 
 /*
 Modify:
+  10.09.2000 SVS
+    ! KeyToText возвращает BOOL
   10.09.2000 tran 1.23
     + FSF/FarRecurseSearch
   10.09.2000 SVS
@@ -448,7 +450,7 @@ int WINAPI GetString(char *Title,char *SubTitle,char *HistoryName,char *SrcText,
 /* SVS $ */
 // ! дополнительный параметра у KeyToText - размер данных
 //   Size=0 - по максимуму!
-void WINAPI KeyToText(int Key,char *KeyText,int Size=0);
+BOOL WINAPI KeyToText(int Key,char *KeyText,int Size=0);
 /* SVS $ */
 /* 01.08.2000 SVS $ */
 /* $ 31.08.2000 tran

@@ -7,10 +7,12 @@ macro.hpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 10.09.2000 $ */
 
 /*
 Modify:
+  10.09.2000 SVS
+    ! Функция ReadMacros имеет дополнительные аргументы
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
@@ -19,7 +21,17 @@ Modify:
 class KeyMacro
 {
   private:
-    void ReadMacros(int ReadMode);
+    /* $ 10.09.2000 SVS
+      ! Функция ReadMacros имеет дополнительные аргументы
+    */
+    struct TKeyNames{
+      char Name[32];
+      int  Code;
+    };
+
+    void ReadMacros(int ReadMode,struct TKeyNames *KeyNames,
+                    int CountKeyNames, char *Buffer, int BufferSize);
+    /* SVS $ */
     void KeyToText(int Key,char *KeyName);
     int GetMacroSettings(int &DisableOutput,int &RunAfterStart,
                          int &EmptyCommandLine,int &NotEmptyCommandLine);
