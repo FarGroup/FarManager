@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.69 07.10.2001 $ */
+/* Revision: 1.70 11.10.2001 $ */
 
 /*
 Modify:
+  11.10.2001 SVS
+    + Opt.FolderSetAttr165; // поведение для каталогов как у 1.65
   07.10.2001 SVS
     + Opt.HelpTabSize - размер табуляции по умолчанию.
   26.09.2001 SVS
@@ -658,6 +660,7 @@ struct Options
 
   DWORD LCIDSort;
   int HelpTabSize;
+  int FolderSetAttr165; // поведение для каталогов как у 1.65
 
   char DateFormat[80]; // Для $Date
   struct PoliciesOptions Policies;

@@ -5,10 +5,12 @@ setattr.cpp
 
 */
 
-/* Revision: 1.37 27.09.2001 $ */
+/* Revision: 1.38 11.10.2001 $ */
 
 /*
 Modify:
+  11.10.2001 SVS
+    + Opt.FolderSetAttr165; // поведение для каталогов как у 1.65
   27.09.2001 IS
     - Левый размер при использовании strncpy
   24.09.2001 SVS
@@ -234,7 +236,7 @@ long WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
                       Dialog::SendDlgMessage(hDlg,DM_SETCHECK,I,BSTATE_3STATE);
                   }
                 }
-                if(!State11)
+                if(!State11 && !Opt.FolderSetAttr165)
                 {
                   HANDLE FindHandle;
                   WIN32_FIND_DATA FindData;
@@ -449,7 +451,6 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
 //    int NewAttr;
     int FolderPresent=FALSE, JunctionPresent=FALSE;
-    char TimeText[6][100];
 
     int DateSeparator=GetDateSeparator();
     int TimeSeparator=GetTimeSeparator();
@@ -599,12 +600,6 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           ConvertDate(&FindData.ftLastAccessTime,AttrDlg[22].Data,AttrDlg[23].Data,8,FALSE,FALSE,TRUE,TRUE);
         }
       }
-      strcpy(TimeText[0],AttrDlg[16].Data);
-      strcpy(TimeText[1],AttrDlg[17].Data);
-      strcpy(TimeText[2],AttrDlg[19].Data);
-      strcpy(TimeText[3],AttrDlg[20].Data);
-      strcpy(TimeText[4],AttrDlg[22].Data);
-      strcpy(TimeText[5],AttrDlg[23].Data);
     }
     else
     {
@@ -649,6 +644,19 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           AttrDlg[I].Flags&=~DIF_3STATE;
 
         AttrDlg[I].Selected=(J >= SelCount)?1:(!J?0:2);
+      }
+    }
+
+    // поведение для каталогов как у 1.65?
+    if(FolderPresent && Opt.FolderSetAttr165)
+    {
+      AttrDlg[11].Selected=1;
+      AttrDlg[16].Data[0]=AttrDlg[17].Data[0]=AttrDlg[19].Data[0]=
+      AttrDlg[20].Data[0]=AttrDlg[22].Data[0]=AttrDlg[23].Data[0]='\0';
+      for(I=4; I <= 9; ++I)
+      {
+        AttrDlg[I].Selected=2;
+        AttrDlg[I].Flags|=DIF_3STATE;
       }
     }
 

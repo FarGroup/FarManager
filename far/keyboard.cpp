@@ -5,10 +5,13 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.47 20.09.2001 $ */
+/* Revision: 1.48 11.10.2001 $ */
 
 /*
 Modify:
+  11.10.2001 SVS
+    - BugZ#79. Некоректное преобразование имен клавиш в коды (при ошибках в
+      написании названия клавиш)
   20.09.2001 SVS
     - бага с Alt-цифровая клавиша.
     ! Параметр у InputRecordToKey "const"
@@ -967,7 +970,7 @@ int WINAPI KeyNameToKey(const char *Name)
          Key|=FKeys1[I].Key;
          break;
        }
-     if(I  == sizeof(FKeys1)/sizeof(FKeys1[0]))
+     if(I  == sizeof(FKeys1)/sizeof(FKeys1[0]) && (Len == 1 || Pos == Len-1))
      {
        WORD Chr=(WORD)(BYTE)Name[Pos];
        if (Chr > 0 && Chr < 256)
@@ -978,7 +981,7 @@ int WINAPI KeyNameToKey(const char *Name)
        }
      }
    }
-//_D(SysLog("Key=0x%08X (%c)",Key,(Key?Key:' ')));
+//_SVS(SysLog("Key=0x%08X (%c) => '%s'",Key,(Key?Key:' '),Name));
 
    return (!Key)? -1: Key;
 }

@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.150 10.10.2001 $ */
+/* Revision: 1.151 11.10.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 ¬ этом файле писать все изменени€ только в в этом блоке!!!!
 
 Modify:
+  10.10.2001 IS
+    - FAR_USE_INTERNALS неверно использован!!!!!!!!
   10.10.2001 IS
     + EF_DELETEONCLOSE
     ! внедрение const
@@ -1427,13 +1429,13 @@ struct EditorGetString
 struct EditorSetString
 {
   int StringNumber;
-  #ifdef FAR_USE_INTERNALS
+#ifdef FAR_USE_INTERNALS
   const char *StringText;
   const char *StringEOL;
-  #else
+#else // ELSE FAR_USE_INTERNALS
   char *StringText;
   char *StringEOL;
-  #endif
+#endif // END FAR_USE_INTERNALS
   int StringLength;
 };
 
