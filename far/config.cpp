@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.19 14.09.2000 $ */
+/* Revision: 1.20 15.09.2000 $ */
 
 /*
 Modify:
+  15.09.2000 SVS
+    ! RightClickRule по умолчанию ставится в положение 2
   14.09.2000 SVS
     ! Ошибка в названии XLAT_SWITCHKEYBLAYOUT.
   12.09.2000 SVS
@@ -717,7 +719,7 @@ void ReadConfig()
     + Panel/RightClickRule в реестре - задает поведение правой клавиши
       мыши (это по поводу Bug#17)
   */
-  GetRegKey("Panel","RightClickRule",Opt.PanelRightClickRule,0);
+  GetRegKey("Panel","RightClickRule",Opt.PanelRightClickRule,2);
   Opt.PanelRightClickRule%=3;
   /* SVS $ */
 

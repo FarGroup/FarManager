@@ -5,10 +5,13 @@ edit.cpp
 
 */
 
-/* Revision: 1.19 11.09.2000 $ */
+/* Revision: 1.20 15.09.2000 $ */
 
 /*
 Modify:
+   15.09.2000 SVS
+    - Bug - Выделяем кусочек строки -> Shift-Del удяляет всю строку
+           Так должно быть только для UnChanged состояния
    11.09.2000 SVS 1.19
     ! если Opt.DlgEULBsClear = 1, то BS в диалогах для UnChanged строки
       удаляет такую строку также, как и Del
@@ -546,6 +549,16 @@ int Edit::ProcessKey(int Key)
      ClearFlag && CurPos>=StrSize)
     Key=KEY_CTRLY;
   /* SVS $ */
+  /* $ 15.09.2000 SVS
+     Bug - Выделяем кусочек строки -> Shift-Del удяляет всю строку
+           Так должно быть только для UnChanged состояния
+  */
+  if(Key == KEY_SHIFTDEL && ClearFlag && CurPos>=StrSize && SelStart==-1)
+  {
+    SelStart=0;
+    SelEnd=StrSize;
+  }
+  /* SVS $ */
 
   if (ClearFlag && (Key<256 && Key>=31 || Key==KEY_CTRLBRACKET ||
       Key==KEY_CTRLBACKBRACKET || Key==KEY_CTRLSHIFTBRACKET ||
@@ -1052,11 +1065,6 @@ int Edit::ProcessKey(int Key)
       Show();
       return(TRUE);
     case KEY_SHIFTDEL:
-      if(!ClearFlag)
-      {
-        SelStart=0;
-        SelEnd=StrSize;
-      }
       if (SelStart==-1 || SelStart>=SelEnd)
         return(FALSE);
       RecurseProcessKey(KEY_CTRLINS);
