@@ -1942,11 +1942,10 @@ to the file panel.
 
      - to delete a substituted (virtual) drive.
 
-     - to eject disks from CD-ROM and removable drives.
-       To perform this operation on Windows NT/2000/XP
-       administrator privileges are required.
-       CD-ROM drives can be closed by pressing #Ins# (only
-       under Windows NT/2000/XP).
+     - ejecting disks from CD-ROM and removable drives.
+       Under Windows 2000/NT/XP, ejecting a disk from a ZIP-drive
+       requires administrative privileges.
+       A CD-ROM can be closed by pressing #Ins#.
 
 
     #Ctrl-1# - #Ctrl-8# switch the display of different information:
