@@ -217,6 +217,8 @@ int PluginClass::SelectFormat(char *ArcFormat,int AddOnly)
     SortMode=SortModes[SortModeIndex];
   #endif
 
+  BreakKeys[1]=(AddOnly)?0:VK_RETURN;
+
   while(1)
   {
     for(int i=0; i<ArcPlugin->FmtCount(); i++)
