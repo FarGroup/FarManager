@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.121 17.03.2002 $ */
+/* Revision: 1.122 18.03.2002 $ */
 
 /*
 Modify:
+  18.03.2002 SVS
+    ! Уточнения, в связи с введением Opt.Dialogs
   17.03.2002 IS
     - FarCharTable: по возможности используем значение TableName (BugZ#331)
   01.03.2002 SVS
@@ -741,12 +743,12 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
         {&Opt.Mouse,FIS_MOUSE},
         {&Opt.ShowKeyBar,FIS_SHOWKEYBAR},
         {&Opt.ShowMenuBar,FIS_ALWAYSSHOWMENUBAR},
-        {&Opt.DialogsEditHistory,FIS_HISTORYINDIALOGEDITCONTROLS},
-        {&Opt.DialogsEditBlock,FIS_PERSISTENTBLOCKSINEDITCONTROLS},
+        {&Opt.Dialogs.EditHistory,FIS_HISTORYINDIALOGEDITCONTROLS},
+        {&Opt.Dialogs.EditBlock,FIS_PERSISTENTBLOCKSINEDITCONTROLS},
         {&Opt.AltGr,FIS_USERIGHTALTASALTGR},
         {&Opt.CopyShowTotal,FIS_SHOWTOTALCOPYPROGRESSINDICATOR},
         {&Opt.CopyTimeRule,FIS_SHOWCOPYINGTIMEINFO},
-        {&Opt.AutoComplete,FIS_AUTOCOMPLETEININPUTLINES},
+        {&Opt.Dialogs.AutoComplete,FIS_AUTOCOMPLETEININPUTLINES},
         {&Opt.PgUpChangeDisk,FIS_USECTRLPGUPTOCHANGEDRIVE},
       };
       for(I=0; I < sizeof(OSys)/sizeof(OSys[0]); ++I)

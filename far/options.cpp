@@ -5,10 +5,12 @@ options.cpp
 
 */
 
-/* Revision: 1.16 11.02.2002 $ */
+/* Revision: 1.17 18.03.2002 $ */
 
 /*
 Modify:
+  18.03.2002 SVS
+    ! После смены языка интерфейса апдейтим так же титлы истории редактирования
   11.02.2002 SVS
     + Добавка в меню - акселератор - решение BugZ#299
   24.01.2002 SVS
@@ -68,6 +70,7 @@ Modify:
 #include "cmdline.hpp"
 #include "manager.hpp"
 #include "ctrlobj.hpp"
+#include "history.hpp"
 
 void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 {
@@ -499,6 +502,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
               delete HelpMenu;
               LangMenu->Hide();
               CtrlObject->Plugins.ReloadLanguage();
+              CtrlObject->ViewHistory->ReloadTitle();
               SetEnvironmentVariable("FARLANG",Opt.Language);
               PrepareStrFTime();
               CtrlObject->Cp()->RedrawKeyBar();

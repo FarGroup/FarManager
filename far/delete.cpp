@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.42 01.03.2002 $ */
+/* Revision: 1.43 18.03.2002 $ */
 
 /*
 Modify:
+  18.03.2002 SVS
+    - "Broke link" - изменялась пассивная панель (когда ее не просили)
   01.03.2002 SVS
     ! Есть только одна функция создания временного файла - FarMkTempEx
   22.02.2002 SVS
@@ -136,6 +138,7 @@ static int WipeFile(char *Name);
 static int WipeDirectory(char *Name);
 static void ShellDeleteUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir);
 static void PR_ShellDeleteMsg(void);
+static int CheckUpdateAnotherPanel(Panel *SrcPanel,char *SelName);
 
 static int ReadOnlyDeleteMode,DeleteAllFolders;
 
@@ -242,8 +245,11 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
         {
           ; //  ;-%
         }
-        DeleteJunctionPoint(JuncName);
-        ShellDeleteUpdatePanels(SrcPanel,TRUE);
+        if((NeedSetUpADir=CheckUpdateAnotherPanel(SrcPanel,SelName)) != -1) //JuncName?
+        {
+          DeleteJunctionPoint(JuncName);
+          ShellDeleteUpdatePanels(SrcPanel,NeedSetUpADir);
+        }
         goto done;
       }
       if(Ret != 0)
@@ -315,26 +321,8 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   GetConsoleTitle(OldTitle,sizeof(OldTitle));
   SetFarTitle(MSG(MDeletingTitle));
 
-  // Кусок по закрытию файла и снятию нотификации
-  {
-    char AnotherCurDir[2048];
-    Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
-    AnotherPanel->CloseFile();
-    if(AnotherPanel->GetMode() == NORMAL_PANEL)
-    {
-      AnotherPanel->GetCurDir(AnotherCurDir);
-      if (ConvertNameToFull(SelName,FullName, sizeof(FullName)) >= sizeof(FullName))
-      {
-        NeedUpdate=FALSE;
-        goto done;
-      }
-      if(strstr(AnotherCurDir,FullName))
-      {
-        ((FileList*)AnotherPanel)->CloseChangeNotification();
-        NeedSetUpADir=TRUE;
-      }
-    }
-  }
+  if((NeedSetUpADir=CheckUpdateAnotherPanel(SrcPanel,SelName)) == -1)
+    goto done;
 
   if (SrcPanel->GetType()==TREE_PANEL)
     FarChDir("\\");
@@ -575,6 +563,26 @@ void ShellDeleteUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir)
 //    AnotherPanel->Redraw();
   }
   CtrlObject->Cp()->Redraw();
+}
+
+static int CheckUpdateAnotherPanel(Panel *SrcPanel,char *SelName)
+{
+  char AnotherCurDir[2048];
+  char FullName[2058];
+  Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
+  AnotherPanel->CloseFile();
+  if(AnotherPanel->GetMode() == NORMAL_PANEL)
+  {
+    AnotherPanel->GetCurDir(AnotherCurDir);
+    if (ConvertNameToFull(SelName,FullName, sizeof(FullName)) >= sizeof(FullName))
+      return -1;
+    if(strstr(AnotherCurDir,FullName))
+    {
+      ((FileList*)AnotherPanel)->CloseChangeNotification();
+      return TRUE;
+    }
+  }
+  return FALSE;
 }
 
 static void PR_ShellDeleteMsg(void)

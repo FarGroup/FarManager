@@ -5,10 +5,12 @@ foldtree.cpp
 
 */
 
-/* Revision: 1.09 24.10.2001 $ */
+/* Revision: 1.10 18.03.2002 $ */
 
 /*
 Modify:
+  18.03.2002 SVS
+    ! Уточнения, в связи с введением Opt.Dialogs
   24.10.2001 SVS
     + дополнительный параметр у FolderTree - "ЭТО НЕ ПАНЕЛЬ!"
     - бага с прорисовкой при вызове дерева из диалога копирования
@@ -82,7 +84,7 @@ FolderTree::FolderTree(char *ResultFolder,int ModalMode,int TX1,int TY1,int TX2,
           return;
         }
         FindEdit->SetEditBeyondEnd(FALSE);
-        FindEdit->SetPersistentBlocks(Opt.DialogsEditBlock);
+        FindEdit->SetPersistentBlocks(Opt.Dialogs.EditBlock);
         DrawEdit();
       }
 

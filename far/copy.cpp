@@ -5,10 +5,15 @@ copy.cpp
 
 */
 
-/* Revision: 1.67 03.03.2002 $ */
+/* Revision: 1.68 18.03.2002 $ */
 
 /*
 Modify:
+  18.03.2002 SVS
+    - В NT4 не создавались жесткие связи для каталогов
+      (вернее для файлов в каталогах)
+    - нельзя скопировать файл в подкаталог с другим именем
+      (не создавалась структура)
   02.03.2002 KM
     ! Достало: при большом объёме копирования (часто винт на винт)
       при попадании залоченных файлов (а они обязательно попадаются
@@ -1024,6 +1029,11 @@ BOOL ShellCopy::LinkRules(DWORD *Flags8,DWORD* Flags5,int* Selected5,
             if(*Selected5 || (!*Selected5 && SameDisk))
                *Flags8 &=~ DIF_DISABLE;
           }
+          else if(NT && !NT5 && SameDisk)
+          {
+            *Selected5=0;
+            *Flags8 &=~ DIF_DISABLE;
+          }
           else
             *Selected5=0;
         }
@@ -1044,6 +1054,11 @@ BOOL ShellCopy::LinkRules(DWORD *Flags8,DWORD* Flags5,int* Selected5,
             {
               *Flags8 &=~ DIF_DISABLE;
             }
+          }
+          else if(NT && !NT5 && SameDisk)
+          {
+            *Selected5=0;
+            *Flags8 &=~ DIF_DISABLE;
           }
 
           if(CDP->FilesPresent && SameDisk && CDP->FSysNTFS)
@@ -1121,26 +1136,33 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
     return COPY_FAILURE; //????
   if(!(ShellCopy::Flags&FCOPY_COPYTONUL))
   {
-    if (Length>1 && Dest[Length-1]=='\\' && Dest[Length-2]!=':')
+    //if (Length > 1 && Dest[Length-1]=='\\' && Dest[Length-2]!=':') //??????????
     {
-//      Dest[Length-1]=0;  // ????? ПОЧЕМУ?
-      char NewPath[NM];
+      char NewPath[NM*3];
       strcpy(NewPath,Dest);
-      NewPath[Length-1]=0;
-      if (Opt.CreateUppercaseFolders && !IsCaseMixed(NewPath))
-        LocalStrupr(NewPath);
-      DWORD Attr=GetFileAttributes(NewPath);
-      if (Attr==0xFFFFFFFF)
-        if (CreateDirectory(NewPath,NULL))
-          TreeList::AddTreeName(NewPath);
-        else
-          CreatePath(NewPath);
-      else
-        if ((Attr & FILE_ATTRIBUTE_DIRECTORY)==0)
+      char *Ptr=strrchr(NewPath,'\\');
+      if(!Ptr)
+        Ptr=strrchr(NewPath,'/');
+
+      if(Ptr)
+      {
+        *Ptr=0;
+        if (Opt.CreateUppercaseFolders && !IsCaseMixed(NewPath))
+          LocalStrupr(NewPath);
+        DWORD Attr=GetFileAttributes(NewPath);
+        if (Attr==0xFFFFFFFF)
+        {
+          if (CreateDirectory(NewPath,NULL))
+            TreeList::AddTreeName(NewPath);
+          else
+            CreatePath(NewPath);
+        }
+        else if ((Attr & FILE_ATTRIBUTE_DIRECTORY)==0)
         {
           Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),MSG(MCopyCannotCreateFolder),NewPath,MSG(MOk));
           return COPY_FAILURE;
         }
+      }
     }
     DestAttr=GetFileAttributes(Dest);
   }

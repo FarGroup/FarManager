@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.219 18.03.2002 $ */
+/* Revision: 1.220 18.03.2002 $ */
 
 /*
 Modify:
+  18.03.2002 SVS
+    - Блин, перелудил с курсором :-(
+    ! Уточнения, в связи с введением Opt.Dialogs
   18.03.2002 SVS
     ! Сепаратор должен быть цвета рамки, а не текста.
     ! Бадяга про курсор - там где нужно гасить, выставлялася 1
@@ -1482,7 +1485,7 @@ int Dialog::InitDialogObjects(int ID)
       /* $ 30.08.2001 VVM
         + Для обычных строк отрубим постоянные блоки */
       if (!(ItemFlags&DIF_EDITOR))
-        DialogEdit->SetPersistentBlocks(Opt.DialogsEditBlock);
+        DialogEdit->SetPersistentBlocks(Opt.Dialogs.EditBlock);
       /*  VVM $ */
       if(ItemFlags&DIF_READONLY)
         DialogEdit->ReadOnly=1;
@@ -1804,7 +1807,7 @@ void Dialog::GetDialogObjectsData()
               (IFlags & DIF_HISTORY) &&
               !(IFlags & DIF_MANUALADDHISTORY) && // при мануале не добавляем
               CurItem->History &&
-              Opt.DialogsEditHistory)
+              Opt.Dialogs.EditHistory)
             AddToEditHistory(PtrData,CurItem->History);
 
           /* $ 01.08.2000 SVS
@@ -2155,7 +2158,7 @@ void Dialog::ShowDialog(int ID)
              Отключение мигающего курсора при перемещении диалога
           */
           if (!DialogMode.Check(DMODE_DRAGGED))
-            SetCursorType(0,-1);
+            SetCursorType(1,-1);
           MoveCursor(X1+CX1+1,Y1+CY1);
           /* KM $ */
         }
@@ -2309,7 +2312,7 @@ void Dialog::ShowDialog(int ID)
              Отключение мигающего курсора при перемещении диалога
           */
           if (!DialogMode.Check(DMODE_DRAGGED))
-            SetCursorType(0,-1);
+            SetCursorType(1,-1);
           EditPtr->Show();
           /* KM $ */
         }
@@ -2326,7 +2329,7 @@ void Dialog::ShowDialog(int ID)
           SetCursorType(0,0);
         /* KM $ */
 
-        if (CurItem->History && ((CurItem->Flags & DIF_HISTORY) && Opt.DialogsEditHistory ||
+        if (CurItem->History && ((CurItem->Flags & DIF_HISTORY) && Opt.Dialogs.EditHistory ||
             CurItem->Type == DI_COMBOBOX))
         {
           int EditX1,EditY1,EditX2,EditY2;
@@ -3072,7 +3075,7 @@ int Dialog::ProcessKey(int Key)
       CurEditLine=((Edit *)(Item[FocusPos].ObjPtr));
       if (IsEdit(Type) &&
            (Item[FocusPos].Flags & DIF_HISTORY) &&
-           Opt.DialogsEditHistory &&
+           Opt.Dialogs.EditHistory &&
            Item[FocusPos].History &&
            !(Item[FocusPos].Flags & DIF_READONLY))
       /* $ 26.07.2000 SVS
@@ -3332,8 +3335,8 @@ int Dialog::ProcessKey(int Key)
             */
             if(!CtrlObject->Macro.GetCurRecord(NULL,NULL) &&
                ((Item[FocusPos].Flags & DIF_HISTORY) || Type == DI_COMBOBOX))
-            if((Opt.AutoComplete && Key < 256 && Key != KEY_BS && Key != KEY_DEL) ||
-               (!Opt.AutoComplete && Key == KEY_CTRLEND)
+            if((Opt.Dialogs.AutoComplete && Key < 256 && Key != KEY_BS && Key != KEY_DEL) ||
+               (!Opt.Dialogs.AutoComplete && Key == KEY_CTRLEND)
               )
             {
               /* $ 05.12.2000 IS
@@ -3619,9 +3622,9 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
             {
               // Проверка на DI_COMBOBOX здесь лишняя. Убрана (KM).
               if (MsX==EditX2+1 && MsY==EditY1 && Item[I].History &&
-                  ((Item[I].Flags & DIF_HISTORY) && Opt.DialogsEditHistory
+                  ((Item[I].Flags & DIF_HISTORY) && Opt.Dialogs.EditHistory
                    || Type == DI_COMBOBOX))
-//                  ((Item[I].Flags & DIF_HISTORY) && Opt.DialogsEditHistory))
+//                  ((Item[I].Flags & DIF_HISTORY) && Opt.Dialogs.EditHistory))
               {
                 EditLine->SetClearFlag(0); // раз уж покусились на, то и...
                 if(!(Item[I].Flags&DIF_NOFOCUS))
@@ -4341,7 +4344,7 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItem *CurItem,
         break;
 
       // выставим селекшин
-      Dest=Opt.DlgSelectFromHistory?HistoryMenu.FindItem(0,IStr,LIFIND_EXACTMATCH):-1;
+      Dest=Opt.Dialogs.SelectFromHistory?HistoryMenu.FindItem(0,IStr,LIFIND_EXACTMATCH):-1;
       HistoryMenu.SetSelectPos(Dest!=-1?Dest:0, 1);
       //  Перед отрисовкой спросим об изменении цветовых атрибутов
       /*$ 14.06.2001 OT */

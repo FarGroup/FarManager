@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.72 14.03.2002 $ */
+/* Revision: 1.73 18.03.2002 $ */
 
 /*
 Modify:
+  18.03.2002 SVS
+    ! Уточнения, в связи с введением Opt.Dialogs
   14.03.2002 SVS
     - Ctrl-V != Shift-Ins
     ! немного комментенного optimize (чтобы не забыть ;-))
@@ -912,7 +914,7 @@ int Edit::ProcessKey(int Key)
      если Opt.DlgEULBsClear = 1, то BS в диалогах для UnChanged строки
      удаляет такую строку также, как и Del
   */
-  if (((Opt.DlgEULBsClear && Key==KEY_BS) || Key==KEY_DEL) &&
+  if (((Opt.Dialogs.EULBsClear && Key==KEY_BS) || Key==KEY_DEL) &&
      ClearFlag && CurPos>=StrSize)
     Key=KEY_CTRLY;
   /* SVS $ */

@@ -1183,6 +1183,11 @@ keyboard shortcuts are available:
   Copy the text of the current history item to the             #Ctrl-C#
   clipboard without closing the list                      or #Ctrl-Ins#
 
+  Open a file in the ~editor~@Editor@                                        #F4#
+
+  Open a file in the ~viewer~@Viewer@                                        #F3#
+                                                          or #Numpad 5#
+
     For choosing a history item, besides the cursor control keys and Enter,
 you can use the highlighted shortcut letters.
 

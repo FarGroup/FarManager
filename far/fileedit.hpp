@@ -7,10 +7,12 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.26 15.01.2002 $ */
+/* Revision: 1.27 18.03.2002 $ */
 
 /*
 Modify:
+  18.03.2002 SVS
+    + SetLockEditor() - возможноть программно лочить редактор
   15.01.2002 SVS
     - Метод Show() не может быть в привате, т.к. в ScreenObject он в
       паблик-секции
@@ -199,6 +201,7 @@ class FileEditor:public Frame
     void SetPluginTitle(char *PluginTitle);
     BOOL SetFileName(const char *NewFileName);
     int ProcessEditorInput(INPUT_RECORD *Rec);
+    void SetLockEditor(BOOL LockMode);
 };
 
 #endif  // __FILEEDITOR_HPP__

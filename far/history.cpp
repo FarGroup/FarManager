@@ -5,10 +5,17 @@ history.cpp
 
 */
 
-/* Revision: 1.22 06.03.2002 $ */
+/* Revision: 1.23 18.03.2002 $ */
 
 /*
 Modify:
+  18.03.2002 SVS
+    + ReloadTitle() и EqualType()
+    ! Titles для истории редактирования/просмотра не сохраняем,
+      соответственно и не проверяем Title при поиске дубликатов,
+      только по файлу и типу.
+    + F3/Numpad 5 и F4
+    ! Переделан Select - зачем держать массив, если меню само умеет кое-что :-)
   06.03.2002 SVS
     ! Косметика имени параметра у FreeHistory() - рука дрогнула :-)
     - Жучара с strcpy()
@@ -106,6 +113,35 @@ void History::FreeHistory(BOOL FreeMemory)
   LastSimilar=0;
 }
 
+void History::ReloadTitle()
+{
+  if(TypeHistory != HISTORYTYPE_VIEW)
+    return;
+
+  int I;
+  struct HistoryRecord *PtrLastStr;
+
+  for (PtrLastStr=LastStr,I=0; I < HISTORY_COUNT; I++, PtrLastStr++)
+  {
+    if(PtrLastStr->Name && *PtrLastStr->Name)
+      switch(PtrLastStr->Type)
+      {
+        case 0:
+          strncpy(PtrLastStr->Title,MSG(MHistoryView),HISTORY_TITLESIZE-1);
+          break;
+        case 1:
+        case 4:
+          strncpy(PtrLastStr->Title,MSG(MHistoryEdit),HISTORY_TITLESIZE-1);
+          break;
+      }
+  }
+}
+
+
+/*
+   SaveForbid - принудительно запретить запись добавляемой строки.
+                Используется на панели плагина
+*/
 void History::AddToHistory(char *Str,char *Title,int Type,int SaveForbid)
 {
   if (!EnableAdd)
@@ -159,7 +195,8 @@ void History::AddToHistoryLocal(char *Str,char *Title,int Type)
     return;
 
   RemoveTrailingSpaces(AddRecord.Name);
-  RemoveTrailingSpaces(strncpy(AddRecord.Title,NullToEmpty(Title),sizeof(AddRecord.Title)-1));
+  strncpy(AddRecord.Title,NullToEmpty(Title),sizeof(AddRecord.Title)-1);
+  RemoveTrailingSpaces(AddRecord.Title);
   AddRecord.Type=Type;
 
   int OldLastPtr=LastPtr-1;
@@ -172,14 +209,23 @@ void History::AddToHistoryLocal(char *Str,char *Title,int Type)
     int I, J;
     for (PtrLastStr=LastStr,I=0; I < HISTORY_COUNT; I++, PtrLastStr++)
     {
-      if(PtrLastStr->Name && AddRecord.Type==PtrLastStr->Type)
+      if(PtrLastStr->Name && EqualType(AddRecord.Type,PtrLastStr->Type))
       {
-        int Equal=RemoveDups==1 &&
-                  strcmp(AddRecord.Name,PtrLastStr->Name)==0 &&
-                  strcmp(AddRecord.Title,PtrLastStr->Title)==0 ||
-                  RemoveDups==2 &&
-                  LocalStricmp(AddRecord.Name,PtrLastStr->Name)==0 &&
-                  LocalStricmp(AddRecord.Title,PtrLastStr->Title)==0;
+        int Equal;
+        if(TypeHistory == HISTORYTYPE_VIEW) // только по файлу и типу
+        {
+           Equal=RemoveDups==1 && strcmp(AddRecord.Name,PtrLastStr->Name)==0 ||
+                 RemoveDups==2 && LocalStricmp(AddRecord.Name,PtrLastStr->Name)==0;
+        }
+        else
+        {
+           Equal=RemoveDups==1 &&
+                   strcmp(AddRecord.Name,PtrLastStr->Name)==0 &&
+                   strcmp(AddRecord.Title,PtrLastStr->Title)==0 ||
+                 RemoveDups==2 &&
+                   LocalStricmp(AddRecord.Name,PtrLastStr->Name)==0 &&
+                   LocalStricmp(AddRecord.Title,PtrLastStr->Title)==0;
+        }
 
         if (Equal)
         {
@@ -213,9 +259,10 @@ void History::AddToHistoryLocal(char *Str,char *Title,int Type)
 
   int Pos=(LastPtr-1) % (HISTORY_COUNT);
 
-  if(LastStr[Pos].Name && (strcmp(AddRecord.Name,LastStr[Pos].Name) != 0 ||
-         strcmp(AddRecord.Title,LastStr[Pos].Title) != 0 ||
-         AddRecord.Type != LastStr[Pos].Type) && LastStr[LastPtr].Name)
+  if(LastStr[Pos].Name && LastStr[LastPtr].Name &&
+      (strcmp(AddRecord.Name,LastStr[Pos].Name) != 0 ||
+        strcmp(AddRecord.Title,LastStr[Pos].Title) != 0 ||
+        !EqualType(AddRecord.Type,LastStr[Pos].Type)))
     free(LastStr[LastPtr].Name);
 
   memcpy(LastStr+LastPtr,&AddRecord,sizeof(HistoryRecord));
@@ -225,7 +272,6 @@ void History::AddToHistoryLocal(char *Str,char *Title,int Type)
 
   CurLastPtr0=LastPtr0=CurLastPtr=LastPtr;
 }
-
 
 /*
   Вначале разберемся с память, а потом... "все или ничего"
@@ -264,7 +310,7 @@ BOOL History::SaveHistory()
 
   BufferLines[SizeLines++]=0;
 
-  if (SaveTitle)
+  if (SaveTitle && TypeHistory != HISTORYTYPE_VIEW)
   {
     BufferTitles=(char*)malloc(HISTORY_COUNT*(HISTORY_TITLESIZE+2));
     if(!BufferTitles)
@@ -290,36 +336,33 @@ BOOL History::SaveHistory()
   }
 
   HKEY hKey;
-  if ((hKey=CreateRegKey(RegKey))==NULL)
+  if ((hKey=CreateRegKey(RegKey))!=NULL)
   {
-    free(BufferTitles);
+    RegSetValueEx(hKey,"Lines",0,REG_BINARY,(unsigned char *)BufferLines,SizeLines);
+
+    if (SaveTitle && BufferTitles)
+      RegSetValueEx(hKey,"Titles",0,REG_BINARY,(unsigned char *)BufferTitles,SizeTitles);
+
+    if (SaveType)
+      RegSetValueEx(hKey,"Types",0,REG_SZ,TypesBuffer,SizeTypes);
+
+    RegSetValueEx(hKey,"Position",0,REG_DWORD,(BYTE *)&CurLastPtr,sizeof(CurLastPtr));
+    RegCloseKey(hKey);
+
+    if (SaveTitle && BufferTitles)
+      free(BufferTitles);
     free(BufferLines);
-    return FALSE;
+
+    return TRUE;
   }
-
-  RegSetValueEx(hKey,"Lines",0,REG_BINARY,(unsigned char *)BufferLines,SizeLines);
-
-  if (SaveTitle)
-    RegSetValueEx(hKey,"Titles",0,REG_BINARY,(unsigned char *)BufferTitles,SizeTitles);
-
-  if (SaveType)
-    RegSetValueEx(hKey,"Types",0,REG_SZ,TypesBuffer,SizeTypes);
-
-  RegSetValueEx(hKey,"Position",0,REG_DWORD,(BYTE *)&CurLastPtr,sizeof(CurLastPtr));
-  RegCloseKey(hKey);
-
-  if (SaveTitle)
-    free(BufferTitles);
-  free(BufferLines);
-
-  return TRUE;
+  return FALSE;
 }
 
 
 BOOL History::ReadHistory()
 {
-  int NeedSaveTitle=SaveTitle && CheckRegValue(RegKey,"Titles");
-  int NeedSaveType =SaveTitle && CheckRegValue(RegKey,"Types");
+  int NeedReadTitle=SaveTitle && CheckRegValue(RegKey,"Titles");
+  int NeedReadType =SaveType  && CheckRegValue(RegKey,"Types");
 
   HKEY hKey;
   if ((hKey=OpenRegKey(RegKey))==NULL)
@@ -367,7 +410,7 @@ BOOL History::ReadHistory()
     return FALSE;
   }
 
-  if (NeedSaveTitle)
+  if (NeedReadTitle)
   {
     Size=GetRegKeySize(hKey,"Titles");
     if((Buf=(char*)realloc(Buffer,Size)) == NULL)
@@ -400,7 +443,7 @@ BOOL History::ReadHistory()
   }
   free(Buffer);
 
-  if (NeedSaveType)
+  if (NeedReadType)
   {
     unsigned char TypesBuffer[HISTORY_COUNT+1];
     Size=sizeof(TypesBuffer);
@@ -429,6 +472,9 @@ BOOL History::ReadHistory()
 
   LastPtr0=CurLastPtr0=LastPtr=CurLastPtr;
 
+  if(TypeHistory == HISTORYTYPE_VIEW)
+    ReloadTitle();
+
   return TRUE;
 }
 
@@ -437,9 +483,8 @@ int History::Select(char *Title,char *HelpTopic,char *Str,int StrLength,int &Typ
 {
   struct MenuItem HistoryItem;
 
-  int Line,Code,I,Height=ScrY-8,StrPos;
+  int Code,I,Height=ScrY-8,StrPos,IsUpdate;
   unsigned int CurCmd;
-  int LineToStr[HISTORY_COUNT+1];
   int RetCode=1;
 
   {
@@ -452,99 +497,137 @@ int History::Select(char *Title,char *HelpTopic,char *Str,int StrLength,int &Typ
     if (HelpTopic!=NULL)
       HistoryMenu.SetHelp(HelpTopic);
     HistoryMenu.SetPosition(-1,-1,0,0);
-
-    for (CurCmd=LastPtr+1, Line=0, I=0; I < HISTORY_COUNT-1; I++, CurCmd++)
-    {
-      CurCmd%=HISTORY_COUNT;
-      if (LastStr[CurCmd].Name && *LastStr[CurCmd].Name)
-      {
-        char Record[2048];
-        if (*LastStr[CurCmd].Title)
-          sprintf(Record,"%s: %s",LastStr[CurCmd].Title,LastStr[CurCmd].Name);
-        else
-          strcpy(Record,LastStr[CurCmd].Name);
-        TruncStr(Record,Min(ScrX-12,(int)sizeof(HistoryItem.Name)-1));
-        memset(&HistoryItem,0,sizeof(HistoryItem));
-        strncpy(HistoryItem.Name,Record,sizeof(HistoryItem.Name)-1);
-        HistoryItem.SetSelect(CurCmd==CurLastPtr);
-        LineToStr[Line++]=CurCmd;
-        HistoryMenu.AddItem(&HistoryItem);
-      }
-    }
-
-    //sprintf(HistoryItem.Name,"%20s","");
-    memset(&HistoryItem,0,sizeof(HistoryItem));
-    memset(HistoryItem.Name,' ',20);HistoryItem.Name[20]=0;
-    HistoryItem.SetSelect(CurLastPtr==LastPtr);
-    LineToStr[Line]=-1;
-    HistoryMenu.AddItem(&HistoryItem);
     HistoryMenu.AssignHighlights(TRUE);
-    HistoryMenu.Show();
+    int Done=FALSE;
 
-    while (!HistoryMenu.Done())
+    while(!Done)
     {
-      int Key=HistoryMenu.ReadInput();
-      StrPos=HistoryMenu.GetSelectPos();
-      if (Key==KEY_CTRLENTER || Key==KEY_SHIFTENTER)
+      IsUpdate=FALSE;
+      HistoryMenu.DeleteItems();
+      HistoryMenu.Modal::ClearDone();
+      HistoryMenu.SetPosition(-1,-1,0,0);
+
+      // заполнение пунктов меню
+      for (CurCmd=LastPtr+1, I=0; I < HISTORY_COUNT-1; I++, CurCmd++)
       {
-        HistoryMenu.Modal::SetExitCode(StrPos);
-        RetCode=(Key==KEY_SHIFTENTER ? 2 : 3);
-        continue;
-      }
-      switch(Key)
-      {
-        /* $ 09.04.2001 SVS
-           Фича - копирование из истории строки в Clipboard
-        */
-        case KEY_CTRLC:
-        case KEY_CTRLINS:
+        CurCmd%=HISTORY_COUNT;
+
+        if (LastStr[CurCmd].Name && *LastStr[CurCmd].Name)
         {
-          if((Code=LineToStr[StrPos]) != -1)
-            CopyToClipboard(LastStr[Code].Name);
-          break;
-        }
-        /* SVS $ */
-        case KEY_DEL:
-        /* $ 23.07.2001 VVM
-          + Спросить подтверждение перед удалением */
-        {
-          if(HistoryMenu.GetItemCount() > 1 &&
-             (!Opt.Confirm.HistoryClear ||
-              (Opt.Confirm.HistoryClear &&
-              Message(MSG_WARNING,2,
-                   MSG((History::TypeHistory==HISTORYTYPE_CMD?MHistoryTitle:
-                        (History::TypeHistory==HISTORYTYPE_FOLDER?MFolderHistoryTitle:
-                        MViewHistoryTitle))),
-                   MSG(MHistoryClear),
-                   MSG(MClear),MSG(MCancel))==0)))
+          int SizeTrunc=Min(ScrX-12,(int)sizeof(HistoryItem.Name)-1)-2;
+          char Record[2048], *Ptr=Record;
+          if (*LastStr[CurCmd].Title)
           {
-            FreeHistory(TRUE); // память тоже нужно очистить!
-            DeleteRegValue(RegKey,"Lines");
-            DeleteRegValue(RegKey,"Titles");
-            DeleteRegValue(RegKey,"Types");
-            DeleteRegValue(RegKey,"Position");
-            HistoryMenu.Hide();
-            return(Select(Title,HelpTopic,Str,StrLength,Type));
-          } /* if */
-          break;
+            sprintf(Record,"%s:%c",LastStr[CurCmd].Title,(LastStr[CurCmd].Type==4?'-':' '));
+            Ptr=Record+strlen(Record);
+            strcat(Record,LastStr[CurCmd].Name);
+          }
+          else
+            strcpy(Record,LastStr[CurCmd].Name);
+
+          TruncPathStr(Ptr,SizeTrunc);
+          memset(&HistoryItem,0,sizeof(HistoryItem));
+          strncpy(HistoryItem.Name,Record,sizeof(HistoryItem.Name)-1);
+          HistoryItem.SetSelect(CurCmd==CurLastPtr);
+          HistoryMenu.SetUserData((void*)CurCmd,sizeof(DWORD),
+                                 HistoryMenu.AddItem(&HistoryItem));
         }
-        /* VVM $ */
-        default:
-          HistoryMenu.ProcessInput();
-          break;
       }
+
+      memset(&HistoryItem,0,sizeof(HistoryItem));
+      memset(HistoryItem.Name,' ',20);HistoryItem.Name[20]=0;
+      HistoryItem.SetSelect(CurLastPtr==LastPtr);
+      HistoryMenu.SetUserData((void*)-1,sizeof(DWORD),
+           HistoryMenu.AddItem(&HistoryItem));
+
+      HistoryMenu.Show();
+      while (!HistoryMenu.Done())
+      {
+        int Key=HistoryMenu.ReadInput();
+        StrPos=HistoryMenu.GetSelectPos();
+
+        switch(Key)
+        {
+          case KEY_CTRLENTER:
+          case KEY_SHIFTENTER:
+          {
+            HistoryMenu.Modal::SetExitCode(StrPos);
+            Done=TRUE;
+            RetCode=(Key==KEY_SHIFTENTER ? 2 : 3);
+            break;
+          }
+
+          case KEY_F3:
+          case KEY_F4:
+          case KEY_NUMPAD5:
+          {
+            HistoryMenu.Modal::SetExitCode(StrPos);
+            Done=TRUE;
+            RetCode=(Key==KEY_F4? 5 : 4);
+            break;
+          }
+          /* $ 09.04.2001 SVS
+             Фича - копирование из истории строки в Clipboard
+          */
+          case KEY_CTRLC:
+          case KEY_CTRLINS:
+          {
+            Code=(int)HistoryMenu.GetUserData(NULL,sizeof(DWORD),StrPos);
+            if(Code != -1)
+              CopyToClipboard(LastStr[Code].Name);
+            break;
+          }
+          /* SVS $ */
+          case KEY_DEL:
+          /* $ 23.07.2001 VVM
+            + Спросить подтверждение перед удалением */
+          {
+            if(HistoryMenu.GetItemCount() > 1 &&
+               (!Opt.Confirm.HistoryClear ||
+                (Opt.Confirm.HistoryClear &&
+                Message(MSG_WARNING,2,
+                     MSG((History::TypeHistory==HISTORYTYPE_CMD?MHistoryTitle:
+                          (History::TypeHistory==HISTORYTYPE_FOLDER?MFolderHistoryTitle:
+                          MViewHistoryTitle))),
+                     MSG(MHistoryClear),
+                     MSG(MClear),MSG(MCancel))==0)))
+            {
+              HistoryMenu.Hide();
+              FreeHistory(TRUE); // память тоже нужно очистить!
+              HistoryMenu.Modal::SetExitCode(StrPos);
+              HistoryMenu.SetUpdateRequired(TRUE);
+              IsUpdate=TRUE; //??
+            } /* if */
+            break;
+          }
+
+          /* VVM $ */
+          default:
+            HistoryMenu.ProcessInput();
+            break;
+        }
+      }
+      if(IsUpdate)
+        continue;
+
+      Done=TRUE;
+      Code=HistoryMenu.Modal::GetExitCode();
+      if (Code<0)
+        StrPos=-1;
+      else
+        StrPos=(int)HistoryMenu.GetUserData(NULL,sizeof(StrPos),Code);
     }
-    if ((Code=HistoryMenu.Modal::GetExitCode())<0)
-      return(0);
   }
 
-  if (LineToStr[Code]==-1)
+  if(Code < 0)
+    return 0;
+
+  if (StrPos == -1)
   {
     CurLastPtr0=LastPtr0=CurLastPtr=LastPtr;
-    return(0);
+    return 0;
   }
 
-  StrPos=LineToStr[Code];
   if (KeepSelectedPos)
     CurLastPtr0=CurLastPtr=StrPos;
 
@@ -552,12 +635,20 @@ int History::Select(char *Title,char *HelpTopic,char *Str,int StrLength,int &Typ
   if(LastStr[StrPos].Name)
     strncpy(Str,LastStr[StrPos].Name,StrLength-1);
 
-  Type=LastStr[StrPos].Type;
+  if(RetCode < 4)
+    Type=LastStr[StrPos].Type;
+  else
+  {
+    Type=RetCode-4;
+    if(Type == 1 && LastStr[StrPos].Type == 4) //????
+      Type=4;                                  //????
+    RetCode=1;
+  }
 
   if (ItemTitle!=NULL)
     strcpy(ItemTitle,LastStr[StrPos].Title);
 
-  return(RetCode);
+  return RetCode;
 }
 
 
@@ -634,4 +725,9 @@ void History::SetAddMode(int EnableAdd,int RemoveDups,int KeepSelectedPos)
   History::EnableAdd=EnableAdd;
   History::RemoveDups=RemoveDups;
   History::KeepSelectedPos=KeepSelectedPos;
+}
+
+BOOL History::EqualType(int Type1, int Type2)
+{
+  return Type1 == Type2 || (TypeHistory == HISTORYTYPE_VIEW && (Type1 == 4 && Type2 == 1 || (Type1 == 1 && Type2 == 4)))?TRUE:FALSE;
 }

@@ -5,10 +5,13 @@ config.cpp
 
 */
 
-/* Revision: 1.130 14.03.2002 $ */
+/* Revision: 1.132 18.03.2002 $ */
 
 /*
 Modify:
+  18.03.2002 SVS
+    ! Уточнения, в связи с введением Opt.Dialogs
+    + Opt.Dialogs.SelectedType
   14.03.2002 IS
     ! Когда избавлялись от двойного отрицания получилась путаница с опцией
       "Блокировать редактирование файлов с атрибутом R/O"
@@ -709,8 +712,8 @@ void InterfaceSettings()
     CfgDlg[DLG_INTERF_SCREENSAVERTIME].Flags|=DIF_DISABLE;
     CfgDlg[DLG_INTERF_SAVERMINUTES].Flags|=DIF_DISABLE;
   }
-  CfgDlg[DLG_INTERF_DIALOGSEDITHISTORY].Selected=Opt.DialogsEditHistory;
-  CfgDlg[DLG_INTERF_DIALOGSEDITBLOCK].Selected=Opt.DialogsEditBlock;
+  CfgDlg[DLG_INTERF_DIALOGSEDITHISTORY].Selected=Opt.Dialogs.EditHistory;
+  CfgDlg[DLG_INTERF_DIALOGSEDITBLOCK].Selected=Opt.Dialogs.EditBlock;
   CfgDlg[DLG_INTERF_USEPROMPTFORMAT].Selected=Opt.UsePromptFormat;
   strcpy(CfgDlg[DLG_INTERF_PROMPTFORMAT].Data,Opt.PromptFormat);
   if(!Opt.UsePromptFormat)
@@ -720,7 +723,7 @@ void InterfaceSettings()
 
   CfgDlg[DLG_INTERF_COPYTIMERULE].Selected=Opt.CopyTimeRule!=0;
 
-  CfgDlg[DLG_INTERF_AUTOCOMPLETE].Selected=Opt.AutoComplete;
+  CfgDlg[DLG_INTERF_AUTOCOMPLETE].Selected=Opt.Dialogs.AutoComplete;
   CfgDlg[DLG_INTERF_PGUPCHANGEDISK].Selected=Opt.PgUpChangeDisk;
 
   {
@@ -743,15 +746,15 @@ void InterfaceSettings()
   Opt.ShowKeyBar=CfgDlg[DLG_INTERF_SHOWKEYBAR].Selected;
   Opt.ShowMenuBar=CfgDlg[DLG_INTERF_SHOWMENUBAR].Selected;
   Opt.ScreenSaver=CfgDlg[DLG_INTERF_SCREENSAVER].Selected;
-  Opt.DialogsEditHistory=CfgDlg[DLG_INTERF_DIALOGSEDITHISTORY].Selected;
-  Opt.DialogsEditBlock=CfgDlg[DLG_INTERF_DIALOGSEDITBLOCK].Selected;
+  Opt.Dialogs.EditHistory=CfgDlg[DLG_INTERF_DIALOGSEDITHISTORY].Selected;
+  Opt.Dialogs.EditBlock=CfgDlg[DLG_INTERF_DIALOGSEDITBLOCK].Selected;
   if ((Opt.ScreenSaverTime=atoi(CfgDlg[DLG_INTERF_SCREENSAVERTIME].Data))<=0)
     Opt.ScreenSaver=Opt.ScreenSaverTime=0;
   Opt.UsePromptFormat=CfgDlg[DLG_INTERF_USEPROMPTFORMAT].Selected;
   strncpy(Opt.PromptFormat,CfgDlg[DLG_INTERF_PROMPTFORMAT].Data,sizeof(Opt.PromptFormat)-1);
   Opt.AltGr=CfgDlg[DLG_INTERF_ALTGR].Selected;
   Opt.CopyShowTotal=CfgDlg[DLG_INTERF_COPYSHOWTOTAL].Selected;
-  Opt.AutoComplete=CfgDlg[DLG_INTERF_AUTOCOMPLETE].Selected;
+  Opt.Dialogs.AutoComplete=CfgDlg[DLG_INTERF_AUTOCOMPLETE].Selected;
   Opt.PgUpChangeDisk=CfgDlg[DLG_INTERF_PGUPCHANGEDISK].Selected;
   Opt.CopyTimeRule=0;
   if(CfgDlg[DLG_INTERF_COPYTIMERULE].Selected)
@@ -768,7 +771,7 @@ void InterfaceSettings()
   CtrlObject->Cp()->Redraw();
   /* SKV$*/
   /* $ 09.09.2001 IS обновим настройки ком.строки */
-  CtrlObject->CmdLine->SetPersistentBlocks(Opt.DialogsEditBlock);
+  CtrlObject->CmdLine->SetPersistentBlocks(Opt.Dialogs.EditBlock);
   /* IS $ */
 }
 /* IS 17.12.2001 $ */
@@ -1195,13 +1198,13 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyScreen, "UsePromptFormat", &Opt.UsePromptFormat,0, 0},
   {1, REG_SZ,     NKeyScreen, "PromptFormat",Opt.PromptFormat,sizeof(Opt.PromptFormat),"$p>"},
 
-  {1, REG_DWORD,  NKeyInterface, "DialogsEditHistory",&Opt.DialogsEditHistory,1, 0},
-  {1, REG_DWORD,  NKeyInterface, "DialogsEditBlock",&Opt.DialogsEditBlock,0, 0},
+  {1, REG_DWORD,  NKeyInterface, "DialogsEditHistory",&Opt.Dialogs.EditHistory,1, 0},
+  {1, REG_DWORD,  NKeyInterface, "DialogsEditBlock",&Opt.Dialogs.EditBlock,0, 0},
   {1, REG_DWORD,  NKeyInterface, "Mouse",&Opt.Mouse,1, 0},
   {1, REG_DWORD,  NKeyInterface, "AltGr",&Opt.AltGr,1, 0},
   {1, REG_DWORD,  NKeyInterface, "CopyShowTotal",&Opt.CopyShowTotal,0, 0},
   {1, REG_DWORD,  NKeyInterface, "ShowMenuBar",&Opt.ShowMenuBar,0, 0},
-  {1, REG_DWORD,  NKeyInterface, "AutoComplete",&Opt.AutoComplete,1, 0},
+  {1, REG_DWORD,  NKeyInterface, "AutoComplete",&Opt.Dialogs.AutoComplete,1, 0},
   {0, REG_DWORD,  NKeyInterface, "CursorSize1",&Opt.CursorSize[0],15, 0},
   {0, REG_DWORD,  NKeyInterface, "CursorSize2",&Opt.CursorSize[1],10, 0},
   {0, REG_DWORD,  NKeyInterface, "CursorSize3",&Opt.CursorSize[2],99, 0},
@@ -1227,8 +1230,9 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyViewer,"IsWrap",&Opt.ViewerIsWrap,1, 0},
   {1, REG_DWORD,  NKeyViewer,"Wrap",&Opt.ViewerWrap,0, 0},
 
-  {0, REG_DWORD,  NKeyDialog,"EULBsClear",&Opt.DlgEULBsClear,0, 0},
-  {0, REG_DWORD,  NKeyDialog,"SelectFromHistory",&Opt.DlgSelectFromHistory,0, 0},
+  {0, REG_DWORD,  NKeyDialog,"EULBsClear",&Opt.Dialogs.EULBsClear,0, 0},
+  {0, REG_DWORD,  NKeyDialog,"SelectFromHistory",&Opt.Dialogs.SelectFromHistory,0, 0},
+  {0, REG_DWORD,  NKeyDialog,"SelectedType",&Opt.Dialogs.SelectedType,0, 0},
 
   {1, REG_SZ,     NKeyEditor,"ExternalEditorName",Opt.ExternalEditor,sizeof(Opt.ExternalEditor),""},
   {1, REG_DWORD,  NKeyEditor,"UseExternalEditor",&Opt.UseExternalEditor,0, 0},

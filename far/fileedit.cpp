@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.91 26.02.2002 $ */
+/* Revision: 1.92 18.03.2002 $ */
 
 /*
 Modify:
+  18.03.2002 SVS
+    + SetLockEditor() - возможноть программно лочить редактор
   26.02.2002 VVM
     ! При поиске папки (запись файла) учтем корень диска или "текущий каталог"
   09.02.2002 VVM
@@ -1120,7 +1122,8 @@ void FileEditor::OnDestroy()
 {
   _OT(SysLog("[%p] FileEditor::OnDestroy()",this));
   if (!DisableHistory)
-    CtrlObject->ViewHistory->AddToHistory(FullFileName,MSG(MHistoryEdit),1);
+    CtrlObject->ViewHistory->AddToHistory(FullFileName,MSG(MHistoryEdit),
+                  (FEdit.EFlags.Check(FEDITOR_LOCKMODE)?4:1));
   /* $ 19.10.2001 OT
   */
   if (CtrlObject->Plugins.CurEditor==this)//&this->FEdit)
@@ -1143,6 +1146,14 @@ int FileEditor::GetCanLoseFocus(int DynamicMode)
     return CanLoseFocus;
   }
   return TRUE;
+}
+
+void FileEditor::SetLockEditor(BOOL LockMode)
+{
+  if(LockMode)
+    FEdit.EFlags.Set(FEDITOR_LOCKMODE);
+  else
+    FEdit.EFlags.Skip(FEDITOR_LOCKMODE);
 }
 
 int FileEditor::FastHide()

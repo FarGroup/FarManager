@@ -5,10 +5,12 @@ filetype.cpp
 
 */
 
-/* Revision: 1.36 05.03.2002 $ */
+/* Revision: 1.37 18.03.2002 $ */
 
 /*
 Modify:
+  18.03.2002 SVS
+    ! Мааааханькое уточнение (про историю)
   05.03.2002 DJ
     - передадим размер буфера в SubstFileName
   14.02.2002 VVM
@@ -501,7 +503,7 @@ void ProcessExternal(char *Command,char *Name,char *ShortName,int AlwaysWaitFini
     if (!ExtractIfExistCommand (FullExecStr))
       return;
     /* DJ $ */
-    CtrlObject->ViewHistory->AddToHistory(FullExecStr,MSG(MHistoryExt),AlwaysWaitFinish+2);
+    CtrlObject->ViewHistory->AddToHistory(FullExecStr,MSG(MHistoryExt),(AlwaysWaitFinish&1)+2);
 
     if (*ExecStr!='@')
       CtrlObject->CmdLine->ExecString(ExecStr,AlwaysWaitFinish);

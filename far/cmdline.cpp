@@ -5,10 +5,13 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.51 06.03.2002 $ */
+/* Revision: 1.52 18.03.2002 $ */
 
 /*
 Modify:
+  18.03.2002 SVS
+    ! Уточнения, в связи с введением Opt.Dialogs
+    ! Немного оптимизации и комментариния кода
   06.03.2002 SVS
     ! У функций Истории появились доп.параметры
   28.02.2002 SVS
@@ -156,7 +159,7 @@ CommandLine::CommandLine()
 {
   *CurDir=0;
   CmdStr.SetEditBeyondEnd(FALSE);
-  SetPersistentBlocks(Opt.DialogsEditBlock);
+  SetPersistentBlocks(Opt.Dialogs.EditBlock);
   LastCmdPartLength=-1;
   *LastCmdStr=0;
   BackgroundScreen=NULL;
@@ -259,23 +262,12 @@ int CommandLine::ProcessKey(int Key)
         /* $ 19.09.2000 SVS
            - При выборе из History (по Alt-F8) плагин не получал управление!
         */
-        switch(CtrlObject->CmdHistory->Select(MSG(MHistoryTitle),"History",Str,sizeof(Str),Type))
+        int SelectType=CtrlObject->CmdHistory->Select(MSG(MHistoryTitle),"History",Str,sizeof(Str),Type);
+        if(SelectType > 0 && SelectType <= 3)
         {
-          case 1:
-            SetString(Str);
-            ProcessKey(KEY_ENTER);
-            //ExecString(Str,FALSE,FALSE);
-            //CtrlObject->CmdHistory->AddToHistory(Str);
-            break;
-          case 2:
-            SetString(Str);
-            ProcessKey(KEY_SHIFTENTER);
-            //ExecString(Str,FALSE,TRUE);
-            //CtrlObject->CmdHistory->AddToHistory(Str);
-            break;
-          case 3:
-            SetString(Str);
-            break;
+          SetString(Str);
+          if(SelectType < 3)
+            ProcessKey(SelectType==1?KEY_ENTER:KEY_SHIFTENTER);
         }
         /* SVS $ */
       }
@@ -314,8 +306,15 @@ int CommandLine::ProcessKey(int Key)
       return(TRUE);
     case KEY_ALTF12:
       {
-        int Type,SelectType;
-        if ((SelectType=CtrlObject->FolderHistory->Select(MSG(MFolderHistoryTitle),"HistoryFolders",Str,sizeof(Str),Type))==1 || SelectType==2)
+        int Type;
+        int SelectType=CtrlObject->FolderHistory->Select(MSG(MFolderHistoryTitle),"HistoryFolders",Str,sizeof(Str),Type);
+        /*
+           SelectType = 0 - Esc
+                        1 - Enter
+                        2 - Shift-Enter
+                        3 - Ctrl-Enter
+        */
+        if (SelectType == 1 || SelectType == 2)
         {
           if (SelectType==2)
             CtrlObject->FolderHistory->SetAddMode(FALSE,2,TRUE);
@@ -522,9 +521,18 @@ void CommandLine::GetPrompt(char *DestStr)
 
 void CommandLine::ShowViewEditHistory()
 {
-  char Str[1024],ItemTitle[256];
-  int Type,SelectType;
-  if ((SelectType=CtrlObject->ViewHistory->Select(MSG(MViewHistoryTitle),"HistoryViews",Str,sizeof(Str),Type,ItemTitle))==1 || SelectType==2)
+  char Str[1024], ItemTitle[256];
+  int Type;
+
+  int SelectType=CtrlObject->ViewHistory->Select(MSG(MViewHistoryTitle),"HistoryViews",Str,sizeof(Str),Type,ItemTitle);
+  /*
+     SelectType = 0 - Esc
+                  1 - Enter
+                  2 - Shift-Enter
+                  3 - Ctrl-Enter
+  */
+
+  if (SelectType == 1 || SelectType == 2)
   {
     if (SelectType!=2)
       CtrlObject->ViewHistory->AddToHistory(Str,ItemTitle,Type);
@@ -532,14 +540,24 @@ void CommandLine::ShowViewEditHistory()
 
     switch(Type)
     {
-    case 0:
-      new FileViewer(Str,TRUE);
-      break;
-    case 1:
-      new FileEditor(Str,FALSE,TRUE);
-      break;
-    case 2:
-    case 3:
+      case 0: // вьювер
+      {
+        new FileViewer(Str,TRUE);
+        break;
+      }
+
+      case 1: // обычное открытие в редакторе
+      case 4: // открытие с локом
+      {
+        FileEditor *FEdit=new FileEditor(Str,FALSE,TRUE);
+        if(Type == 4)
+           FEdit->SetLockEditor(TRUE);
+        break;
+      }
+
+      // 2 и 3 - заполняется в ProcessExternal
+      case 2:
+      case 3:
       {
         if (*Str!='@')
           ExecString(Str,Type-2);
@@ -556,7 +574,7 @@ void CommandLine::ShowViewEditHistory()
     CtrlObject->ViewHistory->SetAddMode(TRUE,Opt.FlagPosixSemantics?1:2,TRUE);
   }
   else
-    if (SelectType==3)
+    if (SelectType==3) // скинуть из истории в ком.строку?
       SetString(Str);
 }
 

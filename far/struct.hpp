@@ -7,10 +7,14 @@ struct.hpp
 
 */
 
-/* Revision: 1.83 12.03.2002 $ */
+/* Revision: 1.84 18.03.2002 $ */
 
 /*
 Modify:
+  18.03.2002 SVS
+    ! Опции, ответственные за диалоги вынесены в отдельную
+      структуру DialogsOptions
+    + Opt.Dialogs.SelectedType
   12.03.2002 VVM
     + Opt.EscTwiceToInterrupt
       Определяет поведение при прерывании длительной операции
@@ -365,6 +369,7 @@ struct EditorOptions
   int DelRemovesBlocks;
   int AutoIndent;
   int AutoDetectTable;
+  int AnsiTableForNewFile;
   int CursorBeyondEOL;
   int BSLikeDel;
   int CharCodeBase;
@@ -394,6 +399,16 @@ struct PoliciesOptions {
   int ShowHiddenDrives; // показывать скрытые логические диски
 };
 
+struct DialogsOptions{
+  int   EditHistory;        // Постоянные блоки в строках ввода
+  int   EditBlock;          // Разрешение для функции автозавершения в строках ввода в диалогах имеющих History
+  int   AutoComplete;       // Разрешено автодополнение?
+  int   EULBsClear;         // = 1 - BS в диалогах для UnChanged строки удаляет такую строку также, как и Del
+  int   SelectFromHistory;  // = 0 then (ctrl-down в строке с историей курсор устанавливался на самую верхнюю строку)
+  DWORD SelectedType;       // позволяет управлять выделением в строках ввода в диалогах.
+};
+
+
 struct Options
 {
   /* $ 03.08.2000 SVS
@@ -407,11 +422,6 @@ struct Options
   int ShowKeyBar;
   int ScreenSaver;
   int ScreenSaverTime;
-  int DialogsEditHistory;
-  /* $ 08.09.2001 VVM
-    + Постоянные блоки в строках ввода */
-  int DialogsEditBlock;
-  /* VVM $ */
   int UsePromptFormat;
   char PromptFormat[80];
   int AltGr;
@@ -538,12 +548,6 @@ struct Options
   */
   char PersonalPluginsPath[1024];
   /* SVS $*/
-  /* $ 26.07.2000 SVS
-     Разрешение для функции автозавершения в строках ввода в диалогах
-     имеющих History
-  */
-  int AutoComplete;
-  /* SVS $*/
   /* $ 31.08.2000 SVS
      Добавлена переменная Options.ViewerTypeWrap
   */
@@ -559,13 +563,6 @@ struct Options
      seting by '/co' switch, not saved in registry. */
   int PluginsCacheOnly;
   /* tran $ */
-  /* $ 11.09.2000 SVS
-     В Opt добавлена переменная DlgEULBsClear
-     если = 1, то BS в диалогах для UnChanged строки удаляет такую
-     строку также, как и Del
-  */
-  int DlgEULBsClear;
-  /* SVS $*/
   /* $ 12.09.2000 SVS
    + Opt.PanelRightClickRule задает поведение правой клавиши мыши
      (это по поводу Bug#17)
@@ -715,7 +712,6 @@ struct Options
 
   DWORD LCIDSort;
   int HelpTabSize;
-  int DlgSelectFromHistory;
   int FindFolders;
   int RestoreCPAfterExecute;
 
@@ -723,6 +719,8 @@ struct Options
                   // Highly experimental feature, use at your own risk"
 
   char DateFormat[80]; // Для $Date
+
+  struct DialogsOptions Dialogs;
   struct PoliciesOptions Policies;
 };
 

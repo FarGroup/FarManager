@@ -7,10 +7,12 @@ history.hpp
 
 */
 
-/* Revision: 1.09 06.03.2002 $ */
+/* Revision: 1.10 18.03.2002 $ */
 
 /*
 Modify:
+  18.03.2002 SVS
+    + ReloadTitle() и EqualType()
   06.03.2002 SVS
     ! Косметика имени параметра у FreeHistory() - рука дрогнула :-)
     ! У функций Истории появились доп.параметры
@@ -71,6 +73,7 @@ class History
   private:
     void AddToHistoryLocal(char *Str,char *Title,int Type);
     void FreeHistory(BOOL FreeMemory=FALSE);
+    BOOL EqualType(int Type1, int Type2);
 
   public:
     History(int TypeHistory,char *RegKey,int *EnableSave,int SaveTitle,int SaveType);
@@ -86,6 +89,7 @@ class History
     void SetFirst() {LastPtr=LastPtr0;CurLastPtr=CurLastPtr0;}
     void GetSimilar(char *Str,int LastCmdPartLength);
     void SetAddMode(int EnableAdd,int RemoveDups,int KeepSelectedPos);
+    void ReloadTitle();
 };
 
 #endif  // __HISTORY_HPP__
