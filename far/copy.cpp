@@ -5,10 +5,14 @@ copy.cpp
 
 */
 
-/* Revision: 1.06 04.08.2000 $ */
+/* Revision: 1.07 09.08.2000 $ */
 
 /*
 Modify:
+  09.08.2000 KM
+   ! Добавлена проверка на режим перемещения диалога
+     в ShellCopy::ShellCopy, чтобы избежать в этом режиме
+     возможность вызова дерева каталогов.
   04.08.2000 SVS
    + Опция "Only newer file(s)"
   01.08.2000 tran 1.05
@@ -206,6 +210,18 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
       while (!Dlg.Done())
       {
         int Key=Dlg.ReadInput();
+        /* $ 09.08.2000 KM
+           Добавление проверки на режим перемещения
+           диалога, чтобы отменить в этом режиме работу дерева
+           каталогов, а то как-то некузяво выходит - диалог
+           перемещается, а дерево вызывается.
+        */
+        if (Dlg.IsMoving())
+        {
+          Dlg.ProcessInput();
+          continue;
+        }
+        /* KM $ */
         switch(Key)
         {
           case KEY_F10:

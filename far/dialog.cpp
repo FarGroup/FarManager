@@ -5,10 +5,21 @@ dialog.cpp
 
 */
 
-/* Revision: 1.15 07.08.2000 $ */
+/* Revision: 1.16 09.08.2000 $ */
 
 /*
 Modify:
+  09.08.2000 KM
+   ! При включении режима перемещения диалога добавлено
+     отключение мигающего курсора. Так косметика.
+   ! Поправлено перемещение диалога мышкой, Андрей-то не захотел
+     исправлять :). Теперь перемещение стало корректным, без прокатывания
+     диалога по экрану.
+   ! При выходе за край экрана диалогом, тень, по возможности, продолжает
+     рисоваться.
+
+     Номер редакции остался прежним - здесь было
+     забегание вперёд.
   07.08.2000 SVS
    + В Функции выравнивания кооржинат про ListBox забыли!
   04.08.2000 SVS
@@ -676,11 +687,23 @@ void Dialog::ShowDialog()
 
         if (CurItem->Focus)
         {
-          SetCursorType(1,-1);
+          /* $ 09.08.2000 KM
+             Отключение мигающего курсора при перемещении диалога
+          */
+          if (!Dragged)
+            SetCursorType(1,-1);
           EditPtr->Show();
+          /* KM $ */
         }
         else
           EditPtr->FastShow();
+
+        /* $ 09.08.2000 KM
+           Отключение мигающего курсора при перемещении диалога
+        */
+        if (Dragged)
+          SetCursorType(FALSE,0);
+        /* KM $ */
 
         if (CurItem->History &&
              ((CurItem->Flags & DIF_HISTORY) &&
@@ -741,8 +764,13 @@ void Dialog::ShowDialog()
 
         if (CurItem->Focus)
         {
-          SetCursorType(1,-1);
+          /* $ 09.08.2000 KM
+             Отключение мигающего курсора при перемещении диалога
+          */
+          if (!Dragged)
+            SetCursorType(1,-1);
           MoveCursor(X1+CurItem->X1+1,Y1+CurItem->Y1);
+          /* KM $ */
         }
 
         break;
@@ -1530,28 +1558,46 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
     Dragged=1;
     OldX1=X1; OldX2=X2; OldY1=Y1; OldY2=Y2;
+    /* $ 09.08.2000 KM
+       Переменные для сохранения последних координат мыши.
+       А то без этого диалог катается по экрану, как намазанный
+       маслом и без тормозов.
+    */
+    static int oldmx=-1,oldmy=-1;
+    /* KM $ */
     while (1)
     {
         int mb=IsMouseButtonPressed();
         int mx,my;
         if ( mb==1 ) // left key, still dragging
         {
-            Hide();
-            mx=MouseX-PrevMouseX;
-            my=MouseY-PrevMouseY;
-            if ( X1+mx>=0 && X2+mx<=ScrX )
+            /* $ 09.08.2000 KM
+               А здесь собственно проверка на одинаковость
+               предыдущих мышиных координат и если да, то
+               уходим отсюда нафиг.
+            */
+            if (oldmx!=MouseX || oldmy!=MouseY)
             {
-                X1+=mx;
-                X2+=mx;
-                AdjustEditPos(mx,0);
+              Hide();
+              oldmx=MouseX;
+              oldmy=MouseY;
+              mx=MouseX-PrevMouseX;
+              my=MouseY-PrevMouseY;
+              if ( X1+mx>=0 && X2+mx<=ScrX )
+              {
+                  X1+=mx;
+                  X2+=mx;
+                  AdjustEditPos(mx,0);
+              }
+              if ( Y1+my>=0 && Y2+my<=ScrY )
+              {
+                  Y1+=my;
+                  Y2+=my;
+                  AdjustEditPos(0,my);
+              }
+              Show();
             }
-            if ( Y1+my>=0 && Y2+my<=ScrY )
-            {
-                Y1+=my;
-                Y2+=my;
-                AdjustEditPos(0,my);
-            }
-            Show();
+            /* KM $ */
         }
         else if (mb==2) // right key, abort
         {
@@ -1561,12 +1607,32 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
             X2=OldX2;
             Y1=OldY1;
             Y2=OldY2;
+            /* $ 09.08.2000 KM
+               Ну а после выхода из режима перемещения поставим-ка мы
+               координаты мышки снова заэкранными, чтобы не попасть в
+               ситуацию когда дрэг мышкой при тех-же координатах не
+               сработает. Пример: нажали мышкой на диалоге, отпустили,
+               не меняя положения снова нажали, оп-па не сработало...
+               Вот именно для этого.
+            */
+            oldmx=-1,oldmy=-1;
+            /* KM $ */
             Dragged=0;
             Show();
             break;
         }
         else  // release key, drop dialog
         {
+            /* $ 09.08.2000 KM
+               Ну а после выхода из режима перемещения поставим-ка мы
+               координаты мышки снова заэкранными, чтобы не попасть в
+               ситуацию когда дрэг мышкой при тех-же координатах не
+               сработает. Пример: нажали мышкой на диалоге, отпустили,
+               не меняя положения снова нажали, оп-па не сработало...
+               Вот именно для этого.
+            */
+            oldmx=-1,oldmy=-1;
+            /* KM $ */
             Dragged=0;
             Show();
             break;
