@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.16 24.08.2000 $ */
+/* Revision: 1.17 07.09.2000 $ */
 
 /*
 Modify:
+   07.09.2000 KM
+    - Исправление глюка при поиске по целым словам.
    24.08.2000 SVS
     ! У DropDowList`а выделение по полной программе - на всю видимую длину
       ДАЖЕ ЕСЛИ ПУСТАЯ СТРОКА
@@ -1582,14 +1584,21 @@ int Edit::Search(char *Str,int Position,int Case,int WholeWords,int Reverse)
         /* $ 03.08.2000 KM
            Добавлен кусок кода для работы при поиске целых слов
         */
-        if (WholeWords && I>0)
+        if (WholeWords)
         {
           int ChLeft,ChRight;
           int locResultLeft=FALSE;
           int locResultRight=FALSE;
 
           ChLeft=(TableSet==NULL) ? Edit::Str[I-1]:TableSet->DecodeTable[Edit::Str[I-1]];
-          locResultLeft=(ChLeft==' ' || ChLeft=='\t' || strchr(Opt.WordDiv,ChLeft)!=NULL);
+          /* $ 07.09.2000 KM
+             Исправление глюка при поиске по целым словам.
+          */
+          if (I>0)
+            locResultLeft=(ChLeft==' ' || ChLeft=='\t' || strchr(Opt.WordDiv,ChLeft)!=NULL);
+          else
+            locResultLeft=TRUE;
+          /* KM $ */
           if (I+Length<StrSize)
           {
             ChRight=(TableSet==NULL) ? Edit::Str[I+Length]:TableSet->DecodeTable[Edit::Str[I+Length]];
