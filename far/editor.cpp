@@ -6,10 +6,16 @@ editor.cpp
 
 */
 
-/* Revision: 1.45 28.11.2000 $ */
+/* Revision: 1.46 29.11.2000 $ */
 
 /*
 Modify:
+  29.11.2000 SVS
+    + Если файл имеет атрибут ReadOnly или System или Hidden,
+      то сразу лочим файл - естественно отключаемо.
+    + Opt.EditorFileSizeLimit - минимально допустимый размер файла, после
+      которого будет выдан диалог о целесообразности открытия подобного
+      файла на редактирование
   28.11.2000 SVS
     + Opt.EditorF7Rules - Правило на счет поиска в редакторе
       "О, это не ощибка - это свойство моей программы" :-)
@@ -303,6 +309,7 @@ int Editor::ReadFile(char *Name,int &UserBreak)
     }
     return(FALSE);
   }
+
   int EditHandle=_open_osfhandle((long)hEdit,O_BINARY);
   if (EditHandle==-1)
     return(FALSE);
@@ -316,6 +323,40 @@ int Editor::ReadFile(char *Name,int &UserBreak)
     OpenFailed=true;
     return(FALSE);
   }
+
+  /* $ 29.11.2000 SVS
+   + Проверка на минимально допустимый размер файла, после
+     которого будет выдан диалог о целесообразности открытия подобного
+     файла на редактирование
+  */
+  if(Opt.EditorFileSizeLimitLo || Opt.EditorFileSizeLimitHi)
+  {
+    int64 RealSizeFile;
+    RealSizeFile.LowPart=GetFileSize(hEdit,&RealSizeFile.HighPart);
+    if (GetLastError() == NO_ERROR)
+    {
+      int64 NeedSizeFile(Opt.EditorFileSizeLimitHi,Opt.EditorFileSizeLimitLo);
+      if(RealSizeFile > NeedSizeFile &&
+         Message(MSG_WARNING,2,MSG(MEditTitle),Name,MSG(MEditFileLong),
+                             MSG(MEditROOpen),MSG(MYes),MSG(MNo)))
+      {
+        fclose(EditFile);
+        SetLastError(ERROR_OPEN_FAILED);
+        UserBreak=1;
+        OpenFailed=true;
+        return(FALSE);
+      }
+    }
+  }
+  /* SVS $ */
+  /* $ 29.11.2000 SVS
+     Если файл имеет атрибут ReadOnly или System или Hidden,
+     то сразу лочим файл - естественно отключаемо.
+  */
+  if((Opt.EditorReadOnlyLock&1) &&
+    (GetFileAttributes(Name) & (FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM|FILE_ATTRIBUTE_HIDDEN)))
+    LockMode=!LockMode;
+  /* SVS $ */
 
   {
     ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);

@@ -5,10 +5,16 @@ config.cpp
 
 */
 
-/* Revision: 1.37 28.11.2000 $ */
+/* Revision: 1.38 29.11.2000 $ */
 
 /*
 Modify:
+  29.11.2000 SVS
+    + Opt.EditorReadOnlyLock - лочить файл при открытии в редакторе, если
+      он имеет атрибуты R|S|H
+    + Opt.EditorFileSizeLimit - минимально допустимый размер файла, после
+      которого будет выдан диалог о целесообразности открытия подобного
+      файла на редактирование
   28.11.2000 SVS
     + Opt.EditorF7Rules - Правило на счет поиска в редакторе
   27.11.2000 SVS
@@ -753,6 +759,12 @@ void ReadConfig()
   GetRegKey("Editor","SaveEditorShortPos",Opt.SaveEditorShortPos,0);
   GetRegKey("Editor","AutoDetectTable",Opt.EditorAutoDetectTable,0);
   GetRegKey("Editor","EditorCursorBeyondEOL",Opt.EditorCursorBeyondEOL,1);
+  /* $ 29.11.2000 SVS
+   + Opt.EditorReadOnlyLock - лочить файл при открытии в редакторе, если
+     он имеет атрибуты R|S|H
+  */
+  GetRegKey("Editor","ReadOnlyLock",Opt.EditorReadOnlyLock,1);
+  /* SVS $ */
   /* $ 03.08.2000 SVS
      Записать разграничитель слов из реестра
   */
@@ -774,7 +786,14 @@ void ReadConfig()
   */
   GetRegKey("Editor","EditorF7Rules",Opt.EditorF7Rules,1);
   /* SVS $ */
-
+  /* $ 29.11.2000 SVS
+   + Opt.EditorFileSizeLimit - минимально допустимый размер файла, после
+     которого будет выдан диалог о целесообразности открытия подобного
+     файла на редактирование
+  */
+  GetRegKey("Editor","FileSizeLimit",(int&)Opt.EditorFileSizeLimitLo,(DWORD)0);
+  GetRegKey("Editor","FileSizeLimitHi",(int&)Opt.EditorFileSizeLimitHi,(DWORD)0);
+  /* SVS $ */
   /* $ 05.09.2000 SVS
      CodeXLat - описывающая XLat-перекодировщик
   */

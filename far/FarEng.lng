@@ -328,6 +328,10 @@
 "Line"
 "Col"
 
+"is read only file"
+"exceeds the minimally given size"
+"Do you wish edit it?"
+
 "Search"
 "&Search for"
 "&Case sensitive"

@@ -12,10 +12,12 @@ lang.hpp
            подряд.
 */
 
-/* Revision: 1.28 29.11.2000 $ */
+/* Revision: 1.29 29.11.2000 $ */
 
 /*
 Modify:
+  29.11.2000 SVS
+    + MEditROOpen, MEditRSH, MEditFileLong
   29.11.2000 SVS
     + MViewF9: в lng файле почему то нет места для F9 во вьюере -
       недосмотр однако :))
@@ -423,6 +425,10 @@ enum
   MEditSaving,
   MEditStatusLine,
   MEditStatusCol,
+
+  MEditRSH,
+  MEditFileLong,
+  MEditROOpen,
 
   MEditSearchTitle,
   MEditSearchFor,

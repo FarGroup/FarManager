@@ -5,12 +5,15 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.11 16.10.2000 $ */
+/* Revision: 1.12 29.10.2000 $ */
 
 /*
 Modify:
+  29.11.2000 SVS
+    + Если файл имеет атрибут ReadOnly или System или Hidden,
+      И параметр на запрос выставлен, то сначала спросим.
   03.11.2000 OT
-    ! Введение проверки возвращаемого значения 
+    ! Введение проверки возвращаемого значения
   02.11.2000 OT
     ! Введение проверки на длину буфера, отведенного под имя файла.
   16.10.2000 SVS
@@ -83,6 +86,23 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
   if (sizeof(FullFileName)<=ConvertNameToFull(FileName,FullFileName, sizeof(FullFileName))) {
     return;
   }
+
+  /* $ 29.11.2000 SVS
+     Если файл имеет атрибут ReadOnly или System или Hidden,
+     И параметр на запрос выставлен, то сначала спросим.
+  */
+  if((Opt.EditorReadOnlyLock&2) &&
+    (GetFileAttributes(Name) & (FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM|FILE_ATTRIBUTE_HIDDEN)))
+  {
+    if(Message(MSG_WARNING,2,MSG(MEditTitle),Name,MSG(MEditRSH),
+                             MSG(MEditROOpen),MSG(MYes),MSG(MNo)))
+    {
+      //SetLastError(ERROR_ACCESS_DENIED);
+      return;
+    }
+  }
+  /* SVS $ */
+
   if (EnableSwitch)
   {
     int ModalPos=CtrlObject->ModalManager.FindModalByFile(MODALTYPE_EDITOR,FullFileName);

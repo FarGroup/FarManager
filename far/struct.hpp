@@ -7,10 +7,16 @@ struct.hpp
 
 */
 
-/* Revision: 1.27 28.11.2000 $ */
+/* Revision: 1.28 29.11.2000 $ */
 
 /*
 Modify:
+  29.11.2000 SVS
+   + Opt.EditorReadOnlyLock - лочить файл при открытии в редакторе, если
+     он имеет атрибуты R|S|H
+   + Opt.EditorFileSizeLimit - минимально допустимый размер файла, после
+     которого будет выдан диалог о целесообразности открытия подобного
+     файла на редактирование
   28.11.2000 SVS
    + Opt.EditorF7Rules - Правило на счет поиска в редакторе
   27.11.2000 SVS
@@ -268,6 +274,20 @@ struct Options
   int EditorAutoDetectTable;
   int EditorCursorBeyondEOL;
   int EditorBSLikeDel;
+  /* $ 29.11.2000 SVS
+   + Opt.EditorReadOnlyLock - лочить файл при открытии в редакторе, если
+     он имеет атрибуты R|S|H
+  */
+  int EditorReadOnlyLock;
+  /* SVS $ */
+  /* $ 29.11.2000 SVS
+   + Opt.EditorFileSizeLimit - минимально допустимый размер файла, после
+     которого будет выдан диалог о целесообразности открытия подобного
+     файла на редактирование
+  */
+  DWORD EditorFileSizeLimitLo;
+  DWORD EditorFileSizeLimitHi;
+  /* SVS $ */
   /* $ 03.08.2000 SVS
      Разграничитель слов из реестра
   */
