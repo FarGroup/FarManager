@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.50 12.01.2004 $ */
+/* Revision: 1.51 12.01.2004 $ */
 
 /*
 Modify:
+  12.01.2004 SVS
+    ! Корректировка CalcWordFromString с учетом IsWordDiv()
   12.01.2004 IS
    + IsWordDiv - функция для сверки символа с разделителями слова
      с учетом текущей кодировки
@@ -1210,25 +1212,29 @@ BOOL IsWordDiv(const struct CharTableSet *TableSet, const char *WordDiv, unsigne
   strncpy(Dest,Ptr,End-Start+1);
   Dest[End-Start+1]=0;
 
+// Параметры:
+//   TableSet - указатель на таблицы перекодировки (если отсутствует,
+//              то кодировка - OEM)
+//   WordDiv  - набор разделителей слова в кодировке OEM
   возвращает указатель на начало слова
 */
-const char * const CalcWordFromString(const char *Str,int CurPos,int *Start,int *End)
+const char * const CalcWordFromString(const char *Str,int CurPos,int *Start,int *End,const struct CharTableSet *TableSet, const char *WordDiv0)
 {
   int I, J, StartWPos, EndWPos;
   DWORD DistLeft, DistRight;
   int StrSize=strlen(Str);
-  char WordDiv[sizeof(Opt.WordDiv)+16];
-  strcpy(WordDiv,Opt.WordDiv);
+  char WordDiv[512];
+  strncpy(WordDiv,WordDiv0,sizeof(WordDiv)-5);
   strcat(WordDiv," \t\n\r");
 
-  if(strchr(WordDiv,Str[CurPos]))
+  if(IsWordDiv(TableSet,WordDiv,Str[CurPos]))
   {
     // вычисляем дистанцию - куда копать, где ближе слово - слева или справа
     I=J=CurPos;
 
     // копаем влево
     DistLeft=-1;
-    while(I >= 0 && strchr(WordDiv,Str[I]))
+    while(I >= 0 && IsWordDiv(TableSet,WordDiv,Str[I]))
     {
       DistLeft++;
       I--;
@@ -1238,7 +1244,7 @@ const char * const CalcWordFromString(const char *Str,int CurPos,int *Start,int 
 
     // копаем вправо
     DistRight=-1;
-    while(J < StrSize && strchr(WordDiv,Str[J]))
+    while(J < StrSize && IsWordDiv(TableSet,WordDiv,Str[J]))
     {
       DistRight++;
       J++;
@@ -1255,7 +1261,7 @@ const char * const CalcWordFromString(const char *Str,int CurPos,int *Start,int 
     EndWPos=StartWPos=CurPos;
 
   while(StartWPos >= 0)
-    if(strchr(WordDiv,Str[StartWPos]))
+    if(IsWordDiv(TableSet,WordDiv,Str[StartWPos]))
     {
       StartWPos++;
       break;
@@ -1263,7 +1269,7 @@ const char * const CalcWordFromString(const char *Str,int CurPos,int *Start,int 
     else
       StartWPos--;
   while(EndWPos < StrSize)
-    if(strchr(WordDiv,Str[EndWPos]))
+    if(IsWordDiv(TableSet,WordDiv,Str[EndWPos]))
     {
       EndWPos--;
       break;

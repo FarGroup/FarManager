@@ -8,10 +8,13 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.125 05.01.2004 $ */
+/* Revision: 1.126 12.01.2004 $ */
 
 /*
 Modify:
+  12.01.2004 SVS
+    - падение в VMenu::GetUserData,  если GetPosition(Position) вернул -1
+    - BugZ#1010 -   не работает DM_LISTGETCURPOS
   05.01.2004 SVS
     + VMENU_SELECTPOSNONE - признак того, что SelectPos не выставлен (например, все элементы списка задисаблены)
     ! Корректировка SelectPos (по флагу VMENU_SELECTPOSNONE)
@@ -1965,7 +1968,7 @@ int VMenu::SetSelectPos(int Pos,int Direct)
     /* $ 21.02.2002 DJ
        в меню без WRAPMODE условие OrigPos == Pos никогда не выполнится =>
        нужно использовать немного другую логику для выхода из цикла
-  	*/
+    */
     if (Pos<0)
     {
       if (VMFlags.Check(VMENU_WRAPMODE))
@@ -2011,6 +2014,9 @@ int VMenu::SetSelectPos(int Pos,int Direct)
   /* KM $ */
   Item[Pos].Flags|=LIF_SELECTED;
   SelectPos=Pos;
+
+  if (SelectPos!=-1)
+    VMFlags.Clear(VMENU_SELECTPOSNONE);
   /* $ 01.07.2001 KM
     Дадим знать, что позиция изменилась для перерисовки (диалог
     иногда не "замечал", что позиция изменилась).
@@ -2521,7 +2527,8 @@ void* VMenu::GetUserData(void *Data,int Size,int Position)
     while (CallCount>0)
       Sleep(10);
     InterlockedIncrement(&CallCount);
-    PtrData=VMenu::_GetUserData(Item+GetPosition(Position),Data,Size);
+    if((Position=GetPosition(Position)) >= 0)
+      PtrData=VMenu::_GetUserData(Item+Position,Data,Size);
     InterlockedDecrement(&CallCount);
   }
   return(PtrData);

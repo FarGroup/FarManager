@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.112 12.01.2004 $ */
+/* Revision: 1.113 12.01.2004 $ */
 
 /*
 Modify:
+  12.01.2004 SVS
+    !  орректировка KEY_MACROSELWORD
   12.01.2004 IS
    - баг: неверно "скачем по словам", когда разделители слов содержат символы
      с кодами больше 128. –ешение: дл€ сравнени€ с WordDiv используем
@@ -1337,7 +1339,7 @@ int Edit::ProcessKey(int Key)
       else
       {
         int SStart, SEnd;
-        CalcWordFromString(Str,CurPos,&SStart,&SEnd);
+        CalcWordFromString(Str,CurPos,&SStart,&SEnd,TableSet,WordDiv);
         Select(SStart,++SEnd);
       }
       CurPos=OldCurPos; // возвращаем обратно

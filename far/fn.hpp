@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.197 12.01.2004 $ */
+/* Revision: 1.198 12.01.2004 $ */
 
 /*
 Modify:
+  12.01.2004 SVS
+    ! Корректировка CalcWordFromString с учетом IsWordDiv()
   12.01.2004 IS
    + IsWordDiv - функция для сверки символа с разделителями слова
      с учетом текущей кодировки
@@ -1500,7 +1502,11 @@ int PathMayBeAbsolute(const char *Src);
 char* PrepareDiskPath(char *Path,int MaxSize,BOOL CheckFullPath=TRUE);
 
 #if defined(MOUSEKEY)
-const char * const CalcWordFromString(const char *Str,int CurPos,int *Start,int *End);
+//   TableSet - указатель на таблицы перекодировки (если отсутствует,
+//              то кодировка - OEM)
+//   WordDiv  - набор разделителей слова в кодировке OEM
+// возвращает указатель на начало слова
+const char * const CalcWordFromString(const char *Str,int CurPos,int *Start,int *End,const struct CharTableSet *TableSet, const char *WordDiv);
 #endif
 
 void CharBufferTooSmallWarn(int BufSize, int FileNameSize);
