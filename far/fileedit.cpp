@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.150 16.04.2004 $ */
+/* Revision: 1.151 22.04.2004 $ */
 
 /*
 Modify:
+  22.04.2004 SVS
+    - При вызове команды ECTL_SAVEFILE FAR не запоминал новое имя файла.
   16.04.2004 SVS
     - BugZ#1058 - Заголовок редактора
   19.11.2003 IS
@@ -2284,7 +2286,14 @@ int FileEditor::EditorControl(int Command,void *Param)
         }
         _ECTLLOG(SysLog("EOL=%d",EOL));
       }
-      return SaveFile(Name,FALSE,EOL,!LocalStricmp(Name,FullFileName));
+
+      {
+        char OldFullFileName[NM];
+        strncpy(OldFullFileName,FullFileName,sizeof(OldFullFileName)-1);
+        if(SetFileName(Name))
+          return SaveFile(Name,FALSE,EOL,!LocalStricmp(Name,OldFullFileName));
+      }
+      return FALSE;
     }
 
     case ECTL_QUIT:

@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.114 14.04.2004 $ */
+/* Revision: 1.115 22.04.2004 $ */
 
 /*
 Modify:
+  22.04.2004 SVS
+    - BugZ#1063 - Макросы в диалогах (недочет в пред.патче)
   14.04.2004 SVS
     - BugZ#1053 - Неточности в $Text
   12.01.2004 SVS
@@ -1355,7 +1357,7 @@ int Edit::ProcessKey(int Key)
     {
       if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
       {
-        if(SelStart != -1) // BugZ#1053 - Неточности в $Text
+        if(SelStart != -1 || Flags.Check(FEDITLINE_CLEARFLAG)) // BugZ#1053 - Неточности в $Text
           RecurseProcessKey(KEY_DEL);
       }
       if(Key == KEY_MACRO_DATE)

@@ -7,10 +7,12 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.37 04.11.2003 $ */
+/* Revision: 1.38 22.04.2004 $ */
 
 /*
 Modify:
+  22.04.2004 SVS
+    ! Константы SAVEFILE_* уехали из editor.hpp в fileedit.hpp
   04.11.2003 SKV
     + FileAttributesModified - признак того, что надо восстанавливать аттрибут.
   09.10.2003 SVS
@@ -120,6 +122,16 @@ Modify:
 #include "keybar.hpp"
 
 class NamesList;
+
+/* $ 27.05.2001 DJ
+   коды возврата Editor::SaveFile()
+*/
+enum {
+    SAVEFILE_ERROR   = 0,         // пытались сохранять, не получилось
+    SAVEFILE_SUCCESS = 1,         // либо успешно сохранили, либо сохранять было не надо
+    SAVEFILE_CANCEL  = 2          // сохранение отменено, редактор не закрывать
+};
+/* DJ $ */
 
 enum FEOPMODEEXISTFILE{
   FEOPMODE_QUERY        =0,

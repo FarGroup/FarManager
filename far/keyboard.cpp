@@ -5,10 +5,13 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.107 14.04.2004 $ */
+/* Revision: 1.108 22.04.2004 $ */
 
 /*
 Modify:
+  22.04.2004 SVS
+    - BugZ#1061 - Ненадо учитывать CASE символов управляющих слов в записанных макросах в реестре
+      вместо strstr() заюзаем новую функу LocalStrstri() - аналог strstr(), но с локалью и без учета регистра
   14.04.2004 SVS
     - "Ожил (или появился?) макрос"
   29.03.2004 SVS
@@ -1758,7 +1761,7 @@ int WINAPI KeyNameToKey(const char *Name)
    // пройдемся по всем модификаторам
    for(Pos=I=0; I < sizeof(ModifKeyName)/sizeof(ModifKeyName[0]); ++I)
    {
-     if(strstr(TmpName,ModifKeyName[I].Name) && !(Key&ModifKeyName[I].Key))
+     if(LocalStrstri(TmpName,ModifKeyName[I].Name) && !(Key&ModifKeyName[I].Key))
      {
        ReplaceStrings(TmpName,ModifKeyName[I].Name,"",-1);
        Key|=ModifKeyName[I].Key;

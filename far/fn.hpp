@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.201 01.03.2004 $ */
+/* Revision: 1.202 22.04.2004 $ */
 
 /*
 Modify:
+  22.04.2004 SVS
+    + LocalStrstri() - аналог strstr(), но с локалью и без учета регистра
   01.03.2004 SVS
     + Обертки FAR_OemTo* и FAR_CharTo* вокруг WinAPI
   19.02.2004 SVS
@@ -819,6 +821,7 @@ void WINAPI LocalStrlwr(char *s1);
 int WINAPI LStricmp(const char *s1,const char *s2);
 int WINAPI LStrnicmp(const char *s1,const char *s2,int n);
 /* SVS $ */
+const char *  __cdecl LocalStrstri(const char *str1, const char *str2);
 int __cdecl LocalStricmp(const char *s1,const char *s2);
 int __cdecl LocalStrnicmp(const char *s1,const char *s2,int n);
 int __cdecl LCStricmp(const char *s1,const char *s2);

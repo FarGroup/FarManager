@@ -5,10 +5,12 @@ local.cpp
 
 */
 
-/* Revision: 1.19 29.03.2004 $ */
+/* Revision: 1.20 22.04.2004 $ */
 
 /*
 Modify:
+  22.04.2004 SVS
+    + LocalStrstri() - аналог strstr(), но с локалью и без учета регистра
   29.03.2004 SVS
     ! InitLCIDSort() и KeyToKey[] не совместимы!
   01.03.2004 SVS
@@ -335,6 +337,34 @@ void WINAPI LocalStrlwr(char *s1)
 int WINAPI LStricmp(const char *s1,const char *s2)
 {
   return LocalStricmp(s1,s2);
+}
+
+const char * __cdecl LocalStrstri(const char *str1, const char *str2)
+{
+  char *cp = (char *) str1;
+  char *s1, *s2;
+
+  if ( !*str2 )
+      return str1;
+
+  while (*cp)
+  {
+    s1 = cp;
+    s2 = (char *) str2;
+
+    while ( *s1 && *s2 && !(UpperToLower[*s1] - UpperToLower[*s2]) )
+    {
+      s1++;
+      s2++;
+    }
+
+    if (!*s2)
+      return (const char *)cp;
+
+    cp++;
+  }
+
+  return (const char *)NULL;
 }
 
 int __cdecl LocalStricmp(const char *s1,const char *s2)

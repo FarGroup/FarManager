@@ -7,10 +7,12 @@ language.hpp
 
 */
 
-/* Revision: 1.07 29.04.2003 $ */
+/* Revision: 1.08 22.04.2004 $ */
 
 /*
 Modify:
+  22.04.2004 SVS
+    + Метод Language::Free() и декструктор Language::~Language()
   29.04.2003 SVS
     ! из GetMsg вынесем код проверки в отдельную функцию CheckMsgId
   14.07.2002 IS
@@ -47,9 +49,11 @@ class Language
   private:
     void ConvertString(char *Src,char *Dest);
     BOOL CheckMsgId(int MsgId);
+    void Free();
 
   public:
     Language();
+    ~Language();
 
   public:
     int Init(char *Path,int CountNeed=-1);

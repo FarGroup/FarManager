@@ -5,10 +5,13 @@ language.cpp
 
 */
 
-/* Revision: 1.25 20.10.2003 $ */
+/* Revision: 1.26 22.04.2004 $ */
 
 /*
 Modify:
+  22.04.2004 SVS
+    + Метод Language::Free() и декструктор Language::~Language()
+    ! Так же изменена логика класса Language по причине... описанной в 01768.Mix.txt (слишком много сюда писать :-)
   20.10.2003 SVS
     - в .lng файле нельзя ставить пробелы после идентификатора .Language, типа .Language = %%,
       только .Language=%%.
@@ -95,6 +98,7 @@ Modify:
 #endif
 
 Language Lang;
+static Language OldLang;
 
 Language::Language()
 {
@@ -161,21 +165,41 @@ int Language::Init(char *Path,int CountNeed)
   }
   fclose(LangFile);
   SetLastError(LastError);
+  if(this == &Lang)
+    OldLang.Free();
   LanguageLoaded=TRUE;
   return(TRUE);
 }
 
 
-void Language::Close()
+Language::~Language()
 {
-  /* $ 13.07.2000 SVS
-     ни кто не вызывал запрос памяти через new :-)
-  */
+  Free();
+}
+
+void Language::Free()
+{
   if(MsgList)xf_free(MsgList);
   MsgList=NULL;
-  /* ну а здесь раз уж вызвали new[], то в придачу и delete[] надо... */
   if(MsgAddr)delete[] MsgAddr;
-  /* SVS $ */
+  MsgAddr=NULL;
+  MsgCount=0;
+  MsgSize=0;
+}
+
+void Language::Close()
+{
+  if(this == &Lang)
+  {
+    if(OldLang.MsgCount)
+      OldLang.Free();
+    OldLang.MsgList=MsgList;
+    OldLang.MsgAddr=MsgAddr;
+    OldLang.MsgCount=MsgCount;
+    OldLang.MsgSize=MsgSize;
+  }
+
+  MsgList=NULL;
   MsgAddr=NULL;
   MsgCount=0;
   MsgSize=0;
@@ -240,6 +264,9 @@ BOOL Language::CheckMsgId(int MsgId)
   */
   if (MsgId>=MsgCount || MsgId < 0)  /* DJ $ */
   {
+    if(this == &Lang && !LanguageLoaded && this != &OldLang && OldLang.CheckMsgId(MsgId))
+      return TRUE;
+
     /* $ 26.03.2002 DJ
        если менеджер уже в дауне - сообщение не выводим
     */
@@ -269,6 +296,8 @@ char* Language::GetMsg(int MsgId)
 {
   if(!CheckMsgId(MsgId))
     return "";
+  if(this == &Lang && this != &OldLang && !LanguageLoaded && OldLang.MsgCount > 0)
+    return(OldLang.MsgAddr[MsgId]);
   return(MsgAddr[MsgId]);
 }
 

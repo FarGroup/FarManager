@@ -9,10 +9,12 @@ editor.hpp
 
 */
 
-/* Revision: 1.47 09.12.2003 $ */
+/* Revision: 1.48 22.04.2004 $ */
 
 /*
 Modify:
+  22.04.2004 SVS
+    !  онстанты SAVEFILE_* уехали из editor.hpp в fileedit.hpp
   09.12.2003 SVS
     + Editor::GetWordDiv()
   10.10.2003 SVS
@@ -168,17 +170,6 @@ struct EditorUndoData
   int StrNum;
   char *Str;
 };
-
-/* $ 27.05.2001 DJ
-   коды возврата Editor::SaveFile()
-*/
-
-enum {
-    SAVEFILE_ERROR   = 0,         // пытались сохран€ть, не получилось
-    SAVEFILE_SUCCESS = 1,         // либо успешно сохранили, либо сохран€ть было не надо
-    SAVEFILE_CANCEL  = 2          // сохранение отменено, редактор не закрывать
-};
-/* DJ $ */
 
 // ћладший байт (маска 0xFF) юзаетс€ классом ScreenObject!!!
 enum FLAGS_CLASS_EDITOR{
