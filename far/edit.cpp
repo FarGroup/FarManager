@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.32 23.01.2001 $ */
+/* Revision: 1.33 13.02.2001 $ */
 
 /*
 Modify:
+  13.02.2001 VVM
+    + Обработка SHIFT+SPACE
   23.01.2001 SVS
     + На всякий случай проверим Str в деструкторе при освобождении памяти
     ! В паре мест не освобождалась память :-((
@@ -1259,7 +1261,14 @@ int Edit::ProcessKey(int Key)
     }
     /* SVS 04.01.2001 $ */
     /* SVS $ */
+    /* $ 13.02.2001 VVM
+      + Обработка SHIFT+SPACE */
+    case KEY_SHIFTSPACE:
+      Key = KEY_SPACE;
+    /* VVM $ */
     default:
+//      SysLog("Key=0x%08X",Key);
+
       if (Key==KEY_NONE || Key==KEY_IDLE || Key==KEY_ENTER || Key>=256)
         break;
       if (!Opt.EditorPersistentBlocks)
