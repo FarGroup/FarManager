@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.202 03.06.2004 $ */
+/* Revision: 1.203 03.06.2004 $ */
 
 /*
 Modify:
+  03.06.2004 SVS
+    ! Уточнение BugZ#633
   03.06.2004 SVS
     - BugZ#633 - Compare folders on temporaly panels bug
   24.05.2004 SVS
@@ -3652,6 +3654,7 @@ void FileList::CompareDir()
   Another->ClearSelection();
 
   struct FileListItem *CurPtr, *AnotherCurPtr;
+  char TempName1[NM*2],*PtrTempName1,TempName2[NM*2],*PtrTempName2;
 
   // помечаем ВСЕ, кроме каталогов на активной панели
   for (CurPtr=ListData, I=0; I < FileCount; I++, CurPtr++)
@@ -3681,12 +3684,11 @@ void FileList::CompareDir()
 
   if (PanelMode==NORMAL_PANEL && Another->PanelMode==NORMAL_PANEL)
   {
-    char RootDir1[NM],RootDir2[NM];
     char FileSystemName1[NM],FileSystemName2[NM];
-    GetPathRoot(CurDir,RootDir1);
-    GetPathRoot(Another->CurDir,RootDir2);
-    if (GetVolumeInformation(RootDir1,NULL,0,NULL,NULL,NULL,FileSystemName1,sizeof(FileSystemName1)) &&
-        GetVolumeInformation(RootDir2,NULL,0,NULL,NULL,NULL,FileSystemName2,sizeof(FileSystemName2)))
+    GetPathRoot(CurDir,TempName1);
+    GetPathRoot(Another->CurDir,TempName2);
+    if (GetVolumeInformation(TempName1,NULL,0,NULL,NULL,NULL,FileSystemName1,sizeof(FileSystemName1)) &&
+        GetVolumeInformation(TempName2,NULL,0,NULL,NULL,NULL,FileSystemName2,sizeof(FileSystemName2)))
       if (LocalStricmp(FileSystemName1,FileSystemName2)!=0)
         CompareFatTime=TRUE;
   }
@@ -3699,7 +3701,27 @@ void FileList::CompareDir()
     for (AnotherCurPtr=Another->ListData,J=0; J < Another->FileCount; J++, AnotherCurPtr++)
     {
       int Cmp=0;
-      if (LocalStricmp(PointToName(CurPtr->Name),PointToName(AnotherCurPtr->Name))==0)
+      int fp1=strpbrk(CurPtr->Name,":\\/")!=NULL;
+      int fp2=strpbrk(AnotherCurPtr->Name,":\\/")!=NULL;
+
+      PtrTempName1=CurPtr->Name;
+      PtrTempName2=AnotherCurPtr->Name;
+      if(fp1 && !fp2 && strcmp(PtrTempName2,".."))
+      {
+        strcpy(TempName2,Another->CurDir);
+        AddEndSlash(TempName2);
+        strncat(TempName2,AnotherCurPtr->Name,sizeof(TempName2)-1);
+        PtrTempName2=TempName2;
+      }
+      else if(!fp1 && fp2 && strcmp(PtrTempName1,".."))
+      {
+        strcpy(TempName1,CurDir);
+        AddEndSlash(TempName1);
+        strncat(TempName1,CurPtr->Name,sizeof(TempName1)-1);
+        PtrTempName1=TempName1;
+      }
+
+      if (LocalStricmp(PtrTempName1,PtrTempName2)==0)
       //if (LocalStricmp(CurPtr->Name,AnotherCurPtr->Name)==0)
       {
         if (CompareFatTime)
@@ -3731,6 +3753,7 @@ void FileList::CompareDir()
 
         if (Cmp > -1 && AnotherCurPtr->Selected)
           Another->Select(AnotherCurPtr,0);
+
         if (Another->PanelMode!=PLUGIN_PANEL)
           break;
       }
