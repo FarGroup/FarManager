@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.34 31.12.2001 $ */
+/* Revision: 1.34 02.01.2002 $ */
 
 /*
 Modify:
+  02.01.2002 IS
+    - Баг: забыли в GetTypeAndName про то, что бывают INFO_PANEL
   31.12.2002 VVM
     ! GoToFile() портила передаваемое ей имя.
   28.12.2001 DJ
@@ -865,6 +867,9 @@ int  FilePanels::GetTypeAndName(char *Type,char *Name)
       case TREE_PANEL:
       case QVIEW_PANEL:
       case FILE_PANEL:
+      /* $ 02.01.2002 IS а еще бывают информационные панели... */
+      case INFO_PANEL:
+      /* IS $ */
         ActivePanel->GetCurName(FullName, ShortName);
         ConvertNameToFull(FullName, FullName, sizeof(FullName));
         break;

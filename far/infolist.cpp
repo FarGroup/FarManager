@@ -5,10 +5,12 @@ infolist.cpp
 
 */
 
-/* Revision: 1.25 08.12.2001 $ */
+/* Revision: 1.26 02.01.2002 $ */
 
 /*
 Modify:
+  02.01.2002 IS
+    + GetCurName
   08.12.2001 IS
     - баг: после показа хелпа по панели показывалось непонятно зачем
       еще и Contents
@@ -678,6 +680,21 @@ void InfoList::SetMacroMode(int Restore)
   CtrlObject->Macro.SetMode(Restore ? PrevMacroMode:MACRO_INFOPANEL);
 }
 
+/* $ 02.01.2002 IS дадим информацию об имени просматриваемого diz-файла
+   Если возвращается пустая строка, то значит, что в текущий момент
+   diz-файл не просматривается.
+*/
+int InfoList::GetCurName(char *Name,char *ShortName)
+{
+  if (Name && ShortName)
+  {
+    strcpy(Name, DizFileName);
+    ConvertNameToShort(ShortName, DizFileName);
+    return (TRUE);
+  }
+  return (FALSE);
+}
+/* IS $ */
 /* $ 30.04.2001 DJ
    свой кейбар
 */

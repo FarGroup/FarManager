@@ -7,10 +7,12 @@ infolist.hpp
 
 */
 
-/* Revision: 1.04 06.05.2001 $ */
+/* Revision: 1.05 02.01.2002 $ */
 
 /*
 Modify:
+  02.01.2002 IS
+    + GetCurName
   06.05.2001 DJ
     ! перетрях #include
   30.04.2001 DJ
@@ -92,6 +94,11 @@ class InfoList:public Panel
     virtual BOOL UpdateKeyBar();
     virtual void CloseFile();
     /* DJ $ */
+    /* $ 02.01.2002 IS
+       Получить имя просматриваемого diz-файла
+    */
+    virtual int GetCurName(char *Name,char *ShortName);
+    /* IS $ */
 };
 
 #endif  // __INFOLIST_HPP__

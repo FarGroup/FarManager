@@ -5,10 +5,14 @@ manager.cpp
 
 */
 
-/* Revision: 1.57 13.12.2001 $ */
+/* Revision: 1.58 02.01.2001 $ */
 
 /*
 Modify:
+  02.01.2002 IS
+    ! Вывод правильной помощи по Shift-F1 в меню плагинов в редакторе/вьюере
+    ! Если на панели QVIEW или INFO открыт файл, то считаем, что это
+      полноценный вьюер и запускаем с соответствующим параметром плагины
   13.12.2001 OT
     ФАР виснет при закрытии по [X] при модальном фрейме. (Bug 175)
   15.11.2001 SVS
@@ -748,7 +752,35 @@ void Manager::PluginsMenu()
   _OT(SysLog(1));
   int curType = CurrentFrame->GetType();
   if (curType == MODALTYPE_PANELS || curType == MODALTYPE_EDITOR || curType == MODALTYPE_VIEWER)
-    CtrlObject->Plugins.CommandsMenu(curType,0,0);
+  {
+    /* 02.01.2002 IS
+       ! Вывод правильной помощи по Shift-F1 в меню плагинов в редакторе/вьюере
+       ! Если на панели QVIEW или INFO открыт файл, то считаем, что это
+         полноценный вьюер и запускаем с соответствующим параметром плагины
+    */
+    if(curType==MODALTYPE_PANELS)
+    {
+      int pType=CtrlObject->Cp()->ActivePanel->GetType();
+      if(pType==QVIEW_PANEL || pType==INFO_PANEL)
+      {
+         char CurFileName[NM]="";
+         CtrlObject->Cp()->GetTypeAndName(NULL,CurFileName);
+         if(*CurFileName)
+         {
+           DWORD Attr=GetFileAttributes(CurFileName);
+           // интересуют только обычные файлы
+           if(Attr!=0xFFFFFFFF && !(Attr&FILE_ATTRIBUTE_DIRECTORY))
+             curType=MODALTYPE_VIEWER;
+         }
+      }
+    }
+
+    // в редакторе или вьюере покажем свою помощь по Shift-F1
+    char *Topic=curType==MODALTYPE_EDITOR?"Editor":
+      curType==MODALTYPE_VIEWER?"Viewer":0;
+    CtrlObject->Plugins.CommandsMenu(curType,0,Topic);
+    /* IS $ */
+  }
   _OT(SysLog(-1));
 }
 
