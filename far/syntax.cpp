@@ -5,10 +5,12 @@ syntax.cpp
 
 */
 
-/* Revision: 1.06 01.04.2005 $ */
+/* Revision: 1.07 06.04.2005 $ */
 
 /*
 Modify:
+  06.04.2005 SVS
+    + b=msave(var)
   01.04.2005 SVS
     + MCODE_F_PANELITEM
   05.03.2005 SVS
@@ -647,20 +649,21 @@ static TMacroFunction macroFunction[]={
   {"FATTR",          1,    MCODE_F_FATTR},               // N=fattr(S)
   {"FEXIST",         1,    MCODE_F_FEXIST},              // S=fexist(S)
   {"FSPLIT",         2,    MCODE_F_FSPLIT},              // S=fsplit(S,N)
-  {"IIF",            3,    MCODE_F_IIF},                 // V=iif(C,V1,V2)
+  {"IIF",            3,    MCODE_F_IIF},                 // V=iif(Condition,V1,V2)
   {"INDEX",          2,    MCODE_F_INDEX},               // S=index(S1,S2)
   {"INT",            1,    MCODE_F_INT},                 // N=int(V)
   {"ITOA",           2,    MCODE_F_ITOA},                // S=itoa(N,radix)
   {"LEN",            1,    MCODE_F_LEN},                 // N=len(S)
   {"MAX",            2,    MCODE_F_MAX},                 // N=max(N1,N2)
-  {"MSGBOX",         3,    MCODE_F_MSGBOX},              // MsgBox("Title","Text",flags)
+  {"MSAVE",          1,    MCODE_F_MSAVE},               // N=msave(S)
+  {"MSGBOX",         3,    MCODE_F_MSGBOX},              // N=msgbox("Title","Text",flags)
   {"MIN",            2,    MCODE_F_MIN},                 // N=min(N1,N2)
-  {"PANELITEM",      3,    MCODE_F_PANELITEM},           // V=PanelItem(Panel,Index,TypeInfo)
+  {"PANELITEM",      3,    MCODE_F_PANELITEM},           // V=panelitem(Panel,Index,TypeInfo)
   {"RINDEX",         2,    MCODE_F_RINDEX},              // S=rindex(S1,S2)
   {"STRING",         1,    MCODE_F_STRING},              // S=string(V)
   {"SUBSTR",         3,    MCODE_F_SUBSTR},              // S=substr(S1,S2,N)
-  {"UCASE",          1,    MCODE_F_UCASE},               // S=UCase(S1)
-  {"LCASE",          1,    MCODE_F_LCASE},               // S=LCase(S1)
+  {"UCASE",          1,    MCODE_F_UCASE},               // S=ucase(S1)
+  {"LCASE",          1,    MCODE_F_LCASE},               // S=lcase(S1)
   {"XLAT",           1,    MCODE_F_XLAT},                // S=xlat(S)
 };
 

@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.136 05.04.2005 $ */
+/* Revision: 1.137 06.04.2005 $ */
 
 /*
 Modify:
+  06.04.2005 SVS
+    + ECF_TAB1
   05.04.2005 SVS
     + У ScreenBuf::Read() появился доп параметр - скока читать.
     - правки после BugZ#1302
@@ -2904,7 +2906,7 @@ int Edit::DeleteColor(int ColorPos)
 
 int Edit::GetColor(struct ColorItem *col,int Item)
 {
-  if (Item>=ColorCount)
+  if ((DWORD)Item >= ColorCount)
     return(FALSE);
   *col=ColorList[Item];
   return(TRUE);
@@ -2914,16 +2916,24 @@ int Edit::GetColor(struct ColorItem *col,int Item)
 void Edit::ApplyColor()
 {
   int Col,I,SelColor0;
+
   for (Col=0;Col<ColorCount;Col++)
   {
     struct ColorItem *CurItem=ColorList+Col;
+    int Attr=CurItem->Color;
     int Length=CurItem->EndPos-CurItem->StartPos+1;
     if(CurItem->StartPos+Length >= StrSize)
       Length=StrSize-CurItem->StartPos;
 
     int Start=RealPosToTab(CurItem->StartPos)-LeftPos;
     int LengthFind=CurItem->StartPos+Length >= StrSize?StrSize-CurItem->StartPos+1:Length;
-    int CorrectPos=Opt.EdOpt.ExpandTabColor && LengthFind > 0 && CurItem->StartPos < StrSize && memchr(Str+CurItem->StartPos,'\t',LengthFind)?1:0;
+    int CorrectPos=0;
+
+    if(Attr&ECF_TAB1)
+      Attr&=~ECF_TAB1;
+    else
+      CorrectPos=LengthFind > 0 && CurItem->StartPos < StrSize && memchr(Str+CurItem->StartPos,'\t',LengthFind)?1:0;
+
     int End=RealPosToTab(CurItem->EndPos+CorrectPos)-LeftPos;
 
     CHAR_INFO TextData[1024];
@@ -2931,24 +2941,28 @@ void Edit::ApplyColor()
     {
       if (Start<X1)
         Start=X1;
+
       if (End>X2)
         End=X2;
+
       Length=End-Start+1;
+
       if(Length < X2)
         Length-=CorrectPos;
-      if (Length>0 && Length<sizeof(TextData))
+
+      if (Length > 0 && Length < sizeof(TextData))
       {
         ScrBuf.Read(Start,Y1,End,Y1,TextData,sizeof(TextData));
-        /* $ 28.07.2000 SVS
-           SelColor может быть и реальным цветом.
-        */
+
         SelColor0=SelColor;
+
         if(SelColor >= COL_FIRSTPALETTECOLOR)
           SelColor0=Palette[SelColor-COL_FIRSTPALETTECOLOR];
-        for (I=0;I<Length;I++)
-          if (TextData[I].Attributes!=SelColor0)
-            TextData[I].Attributes=CurItem->Color;
-        /* SVS $ */
+
+        for (I=0;I < Length;I++)
+          if (TextData[I].Attributes != SelColor0)
+            TextData[I].Attributes=Attr;
+
         ScrBuf.Write(Start,Y1,TextData,Length);
       }
     }

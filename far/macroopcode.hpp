@@ -5,10 +5,14 @@ OpCode для макросов
 
 */
 
-/* Revision: 1.12 01.04.2005 $ */
+/* Revision: 1.13 06.04.2005 $ */
 
 /*
 Modify:
+  06.04.2005 SVS
+    + MCODE_F_MSAVE       // b=msave(var)
+    + MCODE_C_APANEL_LFN  // на активной панели длинные имена?
+    + MCODE_C_PPANEL_LFN  // на пассивной панели длинные имена?
   01.04.2005 SVS
     + MCODE_F_PANELITEM
   02.03.2005 SVS
@@ -138,6 +142,7 @@ enum MACRO_OP_CODE {
   MCODE_F_LCASE,                    // LowerCase
   MCODE_F_ITOA,                     //
   MCODE_F_PANELITEM,                // V=PanelItem(Panel,Index,TypeInfo)
+  MCODE_F_MSAVE,                    // b=msave(var)
 
   /* ************************************************************************* */
   // булевые переменные - различные состояния
@@ -170,6 +175,8 @@ enum MACRO_OP_CODE {
   MCODE_C_PPANEL_FOLDER,            // пассивная панель: текущий элемент каталог?
   MCODE_C_APANEL_LEFT,              // активная панель левая?
   MCODE_C_PPANEL_LEFT,              // пассивная панель левая?
+  MCODE_C_APANEL_LFN,               // на активной панели длинные имена?
+  MCODE_C_PPANEL_LFN,               // на пассивной панели длинные имена?
 
   MCODE_C_CMDLINE_BOF,              // курсор в начале cmd-строки редактирования?
   MCODE_C_CMDLINE_EOF,              // курсор в конце cmd-строки редактирования?

@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.123 05.04.2005 $ */
+/* Revision: 1.124 06.04.2005 $ */
 
 /*
 Modify:
+  06.04.2005 SVS
+    ! Opt.EdOpt.ExpandTabColor свое отслужил, выкидываем :-)
   05.04.2005 SVS
     + Opt.EdOpt.ExpandTabColor
   03.03.2005 SVS
@@ -496,7 +498,6 @@ struct EditorOptions
   int CharCodeBase;
   int SavePos;
   int SaveShortPos;
-  int ExpandTabColor;
   char WordDiv[256];
 };
 /* IS $ */

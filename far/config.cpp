@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.178 05.04.2005 $ */
+/* Revision: 1.179 06.04.2005 $ */
 
 /*
 Modify:
+  06.04.2005 SVS
+    ! Opt.EdOpt.ExpandTabColor свое отслужил, выкидываем :-)
   05.04.2005 SVS
     + Opt.EdOpt.ExpandTabColor
   03.03.2005 SVS
@@ -1617,7 +1619,6 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeyEditor,"FileSizeLimit",&Opt.EditorFileSizeLimitLo,(DWORD)0, 0},
   {0, REG_DWORD,  NKeyEditor,"FileSizeLimitHi",&Opt.EditorFileSizeLimitHi,(DWORD)0, 0},
   {0, REG_DWORD,  NKeyEditor,"CharCodeBase",&Opt.EdOpt.CharCodeBase,1, 0},
-  {0, REG_DWORD,  NKeyEditor,"ExpandTabColor",&Opt.EdOpt.ExpandTabColor,1, 0},
 
   {0, REG_DWORD,  NKeyXLat,"Flags",&Opt.XLat.Flags,(DWORD)XLAT_SWITCHKEYBLAYOUT|XLAT_CONVERTALLCMDLINE, 0},
   {0, REG_BINARY, NKeyXLat,"Table1",(BYTE*)&Opt.XLat.Table[0][1],sizeof(Opt.XLat.Table[0])-1,NULL},

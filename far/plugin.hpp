@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.250 01.03.2005 $ */
+/* Revision: 1.251 06.04.2005 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  06.04.2005 SVS
+    + ECF_TAB1
   01.03.2005 SVS
     + XLAT_CONVERTALLCMDLINE
   21.01.2005 SVS
@@ -2189,6 +2191,10 @@ struct EditorConvertPos
   int DestPos;
 };
 
+
+enum EDITORCOLORFLAGS{
+  ECF_TAB1 = 0x10000,
+};
 
 struct EditorColor
 {

@@ -5,10 +5,13 @@ macro.cpp
 
 */
 
-/* Revision: 1.143 02.04.2005 $ */
+/* Revision: 1.144 06.04.2005 $ */
 
 /*
 Modify:
+  06.04.2005 SVS
+    + b=msave(var)
+    + [A|P]Panel.LFN
   02.04.2005 SVS
     - проблемы с panelitemFunc Index=13, совсем забыл что овнер - это ссылка.
   01.04.2005 SVS
@@ -557,6 +560,8 @@ struct TMacroKeywords MKeywords[] ={
   {2,  "PPanel.Selected",    MCODE_C_PPANEL_SELECTED,0},
   {2,  "APanel.Left",        MCODE_C_APANEL_LEFT,0},
   {2,  "PPanel.Left",        MCODE_C_PPANEL_LEFT,0},
+  {2,  "APanel.LFN",         MCODE_C_APANEL_LFN,0},
+  {2,  "PPanel.LFN",         MCODE_C_PPANEL_LFN,0},
 
   {2,  "APanel.Type",        MCODE_V_APANEL_TYPE,0},
   {2,  "PPanel.Type",        MCODE_V_PPANEL_TYPE,0},
@@ -651,6 +656,9 @@ static struct TKeyCodeName{
    { MCODE_OP_XLAT,                 5, "$XLat"    },
 };
 
+
+TVarTable glbVarTable, locVarTable;
+TVar eStack[MAXEXEXSTACK];
 
 static char __code2symbol(BYTE b1, BYTE b2);
 static const char* ParsePlainText(char *CurKeyText, const char *BufPtr);
@@ -1234,6 +1242,15 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
           break;
         }
 
+        case MCODE_C_APANEL_LFN:
+        case MCODE_C_PPANEL_LFN:
+        {
+          Panel *SelPanel = CheckCode == MCODE_C_APANEL_LFN ? ActivePanel : PassivePanel;
+          if ( SelPanel != NULL )
+            Cond = SelPanel->GetShowShortNamesMode()?0L:1L;
+          break;
+        }
+
         case MCODE_C_APANEL_LEFT: // APanel.Left
         case MCODE_C_PPANEL_LEFT: // PPanel.Left
         {
@@ -1676,6 +1693,40 @@ static TVar fexistFunc(TVar *param)
 }
 
 
+// b=msave(var)
+static TVar msaveFunc(TVar *param)
+{
+  static int errVar;
+
+  TVarTable *t = &glbVarTable;
+  const char *Name=param[0].s();
+  if(!Name || *Name!= '%')
+    return TVar(0L);
+
+  TVar Result=varLook(*t, Name+1, errVar)->value;
+  if(errVar)
+    return TVar(0L);
+
+  DWORD Ret=(DWORD)-1;
+  char ValueName[129];
+  xstrncpy(ValueName,param[0].s(),sizeof(ValueName)-2);
+  switch(Result.type())
+  {
+    case vtInteger:
+    {
+      long rrr=Result.toInteger();
+      Ret=SetRegKey("KeyMacros\\Vars",ValueName,(DWORD)rrr);
+      break;
+    }
+    case vtString:
+    {
+      Ret=SetRegKey("KeyMacros\\Vars",ValueName,Result.toString());
+      break;
+    }
+  }
+  return TVar(Ret==ERROR_SUCCESS?1L:0L);
+}
+
 // V=PanelItem(typePanel,Index,TypeInfo)
 static TVar panelitemFunc(TVar *param)
 {
@@ -1764,9 +1815,6 @@ static TVar panelitemFunc(TVar *param)
 
   return TVar(0L);
 }
-
-TVarTable glbVarTable, locVarTable;
-TVar eStack[MAXEXEXSTACK];
 
 const char *eStackAsString(int Pos)
 {
@@ -2079,6 +2127,9 @@ done:
             break;
           case MCODE_F_FATTR:
             eStack[ePos] = fattrFunc(eStack+ePos);
+            break;
+          case MCODE_F_MSAVE:
+            eStack[ePos] = msaveFunc(eStack+ePos);
             break;
           case MCODE_F_STRING:
             eStack[ePos].toString();
@@ -3248,10 +3299,11 @@ static void printKeyValue(DWORD* k, int& i)
   else if ( k[i] == MCODE_F_MENU_CHECKHOTKEY ) sprint(ii, " checkhotkey()");
   else if ( k[i] == MCODE_F_INDEX )            sprint(ii, " index()");
   else if ( k[i] == MCODE_F_RINDEX )           sprint(ii, " rindex()");
-  else if ( k[i] == MCODE_F_FEXIST )           sprint(ii, " fexist()");
+  else if ( k[i] == MCODE_F_FEXIST )           sprint(ii, " fexist(s)");
   else if ( k[i] == MCODE_F_FSPLIT )           sprint(ii, " fsplit()");
-  else if ( k[i] == MCODE_F_FATTR )            sprint(ii, " fattr()");
-  else if ( k[i] == MCODE_F_LEN )              sprint(ii, " len()");
+  else if ( k[i] == MCODE_F_FATTR )            sprint(ii, " fattr(s)");
+  else if ( k[i] == MCODE_F_MSAVE )            sprint(ii, " msave(var)");
+  else if ( k[i] == MCODE_F_LEN )              sprint(ii, " len(s)");
   else if ( k[i] == MCODE_F_STRING )           sprint(ii, " string()");
   else if ( k[i] == MCODE_F_INT )              sprint(ii, " int()");
   else if ( k[i] == MCODE_F_DATE )             sprint(ii, " date()");
