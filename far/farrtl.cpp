@@ -4,10 +4,12 @@ farrtl.cpp
 Переопределение функций работы с памятью: new/delete/malloc/realloc/free
 */
 
-/* Revision: 1.10 22.02.2002 $ */
+/* Revision: 1.11 26.02.2002 $ */
 
 /*
 Modify:
+  26.02.2002 SVS
+    - Бага с RTL VC (теперь все нормально с V64 под MSVC!)
   22.02.2002 SVS
     ! Коррекция fseek64 и ftell64 (в т.ч. снесен модификатор WINAPI)
   10.07.2001 SVS
@@ -340,16 +342,19 @@ __int64 ftell64(FILE *fp)
 
 #else
 
-_CRTIMP __int64 __cdecl _lseeki64(int, __int64, int);
+extern "C"{
+_CRTIMP __int64 __cdecl _ftelli64 (FILE *str);
+_CRTIMP int __cdecl _fseeki64 (FILE *stream, __int64 offset, int whence);
+};
 
 __int64 ftell64(FILE *fp)
 {
-  return _lseeki64(fileno(fp), 0i64, SEEK_CUR );
+  return _ftelli64(fp);
 }
 
 int fseek64 (FILE *fp, __int64 offset, int whence)
 {
-  return (int)_lseeki64(fileno(fp),offset,whence);
+  return _fseeki64(fp,offset,whence);
 }
 
 #endif

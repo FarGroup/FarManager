@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.125 19.02.2002 $ */
+/* Revision: 1.126 26.02.2002 $ */
 
 /*
 Modify:
+  26.02.2002 SVS
+   ! RestoreCP ставим по умолчанию в 0.
   19.02.2002 SVS
    ! ѕри считывании конфигурации (ReadConfig) дл€ REG_BINARY обнулим остаток
      считываемого буфера до нужно размера.
@@ -1309,7 +1311,7 @@ static struct FARConfig{
   //{0, REG_DWORD,  NKeySystem,"CPAJHefuayor",&Opt.CPAJHefuayor,0, 0},
   {0, REG_DWORD,  NKeySystem,"CloseConsoleRule",&Opt.CloseConsoleRule,1, 0},
 
-  {0, REG_DWORD,  NKeySystemExecutor,"RestoreCP",&Opt.RestoreCPAfterExecute,1, 0},
+  {0, REG_DWORD,  NKeySystemExecutor,"RestoreCP",&Opt.RestoreCPAfterExecute,0, 0},
 
   {0, REG_DWORD,  NKeyHelp,"ActivateURL",&Opt.HelpURLRules,1, 0},
 

@@ -5,10 +5,12 @@ history.cpp
 
 */
 
-/* Revision: 1.20 25.01.2002 $ */
+/* Revision: 1.21 26.02.2002 $ */
 
 /*
 Modify:
+  26.02.2002 SVS
+    ! Äëÿ ïóñòîãî ñïèñêà (Items > 1) íè÷åãî íå äåëàåì
   25.01.2002 SVS
     - ìàààààààààààñññññññññññññññññääääääääääääààààààààààààààààààéééééééééé!!!!
   25.01.2002 SVS
@@ -450,14 +452,15 @@ int History::Select(char *Title,char *HelpTopic,char *Str,int &Type,char *ItemTi
         /* $ 23.07.2001 VVM
           + Ñïðîñèòü ïîäòâåðæäåíèå ïåðåä óäàëåíèåì */
         {
-          if (!Opt.Confirm.HistoryClear ||
+          if(HistoryMenu.GetItemCount() > 1 &&
+             (!Opt.Confirm.HistoryClear ||
               (Opt.Confirm.HistoryClear &&
               Message(MSG_WARNING,2,
                    MSG((History::TypeHistory==HISTORYTYPE_CMD?MHistoryTitle:
                         (History::TypeHistory==HISTORYTYPE_FOLDER?MFolderHistoryTitle:
                         MViewHistoryTitle))),
                    MSG(MHistoryClear),
-                   MSG(MClear),MSG(MCancel))==0))
+                   MSG(MClear),MSG(MCancel))==0)))
           {
             FreeHistory();
             DeleteRegValue(RegKey,"Lines");

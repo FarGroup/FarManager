@@ -5,10 +5,12 @@ plist.cpp
 
 */
 
-/* Revision: 1.07 26.07.2001 $ */
+/* Revision: 1.08 24.02.2002 $ */
 
 /*
 Modify:
+  24.02.2002 SVS
+    ! Активизация процесса с подачи MY.
   26.07.2001 SVS
     ! VFMenu уничтожен как класс
   18.07.2001 OT
@@ -98,7 +100,21 @@ void ShowProcessList()
     HWND ProcWnd=(HWND)ProcList.GetUserData(NULL,0);
     if (ProcWnd!=NULL)
     {
+      //SetForegroundWindow(ProcWnd);
+      #ifndef SPI_GETFOREGROUNDLOCKTIMEOUT
+      #define SPI_GETFOREGROUNDLOCKTIMEOUT        0x2000
+      #define SPI_SETFOREGROUNDLOCKTIMEOUT        0x2001
+      #endif
+
+      // Allow SetForegroundWindow on Win98+.
+      DWORD dwMs;
+      // Remember the current value.
+      BOOL bSPI = SystemParametersInfo(SPI_GETFOREGROUNDLOCKTIMEOUT, 0, &dwMs, 0);
+      if(bSPI) // Reset foreground lock timeout
+        bSPI = SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, 0, 0);
       SetForegroundWindow(ProcWnd);
+      if(bSPI) // Restore old value
+        SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, (PVOID)dwMs, 0);
 
       WINDOWPLACEMENT wp;
       wp.length=sizeof(wp);
