@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.96 19.05.2001 $ */
+/* Revision: 1.97 24.05.2001 $ */
 
 /*
 Modify:
+  24.05.2001 IS
+    ! Опять правка последствий 592 (shift-home/end)
   19.05.2001 IS
     - Решение проблемы непрошеной конвертации табуляции (которая должна быть
       добавлена в начало строки при автоотступе) в пробелы при вставке
@@ -1396,7 +1398,7 @@ int Editor::ProcessKey(int Key)
           BlockStartLine=NumLine;
         }
 
-        /* $ 05.05.2001 IS
+        /* $ 24.05.2001 IS
            ! Приблизим поведение к тому, какое было до 592
         */
         //if (CurPos==0)
@@ -1408,8 +1410,8 @@ int Editor::ProcessKey(int Key)
         //else
         if(CurPos)
         {
-          int EndPos=CurPos;
-          if (EndPos>CurLine->EditLine.GetLength())
+          int EndPos=CurPos, CurLength=CurLine->EditLine.GetLength();
+          if (EndPos>CurLength)
             EndPos=-1; // если курсор за концом строки, то выделим ВСЮ строку
 
           if (First) // выделяем заново
@@ -1417,14 +1419,15 @@ int Editor::ProcessKey(int Key)
           else       // добавляем к уже выделенному
           {
             CurLine->EditLine.GetRealSelection(SelStart,SelEnd);
-            CurLine->EditLine.Select(-1,0); // сбросим предыдущее выделение
-            if(SelStart>CurPos)
-              // курсор правее начала выделения, поэтому просто выделим все от
-              // курсора до начала строки
-              CurLine->EditLine.Select(0,EndPos);
+            if(SelStart<CurPos)
+            {
+              if(SelStart>CurLength)
+                CurLine->EditLine.Select(0,-1);
+              else
+                CurLine->EditLine.Select(0,SelStart);
+            }
             else
-              // выделим с учетом предыдущего начала выделения
-              CurLine->EditLine.Select(0,SelStart);
+              CurLine->EditLine.Select(0,SelEnd);
           }
           CurLine->EditLine.SetCurPos(0);
           CurPos=0;   // надо ли??
@@ -1462,28 +1465,29 @@ int Editor::ProcessKey(int Key)
             BlockStartLine=NumLine;
           }
 
-          if(CurPos>CurLength) // мы за пределами строки, выделяем влево
+          /* $ 24.05.2001 IS
+             ! Приблизим поведение к тому, какое было до 592
+          */
+          int SelStart, SelEnd;
+          CurLine->EditLine.GetRealSelection(SelStart,SelEnd);
+          if(CurPos>CurLength) // мы за пределами строки
           {
             if (First) // выделяем заново
               CurLine->EditLine.Select(CurLength, -1);
-            else       // добавляем к уже выделенному
-              CurLine->EditLine.AddSelect(CurLength, -1);
+            else       // убираем выделение от позиции курсора до конца строки
+              CurLine->EditLine.Select(SelStart, CurLength);
           }
           else // выделяем вправо
           {
-            /* $ 05.05.2001 IS
-               ! Приблизим поведение к тому, какое было до 592
-            */
-            int SelStart, SelEnd;
-            CurLine->EditLine.GetRealSelection(SelStart,SelEnd);
-            CurLine->EditLine.Select(-1,0); // сбросим предыдущее выделение
-            if (First || SelEnd<CurPos)
-              // выделяем заново или курсор находится правее конца выделения,
-              // поэтому просто выделим все от курсора до конца строки
+            if(First)
+              // выделяем заново
               CurLine->EditLine.Select(CurPos, CurLength);
+            else if(SelEnd==-1)
+              CurLine->EditLine.Select(CurLength, SelEnd);
+            else if(SelEnd<=CurPos)
+              CurLine->EditLine.Select(SelStart, CurLength);
             else
-              // выделим с учетом предыдущего конца выделения
-              CurLine->EditLine.Select(SelEnd,CurLength);
+              CurLine->EditLine.Select(SelEnd, CurLength);
             /* IS $ */
           }
           CurLine->EditLine.SetCurPos(CurLength);
