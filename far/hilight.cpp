@@ -5,10 +5,13 @@ Files highlighting
 
 */
 
-/* Revision: 1.44 20.02.2003 $ */
+/* Revision: 1.45 22.09.2003 $ */
 
 /*
 Modify:
+  22.09.2003 SVS
+    - ¬ раскрасках файлов если нажать CtrlUp на самой верхней
+      раскраске она становитс€ второй! (по крайней мере нелогично)
   20.02.2003 SVS
     ! «аменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
   22.01.2003 IS
@@ -575,6 +578,9 @@ void HighlightFiles::HiEdit(int MenuPos)
             NeedUpdate=TRUE;
             break;
           }
+          HiMenu.ProcessInput();
+          break;
+
         case KEY_CTRLDOWN: case KEY_CTRLNUMPAD2:
           if (SelectPos < HiMenu.GetItemCount()-2)
           {
@@ -585,6 +591,8 @@ void HighlightFiles::HiEdit(int MenuPos)
             HiMenu.SetSelection(++SelectPos);
             NeedUpdate=TRUE;
           }
+          HiMenu.ProcessInput();
+          break;
 
         default:
           HiMenu.ProcessInput();
