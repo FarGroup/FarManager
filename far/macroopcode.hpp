@@ -5,10 +5,12 @@ OpCode для макросов
 
 */
 
-/* Revision: 1.11 02.03.2005 $ */
+/* Revision: 1.12 01.04.2005 $ */
 
 /*
 Modify:
+  01.04.2005 SVS
+    + MCODE_F_PANELITEM
   02.03.2005 SVS
     + MCODE_V_FAR_WIDTH
   15.02.2005 SVS
@@ -135,6 +137,7 @@ enum MACRO_OP_CODE {
   MCODE_F_UCASE,                    // UpperCase
   MCODE_F_LCASE,                    // LowerCase
   MCODE_F_ITOA,                     //
+  MCODE_F_PANELITEM,                // V=PanelItem(Panel,Index,TypeInfo)
 
   /* ************************************************************************* */
   // булевые переменные - различные состояния

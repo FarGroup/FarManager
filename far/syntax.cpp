@@ -5,10 +5,12 @@ syntax.cpp
 
 */
 
-/* Revision: 1.05 05.03.2005 $ */
+/* Revision: 1.06 01.04.2005 $ */
 
 /*
 Modify:
+  01.04.2005 SVS
+    + MCODE_F_PANELITEM
   05.03.2005 SVS
     + varEnum()
   15.02.2005 SVS
@@ -653,6 +655,7 @@ static TMacroFunction macroFunction[]={
   {"MAX",            2,    MCODE_F_MAX},                 // N=max(N1,N2)
   {"MSGBOX",         3,    MCODE_F_MSGBOX},              // MsgBox("Title","Text",flags)
   {"MIN",            2,    MCODE_F_MIN},                 // N=min(N1,N2)
+  {"PANELITEM",      3,    MCODE_F_PANELITEM},           // V=PanelItem(Panel,Index,TypeInfo)
   {"RINDEX",         2,    MCODE_F_RINDEX},              // S=rindex(S1,S2)
   {"STRING",         1,    MCODE_F_STRING},              // S=string(V)
   {"SUBSTR",         3,    MCODE_F_SUBSTR},              // S=substr(S1,S2,N)

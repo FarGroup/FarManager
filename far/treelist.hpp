@@ -7,10 +7,12 @@ Tree panel
 
 */
 
-/* Revision: 1.19 10.03.2005 $ */
+/* Revision: 1.20 01.04.2005 $ */
 
 /*
 Modify:
+  01.04.2005 SVS
+    + GetItem()
   10.03.2005 SVS
     + У FindFile() и GoToFile() второй параметр - искать только по имени файла
     + CreateTreeFileName() - заготовка для проекта Tree.far
@@ -144,6 +146,7 @@ class TreeList: public Panel
     virtual void SetFocus();
     virtual void KillFocus();
     virtual BOOL UpdateKeyBar();
+    virtual BOOL GetItem(int Index,void *Dest);
 
   public:
     static void AddTreeName(char *Name);

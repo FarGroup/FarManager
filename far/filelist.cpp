@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.220 10.03.2005 $ */
+/* Revision: 1.221 01.04.2005 $ */
 
 /*
 Modify:
+  01.04.2005 SVS
+    + GetItem()
   10.03.2005 SVS
     + У FindFile() и GoToFile() второй параметр - искать только по имени файла
   03.03.2005 SVS
@@ -4770,4 +4772,12 @@ void FileList::IfGoHome(char Drive)
       }
     }
   }
+}
+
+BOOL FileList::GetItem(int Index,void *Dest)
+{
+  if((DWORD)Index >= FileCount)
+    return FALSE;
+  memcpy(Dest,ListData+Index,sizeof(struct FileListItem));
+  return TRUE;
 }

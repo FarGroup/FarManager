@@ -7,10 +7,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.28 10.03.2005 $ */
+/* Revision: 1.29 01.04.2005 $ */
 
 /*
 Modify:
+  01.04.2005 SVS
+    + GetItem()
   10.03.2005 SVS
     + У FindFile() и GoToFile() второй параметр - искать только по имени файла
   03.03.2005 SVS
@@ -277,6 +279,7 @@ class Panel:public ScreenObject
     virtual BOOL UpdateKeyBar() { return FALSE; };
     /* DJ $ */
     virtual long GetFileCount() {return 0;}
+    virtual BOOL GetItem(int,void *){return FALSE;};
 
     static void EndDrag();
     void Hide();

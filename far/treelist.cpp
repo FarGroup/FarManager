@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.66 10.03.2005 $ */
+/* Revision: 1.67 01.04.2005 $ */
 
 /*
 Modify:
+  01.04.2005 SVS
+    + GetItem()
   10.03.2005 SVS
     + У FindFile() и GoToFile() второй параметр - искать только по имени файла
     + CreateTreeFileName() - заготовка для проекта Tree.far
@@ -2025,4 +2027,12 @@ char * TreeList::CreateTreeFileName(const char *Path,char *Dest,int DestSize)
   Opt.Tree.SavedTreePath
 #endif
   return Dest;
+}
+
+BOOL TreeList::GetItem(int Index,void *Dest)
+{
+  if((DWORD)Index >= TreeCount)
+    return FALSE;
+  memcpy(Dest,ListData+Index,sizeof(struct TreeItem));
+  return TRUE;
 }

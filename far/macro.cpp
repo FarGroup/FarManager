@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.141 22.03.2005 $ */
+/* Revision: 1.142 01.04.2005 $ */
 
 /*
 Modify:
+  01.04.2005 SVS
+    + MCODE_F_PANELITEM, panelitemFunc
   22.03.2005 SVS
     ! в макроса пока отключим сохранение варсов.
   10.03.2005 SVS
@@ -488,6 +490,8 @@ Modify:
 #include "manager.hpp"
 #include "scrbuf.hpp"
 #include "udlist.hpp"
+#include "filelist.hpp"
+#include "treelist.hpp"
 
 // для диалога назначения клавиши
 struct DlgParam{
@@ -1670,6 +1674,89 @@ static TVar fexistFunc(TVar *param)
 }
 
 
+// V=PanelItem(typePanel,Index,TypeInfo)
+static TVar panelitemFunc(TVar *param)
+{
+  long typePanel=param[0].toInteger();
+  Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+  Panel *PassivePanel=NULL;
+  if(ActivePanel!=NULL)
+    PassivePanel=CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
+  //Frame* CurFrame=FrameManager->GetCurrentFrame();
+
+  Panel *SelPanel = typePanel == 0 ? ActivePanel : (typePanel == 1?PassivePanel:NULL);
+  if(!SelPanel)
+    return TVar(0L);
+
+  int TypePanel=SelPanel->GetType(); //FILE_PANEL,TREE_PANEL,QVIEW_PANEL,INFO_PANEL
+  if(!(TypePanel == FILE_PANEL || TypePanel ==TREE_PANEL))
+    return TVar(0L);
+
+  int Index=param[1].toInteger()-1;
+  int TypeInfo=param[2].toInteger();
+
+  struct FileListItem filelistItem;
+  if(TypePanel == TREE_PANEL)
+  {
+    struct TreeItem treeItem;
+    if(SelPanel->GetItem(Index,&treeItem) && !TypeInfo)
+      return TVar(treeItem.Name);
+    return TVar(0L);
+  }
+  else
+  {
+    char Date[128], Time[64];
+    if(!SelPanel->GetItem(Index,&filelistItem))
+      TypeInfo=-1;
+    switch(TypeInfo)
+    {
+      case 0:  // Name
+        return TVar(filelistItem.Name);
+      case 1:  // ShortName
+        return TVar(filelistItem.ShortName);
+      case 2:  // FileAttr
+        return TVar((long)filelistItem.FileAttr);
+      case 3:  // CreationTime
+        ConvertDate(filelistItem.CreationTime,Date,Time,8,FALSE,FALSE,TRUE,TRUE);
+        strcat(Date," ");
+        strcat(Date,Time);
+        return TVar(Date);
+      case 4:  // AccessTime
+        ConvertDate(filelistItem.AccessTime,Date,Time,8,FALSE,FALSE,TRUE,TRUE);
+        strcat(Date," ");
+        strcat(Date,Time);
+        return TVar(Date);
+      case 5:  // WriteTime
+        ConvertDate(filelistItem.WriteTime,Date,Time,8,FALSE,FALSE,TRUE,TRUE);
+        strcat(Date," ");
+        strcat(Date,Time);
+        return TVar(Date);
+      case 6:  // UnpSizeHigh
+        return TVar((long)filelistItem.UnpSizeHigh);
+      case 7:  // UnpSize
+        return TVar((long)filelistItem.UnpSize);
+      case 8:  // PackSizeHigh
+        return TVar((long)filelistItem.PackSizeHigh);
+      case 9:  // PackSize
+        return TVar((long)filelistItem.PackSize);
+      case 10:  // Selected
+        return TVar((long)((DWORD)filelistItem.Selected));
+      case 11:  // NumberOfLinks
+        return TVar((long)filelistItem.NumberOfLinks);
+      case 12:  // SortGroup
+        return TVar((long)filelistItem.SortGroup);
+      case 13:  // DizText
+        return TVar(filelistItem.DizText);
+      case 14:  // Owner
+        return TVar((long)filelistItem.Owner);
+      case 15:  // CRC32
+        return TVar((long)filelistItem.CRC32);
+    }
+  }
+
+  return TVar(0L);
+}
+
 TVarTable glbVarTable, locVarTable;
 TVar eStack[MAXEXEXSTACK];
 
@@ -1958,6 +2045,10 @@ done:
           case MCODE_F_INDEX:
             ePos--;
             eStack[ePos] = indexFunc(eStack+ePos);
+            break;
+          case MCODE_F_PANELITEM:
+            ePos-=2;
+            eStack[ePos] = panelitemFunc(eStack+ePos);
             break;
           case MCODE_F_ENVIRON:
             eStack[ePos] = environFunc(eStack+ePos);

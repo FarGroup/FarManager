@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.45 10.03.2005 $ */
+/* Revision: 1.46 01.04.2005 $ */
 
 /*
 Modify:
+  01.04.2005 SVS
+    + GetItem()
   10.03.2005 SVS
     + У FindFile() и GoToFile() второй параметр - искать только по имени файла
   03.03.2005 SVS
@@ -388,6 +390,7 @@ class FileList:public Panel
     char *CreateFullPathName(char *Name,char *ShortName,DWORD FileAttr,
                             char *Dest,int SizeDest,int UNC);
 
+    virtual BOOL GetItem(int Index,void *Dest);
     /* $ 30.04.2001 DJ
        добавлен UpdateKeyBar()
     */
