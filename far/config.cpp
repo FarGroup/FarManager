@@ -5,13 +5,15 @@ config.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 29.06.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  29.06.2000 SVS
+    + Показывать ли ScrollBar для Menu
 */
 
 #include "headers.hpp"
@@ -122,11 +124,16 @@ void PanelSettings()
     DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MConfigShowTotal,
     DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MConfigShowFree,
     DI_CHECKBOX,5,12,0,0,0,0,0,0,(char *)MConfigShowScrollbar,
-    DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MConfigShowScreensNumber,
-    DI_CHECKBOX,5,14,0,0,0,0,0,0,(char *)MConfigShowSortMode,
-    DI_TEXT,3,15,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    DI_BUTTON,0,16,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-    DI_BUTTON,0,16,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+    /* $ 29.06.2000
+       + Показывать ли ScrollBar для Menu
+    */
+    DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MConfigShowMenuScrollbar,
+    DI_CHECKBOX,5,14,0,0,0,0,0,0,(char *)MConfigShowScreensNumber,
+    DI_CHECKBOX,5,15,0,0,0,0,0,0,(char *)MConfigShowSortMode,
+    DI_TEXT,3,16,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+    DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+    DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+    /* SVS $ */
   };
   MakeDialogItems(CfgDlgData,CfgDlg);
 
@@ -141,15 +148,19 @@ void PanelSettings()
   CfgDlg[9].Selected=Opt.ShowPanelTotals;
   CfgDlg[10].Selected=Opt.ShowPanelFree;
   CfgDlg[11].Selected=Opt.ShowPanelScrollbar;
-  CfgDlg[12].Selected=Opt.ShowScreensNumber;
-  CfgDlg[13].Selected=Opt.ShowSortMode;
+  /* $ 29.06.2000 SVS
+     + Показывать ли ScrollBar для Menu
+  */
+  CfgDlg[12].Selected=Opt.ShowMenuScrollbar;
+  CfgDlg[13].Selected=Opt.ShowScreensNumber;
+  CfgDlg[14].Selected=Opt.ShowSortMode;
 
   {
     Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
     Dlg.SetHelp("PanelSettings");
-    Dlg.SetPosition(-1,-1,56,19);
+    Dlg.SetPosition(-1,-1,56,20);
     Dlg.Process();
-    if (Dlg.GetExitCode()!=15)
+    if (Dlg.GetExitCode()!=16)
       return;
   }
 
@@ -164,8 +175,10 @@ void PanelSettings()
   Opt.ShowPanelTotals=CfgDlg[9].Selected;
   Opt.ShowPanelFree=CfgDlg[10].Selected;
   Opt.ShowPanelScrollbar=CfgDlg[11].Selected;
-  Opt.ShowScreensNumber=CfgDlg[12].Selected;
-  Opt.ShowSortMode=CfgDlg[13].Selected;
+  Opt.ShowMenuScrollbar=CfgDlg[12].Selected;
+  Opt.ShowScreensNumber=CfgDlg[13].Selected;
+  Opt.ShowSortMode=CfgDlg[14].Selected;
+  /* SVS $ */
 
   CtrlObject->LeftPanel->Update(UPDATE_KEEP_SELECTION);
   CtrlObject->RightPanel->Update(UPDATE_KEEP_SELECTION);
@@ -547,6 +560,11 @@ void ReadConfig()
   GetRegKey("Panel\\Layout","TotalInfo",Opt.ShowPanelTotals,1);
   GetRegKey("Panel\\Layout","FreeInfo",Opt.ShowPanelFree,0);
   GetRegKey("Panel\\Layout","Scrollbar",Opt.ShowPanelScrollbar,0);
+  /* $ 29.06.2000 SVS
+     + Показывать ли ScrollBar для Menu
+  */
+  GetRegKey("Panel\\Layout","ScrollbarMenu",Opt.ShowMenuScrollbar,0);
+  /* SVS $ */
   GetRegKey("Panel\\Layout","ScreensNumber",Opt.ShowScreensNumber,1);
   GetRegKey("Panel\\Layout","SortMode",Opt.ShowSortMode,1);
 
@@ -681,6 +699,11 @@ void SaveConfig(int Ask)
   SetRegKey("Panel\\Layout","TotalInfo",Opt.ShowPanelTotals);
   SetRegKey("Panel\\Layout","FreeInfo",Opt.ShowPanelFree);
   SetRegKey("Panel\\Layout","Scrollbar",Opt.ShowPanelScrollbar);
+  /* $ 29.06.2000 SVS
+     + Показывать ли ScrollBar для Menu
+  */
+  SetRegKey("Panel\\Layout","ScrollbarMenu",Opt.ShowMenuScrollbar);
+  /* SVS $ */
   SetRegKey("Panel\\Layout","ScreensNumber",Opt.ShowScreensNumber);
   SetRegKey("Panel\\Layout","SortMode",Opt.ShowSortMode);
 

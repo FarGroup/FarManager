@@ -105,7 +105,8 @@
 "Show &status line"
 "Show files &total information"
 "Show f&ree size"
-"Show scroll&bar"
+"Show scroll&bar in Panels"
+"Show scrollbar in M&enus"
 "Show background screens &number"
 "Show sort &mode letter"
 
@@ -748,6 +749,7 @@
 "Selected highlighted text"
 "Border"
 "Title"
+"Scrollbar"
 
 "Normal text"
 "Selected text"

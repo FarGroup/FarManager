@@ -14,6 +14,8 @@ Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  29.06.2000 SVS
+    + Цветовые атрибуты для Menu ScrollBar
 */
 
 enum {
@@ -141,6 +143,13 @@ enum PaletteColors
   COL_DIALOGEDITSELECTED,
   COL_COMMANDLINESELECTED,
   COL_VIEWERARROWS,
+
+  /* 29.06.2000 SVS
+    Цветовые атрибуты для Menu ScrollBar
+  */
+  COL_DIALOGMENUSCROLLBAR,	// для случая History
+  COL_MENUSCROLLBAR,            // для обычного меню
+  /* SVS $ */
 };
 
 #endif	// __COLORS_HPP__

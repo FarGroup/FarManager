@@ -12,6 +12,8 @@ Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  29.06.2000 SVS
+    + Новый пункт для настройки цветов Menu для Menu Scrollbar
 */
 
 #include "headers.hpp"
@@ -138,6 +140,9 @@ void SetColors()
     COL_WARNDIALOGHIGHLIGHTBUTTON,COL_WARNDIALOGHIGHLIGHTSELECTEDBUTTON
   };
 
+    /* $ 29.06.2000 SVS
+      Новый пункт для настройки цветов Menu Scrollbar
+    */
   struct MenuData MenuItems[]=
   {
     (char *)MSetColorMenuNormal,1,0,0,
@@ -145,11 +150,14 @@ void SetColors()
     (char *)MSetColorMenuHighlighted,0,0,0,
     (char *)MSetColorMenuSelectedHighlighted,0,0,0,
     (char *)MSetColorMenuBox,0,0,0,
-    (char *)MSetColorMenuTitle,0,0,0
+    (char *)MSetColorMenuTitle,0,0,0,
+    (char *)MSetColorMenuScrollBar,0,0,0
   };
   int MenuPaletteItems[]={
     COL_MENUTEXT,COL_MENUSELECTEDTEXT,COL_MENUHIGHLIGHT,
     COL_MENUSELECTEDHIGHLIGHT,COL_MENUBOX,COL_MENUTITLE,
+    COL_MENUSCROLLBAR
+    /* SVS $ */
   };
 
   struct MenuData HMenuItems[]=

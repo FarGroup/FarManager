@@ -14,6 +14,8 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
   28.06.2000 tran
     + вертикальный скролбар в меню при необходимости
+  29.06.2000 SVS
+    ! Показывать ScrollBar в меню если включена опция ShowMenuScrollbar
 */
 
 #include "headers.hpp"
@@ -379,13 +381,17 @@ void VMenu::ShowMenu()
     }
   }
   /* $ 28.06.2000 tran
-     показываем скролбар если пунктов в меню больше чем
-     его высота */
-  if ((Y2-Y1-1)<ItemCount )
+       показываем скролбар если пунктов в меню больше чем
+       его высота
+     $ 29.06.2000 SVS
+       Показывать ScrollBar в меню если включена опция Opt.ShowMenuScrollbar
+  */
+  if (Opt.ShowMenuScrollbar && (Y2-Y1-1)<ItemCount )
   {
-    SetColor(COL_PANELSCROLLBAR);
+    SetColor(DialogStyle ? COL_DIALOGMENUSCROLLBAR: COL_MENUSCROLLBAR);
     ScrollBar(X2,Y1+1,Y2-Y1-1,SelectPos,ItemCount);
   }
+  /* SVS $ */
   /* tran $ */
 }
 

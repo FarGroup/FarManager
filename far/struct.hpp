@@ -14,6 +14,8 @@ Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  29.06.2000 SVS
+    + Добавлен атрибут показа Scroll Bar в меню - Options::ShowMenuScrollbar
 */
 
 struct PanelOptions
@@ -151,6 +153,11 @@ struct Options
   int ShowPanelTotals;
   int ShowPanelFree;
   int ShowPanelScrollbar;
+  /* $ 29.06.2000 SVS
+    Добавлен атрибут показа Scroll Bar в меню.
+  */
+  int ShowMenuScrollbar;
+  /* SVS $*/
   int ShowScreensNumber;
   int ShowSortMode;
   int ShowMenuBar;

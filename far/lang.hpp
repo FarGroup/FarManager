@@ -7,13 +7,17 @@ lang.hpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 29.06.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  29.06.2000 SVS
+    + Новый пункт для Options|Panel settings
+      [ ] Show scrollbar into Menus
+    + Новый пункт для настройки цветов Menu для Menu Scrollbar
 */
 
 enum
@@ -119,6 +123,12 @@ enum
   MConfigShowTotal,
   MConfigShowFree,
   MConfigShowScrollbar,
+  /* $ 29.06.2000 SVS
+     Новый пункт для Options|Panel settings
+     [ ] Show scrollbar in Menus
+  */
+  MConfigShowMenuScrollbar,
+  /* SVS $*/
   MConfigShowScreensNumber,
   MConfigShowSortMode,
 
@@ -759,7 +769,11 @@ enum
   MSetColorMenuSelectedHighlighted,
   MSetColorMenuBox,
   MSetColorMenuTitle,
-
+  /* $ 29.06.2000 SVS
+     Новый пункт для настройки цветов Menu
+  */
+  MSetColorMenuScrollBar,
+  /* SVS $ */
   MSetColorHMenuNormal,
   MSetColorHMenuSelected,
   MSetColorHMenuHighlighted,

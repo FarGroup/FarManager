@@ -1,6 +1,6 @@
 .Language=English,English
 @Contents
-$^#FAR version 1.65. File and archive manager.#
+$^#FAR version 1.66 beta 1. File and archive manager.#
 $^#Copyright (C) 1996-2000 Eugene Roshal.#
    ~How to use help~@Help@
 
@@ -1047,7 +1047,10 @@ $ #Panel settings dialog#
                           size.
 
   #Show scrollbar#          Enable display of file and ~tree panel~@TreePanel@
-                          scrollbars.
+  #in Panels#               scrollbars.
+
+  #Show scrollbar#          Enable display of scrollbars in Menus
+  #in menu#                 (if items a menu more, than height a menu)
 
   #Show background#         Enable display of the number of
   #screens number#          ~background screens~@ScrSwitch@.
