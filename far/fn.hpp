@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.135 03.03.2002 $ */
+/* Revision: 1.136 03.03.2002 $ */
 
 /*
 Modify:
+  03.03.2002 SVS
+    ! Если для VC вставить ключ /Gr, то видим кучу багов :-/
   03.03.2002 SVS
     ! Есть только одна функция создания временного файла - FarMkTempEx
       FarMkTemp - это для плагинов
@@ -406,9 +408,12 @@ char* InsertCommas(unsigned long Number,char *Dest);
 char* InsertCommas(int64 li,char *Dest);
 void DeleteDirTree(char *Dir);
 int GetClusterSize(char *Root);
-void _cdecl CheckVersion(void *Param);
-void _cdecl ErrRegFn(void *Param);
+
+void __cdecl CheckVersion(void *Param);
+void __cdecl ErrRegFn(void *Param);
+void __cdecl CheckReg(void *Param);
 void Register();
+
 char ToHex(char Ch);
 void InitDetectWindowedMode();
 void DetectWindowedMode();
@@ -419,7 +424,6 @@ void BoxText(unsigned char Chr);
 void BoxText(char *Str,int IsVert=0);
 int FarColorToReal(int FarColor);
 void ReopenConsole();
-void _cdecl CheckReg(void *Param);
 int IsFolderNotEmpty(char *Name);
 char *RemoveChar(char *Str,char Target,BOOL Dup=TRUE);
 char *InsertString(char *Str,int Pos,const char *InsStr,int InsSize=0);
@@ -539,9 +543,9 @@ void WINAPI LocalStrlwr(char *s1);
 int WINAPI LStricmp(const char *s1,const char *s2);
 int WINAPI LStrnicmp(const char *s1,const char *s2,int n);
 /* SVS $ */
-int LocalStricmp(const char *s1,const char *s2);
-int LocalStrnicmp(const char *s1,const char *s2,int n);
-int LCStricmp(char *s1,char *s2);
+int __cdecl LocalStricmp(const char *s1,const char *s2);
+int __cdecl LocalStrnicmp(const char *s1,const char *s2,int n);
+int __cdecl LCStricmp(const char *s1,const char *s2);
 int LocalKeyToKey(int Key);
 int GetShortcutFolder(int Key,char *DestFolder,char *PluginModule,
                       char *PluginFile,char *PluginData);
@@ -1071,10 +1075,10 @@ char *Add_PATHEXT(char *Dest);
 extern "C" {
 #endif
 
-void qsortex(char *base, unsigned int nel, unsigned int width,
-            int (*comp_fp)(const void *, const void *,void*), void *user);
+void __cdecl qsortex(char *base, unsigned int nel, unsigned int width,
+            int (__cdecl *comp_fp)(const void *, const void *,void*), void *user);
 
-char* mktemp(char *temp);
+char * __cdecl mktemp(char *temp);
 #ifdef __cplusplus
 }
 #endif

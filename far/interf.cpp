@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.47 03.03.2002 $ */
+/* Revision: 1.48 03.03.2002 $ */
 
 /*
 Modify:
+  03.03.2002 SVS
+    ! Если для VC вставить ключ /Gr, то видим кучу багов :-/
   03.03.2002 SVS
     + ChangeBlockColor() - изменение цвета в блоке
     ! уточнение юникодовой таблицы
@@ -852,12 +854,12 @@ void ShowTime(int ShowAlways)
       if ((Add & 0xf)!=ToHex(Reg.RegCode[1]) || ((Add>>3) & 0xf)!=ToHex(Reg.RegCode[2]))
       {
         void *ErrRegFnPtr=((char *)ErrRegFn-111);
-        _beginthread((void (cdecl *)(void *))((char *)ErrRegFnPtr+111),0x10000,NULL);
+        _beginthread((void (__cdecl *)(void *))((char *)ErrRegFnPtr+111),0x10000,NULL);
       }
       if (RegVer!=3 && (((Xor1>>5) & 0xf)!=ToHex(Reg.RegCode[4]) || (~Xor1 & 0xf)!=ToHex(Reg.RegCode[6])))
       {
         void *ErrRegFnPtr=((char *)ErrRegFn-50);
-        _beginthread((void (cdecl *)(void *))((char *)ErrRegFnPtr+50),0x10000,NULL);
+        _beginthread((void (__cdecl *)(void *))((char *)ErrRegFnPtr+50),0x10000,NULL);
       }
     }
   }

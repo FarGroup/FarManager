@@ -5,10 +5,12 @@ local.cpp
 
 */
 
-/* Revision: 1.11 14.01.2002 $ */
+/* Revision: 1.12 03.03.2002 $ */
 
 /*
 Modify:
+  03.03.2002 SVS
+    ! Если для VC вставить ключ /Gr, то видим кучу багов :-/
   14.01.2002 SVS
     ! Содержимое KeyToKey приведем к верхнему регистру
   11.01.2002 IS
@@ -266,7 +268,7 @@ int WINAPI LStricmp(const char *s1,const char *s2)
   return LocalStricmp(s1,s2);
 }
 
-int LocalStricmp(const char *s1,const char *s2)
+int __cdecl LocalStricmp(const char *s1,const char *s2)
 {
   while (1)
   {
@@ -284,7 +286,7 @@ int WINAPI LStrnicmp(const char *s1,const char *s2,int n)
   return LocalStrnicmp(s1,s2,n);
 }
 
-int LocalStrnicmp(const char *s1,const char *s2,int n)
+int __cdecl LocalStrnicmp(const char *s1,const char *s2,int n)
 {
   while (n-- > 0)
   {
@@ -298,7 +300,7 @@ int LocalStrnicmp(const char *s1,const char *s2,int n)
 }
 
 
-int LCStricmp(char *s1,char *s2)
+int __cdecl LCStricmp(const char *s1,const char *s2)
 {
   while (1)
   {

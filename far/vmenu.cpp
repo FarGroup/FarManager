@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.78 27.02.2002 $ */
+/* Revision: 1.79 03.03.2002 $ */
 
 /*
 Modify:
+  03.03.2002 SVS
+    ! Если для VC вставить ключ /Gr, то видим кучу багов :-/
   27.02.2002 SVS
     + LIF_UPDATEKEEPUSERDATA - "не убивать юзердату при обновлении"
     ! LIFIND_NOPATTERN -> LIFIND_EXACTMATCH
@@ -1872,7 +1874,7 @@ void VMenu::SetOneColor (int Index, short Color)
 
 /* DJ $ */
 
-static int _cdecl SortItem(const struct MenuItem *el1,
+static int __cdecl  SortItem(const struct MenuItem *el1,
                            const struct MenuItem *el2,
                            const int *Direction)
 {
@@ -1883,7 +1885,7 @@ static int _cdecl SortItem(const struct MenuItem *el1,
 // Сортировка элементов списка
 void VMenu::SortItems(int Direction)
 {
-  typedef int (*qsortex_fn)(const void*,const void*,void*);
+  typedef int (__cdecl *qsortex_fn)(const void*,const void*,void*);
   qsortex((char *)Item,
           ItemCount,
           sizeof(*Item),

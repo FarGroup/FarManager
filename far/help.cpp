@@ -8,10 +8,12 @@ help.cpp
 
 */
 
-/* Revision: 1.65 15.01.2002 $ */
+/* Revision: 1.66 03.03.2002 $ */
 
 /*
 Modify:
+  03.03.2002 SVS
+    ! Если для VC вставить ключ /Gr, то видим кучу багов :-/
   15.01.2001 SVS
     - Была бага - например, F1 выбрать "Клавиатурные команды" - курсор
       позиционировался на второй линк. Причем, если в Far*.hlf (далее в
@@ -1760,7 +1762,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 #endif
   }
   // сортируем по алфавиту
-  qsort(HelpData+OldStrCount*MAX_HELP_STRING_LENGTH,StrCount-OldStrCount,MAX_HELP_STRING_LENGTH,(int (*)(const void *,const void *))LCStricmp);
+  qsort(HelpData+OldStrCount*MAX_HELP_STRING_LENGTH,StrCount-OldStrCount,MAX_HELP_STRING_LENGTH,(int (__cdecl*)(const void *,const void *))LCStricmp);
   /* $ 26.06.2000 IS
    Устранение глюка с хелпом по f1, shift+f2, end (решение предложил IG)
   */

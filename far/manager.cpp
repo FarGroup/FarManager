@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.61 15.02.2002 $ */
+/* Revision: 1.62 03.03.2002 $ */
 
 /*
 Modify:
+  03.03.2002 SVS
+    ! Если для VC вставить ключ /Gr, то видим кучу багов :-/
   15.02.2002 SVS
     ! Вызов ShowProcessList() вынесен в манагер
   29.01.2002 OT
@@ -410,7 +412,7 @@ int Manager::GetModalExitCode()
 int Manager::CountFramesWithName(const char *Name, BOOL IgnoreCase)
 {
    int Counter=0;
-   int (*cmpfunc)(const char *s1, const char *s2)=IgnoreCase?LocalStricmp:strcmp;
+   int (__cdecl *cmpfunc)(const char *s1, const char *s2)=IgnoreCase?LocalStricmp:strcmp;
    char Type[200],curName[NM];
    for (int I=0;I<FrameCount;I++)
    {

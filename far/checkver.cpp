@@ -5,10 +5,12 @@ checkver.cpp
 
 */
 
-/* Revision: 1.07 06.11.2001 $ */
+/* Revision: 1.08 03.03.2002 $ */
 
 /*
 Modify:
+  03.03.2002 SVS
+    ! Если для VC вставить ключ /Gr, то видим кучу багов :-/
   06.11.2001 SVS
     ! const при передаче в реестр.
   06.05.2001 DJ
@@ -87,7 +89,7 @@ static const char *GetxUSSRRegName()
 #ifndef _MSC_VER
 #pragma warn -par
 #endif
-void _cdecl CheckVersion(void *Param)
+void __cdecl CheckVersion(void *Param)
 {
   Sleep(1000);
 
@@ -167,7 +169,7 @@ void Register()
 }
 
 
-void _cdecl CheckReg(void *Param)
+void __cdecl CheckReg(void *Param)
 {
   struct RegInfo *Reg=(struct RegInfo *)Param;
   char RegName[256],RegCode[256],RegData[256];
@@ -226,7 +228,7 @@ char ToHex(char Ch)
 #ifndef _MSC_VER
 #pragma warn -par
 #endif
-void _cdecl ErrRegFn(void *Param)
+void __cdecl ErrRegFn(void *Param)
 {
   if (RegVer!=3)
   {

@@ -46,15 +46,15 @@ structures.  The default value is optimized for a high cost for compares. */
 #define COMPEX(a,b,u) (*comp_fp)(a,b,u)
 #define COMP(a,b) (*comp_fp)(a,b)
 
-typedef void (*SWAP_FP) (void *, void *);
+typedef void (__cdecl *SWAP_FP) (void *, void *);
 
-void qsortex(char *base, unsigned int nel, unsigned int width,
-            int (*comp_fp)(const void *, const void *,void*), void *user)
+void __cdecl qsortex(char *base, unsigned int nel, unsigned int width,
+            int (__cdecl *comp_fp)(const void *, const void *,void*), void *user)
 {
   char *stack[40], **sp;                 /* stack and stack pointer        */
   char *i, *j, *limit;                   /* scan and limit pointers        */
   unsigned thresh;                       /* size of _maxspan elements in   */
-  void (*swap_fp) (void *, void *);      /* bytes */
+  void (__cdecl  *swap_fp) (void *, void *);      /* bytes */
 
   if ((width % sizeof(int)) != 0)
   {
@@ -172,12 +172,12 @@ static void cswap (char *a, char *b)    /* swap chars */
 #if 0
 #if 0
 void qsort(void *base, size_t nel, size_t width,
-            int (*comp_fp)(const void *, const void *))
+            int (__cdecl *comp_fp)(const void *, const void *))
 {
   char *stack[40], **sp;                 /* stack and stack pointer        */
   char *i, *j, *limit;                   /* scan and limit pointers        */
   unsigned thresh;                       /* size of _maxspan elements in   */
-  void (*swap_fp) (void *, void *);      /* bytes */
+  void (__cdecl *swap_fp) (void *, void *);      /* bytes */
 
   if ((width % sizeof(int)) != 0)
   {

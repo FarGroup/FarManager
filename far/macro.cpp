@@ -8,10 +8,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.71 21.02.2002 $ */
+/* Revision: 1.72 03.03.2002 $ */
 
 /*
 Modify:
+  03.03.2002 SVS
+    ! Если для VC вставить ключ /Gr, то видим кучу багов :-/
   21.02.2002 SVS
     - BugZ#308. Enter попадает в редактор - дропнем LastRecord в манагере
   05.02.2002 SVS
@@ -1731,7 +1733,7 @@ int KeyMacro::GetCurRecord(struct MacroRecord* RBuf,int *KeyPos)
   return Recording?1:(Executing?2:0);
 }
 
-static int _cdecl SortMacros(const struct MacroRecord *el1,
+static int __cdecl SortMacros(const struct MacroRecord *el1,
                            const struct MacroRecord *el2)
 {
   int Mode1, Mode2;
@@ -1745,7 +1747,7 @@ static int _cdecl SortMacros(const struct MacroRecord *el1,
 // Сортировка элементов списка
 void KeyMacro::Sort(void)
 {
-  typedef int (*qsort_fn)(const void*,const void*);
+  typedef int (__cdecl *qsort_fn)(const void*,const void*);
   // сортируем
   qsort(Macros,
         MacrosNumber,
