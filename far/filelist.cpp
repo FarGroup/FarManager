@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.22 21.12.2000 $ */
+/* Revision: 1.23 09.01.2001 $ */
 
 /*
 Modify:
+  09.01.2001 SVS
+    - Для KEY_XXX_BASE нужно прибавить 0x01
   21.12.2000 SVS
     - диалог атрибутов по F4 вызывался в плагиновой панели...
       ...пусть об этом позаботится Ctrl-A :-)
@@ -1278,8 +1280,8 @@ int FileList::ProcessKey(int Key)
       ProcessEnter(0,0);
       return(TRUE);
     default:
-      if (Key>=KEY_ALT_BASE && Key<=KEY_ALT_BASE+255 ||
-          Key>=KEY_ALTSHIFT_BASE && Key<=KEY_ALTSHIFT_BASE+255)
+      if (Key>=KEY_ALT_BASE+0x01 && Key<=KEY_ALT_BASE+255 ||
+          Key>=KEY_ALTSHIFT_BASE+0x01 && Key<=KEY_ALTSHIFT_BASE+255)
         FastFind(Key);
       else
         break;

@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.11 05.01.2001 $ */
+/* Revision: 1.12 09.01.2001 $ */
 
 /*
 Modify:
+  09.01.2001 SVS
+    - Для KEY_XXX_BASE нужно прибавить 0x01
   05.01.2001 SVS
     + Попробуем удалить SUBST диск
     + Покажем инфу, что ЭТО - SUBST-диск
@@ -627,9 +629,9 @@ void Panel::FastFind(int FirstKey)
         KeyToProcess=KEY_NONE;
         break;
       }
-      if (Key>=KEY_ALT_BASE && Key<=KEY_ALT_BASE+255)
+      if (Key>=KEY_ALT_BASE+0x01 && Key<=KEY_ALT_BASE+255)
         Key=tolower(Key-KEY_ALT_BASE);
-      if (Key>=KEY_ALTSHIFT_BASE && Key<=KEY_ALTSHIFT_BASE+255)
+      if (Key>=KEY_ALTSHIFT_BASE+0x01 && Key<=KEY_ALTSHIFT_BASE+255)
         Key=tolower(Key-KEY_ALTSHIFT_BASE);
 
       if (Key==KEY_MULTIPLY)

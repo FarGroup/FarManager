@@ -5,10 +5,12 @@ foldtree.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 09.01.2001 $ */
 
 /*
 Modify:
+  09.01.2001 SVS
+    - Для KEY_XXX_BASE нужно прибавить 0x01
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
@@ -58,7 +60,7 @@ FolderTree::FolderTree(char *ResultFolder,int ModalMode,int TX1,int TY1,int TX2,
 
 int FolderTree::ProcessKey(int Key)
 {
-  if (Key>=KEY_ALT_BASE && Key<=KEY_ALT_BASE+255)
+  if (Key>=KEY_ALT_BASE+0x01 && Key<=KEY_ALT_BASE+255)
     Key=tolower(Key-KEY_ALT_BASE);
   switch(Key)
   {

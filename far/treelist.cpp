@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.04 02.11.2000 $ */
+/* Revision: 1.05 09.01.2001 $ */
 
 /*
 Modify:
+  09.01.2001 SVS
+    - Для KEY_XXX_BASE нужно прибавить 0x01
   02.11.2000 OT
     ! Введение проверки на длину буфера, отведенного под имя файла.
   16.10.2000 tran
@@ -607,8 +609,8 @@ int TreeList::ProcessKey(int Key)
         ProcessKey(KEY_ENTER);
       return(TRUE);
     default:
-      if (Key>=KEY_ALT_BASE && Key<=KEY_ALT_BASE+255 ||
-          Key>=KEY_ALTSHIFT_BASE && Key<=KEY_ALTSHIFT_BASE+255)
+      if (Key>=KEY_ALT_BASE+0x01 && Key<=KEY_ALT_BASE+255 ||
+          Key>=KEY_ALTSHIFT_BASE+0x01 && Key<=KEY_ALTSHIFT_BASE+255)
       {
         FastFind(Key);
         if (Opt.AutoChangeFolder && !ModalMode)
