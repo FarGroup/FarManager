@@ -5,10 +5,13 @@ execute.cpp
 
 */
 
-/* Revision: 1.67 12.08.2002 $ */
+/* Revision: 1.68 17.08.2002 $ */
 
 /*
 Modify:
+  17.08.2002 VVM
+    + GetShellAction() - если нет "Default action",  то возьмем первую,
+      у которой будет ключ "Command"
   12.08.2002 SVS
     + Opt.ExecuteUseAppPath
   08.08.2002 VVM
@@ -352,13 +355,12 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem)
 
   static char Action[80];
   ValueSize=sizeof(Action);
-  LONG RetQuery=RegQueryValueEx(hKey,"",NULL,NULL,(unsigned char *)Action,(LPDWORD)&ValueSize);
-  RegCloseKey(hKey);
+  LONG RetQuery = RegQueryValueEx(hKey,"",NULL,NULL,(unsigned char *)Action,(LPDWORD)&ValueSize);
 
+  strcat(Value,"\\");
   if (RetQuery == ERROR_SUCCESS)
   {
     RetPtr=(*Action==0 ? NULL:Action);
-    strcat(Value,"\\");
     strcat(Value,Action);
   }
   else
@@ -366,35 +368,70 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem)
     // This member defaults to "Open" if no verb is specified.
     // Т.е. если мы вернули NULL, то подразумевается команда "Open"
     RetPtr=NULL;
-    strcat(Value,"\\open");
+//    strcat(Value,"\\open");
   }
-  strcat(Value,"\\command");
-
-  // а теперь проверим ГУЕвость запускаемой проги
-  if (RegOpenKey(HKEY_CLASSES_ROOT,Value,&hKey)==ERROR_SUCCESS)
+  // Если RetPtr==NULL - мы не нашли default action.
+  // Посмотрим - есть ли вообще что-нибудь у этого расширения
+  if (RetPtr==NULL)
   {
-    char Command[2048];
-    ValueSize=sizeof(Command);
-    RetQuery=RegQueryValueEx(hKey,"",NULL,NULL,(unsigned char *)Command,(LPDWORD)&ValueSize);
-    RegCloseKey(hKey);
-    if(RetQuery == ERROR_SUCCESS)
+    LONG RetEnum = ERROR_SUCCESS;
+    char NewValue[512];
+    DWORD dwIndex = 0;
+    DWORD dwKeySize = 0;
+    FILETIME ftLastWriteTime;
+    HKEY hOpenKey;
+    while (RetEnum == ERROR_SUCCESS)
     {
-      char *Ptr;
-      ExpandEnvironmentStr(Command,Command,sizeof(Command));
-      // Выделяем имя модуля
-      if (*Command=='\"')
+      dwKeySize = sizeof(Action);
+      RetEnum = RegEnumKeyEx(hKey, dwIndex++, Action, &dwKeySize, NULL, NULL, NULL, &ftLastWriteTime);
+      if (RetEnum == ERROR_SUCCESS)
       {
-        OemToChar(Command+1,Command);
-        if ((Ptr=strchr(Command,'\"'))!=NULL)
-          *Ptr=0;
-      }
-      else
+        // Проверим наличие "команды" у этого ключа
+          strncpy(NewValue, Value, sizeof(NewValue) - 1);
+        strcat(NewValue, Action);
+        strcat(NewValue, "\\command");
+        if (RegOpenKey(HKEY_CLASSES_ROOT,NewValue,&hOpenKey)==ERROR_SUCCESS)
+        {
+          RegCloseKey(hOpenKey);
+          strcat(Value, Action);
+          RetPtr = Action;
+          RetEnum = ERROR_NO_MORE_ITEMS;
+        } /* if */
+      } /* if */
+    } /* while */
+  } /* if */
+  RegCloseKey(hKey);
+
+  if (RetPtr != NULL)
+  {
+    strcat(Value,"\\command");
+
+    // а теперь проверим ГУЕвость запускаемой проги
+    if (RegOpenKey(HKEY_CLASSES_ROOT,Value,&hKey)==ERROR_SUCCESS)
+    {
+      char Command[2048];
+      ValueSize=sizeof(Command);
+      RetQuery=RegQueryValueEx(hKey,"",NULL,NULL,(unsigned char *)Command,(LPDWORD)&ValueSize);
+      RegCloseKey(hKey);
+      if(RetQuery == ERROR_SUCCESS)
       {
-        OemToChar(Command,Command);
-        if ((Ptr=strpbrk(Command," \t/"))!=NULL)
-          *Ptr=0;
+        char *Ptr;
+        ExpandEnvironmentStr(Command,Command,sizeof(Command));
+        // Выделяем имя модуля
+        if (*Command=='\"')
+        {
+          OemToChar(Command+1,Command);
+          if ((Ptr=strchr(Command,'\"'))!=NULL)
+            *Ptr=0;
+        }
+        else
+        {
+          OemToChar(Command,Command);
+          if ((Ptr=strpbrk(Command," \t/"))!=NULL)
+            *Ptr=0;
+        }
+        IsCommandPEExeGUI(Command,ImageSubsystem);
       }
-      IsCommandPEExeGUI(Command,ImageSubsystem);
     }
   }
 
