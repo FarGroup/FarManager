@@ -5,10 +5,15 @@ dialog.cpp
 
 */
 
-/* Revision: 1.61 15.12.2000 $ */
+/* Revision: 1.62 21.12.2000 $ */
 
 /*
 Modify:
+  21.12.2000 SVS
+   ! Ctr-Break теперь недействителен, т.е. все зависит от того
+     что вернет обработчик.
+   + DIF_SHOWAMPERSAND для DI_*BOX
+   + DM_GETTEXTPTR, DM_SETTEXTPTR
   15.12.2000 SVS
    ! При перемещении диалога повторяем поведение "бормандовых" сред.
    ! Новый движок мышиного перемещения
@@ -924,7 +929,8 @@ void Dialog::ShowDialog(int ID)
     /* $ 28.07.2000 SVS
        перед прорисовкой подложки окна диалога...
     */
-    Attr=DlgProc((HANDLE)this,DN_CTLCOLORDIALOG,0,CheckDialogMode(DMODE_WARNINGSTYLE) ? COL_WARNDIALOGTEXT:COL_DIALOGTEXT);
+    Attr=DlgProc((HANDLE)this,DN_CTLCOLORDIALOG,0,
+        CheckDialogMode(DMODE_WARNINGSTYLE) ? COL_WARNDIALOGTEXT:COL_DIALOGTEXT);
     SetScreen(X1,Y1,X2,Y2,' ',Attr);
     /* SVS $ */
   }
@@ -1007,7 +1013,11 @@ void Dialog::ShowDialog(int ID)
 
           SetColor(Attr&0xFF);
           GotoXY(XB,Y1+CurItem->Y1);
-          HiText(Title,HIBYTE(LOWORD(Attr)));
+          //HiText(Title,HIBYTE(LOWORD(Attr)));
+          if (CurItem->Flags & DIF_SHOWAMPERSAND)
+            Text(Title);
+          else
+            HiText(Title,HIBYTE(LOWORD(Attr)));
         }
         break;
       }
@@ -2608,7 +2618,8 @@ void Dialog::SelectOnEntry(int Pos)
     )
   {
     Edit *edt=(Edit *)Item[Pos].ObjPtr;
-    edt->Select(0,edt->GetLength());
+    if(edt)
+      edt->Select(0,edt->GetLength());
   }
 }
 /* SVS $ */
@@ -3268,8 +3279,13 @@ void Dialog::Process()
 {
   do{
     Modal::Process();
-    if(DlgProc((HANDLE)this,DM_CLOSE,ExitCode,0) || ExitCode == -2)
+    /* $ 21.12.2000 SVS
+       Ctr-Break теперь недействителен, т.е. все зависит от того
+       что вернет обработчик.
+    */
+    if(DlgProc((HANDLE)this,DM_CLOSE,ExitCode,0))// || ExitCode == -2)
       break;
+    /* SVS $ */
     /* $ 18.08.2000 SVS
        Вах-вах, а сбросить-то флаг забыли 8-=(((
     */
@@ -3517,6 +3533,15 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       return Dlg->FocusPos;
     /* SVS $ */
 
+    case DM_GETTEXTPTR:
+      if(Param2)
+      {
+        struct FarDialogItemData IData;
+        IData.DataPtr=(char *)Param2;
+        IData.DataLength=0;
+        Dialog::SendDlgMessage(hDlg,DM_GETTEXT,Param1,(long)&IData);
+      }
+
     case DM_GETTEXT:
       if(Param2) // если здесь NULL, то это еще один способ получить размер
       {
@@ -3613,8 +3638,20 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       }
       return Len;
 
+    case DM_SETTEXTPTR:
+    {
+      if(!Param2)
+        return 0;
+
+      struct FarDialogItemData IData;
+      IData.DataPtr=(char *)Param2;
+      IData.DataLength=strlen(IData.DataPtr);
+      return Dialog::SendDlgMessage(hDlg,DM_SETTEXT,Param1,(long)&IData);
+    }
+
+
     case DM_SETTEXT:
-      if(Param2) // если здесь NULL, то это еще один способ получить размер
+      if(Param2)
       {
         struct FarDialogItemData *did=(struct FarDialogItemData*)Param2;
         Len=0;

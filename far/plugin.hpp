@@ -8,13 +8,15 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000 [ FAR group ]
 */
-/* Revision: 1.72 18.12.2000 $ */
+/* Revision: 1.73 21.12.2000 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  21.12.2000 SVS
+    + DM_GETTEXTPTR, DM_SETTEXTPTR
   18.12.2000 SVS
     + FHELP_NOSHOWERROR
   14.12.2000 SVS
@@ -484,6 +486,8 @@ enum FarMessagesProc{
   DM_GETFOCUS,
   DM_GETCURSORPOS,
   DM_SETCURSORPOS,
+  DM_GETTEXTPTR,
+  DM_SETTEXTPTR,
 
   DN_FIRST=0x1000,
   DN_BTNCLICK,
