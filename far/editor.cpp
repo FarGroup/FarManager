@@ -6,10 +6,14 @@ editor.cpp
 
 */
 
-/* Revision: 1.44 25.11.2000 $ */
+/* Revision: 1.45 28.11.2000 $ */
 
 /*
 Modify:
+  28.11.2000 SVS
+    + Opt.EditorF7Rules - Правило на счет поиска в редакторе
+      "О, это не ощибка - это свойство моей программы" :-)
+      Новое поведение стало подконтрольным.
   25.11.2000 IS
     + Если нет выделения, то обработаем текущее слово. Слово определяется на
       основе специальной группы разделителей.
@@ -2830,8 +2834,13 @@ void Editor::Search(int Next)
     CurPos=CurLine->EditLine.GetCurPos();
     /* $ 16.10.2000 tran
        CurPos увеличивается при следующем поиске */
-    if (!ReplaceMode && !ReverseSearch && Next)
+    /* $ 28.11.2000 SVS
+       "О, это не ощибка - это свойство моей программы" :-)
+       Новое поведение стало подконтрольным
+    */
+    if (!ReplaceMode && !ReverseSearch && Next && Opt.EditorF7Rules)
       CurPos++;
+    /* SVS $ */
     /* tran $ */
 
     NewNumLine=NumLine;

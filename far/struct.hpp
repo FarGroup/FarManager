@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.26 27.11.2000 $ */
+/* Revision: 1.27 28.11.2000 $ */
 
 /*
 Modify:
+  28.11.2000 SVS
+   + Opt.EditorF7Rules - Правило на счет поиска в редакторе
   27.11.2000 SVS
    + Opt.ExceptRules - Правило на счет вызова исключений
   25.11.2000 IS
@@ -412,6 +414,10 @@ struct Options
   /* $ 27.11.2000 SVS
    + Opt.ExceptRules - Правило на счет вызова исключений */
   int ExceptRules;
+  /* SVS $ */
+  /* $ 28.11.2000 SVS
+   + Opt.EditorF7Rules - Правило на счет поиска в редакторе */
+  int EditorF7Rules;
   /* SVS $ */
   /* $ 05.09.2000 SVS
      В Opt добавлен блок переменный, касаемых QWERTY-перекодировки

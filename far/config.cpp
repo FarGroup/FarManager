@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.36 27.11.2000 $ */
+/* Revision: 1.37 28.11.2000 $ */
 
 /*
 Modify:
+  28.11.2000 SVS
+    + Opt.EditorF7Rules - Правило на счет поиска в редакторе
   27.11.2000 SVS
     + Opt.ExceptRules - Правило на счет вызова исключений
   25.11.2000 IS
@@ -764,6 +766,13 @@ void ReadConfig()
   */
   if(!strlen(Opt.WordDiv))
      strcpy(Opt.WordDiv,WordDiv0);
+  /* SVS $ */
+
+  /* $ 28.11.2000 SVS
+    + Opt.EditorF7Rules - Правило на счет поиска в редакторе
+    по умолчанию - новый стиль, т.е. != 0
+  */
+  GetRegKey("Editor","EditorF7Rules",Opt.EditorF7Rules,1);
   /* SVS $ */
 
   /* $ 05.09.2000 SVS
