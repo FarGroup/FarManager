@@ -5,10 +5,12 @@ infolist.cpp
 
 */
 
-/* Revision: 1.41 08.06.2004 $ */
+/* Revision: 1.42 01.07.2004 $ */
 
 /*
 Modify:
+  01.07.2004 SVS
+    ! тип CD определяется всегда
   08.06.2004 SVS
     ! Вместо GetDriveType теперь вызываем FAR_GetDriveType().
     ! Вместо "DriveType==DRIVE_CDROM" вызываем IsDriveTypeCDROM()
@@ -239,7 +241,7 @@ void InfoList::DisplayObject()
   {
     char LocalName[8], DiskType[100], RemoteName[NM], DiskName[NM];
     int ShowRealPath=FALSE;
-    int DriveType=FAR_GetDriveType(DriveRoot);
+    int DriveType=FAR_GetDriveType(DriveRoot,NULL,TRUE);
     sprintf(LocalName,"%c:",*DriveRoot);
 
     if (DriveRoot[0] && DriveRoot[1]==':')

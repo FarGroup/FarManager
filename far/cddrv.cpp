@@ -5,10 +5,12 @@ cddrv.cpp
 
 */
 
-/* Revision: 1.01 28.06.2004 $ */
+/* Revision: 1.02 01.07.2004 $ */
 
 /*
 Modify:
+  01.07.2004 SVS
+    ! у FAR_GetDriveType тертий параметр - нужно ли определять тип CD
   28.06.2004 SVS
     - Некомпиляция - старые версии H-файлов в BCC 5.02 :-(
   21.06.2004 SVS
@@ -644,13 +646,13 @@ BOOL IsDriveTypeCDROM(UINT DriveType)
   return DriveType == DRIVE_CDROM || DriveType >= DRIVE_CD_RW && DriveType <= DRIVE_DVD_RAM;
 }
 
-UINT FAR_GetDriveType(LPCTSTR RootDir,CDROM_DeviceCaps *Caps)
+UINT FAR_GetDriveType(LPCTSTR RootDir,CDROM_DeviceCaps *Caps,int DetectCDDrive)
 {
   CDROM_DeviceCaps caps=CDDEV_CAPS_NONE;
   UINT DrvType = GetDriveType(RootDir);
 
   // анализ CD-привода
-  if (RootDir && IsLocalPath(RootDir) && DrvType == DRIVE_CDROM)// && WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+  if (DetectCDDrive && RootDir && IsLocalPath(RootDir) && DrvType == DRIVE_CDROM)// && WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
   {
     char szVolumeName[20]="\\\\.\\ :";
     szVolumeName[4]=*RootDir;

@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.210 30.06.2004 $ */
+/* Revision: 1.211 01.07.2004 $ */
 
 /*
 Modify:
+  01.07.2004 SVS
+    ! у FAR_GetDriveType тертий параметр - нужно ли определ€ть тип CD
   30.06.2004 SVS
    + initMacroVarTable(), doneMacroVarTable(), eStackAsString()
      (в "обычном" ‘ј–е не работает, т.к. ограничена дефайном MACRODRIVE2)
@@ -1565,7 +1567,7 @@ BOOL IsDiskInDrive(const char *Drive);
 CDROM_DeviceCaps GetCDDeviceCaps(HANDLE hDevice);
 UINT GetCDDeviceTypeByCaps(CDROM_DeviceCaps caps);
 BOOL IsDriveTypeCDROM(UINT DriveType);
-UINT FAR_GetDriveType(LPCTSTR RootDir,CDROM_DeviceCaps *caps=NULL);
+UINT FAR_GetDriveType(LPCTSTR RootDir,CDROM_DeviceCaps *caps=NULL,int DetectCDDrive=FALSE);
 
 BOOL IsLocalPath(const char *Path);
 BOOL IsLocalRootPath(const char *Path);

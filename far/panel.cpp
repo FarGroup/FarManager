@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.129 21.06.2004 $ */
+/* Revision: 1.130 01.07.2004 $ */
 
 /*
 Modify:
+  01.07.2004 SVS
+    ! тип CD в меню выбора дисков определяется тока если выставлен DRIVE_SHOW_CDROM
   21.06.2004 SVS
     + DRIVE_DVD_RAM
   09.06.2004 SVS
@@ -537,7 +539,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
       {
         sprintf(MenuText,"&%c: ",'A'+I);
         sprintf(RootDir,"%c:\\",'A'+I);
-        DriveType = FAR_GetDriveType(RootDir);
+        DriveType = FAR_GetDriveType(RootDir,NULL,Opt.ChangeDriveMode & DRIVE_SHOW_CDROM);
         if (Opt.ChangeDriveMode & DRIVE_SHOW_TYPE)
         {
           static struct TypeMessage{

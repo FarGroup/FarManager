@@ -929,6 +929,11 @@ selection and so on) for viewing the folder description file.
     A list of possible folder description file names may be defined
 using "Folder description files" command in the ~Options menu~@OptMenu@.
 
+     FAR will attempt to determine the type of each of the CD drives
+available in the system. Known types are as follows: CD-ROM, CD-RW, CD-RW/DVD,
+DVD-ROM, DVD-RW and DVD-RAM. This function is available only
+for users with administrative privileges only in Windows NT/XP.
+
 @QViewPanel
 $ #Panels: quick view panel#
     The quick view panel is used to show information about the selected item
@@ -2325,6 +2330,12 @@ root directory of the selected drives (works only for disk drives and
 not for plugins).
 
     #Ctrl-R# allows to refresh the disk selection menu.
+
+    If "CD drive type" mode is enabled (Ctrl-8), FAR will attempt
+to determine the type of each of the CD drives available in the
+system. Known types are as follows: CD-ROM, CD-RW, CD-RW/DVD,
+DVD-ROM, DVD-RW and DVD-RAM. This function is available only
+for users with administrative privileges only in Windows NT/XP.
 
 @DisconnectDrive
 $ #Disconnect network drive#
