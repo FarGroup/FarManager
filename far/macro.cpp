@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.46 25.06.2001 $ */
+/* Revision: 1.47 10.07.2001 $ */
 
 /*
 Modify:
+  10.07.2001 SVS
+    + KEY_MACROXLAT - в макросах "$XLat" заменяется на клавишу вызова XLat
   25.06.2001 IS
     ! Внедрение const
   25.06.2001 SVS
@@ -243,9 +245,10 @@ static struct TKeyCodeName{
   int Len;
   char *Name;
 } KeyMacroCodes[]={
+   { KEY_MACROMODE,                          6, "$MMode" },
    { KEY_MACRODATE,                          5, "$Date"  }, // $Date "%d-%a-%Y"
    { KEY_MACROSTOP,                          5, "$Stop"  },
-   { KEY_MACROMODE,                          6, "$MMode" },
+   { KEY_MACROXLAT,                          5, "$XLat"  },
 };
 
 // функция преобразования кода макроклавиши в текст
@@ -386,7 +389,11 @@ int KeyMacro::ProcessKey(int Key)
       int WaitInMainLoop0=WaitInMainLoop;
       InternalInput=TRUE;
       WaitInMainLoop=FALSE;
+_SVS(SysLog("StartMode=%d",StartMode));
+_SVS(SysLog(1));
       MacroKey=AssignMacroKey();
+_SVS(SysLog(-1));
+_SVS(SysLog("StartMode=%d",StartMode));
 
       DWORD Flags=MFLAGS_DISABLEOUTPUT;
 
@@ -952,6 +959,7 @@ DWORD KeyMacro::AssignMacroKey()
   };
   MakeDialogItems(MacroAssignDlgData,MacroAssignDlg);
   struct DlgParam Param={this,0,StartMode};
+_SVS(SysLog("StartMode=%d",StartMode));
 
   Dialog Dlg(MacroAssignDlg,sizeof(MacroAssignDlg)/sizeof(MacroAssignDlg[0]),AssignMacroDlgProc,(long)&Param);
   Dlg.SetPosition(-1,-1,34,6);

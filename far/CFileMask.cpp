@@ -1,6 +1,3 @@
-#ifndef __CFileMask_CPP
-#define __CFileMask_CPP
-
 /*
 CFileMask.cpp
 
@@ -8,10 +5,12 @@ CFileMask.cpp
 
 */
 
-/* Revision: 1.01 02.07.2001 $ */
+/* Revision: 1.02 10.07.2001 $ */
 
 /*
 Modify:
+  10.07.2001 SVS
+    ! В морг для CPP-файлов if/endif
   02.07.2001 IS
     + Обработка FMF_ADDASTERISK
   01.07.2001 IS
@@ -92,5 +91,3 @@ BOOL CFileMask::Compare(const char *FileName)
 {
   return FileMask?FileMask->Compare(PointToName((char*)FileName)):FALSE;
 }
-
-#endif

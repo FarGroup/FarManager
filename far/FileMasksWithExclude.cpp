@@ -1,6 +1,3 @@
-#ifndef __FileMasksWithExclude_CPP
-#define __FileMasksWithExclude_CPP
-
 /*
 FileMasksWithExclude.cpp
 
@@ -8,10 +5,12 @@ FileMasksWithExclude.cpp
 исключения).
 */
 
-/* Revision: 1.01 02.07.2001 $ */
+/* Revision: 1.02 10.07.2001 $ */
 
 /*
 Modify:
+  10.07.2001 SVS
+    ! В морг для CPP-файлов if/endif
   02.07.2001 IS
     ! Воспользуемся тем, что доступен FileMasksProcessor.Free()
   01.07.2001 IS
@@ -87,5 +86,3 @@ BOOL FileMasksWithExclude::IsEmpty(void)
 {
   return Include.IsEmpty() && Exclude.IsEmpty();
 }
-
-#endif // __FileMasksWithExclude_CPP

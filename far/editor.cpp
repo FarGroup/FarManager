@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.109 27.06.2001 $ */
+/* Revision: 1.110 10.07.2001 $ */
 
 /*
 Modify:
+  10.07.2001 SVS
+   + Обработка KEY_MACROXLAT
   27.06.2001 SVS
    - Stream Block можно двигать в залоченном состоянии :-((
   25.06.2001 IS
@@ -2804,7 +2806,8 @@ int Editor::ProcessKey(int Key)
            Теперь Xlat работает даже при отсутствии выделения
         */
         if((Opt.XLat.XLatEditorKey && Key == Opt.XLat.XLatEditorKey ||
-            Opt.XLat.XLatAltEditorKey && Key == Opt.XLat.XLatAltEditorKey))
+            Opt.XLat.XLatAltEditorKey && Key == Opt.XLat.XLatAltEditorKey) ||
+            Key == KEY_MACROXLAT)
         /* IS  $ */
         {
           Xlat();

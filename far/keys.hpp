@@ -10,10 +10,12 @@ keys.hpp
   добавлять между KEY_END_FKEY и KEY_END_SKEY
 */
 
-/* Revision: 1.14 22.06.2001 $ */
+/* Revision: 1.15 10.07.2001 $ */
 
 /*
 Modify:
+  10.07.2001 SVS
+    + KEY_MACROXLAT - для макросов это будет $XLat
   22.06.2001 SVS
     ! выкинуты KEY_MACRO* (про дату) - заменены на одну - KEY_MACRODATE
   23.05.2001 SVS
@@ -159,6 +161,7 @@ enum BaseDefKeyboard
   KEY_MACRO_BASE           =0x00800000,
   //
   KEY_MACRODATE,
+  KEY_MACROXLAT,
 
   KEY_MEDIT_ISSELECTED,
 

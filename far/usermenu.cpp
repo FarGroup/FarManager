@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.31 02.07.2001 $ */
+/* Revision: 1.32 10.07.2001 $ */
 
 /*
 Modify:
+  10.07.2001 SVS
+    - Ликвидация багов с выравниванием
   02.07.2001 SVS
     - Bug (после 688): F9 c m l - не создавался файл "FarMenu.Ini"
   25.06.2001 SVS
@@ -495,15 +497,15 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
         {
           sprintf(MenuText,"%s%-3.3s %-20.*s",FuncNum>0 ? "":"&",HotKey,ScrX-12,Label);
           MenuTextLen=strlen(MenuText)-(FuncNum>0?1:0);
-          MaxLen=MaxLen<MenuTextLen ? MenuTextLen : MaxLen;
+          MaxLen=(MaxLen<MenuTextLen ? MenuTextLen : MaxLen);
         } /* else */
         /* VVM $ */
         NumLine++;
       }
 
-      MaxLen-=4; // отнимаем длину функциональных клавиш
-      /* tran 20.07.2000 $ */
-
+      // коррекция максимальной длины
+      if(MaxLen > ScrX-14)
+        MaxLen = ScrX-14;
 
       NumLine=0;
 
@@ -547,7 +549,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
         {
         /* $ 20.07.2000 tran
            %-20.*s поменял на %-*.*s и используется MaxLen как максимальная длина */
-          sprintf(MenuText,"%s%-3.3s %-*.*s",FuncNum>0 ? "":"&",HotKey,MaxLen,ScrX-12,Label);
+          sprintf(MenuText,"%s%-3.3s %-*.*s",FuncNum>0 ? "":"&",HotKey,MaxLen,MaxLen,Label);
         /* tran 20.07.2000 $ */
           if (SubMenu)
           {

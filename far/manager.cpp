@@ -898,6 +898,10 @@ void Manager::RefreshCommit()
     }
     RefreshedFrame->OnChangeFocus(1);
     CtrlObject->Macro.SetMode(RefreshedFrame->GetMacroMode());
+//_SVS(char Type[200]);
+//_SVS(char Name[200]);
+//_SVS(RefreshedFrame->GetTypeAndName(Type,Name));
+//_SVS(SysLog("Manager: %d (%s,%s)",CtrlObject->Macro.GetMode(),Type,Name));
   }
 }
 

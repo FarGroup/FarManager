@@ -4,10 +4,12 @@ farrtl.cpp
 Переопределение функций работы с памятью: new/delete/malloc/realloc/free
 */
 
-/* Revision: 1.08 31.10.2000 $ */
+/* Revision: 1.09 10.07.2001 $ */
 
 /*
 Modify:
+  10.07.2001 SVS
+    - Забыли в свое время включить "fn.hpp" :-(
   31.10.2000 SVS
     ! Нормально можно и без объявления _nfile прожить (BC5.5.1 ругается)
   29.08.2000 SVS
@@ -43,6 +45,7 @@ Modify:
 
 #include "headers.hpp"
 #pragma hdrstop
+#include "fn.hpp"
 
 #if defined(__BORLANDC__)
 #ifdef ALLOC

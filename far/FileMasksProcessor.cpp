@@ -1,6 +1,3 @@
-#ifndef __FileMasksProcessor_CPP
-#define __FileMasksProcessor_CPP
-
 /*
 FileMasksProcessor.cpp
 
@@ -8,10 +5,12 @@ FileMasksProcessor.cpp
 исключения).
 */
 
-/* Revision: 1.00 01.07.2001 $ */
+/* Revision: 1.01 10.07.2001 $ */
 
 /*
 Modify:
+  10.07.2001 SVS
+    ! В морг для CPP-файлов if/endif
   01.07.2001 IS
     + Впервые в эфире
 */
@@ -63,5 +62,3 @@ BOOL FileMasksProcessor::Compare(const char *FileName)
   }
   return FALSE;
 }
-
-#endif

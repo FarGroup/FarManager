@@ -5,12 +5,14 @@ dialog.cpp
 
 */
 
-/* Revision: 1.134 09.07.2001 $ */ 
+/* Revision: 1.135 10.07.2001 $ */
 
 /*
 Modify:
+  10.07.2001 SVS
+   + Обработка KEY_MACROXLAT
   09.07.2001 OT
-    Исправление MacroMode для диалогов
+   - Исправление MacroMode для диалогов
   04.07.2001 SVS
    + DIF_SEPARATOR для DI_VTEXT
    + {-1,-1} для DI_VTEXT
@@ -650,6 +652,7 @@ Dialog::Dialog(struct DialogItem *Item,int ItemCount,
     // макросить будет в диалогах :-)
     CtrlObject->Macro.SetMode(MACRO_DIALOG);
   }
+_SVS(SysLog("Dialog =%d",CtrlObject->Macro.GetMode()));
 
   // запоминаем предыдущий заголовок консоли
   GetConsoleTitle(OldConsoleTitle,sizeof(OldConsoleTitle));
@@ -2819,8 +2822,9 @@ int Dialog::ProcessKey(int Key)
         /* $ 04.11.2000 SVS
            Проверка на альтернативную клавишу
         */
-        if(Opt.XLat.XLatDialogKey && Key == Opt.XLat.XLatDialogKey ||
-           Opt.XLat.XLatAltDialogKey && Key == Opt.XLat.XLatAltDialogKey)
+        if((Opt.XLat.XLatDialogKey && Key == Opt.XLat.XLatDialogKey ||
+           Opt.XLat.XLatAltDialogKey && Key == Opt.XLat.XLatAltDialogKey) ||
+           Key == KEY_MACROXLAT)
         {
           edt->SetClearFlag(0);
           edt->Xlat();
@@ -5310,9 +5314,9 @@ void Dialog::OnChangeFocus (int Focus)
 
 /* DJ $ */
 
-int Dialog::GetMacroMode() 
+int Dialog::GetMacroMode()
 {
-  return MACRO_DIALOG; 
+  return MACRO_DIALOG;
 }
 
 //////////////////////////////////////////////////////////////////////////

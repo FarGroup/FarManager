@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.31 25.06.2001 $ */
+/* Revision: 1.32 10.07.2001 $ */
 
 /*
 Modify:
+  10.07.2001 SVS
+    + ќбработка KEY_MACROXLAT
   25.06.2001 SVS
     - неверно работало в "If exist" преобразование toFullName, не учитывалс€
       факт того, что им€ уже может иметь полный путь.
@@ -327,7 +329,8 @@ int CommandLine::ProcessKey(int Key)
          ѕроверка на альтернативную клавишу
       */
       if((Opt.XLat.XLatCmdLineKey && Key == Opt.XLat.XLatCmdLineKey) ||
-         (Opt.XLat.XLatAltCmdLineKey && Key == Opt.XLat.XLatAltCmdLineKey))
+         (Opt.XLat.XLatAltCmdLineKey && Key == Opt.XLat.XLatAltCmdLineKey) ||
+         Key == KEY_MACROXLAT)
       {
         /* 13.12.2000 SVS
            ! ƒл€ CmdLine - если нет выделени€, преобразуем всю строку (XLat)

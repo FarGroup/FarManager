@@ -5,10 +5,12 @@ main.cpp
 
 */
 
-/* Revision: 1.26 07.07.2001 $ */
+/* Revision: 1.27 10.07.2001 $ */
 
 /*
 Modify:
+  10.07.2001 SVS
+    ! Изменены (обобщены) расширения для архиваторов.
   07.07.2001 IS
     ! В 806 патче я выкинул один костыль, связанный с обработкой каталогов с
       именем "..", а взамен ничего не дал. Исправляю ситуацию :-)
@@ -425,7 +427,7 @@ void SetHighlighting()
   static char *Masks[]={
     "*.*",
     CmdExt,
-    "*.rar,*.r[0-9][0-9],*.arj,*.a[0-9][0-9],*.zip,*.lha,*.lzh,*.lsz,*.ain,*.ha,*.cab,*.uc2,*.j,*.uue,*.ice,*.arc,*.xxe,*.tar,*.tgz,*.gz,*.z,*.ace,*.pak,*.bz2,*.zoo,*.sit",
+    "*.rar,*.r[0-9][0-9],*.ar[cj],*.a[0-9][0-9],*.j,*.ac[bei],*.zip,*.z,*.jar,*.ice,*.lha,*.lzh,*.ain,*.imp,*.777,*.ufa,*.boa,*.bs[2a],*.cab,*.chz,*.ha,*.h[ay]p,*.hpk,*.lim,*.[lw]sz,*.pa[ck],*.rk,*.rkv,*.rpm,*.sqz,*.bz,*.bz2,*.bzip,*.gz,*.tar,*.t[ag]z,*.uc2,*.x2,*.zoo,*.hqx,*.sea,*.sit,*.uue,*.xxe,*.ddi,*.tdr,*.xdf",
     "*.bak,*.tmp",
     /* $ 07.07.2001  IS
        Эта маска для каталогов: обрабатывать все каталоги, кроме тех, что
