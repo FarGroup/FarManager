@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.33 18.06.2001 $ */
+/* Revision: 1.34 18.06.2001 $ */
 
 /*
 Modify:
+  18.06.2001 SVS
+    - исправляем последствия предыдущего патча :-)
   18.06.2001 SVS
     - "Невхождение" в архивы - неверное условие на равенство (в 706-м забыл
       этот момент исправить)
@@ -780,7 +782,7 @@ int FindFiles::FindFilesProcess()
       {
         char *FileName=UserDataItem.FileFindData.cFileName;
         Panel *FindPanel=CtrlObject->Cp()->ActivePanel;
-        if (FindListDataSize==sizeof(UserDataItem))
+        if (UserDataItem.FindFileArcName[0])
         {
           char ArcName[NM],ArcPath[NM];
           strncpy(ArcName,UserDataItem.FindFileArcName,NM);
