@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.151 04.02.2002 $ */
+/* Revision: 1.152 05.02.2002 $ */
 
 /*
 Modify:
+  05.02.2002 SVS
+    ! Editor::IsShiftKey() -> keyboard.cpp::IsShiftKey()
   04.02.2002 IS
     ! Уточним проверку наличия выделения в shift-(left|right) и shift-end
       чтобы исправить жука 280.
@@ -5744,33 +5746,6 @@ struct EditList * Editor::GetStringByNumber(int DestLine)
     return(CurPtr);
   }
 }
-
-int Editor::IsShiftKey(int Key)
-{
-  /*
-     29.06.2000 IG
-     добавлены клавиши, чтобы не сбрасывалось выделение при их нажатии
-  */
-  static int ShiftKeys[]={KEY_SHIFTLEFT,KEY_SHIFTRIGHT,KEY_SHIFTHOME,
-                KEY_SHIFTEND,KEY_SHIFTUP,KEY_SHIFTDOWN,KEY_SHIFTPGUP,
-                KEY_SHIFTPGDN,KEY_CTRLSHIFTHOME,KEY_CTRLSHIFTPGUP,
-                KEY_CTRLSHIFTEND,KEY_CTRLSHIFTPGDN,
-                KEY_CTRLSHIFTLEFT,KEY_CTRLSHIFTRIGHT,KEY_ALTSHIFTDOWN,
-                KEY_ALTSHIFTLEFT,KEY_ALTSHIFTRIGHT,KEY_ALTSHIFTUP,
-                KEY_ALTSHIFTEND,KEY_ALTSHIFTHOME,KEY_ALTSHIFTPGDN,
-                KEY_ALTSHIFTPGUP,KEY_ALTUP,KEY_ALTLEFT,KEY_ALTDOWN,
-                KEY_ALTRIGHT,KEY_ALTHOME,KEY_ALTEND,KEY_ALTPGUP,KEY_ALTPGDN,
-                KEY_CTRLALTPGUP,KEY_CTRLALTHOME,KEY_CTRLALTPGDN,KEY_CTRLALTEND,
-                KEY_CTRLALTLEFT, KEY_CTRLALTRIGHT
-  };
-  /* IG $ */
-
-  for (int I=0;I<sizeof(ShiftKeys)/sizeof(ShiftKeys[0]);I++)
-    if (Key==ShiftKeys[I])
-      return(TRUE);
-  return(FALSE);
-}
-
 
 void Editor::SetReplaceMode(int Mode)
 {

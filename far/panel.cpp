@@ -5,10 +5,13 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.84 04.02.2002 $ */
+/* Revision: 1.85 05.02.2002 $ */
 
 /*
 Modify:
+  05.02.2002 SVS
+    ! BugZ#208 - Панель должна быть видимой для "простого Update", иначе
+      перевыводим панель
   04.02.2002 SVS
     ! Уточнение для BugZ#208 - просто сделаем Update, если панель не
       плагиновая и пути совпадают.
@@ -795,7 +798,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
     char NewCurDir[NM];
     GetCurrentDirectory(sizeof(NewCurDir),NewCurDir);
     // BugZ#208. Если пути совпадают, то ничего не делаем.
-    if(PanelMode == NORMAL_PANEL && !LocalStricmp(CurDir,NewCurDir))
+    if(PanelMode == NORMAL_PANEL && !LocalStricmp(CurDir,NewCurDir) && IsVisible())
     {
       // А нужно ли делать здесь Update????
       Update(UPDATE_KEEP_SELECTION);

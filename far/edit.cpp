@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.69 28.01.2002 $ */
+/* Revision: 1.70 04.02.2002 $ */
 
 /*
 Modify:
+  04.02.2002 SVS
+    ! Вызываем самостоятельную функцию IsShiftKey()
   28.01.2002 SVS
     ! Нда... уж... поспешил с предыдущим... было еще одно место, аналогичное
       BugZ#271 - вставка шортката. Да и коду развелось однотипного многовато...
@@ -882,7 +884,7 @@ int Edit::ProcessKey(int Key)
      добавлена проврерка на запуск макроса (bug8) */
   if (!ShiftPressed && !CtrlObject->Macro.IsExecuting() &&
   /* IG $ */
-      !Editor::IsShiftKey(Key) && !Recurse &&
+      !IsShiftKey(Key) && !Recurse &&
       Key!=KEY_SHIFT && Key!=KEY_CTRL && Key!=KEY_ALT && Key!=KEY_RCTRL &&
       Key!=KEY_RALT && Key!=KEY_NONE)
   {

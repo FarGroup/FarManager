@@ -9,10 +9,12 @@ editor.hpp
 
 */
 
-/* Revision: 1.33 28.01.2002 $ */
+/* Revision: 1.34 04.02.2002 $ */
 
 /*
 Modify:
+  04.02.2002 SVS
+    ! Editor::IsShiftKey() -> keyboard.cpp::IsShiftKey()
   28.01.2002 VVM
     + Освободить всю занятую память - void FreeAllocatedData()
   15.01.2002 SVS
@@ -313,7 +315,6 @@ class Editor:public ScreenObject
     void SetPluginTitle(char *PluginTitle);
     int EditorControl(int Command,void *Param);
     void SetHostFileEditor(FileEditor *Editor) {HostFileEditor=Editor;};
-    static int IsShiftKey(int Key);
     static void SetReplaceMode(int Mode);
     FileEditor *GetHostFileEditor() {return HostFileEditor;};
     void PrepareResizedConsole(){EFlags.Set(FEDITOR_ISRESIZEDCONSOLE);}

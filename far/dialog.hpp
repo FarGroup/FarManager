@@ -10,12 +10,14 @@ dialog.hpp
 
 */
 
-/* Revision: 1.50 21.01.2002 $ */
+/* Revision: 1.51 05.02.2002 $ */
 
 /*
 Modify:
+  05.02.2002 SVS
+   + DialogItem.OriginalListItems
   21.01.2002 SVS
-    ! Изменены данные для UserControl
+   ! Изменены данные для UserControl
   08.01.2002 SVS
    + SetListMouseReaction()
   21.12.2001 SVS
@@ -273,6 +275,7 @@ struct DialogItem
   // прочее
   void *ObjPtr;
   VMenu *ListPtr;
+  struct FarList *OriginalListItems;
   DlgUserControl *UCData;
 };
 

@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.128 25.01.2002 $ */
+/* Revision: 1.129 05.02.2002 $ */
 
 /*
 Modify:
+  05.02.2002 SVS
+    + IsNavKey(), IsShiftKey()
   25.01.2002 SVS
     + GetRegKeySize с уже открытым ключем HKEY hKey
   14.01.2002 IS
@@ -1036,6 +1038,8 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros=NULL);
 void WaitKey(int KeyWait=-1);
 /* SVS $ */
 int WriteInput(int Key,DWORD Flags=0);
+int IsNavKey(DWORD Key);
+int IsShiftKey(DWORD Key);
 
 // Получить из имени диска RemoteName
 char* DriveLocalToRemoteName(int DriveType,char Letter,char *Dest);

@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.61 29.01.2002 $ */
+/* Revision: 1.62 04.02.2002 $ */
 
 /*
 Modify:
+  04.02.2002 SVS
+    + IsNavKey(), IsShiftKey()
   29.01.2002 SVS
     - Была неверная отложенная установка заголовка консоли (неверное,
       старое значение выставлялось)
@@ -1210,6 +1212,56 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
                (FShift&KEY_RCTRL?RIGHT_CTRL_PRESSED:0);
   }
   return(VirtKey!=0);
+}
+
+
+int IsNavKey(DWORD Key)
+{
+  static DWORD NavKeys[][2]={
+    {1,KEY_LEFT},
+    {1,KEY_RIGHT},
+    {1,KEY_HOME},
+    {1,KEY_END},
+    {1,KEY_UP},
+    {1,KEY_DOWN},
+    {1,KEY_PGUP},
+    {1,KEY_PGDN},
+    {0,KEY_CTRLC},
+    {0,KEY_INS},
+    {0,KEY_CTRLINS},
+  };
+
+  for (int I=0; I < sizeof(NavKeys)/sizeof(NavKeys[0]); I++)
+    if(!NavKeys[I][0] && Key==NavKeys[I][1] ||
+       NavKeys[I][0] && (Key&0x00FFFFFF)==(NavKeys[I][1]&0x00FFFFFF))
+      return TRUE;
+  return FALSE;
+}
+
+int IsShiftKey(DWORD Key)
+{
+  /*
+     29.06.2000 IG
+     добавлены клавиши, чтобы не сбрасывалось выделение при их нажатии
+  */
+  static DWORD ShiftKeys[]={KEY_SHIFTLEFT,KEY_SHIFTRIGHT,KEY_SHIFTHOME,
+                KEY_SHIFTEND,KEY_SHIFTUP,KEY_SHIFTDOWN,KEY_SHIFTPGUP,
+                KEY_SHIFTPGDN,KEY_CTRLSHIFTHOME,KEY_CTRLSHIFTPGUP,
+                KEY_CTRLSHIFTEND,KEY_CTRLSHIFTPGDN,
+                KEY_CTRLSHIFTLEFT,KEY_CTRLSHIFTRIGHT,KEY_ALTSHIFTDOWN,
+                KEY_ALTSHIFTLEFT,KEY_ALTSHIFTRIGHT,KEY_ALTSHIFTUP,
+                KEY_ALTSHIFTEND,KEY_ALTSHIFTHOME,KEY_ALTSHIFTPGDN,
+                KEY_ALTSHIFTPGUP,KEY_ALTUP,KEY_ALTLEFT,KEY_ALTDOWN,
+                KEY_ALTRIGHT,KEY_ALTHOME,KEY_ALTEND,KEY_ALTPGUP,KEY_ALTPGDN,
+                KEY_CTRLALTPGUP,KEY_CTRLALTHOME,KEY_CTRLALTPGDN,KEY_CTRLALTEND,
+                KEY_CTRLALTLEFT, KEY_CTRLALTRIGHT
+  };
+  /* IG $ */
+
+  for (int I=0;I<sizeof(ShiftKeys)/sizeof(ShiftKeys[0]);I++)
+    if (Key==ShiftKeys[I])
+      return TRUE;
+  return FALSE;
 }
 
 

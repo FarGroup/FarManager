@@ -5,10 +5,14 @@ dialog.cpp
 
 */
 
-/* Revision: 1.206 30.01.2002 $ */
+/* Revision: 1.207 04.02.2002 $ */
 
 /*
 Modify:
+  04.02.2002 SVS
+    ! Первая попытка "урегулировать отношения" диалога с редактором в плане
+      DIF_READONLY
+    ! По поводу "невозвратов" информации о списках после возврата из диалога
   30.01.2002 DJ
     ! DM_SETLISTMOUSEREACTION -> DM_LISTSETMOUSEREACTION
   21.01.2002 SVS
@@ -1204,41 +1208,45 @@ int Dialog::InitDialogObjects(int ID)
     if (Type==DI_LISTBOX)
     {
       if (!DialogMode.Check(DMODE_CREATEOBJECTS))
+      {
         CurItem->ListPtr=new VMenu(NULL,NULL,0,CurItem->Y2-CurItem->Y1+1,
                         VMENU_ALWAYSSCROLLBAR|VMENU_LISTBOX,NULL/*,this*/);
-       if(CurItem->ListPtr)
-       {
-         VMenu *ListPtr=CurItem->ListPtr;
-         /* $ 13.09.2000 SVS
-            + Флаг DIF_LISTNOAMPERSAND. По умолчанию для DI_LISTBOX &
-              DI_COMBOBOX выставляется флаг MENU_SHOWAMPERSAND. Этот флаг
-              подавляет такое поведение
-         */
-         /* $ 15.05.2001 KM
-            ! Исправлена подсветка в DI_LISTBOX
-         */
-         /* $ 03.06.2001 KM
-            ! Исправлена подсветка в DI_LISTBOX, теперь на самом деле :)
-              для чего используется флаг DIF_LISTAUTOHIGHLIGHT.
-         */
-         if(!(ItemFlags&DIF_LISTNOAMPERSAND))
-           ListPtr->SetFlags(VMENU_SHOWAMPERSAND);
-         if(ItemFlags&DIF_LISTNOBOX)
-           ListPtr->SetFlags(VMENU_SHOWNOBOX);
-         if(ItemFlags&DIF_LISTWRAPMODE)
-           ListPtr->SetFlags(VMENU_WRAPMODE);
-         if(ItemFlags&DIF_LISTAUTOHIGHLIGHT)
-           ListPtr->AssignHighlights(FALSE);
-         ListPtr->SetPosition(X1+CurItem->X1,Y1+CurItem->Y1,
-                              X1+CurItem->X2,Y1+CurItem->Y2);
-         ListPtr->SetBoxType(SHORT_SINGLE_BOX);
-         // удалим все итемы
-         //ListBox->DeleteItems(); //???? А НАДО ЛИ ????
-         if(CurItem->ListItems && !DialogMode.Check(DMODE_CREATEOBJECTS))
-           ListPtr->AddItem(CurItem->ListItems);
-         /* KM $ */
-         /* KM $ */
-       }
+        CurItem->OriginalListItems=CurItem->ListItems;
+      }
+
+      if(CurItem->ListPtr)
+      {
+        VMenu *ListPtr=CurItem->ListPtr;
+        /* $ 13.09.2000 SVS
+           + Флаг DIF_LISTNOAMPERSAND. По умолчанию для DI_LISTBOX &
+             DI_COMBOBOX выставляется флаг MENU_SHOWAMPERSAND. Этот флаг
+             подавляет такое поведение
+        */
+        /* $ 15.05.2001 KM
+           ! Исправлена подсветка в DI_LISTBOX
+        */
+        /* $ 03.06.2001 KM
+           ! Исправлена подсветка в DI_LISTBOX, теперь на самом деле :)
+             для чего используется флаг DIF_LISTAUTOHIGHLIGHT.
+        */
+        if(!(ItemFlags&DIF_LISTNOAMPERSAND))
+          ListPtr->SetFlags(VMENU_SHOWAMPERSAND);
+        if(ItemFlags&DIF_LISTNOBOX)
+          ListPtr->SetFlags(VMENU_SHOWNOBOX);
+        if(ItemFlags&DIF_LISTWRAPMODE)
+          ListPtr->SetFlags(VMENU_WRAPMODE);
+        if(ItemFlags&DIF_LISTAUTOHIGHLIGHT)
+          ListPtr->AssignHighlights(FALSE);
+        ListPtr->SetPosition(X1+CurItem->X1,Y1+CurItem->Y1,
+                             X1+CurItem->X2,Y1+CurItem->Y2);
+        ListPtr->SetBoxType(SHORT_SINGLE_BOX);
+        // удалим все итемы
+        //ListBox->DeleteItems(); //???? А НАДО ЛИ ????
+        if(CurItem->ListItems && !DialogMode.Check(DMODE_CREATEOBJECTS))
+          ListPtr->AddItem(CurItem->ListItems);
+        /* KM $ */
+        /* KM $ */
+      }
     }
     /* SVS $*/
     // "редакторы" - разговор особый...
@@ -1254,12 +1262,16 @@ int Dialog::InitDialogObjects(int ID)
       {
         CurItem->ObjPtr=new Edit;
         if(Type == DI_COMBOBOX)
+        {
           CurItem->ListPtr=new VMenu("",NULL,0,8,VMENU_ALWAYSSCROLLBAR,NULL/*,Parent*/);
+          CurItem->OriginalListItems=CurItem->ListItems;
+        }
       }
 
       Edit *DialogEdit=(Edit *)CurItem->ObjPtr;
       DialogEdit->SetDialogParent((Type != DI_COMBOBOX && (ItemFlags & DIF_EDITOR))?
                                   EDPARENT_MULTILINE:EDPARENT_SINGLELINE);
+      DialogEdit->ReadOnly=0;
       /* $ 26.07.2000 SVS
          Ну наконец-то - долгожданный нередактируемый ComboBox
       */
@@ -1432,6 +1444,8 @@ int Dialog::InitDialogObjects(int ID)
       if (!(ItemFlags&DIF_EDITOR))
         DialogEdit->SetPersistentBlocks(Opt.DialogsEditBlock);
       /*  VVM $ */
+      if(ItemFlags&DIF_READONLY)
+        DialogEdit->ReadOnly=1;
     }
     else if (Type == DI_USERCONTROL)
     {
@@ -1752,10 +1766,7 @@ void Dialog::GetDialogObjectsData()
               CurItem->History &&
               Opt.DialogsEditHistory)
             AddToEditHistory(PtrData,CurItem->History);
-          //if(Type == DI_COMBOBOX)
-          //{
-          //  ListItems
-          //}
+
           /* $ 01.08.2000 SVS
              ! В History должно заносится значение (для DIF_EXPAND...) перед
               расширением среды!
@@ -1784,6 +1795,18 @@ void Dialog::GetDialogObjectsData()
           break;
         }
       /**/
+    }
+
+    if((Type == DI_COMBOBOX || Type == DI_LISTBOX) &&
+       CurItem->ListPtr && CurItem->OriginalListItems == CurItem->ListItems)
+    {
+      int ListPos=CurItem->ListPtr->GetSelectPos();
+      if(ListPos < CurItem->ListItems->ItemsNumber)
+      {
+        for(int J=0; J < CurItem->ListItems->ItemsNumber; ++J)
+          CurItem->ListItems->Items[J].Flags&=~LIF_SELECTED;
+        CurItem->ListItems->Items[ListPos].Flags|=LIF_SELECTED;
+      }
     }
   }
 }
@@ -2762,7 +2785,7 @@ int Dialog::ProcessKey(int Key)
     case KEY_SPACE:
       if (Type==DI_BUTTON)
         return(ProcessKey(KEY_ENTER));
-      if (Type==DI_CHECKBOX)
+      else if (Type==DI_CHECKBOX)
       {
         /* $ 04.12.2000 SVS
            3-х уровневое состояние
@@ -2784,7 +2807,7 @@ int Dialog::ProcessKey(int Key)
         ShowDialog();
         return(TRUE);
       }
-      if (Type==DI_RADIOBUTTON)
+      else if (Type==DI_RADIOBUTTON)
       {
         int PrevRB=FocusPos;
         for (I=FocusPos;;I--)
@@ -2832,7 +2855,7 @@ int Dialog::ProcessKey(int Key)
         ShowDialog();
         return(TRUE);
       }
-      if (IsEdit(Type) && !(Item[FocusPos].Flags & DIF_READONLY))
+      else if (IsEdit(Type) && !(Item[FocusPos].Flags & DIF_READONLY))
       {
         /* $ 28.07.2000 SVS
           При изменении состояния каждого элемента посылаем сообщение
@@ -2852,26 +2875,28 @@ int Dialog::ProcessKey(int Key)
       if(Type == DI_USERCONTROL)
         return TRUE;
 
-      if (IsEdit(Type))
+      else if (IsEdit(Type))
       {
         ((Edit *)(Item[FocusPos].ObjPtr))->ProcessKey(Key);
         return(TRUE);
       }
-
-      for (I=0;I<ItemCount;I++)
-        if (IsFocused(Item[I].Type))
-        {
-          ChangeFocus2(FocusPos,I);
-          /* $ 28.07.2000 SVS
-            При изменении состояния каждого элемента посылаем сообщение
-            посредством функции SendDlgMessage - в ней делается все!
-          */
-          //Dialog::SendDlgMessage((HANDLE)this,DN_CHANGEITEM,FocusPos,0);
-          //Dialog::SendDlgMessage((HANDLE)this,DN_CHANGEITEM,I,0);
-          /* SVS $ */
-          ShowDialog();
-          return(TRUE);
-        }
+      else
+      {
+        for (I=0;I<ItemCount;I++)
+          if (IsFocused(Item[I].Type))
+          {
+            ChangeFocus2(FocusPos,I);
+            /* $ 28.07.2000 SVS
+              При изменении состояния каждого элемента посылаем сообщение
+              посредством функции SendDlgMessage - в ней делается все!
+            */
+            //Dialog::SendDlgMessage((HANDLE)this,DN_CHANGEITEM,FocusPos,0);
+            //Dialog::SendDlgMessage((HANDLE)this,DN_CHANGEITEM,I,0);
+            /* SVS $ */
+            ShowDialog();
+            return(TRUE);
+          }
+      }
       return(TRUE);
 
     case KEY_LEFT:
@@ -2879,12 +2904,12 @@ int Dialog::ProcessKey(int Key)
       // для user-типа вываливаем
       if(Type == DI_USERCONTROL)
         return TRUE;
-
-      if (IsEdit(Type))
+      else if (IsEdit(Type))
       {
         ((Edit *)(Item[FocusPos].ObjPtr))->ProcessKey(Key);
         return(TRUE);
       }
+      else
       {
         int MinDist=1000,MinPos;
         for (I=0;I<ItemCount;I++)
@@ -2920,7 +2945,7 @@ int Dialog::ProcessKey(int Key)
       // для user-типа вываливаем
       if(Type == DI_USERCONTROL)
         return TRUE;
-
+      else
       {
         int PrevPos=0;
         if (Item[FocusPos].Flags & DIF_EDITOR)
@@ -2944,8 +2969,7 @@ int Dialog::ProcessKey(int Key)
       // для user-типа вываливаем
       if(Type == DI_USERCONTROL)
         return TRUE;
-
-      if (IsEdit(Type))
+      else if (IsEdit(Type))
       {
         ((Edit *)(Item[FocusPos].ObjPtr))->ProcessKey(Key);
         return(TRUE);
@@ -2954,8 +2978,7 @@ int Dialog::ProcessKey(int Key)
       // для user-типа вываливаем
       if(Type == DI_USERCONTROL)
         return TRUE;
-
-      if (!(Item[FocusPos].Flags & DIF_EDITOR))
+      else if (!(Item[FocusPos].Flags & DIF_EDITOR))
       {
         for (I=0;I<ItemCount;I++)
           if (Item[I].DefaultButton)
@@ -3047,18 +3070,20 @@ int Dialog::ProcessKey(int Key)
       /* $ 21.08.2000 SVS
          Autocomplete при постоянных блоках и немного оптимизации ;-)
       */
-      if (IsEdit(Type) && !(Item[FocusPos].Flags & DIF_READONLY))
+      if (IsEdit(Type))
       {
         Edit *edt=(Edit *)Item[FocusPos].ObjPtr;
         int SelStart, SelEnd;
 
         if(Key == KEY_CTRLL) // исключим смену режима RO для поля ввода с клавиатуры
+        {
           return TRUE;
+        }
 
         /* $ 11.09.2000 SVS
            Ctrl-U в строках ввода снимает пометку блока
         */
-        if(Key == KEY_CTRLU)
+        else if(Key == KEY_CTRLU)
         {
           edt->SetClearFlag(0);
           edt->Select(-1,0);
@@ -3067,7 +3092,8 @@ int Dialog::ProcessKey(int Key)
         }
         /* SVS $ */
 
-        if (Item[FocusPos].Flags & DIF_EDITOR)
+        else if((Item[FocusPos].Flags & DIF_EDITOR) && !(Item[FocusPos].Flags & DIF_READONLY))
+        {
           switch(Key)
           {
             /* $ 12.09.2000 SVS
@@ -3204,6 +3230,7 @@ int Dialog::ProcessKey(int Key)
               ProcessKey(KEY_DOWN);
               return(TRUE);
           }
+        }
 
         /* $ 24.09.2000 SVS
            Вызов функции Xlat
@@ -3213,7 +3240,7 @@ int Dialog::ProcessKey(int Key)
         */
         if((Opt.XLat.XLatDialogKey && Key == Opt.XLat.XLatDialogKey ||
            Opt.XLat.XLatAltDialogKey && Key == Opt.XLat.XLatAltDialogKey) ||
-           Key == KEY_MACROXLAT)
+           Key == KEY_MACROXLAT && !(Item[FocusPos].Flags & DIF_READONLY))
         {
           edt->SetClearFlag(0);
           edt->Xlat();
@@ -3223,90 +3250,98 @@ int Dialog::ProcessKey(int Key)
         }
         /* SVS $ */
         /* SVS $ */
-
-        if (edt->ProcessKey(Key))
+        if(!(Item[FocusPos].Flags & DIF_READONLY) ||
+            (Item[FocusPos].Flags & DIF_READONLY) && IsNavKey(Key))
         {
-          //int RedrawNeed=FALSE;
-          /* $ 26.07.2000 SVS
-             AutoComplite: Если установлен DIF_HISTORY
-                 и разрешено автозавершение!.
-          */
-          /* $ 04.12.2000 SVS
-            Автодополнение - чтобы не работало во время проигрывания макросов.
-            GetCurRecord() вернет 0 для случая, если нет ни записи ни проигрыша.
-          */
-          if(!CtrlObject->Macro.GetCurRecord(NULL,NULL) &&
-             ((Item[FocusPos].Flags & DIF_HISTORY) || Type == DI_COMBOBOX))
-          if((Opt.AutoComplete && Key < 256 && Key != KEY_BS && Key != KEY_DEL) ||
-             (!Opt.AutoComplete && Key == KEY_CTRLEND)
-            )
+          if (edt->ProcessKey(Key))
           {
-            /* $ 05.12.2000 IS
-               Все удалил и написал заново ;)
+            if(Item[FocusPos].Flags & DIF_READONLY)
+              return TRUE;
+
+            //int RedrawNeed=FALSE;
+            /* $ 26.07.2000 SVS
+               AutoComplite: Если установлен DIF_HISTORY
+                   и разрешено автозавершение!.
             */
-            int MaxLen=sizeof(Item[FocusPos].Data);
-            char *PStr=Str;
-            if(Item[FocusPos].Flags & DIF_VAREDIT)
-            {
-              MaxLen=Item[FocusPos].Ptr.PtrLength;
-              if((PStr=(char*)malloc(MaxLen+1)) == NULL)
-                return TRUE; //???
-            }
-            int DoAutoComplete=TRUE;
-            int CurPos=edt->GetCurPos();
-            edt->GetString(PStr,MaxLen);
-            int len=strlen(PStr);
-            edt->GetSelection(SelStart,SelEnd);
-            if(SelStart < 0 || SelStart==SelEnd)
-                SelStart=len;
-            else
-                SelStart++;
-
-            if(CurPos<SelStart) DoAutoComplete=FALSE;
-            if(SelStart<SelEnd && SelEnd<len) DoAutoComplete=FALSE;
-
-            if(Opt.EdOpt.PersistentBlocks)
-            {
-              if(DoAutoComplete && CurPos <= SelEnd)
-              {
-                PStr[CurPos]=0;
-                edt->Select(CurPos,MaxLen); //select the appropriate text
-                edt->DeleteBlock();
-                edt->FastShow();
-              }
-            }
-            /* IS $ */
-
-            SelEnd=strlen(PStr);
-
-            //find the string in the list
-            /* $ 03.12.2000 IS
-                 Учитываем флаг DoAutoComplete
+            /* $ 04.12.2000 SVS
+              Автодополнение - чтобы не работало во время проигрывания макросов.
+              GetCurRecord() вернет 0 для случая, если нет ни записи ни проигрыша.
             */
-            if (DoAutoComplete && FindInEditForAC(Type == DI_COMBOBOX,
-                         (void *)Item[FocusPos].Selected,PStr,MaxLen))
-            /* IS $ */
+            if(!CtrlObject->Macro.GetCurRecord(NULL,NULL) &&
+               ((Item[FocusPos].Flags & DIF_HISTORY) || Type == DI_COMBOBOX))
+            if((Opt.AutoComplete && Key < 256 && Key != KEY_BS && Key != KEY_DEL) ||
+               (!Opt.AutoComplete && Key == KEY_CTRLEND)
+              )
             {
-//_D(SysLog("Coplete: Str=%s SelStart=%d SelEnd=%d CurPos=%d",Str,SelStart,SelEnd, CurPos));
-              edt->SetString(PStr);
-              edt->Select(SelEnd,MaxLen); //select the appropriate text
-              //edt->Select(CurPos,sizeof(Str)); //select the appropriate text
-              /* $ 01.08.2000 SVS
-                 Небольшой глючек с AutoComplete
+              /* $ 05.12.2000 IS
+                 Все удалил и написал заново ;)
               */
-              edt->SetCurPos(CurPos); // SelEnd
-              //RedrawNeed=TRUE;
+              int MaxLen=sizeof(Item[FocusPos].Data);
+              char *PStr=Str;
+              if(Item[FocusPos].Flags & DIF_VAREDIT)
+              {
+                MaxLen=Item[FocusPos].Ptr.PtrLength;
+                if((PStr=(char*)malloc(MaxLen+1)) == NULL)
+                  return TRUE; //???
+              }
+              int DoAutoComplete=TRUE;
+              int CurPos=edt->GetCurPos();
+              edt->GetString(PStr,MaxLen);
+              int len=strlen(PStr);
+              edt->GetSelection(SelStart,SelEnd);
+              if(SelStart < 0 || SelStart==SelEnd)
+                  SelStart=len;
+              else
+                  SelStart++;
+
+              if(CurPos<SelStart) DoAutoComplete=FALSE;
+              if(SelStart<SelEnd && SelEnd<len) DoAutoComplete=FALSE;
+
+              if(Opt.EdOpt.PersistentBlocks)
+              {
+                if(DoAutoComplete && CurPos <= SelEnd)
+                {
+                  PStr[CurPos]=0;
+                  edt->Select(CurPos,MaxLen); //select the appropriate text
+                  edt->DeleteBlock();
+                  edt->FastShow();
+                }
+              }
+              /* IS $ */
+
+              SelEnd=strlen(PStr);
+
+              //find the string in the list
+              /* $ 03.12.2000 IS
+                   Учитываем флаг DoAutoComplete
+              */
+              if (DoAutoComplete && FindInEditForAC(Type == DI_COMBOBOX,
+                           (void *)Item[FocusPos].Selected,PStr,MaxLen))
+              /* IS $ */
+              {
+  //_D(SysLog("Coplete: Str=%s SelStart=%d SelEnd=%d CurPos=%d",Str,SelStart,SelEnd, CurPos));
+                edt->SetString(PStr);
+                edt->Select(SelEnd,MaxLen); //select the appropriate text
+                //edt->Select(CurPos,sizeof(Str)); //select the appropriate text
+                /* $ 01.08.2000 SVS
+                   Небольшой глючек с AutoComplete
+                */
+                edt->SetCurPos(CurPos); // SelEnd
+                //RedrawNeed=TRUE;
+              }
+              if(Item[FocusPos].Flags & DIF_VAREDIT)
+                free(PStr);
             }
-            if(Item[FocusPos].Flags & DIF_VAREDIT)
-              free(PStr);
+            /* SVS 03.12.2000 $ */
+            Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,FocusPos,0);
+            /* SVS $ */
+  //          if(RedrawNeed)
+              Redraw(); // Перерисовка должна идти после DN_EDITCHANGE (imho)
+            return(TRUE);
           }
-          /* SVS 03.12.2000 $ */
-          Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,FocusPos,0);
-          /* SVS $ */
-//          if(RedrawNeed)
-            Redraw(); // Перерисовка должна идти после DN_EDITCHANGE (imho)
-          return(TRUE);
         }
+        else if(!(Key&(KEY_ALT|KEY_RALT)))
+          return TRUE;
         /* SVS 21.08.2000 $ */
       }
 
@@ -5770,7 +5805,10 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
             NeedInit=FALSE;
             if(CurItem->ObjPtr)
             {
+              int ReadOnly=((Edit *)(CurItem->ObjPtr))->ReadOnly;
+              ((Edit *)(CurItem->ObjPtr))->ReadOnly=0;
               ((Edit *)(CurItem->ObjPtr))->SetString((char *)Ptr);
+              ((Edit *)(CurItem->ObjPtr))->ReadOnly=ReadOnly;
               //((Edit *)(CurItem->ObjPtr))->Select(-1,-1); // снимаем выделение
               // ...оно уже снимается в Edit::SetString()
             }
