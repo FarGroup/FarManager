@@ -8,13 +8,15 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000 [ FAR group ]
 */
-/* Revision: 1.70 08.12.2000 $ */
+/* Revision: 1.71 14.12.2000 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  14.12.2000 SVS
+    + ACTL_EJECTMEDIA & struct ActlEjectMedia & EJECT_NO_MESSAGE
   08.12.2000 SVS 1.70
     ! Оригинальный номер ревизии получился - 1.70 ;-) - символично.
       Для DM_SETTEXT, DM_GETTEXT в Param2 передается структура
@@ -704,6 +706,7 @@ enum {
   ACTL_WAITKEY,
   ACTL_GETCOLOR,
   ACTL_GETARRAYCOLOR,
+  ACTL_EJECTMEDIA,
 };
 
 #define CONSOLE_GET_MODE       (-2)
@@ -712,6 +715,13 @@ enum {
 #define CONSOLE_SET_FULLSCREEN (1)
 #define CONSOLE_WINDOWED       (0)
 #define CONSOLE_FULLSCREEN     (1)
+
+#define EJECT_NO_MESSAGE        (1)
+
+struct ActlEjectMedia {
+  DWORD Letter;
+  DWORD Flags;
+};
 
 typedef int (WINAPI *FARAPIADVCONTROL)(
   int ModuleNumber,

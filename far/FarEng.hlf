@@ -124,7 +124,7 @@ $ #Panel control commands#
   Toggle tree panel                                           #Ctrl-T#
   Hide/show both panels                                       #Ctrl-O#
   Temporarily hide both panels                        #Ctrl-Alt-Shift#
-    (works so long as we keep these keys)
+    (as long as these keys are held down)
   Hide/show inactive panel                                    #Ctrl-P#
   Hide/show left panel                                       #Ctrl-F1#
   Hide/show right panel                                      #Ctrl-F2#
@@ -1181,7 +1181,7 @@ $ #Internal viewer#
     #-#                  Go to previous file
     #Ctrl-O#             Show user screen
     #Ctrl-Alt-Shift#     Temporarily show user screen
-                       (works so long as we keep these keys)
+                       (as long as these keys are held down)
     #Ctrl-B#             Show/Hide functional key bar at the bottom
                           line.
     #Ctrl-S#             Show/Hide ScrollBar.
@@ -1299,7 +1299,7 @@ $ #Internal editor#
    #Ctrl-L#                  Disable edited text modification
    #Ctrl-O#                  Show user screen
    #Ctrl-Alt-Shift#          Temporarily show user screen
-                           (works so long as we keep these keys)
+                           (as long as these keys are held down)
    #Ctrl-Q#                  Treat the next key combination
                            as a character code
    #RightCtrl+<N>#           Sets bookmark in the current position
@@ -1338,6 +1338,10 @@ item with plugin name to create new plugin panel. If the panel type is not
 a ~file panel~@FilePanel@, it will be changed to the file panel.
 
     Del key may be used to disconnect from network drives.
+
+    Del key can be used to eject disks from CD-ROM and removable
+drives. To perform this operation on Windows NT/2000 administration
+privileges are required.
 
     #Ctrl-1# - #Ctrl-8# switches display of different information:
 

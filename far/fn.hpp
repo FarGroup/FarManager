@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.40 02.11.2000 $ */
+/* Revision: 1.41 14.12.2000 $ */
 
 /*
 Modify:
+  14.12.2000 SVS
+   + EjectVolume()
   02.11.2000 OT
    ! Введение проверки на длину буфера, отведенного под имя файла.
   25.10.2000 IS
@@ -617,5 +619,8 @@ FILE *OpenLogStream(char *file);
 #define MAX_LOG_LINE 10240
 
 #define MAX_FILE 260
+
+
+BOOL EjectVolume(char Letter,DWORD Flags);
 
 #endif  // __FARFUNC_HPP__

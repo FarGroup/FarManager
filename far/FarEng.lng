@@ -868,6 +868,10 @@
 "Cannot disconnect from %s"
 "If you do not close the open files, data may be lost."
 "Do you want to disconnect the device anyway?"
+"Volume %c: it cannot be ejected."
+"It use by another application"
+"Could not unlock media from drive %c:"
+"Could not eject media from drive %c:"
 
 " Search "
 "Cannot create list file"

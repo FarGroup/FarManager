@@ -12,10 +12,13 @@ lang.hpp
            подряд.
 */
 
-/* Revision: 1.31 04.12.2000 $ */
+/* Revision: 1.32 14.12.2000 $ */
 
 /*
 Modify:
+  14.12.2000 SVS
+    + MChangeVolumeInUse, MChangeVolumeInUse2,
+      MChangeCouldNotUnlockMedia, MChangeCouldNotEjectMedia
   13.12.2000
     + MEditInputSize
   04.12.2000 SVS
@@ -951,6 +954,10 @@ enum
   MChangeDriveCannotDisconnect,
   MChangeDriveOpenFiles,
   MChangeDriveAskDisconnect,
+  MChangeVolumeInUse,
+  MChangeVolumeInUse2,
+  MChangeCouldNotUnlockMedia,
+  MChangeCouldNotEjectMedia,
 
   MSearchFileTitle,
   MCannotCreateListFile,

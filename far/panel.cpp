@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.09 11.11.2000 $ */
+/* Revision: 1.10 14.12.2000 $ */
 
 /*
 Modify:
+  14.12.2000 SVS
+    + Попробуем сделать Eject для съемных дисков в меню выбора дисковода.
   11.11.2000 SVS
     ! FarMkTemp() - убираем (как всегда - то ставим, то тут же убираем :-(((
   11.11.2000 SVS
@@ -240,8 +242,14 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
         if (strlen(MenuText)>4)
           ShowSpecial=TRUE;
 
-        *ChDiskItem.UserData='A'+I;
-        ChDiskItem.UserDataSize=1;
+        /* $ 14.12.2000 SVS
+           Дополнительно запомним тип драйва.
+        */
+        ChDiskItem.UserData[0]='A'+I;
+        ChDiskItem.UserData[1]=0;
+        ChDiskItem.UserData[2]=(BYTE)DriveType;
+        ChDiskItem.UserDataSize=3;
+        /* SVS $ */
 
         ChDisk.AddItem(&ChDiskItem);
         MenuLine++;
@@ -373,6 +381,17 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
             char Letter[50],LocalName[50];
             if (ChDisk.GetUserData(Letter,sizeof(Letter)))
             {
+              /* $ 14.12.2000 SVS
+                 Попробуем сделать Eject :-)
+              */
+              DriveType=(DWORD)(BYTE)Letter[2];
+              if(DriveType == DRIVE_REMOVABLE || DriveType == DRIVE_CDROM)
+              {
+                EjectVolume(*Letter,0);
+                return(SelPos);
+              }
+              /* SVS $ */
+
               sprintf(LocalName,"%c:",*Letter);
               if (WNetCancelConnection2(LocalName,/*CONNECT_UPDATE_PROFILE*/0,FALSE)==NO_ERROR)
                 return(SelPos);
@@ -476,7 +495,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
   INPUT_RECORD rec;
   PeekInputRecord(&rec);
 
-  if (UserDataSize==1)
+  if (UserDataSize==3)
   {
     while (1)
     {

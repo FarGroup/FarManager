@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.29 13.12.2000 $ */
+/* Revision: 1.30 14.12.2000 $ */
 
 /*
 Modify:
+  14.12.2000 SVS
+    + ACTL_EJECTMEDIA
   13.12.2000 SVS
     ! FarDialogItem.Data - копирование strcpy заменено на memmove
       (терялись данные пользователя)
@@ -242,6 +244,14 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
         memmove(Param,Palette,SizeArrayPalette);
       return SizeArrayPalette;
     /* SVS $ */
+
+    /* $ 14.12.2000 SVS
+      ACTL_EJECTMEDIA - извлечь диск из съемного накопителя
+      Param - указатель на структуру ActlEjectMedia
+      Return - TRUE - успешное извлечение, FALSE - ошибка.
+    */
+    case ACTL_EJECTMEDIA:
+      return EjectVolume(((ActlEjectMedia*)Param)->Letter, ((ActlEjectMedia*)Param)->Flags);
  }
  return FALSE;
 }
