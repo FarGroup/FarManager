@@ -90,7 +90,7 @@ int PluginClass::ReadArchive(char *Name)
         return -1;
       }
 
-      if (GetTickCount()-StartTime>500)
+      if (GetTickCount()-StartTime>1000)
       {
         char FilesMsg[100];
         FSF.sprintf(FilesMsg,GetMsg(MArcReadFiles),ArcDataCount);
@@ -185,6 +185,9 @@ int PluginClass::ReadArchive(char *Name)
     ArcDataCount++;
   }
 
+  if (ArcDataCount>0)
+    ArcData=(PluginPanelItem *)realloc(ArcData,ArcDataCount*sizeof(*ArcData));
+
   ArcPlugin->CloseArchive(ArcPluginNumber,&CurArcInfo);
 
   if(GetItemCode != GETARC_EOF && GetItemCode != GETARC_SUCCESS)
@@ -232,6 +235,7 @@ int PluginClass::GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int 
   int CurDirLength=strlen(CurDir);
   *pPanelItem=NULL;
   *pItemsNumber=0;
+  int AlocatedItemsNumber=0;
 
   for (int I=0;I<ArcDataCount;I++)
   {
@@ -275,16 +279,23 @@ int PluginClass::GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int 
 
     if (Append)
     {
-      PluginPanelItem *NewPanelItem=(PluginPanelItem *)realloc(*pPanelItem,(*pItemsNumber+1)*sizeof(PluginPanelItem));
+      PluginPanelItem *NewPanelItem=*pPanelItem;
+      if (*pItemsNumber>=AlocatedItemsNumber)
+      {
+        AlocatedItemsNumber=AlocatedItemsNumber+256+AlocatedItemsNumber/4;
+        NewPanelItem=(PluginPanelItem *)realloc(*pPanelItem,AlocatedItemsNumber*sizeof(PluginPanelItem));
 
-      if (NewPanelItem==NULL)
-        break;
+        if (NewPanelItem==NULL)
+          break;
 
-      *pPanelItem=NewPanelItem;
+        *pPanelItem=NewPanelItem;
+      }
       NewPanelItem[*pItemsNumber]=CurItem;
       (*pItemsNumber)++;
     }
   }
+  if (*pItemsNumber>0)
+    *pPanelItem=(PluginPanelItem *)realloc(*pPanelItem,*pItemsNumber*sizeof(PluginPanelItem));
   return TRUE;
 }
 

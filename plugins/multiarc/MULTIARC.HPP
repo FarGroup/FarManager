@@ -5,7 +5,7 @@
 
 */
 
-/* $Revision: x.xx 09.03.2002 $ */
+/* $ Revision: x.xx 09.03.2002 $ */
 
 /*
 Modify:
@@ -346,8 +346,8 @@ int ConfigCommands(char *ArcFormat,int IDFocus=2,BOOL FastAccess=FALSE,int Plugi
 
 const char *GetMsg(int MsgId);
 int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,char *ListFileName=0);
-char *SeekDefExtPoint(char *Name, char *DefExt=NULL, char **Ext=NULL); //$AA 28.11.2001
-BOOL AddExt(char *Name, char *Ext);                               //$AA 28.11.2001
+char *SeekDefExtPoint(char *Name, char *DefExt=NULL, char **Ext=NULL); //$ AA 28.11.2001
+BOOL AddExt(char *Name, char *Ext);                               //$ AA 28.11.2001
 void StartThreadForKillListFile(PROCESS_INFORMATION *pi,char *list);
 DWORD WINAPI ThreadWhatWaitingForKillListFile(LPVOID par);
 char* QuoteText(char *Str);
