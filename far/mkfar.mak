@@ -111,11 +111,10 @@ Far : BccW32.cfg $(Dep_Far)
   @settitle "{$.} - Compiling..."
   @$(BCC32) -c -o$@ {$. }
 
-$(OBJPATH)\ctrlobj.obj: ctrlobj.cpp ctrlobj.hpp copyright.inc
 $(OBJPATH)\syslog.obj: syslog.cpp cc.bat
 $(OBJPATH)\flink.obj: flink.cpp cc.bat
 $(OBJPATH)\copy.obj: copy.cpp cc.bat
-$(OBJPATH)\global.obj: global.cpp global.hpp farversion.inc
+$(OBJPATH)\global.obj: global.cpp global.hpp farversion.inc copyright.inc
 
 FAROBJ=\
    $(OBJPATH)\checkver.obj\

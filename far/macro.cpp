@@ -5,10 +5,13 @@ macro.cpp
 
 */
 
-/* Revision: 1.49 24.07.2001 $ */
+/* Revision: 1.50 25.07.2001 $ */
 
 /*
 Modify:
+  25.07.2001 SVS
+    - јвтостартующие макросы запускались не один раз, а сколько раз мы
+      вызывали LoadMacros();
   24.07.2001 SVS
     - не работали автостартующие макросы
   23.07.2001 SVS
@@ -293,6 +296,7 @@ KeyMacro::KeyMacro()
   LockScr=NULL;
   Macros=NULL;
   RecBuffer=NULL;
+  StartMacroPos=-2; // “олько 1 раз(!) будет автостарт
   LoadMacros();
 }
 
@@ -323,7 +327,6 @@ void KeyMacro::InitVars()
   ReleaseTempBuffer();
 
   MacrosNumber=0;
-  StartMacroPos=-2;
   Recording=FALSE;
   Executing=FALSE;
   Macros=NULL;

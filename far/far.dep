@@ -192,7 +192,6 @@
 .\ctrlobj.cpp : \
 	".\cmdline.hpp"\
 	".\colors.hpp"\
-	".\copyright.inc"\
 	".\ctrlobj.hpp"\
 	".\edit.hpp"\
 	".\farconst.hpp"\
@@ -887,6 +886,7 @@
 
 
 .\global.cpp : \
+	".\copyright.inc"\
 	".\farconst.hpp"\
 	".\farqueue.hpp"\
 	".\farversion.inc"\

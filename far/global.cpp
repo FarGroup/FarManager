@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.20 24.07.2001 $ */
+/* Revision: 1.21 25.07.2001 $ */
 
 /*
 Modify:
+  25.07.2001 SVS
+    ! Copyright переехала из ctrlobj.cpp.
   24.07.2001 SVS
     + NotUseCAS: флаг на запрет юзание Ctrl-Alt-Shift
   27.06.2001 SVS
@@ -67,6 +69,11 @@ Modify:
 */
 #include "farversion.inc"
 /* SVS $ */
+
+/* $ 29.06.2000 tran
+  берем char *CopyRight из inc файла */
+#include "copyright.inc"
+/* tran $ */
 
 FarQueue<DWORD> *KeyQueue=NULL;
 

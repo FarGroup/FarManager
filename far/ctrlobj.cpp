@@ -5,12 +5,14 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.30 06.07.2001 $ */
+/* Revision: 1.31 25.07.2001 $ */
 
 /*
 Modify:
+  25.07.2001 SVS
+    ! Copyright переехала в global.cpp.
   06.07.2001 OT
-    - баг с зацикливанием при выдаче сообщения о неправильной загрузки плагина 
+    - баг с зацикливанием при выдаче сообщения о неправильной загрузки плагина
   23.06.2001 OT
     - far -r
   30.05.2001 OT
@@ -235,10 +237,6 @@ ControlObject::~ControlObject()
 */
 void ControlObject::ShowCopyright(DWORD Flags)
 {
-/* $ 29.06.2000 tran
-  берем char *CopyRight из inc файла */
-#include "copyright.inc"
-/* tran $ */
   char Str[256];
   char *Line2=NULL;
   strcpy(Str,Copyright);

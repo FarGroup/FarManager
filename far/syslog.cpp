@@ -5,10 +5,12 @@ syslog.cpp
 
 */
 
-/* Revision: 1.13 24.07.2001 $ */
+/* Revision: 1.14 25.07.2001 $ */
 
 /*
 Modify:
+  25.07.2001 SVS
+    - Обломы с компиляцией под VC
   24.07.2001 SVS
     + Если запущены под дебагером (IsDebuggerPresent), то выводим строку
       в LOG-окно дебагера (OutputDebugString)
@@ -71,11 +73,9 @@ static FILE *LogStream=0;
 static int   Indent=0;
 static char *PrintTime(char *timebuf);
 
-#if defined(__BORLANDC__) && (__BORLANDC__ < 0x550)
 extern "C" {
 WINBASEAPI BOOL WINAPI IsDebuggerPresent(VOID);
 };
-#endif
 
 #endif
 

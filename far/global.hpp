@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.22 24.07.2001 $ */
+/* Revision: 1.23 25.07.2001 $ */
 
 /*
 Modify:
+  25.07.2001 SVS
+    ! Copyright переехала из ctrlobj.cpp.
   24.07.2001 SVS
     + NotUseCAS: флаг на запрет юзание Ctrl-Alt-Shift
   27.06.2001 SVS
@@ -166,5 +168,7 @@ extern char RegColorsHighlight[];
 extern BOOL LanguageLoaded;
 
 extern BOOL NotUseCAS;
+
+extern char *Copyright;
 
 #endif	// __FARGLOBAL_HPP__
