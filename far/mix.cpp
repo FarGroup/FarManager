@@ -5,10 +5,18 @@ mix.cpp
 
 */
 
-/* Revision: 1.84 06.07.2001 $ */
+/* Revision: 1.85 30.07.2001 $ */
 
 /*
 Modify:
+  30.07.2001 IS
+    !  Усовершенствование FarRecursiveSearch
+       1. Проверяем правильность параметров.
+       2. Теперь обработка каталогов не зависит от маски файлов
+       3. Маска может быть стандартного фаровского вида (со скобками,
+          перечислением и пр.). Может быть несколько масок файлов, разделенных
+          запятыми или точкой с запятой, можно указывать маски исключения,
+          можно заключать маски в кавычки. Короче, все как и должно быть :-)
   06.07.2001 IS
     + Оптимизация и дополнительная проверка в Add_PATHEXT
   04.07.2001 SVS
@@ -267,6 +275,7 @@ Modify:
 #include "savescr.hpp"
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
+#include "CFileMask.hpp"
 
 static DWORD IsCommandExeGUI(char *Command);
 
@@ -1536,23 +1545,35 @@ void *WINAPI FarBsearch(const void *key, const void *base, size_t nelem, size_t 
 
 /* $ 10.09.2000 tran
    FSF/FarRecurseSearch */
+/* $ 30.07.2001 IS
+     1. Проверяем правильность параметров.
+     2. Теперь обработка каталогов не зависит от маски файлов
+     3. Маска может быть стандартного фаровского вида (со скобками,
+        перечислением и пр.). Может быть несколько масок файлов, разделенных
+        запятыми или точкой с запятой, можно указывать маски исключения,
+        можно заключать маски в кавычки. Короче, все как и должно быть :-)
+*/
 void WINAPI FarRecursiveSearch(const char *InitDir,const char *Mask,FRSUSERFUNC Func,DWORD Flags,void *Param)
 {
-  if(Func) // SVS: а проверить? :-(
+  if(Func && InitDir && *InitDir && Mask && *Mask)
   {
+    CFileMask FMask;
+    if(!FMask.Set(Mask, FMF_SILENT)) return;
+
     ScanTree ScTree(Flags& FRS_RETUPDIR,Flags & FRS_RECUR);
     WIN32_FIND_DATA FindData;
     char FullName[NM];
 
-    ScTree.SetFindPath(InitDir,Mask);
+    ScTree.SetFindPath(InitDir,"*");
     while (ScTree.GetNextName(&FindData,FullName))
     {
-      //if (func(FindData,FullName)==0)
-      if (Func(&FindData,FullName,Param) == 0)
+      if (FMask.Compare(FindData.cFileName) &&
+          Func(&FindData,FullName,Param) == 0)
           break;
     }
   }
 }
+/* IS $ */
 /* tran 10.09.2000 $ */
 
 /* $ 14.09.2000 SVS
