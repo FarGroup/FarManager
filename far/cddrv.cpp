@@ -5,10 +5,14 @@ cddrv.cpp
 
 */
 
-/* Revision: 1.02 01.07.2004 $ */
+/* Revision: 1.03 24.07.2004 $ */
 
 /*
 Modify:
+  24.07.2004 VVM
+    - Портились диски во время записи при включенном определении типа привода.
+      Вызов DeviceIoControl(IOCTL_SCSI_PASS_THROUGH) с параметром SCSIOP_INQUIRY
+      давал такой эффект.
   01.07.2004 SVS
     ! у FAR_GetDriveType тертий параметр - нужно ли определять тип CD
   28.06.2004 SVS
@@ -524,8 +528,8 @@ static CDROM_DeviceCaps getCapsUsingSCSIPassThrough(HANDLE hDevice)
         }
     }
 
-
-
+/* $ 24.07.2004 VVM Выключим этот кусок.
+    Тормозит и портит болванки при записи на SCSI/IDE писалках
 
     sptwb.Spt.Cdb[0] = SCSIOP_INQUIRY;
     sptwb.Spt.Cdb[1] = 0;
@@ -558,7 +562,7 @@ static CDROM_DeviceCaps getCapsUsingSCSIPassThrough(HANDLE hDevice)
             return getCapsUsingProductId(productID);
         }
     }
-
+*/
     return CDDEV_CAPS_NONE;
 }
 
