@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.187 12.07.2002 $ */
+/* Revision: 1.188 23.07.2002 $ */
 
 /*
 Modify:
+  23.07.2002 SKV
+    - Еще одна попытка разобраться с выделением.
   12.07.2002 SVS
     ! Очередная "потеха" для "Editor Not File" - перенесем обработку F1
       из Editor в FileEditor
@@ -2260,7 +2262,7 @@ int Editor::ProcessKey(int Key)
             когда курсор за концом строки, и при Shift-Down,
             когда он, опять таки, попадает за конец строки.
           */
-          CurLine->EditLine.AddSelect(0,CurLine->EditLine.GetLength()>CurPos?CurPos:-1);
+          CurLine->EditLine.AddSelect(0,CurLine->EditLine.GetLength()>=CurPos?CurPos:-1);
           /* SKV $ */
           CurLine->Prev->EditLine.Select(PrevPos,-1);
         }

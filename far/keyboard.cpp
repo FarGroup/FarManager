@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.74 30.05.2002 $ */
+/* Revision: 1.75 23.07.2002 $ */
 
 /*
 Modify:
+  23.07.2002 SKV
+    + Пусть KEY_ALT тоже будет IsShiftKey :)
   30.05.2002 SVS
     ! Технологический патч для USE_WFUNC_IN - пока только эксперименты
       (чтоб не потерялось :-))
@@ -1462,6 +1464,7 @@ int IsShiftKey(DWORD Key)
      KEY_ALTEND,
      KEY_ALTPGUP,
      KEY_ALTPGDN,
+     KEY_ALT,
   };
 
   for (int I=0;I<sizeof(ShiftKeys)/sizeof(ShiftKeys[0]);I++)
