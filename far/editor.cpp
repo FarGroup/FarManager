@@ -6,10 +6,17 @@ editor.cpp
 
 */
 
-/* Revision: 1.179 10.06.2002 $ */
+/* Revision: 1.180 14.06.2002 $ */
 
 /*
 Modify:
+  14.06.2002 IS
+    ! Тело SetDeleteOnClose переехало в editor.cpp
+    ! Параметр у SetDeleteOnClose стал int:
+        0 - не удалять ничего
+        1 - удалять файл и каталог
+        2 - удалять только файл
+    + Обработка FEDITOR_DELETEONLYFILEONCLOSE
   10.06.2002 SVS
     - некорректно поведение редактора для $Date & Ctrl-F
   24.05.2002 SVS
@@ -670,15 +677,45 @@ Editor::~Editor()
        Удалим файл вместе с каталогом, если это просится и файла с таким же
        именем не открыто в других фреймах.
     */
-    if (Flags.Check(FEDITOR_DELETEONCLOSE) && !FrameManager->CountFramesWithName(FileName))
-       DeleteFileWithFolder(FileName);
-   /* IS $ */
+    /* $ 14.06.2001 IS
+       Если установлен FEDITOR_DELETEONLYFILEONCLOSE и сброшен
+       FEDITOR_DELETEONCLOSE, то удаляем только файл.
+    */
+    if (Flags.Check(FEDITOR_DELETEONCLOSE|FEDITOR_DELETEONLYFILEONCLOSE) &&
+       !FrameManager->CountFramesWithName(FileName))
+    {
+       if(Flags.Check(FEDITOR_DELETEONCLOSE))
+         DeleteFileWithFolder(FileName);
+       else
+       {
+         SetFileAttributes(FileName,0);
+         remove(FileName);
+       }
+    }
+    /* IS 14.06.2002 $ */
+    /* IS 11.10.2001 $ */
     CtrlObject->Plugins.CurEditor = save;
   }
 
   _KEYMACRO(SysLog(-1));
   _KEYMACRO(SysLog("Editor::~Editor()"));
 }
+
+/* $ 14.06.2002 IS
+   DeleteOnClose стал int:
+     0 - не удалять ничего
+     1 - удалять файл и каталог
+     2 - удалять только файл
+*/
+void Editor::SetDeleteOnClose(int NewMode)
+{
+  Flags.Skip(FEDITOR_DELETEONCLOSE|FEDITOR_DELETEONLYFILEONCLOSE);
+  if(NewMode==1)
+    Flags.Set(FEDITOR_DELETEONCLOSE);
+  else if(NewMode==2)
+    Flags.Set(FEDITOR_DELETEONLYFILEONCLOSE);
+}
+/* IS $ */
 
 void Editor::FreeAllocatedData()
 {
@@ -1159,7 +1196,7 @@ int Editor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs,int NewF
     /* $ 11.10.2001 IS
        Если было произведено сохранение с любым результатом, то не удалять файл
     */
-    Flags.Skip(FEDITOR_DELETEONCLOSE);
+    Flags.Skip(FEDITOR_DELETEONCLOSE|FEDITOR_DELETEONLYFILEONCLOSE);
     /* IS $ */
     CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
 //_D(SysLog("%08d EE_SAVE",__LINE__));

@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.102 02.06.2002 $ */
+/* Revision: 1.103 14.06.2002 $ */
 
 /*
 Modify:
+  14.06.2002 IS
+    + Обработка DeleteFolder (см. TempViewName)
   02.06.2002 KM
     - Уточнение поиска по целым словам. Переработка алгоритма.
   28.05.2002 SVS
@@ -376,6 +378,7 @@ Viewer::Viewer()
   SetStatusMode(TRUE);
   HideCursor=TRUE;
   *TempViewName=0;
+  DeleteFolder=TRUE;
   *Title=0;
   *PluginData=0;
   TableChangedByUser=FALSE;
@@ -436,12 +439,21 @@ Viewer::~Viewer()
   if (*TempViewName && !FrameManager->CountFramesWithName(TempViewName))
   /* IS $ */
   {
-    /*chmod(TempViewName,S_IREAD|S_IWRITE);
-    remove(TempViewName);
-    *PointToName(TempViewName)=0;
-    RemoveDirectory(TempViewName);*/
-    _tran(SysLog("call DeleteFileWithFolder for '%s'",TempViewName));
-    DeleteFileWithFolder(TempViewName);
+    /* $ 14.06.2002 IS
+       Если DeleteFolder сброшен, то удаляем только файл. Иначе - удаляем еще
+       и каталог.
+    */
+    if(DeleteFolder)
+    {
+      _tran(SysLog("call DeleteFileWithFolder for '%s'",TempViewName));
+      DeleteFileWithFolder(TempViewName);
+    }
+    else
+    {
+      SetFileAttributes(TempViewName,0);
+      remove(TempViewName);
+    }
+    /* IS $ */
   }
   /* $ 12.07.2000 tran
      free memory  */
@@ -2324,7 +2336,7 @@ void Viewer::Search(int Next,int FirstChar)
           {
             if (I!=0)
             {
-              if (IsSpace(Buf[I-1]) || IsEol(Buf[I-1]) || 
+              if (IsSpace(Buf[I-1]) || IsEol(Buf[I-1]) ||
                  (strchr(Opt.WordDiv,Buf[I-1])!=NULL))
                 locResultLeft=TRUE;
             }
@@ -2337,7 +2349,7 @@ void Viewer::Search(int Next,int FirstChar)
               locResultRight=TRUE;
             else
               if (I+SearchLength<ReadSize &&
-                 (IsSpace(Buf[I+SearchLength]) || IsEol(Buf[I+SearchLength]) || 
+                 (IsSpace(Buf[I+SearchLength]) || IsEol(Buf[I+SearchLength]) ||
                  (strchr(Opt.WordDiv,Buf[I+SearchLength])!=NULL)))
                 locResultRight=TRUE;
           }
@@ -2480,13 +2492,14 @@ void Viewer::ShowConsoleTitle()
 }
 
 
-void Viewer::SetTempViewName(const char *Name)
+void Viewer::SetTempViewName(const char *Name, BOOL DeleteFolder)
 {
 //  ConvertNameToFull(Name,TempViewName, sizeof(TempViewName));
   _tran(SysLog("[%p] Viewer::SetTempViewName() [%s]",this,Name));
   if (ConvertNameToFull(Name,TempViewName, sizeof(TempViewName)) >= sizeof(TempViewName)){
     return;
   }
+  Viewer::DeleteFolder=DeleteFolder;
 }
 
 

@@ -7,10 +7,14 @@ Internal viewer
 
 */
 
-/* Revision: 1.21 08.12.2001 $ */
+/* Revision: 1.22 14.06.2002 $ */
 
 /*
 Modify:
+  14.06.2002 IS
+    + SetTempViewName - параметр DeleteFolder - удалить не только файл, но
+      и каталог, его содержащий (если каталог пуст).
+    + BOOL DeleteFolder - см. SetTempViewName
   08.12.2001 OT
     Bugzilla #144 Заходим в архив, F4 на файле, Ctrl-F10.
   25.06.2001 IS
@@ -155,6 +159,13 @@ class Viewer:public ScreenObject
     int ViewY1;
     int ShowStatusLine,HideCursor;
     char TempViewName[NM];
+    /* $ 14.06.2002 IS
+       DeleteFolder - удалит не только файл TempViewName, но и каталог,
+       в котором он лежит
+    */
+    BOOL DeleteFolder;
+    /* IS */
+
     char Title[512];
     char PluginData[NM*2];
     int TableChangedByUser;
@@ -228,7 +239,11 @@ class Viewer:public ScreenObject
     void KeepInitParameters();
     void GetFileName(char *Name);
     void ShowConsoleTitle();
-    void SetTempViewName(const char *Name);
+    /* $ 14.06.2002 IS
+       DeleteFolder - удалит не только файл, но и каталог
+    */
+    void SetTempViewName(const char *Name, BOOL DeleteFolder);
+    /* IS $ */
     void SetTitle(const char *Title);
     unsigned long GetFilePos();
     /* $ 18.07.2000 tran - change 'long' to 'unsigned long' */

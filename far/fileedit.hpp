@@ -7,10 +7,15 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.29 22.05.2002 $ */
+/* Revision: 1.30 14.06.2002 $ */
 
 /*
 Modify:
+  14.06.2002 IS
+    ! DeleteOnClose стал int:
+      0 - не удалять ничего
+      1 - удалять файл и каталог
+      2 - удалять только файл
   22.05.2002 SVS
     + SetTitle()
     ! В Init добавлен вторым параметром - Title
@@ -138,12 +143,18 @@ class FileEditor:public Frame
                int StartLine=-1,int StartChar=-1,int DisableHistory=FALSE,
                char *PluginData=NULL,int ToSaveAs=FALSE,
                int OpenModeExstFile=FEOPMODE_QUERY);
+    /* $ 14.06.2002 IS
+       DeleteOnClose стал int:
+         0 - не удалять ничего
+         1 - удалять файл и каталог
+         2 - удалять только файл
+    */
     FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
                int StartLine,int StartChar,const char *Title,
                int X1,int Y1,int X2,int Y2, int DisableHistory,
-               BOOL DeleteOnClose=FALSE,
+               int DeleteOnClose=0,
                int OpenModeExstFile=FEOPMODE_QUERY);
-
+    /* IS $ */
     /* $ 07.05.2001 DJ */
     virtual ~FileEditor();
     /* DJ $ */
@@ -153,9 +164,16 @@ class FileEditor:public Frame
     int ProcessQuitKey(int FirstSave,BOOL NeedQuestion=TRUE);
 
   public:
+    /* $ 14.06.2002 IS
+       DeleteOnClose стал int:
+         0 - не удалять ничего
+         1 - удалять файл и каталог
+         2 - удалять только файл
+    */
     void Init(const char *Name,const char *Title,int CreateNewFile,int EnableSwitch,
               int StartLine,int StartChar,int DisableHistory,char *PluginData,
-              int ToSaveAs, BOOL DeleteOnClose,int OpenModeExstFile);
+              int ToSaveAs, int DeleteOnClose,int OpenModeExstFile);
+    /* IS $ */
     /* $ 07.08.2000 SVS
        Функция инициализации KeyBar Labels
     */

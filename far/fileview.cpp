@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.58 04.06.2002 $ */
+/* Revision: 1.59 14.06.2002 $ */
 
 /*
 Modify:
+  14.06.2002 IS
+    + Дополнительный параметр у SetTempViewName - DeleteFolder
   04.06.2002 SVS
     - BugZ#546 - Editor валит фар (здесь такая же фигня, что и в редакторе!)
   24.05.2002 SVS
@@ -522,9 +524,9 @@ void FileViewer::ShowConsoleTitle()
 }
 
 
-void FileViewer::SetTempViewName(const char *Name)
+void FileViewer::SetTempViewName(const char *Name, BOOL DeleteFolder)
 {
-  View.SetTempViewName(Name);
+  View.SetTempViewName(Name, DeleteFolder);
 }
 
 

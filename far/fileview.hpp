@@ -7,10 +7,14 @@ fileview.hpp
 
 */
 
-/* Revision: 1.18 22.05.2002 $ */
+/* Revision: 1.19 14.06.2002 $ */
 
 /*
 Modify:
+  14.06.2002 IS
+    + SetTempViewName - параметр DeleteFolder - удалить не только файл, но
+      и каталог, его содержащий (если каталог пуст). По умолчанию - TRUE
+      (получаем поведение SetTempViewName такое же, как и раньше)
   22.05.2002 SVS
     + ViewerControl()
   13.05.2002 VVM
@@ -104,7 +108,13 @@ class FileViewer:public Frame
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     void ShowConsoleTitle();
-    void SetTempViewName(const char *Name);
+    /* $ 14.06.2002 IS
+       Параметр DeleteFolder - удалить не только файл, но и каталог, его
+       содержащий (если каталог пуст). По умолчанию - TRUE (получаем
+       поведение SetTempViewName такое же, как и раньше)
+    */
+    void SetTempViewName(const char *Name,BOOL DeleteFolder=TRUE);
+    /* IS $ */
     virtual void OnDestroy();
 
     virtual int GetTypeAndName(char *Type,char *Name);

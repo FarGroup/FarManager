@@ -5,10 +5,13 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.137 27.05.2002 $ */
+/* Revision: 1.138 14.06.2002 $ */
 
 /*
 Modify:
+  14.06.2002 IS
+    + Обработка xF_DELETEONLYFILEONCLOSE - этот флаг имеет более низкий
+      приоритет по сравнению с xF_DELETEONCLOSE
   27.05.2002 SVS
     - Блин, поспешил с BugZ#514 (что называется перебор - в одном месте проверил,
       а самое главное - MultiArc...  :-(
@@ -1900,8 +1903,13 @@ int WINAPI FarViewer(const char *FileName,const char *Title,
     /* IS $ */
     if(!Viewer)
       return FALSE;
-    if (Flags & VF_DELETEONCLOSE)
-      Viewer->SetTempViewName(FileName);
+    /* $ 14.06.2002 IS
+       Обработка VF_DELETEONLYFILEONCLOSE - этот флаг имеет более низкий
+       приоритет по сравнению с VF_DELETEONCLOSE
+    */
+    if (Flags & (VF_DELETEONCLOSE|VF_DELETEONLYFILEONCLOSE))
+      Viewer->SetTempViewName(FileName,(Flags&VF_DELETEONCLOSE)?TRUE:FALSE);
+    /* IS $ */
     /* $ 12.05.2001 DJ */
     Viewer->SetEnableF6 ((Flags & VF_ENABLE_F6) != 0);
     /* DJ $ */
@@ -1928,8 +1936,13 @@ int WINAPI FarViewer(const char *FileName,const char *Title,
     FrameManager->EnterModalEV();
     FrameManager->ExecuteModal();
     FrameManager->ExitModalEV();
-    if (Flags & VF_DELETEONCLOSE)
-      Viewer.SetTempViewName(FileName);
+    /* $ 14.06.2002 IS
+       Обработка VF_DELETEONLYFILEONCLOSE - этот флаг имеет более низкий
+       приоритет по сравнению с VF_DELETEONCLOSE
+    */
+    if (Flags & (VF_DELETEONCLOSE|VF_DELETEONLYFILEONCLOSE))
+      Viewer.SetTempViewName(FileName,(Flags&VF_DELETEONCLOSE)?TRUE:FALSE);
+    /* IS $ */
     /* $ 12.05.2001 DJ */
     Viewer.SetEnableF6 ((Flags & VF_ENABLE_F6) != 0);
     /* DJ $ */
@@ -1964,8 +1977,17 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
   /* VVM $ */
   /* $ 09.09.2001 IS */
   int DisableHistory=(Flags & EF_DISABLEHISTORY)?TRUE:FALSE;
-  int DeleteOnClose=(Flags & EF_DELETEONCLOSE)?TRUE:FALSE;
-  /* IS $ */
+  /* $ 14.06.2002 IS
+     Обработка EF_DELETEONLYFILEONCLOSE - этот флаг имеет более низкий
+     приоритет по сравнению с EF_DELETEONCLOSE
+  */
+  int DeleteOnClose = 0;
+  if(Flags & EF_DELETEONCLOSE)
+    DeleteOnClose = 1;
+  else if(Flags & EF_DELETEONLYFILEONCLOSE)
+    DeleteOnClose = 2;
+  /* IS 14.06.2002 $ */
+  /* IS 09.09.2001 $ */
   int OpMode=FEOPMODE_QUERY;
 #if 0
   if((Flags&(EF_USEEXISTING|EF_BREAKIFOPEN)) != (EF_USEEXISTING|EF_BREAKIFOPEN))

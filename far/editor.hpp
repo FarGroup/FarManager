@@ -9,10 +9,17 @@ editor.hpp
 
 */
 
-/* Revision: 1.36 18.05.2002 $ */
+/* Revision: 1.37 14.06.2002 $ */
 
 /*
 Modify:
+  14.06.2002 IS
+    + FEDITOR_DELETEONLYFILEONCLOSE
+    ! Параметр у SetDeleteOnClose стал int:
+        0 - не удалять ничего
+        1 - удалять файл и каталог
+        2 - удалять только файл
+    ! Тело SetDeleteOnClose переехало в editor.cpp
   18.05.2002 SVS
     ! ФЛАГИ - сведем в кучу двухпозиционные переменные
   07.03.2002 IS
@@ -153,7 +160,7 @@ enum {
 enum FLAGS_CLASS_EDITOR{
   FEDITOR_DELETEONCLOSE         = 0x00000100,   // 10.10.2001 IS: Если TRUE, то удалить
                                                 // в деструкторе файл вместе с каталогом
-                                                // (если тот пуст
+                                                // (если тот пуст)
   FEDITOR_MODIFIED              = 0x00000200,
   FEDITOR_JUSTMODIFIED          = 0x00000400,   // 10.08.2000 skv: need to send EE_REDRAW 2.
                                                 // set to 1 by TextChanged, no matter what
@@ -171,6 +178,12 @@ enum FLAGS_CLASS_EDITOR{
   FEDITOR_TABLECHANGEDBYUSER    = 0x00200000,
   FEDITOR_OPENFAILED            = 0x00400000,
   FEDITOR_ISRESIZEDCONSOLE      = 0x00800000,
+
+  /* $ 14.06.2002 IS
+     Если флаг взведен и нет FEDITOR_DELETEONCLOSE, то удалить только файл
+  */
+  FEDITOR_DELETEONLYFILEONCLOSE = 0x01000000,
+  /* IS $ */
 };
 
 struct EditList;
@@ -362,8 +375,15 @@ class Editor:public ScreenObject
     int  GetCharCodeBase(void) const {return EdOpt.CharCodeBase; }
 
     /* $ 10.10.2001 IS установка DeleteOnClose */
-    void SetDeleteOnClose(BOOL NewMode) { Flags.Change(FEDITOR_DELETEONCLOSE,NewMode); }
-    /* IS */
+    /* $ 14.06.2002 IS
+        DeleteOnClose стал int:
+          0 - не удалять ничего
+          1 - удалять файл и каталог
+          2 - удалять только файл
+    */
+    void SetDeleteOnClose(int NewMode);
+    /* IS 14.06.2002 */
+    /* IS 10.10.2001 */
 
     /* $ 29.10.2001 IS
          Работа с настройками "сохранять позицию файла" и

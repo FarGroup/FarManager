@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.111 10.06.2002 $ */
+/* Revision: 1.112 14.06.2002 $ */
 
 /*
 Modify:
+  14.06.2002 IS
+    ! DeleteOnClose стал int.
   10.06.2002 SVS
     - BugZ#554 - bug, overwrite local memory
     ! Загоним в блок вызов Dialog (щоб глюков избежать)
@@ -314,7 +316,7 @@ FileEditor::FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
 
 FileEditor::FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
             int StartLine,int StartChar,const char *Title,
-            int X1,int Y1,int X2,int Y2,int DisableHistory, BOOL DeleteOnClose,
+            int X1,int Y1,int X2,int Y2,int DisableHistory, int DeleteOnClose,
             int OpenModeExstFile)
 {
   _KEYMACRO(SysLog("FileEditor::FileEditor(1)"));
@@ -357,7 +359,7 @@ FileEditor::~FileEditor()
 
 void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int EnableSwitch,
                       int StartLine,int StartChar,int DisableHistory,
-                      char *PluginData,int ToSaveAs,BOOL DeleteOnClose,
+                      char *PluginData,int ToSaveAs,int DeleteOnClose,
                       int OpenModeExstFile)
 {
   FEdit=new Editor;
@@ -861,7 +863,7 @@ int FileEditor::ProcessKey(int Key)
                не будем удалять файл, если было включено удаление, но при этом
                пользователь переключился во вьюер
             */
-            FEdit->SetDeleteOnClose(FALSE);
+            FEdit->SetDeleteOnClose(0);
             /* IS $ */
             /* $ 06.05.2001 DJ
                обработка F6 под NWZ
