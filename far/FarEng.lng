@@ -1861,4 +1861,6 @@
 
 "Environment variable %COMSPEC% not defined!"
 
+"Cannot open the file"
+
 "Evaluation version"

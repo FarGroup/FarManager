@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.126 29.07.2003 $ */
+/* Revision: 1.127 31.08.2003 $ */
 
 /*
 Modify:
+  31.08.2003 SVS
+    + MOpenPluginCannotOpenFile
   29.07.2003 SVS
     ! Удален MMacroSettingsInsidePlugin - за ненадобностью.
   15.07.2003 SVS
@@ -2157,6 +2159,8 @@ enum
   MPanelBracketsForLongName,
 
   MComspecNotFound,
+
+  MOpenPluginCannotOpenFile,
 
   MListEval
 };

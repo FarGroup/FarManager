@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.36 11.07.2003 $ */
+/* Revision: 1.37 31.08.2003 $ */
 
 /*
 Modify:
+  31.08.2003 SVS
+    ! ¬ FileList::CountDirSize() передаетс€ 1 параметр - DWORD, флаги плагина
   11.07.2003 SVS
     + FileList::IsNumeric()
   13.01.2003 SVS
@@ -235,7 +237,7 @@ class FileList:public Panel
     */
     BOOL ChangeDir(char *NewDir,BOOL IsUpdated=TRUE);
     /* SVS $ */
-    void CountDirSize();
+    void CountDirSize(DWORD PluginFlags);
     /* $ 19.03.2002 DJ
        IgnoreVisible - обновить, даже если панель невидима
     */
@@ -261,7 +263,7 @@ class FileList:public Panel
     void DescribeFiles();
     void CreatePluginItemList(struct PluginPanelItem *(&ItemList),int &ItemNumber);
     void DeletePluginItemList(struct PluginPanelItem *(&ItemList),int &ItemNumber);
-    HANDLE OpenPluginForFile(char *FileName);
+    HANDLE OpenPluginForFile(char *FileName,DWORD FileAttr=0);
     int PreparePanelView(struct PanelViewSettings *PanelView);
     int PrepareColumnWidths(unsigned int *ColumnTypes,int *ColumnWidths,
                             int &ColumnCount,int FullScreen);

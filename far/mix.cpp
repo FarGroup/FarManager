@@ -5,10 +5,17 @@ mix.cpp
 
 */
 
-/* Revision: 1.144 21.08.2003 $ */
+/* Revision: 1.145 02.09.2003 $ */
 
 /*
 Modify:
+  02.09.2003 SVS
+    ! У функции CheckShortcutFolder добавился параметр Silent - чтобы сработать тихо :-)
+    + Новая функция FolderContentReady(const char *Dir) - возвращает TRUE, если
+      контент каталога можно "прочитать"
+    - BugZ#743 - Переход на недоступный подмапленный диск не сообщает об ошибке
+      Перед вызовом SetCurrentDirectory() "проверим" каталог новой
+      функцией FolderContentReady()
   21.08.2003 SVS
     - BugZ#933 - команда CD с длинным параметром
   15.06.2003 SVS
@@ -473,6 +480,23 @@ __int64 filelen64(FILE *FPtr)
   return(ftell64(FPtr));
 }
 
+
+BOOL FolderContentReady(const char *Dir)
+{
+  BOOL Ret=FALSE;
+  if(Dir && *Dir)
+  {
+    WIN32_FIND_DATA fdata;
+    char Buf[2048];
+    strncpy(Buf,Dir,sizeof(Buf)-6);
+    strcat(Buf,"\\*.*");
+    HANDLE FindHandle=FindFirstFile(Buf,&fdata);
+    Ret=(FindHandle == INVALID_HANDLE_VALUE)?FALSE:TRUE;
+    FindClose(FindHandle);
+  }
+  return Ret;
+}
+
 /* $ 14.01.2002 IS
    Установка нужного диска и каталога и установление соответствующей переменной
    окружения. В случае успеха возвращается не ноль.
@@ -508,7 +532,10 @@ BOOL FarChDir(const char *NewDir, BOOL ChangeDir)
     }
     *CurDir=toupper(*CurDir);
     if(ChangeDir)
-      rc=SetCurrentDirectory(CurDir);
+    {
+      if(FolderContentReady(CurDir))
+        rc=SetCurrentDirectory(CurDir);
+    }
   }
   else
   {
@@ -520,16 +547,22 @@ BOOL FarChDir(const char *NewDir, BOOL ChangeDir)
       ++Chr;
     }
     if(ChangeDir)
-      rc=SetCurrentDirectory(NewDir);
+    {
+      if(FolderContentReady(NewDir))
+        rc=SetCurrentDirectory(NewDir);
+    }
   }
 
-  if ((!ChangeDir || GetCurrentDirectory(sizeof(CurDir),CurDir)) &&
-      isalpha(*CurDir) && CurDir[1]==':')
+  if(rc)
   {
-    Drive[1]=toupper(*CurDir);
-    OemToChar(CurDir,CurDir); // аргументы SetEnvironmentVariable должны быть ANSI
-    SetEnvironmentVariable(Drive,CurDir);
-//    rc=0;
+    if ((!ChangeDir || GetCurrentDirectory(sizeof(CurDir),CurDir)) &&
+        isalpha(*CurDir) && CurDir[1]==':')
+    {
+      Drive[1]=toupper(*CurDir);
+      OemToChar(CurDir,CurDir); // аргументы SetEnvironmentVariable должны быть ANSI
+      SetEnvironmentVariable(Drive,CurDir);
+  //    rc=0;
+    }
   }
   return rc;
 }
@@ -1481,7 +1514,7 @@ char* PrepareDiskPath(char *Path,int MaxSize,BOOL CheckFullPath)
    TestPath может быть пустым, тогда просто исполним ProcessPluginEvent()
 
 */
-int CheckShortcutFolder(char *TestPath,int LengthPath,int IsHostFile)
+int CheckShortcutFolder(char *TestPath,int LengthPath,int IsHostFile, BOOL Silent)
 {
   if(TestPath && *TestPath && GetFileAttributes(TestPath) == -1)
   {
@@ -1494,12 +1527,13 @@ int CheckShortcutFolder(char *TestPath,int LengthPath,int IsHostFile)
     if(IsHostFile)
     {
       SetLastError(ERROR_FILE_NOT_FOUND);
-      Message (MSG_WARNING | MSG_ERRORTYPE, 1, MSG (MError), Target, MSG (MOk));
+      if(!Silent)
+        Message (MSG_WARNING | MSG_ERRORTYPE, 1, MSG (MError), Target, MSG (MOk));
     }
     else // попытка найти!
     {
       SetLastError(ERROR_PATH_NOT_FOUND);
-      if(Message (MSG_WARNING | MSG_ERRORTYPE, 2, MSG (MError), Target, MSG (MNeedNearPath), MSG(MHYes),MSG(MHNo)) == 0)
+      if(Silent || Message (MSG_WARNING | MSG_ERRORTYPE, 2, MSG (MError), Target, MSG (MNeedNearPath), MSG(MHYes),MSG(MHNo)) == 0)
       {
         char *Ptr;
         char TestPathTemp[1024];

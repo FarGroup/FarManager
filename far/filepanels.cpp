@@ -5,10 +5,15 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.48 27.08.2003 $ */
+/* Revision: 1.49 02.09.2003 $ */
 
 /*
 Modify:
+  02.09.2003 SVS
+    ! Изменения в PrepareOptFolder:
+      1. уберем "задний" слеш (иначе не будет ".." для некорневого каталога)
+      2. Воспользуемся функцией CheckShortcutFolder для нахождения
+      ближайшего пути.
   27.08.2003 SVS
     - BugZ#934 - ФАР не хочет запускаться, если в системе недоступен...
       (ПОПЫТКА!)
@@ -169,8 +174,11 @@ FilePanels::FilePanels()
 
 static void PrepareOptFolder(char *Src,int SizeSrc,int IsLocalPath_FarPath)
 {
-  if(!*Src || GetFileAttributes(Src) == (DWORD)-1)
+  if(!*Src)
+  {
     strncpy(Src,FarPath,SizeSrc);
+    DeleteEndSlash(Src);
+  }
   if(!strcmp(Src,"/"))
   {
     strncpy(Src,FarPath,SizeSrc);
@@ -180,6 +188,8 @@ static void PrepareOptFolder(char *Src,int SizeSrc,int IsLocalPath_FarPath)
       Src[3]=0;
     }
   }
+  else
+   CheckShortcutFolder(Src,SizeSrc,FALSE,TRUE);
 }
 
 void FilePanels::Init()

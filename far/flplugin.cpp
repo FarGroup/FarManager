@@ -5,10 +5,14 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.37 30.07.2003 $ */
+/* Revision: 1.38 02.09.2003 $ */
 
 /*
 Modify:
+  02.09.2003 SVS
+    - BugZ#937 - Необходимо выдача сообщения об Access Denied
+    ! у FileList::OpenPluginForFile() новый параметр - файловые атрибуты
+      (для того, чтобы сразу исключить DIR)
   30.07.2003 SVS
     - BugZ#856 - Сброс обратной сортировки после входа и выхода из плагина
   08.07.2003 SVS
@@ -108,6 +112,7 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
+#include "lang.hpp"
 #include "filelist.hpp"
 #include "plugin.hpp"
 #include "global.hpp"
@@ -317,29 +322,61 @@ void FileList::PluginToFileListItem(struct PluginPanelItem *pi,struct FileListIt
 }
 
 
-HANDLE FileList::OpenPluginForFile(char *FileName)
+HANDLE FileList::OpenPluginForFile(char *FileName,DWORD FileAttr)
 {
   _ALGO(CleverSysLog clv("FileList::OpenPluginForFile()"));
   _ALGO(SysLog("FileName='%s'",(FileName?FileName:"(NULL)")));
+
+  if(!FileName || !*FileName || (FileAttr&FA_DIREC))
+    return(INVALID_HANDLE_VALUE);
+
   SetCurPath();
-  FILE *ProcessFile=fopen(FileName,"rb");
-  if (ProcessFile)
+
+  HANDLE hFile=INVALID_HANDLE_VALUE;
+  if(WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
+    hFile=FAR_CreateFile(FileName,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE	,NULL,
+                         OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN|FILE_FLAG_POSIX_SEMANTICS,
+                         NULL);
+  if(hFile==INVALID_HANDLE_VALUE)
+    hFile=FAR_CreateFile(FileName,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE	,NULL,
+                         OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN, NULL);
+
+  if (hFile==INVALID_HANDLE_VALUE)
   {
-    char *Buffer=new char[Opt.PluginMaxReadData];
-    if(Buffer)
+    //Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MEditTitle),MSG(MCannotOpenFile),FileName,MSG(MOk));
+    Message(MSG_WARNING|MSG_ERRORTYPE,1,"",MSG(MOpenPluginCannotOpenFile),FileName,MSG(MOk));
+    return(INVALID_HANDLE_VALUE);
+  }
+
+  char *Buffer=new char[Opt.PluginMaxReadData];
+  if(Buffer)
+  {
+    DWORD BytesRead;
+    _ALGO(SysLog("Read %d byte(s)",Opt.PluginMaxReadData));
+    if(ReadFile(hFile,Buffer,Opt.PluginMaxReadData,&BytesRead,NULL))
     {
-      _ALGO(SysLog("Read %d byte(s)",Opt.PluginMaxReadData));
-      int ReadSize=fread(Buffer,1,Opt.PluginMaxReadData,ProcessFile);
-      fclose(ProcessFile);
+      CloseHandle(hFile);
       _ALGO(SysLogDump("First 128 bytes",0,(LPBYTE)Buffer,128,NULL));
 
+      _ALGO(SysLog("close AnotherPanel file"));
       CtrlObject->Cp()->GetAnotherPanel(this)->CloseFile();
-      _ALGO(SysLog("call Plugins.OpenFilePlugin"));
-      HANDLE hNewPlugin=CtrlObject->Plugins.OpenFilePlugin(FileName,(unsigned char *)Buffer,ReadSize);
+
+      _ALGO(SysLog("call Plugins.OpenFilePlugin {"));
+      HANDLE hNewPlugin=CtrlObject->Plugins.OpenFilePlugin(FileName,(unsigned char *)Buffer,BytesRead);
+      _ALGO(SysLog("}"));
+
       delete[] Buffer;
+
       return(hNewPlugin);
     }
+    else
+    {
+      delete[] Buffer;
+      _ALGO(SysLogLastError());
+    }
   }
+
+  CloseHandle(hFile);
   return(INVALID_HANDLE_VALUE);
 }
 
@@ -857,7 +894,7 @@ int FileList::ProcessOneHostFile(int Idx)
   int Done=-1;
 
   _ALGO(SysLog("call OpenPluginForFile([Idx=%d] '%s')",Idx,ListData[Idx].Name));
-  HANDLE hNewPlugin=OpenPluginForFile(ListData[Idx].Name);
+  HANDLE hNewPlugin=OpenPluginForFile(ListData[Idx].Name,ListData[Idx].FileAttr);
 
   if (hNewPlugin!=INVALID_HANDLE_VALUE && hNewPlugin!=(HANDLE)-2)
   {

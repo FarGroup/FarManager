@@ -934,6 +934,7 @@
 	".\history.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
+	".\lang.hpp"\
 	".\language.hpp"\
 	".\macro.hpp"\
 	".\menubar.hpp"\

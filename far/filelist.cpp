@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.186 25.08.2003 $ */
+/* Revision: 1.187 31.08.2003 $ */
 
 /*
 Modify:
+  31.08.2003 SVS
+    ! В FileList::CountDirSize() передается 1 параметр - DWORD, флаги плагина
+    - Попытка исправить BugZ#894 - F3 на папке во временной панели всегда возвращает 0
   25.08.2003 SVS
     + Opt.QuotedName - заключать имена файлов/папок в кавычки
   25.07.2003 SVS
@@ -1581,6 +1584,14 @@ int FileList::ProcessKey(int Key)
       _ALGO(CleverSysLog clv("Edit/View"));
       _ALGO(SysLog("%s, FileCount=%d Key=%s",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount,_FARKEY_ToName(Key)));
 
+      struct OpenPluginInfo Info;
+
+      if(PanelMode==PLUGIN_PANEL)
+        CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
+      else
+        memset(&Info,0,sizeof(struct OpenPluginInfo));
+
+
       if (Key == KEY_NUMPAD5 || Key == KEY_SHIFTNUMPAD5)
         Key=KEY_F3;
       if ((Key==KEY_SHIFTF4 || FileCount>0) && SetCurPath())
@@ -1599,8 +1610,6 @@ int FileList::ProcessKey(int Key)
         */
         if (PluginMode)
         {
-          struct OpenPluginInfo Info;
-          CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
           if(Info.Flags & OPIF_REALNAMES)
             PluginMode=FALSE;
           else
@@ -1684,7 +1693,7 @@ int FileList::ProcessKey(int Key)
               return ProcessKey(KEY_CTRLA);
             /* SVS $ */
             /* SVS $ */
-            CountDirSize();
+            CountDirSize(Info.Flags);
             return(TRUE);
           }
 
@@ -4134,7 +4143,7 @@ void FileList::ApplyCommand()
 }
 
 
-void FileList::CountDirSize()
+void FileList::CountDirSize(DWORD PluginFlags)
 {
   unsigned long DirCount,DirFileCount,ClusterSize;;
   int64 FileSize,CompressedFileSize,RealFileSize;
@@ -4196,19 +4205,17 @@ void FileList::CountDirSize()
   }
   /* OT $*/
 
-
   for (CurPtr=ListData, I=0; I < FileCount; I++, CurPtr++)
   {
     if (CurPtr->Selected && (CurPtr->FileAttr & FA_DIREC))
     {
       SelDirCount++;
-      if (PanelMode==PLUGIN_PANEL &&
-          GetPluginDirInfo(hPlugin,CurPtr->Name,DirCount,DirFileCount,
-                           FileSize,CompressedFileSize) ||
-          PanelMode!=PLUGIN_PANEL &&
-          GetDirInfo(MSG(MDirInfoViewTitle),CurPtr->Name,DirCount,
-                     DirFileCount,FileSize,CompressedFileSize,RealFileSize,
-                     ClusterSize,0,FALSE,TRUE)==1)
+      if (PanelMode==PLUGIN_PANEL && !(PluginFlags & OPIF_REALNAMES) &&
+          GetPluginDirInfo(hPlugin,CurPtr->Name,DirCount,DirFileCount,FileSize,CompressedFileSize)
+        ||
+          (PanelMode!=PLUGIN_PANEL || (PluginFlags & OPIF_REALNAMES)) &&
+          GetDirInfo(MSG(MDirInfoViewTitle),CurPtr->Name,DirCount,DirFileCount,FileSize,
+                     CompressedFileSize,RealFileSize, ClusterSize,0,FALSE,TRUE)==1)
       {
         SelFileSize-=int64(CurPtr->UnpSizeHigh,CurPtr->UnpSize);
         SelFileSize+=FileSize;
@@ -4227,12 +4234,12 @@ void FileList::CountDirSize()
 
   if (SelDirCount==0)
   {
-    if (PanelMode==PLUGIN_PANEL &&
-        GetPluginDirInfo(hPlugin,CurPtr->Name,DirCount,DirFileCount,FileSize,
-                         CompressedFileSize) ||
-        PanelMode!=PLUGIN_PANEL &&
-        GetDirInfo(MSG(MDirInfoViewTitle),TestParentFolderName(CurPtr->Name) ? ".":CurPtr->Name,DirCount,DirFileCount,
-                   FileSize,CompressedFileSize,RealFileSize,ClusterSize,0,FALSE,TRUE)==1)
+    if (PanelMode==PLUGIN_PANEL && !(PluginFlags & OPIF_REALNAMES) &&
+        GetPluginDirInfo(hPlugin,CurPtr->Name,DirCount,DirFileCount,FileSize,CompressedFileSize)
+      ||
+        (PanelMode!=PLUGIN_PANEL || (PluginFlags & OPIF_REALNAMES)) &&
+        GetDirInfo(MSG(MDirInfoViewTitle),TestParentFolderName(CurPtr->Name) ? ".":CurPtr->Name,DirCount,
+                   DirFileCount,FileSize,CompressedFileSize,RealFileSize,ClusterSize,0,FALSE,TRUE)==1)
     {
       CurPtr->UnpSize=FileSize.PLow();
       CurPtr->UnpSizeHigh=FileSize.PHigh();

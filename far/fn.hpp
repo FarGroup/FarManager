@@ -7,10 +7,14 @@ fn.hpp
 
 */
 
-/* Revision: 1.190 11.07.2003 $ */
+/* Revision: 1.191 02.09.2003 $ */
 
 /*
 Modify:
+  02.09.2003 SVS
+    ! У функции CheckShortcutFolder добавился параметр Silent - чтобы сработать тихо :-)
+    + Новая функция FolderContentReady(const char *Dir) - возвращает TRUE, если
+      контент каталога можно "прочитать"
   11.07.2003 SVS
     + LCNumStricmp() - "цифровое" сравнение двух строк с учетом локали
     + NumStrcmp() - "цифровое" сравнение двух строк
@@ -847,7 +851,8 @@ void UseSameRegKey();
 void CloseSameRegKey();
 
 
-int CheckShortcutFolder(char *TestPath,int LengthPath,int IsHostFile);
+BOOL FolderContentReady(const char *Dir);
+int CheckShortcutFolder(char *TestPath,int LengthPath,int IsHostFile, BOOL Silent=FALSE);
 
 #if defined(__FARCONST_HPP__) && (defined(_INC_WINDOWS) || defined(_WINDOWS_))
 UDWORD NTTimeToDos(FILETIME *ft);
