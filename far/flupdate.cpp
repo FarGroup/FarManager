@@ -5,10 +5,15 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.33 20.03.2002 $ */
+/* Revision: 1.34 28.03.2002 $ */
 
 /*
 Modify:
+  28.03.2002 KM
+    - Падение VC на
+      char *LocalName="A:";
+      *LocalName=*CurDir;
+      Так как память в LocalName ReadOnly.
   20.03.2002 SVS
     ! GetCurrentDirectory -> FarGetCurDir
   20.03.2002 DJ
@@ -274,9 +279,17 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible)
       strcpy(NetDir,CurDir);
     else
     {
-      char *LocalName="A:";
+      /* $ 28.03.2002 KM
+         - Падение VC на
+           char *LocalName="A:";
+           *LocalName=*CurDir;
+           Так как память в LocalName ReadOnly.
+      */
+      char LocalName[3];
       DWORD RemoteNameSize=sizeof(NetDir);
-      *LocalName=*CurDir;
+      strncpy(LocalName,CurDir,2);
+      LocalName[sizeof(LocalName)-1]=0;
+      /* KM $ */
 
       SetFileApisToANSI();
       if (WNetGetConnection(LocalName,NetDir,&RemoteNameSize)==NO_ERROR)
