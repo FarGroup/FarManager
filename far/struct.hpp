@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.104 03.09.2003 $ */
+/* Revision: 1.105 17.09.2003 $ */
 
 /*
 Modify:
+  17.09.2003 KM
+    + Opt.CharTable
   25.08.2003 SVS
     ! Opt.QuotedName - DWORD, т.к. битовые флаги
   25.08.2003 SVS
@@ -458,6 +460,15 @@ struct NowellOptions{
   int MoveRO;               // перед операцией Move снимать R/S/H атрибуты, после переноса - выставл€ть обратно
 };
 
+// ’ранилище параметров поиска character table
+struct FindCharTable
+{
+  int AllTables;
+  int AnsiTable;
+  int UnicodeTable;
+  int TableNum;
+};
+
 struct ScreenSizes{
   COORD DeltaXY;            // на сколько поз. изменить размеры дл€ распахнутого экрана
 #if defined(DETECT_ALT_ENTER)
@@ -818,6 +829,11 @@ struct Options
   struct PoliciesOptions Policies;
   struct NowellOptions Nowell;
   struct ScreenSizes ScrSize;
+  /* $ 17.09.2003 KM
+       —труктура дл€ запоминани€ параметров таблиц символов в поиске
+  */
+  struct FindCharTable CharTable;
+  /* KM $ */
 };
 
 

@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.156 03.09.2003 $ */
+/* Revision: 1.157 18.09.2003 $ */
 
 /*
 Modify:
+  18.09.2003 KM
+    + Opt.CharTable
   03.09.2003 SVS
     ! ¬се биты у Opt.QuotedName установлены в 1 - типа, кавычим все!
   25.08.2003 SVS
@@ -1406,6 +1408,9 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeySystem,"DriveMenuMode",&Opt.ChangeDriveMode,DRIVE_SHOW_TYPE|DRIVE_SHOW_PLUGINS, 0},
   {1, REG_DWORD,  NKeySystem,"DriveDisconnetMode",&Opt.ChangeDriveDisconnetMode,1, 0},
   {1, REG_DWORD,  NKeySystem,"FileSearchMode",&Opt.FileSearchMode,SEARCH_FROM_CURRENT, 0},
+  /* $ 17.09.2003 KM */
+  {1, REG_BINARY, NKeySystem,"FindCharTable",&Opt.CharTable, sizeof(Opt.CharTable), 0},
+  /* KM $ */
   {1, REG_SZ,     NKeySystem,"FolderInfo",Opt.FolderInfoFiles,sizeof(Opt.FolderInfoFiles),"DirInfo,File_Id.diz,Descript.ion,ReadMe,Read.Me,ReadMe.txt,ReadMe.*"},
   {0, REG_DWORD,  NKeySystem,"SubstPluginPrefix",&Opt.SubstPluginPrefix, 0, 0},
   {0, REG_DWORD,  NKeySystem,"CmdHistoryRule",&Opt.CmdHistoryRule,0, 0},

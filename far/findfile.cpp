@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.142 12.09.2003 $ */
+/* Revision: 1.143 18.09.2003 $ */
 
 /*
 Modify:
+  18.09.2003 KM
+    ! Запоминание установок символьных таблиц
   12.09.2003 SVS
     ! Немного увеличим буфер для GetPathRootOne
   20.06.2003 SVS
@@ -541,7 +543,7 @@ static char FindMask[NM],FindStr[SEARCHSTRINGBUFSIZE];
 /* $ 30.07.2000 KM
    Добавлена переменная WholeWords для поиска по точному совпадению
 */
-static int SearchMode,CmpCase,WholeWords,UseAllTables,SearchInArchives,SearchInSymLink;
+static int SearchMode,CmpCase,WholeWords,SearchInArchives,SearchInSymLink;
 /* KM $ */
 static int FindFoldersChanged;
 static int SearchFromChanged;
@@ -559,9 +561,8 @@ static CRITICAL_SECTION FindFilesCSection;
 
 static HANDLE hDialogMutex, hPluginMutex;
 
-static int UseDecodeTable=FALSE,UseUnicode=FALSE,TableNum=0;
-static int InitUseDecodeTable=FALSE,InitUseUnicode=FALSE,InitTableNum=0;
-static struct CharTableSet TableSet, InitTableSet;
+static int UseAllTables=FALSE,UseDecodeTable=FALSE,UseANSI=FALSE,UseUnicode=FALSE,TableNum=0;
+static struct CharTableSet TableSet;
 
 /* $ 01.07.2001 IS
    Объект "маска файлов". Именно его будем использовать для проверки имени
@@ -617,7 +618,18 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         strncpy(DataStr,FindCode,sizeof(DataStr)-1);
       Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,6,(long)DataStr);
 
-      if (UseAllTables)
+      /* Установка запомненных ранее параметров */
+	  UseAllTables=Opt.CharTable.AllTables;
+	  UseANSI=Opt.CharTable.AnsiTable;
+	  UseUnicode=Opt.CharTable.UnicodeTable;
+	  UseDecodeTable=((UseAllTables==0) && (UseUnicode==0) && (Opt.CharTable.TableNum>0));
+	  if (UseDecodeTable)
+		TableNum=Opt.CharTable.TableNum-1;
+	  else
+		TableNum=0;
+	  /* -------------------------------------- */
+
+	  if (UseAllTables)
         strncpy(TableSet.TableName,MSG(MFindFileAllTables),sizeof(TableSet.TableName)-1);
       else if (UseUnicode)
         strncpy(TableSet.TableName,"Unicode",sizeof(TableSet.TableName)-1);
@@ -648,7 +660,7 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         if (!UseAllTables)
         {
           strncpy(TableSet.TableName,MSG(MGetTableNormalText),sizeof(TableSet.TableName)-1);
-          if (Param2>=5)
+          if (UseDecodeTable)
           {
             PrepareTable(&TableSet,Param2-5,TRUE);
             TableNum=Param2-5;
@@ -741,14 +753,13 @@ FindFiles::FindFiles()
   /* $ 30.07.2000 KM
      Добавлена переменная LastWholeWords для поиска по точному совпадению
   */
-  static int LastCmpCase=0,LastWholeWords=0,LastUseAllTables=0,LastSearchInArchives=0,LastSearchInSymLink=-1;
+  static int LastCmpCase=0,LastWholeWords=0,LastSearchInArchives=0,LastSearchInSymLink=-1;
   /* KM $ */
   int I;
 
   InitializeCriticalSection(&FindFilesCSection);
   CmpCase=LastCmpCase;
   WholeWords=LastWholeWords;
-  UseAllTables=LastUseAllTables;
   SearchInArchives=LastSearchInArchives;
   if(LastSearchInSymLink == -1)
     LastSearchInSymLink=Opt.ScanJunction;
@@ -916,20 +927,24 @@ FindFiles::FindFiles()
         Dlg.Process();
         ExitCode=Dlg.GetExitCode();
       }
+
       if (ExitCode!=24)
       {
         xf_free(TableItem);
-        UseDecodeTable=InitUseDecodeTable;
-        UseUnicode=InitUseUnicode;
-        TableNum=InitTableNum;
-        memcpy(&TableSet,&InitTableSet,sizeof(TableSet));
         CloseHandle(hPluginMutex);
         return;
       }
-      InitUseDecodeTable=UseDecodeTable;
-      InitUseUnicode=UseUnicode;
-      InitTableNum=TableNum;
-      memcpy(&InitTableSet,&TableSet,sizeof(TableSet));
+
+      /* Запоминание установленных параметров */
+	  Opt.CharTable.AllTables=UseAllTables;
+	  Opt.CharTable.AnsiTable=UseANSI; // Пока не используется
+	  Opt.CharTable.UnicodeTable=UseUnicode;
+	  if (UseDecodeTable)
+	    Opt.CharTable.TableNum=TableNum+1;
+	  else
+        Opt.CharTable.TableNum=0;
+	  /****************************************/
+
       /* $ 01.07.2001 IS
          Проверим маску на корректность
       */
@@ -1010,7 +1025,6 @@ FindFiles::FindFiles()
     */
     LastWholeWords=WholeWords;
     /* KM $ */
-    LastUseAllTables=UseAllTables;
     LastSearchInArchives=SearchInArchives;
     LastSearchInSymLink=SearchInSymLink;
     strncpy(LastFindMask,FindMask,sizeof(LastFindMask)-1);
