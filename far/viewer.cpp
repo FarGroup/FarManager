@@ -5,10 +5,13 @@ Internal viewer
 
 */
 
-/* Revision: 1.45 29.01.2001 $ */
+/* Revision: 1.46 06.02.2001 $ */
 
 /*
 Modify:
+  06.02.2001 IS
+   - Бага с выделением, которую добавили, когда убрали показ начального пробела
+     в юникодных файлах. См. SelectPosOffSet в SelectText
   29.01.2001 IS
    - баг - затирался StructSize в ViewerInfo
   28.01.2001
@@ -226,6 +229,11 @@ Viewer::Viewer()
   CtrlObject->Plugins.CurViewer=this;
   OpenFailed=false;
   HostFileViewer=NULL;
+  /* $ 06.02.2001 IS
+     См. SelectText
+  */
+  SelectPosOffSet=0;
+  /* IS $ */
 }
 
 
@@ -643,7 +651,11 @@ void Viewer::DisplayObject()
         if (SelSize>XX2-SelX1+1)
           SelSize=XX2-SelX1+1;
         if (SelSize>0)
-          mprintf("%.*s",SelSize,&OutStr[I][SelPos]);
+        /* $ 06.02.2001 IS
+             см. SelectText
+        */
+          mprintf("%.*s",SelSize,&OutStr[I][SelPos+SelectPosOffSet]);
+        /* IS $ */
       }
     }
   } // if (Hex)  - else
@@ -2409,6 +2421,16 @@ void Viewer::SelectText(long MatchPos,int SearchLength, DWORD Flags)
   SelectPos=FilePos=MatchPos;
   SelectSize=SearchLength;
   LastSelPos=SelectPos+((Flags&0x2) ? -1:1);
+  /* $ 06.02.2001 IS
+     Если найденное расположено в самой первой строке юникодного файла и файл
+     имеет в начале fffe или feff, то для более правильного выделения, его
+     позицию нужно уменьшить на единицу (из-за того, что пустой символ не
+     показывается)
+  */
+  SelectPosOffSet=VM.Unicode && (FirstWord==0x0FFFE || FirstWord==0x0FEFF)
+                   && (MatchPos+SelectSize<=ObjWidth);
+  SelectPos-=SelectPosOffSet;
+  /* IS $ */
   if (VM.Hex)
     FilePos&=~(VM.Unicode ? 0x7:0xf);
   else

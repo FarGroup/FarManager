@@ -7,10 +7,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.11 19.01.2001 $ */
+/* Revision: 1.12 06.02.2001 $ */
 
 /*
 Modify:
+  06.02.2001 IS
+    + SelectPosOffSet;
   19.01.2001 SVS
     ! GoTo - с параметрами & public member
     + SelectText()
@@ -103,6 +105,11 @@ class Viewer:public ScreenObject
     int LastPage;
     int CRSym;
     int SelectPos,SelectSize;
+    /* $ 06.02.2001 IS
+       Используется для коррекции позиции выделения в юникодных файлах
+    */
+    int SelectPosOffSet;
+    /* IS $ */
     int ViewY1;
     int ShowStatusLine,HideCursor;
     char TempViewName[NM];
