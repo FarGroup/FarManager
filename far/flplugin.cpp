@@ -5,10 +5,12 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.11 17.05.2001 $ */
+/* Revision: 1.12 14.06.2001 $ */
 
 /*
 Modify:
+  14.06.2001 SVS
+    - Коррекция по поводу: "Надоело распаковывать some.foo.rar в каталог some\"
   17.05.2001 SVS
     ! Немного модификации типов параметров (чтобы doxygen матом не ругался :-)
   06.05.2001 DJ
@@ -496,7 +498,8 @@ void FileList::PluginHostGetFiles()
       SelFileCount==0 || *DestPath==0)
   {
     strcpy(DestPath,PointToName(SelName));
-    if ((ExtPtr=strchr(DestPath,'.'))!=NULL)
+    // SVS: А зачем здесь велся поиск точки с начала?
+    if ((ExtPtr=strrchr(DestPath,'.'))!=NULL)
       *ExtPtr=0;
   }
 
