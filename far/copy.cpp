@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.103 11.12.2002 $ */
+/* Revision: 1.104 13.12.2002 $ */
 
 /*
 Modify:
+  13.12.2002 VVM
+    - Не рисовался процент копирования в заголовке окна.
   11.12.2002 SVS
     - BugZ#702 - Не обрабатывается изменение размера консоли во время копирования
     - BugZ#686 - проблемы с отрисовкой окна прогресса копирования
@@ -3342,7 +3344,7 @@ void ShellCopy::ShowTitle(int FirstTime)
 {
   if (ShowTotalCopySize && !FirstTime)
   {
-    int64 CopySize=CurCopiedSize>>8,TotalSize=TotalCopySize>>8;
+    int64 CopySize=TotalCopiedSize>>8,TotalSize=TotalCopySize>>8;
     StaticCopyTitle->Set("{%d%%} %s",ToPercent(CopySize.PLow(),TotalSize.PLow()),StaticMove ? MSG(MCopyMovingTitle):MSG(MCopyCopyingTitle));
   }
 }
