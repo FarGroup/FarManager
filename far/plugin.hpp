@@ -6,10 +6,12 @@
   Plugin API for FAR Manager 1.70
 
 */
-/* Revision: 1.48 12.09.2000 $ */
+/* Revision: 1.49 13.09.2000 $ */
 
 /*
 Modify:
+  13.09.2000 skv
+    + EEREDRAW_XXXXX defines
   12.09.2000 SVS
     + Флаги FHELP_* для функции ShowHelp
     ! FSF.ShowHelp возвращает BOOL
@@ -742,6 +744,14 @@ typedef int (WINAPI *FARAPIADVCONTROL)(
 enum EDITOR_EVENTS {
   EE_READ,EE_SAVE,EE_REDRAW,EE_CLOSE
 };
+
+/*$ 13.09.2000 skv
+   + for EE_REDRAW event
+*/
+#define EEREDRAW_ALL    (void*)0
+#define EEREDRAW_CHANGE (void*)1
+#define EEREDRAW_LINE   (void*)2
+/* skv$*/
 
 /* $ 07.08.2000 SVS
    + ECTL_SETKEYBAR - управление метками в редакторе

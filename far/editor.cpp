@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.32 07.09.2000 $ */
+/* Revision: 1.33 13.09.2000 $ */
 
 /*
 Modify:
+   13.09.2000 skv
+    ! EE_REDRAW вызывается с константами. 1 и 2 поменяны.
    07.09.2000 skv
     + ECTL_PROCESSKEY
    07.09.2000 skv
@@ -693,12 +695,16 @@ void Editor::ShowEditor(int CurLineOnly)
     */
     if(!ScrBuf.GetLockCount())
     {
+      /*$ 13.09.2000 skv
+        EE_REDRAW 1 and 2 replaced.
+      */
       if(JustModified)
       {
         JustModified=0;
-        CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,(void*)2);
+        CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_CHANGE);
       }else
-        CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,(void *)CurLineOnly);
+        CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,CurLineOnly?EEREDRAW_LINE:EEREDRAW_ALL);
+      /* skv$*/
     }
     /* skv$*/
   }
@@ -1092,14 +1098,14 @@ int Editor::ProcessKey(int Key)
           {
             PrevLine->EditLine.Select(SelStart,-1);
             CtrlObject->Plugins.CurEditor=this;
-            CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,FALSE);
+            CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
             PrevLine->EditLine.FastShow();
           }
         }
         Pasting--;
       }
       CtrlObject->Plugins.CurEditor=this;
-      CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,(void *)1);
+      CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_LINE);
       return(TRUE);
     case KEY_CTRLSHIFTLEFT:
       {
@@ -1996,7 +2002,7 @@ int Editor::ProcessKey(int Key)
           ProcessKey(KEY_LEFT);
           Pasting--;
           CtrlObject->Plugins.CurEditor=this;
-          CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,FALSE);
+          CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
           return(TRUE);
         }
 
@@ -2009,7 +2015,7 @@ int Editor::ProcessKey(int Key)
           ProcessKey(KEY_DOWN);
           Pasting--;
           CtrlObject->Plugins.CurEditor=this;
-          CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,FALSE);
+          CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
           return(TRUE);
         }
 
@@ -2105,7 +2111,7 @@ int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     else
     {
       CtrlObject->Plugins.CurEditor=this;
-      CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,(void *)1);
+      CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_LINE);
     }
     return(TRUE);
   }
