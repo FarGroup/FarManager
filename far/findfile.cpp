@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.92 11.02.2002 $ */
+/* Revision: 1.93 19.02.2002 $ */
 
 /*
 Modify:
+  19.02.2002 VVM
+    ! Ошибка поиска в плагине. Забыл скобки поставить...
   11.02.2002 SVS
     ! Проинициализируем новые FarListItem в 0 (поелезно при изменении
       размера структуры FarListItem)
@@ -2192,6 +2194,7 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
           strcmp(CurName,".")!=0 && strcmp(CurName,"..")!=0 &&
           (SearchMode!=SEARCH_SELECTED || RecurseLevel!=1 ||
           CtrlObject->Cp()->ActivePanel->IsSelected(CurName)))
+      {
         WaitForSingleObject(hPluginMutex,INFINITE);
         if (strchr(CurName,'\x1')==NULL && CtrlObject->Plugins.SetDirectory(hPlugin,CurName,OPM_FIND))
         {
@@ -2216,6 +2219,7 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
         }
         else
           ReleaseMutex(hPluginMutex);
+      }
     }
   }
   CtrlObject->Plugins.FreeFindData(hPlugin,PanelData,ItemCount);
