@@ -5,10 +5,14 @@ Parent class для всех screen objects
 
 */
 
-/* Revision: 1.11 26.02.2003 $ */
+/* Revision: 1.12 27.05.2003 $ */
 
 /*
 Modify:
+  27.05.2003 SVS
+    ! Зачатки каптюризации мыши :-)
+      Введен ScreenObject *ScreenObject::CaptureMouseObject, который
+      указывает на объект, захвативший мышь.
   26.02.2003 SVS
     - BugZ#813 - DM_RESIZEDIALOG в DN_DRAWDIALOG -> проблема
       Временно отключим схему исключения рекурсии на столь низком уровне
@@ -47,6 +51,8 @@ Modify:
 #include "scrobj.hpp"
 #include "fn.hpp"
 #include "savescr.hpp"
+
+ScreenObject *ScreenObject::CaptureMouseObject=NULL;
 
 ScreenObject::ScreenObject()
 {
@@ -184,4 +190,9 @@ void ScreenObject::Shadow()
     MakeShadow(X1+2,Y2+1,X2+1,Y2+1);
     MakeShadow(X2+1,Y1+1,X2+2,Y2+1);
   }
+}
+
+void ScreenObject::SetCapture(ScreenObject *Obj)
+{
+  ScreenObject::CaptureMouseObject=Obj;
 }

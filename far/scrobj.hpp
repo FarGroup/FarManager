@@ -7,10 +7,14 @@ Parent class для всех screen objects
 
 */
 
-/* Revision: 1.09 25.02.2003 $ */
+/* Revision: 1.10 27.05.2003 $ */
 
 /*
 Modify:
+  27.05.2003 SVS
+    ! Зачатки каптюризации мыши :-)
+      Введен ScreenObject *ScreenObject::CaptureMouseObject, который
+      указывает на объект, захвативший мышь.
   25.02.2003 SVS
     + FSCROBJ_ISREDRAWING - идет процесс Show?
   18.05.2002 SVS
@@ -58,6 +62,7 @@ class ScreenObject
 
   public:
     SaveScreen *SaveScr;
+    static ScreenObject *CaptureMouseObject;
 
   private:
     virtual void DisplayObject() {};
@@ -69,6 +74,7 @@ class ScreenObject
   public:
     virtual int ProcessKey(int Key) { return(0); };
     virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) { return(0); };
+
     virtual void Hide();
     virtual void Hide0();   // 15.07.2000 tran - dirty hack :(
     virtual void Show();
@@ -84,6 +90,8 @@ class ScreenObject
     void SetVisible(int Visible) {Flags.Change(FSCROBJ_VISIBLE,Visible);};
     void SetRestoreScreenMode(int Mode) {Flags.Change(FSCROBJ_ENABLERESTORESCREEN,Mode);};
     void Shadow();
+
+    static void SetCapture(ScreenObject *Obj);
 };
 
 #endif  // __SCREENOBJECT_HPP__

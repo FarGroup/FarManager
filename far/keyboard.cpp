@@ -5,10 +5,15 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.94 23.05.2003 $ */
+/* Revision: 1.95 27.05.2003 $ */
 
 /*
 Modify:
+  27.05.2003 SVS
+    - Если CtrlObject->Macro.ProcessKey() вернул "УГУ", то обнулим EventType
+      иначе все это барахло (имеется ввиду комбинация инициализации макроса)
+      попрется в плагин, обрабатывающий ввод в редакторе.
+    ! Вместо события "0x8001" применим осмысленный FARMACRO_KEY_EVENT
   23.05.2003 SVS
     ! Если макроклавиша - "обычная" клавиша, то...
        INPUT_RECORD.EventType=0x8001 - элемент Event содержит структуру
@@ -511,10 +516,11 @@ int GetInputRecord(INPUT_RECORD *rec)
     {
       ScrBuf.Flush();
       TranslateKeyToVK(MacroKey,VirtKey,ControlState,rec);
-      rec->EventType=((MacroKey&KEY_MACROSPEC_BASE) || (MacroKey&(~0xFF000000)) >= KEY_END_FKEY)?0:0x8001;
+      rec->EventType=((MacroKey&KEY_MACROSPEC_BASE) || (MacroKey&(~0xFF000000)) >= KEY_END_FKEY)?0:FARMACRO_KEY_EVENT;
       if(!(MacroKey&KEY_SHIFT))
         ShiftPressed=0;
       _KEYMACRO(SysLog("MacroKey1 =%s",_FARKEY_ToName(MacroKey)));
+      _SVS(SysLog("MacroKey1 =%s",_FARKEY_ToName(MacroKey)));
 //      memset(rec,0,sizeof(*rec));
       return(MacroKey);
     }
@@ -525,7 +531,7 @@ int GetInputRecord(INPUT_RECORD *rec)
     {
       ScrBuf.Flush();
       TranslateKeyToVK(MacroKey,VirtKey,ControlState,rec);
-      rec->EventType=((MacroKey&KEY_MACROSPEC_BASE) || (MacroKey&(~0xFF000000)) >= KEY_END_FKEY)?0:0x8001;
+      rec->EventType=((MacroKey&KEY_MACROSPEC_BASE) || (MacroKey&(~0xFF000000)) >= KEY_END_FKEY)?0:FARMACRO_KEY_EVENT;
       if(!(MacroKey&KEY_SHIFT))
         ShiftPressed=0;
       _KEYMACRO(SysLog("MacroKey2 =%s",_FARKEY_ToName(MacroKey)));
@@ -541,8 +547,12 @@ int GetInputRecord(INPUT_RECORD *rec)
     CalcKey&=~0x80000000;
     if (!NotMacros)
     {
+      _KEYMACRO(CleverSysLog Clev("CALL(1) CtrlObject->Macro.ProcessKey()"));
       if (CtrlObject!=NULL && CtrlObject->Macro.ProcessKey(CalcKey))
+      {
+        rec->EventType=0;
         CalcKey=KEY_NONE;
+      }
     }
     return(CalcKey);
   }
@@ -573,10 +583,19 @@ int GetInputRecord(INPUT_RECORD *rec)
        ! Убрал подмену колесика */
     if (ReadCount!=0)
     {
-      //_SVS(if(rec->EventType!=MOUSE_EVENT))
-      _SVS(if(rec->EventType==KEY_EVENT))
+/*
+      // При каптюренной мыши отдаем управление заданному объекту
+      if (rec->EventType==MOUSE_EVENT && ScreenObject::CaptureMouseObject)
       {
-        _SVS(SysLog(">>> %s",_INPUT_RECORD_Dump(rec)));
+        ScreenObject::CaptureMouseObject->ProcessMouse(&rec->Event.MouseEvent);
+        ReadConsoleInput(hConInp,rec,1,&ReadCount);
+        continue;
+      }
+*/
+      //_SVS(if(rec->EventType!=MOUSE_EVENT))
+      //_SVS(if(rec->EventType==KEY_EVENT))
+      {
+        //_SVS(SysLog(">>> %s",_INPUT_RECORD_Dump(rec)));
        // _SVS(SysLog("FarAltEnter -> %d",FarAltEnter(FAR_CONSOLE_GET_MODE)));
       }
 #if defined(DETECT_ALT_ENTER)
@@ -1024,8 +1043,12 @@ int GetInputRecord(INPUT_RECORD *rec)
 //// // _SVS(SysLog("1) CalcKey=%s",_FARKEY_ToName(CalcKey)));
   if (ReturnAltValue && !NotMacros)
   {
+    _KEYMACRO(CleverSysLog Clev("CALL(2) CtrlObject->Macro.ProcessKey()"));
     if (CtrlObject!=NULL && CtrlObject->Macro.ProcessKey(CalcKey))
+    {
+      rec->EventType=0;
       CalcKey=KEY_NONE;
+    }
     return(CalcKey);
   }
   int GrayKey=(CalcKey==KEY_ADD || CalcKey==KEY_SUBTRACT || CalcKey==KEY_MULTIPLY);
@@ -1123,8 +1146,8 @@ int GetInputRecord(INPUT_RECORD *rec)
   if (rec->EventType==WINDOW_BUFFER_SIZE_EVENT)
   {
 #if defined(DETECT_ALT_ENTER)
-    _SVS(CleverSysLog Clev(""));
-    _SVS(SysLog("ScrX=%d (%d) ScrY=%d (%d), AltEnter=%d",ScrX,PrevScrX,ScrY,PrevScrY,AltEnter));
+    //_SVS(CleverSysLog Clev(""));
+    //_SVS(SysLog("ScrX=%d (%d) ScrY=%d (%d), AltEnter=%d",ScrX,PrevScrX,ScrY,PrevScrY,AltEnter));
     //_SVS(SysLog("FarAltEnter -> %d",FarAltEnter(FAR_CONSOLE_GET_MODE)));
 #endif
     int PScrX=ScrX;
@@ -1146,24 +1169,24 @@ int GetInputRecord(INPUT_RECORD *rec)
 #endif
     {
 #if defined(DETECT_ALT_ENTER)
-      _SVS(SysLog("return KEY_NONE"));
+      //_SVS(SysLog("return KEY_NONE"));
 #endif
       return KEY_NONE;
     }
     else
     {
 #if defined(DETECT_ALT_ENTER)
-      _SVS(SysLog("return KEY_CONSOLE_BUFFER_RESIZE ScrX=%d (%d) ScrY=%d (%d)",ScrX,PrevScrX,ScrY,PrevScrY));
+      //_SVS(SysLog("return KEY_CONSOLE_BUFFER_RESIZE ScrX=%d (%d) ScrY=%d (%d)",ScrX,PrevScrX,ScrY,PrevScrY));
       if(FarAltEnter(FAR_CONSOLE_GET_MODE) == FAR_CONSOLE_FULLSCREEN)
       {
-        _SVS(SysLog("call ChangeVideoMode"));
+        //_SVS(SysLog("call ChangeVideoMode"));
         PrevFarAltEnterMode=FarAltEnter(FAR_CONSOLE_GET_MODE);
         ChangeVideoMode(PScrY==24?50:25,80);
         GetVideoMode(CurScreenBufferInfo);
       }
       else
       {
-        _SVS(SysLog("PrevScrX=PScrX"));
+        //_SVS(SysLog("PrevScrX=PScrX"));
         PrevScrX=PScrX;
         PrevScrY=PScrY;
       }
@@ -1176,7 +1199,7 @@ int GetInputRecord(INPUT_RECORD *rec)
       if(FrameManager)
       {
 #if defined(DETECT_ALT_ENTER)
-        _SVS(SysLog("if(FrameManager)"));
+        //_SVS(SysLog("if(FrameManager)"));
 #endif
         // апдейтим панели (именно они сейчас!)
         LockScreen LckScr;
@@ -1250,8 +1273,14 @@ int GetInputRecord(INPUT_RECORD *rec)
         }
       }
 
-      if (Key!=-1 && !NotMacros && CtrlObject!=NULL && CtrlObject->Macro.ProcessKey(Key))
-        Key=KEY_NONE;
+      {
+        _KEYMACRO(CleverSysLog Clev("CALL(3) CtrlObject->Macro.ProcessKey()"));
+        if (Key!=-1 && !NotMacros && CtrlObject!=NULL && CtrlObject->Macro.ProcessKey(Key))
+        {
+          rec->EventType=0;
+          Key=KEY_NONE;
+        }
+      }
       if (Key!=-1)
         return(Key);
     }
@@ -1318,6 +1347,7 @@ int GetInputRecord(INPUT_RECORD *rec)
     }
     Panel::EndDrag();
   }
+
   if (rec->EventType==MOUSE_EVENT)
   {
     // проверка на Swap клавиш мыши
@@ -1384,6 +1414,7 @@ int GetInputRecord(INPUT_RECORD *rec)
     PrevMouseY=MouseY;
     MouseX=rec->Event.MouseEvent.dwMousePosition.X;
     MouseY=rec->Event.MouseEvent.dwMousePosition.Y;
+
 #if defined(MOUSEKEY)
     if(PrePreMouseEventFlags == DOUBLE_CLICK)
     {
@@ -1427,8 +1458,14 @@ int GetInputRecord(INPUT_RECORD *rec)
   if (ReadKey!=0 && !GrayKey)
     CalcKey=ReadKey;
 
-  if (!NotMacros && CtrlObject!=NULL && CtrlObject->Macro.ProcessKey(CalcKey))
-    CalcKey=KEY_NONE;
+  {
+    _KEYMACRO(CleverSysLog Clev("CALL(1) CtrlObject->Macro.ProcessKey()"));
+    if (!NotMacros && CtrlObject!=NULL && CtrlObject->Macro.ProcessKey(CalcKey))
+    {
+      rec->EventType=0;
+      CalcKey=KEY_NONE;
+    }
+  }
 
   return(CalcKey);
 }
@@ -1972,8 +2009,8 @@ char *FARGetKeybLayoutName(char *Dest,int DestSize)
 // GetAsyncKeyState(VK_RSHIFT)
 int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
 {
-_SVS(CleverSysLog Clev("CalcKeyCode"));
-_SVS(SysLog("CalcKeyCode -> %s| RealKey=%d  *NotMacros=%d",_INPUT_RECORD_Dump(rec),RealKey,(NotMacros?*NotMacros:0)));
+//_SVS(CleverSysLog Clev("CalcKeyCode"));
+//_SVS(SysLog("CalcKeyCode -> %s| RealKey=%d  *NotMacros=%d",_INPUT_RECORD_Dump(rec),RealKey,(NotMacros?*NotMacros:0)));
   CHAR_WCHAR Char;
 
   unsigned int ScanCode,KeyCode,CtrlState;

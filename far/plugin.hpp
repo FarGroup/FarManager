@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.227 16.04.2003 $ */
+/* Revision: 1.228 27.05.2003 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,11 @@
 ¬ этом файле писать все изменени€ только в в этом блоке!!!!
 
 Modify:
+  27.05.2003 SVS
+    +  онстанта FARMACRO_KEY_EVENT определ€ет тип входного сообщени€
+      структуры INPUT_RECORD, которое передаетс€ в ProcessEditorInput
+      во врем€ исполнени€ макрокоманды. Ёлемент Event содержит
+      структуру KEY_EVENT_RECORD с информацией о сообщении с клавиатуры.
   16.04.2003 SVS
     + DM_GETSELECTION и DM_SETSELECTION - пока дл€ внутреннего юзани€
   17.03.2003 SVS
@@ -782,6 +787,8 @@ Modify:
 #endif
 
 #define NM 260
+
+#define FARMACRO_KEY_EVENT  (KEY_EVENT|0x8000)
 
 #ifdef FAR_USE_INTERNALS
 #define _FAR_NO_NAMELESS_UNIONS

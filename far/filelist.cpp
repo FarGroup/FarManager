@@ -5,10 +5,15 @@ filelist.cpp
 
 */
 
-/* Revision: 1.178 14.05.2003 $ */
+/* Revision: 1.179 27.05.2003 $ */
 
 /*
 Modify:
+  27.05.2003 SVS
+    ! Для PanelMode==PLUGIN_PANEL && OPIF_REALNAMES Shift-Enter на каталоге
+      обрабатываем стандартным способом, как и для обычно каталога, но
+      при этом учитываем тот факт, что, скажем у TempPanel`и имя "файла"
+      полное (т.е. с полным путем)
   14.05.2003 SVS
     + _ALGO()
   02.05.2003 SVS
@@ -2298,16 +2303,31 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
   strcpy(ShortFileName,*CurPtr->ShortName ? CurPtr->ShortName:CurPtr->Name);
   if (CurPtr->FileAttr & FA_DIREC)
   {
+    BOOL IsRealName=FALSE;
+    if(PanelMode==PLUGIN_PANEL)
+    {
+      struct OpenPluginInfo Info;
+      CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
+      IsRealName=Info.Flags&OPIF_REALNAMES;
+    }
+
     // Shift-Enter на каталоге вызывает проводник
-    if(PanelMode!=PLUGIN_PANEL && SeparateWindow)
+    if((PanelMode!=PLUGIN_PANEL || IsRealName) && SeparateWindow)
     {
       char FullPath[4096];
-      AddEndSlash(strcpy(FullPath,CurDir));
-      /* 23.08.2001 VVM
-        ! SHIFT+ENTER на ".." срабатывает для текущего каталога, а не родительского */
-      if (!TestParentFolderName(CurPtr->Name))
-        strcat(FullPath,CurPtr->Name);
-      /* VVM $ */
+      if(!PathMayBeAbsolute(CurPtr->Name))
+      {
+        AddEndSlash(strcpy(FullPath,CurDir));
+        /* 23.08.2001 VVM
+          ! SHIFT+ENTER на ".." срабатывает для текущего каталога, а не родительского */
+        if (!TestParentFolderName(CurPtr->Name))
+          strcat(FullPath,CurPtr->Name);
+        /* VVM $ */
+      }
+      else
+      {
+        strcpy(FullPath,CurPtr->Name);
+      }
       QuoteSpace(FullPath);
       Execute(FullPath,FALSE,SeparateWindow,TRUE);
     }

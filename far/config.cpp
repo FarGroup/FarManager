@@ -5,10 +5,13 @@ config.cpp
 
 */
 
-/* Revision: 1.149 19.05.2003 $ */
+/* Revision: 1.150 27.05.2003 $ */
 
 /*
 Modify:
+  27.05.2003 SVS
+    ! Для Opt.PluginMaxReadData верхний предел вместо 0x40000 ставим в 0x80000,
+      т.к. InstallShield файлики НИХРЕНА не опознаются!
   19.05.2003 SVS
     ! Диалоговые настройки вынесены в отдельный диалог
   14.05.2003 SVS
@@ -1558,7 +1561,7 @@ void ReadConfig()
 
   GetRegKey(NKeyConfirmations,"EscTwiceToInterrupt",Opt.Confirm.EscTwiceToInterrupt,0);
 
-  if(Opt.PluginMaxReadData < 0x1000 || Opt.PluginMaxReadData > 0x40000)
+  if(Opt.PluginMaxReadData < 0x1000 || Opt.PluginMaxReadData > 0x80000)
     Opt.PluginMaxReadData=0x20000;
 
   // Умолчание разное для разных платформ.

@@ -8,10 +8,18 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.115 10.05.2003 $ */
+/* Revision: 1.116 27.05.2003 $ */
 
 /*
 Modify:
+  27.05.2003 SVS
+    + VMenu::DrawTitles() - кусок кода, прорисовывающий заголовки вынесен в
+      эту функцию. Ёто бага про
+      "DM_LISTSETTITLES не работает, если в листе ни одного элемента."
+    - DI_LISTBOX, Bugs: "ѕри удалении элементов списка, если курсор стоит
+      не на удал€емом элементе, то курсоров становитс€ 2"
+      «десь сбросим все селекты сразу после удалени€ и "пересчитаем"
+      по новой.
   10.05.2003 SVS
     ! ¬ VMenu::SortItems() добавлен третий параметр SortForDataDWORD,
       который заставл€ет делать сортировку только по UserData. ѕо умолчанию
@@ -719,6 +727,16 @@ void VMenu::DisplayObject()
   /* $ 23.02.2002 DJ
      обрезаем длину заголовка не по длине заголовка, а по реальной ширине меню!
   */
+  if(!VMFlags.Check(VMENU_LISTBOX))
+    DrawTitles();
+  /* DJ $ */
+  /* KM $ */
+  ShowMenu(TRUE);
+}
+/* SVS $ */
+
+void VMenu::DrawTitles()
+{
   int MaxTitleLength = X2-X1-2;
   int WidthTitle;
   if (*Title)
@@ -737,12 +755,7 @@ void VMenu::DisplayObject()
     SetColor(VMenu::Colors[VMenuColorTitle]);
     mprintf(" %*.*s ",WidthTitle,WidthTitle,BottomTitle);
   }
-  /* DJ $ */
-  /* KM $ */
-  ShowMenu(TRUE);
 }
-/* SVS $ */
-
 
 /* $ 28.07.2000 SVS
    ѕереработка функции с учетом VMenu::Colors[] -
@@ -804,6 +817,7 @@ void VMenu::ShowMenu(int IsParent)
     SetScreen(X1,Y1,X2,Y2,' ',VMenu::Colors[VMenuColorBody]);
     if (BoxType!=NO_BOX)
       Box(X1,Y1,X2,Y2,VMenu::Colors[VMenuColorBox],BoxType);
+    DrawTitles();
   }
 
   switch(BoxType)
@@ -1425,6 +1439,8 @@ void VMenu::DeleteItems()
 */
 int VMenu::DeleteItem(int ID,int Count)
 {
+  int I;
+
   if(ID < 0 || ID >= ItemCount || Count <= 0)
     return ItemCount;
   if(ID+Count > ItemCount)
@@ -1436,8 +1452,13 @@ int VMenu::DeleteItem(int ID,int Count)
     Sleep(10);
   CallCount++;
 
+  for(I=0; I < ItemCount; ++I)
+  {
+    Item [I].Flags&=~LIF_SELECTED;
+  }
+
   // Ќадобно удалить данные, чтоб потери по пам€ти не были
-  for(int I=0; I < Count; ++I)
+  for(I=0; I < Count; ++I)
   {
     struct MenuItem *PtrItem=Item+ID+I;
     if(PtrItem->UserDataSize > sizeof(PtrItem->UserData) && PtrItem->UserData)
@@ -1478,6 +1499,10 @@ int VMenu::DeleteItem(int ID,int Count)
   {
     VMFlags.Set(VMENU_UPDATEREQUIRED);
   }
+
+  SelectPos=SetSelectPos(0,1);
+  if(SelectPos > -1)
+    Item[SelectPos].Flags|=LIF_SELECTED;
 
   CallCount--;
   return(ItemCount);

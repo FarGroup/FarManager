@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.45 10.05.2003 $ */
+/* Revision: 1.46 27.05.2003 $ */
 
 /*
 Modify:
+  27.05.2003 SVS
+    ! Задолбал в VC варнинг про int64++
   10.05.2003 IS
     + Облегчим CmpName за счет выноса проверки skippath наружу
     - Ошибка: *Name*.* не находило Name
@@ -861,7 +863,7 @@ char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size, int Width, 
       //Sz=(Sz+Divider2)/Divider64;
       Sz = (OldSize=Sz) / Divider64;
       if ((OldSize % Divider64) > Divider2)
-        Sz++;
+        ++Sz;
 
       IndexB++;
 

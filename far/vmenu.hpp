@@ -11,10 +11,14 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.47 10.05.2003 $ */
+/* Revision: 1.48 27.05.2003 $ */
 
 /*
 Modify:
+  27.05.2003 SVS
+    + VMenu::DrawTitles() - кусок кода, прорисовывающий заголовки вынесен в
+      эту функцию. Ёто бага про
+      "DM_LISTSETTITLES не работает, если в листе ни одного элемента."
   10.05.2003 SVS
     ! ¬ VMenu::SortItems() добавлен третий параметр SortForDataDWORD,
       который заставл€ет делать сортировку только по UserData. ѕо умолчанию
@@ -348,6 +352,7 @@ class VMenu: virtual public Modal, virtual public Frame
   private:
     void DisplayObject();
     void ShowMenu(int IsParent=0);
+    void DrawTitles();
     int  GetPosition(int Position);
     static int _SetUserData(struct MenuItem *PItem,const void *Data,int Size);
     static void* _GetUserData(struct MenuItem *PItem,void *Data,int Size);

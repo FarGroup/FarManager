@@ -5,10 +5,14 @@ manager.cpp
 
 */
 
-/* Revision: 1.83 08.04.2003 $ */
+/* Revision: 1.84 27.05.2003 $ */
 
 /*
 Modify:
+  27.05.2003 SVS
+    ! Зачатки каптюризации мыши :-)
+      Введен ScreenObject *ScreenObject::CaptureMouseObject, который
+      указывает на объект, захвативший мышь.
   08.04.2003 SVS
     - Висюн ФАРа, если в плагиновом StartupInfo до старта манагера вызывается что-то активное
   21.01.2003 SVS
@@ -1047,6 +1051,10 @@ int  Manager::ProcessKey(int Key)
 
 int  Manager::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
+    // При каптюренной мыши отдаем управление заданному объекту
+//    if (ScreenObject::CaptureMouseObject)
+//      return ScreenObject::CaptureMouseObject->ProcessMouse(MouseEvent);
+
     int ret=FALSE;
 //    _D(SysLog(1,"Manager::ProcessMouse()"));
     if ( CurrentFrame)
