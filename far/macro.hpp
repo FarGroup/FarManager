@@ -7,10 +7,12 @@ macro.hpp
 
 */
 
-/* Revision: 1.07 22.02.2001 $ */
+/* Revision: 1.08 08.03.2001 $ */
 
 /*
 Modify:
+  08.03.2001 SVS
+    + Функция MkTextSequence - формирование строкового представления Sequence
   22.01.2001 SVS
     + Функция MkRegKeyName - формирование имени ключа в реестре.
   17.01.2001 SVS
@@ -116,6 +118,7 @@ class KeyMacro
 
     static char* GetSubKey(int Mode);
     static int   GetSubKey(char *Mode);
+    static char *MkTextSequence(DWORD *Buffer,int BufferSize);
 };
 
 #endif	// __KEYMACRO_HPP__

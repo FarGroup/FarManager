@@ -5,10 +5,16 @@ macro.cpp
 
 */
 
-/* Revision: 1.26 28.02.2001 $ */
+/* Revision: 1.27 11.03.2001 $ */
 
 /*
 Modify:
+  11.03.2001 SVS
+    ! Название MFLAGS_RUNAFTERSTART заменено на MFLAGS_RUNAFTERFARSTART
+    + Функция MkTextSequence - формирование строкового представления Sequence
+    + проверка на "вводили тоже самое"
+    ! изменен диалог - подняли на одну строку вверх :-)
+    ! небольшая оптимизация кода.
   28.02.2001 IS
     ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   22.02.2001 SVS
@@ -112,7 +118,7 @@ Modify:
 
 #define MFLAGS_MODEMASK            0x0000FFFF
 #define MFLAGS_DISABLEOUTPUT       0x00010000
-#define MFLAGS_RUNAFTERSTART       0x00020000
+#define MFLAGS_RUNAFTERFARSTART       0x00020000
 #define MFLAGS_EMPTYCOMMANDLINE    0x00040000
 #define MFLAGS_NOTEMPTYCOMMANDLINE 0x00080000
 #define MFLAGS_NOFILEPANELS        0x00100000
@@ -127,8 +133,22 @@ static const char *MacroModeName[]={
   "Shell", "Viewer", "Editor", "Dialog", "Search",
   "Disks", "MainMenu", "Help"
 };
-
 static const char *MacroModeNameOther="Other";
+
+static struct TMacroFlagsName {
+  char *Name;
+  DWORD Flag;
+} MacroFlagsName[]={
+  {"DisableOutput",       MFLAGS_DISABLEOUTPUT},
+  {"RunAfterFARStart",    MFLAGS_RUNAFTERFARSTART},
+  {"EmptyCommandLine",    MFLAGS_EMPTYCOMMANDLINE},
+  {"NotEmptyCommandLine", MFLAGS_NOTEMPTYCOMMANDLINE},
+  {"NoFilePanels",        MFLAGS_NOFILEPANELS},
+  {"NoPluginPanels",      MFLAGS_NOPLUGINPANELS},
+  {"NoFolders",           MFLAGS_NOFOLDERS},
+  {"NoFiles",             MFLAGS_NOFILES},
+  {"ReuseMacro",          MFLAGS_REUSEMACRO},
+};
 
 // тип временного буфера
 enum MacroTempType{
@@ -553,14 +573,35 @@ char *KeyMacro::MkRegKeyName(int IdxMacro,char *RegKeyName)
   return RegKeyName;
 }
 
+// после вызова этой функции нужно удалить память!!!
+char *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize)
+{
+  char MacroKeyText[50], *TextBuffer;
+
+  // выделяем заведомо большой кусок
+  if((TextBuffer=(char*)malloc(BufferSize*50+1)) == NULL)
+    return NULL;
+
+  TextBuffer[0]=0;
+
+  for (int J=0; J < BufferSize; J++)
+    if(KeyToText(Buffer[J],MacroKeyText))
+    {
+      if(J)
+        strcat(TextBuffer," ");
+      strcat(TextBuffer,MacroKeyText);
+    }
+
+  return TextBuffer;
+}
+
 // Сохранение ВСЕХ макросов
 void KeyMacro::SaveMacros()
 {
+  char *TextBuffer;
+  char RegKeyName[150];
   for (int I=0;I<MacrosNumber;I++)
   {
-    char *TextBuffer=NULL;
-    int TextBufferSize=0;
-    char RegKeyName[150];
     MkRegKeyName(I,RegKeyName);
 
     if (Macros[I].BufferSize==0)
@@ -568,61 +609,23 @@ void KeyMacro::SaveMacros()
       DeleteRegKey(RegKeyName);
       continue;
     }
-    for (int J=0;J<Macros[I].BufferSize;J++)
-    {
-      char MacroKeyText[50];
-      DWORD Key=Macros[I].Buffer[J];
-      KeyToText(Key,MacroKeyText);
-      int NewSize=TextBufferSize+strlen(MacroKeyText);
-      if (TextBufferSize!=0)
-        NewSize++;
-      TextBuffer=(char *)realloc(TextBuffer,NewSize+1);
-      if (TextBuffer==NULL)
-        continue;
-      sprintf(TextBuffer+TextBufferSize,"%s%s",
-              (TextBufferSize==0 ? "":" "),
-              MacroKeyText);
-      TextBufferSize=NewSize;
-    }
-    SetRegKey(RegKeyName,"Sequence",TextBuffer);
-    if (Macros[I].Flags&MFLAGS_DISABLEOUTPUT)
-      SetRegKey(RegKeyName,"DisableOutput",1);
-    else
-      DeleteRegValue(RegKeyName,"DisableOutput");
-    if (Macros[I].Flags&MFLAGS_RUNAFTERSTART)
-      SetRegKey(RegKeyName,"RunAfterFARStart",1);
-    else
-      DeleteRegValue(RegKeyName,"RunAfterFARStart");
-    if (Macros[I].Flags&MFLAGS_EMPTYCOMMANDLINE)
-      SetRegKey(RegKeyName,"EmptyCommandLine",1);
-    else
-      DeleteRegValue(RegKeyName,"EmptyCommandLine");
-    if (Macros[I].Flags&MFLAGS_NOTEMPTYCOMMANDLINE)
-      SetRegKey(RegKeyName,"NotEmptyCommandLine",1);
-    else
-      DeleteRegValue(RegKeyName,"NotEmptyCommandLine");
-    if (Macros[I].Flags&MFLAGS_NOFILEPANELS)
-      SetRegKey(RegKeyName,"NoFilePanels",1);
-    else
-      DeleteRegValue(RegKeyName,"NoFilePanels");
-    if (Macros[I].Flags&MFLAGS_NOPLUGINPANELS)
-      SetRegKey(RegKeyName,"NoPluginPanels",1);
-    else
-      DeleteRegValue(RegKeyName,"NoPluginPanels");
-    if (Macros[I].Flags&MFLAGS_NOFOLDERS)
-      SetRegKey(RegKeyName,"NoFolders",1);
-    else
-      DeleteRegValue(RegKeyName,"NoFolders");
-    if (Macros[I].Flags&MFLAGS_NOFILES)
-      SetRegKey(RegKeyName,"NoFiles",1);
-    else
-      DeleteRegValue(RegKeyName,"NoFiles");
-    if (Macros[I].Flags&MFLAGS_REUSEMACRO)
-      SetRegKey(RegKeyName,"ReuseMacro",1);
-    else
-      DeleteRegValue(RegKeyName,"ReuseMacro");
 
-    delete TextBuffer;
+    if((TextBuffer=MkTextSequence(Macros[I].Buffer,Macros[I].BufferSize)) == NULL)
+      continue;
+
+    SetRegKey(RegKeyName,"Sequence",TextBuffer);
+
+    if(TextBuffer)
+      free(TextBuffer);
+
+    // подсократим кодУ...
+    for(int J=0; J < sizeof(MacroFlagsName)/sizeof(MacroFlagsName[0]); ++J)
+    {
+      if (Macros[I].Flags & MacroFlagsName[J].Flag)
+        SetRegKey(RegKeyName,MacroFlagsName[J].Name,1);
+      else
+        DeleteRegValue(RegKeyName,MacroFlagsName[J].Name);
+    }
   }
 }
 
@@ -673,15 +676,9 @@ int KeyMacro::ReadMacros(int ReadMode,char *Buffer,int BufferSize)
     CurMacro->BufferSize=0;
     CurMacro->Flags=MFlags|(ReadMode&MFLAGS_MODEMASK);
     GetRegKey(RegKeyName,"Sequence",Buffer,"",BufferSize);
-    CurMacro->Flags|=GetRegKey(RegKeyName,"DisableOutput",0)?MFLAGS_DISABLEOUTPUT:0;
-    CurMacro->Flags|=GetRegKey(RegKeyName,"RunAfterFARStart",0)?MFLAGS_RUNAFTERSTART:0;
-    CurMacro->Flags|=GetRegKey(RegKeyName,"EmptyCommandLine",0)?MFLAGS_EMPTYCOMMANDLINE:0;
-    CurMacro->Flags|=GetRegKey(RegKeyName,"NotEmptyCommandLine",0)?MFLAGS_NOTEMPTYCOMMANDLINE:0;
-    CurMacro->Flags|=GetRegKey(RegKeyName,"NoFilePanels",0)?MFLAGS_NOFILEPANELS:0;
-    CurMacro->Flags|=GetRegKey(RegKeyName,"NoPluginPanels",0)?MFLAGS_NOPLUGINPANELS:0;
-    CurMacro->Flags|=GetRegKey(RegKeyName,"NoFolders",0)?MFLAGS_NOFOLDERS:0;
-    CurMacro->Flags|=GetRegKey(RegKeyName,"NoFiles",0)?MFLAGS_NOFILES:0;
-    CurMacro->Flags|=GetRegKey(RegKeyName,"ReuseMacro",0)?MFLAGS_REUSEMACRO:0;
+
+    for(J=0; J < sizeof(MacroFlagsName)/sizeof(MacroFlagsName[0]); ++J)
+      CurMacro->Flags|=GetRegKey(RegKeyName,MacroFlagsName[J].Name,0)?MacroFlagsName[J].Flag:0;
 
     if(!ParseMacroString(CurMacro,Buffer))
       return FALSE;
@@ -705,7 +702,7 @@ void KeyMacro::RunStartMacro()
         Macros[CurPos].BufferSize>0 &&
         // исполняем не задисабленные макросы
         !(Macros[CurPos].Flags&MFLAGS_DISABLEMACRO) &&
-        (Macros[CurPos].Flags&MFLAGS_RUNAFTERSTART))
+        (Macros[CurPos].Flags&MFLAGS_RUNAFTERFARSTART))
     {
       int CmdLength=CtrlObject->CmdLine->GetLength();
       if ((Macros[CurPos].Flags&MFLAGS_EMPTYCOMMANDLINE) && CmdLength!=0 ||
@@ -784,20 +781,22 @@ long WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Par
       char Buf[256];
       char BufKey[64];
       char RegKeyName[150];
-      int F=0;
+      char *TextBuffer;
 
       MacroDlg->MkRegKeyName(Index,RegKeyName);
-
-      // выведем сообщение.
-      // Если размер буфера нулевой - удаление
-      //  Иначе - перезапись
-
-      // про последовательность
-      I=GetRegKey(RegKeyName,"Sequence",BufKey,"",sizeof(BufKey)-1);
-      I=strlen(BufKey);
-      if(I > 45) { I=45; F++; }
-      sprintf(Buf,"\"%*.*s%s\"",I,I,BufKey,(F?"...":""));
-      strcpy(BufKey,Buf);
+      // берем из памяти.
+      if((TextBuffer=MacroDlg->MkTextSequence(MacroDlg->Macros[Index].Buffer,
+                                  MacroDlg->Macros[Index].BufferSize)) != NULL)
+      {
+        int F=0;
+        I=strlen(TextBuffer);
+        if(I > 45) { I=45; F++; }
+        sprintf(Buf,"\"%*.*s%s\"",I,I,TextBuffer,(F?"...":""));
+        strcpy(BufKey,Buf);
+        free(TextBuffer);
+      }
+      else
+        BufKey[0]=0;
 
       sprintf(Buf,
         MSG(!MacroDlg->RecBufferSize?
@@ -805,7 +804,16 @@ long WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Par
            MMacroReDefinedKey),
         KeyText);
 
-      I=Message(MSG_WARNING,2,MSG(MWarning),
+      // проверим "а не совпадает ли всё?"
+      if(!DisFlags &&
+         MacroDlg->Macros[Index].Buffer &&
+         MacroDlg->RecBuffer &&
+         MacroDlg->Macros[Index].BufferSize == MacroDlg->RecBufferSize &&
+         !memcmp(MacroDlg->Macros[Index].Buffer,MacroDlg->RecBuffer,
+         MacroDlg->RecBufferSize))
+        I=0;
+      else
+        I=Message(MSG_WARNING,2,MSG(MWarning),
             Buf,
             BufKey,
             MSG(!MacroDlg->RecBufferSize?
@@ -813,6 +821,7 @@ long WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Par
                   (DisFlags?MMacroDisDisabledKey:MMacroReDefinedKey2)),
             MSG(DisFlags && MacroDlg->RecBufferSize?MMacroDisOverwrite:MYes),
             MSG(DisFlags && MacroDlg->RecBufferSize?MMacroDisAnotherKey:MNo));
+
       if(!I)
       {
         if(DisFlags)
@@ -882,28 +891,28 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
 {
 
   static struct DialogData MacroSettingsDlgData[]={
-  /* 00 */ DI_DOUBLEBOX,3,1,62,19,0,0,0,0,"",
+  /* 00 */ DI_DOUBLEBOX,3,1,62,18,0,0,0,0,"",
   /* 01 */ DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MMacroSettingsDisableOutput,
   /* 02 */ DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MMacroSettingsRunAfterStart,
 //  /* 03 */ DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MMacroSettingsExactCollation,
   /* 03 */ DI_TEXT,5,4,0,0,0,0,0,0,"",
-  /* 04 */ DI_TEXT,3,5,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 05 */ DI_RADIOBUTTON,5,6,0,0,0,1,DIF_GROUP,0,(char *)MMacroSettingsIgnoreCommandLine,
-  /* 06 */ DI_RADIOBUTTON,5,7,0,0,0,0,0,0,(char *)MMacroSettingsEmptyCommandLine,
-  /* 07 */ DI_RADIOBUTTON,5,8,0,0,0,0,0,0,(char *)MMacroSettingsNotEmptyCommandLine,
-  /* 08 */ DI_TEXT,3,9,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 09 */ DI_RADIOBUTTON,5,10,0,0,0,1,DIF_GROUP,0,(char *)MMacroSettingsIgnorePanels,
-  /* 10 */ DI_RADIOBUTTON,5,11,0,0,0,0,0,0,(char *)MMacroSettingsFilePanels,
-  /* 11 */ DI_RADIOBUTTON,5,12,0,0,0,0,0,0,(char *)MMacroSettingsPluginPanels,
+  /* 04 */ DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 05 */ DI_RADIOBUTTON,5,5,0,0,0,1,DIF_GROUP,0,(char *)MMacroSettingsIgnoreCommandLine,
+  /* 06 */ DI_RADIOBUTTON,5,6,0,0,0,0,0,0,(char *)MMacroSettingsEmptyCommandLine,
+  /* 07 */ DI_RADIOBUTTON,5,7,0,0,0,0,0,0,(char *)MMacroSettingsNotEmptyCommandLine,
+  /* 08 */ DI_TEXT,3,8,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 09 */ DI_RADIOBUTTON,5,9,0,0,0,1,DIF_GROUP,0,(char *)MMacroSettingsIgnorePanels,
+  /* 10 */ DI_RADIOBUTTON,5,10,0,0,0,0,0,0,(char *)MMacroSettingsFilePanels,
+  /* 11 */ DI_RADIOBUTTON,5,11,0,0,0,0,0,0,(char *)MMacroSettingsPluginPanels,
 
-  /* 12 */ DI_TEXT,3,13,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 13 */ DI_RADIOBUTTON,5,14,0,0,0,1,DIF_GROUP,0,(char *)MMacroSettingsIgnoreFileFolders,
-  /* 14 */ DI_RADIOBUTTON,5,15,0,0,0,0,0,0,(char *)MMacroSettingsFolders,
-  /* 15 */ DI_RADIOBUTTON,5,16,0,0,0,0,0,0,(char *)MMacroSettingsFiles,
+  /* 12 */ DI_TEXT,3,12,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 13 */ DI_RADIOBUTTON,5,13,0,0,0,1,DIF_GROUP,0,(char *)MMacroSettingsIgnoreFileFolders,
+  /* 14 */ DI_RADIOBUTTON,5,14,0,0,0,0,0,0,(char *)MMacroSettingsFolders,
+  /* 15 */ DI_RADIOBUTTON,5,15,0,0,0,0,0,0,(char *)MMacroSettingsFiles,
 
-  /* 16 */ DI_TEXT,3,17,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 17 */ DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-  /* 18 */ DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  /* 16 */ DI_TEXT,3,16,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 17 */ DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 18 */ DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
   MakeDialogItems(MacroSettingsDlgData,MacroSettingsDlg);
 
@@ -914,7 +923,7 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
     MacroSettingsDlg[3].Flags|=DIF_DISABLE;
 
   MacroSettingsDlg[1].Selected=Flags&MFLAGS_DISABLEOUTPUT?1:0;
-  MacroSettingsDlg[2].Selected=Flags&MFLAGS_RUNAFTERSTART?1:0;
+  MacroSettingsDlg[2].Selected=Flags&MFLAGS_RUNAFTERFARSTART?1:0;
   MacroSettingsDlg[6].Selected=Flags&MFLAGS_EMPTYCOMMANDLINE?1:0;
   MacroSettingsDlg[7].Selected=Flags&MFLAGS_NOTEMPTYCOMMANDLINE?1:0;
   MacroSettingsDlg[11].Selected=Flags&MFLAGS_NOFILEPANELS?1:0;
@@ -923,14 +932,14 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
   MacroSettingsDlg[14].Selected=Flags&MFLAGS_NOFILES?1:0;
 
   Dialog Dlg(MacroSettingsDlg,sizeof(MacroSettingsDlg)/sizeof(MacroSettingsDlg[0]));
-  Dlg.SetPosition(-1,-1,66,21);
+  Dlg.SetPosition(-1,-1,66,20);
   Dlg.SetHelp("KeyMacro");
   Dlg.Process();
   if (Dlg.GetExitCode()!=17)
     return(FALSE);
 
   Flags=MacroSettingsDlg[1].Selected?MFLAGS_DISABLEOUTPUT:0;
-  Flags|=MacroSettingsDlg[2].Selected?MFLAGS_RUNAFTERSTART:0;
+  Flags|=MacroSettingsDlg[2].Selected?MFLAGS_RUNAFTERFARSTART:0;
   Flags|=MacroSettingsDlg[6].Selected?MFLAGS_EMPTYCOMMANDLINE:0;
   Flags|=MacroSettingsDlg[7].Selected?MFLAGS_NOTEMPTYCOMMANDLINE:0;
   Flags|=MacroSettingsDlg[11].Selected?MFLAGS_NOFILEPANELS:0;
