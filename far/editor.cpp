@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.18 07.08.2000 $ */
+/* Revision: 1.19 10.08.2000 $ */
 
 /*
 Modify:
+   10.08.2000 skv
+    ! Оптимизация работы EE_REDRAW события редактора.
    07.08.2000 SVS
     + ECTL_SETKEYBAR - Функция установки Keybar Labels
    03.08.2000 KM 1.17
@@ -112,6 +114,11 @@ Editor::Editor()
   DisableOut=0;
   Pasting=0;
   Modified=0;
+  /*$ 10.08.2000 skv
+    Initialization
+  */
+  JustModified=0;
+  /* skv$*/
   WasChanged=0;
   NumLine=0;
   NumLastLine=1;
@@ -525,7 +532,11 @@ int Editor::SaveFile(char *Name,int Ask,int TextFormat)
         case 0:
           break;
         case 1:
-          Modified=FALSE;
+          /*$ 10.08.2000 skv
+            TextChanged() support;
+          */
+          TextChanged(0);
+          /* skv $*/
           return(1);
       }
     }
@@ -613,8 +624,11 @@ int Editor::SaveFile(char *Name,int Ask,int TextFormat)
     SetFileAttributes(Name,FileAttr|FA_ARCH);
   if (Modified || NewFile)
     WasChanged|=1;
-  Modified=0;
-
+  /*$ 10.08.2000 skv
+    Modified->TextChanged
+  */
+  TextChanged(0);
+  /* skv$*/
   Show();
   return(1);
 }
@@ -633,6 +647,12 @@ void Editor::ShowEditor(int CurLineOnly)
   int LeftPos,CurPos,Y;
   if (DisableOut)
     return;
+
+  /*$ 10.08.2000 skv
+    To make sure that CurEditor is set to required value.
+  */
+  CtrlObject->Plugins.CurEditor=this;
+  /* skv$*/
 
   while (CalcDistance(TopScreen,CurLine,-1)>=Y2-Y1)
   {
@@ -658,8 +678,21 @@ void Editor::ShowEditor(int CurLineOnly)
   }
   if (!Pasting)
   {
-    CtrlObject->Plugins.CurEditor=this;
-    CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,(void *)CurLineOnly);
+    /*$ 10.08.2000 skv
+      Don't send EE_REDRAW while macro is being executed.
+      Send EE_REDRAW with param=2 if text was just modified.
+
+    */
+    if(!ScrBuf.GetLockCount())
+    {
+      if(JustModified)
+      {
+        JustModified=0;
+        CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,(void*)2);
+      }else
+        CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,(void *)CurLineOnly);
+    }
+    /* skv$*/
   }
   if (!CurLineOnly)
   {
@@ -777,6 +810,19 @@ void Editor::ShowStatus()
   if (Opt.ViewerEditorClock)
     ShowTime(FALSE);
 }
+/*$ 10.08.2000 skv
+  Wrapper for Modified.
+  Set JustModified every call to 1
+  to track any text state change.
+  Even if state==0, this can be
+  last UNDO.
+*/
+void Editor::TextChanged(int State)
+{
+  Modified=State;
+  JustModified=1;
+}
+/* skv$*/
 
 
 int Editor::ProcessKey(int Key)
@@ -1327,14 +1373,22 @@ int Editor::ProcessKey(int Key)
           else
             CurLine->EditLine.ProcessKey(KEY_DEL);
         }
-        Modified=1;
+        /*$ 10.08.2000 skv
+          Modified->TextChanged
+        */
+        TextChanged(1);
+        /* skv $*/
         Show();
       }
       return(TRUE);
     case KEY_BS:
       if (!LockMode)
       {
-        Modified=1;
+        /*$ 10.08.2000 skv
+          Modified->TextChanged
+        */
+        TextChanged(1);
+        /* skv $*/
         if (!Pasting && !Opt.EditorPersistentBlocks && BlockStart!=NULL)
           DeleteBlock();
         else
@@ -1352,13 +1406,18 @@ int Editor::ProcessKey(int Key)
                         CurLine->EditLine.GetCurPos(),UNDO_EDIT);
             CurLine->EditLine.ProcessKey(KEY_BS);
           }
+
         Show();
       }
       return(TRUE);
     case KEY_CTRLBS:
       if (!LockMode)
       {
-        Modified=1;
+        /*$ 10.08.2000 skv
+          Modified->TextChanged
+        */
+        TextChanged(1);
+        /* skv $*/
         if (!Pasting && !Opt.EditorPersistentBlocks && BlockStart!=NULL)
           DeleteBlock();
         else
@@ -1570,7 +1629,14 @@ int Editor::ProcessKey(int Key)
     case KEY_CTRLZ:
       if (!LockMode)
       {
+        /*$ 10.08.2000 skv
+          Without this group undo, like undo of 'delete block' operation
+          will be animated.
+        */
+        DisableOut++;
         Undo();
+        DisableOut--;
+        /* skv$*/
         Show();
       }
       return(TRUE);
@@ -1997,7 +2063,11 @@ int Editor::ProcessKey(int Key)
             if (NewLength!=Length || memcmp(CmpStr,NewCmpStr,Length)!=0)
             {
               AddUndoData(CmpStr,NumLine,CurPos,UNDO_EDIT);
-              Modified=1;
+              /*$ 10.08.2000 skv
+                Modified->TextChanged
+              */
+              TextChanged(1);
+              /* skv $*/
             }
             delete[] CmpStr;
           }
@@ -2091,7 +2161,11 @@ void Editor::DeleteString(struct EditList *DelPtr,int DeleteLast,int UndoLine)
 {
   if (LockMode)
     return;
-  Modified=1;
+  /*$ 10.08.2000 skv
+    Modified->TextChanged
+  */
+  TextChanged(1);
+  /* skv $*/
   if (DelPtr->Next==NULL && (!DeleteLast || DelPtr->Prev==NULL))
   {
     AddUndoData(DelPtr->EditLine.GetStringAddr(),UndoLine,
@@ -2162,7 +2236,14 @@ void Editor::InsertString()
 {
   if (LockMode)
     return;
-  Modified=1;
+  /*$ 10.08.2000 skv
+    There is only one return - if new will fail.
+    In this case things are realy bad.
+    Move TextChanged to the end of functions
+    AFTER all modifications are made.
+  */
+//  TextChanged(1);
+  /* skv $*/
   struct EditList *NewString;
   struct EditList *SrcIndent=NULL;
   int SelStart,SelEnd;
@@ -2188,6 +2269,7 @@ void Editor::InsertString()
   char *CurLineStr,*EndSeq;
   int Length;
   CurLine->EditLine.GetBinaryString(&CurLineStr,&EndSeq,Length);
+
 
   CurPos=CurLine->EditLine.GetCurPos();
   CurLine->EditLine.GetSelection(SelStart,SelEnd);
@@ -2388,6 +2470,12 @@ void Editor::InsertString()
         CurLine->EditLine.SetCurPos(NewPos);
     }
   }
+  /*$ 10.08.2000 skv
+    Modified->TextChanged
+  */
+  TextChanged(1);
+  /* skv$*/
+
 }
 
 
@@ -2746,7 +2834,11 @@ void Editor::Paste()
     NewUndo=TRUE;
     if (UseDecodeTable)
       EncodeString(ClipText,(unsigned char *)TableSet.EncodeTable);
-    Modified=1;
+    /*$ 10.08.2000 skv
+      Modified->TextChanged
+    */
+    TextChanged(1);
+    /* skv $*/
     int SaveOvertype=Overtype;
     UnmarkBlock();
     Pasting++;
@@ -2877,7 +2969,11 @@ void Editor::DeleteBlock()
 
   while (CurPtr!=NULL)
   {
-    Modified=1;
+    /*$ 10.08.2000 skv
+      Modified->TextChanged
+    */
+    TextChanged(1);
+    /* skv $*/
     int StartSel,EndSel;
     CurPtr->EditLine.GetSelection(StartSel,EndSel);
     if (StartSel==-1)
@@ -3234,7 +3330,11 @@ void Editor::Undo()
     return;
   UnmarkBlock();
   UndoDataPos=NewPos;
-  Modified=TRUE;
+  /*$ 10.08.2000 skv
+    Modified->TextChanged
+  */
+  TextChanged(1);
+  /* skv $*/
   WasChanged=TRUE;
   DisableUndo=TRUE;
   GoToLine(UndoData[UndoDataPos].StrNum);
@@ -3271,8 +3371,12 @@ void Editor::Undo()
   UndoData[UndoDataPos].Type=UNDO_NONE;
   if (UndoData[UndoDataPos].UndoNext)
     Undo();
+  /*$ 10.08.2000 skv
+    ! Modified->TextChanged
+  */
   if (!UndoOverflow && UndoDataPos==UndoSavePos)
-    Modified=FALSE;
+    TextChanged(0);
+  /* skv $*/
   DisableUndo=FALSE;
 }
 
@@ -3398,7 +3502,11 @@ void Editor::BlockLeft()
       CurPtr->EditLine.SetBinaryString(TmpStr,Length);
       CurPtr->EditLine.SetCurPos(CurPos>0 ? CurPos-1:CurPos);
       CurPtr->EditLine.Select(StartSel>0 ? StartSel-1:StartSel,EndSel>0 ? EndSel-1:EndSel);
-      Modified=1;
+      /*$ 10.08.2000 skv
+        Modified->TextChanged
+      */
+      TextChanged(1);
+      /* skv $*/
     }
 
     delete[] TmpStr;
@@ -3448,7 +3556,11 @@ void Editor::BlockRight()
         CurPtr->EditLine.SetBinaryString(TmpStr,Length+EndLength);
       CurPtr->EditLine.SetCurPos(CurPos+1);
       CurPtr->EditLine.Select(StartSel>0 ? StartSel+1:StartSel,EndSel>0 ? EndSel+1:EndSel);
-      Modified=1;
+      /*$ 10.08.2000 skv
+        Modified->TextChanged
+      */
+      TextChanged(1);
+      /* skv $*/
     }
 
     delete[] TmpStr;
@@ -3490,7 +3602,11 @@ void Editor::DeleteVBlock()
 
   for (int Line=0;CurPtr!=NULL && Line<VBlockSizeY;Line++,CurPtr=CurPtr->Next)
   {
-    Modified=1;
+    /*$ 10.08.2000 skv
+      Modified->TextChanged
+    */
+    TextChanged(1);
+    /* skv $*/
 
     int TBlockX=CurPtr->EditLine.TabPosToReal(VBlockX);
     int TBlockSizeX=CurPtr->EditLine.TabPosToReal(VBlockX+VBlockSizeX)-
@@ -3615,7 +3731,11 @@ void Editor::VPaste(char *ClipText)
   if (*ClipText)
   {
     NewUndo=TRUE;
-    Modified=1;
+    /*$ 10.08.2000 skv
+      Modified->TextChanged
+    */
+    TextChanged(1);
+    /* skv $*/
     int SaveOvertype=Overtype;
     UnmarkBlock();
     Pasting++;
@@ -3707,7 +3827,11 @@ void Editor::VBlockShift(int Left)
 
   for (int Line=0;CurPtr!=NULL && Line<VBlockSizeY;Line++,CurPtr=CurPtr->Next)
   {
-    Modified=1;
+    /*$ 10.08.2000 skv
+      Modified->TextChanged
+    */
+    TextChanged(1);
+    /* skv $*/
 
     int TBlockX=CurPtr->EditLine.TabPosToReal(VBlockX);
     int TBlockSizeX=CurPtr->EditLine.TabPosToReal(VBlockX+VBlockSizeX)-
@@ -3852,7 +3976,11 @@ int Editor::EditorControl(int Command,void *Param)
         int CurPos=CurPtr->EditLine.GetCurPos();
         CurPtr->EditLine.SetBinaryString(NewStr,Length+LengthEOL);
         CurPtr->EditLine.SetCurPos(CurPos);
-        Modified=1;
+        /*$ 10.08.2000 skv
+          Modified->TextChanged
+        */
+        TextChanged(1);
+        /* skv $*/
         delete[] NewStr;
       }
       return(TRUE);

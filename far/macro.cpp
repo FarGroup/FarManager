@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.04 25.07.2000 $ */
+/* Revision: 1.05 10.08.2000 $ */
 
 /*
 Modify:
+  10.08.2000 skv
+    ! Изменение а GetKey для отработки окончания макро в Едиторе.
   25.07.2000 SVS
     ! Функция KeyToText сделана самосотоятельной - вошла в состав
       FSF
@@ -207,6 +209,26 @@ int KeyMacro::GetKey()
   if (ExecKeyPos>=Macros[ExecMacroPos].BufferSize ||
       Macros[ExecMacroPos].Buffer==NULL)
   {
+    /*$ 10.08.2000 skv
+      If we are in editor mode, and CurEditor defined,
+      we need to call this events.
+      EE_REDRAW 2 - to notify that text changed.
+      EE_REDRAW 0 - to notify that whole screen updated
+      ->Show() to actually update screen.
+
+      This duplication take place since ShowEditor method
+      will NOT send this event while screen is locked.
+    */
+    if(Mode==MACRO_EDITOR)
+    {
+      if(CtrlObject->Plugins.CurEditor)
+      {
+        CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,(LPVOID)2);
+        CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,0);
+        CtrlObject->Plugins.CurEditor->Show();
+      }
+    }
+    /* skv$*/
     delete LockScr;
     LockScr=NULL;
     Executing=FALSE;

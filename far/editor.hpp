@@ -9,10 +9,12 @@ editor.hpp
 
 */
 
-/* Revision: 1.06 30.07.2000 $ */
+/* Revision: 1.07 10.08.2000 $ */
 
 /*
 Modify:
+  10.08.2000 skv
+    + добавлены int JustModied и void TextChanged(state);
   30.07.2000 KM 1.06
     + LastSearchWholeWords
   21.07.2000 tran
@@ -45,6 +47,13 @@ class Editor:public ScreenObject
     char FileName[NM];
     int NumLastLine,NumLine;
     int Modified;
+    /*$ 10.08.2000 skv
+      need to send EE_REDRAW 2.
+      set to 1 by TextChanged, no matter what is value of State.
+    */
+    int JustModified;
+    /* skv $*/
+
     int WasChanged;
     int Overtype;
     int DisableOut;
@@ -122,6 +131,14 @@ class Editor:public ScreenObject
     /* tran 21.07.2000 $ */
 
     /* tran 05.07.2000 $ */
+
+    /* $ 10.08.2000 skv
+      Call this when text changed to set Modified to
+      specified State and JustModified to 1
+    */
+    void TextChanged(int State);
+    /* skv $*/
+
     int  CalcDistance(struct EditList *From,struct EditList *To,int MaxDist);
     void Paste();
     void Copy(int Append);
@@ -174,6 +191,7 @@ class Editor:public ScreenObject
     void BeginVBlockMarking();
     void AdjustVBlock(int PrevX);
     /* tran 21.07.2000 $ */
+
 };
 
 struct EditList
