@@ -5,10 +5,14 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.91 20.09.2001 $ */
+/* Revision: 1.92 21.09.2001 $ */
 
 /*
 Modify:
+  21.09.2001 SVS
+    - Бага. При старте ФАР, если плагин вызывает Message или Dialog, то
+      ФАРу плохеет, т.к. Frame как такового нету. В общем введена проверка
+      на NULL для Lock/Unlock
   20.09.2001 SVS
     ! ограничим диалоги и месагбоксы, вызванные из плагинов "скобками
       необновления нижнего экрана"
@@ -799,7 +803,9 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
   }
   else
   {
-    FrameManager->GetBottomFrame()->LockRefresh(); // отменим прорисовку фрейма
+    Frame *frame;
+    if((frame=FrameManager->GetBottomFrame()) != NULL)
+      frame->LockRefresh(); // отменим прорисовку фрейма
     if(Opt.ExceptRules)
     {
       TRY
@@ -818,7 +824,8 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
       FarDialog->Process();
       Dialog::ConvertItem(CVTITEM_TOPLUGIN,Item,InternalItem,ItemsNumber);
     }
-    FrameManager->GetBottomFrame()->UnlockRefresh(); // теперь можно :-)
+    if((frame=FrameManager->GetBottomFrame()) != NULL)
+      frame->UnlockRefresh(); // теперь можно :-)
     ExitCode=FarDialog->GetExitCode();
     delete FarDialog;
   }
@@ -966,12 +973,15 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
   /* $ 29.08.2000 SVS
      Запомним номер плагина - сейчас в основном для формирования HelpTopic
   */
-  FrameManager->GetBottomFrame()->LockRefresh(); // отменим прорисовку фрейма
+  Frame *frame;
+  if((frame=FrameManager->GetBottomFrame()) != NULL)
+    frame->LockRefresh(); // отменим прорисовку фрейма
   int MsgCode=Message(Flags,ButtonsNumber,MsgItems[0],MsgItems[1],
               MsgItems[2],MsgItems[3],MsgItems[4],MsgItems[5],MsgItems[6],
               MsgItems[7],MsgItems[8],MsgItems[9],MsgItems[10],MsgItems[11],
               MsgItems[12],MsgItems[13],MsgItems[14],PluginNumber);
-  FrameManager->GetBottomFrame()->UnlockRefresh(); // теперь можно :-)
+  if((frame=FrameManager->GetBottomFrame()) != NULL)
+    frame->UnlockRefresh(); // теперь можно :-)
   /* SVS $ */
 //  CheckScreenLock();
   if(SingleItems)

@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.51 18.09.2001 $ */
+/* Revision: 1.52 21.09.2001 $ */
 
 /*
 Modify:
+  21.09.2001 SVS
+    ! расширим диалог
   18.09.2001 SVS
     ! Безхозный "_D(" заменен на "_OT(".
       2OT: Ты не против? А то для _ALGO этот макрос всю масть сбивает :-)
@@ -376,9 +378,9 @@ void Manager::FrameMenu()
       /* IS $ */
       /* $ 28.07.2000 tran
          файл усекает по ширине экрана */
-      TruncPathStr(Name,ScrX-40);
+      TruncPathStr(Name,ScrX-24);
       /*  добавляется "*" если файл изменен */
-      sprintf(ModalMenuItem.Name,"%s%-20s %c %s",NumText,Type,(FrameList[I]->IsFileModified()?'*':' '),Name);
+      sprintf(ModalMenuItem.Name,"%s%-10.10s %c %s",NumText,Type,(FrameList[I]->IsFileModified()?'*':' '),Name);
       /* tran 28.07.2000 $ */
       ModalMenuItem.SetSelect(I==FramePos);
       ModalMenu.AddItem(&ModalMenuItem);
