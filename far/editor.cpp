@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.227 25.07.2003 $ */
+/* Revision: 1.228 31.07.2003 $ */
 
 /*
 Modify:
+  31.07.2003 SKV
+    - фикс выделения персистентных блоков после Shift-[A-Z0-9]
   25.07.2003 SVS
     ! выставим SetLastError в Editor::ReadFile в случае неудачи.
   15.07.2003 SVS
@@ -1630,9 +1632,9 @@ int Editor::ProcessKey(int Key)
   CurPos=CurLine->EditLine.GetCurPos();
   CurVisPos=GetLineCurPos();
 
+  int isk=IsShiftKey(Key);
 
-  if ((!ShiftPressed  || CtrlObject->Macro.IsExecuting()) &&
-      !IsShiftKey(Key) && !Pasting)
+  if ((!isk || CtrlObject->Macro.IsExecuting()) && !isk && !Pasting)
   {
     Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
 
