@@ -5,10 +5,13 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.58 26.12.2001 $ */
+/* Revision: 1.59 27.12.2001 $ */
 
 /*
 Modify:
+  27.12.2001 KM
+    ! ќбнулим KeyText в KeyToText (как и было раньше), в противном случае
+      в буфере клавиши возвращалс€ мусор!
   26.12.2001 SVS
     ! ѕри закрытии окна "по кресту"... теперь настраиваемо!
   25.12.2001 SVS
@@ -1112,7 +1115,12 @@ BOOL WINAPI KeyToText(int Key0,char *KeyText0,int Size)
   if(Key&KEY_MACRO_BASE)
     return KeyMacroToText(Key0,KeyText0,Size);
 
-  *KeyText=0;
+  /* $ 27.12.2001 KM
+    ! ќбнулим KeyText (как и было раньше), в противном случае
+      в буфере возвращалс€ мусор!
+  */
+  memset(KeyText,0,sizeof(KeyText));
+  /* KM $ */
   GetShiftKeyName(KeyText,Key,Len);
 
   for (I=0;I<sizeof(FKeys1)/sizeof(FKeys1[0]);I++)
