@@ -17,11 +17,6 @@ static DWORD NextPosition,SFXSize,FileSize,FileSizeHigh,Flags;
 static long NextPositionHigh;
 static int OldFormat;
 
-DWORD WINAPI _export LoadFormatModule(const char *ModuleName)
-{
-  return(0);
-}
-
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
   for (int I=0;I<DataSize-7;I++)

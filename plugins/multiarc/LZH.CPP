@@ -52,12 +52,6 @@ static struct DictSizeType{
   {{'h','d'},0},
 };
 
-DWORD WINAPI _export LoadFormatModule(const char *ModuleName)
-{
-  return(0);
-}
-
-
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
   for (int I=2;I<DataSize-5;I++)

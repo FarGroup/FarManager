@@ -53,11 +53,6 @@ static HANDLE ArcHandle;
 static DWORD SFXSize,FilesNumber;
 static DWORD UnpVer;
 
-DWORD WINAPI _export LoadFormatModule(const char *ModuleName)
-{
-  return(0);
-}
-
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
   for (int I=0;I<(int)(DataSize-sizeof(struct CFHEADER));I++)

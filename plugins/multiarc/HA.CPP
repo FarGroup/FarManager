@@ -39,11 +39,6 @@ static HANDLE ArcHandle;
 static DWORD NextPosition,FileSize;
 static int timezone=0;
 
-DWORD WINAPI _export LoadFormatModule(const char *ModuleName)
-{
-  return(0);
-}
-
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
   if (DataSize<26 || Data[0]!='H' || Data[1]!='A' || Data[3]>32)
@@ -143,11 +138,6 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
 BOOL WINAPI _export CloseArchive(struct ArcInfo *Info)
 {
   return(CloseHandle(ArcHandle));
-}
-
-DWORD WINAPI _export GetSFXPos(void)
-{
-  return 0;
 }
 
 BOOL WINAPI _export GetFormatName(int Type,char *FormatName,char *DefaultExt)

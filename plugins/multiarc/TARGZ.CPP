@@ -40,19 +40,15 @@ DWORD GetOctal(const char *Str);
 enum {TAR_FORMAT,GZ_FORMAT,Z_FORMAT,BZ_FORMAT};
 
 HANDLE ArcHandle;
-DWORD NextPosition,FileSize;
+DWORD NextPosition,SFXSize,FileSize;
 int timezone=0;
 int ArcType;
 char ZipName[NM];
 char Prefix[32];
 
-DWORD WINAPI _export LoadFormatModule(const char *ModuleName)
-{
-  return(0);
-}
-
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
+  SFXSize=0;
   if (IsTarHeader(Data,DataSize))
   {
     ArcType=TAR_FORMAT;
@@ -107,7 +103,7 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
 
 DWORD WINAPI _export GetSFXPos(void)
 {
-  return NextPosition;
+  return SFXSize;
 }
 
 int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *Info)

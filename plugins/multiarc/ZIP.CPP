@@ -22,11 +22,6 @@ static HANDLE ArcHandle;
 static DWORD SFXSize,NextPosition,FileSize;
 static int ArcComment,Truncated,FirstRecord;
 
-DWORD WINAPI _export LoadFormatModule(const char *ModuleName)
-{
-  return(0);
-}
-
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
   if (Data[0]=='P' && Data[1]=='K' && Data[2]==5 && Data[3]==6)

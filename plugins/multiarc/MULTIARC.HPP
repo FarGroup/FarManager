@@ -243,6 +243,7 @@ void DeleteRegKey(HKEY hRoot,const char *Key);
 struct PluginStartupInfo Info;
 struct FarStandardFunctions FSF;
 class ArcPlugins *ArcPlugin=NULL;
+int FarVER;
 
 enum {CMD_EXTRACT=0,CMD_EXTRACTWITHOUTPATH,CMD_TEST,CMD_DELETE,CMD_COMMENT,
       CMD_COMMENTFILES,CMD_SFX,CMD_LOCK,CMD_PROTECT,CMD_RECOVER,

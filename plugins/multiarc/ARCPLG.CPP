@@ -17,7 +17,7 @@ ArcPlugins::ArcPlugins(const char *ModuleName)
     return;
 
   strcpy(NamePtr,"\\Formats\\");
-  FSF.FarRecursiveSearch(PluginsFolder,"*",
+  FSF.FarRecursiveSearch(PluginsFolder,(HIWORD(FarVER) == 0x035F?"*.fmt":"*"),
                     (FRSUSERFUNC)LoadFmtModules,FRS_RECUR,this);
 }
 
@@ -29,8 +29,12 @@ int WINAPI ArcPlugins::LoadFmtModules(const WIN32_FIND_DATA *fdata,
   char *Ptr;
   if(fdata->dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
     return TRUE;
-  if((Ptr=strrchr(fdata->cFileName,'.')) == NULL || stricmp(Ptr,".fmt"))
-    return TRUE;
+
+  if(HIWORD(FarVER) < 0x035F)
+  {
+    if((Ptr=strrchr(fdata->cFileName,'.')) == NULL || stricmp(Ptr,".fmt"))
+      return TRUE;
+  }
 
   HMODULE hModule=LoadLibrary(PluginName);
   if (hModule!=NULL)
