@@ -7,10 +7,12 @@ classes.hpp
 
 */
 
-/* Revision: 1.01 17.07.2000 $ */
+/* Revision: 1.02 24.01.2001 $ */
 
 /*
 Modify:
+  24.01.2001 SVS
+    + farqueue.hpp - шаблон очереди.
   17.07.2000 OT
     + Застолбить место под разработку "моего" редактора
   25.06.2000 SVS
@@ -27,6 +29,7 @@ class History;
 
 #define MSG(ID) FarMSG(ID)
 
+#include "farqueue.hpp"
 #include "int64.hpp"
 #include "language.hpp"
 #include "plugins.hpp"

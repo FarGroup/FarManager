@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.52 23.01.2001 $ */
+/* Revision: 1.53 25.01.2001 $ */
 
 /*
 Modify:
+  25.01.2001 SVS
+   ! WriteInput - имеет дополнительный параметр - флаги
+   ! TranslateKeyToVK - имеет дополнительный параметр - указатель на эвенты.
   23.01.2001 SVS
    + DumpExeptionInfo()
   23.01.2001 SVS
@@ -647,7 +650,7 @@ int DumpExeptionInfo(EXCEPTION_POINTERS *xp);
 
 BOOL WINAPI KeyMacroToText(int Key,char *KeyText0,int Size);
 int WINAPI KeyNameMacroToKey(char *Name);
-int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState);
+int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *rec=NULL);
 /* $ 24.09.2000 SVS
  + Функция KeyNameToKey - получение кода клавиши по имени
    Если имя не верно или нет такого - возвращается -1
@@ -672,7 +675,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros=NULL);
 */
 void WaitKey(int KeyWait=-1);
 /* SVS $ */
-int WriteInput(int Key);
+int WriteInput(int Key,DWORD Flags=0);
 
 
 #endif  // __FARFUNC_HPP__

@@ -109,6 +109,7 @@ $(OBJPATH)\syslog.obj: syslog.cpp cc.bat
 $(OBJPATH)\global.obj: global.cpp global.hpp farversion.inc
 
 FAROBJ=\
+   $(OBJPATH)\farqueue.obj\
    $(OBJPATH)\modal.obj\
    $(OBJPATH)\help.obj\
    $(OBJPATH)\checkver.obj\

@@ -10,6 +10,9 @@ mix.cpp
 /*
 Modify:
   23.01.2001 SVS
+    ! ExpandEnvironmentStr снова динамически выделяет память...
+    ! Уточнение факта посылки VK_F16 как виртуального кода!
+  23.01.2001 SVS
     ! Сделаем статичный массив символов временного буфера в
       ExpandEnvironmentStr()
   21.01.2001 SVS
@@ -461,7 +464,7 @@ int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
   GetCursorType(Visible,Size);
   if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS &&
       WinVer.dwBuildNumber<=0x4000457)
-    WriteInput(VK_F16);
+    WriteInput(VK_F16,SKEY_VK_KEYS);
   SetConsoleTitle(OldTitle);
   return(ExitCode);
 }
@@ -1084,31 +1087,21 @@ int GetClusterSize(char *Root)
 /* $ 25.07.2000 SVS
    Вызов WINAPI
 */
-/* $ 23.01.2001 SVS
-   Сделаем статичный массив символов временного буфера в ExpandEnvironmentStr
-   Возможно это будет место потенциальных ошибок, а может и нет :-)
-*/
 DWORD WINAPI ExpandEnvironmentStr(char *src, char *dest, size_t size)
 {
-#if 0
- DWORD ret=0;
- char *tmp=(char *)malloc(size);
- if(tmp)
+  DWORD ret=0;
+  char *tmp=(char *)malloc(size+1);
+  if(tmp)
   {
-   ret=ExpandEnvironmentStrings(src,tmp,size);
-   strcpy(dest,tmp);
-   free(tmp);
+    if(ExpandEnvironmentStrings(src,tmp,size))
+      strcpy(dest,tmp);
+    else
+      strcpy(dest,src);
+    free(tmp);
+    ret=strlen(dest);
   }
- return ret;
-#else
-  static char tmp[8192];
-  ExpandEnvironmentStrings(src,tmp,size);
-  strncpy(dest,tmp,size);
-  dest[size-1]=0;
-  return strlen(dest);
-#endif
+  return ret;
 }
-/* SVS $ */
 /* SVS $ */
 
 

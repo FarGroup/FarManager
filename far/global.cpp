@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.10 09.01.2001 $ */
+/* Revision: 1.11 24.01.2001 $ */
 
 /*
 Modify:
+  24.01.2001 SVS
+    + KeyQueue - внутренняя очередь клавиатуры
   09.01.2001 SVS
     + WaitInFastFind - требуется ли трасляция буковок для правила ShiftsKeyRules
   30.12.2000 SVS
@@ -51,7 +53,8 @@ Modify:
 
 Language Lang;
 
-ControlObject *CtrlObject;
+ControlObject *CtrlObject=NULL;
+FarQueue<DWORD> *KeyQueue=NULL;
 
 int ScrX,ScrY;
 HANDLE hConOut,hConInp;

@@ -9,6 +9,8 @@ keyboard.cpp
 
 /*
 Modify:
+  24.01.2001 SVS
+    ! Вернем взад содержимое WriteInput
   23.01.2001 SVS
     ! CalcKeyCode - дополнительный параметр - проверка на макросы.
     ! Исключения вызовов макросов при указании "не использовать макросы"
@@ -50,48 +52,42 @@ static struct TTable_KeyToVK{
   int Key;
   int VK;
 } Table_KeyToVK[]={
-   {KEY_BREAK,         VK_CANCEL},
-   {KEY_BS,            VK_BACK},
-   {KEY_TAB,           VK_TAB},
+//   {KEY_BREAK,         VK_CANCEL},
+//   {KEY_BS,            VK_BACK},
+//   {KEY_TAB,           VK_TAB},
+//   {KEY_ENTER,         VK_RETURN},
+//   {KEY_ESC,           VK_ESCAPE},
+//   {KEY_SPACE,         VK_SPACE},
+//   {KEY_PGUP,          VK_PRIOR},
+//   {KEY_PGDN,          VK_NEXT},
+//   {KEY_END,           VK_END},
+//   {KEY_HOME,          VK_HOME},
+//   {KEY_LEFT,          VK_LEFT},
+//   {KEY_UP,            VK_UP},
+//   {KEY_RIGHT,         VK_RIGHT},
+//   {KEY_DOWN,          VK_DOWN},
+//   {KEY_INS,           VK_INSERT},
+//   {KEY_DEL,           VK_DELETE},
+//   {KEY_LWIN,          VK_LWIN},
+//   {KEY_RWIN,          VK_RWIN},
+//   {KEY_APPS,          VK_APPS},
+//   {KEY_MULTIPLY,      VK_MULTIPLY},
+//   {KEY_ADD,           VK_ADD},
+//   {KEY_SUBTRACT,      VK_SUBTRACT},
+//   {KEY_DIVIDE,        VK_DIVIDE},
+//   {KEY_F1,            VK_F1},
+//   {KEY_F2,            VK_F2},
+//   {KEY_F3,            VK_F3},
+//   {KEY_F4,            VK_F4},
+//   {KEY_F5,            VK_F5},
+//   {KEY_F6,            VK_F6},
+//   {KEY_F7,            VK_F7},
+//   {KEY_F8,            VK_F8},
+//   {KEY_F9,            VK_F9},
+//   {KEY_F10,           VK_F10},
+//   {KEY_F11,           VK_F11},
+//   {KEY_F12,           VK_F12},
    {KEY_NUMPAD5,       VK_CLEAR},
-   {KEY_ENTER,         VK_RETURN},
-
-   {KEY_ESC,           VK_ESCAPE},
-
-   {KEY_SPACE,         VK_SPACE},
-   {KEY_PGUP,          VK_PRIOR},
-   {KEY_PGDN,          VK_NEXT},
-   {KEY_END,           VK_END},
-   {KEY_HOME,          VK_HOME},
-   {KEY_LEFT,          VK_LEFT},
-   {KEY_UP,            VK_UP},
-   {KEY_RIGHT,         VK_RIGHT},
-   {KEY_DOWN,          VK_DOWN},
-
-   {KEY_INS,           VK_INSERT},
-   {KEY_DEL,           VK_DELETE},
-
-   {KEY_LWIN,          VK_LWIN},
-   {KEY_RWIN,          VK_RWIN},
-   {KEY_APPS,          VK_APPS},
-
-   {KEY_MULTIPLY,      VK_MULTIPLY},
-   {KEY_ADD,           VK_ADD},
-   {KEY_SUBTRACT,      VK_SUBTRACT},
-   {KEY_DIVIDE,        VK_DIVIDE},
-
-   {KEY_F1,            VK_F1},
-   {KEY_F2,            VK_F2},
-   {KEY_F3,            VK_F3},
-   {KEY_F4,            VK_F4},
-   {KEY_F5,            VK_F5},
-   {KEY_F6,            VK_F6},
-   {KEY_F7,            VK_F7},
-   {KEY_F8,            VK_F8},
-   {KEY_F9,            VK_F9},
-   {KEY_F10,           VK_F10},
-   {KEY_F11,           VK_F11},
-   {KEY_F12,           VK_F12},
 };
 
 
@@ -222,6 +218,19 @@ int GetInputRecord(INPUT_RECORD *rec)
     }
   }
 
+  if(KeyQueue && KeyQueue->Peek())
+  {
+    CalcKey=KeyQueue->Get();
+    NotMacros=CalcKey&0x80000000?1:0;
+    CalcKey&=~0x80000000;
+    if (!NotMacros)
+    {
+      if (CtrlObject!=NULL && CtrlObject->Macro.ProcessKey(CalcKey))
+        CalcKey=KEY_NONE;
+    }
+    return(CalcKey);
+  }
+
   int EnableShowTime=Opt.Clock && (WaitInMainLoop || CtrlObject!=NULL &&
                      CtrlObject->Macro.GetMode()==MACRO_SEARCH);
 
@@ -237,7 +246,6 @@ int GetInputRecord(INPUT_RECORD *rec)
   while (1)
   {
     PeekConsoleInput(hConInp,rec,1,&ReadCount);
-
     if (ReadCount!=0)
       break;
 
@@ -533,8 +541,15 @@ int GetInputRecord(INPUT_RECORD *rec)
 int PeekInputRecord(INPUT_RECORD *rec)
 {
   DWORD ReadCount;
+  DWORD Key;
   ScrBuf.Flush();
-  PeekConsoleInput(hConInp,rec,1,&ReadCount);
+  if(KeyQueue && (Key=KeyQueue->Peek()) != NULL)
+  {
+    int VirtKey,ControlState;
+    ReadCount=TranslateKeyToVK(Key,VirtKey,ControlState,rec)?1:0;
+  }
+  else
+    PeekConsoleInput(hConInp,rec,1,&ReadCount);
   if (ReadCount==0)
     return(0);
   return(CalcKeyCode(rec,TRUE));
@@ -563,37 +578,37 @@ void WaitKey(int KeyWait)
 /* SVS $ */
 
 
-int WriteInput(int Key)
+int WriteInput(int Key,DWORD Flags)
 {
-  INPUT_RECORD rec;
-  DWORD WriteCount;
-  DWORD NotMacros=(DWORD)Key&0x80000000;
-  int VirtKey,ControlState=0;
-
-  if(TranslateKeyToVK(Key,VirtKey,ControlState))
-    Key=VirtKey;
-  rec.EventType=KEY_EVENT;
-  rec.Event.KeyEvent.bKeyDown=1;
-  rec.Event.KeyEvent.wRepeatCount=1;
-  rec.Event.KeyEvent.wVirtualKeyCode=rec.Event.KeyEvent.wVirtualScanCode=Key;
-  if (((DWORD)Key&(~0x80000000))>255)
-    Key=0;
-  rec.Event.KeyEvent.uChar.UnicodeChar=rec.Event.KeyEvent.uChar.AsciiChar=Key;
-  rec.Event.KeyEvent.dwControlKeyState=ControlState|NotMacros;
-  return WriteConsoleInput(hConInp,&rec,1,&WriteCount);
+  if(Flags&SKEY_VK_KEYS)
+  {
+    INPUT_RECORD rec;
+    DWORD WriteCount;
+    int VirtKey,ControlState;
+    if(TranslateKeyToVK(Key,VirtKey,ControlState,&rec))
+      return WriteConsoleInput(hConInp,&rec,1,&WriteCount);
+    return 0;
+  }
+  else if(KeyQueue)
+  {
+    return KeyQueue->Put(Key|(Flags&SKEY_NOTMACROS?0x80000000:0));
+  }
+  else
+    return 0;
 }
 
+// Возвращает количество записанных из Sequence во внутреннюю очередь
 int WriteSequenceInput(struct SequenceKey *Sequence)
 {
-  if(Sequence)
+  if(Sequence && KeyQueue)
   {
     int I;
     for(I=0; I < Sequence->Count; ++I)
-      if(!WriteInput(Sequence->Sequence[I]|(Sequence->Flags&SKEY_NOTMACROS?0x80000000:0)))
-        return FALSE;
-    return TRUE;
+      if(!WriteInput(Sequence->Sequence[I],Sequence->Flags))
+        break;
+    return I;
   }
-  return FALSE;
+  return 0;
 }
 
 
@@ -747,7 +762,7 @@ BOOL WINAPI KeyToText(int Key0,char *KeyText0,int Size)
 /* SVS $ */
 
 
-int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState)
+int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 {
   int FKey  =Key&0x0000FFFF;
   int FShift=Key&0x7F000000; // старший бит используется в других целях!
@@ -769,6 +784,21 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState)
   {
     if (FKey>='0' && FKey<='9' || FKey>='A' && FKey<='Z')
       VirtKey=FKey;
+    else if(FKey > 0x100 && FKey < KEY_END_FKEY)
+      VirtKey=FKey-0x100;
+  }
+  if(Rec && VirtKey!=0)
+  {
+    Rec->EventType=KEY_EVENT;
+    Rec->Event.KeyEvent.bKeyDown=1;
+    Rec->Event.KeyEvent.wRepeatCount=1;
+    Rec->Event.KeyEvent.wVirtualKeyCode=
+      Rec->Event.KeyEvent.wVirtualScanCode=VirtKey;
+    if (Key>255)
+      Key=0;
+    Rec->Event.KeyEvent.uChar.UnicodeChar=
+         Rec->Event.KeyEvent.uChar.AsciiChar=Key;
+    Rec->Event.KeyEvent.dwControlKeyState=ControlState;
   }
   return(VirtKey!=0);
 }

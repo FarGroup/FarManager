@@ -8,13 +8,16 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000 [ FAR group ]
 */
-/* Revision: 1.81 23.01.2001 $ */
+/* Revision: 1.82 25.01.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  25.01.2001 SVS
+    ! Тип SequenceKey.Sequence изменен на DWORD
+    + SKEY_VK_KEYS - в SequenceKey.Sequence "валяются" VK_* вместо KEY_*
   23.01.2001 SVS
     + SKEY_NOTMACROS - не использовать бинденные клавиши в SequenceKey
     + ViewerInfo.LeftPos и ViewerInfo.Reserved3;
@@ -739,12 +742,13 @@ typedef BOOL (WINAPI *FARAPISHOWHELP)(char *ModuleName,char *Topic,DWORD Flags);
 
 enum {
   SKEY_NOTMACROS  = 0x00000001,
+  SKEY_VK_KEYS    = 0x00000002,
 };
 
 struct SequenceKey{
   DWORD Flags;
   int Count;
-  int *Sequence;
+  DWORD *Sequence;
 };
 
 enum {

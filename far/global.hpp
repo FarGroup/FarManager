@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.12 09.01.2001 $ */
+/* Revision: 1.13 24.01.2001 $ */
 
 /*
 Modify:
+  24.01.2001 SVS
+    + KeyQueue - внутренняя очередь клавиатуры
   09.01.2001 SVS
     + WaitInFastFind - требуется ли трасляция буковок для правила ShiftsKeyRules
   30.12.2000 SVS
@@ -47,6 +49,10 @@ extern Language Lang;
 
 #ifdef __CONTROLOBJECT_HPP__
 extern ControlObject *CtrlObject;
+#endif
+
+#ifdef __FARQUEUE_HPP__
+extern FarQueue<DWORD> *KeyQueue;
 #endif
 
 #if defined(__BORLANDC__)

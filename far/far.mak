@@ -41,6 +41,7 @@ ALL : "$(OUTDIR)\far.exe"
 
 
 CLEAN :
+	-@erase "$(INTDIR)\farqueue.obj"
 	-@erase "$(INTDIR)\stddlg.obj"
 	-@erase "$(INTDIR)\strmix.obj"
 	-@erase "$(INTDIR)\flink.obj"
@@ -161,6 +162,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\dialog.obj" \
 	"$(INTDIR)\dizlist.obj" \
 	"$(INTDIR)\edit.obj" \
+	"$(INTDIR)\farqueue.obj" \
 	"$(INTDIR)\editor.obj" \
 	"$(INTDIR)\ffolders.obj" \
 	"$(INTDIR)\fileedit.obj" \
@@ -259,6 +261,7 @@ ALL : "$(OUTDIR)\far.exe"
 
 
 CLEAN :
+	-@erase "$(INTDIR)\farqueue.obj"
 	-@erase "$(INTDIR)\stddlg.obj"
 	-@erase "$(INTDIR)\strmix.obj"
 	-@erase "$(INTDIR)\flink.obj"
@@ -379,6 +382,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\delete.obj" \
 	"$(INTDIR)\dialog.obj" \
 	"$(INTDIR)\dizlist.obj" \
+	"$(INTDIR)\farqueue.obj" \
 	"$(INTDIR)\edit.obj" \
 	"$(INTDIR)\editor.obj" \
 	"$(INTDIR)\ffolders.obj" \
@@ -890,7 +894,6 @@ SOURCE=.\setcolor.cpp
 "$(INTDIR)\setcolor.obj" : $(SOURCE) "$(INTDIR)"
 
 
-SOURCE=.\smallobj.cpp
 SOURCE=.\treelist.cpp
 
 "$(INTDIR)\treelist.obj" : $(SOURCE) "$(INTDIR)"
@@ -913,6 +916,10 @@ SOURCE=.\vmenu.cpp
 SOURCE=.\farrtl.cpp
 
 "$(INTDIR)\farrtl.obj" : $(SOURCE) "$(INTDIR)"
+
+SOURCE=.\farqueue.cpp
+
+"$(INTDIR)\farqueue.obj" : $(SOURCE) "$(INTDIR)"
 
 
 !ENDIF

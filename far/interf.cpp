@@ -5,10 +5,13 @@ interf.cpp
 
 */
 
-/* Revision: 1.13 22.01.2001 $ */
+/* Revision: 1.14 24.01.2001 $ */
 
 /*
 Modify:
+  24.01.2001 SVS
+    + Инициализация клавиатурной очереди KeyQueue,
+      размером  = 1024 кода клавиши
   22.01.2001 SVS
     ! Для FS & WM применяются 2 разных курсора - их параметры можно
       задавать через реестр.
@@ -94,6 +97,11 @@ void InitConsole()
   GetConsoleMode(hConInp,&InitialConsoleMode);
   GetRealCursorType(InitCurVisible,InitCurSize);
   GetRegKey("Interface","Mouse",Opt.Mouse,1);
+
+  // размер клавиатурной очереди = 1024 кода клавиши
+  if(!KeyQueue)
+    KeyQueue=new FarQueue<DWORD>(1024);
+
   SetFarConsoleMode();
   SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX);
   GetVideoMode();
