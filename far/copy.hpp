@@ -7,12 +7,14 @@ class ShellCopy - Копирование файлов
 
 */
 
-/* Revision: 1.03 23.10.2000 $ */
+/* Revision: 1.04 14.12.2000 $ */
 
 /*
 Modify:
+  14.12.2000 SVS
+    + CopyToNUL - Признак копирования в NUL
   23.10.2000 VVM
-   + Динамический буфер копирования - рабочие переменные
+    + Динамический буфер копирования - рабочие переменные
   21.10.2000 SVS
     + Переменная Copy_Buffer_Size -  размер буфера для копирования
   04.08.2000 SVS
@@ -54,6 +56,11 @@ class ShellCopy
     char SrcDriveRoot[NM];
     int SelectedFolderNameLength;
     int OverwriteNext;
+    /* $ 14.12.2000 SVS
+       CopyToNUL - Признак копирования в NUL
+    */
+    int CopyToNUL;
+    /* SVS $ */
 
   private:
     void CopyFileTree(char *Dest);
