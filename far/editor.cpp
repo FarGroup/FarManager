@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.19 10.08.2000 $ */
+/* Revision: 1.20 15.08.2000 $ */
 
 /*
 Modify:
+   15.08.2000 skv
+    ! Оптимизация Replace.
    10.08.2000 skv
     ! Оптимизация работы EE_REDRAW события редактора.
    07.08.2000 SVS
@@ -2765,19 +2767,93 @@ void Editor::Search(int Next)
           if (MsgCode==0 || MsgCode==1)
           {
             Pasting++;
-            int SaveOvertypeMode=Overtype;
-            Overtype=FALSE;
-            int CurPos=CurLine->EditLine.GetCurPos();
-            int I;
-            for (I=0;SearchStr[I]!=0;I++)
-              ProcessKey(KEY_DEL);
-            for (I=0;ReplaceStr[I]!=0;I++)
+            /*$ 15.08.2000 skv
+              If Replace string doesn't contain control symbols (tab and return),
+              processed with fast method, otherwise use improved old one.
+            */
+            if(strchr((char*)ReplaceStr,'\t') || strchr((char*)ReplaceStr,13))
             {
-              int Ch=ReplaceStr[I];
-              if (Ch!=KEY_BS && Ch!=KEY_DEL)
-                ProcessKey(Ch);
+              int SaveOvertypeMode=Overtype;
+              Overtype=TRUE;
+              CurLine->EditLine.SetOvertypeMode(TRUE);
+              int CurPos=CurLine->EditLine.GetCurPos();
+              int I;
+              for (I=0;SearchStr[I]!=0 && ReplaceStr[I]!=0;I++)
+              {
+                int Ch=ReplaceStr[I];
+                if (Ch==KEY_TAB)
+                {
+                  Overtype=FALSE;
+                  CurLine->EditLine.SetOvertypeMode(FALSE);
+                  ProcessKey(KEY_DEL);
+                  ProcessKey(KEY_TAB);
+                  Overtype=TRUE;
+                  CurLine->EditLine.SetOvertypeMode(TRUE);
+                  continue;
+                }
+                if (Ch!=KEY_BS && Ch!=KEY_DEL)
+                  ProcessKey(Ch);
+              }
+              if(SearchStr[I]==0)
+              {
+                Overtype=FALSE;
+                CurLine->EditLine.SetOvertypeMode(FALSE);
+                for (;ReplaceStr[I]!=0;I++)
+                {
+                  int Ch=ReplaceStr[I];
+                  if (Ch!=KEY_BS && Ch!=KEY_DEL)
+                    ProcessKey(Ch);
+                }
+              }else
+              {
+                for (;SearchStr[I]!=0;I++)
+                {
+                  ProcessKey(KEY_DEL);
+                }
+              }
+              int Cnt=0;
+              char *Tmp=(char*)ReplaceStr;
+              while(Tmp=strchr(Tmp,13))
+              {
+                Cnt++;
+                Tmp++;
+              }
+              if(Cnt>0)
+              {
+                CurPtr=CurLine;
+                NewNumLine+=Cnt;
+              }
+              Overtype=SaveOvertypeMode;
             }
-            Overtype=SaveOvertypeMode;
+            else
+            {
+              /* Fast method */
+              char *Str,*Eol;
+              int StrLen,NewStrLen;
+              int SStrLen=strlen((char*)SearchStr),
+                  RStrLen=strlen((char*)ReplaceStr);
+              CurLine->EditLine.GetBinaryString(&Str,&Eol,StrLen);
+              int EolLen=strlen((char*)Eol);
+              NewStrLen=StrLen;
+              NewStrLen-=SStrLen;
+              NewStrLen+=RStrLen;
+              NewStrLen+=EolLen;
+              char *NewStr=new char[NewStrLen+1];
+              int CurPos=CurLine->EditLine.GetCurPos();
+              memcpy(NewStr,Str,CurPos);
+              memcpy(NewStr+CurPos,ReplaceStr,RStrLen);
+              memcpy(NewStr+CurPos+RStrLen,Str+CurPos+SStrLen,StrLen-CurPos-SStrLen);
+              memcpy(NewStr+NewStrLen-EolLen,Eol,EolLen);
+              AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
+                          CurLine->EditLine.GetCurPos(),UNDO_EDIT);
+              CurLine->EditLine.SetBinaryString(NewStr,NewStrLen);
+              CurLine->EditLine.SetCurPos(CurPos+RStrLen);
+              delete [] NewStr;
+
+              TextChanged(1);
+            }
+            /* skv$*/
+
             if (ReverseSearch)
               CurLine->EditLine.SetCurPos(CurPos);
             Pasting--;
