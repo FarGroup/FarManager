@@ -206,11 +206,15 @@ $ #Panel control commands#
      This is due to the fact that when Alt is pressed, numpad cursor
      keys are used to enter characters via their decimal codes.
 
-  3. The key combination #Ctrl-Alt-Ins# puts the following text into the
-     clipboard:
-     * for network drives - the network (UNC) name of the file object;
-     * for local drives - the local name of the file taking into account
-       ~symbolic links~@HardSymLink@.
+  3. The key combination #Ctrl-Alt-Ins# puts the following text into
+     the clipboard:
+     * for network drives - the network (UNC) name of the file
+       object;
+     * for local drives - the local name of the file taking into
+       account ~symbolic links~@HardSymLink@.
+
+  4. The key combination #Alt-Shift-Ins# and #Ctrl-Alt-Ins# processes
+     name "#..#" the same as the name of the current folder.
 
 @CmdLineCmd
 $ #Command line commands#
@@ -272,10 +276,12 @@ $ #Command line commands#
      panels are on.
 
   5. The key combinations allowing to insert the network (UNC) name
-     of a file object insert the following text into the command line:
-     * for network drives - the network (UNC) name of the file object;
-     * for local drives - the local name of the file taking into account
-       ~symbolic links~@HardSymLink@.
+     of a file object insert the following text into the command
+     line:
+     * for network drives - the network (UNC) name of the file
+       object;
+     * for local drives - the local name of the file taking into
+       account ~symbolic links~@HardSymLink@.
 
 @FuncCmd
 $ #File management and service commands#
@@ -398,7 +404,8 @@ details.
     Windows Explorer and shows the selected directory.
     To show a root directory in the Explorer, you
     should press Shift-Enter on the required drive
-    in the ~drive selection menu@DriveDlg@.
+    in the ~drive selection menu~@DriveDlg@. Pressing Shift-Enter
+    on "#..#" opens the current directory in the Explorer.
 
   Change to the root folder                                   #Ctrl-\#
 

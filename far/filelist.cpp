@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.121 27.12.2001 $ */
+/* Revision: 1.122 14.01.2002 $ */
 
 /*
 Modify:
+  14.01.2002 IS
+    ! Ctrl-Alt-Ins и Alt-Shift-Ins работают с ".." как с текущим каталогом.
   27.12.2001 SVS
     - ѕродолжение эпопеи про ^PgUp (с подачи DJ)
   26.12.2001 SVS
@@ -3053,6 +3055,14 @@ void FileList::CopyNames(int FillPathName,int UNC)
 
       if (PanelMode!=PLUGIN_PANEL || (Info.Flags & OPIF_REALNAMES))
       {
+        /* $ 14.02.2002 IS
+           ".." в текущем каталоге обработаем как им€ текущего каталога
+        */
+        if(!strcmp(QuotedName,"..") && !strcmp(SelShortName,".."))
+        {
+          QuotedName[1]=SelShortName[1]=0;
+        }
+        /* IS $ */
         if(!CreateFullPathName(QuotedName,SelShortName,FileAttr,QuotedName,sizeof(QuotedName)-1,UNC))
         {
           free(CopyData);
