@@ -6,7 +6,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2002 FAR group
 */
-/* Revision: 1.26 08.06.2004 $ */
+/* Revision: 1.27 25.06.2004 $ */
 
 //#define USE_TAR_H
 
@@ -494,6 +494,7 @@ int IsTarHeader(const BYTE *Data,int DataSize)
 {
   int I;
   struct posix_header *Header;
+
   if (DataSize<sizeof(struct posix_header))
     return(FALSE);
 
@@ -506,25 +507,42 @@ int IsTarHeader(const BYTE *Data,int DataSize)
   else
     TarArchiveFormat = V7_FORMAT;
 
-  for (I=0;Header->name[I];I++)
-    if (I==sizeof(Header->name) || Header->name[I] < ' ')
-      return(FALSE);
+  for (I=0; Header->name[I] && I < sizeof(Header->name); I++)
+    if (Header->name[I] < ' ')
+      return FALSE;
 
   //for (I=0; I < (&Header->typeflag - &Header->mode[0]); I++)
-  for (I=0;I < 8;I++)
-    if (Header->mode[I] > '7' || Header->mode[I]<'0' && Header->mode[I]!=0 && Header->mode[I]!=' ')
-      return(FALSE);
+  for (I=0; I < sizeof(Header->mode); I++)
+  {
+    int Mode=Header->mode[I];
+    if (Mode > '7' || Mode < '0' && Mode && Mode != ' ')
+      return FALSE;
+  }
 
+  for (I=0; Header->mtime[I] && I < sizeof(Header->mtime); I++)
+    if (Header->mtime[I] < ' ')
+      return FALSE;
+
+  __int64 Sum=256;
+  for(I=0; I <= 147; I++)
+    Sum+=Data[I];
+
+  for(I=156; I < 512; I++)
+    Sum+=Data[I];
+
+  return(Sum==GetOctal(Header->chksum));
+/*
   if(strcmp(Header->name,"././@LongLink"))
   {
     __int64 Seconds=GetOctal(Header->mtime);
     if (Seconds < 300000000i64 || Seconds > 1500000000i64)
     {
-      if(Header->typeflag != DIRTYPE)
+      if(Header->typeflag != DIRTYPE && Header->typeflag != SYMTYPE)
         return(FALSE);
     }
   }
   return(TRUE);
+*/
 }
 
 

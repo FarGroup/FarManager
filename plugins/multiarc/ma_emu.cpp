@@ -97,7 +97,7 @@ int main(int argc,char *argv[])
   FSF.LStricmp=LStricmp;
   FSF.LStrnicmp=LStrnicmp;
   FSF.sprintf=SPrintf;
-  FSF.MkTemp=MkTemp;
+  FSF.MkTemp=FarMkTemp;
 
   SetFarInfo(&Info);
 
