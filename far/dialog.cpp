@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.200 28.12.2001 $ */
+/* Revision: 1.201 28.12.2001 $ */
 
 /*
 Modify:
+  28.12.2001 SVS
+    ! ѕравка с учетом изменений структур (про анонимный union)
   28.12.2001 SVS
     ! ”точнение дл€ обрезани€ заголовков в DI_SINGLEBOX.
   21.12.2001 SVS
@@ -3774,7 +3776,7 @@ void Dialog::ConvertItem(int FromPlugin,
       if(Item->X2 < Item->X1) Item->X2=Item->X1;
       if(Item->Y2 < Item->Y1) Item->Y2=Item->Y1;
       Item->Focus=Data->Focus;
-      Item->Selected=Data->Selected;
+      Item->Param.Selected=Data->Selected;
       Item->Flags=Data->Flags;
       Item->DefaultButton=Data->DefaultButton;
       if(InternalCall)
@@ -3796,7 +3798,7 @@ void Dialog::ConvertItem(int FromPlugin,
           EditPtr->GetString(PtrData,PtrLength);
         }
       }
-      memmove(Item->Data,Data->Data,sizeof(Item->Data));
+      memmove(Item->Data.Data,Data->Data,sizeof(Item->Data.Data));
     }
   else
     for (I=0; I < Count; I++, ++Item, ++Data)
@@ -3809,10 +3811,10 @@ void Dialog::ConvertItem(int FromPlugin,
       if(Data->X2 < Data->X1) Data->X2=Data->X1;
       if(Data->Y2 < Data->Y1) Data->Y2=Data->Y1;
       Data->Focus=Item->Focus;
-      Data->Selected=Item->Selected;
+      Data->Selected=Item->Param.Selected;
       Data->Flags=Item->Flags;
       Data->DefaultButton=Item->DefaultButton;
-      memmove(Data->Data,Item->Data,sizeof(Data->Data));
+      memmove(Data->Data,Item->Data.Data,sizeof(Data->Data));
       /* Ётот кусок будет работать после тчательной проверки.
       ќн позволит мен€ть данные в ответ на DN_EDITCHANGE
       if(InternalCall)

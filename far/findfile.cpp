@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.84 18.12.2001 $ */
+/* Revision: 1.85 28.12.2001 $ */
 
 /*
 Modify:
+  28.12.2001 SVS
+    ! ѕравка с учетом изменений структур (про анонимный union)
   18.12.2001 KM
     - > IS "p.s. заметил на 1127 билде: если искать какую-нибудь (длинную?)
       строку, то при повторном поиске (выбрать "Ќовый поиск" в диалоге
@@ -487,7 +489,7 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       // —трока "—одержащий текст"
       {
         FarDialogItem &Item=*reinterpret_cast<FarDialogItem*>(Param2);
-        BOOL Checked = (*Item.Data)?FALSE:Opt.FindFolders;
+        BOOL Checked = (*Item.Data.Data)?FALSE:Opt.FindFolders;
         if (Checked)
           Dialog::SendDlgMessage(hDlg, DM_SETCHECK, 13, BSTATE_CHECKED);
         else

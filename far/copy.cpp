@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.61 28.12.2001 $ */
+/* Revision: 1.62 28.12.2001 $ */
 
 /*
 Modify:
+  28.12.2001 SVS
+    ! Правка с учетом изменений структур (про анонимный union)
   28.12.2001 SVS
     ! попытка устранить мертворожденность опции "[ ] Only never..."
   19.12.2001 VVM
@@ -816,25 +818,25 @@ long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         {
           DlgParam->thisClass->LinkRules(&DItem8.Flags,
                     &DItem5.Flags,
-                    &DItem5.Selected,
+                    &DItem5.Param.Selected,
                     SrcDir,
-                    ((struct FarDialogItem *)Param2)->Data,DlgParam);
+                    ((struct FarDialogItem *)Param2)->Data.Data,DlgParam);
         }
         else // обычные Copy/Move
         {
           char Buf[1024];
           struct FarDialogItem *DItem2=(struct FarDialogItem *)Param2;
-          strupr(strncpy(Buf,DItem2->Data,sizeof(Buf)-1));
+          strupr(strncpy(Buf,DItem2->Data.Data,sizeof(Buf)-1));
           if(*DlgParam->PluginFormat && strstr(Buf,DlgParam->PluginFormat))
           {
             DItem5.Flags|=DIF_DISABLE;
-            DlgParam->OnlyNewerFiles=DItem5.Selected;
-            DItem5.Selected=0;
+            DlgParam->OnlyNewerFiles=DItem5.Param.Selected;
+            DItem5.Param.Selected=0;
           }
           else
           {
             DItem5.Flags&=~DIF_DISABLE;
-            DItem5.Selected=DlgParam->OnlyNewerFiles;
+            DItem5.Param.Selected=DlgParam->OnlyNewerFiles;
           }
         }
 

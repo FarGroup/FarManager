@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.177 26.12.2001 $ */
+/* Revision: 1.178 28.12.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,14 @@
 ¬ этом файле писать все изменени€ только в в этом блоке!!!!
 
 Modify:
+  28.12.2001 SVS
+    ! ”чтем (частично) замечани€ г-на Stanislav V. Mekhanoshin про чистый C
+      (правка с учетом изменений структур - про анонимный union)
+      —труктуру FarDialogItem дл€ плагинов пока не трогаю!!!
+      ≈сли кто ( ажетс€ »ван вызвалс€ ;-) сподобитс€ на подвиг по
+      преобразованию стд.плагинов в этом направлении, то тогда сделаем одну
+      структуру.
+    ! — подачи IS: #if sizeof(PluginPanelItem) != 366
   26.12.2001 SVS
     + EF_USEEXISTING, EF_BREAKIFOPEN - поведение при открытии редактора
       помен€ли, а плагинам обломитс€ что ли?
@@ -671,7 +679,7 @@ struct PluginPanelItem
 };
 
 #if defined(__BORLANDC__)
-#if sizeof(PluginPanelItem) != 366
+#if sizeof(struct PluginPanelItem) != 366
 #if defined(STRICT)
 #error Incorrect alignment: sizeof(PluginPanelItem)!=366
 #else
@@ -1023,7 +1031,7 @@ struct FarListDelete
 struct FarListGetItem
 {
   int ItemIndex;
-  FarListItem Item;
+  struct FarListItem Item;
 };
 
 enum {
@@ -1062,6 +1070,36 @@ struct FarListTitles
   char *Bottom;
 };
 
+#ifdef FAR_USE_INTERNALS
+struct FarDialogItem
+{
+  int Type;
+  int X1,Y1,X2,Y2;
+  int Focus;
+  union
+  {
+    int Selected;
+    const char *History;
+    const char *Mask;
+    struct FarList *ListItems;
+    CHAR_INFO *VBuf;
+  } Param;
+  DWORD Flags;
+  int DefaultButton;
+  union
+  {
+    char Data[512];
+    int  ListPos;
+    struct
+    {
+      DWORD PtrFlags;
+      int   PtrLength;
+      char *PtrData;
+      char  PtrTail[1];
+    } Ptr;
+  } Data;
+};
+#else // ELSE FAR_USE_INTERNALS
 struct FarDialogItem
 {
   int Type;
@@ -1090,6 +1128,7 @@ struct FarDialogItem
     } Ptr;
   };
 };
+#endif // END FAR_USE_INTERNALS
 
 struct FarDialogItemData
 {
@@ -1583,7 +1622,7 @@ struct EditorSetParameter
     int iParam;
     char *cParam;
     DWORD Reserved1;
-  };
+  } Param;
   DWORD Flags;
   DWORD Reserved2;
 };

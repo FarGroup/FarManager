@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.139 28.12.2001 $ */
+/* Revision: 1.140 28.12.2001 $ */
 
 /*
 Modify:
+  28.12.2001 SVS
+    ! Правка с учетом изменений структур (про анонимный union)
   28.12.2001 VVM
     ! Проверить на успешную запись перед сбросом флага изменений.
   25.12.2001 SVS
@@ -5465,19 +5467,19 @@ int Editor::EditorControl(int Command,void *Param)
         switch(espar->Type)
         {
           case ESPT_TABSIZE:
-            SetTabSize(espar->iParam);
+            SetTabSize(espar->Param.iParam);
             break;
           case ESPT_EXPANDTABS:
-            SetConvertTabs(espar->iParam);
+            SetConvertTabs(espar->Param.iParam);
             break;
           case ESPT_AUTOINDENT:
-            SetAutoIndent(espar->iParam);
+            SetAutoIndent(espar->Param.iParam);
             break;
           case ESPT_CURSORBEYONDEOL:
-            SetCursorBeyondEOL(espar->iParam);
+            SetCursorBeyondEOL(espar->Param.iParam);
             break;
           case ESPT_CHARCODEBASE:
-            SetCharCodeBase(espar->iParam);
+            SetCharCodeBase(espar->Param.iParam);
             break;
           /* $ 07.08.2001 IS сменить кодировку из плагина */
           case ESPT_CHARTABLE:
@@ -5490,9 +5492,9 @@ int Editor::EditorControl(int Command,void *Param)
             int oldAnsiText(AnsiText), oldUseDecodeTable(UseDecodeTable),
                 oldTableNum(TableNum), oldChangedByUser(TableChangedByUser);
 
-            AnsiText=espar->iParam==2,
-            UseDecodeTable=espar->iParam>1,
-            TableNum=UseDecodeTable?espar->iParam-3:-1;
+            AnsiText=espar->Param.iParam==2,
+            UseDecodeTable=espar->Param.iParam>1,
+            TableNum=UseDecodeTable?espar->Param.iParam-3:-1;
             TableChangedByUser=TRUE;
 
             if(AnsiText)
@@ -5516,7 +5518,7 @@ int Editor::EditorControl(int Command,void *Param)
           /* IS $ */
           /* $ 29.10.2001 IS изменение настройки "Сохранять позицию файла" */
           case ESPT_SAVEFILEPOSITION:
-            SetSavePosMode(espar->iParam, -1);
+            SetSavePosMode(espar->Param.iParam, -1);
             break;
           /* IS $ */
           default:
