@@ -5,10 +5,12 @@ filefilter.cpp
 
 */
 
-/* Revision: 1.04 06.08.2004 $ */
+/* Revision: 1.05 25.10.2004 $ */
 
 /*
 Modify:
+  25.10.2004 SVS
+    - "Вместо 0 - ограничитель диапазона - использовать "пусто"."
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   14.06.2004 KM
@@ -329,8 +331,8 @@ void FileFilter::Configure()
   SizeType=FF.FSize.SizeType;
 
   xstrncpy(FilterDlg[6].Data,TableItemSize[SizeType].Text,sizeof(FilterDlg[6].Data));
-  _ui64toa(FF.FSize.SizeAbove,FilterDlg[8].Data,10);
-  _ui64toa(FF.FSize.SizeBelow,FilterDlg[10].Data,10);
+  if(FF.FSize.SizeAbove != -1i64) _ui64toa(FF.FSize.SizeAbove,FilterDlg[8].Data,10);
+  if(FF.FSize.SizeBelow != -1i64) _ui64toa(FF.FSize.SizeBelow,FilterDlg[10].Data,10);
   if (!FilterDlg[5].Selected)
     for(I=6; I <= 10; ++I)
       FilterDlg[I].Flags|=DIF_DISABLE;
@@ -429,8 +431,15 @@ void FileFilter::Configure()
 
       FF.FSize.Used=FilterDlg[5].Selected;
       FF.FSize.SizeType=(FSizeType) SizeType;
-      FF.FSize.SizeAbove=_atoi64(FilterDlg[8].Data);
-      FF.FSize.SizeBelow=_atoi64(FilterDlg[10].Data);
+      if(!*RemoveExternalSpaces(FilterDlg[8].Data))
+        FF.FSize.SizeAbove=-1i64;
+      else
+        FF.FSize.SizeAbove=_atoi64(FilterDlg[8].Data);
+
+      if(!*RemoveExternalSpaces(FilterDlg[10].Data))
+        FF.FSize.SizeBelow=-1i64;
+      else
+        FF.FSize.SizeBelow=_atoi64(FilterDlg[10].Data);
 
       FF.FDate.Used=FilterDlg[12].Selected;
       FF.FDate.DateType=(FDateType) DateType;
@@ -561,9 +570,8 @@ int FileFilter::FileInFilter(WIN32_FIND_DATA *fd)
     // Преобразуем размер из двух DWORD в беззнаковый __int64
     unsigned __int64 fsize=(unsigned __int64)fd->nFileSizeLow|((unsigned __int64)fd->nFileSizeHigh<<32);
 
-    if (sizeabove!=0 || sizebelow!=0)
+    if (sizeabove != (unsigned __int64)-1)
     {
-
       switch (FF.FSize.SizeType)
       {
         case FSIZE_INBYTES:
@@ -572,37 +580,56 @@ int FileFilter::FileInFilter(WIN32_FIND_DATA *fd)
         case FSIZE_INKBYTES:
           // Размер введён в килобайтах, переведём его в байты.
           // !!! Проверки на превышение максимального значения не делаются !!!
-          sizeabove=sizeabove*1024;
-          sizebelow=sizebelow*1024;
+          sizeabove=sizeabove*1024i64;
           break;
         case FSIZE_INMBYTES:
           // Задел // Размер введён в мегабайтах, переведём его в байты.
           // !!! Проверки на превышение максимального значения не делаются !!!
-          sizeabove=sizeabove*1024*1024;
-          sizebelow=sizebelow*1024*1024;
+          sizeabove=sizeabove*1024i64*1024i64;
           break;
         case FSIZE_INGBYTES:
           // Задел // Размер введён в гигабайтах, переведём его в байты.
           // !!! Проверки на превышение максимального значения не делаются !!!
-          sizeabove=sizeabove*1024*1024*1024;
-          sizebelow=sizebelow*1024*1024*1024;
+          sizeabove=sizeabove*1024i64*1024i64*1024i64;
           break;
-        default:break;
+        default:
+          break;
       }
 
-      // Есть введённый пользователем минимальный размер файла?
-      if (sizeabove!=0)
-        // Размер файла меньше минимального разрешённого по фильтру?
-        if (fsize<sizeabove)
-          // Не пропускаем этот файл
-          return FALSE;
+      if (//sizeabove < 0 &&        // Есть введённый пользователем минимальный размер файла?      "!= 0" ???
+          fsize < sizeabove)       // Размер файла меньше минимального разрешённого по фильтру?
+         return FALSE;             // Не пропускаем этот файл
+    }
 
-      // Есть введённый пользователем максимальный размер файла?
-      if (sizebelow!=0)
-        // Размер файла больше максимального разрешённого по фильтру?
-        if (fsize>sizebelow)
-          // Не пропускаем этот файл
-          return FALSE;
+    if (sizebelow != (unsigned __int64)-1)
+    {
+      switch (FF.FSize.SizeType)
+      {
+        case FSIZE_INBYTES:
+          // Размер введён в байтах, значит ничего не меняем.
+          break;
+        case FSIZE_INKBYTES:
+          // Размер введён в килобайтах, переведём его в байты.
+          // !!! Проверки на превышение максимального значения не делаются !!!
+          sizebelow=sizebelow*1024i64;
+          break;
+        case FSIZE_INMBYTES:
+          // Задел // Размер введён в мегабайтах, переведём его в байты.
+          // !!! Проверки на превышение максимального значения не делаются !!!
+          sizebelow=sizebelow*1024i64*1024i64;
+          break;
+        case FSIZE_INGBYTES:
+          // Задел // Размер введён в гигабайтах, переведём его в байты.
+          // !!! Проверки на превышение максимального значения не делаются !!!
+          sizebelow=sizebelow*1024i64*1024i64*1024i64;
+          break;
+        default:
+          break;
+      }
+
+      if (//sizebelow < 0 &&        // Есть введённый пользователем максимальный размер файла?     "!= 0" ???
+          fsize > sizebelow)       // Размер файла больше максимального разрешённого по фильтру?
+         return FALSE;             // Не пропускаем этот файл
     }
   }
 

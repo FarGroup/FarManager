@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.178 05.10.2004 $ */
+/* Revision: 1.179 25.10.2004 $ */
 
 /*
 Modify:
+  25.10.2004 SVS
+    - BugZ#1171 - срыв стека
   05.10.2004 SVS
     - Отвалился F3 на каталогах в панели плагинов
   26.08.2004 SVS
@@ -1958,47 +1960,60 @@ int WINAPI FarGetPluginDirList(int PluginNumber,
       DirListPlugin.InternalHandle=hPlugin;
     }
 
-    SaveScreen SaveScr;
-
-    SetPreRedrawFunc(NULL);
     {
-      char DirName[512];
-      xstrncpy(DirName,Dir,sizeof(DirName)-1);
-      TruncStr(DirName,30);
-      CenterStr(DirName,DirName,30);
-      SetCursorType(FALSE,0);
+      SaveScreen SaveScr;
 
-      SetPreRedrawFunc(PR_FarGetPluginDirListMsg);
-      FarGetPluginDirListMsg(DirName,0);
-      PluginSearchMsgOut=FALSE;
-
-      hDirListPlugin=(HANDLE)&DirListPlugin;
-      StopSearch=FALSE;
-      *pItemsNumber=DirListItemsNumber=0;
-      *pPanelItem=PluginDirList=NULL;
-      struct OpenPluginInfo Info;
-      CtrlObject->Plugins.GetOpenPluginInfo(hDirListPlugin,&Info);
-      char PrevDir[NM];
-      strcpy(PrevDir,Info.CurDir);
-      if (CtrlObject->Plugins.SetDirectory(hDirListPlugin,Dir,OPM_FIND))
+      SetPreRedrawFunc(NULL);
       {
-        strcpy(PluginSearchPath,Dir);
-        strcat(PluginSearchPath,"\x1");
-        ScanPluginDir();
-        *pPanelItem=PluginDirList;
-        *pItemsNumber=DirListItemsNumber;
-        CtrlObject->Plugins.SetDirectory(hDirListPlugin,"..",OPM_FIND);
-        PluginPanelItem *PanelData=NULL;
-        int ItemCount=0;
-        if (CtrlObject->Plugins.GetFindData(hDirListPlugin,&PanelData,&ItemCount,OPM_FIND))
-          CtrlObject->Plugins.FreeFindData(hDirListPlugin,PanelData,ItemCount);
-        struct OpenPluginInfo NewInfo;
-        CtrlObject->Plugins.GetOpenPluginInfo(hDirListPlugin,&NewInfo);
-        if (LocalStricmp(PrevDir,NewInfo.CurDir)!=0)
-          CtrlObject->Plugins.SetDirectory(hDirListPlugin,PrevDir,OPM_FIND);
+        char DirName[512];
+        xstrncpy(DirName,Dir,sizeof(DirName)-1);
+        TruncStr(DirName,30);
+        CenterStr(DirName,DirName,30);
+        SetCursorType(FALSE,0);
+
+        SetPreRedrawFunc(PR_FarGetPluginDirListMsg);
+        FarGetPluginDirListMsg(DirName,0);
+        PluginSearchMsgOut=FALSE;
+
+        hDirListPlugin=(HANDLE)&DirListPlugin;
+        StopSearch=FALSE;
+        *pItemsNumber=DirListItemsNumber=0;
+        *pPanelItem=PluginDirList=NULL;
+
+        struct OpenPluginInfo Info;
+        CtrlObject->Plugins.GetOpenPluginInfo(hDirListPlugin,&Info);
+
+        char *PrevDir=(char*)alloca(strlen(Info.CurDir)+1);
+        if(PrevDir)
+          strcpy(PrevDir,Info.CurDir);
+        else
+          PrevDir="";
+
+        if (CtrlObject->Plugins.SetDirectory(hDirListPlugin,Dir,OPM_FIND))
+        {
+          xstrncpy(PluginSearchPath,Dir,sizeof(PluginSearchPath)-1);
+          strncat(PluginSearchPath,"\x1",sizeof(PluginSearchPath)-1);
+
+          ScanPluginDir();
+
+          *pPanelItem=PluginDirList;
+          *pItemsNumber=DirListItemsNumber;
+          CtrlObject->Plugins.SetDirectory(hDirListPlugin,"..",OPM_FIND);
+          PluginPanelItem *PanelData=NULL;
+
+          int ItemCount=0;
+          if (CtrlObject->Plugins.GetFindData(hDirListPlugin,&PanelData,&ItemCount,OPM_FIND))
+            CtrlObject->Plugins.FreeFindData(hDirListPlugin,PanelData,ItemCount);
+
+          struct OpenPluginInfo NewInfo;
+          CtrlObject->Plugins.GetOpenPluginInfo(hDirListPlugin,&NewInfo);
+
+          if (LocalStricmp(PrevDir,NewInfo.CurDir)!=0)
+            CtrlObject->Plugins.SetDirectory(hDirListPlugin,PrevDir,OPM_FIND);
+        }
       }
+      SetPreRedrawFunc(NULL);
     }
-    SetPreRedrawFunc(NULL);
   }
 
   if (!StopSearch)

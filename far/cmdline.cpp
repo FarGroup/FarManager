@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.73 06.08.2004 $ */
+/* Revision: 1.74 25.10.2004 $ */
 
 /*
 Modify:
+  25.10.2004 SVS
+    + Реакция на Ctrl-Shift-Enter в истории папок - перейти в папку на пассивной панели
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   05.08.2004 SVS
@@ -402,17 +404,22 @@ int CommandLine::ProcessKey(int Key)
                         1 - Enter
                         2 - Shift-Enter
                         3 - Ctrl-Enter
+                        4 - Ctrl-Shift-Enter - на пассивную панель со сменой позиции
         */
-        if (SelectType == 1 || SelectType == 2)
+        if (SelectType == 1 || SelectType == 2 || SelectType == 4)
         {
           if (SelectType==2)
             CtrlObject->FolderHistory->SetAddMode(FALSE,2,TRUE);
           // пусть плагин сам прыгает... ;-)
-          if(CtrlObject->Cp()->ActivePanel->GetMode() == PLUGIN_PANEL ||
+          Panel *Panel=CtrlObject->Cp()->ActivePanel;
+          if(SelectType == 4)
+            Panel=CtrlObject->Cp()->GetAnotherPanel(Panel);
+
+          if(Panel->GetMode() == PLUGIN_PANEL ||
              CheckShortcutFolder(Str,sizeof(Str)-1,FALSE))
           {
-            CtrlObject->Cp()->ActivePanel->SetCurDir(Str,Type==0 ? TRUE:FALSE);
-            CtrlObject->Cp()->ActivePanel->Redraw();
+            Panel->SetCurDir(Str,Type==0 ? TRUE:FALSE);
+            Panel->Redraw();
             CtrlObject->FolderHistory->SetAddMode(TRUE,2,TRUE);
           }
         }

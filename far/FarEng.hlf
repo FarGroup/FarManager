@@ -1370,9 +1370,9 @@ following condition sets:
        the given file masks. If mask analysis is off, file
        name is ignored;
 
-     - file size analysis is on and its size is in the given
-       range. If #0# is entered in one or both of the range
-       limits then the file size of that limit is not limited;
+     - file size analysis is on, and it is inside the given range.
+       If nothing is specified (empty line) for one or both range
+       boundaries then file size for that boundary is not limited;
 
      - file date/time analysis is on and its date/time is in
        the given range and corresponds to the given type:
@@ -1469,6 +1469,8 @@ visited. Besides the cursor control keys, the following keyboard shortcuts are
 available:
 
   Go to the current folder in the list                          #Enter#
+
+  Перейти в указанную папку на пассивной панели      #Ctrl-Shift-Enter#
 
   Copy the folder name to the command line                 #Ctrl-Enter#
 

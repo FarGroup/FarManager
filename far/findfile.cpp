@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.158 06.08.2004 $ */
+/* Revision: 1.159 25.10.2004 $ */
 
 /*
 Modify:
+  25.10.2004 SVS
+    ! В процессе поиска: нажатие F3 не тормозит процесс, Enter (при активной кнопки [ View ]) - тормозит.
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   14.06.2004 KM
@@ -1402,12 +1404,17 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         ListBox->ProcessKey(Param2);
         return TRUE;
       }
-      else if (Param2==KEY_F3 || Param2==KEY_NUMPAD5 || Param2==KEY_SHIFTNUMPAD5 || Param2==KEY_F4)
+      else if (Param2==KEY_F3 || Param2==KEY_NUMPAD5 || Param2==KEY_SHIFTNUMPAD5 || Param2==KEY_F4 ||
+               Param2==KEY_ENTER && Dialog::SendDlgMessage(hDlg,DM_GETFOCUS,0,0) == 7
+              )
       {
         if (ListBox->GetItemCount()==0)
         {
           return TRUE;
         }
+
+        if(Param2==KEY_ENTER && Dialog::SendDlgMessage(hDlg,DM_GETFOCUS,0,0) == 7)
+          Param2=KEY_F3;
 
         DWORD ItemIndex = (DWORD)ListBox->GetUserData(NULL, 0);
         if (ItemIndex != LIST_INDEX_NONE)

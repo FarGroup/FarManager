@@ -5,10 +5,12 @@ history.cpp
 
 */
 
-/* Revision: 1.32 06.08.2004 $ */
+/* Revision: 1.33 25.10.2004 $ */
 
 /*
 Modify:
+  25.10.2004 SVS
+    + Реакция на Ctrl-Shift-Enter
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   15.03.2004 SVS
@@ -618,12 +620,13 @@ int History::Select(const char *Title,const char *HelpTopic,char *Str,int StrLen
 
         switch(Key)
         {
+          case KEY_CTRLSHIFTENTER:
           case KEY_CTRLENTER:
           case KEY_SHIFTENTER:
           {
             HistoryMenu.Modal::SetExitCode(StrPos);
             Done=TRUE;
-            RetCode=(Key==KEY_SHIFTENTER ? 2 : 3);
+            RetCode=Key==KEY_CTRLSHIFTENTER?4:(Key==KEY_SHIFTENTER?2:3);
             break;
           }
 
@@ -706,11 +709,11 @@ int History::Select(const char *Title,const char *HelpTopic,char *Str,int StrLen
   if(LastStr[StrPos].Name)
     xstrncpy(Str,LastStr[StrPos].Name,StrLength-1);
 
-  if(RetCode < 4)
+  if(RetCode < 5)
     Type=LastStr[StrPos].Type;
   else
   {
-    Type=RetCode-4;
+    Type=RetCode-5; //????
     if(Type == 1 && LastStr[StrPos].Type == 4) //????
       Type=4;                                  //????
     RetCode=1;
