@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.68 01.04.2002 $ */
+/* Revision: 1.69 05.04.2002 $ */
 
 /*
 Modify:
+  05.04.2002 SVS
+    + Prev?ButtonPressed
   01.04.2002 SVS
     ! Вместо KEY_FOCUS_CHANGED заведем KEY_KILLFOCUS и KEY_GOTFOCUS.
   19.03.2002 SVS
@@ -876,13 +878,20 @@ int GetInputRecord(INPUT_RECORD *rec)
         rec->Event.MouseEvent.dwButtonState&=~FROM_LEFT_1ST_BUTTON_PRESSED;
     }
     DWORD CtrlState=rec->Event.MouseEvent.dwButtonState;
-    /* $ 23.08.2000 SVS
-       + Дополнительно - для средней клавиши мыши
-    */
-    MButtonPressed=(CtrlState & FROM_LEFT_2ND_BUTTON_PRESSED);
-    /* SVS $ */
+
+    if(MouseEventFlags != MOUSE_MOVED)
+    {
+//_SVS(SysLog("1. CtrlState=%X PrevRButtonPressed=%d,RButtonPressed=%d",CtrlState,PrevRButtonPressed,RButtonPressed));
+      PrevLButtonPressed=LButtonPressed;
+      PrevRButtonPressed=RButtonPressed;
+      PrevMButtonPressed=MButtonPressed;
+    }
+
     LButtonPressed=(CtrlState & FROM_LEFT_1ST_BUTTON_PRESSED);
     RButtonPressed=(CtrlState & RIGHTMOST_BUTTON_PRESSED);
+    MButtonPressed=(CtrlState & FROM_LEFT_2ND_BUTTON_PRESSED);
+//_SVS(SysLog("2. CtrlState=%X PrevRButtonPressed=%d,RButtonPressed=%d",CtrlState,PrevRButtonPressed,RButtonPressed));
+
     PrevMouseX=MouseX;
     PrevMouseY=MouseY;
     MouseX=rec->Event.MouseEvent.dwMousePosition.X;

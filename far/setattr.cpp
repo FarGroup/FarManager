@@ -5,10 +5,12 @@ setattr.cpp
 
 */
 
-/* Revision: 1.49 26.03.2002 $ */
+/* Revision: 1.50 05.04.2002 $ */
 
 /*
 Modify:
+  05.04.2002 SVS
+    - BugZ#424 - Error change file attributes
   26.03.2002 DJ
     ! ScanTree::GetNextName() принимает размер буфера для имени файла
   22.03.2002 DJ
@@ -965,7 +967,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
             {
               if (AttrDlg[8].Selected != 2)
               {
-                if (!ESetFileCompression(FullName,1,FindData.dwFileAttributes))
+                if (!ESetFileCompression(FullName,AttrDlg[8].Selected,FindData.dwFileAttributes))
                 {
                   Cancel=1;
                   break; // неудача сжать :-(
@@ -974,7 +976,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
               else if (AttrDlg[9].Selected != 2) // +E -C
               {
                 if(AttrDlg[8].Selected != 1)
-                  if (!ESetFileEncryption(FullName,1,FindData.dwFileAttributes))
+                  if (!ESetFileEncryption(FullName,AttrDlg[9].Selected,FindData.dwFileAttributes))
                   {
                     Cancel=1;
                     break; // неудача зашифровать :-(

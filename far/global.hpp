@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.37 01.04.2002 $ */
+/* Revision: 1.38 05.04.2002 $ */
 
 /*
 Modify:
+  05.04.2002 SVS
+    + Prev?ButtonPressed
   01.04.2002 SVS
     ! ѕро заголовок - FarTitleAddons
   30.03.2002 OT
@@ -132,13 +134,11 @@ extern int PrevScrX,PrevScrY;
 extern HANDLE hConOut,hConInp;
 
 extern int AltPressed,CtrlPressed,ShiftPressed;
-extern int LButtonPressed,RButtonPressed,PrevMouseX,PrevMouseY,MouseX,MouseY;
+extern int LButtonPressed, PrevLButtonPressed;
+extern int RButtonPressed, PrevRButtonPressed;
+extern int MButtonPressed, PrevMButtonPressed;
+extern int PrevMouseX,PrevMouseY,MouseX,MouseY;
 extern int PreMouseEventFlags,MouseEventFlags;
-/* $ 23.08.2000 SVS
-    + MButtonPressed - дл€ средней клавиши мыши.
-*/
-extern int MButtonPressed;
-/* SVS $ */
 
 extern int WaitInMainLoop;
 extern int WaitInFastFind;

@@ -5,10 +5,14 @@ copy.cpp
 
 */
 
-/* Revision: 1.76 01.04.2002 $ */
+/* Revision: 1.77 05.04.2002 $ */
 
 /*
 Modify:
+  05.04.2002 SVS
+    - BugZ#430 - Создание хардлинков
+    - небольшая бага в интерфейсе (количество кнопок неверно указывалось
+      для случая, когда есть RO-файл и ненужен аппенд)
   01.04.2002 SVS
     - BugZ#376 - При попытке переноса каталога в пределах одного сетевого
       диска получаем сообщение об ошибке
@@ -1714,7 +1718,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
 
       int RetCode, AskCode;
       CopyTime+= (clock() - CopyStartTime);
-      AskCode = AskOverwrite(SrcData,DestPath,DestAttr,SameName,Rename,1,Append,RetCode);
+      AskCode = AskOverwrite(SrcData,DestPath,DestAttr,SameName,Rename,((ShellCopy::Flags&FCOPY_LINK)?0:1),Append,RetCode);
       CopyStartTime = clock();
 
       if (!AskCode)
@@ -1900,7 +1904,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
     TotalCopySize=SaveTotalSize;
     int RetCode, AskCode;
     CopyTime+= (clock() - CopyStartTime);
-    AskCode = AskOverwrite(SrcData,DestPath,DestAttr,SameName,Rename,1,Append,RetCode);
+    AskCode = AskOverwrite(SrcData,DestPath,DestAttr,SameName,Rename,((ShellCopy::Flags&FCOPY_LINK)?0:1),Append,RetCode);
     CopyStartTime = clock();
 
     if (!AskCode)
@@ -2170,7 +2174,10 @@ int ShellCopy::ShellCopyFile(char *SrcName,WIN32_FIND_DATA *SrcData,
                              char *DestName,DWORD DestAttr,int Append)
 {
   if ((ShellCopy::Flags&FCOPY_LINK))
+  {
+    DeleteFile(DestName);
     return(MkLink(SrcName,DestName) ? COPY_SUCCESS:COPY_FAILURE);
+  }
   if (!(ShellCopy::Flags&FCOPY_COPYTONUL) && Opt.UseSystemCopy && !Append)
   {
     if (!Opt.CopyOpened)
@@ -2361,7 +2368,7 @@ int ShellCopy::ShellCopyFile(char *SrcName,WIN32_FIND_DATA *SrcData,
         {
           int RetCode, AskCode;
           CopyTime+= (clock() - CopyStartTime);
-          AskCode = AskOverwrite(SrcData,DestName,0xFFFFFFFF,FALSE,((ShellCopy::Flags&FCOPY_MOVE)?TRUE:FALSE),1,Append,RetCode);
+          AskCode = AskOverwrite(SrcData,DestName,0xFFFFFFFF,FALSE,((ShellCopy::Flags&FCOPY_MOVE)?TRUE:FALSE),((ShellCopy::Flags&FCOPY_LINK)?0:1),Append,RetCode);
           CopyStartTime = clock();
           if (!AskCode)
           {
@@ -2726,7 +2733,7 @@ int ShellCopy::AskOverwrite(WIN32_FIND_DATA *SrcData,char *DestName,
         sprintf(DestFileStr,"%-17s %11.11s %s %s",MSG(MCopyDest),DestSizeText,DateText,TimeText);
 
         SetMessageHelp("CopyFiles");
-        MsgCode=Message(MSG_DOWN|MSG_WARNING,6,MSG(MWarning),
+        MsgCode=Message(MSG_DOWN|MSG_WARNING,AskAppend ? 6:5,MSG(MWarning),
                 MSG(MCopyFileRO),TruncDestName,"\x1",SrcFileStr,DestFileStr,
                 "\x1",MSG(MCopyOverwrite),MSG(MCopyOverwriteAll),
                 MSG(MCopySkipOvr),MSG(MCopySkipAllOvr),

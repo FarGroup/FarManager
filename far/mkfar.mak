@@ -209,12 +209,12 @@ ALL : BccW32.cfg $(FINALPATH)\Far.exe $(FARINCLUDE)\farcolor.hpp $(FARINCLUDE)\f
 # все эти зависимости не нужны
 # просто описываем одно правило и все %)
 .cpp.obj:
-  -@settitle "{$.} - Compiling..."
+  @settitle "{$.} - Compiling..."
   @if not exist $(OBJPATH) mkdir $(OBJPATH)
   @$(BCC32) -c -o$@ {$. }
 
 .c.obj:
-  -@settitle "{$.} - Compiling..."
+  @settitle "{$.} - Compiling..."
   @if not exist $(OBJPATH) mkdir $(OBJPATH)
   @$(BCC32) -c -o$@ {$. }
 

@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.226 03.04.2002 $ */
+/* Revision: 1.227 05.04.2002 $ */
 
 /*
 Modify:
+  05.04.2002 SVS
+    - BugZ#428 - Long titles in dialogs
+    - BugZ#427 - ¬ыход мышью
   03.04.2002 SVS
     + DN_ACTIVATEAPP - ѕри потере/получении фокуса консольным окном...
     - ¬ SendDlgMessage была полна€ лабуда при Param1 < 0... короче, бага.
@@ -1999,15 +2002,13 @@ void Dialog::ShowDialog(int ID)
           /* $ 17.12.2001 KM
             ! ѕусть диалог сам заботитс€ о ширине собственного заголовка.
           */
-          sprintf(Str," %s ",CurItem->Data);
+          strncpy(Str,CurItem->Data,sizeof(Str)-3);
+          TruncStrFromEnd(Str,CW-4); // 5 ???
+          memmove(Str+1,Str,strlen(Str)+1);
+          LenText=strlen(Str);
+          *Str=Str[LenText]=' ';
+          Str[LenText+1]=0;
           LenText=LenStrItem(I,Str);
-          if(LenText > CW)
-          {
-            TruncStrFromEnd(Str,CW); // 5 ???
-            strcat(Str," ");
-            LenText=LenStrItem(I,Str);
-          }
-
           X=X1+CX1+(CW-LenText)/2;
 
           if ((CurItem->Flags & DIF_LEFTTEXT) && X1+CX1+1 < X)
@@ -3529,20 +3530,20 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   }
   /* KM $ */
 
-  if (MouseEvent->dwButtonState==0)
-    return(FALSE);
-
-  if (MsX<X1 || MsY<Y1 || MsX>X2 || MsY>Y2)
+  if ((MsX<X1 || MsY<Y1 || MsX>X2 || MsY>Y2) && MouseEventFlags != MOUSE_MOVED)
   {
     if(!DlgProc((HANDLE)this,DN_MOUSECLICK,-1,(long)MouseEvent))
     {
-      if (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED)
+      if (!(MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && PrevLButtonPressed)
         ProcessKey(KEY_ESC);
-      else if (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED)
+      else if (!(MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED) && PrevRButtonPressed)
         ProcessKey(KEY_ENTER);
     }
     return(TRUE);
   }
+
+  if (MouseEvent->dwButtonState==0)
+    return(FALSE);
 
 //_D(SysLog("Ms (%d,%d)",MsX,MsY));
   if (MouseEvent->dwEventFlags==0 || MouseEvent->dwEventFlags==DOUBLE_CLICK)

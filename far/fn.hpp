@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.146 04.04.2002 $ */
+/* Revision: 1.147 05.04.2002 $ */
 
 /*
 Modify:
+  05.04.2002 SVS
+    + CheckShortcutFolder()
   04.04.2002 SVS
     ! WordWrap -> FarFormatText
     + _ACTL_ToName
@@ -639,6 +641,8 @@ int CopyKeyTree(const char *Src,const char *Dest,const char *Skip);
 void UseSameRegKey();
 void CloseSameRegKey();
 
+
+int CheckShortcutFolder(char *TestPath,int LengthPath,int IsHostFile);
 
 #if defined(__FARCONST_HPP__) && (defined(_INC_WINDOWS) || defined(_WINDOWS_))
 UDWORD NTTimeToDos(FILETIME *ft);

@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.25 21.03.2002 $ */
+/* Revision: 1.26 05.04.2002 $ */
 
 /*
 Modify:
+  05.04.2002 SVS
+    ! CheckShortcutFolder стала самостоятельной и уехала в mix.cpp
   21.03.2002 SVS
     + CheckShortcutFolder()
   19.03.2002 DJ
@@ -263,8 +265,6 @@ class FileList:public Panel
     static void ViewSettingsToText(unsigned int *ViewColumnTypes,
            int *ViewColumnWidths,int ColumnCount,char *ColumnTitles,
            char *ColumnWidths);
-
-    int CheckShortcutFolder(char *TestPath,int LengthPath,int IsHostFile);
 
   public:
     FileList();

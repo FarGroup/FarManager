@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.134 01.04.2002 $ */
+/* Revision: 1.135 05.04.2002 $ */
 
 /*
 Modify:
+  05.04.2002 SVS
+    + Opt.PluginMaxReadData, по умолчанию = 0x20000
   01.04.2002 SVS
     + struct NowellOptions
   26.03.2002 IS
@@ -1331,6 +1333,7 @@ static struct FARConfig{
   {0, REG_SZ,     NKeySystem,"QuotedSymbols",Opt.QuotedSymbols,sizeof(Opt.QuotedSymbols)," &+,"},
   //{0, REG_DWORD,  NKeySystem,"CPAJHefuayor",&Opt.CPAJHefuayor,0, 0},
   {0, REG_DWORD,  NKeySystem,"CloseConsoleRule",&Opt.CloseConsoleRule,1, 0},
+  {0, REG_DWORD,  NKeySystem,"PluginMaxReadData",&Opt.PluginMaxReadData,0x20000, 0},
 
   {0, REG_DWORD,  NKeySystemNowell,"MoveRO",&Opt.Nowell.MoveRO,1, 0},
 
@@ -1464,6 +1467,9 @@ void ReadConfig()
   /* VVM $ */
 
   GetRegKey(NKeyConfirmations,"EscTwiceToInterrupt",Opt.Confirm.EscTwiceToInterrupt,0);
+
+  if(Opt.PluginMaxReadData < 0x1000 || Opt.PluginMaxReadData > 0x40000)
+    Opt.PluginMaxReadData=0x20000;
 
   // Умолчание разное для разных платформ.
   if(Opt.AltF9 == -1)

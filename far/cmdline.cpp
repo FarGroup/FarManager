@@ -5,10 +5,13 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.53 25.03.2002 $ */
+/* Revision: 1.54 05.04.2002 $ */
 
 /*
 Modify:
+  05.04.2002 SVS
+    ! ѕродолжение дл€ BugZ#239 (Folder shortcuts дл€ несуществующих папок)
+      јналогичное поведение сделаем и дл€ Alt-F12, ибо это правильно!
   25.03.2002 VVM
     + ѕри погашенных панел€х колесом крутим историю
   18.03.2002 SVS
@@ -142,9 +145,9 @@ Modify:
 
 #include "cmdline.hpp"
 #include "global.hpp"
-#include "fn.hpp"
 #include "keys.hpp"
 #include "lang.hpp"
+#include "fn.hpp"
 #include "ctrlobj.hpp"
 #include "manager.hpp"
 #include "history.hpp"
@@ -330,9 +333,12 @@ int CommandLine::ProcessKey(int Key)
         {
           if (SelectType==2)
             CtrlObject->FolderHistory->SetAddMode(FALSE,2,TRUE);
-          CtrlObject->Cp()->ActivePanel->SetCurDir(Str,Type==0 ? TRUE:FALSE);
-          CtrlObject->Cp()->ActivePanel->Redraw();
-          CtrlObject->FolderHistory->SetAddMode(TRUE,2,TRUE);
+          if(CheckShortcutFolder(Str,sizeof(Str)-1,FALSE))
+          {
+            CtrlObject->Cp()->ActivePanel->SetCurDir(Str,Type==0 ? TRUE:FALSE);
+            CtrlObject->Cp()->ActivePanel->Redraw();
+            CtrlObject->FolderHistory->SetAddMode(TRUE,2,TRUE);
+          }
         }
         else
           if (SelectType==3)

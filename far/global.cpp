@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.37 01.04.2002 $ */
+/* Revision: 1.38 05.04.2002 $ */
 
 /*
 Modify:
+  05.04.2002 SVS
+    + Prev?ButtonPressed
   01.04.2002 SVS
     ! Про заголовок - FarTitleAddons
   30.03.2002 OT
@@ -140,6 +142,7 @@ int WaitInMainLoop=FALSE;
 FarQueue<DWORD> *KeyQueue=NULL;
 int AltPressed=0,CtrlPressed=0,ShiftPressed=0;
 int LButtonPressed=0,RButtonPressed=0,MButtonPressed=0;
+int PrevLButtonPressed=0, PrevRButtonPressed=0, PrevMButtonPressed=0;
 int PrevMouseX=0,PrevMouseY=0,MouseX=0,MouseY=0;
 int PreMouseEventFlags=0,MouseEventFlags=0;
 

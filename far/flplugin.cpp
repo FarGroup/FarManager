@@ -5,10 +5,12 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.23 22.03.2002 $ */
+/* Revision: 1.24 05.04.2002 $ */
 
 /*
 Modify:
+  05.04.2002 SVS
+    ! Вместо числа 0x20000 заюзаем Opt.PluginMaxReadData
   22.03.2002 SVS
     - strcpy - Fuck!
   20.03.2002 SVS
@@ -277,11 +279,10 @@ HANDLE FileList::OpenPluginForFile(char *FileName)
   FILE *ProcessFile=fopen(FileName,"rb");
   if (ProcessFile)
   {
-    const int MaxRead=0x20000;
-    char *Buffer=new char[MaxRead];
+    char *Buffer=new char[Opt.PluginMaxReadData];
     if(Buffer)
     {
-      int ReadSize=fread(Buffer,1,MaxRead,ProcessFile);
+      int ReadSize=fread(Buffer,1,Opt.PluginMaxReadData,ProcessFile);
       fclose(ProcessFile);
 
       CtrlObject->Cp()->GetAnotherPanel(this)->CloseFile();

@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.140 04.04.2002 $ */
+/* Revision: 1.141 05.04.2002 $ */
 
 /*
 Modify:
+  05.04.2002 SVS
+    ! CheckShortcutFolder стала самостоятельной и уехала в mix.cpp
   04.04.2002 IS
     - Баг: удаляли файл, открытый во вьюере с панели плагина сразу же после
       его открытия, из-за чего в нем (во вьюере) не работали плагины типа
@@ -764,63 +766,6 @@ void FileList::SetFocus()
 {
   Panel::SetFocus();
   SetTitle();
-}
-
-/*
-   Проверка пути или хост-файла на существование
-   Если идет проверка пути (IsHostFile=FALSE), то будет
-   предпринята попытка найти ближайший путь. Результат попытки
-   возвращается в переданном TestPath.
-
-   Return: 0 - бЯда.
-           1 - ОБИ!,
-          -1 - Почти что ОБИ, но ProcessPluginEvent вернул TRUE
-   TestPath может быть пустым, тогда просто исполним ProcessPluginEvent()
-
-*/
-int FileList::CheckShortcutFolder(char *TestPath,int LengthPath,int IsHostFile)
-{
-  if(TestPath && *TestPath && GetFileAttributes(TestPath) == -1)
-  {
-    char Target[NM];
-    int FoundPath=0;
-
-    strncpy(Target, TestPath, sizeof(Target)-1);
-    TruncPathStr(Target, ScrX-16);
-
-    if(IsHostFile)
-    {
-      SetLastError(ERROR_FILE_NOT_FOUND);
-      Message (MSG_WARNING | MSG_ERRORTYPE, 1, MSG (MError), Target, MSG (MOk));
-    }
-    else // попытка найти!
-    {
-      SetLastError(ERROR_PATH_NOT_FOUND);
-      if(Message (MSG_WARNING | MSG_ERRORTYPE, 2, MSG (MError), Target, MSG (MNeedNearPath), MSG(MHYes),MSG(MHNo)) == 0)
-      {
-        char *Ptr;
-        char TestPathTemp[1024];
-        strncpy(TestPathTemp,TestPath,sizeof(TestPathTemp)-1);
-        while((Ptr=strrchr(TestPathTemp,'\\')) != NULL)
-        {
-          *Ptr=0;
-          if(GetFileAttributes(TestPathTemp) != -1)
-          {
-            strncpy(TestPath,TestPathTemp,LengthPath);
-            if(strlen(TestPath) == 2) // для случая "C:", иначе попадем в текущий каталог диска C:
-              AddEndSlash(TestPath);
-            FoundPath=1;
-            break;
-          }
-        }
-      }
-    }
-    if(!FoundPath)
-      return 0;
-  }
-  if(ProcessPluginEvent(FE_CLOSE,NULL))
-    return -1;
-  return 1;
 }
 
 

@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.85 01.04.2002 $ */
+/* Revision: 1.86 05.04.2002 $ */
 
 /*
 Modify:
+  05.04.2002 SVS
+    + Opt.PluginMaxReadData
   01.04.2002 SVS
     + struct NowellOptions
   18.03.2002 SVS
@@ -544,7 +546,6 @@ struct Options
   struct PanelOptions RightPanel;
   DWORD  AutoUpdateLimit; // выше этого количество автоматически не обновлять панели.
   char Language[80];
-  char HelpLanguage[80];
   int SmallIcon;
   char RegRoot[NM];
   /* $ 15.07.2000 SVS
@@ -619,11 +620,6 @@ struct Options
   */
   int MaxPositionCache;
   /* SVS $*/
-  /* $ 27.09.2000 SVS
-   + Opt.HelpURLRules - =0 отключить возможность запуска URL-приложений
-  */
-  int HelpURLRules;
-  /* SVS $*/
   /* $ 22.11.2000 SVS
    + Правило на счет установки атрибутов на каталоги*/
   int SetAttrFolderRules;
@@ -676,7 +672,16 @@ struct Options
   */
   int ConsoleDetachKey;
   /* SKV$*/
+
+  char HelpLanguage[80];
   int FullScreenHelp;
+  int HelpTabSize;
+  /* $ 27.09.2000 SVS
+   + Opt.HelpURLRules - =0 отключить возможность запуска URL-приложений
+  */
+  int HelpURLRules;
+
+  /* SVS $*/
   /* $ 28.03.2001 VVM
     + RememberLogicalDrives = запоминать логические диски и не опрашивать
       каждый раз. Для предотвращения "просыпания" "зеленых" винтов. */
@@ -716,9 +721,9 @@ struct Options
   int CloseConsoleRule;
 
   DWORD LCIDSort;
-  int HelpTabSize;
   int FindFolders;
   int RestoreCPAfterExecute;
+  DWORD PluginMaxReadData;
 
   //int CPAJHefuayor; // производное от "Close Plugin And Jump:
                   // Highly experimental feature, use at your own risk"

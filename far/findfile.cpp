@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.105 04.04.2002 $ */
+/* Revision: 1.106 05.04.2002 $ */
 
 /*
 Modify:
+  05.04.2002 SVS
+    ! MAX_READ -> Opt.PluginMaxReadData
   04.04.2002 KM
     - При смене диска на плагиновый и обратно не обновлялось
       состояние чекбокса "Искать в архивах".
@@ -411,7 +413,6 @@ Modify:
 
 #define DLG_HEIGHT 21
 #define DLG_WIDTH 72
-#define MAX_READ 0x20000
 
 #define LIST_DELTA  64
 static DWORD LIST_INDEX_NONE = (DWORD)-1;
@@ -999,7 +1000,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
             char *FindArcName = ArcList[FindList[ItemIndex].ArcIndex].ArcName;
             if (ArcList[FindList[ItemIndex].ArcIndex].hPlugin == INVALID_HANDLE_VALUE)
             {
-              char *Buffer=new char[MAX_READ];
+              char *Buffer=new char[Opt.PluginMaxReadData];
               FILE *ProcessFile=fopen(FindArcName,"rb");
               if (ProcessFile==NULL)
               {
@@ -1007,7 +1008,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
                 ReleaseMutex(hDialogMutex);
                 return TRUE;
               }
-              int ReadSize=fread(Buffer,1,MAX_READ,ProcessFile);
+              int ReadSize=fread(Buffer,1,Opt.PluginMaxReadData,ProcessFile);
               fclose(ProcessFile);
 
               int SavePluginsOutput=DisablePluginsOutput;
@@ -1729,7 +1730,7 @@ void _cdecl FindFiles::PrepareFilesList(void *Param)
 
 void FindFiles::ArchiveSearch(char *ArcName)
 {
-  char *Buffer=new char[MAX_READ];
+  char *Buffer=new char[Opt.PluginMaxReadData];
   FILE *ProcessFile=fopen(ArcName,"rb");
   if (ProcessFile==NULL)
   {
@@ -1740,7 +1741,7 @@ void FindFiles::ArchiveSearch(char *ArcName)
     /* SVS $ */
     return;
   }
-  int ReadSize=fread(Buffer,1,MAX_READ,ProcessFile);
+  int ReadSize=fread(Buffer,1,Opt.PluginMaxReadData,ProcessFile);
   fclose(ProcessFile);
 
   int SavePluginsOutput=DisablePluginsOutput;
