@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.75 12.03.2001 $ */
+/* Revision: 1.76 14.03.2001 $ */
 
 /*
 Modify:
+  15.03.2001 OT
+    - Если нажать в редакторе <Enter> в конце файла, а потом сделать UNDO...
   12.03.2001 SVS
     ! Коррекция в связи с изменениями в классе int64
   27.02.2001 SVS
@@ -3754,7 +3756,7 @@ void Editor::Undo()
   switch(UndoData[UndoDataPos].Type)
   {
     case UNDO_INSSTR:
-      DeleteString(CurLine,FALSE,NumLine>0 ? NumLine-1:NumLine);
+      DeleteString(CurLine,TRUE,NumLine>0 ? NumLine-1:NumLine);
       break;
     case UNDO_DELSTR:
       Pasting++;
