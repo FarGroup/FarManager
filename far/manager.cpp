@@ -5,10 +5,14 @@ manager.cpp
 
 */
 
-/* Revision: 1.64 22.03.2002 $ */
+/* Revision: 1.65 27.03.2002 $ */
 
 /*
 Modify:
+  27.03.2002 OT
+    - Дыра в ДелитКоммит(). Не корректно удалялся фрейм, которого
+      не было ни в модальном стеке, ни в списке немодальных фреймов.
+      Проявлялось при попытке открыть залоченный файл из поиска файлов.
   22.03.2002 SVS
     - strcpy - Fuck!
     ! Уточнение для BugZ#386 - F12 вызывается всегда, но!
@@ -1010,7 +1014,8 @@ void Manager::DeleteCommit()
   }
 
   BOOL ifDoubI=ifDoubleInstance();
-  if (ModalStackCount){
+  int ModalIndex=IndexOfStack(DeletedFrame);
+  if (ModalIndex!=-1 && ModalStack[ModalStackCount-1]==DeletedFrame){
     ModalStackCount--;
     if (ModalStackCount){
       ActivateFrame(ModalStack[ModalStackCount-1]);
@@ -1056,7 +1061,11 @@ void Manager::DeleteCommit()
   }
   // Полагаемся на то, что в ActevateFrame не будет переписан уже
   // присвоенный  ActivatedFrame
-  ActivateFrame(FramePos);
+  if (ModalStackCount){
+    ActivateFrame(ModalStack[ModalStackCount-1]);
+  } else {
+    ActivateFrame(FramePos);
+  }
 }
 
 void Manager::InsertCommit()
