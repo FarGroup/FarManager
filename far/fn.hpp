@@ -7,13 +7,15 @@ fn.hpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 03.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  03.07.2000 IS
+    + Функция вывода помощи
 */
 
 
@@ -294,5 +296,11 @@ int WINAPI FarCmpName(char *pattern,char *string,int skippath);
 int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize);
 void WINAPI FarText(int X,int Y,int Color,char *Str);
 int WINAPI FarEditorControl(int Command,void *Param);
+/* $ 03.07.2000 IS
+  Функция вывода помощи
+*/
+void WINAPI FarShowHelp(char *ModuleName, char *HelpTopic);
+/* IS $ */
+
 #endif
 #endif	// __FARFUNC_HPP__

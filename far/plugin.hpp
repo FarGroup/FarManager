@@ -6,7 +6,7 @@
   Plugin API for FAR Manager 1.66
 
 */
-/* Revision: 1.01 28.06.2000 $ */
+/* Revision: 1.02 01.07.2000 $ */
 
 /*
 Modify:
@@ -15,6 +15,8 @@ Modify:
   28.06.2000 SVS
     + Для MSVC тоже требуется extern "C" при декларации
       экспортируемых функций + коррекция на Borland C++ 5.5
+  03.07.2000 IS
+    + Функция вывода помощи в api
 */
 
 #if defined(__BORLANDC__) && (__BORLANDC__ <= 0x550)
@@ -288,6 +290,14 @@ typedef int (WINAPI *FARAPIEDITORCONTROL)(
   void *Param
 );
 
+/* $ 03.07.2000 IS
+   Функция вывода помощи
+  */
+typedef void (WINAPI *FARAPISHOWHELP)(
+  char *ModuleName,
+  char *HelpTopic
+);
+/* IS $ */
 
 enum EDITOR_EVENTS {
   EE_READ,EE_SAVE,EE_REDRAW,EE_CLOSE
@@ -432,6 +442,11 @@ struct PluginStartupInfo
   FARAPICHARTABLE CharTable;
   FARAPITEXT Text;
   FARAPIEDITORCONTROL EditorControl;
+  /* $ 03.07.2000 IS
+     Функция вывода помощи
+  */
+  FARAPISHOWHELP ShowHelp;
+  /* IS $ */
 };
 
 

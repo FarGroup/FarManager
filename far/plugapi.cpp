@@ -5,13 +5,15 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 03.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  03.07.2000 IS
+    + Функция вывода помощи
 */
 
 #include "headers.hpp"
@@ -29,6 +31,27 @@ extern char DirToSet[NM];
 
 
 void ScanPluginDir();
+
+/* $ 03.07.2000 IS
+  Функция вывода помощи
+*/
+void WINAPI FarShowHelp(char *ModuleName, char *HelpTopic)
+{
+  if (HelpTopic!=NULL)
+  {
+    char Path[NM],Topic[512];
+    if (*HelpTopic==':')
+      strcpy(Topic,HelpTopic+1);
+    else
+    {
+      strcpy(Path,ModuleName);
+      *PointToName(Path)=0;
+      sprintf(Topic,"#%s#%s",Path,HelpTopic);
+    }
+    Help Hlp(Topic);
+  }
+}
+/* IS $ */
 
 int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
            unsigned int Flags,char *Title,char *Bottom,char *HelpTopic,

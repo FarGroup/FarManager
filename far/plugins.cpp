@@ -5,13 +5,15 @@ plugins.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 01.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  01.07.2000 IS
+    + Функция вывода помощи в api
 */
 
 #include "headers.hpp"
@@ -199,6 +201,11 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
     StartupInfo.CharTable=FarCharTable;
     StartupInfo.Text=FarText;
     StartupInfo.EditorControl=FarEditorControl;
+    /* 01.07.2000 IS
+       Функция вывода помощи
+    */
+    StartupInfo.ShowHelp=FarShowHelp;
+    /* IS $ */
     CurPlugin.pSetStartupInfo(&StartupInfo);
   }
 }
