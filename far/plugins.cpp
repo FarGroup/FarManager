@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.151 19.05.2004 $ */
+/* Revision: 1.152 29.05.2004 $ */
 
 /*
 Modify:
+  29.05.2004 SVS
+    - BugZ#1082 - символ "&" в качестве хоткея
   19.05.2004 SVS
     ! вместо "SetFileAttributes(Name,0)" выставим "SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL)"
       пусть баундчекер не блюет.
@@ -2538,7 +2540,7 @@ void PluginsSet::Configure(int StartPos)
                   strcpy(ListItem.Name,Name);
                 else
                   if (*HotKey)
-                    sprintf(ListItem.Name,"&%c  %s",*HotKey,Name);
+                    sprintf(ListItem.Name,"&%c%s  %s",*HotKey,(*HotKey=='&'?"&":""),Name);
                   else
                     sprintf(ListItem.Name,"   %s",Name);
                 //ListItem.SetSelect(MenuItemNumber++ == StartPos);
@@ -2565,7 +2567,7 @@ void PluginsSet::Configure(int StartPos)
                 strcpy(ListItem.Name,Name);
               else
                 if (*HotKey)
-                  sprintf(ListItem.Name,"&%c  %s",*HotKey,Name);
+                  sprintf(ListItem.Name,"&%c%s  %s",*HotKey,(*HotKey=='&'?"&":""),Name);
                 else
                   sprintf(ListItem.Name,"   %s",Name);
               //ListItem.SetSelect(MenuItemNumber++ == StartPos);
@@ -2716,7 +2718,7 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
                   sprintf(ListItem.Name,"   %s",Name);//strcpy(ListItem.Name,Name);
                 else
                   if (*HotKey)
-                    sprintf(ListItem.Name,"&%c  %s",*HotKey,Name);
+                    sprintf(ListItem.Name,"&%c%s  %s",*HotKey,(*HotKey=='&'?"&":""),Name);
                   else
                     sprintf(ListItem.Name,"   %s",Name);
                   //ListItem.SetSelect(MenuItemNumber++ == StartPos);
@@ -2748,7 +2750,7 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
                 sprintf(ListItem.Name,"   %s",Name);//strcpy(ListItem.Name,Name);
               else
                 if (*HotKey)
-                  sprintf(ListItem.Name,"&%c  %s",*HotKey,Name);
+                  sprintf(ListItem.Name,"&%c%s  %s",*HotKey,(*HotKey=='&'?"&":""),Name);
                 else
                   sprintf(ListItem.Name,"   %s",Name);
                 //ListItem.SetSelect(MenuItemNumber++ == StartPos);
