@@ -5,13 +5,16 @@ Internal viewer
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 28.06.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  28.06.2000 tran
+    - показ пустой строки в hex viewer
+
 */
 
 #include "headers.hpp"
@@ -429,9 +432,18 @@ void Viewer::ShowHex()
 
         if ((Ch=getc(ViewFile))==EOF || (Ch1=getc(ViewFile))==EOF)
         {
+          /* $ 28.06.2000 tran
+             убираем показ пустой строки, если длина
+             файла кратна 16 */
+          EndFile=LastPage=1;
+          if ( X==0 )
+          {
+             strcpy(OutStr,"");
+             break;
+          }
           strcat(OutStr,"     ");
           TextStr[TextPos++]=' ';
-          EndFile=LastPage=1;
+          /* tran $ */
         }
         else
         {
@@ -459,9 +471,18 @@ void Viewer::ShowHex()
         }
         if ((Ch=vgetc(ViewFile))==EOF)
         {
-          strcat(OutStr,"   ");
-          TextStr[TextPos++]=' ';
+          /* $ 28.06.2000 tran
+             убираем показ пустой строки, если длина
+             файла кратна 16 */
           EndFile=LastPage=1;
+          if ( X==0 )
+          {
+             strcpy(OutStr,"");
+             break;
+          }
+          strcat(OutStr,"     ");
+          TextStr[TextPos++]=' ';
+          /* tran $ */
         }
         else
         {
