@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.309 11.11.2004 $ */
+/* Revision: 1.310 19.11.2004 $ */
 
 /*
 Modify:
+  19.11.2004 SVS
+    - воздействие мышкой на скроллбаре в результирующем диалоге поиска
+      ...диалог закрывался после отпускания кнопки.
   11.11.2004 SVS
     + Обработка MCODE_V_ITEMCOUNT и MCODE_V_CURPOS
   06.08.2004 SKV
@@ -3923,7 +3926,9 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 #if 1
           List->ProcessMouse(MouseEvent);
           int NewListPos=List->GetSelectPos();
-          if(!(MsX==X1+Item[I].X2 && MsY >= Y1+Item[I].Y1 && MsY <= Y1+Item[I].Y2) &&              // вне скроллбара и
+          int InScroolBar=(MsX==X1+Item[I].X2 && MsY >= Y1+Item[I].Y1 && MsY <= Y1+Item[I].Y2) &&
+                          (List->CheckFlags(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Opt.ShowMenuScrollbar);
+          if(!InScroolBar       &&                                                                 // вне скроллбара и
               NewListPos != Pos &&                                                                 // позиция изменилась и
               !SendDlgMessage((HANDLE)this,DN_LISTCHANGE,I,(long)NewListPos))                      // и плагин сказал в морг
           {
@@ -3934,7 +3939,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
           else
           {
             Pos=NewListPos;
-            if(!(Item[I].Flags&DIF_LISTNOCLOSE))
+            if(!InScroolBar && !(Item[I].Flags&DIF_LISTNOCLOSE))
             {
               ExitCode=I;
               CloseDialog();
