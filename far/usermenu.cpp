@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.40 20.08.2001 $ */
+/* Revision: 1.41 24.08.2001 $ */
 
 /*
 Modify:
+  24.08.2001 VVM
+    + Стрелки вправо/влево открывают/закрывают подменю соответственно
   20.08.2001 VVM
     ! Хоткей в метке работает при Fx (возвращаем, как було)
     ! Ошибка при выравнивании указателя подменю.
@@ -675,6 +677,23 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
 
           switch(Key)
           {
+            /* $ 24.08.2001 VVM
+              + Стрелки вправо/влево открывают/закрывают подменю соответственно */
+            case KEY_RIGHT:
+            {
+              char CurrentKey[512];
+              int SubMenu;
+              sprintf(CurrentKey,"%s\\Item%d",MenuKey,MenuPos);
+              GetRegKey(CurrentKey,"Submenu",SubMenu,0);
+              if (SubMenu)
+                UserMenu.SetExitCode(MenuPos);
+              break;
+            }
+            case KEY_LEFT:
+              if (Title && *Title)
+                UserMenu.SetExitCode(-1);
+              break;
+            /* VVM $ */
             case KEY_DEL:
               if (MenuPos<NumLine)
                 DeleteMenuRecord(MenuKey,MenuPos);

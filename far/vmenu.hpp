@@ -11,10 +11,12 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.26 31.07.2001 $ */
+/* Revision: 1.27 24.08.2001 $ */
 
 /*
 Modify:
+  24.08.2001 VVM
+    + void SetExitCode(int Code) - вызывает функцию от предка Modal::
   31.07.2001 KM
     + Проверим, а не выполняется ли какая функа у нас...
       GetCallCount().
@@ -331,6 +333,8 @@ class VMenu: virtual public Modal, virtual public Frame
     // функция посылки сообщений меню
     static long WINAPI SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,long Param2);
     /* SVS $ */
+
+    void SetExitCode(int Code) {Modal::SetExitCode(Code);}
 };
 
 
