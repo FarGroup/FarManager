@@ -2426,10 +2426,20 @@ files and folders:
 
   Create ~file links~@HardSymLink@                                         #Alt-F6#
 
+    If the option "#Execute multiple operations#" is enabled, you
+may specify multiple copy or move targets in the input line. In this
+case, targets should be separated with a character "#;#" or "#,#". If
+the name of a target contains the character ";" or ",", it must be
+enclosed in quotes.
+
     If you wish to create the destination folder before copying,
 terminate the name with backslash. Also in the Copy dialog you may press
-F10 to select a folder from the active file panel tree or Alt-F10
-to select from the passive file panel tree.
+#F10# to select a folder from the active file panel tree or #Alt-F10#
+to select from the passive file panel tree. #Shift-F10# позволяет открыть
+дерево с учетом пути, содержащегося в строке ввода (если там перечислено
+несколько путей, то учитывается только первый из них). Если включена опция
+"#Выполнить сразу несколько операций#", то выбранный
+каталог добавляется к содержимому строки ввода через точку с запятой.
 
     The possibility of copying, moving and renaming files for plugins
 depends upon the plugin module functionality.
@@ -2457,12 +2467,6 @@ dialog forces the Windows function CopyFileEx usage (or CopyFile if CopyFileEx
 is not available) instead of the internal copy implementation to copy files.
 It may be useful on NTFS, because CopyFileEx performs a more rational
 disk space allocation and copies file extended attributes.
-
-    If the option "#Execute multiple operations#" is enabled, you
-may specify multiple copy or move targets in the input line. In this
-case, targets should be separated with a character "#;#" or "#,#". If
-the name of a target contains the character ";" or ",", it must be
-enclosed in quotes.
 
     При копировании/переносе файлов и каталогов FAR также учитывает
 реальные пути с учетом ~символических связей~@HardSymLink@ в Windows 2000.

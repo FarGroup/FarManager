@@ -5,10 +5,19 @@ copy.cpp
 
 */
 
-/* Revision: 1.47 18.09.2001 $ */
+/* Revision: 1.48 13.10.2001 $ */
 
 /*
 Modify:
+  13.10.2001 IS
+    + ѕри мультикопировании добавл€ем выбранный в "дереве" каталог к уже
+      существующему списку через точку с зап€той.
+    - Ѕаг: при мультикопировании выбранный в "дереве" каталог не заключалс€
+      в кавычки, если он содержал в своем имени символы-разделители.
+    - Ѕаг: неправильно работало Shift-F10, если строка ввода содержала
+      слеш на конце.
+    - Ѕаг: неправильно работало Shift-F10 при мультикопировании - показывалс€
+      корневой каталог, теперь показываетс€ самый первый каталог в списке.
   18.09.2001 SVS
     + добавл€ем "хоткей" дл€ строки ввода пути назначени€.
   12.09.2001 SVS
@@ -765,19 +774,40 @@ long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
     case DM_CALLTREE:
     {
-      char NewFolder[NM];
-      NewFolder[0]=0;
+      /* $ 13.10.2001 IS
+         + ѕри мультикопировании добавл€ем выбранный в "дереве" каталог к уже
+           существующему списку через точку с зап€той.
+         - Ѕаг: при мультикопировании выбранный в "дереве" каталог не
+           заключалс€ в кавычки, если он содержал в своем
+           имени символы-разделители.
+         - Ѕаг: неправильно работало Shift-F10, если строка ввода содержала
+           слеш на конце.
+         - Ѕаг: неправильно работало Shift-F10 при мультикопировании -
+           показывалс€ корневой каталог, теперь показываетс€ самый первый каталог
+           в списке.
+      */
+      BOOL MultiCopy=Dialog::SendDlgMessage(hDlg,DM_GETCHECK,6,0)==BSTATE_CHECKED;
+      char NewFolder[NM], OldFolder[NM];
+      *NewFolder = 0;
+      Dialog::SendDlgMessage(hDlg,DM_GETTEXTPTR,2,(long)OldFolder);
       if(DlgParam->AltF10 == 2)
       {
-        Dialog::SendDlgMessage(hDlg,DM_GETTEXTPTR,2,(long)NewFolder);
-//        if(NewFolder[0] != 0)
-//        {
-//          ConvertNameToFull(NewFolder,Root, sizeof(Root));
-//          GetPathRoot(Root,Root);
-//          strcpy(NewFolder,Root);
-//        }
-        if(NewFolder[0] == 0)
+        strcpy(NewFolder, OldFolder);
+        if(MultiCopy)
+        {
+          UserDefinedList DestList;
+          if(DestList.Set(OldFolder))
+          {
+            DestList.Start();
+            const char *NamePtr=DestList.GetNext();
+            if(NamePtr)
+              strncpy(NewFolder, NamePtr, sizeof(NewFolder)-1);
+          }
+        }
+        if(*NewFolder == 0)
           DlgParam->AltF10=-1;
+        else // убираем лишний слеш
+          DeleteEndSlash(NewFolder);
       }
 
       if(DlgParam->AltF10 != -1)
@@ -792,12 +822,29 @@ long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         if (*NewFolder)
         {
           AddEndSlash(NewFolder);
+          if(MultiCopy) // мультикопирование
+          {
+            // ƒобавим кавычки, если им€ каталога содержит символы-разделители
+            if(strpbrk(NewFolder,";,"))
+              InsertQuote(NewFolder);
+
+            int len=strlen(OldFolder), newlen=strlen(NewFolder), addSep=0;
+            addSep=len>0;
+            if(len+newlen+addSep<sizeof(OldFolder))// контролируем длину строки
+            {
+              if(addSep)
+                OldFolder[len++]=';'; // добавим разделитель к непустому списку
+              strcpy(OldFolder+len, NewFolder);
+            }
+            strcpy(NewFolder, OldFolder);
+          }
           Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,2,(long)NewFolder);
           Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,2,0);
         }
       }
       DlgParam->AltF10=0;
       return TRUE;
+      /* IS $ */
     }
   }
   return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
