@@ -5,10 +5,14 @@ Screen grabber
 
 */
 
-/* Revision: 1.02 14.08.2000 $ */
+/* Revision: 1.03 17.10.2000 $ */
 
 /*
 Modify:
+  17.10.2000 tran
+    !  screen grabber (Alt-Ins) при добавлении к содержимому clipboard (Ctrl-Gray+)
+       не вставляет <CR> в конце, из-за чего несколько фрагментов "слипаются"
+       на стыках. возможно имеет смысл также вставлять <CR> в начале фрагмента
   14.08.2000 tran
     - trap при проигрывании макроса с клавишами типа Shift...
   13.07.2000 SVS
@@ -93,11 +97,18 @@ void Grabber::CopyGrabbedArea(int Append)
   if (Append)
   {
     char *AppendBuf=PasteFromClipboard();
+    int add=0;
     if (AppendBuf!=NULL)
     {
       int DataSize=strlen(AppendBuf);
-      AppendBuf=(char *)realloc(AppendBuf,DataSize+BufSize);
-      memcpy(AppendBuf+DataSize,CopyBuf,BufSize);
+      if ( AppendBuf[DataSize-1]!='\n' )
+      {
+        add=2;
+      }
+      AppendBuf=(char *)realloc(AppendBuf,DataSize+BufSize+add);
+      memcpy(AppendBuf+DataSize+add,CopyBuf,BufSize);
+      if ( add )
+        memcpy(AppendBuf+DataSize,"\r\n",2);
       /* $ 13.07.2000 SVS
          раз вызывали new[], то нужно вызывать delete[]
       */
