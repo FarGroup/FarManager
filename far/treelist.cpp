@@ -5,10 +5,14 @@ Tree panel
 
 */
 
-/* Revision: 1.44 04.12.2002 $ */
+/* Revision: 1.45 27.12.2002 $ */
 
 /*
 Modify:
+  27.12.2002 VVM
+    + Показывать индикатор сканирования раз в секунду.
+    + Выделять память блоками по 255 итемов.
+    + Сканировать каталоги за один проход.
   04.12.2002 SVS
     - BugZ#695 - Не работает прерывание по Esc
   29.05.2002 SKV
@@ -450,7 +454,8 @@ int TreeList::ReadTree()
   */
   free(ListData);
   TreeCount=0;
-  if ((ListData=(struct TreeItem*)malloc(sizeof(struct TreeItem)))==NULL)
+  if ((ListData=(struct TreeItem*)malloc((TreeCount+256+1)*sizeof(struct TreeItem)))==NULL)
+//  if ((ListData=(struct TreeItem*)malloc(sizeof(struct TreeItem)))==NULL)
     return FALSE;
   /* SVS $ */
 
@@ -467,7 +472,7 @@ int TreeList::ReadTree()
 
   int FirstCall=TRUE, AscAbort=FALSE;
   TreeStartTime = clock();
-  ScTree.SetFindPath(Root,"*.*");
+  ScTree.SetFindPath(Root,"*.*",0);
   SetPreRedrawFunc(TreeList::PR_MsgReadTree);
   while (ScTree.GetNextName(&fdata,FullName, sizeof (FullName)-1))
   {
@@ -480,8 +485,8 @@ int TreeList::ReadTree()
     }
     if(AscAbort)
       break;
-
-    if ((ListData=(struct TreeItem *)realloc(ListData,(TreeCount+1)*sizeof(struct TreeItem)))==NULL)
+    if ((TreeCount & 255)==0 && (ListData=(struct TreeItem *)realloc(ListData,(TreeCount+256+1)*sizeof(struct TreeItem)))==NULL)
+//    if ((ListData=(struct TreeItem *)realloc(ListData,(TreeCount+1)*sizeof(struct TreeItem)))==NULL)
     {
       AscAbort=TRUE;
       break;
@@ -668,7 +673,7 @@ int TreeList::MsgReadTree(int TreeCount,int &FirstCall)
     FirstCall=TRUE;
   }
 
-  if (IsChangeConsole || (!FirstCall) || ((clock() - TreeStartTime) > 500))
+  if (IsChangeConsole || (clock() - TreeStartTime) > 1000)
   {
     char NumStr[32];
     itoa(TreeCount,NumStr,10);
@@ -676,6 +681,7 @@ int TreeList::MsgReadTree(int TreeCount,int &FirstCall)
             MSG(MReadingTree),NumStr);
     PreRedrawParam.Flags=TreeCount;
     FirstCall=FALSE;
+    TreeStartTime = clock();
   }
   /* VVM $ */
   return(1);
@@ -1446,7 +1452,7 @@ void TreeList::ReadSubTree(char *Path)
   AddTreeName(DirName);
 
   int FirstCall=TRUE, AscAbort=FALSE;
-  ScTree.SetFindPath(DirName,"*.*");
+  ScTree.SetFindPath(DirName,"*.*",0);
   SetPreRedrawFunc(TreeList::PR_MsgReadTree);
   while (ScTree.GetNextName(&fdata,FullName, sizeof (FullName)-1))
   {

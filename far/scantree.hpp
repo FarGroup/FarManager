@@ -8,10 +8,12 @@ scantree.hpp
 
 */
 
-/* Revision: 1.04 23.06.2002 $ */
+/* Revision: 1.05 27.12.2002 $ */
 
 /*
 Modify:
+  27.12.2002 VVM
+    + Новый параметр ScanFlags. Разные флаги. Пока что только один SF_FILES_FIRST.
   23.06.2002 SVS
     ! Немного красоты ;-)
   26.03.2002 DJ
@@ -27,6 +29,8 @@ Modify:
 
 #include "farconst.hpp"
 
+#define SF_FILES_FIRST 0x00000001   // Сканирование каталга за два прохода. Сначала файлы, затем каталоги
+
 class ScanTree
 {
   private:
@@ -38,6 +42,7 @@ class ScanTree
     int SecondDirName;
     char FindPath[2*NM];
     char FindMask[NM];
+    DWORD ScanFlags;
 
   private:
     void Init();
@@ -47,7 +52,7 @@ class ScanTree
     ~ScanTree();
 
   public:
-    void SetFindPath(const char *Path,const char *Mask);
+    void SetFindPath(const char *Path,const char *Mask, const DWORD NewScanFlags = SF_FILES_FIRST);
     int GetNextName(WIN32_FIND_DATA *fdata,char *FullName, size_t BufSize);
     void SkipDir();
     int IsDirSearchDone() {return(SecondDirName);};

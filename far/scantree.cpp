@@ -6,10 +6,15 @@ scantree.cpp
 
 */
 
-/* Revision: 1.05 23.06.2002 $ */
+/* Revision: 1.06 27.12.2002 $ */
 
 /*
 Modify:
+  27.12.2002 VVM
+    + Новый параметр ScanFlags. Разные флаги. Пока что только один SF_FILES_FIRST.
+      Это параметр по умолчанию устанавливается в функции SetFindPath, если не задано братное.
+      Смысл в том, что для сканирования дерева нам не нужны два прохода. Я думаю, что
+      потери в скорости были именно здесь.
   23.06.2002 SVS
     ! ннбольшая оптимизация кода
   26.03.2002 DJ
@@ -55,16 +60,18 @@ void ScanTree::Init()
   FindHandleCount=0;
   SecondDirName=0;
   memset(SecondPass,0,sizeof(SecondPass));
+  ScanFlags = 0;
 }
 
 
-void ScanTree::SetFindPath(const char *Path,const char *Mask)
+void ScanTree::SetFindPath(const char *Path,const char *Mask, const DWORD NewScanFlags)
 {
   Init();
   strcpy(FindPath,Path);
   AddEndSlash(FindPath);
   strcpy(FindMask,Mask);
   strcat(FindPath,FindMask);
+  ScanFlags = NewScanFlags;
 }
 
 
@@ -79,23 +86,26 @@ int ScanTree::GetNextName(WIN32_FIND_DATA *fdata,char *FullName, size_t BufSize)
       Done=((FindHandle[FindHandleCount]=FindFirstFile(FindPath,fdata))==INVALID_HANDLE_VALUE);
     else
       Done=!FindNextFile(FindHandle[FindHandleCount],fdata);
-    if (SecondPass[FindHandleCount])
+    if (ScanFlags & SF_FILES_FIRST)
     {
-      if (!Done && (fdata->dwFileAttributes & FA_DIREC)==0)
-        continue;
-    }
-    else
-    {
-      if (!Done && (fdata->dwFileAttributes & FA_DIREC))
-        continue;
-      if (Done)
+      if (SecondPass[FindHandleCount])
       {
-        FindClose(FindHandle[FindHandleCount]);
-        FindHandle[FindHandleCount]=0;
-        SecondPass[FindHandleCount]=TRUE;
-        continue;
+        if (!Done && (fdata->dwFileAttributes & FA_DIREC)==0)
+          continue;
       }
-    }
+      else
+      {
+        if (!Done && (fdata->dwFileAttributes & FA_DIREC))
+          continue;
+        if (Done)
+        {
+          FindClose(FindHandle[FindHandleCount]);
+          FindHandle[FindHandleCount]=0;
+          SecondPass[FindHandleCount]=TRUE;
+          continue;
+        }
+      }
+    } /* if */
     char *FileName=fdata->cFileName;
     if (Done || !(*FileName=='.' && (!FileName[1] || FileName[1]=='.' && !FileName[2])))
       break;
