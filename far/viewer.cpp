@@ -5,10 +5,13 @@ Internal viewer
 
 */
 
-/* Revision: 1.131 08.03.2003 $ */
+/* Revision: 1.132 15.04.2003 $ */
 
 /*
 Modify:
+  15.04.2003 VVM
+    ! Отступ делаем на 1/4 экрана, а не на 1/3
+	! После поиска с начала файла не предлагаем продолжить поиск.
   08.03.2003 IS
     + Заново определим символы конца строки при включении или выключении
       unicode, т.к. они другие при изменении unicode<->однобайтовая кодировка
@@ -2616,7 +2619,11 @@ void Viewer::Search(int Next,int FirstChar)
         LastSelPos = SelectPos + (ReverseSearch?-1:1);
     }
     else
+    {
       LastSelPos = FilePos;
+      if (LastSelPos == 0 || LastSelPos == FileSize)
+        SearchFlags.Set(SEARCH_MODE2);
+    }
 
     vseek(ViewFile,LastSelPos,SEEK_SET);
     Match=0;
@@ -2777,7 +2784,7 @@ void Viewer::Search(int Next,int FirstChar)
     SelectText(MatchPos,SearchLength,ReverseSearch?0x2:0);
 
     // Покажем найденное на расстоянии трети экрана от верха.
-    int FromTop=(ScrY-(Opt.ShowKeyBarViewer?2:1))/3;
+    int FromTop=(ScrY-(Opt.ShowKeyBarViewer?2:1))/4;
     if (FromTop<0 || FromTop>ScrY)
       FromTop=0;
 
@@ -2787,7 +2794,6 @@ void Viewer::Search(int Next,int FirstChar)
     AdjustSelPosition = TRUE;
     Show();
     AdjustSelPosition = FALSE;
-    SearchFlags.Clear(SEARCH_MODE2);
     /* KM $ */
   }
   else
