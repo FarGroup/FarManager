@@ -5,10 +5,12 @@ history.cpp
 
 */
 
-/* Revision: 1.27 20.09.2002 $ */
+/* Revision: 1.28 08.10.2002 $ */
 
 /*
 Modify:
+  08.10.2002 SVS
+    - BugZ#675 - Неправильно вычисляется ширина меню со списком окон
   20.09.2002 SVS
     - BugZ#637 - delete history do not work correctly
     - BugZ#638 - command line history
@@ -546,6 +548,7 @@ int History::Select(const char *Title,const char *HelpTopic,char *Str,int StrLen
             strcpy(Record,LastStr[CurCmd].Name);
 
           TruncPathStr(Ptr,SizeTrunc);
+          ReplaceStrings(Ptr,"&","&&",-1);
           memset(&HistoryItem,0,sizeof(HistoryItem));
           strncpy(HistoryItem.Name,Record,sizeof(HistoryItem.Name)-1);
           HistoryItem.SetSelect(CurCmd==CurLastPtr);

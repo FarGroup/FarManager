@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.78 26.09.2002 $ */
+/* Revision: 1.79 08.10.2002 $ */
 
 /*
 Modify:
+  08.10.2002 SVS
+    - BugZ#675 - Неправильно вычисляется ширина меню со списком окон
   26.09.2002 SVS
     + Вынесем код по ресайзу в функцию ResizeAllFrame()
   20.06.2002 SVS
@@ -542,7 +544,7 @@ Frame *Manager::FrameMenu()
 
     for (int I=0;I<FrameCount;I++)
     {
-      char Type[200],Name[NM],NumText[100];
+      char Type[200],Name[NM*2],NumText[100];
       FrameList[I]->GetTypeAndName(Type,Name);
       /* $ 07.07.2001 IS
          Если фреймов больше 10, то используем для горячих клавиш буквы
@@ -558,6 +560,7 @@ Frame *Manager::FrameMenu()
       /* $ 28.07.2000 tran
          файл усекает по ширине экрана */
       TruncPathStr(Name,ScrX-24);
+      ReplaceStrings(Name,"&","&&",-1);
       /*  добавляется "*" если файл изменен */
       sprintf(ModalMenuItem.Name,"%s%-10.10s %c %s",NumText,Type,(FrameList[I]->IsFileModified()?'*':' '),Name);
       /* tran 28.07.2000 $ */

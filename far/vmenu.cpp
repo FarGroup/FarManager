@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.99 04.10.2002 $ */
+/* Revision: 1.100 08.10.2002 $ */
 
 /*
 Modify:
+  08.10.2002 SVS
+    - BugZ#675 - Ќеправильно вычисл€етс€ ширина меню со списком окон
   04.10.2002 SVS
     ! ”точнение и расширение VMenu::SetColors()
   30.09.2002 SVS
@@ -837,7 +839,8 @@ void VMenu::ShowMenu(int IsParent)
           else
             Check=(char)Item[I].Flags&0x0000FFFF;
 
-        sprintf(TmpStr,"%c %.*s",Check,X2-X1-3,Item[I].PtrName());
+        //sprintf(TmpStr,"%c %.*s",Check,X2-X1-3,Item[I].PtrName());
+        sprintf(TmpStr,"%c %s",Check,Item[I].PtrName());
         { // табул€ции мен€ем только при показе!!!
           // дл€ сохранение оригинальной строки!!!
           char *TabPtr;
