@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.150 29.01.2002 $ */
+/* Revision: 1.151 04.02.2002 $ */
 
 /*
 Modify:
+  04.02.2002 IS
+    ! ”точним проверку наличи€ выделени€ в shift-(left|right) и shift-end
+      чтобы исправить жука 280.
   29.01.2002 SVS
     - непосто€нные блоки, Alt-F8 Enter - выделение блока не снимаетс€
   28.01.2002 VVM
@@ -1648,7 +1651,15 @@ int Editor::ProcessKey(int Key)
         */
         {
           int First=FALSE; // будет TRUE, если выдел€ем заново, а не продолжаем
-          if (!EFlags.Check(FEDITOR_MARKINGBLOCK))
+          /* $ 04.02.2002 IS
+             ƒобавим дополнительную проверку на наличие выделени€ - если
+             SelStart==SelEnd, то считаем, что выделени€ нет (такое могло быть
+             после плагинов)
+          */
+          int SelStart, SelEnd;
+          CurLine->EditLine.GetRealSelection(SelStart,SelEnd);
+          if (!EFlags.Check(FEDITOR_MARKINGBLOCK) || SelStart==SelEnd)
+          /* IS $ */
           {
             UnmarkBlock();
             First=TRUE; EFlags.Set(FEDITOR_MARKINGBLOCK);
@@ -1659,8 +1670,6 @@ int Editor::ProcessKey(int Key)
           /* $ 24.05.2001 IS
              ! ѕриблизим поведение к тому, какое было до 592
           */
-          int SelStart, SelEnd;
-          CurLine->EditLine.GetRealSelection(SelStart,SelEnd);
           if(CurPos>CurLength) // мы за пределами строки
           {
             if (First || (SelStart > CurLength)) // выдел€ем заново или есть блок за пределами строки
@@ -1720,7 +1729,9 @@ int Editor::ProcessKey(int Key)
         if(EFlags.Check(FEDITOR_CURPOSCHANGEDBYPLUGIN))
         {
           CurLine->EditLine.GetSelection(SelStart,SelEnd);
-          if(SelStart!=-1 && (CurPos<SelStart || CurPos>SelEnd))
+          /* $ 04.02.2002 IS уточним условие */
+          if(SelStart!=-1 && (CurPos<SelStart || (SelEnd!=-1 && CurPos>SelEnd)))
+          /* IS $ */
             EFlags.Skip(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
           EFlags.Skip(FEDITOR_CURPOSCHANGEDBYPLUGIN);
         }
@@ -1773,7 +1784,9 @@ int Editor::ProcessKey(int Key)
         if(EFlags.Check(FEDITOR_CURPOSCHANGEDBYPLUGIN))
         {
           CurLine->EditLine.GetSelection(SelStart,SelEnd);
-          if(SelStart!=-1 && (CurPos<SelStart || CurPos>SelEnd))
+          /* $ 04.02.2002 IS уточним условие */
+          if(SelStart!=-1 && (CurPos<SelStart || (SelEnd!=-1 && CurPos>SelEnd)))
+          /* IS $ */
             EFlags.Skip(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
           EFlags.Skip(FEDITOR_CURPOSCHANGEDBYPLUGIN);
         }
