@@ -5,10 +5,13 @@ copy.cpp
 
 */
 
-/* Revision: 1.118 30.04.2003 $ */
+/* Revision: 1.119 08.05.2003 $ */
 
 /*
 Modify:
+  08.05.2003 VVM
+    ! При Append забыли про большие файлы :) Используем параметр lpDistanceToMoveHigh
+      в функции SetFilePointer.
   30.04.2003 VVM
     + Уберем флаг FILE_FLAG_SEQUENTIAL_SCAN.
       У меня копирование ускорилось процентов на 20%
@@ -399,7 +402,7 @@ Modify:
 #include "constitle.hpp"
 #include "lockscrn.hpp"
 
-enum {COPY_BUFFER_SIZE  = 0x20000};
+enum {COPY_BUFFER_SIZE  = 0x10000};
 
 /* $ 30.01.2001 VVM
    + Константы для правил показа
@@ -2802,6 +2805,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
 
   HANDLE DestHandle;
   DWORD AppendPos=0;
+  LONG  AppendPosHigh=0;
 
   if(!(ShellCopy::Flags&FCOPY_COPYTONUL))
   {
@@ -2820,7 +2824,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
       return COPY_FAILURE;
     }
 
-    if (Append && (AppendPos=SetFilePointer(DestHandle,0,NULL,FILE_END))==0xFFFFFFFF)
+    if (Append && (AppendPos=SetFilePointer(DestHandle,0,&AppendPosHigh,FILE_END))==0xFFFFFFFF)
     {
       DWORD LastError=GetLastError();
       CloseHandle(SrcHandle);
@@ -2833,7 +2837,9 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
 
 //  int64 WrittenSize(0,0);
   int   AbortOp = FALSE;
-  UINT OldErrMode=SetErrorMode(SEM_NOOPENFILEERRORBOX|SEM_NOGPFAULTERRORBOX|SEM_FAILCRITICALERRORS);
+  UINT  OldErrMode=SetErrorMode(SEM_NOOPENFILEERRORBOX|SEM_NOGPFAULTERRORBOX|SEM_FAILCRITICALERRORS);
+  int64 FileSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
+
   while (1)
   {
     BOOL IsChangeConsole=OrigScrX != ScrX || OrigScrY != ScrY;
@@ -2858,7 +2864,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
       {
         if (Append)
         {
-          SetFilePointer(DestHandle,AppendPos,NULL,FILE_BEGIN);
+          SetFilePointer(DestHandle,AppendPos,&AppendPosHigh,FILE_BEGIN);
           SetEndOfFile(DestHandle);
         }
         CloseHandle(DestHandle);
@@ -2897,7 +2903,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
       {
         if (Append)
         {
-          SetFilePointer(DestHandle,AppendPos,NULL,FILE_BEGIN);
+          SetFilePointer(DestHandle,AppendPos,&AppendPosHigh,FILE_BEGIN);
           SetEndOfFile(DestHandle);
         }
         CloseHandle(DestHandle);
@@ -3042,7 +3048,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
           CloseHandle(SrcHandle);
           if (Append)
           {
-            SetFilePointer(DestHandle,AppendPos,NULL,FILE_BEGIN);
+            SetFilePointer(DestHandle,AppendPos,&AppendPosHigh,FILE_BEGIN);
             SetEndOfFile(DestHandle);
           }
           CloseHandle(DestHandle);
@@ -3085,14 +3091,21 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
     /* VVM $ */
 
     CurCopiedSize+=BytesWritten;
-    int64 FileSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
-    ShowBar(CurCopiedSize,FileSize,false);
     if (ShowTotalCopySize)
-    {
       TotalCopiedSize+=BytesWritten;
-      if (ShowBar(TotalCopiedSize,TotalCopySize,true))
+
+    /* $ 14.09.2002 VVM
+      + Показывать прогресс не чаще 5 раз в секунду */
+    if ((CurCopiedSize == FileSize) || (clock() - LastShowTime > 200))
+    {
+      ShowBar(CurCopiedSize,FileSize,false);
+      if (ShowTotalCopySize)
+      {
+        ShowBar(TotalCopiedSize,TotalCopySize,true);
         ShowTitle(FALSE);
+      }
     }
+    /* VVM $ */
   } /* while */
   SetErrorMode(OldErrMode);
 
@@ -3139,14 +3152,8 @@ int ShellCopy::ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar)
 {
   // // _LOGCOPYR(CleverSysLog clv("ShellCopy::ShowBar"));
   // // _LOGCOPYR(SysLog("WrittenSize=%Ld ,TotalSize=%Ld, TotalBar=%d",WrittenSize,TotalSize,TotalBar));
-  /* $ 14.09.2002 VVM
-    + Показывать прогресс не чаще 1 раза в секунду */
-  // Пусть будет 4 раза в секунду
-  if ((WrittenSize > 0) && (WrittenSize < TotalSize) && (clock() - LastShowTime < 250))
-    return (FALSE);
   if (!ShowTotalCopySize || TotalBar)
     LastShowTime = clock();
-  /* VVM $ */
 /* $ 30.01.2001 VVM
     + Запомнить размеры */
   int64 OldWrittenSize = WrittenSize;
