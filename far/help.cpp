@@ -8,10 +8,13 @@ help.cpp
 
 */
 
-/* Revision: 1.44 27.09.2001 $ */
+/* Revision: 1.45 01.10.2001 $ */
 
 /*
 Modify:
+  01.10.2001 SVS
+    ! ¬ременно отключим "KEY_SHIFTF3"
+    + CtrlTabSize - опци€! размер табул€ции - резерв на будущее!
   27.09.2001 IS
     - Ћевый размер при использовании strncpy
   24.09.2001 VVM
@@ -148,6 +151,7 @@ Modify:
 #include "keys.hpp"
 #include "colors.hpp"
 #include "plugin.hpp"
+#include "scantree.hpp"
 #include "savescr.hpp"
 #include "manager.hpp"
 #include "ctrlobj.hpp"
@@ -338,6 +342,16 @@ int Help::ReadHelp(char *Mask)
     ErrorHelp=TRUE;
     return FALSE;
   }
+
+  *ReadStr=0;
+  if (Language::GetOptionsParam(HelpFile,"TabSize",ReadStr))
+  {
+    CtrlTabSize=atoi(ReadStr);
+  }
+  if(CtrlTabSize < 0 || CtrlTabSize > 16)
+    CtrlTabSize=1;
+
+  *ReadStr=0;
   if (Language::GetOptionsParam(HelpFile,"CtrlColorChar",ReadStr))
   {
     CtrlColorChar=ReadStr[0];
@@ -1025,6 +1039,7 @@ int Help::ProcessKey(int Key)
       return(TRUE);
 
     case KEY_SHIFTF3: // ƒл€ "документов" :-)
+#if 0
       //   не поганим SelTopic, если и так в DocumentContents
       if(LocalStricmp(StackData.HelpTopic,DocumentContents)!=0)
       {
@@ -1033,6 +1048,7 @@ int Help::ProcessKey(int Key)
         JumpTopic(DocumentContents);
         IsNewTopic=FALSE;
       }
+#endif
       return(TRUE);
 
     case KEY_ALTF1:
@@ -1078,6 +1094,7 @@ int Help::JumpTopic(const char *JumpTopic)
       *p=0;
       if(RunURL(NewTopic,StackData.SelTopic))
         return(TRUE);
+      *p=':';
     }
   }
   // а вот теперь попробуем...
@@ -1277,6 +1294,9 @@ void Help::ReadDocumentsHelp(int TypeIndex)
   CtrlColorChar=0;
 
   char *PtrTitle, *ContentsName;
+  char Path[NM],FullFileName[NM],*PtrPath,*Slash;
+  char EntryName[512],HelpLine[512],SecondParam[512];
+
   switch(TypeIndex)
   {
     case HIDX_PLUGINS:
@@ -1302,11 +1322,10 @@ void Help::ReadDocumentsHelp(int TypeIndex)
     {
       for (int I=0;I<CtrlObject->Plugins.PluginsCount;I++)
       {
-        char Path[NM],FileName[NM],*Slash;
         strcpy(Path,CtrlObject->Plugins.PluginsData[I].ModuleName);
         if ((Slash=strrchr(Path,'\\'))!=NULL)
           *Slash=0;
-        FILE *HelpFile=Language::OpenLangFile(Path,HelpFileMask,Opt.HelpLanguage,FileName);
+        FILE *HelpFile=Language::OpenLangFile(Path,HelpFileMask,Opt.HelpLanguage,FullFileName);
         if (HelpFile!=NULL)
         {
           char EntryName[512],HelpLine[512],SecondParam[512];
@@ -1327,7 +1346,59 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 
     case HIDX_DOCUMS:
     {
-      // это будет после!
+#if 0
+      // в плагинах.
+      for (int I=0;I<CtrlObject->Plugins.PluginsCount;I++)
+      {
+        strcpy(Path,CtrlObject->Plugins.PluginsData[I].ModuleName);
+        if ((Slash=strrchr(Path,'\\'))!=NULL)
+          *Slash=0;
+        FILE *HelpFile=Language::OpenLangFile(Path,HelpFileMask,Opt.HelpLanguage,FullFileName);
+        if (HelpFile!=NULL)
+        {
+          if (Language::GetLangParam(HelpFile,ContentsName,EntryName,SecondParam))
+          {
+            if (*SecondParam)
+              sprintf(HelpLine,"   ~%s,%s~@<%s>%s@",EntryName,SecondParam,FullFileName,"Contents");
+            else
+              sprintf(HelpLine,"   ~%s~@<%s>%s@",EntryName,FullFileName,"Contents");
+            AddLine(HelpLine);
+          }
+
+          fclose(HelpFile);
+        }
+      }
+
+      // в документах.
+      {
+        WIN32_FIND_DATA FindData;
+        ScanTree ScTree(FALSE,FALSE);
+        AddEndSlash(strcpy(Path,FarPath));
+        strcat(Path,"Doc");
+        ScTree.SetFindPath(Path,HelpFileMask);
+        while (ScTree.GetNextName(&FindData,FullFileName))
+        {
+          if((PtrPath=strrchr(FullFileName,'\\')) != NULL)
+            *PtrPath++=0;
+          else
+            PtrPath=HelpFileMask;
+          FILE *HelpFile=Language::OpenLangFile(Path,PtrPath,Opt.HelpLanguage,FullFileName);
+          if (HelpFile!=NULL)
+          {
+            if (Language::GetLangParam(HelpFile,ContentsName,EntryName,SecondParam))
+            {
+              if (*SecondParam)
+                sprintf(HelpLine,"   ~%s,%s~@<%s>%s@",EntryName,SecondParam,FullFileName,"Contents");
+              else
+                sprintf(HelpLine,"   ~%s~@<%s>%s@",EntryName,FullFileName,"Contents");
+_SVS(SysLog("HelpLine=%s",HelpLine));
+              AddLine(HelpLine);
+            }
+            fclose(HelpFile);
+          }
+        }
+      }
+#endif
       break;
     }
   }
@@ -1625,6 +1696,7 @@ void CallBackStack::Push(const struct StackHelpData *Data)
 
 void CallBackStack::PrintStack(const char *Title)
 {
+#if defined(SYSLOG)
   int I=0;
   ListNode *Ptr = topOfStack;
   SysLog("Return Stack (%s)",Title);
@@ -1635,5 +1707,6 @@ void CallBackStack::PrintStack(const char *Title)
     Ptr=Ptr->Next;
   }
   SysLog(-1);
+#endif
 }
 #endif // defined(DHELP2)

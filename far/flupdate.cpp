@@ -5,10 +5,14 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.14 27.09.2001 $ */
+/* Revision: 1.15 01.10.2001 $ */
 
 /*
 Modify:
+  01.10.2001 SVS
+    ! Немного оптимизации - для ускорения считывания директории
+    + AddParentPoint() - общий код по добавлению ".."
+    + UpdateColorItems() - колоризация итемов
   27.09.2001 IS
     - Левый размер при использовании strncpy
   26.09.2001 SVS
@@ -93,6 +97,8 @@ void FileList::Update(int Mode)
 }
 
 
+// ЭТО ЕСТЬ УЗКОЕ МЕСТО ДЛЯ СКОРОСТНЫХ ХАРАКТЕРИСТИК Far Manafer
+// при считывании дирректории
 void FileList::ReadFileNames(int KeepSelection)
 {
   if (!IsVisible())
@@ -209,6 +215,18 @@ void FileList::ReadFileNames(int KeepSelection)
   Done=((FindHandle=FindFirstFile("*.*",&fdata))==INVALID_HANDLE_VALUE);
 
   int AllocatedCount=0;
+  struct FileListItem NewPtr;
+
+  // вне цикла получим указатель.
+  char *PointToName_CurDir=PointToName(CurDir);
+
+  // сформируем заголовок вне цикла
+  char Title[2048];
+  int TitleLength=Min((int)X2-X1-1,(int)sizeof(Title)-1);
+  memset(Title,0x0CD,TitleLength);
+  Title[TitleLength]=0;
+  BOOL IsShowTitle=FALSE;
+
   for (FileCount=0; !Done; )
   {
     if ((fdata.cFileName[0]!='.' || fdata.cFileName[1]!=0) &&
@@ -221,7 +239,7 @@ void FileList::ReadFileNames(int KeepSelection)
       {
         UpperDir=TRUE;
         DotsPresent=TRUE;
-        if (*PointToName(CurDir)==0)
+        if (*PointToName_CurDir==0)
         {
           Done=!FindNextFile(FindHandle,&fdata);
           continue;
@@ -235,78 +253,62 @@ void FileList::ReadFileNames(int KeepSelection)
         ListData=CurPtr;
       }
 
-      CurPtr=ListData+FileCount;
-      strcpy(CurPtr->ShortName,fdata.cAlternateFileName);
-      strcpy(CurPtr->Name,fdata.cFileName);
-      CurPtr->Position=FileCount;
-      CurPtr->CustomColumnNumber=0;
-      CurPtr->UserFlags=0;
-      CurPtr->NumberOfLinks=1;
-      CurPtr->CRC32=0;
-      if (fdata.dwFileAttributes & FA_DIREC)
+      memset(&NewPtr,0,sizeof(NewPtr));
+      memcpy(&NewPtr.FileAttr,&fdata,sizeof(fdata));
+      NewPtr.Position=FileCount;
+      NewPtr.NumberOfLinks=1;
+
+      if ((fdata.dwFileAttributes & FA_DIREC) == 0)
       {
-        CurPtr->UnpSize=CurPtr->UnpSizeHigh=0;
-        CurPtr->PackSize=CurPtr->PackSizeHigh=0;
-      }
-      else
-      {
-        CurPtr->UnpSizeHigh=fdata.nFileSizeHigh;
-        CurPtr->UnpSize=fdata.nFileSizeLow;
         TotalFileSize+=int64(fdata.nFileSizeHigh,fdata.nFileSizeLow);
         int Compressed=FALSE;
         if (ReadPacked && (fdata.dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED))
         {
-          CurPtr->PackSize=GetCompressedFileSize(fdata.cFileName,&CurPtr->PackSizeHigh);
+          NewPtr.PackSize=GetCompressedFileSize(fdata.cFileName,&NewPtr.PackSizeHigh);
           if (CurPtr->PackSize!=0xFFFFFFFF || GetLastError()==NO_ERROR)
             Compressed=TRUE;
         }
         if (!Compressed)
         {
-          CurPtr->PackSizeHigh=fdata.nFileSizeHigh;
-          CurPtr->PackSize=fdata.nFileSizeLow;
+          NewPtr.PackSizeHigh=fdata.nFileSizeHigh;
+          NewPtr.PackSize=fdata.nFileSizeLow;
         }
         if (ReadNumLinks)
-          CurPtr->NumberOfLinks=GetNumberOfLinks(fdata.cFileName);
+          NewPtr.NumberOfLinks=GetNumberOfLinks(fdata.cFileName);
+      }
+      else
+      {
+        NewPtr.PackSizeHigh=NewPtr.PackSize=0;
       }
 
-      CurPtr->WriteTime=fdata.ftLastWriteTime;
-
-      CurPtr->CreationTime=fdata.ftCreationTime;
-      CurPtr->AccessTime=fdata.ftLastAccessTime;
-      CurPtr->FileAttr=fdata.dwFileAttributes;
-      CurPtr->PrevSelected=CurPtr->Selected=0;
-      CurPtr->ShowFolderSize=0;
-      if (Opt.Highlight)
-        CtrlObject->HiFiles->GetHiColor(CurPtr->Name,CurPtr->FileAttr,&CurPtr->Colors);
-      CurPtr->SortGroup=DEFAULT_SORT_GROUP;
-      CurPtr->DeleteDiz=FALSE;
-      CurPtr->DizText=NULL;
+      NewPtr.SortGroup=DEFAULT_SORT_GROUP;
       if (ReadOwners)
       {
         char Owner[NM];
-        GetFileOwner(*ComputerName ? ComputerName:NULL,CurPtr->Name,Owner);
-        strncpy(CurPtr->Owner,Owner,sizeof(CurPtr->Owner)-1);
+        GetFileOwner(*ComputerName ? ComputerName:NULL,NewPtr.Name,Owner);
+        strncpy(NewPtr.Owner,Owner,sizeof(NewPtr.Owner)-1);
       }
-      else
-        *CurPtr->Owner=0;
-      if (!UpperDir && (CurPtr->FileAttr & FA_DIREC)==0)
+      if (!UpperDir && (NewPtr.FileAttr & FA_DIREC)==0)
         TotalFileCount++;
+
+      memcpy(ListData+FileCount,&NewPtr,sizeof(NewPtr));
       FileCount++;
+
       if ((FileCount & 0x3f)==0 && clock()-StartTime>1000)
       {
         if (IsVisible())
         {
-          char Title[512],ReadMsg[100];
-          int TitleLength=X2-X1-1;
-          SetColor(COL_PANELBOX);
-          memset(Title,0x0CD,TitleLength);
-          Title[TitleLength]=0;
-          GotoXY(X1+1,Y1);
-          Text(Title);
+          char ReadMsg[100];
+          if(!IsShowTitle)
+          {
+            Text(X1+1,Y1,COL_PANELBOX,Title);
+            IsShowTitle=TRUE;
+            SetColor(Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
+          }
+
           sprintf(ReadMsg,MSG(MReadingFiles),FileCount);
           TruncStr(ReadMsg,TitleLength-2);
           int MsgLength=strlen(ReadMsg);
-          SetColor(Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
           GotoXY(X1+1+(TitleLength-MsgLength-1)/2,Y1);
           mprintf(" %s ",ReadMsg);
         }
@@ -325,6 +327,10 @@ void FileList::ReadFileNames(int KeepSelection)
     Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MReadFolderError),MSG(MOk));
 
   FindClose(FindHandle);
+
+  // "перекраску" вынесем в отдельный цикл - на медленных сетевых соединениях
+  // вежнее считать конкент, а остальное потом.
+  UpdateColorItems();
 
   if (IsColumnDisplayed(DIZ_COLUMN))
     ReadDiz();
@@ -346,13 +352,7 @@ void FileList::ReadFileNames(int KeepSelection)
     }
     if (CurPtr!=NULL)
     {
-      CurPtr=ListData+FileCount;
-      memset(CurPtr,0,sizeof(*CurPtr));
-      strcpy(CurPtr->ShortName,"..");
-      strcpy(CurPtr->Name,"..");
-      CurPtr->Position=FileCount;
-      CurPtr->FileAttr=FA_DIREC;
-      *CurPtr->Owner=0;
+      AddParentPoint(ListData+FileCount,FileCount);
       FileCount++;
     }
   }
@@ -446,9 +446,22 @@ int FileList::UpdateIfChanged(int Force)
         return(TRUE);
       }
   }
+  // В этом случае - просто перекрасим
+  UpdateColorItems();
   return(FALSE);
 }
 /* SKV$*/
+
+void FileList::UpdateColorItems(void)
+{
+  if (Opt.Highlight)
+  {
+    int I;
+    struct FileListItem *CurPtr;
+    for(I=0,CurPtr=ListData; I < FileCount; ++I,++CurPtr)
+      CtrlObject->HiFiles->GetHiColor(CurPtr->Name,CurPtr->FileAttr,&CurPtr->Colors);
+  }
+}
 
 void FileList::CreateChangeNotification(int CheckTree)
 {
@@ -577,11 +590,7 @@ void FileList::UpdatePlugin(int KeepSelection)
     DeleteListData(ListData,FileCount);
 
   FileCount=PluginFileCount;
-  /* $ 13.07.2000 SVS
-     странно, а потом перераспределение через realloc идет :-(
-  */
   ListData=(struct FileListItem*)malloc(sizeof(struct FileListItem)*(FileCount+1));
-  /* SVS $ */
 
   if (ListData==NULL)
   {
@@ -638,8 +647,8 @@ void FileList::UpdatePlugin(int KeepSelection)
 
   if ((Info.Flags & OPIF_ADDDOTS) && !DotsPresent)
   {
-    struct FileListItem *CurPtr=ListData+FileCount;
-    memset(CurPtr,0,sizeof(*CurPtr));
+    struct FileListItem *CurPtr;
+    AddParentPoint((CurPtr=ListData+FileCount),FileCount);
     if (Info.HostFile && *Info.HostFile)
     {
       WIN32_FIND_DATA FindData;
@@ -654,10 +663,6 @@ void FileList::UpdatePlugin(int KeepSelection)
         CurPtr->AccessTime=FindData.ftLastAccessTime;
       }
     }
-    strcpy(CurPtr->ShortName,"..");
-    strcpy(CurPtr->Name,"..");
-    CurPtr->Position=FileCount;
-    CurPtr->FileAttr=FA_DIREC;
     FileCount++;
   }
 
@@ -753,9 +758,9 @@ void FileList::ReadDiz(struct PluginPanelItem *ItemList,int ItemLength,DWORD dwF
       /* VVM $ */
     }
   }
-  for (int I=0;I<FileCount;I++)
+  struct FileListItem *CurPtr=ListData;
+  for (int I=0;I<FileCount;I++,CurPtr++)
   {
-    struct FileListItem *CurPtr=ListData+I;
     if (CurPtr->DizText==NULL)
     {
       CurPtr->DeleteDiz=FALSE;
@@ -770,12 +775,22 @@ void FileList::ReadSortGroups()
   if (SortGroupsRead)
     return;
   SortGroupsRead=TRUE;
-  for (int I=0;I<FileCount;I++)
+  struct FileListItem *CurPtr=ListData;
+  for (int I=0;I<FileCount;I++,CurPtr++)
   {
-    struct FileListItem *CurPtr=ListData+I;
     if ((CurPtr->FileAttr & FA_DIREC)==0)
       CurPtr->SortGroup=CtrlObject->GrpSort->GetGroup(CurPtr->Name);
     else
       CurPtr->SortGroup=DEFAULT_SORT_GROUP;
   }
+}
+
+// Обнулить текущий CurPtr и занести предопределенные данные для каталога ".."
+void FileList::AddParentPoint(struct FileListItem *CurPtr,long CurFilePos)
+{
+  memset(CurPtr,0,sizeof(struct FileListItem));
+  strcpy(CurPtr->ShortName,"..");
+  strcpy(CurPtr->Name,"..");
+  CurPtr->Position=CurFilePos;
+  CurPtr->FileAttr=FA_DIREC;
 }

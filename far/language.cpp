@@ -5,10 +5,12 @@ language.cpp
 
 */
 
-/* Revision: 1.12 01.08.2001 $ */
+/* Revision: 1.13 01.10.2001 $ */
 
 /*
 Modify:
+  01.10.2001 SVS
+    ! Учтем, что может быть, т.н. "DocumentContents"
   01.08.2001 SVS
     - Не допускаем дубликатов!
       Если в каталог с ФАРом положить еще один HLF с одноименным
@@ -332,18 +334,24 @@ int Language::Select(int HelpLanguage,VMenu **MenuPtr)
     char LangName[200],LangDescr[200];
     if (GetLangParam(LangFile,"Language",LangName,LangDescr))
     {
-      sprintf(LangMenuItem.Name,"%.40s",*LangDescr ? LangDescr:LangName);
-      /* $ 01.08.2001 SVS
-         Не допускаем дубликатов!
-         Если в каталог с ФАРом положить еще один HLF с одноименным
-         языком, то... фигня получается при выборе языка.
-      */
-      if(LangMenu->FindItem(0,LangMenuItem.Name,LIFIND_NOPATTERN) == -1)
-      {
-        LangMenuItem.SetSelect(stricmp(Dest,LangName)==0);
-        LangMenu->SetUserData(LangName,0,LangMenu->AddItem(&LangMenuItem));
-      }
-      /* SVS $ */
+       char EntryName[512];
+       if (!GetLangParam(LangFile,"PluginContents",EntryName,NULL) &&
+           !GetLangParam(LangFile,"DocumentContents",EntryName,NULL))
+       {
+
+         sprintf(LangMenuItem.Name,"%.40s",*LangDescr ? LangDescr:LangName);
+         /* $ 01.08.2001 SVS
+            Не допускаем дубликатов!
+            Если в каталог с ФАРом положить еще один HLF с одноименным
+            языком, то... фигня получается при выборе языка.
+         */
+         if(LangMenu->FindItem(0,LangMenuItem.Name,LIFIND_NOPATTERN) == -1)
+         {
+           LangMenuItem.SetSelect(stricmp(Dest,LangName)==0);
+           LangMenu->SetUserData(LangName,0,LangMenu->AddItem(&LangMenuItem));
+         }
+         /* SVS $ */
+       }
     }
     fclose(LangFile);
   }

@@ -5,10 +5,12 @@ flink.cpp
 
 */
 
-/* Revision: 1.23 27.09.2001 $ */
+/* Revision: 1.24 01.10.2001 $ */
 
 /*
 Modify:
+  01.10.2001 SVS
+    ! FarGetRepasePointInfo -> FarGetRepa_R_sePointInfo
   27.09.2001 IS
     ! FarGetRepasePointInfo: выделяем столько памяти, сколько нужно
     - FarGetRepasePointInfo: использовали размер указателя, а не размер буфера
@@ -386,7 +388,7 @@ DWORD WINAPI GetJunctionPointInfo(LPCTSTR szMountDir,
   return rdb.SubstituteNameLength / sizeof(TCHAR);
 }
 
-int WINAPI FarGetRepasePointInfo(const char *Src,char *Dest,int DestSize)
+int WINAPI FarGetReparsePointInfo(const char *Src,char *Dest,int DestSize)
 {
   if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT &&
      WinVer.dwMajorVersion >= 5 &&

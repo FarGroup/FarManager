@@ -10,10 +10,12 @@ help.hpp
 
 */
 
-/* Revision: 1.19 07.08.2001 $ */
+/* Revision: 1.20 01.10.2001 $ */
 
 /*
 Modify:
+  01.10.2001 SVS
+    + CtrlTabSize - опци€! размер табул€ции - резерв на будущее!
   07.08.2001 SVS
     ! косметика - дл€ собственных нужд (по поводу help2.?pp)
   05.08.2001 SVS
@@ -110,6 +112,7 @@ class Help:public Frame
     BYTE  CtrlColorChar;        // CtrlColorChar - опци€! дл€ спецсимвола-
                                 //   символа - дл€ атрибутов
     int   CurColor;             // CurColor - текущий цвет отрисовки
+    int   CtrlTabSize;          // CtrlTabSize - опци€! размер табул€ции
 
     int   PrevMacroMode;        // предыдущий режим макроса
 

@@ -867,7 +867,7 @@ int PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNumb
       /* IS $ */
       StandardFunctions.MkLink=FarMkLink;
       StandardFunctions.ConvertNameToReal=ConvertNameToReal;
-      StandardFunctions.GetRepasePointInfo=FarGetRepasePointInfo;
+      StandardFunctions.GetReparsePointInfo=FarGetReparsePointInfo;
     }
 
     if(!StartupInfo.StructSize)

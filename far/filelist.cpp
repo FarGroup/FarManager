@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.93 27.09.2001 $ */
+/* Revision: 1.94 01.10.2001 $ */
 
 /*
 Modify:
+  01.10.2001 SVS
+    ! Немного оптимизации...
   27.09.2001 IS
     - Левый размер при использовании strncpy
   26.09.2001 SVS
@@ -363,24 +365,22 @@ void FileList::DeleteListData(struct FileListItem *(&ListData),long &FileCount)
 {
   if (ListData==NULL)
     return;
-  for (int I=0;I<FileCount;I++)
+
+  struct FileListItem *CurPtr=ListData;
+  for (int I=0;I<FileCount;I++,CurPtr++)
   {
-    if (ListData[I].CustomColumnNumber>0 && ListData[I].CustomColumnData!=NULL)
+    if (CurPtr->CustomColumnNumber>0 && CurPtr->CustomColumnData!=NULL)
     {
       for (int J=0;J<ListData[I].CustomColumnNumber;J++)
-        delete ListData[I].CustomColumnData[J];
-      delete ListData[I].CustomColumnData;
+        delete CurPtr->CustomColumnData[J];
+      delete CurPtr->CustomColumnData;
     }
-    if (ListData[I].UserFlags & PPIF_USERDATA)
-      delete (void *)ListData[I].UserData;
-    if (ListData[I].DizText && ListData[I].DeleteDiz)
-      delete ListData[I].DizText;
+    if (CurPtr->UserFlags & PPIF_USERDATA)
+      delete (void *)CurPtr->UserData;
+    if (CurPtr->DizText && CurPtr->DeleteDiz)
+      delete CurPtr->DizText;
   }
-  /* $ 13.07.2000 SVS
-     ни кто не вызывал запрос памяти через new :-)
-  */
   free(ListData);
-  /* SVS $ */
   ListData=NULL;
   FileCount=0;
 }

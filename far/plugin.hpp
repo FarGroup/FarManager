@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.146 26.09.2001 $ */
+/* Revision: 1.147 01.10.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 ¬ этом файле писать все изменени€ только в в этом блоке!!!!
 
 Modify:
+  01.10.2001 SVS 1.147
+    - GetRepasePointInfo -> GetRepa_R_sePointInfo
   26.09.2001 SVS 1.146
     ! AddEndSlash имеет возвращаемый тип BOOL
   24.09.2001 SVS 1.145
@@ -1606,7 +1608,7 @@ enum FRSMODE{
   FRS_RECUR    = 0x0002
 };
 
-typedef int     (WINAPI *FARGETREPASEPOINTINFO)(const char *Src,char *Dest,int DestSize);
+typedef int     (WINAPI *FARGETREPARSEPOINTINFO)(const char *Src,char *Dest,int DestSize);
 
 
 typedef struct FarStandardFunctions
@@ -1665,7 +1667,7 @@ typedef struct FarStandardFunctions
   FARSTDPROCESSNAME          ProcessName;
   FARSTDMKLINK               MkLink;
   FARCONVERTNAMETOREAL       ConvertNameToReal;
-  FARGETREPASEPOINTINFO      GetRepasePointInfo;
+  FARGETREPARSEPOINTINFO     GetReparsePointInfo;
 } FARSTANDARDFUNCTIONS;
 
 struct PluginStartupInfo

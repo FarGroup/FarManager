@@ -7,10 +7,13 @@ filelist.hpp
 
 */
 
-/* Revision: 1.17 05.09.2001 $ */
+/* Revision: 1.18 01.10.2001 $ */
 
 /*
 Modify:
+  01.10.2001 SVS
+    + AddParentPoint() - общий код по добавлению ".."
+    + UpdateColorItems() - колоризация итемов
   05.09.2001 SVS
     ! Вместо полей Color* в структе FileListItem используется
       структура HighlightDataColor
@@ -64,29 +67,30 @@ struct FileListItem
   char ShortNamePresent;
   struct HighlightDataColor Colors;
 
-  DWORD UnpSizeHigh;
-  DWORD UnpSize;
-  DWORD PackSizeHigh;
-  DWORD PackSize;
   DWORD NumberOfLinks;
   DWORD UserFlags;
   DWORD UserData;
 
-  FILETIME WriteTime;
-  FILETIME CreationTime;
-  FILETIME AccessTime;
-
-  DWORD FileAttr;
   int Position;
   int SortGroup;
   char *DizText;
   char DeleteDiz;
   char Owner[40];
-  char Name[NM];
-  char ShortName[80];
   char **CustomColumnData;
   int CustomColumnNumber;
   DWORD CRC32;
+
+  // Аля  WIN32_FIND_DATA - эту часть желательно держать в таком виде
+  DWORD FileAttr;
+  FILETIME CreationTime;
+  FILETIME AccessTime;
+  FILETIME WriteTime;
+  DWORD UnpSizeHigh;
+  DWORD UnpSize;
+  DWORD PackSizeHigh;     // WIN32_FIND_DATA.dwReserved0
+  DWORD PackSize;         // WIN32_FIND_DATA.dwReserved1
+  char Name[NM];
+  char ShortName[80];
 };
 
 struct PluginsStackItem
@@ -218,6 +222,7 @@ class FileList:public Panel
     void PluginClearSelection(struct PluginPanelItem *ItemList,int ItemNumber);
     void ProcessCopyKeys(int Key);
     void ReadSortGroups();
+    void AddParentPoint(struct FileListItem *CurPtr,long CurFilePos);
 
     static void TextToViewSettings(char *ColumnTitles,char *ColumnWidths,
            unsigned int *ViewColumnTypes,int *ViewColumnWidths,int &ColumnCount);
@@ -291,6 +296,7 @@ class FileList:public Panel
     */
     virtual BOOL UpdateKeyBar();
     /* DJ $ */
+    void UpdateColorItems(void);
 
     HANDLE GetPluginHandle();
     int GetRealSelCount();

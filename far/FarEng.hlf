@@ -2452,7 +2452,7 @@ the name of a target contains the character ";" or ",", it must be
 enclosed in quotes.
 
     При копировании/переносе файлов и каталогов FAR также учитывает
-реальные пути с учетом ~симолических связей~@HardSymLink@ в Windows 2000.
+реальные пути с учетом ~символических связей~@HardSymLink@ в Windows 2000.
 
 @HardSymLink
 $ #Hard and Symbolic link#
