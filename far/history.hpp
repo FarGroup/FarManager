@@ -7,10 +7,13 @@ history.hpp
 
 */
 
-/* Revision: 1.07 16.01.2002 $ */
+/* Revision: 1.08 25.01.2002 $ */
 
 /*
 Modify:
+  25.01.2002 SVS
+    !  омпонента Name теперь динамическа€. –азмер в масдае - max 511 байт.
+      ¬ NT - сколько есть. “.е. обрезаение строк будет только в масдае.
   16.01.2002 VVM
     + AddToHistory - новый параметр
       SaveForbid - принудительно запретить запись добавл€емой строки.
@@ -40,11 +43,13 @@ enum{
   HISTORYTYPE_VIEW,
 };
 
+#define HISTORY_TITLESIZE 32
+
 struct HistoryRecord
 {
-  char Name[512];
-  char Title[32];
-  int Type;
+  int   Type;
+  char  Title[HISTORY_TITLESIZE];
+  char *Name;
 };
 
 class History
@@ -58,18 +63,20 @@ class History
     int *EnableSave,SaveTitle,SaveType;
     int LastSimilar;
     int ReturnSimilarTemplate;
+    struct HistoryRecord LastStr[HISTORY_COUNT];
 
   private:
     void AddToHistoryLocal(char *Str,char *Title,int Type);
-    struct HistoryRecord LastStr[HISTORY_COUNT];
+    void FreeHistory(BOOL FreeMemody=FALSE);
 
   public:
     History(int TypeHistory,char *RegKey,int *EnableSave,int SaveTitle,int SaveType);
+   ~History();
 
   public:
     void AddToHistory(char *Str,char *Title=NULL,int Type=0,int SaveForbid=0);
-    void ReadHistory();
-    void SaveHistory();
+    BOOL ReadHistory();
+    BOOL SaveHistory();
     int  Select(char *Title,char *HelpTopic,char *Str,int &Type,char *ItemTitle=NULL);
     void GetPrev(char *Str);
     void GetNext(char *Str);

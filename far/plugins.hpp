@@ -7,10 +7,12 @@ plugins.hpp
 
 */
 
-/* Revision: 1.20 23.01.2002 $ */
+/* Revision: 1.21 25.01.2002 $ */
 
 /*
 Modify:
+  25.01.2002 SVS
+    + PIWF_PRELOADED
   23.01.2002 SVS
     + PICFF_PANELPLUGIN - первая попытка определиться с понятием "это панель"
   22.01.2002 SVS
@@ -102,7 +104,8 @@ typedef int (WINAPI *PLUGINPROCESSVIEWEREVENT)(int Event,void *Param); //* $ 27.
 // флаги для поля PluginItem.WorkFlags
 enum PLUGINITEMWORKFLAGS{
   PIWF_CACHED        = 0x00000001, // кешируется
-  PIWF_DONTLOADAGAIN = 0x00000002, // не загружать плагин снова, ставится в
+  PIWF_PRELOADED     = 0x00000002, //
+  PIWF_DONTLOADAGAIN = 0x00000004, // не загружать плагин снова, ставится в
                                    //   результате проверки требуемой версии фара
 };
 

@@ -5,10 +5,13 @@ fnparce.cpp
 
 */
 
-/* Revision: 1.06 07.12.2001 $ */
+/* Revision: 1.07 25.01.2002 $ */
 
 /*
 Modify:
+  25.01.2002 SVS
+    - Бага при выводе меню, когда юзаются метасимволы !@! и !$! - просто
+      оставим их как есть.
   07.12.2001 SVS
     - BugZ#149 - Метасимвол !& должен строить список с кавычками
       в список всеже должно попасть имя в кавычках.
@@ -241,7 +244,7 @@ _SVS(SysLog("!& TmpStr=[%s]",TmpStr));
       }
 
       // !@  Имя файла, содержащего имена помеченных файлов
-      if (strncmp(CurStr,"!@",2)==0 && ListName!=NULL)
+      if (strncmp(CurStr,"!@",2)==0)
       {
         char Modifers[32]="", *Ptr;
 
@@ -253,13 +256,22 @@ _SVS(SysLog("!& TmpStr=[%s]",TmpStr));
             strncpy(Modifers,CurStr+2,sizeof(Modifers)-1);
             /* $ 02.09.2000 tran
                !@!, !#!@! bug */
-            if ( PassivePanel && ( ListName[NM] || AnotherPanel->MakeListFile(ListName+NM,FALSE,Modifers)))
+            if(ListName!=NULL)
             {
-              strcat(TmpStr,ListName+NM);
+              if ( PassivePanel && ( ListName[NM] || AnotherPanel->MakeListFile(ListName+NM,FALSE,Modifers)))
+              {
+                strcat(TmpStr,ListName+NM);
+              }
+              if ( !PassivePanel && (*ListName || CtrlObject->Cp()->ActivePanel->MakeListFile(ListName,FALSE,Modifers)))
+              {
+                strcat(TmpStr,ListName);
+              }
             }
-            if ( !PassivePanel && (*ListName || CtrlObject->Cp()->ActivePanel->MakeListFile(ListName,FALSE,Modifers)))
+            else
             {
-              strcat(TmpStr,ListName);
+              strcat(TmpStr,CurStr);
+              strcat(TmpStr,Modifers);
+              strcat(TmpStr,"!");
             }
             /* tran $ */
             CurStr+=Ptr-CurStr+1;
@@ -269,7 +281,7 @@ _SVS(SysLog("!& TmpStr=[%s]",TmpStr));
       }
 
       // !$!      Имя файла, содержащего короткие имена помеченных файлов
-      if (strncmp(CurStr,"!$",2)==0 && ShortListName!=NULL)
+      if (strncmp(CurStr,"!$",2)==0)
       {
         char Modifers[32]="", *Ptr;
 
@@ -281,25 +293,34 @@ _SVS(SysLog("!& TmpStr=[%s]",TmpStr));
             strncpy(Modifers,CurStr+2,sizeof(Modifers)-1);
             /* $ 02.09.2000 tran
                !@!, !#!@! bug */
-            if ( PassivePanel && (ShortListName[NM] || AnotherPanel->MakeListFile(ShortListName+NM,TRUE,Modifers)))
+            if(ShortListName!=NULL)
             {
-              /* $ 01.11.2000 IS
-                 Имя файла в данном случае должно быть коротким
-              */
-              ConvertNameToShort(ShortListName+NM,ShortListName+NM);
-              /* IS $ */
-              strcat(TmpStr,ShortListName+NM);
+              if ( PassivePanel && (ShortListName[NM] || AnotherPanel->MakeListFile(ShortListName+NM,TRUE,Modifers)))
+              {
+                /* $ 01.11.2000 IS
+                   Имя файла в данном случае должно быть коротким
+                */
+                ConvertNameToShort(ShortListName+NM,ShortListName+NM);
+                /* IS $ */
+                strcat(TmpStr,ShortListName+NM);
+              }
+              if ( !PassivePanel && (*ShortListName || CtrlObject->Cp()->ActivePanel->MakeListFile(ShortListName,TRUE,Modifers)))
+              {
+                /* $ 01.11.2000 IS
+                   Имя файла в данном случае должно быть коротким
+                */
+                ConvertNameToShort(ShortListName,ShortListName);
+                /* IS $ */
+                strcat(TmpStr,ShortListName);
+              }
+              /* tran $ */
             }
-            if ( !PassivePanel && (*ShortListName || CtrlObject->Cp()->ActivePanel->MakeListFile(ShortListName,TRUE,Modifers)))
+            else
             {
-              /* $ 01.11.2000 IS
-                 Имя файла в данном случае должно быть коротким
-              */
-              ConvertNameToShort(ShortListName,ShortListName);
-              /* IS $ */
-              strcat(TmpStr,ShortListName);
+              strcat(TmpStr,CurStr);
+              strcat(TmpStr,Modifers);
+              strcat(TmpStr,"!");
             }
-            /* tran $ */
             CurStr+=Ptr-CurStr+1;
 _SVS(SysLog("!$! TmpStr=[%s]",TmpStr));
             continue;

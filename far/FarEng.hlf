@@ -1160,6 +1160,11 @@ you can use the highlighted shortcut letters.
     If you want to save the commands history after exiting FAR, use
 the respective option in the ~system settings dialog~@SystemSettings@.
 
+  Примечания:
+
+  1. Длинные команды в Windows 9x/Me перед помещением в историю
+     обрезаются до 511 байт.
+
 @HistoryViews
 $ #File view and edit history#
     The file view history shows the list of files that have been
@@ -1185,6 +1190,11 @@ without changing its position.
     If you want to save the view and edit history after exiting FAR, use
 the respective option in the ~system settings dialog~@SystemSettings@.
 
+  Примечания:
+
+  1. Длинные пути к файлам в Windows 9x/Me перед помещением в историю
+     обрезаются до 511 байт.
+
 @HistoryFolders
 $ #Folders history#
     The folders history shows the list of folders that have been
@@ -1209,6 +1219,11 @@ without changing its position.
 
     If you want to save the folders history after exiting FAR, use
 the respective option in the ~system settings dialog~@SystemSettings@.
+
+  Примечания:
+
+  1. Длинные пути в Windows 9x/Me перед помещением в историю
+     обрезаются до 511 байт.
 
 @TaskList
 $ #Task list#
@@ -1413,7 +1428,10 @@ and not #program.exe !.!#.
 list of selected file names, in ANSI encoding, include full pathnames,
 names with spaces will be in quotes".
 
-  3. The prefixes "!##" and "!^" work as toggles for associations. The
+  3. Метасимволы !@@! и !$! в меню выбора (когда задано несколько ассоциаций)
+показываются как есть, преобразование происходит в момент исполнения команды.
+
+  4. The prefixes "!##" and "!^" work as toggles for associations. The
 effect of these prefixes continues up to the next similar prefix. For
 example:
 

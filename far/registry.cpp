@@ -5,10 +5,12 @@ registry.cpp
 
 */
 
-/* Revision: 1.12 14.12.2001 $ */
+/* Revision: 1.13 25.01.2002 $ */
 
 /*
 Modify:
+  25.01.2002 SVS
+    + GetRegKeySize с уже открытым ключем HKEY hKey
   14.12.2001 IS
     ! stricmp -> LocalStricmp
   16.11.2001 SVS
@@ -113,12 +115,18 @@ void SetRegKey(const char *Key,const char *ValueName,const BYTE *ValueData,DWORD
 int GetRegKeySize(const char *Key,const char *ValueName)
 {
   HKEY hKey=OpenRegKey(Key);
+  DWORD QueryDataSize=GetRegKeySize(hKey,ValueName);
+  CloseRegKey(hKey);
+  return QueryDataSize;
+}
+
+int GetRegKeySize(HKEY hKey,const char *ValueName)
+{
   if(hKey)
   {
     BYTE Buffer;
     DWORD Type,QueryDataSize=sizeof(Buffer);
     int ExitCode=RegQueryValueEx(hKey,ValueName,0,&Type,(unsigned char *)&Buffer,&QueryDataSize);
-    CloseRegKey(hKey);
     if(ExitCode==ERROR_SUCCESS || ExitCode == ERROR_MORE_DATA)
       return QueryDataSize;
   }

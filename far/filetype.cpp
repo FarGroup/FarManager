@@ -5,10 +5,13 @@ filetype.cpp
 
 */
 
-/* Revision: 1.30 28.10.2001 $ */
+/* Revision: 1.31 25.01.2002 $ */
 
 /*
 Modify:
+  25.01.2002 SVS
+    - Бага с прорисовкой, если в ассоциациях строка предварялась символом "@"
+      Вопрос спорный... потому оставим в комментариях...
   28.10.2001 tran 1.30
     - баг в показе меню, при выборе пункта через хоткей редактировался
       не тот, что надо.
@@ -106,6 +109,7 @@ Modify:
 #include "history.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
+#include "rdrwdsk.hpp"
 #include "savescr.hpp"
 #include "CFileMask.hpp"
 
@@ -311,10 +315,25 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
       }
       else
       {
+#if 0
         SaveScreen SaveScr;
         CtrlObject->Cp()->LeftPanel->CloseFile();
         CtrlObject->Cp()->RightPanel->CloseFile();
         Execute(Command+1,AlwaysWaitFinish);
+#else
+        // здесь была бага с прорисовкой (и... вывод данных
+        // на команду "@type !@!" пропадал с экрана)
+        // сделаем по аналогии с CommandLine::CmdExecute()
+        {
+          RedrawDesktop RdrwDesktop(TRUE);
+          Execute(Command+1,AlwaysWaitFinish);
+          ScrollScreen(1); // обязательно, иначе деструктор RedrawDesktop
+                           // проредравив экран забьет последнюю строку вывода.
+        }
+        CtrlObject->Cp()->LeftPanel->UpdateIfChanged(1);
+        CtrlObject->Cp()->RightPanel->UpdateIfChanged(1);
+        CtrlObject->Cp()->Redraw();
+#endif
       }
   }
   /* $ 02.09.2000 tran

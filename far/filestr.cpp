@@ -5,10 +5,16 @@ filestr.cpp
 
 */
 
-/* Revision: 1.03 06.05.2001 $ */
+/* Revision: 1.04 25.01.2002 $ */
 
 /*
 Modify:
+  25.01.2002 SVS
+    + Задаваемый размер FBufSize для буферизации чтения.
+      Явление возможно временное - тестеры покажут.
+    - Явная бага - размер StrLength увеличили, перераспределили память и
+      если запрос памяти окончился неудачно, то StrLength так и осталась
+      в новом значении.
   06.05.2001 DJ
     ! перетрях #include
   20.02.2001 SVS
@@ -23,6 +29,7 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
+#include "fn.hpp"
 #include "filestr.hpp"
 
 GetFileString::GetFileString(FILE *SrcFile)
@@ -35,6 +42,15 @@ GetFileString::GetFileString(FILE *SrcFile)
   /* SVS $ */
   StrLength=1024;
   GetFileString::SrcFile=SrcFile;
+
+  // Внимание!
+  // Данный кусок для тестеров! после чего либо выкидываем,
+  // либо оставляем оптимал
+  int FBufSize;
+  if((FBufSize=GetRegKey("System","FBufSize",0)) != 0)
+    setvbuf(SrcFile,NULL,(GetRegKey("System","FBufMode",0)%3),FBufSize);
+  //
+
   ReadPos=ReadSize=0;
 }
 
@@ -71,11 +87,11 @@ int GetFileString::GetString(char **DestStr,int &Length)
     ReadPos++;
     if (CurLength>=StrLength-1)
     {
-      StrLength+=1024;
-      char *NewStr=(char *)realloc(Str,StrLength);
+      char *NewStr=(char *)realloc(Str,StrLength+1024);
       if (NewStr==NULL)
         return(-1);
       Str=NewStr;
+      StrLength+=1024;
     }
     Str[CurLength++]=Ch;
     if (Ch=='\n')

@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.105 23.01.2002 $ */
+/* Revision: 1.106 25.01.2002 $ */
 
 /*
 Modify:
+  25.01.2002 SVS
+    + PIWF_PRELOADED
   23.01.2002 SVS
     - BugZ#137 - обработка падения панельного плагина
     - Небольшая бага в UnloadPlugin (с прощлого раза :-))
@@ -1138,10 +1140,14 @@ int PluginsSet::SavePluginSettings(struct PluginItem &CurPlugin,
       if (Info.Flags & PF_PRELOAD)
       {
         SetRegKey(RegKey,"Preload",1);
+        CurPlugin.WorkFlags.Set(PIWF_PRELOADED);
         break;
       }
       else
+      {
         SetRegKey(RegKey,"Preload",(DWORD)0);
+        CurPlugin.WorkFlags.Skip(PIWF_PRELOADED);
+      }
       /* tran $ */
 
       for (I=0;I<Info.DiskMenuStringsNumber;I++)

@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.127 14.01.2002 $ */
+/* Revision: 1.128 25.01.2002 $ */
 
 /*
 Modify:
+  25.01.2002 SVS
+    + GetRegKeySize с уже открытым ключем HKEY hKey
   14.01.2002 IS
     + FarChDir - установка нужного диска и каталога и установление
       соответствующей переменной окружения. В случае успеха возвращается
@@ -559,6 +561,7 @@ int GetRegKey(const char *Key,const char *ValueName,BYTE *ValueData,const BYTE *
 HKEY CreateRegKey(const char *Key);
 HKEY OpenRegKey(const char *Key);
 int GetRegKeySize(const char *Key,const char *ValueName);
+int GetRegKeySize(HKEY hKey,const char *ValueName);
 int EnumRegValue(const char *Key,DWORD Index,char *DestName,DWORD DestSize,LPBYTE Data,DWORD DataSize);
 void DeleteRegKey(const char *Key);
 void DeleteRegValue(const char *Key,const char *Value);

@@ -5,10 +5,12 @@ language.cpp
 
 */
 
-/* Revision: 1.16 24.12.2001 $ */
+/* Revision: 1.17 25.01.2002 $ */
 
 /*
 Modify:
+  25.01.2002 SVS
+    ! Обрежим пробелы и слева и справа при чтении из LNG-файла
   24.12.2001 SVS
     + Доп.параметр у OpenLangFile() - StrongLang: "только заданный язык и не более"
   14.12.2001 IS
@@ -99,9 +101,9 @@ int Language::Init(char *Path,int CountNeed)
   while (fgets(ReadStr,sizeof(ReadStr),LangFile)!=NULL)
   {
     char DestStr[1024];
+    RemoveExternalSpaces(ReadStr);
     if (*ReadStr!='\"')
       continue;
-    RemoveTrailingSpaces(ReadStr);
     int SrcLength=strlen(ReadStr);
     if (ReadStr[SrcLength-1]=='\"')
       ReadStr[SrcLength-1]=0;

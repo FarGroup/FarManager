@@ -5,10 +5,15 @@ farexcpt.cpp
 
 */
 
-/* Revision: 1.11 24.01.2002 $ */
+/* Revision: 1.12 25.01.2002 $ */
 
 /*
 Modify:
+  25.01.2002 SVS
+    ! Уточнения в писателе (WriteEvent) с учетом изменений в структурах дампа.
+    - ошибка в farexcpt.cpp::GetLogicalAddress()
+    ! вместо pXXXXXX выставим нужные флаги (FuncFlags)
+    ! Куча разных уточнений ;-)
   24.01.2002 SVS
     ! Все же вызовим писателя (WriteEvent) - а уже в нем есть проверка на
       запись
@@ -62,6 +67,8 @@ Modify:
 #include "manager.hpp"
 #include "farexcpt.hpp"
 
+#define VERSION_WRITER 1
+
 BOOL GetLogicalAddress(void* addr, char *szModule, DWORD len, DWORD& section, DWORD& offset);
 void IntelStackWalk(HANDLE fp,PCONTEXT pContext, DWORD& SizeOfRecord, DWORD& StackCount);
 int WritePLUGINRECORD(HANDLE fp,struct PluginItem *Module,DWORD *DumpSize);
@@ -96,23 +103,33 @@ int WriteEvent(DWORD DumpType, // FLOG_*
     return 0;
 
   DWORD Temp, Pos;
-  DWORD CountDump;
   DWORD BeginEventFilePos;
+  struct FILEHEADER FileHeader;
+
   struct DUMPHEADER DumpHeader;
   memset(&DumpHeader,0,sizeof(DumpHeader));
 
   // подготовим заголовок
-  if((Pos=GetFileSize(fp,NULL)) == -1 || Pos <= sizeof(CountDump))
-    CountDump=0;
+  if((Pos=GetFileSize(fp,NULL)) == -1 || Pos <= sizeof(FileHeader))
+  {
+    FileHeader.CountRecords=0;
+  }
   else
   {
     SetFilePointer(fp,0,NULL,FILE_BEGIN);
-    ReadFile(fp,&CountDump,sizeof(CountDump),&Temp,NULL);
+    ReadFile(fp,&FileHeader,sizeof(FileHeader),&Temp,NULL);
   }
-  CountDump++;
+  #define MAKEFOURCC(ch0, ch1, ch2, ch3)                  \
+      ((DWORD)(BYTE)(ch0) | ((DWORD)(BYTE)(ch1) << 8) |   \
+      ((DWORD)(BYTE)(ch2) << 16) | ((DWORD)(BYTE)(ch3) << 24 ))
+
+  FileHeader.ID=MAKEFOURCC('F','L','O','G');
+  FileHeader.Version=VERSION_WRITER;
+  FileHeader.CountRecords++;
+
   SetFilePointer(fp,0,NULL,FILE_BEGIN);
   // если первый раз не удалось записать, то....
-  if(!WriteFile(fp,&CountDump,sizeof(CountDump),&Temp,NULL))
+  if(!WriteFile(fp,&FileHeader,sizeof(FileHeader),&Temp,NULL))
   {
     CloseHandle(fp);
     return 0;
@@ -189,7 +206,8 @@ int WriteEvent(DWORD DumpType, // FLOG_*
 //_SVS(SysLog("Begin"));
       // данные из стека возврата
       // ЭТО ПОКА НЕ ТРОГАТЬ!!!!
-//      IntelStackWalk(fp,cn,DumpHeader.DumpSize,DumpHeader.CountStack);
+      if(GetRegKey("System","IntelStackWalk",0))
+        IntelStackWalk(fp,cn,DumpHeader.DumpSize,DumpHeader.CountStack);
 //_SVS(SysLog("End"));
       DumpHeader.RecordsCount+=DumpHeader.CountStack;
     }
@@ -240,12 +258,16 @@ int WriteEvent(DWORD DumpType, // FLOG_*
         FuiltCode.TypeRec=RTYPE_FAULTCODE;
         FuiltCode.SizeRec=sizeof(FuiltCode)-sizeof(struct RECHEADER);
         FuiltCode.ExceptionAddress=(DWORD)xpn->ExceptionAddress;
+        FuiltCode.SuccessCode=0;
         if(Excpt.ExceptionAddress)
         {
           if(!ReadProcessMemory(GetCurrentProcess(),
-                (LPCVOID)((BYTE*)(xpn->ExceptionAddress)-32),
+                (LPCVOID)((BYTE*)(xpn->ExceptionAddress)-64),
                 FuiltCode.Code,sizeof(FuiltCode.Code),&Temp))
+          {
             memset(FuiltCode.Code,0,sizeof(FuiltCode.Code));
+            FuiltCode.SuccessCode=1;
+          }
         }
         WriteFile(fp,&FuiltCode,sizeof(FuiltCode),&Temp,NULL);
 
@@ -269,12 +291,11 @@ int WriteEvent(DWORD DumpType, // FLOG_*
     MacroRec.MacroFlags=RBuf.Flags;
     MacroRec.MacroKey=RBuf.Key;
     MacroRec.MacroBufferSize=RBuf.BufferSize;
-    MacroRec.MacroKeyBuffer[0]=RBuf.Buffer?RBuf.Buffer[0]:0;
-    MacroRec.SizeRec+=sizeof(DWORD)*(MacroRec.MacroBufferSize-1);
+    MacroRec.SizeRec+=sizeof(DWORD)*MacroRec.MacroBufferSize;
 
     WriteFile(fp,&MacroRec,sizeof(MacroRec),&Temp,NULL);
-    if(MacroRec.MacroStatus && RBuf.Buffer && MacroRec.MacroBufferSize > 1)
-      WriteFile(fp,&RBuf.Buffer[1],(MacroRec.MacroBufferSize-1)*sizeof(DWORD),&Temp,NULL);
+    if(MacroRec.MacroStatus && RBuf.Buffer && MacroRec.MacroBufferSize > 0)
+      WriteFile(fp,&RBuf.Buffer[0],MacroRec.MacroBufferSize*sizeof(DWORD),&Temp,NULL);
 
     DumpHeader.RecordsCount++;
     DumpHeader.DumpSize+=MacroRec.SizeRec+sizeof(struct RECHEADER);
@@ -339,42 +360,56 @@ static int WritePLUGINRECORD(HANDLE fp,struct PluginItem *Module,DWORD *DumpSize
   memset(&Plug,0,sizeof(Plug));
   Plug.TypeRec=RTYPE_PLUGIN;
   Plug.SizeRec=sizeof(struct PLUGINRECORD)-sizeof(struct RECHEADER);
-  Plug.hModule=Module->hModule;
+
+  Plug.FindData.dwFileAttributes=Module->FindData.dwFileAttributes;
+  Plug.FindData.ftCreationTime.dwLowDateTime=Module->FindData.ftCreationTime.dwLowDateTime;
+  Plug.FindData.ftCreationTime.dwHighDateTime=Module->FindData.ftCreationTime.dwHighDateTime;
+  Plug.FindData.ftLastAccessTime.dwLowDateTime=Module->FindData.ftLastAccessTime.dwLowDateTime;
+  Plug.FindData.ftLastAccessTime.dwHighDateTime=Module->FindData.ftLastAccessTime.dwHighDateTime;
+  Plug.FindData.ftLastWriteTime.dwLowDateTime=Module->FindData.ftLastWriteTime.dwLowDateTime;
+  Plug.FindData.ftLastWriteTime.dwHighDateTime=Module->FindData.ftLastWriteTime.dwHighDateTime;
+
+  Plug.FindData.nFileSizeHigh=Module->FindData.nFileSizeHigh;
+  Plug.FindData.nFileSizeLow=Module->FindData.nFileSizeLow;
+  strncpy(Plug.FindData.cFileName,Module->FindData.cFileName,sizeof(Plug.FindData.cFileName)-1);
+  strcpy(Plug.FindData.cAlternateFileName,Module->FindData.cAlternateFileName);
+
   memcpy(&Plug.FindData,&Module->FindData,sizeof(WIN32_FIND_DATA));
   int Len=strlen(Plug.FindData.cFileName);
   memset(&Plug.FindData.cFileName[Len],0,sizeof(Plug.FindData.cFileName)-Len); //??
   Plug.SysID=Module->SysID;
   Plug.WorkFlags=Module->WorkFlags.Flags;
-  Plug.FuncFlags=Module->FuncFlags.Flags;
-  Plug.FuncFlags2=0;
-  Plug.CachePos=Module->CachePos;
+  Plug.CallFlags=Module->FuncFlags.Flags;
 
-  Plug.pSetStartupInfo=Module->pSetStartupInfo;
-  Plug.pOpenPlugin=Module->pOpenPlugin;
-  Plug.pOpenFilePlugin=Module->pOpenFilePlugin;
-  Plug.pClosePlugin=Module->pClosePlugin;
-  Plug.pGetPluginInfo=Module->pGetPluginInfo;
-  Plug.pGetOpenPluginInfo=Module->pGetOpenPluginInfo;
-  Plug.pGetFindData=Module->pGetFindData;
-  Plug.pFreeFindData=Module->pFreeFindData;
-  Plug.pGetVirtualFindData=Module->pGetVirtualFindData;
-  Plug.pFreeVirtualFindData=Module->pFreeVirtualFindData;
-  Plug.pSetDirectory=Module->pSetDirectory;
-  Plug.pGetFiles=Module->pGetFiles;
-  Plug.pPutFiles=Module->pPutFiles;
-  Plug.pDeleteFiles=Module->pDeleteFiles;
-  Plug.pMakeDirectory=Module->pMakeDirectory;
-  Plug.pProcessHostFile=Module->pProcessHostFile;
-  Plug.pSetFindList=Module->pSetFindList;
-  Plug.pConfigure=Module->pConfigure;
-  Plug.pExitFAR=Module->pExitFAR;
-  Plug.pProcessKey=Module->pProcessKey;
-  Plug.pProcessEvent=Module->pProcessEvent;
-  Plug.pProcessEditorEvent=Module->pProcessEditorEvent;
-  Plug.pCompare=Module->pCompare;
-  Plug.pProcessEditorInput=Module->pProcessEditorInput;
-  Plug.pMinFarVersion=Module->pMinFarVersion;
-  Plug.pProcessViewerEvent=Module->pProcessViewerEvent;
+  Plug.FuncFlags=0;
+  Plug.FuncFlags|=Module->pSetStartupInfo?PICFF_SETSTARTUPINFO:0;
+  Plug.FuncFlags|=Module->pOpenPlugin?PICFF_OPENPLUGIN:0;
+  Plug.FuncFlags|=Module->pOpenFilePlugin?PICFF_OPENFILEPLUGIN:0;
+  Plug.FuncFlags|=Module->pClosePlugin?PICFF_CLOSEPLUGIN:0;
+  Plug.FuncFlags|=Module->pGetPluginInfo?PICFF_GETPLUGININFO:0;
+  Plug.FuncFlags|=Module->pGetOpenPluginInfo?PICFF_GETOPENPLUGININFO:0;
+  Plug.FuncFlags|=Module->pGetFindData?PICFF_GETFINDDATA:0;
+  Plug.FuncFlags|=Module->pFreeFindData?PICFF_FREEFINDDATA:0;
+  Plug.FuncFlags|=Module->pGetVirtualFindData?PICFF_GETVIRTUALFINDDATA:0;
+  Plug.FuncFlags|=Module->pFreeVirtualFindData?PICFF_FREEVIRTUALFINDDATA:0;
+  Plug.FuncFlags|=Module->pSetDirectory?PICFF_SETDIRECTORY:0;
+  Plug.FuncFlags|=Module->pGetFiles?PICFF_GETFILES:0;
+  Plug.FuncFlags|=Module->pPutFiles?PICFF_PUTFILES:0;
+  Plug.FuncFlags|=Module->pDeleteFiles?PICFF_DELETEFILES:0;
+  Plug.FuncFlags|=Module->pMakeDirectory?PICFF_MAKEDIRECTORY:0;
+  Plug.FuncFlags|=Module->pProcessHostFile?PICFF_PROCESSHOSTFILE:0;
+  Plug.FuncFlags|=Module->pSetFindList?PICFF_SETFINDLIST:0;
+  Plug.FuncFlags|=Module->pConfigure?PICFF_CONFIGURE:0;
+  Plug.FuncFlags|=Module->pExitFAR?PICFF_EXITFAR:0;
+  Plug.FuncFlags|=Module->pProcessKey?PICFF_PROCESSKEY:0;
+  Plug.FuncFlags|=Module->pProcessEvent?PICFF_PROCESSEVENT:0;
+  Plug.FuncFlags|=Module->pProcessEditorEvent?PICFF_PROCESSEDITOREVENT:0;
+  Plug.FuncFlags|=Module->pCompare?PICFF_COMPARE:0;
+  Plug.FuncFlags|=Module->pProcessEditorInput?PICFF_PROCESSEDITORINPUT:0;
+  Plug.FuncFlags|=Module->pMinFarVersion?PICFF_MINFARVERSION:0;
+  Plug.FuncFlags|=Module->pProcessViewerEvent?PICFF_PROCESSVIEWEREVENT:0;
+
+  Plug.CachePos=Module->CachePos;
 
   Plug.SizeModuleName=strlen(Module->ModuleName);
   Plug.SizeRec+=Plug.SizeModuleName;
@@ -408,6 +443,9 @@ static BOOL GetLogicalAddress(void* addr, char *szModule, DWORD len, DWORD& sect
       return FALSE;
 //_SVS(SysLog("hMod=0x%08X %s",hMod,szModule));
 
+  if(!hMod)
+    return FALSE;
+
   // Point to the DOS header in memory
   PIMAGE_DOS_HEADER pDosHdr = (PIMAGE_DOS_HEADER)hMod;
   // From the DOS header, find the NT (PE) header
@@ -439,7 +477,7 @@ static BOOL GetLogicalAddress(void* addr, char *szModule, DWORD len, DWORD& sect
   return FALSE;   // Should never get here!
 }
 
-#if 0
+#if 1
 //============================================================
 // Walks the stack, and writes the results to the report file
 //============================================================
