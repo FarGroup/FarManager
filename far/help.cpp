@@ -8,10 +8,12 @@ help.cpp
 
 */
 
-/* Revision: 1.67 15.03.2002 $ */
+/* Revision: 1.68 25.04.2002 $ */
 
 /*
 Modify:
+  25.04.2002 SVS
+    - BugZ#476 - Проблемы с .Options TabSize
   15.03.2002 DJ
     + обработка клика в середине скроллбара в хелпе
   03.03.2002 SVS
@@ -500,8 +502,7 @@ int Help::ReadHelp(char *Mask)
       *Ptr=' ';
       PosTab=Ptr-ReadStr+1;
       if(CtrlTabSize > 1) // заменим табулятор по всем праивилам
-        InsertString(ReadStr,PosTab,TabSpace,
-           ((PosTab%CtrlTabSize)==0?CtrlTabSize:(PosTab%CtrlTabSize))-1);
+        InsertString(ReadStr,PosTab,TabSpace, CtrlTabSize - (PosTab % CtrlTabSize));
       if(strlen(ReadStr) > sizeof(ReadStr)/2)
         break;
     }

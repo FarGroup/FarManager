@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.37 03.04.2002 $ */
+/* Revision: 1.38 25.04.2002 $ */
 
 /*
 Modify:
+  25.04.2002 SVS
+    - Ошибка в вычислении размера вставляемой строки в InsertString()
   03.04.2002 SVS
     ! WordWrap -> FarFormatText
   28.03.2002 SVS
@@ -847,7 +849,7 @@ char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size, int Width, 
 char *InsertString(char *Str,int Pos,const char *InsStr,int InsSize)
 {
   int InsLen=strlen(InsStr);
-  if(InsSize && InsSize > InsLen)
+  if(InsSize && InsSize < InsLen)
     InsLen=InsSize;
   memmove(Str+Pos+InsLen, Str+Pos, strlen(Str+Pos)+1);
   memcpy(Str+Pos, InsStr, InsLen);
