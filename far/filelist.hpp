@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.31 12.04.2002 $ */
+/* Revision: 1.32 14.05.2002 $ */
 
 /*
 Modify:
+  14.05.2002 VVM
+    + ResetLastUpdateTime() - сбросить время последнего обновления панели.
   12.04.2002 SVS
     ! Увеличим размер шортнэйма до NM
   12.04.2002 IS
@@ -357,6 +359,10 @@ class FileList:public Panel
     /* DJ $ */
     void UpdateColorItems(void);
 
+    /* 14.05.2002 VVM
+      + Сбросить время последнего обновления панели */
+    void ResetLastUpdateTime() {LastUpdateTime = 0;}
+    /* VVM $ */
     HANDLE GetPluginHandle();
     int GetRealSelCount();
     static void SetFilePanelModes();

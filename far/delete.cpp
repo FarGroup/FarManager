@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.48 26.04.2002 $ */
+/* Revision: 1.49 14.05.2002 $ */
 
 /*
 Modify:
+  14.05.2002 VVM
+    ! Подкорректируем механизм обновления соседней панели
   26.04.2002 SVS
     - BugZ#484 - Addons\Macros\Space.reg (про заголовки консоли)
   27.03.2002 SVS
@@ -561,9 +563,13 @@ void ShellDeleteUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir)
     else
     {
       if(AnotherPanel->NeedUpdatePanel(SrcPanel))
-      {
         AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
-  //      AnotherPanel->Redraw();
+      else
+      {
+        // Сбросим время обновления панели. Если там есть нотификация - обновится сама.
+        if (AnotherType==FILE_PANEL)
+          ((FileList *)AnotherPanel)->ResetLastUpdateTime();
+        AnotherPanel->UpdateIfChanged(UIC_UPDATE_NORMAL);
       }
     }
   }
