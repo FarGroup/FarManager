@@ -48,7 +48,7 @@ void PrintFiles(Panel *SrcPanel)
     if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
     {
       DWORD NetReturned;
-      if (EnumPrinters(PRINTER_ENUM_CONNECTIONS,NULL,2,(LPBYTE)pi,sizeof(pi),&Needed,&NetReturned))
+      if (EnumPrinters(PRINTER_ENUM_CONNECTIONS,NULL,2,(LPBYTE)pi,pi_count*sizeof(PRINTER_INFO_2),&Needed,&NetReturned))
       {
         AddToPrintersMenu(&PrinterList,pi,NetReturned);
         Returned+=NetReturned;
