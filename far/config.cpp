@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.146 17.04.2003 $ */
+/* Revision: 1.147 14.05.2003 $ */
 
 /*
 Modify:
+  14.05.2003 VVM
+    + ViewerOptions.Persistentblocks;
   17.04.2003 SVS
     + Opt.DelThreadPriority
   17.03.2003 SVS
@@ -968,7 +970,8 @@ void SetDizConfig()
 #define DLG_VIEW_TABSIZE    10
 #define DLG_VIEW_SCROLLBAR  12
 #define DLG_VIEW_ARROWS     13
-#define DLG_VIEW_OK         14
+#define DLG_VIEW_PERSBLOCKS 14
+#define DLG_VIEW_OK         15
 
 /* $ 29.03.2001 IS
   + По аналогии с редактором часть настроек переехала в ViewerOptions
@@ -979,13 +982,13 @@ void SetDizConfig()
 void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
 {
   static struct DialogData CfgDlgData[]={
-  /*  0 */  DI_DOUBLEBOX , 3, 1,47,17,0,0,0,0,(char *)MViewConfigTitle,                  //   0
+  /*  0 */  DI_DOUBLEBOX , 3, 1,47,18,0,0,0,0,(char *)MViewConfigTitle,                  //   0
   /*  1 */  DI_SINGLEBOX , 5, 2,45, 7,0,0,DIF_LEFTTEXT,0,(char *)MViewConfigExternal,    //   1
   /*  2 */  DI_RADIOBUTTON,7, 3, 0, 0,1,0,DIF_GROUP,0,(char *)MViewConfigExternalF3,     //   2
   /*  3 */  DI_RADIOBUTTON,7, 4, 0, 0,0,0,0,0,(char *)MViewConfigExternalAltF3,          //   3
   /*  4 */  DI_TEXT      , 7, 5, 0, 0,0,0,0,0,(char *)MViewConfigExternalCommand,        //   4
   /*  5 */  DI_EDIT      , 7, 6,43, 6,0,0,0,0,"",                                        //   5
-  /*  6 */  DI_SINGLEBOX , 5, 8,45,15,0,0,DIF_LEFTTEXT,0,(char *)MViewConfigInternal,    //   6
+  /*  6 */  DI_SINGLEBOX , 5, 8,45,16,0,0,DIF_LEFTTEXT,0,(char *)MViewConfigInternal,    //   6
   /*  7 */  DI_CHECKBOX  , 7, 9, 0, 0,0,0,0,0,(char *)MViewConfigSavePos,                //   7
   /*  8 */  DI_CHECKBOX  , 7,10, 0, 0,0,0,0,0,(char *)MViewConfigSaveShortPos,           //   8
   /*  9 */  DI_CHECKBOX  , 7,11, 0, 0,0,0,0,0,(char *)MViewAutoDetectTable,              //   9
@@ -993,8 +996,9 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
   /* 11 */  DI_TEXT      ,11,12, 0, 0,0,0,0,0,(char *)MViewConfigTabSize,                //  11
   /* 12 */  DI_CHECKBOX  , 7,13, 0, 0,0,0,0,0,(char *)MViewConfigScrollbar,              //  12 *new
   /* 13 */  DI_CHECKBOX  , 7,14, 0, 0,0,0,0,0,(char *)MViewConfigArrows,                 //  13 *new
-  /* 14 */  DI_BUTTON    , 0,16, 0, 0,0,0,DIF_CENTERGROUP,1,(char *)MOk,                 //  14 , was 11
-  /* 15 */  DI_BUTTON    , 0,16, 0, 0,0,0,DIF_CENTERGROUP,0,(char *)MCancel              //  15 , was 12
+  /* 14 */  DI_CHECKBOX  , 7,15, 0, 0,0,0,0,0,(char *)MEditConfigPersistentBlocks,       //  14
+  /* 15 */  DI_BUTTON    , 0,17, 0, 0,0,0,DIF_CENTERGROUP,1,(char *)MOk,                 //  15 , was 11
+  /* 16 */  DI_BUTTON    , 0,17, 0, 0,0,0,DIF_CENTERGROUP,0,(char *)MCancel              //  16 , was 12
   };
   MakeDialogItems(CfgDlgData,CfgDlg);
 
@@ -1011,6 +1015,7 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
   /* IS $ */
   CfgDlg[DLG_VIEW_SCROLLBAR].Selected=ViOpt.ShowScrollbar;
   CfgDlg[DLG_VIEW_ARROWS].Selected=ViOpt.ShowArrows;
+  CfgDlg[DLG_VIEW_PERSBLOCKS].Selected=ViOpt.PersistentBlocks;
   sprintf(CfgDlg[DLG_VIEW_TABSIZE].Data,"%d",ViOpt.TabSize);
 
   if (!RegVer)
@@ -1020,13 +1025,13 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
     *CfgDlg[10].Data=0;
   }
 
-  int DialogHeight=19;
+  int DialogHeight=20;
   if (Local)
   {
     int i;
     for (i=1; i<=5; i++)
       CfgDlg[i].Flags |= DIF_HIDDEN;
-    for (i=6; i<=15; i++)
+    for (i=6; i<=16; i++)
       CfgDlg[i].Y1 -= 6;
     CfgDlg[0].Y2 -= 6;
     CfgDlg[6].Y2 -= 6;
@@ -1069,6 +1074,7 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
   ViOpt.TabSize=atoi(CfgDlg[DLG_VIEW_TABSIZE].Data);
   ViOpt.ShowScrollbar=CfgDlg[DLG_VIEW_SCROLLBAR].Selected;
   ViOpt.ShowArrows=CfgDlg[DLG_VIEW_ARROWS].Selected;
+  ViOpt.PersistentBlocks=CfgDlg[DLG_VIEW_PERSBLOCKS].Selected;
   if (ViOpt.TabSize<1 || ViOpt.TabSize>512)
     ViOpt.TabSize=8;
 }
@@ -1280,6 +1286,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyViewer,"ShowScrollbar",&Opt.ViOpt.ShowScrollbar,0, 0},
   {1, REG_DWORD,  NKeyViewer,"IsWrap",&Opt.ViewerIsWrap,1, 0},
   {1, REG_DWORD,  NKeyViewer,"Wrap",&Opt.ViewerWrap,0, 0},
+  {1, REG_DWORD,  NKeyViewer,"PersistentBlocks",&Opt.ViOpt.PersistentBlocks,1, 0},
 
   {0, REG_DWORD,  NKeyDialog,"EULBsClear",&Opt.Dialogs.EULBsClear,0, 0},
   {0, REG_DWORD,  NKeyDialog,"SelectFromHistory",&Opt.Dialogs.SelectFromHistory,0, 0},

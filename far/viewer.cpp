@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.139 13.05.2003 $ */
+/* Revision: 1.140 14.05.2003 $ */
 
 /*
 Modify:
+  14.05.2003 VVM
+    + ViOpt.PersistentBlocks - постоянные блоки во вьюере.
   13.05.2003 VVM
     - Неправильно происходило выделение после поиска при включенном переносе
       слов и полосе прокрутки.
@@ -1641,8 +1643,9 @@ int Viewer::ProcessKey(int Key)
   /* $ 22.01.2001 IS
        Происходят какие-то манипуляции -> снимем выделение
   */
-//  if (Key!=KEY_IDLE && Key!=KEY_NONE && !(Key==KEY_CTRLINS||Key==KEY_CTRLNUMPAD0) && Key!=KEY_CTRLC)
-//    SelectSize=0;
+  if (!ViOpt.PersistentBlocks &&
+      Key!=KEY_IDLE && Key!=KEY_NONE && !(Key==KEY_CTRLINS||Key==KEY_CTRLNUMPAD0) && Key!=KEY_CTRLC)
+    SelectSize=0;
   /* IS $ */
 
   if (!InternalKey && !LastKeyUndo && (FilePos!=UndoData[0].UndoAddr || LeftPos!=UndoData[0].UndoLeft))

@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.98 06.05.2003 $ */
+/* Revision: 1.99 14.05.2003 $ */
 
 /*
 Modify:
+  14.05.2003 VVM
+    + ViewerOptions.PersistentBlocks - постоянные блоки во вьюере
   06.05.2003 SVS
     ! Opt.UseTTFFont заменена на Opt.UseUnicodeConsole - так вернее
   21.04.2003 SVS
@@ -419,6 +421,10 @@ struct ViewerOptions
   int ShowScrollbar;
   int ShowArrows;
   /* tran 18.07.2000 $ */
+  /* $ 14.05.2002 VVM
+    + Постоянные блоки во вьюере */
+  int PersistentBlocks;
+  /* VVM */
 };
 /* IS $ */
 

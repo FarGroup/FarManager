@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.64 02.03.2003 $ */
+/* Revision: 1.65 14.05.2003 $ */
 
 /*
 Modify:
+  14.05.2003 VVM
+    + ViewerOptions.PersistentBlocks;
   02.03.2003 SVS
     - забыл закрыть поток, блин :-(
   26.02.2003 SVS
@@ -510,6 +512,7 @@ int FileViewer::ProcessKey(int Key)
       ViOpt.AutoDetectTable=View.GetAutoDetectTable();
       ViOpt.ShowScrollbar=View.GetShowScrollbar();
       ViOpt.ShowArrows=View.GetShowArrows();
+      ViOpt.PersistentBlocks=View.GetPersistentBlocks();
 
       /* $ 27.11.2001 DJ
          Local в ViewerConfig
@@ -521,6 +524,7 @@ int FileViewer::ProcessKey(int Key)
       View.SetAutoDetectTable(ViOpt.AutoDetectTable);
       View.SetShowScrollbar(ViOpt.ShowScrollbar);
       View.SetShowArrows(ViOpt.ShowArrows);
+      View.SetPersistentBlocks(ViOpt.PersistentBlocks);
       /* IS $ */
       if ( Opt.ShowKeyBarViewer )
         ViewKeyBar.Show();

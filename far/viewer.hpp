@@ -7,10 +7,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.27 24.04.2003 $ */
+/* Revision: 1.28 14.05.2003 $ */
 
 /*
 Modify:
+  14.05.2003 VVM
+    + Обработка ViOpt.PersistentBlocks;
   24.04.2003
     + Новая функция ShowDown() используется при нажатии на "стрелка вниз"
   25.02.2003 SVS
@@ -317,6 +319,8 @@ class Viewer:public ScreenObject
     int GetShowArrows() const { return ViOpt.ShowArrows; }
     void SetShowArrows(int newValue) { ViOpt.ShowArrows=newValue; }
     /* IS $ */
+    int GetPersistentBlocks() const { return ViOpt.PersistentBlocks; }
+    void SetPersistentBlocks(int newValue) { ViOpt.PersistentBlocks=newValue; }
 
     /* $ 30.04.2001 DJ */
     int GetAnsiMode() const { return VM.AnsiMode; }
