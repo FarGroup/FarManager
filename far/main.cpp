@@ -5,10 +5,12 @@ main.cpp
 
 */
 
-/* Revision: 1.49 26.03.2002 $ */
+/* Revision: 1.50 08.04.2002 $ */
 
 /*
 Modify:
+  08.04.2002 SVS
+    ! Расквочим строку MainPluginsPath
   26.03.2002 IS
     + Вызов InitLCIDSort, теперь здесь настраивается сортировка, а не в
       LocalUpperInit
@@ -325,6 +327,7 @@ int _cdecl main(int Argc, char *Argv[])
           if (Argv[I][2])
           {
             ExpandEnvironmentStrings(&Argv[I][2],MainPluginsPath,sizeof(MainPluginsPath));
+            Unquote(MainPluginsPath);
           }
           else
           {

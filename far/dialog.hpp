@@ -10,10 +10,12 @@ dialog.hpp
 
 */
 
-/* Revision: 1.54 11.03.2002 $ */
+/* Revision: 1.55 08.04.2002 $ */
 
 /*
 Modify:
+  08.04.2002 SVS
+   + CtlColorDlgItem()
   11.03.2002 SVS
    ! Немного выравнивания... с переносом полей.
      На общей функциональности не отобразится, т.к. структура DialogItem
@@ -384,6 +386,7 @@ class Dialog: public Frame
     void ShowDialog(int ID=-1);
     /* SVS $ */
 
+    DWORD CtlColorDlgItem(int ItemPos,int Type,int Focus,DWORD Flags);
     /* $ 28.07.2000 SVS
        + Изменяет фокус ввода между двумя элементами.
          Вынесен отдельно для того, чтобы обработать DMSG_KILLFOCUS & DMSG_SETFOCUS

@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.53 02.04.2002 $ */
+/* Revision: 1.54 08.04.2002 $ */
 
 /*
 Modify:
+  08.04.2002 SVS
+    ! В FlushInputBuffer() очистим так же и инфу про мышь
   02.04.2002 SVS
     + SetInitialCursorType()
   01.04.2002 SVS
@@ -352,6 +354,9 @@ void ChangeConsoleMode(int Mode)
 void FlushInputBuffer()
 {
   FlushConsoleInputBuffer(hConInp);
+  LButtonPressed=PrevLButtonPressed=0;
+  RButtonPressed=PrevRButtonPressed=0;
+  MouseEventFlags=0;
 }
 
 //OT

@@ -5,10 +5,19 @@ filelist.cpp
 
 */
 
-/* Revision: 1.143 08.04.2002 $ */
+/* Revision: 1.144 08.04.2002 $ */
 
 /*
 Modify:
+  08.04.2002 SVS
+    - BugZ#442 - Deselection is late when making file descriptions
+      Выбери несколько файлов и жмякни Ctrl-Z, теперь жмякай
+      Enter и следи за снятием подцветки у файлов, она
+      почему то опаздывает на один файл.
+    ! Для QView в плагине (GetFiles) вместо OPM_VIEW передаем OPM_QUICKVIEW
+    - Поломали подстановку префикса плагина. Теперь оно работает даже по
+      CtrlEnter. А не должно, т.к. префикс имеет смысл только с полным путем
+      (CtrlF и проч.)
   08.04.2002 IS
     - После моего "исправления" от 04.04.2002 в темпе оставался мусор, если
       файл с панели плагина открывали во внешнем вьюере.
@@ -1109,7 +1118,7 @@ int FileList::ProcessKey(int Key)
           AddEndSlash(FileName);
 
         // добавим первый префикс!
-        if(PanelMode==PLUGIN_PANEL && Opt.SubstPluginPrefix)
+        if(PanelMode==PLUGIN_PANEL && Opt.SubstPluginPrefix && !(Key == KEY_CTRLENTER || Key == KEY_CTRLJ))
         {
           char Prefix[NM*2];
           /* $ 19.11.2001 IS оптимизация по скорости :) */
@@ -3096,8 +3105,9 @@ void FileList::UpdateViewPanel()
         CreateDirectory(TempDir,NULL);
         struct PluginPanelItem PanelItem;
         FileListToPluginItem(CurPtr,&PanelItem);
-        if (!CtrlObject->Plugins.GetFile(hPlugin,&PanelItem,TempDir,FileName,OPM_SILENT|OPM_VIEW))
+        if (!CtrlObject->Plugins.GetFile(hPlugin,&PanelItem,TempDir,FileName,OPM_SILENT|OPM_QUICKVIEW))
         {
+          ViewPanel->ShowFile(NULL,FALSE,NULL);
           RemoveDirectory(TempDir);
           return;
         }
@@ -3616,6 +3626,8 @@ void FileList::DescribeFiles()
       Diz.AddDiz(SelName,SelShortName,DizLine);
     }
     ClearLastGetSelection();
+    // BugZ#442 - Deselection is late when making file descriptions
+    Redraw();
   }
   if (DizCount>0)
   {

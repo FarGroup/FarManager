@@ -5,10 +5,12 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.34 28.03.2002 $ */
+/* Revision: 1.35 08.04.2002 $ */
 
 /*
 Modify:
+  08.04.2002 SVS
+    ! Для QView в плагине (GetFiles) вместо OPM_VIEW передаем OPM_QUICKVIEW
   28.03.2002 KM
     - Падение VC на
       char *LocalName="A:";
@@ -871,7 +873,7 @@ void FileList::ReadDiz(struct PluginPanelItem *ItemList,int ItemLength,DWORD dwF
             char TempDir[NM],DizName[NM];
             if (FarMkTempEx(TempDir) && CreateDirectory(TempDir,NULL))
             {
-              if (CtrlObject->Plugins.GetFile(hPlugin,CurPanelData,TempDir,DizName,OPM_SILENT|OPM_VIEW|OPM_DESCR))
+              if (CtrlObject->Plugins.GetFile(hPlugin,CurPanelData,TempDir,DizName,OPM_SILENT|OPM_QUICKVIEW|OPM_DESCR))
               {
                 strcpy(PluginDizName,Info.DescrFiles[I]);
                 Diz.Read("",DizName);
@@ -880,6 +882,7 @@ void FileList::ReadDiz(struct PluginPanelItem *ItemList,int ItemLength,DWORD dwF
                 break;
               }
               RemoveDirectory(TempDir);
+              //ViewPanel->ShowFile(NULL,FALSE,NULL);
             }
           }
         }

@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.77 05.04.2002 $ */
+/* Revision: 1.78 08.04.2002 $ */
 
 /*
 Modify:
+  08.04.2002 SVS
+    - BugZ#440 - Самопроизвольное снятие RO-атрибута при Append
   05.04.2002 SVS
     - BugZ#430 - Создание хардлинков
     - небольшая бага в интерфейсе (количество кнопок неверно указывалось
@@ -1837,7 +1839,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
     }
     else
     {
-      if ((CopyCode=ShellCopyFile(Src,SrcData,DestPath,DestAttr,Append))==COPY_SUCCESS)
+      CopyCode=ShellCopyFile(Src,SrcData,DestPath,DestAttr,Append);
+      if (CopyCode==COPY_SUCCESS)
       {
         strcpy(CopiedName,PointToName(DestPath));
         if(!(ShellCopy::Flags&FCOPY_COPYTONUL))
@@ -1852,10 +1855,20 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
         }
 
         TotalFiles++;
+        if(DestAttr!=-1 && Append)
+          SetFileAttributes(DestPath,DestAttr);
+
         return(COPY_SUCCESS);
       }
       else if (CopyCode==COPY_CANCEL || CopyCode==COPY_NEXT)
+      {
+        if(DestAttr!=-1 && Append)
+          SetFileAttributes(DestPath,DestAttr);
         return((COPY_CODES)CopyCode);
+      }
+
+      if(DestAttr!=-1 && Append)
+        SetFileAttributes(DestPath,DestAttr);
     }
     //????
     if(CopyCode == COPY_FAILUREREAD)
