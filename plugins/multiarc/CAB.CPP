@@ -6,7 +6,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2002 FAR group
 */
-/* Revision: 1.18 01.08.2002 $ */
+/* Revision: 1.19 07.08.2002 $ */
 
 #include <windows.h>
 #include <string.h>
@@ -34,12 +34,12 @@ typedef DWORD u4;
 
 struct CFHEADER
 {
-  u1 signature[4];
+  u4 signature;
   u4 reserved1;
   u4 cbCabinet;
   u4 reserved2;
   u4 coffFiles;
-  u4 reserved3;
+  u4 nFiles;
   u1 versionMinor;
   u1 versionMajor;
   u2 cFolders;
@@ -134,7 +134,9 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
     SFXSize = I;
 
   SetFilePointer(ArcHandle,SFXSize+MainHeader.coffFiles,NULL,FILE_BEGIN);
-  FilesNumber=MainHeader.cFiles;
+  FilesNumber = MainHeader.cFiles;
+  if (FilesNumber == 65535 && (MainHeader.flags & 8))
+    FilesNumber = MainHeader.nFiles;
   UnpVer=MainHeader.versionMajor*256+MainHeader.versionMinor;
 
   if( FilesNumber && (MainHeader.flags & 1) )
