@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.44 24.05.2002 $ */
+/* Revision: 1.45 17.09.2002 $ */
 
 /*
 Modify:
+  17.09.2002 SKV
+    - GoToFile на плагиновой панели.
   24.05.2002 SVS
     + Дублирование Numpad-клавиш
   29.04.2002 SVS
@@ -1109,6 +1111,9 @@ void FilePanels::Refresh()
    Не портим переданное имя файла... */
 /* $ 26.03.2002 VVM
    Если пассивная панель - плагиновая, то не прыгаем на нее */
+/* $ 17.09.2002 SKV
+   Если активная панель - плагиновая, то в обяз делаем SetCurDir() :)
+*/
 void FilePanels::GoToFile (const char *FileName)
 {
   if(strchr(FileName,'\\') || strchr(FileName,'/'))
@@ -1123,8 +1128,17 @@ void FilePanels::GoToFile (const char *FileName)
     }
     else
       PDir[0] = 0;
-    ActivePanel->GetCurDir(ADir);
-    AddEndSlash (ADir);
+
+    int ActiveMode = ActivePanel->GetMode();
+    if(ActiveMode==NORMAL_PANEL)
+    {
+      ActivePanel->GetCurDir(ADir);
+      AddEndSlash (ADir);
+    }
+    else
+    {
+      ADir[0]=0;
+    }
 
     char NameFile[NM], NameDir[NM];
     strncpy(NameDir, FileName,sizeof(NameDir)-1);
@@ -1137,7 +1151,7 @@ void FilePanels::GoToFile (const char *FileName)
          панелях, тем самым добиваемся того, что выделение с элементов
          панелей не сбрасывается.
     */
-    BOOL AExist=LocalStricmp(ADir,NameDir)==0;
+    BOOL AExist=(ActiveMode==NORMAL_PANEL) && (LocalStricmp(ADir,NameDir)==0);
     BOOL PExist=(PassiveMode==NORMAL_PANEL) && (LocalStricmp(PDir,NameDir)==0);
     // если нужный путь есть на пассивной панели
     if (!AExist && PExist)
