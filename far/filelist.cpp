@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.200 18.05.2004 $ */
+/* Revision: 1.201 24.05.2004 $ */
 
 /*
 Modify:
+  24.05.2004 SVS
+    + FileList::GetPrevNumericSort()
   20.05.2004 SVS
     ! NumericSort - свойство конкретной панели, а не режима отображения
   28.04.2004 SVS
@@ -4386,6 +4388,14 @@ int FileList::GetPrevSortOrder()
     return(PluginsStack[0].PrevSortOrder);
   else
     return(SortOrder);
+}
+
+int FileList::GetPrevNumericSort()
+{
+  if (PanelMode==PLUGIN_PANEL && PluginsStackSize>0)
+    return(PluginsStack[0].PrevNumericSort);
+  else
+    return(NumericSort);
 }
 
 

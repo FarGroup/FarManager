@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.53 20.05.2004 $ */
+/* Revision: 1.54 24.05.2004 $ */
 
 /*
 Modify:
+  24.05.2004 SVS
+    - BugZ#1085 - сбос цифровой сортировки на панели
   20.05.2004 SVS
     ! NumericSort - свойство конкретной панели, а не режима отображения
   06.05.2004 SVS
@@ -938,7 +940,7 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
   // OldType не инициализировался...
   int OldType=Current->GetType(),X1,Y1,X2,Y2;
   int OldViewMode,OldSortMode,OldSortOrder,OldSortGroups,OldSelectedFirst;
-  int OldShowShortNames,OldPanelMode,LeftPosition,ChangePosition;
+  int OldShowShortNames,OldPanelMode,LeftPosition,ChangePosition,OldNumericSort;
   int OldFullScreen,OldFocus,UseLastPanel=0;
 
   OldPanelMode=Current->GetMode();
@@ -949,6 +951,7 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
 
   OldSortMode=Current->GetPrevSortMode();
   OldSortOrder=Current->GetPrevSortOrder();
+  OldNumericSort=Current->GetPrevNumericSort();
   OldSortGroups=Current->GetSortGroups();
   OldShowShortNames=Current->GetShowShortNamesMode();
   OldFocus=Current->GetFocus();
@@ -1068,6 +1071,7 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
 
     NewPanel->SetSortMode(OldSortMode);
     NewPanel->SetSortOrder(OldSortOrder);
+    NewPanel->SetNumericSort(OldNumericSort);
     NewPanel->SetSortGroups(OldSortGroups);
     NewPanel->SetShowShortNamesMode(OldShowShortNames);
     NewPanel->SetPrevViewMode(OldViewMode);

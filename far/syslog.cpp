@@ -5,10 +5,12 @@ syslog.cpp
 
 */
 
-/* Revision: 1.47 28.04.2004 $ */
+/* Revision: 1.48 24.05.2004 $ */
 
 /*
 Modify:
+  24.05.2004 SVS
+    + PrevNumericSort в PluginsStackItem_Dump
   28.04.2004 SVS
     ! оконстантим параметр у конструктора CleverSysLog()
   13.10.2003 SVS
@@ -564,6 +566,7 @@ void PluginsStackItem_Dump(char *Title,const struct PluginsStackItem *StackItems
                   "PrevViewMode=VIEW_%02d "
                   "PrevSortMode=%d/%-17s "
                   "PrevSortOrder=%02d "
+                  "PrevNumericSort=%02d "
                   "HostFile=%s\n",
          I,
          StackItems[I].hPlugin,
@@ -572,6 +575,7 @@ void PluginsStackItem_Dump(char *Title,const struct PluginsStackItem *StackItems
          StackItems[I].PrevSortMode,
            (StackItems[I].PrevSortMode<BY_NUMLINKS?__SORT[StackItems[I].PrevSortMode].Name:"<Unknown>"),
          StackItems[I].PrevSortOrder,
+         StackItems[I].PrevNumericSort,
          StackItems[I].HostFile);
     }
     fprintf(fp,"\n");

@@ -5,10 +5,12 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.42 13.11.2003 $ */
+/* Revision: 1.43 24.05.2004 $ */
 
 /*
 Modify:
+  24.05.2004 SVS
+    - BugZ#1085 - сбос цифровой сортировки на панели
   13.11.2003 SVS
     + _ALGO()
   06.10.2003 SVS
@@ -146,6 +148,7 @@ void FileList::PushPlugin(HANDLE hPlugin,char *HostFile)
   PStack->PrevViewMode=ViewMode;
   PStack->PrevSortMode=SortMode;
   PStack->PrevSortOrder=SortOrder;
+  PStack->PrevNumericSort=NumericSort;
   PluginsStackSize++;
   _ALGO(PluginsStackItem_Dump("FileList::PushPlugin",PluginsStack,PluginsStackSize));
 }
@@ -172,6 +175,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
     if (Info.StartSortMode)
     {
       SortMode=PStack->PrevSortMode;
+      NumericSort=PStack->PrevNumericSort;
       SortOrder=PStack->PrevSortOrder;
     }
   }
@@ -215,6 +219,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
     /*
     ViewMode=PStack->PrevViewMode;
     SortMode=PStack->PrevSortMode;
+    NumericSort=PStack->PrevNumericSort;
     SortOrder=PStack->PrevSortOrder;
     */
     /* </TODO>*/

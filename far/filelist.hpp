@@ -7,10 +7,13 @@ filelist.hpp
 
 */
 
-/* Revision: 1.39 18.05.2004 $ */
+/* Revision: 1.40 24.05.2004 $ */
 
 /*
 Modify:
+  24.05.2004 SVS
+    + PluginsStackItem.PrevNumericSort
+    + GetPrevNumericSort()
   18.05.2004 SVS
     ! IsNumeric() переехала из filelist.hpp в panel.hpp
   06.10.2003 SVS
@@ -156,6 +159,7 @@ struct PluginsStackItem
   int PrevViewMode;
   int PrevSortMode;
   int PrevSortOrder;
+  int PrevNumericSort;
 };
 
 enum {NAME_COLUMN=0,SIZE_COLUMN,PACKED_COLUMN,DATE_COLUMN,TIME_COLUMN,
@@ -331,6 +335,8 @@ class FileList:public Panel
     void SetCurDir(char *NewDir,int ClosePlugin);
     int GetPrevSortMode();
     int GetPrevSortOrder();
+    int GetPrevViewMode();
+    int GetPrevNumericSort();
     HANDLE OpenFilePlugin(char *FileName,int PushPrev);
     int GetFileName(char *Name,int Pos,int &FileAttr);
     int GetCurrentPos();
@@ -354,7 +360,6 @@ class FileList:public Panel
     int IsCaseSensitive();
     int IsDizDisplayed();
     int IsColumnDisplayed(int Type);
-    int GetPrevViewMode();
     void SetReturnCurrentFile(int Mode);
     void GetPluginInfo(struct PluginInfo *Info);
     void GetOpenPluginInfo(struct OpenPluginInfo *Info);

@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.123 18.05.2004 $ */
+/* Revision: 1.124 24.05.2004 $ */
 
 /*
 Modify:
+  24.05.2004 SVS
+    + PFLAGS_NUMERICSORT, FCTL_SETNUMERICSORT,FCTL_SETANOTHERNUMERICSORT - логическое дополнение к NumericSort
   18.05.2004 SVS
     ! инициализация NumericSort
   06.05.2004 SVS
@@ -1922,6 +1924,16 @@ void Panel::SetPluginCommand(int Command,void *Param)
         }
       }
       break;
+    case FCTL_SETNUMERICSORT:
+    case FCTL_SETANOTHERNUMERICSORT:
+      if (Param!=NULL)
+      {
+        int NumericSortOrder = *(int *)Param;
+        Panel *DestPanel=(Command==FCTL_SETNUMERICSORT) ? this:AnotherPanel;
+        if (DestPanel!=NULL)
+          DestPanel->SetNumericSort(NumericSortOrder);
+      }
+      break;
     case FCTL_SETSORTORDER:
     case FCTL_SETANOTHERSORTORDER:
       if (Param!=NULL)
@@ -2008,6 +2020,8 @@ void Panel::SetPluginCommand(int Command,void *Param)
         Flags|=DestPanel->GetSortOrder()<0?PFLAGS_REVERSESORTORDER:0;
         Flags|=DestPanel->GetSortGroups()?PFLAGS_USESORTGROUPS:0;
         Flags|=DestPanel->GetSelectedFirstMode()?PFLAGS_SELECTEDFIRST:0;
+        Flags|=DestPanel->GetNumericSort()?PFLAGS_NUMERICSORT:0;
+
 
         Info->Flags=Flags;
       }

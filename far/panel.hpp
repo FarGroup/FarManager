@@ -7,10 +7,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.23 18.05.2004 $ */
+/* Revision: 1.24 24.05.2004 $ */
 
 /*
 Modify:
+  24.05.2004 SVS
+    + GetPrevNumericSort()
   18.05.2004 SVS
     + Set/GetNumericSort()
     + член класса NumericSort
@@ -214,8 +216,9 @@ class Panel:public ScreenObject
     virtual int GetPrevSortMode() {return(SortMode);};
     virtual int GetPrevSortOrder() {return(SortOrder);};
     int GetSortMode() {return(SortMode);};
+    virtual int GetPrevNumericSort() {return NumericSort;};
     int GetNumericSort() { return NumericSort; }
-    void SetNumericSort(int Mode) { NumericSort=Mode; }
+    void SetNumericSort(int Mode) { Panel::NumericSort=Mode; }
     virtual void SetSortMode(int SortMode) {Panel::SortMode=SortMode;};
     int GetSortOrder() {return(SortOrder);};
     void SetSortOrder(int SortOrder) {Panel::SortOrder=SortOrder;};

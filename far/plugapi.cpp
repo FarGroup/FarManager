@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.169 28.02.2004 $ */
+/* Revision: 1.170 24.05.2004 $ */
 
 /*
 Modify:
+  24.05.2004 SVS
+    + FCTL_SETNUMERICSORT,FCTL_SETANOTHERNUMERICSORT - логическое дополнение к NumericSort
   28.02.2004 SVS
     + MCMD_CHECKMACRO - закомменчено
   12.01.2004 SVS
@@ -1624,6 +1626,8 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
     case FCTL_SETANOTHERSORTMODE:
     case FCTL_SETSORTORDER:
     case FCTL_SETANOTHERSORTORDER:
+    case FCTL_SETNUMERICSORT:
+    case FCTL_SETANOTHERNUMERICSORT:
     {
       if(!CtrlObject->Cp())
         return FALSE;

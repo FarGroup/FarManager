@@ -6,6 +6,7 @@ $^#File and archive manager#
 $^#<%FV1%>.<%FV2%><%FV3%> build <%FV4%>#
 $^#Copyright (C) 1996-2000 Eugene Roshal#
 $^#Copyright (C) 2000-<%YEAR%> FAR Group#
+   ~Index help file~@Index@
    ~How to use help~@Help@
 
    ~About FAR~@About@
@@ -337,32 +338,25 @@ $ #Режимы сортировки#
   Показывать помеченные файлы первыми                      #Shift-F12#
   Использовать числовую сортировку.
 
-  #Замечания по числовой сортировки#
+  #Замечания по числовой сортировке#
 
-  В режиме числовой сортировки FAR сортирует содержимое панели в
-стиле Windows XP - ведущие нули в имени файла не учитываются. Следующий
-пример показывает как сортируются файлы в этом режиме:
+  В Windows XP изменен алгоритм сортировки, который операционная
+система использует при выводе списка файлов. Выполняется не строковая
+сортировка, а числовая. FAR так же позволяет использовать числовую
+сортировки в стиле Windows XP - ведущие нули в имени файла не учитываются.
+Следующий пример показывает как сортируются файлы:
 
-    Режим выключен      Режим включен
+    Режим включен (Windows XP)   Режим выключен (Windows 2000)
 
-    0                   0
-    00012               1
-    0015                8
-    015                 10
-    044                 11
-    1                   00012
-    10                  0015
-    11                  015
-    15                  15
-    20                  20
-    8                   044
-    Ie4_01              Ie4_01
-    Ie4_128             Ie4_128
-    Ie401sp2            Ie5
-    Ie5                 Ie6
-    Ie501sp2            Ie401sp2
-    Ie6                 Ie501sp2
-
+    Ie4_01                       Ie4_01
+    Ie4_128                      Ie4_128
+    Ie5                          Ie401sp2
+    Ie6                          Ie5
+    Ie401sp2                     Ie501sp2
+    Ie501sp2                     Ie6
+    5.txt                        11.txt
+    11.txt                       5.txt
+    88.txt                       88.txt
 
 @FastFind
 $ #Fast find in panels#
@@ -3459,7 +3453,7 @@ manually edit the registry or to use a special program/plugin.
     ~Keyboard macro commands (macro command)~@KeyMacro@
 
 @KeyMacroODate
-$ #$Date - insertion of current date/time#
+$ #Macro: $Date - insertion of current date/time#
    The special macro command '$Date' is intended for insertion of
 current date/time.
 
@@ -3553,7 +3547,7 @@ to the format used by the strftime function):
     ~Commands, used inside the text of a macro command~@KeyMacroCmds@
 
 @KeyMacroOText
-$ #$Text - insertion of arbitrary text#
+$ #Macro: $Text - insertion of arbitrary text#
    Special macro command '$Text' is intended for insertion of arbitrary
 text.
 
@@ -3579,7 +3573,7 @@ usage in such macro sequences.
    ~Commands, used inside the text of a macro command~@KeyMacroCmds@
 
 @KeyMacroOIClip
-$ #$IClip - working with clipboard#
+$ #Macro: $IClip - working with clipboard#
     By default FAR Manager works with the Windows Clipboard for
 copy/paste operations. The '$IClip' macro command allows to switch,
 within the limits of a macro sequence, the internal FAR mechanism for
@@ -3595,7 +3589,7 @@ working with/without the Windows Clipboard.
     ~Commands, used inside the text of a macro command~@KeyMacroCmds@
 
 @KeyMacroOMMode
-$ #$MMode - toggle macro display mode#
+$ #Macro: $MMode - toggle macro display mode#
    Special macro command '$MMode' allows to toggle the display
 mode while playing-back the macro sequence.
 
@@ -3609,7 +3603,7 @@ mode while playing-back the macro sequence.
    ~Commands, used inside the text of a macro command~@KeyMacroCmds@
 
 @KeyMacroOExit
-$ #$Exit - stop macro playback#
+$ #Macro: $Exit - stop macro playback#
    Special macro command '$Exit' stops the playback of a macro sequence.
 
    #$Exit#
@@ -3621,7 +3615,7 @@ $ #$Exit - stop macro playback#
 
 
 @KeyMacroOXLat
-$ #$XLat - transliteration function#
+$ #Macro: $XLat - transliteration function#
    Special macro command '$XLat' calls the transliteration function.
 
    #$XLat#
@@ -3634,7 +3628,7 @@ $ #$XLat - transliteration function#
    ~Commands, used inside the text of a macro command~@KeyMacroCmds@
 
 @KeyMacroORep
-$ #$Rep - loop operator#
+$ #Macro: $Rep - loop operator#
    Special macro command '$Rep' allows to repeat any macro sequence
 given number of times.
 
@@ -3649,7 +3643,7 @@ given number of times.
    ~Commands, used inside the text of a macro command~@KeyMacroCmds@
 
 @KeyMacroOIf
-$ #$If-$Else - condition operator#
+$ #Macro: $If-$Else - condition operator#
    Special macro command '$If-$Else' allows to create conditional branches of
 execution inside a macro sequence.
 
@@ -3746,3 +3740,7 @@ in Outlook or The BAT! (Addons\Macros\View.Space.reg), is as following:
 
    ~Keyboard macro commands (macro command)~@KeyMacro@
    ~Commands, used inside the text of a macro command~@KeyMacroCmds@
+
+@Index
+$ #Index help file#
+<%INDEX%>
