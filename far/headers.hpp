@@ -5,12 +5,14 @@ headers.cpp
 
 */
 
-/* Revision: 1.00 27.06.2000 $ */
+/* Revision: 1.01 07.07.2000 $ */
 
 /*
 Modify:
   27.06.2000 AT
     + Данный патч сделан для использования предкомпилированных заголовков
+  07.07.2000 SVS
+    + stdarg.h - Для FarAdvControl
 */
 
 #define STRICT
@@ -59,4 +61,6 @@ Modify:
 #ifndef __TIME_H
 #include <time.h>
 #endif
-
+#ifndef __STDARG_H
+#include <stdarg.h>
+#endif

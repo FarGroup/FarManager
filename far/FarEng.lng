@@ -526,8 +526,10 @@
 "Requested help topic not found"
 
 "Files highlighting"
-"Edit: Del,Ins,F4"
+"Edit: Del,Ins,F4 [Ctrl+R - restore default highlighting]"
 "Do you wish to delete highlighting for"
+"You will lose all changes!"
+"Do you wish to restore default highlighting?"
 
 "Edit files highlighting"
 "A file &mask or several file masks delimited with commas:"

@@ -14,6 +14,8 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
   07.07.2000 SVS
     + Получить разграничитель слов из реестра (общий для редактирования)
+  07.07.2000 IS
+    - Декларация SetHighlighting перешла в fn.cpp
 */
 
 #include "headers.hpp"
@@ -26,7 +28,11 @@ Modify:
 /* IS $ */
 
 static void ConvertOldSettings();
-static void SetHighlighting();
+/* $ 07.07.2000 IS
+  Вынес эту декларацию в fn.cpp, чтобы была доступна отовсюду...
+*/
+//static void SetHighlighting();
+/* IS $ */
 static void CopyGlobalSettings();
 
 int _cdecl main(int Argc, char *Argv[])

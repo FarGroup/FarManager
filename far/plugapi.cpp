@@ -5,7 +5,7 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.01 03.07.2000 $ */
+/* Revision: 1.02 05.07.2000 $ */
 
 /*
 Modify:
@@ -14,6 +14,9 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
   03.07.2000 IS
     + Функция вывода помощи
+  05.07.2000 IS
+    + Функция FarAdvControl
+    + Команда ACTL_GETFARVERSION (в FarAdvControl)
 */
 
 #include "headers.hpp"
@@ -50,6 +53,21 @@ void WINAPI FarShowHelp(char *ModuleName, char *HelpTopic)
     }
     Help Hlp(Topic);
   }
+}
+/* IS $ */
+
+/* $ 05.07.2000 IS
+  Функция, которая будет действовать и в редакторе, и в панелях, и...
+*/
+int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
+{
+ switch(Command)
+ {
+  case ACTL_GETFARVERSION:
+    *(DWORD*)Param=FAR_VERSION;
+    return TRUE;
+ }
+ return FALSE;
 }
 /* IS $ */
 

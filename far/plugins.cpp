@@ -5,7 +5,7 @@ plugins.cpp
 
 */
 
-/* Revision: 1.01 01.07.2000 $ */
+/* Revision: 1.03 06.07.2000 $ */
 
 /*
 Modify:
@@ -14,6 +14,14 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
   01.07.2000 IS
     + Функция вывода помощи в api
+  05.07.2000 IS
+    + Функция AdvControl
+  06.07.2000 IS
+    + Объявление структуры типа FarStandartFunctions (см. plugin.hpp)
+      Инициализация ее членов:
+         StructSize, Unquote, ExpandEnvironmentStr,
+         sprintf, sscanf, qsort, memcpy, memmove, memcmp, strchr,
+         strrchr, strstr, strtok, memset, strpbrk
 */
 
 #include "headers.hpp"
@@ -180,6 +188,31 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
   {
     struct PluginStartupInfo StartupInfo;
     StartupInfo.StructSize=sizeof(StartupInfo);
+    /* $ 06.07.2000 IS
+      Объявление структуры типа FarStandartFunctions (см. plugin.hpp)
+      Инициализация ее членов:
+         StructSize, Unquote, ExpandEnvironmentStr,
+         sprintf, sscanf, qsort, memcpy, memmove, memcmp, strchr,
+         strrchr, strstr, strtok, memset, strpbrk
+    */
+    struct FarStandartFunctions StandartFunctions;
+    StandartFunctions.StructSize=sizeof(StandartFunctions);
+    StandartFunctions.Unquote=Unquote;
+    StandartFunctions.ExpandEnvironmentStr=ExpandEnvironmentStr;
+    StandartFunctions.sprintf=sprintf;
+    StandartFunctions.sscanf=sscanf;
+    StandartFunctions.qsort=qsort;
+    StandartFunctions.memcpy=memcpy;
+    StandartFunctions.memmove=memmove;
+    StandartFunctions.memcmp=memcmp;
+    StandartFunctions.strchr=strchr;
+    StandartFunctions.strrchr=strrchr;
+    StandartFunctions.strstr=strstr;
+    StandartFunctions.strtok=strtok;
+    StandartFunctions.memset=memset;
+    StandartFunctions.strpbrk=strpbrk;
+    /* IS $ */
+
     strcpy(StartupInfo.ModuleName,CurPlugin.ModuleName);
     StartupInfo.ModuleNumber=ModuleNumber;
     strcpy(CurPlugin.RootKey,Opt.RegRoot);
@@ -205,6 +238,17 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
        Функция вывода помощи
     */
     StartupInfo.ShowHelp=FarShowHelp;
+    /* IS $ */
+    /* 05.07.2000 IS
+       Функция, которая будет действовать и в редакторе, и в панелях, и...
+    */
+    StartupInfo.AdvControl=FarAdvControl;
+    /* IS $ */
+    /* 06.07.2000 IS
+      Указатель на структуру с адресами полезных функций из far.exe
+      Плагин должен обязательно скопировать ее себе, если хочет использовать.
+    */
+    StartupInfo.FSF=&StandartFunctions;
     /* IS $ */
     CurPlugin.pSetStartupInfo(&StartupInfo);
   }

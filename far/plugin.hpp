@@ -6,7 +6,7 @@
   Plugin API for FAR Manager 1.66
 
 */
-/* Revision: 1.03 05.07.2000 $ */
+/* Revision: 1.04 06.07.2000 $ */
 
 /*
 Modify:
@@ -20,6 +20,16 @@ Modify:
   05.06.2000 SVS
     + DI_EDIT имеет флаг DIF_EDITEXPAND - расширение переменных среды
       в enum FarDialogItemFlags
+  06.07.2000 IS
+    + Функция AdvControl (PluginStartupInfo)
+    + Команда ACTL_GETFARVERSION для AdvControl
+    + Указатель на структуру FarStdFuncions в PluginStartupInfo - она содержит
+      указатели на полезные функции. Плагин должен обязательно скопировать ее
+      себе, если хочет использовать в дальнейшем.
+    + Указатели на функции в FarStdFuncions:
+      Unquote, ExpandEnvironmentStr,
+      sprintf, sscanf, qsort, memcpy, memmove, memcmp, strchr, strrchr, strstr,
+      strtok, memset, strpbrk
 */
 
 #if defined(__BORLANDC__) && (__BORLANDC__ <= 0x550)
@@ -173,6 +183,12 @@ enum {FCTL_CLOSEPLUGIN,FCTL_GETPANELINFO,FCTL_GETANOTHERPANELINFO,
       FCTL_GETCMDLINEPOS
 };
 
+/* $ 06.07.2000 IS
+  Для AdvControl
+*/
+enum {ACTL_GETFARVERSION};
+/* IS $ */
+
 enum {PTYPE_FILEPANEL,PTYPE_TREEPANEL,PTYPE_QVIEWPANEL,PTYPE_INFOPANEL};
 
 struct PanelInfo
@@ -303,6 +319,16 @@ typedef void (WINAPI *FARAPISHOWHELP)(
 );
 /* IS $ */
 
+/* $ 06.07.2000 IS
+   Функция AdvControl
+  */
+typedef int (WINAPI *FARAPIADVCONTROL)(
+  int ModuleNumber,
+  int Command,
+  void *Param
+);
+/* IS $ */
+
 enum EDITOR_EVENTS {
   EE_READ,EE_SAVE,EE_REDRAW,EE_CLOSE
 };
@@ -423,6 +449,65 @@ struct EditorSaveFile
   char *FileEOL;
 };
 
+/* $ 06.07.2000 IS
+  Убирает ВСЕ начальные и заключительные кавычки
+*/
+typedef void (*FARSTDUNQUOTE)(
+ char *Str
+);
+/* IS $ */
+
+/* $ 06.07.2000 IS
+  Расширение строки с учетом переменных окружения
+*/
+typedef DWORD (*FARSTDEXPANDENVIRONMENTSTR)(
+  char *src,
+  char *dst,
+  size_t size=8192
+);
+/* IS $ */
+
+/* $ 06.07.2000 IS
+  А это что? Отгадайте сами :-)
+  sprintf, sscanf, qsort, memcpy, memmove, memcmp, strchr, strrchr, strstr,
+  strtok, memset, strpbrk
+*/
+typedef int (*FARSTDSPRINTF)(char *buffer,const char *format,...);
+typedef int (*FARSTDSSCANF)(const char *s, const char *format,...);
+typedef void (*FARSTDQSORT)(void *base, size_t nelem, size_t width, int ( *fcmp)(const void *, const void *));
+typedef void *(*FARSTDMEMCPY)(void *dest, const void *src, size_t n);
+typedef void *(*FARSTDMEMMOVE)(void *dest, const void *src, size_t n);
+typedef int (*FARSTDMEMCMP)(const void *s1, const void *s2, size_t n);
+typedef char *(*FARSTDSTRCHR)(char *s, int c);
+typedef char *(*FARSTDSTRRCHR)(char *s, int c);
+typedef char *(*FARSTDSTRSTR)(char *s1, const char *s2);
+typedef char *(*FARSTDSTRTOK)(char *s1, const char *s2);
+typedef void *(*FARSTDMEMSET)(void *s, int c, size_t n);
+typedef char *(*FARSTDSTRPBRK)(char *s1, const char *s2);
+/* IS $ */
+
+/* $ 06.07.2000 IS
+   Полезные функции из far.exe
+*/
+struct FarStandartFunctions
+{
+  int StructSize;
+  FARSTDUNQUOTE Unquote;
+  FARSTDEXPANDENVIRONMENTSTR ExpandEnvironmentStr;
+  FARSTDSPRINTF sprintf;
+  FARSTDSSCANF sscanf;
+  FARSTDQSORT qsort;
+  FARSTDMEMCPY memcpy;
+  FARSTDMEMMOVE memmove;
+  FARSTDMEMCMP memcmp;
+  FARSTDSTRCHR strchr;
+  FARSTDSTRRCHR strrchr;
+  FARSTDSTRSTR strstr;
+  FARSTDSTRTOK strtok;
+  FARSTDMEMSET memset;
+  FARSTDSTRPBRK strpbrk;
+};
+/* IS $ */
 
 struct PluginStartupInfo
 {
@@ -450,6 +535,16 @@ struct PluginStartupInfo
      Функция вывода помощи
   */
   FARAPISHOWHELP ShowHelp;
+  /* IS $ */
+  /* $ 06.07.2000 IS
+     Функция, которая будет действовать и в редакторе, и в панелях, и...
+  */
+  FARAPIADVCONTROL AdvControl;
+  /* IS $ */
+  /* $ 06.07.2000 IS
+     Указатель на структуру с адресами полезных функций из far.exe
+  */
+  FarStandartFunctions *FSF;
   /* IS $ */
 };
 

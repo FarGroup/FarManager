@@ -13,7 +13,7 @@ lang.hpp
            подряд.
 */
 
-/* Revision: 1.04 06.07.2000 $ */
+/* Revision: 1.05 07.07.2000 $ */
 
 /*
 Modify:
@@ -33,8 +33,13 @@ Modify:
     + Добавка
       MSetColorDialogMenuHighLight,
       MSetColorDialogMenuSelectedHighLight,
-  29.06.2000 tran
+  06.07.2000 tran
     ! выправка ланг файлов
+  07.07.2000 IS
+    + Пункты для сообщения о подтверждении восстановления раскраски файлов по
+      умолчанию: MHighlightWarning, MHighlightAskRestore,
+    ! В lng-файлах изменилась строка MHighlightBottom - добавил информацию о
+      "Ctrl+R"
 */
 
 enum
@@ -553,6 +558,8 @@ enum
   MHighlightTitle,
   MHighlightBottom,
   MHighlightAskDel,
+  MHighlightWarning,
+  MHighlightAskRestore,
 
   MHighlightEditTitle,
   MHighlightMasks,

@@ -7,7 +7,7 @@ fn.hpp
 
 */
 
-/* Revision: 1.03 07.07.2000 $ */
+/* Revision: 1.04 07.07.2000 $ */
 
 /*
 Modify:
@@ -20,9 +20,18 @@ Modify:
     + Функция ExpandEnvironmentStr
   07.07.2000 SVS
     + Дополнительная функция обработки строк: RemoveExternalSpaces
+  06.07.2000 IS
+    + Функция FarAdvControl
+  07.07.2000 IS
+    + SetHighlighting из main.cpp
 */
 
 
+/* $ 07.07.2000 IS
+   Функция перешла сюда из main.cpp
+*/
+void SetHighlighting();
+/* IS $ */
 void _export StartFAR();
 void Box(int x1,int y1,int x2,int y2,int Color,int Type);
 void InitConsole();
@@ -311,7 +320,11 @@ int WINAPI FarEditorControl(int Command,void *Param);
 */
 void WINAPI FarShowHelp(char *ModuleName, char *HelpTopic);
 /* IS $ */
-
+/* $ 06.07.2000 IS
+  Функция, которая будет действовать и в редакторе, и в панелях, и...
+*/
+int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param);
+/* IS $ */
 #endif
 /* $ 05.07.2000 SVS
    Расширение переменной среды
