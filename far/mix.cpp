@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.106 14.01.2002 $ */
+/* Revision: 1.107 14.01.2002 $ */
 
 /*
 Modify:
+  14.01.2002 SVS
+    - BugZ#238 - Длинные пути
   14.01.2002 IS
     + FarChDir - установка нужного диска и каталога и установление
       соответствующей переменной окружения. В случае успеха возвращается
@@ -659,7 +661,7 @@ DWORD RawConvertShortNameToLongName(const char *src, char *dest, DWORD maxsize)
          FinalSize+=AddSize;
          if(FinalSize>=DestSize)
          {
-           DestBuf=(char *)realloc(DestBuf, DestSize+64);
+           DestBuf=(char *)realloc(DestBuf, FinalSize+64);
            if(DestBuf)
            {
              DestSize+=64;

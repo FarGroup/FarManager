@@ -5,10 +5,12 @@ local.cpp
 
 */
 
-/* Revision: 1.10 11.01.2002 $ */
+/* Revision: 1.11 14.01.2002 $ */
 
 /*
 Modify:
+  14.01.2002 SVS
+    ! Содержимое KeyToKey приведем к верхнему регистру
   11.01.2002 IS
     + void InitKeysArray()
       Инициализация массива клавиш. Вызывать только после CopyGlobalSettings,
@@ -56,7 +58,9 @@ void LocalUpperInit()
 {
   unsigned char CvtStr[2],ReverseCvtStr[2];
   int I;
+
   CvtStr[1]=0;
+
   for (I=0;I<sizeof(LowerToUpper)/sizeof(LowerToUpper[0]);I++)
   {
     CvtStr[0]=I;
@@ -75,20 +79,28 @@ void LocalUpperInit()
       UpperToLower[I]=CvtStr[0];
     }
   }
+
   char LCSortBuffer[256];
+
   for (I=0;I<sizeof(LCSortBuffer)/sizeof(LCSortBuffer[0]);I++)
     LCSortBuffer[I]=I;
+
   qsort((void *)LCSortBuffer,256,sizeof(LCSortBuffer[0]),LCSort);
+
   for (I=0;I<sizeof(LCSortBuffer)/sizeof(LCSortBuffer[0]);I++)
     LCOrder[LCSortBuffer[I]]=I;
+
   LCOrder[0]=0;
   LCOrder['\\']=1;
   LCOrder['.']=2;
+
   for (I=0;I<sizeof(LCSortBuffer)/sizeof(LCSortBuffer[0])-1;I++)
     if (LCSort(&LCSortBuffer[I],&LCSortBuffer[I+1])==0)
       LCOrder[LCSortBuffer[I+1]]=LCOrder[LCSortBuffer[I]];
+
   for (I=0;I<sizeof(LCOrder)/sizeof(LCOrder[0]);I++)
     LCOrder[I]=LCOrder[UpperToLower[I]];
+
   for (I=0;I<sizeof(KeyToKey)/sizeof(KeyToKey[0]);I++)
     KeyToKey[I]=I;
 }
@@ -105,7 +117,9 @@ void InitKeysArray()
   int I;
   CvtStr[1]=0;
   HKL Layout[10];
+
   int LayoutNumber=GetKeyboardLayoutList(sizeof(Layout)/sizeof(Layout[0]),Layout);
+
   if (LayoutNumber<5)
   {
     /* $ 08.11.2000 SVS
@@ -119,7 +133,7 @@ void InitKeysArray()
       {
         int Keys[10];
         memset(Keys,0,sizeof(Keys));
-        for (int J=0;J<LayoutNumber;J++)
+        for (int J=0; J < LayoutNumber; J++)
         {
           int AnsiKey=MapVirtualKeyEx(I,2,Layout[J]) & 0xff;
           if (AnsiKey==0)
@@ -131,10 +145,10 @@ void InitKeysArray()
         }
         if (Keys[0]!=0 && Keys[1]!=0)
         {
-          KeyToKey[LocalLower(Keys[0])]=Keys[1];
-          KeyToKey[LocalUpper(Keys[0])]=Keys[1];
-          KeyToKey[LocalLower(Keys[1])]=Keys[0];
-          KeyToKey[LocalUpper(Keys[1])]=Keys[0];
+          KeyToKey[LocalLower(Keys[0])]=LocalUpper(Keys[1]);
+          KeyToKey[LocalUpper(Keys[0])]=LocalUpper(Keys[1]);
+          KeyToKey[LocalLower(Keys[1])]=LocalUpper(Keys[0]);
+          KeyToKey[LocalUpper(Keys[1])]=LocalUpper(Keys[0]);
         }
       }
     }
@@ -175,6 +189,7 @@ int WINAPI LocalIsalpha(unsigned Ch)
 {
   if (Ch>=256)
     return(FALSE);
+
   unsigned char CvtStr[1];
   CvtStr[0]=Ch;
   OemToCharBuff((char *)CvtStr,(char *)CvtStr,1);
@@ -185,6 +200,7 @@ int WINAPI LocalIsalphanum(unsigned Ch)
 {
   if (Ch>=256)
     return(FALSE);
+
   unsigned char CvtStr[1];
   CvtStr[0]=Ch;
   OemToCharBuff((char *)CvtStr,(char *)CvtStr,1);
@@ -249,6 +265,7 @@ int WINAPI LStricmp(const char *s1,const char *s2)
 {
   return LocalStricmp(s1,s2);
 }
+
 int LocalStricmp(const char *s1,const char *s2)
 {
   while (1)

@@ -8,10 +8,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.67 10.01.2002 $ */
+/* Revision: 1.68 14.01.2002 $ */
 
 /*
 Modify:
+  14.01.2002 SVS
+    - Макрос на Alt-Буква в панелях не работал.
   10.01.2002 SVS
     ! Немного _KEYMACRO
   03.01.2001 IS
@@ -237,7 +239,7 @@ Modify:
 #include "lang.hpp"
 #include "plugin.hpp"
 #include "lockscrn.hpp"
-#include "editor.hpp"
+#include "fileedit.hpp"
 #include "dialog.hpp"
 #include "ctrlobj.hpp"
 #include "filepanels.hpp"
@@ -568,8 +570,15 @@ int KeyMacro::ProcessKey(int Key)
     {
       DWORD CurFlags;
 //_SVS(SysLog(">Key=0x%08X",Key));
-      if((Key&0x00FFFFFF) > 0x7F && (Key&0x00FFFFFF) < 0xFF)
+
+      if((Key&0x00FFFFFF) > 0x01 && (Key&0x00FFFFFF) < 0xFF)
+      {
         Key=LocalKeyToKey(Key&0x000000FF)|(Key&(~0x000000FF));
+//        if((Key&0x00FFFFFF) > 0x7F)
+//          Key=LocalKeyToKey(Key&0x000000FF)|(Key&(~0x000000FF));
+//        Key=LocalUpper(Key&0x000000FF)|(Key&(~0x000000FF));
+      }
+
 //_SVS(SysLog("<Key=0x%08X",Key));
       int I=GetIndex(Key,
                     (Mode==MACRO_SHELL && !WaitInMainLoop) ? MACRO_OTHER:Mode);

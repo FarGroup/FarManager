@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.144 12.01.2002 $ */
+/* Revision: 1.145 14.01.2002 $ */
 
 /*
 Modify:
+  14.01.2002 SVS
+    ! DOS_EOL_fmt[], UNIX_EOL_fmt (в global.?pp)
+    - ФАР не компилился под MSVC после 1168.
   12.01.2002 IS
     ! Вместо "\r\n" и "\n" используем специальные константы: DOS_EOL_fmt и
       UNIX_EOL_fmt.
@@ -442,8 +445,6 @@ struct EditList
   struct EditList *Next;
   Edit EditLine;
 };
-
-static const char DOS_EOL_fmt[]="\r\n", UNIX_EOL_fmt[]="\n";
 
 static struct CharTableSet InitTableSet;
 static int InitUseDecodeTable=FALSE,InitTableNum=0,InitAnsiText=FALSE;
@@ -5153,7 +5154,12 @@ int Editor::EditorControl(int Command,void *Param)
         struct EditList *CurPtr=GetStringByNumber(GetString->StringNumber);
         if (CurPtr==NULL)
           return(FALSE);
-        CurPtr->EditLine.GetBinaryString(GetString->StringText,&const_cast<const char*>(GetString->StringEOL),GetString->StringLength);
+        //CurPtr->EditLine.GetBinaryString(GetString->StringText,
+        //                      &const_cast<const char*>(GetString->StringEOL),
+        //                      GetString->StringLength);
+        CurPtr->EditLine.GetBinaryString(GetString->StringText,
+                                const_cast<const char **>(&GetString->StringEOL),
+                                GetString->StringLength);
         GetString->SelStart=-1;
         GetString->SelEnd=0;
         int DestLine=GetString->StringNumber;

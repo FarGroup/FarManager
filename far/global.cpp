@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.29 26.11.2001 $ */
+/* Revision: 1.30 14.01.2002 $ */
 
 /*
 Modify:
+  14.01.2002 SVS
+    + DOS_EOL_fmt[], UNIX_EOL_fmt (из editor.cpp)
   26.11.2001 SVS
     + MouseEventFlags, PreMouseEventFlags - типы эвентов мыши
   23.10.2001 SVS
@@ -178,3 +180,5 @@ PREREDRAWFUNC PreRedrawFunc=NULL;
 struct PreRedrawParamStruct PreRedrawParam={0};
 
 int WidthNameForMessage=0;
+
+const char DOS_EOL_fmt[]="\r\n", UNIX_EOL_fmt[]="\n";

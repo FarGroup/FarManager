@@ -7,10 +7,12 @@ bitflags.hpp
 
 */
 
-/* Revision: 1.01 10.01.2002 $ */
+/* Revision: 1.02 14.01.2002 $ */
 
 /*
 Modify:
+  14.01.2002 SVS
+    + Новый метод - Swap()
   10.01.2002 SVS
     + Новый конструктор
   08.11.2001 SVS
@@ -33,9 +35,11 @@ class BitFlags{
     // сбросить набор флагов
     DWORD Skip(DWORD NewFlags){ Flags&=~NewFlags;return Flags; }
     // проверить набор флагов
-    BOOL  Check(DWORD NewFlags){ return Flags&NewFlags; }
-    // изменить состояние набора флагов
+    BOOL  Check(DWORD NewFlags){ return Flags&NewFlags?TRUE:FALSE; }
+    // изменить состояние набора флагов в заивисмости от Status
     DWORD Change(DWORD NewFlags,BOOL Status){ if(Status) Flags|=NewFlags; else Flags&=~NewFlags; return Flags;}
+    // инвертировать состояние флагов
+    DWORD Swap(DWORD SwapedFlags){ if(Flags&SwapedFlags) Flags&=~SwapedFlags; else Flags|=SwapedFlags; return Flags;}
 };
 
 #endif // __BITFLAGS_HPP__

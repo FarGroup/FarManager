@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.30 26.11.2001 $ */
+/* Revision: 1.31 14.01.2002 $ */
 
 /*
 Modify:
+  14.01.2002 SVS
+    + DOS_EOL_fmt[], UNIX_EOL_fmt (из editor.cpp)
   26.11.2001 SVS
     + MouseEventFlags, PreMouseEventFlags - типы эвентов мыши
   23.10.2001 SVS
@@ -199,5 +201,7 @@ extern char *Copyright;
 extern PISDEBUGGERPRESENT pIsDebuggerPresent;
 
 extern int WidthNameForMessage;
+
+extern const char DOS_EOL_fmt[], UNIX_EOL_fmt[];
 
 #endif  // __FARGLOBAL_HPP__
