@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.16 12.09.2000 $ */
+/* Revision: 1.17 19.09.2000 $ */
 
 /*
 Modify:
+  19.09.2000 SVS
+   + Opt.PanelCtrlAltShiftRule задает поведение Ctrl-Alt-Shift для панелей.
   12.09.2000 SVS
    + Добавлена переменная Options.ViewerWrap
    ! ViewerTypeWrap переименована в ViewerIsWrap
@@ -300,6 +302,11 @@ struct Options
      (это по поводу Bug#17)
   */
   int PanelRightClickRule;
+  /* SVS $*/
+  /* $ 19.09.2000 SVS
+   + Opt.PanelCtrlAltShiftRule задает поведение Ctrl-Alt-Shift для панелей.
+  */
+  int PanelCtrlAltShiftRule;
   /* SVS $*/
 };
 

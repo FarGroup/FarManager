@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.21 15.09.2000 $ */
+/* Revision: 1.22 19.09.2000 $ */
 
 /*
 Modify:
+  19.09.2000 SVS
+    + Opt.PanelCtrlAltShiftRule задает поведение Ctrl-Alt-Shift для панелей.
   15.09.2000 IS
     + Отключение автоопределения таблицы символов, если отсутствует таблица с
       распределением частот символов
@@ -758,6 +760,12 @@ void ReadConfig()
   GetRegKey("Panel","RightClickRule",Opt.PanelRightClickRule,2);
   Opt.PanelRightClickRule%=3;
   /* SVS $ */
+  /* $ 19.09.2000 SVS
+    + Opt.PanelCtrlAltShiftRule задает поведение Ctrl-Alt-Shift для панелей.
+  */
+  GetRegKey("Panel","CtrlAltShiftRule",Opt.PanelCtrlAltShiftRule,0);
+  Opt.PanelCtrlAltShiftRule%=3;
+  /* SVS $ */
 
   GetRegKey("Panel\\Left","Type",Opt.LeftPanel.Type,0);
   GetRegKey("Panel\\Left","Visible",Opt.LeftPanel.Visible,1);
@@ -943,6 +951,11 @@ void SaveConfig(int Ask)
       мыши (это по поводу Bug#17)
   */
   SetRegKey("Panel","RightClickRule",Opt.PanelRightClickRule);
+  /* SVS $ */
+  /* $ 19.09.2000 SVS
+    + Opt.PanelCtrlAltShiftRule задает поведение Ctrl-Alt-Shift для панелей.
+  */
+  SetRegKey("Panel","CtrlAltShiftRule",Opt.PanelCtrlAltShiftRule);
   /* SVS $ */
 
   Panel *LeftPanel=CtrlObject->LeftPanel;

@@ -5,10 +5,12 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.06 19.09.2000 $ */
+/* Revision: 1.07 19.09.2000 $ */
 
 /*
 Modify:
+  19.09.2000 SVS
+    + Opt.PanelCtrlAltShiftRule задает поведение Ctrl-Alt-Shift для панелей.
   19.09.2000 SVS
     + Добавляем реакцию показа бакграунда в панелях на CtrlAltShift
   07.09.2000 tran 1.05
@@ -412,18 +414,29 @@ int ControlObject::ProcessKey(int Key)
     */
     case KEY_CTRLALTSHIFTPRESS:
     {
+        /* $ 19.09.2000 SVS
+         + Opt.PanelCtrlAltShiftRule задает поведение
+           Ctrl-Alt-Shift для панелей.
+        */
         int LeftVisible=LeftPanel->IsVisible();
         int RightVisible=RightPanel->IsVisible();
+        int CmdLineVisible=CmdLine.IsVisible();
+        int KeyBarVisible=MainKeyBar.IsVisible();
         LeftPanel->Hide();
         RightPanel->Hide();
-        CmdLine.Show();
+        if(!Opt.PanelCtrlAltShiftRule)
+          CmdLine.Show();
+        if(Opt.PanelCtrlAltShiftRule == 2)
+          MainKeyBar.Hide();
+        if(Opt.PanelCtrlAltShiftRule)
+          CmdLine.Hide();
         WaitKey(Key==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:-1);
-        if (LeftVisible)
-          LeftPanel->Show();
-        if (RightVisible)
-          RightPanel->Show();
-        // CmdLine.Show();
+        if (LeftVisible)      LeftPanel->Show();
+        if (RightVisible)     RightPanel->Show();
+        if (CmdLineVisible)   CmdLine.Show();
+        if (KeyBarVisible)    MainKeyBar.Show();
         break;
+        /* SVS $ */
     }
     /* SVS $ */
 
