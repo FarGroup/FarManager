@@ -6,10 +6,14 @@ editor.cpp
 
 */
 
-/* Revision: 1.231 12.09.2003 $ */
+/* Revision: 1.232 17.09.2003 $ */
 
 /*
 Modify:
+  17.09.2003 SVS
+    - Неправильно "исправил" в прошлый раз вставку KEY_MACROPLAINTEXT и KEY_MACRODATE.
+      не учел тот факт, что $Date может быть без аргументов
+    - Отвалились макросы (например, Alt-Shift-Left=Alt-Left) после 1687
   12.09.2003 SVS
     ! Динамически выделим буфер при вставке Plain-text от макроса.
       Для этого воспользуемся новой функцией
@@ -1642,12 +1646,12 @@ int Editor::ProcessKey(int Key)
   CurVisPos=GetLineCurPos();
 
   int isk=IsShiftKey(Key);
-
-  if ((!isk || CtrlObject->Macro.IsExecuting()) && !isk && !Pasting)
+  //if ((!isk || CtrlObject->Macro.IsExecuting()) && !isk && !Pasting)
+  if (!isk && !Pasting)
   {
-    Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
-
     if (BlockStart!=NULL || VBlockStart!=NULL && !EdOpt.PersistentBlocks)
+    {
+      Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
       if (!EdOpt.PersistentBlocks)
       {
         static int UnmarkKeys[]={
@@ -1685,6 +1689,7 @@ int Editor::ProcessKey(int Key)
         if (StartSel==-1 || StartSel==EndSel)
           UnmarkBlock();
       }
+    }
   }
 
   if (Key==KEY_ALTD)
@@ -3242,17 +3247,18 @@ int Editor::ProcessKey(int Key)
       {
         char *Fmt=NULL;
         int SizeMacroText=CtrlObject->Macro.GetMacroPlainTextSize();
-        char *TStr=(char*)alloca(SizeMacroText+8);
+        SizeMacroText+=16+(Key == KEY_MACRODATE && !SizeMacroText?strlen(Opt.DateFormat)*4:0);
+        char *TStr=(char*)alloca(SizeMacroText);
         if(!TStr)
           return(FALSE);
 
         if(Key == KEY_MACRODATE)
-          Fmt=(char*)alloca(SizeMacroText+8);
+          Fmt=(char*)alloca(SizeMacroText);
         if(Key == KEY_MACRODATE && !Fmt)
           return(FALSE);
 
         CtrlObject->Macro.GetMacroPlainText((Key == KEY_MACROPLAINTEXT?TStr:Fmt));
-        if(Key == KEY_MACROPLAINTEXT || MkStrFTime(TStr,SizeMacroText+8,Fmt))
+        if(Key == KEY_MACROPLAINTEXT || MkStrFTime(TStr,SizeMacroText,Fmt))
         {
           char *Ptr=TStr;
           while(*Ptr) // заменим 0x0A на 0x0D по правилам Paset ;-)

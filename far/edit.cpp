@@ -5,10 +5,13 @@ edit.cpp
 
 */
 
-/* Revision: 1.101 12.09.2003 $ */
+/* Revision: 1.102 17.09.2003 $ */
 
 /*
 Modify:
+  17.09.2003 SVS
+    - Неправильно "исправил" в прошлый раз вставку KEY_MACROPLAINTEXT и KEY_MACRODATE.
+      не учел тот факт, что $Date может быть без аргументов
   12.09.2003 SVS
     ! Динамически выделим буфер при вставке Plain-text от макроса.
       Для этого воспользуемся новой функцией
@@ -1687,14 +1690,15 @@ int Edit::ProcessCtrlQ(void)
 
 int Edit::ProcessInsDate(void)
 {
-  int SizeMacroText=CtrlObject->Macro.GetMacroPlainTextSize();
-  char *TStr=(char*)alloca(SizeMacroText+8);;
-  char *Fmt=(char*)alloca(SizeMacroText+8);
+  int SizeMacroText=CtrlObject->Macro.GetMacroPlainTextSize()+8;
+  SizeMacroText+=8+(!SizeMacroText?strlen(Opt.DateFormat)*4:0);
+  char *TStr=(char*)alloca(SizeMacroText);
+  char *Fmt=(char*)alloca(SizeMacroText);
   if(!TStr || !Fmt)
     return FALSE;
 
   CtrlObject->Macro.GetMacroPlainText(Fmt);
-  if(MkStrFTime(TStr,SizeMacroText+8,Fmt))
+  if(MkStrFTime(TStr,SizeMacroText,Fmt))
   {
     InsertString(TStr);
     return TRUE;
@@ -1704,10 +1708,19 @@ int Edit::ProcessInsDate(void)
 
 int Edit::ProcessInsPlainText(void)
 {
-  char Str[NM];
-  CtrlObject->Macro.GetMacroPlainText(Str);
-  InsertString(Str);
-  return TRUE;
+  int SizeMacroText=CtrlObject->Macro.GetMacroPlainTextSize();
+  if(SizeMacroText)
+  {
+    SizeMacroText+=8;
+    char *TStr=(char*)alloca(SizeMacroText);
+    if(!TStr)
+      return FALSE;
+
+    CtrlObject->Macro.GetMacroPlainText(TStr);
+    InsertString(TStr);
+    return TRUE;
+  }
+  return FALSE;
 }
 
 int Edit::InsertKey(int Key)
