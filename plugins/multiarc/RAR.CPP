@@ -239,6 +239,47 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
       FILETIME lft;
       DosDateTimeToFileTime(HIWORD(RarHeader.FileTime),LOWORD(RarHeader.FileTime),&lft);
       LocalFileTimeToFileTime(&lft,&Item->FindData.ftLastWriteTime);
+      if(RarHeader.Flags & 0x1000)
+      {
+        // Skip Salt (8 bytes)
+        if (RarHeader.Flags & 0x400)
+          SetFilePointer(ArcHandle,8,NULL,FILE_CURRENT);
+        BYTE ExtRARTime[19], *PtrExtTime=ExtRARTime+2;
+/*
+mtime - define in RarHeader.FileTime
+ctime
+atime
+arctime
+                                             F0 FB         EXT_TIME
+                                                   1C A3   - add 3 bytes for mtime
+000040: 68                                                 /
+         { 37 A1 C1 2E                                     - ctime
+                       46 18 7E }                          - add 3 bytes for cmtime
+                               { 39 A1 C1 2E               - atime
+                                             1C A3 68 }    - add 3 bytes for cmtime
+*/
+        WORD RarExtTimeFlags;
+        memset(ExtRARTime,0,sizeof(ExtRARTime));
+        ReadFile(ArcHandle,ExtRARTime,19,&ReadSize,NULL);
+        RarExtTimeFlags=*(WORD*)&ExtRARTime[0];
+        for (int I=0;I<4;I++)
+        {
+          DWORD rmode=RarExtTimeFlags>>(3-I)*4;
+          if ((rmode & 8)==0)
+            continue;
+
+          if(I)
+          {
+            DosDateTimeToFileTime(HIWORD(*(DWORD*)PtrExtTime),LOWORD(*(DWORD*)PtrExtTime),&lft);
+            if(I == 1)
+              LocalFileTimeToFileTime(&lft,&Item->FindData.ftCreationTime);
+            else if(I == 2)
+              LocalFileTimeToFileTime(&lft,&Item->FindData.ftLastAccessTime);
+            PtrExtTime+=4;
+          }
+          PtrExtTime+=rmode&3;
+        }
+      }
 
       static char *RarOS[]={"DOS","OS/2","Windows","Unix","MacOS","BeOS"};
       if (RarHeader.HostOS<sizeof(RarOS)/sizeof(RarOS[0]))
