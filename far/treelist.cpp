@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.30 26.12.2001 $ */
+/* Revision: 1.31 28.12.2001 $ */
 
 /*
 Modify:
+  28.12.2001 DJ
+    - нафиг такую оптимизацию, после которой VC++ билд трапается!
   26.12.2001 SVS
     ! немного оптимизации.
     - Бага - после выделения памяти начинаем рисовать без предварительной
@@ -489,7 +491,8 @@ int TreeList::GetCacheTreeName(char *Root,char *Name,int CreateDir)
     strcpy(RemoteName,Root);
   else
   {
-    char *LocalName="A:";
+    char LocalName [10];
+    strcpy (LocalName, "A:");
     *LocalName=*Root;
     DWORD RemoteNameSize=sizeof(RemoteName);
     WNetGetConnection(LocalName,RemoteName,&RemoteNameSize);

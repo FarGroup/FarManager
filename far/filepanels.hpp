@@ -7,10 +7,12 @@ filepanels.hpp
 
 */
 
-/* Revision: 1.10 02.11.2001 $ */
+/* Revision: 1.11 28.12.2001 $ */
 
 /*
 Modify:
+  28.12.2001 DJ
+    + единый метод GoToFile()
   02.11.2001 SVS
     ! возвращаемое значение у GetTypeName() - модификатор const
   18.07.2001 OT
@@ -104,6 +106,11 @@ class FilePanels:public Frame
 /* $ ¬ведена дл€ нужд CtrlAltShift OT */
     int FastHide();
     void Refresh();
+    /* $ 28.12.2001 DJ
+       единый метод дл€ обработки Ctrl-F10 из вьюера и редактора
+    */
+    void GoToFile (char *FileName);
+    /* DJ $ */
 };
 
 #endif // __FILEPANELS_HPP__

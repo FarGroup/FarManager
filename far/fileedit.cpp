@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.78 28.12.2001 $ */
+/* Revision: 1.79 28.12.2001 $ */
 
 /*
 Modify:
+  28.12.2001 DJ
+    ! обработка Ctrl-F10 вынесена в единую функцию
   28.12.2001 SVS
     - BugZ#213 Не туда сохраняется файл
   26.12.2001 SVS
@@ -663,47 +665,20 @@ int FileEditor::ProcessKey(int Key)
     */
     case KEY_CTRLF10:
       {
-        if (isTemporary()){
+        if (isTemporary())
+        {
           return(TRUE);
         }
         SaveScreen Sc;
-        if(strchr(FileName,'\\') || strchr(FileName,'/'))
-        {
-          char DirTmp[NM],ADir[NM],PDir[NM],NameFile[NM],*NameTmp;
-          /* 26.11.2001 VVM
-            ! Использовать полное имя файла */
-          strncpy(DirTmp,FullFileName,sizeof(DirTmp)-1);
-          /* VVM $ */
-          NameTmp=PointToName(DirTmp);
-          if(NameTmp>DirTmp)
-          {
-            strcpy(NameFile,NameTmp);
-            *NameTmp=0;
-          }
-          CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel)->GetCurDir(PDir);
-          CtrlObject->Cp()->ActivePanel->GetCurDir(ADir);
-          /* $ 10.04.2001 IS
-               Не делаем SetCurDir, если нужный путь уже есть на открытых
-               панелях, тем самым добиваемся того, что выделение с элементов
-               панелей не сбрасывается.
-          */
-          BOOL AExist=LocalStricmp(ADir,DirTmp)==0,
-               PExist=LocalStricmp(PDir,DirTmp)==0;
-          // если нужный путь есть на пассивной панели
-          if ( !AExist && PExist)
-          {
-            CtrlObject->Cp()->ProcessKey(KEY_TAB);
-          }
-          if(!AExist && !PExist)
-              CtrlObject->Cp()->ActivePanel->SetCurDir(DirTmp,TRUE);
-          /* IS */
-          CtrlObject->Cp()->ActivePanel->GoToFile(NameFile);
-        }
-        else
-        {
-          CtrlObject->Cp()->ActivePanel->SetCurDir(StartDir,TRUE);
-          CtrlObject->Cp()->ActivePanel->GoToFile(FileName);
-        }
+
+        /* 26.11.2001 VVM
+          ! Использовать полное имя файла */
+        /* $ 28.12.2001 DJ
+           вынесем код в общую функцию
+        */
+        CtrlObject->Cp()->GoToFile (FullFileName);
+        /* DJ $ */
+        /* VVM $ */
       }
       return (TRUE);
     /* SKV $*/

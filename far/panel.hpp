@@ -7,10 +7,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.11 27.11.2001 $ */
+/* Revision: 1.12 28.12.2001 $ */
 
 /*
 Modify:
+  28.12.2001 DJ
+    ! обработка Del в меню дисков вынесена в отдельную функцию
   27.11.2001 SVS
     + GetCurBaseName() выдает на гора имя файлового объекта под курсором
       с учетом вложенности панельного плагина, т.е. имя самого верхнего
@@ -107,6 +109,11 @@ class Panel:public ScreenObject
 
   private:
     int ChangeDiskMenu(int Pos,int FirstCall);
+    /* $ 28.12.2001 DJ
+       обработка Del в меню дисков
+    */
+    BOOL ProcessDelDisk (char Drive, int DriveType);
+    /* DJ $ */
     void FastFindShow(int FindX,int FindY);
     void DragMessage(int X,int Y,int Move);
 

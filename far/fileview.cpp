@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.49 17.12.2001 $ */
+/* Revision: 1.50 28.12.2001 $ */
 
 /*
 Modify:
+  28.12.2001 DJ
+    ! унифицируем обработку Ctrl-F10
   17.12.2001 KM
     ! ≈сли !GetCanLoseFocus() тогда на Alt-F11 рисуем пустую строку.
   08.12.2001 OT
@@ -329,32 +331,13 @@ int FileViewer::ProcessKey(int Key)
           return(TRUE);
         }
         SaveScreen Sc;
-        char DirTmp[NM],ADir[NM],PDir[NM],*NameTmp,FileName[NM];
+        /* $ 28.12.2001 DJ
+           унифицируем обработку Ctrl-F10
+        */
+        char FileName[NM];
         View.GetFileName(FileName);
-        if(strchr(FileName,'\\') || strchr(FileName,'/'))
-        {
-          strncpy(DirTmp,FileName,sizeof(DirTmp)-1);
-          NameTmp=PointToName(DirTmp);
-          if(NameTmp>DirTmp)NameTmp[-1]=0;
-          CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel)->GetCurDir(PDir);
-          CtrlObject->Cp()->ActivePanel->GetCurDir(ADir);
-          /* $ 10.04.2001 IS
-               Ќе делаем SetCurDir, если нужный путь уже есть на открытых
-               панел€х, тем самым добиваемс€ того, что выделение с элементов
-               панелей не сбрасываетс€.
-          */
-          BOOL AExist=LocalStricmp(ADir,DirTmp)==0,
-               PExist=LocalStricmp(PDir,DirTmp)==0;
-          // если нужный путь есть на пассивной панели
-          if ( !AExist && PExist)
-          {
-            CtrlObject->Cp()->ProcessKey(KEY_TAB);
-          }
-          if(!AExist && !PExist)
-            CtrlObject->Cp()->ActivePanel->SetCurDir(DirTmp,TRUE);
-          /* IS */
-          CtrlObject->Cp()->ActivePanel->GoToFile(NameTmp);
-        }
+        CtrlObject->Cp()->GoToFile (FileName);
+        /* DJ $ */
         return (TRUE);
       }
     /* tran 22.07.2000 $ */

@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.32 24.12.2001 $ */
+/* Revision: 1.33 28.12.2001 $ */
 
 /*
 Modify:
+  28.12.2001 DJ
+    + единый метод GoToFile()
   24.12.2001 SVS
     - BugZ#198 - Ctrl-Up/Down при непустой командной строке
       ¬ременна€ отмена KEY_CTRLUP и KEY_CTRLDOWN (передача в CmdLine)
@@ -955,3 +957,50 @@ void FilePanels::Refresh()
   OnChangeFocus(1);
   /* SKV$*/
 }
+
+/* $ 28.12.2001 DJ
+   обработка Ctrl-F10 из вьюера и редактора
+*/
+
+void FilePanels::GoToFile (char *FileName)
+{
+  if(strchr(FileName,'\\') || strchr(FileName,'/'))
+  {
+    char ADir[NM],PDir[NM],NameFile[NM];
+
+    char *NameTmp=PointToName(FileName);
+    if(NameTmp>FileName)
+    {
+      strcpy(NameFile,NameTmp);
+      *NameTmp=0;
+    }
+    else
+      strcpy(NameFile, FileName);
+
+    GetAnotherPanel(ActivePanel)->GetCurDir(PDir);
+	AddEndSlash (PDir);
+    ActivePanel->GetCurDir(ADir);
+	AddEndSlash (ADir);
+    /* $ 10.04.2001 IS
+         Ќе делаем SetCurDir, если нужный путь уже есть на открытых
+         панел€х, тем самым добиваемс€ того, что выделение с элементов
+         панелей не сбрасываетс€.
+    */
+    BOOL AExist=LocalStricmp(ADir,FileName)==0,
+         PExist=LocalStricmp(PDir,FileName)==0;
+    // если нужный путь есть на пассивной панели
+    if ( !AExist && PExist)
+    {
+      ProcessKey(KEY_TAB);
+    }
+    if(!AExist && !PExist)
+      ActivePanel->SetCurDir(FileName,TRUE);
+    /* IS */
+    ActivePanel->GoToFile(NameFile);
+	// всегда обновим заголовок панели, чтобы дать обратную св€зь, что
+	// Ctrl-F10 обработан
+	ActivePanel->SetTitle();
+  }
+}
+
+/* DJ $ */

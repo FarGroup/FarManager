@@ -5,10 +5,12 @@ Parent class дл€ панелей
 
 */
 
-/* Revision: 1.78 14.12.2001 $ */
+/* Revision: 1.79 28.12.2001 $ */
 
 /*
 Modify:
+  28.12.2001 DJ
+    ! обработка Del в меню дисков вынесена в отдельную функцию
   14.12.2001 IS
     ! stricmp -> LocalStricmp
   14.12.2001 VVM
@@ -632,80 +634,16 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
         case KEY_DEL:
           if (SelPos<DiskCount)
           {
-            char MsgText[200], LocalName[50];
-            int UpdateProfile=CONNECT_UPDATE_PROFILE;
+            /* $ 28.12.2001 DJ
+               обработка Del вынесена в отдельную функцию
+            */
             if ((UserData=(DWORD)ChDisk.GetUserData(NULL,0)) != NULL)
             {
-              DiskLetter[0]=LOBYTE(LOWORD(UserData));
-              DiskLetter[1]=0;
-              /* $ 14.12.2000 SVS
-                 ѕопробуем сделать Eject :-)
-              */
-              DriveType=HIWORD(UserData);
-              if(DriveType == DRIVE_REMOVABLE || DriveType == DRIVE_CDROM)
-              {
-                EjectVolume(*DiskLetter,0);
-                return(SelPos);
-              }
-              /* SVS $ */
-              /* $ 05.01.2001 SVS
-                 ѕробуем удалить SUBST-драйв.
-              */
-              if(DriveType == DRIVE_SUBSTITUTE)
-              {
-                char DosDeviceName[16];
-                sprintf(DosDeviceName,"%c:",*DiskLetter);
-                if(!DelSubstDrive(DosDeviceName))
-                  return(SelPos);
-                else
-                {
-                  int LastError=GetLastError();
-                  sprintf(MsgText,MSG(MChangeDriveCannotDelSubst),DosDeviceName);
-                  if (LastError==ERROR_OPEN_FILES || LastError==ERROR_DEVICE_IN_USE)
-                    if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),MsgText,
-                            "\x1",MSG(MChangeDriveOpenFiles),
-                            MSG(MChangeDriveAskDisconnect),MSG(MOk),MSG(MCancel))==0)
-                    {
-                      if(!DelSubstDrive(DosDeviceName))
-                        return(SelPos);
-                    }
-                    else
-                      break;
-                  Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MsgText,MSG(MOk));
-                }
-                break; // блин. в прошлый раз забыл про это дело...
-              }
-              /* SVS $ */
-
-              if(DriveType == DRIVE_REMOTE && MessageRemoveConnection(*DiskLetter,UpdateProfile))
-              {
-                sprintf(LocalName,"%c:",*DiskLetter);
-
-                if (WNetCancelConnection2(LocalName,UpdateProfile,FALSE)==NO_ERROR)
-                  return(SelPos);
-                else
-                {
-                  int LastError=GetLastError();
-                  sprintf(MsgText,MSG(MChangeDriveCannotDisconnect),LocalName);
-                  if (LastError==ERROR_OPEN_FILES || LastError==ERROR_DEVICE_IN_USE)
-                    if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),MsgText,
-                            "\x1",MSG(MChangeDriveOpenFiles),
-                            MSG(MChangeDriveAskDisconnect),MSG(MOk),MSG(MCancel))==0)
-                    {
-                      if (WNetCancelConnection2(LocalName,UpdateProfile,TRUE)==NO_ERROR)
-                        return(SelPos);
-                    }
-                    else
-                      break;
-                  char RootDir[50];
-                  sprintf(RootDir,"%c:\\",*DiskLetter);
-                  if (GetDriveType(RootDir)==DRIVE_REMOTE)
-                    Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MsgText,MSG(MOk));
-                }
-                break;
-              }
-            } // END: if (ChDisk.GetUserData(DiskLetter,...
-          } // END: if (SelPos<DiskCount)
+              if (ProcessDelDisk (LOBYTE(LOWORD(UserData)), HIWORD(UserData)))
+                return SelPos;
+            }
+            /* DJ $ */
+          }
           break;
         case KEY_CTRL1:
         case KEY_RCTRL1:
@@ -867,6 +805,123 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
   return(-1);
 }
 
+/* $ 28.12.2001 DJ
+   обработка Del в меню дисков
+*/
+
+BOOL Panel::ProcessDelDisk (char Drive, int DriveType)
+{
+  // если мы находимс€ на удал€емом диске - уходим с него, чтобы не мешать
+  // удалению
+
+  // если раскомментировать этот кусок - диск будет освобождатьс€
+  // правильно, но будут проблемы с отрисовкой панели после SetCurDir.
+  // ѕоэтому оставим на будущее...
+  //   DJ 28.12.2001
+#if 0
+  char CurDir [NM];
+
+  if (GetMode() != PLUGIN_PANEL)
+  {
+    GetCurDir (CurDir);
+    if (CurDir [0] == Drive && CurDir [1] == ':')
+    {
+      // переходим в корень диска с far.exe
+      if (GetModuleFileName (NULL, CurDir, sizeof (CurDir)-1))
+      {
+        CurDir [3] = '\0';
+        SetCurDir (CurDir, FALSE);
+      }
+    }
+  }
+
+  Panel *Another=CtrlObject->Cp()->GetAnotherPanel (this);
+  if (Another->GetMode() != PLUGIN_PANEL)
+  {
+    Another->GetCurDir (CurDir);
+    if (CurDir [0] == Drive && CurDir [1] == ':')
+    {
+      // переходим в корень диска с far.exe
+      if (GetModuleFileName (NULL, CurDir, sizeof (CurDir)-1))
+      {
+        CurDir [3] = '\0';
+        Another->SetCurDir (CurDir, FALSE);
+      }
+    }
+  }
+#endif
+
+  char MsgText[200];
+  int UpdateProfile=CONNECT_UPDATE_PROFILE;
+
+  char DiskLetter [3];
+  DiskLetter[0] = Drive;
+  DiskLetter[1] = ':';
+  DiskLetter[2] = 0;
+  /* $ 14.12.2000 SVS
+     ѕопробуем сделать Eject :-)
+  */
+  if(DriveType == DRIVE_REMOVABLE || DriveType == DRIVE_CDROM)
+  {
+    EjectVolume(Drive,0);
+    return TRUE;
+  }
+  /* SVS $ */
+  /* $ 05.01.2001 SVS
+     ѕробуем удалить SUBST-драйв.
+  */
+  if(DriveType == DRIVE_SUBSTITUTE)
+  {
+    if(!DelSubstDrive(DiskLetter))
+      return TRUE;
+    else
+    {
+      int LastError=GetLastError();
+      sprintf(MsgText,MSG(MChangeDriveCannotDelSubst),DiskLetter);
+      if (LastError==ERROR_OPEN_FILES || LastError==ERROR_DEVICE_IN_USE)
+        if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),MsgText,
+                "\x1",MSG(MChangeDriveOpenFiles),
+                MSG(MChangeDriveAskDisconnect),MSG(MOk),MSG(MCancel))==0)
+        {
+          if(!DelSubstDrive(DiskLetter))
+            return TRUE;
+        }
+        else
+          return FALSE;
+      Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MsgText,MSG(MOk));
+    }
+    return FALSE; // блин. в прошлый раз забыл про это дело...
+  }
+  /* SVS $ */
+
+  if(DriveType == DRIVE_REMOTE && MessageRemoveConnection(Drive,UpdateProfile))
+  {
+    if (WNetCancelConnection2(DiskLetter,UpdateProfile,FALSE)==NO_ERROR)
+      return TRUE;
+    else
+    {
+      int LastError=GetLastError();
+      sprintf(MsgText,MSG(MChangeDriveCannotDisconnect),DiskLetter);
+      if (LastError==ERROR_OPEN_FILES || LastError==ERROR_DEVICE_IN_USE)
+        if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),MsgText,
+                "\x1",MSG(MChangeDriveOpenFiles),
+                MSG(MChangeDriveAskDisconnect),MSG(MOk),MSG(MCancel))==0)
+        {
+          if (WNetCancelConnection2(DiskLetter,UpdateProfile,TRUE)==NO_ERROR)
+            return TRUE;
+        }
+        else
+          return FALSE;
+      char RootDir[50];
+      sprintf(RootDir,"%c:\\",*DiskLetter);
+      if (GetDriveType(RootDir)==DRIVE_REMOTE)
+        Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MsgText,MSG(MOk));
+    }
+    return FALSE;
+  }
+  return FALSE;
+}
+/* DJ $ */
 
 void Panel::FastFind(int FirstKey)
 {
