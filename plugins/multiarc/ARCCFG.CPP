@@ -11,7 +11,7 @@ int ConfigGeneral()
 
   //*  7 */{DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MGConfigDeleteExtFile},
   //*  8 */{DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MGConfigAddExtArchive},
-  /*  7 */{DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MGConfigAutoOffExactArcName},
+  /*  7 */{DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MGConfigAutoResetExactArcName},
   /*  8 */{DI_CHECKBOX,5,9,0,0,0,1,DIF_DISABLE|DIF_HIDDEN,0,(char *)MGConfigOldDialogStyle},
 
   /*  9 */{DI_TEXT,5,9,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
@@ -33,7 +33,7 @@ int ConfigGeneral()
   DialogItems[6].Param.Selected=Opt.UseLastHistory;
 //  DialogItems[7].Param.Selected=Opt.DeleteExtFile;
 //  DialogItems[8].Param.Selected=Opt.AddExtArchive;
-  DialogItems[7].Param.Selected=Opt.AutoOffExactArcName;
+  DialogItems[7].Param.Selected=Opt.AutoResetExactArcName;
   strcpy(DialogItems[11].Data.Data,Opt.DescriptionNames);
   DialogItems[12].Param.Selected=Opt.ReadDescriptions;
   DialogItems[13].Param.Selected=Opt.UpdateDescriptions;
@@ -50,7 +50,7 @@ int ConfigGeneral()
 
   //Opt.DeleteExtFile=DialogItems[7].Param.Selected;
   //Opt.AddExtArchive=DialogItems[8].Param.Selected;
-  Opt.AutoOffExactArcName=DialogItems[7].Param.Selected;
+  Opt.AutoResetExactArcName=DialogItems[7].Param.Selected;
 
   strcpy(Opt.DescriptionNames,DialogItems[11].Data.Data);
   Opt.ReadDescriptions=DialogItems[12].Param.Selected;
@@ -64,7 +64,7 @@ int ConfigGeneral()
 
   //SetRegKey(HKEY_CURRENT_USER,"","DeleteExtFile",Opt.DeleteExtFile);
   //SetRegKey(HKEY_CURRENT_USER,"","AddExtArchive",Opt.AddExtArchive);
-  SetRegKey(HKEY_CURRENT_USER,"","AutoOffExactArcName",Opt.AutoOffExactArcName);
+  SetRegKey(HKEY_CURRENT_USER,"","AutoResetExactArcName",Opt.AutoResetExactArcName);
 
   return TRUE;
 }

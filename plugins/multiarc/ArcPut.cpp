@@ -472,7 +472,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       else
       {
 #endif //_ARC_UNDER_CURSOR_
-        pdd.OldExactState=Opt.AutoOffExactArcName?FALSE:Opt.ExactArcName;
+        pdd.OldExactState=Opt.AutoResetExactArcName?FALSE:Opt.ExactArcName;
 #ifdef _GROOP_NAME_
         GetGroopName(PanelItem, ItemsNumber, DialogItems[PDI_ARCNAMEEDT].Data.Data);
 #else //_GROOP_NAME_

@@ -291,7 +291,7 @@ struct Options
   int UseLastHistory; // $ 18.05.2001 SVS
   //int DeleteExtFile; // $ 12.07.2001 SVS
   //int AddExtArchive; // $ 16.07.2001 SVS
-  BOOL AutoOffExactArcName; // $ 2?.11.2001 AA
+  BOOL AutoResetExactArcName; // $ 2?.11.2001 AA
   BOOL ExactArcName;   // $ 30.11.2001 AA
 } Opt;
 

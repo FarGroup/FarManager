@@ -114,7 +114,7 @@ enum LanguageID
   MGConfigUseLastHistory,
 //  MGConfigDeleteExtFile,
 //  MGConfigAddExtArchive,
-  MGConfigAutoOffExactArcName,
+  MGConfigAutoResetExactArcName,
   MGConfigOldDialogStyle,
 
   MGConfigDizNames,
