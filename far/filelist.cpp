@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.180 29.05.2003 $ */
+/* Revision: 1.181 04.06.2003 $ */
 
 /*
 Modify:
+  04.06.2003 SVS
+    - Bug: Заходим на пустой диск A:, жмем Shift-Left и... вылетаем
   29.05.2003 SVS
     ! Вьюверу подсунем либо короткое имя, либо длинное в зависимости от
       режима панели.
@@ -2106,6 +2108,8 @@ int FileList::ProcessKey(int Key)
     case KEY_SHIFTLEFT:    case KEY_SHIFTNUMPAD4:
     case KEY_SHIFTRIGHT:   case KEY_SHIFTNUMPAD6:
     {
+      if (FileCount==0)
+        return(TRUE);
       if (Columns>1)
       {
         int N=Height;

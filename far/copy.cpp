@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.119 08.05.2003 $ */
+/* Revision: 1.120 04.06.2003 $ */
 
 /*
 Modify:
+  04.06.2003 SVS
+    - не выставл€лись атрибуты дл€ копируемого каталога.
   08.05.2003 VVM
     ! ѕри Append забыли про большие файлы :) »спользуем параметр lpDistanceToMoveHigh
       в функции SetFilePointer.
@@ -2137,8 +2139,53 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
       if (SrcDriveType==DRIVE_CDROM && Opt.ClearReadOnly && (SetAttr & FA_RDONLY))
         SetAttr&=~FA_RDONLY;
 
-      if(SetAttr != SrcData.dwFileAttributes && SetAttr != FILE_ATTRIBUTE_DIRECTORY && !(ShellCopy::Flags&FCOPY_SKIPSETATTRFLD)) // только 0x10 нужен!
+      if(!(ShellCopy::Flags&FCOPY_SKIPSETATTRFLD) && (SetAttr&(~FILE_ATTRIBUTE_DIRECTORY)) != 0 /*SetAttr != SrcData.dwFileAttributes && SetAttr != FILE_ATTRIBUTE_DIRECTORY && */) // только 0x10 нужен!
       {
+        // не будем выставл€ть компрессию, если мылимс€ в каталог
+        // с выставленным FILE_ATTRIBUTE_ENCRYPTED (а он уже будет выставлен после CreateDirectory)
+        // т.с. пропускаем лишний ход.
+        if(GetFileAttributes(DestPath)&FILE_ATTRIBUTE_ENCRYPTED)
+          SetAttr&=~FILE_ATTRIBUTE_COMPRESSED;
+
+        if(SetAttr&FILE_ATTRIBUTE_COMPRESSED)
+        {
+          int MsgCode;
+          while(1)
+          {
+            CopyTime+= (clock() - CopyStartTime);
+            MsgCode=ESetFileCompression(DestPath,1,0);
+            CopyStartTime = clock();
+            if(MsgCode)
+            {
+              if(MsgCode == 2)
+                ShellCopy::Flags|=FCOPY_SKIPSETATTRFLD;
+              break;
+            }
+            if(MsgCode != 1)
+              return (MsgCode==2) ? COPY_NEXT:COPY_CANCEL;
+          }
+        }
+#if 0
+        else if(SetAttr&FILE_ATTRIBUTE_ENCRYPTED)
+        {
+          int MsgCode;
+          while(1)
+          {
+            CopyTime+= (clock() - CopyStartTime);
+            MsgCode=ESetFileEncryption(DestPath,1,0);
+            CopyStartTime = clock();
+            if(MsgCode)
+            {
+              if(MsgCode == 2)
+                ShellCopy::Flags|=FCOPY_SKIPSETATTRFLD;
+              break;
+            }
+            if(MsgCode != 1)
+              return (MsgCode==2) ? COPY_NEXT:COPY_CANCEL;
+          }
+        }
+#endif
+
         while(!ShellSetAttr(DestPath,SetAttr))
         {
           int MsgCode;

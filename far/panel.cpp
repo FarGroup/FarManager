@@ -5,10 +5,12 @@ Parent class дл€ панелей
 
 */
 
-/* Revision: 1.111 08.05.2003 $ */
+/* Revision: 1.112 04.06.2003 $ */
 
 /*
 Modify:
+  04.06.2003 SVS
+    ! ”берем двойные '**' при обработке FastFind
   08.05.2003 SVS
     - BugZ#888 - две строки подстветки в драйв меню
   02.05.2003 SVS
@@ -1298,9 +1300,18 @@ void Panel::FastFind(int FirstKey)
             KeyToProcess=Key;
             break;
           }
+
           if (FindEdit.ProcessKey(Key))
           {
             FindEdit.GetString(Name,sizeof(Name));
+
+            // уберем двойные '**'
+            int LenName=strlen(Name);
+            if(LenName > 1 && Name[LenName-1] == '*' && Name[LenName-2] == '*')
+            {
+              Name[LenName-1]=0;
+              FindEdit.SetString(Name);
+            }
             /* $ 09.04.2001 SVS
                проблемы с быстрым поиском.
                ѕодробнее в 00573.ChangeDirCrash.txt
