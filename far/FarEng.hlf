@@ -946,19 +946,29 @@ characters of the folder.
 
 @History
 $ #History#
-    The history menu shows list of commands executed from FAR.
+    The commmands history shows the list of previously executed
+commands. Besides the cursor control keys, the following keyboard
+shortcuts are available:
 
-    You may choose a command and press #Enter# to execute it again,
-#Shift-Enter# to execute it in the separate window or #Ctrl-Enter#
-to paste it to the command line for editing. You may use highlighted
-letters to execute the command, instead of using cursor keys and Enter.
-#Del# clears commands history.
+  Execute a previously executed command                         #Enter#
 
-    It is also possible to go to the previous or next command directly
-from the command line, using keys Ctrl-E or Ctrl-X respectively.
+  Execute a previously executed command in a new window   #Shift-Enter#
 
-    To save history before exit use the appropriate option from
-the ~System settings dialog~@SystemSettings@.
+  Copy a command to the command line for editing           #Ctrl-Enter#
+
+  Clear the commands history                                      #Del#
+
+  Copy the text of the current command to the clipboard        #Ctrl-C#
+  without closing the list                                or #Ctrl-Ins#
+
+    To go to the previous or next command directly from the command
+line, you can press #Ctrl-E# or #Ctrl-X# respectively.
+
+    For choosing a command, besides the cursor control keys and Enter,
+you can use the highlighted shortcut letters.
+
+    If you want to save the commands history after exiting FAR, use
+the respective option in the ~system settings dialog~@SystemSettings@.
 
 @TaskList
 $ #Task list#

@@ -5,10 +5,12 @@ history.cpp
 
 */
 
-/* Revision: 1.03 11.02.2001 $ */
+/* Revision: 1.04 09.04.2001 $ */
 
 /*
 Modify:
+  09.04.2001 SVS
+    + Фича - копирование из истории строки в Clipboard
   11.02.2001 SVS
     ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
   09.01.2001 SVS
@@ -220,7 +222,7 @@ int History::Select(char *Title,char *HelpTopic,char *Str,int &Type,char *ItemTi
   struct MenuItem HistoryItem;
   memset(&HistoryItem,0,sizeof(HistoryItem));
 
-  int Line,CurCmd,Code,I,Height=ScrY-8;
+  int Line,CurCmd,Code,I,Height=ScrY-8,StrPos;
   int LineToStr[sizeof(LastStr)/sizeof(LastStr[0])+1];
   int RetCode=1;
 
@@ -256,14 +258,26 @@ int History::Select(char *Title,char *HelpTopic,char *Str,int &Type,char *ItemTi
     while (!HistoryMenu.Done())
     {
       int Key=HistoryMenu.ReadInput();
+      StrPos=HistoryMenu.GetSelectPos();
       if (Key==KEY_CTRLENTER || Key==KEY_SHIFTENTER)
       {
-        HistoryMenu.SetExitCode(HistoryMenu.GetSelectPos());
+        HistoryMenu.SetExitCode(StrPos);
         RetCode=(Key==KEY_SHIFTENTER ? 2 : 3);
         continue;
       }
       switch(Key)
       {
+        /* $ 09.04.2001 SVS
+           Фича - копирование из истории строки в Clipboard
+        */
+        case KEY_CTRLC:
+        case KEY_CTRLINS:
+        {
+          if((Code=LineToStr[StrPos]) != -1)
+            CopyToClipboard(LastStr[Code].Name);
+          break;
+        }
+        /* SVS $ */
         case KEY_DEL:
           memset(LastStr,0,sizeof(LastStr));
           CurLastPtr=LastPtr=0;
@@ -285,7 +299,7 @@ int History::Select(char *Title,char *HelpTopic,char *Str,int &Type,char *ItemTi
     CurLastPtr0=LastPtr0=CurLastPtr=LastPtr;
     return(0);
   }
-  int StrPos=LineToStr[Code];
+  StrPos=LineToStr[Code];
   if (KeepSelectedPos)
     CurLastPtr0=CurLastPtr=StrPos;
   strcpy(Str,LastStr[StrPos].Name);
@@ -363,4 +377,3 @@ void History::SetAddMode(int EnableAdd,int RemoveDups,int KeepSelectedPos)
   History::RemoveDups=RemoveDups;
   History::KeepSelectedPos=KeepSelectedPos;
 }
-
