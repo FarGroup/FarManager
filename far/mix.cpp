@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.107 14.01.2002 $ */
+/* Revision: 1.108 22.01.2002 $ */
 
 /*
 Modify:
+  22.01.2002 IS
+    ! ƒобавим немного интеллекта при обработке путей вида "буква:" в FarChDir.
   14.01.2002 SVS
     - BugZ#238 - ƒлинные пути
   14.01.2002 IS
@@ -352,20 +354,35 @@ long filelen(FILE *FPtr)
    ”становка нужного диска и каталога и установление соответствующей переменной
    окружени€. ¬ случае успеха возвращаетс€ не ноль.
 */
+/* $ 22.01.2002 IS
+   + ќбработаем самосто€тельно пути типа "буква:"
+*/
 BOOL FarChDir(const char *NewDir)
 {
-  BOOL rc=SetCurrentDirectory(NewDir);
-  char CurDir[NM*2];
+  BOOL rc;
+  char CurDir[NM*2], Drive[4]="=A:";
+  if(isalpha(*NewDir) && NewDir[1]==':' && NewDir[2]==0)// если указана только
+  {                                                     // буква диска, то путь
+    Drive[1]=toupper(*NewDir);                          // возьмем из переменной
+    if(GetEnvironmentVariable(Drive,CurDir,sizeof(CurDir)))  // окружени€
+      CharToOem(CurDir,CurDir);
+    else
+      sprintf(CurDir,"%s\\",NewDir); // при неудаче переключимс€ в корень диска
+    rc=SetCurrentDirectory(CurDir);
+  }
+  else
+    rc=SetCurrentDirectory(NewDir);
+
   if (GetCurrentDirectory(sizeof(CurDir),CurDir) &&
       isalpha(*CurDir) && CurDir[1]==':')
   {
-    char Drive[4]="=A:";
     Drive[1]=toupper(*CurDir);
     OemToChar(CurDir,CurDir); // аргументы SetEnvironmentVariable должны быть ANSI
     SetEnvironmentVariable(Drive,CurDir);
   }
   return rc;
 }
+/* IS 22.01.200@ $ */
 /* IS 14.01.2002 $ */
 
 DWORD NTTimeToDos(FILETIME *ft)
