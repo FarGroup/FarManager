@@ -8,10 +8,12 @@ flink.hpp
 
 */
 
-/* Revision: 1.06 29.05.2001 $ */
+/* Revision: 1.07 30.05.2001 $ */
 
 /*
 Modify:
+  30.05.2001 SVS
+    + FarMkLink()
   29.05.2001 SVS
     + GetPathRootOne()
   28.04.2001 VVM
@@ -31,6 +33,7 @@ Modify:
 */
 
 int   WINAPI MkLink(char *Src,char *Dest);
+int   WINAPI FarMkLink(char *Src,char *Dest,DWORD Flags);
 BOOL  WINAPI CanCreateHardLinks(char *TargetFile,char *HardLinkName);
 int   WINAPI GetNumberOfLinks(char *Name);
 int   WINAPI CreateVolumeMountPoint(LPCTSTR SrcVolume,LPCTSTR LinkFolder);

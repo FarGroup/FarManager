@@ -7,10 +7,17 @@ class ShellCopy - Копирование файлов
 
 */
 
-/* Revision: 1.06 06.05.2001 $ */
+/* Revision: 1.07 30.05.2001 $ */
 
 /*
 Modify:
+  30.05.2001 SVS
+    ! ShellCopy::CreatePath выведена из класса в отдельню функцию
+    + CopyDlgProc()
+    + MkSymLink() - как отдельная функция
+    ! Немного уменьшим размер объекта за счет замены некоторых переменных
+      на флаги.
+    + LinkRules() - соблюдение рулесов при линковке
   06.05.2001 DJ
     ! перетрях #include
   01.01.2001 VVM
@@ -33,50 +40,57 @@ Modify:
 
 class Panel;
 
-enum COPY_CODES {COPY_CANCEL,COPY_NEXT,COPY_FAILURE,COPY_SUCCESS,
-    COPY_SUCCESS_MOVE};
+enum COPY_CODES {
+  COPY_CANCEL,
+  COPY_NEXT,
+  COPY_FAILURE,
+  COPY_SUCCESS,
+  COPY_SUCCESS_MOVE
+};
+
+#define FCOPY_COPYTONUL      0x00000001 // Признак копирования в NUL
+#define FCOPY_CURRENTONLY    0x00000002 //
+#define FCOPY_ONLYNEWERFILES 0x00000004 // Copy only newer files
+#define FCOPY_CREATESYMLINK  0x00000004
+#define FCOPY_OVERWRITENEXT  0x00000008
+#define FCOPY_LINK           0x00000010
+#define FCOPY_MOVE           0x00000040
+#define FCOPY_DIZREAD        0x00000080
+#define FCOPY_COPYSECURITY   0x00000100
+#define FCOPY_NOSHOWMSGLINK  0x00000200
+#define FCOPY_VOLMOUNT       0x00000400
 
 class ShellCopy
 {
   private:
-    char sddata[16000];
-    DizList DestDiz;
-    int DizRead;
-    char DestDizPath[2*NM];
+    DWORD Flags;
+
     Panel *SrcPanel,*AnotherPanel;
-    char *CopyBuffer;
+    int PanelMode,SrcPanelMode;
+
+    char sddata[16000]; // Security
+
+    DizList DestDiz;
+    char DestDizPath[2*NM];
+
     /* $ 23.10.2000 VVM
        + Динамический буфер копирования - рабочие переменные */
+    char *CopyBuffer;
     int CopyBufSize;
+    int CopyBufferSize;
     clock_t StartTime;
     clock_t StopTime;
     /* VVM $ */
+
     char RenamedName[NM],CopiedName[NM];
-    int PanelMode,SrcPanelMode;
     int OvrMode,ReadOnlyOvrMode,ReadOnlyDelMode;
-    int Move;
-    int Link;
-    int CurrentOnly;
-    /* $ 04.08.2000 SVS
-       Copy only newer files
-    */
-    int OnlyNewerFiles;
-    /* SVS $ */
-    int CopySecurity;
     long TotalFiles;
     int SrcDriveType;
     char SrcDriveRoot[NM];
     int SelectedFolderNameLength;
-    int OverwriteNext;
-    /* $ 14.12.2000 SVS
-       CopyToNUL - Признак копирования в NUL
-    */
-    int CopyToNUL;
-    /* SVS $ */
-    int CopyBufferSize;
 
   private:
-    void CopyFileTree(char *Dest);
+    COPY_CODES CopyFileTree(char *Dest);
     COPY_CODES ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,char *Dest,
                                 int KeepPathPos,int Rename);
     int ShellCopyFile(char *SrcName,WIN32_FIND_DATA *SrcData,char *DestName,
@@ -84,7 +98,6 @@ class ShellCopy
     int ShellSystemCopy(char *SrcName,char *DestName,WIN32_FIND_DATA *SrcData);
     void ShellCopyMsg(char *Src,char *Dest,int Flags);
     int ShellCopyConvertWildcards(char *Src,char *Dest);
-    void CreatePath(char *Path);
     int DeleteAfterMove(char *Name,int Attr);
     void SetDestDizPath(char *DestPath);
     int AskOverwrite(WIN32_FIND_DATA *SrcData,char *DestName,
@@ -95,6 +108,7 @@ class ShellCopy
     int IsSameDisk(char *SrcPath,char *DestPath);
     bool CalcTotalSize();
     int CmpFullNames(char *Src,char *Dest);
+    BOOL LinkRules(DWORD *Flags7,DWORD* Flags5,int* Selected5,char *SrcDir,char *DstDir,struct CopyDlgParam *CDP);
 
   public:
     ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
@@ -104,6 +118,8 @@ class ShellCopy
   public:
     static void ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar);
     static void ShowTitle(int FirstTime);
+    static long WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
+    static int MkSymLink(char *SelName,char *Dest,DWORD Flags);
 };
 
 

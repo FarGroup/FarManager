@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.76 21.05.2001 $ */
+/* Revision: 1.77 30.05.2001 $ */
 
 /*
 Modify:
+  30.05.2001 SVS
+    ! ShellCopy::CreatePath выведена из класса в отдельню функцию CreatePath()
   21.05.2001 OT
     ! Задисаблено изменение размера консоли в Execute()
   17.05.2001 SKV
@@ -236,6 +238,7 @@ Modify:
 #include "global.hpp"
 #include "fn.hpp"
 #include "flink.hpp"
+#include "treelist.hpp"
 #include "lang.hpp"
 #include "keys.hpp"
 #include "savefpos.hpp"
@@ -1587,4 +1590,29 @@ char *Add_PATHEXT(char *Dest)
   if(*Dest && Dest[strlen(Dest)-1] == ',')
     Dest[strlen(Dest)-1]=0;
   return Dest;
+}
+
+void CreatePath(char *Path)
+{
+  char *ChPtr;
+  ChPtr=Path;
+  while(*ChPtr)
+  {
+    if (*ChPtr=='\\')
+    {
+      *ChPtr=0;
+
+      char DirName[NM];
+      strcpy(DirName,Path);
+      if (Opt.CreateUppercaseFolders && !IsCaseMixed(DirName))
+        LocalStrupr(DirName);
+
+      if (CreateDirectory(DirName,NULL))
+        TreeList::AddTreeName(DirName);
+      *ChPtr='\\';
+    }
+    ChPtr++;
+  }
+  if (CreateDirectory(Path,NULL))
+    TreeList::AddTreeName(Path);
 }

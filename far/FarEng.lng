@@ -226,9 +226,12 @@
 "Copy \"%.55s\" to"
 "Rename or move \"%.55s\" to"
 "Link \"%.55s\" to"
-"Copy %d files to"
-"Rename or move %d files to"
-"Link %d files to"
+"Copy %d item%s to"
+"Rename or move %d item%s to"
+"Link %d item%s to"
+""
+"s"
+"s"
 
 "The link creation feature"
 "is available only under Windows NT/2000"
@@ -245,6 +248,16 @@
 "&Retry"
 "&Skip"
 "&Cancel"
+
+"Cannot create the symlink"
+"Каталог назначения должен быть пустым"
+
+"Volume mount points error"
+"Retrieving volume name for '%s' failed"
+"Attempt to volume mount '%s'"
+"at '%s' failed"
+"Функция монтирования дисков не поддерживается"
+"Disk_%c"
 
 "Cannot copy the file"
 "onto itself"
@@ -295,9 +308,9 @@
 "Do you wish to wipe"
 "is a symbolic link to folder"
 "%d item%s"
-"(s)"
-"(s)"
-"(s)"
+""
+"s"
+"s"
 
 "Delete folder"
 "Delete files"
@@ -308,8 +321,8 @@
 "S&kip all"
 "&Cancel"
 
-"Delete"
-"Unlink"
+"Delete link"
+"Broke link"
 
 "Deleting"
 

@@ -2176,27 +2176,30 @@ seen from DOS programs.
     When the file size or date changes, all of the corresponding directory
 entries are updated automatically. When a file is deleted, it is not
 deleted physically until all the hard links pointing at it will be
-deleted. The deletion order doesn't matter.
+deleted. The deletion order doesn't matter.  При удалении хардлинка в
+корзину количество связей у файла сохраняется.
 
     FAR can create hard links and can show the number of the file's hard
 links in a separate column (by default, it's the last column in the 9th
 panel mode) and sort the files by hard link number.
 
-    Hard links are supported in NTFS since NT 4.0.
+    Хардлинки поддерживаются в NTFS, начиная с NT 4.0. Создавать хардлинки
+можно только на том же диске, на котором расположен исходный файл.
 
     #Symbolic links#
 
-    Win2K's version of NTFS supports directory symbolic links, where a
-directory serves as a symbolic link to another directory on the computer.
-For example, if the directory D:\SYMLINK specified C:\WINNT\SYSTEM32 as
-its target, then an application accessing D:\SYMLINK\DRIVERS would in
-reality be accessing C:\WINNT\SYSTEM32\DRIVERS. Directory symbolic links
-are known as NTFS junctions in Win2K. Unfortunately, Win2K comes with no
-tools for creating junctions.
+    NTFS начиная с версии 5.0 (Windows 2000) поддерживает символические
+связи (SymLink). Символические связи каталогов в Windows 2000 известны
+как "directory junctions" - технология Windows 2000, позволяющая отображать
+любые локальные каталоги на любые другие локальные каталоги. Например,
+если каталог D:\SYMLINK указывает на C:\WINNT\SYSTEM32 в качестве своей
+цели, то программа, обращающаяся к D:\SYMLINK\DRIVERS, будет на самом
+деле обращаться к C:\WINNT\SYSTEM32\DRIVERS.
 
-    Note: Unlike hardlinks, symlinks must not necessarily point at the
-same drive.
-
+    FAR умеет создавать символические связи только на локальных дисках,
+файловая система которых поддерживает эту возможность (Windows 2000/NTFS 5.0).
+В отличие от хардлинков, симлинки не обязательно должны указывать на тот
+же диск.
 
 @ScrSwitch
 $ #Screens switching#

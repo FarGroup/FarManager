@@ -5,10 +5,13 @@ flink.cpp
 
 */
 
-/* Revision: 1.16 25.05.2001 $ */
+/* Revision: 1.17 30.05.2001 $ */
 
 /*
 Modify:
+  30.05.2001 SVS
+    + FarMkLink()
+    ! Удалена за ненадобностью проверка на CREATE_JUNCTION (полностью)
   25.05.2001 SVS
     ! Удалена за ненадобностью проверка на CREATE_JUNCTION (осталась только
       для mount volume point
@@ -61,6 +64,8 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
+#include "plugin.hpp"
+#include "copy.hpp"
 #include "global.hpp"
 #include "fn.hpp"
 #include "flink.hpp"
@@ -159,7 +164,6 @@ static PSETVOLUMEMOUNTPOINT pSetVolumeMountPoint=NULL;
 */
 int WINAPI CreateVolumeMountPoint(LPCTSTR SrcVolume,LPCTSTR LinkFolder)
 {
-#if defined(CREATE_JUNCTION)
    BOOL bFlag;
    char Buf[1024];            // temporary buffer for volume name
 
@@ -187,7 +191,6 @@ int WINAPI CreateVolumeMountPoint(LPCTSTR SrcVolume,LPCTSTR LinkFolder)
      //printf ("Attempt to mount %s at %s failed.\n", SrcVolume, LinkFolder);
      return (2);
    }
-#endif
    return (0);
 }
 
@@ -667,4 +670,34 @@ BOOL WINAPI CanCreateHardLinks(char *TargetFile,char *HardLinkName)
     }
   }
   return FALSE;
+}
+
+int WINAPI FarMkLink(char *Src,char *Dest,DWORD Flags)
+{
+  if(Src && *Src && Dest && *Dest)
+  {
+//    int Delete=Flags&FLINK_DELETE;
+    int Op=Flags&0xFFFF;
+
+    switch(Op)
+    {
+      case FLINK_HARDLINK:
+//        if(Delete)
+//          return DeleteFile(Src);
+//        else
+          if(CanCreateHardLinks(Src,Dest))
+            return MkLink(Src,Dest);
+        break;
+
+      case FLINK_SYMLINK:
+      case FLINK_VOLMOUNT:
+//        if(Delete)
+//          return RemoveDirectory(Src);
+//        else
+          return ShellCopy::MkSymLink(Src,Dest,
+             (Op==FLINK_VOLMOUNT?FCOPY_VOLMOUNT:FCOPY_LINK)|
+             (Flags&FLINK_SHOWERRMSG?0:FCOPY_NOSHOWMSGLINK));
+    }
+  }
+  return 0;
 }

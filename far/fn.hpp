@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.83 21.05.2001 $ */
+/* Revision: 1.84 30.05.2001 $ */
 
 /*
 Modify:
+  30.05.2001 SVS
+    ! ShellCopy::CreatePath выведена из класса в отдельню функцию CreatePath()
   21.05.2001 OT
     - Исправление поведения AltF9
   16.05.2001 SVS
@@ -671,6 +673,8 @@ void WINAPI FarRecursiveSearch(char *initdir,char *mask,FRSUSERFUNC func,DWORD f
 char* WINAPI FarMkTemp(char *Dest, char *Prefix);
 /* IS $*/
 /* SVS $*/
+
+void CreatePath(char *Path);
 
 /*$ 27.09.2000 skv
 */

@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.70 29.05.2001 $ */
+/* Revision: 1.71 30.05.2001 $ */
 
 /*
 Modify:
+  30.05.2001 SVS
+    + StandardFunctions.MkLink
   29.05.2001 IS
     - ѕри настройке "параметров внешних модулей" не обновл€лись строчки
       плагинов в меню.
@@ -762,6 +764,7 @@ int PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNumb
       */
       StandardFunctions.ProcessName=ProcessName;
       /* IS $ */
+      StandardFunctions.MkLink=FarMkLink;
     }
 
     if(!StartupInfo.StructSize)

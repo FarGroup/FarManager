@@ -15,10 +15,16 @@ lang.hpp
 
 */
 
-/* Revision: 1.68 24.05.2001 $ */
+/* Revision: 1.69 30.05.2001 $ */
 
 /*
 Modify:
+  30.05.2001 SVS
+    + MCMLItems* - про окончания для диалога попирования
+    + MCopyCannotCreateJunction, MCopyFolderNotEmpty, MCopyCannotCreateVolMount,
+      MCopyRetrVolFailed, MCopyMountVolFailed, MCopyMountVolFailed2,
+      MCopyCannotSupportVolMount, MCopyMountName,
+  24.05.2001 SVS
     ! Задание размера табуляции в EditorConfig перенесено ниже (так лучше
       смотрится :-)
   21.05.2001 DJ
@@ -422,6 +428,9 @@ enum
   MCopyFiles,
   MMoveFiles,
   MLinkFiles,
+  MCMLItems0,
+  MCMLItemsA,
+  MCMLItemsS,
 
   MCopyNotSupportLink1,
   MCopyNotSupportLink2,
@@ -438,6 +447,16 @@ enum
   MCopyRetry,
   MCopySkip,
   MCopyCancel,
+
+  MCopyCannotCreateJunction,
+  MCopyFolderNotEmpty,
+
+  MCopyCannotCreateVolMount,
+  MCopyRetrVolFailed,
+  MCopyMountVolFailed,
+  MCopyMountVolFailed2,
+  MCopyCannotSupportVolMount,
+  MCopyMountName,
 
   MCannotCopyFileToItself1,
   MCannotCopyFileToItself2,

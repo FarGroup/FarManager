@@ -8,16 +8,17 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.109 29.05.2001 $ */
+/* Revision: 1.110 30.05.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  30.05.2001 SVS
+    + MKLINKOP, FARSTDMKLINK
   29.05.2001 tran
     + макрос - MAKEFARVERSION
-
   21.05.2001 DJ
     + FDLG_NONMODAL
   21.05.2001 SVS
@@ -1325,6 +1326,15 @@ typedef void    (WINAPI *FARSTDRECURSIVESEARCH)(char *InitDir,char *Mask,FRSUSER
 typedef char*   (WINAPI *FARSTDMKTEMP)(char *Dest, char *Prefix);
 typedef void    (WINAPI *FARSTDDELETEBUFFER)(char *Buffer);
 
+enum MKLINKOP{
+  FLINK_HARDLINK  = 1,
+  FLINK_SYMLINK   = 2,
+  FLINK_VOLMOUNT  = 3,
+
+  FLINK_SHOWERRMSG= 0x10000,
+};
+typedef int     (WINAPI *FARSTDMKLINK)(char *Src,char *Dest,DWORD Flags);
+
 enum FRSMODE{
   FRS_RETUPDIR = 0x0001,
   FRS_RECUR    = 0x0002
@@ -1384,6 +1394,7 @@ typedef struct FarStandardFunctions
   FARSTDMKTEMP               MkTemp;
   FARSTDDELETEBUFFER         DeleteBuffer;
   FARSTDPROCESSNAME          ProcessName;
+  FARSTDMKLINK               MkLink;
 } FARSTANDARDFUNCTIONS;
 
 struct PluginStartupInfo
