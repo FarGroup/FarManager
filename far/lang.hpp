@@ -12,10 +12,12 @@ lang.hpp
            подряд.
 */
 
-/* Revision: 1.34 21.12.2000 $ */
+/* Revision: 1.35 30.12.2000 $ */
 
 /*
 Modify:
+  30.12.2000 SVS
+    + MHelp*F1-12
   21.12.2000 SVS
     + MMacroSettingsIgnorePanels
   21.12.2000 SVS
@@ -1336,6 +1338,58 @@ enum
 
   MCheckBox2State,
   MEditInputSize,
+
+  MHelpF1,
+  MHelpF2,
+  MHelpF3,
+  MHelpF4,
+  MHelpF5,
+  MHelpF6,
+  MHelpF7,
+  MHelpF8,
+  MHelpF9,
+  MHelpF10,
+  MHelpF11,
+  MHelpF12,
+
+  MHelpShiftF1,
+  MHelpShiftF2,
+  MHelpShiftF3,
+  MHelpShiftF4,
+  MHelpShiftF5,
+  MHelpShiftF6,
+  MHelpShiftF7,
+  MHelpShiftF8,
+  MHelpShiftF9,
+  MHelpShiftF10,
+  MHelpShiftF11,
+  MHelpShiftF12,
+
+  MHelpAltF1,
+  MHelpAltF2,
+  MHelpAltF3,
+  MHelpAltF4,
+  MHelpAltF5,
+  MHelpAltF6,
+  MHelpAltF7,
+  MHelpAltF8,
+  MHelpAltF9,
+  MHelpAltF10,
+  MHelpAltF11,
+  MHelpAltF12,
+
+  MHelpCtrlF1,
+  MHelpCtrlF2,
+  MHelpCtrlF3,
+  MHelpCtrlF4,
+  MHelpCtrlF5,
+  MHelpCtrlF6,
+  MHelpCtrlF7,
+  MHelpCtrlF8,
+  MHelpCtrlF9,
+  MHelpCtrlF10,
+  MHelpCtrlF11,
+  MHelpCtrlF12,
 };
 
 #endif	// __FARLANG_HPP__

@@ -7,10 +7,12 @@ help.hpp
 
 */
 
-/* Revision: 1.04 18.12.2000 $ */
+/* Revision: 1.05 30.12.2000 $ */
 
 /*
 Modify:
+  30.12.2000 SVS
+    + KeyBar в Help`е
   18.12.2000 SVS
     + Дополнительный параметр у конструктора - DWORD Flags.
     + Член класса - Flags
@@ -32,6 +34,8 @@ Modify:
 class Help:public Modal
 {
   private:
+    KeyBar HelpKeyBar;
+
     char *HelpData;
     char HelpTopic[512];
     char SelTopic[512];
@@ -81,8 +85,10 @@ class Help:public Modal
 
   public:
     void Hide();
+    void Process();
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+    void InitKeyBar(void);
     BOOL GetError() {return ErrorHelp;}
     static int GetFullScreenMode();
     static void SetFullScreenMode(int Mode);

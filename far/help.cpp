@@ -184,7 +184,10 @@ Help::Help(char *Topic, char *Mask,DWORD Flags)
     SetPosition(4,2,ScrX-4,ScrY-2);
   ReadHelp(Mask);
   if (HelpData!=NULL)
+  {
+    InitKeyBar();
     Process();
+  }
   else
   {
     if(!(Flags&FHELP_NOSHOWERROR))
@@ -214,7 +217,10 @@ Help::Help(char *Topic,int &ShowPrev,int PrevFullScreen,DWORD Flags)
     SetPosition(4,2,ScrX-4,ScrY-2);
   ReadHelp();
   if (HelpData!=NULL)
+  {
+    InitKeyBar();
     Process();
+  }
   else
   {
     if(!(Flags&FHELP_NOSHOWERROR))
@@ -494,6 +500,14 @@ void Help::DisplayObject()
   SetCursorType(0,10);
   MoveToReference(1,1);
   FastShow();
+  if (!FullScreenHelp)
+  {
+    HelpKeyBar.SetPosition(0,ScrY,ScrX,ScrY);
+    if(Opt.ShowKeyBar)
+       HelpKeyBar.Show();
+  }
+  else
+    HelpKeyBar.Hide();
 }
 
 
@@ -810,11 +824,16 @@ int Help::ProcessKey(int Key)
       Hide();
       FullScreenHelp=!FullScreenHelp;
       if (FullScreenHelp)
+      {
+        HelpKeyBar.Hide();
         SetPosition(0,0,ScrX,ScrY);
+      }
       else
         SetPosition(4,2,ScrX-4,ScrY-2);
       ReadHelp();
       Show();
+      if(Opt.ShowKeyBar && !FullScreenHelp)
+         HelpKeyBar.Show();
       return(TRUE);
     case KEY_ESC:
     case KEY_F10:
@@ -1177,3 +1196,38 @@ void Help::SetScreenPosition()
   Show();
 }
 /* tran $ */
+
+/* $ 30.12.2000 SVS
+  Функция инициализации KeyBar Labels
+*/
+void Help::InitKeyBar(void)
+{
+  char *FHelpKeys[]={MSG(MHelpF1),MSG(MHelpF2),MSG(MHelpF3),MSG(MHelpF4),MSG(MHelpF5),EnableSwitch ? MSG(MHelpF6):"",MSG(MHelpF7),MSG(MHelpF8),MSG(MHelpF9),MSG(MHelpF10),MSG(MHelpF11),MSG(MHelpF12)};
+  char *FHelpShiftKeys[]={MSG(MHelpShiftF1),MSG(MHelpShiftF2),MSG(MHelpShiftF3),MSG(MHelpShiftF4),MSG(MHelpShiftF5),MSG(MHelpShiftF6),MSG(MHelpShiftF7),MSG(MHelpShiftF8),MSG(MHelpShiftF9),MSG(MHelpShiftF10),MSG(MHelpShiftF11),MSG(MHelpShiftF12)};
+  char *FHelpAltKeys[]={MSG(MHelpAltF1),MSG(MHelpAltF2),MSG(MHelpAltF3),MSG(MHelpAltF4),MSG(MHelpAltF5),MSG(MHelpAltF6),MSG(MHelpAltF7),MSG(MHelpAltF8),MSG(MHelpAltF9),MSG(MHelpAltF10),MSG(MHelpAltF11),MSG(MHelpAltF12)};
+  char *FHelpCtrlKeys[]={MSG(MHelpCtrlF1),MSG(MHelpCtrlF2),MSG(MHelpCtrlF3),MSG(MHelpCtrlF4),MSG(MHelpCtrlF5),MSG(MHelpCtrlF6),MSG(MHelpCtrlF7),MSG(MHelpCtrlF8),MSG(MHelpCtrlF9),MSG(MHelpCtrlF10),MSG(MHelpCtrlF11),MSG(MHelpCtrlF12)};
+//  char *FHelpAltShiftKeys[]={MSG(MHelpAltShiftF1),MSG(MHelpAltShiftF2),MSG(MHelpAltShiftF3),MSG(MHelpAltShiftF4),MSG(MHelpAltShiftF5),MSG(MHelpAltShiftF6),MSG(MHelpAltShiftF7),MSG(MHelpAltShiftF8),MSG(MHelpAltShiftF9),MSG(MHelpAltShiftF10),MSG(MHelpAltShiftF11),MSG(MHelpAltShiftF12)};
+//  char *FHelpCtrlShiftKeys[]={MSG(MHelpCtrlShiftF1),MSG(MHelpCtrlShiftF2),MSG(MHelpCtrlShiftF3),MSG(MHelpCtrlShiftF4),MSG(MHelpCtrlShiftF5),MSG(MHelpCtrlShiftF6),MSG(MHelpCtrlShiftF7),MSG(MHelpCtrlShiftF8),MSG(MHelpCtrlShiftF9),MSG(MHelpCtrlShiftF10),MSG(MHelpCtrlShiftF11),MSG(MHelpCtrlShiftF12)};
+//  char *FHelpCtrlAltKeys[]={MSG(MHelpCtrlAltF1),MSG(MHelpCtrlAltF2),MSG(MHelpCtrlAltF3),MSG(MHelpCtrlAltF4),MSG(MHelpCtrlAltF5),MSG(MHelpCtrlAltF6),MSG(MHelpCtrlAltF7),MSG(MHelpCtrlAltF8),MSG(MHelpCtrlAltF9),MSG(MHelpCtrlAltF10),MSG(MHelpCtrlAltF11),MSG(MHelpCtrlAltF12)};
+  char *FHelpAltShiftKeys[]={"","","","","","","","","","","",""};
+  char *FHelpCtrlShiftKeys[]={"","","","","","","","","","","",""};
+  char *FHelpCtrlAltKeys[]={"","","","","","","","","","","",""};
+
+  HelpKeyBar.Set(FHelpKeys,sizeof(FHelpKeys)/sizeof(FHelpKeys[0]));
+  HelpKeyBar.SetShift(FHelpShiftKeys,sizeof(FHelpShiftKeys)/sizeof(FHelpShiftKeys[0]));
+  HelpKeyBar.SetAlt(FHelpAltKeys,sizeof(FHelpAltKeys)/sizeof(FHelpAltKeys[0]));
+  HelpKeyBar.SetCtrl(FHelpCtrlKeys,sizeof(FHelpCtrlKeys)/sizeof(FHelpCtrlKeys[0]));
+  HelpKeyBar.SetCtrlAlt(FHelpCtrlAltKeys,sizeof(FHelpCtrlAltKeys)/sizeof(FHelpCtrlAltKeys[0]));
+  HelpKeyBar.SetCtrlShift(FHelpCtrlShiftKeys,sizeof(FHelpCtrlShiftKeys)/sizeof(FHelpCtrlShiftKeys[0]));
+  HelpKeyBar.SetAltShift(FHelpAltShiftKeys,sizeof(FHelpAltShiftKeys)/sizeof(FHelpAltShiftKeys[0]));
+
+  SetKeyBar(&HelpKeyBar);
+}
+/* SVS $ */
+
+void Help::Process()
+{
+  ChangeMacroMode MacroMode(MACRO_HELP);
+  Modal::Process();
+}
+
