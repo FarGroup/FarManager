@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.32 02.10.2000 $ */
+/* Revision: 1.33 18.10.2000 $ */
 
 /*
 Modify:
+  18.10.2000 SVS
+    - бага: DownDownUp в Уникод-файлах (FEFF)
   02.10.2000 SVS
     - бага со скроллером.
       > Если нажать в самом низу скролбара, вьюер отмотается на страницу
@@ -536,7 +538,14 @@ void Viewer::DisplayObject()
       GotoXY(X1,Y);
       if (strlen((char *)OutStr[I])>LeftPos)
       {
-        mprintf("%-*.*s",Width,Width,&OutStr[I][LeftPos]);
+        /* $ 18.10.2000 SVS
+           -Bug: Down Down Up & первый пробел
+        */
+        if(VM.Unicode && FirstWord == 0x0FEFF && !I && !LeftPos && !StrFilePos[I])
+          mprintf("%-*.*s",Width,Width,&OutStr[I][LeftPos+1]);
+        else
+          mprintf("%-*.*s",Width,Width,&OutStr[I][LeftPos]);
+        /* SVS $*/
         /* $ 18.07.2000 tran -
            проверка флага
         */
@@ -762,7 +771,14 @@ void Viewer::ShowUp()
     GotoXY(X1,Y);
     if (strlen(OutStr[I])>LeftPos)
     {
-      mprintf("%-*.*s",Width,Width,&OutStr[I][LeftPos]);
+      /* $ 18.10.2000 SVS
+         -Bug: Down Down Up & первый пробел
+      */
+      if(VM.Unicode && FirstWord == 0x0FEFF && !I && !LeftPos && !StrFilePos[I])
+        mprintf("%-*.*s",Width,Width,&OutStr[I][LeftPos+1]);
+      else
+        mprintf("%-*.*s",Width,Width,&OutStr[I][LeftPos]);
+      /* SVS $ */
       if (strlen(&OutStr[I][LeftPos])>Width && Opt.ViewerShowArrows)
       {
         GotoXY(XX2,Y);
@@ -2043,12 +2059,6 @@ int Viewer::vread(char *Buf,int Size,FILE *SrcFile)
 
 int Viewer::vseek(FILE *SrcFile,unsigned long Offset,int Whence)
 {
-  /* $ 19.09.2000 SVS
-    Unicode
-  */
-  if(!VM.Hex && !Offset && VM.Unicode && FirstWord == 0x0FEFF && Whence == SEEK_SET)
-    Offset++;
-  /* SVS $ */
   if (VM.Unicode)
     return(fseek(SrcFile,Offset*2,Whence));
   else
