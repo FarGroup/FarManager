@@ -9,10 +9,12 @@ editor.hpp
 
 */
 
-/* Revision: 1.04 21.07.2000 $ */
+/* Revision: 1.05 21.07.2000 $ */
 
 /*
 Modify:
+  21.07.2000 tran
+    - три новых метода  - Bug22
   21.07.2000 tran
     ! GotoLine стала как раньше void и добавилась GoToPosition
   17.07.2000 OT
@@ -155,6 +157,13 @@ class Editor:public ScreenObject
       + goto to percent support */
     void GetRowCol(char *argv,int *row,int *col);
     /* tran 14.07.2000 $ */
+
+    /* $ 21.07.2000 tran
+       три новых метода*/
+    int  GetLineCurPos();
+    void BeginVBlockMarking();
+    void AdjustVBlock(int PrevX);
+    /* tran 21.07.2000 $ */
 };
 
 struct EditList

@@ -130,6 +130,9 @@ void Edit::FastShow()
   int TabSelStart=(SelStart==-1) ? -1:RealPosToTab(SelStart);
   int TabSelEnd=(SelEnd<0) ? -1:RealPosToTab(SelEnd);
 
+#ifdef SHITHAPPENS
+  ReplaceSpaces(0);
+#endif
   if (!ConvertTabs && memchr(Str,'\t',StrSize)!=NULL)
   {
     char *SaveStr;
@@ -159,6 +162,9 @@ void Edit::FastShow()
     CursorPos=CurPos;
   }
   ApplyColor();
+#ifdef SHITHAPPENS
+  ReplaceSpaces(1);
+#endif
 }
 
 
@@ -1123,9 +1129,40 @@ void Edit::ReplaceTabs()
     TabPtr=Str+Pos;
     memmove(TabPtr+S,TabPtr+1,PrevStrSize-Pos);
     memset(TabPtr,' ',S);
+#ifdef SHITHAPPENS
+    memset(TabPtr,0x01,S);
+    *TabPtr=0x02;
+#endif
     Str[StrSize]=0;
   }
 }
+
+#ifdef SHITHAPPENS
+void Edit::ReplaceSpaces(int i)
+{
+  char *TabPtr;
+  int Pos,S;
+  char a,b;
+  if ( i==0 )
+  {
+    a=' '; b=0xFA;
+  }
+  else
+  {
+    b=' '; a=0xFA;
+  }
+  /* $ 03.07.2000 tran
+     + обработка ReadOnly */
+  if ( ReadOnly )
+    return;
+  /* tran 03.07.2000 $ */
+
+  while ((TabPtr=(char *)memchr(Str,a,StrSize))!=NULL)
+  {
+    *TabPtr=b;
+  }
+}
+#endif
 
 
 int Edit::GetTabCurPos()

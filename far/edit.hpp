@@ -7,10 +7,12 @@ edit.hpp
 
 */
 
-/* Revision: 1.01 03.76.2000 $ */
+/* Revision: 1.02 21.76.2000 $ */
 
 /*
 Modify:
+  21.07.2000 tran
+    + ReplaceSpaces()
   03.07.2000 tran
     + ReadOnly style
   25.06.2000 SVS
@@ -99,6 +101,9 @@ class Edit:public ScreenObject
 
     static void DisableEditOut(int Disable);
     static void DisableEncode(int Disable);
+#ifdef SHITHAPPENS
+    void ReplaceSpaces(int i);
+#endif
 };
 
 #endif	// __EDIT_HPP__

@@ -6,10 +6,24 @@ editor.cpp
 
 */
 
-/* Revision: 1.12 21.07.2000 $ */
+/* Revision: 1.13 21.07.2000 $ */
 
 /*
 Modify:
+   21.07.2000 tran 1.13
+    - Bug 22
+      вот теперь это верно решение.
+      предыдущие просба считать неверным.
+      оно все равно переделано
+      ввел три новых метода
+        int  GetLineCurPos(); - просто сокращает писанину
+        void BeginVBlockMarking(); - начинает вертикальный блок
+        void AdjustVBlock(int PrevX); - подравнивает вертикальный блок
+                при перебросках курсора при переходе через
+                пустое место табуляций
+      просьба оставить закоментаренный SysLog
+      если что-то в этой части случится, я быстрее разберусь
+      если нет - потом сам уберу...
   21.07.2000 tran
     ! Все внутри функции GoToPosition();
   18.07.2000 tran
@@ -755,8 +769,9 @@ int Editor::ProcessKey(int Key)
   if (Key==KEY_NONE)
     return(TRUE);
 
-  int CurPos,I;
+  int CurPos,CurVisPos,I;
   CurPos=CurLine->EditLine.GetCurPos();
+  CurVisPos=GetLineCurPos();
 
   if ((!ShiftPressed  || CtrlObject->Macro.IsExecuting()) &&
       !IsShiftKey(Key) && !Pasting)
@@ -1553,17 +1568,11 @@ int Editor::ProcessKey(int Key)
     case KEY_ALTLEFT:
       if (CurPos==0)
         return(TRUE);
+      /* $ 21.07.2000 tran
+         код вынес в BeginVBlockMarking */
       if (!MarkingVBlock)
-      {
-        UnmarkBlock();
-        VBlockStart=CurLine;
-        VBlockX=CurLine->EditLine.GetTabCurPos();
-        VBlockSizeX=0;
-        VBlockY=NumLine;
-        VBlockSizeY=1;
-        MarkingVBlock=TRUE;
-        BlockStartLine=NumLine;
-      }
+        BeginVBlockMarking();
+      /* tran 21.07.2000 $ */
       Pasting++;
       {
         int Delta=CurLine->EditLine.GetTabCurPos()-CurLine->EditLine.RealPosToTab(CurPos-1);
@@ -1583,26 +1592,34 @@ int Editor::ProcessKey(int Key)
     case KEY_ALTRIGHT:
       if (!Opt.EditorCursorBeyondEOL && CurLine->EditLine.GetTabCurPos()>=CurLine->EditLine.GetLength())
         return(TRUE);
+      /* $ 21.07.2000 tran
+         код вынес в BeginVBlockMarking */
       if (!MarkingVBlock)
-      {
-        UnmarkBlock();
-        VBlockStart=CurLine;
-        VBlockX=CurLine->EditLine.GetTabCurPos();
-        VBlockSizeX=0;
-        VBlockY=NumLine;
-        VBlockSizeY=1;
-        MarkingVBlock=TRUE;
-        BlockStartLine=NumLine;
-      }
+        BeginVBlockMarking();
+      /* tran 21.07.2000 $ */
+
+      /* $ 21.07.2000 tran
+         bug22 - продолжение
+      */
+      //SysLog("---------------- KEY_ALTRIGHT, getLineCurPos=%i",GetLineCurPos());
       Pasting++;
       {
-        int Delta=CurLine->EditLine.RealPosToTab(CurPos+1)-CurLine->EditLine.GetTabCurPos();
+        int Delta;
         /* $ 18.07.2000 tran
              встань в начало текста, нажми alt-right, alt-pagedown,
              выделится блок шириной в 1 колонку, нажми еще alt-right
              выделение сбросится
         */
-        if (CurLine->EditLine.GetTabCurPos()+1>=VBlockX+VBlockSizeX)
+        int VisPos=CurLine->EditLine.RealPosToTab(CurPos),
+            NextVisPos=CurLine->EditLine.RealPosToTab(CurPos+1);
+        /* SysLog("CurPos=%i, VisPos=%i, NextVisPos=%i",
+            CurPos,VisPos, NextVisPos); //,CurLine->EditLine.GetTabCurPos()); */
+
+        Delta=NextVisPos-VisPos;
+        //SysLog("Delta=%i",Delta);
+        /* tran $ */
+
+        if (CurLine->EditLine.GetTabCurPos()>=VBlockX+VBlockSizeX)
         /* tran $ */
           VBlockSizeX+=Delta;
         else
@@ -1610,10 +1627,15 @@ int Editor::ProcessKey(int Key)
           VBlockX+=Delta;
           VBlockSizeX-=Delta;
         }
+
         ProcessKey(KEY_RIGHT);
+        //SysLog("VBlockX=%i, VBlockSizeX=%i, GetLineCurPos=%i",VBlockX,VBlockSizeX,GetLineCurPos());
       }
       Pasting--;
       Show();
+      //SysLog("~~~~~~~~~~~~~~~~ KEY_ALTRIGHT END, VBlockY=%i:%i, VBlockX=%i:%i",VBlockY,VBlockSizeY,VBlockX,VBlockSizeX);
+      /* tran 21.07.2000 $ */
+
       return(TRUE);
   /* $ 29.06.2000 IG
       + CtrlAltLeft, CtrlAltRight для вертикальный блоков
@@ -1691,17 +1713,12 @@ int Editor::ProcessKey(int Key)
     case KEY_ALTUP:
       if (CurLine->Prev==NULL)
         return(TRUE);
+      /* $ 21.07.2000 tran
+         код вынес в BeginVBlockMarking */
       if (!MarkingVBlock)
-      {
-        UnmarkBlock();
-        VBlockStart=CurLine;
-        VBlockX=CurLine->EditLine.GetTabCurPos();
-        VBlockSizeX=0;
-        VBlockY=NumLine;
-        VBlockSizeY=1;
-        MarkingVBlock=TRUE;
-        BlockStartLine=NumLine;
-      }
+        BeginVBlockMarking();
+      /* tran 21.07.2000 $ */
+
       if (!Opt.EditorCursorBeyondEOL && VBlockX>=CurLine->Prev->EditLine.GetLength())
         return(TRUE);
       Pasting++;
@@ -1715,24 +1732,23 @@ int Editor::ProcessKey(int Key)
         BlockStartLine--;
       }
       ProcessKey(KEY_UP);
+      /* $ 21.07.2000 tran
+         вызываем функцию подгонки блока */
+      AdjustVBlock(CurVisPos);
+      /* tran 21.07.2000 $ */
       Pasting--;
       Show();
+      //SysLog("~~~~~~~~ ALT_PGUP, VBlockY=%i:%i, VBlockX=%i:%i",VBlockY,VBlockSizeY,VBlockX,VBlockSizeX);
       return(TRUE);
     case KEY_ALTSHIFTDOWN:
     case KEY_ALTDOWN:
       if (CurLine->Next==NULL)
         return(TRUE);
+      /* $ 21.07.2000 tran
+         код вынес в BeginVBlockMarking */
       if (!MarkingVBlock)
-      {
-        UnmarkBlock();
-        VBlockStart=CurLine;
-        VBlockX=CurLine->EditLine.GetTabCurPos();
-        VBlockSizeX=0;
-        VBlockY=NumLine;
-        VBlockSizeY=1;
-        MarkingVBlock=TRUE;
-        BlockStartLine=NumLine;
-      }
+        BeginVBlockMarking();
+      /* tran 21.07.2000 $ */
       if (!Opt.EditorCursorBeyondEOL && VBlockX>=CurLine->Next->EditLine.GetLength())
         return(TRUE);
       Pasting++;
@@ -1746,8 +1762,13 @@ int Editor::ProcessKey(int Key)
         BlockStartLine++;
       }
       ProcessKey(KEY_DOWN);
+      /* $ 21.07.2000 tran
+         вызываем функцию подгонки блока */
+      AdjustVBlock(CurVisPos);
+      /* tran 21.07.2000 $ */
       Pasting--;
       Show();
+      //SysLog("~~~~ Key_AltDOWN: VBlockY=%i:%i, VBlockX=%i:%i",VBlockY,VBlockSizeY,VBlockX,VBlockSizeX);
       return(TRUE);
     case KEY_ALTSHIFTHOME:
     case KEY_ALTHOME:
@@ -3218,7 +3239,7 @@ void Editor::SetTitle(char *Title)
     strcpy(Editor::Title,Title);
 }
 
-
+// используется в FileEditor
 long Editor::GetCurPos()
 {
   struct EditList *CurPtr=TopList;
@@ -4089,6 +4110,64 @@ int Editor::IsShiftKey(int Key)
 void Editor::SetReplaceMode(int Mode)
 {
   ::ReplaceMode=Mode;
+}
+
+int Editor::GetLineCurPos()
+{
+    return CurLine->EditLine.GetTabCurPos();
+}
+
+void Editor::BeginVBlockMarking()
+{
+    UnmarkBlock();
+    VBlockStart=CurLine;
+    VBlockX=CurLine->EditLine.GetTabCurPos();
+    VBlockSizeX=0;
+    VBlockY=NumLine;
+    VBlockSizeY=1;
+    MarkingVBlock=TRUE;
+    BlockStartLine=NumLine;
+    //SysLog("BeginVBlockMarking, set vblock to  VBlockY=%i:%i, VBlockX=%i:%i",VBlockY,VBlockSizeY,VBlockX,VBlockSizeX);
+}
+
+void Editor::AdjustVBlock(int PrevX)
+{
+    int x=GetLineCurPos();
+    int c2;
+
+    //SysLog("AdjustVBlock, x=%i,   vblock is VBlockY=%i:%i, VBlockX=%i:%i, PrevX=%i",x,VBlockY,VBlockSizeY,VBlockX,VBlockSizeX,PrevX);
+    if ( x==VBlockX+VBlockSizeX)  // ничего не случилось, никаких табуляций нет
+        return;
+    if ( x>VBlockX )  // курсор убежал внутрь блока
+    {
+        VBlockSizeX=x-VBlockX;
+        //SysLog("x>VBlockX");
+    }
+    else if ( x<VBlockX ) // курсор убежал за начало блока
+    {
+        c2=VBlockX;
+        if ( PrevX>VBlockX )    // сдвигались вправо, а пришли влево
+        {
+            VBlockX=x;
+            VBlockSizeX=c2-x;   // меняем блок
+        }
+        else      // сдвигались влево и пришли еще больше влево
+        {
+            VBlockX=x;
+            VBlockSizeX+=c2-x;  // расширяем блок
+        }
+        //SysLog("x<VBlockX");
+    }
+    else if (x==VBlockX && x!=PrevX)
+    {
+        VBlockSizeX=0;  // ширина в 0, потому прыгнули прям на табуляцию
+        //SysLog("x==VBlockX && x!=PrevX");
+    }
+    // примечание
+    //   случай x>VBLockX+VBlockSizeX не может быть
+    //   потому что курсор прыгает назад на табуляцию, но не вперед
+
+    //SysLog("AdjustVBlock, changed vblock  VBlockY=%i:%i, VBlockX=%i:%i",VBlockY,VBlockSizeY,VBlockX,VBlockSizeX);
 }
 
 #endif //!defined(EDITOR2)
