@@ -5,10 +5,12 @@ help.cpp
 
 */
 
-/* Revision: 1.27 14.06.2001 $ */
+/* Revision: 1.28 20.06.2001 $ */
 
 /*
 Modify:
+  20.06.2001 SVS
+    - Исправляем проблемы с Alt-F9
   14.06.2001 OT
     ! "Бунт" ;-)
   04.06.2001 OT
@@ -855,17 +857,12 @@ int Help::ProcessKey(int Key)
       }
       /* SVS $ */
       return(TRUE);
+
     case KEY_F5:
-      Hide();
       FullScreenHelp=!FullScreenHelp;
       ResizeConsole();
-      /* $ 26.04.2001 DJ
-      используем сохраненный Mask
-      */
-      ReadHelp(HelpMask);
-      /* DJ $ */
-      FrameManager->RefreshFrame();
       return(TRUE);
+
     case KEY_ESC:
     case KEY_F10:
       ShowPrev=FALSE;
@@ -1488,6 +1485,7 @@ void Help::OnChangeFocus(int focus)
 
 void Help::ResizeConsole()
 {
+  Hide();
   if (FullScreenHelp)
   {
     HelpKeyBar.Hide();
@@ -1495,4 +1493,6 @@ void Help::ResizeConsole()
   }
   else
     SetPosition(4,2,ScrX-4,ScrY-2);
+  ReadHelp(HelpMask);
+  FrameManager->RefreshFrame();
 }
