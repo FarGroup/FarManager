@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.256 12.07.2002 $ */
+/* Revision: 1.257 07.08.2002 $ */
 
 /*
 Modify:
+  07.08.2002 SVS
+    - BugZ#584 - Обрезается вставляемый из клипборда текст.
   12.07.2002 SVS
     - При жмакании Enter нужно прервать цикл после нахождения первого
       дефолтного элемента
@@ -1519,9 +1521,9 @@ int Dialog::InitDialogObjects(int ID)
       {
         if((CurItem->Type==DI_EDIT || CurItem->Type==DI_COMBOBOX) &&
            (ItemFlags&DIF_VAREDIT))
-          DialogEdit->SetMaxLength(CurItem->Ptr.PtrLength);
+          DialogEdit->SetMaxLength(CurItem->Ptr.PtrLength+1);
         else
-          DialogEdit->SetMaxLength((ItemFlags&DIF_EDITPATH)?NM-1:511);
+          DialogEdit->SetMaxLength(((ItemFlags&DIF_EDITPATH)?NM-1:511)+1);
       }
       /* tran $ */
       DialogEdit->SetPosition(X1+CurItem->X1,Y1+CurItem->Y1,
@@ -1551,7 +1553,7 @@ int Dialog::InitDialogObjects(int ID)
         /* SVS $ */
         // если DI_FIXEDIT, то курсор сразу ставится на замену...
         //   ай-ай - было недокументированно :-)
-        DialogEdit->SetMaxLength(CurItem->X2-CurItem->X1+1);
+        DialogEdit->SetMaxLength(CurItem->X2-CurItem->X1+1+1); //??? +1 ???
         DialogEdit->SetOvertypeMode(TRUE);
         /* $ 12.08.2000 KM
            Если тип строки ввода DI_FIXEDIT и установлен флаг DIF_MASKEDIT
@@ -6614,7 +6616,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         else if(Param2 > 511)
           Param2=511;
 
-        ((DlgEdit *)(CurItem->ObjPtr))->SetMaxLength(Param2);
+        ((DlgEdit *)(CurItem->ObjPtr))->SetMaxLength(Param2+1);
 
         //if (DialogMode.Check(DMODE_INITOBJECTS)) //???
         Dlg->InitDialogObjects(Param1); // переинициализируем элементы диалога

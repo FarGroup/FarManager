@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.165 26.07.2002 $ */
+/* Revision: 1.166 07.08.2002 $ */
 
 /*
 Modify:
+  07.08.2002 SVS
+    - BugZ#583 - CtrlH не действует на пассивную плагиновую панель.
   26.07.2002 SKV
     ! косметика. workaround бага оптимизатора VC++.
   27.06.2002 SVS
@@ -1333,7 +1335,7 @@ int FileList::ProcessKey(int Key)
       Update(UPDATE_KEEP_SELECTION);
       Redraw();
       Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
-      AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
+      AnotherPanel->Update(UPDATE_KEEP_SELECTION);//|UPDATE_SECONDARY);
       AnotherPanel->Redraw();
       return(TRUE);
     }
