@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.121 11.10.2001 $ */
+/* Revision: 1.122 15.10.2001 $ */
 
 /*
 Modify:
+  15.10.2001 SVS
+    + _KEYMACRO()
   11.10.2001 IS
     + обработка DeleteOnClose
     ! внедрение const
@@ -1359,7 +1361,8 @@ int Editor::ProcessKey(int Key)
   if (Key==KEY_NONE)
     return(TRUE);
 
-//_SVS(SysLog("Editor::ProcessKey[%d]: Key=0x%08X",__LINE__,Key));
+  _KEYMACRO(CleverSysLog SL("Editor::ProcessKey()"));
+  _KEYMACRO(SysLog("Key=0x%08X",Key));
 
   int CurPos,CurVisPos,I;
   CurPos=CurLine->EditLine.GetCurPos();
@@ -5170,12 +5173,14 @@ int Editor::EditorControl(int Command,void *Param)
       return(TRUE);
     case ECTL_READINPUT:
       {
+        _KEYMACRO(CleverSysLog SL("Editor::EditorControl(ECTL_READINPUT)"));
         INPUT_RECORD *rec=(INPUT_RECORD *)Param;
         GetInputRecord(rec);
       }
       return(TRUE);
     case ECTL_PROCESSINPUT:
       {
+        _KEYMACRO(CleverSysLog SL("Editor::EditorControl(ECTL_PROCESSINPUT)"));
         INPUT_RECORD *rec=(INPUT_RECORD *)Param;
         if (ProcessEditorInput(rec))
           return(TRUE);
@@ -5184,6 +5189,7 @@ int Editor::EditorControl(int Command,void *Param)
         else
         {
           int Key=CalcKeyCode(rec,FALSE);
+          _KEYMACRO(SysLog("Key=CalcKeyCode() = 0x%08X",Key));
           ProcessKey(Key);
         }
       }
@@ -5421,8 +5427,17 @@ struct EditList * Editor::GetStringByNumber(int DestLine)
 
 int Editor::ProcessEditorInput(INPUT_RECORD *Rec)
 {
+#if defined(SYSLOG_KEYMACRO)
+  CleverSysLog SL("Editor::ProcessEditorInput()"));
+  if(Rec->EventType == KEY_EVENT)
+    SysLog("VKey=0x%04X",Rec->Event.KeyEvent.wVirtualKeyCode);
   CtrlObject->Plugins.CurEditor=this;
   int RetCode=CtrlObject->Plugins.ProcessEditorInput(Rec);
+  SysLog("RetCode=%d",RetCode);
+#else
+  CtrlObject->Plugins.CurEditor=this;
+  int RetCode=CtrlObject->Plugins.ProcessEditorInput(Rec);
+#endif
   return(RetCode);
 }
 

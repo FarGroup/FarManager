@@ -5,10 +5,12 @@ syslog.cpp
 
 */
 
-/* Revision: 1.18 03.10.2001 $ */
+/* Revision: 1.19 15.10.2001 $ */
 
 /*
 Modify:
+  15.10.2001 SVS
+    + Экспортируемые FarSysLog и FarSysLogDump только под SYSLOG_FARSYSLOG
   03.10.2001 SVS
     ! В некоторых источниках говорится, что IsDebuggerPresent() есть только
       в NT, так что... бум юзать ее динамически!
@@ -70,7 +72,7 @@ Modify:
 #include "plugins.hpp"
 
 #if !defined(SYSLOG)
- #if defined(SYSLOG_OT) || defined(SYSLOG_SVS) || defined(SYSLOG_DJ) || defined(VVM) || defined(SYSLOG_AT) || defined(SYSLOG_IS) || defined(SYSLOG_tran) || defined(SYSLOG_SKV) || defined(SYSLOG_NWZ) || defined(SYSLOG_KM)
+ #if defined(SYSLOG_OT) || defined(SYSLOG_SVS) || defined(SYSLOG_DJ) || defined(VVM) || defined(SYSLOG_AT) || defined(SYSLOG_IS) || defined(SYSLOG_tran) || defined(SYSLOG_SKV) || defined(SYSLOG_NWZ) || defined(SYSLOG_KM) || defined(SYSLOG_KEYMACRO)
   #define SYSLOG
  #endif
 #endif
@@ -253,10 +255,12 @@ void SysLog(int l,char *fmt,...)
   if(pIsDebuggerPresent && pIsDebuggerPresent())
   {
     OutputDebugString(msg);
+#ifdef _MSC_VER
+    OutputDebugString("\n");
+#endif _MSC_VER
   }
 #endif
 }
-///
 
 void SysLogDump(char *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,FILE *fp)
 {
@@ -309,6 +313,42 @@ void SysLogDump(char *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,FILE *fp)
     CloseSysLog();
 #endif
 }
+
+
+#if defined(SYSLOG_FARSYSLOG)
+void WINAPIV _export FarSysLog(char *ModuleName,int l,char *fmt,...)
+{
+  char msg[MAX_LOG_LINE];
+
+  va_list argptr;
+  va_start( argptr, fmt );
+
+  vsprintf( msg, fmt, argptr );
+  va_end(argptr);
+
+  SysLog(l);
+  OpenSysLog();
+  if ( LogStream )
+  {
+    char timebuf[64];
+    fprintf(LogStream,"%s %s%s\n",PrintTime(timebuf),MakeSpace(),msg);
+    fflush(LogStream);
+  }
+  CloseSysLog();
+  if(pIsDebuggerPresent && pIsDebuggerPresent())
+  {
+    OutputDebugString(msg);
+#ifdef _MSC_VER
+    OutputDebugString("\n");
+#endif _MSC_VER
+  }
+}
+
+void WINAPI _export FarSysLogDump(char *ModuleName,DWORD StartAddress,LPBYTE Buf,int SizeBuf)
+{
+  SysLogDump(ModuleName,StartAddress,Buf,SizeBuf,NULL);
+}
+#endif
 
 // "Умный класс для SysLog
 CleverSysLog::CleverSysLog(char *Title)

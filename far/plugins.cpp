@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.94 03.10.2001 $ */
+/* Revision: 1.95 15.10.2001 $ */
 
 /*
 Modify:
+  15.10.2001 SVS
+    + _KEYMACRO()
   03.10.2001 SVS
     - Ошибка в PluginsSet::UnloadPlugin() - зачем ВСЮ структуру затирать то?
   27.09.2001 IS
@@ -1322,6 +1324,7 @@ int PluginsSet::ProcessEditorInput(INPUT_RECORD *Rec)
 {
   //EXCEPTION_POINTERS *xp;
   struct PluginItem *PData=PluginsData;
+  _KEYMACRO(CleverSysLog SL("PluginsSet::ProcessEditorInput()"));
   for (int I=0;I<PluginsCount;I++,PData++)
     if (PData->pProcessEditorInput && PreparePlugin(I))
       /* $ 13.07.2000 IS
@@ -1330,6 +1333,7 @@ int PluginsSet::ProcessEditorInput(INPUT_RECORD *Rec)
       if (PData->pProcessEditorInput)
       {
         int Ret;
+        _KEYMACRO(SysLog("CALL pProcessEditorInput(): '%s'",PData->ModuleName));
 
         if(Opt.ExceptRules)
         {
@@ -1343,6 +1347,7 @@ int PluginsSet::ProcessEditorInput(INPUT_RECORD *Rec)
         }
         else
           Ret=PData->pProcessEditorInput(Rec);
+        _KEYMACRO(SysLog("Ret=%d",Ret));
         if(Ret)
           return(TRUE);
         /* IS $ */

@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.65 10.10.2001 $ */
+/* Revision: 1.66 15.10.2001 $ */
 
 /*
 Modify:
+  15.10.2001 SVS
+    + _KEYMACRO()
   10.10.2001 IS
     + обработка DeleteOnClose
   04.10.2001 OT
@@ -717,6 +719,7 @@ int FileEditor::ProcessKey(int Key)
     /* DJ $ */
 
     default:
+    {
       /* $ 28.04.2001 DJ
          не передаем KEY_MACRO* плагину - поскольку ReadRec в этом случае
          никак не соответствует обрабатываемой клавише, возникают разномастные
@@ -725,6 +728,8 @@ int FileEditor::ProcessKey(int Key)
       if(Key&KEY_MACROSPEC_BASE) // исключаем MACRO
          return(FEdit.ProcessKey(Key));
       /* DJ $ */
+      _KEYMACRO(CleverSysLog SL("FileEditor::ProcessKey()"));
+      _KEYMACRO(SysLog("Key=0x%08X Macro.IsExecuting()=%d",Key,CtrlObject->Macro.IsExecuting()));
       if (CtrlObject->Macro.IsExecuting() ||
         !FEdit.ProcessEditorInput(FrameManager->GetLastInputRecord()))
       {
@@ -738,6 +743,7 @@ int FileEditor::ProcessKey(int Key)
           return(FEdit.ProcessKey(Key));
       }
       return(TRUE);
+    }
   }
 }
 

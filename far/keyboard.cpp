@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.48 11.10.2001 $ */
+/* Revision: 1.49 15.10.2001 $ */
 
 /*
 Modify:
+  15.10.2001 SVS
+    + _KEYMACRO()
   11.10.2001 SVS
     - BugZ#79. Ќекоректное преобразование имен клавиш в коды (при ошибках в
       написании названи€ клавиш)
@@ -329,6 +331,7 @@ int GetInputRecord(INPUT_RECORD *rec)
 
   if (CtrlObject!=NULL)
   {
+     _KEYMACRO(CleverSysLog SL("GetInputRecord()"));
     int VirtKey,ControlState;
     int MacroKey=CtrlObject->Macro.GetKey();
     if (MacroKey)
@@ -336,6 +339,7 @@ int GetInputRecord(INPUT_RECORD *rec)
       ScrBuf.Flush();
       TranslateKeyToVK(MacroKey,VirtKey,ControlState,rec);
       rec->EventType=0;
+      _KEYMACRO(SysLog("MacroKey1 =0x%08X",MacroKey));
 //      memset(rec,0,sizeof(*rec));
       return(MacroKey);
     }
@@ -347,6 +351,7 @@ int GetInputRecord(INPUT_RECORD *rec)
       ScrBuf.Flush();
       TranslateKeyToVK(MacroKey,VirtKey,ControlState,rec);
       rec->EventType=0;
+      _KEYMACRO(SysLog("MacroKey2 =0x%08X",MacroKey));
 //      memset(rec,0,sizeof(*rec));
       return(MacroKey);
     }

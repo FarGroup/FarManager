@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.110 07.10.2001 $ */
+/* Revision: 1.111 15.10.2001 $ */
 
 /*
 Modify:
+  15.10.2001 SVS
+    + Ёкспортируемые FarSysLog и FarSysLogDump только под SYSLOG_FARSYSLOG
+    + _DIALOG & SYSLOG_DIALOG
   07.10.2001 SVS
     + InsertString()
   01.10.2001 IS
@@ -761,10 +764,20 @@ void WINAPI DeleteBuffer(char* Buffer);
 /* <Ћоги ***************************************************
 */
 void SysLog(int l);
-void SysLog(char *msg,...);
+void SysLog(char *fmt,...);
 void SysLog(int l,char *fmt,...); ///
 void ShowHeap();
 void CheckHeap(int NumLine);
+#if defined(SYSLOG_FARSYSLOG)
+#ifdef __cplusplus
+extern "C" {
+#endif
+void WINAPIV _export FarSysLog(char *ModuleName,int Level,char *fmt,...);
+void WINAPI  _export FarSysLogDump(char *ModuleName,DWORD StartAddress,LPBYTE Buf,int SizeBuf);
+#ifdef __cplusplus
+};
+#endif
+#endif
 
 #if defined(_DEBUG) && defined(SYSLOG)
 #define _D(x)  x
@@ -777,6 +790,18 @@ void CheckHeap(int NumLine);
 #define _ALGO(x)  x
 #else
 #define _ALGO(x)
+#endif
+
+#if defined(_DEBUG) && defined(SYSLOG_DIALOG)
+#define _DIALOG(x)  x
+#else
+#define _DIALOG(x)
+#endif
+
+#if defined(_DEBUG) && defined(SYSLOG_KEYMACRO)
+#define _KEYMACRO(x)  x
+#else
+#define _KEYMACRO(x)
 #endif
 
 #if defined(_DEBUG) && defined(SYSLOG_OT)

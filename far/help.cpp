@@ -8,10 +8,12 @@ help.cpp
 
 */
 
-/* Revision: 1.47 15.10.2001 $ */
+/* Revision: 1.48 15.10.2001 $ */
 
 /*
 Modify:
+  15.10.2001 SVS
+    ! вместо strcmp применяем LCStricmp
   15.10.2001 SVS
     + Сортируем индекс хелпов от плагинов перед выдачей на экран.
   07.10.2001 SVS
@@ -1413,7 +1415,7 @@ _SVS(SysLog("HelpLine=%s",HelpLine));
     }
   }
   // сортируем по алфавиту
-  qsort(HelpData+OldStrCount*MAX_HELP_STRING_LENGTH,StrCount-OldStrCount,MAX_HELP_STRING_LENGTH,(int (*)(const void *,const void *))strcmp);
+  qsort(HelpData+OldStrCount*MAX_HELP_STRING_LENGTH,StrCount-OldStrCount,MAX_HELP_STRING_LENGTH,(int (*)(const void *,const void *))LCStricmp);
   /* $ 26.06.2000 IS
    Устранение глюка с хелпом по f1, shift+f2, end (решение предложил IG)
   */
