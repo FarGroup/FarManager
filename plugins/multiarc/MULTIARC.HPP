@@ -3,10 +3,13 @@
 
 */
 
-/* $Revision: 1.00 28.11.2000 $ */
+/* $Revision: 1.01 19.02.2001 $ */
 
 /*
 Modify:
+  19.02.2001 AS
+    ! исключаем windows.h - он должен подключаться из plugin.hpp
+                            после того как будет задано выравнивание
   28.11.2000 AS
     ! включаем stdlib.h - нужен для realloc
 */
@@ -19,7 +22,11 @@ Modify:
 #  pragma pack(8)
 #  include <wincon.h>
 #else
-#  include <windows.h>
+/* $ 19.02.2001 AS
+  windows.h - подключается из plugin.hpp после указания выравнивания
+*/
+//#  include <windows.h>
+/* AS $*/
 #  include "plugin.hpp"
 #endif
 

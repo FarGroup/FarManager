@@ -1,3 +1,9 @@
+/*
+Modify:
+  19.02.2001 AS
+   ! правка высвобождения списка PluginsData в деструкторе ArcPlugins
+*/
+
 ArcPlugins::ArcPlugins(char *ModuleName)
 {
   PluginsData=NULL;
@@ -53,7 +59,11 @@ ArcPlugins::~ArcPlugins()
 {
   for (int I=0;I<PluginsCount;I++)
     FreeLibrary(PluginsData[I].hModule);
-  delete PluginsData;
+//  delete PluginsData;
+/* $ 19.02.2001 AS
+*/
+  delete [] PluginsData;
+/* AS $*/
 }
 
 
