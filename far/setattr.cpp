@@ -5,10 +5,13 @@ setattr.cpp
 
 */
 
-/* Revision: 1.47 30.01.2002 $ */
+/* Revision: 1.48 22.03.2002 $ */
 
 /*
 Modify:
+  22.03.2002 DJ
+    ! зачем-то была переменная FullName, с которой не делалось ничего, кроме
+      порчи стека
   30.01.2002 SVS
     ! Для симлинков не ставим дату-время, т.к. в этом случае меняется
       дата-время оригинала, а не линка.
@@ -535,9 +538,6 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       return 0;
   }
 
-  char FullName[NM];
-
-  FullName[strlen(FullName)+1]=0;
   memset(&DlgParam,0,sizeof(DlgParam));
 
   DlgParam.FileSystemFlags=0;
@@ -1007,12 +1007,9 @@ static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
   FILETIME ft, oft;
   SYSTEMTIME st, ost;
   unsigned DateN[3],TimeN[3];
-  int DigitCount,I;
+  int DigitCount;
   int /*SetTime,*/GetTime;
   FILETIME *OriginalFileTime, OFTModify, OFTCreate, OFTLast;
-  char SrcDate[32], SrcTime[32], Digit[16],*PtrDigit;
-  const char *Ptr;
-
 
   /*$ 17.07.2001 SKV
     от греха подальше, занулим.

@@ -5,10 +5,12 @@ Quick view panel
 
 */
 
-/* Revision: 1.24 14.02.2002 $ */
+/* Revision: 1.25 22.03.2002 $ */
 
 /*
 Modify:
+  22.03.2002 DJ
+    ! отведем побольше места на Title
   14.02.2002 VVM
     ! UpdateIfChanged принимает не булевый Force, а варианты из UIC_*
   16.01.2002 SVS
@@ -518,7 +520,7 @@ void QuickView::SetTitle()
 {
   if (GetFocus())
   {
-    char TitleDir[NM];
+    char TitleDir[NM+30];
     if (*CurFileName)
       sprintf(TitleDir,"{%s - QuickView}",CurFileName);
     else

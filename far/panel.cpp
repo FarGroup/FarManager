@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.91 20.03.2002 $ */
+/* Revision: 1.92 22.03.2002 $ */
 
 /*
 Modify:
+  22.03.2002 DJ
+    ! косметика от BoundsChecker
   20.03.2002 SVS
     ! GetCurrentDirectory -> FarGetCurDir
   19.03.2002 DJ
@@ -527,7 +529,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
             break;
           if (PluginTextNumber==0)
             continue;
-          while (UsedNumbers[PluginTextNumber] && PluginTextNumber<10)
+          while (PluginTextNumber<10 && UsedNumbers[PluginTextNumber])
             PluginTextNumber++;
           UsedNumbers[PluginTextNumber%10]=1;
           /* $ 15.03.2001 IS
@@ -563,7 +565,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
           if (PluginTextNumber!=0)
             continue;
           PluginTextNumber++;
-          while (UsedNumbers[PluginTextNumber] && PluginTextNumber<10)
+          while (PluginTextNumber<10 && UsedNumbers[PluginTextNumber])
             PluginTextNumber++;
           UsedNumbers[PluginTextNumber%10]=1;
           /* $ 15.03.2001 IS

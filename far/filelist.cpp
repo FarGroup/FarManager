@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.136 21.03.2002 $ */
+/* Revision: 1.137 22.03.2002 $ */
 
 /*
 Modify:
+  22.03.2002 DJ
+    ! косметика от BoundsChecker (не инициализировался GetSelPosition)
   21.03.2002 DJ
     ! не портится стек в SetTitle() при длинном заголовке
   20.03.2002 SVS
@@ -476,6 +478,7 @@ FileList::FileList()
   *PluginDizName=0;
   DizRead=FALSE;
   InternalProcessKey=FALSE;
+  GetSelPosition = 0;
 }
 
 
