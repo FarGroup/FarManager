@@ -406,22 +406,22 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
 {
   if (Type==0)
   {
-    // Correct commands for PKZIP 2.04g!
+    // Console PKZIP 4.0/Win32 commands
     static char *Commands[]={
-    /*Extract               */"pkunzip -d -o {-s%%P} {%%S} %%a @%%lNM",
-    /*Extract without paths */"pkunzip -o {-s%%P} {%%S} %%a @%%lNM",
-    /*Test                  */"pkunzip -t {-s%%P} {%%S} %%a @%%lNM",
-    /*Delete                */"pkzip -d {-b%%W} {%%S} %%a @%%lNM",
-    /*Comment archive       */"pkzip -z {-b%%W} {%%S} %%a",
-    /*Comment files         */"pkzip -c {-b%%W} {%%S} %%a @%%lNM",
-    /*Convert to SFX        */"zip2exe {%%S} %%a",
+    /*Extract               */"pkzipc -ext -dir -over=all -nozip -mask=none -times=mod {-pass=%%P} %%A @%%LNMA",
+    /*Extract without paths */"pkzipc -ext -over=all -nozip -mask=none -times=mod {-pass=%%P} %%A @%%LNMA",
+    /*Test                  */"pkzipc -test=all -nozip {-pass=%%P} %%A",
+    /*Delete                */"pkzipc -delete -nozip {-temp=%%W} %%A @%%LNMA",
+    /*Comment archive       */"pkzipc -hea -nozip {-temp=%%W} %%A",
+    /*Comment files         */"pkzipc -com=all -nozip {-temp=%%W} %%A",
+    /*Convert to SFX        */"pkzipc -sfx -nozip %%A",
     /*Lock archive          */"",
     /*Protect archive       */"",
-    /*Recover archive       */"pkzipfix {%%S} %%a",
-    /*Add files             */"pkzip -a -whs {-s%%P} {-b%%W} {%%S} %%a @%%lNM",
-    /*Move files            */"pkzip -m -whs {-s%%P} {-b%%W} {%%S} %%a @%%lNM",
-    /*Add files and folders */"pkzip -a -whs -r -P {-s%%P} {-b%%W} {%%S} %%a @%%lNM",
-    /*Move files and folders*/"pkzip -m -whs -r -P {-s%%P} {-b%%W} {%%S} %%a @%%lNM",
+    /*Recover archive       */"%comspec% /c echo.|pkzipc -fix -nozip %%A",
+    /*Add files             */"pkzipc -add -attr=all -nozip {-pass=%%P} {-temp=%%W} %%A @%%LNMA",
+    /*Move files            */"pkzipc -add -move -attr=all -nozip {-pass=%%P} {-temp=%%W} %%A @%%LNMA",
+    /*Add files and folders */"pkzipc -add -attr=all -dir -nozip {-pass=%%P} {-temp=%%W} %%A @%%LNMA",
+    /*Move files and folders*/"pkzipc -add -move -attr=all -dir -nozip {-pass=%%P} {-temp=%%W} %%A @%%LNMA",
     /*"All files" mask      */"*.*"
     };
     if (Command<sizeof(Commands)/sizeof(Commands[0]))

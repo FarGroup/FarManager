@@ -292,21 +292,22 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
 {
   if (Type==0)
   {
+    // Console RAR 2.50 commands
     static char *Commands[]={
-    /*Extract               */"rar x {-p%%P} {-ap%%R} -y -c- {%%S} %%A @%%LNM",
-    /*Extract without paths */"rar e -av- {-p%%P} -y -c- {%%S} %%A @%%LNM",
-    /*Test                  */"rar t -y {-p%%P} -c- {%%S} %%A @%%LNM",
-    /*Delete                */"rar d -y {-w%%W} {%%S} %%A @%%LNM",
-    /*Comment archive       */"rar c -y {-w%%W} {%%S} %%A",
-    /*Comment files         */"rar cf -y {-w%%W} {%%S} %%A {@%%LNM}",
-    /*Convert to SFX        */"rar s -y {%%S} %%A",
-    /*Lock archive          */"rar k -y {%%S} %%A",
-    /*Protect archive       */"rar rr -y {%%S} %%A",
-    /*Recover archive       */"rar r -y {%%S} %%A",
-    /*Add files             */"rar a -y {-p%%P} {-ap%%R} {-w%%W} {%%S} %%A @%%LN",
-    /*Move files            */"rar m -y {-p%%P} {-ap%%R} {-w%%W} {%%S} %%A @%%LN",
-    /*Add files and folders */"rar a -r0 -y {-p%%P} {-ap%%R} {-w%%W} {%%S} %%A @%%LN",
-    /*Move files and folders*/"rar m -r0 -y {-p%%P} {-ap%%R} {-w%%W} {%%S} %%A @%%LN",
+    /*Extract               */"rar x -av- {-p%%P} {-ap%%R} -y -c- -kb -- %%A @%%LNM",
+    /*Extract without paths */"rar e -av- {-p%%P} -y -c- -kb -- %%A @%%LNM",
+    /*Test                  */"rar t -y {-p%%P} -- %%A",
+    /*Delete                */"rar d -y {-w%%W} -- %%A @%%LNM",
+    /*Comment archive       */"rar c -y {-w%%W} -- %%A",
+    /*Comment files         */"rar cf -y {-w%%W} -- %%A @%%LNM",
+    /*Convert to SFX        */"rar s -y -- %%A",
+    /*Lock archive          */"rar k -y -- %%A",
+    /*Protect archive       */"rar rr -y -- %%A",
+    /*Recover archive       */"rar r -y -- %%A",
+    /*Add files             */"rar a -y {-p%%P} {-ap%%R} {-w%%W} {%%S} -- %%A @%%LN",
+    /*Move files            */"rar m -y {-p%%P} {-ap%%R} {-w%%W} {%%S} -- %%A @%%LN",
+    /*Add files and folders */"rar a -r0 -y {-p%%P} {-ap%%R} {-w%%W} {%%S} -- %%A @%%LN",
+    /*Move files and folders*/"rar m -r0 -y {-p%%P} {-ap%%R} {-w%%W} {%%S} -- %%A @%%LN",
     /*"All files" mask      */"*.*"
     };
     if (Command<sizeof(Commands)/sizeof(Commands[0]))
