@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.20 27.11.2000 $ */
+/* Revision: 1.21 27.11.2000 $ */
 
 /*
 Modify:
+  27.11.2000 SVS
+    - По Shift-F4 не сбрасывался KeyBar после вызова диалога установки атрибутов
   27.11.2000 SVS
     + Для каталогов KEY_CTRLSHIFTF4 и KEY_F4 вызывает диалог атрибутов
   11.11.2000 SVS
@@ -862,6 +864,11 @@ int FileList::ProcessKey(int Key)
             if (Edit)
             {
               ShellSetFileAttributes(this);
+              /* $ 27.11.2000 SVS
+                 По Shift-F4 не сбрасывался KeyBar
+              */
+              CtrlObject->RedrawKeyBar();
+              /* SVS $ */
               return(TRUE);
             }
             /* SVS $ */
