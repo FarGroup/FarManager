@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.312 08.12.2004 $ */
+/* Revision: 1.313 15.12.2004 $ */
 
 /*
 Modify:
+  15.12.2004 WARP
+    - Dialog игнорировал LockRefreshCount. Проверяем LockRefreshCount в ShowDialog
   08.12.2004 SVS
     + Dlg.ItemCount, Dlg.CurPos
     ! обработка типа контрола вынесена из macro.cpp в dialog.cpp
@@ -2566,6 +2568,9 @@ DWORD Dialog::CtlColorDlgItem(int ItemPos,int Type,int Focus,DWORD Flags)
 void Dialog::ShowDialog(int ID)
 {
   CriticalSectionLock Lock(CS);
+
+  if ( LockRefreshCount )
+    return;
 
   char Str[1024];
   struct DialogItem *CurItem;
