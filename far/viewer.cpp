@@ -5,10 +5,16 @@ Internal viewer
 
 */
 
-/* Revision: 1.103 14.06.2002 $ */
+/* Revision: 1.104 25.06.2002 $ */
 
 /*
 Modify:
+  25.06.2002 SVS
+    ! Косметика:  BitFlags::Skip -> BitFlags::Clear
+    ! В редакторе (Editor) и вьювере (Viewer) отказываемся от абс. значений
+      размеров в пользу относительных (т.е. вместо ScrX/ScrY применяем
+      ObjWidth/ObjHeight).
+    ! Если редактор/вьювер не в FullScreen, то не отображаем часики
   14.06.2002 IS
     + Обработка DeleteFolder (см. TempViewName)
   02.06.2002 KM
@@ -1123,8 +1129,8 @@ void Viewer::ShowStatus()
     /* tran $ */
   }
   /* IS $  */
-  int NameLength=ScrX-40;
-  if (Opt.ViewerEditorClock)
+  int NameLength=ObjWidth-41;
+  if (Opt.ViewerEditorClock && HostFileViewer!=NULL && HostFileViewer->IsFullScreen())
     NameLength-=6;
   if (NameLength<20)
     NameLength=20;
@@ -1146,7 +1152,7 @@ void Viewer::ShowStatus()
         TableName="DOS";
   sprintf(Status,"%-*s %10.10s %10u %7.7s %-4d %s%3d%%",
           NameLength,Name,TableName,FileSize,MSG(MViewerStatusCol),
-          LeftPos,Opt.ViewerEditorClock ? "":" ",
+          LeftPos,(Opt.ViewerEditorClock && HostFileViewer!=NULL && HostFileViewer->IsFullScreen() ? "":" "),
           LastPage ? 100:ToPercent(FilePos,FileSize));
   SetColor(COL_VIEWERSTATUS);
   GotoXY(X1,Y1);
@@ -1156,7 +1162,7 @@ void Viewer::ShowStatus()
   mprintf("%-*.*s",Width+(ViOpt.ShowScrollbar?1:0),
                    Width+(ViOpt.ShowScrollbar?1:0),Status);
   /* SVS $ */
-  if (Opt.ViewerEditorClock)
+  if (Opt.ViewerEditorClock && HostFileViewer!=NULL && HostFileViewer->IsFullScreen())
     ShowTime(FALSE);
 }
 
@@ -1462,7 +1468,7 @@ int Viewer::ProcessKey(int Key)
             }
           }
         }
-        if (Opt.ViewerEditorClock)
+        if (Opt.ViewerEditorClock && HostFileViewer!=NULL && HostFileViewer->IsFullScreen())
           ShowTime(FALSE);
       }
       return(TRUE);
@@ -1937,8 +1943,8 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   /* SKV$*/
   {
     int XTable, XPos, NameLength;
-    NameLength=ScrX-40;
-    if (Opt.ViewerEditorClock)
+    NameLength=ObjWidth-40;
+    if (Opt.ViewerEditorClock && HostFileViewer!=NULL && HostFileViewer->IsFullScreen())
       NameLength-=6;
     if (NameLength<20)
       NameLength=20;
@@ -2246,8 +2252,8 @@ void Viewer::Search(int Next,int FirstChar)
     SaveScreen SaveScr;
     SetCursorType(FALSE,0);
     strncpy(MsgStr,(char *) SearchStr,sizeof(MsgStr)-1);
-    if(strlen(MsgStr)+16 >= ScrX)
-      TruncStrFromEnd(MsgStr, ScrX-17);
+    if(strlen(MsgStr)+16 >= X2)
+      TruncStrFromEnd(MsgStr, ObjWidth-17);
     InsertQuote(MsgStr);
     Message(0,0,MSG(MViewSearchTitle),MSG(MViewSearchingFor),MsgStr);
 
@@ -2858,7 +2864,7 @@ void Viewer::SelectText(long MatchPos,int SearchLength, DWORD Flags)
       Up();
     int Length=SelectPos-StartLinePos-1;
     if (VM.Wrap)
-      Length%=ScrX+1;
+      Length%=ObjWidth+1; //??
     if (Length<=Width)
         LeftPos=0;
     if (Length-LeftPos>Width || Length<LeftPos)

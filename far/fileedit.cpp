@@ -5,10 +5,14 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.112 14.06.2002 $ */
+/* Revision: 1.113 25.06.2002 $ */
 
 /*
 Modify:
+  25.06.2002 SVS
+    !  осметика:  BitFlags::Skip -> BitFlags::Clear
+    ! классу Editor нафиг ненужен кейбар - это привелеги€ FileEditor
+      посему ECTL_SETKEYBAR переехал из Editor в FileEditor
   14.06.2002 IS
     ! DeleteOnClose стал int.
   10.06.2002 SVS
@@ -625,7 +629,6 @@ void FileEditor::InitKeyBar(void)
 
   EditKeyBar.Show();
   SetKeyBar(&EditKeyBar);
-  FEdit->SetEditKeyBar(&EditKeyBar);
 }
 /* SVS $ */
 
@@ -1266,7 +1269,7 @@ void FileEditor::SetLockEditor(BOOL LockMode)
   if(LockMode)
     FEdit->Flags.Set(FEDITOR_LOCKMODE);
   else
-    FEdit->Flags.Skip(FEDITOR_LOCKMODE);
+    FEdit->Flags.Clear(FEDITOR_LOCKMODE);
 }
 
 int FileEditor::FastHide()
@@ -1317,6 +1320,17 @@ void FileEditor::SetTitle(const char *Title)
   FEdit->SetTitle(NullToEmpty(Title));
 }
 
+void FileEditor::ChangeEditKeyBar()
+{
+  if (FEdit->AnsiText)
+    EditKeyBar.Change(MSG(MEditF8DOS),7);
+  else
+    EditKeyBar.Change(MSG(MEditF8),7);
+
+  EditKeyBar.Redraw();
+}
+
+
 int FileEditor::EditorControl(int Command,void *Param)
 {
 #if defined(SYSLOG_KEYMACRO)
@@ -1329,5 +1343,50 @@ int FileEditor::EditorControl(int Command,void *Param)
   _ECTLLOG(CleverSysLog SL("FileEditor::EditorControl()"));
   _ECTLLOG(SysLog("(Command=%s, Param=[%d/0x%08X])",_ECTL_ToName(Command),(int)Param,Param));
 #endif
+  switch(Command)
+  {
+    /* $ 07.08.2000 SVS
+       ‘ункци€ установки Keybar Labels
+         Param = NULL - восстановить, пред. значение
+         Param = -1   - обновить полосу (перерисовать)
+         Param = KeyBarTitles
+    */
+    // должно выполн€етс€ в FileEditor::EditorControl()
+    case ECTL_SETKEYBAR:
+    {
+      struct KeyBarTitles *Kbt=(struct KeyBarTitles*)Param;
+      if(!Kbt)
+      {        // восстановить пред значение!
+        InitKeyBar();
+      }
+      else
+      {
+        if((long)Param != (long)-1) // не только перерисовать?
+        {
+          for(int I=0; I < 12; ++I)
+          {
+            if(Kbt->Titles[I])
+              EditKeyBar.Change(KBL_MAIN,Kbt->Titles[I],I);
+            if(Kbt->CtrlTitles[I])
+              EditKeyBar.Change(KBL_CTRL,Kbt->CtrlTitles[I],I);
+            if(Kbt->AltTitles[I])
+              EditKeyBar.Change(KBL_ALT,Kbt->AltTitles[I],I);
+            if(Kbt->ShiftTitles[I])
+              EditKeyBar.Change(KBL_SHIFT,Kbt->ShiftTitles[I],I);
+            if(Kbt->CtrlShiftTitles[I])
+              EditKeyBar.Change(KBL_CTRLSHIFT,Kbt->CtrlShiftTitles[I],I);
+            if(Kbt->AltShiftTitles[I])
+              EditKeyBar.Change(KBL_ALTSHIFT,Kbt->AltShiftTitles[I],I);
+            if(Kbt->CtrlAltTitles[I])
+              EditKeyBar.Change(KBL_CTRLALT,Kbt->CtrlAltTitles[I],I);
+          }
+        }
+        EditKeyBar.Show();
+      }
+      return(TRUE);
+    }
+    /* SVS $ */
+  }
+
   return FEdit->EditorControl(Command,Param);
 }

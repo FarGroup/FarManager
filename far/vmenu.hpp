@@ -11,10 +11,12 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.41 31.05.2002 $ */
+/* Revision: 1.42 25.06.2002 $ */
 
 /*
 Modify:
+  25.06.2002 SVS
+    ! Косметика:  BitFlags::Skip -> BitFlags::Clear
   31.05.2002 SVS
     + SetMaxHeight()
   18.05.2002 SVS
@@ -370,7 +372,7 @@ class VMenu: virtual public Modal, virtual public Frame
     void SetBoxType(int BoxType);
 
     void SetFlags(DWORD Flags){ VMFlags.Set(Flags); }
-    void SkipFlags(DWORD Flags){ VMFlags.Skip(Flags); }
+    void ClearFlags(DWORD Flags){ VMFlags.Clear(Flags); }
     int  CheckFlags(DWORD Flags){ return VMFlags.Check(Flags); }
     DWORD ChangeFlags(DWORD Flags,BOOL Status) {return VMFlags.Change(Flags,Status);}
 

@@ -7,10 +7,12 @@ plugins.hpp
 
 */
 
-/* Revision: 1.26 27.05.2002 $ */
+/* Revision: 1.27 25.06.2002 $ */
 
 /*
 Modify:
+  25.06.2002 SVS
+    ! Косметика:  BitFlags::Skip -> BitFlags::Clear
   27.05.2002 SVS
     ! Откат FileViewer -> Viewer до лучших времен (т.к. в Info и QView нужны
       значительные переделки)
@@ -316,7 +318,7 @@ class PluginsSet
                                  int ModuleNumber);
 
     void SetFlags(DWORD NewFlags) { Flags.Set(NewFlags); }
-    void SkipFlags(DWORD NewFlags) { Flags.Skip(NewFlags); }
+    void SkipFlags(DWORD NewFlags) { Flags.Clear(NewFlags); }
     BOOL CheckFlags(DWORD NewFlags) { return Flags.Check(NewFlags); }
 };
 

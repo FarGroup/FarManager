@@ -6,10 +6,18 @@ editor.cpp
 
 */
 
-/* Revision: 1.183 24.06.2002 $ */
+/* Revision: 1.184 25.06.2002 $ */
 
 /*
 Modify:
+  25.06.2002 SVS
+    ! Косметика:  BitFlags::Skip -> BitFlags::Clear
+    ! В редакторе (Editor) и вьювере (Viewer) отказываемся от абс. значений
+      размеров в пользу относительных (т.е. вместо ScrX/ScrY применяем
+      ObjWidth/ObjHeight).
+    ! Если редактор/вьювер не в FullScreen, то не отображаем часики
+    ! классу Editor нафиг ненужен кейбар - это привелегия FileEditor
+      посему ECTL_SETKEYBAR переехал из Editor в FileEditor
   24.06.2002 SKV
     - Установим флажок PersistentBlock у новосозданных строк из опций.
   24.06.2002 SKV
@@ -576,7 +584,6 @@ Editor::Editor()
   memcpy(&EdOpt, &Opt.EdOpt, sizeof(EditorOptions));
   /* IS $ */
 
-  EditKeyBar=NULL;
   strncpy((char *)LastSearchStr,GlobalSearchString,sizeof(LastSearchStr)-1);
   LastSearchCase=GlobalSearchCase;
   /* $ 03.08.2000 KM
@@ -717,7 +724,7 @@ Editor::~Editor()
 */
 void Editor::SetDeleteOnClose(int NewMode)
 {
-  Flags.Skip(FEDITOR_DELETEONCLOSE|FEDITOR_DELETEONLYFILEONCLOSE);
+  Flags.Clear(FEDITOR_DELETEONCLOSE|FEDITOR_DELETEONLYFILEONCLOSE);
   if(NewMode==1)
     Flags.Set(FEDITOR_DELETEONCLOSE);
   else if(NewMode==2)
@@ -774,7 +781,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
   struct EditList *PrevPtr;
   int Count=0,LastLineCR=0,MessageShown=FALSE;
   UserBreak=0;
-  Flags.Skip(FEDITOR_OPENFAILED);
+  Flags.Clear(FEDITOR_OPENFAILED);
 //  ConvertNameToFull(Name,FileName,sizeof(FileName));
   if (ConvertNameToFull(Name,FileName, sizeof(FileName)) >= sizeof(FileName)){
     Flags.Set(FEDITOR_OPENFAILED);
@@ -1103,7 +1110,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
       if (StartLine!=-1)
       {
         Line=StartLine-1;
-        ScreenLine=ScrY/2;
+        ScreenLine=ObjHeight/2; //ScrY
         if (ScreenLine>Line)
           ScreenLine=Line;
         LinePos=(StartChar>0) ? StartChar-1:0;
@@ -1158,8 +1165,8 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
             break;
         }
       }
-      if (ScreenLine>ScrY)
-        ScreenLine=ScrY;
+      if (ScreenLine>ObjHeight)//ScrY
+        ScreenLine=ObjHeight;//ScrY;
       if (Line>=ScreenLine)
       {
         DisableOut++;
@@ -1224,7 +1231,7 @@ int Editor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs,int NewF
     /* $ 11.10.2001 IS
        Если было произведено сохранение с любым результатом, то не удалять файл
     */
-    Flags.Skip(FEDITOR_DELETEONCLOSE|FEDITOR_DELETEONLYFILEONCLOSE);
+    Flags.Clear(FEDITOR_DELETEONCLOSE|FEDITOR_DELETEONLYFILEONCLOSE);
     /* IS $ */
     CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
 //_D(SysLog("%08d EE_SAVE",__LINE__));
@@ -1257,7 +1264,7 @@ int Editor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs,int NewF
     }
 
     UndoSavePos=UndoDataPos;
-    Flags.Skip(FEDITOR_UNDOOVERFLOW);
+    Flags.Clear(FEDITOR_UNDOOVERFLOW);
 
 //    ConvertNameToFull(Name,FileName, sizeof(FileName));
     if (ConvertNameToFull(Name,FileName, sizeof(FileName)) >= sizeof(FileName))
@@ -1324,7 +1331,7 @@ end:
      ...то "лочка" должна быть снята.
   */
 //  if(SaveAs)
-//    Flags.Skip(FEDITOR_LOCKMODE);
+//    Flags.Clear(FEDITOR_LOCKMODE);
 
 
   /*$ 10.08.2000 skv
@@ -1348,7 +1355,7 @@ void Editor::DisplayObject()
   {
     if(Flags.Check(FEDITOR_ISRESIZEDCONSOLE))
     {
-      Flags.Skip(FEDITOR_ISRESIZEDCONSOLE);
+      Flags.Clear(FEDITOR_ISRESIZEDCONSOLE);
       CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
       CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
     }
@@ -1435,7 +1442,7 @@ void Editor::ShowEditor(int CurLineOnly)
       //_SVS(SysLog("Editor::ShowEditor[%d]: EE_REDRAW (%s)",__LINE__,(Flags.Check(FEDITOR_JUSTMODIFIED)?"EEREDRAW_CHANGE":(CurLineOnly?"EEREDRAW_LINE":"EEREDRAW_ALL"))));
       if(Flags.Check(FEDITOR_JUSTMODIFIED))
       {
-        Flags.Skip(FEDITOR_JUSTMODIFIED);
+        Flags.Clear(FEDITOR_JUSTMODIFIED);
         CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_CHANGE);
       }else
         CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,CurLineOnly?EEREDRAW_LINE:EEREDRAW_ALL);
@@ -1514,7 +1521,7 @@ void Editor::ShowStatus()
   strncpy(TruncFileName,*PluginTitle ? PluginTitle:(*Title ? Title:FileName),
           sizeof(TruncFileName)-1);
   /* IS $ */
-  int NameLength=Opt.ViewerEditorClock ? 19:25;
+  int NameLength=Opt.ViewerEditorClock && HostFileEditor!=NULL && HostFileEditor->IsFullScreen() ? 19:25;
   /* $ 11.07.2000 tran
      + expand filename if console more when 80 column */
   if (X2>80)
@@ -1561,7 +1568,7 @@ void Editor::ShowStatus()
           MSG(MEditStatusCol),CurLine->EditLine.GetTabCurPos()+1,AttrStr);
   /* IS $ */
   /* SVS $ */
-  int StatusWidth=Opt.ViewerEditorClock ? ObjWidth-5:ObjWidth;
+  int StatusWidth=Opt.ViewerEditorClock && HostFileEditor!=NULL && HostFileEditor->IsFullScreen()? ObjWidth-5:ObjWidth;
   if (StatusWidth<0)
     StatusWidth=0;
   mprintf("%-*.*s",StatusWidth,StatusWidth,StatusStr);
@@ -1573,7 +1580,7 @@ void Editor::ShowStatus()
     int CurPos=CurLine->EditLine.GetCurPos();
     if (CurPos<Length)
     {
-      GotoXY(X2-(Opt.ViewerEditorClock ? 9:2),Y1);
+      GotoXY(X2-(Opt.ViewerEditorClock && HostFileEditor!=NULL && HostFileEditor->IsFullScreen() ? 9:2),Y1);
       SetColor(COL_EDITORSTATUS);
       /* $ 27.02.2001 SVS
       Показываем в зависимости от базы */
@@ -1582,7 +1589,7 @@ void Editor::ShowStatus()
       /* SVS $ */
     }
   }
-  if (Opt.ViewerEditorClock)
+  if (Opt.ViewerEditorClock && HostFileEditor!=NULL && HostFileEditor->IsFullScreen())
     ShowTime(FALSE);
 }
 /*$ 10.08.2000 skv
@@ -1604,7 +1611,7 @@ int Editor::ProcessKey(int Key)
 {
   if (Key==KEY_IDLE)
   {
-    if (Opt.ViewerEditorClock)
+    if (Opt.ViewerEditorClock && HostFileEditor!=NULL && HostFileEditor->IsFullScreen())
       ShowTime(FALSE);
     return(TRUE);
   }
@@ -1623,7 +1630,7 @@ int Editor::ProcessKey(int Key)
   if ((!ShiftPressed  || CtrlObject->Macro.IsExecuting()) &&
       !IsShiftKey(Key) && !Pasting)
   {
-    Flags.Skip(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+    Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
 
     if (BlockStart!=NULL || VBlockStart!=NULL && !EdOpt.PersistentBlocks)
       if (!EdOpt.PersistentBlocks)
@@ -1745,7 +1752,7 @@ int Editor::ProcessKey(int Key)
            выделение в подобном случае начинается с нуля, что сводит на нет
            предыдущее выполнение KEY_SHIFTPGDN.
       */
-      Flags.Skip(FEDITOR_CURPOSCHANGEDBYPLUGIN);
+      Flags.Clear(FEDITOR_CURPOSCHANGEDBYPLUGIN);
       /* IS $ */
       ProcessKey(KEY_SHIFTEND);
       Pasting--;
@@ -1880,8 +1887,8 @@ int Editor::ProcessKey(int Key)
             if(SelStart!=-1 && (CurPos<SelStart || // если курсор до выделения
                (SelEnd!=-1 && (CurPos>SelEnd ||    // ... после выделения
                 (CurPos>SelStart && CurPos<SelEnd))))) // ... внутри выдления
-              Flags.Skip(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
-            Flags.Skip(FEDITOR_CURPOSCHANGEDBYPLUGIN);
+              Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+            Flags.Clear(FEDITOR_CURPOSCHANGEDBYPLUGIN);
           }
           if (!Flags.Check(FEDITOR_MARKINGBLOCK))
           /* IS $ */
@@ -1966,8 +1973,8 @@ int Editor::ProcessKey(int Key)
           /* $ 04.02.2002 IS уточним условие */
           if(SelStart!=-1 && (CurPos<SelStart || (SelEnd!=-1 && CurPos>SelEnd)))
           /* IS $ */
-            Flags.Skip(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
-          Flags.Skip(FEDITOR_CURPOSCHANGEDBYPLUGIN);
+            Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+          Flags.Clear(FEDITOR_CURPOSCHANGEDBYPLUGIN);
         }
         /* IS 19.01.2002 $ */
 
@@ -2024,8 +2031,8 @@ int Editor::ProcessKey(int Key)
           /* $ 04.02.2002 IS уточним условие */
           if(SelStart!=-1 && (CurPos<SelStart || (SelEnd!=-1 && CurPos>SelEnd)))
           /* IS $ */
-            Flags.Skip(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
-          Flags.Skip(FEDITOR_CURPOSCHANGEDBYPLUGIN);
+            Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+          Flags.Clear(FEDITOR_CURPOSCHANGEDBYPLUGIN);
         }
         /* IS 19.01.2002 $ */
         if (!Flags.Check(FEDITOR_MARKINGBLOCK))
@@ -2213,7 +2220,7 @@ int Editor::ProcessKey(int Key)
         /* $ 24.06.2002 SKV
           Было бы неплохо сбросить флажок то :)
         */
-        Flags.Skip(FEDITOR_CURPOSCHANGEDBYPLUGIN);
+        Flags.Clear(FEDITOR_CURPOSCHANGEDBYPLUGIN);
         /* SKV $ */
         Down();
         Show();
@@ -2342,7 +2349,7 @@ int Editor::ProcessKey(int Key)
       Copy(FALSE);
     case KEY_CTRLD:
     {
-      Flags.Skip(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+      Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
       DeleteBlock();
       Show();
       return(TRUE);
@@ -2360,7 +2367,7 @@ int Editor::ProcessKey(int Key)
       Paste();
       // MarkingBlock=(VBlockStart==NULL);
       Flags.Change(FEDITOR_MARKINGBLOCK,(VBlockStart==NULL));
-      Flags.Skip(FEDITOR_MARKINGVBLOCK);
+      Flags.Clear(FEDITOR_MARKINGVBLOCK);
       if (!EdOpt.PersistentBlocks)
         UnmarkBlock();
       Pasting--;
@@ -2772,7 +2779,7 @@ int Editor::ProcessKey(int Key)
       */
       //ReplaceMode=FALSE;
       /* IS */
-      Flags.Skip(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+      Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
       Search(TRUE);
       return(TRUE);
     }
@@ -2788,7 +2795,7 @@ int Editor::ProcessKey(int Key)
       TableNum=0;
       UseDecodeTable=AnsiText;
       SetStringsTable();
-      ChangeEditKeyBar();
+      if (HostFileEditor) HostFileEditor->ChangeEditKeyBar();
       Show();
       return(TRUE);
     }
@@ -2804,7 +2811,7 @@ int Editor::ProcessKey(int Key)
           UseDecodeTable=GetTableCode;
           AnsiText=FALSE;
           SetStringsTable();
-          ChangeEditKeyBar();
+          if (HostFileEditor) HostFileEditor->ChangeEditKeyBar();
           Show();
         }
       }
@@ -3244,7 +3251,7 @@ int Editor::ProcessKey(int Key)
         TextChanged(1);
         if (!EdOpt.PersistentBlocks && BlockStart!=NULL)
         {
-          Flags.Skip(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+          Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
           DeleteBlock();
         }
         AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
@@ -3267,7 +3274,7 @@ int Editor::ProcessKey(int Key)
         TextChanged(1);
         if (!EdOpt.PersistentBlocks && BlockStart!=NULL)
         {
-          Flags.Skip(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+          Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
           DeleteBlock();
         }
         AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
@@ -3308,7 +3315,7 @@ int Editor::ProcessKey(int Key)
           BOOL IsBlock=VBlockStart || BlockStart;
           if (!EdOpt.PersistentBlocks && IsBlock)
           {
-            Flags.Skip(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+            Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
             DeleteBlock();
           }
           //AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
@@ -3335,7 +3342,7 @@ int Editor::ProcessKey(int Key)
         BOOL IsBlock=VBlockStart || BlockStart;
         if (!EdOpt.PersistentBlocks && IsBlock)
         {
-          Flags.Skip(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+          Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
           DeleteBlock();
         }
         //AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
@@ -3542,7 +3549,7 @@ int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   + Щелчок мышкой снимает непостоянный блок всегда */
   if ((MouseEvent->dwButtonState & 3)!=0)
   {
-    Flags.Skip(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+    Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
     if ((!EdOpt.PersistentBlocks) && (BlockStart!=NULL || VBlockStart!=NULL))
     {
       UnmarkBlock();
@@ -4221,7 +4228,7 @@ BOOL Editor::Search(int Next)
                 int Ch=ReplaceStr[I];
                 if (Ch==KEY_TAB)
                 {
-                  Flags.Skip(FEDITOR_OVERTYPE);
+                  Flags.Clear(FEDITOR_OVERTYPE);
                   CurLine->EditLine.SetOvertypeMode(FALSE);
                   ProcessKey(KEY_DEL);
                   ProcessKey(KEY_TAB);
@@ -4243,7 +4250,7 @@ BOOL Editor::Search(int Next)
               }
               if(SearchStr[I]==0)
               {
-                Flags.Skip(FEDITOR_OVERTYPE);
+                Flags.Clear(FEDITOR_OVERTYPE);
                 CurLine->EditLine.SetOvertypeMode(FALSE);
                 for (;ReplaceStr[I]!=0;I++)
                 {
@@ -4385,7 +4392,7 @@ void Editor::Paste(char *Src)
     Edit::DisableEditOut(TRUE);
     if (Flags.Check(FEDITOR_OVERTYPE))
     {
-      Flags.Skip(FEDITOR_OVERTYPE);
+      Flags.Clear(FEDITOR_OVERTYPE);
       CurLine->EditLine.SetOvertypeMode(FALSE);
     }
     BlockStart=CurLine;
@@ -4652,7 +4659,7 @@ void Editor::UnmarkBlock()
   if (BlockStart==NULL && VBlockStart==NULL)
     return;
   VBlockStart=NULL;
-  Flags.Skip(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+  Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
   while (BlockStart!=NULL)
   {
     int StartSel,EndSel;
@@ -4894,27 +4901,6 @@ void Editor::GetRowCol(char *argv,int *row,int *col)
 }
 /* tran 07.07.2000 $ */
 
-void Editor::SetEditKeyBar(KeyBar *EditKeyBar)
-{
-  Editor::EditKeyBar=EditKeyBar;
-  ChangeEditKeyBar();
-}
-
-
-void Editor::ChangeEditKeyBar()
-{
-  if (EditKeyBar)
-  {
-    if (AnsiText)
-      EditKeyBar->Change(MSG(MEditF8DOS),7);
-    else
-      EditKeyBar->Change(MSG(MEditF8),7);
-
-    EditKeyBar->Redraw();
-  }
-}
-
-
 /* $ 03.12.2001 IS
    UndoData - теперь указатель
 */
@@ -4936,7 +4922,7 @@ void Editor::AddUndoData(const char *Str,int StrNum,int StrPos,int Type)
     LastChangeStrPos=StrPos;
     return;
   }
-  Flags.Skip(FEDITOR_NEWUNDO);
+  Flags.Clear(FEDITOR_NEWUNDO);
   if (UndoData[UndoDataPos].Type!=UNDO_NONE && UndoData[UndoDataPos].Str!=NULL)
     delete[] UndoData[UndoDataPos].Str;
   UndoData[UndoDataPos].Type=Type;
@@ -5026,7 +5012,7 @@ void Editor::Undo()
   if (!Flags.Check(FEDITOR_UNDOOVERFLOW) && UndoDataPos==UndoSavePos)
     TextChanged(0);
   /* skv $*/
-  Flags.Skip(FEDITOR_DISABLEUNDO);
+  Flags.Clear(FEDITOR_DISABLEUNDO);
 }
 /* IS $ */
 
@@ -5439,7 +5425,7 @@ void Editor::VPaste(char *ClipText)
     Edit::DisableEditOut(TRUE);
     if (Flags.Check(FEDITOR_OVERTYPE))
     {
-      Flags.Skip(FEDITOR_OVERTYPE);
+      Flags.Clear(FEDITOR_OVERTYPE);
       CurLine->EditLine.SetOvertypeMode(FALSE);
     }
 
@@ -6021,55 +6007,6 @@ int Editor::EditorControl(int Command,void *Param)
       if (HostFileEditor!=NULL)
         HostFileEditor->SetExitCode(SAVEFILE_ERROR); // что-то меня терзают смутные сомнения ...
       return(TRUE);
-    /* $ 07.08.2000 SVS
-       Функция установки Keybar Labels
-         Param = NULL - восстановить, пред. значение
-         Param = -1   - обновить полосу (перерисовать)
-         Param = KeyBarTitles
-    */
-    // должно выполняется в FileEditor::EditorControl()
-    case ECTL_SETKEYBAR:
-    {
-      /* $ 22.12.2000 SVS
-         Вызов из EE_READ команды ECTL_SETKEYBAR приводил к падению ФАРа, т.к.
-         объект EditKeyBar еще не существует.
-      */
-      if(!EditKeyBar)
-        return FALSE;
-      /* SVS $ */
-      struct KeyBarTitles *Kbt=(struct KeyBarTitles*)Param;
-      if(!Kbt)
-      {        // восстановить пред значение!
-        if (HostFileEditor!=NULL)
-          HostFileEditor->InitKeyBar();
-      }
-      else
-      {
-        if((long)Param != (long)-1) // не только перерисовать?
-        {
-          for(I=0; I < 12; ++I)
-          {
-            if(Kbt->Titles[I])
-              EditKeyBar->Change(KBL_MAIN,Kbt->Titles[I],I);
-            if(Kbt->CtrlTitles[I])
-              EditKeyBar->Change(KBL_CTRL,Kbt->CtrlTitles[I],I);
-            if(Kbt->AltTitles[I])
-              EditKeyBar->Change(KBL_ALT,Kbt->AltTitles[I],I);
-            if(Kbt->ShiftTitles[I])
-              EditKeyBar->Change(KBL_SHIFT,Kbt->ShiftTitles[I],I);
-            if(Kbt->CtrlShiftTitles[I])
-              EditKeyBar->Change(KBL_CTRLSHIFT,Kbt->CtrlShiftTitles[I],I);
-            if(Kbt->AltShiftTitles[I])
-              EditKeyBar->Change(KBL_ALTSHIFT,Kbt->AltShiftTitles[I],I);
-            if(Kbt->CtrlAltTitles[I])
-              EditKeyBar->Change(KBL_CTRLALT,Kbt->CtrlAltTitles[I],I);
-          }
-        }
-        EditKeyBar->Show();
-      }
-      return(TRUE);
-    }
-    /* SVS $ */
     /*$ 07.09.2000 skv
       New ECTL parameter
     */
@@ -6145,7 +6082,7 @@ int Editor::EditorControl(int Command,void *Param)
             /* IS $ */
 
             SetStringsTable();
-            ChangeEditKeyBar();
+            if (HostFileEditor) HostFileEditor->ChangeEditKeyBar();
             Show();
           }
           /* IS $ */
@@ -6189,7 +6126,7 @@ int Editor::EditorControl(int Command,void *Param)
     */
     case ECTL_TURNOFFMARKINGBLOCK:
     {
-      Flags.Skip(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+      Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
       return TRUE;
     }
     /* IS $ */

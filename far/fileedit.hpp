@@ -7,10 +7,13 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.30 14.06.2002 $ */
+/* Revision: 1.31 25.06.2002 $ */
 
 /*
 Modify:
+  25.06.2002 SVS
+    + IsFullScreen()
+    ! классу Editor нафиг ненужен кейбар - это привелегия FileEditor
   14.06.2002 IS
     ! DeleteOnClose стал int:
       0 - не удалять ничего
@@ -229,6 +232,8 @@ class FileEditor:public Frame
     BOOL SetFileName(const char *NewFileName);
     int ProcessEditorInput(INPUT_RECORD *Rec);
     void SetLockEditor(BOOL LockMode);
+    BOOL IsFullScreen(){return FullScreen;}
+    void ChangeEditKeyBar();
 };
 
 #endif  // __FILEEDITOR_HPP__

@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.254 10.06.2002 $ */
+/* Revision: 1.255 25.06.2002 $ */
 
 /*
 Modify:
+  25.06.2002 SVS
+    ! Косметика:  BitFlags::Skip -> BitFlags::Clear
   10.06.2002 SVS
     + DIF_EDITPATH - соответственно длина поля ввода выставляется в NM-1
       вместо 511
@@ -1170,7 +1172,7 @@ void Dialog::Show()
       Мавр сделал своё дело - мавр может уходить!
       Сбросим при показе диалога флаг ресайзинга консоли.
   */
-  DialogMode.Skip(DMODE_RESIZED);
+  DialogMode.Clear(DMODE_RESIZED);
   /* KM $ */
   /* $ 23.11.2001 VVM
     ! Раз уж мы наследники фрейма, неплохо бы посмотреть на лок прорисовки */
@@ -1191,7 +1193,7 @@ void Dialog::Hide()
   if(!DialogMode.Check(DMODE_INITOBJECTS))
     return;
 
-  DialogMode.Skip(DMODE_SHOW);
+  DialogMode.Clear(DMODE_SHOW);
   ScreenObject::Hide();
 }
 /* SVS $*/
@@ -2275,7 +2277,7 @@ void Dialog::ShowDialog(int ID)
     */
     if(!DlgProc((HANDLE)this,DN_DRAWDIALOG,0,0))
     {
-      DialogMode.Skip(DMODE_DRAWING);  // конец отрисовки диалога!!!
+      DialogMode.Clear(DMODE_DRAWING);  // конец отрисовки диалога!!!
       return;
     }
     /* SVS $ */
@@ -2642,7 +2644,7 @@ void Dialog::ShowDialog(int ID)
   }
   /* SVS $ */
 
-  DialogMode.Skip(DMODE_DRAWING);  // конец отрисовки диалога!!!
+  DialogMode.Clear(DMODE_DRAWING);  // конец отрисовки диалога!!!
   DialogMode.Set(DMODE_SHOW); // диалог на экране!
 }
 /* SVS 22.08.2000 $ */
@@ -2753,7 +2755,7 @@ int Dialog::ProcessKey(int Key)
             break;
         case KEY_ENTER:
         case KEY_CTRLF5:
-            DialogMode.Skip(DMODE_DRAGGED); // закончим движение!
+            DialogMode.Clear(DMODE_DRAGGED); // закончим движение!
             if(!DialogMode.Check(DMODE_ALTDRAGGED))
             {
               DlgProc((HANDLE)this,DN_DRAGGED,1,0);
@@ -2767,7 +2769,7 @@ int Dialog::ProcessKey(int Key)
             X2=OldX2;
             Y1=OldY1;
             Y2=OldY2;
-            DialogMode.Skip(DMODE_DRAGGED);
+            DialogMode.Clear(DMODE_DRAGGED);
             if(!DialogMode.Check(DMODE_ALTDRAGGED))
             {
               DlgProc((HANDLE)this,DN_DRAGGED,1,TRUE);
@@ -2778,7 +2780,7 @@ int Dialog::ProcessKey(int Key)
     /* SVS $ */
     if(DialogMode.Check(DMODE_ALTDRAGGED))
     {
-      DialogMode.Skip(DMODE_DRAGGED|DMODE_ALTDRAGGED);
+      DialogMode.Clear(DMODE_DRAGGED|DMODE_ALTDRAGGED);
       DlgProc((HANDLE)this,DN_DRAGGED,1,0);
       Show();
     }
@@ -2928,7 +2930,7 @@ int Dialog::ProcessKey(int Key)
         }
       if(!DialogMode.Check(DMODE_OLDSTYLE))
       {
-        DialogMode.Skip(DMODE_ENDLOOP); // только если есть
+        DialogMode.Clear(DMODE_ENDLOOP); // только если есть
         return TRUE; // делать больше не чего
       }
 
@@ -3980,14 +3982,14 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
             X2=OldX2;
             Y1=OldY1;
             Y2=OldY2;
-            DialogMode.Skip(DMODE_DRAGGED);
+            DialogMode.Clear(DMODE_DRAGGED);
             DlgProc((HANDLE)this,DN_DRAGGED,1,TRUE);
             Show();
             break;
           }
           else  // release key, drop dialog
           {
-            DialogMode.Skip(DMODE_DRAGGED);
+            DialogMode.Clear(DMODE_DRAGGED);
             DlgProc((HANDLE)this,DN_DRAGGED,1,0);
             Show();
             break;
@@ -4139,7 +4141,7 @@ int Dialog::ChangeFocus2(int KillFocusPos,int SetFocusPos)
        проинформируем листбокс, есть ли у него фокус
     */
     if (Item[KillFocusPos].Type == DI_LISTBOX)
-      Item[KillFocusPos].ListPtr->SkipFlags (VMENU_LISTHASFOCUS);
+      Item[KillFocusPos].ListPtr->ClearFlags (VMENU_LISTHASFOCUS);
     if (Item[SetFocusPos].Type == DI_LISTBOX)
       Item[SetFocusPos].ListPtr->SetFlags (VMENU_LISTHASFOCUS);
     /* DJ */
@@ -5221,7 +5223,7 @@ void Dialog::ShowHelp()
 
 void Dialog::ClearDone()
 {
-  DialogMode.Skip(DMODE_ENDLOOP);
+  DialogMode.Clear(DMODE_ENDLOOP);
 }
 
 void Dialog::SetExitCode(int Code)
@@ -5531,7 +5533,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
               Dlg->SetItemRect(I,&Rect);
             }
           }
-          Dlg->DialogMode.Skip(DMODE_DRAWING);
+          Dlg->DialogMode.Clear(DMODE_DRAWING);
         }
       }
       /* KM $ */
@@ -5670,7 +5672,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       Dlg->DialogMode.Set(DMODE_KEY);
       for(I=0; I < Param1; ++I)
         Dlg->ProcessKey(KeyArray[I]);
-      Dlg->DialogMode.Skip(DMODE_KEY);
+      Dlg->DialogMode.Clear(DMODE_KEY);
       return 0;
     }
     /* SVS $ */
@@ -5751,7 +5753,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       if(Param1 != -1)
       {
         if(!Param1)
-          Dlg->DialogMode.Skip(DMODE_MOUSEEVENT);
+          Dlg->DialogMode.Clear(DMODE_MOUSEEVENT);
         else
           Dlg->DialogMode.Set(DMODE_MOUSEEVENT);
       }

@@ -5,10 +5,12 @@ scrbuf.cpp
 
 */
 
-/* Revision: 1.19 04.06.2002 $ */
+/* Revision: 1.20 25.06.2002 $ */
 
 /*
 Modify:
+  25.06.2002 SVS
+    ! Косметика:  BitFlags::Skip -> BitFlags::Clear
   04.06.2002 SVS
     + ScreenBuf::WriteA - с конвертацией
   31.05.2002 SVS
@@ -173,7 +175,7 @@ void ScreenBuf::Write(int X,int Y,const CHAR_INFO *Text,int TextLength)
   if(X+TextLength >= BufX)
     TextLength=BufX-X; //??
   memcpy(Buf+Y*BufX+X,Text,sizeof(CHAR_INFO)*TextLength);
-  SBFlags.Skip(SBFLAGS_FLUSHED);
+  SBFlags.Clear(SBFLAGS_FLUSHED);
 
 #ifdef DIRECT_SCREEN_OUT
   Flush();
@@ -196,7 +198,7 @@ void ScreenBuf::WriteA(int X,int Y,const CHAR_INFO *Text,int TextLength)
     SetVidChar(*PtrBuf,Text->Char.AsciiChar);
     PtrBuf->Attributes=Text->Attributes;
   }
-  SBFlags.Skip(SBFLAGS_FLUSHED);
+  SBFlags.Clear(SBFLAGS_FLUSHED);
 
 #ifdef DIRECT_SCREEN_OUT
   Flush();
@@ -292,7 +294,7 @@ void ScreenBuf::FillRect(int X1,int Y1,int X2,int Y2,int Ch,int Color)
       *PtrBuf=CI;
   }
 
-  SBFlags.Skip(SBFLAGS_FLUSHED);
+  SBFlags.Clear(SBFLAGS_FLUSHED);
 
 #ifdef DIRECT_SCREEN_OUT
   Flush();
@@ -433,7 +435,7 @@ void ScreenBuf::SetHandle(HANDLE hScreen)
 
 void ScreenBuf::ResetShadow()
 {
-  SBFlags.Skip(SBFLAGS_FLUSHED|SBFLAGS_FLUSHEDCURTYPE|SBFLAGS_FLUSHEDCURPOS|SBFLAGS_USESHADOW);
+  SBFlags.Clear(SBFLAGS_FLUSHED|SBFLAGS_FLUSHEDCURTYPE|SBFLAGS_FLUSHEDCURPOS|SBFLAGS_USESHADOW);
 }
 
 
@@ -441,7 +443,7 @@ void ScreenBuf::MoveCursor(int X,int Y)
 {
   CurX=X;
   CurY=Y;
-  SBFlags.Skip(SBFLAGS_FLUSHEDCURPOS);
+  SBFlags.Clear(SBFLAGS_FLUSHEDCURPOS);
 }
 
 
@@ -462,7 +464,7 @@ void ScreenBuf::SetCursorType(int Visible,int Size)
   {
     CurVisible=Visible;
     CurSize=Size;
-    SBFlags.Skip(SBFLAGS_FLUSHEDCURTYPE);
+    SBFlags.Clear(SBFLAGS_FLUSHEDCURTYPE);
   }
   /* SVS $ */
 }

@@ -7,10 +7,12 @@ bitflags.hpp
 
 */
 
-/* Revision: 1.02 14.01.2002 $ */
+/* Revision: 1.03 25.06.2002 $ */
 
 /*
 Modify:
+  25.06.2002 SVS
+    ! Косметика:  BitFlags::Skip -> BitFlags::Clear
   14.01.2002 SVS
     + Новый метод - Swap()
   10.01.2002 SVS
@@ -33,7 +35,7 @@ class BitFlags{
     // установить набор флагов
     DWORD Set(DWORD NewFlags){ Flags|=NewFlags;return Flags;}
     // сбросить набор флагов
-    DWORD Skip(DWORD NewFlags){ Flags&=~NewFlags;return Flags; }
+    DWORD Clear(DWORD NewFlags){ Flags&=~NewFlags;return Flags; }
     // проверить набор флагов
     BOOL  Check(DWORD NewFlags){ return Flags&NewFlags?TRUE:FALSE; }
     // изменить состояние набора флагов в заивисмости от Status

@@ -9,10 +9,12 @@ editor.hpp
 
 */
 
-/* Revision: 1.37 14.06.2002 $ */
+/* Revision: 1.38 25.06.2002 $ */
 
 /*
 Modify:
+  25.06.2002 SVS
+    ! классу Editor нафиг ненужен кейбар - это привелегия FileEditor
   14.06.2002 IS
     + FEDITOR_DELETEONLYFILEONCLOSE
     ! Параметр у SetDeleteOnClose стал int:
@@ -196,7 +198,6 @@ class Editor:public ScreenObject
     char PluginData[NM*2];
     char PluginTitle[512];
 
-    KeyBar *EditKeyBar;
     struct EditList *TopList,*EndList,*TopScreen,*CurLine;
     /* $ 03.12.2001 IS теперь указатель, т.к. размер может меняться */
     struct EditorUndoData *UndoData;
@@ -305,7 +306,6 @@ class Editor:public ScreenObject
     */
     void UnmarkEmptyBlock();
     /* IS $ */
-    void ChangeEditKeyBar();
     void AddUndoData(const char *Str,int StrNum,int StrPos,int Type);
     void Undo();
     void SelectAll();
@@ -328,7 +328,6 @@ class Editor:public ScreenObject
     int SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs,int NewFile=TRUE);
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-    void SetEditKeyBar(KeyBar *EditKeyBar);
     void KeepInitParameters();
     void SetStartPos(int LineNum,int CharNum);
     int IsFileModified();

@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.82 24.06.2002 $ */
+/* Revision: 1.83 25.06.2002 $ */
 
 /*
 Modify:
+  25.06.2002 SVS
+    ! Косметика:  BitFlags::Skip -> BitFlags::Clear
   24.06.2002 SKV
     - Нельзя выделять за концом строки.
   06.06.2002 SVS
@@ -342,7 +344,7 @@ void Edit::DisplayObject()
     + dropdown style */
   if (Flags.Check(FEDITLINE_DROPDOWNBOX))
   {
-    Flags.Skip(FEDITLINE_CLEARFLAG);  // при дроп-даун нам не нужно никакого unchanged text
+    Flags.Clear(FEDITLINE_CLEARFLAG);  // при дроп-даун нам не нужно никакого unchanged text
     SelStart=0;
     SelEnd=StrSize; // а также считаем что все выделено -
                     //    надо же отличаться от обычных Edit
@@ -552,7 +554,7 @@ void Edit::ShowString(char *ShowStr,int TabSelStart,int TabSelEnd)
       return;
     memset(PswStr,'*',StrSize);
     PswStr[StrSize]=0;
-    Flags.Skip(FEDITLINE_PASSWORDMODE);
+    Flags.Clear(FEDITLINE_PASSWORDMODE);
     ShowString(PswStr,TabSelStart,TabSelEnd);
     Flags.Set(FEDITLINE_PASSWORDMODE);
     /* $ 13.07.2000 SVS
@@ -812,7 +814,7 @@ int Edit::ProcessInsPath(int Key,int PrevSelStart,int PrevSelEnd)
     char *Ptr=PathName;
     for (;*Ptr;Ptr++)
       InsertKey(*Ptr);
-    Flags.Skip(FEDITLINE_CLEARFLAG);
+    Flags.Clear(FEDITLINE_CLEARFLAG);
   }
 
   return RetCode;
@@ -891,7 +893,7 @@ int Edit::ProcessKey(int Key)
       !IsShiftKey(Key) && !Recurse &&
       Key!=KEY_SHIFT && Key!=KEY_CTRL && Key!=KEY_ALT && Key!=KEY_RCTRL && Key!=KEY_RALT && Key!=KEY_NONE)
   {
-    Flags.Skip(FEDITLINE_MARKINGBLOCK);
+    Flags.Clear(FEDITLINE_MARKINGBLOCK);
     if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS) && !(Key==KEY_CTRLINS || Key==KEY_CTRLNUMPAD0) &&
         Key!=KEY_SHIFTDEL && !Flags.Check(FEDITLINE_EDITORMODE) && Key != KEY_CTRLQ &&
         !(Key == KEY_SHIFTINS || Key == KEY_SHIFTNUMPAD0)) //Key != KEY_SHIFTINS) //??
@@ -947,7 +949,7 @@ int Edit::ProcessKey(int Key)
       (Key<KEY_ALT_BASE || Key>=KEY_ALT_BASE+256) &&
       (Key<KEY_MACRO_BASE || Key>KEY_MACROSPEC_BASE) && Key!=KEY_CTRLQ)
   {
-    Flags.Skip(FEDITLINE_CLEARFLAG);
+    Flags.Clear(FEDITLINE_CLEARFLAG);
     Show();
   }
 
@@ -1518,7 +1520,7 @@ int Edit::ProcessKey(int Key)
         {
           LeftPos=0;
           SetString(ClipText);
-          Flags.Skip(FEDITLINE_CLEARFLAG);
+          Flags.Clear(FEDITLINE_CLEARFLAG);
         }
         else
           InsertString(ClipText);
@@ -1596,7 +1598,7 @@ int Edit::ProcessCtrlQ(void)
     DeleteBlock();
   }
   else
-    Flags.Skip(FEDITLINE_CLEARFLAG);
+    Flags.Clear(FEDITLINE_CLEARFLAG);
   EditOutDisabled--;
 */
   return InsertKey(rec.Event.KeyEvent.uChar.AsciiChar);
@@ -1955,7 +1957,7 @@ void Edit::InsertBinaryString(const char *Str,int Length)
     return;
   /* tran 03.07.2000 $ */
 
-  Flags.Skip(FEDITLINE_CLEARFLAG);
+  Flags.Clear(FEDITLINE_CLEARFLAG);
 
   /* $ 18.08.2000 KM
      Обслуживание маски ввода.
@@ -2455,7 +2457,7 @@ void Edit::DeleteBlock()
 
   /* KM $ */
   SelStart=-1;
-  Flags.Skip(FEDITLINE_MARKINGBLOCK);
+  Flags.Clear(FEDITLINE_MARKINGBLOCK);
   // OT: Проверка на корректность поведени строки при удалении и вставки
   if (Flags.Check((FEDITLINE_PARENT_SINGLELINE|FEDITLINE_PARENT_MULTILINE)))
   {
@@ -2640,15 +2642,15 @@ void Edit::SetDialogParent(DWORD Sets)
 {
   if((Sets&(FEDITLINE_PARENT_SINGLELINE|FEDITLINE_PARENT_MULTILINE)) == (FEDITLINE_PARENT_SINGLELINE|FEDITLINE_PARENT_MULTILINE) ||
      (Sets&(FEDITLINE_PARENT_SINGLELINE|FEDITLINE_PARENT_MULTILINE)) == 0)
-    Flags.Skip(FEDITLINE_PARENT_SINGLELINE|FEDITLINE_PARENT_MULTILINE);
+    Flags.Clear(FEDITLINE_PARENT_SINGLELINE|FEDITLINE_PARENT_MULTILINE);
   else if(Sets&FEDITLINE_PARENT_SINGLELINE)
   {
-    Flags.Skip(FEDITLINE_PARENT_MULTILINE);
+    Flags.Clear(FEDITLINE_PARENT_MULTILINE);
     Flags.Set(FEDITLINE_PARENT_SINGLELINE);
   }
   else if(Sets&FEDITLINE_PARENT_MULTILINE)
   {
-    Flags.Skip(FEDITLINE_PARENT_SINGLELINE);
+    Flags.Clear(FEDITLINE_PARENT_SINGLELINE);
     Flags.Set(FEDITLINE_PARENT_MULTILINE);
   }
 }

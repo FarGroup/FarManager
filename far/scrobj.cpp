@@ -5,10 +5,12 @@ Parent class для всех screen objects
 
 */
 
-/* Revision: 1.08 18.05.2002 $ */
+/* Revision: 1.09 25.06.2002 $ */
 
 /*
 Modify:
+  25.06.2002 SVS
+    ! Косметика:  BitFlags::Skip -> BitFlags::Clear
   18.05.2002 SVS
     ! Выносим некоторые переменные во флаги
   13.04.2002 KM
@@ -90,7 +92,7 @@ void ScreenObject::SetPosition(int X1,int Y1,int X2,int Y2)
 
 void ScreenObject::SetScreenPosition()
 {
-  Flags.Skip(FSCROBJ_SETPOSITIONDONE);
+  Flags.Clear(FSCROBJ_SETPOSITIONDONE);
 }
 
 
@@ -109,7 +111,7 @@ void ScreenObject::Hide()
   if (!Flags.Check(FSCROBJ_VISIBLE))
     return;
 
-  Flags.Skip(FSCROBJ_VISIBLE);
+  Flags.Clear(FSCROBJ_VISIBLE);
 
   if (ShadowSaveScr)
   {
@@ -128,7 +130,7 @@ void ScreenObject::Hide()
    add ugly new method */
 void ScreenObject::Hide0()
 {
-  Flags.Skip(FSCROBJ_VISIBLE);
+  Flags.Clear(FSCROBJ_VISIBLE);
 }
 /* tran 15.07.2000 $ */
 

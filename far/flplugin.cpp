@@ -5,10 +5,13 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.29 08.05.2002 $ */
+/* Revision: 1.30 25.06.2002 $ */
 
 /*
 Modify:
+  25.06.2002 SVS
+    ! ѕри передаче плагину очередного итема (FileListToPluginItem) так же
+      передадим поле Owner (если оно конечно заполнено!)
   08.05.2002 SVS
     ! ¬ременно отменим 1248 (чем исправл€ем ситуацию Ctrl-7 Enter в архив Ctrl-2 и выходим)
   12.04.2002 SVS
@@ -235,7 +238,7 @@ void FileList::FileListToPluginItem(struct FileListItem *fi,struct PluginPanelIt
     pi->UserData=fi->UserData;
   pi->CRC32=fi->CRC32;
   pi->Reserved[0]=pi->Reserved[1]=0;
-  pi->Owner=NULL;
+  pi->Owner=fi->Owner[0]?fi->Owner:NULL;
 }
 
 

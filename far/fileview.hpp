@@ -7,10 +7,12 @@ fileview.hpp
 
 */
 
-/* Revision: 1.19 14.06.2002 $ */
+/* Revision: 1.20 25.06.2002 $ */
 
 /*
 Modify:
+  25.06.2002 SVS
+    + IsFullScreen()
   14.06.2002 IS
     + SetTempViewName - параметр DeleteFolder - удалить не только файл, но
       и каталог, его содержащий (если каталог пуст). ѕо умолчанию - TRUE
@@ -134,6 +136,7 @@ class FileViewer:public Frame
     void SetSaveToSaveAs(int ToSaveAs) { SaveToSaveAs=ToSaveAs; InitKeyBar(); }
     /* KM $ */
     int  ViewerControl(int Command,void *Param);
+    BOOL IsFullScreen(){return FullScreen;}
 };
 
 #endif  // __FILEVIEWER_HPP__

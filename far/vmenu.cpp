@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.92 18.06.2002 $ */
+/* Revision: 1.93 25.06.2002 $ */
 
 /*
 Modify:
+  25.06.2002 SVS
+    ! Косметика:  BitFlags::Skip -> BitFlags::Clear
   18.06.2002 SVS
     ! В VMenu::Show() учтем факт того момента, что где-то когда то мы залочили
       отрисовку и... соответственно не станем делать эту саму отрисовку.
@@ -366,7 +368,7 @@ VMenu::VMenu(const char *Title,       // заголовок меню
   SetDynamicallyBorn(false);
 
   VMenu::VMFlags.Set(Flags);
-  VMenu::VMFlags.Skip(VMENU_MOUSEDOWN);
+  VMenu::VMFlags.Clear(VMENU_MOUSEDOWN);
 /* SVS $ */
 
 /*& 28.05.2001 OT Запретить перерисовку фрема во время запуска меню */
@@ -382,7 +384,7 @@ VMenu::VMenu(const char *Title,       // заголовок меню
   */
   VMFlags.Set(VMENU_UPDATEREQUIRED);
   /* KM $ */
-  VMFlags.Skip(VMENU_SHOWAMPERSAND);
+  VMFlags.Clear(VMENU_SHOWAMPERSAND);
   CallCount=0;
   TopPos=0;
   SaveScr=NULL;
@@ -592,7 +594,7 @@ void VMenu::DisplayObject()
 //  if (!(VMFlags&VMENU_UPDATEREQUIRED))
 //    return;
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
-  VMFlags.Skip(VMENU_UPDATEREQUIRED);
+  VMFlags.Clear(VMENU_UPDATEREQUIRED);
   Modal::ExitCode=-1;
 
   SetCursorType(0,10);
@@ -1238,7 +1240,7 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
          (MouseEvent->dwButtonState & (FROM_LEFT_1ST_BUTTON_PRESSED|RIGHTMOST_BUTTON_PRESSED))==0 &&
           VMenu::VMFlags.Check(VMENU_MOUSEDOWN))
       {
-        VMenu::VMFlags.Skip(VMENU_MOUSEDOWN);
+        VMenu::VMFlags.Clear(VMENU_MOUSEDOWN);
         ProcessKey(KEY_ENTER);
       }
       /* VVM $ */
@@ -1942,7 +1944,7 @@ void VMenu::AssignHighlights(int Reverse)
   }
 //_SVS(SysLogDump("Used Post",0,Used,sizeof(Used),NULL));
   VMFlags.Set(VMENU_AUTOHIGHLIGHT|(Reverse?VMENU_REVERSEHIGHLIGHT:0));
-  VMFlags.Skip(VMENU_SHOWAMPERSAND);
+  VMFlags.Clear(VMENU_SHOWAMPERSAND);
 }
 
 /* $ 28.07.2000 SVS

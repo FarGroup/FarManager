@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.139 21.06.2002 $ */
+/* Revision: 1.140 25.06.2002 $ */
 
 /*
 Modify:
+  25.06.2002 SVS
+    ! Косметика:  BitFlags::Skip -> BitFlags::Clear
   21.06.2002 SVS
     + ACTL_GETWCHARMODE для FAR_USE_INTERNALS
       "Сегодня ФАР рисует в окне с помощью W-функции или где?"
@@ -1185,7 +1187,7 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
 
     if(Opt.ExceptRules)
     {
-      CtrlObject->Plugins.Flags.Skip(PSIF_DIALOG);
+      CtrlObject->Plugins.Flags.Clear(PSIF_DIALOG);
       TRY
       {
         FarDialog.Process();
