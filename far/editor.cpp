@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.72 26.02.2001 $ */
+/* Revision: 1.73 27.02.2001 $ */
 
 /*
 Modify:
+  27.02.2001 IS
+    + Проверка нового размера табуляции на допустимые значения в SetTabSize
   26.02.2001 IS
     ! Часть самостоятельных переменных заменено соответствующими из
       EditorOptions. Надо было это сразу сделать, да я что-то стормозил :)
@@ -5010,6 +5012,8 @@ DWORD Editor::GetFileAttributes(LPCTSTR Name)
 //Обновим размер табуляции
 void Editor::SetTabSize(int NewSize)
 {
+  if (NewSize<1 || NewSize>512)
+    NewSize=8;
   if(NewSize!=EdOpt.TabSize) /* Меняем размер табуляции только в том случае, если он
                           на самом деле изменился */
   {
