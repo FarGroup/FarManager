@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.19 11.02.2001 $ */
+/* Revision: 1.20 25.02.2001 $ */
 
 /*
 Modify:
+  25.02.2001 VVM
+    + Флаги для ReadDiz() - RDF_*
   11.02.2001 SVS
     + *_MASK_SIZE - размеры для масок
   28.01.2001 SVS
@@ -250,6 +252,13 @@ enum EceptFunctionsType{
   EXCEPT_PROCESSVIEWEREVENT,
   EXCEPT_PROCESSVIEWERINPUT,
 };
+
+/* $ 25.02.2001 VVM
+  + Флаги для ReadDiz() */
+enum ReadDizFlags {
+  RDF_NO_UPDATE		= 0x00000001UL,
+};
+/* VVM $ */
 
 #define STATUS_STRUCTWRONGFILLED       0xE0001000
 

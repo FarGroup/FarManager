@@ -7,10 +7,14 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.02 14.02.2001 $ */
+/* Revision: 1.03 25.02.2001 $ */
 
 /*
 Modify:
+  25.02.2001 VVM
+    + Доп. параметр у ReadDiz - dwFlags
+      На данном этапе флаг всего один 
+      RDF_NO_UPDATE - Не выполнять GetFindData.
   14.02.2001 SVS
     ! Дополнительный параметр для MakeListFile - модификаторы
   09.02.2001 IS
@@ -107,7 +111,7 @@ class Panel:public ScreenObject
     virtual void RestoreSelection() {};
     virtual void SortFileList(int KeepPosition) {};
     virtual void EditFilter() {};
-    virtual void ReadDiz(struct PluginPanelItem *ItemList=NULL,int ItemLength=0) {};
+    virtual void ReadDiz(struct PluginPanelItem *ItemList=NULL,int ItemLength=0, DWORD dwFlags=0) {};
     virtual void DeleteDiz(char *Name,char *ShortName) {};
     virtual void GetDizName(char *DizName) {};
     virtual void FlushDiz() {};

@@ -5,10 +5,12 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.03 11.11.2000 $ */
+/* Revision: 1.04 25.02.2001 $ */
 
 /*
 Modify:
+  25.02.2001 VVM
+    + Обработка флага RDF_NO_UPDATE в ReadDiz()
   11.11.2000 SVS
     ! FarMkTemp() - убираем (как всегда - то ставим, то тут же убираем :-(((
   11.11.2000 SVS
@@ -627,8 +629,11 @@ void FileList::UpdatePlugin(int KeepSelection)
     FileCount++;
   }
 
+  /* $ 25.02.2001 VVM
+      ! Не считывать повторно список файлов с панели плагина */
   if (IsColumnDisplayed(DIZ_COLUMN))
-    ReadDiz(PanelData,PluginFileCount);
+    ReadDiz(PanelData,PluginFileCount,RDF_NO_UPDATE);
+  /* VVM $ */
 
   CtrlObject->Plugins.FreeFindData(hPlugin,PanelData,PluginFileCount);
 
@@ -655,7 +660,7 @@ void FileList::UpdatePlugin(int KeepSelection)
 }
 
 
-void FileList::ReadDiz(struct PluginPanelItem *ItemList,int ItemLength)
+void FileList::ReadDiz(struct PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 {
   if (DizRead)
     return;
@@ -676,8 +681,11 @@ void FileList::ReadDiz(struct PluginPanelItem *ItemList,int ItemLength)
       return;
 
     int GetCode=TRUE;
-    if (ItemList==NULL)
+    /* $ 25.02.2001 VVM
+        + Обработка флага RDF_NO_UPDATE */
+    if ((ItemList==NULL) && ((dwFlags & RDF_NO_UPDATE) == 0))
       GetCode=CtrlObject->Plugins.GetFindData(hPlugin,&PanelData,&PluginFileCount,0);
+    /* VVM $ */
     else
     {
       PanelData=ItemList;
@@ -706,8 +714,11 @@ void FileList::ReadDiz(struct PluginPanelItem *ItemList,int ItemLength)
               RemoveDirectory(TempDir);
             }
           }
-      if (ItemList==NULL)
+      /* $ 25.02.2001 VVM
+          + Обработка флага RDF_NO_UPDATE */
+      if ((ItemList==NULL) && ((dwFlags & RDF_NO_UPDATE) == 0))
         CtrlObject->Plugins.FreeFindData(hPlugin,PanelData,PluginFileCount);
+      /* VVM $ */
     }
   }
   for (int I=0;I<FileCount;I++)
@@ -736,4 +747,3 @@ void FileList::ReadSortGroups()
       CurPtr->SortGroup=DEFAULT_SORT_GROUP;
   }
 }
-

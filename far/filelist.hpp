@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.05 09.02.2001 $ */
+/* Revision: 1.06 25.02.2001 $ */
 
 /*
 Modify:
+  25.02.2001 VVM
+    + Доп. параметр у ReadDiz - dwFlags
   09.02.2001 IS
     + Get(Set)SelectedFirstMode
   04.01.2001 SVS
@@ -176,7 +178,7 @@ class FileList:public Panel
     void SaveSelection();
     void RestoreSelection();
     void EditFilter();
-    void ReadDiz(struct PluginPanelItem *ItemList=NULL,int ItemLength=0);
+    void ReadDiz(struct PluginPanelItem *ItemList=NULL,int ItemLength=0, DWORD dwFlags=0);
     void DeleteDiz(char *Name,char *ShortName);
     void FlushDiz();
     void GetDizName(char *DizName);
