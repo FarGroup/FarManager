@@ -321,7 +321,6 @@ extern struct PluginStartupInfo Info;
 extern class ArcPlugins *ArcPlugin;
 extern int FarVER;
 extern char *CmdNames[];
-extern int timezone;
 
 #ifdef _NEW_ARC_SORT_
 extern char IniFile[];
@@ -377,7 +376,6 @@ void DeleteRegValue(HKEY hRoot,const char *Key,const char *ValueName);
 
 
 int WINAPI GetPassword(char *Password,const char *FileName);
-void WINAPI UnixToDos(long time, struct dosdate_t *d, struct time *t);
 void WINAPI UnixTimeToFileTime(DWORD UnixTime,FILETIME *FileTime);
 
 #endif // __MULTIARC_HPP__

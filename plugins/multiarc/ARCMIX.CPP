@@ -581,59 +581,14 @@ int WINAPI GetPassword(char *Password,const char *FileName)
 }
 
 
-void WINAPI UnixToDos(long time, struct dosdate_t *d, struct time *t)
-{
-  static char Days[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-  time -= 24L * 60L * 60L * 3652L + timezone;
-  t->ti_hund = 0;
-  t->ti_sec = time % 60;
-  time /= 60;
-  t->ti_min = time % 60;
-  time /= 60;
-  d->year = 1980 + (int)((time / (1461L * 24L)) << 2);
-  time %= 1461L * 24L;
-  if (time >= 366 * 24)
-  {
-    time -= 366 * 24;
-    d->year++;
-    d->year += (int)(time / (365 * 24));
-    time %= 365 * 24;
-  }
-  t->ti_hour = time % 24;
-  time /= 24;
-  time++;
-  if ((d->year & 3) == 0)
-  {
-    if (time > 60)
-      time--;
-    else
-      if (time == 60)
-      {
-        d->month = 2;
-        d->day = 29;
-        return;
-      }
-  }
-  for (d->month = 0; Days[d->month] < time; d->month++)
-    time -= Days[d->month];
-  d->month++;
-  d->day = (unsigned char) time;
-}
+// Number of 100 nanosecond units from 01.01.1601 to 01.01.1970
+#define EPOCH_BIAS    116444736000000000i64
 
-void WINAPI UnixTimeToFileTime(DWORD UnixTime,FILETIME *FileTime)
+#if defined(__BORLANDC__) && (__BORLANDC__ < 0x550)
+typedef __int64 INT64,  *PINT64;
+#endif
+
+void WINAPI UnixTimeToFileTime( DWORD time, FILETIME * ft )
 {
-  struct dosdate_t dt;
-  struct time tm;
-  UnixToDos(UnixTime,&dt,&tm);
-  SYSTEMTIME st;
-  st.wYear=dt.year;
-  st.wMonth=dt.month;
-  st.wDay=dt.day;
-  st.wHour=tm.ti_hour;
-  st.wMinute=tm.ti_min;
-  st.wSecond=tm.ti_sec;
-  st.wMilliseconds=tm.ti_hund*10;
-  FILETIME lft;
-  SystemTimeToFileTime(&st,&lft);
-  LocalFileTimeToFileTime(&lft,FileTime);
+  *(PINT64)ft = EPOCH_BIAS + time * 10000000i64;
 }

@@ -17,10 +17,6 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
   FSF=*Info->FSF;
   ::Info.FSF=&FSF;
 
-  TIME_ZONE_INFORMATION tzi;
-  if (GetTimeZoneInformation(&tzi)!=0xFFFFFFFF)
-    timezone=tzi.Bias*60;
-
   FarVER=::Info.AdvControl(::Info.ModuleNumber,ACTL_GETFARVERSION,NULL);
 
   FSF.sprintf(PluginRootKey,"%s\\MultiArc",Info->RootKey);

@@ -20,5 +20,3 @@ char *CmdNames[]={"Extract","ExtractWithoutPath","Test","Delete",
 char IniFile[MAX_PATH];
 char *SortModes[]={"None", "Name", "RunRate", "ChoiceRate", "User"};
 #endif //_NEW_ARC_SORT_
-
-int timezone=0;
