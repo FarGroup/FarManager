@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.73 07.06.2001 $ */
+/* Revision: 1.74 22.06.2001 $ */
 
 /*
 Modify:
+  22.06.2001 SVS
+    + MStrFTime*
   17.06.2001 SVS
     + MListSymLink
   07.06.2001 SVS
@@ -1456,6 +1458,27 @@ enum
   MMonthOct,
   MMonthNov,
   MMonthDec,
+
+  MStrFTimeMonth1,
+  MStrFTimeMonth2,
+  MStrFTimeMonth3,
+  MStrFTimeMonth4,
+  MStrFTimeMonth5,
+  MStrFTimeMonth6,
+  MStrFTimeMonth7,
+  MStrFTimeMonth8,
+  MStrFTimeMonth9,
+  MStrFTimeMonth10,
+  MStrFTimeMonth11,
+  MStrFTimeMonth12,
+
+  MStrFTimeWeekDay0,
+  MStrFTimeWeekDay1,
+  MStrFTimeWeekDay2,
+  MStrFTimeWeekDay3,
+  MStrFTimeWeekDay4,
+  MStrFTimeWeekDay5,
+  MStrFTimeWeekDay6,
 
   MPluginHotKeyTitle,
   MPluginHotKey,

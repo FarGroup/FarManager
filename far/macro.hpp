@@ -7,10 +7,12 @@ macro.hpp
 
 */
 
-/* Revision: 1.13 23.05.2001 $ */
+/* Revision: 1.14 22.06.2001 $ */
 
 /*
 Modify:
+  22.06.2001 SVS
+    + GetMacroPlainText()
   20.06.2001 SVS
     ! Ќазвани€ функций приведены к более конкретному их назначению:
       PlayKeyMacro -> PostTempKeyMacro
@@ -143,6 +145,8 @@ class KeyMacro
     int GetIndex(int Key, int Mode);
     // получение размера, занимаемого указанным макросом
     int GetRecordSize(int Key, int Mode);
+
+    char *GetMacroPlainText(char *Dest);
 
     int GetCurRecord(struct MacroRecord* RBuf,int *KeyPos);
 

@@ -1,5 +1,9 @@
 # Microsoft Developer Studio Generated Dependency File, included by far.mak
 
+.\strftime.cpp : \
+	".\fn.hpp"\
+	".\lang.hpp"\
+
 .\checkver.cpp : \
 	".\dialog.hpp"\
 	".\farconst.hpp"\

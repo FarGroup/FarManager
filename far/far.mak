@@ -59,6 +59,7 @@ CLEAN :
 	-@erase "$(INTDIR)\delete.obj"
 	-@erase "$(INTDIR)\dialog.obj"
 	-@erase "$(INTDIR)\dizlist.obj"
+	-@erase "$(INTDIR)\strftime.obj"
 	-@erase "$(INTDIR)\edit.obj"
 	-@erase "$(INTDIR)\editor.obj"
 	-@erase "$(INTDIR)\filepanels.obj"
@@ -179,6 +180,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\editor.obj" \
 	"$(INTDIR)\ffolders.obj" \
 	"$(INTDIR)\fileedit.obj" \
+	"$(INTDIR)\strftime.obj" \
 	"$(INTDIR)\filelist.obj" \
 	"$(INTDIR)\filestr.obj" \
 	"$(INTDIR)\filetype.obj" \
@@ -298,6 +300,7 @@ CLEAN :
 	-@erase "$(INTDIR)\dialog.obj"
 	-@erase "$(INTDIR)\farexcpt.obj"
 	-@erase "$(INTDIR)\dizlist.obj"
+	-@erase "$(INTDIR)\strftime.obj"
 	-@erase "$(INTDIR)\edit.obj"
 	-@erase "$(INTDIR)\editor.obj"
 	-@erase "$(INTDIR)\qsortex.obj"
@@ -418,6 +421,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\fileedit.obj" \
 	"$(INTDIR)\filelist.obj" \
 	"$(INTDIR)\constitle.obj" \
+	"$(INTDIR)\strftime.obj" \
 	"$(INTDIR)\filestr.obj" \
 	"$(INTDIR)\farexcpt.obj" \
 	"$(INTDIR)\filetype.obj" \

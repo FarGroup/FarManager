@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.105 11.06.2001 $ */
+/* Revision: 1.106 22.06.2001 $ */
 
 /*
 Modify:
+  22.06.2001 SVS
+    + обработка KEY_MACRODATE
   11.06.2001 SVS
     ! Ќовые параметры у GetSearchReplaceString() - указывающие размеры буферов
   10.06.2001 IS
@@ -2636,6 +2638,23 @@ int Editor::ProcessKey(int Key)
       }
       return(TRUE);
     /* SVS $ */
+    case KEY_MACRODATE:
+      if (!LockMode)
+      {
+        Pasting++;
+        TextChanged(1);
+        AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
+                        CurLine->EditLine.GetCurPos(),UNDO_EDIT);
+        if (!EdOpt.PersistentBlocks && BlockStart!=NULL)
+        {
+          MarkingBlock=MarkingVBlock=FALSE;
+          DeleteBlock();
+        }
+        CurLine->EditLine.ProcessInsDate();
+        Pasting--;
+        Show();
+      }
+      return(TRUE);
     /* $ 25.04.2001 IS
          ctrl-shift-enter - вставить в строку полное им€ редактируемого файла
     */

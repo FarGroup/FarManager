@@ -5,10 +5,12 @@ options.cpp
 
 */
 
-/* Revision: 1.10 14.06.2001 $ */
+/* Revision: 1.11 22.06.2001 $ */
 
 /*
 Modify:
+  22.06.2001 SVS
+    ! Позаботимся о StrFTime :-)
   14.06.2001 OT
     ! "Бунт" ;-)
   21.05.2001 SVS
@@ -468,6 +470,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
               delete HelpMenu;
               LangMenu->Hide();
               CtrlObject->Plugins.ReloadLanguage();
+              PrepareStrFTime();
               CtrlObject->Cp()->RedrawKeyBar();
               CtrlObject->Cp()->SetScreenPosition();
             }

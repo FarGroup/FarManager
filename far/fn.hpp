@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.90 21.06.2001 $ */
+/* Revision: 1.91 22.06.2001 $ */
 
 /*
 Modify:
+  22.06.2001 SVS
+    + StrFTime
   21.06.2001 SVS
     ! Удалена функция WriteSequenceInput() за ненадобностью
   18.06.2001 SVS
@@ -904,5 +906,8 @@ void SetVidChar(CHAR_INFO& CI,char Chr);
 #endif
 
 void GenerateWINDOW_BUFFER_SIZE_EVENT(int Sx=-1, int Sy=-1);
+
+void PrepareStrFTime(void);
+int WINAPI StrFTime(char *Dest, size_t MaxSize, const char *Format,const struct tm *t);
 
 #endif  // __FARFUNC_HPP__

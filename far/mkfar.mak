@@ -171,6 +171,7 @@ FAROBJ=\
    $(OBJPATH)\manager.obj\
    $(OBJPATH)\menubar.obj\
    $(OBJPATH)\message.obj\
+   $(OBJPATH)\strftime.obj\
    $(OBJPATH)\mix.obj\
    $(OBJPATH)\mkdir.obj\
    $(OBJPATH)\modal.obj\

@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.79 14.06.2001 $ */
+/* Revision: 1.80 22.06.2001 $ */
 
 /*
 Modify:
+  22.06.2001 SVS
+    + Opt.DateFormat
   14.06.2001 OT
     ! "Бунт" ;-)
   28.05.2001 SVS
@@ -1077,6 +1079,8 @@ static struct FARConfig{
 
   {0, REG_DWORD,  NKeyPolicies,"ShowHiddenDrives",&Opt.Policies.ShowHiddenDrives,1, 0},
   {0, REG_DWORD,  NKeyPolicies,"DisabledOptions",&Opt.Policies.DisabledOptions,0, 0},
+
+  {0, REG_SZ,     NKeyKeyMacros,"DateFormat",Opt.DateFormat,sizeof(Opt.DateFormat),"%a %b %d %H:%M:%S %Z %Y"},
 };
 
 

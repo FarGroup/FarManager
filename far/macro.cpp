@@ -5,10 +5,13 @@ macro.cpp
 
 */
 
-/* Revision: 1.42 22.06.2001 $ */
+/* Revision: 1.43 22.06.2001 $ */
 
 /*
 Modify:
+  22.06.2001 SVS
+    ! ћакрокоманды "$Year", "$Month", "$Day", "$Hour", "$Min" и "$Sec" больше
+      не поддерживаютс€ и заменены на одну макрокоманду "$Date"
   22.06.2001 SVS
     ! Ќебольша€ доработка проверки макроклавиши
   20.06.2001 SVS
@@ -234,14 +237,9 @@ static struct TKeyCodeName{
   int Len;
   char *Name;
 } KeyMacroCodes[]={
-   { KEY_MACRODAY,                           4, "$DAY"   },
-   { KEY_MACROMONTH,                         6, "$MONTH" },
-   { KEY_MACROYEAR,                          5, "$YEAR"  },
-   { KEY_MACROHOUR,                          5, "$HOUR"  },
-   { KEY_MACROMIN,                           4, "$MIN"   },
-   { KEY_MACROSEC,                           4, "$SEC"   },
-   { KEY_MACROSTOP,                          5, "$STOP"  },
-   { KEY_MACROMODE,                          6, "$MMODE" },
+   { KEY_MACRODATE,                          5, "$Date"  }, // $Date "%d-%a-%Y"
+   { KEY_MACROSTOP,                          5, "$Stop"  },
+   { KEY_MACROMODE,                          6, "$MMode" },
 };
 
 // функци€ преобразовани€ кода макроклавиши в текст
@@ -494,6 +492,26 @@ int KeyMacro::ProcessKey(int Key)
   }
 }
 
+char *KeyMacro::GetMacroPlainText(char *Dest)
+{
+  struct MacroRecord *MR;
+
+  MR=!TempMacro?Macros+ExecMacroPos:TempMacro;
+  int LenTextBuf=strlen((char*)&MR->Buffer[ExecKeyPos]);
+  Dest[0]=0;
+  if(LenTextBuf && MR->Buffer[ExecKeyPos])
+  {
+    strcpy(Dest,(char *)&MR->Buffer[ExecKeyPos]);
+    ExecKeyPos+=LenTextBuf/4;
+    if((LenTextBuf%sizeof(DWORD)) != 0)
+      ++ExecKeyPos;
+    return Dest;
+  }
+  else
+    ExecKeyPos++;
+  return NULL;
+}
+
 // ѕолучить очередной код клавиши из макроса
 int KeyMacro::GetKey()
 {
@@ -614,19 +632,36 @@ char *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize)
   char MacroKeyText[50], *TextBuffer;
 
   // выдел€ем заведомо большой кусок
-  if((TextBuffer=(char*)malloc(BufferSize*50+1)) == NULL)
+  if((TextBuffer=(char*)malloc(BufferSize*64+16)) == NULL)
     return NULL;
 
   TextBuffer[0]=0;
 
   for (int J=0; J < BufferSize; J++)
+  {
     if(KeyToText(Buffer[J],MacroKeyText))
     {
       if(J)
         strcat(TextBuffer," ");
       strcat(TextBuffer,MacroKeyText);
-    }
+      switch(Buffer[J])
+      {
+        case KEY_MACRODATE:
+          {
+            strcat(TextBuffer," \"");
+            strcat(TextBuffer,(char*)&Buffer[++J]);
+            int LenTextBuf=strlen((char*)&Buffer[J]);
+            // —юда надо добавить... \"
 
+            J=+LenTextBuf/sizeof(DWORD);
+            if((LenTextBuf%sizeof(DWORD)) != 0)
+              ++J;
+            strcat(TextBuffer,"\"");
+          }
+          break;
+      }
+    }
+  }
   return TextBuffer;
 }
 
@@ -1035,6 +1070,9 @@ int KeyMacro::PostTempKeyMacro(struct MacroRecord *MRec)
 int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,char *BufPtr)
 {
   int J;
+  int Size;
+  char CurKeyText[NM*2];
+
   if(!CurMacro || !BufPtr || !*BufPtr)
     return FALSE;
   // здесь структура сформирована, начинаем разбор последовательности,
@@ -1053,23 +1091,63 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,char *BufPtr)
     while (*BufPtr && !isspace(*BufPtr))
       BufPtr++;
     int Length=BufPtr-CurBufPtr;
-    char CurKeyText[50];
+
     memcpy(CurKeyText,CurBufPtr,Length);
     CurKeyText[Length]=0;
 
     // в CurKeyText - название клавиши. ѕопробуем отыскать ее код...
     DWORD KeyCode;
     KeyCode=KeyNameToKey(CurKeyText);
+
+    Size=1;
+    if(KeyCode == KEY_MACRODATE)
+    {
+      memset(CurKeyText,0,sizeof(CurKeyText));
+      // ищем первую кавычку
+      while (*BufPtr && *BufPtr != '"')
+        BufPtr++;
+      if(*BufPtr)
+        ++BufPtr;
+      // ищем конечную кавычку
+      CurBufPtr=CurKeyText;
+      while (*BufPtr)
+      {
+        if(*BufPtr == '\\' && BufPtr[1] == '"')
+        {
+          *CurBufPtr++='\\';
+          *CurBufPtr++='"';
+          BufPtr+=2;
+        }
+        else if(*BufPtr == '"')
+        {
+          *CurBufPtr=0;
+          BufPtr++;
+          break;
+        }
+        else
+          *CurBufPtr++=*BufPtr++;
+      }
+      if(*BufPtr)
+        BufPtr++;
+      Length=strlen(CurKeyText)+1;
+      Size+=Length/sizeof(DWORD);
+      if(Length==1 || (Length%sizeof(DWORD)) != 0) // дополнение до sizeof(DWORD) нул€ми.
+        Size++;
+    }
+
     // код найден, добавим этот код в буфер последовательности.
     if (KeyCode!=-1)
     {
-      CurMacro->Buffer=(DWORD *)realloc(CurMacro->Buffer,sizeof(*CurMacro->Buffer)*(CurMacro->BufferSize+1));
+      CurMacro->Buffer=(DWORD *)realloc(CurMacro->Buffer,sizeof(*CurMacro->Buffer)*(CurMacro->BufferSize+Size));
       if (CurMacro->Buffer==NULL)
       {
         return FALSE;
       }
       CurMacro->Buffer[CurMacro->BufferSize]=KeyCode;
-      CurMacro->BufferSize++;
+      if(KeyCode == KEY_MACRODATE)
+        memcpy(&CurMacro->Buffer[CurMacro->BufferSize+1],CurKeyText,(Size-1)*sizeof(DWORD));
+
+      CurMacro->BufferSize+=Size;
     }
   }
   return TRUE;

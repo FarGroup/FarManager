@@ -5,10 +5,16 @@ edit.cpp
 
 */
 
-/* Revision: 1.42 08.06.2001 $ */
+/* Revision: 1.43 22.06.2001 $ */
 
 /*
 Modify:
+  22.06.2001 SVS
+    ! ”странены проблемы с Ctrl-Q - теперь кусок кода (дл€
+      неперсистентных блоков) удал€етс€ только в момент вставки символа
+    ! ¬ыкинут кусок кода по KEY_MACRO*
+    + добавлена обработка KEY_MACRODATE
+    + ProcessInsDate()
   08.06.2001 SVS
     - Ѕага при отрисовке строки с установленным ClearFlag - круто, блин,
       по всей отрисовке стоит контроль за размером, а тут на тебе
@@ -628,7 +634,7 @@ int Edit::ProcessKey(int Key)
       Key!=KEY_RALT && Key!=KEY_NONE)
   {
     MarkingBlock=FALSE;
-    if (!PersistentBlocks && Key!=KEY_CTRLINS && !EditorMode)
+    if (!PersistentBlocks && Key!=KEY_CTRLINS && !EditorMode && Key != KEY_CTRLQ)
     {
       PrevSelStart=SelStart;
       PrevSelEnd=SelEnd;
@@ -703,7 +709,8 @@ int Edit::ProcessKey(int Key)
   if (Key!=KEY_NONE && Key!=KEY_IDLE && Key!=KEY_SHIFTINS &&
       (Key<KEY_F1 || Key>KEY_F12) && Key!=KEY_ALT && Key!=KEY_SHIFT &&
       Key!=KEY_CTRL && Key!=KEY_RALT && Key!=KEY_RCTRL &&
-      (Key<KEY_ALT_BASE || Key>=KEY_ALT_BASE+256))
+      (Key<KEY_ALT_BASE || Key>=KEY_ALT_BASE+256) &&
+      (Key<KEY_MACRO_BASE || Key>KEY_MACROSPEC_BASE) && Key!=KEY_CTRLQ)
   {
     ClearFlag=0;
     Show();
@@ -959,6 +966,12 @@ int Edit::ProcessKey(int Key)
       ProcessCtrlQ();
       Show();
       return(TRUE);
+    case KEY_MACRODATE:
+      if (!PersistentBlocks)
+        RecurseProcessKey(KEY_DEL);
+      ProcessInsDate();
+      Show();
+      return TRUE;
     case KEY_CTRLT:
     case KEY_CTRLDEL:
       if (CurPos>=StrSize)
@@ -1263,40 +1276,6 @@ int Edit::ProcessKey(int Key)
         Show();
       }
       return(TRUE);
-    /* $ 21.12.2000 SVS
-       Ќедольшое безобразие с проникновением в "чужой огород" :-)
-    */
-    /* $ 04.01.2001 SVS
-       Ќедольшое безобразие с проникновением в "чужой огород" - дополнение 2 :-)
-    */
-    case KEY_MACRODAY:
-    case KEY_MACROMONTH:
-    case KEY_MACROYEAR:
-    case KEY_MACROHOUR:
-    case KEY_MACROMIN:
-    case KEY_MACROSEC:
-    {
-      SYSTEMTIME st;
-      char Buf[16];
-      GetLocalTime(&st);
-      sprintf(Buf,"%0*d",
-            (Key==KEY_MACROYEAR?4:2),
-            (Key==KEY_MACROYEAR?st.wYear:
-               (Key==KEY_MACRODAY?st.wDay:
-                 (Key==KEY_MACROMONTH?st.wMonth:
-                   (Key==KEY_MACROHOUR?st.wHour:
-                     (Key==KEY_MACROMIN?st.wMinute:st.wSecond)
-                   )
-                 )
-               )
-            )
-      );
-      InsertString(Buf);
-      Show();
-      return(TRUE);
-    }
-    /* SVS 04.01.2001 $ */
-    /* SVS $ */
     /* $ 13.02.2001 VVM
       + ќбработка SHIFT+SPACE */
     case KEY_SHIFTSPACE:
@@ -1339,9 +1318,33 @@ int Edit::ProcessCtrlQ(void)
     if (Key!=KEY_NONE && Key!=KEY_IDLE && rec.Event.KeyEvent.uChar.AsciiChar)
       break;
   }
+  EditOutDisabled++;
+  if (!PersistentBlocks)
+    RecurseProcessKey(KEY_DEL);
+  else
+    ClearFlag=0;
+  EditOutDisabled--;
   return InsertKey(rec.Event.KeyEvent.uChar.AsciiChar);
 }
 
+int Edit::ProcessInsDate(void)
+{
+  char Str[NM],Fmt[NM];
+  struct tm *time_now;
+  time_t secs_now;
+  tzset();
+  time(&secs_now);
+  time_now = localtime(&secs_now);
+  CtrlObject->Macro.GetMacroPlainText(Fmt);
+  if(!Fmt[0])
+    strcpy(Fmt,Opt.DateFormat);
+  if(StrFTime(Str, sizeof(Str),Fmt,time_now))
+  {
+    InsertString(Str);
+    return TRUE;
+  }
+  return FALSE;
+}
 
 int Edit::InsertKey(int Key)
 {

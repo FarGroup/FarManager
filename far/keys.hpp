@@ -10,10 +10,12 @@ keys.hpp
   добавлять между KEY_END_FKEY и KEY_END_SKEY
 */
 
-/* Revision: 1.13 23.05.2001 $ */
+/* Revision: 1.14 22.06.2001 $ */
 
 /*
 Modify:
+  22.06.2001 SVS
+    ! выкинуты KEY_MACRO* (про дату) - заменены на одну - KEY_MACRODATE
   23.05.2001 SVS
     ! KEY_FOCUS_CHANGED и KEY_CONSOLE_BUFFER_RESIZE перенесены ниже
       KEY_END_FKEY
@@ -156,13 +158,7 @@ enum BaseDefKeyboard
   // сюды писать обобщенные макро-команды, которые доступны в других модулях
   KEY_MACRO_BASE           =0x00800000,
   //
-  KEY_MACRODAY,
-  KEY_MACROMONTH,
-  KEY_MACROYEAR,
-
-  KEY_MACROHOUR,
-  KEY_MACROMIN,
-  KEY_MACROSEC,
+  KEY_MACRODATE,
 
   KEY_MEDIT_ISSELECTED,
 

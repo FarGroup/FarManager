@@ -7,10 +7,12 @@ edit.hpp
 
 */
 
-/* Revision: 1.14 06.05.2001 $ */
+/* Revision: 1.15 22.06.2001 $ */
 
 /*
 Modify:
+  22.06.2001 SVS
+    + ProcessInsDate()
   06.05.2001 DJ
     ! перетрях #include
   13.04.2001 SVS
@@ -148,6 +150,7 @@ class Edit:public ScreenObject
     /* KM $ */
 
     int ProcessCtrlQ(void);
+    int ProcessInsDate(void);
 
   public:
     Edit();
