@@ -5,10 +5,13 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.32 24.04.2001 $ */
+/* Revision: 1.33 24.04.2001 $ */
 
 /*
 Modify:
+  24.04.2001 SVS
+    + Заполнение флагов PanelInfo.Flags
+    - !@AFQ! в корне любого диска делал "E:\\file.txt", т.е. 2 слеша.
   24.04.2001 VVM
     - Баг при смене порядка сортировки
   22.04.2001 SVS
@@ -829,20 +832,21 @@ int Panel::MakeListFile(char *ListFileName,int ShortNames,char *Modifers)
 
     if(Modifers && *Modifers)
     {
-      if(strchr(Modifers,'F'))
+      if(strchr(Modifers,'F')) // 'F' - использовать полный путь;
       {
         char TempFileName[NM*2];
-        sprintf(TempFileName,"%s\\%s",CurDir,FileName);
+        strcpy(TempFileName,CurDir);
+        sprintf(TempFileName,"%s%s%s",CurDir,(CurDir[strlen(CurDir)-1] != '\\'?"\\":""),FileName);
         if (ShortNames)
           ConvertNameToShort(TempFileName,TempFileName);
         strcpy(FileName,TempFileName);
       }
-      if(strchr(Modifers,'Q'))
+      if(strchr(Modifers,'Q')) // 'Q' - заключать имена с пробелами в кавычки;
         QuoteSpaceOnly(FileName);
-      if(strchr(Modifers,'A'))
+      if(strchr(Modifers,'A')) // 'A' - использовать ANSI кодировку.
         OemToChar(FileName,FileName);
 
-      if(strchr(Modifers,'S'))
+      if(strchr(Modifers,'S')) // 'S' - использовать '/' вместо '\' в путях файлов;
       {
         int I,Len=strlen(FileName);
         for(I=0; I < Len; ++I)
@@ -1242,6 +1246,8 @@ void Panel::SetPluginCommand(int Command,void *Param)
       break;
     case FCTL_GETPANELINFO:
     case FCTL_GETANOTHERPANELINFO:
+      if(Param == NULL)
+        break;
     {
       struct PanelInfo *Info=(struct PanelInfo *)Param;
       memset(Info,0,sizeof(*Info));
@@ -1289,6 +1295,34 @@ void Panel::SetPluginCommand(int Command,void *Param)
         }
         DestFilePanel->PluginGetPanelInfo(Info);
       }
+      /* $ 24.04.2001 SVS
+         Заполнение флагов PanelInfo.Flags
+      */
+      {
+        static struct {
+          int *Opt;
+          DWORD Flags;
+        } PFLAGS[]={
+          {&Opt.ShowHidden,PFLAGS_SHOWHIDDEN},
+          {&Opt.Highlight,PFLAGS_HIGHLIGHT},
+          {&Opt.AutoChangeFolder,PFLAGS_AUTOCHANGEFOLDER},
+          {&Opt.SelectFolders,PFLAGS_SELECTFOLDERS},
+          {&Opt.ReverseSort,PFLAGS_ALLOWREVERSESORT},
+        };
+
+        DWORD Flags=0;
+
+        for(int I=0; I < sizeof(PFLAGS)/sizeof(PFLAGS[0]); ++I)
+          if(*(PFLAGS[I].Opt) != 0)
+            Flags|=PFLAGS[I].Flags;
+
+        Flags|=DestPanel->GetSortOrder()<0?PFLAGS_REVERSESORTORDER:0;
+        Flags|=DestPanel->GetSortGroups()?PFLAGS_USESORTGROUPS:0;
+        Flags|=DestPanel->GetSelectedFirstMode()?PFLAGS_SELECTEDFIRST:0;
+
+        Info->Flags=Flags;
+      }
+      /* SVS $ */
       break;
     }
     case FCTL_SETSELECTION:

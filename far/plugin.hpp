@@ -8,13 +8,15 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.96 22.04.2001 $ */
+/* Revision: 1.97 24.04.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  24.04.2001 SVS
+    + PanelInfo.Flags, флаги PANELINFOFLAGS.
   22.04.2001 SVS
     + EJECT_LOAD_MEDIA - работает только в NT/2000
   12.04.2001 SVS
@@ -694,6 +696,17 @@ enum {FCTL_CLOSEPLUGIN,FCTL_GETPANELINFO,FCTL_GETANOTHERPANELINFO,
 
 enum {PTYPE_FILEPANEL,PTYPE_TREEPANEL,PTYPE_QVIEWPANEL,PTYPE_INFOPANEL};
 
+enum PANELINFOFLAGS {
+  PFLAGS_SHOWHIDDEN           =0x00000001,
+  PFLAGS_HIGHLIGHT            =0x00000002,
+  PFLAGS_AUTOCHANGEFOLDER     =0x00000004,
+  PFLAGS_SELECTFOLDERS        =0x00000008,
+  PFLAGS_ALLOWREVERSESORT     =0x00000010,
+  PFLAGS_REVERSESORTORDER     =0x00000020,
+  PFLAGS_USESORTGROUPS        =0x00000040,
+  PFLAGS_SELECTEDFIRST        =0x00000080,
+};
+
 struct PanelInfo
 {
   int PanelType;
@@ -713,7 +726,8 @@ struct PanelInfo
   char CurDir[NM];
   int ShortNames;
   int SortMode;
-  DWORD Reserved[2];
+  DWORD Flags;
+  DWORD Reserved;
 };
 
 
