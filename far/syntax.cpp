@@ -5,10 +5,13 @@ syntax.cpp
 
 */
 
-/* Revision: 1.0 14.06.2004 $ */
+/* Revision: 1.01 05.08.2004 $ */
 
 /*
 Modify:
+  05.08.2004 SVS
+    + MCODE_V_VIEWERSTATE, MCODE_F_FSPLIT, MCODE_F_MSGBOX
+    ! funcLook() стала глобальной
   14.06.2004 SVS & AN
     + Адд
 */
@@ -615,35 +618,38 @@ typedef struct __TMacroFunction{
 } TMacroFunction;
 
 static TMacroFunction macroFunction[]={
-  {"ABS",            1,    MCODE_F_ABS},
-  {"CHECKHOTKEY",    1,    MCODE_F_MENU_CHECKHOTKEY},
-  {"DATE",           1,    MCODE_F_DATE},
-  {"ENV",            1,    MCODE_F_ENVIRON},
-  {"FATTR",          1,    MCODE_F_FATTR},
-  {"FEXIST",         1,    MCODE_F_FEXIST},
-  {"IIF",            3,    MCODE_F_IIF},
-  {"INDEX",          2,    MCODE_F_INDEX},
-  {"INT",            1,    MCODE_F_INT},
-  {"LEN",            1,    MCODE_F_LEN},
-  {"MAX",            2,    MCODE_F_MAX},
-  {"MIN",            2,    MCODE_F_MIN},
-  {"RINDEX",         2,    MCODE_F_RINDEX},
-  {"STRING",         1,    MCODE_F_STRING},
-  {"SUBSTR",         3,    MCODE_F_SUBSTR},
-  {"XLAT",           1,    MCODE_F_XLAT},
+  {"ABS",            1,    MCODE_F_ABS},                 // N=abs(N)
+  {"CHECKHOTKEY",    1,    MCODE_F_MENU_CHECKHOTKEY},    // N=checkhotkey(S)
+  {"DATE",           1,    MCODE_F_DATE},                // S=date(S)
+  {"ENV",            1,    MCODE_F_ENVIRON},             // S=env(S)
+  {"FATTR",          1,    MCODE_F_FATTR},               // N=fattr(S)
+  {"FEXIST",         1,    MCODE_F_FEXIST},              // S=fexist(S)
+  {"FSPLIT",         2,    MCODE_F_FSPLIT},              // S=fsplit(S,N)
+  {"IIF",            3,    MCODE_F_IIF},                 // V=iif(C,V1,V2)
+  {"INDEX",          2,    MCODE_F_INDEX},               // S=index(S1,S2)
+  {"INT",            1,    MCODE_F_INT},                 // N=int(V)
+  {"LEN",            1,    MCODE_F_LEN},                 // N=len(S)
+  {"MAX",            2,    MCODE_F_MAX},                 // N=max(N1,N2)
+  {"MSGBOX",         3,    MCODE_F_MSGBOX},              // MsgBox("Title","Text",flags)
+  {"MIN",            2,    MCODE_F_MIN},                 // N=min(N1,N2)
+  {"RINDEX",         2,    MCODE_F_RINDEX},              // S=rindex(S1,S2)
+  {"STRING",         1,    MCODE_F_STRING},              // S=string(V)
+  {"SUBSTR",         3,    MCODE_F_SUBSTR},              // S=substr(S1,S2,N)
+  {"XLAT",           1,    MCODE_F_XLAT},                // S=xlat(S)
 };
 
 
-static TFunction funcLook(const char *s, int& nParam)
+DWORD funcLook(const char *s, int& nParam)
 {
   nParam=0;
   for(int I=0; I < sizeof(macroFunction)/sizeof(macroFunction[0]); ++I)
-    if(!stricmp(s, macroFunction[I].Name))
+    if(!strnicmp(s, macroFunction[I].Name, strlen(macroFunction[I].Name)))
     {
       nParam = macroFunction[I].nParam;
-      return macroFunction[I].Code;
+      return (DWORD)macroFunction[I].Code;
     }
-  return MCODE_F_NOFUNC;
+
+  return (DWORD)MCODE_F_NOFUNC;
 }
 
 TToken getToken(void);
@@ -651,7 +657,7 @@ TToken getToken(void);
 static void calcFunc(void)
 {
   int nParam;
-  TFunction nFunc = funcLook(nameString, nParam);
+  TFunction nFunc = (TFunction)funcLook(nameString, nParam);
   if ( nFunc != MCODE_F_NOFUNC )
   {
     if ( nParam )

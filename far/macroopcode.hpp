@@ -5,10 +5,12 @@ OpCode для макросов
 
 */
 
-/* Revision: 1.01 02.08.2004 $ */
+/* Revision: 1.02 05.08.2004 $ */
 
 /*
 Modify:
+  05.08.2004 SVS
+    + MCODE_V_VIEWERSTATE, MCODE_F_FSPLIT, MCODE_F_MSGBOX, MCODE_C_CMDLINE_EMPTY, MCODE_C_CMDLINE_SELECTED, MCODE_V_DLGITEMTYPE
   02.08.2004 SVS
     + MCODE_C_CMDLINE_BOF, MCODE_C_CMDLINE_EOF
   07.07.2004 SVS & AN
@@ -34,8 +36,7 @@ enum MACRO_OP_CODE {
 
   MCODE_OP_EXPR,                    // Признак начала (инициализация стека)
   MCODE_OP_DOIT,                    // Признак конца (вершина стека - Result)
-  MCODE_OP_SAVE,                    // Присваивание переменной. Имя переменной
-                                    // следующие DWORD (как в $Text).
+  MCODE_OP_SAVE,                    // Присваивание переменной. Имя переменной следующие DWORD (как в $Text).
   MCODE_OP_SAVEREPCOUNT,
   MCODE_OP_PUSHINT,                 // Положить значение на стек. Само
   MCODE_OP_PUSHSTR,                 // значение - следующий DWORD
@@ -105,25 +106,28 @@ enum MACRO_OP_CODE {
   MCODE_F_ENVIRON,                  // получить значение переменной среды
   MCODE_F_FEXIST,                   // проверка существования файла/каталога
   MCODE_F_FATTR,                    // возвращает атрибуты файловго объекта
-
+  MCODE_F_FSPLIT,                   // возвращает заданную компоненту пути
+  MCODE_F_MSGBOX,                   // MsgBox("Title","Text",flags)
 
   /* ************************************************************************* */
   // булевые переменные - различные состояния
   MCODE_C_DISABLEOUTPUT=KEY_MACRO_C_BASE,// вывод запрещен?
   MCODE_C_WINDOWEDMODE,             // оконный режим?
-  MCODE_C_SELECTED,                 // выделенный блок есть?
-  MCODE_C_EOF,                      // конец файла/активного каталога?
   MCODE_C_BOF,                      // начало файла/активного каталога?
+  MCODE_C_EOF,                      // конец файла/активного каталога?
   MCODE_C_EMPTY,                    // ком.строка пуста?
+  MCODE_C_SELECTED,                 // выделенный блок есть?
   MCODE_C_ICLIP,                    // внутренний или внешний клипборд
   MCODE_C_ROOTFOLDER,               // аналог MCODE_C_APANEL_ROOT для активной панели
 
-  MCODE_C_APANEL_ISEMPTY,           // активная панель:  пуста?
-  MCODE_C_PPANEL_ISEMPTY,           // пассивная панель: пуста?
   MCODE_C_APANEL_BOF,               // начало активного  каталога?
   MCODE_C_PPANEL_BOF,               // начало пассивного каталога?
   MCODE_C_APANEL_EOF,               // конец активного  каталога?
   MCODE_C_PPANEL_EOF,               // конец пассивного каталога?
+  MCODE_C_APANEL_ISEMPTY,           // активная панель:  пуста?
+  MCODE_C_PPANEL_ISEMPTY,           // пассивная панель: пуста?
+  MCODE_C_APANEL_SELECTED,          // активная панель:  выделенные элементы есть?
+  MCODE_C_PPANEL_SELECTED,          // пассивная панель: выделенные элементы есть?
   MCODE_C_APANEL_ROOT,              // это корневой каталог активной панели?
   MCODE_C_PPANEL_ROOT,              // это корневой каталог пассивной панели?
   MCODE_C_APANEL_VISIBLE,           // активная панель:  видима?
@@ -132,13 +136,13 @@ enum MACRO_OP_CODE {
   MCODE_C_PPANEL_PLUGIN,            // пассивная панель: плагиновая?
   MCODE_C_APANEL_FOLDER,            // активная панель:  текущий элемент каталог?
   MCODE_C_PPANEL_FOLDER,            // пассивная панель: текущий элемент каталог?
-  MCODE_C_APANEL_SELECTED,          // активная панель:  выделенные элементы есть?
-  MCODE_C_PPANEL_SELECTED,          // пассивная панель: выделенные элементы есть?
   MCODE_C_APANEL_LEFT,              // активная панель левая?
   MCODE_C_PPANEL_LEFT,              // пассивная панель левая?
 
   MCODE_C_CMDLINE_BOF,              // курсор в начале cmd-строки редактирования?
-  MCODE_C_CMDLINE_EOF,              // курсор в конеце cmd-строки редактирования?
+  MCODE_C_CMDLINE_EOF,              // курсор в конце cmd-строки редактирования?
+  MCODE_C_CMDLINE_EMPTY,            // ком.строка пуста?
+  MCODE_C_CMDLINE_SELECTED,         // в ком.строке есть выделение блока?
 
   /* ************************************************************************* */
   // не булевые переменные
@@ -150,7 +154,9 @@ enum MACRO_OP_CODE {
   MCODE_V_PPANEL_PATH,              // PPanel.Path - пассивная панель: путь на панели
   MCODE_V_APANEL_WIDTH,             // APanel.Path - активная панель:  путь на панели
   MCODE_V_PPANEL_WIDTH,             // PPanel.Path - пассивная панель: путь на панели
-  MCODE_V_EDITORSTATE,
+  MCODE_V_EDITORSTATE,              // Editor.State
+  MCODE_V_VIEWERSTATE,              // Viewer.State
+  MCODE_V_DLGITEMTYPE,              // Dlg.ItemType
 };
 
 typedef enum MACRO_OP_CODE TFunction;

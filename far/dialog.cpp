@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.306 02.08.2004 $ */
+/* Revision: 1.307 05.08.2004 $ */
 
 /*
 Modify:
+  05.08.2004 SVS
+    + MCODE_V_DLGITEMTYPE
   02.08.2004 SVS
     - Bug: С какого-то перепоя при выборе итема из комбобокса в Edit помещались
       приаттаченные данные, но не лейбак.
@@ -3164,6 +3166,9 @@ int Dialog::ProcessKey(int Key)
         return Item[FocusPos].ListPtr->ProcessKey(Key);
       return 0;
     }
+    case MCODE_V_DLGITEMTYPE:
+      return Item[FocusPos].Type;
+
     case MCODE_F_MENU_CHECKHOTKEY:
     {
       const char *str = eStackAsString(1);

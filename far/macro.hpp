@@ -7,10 +7,12 @@ macro.hpp
 
 */
 
-/* Revision: 1.35 07.07.2004 $ */
+/* Revision: 1.36 05.08.2004 $ */
 
 /*
 Modify:
+  05.08.2004 SVS
+    + RestartAutoMacro()
   07.07.2004 SVS
     ! Macro II
   14.06.2004 SVS
@@ -234,6 +236,8 @@ class KeyMacro
     int   GetPlainTextSize();
 
     void SetRedrawEditor(int Sets){IsRedrawEditor=Sets;}
+
+    void RestartAutoMacro(int Mode);
 
     // получить данные о макросе (возвращает статус)
     int GetCurRecord(struct MacroRecord* RBuf=NULL,int *KeyPos=NULL);

@@ -5,10 +5,12 @@ syntax.hpp
 
 */
 
-/* Revision: 1.0 14.06.2004 $ */
+/* Revision: 1.01 05.08.2004 $ */
 
 /*
 Modify:
+  05.08.2004 SVS
+    + funcLook()
   14.06.2004 SVS & AN
     + ¿‰‰
 */
@@ -168,6 +170,7 @@ enum errParseCode
 
 int parseExpr(const char*&, unsigned long*, char, char);
 void keyMacroParseError(int, const char*, const char*, const char* = NULL);
+DWORD funcLook(const char *s, int& nParam);
 
 extern int MKeywordsSize;
 extern TMacroKeywords MKeywords[];

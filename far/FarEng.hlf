@@ -570,10 +570,12 @@ time in the current FAR session, the DOS codepage is used.
     For folders: if the specified path (absolute or relative) points to an
 existing folder, the source folder is moved inside that folder.
 Otherwise the folder is renamed/moved to the new path.
-E.g. when moving c:\folder1\ to d:\folder2\:
-If d:\folder2\ exists, contents of c:\folder1\ is moved into
-d:\folder2\folder1\. Otherwise contents of c:\folder1\ is moved into the
-newly created d:\folder2\.
+    E.g. when moving c:\folder1\ to d:\folder2\:
+
+    - if #d:\folder2\# exists, contents of #c:\folder1\# is
+      moved into #d:\folder2\folder1\#;
+    - otherwise contents of #c:\folder1\# is moved into the
+      newly created #d:\folder2\#.
 
 
   Delete file under cursor                                  #Shift-F8#
@@ -3240,7 +3242,7 @@ by pressing a single hotkey.
     - additional ~settings~@KeyMacroSetting@, that influence the method and
       the area of execution of the recorded sequence.
 
-    Macro commands may contain special ~commands~@KeyMacroCmds@, that will be
+    Macro commands may contain special ~commands~@KeyMacroLang@, that will be
 interpreted in a special way upon execution, those allowing to create complex
 constructions.
 
@@ -3263,7 +3265,7 @@ external plugins and for overloading FAR actions.
     ~Recording and playing-back macro commands~@KeyMacroRecPlay@
     ~Deleting a macro command~@KeyMacroDelete@
     ~Macro command settings~@KeyMacroSetting@
-    ~Commands, used inside the text of a macro command~@KeyMacroCmds@
+    ~Commands, used inside the text of a macro command~@KeyMacroLang@
 
 
 @KeyMacroArea
@@ -3314,7 +3316,8 @@ Alt-Ins, Ctrl-<.>, Ctrl-Shift-<.>, Ctrl-Alt, Ctrl-Shift, Shift-Alt,
 Shift-<symbol>
 
     It is impossible to enter some key combinations (in particular Enter, Esc,
-F1, Ctrl-F5) in the hotkey assignment dialog because of their special
+F1, Ctrl-F5, MsWheelUp and MsWheelDown with Ctrl, Shift, Alt) in the
+hotkey assignment dialog because of their special
 meanings. To assign a macro command to such key combination, select it from
 the dropdown list.
 
@@ -3455,205 +3458,22 @@ passive panels:
    1. Before executing a macro command, all of the above conditions are
 checked.
 
-   2. Some key combinations (including Enter, Esc, F1 and Ctrl-F5) cannot be
+   2. Some key combinations (including Enter, Esc, F1 and Ctrl-F5, MsWheelUp
+and MsWheelDown with Ctrl, Shift, Alt) cannot be
 entered directly because they have special functions in the dialog.
 To assign a macro to one of those key combinations, select it from
 the drop-down list.
 
-@KeyMacroCmds
-$ #Macro command: commands, used inside the text of a macro command#
-   Several pseudo-keys that cannot be entered during standard
-~macro recording~@KeyMacroRecPlay@ are supported by FAR Manager:
+@KeyMacroLang
+$ #Макросы: макроязык#
+    В FAR реализован примитивный макроязык, который позволяет в простую
+последовательность клавиш ввести логику, что делает макросы (вместе с
+~плагинами~@Plugins@) мощным средством, помогающим в работе с FAR Manager.
 
-     ~$Date~@KeyMacroODate@       - insert current date/time
-     ~$Exit~@KeyMacroOExit@       - stop macro playback
-     ~$IClip~@KeyMacroOIClip@      - working with clipboard
-     ~$MMode~@KeyMacroOMMode@      - toggle macro display mode
-     ~$Text~@KeyMacroOText@       - arbitrary text insertion
-     ~$XLat~@KeyMacroOXLat@       - transliteration function
+    Добавить элементы макроязыка в ~макрос~@KeyMacro@ можно только путем ручной
+правки реестра или путем применения специальных программ/плагинов.
 
-
-   To add the above commands to a ~macro sequence~@KeyMacro@ you will have to
-manually edit the registry or to use a special program/plugin.
-
-    See also:
-
-    ~Keyboard macro commands (macro command)~@KeyMacro@
-
-@KeyMacroODate
-$ #Macro: $Date - insertion of current date/time#
-   The special macro command '$Date' is intended for insertion of
-current date/time.
-
-   #$Date ["format"]#
-
-   The current time is converted to a string according to the
-format "format". If the "format" argument is not specified,
-FAR will use the format string "%a %b %d %H:%M:%S %Z %Y".
-This format is similar to the one used by the Unix 'date' utility. $Date
-supports the following date format specification (similar
-to the format used by the strftime function):
-
-        %%   Percent sign
-        %a   Abbreviated weekday name (Sun)
-        %A   Full weekday name (Monday)
-        %b   Abbreviated month name (Jan)
-        %B   Full month name (January)
-        %c   Date and time representation in the format
-             "WDay Mnt Day HH:MM:SS yyyy"
-             (Mon Jan 10 04:11:54 2000)
-        %C   Century as a decimal number (00 - 99). 1992 => 19
-        %d   Day of the month as decimal number (01 - 31)
-        %D   Synonym for %x
-        %e   Synonym for %d, but the leading zero is replaced
-             with a space
-        %h   Synonym for %b
-        %H   Hour in 24-hour format (00 - 23)
-        %I   Hour in 12-hour format (01 - 12)
-        %j   Day of year as decimal number (001 - 366)
-        %k   Synonym for %H, but the leading zero is replaced
-             with a space
-        %l   Synonym for %I, but the leading zero is replaced
-             with a space
-        %L   Trigger for switching the language of month and weekday
-             names - English/localized.
-             FAR requests two sets of names from the system:
-             1) English names of months and weekdays
-             2) names according to the settings of the current user
-             (LOCALE_USER_DEFAULT).
-             By default the English names are used.
-        %m   Month as decimal number (1 - 12)
-        %m0  Similar to %m, but with a leading zero (01 - 12)
-        %mh  Current month as hexadecimal number (1 - C)
-        %M   Minute as decimal number (00 - 59)
-        %n   Line break `\\n'
-             Note: When using this in editor macros, auto-indent
-             will not work.
-        %p   AM or PM
-        %r   Synonym for %I:%M:%S %p
-        %R   Synonym for %H:%M
-        %S   Second as decimal number (00 - 59)
-        %t   Tab character `\\t'
-        %T   Synonym for %X
-        %U   Week of year as decimal number, with Sunday as first
-             day of week (00 - 53)
-        %v   Date in the format dd-mmm-yyyy (the month name is
-             uppercased)
-        %V   Week of year according to ISO 8601:
-             "If the week number containing January 1st has >= 4
-             days in the new year, then it is week 1; otherwise,
-             it is the last numbered week of the previous year
-             (52 or 53)"
-        %w   Week day as decimal number (0 - 6, Sunday is 0)
-        %U   Week of year as decimal number, with Monday as first
-             day of week (00 - 53)
-        %x   Date in the format dd<sep>mm<sep>yyyy (the separator
-             <sep> and the order of day, month and year are
-             determined by the regional settings)
-        %X   Time in the format HH<sep>MM<sep>SS (the separator
-             <sep> is determined by the regional settings)
-        %y   Year without century, as decimal number (00 - 99)
-        %Y   Year with century, as decimal number (19yy-20yy)
-        %Z   Time-zone name or abbreviation; no characters if
-             time zone is unknown
-
-   Arbitrary text in the format string must be in the OEM codepage.
-
-   The following escape sequences are allowed:
-
-    \\"   The '"' character
-    \\\\   The '\\' character
-    \\%   The '%' character (same as '%%')
-    \\n   New line `\\n' (same as '%n')
-    \\t   Tab `\\t' (same as '%t')
-    \\xNN Hex code of characters in the OEM code page
-
-
-    See also:
-
-    ~Keyboard macro commands (macro command)~@KeyMacro@
-    ~Commands, used inside the text of a macro command~@KeyMacroCmds@
-
-@KeyMacroOText
-$ #Macro: $Text - insertion of arbitrary text#
-   Special macro command '$Text' is intended for insertion of arbitrary
-text.
-
-   #$Text "string"#
-
-   Insert text. The inserted text 'string' must be in the OEM code page.
-
-   The '$Text' macro command is helpful when manually writing a macro
-sequence containing lengths of arbitrary text and will also lower memory
-usage in such macro sequences.
-
-   The following escape sequences are allowed inside the 'string' argument:
-
-        \\"   The '"' character
-        \\\\   The '\\' character
-        \\n   New line `\\n'
-        \\t   Tab `\\t'
-        \\xNN Hex code of characters in the OEM code page
-
-   See also:
-
-   ~Keyboard macro commands (macro command)~@KeyMacro@
-   ~Commands, used inside the text of a macro command~@KeyMacroCmds@
-
-@KeyMacroOIClip
-$ #Macro: $IClip - working with clipboard#
-    By default FAR Manager works with the Windows Clipboard for
-copy/paste operations. The '$IClip' macro command allows to switch,
-within the limits of a macro sequence, the internal FAR mechanism for
-working with/without the Windows Clipboard.
-
-    #$IClip#
-
-    Works as a trigger.
-
-    See also:
-
-    ~Keyboard macro commands (macro command)~@KeyMacro@
-    ~Commands, used inside the text of a macro command~@KeyMacroCmds@
-
-@KeyMacroOMMode
-$ #Macro: $MMode - toggle macro display mode#
-   Special macro command '$MMode' allows to toggle the display
-mode while playing-back the macro sequence.
-
-   #$MMode 1#
-
-   Toggles the display mode. Works as a trigger.
-
-   See also:
-
-   ~Keyboard macro commands (macro command)~@KeyMacro@
-   ~Commands, used inside the text of a macro command~@KeyMacroCmds@
-
-@KeyMacroOExit
-$ #Macro: $Exit - stop macro playback#
-   Special macro command '$Exit' stops the playback of a macro sequence.
-
-   #$Exit#
-
-   See also:
-
-   ~Keyboard macro commands (macro command)~@KeyMacro@
-   ~Commands, used inside the text of a macro command~@KeyMacroCmds@
-
-
-@KeyMacroOXLat
-$ #Macro: $XLat - transliteration function#
-   Special macro command '$XLat' calls the transliteration function.
-
-   #$XLat#
-
-   Works independently of what key is assigned in TechInfo##10.
-
-   See also:
-
-   ~Keyboard macro commands (macro command)~@KeyMacro@
-   ~Commands, used inside the text of a macro command~@KeyMacroCmds@
+    Описание макроязыка можно найти в сопроводительной документации.
 
 
 @Index

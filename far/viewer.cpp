@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.162 07.07.2004 $ */
+/* Revision: 1.163 03.08.2004 $ */
 
 /*
 Modify:
+  03.08.2004 SVS
+    + MCODE_V_VIEWERSTATE
   07.07.2004 SVS
     ! Macro II
   16.06.2004 SVS
@@ -1717,6 +1719,29 @@ int Viewer::ProcessKey(int Key)
   int I;
   char ReadStr[4096];
 
+  switch(Key)
+  {
+    case MCODE_C_EMPTY:
+      return FileSize==0;
+    case MCODE_C_SELECTED:
+      return SelectSize==0?FALSE:TRUE;
+    case MCODE_C_EOF:
+      return LastPage || ViewFile==NULL;
+    case MCODE_C_BOF:
+      return !FilePos || ViewFile==NULL;
+    case MCODE_V_VIEWERSTATE:
+    {
+      DWORD MacroViewerState=0;
+      MacroViewerState|=VM.UseDecodeTable?0x00000001:0;
+      MacroViewerState|=VM.AnsiMode?0x00000002:0;
+      MacroViewerState|=VM.Unicode?0x00000004:0;
+      MacroViewerState|=VM.Wrap?0x00000008:0;
+      MacroViewerState|=VM.TypeWrap?0x00000010:0;
+      MacroViewerState|=VM.Hex?0x00000020:0;
+      return MacroViewerState;
+    }
+  }
+
   /* $ 22.01.2001 IS
        Происходят какие-то манипуляции -> снимем выделение
   */
@@ -2376,15 +2401,6 @@ int Viewer::ProcessKey(int Key)
 //        LastSelPos=FilePos;
       }
       return(TRUE);
-
-    case MCODE_C_EMPTY:
-      return FileSize==0;
-    case MCODE_C_SELECTED:
-      return SelectSize==0?FALSE:TRUE;
-    case MCODE_C_EOF:
-      return LastPage || ViewFile==NULL;
-    case MCODE_C_BOF:
-      return !FilePos || ViewFile==NULL;
 
     default:
       if (Key>=' ' && Key<=255)

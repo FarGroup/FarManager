@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.83 02.08.2004 $ */
+/* Revision: 1.84 05.08.2004 $ */
 
 /*
 Modify:
+  05.08.2004 SVS
+    + MFLAGS_RUNAFTERFARSTARTED  - этот макрос уже запускался при старте ФАРа
   02.08.2004 SVS
     ! пропишем числовые значение енума...
   08.07.2004 SVS
@@ -286,7 +288,7 @@ enum MACROMODEAREA {
 
 #define MFLAGS_DISABLEOUTPUT       0x00000100 // подавить обновление экрана во время выполнения макроса
 #define MFLAGS_NOSENDKEYSTOPLUGINS 0x00000200 // НЕ передавать клавиши во время записи/воспроизведения макроса
-//#define MFLAGS_                  0x00000400 //
+#define MFLAGS_RUNAFTERFARSTARTED  0x00000400 // этот макрос уже запускался при старте ФАРа
 #define MFLAGS_RUNAFTERFARSTART    0x00000800 // этот макрос запускается при старте ФАРа
 
 #define MFLAGS_EMPTYCOMMANDLINE    0x00001000 // запускать, если командная линия пуста
