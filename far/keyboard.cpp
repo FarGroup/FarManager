@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.27 06.05.2001 $ */
+/* Revision: 1.28 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   06.05.2001 ОТ
     ! Переименование Window в Frame :)
   05.05.2001 DJ
@@ -90,7 +92,18 @@ Modify:
 
 #include "headers.hpp"
 #pragma hdrstop
-#include "internalheaders.hpp"
+
+#include "keys.hpp"
+#include "farqueue.hpp"
+#include "global.hpp"
+#include "fn.hpp"
+#include "plugin.hpp"
+#include "lang.hpp"
+#include "filepanels.hpp"
+#include "panel.hpp"
+#include "cmdline.hpp"
+#include "grabber.hpp"
+#include "manager.hpp"
 
 static int AltValue=0,ReturnAltValue;
 static int ShiftPressedLast=FALSE,AltPressedLast=FALSE,CtrlPressedLast=FALSE;
@@ -312,7 +325,7 @@ int GetInputRecord(INPUT_RECORD *rec)
     if (CloseFAR)
     {
       CloseFAR=FALSE;
-      CtrlObject->ModalManager.IsAnyFrameModified(TRUE);
+      CtrlObject->FrameManager->IsAnyFrameModified(TRUE);
     }
 
     if ((LoopCount & 15)==0)
@@ -325,9 +338,9 @@ int GetInputRecord(INPUT_RECORD *rec)
       {
         if (Opt.InactivityExit && Opt.InactivityExitTime>0 &&
             CurTime-StartIdleTime>Opt.InactivityExitTime*60000 &&
-            CtrlObject->ModalManager.GetFrameCount()==1)
+            CtrlObject->FrameManager->GetFrameCount()==1)
         {
-          CtrlObject->ModalManager.ExitMainLoop(FALSE);
+          CtrlObject->FrameManager->ExitMainLoop(FALSE);
           return(KEY_NONE);
         }
         if ((LoopCount & 63)==0)

@@ -7,10 +7,12 @@ plugins.hpp
 
 */
 
-/* Revision: 1.09 04.05.2001 $ */
+/* Revision: 1.10 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   04.05.2001 OT
     + Неверно формировалось меню плагинов по F11 (NWZ)
       Изменился PluginSet::CommandsMenu()
@@ -38,6 +40,8 @@ Modify:
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
 */
+
+#include "language.hpp"
 
 class SaveScreen;
 class Editor;
@@ -210,5 +214,44 @@ class PluginsSet
     void DumpPluginsInfo();
     /* tran $ */
 };
+
+/* $ 17.10.2000 SVS
+   ИСКЛЮЧЕНИЯ!
+*/
+enum ExceptFunctionsType{
+  EXCEPT_SETSTARTUPINFO,
+  EXCEPT_GETVIRTUALFINDDATA,
+  EXCEPT_OPENPLUGIN,
+  EXCEPT_OPENFILEPLUGIN,
+  EXCEPT_OPENPLUGIN_FINDLIST,
+  EXCEPT_CLOSEPLUGIN,
+  EXCEPT_GETPLUGININFO,
+  EXCEPT_GETPLUGININFO_DATA,
+  EXCEPT_GETOPENPLUGININFO,
+  EXCEPT_GETOPENPLUGININFO_DATA,
+  EXCEPT_GETFINDDATA,
+  EXCEPT_FREEFINDDATA,
+  EXCEPT_FREEVIRTUALFINDDATA,
+  EXCEPT_SETDIRECTORY,
+  EXCEPT_GETFILES,
+  EXCEPT_PUTFILES,
+  EXCEPT_DELETEFILES,
+  EXCEPT_MAKEDIRECTORY,
+  EXCEPT_PROCESSHOSTFILE,
+  EXCEPT_SETFINDLIST,
+  EXCEPT_CONFIGURE,
+  EXCEPT_EXITFAR,
+  EXCEPT_PROCESSKEY,
+  EXCEPT_PROCESSEVENT,
+  EXCEPT_PROCESSEDITOREVENT,
+  EXCEPT_COMPARE,
+  EXCEPT_PROCESSEDITORINPUT,
+  EXCEPT_MINFARVERSION,
+  EXCEPT_PROCESSVIEWEREVENT,
+  EXCEPT_PROCESSVIEWERINPUT,
+  EXCEPT_FARDIALOG,
+};
+
+
 
 #endif  // __PLUGINS_HPP__

@@ -5,10 +5,12 @@ gettable.cpp
 
 */
 
-/* Revision: 1.05 11.02.2001 $ */
+/* Revision: 1.06 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетр€х #include
   11.02.2001 SVS
     ! Ќесколько уточнений кода в св€зи с изменени€ми в структуре MenuItem
   15.09.2000 IS
@@ -28,11 +30,12 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   —тандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "global.hpp"
+#include "plugin.hpp"
+#include "fn.hpp"
+#include "lang.hpp"
+#include "vmenu.hpp"
+#include "savefpos.hpp"
 
 #if defined(__BORLANDC__)
 static unsigned long CalcDifference(int *SrcTable,int *CheckedTable,unsigned char *DecodeTable);

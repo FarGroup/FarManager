@@ -5,10 +5,12 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.21 06.05.2001 $ */
+/* Revision: 1.22 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   06.05.2001 ОТ
     ! Переименование Window в Frame :)
   05.05.2001 DJ
@@ -63,17 +65,33 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
-
+#include "ctrlobj.hpp"
+#include "global.hpp"
+#include "fn.hpp"
+#include "lang.hpp"
+#include "manager.hpp"
+#include "cmdline.hpp"
+#include "hilight.hpp"
+#include "grpsort.hpp"
+#include "poscache.hpp"
+#include "history.hpp"
+#include "treelist.hpp"
+#include "filter.hpp"
+#include "filepanels.hpp"
 
 ControlObject::ControlObject()
 {
   FPanels=0;
   CtrlObject=this;
+  /* $ 06.05.2001 DJ
+     создаем динамически (для уменьшения dependencies)
+  */
+  HiFiles = new HighlightFiles;
+  GrpSort = new GroupSort;
+  ViewerPosCache = new FilePositionCache;
+  EditorPosCache = new FilePositionCache;
+  FrameManager = new Manager;
+  /* DJ $ */
   ReadConfig();
   /* $ 28.02.2001 IS
        Создадим обязательно только после того, как прочитали настройки
@@ -193,7 +211,7 @@ _beginthread(CheckVersion,0x10000,NULL);
   Cp()->HideState=(!Opt.LeftPanel.Visible && !Opt.RightPanel.Visible);
   CmdLine->Redraw();
 
-  ModalManager.AddFrame(FPanels);
+  FrameManager->AddFrame(FPanels);
   Plugins.LoadPlugins();
 }
 
@@ -213,11 +231,11 @@ ControlObject::~ControlObject()
     }
   }
   if (Opt.SaveEditorPos)
-    EditorPosCache.Save("Editor\\LastPositions");
+    EditorPosCache->Save("Editor\\LastPositions");
   if (Opt.SaveViewerPos)
-    ViewerPosCache.Save("Viewer\\LastPositions");
+    ViewerPosCache->Save("Viewer\\LastPositions");
 ///
-  ModalManager.CloseAll();
+  FrameManager->CloseAll();
   FPanels=NULL;
 ///
 /*///
@@ -236,6 +254,15 @@ ControlObject::~ControlObject()
   delete FolderHistory;
   delete ViewHistory;
   delete CmdLine;
+  /* $ 06.05.2001 DJ
+     удаляем то, что создали динамически
+  */
+  delete HiFiles;
+  delete GrpSort;
+  delete ViewerPosCache;
+  delete EditorPosCache;
+  delete FrameManager;
+  /* DJ $ */
   Lang.Close();
   CtrlObject=NULL;
 }

@@ -5,10 +5,12 @@ int64.cpp
 
 */
 
-/* Revision: 1.03 12.03.2001 $ */
+/* Revision: 1.04 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   12.03.2001 SVS
     ! применяем __int64 в классе int64 :-)
   20.02.2001 SVS
@@ -22,7 +24,8 @@ Modify:
 
 #include "headers.hpp"
 #pragma hdrstop
-#include "internalheaders.hpp"
+
+#include "int64.hpp"
 
 #if defined(__NEW_CLASS_INT64__)
 int64 operator / (int64 n1,int64 n2)

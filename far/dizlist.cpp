@@ -5,10 +5,12 @@ dizlist.cpp
 
 */
 
-/* Revision: 1.01 13.07.2000 $ */
+/* Revision: 1.02 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   13.07.2000 SVS
     ! Некоторые коррекции при использовании new/delete/realloc
   25.06.2000 SVS
@@ -19,11 +21,17 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "dizlist.hpp"
+#include "fn.hpp"
+#include "global.hpp"
+#include "lang.hpp"
+#include "savescr.hpp"
+
+struct DizRecord
+{
+  char *DizText;
+  int Deleted;
+};
 
 static int _cdecl SortDizIndex(const void *el1,const void *el2);
 int _cdecl SortDizSearch(const void *key,const void *elem);

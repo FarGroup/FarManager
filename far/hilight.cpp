@@ -5,10 +5,12 @@ Files highlighting
 
 */
 
-/* Revision: 1.19 29.04.2001 $ */
+/* Revision: 1.20 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   29.04.2001 ОТ
     + Внедрение NWZ от Третьякова
   23.04.2001 SVS
@@ -65,12 +67,18 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "hilight.hpp"
+#include "fn.hpp"
+#include "global.hpp"
+#include "lang.hpp"
+#include "keys.hpp"
+#include "vmenu.hpp"
+#include "dialog.hpp"
+#include "filepanels.hpp"
+#include "panel.hpp"
+#include "savescr.hpp"
 
+#define HIGHLIGHT_MASK_SIZE      2048
 
 HighlightFiles::HighlightFiles()
 {

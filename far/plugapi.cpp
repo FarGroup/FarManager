@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.51 06.05.2001 $ */
+/* Revision: 1.52 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   06.05.2001 ОТ
     ! Переименование Window в Frame :)
   05.05.2001 DJ
@@ -144,11 +146,24 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "plugin.hpp"
+#include "global.hpp"
+#include "fn.hpp"
+#include "keys.hpp"
+#include "lang.hpp"
+#include "help.hpp"
+#include "vmenu.hpp"
+#include "dialog.hpp"
+#include "filepanels.hpp"
+#include "panel.hpp"
+#include "cmdline.hpp"
+#include "scantree.hpp"
+#include "rdrwdsk.hpp"
+#include "fileview.hpp"
+#include "fileedit.hpp"
+#include "plugins.hpp"
+#include "savescr.hpp"
+#include "manager.hpp"
 
 // declare in plugins.cpp
 extern int KeepUserScreen;
@@ -1124,7 +1139,7 @@ int WINAPI FarViewer(char *FileName,char *Title,int X1,int Y1,int X2,
     FileViewer *Viewer=new FileViewer(FileName,TRUE,Title,X1,Y1,X2,Y2);
     if (Flags & VF_DELETEONCLOSE)
       Viewer->SetTempViewName(FileName);
-    CtrlObject->ModalManager.AddFrame(Viewer);
+    CtrlObject->FrameManager->AddFrame(Viewer);
   }
   else
   {
@@ -1132,7 +1147,7 @@ int WINAPI FarViewer(char *FileName,char *Title,int X1,int Y1,int X2,
     if (Flags & VF_DELETEONCLOSE)
       Viewer.SetTempViewName(FileName);
     SetConsoleTitle(OldTitle);
-    return CtrlObject->ModalManager.ExecuteModal(Viewer);
+    return CtrlObject->FrameManager->ExecuteModal(Viewer);
   }
   return(TRUE);
 }
@@ -1163,7 +1178,7 @@ int WINAPI FarEditor(char *FileName,char *Title,int X1,int Y1,int X2,
    FileEditor *Editor=new FileEditor(FileName,CreateNew,TRUE,StartLine,StartChar,Title,X1,Y1,X2,Y2);
    if(Editor)
      {
-      CtrlObject->ModalManager.AddFrame(Editor);
+      CtrlObject->FrameManager->AddFrame(Editor);
       ExitCode=TRUE;
      }
   }
@@ -1171,7 +1186,7 @@ int WINAPI FarEditor(char *FileName,char *Title,int X1,int Y1,int X2,
   {
    FileEditor Editor(FileName,CreateNew,FALSE,StartLine,StartChar,Title,X1,Y1,X2,Y2);
    SetConsoleTitle(OldTitle);
-   return CtrlObject->ModalManager.ExecuteModal (Editor);
+   return CtrlObject->FrameManager->ExecuteModal (Editor);
   }
   return ExitCode;
   /* IS $ */

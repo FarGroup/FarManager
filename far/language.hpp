@@ -7,10 +7,12 @@ language.hpp
 
 */
 
-/* Revision: 1.03 27.02.2001 $ */
+/* Revision: 1.04 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   27.02.2001 SVS
     ! Нафига сюда впиндювивали stdio.h - ума не дам...
   19.01.2001 SVS
@@ -21,6 +23,10 @@ Modify:
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
 */
+
+#include "farconst.hpp"
+
+class VMenu;
 
 class Language
 {

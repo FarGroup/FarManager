@@ -7,10 +7,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.15 27.04.2001 $ */
+/* Revision: 1.16 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   27.04.2001 VVM
     + Обработка KEY_MSWHEEL_XXXX
     + В меню нажатие средней кнопки аналогично нажатию ЕНТЕР
@@ -72,11 +74,14 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "vmenu.hpp"
+#include "global.hpp"
+#include "fn.hpp"
+#include "keys.hpp"
+#include "colors.hpp"
+#include "chgprior.hpp"
+#include "dialog.hpp"
+#include "savescr.hpp"
 
 /* $ 18.07.2000 SVS
    ! изменен вызов конструктора (isListBoxControl) с учетом необходимости

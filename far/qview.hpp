@@ -7,10 +7,12 @@ Quick view panel
 
 */
 
-/* Revision: 1.04 30.04.2001 $ */
+/* Revision: 1.05 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   30.04.2001 DJ
     + UpdateKeyBar(), DynamicUpdateKeyBar()
   05.04.2001 VVM
@@ -23,6 +25,10 @@ Modify:
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
 */
+
+#include "panel.hpp"
+
+class Viewer;
 
 class QuickView:public Panel
 {

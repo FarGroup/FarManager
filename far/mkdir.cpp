@@ -5,10 +5,12 @@ mkdir.cpp
 
 */
 
-/* Revision: 1.03 29.04.2001 $ */
+/* Revision: 1.04 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   29.04.2001 ОТ
     + Внедрение NWZ от Третьякова
   31.07.2000 SVS
@@ -23,11 +25,12 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "global.hpp"
+#include "fn.hpp"
+#include "lang.hpp"
+#include "filepanels.hpp"
+#include "panel.hpp"
+#include "treelist.hpp"
 
 void ShellMakeDir(Panel *SrcPanel)
 {

@@ -5,10 +5,13 @@ fileview.cpp
 
 */
 
-/* Revision: 1.23 06.05.2001 $ */
+/* Revision: 1.24 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
+    + обработка F6 под NWZ
   06.05.2001 ОТ
     ! Переименование Window в Frame :)
   05.05.2001 DJ
@@ -69,11 +72,16 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "fileview.hpp"
+#include "global.hpp"
+#include "fn.hpp"
+#include "lang.hpp"
+#include "keys.hpp"
+#include "filepanels.hpp"
+#include "panel.hpp"
+#include "history.hpp"
+#include "manager.hpp"
+#include "fileedit.hpp"
 
 FileViewer::FileViewer(char *Name,int EnableSwitch,int DisableHistory,
                        int DisableEdit,long ViewStartPos,char *PluginData,
@@ -260,7 +268,7 @@ int FileViewer::ProcessKey(int Key)
             // если нужный путь есть на пассивной панели
             if ( !AExist && PExist)
             {
-                CtrlObject->ProcessKey(KEY_TAB);
+                CtrlObject->Cp()->ProcessKey(KEY_TAB);
             }
             if(!AExist && !PExist)
                 CtrlObject->Cp()->ActivePanel->SetCurDir(DirTmp,TRUE);
@@ -296,7 +304,7 @@ int FileViewer::ProcessKey(int Key)
     case KEY_CTRLO:
       Hide();
       if (CtrlObject->Cp()->LeftPanel!=CtrlObject->Cp()->RightPanel)
-        CtrlObject->ModalManager.ShowBackground();
+        CtrlObject->FrameManager->ShowBackground();
       else
       {
         ViewKeyBar.Hide();
@@ -313,20 +321,6 @@ int FileViewer::ProcessKey(int Key)
       Show();
       return(TRUE);
     /* SVS $ */
-/*///
-    case KEY_CTRLTAB:
-    case KEY_CTRLSHIFTTAB:
-    case KEY_F12:
-      if (GetEnableSwitch())
-      {
-        View.KeepInitParameters();
-        if (Key==KEY_CTRLSHIFTTAB)
-          SetExitCode(3);
-        else
-          SetExitCode(Key==KEY_CTRLTAB ? 1:2);
-      }
-      return(TRUE);
-*///
     case KEY_F3:
     case KEY_NUMPAD5:
       if (F3KeyOnly)
@@ -343,7 +337,13 @@ int FileViewer::ProcessKey(int Key)
         char ViewFileName[NM];
         View.GetFileName(ViewFileName);
         long FilePos=View.GetFilePos();
-        CtrlObject->ModalManager.SetNextFrame(FALSE,ViewFileName,FilePos);
+        /* $ 06.05.2001 DJ
+           обработка F6 под NWZ
+        */
+        FileEditor *ShellEditor = new FileEditor (ViewFileName, FALSE, TRUE, 
+          -2, FilePos, FALSE);
+        CtrlObject->FrameManager->ReplaceCurrentFrame(ShellEditor);
+        /* DJ $ */
         ShowTime(2);
       }
       return(TRUE);

@@ -7,10 +7,12 @@ Keybar
 
 */
 
-/* Revision: 1.05 30.04.2001 $ */
+/* Revision: 1.06 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   30.04.2001 DJ
     ! Все нафиг переделано :-) Убран весь дублирующийся код. Публичный API
       сохранен.
@@ -29,6 +31,8 @@ Modify:
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
 */
+
+#include "scrobj.hpp"
 
 /* $ 07.08.2000 SVS
    Группы меток
@@ -61,7 +65,7 @@ typedef KeyBarTitle KeyBarTitleGroup [KEY_COUNT];
 class KeyBar: public ScreenObject
 {
   private:
-    BaseInput *Owner;
+    ScreenObject *Owner;
 
     KeyBarTitleGroup KeyTitles [KBL_GROUP_COUNT];
     int KeyCounts [KBL_GROUP_COUNT];
@@ -74,7 +78,7 @@ class KeyBar: public ScreenObject
 
   public:
     KeyBar();
-    void SetOwner(BaseInput *Owner);
+    void SetOwner(ScreenObject *Owner);
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 

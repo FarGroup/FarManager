@@ -5,10 +5,12 @@ print.cpp
 
 */
 
-/* Revision: 1.05 27.02.2001 $ */
+/* Revision: 1.06 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   27.02.2001 VVM
     ! Символы, зависимые от кодовой страницы
       /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
@@ -29,12 +31,13 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "fn.hpp"
+#include "global.hpp"
+#include "lang.hpp"
+#include "panel.hpp"
+#include "vmenu.hpp"
+#include "filelist.hpp"
+#include "savescr.hpp"
 
 static void AddToPrintersMenu(VMenu *PrinterList,PRINTER_INFO_2 *pi,
                               int PrinterNumber);

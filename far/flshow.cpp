@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.08 29.04.2001 $ */
+/* Revision: 1.09 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   29.04.2001 ОТ
     + Внедрение NWZ от Третьякова
   20.03.2001 SVS
@@ -38,11 +40,15 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "filelist.hpp"
+#include "global.hpp"
+#include "fn.hpp"
+#include "plugin.hpp"
+#include "colors.hpp"
+#include "lang.hpp"
+#include "filter.hpp"
+#include "cmdline.hpp"
+#include "filepanels.hpp"
 
 extern struct PanelViewSettings ViewSettingsArray[];
 extern int ColumnTypeWidth[];

@@ -5,10 +5,12 @@ Keybar
 
 */
 
-/* Revision: 1.08 30.04.2001 $ */
+/* Revision: 1.09 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   30.04.2001 DJ
     ! Все нафиг переделано :-) Убран (почти) весь дублирующийся код.
       Публичный API сохранен.
@@ -38,11 +40,11 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "keybar.hpp"
+#include "fn.hpp"
+#include "colors.hpp"
+#include "global.hpp"
+#include "keys.hpp"
 
 KeyBar::KeyBar()
 {
@@ -58,7 +60,7 @@ KeyBar::KeyBar()
 }
 
 
-void KeyBar::SetOwner(BaseInput *Owner)
+void KeyBar::SetOwner(ScreenObject *Owner)
 {
   KeyBar::Owner=Owner;
 }

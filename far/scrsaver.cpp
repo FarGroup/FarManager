@@ -5,10 +5,12 @@ ScreenSaver
 
 */
 
-/* Revision: 1.05 06.05.2001 $ */
+/* Revision: 1.06 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   06.05.2001 ОТ
     ! Переименование Window в Frame :)
   05.05.2001 DJ
@@ -31,15 +33,17 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "fn.hpp"
+#include "global.hpp"
+#include "colors.hpp"
+#include "chgprior.hpp"
+#include "savescr.hpp"
+#include "manager.hpp"
 
 static void ShowSaver(int Step);
 
-// from scrsaver.cpp
+enum {STAR_NONE,STAR_NORMAL,STAR_PLANET};
+
 static struct
 {
   int X;
@@ -94,9 +98,9 @@ int ScreenSaver(int EnableExit)
       */
       if (EnableExit && Opt.InactivityExit && Opt.InactivityExitTime>0 &&
           CurTime-StartIdleTime>Opt.InactivityExitTime*60000 &&
-          CtrlObject->ModalManager.GetFrameCount()==1)
+          CtrlObject->FrameManager->GetFrameCount()==1)
       {
-        CtrlObject->ModalManager.ExitMainLoop(FALSE);
+        CtrlObject->FrameManager->ExitMainLoop(FALSE);
         return(0);
       }
       /* DJ $ */

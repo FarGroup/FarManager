@@ -5,10 +5,12 @@ palette.cpp
 
 */
 
-/* Revision: 1.06 04.12.2000 $ */
+/* Revision: 1.07 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   04.12.2000 SVS
     + COL_*DIALOG*DISABLED
   06.10.2000 SVS
@@ -29,11 +31,7 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "colors.hpp"
 
 unsigned char DefaultPalette[]=
 {

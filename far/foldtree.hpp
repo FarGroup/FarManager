@@ -7,14 +7,22 @@ foldtree.hpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
 */
+
+#include "modal.hpp"
+#include "farconst.hpp"
+
+class TreeList;
+class Edit;
 
 class FolderTree:public Modal
 {

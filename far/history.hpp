@@ -7,10 +7,12 @@ history.hpp
 
 */
 
-/* Revision: 1.02 09.01.2001 $ */
+/* Revision: 1.03 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   09.01.2001 SVS
     - Бага с CmdHistoryRule=1
   24.09.2000 SVS
@@ -19,6 +21,13 @@ Modify:
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
 */
+
+struct HistoryRecord
+{
+  char Name[512];
+  char Title[32];
+  int Type;
+};
 
 class History
 {

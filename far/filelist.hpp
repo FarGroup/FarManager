@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.11 30.04.2001 $ */
+/* Revision: 1.12 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    + перетрях #include
   30.04.2001 DJ
     + UpdateKeyBar()
   26.04.2001 VVM
@@ -37,6 +39,60 @@ Modify:
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
 */
+
+#include "panel.hpp"
+#include "dizlist.hpp"
+
+class PanelFilter;
+
+struct FileListItem
+{
+  char Selected;
+  char PrevSelected;
+  char ShowFolderSize;
+  char ShortNamePresent;
+  unsigned char Color,SelColor,CursorColor,CursorSelColor;
+  unsigned char MarkChar;
+  DWORD UnpSizeHigh;
+  DWORD UnpSize;
+  DWORD PackSizeHigh;
+  DWORD PackSize;
+  DWORD NumberOfLinks;
+  DWORD UserFlags;
+  DWORD UserData;
+  
+  FILETIME WriteTime;
+  FILETIME CreationTime;
+  FILETIME AccessTime;
+  
+  DWORD FileAttr;
+  int Position;
+  int SortGroup;
+  char *DizText;
+  char DeleteDiz;
+  char Owner[40];
+  char Name[NM];
+  char ShortName[80];
+  char **CustomColumnData;
+  int CustomColumnNumber;
+};
+
+struct PluginsStackItem
+{
+  HANDLE hPlugin;
+  char HostFile[NM];
+  int Modified;
+  int PrevViewMode;
+  int PrevSortMode;
+  int PrevSortOrder;
+};
+
+enum {NAME_COLUMN=0,SIZE_COLUMN,PACKED_COLUMN,DATE_COLUMN,TIME_COLUMN,
+      MDATE_COLUMN,CDATE_COLUMN,ADATE_COLUMN,ATTR_COLUMN,DIZ_COLUMN,
+      OWNER_COLUMN,NUMLINK_COLUMN,
+      CUSTOM_COLUMN0,CUSTOM_COLUMN1,CUSTOM_COLUMN2,CUSTOM_COLUMN3,
+      CUSTOM_COLUMN4,CUSTOM_COLUMN5,CUSTOM_COLUMN6,CUSTOM_COLUMN7,
+      CUSTOM_COLUMN8,CUSTOM_COLUMN9};
 
 class FileList:public Panel
 {

@@ -7,10 +7,12 @@ fileview.hpp
 
 */
 
-/* Revision: 1.05 06.05.2001 $ */
+/* Revision: 1.06 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   06.05.2001 ОТ
     ! Переименование Window в Frame :)
   05.05.2001 DJ
@@ -26,6 +28,10 @@ Modify:
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
 */
+
+#include "frame.hpp"
+#include "viewer.hpp"
+#include "keybar.hpp"
 
 class FileViewer:public Frame
 {

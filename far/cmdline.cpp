@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.17 06.05.2001 $ */
+/* Revision: 1.18 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   06.05.2001 ОТ
     ! Переименование Window в Frame :)
   05.05.2001 DJ
@@ -61,12 +63,20 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
-
+#include "cmdline.hpp"
+#include "fn.hpp"
+#include "keys.hpp"
+#include "global.hpp"
+#include "lang.hpp"
+#include "manager.hpp"
+#include "history.hpp"
+#include "filepanels.hpp"
+#include "panel.hpp"
+#include "foldtree.hpp"
+#include "fileview.hpp"
+#include "fileedit.hpp"
+#include "rdrwdsk.hpp"
+#include "savescr.hpp"
 
 CommandLine::CommandLine()
 {
@@ -185,7 +195,7 @@ int CommandLine::ProcessKey(int Key)
       SaveConfig(1);
       return(TRUE);
     case KEY_F10:
-      CtrlObject->ModalManager.ExitMainLoop(TRUE);
+      CtrlObject->FrameManager->ExitMainLoop(TRUE);
       return(TRUE);
     case KEY_ALTF10:
       {
@@ -219,17 +229,11 @@ int CommandLine::ProcessKey(int Key)
           switch(Type)
           {
             case 0:
-            {
-              FileViewer *ShellViewer=new FileViewer(Str,TRUE);
-              CtrlObject->ModalManager.AddFrame(ShellViewer);
+              CtrlObject->FrameManager->AddFrame(new FileViewer(Str,TRUE));
               break;
-            }
             case 1:
-            {
-              FileEditor *ShellEditor=new FileEditor(Str,FALSE,TRUE);
-              CtrlObject->ModalManager.AddFrame(ShellEditor);
+              CtrlObject->FrameManager->AddFrame(new FileEditor(Str,FALSE,TRUE));
               break;
-            }
             case 2:
             case 3:
             {

@@ -5,10 +5,12 @@ Parent class для немодальных объектов
 
 */
 
-/* Revision: 1.01 07.05.2001 $ */
+/* Revision: 1.02 07.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   07.05.2001 OT
     - В конструкторе инициализировались не все члены. Из-за этого фар трапался :(
   05.05.2001 DJ
@@ -18,11 +20,9 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "frame.hpp"
+#include "fn.hpp"
+#include "keybar.hpp"
 
 Frame::Frame()
 {

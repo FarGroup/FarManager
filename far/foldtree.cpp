@@ -5,10 +5,12 @@ foldtree.cpp
 
 */
 
-/* Revision: 1.02 25.04.2001 $ */
+/* Revision: 1.03 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   25.04.2001 SVS
     + Обработка MODALTREE_FREE
   09.01.2001 SVS
@@ -21,11 +23,14 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "foldtree.hpp"
+#include "fn.hpp"
+#include "keys.hpp"
+#include "lang.hpp"
+#include "treelist.hpp"
+#include "edit.hpp"
+#include "help.hpp"
+#include "savescr.hpp"
 
 FolderTree::FolderTree(char *ResultFolder,int ModalMode,int TX1,int TY1,int TX2,int TY2)
 {

@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.29 29.04.2001 $ */
+/* Revision: 1.30 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   29.04.2001 ОТ
     + Внедрение NWZ от Третьякова
   24.04.2001 VVM
@@ -91,12 +93,20 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "copy.hpp"
+#include "global.hpp"
+#include "lang.hpp"
+#include "keys.hpp"
+#include "fn.hpp"
+#include "flink.hpp"
+#include "dialog.hpp"
+#include "filepanels.hpp"
+#include "panel.hpp"
+#include "foldtree.hpp"
+#include "treelist.hpp"
+#include "chgprior.hpp"
+#include "scantree.hpp"
+#include "savescr.hpp"
 
 #define COPY_BUFFER_SIZE 0x10000
 

@@ -5,10 +5,12 @@ flink.cpp
 
 */
 
-/* Revision: 1.13 28.04.2001 $ */
+/* Revision: 1.14 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   28.04.2001 VVM
     ! GetSubstName() получает тип носителя
     + Обработка Opt.SubstNameRule
@@ -54,8 +56,9 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "internalheaders.hpp"
-
+#include "global.hpp"
+#include "fn.hpp"
+#include "flink.hpp"
 
 //#if defined(__BORLANDC__)
 // current thread's ANSI code page

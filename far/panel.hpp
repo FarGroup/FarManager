@@ -7,10 +7,12 @@ Parent class дл€ панелей
 
 */
 
-/* Revision: 1.06 30.04.2001 $ */
+/* Revision: 1.07 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетр€х #include
   30.04.2001 DJ
     + UpdateKeyBar() - установка key bar titles
   25.04.2001 SVS
@@ -30,6 +32,43 @@ Modify:
     ! ¬ыделение в качестве самосто€тельного модул€
 */
 
+#include "scrobj.hpp"
+#include "farconst.hpp"
+#include "struct.hpp"
+#include "int64.hpp"
+
+class DizList;
+
+struct PanelViewSettings
+{
+  unsigned int ColumnType[20];
+  int ColumnWidth[20];
+  int ColumnCount;
+  unsigned int StatusColumnType[20];
+  int StatusColumnWidth[20];
+  int StatusColumnCount;
+  int FullScreen;
+  int AlignExtensions;
+  int FolderUpperCase;
+  int FileLowerCase;
+  int FileUpperToLowerCase;
+  int CaseSensitiveSort;
+};
+
+enum {FILE_PANEL,TREE_PANEL,QVIEW_PANEL,INFO_PANEL};
+
+enum {UNSORTED,BY_NAME,BY_EXT,BY_MTIME,BY_CTIME,BY_ATIME,BY_SIZE,BY_DIZ,
+      BY_OWNER,BY_COMPRESSEDSIZE,BY_NUMLINKS};
+
+enum {VIEW_0=0,VIEW_1,VIEW_2,VIEW_3,VIEW_4,VIEW_5,VIEW_6,VIEW_7,VIEW_8,VIEW_9};
+
+enum {DRIVE_SHOW_TYPE=1,DRIVE_SHOW_NETNAME=2,DRIVE_SHOW_LABEL=4,
+      DRIVE_SHOW_FILESYSTEM=8,DRIVE_SHOW_SIZE=16,DRIVE_SHOW_REMOVABLE=32,
+      DRIVE_SHOW_PLUGINS=64,DRIVE_SHOW_CDROM=128};
+
+enum {UPDATE_KEEP_SELECTION=1,UPDATE_SECONDARY=2};
+
+enum {NORMAL_PANEL,PLUGIN_PANEL};
 
 class Panel:public ScreenObject
 {

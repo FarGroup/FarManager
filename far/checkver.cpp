@@ -5,10 +5,12 @@ checkver.cpp
 
 */
 
-/* Revision: 1.05 09.04.2001 $ */
+/* Revision: 1.06 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    - перетрях #include
   09.04.2001 SVS
     - проблемы с отладкой под VC - трапается на GetxUSSRRegName()
   03.04.2001 SVS
@@ -29,12 +31,10 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
-
+#include "lang.hpp"
+#include "global.hpp"
+#include "dialog.hpp"
+#include "fn.hpp"
 
 unsigned char MyName[]={
     'E'^0x50,'u'^0x51,'g'^0x52,'e'^0x53,'n'^0x54,'e'^0x55,

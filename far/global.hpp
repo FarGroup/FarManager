@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.16 26.04.2001 $ */
+/* Revision: 1.17 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   26.04.2001 VVM
     - Выкинул нафиг MouseWheeled
   24.04.2001 SVS
@@ -49,13 +51,16 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
 */
 
+#include "farconst.hpp"
+#include "struct.hpp"
+#include "ctrlobj.hpp"
+#include "scrbuf.hpp"
+
 #ifdef __LANGUAGE_HPP__
 extern Language Lang;
 #endif
 
-#ifdef __CONTROLOBJECT_HPP__
 extern ControlObject *CtrlObject;
-#endif
 
 #ifdef __FARQUEUE_HPP__
 extern FarQueue<DWORD> *KeyQueue;
@@ -76,17 +81,12 @@ extern DWORD InitialConsoleMode;
 extern OSVERSIONINFO WinVer;
 #endif
 
-#ifdef __FARSTRUCT_HPP__
 extern struct Options Opt;
-#endif
 
-#ifdef __SCREENBUF_HPP__
 extern ScreenBuf ScrBuf;
-#endif
 
-#ifdef __EDITOR_HPP__
+class Editor;
 extern Editor *CurrentEditor;
-#endif
 
 extern int ScrX,ScrY;
 extern HANDLE hConOut,hConInp;

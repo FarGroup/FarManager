@@ -5,10 +5,13 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.36 06.05.2001 $ */
+/* Revision: 1.37 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
+    + обработка F6
   07.05.2001 ОТ
     - Избавимся от "дублирования" ExitCode здесь и во Frame :)
   06.05.2001 ОТ
@@ -105,11 +108,16 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "fileedit.hpp"
+#include "global.hpp"
+#include "fn.hpp"
+#include "lang.hpp"
+#include "keys.hpp"
+#include "filepanels.hpp"
+#include "panel.hpp"
+#include "dialog.hpp"
+#include "fileview.hpp"
+#include "manager.hpp"
 
 FileEditor::FileEditor(char *Name,int CreateNewFile,int EnableSwitch,
                        int StartLine,int StartChar,int DisableHistory,
@@ -150,7 +158,7 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
 
   if (EnableSwitch)
   {
-    int FramePos=CtrlObject->ModalManager.FindFrameByFile(MODALTYPE_EDITOR,FullFileName);
+    int FramePos=CtrlObject->FrameManager->FindFrameByFile(MODALTYPE_EDITOR,FullFileName);
     if (FramePos!=-1)
     {
       int MsgCode=Message(0,2,MSG(MEditTitle),FullFileName,MSG(MAskReload),
@@ -158,8 +166,7 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
       switch(MsgCode)
       {
         case 0:
-          CtrlObject->ModalManager.SetFramePos(FramePos);
-          CtrlObject->ModalManager.NextFrame(0);
+          CtrlObject->FrameManager->ActivateFrameByPos (FramePos);
           return;
         case 1:
           break;
@@ -314,7 +321,7 @@ int FileEditor::ProcessKey(int Key)
       /* skv$*/
       Hide();
       if (CtrlObject->Cp()->LeftPanel!=CtrlObject->Cp()->RightPanel)
-        CtrlObject->ModalManager.ShowBackground();
+        CtrlObject->FrameManager->ShowBackground();
       else
       {
         EditKeyBar.Hide();
@@ -325,20 +332,6 @@ int FileEditor::ProcessKey(int Key)
       Show();
       return(TRUE);
     /* SVS $ */
-/*///
-    case KEY_CTRLTAB:
-    case KEY_CTRLSHIFTTAB:
-    case KEY_F12:
-      if (GetEnableSwitch())
-      {
-        FEdit.KeepInitParameters();
-        if (Key==KEY_CTRLSHIFTTAB)
-          SetExitCode(3);
-        else
-          SetExitCode(Key==KEY_CTRLTAB ? 1:2);
-      }
-      return(TRUE);
-*///
     case KEY_F2:
     case KEY_SHIFTF2:
       {
@@ -409,7 +402,14 @@ int FileEditor::ProcessKey(int Key)
            ! Открываем вьюер с указанием длинного имени файла, а не короткого
         */
         if (ProcessQuitKey())
-          CtrlObject->ModalManager.SetNextFrame(TRUE,FullFileName,FilePos);
+        {
+          /* $ 06.05.2001 DJ
+             обработка F6 под NWZ
+          */
+          FileViewer *Viewer = new FileViewer (FullFileName, TRUE, FALSE, FALSE, FilePos);
+          CtrlObject->FrameManager->ReplaceCurrentFrame (Viewer);
+          /* DJ $ */
+        }
         /* IS $ */
         ShowTime(2);
       }
@@ -444,7 +444,7 @@ int FileEditor::ProcessKey(int Key)
             // если нужный путь есть на пассивной панели
             if ( !AExist && PExist)
             {
-                CtrlObject->ProcessKey(KEY_TAB);
+                CtrlObject->Cp()->ProcessKey(KEY_TAB);
             }
             if(!AExist && !PExist)
                 CtrlObject->Cp()->ActivePanel->SetCurDir(DirTmp,TRUE);
@@ -524,7 +524,7 @@ int FileEditor::ProcessKey(int Key)
          return(FEdit.ProcessKey(Key));
       /* DJ $ */
       if (CtrlObject->Macro.IsExecuting() ||
-        !FEdit.ProcessEditorInput(CtrlObject->ModalManager.GetLastInputRecord()))
+        !FEdit.ProcessEditorInput(CtrlObject->FrameManager->GetLastInputRecord()))
       {
         /* $ 22.03.2001 SVS
            Это помогло от залипания :-)
@@ -552,7 +552,7 @@ int FileEditor::ProcessQuitKey()
     if (SaveCode==1)
     {
 ///            SetExitCode(0);
-      SetExitCode(XC_QUIT);///
+      Frame::SetExitCode (XC_QUIT);///
       break;
     }
     if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MEditTitle),MSG(MEditCannotSave),
@@ -560,14 +560,14 @@ int FileEditor::ProcessQuitKey()
       break;
     FirstSave=0;
   }
-  return ExitCode == XC_QUIT;
+  return Frame::GetExitCode() == XC_QUIT;
 }
 
 
 int FileEditor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
   if (!EditKeyBar.ProcessMouse(MouseEvent))
-    if (!FEdit.ProcessEditorInput(CtrlObject->ModalManager.GetLastInputRecord()))
+    if (!FEdit.ProcessEditorInput(CtrlObject->FrameManager->GetLastInputRecord()))
       if (!FEdit.ProcessMouse(MouseEvent))
         return(FALSE);
   return(TRUE);

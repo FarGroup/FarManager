@@ -5,10 +5,12 @@ setattr.cpp
 
 */
 
-/* Revision: 1.25 29.04.2001 $ */
+/* Revision: 1.26 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   29.04.2001 ОТ
     + Внедрение NWZ от Третьякова
   12.04.2001 SVS
@@ -81,11 +83,16 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "fn.hpp"
+#include "flink.hpp"
+#include "global.hpp"
+#include "lang.hpp"
+#include "dialog.hpp"
+#include "chgprior.hpp"
+#include "scantree.hpp"
+#include "filepanels.hpp"
+#include "panel.hpp"
+#include "savescr.hpp"
 
 int OriginalCBAttr0[16]; // значения CheckBox`ов на момент старта диалога
 int OriginalCBAttr[16]; // значения CheckBox`ов на момент старта диалога

@@ -5,10 +5,12 @@ Parent class дл€ всех screen objects
 
 */
 
-/* Revision: 1.01 15.07.2000 $ */
+/* Revision: 1.02 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетр€х #include
   15.07.2000 tran
     + add new dirty method - Hide0(), jys set Visible to False
       used in FileViewer, for keybar hiding
@@ -20,11 +22,9 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   —тандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "scrobj.hpp"
+#include "fn.hpp"
+#include "savescr.hpp"
 
 ScreenObject::ScreenObject()
 {

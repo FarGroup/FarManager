@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.39 29.04.2001 $ */
+/* Revision: 1.40 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   29.04.2001 ОТ
     + Внедрение NWZ от Третьякова
   13.04.2001 OT
@@ -141,16 +143,20 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "edit.hpp"
+#include "global.hpp"
+#include "fn.hpp"
+#include "plugin.hpp"
+#include "keys.hpp"
+#include "editor.hpp"
+#include "filepanels.hpp"
+#include "panel.hpp"
 
 static int EditOutDisabled=0;
 static int EditEncodeDisabled=0;
 static int Recurse=0;
 
+enum {EOL_NONE,EOL_CR,EOL_LF,EOL_CRLF};
 
 Edit::Edit()
 {

@@ -5,18 +5,22 @@ XLat - перекодировка
 
 */
 
-/* Revision: 1.00 22.12.2000 $ */
+/* Revision: 1.01 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетр€х #include
   22.12.2000 SVS
     + ¬ыделение в качестве самосто€тельного модул€
 */
 
 #include "headers.hpp"
 #pragma hdrstop
-#include "internalheaders.hpp"
 
+#include "plugin.hpp"
+#include "global.hpp"
+#include "fn.hpp"
 
 /* $ 05.09.2000 SVS
   XLat-перекодировка!

@@ -5,10 +5,12 @@ class SaveFilePos
 
 */
 
-/* Revision: 1.03 20.02.2001 $ */
+/* Revision: 1.04 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   20.02.2001 SVS
     ! Заголовки - к общему виду!
   09.08.2000 svs
@@ -22,7 +24,8 @@ Modify:
 
 #include "headers.hpp"
 #pragma hdrstop
-#include "internalheaders.hpp"
+
+#include "savefpos.hpp"
 
 SaveFilePos::SaveFilePos(FILE *SaveFile)
 {

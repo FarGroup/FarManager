@@ -7,10 +7,12 @@ filepanels.hpp
 
 */
 
-/* Revision: 1.02 06.05.2001 $ */
+/* Revision: 1.03 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   06.05.2001 ОТ
     ! Переименование Window в Frame :)
   05.05.2001 DJ
@@ -18,6 +20,13 @@ Modify:
   01.01.2001 tran
       created
 */
+
+#include "frame.hpp"
+#include "keybar.hpp"
+#include "menubar.hpp"
+
+class Panel;
+class CommandLine;
 
 class FilePanels:public Frame
 {

@@ -5,10 +5,12 @@ Parent class для модальных объектов
 
 */
 
-/* Revision: 1.04 05.05.2001 $ */
+/* Revision: 1.05 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   05.05.2001 DJ
     + перетрях NWZ
   29.04.2001 ОТ
@@ -26,11 +28,9 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "modal.hpp"
+#include "fn.hpp"
+#include "help.hpp"
 
 Modal::Modal()
 {

@@ -5,10 +5,12 @@ menubar.cpp
 
 */
 
-/* Revision: 1.01 05.01.2001 $ */
+/* Revision: 1.02 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   05.01.2001 SVS
     ! Вместо "толпы" инклудов - стандартный интернал заголовок
   25.06.2000 SVS
@@ -19,11 +21,10 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 05.01.2001 SVS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "menubar.hpp"
+#include "lang.hpp"
+#include "colors.hpp"
+#include "fn.hpp"
 
 void MenuBar::DisplayObject()
 {

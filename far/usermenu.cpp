@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.19 01.05.2001 $ */
+/* Revision: 1.20 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   01.05.2001 IS
     ! Теперь при выполнении команд из меню панели и их обновление не
       отключаются.
@@ -66,11 +68,18 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "fn.hpp"
+#include "global.hpp"
+#include "lang.hpp"
+#include "keys.hpp"
+#include "filepanels.hpp"
+#include "panel.hpp"
+#include "cmdline.hpp"
+#include "vmenu.hpp"
+#include "dialog.hpp"
+#include "fileedit.hpp"
+#include "plognmn.hpp"
+#include "savefpos.hpp"
 
 static int ProcessSingleMenu(char *MenuKey,int MenuPos);
 static int DeleteMenuRecord(char *MenuKey,int DeletePos);
@@ -84,12 +93,28 @@ static char MenuRootKey[100],LocalMenuKey[100];
 
 /* $ 14.07.2000 VVM
    + Режимы показа меню (Menu mode) и Коды выхода из меню (Exit codes)
-   SVS> вынесены в farconst.hpp :-)
 */
+enum {MM_LOCAL=0,           // Локальное меню
+      MM_FAR=1,             // Меню из каталога ФАРа
+      MM_MAIN=2};           // Главное меню
+
+/* $ 25.04.2001 DJ
+   новая константа EC_COMMAND_SELECTED
+*/
+enum {EC_CLOSE_LEVEL      = -1,   // Выйти из меню на один уровень вверх
+      EC_CLOSE_MENU       = -2,   // Выйти из меню по SHIFT+F10
+      EC_PARENT_MENU      = -3,   // Показать меню родительского каталога
+      EC_MAIN_MENU        = -4,   // Показать главное меню
+      EC_COMMAND_SELECTED = -5};  // Выбрана команда - закрыть меню и
+                                  // обновить папку
+/* DJ $ */
+
 static int MenuMode;
 /* VVM $ */
 
 static char SubMenuSymbol[]={0x020,0x010,0x000};
+
+#define LocalMenuFileName "FarMenu.Ini"
 
 void ProcessUserMenu(int EditMenu)
 {

@@ -10,10 +10,12 @@ dialog.hpp
 
 */
 
-/* Revision: 1.24 28.04.2001 $ */
+/* Revision: 1.25 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+   + перетрях #include
   28.04.2001 SVS
    + GetItemRect() - получить координаты итема.
   12.04.2001 SVS
@@ -111,6 +113,10 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
 */
 
+#include "modal.hpp"
+#include "plugin.hpp"
+#include "edit.hpp"
+
 // Флаги текущего режима диалога
 #define DMODE_INITOBJECTS	0x00000001 // элементы инициализарованы?
 #define DMODE_CREATEOBJECTS	0x00000002 // объекты (Edit,...) созданы?
@@ -129,6 +135,79 @@ Modify:
 
 // размер истории...
 #define HISTORY_COUNT 16
+
+/* $ 01.08.2000 SVS
+  У структур DialogI* изменены:
+  union {
+    unsigned int Selected;
+    char *History;
+    char *Mask;
+    struct FarList *ListItems;
+  } Addons;
+
+*/
+// for class Dialog
+/*
+Описывает один элемент диалога - внутренне представление.
+Для плагинов это FarDialogItem (за исключением ObjPtr)
+*/
+/* $ 12.08.2000 KM
+   Дополнительное поле, содержащее маску ввода
+*/
+/* $ 08.12.2000 SVS
+   Data "объединен" с новой структурой
+*/
+struct DialogItem
+{
+  unsigned char Type;
+  unsigned char X1,Y1,X2,Y2;
+  unsigned char Focus;
+  union {
+    unsigned int Selected;
+    char *History;
+    char *Mask;
+    struct FarList *ListItems;
+    CHAR_INFO *VBuf;
+  };
+  DWORD Flags;
+  unsigned char DefaultButton;
+  union {
+    char Data[512];
+    int  ListPos;
+    struct {
+      DWORD PtrFlags;
+      int   PtrLength;
+      void *PtrData;
+      char  PtrTail[1];
+    } Ptr;
+  };
+  void *ObjPtr;
+};
+/* SVS $ */
+
+/*
+Описывает один элемент диалога - для сокращения объемов
+Структура аналогичена структуре InitDialogItem (см. "Far PlugRinG
+Russian Help Encyclopedia of Developer")
+*/
+struct DialogData
+{
+  unsigned char Type;
+  unsigned char X1,Y1,X2,Y2;
+  unsigned char Focus;
+  union {
+    unsigned int Selected;
+    char *History;
+    char *Mask;
+    struct FarList *ListItems;
+    CHAR_INFO *VBuf;
+  };
+  DWORD Flags;
+  unsigned char DefaultButton;
+  char *Data;
+};
+/* SVS $*/
+/* KM $*/
 
 class Dialog:public Modal
 {

@@ -5,12 +5,15 @@ manager.cpp
 
 */
 
-/* Revision: 1.10 06.05.2001 $ */
+/* Revision: 1.11 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
+    + ReplaceCurrentFrame()
   07.05.2001 ОТ
-    - Баг с порядком индекса текущего фрейма FramePos при удалении 
+    - Баг с порядком индекса текущего фрейма FramePos при удалении
       какого-нибудь из списка :)
   06.05.2001 ОТ
     ! Переименование Window в Frame :)
@@ -43,21 +46,25 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "manager.hpp"
+#include "global.hpp"
+#include "fn.hpp"
+#include "lang.hpp"
+#include "keys.hpp"
+#include "frame.hpp"
+#include "vmenu.hpp"
+#include "filepanels.hpp"
+#include "panel.hpp"
+#include "savescr.hpp"
 
 Manager::Manager()
 {
   FrameList=NULL;
   FrameCount=FramePos=FrameListSize=0;
 
-  *NextName=0;
-
   CurrentFrame=NULL;
   DestroyedFrame = NULL;
+  FrameToReplace = NULL;
   EndLoop = FALSE;
 
 }
@@ -210,6 +217,19 @@ void Manager::DestroyFrame(Frame *Killed)
     SysLog(-1);
     DestroyedFrame = Killed;
 }
+
+/* $ 06.05.2001 DJ
+   заменить текущий фрейм на указанный (используется для обработки F6)
+*/
+
+void Manager::ReplaceCurrentFrame (Frame *NewFrame)
+{
+  DestroyedFrame = FrameList [FramePos];
+  DestroyedFrame->OnChangeFocus (0);
+  FrameToReplace = NewFrame;
+}
+
+/* DJ $ */
 
 int Manager::ExecuteModal (Frame &ModalFrame)
 {
@@ -418,30 +438,17 @@ void Manager::ShowBackground()
   } */
 }
 
-void Manager::SetNextFrame(int Viewer,char *Name,long Pos)
-{
-  NextViewer=Viewer;
-  strcpy(NextName,Name);
-  NextPos=Pos;
-}
+/* $ 06.05.2001 DJ
+   активирует фрейм с указанным номером
+*/
 
-
-void Manager::ActivateNextFrame()
+void Manager::ActivateFrameByPos (int NewPos)
 {
- // int es;
-  if (*NextName)
-  {
-    Frame *NewFrame;
-    char NewName[NM];
-    strcpy(NewName,NextName);
-    *NextName=0;
-    if (NextViewer)
-      NewFrame=new FileViewer(NewName,TRUE,FALSE,FALSE,NextPos);
-    else
-      NewFrame=new FileEditor(NewName,FALSE,TRUE,-2,NextPos,FALSE);
-    AddFrame(NewFrame);
-  }
+  SetFramePos(FramePos);
+  NextFrame(0);
 }
+/* DJ $ */
+
 
 void Manager::EnterMainLoop()
 {
@@ -451,8 +458,15 @@ void Manager::EnterMainLoop()
     ProcessMainLoop();
     if (DestroyedFrame)
     {
+      DestroyedFrame->OnDestroy();
       delete DestroyedFrame;
       DestroyedFrame = NULL;
+    }
+    if (FrameToReplace)
+    {
+      FrameList [FramePos] = FrameToReplace;
+      SetCurrentFrame (FrameToReplace);
+      FrameToReplace = NULL;
     }
   }
 }
@@ -532,9 +546,9 @@ int  Manager::ProcessKey(int Key)
         ret=CurrentFrame->ProcessKey(Key);
         if ( ret )
         {
-            // а так проверяем код выхода у того, кого надо
-            if ( cw->GetExitCode()==XC_QUIT )
-                DestroyFrame(cw);
+          // а так проверяем код выхода у того, кого надо
+          if (cw->GetExitCode()==XC_QUIT && !FrameToReplace)
+            DestroyFrame(cw);
         }
     }
     SysLog("Manager::ProcessKey() ret=%i",ret);

@@ -5,10 +5,12 @@ iswind.cpp
 
 */
 
-/* Revision: 1.03 19.01.2001 $ */
+/* Revision: 1.04 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   19.01.2001 VVM
     + Если не нашли ФАР по pid, то ищем по уникальному заголовку окна
       Такое бывает, если ФАР запущен из под ФАР-а или другой консольной
@@ -25,11 +27,7 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "global.hpp"
 
 static BOOL CALLBACK IsWindowedEnumProc(HWND hwnd,LPARAM lParam);
 

@@ -16,10 +16,12 @@ farqueue.cpp
      }
 */
 
-/* Revision: 1.01 31.01.2001 $ */
+/* Revision: 1.02 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+   ! перетрях #include
   31.01.2001 OT
    -  "Explicit instantiation" для темплитов под VC++
   24.01.2001 SVS
@@ -28,7 +30,8 @@ Modify:
 
 #include "headers.hpp"
 #pragma hdrstop
-#include "internalheaders.hpp"
+
+#include "farqueue.hpp"
 
 template <class Object>
 FarQueue<Object>::FarQueue(int SizeQueue)
@@ -109,9 +112,9 @@ void FarQueue<Object>::increment(int& x)
     x=0;
 }
 
-#ifdef _MSC_VER
+//#ifdef _MSC_VER
 template class FarQueue<DWORD>;
-#endif
+//#endif
 
 #if 0
 #include <iostream.h>

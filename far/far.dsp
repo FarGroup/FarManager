@@ -7,19 +7,19 @@
 CFG=far - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
-!MESSAGE
+!MESSAGE 
 !MESSAGE NMAKE /f "far.mak".
-!MESSAGE
+!MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
-!MESSAGE
+!MESSAGE 
 !MESSAGE NMAKE /f "far.mak" CFG="far - Win32 Debug"
-!MESSAGE
+!MESSAGE 
 !MESSAGE Possible choices for configuration are:
-!MESSAGE
+!MESSAGE 
 !MESSAGE "far - Win32 Release" (based on "Win32 (x86) Console Application")
 !MESSAGE "far - Win32 Debug" (based on "Win32 (x86) Console Application")
-!MESSAGE
+!MESSAGE 
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
@@ -61,7 +61,7 @@ LINK32=link.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 1
-# PROP Output_Dir "Debug"
+# PROP Output_Dir "D:\Progra~1\FarAlpha"
 # PROP Intermediate_Dir "Debug/obj"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
@@ -77,7 +77,7 @@ LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
 # ADD LINK32 kernel32.lib user32.lib winspool.lib advapi32.lib shell32.lib mpr.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
 
-!ENDIF
+!ENDIF 
 
 # Begin Target
 
@@ -228,6 +228,10 @@ SOURCE=.\foldtree.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\frame.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\gettable.cpp
 # End Source File
 # Begin Source File
@@ -281,11 +285,6 @@ SOURCE=.\keybar.cpp
 # Begin Source File
 
 SOURCE=.\keyboard.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\lang.cpp
-# PROP Exclude_From_Build 1
 # End Source File
 # Begin Source File
 
@@ -421,11 +420,6 @@ SOURCE=.\setcolor.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\smallobj.cpp
-# PROP Exclude_From_Build 1
-# End Source File
-# Begin Source File
-
 SOURCE=.\stddlg.cpp
 # End Source File
 # Begin Source File
@@ -451,10 +445,6 @@ SOURCE=.\viewer.cpp
 # Begin Source File
 
 SOURCE=.\vmenu.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\frame.cpp
 # End Source File
 # Begin Source File
 
@@ -498,6 +488,10 @@ SOURCE=.\const.hpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\constitle.hpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\copy.hpp
 # End Source File
 # Begin Source File
@@ -530,11 +524,23 @@ SOURCE=.\farftp.hpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\farqueue.hpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\farversion.inc
+# End Source File
+# Begin Source File
+
 SOURCE=.\fileedit.hpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\filelist.hpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\filepanels.hpp
 # End Source File
 # Begin Source File
 
@@ -554,11 +560,19 @@ SOURCE=.\findfile.hpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\flink.hpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\fn.hpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\foldtree.hpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\frame.hpp
 # End Source File
 # Begin Source File
 
@@ -711,10 +725,6 @@ SOURCE=.\viewer.hpp
 # Begin Source File
 
 SOURCE=.\vmenu.hpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\frame.hpp
 # End Source File
 # End Group
 # Begin Group "Resource Files"

@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.14 26.04.2001 $ */
+/* Revision: 1.15 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   26.04.2001 VVM
     - Выкинул нафиг MouseWheeled
   24.04.2001 SVS
@@ -45,11 +47,8 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "global.hpp"
+#include "farqueue.hpp"
 
 /* $ 07.12.2000 SVS
    + Версия берется из файла farversion.inc

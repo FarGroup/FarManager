@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.02 06.05.2001 $ */
+/* Revision: 1.03 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+   ! перетрях #include
   06.05.2001 ОТ
    ! Переименование Window в Frame :)
   05.05.2001 DJ
@@ -20,12 +22,22 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
-
+#include "filepanels.hpp"
+#include "global.hpp"
+#include "fn.hpp"
+#include "keys.hpp"
+#include "lang.hpp"
+#include "plugin.hpp"
+#include "filelist.hpp"
+#include "rdrwdsk.hpp"
+#include "cmdline.hpp"
+#include "treelist.hpp"
+#include "qview.hpp"
+#include "infolist.hpp"
+#include "help.hpp"
+#include "filter.hpp"
+#include "findfile.hpp"
+#include "savescr.hpp"
 
 FilePanels::FilePanels()
 {

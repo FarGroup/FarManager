@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.33 06.05.2001 $ */
+/* Revision: 1.34 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   06.05.2001 ОТ
     ! Переименование Window в Frame :)
   05.05.2001 DJ
@@ -128,11 +130,19 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "macro.hpp"
+#include "keys.hpp"
+#include "global.hpp"
+#include "fn.hpp"
+#include "lang.hpp"
+#include "plugin.hpp"
+#include "lockscrn.hpp"
+#include "editor.hpp"
+#include "dialog.hpp"
+#include "filepanels.hpp"
+#include "panel.hpp"
+#include "cmdline.hpp"
+#include "manager.hpp"
 
 #define MFLAGS_MODEMASK            0x0000FFFF
 #define MFLAGS_DISABLEOUTPUT       0x00010000
@@ -1085,7 +1095,7 @@ BOOL KeyMacro::CheckEditSelected(DWORD CurFlags)
 {
   if(Mode==MACRO_EDITOR)
   {
-    Frame* CurFrame=CtrlObject->ModalManager.CurrentFrame;
+    Frame* CurFrame=CtrlObject->FrameManager->CurrentFrame;
     if (CurFrame && CurFrame->GetType()==MODALTYPE_EDITOR)
     {
       int CurSelected=CurFrame->ProcessKey(KEY_MEDIT_ISSELECTED);

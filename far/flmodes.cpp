@@ -5,10 +5,12 @@ flmodes.cpp
 
 */
 
-/* Revision: 1.01 29.04.2001 $ */
+/* Revision: 1.02 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   29.04.2001 ОТ
     + Внедрение NWZ от Третьякова
   25.06.2000 SVS
@@ -19,11 +21,13 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "filelist.hpp"
+#include "global.hpp"
+#include "fn.hpp"
+#include "lang.hpp"
+#include "filepanels.hpp"
+#include "vmenu.hpp"
+#include "dialog.hpp"
 
 int ColumnTypeWidth[]={0,8,8,8,5,14,14,14,6,0,0,3,
                               0,0,0,0,0,0,0,0,0,0};

@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.40 06.05.2001 $ */
+/* Revision: 1.41 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   06.05.2001 ОТ
     ! Переименование Window в Frame :)
   05.05.2001 DJ
@@ -122,12 +124,24 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
-
+#include "panel.hpp"
+#include "plugin.hpp"
+#include "global.hpp"
+#include "fn.hpp"
+#include "flink.hpp"
+#include "lang.hpp"
+#include "keys.hpp"
+#include "vmenu.hpp"
+#include "filepanels.hpp"
+#include "cmdline.hpp"
+#include "chgmmode.hpp"
+#include "chgprior.hpp"
+#include "edit.hpp"
+#include "treelist.hpp"
+#include "filelist.hpp"
+#include "dialog.hpp"
+#include "savescr.hpp"
+#include "manager.hpp"
 
 static int DragX,DragY,DragMove;
 static Panel *SrcDragPanel;
@@ -810,7 +824,7 @@ void Panel::FastFind(int FirstKey)
   if (KeyToProcess==KEY_ENTER && ActivePanel->GetType()==TREE_PANEL)
     ((TreeList *)ActivePanel)->ProcessEnter();
   else
-    CtrlObject->ProcessKey(KeyToProcess);
+    CtrlObject->Cp()->ProcessKey(KeyToProcess);
 }
 
 
@@ -934,7 +948,7 @@ int Panel::PanelProcessMouse(MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
       {
         EndDrag();
         if (MouseEvent->dwMousePosition.X==0)
-          CtrlObject->ProcessKey(KEY_CTRLO);
+          CtrlObject->Cp()->ProcessKey(KEY_CTRLO);
         else
           ShellOptions(0,MouseEvent);
         return(TRUE);
@@ -1169,7 +1183,7 @@ void Panel::ShowScreensCount()
   if (Opt.ShowScreensNumber && X1==0)
   {
     int Viewers,Editors;
-    CtrlObject->ModalManager.GetFrameTypesCount(Viewers,Editors);
+    CtrlObject->FrameManager->GetFrameTypesCount(Viewers,Editors);
     if (Viewers>0 || Editors>0)
     {
       char ScreensText[100];

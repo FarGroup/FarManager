@@ -9,10 +9,12 @@ editor.hpp
 
 */
 
-/* Revision: 1.16 28.03.2001 $ */
+/* Revision: 1.17 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   28.03.2001 SVS
     + дополнительный параметр для SaveFile() - SaveAs
   27.02.2001 SVS
@@ -66,6 +68,22 @@ Modify:
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
 */
+
+#include "scrobj.hpp"
+#include "struct.hpp"
+#include "plugin.hpp"
+
+class FileEditor;
+class KeyBar;
+
+struct EditorUndoData
+{
+  int Type;
+  int UndoNext;
+  int StrPos;
+  int StrNum;
+  char *Str;
+};
 
 class Editor:public ScreenObject
 {
@@ -276,13 +294,6 @@ class Editor:public ScreenObject
     void AdjustVBlock(int PrevX);
     /* tran 21.07.2000 $ */
     void Xlat();
-};
-
-struct EditList
-{
-  struct EditList *Prev;
-  struct EditList *Next;
-  Edit EditLine;
 };
 
 #endif // __EDITOR_HPP__

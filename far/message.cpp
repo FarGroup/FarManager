@@ -5,10 +5,12 @@ message.cpp
 
 */
 
-/* Revision: 1.06 14.03.2001 $ */
+/* Revision: 1.07 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   14.03.2001 SVS
     ! Если GetLastError() вернул ERROR_SUCCESS, то нефига показывать
       инфу про успешное выполнение в сообщении об ошибке.
@@ -30,14 +32,15 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
-
 static int MessageX1,MessageY1,MessageX2,MessageY2;
 static char MsgHelpTopic[80];
+
+#include "global.hpp"
+#include "fn.hpp"
+#include "plugin.hpp"
+#include "lang.hpp"
+#include "dialog.hpp"
+#include "farftp.hpp"
 
 int Message(int Flags,int Buttons,char *Title,char *Str1,char *Str2,
             char *Str3,char *Str4,int PluginNumber)

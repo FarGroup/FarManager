@@ -5,10 +5,12 @@ language.cpp
 
 */
 
-/* Revision: 1.05 11.02.2001 $ */
+/* Revision: 1.06 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетр€х #include
   11.02.2001 SVS
     ! Ќесколько уточнений кода в св€зи с изменени€ми в структуре MenuItem
   19.01.2001 SVS
@@ -29,11 +31,14 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   —тандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "language.hpp"
+#include "global.hpp"
+#include "fn.hpp"
+#include "lang.hpp"
+#include "scantree.hpp"
+#include "vmenu.hpp"
+
+#define LangFileMask "*.lng"
 
 Language::Language()
 {

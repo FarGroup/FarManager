@@ -7,10 +7,12 @@ Parent class для всех screen objects
 
 */
 
-/* Revision: 1.01 15.07.2000 $ */
+/* Revision: 1.02 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   15.07.2000 tran
     + add new dirty method - Hide0(), jys set Visible to False
       used in FileViewer, for keybar hiding
@@ -19,7 +21,9 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
 */
 
-class ScreenObject:public BaseInput
+class SaveScreen;
+
+class ScreenObject
 {
   private:
     virtual void DisplayObject() {};
@@ -35,6 +39,8 @@ class ScreenObject:public BaseInput
     SaveScreen *SaveScr;
     ScreenObject();
     virtual ~ScreenObject();
+    virtual int ProcessKey(int Key) { return(0); };
+    virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) { return(0); };
     virtual void Hide();
     /* $ 15.07.2000 tran
        dirty hack :( */

@@ -5,10 +5,12 @@ Screen grabber
 
 */
 
-/* Revision: 1.05 14.03.2001 $ */
+/* Revision: 1.06 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетр€х #include
   14.03.2001 SVS
     - Ќеправильно воспроизводилс€ макрос в режиме граблени€ экрана.
       ѕри воспроизведении клавиша Home перемещала курсор в координаты
@@ -33,11 +35,12 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   —тандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "grabber.hpp"
+#include "global.hpp"
+#include "fn.hpp"
+#include "colors.hpp"
+#include "keys.hpp"
+#include "savescr.hpp"
 
 Grabber::Grabber()
 {

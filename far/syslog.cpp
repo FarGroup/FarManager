@@ -5,10 +5,12 @@ syslog.cpp
 
 */
 
-/* Revision: 1.05 06.05.2001 $ */
+/* Revision: 1.06 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   06.05.2001 SVS
     ! немного изменений в SysLog* ;-)
   29.04.2001 ОТ
@@ -30,7 +32,10 @@ Modify:
 
 #include "headers.hpp"
 #pragma hdrstop
-#include "internalheaders.hpp"
+
+#include "plugin.hpp"
+#include "global.hpp"
+#include "fn.hpp"
 
 #if defined(SYSLOG)
 char         LogFileName[MAX_FILE];

@@ -1,14 +1,16 @@
 /*
-far.cpp
+main.cpp
 
 Функция main.
 
 */
 
-/* Revision: 1.19 29.04.2001 $ */
+/* Revision: 1.20 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   29.04.2001 ОТ
     + Внедрение NWZ от Третьякова
   23.04.2001 SVS
@@ -71,11 +73,18 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "global.hpp"
+#include "fn.hpp"
+#include "lang.hpp"
+#include "keys.hpp"
+#include "chgprior.hpp"
+#include "filepanels.hpp"
+#include "panel.hpp"
+#include "fileedit.hpp"
+#include "fileview.hpp"
+#include "lockscrn.hpp"
+#include "hilight.hpp"
+#include "manager.hpp"
 
 static void ConvertOldSettings();
 /* $ 07.07.2000 IS
@@ -322,7 +331,7 @@ int _cdecl main(int Argc, char *Argv[])
         CtrlObject->Cp()->LeftPanel->Redraw();
         CtrlObject->Cp()->RightPanel->Redraw();
       }
-      CtrlObj.ModalManager.EnterMainLoop();
+      CtrlObj.FrameManager->EnterMainLoop();
     }
   }
   SetConsoleTitle(OldTitle);

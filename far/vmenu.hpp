@@ -10,10 +10,12 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.06 20.02.2001 $ */
+/* Revision: 1.07 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+   ! перетрях #include
   20.01.2001 SVS
    + SetSelectPos() - установить позицию курсора!
   20.09.2000 SVS
@@ -43,6 +45,9 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
 */
 
+#include "modal.hpp"
+#include "plugin.hpp"
+
 /* $ 28.07.2000 SVS
    Цветовые атрибуты - индексы в массиве цветов
 */
@@ -67,8 +72,31 @@ enum{
 /* SVS $ */
 
 class Dialog;
+class SaveScreen;
 
-class VMenu:public Modal
+struct MenuItem
+{
+  DWORD Flags;
+  char Name[128];
+  unsigned char Selected;
+  unsigned char Checked;
+  unsigned char Separator;
+  unsigned char Disabled;
+  char  UserData[sizeof(WIN32_FIND_DATA)+NM+10];
+  int   UserDataSize;
+  char *PtrData;
+};
+
+
+struct MenuData
+{
+  char *Name;
+  unsigned char Selected;
+  unsigned char Checked;
+  unsigned char Separator;
+};
+
+class VMenu: public Modal
 {
   private:
     SaveScreen *SaveScr;

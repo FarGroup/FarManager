@@ -7,10 +7,12 @@ Tree panel
 
 */
 
-/* Revision: 1.03 25.04.2001 $ */
+/* Revision: 1.04 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   25.04.2001 SVS
     + SetRootDir()
   05.04.2001 VVM
@@ -23,7 +25,16 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
 */
 
-class TreeList:public Panel
+#include "panel.hpp"
+
+struct TreeItem
+{
+  char Name[NM];
+  int Last[NM/2];
+  int Depth;
+};
+
+class TreeList: public Panel
 {
   private:
     int PrevMacroMode;

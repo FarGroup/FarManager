@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.58 04.05.2001 $ */
+/* Revision: 1.59 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   04.05.2001 SVS
     ! Наконец то дошли руки до DI_LISTBOX ;-) - новый член FarDialogItem.ListPos
   28.04.2001 VVM
@@ -190,6 +192,8 @@ Modify:
    ! Выделение в качестве самостоятельного модуля
 */
 
+#include "farconst.hpp"
+
 struct PanelOptions
 {
   int Type;
@@ -216,46 +220,6 @@ struct Confirmation
   int Esc;
   /* IS $ */
   int RemoveConnection;
-};
-
-struct MenuItem
-{
-  DWORD Flags;
-  char Name[128];
-  unsigned char Selected;
-  unsigned char Checked;
-  unsigned char Separator;
-  unsigned char Disabled;
-  char  UserData[sizeof(WIN32_FIND_DATA)+NM+10];
-  int   UserDataSize;
-  char *PtrData;
-};
-
-
-struct MenuData
-{
-  char *Name;
-  unsigned char Selected;
-  unsigned char Checked;
-  unsigned char Separator;
-};
-
-
-struct HMenuData
-{
-  char *Name;
-  int Selected;
-  struct MenuData *SubMenu;
-  int SubMenuSize;
-  char *SubMenuHelp;
-};
-
-
-struct TreeItem
-{
-  char Name[NM];
-  int Last[NM/2];
-  int Depth;
 };
 
 
@@ -323,7 +287,6 @@ struct EditorOptions
   int CharCodeBase;
 };
 /* IS $ */
-
 
 /* $ 29.03.2001 IS
      Тут следует хранить "локальные" настройки для программы просмотра
@@ -636,205 +599,10 @@ struct Options
 };
 
 
-// for class History
-struct HistoryRecord
-{
-  char Name[512];
-  char Title[32];
-  int Type;
-};
-
-
-// for class Grabber
-struct GrabberArea
-{
-  int X1,Y1,X2,Y2;
-  int CurX,CurY;
-};
-
-
-// for class Editor
-struct EditorUndoData
-{
-  int Type;
-  int UndoNext;
-  int StrPos;
-  int StrNum;
-  char *Str;
-};
-
-
-/* $ 01.08.2000 SVS
-  У структур DialogI* изменены:
-  union {
-    unsigned int Selected;
-    char *History;
-    char *Mask;
-    struct FarList *ListItems;
-  } Addons;
-
-*/
-// for class Dialog
-/*
-Описывает один элемент диалога - внутренне представление.
-Для плагинов это FarDialogItem (за исключением ObjPtr)
-*/
-/* $ 12.08.2000 KM
-   Дополнительное поле, содержащее маску ввода
-*/
-/* $ 08.12.2000 SVS
-   Data "объединен" с новой структурой
-*/
-struct DialogItem
-{
-  unsigned char Type;
-  unsigned char X1,Y1,X2,Y2;
-  unsigned char Focus;
-  union {
-    unsigned int Selected;
-    char *History;
-    char *Mask;
-    struct FarList *ListItems;
-    CHAR_INFO *VBuf;
-  };
-  DWORD Flags;
-  unsigned char DefaultButton;
-  union {
-    char Data[512];
-    int  ListPos;
-    struct {
-      DWORD PtrFlags;
-      int   PtrLength;
-      void *PtrData;
-      char  PtrTail[1];
-    } Ptr;
-  };
-  void *ObjPtr;
-};
-/* SVS $ */
-
-/*
-Описывает один элемент диалога - для сокращения объемов
-Структура аналогичена структуре InitDialogItem (см. "Far PlugRinG
-Russian Help Encyclopedia of Developer")
-*/
-struct DialogData
-{
-  unsigned char Type;
-  unsigned char X1,Y1,X2,Y2;
-  unsigned char Focus;
-  union {
-    unsigned int Selected;
-    char *History;
-    char *Mask;
-    struct FarList *ListItems;
-    CHAR_INFO *VBuf;
-  };
-  DWORD Flags;
-  unsigned char DefaultButton;
-  char *Data;
-};
-/* SVS $*/
-/* KM $*/
-
-// for class FileList
-struct FileListItem
-{
-  char Selected;
-  char PrevSelected;
-  char ShowFolderSize;
-  char ShortNamePresent;
-  unsigned char Color,SelColor,CursorColor,CursorSelColor;
-  unsigned char MarkChar;
-  DWORD UnpSizeHigh;
-  DWORD UnpSize;
-  DWORD PackSizeHigh;
-  DWORD PackSize;
-  DWORD NumberOfLinks;
-  DWORD UserFlags;
-  DWORD UserData;
-
-  FILETIME WriteTime;
-  FILETIME CreationTime;
-  FILETIME AccessTime;
-
-  DWORD FileAttr;
-  int Position;
-  int SortGroup;
-  char *DizText;
-  char DeleteDiz;
-  char Owner[40];
-  char Name[NM];
-  char ShortName[80];
-  char **CustomColumnData;
-  int CustomColumnNumber;
-};
-
-
-// for class FileList
-struct PluginsStackItem
-{
-  HANDLE hPlugin;
-  char HostFile[NM];
-  int Modified;
-  int PrevViewMode;
-  int PrevSortMode;
-  int PrevSortOrder;
-};
-
-
-// for class FileList
-struct PrevDataItem
-{
-  struct FileListItem *PrevListData;
-  long PrevFileCount;
-  char PrevName[NM];
-};
-
 struct PluginHandle
 {
   HANDLE InternalHandle;
   int PluginNumber;
-};
-
-
-// for class GroupSort
-struct GroupSortData
-{
-  char *Masks;
-  char *OriginalMasks;
-  int Group;
-  int reserved; // для выравнивания на 16 :-)
-};
-
-// for class PanelFilter
-struct FilterDataRecord
-{
-  char Title[128];
-  char *Masks;
-  int LeftPanelInclude;
-  int LeftPanelExclude;
-  int RightPanelInclude;
-  int RightPanelExclude;
-};
-
-
-// for class HighlightFiles
-struct HighlightData
-{
-  char *Masks;
-  char *OriginalMasks;
-  unsigned int IncludeAttr;
-  unsigned int ExcludeAttr;
-  unsigned int Color,SelColor,CursorColor,CursorSelColor,MarkChar;
-};
-
-
-// for class DizList
-struct DizRecord
-{
-  char *DizText;
-  int Deleted;
 };
 
 // for class Edit
@@ -843,24 +611,6 @@ struct ColorItem
   int StartPos;
   int EndPos;
   int Color;
-};
-
-
-//for class Panel
-struct PanelViewSettings
-{
-  unsigned int ColumnType[20];
-  int ColumnWidth[20];
-  int ColumnCount;
-  unsigned int StatusColumnType[20];
-  int StatusColumnWidth[20];
-  int StatusColumnCount;
-  int FullScreen;
-  int AlignExtensions;
-  int FolderUpperCase;
-  int FileLowerCase;
-  int FileUpperToLowerCase;
-  int CaseSensitiveSort;
 };
 
 #endif // __FARSTRUCT_HPP__

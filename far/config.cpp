@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.71 29.04.2001 $ */
+/* Revision: 1.72 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   29.04.2001 ОТ
     + Внедрение NWZ от Третьякова
   30.04.2001 DJ
@@ -227,11 +229,18 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "global.hpp"
+#include "lang.hpp"
+#include "fn.hpp"
+#include "keys.hpp"
+#include "dialog.hpp"
+#include "filepanels.hpp"
+#include "filelist.hpp"
+#include "panel.hpp"
+#include "help.hpp"
+#include "filter.hpp"
+#include "poscache.hpp"
+#include "findfile.hpp"
 
 /* $ 03.08.2000 SVS
    Стандартный набор разделителей
@@ -1127,8 +1136,8 @@ void ReadConfig()
   GetTempPath(sizeof(Opt.TempPath),Opt.TempPath);
   RemoveTrailingSpaces(Opt.TempPath);
   AddEndSlash(Opt.TempPath);
-  CtrlObject->EditorPosCache.Read("Editor\\LastPositions");
-  CtrlObject->ViewerPosCache.Read("Viewer\\LastPositions");
+  CtrlObject->EditorPosCache->Read("Editor\\LastPositions");
+  CtrlObject->ViewerPosCache->Read("Viewer\\LastPositions");
   /* *************************************************** </ПОСТПРОЦЕССЫ> */
 }
 

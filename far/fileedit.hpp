@@ -7,10 +7,12 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.06 07.05.2001 $ */
+/* Revision: 1.07 07.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   07.05.2001 ОТ
     - Избавимся от "дублирования" ExitCode здесь и во Frame :)
   06.05.2001 ОТ
@@ -28,6 +30,10 @@ Modify:
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
 */
+
+#include "frame.hpp"
+#include "editor.hpp"
+#include "keybar.hpp"
 
 class FileEditor:public Frame
 {

@@ -5,10 +5,12 @@ stddlg.cpp
 
 */
 
-/* Revision: 1.08 16.03.2001 $ */
+/* Revision: 1.09 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   16.03.2001 SVS
     + GetNameAndPassword();
   13.03.2001 SVS
@@ -34,8 +36,13 @@ Modify:
 
 #include "headers.hpp"
 #pragma hdrstop
-#include "internalheaders.hpp"
 
+#include "plugin.hpp"
+#include "global.hpp"
+#include "fn.hpp"
+#include "lang.hpp"
+#include "keys.hpp"
+#include "dialog.hpp"
 
 /*
   Функция GetSearchReplaceString выводит диалог поиска или замены, принимает

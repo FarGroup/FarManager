@@ -5,10 +5,12 @@ poscache.cpp
 
 */
 
-/* Revision: 1.05 06.04.2001 $ */
+/* Revision: 1.06 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   06.04.2001 VVM
     - Неправильное позиционирование в открытых файлах
   02.04.2001 VVM
@@ -27,11 +29,9 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "poscache.hpp"
+#include "global.hpp"
+#include "fn.hpp"
 
 FilePositionCache::FilePositionCache()
 {

@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.16 29.04.2001 $ */
+/* Revision: 1.17 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   29.04.2001 ОТ
     + Внедрение NWZ от Третьякова
   24.04.2001 SVS
@@ -52,12 +54,16 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
-
+#include "global.hpp"
+#include "lang.hpp"
+#include "fn.hpp"
+#include "flink.hpp"
+#include "panel.hpp"
+#include "chgprior.hpp"
+#include "filepanels.hpp"
+#include "scantree.hpp"
+#include "treelist.hpp"
+#include "savescr.hpp"
 
 static void ShellDeleteMsg(char *Name,int Flags);
 static int AskDeleteReadOnly(char *Name,DWORD Attr);
@@ -68,6 +74,8 @@ static int WipeFile(char *Name);
 static int WipeDirectory(char *Name);
 
 static int ReadOnlyDeleteMode,DeleteAllFolders;
+
+enum {DELETE_SUCCESS,DELETE_YES,DELETE_SKIP,DELETE_CANCEL};
 
 void ShellDelete(Panel *SrcPanel,int Wipe)
 {

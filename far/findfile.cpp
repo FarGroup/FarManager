@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.17 05.05.2001 $ */
+/* Revision: 1.18 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   05.05.2001 DJ
     + перетрях NWZ
   29.04.2001 ОТ
@@ -57,11 +59,27 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "findfile.hpp"
+#include "plugin.hpp"
+#include "global.hpp"
+#include "fn.hpp"
+#include "flink.hpp"
+#include "lang.hpp"
+#include "keys.hpp"
+#include "vmenu.hpp"
+#include "dialog.hpp"
+#include "filepanels.hpp"
+#include "panel.hpp"
+#include "editor.hpp"
+#include "fileview.hpp"
+#include "fileedit.hpp"
+#include "filelist.hpp"
+#include "cmdline.hpp"
+#include "chgprior.hpp"
+#include "namelist.hpp"
+#include "scantree.hpp"
+#include "savescr.hpp"
+#include "manager.hpp"
 
 static void _cdecl PrepareFilesList(void *Param);
 static void _cdecl PreparePluginList(void *Param);
@@ -441,7 +459,7 @@ int FindFiles::FindFilesProcess()
                     Dlg.Hide();
                     {
                       FileViewer ShellViewer(FileFindData.cFileName,FALSE,FALSE,TRUE,-1,NULL,&ViewList);
-                      CtrlObject->ModalManager.ExecuteModal (ShellViewer);
+                      CtrlObject->FrameManager->ExecuteModal (ShellViewer);
                     }
                     Dlg.Show();
                     FindList.Show();
@@ -452,7 +470,7 @@ int FindFiles::FindFilesProcess()
                     Dlg.Hide();
                     {
                       FileEditor ShellEditor(FileFindData.cFileName,FALSE,FALSE);
-                      CtrlObject->ModalManager.ExecuteModal (ShellEditor);
+                      CtrlObject->FrameManager->ExecuteModal (ShellEditor);
                     }
                     Dlg.Show();
                     FindList.Show();

@@ -24,6 +24,14 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
 */
 
+struct HighlightData
+{
+  char *Masks;
+  char *OriginalMasks;
+  unsigned int IncludeAttr;
+  unsigned int ExcludeAttr;
+  unsigned int Color,SelColor,CursorColor,CursorSelColor,MarkChar;
+};
 
 class HighlightFiles
 {
@@ -57,5 +65,8 @@ class HighlightFiles
                     unsigned char &CursorSelColor,unsigned char &MarkChar);
     void HiEdit(int MenuPos);
 };
+
+// сама функция в hilight.cpp
+char *MkRegKeyHighlightName(char *RegKey);
 
 #endif	// __HIGHLIGHTFILES_HPP__

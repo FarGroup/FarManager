@@ -5,10 +5,12 @@ registry.cpp
 
 */
 
-/* Revision: 1.04 07.03.2001 $ */
+/* Revision: 1.05 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   07.03.2001 IS
     + DeleteEmptyKey - удаление пустого ключа в том случае, если он не содержит
       никаких переменных и подключей. Возвращает TRUE при успехе.
@@ -29,11 +31,8 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "fn.hpp"
+#include "global.hpp"
 
 static LONG CloseRegKey(HKEY hKey);
 int CopyKeyTree(char *Src,char *Dest,char *Skip=NULL);

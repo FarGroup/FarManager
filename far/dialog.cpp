@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.90 28.04.2001 $ */
+/* Revision: 1.91 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   04.05.2001 SVS
     ! Наконец то дошли руки до DI_LISTBOX ;-) - новый член FarDialogItem.ListPos
     - Бага с DN_INIT* - переведен "на уровень выше", т.е. до запоминания
@@ -393,12 +395,14 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
-
+#include "dialog.hpp"
+#include "lang.hpp"
+#include "fn.hpp"
+#include "global.hpp"
+#include "keys.hpp"
+#include "ctrlobj.hpp"
+#include "chgprior.hpp"
+#include "vmenu.hpp"
 
 static char fmtLocked[]="Locked%d";
 static char fmtLine[]  ="Line%d";

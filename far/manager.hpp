@@ -7,10 +7,13 @@ manager.hpp
 
 */
 
-/* Revision: 1.05 06.05.2001 $ */
+/* Revision: 1.06 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
+    + ReplaceCurrentFrame(), ActivateFrameByPos()
   06.05.2001 ОТ
     ! Переименование Window в Frame :)
   04.05.2001 DJ
@@ -27,14 +30,16 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
 */
 
+class Frame;
+
+#include "farconst.hpp"
+
 class Manager
 {
   private:
-
-    void ActivateNextFrame();
-
     Frame **FrameList;
     Frame *DestroyedFrame;
+    Frame *FrameToReplace;
 
     int  EndLoop;
 
@@ -43,25 +48,31 @@ class Manager
     int  FramePos;
     int  UpdateRequired;
 
-    int  NextViewer;
-    char NextName[NM];
-    int  NextPos;
-
     INPUT_RECORD LastInputRecord;
 
+  public:
+    Frame *CurrentFrame;  // текущий модал,
+                          // присутсвует в списке, но может быть не активным
+    int    EnableSwitch;  // разрешено ли переключение из модала
+
+  private:
+    void ActivateNextFrame();
+
     void SetCurrentFrame (Frame *NewCurFrame);
+    void SelectFrame(); // show window menu (F12)
 
   public:
-
     Manager();
     ~Manager();
 
+  public:
     void AddFrame(Frame *NewFrame);
     void DestroyFrame(Frame *Killed);
+    void ReplaceCurrentFrame (Frame *NewFrame);
     int ExecuteModal(Frame &ModalFrame);
 
     void NextFrame(int Increment);
-    void SelectFrame(); // show window menu (F12)
+    void ActivateFrameByPos (int NewPos);
 
     void CloseAll();
     /* $ 29.12.2000 IS
@@ -85,8 +96,6 @@ class Manager
 
     void ShowBackground();
 
-    void SetNextFrame(int Viewer,char *Name,long Pos);
-
     // new methods
     void EnterMainLoop();
     void ProcessMainLoop();
@@ -96,10 +105,6 @@ class Manager
 
     void PluginsMenu(); // вызываем меню по F11
     void CheckExited();
-
-    Frame *CurrentFrame;  // текущий модал,
-                          // присутсвует в списке, но может быть не активным
-    int    EnableSwitch;  // разрешено ли переключение из модала
 
     INPUT_RECORD *GetLastInputRecord() { return &LastInputRecord; }
 };

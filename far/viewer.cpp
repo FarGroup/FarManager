@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.57 04.05.2001 $ */
+/* Revision: 1.58 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   04.05.2001 OT
     + Неверно формировалось меню плагинов по F11 (NWZ)
       Изменился PluginSet::CommandsMenu()
@@ -178,11 +180,19 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "viewer.hpp"
+#include "global.hpp"
+#include "fn.hpp"
+#include "flink.hpp"
+#include "lang.hpp"
+#include "colors.hpp"
+#include "keys.hpp"
+#include "poscache.hpp"
+#include "help.hpp"
+#include "dialog.hpp"
+#include "fileview.hpp"
+#include "savefpos.hpp"
+#include "savescr.hpp"
 
 static int InitLastSearchHex=0;
 
@@ -303,7 +313,7 @@ Viewer::~Viewer()
             if (VM.UseDecodeTable)
               Table=VM.TableNum+3;
       }
-      CtrlObject->ViewerPosCache.AddPosition(CacheName,FilePos,LeftPos,VM.Hex,0,Table,
+      CtrlObject->ViewerPosCache->AddPosition(CacheName,FilePos,LeftPos,VM.Hex,0,Table,
           (long*)(Opt.SaveViewerShortPos?SavePosAddr:NULL),
           (long*)(Opt.SaveViewerShortPos?SavePosLeft:NULL),NULL,NULL);
     }
@@ -468,7 +478,7 @@ int Viewer::OpenFile(char *Name,int warning)
       sprintf(CacheName,"%s%s",PluginData,PointToName(FileName));
     else
       strcpy(CacheName,FileName);
-    CtrlObject->ViewerPosCache.GetPosition(CacheName,NewFilePos,NewLeftPos,TempPos1,TempPos2,Table,
+    CtrlObject->ViewerPosCache->GetPosition(CacheName,NewFilePos,NewLeftPos,TempPos1,TempPos2,Table,
           (long*)(Opt.SaveViewerShortPos?SavePosAddr:NULL),
           (long*)(Opt.SaveViewerShortPos?SavePosLeft:NULL),NULL,NULL);
 
@@ -1299,7 +1309,7 @@ int Viewer::ProcessKey(int Key)
                   if (VM.UseDecodeTable)
                     Table=VM.TableNum+3;
             }
-            CtrlObject->ViewerPosCache.AddPosition(CacheName,FilePos,LeftPos,VM.Hex,0,Table,
+            CtrlObject->ViewerPosCache->AddPosition(CacheName,FilePos,LeftPos,VM.Hex,0,Table,
                     (long*)(Opt.SaveViewerShortPos?SavePosAddr:NULL),
                     (long*)(Opt.SaveViewerShortPos?SavePosLeft:NULL),NULL,NULL);
           }

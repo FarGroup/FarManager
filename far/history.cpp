@@ -5,10 +5,12 @@ history.cpp
 
 */
 
-/* Revision: 1.04 09.04.2001 $ */
+/* Revision: 1.05 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   09.04.2001 SVS
     + Фича - копирование из истории строки в Clipboard
   11.02.2001 SVS
@@ -25,11 +27,11 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "history.hpp"
+#include "fn.hpp"
+#include "global.hpp"
+#include "keys.hpp"
+#include "vmenu.hpp"
 
 History::History(char *RegKey,int *EnableSave,int SaveTitle,int SaveType)
 {

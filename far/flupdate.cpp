@@ -5,10 +5,12 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.08 29.04.2001 $ */
+/* Revision: 1.09 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   29.04.2001 ОТ
     + Внедрение NWZ от Третьякова
   26.03.2001 SVS
@@ -36,11 +38,18 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "filelist.hpp"
+#include "global.hpp"
+#include "fn.hpp"
+#include "flink.hpp"
+#include "plugin.hpp"
+#include "colors.hpp"
+#include "lang.hpp"
+#include "filepanels.hpp"
+#include "cmdline.hpp"
+#include "filter.hpp"
+#include "hilight.hpp"
+#include "grpsort.hpp"
 
 int _cdecl SortSearchList(const void *el1,const void *el2);
 
@@ -255,7 +264,7 @@ void FileList::ReadFileNames(int KeepSelection)
       CurPtr->PrevSelected=CurPtr->Selected=0;
       CurPtr->ShowFolderSize=0;
       if (Opt.Highlight)
-        CtrlObject->HiFiles.GetHiColor(CurPtr->Name,CurPtr->FileAttr,CurPtr->Color,
+        CtrlObject->HiFiles->GetHiColor(CurPtr->Name,CurPtr->FileAttr,CurPtr->Color,
                                        CurPtr->SelColor,CurPtr->CursorColor,
                                        CurPtr->CursorSelColor,CurPtr->MarkChar);
       CurPtr->SortGroup=DEFAULT_SORT_GROUP;
@@ -359,11 +368,11 @@ void FileList::ReadFileNames(int KeepSelection)
           TotalFileSize+=int64(fdata.nFileSizeHigh,fdata.nFileSizeLow);
           CurPtr->PrevSelected=CurPtr->Selected=0;
           CurPtr->ShowFolderSize=0;
-          CtrlObject->HiFiles.GetHiColor(CurPtr->Name,CurPtr->FileAttr,CurPtr->Color,
+          CtrlObject->HiFiles->GetHiColor(CurPtr->Name,CurPtr->FileAttr,CurPtr->Color,
                                          CurPtr->SelColor,CurPtr->CursorColor,
                                          CurPtr->CursorSelColor,CurPtr->MarkChar);
           if ((CurPtr->FileAttr & FA_DIREC)==0)
-            CurPtr->SortGroup=CtrlObject->GrpSort.GetGroup(CurPtr->Name);
+            CurPtr->SortGroup=CtrlObject->GrpSort->GetGroup(CurPtr->Name);
           else
             CurPtr->SortGroup=DEFAULT_SORT_GROUP;
           if (strcmp(fdata.cFileName,"..")!=0 && (CurPtr->FileAttr & FA_DIREC)==0)
@@ -586,13 +595,13 @@ void FileList::UpdatePlugin(int KeepSelection)
     PluginToFileListItem(CurPanelData,CurListData);
     CurListData->Position=I;
     if ((Info.Flags & OPIF_USEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
-      CtrlObject->HiFiles.GetHiColor(
+      CtrlObject->HiFiles->GetHiColor(
           (Info.Flags & OPIF_USEATTRHIGHLIGHTING) ? NULL:CurListData->Name,
           CurListData->FileAttr,CurListData->Color,CurListData->SelColor,
           CurListData->CursorColor,CurListData->CursorSelColor,
           CurListData->MarkChar);
     if ((Info.Flags & OPIF_USESORTGROUPS) && (CurListData->FileAttr & FA_DIREC)==0)
-      CurListData->SortGroup=CtrlObject->GrpSort.GetGroup(CurListData->Name);
+      CurListData->SortGroup=CtrlObject->GrpSort->GetGroup(CurListData->Name);
     else
       CurListData->SortGroup=DEFAULT_SORT_GROUP;
     if (CurListData->DizText==NULL)
@@ -752,7 +761,7 @@ void FileList::ReadSortGroups()
   {
     struct FileListItem *CurPtr=ListData+I;
     if ((CurPtr->FileAttr & FA_DIREC)==0)
-      CurPtr->SortGroup=CtrlObject->GrpSort.GetGroup(CurPtr->Name);
+      CurPtr->SortGroup=CtrlObject->GrpSort->GetGroup(CurPtr->Name);
     else
       CurPtr->SortGroup=DEFAULT_SORT_GROUP;
   }

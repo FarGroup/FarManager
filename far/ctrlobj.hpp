@@ -7,10 +7,12 @@ ctrlobj.hpp
 
 */
 
-/* Revision: 1.05 05.05.2001 $ */
+/* Revision: 1.06 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   05.05.2001 DJ
     + Перетрях NWZ
   29.04.2001 ОТ
@@ -26,16 +28,23 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
 */
 
-class ControlObject:public BaseInput
+#include "macro.hpp"
+#include "plugins.hpp"
+
+class CommandLine;
+class History;
+class KeyBar;
+class MenuBar;
+class HighlightFiles;
+class GroupSort;
+class FilePositionCache;
+class FilePanels;
+class Manager;
+
+class ControlObject
 {
   private:
-//    int LastLeftType,LastRightType;
-//    int LeftStateBeforeHide,RightStateBeforeHide,HideState;
-//    Panel *LastLeftFilePanel,*LastRightFilePanel;
-
-  private:
-//    Panel* ControlObject::CreatePanel(int Type);
-//    void DeletePanel(Panel *Deleted);
+    FilePanels *FPanels;
 
   public:
     ControlObject();
@@ -58,17 +67,16 @@ class ControlObject:public BaseInput
 
   public:
 //    Panel *LeftPanel,*RightPanel,*ActivePanel;
-    FilePanels *FPanels;
     FilePanels *Cp(); // {return FPanels;};
 
-    Manager ModalManager;
+    Manager *FrameManager;
     CommandLine *CmdLine;
     History *CmdHistory,*FolderHistory,*ViewHistory;
     KeyBar *MainKeyBar;
     MenuBar *TopMenuBar;
-    HighlightFiles HiFiles;
-    GroupSort GrpSort;
-    FilePositionCache ViewerPosCache,EditorPosCache;
+    HighlightFiles *HiFiles;
+    GroupSort *GrpSort;
+    FilePositionCache *ViewerPosCache,*EditorPosCache;
     KeyMacro Macro;
     PluginsSet Plugins;
 

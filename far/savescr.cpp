@@ -5,10 +5,12 @@ savescr.cpp
 
 */
 
-/* Revision: 1.01 13.07.2000 $ */
+/* Revision: 1.02 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   13.07.2000 SVS
     ! Некоторые коррекции при использовании new/delete/realloc
   25.06.2000 SVS
@@ -19,11 +21,9 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "savescr.hpp"
+#include "fn.hpp"
+#include "global.hpp"
 
 SaveScreen::SaveScreen()
 {

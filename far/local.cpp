@@ -5,10 +5,12 @@ local.cpp
 
 */
 
-/* Revision: 1.04 28.12.2000 $ */
+/* Revision: 1.05 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   28.12.2000 SVS
     + добавлена обработка Opt.HotkeyRules
   08.11.2000 SVS
@@ -26,11 +28,8 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "global.hpp"
+#include "fn.hpp"
 
 static int _cdecl LCSort(const void *el1,const void *el2);
 

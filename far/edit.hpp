@@ -7,10 +7,12 @@ edit.hpp
 
 */
 
-/* Revision: 1.13 11.04.2001 $ */
+/* Revision: 1.14 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   13.04.2001 SVS
     ! Обработка Ctrl-Q вынесена в отдельную функцию ProcessCtrlQ(), т.к.
       используется в editor.cpp
@@ -62,6 +64,9 @@ Modify:
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
 */
+
+#include "scrobj.hpp"
+#include "colors.hpp"
 
 class Dialog;
 class Editor;

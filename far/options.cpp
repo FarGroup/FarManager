@@ -5,10 +5,12 @@ options.cpp
 
 */
 
-/* Revision: 1.06 29.04.2001 $ */
+/* Revision: 1.07 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   29.04.2001 ОТ
     + Внедрение NWZ от Третьякова
   30.03.2001 SVS
@@ -30,11 +32,20 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "lang.hpp"
+#include "global.hpp"
+#include "fn.hpp"
+#include "keys.hpp"
+#include "hmenu.hpp"
+#include "vmenu.hpp"
+#include "filepanels.hpp"
+#include "panel.hpp"
+#include "chgmmode.hpp"
+#include "filelist.hpp"
+#include "grpsort.hpp"
+#include "hilight.hpp"
+#include "cmdline.hpp"
+#include "manager.hpp"
 
 int OptionsDisabled(int i);
 
@@ -284,7 +295,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
             CtrlObject->Cp()->LeftPanel->ProcessKey(KEY_CTRLN);
             break;
           case 17:
-            CtrlObject->ProcessKey(KEY_CTRLF1);
+            CtrlObject->Cp()->ProcessKey(KEY_CTRLF1);
             break;
           case 18:
             CtrlObject->Cp()->LeftPanel->ProcessKey(KEY_CTRLR);
@@ -298,22 +309,22 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
       switch(VItem)
       {
         case 0:
-          CtrlObject->ProcessKey(KEY_F3);
+          CtrlObject->Cp()->ProcessKey(KEY_F3);
           break;
         case 1:
-          CtrlObject->ProcessKey(KEY_F4);
+          CtrlObject->Cp()->ProcessKey(KEY_F4);
           break;
         case 2:
-          CtrlObject->ProcessKey(KEY_F5);
+          CtrlObject->Cp()->ProcessKey(KEY_F5);
           break;
         case 3:
-          CtrlObject->ProcessKey(KEY_F6);
+          CtrlObject->Cp()->ProcessKey(KEY_F6);
           break;
         case 4:
-          CtrlObject->ProcessKey(KEY_F7);
+          CtrlObject->Cp()->ProcessKey(KEY_F7);
           break;
         case 5:
-          CtrlObject->ProcessKey(KEY_F8);
+          CtrlObject->Cp()->ProcessKey(KEY_F8);
           break;
         case 7:
           CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_SHIFTF1);
@@ -351,28 +362,28 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
       switch(VItem)
       {
         case 0:
-          CtrlObject->ProcessKey(KEY_ALTF7);
+          CtrlObject->Cp()->ProcessKey(KEY_ALTF7);
           break;
         case 1:
-          CtrlObject->ProcessKey(KEY_ALTF8);
+          CtrlObject->Cp()->ProcessKey(KEY_ALTF8);
           break;
         case 2:
-          CtrlObject->ProcessKey(KEY_ALTF9);
+          CtrlObject->Cp()->ProcessKey(KEY_ALTF9);
           break;
         case 3:
-          CtrlObject->ProcessKey(KEY_ALTF10);
+          CtrlObject->Cp()->ProcessKey(KEY_ALTF10);
           break;
         case 4:
-          CtrlObject->ProcessKey(KEY_ALTF11);
+          CtrlObject->Cp()->ProcessKey(KEY_ALTF11);
           break;
         case 5:
-          CtrlObject->ProcessKey(KEY_ALTF12);
+          CtrlObject->Cp()->ProcessKey(KEY_ALTF12);
           break;
         case 7:
-          CtrlObject->ProcessKey(KEY_CTRLU);
+          CtrlObject->Cp()->ProcessKey(KEY_CTRLU);
           break;
         case 8:
-          CtrlObject->ProcessKey(KEY_CTRLO);
+          CtrlObject->Cp()->ProcessKey(KEY_CTRLO);
           break;
         case 9:
           CtrlObject->Cp()->ActivePanel->CompareDir();
@@ -387,16 +398,16 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
           ShowFolderShortcut();
           break;
         case 14:
-          CtrlObject->GrpSort.EditGroups();
+          CtrlObject->GrpSort->EditGroups();
           break;
         case 15:
           CtrlObject->Cp()->ActivePanel->EditFilter();
           break;
         case 17:
-          CtrlObject->ProcessKey(KEY_F11);
+          CtrlObject->FrameManager->ProcessKey(KEY_F11);
           break;
         case 18:
-          CtrlObject->ProcessKey(KEY_F12);
+          CtrlObject->FrameManager->ProcessKey(KEY_F12);
           break;
         case 19:
           ShowProcessList();
@@ -467,7 +478,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
           SetColors();
           break;
         case 15:
-          CtrlObject->HiFiles.HiEdit(0);
+          CtrlObject->HiFiles->HiEdit(0);
           break;
         case 17:
           SaveConfig(1);
@@ -500,7 +511,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
             CtrlObject->Cp()->RightPanel->ProcessKey(KEY_CTRLN);
             break;
           case 17:
-            CtrlObject->ProcessKey(KEY_CTRLF2);
+            CtrlObject->Cp()->ProcessKey(KEY_CTRLF2);
             break;
           case 18:
             CtrlObject->Cp()->RightPanel->ProcessKey(KEY_CTRLR);

@@ -5,10 +5,12 @@ filter.cpp
 
 */
 
-/* Revision: 1.08 29.04.2001 $ */
+/* Revision: 1.09 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   29.04.2001 ОТ
     + Внедрение NWZ от Третьякова
   27.02.2001 VVM
@@ -35,13 +37,28 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "filter.hpp"
+#include "global.hpp"
+#include "fn.hpp"
+#include "lang.hpp"
+#include "keys.hpp"
+#include "filepanels.hpp"
+#include "panel.hpp"
+#include "vmenu.hpp"
+#include "dialog.hpp"
+#include "scantree.hpp"
 
 static int _cdecl ExtSort(const void *el1,const void *el2);
+
+struct FilterDataRecord
+{
+  char Title[128];
+  char *Masks;
+  int LeftPanelInclude;
+  int LeftPanelExclude;
+  int RightPanelInclude;
+  int RightPanelExclude;
+};
 
 static struct FilterDataRecord *FilterData=NULL;
 static int FilterDataCount=NULL;
@@ -241,7 +258,7 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
     FilterList.Show();
 
     if (!FirstCall)
-      ProcessSelection(FilterList);
+      ProcessSelection(&FilterList);
 
     while (!FilterList.Done())
     {
@@ -372,7 +389,7 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
     }
     ExitCode=FilterList.GetExitCode();
     if (ExitCode!=-1 || *NeedUpdate)
-      ProcessSelection(FilterList);
+      ProcessSelection(&FilterList);
   }
   if (ExitCode!=-1 || *NeedUpdate)
   {
@@ -383,15 +400,15 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
 }
 
 
-void PanelFilter::ProcessSelection(VMenu &FilterList)
+void PanelFilter::ProcessSelection(VMenu *FilterList)
 {
   char Masks[PANELFILTER_MASK_SIZE];
 
   AddMasks(NULL,0);
-  for (int I=0;I<FilterList.GetItemCount();I++)
+  for (int I=0;I<FilterList->GetItemCount();I++)
   {
-    int Check=FilterList.GetSelection(I);
-    if (Check && FilterList.GetUserData(Masks,sizeof(Masks),I))
+    int Check=FilterList->GetSelection(I);
+    if (Check && FilterList->GetUserData(Masks,sizeof(Masks),I))
       AddMasks(Masks,Check=='-');
     if (I<FilterDataCount)
     {

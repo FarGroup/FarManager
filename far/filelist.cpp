@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.48 06.05.2001 $ */
+/* Revision: 1.49 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   06.05.2001 ОТ
     ! Переименование Window в Frame :)
   29.04.2001 ОТ
@@ -142,11 +144,27 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "filelist.hpp"
+#include "global.hpp"
+#include "fn.hpp"
+#include "flink.hpp"
+#include "keys.hpp"
+#include "lang.hpp"
+#include "filter.hpp"
+#include "dialog.hpp"
+#include "vmenu.hpp"
+#include "cmdline.hpp"
+#include "manager.hpp"
+#include "filepanels.hpp"
+#include "help.hpp"
+#include "fileedit.hpp"
+#include "namelist.hpp"
+#include "fileview.hpp"
+#include "copy.hpp"
+#include "history.hpp"
+#include "qview.hpp"
+#include "rdrwdsk.hpp"
+#include "plognmn.hpp"
 
 extern struct PanelViewSettings ViewSettingsArray[];
 
@@ -157,6 +175,15 @@ static int ListSortMode,ListSortOrder,ListSortGroups,ListSelectedFirst;
 static int ListPanelMode,ListCaseSensitive;
 static HANDLE hSortPlugin;
 
+struct PrevDataItem
+{
+  struct FileListItem *PrevListData;
+  long PrevFileCount;
+  char PrevName[NM];
+};
+
+enum SELECT_MODES {SELECT_INVERT,SELECT_INVERTALL,SELECT_ADD,SELECT_REMOVE,
+    SELECT_ADDEXT,SELECT_REMOVEEXT,SELECT_ADDNAME,SELECT_REMOVENAME};
 
 FileList::FileList()
 {
@@ -1081,14 +1108,14 @@ int FileList::ProcessKey(int Key)
                 if (PluginMode)
                 {
                   FileEditor ShellEditor (FileName,Key==KEY_SHIFTF4,FALSE,-1,-1,TRUE,PluginData);
-                  CtrlObject->ModalManager.ExecuteModal (ShellEditor);
+                  CtrlObject->FrameManager->ExecuteModal (ShellEditor);
                   UploadFile=ShellEditor.IsFileChanged();
                   Modaling=TRUE;///
                 }
                 else
                 {
                   FileEditor *ShellEditor=new FileEditor(FileName,Key==KEY_SHIFTF4,TRUE);
-                  CtrlObject->ModalManager.AddFrame(ShellEditor);
+                  CtrlObject->FrameManager->AddFrame(ShellEditor);
                   Modaling=FALSE;///
                 }
             if (PluginMode && UploadFile)
@@ -1147,7 +1174,7 @@ int FileList::ProcessKey(int Key)
                 FileViewer *ShellViewer=new FileViewer(FileName,TRUE,PluginMode,PluginMode,-1,PluginData,&ViewList);
                 if (PluginMode)
                   ShellViewer->SetTempViewName(FileName);
-                CtrlObject->ModalManager.AddFrame(ShellViewer);
+                CtrlObject->FrameManager->AddFrame(ShellViewer);
                 Modaling=TRUE; ///
               }
           }

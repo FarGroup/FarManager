@@ -6,10 +6,12 @@ scantree.cpp
 
 */
 
-/* Revision: 1.01 28.11.2000 $ */
+/* Revision: 1.02 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   28.11.2000 SVS
     + Если каталог является SymLink (т.н. "Directory Junctions"),
       то в него не ломимся.
@@ -21,11 +23,8 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "scantree.hpp"
+#include "fn.hpp"
 
 ScanTree::ScanTree(int RetUpDir,int Recurse)
 {

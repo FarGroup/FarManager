@@ -5,10 +5,12 @@ Eject съемных носителей
 
 */
 
-/* Revision: 1.03 27.04.2001 $ */
+/* Revision: 1.04 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   27.04.2001 SVS
     ! Т.к. нет уверенного способа (пока нет) получить состояние устройства,
       то убираем "шаманство" с IOCTL_STORAGE_CHECK_VERIFY
@@ -24,7 +26,11 @@ Modify:
 
 #include "headers.hpp"
 #pragma hdrstop
-#include "internalheaders.hpp"
+
+#include "plugin.hpp"
+#include "fn.hpp"
+#include "lang.hpp"
+#include "global.hpp"
 
 /* $ 14.12.2000 SVS
    Добавлен код для выполнения Eject съемных носителей для

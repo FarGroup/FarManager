@@ -5,10 +5,12 @@ infolist.cpp
 
 */
 
-/* Revision: 1.16 06.05.2001 $ */
+/* Revision: 1.17 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   06.05.2001 ОТ
     ! Переименование Window в Frame :)
   05.05.2001 DJ
@@ -54,11 +56,19 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "infolist.hpp"
+#include "global.hpp"
+#include "fn.hpp"
+#include "flink.hpp"
+#include "colors.hpp"
+#include "lang.hpp"
+#include "keys.hpp"
+#include "filepanels.hpp"
+#include "panel.hpp"
+#include "help.hpp"
+#include "fileview.hpp"
+#include "fileedit.hpp"
+#include "manager.hpp"
 
 static int LastDizWrapMode = -1;
 static int LastDizWrapType = -1;
@@ -313,8 +323,7 @@ int InfoList::ProcessKey(int Key)
       {
         CtrlObject->Cp()->GetAnotherPanel(this)->GetCurDir(CurDir);
         chdir(CurDir);
-        FileViewer *ShellViewer=new FileViewer(DizFileName,TRUE);
-        CtrlObject->ModalManager.AddFrame(ShellViewer);
+        CtrlObject->FrameManager->AddFrame(new FileViewer(DizFileName,TRUE));
       }
       /* $ 20.07.2000 tran
          после показа перерисовываем панели */
@@ -332,10 +341,7 @@ int InfoList::ProcessKey(int Key)
         AnotherPanel->GetCurDir(CurDir);
         chdir(CurDir);
         if (*DizFileName)
-        {
-          FileEditor *ShellEditor=new FileEditor(DizFileName,FALSE,TRUE);
-          CtrlObject->ModalManager.AddFrame(ShellEditor);
-        }
+          CtrlObject->FrameManager->AddFrame(new FileEditor(DizFileName,FALSE,TRUE));
         else if (*Opt.FolderInfoFiles)
         {
           char ArgName[NM];
@@ -344,8 +350,7 @@ int InfoList::ProcessKey(int Key)
           {
             if (!strpbrk (ArgName, "*?"))
             {
-              FileEditor *ShellEditor = new FileEditor(ArgName,TRUE,TRUE);
-              CtrlObject->ModalManager.AddFrame(ShellEditor);
+              CtrlObject->FrameManager->AddFrame(new FileEditor(ArgName,TRUE,TRUE));
               break;
             }
           }

@@ -5,10 +5,12 @@ plist.cpp
 
 */
 
-/* Revision: 1.02 11.02.2001 $ */
+/* Revision: 1.03 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетр€х #include
   11.02.2001 SVS
     ! Ќесколько уточнений кода в св€зи с изменени€ми в структуре MenuItem
   31.01.2001 IS
@@ -23,11 +25,11 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   —тандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "global.hpp"
+#include "fn.hpp"
+#include "keys.hpp"
+#include "lang.hpp"
+#include "vmenu.hpp"
 
 static BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam);
 static BOOL KillProcess(DWORD dwPID);

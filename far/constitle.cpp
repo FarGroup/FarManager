@@ -5,17 +5,21 @@ constitle.cpp
 
 */
 
-/* Revision: 1.00 20.03.2001 $ */
+/* Revision: 1.01 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    + перетрях #include
   20.03.2001 tran
     ! created
 */
 
 #include "headers.hpp"
 #pragma hdrstop
-#include "internalheaders.hpp"
+
+#include "constitle.hpp"
+#include "fn.hpp"
 
 ConsoleTitle::ConsoleTitle(char *title)
 {

@@ -5,10 +5,12 @@ Quick view panel
 
 */
 
-/* Revision: 1.16 29.04.2001 $ */
+/* Revision: 1.17 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   29.04.2001 ОТ
     + Внедрение NWZ от Третьякова
   30.04.2001 DJ
@@ -53,11 +55,17 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "qview.hpp"
+#include "fn.hpp"
+#include "flink.hpp"
+#include "lang.hpp"
+#include "colors.hpp"
+#include "keys.hpp"
+#include "global.hpp"
+#include "filepanels.hpp"
+#include "help.hpp"
+#include "viewer.hpp"
+#include "cmdline.hpp"
 
 /* $ 12.07.2000 SVS
     ! Для возможности 3-х позиционного Wrap`а статическая переменная

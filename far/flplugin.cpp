@@ -5,10 +5,12 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.09 29.04.2001 $ */
+/* Revision: 1.10 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   29.04.2001 ОТ
     + Внедрение NWZ от Третьякова
   26.04.2001 DJ
@@ -38,12 +40,12 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "filelist.hpp"
+#include "plugin.hpp"
+#include "global.hpp"
+#include "fn.hpp"
+#include "filepanels.hpp"
+#include "history.hpp"
 
 void FileList::PushPlugin(HANDLE hPlugin,char *HostFile)
 {

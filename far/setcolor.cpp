@@ -5,10 +5,12 @@ setcolor.cpp
 
 */
 
-/* Revision: 1.07 29.04.2001 $ */
+/* Revision: 1.08 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   29.04.2001 ОТ
     + Внедрение NWZ от Третьякова
   04.12.2000 SVS
@@ -33,11 +35,13 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "global.hpp"
+#include "fn.hpp"
+#include "lang.hpp"
+#include "colors.hpp"
+#include "vmenu.hpp"
+#include "dialog.hpp"
+#include "filepanels.hpp"
 
 static void SetItemColors(struct MenuData *Items,int *PaletteItems,int Size);
 void GetColor(int PaletteIndex);

@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.90 05.05.2001 $ */
+/* Revision: 1.91 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   05.05.2001 IS
     ! shift-home/end - приблизим поведение к тому, какое было до 592
   04.05.2001 OT
@@ -267,11 +269,26 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "editor.hpp"
+#include "edit.hpp"
+#include "global.hpp"
+#include "fn.hpp"
+#include "lang.hpp"
+#include "keys.hpp"
+#include "poscache.hpp"
+#include "chgprior.hpp"
+#include "filestr.hpp"
+#include "help.hpp"
+#include "dialog.hpp"
+#include "fileedit.hpp"
+#include "savescr.hpp"
+
+struct EditList
+{
+  struct EditList *Prev;
+  struct EditList *Next;
+  Edit EditLine;
+};
 
 static struct CharTableSet InitTableSet;
 static int InitUseDecodeTable=FALSE,InitTableNum=0,InitAnsiText=FALSE;
@@ -279,6 +296,9 @@ static int InitUseDecodeTable=FALSE,InitTableNum=0,InitAnsiText=FALSE;
 static int ReplaceMode,ReplaceAll;
 
 static int EditorID=0;
+
+// struct EditorUndoData
+enum {UNDO_NONE=0,UNDO_EDIT,UNDO_INSSTR,UNDO_DELSTR};
 
 Editor::Editor()
 {
@@ -388,7 +408,7 @@ Editor::~Editor()
     }
 
     if (!OpenFailed) // здесь БЯКА в кеш попадала :-(
-      CtrlObject->EditorPosCache.AddPosition(CacheName,NumLine,ScreenLinePos,CurPos,LeftPos,Table,
+      CtrlObject->EditorPosCache->AddPosition(CacheName,NumLine,ScreenLinePos,CurPos,LeftPos,Table,
                (Opt.SaveEditorShortPos?SavePosLine:NULL),
                (Opt.SaveEditorShortPos?SavePosCursor:NULL),
                (Opt.SaveEditorShortPos?SavePosScreenLine:NULL),
@@ -687,7 +707,7 @@ int Editor::ReadFile(char *Name,int &UserBreak)
       else
         strcpy(CacheName,FileName);
       unsigned int Table;
-      CtrlObject->EditorPosCache.GetPosition(CacheName,Line,ScreenLine,LinePos,LeftPos,Table,
+      CtrlObject->EditorPosCache->GetPosition(CacheName,Line,ScreenLine,LinePos,LeftPos,Table,
                (Opt.SaveEditorShortPos?SavePosLine:NULL),
                (Opt.SaveEditorShortPos?SavePosCursor:NULL),
                (Opt.SaveEditorShortPos?SavePosScreenLine:NULL),
@@ -751,7 +771,7 @@ int Editor::ReadFile(char *Name,int &UserBreak)
         else
           strcpy(CacheName,FileName);
         unsigned int Table;
-        CtrlObject->EditorPosCache.GetPosition(CacheName,Line,ScreenLine,LinePos,LeftPos,Table,
+        CtrlObject->EditorPosCache->GetPosition(CacheName,Line,ScreenLine,LinePos,LeftPos,Table,
                (Opt.SaveEditorShortPos?SavePosLine:NULL),
                (Opt.SaveEditorShortPos?SavePosCursor:NULL),
                (Opt.SaveEditorShortPos?SavePosScreenLine:NULL),

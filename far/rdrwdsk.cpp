@@ -5,10 +5,12 @@ class RedrawDesktop
 
 */
 
-/* Revision: 1.02 29.04.2001 $ */
+/* Revision: 1.04 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   29.04.2001 ОТ
     + Внедрение NWZ от Третьякова
   28.02.2001 IS
@@ -21,11 +23,11 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "rdrwdsk.hpp"
+#include "global.hpp"
+#include "filepanels.hpp"
+#include "panel.hpp"
+#include "cmdline.hpp"
 
 RedrawDesktop::RedrawDesktop()
 {

@@ -5,10 +5,12 @@ scrbuf.cpp
 
 */
 
-/* Revision: 1.02 09.01.2001 $ */
+/* Revision: 1.03 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетр€х #include
   09.01.2001 SVS
     ! ѕо наводке ER - в SetCursorType не дергать раньше
       времени установку курсора
@@ -22,11 +24,10 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   —тандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "scrbuf.hpp"
+#include "global.hpp"
+#include "fn.hpp"
+#include "colors.hpp"
 
 //#define DIRECT_SCREEN_OUT
 

@@ -7,10 +7,12 @@ class ShellCopy - Копирование файлов
 
 */
 
-/* Revision: 1.05 01.01.2001 $ */
+/* Revision: 1.06 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   01.01.2001 VVM
     + Переменная CopyBufferSize -  размер буфера для копирования
   14.12.2000 SVS
@@ -25,6 +27,14 @@ Modify:
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
 */
+
+#include "dizlist.hpp"
+#include "int64.hpp"
+
+class Panel;
+
+enum COPY_CODES {COPY_CANCEL,COPY_NEXT,COPY_FAILURE,COPY_SUCCESS,
+    COPY_SUCCESS_MOVE};
 
 class ShellCopy
 {

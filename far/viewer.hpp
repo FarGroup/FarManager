@@ -7,10 +7,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.16 30.04.2001 $ */
+/* Revision: 1.17 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   30.04.2001 DJ
     + GetAnsiMode(), GetHexMode()
   27.04.2001 DJ
@@ -59,6 +61,17 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
 */
 
+#include "scrobj.hpp"
+#include "namelist.hpp"
+#include "plugin.hpp"
+#include "struct.hpp"
+
+/* $ 10.07.2000 tran
+   ! modified MAXSCRY from 120 to 300
+   on win200, with Console height FAR work, but trap on viewer... */
+#define  MAXSCRY     300
+/* tran 10.07.2000 $ */
+
 /* $ 12.07.2000 SVS
   - из-за увеличения длины строки до 0x800 вылетал FAR
     по Alt-F7. Сократим MAX_VIEWLINE до 1024 (0x400)
@@ -67,7 +80,15 @@ Modify:
 #define MAX_VIEWLINEB 0x80f // 0x40f
 /* SVS $ */
 
+/* $ 12.07.2000 SVS
+   + Константы для WrapMode во вьювере.
+*/
+enum {VIEW_UNWRAP=0,VIEW_WRAP=1, VIEW_WORDWRAP=2};
+/* SVS $ */
+
 class FileViewer;
+class KeyBar;
+
 class Viewer:public ScreenObject
 {
   private:

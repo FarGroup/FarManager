@@ -8,13 +8,29 @@ frame.hpp
 
 */
 
-/* Revision: 1.00 05.05.2001 */
+/* Revision: 1.01 06.05.2001 */
 
 /*
   Modify:
+    06.05.2001 DJ
+      ! перетрях #include
     05.05.2001 DJ
       created
 */
+
+#include "scrobj.hpp"
+
+class KeyBar;
+
+enum { MODALTYPE_VIRTUAL,
+  MODALTYPE_PANELS,
+  MODALTYPE_VIEWER,
+  MODALTYPE_EDITOR,
+  MODALTYPE_DIALOG,
+  MODALTYPE_VMENU,
+  MODALTYPE_HELP,
+  MODALTYPE_USER
+};
 
 class Frame: public ScreenObject
 {

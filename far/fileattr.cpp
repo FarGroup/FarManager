@@ -5,10 +5,12 @@ fileattr.cpp
 
 */
 
-/* Revision: 1.00 30.12.2000 $ */
+/* Revision: 1.01 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   30.12.2000 SVS
     ! Выделение в качестве самостоятельного модуля
 */
@@ -16,7 +18,9 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "internalheaders.hpp"
+#include "global.hpp"
+#include "fn.hpp"
+#include "lang.hpp"
 
 typedef BOOL (WINAPI *PEncryptFileA)(LPCSTR lpFileName);
 typedef BOOL (WINAPI *PDecryptFileA)(LPCSTR lpFileName, DWORD dwReserved);

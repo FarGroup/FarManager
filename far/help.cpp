@@ -5,10 +5,12 @@ help.cpp
 
 */
 
-/* Revision: 1.19 26.04.2001 $ */
+/* Revision: 1.20 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   26.04.2001 DJ
     - используем сохраненный Mask при обработке F5
   16.04.2001 SVS
@@ -70,11 +72,15 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "help.hpp"
+#include "global.hpp"
+#include "fn.hpp"
+#include "lang.hpp"
+#include "keys.hpp"
+#include "colors.hpp"
+#include "plugin.hpp"
+#include "savescr.hpp"
+#include "manager.hpp"
 
 #define MAX_HELP_STRING_LENGTH 300
 
@@ -140,7 +146,7 @@ Help::Help(char *Topic, char *Mask,DWORD Flags)
   {
     InitKeyBar();
     MacroMode = MACRO_HELP;
-    CtrlObject->ModalManager.ExecuteModal (*this);
+    CtrlObject->FrameManager->ExecuteModal (*this);
   }
   else
   {
@@ -195,7 +201,7 @@ Help::Help(char *Topic,int &ShowPrev,int PrevFullScreen,DWORD Flags,char *Mask)
   {
     InitKeyBar();
     MacroMode = MACRO_HELP;
-    CtrlObject->ModalManager.ExecuteModal (*this);
+    CtrlObject->FrameManager->ExecuteModal (*this);
     ShowPrev=Help::ShowPrev;
   }
   else

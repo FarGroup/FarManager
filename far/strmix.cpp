@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.10 22.04.2001 $ */
+/* Revision: 1.11 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетр€х #include
   22.04.2001 SVS
     + Opt.QuotedSymbols - разделители дл€ QuoteSpace()
     ! немного оптимизации в Unquote
@@ -50,7 +52,10 @@ Modify:
 
 #include "headers.hpp"
 #pragma hdrstop
-#include "internalheaders.hpp"
+
+#include "fn.hpp"
+#include "global.hpp"
+#include "lang.hpp"
 
 char *InsertCommas(unsigned long Number,char *Dest)
 {

@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.77 29.04.2001 $ */
+/* Revision: 1.78 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   29.04.2001 ОТ
     + Внедрение NWZ от Третьякова
   28.04.2001 SVS
@@ -203,6 +205,8 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
 */
 
+#include "int64.hpp"
+#include "farconst.hpp"
 
 /* $ 07.07.2000 IS
    Функция перешла сюда из main.cpp
@@ -294,6 +298,7 @@ int IsCaseMixed(char *Str);
 int IsCaseLower(char *Str);
 int DeleteFileWithFolder(char *FileName);
 char* FarMSG(int MsgID);
+#define MSG(ID) FarMSG(ID)
 /* $ 29.08.2000 SVS
    Дополнительный параметр у Message* - номер плагина.
 */
@@ -758,9 +763,6 @@ char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size,
 DWORD WINAPI FarGetLogicalDrives(void);
 
 char *Add_PATHEXT(char *Dest);
-
-// сама функция в hilight.cpp
-char *MkRegKeyHighlightName(char *RegKey);
 
 #ifdef __cplusplus
 extern "C" {

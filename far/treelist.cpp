@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.13 29.04.2001 $ */
+/* Revision: 1.14 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   29.04.2001 ОТ
     + Внедрение NWZ от Третьякова
   25.04.2001 SVS
@@ -47,11 +49,22 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "treelist.hpp"
+#include "fn.hpp"
+#include "flink.hpp"
+#include "plugin.hpp"
+#include "global.hpp"
+#include "colors.hpp"
+#include "lang.hpp"
+#include "keys.hpp"
+#include "filepanels.hpp"
+#include "filelist.hpp"
+#include "cmdline.hpp"
+#include "chgprior.hpp"
+#include "scantree.hpp"
+#include "copy.hpp"
+#include "qview.hpp"
+#include "savescr.hpp"
 
 static int _cdecl SortList(const void *el1,const void *el2);
 static int _cdecl SortCacheList(const void *el1,const void *el2);
@@ -72,6 +85,8 @@ static struct TreeListCache
   int TreeCount;
 } TreeCache;
 
+#define TreeFileName "Tree.Far"
+#define TreeCacheFolderName "Tree.Cache"
 
 TreeList::TreeList()
 {

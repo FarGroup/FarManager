@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.63 04.05.2001 $ */
+/* Revision: 1.64 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   04.05.2001 OT
     + Неверно формировалось меню плагинов по F11 (NWZ)
       Изменился PluginSet::CommandsMenu()
@@ -203,11 +205,23 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "plugins.hpp"
+#include "lang.hpp"
+#include "keys.hpp"
+#include "plugin.hpp"
+#include "fn.hpp"
+#include "flink.hpp"
+#include "global.hpp"
+#include "scantree.hpp"
+#include "chgprior.hpp"
+#include "constitle.hpp"
+#include "cmdline.hpp"
+#include "filepanels.hpp"
+#include "panel.hpp"
+#include "vmenu.hpp"
+#include "dialog.hpp"
+#include "rdrwdsk.hpp"
+#include "savescr.hpp"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4509)
@@ -223,7 +237,6 @@ int KeepUserScreen;
 char DirToSet[NM];
 
 static int _cdecl PluginsSort(const void *el1,const void *el2);
-
 
 /* $ 16.10.2000 SVS
    Простенький обработчик исключений.

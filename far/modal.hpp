@@ -7,10 +7,12 @@ Parent class для модальных объектов
 
 */
 
-/* Revision: 1.03 05.05.2001 $ */
+/* Revision: 1.04 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   05.05.2001 DJ
     + Перетрях NWZ
   29.04.2001 ОТ
@@ -22,6 +24,8 @@ Modify:
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
 */
+
+#include "scrobj.hpp"
 
 class Modal:public ScreenObject
 {

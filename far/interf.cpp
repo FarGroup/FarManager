@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.22 06.05.2001 $ */
+/* Revision: 1.23 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   06.05.2001 ОТ
     ! Переименование Window в Frame :)
   05.05.2001 DJ
@@ -91,11 +93,16 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 30.06.2000 IS
-   Стандартные заголовки
-*/
-#include "internalheaders.hpp"
-/* IS $ */
+#include "farqueue.hpp"
+#include "global.hpp"
+#include "fn.hpp"
+#include "keys.hpp"
+#include "colors.hpp"
+#include "plugin.hpp"
+#include "filepanels.hpp"
+#include "panel.hpp"
+#include "editor.hpp"
+#include "manager.hpp"
 
 BOOL __stdcall CtrlHandler(DWORD CtrlType);
 static void InitRecodeOutTable();
@@ -269,7 +276,7 @@ BOOL __stdcall CtrlHandler(DWORD CtrlType)
   }
   CloseFAR=TRUE;
   if (CurrentEditor!=NULL && CurrentEditor->IsFileModified() ||
-      CtrlObject->ModalManager.IsAnyFrameModified (FALSE))
+      CtrlObject->FrameManager->IsAnyFrameModified (FALSE))
     return(TRUE);
   return(FALSE);
 }

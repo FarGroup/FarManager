@@ -5,10 +5,12 @@ clipboard.cpp
 
 */
 
-/* Revision: 1.01 23.01.2001 $ */
+/* Revision: 1.02 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 DJ
+    ! перетрях #include
   23.01.2001 SVS
     ! Изменения в PasteFromClipboardEx в надежде на устранение падения
       при попытке вставить охрененный кусок кода в диалоге :-)
@@ -19,8 +21,8 @@ Modify:
 
 #include "headers.hpp"
 #pragma hdrstop
-#include "internalheaders.hpp"
 
+#include "global.hpp"
 
 int WINAPI CopyToClipboard(char *Data)
 {
