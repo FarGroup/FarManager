@@ -5,10 +5,17 @@ filelist.cpp
 
 */
 
-/* Revision: 1.87 20.08.2001 $ */
+/* Revision: 1.88 21.08.2001 $ */
 
 /*
 Modify:
+  21.08.2001 KM
+    - Исправление глюка с вызовом меню выбора дисков на UNC путях
+      при выходе из подкаталогов сетевого ресурса:
+      \\Server\Disk\Dir1\Dir2
+      При выходе из Dir2 вызывалось меню дисков.
+  21.08.2001 VVM
+    + Считать нажатие средней кнопки за ЕНТЕР
   20.08.2001 VVM
     ! Обработка прокрутки с альтом.
   17.08.2001 OT
@@ -1975,9 +1982,21 @@ BOOL FileList::ChangeDir(char *NewDir)
     */
     if(!strcmp(SetDir,".."))
     {
-      if(CurDir[0] == '\\' && CurDir[1] == '\\' ||
-         CurDir[1] == ':'  && CurDir[2] == '\\' && CurDir[3]==0)
+      /* $ 21.08.2001 KM
+        - Исправление глюка с вызовом меню выбора дисков на UNC путях
+          при выходе из подкаталогов сетевого ресурса:
+          \\Server\Disk\Dir1\Dir2
+          При выходе из Dir2 вызывалось меню дисков.
+      */
+      char RootDir[NM],TempDir[NM];
+      strncpy(TempDir,CurDir,NM);
+      TempDir[NM-1]=0;
+      AddEndSlash(TempDir);
+      GetPathRoot(TempDir,RootDir);
+      if((CurDir[0] == '\\' && CurDir[1] == '\\' && strcmp(TempDir,RootDir)==0) ||
+         (CurDir[1] == ':'  && CurDir[2] == '\\' && CurDir[3]==0))
       {
+      /* KM $ */
         /* $ 08.05.2001 SVS
            Для неремотных дисков ПОКА покажем меню выбора дисков
            Потом сюды можно воткнуть вызов какого-нить плагина.
@@ -2136,6 +2155,22 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       return(TRUE);
     }
   }
+
+  /* $ 21.08.2001 VVM
+    + Считать нажатие средней кнопки за ЕНТЕР */
+  if (MouseEvent->dwButtonState & 4)
+  {
+    int Key = KEY_ENTER;
+    if (MouseEvent->dwControlKeyState & SHIFT_PRESSED)
+      Key |= KEY_SHIFT;
+    if (MouseEvent->dwControlKeyState & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED))
+      Key |= KEY_CTRL;
+    if (MouseEvent->dwControlKeyState & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED))
+      Key |= KEY_ALT;
+    ProcessKey(Key);
+    return(TRUE);
+  }
+  /* VVM $ */
 
   if (Panel::PanelProcessMouse(MouseEvent,RetCode))
     return(RetCode);
