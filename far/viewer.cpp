@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.37 16.12.2000 $ */
+/* Revision: 1.38 21.12.2000 $ */
 
 /*
 Modify:
+  21.12.2000 SVS
+    ! Не спрячем элемент HEX в поисковом диалоге, а задизаблим (для Unicode)
   16.12.2000 tran
     + шелчок мышью на статус баре (ProcessMouseEvent())
   03.11.2000 OT
@@ -1664,18 +1666,18 @@ void Viewer::Search(int Next,int FirstChar)
      Добавлен новый checkbox для поиска "Whole words"
   */
   static struct DialogData SearchDlgData[]={
-    DI_DOUBLEBOX,3,1,72,10,0,0,0,0,(char *)MViewSearchTitle,
-    DI_TEXT,5,2,0,0,0,0,0,0,(char *)MViewSearchFor,
-    DI_EDIT,5,3,70,3,1,(DWORD)TextHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,0,"",
-    DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    DI_RADIOBUTTON,5,5,0,0,0,1,DIF_GROUP,0,(char *)MViewSearchForText,
-    DI_RADIOBUTTON,5,6,0,0,0,0,0,0,(char *)MViewSearchForHex,
-    DI_CHECKBOX,40,5,0,0,0,0,0,0,(char *)MViewSearchCase,
-    DI_CHECKBOX,40,6,0,0,0,0,0,0,(char *)MViewSearchWholeWords,
-    DI_CHECKBOX,40,7,0,0,0,0,0,0,(char *)MViewSearchReverse,
-    DI_TEXT,3,8,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,1,(char *)MViewSearchSearch,
-    DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,0,(char *)MViewSearchCancel
+  /* 00 */ DI_DOUBLEBOX,3,1,72,10,0,0,0,0,(char *)MViewSearchTitle,
+  /* 01 */ DI_TEXT,5,2,0,0,0,0,0,0,(char *)MViewSearchFor,
+  /* 02 */ DI_EDIT,5,3,70,3,1,(DWORD)TextHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,0,"",
+  /* 03 */ DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 04 */ DI_RADIOBUTTON,5,5,0,0,0,1,DIF_GROUP,0,(char *)MViewSearchForText,
+  /* 05 */ DI_RADIOBUTTON,5,6,0,0,0,0,0,0,(char *)MViewSearchForHex,
+  /* 06 */ DI_CHECKBOX,40,5,0,0,0,0,0,0,(char *)MViewSearchCase,
+  /* 07 */ DI_CHECKBOX,40,6,0,0,0,0,0,0,(char *)MViewSearchWholeWords,
+  /* 08 */ DI_CHECKBOX,40,7,0,0,0,0,0,0,(char *)MViewSearchReverse,
+  /* 09 */ DI_TEXT,3,8,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 10 */ DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,1,(char *)MViewSearchSearch,
+  /* 11 */ DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,0,(char *)MViewSearchCancel
   };
   /* KM $ */
   MakeDialogItems(SearchDlgData,SearchDlg);
@@ -1705,10 +1707,13 @@ void Viewer::Search(int Next,int FirstChar)
 
   if (VM.Unicode)
   {
+    /* $ 21.12.2000 SVS
+       Не спрячем HEX, а задизаблим.
+    */
     SearchDlg[4].Selected=TRUE;
-    SearchDlg[5].Type=DI_TEXT;
+    SearchDlg[5].Flags|=DIF_DISABLE;
     SearchDlg[5].Selected=FALSE;
-    *SearchDlg[5].Data=0;
+    /* SVS $ */
   }
 
   if (!Next)
