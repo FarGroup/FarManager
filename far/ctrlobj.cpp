@@ -5,10 +5,15 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.36 14.12.2001 $ */
+/* Revision: 1.37 31.01.2002 $ */
 
 /*
 Modify:
+  31.01.2002 SVS
+    - BugZ#194 - Не сохраняются позиции в фоновых вьюверах/редакторах при
+      выходе из FARа
+      Ну естественно, сначала кешь сохраняем, а потом ExitAll() делаем.
+      Круто, блин.
   14.12.2001 SVS
     ! Сделаем сроллинг перед выводом "лейбака"
   15,11,2001 SVS
@@ -225,10 +230,6 @@ ControlObject::~ControlObject()
       FolderHistory->AddToHistory(CurDir,NULL,0);
     }
   }
-  if (Opt.EdOpt.SavePos)
-    EditorPosCache->Save("Editor\\LastPositions");
-  if (Opt.SaveViewerPos)
-    ViewerPosCache->Save("Viewer\\LastPositions");
 
   FrameManager->CloseAll();
   FPanels=NULL;
@@ -244,7 +245,14 @@ ControlObject::~ControlObject()
   */
   delete HiFiles;
   delete GrpSort;
+
+  if (Opt.SaveViewerPos)
+    ViewerPosCache->Save("Viewer\\LastPositions");
   delete ViewerPosCache;
+
+  if (Opt.EdOpt.SavePos)
+    EditorPosCache->Save("Editor\\LastPositions");
+
   delete EditorPosCache;
   delete FrameManager;
   /* DJ $ */
