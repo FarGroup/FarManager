@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.86 17.08.2001 $ */
+/* Revision: 1.87 20.08.2001 $ */
 
 /*
 Modify:
+  20.08.2001 VVM
+    ! Обработка прокрутки с альтом.
   17.08.2001 OT
 	- не учел в прошлом исправлении такой клавиши как Enter :(
   16.08.2001 OT
@@ -1472,9 +1474,11 @@ int FileList::ProcessKey(int Key)
     /* $ 26.04.2001 VVM
        + Обработка колеса мышки */
     case KEY_MSWHEEL_UP:
+    case (KEY_MSWHEEL_UP | KEY_ALT):
       Scroll(Key & KEY_ALT?-1:-Opt.MsWheelDelta);
       return(TRUE);
     case KEY_MSWHEEL_DOWN:
+    case (KEY_MSWHEEL_DOWN | KEY_ALT):
       Scroll(Key & KEY_ALT?1:Opt.MsWheelDelta);
       return(TRUE);
     /* VVM $ */

@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.72 25.07.2001 $ */
+/* Revision: 1.73 20.08.2001 $ */
 
 /*
 Modify:
+  20.08.2001 VVM
+    ! Обработка прокрутки с альтом.
   26.07.2001 VVM
     + С альтом скролим всегда по 1
   24.07.2001 IS
@@ -1472,6 +1474,7 @@ int Viewer::ProcessKey(int Key)
     /* $ 27.04.2001 VVM
       + Обработка KEY_MSWHEEL_XXXX */
     case KEY_MSWHEEL_UP:
+    case (KEY_MSWHEEL_UP | KEY_ALT):
       {
         int Roll = Key & KEY_ALT?1:Opt.MsWheelDeltaView;
         for (int i=0; i<Roll; i++)
@@ -1479,6 +1482,7 @@ int Viewer::ProcessKey(int Key)
         return(TRUE);
       }
     case KEY_MSWHEEL_DOWN:
+    case (KEY_MSWHEEL_DOWN | KEY_ALT):
       {
         int Roll = Key & KEY_ALT?1:Opt.MsWheelDeltaView;
         for (int i=0; i<Roll; i++)

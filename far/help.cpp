@@ -8,10 +8,12 @@ help.cpp
 
 */
 
-/* Revision: 1.39 07.08.2001 $ */
+/* Revision: 1.40 20.08.2001 $ */
 
 /*
 Modify:
+  20.08.2001 VVM
+    ! Обработка прокрутки с альтом.
   07.08.2001 SVS
     ! косметика - для собственных нужд (по поводу help2.?pp)
   05.08.2001 SVS
@@ -915,6 +917,7 @@ int Help::ProcessKey(int Key)
     /* $ 07.05.2001 DJ
       + Обработка KEY_MSWHEEL_XXXX */
     case KEY_MSWHEEL_UP:
+    case (KEY_MSWHEEL_UP | KEY_ALT):
       {
         int Roll = Key & KEY_ALT?1:Opt.MsWheelDelta;
         for (int i=0; i<Roll; i++)
@@ -922,6 +925,7 @@ int Help::ProcessKey(int Key)
         return(TRUE);
       }
     case KEY_MSWHEEL_DOWN:
+    case (KEY_MSWHEEL_DOWN | KEY_ALT):
       {
         int Roll = Key & KEY_ALT?1:Opt.MsWheelDelta;
         for (int i=0; i<Roll; i++)

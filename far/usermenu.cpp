@@ -5,10 +5,14 @@ User menu и есть
 
 */
 
-/* Revision: 1.38 14.08.2001 $ */
+/* Revision: 1.39 20.08.2001 $ */
 
 /*
 Modify:
+  20.08.2001 VVM
+    ! Ћокальное меню не сохран€лось при создании.
+    + ¬ведена доп.переменна€ - MenuNeedRefresh
+      ”станавливаетс€ при изменении в меню дл€ перерисовки.
   14.08.2001 SVS
     ! —окращение кода за счет исключени€ повтор€ющихс€ последовательностей
   07.08.2001 SVS
@@ -140,6 +144,7 @@ static void MenuRegToFile(char *MenuKey,FILE *MenuFile);
 static void MenuFileToReg(char *MenuKey,FILE *MenuFile);
 
 static int MenuModified;
+static int MenuNeedRefresh;
 static char MenuRootKey[100],LocalMenuKey[100];
 
 /* $ 14.07.2000 VVM
@@ -203,7 +208,7 @@ void ProcessUserMenu(int EditMenu)
 //  MainMenuTitle=MainMenu=TRUE;
 /* VVM $ */
 
-  MenuModified=FALSE;
+  MenuModified=MenuNeedRefresh=FALSE;
 
   if (EditMenu)
   {
@@ -626,10 +631,10 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
 //      NumLine=FillUserMenu(UserMenu,MenuKey,MenuPos,FuncPos,Name,ShortName);
 
       {
-        MenuModified=TRUE;
+        MenuNeedRefresh=TRUE;
         while (!UserMenu.Done())
         {
-          if (MenuModified==TRUE)
+          if (MenuNeedRefresh)
           {
             UserMenu.Hide(); // спр€чем
             // "изнасилуем" (перезаполним :-)
@@ -638,7 +643,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
             // высоту, а заодно и скорректировать вертикальные позиции
             UserMenu.SetPosition(-1,-1,-1,-1);
             UserMenu.Show();
-            MenuModified=FALSE;
+            MenuNeedRefresh=FALSE;
           }
           MenuPos=UserMenu.GetSelectPos();
           int Key=UserMenu.ReadInput();
@@ -659,7 +664,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
             case KEY_DEL:
               if (MenuPos<NumLine)
                 DeleteMenuRecord(MenuKey,MenuPos);
-              MenuModified=TRUE;
+//              MenuModified=TRUE;
               break;
             case KEY_INS:
             case KEY_F4:
@@ -667,7 +672,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
               if (Key != KEY_INS && MenuPos>=NumLine)
                 break;
               EditMenuRecord(MenuKey,MenuPos,NumLine,Key == KEY_INS);
-              MenuModified=TRUE;
+//              MenuModified=TRUE;
               break;
             case KEY_ALTF4:
               if (RegVer)
@@ -681,7 +686,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
                 //if (FarMkTemp(MenuFileName,"Far")==NULL || (MenuFile=fopen(MenuFileName,"wb"))==NULL)
                   break;
                 MenuRegToFile(MenuRootKey,MenuFile);
-                MenuModified=TRUE;
+                MenuNeedRefresh=TRUE;
                 fclose(MenuFile);
                 {
                   char OldTitle[512];
@@ -876,7 +881,7 @@ int DeleteMenuRecord(char *MenuKey,int DeletePos)
           MSG(!SubMenu?MAskDeleteMenuItem:MAskDeleteSubMenuItem),
               ItemName,MSG(MDelete),MSG(MCancel))!=0)
     return(FALSE);
-  MenuModified=TRUE;
+  MenuModified=MenuNeedRefresh=TRUE;
   sprintf(RegKey,"%s\\Item%%d",MenuKey);
   DeleteKeyRecord(RegKey,DeletePos);
   return(TRUE);
@@ -913,7 +918,7 @@ int EditMenuRecord(char *MenuKey,int EditPos,int TotalRecords,int NewRec)
   char ItemKey[512];
   sprintf(ItemKey,"%s\\Item%d",MenuKey,EditPos);
 
-  MenuModified=TRUE;
+  MenuModified=MenuNeedRefresh=TRUE;
 
   if (NewRec)
   {

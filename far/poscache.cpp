@@ -5,10 +5,12 @@ poscache.cpp
 
 */
 
-/* Revision: 1.11 11.08.2001 $ */
+/* Revision: 1.12 20.08.2001 $ */
 
 /*
 Modify:
+  20.08.2001 VVM
+    ! Ошибка при задании разделителя списка.
   11.08.2001 IS
     ! У UserDefinedList исчез доп. параметр в конструкторе :)
   02.07.2001 IS
@@ -214,7 +216,11 @@ void FilePositionCache::Read(char *Key)
          ! Применяем интеллектуальный класс, а не GetCommaWord, которая не
            учитывает кавычки
       */
-      UserDefinedList DataList('\"', 0, 0);
+      /* $ 20.08.2001 VVM
+         ! Ошибка при задании разделителя списка. */
+//      UserDefinedList DataList('\"', 0, 0);
+      UserDefinedList DataList(0,0,0);
+      /* VVM $ */
       int J=0;
       const char *DataPtr;
       char ArgData[2*NM];
