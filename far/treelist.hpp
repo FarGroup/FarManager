@@ -7,10 +7,12 @@ Tree panel
 
 */
 
-/* Revision: 1.09 11.12.2001 $ */
+/* Revision: 1.10 24.12.2001 $ */
 
 /*
 Modify:
+  24.12.2001 VVM
+    ! GetCurName в предке объявлено как virtual!!!
   11.12.2001 SVS
     + Свой кейбар в деревяхе
   24.10.2001 SVS
@@ -94,7 +96,7 @@ class TreeList: public Panel
     void SetCurDir(char *NewDir,int ClosePlugin);
     void SetRootDir(char *NewRootDir);
     void GetCurDir(char *CurDir);
-    int GetCurName(char *Name,char *ShortName);
+    virtual int GetCurName(char *Name,char *ShortName);
     void UpdateViewPanel();
     void MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent);
     int FindPartName(char *Name,int Next);

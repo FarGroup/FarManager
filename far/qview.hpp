@@ -7,10 +7,12 @@ Quick view panel
 
 */
 
-/* Revision: 1.05 06.05.2001 $ */
+/* Revision: 1.06 24.12.2001 $ */
 
 /*
 Modify:
+  24.12.2001
+    + virtual int GetCurName(char *Name,char *ShortName) - текущий просматриваемый файл
   06.05.2001 DJ
     ! перетрях #include
   30.04.2001 DJ
@@ -68,7 +70,7 @@ class QuickView:public Panel
     /* $ 30.04.2001 DJ */
     virtual BOOL UpdateKeyBar();
     /* DJ $ */
-
+    virtual int GetCurName(char *Name,char *ShortName);
 };
 
 

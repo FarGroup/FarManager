@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.108 07.12.2001 $ */
+/* Revision: 1.109 22.12.2001 $ */
 
 /*
 Modify:
+  22.12.2001 VVM
+    + ACTL_GETWINDOWINFO: Если Pos == -1 то берем текущий фрейм
   07.12.2001 IS
     + FarInputBox - обертка вокруг GetString для плагинов - с меньшей
       функциональностью. Сделано для того, чтобы не дублировать код GetString.
@@ -576,7 +578,14 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
         if(Param && !IsBadWritePtr(Param,sizeof(WindowInfo)))
         {
             WindowInfo *wi=(WindowInfo*)Param;
-            Frame *f=FrameManager->operator[](wi->Pos);
+            Frame *f;
+            /* $ 22.12.2001 VVM
+              + Если Pos == -1 то берем текущий фрейм */
+            if (wi->Pos == -1)
+              f=FrameManager->GetCurrentFrame();
+            else
+              f=FrameManager->operator[](wi->Pos);
+            /* VVM $ */
             if ( f==NULL )
                 return FALSE;
             f->GetTypeAndName(wi->TypeName,wi->Name);

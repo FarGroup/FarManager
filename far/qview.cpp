@@ -5,10 +5,12 @@ Quick view panel
 
 */
 
-/* Revision: 1.21 08.12.2001 $ */
+/* Revision: 1.22 24.12.2001 $ */
 
 /*
 Modify:
+  24.12.2001
+    + virtual int GetCurName(char *Name,char *ShortName) - текущий просматриваемый файл
   08.12.2001 IS
     - баг: после показа хелпа по панели показывалась непонятно зачем
       еще и справка по встроенной программе просмотра
@@ -567,6 +569,17 @@ BOOL QuickView::UpdateKeyBar()
   DynamicUpdateKeyBar();
 
   return TRUE;
+}
+
+int QuickView::GetCurName(char *Name,char *ShortName)
+{
+  if (Name && ShortName && *CurFileName)
+  {
+    strcpy(Name, CurFileName);
+    strcpy(ShortName, Name);
+    return (TRUE);
+  }
+  return (FALSE);
 }
 
 void QuickView::DynamicUpdateKeyBar()

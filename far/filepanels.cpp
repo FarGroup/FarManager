@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.30 11.12.2001 $ */
+/* Revision: 1.31 24.12.2001 $ */
 
 /*
 Modify:
+  24.12.2001 VVM
+    + GetTypeAndName возвращает имя файла на панелях TREE, QVIEW, FILE
   11.12.2001 SVS
     ! Заставим корректно отображаться кейбар в зависимости от типа панели.
   06.12.2001 SVS
@@ -848,7 +850,20 @@ int  FilePanels::GetTypeAndName(char *Type,char *Name)
   if ( Type )
       strcpy(Type,MSG(MScreensPanels));
   if ( Name)
-      strcpy(Name,"");
+  {
+    char FullName[NM], ShortName[NM];
+    *FullName = *ShortName = 0;
+    switch (ActivePanel->GetType())
+    {
+      case TREE_PANEL:
+      case QVIEW_PANEL:
+      case FILE_PANEL:
+        ActivePanel->GetCurName(FullName, ShortName);
+        ConvertNameToFull(FullName, FullName, sizeof(FullName));
+        break;
+    } /* case */
+    strcpy(Name, FullName);
+  }
   return(MODALTYPE_PANELS);
 }
 
