@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.41 21.03.2001 $ */
+/* Revision: 1.42 22.03.2001 $ */
 
 /*
 Modify:
+  22.03.2001 tran 1.42
+    ! мелкий баг в FarMessageFn/FMSG_ALLINONE
   21.03.2001 VVM
     + Обработка флага EF_CREATENEW
   28.02.2001 IS
@@ -555,6 +557,8 @@ char* PluginsSet::FarGetMsg(int PluginNumber,int MsgId)
 /* $ 28.01.2001 SVS
    ! Конкретно обновим функцию FarMessageFn()
 */
+
+#define MAXMSG  15
 int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,char *HelpTopic,
                         char **Items,int ItemsNumber,int ButtonsNumber)
 {
@@ -564,7 +568,7 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,char *HelpTopic,
   if ((!(Flags&FMSG_ALLINONE) && ItemsNumber<2) || !Items)
     return(-1);
 
-  char *MsgItems[15], *SingleItems=NULL;
+  char *MsgItems[MAXMSG], *SingleItems=NULL;
   int I;
 
   memset(MsgItems,0,sizeof(MsgItems));
@@ -604,9 +608,9 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,char *HelpTopic,
       MsgItems[++ItemsNumber]=Msg;
     }
 
-    if((Flags&0x000F0000) && ItemsNumber+ButtonsNumber >= sizeof(MsgItems)/sizeof(MsgItems[0]))
-      ItemsNumber=sizeof(MsgItems)/sizeof(MsgItems[0])-ButtonsNumber-1;
-    for(I=ItemsNumber+1; I < sizeof(MsgItems)/sizeof(MsgItems[0]); ++I)
+    if((Flags&0x000F0000) && ItemsNumber+ButtonsNumber >= MAXMSG)
+      ItemsNumber=MAXMSG-ButtonsNumber;
+    for(I=ItemsNumber+1; I < MAXMSG; ++I)
       MsgItems[I]=NULL;
   }
   else
@@ -617,34 +621,38 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,char *HelpTopic,
       MsgItems[I]=Items[I];
   }
 
+  /* $ 22.03.2001 tran
+     ItemsNumber++ -> ++ItemsNumber 
+     тереялся последний элемент */
   switch(Flags&0x000F0000)
   {
     case FMSG_MB_OK:
-      MsgItems[ItemsNumber++]=MSG(MOk);
+      MsgItems[++ItemsNumber]=MSG(MOk);
       break;
     case FMSG_MB_OKCANCEL:
-      MsgItems[ItemsNumber++]=MSG(MOk);
-      MsgItems[ItemsNumber++]=MSG(MCancel);
+      MsgItems[++ItemsNumber]=MSG(MOk);
+      MsgItems[++ItemsNumber]=MSG(MCancel);
       break;
     case FMSG_MB_ABORTRETRYIGNORE:
-      MsgItems[ItemsNumber++]=MSG(MAbort);
-      MsgItems[ItemsNumber++]=MSG(MRetry);
-      MsgItems[ItemsNumber++]=MSG(MIgnore);
+      MsgItems[++ItemsNumber]=MSG(MAbort);
+      MsgItems[++ItemsNumber]=MSG(MRetry);
+      MsgItems[++ItemsNumber]=MSG(MIgnore);
       break;
     case FMSG_MB_YESNO:
-      MsgItems[ItemsNumber++]=MSG(MYes);
-      MsgItems[ItemsNumber++]=MSG(MNo);
-      break;
+      MsgItems[++ItemsNumber]=MSG(MYes);
+      MsgItems[++ItemsNumber]=MSG(MNo);
+      break;   
     case FMSG_MB_YESNOCANCEL:
-      MsgItems[ItemsNumber++]=MSG(MYes);
-      MsgItems[ItemsNumber++]=MSG(MNo);
-      MsgItems[ItemsNumber++]=MSG(MCancel);
+      MsgItems[++ItemsNumber]=MSG(MYes);
+      MsgItems[++ItemsNumber]=MSG(MNo);
+      MsgItems[++ItemsNumber]=MSG(MCancel);
       break;
     case FMSG_MB_RETRYCANCEL:
-      MsgItems[ItemsNumber++]=MSG(MRetry);
-      MsgItems[ItemsNumber++]=MSG(MCancel);
-      break;
+      MsgItems[++ItemsNumber]=MSG(MRetry);
+      MsgItems[++ItemsNumber]=MSG(MCancel);
+      break;   
   }
+  /* tran $ */
 
   if (HelpTopic!=NULL)
   {
