@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.133 19.03.2002 $ */
+/* Revision: 1.134 20.03.2002 $ */
 
 /*
 Modify:
+  20.03.2002 SVS
+    - BugZ#369 - Ќесохранение пор€дка сортировки каталогов при выходе из архива
   19.03.2002 OT
     - »справление #96
   05.03.2002
@@ -2129,6 +2131,8 @@ BOOL FileList::ChangeDir(char *NewDir,BOOL IsUpdated)
         DeleteListData(PrevDataStack[PrevDataStackSize].PrevListData,PrevDataStack[PrevDataStackSize].PrevFileCount);
         if (ListSelectedFirst)
           SortFileList(FALSE);
+        else if (FileCount>0)
+          SortFileList(TRUE);
       }
     }
 

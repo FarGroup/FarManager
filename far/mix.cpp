@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.115 20.03.2002 $ */
+/* Revision: 1.116 20.03.2002 $ */
 
 /*
 Modify:
+  20.03.2002 SVS
+    - BugZ#111 - проблемы с буквами диска.
   20.03.2002 DJ
     ! в GetDirInfo() вместо . покажем название того каталога, который сканируем
   01.03.2002 SVS
@@ -394,6 +396,7 @@ BOOL FarChDir(const char *NewDir, BOOL ChangeDir)
       CharToOem(CurDir,CurDir);
     else
       sprintf(CurDir,"%s\\",NewDir); // при неудаче переключимся в корень диска
+    *CurDir=toupper(*CurDir);
     if(ChangeDir)
       rc=SetCurrentDirectory(CurDir);
   }
