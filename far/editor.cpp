@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.117 18.09.2001 $ */
+/* Revision: 1.118 24.09.2001 $ */
 
 /*
 Modify:
+  24.09.2001 SKV
+    - ctrl-left fix
   18.08.2001 SVS
     ! параметр у функции Paste - для отработки $Date, у которой есть '%n',
       соответственно изненен код обработки "клавиши" KEY_MACRODATE.
@@ -2779,9 +2781,15 @@ int Editor::ProcessKey(int Key)
           Pasting++;
           ProcessKey(KEY_LEFT);
           Pasting--;
-          CtrlObject->Plugins.CurEditor=this;
+          /* $ 24.9.2001 SKV
+            fix бага с ctrl-left в начале строки
+            в блоке с переопределённым плагином фоном.
+          */
+          ShowEditor(FALSE);
+          //CtrlObject->Plugins.CurEditor=this;
 //_D(SysLog("%08d EE_REDRAW",__LINE__));
-          CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
+          //CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
+          /* SKV$*/
           return(TRUE);
         }
 
