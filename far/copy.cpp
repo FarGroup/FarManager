@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.142 20.12.2004 $ */
+/* Revision: 1.143 28.03.2005 $ */
 
 /*
 Modify:
+  28.03.2005 SVS
+    - “рабла с переполнением буфера
   20.12.2004 WARP
     - Ѕыли проблемы с установкой FILE_ATTRIBUTE_COMPRESSED по сети (назначение - FAT32).
   14.12.2004 WARP
@@ -994,7 +996,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
     if(DestList.Set(CopyDlgValue)) // если список успешно "скомпилировалс€"
     {
         const char *NamePtr;
-        char NameTmp[NM];
+        char NameTmp[2048];
 
         // переинициализируем переменные в самом начале (BugZ#171)
 //        CopyBufSize = COPY_BUFFER_SIZE; // Ќачинаем с 1к
@@ -1025,7 +1027,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
           CurCopiedSize=0;
           CopyTitle->Set((ShellCopy::Flags&FCOPY_MOVE) ? MSG(MCopyMovingTitle):MSG(MCopyCopyingTitle));
 
-          strcpy(NameTmp, NamePtr);
+          strncpy(NameTmp, NamePtr,sizeof(NameTmp)-1);
           _LOGCOPYR(SysLog("NamePtr='%s', Move=%d",NamePtr,WorkMove));
 
           if(!strcmp(NameTmp,"..") && IsLocalRootPath(SrcDir))

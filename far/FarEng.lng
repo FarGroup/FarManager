@@ -1645,8 +1645,8 @@
 "Current FAR version is %d.%d.%d"
 "Error loading plugin module"
 
-"Buffer allocated for file name too small."
-"Required %d bytes, but allocated only %d ones"
+"Buffer allocated for file name is too small."
+"%d bytes are required, but only %d bytes were allocated."
 
 "?"
 "Field"
