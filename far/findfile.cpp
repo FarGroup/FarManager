@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.164 09.12.2004 $ */
+/* Revision: 1.165 09.12.2004 $ */
 
 /*
 Modify:
+  09.12.2004 WARP
+    ! Обертка из TRY/EXCEPT с посылом в fexcept в потоке поиска файлов (в потоке отрисовки уже есть обработчик).
   09.12.2004 WARP
     ! Устраняем падения поиска при попытке открывать файл,
       когда список файлов решил поменять размер.
@@ -581,6 +583,7 @@ Modify:
 #include "scrbuf.hpp"
 #include "CFileMask.hpp"
 #include "filefilter.hpp"
+#include "farexcpt.hpp"
 
 #define DLG_HEIGHT 24
 #define DLG_WIDTH 74
@@ -2157,113 +2160,120 @@ void _cdecl FindFiles::PrepareFilesList(void *Param)
   WIN32_FIND_DATA FindData;
   char FullName[NM],Root[NM*2];
 
-  PrepareFilesListUsed++;
-  DWORD DiskMask=FarGetLogicalDrives();
-  CtrlObject->CmdLine->GetCurDir(Root);
+  TRY {
 
-  for (int CurrentDisk=0;DiskMask!=0;CurrentDisk++,DiskMask>>=1)
-  {
-    if (SearchMode==SEARCH_ALL ||
-        SearchMode==SEARCH_ALL_BUTNETWORK)
+    PrepareFilesListUsed++;
+    DWORD DiskMask=FarGetLogicalDrives();
+    CtrlObject->CmdLine->GetCurDir(Root);
+
+    for (int CurrentDisk=0;DiskMask!=0;CurrentDisk++,DiskMask>>=1)
     {
-      if ((DiskMask & 1)==0)
-        continue;
-      sprintf(Root,"%c:\\",'A'+CurrentDisk);
-      int DriveType=FAR_GetDriveType(Root);
-      if (DriveType==DRIVE_REMOVABLE || IsDriveTypeCDROM(DriveType) ||
-         (DriveType==DRIVE_REMOTE && SearchMode==SEARCH_ALL_BUTNETWORK))
-        if (DiskMask==1)
-          break;
-        else
-          continue;
-    }
-    else if (SearchMode==SEARCH_ROOT)
-      GetPathRootOne(Root,Root);
-
-    {
-      ScanTree ScTree(FALSE,SearchMode!=SEARCH_CURRENT_ONLY,SearchInSymLink);
-
-      char SelName[NM];
-      int FileAttr;
-      if (SearchMode==SEARCH_SELECTED)
-        CtrlObject->Cp()->ActivePanel->GetSelName(NULL,FileAttr);
-
-      while (1)
+      if (SearchMode==SEARCH_ALL ||
+          SearchMode==SEARCH_ALL_BUTNETWORK)
       {
-        char CurRoot[2*NM];
-        if (SearchMode==SEARCH_SELECTED)
-        {
-          if (!CtrlObject->Cp()->ActivePanel->GetSelName(SelName,FileAttr))
+        if ((DiskMask & 1)==0)
+          continue;
+        sprintf(Root,"%c:\\",'A'+CurrentDisk);
+        int DriveType=FAR_GetDriveType(Root);
+        if (DriveType==DRIVE_REMOVABLE || IsDriveTypeCDROM(DriveType) ||
+           (DriveType==DRIVE_REMOTE && SearchMode==SEARCH_ALL_BUTNETWORK))
+          if (DiskMask==1)
             break;
-          if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0 || TestParentFolderName(SelName) ||
-              strcmp(SelName,".")==0)
-            continue;
-          xstrncpy(CurRoot,Root,sizeof(CurRoot)-1);
-          AddEndSlash(CurRoot);
-          strcat(CurRoot,SelName);
-        }
-        else
-          xstrncpy(CurRoot,Root,sizeof(CurRoot)-1);
-
-        ScTree.SetFindPath(CurRoot,"*.*");
-
-        xstrncpy(FindMessage,CurRoot,sizeof(FindMessage)-1);
-        FindMessage[sizeof(FindMessage)-1]=0;
-        FindMessageReady=TRUE;
-
-        while (!StopSearch && ScTree.GetNextName(&FindData,FullName, sizeof (FullName)-1))
-        {
-          while (PauseSearch)
-            Sleep(10);
-
-          /* $ 30.09.2003 KM
-            Отфильтруем файлы не попадающие в действующий фильтр
-          */
-          int IsFile;
-          if (UseFilter)
-            IsFile=Filter->FileInFilter(&FindData);
           else
-            IsFile=TRUE;
+            continue;
+      }
+      else if (SearchMode==SEARCH_ROOT)
+        GetPathRootOne(Root,Root);
 
-          if (IsFile)
+      {
+        ScanTree ScTree(FALSE,SearchMode!=SEARCH_CURRENT_ONLY,SearchInSymLink);
+
+        char SelName[NM];
+        int FileAttr;
+        if (SearchMode==SEARCH_SELECTED)
+          CtrlObject->Cp()->ActivePanel->GetSelName(NULL,FileAttr);
+
+        while (1)
+        {
+          char CurRoot[2*NM];
+          if (SearchMode==SEARCH_SELECTED)
           {
-            /* $ 14.06.2004 KM
-              Уточнение действия при обработке каталогов
+            if (!CtrlObject->Cp()->ActivePanel->GetSelName(SelName,FileAttr))
+              break;
+            if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0 || TestParentFolderName(SelName) ||
+                strcmp(SelName,".")==0)
+              continue;
+            xstrncpy(CurRoot,Root,sizeof(CurRoot)-1);
+            AddEndSlash(CurRoot);
+            strcat(CurRoot,SelName);
+          }
+          else
+            xstrncpy(CurRoot,Root,sizeof(CurRoot)-1);
+
+          ScTree.SetFindPath(CurRoot,"*.*");
+
+          xstrncpy(FindMessage,CurRoot,sizeof(FindMessage)-1);
+          FindMessage[sizeof(FindMessage)-1]=0;
+          FindMessageReady=TRUE;
+
+          while (!StopSearch && ScTree.GetNextName(&FindData,FullName, sizeof (FullName)-1))
+          {
+            while (PauseSearch)
+              Sleep(10);
+
+            /* $ 30.09.2003 KM
+              Отфильтруем файлы не попадающие в действующий фильтр
             */
-            if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+            int IsFile;
+            if (UseFilter)
+              IsFile=Filter->FileInFilter(&FindData);
+            else
+              IsFile=TRUE;
+
+            if (IsFile)
             {
-              xstrncpy(FindMessage,FullName,sizeof(FindMessage)-1);
-              FindMessage[sizeof(FindMessage)-1]=0;
-              FindMessageReady=TRUE;
+              /* $ 14.06.2004 KM
+                Уточнение действия при обработке каталогов
+              */
+              if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+              {
+                xstrncpy(FindMessage,FullName,sizeof(FindMessage)-1);
+                FindMessage[sizeof(FindMessage)-1]=0;
+                FindMessageReady=TRUE;
+              }
+              /* KM $ */
+
+
+              if (IsFileIncluded(NULL,FullName,FindData.dwFileAttributes))
+                AddMenuRecord(FullName,&FindData);
+
+              if (SearchInArchives)
+                ArchiveSearch(FullName);
             }
             /* KM $ */
-
-
-            if (IsFileIncluded(NULL,FullName,FindData.dwFileAttributes))
-              AddMenuRecord(FullName,&FindData);
-
-            if (SearchInArchives)
-              ArchiveSearch(FullName);
           }
-          /* KM $ */
+          if (SearchMode!=SEARCH_SELECTED)
+            break;
         }
-        if (SearchMode!=SEARCH_SELECTED)
+        if (SearchMode!=SEARCH_ALL && SearchMode!=SEARCH_ALL_BUTNETWORK)
           break;
       }
-      if (SearchMode!=SEARCH_ALL && SearchMode!=SEARCH_ALL_BUTNETWORK)
-        break;
     }
+
+    sprintf(FindMessage,MSG(MFindDone),FindFileCount,FindDirCount);
+    SetFarTitle (FindMessage);
+
+    while (!StopSearch && FindMessageReady)
+      Sleep(10);
+  //  sprintf(FindMessage,MSG(MFindDone),FindFileCount,FindDirCount);
+    SearchDone=TRUE;
+    FindMessageReady=TRUE;
+    PrepareFilesListUsed--;
   }
-
-  sprintf(FindMessage,MSG(MFindDone),FindFileCount,FindDirCount);
-  SetFarTitle (FindMessage);
-
-  while (!StopSearch && FindMessageReady)
-    Sleep(10);
-//  sprintf(FindMessage,MSG(MFindDone),FindFileCount,FindDirCount);
-  SearchDone=TRUE;
-  FindMessageReady=TRUE;
-  PrepareFilesListUsed--;
+  EXCEPT (xfilter((int)INVALID_HANDLE_VALUE,GetExceptionInformation(),NULL,1))
+  {
+    TerminateProcess( GetCurrentProcess(), 1);
+  }
 }
 #if defined(__BORLANDC__)
 #pragma warn +par
@@ -2835,36 +2845,43 @@ void _cdecl FindFiles::PreparePluginList(void *Param)
 {
   char SaveDir[NM];
 
-  Sleep(200);
-  *PluginSearchPath=0;
-  Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
-  /* $ 15.10.2001 VVM */
-  HANDLE hPlugin=ArcList[FindFileArcIndex].hPlugin;
-  struct OpenPluginInfo Info;
-  CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
-  xstrncpy(SaveDir,Info.CurDir,sizeof(SaveDir)-1);
-  WaitForSingleObject(hPluginMutex,INFINITE);
-  if (SearchMode==SEARCH_ROOT ||
-      SearchMode==SEARCH_ALL ||
-      SearchMode==SEARCH_ALL_BUTNETWORK)
-    CtrlObject->Plugins.SetDirectory(hPlugin,"\\",OPM_FIND);
-  ReleaseMutex(hPluginMutex);
-  RecurseLevel=0;
-  ScanPluginTree(hPlugin,ArcList[FindFileArcIndex].Flags);
-  /* VVM $ */
-  WaitForSingleObject(hPluginMutex,INFINITE);
-  if (SearchMode==SEARCH_ROOT ||
-      SearchMode==SEARCH_ALL ||
-      SearchMode==SEARCH_ALL_BUTNETWORK)
-    CtrlObject->Plugins.SetDirectory(hPlugin,SaveDir,OPM_FIND);
-  ReleaseMutex(hPluginMutex);
-  while (!StopSearch && FindMessageReady)
-    Sleep(10);
-  if (Param==NULL)
+  TRY {
+
+    Sleep(200);
+    *PluginSearchPath=0;
+    Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+    /* $ 15.10.2001 VVM */
+    HANDLE hPlugin=ArcList[FindFileArcIndex].hPlugin;
+    struct OpenPluginInfo Info;
+    CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
+    xstrncpy(SaveDir,Info.CurDir,sizeof(SaveDir)-1);
+    WaitForSingleObject(hPluginMutex,INFINITE);
+    if (SearchMode==SEARCH_ROOT ||
+        SearchMode==SEARCH_ALL ||
+        SearchMode==SEARCH_ALL_BUTNETWORK)
+      CtrlObject->Plugins.SetDirectory(hPlugin,"\\",OPM_FIND);
+    ReleaseMutex(hPluginMutex);
+    RecurseLevel=0;
+    ScanPluginTree(hPlugin,ArcList[FindFileArcIndex].Flags);
+    /* VVM $ */
+    WaitForSingleObject(hPluginMutex,INFINITE);
+    if (SearchMode==SEARCH_ROOT ||
+        SearchMode==SEARCH_ALL ||
+        SearchMode==SEARCH_ALL_BUTNETWORK)
+      CtrlObject->Plugins.SetDirectory(hPlugin,SaveDir,OPM_FIND);
+    ReleaseMutex(hPluginMutex);
+    while (!StopSearch && FindMessageReady)
+      Sleep(10);
+    if (Param==NULL)
+    {
+      sprintf(FindMessage,MSG(MFindDone),FindFileCount,FindDirCount);
+      FindMessageReady=TRUE;
+      SearchDone=TRUE;
+    }
+  }
+  EXCEPT (xfilter((int)INVALID_HANDLE_VALUE,GetExceptionInformation(),NULL,1))
   {
-    sprintf(FindMessage,MSG(MFindDone),FindFileCount,FindDirCount);
-    FindMessageReady=TRUE;
-    SearchDone=TRUE;
+    TerminateProcess( GetCurrentProcess(), 1);
   }
 }
 #if defined(__BORLANDC__)
