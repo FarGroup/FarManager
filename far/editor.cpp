@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.182 24.06.2002 $ */
+/* Revision: 1.183 24.06.2002 $ */
 
 /*
 Modify:
+  24.06.2002 SKV
+    - Установим флажок PersistentBlock у новосозданных строк из опций.
   24.06.2002 SKV
     - Неисчезающее выделение.
   24.06.2002 SKV
@@ -968,6 +970,11 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
       */
       EndList->EditLine.SetTabSize(EdOpt.TabSize);
       /* IS $ */
+      /* $ 24.06.2002 SKV
+        А PersistentBlocks кто будет устанавливать?
+      */
+      EndList->EditLine.SetPersistentBlocks(EdOpt.PersistentBlocks);
+      /* SKV $ */
       EndList->EditLine.SetConvertTabs(EdOpt.ExpandTabs);
       EndList->EditLine.SetBinaryString(Str,StrLength);
       EndList->EditLine.SetCurPos(0);
@@ -989,6 +996,11 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
         */
         EndList->EditLine.SetTabSize(EdOpt.TabSize);
         /* IS $ */
+        /* $ 24.06.2002 SKV
+          А PersistentBlocks кто будет устанавливать?
+        */
+        EndList->EditLine.SetPersistentBlocks(EdOpt.PersistentBlocks);
+        /* SKV $ */
         EndList->EditLine.SetConvertTabs(EdOpt.ExpandTabs);
         EndList->EditLine.SetString("");
         EndList->EditLine.SetCurPos(0);
@@ -3707,6 +3719,11 @@ void Editor::InsertString()
   */
   NewString->EditLine.SetTabSize(EdOpt.TabSize);
   /* IS $ */
+  /* $ 24.06.2002 SKV
+    А PersistentBlocks кто будет устанавливать?
+  */
+  NewString->EditLine.SetPersistentBlocks(EdOpt.PersistentBlocks);
+  /* SKV $ */
   NewString->EditLine.SetConvertTabs(EdOpt.ExpandTabs);
   NewString->EditLine.SetTables(UseDecodeTable ? &TableSet:NULL);
   NewString->EditLine.SetEditBeyondEnd(EdOpt.CursorBeyondEOL);
