@@ -6,10 +6,14 @@ editor.cpp
 
 */
 
-/* Revision: 1.154 06.02.2002 $ */
+/* Revision: 1.155 15.02.2002 $ */
 
 /*
 Modify:
+  15.02.2002 SVS
+    ! Вызов ShowProcessList() вынесен в манагер
+    ! Для Ctrl-L сделаем обновление не всего экрана, а только статусной линии
+    ! Ins - тоже нефига перерисовывать весь экран
   06.02.2002 IS
     - Костыль для обработки CtrlShiftEnd, которая полетела после 1224
   05.02.2002 SVS
@@ -2134,8 +2138,8 @@ int Editor::ProcessKey(int Key)
       }
       return(TRUE);
     case KEY_INS:
-      EFlags.Swap(FEDITOR_OVERTYPE);
-      Show();
+      CurLine->EditLine.SetOvertypeMode(EFlags.Swap(FEDITOR_OVERTYPE));
+      CurLine->EditLine.Show();
       return(TRUE);
     case KEY_DEL:
       if (!EFlags.Check(FEDITOR_LOCKMODE))
@@ -2406,14 +2410,11 @@ int Editor::ProcessKey(int Key)
       return(TRUE);
     case KEY_CTRLL:
       EFlags.Swap(FEDITOR_LOCKMODE);
-      Show();
+      ShowStatus();
       return(TRUE);
     case KEY_CTRLY:
       DeleteString(CurLine,FALSE,NumLine);
       Show();
-      return(TRUE);
-    case KEY_CTRLW:
-      ShowProcessList();
       return(TRUE);
     case KEY_F7:
     {

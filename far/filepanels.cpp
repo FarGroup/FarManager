@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.36 14.02.2002 $ */
+/* Revision: 1.37 15.02.2002 $ */
 
 /*
 Modify:
+  15.02.2002 SVS
+    ! Вызов ShowProcessList() вынесен в манагер
   14.02.2002 VVM
     ! UpdateIfChanged принимает не булевый Force, а варианты из UIC_*
   16.01.2002 OT
@@ -531,9 +533,6 @@ int  FilePanels::ProcessKey(int Key)
       break;
     case KEY_CTRLI:
       ActivePanel->EditFilter();
-      return(TRUE);
-    case KEY_CTRLW:
-      ShowProcessList();
       return(TRUE);
     case KEY_CTRLU:
       if (LeftPanel->IsVisible() || RightPanel->IsVisible())

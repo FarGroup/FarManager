@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.60 29.01.2002 $ */
+/* Revision: 1.61 15.02.2002 $ */
 
 /*
 Modify:
+  15.02.2002 SVS
+    ! Вызов ShowProcessList() вынесен в манагер
   29.01.2002 OT
     - падение фара в рефрешКоммит()
   08.01.2002 SVS
@@ -689,6 +691,10 @@ int  Manager::ProcessKey(int Key)
             во время вызова онных из поиска файлов ** */
       switch(Key)
       {
+        case KEY_CTRLW:
+          ShowProcessList();
+          return(TRUE);
+
         case KEY_F11:
           PluginsMenu();
           FrameManager->RefreshFrame();

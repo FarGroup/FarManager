@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.89 22.01.2002 $ */
+/* Revision: 1.90 15.02.2002 $ */
 
 /*
 Modify:
+  15.02.2002 SVS
+    ! ¬ызов ShowProcessList() вынесен в манагер
   22.01.2002 IS
     ! ѕри обработке табул€ции в конце строки при свертке обработаем ее так же
       как и при свертке по словам (попытка избавитьс€ от bz#250)
@@ -1666,9 +1668,6 @@ int Viewer::ProcessKey(int Key)
         Show();
       }
       LastSelPos=FilePos;
-      return(TRUE);
-    case KEY_CTRLW:
-      ShowProcessList();
       return(TRUE);
     case KEY_CTRLLEFT:
       if(ViewFile)
