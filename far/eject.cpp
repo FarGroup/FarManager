@@ -5,10 +5,13 @@ Eject съемных носителей
 
 */
 
-/* Revision: 1.13 26.01.2003 $ */
+/* Revision: 1.14 05.05.2004 $ */
 
 /*
 Modify:
+  05.05.2004 SVS
+    + Новая функция IsEjectableMedia(), возвращает TRUE, если медию можно
+      "выкинуть". Применяется не для CDROM!
   26.01.2003 IS
     ! FAR_CreateFile - обертка для CreateFile, просьба использовать именно
       ее вместо CreateFile
@@ -549,4 +552,32 @@ BOOL EjectVolume(char Letter,DWORD Flags)
     CloseHandle(DiskHandle);
   }
   return fAutoEject;
+}
+
+BOOL IsEjectableMedia(char Letter)
+{
+  char win_name[]="\\\\.\\?:";
+  win_name[4]=Letter;
+
+  HANDLE h=CreateFile(win_name, 0, FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0, 0);
+
+  if (h==INVALID_HANDLE_VALUE)
+   return FALSE;
+
+  DISK_GEOMETRY disk_g={0};
+  DWORD b_ret=0;
+  int ret=DeviceIoControl(h, IOCTL_DISK_GET_DRIVE_GEOMETRY,
+                             NULL,                          // lpInBuffer
+                             0,                             // nInBufferSize
+                             &disk_g,                       // output buffer
+                             sizeof(disk_g),                // size of output buffer
+                             &b_ret,                        // number of bytes returned
+                             0                              // OVERLAPPED structure
+                         );
+  CloseHandle(h);
+
+  if(!ret)
+    return FALSE;
+
+  return disk_g.MediaType == RemovableMedia;
 }

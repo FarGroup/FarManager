@@ -5,10 +5,12 @@ syslog.cpp
 
 */
 
-/* Revision: 1.46 13.10.2003 $ */
+/* Revision: 1.47 28.04.2004 $ */
 
 /*
 Modify:
+  28.04.2004 SVS
+    ! оконстантим параметр у конструктора CleverSysLog()
   13.10.2003 SVS
     + ESPT_SETWORDDIV
   31.07.2003 SVS
@@ -840,7 +842,7 @@ void WINAPI _export FarSysLog_INPUT_RECORD_Dump(char *ModuleName,INPUT_RECORD *r
 #endif
 
 // "Умный класс для SysLog
-CleverSysLog::CleverSysLog(char *Title)
+CleverSysLog::CleverSysLog(const char *Title)
 {
 #if defined(SYSLOG)
   if(!IsLogON())

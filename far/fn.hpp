@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.202 22.04.2004 $ */
+/* Revision: 1.203 05.05.2004 $ */
 
 /*
 Modify:
+  05.05.2004 SVS
+    + IsEjectableMedia() - возвращает TRUE, если медию можно "выкинуть"
+    ! оконстантим параметр у конструктора CleverSysLog()
   22.04.2004 SVS
     + LocalStrstri() - аналог strstr(), но с локалью и без учета регистра
   01.03.2004 SVS
@@ -1378,7 +1381,7 @@ FILE *OpenLogStream(char *file);
 
 class CleverSysLog{ // ;-)
   public:
-    CleverSysLog(char *Title=NULL);
+    CleverSysLog(const char *Title=NULL);
     ~CleverSysLog();
 };
 
@@ -1390,6 +1393,7 @@ class CleverSysLog{ // ;-)
 
 
 BOOL EjectVolume(char Letter,DWORD Flags);
+BOOL IsEjectableMedia(char Letter);
 
 /* $ 30.12.2000 SVS
    Функции работы с атрибутами файлов "опубликованы"

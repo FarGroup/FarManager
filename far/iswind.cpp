@@ -5,10 +5,12 @@ iswind.cpp
 
 */
 
-/* Revision: 1.09 17.01.2003 $ */
+/* Revision: 1.10 28.04.2004 $ */
 
 /*
 Modify:
+  28.04.2004 SVS
+    ! Добавлены "новые знания" о функциях ;-)
   17.01.2003 IS
     + InitDetectWindowedMode: там, где можно, используем для поиска окна
       соответствующую функцию ОС (GetConsoleWindow)
@@ -49,8 +51,27 @@ HWND hFarWnd;
 static BOOL WindowedMode=FALSE;
 static HICON hOldLargeIcon,hOldSmallIcon;
 
-typedef BOOL (WINAPI *PROCSETCONSOLEDISPLAYMODEELLWND)(HANDLE,DWORD,LPDWORD);
-typedef BOOL (WINAPI *PROCGETCONSOLEDISPLAYMODE)(LPDWORD);
+/*
+    dwFlags - Specifies the display mode. Options are:
+
+        CONSOLE_FULLSCREEN_MODE - data is displayed fullscreen
+        CONSOLE_WINDOWED_MODE - data is displayed in a window
+
+    lpNewScreenBufferDimensions - On output, contains the new dimensions of
+        the screen buffer.  The dimensions are in rows and columns for
+        textmode screen buffers.
+
+Return Values
+  If the function succeeds, the return value is nonzero
+*/
+typedef BOOL (WINAPI *PROCSETCONSOLEDISPLAYMODEELLWND)(HANDLE hConsoleOutput,DWORD dwFlags,PCOORD lpNewScreenBufferDimensions);
+
+/*
+lpModeFlags - [out] Display mode of the console. This parameter can be one or more of the following values.
+  CONSOLE_FULLSCREEN Full-screen console. The console is in this mode as soon as the window is maximized. At this point, the transition to full-screen mode can still fail.
+  CONSOLE_FULLSCREEN_HARDWARE Full-screen console communicating directly with the video hardware. This mode is set after the console is in CONSOLE_FULLSCREEN mode to indicate that the transition to full-screen mode has completed.
+*/
+typedef BOOL (WINAPI *PROCGETCONSOLEDISPLAYMODE)(LPDWORD lpModeFlags);
 static PROCSETCONSOLEDISPLAYMODEELLWND SetConsoleDisplayMode=NULL;
 static PROCGETCONSOLEDISPLAYMODE GetConsoleDisplayMode=NULL;
 
@@ -103,9 +124,7 @@ void InitDetectWindowedMode()
        Там, где можно, используем для поиска окна соответствующую функцию ОС
   */
   typedef HWND WINAPI GetConsoleWindow_t(VOID);
-  static GetConsoleWindow_t *GetConsoleWindow_f=
-    (GetConsoleWindow_t*)GetProcAddress(GetModuleHandle("kernel32.dll"),
-    "GetConsoleWindow");
+  static GetConsoleWindow_t *GetConsoleWindow_f=(GetConsoleWindow_t*)GetProcAddress(GetModuleHandle("kernel32.dll"),"GetConsoleWindow");
   if(GetConsoleWindow_f)
     hFarWnd=GetConsoleWindow_f();
   else
@@ -185,12 +204,12 @@ int FarAltEnter(int mode)
   {
     if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
     {
-      DWORD dwOldMode;
+      COORD dwOldMode;
       if(!SetConsoleDisplayMode)
       {
         HMODULE hKernel32 = GetModuleHandle("kernel32");
         SetConsoleDisplayMode = (PROCSETCONSOLEDISPLAYMODEELLWND)GetProcAddress(hKernel32,"SetConsoleDisplayMode");
-        GetConsoleDisplayMode = (PROCGETCONSOLEDISPLAYMODE)GetProcAddress(hKernel32,"GetConsoleDisplayMode");
+        //GetConsoleDisplayMode = (PROCGETCONSOLEDISPLAYMODE)GetProcAddress(hKernel32,"GetConsoleDisplayMode");
       }
       SetConsoleDisplayMode(GetStdHandle(STD_OUTPUT_HANDLE),
            (mode == FAR_CONSOLE_TRIGGER)?(IsWindowed()?FAR_CONSOLE_SET_FULLSCREEN:FAR_CONSOLE_SET_WINDOWED):(mode&1),&dwOldMode);

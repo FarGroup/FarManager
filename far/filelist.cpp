@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.198 12.03.2004 $ */
+/* Revision: 1.199 28.04.2004 $ */
 
 /*
 Modify:
+  28.04.2004 SVS
+    ! KEY_CTRLH может исполняться при погашенных панелях.
   12.03.2004 SVS
     - Уточнение предыдущего патча (про Ctrl-\). Был не учтен вариант, когда
       том прилинкован на NTFS в качестве каталога, но буквы не имеет.
@@ -1049,16 +1051,17 @@ int FileList::ProcessKey(int Key)
       Пусть Ctrl-G, Ctrl-F, Ctrl-Shift-F, Ctrl-Enter работают
       при погашенных панелях.
     */
-    if (Key!=KEY_SHIFTF4 &&
-        Key!=KEY_CTRLG &&
-        Key!=KEY_CTRLF &&
-        Key!=KEY_CTRLALTF &&
-        Key!=KEY_CTRLENTER &&
-        Key!=KEY_CTRLBRACKET &&
-        Key!=KEY_CTRLBACKBRACKET &&
-        Key!=KEY_CTRLSHIFTBRACKET &&
-        Key!=KEY_CTRLSHIFTBACKBRACKET &&
-        Key!=KEY_F7
+    if (Key!=KEY_SHIFTF4                &&
+        Key!=KEY_CTRLG                  &&
+        Key!=KEY_CTRLF                  &&
+        Key!=KEY_CTRLALTF               &&
+        Key!=KEY_CTRLENTER              &&
+        Key!=KEY_CTRLBRACKET            &&
+        Key!=KEY_CTRLBACKBRACKET        &&
+        Key!=KEY_CTRLSHIFTBRACKET       &&
+        Key!=KEY_CTRLSHIFTBACKBRACKET   &&
+        Key!=KEY_F7                     &&
+        Key!=KEY_CTRLH
         )
     /* SKV$*/
       return(FALSE);

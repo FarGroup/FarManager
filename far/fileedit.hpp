@@ -7,10 +7,12 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.38 22.04.2004 $ */
+/* Revision: 1.39 28.04.2004 $ */
 
 /*
 Modify:
+  28.04.2004 SVS
+    + ReProcessKey()
   22.04.2004 SVS
     ! Константы SAVEFILE_* уехали из editor.hpp в fileedit.hpp
   04.11.2003 SKV
@@ -228,6 +230,7 @@ class FileEditor:public Frame
     void SetDeleteOnClose(int NewMode);
     /* IS 14.06.2002 */
     /* IS 10.10.2001 */
+    int ReProcessKey(int Key,int CalledFromControl=TRUE);
 
   public:
     /* $ 14.06.2002 IS

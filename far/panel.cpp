@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.120 07.01.2004 $ */
+/* Revision: 1.121 05.05.2004 $ */
 
 /*
 Modify:
+  05.05.2004 SVS
+    ! проверим медию на выбрасываемость - вызов новой функции IsEjectableMedia()
   07.01.2004 SVS
     + FastFindProcessName() - подбор имени файла :-)
     - BugZ#992 - XLat в FastFind
@@ -888,6 +890,9 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
             {
               if(HIWORD(UserData) == DRIVE_REMOVABLE || HIWORD(UserData) == DRIVE_CDROM)
               {
+                if(HIWORD(UserData) == DRIVE_REMOVABLE && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT && !IsEjectableMedia(LOBYTE(LOWORD(UserData))))
+                  break;
+
                 // первая попытка извлеч диск
                 if(!EjectVolume(LOBYTE(LOWORD(UserData)),EJECT_NO_MESSAGE))
                 {

@@ -5,10 +5,14 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.151 22.04.2004 $ */
+/* Revision: 1.152 28.04.2004 $ */
 
 /*
 Modify:
+  28.04.2004 SVS
+    - В FarFTN прописана замена р -> р
+        При попытке ввести "р" в VC-версии срабатывает fexcept
+        BC-версия в тех же условиях молча валится.
   22.04.2004 SVS
     - При вызове команды ECTL_SAVEFILE FAR не запоминал новое имя файла.
   16.04.2004 SVS
@@ -923,6 +927,11 @@ void FileEditor::DisplayObject()
 
 int FileEditor::ProcessKey(int Key)
 {
+  return ReProcessKey(Key,FALSE);
+}
+
+int FileEditor::ReProcessKey(int Key,int CalledFromControl)
+{
   DWORD FNAttr;
   char *Ptr, Chr;
 
@@ -1050,7 +1059,7 @@ int FileEditor::ProcessKey(int Key)
   _SVS(if(Key=='n' || Key=='m'))
     _SVS(SysLog("%d Key='%c'",__LINE__,Key));
 
-  if(CtrlObject->Macro.IsRecording() == MACROMODE_RECORDING_COMMON || CtrlObject->Macro.IsExecuting() == MACROMODE_EXECUTING_COMMON || CtrlObject->Macro.GetCurRecord(NULL,NULL) == MACROMODE_NOMACRO)
+  if(!CalledFromControl && (CtrlObject->Macro.IsRecording() == MACROMODE_RECORDING_COMMON || CtrlObject->Macro.IsExecuting() == MACROMODE_EXECUTING_COMMON || CtrlObject->Macro.GetCurRecord(NULL,NULL) == MACROMODE_NOMACRO))
   {
     _SVS(if(CtrlObject->Macro.IsRecording() == MACROMODE_RECORDING_COMMON || CtrlObject->Macro.IsExecuting() == MACROMODE_EXECUTING_COMMON))
       _SVS(SysLog("%d !!!! CtrlObject->Macro.GetCurRecord(NULL,NULL) != MACROMODE_NOMACRO !!!!",__LINE__));
@@ -1059,7 +1068,7 @@ int FileEditor::ProcessKey(int Key)
 
   if (ProcessedNext)
 #else
-  if (//CtrlObject->Macro.IsExecuting() || CtrlObject->Macro.IsRecording() || // пусть доходят!
+  if (!CalledFromControl && //CtrlObject->Macro.IsExecuting() || CtrlObject->Macro.IsRecording() || // пусть доходят!
     !ProcessEditorInput(FrameManager->GetLastInputRecord()))
 #endif
   {
@@ -2326,7 +2335,7 @@ int FileEditor::EditorControl(int Command,void *Param)
         {
           Key=GetInputRecord(rec);
           if((!rec->EventType || rec->EventType == KEY_EVENT || rec->EventType == FARMACRO_KEY_EVENT) && Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE) // исключаем MACRO
-             ProcessKey(Key);
+             ReProcessKey(Key);
           else
             break;
         }
@@ -2381,7 +2390,7 @@ int FileEditor::EditorControl(int Command,void *Param)
 #endif
           int Key=CalcKeyCode(rec,FALSE);
           _KEYMACRO(SysLog("Key=CalcKeyCode() = 0x%08X",Key));
-          ProcessKey(Key);
+          ReProcessKey(Key);
         }
       }
       return(TRUE);
@@ -2391,7 +2400,7 @@ int FileEditor::EditorControl(int Command,void *Param)
     {
       _KEYMACRO(CleverSysLog SL("FileEditor::EditorControl(ECTL_PROCESSKEY)"));
       _ECTLLOG(SysLog("Key = %s",_FARKEY_ToName((DWORD)Param)));
-      ProcessKey((int)Param);
+      ReProcessKey((int)Param);
       return TRUE;
     }
 
