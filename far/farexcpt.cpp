@@ -5,10 +5,12 @@ farexcpt.cpp
 
 */
 
-/* Revision: 1.21 06.08.2004 $ */
+/* Revision: 1.22 02.11.2004 $ */
 
 /*
 Modify:
+  02.11.2004 SVS
+    ! Поддержка EXCEPTION_ACCESS_VIOLATION (execute) для WinXP SP2
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   07.05.2004 SVS
@@ -398,7 +400,28 @@ static DWORD _xfilter(
          rc=ECode[I].RetCode;
          if(xr->ExceptionCode == EXCEPTION_ACCESS_VIOLATION)
          {
-           sprintf(Buf[1],MSG(xr->ExceptionInformation[0]+MExcRAccess),xr->ExceptionInformation[1]);
+           int Offset = 0;
+
+           // вот только не надо здесь неочевидных оптимизаций вида
+           // if ( xr->ExceptionInformation[0] == 8 ) Offset = 2 else Offset = xr->ExceptionInformation[0],
+           // а то M$ порадует нас как-нибудь xr->ExceptionInformation[0] == 4 и все будет в полной жопе.
+
+           switch ( xr->ExceptionInformation[0] )
+           {
+             case 0:
+               Offset = 0;
+               break;
+
+             case 1:
+               Offset = 1;
+               break;
+
+             case 8:
+               Offset = 2;
+               break;
+           }
+
+           sprintf(Buf[1],MSG(Offset+MExcRAccess),xr->ExceptionInformation[1]);
            pName=Buf[1];
          }
          break;

@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.147 26.07.2004 $ */
+/* Revision: 1.148 02.11.2004 $ */
 
 /*
 Modify:
+  02.11.2004 SVS
+    + MExcEAccess
   26.07.2004 SVS
     + MCopyCannotCreateJunctionToFile
   06.07.2004 SVS
@@ -1972,6 +1974,7 @@ enum
   MExcUnloadYes,
   MExcRAccess,
   MExcWAccess,
+  MExcEAccess,
   MExcOutOfBounds,
   MExcDivideByZero,
   MExcStackOverflow,
