@@ -1160,10 +1160,10 @@ you can use the highlighted shortcut letters.
     If you want to save the commands history after exiting FAR, use
 the respective option in the ~system settings dialog~@SystemSettings@.
 
-  Примечания:
+  Remarks:
 
-  1. Длинные команды в Windows 9x/Me перед помещением в историю
-     обрезаются до 511 байт.
+  1. Under Windows 9x/Me, long commands are truncated to 511 bytes
+     before they are stored in the history.
 
 @HistoryViews
 $ #File view and edit history#
@@ -1190,10 +1190,10 @@ without changing its position.
     If you want to save the view and edit history after exiting FAR, use
 the respective option in the ~system settings dialog~@SystemSettings@.
 
-  Примечания:
+  Remarks:
 
-  1. Длинные пути к файлам в Windows 9x/Me перед помещением в историю
-     обрезаются до 511 байт.
+  1. Under Windows 9x/Me, long file paths are truncated to 511 bytes
+     before they are stored in the history.
 
 @HistoryFolders
 $ #Folders history#
@@ -1220,10 +1220,10 @@ without changing its position.
     If you want to save the folders history after exiting FAR, use
 the respective option in the ~system settings dialog~@SystemSettings@.
 
-  Примечания:
+  Remarks:
 
-  1. Длинные пути в Windows 9x/Me перед помещением в историю
-     обрезаются до 511 байт.
+  1. Under Windows 9x/Me, long file paths are truncated to 511 bytes
+     before they are stored in the history.
 
 @TaskList
 $ #Task list#
@@ -1410,28 +1410,29 @@ $ #Special symbols#
 
   Notes:
 
-  1. When handling special characters, FAR substitutes only the string
+   1. When handling special characters, FAR substitutes only the string
 corresponding to the special character. No additional characters (for
 example, quotes) are added, and you should add them yourself if it is
 needed. For example, if a program used in the associations requires
 a file name to be enclosed in quptes, you should specify #program.exe "!.!"#
 and not #program.exe !.!#.
 
-  2. The following modifiers may be used with the associations !@@! and !$! :
+   2. The following modifiers may be used with the associations !@@! and !$! :
 
      'Q' - enclose names containing spaces in quotes;
      'S' - use '/' instead of '\' in pathnames;
      'F' - use full pathnames;
      'A' - use ANSI encoding.
 
-  For example, the association #!@@AFQ!# means "name of file with the
+   For example, the association #!@@AFQ!# means "name of file with the
 list of selected file names, in ANSI encoding, include full pathnames,
 names with spaces will be in quotes".
 
-  3. Метасимволы !@@! и !$! в меню выбора (когда задано несколько ассоциаций)
-показываются как есть, преобразование происходит в момент исполнения команды.
+   3. When there are multiple associations specified, the meta-characters
+!@@! and !$! are shown in the menu as is. Those characters are translated
+when the command is executed.
 
-  4. The prefixes "!##" and "!^" work as toggles for associations. The
+   4. The prefixes "!##" and "!^" work as toggles for associations. The
 effect of these prefixes continues up to the next similar prefix. For
 example:
 
