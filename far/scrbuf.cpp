@@ -5,10 +5,12 @@ scrbuf.cpp
 
 */
 
-/* Revision: 1.24 08.12.2004 $ */
+/* Revision: 1.25 26.02.2005 $ */
 
 /*
 Modify:
+  26.02.2005 SVS
+    ! Для рисовании тени применим алгоритм - если атрибут =0, то выставим 0x08
   08.12.2004 WARP
     ! Патч для поиска #1. Подробнее 01864.FindFile.txt
   06.05.2003 SVS
@@ -287,7 +289,10 @@ void ScreenBuf::ApplyColorMask(int X1,int Y1,int X2,int Y2,WORD ColorMask)
   {
     CHAR_INFO *PtrBuf=Buf+(Y1+I)*BufX+X1;
     for (J=0; J < Width; J++, ++PtrBuf)
-      PtrBuf->Attributes&=~ColorMask;
+    {
+      if((PtrBuf->Attributes&=~ColorMask) == 0)
+        PtrBuf->Attributes=0x08;
+    }
   }
 
 #ifdef DIRECT_SCREEN_OUT

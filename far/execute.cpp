@@ -5,10 +5,15 @@ execute.cpp
 
 */
 
-/* Revision: 1.112 26.02.2005 $ */
+/* Revision: 1.113 26.02.2005 $ */
 
 /*
 Modify:
+  26.02.2005 SVS
+    ! если у CommandLine не выставлен флаг FCMDOBJ_LOCKUPDATEPANEL,
+      то перерисовать панели.
+    ! Для перерисовки панелей воспользуемся существующей функцией
+      ShellUpdatePanels() - она более корректно отрисовывает панели.
   26.02.2005 WARP
     ! Переписал (пересобрал) функцию execute
   05.01.2005 SVS
@@ -1432,9 +1437,15 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
           ScrollScreen(Min(CurY-Y1+2,2/*Opt.ShowKeyBar ? 2:1*/));
       }
     }
-    CtrlObject->Cp()->LeftPanel->UpdateIfChanged(UIC_UPDATE_FORCE);
-    CtrlObject->Cp()->RightPanel->UpdateIfChanged(UIC_UPDATE_FORCE);
-    CtrlObject->Cp()->Redraw();
+
+    if(!Flags.Check(FCMDOBJ_LOCKUPDATEPANEL))
+      ShellUpdatePanels(CtrlObject->Cp()->ActivePanel,FALSE);
+    /*else
+    {
+      CtrlObject->Cp()->LeftPanel->UpdateIfChanged(UIC_UPDATE_FORCE);
+      CtrlObject->Cp()->RightPanel->UpdateIfChanged(UIC_UPDATE_FORCE);
+      CtrlObject->Cp()->Redraw();
+    }*/
   }
   /* VVM $ */
   ScrBuf.Flush();

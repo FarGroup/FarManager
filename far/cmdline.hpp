@@ -7,10 +7,12 @@ cmdline.hpp
 
 */
 
-/* Revision: 1.13 09.03.2004 $ */
+/* Revision: 1.14 26.02.2005 $ */
 
 /*
 Modify:
+  26.02.2005 SVS
+    + CommandLine::LockUpdatePanel() и FCMDOBJ_LOCKUPDATEPANEL
   09.03.2004 SVS
     + CorrectRealScreenCoord() - корректировка размеров буфера
   21.08.2003 SVS
@@ -48,6 +50,10 @@ Modify:
 #include "scrobj.hpp"
 #include "edit.hpp"
 #include "farconst.hpp"
+
+enum {
+  FCMDOBJ_LOCKUPDATEPANEL   = 0x00010000,
+};
 
 class CommandLine:public ScreenObject
 {
@@ -105,6 +111,7 @@ class CommandLine:public ScreenObject
     void CorrectRealScreenCoord();
     /* OT $ */
     void ResizeConsole();
+    void LockUpdatePanel(int Mode) {Flags.Change(FCMDOBJ_LOCKUPDATEPANEL,Mode);};
 };
 
 #endif  // __COMMANDLINE_HPP__

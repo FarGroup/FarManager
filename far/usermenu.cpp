@@ -5,10 +5,14 @@ User menu и есть
 
 */
 
-/* Revision: 1.67 06.08.2004 $ */
+/* Revision: 1.68 26.02.2005 $ */
 
 /*
 Modify:
+  26.02.2005 SVS
+    ! ƒл€ перерисовки панелей воспользуемс€ существующей функцией
+      ShellUpdatePanels() - она более корректно отрисовывает панели.
+    ! ¬ процессе выполнени€ каждой строки UserMenu залочим обновление панелей.
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   19.05.2004 SVS
@@ -456,8 +460,9 @@ void ProcessUserMenu(int EditMenu)
   */
   if (FrameManager->IsPanelsActive() && (ExitCode == EC_COMMAND_SELECTED || MenuModified))
   {
-    CtrlObject->Cp()->ActivePanel->Update(UPDATE_KEEP_SELECTION);
-    CtrlObject->Cp()->ActivePanel->Redraw();
+    ShellUpdatePanels(CtrlObject->Cp()->ActivePanel,FALSE);
+    //CtrlObject->Cp()->ActivePanel->Update(UPDATE_KEEP_SELECTION);
+    //CtrlObject->Cp()->ActivePanel->Redraw();
   }
   /* DJ $ */
 
@@ -956,6 +961,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
     char *OldCmdLine=xf_strdup(CtrlObject->CmdLine->GetStringAddr());
     int OldCmdLineSelStart, OldCmdLineSelEnd;
     CtrlObject->CmdLine->GetSelection(OldCmdLineSelStart,OldCmdLineSelEnd);
+    CtrlObject->CmdLine->LockUpdatePanel(TRUE);
     while (1)
     {
       char LineName[50],Command[4096];
@@ -1013,6 +1019,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
           remove(ShortListName+NM);
       CurLine++;
     }
+    CtrlObject->CmdLine->LockUpdatePanel(FALSE);
     if(OldCmdLine) // восстановим сохраненную командную строку
     {
        CtrlObject->CmdLine->SetString(OldCmdLine,FrameManager->IsPanelsActive());
