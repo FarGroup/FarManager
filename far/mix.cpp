@@ -5,13 +5,15 @@ mix.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 28.06.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  28.06.2000 IS
+    ! Функция Unquote стала универсальной
 */
 
 #include "headers.hpp"
@@ -1485,18 +1487,31 @@ int GetClusterSize(char *Root)
 }
 
 
+/* $ 28.06.2000 IS
+  Теперь функция Unquote убирает ВСЕ начальные и заключительные кавычки
+*/
 void Unquote(char *Str)
 {
-  if (Str[0]!='\"')
-    return;
-  int Length=strlen(Str);
-  if (Length<3 || Str[Length-1]!='\"')
-    return;
-  for (int I=1;I<Length-1;I++)
-    Str[I-1]=Str[I];
-  Str[Length-2]=0;
+ if(Str)
+  {
+   if(int Length=lstrlen(Str))
+   {
+    /*убираем заключительные кавычки*/
+    Length--;
+    while(Str[Length]=='\"')
+    {
+     Str[Length]='\0';
+     if(!Length)break;
+     Length--;
+    }
+    /*убираем начальные кавычки*/
+    char *start=Str;
+    while(*start=='\"') start++;
+    if(start!=Str) memcpy(Str,start,Length+Str-start+2);
+   }
+  }
 }
-
+/* IS $ */
 
 
 bool GetSubstName(char *LocalName,char *SubstName,int SubstSize)
