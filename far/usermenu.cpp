@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.50 14.01.2002 $ */
+/* Revision: 1.51 15.02.2002 $ */
 
 /*
 Modify:
+  15.02.2002 VVM
+    ! Поскольку сепаратор в меню может иметь лэйб - поле надо очищать :)
   14.01.2002 IS
     ! chdir -> FarChDir
   08.01.2002 SVS
@@ -564,6 +566,7 @@ int FillUserMenu(VMenu& UserMenu,char *MenuKey,int MenuPos,int *FuncPos,char *Na
     {
       UserMenuItem.Flags|=LIF_SEPARATOR;
       UserMenuItem.Flags&=~LIF_SELECTED;
+      UserMenuItem.Name[0]=0;
       if (NumLine==MenuPos)
         MenuPos++;
     }
