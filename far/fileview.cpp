@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.36 06.06.2001 $ */
+/* Revision: 1.37 14.06.2001 $ */
 
 /*
 Modify:
+  14.06.2001 OT
+    ! "Бунт" ;-)
   06.06.2001 OT
     ! отменен OnChangeFocus за отсутствием состава ... необходимости :)
     + добавлен деструктор ~FileViewer()... с косметическими целями
@@ -469,19 +471,6 @@ void FileViewer::SetTempViewName(char *Name)
 }
 
 
-/* $ 28.06.2000 tran
- (NT Console resize)
- resize viewer */
-void FileViewer::SetScreenPosition()
-{
-  if (FullScreen)
-  {
-    SetPosition(0,0,ScrX,ScrY);
-    Show();
-  }
-}
-/* tran $ */
-
 FileViewer::~FileViewer()
 {
   _OT(SysLog("[%p] ~FileViewer::FileViewer()",this));
@@ -498,4 +487,3 @@ void FileViewer::OnDestroy()
     CtrlObject->ViewHistory->AddToHistory(FullFileName,MSG(MHistoryView),0);
   }
 }
-

@@ -5,10 +5,12 @@ flmodes.cpp
 
 */
 
-/* Revision: 1.03 21.05.2001 $ */
+/* Revision: 1.04 14.06.2001 $ */
 
 /*
 Modify:
+  14.06.2001 OT
+    ! "Бунт" ;-)
   21.05.2001 SVS
     ! struct MenuData|MenuItem
       Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
@@ -164,7 +166,7 @@ void FileList::SetFilePanelModes()
     ViewSettingsArray[ModeNumber]=NewSettings;
     CtrlObject->Cp()->LeftPanel->SortFileList(TRUE);
     CtrlObject->Cp()->RightPanel->SortFileList(TRUE);
-    CtrlObject->Cp()->SetScreenPositions();
+    CtrlObject->Cp()->SetScreenPosition();
     int LeftMode=CtrlObject->Cp()->LeftPanel->GetViewMode();
     int RightMode=CtrlObject->Cp()->RightPanel->GetViewMode();
     CtrlObject->Cp()->LeftPanel->SetViewMode(ModeNumber);

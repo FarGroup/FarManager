@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.13 22.05.2001 $ */
+/* Revision: 1.14 14.06.2001 $ */
 
 /*
 Modify:
+  14.06.2001 OT
+    ! "Бунт" ;-)
   22.05.2001 tran
     ! по результам прогона на CodeGuard
   22.05.201 OT
@@ -68,7 +70,7 @@ static char *VerticalLine[]={"\x0B3","\x0BA"};
 void FileList::DisplayObject()
 {
   Height=Y2-Y1-4+!Opt.ShowColumnTitles+(Opt.ShowPanelStatus ? 0:2);
-  _OT(SysLog("FileList::DisplayObject()"));///
+  _OT(SysLog("[%p] FileList::DisplayObject()",this));
   if (UpdateRequired)
   {
     UpdateRequired=FALSE;
@@ -411,7 +413,7 @@ void FileList::ShowTotalSize(struct OpenPluginInfo &Info)
     {
       static unsigned char DHLine[4]={0x0CD,0x0CD,0x0CD,0x00};
       sprintf(TotalStr," %s (%d) %s %s ",FormSize,TotalFileCount,DHLine,FreeSize);
-      if (strlen(TotalStr)>X2-X1-1)
+      if ((int) strlen(TotalStr)> X2-X1-1)
       {
         InsertCommas(FreeDiskSize>>20,FreeSize);
         InsertCommas(TotalFileSize>>20,FormSize);
@@ -800,7 +802,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 {
                   if (RightAlign)
                     LeftBracket=TRUE;
-                  if (!RightAlign && strlen(NamePtr)>Width)
+                  if (!RightAlign && (int) strlen(NamePtr)>Width)
                     RightBracket=TRUE;
                 }
 
@@ -850,7 +852,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 if (!Packed && (CurPtr->FileAttr & FA_DIREC) && !CurPtr->ShowFolderSize)
                 {
                   if (strcmp(CurPtr->Name,"..")==0)
-                    if (strlen(MSG(MListUp))<=Width-2)
+                    if ((int) strlen(MSG(MListUp))<=Width-2)
                       sprintf(Str,"<%s>",MSG(MListUp));
                     else
                       strcpy(Str,MSG(MListUp));

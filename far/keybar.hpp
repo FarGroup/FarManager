@@ -7,10 +7,12 @@ Keybar
 
 */
 
-/* Revision: 1.06 06.05.2001 $ */
+/* Revision: 1.07 14.06.2001 $ */
 
 /*
 Modify:
+  14.06.2001 OT
+    ! "Бунт" ;-)
   06.05.2001 DJ
     ! перетрях #include
   30.04.2001 DJ
@@ -113,6 +115,7 @@ class KeyBar: public ScreenObject
     /* DJ $ */
 
     void RedrawIfChanged();
+    void ResizeConsole();
 };
 
 /* DJ $ */

@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.13 03.06.2001 $ */
+/* Revision: 1.14 14.06.2001 $ */
 
 /*
 Modify:
+  14.06.2001 OT
+    ! "Бунт" ;-)
   03.06.2001 IS
     + ChangePanel: "Наследуем" состояние режима "Помеченные файлы вперед"
   31.05.2001 SVS
@@ -59,6 +61,7 @@ Modify:
 #include "filter.hpp"
 #include "findfile.hpp"
 #include "savescr.hpp"
+#include "manager.hpp"
 
 FilePanels::FilePanels()
 {
@@ -158,17 +161,15 @@ void FilePanels::SetPanelPositions(int LeftFullScreen,int RightFullScreen)
   _OT(SysLog("[%p] FilePanels::SetPanelPositions() {%d, %d - %d, %d}", this,X1,Y1,X2,Y2));
 }
 
-void FilePanels::SetScreenPositions()
+void FilePanels::SetScreenPosition()
 {
-  RedrawDesktop Redraw;
-//  CtrlObject->CmdLine->Hide();
-
+  _OT(SysLog("[%p] FilePanels::SetScreenPosition() {%d, %d - %d, %d}", this,X1,Y1,X2,Y2));
+//  RedrawDesktop Redraw;
   CtrlObject->CmdLine->SetPosition(0,ScrY-(Opt.ShowKeyBar!=0),ScrX,ScrY-(Opt.ShowKeyBar!=0));
   TopMenuBar.SetPosition(0,0,ScrX,0);
   MainKeyBar.SetPosition(0,ScrY,ScrX,ScrY);
   SetPanelPositions(LeftPanel->IsFullScreen(),RightPanel->IsFullScreen());
 
-  _OT(SysLog("[%p] FilePanels::SetScreenPositions() {%d, %d - %d, %d}", this,X1,Y1,X2,Y2));
 }
 
 void FilePanels::RedrawKeyBar()
@@ -327,7 +328,8 @@ int  FilePanels::ProcessKey(int Key)
       /* $ 07.05.2001 DJ */
       KeyBarVisible = Opt.ShowKeyBar;
       /* DJ $ */
-      SetScreenPositions();
+      SetScreenPosition();
+      FrameManager->RefreshFrame();
       break;
     case KEY_CTRLL:
     case KEY_CTRLQ:
@@ -410,8 +412,7 @@ int  FilePanels::ProcessKey(int Key)
           RightStateBeforeHide=RightVisible;
           LeftPanel->Hide();
           RightPanel->Hide();
-          HideState=TRUE;
-          CtrlObject->CmdLine->ShowBackground();
+          FrameManager->RefreshFrame();
         }
         else
         {
@@ -421,10 +422,8 @@ int  FilePanels::ProcessKey(int Key)
             LeftPanel->Show();
           if (RightStateBeforeHide)
             RightPanel->Show();
-          HideState=FALSE;
         }
       }
-      Redraw();
       break;
     case KEY_CTRLP:
       if (ActivePanel->IsVisible())
@@ -436,6 +435,7 @@ int  FilePanels::ProcessKey(int Key)
           AnotherPanel->Show();
         CtrlObject->CmdLine->Redraw();
       }
+      FrameManager->RefreshFrame();
       break;
     case KEY_CTRLI:
       ActivePanel->EditFilter();
@@ -446,25 +446,17 @@ int  FilePanels::ProcessKey(int Key)
     case KEY_CTRLU:
       if (LeftPanel->IsVisible() || RightPanel->IsVisible())
       {
-        int XL1,YL1,XL2,YL2,VL;
-        int XR1,YR1,XR2,YR2,VR;
+        int XL1,YL1,XL2,YL2;
+        int XR1,YR1,XR2,YR2;
         int SwapType;
         Panel *Swap;
         LeftPanel->GetPosition(XL1,YL1,XL2,YL2);
         RightPanel->GetPosition(XR1,YR1,XR2,YR2);
         if (XL2-XL1!=ScrX && XR2-XR1!=ScrX)
         {
-          VL=LeftPanel->IsVisible();
-          VR=RightPanel->IsVisible();
-          LeftPanel->Hide();
-          RightPanel->Hide();
           Opt.WidthDecrement=-Opt.WidthDecrement;
           LeftPanel->SetPosition(ScrX/2+1-Opt.WidthDecrement,YR1,ScrX,YR2);
           RightPanel->SetPosition(0,YL1,ScrX/2-Opt.WidthDecrement,YL2);
-          if (VL)
-            LeftPanel->Show();
-          if (VR)
-            RightPanel->Show();
           Swap=LeftPanel;
           LeftPanel=RightPanel;
           RightPanel=Swap;
@@ -481,6 +473,7 @@ int  FilePanels::ProcessKey(int Key)
           PanelFilter::SwapFilter();
         }
       }
+      FrameManager->RefreshFrame();
       break;
     case KEY_ALTF1:
       LeftPanel->ChangeDisk();
@@ -493,45 +486,44 @@ int  FilePanels::ProcessKey(int Key)
         FindFiles FindFiles;
       }
       break;
-/* $ 29.05.2001 OT Перенос KEY_ALTF9 в Manager::ProcessKey(int Key)
-    case KEY_ALTF9:
-      _OT(SysLog("FilePanels::ProcessKey, KEY_ALTF9 pressed..."));
-      SetVideoMode(FarAltEnter(-2));
-      break;
-$ */
     case KEY_CTRLUP:
       if (Opt.HeightDecrement<ScrY-7)
       {
         Opt.HeightDecrement++;
-        SetScreenPositions();
+        SetScreenPosition();
+        FrameManager->RefreshFrame();
       }
       break;
     case KEY_CTRLDOWN:
       if (Opt.HeightDecrement>0)
       {
         Opt.HeightDecrement--;
-        SetScreenPositions();
+        SetScreenPosition();
+        FrameManager->RefreshFrame();
       }
       break;
     case KEY_CTRLLEFT:
       if (Opt.WidthDecrement<ScrX/2-10)
       {
         Opt.WidthDecrement++;
-        SetScreenPositions();
+        SetScreenPosition();
+        FrameManager->RefreshFrame();
       }
       break;
     case KEY_CTRLRIGHT:
       if (Opt.WidthDecrement>-(ScrX/2-10))
       {
         Opt.WidthDecrement--;
-        SetScreenPositions();
+        SetScreenPosition();
+        FrameManager->RefreshFrame();
       }
       break;
     case KEY_CTRLCLEAR:
       if (Opt.WidthDecrement!=0)
       {
         Opt.WidthDecrement=0;
-        SetScreenPositions();
+        SetScreenPosition();
+        FrameManager->RefreshFrame();
       }
       break;
     case KEY_F9:
@@ -781,7 +773,7 @@ int  FilePanels::GetTypeAndName(char *Type,char *Name)
 
 void FilePanels::OnChangeFocus(int f)
 {
-  _OT(SysLog("FilePanels::OnChangeFocus(), focus=%i",f));
+  _OT(SysLog("FilePanels::OnChangeFocus(%i)",f));
   Focus=f;
   if ( f ) {
     Redraw();
@@ -805,7 +797,10 @@ void FilePanels::Redraw()
     if (RightPanel->IsVisible())
         RightPanel->Show();
     CtrlObject->CmdLine->Show();
-    MainKeyBar.Redraw();
+    if (Opt.ShowKeyBar)
+      CtrlObject->MainKeyBar->Show();
+    if (Opt.ShowMenuBar)
+      CtrlObject->TopMenuBar->Show();
 }
 
 int  FilePanels::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
@@ -826,7 +821,8 @@ void FilePanels::ShowConsoleTitle()
 void FilePanels::ResizeConsole()
 {
   CtrlObject->CmdLine->ResizeConsole();
-  //  SetPanelPositions(LeftPanel->IsFullScreen(),RightPanel->IsFullScreen());
-  SetScreenPositions();
+  MainKeyBar.ResizeConsole();
+  TopMenuBar.ResizeConsole();
+  SetScreenPosition();
   _OT(SysLog("[%p] FilePanels::ResizeConsole() {%d, %d - %d, %d}", this,X1,Y1,X2,Y2));
 }

@@ -7,10 +7,12 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.14 31.05.2001 $ */
+/* Revision: 1.15 14.06.2001 $ */
 
 /*
 Modify:
+  14.06.2001 OT
+    ! "Бунт" ;-)
   31.05.2001 OT
     ! константы для ExitCode объединены с XC_QUIT и перенесены в farconst.cpp
   27.05.2001 DJ
@@ -100,7 +102,7 @@ class FileEditor:public Frame
     virtual int IsFileModified() {return(FEdit.IsFileModified());};
     /* $ 28.06.2000 tran
        NT Console resize - resize editor */
-    virtual void SetScreenPosition();
+    void SetScreenPosition();
     /* tran $ */
     virtual char *GetTypeName(){return "[FileEdit]";}; ///
     virtual int GetType() { return MODALTYPE_EDITOR; }

@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.35 08.06.2001 $ */
+/* Revision: 1.36 14.06.2001 $ */
 
 /*
 Modify:
+  14.06.2001 OT
+    ! "Бунт" ;-)
   08.06.2001 SVS
     ! Исправление ситуации (влоб) с блокировкой мыши при запуске некоторых
       PE приложений!
@@ -393,7 +395,7 @@ int GetInputRecord(INPUT_RECORD *rec)
                 if ((DWORD)Key==KEY_NONE || (DWORD)Key!=KEY_SHIFT && tmprec.Event.KeyEvent.bKeyDown)
                   break;
               }
-              CtrlObject->Cp()->SetScreenPositions();
+              CtrlObject->Cp()->SetScreenPosition();
               ScrBuf.ResetShadow();
               ScrBuf.Flush();
             }
@@ -521,17 +523,23 @@ int GetInputRecord(INPUT_RECORD *rec)
 #endif
   }
 
-  /*& 17.05.2001 OT Изменился размер консоли, генерим клавишу*/
-  if (rec->EventType==WINDOW_BUFFER_SIZE_EVENT)
-  {
-    GetVideoMode(CurScreenBufferInfo);
-    return(KEY_CONSOLE_BUFFER_RESIZE);
-  }
-  /* 17.05.2001 $ */
 
   if (EnableShowTime)
     ShowTime(1);
 
+  /*& 17.05.2001 OT Изменился размер консоли, генерим клавишу*/
+  if (rec->EventType==WINDOW_BUFFER_SIZE_EVENT)
+  {
+    int PrevScrX=ScrX;
+    int PrevScrY=ScrY;
+    GetVideoMode(CurScreenBufferInfo);
+    if (PrevScrX+1==CurScreenBufferInfo.dwSize.X&&PrevScrY+1==CurScreenBufferInfo.dwSize.Y){
+      return KEY_NONE;
+    } else {
+      return(KEY_CONSOLE_BUFFER_RESIZE);
+    }
+  }
+  /* 17.05.2001 $ */
 
   if (rec->EventType==KEY_EVENT)
   {

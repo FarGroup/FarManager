@@ -5,10 +5,12 @@ options.cpp
 
 */
 
-/* Revision: 1.09 21.05.2001 $ */
+/* Revision: 1.10 14.06.2001 $ */
 
 /*
 Modify:
+  14.06.2001 OT
+    ! "Бунт" ;-)
   21.05.2001 SVS
     ! struct MenuData|MenuItem
       Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
@@ -467,7 +469,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
               LangMenu->Hide();
               CtrlObject->Plugins.ReloadLanguage();
               CtrlObject->Cp()->RedrawKeyBar();
-              CtrlObject->Cp()->SetScreenPositions();
+              CtrlObject->Cp()->SetScreenPosition();
             }
             delete LangMenu;
           }

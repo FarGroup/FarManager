@@ -7,12 +7,16 @@ Parent class для всех screen objects
 
 */
 
-/* Revision: 1.03 21.05.2001 $ */
+/* Revision: 1.04 14.06.2001 $ */
 
 /*
 Modify:
+  14.06.2001 OT
+    + Новый метод SetScreenPosition() - без аргументов. Будет использоваться объектами,
+      которым требуется выставить свои размеры, не прямям, а косвенным образом,
+      зависяшим от состояния других объектов.
   21.05.2001 OT
-    + Реакция на изменение размера консоли 
+    + Реакция на изменение размера консоли
   06.05.2001 DJ
     ! перетрях #include
   15.07.2000 tran
@@ -33,10 +37,10 @@ class ScreenObject
     int Visible;
     int Type;
     int EnableRestoreScreen;
-    int SetPositionDone;
   protected:
     int X1,Y1,X2,Y2;
     int ObjWidth,ObjHeight;
+    int SetPositionDone;
   public:
     SaveScreen *SaveScr;
     ScreenObject();
@@ -52,7 +56,8 @@ class ScreenObject
     virtual void ShowConsoleTitle() {};
     void SavePrevScreen();
     void Redraw();
-    void SetPosition(int X1,int Y1,int X2,int Y2);
+    virtual void SetPosition(int X1,int Y1,int X2,int Y2);
+    virtual void SetScreenPosition();
     virtual void ResizeConsole(){};
     void GetPosition(int& X1,int& Y1,int& X2,int& Y2);
     int IsVisible() { return(Visible); };

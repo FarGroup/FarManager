@@ -7,10 +7,12 @@ Parent class для модальных объектов
 
 */
 
-/* Revision: 1.04 06.05.2001 $ */
+/* Revision: 1.05 14.06.2001 $ */
 
 /*
 Modify:
+  14.06.2001 OT
+    ! "Бунт" ;-)
   06.05.2001 DJ
     ! перетрях #include
   05.05.2001 DJ
@@ -32,7 +34,7 @@ class Modal:public ScreenObject
   private:
     int     ReadKey,
             WriteKey;
-
+    typedef ScreenObject inherited;
   protected:
     INPUT_RECORD ReadRec;
     char HelpTopic[512];
@@ -55,11 +57,8 @@ class Modal:public ScreenObject
 
     void SetHelp(char *Topic);
     void ShowHelp();
+    void SetScreenPosition(){inherited::SetScreenPosition();}
 
-    /* $ 28.06.2000 tran
-       (NT Console resize bug) adding virtual method */
-    virtual void SetScreenPosition();
-    /* tran $ */
 };
 
 

@@ -5,10 +5,12 @@ hmenu.cpp
 
 */
 
-/* Revision: 1.03 20.05.2001 $ */
+/* Revision: 1.04 14.06.2001 $ */
 
 /*
 Modify:
+  14.06.2001 OT
+    ! "Бунт" ;-)
   20.05.2001 SVS
     ! Константы MENU_ - в морг
   12.05.2001 DJ
@@ -250,4 +252,8 @@ void HMenu::ProcessSubMenu(struct MenuData *Data,int DataCount,
   Position=SubMenu->GetExitCode();
   delete SubMenu;
   SubMenu=NULL;
+}
+
+void HMenu::ResizeConsole()
+{
 }

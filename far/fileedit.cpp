@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.52 07.06.2001 $ */
+/* Revision: 1.53 14.06.2001 $ */
 
 /*
 Modify:
+  14.06.2001 OT
+    ! "Бунт" ;-)
   07.06.2001 IS
     - Баг (сохранение файла): нужно сначала убирать пробелы, а только потом
       кавычки
@@ -165,7 +167,7 @@ FileEditor::FileEditor(char *Name,int CreateNewFile,int EnableSwitch,
                        int StartLine,int StartChar,int DisableHistory,
                        char *PluginData)
 {
-  SetPosition(0,0,ScrX,ScrY);
+  ScreenObject::SetPosition(0,0,ScrX,ScrY);
   FullScreen=TRUE;
   Init(Name,CreateNewFile,EnableSwitch,StartLine,StartChar,DisableHistory,PluginData);
 }
@@ -175,7 +177,7 @@ FileEditor::FileEditor(char *Name,int CreateNewFile,int EnableSwitch,
             int StartLine,int StartChar,char *Title,
             int X1,int Y1,int X2,int Y2)
 {
-  SetPosition(X1,Y1,X2,Y2);
+  ScreenObject::SetPosition(X1,Y1,X2,Y2);
   FullScreen=(X1==0 && Y1==0 && X2==ScrX && Y2==ScrY);
   FEdit.SetTitle(Title);
   Init(Name,CreateNewFile,EnableSwitch,StartLine,StartChar,TRUE,"");
@@ -393,7 +395,7 @@ void FileEditor::Show()
   {
     EditKeyBar.SetPosition(0,ScrY,ScrX,ScrY);
     EditKeyBar.Redraw();
-    SetPosition(0,0,ScrX,ScrY-1);
+    ScreenObject::SetPosition(0,0,ScrX,ScrY-1);
     FEdit.SetPosition(0,0,ScrX,ScrY-1);
   }
   ScreenObject::Show();
@@ -731,10 +733,8 @@ void FileEditor::ShowConsoleTitle()
  resize editor */
 void FileEditor::SetScreenPosition()
 {
-  if (FullScreen)
-  {
+  if (FullScreen){
     SetPosition(0,0,ScrX,ScrY);
-    Show();
   }
 }
 /* tran $ */

@@ -5,10 +5,12 @@ Parent class для всех screen objects
 
 */
 
-/* Revision: 1.04 12.05.2001 $ */
+/* Revision: 1.05 14.06.2001 $ */
 
 /*
 Modify:
+  14.06.2001 OT
+    ! "Бунт" ;-)
   12.05.2001 SVS
     ! Немного проверок на несозданные объекты
   09.05.2001 OT
@@ -70,6 +72,11 @@ void ScreenObject::SetPosition(int X1,int Y1,int X2,int Y2)
   ObjWidth=X2-X1+1;
   ObjHeight=Y2-Y1+1;
   SetPositionDone=TRUE;
+}
+
+void ScreenObject::SetScreenPosition()
+{
+  SetPositionDone=FALSE;
 }
 
 

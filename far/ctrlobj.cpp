@@ -5,10 +5,12 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.28 30.05.2001 $ */
+/* Revision: 1.29 14.06.2001 $ */
 
 /*
 Modify:
+  14.06.2001 OT
+    ! "Бунт" ;-)
   30.05.2001 OT
     ! Очистка исходников от закомментареных ранее кусков
   16.05.2001 DJ
@@ -158,7 +160,7 @@ void ControlObject::Init()
   FPanels->Init();
   this->MainKeyBar=&(FPanels->MainKeyBar);
   this->TopMenuBar=&(FPanels->TopMenuBar);
-  FPanels->SetScreenPositions();
+  FPanels->SetScreenPosition();
 
   _beginthread(CheckVersion,0x10000,NULL);
   Cp()->LeftPanel->Update(0);
@@ -172,17 +174,6 @@ void ControlObject::Init()
       Cp()->RightPanel->GoToFile(Opt.RightCurFile);
   }
   /* tran 07.09.2000 $ */
-
-  if (Opt.LeftPanel.Visible)
-    Cp()->LeftPanel->Show();
-  else
-    Cp()->LeftPanel->Hide();
-  if (Opt.RightPanel.Visible)
-    Cp()->RightPanel->Show();
-  else
-    Cp()->RightPanel->Hide();
-  CmdLine->Redraw();
-
   FrameManager->InsertFrame(FPanels);
   Plugins.LoadPlugins();
 }

@@ -5,10 +5,12 @@ setcolor.cpp
 
 */
 
-/* Revision: 1.12 07.06.2001 $ */
+/* Revision: 1.13 14.06.2001 $ */
 
 /*
 Modify:
+  14.06.2001 OT
+    ! "Бунт" ;-)
   07.06.2001 SVS
     + Резерв для "цветных часов"
   04.06.2001 SVS
@@ -342,7 +344,7 @@ void SetColors()
       }
     }
   }
-  CtrlObject->Cp()->SetScreenPositions();
+  CtrlObject->Cp()->SetScreenPosition();
 }
 
 
@@ -372,7 +374,7 @@ void GetColor(int PaletteIndex)
     Palette[PaletteIndex-COL_FIRSTPALETTECOLOR]=NewColor;
     MenuToRedraw2->Hide();
     MenuToRedraw1->Hide();
-    CtrlObject->Cp()->SetScreenPositions();
+    CtrlObject->Cp()->SetScreenPosition();
     MenuToRedraw1->Show();
     MenuToRedraw2->Show();
   }
@@ -384,7 +386,6 @@ void GetColor(int PaletteIndex)
 
 static long WINAPI GetColorDlgProc(HANDLE hDlg, int Msg, int Param1, long Param2)
 {
-  int I;
   switch (Msg)
   {
     case DN_CTLCOLORDLGITEM:

@@ -5,10 +5,12 @@ help.cpp
 
 */
 
-/* Revision: 1.26 04.06.2001 $ */
+/* Revision: 1.27 14.06.2001 $ */
 
 /*
 Modify:
+  14.06.2001 OT
+    ! "Бунт" ;-)
   04.06.2001 OT
     - Окончательное исправление F1->AltF9.
       Истреблены переменные static SaveScreen *TopScreen и TopLevel за ненадобностью
@@ -261,6 +263,7 @@ Help::~Help()
   if(HelpMask)
     delete HelpMask;
   /* SVS $ */
+
 }
 
 
@@ -856,6 +859,12 @@ int Help::ProcessKey(int Key)
       Hide();
       FullScreenHelp=!FullScreenHelp;
       ResizeConsole();
+      /* $ 26.04.2001 DJ
+      используем сохраненный Mask
+      */
+      ReadHelp(HelpMask);
+      /* DJ $ */
+      FrameManager->RefreshFrame();
       return(TRUE);
     case KEY_ESC:
     case KEY_F10:
@@ -1486,12 +1495,4 @@ void Help::ResizeConsole()
   }
   else
     SetPosition(4,2,ScrX-4,ScrY-2);
-    /* $ 26.04.2001 DJ
-    используем сохраненный Mask
-  */
-  ReadHelp(HelpMask);
-  /* DJ $ */
-  Show();
-  if(Opt.ShowKeyBar && !FullScreenHelp)
-    HelpKeyBar.Show();
 }

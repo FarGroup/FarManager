@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.119 12.06.2001 $ */
+/* Revision: 1.120 14.06.2001 $ */
 
 /*
 Modify:
+  14.06.2001 OT
+   - баг Панели->F5->CtrlDown->трап
+     неверно инициализировался массив цветов для меню истории :((
   12.06.2001 KM
    ! Зачем-то была убрана инициализация DI_COMBOBOX через FarDialogItem.
      Восстановлено!!!
@@ -3622,7 +3625,9 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
         break;
 
       //  Перед отрисовкой спросим об изменении цветовых атрибутов
-      short Colors[9];
+      /*$ 14.06.2001 OT */
+      short Colors[16];
+      /* OT $*/
       HistoryMenu.GetColors(Colors);
       if(DlgProc((HANDLE)this,DN_CTLCOLORDLGLIST,
                       sizeof(Colors)/sizeof(Colors[0]),(long)Colors))

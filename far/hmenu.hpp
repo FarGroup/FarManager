@@ -7,10 +7,12 @@ hmenu.hpp
 
 */
 
-/* Revision: 1.01 06.05.2001 $ */
+/* Revision: 1.02 14.06.2001 $ */
 
 /*
 Modify:
+  14.06.2001 OT
+    ! "Бунт" ;-)
   06.05.2001 DJ
     ! перетрях #include
   25.06.2000 SVS
@@ -49,6 +51,7 @@ class HMenu:public Modal
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     void GetExitCode(int &ExitCode,int &VExitCode);
+    void ResizeConsole();
 };
 
 

@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.78 28.05.2001 $ */
+/* Revision: 1.79 14.06.2001 $ */
 
 /*
 Modify:
+  14.06.2001 OT
+    ! "Бунт" ;-)
   28.05.2001 SVS
     ! Основные XLat-клавиши по умолчанию не ставятся в CtrlShiftX - дадим
       возможность отключить эту фичу.
@@ -443,7 +445,7 @@ void PanelSettings()
 
   CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
   CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
-  CtrlObject->Cp()->SetScreenPositions();
+  CtrlObject->Cp()->SetScreenPosition();
 }
 
 
@@ -527,7 +529,7 @@ void InterfaceSettings()
   SetFarConsoleMode();
   CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
   CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
-  CtrlObject->Cp()->SetScreenPositions();
+  CtrlObject->Cp()->SetScreenPosition();
 }
 
 

@@ -7,10 +7,12 @@ fileview.hpp
 
 */
 
-/* Revision: 1.10 06.06.2001 $ */
+/* Revision: 1.11 14.06.2001 $ */
 
 /*
 Modify:
+  14.06.2001 OT
+    ! "Бунт" ;-)
   06.06.2001 OT
     ! отменен OnChangeFocus за отсутствием состава ... необходимости :)
     + добавлен деструктор ~FileViewer()... с косметическими целями
@@ -78,10 +80,6 @@ class FileViewer:public Frame
     int GetTypeAndName(char *Type,char *Name);
     void ShowConsoleTitle();
     void SetTempViewName(char *Name);
-    /* $ 28.06.2000 tran
-       NT Console resize - resize viewer */
-    virtual void SetScreenPosition();
-    /* tran $ */
     virtual void OnDestroy();
     virtual char *GetTypeName(){return "[FileView]";}; ///
     virtual int GetType() { return MODALTYPE_VIEWER; }

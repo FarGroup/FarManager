@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.30 06.06.2001 $ */
+/* Revision: 1.31 14.06.2001 $ */
 
 /*
 Modify:
+  14.06.2001 OT
+    ! "Бунт" ;-)
   06.06.2001 OT
     - Исправлены баги приводившие к утечкам памяти в ситуации: AltF7->Enter->F3->F6->F6->:((
     - Перемудрил зачем-то с ExecuteFrame()...
@@ -499,6 +501,7 @@ int  Manager::ProcessKey(int Key)
     switch(Key)
     {
     case KEY_CONSOLE_BUFFER_RESIZE:
+      _OT(SysLog("[%p] Manager::ProcessKey(KEY_CONSOLE_BUFFER_RESIZE)",this));
       for (i=0;i<FrameCount;i++){
         FrameList[i]->ResizeConsole();
       }
@@ -817,6 +820,10 @@ void Manager::RefreshCommit()
     return;
   if (RefreshedFrame->Refreshable()){
     RefreshedFrame->ShowConsoleTitle();
+    // В режиме стека "освежаем" немодальный фрейм, с которого все началось...
+    if (ModalStackCount>0){
+      (*this)[FramePos]->OnChangeFocus(1);
+    }
     RefreshedFrame->OnChangeFocus(1);
     CtrlObject->Macro.SetMode(RefreshedFrame->GetMacroMode());
   }
