@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.173 12.12.2001 $ */
+/* Revision: 1.175 12.12.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  12.12.2001 SVS
+    ! BugZ#173. Для плагинов обконстантим параметр в FARSTDPOINTTONAME
   12.12.2001 DJ
     ! для DM_SETTEXTLENGTH тоже нужно сохранить совместимость
 	! убрано дублирование PFLAGS_* и FPS_*
@@ -1757,7 +1759,11 @@ typedef char   *(WINAPI *FARSTDTRIM)(char *Str);
 typedef char   *(WINAPI *FARSTDTRUNCSTR)(char *Str,int MaxLength);
 typedef char   *(WINAPI *FARSTDTRUNCPATHSTR)(char *Str,int MaxLength);
 typedef char   *(WINAPI *FARSTDQUOTESPACEONLY)(char *Str);
-typedef char   *(WINAPI *FARSTDPOINTTONAME)(char *Path);
+#ifdef FAR_USE_INTERNALS
+typedef char*   (WINAPI *FARSTDPOINTTONAME)(char *Path);
+#else // ELSE FAR_USE_INTERNALS
+typedef char*   (WINAPI *FARSTDPOINTTONAME)(const char *Path);
+#endif // END FAR_USE_INTERNALS
 typedef void    (WINAPI *FARSTDGETPATHROOT)(const char *Path,char *Root);
 typedef BOOL    (WINAPI *FARSTDADDENDSLASH)(char *Path);
 typedef int     (WINAPI *FARSTDCOPYTOCLIPBOARD)(const char *Data);
