@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.87 13.09.2001 $ */
+/* Revision: 1.88 14.09.2001 $ */
 
 /*
 Modify:
+  14.09.2001 SVS
+    - BugZ#9 - окончание
   13.09.2001 SKV
     - не грузить .dll если она не экспортирует ни одной far plugin api функции.
   12.09.2001 SVS
@@ -1079,10 +1081,10 @@ HANDLE PluginsSet::OpenPlugin(int PluginNumber,int OpenFrom,int Item)
       /* $ 16.10.2000 SVS
          + Обработка исключений при вызове галимого плагина.
       */
-      TRY {
 //_SVS(SysLog("**** Enter to Plugin ****"));
+      CtrlObject->Macro.SetRedrawEditor(FALSE);
+      TRY {
          hInternal=PluginsData[PluginNumber].pOpenPlugin(OpenFrom,Item);
-//_SVS(SysLog("**** Leave from Plugin ****"));
          /* $ 26.02.2201 VVM
              ! Выгрузить плагин, если вернули NULL */
          if (!hInternal)
@@ -1093,6 +1095,8 @@ HANDLE PluginsSet::OpenPlugin(int PluginNumber,int OpenFrom,int Item)
                     GetExceptionInformation(),&PluginsData[PluginNumber],1) )  {
         hInternal=INVALID_HANDLE_VALUE;
       }
+      CtrlObject->Macro.SetRedrawEditor(TRUE);
+//_SVS(SysLog("**** Leave from Plugin ****"));
       /* SVS $ */
       /*$ 10.08.2000 skv
         If we are in editor mode, and CurEditor defined,
@@ -1105,9 +1109,11 @@ HANDLE PluginsSet::OpenPlugin(int PluginNumber,int OpenFrom,int Item)
         will NOT send this event while screen is locked.
       */
       if(OpenFrom == OPEN_EDITOR &&
+         !CtrlObject->Macro.IsExecuting() &&
          CtrlObject->Plugins.CurEditor &&
          CtrlObject->Plugins.CurEditor->IsVisible())
       {
+_SVS(SysLog("**** Enter to EE_REDRAW (return from Plugin)"));
         CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_CHANGE);
         CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
         CtrlObject->Plugins.CurEditor->Show();

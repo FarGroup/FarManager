@@ -5,10 +5,14 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.44 30.08.2001 $ */
+/* Revision: 1.45 14.09.2001 $ */
 
 /*
 Modify:
+  14.09.2001 SVS
+    - Ѕага в TranslateKeyToVK() - неверно формировалось поле дл€ Shift-клавиш
+    ! теперь даже дл€ макроса корректно заполн€етс€ структура INPUT_RECORD
+      в функции GetInputRecord()
   30.08.2001 IS
     ! ѕри принудительном закрытии ‘ара пытаемс€ вести себ€ так же, как и при
       нажатии на F10 в панел€х, только не запрашиваем подтверждение закрыти€,
@@ -312,11 +316,13 @@ int GetInputRecord(INPUT_RECORD *rec)
 
   if (CtrlObject!=NULL)
   {
+    int VirtKey,ControlState;
     int MacroKey=CtrlObject->Macro.GetKey();
     if (MacroKey)
     {
       ScrBuf.Flush();
-      memset(rec,0,sizeof(*rec));
+      TranslateKeyToVK(MacroKey,VirtKey,ControlState,rec);
+//      memset(rec,0,sizeof(*rec));
       return(MacroKey);
     }
     if (CtrlObject->Cp()&&CtrlObject->Cp()->ActivePanel&&!CmdMode)
@@ -325,7 +331,8 @@ int GetInputRecord(INPUT_RECORD *rec)
     if (MacroKey)
     {
       ScrBuf.Flush();
-      memset(rec,0,sizeof(*rec));
+      TranslateKeyToVK(MacroKey,VirtKey,ControlState,rec);
+//      memset(rec,0,sizeof(*rec));
       return(MacroKey);
     }
   }
@@ -1054,7 +1061,13 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
       Key=0;
     Rec->Event.KeyEvent.uChar.UnicodeChar=
         Rec->Event.KeyEvent.uChar.AsciiChar=Key;
-    Rec->Event.KeyEvent.dwControlKeyState=ControlState;
+    // здесь подход к Shift-клавишам другой, нежели дл€ ControlState
+    Rec->Event.KeyEvent.dwControlKeyState=
+               (FShift&KEY_SHIFT?SHIFT_PRESSED:0)|
+               (FShift&KEY_ALT?LEFT_ALT_PRESSED:0)|
+               (FShift&KEY_CTRL?LEFT_CTRL_PRESSED:0)|
+               (FShift&KEY_RALT?RIGHT_ALT_PRESSED:0)|
+               (FShift&KEY_RCTRL?RIGHT_CTRL_PRESSED:0);
   }
   return(VirtKey!=0);
 }

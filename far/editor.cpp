@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.115 13.09.2001 $ */
+/* Revision: 1.116 14.09.2001 $ */
 
 /*
 Modify:
+  14.09.2001 SVS
+    ! Немного SysLog`ов
   13.09.2001 SKV
     - Shift-End на длииинной строке в блоке с изменённым цветом фона.
   30.08.2001 IS
@@ -1093,13 +1095,12 @@ void Editor::ShowEditor(int CurLineOnly)
   if (DisableOut)
     return;
 
+//_SVS(SysLog("Enter to ShowEditor, CurLineOnly=%i",CurLineOnly));
   /*$ 10.08.2000 skv
     To make sure that CurEditor is set to required value.
   */
   CtrlObject->Plugins.CurEditor=this;
   /* skv$*/
-
-  //_D(SysLog("ShowEditor, CurLineOnly=%i",CurLineOnly));
 
   while (CalcDistance(TopScreen,CurLine,-1)>=Y2-Y1)
   {
@@ -1136,7 +1137,7 @@ void Editor::ShowEditor(int CurLineOnly)
       /*$ 13.09.2000 skv
         EE_REDRAW 1 and 2 replaced.
       */
-//_D(SysLog("%08d EE_REDRAW",__LINE__));
+//_SVS(SysLog("Editor::ShowEditor[%d]: EE_REDRAW (%s)",__LINE__,(JustModified?"EEREDRAW_CHANGE":(CurLineOnly?"EEREDRAW_LINE":"EEREDRAW_ALL"))));
       if(JustModified)
       {
         JustModified=0;
@@ -1216,6 +1217,7 @@ void Editor::ShowEditor(int CurLineOnly)
     }
 
   ShowStatus();
+//_SVS(SysLog("Exit from ShowEditor"));
 }
 
 
@@ -1329,6 +1331,8 @@ int Editor::ProcessKey(int Key)
 
   if (Key==KEY_NONE)
     return(TRUE);
+
+//_SVS(SysLog("Editor::ProcessKey[%d]: Key=0x%08X",__LINE__,Key));
 
   int CurPos,CurVisPos,I;
   CurPos=CurLine->EditLine.GetCurPos();
@@ -2766,6 +2770,7 @@ int Editor::ProcessKey(int Key)
           Pasting--;
           CtrlObject->Plugins.CurEditor=this;
 //_D(SysLog("%08d EE_REDRAW",__LINE__));
+//_SVS(SysLog("Editor::ProcessKey[%d](!EdOpt.CursorBeyondEOL): EE_REDRAW(EEREDRAW_ALL)",__LINE__));
           CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
           /*$ 03.02.2001 SKV
             А то EEREDRAW_ALL то уходит, а на самом деле
@@ -4867,6 +4872,7 @@ int Editor::EditorControl(int Command,void *Param)
         return(FALSE);
       {
         char *Str=(char *)Param;
+//_SVS(SysLog("Editor::EditorControl[%d]: ECTL_INSERTTEXT(%s)",__LINE__,Str));
         Pasting++;
         DisableOut++;
         Edit::DisableEditOut(TRUE);
@@ -5036,6 +5042,7 @@ int Editor::EditorControl(int Command,void *Param)
       }
       return(TRUE);
     case ECTL_REDRAW:
+//_SVS(SysLog("Editor::EditorControl[%d]: ECTL_REDRAW",__LINE__));
       Show();
       ScrBuf.Flush();
       return(TRUE);

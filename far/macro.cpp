@@ -8,10 +8,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.56 12.09.2001 $ */
+/* Revision: 1.57 14.09.2001 $ */
 
 /*
 Modify:
+  14.09.2001 SVS
+    - BugZ#9 - окончание
   12.09.2001 SVS
     - BugZ#9 - кусок кода, ответственный за прорисоку редактора по окончания
                макроса перенесен в... PluginsSet::OpenPlugin
@@ -541,7 +543,9 @@ int KeyMacro::ProcessKey(int Key)
 
         if (StartMacroPos==-1) // сбросим признак автостарта
           Macros[I].Flags&=~MFLAGS_RUNAFTERFARSTART2;
-//_SVS(SysLog("**** Start Of Execute Macro ****"));
+        IsRedrawEditor=TRUE;
+_SVS(SysLog("**** Start Of Execute Macro ****"));
+_SVS(SysLog(1));
         return(TRUE);
       }
     }
@@ -737,13 +741,35 @@ begin:
   if (ExecKeyPos>=MR->BufferSize || MR->Buffer==NULL)
   {
 done:
+    /*$ 10.08.2000 skv
+      If we are in editor mode, and CurEditor defined,
+      we need to call this events.
+      EE_REDRAW 2 - to notify that text changed.
+      EE_REDRAW 0 - to notify that whole screen updated
+      ->Show() to actually update screen.
+
+      This duplication take place since ShowEditor method
+      will NOT send this event while screen is locked.
+    */
+    if(Mode==MACRO_EDITOR &&
+       IsRedrawEditor &&
+       CtrlObject->Plugins.CurEditor &&
+       CtrlObject->Plugins.CurEditor->IsVisible() &&
+       LockScr)
+    {
+      CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_CHANGE);
+      CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
+      CtrlObject->Plugins.CurEditor->Show();
+    }
+    /* skv$*/
     if(LockScr) delete LockScr;
     LockScr=NULL;
     Executing=FALSE;
     ReleaseTempBuffer();
     //FrameManager->RefreshFrame();
     //FrameManager->PluginCommit();
-//_SVS(SysLog("**** End Of Execute Macro ****"));
+_SVS(SysLog(-1));
+_SVS(SysLog("**** End Of Execute Macro ****"));
     return(FALSE);
   }
 

@@ -5,10 +5,15 @@ mix.cpp
 
 */
 
-/* Revision: 1.87 12.09.2001 $ */
+/* Revision: 1.88 14.09.2001 $ */
 
 /*
 Modify:
+  14.09.2001 SVS
+    ! Для эксперимента в ConvertNameToReal() добавлен вызов функции
+      RawConvertShortNameToLongName().
+      Если будут сильные тормоза - отключить эту фигню
+      (но с ней результат гарантирован!!!)
   12.09.2001 SVS
     + ConvertNameToReal() - преобразует Src в полный РЕАЛЬНЫЙ путь с
       учетом reparse point в Win2K; если OS ниже, то вызывается обычный
@@ -1038,6 +1043,7 @@ int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize)
 
   // Получим сначала полный путь до объекта обычным способом
   int Ret=ConvertNameToFull(Src,TempDest,sizeof(TempDest));
+  RawConvertShortNameToLongName(TempDest,TempDest,sizeof(TempDest));
 
   // остальное касается Win2K, т.к. в виндах ниже рангом нету некоторых
   // функций, позволяющих узнать истинное имя линка.

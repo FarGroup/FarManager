@@ -10,10 +10,12 @@ macro.hpp
 
 */
 
-/* Revision: 1.17 07.09.2001 $ */
+/* Revision: 1.18 14.09.2001 $ */
 
 /*
 Modify:
+  14.09.2001 SVS
+    - BugZ#9 - окончание
   07.09.2001 SVS
     + CheckCurMacroFlags() - проверка флагов текущего _»—ѕќЋЌя≈ћќ√ќ_ макроса.
   15.08.2001 SVS
@@ -86,30 +88,30 @@ struct MacroRecord
 class KeyMacro
 {
   private:
-    /* $ 10.09.2000 SVS
-      ! ‘ункци€ ReadMacros имеет дополнительные аргументы
-    */
-    class LockScreen *LockScr;
-
-    struct MacroRecord *Macros;
-    int MacrosNumber;
-
     // тип записи - с вызовом диалога настроек или...
     // 0 - нет записи, 1 - проста€ запись, 2 - вызов диалога настроек
     int Recording;
-
-    DWORD *RecBuffer;
-    int IndexMode[MACRO_LAST][2];
-    int RecBufferSize;
     int Executing;
+    int InternalInput;
+    int IsRedrawEditor;
+
+    int Mode;
     int ExecMacroPos;
     int ExecKeyPos;
-    int InternalInput;
-    int Mode;
     int StartMode;
     int StartMacroPos;
 
+    int MacrosNumber;
+    struct MacroRecord *Macros;
+
+    int IndexMode[MACRO_LAST][2];
+
+    int RecBufferSize;
+    DWORD *RecBuffer;
+
     struct MacroRecord *TempMacro; // временный буфер дл€ 1 макро
+
+    class LockScreen *LockScr;
 
   private:
     int ReadMacros(int ReadMode, char *Buffer, int BufferSize);
@@ -163,6 +165,8 @@ class KeyMacro
     int GetRecordSize(int Key, int Mode);
 
     char *GetMacroPlainText(char *Dest);
+
+    void SetRedrawEditor(int Sets){IsRedrawEditor=Sets;}
 
     // получить данные о макросе (возвращает статус)
     int GetCurRecord(struct MacroRecord* RBuf=NULL,int *KeyPos=NULL);
