@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.06 23.08.2000 $ */
+/* Revision: 1.07 20.09.2000 $ */
 
 /*
 Modify:
+  20.09.2000 SVS
+    ! hFarWnd глобальна
   23.08.2000 SVS
     + MButtonPressed - для средней клавиши мыши.
   03.08.2000 KM 1.03
@@ -109,5 +111,11 @@ extern unsigned char DefaultPalette[];
 extern unsigned char Palette[];
 extern unsigned char BlackPalette[];
 extern int SizeArrayPalette;
+
+/* $ 20.09.2000 SVS
+  ! hFarWnd глобальна
+*/
+extern HWND hFarWnd;
+/* SVS $ */
 
 #endif	// __FARGLOBAL_HPP__

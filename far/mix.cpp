@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.28 19.09.2000 $ */
+/* Revision: 1.29 20.09.2000 $ */
 
 /*
 Modify:
+  20.09.2000 SVS
+    ! Уточнения в функции Xlat()
   19.09.2000 SVS
     + функция FolderPresent - "сужествует ли каталог"
   19.09.2000 SVS
@@ -641,7 +643,6 @@ int CmpName(char *pattern,char *string,int skippath)
     }
   }
 }
-
 
 /*
 void ShowHeap()
@@ -2217,8 +2218,12 @@ char* WINAPI Xlat(
 
   // переключаем раскладку клавиатуры?
   //  к сожалению не работает под Win9x - ставьте WinNT и наслаждайтесь :-)
-  if(Flags & XLAT_SWITCHKEYBLAYOUT)
-    PostMessage(GetForegroundWindow(),WM_INPUTLANGCHANGEREQUEST, 1, HKL_NEXT);
+  /* $ 20.09.2000 SVS
+     Немного изменим условия и возьмем окно именно FAR.
+  */
+  if(hFarWnd && (Flags & XLAT_SWITCHKEYBLAYOUT))
+    PostMessage(hFarWnd,WM_INPUTLANGCHANGEREQUEST, 1, HKL_NEXT);
+  /* SVS $ */
 
   return Line;
 }

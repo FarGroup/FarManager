@@ -5,10 +5,12 @@ iswind.cpp
 
 */
 
-/* Revision: 1.01 25.07.2000 $ */
+/* Revision: 1.02 20.09.2000 $ */
 
 /*
 Modify:
+  20.09.2000 SVS
+    ! hFarWnd глобальна
   25.07.2000 SVS
     + Программое переключение FulScreen <-> Windowed
   25.06.2000 SVS
@@ -27,7 +29,7 @@ Modify:
 
 static BOOL CALLBACK IsWindowedEnumProc(HWND hwnd,LPARAM lParam);
 
-static HWND hFarWnd;
+HWND hFarWnd;
 static BOOL WindowedMode=FALSE;
 static HICON hOldLargeIcon,hOldSmallIcon;
 
