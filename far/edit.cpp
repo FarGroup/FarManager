@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.45 16.07.2001 $ */
+/* Revision: 1.46 19.07.2001 $ */
 
 /*
 Modify:
+  19.07.2001 KM
+    - Под NT курсор мигал.
   16.07.2001 KM
     - Борьба через ж*пу с глюком консоли w9x где при запуске
       некоторых досовых прог курсор приобретал "странный"
@@ -294,13 +296,20 @@ void Edit::DisplayObject()
   /* KM $ */
   FastShow();
 
+  /* $ 19.07.2001 KM
+     - Под NT курсор мигал.
+  */
   /* $ 16.07.2001 KM
      - Борьба через ж*пу с глюком консоли w9x где при запуске
        некоторых досовых прог курсор приобретал "странный"
        внешний вид.
   */
-  SetCursorType(TRUE,99);
-  SetCursorType(TRUE,-1);
+  if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS)
+  {
+    SetCursorType(TRUE,99);
+    SetCursorType(TRUE,-1);
+  }
+  /* KM $ */
   /* KM $ */
 
   if (Overtype)
