@@ -5,10 +5,12 @@ syslog.cpp
 
 */
 
-/* Revision: 1.04 29.04.2001 $ */
+/* Revision: 1.05 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 SVS
+    ! ­¥¬­®£® ¨§¬¥­¥­¨© ¢ SysLog* ;-)
   29.04.2001 Ž’
     + ‚­¥¤à¥­¨¥ NWZ ®â ’à¥âìïª®¢ 
   28.04.2001 SVS
@@ -35,6 +37,17 @@ char         LogFileName[MAX_FILE];
 static FILE *LogStream=0;
 static int   Indent=0;
 static char *PrintTime(char *timebuf);
+#endif
+
+#if defined(SYSLOG)
+char *MakeSpace(void)
+{
+  static char Buf[60]=" ";
+  if(Indent)
+    memset(Buf+1,0xB3,Indent);
+  Buf[1+Indent]=0;
+  return Buf;
+}
 #endif
 
 FILE * OpenLogStream(char *file)
@@ -103,7 +116,6 @@ void SysLog(char *fmt,...)
 {
 #if defined(SYSLOG)
   char msg[MAX_LOG_LINE];
-  char timebuf[64];
 
   va_list argptr;
   va_start( argptr, fmt );
@@ -114,7 +126,8 @@ void SysLog(char *fmt,...)
   OpenSysLog();
   if ( LogStream )
   {
-    fprintf(LogStream,"%s %*s %s\n",PrintTime(timebuf),Indent,"",msg);
+    char timebuf[64];
+    fprintf(LogStream,"%s %s%s\n",PrintTime(timebuf),MakeSpace(),msg);
     fflush(LogStream);
   }
   CloseSysLog();
@@ -125,11 +138,7 @@ void SysLog(char *fmt,...)
 void SysLog(int l,char *fmt,...)
 {
 #if defined(SYSLOG)
-    char spaces[]=" ³³³³³³³³³³³³³³³³³³³³³³³³³³³³³³³³³³³³³³³³³³³³";
     char msg[MAX_LOG_LINE];
-    time_t t;
-    struct tm *tm;
-    char timebuf[64];
 
     va_list argptr;
     va_start( argptr, fmt );
@@ -137,17 +146,13 @@ void SysLog(int l,char *fmt,...)
     vsprintf( msg, fmt, argptr );
     va_end(argptr);
 
-    time (&t);
-    tm = localtime (&t);
-    strftime (timebuf, sizeof (timebuf), "%d.%m.%Y %H:%M:%S", tm);
-
     SysLog(l);
     OpenSysLog();
     if ( LogStream )
     {
-        spaces[1+Indent]=0;
-        fprintf(LogStream,"%s %s%s\n",timebuf,spaces,msg);
-        fflush(LogStream);
+      char timebuf[64];
+      fprintf(LogStream,"%s %s%s\n",PrintTime(timebuf),MakeSpace(),msg);
+      fflush(LogStream);
     }
     CloseSysLog();
 #endif
@@ -162,14 +167,16 @@ void SysLogDump(char *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,FILE *fp)
   int InternalLog=fp==NULL?TRUE:FALSE;
 
   char msg[MAX_LOG_LINE];
-  char timebuf[64];
 
   if(InternalLog)
   {
     OpenSysLog();
     fp=LogStream;
     if(fp)
-      fprintf(fp,"%s %*s (%s)\n",PrintTime(timebuf),Indent,"",NullToEmpty(Title));
+    {
+      char timebuf[64];
+      fprintf(fp,"%s %s(%s)\n",PrintTime(timebuf),MakeSpace(),NullToEmpty(Title));
+    }
   }
 
   if (fp)
