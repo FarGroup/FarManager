@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.30 12.04.2002 $ */
+/* Revision: 1.31 12.04.2002 $ */
 
 /*
 Modify:
+  12.04.2002 SVS
+    ! Увеличим размер шортнэйма до NM
   12.04.2002 IS
     ! PluginPutFilesToAnother теперь int - возвращает то, что возвращает
       PutFiles
@@ -124,7 +126,7 @@ struct FileListItem
   DWORD PackSizeHigh;     // WIN32_FIND_DATA.dwReserved0
   DWORD PackSize;         // WIN32_FIND_DATA.dwReserved1
   char Name[NM];
-  char ShortName[80];
+  char ShortName[NM];
 };
 
 struct PluginsStackItem

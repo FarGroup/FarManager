@@ -5,10 +5,12 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.27 12.04.2002 $ */
+/* Revision: 1.28 12.04.2002 $ */
 
 /*
 Modify:
+  12.04.2002 SVS
+    - BugZ#452 - Ctrl+N на “мпѕанели
   12.04.2002 IS
     ! PluginPutFilesToAnother теперь int - возвращает то, что возвращает
       PutFiles:
@@ -198,7 +200,7 @@ int FileList::FileNameToPluginItem(char *Name,PluginPanelItem *pi)
 void FileList::FileListToPluginItem(struct FileListItem *fi,struct PluginPanelItem *pi)
 {
   strcpy(pi->FindData.cFileName,fi->Name);
-  strcpy(pi->FindData.cAlternateFileName,fi->ShortName);
+  strncpy(pi->FindData.cAlternateFileName,fi->ShortName,sizeof(pi->FindData.cAlternateFileName)-1);
   pi->FindData.nFileSizeHigh=fi->UnpSizeHigh;
   pi->FindData.nFileSizeLow=fi->UnpSize;
   pi->FindData.dwReserved0=pi->FindData.dwReserved1=0;

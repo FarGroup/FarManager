@@ -5,10 +5,12 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.36 11.04.2002 $ */
+/* Revision: 1.37 12.04.2002 $ */
 
 /*
 Modify:
+  12.04.2002 SVS
+    - BugZ#452 - Ctrl+N на ТмпПанели
   11.04.2002 SVS
     ! OPM_QUICKVIEW -> OPM_VIEW|OPM_QUICKVIEW
   08.04.2002 SVS
@@ -745,6 +747,10 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
       continue;
     memset(CurListData,0,sizeof(*CurListData));
     PluginToFileListItem(CurPanelData,CurListData);
+    if(Info.Flags & OPIF_REALNAMES)
+    {
+      ConvertNameToShort(CurListData->Name,CurListData->ShortName);
+    }
     CurListData->Position=I;
     if ((Info.Flags & OPIF_USEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
       CtrlObject->HiFiles->GetHiColor(
