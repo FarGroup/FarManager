@@ -2,7 +2,10 @@
 .PluginContents=Archive support plugin
 
 @Contents
-$ #Archive support plugin#
+$^#Archive support plugin#
+$^#<%FV1%>.<%FV2%><%FV3%> build <%FV4%>#
+$^#Copyright (C) 1996-2000 Eugene Roshal#
+$^#Copyright (C) 2000-<%YEAR%> FAR Group#
     This FAR module performs transparent #archive# processing.
 Files in the archive are handled in the same manner as if they
 were in a folder: when you operate with the archive, FAR
@@ -18,6 +21,8 @@ archiver calls.
    ~Archive support configuration~@ArcSettings1@
 
    ~Archiver command lines~@ArcSettings2@
+
+   E-mail all bugs and suggestions to ~multiarc@@farmanager.com~@mailto:multiarc@@farmanager.com@
 
 @AddToArc
 $ #Adding files to archive#
