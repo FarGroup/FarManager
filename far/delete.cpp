@@ -5,10 +5,14 @@ delete.cpp
 
 */
 
-/* Revision: 1.36 14.01.2002 $ */
+/* Revision: 1.37 15.01.2002 $ */
 
 /*
 Modify:
+  15.01.2002 SVS
+    - Бага - при удалении каталога не учитывался факт того, что на
+      противоположной подкаталог удаляемого каталога, а ФАР перед этим просил
+      OS следить за этим подкаталогом.
   14.01.2002 IS
     ! chdir -> FarChDir
   08.11.2001 SVS
@@ -110,6 +114,7 @@ Modify:
 #include "treelist.hpp"
 #include "savescr.hpp"
 #include "ctrlobj.hpp"
+#include "filelist.hpp"
 #include "manager.hpp"
 
 static void ShellDeleteMsg(char *Name);
@@ -119,7 +124,7 @@ static int ERemoveDirectory(char *Name,char *ShortName,int Wipe);
 static int RemoveToRecycleBin(char *Name);
 static int WipeFile(char *Name);
 static int WipeDirectory(char *Name);
-static void ShellDeleteUpdatePanels(Panel *SrcPanel);
+static void ShellDeleteUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir);
 static void PR_ShellDeleteMsg(void);
 
 static int ReadOnlyDeleteMode,DeleteAllFolders;
@@ -131,9 +136,11 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
   WIN32_FIND_DATA FindData;
   char DeleteFilesMsg[300],SelName[NM],SelShortName[NM],DizName[NM];
+  char FullName[2058];
   int SelCount,FileAttr,UpdateDiz, UnlinkFolder=FALSE;
   int DizPresent;
   int Ret;
+  BOOL NeedUpdate=TRUE, NeedSetUpADir=FALSE;
 
   int Opt_DeleteToRecycleBin=Opt.DeleteToRecycleBin;
 
@@ -169,7 +176,10 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     SrcPanel->GetSelName(NULL,FileAttr);
     SrcPanel->GetSelName(SelName,FileAttr);
     if (strcmp(SelName,"..")==0 || *SelName==0)
+    {
+      NeedUpdate=FALSE;
       goto done;
+    }
     strcpy(DeleteFilesMsg,SelName);
     TruncPathStr(DeleteFilesMsg,Min((int)sizeof(DeleteFilesMsg),ScrX-16));
   }
@@ -223,7 +233,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
           ; //  ;-%
         }
         DeleteJunctionPoint(JuncName);
-        ShellDeleteUpdatePanels(SrcPanel);
+        ShellDeleteUpdatePanels(SrcPanel,TRUE);
         goto done;
       }
       if(Ret != 0)
@@ -265,7 +275,10 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     }
     /* IS $ */
     if (Message(0,2,MSG(MDeleteTitle),DelMsg,DeleteFilesMsg,MSG(MDelete),MSG(MCancel))!=0)
+    {
+      NeedUpdate=FALSE;
       goto done;
+    }
   }
 
   if (Opt.Confirm.Delete && SelCount>1)
@@ -276,7 +289,10 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     ShellDeleteMsg("");
     if (Message(MSG_DOWN|MSG_WARNING,2,MSG(MDeleteFilesTitle),MSG(MAskDelete),
                 DeleteFilesMsg,MSG(MDeleteFileAll),MSG(MDeleteFileCancel))!=0)
+    {
+      NeedUpdate=FALSE;
       goto done;
+    }
   }
 
   if (UpdateDiz)
@@ -289,7 +305,26 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   GetConsoleTitle(OldTitle,sizeof(OldTitle));
   SetFarTitle(MSG(MDeletingTitle));
 
-  CtrlObject->Cp()->GetAnotherPanel(SrcPanel)->CloseFile();
+  // Кусок по закрытию файла и снятию нотификации
+  {
+    char AnotherCurDir[2048];
+    Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
+    AnotherPanel->CloseFile();
+    if(AnotherPanel->GetMode() == NORMAL_PANEL)
+    {
+      AnotherPanel->GetCurDir(AnotherCurDir);
+      if (ConvertNameToFull(SelName,FullName, sizeof(FullName)) >= sizeof(FullName))
+      {
+        NeedUpdate=FALSE;
+        goto done;
+      }
+      if(strstr(AnotherCurDir,FullName))
+      {
+        ((FileList*)AnotherPanel)->CloseChangeNotification();
+        NeedSetUpADir=TRUE;
+      }
+    }
+  }
 
   if (SrcPanel->GetType()==TREE_PANEL)
     FarChDir("\\");
@@ -316,7 +351,6 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
       {
         if (!DeleteAllFolders)
         {
-          char FullName[NM];
 //          ConvertNameToFull(SelName,FullName, sizeof(FullName));
           if (ConvertNameToFull(SelName,FullName, sizeof(FullName)) >= sizeof(FullName)){
             goto done;
@@ -490,21 +524,34 @@ done:
   FrameFromLaunched->UnlockRefresh();
 /* OT &*/
   /* $ 01.10.2001 IS перерисуемся, чтобы не было артефактов */
-  ShellDeleteUpdatePanels(SrcPanel);
+  if(NeedUpdate)
+  {
+    ShellDeleteUpdatePanels(SrcPanel,NeedSetUpADir);
+  }
   /* IS $ */
 }
 
 
-void ShellDeleteUpdatePanels(Panel *SrcPanel)
+void ShellDeleteUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir)
 {
   Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
   int AnotherType=AnotherPanel->GetType();
   if (AnotherType!=QVIEW_PANEL)
   {
-    if(AnotherPanel->NeedUpdatePanel(SrcPanel))
+    if(NeedSetUpADir)
     {
+      char CurDir[2048];
+      SrcPanel->GetCurDir(CurDir);
+      AnotherPanel->SetCurDir(CurDir,TRUE);
       AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
-//      AnotherPanel->Redraw();
+    }
+    else
+    {
+      if(AnotherPanel->NeedUpdatePanel(SrcPanel))
+      {
+        AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
+  //      AnotherPanel->Redraw();
+      }
     }
   }
   SrcPanel->Update(UPDATE_KEEP_SELECTION);
