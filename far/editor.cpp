@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.57 07.01.2001 $ */
+/* Revision: 1.58 14.01.2001 $ */
 
 /*
 Modify:
+  14.01.2001 tran
+    - убран баг, когда при вызове редактора из плагина
+      показывался мусор
   07.01.2001 IS
     - не правильно работала проверка на ошибку при открытии файлов,
       превышающих определенный размер (не всегда срабатывала)
@@ -526,7 +529,9 @@ int Editor::ReadFile(char *Name,int &UserBreak)
     TopScreen=CurLine=CurPtr;
     if (Opt.SaveEditorPos && CtrlObject!=NULL)
     {
-      unsigned int Line,ScreenLine,LinePos,LeftPos;
+      /* $ 14.01.2001 tran
+         LeftPos надо было инициализировать... */
+      unsigned int Line,ScreenLine,LinePos,LeftPos=0;
       char CacheName[NM*3];
       if (*PluginData)
         sprintf(CacheName,"%s%s",PluginData,PointToName(FileName));
@@ -538,6 +543,7 @@ int Editor::ReadFile(char *Name,int &UserBreak)
                (Opt.SaveEditorShortPos?SavePosCursor:NULL),
                (Opt.SaveEditorShortPos?SavePosScreenLine:NULL),
                (Opt.SaveEditorShortPos?SavePosLeftPos:NULL));
+      //SysLog("after Get cache, LeftPos=%i",LeftPos);
       TableChangedByUser=(Table!=0);
       switch(Table)
       {
@@ -570,13 +576,16 @@ int Editor::ReadFile(char *Name,int &UserBreak)
         CurLine->EditLine.SetTabCurPos(LinePos);
         DisableOut--;
       }
+      //SysLog("Setleftpos to %i",LeftPos);
       CurLine->EditLine.SetLeftPos(LeftPos);
     }
   }
   else
     if (StartLine!=-1 || Opt.SaveEditorPos && CtrlObject!=NULL)
     {
-      unsigned int Line,ScreenLine,LinePos,LeftPos;
+      /* $ 14.01.2001 tran
+         LeftPos надо было инициализировать... */
+      unsigned int Line,ScreenLine,LinePos,LeftPos=0;
       if (StartLine!=-1)
       {
         Line=StartLine-1;
@@ -598,7 +607,7 @@ int Editor::ReadFile(char *Name,int &UserBreak)
                (Opt.SaveEditorShortPos?SavePosCursor:NULL),
                (Opt.SaveEditorShortPos?SavePosScreenLine:NULL),
                (Opt.SaveEditorShortPos?SavePosLeftPos:NULL));
-
+        //SysLog("after Get cache 2, LeftPos=%i",LeftPos);
         TableChangedByUser=(Table!=0);
         switch(Table)
         {
@@ -634,6 +643,7 @@ int Editor::ReadFile(char *Name,int &UserBreak)
         for (int I=0;I<ScreenLine;I++)
           ProcessKey(KEY_DOWN);
         CurLine->EditLine.SetTabCurPos(LinePos);
+        //SysLog("Setleftpos 2 to %i",LeftPos);
         CurLine->EditLine.SetLeftPos(LeftPos);
         DisableOut--;
       }
@@ -808,7 +818,7 @@ void Editor::DisplayObject()
 void Editor::ShowEditor(int CurLineOnly)
 {
   struct EditList *CurPtr;
-  int LeftPos,CurPos,Y;
+  int LeftPos=0,CurPos,Y;
   if (DisableOut)
     return;
 
@@ -817,6 +827,8 @@ void Editor::ShowEditor(int CurLineOnly)
   */
   CtrlObject->Plugins.CurEditor=this;
   /* skv$*/
+
+  //SysLog("ShowEditor, CurLineOnly=%i",CurLineOnly);
 
   while (CalcDistance(TopScreen,CurLine,-1)>=Y2-Y1)
   {
@@ -836,6 +848,7 @@ void Editor::ShowEditor(int CurLineOnly)
     {
       CurLine->EditLine.SetCurPos(Length);
       CurLine->EditLine.SetLeftPos(0);
+      //SysLog("call CurLine->EditLine.FastShow()");
       CurLine->EditLine.FastShow();
       CurPos=CurLine->EditLine.GetTabCurPos();
     }
@@ -872,6 +885,7 @@ void Editor::ShowEditor(int CurLineOnly)
         CurPtr->EditLine.SetEditBeyondEnd(TRUE);
         CurPtr->EditLine.SetPosition(X1,Y,X2,Y);
         CurPtr->EditLine.SetTables(UseDecodeTable ? &TableSet:NULL);
+        //SysLog("Setleftpos 3 to %i",LeftPos);
         CurPtr->EditLine.SetLeftPos(LeftPos);
         CurPtr->EditLine.SetTabCurPos(CurPos);
         CurPtr->EditLine.FastShow();
@@ -1943,7 +1957,7 @@ int Editor::ProcessKey(int Key)
         */
         int VisPos=CurLine->EditLine.RealPosToTab(CurPos),
             NextVisPos=CurLine->EditLine.RealPosToTab(CurPos+1);
-        // SysLog("CurPos=%i, VisPos=%i, NextVisPos=%i",
+        //SysLog("CurPos=%i, VisPos=%i, NextVisPos=%i",
         //    CurPos,VisPos, NextVisPos); //,CurLine->EditLine.GetTabCurPos());
 
         Delta=NextVisPos-VisPos;
