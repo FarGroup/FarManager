@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.118 11.06.2001 $ */
+/* Revision: 1.119 12.06.2001 $ */
 
 /*
 Modify:
+  12.06.2001 KM
+   ! Зачем-то была убрана инициализация DI_COMBOBOX через FarDialogItem.
+     Восстановлено!!!
   11.06.2001 KM
    ! Сделана нормальная работа мыши в DI_LISTBOX.
   10.06.2001 SVS
@@ -954,6 +957,13 @@ int Dialog::InitDialogObjects(int ID)
           CurItem->ListPtr->SetFlags(VMENU_SHOWAMPERSAND);
         if(ItemFlags&DIF_LISTAUTOHIGHLIGHT)
           CurItem->ListPtr->AssignHighlights(FALSE);
+        /* $ 12.06.2001 KM
+           ! Зачем-то была убрана инициализация DI_COMBOBOX через FarDialogItem
+              Восстановлено!!!
+        */
+        if(CurItem->ListItems)
+          CurItem->ListPtr->AddItem(CurItem->ListItems);
+        /* KM $ */
         /* KM $ */
         /* KM $ */
       }

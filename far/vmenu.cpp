@@ -7,10 +7,14 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.34 10.06.2001 $ */
+/* Revision: 1.35 12.06.2001 $ */
 
 /*
 Modify:
+  12.06.2001 KM
+    - Некорректно работала функция GetUserData. Забыли, что данные
+      в меню могут храниться не в UserData, а просто в Name, из-за
+      чего не работал выбор из комбобокса (выбирался мусор).
   10.06.2001 SVS
     + FindItem с двумя параметрами - для будущего ручного финдера в списке.
     - не работал поиск, т.к. присутствовали символы '&'
@@ -1226,17 +1230,30 @@ void* VMenu::GetUserData(void *Data,int Size,int Position)
     struct MenuItem *PItem=Item+GetPosition(Position);
     int DataSize=PItem->UserDataSize;
     PtrData=PItem->UserData;
-    if(Size > 0 && Data != NULL)
+    /* $ 12.06.2001 KM
+       - Некорректно работала функция. Забыли, что данные в меню
+         могут быть в простом MenuItem.Name
+    */
+    if (Size > 0 && Data != NULL)
     {
-      if(DataSize > sizeof(PItem->UserData))
+      if (PtrData)
       {
-        memmove(Data,PtrData,Min(Size,DataSize));
+        if(DataSize > sizeof(PItem->UserData))
+        {
+          memmove(Data,PtrData,Min(Size,DataSize));
+        }
+        else if(DataSize > 0)
+        {
+          memmove(Data,PItem->Str4,Min(Size,DataSize));
+        }
       }
-      else if(DataSize > 0)
+      else
       {
-        memmove(Data,PItem->Str4,Min(Size,DataSize));
+        memmove(Data,PItem->Name,Min(Size,sizeof(PItem->Name)));
+        PtrData=PItem->Name;
       }
     }
+    /* KM $ */
     CallCount--;
   }
   return(PtrData);
