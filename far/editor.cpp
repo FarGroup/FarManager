@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.240 26.10.2003 $ */
+/* Revision: 1.241 04.11.2003 $ */
 
 /*
 Modify:
+  04.11.2003 SKV
+    ! shift-left shift-right теперь не оставляют пустого выделения.
   26.10.2003 KM
     ! Поскольку теперь GlobalSearchString может хранить строку в 16 представлении,
       тогда перед копированием её в LastSearchStr проверим этот режим и при необходимости
@@ -1788,6 +1790,13 @@ int Editor::ProcessKey(int Key)
   int SelStart,SelEnd;
   int SelFirst=FALSE;
   int SelAtBeginning=FALSE;
+
+  /* $ 05.11.2003 SKV
+
+  */
+  EditorBlockGuard _bg(*this,&Editor::UnmarkEmptyBlock);
+  /* SKV $ */
+
   switch(Key)
   {
     case KEY_SHIFTLEFT:    case KEY_SHIFTRIGHT:
@@ -1799,6 +1808,7 @@ int Editor::ProcessKey(int Key)
     case KEY_CTRLSHIFTLEFT:  case KEY_CTRLSHIFTNUMPAD4:   /* 12.11.2002 DJ */
     {
       UnmarkEmptyBlock(); // уберем выделение, если его размер равен 0
+      _bg.needCheckUnmark=true;
       CurLine->EditLine.GetRealSelection(SelStart,SelEnd);
       if(Flags.Check(FEDITOR_CURPOSCHANGEDBYPLUGIN))
       {

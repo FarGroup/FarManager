@@ -215,6 +215,25 @@ class Editor:public ScreenObject
 {
   friend class FileEditor;
   private:
+
+    /* $ 04.11.2003 SKV
+      на любом выходе если была нажата кнопка выделения,
+      и она его "сняла" (сделала 0-й ширины), то его надо убрать.
+    */
+    struct EditorBlockGuard{
+      Editor& ed;
+      void (Editor::*method)();
+      bool needCheckUnmark;
+      EditorBlockGuard(Editor& ed,void (Editor::*method)()):ed(ed),method(method),needCheckUnmark(false)
+      {
+      }
+      ~EditorBlockGuard()
+      {
+        if(needCheckUnmark)(ed.*method)();
+      }
+    };
+    /* SKV $ */
+
     struct EditList *TopList;
     struct EditList *EndList;
     struct EditList *TopScreen;

@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.146 16.10.2003 $ */
+/* Revision: 1.147 04.11.2003 $ */
 
 /*
 Modify:
+  04.11.2003 SKV
+    ! не надо делать SetFileAttributes если мы их не меняли.
   16.10.2003 SVS
     - BugZ#821 - Удаление файла, редактор и вьювер
   13.10.2003 SVS
@@ -589,6 +591,7 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
   /* IS $ */
   CurrentEditor=this;
   FileAttributes=-1;
+  FileAttributesModified=false;
   *PluginTitle=0;
   SetTitle(Title);
   /* $ 07.05.2001 DJ */
@@ -1506,6 +1509,7 @@ int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
   }
 
   int NewFile=TRUE;
+  FileAttributesModified=false;
   if ((FileAttributes=::GetFileAttributes(Name))!=-1)
   {
     // Проверка времени модификации...
@@ -1547,10 +1551,14 @@ int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
         return SAVEFILE_CANCEL;
 
       SetFileAttributes(Name,FileAttributes & ~FA_RDONLY); // сняты атрибуты
+      FileAttributesModified=true;
     }
 
     if (FileAttributes & (FA_HIDDEN|FA_SYSTEM))
+    {
       SetFileAttributes(Name,0);
+      FileAttributesModified=true;
+    }
   }
   else
   {
@@ -1710,8 +1718,10 @@ int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
 end:
   SetPreRedrawFunc(NULL);
 
-  if (FileAttributes!=-1)
+  if (FileAttributes!=-1 && FileAttributesModified)
+  {
     SetFileAttributes(Name,FileAttributes|FA_ARCH);
+  }
   GetLastInfo(FullFileName,&FileInfo);
 
   if (FEdit->Flags.Check(FEDITOR_MODIFIED) || NewFile)

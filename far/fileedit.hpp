@@ -7,10 +7,12 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.36 09.10.2003 $ */
+/* Revision: 1.37 04.11.2003 $ */
 
 /*
 Modify:
+  04.11.2003 SKV
+    + FileAttributesModified - признак того, что надо восстанавливать аттрибут.
   09.10.2003 SVS
     + FFILEEDIT_SAVEWQUESTIONS - сохранить без вопросов
   25.07.2003 SVS
@@ -171,6 +173,11 @@ class FileEditor:public Frame
     */
     DWORD FileAttributes;
     /* IS $ */
+    /* $ 04.11.2003 SKV
+      надо ли восстанавливать аттрибуты при save
+    */
+    BOOL  FileAttributesModified;
+    /* SKV $ */
     DWORD SysErrorCode;
 
   public:
