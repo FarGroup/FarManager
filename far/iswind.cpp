@@ -5,10 +5,12 @@ iswind.cpp
 
 */
 
-/* Revision: 1.05 16.01.2002 $ */
+/* Revision: 1.06 17.01.2002 $ */
 
 /*
 Modify:
+  17.01.2002 SVS
+    - какой хрен меня понес... нужно было GetWindowText() юзать!
   16.01.2002 SVS
     ! Немного другая математика поиска заголовка (ищем как часть заголовка)
       Почему? К Сергею Обломову UIN: 12411939 (есть у него интересная фишка,
@@ -53,9 +55,10 @@ void DetectWindowedMode()
 BOOL CALLBACK IsWindowedEnumProc2(HWND hwnd,LPARAM FARTitl)
 {
   char Title[256];
-
-  if (GetConsoleTitle(Title, sizeof(Title)))
+  int LenTitle=GetWindowText(hwnd,Title, sizeof(Title));
+  if (LenTitle)
   {
+    Title[LenTitle]=0;
     if(strstr(Title,(char *)FARTitl))
     {
       hFarWnd=hwnd;
