@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.54 27.09.2001 $ */
+/* Revision: 1.55 01.10.2001 $ */
 
 /*
 Modify:
+  $ 01.10.2001 VVM
+    ! После Alt-F7 с поиском в архивах не работали меню и диалоги плагинов
   27.09.2001 IS
     - Левый размер при использовании strncpy
   24.09.2001 OT
@@ -1265,7 +1267,12 @@ void FindFiles::ArchiveSearch(char *ArcName)
   int SavePluginsOutput=DisablePluginsOutput;
   DisablePluginsOutput=TRUE;
   HANDLE hArc=CtrlObject->Plugins.OpenFilePlugin(ArcName,(unsigned char *)Buffer,ReadSize);
-  DisablePluginsOutput=DisablePluginsOutput;
+  /* $ 01.10.2001 VVM
+    ! Ну так же низзя!
+  DisablePluginsOutput=DisablePluginsOutput; */
+  DisablePluginsOutput=SavePluginsOutput;
+  /* VVM $ */
+
 
   /* $ 13.07.2000 SVS
      использовали new[]
