@@ -5,10 +5,12 @@ setattr.cpp
 
 */
 
-/* Revision: 1.20 04.04.2001 $ */
+/* Revision: 1.21 08.04.2001 $ */
 
 /*
 Modify:
+  08.04.2001 IS
+    - ­¥ à ¡®â «® ¨§¬¥­¥­¨¥  âà¨¡ãâ®¢ ¯®á«¥ ü557
   04.04.2001 VVM
     + Š­®¯ª  [ Blank ] ¢ ¤¨ «®£¥. Žç¨áâ¨âì ¯®«ï ¤ âë/¢à¥¬¥­¨.
   03.04.2001 SVS
@@ -222,25 +224,25 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 02   º     Change file attributes for      º   02
 03   º                 foo                 º   03
 04   º          Link: blach blach          º < 04 <<
-04   ÇÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¶   05
-05   º [ ] Read only                       º   06
-06   º [ ] Archive                         º   07
-07   º [ ] Hidden                          º   08
-08   º [ ] System                          º   09
-09   º [ ] Compressed                      º   10
-10   º [ ] Encrypted                       º   11
-11   ÇÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¶   12
-12   º [x] Process subfolders              º   13
-13   ÇÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¶   14
-14   º  File time      DD.MM.YYYY hh:mm:ss º   15
-15   º Modification      .  .       :  :   º   16
-16   º Creation          .  .       :  :   º   17
-17   º Last access       .  .       :  :   º   18
-18   º               [ Current ] [ Blank ] º   19
-19   ÇÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¶   20
-20   º         [ Set ]  [ Cancel ]         º   21
-21   ÈÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼   22
-22                                             23
+05   ÇÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¶   05
+06   º [ ] Read only                       º   06
+07   º [ ] Archive                         º   07
+08   º [ ] Hidden                          º   08
+09   º [ ] System                          º   09
+10   º [ ] Compressed                      º   10
+11   º [ ] Encrypted                       º   11
+12   ÇÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¶   12
+13   º [x] Process subfolders              º   13
+14   ÇÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¶   14
+15   º  File time      DD.MM.YYYY hh:mm:ss º   15
+16   º Modification      .  .       :  :   º   16
+17   º Creation          .  .       :  :   º   17
+18   º Last access       .  .       :  :   º   18
+19   º               [ Current ] [ Blank ] º   19
+20   ÇÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¶   20
+21   º         [ Set ]  [ Cancel ]         º   21
+22   ÈÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼   22
+23                                             23
 */
   static struct DialogData AttrDlgData[]={
   /* 00 */DI_DOUBLEBOX,3,1,41,21,0,0,0,0,(char *)MSetAttrTitle,
@@ -521,8 +523,12 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           Dlg.InitDialogObjects();
         }
 
-        if (Dlg.GetExitCode()!=28)
+        /* $ 08.04.2001 IS
+             €ª¥««  ¯à®¬ å­ã«áï ­  ®å®â¥...
+        */
+        if (Dlg.GetExitCode()!=27)
           return 0;
+        /* IS $ */
 
         Dlg.Hide();
       }
@@ -709,8 +715,12 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           Dlg.Show();
         }
 
-        if (Dlg.GetExitCode()!=28)
+        /* $ 08.04.2001 IS
+             €ª¥««  ¯à®¬ å­ã«áï ­  ®å®â¥...
+        */
+        if (Dlg.GetExitCode()!=27)
           return 0;
+        /* IS $ */
       }
 
       CtrlObject->GetAnotherPanel(SrcPanel)->CloseFile();
