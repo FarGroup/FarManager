@@ -5,10 +5,12 @@ options.cpp
 
 */
 
-/* Revision: 1.12 11.07.2001 $ */
+/* Revision: 1.13 19.07.2001 $ */
 
 /*
 Modify:
+  19.07.2001 SVS
+    - Не работала смена видеорежима из меню
   11.07.2001 SVS
     + переменные среды: FARLANG
   22.06.2001 SVS
@@ -392,55 +394,56 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
     case 2:
       switch(VItem)
       {
-        case 0:
+        case 0: // Find file
           CtrlObject->Cp()->ProcessKey(KEY_ALTF7);
           break;
-        case 1:
+        case 1: // History
           CtrlObject->Cp()->ProcessKey(KEY_ALTF8);
           break;
-        case 2:
-          CtrlObject->Cp()->ProcessKey(KEY_ALTF9);
+        case 2: // Video mode
+          //CtrlObject->Cp()->ProcessKey(KEY_ALTF9);
+          SetVideoMode(FarAltEnter(-2));
           break;
-        case 3:
+        case 3: // Find folder
           CtrlObject->Cp()->ProcessKey(KEY_ALTF10);
           break;
-        case 4:
+        case 4: // File view history
           CtrlObject->Cp()->ProcessKey(KEY_ALTF11);
           break;
-        case 5:
+        case 5: // Folders history
           CtrlObject->Cp()->ProcessKey(KEY_ALTF12);
           break;
-        case 7:
+        case 7: // Swap panels
           CtrlObject->Cp()->ProcessKey(KEY_CTRLU);
           break;
-        case 8:
+        case 8: // Panels On/Off
           CtrlObject->Cp()->ProcessKey(KEY_CTRLO);
           break;
-        case 9:
+        case 9: // Compare folders
           CtrlObject->Cp()->ActivePanel->CompareDir();
           break;
-        case 11:
+        case 11: // Edit user menu
           ProcessUserMenu(1);
           break;
-        case 12:
+        case 12: // File associations
           EditFileTypes(0);
           break;
-        case 13:
+        case 13: // Folder shortcuts
           ShowFolderShortcut();
           break;
-        case 14:
+        case 14: // Edit sort groups
           CtrlObject->GrpSort->EditGroups();
           break;
-        case 15:
+        case 15: // File panel filter
           CtrlObject->Cp()->ActivePanel->EditFilter();
           break;
-        case 17:
+        case 17: // Plugin commands
           FrameManager->ProcessKey(KEY_F11);
           break;
-        case 18:
+        case 18: // Screens list
           FrameManager->ProcessKey(KEY_F12);
           break;
-        case 19:
+        case 19: // Task list
           ShowProcessList();
           break;
       }
