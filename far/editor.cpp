@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.134 10.12.2001 $ */
+/* Revision: 1.135 14.12.2001 $ */
 
 /*
 Modify:
+  14.12.2001 IS
+    ! внедрение const в соответствии с изменени€ми класса Edit
   10.12.2001 SVS
     - BugZ#164. ѕри вставке имени файла (Ctrl-F) портилось оригинальное
       им€ файла.
@@ -3671,7 +3673,7 @@ BOOL Editor::Search(int Next)
             GetCursorPos(CurX,CurY);
             GotoXY(CurX,CurY);
             SetColor(COL_EDITORSELECTEDTEXT);
-            char *Str=CurPtr->EditLine.GetStringAddr()+CurPtr->EditLine.GetCurPos();
+            const char *Str=CurPtr->EditLine.GetStringAddr()+CurPtr->EditLine.GetCurPos();
             char *TmpStr=new char[SearchLength+1];
             strncpy(TmpStr,Str,SearchLength);
             TmpStr[SearchLength]=0;
@@ -4339,7 +4341,7 @@ void Editor::ChangeEditKeyBar()
 /* $ 03.12.2001 IS
    UndoData - теперь указатель
 */
-void Editor::AddUndoData(char *Str,int StrNum,int StrPos,int Type)
+void Editor::AddUndoData(const char *Str,int StrNum,int StrPos,int Type)
 {
   int PrevUndoDataPos;
   if (DisableUndo || !UndoData)

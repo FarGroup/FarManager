@@ -5,10 +5,14 @@ User menu и есть
 
 */
 
-/* Revision: 1.47 27.09.2001 $ */
+/* Revision: 1.48 14.12.2001 $ */
 
 /*
 Modify:
+  14.12.2001 IS
+    - Ѕаг: не сохран€лись изменени€ редактировани€ меню по Alt-F4, если оно
+      хранилось не в реестре.
+    ! ѕри выполнении команды меню не тер€ем старую командную строку.
   27.09.2001 IS
     - Ћевый размер при использовании strncpy
   05.09.2001 VVM
@@ -163,7 +167,7 @@ static void MenuFileToReg(char *MenuKey,FILE *MenuFile);
 
 static int MenuModified;
 static int MenuNeedRefresh;
-static char MenuRootKey[100],LocalMenuKey[100];
+static char MenuRootKey[NM],LocalMenuKey[NM];
 
 /* $ 14.07.2000 VVM
    + –ежимы показа меню (Menu mode) и  оды выхода из меню (Exit codes)
@@ -188,7 +192,7 @@ static int MenuMode;
 
 static char SubMenuSymbol[]={0x020,0x010,0x000};
 
-#define LocalMenuFileName "FarMenu.Ini"
+const char LocalMenuFileName[]="FarMenu.Ini";
 
 void ProcessUserMenu(int EditMenu)
 {
@@ -753,6 +757,9 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
                 MenuFileToReg(MenuRootKey,MenuFile);
                 fclose(MenuFile);
                 remove(MenuFileName);
+                /* $ 14.12.2001 IS ћеню изменили, зачем же это скрывать? */
+                MenuModified=TRUE;
+                /* IS $ */
                 UserMenu.Hide();
 /* $ 14.07.2000 VVM
    ! «акрыть меню
@@ -845,6 +852,12 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
     char CmdLineDir[NM];
     CtrlObject->CmdLine->GetCurDir(CmdLineDir);
 
+    /* $ 14.12.2001 IS
+         ѕри выполнении команды меню не тер€ем старую командную строку.
+    */
+    char *OldCmdLine=strdup(CtrlObject->CmdLine->GetStringAddr());
+    int OldCmdLineSelStart, OldCmdLineSelEnd;
+    CtrlObject->CmdLine->GetSelection(OldCmdLineSelStart,OldCmdLineSelEnd);
     while (1)
     {
       char LineName[50],Command[4096];
@@ -902,6 +915,14 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
           remove(ShortListName+NM);
       CurLine++;
     }
+    if(OldCmdLine) // восстановим сохраненную командную строку
+    {
+       CtrlObject->CmdLine->SetString(OldCmdLine);
+       CtrlObject->CmdLine->Select(OldCmdLineSelStart,OldCmdLineSelEnd);
+       free(OldCmdLine);
+       OldCmdLine=NULL;
+    }
+    /* IS $ */
     /* $ 01.05.2001 IS
          ќтключим до лучших времен
     */

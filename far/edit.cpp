@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.59 07.12.2001 $ */
+/* Revision: 1.60 14.12.2001 $ */
 
 /*
 Modify:
+  14.12.2001 IS
+    ! внедрение const
   07.12.2001 SVS
     - Неверно работал механизм масок при передаче (очистке) пустой строки.
       (а отсюда и бага BugZ#161)
@@ -1602,7 +1604,7 @@ void Edit::GetString(char *Str,int MaxSize)
 }
 
 
-char* Edit::GetStringAddr()
+const char* Edit::GetStringAddr()
 {
   return(Edit::Str);
 }
@@ -1612,7 +1614,7 @@ char* Edit::GetStringAddr()
    примечание:
    в этом методе DropDownBox не обрабатывается
    ибо именно этот метод вызывается для установки из истории */
-void Edit::SetString(char *Str)
+void Edit::SetString(const char *Str)
 {
   /* $ 03.07.2000 tran
      + обработка ReadOnly */
@@ -1624,7 +1626,7 @@ void Edit::SetString(char *Str)
 }
 
 
-void Edit::SetEOL(char *EOL)
+void Edit::SetEOL(const char *EOL)
 {
   if (EOL[0]=='\r')
     if (EOL[1]=='\n')
@@ -1644,7 +1646,7 @@ void Edit::SetEOL(char *EOL)
    в этом методе DropDownBox не обрабатывается
    ибо он вызывается только из SetString и из класса Editor
    в Dialog он нигде не вызывается */
-void Edit::SetBinaryString(char *Str,int Length)
+void Edit::SetBinaryString(const char *Str,int Length)
 {
   /* $ 03.07.2000 tran
      + обработка ReadOnly */
@@ -1762,7 +1764,7 @@ int Edit::GetSelString(char *Str,int MaxSize)
 }
 
 
-void Edit::InsertString(char *Str)
+void Edit::InsertString(const char *Str)
 {
   /* $ 25.07.2000 tran
      + drop-down */
@@ -1778,7 +1780,7 @@ void Edit::InsertString(char *Str)
 }
 
 
-void Edit::InsertBinaryString(char *Str,int Length)
+void Edit::InsertBinaryString(const char *Str,int Length)
 {
   char *NewStr;
 

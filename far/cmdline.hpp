@@ -7,10 +7,12 @@ cmdline.hpp
 
 */
 
-/* Revision: 1.08 02.11.2001 $ */
+/* Revision: 1.09 14.12.2001 $ */
 
 /*
 Modify:
+  14.12.2001 IS
+    + GetStringAddr()
   02.11.2001 SVS
     + GetSelection()
   05.10.2001 SVS
@@ -54,9 +56,10 @@ class CommandLine:public ScreenObject
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     void GetCurDir(char *CurDir);
-    void SetCurDir(char *CurDir);
+    void SetCurDir(const char *CurDir);
     void GetString(char *Str,int MaxSize);
-    void SetString(char *Str);
+    const char *GetStringAddr();
+    void SetString(const char *Str);
     int GetLength() {return(CmdStr.GetLength());};
     void ExecString(char *Str,int AlwaysWaitFinish,int SeparateWindow=FALSE,
                     int DirectRun=FALSE);

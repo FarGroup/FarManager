@@ -9,10 +9,12 @@ editor.hpp
 
 */
 
-/* Revision: 1.28 03.12.2001 $ */
+/* Revision: 1.29 14.12.2001 $ */
 
 /*
 Modify:
+  14.12.2001 IS
+    ! внедрение const в соответствии с изменениями класса Edit
   03.12.2001 IS
     ! UndoData теперь указатель, т.к. размер может меняться
     ! Убрал EDITOR_UNDO_COUNT, т.к. вместо него теперь Opt.EditorUndoSize
@@ -265,7 +267,7 @@ class Editor:public ScreenObject
     void DeleteBlock();
     void UnmarkBlock();
     void ChangeEditKeyBar();
-    void AddUndoData(char *Str,int StrNum,int StrPos,int Type);
+    void AddUndoData(const char *Str,int StrNum,int StrPos,int Type);
     void Undo();
     void SelectAll();
     void SetStringsTable();

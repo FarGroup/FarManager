@@ -7,10 +7,12 @@ edit.hpp
 
 */
 
-/* Revision: 1.18 28.11.2001 $ */
+/* Revision: 1.19 14.12.2001 $ */
 
 /*
 Modify:
+  14.12.2001 IS
+    ! внедрение const
   28.11.2001 SVS
     + GetClearFlag() - получить состояние флага ClearFlag
   23.11.2001 SVS
@@ -206,15 +208,15 @@ class Edit:public ScreenObject
     int  GetPersistentBlocks(void) {return PersistentBlocks; }
     /* IS $ */
     void  GetString(char *Str,int MaxSize);
-    char* GetStringAddr();
-    void  SetString(char *Str);
-    void  SetBinaryString(char *Str,int Length);
+    const char* GetStringAddr();
+    void  SetString(const char *Str);
+    void  SetBinaryString(const char *Str,int Length);
     void  GetBinaryString(char **Str,char **EOL,int &Length);
-    void  SetEOL(char *EOL);
+    void  SetEOL(const char *EOL);
     int   GetSelString(char *Str,int MaxSize);
     int   GetLength();
-    void  InsertString(char *Str);
-    void  InsertBinaryString(char *Str,int Length);
+    void  InsertString(const char *Str);
+    void  InsertBinaryString(const char *Str,int Length);
     /* $ 03.08.2000 KM
        Добавление параметра WholeWords для поиска целых слов
        в функцию Search.

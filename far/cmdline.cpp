@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.48 06.12.2001 $ */
+/* Revision: 1.49 14.12.2001 $ */
 
 /*
 Modify:
+  14.12.2001 IS
+    + GetStringAddr();
   06.12.2001 SVS
     ! PrepareDiskPath() - имеет доп.параметр - максимальный размер буфера
   26.11.2001 SVS
@@ -411,7 +413,7 @@ int CommandLine::ProcessKey(int Key)
 }
 
 
-void CommandLine::SetCurDir(char *CurDir)
+void CommandLine::SetCurDir(const char *CurDir)
 {
   PrepareDiskPath(strcpy(CommandLine::CurDir,CurDir),sizeof(CommandLine::CurDir)-1);
 }
@@ -427,8 +429,14 @@ void CommandLine::GetString(char *Str,int MaxSize)
   CmdStr.GetString(Str,MaxSize);
 }
 
+/* $ 14.12.2001 IS получить адрес данных командной строки */
+const char *CommandLine::GetStringAddr()
+{
+  return CmdStr.GetStringAddr();
+}
+/* IS $ */
 
-void CommandLine::SetString(char *Str)
+void CommandLine::SetString(const char *Str)
 {
   LastCmdPartLength=-1;
   CmdStr.SetString(Str);
