@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.118 25.12.2001 $ */
+/* Revision: 1.119 25.12.2001 $ */
 
 /*
 Modify:
+  25.12.2001 DJ
+    - еще раз фиксим вылет network-плагина
   25.12.2001 SVS
     ! немного оптимизации (если VC сам умеет это делать, то
       борманду нужно помочь)
@@ -1749,15 +1751,22 @@ int FileList::ProcessKey(int Key)
     /* $ 16.08.2001 OT
      ѕерерисовываем всегда ! ( убран if, обрамл€ющий ChangeDir(".."))
     */
+      /* $ 25.12.2001 DJ
+         » кого мы будем перерисовывать, если ChangeDir() вызвал деструктор
+         панели? ѕравильно, не this, а активную панель. ѕотому что this
+         уже уничтожен!
+      */
       ChangeDir("..");
       /* OT $ */
       /* $ 24.04.2001 IS
            ѕроинициализируем заново режим панели.
       */
       {
-        SetViewMode(GetViewMode());
-        Show();
+        Panel *NewActivePanel = CtrlObject->Cp()->ActivePanel;
+        NewActivePanel->SetViewMode(NewActivePanel->GetViewMode());
+        NewActivePanel->Show();
       }
+      /* DJ $ */
       /* IS $ */
       /* SVS $ */
       return(TRUE);
