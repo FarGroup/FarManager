@@ -8,13 +8,18 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000 [ FAR group ]
 */
-/* Revision: 1.73 21.12.2000 $ */
+/* Revision: 1.74 21.12.2000 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  21.12.2000 SVS
+    + ACTL_KEYMACRO
+    + структура ActlKeyMacro (с зарезервированными полями :-)
+    + MacroCommand: MCMD_LOADALL, MCMD_SAVEALL (на этом пока остановимся,
+      остальное будет опосля)
   21.12.2000 SVS
     + DM_GETTEXTPTR, DM_SETTEXTPTR
   18.12.2000 SVS
@@ -714,6 +719,7 @@ enum {
   ACTL_GETCOLOR,
   ACTL_GETARRAYCOLOR,
   ACTL_EJECTMEDIA,
+  ACTL_KEYMACRO,
 };
 
 #define CONSOLE_GET_MODE       (-2)
@@ -729,6 +735,17 @@ struct ActlEjectMedia {
   DWORD Letter;
   DWORD Flags;
 };
+
+
+struct ActlKeyMacro{
+  int Command;
+  DWORD Reserved[3];
+};
+
+enum MacroCommand{
+  MCMD_LOADALL, MCMD_SAVEALL,
+};
+
 
 typedef int (WINAPI *FARAPIADVCONTROL)(
   int ModuleNumber,

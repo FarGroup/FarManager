@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.31 18.12.2000 $ */
+/* Revision: 1.32 21.12.2000 $ */
 
 /*
 Modify:
+  21.12.2000 SVS
+    + ACTL_KEYMACRO - зачатки будущего KeyMacro API
   18.12.2000 SVS
     ! Коррекции в FarShowHelp
   14.12.2000 SVS
@@ -256,6 +258,28 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     */
     case ACTL_EJECTMEDIA:
       return EjectVolume(((ActlEjectMedia*)Param)->Letter, ((ActlEjectMedia*)Param)->Flags);
+
+    /* $ 21.12.2000 SVS
+       Macro API
+    */
+    case ACTL_KEYMACRO:
+    {
+      if(CtrlObject) // все зависит от этой бадяги.
+      {
+        KeyMacro& Macro=CtrlObject->Macro; //??
+        struct ActlKeyMacro *KeyMacro=(struct ActlKeyMacro*)Param;
+        switch(KeyMacro->Command)
+        {
+          case MCMD_LOADALL: // из реестра в память ФАР с затиранием предыдущего
+            return Macro.LoadMacros();
+
+          case MCMD_SAVEALL: // из памяти ФАРа в реестра
+            Macro.SaveMacros();
+            return TRUE;
+        }
+      }
+      return FALSE;
+    }
  }
  return FALSE;
 }

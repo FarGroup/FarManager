@@ -5,10 +5,16 @@ macro.cpp
 
 */
 
-/* Revision: 1.09 21.12.2000 $ */
+/* Revision: 1.10 21.12.2000 $ */
 
 /*
 Modify:
+  21.12.2000 SVS
+    ! 3-е состояние для типа панелей.
+    + LoadMacros(), InitVars(), ReleaseTempBuffer()
+    ! ReadMacros - возвращает TRUE или FALSE (все зависит от выделения памяти)
+    + TempMacroType, TempMacro - будут использоваться для команд
+      MCMD_PLAYRECORD, MCMD_PLAYSTRING.
   21.12.2000 SVS
     - неверно работало считывание параметров по новым ключам
       FilePanels и PluginPanels
@@ -67,24 +73,72 @@ static const char *MacroModeName[]={
 
 static const char *MacroModeNameOther="Other";
 
+enum MacroTempType{
+  MTEMP_POINTER,  // передано откуда то
+  MTEMP_DYNAMIC,  // использовалось выделение памяти
+};
+
 
 KeyMacro::KeyMacro()
 {
+  TempMacroType=MTEMP_POINTER;
+  TempMacro=NULL;
+  LockScr=NULL;
   Macros=NULL;
+  RecBuffer=NULL;
+  LoadMacros();
+}
+
+void KeyMacro::InitVars()
+{
+  if(Macros)
+  {
+    for (int I=0;I<MacrosNumber;I++)
+      if(Macros[I].Buffer)
+        free(Macros[I].Buffer);
+    free(Macros);
+  }
+  if(RecBuffer) delete[] RecBuffer;
+
+  if(LockScr)
+  {
+    delete LockScr;
+    LockScr=NULL;
+  }
+
+  ReleaseTempBuffer();
+
   MacrosNumber=0;
   StartMacroPos=0;
   Recording=FALSE;
   Executing=FALSE;
+  Macros=NULL;
   RecBuffer=NULL;
   RecBufferSize=0;
   InternalInput=FALSE;
+}
 
-  /* $ 10.09.2000 SVS
-    Повторяющийся кусок вынесем за пределы функции ReadMacros
-  */
+// удаление временного буфера
+void KeyMacro::ReleaseTempBuffer()
+{
+  if(TempMacroType == MTEMP_DYNAMIC && TempMacro)
+  {
+    if(TempMacro->Buffer)
+      free(TempMacro->Buffer);
+    free(TempMacro);
+  }
+  TempMacro=NULL;
+  TempMacroType=MTEMP_POINTER;
+}
+
+int KeyMacro::LoadMacros()
+{
+  int Ret=FALSE;
+  InitVars();
+
   #define TEMP_BUFFER_SIZE 32768
-
   char *Buffer=new char[TEMP_BUFFER_SIZE];
+
   if(Buffer)
   {
     struct TKeyNames *KeyNames=new TKeyNames[KEY_LAST_BASE];
@@ -103,39 +157,30 @@ KeyMacro::KeyMacro()
         }
       }
 
-      ReadMacros(MACRO_SHELL,KeyNames,CountKeyNames,Buffer,TEMP_BUFFER_SIZE);
-      ReadMacros(MACRO_VIEWER,KeyNames,CountKeyNames,Buffer,TEMP_BUFFER_SIZE);
-      ReadMacros(MACRO_EDITOR,KeyNames,CountKeyNames,Buffer,TEMP_BUFFER_SIZE);
-      ReadMacros(MACRO_DIALOG,KeyNames,CountKeyNames,Buffer,TEMP_BUFFER_SIZE);
-      ReadMacros(MACRO_SEARCH,KeyNames,CountKeyNames,Buffer,TEMP_BUFFER_SIZE);
-      ReadMacros(MACRO_DISKS,KeyNames,CountKeyNames,Buffer,TEMP_BUFFER_SIZE);
-      ReadMacros(MACRO_MAINMENU,KeyNames,CountKeyNames,Buffer,TEMP_BUFFER_SIZE);
-      ReadMacros(MACRO_HELP,KeyNames,CountKeyNames,Buffer,TEMP_BUFFER_SIZE);
-      ReadMacros(MACRO_OTHER,KeyNames,CountKeyNames,Buffer,TEMP_BUFFER_SIZE);
+      Ret+=ReadMacros(MACRO_SHELL,KeyNames,CountKeyNames,Buffer,TEMP_BUFFER_SIZE);
+      Ret+=ReadMacros(MACRO_VIEWER,KeyNames,CountKeyNames,Buffer,TEMP_BUFFER_SIZE);
+      Ret+=ReadMacros(MACRO_EDITOR,KeyNames,CountKeyNames,Buffer,TEMP_BUFFER_SIZE);
+      Ret+=ReadMacros(MACRO_DIALOG,KeyNames,CountKeyNames,Buffer,TEMP_BUFFER_SIZE);
+      Ret+=ReadMacros(MACRO_SEARCH,KeyNames,CountKeyNames,Buffer,TEMP_BUFFER_SIZE);
+      Ret+=ReadMacros(MACRO_DISKS,KeyNames,CountKeyNames,Buffer,TEMP_BUFFER_SIZE);
+      Ret+=ReadMacros(MACRO_MAINMENU,KeyNames,CountKeyNames,Buffer,TEMP_BUFFER_SIZE);
+      Ret+=ReadMacros(MACRO_HELP,KeyNames,CountKeyNames,Buffer,TEMP_BUFFER_SIZE);
+      Ret+=ReadMacros(MACRO_OTHER,KeyNames,CountKeyNames,Buffer,TEMP_BUFFER_SIZE);
+
+      Ret=(Ret < 9)?FALSE:TRUE;
 
       delete KeyNames;
     }
     delete Buffer;
   }
-  /* SVS $ */
-
   Mode=MACRO_SHELL;
-  LockScr=NULL;
+  return Ret;
 }
 
 
 KeyMacro::~KeyMacro()
 {
-  /* $ 13.07.2000 SVS
-     ни кто не вызывал запрос памяти через new :-)
-  */
-  for (int I=0;I<MacrosNumber;I++)
-    free(Macros[I].Buffer);
-  free(Macros);
-  /* ну а здесь раз уж вызвали new[], то в придачу и delete[] надо... */
-  delete[] RecBuffer;
-  /* SVS $ */
-  if(LockScr) delete LockScr;
+  InitVars();
 }
 
 
@@ -293,8 +338,10 @@ int KeyMacro::GetKey()
 {
   if (InternalInput || !Executing)
     return(FALSE);
-  if (ExecKeyPos>=Macros[ExecMacroPos].BufferSize ||
-      Macros[ExecMacroPos].Buffer==NULL)
+
+  struct MacroRecord *MR=!TempMacro?Macros+ExecMacroPos:TempMacro;
+
+  if (ExecKeyPos>=MR->BufferSize || MR->Buffer==NULL)
   {
     /*$ 10.08.2000 skv
       If we are in editor mode, and CurEditor defined,
@@ -327,18 +374,20 @@ int KeyMacro::GetKey()
     if(LockScr) delete LockScr;
     LockScr=NULL;
     Executing=FALSE;
+    ReleaseTempBuffer();
     return(FALSE);
   }
-  int Key=Macros[ExecMacroPos].Buffer[ExecKeyPos++];
+  int Key=MR->Buffer[ExecKeyPos++];
   return(Key);
 }
 
 
 int KeyMacro::PeekKey()
 {
-  if (InternalInput || !Executing || ExecKeyPos>=Macros[ExecMacroPos].BufferSize)
+  struct MacroRecord *MR=!TempMacro?Macros+ExecMacroPos:TempMacro;
+  if (InternalInput || !Executing || ExecKeyPos >= MR->BufferSize)
     return(0);
-  int Key=Macros[ExecMacroPos].Buffer[ExecKeyPos];
+  int Key=MR->Buffer[ExecKeyPos];
   return(Key);
 }
 
@@ -407,7 +456,7 @@ void KeyMacro::SaveMacros()
   ! Исправим ситуацию с макросами в связи с переработаными кодами клавиш
   ! Функция ReadMacros имеет дополнительные аргументы
 */
-void KeyMacro::ReadMacros(int ReadMode,
+int KeyMacro::ReadMacros(int ReadMode,
                           struct TKeyNames *KeyNames,
                           int CountKeyNames,
                           char *Buffer,
@@ -440,7 +489,7 @@ void KeyMacro::ReadMacros(int ReadMode,
     if (Macros==NULL)
     {
       MacrosNumber=0;
-      break;
+      return FALSE;
     }
     struct MacroRecord *CurMacro=&Macros[MacrosNumber];
     CurMacro->Key=KeyCode;
@@ -481,7 +530,7 @@ void KeyMacro::ReadMacros(int ReadMode,
         CurMacro->Buffer=(int *)realloc(CurMacro->Buffer,sizeof(*CurMacro->Buffer)*(CurMacro->BufferSize+1));
         if (CurMacro->Buffer==NULL)
         {
-          return;
+          return FALSE;
         }
         CurMacro->Buffer[CurMacro->BufferSize]=KeyCode;
         CurMacro->BufferSize++;
@@ -489,51 +538,13 @@ void KeyMacro::ReadMacros(int ReadMode,
     }
     MacrosNumber++;
   }
+  return TRUE;
 }
 /* SVS $ */
 
-
-int KeyMacro::GetMacroSettings(
-         int &DisableOutput,
-         int &RunAfterStart,
-         int &EmptyCommandLine,
-         int &NotEmptyCommandLine,
-         int &FilePanels,
-         int &PluginPanels)
-{
-  static struct DialogData MacroSettingsDlgData[]={
-  /* 00 */ DI_DOUBLEBOX,3,1,62,13,0,0,0,0,(char *)MMacroSettingsTitle,
-  /* 01 */ DI_CHECKBOX,5,2,0,0,1,1,0,0,(char *)MMacroSettingsDisableOutput,
-  /* 02 */ DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MMacroSettingsRunAfterStart,
-  /* 03 */ DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 04 */ DI_RADIOBUTTON,5,5,0,0,0,1,DIF_GROUP,0,(char *)MMacroSettingsIgnoreCommandLine,
-  /* 05 */ DI_RADIOBUTTON,5,6,0,0,0,0,0,0,(char *)MMacroSettingsEmptyCommandLine,
-  /* 06 */ DI_RADIOBUTTON,5,7,0,0,0,0,0,0,(char *)MMacroSettingsNotEmptyCommandLine,
-  /* 07 */ DI_TEXT,3,8,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 08 */ DI_CHECKBOX,5,9,0,0,0,1,0,0,(char *)MMacroSettingsFilePanels,
-  /* 09 */ DI_CHECKBOX,5,10,0,0,0,1,0,0,(char *)MMacroSettingsPluginPanels,
-  /* 10 */ DI_TEXT,3,11,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 11 */ DI_BUTTON,0,12,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-  /* 12 */ DI_BUTTON,0,12,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
-  };
-  MakeDialogItems(MacroSettingsDlgData,MacroSettingsDlg);
-
-  Dialog Dlg(MacroSettingsDlg,sizeof(MacroSettingsDlg)/sizeof(MacroSettingsDlg[0]));
-  Dlg.SetPosition(-1,-1,66,15);
-  Dlg.SetHelp("KeyMacro");
-  Dlg.Process();
-  if (Dlg.GetExitCode()!=11)
-    return(FALSE);
-  DisableOutput=MacroSettingsDlg[1].Selected;
-  RunAfterStart=MacroSettingsDlg[2].Selected;
-  EmptyCommandLine=MacroSettingsDlg[5].Selected;
-  NotEmptyCommandLine=MacroSettingsDlg[6].Selected;
-  FilePanels=MacroSettingsDlg[8].Selected;
-  PluginPanels=MacroSettingsDlg[9].Selected;
-  return(TRUE);
-}
-
-
+// Функция, запускающая макросы при старте ФАРа
+// если уж вставлять предупреждение о недопустимости выполения
+// подобных макросов, то именно сюды!
 void KeyMacro::RunStartMacro()
 {
   if (StartMacroPos==-1)
@@ -597,4 +608,52 @@ int KeyMacro::GetSubKey(char *Mode)
     if(!stricmp(MacroModeName[I],Mode))
       return I;
   return -1;
+}
+
+
+int KeyMacro::GetMacroSettings(
+         int &DisableOutput,
+         int &RunAfterStart,
+         int &EmptyCommandLine,
+         int &NotEmptyCommandLine,
+         int &FilePanels,
+         int &PluginPanels)
+{
+  static struct DialogData MacroSettingsDlgData[]={
+  /* 00 */ DI_DOUBLEBOX,3,1,62,14,0,0,0,0,(char *)MMacroSettingsTitle,
+  /* 01 */ DI_CHECKBOX,5,2,0,0,1,1,0,0,(char *)MMacroSettingsDisableOutput,
+  /* 02 */ DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MMacroSettingsRunAfterStart,
+  /* 03 */ DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 04 */ DI_RADIOBUTTON,5,5,0,0,0,1,DIF_GROUP,0,(char *)MMacroSettingsIgnoreCommandLine,
+  /* 05 */ DI_RADIOBUTTON,5,6,0,0,0,0,0,0,(char *)MMacroSettingsEmptyCommandLine,
+  /* 06 */ DI_RADIOBUTTON,5,7,0,0,0,0,0,0,(char *)MMacroSettingsNotEmptyCommandLine,
+  /* 07 */ DI_TEXT,3,8,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 08 */ DI_RADIOBUTTON,5,9,0,0,0,1,DIF_GROUP,0,(char *)MMacroSettingsIgnorePanels,
+  /* 09 */ DI_RADIOBUTTON,5,10,0,0,0,0,0,0,(char *)MMacroSettingsFilePanels,
+  /* 10 */ DI_RADIOBUTTON,5,11,0,0,0,0,0,0,(char *)MMacroSettingsPluginPanels,
+  /* 11 */ DI_TEXT,3,12,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 12 */ DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 13 */ DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  };
+  MakeDialogItems(MacroSettingsDlgData,MacroSettingsDlg);
+
+  Dialog Dlg(MacroSettingsDlg,sizeof(MacroSettingsDlg)/sizeof(MacroSettingsDlg[0]));
+  Dlg.SetPosition(-1,-1,66,16);
+  Dlg.SetHelp("KeyMacro");
+  Dlg.Process();
+  if (Dlg.GetExitCode()!=12)
+    return(FALSE);
+  DisableOutput=MacroSettingsDlg[1].Selected;
+  RunAfterStart=MacroSettingsDlg[2].Selected;
+  EmptyCommandLine=MacroSettingsDlg[5].Selected;
+  NotEmptyCommandLine=MacroSettingsDlg[6].Selected;
+  if(!MacroSettingsDlg[8].Selected)
+  {
+    FilePanels=MacroSettingsDlg[9].Selected;
+    PluginPanels=MacroSettingsDlg[10].Selected;
+  }
+  else
+    FilePanels=PluginPanels=1;
+
+  return(TRUE);
 }

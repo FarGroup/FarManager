@@ -12,10 +12,12 @@ lang.hpp
            подряд.
 */
 
-/* Revision: 1.33 21.12.2000 $ */
+/* Revision: 1.34 21.12.2000 $ */
 
 /*
 Modify:
+  21.12.2000 SVS
+    + MMacroSettingsIgnorePanels
   21.12.2000 SVS
     + MMacroSettingsFilePanels, MMacroSettingsPluginPanels
   14.12.2000 SVS
@@ -1269,6 +1271,7 @@ enum
   MMacroSettingsIgnoreCommandLine,
   MMacroSettingsEmptyCommandLine,
   MMacroSettingsNotEmptyCommandLine,
+  MMacroSettingsIgnorePanels,
   MMacroSettingsFilePanels,
   MMacroSettingsPluginPanels,
 

@@ -5,10 +5,12 @@ far.cpp
 
 */
 
-/* Revision: 1.05 15.12.2000 $ */
+/* Revision: 1.06 21.12.2000 $ */
 
 /*
 Modify:
+  21.12.2000 SVS
+    Если не нашли LNG, то после выдачи сообщения ожидаем любую клавишу.
   15.12.2000 SVS
     + В случае, если не нашли нужных LNG-файлов - выдаем простое сообщение
       и не выпендрючиваемся.
@@ -183,7 +185,7 @@ int _cdecl main(int Argc, char *Argv[])
     //Message(MSG_WARNING,1,"Error","Cannot load language data","Ok");
     ControlObject::ShowCopyright(1);
     fprintf(stderr,"\nError: Cannot load language data\n\nPress any key...");
-    // WaitKey(-1); // А стоит ли ожидать клавишу???
+    WaitKey(-1); // А стоит ли ожидать клавишу??? Стоит
     exit(0);
     /* SVS $ */
   }

@@ -21,7 +21,6 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
 */
 
-// for class KeyMacro
 struct MacroRecord
 {
   DWORD Flags;
@@ -56,12 +55,17 @@ class KeyMacro
     int StartMode;
     int StartMacroPos;
 
+    struct MacroRecord *TempMacro; // временный буфер для 1 макро
+    int TempMacroType;             // тип этого буфера
+
   private:
-    void ReadMacros(int ReadMode,struct TKeyNames *KeyNames,
+    int  ReadMacros(int ReadMode,struct TKeyNames *KeyNames,
                     int CountKeyNames, char *Buffer, int BufferSize);
     int GetMacroSettings(int &DisableOutput,int &RunAfterStart,
                          int &EmptyCommandLine,int &NotEmptyCommandLine,
                          int &FilePanels,int &PluginPanels);
+    void InitVars();
+    void ReleaseTempBuffer(); // удалить временный буфер
 
   public:
     KeyMacro();
@@ -71,14 +75,19 @@ class KeyMacro
     int ProcessKey(int Key);
     int GetKey();
     int PeekKey();
-    int IsRecording() {return(Recording);};
-    int IsExecuting() {return(Executing);};
-    void SaveMacros();
+
+    int  IsRecording() {return(Recording);};
+    int  IsExecuting() {return(Executing);};
     void SetMode(int Mode) {KeyMacro::Mode=Mode;};
-    int GetMode() {return(Mode);};
+    int  GetMode() {return(Mode);};
+
     void RunStartMacro();
+
+    int  LoadMacros();
+    void SaveMacros();
+
     static char* GetSubKey(int Mode);
-    static int GetSubKey(char *Mode);
+    static int   GetSubKey(char *Mode);
 };
 
 #endif	// __KEYMACRO_HPP__
