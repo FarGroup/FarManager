@@ -5,10 +5,23 @@ findfile.cpp
 
 */
 
-/* Revision: 1.81 11.12.2001 $ */
+/* Revision: 1.82 16.12.2001 $ */
 
 /*
 Modify:
+  16.12.2001 KM
+    - Наконец-то удавлен баг с торможением клавиш курсора во время
+      поиска в архивах. Дело оказалось в моей прошлогодней правке
+      при поиске в запароленном архиве - IsPluginGetsFile, но так как
+      поиск был переделан на Dialog API, то сей флаг теперь стал мешать.
+    + Добавлена информативность в "Searching in:". Если ищем текст в файлах,
+      то строка выглядит "Searching "text_to_find" in:".
+    + Сделана проверка на существование открытого файла в редакторе при
+      нажатии F4 во время поиска, при этом выдаётся запрос как в панелях
+      (усечённый запрос).
+      Артефакт: при нажатии на F4 во время поиска на файле уже открытом в
+      редакторе заголовок консоли продолжает изменяться как-будто открыт
+      диалог поиска (устал уже просто работать, может завтра найду :).
   11.12.2001 VVM
     - bugz#162 (* вызвав плагин для поиска в архиве и ничего там не найдя, FAR забыл,
          что поиск продолжается всё в том же каталоге и ещё раз вписал имя
@@ -348,12 +361,6 @@ static int PluginMode;
 
 static HANDLE hMutex;
 
-/* $ 07.08.2000 KM
-   Добавление переменной для борьбы с глюком при поиске в запароленном архиве
-*/
-static int IsPluginGetsFile;
-/* KM $ */
-
 static int UseDecodeTable=FALSE,UseUnicode=FALSE,TableNum=0;
 static struct CharTableSet TableSet;
 
@@ -502,11 +509,6 @@ FindFiles::FindFiles()
   strcpy(FindMask,LastFindMask);
   strcpy(FindStr,LastFindStr);
   BreakMainThread=0;
-  /* $ 07.08.2000 KM
-     Инициализация переменной для борьбы с глюком при поиске в запароленном архиве
-  */
-  IsPluginGetsFile=0;
-  /* KM $ */
   FarList TableList;
   FarListItem *TableItem=(FarListItem *)malloc(sizeof(FarListItem)*4);
   TableList.Items=TableItem;
@@ -757,9 +759,6 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
     case DN_KEY:
     {
-      if (!ListBox)
-        return TRUE;
-
       WaitForSingleObject(hMutex,INFINITE);
 
       if (!StopSearch && Param2==KEY_ESC)
@@ -778,14 +777,14 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         return TRUE;
       }
 
-      while (ListBox->GetCallCount())
-        Sleep(10);
-
-      if (IsPluginGetsFile)
+      if (!ListBox)
       {
         ReleaseMutex(hMutex);
         return TRUE;
       }
+
+      while (ListBox->GetCallCount())
+        Sleep(10);
 
       // некторые спец.клавиши всеже отбработаем.
       if(Param2 == KEY_CTRLALTSHIFTPRESS || Param2 == KEY_ALTF9)
@@ -884,16 +883,13 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
             FileItem.FindData=FindList[ItemIndex].FindData;
             sprintf(TempDir,"%s%s",Opt.TempPath,FarTmpXXXXXX);
             mktemp(TempDir);
-            IsPluginGetsFile=TRUE;
             if (!CtrlObject->Plugins.GetFile(ArcList[FindList[ItemIndex].ArcIndex].hPlugin,&FileItem,TempDir,SearchFileName,OPM_SILENT|OPM_FIND))
             {
               RemoveDirectory(TempDir);
-              IsPluginGetsFile=FALSE;
               ReleaseMutex(hMutex);
               return FALSE;
             }
             RemoveTemp=TRUE;
-            IsPluginGetsFile=FALSE;
           }
           else
             strcpy(SearchFileName,FindList[ItemIndex].FindData.cFileName);
@@ -955,19 +951,66 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
               Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
               ReleaseMutex(hMutex);
               {
-                FileEditor ShellEditor (SearchFileName,FALSE,FALSE);
-                ShellEditor.SetDynamicallyBorn(FALSE);
-                ShellEditor.SetEnableF6 (TRUE);
-                // FindFileArcIndex нельзя здесь использовать
-                // Он может быть уже другой.
-                if ((FindList[ItemIndex].ArcIndex != LIST_INDEX_NONE) &&
-                    (!(ArcList[FindList[ItemIndex].ArcIndex].Flags & OPIF_REALNAMES)))
-                  ShellEditor.SetSaveToSaveAs(TRUE);
-                IsProcessVE_FindFile++;
-                FrameManager->ExecuteModal ();
-                IsProcessVE_FindFile--;
-                // заставляем рефрешится экран
-                FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
+                int FramePos=FrameManager->FindFrameByFile(MODALTYPE_EDITOR,SearchFileName);
+                int SwitchTo=FALSE;
+                if (FramePos!=-1)
+                {
+                  if (!(*FrameManager)[FramePos]->GetCanLoseFocus(TRUE) ||
+                      Opt.Confirm.AllowReedit)
+                  {
+                    char MsgFullFileName[NM];
+                    strcpy(MsgFullFileName,SearchFileName);
+                    int MsgCode=Message(0,2,MSG(MFindFileTitle),
+                          TruncPathStr(MsgFullFileName,ScrX-16),
+                          MSG(MAskReload),
+                          MSG(MCurrent),MSG(MNewOpen));
+                    if (MsgCode==0)
+                    {
+                      SwitchTo=TRUE;
+                    }
+                    else if (MsgCode==1)
+                    {
+                      SwitchTo=FALSE;
+                    }
+                    else
+                    {
+                      Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
+                      Dialog::SendDlgMessage(hDlg,DM_SHOWDIALOG,TRUE,0);
+                      return TRUE;
+                    }
+                  }
+                  else
+                  {
+                    SwitchTo=TRUE;
+                  }
+                }
+                if (SwitchTo)
+                {
+                  (*FrameManager)[FramePos]->SetCanLoseFocus(FALSE);
+                  (*FrameManager)[FramePos]->SetDynamicallyBorn(FALSE);
+                  FrameManager->ActivateFrame(FramePos);
+                  IsProcessVE_FindFile++;
+                  FrameManager->ExecuteNonModal();
+                  IsProcessVE_FindFile--;
+                  // заставляем рефрешится экран
+                  FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
+                }
+                else
+                {
+                  FileEditor ShellEditor (SearchFileName,FALSE,FALSE);
+                  ShellEditor.SetDynamicallyBorn(FALSE);
+                  ShellEditor.SetEnableF6 (TRUE);
+                  // FindFileArcIndex нельзя здесь использовать
+                  // Он может быть уже другой.
+                  if ((FindList[ItemIndex].ArcIndex != LIST_INDEX_NONE) &&
+                      (!(ArcList[FindList[ItemIndex].ArcIndex].Flags & OPIF_REALNAMES)))
+                    ShellEditor.SetSaveToSaveAs(TRUE);
+                  IsProcessVE_FindFile++;
+                  FrameManager->ExecuteModal ();
+                  IsProcessVE_FindFile--;
+                  // заставляем рефрешится экран
+                  FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
+                }
               }
               WaitForSingleObject(hMutex,INFINITE);
               Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
@@ -1130,12 +1173,21 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 int FindFiles::FindFilesProcess()
 {
   char Title[2*NM];
+  char SearchStr[NM];
   hMutex=CreateMutex(NULL,FALSE,NULL);
 
   if (*FindMask)
     sprintf(Title,"%s: %s",MSG(MFindFileTitle),FindMask);
   else
     sprintf(Title,"%s",MSG(MFindFileTitle));
+  if (*FindStr)
+  {
+    char Temp[NM];
+    sprintf(Temp," \"%s\"",TruncStr(FindStr,10));
+    sprintf(SearchStr,MSG(MFindSearchingIn),Temp);
+  }
+  else
+    sprintf(SearchStr,MSG(MFindSearchingIn),"");
 
   /* $ 03.12.2001 DJ
      корректный показ имен файлов с амперсандами
@@ -1144,7 +1196,7 @@ int FindFiles::FindFilesProcess()
   /* 00 */DI_DOUBLEBOX,3,1,72,DLG_HEIGHT-2,0,0,0,0,Title,
   /* 01 */DI_LISTBOX,4,2,71,14,0,0,DIF_LISTNOBOX,0,(char*)0,
   /* 02 */DI_TEXT,-1,15,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 03 */DI_TEXT,5,16,0,0,0,0,DIF_SHOWAMPERSAND,0,(char *)MFindSearchingIn,
+  /* 03 */DI_TEXT,5,16,0,0,0,0,DIF_SHOWAMPERSAND,0,SearchStr,
   /* 04 */DI_TEXT,3,17,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
   /* 05 */DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,0,(char *)MFindNewSearch,
   /* 06 */DI_BUTTON,0,18,0,0,1,0,DIF_CENTERGROUP,1,(char *)MFindGoTo,
@@ -1593,19 +1645,12 @@ int FindFiles::IsFileIncluded(PluginPanelItem *FileItem,char *FullName,DWORD Fil
         sprintf(TempDir,"%s%s",Opt.TempPath,FarTmpXXXXXX);
         mktemp(TempDir);
         CreateDirectory(TempDir,NULL);
-        /* $ 07.08.2000 KM
-           Добавление переменных для борьбы с глюком при поиске в запароленном архиве
-        */
-        IsPluginGetsFile=TRUE;
         if (!CtrlObject->Plugins.GetFile(hPlugin,FileItem,TempDir,SearchFileName,OPM_SILENT|OPM_FIND))
         {
           RemoveDirectory(TempDir);
-          IsPluginGetsFile=FALSE;
           break;
         }
         RemoveTemp=TRUE;
-        IsPluginGetsFile=FALSE;
-        /* KM $ */
       }
       else
         strcpy(SearchFileName,FullName);
@@ -2111,7 +2156,15 @@ void FindFiles::WriteDialogData(void *Param)
       }
       if (FindMessageReady)
       {
-        char *SearchStr=MSG(MFindSearchingIn);
+        char SearchStr[NM];
+        if (*FindStr)
+        {
+          char Temp[NM];
+          sprintf(Temp," \"%s\"",TruncStr(FindStr,10));
+          sprintf(SearchStr,MSG(MFindSearchingIn),Temp);
+        }
+        else
+          sprintf(SearchStr,MSG(MFindSearchingIn),"");
         int Wid1=strlen(SearchStr);
         int Wid2=DlgWidth-strlen(SearchStr)-1;
 
