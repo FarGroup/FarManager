@@ -4,13 +4,23 @@ vmenu.cpp
 Обычное вертикальное меню
   а так же:
     * список в DI_COMBOBOX
+    * список в DI_LISTBOX
     * ...
 */
 
-/* Revision: 1.43 19.07.2001 $ */ 
+/* Revision: 1.44 21.07.2001 $ */
 
 /*
 Modify:
+  21.07.2001 KM
+    ! Переработка отрисовки меню с флагом VMENU_SHOWNOBOX.
+    ! Переработка обработки мыши в меню с флагом VMENU_SHOWNOBOX.
+
+    Теперь DI_LISTBOX с выставленным флагом DIF_LISTNOBOX и меню
+    с флагом VMENU_SHOWNOBOX рисуются без лишних окантовывающих пробелов
+    вокруг списка, что автоматически позволяет использовать DI_LISTBOX в
+    диалогах, не опасаясь затирания рамки самого диалога пустым местом от
+    списка.
   19.07.2001 OT
     VFMenu - продолжение исправления
   18.07.2001 OT
@@ -484,7 +494,14 @@ void VMenu::DisplayObject()
     }
     else
     {
-      SetScreen(X1-2,Y1-1,X2+2,Y2+1,' ',VMenu::Colors[0]);
+      /* $ 21.07.2001 KM
+       ! Переработка отрисовки меню с флагом VMENU_SHOWNOBOX.
+      */
+      if (BoxType!=NO_BOX)
+        SetScreen(X1-2,Y1-1,X2+2,Y2+1,' ',VMenu::Colors[0]);
+      else
+        SetScreen(X1,Y1,X2,Y2,' ',VMenu::Colors[0]);
+      /* KM $ */
       if(!(VMenu::VMFlags&(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR)))
       {
         MakeShadow(X1,Y2+2,X2+3,Y2+2);
@@ -556,11 +573,15 @@ void VMenu::ShowMenu(int IsParent)
   }
   if (SelectPos<ItemCount)
     Item[SelectPos].Flags|=LIF_SELECTED;
-  if (SelectPos>TopPos+Y2-Y1-2)
-    TopPos=SelectPos-(Y2-Y1-2);
+  /* $ 21.07.2001 KM
+   ! Переработка отрисовки меню с флагом VMENU_SHOWNOBOX.
+  */
+  if (SelectPos>TopPos+((BoxType!=NO_BOX)?Y2-Y1-2:Y2-Y1))
+    TopPos=SelectPos-((BoxType!=NO_BOX)?Y2-Y1-2:Y2-Y1);
   if (SelectPos<TopPos)
     TopPos=SelectPos;
-  for (Y=Y1+1,I=TopPos;Y<Y2;Y++,I++)
+  for (Y=Y1+((BoxType!=NO_BOX)?1:0),I=TopPos;Y<((BoxType!=NO_BOX)?Y2:Y2+1);Y++,I++)
+  /* KM $ */
   {
     GotoXY(X1,Y);
     if (I<ItemCount)
@@ -591,15 +612,25 @@ void VMenu::ShowMenu(int IsParent)
       }
       else
       {
-        SetColor(VMenu::Colors[1]);
-        Text((char*)BoxChar);
-        GotoXY(X2,Y);
-        Text((char*)BoxChar);
+        /* $ 21.07.2001 KM
+         ! Переработка отрисовки меню с флагом VMENU_SHOWNOBOX.
+        */
+        if (BoxType!=NO_BOX)
+        {
+          SetColor(VMenu::Colors[1]);
+          Text((char*)BoxChar);
+          GotoXY(X2,Y);
+          Text((char*)BoxChar);
+        }
         if (Item[I].Flags&LIF_SELECTED)
           SetColor(VMenu::Colors[6]);
         else
           SetColor(VMenu::Colors[(Item[I].Flags&LIF_DISABLE?9:3)]);
-        GotoXY(X1+1,Y);
+        if (BoxType!=NO_BOX)
+          GotoXY(X1+1,Y);
+        else
+          GotoXY(X1,Y);
+        /* KM $ */
         char Check=' ';
         if (Item[I].Flags&LIF_CHECKED)
           if (!(Item[I].Flags&0x0000FFFF))
@@ -644,13 +675,22 @@ void VMenu::ShowMenu(int IsParent)
       }
     else
     {
-      SetColor(VMenu::Colors[1]);
-      Text((char*)BoxChar);
-      GotoXY(X2,Y);
-      Text((char*)BoxChar);
-      GotoXY(X1+1,Y);
+      /* $ 21.07.2001 KM
+       ! Переработка отрисовки меню с флагом VMENU_SHOWNOBOX.
+      */
+      if (BoxType!=NO_BOX)
+      {
+        SetColor(VMenu::Colors[1]);
+        Text((char*)BoxChar);
+        GotoXY(X2,Y);
+        Text((char*)BoxChar);
+        GotoXY(X1+1,Y);
+      }
+      else
+        GotoXY(X1,Y);
       SetColor(VMenu::Colors[3]);
-      mprintf("%*s",X2-X1-1,"");
+      mprintf("%*s",((BoxType!=NO_BOX)?X2-X1-1:X2-X1),"");
+      /* KM $ */
     }
   }
   /* $ 28.06.2000 tran
@@ -662,13 +702,22 @@ void VMenu::ShowMenu(int IsParent)
        + всегда покажет scrollbar для DI_LISTBOX & DI_COMBOBOX и опционально
          для вертикального меню
   */
+  /* $ 21.07.2001 KM
+   ! Переработка отрисовки меню с флагом VMENU_SHOWNOBOX.
+  */
   if (((VMenu::VMFlags&(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR)) ||
-       Opt.ShowMenuScrollbar) &&
-      (Y2-Y1-1)<ItemCount)
+       Opt.ShowMenuScrollbar))
   {
-    SetColor(VMenu::Colors[8]);
-    ScrollBar(X2,Y1+1,Y2-Y1-1,SelectPos,ItemCount);
+    if (((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1+1)<ItemCount)
+    {
+      SetColor(VMenu::Colors[8]);
+      if (BoxType!=NO_BOX)
+        ScrollBar(X2,Y1+1,Y2-Y1-1,SelectPos,ItemCount);
+      else
+        ScrollBar(X2,Y1,Y2-Y1+1,SelectPos,ItemCount);
+    }
   }
+  /* KM $ */
   /* 18.07.2000 SVS $ */
   /* SVS $ */
   /* tran $ */
@@ -1036,14 +1085,18 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
      + mouse support for menu scrollbar
   */
 
-  int SbY1=Y1+1, SbY2=Y2-1;
+  /* $ 21.07.2001 KM
+   ! Переработка обработки мыши в меню с флагом VMENU_SHOWNOBOX.
+  */
+  int SbY1=((BoxType!=NO_BOX)?Y1+1:Y1), SbY2=((BoxType!=NO_BOX)?Y2-1:Y2);
 
   XX2=X2;
-  if (Opt.ShowMenuScrollbar && (Y2-Y1-1)<ItemCount)
+  if (Opt.ShowMenuScrollbar && ((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1+1)<ItemCount)
     XX2--;  // уменьшает площадь, в которой меню следит за мышью само
 
-  if (Opt.ShowMenuScrollbar && MsX==X2 && (Y2-Y1-1)<ItemCount &&
+  if (Opt.ShowMenuScrollbar && MsX==X2 && ((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1+1)<ItemCount &&
       (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) )
+  /* KM $ */
   {
     if (MsY==SbY1)
     {
@@ -1119,10 +1172,20 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   /* $ 06.07.2000 tran
      + mouse support for menu scrollbar
      */
-  if (MsX>X1 && MsX<XX2 && MsY>Y1 && MsY<Y2)
+  /* $ 21.07.2001 KM
+   ! Переработка обработки мыши в меню с флагом VMENU_SHOWNOBOX.
+  */
+  if ((BoxType!=NO_BOX)?
+      (MsX>X1 && MsX<XX2 && MsY>Y1 && MsY<Y2):
+      (MsX>=X1 && MsX<=XX2 && MsY>=Y1 && MsY<=Y2))
+  /* KM $ */
   /* tran 06.07.2000 $ */
   {
-    MsPos=TopPos+MsY-Y1-1;
+    /* $ 21.07.2001 KM
+     ! Переработка обработки мыши в меню с флагом VMENU_SHOWNOBOX.
+    */
+    MsPos=TopPos+((BoxType!=NO_BOX)?MsY-Y1-1:MsY-Y1);
+    /* KM $ */
     if (MsPos<ItemCount && !(Item[MsPos].Flags&LIF_SEPARATOR) && !(Item[MsPos].Flags&LIF_DISABLE))
     {
       if (MouseX!=PrevMouseX || MouseY!=PrevMouseY || MouseEvent->dwEventFlags==0)
@@ -1513,7 +1576,7 @@ VFMenu::VFMenu(const char *Title,
        DWORD Flags,
        FARWINDOWPROC Proc,
        Dialog *ParentDialog):VMenu(Title,Data,ItemCount,MaxHeight,Flags,Proc,ParentDialog)
-{ 
+{
   SetDynamicallyBorn(false);
   FrameManager->ModalizeFrame(this);
 }
@@ -1542,7 +1605,7 @@ void VFMenu::ResizeConsole()
     Y1=(ScrY+1-(this->ItemCount+5))/2;
     if (Y1<1) Y1=1;
     X2=Y2=0;
-    
+
   }
   SaveScr->Discard();
 }
