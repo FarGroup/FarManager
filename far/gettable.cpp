@@ -5,10 +5,12 @@ gettable.cpp
 
 */
 
-/* Revision: 1.01 11.07.2000 $ */
+/* Revision: 1.02 27.08.2000 $ */
 
 /*
 Modify:
+  27.08.2000 tran
+    + hotkeys as numbers
   11.07.2000 SVS
     ! Изменения для возможности компиляции под BC & VC
   25.06.2000 SVS
@@ -35,6 +37,8 @@ int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
              int &UseUnicode)
 {
   int I;
+  int mx=0;
+  char ItemName[128],t[128];
 
   if (AnsiText)
   {
@@ -67,14 +71,16 @@ int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
   ListItem.Checked=ListItem.Separator=*ListItem.UserData=ListItem.UserDataSize=0;
 
   ListItem.Selected=(TableNum==0);
-  strcpy(ListItem.Name,MSG(MGetTableNormalText));
+  strcpy(ItemName,MSG(MGetTableNormalText));
+  sprintf(ListItem.Name,"&1 %s",ItemName);
   TableList.AddItem(&ListItem);
 
   if (UseUnicode)
   {
     ListItem.Selected=(TableNum==1);
-    strcpy(ListItem.Name,"Unicode");
+    strcpy(ListItem.Name,"&2 Unicode");
     TableList.AddItem(&ListItem);
+    mx=1;
   }
 
   for (I=0;;I++)
@@ -82,7 +88,11 @@ int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
     char TableKey[512];
     if (!EnumRegKey("CodeTables",I,TableKey,sizeof(TableKey)))
       break;
-    CharToOem(PointToName(TableKey),ListItem.Name);
+    CharToOem(PointToName(TableKey),ItemName);
+    if ( I<8-mx )
+        sprintf(ListItem.Name,"&%i %s",I+2+mx,ItemName);
+    else
+        sprintf(ListItem.Name,"   %s",ItemName);
     ListItem.Selected=(I+1+UseUnicode == TableNum);
     TableList.AddItem(&ListItem);
   }
