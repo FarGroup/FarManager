@@ -5,10 +5,13 @@ edit.cpp
 
 */
 
-/* Revision: 1.36 21.02.2001 $ */
+/* Revision: 1.37 11.04.2001 $ */
 
 /*
 Modify:
+  13.04.2001 SVS
+    ! Обработка Ctrl-Q вынесена в отдельную функцию ProcessCtrlQ(), т.к.
+      используется в editor.cpp
   21.02.2001 IS
     ! Opt.TabSize -> Opt.EdOpt.TabSize
       Opt.EditorPersistentBlocks -> Opt.EdOpt.PersistentBlocks
@@ -930,18 +933,8 @@ int Edit::ProcessKey(int Key)
       Show();
       return(TRUE);
     case KEY_CTRLQ:
-      {
-        INPUT_RECORD rec;
-        while (1)
-        {
-          Key=GetInputRecord(&rec);
-          if (Key!=KEY_NONE && Key!=KEY_IDLE && rec.Event.KeyEvent.uChar.AsciiChar)
-            break;
-        }
-
-        InsertKey(rec.Event.KeyEvent.uChar.AsciiChar);
-        Show();
-      }
+      ProcessCtrlQ();
+      Show();
       return(TRUE);
     case KEY_CTRLT:
     case KEY_CTRLDEL:
@@ -1196,7 +1189,7 @@ int Edit::ProcessKey(int Key)
         /* $ 15.10.2000 tran
            если строка ввода имет максимальную длину
            то их клипборда грузим не больше ее*/
-        char *ClipText=NULL;
+        char *ClipText;
         if (MaxLength==-1)
             ClipText=PasteFromClipboard();
         else
@@ -1309,6 +1302,21 @@ int Edit::ProcessKey(int Key)
       return(TRUE);
   }
   return(FALSE);
+}
+
+// обработка Ctrl-Q
+int Edit::ProcessCtrlQ(void)
+{
+  INPUT_RECORD rec;
+  DWORD Key;
+
+  while (1)
+  {
+    Key=GetInputRecord(&rec);
+    if (Key!=KEY_NONE && Key!=KEY_IDLE && rec.Event.KeyEvent.uChar.AsciiChar)
+      break;
+  }
+  return InsertKey(rec.Event.KeyEvent.uChar.AsciiChar);
 }
 
 

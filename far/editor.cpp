@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.82 10.04.2001 $ */
+/* Revision: 1.83 11.04.2001 $ */
 
 /*
 Modify:
+  11.04.2001 SVS
+    + Добавлена обработка Ctrl-Q - при вставки символа не удалялся блок
+      (постоянные блоки выключены)
   10.04.2001 SVS
     - Если файл RO и мы отказались его открывать - все равно плагину
       посылался эвент, что мол файл закрыт! И это при том, что плагин не
@@ -2371,6 +2374,21 @@ int Editor::ProcessKey(int Key)
       Edit::DisableEditOut(FALSE);
       Show();
       return(TRUE);
+    /* $ 11.04.2001 SVS
+       Добавлена обработка Ctrl-Q
+    */
+    case KEY_CTRLQ:
+      Pasting++;
+      if (!EdOpt.PersistentBlocks && BlockStart!=NULL)
+      {
+        MarkingBlock=MarkingVBlock=FALSE;
+        DeleteBlock();
+      }
+      CurLine->EditLine.ProcessCtrlQ();
+      Pasting--;
+      Show();
+      return(TRUE);
+    /* SVS $ */
     default:
       {
         if ((Key==KEY_CTRLDEL || Key==KEY_CTRLT) && CurPos>=CurLine->EditLine.GetLength())

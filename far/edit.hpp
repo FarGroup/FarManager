@@ -7,10 +7,13 @@ edit.hpp
 
 */
 
-/* Revision: 1.12 15.02.2001 $ */
+/* Revision: 1.13 11.04.2001 $ */
 
 /*
 Modify:
+  13.04.2001 SVS
+    ! Обработка Ctrl-Q вынесена в отдельную функцию ProcessCtrlQ(), т.к.
+      используется в editor.cpp
   15.02.2001 IS
     + Локальные переменные, в которых запоминается то, что храниться в
       настройках редактора:
@@ -138,6 +141,8 @@ class Edit:public ScreenObject
     */
     int KeyMatchedMask(int Key);
     /* KM $ */
+
+    int ProcessCtrlQ(void);
 
   public:
     Edit();
