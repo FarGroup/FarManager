@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.198 21.09.2002 $ */
+/* Revision: 1.199 26.09.2002 $ */
 
 /*
 Modify:
+  26.09.2002 SKV
+    - еще раз удаление блока
+    - еще раз выделение
   21.09.2002 VVM
     - Падение при удалении блока. Портился стек.
   19.09.2002 SKV
@@ -2011,7 +2014,18 @@ int Editor::ProcessKey(int Key)
           if (SelEnd!=-1 && NextPos>SelEnd)
             CurLine->Next->EditLine.Select(SelEnd,NextPos);
           else
+          {
+            if(CurLine->Next->Next)
+            {
+              int SS,SE;
+              CurLine->Next->Next->EditLine.GetSelection(SS,SE);
+              if(SS==-1)
+              {
+                NextPos=-1;
+              }
+            }
             CurLine->Next->EditLine.Select(NextPos,SelEnd);
+          }
           BlockStart=CurLine->Next;
           BlockStartLine=NumLine+1;
         }
@@ -2042,7 +2056,7 @@ int Editor::ProcessKey(int Key)
           UnmarkBlock();
           Flags.Set(FEDITOR_MARKINGBLOCK);
         }
-        CurLine->Prev->EditLine.GetSelection(SelStart,SelEnd);
+        CurLine->Prev->EditLine.GetRealSelection(SelStart,SelEnd);
         CurLine->Prev->EditLine.SetTabCurPos(TabCurPos);
         PrevPos=CurLine->Prev->EditLine.GetCurPos();
         if(!EdOpt.CursorBeyondEOL && PrevPos>=CurLine->Prev->EditLine.GetLength())
@@ -2055,7 +2069,16 @@ int Editor::ProcessKey(int Key)
           if (PrevPos<SelStart)
             CurLine->Prev->EditLine.Select(PrevPos,SelStart);
           else
-            CurLine->Prev->EditLine.Select(SelStart,PrevPos);
+          {
+            if(SelStart==PrevPos)
+            {
+              CurLine->Prev->EditLine.Select(-1,0);
+              if(CurLine->Prev==BlockStart)BlockStart=NULL;
+            }else
+            {
+              CurLine->Prev->EditLine.Select(SelStart,PrevPos);
+            }
+          }
         }
         else
         {
@@ -4414,6 +4437,7 @@ void Editor::DeleteBlock()
     if(StartSel>Length)
     {
       Length=StartSel;
+      CurPtr->EditLine.SetCurPos(Length);
       CurPtr->EditLine.InsertBinaryString("",0);
     }
     /* SKV $ */

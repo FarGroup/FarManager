@@ -2311,18 +2311,15 @@ int Edit::RealPosToTab(int Pos)
 
   for (TabPos=0,I=0;I<Pos;I++)
   {
+    if (I>=StrSize)
+    {
+      TabPos+=Pos-I;
+      break;
+    }
     if (Str[I]=='\t')
       TabPos+=TabSize - (TabPos % TabSize);
     else
-      /* $ 13.04.2001 OT */
-      if (I>StrSize)
-      /* OT */
-      {
-        TabPos+=Pos-I;
-        break;
-      }
-      else
-        TabPos++;
+      TabPos++;
   }
   return(TabPos);
 }
