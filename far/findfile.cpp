@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.10 11.11.2000 $ */
+/* Revision: 1.11 14.12.2000 $ */
 
 /*
 Modify:
+  14.12.2000 OT
+    -  баг: поиск по Alt-F7 с очень длинной маской поиска/текста
   11.11.2000 SVS
     ! FarMkTemp() - убираем (как всегда - то ставим, то тут же убираем :-(((
   11.11.2000 SVS
@@ -190,9 +192,31 @@ FindFiles::FindFiles()
         return;
       break;
     }
-    strcpy(FindMask,*FindAskDlg[2].Data ? FindAskDlg[2].Data:"*");
+    /* $ 14.12.2000 OT */
+    char Buf1 [24];
+    char Buf2 [128];
+    if (strlen (FindAskDlg[2].Data) > sizeof(FindMask) ){
+      memset (Buf1, 0, sizeof(Buf1));
+      memset (Buf2, 0, sizeof(Buf2));
+      strncpy (Buf1, MSG(MFindFileMasks), sizeof(Buf1)-1);
+      sprintf (Buf2,MSG(MEditInputSize), Buf1, sizeof(FindMask)-1);
+      Message(MSG_WARNING,1,MSG(MWarning),
+        Buf2,
+        MSG(MOk));
+    }
+    strncpy(FindMask,*FindAskDlg[2].Data ? FindAskDlg[2].Data:"*",sizeof(FindMask)-1);
     Unquote(FindMask);
-    strcpy(FindStr,FindAskDlg[5].Data);
+    if (strlen (FindAskDlg[5].Data) > sizeof(FindStr) ){
+      memset (Buf1, 0, sizeof(Buf1));
+      memset (Buf2, 0, sizeof(Buf2));
+      strncpy (Buf1, MSG(MFindFileText), sizeof(Buf1)-1);
+      sprintf (Buf2,MSG(MEditInputSize), Buf1, sizeof(FindStr)-1);
+      Message(MSG_WARNING,1,MSG(MWarning),
+        Buf2,
+        MSG(MOk));
+    }
+    strncpy(FindStr,FindAskDlg[5].Data,sizeof(FindStr)-1);
+    /* OT $ */
     CmpCase=FindAskDlg[7].Selected;
     /* $ 30.07.2000 KM
        Добавлена переменная

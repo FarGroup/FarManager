@@ -12,10 +12,12 @@ lang.hpp
            подряд.
 */
 
-/* Revision: 1.30 04.12.2000 $ */
+/* Revision: 1.31 04.12.2000 $ */
 
 /*
 Modify:
+  13.12.2000
+    + MEditInputSize
   04.12.2000 SVS
     + MSetColorDialog*Disabled, MSetColorWarning*Disabled, MCheckBox2State
   29.11.2000 SVS
@@ -1319,5 +1321,7 @@ enum
   MBuffSizeTooSmall_2,
 
   MCheckBox2State,
+  MEditInputSize,
 };
+
 #endif	// __FARLANG_HPP__
