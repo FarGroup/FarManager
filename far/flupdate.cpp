@@ -5,10 +5,12 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.17 24.10.2001 $ */
+/* Revision: 1.18 13.11.2001 $ */
 
 /*
 Modify:
+  13.11.2001 OT
+    ! ѕопытка исправить создание каталогов на пассивной панели по F7
   24.10.2001 SVS
     ! сначала проапдейтим пассивную панель, а потом активную.
   02.10.2001 SVS
@@ -124,8 +126,15 @@ void FileList::ReadFileNames(int KeepSelection)
 
   CloseChangeNotification();
 
-  if (!SetCurPath() && this!=CtrlObject->Cp()->LeftPanel && this!=CtrlObject->Cp()->RightPanel)
+  if (this!=CtrlObject->Cp()->LeftPanel && this!=CtrlObject->Cp()->RightPanel )
     return;
+
+  char SaveDir[NM];
+  *(int*)SaveDir=0;
+  GetCurrentDirectory(NM, SaveDir);
+  if (!SetCurPath()){
+    return;
+  }
 
   SortGroupsRead=FALSE;
 
@@ -422,6 +431,9 @@ void FileList::ReadFileNames(int KeepSelection)
     if (!GoToFile(CurName) && *NextCurName)
       GoToFile(NextCurName);
   SetTitle();
+  if (SaveDir) {
+    SetCurrentDirectory(SaveDir);
+  }
 }
 
 /*$ 22.06.2001 SKV

@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.24 24.10.2001 $ */
+/* Revision: 1.25 13.11.2001 $ */
 
 /*
 Modify:
+  13.11.2001 OT
+    ! Попытка исправить создание каталогов на пассивной панели по F7
   24.10.2001 SVS
     ! вместо "левая-правая" применим понятие "активная-пассивная" - так будет
       правильнее для ситуации "каталог создан не на той панели"
@@ -127,11 +129,6 @@ void FilePanels::Init()
   RightPanel->SetSelectedFirstMode(Opt.RightSelectedFirst);
   SetCanLoseFocus(TRUE);
 
-  if (Opt.LeftPanel.Focus)
-    ActivePanel=LeftPanel;
-  else
-    ActivePanel=RightPanel;
-  ActivePanel->SetFocus();
   if (Opt.AutoSaveSetup)
   {
     if (GetFileAttributes(Opt.LeftFolder)!=0xffffffff)
@@ -146,6 +143,12 @@ void FilePanels::Init()
       if (GetFileAttributes(Opt.PassiveFolder)!=0xffffffff)
         PassivePanel->InitCurDir(Opt.PassiveFolder);
     }
+  if (Opt.LeftPanel.Focus)
+    ActivePanel=LeftPanel;
+  else
+    ActivePanel=RightPanel;
+  ActivePanel->SetFocus();
+
   if (Opt.LeftPanel.Visible){
     LeftPanel->Show();
   }
