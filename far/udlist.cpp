@@ -8,10 +8,13 @@ udlist.cpp
 
 */
 
-/* Revision: 1.07 18.05.2002 $ */
+/* Revision: 1.08 11.07.2002 $ */
 
 /*
 Modify:
+  11.07.2002 IS
+    + В режиме ULF_PACKASTERISKS пакуем все последовательности из двух или
+      больше символов '*' в один символ '*'.
   18.05.2002 SVS
     ! Возможность компиляции под BC 5.5
   11.08.2001 IS
@@ -135,6 +138,30 @@ BOOL UserDefinedList::Set(const char *List)
                 {
                    *DataEnd='*';
                    Length=1;
+                }
+                else if(PackAsterisks)
+                {
+                   int i=0, newLen=0, lastAsterisk=false;
+                   while(i<Length)
+                   {
+                     if(CurList[i]=='*')
+                     {
+                       if(!lastAsterisk)
+                       {
+                         DataEnd[newLen]='*';
+                         lastAsterisk=true;
+                         ++newLen;
+                       }
+                     }
+                     else
+                     {
+                       DataEnd[newLen]=CurList[i];
+                       lastAsterisk=false;
+                       ++newLen;
+                     }
+                     ++i;
+                   }
+                   Length=newLen;
                 }
                 else
                    strncpy(DataEnd, CurList, Length);
