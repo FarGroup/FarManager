@@ -888,6 +888,7 @@
 "It use by another application"
 "Could not unlock media from drive %c:"
 "Could not eject media from drive %c:"
+"#!$%*+-/(),."
 
 " Search "
 "Cannot create list file"

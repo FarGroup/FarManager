@@ -5,10 +5,13 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.20 12.03.2001 $ */
+/* Revision: 1.21 15.03.2001 $ */
 
 /*
 Modify:
+  15.03.2001 IS
+    + Используем дополнительные хоткеи, а не просто '#', как раньше, если строк
+      от плагинов в меню выбора диска больше 9 штук
   12.03.2001 SVS
     ! Коррекция в связи с изменениями в классе int64
   28.02.2001 IS
@@ -298,6 +301,17 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
     struct MenuItem PluginMenuItems[20];
     int PluginMenuItemsCount=0;
     memset(PluginMenuItems,0,sizeof(PluginMenuItems));
+    /* $ 15.03.2001 IS
+         Список дополнительных хоткеев, для случая, когда плагинов, добавляющих
+         пункт в меню, больше 9. Всего, btw, обрабатывается не больше 20
+         плагинов, поэтому дополнительных хоткеев нужно МИНИМУМ 11(=20-9)
+         штук.
+    */
+    char *AdditionalHotKey=MSG(MAdditionalHotKey);
+    int AHKPos=0,                           // индекс в списке хоткеев
+        AHKSize=strlen(AdditionalHotKey);   /* для предотвращения выхода за
+                                               границу массива */
+    /* IS $ */
 
     if (Opt.ChangeDriveMode & DRIVE_SHOW_PLUGINS)
     {
@@ -323,9 +337,13 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
           while (UsedNumbers[PluginTextNumber] && PluginTextNumber<10)
             PluginTextNumber++;
           UsedNumbers[PluginTextNumber%10]=1;
+          /* $ 15.03.2001 IS
+               Используем дополнительные хоткеи, а не просто '#', как раньше.
+          */
           sprintf(MenuText,"&%c: %s",
-                  PluginTextNumber>9 ? '#':PluginTextNumber+'0',
-                  ShowSpecial ? PluginText:"");
+                  PluginTextNumber>9 ? AdditionalHotKey[(AHKPos++)%AHKSize]:
+                  PluginTextNumber+'0', ShowSpecial ? PluginText:"");
+          /* IS $ */
           strncpy(ChDiskItem.Name,MenuText,sizeof(ChDiskItem.Name));
           ChDiskItem.UserData[0]=PluginNumber;
           ChDiskItem.UserData[1]=PluginItem;
@@ -356,9 +374,13 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
           while (UsedNumbers[PluginTextNumber] && PluginTextNumber<10)
             PluginTextNumber++;
           UsedNumbers[PluginTextNumber%10]=1;
+          /* $ 15.03.2001 IS
+               Используем дополнительные хоткеи, а не просто '#', как раньше.
+          */
           sprintf(MenuText,"&%c: %s",
-                  PluginTextNumber>9 ? '#':PluginTextNumber+'0',
-                  ShowSpecial ? PluginText:"");
+                  PluginTextNumber>9 ? AdditionalHotKey[(AHKPos++)%AHKSize]:
+                  PluginTextNumber+'0', ShowSpecial ? PluginText:"");
+          /* IS $ */
           strncpy(ChDiskItem.Name,MenuText,sizeof(ChDiskItem.Name));
           ChDiskItem.UserData[0]=PluginNumber;
           ChDiskItem.UserData[1]=PluginItem;

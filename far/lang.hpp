@@ -15,10 +15,14 @@ lang.hpp
 
 */
 
-/* Revision: 1.53 13.03.2001 $ */
+/* Revision: 1.54 15.03.2001 $ */
 
 /*
 Modify:
+  15.03.2001 IS
+    + MAdditionalHotKey - должен содержать не меньше 11 дополнительных хоткеев
+      для меню выбора диска. Разрешено использовать только символы с кодами до
+      48 (т.е. до '0').
   13.03.2001 SVS
     + MAskDeleteLink, MDeleteLinkDelete, MDeleteLinkUnlink
   26.02.2001 VVM
@@ -1024,6 +1028,7 @@ enum
   MChangeVolumeInUse2,
   MChangeCouldNotUnlockMedia,
   MChangeCouldNotEjectMedia,
+  MAdditionalHotKey,
 
   MSearchFileTitle,
   MCannotCreateListFile,
