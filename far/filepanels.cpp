@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.25 13.11.2001 $ */
+/* Revision: 1.26 19.11.2001 $ */
 
 /*
 Modify:
+  19.11.2001 VVM
+    ! ActivePanel надо инициализировать до использования. А иначе...
   13.11.2001 OT
     ! Попытка исправить создание каталогов на пассивной панели по F7
   24.10.2001 SVS
@@ -129,6 +131,12 @@ void FilePanels::Init()
   RightPanel->SetSelectedFirstMode(Opt.RightSelectedFirst);
   SetCanLoseFocus(TRUE);
 
+  if (Opt.LeftPanel.Focus)
+    ActivePanel=LeftPanel;
+  else
+    ActivePanel=RightPanel;
+  ActivePanel->SetFocus();
+
   if (Opt.AutoSaveSetup)
   {
     if (GetFileAttributes(Opt.LeftFolder)!=0xffffffff)
@@ -143,11 +151,6 @@ void FilePanels::Init()
       if (GetFileAttributes(Opt.PassiveFolder)!=0xffffffff)
         PassivePanel->InitCurDir(Opt.PassiveFolder);
     }
-  if (Opt.LeftPanel.Focus)
-    ActivePanel=LeftPanel;
-  else
-    ActivePanel=RightPanel;
-  ActivePanel->SetFocus();
 
   if (Opt.LeftPanel.Visible){
     LeftPanel->Show();
