@@ -5,10 +5,13 @@ findfile.cpp
 
 */
 
-/* Revision: 1.96 01.03.2002 $ */
+/* Revision: 1.97 04.03.2002 $ */
 
 /*
 Modify:
+  04.03.2002 DJ
+    ! нажатие Esc в диалоге подтверждения прерывания поиска поиск _не_
+	  прерывает
   01.03.2002 SVS
     ! Есть только одна функция создания временного файла - FarMkTempEx
   21.02.2002 VVM
@@ -839,9 +842,13 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         IsProcessAssignMacroKey++; // запретим спец клавиши
                                    // т.е. в этом диалоге нельзя нажать Alt-F9!
         int LocalRes=TRUE;
+		/* $ 04.03.2002 DJ
+		   нажатие Esc в диалоге confirm Esc поиск _не_ прерывает
+		*/
         if(Opt.Confirm.Esc && Message(MSG_WARNING,2,MSG(MKeyESCWasPressed),
-                      MSG(MDoYouWantToStopWork),MSG(MYes),MSG(MNo))==1)
+                      MSG(MDoYouWantToStopWork),MSG(MYes),MSG(MNo))!=0)
           LocalRes=FALSE;
+		/* DJ $ */
         IsProcessAssignMacroKey--;
         PauseSearch=FALSE;
         StopSearch=LocalRes;

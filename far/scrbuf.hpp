@@ -7,10 +7,12 @@ scrbuf.hpp
 
 */
 
-/* Revision: 1.03 03.03.2002 $ */
+/* Revision: 1.04 04.03.2002 $ */
 
 /*
 Modify:
+  04.03.2002 DJ
+    ! Appli -> Apply
   03.03.2002 SVS
     + AppliColor()
   23.07.2001 SKV
@@ -58,8 +60,8 @@ class ScreenBuf
     void Write(int X,int Y,CHAR_INFO *Text,int TextLength);
     void RestoreMacroChar();
 
-    void AppliColorMask(int X1,int Y1,int X2,int Y2,WORD ColorMask);
-    void AppliColor(int X1,int Y1,int X2,int Y2,int ColorMask);
+    void ApplyColorMask(int X1,int Y1,int X2,int Y2,WORD ColorMask);
+    void ApplyColor(int X1,int Y1,int X2,int Y2,int ColorMask);
     void FillRect(int X1,int Y1,int X2,int Y2,int Ch,int Color);
 
     void Scroll(int);

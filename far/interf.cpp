@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.48 03.03.2002 $ */
+/* Revision: 1.49 04.03.2002 $ */
 
 /*
 Modify:
+  04.03.2002 DJ
+    ! Appli -> Apply
   03.03.2002 SVS
     ! Если для VC вставить ключ /Gr, то видим кучу багов :-/
   03.03.2002 SVS
@@ -722,7 +724,7 @@ void MakeShadow(int X1,int Y1,int X2,int Y2)
   if (X2>ScrX) X2=ScrX;
   if (Y2>ScrY) Y2=ScrY;
 
-  ScrBuf.AppliColorMask(X1,Y1,X2,Y2,0xF8);
+  ScrBuf.ApplyColorMask(X1,Y1,X2,Y2,0xF8);
 }
 
 void ChangeBlockColor(int X1,int Y1,int X2,int Y2,int Color)
@@ -732,7 +734,7 @@ void ChangeBlockColor(int X1,int Y1,int X2,int Y2,int Color)
   if (X2>ScrX) X2=ScrX;
   if (Y2>ScrY) Y2=ScrY;
 
-  ScrBuf.AppliColor(X1,Y1,X2,Y2,FarColorToReal(Color));
+  ScrBuf.ApplyColor(X1,Y1,X2,Y2,FarColorToReal(Color));
 }
 
 

@@ -5,10 +5,12 @@ scrbuf.cpp
 
 */
 
-/* Revision: 1.14 03.03.2002 $ */
+/* Revision: 1.15 04.03.2002 $ */
 
 /*
 Modify:
+  04.03.2002 DJ
+    ! Appli -> Apply
   03.03.2002 SVS
     + AppliColor()
     ! Немного оптимизации.
@@ -186,7 +188,7 @@ void ScreenBuf::Read(int X1,int Y1,int X2,int Y2,CHAR_INFO *Text)
 /* Изменить значение цветовых атрибутов в соответствии с маской
    (в основном применяется для "создания" тени)
 */
-void ScreenBuf::AppliColorMask(int X1,int Y1,int X2,int Y2,WORD ColorMask)
+void ScreenBuf::ApplyColorMask(int X1,int Y1,int X2,int Y2,WORD ColorMask)
 {
 int Width=X2-X1+1;
   int Height=Y2-Y1+1;
@@ -209,7 +211,7 @@ int Width=X2-X1+1;
 
 /* Непосредственное изменение цветовых атрибутов
 */
-void ScreenBuf::AppliColor(int X1,int Y1,int X2,int Y2,int Color)
+void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,int Color)
 {
   int Width=X2-X1+1;
   int Height=Y2-Y1+1;
@@ -236,7 +238,7 @@ void ScreenBuf::FillRect(int X1,int Y1,int X2,int Y2,int Ch,int Color)
 {
   int Width=X2-X1+1;
   int Height=Y2-Y1+1;
-  int Pos, I, J;
+  int I, J;
 
   CHAR_INFO CI,*PtrBuf;
   CI.Attributes=Color;
