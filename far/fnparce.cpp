@@ -5,10 +5,12 @@ fnparce.cpp
 
 */
 
-/* Revision: 1.12 12.08.2002 $ */
+/* Revision: 1.13 30.09.2002 $ */
 
 /*
 Modify:
+  30.09.2002 VVM
+    - Вместо strcpy будем пользовать strncpy.
   12.08.2002 SVS
     - Трабла с уничтожением данных и деструктором диалога.
   15.04.2002 SVS
@@ -531,14 +533,14 @@ void ReplaceVariables(char *Str)
       DlgData[DlgSize+1].DefaultButton=1;
     }
     char Title[256];
-    strcpy(Title,Str);
+    strncpy(Title,Str,sizeof(Title)-1);
     *strchr(Title,'!')=0;
     Str+=strlen(Title)+1;
     char *SrcText=strchr(Title,'?');
     if (SrcText!=NULL)
     {
       *SrcText=0;
-      strcpy(DlgData[DlgSize+1].Data,SrcText+1);
+      strncpy(DlgData[DlgSize+1].Data,SrcText+1,sizeof(DlgData[DlgSize+1].Data)-1);
     }
     strcpy(DlgData[DlgSize].Data,Title);
     /* $ 01.08.2000 SVS
