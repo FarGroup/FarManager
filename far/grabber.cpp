@@ -5,10 +5,13 @@ Screen grabber
 
 */
 
-/* Revision: 1.19 31.05.2004 $ */
+/* Revision: 1.20 26.07.2004 $ */
 
 /*
 Modify:
+  26.07.2004 SVS
+    - BugZ#566 - Ќедограбливаютс€ диалоги, содержащие точки
+      ƒополнительное уточнение (про "*<>|X")
   31.05.2004 SVS
     - BugZ#566 - Ќедограбливаютс€ диалоги, содержащие точки
       ƒополнительное уточнение
@@ -176,6 +179,8 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
           default:
             if(Chr2 < 0x20)
               Chr='.';
+            else if(Chr2 < 0x100)
+              Chr=Chr2;
             break;
         }
       }
