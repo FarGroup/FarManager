@@ -8,10 +8,12 @@ help.cpp
 
 */
 
-/* Revision: 1.54 27.11.2001 $ */
+/* Revision: 1.55 29.11.2001 $ */
 
 /*
 Modify:
+  29.11.2001 DJ
+    + в заголовке окна хелпа показываем, чей это хелп
   27.11.2001 DJ
     - забыли инициализировать CtrlTabSize
   27.11.2001 SVS
@@ -386,6 +388,14 @@ int Help::ReadHelp(char *Mask)
   }
   else
     CtrlColorChar=0;
+
+  /* $ 29.11.2001 DJ
+     запомним, чего там написано в PluginContents
+  */
+  if (!Language::GetLangParam (HelpFile,"PluginContents",CurPluginContents, NULL))
+    *CurPluginContents = '\0';
+  /* DJ $ */
+
   *SplitLine=0;
   if (HelpData)
     free(HelpData);
@@ -631,14 +641,13 @@ void Help::FastShow()
 {
   int I;
 
+  /* $ 29.11.2001 DJ
+     отрисовка рамки -> в отдельную функцию
+  */
   if (!DisableOut)
-  {
-    SetScreen(X1,Y1,X2,Y2,' ',COL_HELPTEXT);
-    Box(X1,Y1,X2,Y2,COL_HELPBOX,DOUBLE_BOX);
-    SetColor(COL_HELPBOXTITLE);
-    GotoXY(X1+(X2-X1+1-strlen(MSG(MHelpTitle))-2)/2,Y1);
-    mprintf(" %s ",MSG(MHelpTitle));
-  }
+    DrawWindowFrame();
+  /* DJ $ */
+
   CorrectPosition();
   *StackData.SelTopic=0;
   /* $ 01.09.2000 SVS
@@ -691,6 +700,29 @@ void Help::FastShow()
     ScrollBar(X2,Y1+FixSize+1,ScrollLength,StackData.TopStr,Scrolled);
   }
 }
+
+/* $ 29.11.2001 DJ
+   вытащена из FastShow; добавлен показ того, чей у нас хелп
+*/
+
+void Help::DrawWindowFrame()
+{
+  SetScreen(X1,Y1,X2,Y2,' ',COL_HELPTEXT);
+  Box(X1,Y1,X2,Y2,COL_HELPBOX,DOUBLE_BOX);
+  SetColor(COL_HELPBOXTITLE);
+
+  char HelpTitleBuf [256];
+  strcpy (HelpTitleBuf, MSG(MHelpTitle));
+  strcat (HelpTitleBuf, " - ");
+  if (*CurPluginContents)
+    strcat (HelpTitleBuf, CurPluginContents);
+  else
+    strcat (HelpTitleBuf, "FAR");
+  GotoXY(X1+(X2-X1+1-strlen(HelpTitleBuf)-2)/2,Y1);
+  mprintf(" %s ",HelpTitleBuf);
+}
+
+/* DJ $ */
 
 /* $ 01.09.2000 SVS
   Учтем символ CtrlColorChar & CurColor
@@ -1352,6 +1384,11 @@ void Help::ReadDocumentsHelp(int TypeIndex)
   if(HelpData)
     free(HelpData);
   HelpData=NULL;
+  /* $ 29.11.2001 DJ
+     это не плагин -> чистим CurPluginContents
+  */
+  *CurPluginContents = '\0';
+  /* DJ $ */
 
   StrCount=0;
   FixCount=1;

@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.109 27.11.2001 $ */
+/* Revision: 1.110 29.11.2001 $ */
 
 /*
 Modify:
+  29.11.2001 DJ
+    - еще один memory allocation conflict (PrevDataStack)
   27.11.2001 SVS
     + GetCurBaseName() выдает на гора имя файлового объекта под курсором
       с учетом вложенности панельного плагина, т.е. имя самого верхнего
@@ -422,7 +424,11 @@ FileList::~FileList()
   CloseChangeNotification();
   for (int I=0;I<PrevDataStackSize;I++)
     DeleteListData(PrevDataStack[I].PrevListData,PrevDataStack[I].PrevFileCount);
-  delete PrevDataStack;
+  /* $ 29.11.2001 DJ
+     выделяли через realloc - освобождать надо через free
+  */
+  free (PrevDataStack);
+  /* DJ $ */
   DeleteListData(ListData,FileCount);
   if (PanelMode==PLUGIN_PANEL)
     while (PopPlugin(FALSE))

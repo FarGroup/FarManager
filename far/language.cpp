@@ -5,10 +5,13 @@ language.cpp
 
 */
 
-/* Revision: 1.13 01.10.2001 $ */
+/* Revision: 1.14 29.11.2001 $ */
 
 /*
 Modify:
+  29.11.2001 DJ
+    ! GetLangParam() читает файл только до @Contents и не забывает
+      восстановить позицию
   01.10.2001 SVS
     ! Учтем, что может быть, т.н. "DocumentContents"
   01.08.2001 SVS
@@ -275,8 +278,14 @@ int Language::GetLangParam(FILE *SrcFile,char *ParamName,char *Param1,char *Para
   char ReadStr[1024],FullParamName[64];
   sprintf(FullParamName,".%s=",ParamName);
   int Length=strlen(FullParamName);
+  /* $ 29.11.2001 DJ
+     не поганим позицию в файле; дальше @Contents не читаем
+  */
+  BOOL Found = FALSE;
+  long OldPos = ftell (SrcFile);
   fseek(SrcFile,0,SEEK_SET);
   while (fgets(ReadStr,sizeof(ReadStr),SrcFile)!=NULL)
+  {
     if (strnicmp(ReadStr,FullParamName,Length)==0)
     {
       strcpy(Param1,ReadStr+Length);
@@ -293,9 +302,15 @@ int Language::GetLangParam(FILE *SrcFile,char *ParamName,char *Param1,char *Para
         *EndPtr=0;
       }
       RemoveTrailingSpaces(Param1);
-      return(TRUE);
+      Found = TRUE;
+      break;
     }
-  return(FALSE);
+    else if (!strnicmp (ReadStr, "@Contents", 9))
+      break;
+  }
+  fseek (SrcFile,OldPos,SEEK_SET);
+  /* DJ $ */
+  return(Found);
 }
 
 

@@ -10,10 +10,13 @@ help.hpp
 
 */
 
-/* Revision: 1.22 26.11.2001 $ */
+/* Revision: 1.23 29.11.2001 $ */
 
 /*
 Modify:
+  29.11.2001 DJ
+    ! отрисовка рамки хелпа вытащена в отдельную функцию
+    + помним PluginContents для текущего хелпа
   26.11.2001 VVM
     ! Теперь хелп не реагирует на отпускание клавиши мышки, если клавиша была нажата не в хелпе.
   01.11.2001 SVS
@@ -121,6 +124,12 @@ class Help:public Frame
 
     int   PrevMacroMode;        // предыдущий режим макроса
 
+    /* $ 29.11.2001 DJ
+       помним PluginContents (для отображения в заголовке)
+    */
+    char CurPluginContents[NM];
+    /* DJ $ */
+
   private:
     void DisplayObject();
     int  ReadHelp(char *Mask=NULL);
@@ -128,6 +137,11 @@ class Help:public Frame
     void AddTitle(char *Title);
     void HighlightsCorrection(char *Str);
     void FastShow();
+    /* $ 29.11.2001 DJ
+       вытащена из FastShow
+    */
+    void DrawWindowFrame();
+    /* DJ $ */
     void OutString(char *Str);
     int  StringLen(char *Str);
     void CorrectPosition();
