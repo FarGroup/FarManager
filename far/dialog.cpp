@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.35 31.08.2000 $ */
+/* Revision: 1.36 08.09.2000 $ */
 
 /*
 Modify:
+  08.09.2000 SVS
+   - Если коротко, то DM_SETFOCUS вроде как и работал :-)
+   ! Уточнение для DN_MOUSECLICK
   31.08.2000 SVS
    + DM_ENABLE (не полностью готов :-)
    - Бага с вызовом файлов помощи.
@@ -1823,7 +1826,7 @@ int Dialog::ProcessKey(int Key)
 */
 int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
-  int I;
+  int I, J;
   int MsX,MsY;
   int Type;
 
@@ -1875,7 +1878,8 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
             break;
         }
         if(Send_DN)
-          DlgProc((HANDLE)this,DN_MOUSECLICK,I,(long)MouseEvent);
+          if((J=DlgProc((HANDLE)this,DN_MOUSECLICK,I,(long)MouseEvent)))
+            return TRUE;
 
         if(Item[I].Type == DI_USERCONTROL)
         {
@@ -3013,12 +3017,19 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         Dlg->Show();
       return 0;
 
+    /* $ 08.09.2000 SVS
+      - Если коротко, то DM_SETFOCUS вроде как и работал :-)
+    */
     case DM_SETFOCUS:
-      if(!Dialog::IsFocused(Type))
-        return FALSE;
-      Dlg->ChangeFocus(Param1,1,0);
-//      Dlg->ChangeFocus2(Param1,1,0);
-      return TRUE;
+//      if(!Dialog::IsFocused(Dlg->Item[Param1].Type))
+//        return FALSE;
+      if(Dlg->ChangeFocus2(Dlg->FocusPos,Param1) == Param1)
+      {
+        Dlg->ShowDialog();
+        return TRUE;
+      }
+      return FALSE;
+    /* SVS $ */
 
     case DM_GETTEXT:
       if(Param2) // если здесь NULL, то это еще один способ получить размер

@@ -6,10 +6,13 @@
   Plugin API for FAR Manager 1.70
 
 */
-/* Revision: 1.40 07.09.2000 $ */
+/* Revision: 1.41 08.09.2000 $ */
 
 /*
 Modify:
+  08.09.2000 SVS
+    + FARMANAGERVERSION
+    ! FarStandardFunctions.Reserved* -> FarStandardFunctions.Reserved[10];
   07.09.2000 skv
     + ECTL_PROCESSKEY
   07.09.2000 VVM 1.39
@@ -177,6 +180,8 @@ Modify:
   26.06.2000 SVS
     ! Подготовка Master Copy
 */
+
+#define FARMANAGERVERSION 0x0146
 
 #if defined(__BORLANDC__) && (__BORLANDC__ <= 0x550)
   #pragma option -a1
@@ -979,16 +984,7 @@ typedef struct FarStandardFunctions
   // вот сюда можно будет потом вместо
   //  DWORD ReservedX вставлять нужные
   //  функции из RTL-библиотеки.
-  DWORD                  Reserved0;
-  DWORD                  Reserved1;
-  DWORD                  Reserved2;
-  DWORD                  Reserved3;
-  DWORD                  Reserved4;
-  DWORD                  Reserved5;
-  DWORD                  Reserved6;
-  DWORD                  Reserved7;
-  DWORD                  Reserved8;
-  DWORD                  Reserved9;
+  DWORD                  Reserved[10];
   /* SVS $ */
 
   FARSTDLOCALISLOWER     LIsLower;
