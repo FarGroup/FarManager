@@ -5,10 +5,15 @@ dialog.cpp
 
 */
 
-/* Revision: 1.217 12.03.2002 $ */
+/* Revision: 1.218 12.03.2002 $ */
 
 /*
 Modify:
+  12.03.2002 SVS
+    - Для DM_SETMOUSEEVENTNOTIFY - в доках одно, в коде совсем по другому :-(
+    - BugZ#351, BugZ#352 - куски кода, ответственные _только_ за диалог
+      перемещены в Dialog::SendDlgMessage() чуууток повыше (перед проверкой
+      Param1 > ItemCount)
   12.03.2002 SVS
     - Пропала история.
   11.03.2002 SVS
@@ -3419,7 +3424,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   if(!DialogMode.Check(DMODE_SHOW))
     return FALSE;
 
-  if(!DialogMode.Check(DMODE_MOUSEEVENT))
+  if(DialogMode.Check(DMODE_MOUSEEVENT))
    if(!DlgProc((HANDLE)this,DN_MOUSEEVENT,0,(long)MouseEvent))
      return TRUE;
 
@@ -5104,20 +5109,332 @@ long WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 {
   Dialog* Dlg=(Dialog*)hDlg;
-  struct DialogItem *CurItem=NULL;
-  int Type=0;
-  char *Ptr=NULL;
-  char Str[1024];
-  int Len, I;
-  struct FarDialogItem PluginDialogItem;
+  int I;
 
   _DIALOG(CleverSysLog CL("Dialog.SendDlgMessage()"));
   _DIALOG(SysLog("hDlg=%p, Msg=%s, Param1=%d (0x%08X), Param2=%d (0x%08X)",hDlg,_DLGMSG_ToName(Msg),Param1,Param1,Param2,Param2));
 
   if(!Dlg)
     return 0;
-  // предварительно проверим...
 
+  // Сообщения, касаемые только диалога и не затрагивающие элементы
+  switch(Msg)
+  {
+    /*****************************************************************/
+    case DM_RESIZEDIALOG:
+      // изменим вызов RESIZE.
+      Param1=-1;
+
+    /*****************************************************************/
+    /* $ 30.08.2000 SVS
+        + программное перемещение диалога
+    */
+    case DM_MOVEDIALOG:
+    {
+      int W1,H1;
+
+      /* $ 10.08.2001 KM
+        - Неверно вычислялась ширина диалога.
+      */
+      W1=Dlg->X2-Dlg->X1+1;
+      H1=Dlg->Y2-Dlg->Y1+1;
+      /* KM $ */
+      // сохранили
+      Dlg->OldX1=Dlg->X1;
+      Dlg->OldY1=Dlg->Y1;
+      Dlg->OldX2=Dlg->X2;
+      Dlg->OldY2=Dlg->Y2;
+      /* $ 30.05.2001 KM
+         - Косячило центрирование диалога и изменение размера
+      */
+      // переместили
+      if(Param1>0)   // абсолютно?
+      {
+        Dlg->X1=((COORD*)Param2)->X;
+        Dlg->Y1=((COORD*)Param2)->Y;
+        /* $ 10.08.2001 KM
+          - Неверно вычислялись координаты X2 и Y2.
+        */
+        Dlg->X2=W1-1;
+        Dlg->Y2=H1-1;
+        /* KM $ */
+        Dlg->CheckDialogCoord();
+      }
+      else if(Param1 == 0)   // значит относительно
+      {
+        Dlg->X1+=((COORD*)Param2)->X;
+        Dlg->Y1+=((COORD*)Param2)->Y;
+      }
+      else // Resize, Param2=width/height
+      {
+        int OldW1,OldH1;
+        OldW1=W1;
+        OldH1=H1;
+        W1=((COORD*)Param2)->X;
+        H1=((COORD*)Param2)->Y;
+        /* $ 11.10.2001 KM
+          - Ещё одно уточнение при ресайзинге, с учётом предполагаемого
+            выхода краёв диалога за границу экрана.
+        */
+        if(Dlg->X1+W1>ScrX)
+          Dlg->X1=ScrX-W1+1;
+        if(Dlg->Y1+H1>ScrY)
+          Dlg->Y1=ScrY-H1+1;
+        /* KM $ */
+
+        if (W1<OldW1 || H1<OldH1)
+        {
+          Dlg->DialogMode.Set(DMODE_DRAWING);
+          DialogItem *Item;
+          SMALL_RECT Rect;
+          for (I=0;I<Dlg->ItemCount;I++)
+          {
+            Item=Dlg->Item+I;
+            Rect.Left=Item->X1;
+            Rect.Top=Item->Y1;
+            if (Item->X2>=W1)
+            {
+              Rect.Right=Item->X2-(OldW1-W1);
+              Rect.Bottom=Item->Y2;
+              Dlg->SetItemRect(I,&Rect);
+            }
+            if (Item->Y2>=H1)
+            {
+              Rect.Right=Item->X2;
+              Rect.Bottom=Item->Y2-(OldH1-H1);
+              Dlg->SetItemRect(I,&Rect);
+            }
+          }
+          Dlg->DialogMode.Skip(DMODE_DRAWING);
+        }
+      }
+      /* KM $ */
+      // проверили и скорректировали
+      if(Dlg->X1<0)
+        Dlg->X1=0;
+      if(Dlg->Y1<0)
+        Dlg->Y1=0;
+      /* $ 11.10.2001 KM
+        - Ещё одно уточнение при ресайзинге, с учётом предполагаемого
+          выхода краёв диалога за границу экрана.
+      */
+      if(Dlg->X1+W1>ScrX)
+        Dlg->X1=ScrX-W1+1;
+      if(Dlg->Y1+H1>ScrY)
+        Dlg->Y1=ScrY-H1+1;
+      /* KM $ */
+      /* $ 10.08.2001 KM
+        - Неверно вычислялись координаты X2 и Y2.
+      */
+      Dlg->X2=Dlg->X1+W1-1;
+      Dlg->Y2=Dlg->Y1+H1-1;
+      /* KM $ */
+
+      if(Param1 < 0)   // размер?
+      {
+        ((COORD*)Param2)->X=Dlg->X2-Dlg->X1+1;
+        ((COORD*)Param2)->Y=Dlg->Y2-Dlg->Y1+1;
+      }
+      else
+      {
+        ((COORD*)Param2)->X=Dlg->X1;
+        ((COORD*)Param2)->Y=Dlg->Y1;
+      }
+
+      I=Dlg->IsVisible();// && Dlg->DialogMode.Check(DMODE_INITOBJECTS);
+      if(I) Dlg->Hide();
+      // приняли.
+      Dlg->AdjustEditPos(Dlg->X1-Dlg->OldX1,Dlg->Y1-Dlg->OldY1);
+      if(I) Dlg->Show(); // только если диалог был виден
+
+      return Param2;
+    }
+    /* SVS $ */
+
+    /*****************************************************************/
+    case DM_REDRAW:
+    {
+      if(Dlg->DialogMode.Check(DMODE_INITOBJECTS))
+        Dlg->Show();
+      return 0;
+    }
+
+    /*****************************************************************/
+    /* $ 18.08.2000 SVS
+       + Разрешение/запрещение отрисовки диалога
+    */
+    case DM_ENABLEREDRAW:
+    {
+      if(Param1)
+        Dlg->IsEnableRedraw++;
+      else
+        Dlg->IsEnableRedraw--;
+
+      if(!Dlg->IsEnableRedraw)
+        if(Dlg->DialogMode.Check(DMODE_INITOBJECTS))
+        {
+          Dlg->ShowDialog();
+          ScrBuf.Flush();
+//          Dlg->Show();
+        }
+      return 0;
+    }
+    /* SVS $ */
+
+    /*****************************************************************/
+    /* $ 23.08.2000 SVS
+       + показать/спрятать диалог.
+    */
+    case DM_SHOWDIALOG:
+    {
+//      if(!Dlg->IsEnableRedraw)
+      {
+        if(Param1)
+        {
+          if(!Dlg->IsVisible())
+            Dlg->Show();
+        }
+        else
+        {
+          if(Dlg->IsVisible())
+            Dlg->Hide();
+        }
+      }
+      return 0;
+    }
+    /* SVS $ */
+
+    /*****************************************************************/
+    /* $ 23.08.2000 SVS
+       + установить/взять данные диалога.
+    */
+    case DM_SETDLGDATA:
+    {
+      long PrewDataDialog=Dlg->DataDialog;
+      Dlg->DataDialog=Param2;
+      return PrewDataDialog;
+    }
+
+    /*****************************************************************/
+    case DM_GETDLGDATA:
+    {
+      return Dlg->DataDialog;
+    }
+    /* SVS $ */
+
+    /*****************************************************************/
+    /* $ 23.08.2000 SVS
+       + послать клавишу(ы)
+    */
+    case DM_KEY:
+    {
+      int *KeyArray=(int*)Param2;
+      Dlg->DialogMode.Set(DMODE_KEY);
+      for(I=0; I < Param1; ++I)
+        Dlg->ProcessKey(KeyArray[I]);
+      Dlg->DialogMode.Skip(DMODE_KEY);
+      return 0;
+    }
+    /* SVS $ */
+
+    /*****************************************************************/
+    /* $ 23.08.2000 SVS
+       + принудительно закрыть диалог
+    */
+    case DM_CLOSE:
+    {
+      if(Param1 == -1)
+        Dlg->ExitCode=Dlg->FocusPos;
+      else
+        Dlg->ExitCode=Param1;
+      /* $ 17.05.2001 DJ */
+      Dlg->CloseDialog();
+      /* DJ $ */
+      return TRUE;  // согласен с закрытием
+    }
+    /* SVS $ */
+
+    /*****************************************************************/
+    /* $ 25.08.2000 SVS
+        + получить координаты диалогового окна
+    */
+    case DM_GETDLGRECT:
+    {
+      if(Param2 && !IsBadWritePtr((void*)Param2,sizeof(SMALL_RECT)))
+      {
+        int x1,y1,x2,y2;
+        Dlg->GetPosition(x1,y1,x2,y2);
+        ((SMALL_RECT*)Param2)->Left=x1;
+        ((SMALL_RECT*)Param2)->Top=y1;
+        ((SMALL_RECT*)Param2)->Right=x2;
+        ((SMALL_RECT*)Param2)->Bottom=y2;
+        return TRUE;
+      }
+      return FALSE;
+    }
+    /* SVS $ */
+
+    /*****************************************************************/
+    /* $ 23.06.2001 KM */
+    case DM_GETDROPDOWNOPENED: // Param1=0; Param2=0
+    {
+      return Dlg->GetDropDownOpened();
+    }
+
+    /*****************************************************************/
+    case DM_KILLSAVESCREEN:
+    {
+      if (Dlg->SaveScr) Dlg->SaveScr->Discard();
+      if (Dlg->ShadowSaveScr) Dlg->ShadowSaveScr->Discard();
+      return TRUE;
+    }
+
+    /*****************************************************************/
+    /*
+      Msg=DM_ALLKEYMODE
+      Param1 = -1 - получить состояние
+             =  0 - выключить
+             =  1 - включить
+      Ret = состояние
+    */
+    case DM_ALLKEYMODE:
+    {
+      if(Param1 == -1)
+        return IsProcessAssignMacroKey;
+      BOOL OldIsProcessAssignMacroKey=IsProcessAssignMacroKey;
+      IsProcessAssignMacroKey=Param1;
+      return OldIsProcessAssignMacroKey;
+    }
+
+    /*****************************************************************/
+    case DM_SETMOUSEEVENTNOTIFY: // Param1 = 1 on, 0 off, -1 - get
+    {
+      int State=Dlg->DialogMode.Check(DMODE_MOUSEEVENT)?TRUE:FALSE;
+      if(Param1 != -1)
+      {
+        if(!Param1)
+          Dlg->DialogMode.Skip(DMODE_MOUSEEVENT);
+        else
+          Dlg->DialogMode.Set(DMODE_MOUSEEVENT);
+      }
+      return State;
+    }
+
+    /*****************************************************************/
+    case DN_RESIZECONSOLE:
+    {
+      return Dlg->DlgProc(hDlg,Msg,Param1,Param2);
+    }
+  }
+
+
+  struct DialogItem *CurItem=NULL;
+  int Type=0;
+  char *Ptr=NULL;
+  char Str[1024];
+  int Len;
+  struct FarDialogItem PluginDialogItem;
+  // предварительно проверим...
   /* $ 09.12.2001 DJ
      для DM_KEY и DM_USER проверять _не_надо_!
   */
@@ -5634,14 +5951,6 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     }
 
     /*****************************************************************/
-    case DM_REDRAW:
-    {
-      if(Dlg->DialogMode.Check(DMODE_INITOBJECTS))
-        Dlg->Show();
-      return 0;
-    }
-
-    /*****************************************************************/
     /* $ 08.09.2000 SVS
       - Если коротко, то DM_SETFOCUS вроде как и работал :-)
     */
@@ -5743,6 +6052,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 
     /*****************************************************************/
     case DM_GETTEXTLENGTH:
+    {
       switch(Type)
       {
         case DI_BUTTON:
@@ -5790,6 +6100,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
           break;
       }
       return Len-(!Len?0:1);
+    }
 
     /*****************************************************************/
     case DM_SETTEXTPTR:
@@ -5805,6 +6116,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 
     /*****************************************************************/
     case DM_SETTEXT:
+    {
       if(Param2)
       {
         int NeedInit=TRUE;
@@ -5897,6 +6209,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         return strlen((char *)Ptr); //???
       }
       return 0;
+    }
 
     /*****************************************************************/
     case DM_SETMAXTEXTLENGTH:
@@ -5966,29 +6279,6 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       return FALSE;
     }
 
-
-    /*****************************************************************/
-    /* $ 18.08.2000 SVS
-       + Разрешение/запрещение отрисовки диалога
-    */
-    case DM_ENABLEREDRAW:
-    {
-      if(Param1)
-        Dlg->IsEnableRedraw++;
-      else
-        Dlg->IsEnableRedraw--;
-
-      if(!Dlg->IsEnableRedraw)
-        if(Dlg->DialogMode.Check(DMODE_INITOBJECTS))
-        {
-          Dlg->ShowDialog();
-          ScrBuf.Flush();
-//          Dlg->Show();
-        }
-      return 0;
-    }
-    /* SVS $ */
-
     /*****************************************************************/
     /* $ 03.01.2001 SVS
         + показать/скрыть элемент
@@ -6014,104 +6304,6 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         }
       }
       return (PrevFlags&DIF_HIDDEN)?FALSE:TRUE;
-    }
-
-    /*****************************************************************/
-    /* $ 23.08.2000 SVS
-       + показать/спрятать диалог.
-    */
-    case DM_SHOWDIALOG:
-//      if(!Dlg->IsEnableRedraw)
-      {
-        if(Param1)
-        {
-          if(!Dlg->IsVisible())
-            Dlg->Show();
-        }
-        else
-        {
-          if(Dlg->IsVisible())
-            Dlg->Hide();
-        }
-      }
-      return 0;
-    /* SVS $ */
-
-    /*****************************************************************/
-    /* $ 23.08.2000 SVS
-       + установить/взять данные диалога.
-    */
-    case DM_SETDLGDATA:
-    {
-      long PrewDataDialog=Dlg->DataDialog;
-      Dlg->DataDialog=Param2;
-      return PrewDataDialog;
-    }
-
-    /*****************************************************************/
-    case DM_GETDLGDATA:
-    {
-      return Dlg->DataDialog;
-    }
-    /* SVS $ */
-
-    /*****************************************************************/
-    /* $ 23.08.2000 SVS
-       + послать клавишу(ы)
-    */
-    case DM_KEY:
-    {
-      int *KeyArray=(int*)Param2;
-      Dlg->DialogMode.Set(DMODE_KEY);
-      for(I=0; I < Param1; ++I)
-        Dlg->ProcessKey(KeyArray[I]);
-      Dlg->DialogMode.Skip(DMODE_KEY);
-      return 0;
-    }
-    /* SVS $ */
-
-    /*****************************************************************/
-    /* $ 23.08.2000 SVS
-       + принудительно закрыть диалог
-    */
-    case DM_CLOSE:
-    {
-      if(Param1 == -1)
-        Dlg->ExitCode=Dlg->FocusPos;
-      else
-        Dlg->ExitCode=Param1;
-      /* $ 17.05.2001 DJ */
-      Dlg->CloseDialog();
-      /* DJ $ */
-      return TRUE;  // согласен с закрытием
-    }
-    /* SVS $ */
-
-    /*****************************************************************/
-    /* $ 25.08.2000 SVS
-        + получить координаты диалогового окна
-    */
-    case DM_GETDLGRECT:
-    {
-      if(Param2 && !IsBadWritePtr((void*)Param2,sizeof(SMALL_RECT)))
-      {
-        int x1,y1,x2,y2;
-        Dlg->GetPosition(x1,y1,x2,y2);
-        ((SMALL_RECT*)Param2)->Left=x1;
-        ((SMALL_RECT*)Param2)->Top=y1;
-        ((SMALL_RECT*)Param2)->Right=x2;
-        ((SMALL_RECT*)Param2)->Bottom=y2;
-        return TRUE;
-      }
-      return FALSE;
-    }
-    /* SVS $ */
-
-    /*****************************************************************/
-    /* $ 23.06.2001 KM */
-    case DM_GETDROPDOWNOPENED: // Param1=0; Param2=0
-    {
-      return Dlg->GetDropDownOpened();
     }
 
     /*****************************************************************/
@@ -6158,137 +6350,6 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     }
 
     /*****************************************************************/
-    case DM_RESIZEDIALOG:
-      // изменим вызов RESIZE.
-      Param1=-1;
-
-    /*****************************************************************/
-    /* $ 30.08.2000 SVS
-        + программное перемещение диалога
-    */
-    case DM_MOVEDIALOG:
-    {
-      int W1,H1;
-
-      /* $ 10.08.2001 KM
-        - Неверно вычислялась ширина диалога.
-      */
-      W1=Dlg->X2-Dlg->X1+1;
-      H1=Dlg->Y2-Dlg->Y1+1;
-      /* KM $ */
-      // сохранили
-      Dlg->OldX1=Dlg->X1;
-      Dlg->OldY1=Dlg->Y1;
-      Dlg->OldX2=Dlg->X2;
-      Dlg->OldY2=Dlg->Y2;
-      /* $ 30.05.2001 KM
-         - Косячило центрирование диалога и изменение размера
-      */
-      // переместили
-      if(Param1>0)   // абсолютно?
-      {
-        Dlg->X1=((COORD*)Param2)->X;
-        Dlg->Y1=((COORD*)Param2)->Y;
-        /* $ 10.08.2001 KM
-          - Неверно вычислялись координаты X2 и Y2.
-        */
-        Dlg->X2=W1-1;
-        Dlg->Y2=H1-1;
-        /* KM $ */
-        Dlg->CheckDialogCoord();
-      }
-      else if(Param1 == 0)   // значит относительно
-      {
-        Dlg->X1+=((COORD*)Param2)->X;
-        Dlg->Y1+=((COORD*)Param2)->Y;
-      }
-      else // Resize, Param2=width/height
-      {
-        int OldW1,OldH1;
-        OldW1=W1;
-        OldH1=H1;
-        W1=((COORD*)Param2)->X;
-        H1=((COORD*)Param2)->Y;
-        /* $ 11.10.2001 KM
-          - Ещё одно уточнение при ресайзинге, с учётом предполагаемого
-            выхода краёв диалога за границу экрана.
-        */
-        if(Dlg->X1+W1>ScrX)
-          Dlg->X1=ScrX-W1+1;
-        if(Dlg->Y1+H1>ScrY)
-          Dlg->Y1=ScrY-H1+1;
-        /* KM $ */
-
-        if (W1<OldW1 || H1<OldH1)
-        {
-          Dlg->DialogMode.Set(DMODE_DRAWING);
-          DialogItem *Item;
-          SMALL_RECT Rect;
-          for (I=0;I<Dlg->ItemCount;I++)
-          {
-            Item=Dlg->Item+I;
-            Rect.Left=Item->X1;
-            Rect.Top=Item->Y1;
-            if (Item->X2>=W1)
-            {
-              Rect.Right=Item->X2-(OldW1-W1);
-              Rect.Bottom=Item->Y2;
-              Dlg->SetItemRect(I,&Rect);
-            }
-            if (Item->Y2>=H1)
-            {
-              Rect.Right=Item->X2;
-              Rect.Bottom=Item->Y2-(OldH1-H1);
-              Dlg->SetItemRect(I,&Rect);
-            }
-          }
-          Dlg->DialogMode.Skip(DMODE_DRAWING);
-        }
-      }
-      /* KM $ */
-      // проверили и скорректировали
-      if(Dlg->X1<0)
-        Dlg->X1=0;
-      if(Dlg->Y1<0)
-        Dlg->Y1=0;
-      /* $ 11.10.2001 KM
-        - Ещё одно уточнение при ресайзинге, с учётом предполагаемого
-          выхода краёв диалога за границу экрана.
-      */
-      if(Dlg->X1+W1>ScrX)
-        Dlg->X1=ScrX-W1+1;
-      if(Dlg->Y1+H1>ScrY)
-        Dlg->Y1=ScrY-H1+1;
-      /* KM $ */
-      /* $ 10.08.2001 KM
-        - Неверно вычислялись координаты X2 и Y2.
-      */
-      Dlg->X2=Dlg->X1+W1-1;
-      Dlg->Y2=Dlg->Y1+H1-1;
-      /* KM $ */
-
-      if(Param1 < 0)   // размер?
-      {
-        ((COORD*)Param2)->X=Dlg->X2-Dlg->X1+1;
-        ((COORD*)Param2)->Y=Dlg->Y2-Dlg->Y1+1;
-      }
-      else
-      {
-        ((COORD*)Param2)->X=Dlg->X1;
-        ((COORD*)Param2)->Y=Dlg->Y1;
-      }
-
-      I=Dlg->IsVisible();// && Dlg->DialogMode.Check(DMODE_INITOBJECTS);
-      if(I) Dlg->Hide();
-      // приняли.
-      Dlg->AdjustEditPos(Dlg->X1-Dlg->OldX1,Dlg->Y1-Dlg->OldY1);
-      if(I) Dlg->Show(); // только если диалог был виден
-
-      return Param2;
-    }
-    /* SVS $ */
-
-    /*****************************************************************/
     /* $ 31.08.2000 SVS
         + переключение/получение состояния Enable/Disable элемента
     */
@@ -6307,31 +6368,6 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     /* SVS $ */
 
     /*****************************************************************/
-    case DM_KILLSAVESCREEN:
-    {
-      if (Dlg->SaveScr) Dlg->SaveScr->Discard();
-      if (Dlg->ShadowSaveScr) Dlg->ShadowSaveScr->Discard();
-      return TRUE;
-    }
-
-    /*****************************************************************/
-    /*
-      Msg=DM_ALLKEYMODE
-      Param1 = -1 - получить состояние
-             =  0 - выключить
-             =  1 - включить
-      Ret = состояние
-    */
-    case DM_ALLKEYMODE:
-    {
-      if(Param1 == -1)
-        return IsProcessAssignMacroKey;
-      BOOL OldIsProcessAssignMacroKey=IsProcessAssignMacroKey;
-      IsProcessAssignMacroKey=Param1;
-      return OldIsProcessAssignMacroKey;
-    }
-
-    /*****************************************************************/
     // получить позицию и размеры контрола
     case DM_GETITEMPOSITION: // Param1=ID, Param2=*SMALL_RECT
       if(Param2 && !IsBadWritePtr((void*)Param2,sizeof(SMALL_RECT)))
@@ -6347,26 +6383,6 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         }
       }
       return FALSE;
-
-    /*****************************************************************/
-    case DM_SETMOUSEEVENTNOTIFY: // Param1 = 0 on, 1 off, -1 - get
-    {
-      int State=Dlg->DialogMode.Check(DMODE_MOUSEEVENT)?TRUE:FALSE;
-      if(Param1 != -1)
-      {
-        if(!Param1)
-          Dlg->DialogMode.Skip(DMODE_MOUSEEVENT);
-        else
-          Dlg->DialogMode.Set(DMODE_MOUSEEVENT);
-      }
-      return State;
-    }
-
-    /*****************************************************************/
-    case DN_RESIZECONSOLE:
-    {
-      break;
-    }
 
     /*****************************************************************/
     case DM_SETITEMDATA:

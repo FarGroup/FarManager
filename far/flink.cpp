@@ -5,10 +5,12 @@ flink.cpp
 
 */
 
-/* Revision: 1.27 14.12.2001 $ */
+/* Revision: 1.28 12.03.2002 $ */
 
 /*
 Modify:
+  12.03.2002 SVS
+    - Неверная работа GetPathRootOne в плане получения рута для пути типа "1\"
   14.12.2001 IS
     ! stricmp -> LocalStricmp
   17.10.2001 SVS
@@ -731,7 +733,7 @@ BOOL GetSubstName(int DriveType,char *LocalName,char *SubstName,int SubstSize)
 // просмотр одной позиции :-)
 void GetPathRootOne(const char *Path,char *Root)
 {
-  char TempRoot[1024],*ChPtr;
+  char TempRoot[2048],*ChPtr;
   strncpy(TempRoot,Path,NM-1);
 
   if (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5)
@@ -769,6 +771,17 @@ void GetPathRootOne(const char *Path,char *Root)
   if (*TempRoot==0)
     strcpy(TempRoot,"\\");
   else
+  {
+    // ..2 <> ...\2
+    if(!PathMayBeAbsolute(TempRoot))
+    {
+      char Temp[2048];
+      GetCurrentDirectory(sizeof(Temp)-2,Temp);
+      AddEndSlash(Temp);
+      strcat(Temp,TempRoot); //+(*TempRoot=='\\' || *TempRoot == '/'?1:0)); //??
+      strncpy(TempRoot,Temp,sizeof(TempRoot)-1);
+    }
+
     if (TempRoot[0]=='\\' && TempRoot[1]=='\\')
     {
       if ((ChPtr=strchr(TempRoot+2,'\\'))!=NULL)
@@ -778,11 +791,14 @@ void GetPathRootOne(const char *Path,char *Root)
           strcat(TempRoot,"\\");
     }
     else
+    {
       if ((ChPtr=strchr(TempRoot,'\\'))!=NULL)
         *(ChPtr+1)=0;
       else
         if ((ChPtr=strchr(TempRoot,':'))!=NULL)
           strcpy(ChPtr+1,"\\");
+    }
+  }
   strncpy(Root,TempRoot,NM-1);
 }
 
