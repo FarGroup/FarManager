@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.96 18.05.2002 $ */
+/* Revision: 1.97 22.05.2002 $ */
 
 /*
 Modify:
+  22.05.2002 SVS
+    ! Viewer -> FileViewer
   18.05.2002 SVS
     ! Возможность компиляции под BC 5.5
   11.05.2002 SVS
@@ -373,7 +375,6 @@ Viewer::Viewer()
   LastKeyUndo=FALSE;
   InternalKey=FALSE;
   Viewer::ViewerID=::ViewerID++;
-  CtrlObject->Plugins.CurViewer=this;
   OpenFailed=false;
   HostFileViewer=NULL;
   /* $ 06.02.2001 IS
@@ -442,7 +443,7 @@ Viewer::~Viewer()
   /* tran 12.07.2000 $ */
   if (!OpenFailed)
   {
-    CtrlObject->Plugins.CurViewer=this;
+    CtrlObject->Plugins.CurViewer=HostFileViewer;
     /* $ 15.09.2001 tran
        пора легализироваться */
     CtrlObject->Plugins.ProcessViewerEvent(VE_CLOSE,&ViewerID);
@@ -661,7 +662,7 @@ int Viewer::OpenFile(const char *Name,int warning)
   ChangeViewKeyBar();
   AdjustWidth();
   /* DJ $ */
-  CtrlObject->Plugins.CurViewer=this;
+  CtrlObject->Plugins.CurViewer=HostFileViewer;
   /* $ 15.09.2001 tran
      пора легализироваться */
   CtrlObject->Plugins.ProcessViewerEvent(VE_READ,NULL);
@@ -739,7 +740,7 @@ void Viewer::DisplayObject()
   }
   /* tran $ */
 
-  CtrlObject->Plugins.CurViewer=this;
+  CtrlObject->Plugins.CurViewer=HostFileViewer;
 
   ViewY1=Y1+ShowStatusLine;
 
@@ -2032,7 +2033,7 @@ void Viewer::ChangeViewKeyBar()
   }
   struct ViewerMode vm;
   memmove(&vm,&VM,sizeof(struct ViewerMode));
-  CtrlObject->Plugins.CurViewer=this;
+  CtrlObject->Plugins.CurViewer=HostFileViewer;
 //  CtrlObject->Plugins.ProcessViewerEvent(VE_MODE,&vm);
 }
 

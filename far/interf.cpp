@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.57 16.05.2002 $ */
+/* Revision: 1.58 22.05.2002 $ */
 
 /*
 Modify:
+  22.05.2002 SVS
+    ! Editor -> FileEditor
   16.05.2002 SVS
     ! Ограничения при выводе часиков (ProcessShowClock)
     ! Уточнения для W-функций: MB_USEGLYPHCHARS для MultiByteToWideChar
@@ -184,7 +186,7 @@ Modify:
 #include "ctrlobj.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
-#include "editor.hpp"
+#include "fileedit.hpp"
 #include "manager.hpp"
 #include "scrbuf.hpp"
 

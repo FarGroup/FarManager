@@ -7,10 +7,12 @@ plugins.hpp
 
 */
 
-/* Revision: 1.24 28.04.2002 $ */
+/* Revision: 1.25 22.05.2002 $ */
 
 /*
 Modify:
+  22.05.2002 SVS
+    ! Viewer -> FileViewer
   28.04.2002 IS
     ! ¬недрение const
   20.03.2002 IS
@@ -77,7 +79,7 @@ Modify:
 
 class SaveScreen;
 class FileEditor;
-class Viewer;
+class FileViewer;
 class Frame;
 
 typedef void (WINAPI *PLUGINCLOSEPLUGIN)(HANDLE hPlugin);
@@ -229,7 +231,7 @@ class PluginsSet
     int PluginsCount;
 
     FileEditor *CurEditor;
-    Viewer *CurViewer;     // 27.09.2000 SVS: ”казатель на текущий Viewer
+    FileViewer *CurViewer;     // 27.09.2000 SVS: ”казатель на текущий Viewer
 
   private:
     int LoadPlugin(struct PluginItem &CurPlugin,int ModuleNumber,int Init);

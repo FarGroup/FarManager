@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.55 13.05.2002 $ */
+/* Revision: 1.56 22.05.2002 $ */
 
 /*
 Modify:
+  22.05.2002 SVS
+    + ViewerControl()
   13.05.2002 VVM
     + Перерисуем заголовок консоли после позиционирования на файл.
   26.03.2002 DJ
@@ -541,4 +543,11 @@ void FileViewer::OnDestroy()
 int FileViewer::FastHide()
 {
   return Opt.AllCtrlAltShiftRule & CASR_VIEWER;
+}
+
+int FileViewer::ViewerControl(int Command,void *Param)
+{
+  _VCTLLOG(CleverSysLog SL("FileViewer::ViewerControl()"));
+  _VCTLLOG(SysLog("Command=%s (%d) Param=0x%08X",_VCTL_ToName(Command),Command,Param));
+  return View.ViewerControl(Command,Param);
 }

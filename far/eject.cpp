@@ -5,10 +5,13 @@ Eject съемных носителей
 
 */
 
-/* Revision: 1.09 08.05.2002 $ */
+/* Revision: 1.10 22.05.2002 $ */
 
 /*
 Modify:
+  22.05.2002 SVS
+    ! Откатимся обратно (про "вместо имени устройства") - есть сигнал про
+      нерабочее состояние механизмУ.
   08.05.2002 VVM
     - Используем вместо имени устройства его ID
   27.02.2002 SVS
@@ -439,11 +442,16 @@ CLEANUP_AND_EXIT_APP:
     // Opens a CD audio device by specifying the device name.
     /* $ 08.05.2002 VVM
       - Используем вместо имени устройства его ID */
-    // mciOpenParms.lpstrDeviceType = "cdaudio";
-    mciOpenParms.lpstrDeviceType = (char *)MCI_ALL_DEVICE_ID;
     mciOpenParms.lpstrElementName=Buf;
+#if 1
+    mciOpenParms.lpstrDeviceType = "cdaudio";
+    if ((dwReturn = pmciSendCommand(NULL, MCI_OPEN, MCI_OPEN_TYPE|MCI_OPEN_ELEMENT, (DWORD)(LPVOID) &mciOpenParms)) != 0)
+      return FALSE;
+#else
+    mciOpenParms.lpstrDeviceType = (char *)MCI_ALL_DEVICE_ID;
     if ((dwReturn = pmciSendCommand(NULL, MCI_OPEN, MCI_OPEN_TYPE|MCI_OPEN_TYPE_ID|MCI_OPEN_ELEMENT, (DWORD)(LPVOID) &mciOpenParms)) != 0)
       return FALSE;
+#endif
     /* VVM $ */
     wDeviceID = mciOpenParms.wDeviceID;
     if(Flags&EJECT_READY)

@@ -7,10 +7,15 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.28 13.05.2002 $ */
+/* Revision: 1.29 22.05.2002 $ */
 
 /*
 Modify:
+  22.05.2002 SVS
+    + SetTitle()
+    ! В Init добавлен вторым параметром - Title
+    ! FEdit из объекта превращается в указатель - контроля с нашей стороны
+      поболее будет
   13.05.2002 VVM
     + Перерисуем заголовок консоли после позиционирования на файл.
   18.03.2002 SVS
@@ -104,7 +109,7 @@ class FileEditor:public Frame
   private:
     typedef class Frame inherited;
 
-    Editor FEdit;
+    Editor *FEdit;
     int RedrawTitle;
     KeyBar EditKeyBar;
 
@@ -148,7 +153,7 @@ class FileEditor:public Frame
     int ProcessQuitKey(int FirstSave,BOOL NeedQuestion=TRUE);
 
   public:
-    void Init(const char *Name,int CreateNewFile,int EnableSwitch,
+    void Init(const char *Name,const char *Title,int CreateNewFile,int EnableSwitch,
               int StartLine,int StartChar,int DisableHistory,char *PluginData,
               int ToSaveAs, BOOL DeleteOnClose,int OpenModeExstFile);
     /* $ 07.08.2000 SVS
@@ -159,8 +164,8 @@ class FileEditor:public Frame
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     void ShowConsoleTitle();
-    int IsFileChanged() {return(FEdit.IsFileChanged());};
-    virtual int IsFileModified() {return(FEdit.IsFileModified());};
+    int IsFileChanged() {return(FEdit->IsFileChanged());};
+    virtual int IsFileModified() {return(FEdit->IsFileModified());};
     /* $ 28.06.2000 tran
        NT Console resize - resize editor */
     void SetScreenPosition();
@@ -202,6 +207,7 @@ class FileEditor:public Frame
     int SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs);
     int EditorControl(int Command,void *Param);
     void SetPluginTitle(char *PluginTitle);
+    void SetTitle(const char *Title);
     BOOL SetFileName(const char *NewFileName);
     int ProcessEditorInput(INPUT_RECORD *Rec);
     void SetLockEditor(BOOL LockMode);

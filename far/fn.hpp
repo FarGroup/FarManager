@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.153 22.05.2002 $ */
+/* Revision: 1.154 22.05.2002 $ */
 
 /*
 Modify:
+  22.05.2002 SVS
+    + _VCTL_ToName, _VCTLLOG
   22.05.2002 SVS
     + IsDiskInDrive()
   18.05.2002 SVS
@@ -941,6 +943,7 @@ const char *_ECTL_ToName(int Command);
 const char *_FCTL_ToName(int Command);
 const char *_DLGMSG_ToName(int Msg);
 const char *_ACTL_ToName(int Command);
+const char *_VCTL_ToName(int Command);
 
 #if defined(SYSLOG_FARSYSLOG)
 #ifdef __cplusplus
@@ -988,6 +991,12 @@ void WINAPI  _export FarSysLogDump(char *ModuleName,DWORD StartAddress,LPBYTE Bu
 #define _ACTLLOG(x)  x
 #else
 #define _ACTLLOG(x)
+#endif
+
+#if defined(_DEBUG) && defined(SYSLOG_VCTL)
+#define _VCTLLOG(x)  x
+#else
+#define _VCTLLOG(x)
 #endif
 
 #if defined(_DEBUG) && defined(SYSLOG_OT)

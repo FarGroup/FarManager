@@ -1512,7 +1512,7 @@ $ #System settings dialog#
                           registered to process this file type
                           will be executed.
 
-  #CD-drive auto mount#     When a CD-ROM drive is selected from the
+  #CD drive auto mount#     When a CD-ROM drive is selected from the
                           ~drive menu~@DriveDlg@, FAR will close the open
                           tray of a CD drive. Turn off this option
                           if automatic CD-ROM mounting does not work

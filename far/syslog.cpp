@@ -5,10 +5,12 @@ syslog.cpp
 
 */
 
-/* Revision: 1.28 05.05.2002 $ */
+/* Revision: 1.29 22.05.2002 $ */
 
 /*
 Modify:
+  22.05.2002 SVS
+    + _VCTL_ToName
   05.05.2002 SVS
     ! Ќемного усовершенствуем лог по хипу
   04.04.2002 SVS
@@ -800,6 +802,37 @@ const char *_ACTL_ToName(int Command)
       return Name;
     }
   sprintf(Name,"\"ACTL_????\" [%d/0x%04X]",Command,Command);
+  return Name;
+#else
+  return "";
+#endif
+}
+
+
+const char *_VCTL_ToName(int Command)
+{
+#if defined(SYSLOG_VCTL)
+#define DEF_VCTL_(m) { VCTL_##m , #m }
+  static struct VCTLName{
+    int Msg;
+    const char *Name;
+  } VCTL[]={
+    DEF_VCTL_(VCTL_GETINFO),
+    DEF_VCTL_(VCTL_QUIT),
+    DEF_VCTL_(VCTL_REDRAW),
+    DEF_VCTL_(VCTL_SETKEYBAR),
+    DEF_VCTL_(VCTL_SETPOSITION),
+    DEF_VCTL_(VCTL_SELECT),
+  };
+  int I;
+  static char Name[512];
+  for(I=0; I < sizeof(VCTL)/sizeof(VCTL[0]); ++I)
+    if(VCTL[I].Msg == Command)
+    {
+      sprintf(Name,"\"VCTL_%s\" [%d/0x%04X]",VCTL[I].Name,Command,Command);
+      return Name;
+    }
+  sprintf(Name,"\"VCTL_????\" [%d/0x%04X]",Command,Command);
   return Name;
 #else
   return "";

@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.40 16.05.2002 $ */
+/* Revision: 1.41 22.05.2002 $ */
 
 /*
 Modify:
+  22.05.2002 SVS
+    ! Editor -> FileEditor
   16.05.2002 SVS
     + ProcessShowClock - "мы в часиках?"
   07.04.2002 KM
@@ -128,8 +130,8 @@ extern OSVERSIONINFO WinVer;
 
 extern struct Options Opt;
 
-class Editor;
-extern Editor *CurrentEditor;
+class FileEditor;
+extern FileEditor *CurrentEditor;
 
 
 extern CONSOLE_SCREEN_BUFFER_INFO InitScreenBufferInfo, CurScreenBufferInfo;

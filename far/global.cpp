@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.40 16.05.2002 $ */
+/* Revision: 1.41 22.05.2002 $ */
 
 /*
 Modify:
+  22.05.2002 SVS
+    ! Editor -> FileEditor
   16.05.2002 SVS
     + ProcessShowClock - "мы в часиках?"
     ! _ВСЕ_ проинициализируем. Зодолбала "неизвестность"!
@@ -188,7 +190,7 @@ int GlobalSearchReverse=FALSE;
 
 int ScreenSaverActive=FALSE;
 
-Editor *CurrentEditor=NULL;
+FileEditor *CurrentEditor=NULL;
 int CloseFAR=FALSE,CloseFARMenu=FALSE;
 
 // Про регистрацию

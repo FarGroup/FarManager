@@ -7,10 +7,12 @@ fileview.hpp
 
 */
 
-/* Revision: 1.17 13.05.2002 $ */
+/* Revision: 1.18 22.05.2002 $ */
 
 /*
 Modify:
+  22.05.2002 SVS
+    + ViewerControl()
   13.05.2002 VVM
     + Перерисуем заголовок консоли после позиционирования на файл.
   02.11.2001 SVS
@@ -121,6 +123,7 @@ class FileViewer:public Frame
     */
     void SetSaveToSaveAs(int ToSaveAs) { SaveToSaveAs=ToSaveAs; InitKeyBar(); }
     /* KM $ */
+    int  ViewerControl(int Command,void *Param);
 };
 
 #endif  // __FILEVIEWER_HPP__

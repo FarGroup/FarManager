@@ -5,10 +5,15 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.103 18.05.2002 $ */
+/* Revision: 1.104 22.05.2002 $ */
 
 /*
 Modify:
+  22.05.2002 SVS
+    + SetTitle()
+    ! В Init добавлен вторым параметром - Title
+    ! FEdit из объекта превращается в указатель - контроля с нашей стороны
+      поболее будет
   18.05.2002 SVS
     - BugZ#515 - AltF5 не приходит в ProcessEditorInput
   18.05.2002 SVS
@@ -286,7 +291,7 @@ FileEditor::FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
   _KEYMACRO(SysLog(1));
   ScreenObject::SetPosition(0,0,ScrX,ScrY);
   FullScreen=TRUE;
-  Init(Name,CreateNewFile,EnableSwitch,StartLine,StartChar,
+  Init(Name,NULL,CreateNewFile,EnableSwitch,StartLine,StartChar,
        DisableHistory,PluginData,ToSaveAs,FALSE,OpenModeExstFile);
 }
 
@@ -306,8 +311,7 @@ FileEditor::FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
   /* IS $ */
   ScreenObject::SetPosition(X1,Y1,X2,Y2);
   FullScreen=(X1==0 && Y1==0 && X2==ScrX && Y2==ScrY);
-  FEdit.SetTitle(Title);
-  Init(Name,CreateNewFile,EnableSwitch,StartLine,StartChar,DisableHistory,"",
+  Init(Name,Title,CreateNewFile,EnableSwitch,StartLine,StartChar,DisableHistory,"",
        FALSE,DeleteOnClose,OpenModeExstFile);
 }
 
@@ -324,6 +328,10 @@ FileEditor::FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
 FileEditor::~FileEditor()
 {
   _OT(SysLog("[%p] FileEditor::~FileEditor()",this));
+  if(FEdit)
+    delete FEdit;
+
+  CurrentEditor=NULL;
   if (EditNamesList)
     delete EditNamesList;
 
@@ -331,11 +339,21 @@ FileEditor::~FileEditor()
   _KEYMACRO(SysLog("FileEditor::~FileEditor()"));
 }
 
-void FileEditor::Init(const char *Name,int CreateNewFile,int EnableSwitch,
+void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int EnableSwitch,
                       int StartLine,int StartChar,int DisableHistory,
                       char *PluginData,int ToSaveAs,BOOL DeleteOnClose,
                       int OpenModeExstFile)
 {
+  FEdit=new Editor;
+
+  if(!FEdit)
+  {
+    ExitCode=XC_OPEN_ERROR;
+    return;
+  }
+
+  CurrentEditor=this;
+  SetTitle(Title);
   RedrawTitle = FALSE;
   /* $ 07.05.2001 DJ */
   EditNamesList = NULL;
@@ -354,8 +372,8 @@ void FileEditor::Init(const char *Name,int CreateNewFile,int EnableSwitch,
 
   if (*Name==0)
     return;
-  FEdit.SetPluginData(PluginData);
-  FEdit.SetHostFileEditor(this);
+  FEdit->SetPluginData(PluginData);
+  FEdit->SetHostFileEditor(this);
   _OT(SysLog("Editor;:Editor(), EnableSwitch=%i",EnableSwitch));
   SetCanLoseFocus(EnableSwitch);
   FarGetCurDir(sizeof(StartDir),StartDir);
@@ -476,9 +494,9 @@ void FileEditor::Init(const char *Name,int CreateNewFile,int EnableSwitch,
   /* SVS 03.12.2000 $ */
   /* SVS $ */
 
-  FEdit.SetPosition(X1,Y1,X2,Y2-1);
-  FEdit.SetStartPos(StartLine,StartChar);
-  FEdit.SetDeleteOnClose(DeleteOnClose);
+  FEdit->SetPosition(X1,Y1,X2,Y2-1);
+  FEdit->SetStartPos(StartLine,StartChar);
+  FEdit->SetDeleteOnClose(DeleteOnClose);
   int UserBreak;
   /* $ 06.07.2001 IS
      При создании файла с нуля так же посылаем плагинам событие EE_READ, дабы
@@ -582,7 +600,7 @@ void FileEditor::InitKeyBar(void)
 
   EditKeyBar.Show();
   SetKeyBar(&EditKeyBar);
-  FEdit.SetEditKeyBar(&EditKeyBar);
+  FEdit->SetEditKeyBar(&EditKeyBar);
 }
 /* SVS $ */
 
@@ -602,7 +620,7 @@ void FileEditor::Show()
     EditKeyBar.SetPosition(0,ScrY,ScrX,ScrY);
     EditKeyBar.Redraw();
     ScreenObject::SetPosition(0,0,ScrX,ScrY-1);
-    FEdit.SetPosition(0,0,ScrX,ScrY-1);
+    FEdit->SetPosition(0,0,ScrX,ScrY-1);
   }
   ScreenObject::Show();
 }
@@ -610,7 +628,7 @@ void FileEditor::Show()
 
 void FileEditor::DisplayObject()
 {
-  FEdit.Show();
+  FEdit->Show();
 }
 
 
@@ -638,7 +656,7 @@ int FileEditor::ProcessKey(int Key)
       /*$ 27.09.2000 skv
         To prevent redraw in macro with Ctrl-O
       */
-      FEdit.Hide();
+      FEdit->Hide();
       /* skv$*/
       FrameManager->ShowBackground();
       SetCursorType(FALSE,0);
@@ -784,7 +802,7 @@ int FileEditor::ProcessKey(int Key)
         // проверка на "а может это говно удалили уже?"
         // возможно здесь она и не нужна!
         // хотя, раз уж были изменени, то
-        if(FEdit.IsFileChanged() &&  // в текущем сеансе были изменения?
+        if(FEdit->IsFileChanged() &&  // в текущем сеансе были изменения?
            GetFileAttributes(FullFileName) == -1) // а файл еще существует?
         {
           switch(Message(MSG_WARNING,2,MSG(MEditTitle),
@@ -803,9 +821,9 @@ int FileEditor::ProcessKey(int Key)
           }
         }
 
-        if(!FirstSave || FEdit.IsFileChanged() || GetFileAttributes(FullFileName)!=-1)
+        if(!FirstSave || FEdit->IsFileChanged() || GetFileAttributes(FullFileName)!=-1)
         {
-          long FilePos=FEdit.GetCurPos();
+          long FilePos=FEdit->GetCurPos();
           /* $ 01.02.2001 IS
              ! Открываем вьюер с указанием длинного имени файла, а не короткого
           */
@@ -815,7 +833,7 @@ int FileEditor::ProcessKey(int Key)
                не будем удалять файл, если было включено удаление, но при этом
                пользователь переключился во вьюер
             */
-            FEdit.SetDeleteOnClose(FALSE);
+            FEdit->SetDeleteOnClose(FALSE);
             /* IS $ */
             /* $ 06.05.2001 DJ
                обработка F6 под NWZ
@@ -878,7 +896,7 @@ int FileEditor::ProcessKey(int Key)
       int FirstSave=1, NeedQuestion=1;
       if(Key != KEY_SHIFTF10)    // KEY_SHIFTF10 не учитываем!
       {
-        if(FEdit.IsFileChanged() &&  // в текущем сеансе были изменения?
+        if(FEdit->IsFileChanged() &&  // в текущем сеансе были изменения?
            GetFileAttributes(FullFileName) == -1 && !IsNewFile) // а сам файл то еще на месте?
         {
           switch(Message(MSG_WARNING,3,MSG(MEditTitle),
@@ -929,16 +947,16 @@ int FileEditor::ProcessKey(int Key)
       */
       struct EditorOptions EdOpt;
 
-      EdOpt.TabSize=FEdit.GetTabSize();
-      EdOpt.ExpandTabs=FEdit.GetConvertTabs();
-      EdOpt.PersistentBlocks=FEdit.GetPersistentBlocks();
-      EdOpt.DelRemovesBlocks=FEdit.GetDelRemovesBlocks();
-      EdOpt.AutoIndent=FEdit.GetAutoIndent();
-      EdOpt.AutoDetectTable=FEdit.GetAutoDetectTable();
-      EdOpt.CursorBeyondEOL=FEdit.GetCursorBeyondEOL();
-      EdOpt.CharCodeBase=FEdit.GetCharCodeBase();
-      FEdit.GetSavePosMode(EdOpt.SavePos, EdOpt.SaveShortPos);
-      //EdOpt.BSLikeDel=FEdit.GetBSLikeDel();
+      EdOpt.TabSize=FEdit->GetTabSize();
+      EdOpt.ExpandTabs=FEdit->GetConvertTabs();
+      EdOpt.PersistentBlocks=FEdit->GetPersistentBlocks();
+      EdOpt.DelRemovesBlocks=FEdit->GetDelRemovesBlocks();
+      EdOpt.AutoIndent=FEdit->GetAutoIndent();
+      EdOpt.AutoDetectTable=FEdit->GetAutoDetectTable();
+      EdOpt.CursorBeyondEOL=FEdit->GetCursorBeyondEOL();
+      EdOpt.CharCodeBase=FEdit->GetCharCodeBase();
+      FEdit->GetSavePosMode(EdOpt.SavePos, EdOpt.SaveShortPos);
+      //EdOpt.BSLikeDel=FEdit->GetBSLikeDel();
 
       /* $ 27.11.2001 DJ
          Local в EditorConfig
@@ -947,18 +965,18 @@ int FileEditor::ProcessKey(int Key)
       /* DJ $ */
       EditKeyBar.Show(); //???? Нужно ли????
 
-      FEdit.SetTabSize(EdOpt.TabSize);
-      FEdit.SetConvertTabs(EdOpt.ExpandTabs);
-      FEdit.SetPersistentBlocks(EdOpt.PersistentBlocks);
-      FEdit.SetDelRemovesBlocks(EdOpt.DelRemovesBlocks);
-      FEdit.SetAutoIndent(EdOpt.AutoIndent);
-      FEdit.SetAutoDetectTable(EdOpt.AutoDetectTable);
-      FEdit.SetCursorBeyondEOL(EdOpt.CursorBeyondEOL);
-      FEdit.SetCharCodeBase(EdOpt.CharCodeBase);
-      FEdit.SetSavePosMode(EdOpt.SavePos, EdOpt.SaveShortPos);
-      //FEdit.SetBSLikeDel(EdOpt.BSLikeDel);
+      FEdit->SetTabSize(EdOpt.TabSize);
+      FEdit->SetConvertTabs(EdOpt.ExpandTabs);
+      FEdit->SetPersistentBlocks(EdOpt.PersistentBlocks);
+      FEdit->SetDelRemovesBlocks(EdOpt.DelRemovesBlocks);
+      FEdit->SetAutoIndent(EdOpt.AutoIndent);
+      FEdit->SetAutoDetectTable(EdOpt.AutoDetectTable);
+      FEdit->SetCursorBeyondEOL(EdOpt.CursorBeyondEOL);
+      FEdit->SetCharCodeBase(EdOpt.CharCodeBase);
+      FEdit->SetSavePosMode(EdOpt.SavePos, EdOpt.SaveShortPos);
+      //FEdit->SetBSLikeDel(EdOpt.BSLikeDel);
       /* IS $ */
-      FEdit.Show();
+      FEdit->Show();
       return TRUE;
     }
     /* SVS $ */
@@ -985,7 +1003,7 @@ int FileEditor::ProcessKey(int Key)
      глюки
   */
   if(Key&KEY_MACROSPEC_BASE) // исключаем MACRO
-     return(FEdit.ProcessKey(Key));
+     return(FEdit->ProcessKey(Key));
   /* DJ $ */
   _KEYMACRO(CleverSysLog SL("FileEditor::ProcessKey()"));
   _KEYMACRO(SysLog("Key=%s Macro.IsExecuting()=%d",_FARKEY_ToName(Key),CtrlObject->Macro.IsExecuting()));
@@ -999,7 +1017,7 @@ int FileEditor::ProcessKey(int Key)
       EditKeyBar.Show();
     /* SVS $ */
     if (!EditKeyBar.ProcessKey(Key))
-      return(FEdit.ProcessKey(Key));
+      return(FEdit->ProcessKey(Key));
   }
   return(TRUE);
 }
@@ -1038,7 +1056,7 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
 // сюды плавно переносить код из Editor::ReadFile()
 int FileEditor::ReadFile(const char *Name,int &UserBreak)
 {
-  return FEdit.ReadFile(Name,UserBreak);
+  return FEdit->ReadFile(Name,UserBreak);
 }
 
 // сюды плавно переносить код из Editor::SaveFile()
@@ -1047,13 +1065,13 @@ int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
   /* $ 11.10.2000 SVS
      Редактировали, залочили, при выходе - потеряли файл :-(
   */
-  if (FEdit.Flags.Check(FEDITOR_LOCKMODE) && !FEdit.Flags.Check(FEDITOR_MODIFIED) && !SaveAs)
+  if (FEdit->Flags.Check(FEDITOR_LOCKMODE) && !FEdit->Flags.Check(FEDITOR_MODIFIED) && !SaveAs)
     return SAVEFILE_SUCCESS;
   /* SVS $ */
 
   if (Ask)
   {
-    if(!FEdit.Flags.Check(FEDITOR_MODIFIED))
+    if(!FEdit->Flags.Check(FEDITOR_MODIFIED))
       return SAVEFILE_SUCCESS;
 
     if (Ask)
@@ -1068,27 +1086,27 @@ int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
         case 0:  // Save
           break;
         case 1:  // Not Save
-          FEdit.TextChanged(0); // 10.08.2000 skv: TextChanged() support;
+          FEdit->TextChanged(0); // 10.08.2000 skv: TextChanged() support;
           return SAVEFILE_SUCCESS;
       }
     }
   }
 
   int NewFile=TRUE;
-  if ((FEdit.FileAttributes=GetFileAttributes(Name))!=-1)
+  if ((FEdit->FileAttributes=GetFileAttributes(Name))!=-1)
   {
     NewFile=FALSE;
-    if (FEdit.FileAttributes & FA_RDONLY)
+    if (FEdit->FileAttributes & FA_RDONLY)
     {
       int AskOverwrite=Message(MSG_WARNING,2,MSG(MEditTitle),Name,MSG(MEditRO),
                            MSG(MEditOvr),MSG(MYes),MSG(MNo));
       if (AskOverwrite!=0)
         return SAVEFILE_CANCEL;
 
-      SetFileAttributes(Name,FEdit.FileAttributes & ~FA_RDONLY); // сняты атрибуты
+      SetFileAttributes(Name,FEdit->FileAttributes & ~FA_RDONLY); // сняты атрибуты
     }
 
-    if (FEdit.FileAttributes & (FA_HIDDEN|FA_SYSTEM))
+    if (FEdit->FileAttributes & (FA_HIDDEN|FA_SYSTEM))
       SetFileAttributes(Name,0);
   }
   else
@@ -1114,7 +1132,7 @@ int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
     }
   }
 
-  int Ret=FEdit.SaveFile(Name,Ask,TextFormat,SaveAs);
+  int Ret=FEdit->SaveFile(Name,Ask,TextFormat,SaveAs);
   IsNewFile=0;
 
   /* $ 09.02.2002 VVM
@@ -1139,7 +1157,7 @@ int FileEditor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
   if (!EditKeyBar.ProcessMouse(MouseEvent))
     if (!ProcessEditorInput(FrameManager->GetLastInputRecord()))
-      if (!FEdit.ProcessMouse(MouseEvent))
+      if (!FEdit->ProcessMouse(MouseEvent))
         return(FALSE);
   return(TRUE);
 }
@@ -1183,7 +1201,7 @@ void FileEditor::OnDestroy()
   _OT(SysLog("[%p] FileEditor::OnDestroy()",this));
   if (!DisableHistory)
     CtrlObject->ViewHistory->AddToHistory(FullFileName,MSG(MHistoryEdit),
-                  (FEdit.Flags.Check(FEDITOR_LOCKMODE)?4:1));
+                  (FEdit->Flags.Check(FEDITOR_LOCKMODE)?4:1));
   /* $ 19.10.2001 OT
   */
   if (CtrlObject->Plugins.CurEditor==this)//&this->FEdit)
@@ -1196,7 +1214,7 @@ int FileEditor::GetCanLoseFocus(int DynamicMode)
 {
   if (DynamicMode)
   {
-    if (FEdit.IsFileModified())
+    if (FEdit->IsFileModified())
     {
       return FALSE;
     }
@@ -1211,9 +1229,9 @@ int FileEditor::GetCanLoseFocus(int DynamicMode)
 void FileEditor::SetLockEditor(BOOL LockMode)
 {
   if(LockMode)
-    FEdit.Flags.Set(FEDITOR_LOCKMODE);
+    FEdit->Flags.Set(FEDITOR_LOCKMODE);
   else
-    FEdit.Flags.Skip(FEDITOR_LOCKMODE);
+    FEdit->Flags.Skip(FEDITOR_LOCKMODE);
 }
 
 int FileEditor::FastHide()
@@ -1228,7 +1246,7 @@ BOOL FileEditor::isTemporary()
 
 void FileEditor::ResizeConsole()
 {
-  FEdit.PrepareResizedConsole();
+  FEdit->PrepareResizedConsole();
 }
 
 int FileEditor::ProcessEditorInput(INPUT_RECORD *Rec)
@@ -1246,7 +1264,7 @@ int FileEditor::ProcessEditorInput(INPUT_RECORD *Rec)
 
 void FileEditor::SetPluginTitle(char *PluginTitle)
 {
-  FEdit.SetPluginTitle(PluginTitle);
+  FEdit->SetPluginTitle(PluginTitle);
 }
 
 BOOL FileEditor::SetFileName(const char *NewFileName)
@@ -1259,9 +1277,14 @@ BOOL FileEditor::SetFileName(const char *NewFileName)
   return TRUE;
 }
 
+void FileEditor::SetTitle(const char *Title)
+{
+  FEdit->SetTitle(NullToEmpty(Title));
+}
+
 int FileEditor::EditorControl(int Command,void *Param)
 {
   _ECTLLOG(CleverSysLog SL("FileEditor::EditorControl()"));
   _ECTLLOG(SysLog("Command=%s (%d) Param=0x%08X",_ECTL_ToName(Command),Command,Param));
-  return FEdit.EditorControl(Command,Param);
+  return FEdit->EditorControl(Command,Param);
 }

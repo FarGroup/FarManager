@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.175 18.05.2002 $ */
+/* Revision: 1.176 22.05.2002 $ */
 
 /*
 Modify:
+  22.05.2002 SVS
+    ! CurrentEditor инициализируется в FileEditor
   18.05.2002 SVS
     ! Возможность компиляции под BC 5.5
     ! ФЛАГИ - сведем в кучу двухпозиционные переменные
@@ -600,7 +602,6 @@ Editor::Editor()
   UndoDataPos=0;
   StartLine=StartChar=-1;
   *Title=0;
-  CurrentEditor=this;
   BlockUndo=FALSE;
   *PluginData=0;
   VBlockStart=NULL;
@@ -668,7 +669,6 @@ Editor::~Editor()
     CtrlObject->Plugins.CurEditor = save;
   }
 
-  CurrentEditor=NULL;
   _KEYMACRO(SysLog(-1));
   _KEYMACRO(SysLog("Editor::~Editor()"));
 }
