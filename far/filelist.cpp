@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.08 12.08.2000 $ */
+/* Revision: 1.09 18.09.2000 $ */
 
 /*
 Modify:
+  18.09.2000 SVS
+    + При вызове редактора по Shift-F4 можно употреблять
+      переменные среды.
   12.09.2000 SVS
     + Опциональное поведение для правой клавиши мыши на пустой панели
   11.09.2000 SVS
@@ -733,8 +736,20 @@ int FileList::ProcessKey(int Key)
         if (Key==KEY_SHIFTF4)
         {
           static char LastFileName[NM];
-          if (!GetString(MSG(MEditTitle),MSG(MFileToEdit),"NewEdit",LastFileName,LastFileName,sizeof(LastFileName)))
+          /* $ 18.09.2000 SVS
+             + При вызове редактора по Shift-F4 можно употреблять
+               переменные среды.
+          */
+          if (!GetString(MSG(MEditTitle),
+                         MSG(MFileToEdit),
+                         "NewEdit",
+                         LastFileName,
+                         LastFileName,
+                         sizeof(LastFileName),
+                         NULL,
+                         FIB_EXPANDENV))
             return(FALSE);
+          /* SVS $ */
           strcpy(FileName,LastFileName);
           Unquote(FileName);
           RemoveTrailingSpaces(FileName);
