@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.43 27.11.2000 $ */
+/* Revision: 1.44 07.12.2000 $ */
 
 /*
 Modify:
+  07.12.2000 SVS
+    + Проверка не только версии, но и номера билда в функции проверки версии.
   27.11.2000 SVS
     ! Введение кнопки Debug в диалоги исключений с последующим вызовом
       системного дебагера.
@@ -618,17 +620,20 @@ int PluginsSet::LoadPlugin(struct PluginItem &CurPlugin,int ModuleNumber,int Ini
 
 /* $ 03.08.2000 tran
    функция проверки минимальной версии */
+/* $ 07.12.2000 SVS
+   Проверка не только версии, но и номера билда
+*/
 int  PluginsSet::CheckMinVersion(struct PluginItem &CurPlugin)
 {
     if ( CurPlugin.pMinFarVersion==0 ) // плагин не эскпортирует, ему или неважно, или он для <1.65
     {
         return (TRUE);
     }
-    long v,cv;
+    DWORD v;
 
     //EXCEPTION_POINTERS *xp;
     TRY {
-      v=CurPlugin.pMinFarVersion();
+      v=(DWORD)CurPlugin.pMinFarVersion();
     }
     __except ( xfilter(EXCEPT_MINFARVERSION,
                      GetExceptionInformation(),&CurPlugin,0) )
@@ -637,10 +642,11 @@ int  PluginsSet::CheckMinVersion(struct PluginItem &CurPlugin)
        return (FALSE);
     }
 
-    v&=0xffff; // уберем верхние биты
-    cv=FAR_VERSION&0xffff;
-
-    if (v > cv) // кранты - плагин требует старший фар
+    if (LOWORD(v) > LOWORD(FAR_VERSION) ||
+        (LOWORD(v) == LOWORD(FAR_VERSION) &&
+         HIWORD(v) > HIWORD(FAR_VERSION)
+        )
+    ) // кранты - плагин требует старший фар
     {
         ShowMessageAboutIllegialPluginVersion(CurPlugin.ModuleName,v);
         return (FALSE);
@@ -663,10 +669,13 @@ void PluginsSet::ShowMessageAboutIllegialPluginVersion(char* plg,int required)
     char PlgName[NM];
     strcpy(PlgName,plg);
     TruncPathStr(PlgName,ScrX-20);
-    sprintf(msg,MSG(MPlgRequired),(required&0xff00)>>8,(required&0xff),(FAR_VERSION&0xff00)>>8,(FAR_VERSION&0xff));
+    sprintf(msg,MSG(MPlgRequired),
+           HIBYTE(LOWORD(required)),LOBYTE(LOWORD(required)),HIWORD(required),
+           HIBYTE(LOWORD(FAR_VERSION)),LOBYTE(LOWORD(FAR_VERSION)),HIWORD(FAR_VERSION));
     Message(MSG_WARNING,1,MSG(MError),MSG(MPlgBadVers),PlgName,msg,MSG(MOk));
 }
 /* tran 03.08.2000 $ */
+/* SVS $ */
 
 void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNumber)
 {

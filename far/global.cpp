@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.06 11.11.2000 $ */
+/* Revision: 1.07 07.12.2000 $ */
 
 /*
 Modify:
+  07.12.2000 SVS
+    + Версия берется из файла farversion.inc
   11.11.2000 SVS
     ! "FarTmpXXXXXX" заменена на переменную FarTmpXXXXXX
   23.08.2000 SVS
@@ -34,6 +36,12 @@ Modify:
 */
 #include "internalheaders.hpp"
 /* IS $ */
+
+/* $ 07.12.2000 SVS
+   + Версия берется из файла farversion.inc
+*/
+#include "farversion.inc"
+/* SVS $ */
 
 Language Lang;
 

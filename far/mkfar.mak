@@ -11,6 +11,8 @@
 #
 # Modify: 12.07.2000 SVS +$(FARCMEM) - для включения в тестовых целях
 #                         модуля cmem
+# Modify: 06.12.2000 SVS + $(OBJPATH)\mix.obj: mix.cpp cc.bat
+#              чтобы ручками не удалять mix.obj, если выставлен флаг SYSLOG
 #
 # make -fmkfar.mak [options]
 #   -DALLOC - вставляет переопределенные функции работы с памятью
@@ -101,6 +103,8 @@ Far : BccW32.cfg $(Dep_Far)
   @$(BCC32) -c -o$@ {$. }
 
 $(OBJPATH)\ctrlobj.obj: ctrlobj.cpp ctrlobj.hpp copyright.inc
+$(OBJPATH)\mix.obj: mix.cpp cc.bat
+$(OBJPATH)\global.obj: global.cpp global.hpp farversion.inc
 
 FAROBJ=\
    $(OBJPATH)\modal.obj\

@@ -8,13 +8,16 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000 [ FAR group ]
 */
-/* Revision: 1.68 04.12.2000 $ */
+/* Revision: 1.69 07.12.2000 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  07.12.2000 SVS
+    ! Изменена константа FARMANAGERVERSION. Остальное читайте в
+      DIFF.DOC\00300.FAR_VERSION.txt
   04.12.2000 SVS
     + DIF_3STATE - 3-х уровневый CheckBox
     + ACTL_GETCOLOR - получить определенный цвет
@@ -267,7 +270,7 @@ Modify:
     ! Подготовка Master Copy
 */
 
-#define FARMANAGERVERSION 0x0146
+#define FARMANAGERVERSION 0x012C0146UL
 
 #if defined(__BORLANDC__)
   #pragma option -a2

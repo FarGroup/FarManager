@@ -15,7 +15,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -78,7 +78,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -146,7 +146,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -209,7 +209,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -272,7 +272,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -336,7 +336,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -399,7 +399,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -462,7 +462,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -525,7 +525,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -588,7 +588,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -651,7 +651,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -719,7 +719,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -782,7 +782,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -845,7 +845,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -913,7 +913,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -976,7 +976,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -1039,7 +1039,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -1102,7 +1102,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -1165,7 +1165,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -1228,7 +1228,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -1291,7 +1291,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -1354,7 +1354,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -1417,7 +1417,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -1480,7 +1480,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -1543,7 +1543,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -1606,7 +1606,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -1669,7 +1669,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -1732,7 +1732,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -1795,7 +1795,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -1858,7 +1858,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -1921,7 +1921,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -1984,7 +1984,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -2052,7 +2052,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -2115,7 +2115,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -2178,7 +2178,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -2241,7 +2241,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -2304,7 +2304,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -2367,7 +2367,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -2430,7 +2430,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -2493,7 +2493,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -2556,7 +2556,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -2618,7 +2618,7 @@
 	".\edit.hpp"\
 	".\editor.hpp"\
 	".\farconst.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -2678,7 +2678,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -2741,7 +2741,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -2804,7 +2804,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -2867,7 +2867,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -2917,7 +2917,7 @@
 
 .\namelist.cpp : \
 	".\farconst.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\headers.hpp"\
 	".\namelist.hpp"\
 
@@ -2937,7 +2937,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -3000,7 +3000,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -3063,7 +3063,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -3126,7 +3126,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -3176,7 +3176,7 @@
 
 .\plognmn.cpp : \
 	".\farconst.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fn.hpp"\
 	".\headers.hpp"\
 	".\plognmn.hpp"\
@@ -3197,7 +3197,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -3260,7 +3260,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -3323,7 +3323,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -3386,7 +3386,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -3449,7 +3449,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -3512,7 +3512,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -3575,7 +3575,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -3643,7 +3643,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -3706,7 +3706,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -3769,7 +3769,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -3832,7 +3832,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -3895,7 +3895,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -3958,7 +3958,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -4021,7 +4021,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -4084,7 +4084,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -4147,7 +4147,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -4210,7 +4210,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -4273,7 +4273,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\farftp.hpp"\
-	".\farversion.hpp"\
+	".\farversion.inc"\
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\

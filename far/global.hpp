@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.08 11.11.2000 $ */
+/* Revision: 1.09 07.12.2000 $ */
 
 /*
 Modify:
+  07.12.2000 SVS
+    + Описание версии FAR_VERSION - как константа.
   11.11.2000 SVS
     ! Косметика: "FarTmpXXXXXX" заменена на переменную FarTmpXXXXXX
   20.09.2000 SVS
@@ -124,6 +126,12 @@ extern HWND hFarWnd;
   + Для того, чтобы...
 */
 extern const char FarTmpXXXXXX[];
+/* SVS $ */
+
+/* $ 07.12.2000 SVS
+  + Описание версии FAR_VERSION - как константа.
+*/
+extern const DWORD FAR_VERSION;
 /* SVS $ */
 
 #endif	// __FARGLOBAL_HPP__

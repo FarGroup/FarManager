@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.10 31.10.2000 $ */
+/* Revision: 1.11 07.12.2000 $ */
 
 /*
 Modify:
+  07.12.2000 SVS
+    ! farversion.hpp исключен за ненадобностью
   31.10.2000 SVS
     + EXCEPT_GETOPENPLUGININFO_DATA
   23.10.2000 SVS
@@ -39,11 +41,6 @@ Modify:
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
 */
-
-/* $ 29.06.2000 tran
-   вместо #define FAR_VERSION включаем farversion.hpp */
-#include "farversion.hpp"
-/* tran $ */
 
 #define TreeFileName "Tree.Far"
 #define LocalMenuFileName "FarMenu.Ini"
