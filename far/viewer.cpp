@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.166 11.11.2004 $ */
+/* Revision: 1.167 20.12.2004 $ */
 
 /*
 Modify:
+  20.12.2004 WARP
+    - BugZ#1005 (одиночный найденный символ во вьювере скрывался значком '>')
   11.11.2004 SVS
     + Обработка MCODE_V_ITEMCOUNT и MCODE_V_CURPOS
   03.11.2004 WARP
@@ -947,6 +949,7 @@ void Viewer::AdjustWidth()
      Width--;
      XX2--;
   }
+
   /* tran 19.07.2000 $ */
 }
 
@@ -1060,16 +1063,21 @@ void Viewer::DisplayObject()
 
       if (SelSize && SelPos >= LeftPos)
       {
+        int nLastVisiblePos = XX2;
+
+        if (StrLength > LeftPos + Width && ViOpt.ShowArrows)
+            nLastVisiblePos--;
+
         int SelX1=X1+SelPos-LeftPos;
         /* $ 12.07.2000 SVS
            ! Wrap - трех позиционный
         */
         if (!VM.Wrap && SelPos > LeftPos &&
         /* SVS $ */
-           SelX1+SaveSelectSize-1>XX2 && LeftPos<MAX_VIEWLINE
+           SelX1+SaveSelectSize-1> nLastVisiblePos && LeftPos<MAX_VIEWLINE
         /* $ 11.01.2000 VVM
            Левый край считается за раз, а не итерациями по +4 */
-           && (X1+SelPos+SaveSelectSize-XX2<MAX_VIEWLINE))
+           && (X1+SelPos+SaveSelectSize-nLastVisiblePos<MAX_VIEWLINE))
         /* VVM $ */
         {
           if (AdjustSelPosition)
