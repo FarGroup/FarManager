@@ -5,10 +5,14 @@ main.cpp
 
 */
 
-/* Revision: 1.46 22.01.2002 $ */
+/* Revision: 1.47 22.01.2002 $ */
 
 /*
 Modify:
+  22.01.2002 SVS
+    + Опция /xd  "Enable exception handling" - эт, чтобы в отладчике с
+      исключениями работать. В "нормальном" ФАРе ЭТОГО нету. Для включения
+      нужно скомпилить ФАР с макросом _DEBUGEXC
   22.01.2002 SVS
     - BugZ#201 - Shift of command prompt after exiting FAR
     + OnliEditorViewerUsed,  =TRUE, если старт был /e или /v
@@ -190,6 +194,9 @@ printf(
 "      View the specified file. If <filename> is -, data is read from the stdin.\n"
 " /co  Forces FAR to load plugins from the cache only.\n"
 " /x   Disable exception handling.\n"
+#if defined(_DEBUGEXC)
+" /xd  Enable exception handling.\n"
+#endif
 #ifdef DIRECT_RT
 " /do  Direct output.\n"
 #endif
@@ -282,6 +289,10 @@ int _cdecl main(int Argc, char *Argv[])
           break;
         case 'X':
           Opt.ExceptRules=0;
+#if defined(_DEBUGEXC)
+          if ( toupper(Argv[I][2])=='D' )
+            Opt.ExceptRules=1;
+#endif
           break;
         case 'U':
           if (I+1<Argc)

@@ -5,10 +5,14 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.112 10.01.2002 $ */
+/* Revision: 1.113 22.01.2002 $ */
 
 /*
 Modify:
+  22.01.2002 SVS
+    ! Включим обратно Opt.ExceptRules в диалогах, ибо теперь я точно знаю,
+      что падение было в ДИАЛОГЕ! ;-)
+    ! немного косметики в сорцах.
   10.01.2002 SVS
     ! Немного SYSLOG_KEYMACRO
     ! Временная отмена новых редакторных флагов
@@ -335,6 +339,7 @@ extern char DirToSet[NM];
 
 void ScanPluginDir();
 
+
 /* $ 07.12.2001 IS
    Обертка вокруг GetString для плагинов - с меньшей функциональностью.
    Сделано для того, чтобы не дублировать код GetString.
@@ -437,9 +442,12 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
   switch(Command)
   {
     case ACTL_GETFARVERSION:
+    {
       if(Param)
         *(DWORD*)Param=FAR_VERSION;
       return FAR_VERSION;
+    }
+
     /* $ 25.07.2000 SVS
        + Программое переключение FulScreen <-> Windowed (ACTL_CONSOLEMODE)
        mode = -2 - получить текущее состояние
@@ -451,7 +459,9 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
                1 - FulScreen
     */
     case ACTL_CONSOLEMODE:
+    {
       return FarAltEnter(Param?*(int*)Param:-2);
+    }
     /* SVS $ */
 
     /* $ 03.08.2000 SVS
@@ -461,12 +471,15 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
        Строка выбирается не из реестра, а из Opt.
     */
     case ACTL_GETSYSWORDDIV:
+    {
+      int LenWordDiv=strlen(Opt.WordDiv);
       /* $ 09.08.2000 tran
        + if param==NULL, plugin хочет только узнать длину строки  */
-      if ( Param )
-          strcpy((char *)Param,Opt.WordDiv);
+      if (Param && !IsBadWritePtr(Param,LenWordDiv+1))
+        strcpy((char *)Param,Opt.WordDiv);
       /* tran 09.08.2000 $ */
-      return strlen(Opt.WordDiv);
+      return LenWordDiv;
+    }
     /* SVS $ */
 
     /* $ 24.08.2000 SVS
@@ -476,8 +489,10 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
        возвращает 0;
     */
     case ACTL_WAITKEY:
+    {
       WaitKey(Param?(int)Param:-1);
       return 0;
+    }
     /* SVS $ */
 
     /* $ 04.12.2000 SVS
@@ -487,9 +502,11 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
       Return - значение цвета или -1 если индекс неверен.
     */
     case ACTL_GETCOLOR:
+    {
       if((int)Param < SizeArrayPalette && (int)Param >= 0)
         return (int)((unsigned int)Palette[(int)Param]);
       return -1;
+    }
     /* SVS $ */
 
     /* $ 04.12.2000 SVS
@@ -498,9 +515,11 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
       Return - размер массива.
     */
     case ACTL_GETARRAYCOLOR:
+    {
       if(Param && !IsBadWritePtr(Param,SizeArrayPalette))
         memmove(Param,Palette,SizeArrayPalette);
       return SizeArrayPalette;
+    }
     /* SVS $ */
 
     /* $ 14.12.2000 SVS
@@ -509,9 +528,10 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
       Return - TRUE - успешное извлечение, FALSE - ошибка.
     */
     case ACTL_EJECTMEDIA:
+    {
       return Param?EjectVolume((char)((ActlEjectMedia*)Param)->Letter,
                                ((ActlEjectMedia*)Param)->Flags):FALSE;
-
+    }
     /* $ 21.12.2000 SVS
        Macro API
     */
@@ -550,6 +570,7 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     }
 
     case ACTL_POSTKEYSEQUENCE:
+    {
       if(CtrlObject && Param && ((struct KeySequence*)Param)->Count > 0)
       {
         struct MacroRecord MRec;
@@ -581,149 +602,162 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
 #endif
       }
       return FALSE;
+    }
 
     /* $ 05.06.2001 tran
        новые ACTL_ для работы с фреймами */
     case ACTL_GETWINDOWINFO:
-        if(Param && !IsBadWritePtr(Param,sizeof(WindowInfo)))
-        {
-            WindowInfo *wi=(WindowInfo*)Param;
-            Frame *f;
-            /* $ 22.12.2001 VVM
-              + Если Pos == -1 то берем текущий фрейм */
-            if (wi->Pos == -1)
-              f=FrameManager->GetCurrentFrame();
-            else
-              f=FrameManager->operator[](wi->Pos);
-            /* VVM $ */
-            if ( f==NULL )
-                return FALSE;
-            f->GetTypeAndName(wi->TypeName,wi->Name);
-            wi->Type=f->GetType();
-            wi->Modified=f->IsFileModified();
-            wi->Current=f==FrameManager->GetCurrentFrame();
-            return TRUE;
-        }
-        break;
-    case ACTL_GETWINDOWCOUNT:
-        {
-            return FrameManager->GetFrameCount();
-        }
-    case ACTL_SETCURRENTWINDOW:
-        {
-            int pos=(int)Param;
+    {
+      if(Param && !IsBadWritePtr(Param,sizeof(WindowInfo)))
+      {
+        WindowInfo *wi=(WindowInfo*)Param;
+        Frame *f;
+        /* $ 22.12.2001 VVM
+          + Если Pos == -1 то берем текущий фрейм */
+        if (wi->Pos == -1)
+          f=FrameManager->GetCurrentFrame();
+        else
+          f=FrameManager->operator[](wi->Pos);
+        /* VVM $ */
+        if ( f==NULL )
+          return FALSE;
+        f->GetTypeAndName(wi->TypeName,wi->Name);
+        wi->Type=f->GetType();
+        wi->Modified=f->IsFileModified();
+        wi->Current=f==FrameManager->GetCurrentFrame();
+        return TRUE;
+      }
+      break;
+    }
 
-            if ( FrameManager->operator[](pos)!=NULL )
-            {
-                FrameManager->ActivateFrame(pos);
-                return TRUE;
-            }
-            return FALSE;
-        }
+    case ACTL_GETWINDOWCOUNT:
+    {
+      return FrameManager->GetFrameCount();
+    }
+
+    case ACTL_SETCURRENTWINDOW:
+    {
+      int pos=(int)Param;
+
+      if ( FrameManager->operator[](pos)!=NULL )
+      {
+        FrameManager->ActivateFrame(pos);
+        return TRUE;
+      }
+      return FALSE;
+    }
     /* tran 05.06.2001 $ */
     /*$ 26.06.2001 SKV
       Для полноценной работы с ACTL_SETCURRENTWINDOW
       (и может еще для чего в будущем)
     */
     case ACTL_COMMIT:
-        if(FrameManager)
-        {
-            return FrameManager->PluginCommit();
-        }
-        return FALSE;
+    {
+      if(FrameManager)
+      {
+        return FrameManager->PluginCommit();
+      }
+      return FALSE;
+    }
     /* SKV$*/
     /* $ 15.09.2001 tran
        пригодится плагинам */
     case ACTL_GETFARHWND:
-        return (int)hFarWnd;
+    {
+      return (int)hFarWnd;
+    }
     /* tran $ */
+
     /* $ 24.11.2001 IS
        Ознакомим с настройками системными, панели, интерфейса, подтверждений
     */
     case ACTL_GETSYSTEMSETTINGS:
-        {
-          DWORD Options=0;
-          static struct Opt2Flags OSys[]={
-            {&Opt.ClearReadOnly,FSS_CLEARROATTRIBUTE},
-            {&Opt.DeleteToRecycleBin,FSS_DELETETORECYCLEBIN},
-            {&Opt.UseSystemCopy,FSS_USESYSTEMCOPYROUTINE},
-            {&Opt.CopyOpened,FSS_COPYFILESOPENEDFORWRITING},
-            {&Opt.CreateUppercaseFolders,FSS_CREATEFOLDERSINUPPERCASE},
-            {&Opt.SaveHistory,FSS_SAVECOMMANDSHISTORY},
-            {&Opt.SaveFoldersHistory,FSS_SAVEFOLDERSHISTORY},
-            {&Opt.SaveViewHistory,FSS_SAVEVIEWANDEDITHISTORY},
-            {&Opt.UseRegisteredTypes,FSS_USEWINDOWSREGISTEREDTYPES},
-            {&Opt.AutoSaveSetup,FSS_AUTOSAVESETUP},
-          };
-          for(I=0; I < sizeof(OSys)/sizeof(OSys[0]); ++I)
-            if(*OSys[I].Opt)
-              Options|=OSys[I].Flags;
-          return Options;
-        }
+    {
+      DWORD Options=0;
+      static struct Opt2Flags OSys[]={
+        {&Opt.ClearReadOnly,FSS_CLEARROATTRIBUTE},
+        {&Opt.DeleteToRecycleBin,FSS_DELETETORECYCLEBIN},
+        {&Opt.UseSystemCopy,FSS_USESYSTEMCOPYROUTINE},
+        {&Opt.CopyOpened,FSS_COPYFILESOPENEDFORWRITING},
+        {&Opt.CreateUppercaseFolders,FSS_CREATEFOLDERSINUPPERCASE},
+        {&Opt.SaveHistory,FSS_SAVECOMMANDSHISTORY},
+        {&Opt.SaveFoldersHistory,FSS_SAVEFOLDERSHISTORY},
+        {&Opt.SaveViewHistory,FSS_SAVEVIEWANDEDITHISTORY},
+        {&Opt.UseRegisteredTypes,FSS_USEWINDOWSREGISTEREDTYPES},
+        {&Opt.AutoSaveSetup,FSS_AUTOSAVESETUP},
+      };
+      for(I=0; I < sizeof(OSys)/sizeof(OSys[0]); ++I)
+        if(*OSys[I].Opt)
+          Options|=OSys[I].Flags;
+      return Options;
+    }
+
     case ACTL_GETPANELSETTINGS:
-        {
-          DWORD Options=0;
-          static struct Opt2Flags OSys[]={
-            {&Opt.ShowHidden,FPS_SHOWHIDDENANDSYSTEMFILES},
-            {&Opt.Highlight,FPS_HIGHLIGHTFILES},
-            {&Opt.AutoChangeFolder,FPS_AUTOCHANGEFOLDER},
-            {&Opt.SelectFolders,FPS_SELECTFOLDERS},
-            {&Opt.ReverseSort,FPS_ALLOWREVERSESORTMODES},
-            {&Opt.ShowColumnTitles,FPS_SHOWCOLUMNTITLES},
-            {&Opt.ShowPanelStatus,FPS_SHOWSTATUSLINE},
-            {&Opt.ShowPanelTotals,FPS_SHOWFILESTOTALINFORMATION},
-            {&Opt.ShowPanelFree,FPS_SHOWFREESIZE},
-            {&Opt.ShowPanelScrollbar,FPS_SHOWSCROLLBAR},
-            {&Opt.ShowScreensNumber,FPS_SHOWBACKGROUNDSCREENSNUMBER},
-            {&Opt.ShowSortMode,FPS_SHOWSORTMODELETTER},
-          };
-          for(I=0; I < sizeof(OSys)/sizeof(OSys[0]); ++I)
-            if(*OSys[I].Opt)
-              Options|=OSys[I].Flags;
-          return Options;
-        }
+    {
+      DWORD Options=0;
+      static struct Opt2Flags OSys[]={
+        {&Opt.ShowHidden,FPS_SHOWHIDDENANDSYSTEMFILES},
+        {&Opt.Highlight,FPS_HIGHLIGHTFILES},
+        {&Opt.AutoChangeFolder,FPS_AUTOCHANGEFOLDER},
+        {&Opt.SelectFolders,FPS_SELECTFOLDERS},
+        {&Opt.ReverseSort,FPS_ALLOWREVERSESORTMODES},
+        {&Opt.ShowColumnTitles,FPS_SHOWCOLUMNTITLES},
+        {&Opt.ShowPanelStatus,FPS_SHOWSTATUSLINE},
+        {&Opt.ShowPanelTotals,FPS_SHOWFILESTOTALINFORMATION},
+        {&Opt.ShowPanelFree,FPS_SHOWFREESIZE},
+        {&Opt.ShowPanelScrollbar,FPS_SHOWSCROLLBAR},
+        {&Opt.ShowScreensNumber,FPS_SHOWBACKGROUNDSCREENSNUMBER},
+        {&Opt.ShowSortMode,FPS_SHOWSORTMODELETTER},
+      };
+      for(I=0; I < sizeof(OSys)/sizeof(OSys[0]); ++I)
+        if(*OSys[I].Opt)
+          Options|=OSys[I].Flags;
+      return Options;
+    }
+
     case ACTL_GETINTERFACESETTINGS:
-        {
-          DWORD Options=0;
-          static struct Opt2Flags OSys[]={
-            {&Opt.Clock,FIS_CLOCKINPANELS},
-            {&Opt.ViewerEditorClock,FIS_CLOCKINVIEWERANDEDITOR},
-            {&Opt.Mouse,FIS_MOUSE},
-            {&Opt.ShowKeyBar,FIS_SHOWKEYBAR},
-            {&Opt.ShowMenuBar,FIS_ALWAYSSHOWMENUBAR},
-            {&Opt.DialogsEditHistory,FIS_HISTORYINDIALOGEDITCONTROLS},
-            {&Opt.DialogsEditBlock,FIS_PERSISTENTBLOCKSINEDITCONTROLS},
-            {&Opt.AltGr,FIS_USERIGHTALTASALTGR},
-            {&Opt.CopyShowTotal,FIS_SHOWTOTALCOPYPROGRESSINDICATOR},
-            {&Opt.CopyTimeRule,FIS_SHOWCOPYINGTIMEINFO},
-            {&Opt.AutoComplete,FIS_AUTOCOMPLETEININPUTLINES},
-            {&Opt.PgUpChangeDisk,FIS_USECTRLPGUPTOCHANGEDRIVE},
-          };
-          for(I=0; I < sizeof(OSys)/sizeof(OSys[0]); ++I)
-            if(*OSys[I].Opt)
-              Options|=OSys[I].Flags;
-          return Options;
-        }
+    {
+      DWORD Options=0;
+      static struct Opt2Flags OSys[]={
+        {&Opt.Clock,FIS_CLOCKINPANELS},
+        {&Opt.ViewerEditorClock,FIS_CLOCKINVIEWERANDEDITOR},
+        {&Opt.Mouse,FIS_MOUSE},
+        {&Opt.ShowKeyBar,FIS_SHOWKEYBAR},
+        {&Opt.ShowMenuBar,FIS_ALWAYSSHOWMENUBAR},
+        {&Opt.DialogsEditHistory,FIS_HISTORYINDIALOGEDITCONTROLS},
+        {&Opt.DialogsEditBlock,FIS_PERSISTENTBLOCKSINEDITCONTROLS},
+        {&Opt.AltGr,FIS_USERIGHTALTASALTGR},
+        {&Opt.CopyShowTotal,FIS_SHOWTOTALCOPYPROGRESSINDICATOR},
+        {&Opt.CopyTimeRule,FIS_SHOWCOPYINGTIMEINFO},
+        {&Opt.AutoComplete,FIS_AUTOCOMPLETEININPUTLINES},
+        {&Opt.PgUpChangeDisk,FIS_USECTRLPGUPTOCHANGEDRIVE},
+      };
+      for(I=0; I < sizeof(OSys)/sizeof(OSys[0]); ++I)
+        if(*OSys[I].Opt)
+          Options|=OSys[I].Flags;
+      return Options;
+    }
+
     case ACTL_GETCONFIRMATIONS:
-        {
-          DWORD Options=0;
-          static struct Opt2Flags OSys[]={
-            {&Opt.Confirm.Copy,FCS_COPYOVERWRITE},
-            {&Opt.Confirm.Move,FCS_MOVEOVERWRITE},
-            {&Opt.Confirm.Drag,FCS_DRAGANDDROP},
-            {&Opt.Confirm.Delete,FCS_DELETE},
-            {&Opt.Confirm.DeleteFolder,FCS_DELETENONEMPTYFOLDERS},
-            {&Opt.Confirm.Esc,FCS_INTERRUPTOPERATION},
-            {&Opt.Confirm.RemoveConnection,FCS_DISCONNECTNETWORKDRIVE},
-            {&Opt.Confirm.AllowReedit,FCS_RELOADEDITEDFILE},
-            {&Opt.Confirm.HistoryClear,FCS_CLEARHISTORYLIST},
-            {&Opt.Confirm.Exit,FCS_EXIT},
-          };
-          for(I=0; I < sizeof(OSys)/sizeof(OSys[0]); ++I)
-            if(*OSys[I].Opt)
-              Options|=OSys[I].Flags;
-          return Options;
-        }
+    {
+      DWORD Options=0;
+      static struct Opt2Flags OSys[]={
+        {&Opt.Confirm.Copy,FCS_COPYOVERWRITE},
+        {&Opt.Confirm.Move,FCS_MOVEOVERWRITE},
+        {&Opt.Confirm.Drag,FCS_DRAGANDDROP},
+        {&Opt.Confirm.Delete,FCS_DELETE},
+        {&Opt.Confirm.DeleteFolder,FCS_DELETENONEMPTYFOLDERS},
+        {&Opt.Confirm.Esc,FCS_INTERRUPTOPERATION},
+        {&Opt.Confirm.RemoveConnection,FCS_DISCONNECTNETWORKDRIVE},
+        {&Opt.Confirm.AllowReedit,FCS_RELOADEDITEDFILE},
+        {&Opt.Confirm.HistoryClear,FCS_CLEARHISTORYLIST},
+        {&Opt.Confirm.Exit,FCS_EXIT},
+      };
+      for(I=0; I < sizeof(OSys)/sizeof(OSys[0]); ++I)
+        if(*OSys[I].Opt)
+          Options|=OSys[I].Flags;
+      return Options;
+    }
     /* IS $ */
   }
   return FALSE;
@@ -808,6 +842,7 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
         if (ReadKey!=KEY_NONE)
         {
           if (BreakKeys!=NULL)
+          {
             for (int I=0;BreakKeys[I]!=0;I++)
             {
               if(CtrlObject->Macro.IsExecuting())
@@ -859,6 +894,7 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
                 }
               }
             }
+          }
           FarMenu.ProcessKey(ReadKey);
         }
     }
@@ -905,6 +941,27 @@ int WINAPI FarDialogFn(int PluginNumber,int X1,int Y1,int X2,int Y2,
 #ifndef _MSC_VER
 #pragma warn -par
 #endif
+/* Цель данной функции - выставить флаг Flags - признак того, что
+   мы упали где то в плагине
+*/
+static int Except_FarDialogEx(struct DialogItem *InternalItem)
+{
+  if(CtrlObject)
+    CtrlObject->Plugins.Flags.Set(PSIF_DIALOG);
+
+  // Окончание
+  delete[] InternalItem;
+
+  Frame *frame;
+  if((frame=FrameManager->GetBottomFrame()) != NULL)
+    frame->UnlockRefresh(); // теперь можно :-)
+//  CheckScreenLock();
+  FrameManager->RefreshFrame(); //??
+
+  return EXCEPTION_CONTINUE_SEARCH; // продолжим исполнения цепочки исключений!
+}
+
+
 int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
            const char *HelpTopic,struct FarDialogItem *Item,int ItemsNumber,
            DWORD Reserved, DWORD Flags,
@@ -963,23 +1020,21 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
     FarDialog.SetPluginNumber(PluginNumber);
     /* SVS $ */
 
-#if 0
     if(Opt.ExceptRules)
     {
+      CtrlObject->Plugins.Flags.Skip(PSIF_DIALOG);
       TRY
       {
         FarDialog.Process();
         Dialog::ConvertItem(CVTITEM_TOPLUGIN,Item,InternalItem,ItemsNumber);
         ExitCode=FarDialog.GetExitCode();
       }
-      EXCEPT (xfilter(EXCEPT_FARDIALOG,
-                       GetExceptionInformation(),CurPlugin,1))
+      EXCEPT (Except_FarDialogEx(InternalItem))
       {
         ;
       }
     }
     else
-#endif
     {
       FarDialog.Process();
       Dialog::ConvertItem(CVTITEM_TOPLUGIN,Item,InternalItem,ItemsNumber);

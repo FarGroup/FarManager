@@ -5,10 +5,13 @@ farexcpt.cpp
 
 */
 
-/* Revision: 1.09 02.11.2001 $ */
+/* Revision: 1.10 22.01.2002 $ */
 
 /*
 Modify:
+  22.01.2002 SVS
+    ! Уточнение в PLUGINRECORD
+    + System/UseFarevent:DWORD = 1 писать в дамп, по умолчанию отключено
   02.11.2001 SVS
     ! НЕЛЬЗЯ ИЗ ОБРАБОТЧИКА ВЫГРУЖАТЬ ПЛАГИН!
     ! Временно, до точной отработки формата файла дампа, отключим вызов
@@ -67,6 +70,10 @@ int WriteEvent(DWORD DumpType, // FLOG_*
                DWORD RawDataFlags,
                EVENTPROC CallBackProc)
 {
+  // ВРЕМЕННО!!! До устаканивания структуры файла
+  if(!GetRegKey("System","UseFarevent",0))
+    return 0;
+
   char FarEventFileName[2048];
   *FarEventFileName=0;
   if(!GetModuleFileName(NULL,FarEventFileName,sizeof(FarEventFileName)))
@@ -334,10 +341,11 @@ static int WritePLUGINRECORD(HANDLE fp,struct PluginItem *Module,DWORD *DumpSize
   int Len=strlen(Plug.FindData.cFileName);
   memset(&Plug.FindData.cFileName[Len],0,sizeof(Plug.FindData.cFileName)-Len); //??
   Plug.SysID=Module->SysID;
-  Plug.Cached=Module->Cached;
+  Plug.WorkFlags=Module->WorkFlags.Flags;
+  Plug.FuncFlags=Module->FuncFlags.Flags;
+  Plug.FuncFlags2=0;
   Plug.CachePos=Module->CachePos;
-  Plug.EditorPlugin=Module->EditorPlugin;
-  Plug.DontLoadAgain=Module->DontLoadAgain;
+
   Plug.pSetStartupInfo=Module->pSetStartupInfo;
   Plug.pOpenPlugin=Module->pOpenPlugin;
   Plug.pOpenFilePlugin=Module->pOpenFilePlugin;

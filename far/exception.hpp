@@ -7,10 +7,12 @@ exception.cpp
 
 */
 
-/* Revision: 1.02 11.07.2001 $ */
+/* Revision: 1.03 22.01.2002 $ */
 
 /*
 Modify:
+  22.01.2002 SVS
+    ! Уточнение в PLUGINRECORD
   11.07.2001 SVS
     + FARAREARECORD.ScrWH - размеры экрана - ширина, высота
   16.05.2001 SVS
@@ -117,10 +119,13 @@ struct PLUGINRECORD{      // информация о плагине
   HMODULE hModule;
   WIN32_FIND_DATA FindData;
   DWORD SysID;
-  short Cached;
+
+  DWORD WorkFlags;      // рабочие флаги текущего плагина
+  DWORD FuncFlags;      // битовые маски вызова эксп.функций плагина
+  DWORD FuncFlags2;     // битовые маски вызова эксп.функций плагина (запас)
+
   short CachePos;
-  short EditorPlugin;
-  short DontLoadAgain;
+
   PLUGINSETSTARTUPINFO pSetStartupInfo;
   PLUGINOPENPLUGIN pOpenPlugin;
   PLUGINOPENFILEPLUGIN pOpenFilePlugin;

@@ -7,10 +7,13 @@ plugins.hpp
 
 */
 
-/* Revision: 1.18 15.01.2002 $ */
+/* Revision: 1.19 22.01.2002 $ */
 
 /*
 Modify:
+  22.01.2002 SVS
+    ! Удалено поле PluginItem.EditorPlugin - нигде не встретил.
+    + PluginItem.*Flags - рабочие флаги пункта и флаги вызова эксп.функций
   15.01.2002 SVS
     ! CurEditor теперь - FileEditor, а не Editor (первая стадия отучения
       класса Editor от слова "Файл")
@@ -60,10 +63,12 @@ Modify:
 */
 
 #include "language.hpp"
+#include "bitflags.hpp"
 
 class SaveScreen;
 class FileEditor;
 class Viewer;
+class Frame;
 
 typedef void (WINAPI *PLUGINCLOSEPLUGIN)(HANDLE hPlugin);
 typedef int (WINAPI *PLUGINCOMPARE)(HANDLE hPlugin,const struct PluginPanelItem *Item1,const struct PluginPanelItem *Item2,unsigned int Mode);
@@ -92,12 +97,54 @@ typedef int (WINAPI *PLUGINSETFINDLIST)(HANDLE hPlugin,struct PluginPanelItem *P
 typedef void (WINAPI *PLUGINSETSTARTUPINFO)(const struct PluginStartupInfo *Info);
 typedef int (WINAPI *PLUGINPROCESSVIEWEREVENT)(int Event,void *Param); //* $ 27.09.2000 SVS -  События во вьювере
 
+// флаги для поля PluginItem.WorkFlags
+enum PLUGINITEMWORKFLAGS{
+  PIWF_CACHED        = 0x00000001, // кешируется
+  PIWF_DONTLOADAGAIN = 0x00000002, // не загружать плагин снова, ставится в
+                                   //   результате проверки требуемой версии фара
+};
+
+// флаги для поля PluginItem.FuncFlags - активности функций
+enum PLUGINITEMCALLFUNCFLAGS{
+  PICFF_LOADED               = 0x00000001, // DLL загружен ;-)
+  PICFF_SETSTARTUPINFO       = 0x00000002, //
+  PICFF_OPENPLUGIN           = 0x00000004, //
+  PICFF_OPENFILEPLUGIN       = 0x00000008, //
+  PICFF_CLOSEPLUGIN          = 0x00000010, //
+  PICFF_GETPLUGININFO        = 0x00000020, //
+  PICFF_GETOPENPLUGININFO    = 0x00000040, //
+  PICFF_GETFINDDATA          = 0x00000080, //
+  PICFF_FREEFINDDATA         = 0x00000100, //
+  PICFF_GETVIRTUALFINDDATA   = 0x00000200, //
+  PICFF_FREEVIRTUALFINDDATA  = 0x00000400, //
+  PICFF_SETDIRECTORY         = 0x00000800, //
+  PICFF_GETFILES             = 0x00001000, //
+  PICFF_PUTFILES             = 0x00002000, //
+  PICFF_DELETEFILES          = 0x00004000, //
+  PICFF_MAKEDIRECTORY        = 0x00008000, //
+  PICFF_PROCESSHOSTFILE      = 0x00010000, //
+  PICFF_SETFINDLIST          = 0x00020000, //
+  PICFF_CONFIGURE            = 0x00040000, //
+  PICFF_EXITFAR              = 0x00080000, //
+  PICFF_PROCESSKEY           = 0x00100000, //
+  PICFF_PROCESSEVENT         = 0x00200000, //
+  PICFF_PROCESSEDITOREVENT   = 0x00400000, //
+  PICFF_COMPARE              = 0x00800000, //
+  PICFF_PROCESSEDITORINPUT   = 0x01000000, //
+  PICFF_MINFARVERSION        = 0x02000000, //
+  PICFF_PROCESSVIEWEREVENT   = 0x04000000, //
+};
+
 struct PluginItem
 {
   char ModuleName[NM];
+  BitFlags WorkFlags;      // рабочие флаги текущего плагина
+  BitFlags FuncFlags;      // битовые маски вызова эксп.функций плагина
+
   HMODULE hModule;
   WIN32_FIND_DATA FindData;
   Language Lang;
+  Frame* LinkedFrame;
   /* $ 21.09.2000 SVS
      поле - системный идентификатор плагина
      Плагин должен сам задавать, например для
@@ -106,64 +153,54 @@ struct PluginItem
   */
   DWORD SysID;
   /* SVS $ */
-  int Cached;
   int CachePos;
-  int EditorPlugin;
-  /* $ 03.08.2000 tran
-     поле - не загружать плагин снова
-     ставится в результате проверки требуемой версии фара */
-  int DontLoadAgain;
-  /* tran 03.08.2000 $ */
   char RootKey[512];
-  PLUGINSETSTARTUPINFO pSetStartupInfo;
-  PLUGINOPENPLUGIN pOpenPlugin;
-  PLUGINOPENFILEPLUGIN pOpenFilePlugin;
-  PLUGINCLOSEPLUGIN pClosePlugin;
-  PLUGINGETPLUGININFO pGetPluginInfo;
-  PLUGINGETOPENPLUGININFO pGetOpenPluginInfo;
-  PLUGINGETFINDDATA pGetFindData;
-  PLUGINFREEFINDDATA pFreeFindData;
-  PLUGINGETVIRTUALFINDDATA pGetVirtualFindData;
-  PLUGINFREEVIRTUALFINDDATA pFreeVirtualFindData;
-  PLUGINSETDIRECTORY pSetDirectory;
-  PLUGINGETFILES pGetFiles;
-  PLUGINPUTFILES pPutFiles;
-  PLUGINDELETEFILES pDeleteFiles;
-  PLUGINMAKEDIRECTORY pMakeDirectory;
-  PLUGINPROCESSHOSTFILE pProcessHostFile;
-  PLUGINSETFINDLIST pSetFindList;
-  PLUGINCONFIGURE pConfigure;
-  PLUGINEXITFAR pExitFAR;
-  PLUGINPROCESSKEY pProcessKey;
-  PLUGINPROCESSEVENT pProcessEvent;
-  PLUGINPROCESSEDITOREVENT pProcessEditorEvent;
-  PLUGINCOMPARE pCompare;
-  PLUGINPROCESSEDITORINPUT pProcessEditorInput;
-  PLUGINMINFARVERSION pMinFarVersion;
-  PLUGINPROCESSVIEWEREVENT pProcessViewerEvent;
+
+  PLUGINSETSTARTUPINFO        pSetStartupInfo;
+  PLUGINOPENPLUGIN            pOpenPlugin;
+  PLUGINOPENFILEPLUGIN        pOpenFilePlugin;
+  PLUGINCLOSEPLUGIN           pClosePlugin;
+  PLUGINGETPLUGININFO         pGetPluginInfo;
+  PLUGINGETOPENPLUGININFO     pGetOpenPluginInfo;
+  PLUGINGETFINDDATA           pGetFindData;
+  PLUGINFREEFINDDATA          pFreeFindData;
+  PLUGINGETVIRTUALFINDDATA    pGetVirtualFindData;
+  PLUGINFREEVIRTUALFINDDATA   pFreeVirtualFindData;
+  PLUGINSETDIRECTORY          pSetDirectory;
+  PLUGINGETFILES              pGetFiles;
+  PLUGINPUTFILES              pPutFiles;
+  PLUGINDELETEFILES           pDeleteFiles;
+  PLUGINMAKEDIRECTORY         pMakeDirectory;
+  PLUGINPROCESSHOSTFILE       pProcessHostFile;
+  PLUGINSETFINDLIST           pSetFindList;
+  PLUGINCONFIGURE             pConfigure;
+  PLUGINEXITFAR               pExitFAR;
+  PLUGINPROCESSKEY            pProcessKey;
+  PLUGINPROCESSEVENT          pProcessEvent;
+  PLUGINPROCESSEDITOREVENT    pProcessEditorEvent;
+  PLUGINCOMPARE               pCompare;
+  PLUGINPROCESSEDITORINPUT    pProcessEditorInput;
+  PLUGINMINFARVERSION         pMinFarVersion;
+  PLUGINPROCESSVIEWEREVENT    pProcessViewerEvent;
 };
 
 // флаги для поля PluginsSet.Flags
 enum PLUGINSETFLAGS{
   PSIF_ENTERTOOPENPLUGIN        = 0x00000001, // ввалились в плагин OpenPlugin
+  PSIF_DIALOG                   = 0x00000002, // была бадяга с диалогом
 };
-
 
 class PluginsSet
 {
   public:
-    DWORD Flags;        // флаги манагера плагинов
-    DWORD Reserved;     // в будущем это может быть второй порцией флагов
+    BitFlags Flags;        // флаги манагера плагинов
+    DWORD Reserved;        // в будущем это может быть второй порцией флагов
 
     struct PluginItem *PluginsData;
     int PluginsCount;
 
     FileEditor *CurEditor;
-    /* $ 27.09.2000 SVS
-       Указатель на текущий Viewer
-    */
-    Viewer *CurViewer;
-    /* SVS $*/
+    Viewer *CurViewer;     // 27.09.2000 SVS: Указатель на текущий Viewer
 
   private:
     int LoadPlugin(struct PluginItem &CurPlugin,int ModuleNumber,int Init);
@@ -229,7 +266,7 @@ class PluginsSet
     void DiscardCache();
     int ProcessCommandLine(char *Command);
 
-    void UnloadPlugin(struct PluginItem &CurPlg);
+    void UnloadPlugin(struct PluginItem &CurPlg,DWORD Exception);
 
     /* $ .09.2000 SVS
       Функция CallPlugin - найти плагин по ID и запустить
@@ -239,9 +276,9 @@ class PluginsSet
     int FindPlugin(DWORD SysID);
     /* SVS $ */
 
-    void SetFlags(DWORD NewFlags) { Flags|=NewFlags; }
-    void SkipFlags(DWORD NewFlags) { Flags&=~NewFlags; }
-    BOOL CheckFlags(DWORD NewFlags) { return (Flags&NewFlags)?TRUE:FALSE; }
+    void SetFlags(DWORD NewFlags) { Flags.Set(NewFlags); }
+    void SkipFlags(DWORD NewFlags) { Flags.Skip(NewFlags); }
+    BOOL CheckFlags(DWORD NewFlags) { return Flags.Check(NewFlags); }
 };
 
 #endif  // __PLUGINS_HPP__
