@@ -5,10 +5,12 @@ help.cpp
 
 */
 
-/* Revision: 1.31 20.07.2001 $ */
+/* Revision: 1.32 20.07.2001 $ */
 
 /*
 Modify:
+  20.07.2001 SVS
+    - F1 Esc - проблемы
   20.07.2001 SVS
     ! "Перетрях мозглей" Help API. Part I.
   11.07.2001 SVS
@@ -186,8 +188,7 @@ Help::Help(char *Topic, char *Mask,DWORD Flags)
   HelpMask=Mask?strdup(Mask):NULL; // сохраним маску файла
 
   KeyBarVisible = TRUE;  // Заставим обновлятся кейбар
-  //TopScreen=new SaveScreen;
-  TopScreen=NULL;
+  TopScreen=new SaveScreen;
   HelpData=NULL;
   strcpy(HelpTopic,Topic);
   *HelpPath=0;
@@ -485,8 +486,6 @@ void Help::HighlightsCorrection(char *Str)
 
 void Help::DisplayObject()
 {
-  if(!TopScreen)
-    TopScreen=new SaveScreen;
   if (!TopicFound)
   {
     if(!(Flags&FHELP_NOSHOWERROR))
