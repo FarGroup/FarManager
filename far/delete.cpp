@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.20 06.06.2001 $ */
+/* Revision: 1.21 09.07.2001 $ */
 
 /*
 Modify:
+  09.07.2001 SVS
+    ! Небольшой антураж вокруг имени удаляемого файла.
   19.06.2001 SVS
     ! Удаление в корзину только для  FIXED-дисков
   06.06.2001 SVS
@@ -134,6 +136,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     if (strcmp(SelName,"..")==0 || *SelName==0)
       goto done;
     strcpy(DeleteFilesMsg,SelName);
+    TruncStr(DeleteFilesMsg,Min((int)sizeof(DeleteFilesMsg),ScrX-16));
   }
   else
   /* $ 05.01.2001 SVS
