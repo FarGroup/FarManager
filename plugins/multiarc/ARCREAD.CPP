@@ -27,7 +27,7 @@ void PluginClass::FreeArcData()
     for (int I=0;I<ArcDataCount;I++)
     {
       if (ArcData[I].Description!=NULL)
-        delete ArcData[I].Description;
+        delete[] ArcData[I].Description;
       if(ArcData[I].UserData)
         free((void *)ArcData[I].UserData);
     }
@@ -233,25 +233,25 @@ int PluginClass::GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int 
   if (CompareFileTime(&NewArcFindData.ftLastWriteTime,&ArcFindData.ftLastWriteTime)!=0 ||
       NewArcFindData.nFileSizeLow!=ArcFindData.nFileSizeLow || ArcData==NULL)
   {
-	BOOL ReadArcOK=FALSE;
-	DWORD size = Info.AdvControl(Info.ModuleNumber,ACTL_GETPLUGINMAXREADDATA,(void *)0);
-	HANDLE h=CreateFile(ArcName, FILE_READ_DATA, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
-	if (INVALID_HANDLE_VALUE!=h)
-	{
-		unsigned char *Data=new unsigned char[size];
-		DWORD read;
-		if (Data && ReadFile(h, Data, size, &read, 0))
-		{
-			DWORD SFXSize;
-			if (ArcPlugin->IsArchive(ArcPluginNumber, ArcName, Data, read, &SFXSize))
-			{
-				ReadArcOK=ReadArchive(ArcName);
-			}
-		}
-		delete[] Data;
-		CloseHandle(h);
-	}
-	if (!ReadArcOK) return FALSE;
+  BOOL ReadArcOK=FALSE;
+  DWORD size = Info.AdvControl(Info.ModuleNumber,ACTL_GETPLUGINMAXREADDATA,(void *)0);
+  HANDLE h=CreateFile(ArcName, FILE_READ_DATA, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
+  if (INVALID_HANDLE_VALUE!=h)
+  {
+    unsigned char *Data=new unsigned char[size];
+    DWORD read;
+    if (Data && ReadFile(h, Data, size, &read, 0))
+    {
+      DWORD SFXSize;
+      if (ArcPlugin->IsArchive(ArcPluginNumber, ArcName, Data, read, &SFXSize))
+      {
+        ReadArcOK=ReadArchive(ArcName);
+      }
+    }
+    delete[] Data;
+    CloseHandle(h);
+  }
+  if (!ReadArcOK) return FALSE;
   }
 
   int CurDirLength=strlen(CurDir);

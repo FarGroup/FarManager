@@ -56,37 +56,37 @@ char StartText[PROF_STR_LEN],EndText[PROF_STR_LEN];
 class StringList
 {
 public:
-	StringList() : pNext(0) {str[0]='\0';}
-	~StringList() {delete pNext;}
-	StringList* Add();
-	StringList* Next() {return pNext;}
-	char* Str() {return str;}
-	void Empty();
-	void* operator new(size_t nSize)
-	{
-		return HeapAlloc(GetProcessHeap(), HEAP_GENERATE_EXCEPTIONS|HEAP_ZERO_MEMORY, nSize);
-	}
-	void operator delete(void* p)
-	{
-		HeapFree(GetProcessHeap(), 0, p);
-	}
+  StringList() : pNext(0) {str[0]='\0';}
+  ~StringList() {delete pNext;}
+  StringList* Add();
+  StringList* Next() {return pNext;}
+  char* Str() {return str;}
+  void Empty();
+  void* operator new(size_t nSize)
+  {
+    return HeapAlloc(GetProcessHeap(), HEAP_GENERATE_EXCEPTIONS|HEAP_ZERO_MEMORY, nSize);
+  }
+  void operator delete(void* p)
+  {
+    HeapFree(GetProcessHeap(), 0, p);
+  }
 protected:
-	char str[PROF_STR_LEN];
-	StringList* pNext;
+  char str[PROF_STR_LEN];
+  StringList* pNext;
 };
 
 StringList* StringList::Add()
 {
-	delete pNext;
-	pNext=new StringList;
-	return pNext;
+  delete pNext;
+  pNext=new StringList;
+  return pNext;
 }
 
 void StringList::Empty()
 {
-	delete pNext;
-	pNext=0;
-	str[0]='\0';
+  delete pNext;
+  pNext=0;
+  str[0]='\0';
 }
 
 StringList* Format=0;
@@ -200,203 +200,197 @@ DWORD WINAPI _export GetSFXPos(void)
 
 class MetaReplacer
 {
-	char *m_command;
-	char *m_fileName;
-	char *m_shortName;
+  char *m_command;
+  char m_fileName[NM], m_shortName[NM];
 
-	class Meta
-	{
-	public:
-		enum Type
-		{
-			invalidType = -1,
-			archiveName,
-			shortArchiveName
-		};
+  class Meta
+  {
+  public:
+    enum Type
+    {
+      invalidType = -1,
+      archiveName,
+      shortArchiveName
+    };
 
-		enum Flags
-		{
-			quoteWithSpaces = 1,
-			quoteAll = 2,
-			useForwardSlashes = 4,
-			useNameOnly = 8,
-			usePathOnly = 16,
-			useANSI = 32
-		};
+    enum Flags
+    {
+      quoteWithSpaces = 1,
+      quoteAll = 2,
+      useForwardSlashes = 4,
+      useNameOnly = 8,
+      usePathOnly = 16,
+      useANSI = 32
+    };
 
-	private:
-		bool			m_isValid;
-		Type			m_type;
-		unsigned int	m_flags;
-		int				m_length;
+  private:
+    bool      m_isValid;
+    Type      m_type;
+    unsigned int  m_flags;
+    int       m_length;
 
-	public:
-		Meta(const char *start)
-			:	m_isValid(false),
-				m_type(invalidType),
-				m_flags(0),
-				m_length(0)
-		{
-			if((start[0] != '%') || (start[1] != '%'))
-				return;
+  public:
+    Meta(const char *start)
+      : m_isValid(false),
+        m_type(invalidType),
+        m_flags(0),
+        m_length(0)
+    {
+      if((start[0] != '%') || (start[1] != '%'))
+        return;
 
-		    char typeChars[] = {'A', 'a'};
-			char flagChars[] = {'Q', 'q', 'S', 'W', 'P', 'A'};
+        char typeChars[] = {'A', 'a'};
+      char flagChars[] = {'Q', 'q', 'S', 'W', 'P', 'A'};
 
-			for(int i = 0; i < sizeof(typeChars); ++i)
-				if(start[2] == typeChars[i])
-					m_type = (Type)i;
+      for(int i = 0; i < sizeof(typeChars); ++i)
+        if(start[2] == typeChars[i])
+          m_type = (Type)i;
 
-			if(m_type == invalidType)
-				return;
+      if(m_type == invalidType)
+        return;
 
-			const char *p = start + 3;
+      const char *p = start + 3;
 
-			for(; *p; ++p)
-			{
-				bool isFlagChar = false;
-				for(int i = 0; i < sizeof(flagChars); ++i)
-					if(*p == flagChars[i])
-					{
-						m_flags |= 1 << i;
-						isFlagChar = true;
-					}
+      for(; *p; ++p)
+      {
+        bool isFlagChar = false;
+        for(int i = 0; i < sizeof(flagChars); ++i)
+          if(*p == flagChars[i])
+          {
+            m_flags |= 1 << i;
+            isFlagChar = true;
+          }
 
-				if(!isFlagChar)
-					break;
-			}
+        if(!isFlagChar)
+          break;
+      }
 
-			m_length = p - start;
+      m_length = p - start;
 
-			m_isValid = true;
+      m_isValid = true;
 
-		}
+    }
 
-		bool isValidMeta() const
-		{
-			return m_isValid;
-		}
+    bool isValidMeta() const
+    {
+      return m_isValid;
+    }
 
-		Type getType() const
-		{
-			return m_type;
-		}
+    Type getType() const
+    {
+      return m_type;
+    }
 
-		unsigned int getFlags() const
-		{
-			return m_flags;
-		}
+    unsigned int getFlags() const
+    {
+      return m_flags;
+    }
 
-		int getLength() const
-		{
-			return m_length;
-		}
-	};
+    int getLength() const
+    {
+      return m_length;
+    }
+  };
 
-	static void convertNameToShort(const char *Src, char *Dest)
-	{
-		char ShortName[NM],AnsiName[NM];
-		int AnsiApis = AreFileApisANSI();
+  static void convertNameToShort(const char *Src, char *Dest)
+  {
+    char ShortName[NM],AnsiName[NM];
+    int AnsiApis = AreFileApisANSI();
 
-		if(!AnsiApis)
-			SetFileApisToANSI();
+    if(!AnsiApis)
+      SetFileApisToANSI();
 
-		OemToChar(Src, AnsiName);
+    OemToChar(Src, AnsiName);
 
-		if(GetShortPathName(AnsiName,ShortName,sizeof(ShortName)) && *ShortName)
-			CharToOem(ShortName, Dest);
-		else
-			strcpy(Dest, Src);
+    if(GetShortPathName(AnsiName,ShortName,sizeof(ShortName)) && *ShortName)
+      CharToOem(ShortName, Dest);
+    else
+      strcpy(Dest, Src);
 
-		if(!AnsiApis)
-			SetFileApisToOEM();
-	}
+    if(!AnsiApis)
+      SetFileApisToOEM();
+  }
 
 public:
-	MetaReplacer(const char *command, const char *arcName)
-		:	m_command(new char[strlen(command) + sizeof(char)]),
-			m_fileName(new char[strlen(arcName) + sizeof(char)]),
-			m_shortName(new char[NM])
-	{
-		strcpy(m_command, command);
-		strcpy(m_fileName, arcName);
-		convertNameToShort(m_fileName, m_shortName);
-	}
+  MetaReplacer(const char *command, const char *arcName)
+    : m_command(strdup(command))
+  {
+    strncpy(m_fileName, arcName, sizeof(m_fileName)-1);
+    convertNameToShort(m_fileName, m_shortName);
+  }
 
-	virtual ~MetaReplacer()
-	{
-		delete m_command;
-		delete m_fileName;
-		delete m_shortName;
-	}
+  virtual ~MetaReplacer()
+  {
+    free(m_command);
+  }
 
-	void replaceTo(char *buffer)
-	{
-		char *dest = buffer;
-		*dest = 0;
+  void replaceTo(char *buffer)
+  {
+    char *dest = buffer;
+    *dest = 0;
 
-		bool bReplacedSomething = false;
+    bool bReplacedSomething = false;
 
-		for(const char *command = m_command; *command;)
-		{
-			Meta m(command);
-			if(!m.isValidMeta())
-			{
-				*dest++ = *command++;
-				*dest = 0;
-				continue;
-			}
+    for(const char *command = m_command; *command;)
+    {
+      Meta m(command);
+      if(!m.isValidMeta())
+      {
+        *dest++ = *command++;
+        *dest = 0;
+        continue;
+      }
 
-			command += m.getLength();
-			bReplacedSomething = true;
+      command += m.getLength();
+      bReplacedSomething = true;
 
-			const char *var = (m.getType() == Meta::archiveName) ? m_fileName : m_shortName;
-			char *lastSlash = strrchr(var, '\\');
+      char *var = (m.getType() == Meta::archiveName) ? m_fileName : m_shortName;
+      char *lastSlash = strrchr(var, '\\');
 
-			if(m.getFlags() & Meta::useNameOnly)
-			{
-				var = lastSlash ? lastSlash + 1 : var;
-			}
-			else if(m.getFlags() & Meta::usePathOnly)
-			{
-				if(lastSlash)
-					*lastSlash = 0;
-			}
+      if(m.getFlags() & Meta::useNameOnly)
+      {
+        var = lastSlash ? lastSlash + 1 : var;
+      }
+      else if(m.getFlags() & Meta::usePathOnly)
+      {
+        if(lastSlash)
+          *lastSlash = 0;
+      }
 
-			bool bQuote = (m.getFlags() & Meta::quoteAll)
-						|| ((m.getFlags() & Meta::quoteWithSpaces) && strchr(var, ' '));
+      bool bQuote = (m.getFlags() & Meta::quoteAll)
+            || ((m.getFlags() & Meta::quoteWithSpaces) && strchr(var, ' '));
 
-			if(bQuote)
-				strcat(dest, "\"");
+      if(bQuote)
+        strcat(dest, "\"");
 
-			strcat(dest, var);
+      strcat(dest, var);
 
-			if(bQuote)
-				strcat(dest, "\"");
+      if(bQuote)
+        strcat(dest, "\"");
 
-			if(m.getFlags() & Meta::useForwardSlashes)
-			{
-				for(; *dest; ++dest)
-					if(*dest == '\\')
-						*dest = '/';
-			}
+      if(m.getFlags() & Meta::useForwardSlashes)
+      {
+        for(; *dest; ++dest)
+          if(*dest == '\\')
+            *dest = '/';
+      }
 
 
-			if(lastSlash)
-				*lastSlash = '\\';
+      if(lastSlash)
+        *lastSlash = '\\';
 
-			while(*dest)
-				dest++;
+      while(*dest)
+        dest++;
 
-		}
+    }
 
-		if(!bReplacedSomething)		// there were no meta-symbols, should use old-style method
-		{
-			strcat(buffer, " ");
-			strcat(buffer, m_shortName);
-		}
+    if(!bReplacedSomething)   // there were no meta-symbols, should use old-style method
+    {
+      strcat(buffer, " ");
+      strcat(buffer, m_shortName);
+    }
 
-	}
+  }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -600,9 +594,9 @@ void MakeFiletime(SYSTEMTIME st, SYSTEMTIME syst, LPFILETIME pft)
 
       FILETIME ft;
       if (SystemTimeToFileTime(&st,&ft))
-	  {
-		LocalFileTimeToFileTime(&ft,pft);
-	  }
+    {
+    LocalFileTimeToFileTime(&ft,pft);
+    }
 }
 
 int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
@@ -638,9 +632,9 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
           break;
     }
 
-	bool bFoundIgnoreString=false;
-	for (StringList* CurIgnoreString=IgnoreStrings; CurIgnoreString->Next(); CurIgnoreString=CurIgnoreString->Next())
-	{
+  bool bFoundIgnoreString=false;
+  for (StringList* CurIgnoreString=IgnoreStrings; CurIgnoreString->Next(); CurIgnoreString=CurIgnoreString->Next())
+  {
       if (*CurIgnoreString->Str()=='^')
       {
         if (strncmp(Str,CurIgnoreString->Str()+1,strlen(CurIgnoreString->Str()+1))==0)
@@ -649,22 +643,22 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
       else
         if (strstr(Str,CurIgnoreString->Str())!=NULL)
           bFoundIgnoreString=true;
-	}
-	if (bFoundIgnoreString) continue;
+  }
+  if (bFoundIgnoreString) continue;
 
     const char *CurFormat=CurFormatNode->Str();
     char *CurStr=Str;
 
-	enum {OP_OUTSIDE, OP_INSIDE, OP_SKIP} OptionalPart=OP_OUTSIDE;
-	int IsChapter=0;
+  enum {OP_OUTSIDE, OP_INSIDE, OP_SKIP} OptionalPart=OP_OUTSIDE;
+  int IsChapter=0;
     for (;*CurStr && *CurFormat;CurFormat++,CurStr++)
     {
-		if (OptionalPart==OP_SKIP)
-		{
-			if (*CurFormat==')') OptionalPart=OP_OUTSIDE;
-			CurStr--;
-			continue;
-		}
+    if (OptionalPart==OP_SKIP)
+    {
+      if (*CurFormat==')') OptionalPart=OP_OUTSIDE;
+      CurStr--;
+      continue;
+    }
       switch(*CurFormat)
       {
         case '*':
@@ -692,20 +686,20 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
         case 'z':
           if (isdigit(*CurStr))
             Item->FindData.nFileSizeLow=Item->FindData.nFileSizeLow*10+(*CurStr-'0');
-		  else if (OP_INSIDE==OptionalPart)
-			{
-				CurStr--;
-				OptionalPart=OP_SKIP;
-			}
+      else if (OP_INSIDE==OptionalPart)
+      {
+        CurStr--;
+        OptionalPart=OP_SKIP;
+      }
           break;
         case 'p':
           if (isdigit(*CurStr))
             Item->PackSize=Item->PackSize*10+(*CurStr-'0');
-		  else if (OP_INSIDE==OptionalPart)
-			{
-				CurStr--;
-				OptionalPart=OP_SKIP;
-			}
+      else if (OP_INSIDE==OptionalPart)
+      {
+        CurStr--;
+        OptionalPart=OP_SKIP;
+      }
           break;
         case 'a':
           switch(toupper(*CurStr))
@@ -734,29 +728,29 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
         case 'y':
           if (isdigit(*CurStr))
             stModification.wYear=stModification.wYear*10+(*CurStr-'0');
-		  else if (OP_INSIDE==OptionalPart)
-			{
-				CurStr--;
-				OptionalPart=OP_SKIP;
-			}
+      else if (OP_INSIDE==OptionalPart)
+      {
+        CurStr--;
+        OptionalPart=OP_SKIP;
+      }
           break;
         case 'd':
           if (isdigit(*CurStr))
             stModification.wDay=stModification.wDay*10+(*CurStr-'0');
-		  else if (OP_INSIDE==OptionalPart)
-			{
-				CurStr--;
-				OptionalPart=OP_SKIP;
-			}
+      else if (OP_INSIDE==OptionalPart)
+      {
+        CurStr--;
+        OptionalPart=OP_SKIP;
+      }
           break;
         case 't':
           if (isdigit(*CurStr))
             stModification.wMonth=stModification.wMonth*10+(*CurStr-'0');
-		  else if (OP_INSIDE==OptionalPart)
-			{
-				CurStr--;
-				OptionalPart=OP_SKIP;
-			}
+      else if (OP_INSIDE==OptionalPart)
+      {
+        CurStr--;
+        OptionalPart=OP_SKIP;
+      }
           break;
         case 'T':
           {
@@ -778,11 +772,11 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
         case 'h':
           if (isdigit(*CurStr))
             stModification.wHour=stModification.wHour*10+(*CurStr-'0');
-		  else if (OP_INSIDE==OptionalPart)
-			{
-				CurStr--;
-				OptionalPart=OP_SKIP;
-			}
+      else if (OP_INSIDE==OptionalPart)
+      {
+        CurStr--;
+        OptionalPart=OP_SKIP;
+      }
           break;
         case 'H':
           switch(toupper(*CurStr))
@@ -800,174 +794,174 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
         case 'm':
           if (isdigit(*CurStr))
             stModification.wMinute=stModification.wMinute*10+(*CurStr-'0');
-		  else if (OP_INSIDE==OptionalPart)
-			{
-				CurStr--;
-				OptionalPart=OP_SKIP;
-			}
+      else if (OP_INSIDE==OptionalPart)
+      {
+        CurStr--;
+        OptionalPart=OP_SKIP;
+      }
           break;
         case 's':
           if (isdigit(*CurStr))
             stModification.wSecond=stModification.wSecond*10+(*CurStr-'0');
-		  else if (OP_INSIDE==OptionalPart)
-			{
-				CurStr--;
-				OptionalPart=OP_SKIP;
-			}
+      else if (OP_INSIDE==OptionalPart)
+      {
+        CurStr--;
+        OptionalPart=OP_SKIP;
+      }
           break;
 // ACCESS DATETIME
-		case 'b':
+    case 'b':
           if (isdigit(*CurStr))
             stAccess.wDay=stAccess.wDay*10+(*CurStr-'0');
-		  else if (OP_INSIDE==OptionalPart)
-			{
-				CurStr--;
-				OptionalPart=OP_SKIP;
-			}
+      else if (OP_INSIDE==OptionalPart)
+      {
+        CurStr--;
+        OptionalPart=OP_SKIP;
+      }
           break;
         case 'v':
           if (isdigit(*CurStr))
             stAccess.wMonth=stAccess.wMonth*10+(*CurStr-'0');
-		  else if (OP_INSIDE==OptionalPart)
-			{
-				CurStr--;
-				OptionalPart=OP_SKIP;
-			}
+      else if (OP_INSIDE==OptionalPart)
+      {
+        CurStr--;
+        OptionalPart=OP_SKIP;
+      }
           break;
         case 'e':
           if (isdigit(*CurStr))
             stAccess.wYear=stAccess.wYear*10+(*CurStr-'0');
-		  else if (OP_INSIDE==OptionalPart)
-			{
-				CurStr--;
-				OptionalPart=OP_SKIP;
-			}
+      else if (OP_INSIDE==OptionalPart)
+      {
+        CurStr--;
+        OptionalPart=OP_SKIP;
+      }
           break;
         case 'x':
           if (isdigit(*CurStr))
             stAccess.wHour=stAccess.wHour*10+(*CurStr-'0');
-		  else if (OP_INSIDE==OptionalPart)
-			{
-				CurStr--;
-				OptionalPart=OP_SKIP;
-			}
+      else if (OP_INSIDE==OptionalPart)
+      {
+        CurStr--;
+        OptionalPart=OP_SKIP;
+      }
           break;
         case 'l':
           if (isdigit(*CurStr))
             stAccess.wMinute=stAccess.wMinute*10+(*CurStr-'0');
-		  else if (OP_INSIDE==OptionalPart)
-			{
-				CurStr--;
-				OptionalPart=OP_SKIP;
-			}
+      else if (OP_INSIDE==OptionalPart)
+      {
+        CurStr--;
+        OptionalPart=OP_SKIP;
+      }
           break;
         case 'k':
           if (isdigit(*CurStr))
             stAccess.wSecond=stAccess.wSecond*10+(*CurStr-'0');
-		  else if (OP_INSIDE==OptionalPart)
-			{
-				CurStr--;
-				OptionalPart=OP_SKIP;
-			}
+      else if (OP_INSIDE==OptionalPart)
+      {
+        CurStr--;
+        OptionalPart=OP_SKIP;
+      }
           break;
 // CREATION DATETIME
         case 'j':
           if (isdigit(*CurStr))
             stCreation.wDay=stCreation.wDay*10+(*CurStr-'0');
-		  else if (OP_INSIDE==OptionalPart)
-			{
-				CurStr--;
-				OptionalPart=OP_SKIP;
-			}
+      else if (OP_INSIDE==OptionalPart)
+      {
+        CurStr--;
+        OptionalPart=OP_SKIP;
+      }
           break;
         case 'g':
           if (isdigit(*CurStr))
             stCreation.wMonth=stCreation.wMonth*10+(*CurStr-'0');
-		  else if (OP_INSIDE==OptionalPart)
-			{
-				CurStr--;
-				OptionalPart=OP_SKIP;
-			}
+      else if (OP_INSIDE==OptionalPart)
+      {
+        CurStr--;
+        OptionalPart=OP_SKIP;
+      }
           break;
         case 'f':
           if (isdigit(*CurStr))
             stCreation.wYear=stCreation.wYear*10+(*CurStr-'0');
-		  else if (OP_INSIDE==OptionalPart)
-			{
-				CurStr--;
-				OptionalPart=OP_SKIP;
-			}
+      else if (OP_INSIDE==OptionalPart)
+      {
+        CurStr--;
+        OptionalPart=OP_SKIP;
+      }
           break;
         case 'o':
           if (isdigit(*CurStr))
             stCreation.wHour=stCreation.wHour*10+(*CurStr-'0');
-		  else if (OP_INSIDE==OptionalPart)
-			{
-				CurStr--;
-				OptionalPart=OP_SKIP;
-			}
+      else if (OP_INSIDE==OptionalPart)
+      {
+        CurStr--;
+        OptionalPart=OP_SKIP;
+      }
           break;
         case 'i':
           if (isdigit(*CurStr))
             stCreation.wMinute=stCreation.wMinute*10+(*CurStr-'0');
-		  else if (OP_INSIDE==OptionalPart)
-			{
-				CurStr--;
-				OptionalPart=OP_SKIP;
-			}
+      else if (OP_INSIDE==OptionalPart)
+      {
+        CurStr--;
+        OptionalPart=OP_SKIP;
+      }
           break;
         case 'u':
           if (isdigit(*CurStr))
             stCreation.wSecond=stCreation.wSecond*10+(*CurStr-'0');
-		  else if (OP_INSIDE==OptionalPart)
-			{
-				CurStr--;
-				OptionalPart=OP_SKIP;
-			}
+      else if (OP_INSIDE==OptionalPart)
+      {
+        CurStr--;
+        OptionalPart=OP_SKIP;
+      }
           break;
-		case 'r':
-		  if (isxdigit(toupper(*CurStr)))
-		  {
-		    char dig_sub=(*CurStr >= 'a'?'a':(*CurStr >= 'A'?'A':'0'));
+    case 'r':
+      if (isxdigit(toupper(*CurStr)))
+      {
+        char dig_sub=(*CurStr >= 'a'?'a':(*CurStr >= 'A'?'A':'0'));
             Item->CRC32=Item->CRC32*16+(*CurStr-dig_sub);
           }
-		  else if (OP_INSIDE==OptionalPart)
-			{
-				CurStr--;
-				OptionalPart=OP_SKIP;
-			}
-			break;
-		case 'C':
-		  if (*CurStr == '-')
-		  {
-		    IsChapter=1;
-	        ArcChapters=0;
-		  }
-		  else if(isdigit(*CurStr))
-		  {
-		    if(IsChapter)
-  		       ArcChapters=ArcChapters*10+ (*CurStr-'0');
-  		    else
+      else if (OP_INSIDE==OptionalPart)
+      {
+        CurStr--;
+        OptionalPart=OP_SKIP;
+      }
+      break;
+    case 'C':
+      if (*CurStr == '-')
+      {
+        IsChapter=1;
+          ArcChapters=0;
+      }
+      else if(isdigit(*CurStr))
+      {
+        if(IsChapter)
+             ArcChapters=ArcChapters*10+ (*CurStr-'0');
+          else
                Info->Chapter=Info->Chapter*10+ (*CurStr-'0');
-		  }
+      }
           break;
-		case '(':
-			OptionalPart=OP_INSIDE;
-			CurStr--;
-			break;
-		case ')':
-			OptionalPart=OP_OUTSIDE;
-			CurStr--;
-			break;
+    case '(':
+      OptionalPart=OP_INSIDE;
+      CurStr--;
+      break;
+    case ')':
+      OptionalPart=OP_OUTSIDE;
+      CurStr--;
+      break;
       }
     }
 
-	CurFormatNode=CurFormatNode->Next();
+  CurFormatNode=CurFormatNode->Next();
     if (!CurFormatNode || !CurFormatNode->Next())
     {
-	  MakeFiletime(stModification, syst, &Item->FindData.ftLastWriteTime);
-	  MakeFiletime(stCreation, syst, &Item->FindData.ftCreationTime);
-	  MakeFiletime(stAccess, syst, &Item->FindData.ftLastAccessTime);
+    MakeFiletime(stModification, syst, &Item->FindData.ftLastWriteTime);
+    MakeFiletime(stCreation, syst, &Item->FindData.ftCreationTime);
+    MakeFiletime(stAccess, syst, &Item->FindData.ftLastAccessTime);
 
       for (int I=strlen(Item->FindData.cFileName)-1;I>=0;I--)
       {
