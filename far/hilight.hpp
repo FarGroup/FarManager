@@ -7,10 +7,12 @@ Files highlighting
 
 */
 
-/* Revision: 1.04 06.07.2001 $ */
+/* Revision: 1.05 12.07.2001 $ */
 
 /*
 Modify:
+  12.07.2001 SVS
+    + Функция дублирования - DupHighlightData()
   06.07.2001 IS
     + В HighlightData используем вместо Masks (рабочая маска) соответствующий
       класс.
@@ -60,6 +62,7 @@ class HighlightFiles
     void InitHighlightFiles();
     /* IS $ */
     void ClearData();
+    int  DupHighlightData(struct HighlightData *Data,char *Mask,int RecPos);
 
     char *GetMask(int Idx);
     BOOL AddMask(struct HighlightData *Dest,char *Mask,struct HighlightData *Src=NULL);

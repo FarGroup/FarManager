@@ -5,10 +5,13 @@ Files highlighting
 
 */
 
-/* Revision: 1.25 06.07.2001 $ */
+/* Revision: 1.26 12.07.2001 $ */
 
 /*
 Modify:
+  12.07.2001 SVS
+    + F5 - дублировать текущую группу
+    + Функция дублирования - DupHighlightData()
   06.07.2001 IS
     + Теперь в раскраске файлов можно использовать маски исключения, маски
       файлов можно брать в кавычки, маски файлов проверяются на корректность,
@@ -292,7 +295,7 @@ void HighlightFiles::HiEdit(int MenuPos)
   {
     unsigned char VerticalLine=0x0B3;
     VMenu HiMenu(MSG(MHighlightTitle),NULL,0,ScrY-4);
-    HiMenu.SetHelp("Highlight");
+    HiMenu.SetHelp("HighlightList");
     HiMenu.SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
     HiMenu.SetPosition(-1,-1,0,0);
     HiMenu.SetBottomTitle(MSG(MHighlightBottom));
@@ -392,6 +395,13 @@ void HighlightFiles::HiEdit(int MenuPos)
             case KEY_INS:
               if (EditRecord(SelectPos,Key == KEY_INS))
                 NeedUpdate=TRUE;
+              break;
+            case KEY_F5:
+              if (SelectPos < HiMenu.GetItemCount()-1)
+              {
+                if(DupHighlightData(HiData+SelectPos,GetMask(SelectPos),SelectPos))
+                  NeedUpdate=TRUE;
+              }
               break;
             default:
               HiMenu.ProcessInput();
@@ -584,7 +594,7 @@ int HighlightFiles::EditRecord(int RecPos,int New)
      обработка взаимоисключений и кнопок перенесена в обработчик диалога
   */
   Dialog Dlg(HiEditDlg,sizeof(HiEditDlg)/sizeof(HiEditDlg[0]),HighlightDlgProc,(long) &EditData);
-  Dlg.SetHelp("Highlight");
+  Dlg.SetHelp("HighlightEdit");
   Dlg.SetPosition(-1,-1,76,23);
   /* $ 06.07.2001 IS
      Проверим маску на корректность
@@ -658,26 +668,30 @@ int HighlightFiles::EditRecord(int RecPos,int New)
       return FALSE;
   }
   if (New)
-  {
-    struct HighlightData *NewHiData;
-    struct HighlightData HData={0};
-
-    if(!AddMask(&HData,Mask,&EditData))
-      return FALSE;
-
-    if ((NewHiData=(struct HighlightData *)realloc(HiData,sizeof(*HiData)*(HiDataCount+1)))==NULL)
-    {
-      DeleteMask(&HData);
-      return(FALSE);
-    }
-
-    HiDataCount++;
-    HiData=NewHiData;
-    for (int I=HiDataCount-1;I>RecPos;I--)
-      HiData[I]=HiData[I-1];
-    memcpy(HiData+RecPos,&HData,sizeof(struct HighlightData));
-  }
+    DupHighlightData(&EditData,Mask,RecPos);
   return(TRUE);
+}
+
+int HighlightFiles::DupHighlightData(struct HighlightData *EditData,char *Mask,int RecPos)
+{
+  struct HighlightData *NewHiData;
+  struct HighlightData HData={0};
+
+  if(!AddMask(&HData,Mask,EditData))
+    return FALSE;
+
+  if ((NewHiData=(struct HighlightData *)realloc(HiData,sizeof(*HiData)*(HiDataCount+1)))==NULL)
+  {
+    DeleteMask(&HData);
+    return(FALSE);
+  }
+
+  HiDataCount++;
+  HiData=NewHiData;
+  for (int I=HiDataCount-1;I>RecPos;I--)
+    HiData[I]=HiData[I-1];
+  memcpy(HiData+RecPos,&HData,sizeof(struct HighlightData));
+  return TRUE;
 }
 
 /*

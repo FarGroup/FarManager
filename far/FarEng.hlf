@@ -1739,35 +1739,64 @@ connected network drives.
   The confirmation can be disabled in the ~confirmations~@ConfirmDlg@ dialog.
 
 @Highlight
+$ #Раскраска файлов#
+    Для более удобного и наглядного представления файлов и каталогов на панелях
+в FAR Manager предусмотрена возможность цветовыделения файловых объектов.
+Файловые объекты можно объединять по разным критериям (~маски файлов~@FileMasks@,
+файловые атрибуты) в группы и назначать собственные цвета.
+
+    Группы раскраски анализируются от начала к концу. Если обнаружено, что
+файл принадлежит к какой-либо группе, то принадлежность к остальным группам
+не проверяется.
+
+    Раскраску файлов можно включить или отключить в диалоге
+~настройки панелей~@PanelSettings@ (пункт "Параметры|Раскраска файлов").
+
+    ~Изменить~@HighlightEdit@ параметры любой группы раскраски можно из меню
+"~Параметры~@OptMenu@" (пункт "Раскраска файлов").
+
+@HighlightList
+$ #Список групп раскраски файлов#
+    Меню групп ~раскраски файлов~@Highlight@ позволяет манипулировать списком. Доступны
+следующие сочетания клавиш:
+
+  #Ins#          - Добавить новую группу раскраски
+
+  #F5#           - Дублировать текущую группу
+
+  #Del#          - Удалить текущую группу
+
+  #Enter# или #F4# - ~Изменить параметры~@HighlightEdit@ текущей группы раскраски
+
+  #Ctrl-R#       - Восстановить предопределенные группы раскраски
+                 файлов.
+
+@HighlightEdit
 $ #Files highlighting#
-    #Files highlighting# dialog in the ~Options menu~@OptMenu@
-allows to define file highlighting groups. Each group
-definition includes:
+    #Files highlighting# dialog in the ~Options menu~@OptMenu@ allows to
+define file highlighting groups. Each group definition includes:
 
- - one or more ~file masks~@FileMasks@ delimited with commas;
+     - one or more ~file masks~@FileMasks@;
 
- - attributes to include;
+     - attributes to include;
 
- - attributes to exclude;
+     - attributes to exclude;
 
- - normal name, selected name, name under cursor and
-selected name under cursor colors to display file names.
-If you wish to use the default color, set color to "Black on
-black";
+     - normal name, selected name, name under cursor and
+       selected name under cursor colors to display file names.
+       If you wish to use the default color, set color to "Black
+       on black";
 
- - an optional character to mark files from the group. It may be
-used both with or instead of color highlighting.
+     - an optional character to mark files from the group.
+       It may be used both with or instead of color highlighting.
 
- A file belongs to a highlighting group if:
+    A file belongs to a highlighting group if:
 
- - its name matches at least one of file masks;
+     - its name matches at least one of file masks;
 
- - it has all of the included attributes;
+     - it has all of the included attributes;
 
- - it has none of the excluded attributes.
-
-    Highlighting groups are analyzed from the beginning. If a file fits a
-certain group, it will not be checked to fit the rest of the groups.
+     - it has none of the excluded attributes.
 
     The Compressed, Encrypted attributes and Symbolic links are valid for
 NTFS drives only. The Encrypted attribute and Symbolic links can be used
@@ -2163,9 +2192,34 @@ symbols, wildcards ('*' and '?') and special expressions:
 using mask f*.ex?, mask *co* will select both color.ini and edit.com,
 mask [c-f,t]*.txt can select config.txt, demo.txt, faq.txt and tips.txt.
 
-    Many FAR commands allow to specify several file masks delimited
-by commas. For example, to select all documents, you may enter
-*.doc,*.txt,*.wri in the "Select group" command.
+    Во многих командах FAR можно задать несколько разделенных запятыми
+или точкой с запятой масок. Например, чтобы выбрать все документы, вы можете
+ввести *.doc,*.txt,*.wri в команде "Пометить группу".
+
+    Допускается заключать любую из масок (но не весь список) в кавычки.
+Например, это нужно делать, когда маска содержит один из символов-разделителей
+(запятую или точку с запятой), чтобы такая маска не была спутана со списком.
+
+    В некоторых ситуациях (~поиск~@FindFile@ файлов,
+~пометка~@SelectFiles@ файлов, ~ассоциации~@FileAssoc@ файлов,
+~группы сортировки~@SortGroups@ и ~раскраска~@Highlight@ файлов) можно
+использовать маски исключения. #Маска исключения# есть одна или несколько масок
+файлов, которой не должны соответствовать имена требуемых файлов, она
+отделяется от основной маски символом '#|#'.
+
+^Примеры использования масок исключения:
+ 1. *.cpp
+    Все файлы с расширением cpp.
+ 2. *.*|*.bak,*.tmp
+    Все файлы, кроме файлов с расширением bak и tmp.
+ 3. *.*|
+    Ошибка - введен спецсимвол |, но сама маска исключения не
+    указана.
+ 4. *.*|*.bak|*.tmp
+    Ошибка - спецсимвол | не может встречаться более одного раза.
+ 5. |*.bak
+    Обрабатывается как *|*.bak
+
 
 @SelectFiles
 $ #Selecting files#
