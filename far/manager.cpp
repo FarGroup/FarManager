@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.32 23.06.2001 $ */
+/* Revision: 1.33 26.06.2001 $ */
 
 /*
 Modify:
+  26.06.2001 SKV
+    + PluginCommit(); вызов ACTL_COMMIT
   23.06.2001 OT
     - Решение проблемы "старика Мюллера"
     - некие проблемы при far -r. FramePos теперь инициализируется значение -1.
@@ -767,14 +769,14 @@ void Manager::DeleteCommit()
     {
       ActivatedFrame=ModalStack[ModalStackCount-1];
     }
-    else 
+    else
     {
       if (FramePos>=0) {
         ActivatedFrame=FrameList[FramePos];
       }
     }
   }
-  else 
+  else
   {
     int FrameIndex=IndexOf(DeletedFrame);
     if (-1!=FrameIndex)
@@ -794,8 +796,8 @@ void Manager::DeleteCommit()
       } else {
         ActivatedFrame=DeletedFrame->FrameToBack;
       }
-    } 
-    else 
+    }
+    else
     {
       for (int i=0;i<FrameCount;i++)
       {
@@ -811,8 +813,8 @@ void Manager::DeleteCommit()
               iFrame->Pop();
             }
             ActivatedFrame = (*iFrame)[iFrame->ModalCount()-1];
-          } 
-          else 
+          }
+          else
           {
             ActivatedFrame = iFrame;
             iFrame->DestroyAllModal();
@@ -897,3 +899,12 @@ void Manager::ExecuteCommit()
   ModalStack [ModalStackCount++] = ExecutedFrame;
   ActivatedFrame=ExecutedFrame;
 }
+
+/*$ 26.06.2001 SKV
+  Для вызова из плагинов посредством ACTL_COMMIT
+*/
+BOOL Manager::PluginCommit()
+{
+  return Commit();
+}
+/* SKV$*/

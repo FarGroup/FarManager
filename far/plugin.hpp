@@ -8,13 +8,15 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.122 26.06.2001 $ */
+/* Revision: 1.123 26.06.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  26.06.2001 SKV
+   + ACTL_COMMIT
   26.06.2001 SVS
    ! Перенесем DM_GETDROPDOWNOPENED и DM_SETDROPDOWNOPENED в "обычное"
      место и дадим ход в публику :-)
@@ -1061,7 +1063,8 @@ enum {
   ACTL_POSTKEYSEQUENCE,
   ACTL_GETWINDOWINFO,
   ACTL_GETWINDOWCOUNT,
-  ACTL_SETCURRENTWINDOW
+  ACTL_SETCURRENTWINDOW,
+  ACTL_COMMIT,
 };
 
 #define CONSOLE_GET_MODE       (-2)

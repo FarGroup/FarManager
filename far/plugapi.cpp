@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.72 25.06.2001 $ */
+/* Revision: 1.73 26.06.2001 $ */
 
 /*
 Modify:
+  26.06.2001 SKV
+    + ACTL_COMMIT
   25.06.2001 IS
    ! Внедрение const
   21.06.2001 SVS
@@ -460,7 +462,17 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
             return FALSE;
         }
     /* tran 05.06.2001 $ */
-
+    /*$ 26.06.2001 SKV
+      Для полноценной работы с ACTL_SETCURRENTWINDOW
+      (и может еще для чего в будущем)
+    */
+    case ACTL_COMMIT:
+        if(FrameManager)
+        {
+            return FrameManager->PluginCommit();
+        }
+        return FALSE;
+    /* SKV$*/
  }
  return FALSE;
 }

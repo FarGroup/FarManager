@@ -7,10 +7,12 @@ manager.hpp
 
 */
 
-/* Revision: 1.16 06.06.2001 $ */
+/* Revision: 1.17 26.06.2001 $ */
 
 /*
 Modify:
+  26.06.2001 SKV
+    + PluginCommit(); (ACTL_COMMIT)
   06.06.2001 OT
     - Перемудрил зачем-то с ExecuteFrame()...
   28.05.2001 OT
@@ -80,7 +82,7 @@ class Manager
 //    Frame *FrameToDestruct;  // отложенное удаление для корректной посылки OnChangeFocus(0)
     /* DJ $ */
     Frame *ExecutedFrame;
-      
+
     Frame *CurrentFrame;     // текущий модал
 
     int DisableDelete;
@@ -147,6 +149,12 @@ class Manager
 
     int  GetFrameCount() {return(FrameCount);};
     int  GetFrameCountByType(int Type);
+
+    /*$ 26.06.2001 SKV
+    Для вызова через ACTL_COMMIT
+    */
+    BOOL PluginCommit();
+    /* SKV$*/
 
     BOOL IsPanelsActive(); // используется как признак WaitInMainLoop
     void SetFramePos(int NewPos);
