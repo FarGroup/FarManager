@@ -221,20 +221,20 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
   if (Type==0)
   {
     static char *Commands[]={
-    /*Extract               */"MsCab {-sp%%R} x {%%S} %%A %%LMA",
-    /*Extract without paths */"MsCab e {%%S} %%A %%LMA",
-    /*Test                  */"MsCab t {%%S} %%A %%LMA",
-    /*Delete                */"MsCab -i0 d {%%S} %%A %%LMA",
+    /*Extract               */"MsCab {-sp%%R} x {%%S} %%A @%%LMA",
+    /*Extract without paths */"MsCab e {%%S} %%A @%%LMA",
+    /*Test                  */"MsCab t {%%S} %%A @%%LMA",
+    /*Delete                */"MsCab -i0 d {%%S} %%A @%%LMA",
     /*Comment archive       */"",
     /*Comment files         */"",
     /*Convert to SFX        */"",
     /*Lock archive          */"",
     /*Protect archive       */"",
     /*Recover archive       */"",
-    /*Add files             */"MsCab -e -i0 {-ap%%R} {%%S} a %%A %%LMA",
-    /*Move files            */"MsCab -e -i0 {-ap%%R} {%%S} m %%A %%LMA",
-    /*Add files and folders */"MsCab -r -e -i0 {-ap%%R} {%%S} a %%A %%LMA",
-    /*Move files and folders*/"MsCab -r -e -i0 {-ap%%R} {%%S} m %%A %%LMA",
+    /*Add files             */"MsCab -e -i0 {-ap%%R} {%%S} a %%A @%%LMA",
+    /*Move files            */"MsCab -e -i0 {-ap%%R} {%%S} m %%A @%%LMA",
+    /*Add files and folders */"MsCab -r -e -i0 {-ap%%R} {%%S} a %%A @%%LMA",
+    /*Move files and folders*/"MsCab -r -e -i0 {-ap%%R} {%%S} m %%A @%%LMA",
     /*"All files" mask      */"*.*"
     };
     if (Command<sizeof(Commands)/sizeof(Commands[0]))
