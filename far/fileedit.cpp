@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.08 13.10.2000 $ */
+/* Revision: 1.09 16.10.2000 $ */
 
 /*
 Modify:
+  16.10.2000 SVS
+    ! Отмена 1.08 (#229)
   13.10.2000 tran 1.08
     ! код возврата опредеяется по IsFileModified вместо IsFileChanged()
   27.09.2000 SVS
@@ -119,10 +121,7 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
   /* SVS $*/
 
   Process();
-  /* $ 13.10.2000 tran
-     IsFileChanged() заменено на IsFileModified() */
-  ExitCode=IsFileModified() ? 1 : 2;
-  /* tran $ */
+  ExitCode=IsFileChanged() ? 1 : 2;
   if (!DisableHistory)
     CtrlObject->ViewHistory->AddToHistory(FullFileName,MSG(MHistoryEdit),1);
 }
