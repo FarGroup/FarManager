@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.38 19.01.2002 $ */
+/* Revision: 1.39 24.01.2002 $ */
 
 /*
 Modify:
+  24.01.2002 VVM
+    ! При удалении в корзину и обломе - сказать об этом под НТ
   19.01.2002 VVM
     ! bug#253 - сначала спросим, а уж потом выставим функцию для сообщений SetPreredrawFunc()
   15.01.2002 SVS
@@ -483,7 +485,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
           else
           {
             DeleteCode=RemoveToRecycleBin(SelName);
-            if (!DeleteCode && WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS)
+            if (!DeleteCode)// && WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS)
               Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
                       MSG(MCannotDeleteFolder),SelName,MSG(MOk));
           }
