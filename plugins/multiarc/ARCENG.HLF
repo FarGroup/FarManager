@@ -39,6 +39,9 @@ to move rather than copy files to the archive.
     Pressing the #Save settings# button saves the current archiver and
 switches for future usage.
 
+    Клавиша #Shift-F1# аналогична нажатию на кнопку "Архиватор"
+("Select archiver") - позволяет выбрать тип архиватора.
+
 @ExtrFromArc
 $ #Extracting files from archive#
     In this dialog you may enter the path to extract files and set the
