@@ -5,10 +5,14 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.02 21.07.2000 $ */
+/* Revision: 1.03 05.09.2000 $ */
 
 /*
 Modify:
+  05.09.2000 SVS
+    - Bug#12 -   При удалении сетевого диска по Del и отказе от меню
+        фар продолжает показывать удаленный диск. хотя не должен.
+        по ctrl-r переходит на ближайший.
   21.07.2000 IG
     - Bug 21 (заголовок после Ctrl-Q, Tab, F3, Esc был кривой)
   11.07.2000 SVS
@@ -409,6 +413,21 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
           ChDisk.ProcessInput();
           break;
       }
+      /* $ 05.09.2000 SVS
+        Bug#12 -   При удалении сетевого диска по Del и отказе от меню
+               фар продолжает показывать удаленный диск. хотя не должен.
+               по ctrl-r переходит на ближайший.
+               Лучше будет, если он не даст выходить из меню если удален
+               текущий диск
+      */
+      if (ChDisk.GetExitCode()<0)
+      {
+        char RootDir[10];
+        strncpy(RootDir,CurDir,3);
+        if (GetDriveType(RootDir)==1)
+          ChDisk.ClearDone();
+      }
+      /* SVS $ */
     }
     if (ChDisk.GetExitCode()<0)
       return(-1);
