@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.51 15.12.2000 $ */
+/* Revision: 1.52 16.12.2000 $ */
 
 /*
 Modify:
+  16.12.2000 OT
+    - CtrlY на последней строке с выделенным вертикальным блоком не снимал
+      выделение
   15.12.2000 SVS
     ! Уточнение по поводу того, что вернула GetFileAttributes()
   10.12.2000 IS
@@ -2390,6 +2393,22 @@ void Editor::DeleteString(struct EditList *DelPtr,int DeleteLast,int UndoLine)
 {
   if (LockMode)
     return;
+  /* $ 16.12.2000 OT
+     CtrlY на последней строке с выделенным вертикальным блоком не снимал выделение */
+  if (VBlockStart!=NULL && NumLine<VBlockY+VBlockSizeY)
+    if (NumLine<VBlockY)
+    {
+      if (VBlockY>0)
+      {
+        VBlockY--;
+        BlockStartLine--;
+      }
+    }
+    else
+      if (--VBlockSizeY<=0)
+        VBlockStart=NULL;
+  /* OT $ */
+
   /*$ 10.08.2000 skv
     Modified->TextChanged
   */
@@ -2406,20 +2425,6 @@ void Editor::DeleteString(struct EditList *DelPtr,int DeleteLast,int UndoLine)
   for (int I=0;I<sizeof(SavePosLine)/sizeof(SavePosLine[0]);I++)
     if (SavePosLine[I]!=0xffffffff && UndoLine<SavePosLine[I])
       SavePosLine[I]--;
-
-  if (VBlockStart!=NULL && NumLine<VBlockY+VBlockSizeY)
-    if (NumLine<VBlockY)
-    {
-      if (VBlockY>0)
-      {
-        VBlockY--;
-        BlockStartLine--;
-      }
-    }
-    else
-      if (--VBlockSizeY<=0)
-        VBlockStart=NULL;
-
 
   NumLastLine--;
 
