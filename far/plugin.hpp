@@ -1,5 +1,9 @@
 #ifndef __PLUGIN_HPP__
 #define __PLUGIN_HPP__
+
+#ifndef FAR_USE_INTERNALS
+#define FAR_USE_INTERNALS
+#endif // END FAR_USE_INTERNALS
 /*
   PLUGIN.HPP
 
@@ -8,13 +12,23 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.129 31.07.2001 $ */
+/* Revision: 1.130 31.07.2001 $ */
 
+#ifdef FAR_USE_INTERNALS
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  31.07.2001 SVS
+   + Маркеры про FAR_USE_INTERNALS. Просьба не убирать! Это для скрипта,
+     который будет генерить одноименный файл для дистрибутива. Если нужно
+     исключить что либо от внешнего взгляда - заключить вот в такие "скобки":
+     1 # ifdef FAR_USE_INTERNALS
+     2   то, что должно быть скрыто
+     3 # else // ELSE FAR_USE_INTERNALS
+     4   замена!
+     5 # endif // END FAR_USE_INTERNALS
   31.07.2001 IS
    + Внедрение const (FARAPIGETMSG)
   27.07.2001 SVS
@@ -456,10 +470,51 @@ Modify:
   26.06.2000 SVS
     ! Подготовка Master Copy
 */
+#endif // END FAR_USE_INTERNALS
 
-#define FARMANAGERVERSION 0x012C0146UL
+#define FARMANAGERVERSION 0x03660146UL
 
 #define MAKEFARVERSION(major,minor,build) ( ((major)<<8) | (minor) | ((build)<<16))
+
+#ifdef FAR_USE_INTERNALS
+#else // ELSE FAR_USE_INTERNALS
+#if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
+ #if defined(__GNUC__) || defined(_MSC_VER)
+  #if !defined(_WINCON_H) && !defined(_WINCON_)
+    #define _WINCON_H
+    #define _WINCON_ // to prevent including wincon.h
+    #if defined(_MSC_VER)
+     #pragma pack(push,2)
+    #else
+     #pragma pack(2)
+    #endif
+    #include<windows.h>
+    #if defined(_MSC_VER)
+     #pragma pack(pop)
+    #else
+     #pragma pack()
+    #endif
+    #undef _WINCON_
+    #undef  _WINCON_H
+
+    #if defined(_MSC_VER)
+     #pragma pack(push,8)
+    #else
+     #pragma pack(8)
+    #endif
+    #include<wincon.h>
+    #if defined(_MSC_VER)
+     #pragma pack(pop)
+    #else
+     #pragma pack()
+    #endif
+  #endif
+  #define _WINCON_
+ #else
+   #include<windows.h>
+ #endif
+#endif
+#endif // END FAR_USE_INTERNALS
 
 #if defined(__BORLANDC__)
   #pragma option -a2
@@ -516,7 +571,9 @@ enum {
   FMENU_WRAPMODE            =0x0002,
   FMENU_AUTOHIGHLIGHT       =0x0004,
   FMENU_REVERSEAUTOHIGHLIGHT=0x0008,
+#ifdef FAR_USE_INTERNALS
   FMENU_SHOWNOBOX           =0x0010,
+#endif // END FAR_USE_INTERNALS
   FMENU_USEEXT              =0x0020,
 };
 
@@ -592,7 +649,9 @@ typedef int (WINAPI *FARAPIDIALOGEX)(
 enum {
   FDLG_WARNING             =0x00000001,
   FDLG_SMALLDIALOG         =0x00000002,
+#ifdef FAR_USE_INTERNALS
   FDLG_NONMODAL            =0x00000004,
+#endif // END FAR_USE_INTERNALS
 };
 
 enum {
@@ -754,8 +813,10 @@ enum FarMessagesProc{
 
   DM_USER=0x4000,
 
+#ifdef FAR_USE_INTERNALS
   DM_KILLSAVESCREEN=DN_FIRST-1,
   DM_ALLKEYMODE=DN_FIRST-2,
+#endif // END FAR_USE_INTERNALS
 };
 
 enum LISTITEMFLAGS {
@@ -1176,6 +1237,7 @@ typedef int (WINAPI *FARAPIADVCONTROL)(
 );
 
 
+#ifdef FAR_USE_INTERNALS
 enum VIEWER_CONTROL_COMMANDS {
   VCTL_GETINFO,
   VCTL_QUIT,
@@ -1245,6 +1307,7 @@ typedef int (WINAPI *FARAPIVIEWERCONTROL)(
   int Command,
   void *Param
 );
+#endif // END FAR_USE_INTERNALS
 
 enum EDITOR_EVENTS {
   EE_READ,EE_SAVE,EE_REDRAW,EE_CLOSE
@@ -1577,8 +1640,12 @@ struct PluginStartupInfo
   FARAPIDIALOGEX         DialogEx;
   FARAPISENDDLGMESSAGE   SendDlgMessage;
   FARAPIDEFDLGPROC       DefDlgProc;
+#ifdef FAR_USE_INTERNALS
   DWORD                  Reserved;
   FARAPIVIEWERCONTROL    ViewerControl;
+#else // ELSE FAR_USE_INTERNALS
+  DWORD                  Reserved[2];
+#endif // END FAR_USE_INTERNALS
 };
 
 
@@ -1603,7 +1670,11 @@ struct PluginInfo
   const char * const *PluginConfigStrings;
   int PluginConfigStringsNumber;
   const char *CommandPrefix;
+#ifdef FAR_USE_INTERNALS
   DWORD SysID;
+#else // ELSE FAR_USE_INTERNALS
+  DWORD Reserved;
+#endif // END FAR_USE_INTERNALS
 };
 
 
@@ -1699,7 +1770,9 @@ enum {
   OPEN_COMMANDLINE,
   OPEN_EDITOR,
   OPEN_VIEWER,
+#ifdef FAR_USE_INTERNALS
   OPEN_FILEPANEL,
+#endif // END FAR_USE_INTERNALS
 };
 
 enum {PKF_CONTROL=1,PKF_ALT=2,PKF_SHIFT=4};
@@ -1722,7 +1795,7 @@ enum OPERATION_MODES {
   OPM_DESCR=32
 };
 
-#if defined(__BORLANDC__) || defined(_MSC_VER)
+#if defined(__BORLANDC__) || defined(_MSC_VER) || defined(__GNUC__)
 #ifdef __cplusplus
 extern "C"{
 #endif
