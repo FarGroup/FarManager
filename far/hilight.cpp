@@ -5,10 +5,12 @@ Files highlighting
 
 */
 
-/* Revision: 1.23 21.05.2001 $ */
+/* Revision: 1.24 04.06.2001 $ */
 
 /*
 Modify:
+  04.06.2001 SVS
+    ! корректно обработаем DN_BTNCLICK
   21.05.2001 SVS
     ! struct MenuData|MenuItem
       Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
@@ -461,6 +463,9 @@ static long WINAPI HighlightDlgProc(HANDLE hDlg, int Msg, int Param1, long Param
           case 26:
             GetColorDialog(EditData->CursorSelColor);
             break;
+          case 31:
+          case 32:
+            return FALSE;
         }
       }
       return TRUE;

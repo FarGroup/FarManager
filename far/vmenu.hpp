@@ -10,10 +10,12 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.16 03.06.2001 $ */
+/* Revision: 1.17 04.06.2001 $ */
 
 /*
 Modify:
+  04.06.2001 SVS
+    ! Уточнение структуры MenuItem
   03.06.2001 KM
     + Функции SetTitle, GetTitle, GetBottomTitle.
   03.06.2001 SVS
@@ -129,7 +131,10 @@ struct MenuItem
   char   Name[130];              // Текст пункта
   short  AmpPos;                 // Позиция автоназначенной подсветки
   int    UserDataSize;           // Размер пользовательских данных
-  BYTE   *UserData;             // Пользовательские данные
+  union {                        // Пользовательские данные:
+    char  *UserData;             // - указатель!
+    char   Str4[4];              // - strlen(строка)+1 <= 4
+  };
 
   DWORD SetCheck(int Value){ if(Value) {Flags|=LIF_CHECKED; if(Value!=1) Flags|=Value&0xFFFF;} else Flags&=~(0xFFFF|LIF_CHECKED); return Flags;}
   DWORD SetSelect(int Value){ if(Value) Flags|=LIF_SELECTED; else Flags&=~LIF_SELECTED; return Flags;}

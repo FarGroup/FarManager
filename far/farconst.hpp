@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.37 31.05.2001 $ */
+/* Revision: 1.38 04.06.2001 $ */
 
 /*
 Modify:
+  04.06.2001 SVS
+    + HISTORY_COUNT - размер истории
   31.05.2001 OT
     ! Константы для FileEdit
   23.05.2001 SVS
@@ -214,7 +216,7 @@ enum FlagsNameAndPassword{
 ///
 
 /* $ 27.05.2001 DJ         30.05.2001 OT
-   константы для ExitCode - перенесены из 
+   константы для ExitCode - перенесены из
 */
 
 enum {
@@ -235,5 +237,8 @@ enum {
 #define ENABLE_SWITCH TRUE
 #define DISABLE_SWITCH FALSE
 ///
+
+// Размер истории - как для класса History, так и для диалогов!
+#define HISTORY_COUNT    64
 
 #endif // __FARCONST_HPP__

@@ -7,10 +7,12 @@ history.hpp
 
 */
 
-/* Revision: 1.03 06.05.2001 $ */
+/* Revision: 1.04 04.06.2001 $ */
 
 /*
 Modify:
+  04.06.2001 SVS
+    ! 64 -> HISTORY_COUNT
   06.05.2001 DJ
     ! перетрях #include
   09.01.2001 SVS
@@ -21,6 +23,8 @@ Modify:
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
 */
+
+#include "farconst.hpp"
 
 struct HistoryRecord
 {
@@ -33,7 +37,7 @@ class History
 {
   private:
     void AddToHistoryLocal(char *Str,char *Title,int Type);
-    struct HistoryRecord LastStr[64];
+    struct HistoryRecord LastStr[HISTORY_COUNT];
     char RegKey[256];
     unsigned int LastPtr,CurLastPtr;
     unsigned int LastPtr0,CurLastPtr0;

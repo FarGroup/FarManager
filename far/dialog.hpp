@@ -10,10 +10,13 @@ dialog.hpp
 
 */
 
-/* Revision: 1.31 30.05.2001 $ */
+/* Revision: 1.32 04.06.2001 $ */
 
 /*
 Modify:
+  04.06.2001 SVS
+   ! HISTORY_COUNT -> farconst.hpp
+   ! AddToEditHistory() - параметр про размер теперь нафиг ненужен.
   30.05.2001 KM
    + SetItemRect - функция для изменения размеров и/или положения
      итема в диалоге.
@@ -154,9 +157,6 @@ Modify:
 // Флаги для функции ConvertItem
 #define CVTITEM_TOPLUGIN    0
 #define CVTITEM_FROMPLUGIN  1
-
-// размер истории...
-#define HISTORY_COUNT       16
 
 /* $ 01.08.2000 SVS
   У структур DialogI* изменены:
@@ -335,7 +335,7 @@ class Dialog: public Frame
     */
     int FindInEditForAC(int TypeFind,void *HistoryName,char *FindStr,int MaxLen);
     /* SVS $ */
-    int AddToEditHistory(char *AddStr,char *HistoryName,int MaxLen);
+    int AddToEditHistory(char *AddStr,char *HistoryName);
     int ProcessHighlighting(int Key,int FocusPos,int Translate);
 
     /* $ 08.09.2000 SVS

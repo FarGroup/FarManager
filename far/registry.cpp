@@ -5,10 +5,12 @@ registry.cpp
 
 */
 
-/* Revision: 1.06 03.06.2001 $ */
+/* Revision: 1.07 04.06.2001 $ */
 
 /*
 Modify:
+  04.06.2001 SVS
+    + Уточнение GetRegKeySize()
   03.06.2001 SVS
     + GetRegKeySize() - получить размер данных
   06.05.2001 DJ
@@ -99,11 +101,12 @@ int GetRegKeySize(char *Key,char *ValueName)
   HKEY hKey=OpenRegKey(Key);
   if(hKey)
   {
-    DWORD Buffer;
+    BYTE Buffer;
     DWORD Type,QueryDataSize=sizeof(Buffer);
-    RegQueryValueEx(hKey,ValueName,0,&Type,(unsigned char *)&Buffer,&QueryDataSize);
+    int ExitCode=RegQueryValueEx(hKey,ValueName,0,&Type,(unsigned char *)&Buffer,&QueryDataSize);
     CloseRegKey(hKey);
-    return QueryDataSize;
+    if(ExitCode==ERROR_SUCCESS || ExitCode == ERROR_MORE_DATA)
+      return QueryDataSize;
   }
   return 0;
 }

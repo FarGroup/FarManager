@@ -5,10 +5,20 @@ dialog.cpp
 
 */
 
-/* Revision: 1.111 03.06.2001 $ */
+/* Revision: 1.112 04.06.2001 $ */
 
 /*
 Modify:
+  04.06.2001 SVS
+   ! выкинут LIF_PTRDATA - изжил себя как класс :-)
+   ! SelectFromEditHistory полностью переписана, в т.ч. исключена ненужная
+     рекурсия.
+   ! В связи с переделкой SelectFromEditHistory() появилась возможность
+     обрабатывать неограниченное количество пунктов хистори (в данном случае
+     64 - под общий стандарт, т.с. :-)
+   ! AddToEditHistory() - параметр про размер теперь нафиг ненужен.
+   + При занесении в хистори нового значения, после сортировки...
+     происходит удаление неиспользуемых пунктов хистори.
   03.06.2001 KM
    + Добавлены сообщения DM_LISTSETTITLE и DM_LETSGETTITLE для установки/получения
      заголовков DI_LISTBOX. Используется структура FarListTitle.
@@ -477,6 +487,7 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
+#include "farconst.hpp"
 #include "dialog.hpp"
 #include "lang.hpp"
 #include "fn.hpp"
@@ -490,8 +501,8 @@ Modify:
 #include "scrbuf.hpp"
 #include "manager.hpp"
 
-static char fmtLocked[]="Locked%d";
-static char fmtLine[]  ="Line%d";
+static char HisLocked[16]="Locked", *PHisLocked=NULL;
+static char HisLine[16]  ="Line", *PHisLine=NULL;
 static char fmtSavedDialogHistory[]="SavedDialogHistory\\%s";
 
 //////////////////////////////////////////////////////////////////////////
@@ -501,6 +512,11 @@ static char fmtSavedDialogHistory[]="SavedDialogHistory\\%s";
 Dialog::Dialog(struct DialogItem *Item,int ItemCount,
                FARWINDOWPROC DlgProc,long InitParam)
 {
+  if(!PHisLocked)
+  {
+    PHisLocked=HisLocked+strlen(HisLocked);
+    PHisLine=HisLine+strlen(HisLine);
+  }
   /* $ OT По умолчанию все диалоги создаются статически*/
   SetDynamicallyBorn(FALSE);
   /* $ 17.05.2001 DJ */
@@ -1056,19 +1072,9 @@ int Dialog::InitDialogObjects(int ID)
           {
             // берем только первый пункт для области редактирования
             if(ItemFlags&DIF_VAREDIT)
-            {
-              if(ListItems[J].Flags&LIF_PTRDATA)
-                strncpy((char *)CurItem->Ptr.PtrData, ListItems[J].Ptr.PtrData,CurItem->Ptr.PtrLength);
-              else
-                strncpy((char *)CurItem->Ptr.PtrData, ListItems[J].Text,CurItem->Ptr.PtrLength);
-            }
+              strncpy((char *)CurItem->Ptr.PtrData, ListItems[J].Text,CurItem->Ptr.PtrLength);
             else
-            {
-              if(ListItems[J].Flags&LIF_PTRDATA)
-                strncpy((char *)CurItem->Data, ListItems[J].Ptr.PtrData,sizeof(CurItem->Data));
-              else
-                strcpy(CurItem->Data, ListItems[J].Text);
-            }
+              strncpy(CurItem->Data, ListItems[J].Text,sizeof(CurItem->Data));
             break;
           }
         }
@@ -1326,7 +1332,7 @@ void Dialog::GetDialogObjectsData()
               !(CurItem->Flags & DIF_MANUALADDHISTORY) && // при мануале не добавляем
               CurItem->History &&
               Opt.DialogsEditHistory)
-            AddToEditHistory(PtrData,CurItem->History,PtrLength);
+            AddToEditHistory(PtrData,CurItem->History);
           /* $ 01.08.2000 SVS
              ! В History должно заносится значение (для DIF_EXPAND...) перед
               расширением среды!
@@ -3388,8 +3394,8 @@ int Dialog::FindInEditForAC(int TypeFind,void *HistoryName,char *FindStr,int Max
     // просмотр пунктов истории
     for (I=0; I < HISTORY_COUNT; I++)
     {
-      sprintf(KeyValue,fmtLine,I);
-      GetRegKey(RegKey,KeyValue,Str,"",MaxLen);
+      itoa(I,PHisLine,10);
+      GetRegKey(RegKey,HisLine,Str,"",MaxLen);
       if (!LocalStrnicmp(Str,FindStr,LenFindStr))
         break;
     }
@@ -3413,27 +3419,14 @@ int Dialog::FindInEditForAC(int TypeFind,void *HistoryName,char *FindStr,int Max
 
     for (I=0; I < Count ;I++)
     {
-      if (!LocalStrnicmp(
-        ((ListItems[I].Flags&LIF_PTRDATA)?
-            ListItems[I].Ptr.PtrData:
-            ListItems[I].Text),
-        FindStr,LenFindStr))
+      if (!LocalStrnicmp(ListItems[I].Text,FindStr,Min(LenFindStr,sizeof(ListItems[I].Text))))
         break;
     }
     if (I  == Count)
       return FALSE;
 
-    if(ListItems[I].Flags&LIF_PTRDATA)
-    {
-      // проверим "переполнение" - чтобы не вылезти за пределы строки.
-      if(ListItems[I].Ptr.PtrLength < LenFindStr)
-        strncat(FindStr,&ListItems[I].Ptr.PtrData[LenFindStr],MaxLen-LenFindStr);
-    }
-    else
-    {
-      if(sizeof(ListItems[I].Text) < LenFindStr)
-        strncat(FindStr,&ListItems[I].Text[LenFindStr],MaxLen-LenFindStr);
-    }
+    if(sizeof(ListItems[I].Text) < LenFindStr)
+      strncat(FindStr,&ListItems[I].Text[LenFindStr],MaxLen-LenFindStr);
   }
   return TRUE;
 }
@@ -3529,23 +3522,23 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
      Избавился от утечки памяти (проявлялось не у всех, но проявлялось же!)
 */
 {
-  char RegKey[NM],KeyValue[80],*Str[HISTORY_COUNT]={0};
-  int I,Dest;
-  int Checked;
-  int Final=FALSE;
-
   if(!EditLine)
     return;
 
+  char RegKey[NM],KeyValue[80],Str[4096];
+  int I,Dest;
+  int Locked;
+  int IsOk=FALSE, Done=FALSE, IsUpdate;
+  struct MenuItem HistoryItem;
+  int ItemsCount;
+
   sprintf(RegKey,fmtSavedDialogHistory,HistoryName);
-  while(1)
+
   {
+    int EditX1,EditY1,EditX2,EditY2;
+
     // создание пустого вертикального меню
     VMenu HistoryMenu("",NULL,0,8,VMENU_ALWAYSSCROLLBAR);
-
-    struct MenuItem HistoryItem;
-    int EditX1,EditY1,EditX2,EditY2;
-    int ItemsCount;
 
     EditLine->GetPosition(EditX1,EditY1,EditX2,EditY2);
     if (EditX2-EditX1<20)
@@ -3553,172 +3546,165 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
     if (EditX2>ScrX)
       EditX2=ScrX;
 
-    memset(&HistoryItem,0,sizeof(HistoryItem));
     HistoryMenu.SetFlags(VMENU_SHOWAMPERSAND);
     HistoryMenu.SetPosition(EditX1,EditY1+1,EditX2,0);
     HistoryMenu.SetBoxType(SHORT_SINGLE_BOX);
 
-    // заполнение пунктов меню
-    ItemsCount=0;
-    for (Dest=I=0; I < HISTORY_COUNT; I++)
+    while(!Done)
     {
-      memset(&HistoryItem,0,sizeof(HistoryItem));
-      sprintf(KeyValue,fmtLine,I);
-      int LenValueSize=GetRegKeySize(RegKey,KeyValue);
+      IsUpdate=FALSE;
 
-      if((Str[I]=(char*)malloc(LenValueSize+1)) == NULL)
-        break;
+      HistoryMenu.DeleteItems();
 
-      GetRegKey(RegKey,KeyValue,Str[I],"",LenValueSize+1);
-      if (*Str[I]==0)
-        continue;
-
-      sprintf(KeyValue,fmtLocked,I);
-
-      GetRegKey(RegKey,KeyValue,(int)Checked,0);
-      HistoryItem.SetCheck(Checked);
-      /* $ 26.07.2000 SVS
-         Выставим Selected при полном совпадении строки ввода и истории
-      */
-      if(HistoryItem.SetSelect((!Dest && !strcmp(IStr,Str[I]))?TRUE:FALSE) == TRUE)
-         Dest++;
-      /* SVS $ */
-      strncpy(HistoryItem.Name,Str[I],sizeof(HistoryItem.Name)-1);
-      HistoryMenu.SetUserData(Str[I],0,
-            HistoryMenu.AddItem(&HistoryItem));
-      ItemsCount++;
-    }
-    if (ItemsCount==0)
+      // заполнение пунктов меню
+      for (ItemsCount=Dest=I=0; I < HISTORY_COUNT; I++)
       {
-        Final=TRUE;
-        break;
+        memset(&HistoryItem,0,sizeof(HistoryItem));
+
+        itoa(I,PHisLine,10);
+        GetRegKey(RegKey,HisLine,Str,"",sizeof(Str));
+        if (*Str==0)
+          continue;
+
+        itoa(I,PHisLocked,10);
+        GetRegKey(RegKey,HisLocked,(int)Locked,0);
+        HistoryItem.SetCheck(Locked);
+        // Выставим Selected при полном совпадении строки ввода и истории
+        if(HistoryItem.SetSelect((!Dest && !strcmp(IStr,Str))?TRUE:FALSE) == TRUE)
+           Dest++;
+        strncpy(HistoryItem.Name,Str,sizeof(HistoryItem.Name)-1);
+        HistoryMenu.SetUserData(Str,0,
+              HistoryMenu.AddItem(&HistoryItem));
+        ItemsCount++;
       }
+      if (ItemsCount==0)
+        break;
 
-    /* $ 28.07.2000 SVS
-       Перед отрисовкой спросим об изменении цветовых атрибутов
-    */
-    short Colors[9];
-    HistoryMenu.GetColors(Colors);
-    if(DlgProc((HANDLE)this,DN_CTLCOLORDLGLIST,
-                    sizeof(Colors)/sizeof(Colors[0]),(long)Colors))
-      HistoryMenu.SetColors(Colors);
-    /* SVS $ */
-    HistoryMenu.Show();
-    while (!HistoryMenu.Done())
-    {
-      int Key=HistoryMenu.ReadInput();
+      //  Перед отрисовкой спросим об изменении цветовых атрибутов
+      short Colors[9];
+      HistoryMenu.GetColors(Colors);
+      if(DlgProc((HANDLE)this,DN_CTLCOLORDLGLIST,
+                      sizeof(Colors)/sizeof(Colors[0]),(long)Colors))
+        HistoryMenu.SetColors(Colors);
+      HistoryMenu.Show();
 
-      // Del очищает историю команд.
-      if (Key==KEY_DEL)
+      // основной цикл обработки
+      while (!HistoryMenu.Done())
       {
-        int Locked;
-        for (I=0,Dest=0; I < HISTORY_COUNT;I++)
-        {
-          sprintf(KeyValue,fmtLine,I);
-          GetRegKey(RegKey,KeyValue,Str[I],"",MaxLen);
-          DeleteRegValue(RegKey,KeyValue);
-          sprintf(KeyValue,fmtLocked,I);
-          GetRegKey(RegKey,KeyValue,Locked,0);
-          DeleteRegValue(RegKey,KeyValue);
+        int Key=HistoryMenu.ReadInput();
 
-          // залоченные пункты истории не удаляются
-          if (Locked)
+        // Tab в списке хистори - аналог Enter
+        if (Key==KEY_TAB)
+        {
+          HistoryMenu.ProcessKey(KEY_ENTER);
+          Done=TRUE;
+          continue; //??
+        }
+
+        // Ins защищает пункт истории от удаления.
+        if (Key==KEY_INS)
+        {
+          itoa(HistoryMenu.GetSelectPos(),PHisLocked,10);
+          if (!HistoryMenu.GetSelection())
           {
-            sprintf(KeyValue,fmtLine,Dest);
-            SetRegKey(RegKey,KeyValue,Str[I]);
-            sprintf(KeyValue,fmtLocked,Dest);
-            SetRegKey(RegKey,KeyValue,TRUE);
-            Dest++;
+            HistoryMenu.SetSelection(TRUE);
+            SetRegKey(RegKey,HisLocked,1);
           }
+          else
+          {
+            HistoryMenu.SetSelection(FALSE);
+            DeleteRegValue(RegKey,HisLocked);
+          }
+          HistoryMenu.SetUpdateRequired(TRUE);
+          HistoryMenu.Redraw();
+          continue;
         }
-        HistoryMenu.Hide();
-        SelectFromEditHistory(EditLine,HistoryName,IStr,MaxLen);
-        Final=TRUE;
+
+        // Del очищает историю команд.
+        if (Key==KEY_DEL)
+        {
+          HistoryMenu.Hide();
+
+          // удаляем из реестра
+          for (I=0; I < HISTORY_COUNT;I++)
+          {
+            itoa(I,PHisLocked,10);
+            DeleteRegValue(RegKey,HisLocked);
+            itoa(I,PHisLine,10);
+            DeleteRegValue(RegKey,HisLine);
+          }
+
+          // заносим в реестр
+          for (Dest=I=0; I < HistoryMenu.GetItemCount(); I++)
+          {
+            if (HistoryMenu.GetSelection(I))
+            {
+              HistoryMenu.GetUserData(Str,sizeof(Str),I);
+              itoa(Dest,PHisLine,10);
+              SetRegKey(RegKey,HisLine,Str);
+              itoa(Dest,PHisLocked,10);
+              SetRegKey(RegKey,HisLocked,TRUE);
+              Dest++;
+            }
+          }
+          HistoryMenu.SetUpdateRequired(TRUE);
+          IsUpdate=TRUE;
+          break;
+        }
+
+        // Сюды надо добавить DN_LISTCHANGE
+
+        HistoryMenu.ProcessInput();
+      }
+
+      if(IsUpdate)
+        continue;
+
+      int ExitCode=HistoryMenu.GetExitCode();
+      if (ExitCode<0)
+      {
+        Done=TRUE;
         break;
       }
-
-      // Ins защищает пункт истории от удаления.
-      if (Key==KEY_INS)
+      else
       {
-        sprintf(KeyValue,fmtLocked,HistoryMenu.GetSelectPos());
-        if (!HistoryMenu.GetSelection())
-        {
-          HistoryMenu.SetSelection(TRUE);
-          SetRegKey(RegKey,KeyValue,1);
-        }
-        else
-        {
-          HistoryMenu.SetSelection(FALSE);
-          DeleteRegValue(RegKey,KeyValue);
-        }
-        HistoryMenu.SetUpdateRequired(TRUE);
-        HistoryMenu.Redraw();
-        continue;
+        HistoryMenu.GetUserData(Str,MaxLen,ExitCode);
+        Done=TRUE;
+        IsOk=TRUE;
       }
-
-      // Tab в списке хистори - аналог Enter
-      if (Key==KEY_TAB)
-      {
-        HistoryMenu.ProcessKey(KEY_ENTER);
-        continue;
-      }
-
-      // Сюды надо добавить DN_LISTCHANGE
-
-      HistoryMenu.ProcessInput();
     }
-
-    if(Final) break;
-
-    int ExitCode=HistoryMenu.GetExitCode();
-    if (ExitCode<0)
-      {
-        Final=TRUE;
-        break;
-      }
-
-    HistoryMenu.GetUserData(Str[0],MaxLen,ExitCode);
-
-    break;
   }
 
-  if(!Final && Str[0])
+  if(IsOk)
   {
-    EditLine->SetString(Str[0]);
+    EditLine->SetString(Str);
     EditLine->SetLeftPos(0);
     Redraw();
   }
-
-  for (I=0; I < HISTORY_COUNT; I++)
-    if(Str[I])
-      free(Str[I]);
 }
-/* IS $ */
 
 //////////////////////////////////////////////////////////////////////////
 /* Private:
    Работа с историей - добавление и reorder списка
 */
-int Dialog::AddToEditHistory(char *AddStr,char *HistoryName,int MaxLen)
+int Dialog::AddToEditHistory(char *AddStr,char *HistoryName)
 {
   int LastLine=HISTORY_COUNT-1,FirstLine=HISTORY_COUNT, I, Locked;
-  char *Str;
+  char Str[4096];
   char RegKey[NM];
 
   sprintf(RegKey,fmtSavedDialogHistory,HistoryName);
 
-  if (*AddStr==0 || (Str=(char*)malloc(MaxLen+1)) == NULL)
+  if (*AddStr==0)
   {
     SetRegKey(RegKey,"Flags",(DWORD)0);
     return FALSE;
   }
 
-  char SrcKeyValue[80],DestKeyValue[80];
-
   for (I=0; I < HISTORY_COUNT; I++)
   {
-    sprintf(SrcKeyValue,fmtLocked,I);
-    GetRegKey(RegKey,SrcKeyValue,Locked,0);
+    itoa(I,PHisLocked,10);
+    GetRegKey(RegKey,HisLocked,Locked,0);
     if (!Locked)
     {
       FirstLine=I;
@@ -3728,8 +3714,8 @@ int Dialog::AddToEditHistory(char *AddStr,char *HistoryName,int MaxLen)
 
   for (I=0; I < HISTORY_COUNT; I++)
   {
-    sprintf(SrcKeyValue,fmtLine,I);
-    GetRegKey(RegKey,SrcKeyValue,Str,"",MaxLen);
+    itoa(I,PHisLine,10);
+    GetRegKey(RegKey,HisLine,Str,"",sizeof(Str));
     if (strcmp(Str,AddStr)==0)
     {
       LastLine=I;
@@ -3741,29 +3727,38 @@ int Dialog::AddToEditHistory(char *AddStr,char *HistoryName,int MaxLen)
   {
     for (int Src=LastLine-1;Src>=FirstLine;Src--)
     {
-      sprintf(SrcKeyValue,fmtLocked,Src);
-      GetRegKey(RegKey,SrcKeyValue,Locked,0);
+      itoa(Src,PHisLocked,10);
+      GetRegKey(RegKey,HisLocked,Locked,0);
+
       if (Locked)
         continue;
+
       for (int Dest=Src+1;Dest<=LastLine;Dest++)
       {
-        sprintf(DestKeyValue,fmtLocked,Dest);
-        GetRegKey(RegKey,DestKeyValue,Locked,0);
+        itoa(Dest,PHisLocked,10);
+        GetRegKey(RegKey,HisLocked,Locked,0);
         if (!Locked)
         {
-          sprintf(SrcKeyValue,fmtLine,Src);
-          GetRegKey(RegKey,SrcKeyValue,Str,"",MaxLen);
-          sprintf(DestKeyValue,fmtLine,Dest);
-          SetRegKey(RegKey,DestKeyValue,Str);
+          itoa(Src,PHisLine,10);
+          GetRegKey(RegKey,HisLine,Str,"",sizeof(Str));
+          itoa(Dest,PHisLine,10);
+          SetRegKey(RegKey,HisLine,Str);
           break;
         }
       }
     }
-    char FirstLineKeyValue[20];
-    sprintf(FirstLineKeyValue,fmtLine,FirstLine);
-    SetRegKey(RegKey,FirstLineKeyValue,AddStr);
+    itoa(FirstLine,PHisLine,10);
+    SetRegKey(RegKey,HisLine,AddStr);
   }
-  free(Str);
+
+  for (I=0; I < HISTORY_COUNT; I++)
+  {
+    itoa(I,PHisLine,10);
+    GetRegKey(RegKey,HisLine,Str,"",sizeof(Str));
+    if(*Str == 0)
+      DeleteRegValue(RegKey,HisLine);
+  }
+
   SetRegKey(RegKey,"Flags",1);
   return TRUE;
 }
@@ -4260,15 +4255,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
                 {
                   memset(Items,0,sizeof(struct FarListItem));
                   Items->Flags=ListMenuItem->Flags;
-                  if(ListMenuItem->Flags&LIF_PTRDATA)
-                  {
-                    Items->Ptr.PtrData=ListMenuItem->UserData;
-                    Items->Ptr.PtrLength=ListMenuItem->UserDataSize;
-                  }
-                  else
-                  {
-                    strncpy(Items->Text,ListMenuItem->Name,sizeof(Items->Text));
-                  }
+                  strncpy(Items->Text,ListMenuItem->Name,sizeof(Items->Text));
                   return TRUE;
                 }
               }
@@ -4291,7 +4278,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
          (Type==DI_EDIT || Type==DI_FIXEDIT) &&
          (CurItem->Flags & DIF_HISTORY))
       {
-        return Dlg->AddToEditHistory((char*)Param2,CurItem->History,strlen((char*)Param2)+1);
+        return Dlg->AddToEditHistory((char*)Param2,CurItem->History);
       }
       return FALSE;
     /* $ 23.10.2000 SVS

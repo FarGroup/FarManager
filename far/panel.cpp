@@ -414,8 +414,8 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
                   PluginTextNumber+'0', ShowSpecial ? PluginText:"");
           /* IS $ */
           strncpy(ChDiskItem.Name,MenuText,sizeof(ChDiskItem.Name));
-          ChDiskItem.UserDataSize=sizeof(DWORD);
-          ChDiskItem.UserData=(BYTE*)MAKELONG(PluginNumber,PluginItem);
+          ChDiskItem.UserDataSize=0;
+          ChDiskItem.UserData=(char*)MAKELONG(PluginNumber,PluginItem);
           PluginMenuItems[PluginMenuItemsCount++]=ChDiskItem;
         }
         if (Done)
@@ -450,8 +450,8 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
                   PluginTextNumber+'0', ShowSpecial ? PluginText:"");
           /* IS $ */
           strncpy(ChDiskItem.Name,MenuText,sizeof(ChDiskItem.Name));
-          ChDiskItem.UserDataSize=sizeof(DWORD);
-          ChDiskItem.UserData=(BYTE*)MAKELONG(PluginNumber,PluginItem);
+          ChDiskItem.UserDataSize=0;
+          ChDiskItem.UserData=(char*)MAKELONG(PluginNumber,PluginItem);
           PluginMenuItems[PluginMenuItemsCount++]=ChDiskItem;
         }
         if (Done)

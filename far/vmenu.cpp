@@ -7,10 +7,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.30 03.06.2001 $ */
+/* Revision: 1.31 04.06.2001 $ */
 
 /*
 Modify:
+  04.06.2001 SVS
+    ! "Фигня с пацанами вышла" - это про патч 706. В общем уточнения функций.
   03.06.2001 KM
     + Функции SetTitle, GetTitle, GetBottomTitle.
     ! Вернём DI_LISTBOX'у возможность задавать заголовок.
@@ -258,17 +260,74 @@ void VMenu::DeleteItems()
   if(Item)
   {
     for(int I=0; I < ItemCount; ++I)
-      if(Item[I].UserDataSize > sizeof(Item[I].UserData) &&
-         Item[I].UserData &&
-         !(Item[I].Flags&LIF_PTRDATA))
+      if(Item[I].UserDataSize > sizeof(Item[I].UserData) && Item[I].UserData)
         free(Item[I].UserData);
     free(Item);
   }
   /* SVS $ */
   Item=NULL;
   ItemCount=0;
+  SelectPos=TopPos=0;
 }
 
+
+/* $ 01.08.2000 SVS
+   функция удаления N пунктов меню
+*/
+int VMenu::DeleteItem(int ID,int Count)
+{
+  if(ID < 0 || ID >= ItemCount || Count <= 0)
+    return ItemCount;
+  if(ID+Count > ItemCount)
+    Count=ItemCount-ID; //???
+  if(Count <= 0)
+    return ItemCount;
+
+  while (CallCount>0)
+    Sleep(10);
+  CallCount++;
+
+  // Надобно удалить данные, чтоб потери по памяти не были
+  for(int I=0; I < Count; ++I)
+  {
+    struct MenuItem *PtrItem=Item+ID+I;
+    if(PtrItem->UserDataSize > sizeof(PtrItem->UserData) && PtrItem->UserData)
+      free(PtrItem->UserData);
+  }
+
+  // а вот теперь перемещения
+  if(ItemCount > 1)
+    memmove(Item+ID,Item+ID+Count,sizeof(struct MenuItem)*Count); //???
+
+  // коррекция текущей позиции
+  if(SelectPos >= ID && SelectPos < ID+Count)
+  {
+    SelectPos=ID;
+    if(ID+Count == ItemCount)
+      SelectPos--;
+  }
+  if(SelectPos < 0)
+    SelectPos=0;
+
+  ItemCount-=Count;
+
+  if(SelectPos < TopPos || SelectPos > TopPos+Y2-Y1 || TopPos >= ItemCount)
+  {
+    TopPos=0;
+    VMFlags|=VMENU_UPDATEREQUIRED;
+  }
+
+  // Нужно ли обновить экран?
+  if ((ID >= TopPos && ID < TopPos+Y2-Y1) ||
+      (ID+Count >= TopPos && ID+Count < TopPos+Y2-Y1)) //???
+  {
+    VMFlags|=VMENU_UPDATEREQUIRED;
+  }
+
+  CallCount--;
+  return(ItemCount);
+}
+/* SVS $ */
 
 void VMenu::Hide()
 {
@@ -283,6 +342,8 @@ void VMenu::Hide()
     SaveScr=NULL;
     ScreenObject::Hide();
   }
+
+  Y2=-1;
 
   VMFlags|=VMENU_UPDATEREQUIRED;
   CallCount--;
@@ -626,9 +687,9 @@ int VMenu::AddItem(struct MenuItem *NewItem,int PosAdd)
     SelectPos=PosAdd;
   if(Item[PosAdd].Flags&0x0000FFFF)
   {
-    if((Item[PosAdd].Flags&0x0000FFFF) == 1)
-      Item[PosAdd].Flags&=~0x0000FFFF;
     Item[PosAdd].Flags|=LIF_CHECKED;
+    if((Item[PosAdd].Flags&0x0000FFFF) == 1)
+      Item[PosAdd].Flags&=0xFFFF0000;
   }
   Item[PosAdd].AmpPos=-1;
   {
@@ -649,25 +710,16 @@ int  VMenu::AddItem(char *NewStrItem)
 {
   struct FarList FarList0;
   struct FarListItem FarListItem0;
-  int LenNewStrItem=0;
-  if(NewStrItem)
-    LenNewStrItem=strlen(NewStrItem);
-  if(LenNewStrItem >= sizeof(FarListItem0.Text))
+
+  if(!NewStrItem || NewStrItem[0] == 0x1)
   {
-    FarListItem0.Flags=LIF_PTRDATA;
-    FarListItem0.Ptr.PtrLength=LenNewStrItem;
-    FarListItem0.Ptr.PtrData=NewStrItem;
+    FarListItem0.Flags=LIF_SEPARATOR;
+    FarListItem0.Text[0]=0;
   }
   else
   {
     FarListItem0.Flags=0;
-    if(!LenNewStrItem || NewStrItem[0] == 0x1)
-    {
-      FarListItem0.Flags=LIF_SEPARATOR;
-      FarListItem0.Text[0]=0;
-    }
-    else
-      strcpy(FarListItem0.Text,NewStrItem);
+    strncpy(FarListItem0.Text,NewStrItem,sizeof(FarListItem0.Text));
   }
   FarList0.ItemsNumber=1;
   FarList0.Items=&FarListItem0;
@@ -703,23 +755,8 @@ struct FarListItem *VMenu::MenuItem2FarList(struct MenuItem *MItem,
   if(FItem && MItem)
   {
     memset(FItem,0,sizeof(struct FarListItem));
-    FItem->Flags|=MItem->Flags;
-
-    if(!(MItem->Flags&LIF_PTRDATA)) // != LIF_PTRDATA
-    {
-      strncpy(FItem->Text,MItem->Name,sizeof(FItem->Text)); // MItem->UserData?
-      // коррекция на &
-//      short AmpPos=MItem->AmpPos;
-//      if(AmpPos >= 0)
-//        memmove(FItem->Text+AmpPos,FItem->Text+AmpPos+1,strlen(FItem->Text+AmpPos+1));
-    }
-    else
-    {
-      // здесь нужно добавить проверку на LIF_PTRDATA!!!
-      FItem->Ptr.PtrLength=MItem->UserDataSize;
-      FItem->Ptr.PtrData=MItem->UserData;
-      FItem->Flags|=LIF_PTRDATA;
-    }
+    FItem->Flags=MItem->Flags;
+    strncpy(FItem->Text,MItem->Name,sizeof(FItem->Text));
     return FItem;
   }
   return NULL;
@@ -732,79 +769,12 @@ struct MenuItem *VMenu::FarList2MenuItem(struct FarListItem *FItem,
   {
     memset(MItem,0,sizeof(struct MenuItem));
     MItem->Flags=FItem->Flags;
-    if(FItem->Flags&LIF_PTRDATA)
-    {
-      memcpy(MItem->Name,FItem->Ptr.PtrData,sizeof(MItem->Name));
-      MItem->UserDataSize=FItem->Ptr.PtrLength;
-      MItem->UserData=FItem->Ptr.PtrData;
-    }
-    else
-      strncpy(MItem->Name,FItem->Text,sizeof(MItem->Name));
+    strncpy(MItem->Name,FItem->Text,sizeof(MItem->Name));
     // А здесь надо вычислять AmpPos????
     return MItem;
   }
   return NULL;
 }
-
-/* $ 01.08.2000 SVS
-   функция удаления N пунктов меню
-*/
-int VMenu::DeleteItem(int ID,int Count)
-{
-  if(ID > 0)
-  {
-    if(ID >= ItemCount)
-      return ItemCount;
-    if(ID+Count >= ItemCount)
-      Count=ItemCount-ID; //???
-  }
-  else // Если ID < 0, то подразумеваем, что счет ведется с конца списка
-  {
-    if(ItemCount+ID < 0)
-      return ItemCount;
-    else
-    {
-      ID+=ItemCount;
-      if(ID+Count >= ItemCount)
-        Count=ItemCount-ID; //???
-    }
-  }
-  if(Count <= 0)
-    return ItemCount;
-
-  while (CallCount>0)
-    Sleep(10);
-  CallCount++;
-
-
-  if ((ID >= TopPos && ID < TopPos+Y2-Y1) ||
-      (ID+Count >= TopPos && ID+Count < TopPos+Y2-Y1) //???
-     )
-    VMFlags|=VMENU_UPDATEREQUIRED;
-
-  // Надобно удалить данные, чтоб потери по памяти не были
-  for(int I=0; I < Count; ++I)
-  {
-    struct MenuItem *PtrItem=Item+ID+I;
-    if(PtrItem->UserData && !(PtrItem->Flags&LIF_PTRDATA))
-        free(PtrItem->UserData);
-  }
-  // а вот теперь перемещения
-  memmove(Item+ID,Item+ID+Count,sizeof(struct MenuItem)*Count); //???
-
-  if (Item[ID].Flags&LIF_SELECTED)
-  {
-    if(ID == ItemCount)
-      SelectPos--;
-  }
-
-  ItemCount-=Count;
-
-  CallCount--;
-  return(ItemCount);
-}
-/* SVS $ */
-
 
 int VMenu::ProcessKey(int Key)
 {
@@ -1168,6 +1138,20 @@ int VMenu::GetPosition(int Position)
   return DataPos;
 }
 
+int VMenu::GetUserDataSize(int Position)
+{
+  if (ItemCount==0)
+    return(0);
+  while (CallCount>0)
+    Sleep(10);
+  CallCount++;
+
+  int DataSize=Item[GetPosition(Position)].UserDataSize;
+
+  CallCount--;
+  return(DataSize);
+}
+
 // Присовокупить к итему данные.
 int VMenu::SetUserData(void *Data,   // Данные
                        int Size,     // Размер, если =0 то предполагается, что в Data-строка
@@ -1181,67 +1165,49 @@ int VMenu::SetUserData(void *Data,   // Данные
 
   int DataPos=GetPosition(Position);
   struct MenuItem *PItem=Item+DataPos;
-  BYTE *PtrData=NULL;
 
-  if(!(PItem->Flags&LIF_PTRDATA))
+  if(PItem->UserDataSize > sizeof(PItem->UserData) && PItem->UserData)
+    free(PItem->UserData);
+  PItem->UserDataSize=0;
+  PItem->UserData=NULL;
+
+  if(Data)
   {
-    if(PItem->UserDataSize > sizeof(PItem->UserData) && PItem->UserData)
-      free(PItem->UserData);
-    PItem->UserDataSize=0;
-    PItem->UserData=NULL;
+    int SizeReal=Size;
+    if(!Size)
+      SizeReal=strlen((char*)Data)+1;
 
-    if(Data)
+    if(!Size || Size > sizeof(PItem->UserData)) // если в 4 байта не влезаем, то...
     {
-      if(Size && Size <= sizeof(PItem->UserData)) // если в 4 байта влезаем, то...
+      if(SizeReal > sizeof(PItem->UserData))
       {
-        PtrData=(BYTE*)Data;
-        PItem->UserDataSize=Size;
+        if((PItem->UserData=(char*)malloc(SizeReal)) != NULL)
+        {
+          PItem->UserDataSize=SizeReal;
+          memcpy(PItem->UserData,Data,SizeReal);
+        }
       }
       else
       {
-        if(!Size)
-          Size=strlen((char*)Data)+1;
-        if((PtrData=(BYTE*)malloc(Size)) != NULL)
-        {
-          PItem->UserDataSize=Size;
-          memcpy(PtrData,Data,PItem->UserDataSize);
-        }
+        PItem->UserDataSize=SizeReal;
+        memcpy(PItem->Str4,Data,SizeReal);
       }
     }
-  }
-  else
-  {
-    if((PItem->UserDataSize=Size) == 0)
-      PtrData=NULL;
     else
-      PtrData=(BYTE*)Data;
+    {
+      PItem->UserDataSize=0;
+      PItem->UserData=(char*)Data;
+    }
   }
-
-  PItem->UserData=PtrData;
 
   CallCount--;
   return(PItem->UserDataSize);
 }
 
-int VMenu::GetUserDataSize(int Position)
-{
-  if (ItemCount==0)
-    return(0);
-  while (CallCount>0)
-    Sleep(10);
-  CallCount++;
-
-  int DataPos=GetPosition(Position);
-  int DataSize=Item[DataPos].UserDataSize;
-
-  CallCount--;
-  return(DataSize);
-}
-
 // Получить данные
 void* VMenu::GetUserData(void *Data,int Size,int Position)
 {
-  BYTE *PtrData=NULL;
+  char *PtrData=NULL;
   if (ItemCount)
   {
     while (CallCount>0)
@@ -1251,10 +1217,17 @@ void* VMenu::GetUserData(void *Data,int Size,int Position)
     struct MenuItem *PItem=Item+GetPosition(Position);
     int DataSize=PItem->UserDataSize;
     PtrData=PItem->UserData;
-
-    if(!(PItem->Flags&LIF_PTRDATA) && Size>0 && Data!=NULL && DataSize>0)
-      memmove(Data,PtrData,Min(Size,DataSize));
-
+    if(Size > 0 && Data != NULL)
+    {
+      if(DataSize > sizeof(PItem->UserData))
+      {
+        memmove(Data,PtrData,Min(Size,DataSize));
+      }
+      else if(DataSize > 0)
+      {
+        memmove(Data,PItem->Str4,Min(Size,DataSize));
+      }
+    }
     CallCount--;
   }
   return(PtrData);
@@ -1271,7 +1244,8 @@ int VMenu::GetSelection(int Position)
   int DataPos=GetPosition(Position);
   if (Item[DataPos].Flags&LIF_SEPARATOR)
     return(0);
-  return(Item[DataPos].Flags&LIF_CHECKED);
+  int Checked=Item[DataPos].Flags&0xFFFF;
+  return((Item[DataPos].Flags&LIF_CHECKED)?(Checked?Checked:1):0);
 }
 
 
@@ -1381,32 +1355,6 @@ void VMenu::SetOneColor (int Index, short Color)
 
 /* DJ $ */
 
-#ifndef _MSC_VER
-#pragma warn -par
-#endif
-// функция обработки меню (по умолчанию)
-long WINAPI VMenu::DefMenuProc(HANDLE hVMenu,int Msg,int Param1,long Param2)
-{
-  return 0;
-}
-#ifndef _MSC_VER
-#pragma warn +par
-#endif
-
-#ifndef _MSC_VER
-#pragma warn -par
-#endif
-// функция посылки сообщений меню
-long WINAPI VMenu::SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,long Param2)
-{
-  if(hVMenu)
-    return ((VMenu*)hVMenu)->VMenuProc(hVMenu,Msg,Param1,Param2);
-  return 0;
-}
-#ifndef _MSC_VER
-#pragma warn +par
-#endif
-
 static int _cdecl SortItem(const struct MenuItem *el1,
                            const struct MenuItem *el2,
                            const int *Direction)
@@ -1465,3 +1413,29 @@ DWORD VMenu::ChangeFlags(DWORD Flags,BOOL Status)
     VMFlags&=~Flags;
   return VMFlags;
 }
+
+#ifndef _MSC_VER
+#pragma warn -par
+#endif
+// функция обработки меню (по умолчанию)
+long WINAPI VMenu::DefMenuProc(HANDLE hVMenu,int Msg,int Param1,long Param2)
+{
+  return 0;
+}
+#ifndef _MSC_VER
+#pragma warn +par
+#endif
+
+#ifndef _MSC_VER
+#pragma warn -par
+#endif
+// функция посылки сообщений меню
+long WINAPI VMenu::SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,long Param2)
+{
+  if(hVMenu)
+    return ((VMenu*)hVMenu)->VMenuProc(hVMenu,Msg,Param1,Param2);
+  return 0;
+}
+#ifndef _MSC_VER
+#pragma warn +par
+#endif

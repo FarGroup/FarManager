@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.65 03.06.2001 $ */
+/* Revision: 1.66 04.06.2001 $ */
 
 /*
 Modify:
+  04.06.2001 SVS
+    ! Фигня по поводу Checked символа в меню. Исправлено.
   03.06.2001 SVS
     ! Изменения в связи с переделкой UserData в VMenu
   31.05.2001 OT
@@ -440,7 +442,7 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
       struct MenuItem CurItem;
       memset(&CurItem,0,sizeof(CurItem));
       CurItem.Flags|=Item[I].Selected?LIF_SELECTED:0;
-      CurItem.Flags|=Item[I].Checked?LIF_CHECKED:0;
+      CurItem.Flags|=Item[I].Checked?(LIF_CHECKED|(Item[I].Checked&0xFFFF)):0;
       CurItem.Flags|=Item[I].Separator?LIF_SEPARATOR:0;
       strncpy(CurItem.Name,Item[I].Text,sizeof(CurItem.Name));
       FarMenu.AddItem(&CurItem);

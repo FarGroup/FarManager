@@ -8,13 +8,16 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.113 03.06.2001 $ */
+/* Revision: 1.114 04.06.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  04.06.2001 SVS
+   ! выкинут LIF_PTRDATA - изжил себя как класс :-)
+   ! Соответственно изменилась структура FarListItem
   03.06.2001 KM
    + Два новых сообщения:
      DM_LISTSETTITLE
@@ -706,7 +709,6 @@ enum LISTITEMFLAGS {
   LIF_CHECKED  = 0x00020000UL,
   LIF_SEPARATOR= 0x00040000UL,
   LIF_DISABLE  = 0x00080000UL,
-  LIF_PTRDATA  = 0x00100000UL,
 };
 
 enum CHECKEDSTATE {
@@ -718,15 +720,7 @@ enum CHECKEDSTATE {
 struct FarListItem
 {
   DWORD Flags;
-  union {
-    char Text[124];
-    struct {
-      DWORD PtrFlags;
-      int   PtrLength;
-      char *PtrData;
-      char  PtrTail[1];
-    } Ptr;
-  };
+  char Text[124];
 };
 
 struct FarList

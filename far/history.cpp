@@ -5,10 +5,12 @@ history.cpp
 
 */
 
-/* Revision: 1.06 21.05.2001 $ */
+/* Revision: 1.07 04.06.2001 $ */
 
 /*
 Modify:
+  04.06.2001 SVS
+    ! 64 -> HISTORY_COUNT
   21.05.2001 SVS
     ! struct MenuData|MenuItem
       Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
@@ -58,7 +60,7 @@ void History::AddToHistory(char *Str,char *Title,int Type)
     return;
   if (*EnableSave)
   {
-    struct HistoryRecord SaveLastStr[64];
+    struct HistoryRecord SaveLastStr[HISTORY_COUNT];
     unsigned int SaveLastPtr=LastPtr,SaveCurLastPtr=CurLastPtr;
     memcpy(SaveLastStr,LastStr,sizeof(SaveLastStr));
     ReadHistory();
