@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.157 02.11.2001 $ */
+/* Revision: 1.158 05.11.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,9 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  05.11.2001 SVS
+    ! ESPT_SETTABLE -> ESPT_CHARTABLE: все остальные ESPT_* тоже
+      устанавливают, но SET  в  их  названии  нету.
   02.11.2001 SVS
     ! ECTL_GETBOOKMARK, EditorBookMark -> ECTL_GETBOOKMARKS, EditorBookMarks
     ! DM_SETNOTIFYMOUSEEVENT -> DM_SETMOUSEEVENTNOTIFY
@@ -1427,7 +1430,7 @@ enum EDITOR_CONTROL_COMMANDS {
 
 enum EDITOR_SETPARAMETER_TYPES {
   ESPT_TABSIZE, ESPT_EXPANDTABS, ESPT_AUTOINDENT, ESPT_CURSORBEYONDEOL,
-  ESPT_CHARCODEBASE, ESPT_SETTABLE, ESPT_SAVEFILEPOSITION
+  ESPT_CHARCODEBASE, ESPT_CHARTABLE, ESPT_SAVEFILEPOSITION
 };
 
 struct EditorSetParameter

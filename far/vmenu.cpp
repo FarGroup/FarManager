@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.63 01.11.2001 $ */
+/* Revision: 1.64 05.11.2001 $ */
 
 /*
 Modify:
+  05.11.2001 SVS
+    ! немного комментариев-разъяснений по поводу "прикрепленных" данных
   01.11.2001 SVS
     + немного про "типы" - GetType*()
   30.10.2001 SVS
@@ -1419,35 +1421,42 @@ int VMenu::SetUserData(void *Data,   // Данные
 
   if(PItem->UserDataSize > sizeof(PItem->UserData) && PItem->UserData)
     free(PItem->UserData);
+
   PItem->UserDataSize=0;
   PItem->UserData=NULL;
 
   if(Data)
   {
     int SizeReal=Size;
+
+    // Если Size=0, то подразумевается, что в Data находится ASCIIZ строка
     if(!Size)
       SizeReal=strlen((char*)Data)+1;
 
-    if(!Size || Size > sizeof(PItem->UserData)) // если в 4 байта не влезаем, то...
+    // если размер данных Size=0 или Size больше 4 байт (sizeof(void*))
+    if(!Size ||
+        Size > sizeof(PItem->UserData)) // если в 4 байта не влезаем, то...
     {
+      // размер больше 4 байт?
       if(SizeReal > sizeof(PItem->UserData))
       {
+        // ...значит выделяем нужную память.
         if((PItem->UserData=(char*)malloc(SizeReal)) != NULL)
         {
           PItem->UserDataSize=SizeReal;
           memcpy(PItem->UserData,Data,SizeReal);
         }
       }
-      else
+      else // ЭТА СТРОКА ПОМЕЩАЕТСЯ В 4 БАЙТА!
       {
         PItem->UserDataSize=SizeReal;
         memcpy(PItem->Str4,Data,SizeReal);
       }
     }
-    else
+    else // Ок. данные помещаются в 4 байта...
     {
-      PItem->UserDataSize=0;
-      PItem->UserData=(char*)Data;
+      PItem->UserDataSize=0;         // признак того, что данных либо нет, либо
+      PItem->UserData=(char*)Data;   // они помещаются в 4 байта
     }
   }
 
@@ -1467,25 +1476,28 @@ void* VMenu::GetUserData(void *Data,int Size,int Position)
 
     struct MenuItem *PItem=Item+GetPosition(Position);
     int DataSize=PItem->UserDataSize;
-    PtrData=PItem->UserData;
+    PtrData=PItem->UserData; // PtrData содержит: либо указатель на что-то либо
+                             // 4 байта!
     /* $ 12.06.2001 KM
        - Некорректно работала функция. Забыли, что данные в меню
          могут быть в простом MenuItem.Name
     */
     if (Size > 0 && Data != NULL)
     {
-      if (PtrData)
+      if (PtrData) // данные есть?
       {
+        // размерчик больше 4 байт?
         if(DataSize > sizeof(PItem->UserData))
         {
           memmove(Data,PtrData,Min(Size,DataSize));
         }
-        else if(DataSize > 0)
-        {
+        else if(DataSize > 0) // а данные то вообще есть? Т.е. если в UserData
+        {                     // есть строка из 4 байт (UserDataSize при этом > 0)
           memmove(Data,PItem->Str4,Min(Size,DataSize));
         }
+        // else а иначе... в PtrData уже указатель сидит!
       }
-      else
+      else // ... данных нет, значит лудим имя пункта!
       {
         memmove(Data,PItem->Name,Min(Size,(int)sizeof(PItem->Name)));
         PtrData=PItem->Name;
@@ -1578,8 +1590,7 @@ void VMenu::SetColors(short *Colors)
 {
   int I;
   if(Colors)
-    for(I=0; I < sizeof(VMenu::Colors)/sizeof(VMenu::Colors[0]); ++I)
-      VMenu::Colors[I]=Colors[I];
+    memmove(VMenu::Colors,Colors,sizeof(VMenu::Colors));
   else
   {
     int DialogStyle=CheckFlags(VMENU_WARNDIALOG);
@@ -1598,11 +1609,7 @@ void VMenu::SetColors(short *Colors)
 
 void VMenu::GetColors(short *Colors)
 {
-  int I;
-  for(I=0; I < sizeof(VMenu::Colors)/sizeof(VMenu::Colors[0]); ++I)
-  {
-    Colors[I]=VMenu::Colors[I];
-  }
+  memmove(Colors,VMenu::Colors,sizeof(VMenu::Colors));
 }
 
 /* SVS $*/
@@ -1613,7 +1620,7 @@ void VMenu::GetColors(short *Colors)
 
 void VMenu::SetOneColor (int Index, short Color)
 {
-  if (Index >= 0 && Index < sizeof(Colors) / sizeof (Colors [0]))
+  if ((DWORD)Index < sizeof(Colors) / sizeof (Colors [0]))
     Colors [Index]=Color;
 }
 

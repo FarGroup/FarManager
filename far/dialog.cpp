@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.173 02.11.2001 $ */
+/* Revision: 1.174 05.11.2001 $ */
 
 /*
 Modify:
+  04.11.2001 SVS
+    ! ≈сли DropDown тер€ет фокус, то не будем отображать его как селектед.
   02.11.2001 SVS
     ! DM_SETNOTIFYMOUSEEVENT -> DM_SETMOUSEEVENTNOTIFY
     ! ¬ыкинем ненужный код (а кое-где добавим :-))
@@ -1899,7 +1901,7 @@ void Dialog::ShowDialog(int ID)
                 // LOLO (Text)
                 FarColorToReal((CurItem->Flags&DIF_DISABLE)?COL_DIALOGEDITDISABLED:(!CurItem->Focus?COL_DIALOGEDIT:COL_DIALOGEDITSELECTED)),
                 // LOHI (Select)
-                FarColorToReal((CurItem->Flags&DIF_DISABLE)?COL_DIALOGEDITDISABLED:COL_DIALOGEDITSELECTED)
+                FarColorToReal((CurItem->Flags&DIF_DISABLE)?COL_DIALOGEDITDISABLED:(!CurItem->Focus?COL_DIALOGEDIT:COL_DIALOGEDITSELECTED))
               ),
               MAKEWORD( //HIWORD
                 // HILO (Unchanged)

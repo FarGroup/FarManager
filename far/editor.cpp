@@ -6,10 +6,15 @@ editor.cpp
 
 */
 
-/* Revision: 1.129 01.11.2001 $ */
+/* Revision: 1.130 05.11.2001 $ */
 
 /*
 Modify:
+  05.11.2001
+    SVS: ! ESPT_SETTABLE -> ESPT_CHARTABLE: все остальные ESPT_* тоже
+           устанавливают, но SET  в  их  названии  нету.
+    IS:  ! ѕри неудачной смене таблицы по ESPT_SETTABLE оставим все как есть
+           (раньше включали oem).
   01.11.2001 SVS
     ! ECTL_GETBOOKMARK, EditorBookMark -> ECTL_GETBOOKMARKS, EditorBookMarks
     ! — помощью IsBadWritePtr проверим на вшивость адресное пространство
@@ -5409,20 +5414,34 @@ int Editor::EditorControl(int Command,void *Param)
             SetCharCodeBase(espar->iParam);
             break;
           /* $ 07.08.2001 IS сменить кодировку из плагина */
-          case ESPT_SETTABLE:
+          case ESPT_CHARTABLE:
           {
             int UseUnicode=FALSE;
+            /*  $ 04.11.2001 IS
+                ѕри неудачной смене таблицы оставим все как есть
+                (раньше включали oem)
+            */
+            int oldAnsiText(AnsiText), oldUseDecodeTable(UseDecodeTable),
+                oldTableNum(TableNum), oldChangedByUser(TableChangedByUser);
+
             AnsiText=espar->iParam==2,
             UseDecodeTable=espar->iParam>1,
             TableNum=UseDecodeTable?espar->iParam-3:-1;
             TableChangedByUser=TRUE;
 
             if(AnsiText)
-               GetTable(&TableSet,TRUE,TableNum,UseUnicode);
+               rc=GetTable(&TableSet,TRUE,TableNum,UseUnicode);
             else if(UseDecodeTable)
                rc=PrepareTable(&TableSet, TableNum);
 
-            if(!rc) UseDecodeTable=AnsiText=0;
+            if(!rc)
+            {
+              TableChangedByUser=oldChangedByUser;
+              TableNum=oldTableNum;
+              UseDecodeTable=oldUseDecodeTable;
+              AnsiText=oldAnsiText;
+            }
+            /* IS $ */
 
             SetStringsTable();
             ChangeEditKeyBar();
