@@ -7,10 +7,12 @@ int64.hpp
 
 */
 
-/* Revision: 1.02 12.03.2001 $ */
+/* Revision: 1.03 13.03.2001 $ */
 
 /*
 Modify:
+  13.03.2001 SVS
+    ! Нда. Стареем. << и <<= получились как бы одинаковыми :-(
   12.03.2001 SVS
     ! применяем __int64 в классе int64 :-)
   16.10.2000 SVS
@@ -165,7 +167,7 @@ inline int64 operator -- (int64 &n)
 inline int64 int64::operator << (int n)
 {
   int64 res=*this;
-  res.Number.i64<<n;
+  res.Number.i64<<=n;
   return(res);
 }
 
@@ -173,7 +175,7 @@ inline int64 int64::operator << (int n)
 inline int64 int64::operator >> (int n)
 {
   int64 res=*this;
-  res.Number.i64>>n;
+  res.Number.i64>>=n;
   return(res);
 }
 
