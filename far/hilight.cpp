@@ -5,10 +5,12 @@ Files highlighting
 
 */
 
-/* Revision: 1.40 17.09.2002 $ */
+/* Revision: 1.41 27.11.2002 $ */
 
 /*
 Modify:
+  27.11.2002 SVS
+    - BugZ#771 - Подсветка файлов по умолчанию
   17.09.2002 SVS
     - Bug#639 - Фар падает при создании дефолтных настроек
   06.09.2002 SVS
@@ -929,7 +931,7 @@ void SetHighlighting()
      /* 1 */{Masks[0], NULL, 0, 0x0004, 0x0000, {0x13, 0x00, 0x38, 0x00, 0x00, 0x00, 0x00, 0x00}},
      /* 2 */{Masks[4], NULL, 0, 0x0010, 0x0000, {0x1F, 0x00, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00}},
      /* 3 */{Masks[5], NULL, 0, 0x0010, 0x0000, {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
-     /* 4 */{Masks[1], NULL, 0, 0x0000, 0x0000, {0x1A, 0x00, 0x3A, 0x00, 0x00, 0x00, 0x00, 0x00}},
+     /* 4 */{CmdExt,   NULL, 0, 0x0000, 0x0000, {0x1A, 0x00, 0x3A, 0x00, 0x00, 0x00, 0x00, 0x00}},
      /* 5 */{Masks[2], NULL, 0, 0x0000, 0x0000, {0x1D, 0x00, 0x3D, 0x00, 0x00, 0x00, 0x00, 0x00}},
      /* 6 */{Masks[3], NULL, 0, 0x0000, 0x0000, {0x16, 0x00, 0x36, 0x00, 0x00, 0x00, 0x00, 0x00}},
             // это настройка для каталогов на тех панелях, которые должны раскрашиваться
@@ -940,8 +942,6 @@ void SetHighlighting()
   // для NT добавляем CMD
   if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
     strcat(CmdExt,",*.cmd");
-
-  Masks[1]=CmdExt;
 
   Ptr=MkRegKeyHighlightName(RegKey);
   for(I=0; I < sizeof(StdHighlightData)/sizeof(StdHighlightData[0]); ++I)
