@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.50 25.07.2001 $ */
+/* Revision: 1.51 25.07.2001 $ */
 
 /*
 Modify:
+  25.07.2001 SVS
+    ! ¬о врем€ назначени€ макроса выставл€м флаг IsProcessAssignMacroKey
   25.07.2001 SVS
     - јвтостартующие макросы запускались не один раз, а сколько раз мы
       вызывали LoadMacros();
@@ -973,12 +975,14 @@ DWORD KeyMacro::AssignMacroKey()
   };
   MakeDialogItems(MacroAssignDlgData,MacroAssignDlg);
   struct DlgParam Param={this,0,StartMode};
-_SVS(SysLog("StartMode=%d",StartMode));
+//_SVS(SysLog("StartMode=%d",StartMode));
 
+  IsProcessAssignMacroKey=TRUE;
   Dialog Dlg(MacroAssignDlg,sizeof(MacroAssignDlg)/sizeof(MacroAssignDlg[0]),AssignMacroDlgProc,(long)&Param);
   Dlg.SetPosition(-1,-1,34,6);
   Dlg.SetHelp("KeyMacro");
   Dlg.Process();
+  IsProcessAssignMacroKey=FALSE;
   /* $ 30.01.2001 SVS
      «абыл сделать проверку на код возврата из диалога назначени€
   */

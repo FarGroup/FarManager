@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.23 25.07.2001 $ */
+/* Revision: 1.24 25.07.2001 $ */
 
 /*
 Modify:
+  25.07.2001 SVS
+    + IsProcessAssignMacroKey - идет процесс назначения клавиши в макросе?
   25.07.2001 SVS
     ! Copyright переехала из ctrlobj.cpp.
   24.07.2001 SVS
@@ -168,6 +170,7 @@ extern char RegColorsHighlight[];
 extern BOOL LanguageLoaded;
 
 extern BOOL NotUseCAS;
+extern BOOL IsProcessAssignMacroKey;
 
 extern char *Copyright;
 

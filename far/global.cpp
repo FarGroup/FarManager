@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.21 25.07.2001 $ */
+/* Revision: 1.22 25.07.2001 $ */
 
 /*
 Modify:
+  25.07.2001 SVS
+    + IsProcessAssignMacroKey - идет процесс назначения клавиши в макросе?
   25.07.2001 SVS
     ! Copyright переехала из ctrlobj.cpp.
   24.07.2001 SVS
@@ -64,44 +66,55 @@ Modify:
 #include "global.hpp"
 #include "farqueue.hpp"
 
+/* $ 29.06.2000 tran
+  берем char *CopyRight из inc файла */
+#include "copyright.inc"
+/* tran $ */
+
 /* $ 07.12.2000 SVS
    + Версия берется из файла farversion.inc
 */
 #include "farversion.inc"
 /* SVS $ */
 
-/* $ 29.06.2000 tran
-  берем char *CopyRight из inc файла */
-#include "copyright.inc"
-/* tran $ */
+OSVERSIONINFO WinVer;
 
+struct Options Opt;
+
+// функции шифрования (Win2K) назначены? (для SetAttr!)
+BOOL IsCryptFileASupport=FALSE;
+
+// языковой файл загружен?
+BOOL LanguageLoaded=FALSE;
+
+// флаг на запрет юзание Ctrl-Alt-Shift
+BOOL NotUseCAS=FALSE;
+
+// идет процесс назначения клавиши в макросе?
+BOOL IsProcessAssignMacroKey=FALSE;
+
+// идет процесс быстрого поиска в панелях?
+int WaitInFastFind=FALSE;
+
+// мы крутимся в основном цикле?
+int WaitInMainLoop=FALSE;
+
+// "дополнительная" очередь кодов клавиш
 FarQueue<DWORD> *KeyQueue=NULL;
+int AltPressed,CtrlPressed,ShiftPressed;
+int LButtonPressed,RButtonPressed,MButtonPressed;
+int PrevMouseX,PrevMouseY,MouseX,MouseY;
 
-CONSOLE_SCREEN_BUFFER_INFO InitScreenBufferInfo, CurScreenBufferInfo;
+CONSOLE_SCREEN_BUFFER_INFO InitScreenBufferInfo;
+CONSOLE_SCREEN_BUFFER_INFO CurScreenBufferInfo;
 int ScrX,ScrY;
 HANDLE hConOut,hConInp;
-
-int AltPressed,CtrlPressed,ShiftPressed;
-int LButtonPressed,RButtonPressed,PrevMouseX,PrevMouseY,MouseX,MouseY;
-/* $ 23.08.2000 SVS
-    + MButtonPressed - для средней клавиши мыши.
-*/
-int MButtonPressed;
-/* SVS $ */
 
 clock_t StartIdleTime;
 
 DWORD InitialConsoleMode;
 
-int WaitInMainLoop=FALSE;
-int WaitInFastFind=0;
-
-
 clock_t StartExecTime;
-
-struct Options Opt;
-
-OSVERSIONINFO WinVer;
 
 char FarPath[NM];
 /* $ 03.08.2000 SVS
@@ -109,6 +122,11 @@ char FarPath[NM];
 */
 char MainPluginsPath[NM];
 /* SVS $ */
+
+char LastFarTitle[512];
+const char FarTmpXXXXXX[]="FarTmpXXXXXX";
+char RegColorsHighlight[]="Colors\\Highlight";
+
 
 char GlobalSearchString[SEARCHSTRINGBUFSIZE];
 int GlobalSearchCase;
@@ -121,25 +139,13 @@ int GlobalSearchReverse;
 
 int ScreenSaverActive;
 
-char LastFarTitle[512];
-
 Editor *CurrentEditor;
 int CloseFAR;
 
-int RegVer;
+// Про регистрацию
+int  RegVer;
 char RegName[256];
 
 int CmpNameSearchMode;
 int DisablePluginsOutput;
 int CmdMode;
-
-const char FarTmpXXXXXX[]="FarTmpXXXXXX";
-
-BOOL IsCryptFileASupport=FALSE;
-
-char RegColorsHighlight[]="Colors\\Highlight";
-
-BOOL LanguageLoaded=FALSE;
-
-// флаг на запрет юзание Ctrl-Alt-Shift
-BOOL NotUseCAS=FALSE;

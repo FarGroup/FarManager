@@ -5,12 +5,15 @@ manager.cpp
 
 */
 
-/* Revision: 1.41 24.07.2001 $ */
+/* Revision: 1.42 25.07.2001 $ */
 
 /*
 Modify:
+  25.07.2001 SVS
+    ! Во время назначения макроса не юзаем некотрое количество клавиш :-)
+      Об этом нам говорит флаг IsProcessAssignMacroKey
   24.07.2001 OT
-    Исправление отрисовки CAS при 2-х и более модальных диалогах
+    - Исправление отрисовки CAS при 2-х и более модальных диалогах
   24.07.2001 SVS
     ! Заюзаем флаг NotUseCAS - чтобы не гасилось ничего для одиночного
       редатора/вьювера (far /e)
@@ -556,53 +559,64 @@ int  Manager::ProcessKey(int Key)
   {
     //      _D(SysLog("Manager::ProcessKey(), to CurrentFrame 0x%p, '%s'",CurrentFrame, CurrentFrame->GetTypeName()));
     int i;
+
+    /*** БЛОК ПРИВЕЛЕГИРОВАННЫХ КЛАВИШ ! ***/
+    /***   КОТОРЫЕ НЕЛЬЗЯ НАМАКРОСИТЬ    ***/
     switch(Key)
     {
-    case KEY_CTRLALTSHIFTPRESS:
-      if(!NotUseCAS)
-      {
-        if (CurrentFrame->FastHide()){
-          ImmediateHide();
-          WaitKey(KEY_CTRLALTSHIFTRELEASE);
-          FrameManager->RefreshFrame();
+      case KEY_CTRLALTSHIFTPRESS:
+        if(!NotUseCAS)
+        {
+          if (CurrentFrame->FastHide()){
+            ImmediateHide();
+            WaitKey(KEY_CTRLALTSHIFTRELEASE);
+            FrameManager->RefreshFrame();
+          }
         }
+        return TRUE;
+      case KEY_CONSOLE_BUFFER_RESIZE:
+        _OT(SysLog("[%p] Manager::ProcessKey(KEY_CONSOLE_BUFFER_RESIZE)",this));
+        for (i=0;i<FrameCount;i++){
+          FrameList[i]->ResizeConsole();
+        }
+        for (i=0;i<ModalStackCount;i++){
+          ModalStack[i]->ResizeConsole();
+        }
+        ImmediateHide();
+        FrameManager->RefreshFrame();
+        return TRUE;
+    }
+
+    /*** А вот здесь - все остальное! ***/
+    if(!IsProcessAssignMacroKey) // в любом случае, кроме назначения макроса
+    {
+      switch(Key)
+      {
+        case KEY_F11:
+          PluginsMenu();
+          FrameManager->RefreshFrame();
+          _D(SysLog(-1));
+          return TRUE;
+        case KEY_F12:
+          if (CurrentFrame->GetCanLoseFocus())
+            FrameMenu();
+          _D(SysLog(-1));
+          return TRUE;
+        case KEY_CTRLTAB:
+          if (CurrentFrame->GetCanLoseFocus())
+            DeactivateFrame(CurrentFrame,1);
+            _D(SysLog(-1));
+          return TRUE;
+        case KEY_CTRLSHIFTTAB:
+          if (CurrentFrame->GetCanLoseFocus())
+            DeactivateFrame(CurrentFrame,-1);
+          _D(SysLog(-1));
+          return TRUE;
+        case KEY_ALTF9:
+          _OT(SysLog("Manager::ProcessKey, KEY_ALTF9 pressed..."));
+          SetVideoMode(FarAltEnter(-2));
+          return TRUE;
       }
-      return TRUE;
-    case KEY_CONSOLE_BUFFER_RESIZE:
-      _OT(SysLog("[%p] Manager::ProcessKey(KEY_CONSOLE_BUFFER_RESIZE)",this));
-      for (i=0;i<FrameCount;i++){
-        FrameList[i]->ResizeConsole();
-      }
-      for (i=0;i<ModalStackCount;i++){
-        ModalStack[i]->ResizeConsole();
-      }
-      ImmediateHide();
-      FrameManager->RefreshFrame();
-      return TRUE;
-    case KEY_F11:
-      PluginsMenu();
-      FrameManager->RefreshFrame();
-      _D(SysLog(-1));
-      return TRUE;
-    case KEY_F12:
-      if (CurrentFrame->GetCanLoseFocus())
-        FrameMenu();
-      _D(SysLog(-1));
-      return TRUE;
-    case KEY_CTRLTAB:
-      if (CurrentFrame->GetCanLoseFocus())
-        DeactivateFrame(CurrentFrame,1);
-        _D(SysLog(-1));
-      return TRUE;
-    case KEY_CTRLSHIFTTAB:
-      if (CurrentFrame->GetCanLoseFocus())
-        DeactivateFrame(CurrentFrame,-1);
-      _D(SysLog(-1));
-      return TRUE;
-    case KEY_ALTF9:
-      _OT(SysLog("Manager::ProcessKey, KEY_ALTF9 pressed..."));
-      SetVideoMode(FarAltEnter(-2));
-      return TRUE;
     }
     CurrentFrame->UpdateKeyBar();
     CurrentFrame->ProcessKey(Key);
