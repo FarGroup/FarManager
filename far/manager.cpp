@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.56 15.11.2001 $ */
+/* Revision: 1.57 13.12.2001 $ */
 
 /*
 Modify:
+  13.12.2001 OT
+    ФАР виснет при закрытии по [X] при модальном фрейме. (Bug 175)
   15.11.2001 SVS
     - BugZ#66 - порча командной строки после двойного AltF9
       Добавив немного Sleep(1) избавляемся от бага...
@@ -223,6 +225,17 @@ Manager::~Manager()
 BOOL Manager::ExitAll()
 {
   int i;
+  for (i=this->ModalStackCount-1; i>=0; i--){
+    Frame *iFrame=this->ModalStack[i];
+    if (!iFrame->GetCanLoseFocus(TRUE)){
+      int PrevFrameCount=ModalStackCount;
+      iFrame->ProcessKey(KEY_ESC);
+      Commit();
+      if (PrevFrameCount==ModalStackCount){
+        return FALSE;
+      }
+    }
+  }
   for (i=FrameCount-1; i>=0; i--){
     Frame *iFrame=FrameList[i];
     if (!iFrame->GetCanLoseFocus(TRUE)){
