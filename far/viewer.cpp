@@ -5,7 +5,7 @@ Internal viewer
 
 */
 
-/* Revision: 1.14 18.07.2000 $ */
+/* Revision: 1.15 19.07.2000 $ */
 
 /*
 Modify:
@@ -53,6 +53,8 @@ Modify:
     + рисование сколбара и стрелок в зависимости от настроек
       скролбар также реагирует на мышку
       и переключается Ctrl-S
+  19.07.2000 tran 1.15
+    + при рисовке скролбара граница уменьшается на 1
 */
 
 #include "headers.hpp"
@@ -330,6 +332,17 @@ int Viewer::OpenFile(char *Name,int warning)
       ChangeViewKeyBar();
     }
   }
+  /* $ 19.07.2000 tran
+    + вычисление нужного */
+  Width=X2-X1+1;
+  XX2=X2;
+
+  if ( Opt.ViewerShowScrollbar )
+  {
+     Width--;
+     XX2--;
+  }
+  /* tran 19.07.2000 $ */
   return(TRUE);
 }
 
@@ -363,6 +376,19 @@ void Viewer::DisplayObject()
 {
   int SelPos,SelSize,Y,I;
   int SaveSelectSize=SelectSize;
+
+  /* $ 19.07.2000 tran
+    + вычисление нужного */
+  Width=X2-X1+1;
+  XX2=X2;
+
+  if ( Opt.ViewerShowScrollbar )
+  {
+     Width--;
+     XX2--;
+  }
+  /* tran 19.07.2000 $ */
+
 
   /* $ 04.07.2000 tran
     + показ строки "Cannot open the file" красным цветом
@@ -399,19 +425,19 @@ void Viewer::DisplayObject()
       GotoXY(X1,Y);
       if (strlen((char *)OutStr[I])>LeftPos)
       {
-        mprintf("%-*.*s",ObjWidth,ObjWidth,&OutStr[I][LeftPos]);
+        mprintf("%-*.*s",Width,Width,&OutStr[I][LeftPos]);
         /* $ 18.07.2000 tran -
            проверка флага
         */
-        if (strlen(&OutStr[I][LeftPos])>ObjWidth && Opt.ViewerShowArrows)
+        if (strlen(&OutStr[I][LeftPos])>Width && Opt.ViewerShowArrows)
         {
-          GotoXY(X2,Y);
+          GotoXY(XX2,Y);
           SetColor(COL_VIEWERARROWS);
           mprintf(">");
         }
       }
       else
-        mprintf("%*s",ObjWidth,"");
+        mprintf("%*s",Width,"");
       /* $ 18.07.2000 tran -
          проверка флага
       */
@@ -436,7 +462,7 @@ void Viewer::DisplayObject()
         */
         if (Wrap == VIEW_UNWRAP &&
         /* SVS $ */
-           SelX1+SaveSelectSize-1>X2 && LeftPos<MAX_VIEWLINE)
+           SelX1+SaveSelectSize-1>XX2 && LeftPos<MAX_VIEWLINE)
         {
           LeftPos+=4;
           SelectSize=SaveSelectSize;
@@ -445,8 +471,8 @@ void Viewer::DisplayObject()
         }
         SetColor(COL_VIEWERSELECTEDTEXT);
         GotoXY(SelX1,Y);
-        if (SelSize>X2-SelX1+1)
-          SelSize=X2-SelX1+1;
+        if (SelSize>XX2-SelX1+1)
+          SelSize=XX2-SelX1+1;
         if (SelSize>0)
           mprintf("%.*s",SelSize,&OutStr[I][SelPos]);
       }
@@ -593,6 +619,18 @@ void Viewer::ShowUp()
 {
   int Tmp,Y,I;
 
+  /* $ 19.07.2000 tran
+    + вычисление нужного */
+  Width=X2-X1+1;
+  XX2=X2;
+  if ( Opt.ViewerShowScrollbar )
+  {
+     Width--;
+     XX2--;
+  }
+  /* tran 19.07.2000 $ */
+
+
   if (HideCursor)
     SetCursorType(0,10);
   vseek(ViewFile,FilePos,SEEK_SET);
@@ -613,16 +651,16 @@ void Viewer::ShowUp()
     GotoXY(X1,Y);
     if (strlen(OutStr[I])>LeftPos)
     {
-      mprintf("%-*.*s",ObjWidth,ObjWidth,&OutStr[I][LeftPos]);
-      if (strlen(&OutStr[I][LeftPos])>ObjWidth && Opt.ViewerShowArrows)
+      mprintf("%-*.*s",Width,Width,&OutStr[I][LeftPos]);
+      if (strlen(&OutStr[I][LeftPos])>Width && Opt.ViewerShowArrows)
       {
-        GotoXY(X2,Y);
+        GotoXY(XX2,Y);
         SetColor(COL_VIEWERARROWS);
         mprintf(">");
       }
     }
     else
-      mprintf("%*s",ObjWidth,"");
+      mprintf("%*s",Width,"");
     if (LeftPos>0 && *OutStr[I]!=0 && Opt.ViewerShowArrows)
     {
       GotoXY(X1,Y);
@@ -693,7 +731,7 @@ void Viewer::ShowStatus()
           LastPage ? 100:ToPercent(FilePos,FileSize));
   SetColor(COL_VIEWERSTATUS);
   GotoXY(X1,Y1);
-  mprintf("%-*.*s",ObjWidth,ObjWidth,Status);
+  mprintf("%-*.*s",Width,Width,Status);
   if (Opt.ViewerEditorClock)
     ShowTime(FALSE);
 }
@@ -709,6 +747,17 @@ void Viewer::SetStatusMode(int Mode)
 void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSize)
 {
   int OutPtr,Ch;
+
+  /* $ 19.07.2000 tran
+    + вычисление нужного */
+  Width=X2-X1+1;
+  XX2=X2;
+  if ( Opt.ViewerShowScrollbar )
+  {
+     Width--;
+     XX2--;
+  }
+  /* tran 19.07.2000 $ */
 
   OutPtr=0;
   SelSize=0;
@@ -727,11 +776,11 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
       /* $ 12.07.2000 SVS
         ! Wrap - трехпозиционный
       */
-      if (Wrap != VIEW_UNWRAP && OutPtr>X2-X1)
+      if (Wrap != VIEW_UNWRAP && OutPtr>XX2-X1)
       {
         /* $ 11.07.2000 tran
            + warp are now WORD-WRAP */
-        long SavePos=vtell(ViewFile);
+        unsigned long SavePos=vtell(ViewFile);
         if ((Ch=vgetc(ViewFile))!=CRSym && (Ch!=13 || vgetc(ViewFile)!=CRSym))
         {
           vseek(ViewFile,SavePos,SEEK_SET);
@@ -739,7 +788,7 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
           {
             if ( ! (Ch==' ' || Ch=='\t'  ) && !(Str[OutPtr]==' ' || Str[OutPtr]=='\t'))
             {
-               long SavePtr=OutPtr;
+               unsigned long SavePtr=OutPtr;
                /* $ 18.07.2000 tran
                   добавил в качестве wordwrap разделителей , ; > ) */
                while (OutPtr && !(Str[OutPtr]==' ' || Str[OutPtr]=='\t' || Str[OutPtr]==',' || Str[OutPtr]==';' || Str[OutPtr]=='>'|| Str[OutPtr]==')'))
@@ -796,8 +845,8 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
         */
         if ((Wrap == VIEW_WRAP || (Wrap == VIEW_WORDWRAP && RegVer))
         /* SVS $ */
-            && OutPtr>X2-X1)
-          Str[X2-X1+1]=0;
+            && OutPtr>XX2-X1)
+          Str[XX2-X1+1]=0;
         continue;
       }
       if (Ch==13)
@@ -884,7 +933,7 @@ int Viewer::ProcessKey(int Key)
           FindClose(ViewFindHandle);
           fflush(ViewFile);
           vseek(ViewFile,0,SEEK_END);
-          long CurFileSize=vtell(ViewFile);
+          unsigned long CurFileSize=vtell(ViewFile);
           if (ViewFindData.ftLastWriteTime.dwLowDateTime!=NewViewFindData.ftLastWriteTime.dwLowDateTime ||
               ViewFindData.ftLastWriteTime.dwHighDateTime!=NewViewFindData.ftLastWriteTime.dwHighDateTime ||
               CurFileSize!=FileSize)
@@ -1119,8 +1168,8 @@ int Viewer::ProcessKey(int Key)
     case KEY_LEFT:
       if (LeftPos>0)
       {
-        if (Hex && LeftPos>80-ObjWidth)
-          LeftPos=Max(80-ObjWidth,1);
+        if (Hex && LeftPos>80-Width)
+          LeftPos=Max(80-Width,1);
         LeftPos--;
         Show();
       }
@@ -1277,7 +1326,7 @@ void Viewer::Up()
 
         for (StrPos=0,J=I+1;J<=BufSize;J++)
         {
-          if (StrPos==0 || StrPos >= ObjWidth)
+          if (StrPos==0 || StrPos >= Width)
           {
             if (J==BufSize)
             {
@@ -1287,7 +1336,7 @@ void Viewer::Up()
                 FilePos-=Skipped;
               return;
             }
-            if (CalcStrSize(&Buf[J],BufSize-J) <= ObjWidth)
+            if (CalcStrSize(&Buf[J],BufSize-J) <= Width)
             {
               FilePos-=BufSize-J+Skipped;
               return;
@@ -1304,8 +1353,8 @@ void Viewer::Up()
         }
       }
   }
-  for (I=Min(ObjWidth,BufSize);I>0;I-=5)
-    if (CalcStrSize(&Buf[BufSize-I],I) <= ObjWidth)
+  for (I=Min(Width,BufSize);I>0;I-=5)
+    if (CalcStrSize(&Buf[BufSize-I],I) <= Width)
     {
       FilePos-=I+Skipped;
       break;
@@ -1394,7 +1443,7 @@ void Viewer::Search(int Next,int FirstChar)
 
   unsigned char SearchStr[256];
   char MsgStr[256];
-  long MatchPos;
+  unsigned long MatchPos;
   int SearchLength,Case,ReverseSearch,SearchHex,Match;
 
   if (ViewFile==NULL || Next && *LastSearchStr==0)
@@ -1458,7 +1507,7 @@ void Viewer::Search(int Next,int FirstChar)
     if (SearchLength>0 && (!ReverseSearch || LastSelPos>0))
     {
       char Buf[8192];
-      long CurPos=LastSelPos;
+      unsigned long CurPos=LastSelPos;
       int BufSize=sizeof(Buf);
       if (ReverseSearch)
       {
@@ -1561,9 +1610,9 @@ void Viewer::Search(int Next,int FirstChar)
       int Length=SelectPos-StartLinePos-1;
       if (Wrap != VIEW_UNWRAP)
         Length%=ScrX+1;
-      if (Length<=ObjWidth)
-        LeftPos=0;
-      if (Length-LeftPos>ObjWidth || Length<LeftPos)
+      if (Length<=Width)
+          LeftPos=0;
+      if (Length-LeftPos>Width || Length<LeftPos)
       {
         LeftPos=Length;
         if (LeftPos>(MAX_VIEWLINE-1) || LeftPos<0)
@@ -1669,7 +1718,7 @@ void Viewer::SetTitle(char *Title)
 }
 
 
-long Viewer::GetFilePos()
+unsigned long Viewer::GetFilePos()
 {
   return(FilePos);
 }
@@ -1712,7 +1761,7 @@ int Viewer::vread(char *Buf,int Size,FILE *SrcFile)
 }
 
 
-int Viewer::vseek(FILE *SrcFile,long Offset,int Whence)
+int Viewer::vseek(FILE *SrcFile,unsigned long Offset,int Whence)
 {
   if (Unicode)
     return(fseek(SrcFile,Offset*2,Whence));
@@ -1814,6 +1863,14 @@ void Viewer::GoTo()
             memmove(ptr,ptr+1,strlen(ptr));
         //Relative=0; // при hex значении никаких относительных значений?
     }
+    /* $ 19.07.2000 tran
+       при форме NNNd - десятичная форма */
+    else if (strchr(ptr,'d') || strchr(ptr,'D'))
+    {
+        GoToDlg[RB_HEX].Selected=GoToDlg[RB_PRC].Selected=0;
+        GoToDlg[RB_DEC].Selected=1;
+    }
+    /* tran 19.07.2000 $ */
     if (GoToDlg[RB_PRC].Selected)
     {
       //int cPercent=ToPercent(FilePos,FileSize);

@@ -7,7 +7,7 @@ Internal viewer
 
 */
 
-/* Revision: 1.05 18.07.2000 $ */
+/* Revision: 1.06 19.07.2000 $ */
 
 /*
 Modify:
@@ -28,6 +28,9 @@ Modify:
   18.07.2000 tran 1.05
     * изменил тип параметра у SetFilePos()
       на unsigned
+  19.07.2000 tran 1/06
+    + Viewer::Width, ::XX2
+
 */
 
 /* $ 12.07.2000 SVS
@@ -54,7 +57,7 @@ class Viewer:public ScreenObject
     void ConvertToHex(char *SearchStr,int &SearchLength);
     int HexToNum(int Hex);
     int vread(char *Buf,int Size,FILE *SrcFile);
-    int vseek(FILE *SrcFile,long Offset,int Whence);
+    int vseek(FILE *SrcFile,unsigned long Offset,int Whence);
     unsigned long vtell(FILE *SrcFile);
     int vgetc(FILE *SrcFile);
     void GoTo();
@@ -105,6 +108,10 @@ class Viewer:public ScreenObject
     unsigned long UndoAddr[128];
     int UndoLeft[128];
     int LastKeyUndo;
+    /* $ 19.07.2000 tran
+       новая переменная, используется при расчете ширины при скролбаре */
+    int Width,XX2;
+    /* tran 19.07.2000 $ */
   public:
     Viewer();
     ~Viewer();
@@ -124,7 +131,7 @@ class Viewer:public ScreenObject
     void ShowConsoleTitle();
     void SetTempViewName(char *Name);
     void SetTitle(char *Title);
-    long GetFilePos();
+    unsigned long GetFilePos();
     /* $ 18.07.2000 tran - change 'long' to 'unsigned long' */
     void SetFilePos(unsigned long Pos);
     void SetPluginData(char *PluginData);

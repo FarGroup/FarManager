@@ -1173,6 +1173,8 @@ $ #Go to specified position
   Hexadecimal values you must specified in one of next form:
      0xNNNN, NNNNh, $NNNN
 
+  Decimal values values you must specified in form NNNNd.
+
   Examples
    #50%#                     Go to midle of file (50%)
    #-10%#                    Go to 10% percent back from current offset
@@ -1180,8 +1182,8 @@ $ #Go to specified position
    #0x100#                   Go to 0x100 (256) offset
    #+0x300#                  Go to 0x300 (768) bytes forward
 
-  If you enter value with % or '0x', 'h', '$' hexadecimal specificators
-radio buttons you select will be ignored.
+  If you enter value with % or '0x', 'h', '$' hexadecimal specificators,
+or decimal 'd' radio buttons you select will be ignored.
 
 @Editor
 $ #Internal editor#
