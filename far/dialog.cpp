@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.326 04.02.2005 $ */
+/* Revision: 1.327 04.02.2005 $ */
 
 /*
 Modify:
+  04.02.2005 WARP
+    ! Вернул обработку сообщений диалога после DN_CLOSE
   04.02.2005 WARP
     ! Уточнения к X2 в DM_TEXT
   02.02.2005 SVS
@@ -6254,7 +6256,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
   _DIALOG(CleverSysLog CL("Dialog.SendDlgMessage()"));
   _DIALOG(SysLog("hDlg=%p, Msg=%s, Param1=%d (0x%08X), Param2=%d (0x%08X)",hDlg,_DLGMSG_ToName(Msg),Param1,Param1,Param2,Param2));
 
-  if ( !Dlg || Dlg->DialogMode.Check(DMODE_ENDLOOP) )
+  if ( !Dlg )
     return 0;
 
   // Сообщения, касаемые только диалога и не затрагивающие элементы
