@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.08 20.11.2001 $ */
+/* Revision: 1.09 20.11.2001 $ */
 
 /*
 Modify:
+  20.11.2001 SVS
+    - BugZ#111 - для cd Це: скорректируем букву диска - сделаем ее Upper.
   20.11.2001 SVS
     ! Уточнение пусковика.
   19.11.2001 SVS
@@ -863,6 +865,10 @@ int CommandLine::ProcessOSCommands(char *CmdLine)
       Length++;
     char NewDir[NM];
     strcpy(NewDir,&CmdLine[Length]);
+
+    // скорректируем букву диска на "подступах"
+    if(NewDir[1] == ':' && isalpha(NewDir[0]))
+      NewDir[0]=toupper(NewDir[0]);
 
     /* $ 15.11.2001 OT
       Сначала проверяем есть ли такая "обычная" директория.

@@ -5,10 +5,13 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.52 15.11.2001 $ */
+/* Revision: 1.53 20.11.2001 $ */
 
 /*
 Modify:
+  20.11.2001 SVS
+    ! В обработку FOCUS_EVENT добавим также обнуление LButtonPressed,
+      RButtonPressed и MButtonPressed
   15.11.2001 SVS
     - BugZ#66 - порча командной строки после двойного AltF9
       Добавив немного Sleep(1) избавляемся от бага...
@@ -405,7 +408,36 @@ int GetInputRecord(INPUT_RECORD *rec)
     /* $ 26.04.2001 VVM
        ! Убрал подмену колесика */
     if (ReadCount!=0)
+    {
+/*
+      switch(rec->EventType)
+      {
+        case FOCUS_EVENT:
+          SysLog("GetInputRecord(FOCUS_EVENT)");
+          break;
+        case WINDOW_BUFFER_SIZE_EVENT:
+          SysLog("GetInputRecord(WINDOW_BUFFER_SIZE_EVENT)");
+          break;
+        case MENU_EVENT:
+          SysLog("GetInputRecord(MENU_EVENT)");
+          break;
+        case KEY_EVENT:
+          SysLog("GetInputRecord(KEY_EVENT), %s KState=0x%08X VK=0x%04X,",
+               (rec->Event.KeyEvent.bKeyDown?"Up":"Dn"),
+               rec->Event.KeyEvent.dwControlKeyState,
+               rec->Event.KeyEvent.wVirtualKeyCode);
+          break;
+        case MOUSE_EVENT:
+          //SysLog("GetInputRecord(MENU_EVENT)");
+          break;
+        default:
+          SysLog("GetInputRecord(??????_EVENT)");
+          break;
+
+      }
+*/
       break;
+    }
     /* VVM $ */
 
     ScrBuf.Flush();
@@ -509,6 +541,7 @@ int GetInputRecord(INPUT_RECORD *rec)
     ShiftPressed=ShiftPressedLast=FALSE;
     CtrlPressed=CtrlPressedLast=RightCtrlPressedLast=FALSE;
     AltPressed=AltPressedLast=RightAltPressedLast=FALSE;
+    LButtonPressed=RButtonPressed=MButtonPressed=FALSE;
     PressedLastTime=0;
 #if defined(USE_WFUNC)
     if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
