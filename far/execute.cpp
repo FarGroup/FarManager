@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.84 05.06.2003 $ */
+/* Revision: 1.85 31.07.2003 $ */
 
 /*
 Modify:
+  31.07.2003 VVM
+    ! Ќекорректное определение типа исполн€емого файла.
   05.06.2003 SVS
     ! SetFarConsoleMode имеет параметр - нужно ли активировать буфер
   06.05.2003 SVS
@@ -298,7 +300,10 @@ static int IsCommandPEExeGUI(const char *FileName,DWORD& ImageSubsystem)
       ImageSubsystem = IMAGE_SUBSYSTEM_DOS_EXECUTABLE;
       /*  ≈сли значение слова по смещению 18h (OldEXE - MZ) >= 40h,
       то значение слова в 3Ch €вл€етс€ смещением заголовка Windows. */
-      if (dos_head.e_lfarlc >= 0x40)
+      /* 31.07.2003 VVM
+        ! ѕерерыл весь MSDN - этого услови€ не нашел */
+//      if (dos_head.e_lfarlc >= 0x40)
+      /* VVM $ */
       {
         DWORD signature;
         #include <pshpack1.h>
@@ -352,10 +357,11 @@ static int IsCommandPEExeGUI(const char *FileName,DWORD& ImageSubsystem)
             // воды DOS-файл
         }
       }
-      else
+/*      else
       {
         ; // Ёто конечно EXE, но не виндовое EXE
       }
+*/
     }
     else
     {
