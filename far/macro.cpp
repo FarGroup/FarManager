@@ -8,10 +8,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.68 14.01.2002 $ */
+/* Revision: 1.69 16.01.2002 $ */
 
 /*
 Modify:
+  16.01.2002 SVS
+    - Отвал некоторых клавиш (объяснение в описалове)
   14.01.2002 SVS
     - Макрос на Alt-Буква в панелях не работал.
   10.01.2002 SVS
@@ -570,13 +572,12 @@ int KeyMacro::ProcessKey(int Key)
     {
       DWORD CurFlags;
 //_SVS(SysLog(">Key=0x%08X",Key));
-
       if((Key&0x00FFFFFF) > 0x01 && (Key&0x00FFFFFF) < 0xFF)
       {
-        Key=LocalKeyToKey(Key&0x000000FF)|(Key&(~0x000000FF));
-//        if((Key&0x00FFFFFF) > 0x7F)
-//          Key=LocalKeyToKey(Key&0x000000FF)|(Key&(~0x000000FF));
-//        Key=LocalUpper(Key&0x000000FF)|(Key&(~0x000000FF));
+//        Key=LocalKeyToKey(Key&0x000000FF)|(Key&(~0x000000FF));
+        Key=LocalUpper(Key&0x000000FF)|(Key&(~0x000000FF));
+        if((Key&0x00FFFFFF) > 0x7F)
+          Key=LocalKeyToKey(Key&0x000000FF)|(Key&(~0x000000FF));
       }
 
 //_SVS(SysLog("<Key=0x%08X",Key));
