@@ -5,10 +5,13 @@ interf.cpp
 
 */
 
-/* Revision: 1.56 11.05.2002 $ */
+/* Revision: 1.57 16.05.2002 $ */
 
 /*
 Modify:
+  16.05.2002 SVS
+    ! Ограничения при выводе часиков (ProcessShowClock)
+    ! Уточнения для W-функций: MB_USEGLYPHCHARS для MultiByteToWideChar
   11.05.2002 SVS
     - добавим недостающую скобоку в Text()
   09.04.2002 DJ
@@ -360,7 +363,7 @@ void InitRecodeOutTable()
       if(!Oem2Unicode[I])
       {
         CHAR Chr = (CHAR)RecodeOutTable[I];
-        MultiByteToWideChar(CP_OEMCP, 0, &Chr, 1, Oem2Unicode+I, 1);
+        MultiByteToWideChar(CP_OEMCP, MB_USEGLYPHCHARS, &Chr, 1, Oem2Unicode+I, 1);
       }
     }
   }
@@ -723,16 +726,12 @@ void Text(const char *Str)
   if (Length<=0)
     return;
   CHAR_INFO CharBuf[1024];
+  if (Length >= sizeof(CharBuf))
+    Length=sizeof(CharBuf)-1;
+
   for (int I=0;I<Length;I++)
   {
-#if defined(USE_WFUNC)
-    if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
-      CharBuf[I].Char.UnicodeChar = Oem2Unicode[RecodeOutTable[static_cast<BYTE>(Str[I])]];
-    else
-      CharBuf[I].Char.AsciiChar=RecodeOutTable[static_cast<BYTE>(Str[I])];
-#else
-    CharBuf[I].Char.AsciiChar=RecodeOutTable[static_cast<BYTE>(Str[I])];
-#endif
+    SetVidChar(CharBuf[I],RecodeOutTable[(BYTE)Str[I]]);
     CharBuf[I].Attributes=CurColor;
   }
   ScrBuf.Write(CurX,CurY,CharBuf,Length);
@@ -932,6 +931,7 @@ void ShowTime(int ShowAlways)
       GetVidChar(ScreenClockText[2])==':' || ScreenSaverActive)
     return;
 
+  ProcessShowClock++;
   lasttm=tm;
   sprintf(ClockText,"%02d:%02d",tm.wHour,tm.wMinute);
   GotoXY(ScrX-4,0);
@@ -970,6 +970,7 @@ void ShowTime(int ShowAlways)
       }
     }
   }
+  ProcessShowClock--;
 }
 
 void BoxText(unsigned char Chr)

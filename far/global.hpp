@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.39 07.04.2002 $ */
+/* Revision: 1.40 16.05.2002 $ */
 
 /*
 Modify:
+  16.05.2002 SVS
+    + ProcessShowClock - "мы в часиках?"
   07.04.2002 KM
     + IsRedrawFramesInProcess
   05.04.2002 SVS
@@ -218,6 +220,8 @@ extern const char DOS_EOL_fmt[], UNIX_EOL_fmt[], MAC_EOL_fmt[];
 extern int OnliEditorViewerUsed;
 
 extern BOOL ProcessException;
+
+extern BOOL ProcessShowClock;
 
 extern const char *FarTitleAddons;
 

@@ -8,10 +8,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.78 05.05.2002 $ */
+/* Revision: 1.79 16.05.2002 $ */
 
 /*
 Modify:
+  16.05.2002 SVS
+    - "KSFLAGS_DISABLEOUTPUT не работает"
   05.05.2002 SVS
     - BugZ#496 - Не работают макросы (про дисаблы)
   15.04.2002 SVS
@@ -835,6 +837,10 @@ initial:
   MR=!MacroRAM?MacroPROM+ExecMacroPos:MacroRAM;
 //_SVS(SysLog("KeyMacro::GetKey() initial: ExecKeyPos=%d (%d) %p",ExecKeyPos,MR->BufferSize,MacroRAM));
 
+  // ВНИМАНИЕ! Возможны глюки!
+  if(!ExecKeyPos && !LockScr && (MR->Flags&MFLAGS_DISABLEOUTPUT))
+    LockScr=new LockScreen;
+
 begin:
   if (ExecKeyPos>=MR->BufferSize || MR->Buffer==NULL)
   {
@@ -1407,13 +1413,6 @@ int KeyMacro::PostTempKeyMacro(char *KeyBuffer)
   memcpy(NewMacroRAM,&NewMacroRAM2,sizeof(struct MacroRecord));
   MacroRAMCount++;
 
-  /*
-  if (NewMacroRAM->Flags&MFLAGS_DISABLEOUTPUT)
-  {
-    if(LockScr) delete LockScr;
-    LockScr=new LockScreen;
-  }
-  */
   Executing=TRUE;
   ExecKeyPos=0;
   return TRUE;
@@ -1447,13 +1446,6 @@ int KeyMacro::PostTempKeyMacro(struct MacroRecord *MRec)
   memcpy(NewMacroRAM,&NewMacroRAM2,sizeof(struct MacroRecord));
   MacroRAMCount++;
 
-  /*
-  if (NewMacroRAM->Flags&MFLAGS_DISABLEOUTPUT)
-  {
-    if(LockScr) delete LockScr;
-    LockScr=new LockScreen;
-  }
-  */
   Executing=TRUE;
   ExecKeyPos=0;
   return TRUE;

@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.150 29.04.2002 $ */
+/* Revision: 1.151 16.05.2002 $ */
 
 /*
 Modify:
+  16.05.2002 SVS
+    ! Лишние описания функций
   29.04.2002 SVS
     ! немного const
   27.04.2002 SVS
@@ -518,8 +520,6 @@ int CmpName(const char *pattern,const char *string,int skippath=TRUE);
 // обработать имя файла: сравнить с маской, масками, сгенерировать по маске
 int WINAPI ProcessName(const char *param1, char *param2, DWORD flags);
 /* IS $ */
-void ShowHeap();
-void CheckHeap(int NumLine=0);
 char* QuoteSpace(char *Str);
 /* $ 03.08.2001 IS функция заключения строки в кавычки */
 char *InsertQuote(char *Str);

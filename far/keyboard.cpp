@@ -5,10 +5,16 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.71 15.05.2002 $ */
+/* Revision: 1.72 16.05.2002 $ */
 
 /*
 Modify:
+  16.05.2002 SVS
+    - Фигня с мышью (пред.патч). Закомментим до лучших времен
+      (сразу и не заметил, т.к. на LeftAlt на было назначено макроса)
+    ! USE_WFUNC -> USE_WFUNC_IN, т.к. это совсем другая история
+      Т.е. вывод на экран - это одно, а вот ввод - совсем другое!
+      Если с выводом более менее ясно, то здесь полный бардак.
   15.05.2002 SVS
     ! Уточнения в WriteInput (особенно про Key > 255 :-)
     + В обработчике мыши... сравним Ctrl-keys и... если надо дадим сигнал на
@@ -463,7 +469,7 @@ int GetInputRecord(INPUT_RECORD *rec)
   SetFarConsoleMode();
   while (1)
   {
-#if defined(USE_WFUNC)
+#if defined(USE_WFUNC_IN)
     if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
       PeekConsoleInputW(hConInp,rec,1,&ReadCount);
     else
@@ -613,7 +619,7 @@ int GetInputRecord(INPUT_RECORD *rec)
     AltPressed=AltPressedLast=RightAltPressedLast=FALSE;
     LButtonPressed=RButtonPressed=MButtonPressed=FALSE;
     PressedLastTime=0;
-#if defined(USE_WFUNC)
+#if defined(USE_WFUNC_IN)
     if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
       ReadConsoleInputW(hConInp,rec,1,&ReadCount);
     else
@@ -714,7 +720,7 @@ int GetInputRecord(INPUT_RECORD *rec)
   if ((CalcKey>=' ' && CalcKey<256 || CalcKey==KEY_BS || GrayKey) &&
       CalcKey!=KEY_DEL && WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS)
   {
-#if defined(USE_WFUNC)
+#if defined(USE_WFUNC_IN)
     if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
       ReadConsoleW(hConInp,&ReadKey,1,&ReadCount,NULL);
     else
@@ -724,7 +730,7 @@ int GetInputRecord(INPUT_RECORD *rec)
 #endif
     if (ReadKey==13 && CalcKey!=KEY_ENTER)
     {
-#if defined(USE_WFUNC)
+#if defined(USE_WFUNC_IN)
       if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
         ReadConsoleW(hConInp,&ReadKey,1,&ReadCount,NULL);
       else
@@ -737,7 +743,7 @@ int GetInputRecord(INPUT_RECORD *rec)
   }
   else
   {
-#if defined(USE_WFUNC)
+#if defined(USE_WFUNC_IN)
     if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
       ReadConsoleInputW(hConInp,rec,1,&ReadCount);
     else
@@ -880,6 +886,7 @@ int GetInputRecord(INPUT_RECORD *rec)
 
     DWORD CtrlState=rec->Event.MouseEvent.dwControlKeyState;
 
+/*
     // Сигнал на прорисовку ;-) Помогает прорисовать кейбар при движении мышью
     if(CtrlState != (CtrlPressed|AltPressed|ShiftPressed))
     {
@@ -889,7 +896,7 @@ int GetInputRecord(INPUT_RECORD *rec)
       };
       DWORD WriteCount;
       TempRec[0].Event.KeyEvent.dwControlKeyState=TempRec[1].Event.KeyEvent.dwControlKeyState=CtrlState;
-      #if defined(USE_WFUNC)
+      #if defined(USE_WFUNC_IN)
       if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
         WriteConsoleInputW(hConInp,TempRec,2,&WriteCount);
       else
@@ -898,7 +905,7 @@ int GetInputRecord(INPUT_RECORD *rec)
       WriteConsoleInput(hConInp,TempRec,2,&WriteCount);
       #endif
     }
-
+*/
     CtrlPressed=(CtrlState & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED));
     AltPressed=(CtrlState & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED));
     ShiftPressed=(CtrlState & SHIFT_PRESSED);
@@ -991,7 +998,7 @@ int PeekInputRecord(INPUT_RECORD *rec)
   }
   else
   {
-#if defined(USE_WFUNC)
+#if defined(USE_WFUNC_IN)
     if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
       PeekConsoleInputW(hConInp,rec,1,&ReadCount);
     else
@@ -1060,7 +1067,7 @@ int WriteInput(int Key,DWORD Flags)
       Rec.Event.KeyEvent.uChar.UnicodeChar=Rec.Event.KeyEvent.uChar.AsciiChar=Key;
       Rec.Event.KeyEvent.dwControlKeyState=0;
     }
-#if defined(USE_WFUNC)
+#if defined(USE_WFUNC_IN)
     if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
       return WriteConsoleInputW(hConInp,&Rec,1,&WriteCount);
     else

@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.243 15.05.2002 $ */
+/* Revision: 1.244 16.05.2002 $ */
 
 /*
 Modify:
+  16.05.2002 SVS
+    - При отрисовки для DI_VTEXT была неопределена переменная LenText
   15.05.2002 SVS
     ! Вместо Edit юзаем новый класс DlgEdit
   11.05.2002 SVS
@@ -2364,8 +2366,9 @@ void Dialog::ShowDialog(int ID)
       case DI_VTEXT:
       {
         strncpy(Str,CurItem->Data,sizeof(Str)-1);
+        LenText=strlen(Str);//LenStrItem(I,Str);
         X=(CX1==-1)?(X2-X1+1)/2:CX1;
-        Y=(CY1==-1)?(Y2-Y1+1-strlen(Str))/2:CY1;
+        Y=(CY1==-1)?(Y2-Y1+1-LenText)/2:CY1;
         if(Y < 0)
           Y=0;
 

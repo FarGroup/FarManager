@@ -5,10 +5,13 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.93 11.04.2002 $ */
+/* Revision: 1.94 16.05.2002 $ */
 
 /*
 Modify:
+  15.05.2002 SVS
+    ! Вместо прямого присвоения значения переменной воспользуемся
+      вызовом функции
   11.04.2002 SVS
     + FCTL_GET[ANOTHER]PANELSHORTINFO
     + Проверка вида IsBadWritePtr(Param,sizeof(struct PanelInfo))
@@ -1388,8 +1391,9 @@ void Panel::Show()
     }
     if (AnotherPanel->GetFocus())
     {
-      if (AnotherPanel->IsFullScreen()){
-        Visible=TRUE;
+      if (AnotherPanel->IsFullScreen())
+      {
+        SetVisible(TRUE);
         return;
       }
       if (GetType()==FILE_PANEL && IsFullScreen())

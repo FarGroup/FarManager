@@ -5,10 +5,13 @@ global.cpp
 
 */
 
-/* Revision: 1.39 07.04.2002 $ */
+/* Revision: 1.40 16.05.2002 $ */
 
 /*
 Modify:
+  16.05.2002 SVS
+    + ProcessShowClock - "мы в часиках?"
+    ! _ВСЕ_ проинициализируем. Зодолбала "неизвестность"!
   07.04.2002 KM
     + IsRedrawFramesInProcess
   05.04.2002 SVS
@@ -117,7 +120,7 @@ Modify:
 
 OSVERSIONINFO WinVer={0};
 
-struct Options Opt;
+struct Options Opt={0};
 
 // функции шифрования (Win2K) назначены? (для SetAttr!)
 BOOL IsCryptFileASupport=FALSE;
@@ -151,17 +154,17 @@ int PrevLButtonPressed=0, PrevRButtonPressed=0, PrevMButtonPressed=0;
 int PrevMouseX=0,PrevMouseY=0,MouseX=0,MouseY=0;
 int PreMouseEventFlags=0,MouseEventFlags=0;
 
-CONSOLE_SCREEN_BUFFER_INFO InitScreenBufferInfo;
-CONSOLE_SCREEN_BUFFER_INFO CurScreenBufferInfo;
-int ScrX,ScrY;
-int PrevScrX,PrevScrY;
-HANDLE hConOut,hConInp;
+CONSOLE_SCREEN_BUFFER_INFO InitScreenBufferInfo={0};
+CONSOLE_SCREEN_BUFFER_INFO CurScreenBufferInfo={0};
+int ScrX=0,ScrY=0;
+int PrevScrX=0,PrevScrY=0;
+HANDLE hConOut=NULL,hConInp=NULL;
 
-clock_t StartIdleTime;
+clock_t StartIdleTime=0;
 
-DWORD InitialConsoleMode;
+DWORD InitialConsoleMode=0;
 
-clock_t StartExecTime;
+clock_t StartExecTime=0;
 
 char FarPath[NM];
 /* $ 03.08.2000 SVS
@@ -175,26 +178,26 @@ char RegColorsHighlight[]="Colors\\Highlight";
 
 
 char GlobalSearchString[SEARCHSTRINGBUFSIZE];
-int GlobalSearchCase;
+int GlobalSearchCase=FALSE;
 /* $ 29.07.2000 KM
    Глобальная переменная, хранящая значение "Whole words" для поиска
 */
-int GlobalSearchWholeWords;
+int GlobalSearchWholeWords=FALSE;
 /* KM $*/
-int GlobalSearchReverse;
+int GlobalSearchReverse=FALSE;
 
-int ScreenSaverActive;
+int ScreenSaverActive=FALSE;
 
-Editor *CurrentEditor;
+Editor *CurrentEditor=NULL;
 int CloseFAR=FALSE,CloseFARMenu=FALSE;
 
 // Про регистрацию
 int  RegVer;
 char RegName[256];
 
-int CmpNameSearchMode;
-int DisablePluginsOutput;
-int CmdMode;
+int CmpNameSearchMode=FALSE;
+int DisablePluginsOutput=FALSE;
+int CmdMode=FALSE;
 
 PISDEBUGGERPRESENT pIsDebuggerPresent=NULL;
 
@@ -210,5 +213,6 @@ const char DOS_EOL_fmt[]  ="\r\n",
 int OnliEditorViewerUsed=FALSE;
 
 BOOL ProcessException=FALSE;
+BOOL ProcessShowClock=FALSE;
 
 const char *FarTitleAddons=" - Far";

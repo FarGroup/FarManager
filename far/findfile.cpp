@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.112 15.05.2002 $ */
+/* Revision: 1.113 16.05.2002 $ */
 
 /*
 Modify:
+  16.05.2002 SVS
+    ! Нужно вместо GetPathRoot в поисковике юзать GetPathRootOne
   15.05.2002 SKV
     + зафиксируем вход в модальный редактор
   06.05.2002 SVS
@@ -1695,7 +1697,7 @@ void _cdecl FindFiles::PrepareFilesList(void *Param)
     }
     else
       if (SearchMode==SEARCH_ROOT)
-        GetPathRoot(Root,Root);
+        GetPathRootOne(Root,Root);
 
     ScanTree ScTree(FALSE,SearchMode!=SEARCH_CURRENT_ONLY);
 
@@ -2551,7 +2553,7 @@ char *FindFiles::PrepareDriveNameStr(char *SearchFromRoot,size_t sz)
   PluginMode=ActivePanel->GetMode()==PLUGIN_PANEL && ActivePanel->IsVisible();
 
   CtrlObject->CmdLine->GetCurDir(CurDir);
-  GetPathRoot(CurDir,CurDir);
+  GetPathRootOne(CurDir,CurDir);
   if (CurDir[strlen(CurDir)-1]=='\\')
     CurDir[strlen(CurDir)-1]=0;
 
