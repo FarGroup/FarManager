@@ -1,6 +1,6 @@
 .Language=English,English
 @Contents
-$^#FAR version 1.70 beta 1. File and archive manager.#
+$^#FAR version 1.70 beta 2. File and archive manager.#
 $^#Copyright (C) 1996-2000 Eugene Roshal.#
 $^#Copyright (C) 2000 FAR Group.#
    ~How to use help~@Help@
@@ -792,7 +792,7 @@ With "Table" button it is possible to change the character table for the
 text search. Option "Use all installed character tables" forces usage of
 all available to Far tables to search text in files with different coding.
 Set "Search in archives" to search also in known to FAR archive formats,
-but note that this option significantly decreases oepration performance.
+but note that this option significantly decreases operation performance.
 FAR cannot search in nested archives.
 
     Search may be performed in all non-removable disks, in all folders
@@ -992,7 +992,7 @@ $ #System settings dialog#
 
   #Use system copy#         Use Windows function CopyFileEx
   #routine#                 (or CopyFile if CopyFileEx not available)
-                          instead of internal copy implemenation
+                          instead of internal copy implementation
                           to copy files. It may be useful on NTFS,
                           because CopyFileEx performs a more rational
                           disk space allocation and copies file
@@ -1212,7 +1212,7 @@ $ #Go to specified position
   Decimal values values you must specified in form NNNNd.
 
   Examples
-   #50%#                     Go to midle of file (50%)
+   #50%#                     Go to middle of file (50%)
    #-10%#                    Go to 10% percent back from current offset
                            If were was 50%, will be 40%
    #0x100#                   Go to 0x100 (256) offset
@@ -1315,12 +1315,12 @@ $ #Internal editor#
 $ #Go to specified line and column#
  This dialog allows change position in internal editor.
 
- You can enter row or col, or both.
+ You can enter #row# or #col#, or both.
 
  Fist number interpreted as a ROW number, second as a COL.
- Number must delemited one of follow chars - "," "." ";" ":" or space.
+ Number must delimited one of follow chars - "," "." ";" ":" or space.
 
- If you enter value in form ",Col", editor jump to COl in current line.
+ If you enter value in form ",Col", editor jump to COL in current line.
 
  If you enter row with "%" at end, editor jump to percent.
  Enter #50%# and editor jump to middle of text.
@@ -1420,7 +1420,7 @@ $ #Viewer settings#
   #Tab size#                Tab display spacing.
 
   #Show scrollbar#          Show scrollbar in internal viewer. This option
-                          also can be swithced by Ctrl-S in internal viewer.
+                          also can be switched by Ctrl-S in internal viewer.
 
   #Show arrows#             Show scrolling arrows in viewer.
 
@@ -1788,7 +1788,7 @@ of updating is more than date and time of updating of a target file.
 
     Option "Use system copy routine" from ~System settings~@SystemSettings@
 dialog forces the Windows function CopyFileEx usage (or CopyFile if CopyFileEx
-not available) instead of the internal copy implemenation to copy files.
+not available) instead of the internal copy implementation to copy files.
 It may be useful on NTFS, because CopyFileEx performs a more rational
 disk space allocation and copies file extended attributes.
 
