@@ -4,10 +4,12 @@ farrtl.cpp
 Переопределение функций работы с памятью: new/delete/malloc/realloc/free
 */
 
-/* Revision: 1.19 06.08.2004 $ */
+/* Revision: 1.20 09.08.2004 $ */
 
 /*
 Modify:
+  09.08.2004 SKV
+    - ftell64, fseek64 fix.
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   01.06.2003 SVS
@@ -249,13 +251,36 @@ __int64 ftell64(FILE *fp)
 __int64 ftell64(FILE *fp)
 {
   //return _ftelli64(fp);
-  return _telli64(fileno(fp));
+  //return _telli64(fileno(fp));
+  fpos_t pos;
+  if(fgetpos(fp,&pos)!=0)return 0;
+  return pos;
 }
 
 int fseek64 (FILE *fp, __int64 offset, int whence)
 {
   //return _fseeki64(fp,offset,whence);
-  return _lseeki64(fileno(fp),offset,whence);
+  //return _lseeki64(fileno(fp),offset,whence);
+  switch(whence)
+  {
+    case SEEK_SET:return fsetpos(fp,&offset);
+    case SEEK_CUR:
+    {
+      fpos_t pos;
+      fgetpos(fp,&pos);
+      pos+=offset;
+      return fsetpos(fp,&pos);
+    }
+    case SEEK_END:
+    {
+      fpos_t pos;
+      fseek(fp,0,SEEK_END);
+      fgetpos(fp,&pos);
+      pos+=offset;
+      return fsetpos(fp,&pos);
+    }
+  }
+  return -1;
 }
 
 #endif
