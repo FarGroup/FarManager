@@ -6,10 +6,15 @@ editor.cpp
 
 */
 
-/* Revision: 1.230 08.09.2003 $ */
+/* Revision: 1.231 12.09.2003 $ */
 
 /*
 Modify:
+  12.09.2003 SVS
+    ! Динамически выделим буфер при вставке Plain-text от макроса.
+      Для этого воспользуемся новой функцией
+      CtrlObject->Macro.GetMacroPlainTextSize(), чтобы получить
+      размер строки.
   08.09.2003 SVS
     + Обработка KEY_MACROPLAINTEXT
   02.09.2003 SKV
@@ -3235,9 +3240,19 @@ int Editor::ProcessKey(int Key)
     {
       if (!Flags.Check(FEDITOR_LOCKMODE))
       {
-        char TStr[NM],Fmt[NM];
+        char *Fmt=NULL;
+        int SizeMacroText=CtrlObject->Macro.GetMacroPlainTextSize();
+        char *TStr=(char*)alloca(SizeMacroText+8);
+        if(!TStr)
+          return(FALSE);
+
+        if(Key == KEY_MACRODATE)
+          Fmt=(char*)alloca(SizeMacroText+8);
+        if(Key == KEY_MACRODATE && !Fmt)
+          return(FALSE);
+
         CtrlObject->Macro.GetMacroPlainText((Key == KEY_MACROPLAINTEXT?TStr:Fmt));
-        if(Key == KEY_MACROPLAINTEXT || MkStrFTime(TStr,sizeof(TStr),Fmt))
+        if(Key == KEY_MACROPLAINTEXT || MkStrFTime(TStr,SizeMacroText+8,Fmt))
         {
           char *Ptr=TStr;
           while(*Ptr) // заменим 0x0A на 0x0D по правилам Paset ;-)

@@ -5,10 +5,12 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.43 06.06.2003 $ */
+/* Revision: 1.44 12.09.2003 $ */
 
 /*
 Modify:
+  12.09.2003 SVS
+    ! Немного увеличим буфер для GetPathRootOne
   06.06.2003 SVS
     + сброс кэша SID`ов
   25.02.2003 SVS
@@ -244,17 +246,19 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
   char SaveDir[NM];
   *(int*)SaveDir=0;
   FarGetCurDir(NM, SaveDir);
-  char OldCurDir[NM];
-  strncpy(OldCurDir, CurDir, NM-1);
-  if (!SetCurPath())
   {
-    if (strcmp(CurDir, OldCurDir) == 0)
+    char OldCurDir[NM*2];
+    strncpy(OldCurDir, CurDir, NM-1);
+    if (!SetCurPath())
     {
-      GetPathRootOne(OldCurDir,OldCurDir);
-      if(!IsDiskInDrive(OldCurDir))
-        IfGoHome(*OldCurDir);
-      /* При смене каталога путь не изменился */
-      return;
+      if (strcmp(CurDir, OldCurDir) == 0)
+      {
+        GetPathRootOne(OldCurDir,OldCurDir);
+        if(!IsDiskInDrive(OldCurDir))
+          IfGoHome(*OldCurDir);
+        /* При смене каталога путь не изменился */
+        return;
+      }
     }
   }
 

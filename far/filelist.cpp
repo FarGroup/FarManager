@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.189 04.09.2003 $ */
+/* Revision: 1.190 12.09.2003 $ */
 
 /*
 Modify:
+  12.09.2003 SVS
+    ! В FileList::ProcessKey() после редактирования файла с плагиновой
+      панели фунция PutFiles() вызывалась без флага OPM_EDIT
   04.09.2003 SVS
     ! Вместо юзания CompareFileTime() применим трюк с сортировщиком файлов:
       приведем FILETIME к __int64
@@ -1764,6 +1767,7 @@ int FileList::ProcessKey(int Key)
                Processed=TRUE;
 
             if (!Processed || Key==KEY_CTRLSHIFTF4)
+            {
             /* IS $ */
               if (EnableExternal)
                 /* $ 24.11.200 IS
@@ -1771,44 +1775,47 @@ int FileList::ProcessKey(int Key)
                 */
                 ProcessExternal(Opt.ExternalEditor,FileName,ShortFileName,PluginMode);
                 /* IS $ */
+              else if (PluginMode)
+              {
+                FileEditor ShellEditor (FileName,Key==KEY_SHIFTF4,FALSE,-1,-1,TRUE,PluginData);
+                //FileEditor ShellEditor (GetShowShortNamesMode()?ShortFileName:FileName,Key==KEY_SHIFTF4,FALSE,-1,-1,TRUE,PluginData);
+                ShellEditor.SetDynamicallyBorn(false);
+                FrameManager->EnterModalEV();
+                FrameManager->ExecuteModal();//OT
+                FrameManager->ExitModalEV();
+                /* $ 24.11.2001 IS
+                     Если мы создали новый файл, то не важно, изменялся он
+                     или нет, все равно добавим его на панель плагина.
+                */
+                UploadFile=ShellEditor.IsFileChanged() || NewFile;
+                /* IS $ */
+                Modaling=TRUE;///
+              }
               else
-                if (PluginMode)
+              {
+                NamesList EditList;
+                if (!PluginMode)
                 {
-                  FileEditor ShellEditor (FileName,Key==KEY_SHIFTF4,FALSE,-1,-1,TRUE,PluginData);
-                  //FileEditor ShellEditor (GetShowShortNamesMode()?ShortFileName:FileName,Key==KEY_SHIFTF4,FALSE,-1,-1,TRUE,PluginData);
-                  ShellEditor.SetDynamicallyBorn(false);
-                  FrameManager->EnterModalEV();
-                  FrameManager->ExecuteModal();//OT
-                  FrameManager->ExitModalEV();
-                  /* $ 24.11.2001 IS
-                       Если мы создали новый файл, то не важно, изменялся он
-                       или нет, все равно добавим его на панель плагина.
-                  */
-                  UploadFile=ShellEditor.IsFileChanged() || NewFile;
-                  /* IS $ */
-                  Modaling=TRUE;///
+                  for (int I=0;I<FileCount;I++)
+                    if ((ListData[I].FileAttr & FA_DIREC)==0)
+                      EditList.AddName(ListData[I].Name);
+                  EditList.SetCurDir(CurDir);
+                  EditList.SetCurName(FileName);
                 }
-                else
-                {
-                  NamesList EditList;
-                  if (!PluginMode)
-                  {
-                    for (int I=0;I<FileCount;I++)
-                      if ((ListData[I].FileAttr & FA_DIREC)==0)
-                        EditList.AddName(ListData[I].Name);
-                    EditList.SetCurDir(CurDir);
-                    EditList.SetCurName(FileName);
-                  }
-                  FileEditor *ShellEditor=new FileEditor(FileName,Key==KEY_SHIFTF4,TRUE);
-                  //FileEditor *ShellEditor=new FileEditor(GetShowShortNamesMode()?ShortFileName:FileName,Key==KEY_SHIFTF4,TRUE);
-                  ShellEditor->SetNamesList (&EditList);
-                  FrameManager->ExecuteModal();//OT
-                }
+                FileEditor *ShellEditor=new FileEditor(FileName,Key==KEY_SHIFTF4,TRUE);
+                //FileEditor *ShellEditor=new FileEditor(GetShowShortNamesMode()?ShortFileName:FileName,Key==KEY_SHIFTF4,TRUE);
+                ShellEditor->SetNamesList (&EditList);
+                FrameManager->ExecuteModal();//OT
+              }
+            }
+
             if (PluginMode && UploadFile)
             {
               struct PluginPanelItem PanelItem;
               char SaveDir[NM];
+
               FarGetCurDir(sizeof(SaveDir),SaveDir);
+
               if (GetFileAttributes(TempName)==0xffffffff)
               {
                 char FindName[NM];
@@ -1816,6 +1823,7 @@ int FileList::ProcessKey(int Key)
                 strcpy(PointToName(FindName),"*");
                 HANDLE FindHandle;
                 WIN32_FIND_DATA FindData;
+
                 bool Done=((FindHandle=FindFirstFile(FindName,&FindData))==INVALID_HANDLE_VALUE);
                 while (!Done)
                 {
@@ -1828,14 +1836,16 @@ int FileList::ProcessKey(int Key)
                 }
                 FindClose(FindHandle);
               }
+
               if (FileNameToPluginItem(TempName,&PanelItem))
               {
-                int PutCode=CtrlObject->Plugins.PutFiles(hPlugin,&PanelItem,1,FALSE,0);
+                int PutCode=CtrlObject->Plugins.PutFiles(hPlugin,&PanelItem,1,FALSE,OPM_EDIT);
                 if (PutCode==1 || PutCode==2)
                   SetPluginModified();
                 if (PutCode==0)
                   UploadFailed=TRUE;
               }
+
               FarChDir(SaveDir);
             }
           }

@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.141 20.06.2003 $ */
+/* Revision: 1.142 12.09.2003 $ */
 
 /*
 Modify:
+  12.09.2003 SVS
+    ! Немного увеличим буфер для GetPathRootOne
   20.06.2003 SVS
     ! _beginthread(WriteDialogData... перемещен после запуска нитей-сборщиков
     ! Костыль:
@@ -1877,7 +1879,7 @@ void FindFiles::SetPluginDirectory(char *DirName,HANDLE hPlugin,int UpdatePanel)
 void _cdecl FindFiles::PrepareFilesList(void *Param)
 {
   WIN32_FIND_DATA FindData;
-  char FullName[NM],Root[NM];
+  char FullName[NM],Root[NM*2];
 
   PrepareFilesListUsed++;
   DWORD DiskMask=FarGetLogicalDrives();

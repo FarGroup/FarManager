@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.101 09.09.2003 $ */
+/* Revision: 1.102 12.09.2003 $ */
 
 /*
 Modify:
+  12.09.2003 SVS
+    + Добавлена функция KeyMacro::GetMacroPlainTextSize() - размер plain-text
   09.09.2003 SVS
     - Переполнение буфера при анализе макроса в функции KeyMacro::ParseMacroString
       Сделаем CurKeyText динамическим
@@ -782,6 +784,12 @@ char *KeyMacro::GetMacroPlainText(char *Dest)
   else
     ExecKeyPos++;
   return NULL;
+}
+
+int KeyMacro::GetMacroPlainTextSize()
+{
+  struct MacroRecord *MR=!MacroRAM?MacroPROM+ExecMacroPos:MacroRAM;
+  return strlen((char*)&MR->Buffer[ExecKeyPos]);
 }
 
 BOOL KeyMacro::IfCondition(DWORD Key,DWORD Flags,DWORD Code)

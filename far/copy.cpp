@@ -5,10 +5,13 @@ copy.cpp
 
 */
 
-/* Revision: 1.126 04.09.2003 $ */
+/* Revision: 1.127 12.09.2003 $ */
 
 /*
 Modify:
+  12.09.2003 SVS
+    - BugZ#947 - Траблы с переименованием по Shift-F6...
+      проверим "нужность" апдейта пассивной панели
   04.09.2003 SVS
     ! Вместо юзания CompareFileTime() применим трюк с сортировщиком файлов:
       приведем FILETIME к __int64
@@ -1105,9 +1108,12 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     }
   }
 #endif
-
-  DestPanel->SortFileList(TRUE);
-  DestPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
+  // проверим "нужность" апдейта пассивной панели
+  if(CheckUpdateAnotherPanel(SrcPanel,SrcDir))
+  {
+    DestPanel->SortFileList(TRUE);
+    DestPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
+  }
 
   if(SrcPanelMode == PLUGIN_PANEL)
     SrcPanel->SetPluginModified();

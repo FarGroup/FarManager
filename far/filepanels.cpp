@@ -5,10 +5,14 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.49 02.09.2003 $ */
+/* Revision: 1.50 12.09.2003 $ */
 
 /*
 Modify:
+  12.09.2003 SVS
+    - BugZ#952 - не восстанавливаются сохраненные дириктории на панелях.
+      В FilePanels::Init() каталоги Opt.LeftFolder и Opt.RightFolder
+      инициализировались только если включена опция автосохранения.
   02.09.2003 SVS
     ! Изменения в PrepareOptFolder:
       1. уберем "задний" слеш (иначе не будет ".." для некорневого каталога)
@@ -233,14 +237,15 @@ void FilePanels::Init()
   PrepareOptFolder(Opt.RightFolder,sizeof(Opt.RightFolder),IsLocalPath_FarPath);
   PrepareOptFolder(Opt.PassiveFolder,sizeof(Opt.PassiveFolder),IsLocalPath_FarPath);
 
-  if (Opt.AutoSaveSetup)
+  if (Opt.AutoSaveSetup || !Opt.SetupArgv)
   {
     if (GetFileAttributes(Opt.LeftFolder)!=0xffffffff)
       LeftPanel->InitCurDir(Opt.LeftFolder);
     if (GetFileAttributes(Opt.RightFolder)!=0xffffffff)
       RightPanel->InitCurDir(Opt.RightFolder);
   }
-  else
+
+  if (!Opt.AutoSaveSetup)
   {
     if(Opt.SetupArgv >= 1)
     {

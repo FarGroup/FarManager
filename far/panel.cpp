@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.112 04.06.2003 $ */
+/* Revision: 1.113 12.09.2003 $ */
 
 /*
 Modify:
+  12.09.2003 SVS
+    ! Уточнение логики Panel::SetCurPath().
   04.06.2003 SVS
     ! Уберем двойные '**' при обработке FastFind
   08.05.2003 SVS
@@ -1611,12 +1613,28 @@ int  Panel::SetCurPath()
       GetPathRoot(CurDir,Root);
       if(GetDriveType(Root) == DRIVE_REMOVABLE && !IsDiskInDrive(Root))
         IsChangeDisk=TRUE;
-      else if(CheckFolder(CurDir) == CHKFLD_NOTACCESS)
+      else
       {
-        if(FarChDir(Root))
-          SetCurDir(Root,TRUE);
-        else
-          IsChangeDisk=TRUE;
+        int Result=CheckFolder(CurDir);
+        if(Result == CHKFLD_NOTACCESS)
+        {
+          if(FarChDir(Root))
+            SetCurDir(Root,TRUE);
+          else
+            IsChangeDisk=TRUE;
+        }
+        else if(Result == CHKFLD_NOTFOUND)
+        {
+          if(CheckShortcutFolder(CurDir,sizeof(CurDir)-1,FALSE,TRUE))
+          {
+            if(FarChDir(CurDir))
+              SetCurDir(CurDir,TRUE);
+            else
+              IsChangeDisk=TRUE;
+          }
+          else
+            IsChangeDisk=TRUE;
+        }
       }
       if(IsChangeDisk)
         ChangeDisk();

@@ -5,10 +5,18 @@ mix.cpp
 
 */
 
-/* Revision: 1.147 02.09.2003 $ */
+/* Revision: 1.148 12.09.2003 $ */
 
 /*
 Modify:
+  12.09.2003 SVS
+    ! уточнение логики CheckFolder, т.к. конструкция
+      GetPathRootOne(Path,FindPath);
+      if(GetFileAttributes(FindPath)!=0xFFFFFFFF)
+        return CHKFLD_EMPTY;
+      предполагалась для корневого каталога, но работала в т.ч. и для
+      несушествующей папки.
+    - BugZ#951 - падает при работе с длинным(?) dns-именем
   02.09.2003 SVS
     ! Очередное уточнение CheckFolder() - думаю последнее :-)
   02.09.2003 SVS
@@ -503,6 +511,9 @@ __int64 filelen64(FILE *FPtr)
 */
 BOOL FarChDir(const char *NewDir, BOOL ChangeDir)
 {
+  if(!NewDir || *NewDir == 0)
+    return FALSE;
+
   BOOL rc=FALSE;
   int ChkFld;
   char CurDir[NM*2], Drive[4]="=A:";
@@ -1006,6 +1017,7 @@ int GetPluginDirInfo(HANDLE hPlugin,char *DirName,unsigned long &DirCount,
 /*
   Функция CheckFolder возвращает одно состояний тестируемого каталога:
 
+    CHKFLD_NOTFOUND   (2) - нет такого
     CHKFLD_NOTEMPTY   (1) - не пусто
     CHKFLD_EMPTY      (0) - пусто
     CHKFLD_NOTACCESS (-1) - нет доступа
@@ -1016,7 +1028,8 @@ int CheckFolder(const char *Path)
   if(!(Path || *Path)) // проверка на вшивость
     return CHKFLD_ERROR;
 
-  char *FindPath=(char *)alloca(strlen(Path)+8); // здесь alloca - чтобы _точно_ хватило на все про все.
+  int LenFindPath=Max((int)strlen(Path),2048)+8;
+  char *FindPath=(char *)alloca(LenFindPath); // здесь alloca - чтобы _точно_ хватило на все про все.
   if(!FindPath)
     return CHKFLD_ERROR;
 
@@ -1035,10 +1048,18 @@ int CheckFolder(const char *Path)
     // собственно... не факт, что диск не читаем, т.к. на чистом диске в корне нету даже "."
     // поэтому посмотрим на Root
     GetPathRootOne(Path,FindPath);
-
-    // проверка атрибутов гарантировано скажет - это бага BugZ#743 или пустой корень диска.
-    if(GetFileAttributes(FindPath)!=0xFFFFFFFF)
-      return CHKFLD_EMPTY;
+    if(!strcmp(Path,FindPath))
+    {
+      // проверка атрибутов гарантировано скажет - это бага BugZ#743 или пустой корень диска.
+      if(GetFileAttributes(FindPath)!=0xFFFFFFFF)
+        return CHKFLD_EMPTY;
+    }
+    strcpy(FindPath,Path);
+    if(CheckShortcutFolder(FindPath,LenFindPath,FALSE,TRUE))
+    {
+      if(strcmp(Path,FindPath))
+        return CHKFLD_NOTFOUND;
+    }
 
     return CHKFLD_NOTACCESS;
   }

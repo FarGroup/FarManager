@@ -5,10 +5,12 @@ cvtname.cpp
 
 */
 
-/* Revision: 1.08 14.06.2003 $ */
+/* Revision: 1.09 12.09.2003 $ */
 
 /*
 Modify:
+  12.09.2003 SVS
+    ! Немного увеличим буфер для GetPathRootOne
   14.06.2003 IS
     ! ConvertNameToReal - для нелокальных дисков даже и не пытаемся анализировать
       симлинки, т.к. это все равно бесполезно
@@ -362,7 +364,7 @@ int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize)
             // для случая монтированного диска (не имеющего букву)...
             if(!strncmp(TempDest2+4,"Volume{",7))
             {
-              char JuncRoot[NM];
+              char JuncRoot[NM*2];
               JuncRoot[0]=JuncRoot[1]=0;
               // получим либо букву диска, либо...
               GetPathRootOne(TempDest2+4,JuncRoot);

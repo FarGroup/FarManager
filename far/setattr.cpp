@@ -5,10 +5,12 @@ setattr.cpp
 
 */
 
-/* Revision: 1.58 04.09.2003 $ */
+/* Revision: 1.59 12.09.2003 $ */
 
 /*
 Modify:
+  12.09.2003 SVS
+    ! Немного увеличим буфер для GetPathRootOne
   04.09.2003 SVS
     ! Вместо юзания CompareFileTime() применим трюк с сортировщиком файлов:
       приведем FILETIME к __int64
@@ -725,7 +727,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           int ID_Msg, Width;
           if(!strncmp(JuncName+4,"Volume{",7))
           {
-            char JuncRoot[NM];
+            char JuncRoot[NM*2];
             JuncRoot[0]=JuncRoot[1]=0;
             GetPathRootOne(JuncName+4,JuncRoot);
             if(JuncRoot[1] == ':')

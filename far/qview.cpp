@@ -5,10 +5,12 @@ Quick view panel
 
 */
 
-/* Revision: 1.32 06.05.2003 $ */
+/* Revision: 1.33 12.09.2003 $ */
 
 /*
 Modify:
+  12.09.2003 SVS
+    ! Немного увеличим буфер для GetPathRootOne
   06.05.2003 SVS
     + Фича: показ Ratio (задолбался сегодня на калькуляторе считать ;-(
   26.02.2003 SVS
@@ -195,7 +197,7 @@ void QuickView::DisplayObject()
       {
         if(!strncmp(JuncName+4,"Volume{",7))
         {
-          char JuncRoot[NM];
+          char JuncRoot[NM*2];
           JuncRoot[0]=JuncRoot[1]=0;
           GetPathRootOne(JuncName+4,JuncRoot);
           if(JuncRoot[1] == ':')

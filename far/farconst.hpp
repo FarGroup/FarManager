@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.73 03.09.2003 $ */
+/* Revision: 1.74 12.09.2003 $ */
 
 /*
 Modify:
+  12.09.2003 SVS
+    + CHKFLD_NOTFOUND - "нет такого каталога"
   03.09.2003 SVS
     + QUOTEDNAMETYPE
   02.09.2003 SVS
@@ -426,6 +428,7 @@ enum CHECKFOLDERCONST{ // for CheckFolder()
   CHKFLD_NOTACCESS = -1,
   CHKFLD_EMPTY     =  0,
   CHKFLD_NOTEMPTY  =  1,
+  CHKFLD_NOTFOUND  =  2,
 };
 
 typedef union {

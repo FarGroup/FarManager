@@ -7,10 +7,12 @@ macro.hpp
 
 */
 
-/* Revision: 1.25 15.07.2003 $ */
+/* Revision: 1.26 12.09.2003 $ */
 
 /*
 Modify:
+  12.09.2003 SVS
+    + Добавлена функция KeyMacro::GetMacroPlainTextSize() - размер plain-text
   15.07.2003 SVS
     + KeyMacro::CheckInsidePlugin() - "мы внутри плагина?"
     + KeyMacro::DropProcess() - прервать текущий исполняемый макрос.
@@ -190,6 +192,7 @@ class KeyMacro
     int GetRecordSize(int Key, int Mode);
 
     char *GetMacroPlainText(char *Dest);
+    int   GetMacroPlainTextSize();
 
     void SetRedrawEditor(int Sets){IsRedrawEditor=Sets;}
 
