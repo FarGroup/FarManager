@@ -7,10 +7,12 @@ macro.hpp
 
 */
 
-/* Revision: 1.32 15.12.2003 $ */
+/* Revision: 1.33 26.05.2004 $ */
 
 /*
 Modify:
+  26.05.2004 SVS
+    ! MkTextSequence() - третий параметр - некомпиленный текст макроса
   15.12.2003 SVS
     ! Структура MacroRecord увеличена в размере (задел на будущее)
   28.10.2003 SVS
@@ -116,7 +118,7 @@ struct MacroRecord
   DWORD  Reserved[3];   // зарезервировано
 };
 
-#define STACKLEVEL	16
+#define STACKLEVEL      16
 
 struct MacroState
 {
@@ -236,10 +238,10 @@ class KeyMacro
     static char* GetSubKey(int Mode);
     static int   GetSubKey(char *Mode);
     static int   GetMacroKeyInfo(int Mode,int Pos,char *KeyName,char *Description,int DescriptionSize);
-    static char *MkTextSequence(DWORD *Buffer,int BufferSize);
+    static char *MkTextSequence(DWORD *Buffer,int BufferSize,const char *Src=NULL);
     // из строкового представления макроса сделать MacroRecord
     int ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr);
     void DropProcess();
 };
 
-#endif	// __KEYMACRO_HPP__
+#endif // __KEYMACRO_HPP__

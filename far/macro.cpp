@@ -5,10 +5,16 @@ macro.cpp
 
 */
 
-/* Revision: 1.117 11.05.2004 $ */
+/* Revision: 1.118 26.05.2004 $ */
 
 /*
 Modify:
+  26.05.2004 SVS
+    ! MkTextSequence() - третий параметр - некомпиленный текст макроса
+    ! В ReadMacros запоминается исходный текст макроса
+    ! В SaveMacros макрос не компилится, а берется исходный текст макроса
+    ! Декомпилится только простой макрос и только в момент записи! Это нужно для
+      второй версии движка... все равно $If и еже с ним с клавиатуры не введешь.
   11.05.2004 SVS
     + $IClip, IClip - работа с внутренним клипбордом
   14.04.2004 SVS
@@ -771,7 +777,9 @@ int KeyMacro::ProcessKey(int Key)
       InternalInput=FALSE;
 
       if (MacroKey==(DWORD)-1)
-        xf_free(RecBuffer);
+      {
+        if(RecBuffer)  xf_free(RecBuffer);
+      }
       else
       {
         int Pos;
@@ -796,13 +804,13 @@ int KeyMacro::ProcessKey(int Key)
           if(MacroLIB[Pos].Src)
             xf_free(MacroLIB[Pos].Src);
         }
-        MacroLIB[Pos].Src=NULL;
         MacroLIB[Pos].Key=MacroKey;
         if(RecBufferSize > 1)
           MacroLIB[Pos].Buffer=RecBuffer;
         else if(RecBuffer)
           MacroLIB[Pos].Buffer=reinterpret_cast<DWORD*>(*RecBuffer);
         MacroLIB[Pos].BufferSize=RecBufferSize;
+        MacroLIB[Pos].Src=MkTextSequence(MacroLIB[Pos].Buffer,MacroLIB[Pos].BufferSize);
         MacroLIB[Pos].Flags=Flags|(StartMode&MFLAGS_MODEMASK)|MFLAGS_NEEDSAVEMACRO|(Recording==MACROMODE_RECORDING_COMMON?0:MFLAGS_NOSENDKEYSTOPLUGINS);
       }
 
@@ -1443,8 +1451,12 @@ char *KeyMacro::MkRegKeyName(int IdxMacro,char *RegKeyName)
   return RegKeyName;
 }
 
-// после вызова этой функции нужно удалить память!!!
-char *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize)
+/*
+  после вызова этой функции нужно удалить память!!!
+  функция декомпилит только простые последовательности, т.к.... клавиши
+  в противном случае возвращает Src
+*/
+char *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize,const char *Src)
 {
   int I,J, Key;
   char MacroKeyText[50], *TextBuffer;
@@ -1457,9 +1469,16 @@ char *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize)
 
   if(BufferSize == 1)
   {
+    if((((DWORD)Buffer)&KEY_MACRO_ENDBASE) >= KEY_MACRO_BASE && (((DWORD)Buffer)&KEY_MACRO_ENDBASE) <= KEY_MACRO_ENDBASE)
+    {
+      xf_free(TextBuffer);
+      return Src?strdup(Src):NULL;
+    }
+
     //if(KeyToText(((DWORD)Buffer)&(~MCODE_OP_SENDKEY),MacroKeyText))
     if(KeyToText((DWORD)Buffer,MacroKeyText))
       strcpy(TextBuffer,MacroKeyText);
+
     return TextBuffer;
   }
 
@@ -1467,6 +1486,12 @@ char *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize)
   {
     Key=Buffer[J];
     //if(Key&MCODE_OP_SENDKEY) Key&=~MCODE_OP_SENDKEY;
+
+    if((Key&KEY_MACRO_ENDBASE) >= KEY_MACRO_BASE && (Key&KEY_MACRO_ENDBASE) <= KEY_MACRO_ENDBASE || (Key&MCODE_OP_JMP))
+    {
+      xf_free(TextBuffer);
+      return Src?strdup(Src):NULL;
+    }
 
     if(Key&MCODE_OP_JMP)
     {
@@ -1480,6 +1505,7 @@ char *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize)
         strcat(TextBuffer," ");
       strcat(TextBuffer,MacroKeyText);
 
+#if 0
       switch(Key)
       {
         /* $If Condition $Then Seq_then [$Else Seq_else] $EndIf
@@ -1598,6 +1624,7 @@ char *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize)
         }
 
       }
+#endif
     }
   }
   return TextBuffer;
@@ -1615,19 +1642,22 @@ void KeyMacro::SaveMacros(BOOL AllSaved)
 
     MkRegKeyName(I,RegKeyName);
 
-    if (MacroLIB[I].BufferSize==0)
+    if (MacroLIB[I].BufferSize==0 || !MacroLIB[I].Src)
     {
       DeleteRegKey(RegKeyName);
       continue;
     }
-
-    if((TextBuffer=MkTextSequence(MacroLIB[I].Buffer,MacroLIB[I].BufferSize)) == NULL)
+#if 0
+    if((TextBuffer=MkTextSequence(MacroLIB[I].Buffer,MacroLIB[I].BufferSize,MacroLIB[I].Src)) == NULL)
       continue;
 
     SetRegKey(RegKeyName,"Sequence",TextBuffer);
+
     //_SVS(SysLog("%3d) %s|Sequence='%s'",I,RegKeyName,TextBuffer));
     if(TextBuffer)
       xf_free(TextBuffer);
+#endif
+    SetRegKey(RegKeyName,"Sequence",MacroLIB[I].Src);
 
     // подсократим кодУ...
     for(int J=0; J < sizeof(MKeywordsFlags)/sizeof(MKeywordsFlags[0]); ++J)
@@ -1688,13 +1718,16 @@ int KeyMacro::ReadMacros(int ReadMode,char *Buffer,int BufferSize)
     if (KeyCode==-1)
       continue;
 
+    GetRegKey(RegKeyName,"Sequence",Buffer,"",BufferSize);
+    RemoveExternalSpaces(Buffer);
+    if(!strlen(Buffer))
+      continue;
+
     CurMacro.Key=KeyCode;
     CurMacro.Buffer=NULL;
+    CurMacro.Src=NULL;
     CurMacro.BufferSize=0;
     CurMacro.Flags=MFlags|(ReadMode&MFLAGS_MODEMASK);
-    GetRegKey(RegKeyName,"Sequence",Buffer,"",BufferSize);
-    CurMacro.Src=NULL;
-    //CurMacro.Src=strdup(Buffer);
 
     for(J=0; J < sizeof(MKeywordsFlags)/sizeof(MKeywordsFlags[0]); ++J)
       CurMacro.Flags|=GetRegKey(RegKeyName,MKeywordsFlags[J].Name,0)?MKeywordsFlags[J].Value:0;
@@ -1722,6 +1755,7 @@ int KeyMacro::ReadMacros(int ReadMode,char *Buffer,int BufferSize)
       return FALSE;
     }
     MacroLIB=NewMacros;
+    CurMacro.Src=strdup(Buffer);
     memcpy(MacroLIB+MacroLIBCount,&CurMacro,sizeof(CurMacro));
     MacroLIBCount++;
   }
@@ -1866,6 +1900,7 @@ M1:
 
       MacroDlg->MkRegKeyName(Index,RegKeyName);
       // берем из памяти.
+#if 0
       if((TextBuffer=MacroDlg->MkTextSequence(Mac->Buffer,Mac->BufferSize)) != NULL)
       {
         int F=0;
@@ -1877,7 +1912,18 @@ M1:
       }
       else
         BufKey[0]=0;
-
+#else
+      if(Mac->Src != NULL)
+      {
+        int F=0;
+        I=strlen(Mac->Src);
+        if(I > 45) { I=45; F++; }
+        sprintf(Buf,"\"%*.*s%s\"",I,I,Mac->Src,(F?"...":""));
+        strcpy(BufKey,Buf);
+      }
+      else
+        BufKey[0]=0;
+#endif
       sprintf(Buf,
         MSG(!MacroDlg->RecBufferSize?
            (DisFlags?MMacroDeleteAssign:MMacroDeleteKey):
@@ -2208,6 +2254,7 @@ int KeyMacro::PostNewMacro(struct MacroRecord *MRec,BOOL NeedAddSendFlag)
 
   struct MacroRecord NewMacroWORK2;
   memcpy(&NewMacroWORK2,MRec,sizeof(struct MacroRecord));
+  NewMacroWORK2.Src=NULL;
 
 //  if(MRec->BufferSize > 1)
   {

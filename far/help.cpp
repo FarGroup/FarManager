@@ -5,10 +5,12 @@ help.cpp
 
 */
 
-/* Revision: 1.81 01.03.2004 $ */
+/* Revision: 1.82 27.05.2004 $ */
 
 /*
 Modify:
+  27.05.2004 SVS
+    - BugZ#1086 - нельзя перейти на последний топик ни по end ни через PgDn
   01.03.2004 SVS
     ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
       (задел на будущее + править впоследствии только 1 файл)
@@ -711,7 +713,7 @@ m1:
     }
     PrevSymbol=*ReadStr;
   }
-  //AddLine("");
+  AddLine("");
 
   fclose(HelpFile);
   FixSize=FixCount+(FixCount!=0);

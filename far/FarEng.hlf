@@ -274,8 +274,8 @@ $ #Panel control commands#
   Keep files in the active panel unsorted                    #Ctrl-F7#
   Sort files in the active panel by creation time            #Ctrl-F8#
   Sort files in the active panel by access time              #Ctrl-F9#
-  Sort in the active panel by description                   #Ctrl-F10#
-  Sort in the active panel by file owner                    #Ctrl-F11#
+  Sort files in the active panel by description             #Ctrl-F10#
+  Sort files in the active panel by file owner              #Ctrl-F11#
   Display ~sort modes~@PanelCmdSort@ menu                                   #Ctrl-F12#
   Use group sorting                                        #Shift-F11#
   Show selected files first                                #Shift-F12#
@@ -319,34 +319,33 @@ $ #Panel control commands#
      is on the file "#..#", the name of the current folder is copied.
 
 @PanelCmdSort
-$ #Режимы сортировки#
-  Меню режимов сортировки вызывается комбинацией #Ctrl-F12# и применяется
-для активной в данный момент панели. Доступны следующие режимы сортировки
-панели:
+$ #Sort modes#
+  The sort modes menu is called by #Ctrl-F12# and applies to the
+currently active panel. The following sort modes are available:
 
-  Сортировать файлы по имени                                 #Ctrl-F3#
-  Сортировать файлы по расширению                            #Ctrl-F4#
-  Сортировать файлы по времени модификации                   #Ctrl-F5#
-  Сортировать файлы по размеру                               #Ctrl-F6#
-  Не сортировать файлы                                       #Ctrl-F7#
-  Сортировать файлы по времени создания                      #Ctrl-F8#
-  Сортировать файлы по времени доступа                       #Ctrl-F9#
-  Сортировать файлы по описаниям                            #Ctrl-F10#
-  Сортировать файлы по владельцу                            #Ctrl-F11#
+  Sort files by name                                         #Ctrl-F3#
+  Sort files by extension                                    #Ctrl-F4#
+  Sort files by modification time                            #Ctrl-F5#
+  Sort files by size                                         #Ctrl-F6#
+  Keep files unsorted                                        #Ctrl-F7#
+  Sort files by creation time                                #Ctrl-F8#
+  Sort files by access time                                  #Ctrl-F9#
+  Sort files by description                                 #Ctrl-F10#
+  Sort files by file owner                                  #Ctrl-F11#
 
-  Использовать сортировку по группам                       #Shift-F11#
-  Показывать помеченные файлы первыми                      #Shift-F12#
-  Использовать числовую сортировку.
+  Use group sorting                                        #Shift-F11#
+  Show selected files first                                #Shift-F12#
+  Use numeric sort.
 
-  #Замечания по числовой сортировке#
+  #Remarks on the numeric sort#
 
-  В Windows XP изменен алгоритм сортировки, который операционная
-система использует при выводе списка файлов. Выполняется не строковая
-сортировка, а числовая. FAR так же позволяет использовать числовую
-сортировки в стиле Windows XP - ведущие нули в имени файла не учитываются.
-Следующий пример показывает как сортируются файлы:
+  The sorting algorithm which is used by the operating system to sort
+file lists was changed in Windows XP. A numeric, not a string sort
+is used. FAR also allows to use a numeric sort as in Windows XP -
+leading zeros in a file name are ingnored. The following example shows
+how the files are sorted:
 
-    Режим включен (Windows XP)   Режим выключен (Windows 2000)
+    Numeric sort (Windows XP)    String sort (Windows 2000)
 
     Ie4_01                       Ie4_01
     Ie4_128                      Ie4_128

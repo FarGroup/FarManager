@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.108 22.04.2004 $ */
+/* Revision: 1.109 27.05.2004 $ */
 
 /*
 Modify:
+  27.05.2004 SVS
+    ! Для wVirtualKeyCode >= 0xFF возвращаем KEY_IDLE
   22.04.2004 SVS
     - BugZ#1061 - Ненадо учитывать CASE символов управляющих слов в записанных макросах в реестре
       вместо strstr() заюзаем новую функу LocalStrstri() - аналог strstr(), но с локалью и без учета регистра
@@ -2108,6 +2110,9 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   if(NotMacros)
     *NotMacros=CtrlState&0x80000000?TRUE:FALSE;
 //  CtrlState&=~0x80000000;
+
+  if(rec->Event.KeyEvent.wVirtualKeyCode >= 0xFF && RealKey)
+    return KEY_IDLE;
 
   if (!RealKey)
   {
