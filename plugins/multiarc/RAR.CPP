@@ -6,7 +6,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2004 FAR group
 */
-/* Revision: 1.20 03.11.2004 $ */
+/* Revision: 1.21 10.12.2004 $ */
 
 #include <windows.h>
 #include <string.h>
@@ -46,7 +46,10 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
   for (int I=0;I<DataSize-7;I++)
   {
     const unsigned char *D=Data+I;
-    if (D[0]==0x52 && D[1]==0x45 && D[2]==0x7e && D[3]==0x5e)
+    if (D[0]==0x52 && D[1]==0x45 && D[2]==0x7e && D[3]==0x5e &&
+        (I==0 || DataSize>31 && Data[28]==0x52 && Data[29]==0x53 &&
+        Data[30]==0x46 && Data[31]==0x58))
+    //if (D[0]==0x52 && D[1]==0x45 && D[2]==0x7e && D[3]==0x5e)
     {
       OldFormat=TRUE;
       SFXSize=I;
