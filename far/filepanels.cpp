@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.21 31.07.2001 $ */
+/* Revision: 1.22 13.08.2001 $ */
 
 /*
 Modify:
+  13.08.2001 OT
+    - исправление бага с появлением пропавших панелей при старте.
   31.07.2001 SKV
     ! Frame::OnChangeFocus(1)->OnChangeFocus(1)
   18.07.2001 OT
@@ -137,10 +139,10 @@ void FilePanels::Init()
       if (GetFileAttributes(Opt.PassiveFolder)!=0xffffffff)
         PassivePanel->InitCurDir(Opt.PassiveFolder);
     }
-  if (Opt.LeftPanel.Visible&&(Opt.LeftPanel.Type==TREE_PANEL||Opt.LeftPanel.Type==QVIEW_PANEL||Opt.LeftPanel.Type==INFO_PANEL)){
+  if (Opt.LeftPanel.Visible){
     LeftPanel->Show();
   }
-  if (Opt.RightPanel.Visible&&(Opt.RightPanel.Type==TREE_PANEL||Opt.RightPanel.Type==QVIEW_PANEL||Opt.RightPanel.Type==INFO_PANEL)){
+  if (Opt.RightPanel.Visible){
     RightPanel->Show();
   }
 

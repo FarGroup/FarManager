@@ -7,19 +7,19 @@
 CFG=far - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
-!MESSAGE
+!MESSAGE 
 !MESSAGE NMAKE /f "far.mak".
-!MESSAGE
+!MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
-!MESSAGE
+!MESSAGE 
 !MESSAGE NMAKE /f "far.mak" CFG="far - Win32 Debug"
-!MESSAGE
+!MESSAGE 
 !MESSAGE Possible choices for configuration are:
-!MESSAGE
+!MESSAGE 
 !MESSAGE "far - Win32 Release" (based on "Win32 (x86) Console Application")
 !MESSAGE "far - Win32 Debug" (based on "Win32 (x86) Console Application")
-!MESSAGE
+!MESSAGE 
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
@@ -38,7 +38,7 @@ RSC=rc.exe
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
 # PROP Output_Dir "Release"
-# PROP Intermediate_Dir "Release"
+# PROP Intermediate_Dir "Release/obj"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
@@ -66,7 +66,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /Zp4 /MTd /W3 /Gm /Gi /ZI /Od /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "FARTRY" /D "CREATE_JUNCTION" /YX /J /FD /GZ /c
+# ADD CPP /nologo /Zp4 /MTd /W3 /Gm /Gi /ZI /Od /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "FARTRY" /D "CREATE_JUNCTION" /D "DIRECT_RT" /D "SYSLOG_OT" /YX /J /FD /GZ /c
 # SUBTRACT CPP /Fr
 # ADD BASE RSC /l 0x419 /d "_DEBUG"
 # ADD RSC /l 0x419 /d "_DEBUG"
@@ -77,7 +77,7 @@ LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
 # ADD LINK32 kernel32.lib user32.lib winspool.lib advapi32.lib shell32.lib mpr.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
 
-!ENDIF
+!ENDIF 
 
 # Begin Target
 
@@ -86,6 +86,10 @@ LINK32=link.exe
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+# Begin Source File
+
+SOURCE=.\CFileMask.cpp
+# End Source File
 # Begin Source File
 
 SOURCE=.\checkver.cpp
@@ -120,14 +124,6 @@ SOURCE=.\copy.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\udlist.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\farexcpt.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\ctrlobj.cpp
 # End Source File
 # Begin Source File
@@ -152,15 +148,11 @@ SOURCE=.\editor.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\strftime.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\fnparce.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\eject.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\farexcpt.cpp
 # End Source File
 # Begin Source File
 
@@ -193,6 +185,14 @@ SOURCE=.\fileedit.cpp
 # Begin Source File
 
 SOURCE=.\filelist.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\FileMasksProcessor.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\FileMasksWithExclude.cpp
 # End Source File
 # Begin Source File
 
@@ -237,6 +237,10 @@ SOURCE=.\flshow.cpp
 # Begin Source File
 
 SOURCE=.\flupdate.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\fnparce.cpp
 # End Source File
 # Begin Source File
 
@@ -440,6 +444,10 @@ SOURCE=.\stddlg.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\strftime.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\strmix.cpp
 # End Source File
 # Begin Source File
@@ -449,6 +457,10 @@ SOURCE=.\syslog.cpp
 # Begin Source File
 
 SOURCE=.\treelist.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\udlist.cpp
 # End Source File
 # Begin Source File
 
@@ -467,27 +479,16 @@ SOURCE=.\vmenu.cpp
 SOURCE=.\xlat.cpp
 # End Source File
 # End Group
-
-SOURCE=.\FileMasksProcessor.cpp
-# End Source File
-# End Group
-
-SOURCE=.\FileMasksWithExclude.cpp
-# End Source File
-# End Group
-
-SOURCE=.\CFileMask.cpp
-# End Source File
-# End Group
-
-
-
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\farexcpt.hpp
+SOURCE=.\BaseFileMask.hpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\CFileMask.hpp
 # End Source File
 # Begin Source File
 
@@ -523,10 +524,6 @@ SOURCE=.\copy.hpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\udlist.hpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\ctrlobj.hpp
 # End Source File
 # Begin Source File
@@ -544,6 +541,10 @@ SOURCE=.\edit.hpp
 # Begin Source File
 
 SOURCE=.\editor.hpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\farexcpt.hpp
 # End Source File
 # Begin Source File
 
@@ -568,6 +569,14 @@ SOURCE=.\fileedit.hpp
 # Begin Source File
 
 SOURCE=.\filelist.hpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\FileMasksProcessor.hpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\FileMasksWithExclude.hpp
 # End Source File
 # Begin Source File
 
@@ -743,7 +752,15 @@ SOURCE=.\struct.hpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\syslog.hpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\treelist.hpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\udlist.hpp
 # End Source File
 # Begin Source File
 
@@ -754,23 +771,6 @@ SOURCE=.\viewer.hpp
 SOURCE=.\vmenu.hpp
 # End Source File
 # End Group
-
-SOURCE=.\FileMasksProcessor.hpp
-# End Source File
-# End Group
-
-SOURCE=.\FileMasksWithExclude.hpp
-# End Source File
-# End Group
-
-SOURCE=.\CFileMask.hpp
-# End Source File
-# End Group
-
-SOURCE=.\BaseFileMask.hpp
-# End Source File
-# End Group
-
 # Begin Group "Resource Files"
 
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
@@ -780,19 +780,127 @@ SOURCE=.\Far.ico
 # End Source File
 # Begin Source File
 
-SOURCE=.\final\FarEng.hlf
+SOURCE=.\FarEng.hlf
+
+!IF  "$(CFG)" == "far - Win32 Release"
+
+# Begin Custom Build
+OutDir=.\Release
+InputPath=.\FarEng.hlf
+InputName=FarEng
+
+"$(OutDir)\$(InputName).hlf" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	awk -f mkhlf.awk -v FV1=1 -v FV2=70 -v FV3=4 $(InputName).hlf > $(OutDir)\$(InputName).hlf
+
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "far - Win32 Debug"
+
+# Begin Custom Build
+OutDir=.\Debug
+InputPath=.\FarEng.hlf
+InputName=FarEng
+
+"$(OutDir)\$(InputName).hlf" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	awk -f mkhlf.awk -v FV1=1 -v FV2=70 -v FV3=4 $(InputName).hlf > $(OutDir)\$(InputName).hlf
+
+# End Custom Build
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
-SOURCE=.\final\FarEng.lng
+SOURCE=.\FarEng.lng
+
+!IF  "$(CFG)" == "far - Win32 Release"
+
+# Begin Custom Build
+OutDir=.\Release
+InputPath=.\FarEng.lng
+InputName=FarEng
+
+"$(OutDir)\$(InputName).lng" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	echo f|xcopy $(Inputpath) $(OutDir)\$(InputName).lng /Y /R
+
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "far - Win32 Debug"
+
+# Begin Custom Build
+OutDir=.\Debug
+InputPath=.\FarEng.lng
+InputName=FarEng
+
+"$(OutDir)\$(InputName).lng" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	echo f|xcopy $(Inputpath) $(OutDir)\$(InputName).lng /Y /R
+
+# End Custom Build
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
-SOURCE=.\final\FarRus.hlf
+SOURCE=.\FarRus.hlf
+
+!IF  "$(CFG)" == "far - Win32 Release"
+
+# Begin Custom Build
+OutDir=.\Release
+InputPath=.\FarRus.hlf
+InputName=FarRus
+
+"$(OutDir)\$(InputName).hlf" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	awk -f mkhlf.awk -v FV1=1 -v FV2=70 -v FV3=4 $(InputName).hlf > $(OutDir)\$(InputName).hlf
+
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "far - Win32 Debug"
+
+# Begin Custom Build
+OutDir=.\Debug
+InputPath=.\FarRus.hlf
+InputName=FarRus
+
+"$(OutDir)\$(InputName).hlf" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	awk -f mkhlf.awk -v FV1=1 -v FV2=70 -v FV3=4 $(InputName).hlf > $(OutDir)\$(InputName).hlf
+
+# End Custom Build
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
-SOURCE=.\final\FarRus.lng
+SOURCE=.\FarRus.lng
+
+!IF  "$(CFG)" == "far - Win32 Release"
+
+# Begin Custom Build
+OutDir=.\Release
+InputPath=.\FarRus.lng
+InputName=FarRus
+
+"$(OutDir)\$(InputName).lng" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	echo f|xcopy $(Inputpath) $(OutDir)\$(InputName).lng /Y /R
+
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "far - Win32 Debug"
+
+# Begin Custom Build
+OutDir=.\Debug
+InputPath=.\FarRus.lng
+InputName=FarRus
+
+"$(OutDir)\$(InputName).lng" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	echo f|xcopy $(Inputpath) $(OutDir)\$(InputName).lng /Y /R
+
+# End Custom Build
+
+!ENDIF 
+
 # End Source File
 # End Group
 # End Target

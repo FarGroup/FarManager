@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.83 07.08.2001 $ */
+/* Revision: 1.84 13.08.2001 $ */
 
 /*
 Modify:
+  13.08.2001 OT
+    - исправление бага с появлением пропавших панелей при старте.
   07.08.2001 SVS
     ! Уточнение поведения Alt-XX и Alt-Shift-XX для быстрого поиска.
       Теперь все работает.
@@ -2324,7 +2326,6 @@ void FileList::SetViewMode(int ViewMode)
     else
     {
       FileList::ViewMode=ViewMode;
-//      Show();
       FrameManager->RefreshFrame();
     }
   if (PanelMode==PLUGIN_PANEL)
@@ -2354,7 +2355,7 @@ void FileList::SetSortMode(int SortMode)
   FileList::SortMode=SortMode;
   if (FileCount>0)
     SortFileList(TRUE);
-  Show();
+  FrameManager->RefreshFrame();
 }
 
 

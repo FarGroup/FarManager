@@ -5,10 +5,12 @@ hmenu.cpp
 
 */
 
-/* Revision: 1.07 26.07.2001 $ */
+/* Revision: 1.08 13.08.2001 $ */
 
 /*
 Modify:
+  13.08.2001 OT
+    - исправление бага в вертикальном меню
   26.07.2001 OT
     - ѕоправлен ResizeConsole()
   26.07.2001 SVS
@@ -54,7 +56,6 @@ HMenu::HMenu(struct HMenuData *Item,int ItemCount)
   SetRestoreScreenMode (TRUE);
   /* DJ $ */
   FrameManager->ModalizeFrame(this);
-  SetScreen(X1,Y1,X2,Y2,' ',COL_HMENUTEXT);
 }
 
 
