@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.178 28.12.2001 $ */
+/* Revision: 1.179 08.01.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 ¬ этом файле писать все изменени€ только в в этом блоке!!!!
 
 Modify:
+  08.01.2002 SVS
+    + DM_SETLISTMOUSEREACTION
   28.12.2001 SVS
     ! ”чтем (частично) замечани€ г-на Stanislav V. Mekhanoshin про чистый C
       (правка с учетом изменений структур - про анонимный union)
@@ -934,6 +936,7 @@ enum FarMessagesProc{
   DM_SETITEMDATA,
 
   DM_LISTSET,
+  DM_SETLISTMOUSEREACTION,
 
   DN_FIRST=0x1000,
   DN_BTNCLICK,

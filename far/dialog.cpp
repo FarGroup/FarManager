@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.202 03.01.2002 $ */
+/* Revision: 1.203 08.01.2002 $ */
 
 /*
 Modify:
+  08.01.2002 SVS
+    + DM_SETLISTMOUSEREACTION
+    ! Неверно учитывался размер диалога (для примера - S&R имеет высоту 25 строк)
   03.01.2002 SVS
     ! Уточнение для обрезания заголовков в DI_SINGLEBOX.
   28.12.2001 SVS
@@ -822,7 +825,7 @@ Dialog::Dialog(struct DialogItem *Item,    // Набор элементов диалога
   /* $ 10.08.2000 SVS
      Изначально диалоги можно таскать
   */
-  DialogMode.Set(DMODE_ISCANMOVE);
+  DialogMode.Set(DMODE_ISCANMOVE|DMODE_MOUSELIST);
   /* SVS $ */
   /* $ 23.06.2001 KM */
   SetDropDownOpened(FALSE);
@@ -925,7 +928,7 @@ void Dialog::CheckDialogCoord(void)
       X2+=X1-1;
   }
 
-  if(Y2 > ScrY)
+  if(Y1 == -1 && Y2 > ScrY+1)
   {
     Y1=-1;
     Y2=ScrY-1;
@@ -3371,7 +3374,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       }
       else
       {
-        if (I == FocusPos && // для нефокусного списка... не юзаем мышь
+        if ((I == FocusPos || DialogMode.Check(DMODE_MOUSELIST)) && // для нефокусного списка... не юзаем мышь
             SendDlgMessage((HANDLE)this,DN_LISTCHANGE,I,(long)Pos))
           Item[I].ListPtr->ProcessMouse(MouseEvent);
       }
@@ -5068,6 +5071,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     case DM_LISTSETDATA: // Param1=ID Param2=struct FarListItemData
     case DM_LISTSETTITLES: // Param1=ID Param2=struct FarListTitles: TitleLen=strlen(Title), BottomLen=strlen(Bottom)
     case DM_LISTGETTITLES: // Param1=ID Param2=struct FarListTitles: TitleLen=strlen(Title), BottomLen=strlen(Bottom)
+    case DM_SETLISTMOUSEREACTION: // Param1=ID Param2=TRUE/FALSE Ret=OldSets
     {
       if(Type==DI_LISTBOX || Type==DI_COMBOBOX)
       {
@@ -5216,6 +5220,13 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
             }
             /* KM $ */
             //case DM_LISTINS: // Param1=ID Param2=FarList: ItemsNumber=Index, Items=Dest
+
+            case DM_SETLISTMOUSEREACTION: // Param1=ID Param2=TRUE/FALSE Ret=OldSets
+            {
+              DWORD OldSets=Dlg->DialogMode.Check(DMODE_MOUSELIST)?TRUE:FALSE;
+              Dlg->SetListMouseReaction(Param2);
+              return OldSets;
+            }
           }
           // уточнение для DI_COMBOBOX - здесь еще и Edit нужно корректно заполнить
           if(Type==DI_COMBOBOX && CurItem->ObjPtr)

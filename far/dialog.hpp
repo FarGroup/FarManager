@@ -10,10 +10,12 @@ dialog.hpp
 
 */
 
-/* Revision: 1.48 21.12.2001 $ */
+/* Revision: 1.49 08.01.2002 $ */
 
 /*
 Modify:
+  08.01.2002 SVS
+   + SetListMouseReaction()
   21.12.2001 SVS
    ! unsigned char -> short для координат в структурах DialogItem и DialogData
    + LenStrItem() - выдает на гора размер с учетом флага DIF_SHOWAMPERSAND
@@ -199,6 +201,7 @@ Modify:
 #define DMODE_MOUSEEVENT    0x00008000 // Нужно посылать MouseMove в обработчик?
 #define DMODE_RESIZED       0x00010000 //
 #define DMODE_ENDLOOP       0x00020000 // Конец цикла обработки диалога?
+#define DMODE_MOUSELIST     0x00040000 // Мышь должна реагировать на нефокусный лист?
 #define DMODE_OLDSTYLE      0x80000000 // Диалог в старом (до 1.70) стиле
 
 // Флаги для функции ConvertItem
@@ -537,6 +540,8 @@ class Dialog: public Frame
     int FastHide();
     void ResizeConsole();
     void OnDestroy();
+
+    void SetListMouseReaction(BOOL Sets) {DialogMode.Change(DMODE_MOUSELIST,Sets);}
 
     int SetAutomation(WORD IDParent,WORD id,
                         DWORD UncheckedSet,DWORD UncheckedSkip,
