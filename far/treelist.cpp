@@ -65,6 +65,7 @@ Modify:
 #include "copy.hpp"
 #include "qview.hpp"
 #include "savescr.hpp"
+#include "ctrlobj.hpp"
 
 static int _cdecl SortList(const void *el1,const void *el2);
 static int _cdecl SortCacheList(const void *el1,const void *el2);

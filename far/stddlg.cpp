@@ -45,6 +45,7 @@ Modify:
 #include "lang.hpp"
 #include "keys.hpp"
 #include "dialog.hpp"
+#include "ctrlobj.hpp"
 
 /*
   Функция GetSearchReplaceString выводит диалог поиска или замены, принимает

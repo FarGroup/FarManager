@@ -141,10 +141,12 @@ Modify:
 #include "lockscrn.hpp"
 #include "editor.hpp"
 #include "dialog.hpp"
+#include "ctrlobj.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
 #include "cmdline.hpp"
 #include "manager.hpp"
+#include "scrbuf.hpp"
 
 #define MFLAGS_MODEMASK            0x0000FFFF
 #define MFLAGS_DISABLEOUTPUT       0x00010000
@@ -1099,7 +1101,7 @@ BOOL KeyMacro::CheckEditSelected(DWORD CurFlags)
 {
   if(Mode==MACRO_EDITOR)
   {
-    Frame* CurFrame=CtrlObject->FrameManager->CurrentFrame;
+    Frame* CurFrame=FrameManager->GetCurrentFrame();
     if (CurFrame && CurFrame->GetType()==MODALTYPE_EDITOR)
     {
       int CurSelected=CurFrame->ProcessKey(KEY_MEDIT_ISSELECTED);

@@ -38,6 +38,7 @@ Modify:
 #include "vmenu.hpp"
 #include "filelist.hpp"
 #include "savescr.hpp"
+#include "ctrlobj.hpp"
 
 static void AddToPrintersMenu(VMenu *PrinterList,PRINTER_INFO_2 *pi,
                               int PrinterNumber);

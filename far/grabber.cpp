@@ -41,6 +41,7 @@ Modify:
 #include "colors.hpp"
 #include "keys.hpp"
 #include "savescr.hpp"
+#include "ctrlobj.hpp"
 
 Grabber::Grabber()
 {

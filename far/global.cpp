@@ -5,10 +5,13 @@ global.cpp
 
 */
 
-/* Revision: 1.15 06.05.2001 $ */
+/* Revision: 1.16 12.05.2001 $ */
 
 /*
 Modify:
+  12.05.2001 DJ
+    ! еще перетряхи #include: убран #include "ctrlobj.hpp", а указатель на
+      CtrlObject переехал в ctrlobj.hpp; еще немного переездов
   06.05.2001 DJ
     ! перетрях #include
   26.04.2001 VVM
@@ -56,9 +59,6 @@ Modify:
 #include "farversion.inc"
 /* SVS $ */
 
-Language Lang;
-
-ControlObject *CtrlObject=NULL;
 FarQueue<DWORD> *KeyQueue=NULL;
 
 int ScrX,ScrY;
@@ -105,8 +105,6 @@ int GlobalSearchReverse;
 int ScreenSaverActive;
 
 char LastFarTitle[512];
-
-ScreenBuf ScrBuf;
 
 Editor *CurrentEditor;
 int CloseFAR;

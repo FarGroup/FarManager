@@ -7,10 +7,13 @@ ctrlobj.hpp
 
 */
 
-/* Revision: 1.06 06.05.2001 $ */
+/* Revision: 1.07 12.05.2001 $ */
 
 /*
 Modify:
+  12.05.2001 DJ
+    ! FrameManager оторван от CtrlObject
+    ! глобальный указатель на CtrlObject переехал сюда
   06.05.2001 DJ
     ! перетрях #include
   05.05.2001 DJ
@@ -39,7 +42,6 @@ class HighlightFiles;
 class GroupSort;
 class FilePositionCache;
 class FilePanels;
-class Manager;
 
 class ControlObject
 {
@@ -66,10 +68,8 @@ class ControlObject
     /* tran 15.07.2000 $ */
 
   public:
-//    Panel *LeftPanel,*RightPanel,*ActivePanel;
-    FilePanels *Cp(); // {return FPanels;};
+    FilePanels *Cp();
 
-    Manager *FrameManager;
     CommandLine *CmdLine;
     History *CmdHistory,*FolderHistory,*ViewHistory;
     KeyBar *MainKeyBar;
@@ -83,5 +83,6 @@ class ControlObject
     static void ShowCopyright(DWORD Flags=0);
 };
 
+extern ControlObject *CtrlObject;
 
 #endif // __CONTROLOBJECT_HPP__

@@ -5,10 +5,13 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.21 11.05.2001 $ */
+/* Revision: 1.22 12.05.2001 $ */
 
 /*
 Modify:
+  12.05.2001 DJ
+    ! перерисовка командной строки после обработки команды делаетс€ только
+      если панели остались верхним фреймом
   11.05.2001 OT
     ! Ќовые методы дл€ отрисовки Background
   10.05.2001 DJ
@@ -70,10 +73,11 @@ Modify:
 #pragma hdrstop
 
 #include "cmdline.hpp"
+#include "global.hpp"
 #include "fn.hpp"
 #include "keys.hpp"
-#include "global.hpp"
 #include "lang.hpp"
+#include "ctrlobj.hpp"
 #include "manager.hpp"
 #include "history.hpp"
 #include "filepanels.hpp"
@@ -83,6 +87,7 @@ Modify:
 #include "fileedit.hpp"
 #include "rdrwdsk.hpp"
 #include "savescr.hpp"
+#include "scrbuf.hpp"
 
 CommandLine::CommandLine()
 {
@@ -203,7 +208,7 @@ int CommandLine::ProcessKey(int Key)
       SaveConfig(1);
       return(TRUE);
     case KEY_F10:
-      CtrlObject->FrameManager->ExitMainLoop(TRUE);
+      FrameManager->ExitMainLoop(TRUE);
       return(TRUE);
     case KEY_ALTF10:
       {
@@ -364,11 +369,17 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
   LastCmdPartLength=-1;
   if (!SeparateWindow && CtrlObject->Plugins.ProcessCommandLine(CmdLine))
   {
-    CmdStr.SetString("");
-    GotoXY(X1,Y1);
-    mprintf("%*s",X2-X1+1,"");
-    Show();
-    ScrBuf.Flush();
+    /* $ 12.05.2001 DJ
+       рисуемс€ только если остались верхним фреймом
+    */
+    if (CtrlObject->Cp()->IsTopFrame())
+    {
+      CmdStr.SetString("");
+      GotoXY(X1,Y1);
+      mprintf("%*s",X2-X1+1,"");
+      Show();
+      ScrBuf.Flush();
+    }
     return(-1);
   }
   int Code;
@@ -731,10 +742,10 @@ void CommandLine::ShowViewEditHistory()
     switch(Type)
     {
     case 0:
-      CtrlObject->FrameManager->AddFrame(new FileViewer(Str,TRUE));
+      FrameManager->AddFrame(new FileViewer(Str,TRUE));
       break;
     case 1:
-      CtrlObject->FrameManager->AddFrame(new FileEditor(Str,FALSE,TRUE));
+      FrameManager->AddFrame(new FileEditor(Str,FALSE,TRUE));
       break;
     case 2:
     case 3:

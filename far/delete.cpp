@@ -64,6 +64,7 @@ Modify:
 #include "scantree.hpp"
 #include "treelist.hpp"
 #include "savescr.hpp"
+#include "ctrlobj.hpp"
 
 static void ShellDeleteMsg(char *Name,int Flags);
 static int AskDeleteReadOnly(char *Name,DWORD Attr);

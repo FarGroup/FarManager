@@ -5,10 +5,12 @@ Parent class для немодальных объектов
 
 */
 
-/* Revision: 1.04 07.05.2001 $ */
+/* Revision: 1.05 07.05.2001 $ */
 
 /*
 Modify:
+  12.05.2001 DJ
+    + IsTopFrame()
   07.05.2001 SVS
     ! SysLog(); -> _D(SysLog());
   07.05.2001 DJ
@@ -27,6 +29,7 @@ Modify:
 #include "frame.hpp"
 #include "fn.hpp"
 #include "keybar.hpp"
+#include "manager.hpp"
 
 Frame::Frame()
 {
@@ -53,3 +56,10 @@ void Frame::UpdateKeyBar()
     if ( ModalKeyBar!=NULL && KeyBarVisible )
         ModalKeyBar->RedrawIfChanged();
 }
+
+/* $ 12.05.2001 DJ */
+int Frame::IsTopFrame()
+{
+  return FrameManager->GetCurrentFrame() == this;
+}
+/* DJ $ */

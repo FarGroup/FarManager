@@ -40,6 +40,8 @@ Modify:
 
 #define LangFileMask "*.lng"
 
+Language Lang;
+
 Language::Language()
 {
   MsgList=NULL;

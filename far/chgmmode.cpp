@@ -20,7 +20,7 @@ Modify:
 #pragma hdrstop
 
 #include "chgmmode.hpp"
-#include "global.hpp"
+#include "ctrlobj.hpp"
 
 ChangeMacroMode::ChangeMacroMode(int NewMode)
 {

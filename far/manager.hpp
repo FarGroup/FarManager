@@ -7,10 +7,13 @@ manager.hpp
 
 */
 
-/* Revision: 1.07 10.05.2001 $ */
+/* Revision: 1.08 12.05.2001 $ */
 
 /*
 Modify:
+  12.05.2001 DJ
+    ! FrameManager оторван от CtrlObject, выкинут ExecuteModalPtr, 
+      ReplaceCurrentFrame заменен на ReplaceFrame, GetCurrentFrame()
   10.05.2001 DJ
     + SwitchToPanels(), ModalStack, ModalSaveState(), ExecuteModalPtr()
   06.05.2001 DJ
@@ -38,26 +41,23 @@ class Manager
 {
   private:
     Frame **FrameList;
-    Frame **ModalStack;
+    Frame **ModalStack;      // сюда запоминается фрейм, который был активным 
+                             // перед вызовом ExecuteModal()
     Frame *DestroyedFrame;
-    Frame *FrameToReplace;
-
+    Frame *FrameToReplace;   // фрейм, на который мы собираемся заменять
+    Frame *CurrentFrame;     // текущий модал
+    
     int  EndLoop;
 
     int  FrameCount,
          FrameListSize;
     int  ModalStackCount, ModalStackSize;
     int  FramePos;
-    int  UpdateRequired;
 
     INPUT_RECORD LastInputRecord;
 
     void ModalSaveState();
     void DeleteDestroyedFrame();
-
-  public:
-    Frame *CurrentFrame;  // текущий модал,
-                          // присутсвует в списке, но может быть не активным
 
   private:
     void ActivateNextFrame();
@@ -72,9 +72,8 @@ class Manager
   public:
     void AddFrame(Frame *NewFrame);
     void DestroyFrame(Frame *Killed);
-    void ReplaceCurrentFrame (Frame *NewFrame);
-    int ExecuteModal(Frame &ModalFrame);
-    int ExecuteModalPtr (Frame *ModalFrame);
+    void ReplaceFrame (Frame *OldFrame, Frame *NewFrame);
+    int ExecuteModal (Frame &ModalFrame);
 
     void NextFrame(int Increment);
     void ActivateFrameByPos (int NewPos);
@@ -109,12 +108,17 @@ class Manager
     int ProcessMouse(MOUSE_EVENT_RECORD *me);
 
     void PluginsMenu(); // вызываем меню по F11
-    void CheckExited();
     /* $ 10.05.2001 DJ */
     void SwitchToPanels();
     /* DJ $ */
 
     INPUT_RECORD *GetLastInputRecord() { return &LastInputRecord; }
+
+    /* $ 12.05.2001 DJ */
+    Frame *GetCurrentFrame() { return CurrentFrame; }
+    /* DJ $ */
 };
+
+extern Manager *FrameManager;
 
 #endif  // __MANAGER_HPP__

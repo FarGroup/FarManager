@@ -85,6 +85,8 @@ Modify:
 #include "lockscrn.hpp"
 #include "hilight.hpp"
 #include "manager.hpp"
+#include "ctrlobj.hpp"
+#include "language.hpp"
 
 static void ConvertOldSettings();
 /* $ 07.07.2000 IS
@@ -332,7 +334,7 @@ int _cdecl main(int Argc, char *Argv[])
         CtrlObject->Cp()->LeftPanel->Redraw();
         CtrlObject->Cp()->RightPanel->Redraw();
       }
-      CtrlObj.FrameManager->EnterMainLoop();
+      FrameManager->EnterMainLoop();
     }
   }
 

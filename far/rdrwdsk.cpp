@@ -30,6 +30,7 @@ Modify:
 #include "filepanels.hpp"
 #include "panel.hpp"
 #include "cmdline.hpp"
+#include "ctrlobj.hpp"
 
 RedrawDesktop::RedrawDesktop()
 {

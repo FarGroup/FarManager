@@ -89,6 +89,7 @@ Modify:
 #include "chgprior.hpp"
 #include "dialog.hpp"
 #include "savescr.hpp"
+#include "ctrlobj.hpp"
 
 /* $ 18.07.2000 SVS
    ! изменен вызов конструктора (isListBoxControl) с учетом необходимости

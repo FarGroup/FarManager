@@ -5,10 +5,12 @@ scrbuf.cpp
 
 */
 
-/* Revision: 1.03 06.05.2001 $ */
+/* Revision: 1.04 12.05.2001 $ */
 
 /*
 Modify:
+  12.05.2001 DJ
+    ! глобальный ScrBuf переехал сюда
   06.05.2001 DJ
     ! перетрях #include
   09.01.2001 SVS
@@ -28,10 +30,13 @@ Modify:
 #include "global.hpp"
 #include "fn.hpp"
 #include "colors.hpp"
+#include "ctrlobj.hpp"
 
 #if defined(SYSLOG_OT)
  #define DIRECT_SCREEN_OUT
 #endif
+
+ScreenBuf ScrBuf;
 
 ScreenBuf::ScreenBuf()
 {

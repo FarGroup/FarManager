@@ -5,10 +5,13 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.24 11.05.2001 $ */
+/* Revision: 1.25 12.05.2001 $ */
 
 /*
 Modify:
+  12.05.2001 DJ
+    ! FrameManager оторван от CtrlObject
+    ! глобальный указатель на CtrlObject переехал сюда
   11.05.2001 OT
     ! Отрисовка Background
   07.05.2001 SVS
@@ -82,6 +85,8 @@ Modify:
 #include "treelist.hpp"
 #include "filter.hpp"
 #include "filepanels.hpp"
+
+ControlObject *CtrlObject;
 
 ControlObject::ControlObject()
 {
@@ -290,36 +295,6 @@ void ControlObject::RedrawKeyBar()
 #endif
 
 /* SVS $ */
-
-/*///
-Panel* ControlObject::CreatePanel(int Type)
-{
-  switch (Type)
-  {
-    case FILE_PANEL:
-      return(new FileList);
-    case TREE_PANEL:
-      return(new TreeList);
-    case QVIEW_PANEL:
-      return(new QuickView);
-    case INFO_PANEL:
-      return(new InfoList);
-  }
-  return(NULL);
-}
-
-
-void ControlObject::DeletePanel(Panel *Deleted)
-{
-  if (Deleted==NULL)
-    return;
-  delete Deleted;
-  if (Deleted==LastLeftFilePanel)
-    LastLeftFilePanel=NULL;
-  if (Deleted==LastRightFilePanel)
-    LastRightFilePanel=NULL;
-}
-*///
 
 #if 0
 int ControlObject::ProcessKey(int Key)
@@ -666,190 +641,6 @@ int ControlObject::ProcessKey(int Key)
 }
 
 #endif
-
-/*///
-Panel* ControlObject::ChangePanelToFilled(Panel *Current,int NewType)
-{
-  if (Current->GetType()!=NewType && !Current->ProcessPluginEvent(FE_CLOSE,NULL))
-  {
-    Current->Hide();
-    Current=ChangePanel(Current,NewType,FALSE,FALSE);
-    Current->Update(0);
-    Current->Show();
-    if (!GetAnotherPanel(Current)->GetFocus())
-      Current->SetFocus();
-  }
-  return(Current);
-}
-*///
-
-#if 0
-int ControlObject::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
-{
-/*///
-  if (!Cp()->ActivePanel->ProcessMouse(MouseEvent))
-    if (!GetAnotherPanel(Cp()->ActivePanel)->ProcessMouse(MouseEvent))
-      if (!MainKeyBar->ProcessMouse(MouseEvent))
-        CmdLine->ProcessMouse(MouseEvent);
-*///
-  ModalManager.ProcessMouse(MouseEvent);
-  return(TRUE);
-}
-
-#endif
-
-/*///
-Panel* ControlObject::GetAnotherPanel(Panel *Current)
-{
-  if (Current==Cp()->LeftPanel)
-    return(Cp()->RightPanel);
-  else
-    return(Cp()->LeftPanel);
-}
-
-
-Panel* ControlObject::ChangePanel(Panel *Current,int NewType,int CreateNew,int Force)
-{
-  Panel *NewPanel;
-  SaveScreen *SaveScr=NULL;
-  int OldType,X1,Y1,X2,Y2;
-  int OldViewMode,OldSortMode,OldSortOrder,OldSortGroups;
-  int OldShowShortNames,OldPanelMode,LeftPosition,ChangePosition;
-  int OldFullScreen,OldFocus,UseLastPanel=0;
-
-  OldPanelMode=Current->GetMode();
-  if (!Force && NewType==(OldType=Current->GetType()) && OldPanelMode==NORMAL_PANEL)
-    return(Current);
-  OldViewMode=Current->GetPrevViewMode();
-  OldFullScreen=Current->IsFullScreen();
-
-  OldSortMode=Current->GetPrevSortMode();
-  OldSortOrder=Current->GetPrevSortOrder();
-  OldSortGroups=Current->GetSortGroups();
-  OldShowShortNames=Current->GetShowShortNamesMode();
-  OldFocus=Current->GetFocus();
-
-  LeftPosition=(Current==Cp()->LeftPanel);
-  Panel *(&LastFilePanel)=LeftPosition ? LastLeftFilePanel:LastRightFilePanel;
-
-  Current->GetPosition(X1,Y1,X2,Y2);
-
-  ChangePosition=(OldType==FILE_PANEL && NewType!=FILE_PANEL &&
-             OldFullScreen || NewType==FILE_PANEL &&
-             (OldFullScreen && !FileList::IsModeFullScreen(OldViewMode) ||
-             !OldFullScreen && FileList::IsModeFullScreen(OldViewMode)));
-
-  if (!ChangePosition)
-  {
-    SaveScr=Current->SaveScr;
-    Current->SaveScr=NULL;
-  }
-
-  if (OldType==FILE_PANEL && NewType!=FILE_PANEL)
-  {
-    delete Current->SaveScr;
-    Current->SaveScr=NULL;
-    if (LastFilePanel!=Current)
-    {
-      DeletePanel(LastFilePanel);
-      LastFilePanel=Current;
-    }
-    LastFilePanel->Hide();
-    if (LastFilePanel->SaveScr)
-    {
-      LastFilePanel->SaveScr->Discard();
-      delete LastFilePanel->SaveScr;
-      LastFilePanel->SaveScr=NULL;
-    }
-  }
-  else
-  {
-    Current->Hide();
-    DeletePanel(Current);
-    if (OldType==FILE_PANEL && NewType==FILE_PANEL)
-    {
-      DeletePanel(LastFilePanel);
-      LastFilePanel=NULL;
-    }
-  }
-
-  if (!CreateNew && NewType==FILE_PANEL && LastFilePanel!=NULL)
-  {
-    int LastX1,LastY1,LastX2,LastY2;
-    LastFilePanel->GetPosition(LastX1,LastY1,LastX2,LastY2);
-    if (LastFilePanel->IsFullScreen())
-      LastFilePanel->SetPosition(LastX1,Y1,LastX2,Y2);
-    else
-      LastFilePanel->SetPosition(X1,Y1,X2,Y2);
-    NewPanel=LastFilePanel;
-    if (!ChangePosition)
-    {
-      if (NewPanel->IsFullScreen() && !OldFullScreen ||
-          !NewPanel->IsFullScreen() && OldFullScreen)
-      {
-        Panel *AnotherPanel=GetAnotherPanel(Current);
-        if (SaveScr!=NULL && AnotherPanel->IsVisible() &&
-            AnotherPanel->GetType()==FILE_PANEL && AnotherPanel->IsFullScreen())
-          SaveScr->Discard();
-        delete SaveScr;
-      }
-      else
-        NewPanel->SaveScr=SaveScr;
-    }
-    if (!OldFocus && NewPanel->GetFocus())
-      NewPanel->KillFocus();
-    UseLastPanel=TRUE;
-  }
-  else
-    /* $ 13.07.2000 SVS
-       немного сократим код путем вызова функции класса CreatePanel(int Type)
-    * /
-    NewPanel=CreatePanel(NewType);
-    /* SVS $* /
-
-  if (Current==Cp()->ActivePanel)
-    Cp()->ActivePanel=NewPanel;
-  if (LeftPosition)
-  {
-    Cp()->LeftPanel=NewPanel;
-    LastLeftType=OldType;
-  }
-  else
-  {
-    Cp()->RightPanel=NewPanel;
-    LastRightType=OldType;
-  }
-  if (!UseLastPanel)
-  {
-    if (ChangePosition)
-    {
-      if (LeftPosition)
-      {
-        NewPanel->SetPosition(0,Y1,ScrX/2-Opt.WidthDecrement,Y2);
-        Cp()->RightPanel->Redraw();
-      }
-      else
-      {
-        NewPanel->SetPosition(ScrX/2+1-Opt.WidthDecrement,Y1,ScrX,Y2);
-        Cp()->LeftPanel->Redraw();
-      }
-    }
-    else
-    {
-      NewPanel->SaveScr=SaveScr;
-      NewPanel->SetPosition(X1,Y1,X2,Y2);
-    }
-
-    NewPanel->SetSortMode(OldSortMode);
-    NewPanel->SetSortOrder(OldSortOrder);
-    NewPanel->SetSortGroups(OldSortGroups);
-    NewPanel->SetShowShortNamesMode(OldShowShortNames);
-    NewPanel->SetPrevViewMode(OldViewMode);
-    NewPanel->SetViewMode(OldViewMode);
-  }
-  return(NewPanel);
-}
-*///
 
 /* $ 25.11.2000 SVS
    Copyright в 2 строки

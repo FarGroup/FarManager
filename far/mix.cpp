@@ -238,6 +238,8 @@ Modify:
 #include "panel.hpp"
 #include "scantree.hpp"
 #include "savescr.hpp"
+#include "ctrlobj.hpp"
+#include "scrbuf.hpp"
 
 static DWORD IsCommandExeGUI(char *Command);
 

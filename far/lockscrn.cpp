@@ -20,7 +20,7 @@ Modify:
 #pragma hdrstop
 
 #include "lockscrn.hpp"
-#include "global.hpp"
+#include "scrbuf.hpp"
 
 LockScreen::LockScreen()
 {

@@ -281,6 +281,7 @@ Modify:
 #include "fn.hpp"
 #include "lang.hpp"
 #include "keys.hpp"
+#include "ctrlobj.hpp"
 #include "poscache.hpp"
 #include "chgprior.hpp"
 #include "filestr.hpp"
@@ -288,6 +289,7 @@ Modify:
 #include "dialog.hpp"
 #include "fileedit.hpp"
 #include "savescr.hpp"
+#include "scrbuf.hpp"
 
 struct EditList
 {

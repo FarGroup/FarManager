@@ -84,6 +84,7 @@ Modify:
 #include "plugin.hpp"
 #include "savescr.hpp"
 #include "manager.hpp"
+#include "ctrlobj.hpp"
 
 #define MAX_HELP_STRING_LENGTH 300
 
@@ -152,7 +153,7 @@ Help::Help(char *Topic, char *Mask,DWORD Flags)
   {
     InitKeyBar();
     MacroMode = MACRO_HELP;
-    CtrlObject->FrameManager->ExecuteModal (*this);
+    FrameManager->ExecuteModal (*this);
   }
   else
   {
@@ -210,7 +211,7 @@ Help::Help(char *Topic,int &ShowPrev,int PrevFullScreen,DWORD Flags,char *Mask)
   {
     InitKeyBar();
     MacroMode = MACRO_HELP;
-    CtrlObject->FrameManager->ExecuteModal (*this);
+    FrameManager->ExecuteModal (*this);
     ShowPrev=Help::ShowPrev;
   }
   else

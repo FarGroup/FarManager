@@ -8,10 +8,13 @@ global.hpp
 
 */
 
-/* Revision: 1.17 06.05.2001 $ */
+/* Revision: 1.18 12.05.2001 $ */
 
 /*
 Modify:
+  12.05.2001 DJ
+    ! еще перетряхи #include: убран #include "ctrlobj.hpp", а указатель на 
+      CtrlObject переехал в ctrlobj.hpp; еще немного переездов
   06.05.2001 DJ
     ! перетрях #include
   26.04.2001 VVM
@@ -53,14 +56,6 @@ Modify:
 
 #include "farconst.hpp"
 #include "struct.hpp"
-#include "ctrlobj.hpp"
-#include "scrbuf.hpp"
-
-#ifdef __LANGUAGE_HPP__
-extern Language Lang;
-#endif
-
-extern ControlObject *CtrlObject;
 
 #ifdef __FARQUEUE_HPP__
 extern FarQueue<DWORD> *KeyQueue;
@@ -82,8 +77,6 @@ extern OSVERSIONINFO WinVer;
 #endif
 
 extern struct Options Opt;
-
-extern ScreenBuf ScrBuf;
 
 class Editor;
 extern Editor *CurrentEditor;

@@ -99,10 +99,12 @@ Modify:
 #include "keys.hpp"
 #include "colors.hpp"
 #include "plugin.hpp"
+#include "ctrlobj.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
 #include "editor.hpp"
 #include "manager.hpp"
+#include "scrbuf.hpp"
 
 BOOL __stdcall CtrlHandler(DWORD CtrlType);
 static void InitRecodeOutTable();
@@ -276,7 +278,7 @@ BOOL __stdcall CtrlHandler(DWORD CtrlType)
   }
   CloseFAR=TRUE;
   if (CurrentEditor!=NULL && CurrentEditor->IsFileModified() ||
-      CtrlObject->FrameManager->IsAnyFrameModified (FALSE))
+      FrameManager->IsAnyFrameModified (FALSE))
     return(TRUE);
   return(FALSE);
 }

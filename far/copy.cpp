@@ -102,6 +102,7 @@ Modify:
 #include "fn.hpp"
 #include "flink.hpp"
 #include "dialog.hpp"
+#include "ctrlobj.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
 #include "foldtree.hpp"

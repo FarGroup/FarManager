@@ -68,6 +68,7 @@ Modify:
 #include "flink.hpp"
 #include "lang.hpp"
 #include "keys.hpp"
+#include "ctrlobj.hpp"
 #include "vmenu.hpp"
 #include "dialog.hpp"
 #include "filepanels.hpp"
@@ -82,6 +83,7 @@ Modify:
 #include "scantree.hpp"
 #include "savescr.hpp"
 #include "manager.hpp"
+#include "scrbuf.hpp"
 
 static void _cdecl PrepareFilesList(void *Param);
 static void _cdecl PreparePluginList(void *Param);
@@ -460,8 +462,8 @@ int FindFiles::FindFilesProcess()
                     FindList.Hide();
                     Dlg.Hide();
                     {
-                      FileViewer *ShellViewer = new FileViewer (FileFindData.cFileName,FALSE,FALSE,FALSE,-1,NULL,&ViewList);
-                      CtrlObject->FrameManager->ExecuteModalPtr (ShellViewer);
+                      FileViewer ShellViewer (FileFindData.cFileName,FALSE,FALSE,FALSE,-1,NULL,&ViewList);
+                      FrameManager->ExecuteModal (ShellViewer);
                     }                                       
                     Dlg.Show();
                     FindList.Show();
@@ -471,9 +473,9 @@ int FindFiles::FindFilesProcess()
                     FindList.Hide();
                     Dlg.Hide();
                     {
-                      FileEditor *ShellEditor = new FileEditor (FileFindData.cFileName,FALSE,FALSE);
-                      ShellEditor->SetEnableF6 (TRUE);
-                      CtrlObject->FrameManager->ExecuteModalPtr (ShellEditor);
+                      FileEditor ShellEditor (FileFindData.cFileName,FALSE,FALSE);
+                      ShellEditor.SetEnableF6 (TRUE);
+                      FrameManager->ExecuteModal (ShellEditor);
                     }
                     Dlg.Show();
                     FindList.Show();

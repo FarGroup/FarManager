@@ -233,6 +233,7 @@ Modify:
 #include "lang.hpp"
 #include "fn.hpp"
 #include "keys.hpp"
+#include "ctrlobj.hpp"
 #include "dialog.hpp"
 #include "filepanels.hpp"
 #include "filelist.hpp"

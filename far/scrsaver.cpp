@@ -98,9 +98,9 @@ int ScreenSaver(int EnableExit)
       */
       if (EnableExit && Opt.InactivityExit && Opt.InactivityExitTime>0 &&
           CurTime-StartIdleTime>Opt.InactivityExitTime*60000 &&
-          CtrlObject->FrameManager->GetFrameCount()==1)
+          FrameManager->GetFrameCount()==1)
       {
-        CtrlObject->FrameManager->ExitMainLoop(FALSE);
+        FrameManager->ExitMainLoop(FALSE);
         return(0);
       }
       /* DJ $ */

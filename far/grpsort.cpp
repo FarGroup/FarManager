@@ -52,6 +52,7 @@ Modify:
 #include "filepanels.hpp"
 #include "panel.hpp"
 #include "vmenu.hpp"
+#include "ctrlobj.hpp"
 
 struct GroupSortData
 {

@@ -62,6 +62,7 @@ Modify:
 #include "dialog.hpp"
 #include "vmenu.hpp"
 #include "plognmn.hpp"
+#include "ctrlobj.hpp"
 #include "cmdline.hpp"
 #include "history.hpp"
 #include "filepanels.hpp"

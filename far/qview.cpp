@@ -66,6 +66,7 @@ Modify:
 #include "help.hpp"
 #include "viewer.hpp"
 #include "cmdline.hpp"
+#include "ctrlobj.hpp"
 
 /* $ 12.07.2000 SVS
     ! Для возможности 3-х позиционного Wrap`а статическая переменная

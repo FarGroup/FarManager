@@ -53,4 +53,6 @@ class Language
     static int Select(int HelpLanguage,VMenu **MenuPtr);
 };
 
+extern Language Lang;
+
 #endif	// __LANGUAGE_HPP__

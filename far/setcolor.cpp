@@ -42,6 +42,7 @@ Modify:
 #include "vmenu.hpp"
 #include "dialog.hpp"
 #include "filepanels.hpp"
+#include "ctrlobj.hpp"
 
 static void SetItemColors(struct MenuData *Items,int *PaletteItems,int Size);
 void GetColor(int PaletteIndex);

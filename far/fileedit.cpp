@@ -126,10 +126,12 @@ Modify:
 #include "fn.hpp"
 #include "lang.hpp"
 #include "keys.hpp"
+#include "ctrlobj.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
 #include "dialog.hpp"
 #include "fileview.hpp"
+#include "ctrlobj.hpp"
 #include "manager.hpp"
 #include "namelist.hpp"
 #include "history.hpp"
@@ -182,7 +184,7 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
 
   if (EnableSwitch)
   {
-    int FramePos=CtrlObject->FrameManager->FindFrameByFile(MODALTYPE_EDITOR,FullFileName);
+    int FramePos=FrameManager->FindFrameByFile(MODALTYPE_EDITOR,FullFileName);
     if (FramePos!=-1)
     {
       int MsgCode=Message(0,2,MSG(MEditTitle),FullFileName,MSG(MAskReload),
@@ -190,7 +192,7 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
       switch(MsgCode)
       {
         case 0:
-          CtrlObject->FrameManager->ActivateFrameByPos (FramePos);
+          FrameManager->ActivateFrameByPos (FramePos);
           return;
         case 1:
           break;
@@ -262,7 +264,7 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
   Process();
   ExitCode=IsFileChanged() ? 1 : 2;
   if (!DisableHistory)
-    CtrlObject->ViewHistory->AddToHistory(FullFileName,MSG(MHistoryEdit),1);
+    4->ViewHistory->AddToHistory(FullFileName,MSG(MHistoryEdit),1);
 *///
    MacroMode=MACRO_EDITOR; ///
 
@@ -367,7 +369,7 @@ int FileEditor::ProcessKey(int Key)
       */
       FEdit.Hide();
       /* skv$*/
-      CtrlObject->FrameManager->ShowBackground();
+      FrameManager->ShowBackground();
       WaitKey(Key==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:-1);
       Show();
       return(TRUE);
@@ -469,7 +471,7 @@ int FileEditor::ProcessKey(int Key)
           FileViewer *Viewer = new FileViewer (FullFileName, GetCanLoseFocus(), FALSE,
             FALSE, FilePos, NULL, EditNamesList);
           /* DJ $ */
-          CtrlObject->FrameManager->ReplaceCurrentFrame (Viewer);
+          FrameManager->ReplaceFrame (this, Viewer);
           /* DJ $ */
         }
         /* IS $ */
@@ -521,7 +523,7 @@ int FileEditor::ProcessKey(int Key)
           /* $ 10.05.2001 DJ
              переключаемс€ в панели
           */
-          CtrlObject->FrameManager->SwitchToPanels();
+          FrameManager->SwitchToPanels();
           /* DJ $ */
         }
         return (TRUE);
@@ -601,7 +603,7 @@ int FileEditor::ProcessKey(int Key)
          return(FEdit.ProcessKey(Key));
       /* DJ $ */
       if (CtrlObject->Macro.IsExecuting() ||
-        !FEdit.ProcessEditorInput(CtrlObject->FrameManager->GetLastInputRecord()))
+        !FEdit.ProcessEditorInput(FrameManager->GetLastInputRecord()))
       {
         /* $ 22.03.2001 SVS
            Ёто помогло от залипани€ :-)
@@ -643,7 +645,7 @@ int FileEditor::ProcessQuitKey()
 int FileEditor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
   if (!EditKeyBar.ProcessMouse(MouseEvent))
-    if (!FEdit.ProcessEditorInput(CtrlObject->FrameManager->GetLastInputRecord()))
+    if (!FEdit.ProcessEditorInput(FrameManager->GetLastInputRecord()))
       if (!FEdit.ProcessMouse(MouseEvent))
         return(FALSE);
   return(TRUE);

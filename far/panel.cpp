@@ -5,10 +5,13 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.44 10.05.2001 $ */
+/* Revision: 1.45 12.05.2001 $ */
 
 /*
 Modify:
+  12.05.2001 DJ
+    - FCTL_REDRAW[ANOTHER]PANEL обрабатывается только тогда, когда панели
+      являются активным фреймом
   10.05.2001 SVS
     - Косметика: при огромных размерах диска в меню "выбора диска" криво
       показываются размеры (сдвиг вправо).
@@ -149,6 +152,8 @@ Modify:
 #include "dialog.hpp"
 #include "savescr.hpp"
 #include "manager.hpp"
+#include "ctrlobj.hpp"
+#include "scrbuf.hpp"
 
 static int DragX,DragY,DragMove;
 static Panel *SrcDragPanel;
@@ -1202,7 +1207,7 @@ void Panel::ShowScreensCount()
   if (Opt.ShowScreensNumber && X1==0)
   {
     int Viewers,Editors;
-    CtrlObject->FrameManager->GetFrameTypesCount(Viewers,Editors);
+    FrameManager->GetFrameTypesCount(Viewers,Editors);
     if (Viewers>0 || Editors>0)
     {
       char ScreensText[100];
@@ -1399,7 +1404,12 @@ void Panel::SetPluginCommand(int Command,void *Param)
           CurFile=Info->CurrentItem;
           CurTopFile=Info->TopPanelItem;
         }
-        Redraw();
+        /* $ 12.05.2001 DJ
+           перерисовываемся только в том случае, если мы - текущий фрейм
+        */
+        if (CtrlObject->Cp()->IsTopFrame())
+          Redraw();
+        /* DJ */
       }
       break;
     case FCTL_REDRAWANOTHERPANEL:
@@ -1411,7 +1421,12 @@ void Panel::SetPluginCommand(int Command,void *Param)
           AnotherPanel->CurFile=Info->CurrentItem;
           AnotherPanel->CurTopFile=Info->TopPanelItem;
         }
-        AnotherPanel->Redraw();
+        /* $ 12.05.2001 DJ
+           перерисовываемся только в том случае, если мы - текущий фрейм
+        */
+        if (CtrlObject->Cp()->IsTopFrame())
+          AnotherPanel->Redraw();
+        /* DJ */
       }
       break;
     case FCTL_SETANOTHERPANELDIR:

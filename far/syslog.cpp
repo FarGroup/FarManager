@@ -40,6 +40,7 @@ Modify:
 #include "plugin.hpp"
 #include "global.hpp"
 #include "fn.hpp"
+#include "plugins.hpp"
 
 #if !defined(SYSLOG)
  #if defined(SYSLOG_OT) || defined(SYSLOG_SVS) || defined(SYSLOG_DJ) || defined(VVM) || defined(SYSLOG_AT) || defined(SYSLOG_IS) || defined(SYSLOG_tran) || defined(SYSLOG_SKV) || defined(SYSLOG_NWZ)

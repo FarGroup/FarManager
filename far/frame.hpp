@@ -8,10 +8,12 @@ frame.hpp
 
 */
 
-/* Revision: 1.02 07.05.2001 */
+/* Revision: 1.03 12.05.2001 */
 
 /*
   Modify:
+    12.05.2001 DJ
+      + IsTopFrame(), GetMacroMode()
     07.05.2001 DJ
       ! причешем идентификаторы
     06.05.2001 DJ
@@ -41,7 +43,8 @@ class Frame: public ScreenObject
     int  ExitCode;
     int  KeyBarVisible;
     KeyBar *ModalKeyBar;
-
+    int MacroMode;
+    
   public:
     Frame();
     virtual ~Frame();
@@ -64,7 +67,10 @@ class Frame: public ScreenObject
     void UpdateKeyBar();
     virtual void RedrawKeyBar() { Frame::UpdateKeyBar(); };
 
-    int MacroMode;
+    /* $ 12.05.2001 DJ */
+    int IsTopFrame();
+    int GetMacroMode() { return MacroMode; }
+    /* DJ $ */
 };
 
 #endif // __FRAME_HPP__

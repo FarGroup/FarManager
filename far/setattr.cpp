@@ -95,6 +95,7 @@ Modify:
 #include "filepanels.hpp"
 #include "panel.hpp"
 #include "savescr.hpp"
+#include "ctrlobj.hpp"
 
 int OriginalCBAttr0[16]; // значения CheckBox`ов на момент старта диалога
 int OriginalCBAttr[16]; // значения CheckBox`ов на момент старта диалога

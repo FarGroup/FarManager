@@ -31,6 +31,7 @@ Modify:
 #include "filepanels.hpp"
 #include "panel.hpp"
 #include "treelist.hpp"
+#include "ctrlobj.hpp"
 
 void ShellMakeDir(Panel *SrcPanel)
 {

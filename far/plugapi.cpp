@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.53 10.05.2001 $ */
+/* Revision: 1.54 12.05.2001 $ */
 
 /*
 Modify:
+  12.05.2001 DJ
+    ! убран SaveScr при вызове редактора/вьюера из плагина
   10.05.2001 SVS
     + В FarDialogEx() добавлена установка флагов FDLG_WARNING и FDLG_SMALLDILAOG.
   06.05.2001 DJ
@@ -166,6 +168,8 @@ Modify:
 #include "plugins.hpp"
 #include "savescr.hpp"
 #include "manager.hpp"
+#include "ctrlobj.hpp"
+#include "scrbuf.hpp"
 
 // declare in plugins.cpp
 extern int KeepUserScreen;
@@ -1141,13 +1145,13 @@ int WINAPI FarViewer(char *FileName,char *Title,int X1,int Y1,int X2,
     Y2=ScrY;
   char OldTitle[512];
   GetConsoleTitle(OldTitle,sizeof(OldTitle));
-  SaveScreen SaveScr;
   if (Flags & VF_NONMODAL)
   {
     FileViewer *Viewer=new FileViewer(FileName,TRUE,Title,X1,Y1,X2,Y2);
     if (Flags & VF_DELETEONCLOSE)
       Viewer->SetTempViewName(FileName);
-    CtrlObject->FrameManager->AddFrame(Viewer);
+    FrameManager->AddFrame(Viewer);
+    ScrBuf.Flush();
   }
   else
   {
@@ -1155,7 +1159,7 @@ int WINAPI FarViewer(char *FileName,char *Title,int X1,int Y1,int X2,
     if (Flags & VF_DELETEONCLOSE)
       Viewer.SetTempViewName(FileName);
     SetConsoleTitle(OldTitle);
-    return CtrlObject->FrameManager->ExecuteModal(Viewer);
+    return FrameManager->ExecuteModal(Viewer);
   }
   return(TRUE);
 }
@@ -1170,7 +1174,6 @@ int WINAPI FarEditor(char *FileName,char *Title,int X1,int Y1,int X2,
     Y2=ScrY;
   char OldTitle[512];
   GetConsoleTitle(OldTitle,sizeof(OldTitle));
-  SaveScreen SaveScr;
   /* $ 12.07.2000 IS
    Проверка флагов редактора (раньше они игнорировались) и открытие
    немодального редактора, если есть соответствующий флаг
@@ -1186,7 +1189,7 @@ int WINAPI FarEditor(char *FileName,char *Title,int X1,int Y1,int X2,
    FileEditor *Editor=new FileEditor(FileName,CreateNew,TRUE,StartLine,StartChar,Title,X1,Y1,X2,Y2);
    if(Editor)
      {
-      CtrlObject->FrameManager->AddFrame(Editor);
+      FrameManager->AddFrame(Editor);
       ExitCode=TRUE;
      }
   }
@@ -1194,7 +1197,7 @@ int WINAPI FarEditor(char *FileName,char *Title,int X1,int Y1,int X2,
   {
    FileEditor Editor(FileName,CreateNew,FALSE,StartLine,StartChar,Title,X1,Y1,X2,Y2);
    SetConsoleTitle(OldTitle);
-   return CtrlObject->FrameManager->ExecuteModal (Editor);
+   return FrameManager->ExecuteModal (Editor);
   }
   return ExitCode;
   /* IS $ */

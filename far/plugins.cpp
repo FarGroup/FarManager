@@ -222,6 +222,8 @@ Modify:
 #include "dialog.hpp"
 #include "rdrwdsk.hpp"
 #include "savescr.hpp"
+#include "ctrlobj.hpp"
+#include "scrbuf.hpp"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4509)

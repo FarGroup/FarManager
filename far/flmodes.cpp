@@ -26,6 +26,7 @@ Modify:
 #include "fn.hpp"
 #include "lang.hpp"
 #include "filepanels.hpp"
+#include "ctrlobj.hpp"
 #include "vmenu.hpp"
 #include "dialog.hpp"
 

@@ -83,6 +83,7 @@ Modify:
 #include "fileedit.hpp"
 #include "plognmn.hpp"
 #include "savefpos.hpp"
+#include "ctrlobj.hpp"
 
 static int ProcessSingleMenu(char *MenuKey,int MenuPos);
 static int DeleteMenuRecord(char *MenuKey,int DeletePos);

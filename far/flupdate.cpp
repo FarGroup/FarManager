@@ -50,6 +50,7 @@ Modify:
 #include "filter.hpp"
 #include "hilight.hpp"
 #include "grpsort.hpp"
+#include "ctrlobj.hpp"
 
 int _cdecl SortSearchList(const void *el1,const void *el2);
 

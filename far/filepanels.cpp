@@ -34,6 +34,7 @@ Modify:
 #include "keys.hpp"
 #include "lang.hpp"
 #include "plugin.hpp"
+#include "ctrlobj.hpp"
 #include "filelist.hpp"
 #include "rdrwdsk.hpp"
 #include "cmdline.hpp"

@@ -7,10 +7,12 @@ scrbuf.hpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 12.05.2001 $ */
 
 /*
 Modify:
+  12.05.2001 DJ
+    ! глобальный ScrBuf переехал сюда
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
@@ -49,5 +51,7 @@ class ScreenBuf
     void GetCursorType(int &Visible,int &Size);
     void RestoreMacroChar();
 };
+
+extern ScreenBuf ScrBuf;
 
 #endif	// __SCREENBUF_HPP__

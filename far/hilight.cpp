@@ -79,6 +79,7 @@ Modify:
 #include "filepanels.hpp"
 #include "panel.hpp"
 #include "savescr.hpp"
+#include "ctrlobj.hpp"
 
 #define HIGHLIGHT_MASK_SIZE      2048
 

@@ -156,6 +156,7 @@ Modify:
 #include "flink.hpp"
 #include "keys.hpp"
 #include "lang.hpp"
+#include "ctrlobj.hpp"
 #include "filter.hpp"
 #include "dialog.hpp"
 #include "vmenu.hpp"
@@ -171,6 +172,7 @@ Modify:
 #include "qview.hpp"
 #include "rdrwdsk.hpp"
 #include "plognmn.hpp"
+#include "scrbuf.hpp"
 
 extern struct PanelViewSettings ViewSettingsArray[];
 
@@ -1116,14 +1118,14 @@ int FileList::ProcessKey(int Key)
                 if (PluginMode)
                 {
                   FileEditor ShellEditor (FileName,Key==KEY_SHIFTF4,FALSE,-1,-1,TRUE,PluginData);
-                  CtrlObject->FrameManager->ExecuteModal (ShellEditor);
+                  FrameManager->ExecuteModal (ShellEditor);
                   UploadFile=ShellEditor.IsFileChanged();
                   Modaling=TRUE;///
                 }
                 else
                 {
                   FileEditor *ShellEditor=new FileEditor(FileName,Key==KEY_SHIFTF4,TRUE);
-                  CtrlObject->FrameManager->AddFrame(ShellEditor);
+                  FrameManager->AddFrame(ShellEditor);
                   Modaling=FALSE;///
                 }
             if (PluginMode && UploadFile)
@@ -1186,7 +1188,7 @@ int FileList::ProcessKey(int Key)
                 {
                   if (PluginMode)
                     ShellViewer->SetTempViewName(FileName);
-                  CtrlObject->FrameManager->AddFrame(ShellViewer);
+                  FrameManager->AddFrame(ShellViewer);
                 }
                 else
                   delete ShellViewer;

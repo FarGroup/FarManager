@@ -51,6 +51,7 @@ Modify:
 #include "filter.hpp"
 #include "cmdline.hpp"
 #include "filepanels.hpp"
+#include "ctrlobj.hpp"
 
 extern struct PanelViewSettings ViewSettingsArray[];
 extern int ColumnTypeWidth[];

@@ -63,6 +63,7 @@ Modify:
 #include "colors.hpp"
 #include "lang.hpp"
 #include "keys.hpp"
+#include "ctrlobj.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
 #include "help.hpp"
@@ -323,7 +324,7 @@ int InfoList::ProcessKey(int Key)
       {
         CtrlObject->Cp()->GetAnotherPanel(this)->GetCurDir(CurDir);
         chdir(CurDir);
-        CtrlObject->FrameManager->AddFrame(new FileViewer(DizFileName,TRUE));
+        FrameManager->AddFrame(new FileViewer(DizFileName,TRUE));
       }
       /* $ 20.07.2000 tran
          после показа перерисовываем панели */
@@ -341,7 +342,7 @@ int InfoList::ProcessKey(int Key)
         AnotherPanel->GetCurDir(CurDir);
         chdir(CurDir);
         if (*DizFileName)
-          CtrlObject->FrameManager->AddFrame(new FileEditor(DizFileName,FALSE,TRUE));
+          FrameManager->AddFrame(new FileEditor(DizFileName,FALSE,TRUE));
         else if (*Opt.FolderInfoFiles)
         {
           char ArgName[NM];
@@ -350,7 +351,7 @@ int InfoList::ProcessKey(int Key)
           {
             if (!strpbrk (ArgName, "*?"))
             {
-              CtrlObject->FrameManager->AddFrame(new FileEditor(ArgName,TRUE,TRUE));
+              FrameManager->AddFrame(new FileEditor(ArgName,TRUE,TRUE));
               break;
             }
           }

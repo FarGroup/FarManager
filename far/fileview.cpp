@@ -86,6 +86,7 @@ Modify:
 #include "fn.hpp"
 #include "lang.hpp"
 #include "keys.hpp"
+#include "ctrlobj.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
 #include "history.hpp"
@@ -167,18 +168,6 @@ void FileViewer::Init(char *name,int EnableSwitch,int disableHistory,  ///
   SetFarTitle(NewTitle);
   ShowConsoleTitle();
   F3KeyOnly=TRUE;
-/*///
-  Process();
-  if (!DisableHistory && (CtrlObject->Cp()->ActivePanel!=NULL || strcmp(Name,"-")!=0))
-  {
-    char FullFileName[NM];
-//    ConvertNameToFull(Name,FullFileName, sizeof(FullFileName));
-    if (ConvertNameToFull(Name,FullFileName, sizeof(FullFileName)) >= sizeof(FullFileName)){
-      return ;
-    }
-    CtrlObject->ViewHistory->AddToHistory(FullFileName,MSG(MHistoryView),0);
-  }
-*///
 }
 
 
@@ -292,7 +281,7 @@ int FileViewer::ProcessKey(int Key)
             /* $ 10.05.2001 DJ 
                переключаемся на панели
             */
-            CtrlObject->FrameManager->SwitchToPanels();
+            FrameManager->SwitchToPanels();
             /* DJ $ */
           }
           /*else
@@ -325,7 +314,7 @@ int FileViewer::ProcessKey(int Key)
       if(!(Opt.AllCtrlAltShiftRule & CASR_VIEWER))
         return TRUE;
     case KEY_CTRLO:
-      CtrlObject->FrameManager->ShowBackground();
+      FrameManager->ShowBackground();
       WaitKey(Key==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:-1);
 /*
       Hide();
@@ -375,7 +364,7 @@ int FileViewer::ProcessKey(int Key)
         */
         ShellEditor->SetNamesList (View.GetNamesList());
         /* DJ $ */
-        CtrlObject->FrameManager->ReplaceCurrentFrame(ShellEditor);
+        FrameManager->ReplaceFrame(this, ShellEditor);
         /* DJ $ */
         ShowTime(2);
       }

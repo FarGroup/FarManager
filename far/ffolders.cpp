@@ -31,6 +31,7 @@ Modify:
 #include "lang.hpp"
 #include "vmenu.hpp"
 #include "cmdline.hpp"
+#include "ctrlobj.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
 

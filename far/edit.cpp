@@ -151,8 +151,10 @@ Modify:
 #include "plugin.hpp"
 #include "keys.hpp"
 #include "editor.hpp"
+#include "ctrlobj.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
+#include "scrbuf.hpp"
 
 static int EditOutDisabled=0;
 static int EditEncodeDisabled=0;

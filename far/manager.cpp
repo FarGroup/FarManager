@@ -5,10 +5,16 @@ manager.cpp
 
 */
 
-/* Revision: 1.15 11.05.2001 $ */
+/* Revision: 1.16 12.05.2001 $ */
 
 /*
 Modify:
+  12.05.2001 DJ
+    ! FrameManager оторван от CtrlObject
+    ! объединены ExecuteModal() и ExecuteModalPtr() (и о чем я думал, когда 
+      делал две функции?)
+    ! ReplaceCurrentFrame() заменена на более универсальную ReplaceFrame()
+      (с подачи ОТ)
   11.05.2001 OT
     ! Отрисовка Background
   10.05.2001 DJ
@@ -68,6 +74,9 @@ Modify:
 #include "panel.hpp"
 #include "savescr.hpp"
 #include "cmdline.hpp"
+#include "ctrlobj.hpp"
+
+Manager *FrameManager;
 
 Manager::Manager()
 {
@@ -236,14 +245,29 @@ void Manager::DeleteDestroyedFrame()
    заменить текущий фрейм на указанный (используется для обработки F6)
 */
 
-void Manager::ReplaceCurrentFrame (Frame *NewFrame)
+/* $ 12.05.2001 DJ
+   заменена на более общую функцию (с подачи ОТ)
+*/
+
+void Manager::ReplaceFrame (Frame *OldFrame, Frame *NewFrame)
 {
-  DestroyedFrame = FrameList [FramePos];
+  DestroyedFrame = OldFrame;
   DestroyedFrame->OnChangeFocus (0);
-  FrameToReplace = NewFrame;
+  if (OldFrame == CurrentFrame)
+    FrameToReplace = NewFrame;
+  else
+    for (int i=0; i<FrameCount; i++)
+      if (FrameList [i] == OldFrame)
+        FrameList [i] = NewFrame;
 }
 
 /* DJ $ */
+/* DJ $ */
+
+
+/* $ 10.05.2001 DJ
+   поддерживает ReplaceFrame (F6)
+*/
 
 int Manager::ExecuteModal (Frame &ModalFrame)
 {
@@ -251,36 +275,22 @@ int Manager::ExecuteModal (Frame &ModalFrame)
   AddFrame (&ModalFrame);
   ModalFrame.Show();
   DestroyedFrame = NULL;
-  while (DestroyedFrame != &ModalFrame)
-    ProcessMainLoop();
-  int exitCode = ModalFrame.GetExitCode();
-  DestroyedFrame = NULL;
-  return exitCode;
-}
-
-/* $ 10.05.2001 DJ
-   в отличие от ExecuteModal(), поддерживает ReplaceCurrentFrame (F6)
-*/
-
-int Manager::ExecuteModalPtr (Frame *ModalFrame)
-{
-  ModalSaveState();
-  AddFrame (ModalFrame);
-  ModalFrame->Show();
-  DestroyedFrame = NULL;
-  while (DestroyedFrame != ModalFrame)
+  Frame *CurModalFrame = &ModalFrame;
+  while (DestroyedFrame != CurModalFrame)
   {
     ProcessMainLoop();
     if (FrameToReplace)
     {
-      ModalFrame = FrameToReplace;
-      DeleteDestroyedFrame();
+      CurModalFrame = FrameToReplace;
+      if (DestroyedFrame == &ModalFrame)
+        DestroyedFrame = NULL;
+      else
+        DeleteDestroyedFrame();
       continue;
     }
   }
-  int exitCode = ModalFrame->GetExitCode();
-  DeleteDestroyedFrame();
-  return exitCode;
+  DestroyedFrame = NULL;
+  return CurModalFrame->GetExitCode();
 }
 
 /* DJ */
@@ -312,50 +322,6 @@ void Manager::NextFrame(int Increment)
   SetCurrentFrame (CurFrame);
 
   _D(SysLog("Manager::NextFrame(), set CurrentFrame=0x%p, %s",CurrentFrame,CurrentFrame->GetTypeName()));
-
-  if (CurFrame->GetType()==MODALTYPE_EDITOR)
-    UpdateRequired=TRUE;
-
-/*    int ExitCode=CurModal->GetExitCode();
-    if (ExitCode<=0)
-    {
-      delete CurModal;
-      for (int I=ModalPos+1;I<ModalCount;I++)
-        ModalList[I-1]=ModalList[I];
-      ModalCount--;
-      if (*NextName)
-      {
-        ActivateNextFrame();
-        return;
-      }
-    }
-    else
-    {
-      if (ExitCode==2)
-        SelectModal();
-      else
-        if (ExitCode==3)
-        {
-          if (--ModalPos<0)
-            ModalPos=ModalCount;
-        }
-        else
-          ModalPos++;
-      CurModal->Hide();
-    }
-*/
-//  } // while
-/*  CtrlObject->Cp()->ActivePanel->SetTitle();
-  if (UpdateRequired)
-  {
-    CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
-    CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
-    UpdateRequired=TRUE;
-  }
-  CtrlObject->Cp()->LeftPanel->Redraw();
-  CtrlObject->Cp()->RightPanel->Redraw();
-  CtrlObject->CmdLine.Redraw();
-  CtrlObject->MainKeyBar.Redraw();*/
   _D(SysLog(-1));
 }
 
@@ -365,7 +331,7 @@ void Manager::SetCurrentFrame (Frame *NewCurFrame)
   CurrentFrame = NewCurFrame;
   CurrentFrame->ShowConsoleTitle();
   CurrentFrame->OnChangeFocus(1);
-  CtrlObject->Macro.SetMode(CurrentFrame->MacroMode);
+  CtrlObject->Macro.SetMode(CurrentFrame->GetMacroMode());
 }
 
 

@@ -44,6 +44,7 @@ static char MsgHelpTopic[80];
 #include "lang.hpp"
 #include "dialog.hpp"
 #include "farftp.hpp"
+#include "scrbuf.hpp"
 
 int Message(int Flags,int Buttons,char *Title,char *Str1,char *Str2,
             char *Str3,char *Str4,int PluginNumber)

@@ -195,6 +195,8 @@ Modify:
 #include "fileview.hpp"
 #include "savefpos.hpp"
 #include "savescr.hpp"
+#include "ctrlobj.hpp"
+#include "scrbuf.hpp"
 
 static int InitLastSearchHex=0;
 

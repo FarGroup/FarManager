@@ -411,6 +411,7 @@ Modify:
 #include "ctrlobj.hpp"
 #include "chgprior.hpp"
 #include "vmenu.hpp"
+#include "scrbuf.hpp"
 
 static char fmtLocked[]="Locked%d";
 static char fmtLine[]  ="Line%d";

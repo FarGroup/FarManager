@@ -42,6 +42,7 @@ Modify:
 #include "fn.hpp"
 #include "lang.hpp"
 #include "keys.hpp"
+#include "ctrlobj.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
 #include "vmenu.hpp"

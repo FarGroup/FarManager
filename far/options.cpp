@@ -46,6 +46,7 @@ Modify:
 #include "hilight.hpp"
 #include "cmdline.hpp"
 #include "manager.hpp"
+#include "ctrlobj.hpp"
 
 int OptionsDisabled(int i);
 
@@ -404,10 +405,10 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
           CtrlObject->Cp()->ActivePanel->EditFilter();
           break;
         case 17:
-          CtrlObject->FrameManager->ProcessKey(KEY_F11);
+          FrameManager->ProcessKey(KEY_F11);
           break;
         case 18:
-          CtrlObject->FrameManager->ProcessKey(KEY_F12);
+          FrameManager->ProcessKey(KEY_F12);
           break;
         case 19:
           ShowProcessList();

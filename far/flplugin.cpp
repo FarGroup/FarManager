@@ -46,6 +46,7 @@ Modify:
 #include "fn.hpp"
 #include "filepanels.hpp"
 #include "history.hpp"
+#include "ctrlobj.hpp"
 
 void FileList::PushPlugin(HANDLE hPlugin,char *HostFile)
 {
