@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.38 21.12.2000 $ */
+/* Revision: 1.39 11.01.2001 $ */
 
 /*
 Modify:
+  11.01.2000 VVM
+    ! Левый край считается за раз, а не итерациями по +4
   21.12.2000 SVS
     ! Не спрячем элемент HEX в поисковом диалоге, а задизаблим (для Unicode)
   16.12.2000 tran
@@ -598,9 +600,14 @@ void Viewer::DisplayObject()
         */
         if (!VM.Wrap &&
         /* SVS $ */
-           SelX1+SaveSelectSize-1>XX2 && LeftPos<MAX_VIEWLINE)
+           SelX1+SaveSelectSize-1>XX2 && LeftPos<MAX_VIEWLINE
+        /* $ 11.01.2000 VVM
+           Левый край считается за раз, а не итерациями по +4 */
+           && (X1+SelPos+SaveSelectSize-XX2<MAX_VIEWLINE))
         {
-          LeftPos+=4;
+//          LeftPos+=4;
+          LeftPos=X1+SelPos+SaveSelectSize-XX2;
+        /* VVM $ */
           SelectSize=SaveSelectSize;
           Show();
           return;
