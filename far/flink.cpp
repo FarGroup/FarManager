@@ -5,12 +5,14 @@ flink.cpp
 
 */
 
-/* Revision: 1.01 04.01.2001 $ */
+/* Revision: 1.03 04.01.2001 $ */
 
 /*
 Modify:
+  05.01.2000 OT 
+    - Косметика, из-за которой не компилился под VC :) 
   04.01.2001 SVS
-    + Заглужки для CreateJunctionPoint, DeleteJunctionPoint
+    + Заглушки для CreateJunctionPoint, DeleteJunctionPoint
     + GetJunctionPointInfo - получить инфу про Junc
   03.01.2001 SVS
     ! Выделение в качестве самостоятельного модуля
@@ -23,8 +25,9 @@ Modify:
 #include "internalheaders.hpp"
 
 
-#if defined(__BORLANDC__)
-  #define CP_THREAD_ACP             3           // current thread's ANSI code page
+//#if defined(__BORLANDC__)
+// current thread's ANSI code page
+  #define CP_THREAD_ACP             3           
 
   #define MAXIMUM_REPARSE_DATA_BUFFER_SIZE      ( 16 * 1024 )
   // Predefined reparse tags.
@@ -45,8 +48,9 @@ Modify:
                     ((_tag) > IO_REPARSE_TAG_RESERVED_RANGE)      \
                    )
   #define FILE_FLAG_OPEN_REPARSE_POINT    0x00200000
-  #define FSCTL_GET_REPARSE_POINT         CTL_CODE(FILE_DEVICE_FILE_SYSTEM, 42, METHOD_BUFFERED, FILE_ANY_ACCESS) // REPARSE_DATA_BUFFER
-#endif
+  #define FSCTL_GET_REPARSE_POINT         CTL_CODE(FILE_DEVICE_FILE_SYSTEM, 42, METHOD_BUFFERED, FILE_ANY_ACCESS) 
+// REPARSE_DATA_BUFFER
+//#endif
 struct TMN_REPARSE_DATA_BUFFER
 {
   DWORD  ReparseTag;
