@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.245 18.05.2002 $ */
+/* Revision: 1.246 18.05.2002 $ */
 
 /*
 Modify:
+  18.05.2002 SVS
+    - DM_LISTADDSTR возвращал неверную инфу - не добавляемый индекс, а
+      сколько всего в списке было, в принципе достаточно вычесть единицу...
   18.05.2002 SVS
     ! OwnsItems -> DMODE_OWNSITEMS
     ! Edit::ReadOnly и Edit::DropDownBox - юзачем через функции.
@@ -1400,7 +1403,7 @@ int Dialog::InitDialogObjects(int ID)
         */
         if (CurItem->Focus)
           ListPtr->SetFlags (VMENU_LISTHASFOCUS);
-		/* DJ $ */
+    /* DJ $ */
       }
     }
     /* SVS $*/
@@ -5791,7 +5794,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 
             case DM_LISTADDSTR: // Param1=ID Param2=String
             {
-              Ret=ListBox->AddItem((char*)Param2);
+              Ret=ListBox->AddItem((char*)Param2)-1;
               /* $ 23.02.2002 DJ
                  а вдруг это вообще первый элемент, на который можно поставить курсор?
               */
@@ -6429,6 +6432,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
           case DI_EDIT:
           case DI_PSWEDIT:
           case DI_FIXEDIT:
+          case DI_LISTBOX: // меняет только текущий итем
             if((Len=did->PtrLength) == 0)
             {
               strncpy(Ptr,(char *)did->PtrData,511);
@@ -6491,7 +6495,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
             }
             break;
 
-          case DI_LISTBOX: // пока не трогаем - не реализован
+          case DI_LISTBOX: // меняет только текущий итем
           {
             VMenu *ListBox=CurItem->ListPtr;
             if(ListBox)

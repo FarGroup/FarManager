@@ -8,10 +8,13 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.87 18.05.2002 $ */
+/* Revision: 1.88 18.05.2002 $ */
 
 /*
 Modify:
+  18.05.2002 SVS
+    - При апдейте данных в списке ЗАТИРАЛОСЬ ВСЕ!, потому то и нихрена не
+      работало :-( Обновляем только те поля, которые нужно.
   18.05.2002 SVS
     ! MouseDown -> VMENU_MOUSEDOWN
   11.05.2002 SVS
@@ -1425,9 +1428,15 @@ int VMenu::UpdateItem(const struct FarListUpdate *NewItem)
     // Освободим память... от ранее занятого ;-)
     struct MenuItem *PItem=Item+NewItem->Index;
     if(PItem->UserDataSize > sizeof(PItem->UserData) && PItem->UserData && (NewItem->Item.Flags&LIF_DELETEUSERDATA))
+    {
       free(PItem->UserData);
+      PItem->UserData=NULL;
+      PItem->UserDataSize=0;
+    }
 
-    memcpy(PItem,FarList2MenuItem(&NewItem->Item,&MItem),sizeof(struct MenuItem));
+    FarList2MenuItem(&NewItem->Item,&MItem);
+    PItem->Flags=MItem.Flags;
+    memcpy(PItem->Name,MItem.Name,sizeof(PItem->Name));
 
     /* $ 23.02.2002 DJ
        если элемент selected - поставим на него выделение
