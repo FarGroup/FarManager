@@ -5,10 +5,15 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.85 11.12.2002 $ */
+/* Revision: 1.86 06.01.2003 $ */
 
 /*
 Modify:
+  06.01.03 SVS
+    ! в GetInputRecord сделаем Discard буферу сохранения в GlobalSaveScrPtr
+      при обработке эвента WINDOW_BUFFER_SIZE_EVENT
+    + FARGetKeybLayoutName, которая вызывает недокументированную
+      KERNEL32.DLL::GetConsoleKeyboardLayoutNameA
   11.12.2002 SVS
     - BugZ#702 - Не обрабатывается изменение размера консоли во время копирования
       ВНИМАНИЕ! В обработку WINDOW_BUFFER_SIZE_EVENT включен механизм редрайва
@@ -1043,6 +1048,8 @@ int GetInputRecord(INPUT_RECORD *rec)
       {
         // апдейтим панели (именно они сейчас!)
         LockScreen LckScr;
+        if(GlobalSaveScrPtr)
+          GlobalSaveScrPtr->Discard();
         FrameManager->ResizeAllFrame();
         FrameManager->GetCurrentFrame()->Show();
         //_SVS(SysLog("PreRedrawFunc = %p",PreRedrawFunc));
@@ -1763,14 +1770,68 @@ int IsShiftKey(DWORD Key)
 }
 
 
+char *FARGetKeybLayoutName(char *Dest,int DestSize)
+{
+  typedef BOOL (WINAPI *PGETCONSOLEKEYBOARDLAYOUTNAMEA)(LPSTR);
+  typedef BOOL (WINAPI *PGETCONSOLEKEYBOARDLAYOUTNAMEW)(WCHAR*);
+  static PGETCONSOLEKEYBOARDLAYOUTNAMEA pGetConsoleKeyboardLayoutNameA=NULL;
+  static PGETCONSOLEKEYBOARDLAYOUTNAMEW pGetConsoleKeyboardLayoutNameW=NULL;
+  static int LoadedGCKLM=0;
+
+  if(!LoadedGCKLM) // && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT
+  {
+    LoadedGCKLM=-1;
+    if(!pGetConsoleKeyboardLayoutNameA)
+    {
+      pGetConsoleKeyboardLayoutNameA = (PGETCONSOLEKEYBOARDLAYOUTNAMEA)GetProcAddress(GetModuleHandle("KERNEL32.DLL"),"GetConsoleKeyboardLayoutNameA");
+      if(pGetConsoleKeyboardLayoutNameA)
+        LoadedGCKLM=1;
+    }
+#if defined(USE_WFUNC_IN)
+    else if(!pGetConsoleKeyboardLayoutNameW)
+    {
+      pGetConsoleKeyboardLayoutNameW = (PGETCONSOLEKEYBOARDLAYOUTNAMEW)GetProcAddress(GetModuleHandle("KERNEL32.DLL"),"GetConsoleKeyboardLayoutNameW");
+      if(pGetConsoleKeyboardLayoutNameW)
+        LoadedGCKLM=2;
+    }
+#endif
+  }
+
+  switch(LoadedGCKLM)
+  {
+    case 1:
+    {
+      char Buffer[100];
+      if(pGetConsoleKeyboardLayoutNameA(Buffer))
+      {
+        strncpy(Dest,Buffer,DestSize);
+        return Dest;
+      }
+      break;
+    }
+
+#if defined(USE_WFUNC_IN)
+    case 2:
+    {
+      WCHAR Buffer[100];
+      if(pGetConsoleKeyboardLayoutNameW(Buffer))
+      {
+        UnicodeToOEM(Buffer,Dest,DestSize);
+        return Dest;
+      }
+      break;
+    }
+#endif
+  }
+  return NULL;
+}
+
+
 // GetAsyncKeyState(VK_RSHIFT)
 int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
 {
   //_SVS(CleverSysLog Clev("CalcKeyCode"));
-  union {
-    WCHAR UnicodeChar;
-    CHAR  AsciiChar;
-  } Char;
+  CHAR_WCHAR Char;
 
   unsigned int ScanCode,KeyCode,CtrlState;
   CtrlState=rec->Event.KeyEvent.dwControlKeyState;

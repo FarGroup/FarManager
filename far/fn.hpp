@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.172 21.12.2002 $ */
+/* Revision: 1.173 03.01.2003 $ */
 
 /*
 Modify:
+  03.01.2003 SVS
+    + FARGetKeybLayoutName
   21.12.2002 SVS
     ! Добавим параметр DontRedrawFrame в функцию GetDirInfo -
       "не рефрешить панели!"
@@ -1242,6 +1244,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros=NULL);
 */
 DWORD WaitKey(DWORD KeyWait=(DWORD)-1);
 /* SVS $ */
+char *FARGetKeybLayoutName(char *Dest,int DestSize);
 int WriteInput(int Key,DWORD Flags=0);
 int IsNavKey(DWORD Key);
 int IsShiftKey(DWORD Key);

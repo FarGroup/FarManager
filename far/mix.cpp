@@ -5,10 +5,14 @@ mix.cpp
 
 */
 
-/* Revision: 1.135 21.12.2002 $ */
+/* Revision: 1.136 06.01.2003 $ */
 
 /*
 Modify:
+  06.01.03 SVS
+    ! Восстановим в правах SaveScreen в GetDirInfo (в нужный час GlobalSaveScrPtr
+      сделает Discard буферу сохранения - в GetInputRecord при обработке эвента
+      WINDOW_BUFFER_SIZE_EVENT)
   21.12.2002 SVS
     - баги с прорисовкой, при вызове GetDirInfo
     ! Добавим параметр DontRedrawFrame в функцию GetDirInfo -
@@ -765,6 +769,12 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
                unsigned long &ClusterSize,clock_t MsgWaitTime,
                int EnhBreak,BOOL DontRedrawFrame)
 {
+  class UndoGlobalSaveScrPtr{
+    public:
+      UndoGlobalSaveScrPtr(SaveScreen *SaveScr){GlobalSaveScrPtr=SaveScr;};
+     ~UndoGlobalSaveScrPtr(){GlobalSaveScrPtr=NULL;};
+  };
+
   class RefreshFrameManeger{
     private:
       int OScrX,OScrY;
@@ -796,7 +806,9 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
   if (ConvertNameToFull(DirName,FullDirName, sizeof(FullDirName)) >= sizeof(FullDirName))
     return -1;
 
-  //SaveScreen SaveScr;
+  SaveScreen SaveScr;
+  UndoGlobalSaveScrPtr UndSaveScr(&SaveScr);
+
   ScanTree ScTree(FALSE);
   WIN32_FIND_DATA FindData;
   int MsgOut=0;

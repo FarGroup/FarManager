@@ -5,7 +5,7 @@ XLat - перекодировка
 
 */
 
-/* Revision: 1.03 19.02.2002 $ */
+/* Revision: 1.04 07.01.2003 $ */
 
 /*
 Modify:
@@ -75,6 +75,16 @@ char* WINAPI Xlat(
     // из текущей кодировки в OEM
     DecodeString(Line+StartPos,(LPBYTE)TableSet->DecodeTable,EndPos-StartPos+1);
 
+  char LayoutName[64];
+
+  int ProcessLayoutName=FALSE;
+  if((Flags & XLAT_USEKEYBLAYOUTNAME) && FARGetKeybLayoutName(LayoutName,sizeof(LayoutName)-1))
+  {
+    GetRegKey("XLat",LayoutName,(BYTE*)&Opt.XLat.Rules[2][1],(BYTE*)"",sizeof(Opt.XLat.Rules[2]));
+    if(Opt.XLat.Rules[2][1])
+      ProcessLayoutName=TRUE;
+  }
+
   // цикл по всей строке
   for(J=StartPos; J < EndPos; J++)
   {
@@ -106,47 +116,58 @@ char* WINAPI Xlat(
 
     if(!IsChange) // особые случаи...
     {
-      PreLang=CurLang;
-
-      if(LangCount[0] > LangCount[1])
-        CurLang=0;
-      else if(LangCount[0] < LangCount[1])
-        CurLang=1;
-      else
-        CurLang=2;
-
-      if(PreLang != CurLang)
-        CurLang=PreLang;
-
-      for(I=1; I < Opt.XLat.Rules[CurLang][0]; I+=2)
-        if(ChrOld == (BYTE)Opt.XLat.Rules[CurLang][I])
-        {
-           Chr=(BYTE)Opt.XLat.Rules[CurLang][I+1];
-           break;
-        }
-
-      #if 0
-      // Если в таблице не найдено и таблица была Unknown...
-      if(I >= Opt.XLat.Rules[CurLang][0] && CurLang == 2)
+      if(ProcessLayoutName)
       {
-        // ...смотрим сначала в первой таблице...
-        for(I=1; I < Opt.XLat.Rules[0][0]; I+=2)
-          if(ChrOld == (BYTE)Opt.XLat.Rules[0][I])
-             break;
-        for(J=1; J < Opt.XLat.Rules[1][0]; J+=2)
-          if(ChrOld == (BYTE)Opt.XLat.Rules[1][J])
-             break;
-        if(I >= Opt.XLat.Rules[0][0])
-          CurLang=1;
-        if(J >= Opt.XLat.Rules[1][0])
-          CurLang=0;
-        if(???)
-        {
-          Chr=(BYTE)Opt.XLat.Rules[CurLang][J+1];
-        }
+        for(I=1; I < Opt.XLat.Rules[2][0]; I+=2)
+          if(Chr == (BYTE)Opt.XLat.Rules[2][I])
+          {
+            Chr=(BYTE)Opt.XLat.Rules[2][I+1];
+            break;
+          }
       }
-      #endif
+      else
+      {
+        PreLang=CurLang;
 
+        if(LangCount[0] > LangCount[1])
+          CurLang=0;
+        else if(LangCount[0] < LangCount[1])
+          CurLang=1;
+        else
+          CurLang=2;
+
+        if(PreLang != CurLang)
+          CurLang=PreLang;
+
+        for(I=1; I < Opt.XLat.Rules[CurLang][0]; I+=2)
+          if(ChrOld == (BYTE)Opt.XLat.Rules[CurLang][I])
+          {
+             Chr=(BYTE)Opt.XLat.Rules[CurLang][I+1];
+             break;
+          }
+
+#if 0
+        // Если в таблице не найдено и таблица была Unknown...
+        if(I >= Opt.XLat.Rules[CurLang][0] && CurLang == 2)
+        {
+          // ...смотрим сначала в первой таблице...
+          for(I=1; I < Opt.XLat.Rules[0][0]; I+=2)
+            if(ChrOld == (BYTE)Opt.XLat.Rules[0][I])
+               break;
+          for(J=1; J < Opt.XLat.Rules[1][0]; J+=2)
+            if(ChrOld == (BYTE)Opt.XLat.Rules[1][J])
+               break;
+          if(I >= Opt.XLat.Rules[0][0])
+            CurLang=1;
+          if(J >= Opt.XLat.Rules[1][0])
+            CurLang=0;
+          if(???)
+          {
+            Chr=(BYTE)Opt.XLat.Rules[CurLang][J+1];
+          }
+        }
+#endif
+      }
     }
 
     Line[J]=(char)Chr;

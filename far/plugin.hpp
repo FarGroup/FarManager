@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.224 23.12.2002 $ */
+/* Revision: 1.225 07.01.2003 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  07.01.2003 SVS
+    + XLAT_USEKEYBLAYOUTNAME - пока для внутренних целей
   23.12.2002 SVS
     + FARINT64 (пока для внутреннего юзания)
     ! Учтем, что у нас __int64 теперь как часть FARINT64 во вьюверных структурах
@@ -2133,6 +2135,9 @@ typedef DWORD (WINAPI *FARSTDEXPANDENVIRONMENTSTR)(
 enum XLATMODE{
   XLAT_SWITCHKEYBLAYOUT = 0x0000001UL,
   XLAT_SWITCHKEYBBEEP   = 0x0000002UL,
+#ifdef FAR_USE_INTERNALS
+  XLAT_USEKEYBLAYOUTNAME= 0x0000004UL,
+#endif // END FAR_USE_INTERNALS
 };
 
 typedef char*   (WINAPI *FARSTDXLAT)(char *Line,int StartPos,int EndPos,const struct CharTableSet *TableSet,DWORD Flags);

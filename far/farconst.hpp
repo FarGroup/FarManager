@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.65 10.12.2002 $ */
+/* Revision: 1.66 03.01.2003 $ */
 
 /*
 Modify:
+  03.01.2003 SVS
+    + CHAR_WCHAR
   10.12.2002 SVS
     + MSG_KILLSAVESCREEN
   14.07.2002 IS & SVS
@@ -370,5 +372,10 @@ enum CHECKFOLDERCONST{ // for CheckFolder()
   CHKFLD_EMPTY     =  0,
   CHKFLD_NOTEMPTY  =  1,
 };
+
+typedef union {
+  WCHAR UnicodeChar;
+  CHAR  AsciiChar;
+} CHAR_WCHAR;
 
 #endif // __FARCONST_HPP__

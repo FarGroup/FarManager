@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.116 28.12.2002 $ */
+/* Revision: 1.117 07.01.2003 $ */
 
 /*
 Modify:
+  07.01.2003 SVS
+    - BugZ#761 - Searching window disappears
   28.12.2002 IS
     - Блин, опять не доглядел :-(
       После предыдущего изменения VCTL_QUIT по-прежнему не работал, если
@@ -357,6 +359,9 @@ Modify:
 #include "savescr.hpp"
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
+
+static void PR_ViewerSearchMsg(void);
+static void ViewerSearchMsg(char *Name);
 
 static int InitLastSearchHex=0;
 
@@ -2324,6 +2329,17 @@ long WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
   return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
+static void PR_ViewerSearchMsg(void)
+{
+  ViewerSearchMsg((char*)PreRedrawParam.Param1);
+}
+
+void ViewerSearchMsg(char *MsgStr)
+{
+  Message(0,0,MSG(MViewSearchTitle),MSG(MViewSearchingFor),MsgStr);
+  PreRedrawParam.Param1=MsgStr;
+}
+
 void Viewer::Search(int Next,int FirstChar)
 {
   const char *TextHistoryName="SearchText";
@@ -2421,13 +2437,15 @@ void Viewer::Search(int Next,int FirstChar)
     return;
 
   {
-    SaveScreen SaveScr;
+    //SaveScreen SaveScr;
     SetCursorType(FALSE,0);
     strncpy(MsgStr,(char *) SearchStr,sizeof(MsgStr)-1);
     if(strlen(MsgStr)+16 >= X2)
       TruncStrFromEnd(MsgStr, ObjWidth-17);
     InsertQuote(MsgStr);
-    Message(0,0,MSG(MViewSearchTitle),MSG(MViewSearchingFor),MsgStr);
+
+    SetPreRedrawFunc(PR_ViewerSearchMsg);
+    ViewerSearchMsg(MsgStr);
 
     if (SearchHex)
       ConvertToHex((char *)SearchStr,SearchLength);
@@ -2478,8 +2496,17 @@ void Viewer::Search(int Next,int FirstChar)
         vseek(ViewFile,CurPos,SEEK_SET);
         if ((ReadSize=vread(Buf,BufSize,ViewFile))<=0)
           break;
-        if (CheckForEsc())
-          return;
+
+        if(CheckForEscSilent())
+        {
+          if (ConfirmAbortOp())
+          {
+            SetPreRedrawFunc(NULL);
+            return;
+          }
+          ViewerSearchMsg(MsgStr);
+        }
+
         if (VM.UseDecodeTable && !SearchHex && !VM.Unicode)
           for (int I=0;I<ReadSize;I++)
             Buf[I]=TableSet.DecodeTable[Buf[I]];
@@ -2576,6 +2603,8 @@ void Viewer::Search(int Next,int FirstChar)
       }
     }
   }
+
+  SetPreRedrawFunc(NULL);
 
   if (Match)
     SelectText(MatchPos,SearchLength,0x1|(ReverseSearch?0x2:0));

@@ -8,10 +8,13 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.105 16.12.2002 $ */
+/* Revision: 1.106 03.01.2003 $ */
 
 /*
 Modify:
+  03.01.2003 SVS
+    - Bug#757 - Несанкционированный доступ к настройкам
+      (видимо не только в конструкторе нужно... надо подумать потом!!!)
   16.12.2002 SVS
     - BugZ#729 - некорректная отрисовка в диалоге найденных файлов
   04.11.2002 SVS
@@ -465,14 +468,17 @@ VMenu::VMenu(const char *Title,       // заголовок меню
   }
 
   BoxType=DOUBLE_BOX;
-  for (SelectPos=0,I=0;I<ItemCount;I++)
+  for (SelectPos=-1,I=0;I<ItemCount;I++)
   {
     int Length=strlen(Item[I].Name);
     if (Length>MaxLength)
       MaxLength=Length;
-    if (Item[I].Flags&LIF_SELECTED)
+    if ((Item[I].Flags&LIF_SELECTED) && !(Item[I].Flags&LIF_DISABLE))
       SelectPos=I;
   }
+  if(SelectPos == -1)
+    SelectPos=SetSelectPos(0,1);
+
   SetMaxHeight(MaxHeight);
   /* $ 28.07.2000 SVS
      Установим цвет по умолчанию
@@ -1010,8 +1016,11 @@ int VMenu::ProcessKey(int Key)
         VMenu::ParentDialog->ProcessKey(Key);
       else
       {
-        EndLoop=TRUE;
-        Modal::ExitCode=SelectPos;
+        if(!(Item[SelectPos].Flags&LIF_DISABLE))
+        {
+          EndLoop=TRUE;
+          Modal::ExitCode=SelectPos;
+        }
       }
       break;
     }

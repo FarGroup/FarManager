@@ -1750,6 +1750,11 @@ $ #Internal viewer#
        the viewer is closed, but any operations on the deleted
        file fail - this is a Windows feature.
 
+    4. The current version of FAR has a limitation on the maximum
+       number of columns in the internal viewer - the number
+       cannot exceed 2048. If a file contains a line that does not
+       fit in this number of columns, it will be split into several
+       lines, even if the word wrap mode is turned off.
 
 @ViewerGotoPos
 $ #Go to specified position

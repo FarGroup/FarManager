@@ -5,10 +5,13 @@ global.cpp
 
 */
 
-/* Revision: 1.47 23.12.2002 $ */
+/* Revision: 1.48 06.01.2003 $ */
 
 /*
 Modify:
+  06.01.2003 SVS
+    + GlobalSaveScrPtr - глобальная переменная-указатель, для того, чтобы
+      при изменении размеров экрана молча "убить" буфер сохранения.
   23.12.2002 SVS
     ! OnlyEditorViewerUsed стал частью структуры Options
   10.12.2002 SVS
@@ -245,3 +248,6 @@ const char *HelpFormatLinkModule="<%s>%s";
 #if defined(SYSLOG)
 BOOL StartSysLog=0;
 #endif
+
+class SaveScreen;
+SaveScreen *GlobalSaveScrPtr=NULL;
