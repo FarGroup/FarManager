@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.04 05.01.2001 $ */
+/* Revision: 1.05 09.01.2001 $ */
 
 /*
 Modify:
+  09.01.2001 SVS
+    ! Грабер должен быть раньше Alt-Number-ввода
   05.01.2001 SVS
     - И снова CalcKeyCode - не работал Alt-Ins
   05.01.2001 SVS
@@ -838,6 +840,20 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey)
   if (KeyCode>=VK_F1 && KeyCode<=VK_F12)
     return(Modif+KEY_F1+((KeyCode-VK_F1)<<8));
 
+  int NotShift=!CtrlPressed && !AltPressed && !ShiftPressed;
+
+  if (AltPressed && !CtrlPressed && !ShiftPressed)
+  {
+    static int InGrabber=FALSE;
+    if (AltValue==0 && !InGrabber && (KeyCode==VK_INSERT || KeyCode==VK_NUMPAD0))
+    {
+      InGrabber=TRUE;
+      WaitInMainLoop=FALSE;
+      Grabber Grabber;
+      InGrabber=FALSE;
+      return(KEY_NONE);
+    }
+  }
   if (AltPressed && !CtrlPressed && !ShiftPressed)
   {
     static int ScanCodes[]={82,79,80,81,75,76,77,71,72,73};
@@ -848,28 +864,14 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey)
           AltValue=AltValue*10+I;
         return(KEY_NONE);
       }
-
   }
 
 //  if(CtrlPressed || AltPressed || ShiftPressed)
   {
-    int NotShift=!CtrlPressed && !AltPressed && !ShiftPressed;
     switch(KeyCode)
     {
       case VK_INSERT:
       case VK_NUMPAD0:
-        if (AltPressed && !CtrlPressed && !ShiftPressed)
-        {
-          static int InGrabber=FALSE;
-          if (AltValue==0 && !InGrabber && (KeyCode==VK_INSERT || KeyCode==VK_NUMPAD0))
-          {
-            InGrabber=TRUE;
-            WaitInMainLoop=FALSE;
-            Grabber Grabber;
-            InGrabber=FALSE;
-            return(KEY_NONE);
-          }
-        }
         if (NotShift && KeyCode == VK_NUMPAD0)
           return '0';
         return(Modif|KEY_INS);

@@ -7,10 +7,12 @@ history.hpp
 
 */
 
-/* Revision: 1.01 24.09.2000 $ */
+/* Revision: 1.02 09.01.2001 $ */
 
 /*
 Modify:
+  09.01.2001 SVS
+    - Бага с CmdHistoryRule=1
   24.09.2000 SVS
     + SetFirst() - для CmdHistoryRule
   25.06.2000 SVS
@@ -25,6 +27,7 @@ class History
     struct HistoryRecord LastStr[64];
     char RegKey[256];
     unsigned int LastPtr,CurLastPtr;
+    unsigned int LastPtr0,CurLastPtr0;
     int EnableAdd,RemoveDups,KeepSelectedPos;
     int *EnableSave,SaveTitle,SaveType;
     int LastSimilar;
@@ -37,7 +40,7 @@ class History
     int Select(char *Title,char *HelpTopic,char *Str,int &Type,char *ItemTitle=NULL);
     void GetPrev(char *Str);
     void GetNext(char *Str);
-    void SetFirst() {  LastPtr=-1; CurLastPtr=-1;}
+    void SetFirst() {LastPtr=LastPtr0;CurLastPtr=CurLastPtr0;}
     void GetSimilar(char *Str,int LastCmdPartLength);
     void SetAddMode(int EnableAdd,int RemoveDups,int KeepSelectedPos);
 };

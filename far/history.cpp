@@ -5,10 +5,12 @@ history.cpp
 
 */
 
-/* Revision: 1.01 11.07.2000 $ */
+/* Revision: 1.02 09.01.2001 $ */
 
 /*
 Modify:
+  09.01.2001 SVS
+    - Бага с CmdHistoryRule=1
   11.07.2000 SVS
     ! Изменения для возможности компиляции под BC & VC
   25.06.2000 SVS
@@ -27,8 +29,7 @@ Modify:
 
 History::History(char *RegKey,int *EnableSave,int SaveTitle,int SaveType)
 {
-  LastPtr=0;
-  CurLastPtr=0;
+  LastPtr=CurLastPtr=LastPtr0=CurLastPtr0=0;
   memset(LastStr,0,sizeof(LastStr));
   History::SaveTitle=SaveTitle;
   History::SaveType=SaveType;
@@ -53,8 +54,8 @@ void History::AddToHistory(char *Str,char *Title,int Type)
     ReadHistory();
     AddToHistoryLocal(Str,Title,Type);
     SaveHistory();
-    LastPtr=SaveLastPtr;
-    CurLastPtr=SaveCurLastPtr;
+    LastPtr0=LastPtr=SaveLastPtr;
+    CurLastPtr0=CurLastPtr=SaveCurLastPtr;
     memcpy(LastStr,SaveLastStr,sizeof(LastStr));
   }
   AddToHistoryLocal(Str,Title,Type);
@@ -92,7 +93,7 @@ void History::AddToHistoryLocal(char *Str,char *Title,int Type)
           LastStr[Dest]=LastStr[Src];
         }
         LastStr[OldLastPtr]=AddRecord;
-        CurLastPtr=LastPtr;
+        CurLastPtr0=LastPtr0=CurLastPtr=LastPtr;
         return;
       }
     }
@@ -106,7 +107,7 @@ void History::AddToHistoryLocal(char *Str,char *Title,int Type)
     if (++LastPtr==sizeof(LastStr)/sizeof(LastStr[0]))
       LastPtr=0;
   }
-  CurLastPtr=LastPtr;
+  CurLastPtr0=LastPtr0=CurLastPtr=LastPtr;
 }
 
 
@@ -208,7 +209,7 @@ void History::ReadHistory()
   RegQueryValueEx(hKey,"Position",0,&Type,(BYTE *)&CurLastPtr,&Size);
   RegCloseKey(hKey);
 
-  LastPtr=CurLastPtr;
+  LastPtr0=CurLastPtr0=LastPtr=CurLastPtr;
 }
 
 
@@ -264,6 +265,7 @@ int History::Select(char *Title,char *HelpTopic,char *Str,int &Type,char *ItemTi
         case KEY_DEL:
           memset(LastStr,0,sizeof(LastStr));
           CurLastPtr=LastPtr=0;
+          CurLastPtr0=LastPtr0=0;
           SaveHistory();
           HistoryMenu.Hide();
           return(Select(Title,HelpTopic,Str,Type));
@@ -278,12 +280,12 @@ int History::Select(char *Title,char *HelpTopic,char *Str,int &Type,char *ItemTi
 
   if (LineToStr[Code]==-1)
   {
-    CurLastPtr=LastPtr;
+    CurLastPtr0=LastPtr0=CurLastPtr=LastPtr;
     return(0);
   }
   int StrPos=LineToStr[Code];
   if (KeepSelectedPos)
-    CurLastPtr=StrPos;
+    CurLastPtr0=CurLastPtr=StrPos;
   strcpy(Str,LastStr[StrPos].Name);
   Type=LastStr[StrPos].Type;
   if (ItemTitle!=NULL)
