@@ -5,10 +5,12 @@ Parent class дл€ панелей
 
 */
 
-/* Revision: 1.51 17.06.2001 $ */
+/* Revision: 1.52 21.06.2001 $ */
 
 /*
 Modify:
+  21.06.2001 tran
+    ! убран глюк AltF1,F1,esc      
   17.06.2001 KM
     ! ƒобавление WRAPMODE в меню.
   14.06.2001 KM
@@ -235,7 +237,7 @@ void Panel::ChangeDisk()
 }
 
 
-int Panel::ChangeDiskMenu(int Pos,int FirstCall)
+int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 {
   struct MenuItem ChDiskItem;
   memset(&ChDiskItem,0,sizeof(ChDiskItem));
@@ -246,6 +248,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
   *DiskLetter=0;
 
+  _tran(SysLog("Panel::ChangeDiskMenu(), Pos=%i, FirstCall=%i",Pos,FirstCall));
   Mask=FarGetLogicalDrives();
 
   for (DiskMask=Mask,DiskCount=0;DiskMask!=0;DiskMask>>=1)
@@ -254,6 +257,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
   int UserDataSize;
   DWORD UserData;
   {
+    _tran(SysLog("create VMenu ChDisk"));
     VMenu ChDisk(MSG(MChangeDriveTitle),NULL,0,ScrY-Y1-3);
     ChDisk.SetHelp("DriveDlg");
     /* $ 17.06.2001 KM
@@ -269,6 +273,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
     /* $ 02.04.2001 VVM
       ! ѕопытка не будить сп€щие диски... */
     for (DiskMask=Mask,MenuLine=I=0;DiskMask!=0;DiskMask>>=1,I++)
+    {
       if (DiskMask & 1)
       {
         sprintf(MenuText,"&%c: ",'A'+I);
@@ -375,7 +380,8 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
         ChDisk.SetUserData((char*)UserData,sizeof(UserData),
                  ChDisk.AddItem(&ChDiskItem));
         MenuLine++;
-      }
+      } // if (DiskMask & 1)
+    } // for 
     /* VVM $ */
 
     int UsedNumbers[10];
@@ -501,7 +507,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
     if (Y<3)
       ChDisk.SetBoxType(SHORT_DOUBLE_BOX);
 
-
+    _tran(SysLog(" call ChDisk.Show"));
     ChDisk.Show();
 
     while (!ChDisk.Done())
@@ -658,6 +664,16 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
           }
           break;
         /* SVS $ */
+        /* $ 21.06.2001 tran
+           типа костыль...
+           самое простое и быстрое решение проблемы*/
+        case KEY_F1:
+          {
+            SaveScreen s;
+            ChDisk.ProcessInput();
+          }
+          break;
+        /* tran 21.06.2001 $ */
         default:
           ChDisk.ProcessInput();
           break;
@@ -695,7 +711,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
       /* SVS $ */
       /* tran $ */
       /* SVS $ */
-    }
+    } // while (!Done)
     if (ChDisk.GetExitCode()<0)
       return(-1);
     {
@@ -881,7 +897,7 @@ void Panel::FastFindShow(int FindX,int FindY)
 }
 
 
-int Panel::MakeListFile(char *ListFileName,int ShortNames,char *Modifers)
+int  Panel::MakeListFile(char *ListFileName,int ShortNames,char *Modifers)
 {
   FILE *ListFile;
   strcpy(ListFileName,Opt.TempPath);
@@ -969,7 +985,7 @@ void Panel::KillFocus()
 }
 
 
-int Panel::PanelProcessMouse(MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
+int  Panel::PanelProcessMouse(MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
 {
   RetCode=TRUE;
   if (!ModalMode && MouseEvent->dwMousePosition.Y==0)
@@ -1061,7 +1077,7 @@ int Panel::PanelProcessMouse(MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
 }
 
 
-int Panel::IsDragging()
+int  Panel::IsDragging()
 {
   return(DragSaveScr!=NULL);
 }
@@ -1151,7 +1167,7 @@ void Panel::InitCurDir(char *CurDir)
      пассивной панели. Ёто необходимо программам запускаемым
      из FAR.
 */
-int Panel::SetCurPath()
+int  Panel::SetCurPath()
 {
   if (GetMode()==PLUGIN_PANEL)
     return TRUE;
@@ -1183,7 +1199,7 @@ int Panel::SetCurPath()
     return TRUE;
 
   if (isalpha(AnotherPanel->CurDir[0]) && AnotherPanel->CurDir[1]==':' &&
-      toupper(AnotherPanel->CurDir[0])!=toupper(CurDir[0]));
+      toupper(AnotherPanel->CurDir[0])!=toupper(CurDir[0]))
   {
     sprintf(Drive,"=%c:\x0",AnotherPanel->CurDir[0]);
     SetEnvironmentVariable(Drive,AnotherPanel->CurDir);
@@ -1494,7 +1510,7 @@ void Panel::SetPluginCommand(int Command,void *Param)
 }
 
 
-int Panel::GetCurName(char *Name,char *ShortName)
+int  Panel::GetCurName(char *Name,char *ShortName)
 {
   *Name=*ShortName=0;
   return(FALSE);
