@@ -5,10 +5,12 @@ message.cpp
 
 */
 
-/* Revision: 1.38 07.01.2004 $ */
+/* Revision: 1.39 19.02.2004 $ */
 
 /*
 Modify:
+  19.02.2004 SVS
+    ! очередное уточнение MaxLe... На сверхбольших строках глючит.
   07.01.2004 SVS
     ! очередное уточнение MaxLe...
   05.01.2004 SVS
@@ -260,7 +262,7 @@ int Message(DWORD Flags,int Buttons,const char *Title,
     if(MaxLength > LenErrStr && MaxLength >= MAX_WIDTH_MESSAGE)
       MaxLength=LenErrStr;
 
-    if(MaxLength < LenErrStr && LenErrStr < MAX_WIDTH_MESSAGE)
+    if(MaxLength < LenErrStr && LenErrStr <= MAX_WIDTH_MESSAGE)
       MaxLength=LenErrStr;
 
     // а теперь проврапим
@@ -570,7 +572,7 @@ int GetErrorString(char *ErrStr, DWORD StrSize)
                       NULL, LastError, 0, ErrStr, StrSize, NULL))
     {
       // для проверки криков:
-      // strcpy(ErrStr,"Не удалось подключиться к сети из-за существования совпадающих имен. Измените имя компьютера  на панели управления и повторите попытку.  ");
+      //strcpy(ErrStr,"Невозможно найти сетевой путь. Убедитесь, что сетевой путь указан верно, а конечный компьютер включен и не занят. Если система вновь не сможет найти путь, обратитесь к сетевому администратору.");
       CharToOem(ErrStr,ErrStr);
       /* $ 02.02.2001 IS
          + Заменим cr и lf на пробелы

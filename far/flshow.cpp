@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.36 15.01.2004 $ */
+/* Revision: 1.37 19.02.2004 $ */
 
 /*
 Modify:
+  19.02.2004 SVS
+    - неправильные функции использовались при отрисовке панелей.
   15.01.2004 SVS
     - BugZ#997 - падение FAR при большом выставлении высоты буфера экрана
   15.09.2003 SVS
@@ -123,7 +125,7 @@ extern struct PanelViewSettings ViewSettingsArray[];
 extern int ColumnTypeWidth[];
 
 //static char VerticalLine[2][2]={{0x0B3,0x00},{0x0BA,0x00}};
-static char *VerticalLine[]={"\x0B3","\x0BA"};
+static BYTE VerticalLine[2]={0x0B3,0x0BA};
 static char OutCharacter[2]={0,0};
 
 static int __FormatEndSelectedPhrase(int Count)
@@ -262,7 +264,7 @@ void FileList::ShowFileList(int Fast)
     if (Opt.ShowColumnTitles)
     {
       GotoXY(ColumnPos,Y1+1);
-      Text(VerticalLine[0]);
+      BoxText((WORD)(Opt.UseUnicodeConsole?BoxSymbols[VerticalLine[0]-0x0B0]:VerticalLine[0]));
     }
     if (!Opt.ShowPanelStatus)
     {
@@ -802,7 +804,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
         {
           SetColor(COL_PANELBOX);
           GotoXY(CurX-1,CurY);
-          Text(CurX-1==X2 ? VerticalLine[1]:" ");
+          BoxText((WORD)(CurX-1==X2 ? (Opt.UseUnicodeConsole?BoxSymbols[VerticalLine[1]-0x0B0]:VerticalLine[1]):0x20));
         }
         continue;
       }
@@ -1122,9 +1124,9 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
           SetColor(COL_PANELBOX);
         GotoXY(CurX+ColumnWidth,CurY);
         if (K==ColumnCount-1)
-          Text(CurX+ColumnWidth==X2 ? VerticalLine[1]:" ");
+          BoxText((WORD)(CurX+ColumnWidth==X2 ? (Opt.UseUnicodeConsole?BoxSymbols[VerticalLine[1]-0x0B0]:VerticalLine[1]):0x20));
         else
-          Text(ShowStatus ? " ":VerticalLine[0]);
+          BoxText((WORD)(ShowStatus ? 0x20:(Opt.UseUnicodeConsole?BoxSymbols[VerticalLine[0]-0x0B0]:VerticalLine[0])));
       }
       if (WasNameColumn && K<ColumnCount-1 && (ColumnTypes[K+1] & 0xff)==NAME_COLUMN)
         CurColumn++;

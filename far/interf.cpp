@@ -5,10 +5,13 @@ interf.cpp
 
 */
 
-/* Revision: 1.81 23.10.2003 $ */
+/* Revision: 1.82 19.02.2004 $ */
 
 /*
 Modify:
+  19.02.2004 SVS
+    ! В BoxText() применим TextW вместо BoxTextW - "сокращение расстояния"
+    + BoxTextW2()
   23.10.2003 SVS
     ! небольшая оптимизация в Box и ScrollBar
   26.08.2003 SVS
@@ -1416,7 +1419,7 @@ void BoxText(WORD Chr)
     WCHAR Str[2];
     Str[0]=Chr;
     Str[1]=0;
-    BoxTextW(Str);
+    TextW(Str);
   }
   else
 #endif
@@ -1437,6 +1440,23 @@ void BoxTextW(WCHAR *Str,int IsVert)
   else
     TextW(Str);
 }
+
+void BoxTextW2(const char *Str,int IsVert)
+{
+  WCHAR TmpStr[2];
+  TmpStr[1]=0;
+  for(; *Str; ++Str)
+  {
+    TmpStr[0]=BoxSymbols[((WORD)*Str)-0x0B0];
+
+    if(IsVert)
+      VTextW(TmpStr);
+    else
+      TextW(TmpStr);
+  }
+}
+
+
 #endif
 
 void BoxText(char *Str,int IsVert)

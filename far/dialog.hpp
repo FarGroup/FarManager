@@ -10,10 +10,13 @@ dialog.hpp
 
 */
 
-/* Revision: 1.72 18.12.2003 $ */
+/* Revision: 1.73 19.02.2004 $ */
 
 /*
 Modify:
+  19.02.2004 SVS
+    ! Флаг DMODE_MOUSELIST ненужен, т.к. это была ошибка: управление реакцией
+      должно быть на уровне элемента, а не всего диалога
   18.12.2003 SVS
     + DMOUSEBUTTON_??? - на какие кнопки реагировать
   23.10.2003 SVS
@@ -264,7 +267,6 @@ Modify:
 #define DMODE_MOUSEEVENT    0x00008000 // Нужно посылать MouseMove в обработчик?
 #define DMODE_RESIZED       0x00010000 //
 #define DMODE_ENDLOOP       0x00020000 // Конец цикла обработки диалога?
-#define DMODE_MOUSELIST     0x00040000 // Мышь должна реагировать на нефокусный лист?
 #define DMODE_OWNSITEMS     0x00080000 // если TRUE, Dialog освобождает список Item в деструкторе
 #define DMODE_NODRAWSHADOW  0x00100000 // не рисовать тень?
 #define DMODE_NODRAWPANEL   0x00200000 // не рисовать подложку?
@@ -649,8 +651,6 @@ class Dialog: public Frame
     int FastHide();
     void ResizeConsole();
 //    void OnDestroy();
-
-    void SetListMouseReaction(BOOL Sets) {DialogMode.Change(DMODE_MOUSELIST,Sets);}
 
     int SetAutomation(WORD IDParent,WORD id,
                         DWORD UncheckedSet,DWORD UncheckedSkip,

@@ -5,10 +5,14 @@ dialog.cpp
 
 */
 
-/* Revision: 1.297 05.01.2004 $ */
+/* Revision: 1.298 19.02.2004 $ */
 
 /*
 Modify:
+  19.02.2004 SVS
+    - Невозможно мышью сменить фокус между листами.
+    ! Флаг DMODE_MOUSELIST ненужен, т.к. это была ошибка: управление реакцией
+      должно быть на уровне элемента, а не всего диалога
   05.01.2004 SVS
     - если в диалоге не может быть получен заголовок окна Far (нет рамок), то не надо
       делать его (заголовок) пустым, пусть уж лучше там будет "{bla-bla} - Far"
@@ -1168,7 +1172,7 @@ Dialog::Dialog(struct DialogItem *Item,    // Набор элементов диалога
   /* $ 10.08.2000 SVS
      Изначально диалоги можно таскать
   */
-  DialogMode.Set(DMODE_ISCANMOVE|DMODE_MOUSELIST);
+  DialogMode.Set(DMODE_ISCANMOVE);
   /* SVS $ */
   /* $ 23.06.2001 KM */
   SetDropDownOpened(FALSE);
@@ -3820,8 +3824,9 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     if(Item[I].Flags&(DIF_DISABLE|DIF_HIDDEN))
       continue;
     Type=Item[I].Type;
-    if (Type == DI_LISTBOX && MsY >= Y1+Item[I].Y1 &&
-        MsY <= Y1+Item[I].Y2 && MsX <= X1+Item[I].X2)
+    if (Type == DI_LISTBOX &&
+        MsY >= Y1+Item[I].Y1 && MsY <= Y1+Item[I].Y2 &&
+        MsX >= X1+Item[I].X1 && MsX <= X1+Item[I].X2)
     {
       /* $ 30.06.2001 KM */
       VMenu *List=Item[I].ListPtr;
@@ -3848,9 +3853,9 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       }
       else
       {
-        if ((I == FocusPos || DialogMode.Check(DMODE_MOUSELIST)) && // для нефокусного списка... не юзаем мышь
-            SendDlgMessage((HANDLE)this,DN_LISTCHANGE,I,(long)Pos))
-          Item[I].ListPtr->ProcessMouse(MouseEvent);
+        if(!(Item[I].Flags&DIF_LISTNOMOUSEREACTION))
+          if (SendDlgMessage((HANDLE)this,DN_LISTCHANGE,I,(long)Pos))
+            Item[I].ListPtr->ProcessMouse(MouseEvent);
       }
       /* KM $ */
       return(TRUE);
@@ -6501,8 +6506,11 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 
             case DM_LISTSETMOUSEREACTION: // Param1=ID Param2=TRUE/FALSE Ret=OldSets
             {
-              DWORD OldSets=Dlg->DialogMode.Check(DMODE_MOUSELIST)?TRUE:FALSE;
-              Dlg->SetListMouseReaction(Param2);
+              DWORD OldSets=(CurItem->Flags&DIF_LISTNOMOUSEREACTION)?TRUE:FALSE;
+              if(Param2)
+                CurItem->Flags|=DIF_LISTNOMOUSEREACTION;
+              else
+                CurItem->Flags&=~DIF_LISTNOMOUSEREACTION;
               return OldSets;
             }
           }

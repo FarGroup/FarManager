@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.199 09.02.2004 $ */
+/* Revision: 1.200 19.02.2004 $ */
 
 /*
 Modify:
+  19.02.2004 SVS
+    + BoxTextW2()
   09.02.2004 SVS
     ! SetRegKey возвращают значения!
     + SaveAllCurDir/RestoreAllCurDir - сохранение/восстановление переменных среды типа "=A:"
@@ -646,6 +648,7 @@ void BoxText(WORD Chr);
 void BoxText(char *Str,int IsVert=0);
 #if defined(USE_WFUNC)
 void BoxTextW(WCHAR *Str,int IsVert=0);
+void BoxTextW2(const char *Str,int IsVert);
 #endif
 int FarColorToReal(int FarColor);
 void ConvertCurrentPalette();

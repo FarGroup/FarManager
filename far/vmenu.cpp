@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.127 19.01.2004 $ */
+/* Revision: 1.128 19.02.2004 $ */
 
 /*
 Modify:
+  19.02.2004 SVS
+    - Некорретная отрисовка меню в W-режиме в связи с применением Text() вместо BoxText()
   19.01.2004 SVS
     ! уточнение VMENU_SELECTPOSNONE
   12.01.2004 SVS
@@ -950,7 +952,13 @@ void VMenu::ShowMenu(int IsParent)
                 Ptr[J-Correction+2]=0x0C1;
             }
           }
-        Text(X1,Y,VMenu::Colors[VMenuColorSeparator],TmpStr); // VMenuColorBox
+        //Text(X1,Y,VMenu::Colors[VMenuColorSeparator],TmpStr); // VMenuColorBox
+        SetColor(VMenu::Colors[VMenuColorSeparator]);
+        if(Opt.UseUnicodeConsole)
+          BoxTextW2(TmpStr,FALSE);
+        else
+          BoxText(TmpStr,FALSE);
+
         if (*Item[I].PtrName())
         {
           int ItemWidth=strlen(Item[I].PtrName());
@@ -966,9 +974,9 @@ void VMenu::ShowMenu(int IsParent)
         if (BoxType!=NO_BOX)
         {
           SetColor(VMenu::Colors[VMenuColorBox]);
-          Text((char*)BoxChar);
+          BoxText((WORD)(Opt.UseUnicodeConsole?BoxSymbols[*BoxChar-0x0B0]:*BoxChar)); //Text((char*)BoxChar);
           GotoXY(X2,Y);
-          Text((char*)BoxChar);
+          BoxText((WORD)(Opt.UseUnicodeConsole?BoxSymbols[*BoxChar-0x0B0]:*BoxChar)); //Text((char*)BoxChar);
         }
         if ((Item[I].Flags&LIF_SELECTED) && !(Item[I].Flags&LIF_DISABLE))
           SetColor(VMenu::Colors[VMenuColorSelected]);
@@ -1033,9 +1041,9 @@ void VMenu::ShowMenu(int IsParent)
       if (BoxType!=NO_BOX)
       {
         SetColor(VMenu::Colors[VMenuColorBox]);
-        Text((char*)BoxChar);
+        BoxText((WORD)(Opt.UseUnicodeConsole?BoxSymbols[*BoxChar-0x0B0]:*BoxChar)); //Text((char*)BoxChar);
         GotoXY(X2,Y);
-        Text((char*)BoxChar);
+        BoxText((WORD)(Opt.UseUnicodeConsole?BoxSymbols[*BoxChar-0x0B0]:*BoxChar)); //Text((char*)BoxChar);
         GotoXY(X1+1,Y);
       }
       else
