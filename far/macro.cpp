@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.142 01.04.2005 $ */
+/* Revision: 1.143 02.04.2005 $ */
 
 /*
 Modify:
+  02.04.2005 SVS
+    - проблемы с panelitemFunc Index=13, совсем забыл что овнер - это ссылка.
   01.04.2005 SVS
     + MCODE_F_PANELITEM, panelitemFunc
   22.03.2005 SVS
@@ -1711,26 +1713,26 @@ static TVar panelitemFunc(TVar *param)
     switch(TypeInfo)
     {
       case 0:  // Name
-        return TVar(filelistItem.Name);
+        return TVar((const char*)filelistItem.Name);
       case 1:  // ShortName
-        return TVar(filelistItem.ShortName);
+        return TVar((const char*)filelistItem.ShortName);
       case 2:  // FileAttr
         return TVar((long)filelistItem.FileAttr);
       case 3:  // CreationTime
         ConvertDate(filelistItem.CreationTime,Date,Time,8,FALSE,FALSE,TRUE,TRUE);
         strcat(Date," ");
         strcat(Date,Time);
-        return TVar(Date);
+        return TVar((const char*)Date);
       case 4:  // AccessTime
         ConvertDate(filelistItem.AccessTime,Date,Time,8,FALSE,FALSE,TRUE,TRUE);
         strcat(Date," ");
         strcat(Date,Time);
-        return TVar(Date);
+        return TVar((const char*)Date);
       case 5:  // WriteTime
         ConvertDate(filelistItem.WriteTime,Date,Time,8,FALSE,FALSE,TRUE,TRUE);
         strcat(Date," ");
         strcat(Date,Time);
-        return TVar(Date);
+        return TVar((const char*)Date);
       case 6:  // UnpSizeHigh
         return TVar((long)filelistItem.UnpSizeHigh);
       case 7:  // UnpSize
@@ -1746,11 +1748,17 @@ static TVar panelitemFunc(TVar *param)
       case 12:  // SortGroup
         return TVar((long)filelistItem.SortGroup);
       case 13:  // DizText
-        return TVar(filelistItem.DizText);
+      {
+        char *LPtr=filelistItem.DizText?filelistItem.DizText:"";
+        return TVar((const char*)LPtr);
+      }
       case 14:  // Owner
-        return TVar((long)filelistItem.Owner);
+        return TVar((const char*)filelistItem.Owner);
       case 15:  // CRC32
         return TVar((long)filelistItem.CRC32);
+      case 16:  // Position
+        return TVar((long)filelistItem.Position);
+
     }
   }
 

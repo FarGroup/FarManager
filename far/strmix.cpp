@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.57 02.04.2005 $ */
+/* Revision: 1.58 02.04.2005 $ */
 
 /*
 Modify:
+  02.04.2005 SVS
+    ! уберем пробел, так "интереснее"
   02.04.2005 AY
     + Обработка COLUMN_FLOATSIZE в FileSizeToStr()
   23.12.2004 WARP
@@ -963,7 +965,7 @@ char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size, int Width, 
       Width-=2;
       if (Width<0)
         Width=0;
-      sprintf(DestStr,"%*.*s %1.1s",Width,Width,Str,KMGTbStr[IndexB][IndexDiv]);
+      sprintf(DestStr,"%*.*s%1.1s",Width,Width,Str,KMGTbStr[IndexB][IndexDiv]);
     }
     return DestStr;
   }
