@@ -5,10 +5,14 @@ Internal viewer
 
 */
 
-/* Revision: 1.104 25.06.2002 $ */
+/* Revision: 1.105 26.07.2002 $ */
 
 /*
 Modify:
+  26.07.2002 IS
+    ! Автоопределение Unicode не должно зависеть от опции
+      "Автоопределение таблицы символов", т.к. Unicode не есть
+      _таблица символов_ для перекодировки.
   25.06.2002 SVS
     ! Косметика:  BitFlags::Skip -> BitFlags::Clear
     ! В редакторе (Editor) и вьювере (Viewer) отказываемся от абс. значений
@@ -600,7 +604,13 @@ int Viewer::OpenFile(const char *Name,int warning)
   */
   BOOL IsDecode=FALSE;
 
-  if(ViOpt.AutoDetectTable)
+  /* $ 26.07.2002 IS
+       Автоопределение Unicode не должно зависеть от опции
+       "Автоопределение таблицы символов", т.к. Unicode не есть
+       _таблица символов_ для перекодировки.
+  */
+  //if(ViOpt.AutoDetectTable)
+  /* IS $ */
   {
     DWORD ReadSize;
     VM.Unicode=0;
