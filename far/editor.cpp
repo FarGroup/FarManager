@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.257 23.12.2004 $ */
+/* Revision: 1.258 06.01.2005 $ */
 
 /*
 Modify:
+  06.01.2005 WARP
+    ! Добавки к трехпозиционному ExpandTabs
   23.12.2004 WARP
     ! 3-х позиционный ExpandTab (старая функциональность возвращается компиляцией с USE_OLDEXPANDTABS)
   11.11.2004 SVS
@@ -6075,8 +6077,10 @@ int Editor::EditorControl(int Command,void *Param)
         Info->AnsiMode=AnsiText;
         Info->TableNum=UseDecodeTable ? TableNum-1:-1;
         //Info->Options=0;
-        if (EdOpt.ExpandTabs)
-          Info->Options|=EOPT_EXPANDTABS;
+        if (EdOpt.ExpandTabs == EXPAND_ALLTABS)
+          Info->Options|=EOPT_EXPANDALLTABS;
+        if (EdOpt.ExpandTabs == EXPAND_NEWTABS)
+          Info->Options|=EOPT_EXPANDONLYNEWTABS;
         if (EdOpt.PersistentBlocks)
           Info->Options|=EOPT_PERSISTENTBLOCKS;
         if (EdOpt.DelRemovesBlocks)
@@ -6799,7 +6803,7 @@ void Editor::SetConvertTabs(int NewMode)
       CurPtr->EditLine.SetConvertTabs(NewMode);
 
 #ifndef USE_OLDEXPANDTABS
-      if ( NewMode == 2 )
+      if ( NewMode == EXPAND_ALLTABS )
 #endif
         CurPtr->EditLine.ReplaceTabs();
 

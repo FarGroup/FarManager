@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.247 06.07.2004 $ */
+/* Revision: 1.248 06.01.2005 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,9 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  06.01.2005 WARP
+    + EXPAND_TABS, EOPT_EXPANDONLYNEWTABS
+    ! EOPT_EXPANDTABS -> EOPT_EXPANDALLTABS
   06.07.2004 SVS
     + ActlKeyMacro.Param.MacroResult для MCMD_CHECKMACRO (для Macro II)
   24.05.2004 SVS
@@ -2081,14 +2084,22 @@ struct EditorSetString
   int StringLength;
 };
 
+enum EXPAND_TABS {
+  EXPAND_NOTABS,
+  EXPAND_ALLTABS,
+  EXPAND_NEWTABS
+};
+
+
 enum EDITOR_OPTIONS {
-  EOPT_EXPANDTABS        = 0x00000001,
+  EOPT_EXPANDALLTABS     = 0x00000001,
   EOPT_PERSISTENTBLOCKS  = 0x00000002,
   EOPT_DELREMOVESBLOCKS  = 0x00000004,
   EOPT_AUTOINDENT        = 0x00000008,
   EOPT_SAVEFILEPOSITION  = 0x00000010,
   EOPT_AUTODETECTTABLE   = 0x00000020,
   EOPT_CURSORBEYONDEOL   = 0x00000040,
+  EOPT_EXPANDONLYNEWTABS = 0x00000080,
 };
 
 

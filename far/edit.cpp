@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.129 23.12.2004 $ */
+/* Revision: 1.130 06.01.2005 $ */
 
 /*
 Modify:
+  06.01.2005 WARP
+    ! Добавки к трехпозиционному ExpandTabs
   23.12.2004 WARP
     ! 3-х позиционный ExpandTab (старая функциональность возвращается компиляцией с USE_OLDEXPANDTABS)
   17.12.2004 SVS
@@ -632,7 +634,7 @@ void Edit::FastShow()
 #ifdef USE_OLDEXPANDTABS
   if (!Flags.Check(FEDITLINE_CONVERTTABS) && memchr(Str,'\t',StrSize)!=NULL)
 #else
-  if ( (TabExpandMode != 2) && memchr(Str,'\t',StrSize)!=NULL)
+  if ( (TabExpandMode != EXPAND_ALLTABS) && memchr(Str,'\t',StrSize)!=NULL)
 #endif
 
   {
@@ -1779,7 +1781,7 @@ int Edit::ProcessKey(int Key)
       }
 
 #ifndef USE_OLDEXPANDTABS
-      if ( Key==KEY_TAB && (TabExpandMode == 1) )
+      if ( Key==KEY_TAB && (TabExpandMode == EXPAND_NEWTABS) )
       {
          InsertTab ();
          Show ();
@@ -1793,7 +1795,7 @@ int Edit::ProcessKey(int Key)
         if (Key==KEY_TAB && Flags.Check(FEDITLINE_CONVERTTABS))
           ReplaceTabs();
 #else
-        if (Key==KEY_TAB && (TabExpandMode == 2) )
+        if (Key==KEY_TAB && (TabExpandMode == EXPAND_ALLTABS) )
            ReplaceTabs();
 #endif
         Show();
@@ -2152,7 +2154,7 @@ void Edit::SetBinaryString(const char *Str,int Length)
     if (Flags.Check(FEDITLINE_CONVERTTABS))
       ReplaceTabs();
 #else
-    if ( TabExpandMode == 2 )
+    if ( TabExpandMode == EXPAND_ALLTABS )
       ReplaceTabs ();
 #endif
     PrevCurPos=CurPos;
@@ -2316,7 +2318,7 @@ void Edit::InsertBinaryString(const char *Str,int Length)
       if (Flags.Check(FEDITLINE_CONVERTTABS))
         ReplaceTabs();
 #else
-      if ( TabExpandMode == 2 )
+      if ( TabExpandMode == EXPAND_ALLTABS )
         ReplaceTabs();
 #endif
     }
@@ -2632,7 +2634,7 @@ int Edit::RealPosToTab(int Pos)
   if (Flags.Check(FEDITLINE_CONVERTTABS) || memchr(Str,'\t',StrSize)==NULL)
     return(Pos);
 #else
-  if ( (TabExpandMode == 2) || memchr(Str,'\t',StrSize)==NULL)
+  if ( (TabExpandMode == EXPAND_ALLTABS) || memchr(Str,'\t',StrSize)==NULL)
     return(Pos);
 #endif
 
@@ -2667,7 +2669,7 @@ int Edit::TabPosToReal(int Pos)
   if (Flags.Check(FEDITLINE_CONVERTTABS) || memchr(Str,'\t',StrSize)==NULL)
     return(Pos);
 #else
-  if ( (TabExpandMode == 2) || memchr(Str,'\t',StrSize)==NULL)
+  if ( (TabExpandMode == EXPAND_ALLTABS) || memchr(Str,'\t',StrSize)==NULL)
     return(Pos);
 #endif
 

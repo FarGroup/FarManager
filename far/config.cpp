@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.173 25.12.2004 $ */
+/* Revision: 1.174 06.01.2005 $ */
 
 /*
 Modify:
+  06.01.2005 WARP
+    ! Добавки к трехпозиционному ExpandTabs
   25.12.2004 WARP
     ! Конфигурация редактора не хотела лезть в 80x25, поломал ее немного.
   23.12.2004 WARP
@@ -1392,7 +1394,16 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
   CfgDlg[3].Selected=!Opt.UseExternalEditor;
   strcpy(CfgDlg[5].Data,Opt.ExternalEditor);
 
-  CfgDlg[7+EdOpt.ExpandTabs].Selected = TRUE;
+  //немного ненормальная логика, чтобы сохранить по-возможности старое поведение
+
+  if ( EdOpt.ExpandTabs == EXPAND_NOTABS )
+    CfgDlg[7].Selected = TRUE;
+
+  if ( EdOpt.ExpandTabs == EXPAND_NEWTABS )
+    CfgDlg[8].Selected = TRUE;
+
+  if ( EdOpt.ExpandTabs == EXPAND_ALLTABS )
+    CfgDlg[9].Selected = TRUE;
 
 //  CfgDlg[7].Selected=EdOpt.ExpandTabs;
   CfgDlg[10].Selected=EdOpt.PersistentBlocks;
@@ -1448,13 +1459,13 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
   }
 
   if ( CfgDlg[7].Selected )
-    EdOpt.ExpandTabs = 0;
+    EdOpt.ExpandTabs = EXPAND_NOTABS;
 
   if ( CfgDlg[8].Selected )
-    EdOpt.ExpandTabs = 1;
+    EdOpt.ExpandTabs = EXPAND_NEWTABS;
 
   if ( CfgDlg[9].Selected )
-    EdOpt.ExpandTabs = 2;
+    EdOpt.ExpandTabs = EXPAND_ALLTABS;
 
   EdOpt.PersistentBlocks=CfgDlg[10].Selected;
   EdOpt.DelRemovesBlocks=CfgDlg[11].Selected;
