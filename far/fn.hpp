@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.80 07.05.2001 $ */
+/* Revision: 1.81 09.05.2001 $ */
 
 /*
 Modify:
+  09.05.2001 OT
+    ! Макросы, аналогичные _D(x), которые зависят от разработчика или функционала
   07.05.2001 SVS
     ! _D(x) для SysLog
   07.05.2001 DJ
@@ -674,10 +676,64 @@ void SysLog(int l);
 void SysLog(char *msg,...);
 void SysLog(int l,char *fmt,...); ///
 
-#if defined(SYSLOG)
+#if defined(_DEBUG) && defined(SYSLOG)
 #define _D(x)  x
 #else
 #define _D(x)
+#endif
+
+#if defined(_DEBUG) && defined(SYSLOG_OT)
+#define _OT(x)  x
+#else
+#define _OT(x)
+#endif
+
+#if defined(_DEBUG) && defined(SYSLOG_SVS)
+#define _SVS(x)  x
+#else
+#define _SVS(x)
+#endif
+
+#if defined(_DEBUG) && defined(SYSLOG_DJ)
+#define _DJ(x)  x
+#else
+#define _DJ(x)
+#endif
+
+#if defined(_DEBUG) && defined(SYSLOG_VVM)
+#define _VVM(x)  x
+#else
+#define _VVM(x)
+#endif
+
+#if defined(_DEBUG) && defined(SYSLOG_IS)
+#define _IS(x)  x
+#else
+#define _IS(x)
+#endif
+
+#if defined(_DEBUG) && defined(SYSLOG_AT)
+#define _AT(x)  x
+#else
+#define _AT(x)
+#endif
+
+#if defined(_DEBUG) && defined(SYSLOG_tran)
+#define _tran(x)  x
+#else
+#define _tran(x)
+#endif
+
+#if defined(_DEBUG) && defined(SYSLOG_SKV)
+#define _SKV(x)  x
+#else
+#define _SKV(x)
+#endif
+
+#if defined(_DEBUG) && defined(SYSLOG_NWZ)
+#define _NWZ(x)  x
+#else
+#define _NWZ(x)
 #endif
 
 void OpenSysLog();

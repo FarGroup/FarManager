@@ -5,10 +5,12 @@ syslog.cpp
 
 */
 
-/* Revision: 1.07 07.05.2001 $ */
+/* Revision: 1.08 09.05.2001 $ */
 
 /*
 Modify:
+  09.05.2001 OT
+    ! Макросы, аналогичные _D(x), которые зависят от разработчика или функционала
   07.05.2001 SVS
     + В DumpExceptionInfo добавлена версия ФАРа в формате FAR_VERSION
   06.05.2001 DJ
@@ -38,6 +40,12 @@ Modify:
 #include "plugin.hpp"
 #include "global.hpp"
 #include "fn.hpp"
+
+#if !defined(SYSLOG)
+ #if defined(SYSLOG_OT) || defined(SYSLOG_SVS) || defined(SYSLOG_DJ) || defined(VVM) || defined(SYSLOG_AT) || defined(SYSLOG_IS) || defined(SYSLOG_tran) || defined(SYSLOG_SKV) || defined(SYSLOG_NWZ)
+  #define SYSLOG
+ #endif
+#endif
 
 #if defined(SYSLOG)
 char         LogFileName[MAX_FILE];
@@ -173,7 +181,7 @@ void SysLogDump(char *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,FILE *fp)
   int X,Y;
   int InternalLog=fp==NULL?TRUE:FALSE;
 
-  char msg[MAX_LOG_LINE];
+//  char msg[MAX_LOG_LINE];
 
   if(InternalLog)
   {

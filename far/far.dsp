@@ -61,7 +61,7 @@ LINK32=link.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 1
-# PROP Output_Dir "D:\Progra~1\FarAlpha"
+# PROP Output_Dir "Debug"
 # PROP Intermediate_Dir "Debug/obj"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
