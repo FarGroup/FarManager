@@ -5,10 +5,14 @@ Screen grabber
 
 */
 
-/* Revision: 1.20 26.07.2004 $ */
+/* Revision: 1.21 12.12.2004 $ */
 
 /*
 Modify:
+  14.12.2004 WARP
+    - Обновление текущего фрейма после работы граббера
+      и восстановления им экрана (раз уж позволяем
+      рисовать на экране во время работы граббера).
   26.07.2004 SVS
     - BugZ#566 - Недограбливаются диалоги, содержащие точки
       Дополнительное уточнение (про "*<>|X")
@@ -83,6 +87,7 @@ Modify:
 #include "keys.hpp"
 #include "savescr.hpp"
 #include "ctrlobj.hpp"
+#include "manager.hpp"
 
 #if defined(USE_WFUNC)
 extern WCHAR Oem2Unicode[];
@@ -102,6 +107,7 @@ Grabber::Grabber()
   /* tran 14.08.2000 $ */
 
   int Visible,Size;
+
   GetCursorType(Visible,Size);
   if (Visible)
     GetCursorPos(GArea.CurX,GArea.CurY);
@@ -119,7 +125,10 @@ Grabber::Grabber()
   VerticalBlock=FALSE;
 
   Process();
+
   delete SaveScr;
+
+  FrameManager->RefreshFrame ();
 }
 
 
