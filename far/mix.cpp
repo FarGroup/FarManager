@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.143 15.06.2003 $ */
+/* Revision: 1.144 21.08.2003 $ */
 
 /*
 Modify:
+  21.08.2003 SVS
+    - BugZ#933 - команда CD с длинным параметром
   15.06.2003 SVS
     ! Дадим понять GetDirInfo - нужно или нет сканировать симлинки!
       (добавлен еще один параметр)
@@ -987,7 +989,7 @@ int CheckFolder(char *Path)
   WIN32_FIND_DATA fdata;
   int Done=FALSE;
 
-  strcpy(FindPath,Path);
+  strncpy(FindPath,Path,sizeof(FindPath)-5); // здесь 5 для '\*.*' и 0x00
   AddEndSlash(FindPath);
   strcat(FindPath,"*.*");
   if((FindHandle=FindFirstFile(FindPath,&fdata)) == INVALID_HANDLE_VALUE)

@@ -7,10 +7,14 @@ cmdline.hpp
 
 */
 
-/* Revision: 1.11 28.02.2002 $ */
+/* Revision: 1.12 21.08.2003 $ */
 
 /*
 Modify:
+  21.08.2003 SVS
+    ! Сделаем LastCmdStr динамической переменной.
+      Отсюда все остальные изменения
+    + CommandLine::SetLastCmdStr() - "выставляет" эту самую LastCmdStr.
   28.02.2002 SVS
     ! SetString() имеет доп. параметр - надобность в прорисовке новой строки
   24.12.2001 SVS
@@ -46,28 +50,35 @@ Modify:
 class CommandLine:public ScreenObject
 {
   private:
+    Edit CmdStr;
+    SaveScreen *BackgroundScreen;
+    char CurDir[NM];
+    char *LastCmdStr;
+    int  LastCmdLength;
+    int  LastCmdPartLength;
+
+  private:
     void DisplayObject();
-    int CmdExecute(char *CmdLine,int AlwaysWaitFinish,int SeparateWindow,
-                   int DirectRun);
+    int CmdExecute(char *CmdLine,int AlwaysWaitFinish,int SeparateWindow,int DirectRun);
     int ProcessOSCommands(char *CmdLine,int SeparateWindow);
     void GetPrompt(char *DestStr);
-    Edit CmdStr;
-    char CurDir[NM];
-    char LastCmdStr[512];
-    int LastCmdPartLength;
-    SaveScreen *BackgroundScreen;
+    BOOL SetLastCmdStr(const char *Ptr,int LenPtr);
+
   public:
     CommandLine();
+    ~CommandLine();
+
+  public:
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+
     void GetCurDir(char *CurDir);
     void SetCurDir(const char *CurDir);
     void GetString(char *Str,int MaxSize);
     const char *GetStringAddr();
     void SetString(const char *Str,BOOL Redraw=TRUE);
     int GetLength() {return(CmdStr.GetLength());};
-    void ExecString(char *Str,int AlwaysWaitFinish,int SeparateWindow=FALSE,
-                    int DirectRun=FALSE);
+    void ExecString(char *Str,int AlwaysWaitFinish,int SeparateWindow=FALSE,int DirectRun=FALSE);
     /* $ 10.05.2001 DJ */
     void ShowViewEditHistory();
     /* DJ $ */

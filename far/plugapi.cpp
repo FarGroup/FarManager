@@ -5,10 +5,13 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.159 15.06.2003 $ */
+/* Revision: 1.160 21.08.2003 $ */
 
 /*
 Modify:
+  21.08.2003 SVS
+    - Заходим в достаточно большой архив, становимся на '..' и жмем F3.
+      Пытаемся прервать. Отказываемся от прерывания - видим багу с прорисовкой
   15.06.2003 SVS
     + ACTL_GETDIALOGSETTINGS
     ! FIS_PERSISTENTBLOCKSINEDITCONTROLS -> FDIS_PERSISTENTBLOCKSINEDITCONTROLS
@@ -1909,8 +1912,7 @@ void ScanPluginDir()
   int I;
   PluginPanelItem *PanelData=NULL;
   int ItemCount=0;
-  if (CheckForEsc())
-    StopSearch=TRUE;
+  int AbortOp=FALSE;
 
   char DirName[NM];
   strncpy(DirName,PluginSearchPath,sizeof(DirName)-1);
@@ -1921,7 +1923,16 @@ void ScanPluginDir()
   TruncStr(DirName,30);
   CenterStr(DirName,DirName,30);
 
-  FarGetPluginDirListMsg(DirName,MSG_KEEPBACKGROUND);
+  if (CheckForEscSilent())
+  {
+    if (Opt.Confirm.Esc) // Будет выдаваться диалог?
+      AbortOp=TRUE;
+
+    if (ConfirmAbortOp())
+      StopSearch=TRUE;
+  }
+
+  FarGetPluginDirListMsg(DirName,AbortOp?0:MSG_KEEPBACKGROUND);
 
   if (StopSearch || !CtrlObject->Plugins.GetFindData(hDirListPlugin,&PanelData,&ItemCount,OPM_FIND))
     return;

@@ -5,10 +5,14 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.62 28.05.2003 $ */
+/* Revision: 1.63 21.08.2003 $ */
 
 /*
 Modify:
+  21.08.2003 SVS
+    ! Сделаем LastCmdStr динамической переменной.
+      Отсюда все остальные изменения
+    + CommandLine::SetLastCmdStr() - "выставляет" эту самую LastCmdStr.
   28.05.2003 SVS
     ! Opt.EdOpt.PersistentBlocks -> Opt.Dialogs.EditBlock
   22.04.2003 SVS
@@ -184,9 +188,17 @@ CommandLine::CommandLine()
   *CurDir=0;
   CmdStr.SetEditBeyondEnd(FALSE);
   SetPersistentBlocks(Opt.Dialogs.EditBlock);
+  LastCmdStr=NULL;
+  LastCmdLength=0;
   LastCmdPartLength=-1;
-  *LastCmdStr=0;
   BackgroundScreen=NULL;
+}
+
+CommandLine::~CommandLine()
+{
+  if(LastCmdStr)
+    xf_free(LastCmdStr);
+
 }
 
 /* $ 09.09.2001 IS установить/сбросить постоянные блоки */
@@ -219,6 +231,20 @@ void CommandLine::SetCurPos(int Pos)
   CmdStr.Redraw();
 }
 
+BOOL CommandLine::SetLastCmdStr(const char *Ptr,int LenPtr)
+{
+  if(LenPtr > LastCmdLength)
+    LastCmdStr=(char *)xf_realloc(LastCmdStr, LenPtr+1);
+  if(LastCmdStr)
+  {
+    LastCmdLength=LenPtr;
+    strcpy(LastCmdStr,Ptr);
+    return TRUE;
+  }
+  else
+    LastCmdLength=0;
+  return FALSE;
+}
 
 int CommandLine::ProcessKey(int Key)
 {
@@ -227,14 +253,18 @@ int CommandLine::ProcessKey(int Key)
   if ((Key==KEY_CTRLEND || Key==KEY_CTRLNUMPAD1) && CmdStr.GetCurPos()==CmdStr.GetLength())
   {
     if (LastCmdPartLength==-1)
-      strncpy(LastCmdStr,CmdStr.GetStringAddr(),sizeof(LastCmdStr)-1);
+      SetLastCmdStr(CmdStr.GetStringAddr(),CmdStr.GetLength());
+
+    if(!LastCmdStr)
+      return TRUE;
+
     strncpy(Str,LastCmdStr,sizeof(Str)-1);
     int CurCmdPartLength=strlen(Str);
     CtrlObject->CmdHistory->GetSimilar(Str,LastCmdPartLength);
     if (LastCmdPartLength==-1)
     {
-      LastCmdPartLength=CurCmdPartLength;
-      strncpy(LastCmdStr,CmdStr.GetStringAddr(),sizeof(LastCmdStr)-1);
+      if(SetLastCmdStr(CmdStr.GetStringAddr(),CmdStr.GetLength()))
+        LastCmdPartLength=CurCmdPartLength;
     }
     CmdStr.SetString(Str);
     Show();
@@ -415,8 +445,8 @@ int CommandLine::ProcessKey(int Key)
         CmdStr.Xlat(TRUE);
         /* SVS $ */
         /* $ 13.11.2001 IS иначе неправильно работает ctrl-end */
-        strncpy(LastCmdStr,CmdStr.GetStringAddr(),sizeof(LastCmdStr)-1);
-        LastCmdPartLength=strlen(LastCmdStr);
+        if(SetLastCmdStr(CmdStr.GetStringAddr(),CmdStr.GetLength()))
+          LastCmdPartLength=strlen(LastCmdStr);
         /* IS $ */
         return(TRUE);
       }
@@ -456,8 +486,10 @@ int CommandLine::ProcessKey(int Key)
       if(Key == KEY_CTRLD)
         Key=KEY_RIGHT;
       /* SVS $ */
+
       if (!CmdStr.ProcessKey(Key))
         break;
+
       LastCmdPartLength=-1;
       return(TRUE);
   }
