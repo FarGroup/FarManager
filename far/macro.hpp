@@ -7,10 +7,12 @@ macro.hpp
 
 */
 
-/* Revision: 1.31 28.10.2003 $ */
+/* Revision: 1.32 15.12.2003 $ */
 
 /*
 Modify:
+  15.12.2003 SVS
+    ! —труктура MacroRecord увеличена в размере (задел на будущее)
   28.10.2003 SVS
     ! Executing -> MacroState.Executing
   15.10.2003 SVS
@@ -106,10 +108,12 @@ class Panel;
 
 struct MacroRecord
 {
-  DWORD Flags;
-  int   Key;
-  int   BufferSize;
-  DWORD *Buffer;
+  DWORD  Flags;         // ‘лаги макропоследовательности
+  int    Key;           // Ќазначенна€ клавиша
+  int    BufferSize;    // –азмер буфера компилированной последовательности
+  DWORD *Buffer;        // компилированна€ последовательность (OpCode) макроса
+  char  *Src;           // оригинальный "текст" макроса
+  DWORD  Reserved[3];   // зарезервировано
 };
 
 #define STACKLEVEL	16

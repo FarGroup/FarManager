@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.111 14.11.2003 $ */
+/* Revision: 1.112 15.12.2003 $ */
 
 /*
 Modify:
+  15.12.2003 SVS
+    ! —труктура MacroRecord увеличена в размере (задел на будущее)
   14.11.2003 SVS
     + заготовка дл€ Alt-F4 в диалоге настройки макросов - т.с. закомменченна€ перспектива
   28.10.2003 SVS
@@ -605,8 +607,12 @@ void KeyMacro::InitInternalLIBVars()
   if(MacroLIB)
   {
     for (int I=0;I<MacroLIBCount;I++)
+    {
       if(MacroLIB[I].BufferSize > 1 && MacroLIB[I].Buffer)
         xf_free(MacroLIB[I].Buffer);
+      if(MacroLIB[I].Src)
+        xf_free(MacroLIB[I].Src);
+    }
     xf_free(MacroLIB);
   }
   if(RecBuffer) xf_free(RecBuffer);
@@ -647,8 +653,12 @@ void KeyMacro::ReleaseWORKBuffer(BOOL All)
     if(All || Work.MacroWORKCount <= 1)
     {
       for (int I=0;I<Work.MacroWORKCount;I++)
+      {
         if(Work.MacroWORK[I].BufferSize > 1 && Work.MacroWORK[I].Buffer)
           xf_free(Work.MacroWORK[I].Buffer);
+        if(Work.MacroWORK[I].Src)
+          xf_free(Work.MacroWORK[I].Src);
+      }
       xf_free(Work.MacroWORK);
       Work.MacroWORK=NULL;
       Work.MacroWORKCount=0;
@@ -657,7 +667,10 @@ void KeyMacro::ReleaseWORKBuffer(BOOL All)
     {
       if(Work.MacroWORK->BufferSize > 1 && Work.MacroWORK->Buffer)
         xf_free(Work.MacroWORK->Buffer);
+      if(Work.MacroWORK->Src)
+        xf_free(Work.MacroWORK->Src);
       Work.MacroWORKCount--;
+
       memmove(Work.MacroWORK,((BYTE*)Work.MacroWORK)+sizeof(struct MacroRecord),sizeof(struct MacroRecord)*Work.MacroWORKCount);
       xf_realloc(Work.MacroWORK,sizeof(struct MacroRecord)*Work.MacroWORKCount);
     }
@@ -1582,7 +1595,7 @@ void KeyMacro::SaveMacros(BOOL AllSaved)
 int KeyMacro::ReadMacros(int ReadMode,char *Buffer,int BufferSize)
 {
   int I, J;
-  struct MacroRecord CurMacro;
+  struct MacroRecord CurMacro={0};
 
   char UpKeyName[100];
   char RegKeyName[150],KeyText[50];
@@ -1622,6 +1635,7 @@ int KeyMacro::ReadMacros(int ReadMode,char *Buffer,int BufferSize)
     CurMacro.BufferSize=0;
     CurMacro.Flags=MFlags|(ReadMode&MFLAGS_MODEMASK);
     GetRegKey(RegKeyName,"Sequence",Buffer,"",BufferSize);
+    //CurMacro.Src=strdup(Buffer);
 
     for(J=0; J < sizeof(MKeywordsFlags)/sizeof(MKeywordsFlags[0]); ++J)
       CurMacro.Flags|=GetRegKey(RegKeyName,MKeywordsFlags[J].Name,0)?MKeywordsFlags[J].Value:0;

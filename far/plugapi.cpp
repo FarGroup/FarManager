@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.165 25.11.2003 $ */
+/* Revision: 1.166 15.12.2003 $ */
 
 /*
 Modify:
+  15.12.2003 SVS
+    ! Инициализация MacroRecord в ACTL_POSTKEYSEQUENCE
   25.11.2003 SVS
     ! принудительно выставим заголовок для меню.
   11.11.2003 SVS
@@ -800,9 +802,8 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     {
       if(CtrlObject && Param && ((struct KeySequence*)Param)->Count > 0)
       {
-        struct MacroRecord MRec;
+        struct MacroRecord MRec={0};
         MRec.Flags=(((struct KeySequence*)Param)->Flags)<<8;
-        MRec.Key=0;
         MRec.BufferSize=((struct KeySequence*)Param)->Count;
         if(MRec.BufferSize == 1)
           MRec.Buffer=(DWORD *)((struct KeySequence*)Param)->Sequence[0];
