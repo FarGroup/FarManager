@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.71 14.11.2001 $ */
+/* Revision: 1.72 26.11.2001 $ */
 
 /*
 Modify:
+  26.11.2001 VVM
+    ! Использовать полное имя файла при CTRL+F10
   14.11.2001 SVS
     ! Ctrl-F10 не выходит, а только позиционирует
   02.11.2001 IS
@@ -625,7 +627,10 @@ int FileEditor::ProcessKey(int Key)
         if(strchr(FileName,'\\') || strchr(FileName,'/'))
         {
           char DirTmp[NM],ADir[NM],PDir[NM],NameFile[NM],*NameTmp;
-          strncpy(DirTmp,FileName,sizeof(DirTmp)-1);
+          /* 26.11.2001 VVM
+            ! Использовать полное имя файла */
+          strncpy(DirTmp,FullFileName,sizeof(DirTmp)-1);
+          /* VVM $ */
           NameTmp=PointToName(DirTmp);
           if(NameTmp>DirTmp)
           {
