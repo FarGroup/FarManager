@@ -1161,8 +1161,8 @@ the respective option in the ~system settings dialog~@SystemSettings@.
 
   Remarks:
 
-  1. Under Windows 9x/Me, long commands are truncated to 511 bytes
-     before they are stored in the history.
+  1. Under Windows 9x/Me, long commands are truncated to 511
+     symbols before they are stored in the history.
 
 @HistoryViews
 $ #File view and edit history#
@@ -1196,8 +1196,8 @@ the respective option in the ~system settings dialog~@SystemSettings@.
 
   Remarks:
 
-  1. Under Windows 9x/Me, long file paths are truncated to 511 bytes
-     before they are stored in the history.
+  1. Under Windows 9x/Me, long file paths are truncated to 511
+     symbols before they are stored in the history.
 
 @HistoryFolders
 $ #Folders history#
@@ -1226,8 +1226,8 @@ the respective option in the ~system settings dialog~@SystemSettings@.
 
   Remarks:
 
-  1. Under Windows 9x/Me, long file paths are truncated to 511 bytes
-     before they are stored in the history.
+  1. Under Windows 9x/Me, long file paths are truncated to 511
+     symbols before they are stored in the history.
 
 @TaskList
 $ #Task list#
@@ -2592,6 +2592,9 @@ performed as a copy with subsequent deletion or as a direct move
 
     FAR handles copying to #con# in the same way as copying to #nul# -
 that is, the file is read from the disk but not written anywhere.
+
+    Состояние опций "Копировать права доступа" и "Только новые/обновленные
+файлы" действуют только на текущий сеанс копирования.
 
 @HardSymLink
 $ #Hard and Symbolic link#

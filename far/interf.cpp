@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.50 22.03.2002 $ */
+/* Revision: 1.51 28.03.2002 $ */
 
 /*
 Modify:
+  28.03.2002 SVS
+    + ClearScreen()
   22.03.2002 SVS
     ! Масдай - отстой, Alt-F9 ему недоступно!!!
   04.03.2002 DJ
@@ -828,6 +830,14 @@ void SetColor(int Color)
   CurColor=FarColorToReal(Color);
 }
 
+void ClearScreen(int Color)
+{
+  Color=FarColorToReal(Color);
+  SetScreen(0,0,ScrX,ScrY,' ',Color);
+  ScrBuf.ResetShadow();
+  ScrBuf.Flush();
+  SetConsoleTextAttribute(hConOut,Color);
+}
 
 int GetColor()
 {

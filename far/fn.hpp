@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.143 26.03.2002 $ */
+/* Revision: 1.144 28.03.2002 $ */
 
 /*
 Modify:
+  28.03.2002 SVS
+    + ClearScreen()
   26.03.2002 IS
     + void InitLCIDSort();
   26.03.2002 DJ
@@ -409,7 +411,8 @@ void SetScreen(int X1,int Y1,int X2,int Y2,int Ch,int Color);
 void MakeShadow(int X1,int Y1,int X2,int Y2);
 void ChangeBlockColor(int X1,int Y1,int X2,int Y2,int Color);
 void SetColor(int Color);
-int GetColor();
+void ClearScreen(int Color);
+int  GetColor();
 void GetText(int X1,int Y1,int X2,int Y2,void *Dest);
 void PutText(int X1,int Y1,int X2,int Y2,void *Src);
 void GetRealText(int X1,int Y1,int X2,int Y2,void *Dest);

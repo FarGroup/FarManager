@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.49 26.03.2002 $ */
+/* Revision: 1.50 28.03.2002 $ */
 
 /*
 Modify:
+  28.03.2002 SVS
+    - CLS не выставляла атрибуты консоли
   26.03.2002 SVS
     - BugZ#393 - . Shift-Enter
   25.03.2002 VVM
@@ -1352,9 +1354,7 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
     if(CmdLine[3])
       return FALSE;
 
-    SetScreen(0,0,ScrX,ScrY,' ',F_LIGHTGRAY|B_BLACK);
-    ScrBuf.ResetShadow();
-    ScrBuf.Flush();
+    ClearScreen(F_LIGHTGRAY|B_BLACK);
     return TRUE;
   }
 
