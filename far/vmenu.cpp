@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.107 11.01.2003 $ */
+/* Revision: 1.108 13.01.2003 $ */
 
 /*
 Modify:
+  13.01.2003 SVS
+    - дополнение к двум предыдущим патчам :-)
   11.01.2003 KM
     - 100% падение фара в ShowMenu, скомпилированного VC, из
       диалога поиска при попытке отрисовки DI_LISTBOX.
@@ -617,6 +619,8 @@ void VMenu::Show()
   }
   if (X2>X1 && Y2>Y1)
   {
+    if(SelectPos == -1)
+      SelectPos=SetSelectPos(0,1);
 //_SVS(SysLog("VMenu::Show()"));
     if(!VMFlags.Check(VMENU_LISTBOX))
       ScreenObject::Show();
@@ -789,10 +793,17 @@ void VMenu::ShowMenu(int IsParent)
       *BoxChar=0x0BA; // ||
       break;
   }
+
+  if (ItemCount <= 0)
+  {
+    CallCount--;
+    return;
+  }
+
   /* $ 11.01.2002 KM
      ! При ItemCount=0 Item[SelectPos] не имеет смысла.
   */
-  if ((ItemCount) && (SelectPos<ItemCount))
+  if (SelectPos<ItemCount)
     Item[SelectPos].Flags|=LIF_SELECTED;
   /* KM $ */
 
@@ -907,7 +918,7 @@ void VMenu::ShowMenu(int IsParent)
         {
           short AmpPos=Item[I].AmpPos+2;
 //_SVS(SysLog(">>> AmpPos=%d (%d) TmpStr='%s'",AmpPos,Item[I].AmpPos,TmpStr));
-          if(AmpPos >= 2 && TmpStr[AmpPos] != '&')
+          if(AmpPos >= 2 && AmpPos < sizeof(TmpStr) && TmpStr[AmpPos] != '&')
           {
             memmove(TmpStr+AmpPos+1,TmpStr+AmpPos,strlen(TmpStr+AmpPos)+1);
             TmpStr[AmpPos]='&';

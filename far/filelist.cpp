@@ -5,10 +5,22 @@ filelist.cpp
 
 */
 
-/* Revision: 1.169 21.12.2002 $ */
+/* Revision: 1.170 10.01.2003 $ */
 
 /*
 Modify:
+  10.01.2003 SVS
+    - Панели не погашены.
+      Выделяем кучу файлов, жмем Ctrl-G вводим, например такое:
+      awk "BEGIN{FS=','}{print $4}" !.! > 291202.txt
+      В процессе... жмем Esc. Выскакивает диалог. Говорим "угу, прервать"
+      Процесс прервался. Жмем Ctrl-O и видим... "панели"!?
+      Неотрисовка, блин. Ок, укажем редрайверу гасить панели, иначе...
+      После вызова прерывателя редравятся фреймы, но т.к. панели имеют
+      признак визиблед, то идет прорисовка панелей, потом скроллирование
+      экрана с последующим запоминанием буфера и показом (в деструкторе
+      редрайвера) панелей...
+    ! НЕ СОРТИРУЕМ КАТАЛОГИ В РЕЖИМЕ "ПО РАСШИРЕНИЮ" (Опционально!)
   21.12.2002 SVS
     - баги с прорисовкой, учтем новый параметр GetDirInfo и после всего
       прочего обновим панели (бага про моргание месага)
@@ -771,6 +783,11 @@ int _cdecl SortList(const void *el1,const void *el2)
     NameCmp=ListSortOrder*LCStricmp(Name1,Name2);
   if (NameCmp==0)
     NameCmp=SPtr1->Position>SPtr2->Position ? ListSortOrder:-ListSortOrder;
+
+  // НЕ СОРТИРУЕМ КАТАЛОГИ В РЕЖИМЕ "ПО РАСШИРЕНИЮ" (Опционально!)
+  if(ListSortMode == BY_EXT && !Opt.SortFolderExt && (SPtr1->FileAttr & FA_DIREC))
+    return(NameCmp);
+
   switch(ListSortMode)
   {
     case BY_NAME:
@@ -3931,7 +3948,7 @@ void FileList::ApplyCommand()
   char SelName[NM],SelShortName[NM];
   int FileAttr;
 
-  RedrawDesktop Redraw;
+  RedrawDesktop Redraw(TRUE);
   SaveSelection();
 
   GetSelName(NULL,FileAttr);

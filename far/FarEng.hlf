@@ -1569,6 +1569,15 @@ $ #Panel settings dialog#
                           and Gray *. Otherwise these keys will
                           select files only.
 
+  #Sort folder names#       Apply sorting by extension not only
+  #by extension#            to files, but also to folders.
+                          When the option is turned on, sorting
+                          by extension works the same as it did
+                          in FAR 1.65. If the option is turned
+                          off, in the extension sort mode the
+                          folders will be sorted by name, as
+                          they are in the name sort mode.
+
   #Allow reverse#           If this option is on and the current file
   #sort modes#              panel sort mode is reselected, reverse
                           sort mode will be set.
@@ -2488,6 +2497,8 @@ similar to "Column types" and "Column widths", but for panel status line.
   - #Fullscreen view# - force fullscreen view instead of half-screen.
 
   - #Align file extensions# - show file extensions aligned.
+
+  - #Align folder extensions# - show folder extensions aligned.
 
   - #Show folders in uppercase# - display all folder names in upper
 case, ignoring the original case.

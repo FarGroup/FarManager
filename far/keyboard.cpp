@@ -5,11 +5,14 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.86 06.01.2003 $ */
+/* Revision: 1.87 10.01.2003 $ */
 
 /*
 Modify:
-  06.01.03 SVS
+  10.01.2003 SVS
+    - "Доисправим" BugZ#488 - Shift=enter
+      Если ЭТО был макрос и у него нету KEY_SHIFT, то обнулим ShiftPressed
+  06.01.2003 SVS
     ! в GetInputRecord сделаем Discard буферу сохранения в GlobalSaveScrPtr
       при обработке эвента WINDOW_BUFFER_SIZE_EVENT
     + FARGetKeybLayoutName, которая вызывает недокументированную
@@ -487,6 +490,8 @@ int GetInputRecord(INPUT_RECORD *rec)
       ScrBuf.Flush();
       TranslateKeyToVK(MacroKey,VirtKey,ControlState,rec);
       rec->EventType=0;
+      if(!(MacroKey&KEY_SHIFT))
+        ShiftPressed=0;
       _KEYMACRO(SysLog("MacroKey1 =%s",_FARKEY_ToName(MacroKey)));
 //      memset(rec,0,sizeof(*rec));
       return(MacroKey);
@@ -499,6 +504,8 @@ int GetInputRecord(INPUT_RECORD *rec)
       ScrBuf.Flush();
       TranslateKeyToVK(MacroKey,VirtKey,ControlState,rec);
       rec->EventType=0;
+      if(!(MacroKey&KEY_SHIFT))
+        ShiftPressed=0;
       _KEYMACRO(SysLog("MacroKey2 =%s",_FARKEY_ToName(MacroKey)));
 //      memset(rec,0,sizeof(*rec));
       return(MacroKey);
@@ -1507,6 +1514,8 @@ int WINAPI KeyNameToKey(const char *Name)
    if(!Name || !*Name)
      return -1;
    DWORD Key=0;
+
+_SVS(SysLog("KeyNameToKey('%s')",Name));
 
    // Это макроклавиша?
    if(Name[0] == '$' && Name[1])

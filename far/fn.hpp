@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.173 03.01.2003 $ */
+/* Revision: 1.174 10.01.2003 $ */
 
 /*
 Modify:
+  10.01.2003 SVS
+    + FAR_EmptyClipboard()
   03.01.2003 SVS
     + FARGetKeybLayoutName
   21.12.2002 SVS
@@ -655,6 +657,7 @@ char* PasteFormatFromClipboard(const char *Format);
   параметер - ограничение по длины */
 char* WINAPI PasteFromClipboardEx(int max);
 /* tran $ */
+BOOL WINAPI FAR_EmptyClipboard(VOID);
 
 int GetFileTypeByName(const char *Name);
 void SetFarTitle(const char *Title);

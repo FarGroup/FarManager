@@ -5,10 +5,16 @@ main.cpp
 
 */
 
-/* Revision: 1.61 23.12.2002 $ */
+/* Revision: 1.62 10.01.2003 $ */
 
 /*
 Modify:
+  10.01.2003 SVS
+    - BugZ#765 - Ключи командной строки парсятся неоднозначно.
+    ! Научим исключатор понимать (и реагировать предсмертным воплем) исключения
+      в самом ФАРе. Для этого часть кода вынесено из main в MainProcess.
+      Вызов MainProcess обволочен стандартным способом для исключений
+      (учет опции Opt.ExceptRules)
   23.12.2002 SVS
     ! OnlyEditorViewerUsed стал частью структуры Options
   07.10.2002 SVS
@@ -202,6 +208,7 @@ Modify:
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
 #include "language.hpp"
+#include "farexcpt.hpp"
 
 #ifdef DIRECT_RT
 int DirectRT=0;
@@ -282,6 +289,155 @@ void DetectTTFFont(char *Path)
 }
 #endif
 
+static int MainProcess(char *EditName,char *ViewName,char *DestName1,char *DestName2,int StartLine,int StartChar,int RegOpt)
+{
+  {
+    ChangePriority ChPriority(WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS ? THREAD_PRIORITY_ABOVE_NORMAL:THREAD_PRIORITY_NORMAL);
+    ControlObject CtrlObj;
+    if (*EditName || *ViewName)
+    {
+      NotUseCAS=TRUE;
+      Opt.OnlyEditorViewerUsed=1;
+      Panel *DummyPanel=new Panel;
+      CmdMode=TRUE;
+      _tran(SysLog("create dummy panels"));
+      CtrlObj.CreateFilePanels();
+      CtrlObj.Cp()->LeftPanel=CtrlObj.Cp()->RightPanel=CtrlObj.Cp()->ActivePanel=DummyPanel;
+      CtrlObj.Plugins.LoadPlugins();
+      if (*EditName)
+      {
+        FileEditor *ShellEditor=new FileEditor(EditName,TRUE,TRUE,StartLine,StartChar);
+        _tran(SysLog("make shelleditor %p",ShellEditor));
+        if (!ShellEditor->GetExitCode()){ // ????????????
+          FrameManager->ExitMainLoop(0);
+        }
+      }
+      if (*ViewName)
+      {
+        FileViewer *ShellViewer=new FileViewer(ViewName,FALSE);
+        if (!ShellViewer->GetExitCode()){
+          FrameManager->ExitMainLoop(0);
+        }
+        _tran(SysLog("make shellviewer, %p",ShellViewer));
+      }
+      FrameManager->EnterMainLoop();
+      CtrlObj.Cp()->LeftPanel=CtrlObj.Cp()->RightPanel=CtrlObj.Cp()->ActivePanel=NULL;
+      delete DummyPanel;
+      _tran(SysLog("editor/viewer closed, delete dummy panels"));
+    }
+    else
+    {
+      char Path[NM];
+      Opt.OnlyEditorViewerUsed=0;
+      NotUseCAS=FALSE;
+      if (RegOpt)
+        Register();
+      static struct RegInfo Reg;
+      _beginthread(CheckReg,0x10000,&Reg);
+      while (!Reg.Done)
+        Sleep(10);
+
+      Opt.SetupArgv=0;
+
+      // воспользуемся тем, что ControlObject::Init() создает панели
+      // юзая Opt.*
+      if(*DestName1) // актиная панель
+      {
+        Opt.SetupArgv++;
+        strcpy(Path,DestName1);
+        *PointToName(Path)=0;
+        DeleteEndSlash(Path); // если конечный слешь не убрать - получаем забавный эффект - отсутствует ".."
+        if(Path[1]==':' && !Path[2])
+          AddEndSlash(Path);
+
+        // Та панель, которая имеет фокус - активна (начнем по традиции с Левой Панели ;-)
+        if(Opt.LeftPanel.Focus)
+        {
+          Opt.LeftPanel.Type=FILE_PANEL;  // сменим моду панели
+          Opt.LeftPanel.Visible=TRUE;     // и включим ее
+          strcpy(Opt.LeftFolder,Path);
+        }
+        else
+        {
+          Opt.RightPanel.Type=FILE_PANEL;
+          Opt.RightPanel.Visible=TRUE;
+          strcpy(Opt.RightFolder,Path);
+        }
+
+        if(*DestName2) // пассивная панель
+        {
+          Opt.SetupArgv++;
+          strcpy(Path,DestName2);
+          *PointToName(Path)=0;
+          DeleteEndSlash(Path);
+          if(Path[1]==':' && !Path[2])
+            AddEndSlash(Path);
+
+          // а здесь с точнотью наоборот - обрабатываем пассивную панель
+          if(Opt.LeftPanel.Focus)
+          {
+            Opt.RightPanel.Type=FILE_PANEL; // сменим моду панели
+            Opt.RightPanel.Visible=TRUE;    // и включим ее
+            strcpy(Opt.RightFolder,Path);
+          }
+          else
+          {
+            Opt.LeftPanel.Type=FILE_PANEL;
+            Opt.LeftPanel.Visible=TRUE;
+            strcpy(Opt.LeftFolder,Path);
+          }
+        }
+      }
+
+      // теперь все готово - создаем панели!
+      CtrlObj.Init();
+
+      // а теперь "провалимся" в каталог или хост-файл (если получится ;-)
+      if(*DestName1) // актиная панель
+      {
+        LockScreen LockScr;
+        Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+        Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
+
+        strcpy(Path,PointToName(DestName1));
+        if (*Path)
+        {
+          if (ActivePanel->GoToFile(Path))
+            ActivePanel->ProcessKey(KEY_CTRLPGDN);
+        }
+
+        if(*DestName2) // пассивная панель
+        {
+          strcpy(Path,PointToName(DestName2));
+          if (*Path)
+          {
+            if (AnotherPanel->GoToFile(Path))
+              AnotherPanel->ProcessKey(KEY_CTRLPGDN);
+          }
+        }
+
+        // !!! ВНИМАНИЕ !!!
+        // Сначала редравим пассивную панель, а потом активную!
+        AnotherPanel->Redraw();
+        ActivePanel->Redraw();
+      }
+
+      FrameManager->EnterMainLoop();
+    }
+
+    // очистим за собой!
+    SetScreen(0,0,ScrX,ScrY,' ',F_LIGHTGRAY|B_BLACK);
+    ScrBuf.ResetShadow();
+    ScrBuf.Flush();
+    MoveRealCursor(0,0);
+  }
+
+  CloseConsole();
+  RestoreIcons();
+  return(0);
+}
+
+
 int _cdecl main(int Argc, char *Argv[])
 {
   _OT(SysLog("[[[[[[[[New Session of FAR]]]]]]]]]"));
@@ -344,6 +500,7 @@ int _cdecl main(int Argc, char *Argv[])
   /* IS $ */
 
   for (int I=1;I<Argc;I++)
+  {
     if ((Argv[I][0]=='/' || Argv[I][0]=='-') && Argv[I][1])
     {
       switch(toupper(Argv[I][1]))
@@ -430,15 +587,7 @@ int _cdecl main(int Argc, char *Argv[])
           */
           if (Argv[I][2])
           {
-            ExpandEnvironmentStrings(&Argv[I][2],MainPluginsPath,sizeof(MainPluginsPath));
-            Unquote(MainPluginsPath);
-            /* $ 21.05.2002 IS
-                 Получим реальное значение полного длинного пути с учетом
-                 символических связей.
-            */
-            ConvertNameToReal(MainPluginsPath,MainPluginsPath,sizeof(MainPluginsPath));
-            RawConvertShortNameToLongName(MainPluginsPath,MainPluginsPath,sizeof(MainPluginsPath));
-            /* IS $ */
+            strncpy(MainPluginsPath,&Argv[I][2],sizeof(MainPluginsPath));
           }
           else
           {
@@ -483,6 +632,7 @@ int _cdecl main(int Argc, char *Argv[])
         CharToOem(Argv[I],DestName[CntDestName++]);
       }
     }
+  }
 
   /* $ 26.03.2002 IS
      Настройка сортировки.
@@ -505,6 +655,25 @@ int _cdecl main(int Argc, char *Argv[])
 #else
   set_new_handler(0);
 #endif
+
+  /* $ 08.01.2003 SVS
+     BugZ#765 - Ключи командной строки парсятся неоднозначно.
+  */
+  if(*MainPluginsPath)
+  {
+    ExpandEnvironmentStr(MainPluginsPath,MainPluginsPath,sizeof(MainPluginsPath));
+    Unquote(MainPluginsPath);
+    /* $ 21.05.2002 IS
+       Получим реальное значение полного длинного пути с учетом
+       символических связей.
+    */
+    ConvertNameToReal(MainPluginsPath,MainPluginsPath,sizeof(MainPluginsPath));
+    RawConvertShortNameToLongName(MainPluginsPath,MainPluginsPath,sizeof(MainPluginsPath));
+    /* IS $ */
+  }
+  else
+    Opt.PluginsCacheOnly=FALSE;
+  /* SVS $ */
 
   SetFileApisToOEM();
   GetModuleFileName(NULL,FarPath,sizeof(FarPath));
@@ -563,154 +732,25 @@ int _cdecl main(int Argc, char *Argv[])
     DeleteEmptyKey(HKEY_CLASSES_ROOT,"Directory\\shellex\\CopyHookHandlers");
   }
   /* IS $ */
+
+
+  int Result;
+  if(Opt.ExceptRules)
   {
-    ChangePriority ChPriority(WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS ? THREAD_PRIORITY_ABOVE_NORMAL:THREAD_PRIORITY_NORMAL);
-    ControlObject CtrlObj;
-    if (*EditName || *ViewName)
-    {
-      NotUseCAS=TRUE;
-      Opt.OnlyEditorViewerUsed=1;
-      Panel *DummyPanel=new Panel;
-      CmdMode=TRUE;
-      _tran(SysLog("create dummy panels"));
-      CtrlObj.CreateFilePanels();
-      CtrlObj.Cp()->LeftPanel=CtrlObj.Cp()->RightPanel=CtrlObj.Cp()->ActivePanel=DummyPanel;
-      CtrlObj.Plugins.LoadPlugins();
-      if (*EditName)
-      {
-        FileEditor *ShellEditor=new FileEditor(EditName,TRUE,TRUE,StartLine,StartChar);
-        _tran(SysLog("make shelleditor %p",ShellEditor));
-        if (!ShellEditor->GetExitCode()){ // ????????????
-          FrameManager->ExitMainLoop(0);
-        }
-      }
-      if (*ViewName)
-      {
-        FileViewer *ShellViewer=new FileViewer(ViewName,FALSE);
-        if (!ShellViewer->GetExitCode()){
-          FrameManager->ExitMainLoop(0);
-        }
-        _tran(SysLog("make shellviewer, %p",ShellViewer));
-      }
-      FrameManager->EnterMainLoop();
-      CtrlObj.Cp()->LeftPanel=CtrlObj.Cp()->RightPanel=CtrlObj.Cp()->ActivePanel=NULL;
-      delete DummyPanel;
-      _tran(SysLog("editor/viewer closed, delete dummy panels"));
+    TRY{
+      Result=MainProcess(EditName,ViewName,DestName[0],DestName[1],StartLine,StartChar,RegOpt);
     }
-    else
-    {
-      char Path[NM];
-      Opt.OnlyEditorViewerUsed=0;
-      NotUseCAS=FALSE;
-      if (RegOpt)
-        Register();
-      static struct RegInfo Reg;
-      _beginthread(CheckReg,0x10000,&Reg);
-      while (!Reg.Done)
-        Sleep(10);
-
-      Opt.SetupArgv=0;
-
-      // воспользуемся тем, что ControlObject::Init() создает панели
-      // юзая Opt.*
-      if(*DestName[0]) // актиная панель
-      {
-        Opt.SetupArgv++;
-        strcpy(Path,DestName[0]);
-        *PointToName(Path)=0;
-        DeleteEndSlash(Path); // если конечный слешь не убрать - получаем забавный эффект - отсутствует ".."
-        if(Path[1]==':' && !Path[2])
-          AddEndSlash(Path);
-
-        // Та панель, которая имеет фокус - активна (начнем по традиции с Левой Панели ;-)
-        if(Opt.LeftPanel.Focus)
-        {
-          Opt.LeftPanel.Type=FILE_PANEL;  // сменим моду панели
-          Opt.LeftPanel.Visible=TRUE;     // и включим ее
-          strcpy(Opt.LeftFolder,Path);
-        }
-        else
-        {
-          Opt.RightPanel.Type=FILE_PANEL;
-          Opt.RightPanel.Visible=TRUE;
-          strcpy(Opt.RightFolder,Path);
-        }
-
-        if(*DestName[1]) // пассивная панель
-        {
-          Opt.SetupArgv++;
-          strcpy(Path,DestName[1]);
-          *PointToName(Path)=0;
-          DeleteEndSlash(Path);
-          if(Path[1]==':' && !Path[2])
-            AddEndSlash(Path);
-
-          // а здесь с точнотью наоборот - обрабатываем пассивную панель
-          if(Opt.LeftPanel.Focus)
-          {
-            Opt.RightPanel.Type=FILE_PANEL; // сменим моду панели
-            Opt.RightPanel.Visible=TRUE;    // и включим ее
-            strcpy(Opt.RightFolder,Path);
-          }
-          else
-          {
-            Opt.LeftPanel.Type=FILE_PANEL;
-            Opt.LeftPanel.Visible=TRUE;
-            strcpy(Opt.LeftFolder,Path);
-          }
-        }
-      }
-
-      // теперь все готово - создаем панели!
-      CtrlObj.Init();
-
-      // а теперь "провалимся" в каталог или хост-файл (если получится ;-)
-      if(*DestName[0]) // актиная панель
-      {
-        LockScreen LockScr;
-        Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
-        Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
-
-        strcpy(Path,PointToName(DestName[0]));
-        if (*Path)
-        {
-          if (ActivePanel->GoToFile(Path))
-            ActivePanel->ProcessKey(KEY_CTRLPGDN);
-        }
-
-        if(*DestName[1]) // пассивная панель
-        {
-          strcpy(Path,PointToName(DestName[1]));
-          if (*Path)
-          {
-            if (AnotherPanel->GoToFile(Path))
-              AnotherPanel->ProcessKey(KEY_CTRLPGDN);
-          }
-        }
-
-        // !!! ВНИМАНИЕ !!!
-        // Сначала редравим пассивную панель, а потом активную!
-        AnotherPanel->Redraw();
-        ActivePanel->Redraw();
-      }
-
-      FrameManager->EnterMainLoop();
+    EXCEPT(xfilter((int)INVALID_HANDLE_VALUE,GetExceptionInformation(),NULL,1)){
+       TerminateProcess( GetCurrentProcess(), 1);
     }
-
-    // очистим за собой!
-    SetScreen(0,0,ScrX,ScrY,' ',F_LIGHTGRAY|B_BLACK);
-    ScrBuf.ResetShadow();
-    ScrBuf.Flush();
-    MoveRealCursor(0,0);
   }
+  else
+    Result=MainProcess(EditName,ViewName,DestName[0],DestName[1],StartLine,StartChar,RegOpt);
 
   SetConsoleTitle(OldTitle);
-  CloseConsole();
-  RestoreIcons();
   _OT(SysLog("[[[[[Exit of FAR]]]]]]]]]"));
-  return(0);
+  return Result;
 }
-
 
 void ConvertOldSettings()
 {

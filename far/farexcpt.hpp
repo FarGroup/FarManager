@@ -7,10 +7,12 @@ exception.cpp
 
 */
 
-/* Revision: 1.07 04.11.2002 $ */
+/* Revision: 1.09 13.01.2003 $ */
 
 /*
 Modify:
+  13.01.2003 SVS
+    ! Начиная с 1251 нарушена нумерация билдов (один пропущен)
   04.11.2002 SVS
     + флаги EX_PLUGINITEMWORKFLAGS, EX_PLUGINITEMCALLFUNCFLAGS
     ! поле PLUGINRECORD.Next сделаем пока как PLUGINRECORD.Reserved1

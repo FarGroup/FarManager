@@ -5,10 +5,16 @@ manager.cpp
 
 */
 
-/* Revision: 1.80 07.11.2002 $ */
+/* Revision: 1.81 10.01.2003 $ */
 
 /*
 Modify:
+  10.01.2003 SVS
+    + Для отработки процесса исключений самого ФАРа (эмуляция) в manager.cpp
+      добавлен код, вызывающий менюху по Ctrl-Alt-Apps с последующим
+      исполнением "плохого" кода. ЭТОТ будет только для "закрытых" альф
+      (только для тестеров).
+      Если кто знает как остальные баги проэмульгировать - добавляйте
   07.11.2002 SVS
     ! Не компиляция под Borland 5.5
   08.10.2002 SVS
@@ -818,7 +824,71 @@ int  Manager::ProcessKey(int Key)
   if ( CurrentFrame)
   {
     //      _D(SysLog("Manager::ProcessKey(), to CurrentFrame 0x%p, '%s'",CurrentFrame, CurrentFrame->GetTypeName()));
-    int i;
+    int i=0;
+
+#if defined(FAR_ALPHA_VERSION)
+// сей код для проверки исключатор, просьба не трогать :-)
+    if(GetRegKey("System\\Exception","Used",0) && Key == (KEY_APPS|KEY_CTRL|KEY_ALT))
+    {
+      struct __ECODE {
+        DWORD Code;
+        char *Name;
+      } ECode[]={
+        {EXCEPTION_ACCESS_VIOLATION,"Access Violation (Read)"},
+        {EXCEPTION_ACCESS_VIOLATION,"Access Violation (Write)"},
+        {EXCEPTION_INT_DIVIDE_BY_ZERO,"INT Divide By Zero"},
+/*
+        {EXCEPTION_DATATYPE_MISALIGNMENT,"EXCEPTION_DATATYPE_MISALIGNMENT",},
+        {EXCEPTION_BREAKPOINT,"EXCEPTION_BREAKPOINT",},
+        {EXCEPTION_SINGLE_STEP,"EXCEPTION_SINGLE_STEP",},
+        {EXCEPTION_ARRAY_BOUNDS_EXCEEDED,"EXCEPTION_ARRAY_BOUNDS_EXCEEDED",},
+        {EXCEPTION_FLT_DENORMAL_OPERAND,"EXCEPTION_FLT_DENORMAL_OPERAND",},
+        {EXCEPTION_FLT_DIVIDE_BY_ZERO,"EXCEPTION_FLT_DIVIDE_BY_ZERO",},
+        {EXCEPTION_FLT_INEXACT_RESULT,"EXCEPTION_FLT_INEXACT_RESULT",},
+        {EXCEPTION_FLT_INVALID_OPERATION,"EXCEPTION_FLT_INVALID_OPERATION",},
+        {EXCEPTION_FLT_OVERFLOW,"EXCEPTION_FLT_OVERFLOW",},
+        {EXCEPTION_FLT_STACK_CHECK,"EXCEPTION_FLT_STACK_CHECK",},
+        {EXCEPTION_FLT_UNDERFLOW,"EXCEPTION_FLT_UNDERFLOW",},
+        {EXCEPTION_INT_OVERFLOW,"EXCEPTION_INT_OVERFLOW",0},
+        {EXCEPTION_PRIV_INSTRUCTION,"EXCEPTION_PRIV_INSTRUCTION",0},
+        {EXCEPTION_IN_PAGE_ERROR,"EXCEPTION_IN_PAGE_ERROR",0},
+        {EXCEPTION_ILLEGAL_INSTRUCTION,"EXCEPTION_ILLEGAL_INSTRUCTION",0},
+        {EXCEPTION_NONCONTINUABLE_EXCEPTION,"EXCEPTION_NONCONTINUABLE_EXCEPTION",0},
+        {EXCEPTION_STACK_OVERFLOW,"EXCEPTION_STACK_OVERFLOW",0},
+        {EXCEPTION_INVALID_DISPOSITION,"EXCEPTION_INVALID_DISPOSITION",0},
+        {EXCEPTION_GUARD_PAGE,"EXCEPTION_GUARD_PAGE",0},
+        {EXCEPTION_INVALID_HANDLE,"EXCEPTION_INVALID_HANDLE",0},
+*/
+      };
+
+      struct MenuItem ModalMenuItem;
+      memset(&ModalMenuItem,0,sizeof(ModalMenuItem));
+      VMenu ModalMenu("Test Exceptions",NULL,0,ScrY-4);
+      ModalMenu.SetFlags(VMENU_WRAPMODE);
+      ModalMenu.SetPosition(-1,-1,0,0);
+
+      for (int I=0;I<sizeof(ECode)/sizeof(ECode[0]);I++)
+      {
+        strcpy(ModalMenuItem.Name,ECode[I].Name);
+        ModalMenu.AddItem(&ModalMenuItem);
+      }
+
+      ModalMenu.Process();
+      int ExitCode=ModalMenu.Modal::GetExitCode();
+
+      switch(ExitCode)
+      {
+        case 0:
+          return *(int*)0;
+        case 1:
+          *(int*)0 = 0;
+          break;
+        case 2:
+          return i / 0;
+      }
+      return TRUE;
+    }
+#endif
 
     /*** БЛОК ПРИВЕЛЕГИРОВАННЫХ КЛАВИШ ! ***/
     /***   КОТОРЫЕ НЕЛЬЗЯ НАМАКРОСИТЬ    ***/

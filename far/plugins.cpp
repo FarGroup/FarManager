@@ -5,10 +5,13 @@ plugins.cpp
 
 */
 
-/* Revision: 1.129 03.12.2002 $ */
+/* Revision: 1.130 10.01.2003 $ */
 
 /*
 Modify:
+  10.01.2002 SVS
+    - BugZ#767 - Неправильно ругается на отсутствие длл
+      Сделаем, так, чтобы ругался _только 1 раз_
   03.12.2002 SVS
     - BugZ#713 - Не выдается сообщения об ошибке
   09.11.2002 SVS
@@ -711,6 +714,7 @@ int PluginsSet::LoadPlugin(struct PluginItem &CurPlugin,int ModuleNumber,int Ini
     TruncPathStr(PlgName,ScrX-20);
     SetMessageHelp("ErrLoadPlugin");
     Message(MSG_WARNING,1,MSG(MError),MSG(MPlgLoadPluginError),PlgName,MSG(MOk));
+    CurPlugin.WorkFlags.Set(PIWF_DONTLOADAGAIN);
     return(FALSE);
   }
   CurPlugin.hModule=hModule;
@@ -1313,7 +1317,9 @@ HANDLE PluginsSet::OpenPlugin(int PluginNumber,int OpenFrom,int Item)
       if(Opt.ExceptRules)
       {
         TRY {
+           _SVS(SysLog("OPENPLUGIN >>> '%s'",(char *)Item));
            hInternal=PData->pOpenPlugin(OpenFrom,Item);
+           _SVS(SysLog("OPENPLUGIN <<< '%s'",(char *)Item));
            /* $ 26.02.2201 VVM
                ! Выгрузить плагин, если вернули NULL */
            if (!hInternal)

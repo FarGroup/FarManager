@@ -5,10 +5,15 @@ dialog.cpp
 
 */
 
-/* Revision: 1.275 27.12.2002 $ */
+/* Revision: 1.276 10.01.2003 $ */
 
 /*
 Modify:
+  10.01.2003 SVS
+    - "Почему место в диалоге параметров поиска, где выбирают
+       кодировку (Using character table), в которой искать, сразу после
+       открытия диалога имеет цвет Dialog->Text input, когда как в четвертой
+       бете имело цвет Dialog->Unchanged text input?"
   27.12.2002 SVS
     - Enter в DI_COMBOBOX не срабатывал, т.к. обрабатывался в коде обработки DIF_EDITOR`а
   10.12.2002 SVS
@@ -1698,12 +1703,15 @@ int Dialog::InitDialogObjects(int ID)
         // Последовательно определенные поля ввода (edit controls),
         // имеющие этот флаг группируются в редактор с возможностью
         // вставки и удаления строк
-        if (!(ItemFlags & DIF_EDITOR))
+        if (!(ItemFlags & DIF_EDITOR) && CurItem->Type != DI_COMBOBOX)
         {
           DialogEdit->SetEditBeyondEnd(FALSE);
           if (!DialogMode.Check(DMODE_INITOBJECTS))
             DialogEdit->SetClearFlag(1);
         }
+
+        if(CurItem->Type == DI_COMBOBOX)
+          DialogEdit->SetClearFlag(1);
 
       /* $ 01.08.2000 SVS
          Еже ли стоит флаг DIF_USELASTHISTORY и непустая строка ввода,

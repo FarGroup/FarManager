@@ -5,10 +5,14 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.44 21.12.2002 $ */
+/* Revision: 1.45 10.01.2003 $ */
 
 /*
 Modify:
+  10.01.2003 SVS
+    ! Если есть критическая внутренняя ошибка (переменная CriticalInternalError != 0),
+      то фактически не исполняем деструктор ControlObject::~ControlObject()
+      иначе уйдем в бесконечный цикл до исчерпания стека
   21.12.2002 SVS
     ! Перенесем показ промптера сом.строки и кейбара выше апдейта панелей
       Т.о. исключаем очередной BugZ# про непрорисовку онных в момент старта
@@ -245,6 +249,9 @@ void ControlObject::CreateFilePanels()
 
 ControlObject::~ControlObject()
 {
+  if(CriticalInternalError)
+    return;
+
   _OT(SysLog("[%p] ControlObject::~ControlObject()", this));
   if (Cp()&&Cp()->ActivePanel!=NULL)
   {

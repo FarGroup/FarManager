@@ -5,10 +5,14 @@ flmodes.cpp
 
 */
 
-/* Revision: 1.13 07.01.2003 $ */
+/* Revision: 1.14 13.01.2003 $ */
 
 /*
 Modify:
+  13.01.2003 SVS
+    + Новая опция в настройках режимов панелей: "Выравнивать расширения
+      папок" - позволяет показывать расширения папок выравненными независимо
+      от опции "Выравнивать расширения файлов".
   07.01.2003 SVS
     - BugZ#460 - не лучше ли поставить ширину колонок по дефолту 0,6,0,5 (вместо 0,8,0,5)
   22.03.2002 SVS
@@ -113,26 +117,27 @@ void FileList::SetFilePanelModes()
 
     static struct DialogData ModeDlgData[]=
     {
-      DI_DOUBLEBOX,3,1,72,15,0,0,0,0,"",
-      DI_TEXT,5,2,0,0,0,0,0,0,(char *)MEditPanelModeTypes,
-      DI_EDIT,5,3,35,3,1,0,0,0,"",
-      DI_TEXT,5,4,0,0,0,0,0,0,(char *)MEditPanelModeWidths,
-      DI_EDIT,5,5,35,3,0,0,0,0,"",
-      DI_TEXT,38,2,0,0,0,0,0,0,(char *)MEditPanelModeStatusTypes,
-      DI_EDIT,38,3,70,3,0,0,0,0,"",
-      DI_TEXT,38,4,0,0,0,0,0,0,(char *)MEditPanelModeStatusWidths,
-      DI_EDIT,38,5,70,3,0,0,0,0,"",
-      DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-      DI_TEXT,-1,6,0,0,0,0,DIF_BOXCOLOR,0,(char *)MEditPanelReadHelp,
-      DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MEditPanelModeFullscreen,
-      DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MEditPanelModeAlignExtensions,
-      DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MEditPanelModeFoldersUpperCase,
-      DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MEditPanelModeFilesLowerCase,
-      DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MEditPanelModeUpperToLowerCase,
-      DI_CHECKBOX,5,12,0,0,0,0,0,0,(char *)MEditPanelModeCaseSensitiveSort,
-      DI_TEXT,3,13,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-      DI_BUTTON,0,14,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-      DI_BUTTON,0,14,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+    /* 00 */DI_DOUBLEBOX,3,1,72,16,0,0,0,0,"",
+    /* 01 */DI_TEXT,5,2,0,0,0,0,0,0,(char *)MEditPanelModeTypes,
+    /* 02 */DI_EDIT,5,3,35,3,1,0,0,0,"",
+    /* 03 */DI_TEXT,5,4,0,0,0,0,0,0,(char *)MEditPanelModeWidths,
+    /* 04 */DI_EDIT,5,5,35,3,0,0,0,0,"",
+    /* 05 */DI_TEXT,38,2,0,0,0,0,0,0,(char *)MEditPanelModeStatusTypes,
+    /* 06 */DI_EDIT,38,3,70,3,0,0,0,0,"",
+    /* 07 */DI_TEXT,38,4,0,0,0,0,0,0,(char *)MEditPanelModeStatusWidths,
+    /* 08 */DI_EDIT,38,5,70,3,0,0,0,0,"",
+    /* 09 */DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+    /* 10 */DI_TEXT,-1,6,0,0,0,0,DIF_BOXCOLOR,0,(char *)MEditPanelReadHelp,
+    /* 11 */DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MEditPanelModeFullscreen,
+    /* 12 */DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MEditPanelModeAlignExtensions,
+    /* 13 */DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MEditPanelModeAlignFolderExtensions,
+    /* 14 */DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MEditPanelModeFoldersUpperCase,
+    /* 15 */DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MEditPanelModeFilesLowerCase,
+    /* 16 */DI_CHECKBOX,5,12,0,0,0,0,0,0,(char *)MEditPanelModeUpperToLowerCase,
+    /* 17 */DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MEditPanelModeCaseSensitiveSort,
+    /* 18 */DI_TEXT,3,14,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+    /* 19 */DI_BUTTON,0,15,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+    /* 20 */DI_BUTTON,0,15,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
     };
     MakeDialogItems(ModeDlgData,ModeDlg);
     int ExitCode;
@@ -149,10 +154,11 @@ void FileList::SetFilePanelModes()
 
     ModeDlg[11].Selected=NewSettings.FullScreen;
     ModeDlg[12].Selected=NewSettings.AlignExtensions;
-    ModeDlg[13].Selected=NewSettings.FolderUpperCase;
-    ModeDlg[14].Selected=NewSettings.FileLowerCase;
-    ModeDlg[15].Selected=NewSettings.FileUpperToLowerCase;
-    ModeDlg[16].Selected=NewSettings.CaseSensitiveSort;
+    ModeDlg[13].Selected=NewSettings.FolderAlignExtensions;
+    ModeDlg[14].Selected=NewSettings.FolderUpperCase;
+    ModeDlg[15].Selected=NewSettings.FileLowerCase;
+    ModeDlg[16].Selected=NewSettings.FileUpperToLowerCase;
+    ModeDlg[17].Selected=NewSettings.CaseSensitiveSort;
 
     ViewSettingsToText(NewSettings.ColumnType,NewSettings.ColumnWidth,
         NewSettings.ColumnCount,ModeDlg[2].Data,ModeDlg[4].Data);
@@ -161,21 +167,22 @@ void FileList::SetFilePanelModes()
 
     {
       Dialog Dlg(ModeDlg,sizeof(ModeDlg)/sizeof(ModeDlg[0]));
-      Dlg.SetPosition(-1,-1,76,17);
+      Dlg.SetPosition(-1,-1,76,18);
       Dlg.SetHelp("PanelViewModes");
       Dlg.Process();
       ExitCode=Dlg.GetExitCode();
     }
-    if (ExitCode!=18)
+    if (ExitCode!=19)
       continue;
 
     memset(&NewSettings,0,sizeof(NewSettings));
     NewSettings.FullScreen=ModeDlg[11].Selected;
     NewSettings.AlignExtensions=ModeDlg[12].Selected;
-    NewSettings.FolderUpperCase=ModeDlg[13].Selected;
-    NewSettings.FileLowerCase=ModeDlg[14].Selected;
-    NewSettings.FileUpperToLowerCase=ModeDlg[15].Selected;
-    NewSettings.CaseSensitiveSort=ModeDlg[16].Selected;
+    NewSettings.FolderAlignExtensions=ModeDlg[13].Selected;
+    NewSettings.FolderUpperCase=ModeDlg[14].Selected;
+    NewSettings.FileLowerCase=ModeDlg[15].Selected;
+    NewSettings.FileUpperToLowerCase=ModeDlg[16].Selected;
+    NewSettings.CaseSensitiveSort=ModeDlg[17].Selected;
 
     TextToViewSettings(ModeDlg[2].Data,ModeDlg[4].Data,NewSettings.ColumnType,
                        NewSettings.ColumnWidth,NewSettings.ColumnCount);
@@ -222,6 +229,7 @@ void FileList::ReadPanelModes()
 
     GetRegKey(RegKey,"FullScreen",NewSettings.FullScreen,0);
     GetRegKey(RegKey,"AlignExtensions",NewSettings.AlignExtensions,1);
+    GetRegKey(RegKey,"FolderAlignExtensions",NewSettings.FolderAlignExtensions,0);
     GetRegKey(RegKey,"FolderUpperCase",NewSettings.FolderUpperCase,0);
     GetRegKey(RegKey,"FileLowerCase",NewSettings.FileLowerCase,0);
     GetRegKey(RegKey,"FileUpperToLowerCase",NewSettings.FileUpperToLowerCase,1);
@@ -252,6 +260,7 @@ void FileList::SavePanelModes()
 
     SetRegKey(RegKey,"FullScreen",NewSettings.FullScreen);
     SetRegKey(RegKey,"AlignExtensions",NewSettings.AlignExtensions);
+    SetRegKey(RegKey,"FolderAlignExtensions",NewSettings.FolderAlignExtensions);
     SetRegKey(RegKey,"FolderUpperCase",NewSettings.FolderUpperCase);
     SetRegKey(RegKey,"FileLowerCase",NewSettings.FileLowerCase);
     SetRegKey(RegKey,"FileUpperToLowerCase",NewSettings.FileUpperToLowerCase);

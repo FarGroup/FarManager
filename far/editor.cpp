@@ -6,10 +6,14 @@ editor.cpp
 
 */
 
-/* Revision: 1.212 17.12.2002 $ */
+/* Revision: 1.213 10.01.2003 $ */
 
 /*
 Modify:
+  10.01.2003 SVS
+    ! Ctrl-P/Crtl-M в редакторе при постоянных блоках.
+      Изменим немного поведение этих действий, исключив виндовый клипборд
+      (see перемнную UsedInternalClipboard и clipboard.cpp)
   17.12.2002 SVS
     ! Изменен принцип работы с EditorPosCache (see класс FilePositionCache)
   11.12.2002 SVS
@@ -2038,13 +2042,11 @@ int Editor::ProcessKey(int Key)
     {
       if (BlockStart!=NULL || VBlockStart!=NULL)
       {
-        char *OemData=PasteFromClipboard();
-        char *VBlockData=PasteFormatFromClipboard(FAR_VerticalBlock);
-
         int SelStart,SelEnd;
         CurLine->EditLine.GetSelection(SelStart,SelEnd);
 
         Pasting++;
+        UsedInternalClipboard++;
         ProcessKey(Key==KEY_CTRLP ? KEY_CTRLINS:KEY_SHIFTDEL);
 
         /* $ 10.04.2001 SVS
@@ -2059,6 +2061,8 @@ int Editor::ProcessKey(int Key)
         /* SVS $ */
         ProcessKey(KEY_SHIFTINS);
         Pasting--;
+        FAR_EmptyClipboard();
+        UsedInternalClipboard--;
 
         /*$ 08.02.2001 SKV
           всё делалось с pasting'ом, поэтому redraw плагинам не ушел.
@@ -2066,17 +2070,6 @@ int Editor::ProcessKey(int Key)
         */
         Show();
         /* SKV$*/
-
-        if (OemData!=NULL)
-        {
-          CopyToClipboard(OemData);
-          delete OemData;
-        }
-        if (VBlockData!=NULL)
-        {
-          CopyFormatToClipboard(FAR_VerticalBlock,VBlockData);
-          delete VBlockData;
-        }
       }
       return(TRUE);
     }

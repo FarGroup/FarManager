@@ -5,10 +5,15 @@ global.cpp
 
 */
 
-/* Revision: 1.48 06.01.2003 $ */
+/* Revision: 1.49 10.01.2003 $ */
 
 /*
 Modify:
+  10.01.2003 SVS
+    + Глобальная переменная CriticalInternalError говорит, что
+      нужно срочно терминировать ФАР, т.к. дальнейшее продолжение исполнения
+      кода проблематично
+    + UsedInternalClipboard - применять эмуляцию клипборда :-)
   06.01.2003 SVS
     + GlobalSaveScrPtr - глобальная переменная-указатель, для того, чтобы
       при изменении размеров экрана молча "убить" буфер сохранения.
@@ -251,3 +256,7 @@ BOOL StartSysLog=0;
 
 class SaveScreen;
 SaveScreen *GlobalSaveScrPtr=NULL;
+
+int CriticalInternalError=FALSE;
+
+int UsedInternalClipboard=0;

@@ -5,10 +5,14 @@ farexcpt.cpp
 
 */
 
-/* Revision: 1.18 04.11.2002 $ */
+/* Revision: 1.19 10.01.2003 $ */
 
 /*
 Modify:
+  13.01.2003 SVS
+    ! Переименование ren exception.?pp farexcpt.?pp
+    ! Научим исключатор понимать (и реагировать предсмертным воплем) исключения
+      в самом ФАРе.
   04.11.2002 SVS
     ! Дадим возможность вызова внешнего обработчика исключений ("FarEvent.svc")
     + Попытка корректно обработать переполнение стека!
@@ -107,6 +111,8 @@ static char* xFromMSGTitle(int From)
 {
   if(From == EXCEPT_SETSTARTUPINFO || From == EXCEPT_MINFARVERSION)
     return MSG(MExceptTitleLoad);
+  else if(From == (int)INVALID_HANDLE_VALUE)
+    return MSG(MExceptTitleFAR);
   else
     return MSG(MExceptTitle);
 }
@@ -149,6 +155,9 @@ static DWORD _xfilter(
    DWORD Result = EXCEPTION_EXECUTE_HANDLER;
    BOOL Res=FALSE;
 
+//   if(From == (int)INVALID_HANDLE_VALUE)
+//     CriticalInternalError=TRUE;
+
    if(GetRegKey("System\\Exception","Used",0))
    {
      static char FarEventSvc[512];
@@ -180,9 +189,10 @@ static DWORD _xfilter(
            LocalStartupInfo.RootKey=RootKey;
 
            static struct PLUGINRECORD PlugRec;
-           memset(&PlugRec,0,sizeof(PlugRec));
            if(Module)
            {
+             memset(&PlugRec,0,sizeof(PlugRec));
+
              PlugRec.TypeRec=RTYPE_PLUGIN;
              PlugRec.SizeRec=sizeof(struct PLUGINRECORD);
 
@@ -221,7 +231,7 @@ static DWORD _xfilter(
              PlugRec.CachePos=Module->CachePos;
            }
 
-           Res=p(xp,&PlugRec,&LocalStartupInfo,&Result);
+           Res=p(xp,(Module?&PlugRec:NULL),&LocalStartupInfo,&Result);
          }
          FreeLibrary(m);
        }
@@ -229,7 +239,14 @@ static DWORD _xfilter(
    }
 
    if(Res)
+   {
+     if(From == (int)INVALID_HANDLE_VALUE)
+     {
+       CriticalInternalError=TRUE;
+       TerminateProcess( GetCurrentProcess(), 1);
+     }
      return Result;
+   }
 
 
    struct __ECODE {
@@ -255,6 +272,7 @@ static DWORD _xfilter(
    char Buf[2][NM];
    char TruncFileName[2*NM];
    BOOL Unload = FALSE; // Установить в истину, если плагин нужно выгрузить
+   BOOL ShowMessages=FALSE;
 
    // получим запись исключения
    EXCEPTION_RECORD *xr = xp->ExceptionRecord;
@@ -273,7 +291,10 @@ static DWORD _xfilter(
      Неизвестное исключение не стоит игнорировать.
    */
    pName=NULL;
-   strncpy(TruncFileName,NullToEmpty(Module->ModuleName),sizeof(TruncFileName));
+   if(From == (int)INVALID_HANDLE_VALUE || !Module)
+     GetModuleFileName(NULL,TruncFileName,sizeof(TruncFileName));
+   else
+     strncpy(TruncFileName,NullToEmpty(Module->ModuleName),sizeof(TruncFileName));
 
    /* $ 26.02.2001 VVM
        ! Обработка STATUS_INVALIDFUNCTIONRESULT */
@@ -308,6 +329,7 @@ static DWORD _xfilter(
        sprintf(Buf[0],MSG(MExcStructWrongFilled),pName);
 
      if(FrameManager && !FrameManager->ManagerIsDown())
+     {
        Message(MSG_WARNING,1,
             xFromMSGTitle(From),
             MSG(MExcTrappedException),
@@ -317,6 +339,8 @@ static DWORD _xfilter(
             "\1",
             MSG(MExcUnloadYes),
             MSG(MOk));
+       ShowMessages=TRUE;
+     }
    } /* EXCEPT_GETPLUGININFO_DATA && EXCEPT_GETOPENPLUGININFO_DATA */
 
    // теперь обработаем исключение по возврату 0 вместо INVALID_HANDLE_VALUE
@@ -341,6 +365,7 @@ static DWORD _xfilter(
 
      sprintf(Buf[0],MSG(MExcInvalidFuncResult),pName);
      if(FrameManager && !FrameManager->ManagerIsDown())
+     {
        Message(MSG_WARNING, 1,
                  xFromMSGTitle(From),
                  MSG(MExcTrappedException),
@@ -350,6 +375,8 @@ static DWORD _xfilter(
                  "\1",
                  MSG(MExcUnloadYes),
                  MSG(MOk));
+       ShowMessages=TRUE;
+     }
    }
 
    else
@@ -372,20 +399,32 @@ static DWORD _xfilter(
 
      sprintf(Buf[0],MSG(MExcAddress),xr->ExceptionAddress);
      if(FrameManager && !FrameManager->ManagerIsDown())
+     {
        Message(MSG_WARNING,1,
                xFromMSGTitle(From),
                MSG(MExcTrappedException),
                pName,
                Buf[0],
                TruncPathStr(TruncFileName,40),"\1",
-               MSG(MExcUnloadYes),
+               MSG((From == (int)INVALID_HANDLE_VALUE)?MExcFARTerminateYes:MExcUnloadYes),
                MSG(MOk));
+       ShowMessages=TRUE;
+     }
    } /* else */
+
+   if(From == (int)INVALID_HANDLE_VALUE && ShowMessages)
+   {
+     CriticalInternalError=TRUE;
+     TerminateProcess( GetCurrentProcess(), 1);
+   }
 
    rc = EXCEPTION_EXECUTE_HANDLER;
    /* VVM $ */
 
    if(xr->ExceptionFlags&EXCEPTION_NONCONTINUABLE)
      rc=EXCEPTION_CONTINUE_SEARCH; //?
+
+//   return UnhandledExceptionFilter(xp);
+
    return rc;
 }

@@ -5,10 +5,17 @@ config.cpp
 
 */
 
-/* Revision: 1.142 14.08.2002 $ */
+/* Revision: 1.143 13.01.2003 $ */
 
 /*
 Modify:
+  13.01.2002 SVS
+    + Новая опция: "Сортировать имена папок по расширению" - применять
+      режим сортировки по расширению не только к файлам, но и к папкам.
+      При включенной опции сортировка по расширению работает так же,
+      как и в FAR 1.65. Если опция выключена, то в режиме сортировки
+      по расширению папки будут сортироваться так же как в режиме
+      сортировки по имени.
   14.08.2002 VVM
     - Перепутали ShowHiddenDrives & DisabledOptions
   12.08.2002 SVS
@@ -558,43 +565,45 @@ void SystemSettings()
 #define DLG_PANEL_HIGHLIGHT           2
 #define DLG_PANEL_CHANGEFOLDER        3
 #define DLG_PANEL_SELECTFOLDERS       4
-#define DLG_PANEL_REVERSESORT         5
-#define DLG_PANEL_AUTOUPDATELIMIT     6
-#define DLG_PANEL_AUTOUPDATELIMIT2    7
-#define DLG_PANEL_AUTOUPDATELIMITVAL  8
+#define DLG_PANEL_SORTFOLDEREXT       5
+#define DLG_PANEL_REVERSESORT         6
+#define DLG_PANEL_AUTOUPDATELIMIT     7
+#define DLG_PANEL_AUTOUPDATELIMIT2    8
+#define DLG_PANEL_AUTOUPDATELIMITVAL  9
 
-#define DLG_PANEL_SHOWCOLUMNTITLES   10
-#define DLG_PANEL_SHOWPANELSTATUS    11
-#define DLG_PANEL_SHOWPANELTOTALS    12
-#define DLG_PANEL_SHOWPANELFREE      13
-#define DLG_PANEL_SHOWPANELSCROLLBAR 14
-#define DLG_PANEL_SHOWSCREENSNUMBER  15
-#define DLG_PANEL_SHOWSORTMODE       16
-#define DLG_PANEL_OK                 18
+#define DLG_PANEL_SHOWCOLUMNTITLES   11
+#define DLG_PANEL_SHOWPANELSTATUS    12
+#define DLG_PANEL_SHOWPANELTOTALS    13
+#define DLG_PANEL_SHOWPANELFREE      14
+#define DLG_PANEL_SHOWPANELSCROLLBAR 15
+#define DLG_PANEL_SHOWSCREENSNUMBER  16
+#define DLG_PANEL_SHOWSORTMODE       17
+#define DLG_PANEL_OK                 19
 
 void PanelSettings()
 {
   static struct DialogData CfgDlgData[]={
-  /* 00 */DI_DOUBLEBOX,3,1,52,19,0,0,0,0,(char *)MConfigPanelTitle,
+  /* 00 */DI_DOUBLEBOX,3,1,52,20,0,0,0,0,(char *)MConfigPanelTitle,
   /* 01 */DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MConfigHidden,
   /* 02 */DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MConfigHighlight,
   /* 03 */DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MConfigAutoChange,
   /* 04 */DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MConfigSelectFolders,
-  /* 05 */DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MConfigReverseSort,
-  /* 06 */DI_CHECKBOX,5,7,0,0,0,0,DIF_AUTOMATION,0,(char *)MConfigAutoUpdateLimit,
-  /* 07 */DI_TEXT,9,8,0,0,0,0,0,0,(char *)MConfigAutoUpdateLimit2,
-  /* 08 */DI_EDIT,9,8,15,8,0,0,0,0,"",
-  /* 09 */DI_TEXT,3,9,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 10 */DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MConfigShowColumns,
-  /* 11 */DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MConfigShowStatus,
-  /* 12 */DI_CHECKBOX,5,12,0,0,0,0,0,0,(char *)MConfigShowTotal,
-  /* 13 */DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MConfigShowFree,
-  /* 14 */DI_CHECKBOX,5,14,0,0,0,0,0,0,(char *)MConfigShowScrollbar,
-  /* 15 */DI_CHECKBOX,5,15,0,0,0,0,0,0,(char *)MConfigShowScreensNumber,
-  /* 16 */DI_CHECKBOX,5,16,0,0,0,0,0,0,(char *)MConfigShowSortMode,
-  /* 17 */DI_TEXT,3,17,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 18 */DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-  /* 19 */DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  /* 05 */DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MConfigSortFolderExt,
+  /* 06 */DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MConfigReverseSort,
+  /* 07 */DI_CHECKBOX,5,8,0,0,0,0,DIF_AUTOMATION,0,(char *)MConfigAutoUpdateLimit,
+  /* 08 */DI_TEXT,9,9,0,0,0,0,0,0,(char *)MConfigAutoUpdateLimit2,
+  /* 09 */DI_EDIT,9,9,15,8,0,0,0,0,"",
+  /* 10 */DI_TEXT,3,10,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 11 */DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MConfigShowColumns,
+  /* 12 */DI_CHECKBOX,5,12,0,0,0,0,0,0,(char *)MConfigShowStatus,
+  /* 13 */DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MConfigShowTotal,
+  /* 14 */DI_CHECKBOX,5,14,0,0,0,0,0,0,(char *)MConfigShowFree,
+  /* 15 */DI_CHECKBOX,5,15,0,0,0,0,0,0,(char *)MConfigShowScrollbar,
+  /* 16 */DI_CHECKBOX,5,16,0,0,0,0,0,0,(char *)MConfigShowScreensNumber,
+  /* 17 */DI_CHECKBOX,5,17,0,0,0,0,0,0,(char *)MConfigShowSortMode,
+  /* 18 */DI_TEXT,3,18,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 19 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 20 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
   MakeDialogItems(CfgDlgData,CfgDlg);
 
@@ -602,6 +611,7 @@ void PanelSettings()
   CfgDlg[DLG_PANEL_HIGHLIGHT].Selected=Opt.Highlight;
   CfgDlg[DLG_PANEL_CHANGEFOLDER].Selected=Opt.AutoChangeFolder;
   CfgDlg[DLG_PANEL_SELECTFOLDERS].Selected=Opt.SelectFolders;
+  CfgDlg[DLG_PANEL_SORTFOLDEREXT].Selected=Opt.SortFolderExt;
   CfgDlg[DLG_PANEL_REVERSESORT].Selected=Opt.ReverseSort;
 
   CfgDlg[DLG_PANEL_SHOWCOLUMNTITLES].Selected=Opt.ShowColumnTitles;
@@ -631,7 +641,7 @@ void PanelSettings()
   {
     Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
     Dlg.SetHelp("PanelSettings");
-    Dlg.SetPosition(-1,-1,56,21);
+    Dlg.SetPosition(-1,-1,56,22);
     Dlg.SetAutomation(DLG_PANEL_AUTOUPDATELIMIT,DLG_PANEL_AUTOUPDATELIMITVAL,DIF_DISABLE,0,0,DIF_DISABLE);
     Dlg.Process();
     if (Dlg.GetExitCode() != DLG_PANEL_OK)
@@ -642,6 +652,7 @@ void PanelSettings()
   Opt.Highlight=CfgDlg[DLG_PANEL_HIGHLIGHT].Selected;
   Opt.AutoChangeFolder=CfgDlg[DLG_PANEL_CHANGEFOLDER].Selected;
   Opt.SelectFolders=CfgDlg[DLG_PANEL_SELECTFOLDERS].Selected;
+  Opt.SortFolderExt=CfgDlg[DLG_PANEL_SORTFOLDEREXT].Selected;
   Opt.ReverseSort=CfgDlg[DLG_PANEL_REVERSESORT].Selected;
   if(!CfgDlg[DLG_PANEL_AUTOUPDATELIMIT].Selected)
     Opt.AutoUpdateLimit=0;
@@ -1388,6 +1399,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyPanel,"ShowHidden",&Opt.ShowHidden,1, 0},
   {1, REG_DWORD,  NKeyPanel,"Highlight",&Opt.Highlight,1, 0},
   {1, REG_DWORD,  NKeyPanel,"AutoChangeFolder",&Opt.AutoChangeFolder,0, 0},
+  {1, REG_DWORD,  NKeyPanel,"SortFolderExt",&Opt.SortFolderExt,0, 0},
   {1, REG_DWORD,  NKeyPanel,"SelectFolders",&Opt.SelectFolders,0, 0},
   {1, REG_DWORD,  NKeyPanel,"ReverseSort",&Opt.ReverseSort,1, 0},
   {0, REG_DWORD,  NKeyPanel,"RightClickRule",&Opt.PanelRightClickRule,2, 0},

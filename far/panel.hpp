@@ -7,10 +7,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.19 21.12.2002 $ */
+/* Revision: 1.20 13.01.2003 $ */
 
 /*
 Modify:
+  13.01.2003 SVS
+    + PanelViewSettings.FolderAlignExtensions
   21.12.2002 SVS
     + UPDATE_DRAW_MESSAGE - "показывать процесс сканирования в окне"
   10.12.2002 SVS
@@ -78,6 +80,7 @@ struct PanelViewSettings
   int StatusColumnCount;
   int FullScreen;
   int AlignExtensions;
+  int FolderAlignExtensions;
   int FolderUpperCase;
   int FileLowerCase;
   int FileUpperToLowerCase;

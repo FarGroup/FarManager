@@ -7,10 +7,13 @@ filelist.hpp
 
 */
 
-/* Revision: 1.34 21.12.2002 $ */
+/* Revision: 1.35 13.01.2003 $ */
 
 /*
 Modify:
+  13.01.2003 SVS
+    ! Доп.параметр у ConvertName() - файловые атрибуты, для того, чтобы
+      обечпечить работу опции "Выравнивать расширения файлов"
   21.12.2002 SVS
     ! Добавляем третий параметр в FileList::ReadFileNames()
   18.06.2002 SVS
@@ -221,7 +224,7 @@ class FileList:public Panel
     void SetShowColor(int Position);
     void ShowSelectedSize();
     void ShowTotalSize(struct OpenPluginInfo &Info);
-    int ConvertName(char *SrcName,char *DestName,int MaxLength,int RightAlign,int ShowStatus);
+    int ConvertName(char *SrcName,char *DestName,int MaxLength,int RightAlign,int ShowStatus,DWORD FileAttr);
     void Select(struct FileListItem *SelPtr,int Selection);
     void SelectFiles(int Mode);
     void ProcessEnter(int EnableExec,int SeparateWindow);

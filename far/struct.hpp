@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.93 23.12.2002 $ */
+/* Revision: 1.94 13.01.2003 $ */
 
 /*
 Modify:
+  13.01.2003 SVS
+    + Opt.SortFolderExt
   23.12.2002 SVS
     ! OnlyEditorViewerUsed стал частью структуры Options
   07.10.2002 SVS
@@ -462,11 +464,13 @@ struct Options
   /* $ 09.02.2001 IS
      состояние режима "помеченное вперед"
   */
-  int RightSelectedFirst, LeftSelectedFirst;
+  int RightSelectedFirst;
+  int LeftSelectedFirst;
   /* IS $ */
   int SelectFolders;
   int ReverseSort;
   int ClearReadOnly;
+  int SortFolderExt;
   int DeleteToRecycleBin;
   int WipeSymbol; // символ заполнитель для "ZAP-операции"
   int UseSystemCopy;

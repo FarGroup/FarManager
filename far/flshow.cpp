@@ -5,10 +5,14 @@ flshow.cpp
 
 */
 
-/* Revision: 1.28 22.06.2002 $ */
+/* Revision: 1.29 13.01.2003 $ */
 
 /*
 Modify:
+  13.01.2003 SVS
+    + Новая опция в настройках режимов панелей: "Выравнивать расширения
+      папок" - позволяет показывать расширения папок выравненными независимо
+      от опции "Выравнивать расширения файлов".
   22.06.2002 SVS
     ! Исправление исправлений в 1444 (предыдущие исправления ;-)
   15.06.2002 VVM
@@ -518,7 +522,7 @@ void FileList::ShowTotalSize(struct OpenPluginInfo &Info)
 
 
 int FileList::ConvertName(char *SrcName,char *DestName,int MaxLength,
-                          int RightAlign,int ShowStatus)
+                          int RightAlign,int ShowStatus,DWORD FileAttr)
 {
   memset(DestName,' ',MaxLength);
   int SrcLength=strlen(SrcName);
@@ -529,7 +533,9 @@ int FileList::ConvertName(char *SrcName,char *DestName,int MaxLength,
     return(TRUE);
   }
   char *DotPtr;
-  if (!ShowStatus && ViewSettings.AlignExtensions && SrcLength<=MaxLength &&
+  if (!ShowStatus &&
+      (!(FileAttr&FA_DIREC) && ViewSettings.AlignExtensions || (FileAttr&FA_DIREC) && ViewSettings.FolderAlignExtensions)
+      && SrcLength<=MaxLength &&
       (DotPtr=strrchr(SrcName,'.'))!=NULL && DotPtr!=SrcName &&
       (SrcName[0]!='.' || SrcName[2]!=0) && strchr(DotPtr+1,' ')==NULL)
   {
@@ -868,7 +874,8 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                       }
                   }
                 }
-                int TooLong=ConvertName(NamePtr,NewName,Width,RightAlign,ShowStatus);
+
+                int TooLong=ConvertName(NamePtr,NewName,Width,RightAlign,ShowStatus,CurPtr->FileAttr);
 
                 if (CurLeftPos!=0)
                   LeftBracket=TRUE;

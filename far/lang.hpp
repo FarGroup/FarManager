@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.116 23.12.2002 $ */
+/* Revision: 1.117 10.01.2003 $ */
 
 /*
 Modify:
+  10.01.2003 SVS
+    + MExceptTitleFAR, MExcFARTerminateYes, MEditPanelModeAlignFolderExtensions, MConfigSortFolderExt
   23.12.2002 SVS
     + MSingleEdit*, MSingleViewer*
   21.12.2002 SVS
@@ -492,6 +494,7 @@ enum
   MConfigHighlight,
   MConfigAutoChange,
   MConfigSelectFolders,
+  MConfigSortFolderExt,
   MConfigReverseSort,
   MConfigAutoUpdateLimit,
   MConfigAutoUpdateLimit2,
@@ -1760,6 +1763,7 @@ enum
   MEditPanelModeStatusWidths,
   MEditPanelModeFullscreen,
   MEditPanelModeAlignExtensions,
+  MEditPanelModeAlignFolderExtensions,
   MEditPanelModeFoldersUpperCase,
   MEditPanelModeFilesLowerCase,
   MEditPanelModeUpperToLowerCase,
@@ -1831,6 +1835,7 @@ enum
   MGoToHex,
   MGoToDecimal,
 
+  MExceptTitleFAR,
   MExceptTitleLoad,
   MExceptTitle,
   MExcTrappedException,
@@ -1839,6 +1844,7 @@ enum
   MExcStructField,
   MExcInvalidFuncResult,
   MExcAddress,
+  MExcFARTerminateYes,
   MExcUnloadYes,
   MExcRAccess,
   MExcWAccess,
