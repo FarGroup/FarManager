@@ -5,10 +5,13 @@ findfile.cpp
 
 */
 
-/* Revision: 1.51 23.08.2001 $ */
+/* Revision: 1.52 13.09.2001 $ */
 
 /*
 Modify:
+  13.09.2001 KM
+    - Не просматривались файлы, найденные в архиве, если поиск начинался
+      не с корня архива, а из подкаталогов.
   23.08.2001 VVM
     + В диалоге поиска строка с каталогом расширена на 20 символов - все равно пустовали.
     + Вызвать TruncPathStr() для каталога...
@@ -644,28 +647,32 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
           char *FileName=UserDataItem.FileFindData.cFileName;
           if (*UserDataItem.FindFileArcName && FileName[strlen(FileName)-1]!='\\')
           {
-            char *Buffer=new char[MAX_READ];
-            FILE *ProcessFile=fopen(UserDataItem.FindFileArcName,"rb");
-            if (ProcessFile==NULL)
+            HANDLE hArc=NULL;
+            if (!hPlugin)
             {
+              char *Buffer=new char[MAX_READ];
+              FILE *ProcessFile=fopen(UserDataItem.FindFileArcName,"rb");
+              if (ProcessFile==NULL)
+              {
+                delete[] Buffer;
+                ReleaseMutex(hMutex);
+                return TRUE;
+              }
+              int ReadSize=fread(Buffer,1,MAX_READ,ProcessFile);
+              fclose(ProcessFile);
+
+              int SavePluginsOutput=DisablePluginsOutput;
+              DisablePluginsOutput=TRUE;
+              HANDLE hArc=CtrlObject->Plugins.OpenFilePlugin(UserDataItem.FindFileArcName,(unsigned char *)Buffer,ReadSize);
+              DisablePluginsOutput=SavePluginsOutput;
+
               delete[] Buffer;
-              ReleaseMutex(hMutex);
-              return TRUE;
-            }
-            int ReadSize=fread(Buffer,1,MAX_READ,ProcessFile);
-            fclose(ProcessFile);
 
-            int SavePluginsOutput=DisablePluginsOutput;
-            DisablePluginsOutput=TRUE;
-            HANDLE hArc=CtrlObject->Plugins.OpenFilePlugin(UserDataItem.FindFileArcName,(unsigned char *)Buffer,ReadSize);
-            DisablePluginsOutput=SavePluginsOutput;
-
-            delete[] Buffer;
-
-            if (hArc==(HANDLE)-2 || hArc==INVALID_HANDLE_VALUE)
-            {
-              ReleaseMutex(hMutex);
-              return TRUE;
+              if (hArc==(HANDLE)-2 || hArc==INVALID_HANDLE_VALUE)
+              {
+                ReleaseMutex(hMutex);
+                return TRUE;
+              }
             }
 
             PluginPanelItem FileItem;
@@ -674,7 +681,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
             sprintf(TempDir,"%s%s",Opt.TempPath,FarTmpXXXXXX);
             mktemp(TempDir);
             IsPluginGetsFile=TRUE;
-            if (!CtrlObject->Plugins.GetFile(hArc,&FileItem,TempDir,SearchFileName,OPM_SILENT|OPM_FIND))
+            if (!CtrlObject->Plugins.GetFile(hPlugin?hPlugin:hArc,&FileItem,TempDir,SearchFileName,OPM_SILENT|OPM_FIND))
             {
               RemoveDirectory(TempDir);
               IsPluginGetsFile=FALSE;
@@ -1074,7 +1081,10 @@ int FindFiles::FindFilesProcess()
     }
   }
   else
+  {
     hPlugin=NULL;
+    memset(&Info,0,sizeof(Info));
+  }
 
   DlgWidth=FindDlg[0].X2-FindDlg[0].X1-4;
   Dialog *pDlg=new Dialog(FindDlg,sizeof(FindDlg)/sizeof(FindDlg[0]),FindDlgProc);
