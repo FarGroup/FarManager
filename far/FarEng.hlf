@@ -1450,6 +1450,9 @@ settings to be changed.
   #Cursor beyond#           Allow moving cursor beyond end of line.
   #end of line#
 
+  #Separators of words#     The symbols, to separate the text on words.
+                          Default: #!%^&*()+|{}:"<>?`-=\[];',./#
+
     If external editor is assigned to F4 key, it will be executed only
 if ~associated~@FileAssoc@ editor for the current file type is absent.
 

@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.02 03.08.2000 $ */
+/* Revision: 1.03 03.08.2000 $ */
 
 /*
 Modify:
+  03.08.2000 SVS
+    ! WordDiv -> Opt.WordDiv
   03.08.2000 SVS
     + путь для поиска основных плагинов
   07.07.2000 SVS
@@ -73,8 +75,3 @@ int CmpNameSearchMode;
 int DisablePluginsOutput;
 int CmdMode;
 
-/* $ 07.07.2000 SVS
-   Разграничитель слов из реестра
-*/
-char WordDiv[80];
-/* SVS $ */

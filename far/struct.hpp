@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.07 03.08.2000 $ */
+/* Revision: 1.08 03.08.2000 $ */
 
 /*
 Modify:
+  03.08.2000 SVS
+    ! WordDiv -> Opt.WordDiv
   03.08.2000 SVS
     + Добавка в Options: MainPluginDir - использовать основной путь для
       поиска плагинов...
@@ -153,6 +155,11 @@ struct Options
   int EditorAutoIndent;
   int EditorAutoDetectTable;
   int EditorCursorBeyondEOL;
+  /* $ 03.08.2000 SVS
+     Разграничитель слов из реестра
+  */
+  char WordDiv[80];
+  /* SVS $ */
   int ViewerAutoDetectTable;
   int ViewTabSize;
   int SaveEditorPos;

@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.10 28.07.2000 $ */
+/* Revision: 1.11 03.08.2000 $ */
 
 /*
 Modify:
+   03.08.2000 SVS
+    ! WordDiv -> Opt.WordDiv
    28.07.2000 SVS
     ! В функции ApplyColor() SelColor может быть и реальным цветом.
     + Переменная класса ColorUnChanged (для диалога)
@@ -561,8 +563,12 @@ int Edit::ProcessKey(int Key)
         CurPos=StrSize;
       if (CurPos>0)
         RecurseProcessKey(KEY_SHIFTLEFT);
-      while (CurPos>0 && !(strchr(WordDiv,Str[CurPos])==NULL &&
-             strchr(WordDiv,Str[CurPos-1])!=NULL && !isspace(Str[CurPos])))
+      /* $ 03.08.2000 SVS
+        ! WordDiv -> Opt.WordDiv
+      */
+      while (CurPos>0 && !(strchr(Opt.WordDiv,Str[CurPos])==NULL &&
+             strchr(Opt.WordDiv,Str[CurPos-1])!=NULL && !isspace(Str[CurPos])))
+      /* SVS $ */
       {
         if (!isspace(Str[CurPos]) && isspace(Str[CurPos-1]))
           break;
@@ -574,8 +580,12 @@ int Edit::ProcessKey(int Key)
       if (CurPos>=StrSize)
         return(FALSE);
       RecurseProcessKey(KEY_SHIFTRIGHT);
-      while (CurPos<StrSize && !(strchr(WordDiv,Str[CurPos])!=NULL &&
-             strchr(WordDiv,Str[CurPos-1])==NULL))
+      /* $ 03.08.2000 SVS
+        ! WordDiv -> Opt.WordDiv
+      */
+      while (CurPos<StrSize && !(strchr(Opt.WordDiv,Str[CurPos])!=NULL &&
+             strchr(Opt.WordDiv,Str[CurPos-1])==NULL))
+      /* SVS $ */
       {
         if (!isspace(Str[CurPos]) && isspace(Str[CurPos-1]))
           break;
@@ -636,8 +646,12 @@ int Edit::ProcessKey(int Key)
         RecurseProcessKey(KEY_BS);
         if (CurPos==0 || StopDelete)
           break;
-        if (strchr(WordDiv,Str[CurPos-1])!=NULL)
+        /* $ 03.08.2000 SVS
+          ! WordDiv -> Opt.WordDiv
+        */
+        if (strchr(Opt.WordDiv,Str[CurPos-1])!=NULL)
           break;
+        /* SVS $ */
       }
       DisableEditOut(FALSE);
       Show();
@@ -671,8 +685,12 @@ int Edit::ProcessKey(int Key)
         RecurseProcessKey(KEY_DEL);
         if (CurPos>=StrSize || StopDelete)
           break;
-        if (strchr(WordDiv,Str[CurPos])!=NULL)
+        /* $ 03.08.2000 SVS
+          ! WordDiv -> Opt.WordDiv
+        */
+        if (strchr(Opt.WordDiv,Str[CurPos])!=NULL)
           break;
+        /* SVS $*/
       }
       DisableEditOut(FALSE);
       Show();
@@ -779,8 +797,12 @@ int Edit::ProcessKey(int Key)
         CurPos=StrSize;
       if (CurPos>0)
         CurPos--;
-      while (CurPos>0 && !(strchr(WordDiv,Str[CurPos])==NULL &&
-             strchr(WordDiv,Str[CurPos-1])!=NULL && !isspace(Str[CurPos])))
+      /* $ 03.08.2000 SVS
+        ! WordDiv -> Opt.WordDiv
+      */
+      while (CurPos>0 && !(strchr(Opt.WordDiv,Str[CurPos])==NULL &&
+             strchr(Opt.WordDiv,Str[CurPos-1])!=NULL && !isspace(Str[CurPos])))
+      /* SVS $*/
       {
         if (!isspace(Str[CurPos]) && isspace(Str[CurPos-1]))
           break;
@@ -792,8 +814,12 @@ int Edit::ProcessKey(int Key)
       if (CurPos>=StrSize)
         return(FALSE);
       CurPos++;
-      while (CurPos<StrSize && !(strchr(WordDiv,Str[CurPos])!=NULL &&
-             strchr(WordDiv,Str[CurPos-1])==NULL))
+      /* $ 03.08.2000 SVS
+        ! WordDiv -> Opt.WordDiv
+      */
+      while (CurPos<StrSize && !(strchr(Opt.WordDiv,Str[CurPos])!=NULL &&
+             strchr(Opt.WordDiv,Str[CurPos-1])==NULL))
+      /* SVS $ */
       {
         if (!isspace(Str[CurPos]) && isspace(Str[CurPos-1]))
           break;

@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.15 01.08.2000 $ */
+/* Revision: 1.16 03.08.2000 $ */
 
 /*
 Modify:
+   03.08.2000 SVS
+    ! WordDiv -> Opt.WordDiv
    01.08.2000 tran 1.15
     + DIF_USELASTHISTORY в диалогах поиска,замены и перехода
    25.07.2000 tran 1.14
@@ -1050,7 +1052,11 @@ int Editor::ProcessKey(int Key)
           }
           if (CurPos==0)
             break;
-          if (isspace(Str[CurPos-1]) || strchr(WordDiv,Str[CurPos-1])!=NULL)
+          /* $ 03.08.2000 SVS
+            ! WordDiv -> Opt.WordDiv
+          */
+          if (isspace(Str[CurPos-1]) || strchr(Opt.WordDiv,Str[CurPos-1])!=NULL)
+          /* SVS $ */
             if (SkipSpace)
             {
               ProcessKey(KEY_SHIFTLEFT);
@@ -1081,7 +1087,11 @@ int Editor::ProcessKey(int Key)
           int CurPos=CurLine->EditLine.GetCurPos();
           if (CurPos>=Length)
             break;
-          if (isspace(Str[CurPos]) || strchr(WordDiv,Str[CurPos])!=NULL)
+          /* $ 03.08.2000 SVS
+            ! WordDiv -> Opt.WordDiv
+          */
+          if (isspace(Str[CurPos]) || strchr(Opt.WordDiv,Str[CurPos])!=NULL)
+          /* SVS $ */
             if (SkipSpace)
             {
               ProcessKey(KEY_SHIFTRIGHT);
@@ -1681,7 +1691,11 @@ int Editor::ProcessKey(int Key)
           }
           if (CurPos==0)
             break;
-          if (isspace(Str[CurPos-1]) || strchr(WordDiv,Str[CurPos-1])!=NULL)
+          /* $ 03.08.2000 SVS
+            ! WordDiv -> Opt.WordDiv
+          */
+          if (isspace(Str[CurPos-1]) || strchr(Opt.WordDiv,Str[CurPos-1])!=NULL)
+          /* SVS $ */
             if (SkipSpace)
             {
               ProcessKey(KEY_ALTSHIFTLEFT);
@@ -1712,7 +1726,11 @@ int Editor::ProcessKey(int Key)
           int CurPos=CurLine->EditLine.GetCurPos();
           if (CurPos>=Length)
             break;
-          if (isspace(Str[CurPos]) || strchr(WordDiv,Str[CurPos])!=NULL)
+          /* $ 03.08.2000 SVS
+            ! WordDiv -> Opt.WordDiv
+          */
+          if (isspace(Str[CurPos]) || strchr(Opt.WordDiv,Str[CurPos])!=NULL)
+          /* SVS $*/
             if (SkipSpace)
             {
               ProcessKey(KEY_ALTSHIFTRIGHT);

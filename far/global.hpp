@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.03 03.08.2000 $ */
+/* Revision: 1.04 03.08.2000 $ */
 
 /*
 Modify:
+  03.08.2000 SVS
+    ! WordDiv -> Opt.WordDiv
   03.08.2000 SVS
     + путь для поиска основных плагинов
   11.07.2000 SVS
@@ -93,11 +95,5 @@ extern unsigned char DefaultPalette[];
 extern unsigned char Palette[];
 extern unsigned char BlackPalette[];
 extern int SizeArrayPalette;
-
-/* $ 07.07.2000 SVS
-   Разграничитель слов из реестра
-*/
-extern char WordDiv[];
-/* SVS $ */
 
 #endif	// __FARGLOBAL_HPP__

@@ -136,7 +136,7 @@
 "Save &view and edit history"
 "Use Windows &registered types"
 "Auto &save setup"
-"&Path for personal plugins"
+"&Path for personal plugins:"
 
 "Panel settings"
 "Show &hidden and system files"
@@ -193,6 +193,7 @@
 "&Autodetect character table"
 "Tab si&ze"
 "&Cursor beyond end of line"
+"Separators of &words:"
 
 "Save setup"
 "Do you wish to save"

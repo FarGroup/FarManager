@@ -6,10 +6,12 @@
   Plugin API for FAR Manager 1.66
 
 */
-/* Revision: 1.13 02.08.2000 $ */
+/* Revision: 1.14 03.08.2000 $ */
 
 /*
 Modify:
+  03.08.2000 SVS
+    + ACTL_GETSYSWORDDIV получить строку с символами разделителями слов
   02.08.2000 SVS
     + Дополнения для KeyBarTitles:
         CtrlShiftTitles
@@ -370,7 +372,8 @@ enum {FCTL_CLOSEPLUGIN,FCTL_GETPANELINFO,FCTL_GETANOTHERPANELINFO,
 */
 enum {
   ACTL_GETFARVERSION,
-  ACTL_CONSOLEMODE
+  ACTL_CONSOLEMODE,
+  ACTL_GETSYSWORDDIV, // получить строку с символами разделителями слов
 };
 /* IS $ */
 

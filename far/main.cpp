@@ -5,10 +5,12 @@ far.cpp
 
 */
 
-/* Revision: 1.02 03.08.2000 $ */
+/* Revision: 1.03 03.08.2000 $ */
 
 /*
 Modify:
+  03.08.2000 SVS
+    ! WordDiv -> Opt.WordDiv
   03.08.2000 SVS
     ! Не срабатывал шаблон поиска файлов для под-юзеров
     + Новый параметр "Вместо стандарного %FAR%\Plugins искать плагины из
@@ -139,13 +141,6 @@ int _cdecl main(int Argc, char *Argv[])
   GetConsoleTitle(OldTitle,sizeof(OldTitle));
 
   set_new_handler(0);
-
-  /* $ 07.07.2000 SVS
-     Получить разграничитель слов из реестра
-  */
-  GetRegKey("Editor","WordDiv",WordDiv,"!%^&*()+|{}:\"<>?`-=\\[];',./",79);
-  SetRegKey("Editor","WordDiv",WordDiv);
-  /* SVS $ */
 
   SetFileApisToOEM();
   WinVer.dwOSVersionInfoSize=sizeof(WinVer);

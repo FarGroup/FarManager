@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.08 01.08.2000 $ */
+/* Revision: 1.09 03.08.2000 $ */
 
 /*
 Modify:
+  03.08.2000 SVS
+    + WordDiv внесен в Options|Editor settings
   01.08.2000 SVS
     ! Добавка в виде задания дополнительного пути для поиска плагинов
       расширяется на месте - не имеет флаг по умолчанию!
@@ -445,28 +447,32 @@ void ViewerConfig()
 }
 /* tran 18.07.2000 $ */
 
-
+/* $ 03.08.2000 SVS
+  + WordDiv внесен в Options|Editor settings
+*/
 void EditorConfig()
 {
   static struct DialogData CfgDlgData[]={
-    DI_DOUBLEBOX,3,1,47,19,0,0,0,0,(char *)MEditConfigTitle,
-    DI_SINGLEBOX,5,2,45,7,0,0,DIF_LEFTTEXT,0,(char *)MEditConfigExternal,
-    DI_RADIOBUTTON,7,3,0,0,1,0,DIF_GROUP,0,(char *)MEditConfigEditorF4,
-    DI_RADIOBUTTON,7,4,0,0,0,0,0,0,(char *)MEditConfigEditorAltF4,
-    DI_TEXT,7,5,0,0,0,0,0,0,(char *)MEditConfigEditorCommand,
-    DI_EDIT,7,6,43,6,0,0,0,0,"",
-    DI_SINGLEBOX,5,8,45,17,0,0,DIF_LEFTTEXT,0,(char *)MEditConfigInternal,
-    DI_CHECKBOX,7,9,0,0,0,0,0,0,(char *)MEditConfigTabsToSpaces,
-    DI_CHECKBOX,7,10,0,0,0,0,0,0,(char *)MEditConfigPersistentBlocks,
-    DI_CHECKBOX,7,11,0,0,0,0,0,0,(char *)MEditConfigDelRemovesBlocks,
-    DI_CHECKBOX,7,12,0,0,0,0,0,0,(char *)MEditConfigAutoIndent,
-    DI_CHECKBOX,7,13,0,0,0,0,0,0,(char *)MEditConfigSavePos,
-    DI_CHECKBOX,7,14,0,0,0,0,0,0,(char *)MEditAutoDetectTable,
-    DI_FIXEDIT,7,15,9,15,0,0,0,0,"",
-    DI_TEXT,11,15,0,0,0,0,0,0,(char *)MEditConfigTabSize,
-    DI_CHECKBOX,7,16,0,0,0,0,0,0,(char *)MEditCursorBeyondEnd,
-    DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-    DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  /*  0 */  DI_DOUBLEBOX,3,1,47,21,0,0,0,0,(char *)MEditConfigTitle,
+  /*  1 */  DI_SINGLEBOX,5,2,45,7,0,0,DIF_LEFTTEXT,0,(char *)MEditConfigExternal,
+  /*  2 */  DI_RADIOBUTTON,7,3,0,0,1,0,DIF_GROUP,0,(char *)MEditConfigEditorF4,
+  /*  3 */  DI_RADIOBUTTON,7,4,0,0,0,0,0,0,(char *)MEditConfigEditorAltF4,
+  /*  4 */  DI_TEXT,7,5,0,0,0,0,0,0,(char *)MEditConfigEditorCommand,
+  /*  5 */  DI_EDIT,7,6,43,6,0,0,0,0,"",
+  /*  6 */  DI_SINGLEBOX,5,8,45,19,0,0,DIF_LEFTTEXT,0,(char *)MEditConfigInternal,
+  /*  7 */  DI_CHECKBOX,7,9,0,0,0,0,0,0,(char *)MEditConfigTabsToSpaces,
+  /*  8 */  DI_CHECKBOX,7,10,0,0,0,0,0,0,(char *)MEditConfigPersistentBlocks,
+  /*  9 */  DI_CHECKBOX,7,11,0,0,0,0,0,0,(char *)MEditConfigDelRemovesBlocks,
+  /* 10 */  DI_CHECKBOX,7,12,0,0,0,0,0,0,(char *)MEditConfigAutoIndent,
+  /* 11 */  DI_CHECKBOX,7,13,0,0,0,0,0,0,(char *)MEditConfigSavePos,
+  /* 12 */  DI_CHECKBOX,7,14,0,0,0,0,0,0,(char *)MEditAutoDetectTable,
+  /* 13 */  DI_FIXEDIT,7,15,9,15,0,0,0,0,"",
+  /* 14 */  DI_TEXT,11,15,0,0,0,0,0,0,(char *)MEditConfigTabSize,
+  /* 15 */  DI_CHECKBOX,7,16,0,0,0,0,0,0,(char *)MEditCursorBeyondEnd,
+  /* 16 */  DI_TEXT,7,17,0,0,0,0,0,0,(char *)MEditConfigWordDiv,
+  /* 17 */  DI_EDIT,7,18,43,18,0,0,0,0,"",
+  /* 18 */  DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 19 */  DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
   MakeDialogItems(CfgDlgData,CfgDlg);
 
@@ -481,6 +487,7 @@ void EditorConfig()
   CfgDlg[12].Selected=Opt.EditorAutoDetectTable;
   sprintf(CfgDlg[13].Data,"%d",Opt.TabSize);
   CfgDlg[15].Selected=Opt.EditorCursorBeyondEOL;
+  strcpy(CfgDlg[17].Data,Opt.WordDiv);
 
   if (!RegVer)
   {
@@ -492,9 +499,9 @@ void EditorConfig()
   {
     Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
     Dlg.SetHelp("EditorSettings");
-    Dlg.SetPosition(-1,-1,51,21);
+    Dlg.SetPosition(-1,-1,51,23);
     Dlg.Process();
-    if (Dlg.GetExitCode()!=16)
+    if (Dlg.GetExitCode()!=18)
       return;
   }
 
@@ -510,7 +517,9 @@ void EditorConfig()
   if (Opt.TabSize<1 || Opt.TabSize>512)
     Opt.TabSize=8;
   Opt.EditorCursorBeyondEOL=CfgDlg[15].Selected;
+  strncpy(Opt.WordDiv,CfgDlg[17].Data,sizeof(Opt.WordDiv)-1);
 }
+/* SVS $ */
 
 
 void SetFolderInfoFiles()
@@ -591,6 +600,11 @@ void ReadConfig()
   GetRegKey("Editor","SaveEditorPos",Opt.SaveEditorPos,0);
   GetRegKey("Editor","AutoDetectTable",Opt.EditorAutoDetectTable,0);
   GetRegKey("Editor","EditorCursorBeyondEOL",Opt.EditorCursorBeyondEOL,1);
+  /* $ 03.08.2000 SVS
+     Записать разграничитель слов из реестра
+  */
+  GetRegKey("Editor","WordDiv",Opt.WordDiv,"!%^&*()+|{}:\"<>?`-=\\[];',./",79);
+  /* SVS $ */
 
   GetRegKey("System","SaveHistory",Opt.SaveHistory,0);
   GetRegKey("System","SaveFoldersHistory",Opt.SaveFoldersHistory,0);
@@ -745,7 +759,11 @@ void SaveConfig(int Ask)
   SetRegKey("Editor","SaveEditorPos",Opt.SaveEditorPos);
   SetRegKey("Editor","AutoDetectTable",Opt.EditorAutoDetectTable);
   SetRegKey("Editor","EditorCursorBeyondEOL",Opt.EditorCursorBeyondEOL);
-
+  /* $ 03.08.2000 SVS
+     Записать разграничитель слов из реестра
+  */
+  SetRegKey("Editor","WordDiv",Opt.WordDiv);
+  /* SVS $ */
   SetRegKey("System","SaveHistory",Opt.SaveHistory);
   SetRegKey("System","SaveFoldersHistory",Opt.SaveFoldersHistory);
   SetRegKey("System","SaveViewHistory",Opt.SaveViewHistory);

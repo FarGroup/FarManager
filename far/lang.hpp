@@ -12,10 +12,12 @@ lang.hpp
            подряд.
 */
 
-/* Revision: 1.11 02.08.2000 $ */
+/* Revision: 1.12 03.08.2000 $ */
 
 /*
 Modify:
+  03.08.2000 SVS
+    + MEditConfigWordDiv - разделитель слов в настройках редактора
   02.08.2000 SVS
     + CtrlAlt*, AltShift*, CtrlShift*
   26.07.2000 SVS
@@ -245,6 +247,7 @@ enum
   MEditAutoDetectTable,
   MEditConfigTabSize,
   MEditCursorBeyondEnd,
+  MEditConfigWordDiv,
 
   MSaveSetupTitle,
   MSaveSetupAsk1,

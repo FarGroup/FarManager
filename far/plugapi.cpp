@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.09 01.08.2000 $ */
+/* Revision: 1.10 03.08.2000 $ */
 
 /*
 Modify:
+  03.08.2000 SVS
+    + ACTL_GETSYSWORDDIV получить строку с символами разделителями слов
   01.08.2000 SVS
     ! FARDIALOGPROC -> FARWINDOWPROC
   28.07.2000 SVS
@@ -95,6 +97,17 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     */
     case ACTL_CONSOLEMODE:
       return FarAltEnter(*(int*)Param);
+    /* SVS $ */
+
+    /* $ 03.08.2000 SVS
+       получение строки с разделителями слов
+       Возвращает размер полученных данных без '\0'
+       Максимальный размер приемного буфера = 80 с заключительным '\0'
+       Строка выбирается не из реестра, а из Opt.
+    */
+    case ACTL_GETSYSWORDDIV:
+      strcpy((char *)Param,Opt.WordDiv);
+      return strlen(Opt.WordDiv);
     /* SVS $ */
  }
  return FALSE;
