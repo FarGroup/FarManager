@@ -2,6 +2,7 @@ enum LanguageID
 {
   MOk,
   MCancel,
+  MReset,
 
   MWarning,
   MError,

@@ -59,6 +59,60 @@ int ConfigGeneral()
 }
 
 
+#define DM_INITCONFIG DM_USER+1
+
+long WINAPI CfgCmdProc(HANDLE hDlg,int Msg,int Param1,long Param2)
+{
+  switch(Msg)
+  {
+    case DN_INITDIALOG:
+      Info.SendDlgMessage(hDlg,DM_INITCONFIG,0,0);
+      break;
+
+    case DM_INITCONFIG:
+    {
+      int I,J;
+      char Command[512];
+      char *ArcFormat=(char*)Info.SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
+      for (I=2,J=0;I<=32;I+=2,J++)
+      {
+        if(Param1) // Reset?
+          *Command=0;
+        else
+          GetRegKey(HKEY_LOCAL_MACHINE,ArcFormat,CmdNames[J],Command,"",sizeof(Command));
+
+        if (*Command==0)
+        {
+          int PluginNumber,PluginType;
+          if (PluginClass::FormatToPlugin(ArcFormat,PluginNumber,PluginType))
+          {
+            if(I == 32)
+            {
+              char PluginFormat[NM];
+              ArcPlugin->GetFormatName(PluginNumber,PluginType,PluginFormat,Command);
+            }
+            else
+            {
+              ArcPlugin->GetDefaultCommands(PluginNumber,PluginType,J,Command);
+            }
+          }
+        }
+        Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,I,(long)Command);
+      }
+      return TRUE;
+    }
+
+    case DN_BTNCLICK:
+      if(Param1 == 36)
+      {
+        Info.SendDlgMessage(hDlg,DM_INITCONFIG,1,0);
+        return TRUE;
+      }
+      break;
+  }
+  return Info.DefDlgProc(hDlg,Msg,Param1,Param2);
+}
+
 int ConfigCommands(char *ArcFormat)
 {
   struct InitDialogItem InitItems[]={
@@ -97,43 +151,29 @@ int ConfigCommands(char *ArcFormat)
   /* 32 */DI_EDIT,25,17,70,3,0,0,0,0,"",
   /* 33 */DI_TEXT,3,18,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
   /* 34 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-  /* 35 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
-
+  /* 35 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel,
+  /* 36 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MReset,
   };
 
   struct FarDialogItem DialogItems[sizeof(InitItems)/sizeof(InitItems[0])];
+  int Length,MaxLength=0,I,J;
   InitDialogItems(InitItems,DialogItems,sizeof(InitItems)/sizeof(InitItems[0]));
-  int Length,MaxLength=0, I,J;
+
   for (I=1;I<=31;I+=2)
     if ((Length=strlen(DialogItems[I].Data))>MaxLength)
       MaxLength=Length;
   for (I=2,J=0;I<=32;I+=2,J++)
-  {
-    char *Command=DialogItems[I].Data;
     DialogItems[I].X1=6+MaxLength;
-    GetRegKey(HKEY_LOCAL_MACHINE,ArcFormat,CmdNames[J],Command,"",sizeof(DialogItems[I].Data));
-    if (*Command==0)
-    {
-      int PluginNumber,PluginType;
-      if (PluginClass::FormatToPlugin(ArcFormat,PluginNumber,PluginType))
-      {
-        if(I == 32)
-        {
-          char PluginFormat[NM];
-          ArcPlugin->GetFormatName(PluginNumber,PluginType,PluginFormat,Command);
-        }
-        else
-          ArcPlugin->GetDefaultCommands(PluginNumber,PluginType,J,Command);
-      }
-    }
-  }
-  int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,22,"ArcSettings2",
-               DialogItems,sizeof(DialogItems)/sizeof(DialogItems[0]));
-  if (ExitCode!=34)
+
+  int ExitCode=Info.DialogEx(Info.ModuleNumber,-1,-1,76,22,"ArcSettings2",
+               DialogItems,sizeof(DialogItems)/sizeof(DialogItems[0]),
+               0,0,CfgCmdProc,(long)ArcFormat);
+
+  if(ExitCode==35 || ExitCode < 0)
     return FALSE;
 
   for (I=2,J=0;I<=32;I+=2,J++)
-    SetRegKey(HKEY_LOCAL_MACHINE,ArcFormat,CmdNames[J],DialogItems[I].Data);
+     SetRegKey(HKEY_LOCAL_MACHINE,ArcFormat,CmdNames[J],DialogItems[I].Data);
 
-  return(TRUE);
+  return TRUE;
 }

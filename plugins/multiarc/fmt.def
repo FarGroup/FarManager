@@ -6,4 +6,4 @@ EXPORTS
     CloseArchive
     GetFormatName
     GetDefaultCommands
-    LoadFormatModule
+    GetSFXPos

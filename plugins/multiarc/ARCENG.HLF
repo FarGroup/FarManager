@@ -125,6 +125,9 @@ $ #Archiver command lines#
 for different archive processing operations, ~mask~@:FileMasks@, which will
 be used to select all files and archive extension.
 
+    Если вы хотите сбросить все настройки данного архиватора в
+первоначальные значения, то нажмите кнопку "Сбросить" ("Reset").
+
     The following variables may be used:
 
  #%%A# - Archive name.
