@@ -7,10 +7,12 @@ class ShellCopy - Копирование файлов
 
 */
 
-/* Revision: 1.22 17.03.2003 $ */
+/* Revision: 1.23 30.04.2003 $ */
 
 /*
 Modify:
+  30.04.2003 VVM
+    ! ShowBar() возвращает TRUE/FALSE
   17.03.2003 SVS
     + FCOPY_SKIPSETATTRFLD - пробрасывать предупреждение прри неудачном
       выставлении атрибутов dest-каталогов
@@ -200,7 +202,7 @@ class ShellCopy
     ~ShellCopy();
 
   public:
-    static void ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar);
+    static int  ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar);
     static void ShowTitle(int FirstTime);
     static long WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
     static int  MkSymLink(const char *SelName,const char *Dest,DWORD Flags);

@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.116 25.04.2003 $ */
+/* Revision: 1.117 30.04.2003 $ */
 
 /*
 Modify:
+  30.04.2003 VVM
+    + При копировании заголовок окна так-же рисуем 4 раза в секунду
   25.04.2003 VVM
     ! Отменим динамический буфер. Сколько в реестре зададут - столько и будет
   21.04.2003 SVS
@@ -3085,8 +3087,8 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
     if (ShowTotalCopySize)
     {
       TotalCopiedSize+=BytesWritten;
-      ShowBar(TotalCopiedSize,TotalCopySize,true);
-      ShowTitle(FALSE);
+      if (ShowBar(TotalCopiedSize,TotalCopySize,true))
+        ShowTitle(FALSE);
     }
   } /* while */
   SetErrorMode(OldErrMode);
@@ -3128,7 +3130,9 @@ static void GetTimeText(int Time, char *TimeText)
 }
 /* VVM $ */
 
-void ShellCopy::ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar)
+/* $ 30.04.2003 VVM
+  + Функция возвращает TRUE, если что-то нарисовала, иначе FALSE */
+int ShellCopy::ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar)
 {
   // // _LOGCOPYR(CleverSysLog clv("ShellCopy::ShowBar"));
   // // _LOGCOPYR(SysLog("WrittenSize=%Ld ,TotalSize=%Ld, TotalBar=%d",WrittenSize,TotalSize,TotalBar));
@@ -3136,7 +3140,7 @@ void ShellCopy::ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar)
     + Показывать прогресс не чаще 1 раза в секунду */
   // Пусть будет 4 раза в секунду
   if ((WrittenSize > 0) && (WrittenSize < TotalSize) && (clock() - LastShowTime < 250))
-    return;
+    return (FALSE);
   if (!ShowTotalCopySize || TotalBar)
     LastShowTime = clock();
   /* VVM $ */
@@ -3217,6 +3221,7 @@ void ShellCopy::ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar)
     GotoXY(BarX,BarY+4);
     Text(TimeStr);
   }
+  return (TRUE);
 /* VVM $ */
 }
 
