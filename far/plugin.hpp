@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.162 14.11.2001 $ */
+/* Revision: 1.163 19.11.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  19.11.2001 SVS
+    ! FARMANAGERVERSION в виде MAKEFARVERSION (с подачи JouriM)
   14.11.2001 SVS
     ! FarMenuItemEx.Reserved -> FarMenuItemEx.UserData
   12.11.2001 SVS
@@ -547,9 +549,10 @@ Modify:
 */
 #endif // END FAR_USE_INTERNALS
 
-#define FARMANAGERVERSION 0x03B80146UL
-
 #define MAKEFARVERSION(major,minor,build) ( ((major)<<8) | (minor) | ((build)<<16))
+
+#define FARMANAGERVERSION  MAKEFARVERSION(1,70,1061)
+
 
 #ifdef FAR_USE_INTERNALS
 #else // ELSE FAR_USE_INTERNALS
