@@ -222,6 +222,8 @@ void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,DWORD ValueData)
 int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData,char *Default,DWORD DataSize);
 int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,int &ValueData,DWORD Default);
 int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,DWORD Default);
+void DeleteRegValue(HKEY hRoot,const char *Key,const char *ValueName);
+void DeleteRegKey(HKEY hRoot,const char *Key);
 
 struct PluginStartupInfo Info;
 struct FarStandardFunctions FSF;

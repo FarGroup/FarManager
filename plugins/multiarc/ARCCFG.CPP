@@ -77,7 +77,10 @@ long WINAPI CfgCmdProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       for (I=2,J=0;I<=32;I+=2,J++)
       {
         if(Param1) // Reset?
+        {
           *Command=0;
+          DeleteRegKey(HKEY_LOCAL_MACHINE,ArcFormat);
+        }
         else
           GetRegKey(HKEY_LOCAL_MACHINE,ArcFormat,CmdNames[J],Command,"",sizeof(Command));
 

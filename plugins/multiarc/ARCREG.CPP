@@ -76,3 +76,23 @@ HKEY OpenRegKey(HKEY hRoot,const char *Key)
     return(NULL);
   return(hKey);
 }
+
+void DeleteRegKey(HKEY hRoot,const char *Key)
+{
+  char FullKeyName[512];
+  FSF.sprintf(FullKeyName,"%s%s%s",PluginRootKey,*Key ? "\\":"",Key);
+  RegDeleteKey(hRoot,FullKeyName);
+}
+
+
+void DeleteRegValue(HKEY hRoot,const char *Key,const char *ValueName)
+{
+  HKEY hKey;
+  char FullKeyName[512];
+  FSF.sprintf(FullKeyName,"%s%s%s",PluginRootKey,*Key ? "\\":"",Key);
+  if (RegOpenKeyEx(hRoot,FullKeyName,0,KEY_WRITE,&hKey)==ERROR_SUCCESS)
+  {
+    RegDeleteValue(hKey,ValueName);
+    RegCloseKey(hKey);
+  }
+}
