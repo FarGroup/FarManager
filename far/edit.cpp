@@ -5,10 +5,14 @@ edit.cpp
 
 */
 
-/* Revision: 1.68 28.01.2002 $ */
+/* Revision: 1.69 28.01.2002 $ */
 
 /*
 Modify:
+  28.01.2002 SVS
+    ! Нда... уж... поспешил с предыдущим... было еще одно место, аналогичное
+      BugZ#271 - вставка шортката. Да и коду развелось однотипного многовато...
+    + ProcessInsPath() - вставка пути с учетом кодовой таблицы
   28.01.2002 SVS
     - BugZ#271 - Редактор: кодировка Shift-Enter
   21.01.2002 SVS
@@ -683,6 +687,139 @@ int Edit::RecurseProcessKey(int Key)
 }
 
 
+// Функция вставки всякой хреновени - от шорткатов до имен файлов
+int Edit::ProcessInsPath(int Key,int PrevSelStart,int PrevSelEnd)
+{
+  int RetCode=FALSE;
+  char PathName[4096];
+
+  if (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9) // шорткаты?
+  {
+    char PluginModule[NM],PluginFile[NM],PluginData[8192];
+    if (GetShortcutFolder(Key,PathName,PluginModule,PluginFile,PluginData))
+    {
+      RetCode=TRUE;
+    }
+  }
+  else // Пути/имена?
+  {
+    int NeedRealName=FALSE;
+    switch(Key)
+    {
+      case KEY_CTRLALTBRACKET:       // Вставить сетевое (UNC) путь из левой панели
+      case KEY_CTRLALTBACKBRACKET:   // Вставить сетевое (UNC) путь из правой панели
+      case KEY_ALTSHIFTBRACKET:      // Вставить сетевое (UNC) путь из активной панели
+      case KEY_ALTSHIFTBACKBRACKET:  // Вставить сетевое (UNC) путь из пассивной панели
+        NeedRealName=TRUE;
+      case KEY_CTRLBRACKET:          // Вставить путь из левой панели
+      case KEY_CTRLBACKBRACKET:      // Вставить путь из правой панели
+      case KEY_CTRLSHIFTBRACKET:     // Вставить путь из активной панели
+      case KEY_CTRLSHIFTBACKBRACKET: // Вставить путь из пассивной панели
+
+      case KEY_CTRLSHIFTENTER:       // Текущий файл с пасс.панели
+      case KEY_SHIFTENTER:           // Текущий файл с актив.панели
+      {
+        Panel *SrcPanel;
+        switch(Key)
+        {
+          case KEY_CTRLALTBRACKET:
+          case KEY_CTRLBRACKET:
+            SrcPanel=CtrlObject->Cp()->LeftPanel;
+            break;
+          case KEY_CTRLALTBACKBRACKET:
+          case KEY_CTRLBACKBRACKET:
+            SrcPanel=CtrlObject->Cp()->RightPanel;
+            break;
+          case KEY_SHIFTENTER:
+          case KEY_ALTSHIFTBRACKET:
+          case KEY_CTRLSHIFTBRACKET:
+            SrcPanel=CtrlObject->Cp()->ActivePanel;
+            break;
+          case KEY_CTRLSHIFTENTER:
+          case KEY_ALTSHIFTBACKBRACKET:
+          case KEY_CTRLSHIFTBACKBRACKET:
+            SrcPanel=CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel);
+            break;
+        }
+
+        if (SrcPanel!=NULL)
+        {
+          if(Key == KEY_SHIFTENTER || Key == KEY_CTRLSHIFTENTER)
+          {
+            char ShortFileName[NM];
+            SrcPanel->GetCurName(PathName,ShortFileName);
+            if(SrcPanel->GetShowShortNamesMode()) // учтем короткость имен :-)
+              strcpy(PathName,ShortFileName);
+          }
+          else
+          {
+            SrcPanel->GetCurDir(PathName);
+            if (SrcPanel->GetMode()!=PLUGIN_PANEL)
+            {
+              if(NeedRealName)
+              {
+                char uni[1024];
+                DWORD uniSize = sizeof(uni);
+                if (WNetGetUniversalName(PathName, UNIVERSAL_NAME_INFO_LEVEL,
+                                             &uni, &uniSize) == NOERROR)
+                {
+                  UNIVERSAL_NAME_INFO *lpuni = (UNIVERSAL_NAME_INFO *)&uni;
+                  strncpy(PathName, lpuni->lpUniversalName, sizeof(PathName)-1);
+                }
+                ConvertNameToReal(PathName,PathName, sizeof(PathName));
+              }
+              if (SrcPanel->GetShowShortNamesMode())
+                ConvertNameToShort(PathName,PathName);
+            }
+            else
+            {
+              FileList *SrcFilePanel=(FileList *)SrcPanel;
+              struct OpenPluginInfo Info;
+              CtrlObject->Plugins.GetOpenPluginInfo(SrcFilePanel->GetPluginHandle(),&Info);
+              strcat(FileList::AddPluginPrefix(SrcFilePanel,PathName),NullToEmpty(Info.CurDir));
+            }
+            AddEndSlash(PathName);
+            QuoteSpace(PathName);
+          }
+
+          RetCode=TRUE;
+        }
+      }
+      break;
+    }
+  }
+
+  // Если что-нить получилось, именно его и вставим (PathName)
+  if(RetCode)
+  {
+    if (ClearFlag)
+    {
+      LeftPos=0;
+      SetString("");
+    }
+
+    if (PrevSelStart!=-1)
+    {
+      SelStart=PrevSelStart;
+      SelEnd=PrevSelEnd;
+    }
+
+    if (!PersistentBlocks)
+      DeleteBlock();
+
+    if(TableSet)
+       EncodeString(PathName,(unsigned char*)TableSet->EncodeTable,
+                    strlen(PathName));
+    char *Ptr=PathName;
+    for (;*Ptr;Ptr++)
+      InsertKey(*Ptr);
+    ClearFlag=0;
+  }
+
+  return RetCode;
+}
+
+
 int Edit::ProcessKey(int Key)
 {
   int I;
@@ -790,37 +927,11 @@ int Edit::ProcessKey(int Key)
     Show();
   }
 
-  if (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9)
+  // Здесь - вызов функции вставки путей/файлов
+  if(ProcessInsPath(Key,PrevSelStart,PrevSelEnd))
   {
-    char ShortcutFolder[NM],PluginModule[NM],PluginFile[NM],PluginData[8192];
-    if (GetShortcutFolder(Key,ShortcutFolder,PluginModule,PluginFile,PluginData))
-    {
-      if (ClearFlag)
-      {
-        LeftPos=0;
-        SetString("");
-      }
-      /* $ 03.07.2000 tran
-         - bug#10, если был выделен текст, то удаляем его */
-      if (PrevSelStart!=-1)
-      {
-        SelStart=PrevSelStart;
-        SelEnd=PrevSelEnd;
-      }
-      DeleteBlock();
-      /* tran 03.07.2000 $ */
-      /* $ 12.11.2000 KM
-         Некоторые изменения вставки шортката в строку ввода с маской.
-         Предотвращает сдвиг курсора, если маска не совпадает с типом
-         вставляемого значения.
-      */
-      for (int I=0;ShortcutFolder[I]!=0;I++)
-        InsertKey(ShortcutFolder[I]);
-      /* KM $ */
-      ClearFlag=0;
-      Show();
-      return(TRUE);
-    }
+    Show();
+    return TRUE;
   }
 
   if (Key!=KEY_NONE && Key!=KEY_IDLE && Key!=KEY_SHIFTINS &&
@@ -833,132 +944,9 @@ int Edit::ProcessKey(int Key)
     Show();
   }
 
-  int NeedRealName=FALSE;
 
   switch(Key)
   {
-    case KEY_CTRLSHIFTENTER:
-    case KEY_SHIFTENTER:
-      {
-        char FileName[NM],ShortFileName[NM];
-        /* $ 07.10.2001 VVM
-          + CTRL+SHIFT+ENTER вставляет файл с пассивной панели. */
-        Panel *SrcPanel = CtrlObject->Cp()->ActivePanel;
-        if (Key == KEY_CTRLSHIFTENTER)
-          SrcPanel = CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
-        if (SrcPanel!=NULL && SrcPanel->GetCurName(FileName,ShortFileName))
-        /* VVM $ */
-        {
-          /* $ 03.07.2000 tran
-             - bug#10, если был выделен текст, то удаляем его */
-          if (PrevSelStart!=-1)
-          {
-            SelStart=PrevSelStart;
-            SelEnd=PrevSelEnd;
-          }
-          if (!PersistentBlocks)
-            DeleteBlock();
-          /* tran 03.07.2000 $ */
-          /* $ 12.11.2000 KM
-             Некоторые изменения вставки имени файла в строку ввода с маской.
-             Предотвращает сдвиг курсора, если маска не совпадает с типом
-             вставляемого значения.
-          */
-          if(TableSet)
-             EncodeString(FileName,(unsigned char*)TableSet->EncodeTable,
-                          strlen(FileName));
-          for (int I=0;FileName[I]!=0;I++)
-            InsertKey(FileName[I]);
-          /* KM $ */
-          Show();
-        }
-      }
-      return(TRUE);
-    case KEY_CTRLALTBRACKET:       // Вставить сетевое (UNC) путь из левой панели
-    case KEY_CTRLALTBACKBRACKET:   // Вставить сетевое (UNC) путь из правой панели
-    case KEY_ALTSHIFTBRACKET:      // Вставить сетевое (UNC) путь из активной панели
-    case KEY_ALTSHIFTBACKBRACKET:  // Вставить сетевое (UNC) путь из пассивной панели
-      NeedRealName=TRUE;
-    case KEY_CTRLBRACKET:          // Вставить путь из левой панели
-    case KEY_CTRLBACKBRACKET:      // Вставить путь из правой панели
-    case KEY_CTRLSHIFTBRACKET:     // Вставить путь из активной панели
-    case KEY_CTRLSHIFTBACKBRACKET: // Вставить путь из пассивной панели
-      {
-        Panel *SrcPanel;
-        switch(Key)
-        {
-          case KEY_CTRLALTBRACKET:
-          case KEY_CTRLBRACKET:
-            SrcPanel=CtrlObject->Cp()->LeftPanel;
-            break;
-          case KEY_CTRLALTBACKBRACKET:
-          case KEY_CTRLBACKBRACKET:
-            SrcPanel=CtrlObject->Cp()->RightPanel;
-            break;
-          case KEY_ALTSHIFTBRACKET:
-          case KEY_CTRLSHIFTBRACKET:
-            SrcPanel=CtrlObject->Cp()->ActivePanel;
-            break;
-          case KEY_ALTSHIFTBACKBRACKET:
-          case KEY_CTRLSHIFTBACKBRACKET:
-            SrcPanel=CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel);
-            break;
-        }
-        if (SrcPanel!=NULL)
-        {
-          char PanelDir[2048];
-
-          SrcPanel->GetCurDir(PanelDir);
-          if (SrcPanel->GetMode()!=PLUGIN_PANEL)
-          {
-            if(NeedRealName)
-            {
-              char uni[1024];
-              DWORD uniSize = sizeof(uni);
-              if (WNetGetUniversalName(PanelDir, UNIVERSAL_NAME_INFO_LEVEL,
-                                           &uni, &uniSize) == NOERROR)
-              {
-                UNIVERSAL_NAME_INFO *lpuni = (UNIVERSAL_NAME_INFO *)&uni;
-                strncpy(PanelDir, lpuni->lpUniversalName, sizeof(PanelDir)-1);
-              }
-              ConvertNameToReal(PanelDir,PanelDir, sizeof(PanelDir));
-            }
-            if (SrcPanel->GetShowShortNamesMode())
-              ConvertNameToShort(PanelDir,PanelDir);
-          }
-          else
-          {
-            FileList *SrcFilePanel=(FileList *)SrcPanel;
-            struct OpenPluginInfo Info;
-            CtrlObject->Plugins.GetOpenPluginInfo(SrcFilePanel->GetPluginHandle(),&Info);
-            strcat(FileList::AddPluginPrefix(SrcFilePanel,PanelDir),NullToEmpty(Info.CurDir));
-          }
-          AddEndSlash(PanelDir);
-          QuoteSpace(PanelDir);
-
-          /* $ 03.07.2000 tran
-             - bug#10, если был выделен текст, то удаляем его */
-          if (PrevSelStart!=-1)
-          {
-            SelStart=PrevSelStart;
-            SelEnd=PrevSelEnd;
-          }
-          if (!PersistentBlocks)
-            DeleteBlock();
-          /* tran 03.07.2000 $ */
-          /* $ 10.07.2001 IS
-             Вставляем строку с учетом текущей кодировки символов
-          */
-          if(TableSet)
-             EncodeString(PanelDir,(unsigned char*)TableSet->EncodeTable,
-                          strlen(PanelDir));
-          /* IS $ */
-          for (int I=0;PanelDir[I]!=0;I++)
-            InsertKey(PanelDir[I]);
-          Show();
-        }
-      }
-      return(TRUE);
     case KEY_SHIFTLEFT:
       if (CurPos>0)
       {

@@ -7,10 +7,12 @@ edit.hpp
 
 */
 
-/* Revision: 1.21 21.01.2002 $ */
+/* Revision: 1.22 28.01.2002 $ */
 
 /*
 Modify:
+  28.01.2002 SVS
+    + ProcessInsPath() - вставка пути с учетом кодовой таблицы
   21.01.2002 SVS
     + Возможность работы с курсором в диалогах (CursorVisible,CursorSize).
   12.01.2002 IS
@@ -179,6 +181,7 @@ class Edit:public ScreenObject
     int ProcessCtrlQ(void);
     int ProcessInsDate(void);
     int CheckCharMask(char Chr);
+    int ProcessInsPath(int Key,int PrevSelStart=-1,int PrevSelEnd=0);
 
   public:
     Edit();

@@ -7,10 +7,12 @@ plugins.hpp
 
 */
 
-/* Revision: 1.21 25.01.2002 $ */
+/* Revision: 1.22 28.01.2002 $ */
 
 /*
 Modify:
+  28.01.2002 SVS
+    + CreatePluginStartupInfo() - создание/заполнение PSI & FSF
   25.01.2002 SVS
     + PIWF_PRELOADED
   23.01.2002 SVS
@@ -298,6 +300,11 @@ class PluginsSet
     int CallPlugin(DWORD SysID,int OpenFrom, void *Data);
     int FindPlugin(DWORD SysID);
     /* SVS $ */
+
+    void CreatePluginStartupInfo(struct PluginStartupInfo *PSI,
+                                 struct FarStandardFunctions *FSF,
+                                 const char *ModuleName,
+                                 int ModuleNumber);
 
     void SetFlags(DWORD NewFlags) { Flags.Set(NewFlags); }
     void SkipFlags(DWORD NewFlags) { Flags.Skip(NewFlags); }
