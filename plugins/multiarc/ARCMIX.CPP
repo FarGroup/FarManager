@@ -145,15 +145,17 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,
   }
 
   SetLastError(LastError);
-  char ExecuteName[NM];
-  strncpy(ExecuteName,ExpandedCmd, NM-1);
-  ExecuteName[NM-1]=0;
-  char *Ptr=strchr(ExecuteName,' ');
-  if(Ptr)
-    *Ptr=0;
-  if(!ExitCode2 || !FindExecuteFile(ExecuteName,NULL,0))
+  if(!ExitCode2 /*|| !FindExecuteFile(ExecuteName,NULL,0)*/) //$ 06.03.2002 AA
   {
     char Msg[100];
+    char ExecuteName[NM];
+    strncpy(ExecuteName,ExpandedCmd+(*ExpandedCmd=='"'), NM-1);
+    ExecuteName[NM-1]=0;
+    char *Ptr;
+    Ptr=strchr(ExecuteName,(*ExpandedCmd=='"')?'"':' ');
+    if(Ptr)
+      *Ptr=0;
+    FindExecuteFile(ExecuteName,NULL,0);
     FSF.sprintf(Msg,GetMsg(MCannotFindArchivator),ExecuteName);
     const char *MsgItems[]={GetMsg(MError),Msg, GetMsg(MOk)};
     Info.Message(Info.ModuleNumber,FMSG_WARNING|FMSG_ERRORTYPE,
