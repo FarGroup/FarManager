@@ -5,10 +5,17 @@ execute.cpp
 
 */
 
-/* Revision: 1.11 21.11.2001 $ */
+/* Revision: 1.12 22.11.2001 $ */
 
 /*
 Modify:
+  22.11.2001 SVS
+    - Как последний гад этот самый Екзекутеор валит ФАР на простой формуле:
+      >"" Enter
+      Ок. Будем вылавливать еще на подходе.
+    + У Execute() добавлен параметр - SetUpDirs "Нужно устанавливать каталоги?"
+      Это как раз про ту войну, когда Костя "отлучил" кусок кода про
+      установку каталогов. Это понадобится гораздо позже.
   21.11.2001 SVS
     ! Объединение и небольшое "усиление" кода пусковика, а так же
       переименование IsCommandExeGUI в PrepareExecuteModule (фактически
@@ -169,7 +176,7 @@ char* GetShellAction(char *FileName)
  пытается проверить заголовок PE на ГУЕВОСТЬ (чтобы запустить процесс
  в отдельном окне и не ждать завершения).
  В случае неудачи Dest не заполняется!
- Return: TRUE/FALSE - нашли/не нашли.
+ Return: TRUE/FALSE/-1 - нашли/не нашли/грубые ошибки.
 */
 int WINAPI PrepareExecuteModule(char *Command,char *Dest,int DestSize,DWORD *GUIType)
 {
@@ -207,6 +214,7 @@ int WINAPI PrepareExecuteModule(char *Command,char *Dest,int DestSize,DWORD *GUI
   }
 
   *GUIType=FALSE; // GUIType всегда вначале инициализируется в FALSE
+  Ret=FALSE;
 
   // Выделяем имя модуля
   if (*Command=='\"')
@@ -222,13 +230,15 @@ int WINAPI PrepareExecuteModule(char *Command,char *Dest,int DestSize,DWORD *GUI
       *Ptr=0;
   }
 
+  if(!*FileName) // вот же, надо же... пустышку передали :-(
+    return -1;
+
   /* $ 07.09.2001 VVM Обработать переменные окружения */
   ExpandEnvironmentStr(FileName,FileName,sizeof(FileName));
 
   SetFileApisToANSI();
 
   {
-    Ret=FALSE;
     char *PtrFName=strrchr(strcpy(FullName,FileName),'.');
     char *WorkPtrFName;
     if(!PtrFName)
@@ -309,24 +319,50 @@ int WINAPI PrepareExecuteModule(char *Command,char *Dest,int DestSize,DWORD *GUI
   return(Ret);
 }
 
-int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
+/* Функция-пускатель внешних процессов
+   Возвращает -1 в случае ошибки или...
+*/
+int Execute(char *CmdStr,          // Ком.строка для исполнения
+            int AlwaysWaitFinish,  // Ждать завершение процесса?
+            int SeparateWindow,    // Выполнить в отдельном окне?
+            int DirectRun,         // Выполнять директом? (без CMD)
+            int SetUpDirs)         // Нужно устанавливать каталоги?
 {
+  char NewCmdStr[4096];
+
+  // ПРЕДпроверка на вшивость
+  Unquote(strcpy(NewCmdStr,CmdStr));
+  RemoveExternalSpaces(NewCmdStr);
+  // глянем на результат
+  if(!*NewCmdStr)
+  {
+    // А может просто запустить CMD или проводник?
+    // если "да", то этот куско нужно ниже перенести.
+    return -1;
+  }
+
   STARTUPINFO si;
   PROCESS_INFORMATION pi;
+  int Visible,Size;
+  int PrevLockCount;
   char ExecLine[1024],CommandName[NM];
-  char OldTitle[512],NewCmdStr[4096];
+  char OldTitle[512];
   DWORD GUIType;
-  int ExitCode;
+  int ExitCode=0;
+  int NT;
+  int OldNT;
+  DWORD CreateFlags;
+  char *CmdPtr;
+
   /* $ 13.04.2001 VVM
     + Флаг CREATE_DEFAULT_ERROR_MODE. Что-бы показывал все ошибки */
-  DWORD CreateFlags=CREATE_DEFAULT_ERROR_MODE;
+  CreateFlags=CREATE_DEFAULT_ERROR_MODE;
   /* VVM $ */
 
-  int Visible,Size;
   GetCursorType(Visible,Size);
   SetCursorType(TRUE,-1);
 
-  int PrevLockCount=ScrBuf.GetLockCount();
+  PrevLockCount=ScrBuf.GetLockCount();
   ScrBuf.SetLockCount(0);
   ScrBuf.Flush();
 
@@ -336,36 +372,33 @@ int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
   memset(&si,0,sizeof(si));
   si.cb=sizeof(si);
 
-  int NT=WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT;
-  int OldNT=NT && WinVer.dwMajorVersion<4;
+  NT=WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT;
+  OldNT=NT && WinVer.dwMajorVersion<4;
 
   *CommandName=0;
   GetEnvironmentVariable("COMSPEC",CommandName,sizeof(CommandName));
 
-  /* $ 14.06.2001 KM
-     ! Следующий кусок кода не нужен в свете изменений в установке
-       текущих директорий обеих панелей.
-  */
-/*  Panel *PassivePanel=CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel);
-  if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS &&
-      PassivePanel->GetType()==FILE_PANEL)
-    for (int I=0;CmdStr[I]!=0;I++)
-      if (isalpha(CmdStr[I]) && CmdStr[I+1]==':' && CmdStr[I+2]!='\\')
-      {
-        char SavePath[NM],PanelPath[NM],SetPathCmd[NM];
-        GetCurrentDirectory(sizeof(SavePath),SavePath);
-        PassivePanel->GetCurDir(PanelPath);
-        sprintf(SetPathCmd,"%s /C chdir %s",CommandName,QuoteSpace(PanelPath));
-        CreateProcess(NULL,SetPathCmd,NULL,NULL,FALSE,CreateFlags,NULL,NULL,&si,&pi);
-        CloseHandle(pi.hThread);
-        CloseHandle(pi.hProcess);
-        chdir(SavePath);
-      }*/
-  /* KM $ */
+  if(SetUpDirs)
+  {
+    Panel *PassivePanel=CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel);
+    if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS && PassivePanel->GetType()==FILE_PANEL)
+      for (int I=0;CmdStr[I]!=0;I++)
+        if (isalpha(CmdStr[I]) && CmdStr[I+1]==':' && CmdStr[I+2]!='\\')
+        {
+          char SavePath[NM],PanelPath[NM],SetPathCmd[NM];
+          GetCurrentDirectory(sizeof(SavePath),SavePath);
+          PassivePanel->GetCurDir(PanelPath);
+          sprintf(SetPathCmd,"%s /C chdir %s",CommandName,QuoteSpace(PanelPath));
+          CreateProcess(NULL,SetPathCmd,NULL,NULL,FALSE,CreateFlags,NULL,NULL,&si,&pi);
+          CloseHandle(pi.hThread);
+          CloseHandle(pi.hProcess);
+          chdir(SavePath);
+        }
+  }
 
-  char *CmdPtr=strcpy(NewCmdStr,CmdStr);
-//  while (isspace(*CmdPtr))
-//    CmdPtr++;
+  CmdPtr=strcpy(NewCmdStr,CmdStr);
+  //while (isspace(*CmdPtr))
+  //  CmdPtr++;
 
   // Поиск исполнятора....
   PrepareExecuteModule(NewCmdStr,NewCmdStr,sizeof(NewCmdStr)-1,&GUIType);

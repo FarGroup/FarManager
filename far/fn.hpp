@@ -7,10 +7,14 @@ fn.hpp
 
 */
 
-/* Revision: 1.115 19.11.2001 $ */
+/* Revision: 1.116 22.11.2001 $ */
 
 /*
 Modify:
+  22.11.2001 SVS
+    + ” Execute() добавлен параметр - SetUpDirs "Ќужно устанавливать каталоги?"
+      Ёто как раз про ту войну, когда  ост€ "отлучил" кусок кода про
+      установку каталогов. Ёто понадобитс€ гораздо позже.
   19.11.2001 SVS
     + ReplaceStrings - замена подстроки
   15.11.2001 OT
@@ -539,7 +543,7 @@ void CloseSameRegKey();
 #if defined(__FARCONST_HPP__) && (defined(_INC_WINDOWS) || defined(_WINDOWS_))
 UDWORD NTTimeToDos(FILETIME *ft);
 int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow=FALSE,
-            int DirectRun=FALSE);
+            int DirectRun=FALSE,int SetUpDirs=FALSE);
 #endif
 
 
