@@ -5,10 +5,14 @@ Internal viewer
 
 */
 
-/* Revision: 1.48 27.02.2001 $ */
+/* Revision: 1.49 13.03.2001 $ */
 
 /*
 Modify:
+  13.02.2001 IS
+    ! При исправлении бага с выделением в юникодных файлах (06.02.2001) не учел
+      то, что коррекция должна быть только для самой первой строки, поэтому баг
+      не до конца был исправлен. Сейчас ситуация уже лучше.
   27.02.2001 VVM
     ! Символы, зависимые от кодовой страницы
       /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
@@ -2441,14 +2445,14 @@ void Viewer::SelectText(long MatchPos,int SearchLength, DWORD Flags)
   SelectPos=FilePos=MatchPos;
   SelectSize=SearchLength;
   LastSelPos=SelectPos+((Flags&0x2) ? -1:1);
-  /* $ 06.02.2001 IS
+  /* $ 13.03.2001 IS
      Если найденное расположено в самой первой строке юникодного файла и файл
      имеет в начале fffe или feff, то для более правильного выделения, его
      позицию нужно уменьшить на единицу (из-за того, что пустой символ не
      показывается)
   */
   SelectPosOffSet=VM.Unicode && (FirstWord==0x0FFFE || FirstWord==0x0FEFF)
-                   && (MatchPos+SelectSize<=ObjWidth);
+           && (MatchPos+SelectSize<=ObjWidth && MatchPos<strlen(OutStr[0]));
   SelectPos-=SelectPosOffSet;
   /* IS $ */
   if (VM.Hex)
