@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.142 08.12.2004 $ */
+/* Revision: 1.143 12.12.2004 $ */
 
 /*
 Modify:
+  12.12.2004 WARP
+    ! Оптимизация с VMENU_DISABLEBACKGROUND не совсем удалась.
   08.12.2004 WARP
     ! Патч для поиска #1. Подробнее 01864.FindFile.txt
   01.12.2004 WARP
@@ -746,11 +748,11 @@ void VMenu::Show()
   }
   if (X2>X1 && Y2+(VMFlags.Check(VMENU_SHOWNOBOX)?1:0)>Y1)
   {
-    if ( (OldX1 != X1) ||
+  /*  if ( (OldX1 != X1) ||
          (OldY1 != Y1) ||
          (OldX2 != X2) ||
          (OldY2 != Y2) )
-       VMFlags.Clear (VMENU_DISABLEDRAWBACKGROUND);
+       VMFlags.Clear (VMENU_DISABLEDRAWBACKGROUND);*/
 
     if(SelectPos == -1)
       SelectPos=SetSelectPos(0,1);
@@ -824,7 +826,7 @@ void VMenu::DisplayObject()
     }
     /* SVS $*/
 
-    VMFlags.Set (VMENU_DISABLEDRAWBACKGROUND);
+//    VMFlags.Set (VMENU_DISABLEDRAWBACKGROUND);
   }
   /* $ 03.06.2001 KM
      ! Вернём DI_LISTBOX'у возможность задавать заголовок.
