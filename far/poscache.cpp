@@ -5,10 +5,12 @@ poscache.cpp
 
 */
 
-/* Revision: 1.13 29.10.2001 $ */
+/* Revision: 1.14 15.08.2002 $ */
 
 /*
 Modify:
+  15.08.2002 IS
+    ! DirList.Start -> DirList.Reset
   29.10.2001 IS
     ! SaveEditorPos и SaveEditorShortPos переехали в EditorOptions
   20.08.2001 VVM
@@ -228,7 +230,7 @@ void FilePositionCache::Read(char *Key)
       char ArgData[2*NM];
       if(DataList.Set(DataStr))
       {
-         DataList.Start();
+         DataList.Reset();
          while(NULL!=(DataPtr=DataList.GetNext()))
          {
            if(*DataPtr=='$')

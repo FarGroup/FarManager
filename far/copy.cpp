@@ -5,10 +5,13 @@ copy.cpp
 
 */
 
-/* Revision: 1.95 12.07.2002 $ */
+/* Revision: 1.96 15.08.2002 $ */
 
 /*
 Modify:
+  15.08.2002 IS
+    ! DestList.Start -> DestList.Reset
+    + DestList - применяется ULF_UNIQUE, для исключения дублей
   12.07.2002 SVS
     - Хардлинки не создавались на мапленных сетевых NTFS-дисках
       (хотя ЭТО ВОЗМОЖНО!)
@@ -383,6 +386,11 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
                      int &ToPlugin,          // =?
                      char *PluginDestPath)   // =?
 {
+  /* $ 15.08.2002 IS
+     Запретим дубли в списке целей
+  */
+  DestList.SetParameters(0,0,ULF_UNIQUE);
+  /* IS $ */
   struct CopyDlgParam CDP;
   /* $ 03.08.2001 IS
        CopyDlgValue - в этой переменной храним заветную строчку из диалога,
@@ -806,7 +814,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
         CopyBufSize = COPY_BUFFER_SIZE; // Начинаем с 1к
         ReadOnlyDelMode=ReadOnlyOvrMode=OvrMode=SkipMode=-1;
 
-        DestList.Start();
+        DestList.Reset();
         while(NULL!=(NamePtr=DestList.GetNext()))
         {
           if(DestList.IsEmpty()) // нужно учесть моменты связанные с операцией Move.
@@ -1049,10 +1057,10 @@ long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         strcpy(NewFolder, OldFolder);
         if(MultiCopy)
         {
-          UserDefinedList DestList;
+          UserDefinedList DestList(0,0,ULF_UNIQUE);
           if(DestList.Set(OldFolder))
           {
-            DestList.Start();
+            DestList.Reset();
             const char *NamePtr=DestList.GetNext();
             if(NamePtr)
               strncpy(NewFolder, NamePtr, sizeof(NewFolder)-1);

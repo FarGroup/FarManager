@@ -5,10 +5,13 @@ FileMasksProcessor.cpp
 исключения).
 */
 
-/* Revision: 1.02 11.08.2001 $ */
+/* Revision: 1.03 15.08.2002 $ */
 
 /*
 Modify:
+  15.08.2002 IS
+    ! Masks.Start -> Masks.Reset
+    + Маски файлов: перед использованием сортируем и удаляем дубликаты
   11.08.2001 IS
     + Используем UDL_FLAGS:
   10.07.2001 SVS
@@ -40,7 +43,7 @@ void FileMasksProcessor::Free()
 BOOL FileMasksProcessor::Set(const char *masks, DWORD Flags)
 {
   // разделителем масок является не только запятая, но и точка с запятой!
-  DWORD flags=ULF_PACKASTERISKS|ULF_PROCESSBRACKETS;
+  DWORD flags=ULF_PACKASTERISKS|ULF_PROCESSBRACKETS|ULF_SORT|ULF_UNIQUE;
   if(Flags&FMPF_ADDASTERISK) flags|=ULF_ADDASTERISK;
   Masks.SetParameters(',',';',flags);
   return Masks.Set(masks);
@@ -48,7 +51,7 @@ BOOL FileMasksProcessor::Set(const char *masks, DWORD Flags)
 
 BOOL FileMasksProcessor::IsEmpty(void)
 {
-  Masks.Start();
+  Masks.Reset();
   return Masks.IsEmpty();
 }
 
@@ -57,7 +60,7 @@ BOOL FileMasksProcessor::IsEmpty(void)
    Путь к файлу в FileName НЕ игнорируется */
 BOOL FileMasksProcessor::Compare(const char *FileName)
 {
-  Masks.Start();
+  Masks.Reset();
   while(NULL!=(MaskPtr=Masks.GetNext()))
   {
     if (CmpName(MaskPtr,FileName, FALSE))

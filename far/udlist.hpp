@@ -11,10 +11,14 @@ udlist.hpp
 
 */
 
-/* Revision: 1.06 11.07.2002 $ */
+/* Revision: 1.07 15.08.2002 $ */
 
 /*
 Modify:
+  15.08.2002 IS
+    + Использование TArray
+    + ULF_UNIQUE,  ULF_SORT
+    + BOOL AddItem(const char *NewItem)
   11.07.2002 IS
     ! Изменился комментарий ULF_PACKASTERISKS
   11.08.2001 IS
@@ -36,6 +40,7 @@ Modify:
 */
 
 #include "farconst.hpp"
+#include "array.hpp"
 
 enum UDL_FLAGS
 {
@@ -45,20 +50,40 @@ enum UDL_FLAGS
                                   // вместо "***" в список помещать просто "*"
   ULF_PROCESSBRACKETS=0x00000004, // учитывать квадратные скобки при анализе
                                   // строки инициализации
+  ULF_UNIQUE         =0x00000010, // убирать дублирующиеся элементы
+  ULF_SORT           =0x00000020, // отсортировать (с учетом регистра)
+};
+
+class UserDefinedListItem
+{
+  public:
+   unsigned int index;
+   char *Str;
+   UserDefinedListItem():Str(NULL), index(0)
+   {
+   }
+   bool operator==(const UserDefinedListItem &rhs) const;
+   int operator<(const UserDefinedListItem &rhs) const;
+   const UserDefinedListItem& operator=(const UserDefinedListItem &rhs);
+   const UserDefinedListItem& operator=(const char *rhs);
+   char *set(const char *Src, unsigned int size);
+   ~UserDefinedListItem();
 };
 
 class UserDefinedList
 {
   private:
-    DWORD Total;
-    char *Data, *DataEnd, *DataCurrent;
+    TArray<UserDefinedListItem> Array;
+    unsigned int CurrentItem;
     BYTE Separator1, Separator2;
-    BOOL ProcessBrackets, AddAsterisk, PackAsterisks;
+    BOOL ProcessBrackets, AddAsterisk, PackAsterisks, Unique, Sort;
 
   private:
     BOOL CheckSeparators() const; // проверка разделителей на корректность
     void SetDefaultSeparators();
     const char *Skip(const char *Str, int &Length, int &RealLength, BOOL &Error);
+    static int __cdecl CmpItems(const UserDefinedListItem **el1,
+      const UserDefinedListItem **el2);
 
   private:
     UserDefinedList& operator=(const UserDefinedList& rhs); // чтобы не
@@ -66,10 +91,11 @@ class UserDefinedList
 
   public:
     // по умолчанию разделителем считается ';' и ',', а
-    // ProcessBrackets=FALSE, AddAsterisk=FALSE, PackAsterisks=FALSE
+    // ProcessBrackets=AddAsterisk=PackAsterisks=FALSE
+    // Unique=Sort=FALSE
     UserDefinedList();
 
-    // Явно указываются разделители. См. описание SetSeparators
+    // Явно указываются разделители. См. описание SetParameters
     UserDefinedList(BYTE separator1, BYTE separator2, DWORD Flags);
     ~UserDefinedList() { Free(); }
 
@@ -90,22 +116,30 @@ class UserDefinedList
     // Инициализирует список. Принимает список, разделенный разделителями.
     // Возвращает FALSE при неудаче.
     // Фича: если List==NULL, то происходит освобождение занятой ранее памяти
-    BOOL Set(const char *List);
+    BOOL Set(const char *List, BOOL AddToList=FALSE);
+
+    // Добавление к уже существующему списку
+    // Фича: если NewItem==NULL, то происходит освобождение занятой ранее
+    // памяти
+    BOOL AddItem(const char *NewItem)
+    {
+      return Set(NewItem,TRUE);
+    }
 
     // Вызывать перед началом работы со списком
-    void Start(void);
+    void Reset(void);
 
     // Выдает указатель на очередной элемент списка или NULL
     const char *GetNext(void);
 
-    // Освободить занятую память
+    // Освободить память
     void Free();
 
     // TRUE, если больше элементов в списке нет
     BOOL IsEmpty();
 
     // Вернуть количество элементов в списке
-    DWORD GetTotal () const { return Total; }
+    DWORD GetTotal () const { return Array.getSize(); }
 };
 
 #endif // __UserDefinedList_HPP

@@ -5,10 +5,13 @@ mkdir.cpp
 
 */
 
-/* Revision: 1.15 03.07.2002 $ */
+/* Revision: 1.16 15.08.2002 $ */
 
 /*
 Modify:
+  15.08.2002 IS
+    ! DirList.Start -> DirList.Reset
+    + DirList - примен€етс€ ULF_UNIQUE, дл€ исключени€ дублей
   03.07.2002 SVS
     -  осметика при выводе ошибки о невозможности создани€ кататалога
   10.06.2002 SVS
@@ -73,7 +76,9 @@ void ShellMakeDir(Panel *SrcPanel)
   */
   char DirName[NM], OriginalDirName[NM];
   *DirName=0;
-  UserDefinedList DirList;
+  /* $ 15.08.2002 IS запретить дубли */
+  UserDefinedList DirList(0,0,ULF_UNIQUE);
+  /* IS $ */
 
   /* $ 07.12.2001 IS
      создание нескольких каталогов за раз теперь опционально
@@ -111,7 +116,7 @@ void ShellMakeDir(Panel *SrcPanel)
   *DirName=0;
   const char *OneDir;
 
-  DirList.Start();
+  DirList.Reset();
   while(NULL!=(OneDir=DirList.GetNext()))
   {
     strncpy(DirName, OneDir, sizeof(DirName)-1);

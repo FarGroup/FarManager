@@ -14,6 +14,7 @@
 	".\lang.hpp"\
 	".\struct.hpp"\
 	".\udlist.hpp"\
+	".\array.hpp"\
 	
 
 "$(INTDIR)\checkver.obj" : \
@@ -143,6 +144,7 @@
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\udlist.hpp"\
+	".\array.hpp"\
 	".\vmenu.hpp"\
 	
 
@@ -193,6 +195,7 @@
 	".\struct.hpp"\
 	".\treelist.hpp"\
 	".\udlist.hpp"\
+	".\array.hpp"\
 	".\vmenu.hpp"\
 	
 
@@ -229,6 +232,7 @@
 	".\struct.hpp"\
 	".\treelist.hpp"\
 	".\udlist.hpp"\
+	".\array.hpp"\
 	
 
 "$(INTDIR)\cvtname.obj" : \
@@ -392,6 +396,7 @@
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\udlist.hpp"\
+	".\array.hpp"\
 	".\vmenu.hpp"\
 	
 
@@ -614,6 +619,7 @@
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\udlist.hpp"\
+	".\array.hpp"\
 	".\viewer.hpp"\
 	".\vmenu.hpp"\
 	
@@ -629,6 +635,7 @@
 	".\int64.hpp"\
 	".\struct.hpp"\
 	".\udlist.hpp"\
+	".\array.hpp"\
 	
 
 "$(INTDIR)\FileMasksWithExclude.obj" : \
@@ -639,6 +646,7 @@
 	".\FileMasksWithExclude.hpp"\
 	".\headers.hpp"\
 	".\udlist.hpp"\
+	".\array.hpp"\
 	
 
 "$(INTDIR)\filepanels.obj" : \
@@ -857,6 +865,7 @@
 	".\plugin.hpp"\
 	".\struct.hpp"\
 	".\udlist.hpp"\
+	".\array.hpp"\
 	
 
 "$(INTDIR)\flmodes.obj" : \
@@ -1606,6 +1615,7 @@
 	".\struct.hpp"\
 	".\treelist.hpp"\
 	".\udlist.hpp"\
+	".\array.hpp"\
 	
 
 "$(INTDIR)\mktemp.obj" : \
@@ -1848,6 +1858,7 @@
 	".\poscache.hpp"\
 	".\struct.hpp"\
 	".\udlist.hpp"\
+	".\array.hpp"\
 	
 
 "$(INTDIR)\print.obj" : \
@@ -2191,6 +2202,7 @@
 	".\struct.hpp"\
 	".\treelist.hpp"\
 	".\udlist.hpp"\
+	".\array.hpp"\
 	
 
 "$(INTDIR)\udlist.obj" : \
@@ -2198,6 +2210,7 @@
 	".\farconst.hpp"\
 	".\headers.hpp"\
 	".\udlist.hpp"\
+	".\array.hpp"\
 	
 
 "$(INTDIR)\usermenu.obj" : \
@@ -2268,6 +2281,7 @@
 	".\scrobj.hpp"\
 	".\struct.hpp"\
 	".\udlist.hpp"\
+	".\array.hpp"\
 	".\viewer.hpp"\
 	".\vmenu.hpp"\
 	
