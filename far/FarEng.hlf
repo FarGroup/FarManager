@@ -1428,14 +1428,16 @@ $ #Special symbols#
              grep !?Search for:?! !?In:?*.*!|c:\far\far.exe -v -
 
     #!###       "!##" modifier specified before a file association
-             symbol forces it to refer to the passive panel. For
-             example, !##!.! denotes the name of the current file
-             on the passive panel.
+             symbol forces it (and all the following characters)
+             to refer to the passive panel (see note 4).
+             For example, !##!.! denotes the name of the current
+             file on the passive panel.
 
     #!^#       "!^" modifier specified before a file association
-             symbol forces it to refer to the active panel. For
-             example, !^!.! denotes a current file name on the
-             active panel, !##!\!^!.! - a file on the passive
+             symbol forces it (and all the following characters)
+             to refer to the active panel (see note 4).
+             For example, !^!.! denotes a current file name on
+             the active panel, !##!\!^!.! - a file on the passive
              panel with the same name as the name of the current
              file on the active panel.
 

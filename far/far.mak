@@ -205,6 +205,8 @@ ALL : "$(OUTDIR)\Far.exe" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\farkeys.hp
    @if exist ".\plugin.pas" awk -f plugins.awk -v p1=1 -v p2=70 -v Lang=pas ".\plugin.pas" > "$(FARINCLUDE)\plugin.pas"
    @if exist ".\fmt.hpp" awk -f plugins.awk -v p1=1 -v p2=70 ".\fmt.hpp" > "$(FARINCLUDE)\fmt.hpp"
    @if exist ".\fmt.pas" awk -f plugins.awk -v p1=1 -v p2=70 -v Lang=pas ".\fmt.pas" > "$(FARINCLUDE)\fmt.pas"
+   @if exist ".\farcolor.pas" awk -f plugins.awk -v p1=1 -v p2=70 -v Lang=pas ".\farcolor.pas" > "$(FARINCLUDE)\farcolor.pas"
+   @if exist ".\farkeys.pas" awk -f plugins.awk -v p1=1 -v p2=70 -v Lang=pas ".\farkeys.pas" > "$(FARINCLUDE)\farkeys.pas"
 
 
 # ************************************************************************

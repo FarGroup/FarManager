@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.270 17.10.2002 $ */
+/* Revision: 1.270 27.10.2002 $ */
 
 /*
 Modify:
+  27.10.2002 DJ
+    ! переименуем FarListColors.ColorItem в ColorCount (чтобы было понятно,
+      что к чему)
   17.10.2002 SVS
     + Добавим в Do_ProcessNextCtrl() параметр про принудительную
       прорисовку 2 элементов (старого и нового)
@@ -2679,7 +2682,7 @@ void Dialog::ShowDialog(int ID)
           */
           BYTE RealColors[VMENU_COLOR_COUNT];
           struct FarListColors ListColors={0};
-          ListColors.ColorItem=VMENU_COLOR_COUNT;
+          ListColors.ColorCount=VMENU_COLOR_COUNT;
           ListColors.Colors=RealColors;
 
           CurItem->ListPtr->GetColors(&ListColors);
@@ -4618,7 +4621,7 @@ int Dialog::SelectFromComboBox(
     // Перед отрисовкой спросим об изменении цветовых атрибутов
     BYTE RealColors[VMENU_COLOR_COUNT];
     struct FarListColors ListColors={0};
-    ListColors.ColorItem=VMENU_COLOR_COUNT;
+    ListColors.ColorCount=VMENU_COLOR_COUNT;
     ListColors.Colors=RealColors;
     ComboBox->SetColors(NULL);
     ComboBox->GetColors(&ListColors);
@@ -4781,7 +4784,7 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItem *CurItem,
       //  Перед отрисовкой спросим об изменении цветовых атрибутов
       BYTE RealColors[VMENU_COLOR_COUNT];
       struct FarListColors ListColors={0};
-      ListColors.ColorItem=VMENU_COLOR_COUNT;
+      ListColors.ColorCount=VMENU_COLOR_COUNT;
       ListColors.Colors=RealColors;
       HistoryMenu.GetColors(&ListColors);
       if(DlgProc((HANDLE)this,DN_CTLCOLORDLGLIST,CurItem->ID,(long)&ListColors))

@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.221 22.10.2002 $ */
+/* Revision: 1.222 27.10.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,11 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  27.10.2002 DJ
+    ! переименуем FarListColors.ColorItem в ColorCount (чтобы было понятно,
+      что к чему)
+    ! переименуем FARColor в FarSetColors (для единообразия в именовании и,
+      опять же, чтобы было понятно, что к чему)
   22.10.2002 SVS
     ! добавка CharTableSet.RFCCharset, но закомменченная - чтобы потом не думать как
       ЭТО сделать ;-)
@@ -1099,7 +1104,7 @@ struct FarListTitles
 struct FarListColors{
   DWORD  Flags;
   DWORD  Reserved;
-  int    ColorItem;
+  int    ColorCount;
   LPBYTE Colors;
 };
 
@@ -1707,10 +1712,10 @@ enum FARCOLORFLAGS{
   FCLR_REDRAW                 = 0x00000001,
 };
 
-struct FARColor{
+struct FarSetColors{
   DWORD Flags;
   int StartIndex;
-  int ColorItem;
+  int ColorCount;
   LPBYTE Colors;
 };
 

@@ -5,10 +5,13 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.147 23.10.2002 $ */
+/* Revision: 1.148 27.10.2002 $ */
 
 /*
 Modify:
+  27.10.2002 DJ
+    ! переименуем FARColor в FarSetColors (для единообразия в именовании и,
+      опять же, чтобы было понятно, что к чему)
   23.10.2002 SVS
     - ошибки проектирования  в FarCharTable() - забыл вернуть данные плагину ;-/
   22.10.2002 SVS
@@ -655,16 +658,16 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     */
     case ACTL_SETARRAYCOLOR:
     {
-      if(Param && !IsBadReadPtr(Param,sizeof(struct FARColor)))
+      if(Param && !IsBadReadPtr(Param,sizeof(struct FarSetColors)))
       {
-        struct FARColor *Pal=(struct FARColor*)Param;
+        struct FarSetColors *Pal=(struct FarSetColors*)Param;
         if(Pal->Colors &&
            Pal->StartIndex >= 0 &&
-           Pal->StartIndex+Pal->ColorItem <= SizeArrayPalette &&
-           !IsBadReadPtr(Pal->Colors,Pal->ColorItem)
+           Pal->StartIndex+Pal->ColorCount <= SizeArrayPalette &&
+           !IsBadReadPtr(Pal->Colors,Pal->ColorCount)
           )
         {
-          memmove(Palette+Pal->StartIndex,Pal->Colors,Pal->ColorItem);
+          memmove(Palette+Pal->StartIndex,Pal->Colors,Pal->ColorCount);
           if(Pal->Flags&FCLR_REDRAW)
           {
             ScrBuf.Lock(); // отменяем всякую прорисовку
