@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.87 11.12.2001 $ */
+/* Revision: 1.88 17.12.2001 $ */
 
 /*
 Modify:
+  17.12.2001 IS
+    + MConfigMousePanelMClickRule - опция для средней кнопки мыши в панелях
   11.12.2001 SVS
     + MKBTree*F*
   07.12.2001 IS
@@ -433,6 +435,7 @@ enum
   MConfigClock,
   MConfigViewerEditorClock,
   MConfigMouse,
+  MConfigMousePanelMClickRule,
   MConfigKeyBar,
   MConfigMenuBar,
   MConfigSaver,

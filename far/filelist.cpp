@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.115 14.12.2001 $ */
+/* Revision: 1.116 17.12.2001 $ */
 
 /*
 Modify:
+  17.12.2001 IS
+    ! обрабатываем среднюю кнопку как enter опционально
   14.12.2001 IS
     ! stricmp -> LocalStricmp
   11.12.2001 SVS
@@ -2240,7 +2242,12 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
   /* $ 21.08.2001 VVM
     + Считать нажатие средней кнопки за ЕНТЕР */
-  if (MouseEvent->dwButtonState & 4)
+  /* $ 17.12.2001 IS
+    ! новшество от Василия - опционально
+  */
+  if (MouseEvent->dwButtonState & FROM_LEFT_2ND_BUTTON_PRESSED
+      && Opt.PanelMiddleClickRule)
+  /* IS $ */
   {
     int Key = KEY_ENTER;
     if (MouseEvent->dwControlKeyState & SHIFT_PRESSED)

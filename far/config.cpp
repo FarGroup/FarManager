@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.115 14.12.2001 $ */
+/* Revision: 1.116 17.12.2001 $ */
 
 /*
 Modify:
+  17.12.2001 IS
+    + Работа с PanelMiddleClickRule
   14.12.2001 SVS
     + Вызовем SaveHiData() в SaveConfig() для сохранения раскраски
   10.12.2001 SVS
@@ -588,22 +590,27 @@ void PanelSettings()
 #define DLG_INTERF_CLOCK                1
 #define DLG_INTERF_VIEWEREDITORCLOCK    2
 #define DLG_INTERF_MOUSE                3
-#define DLG_INTERF_SHOWKEYBAR           4
-#define DLG_INTERF_SHOWMENUBAR          5
-#define DLG_INTERF_SCREENSAVER          6
-#define DLG_INTERF_SCREENSAVERTIME      7
-#define DLG_INTERF_SAVERMINUTES         8
-#define DLG_INTERF_DIALOGSEDITHISTORY   9
-#define DLG_INTERF_DIALOGSEDITBLOCK    10
-#define DLG_INTERF_USEPROMPTFORMAT     11
-#define DLG_INTERF_PROMPTFORMAT        12
-#define DLG_INTERF_ALTGR               13
-#define DLG_INTERF_COPYSHOWTOTAL       14
-#define DLG_INTERF_COPYTIMERULE        15
-#define DLG_INTERF_AUTOCOMPLETE        16
-#define DLG_INTERF_PGUPCHANGEDISK      17
-#define DLG_INTERF_OK                  19
+#define DLG_INTERF_MOUSEPMCLICKRULE     4
+#define DLG_INTERF_SHOWKEYBAR           5
+#define DLG_INTERF_SHOWMENUBAR          6
+#define DLG_INTERF_SCREENSAVER          7
+#define DLG_INTERF_SCREENSAVERTIME      8
+#define DLG_INTERF_SAVERMINUTES         9
+#define DLG_INTERF_DIALOGSEDITHISTORY  10
+#define DLG_INTERF_DIALOGSEDITBLOCK    11
+#define DLG_INTERF_USEPROMPTFORMAT     12
+#define DLG_INTERF_PROMPTFORMAT        13
+#define DLG_INTERF_ALTGR               14
+#define DLG_INTERF_COPYSHOWTOTAL       15
+#define DLG_INTERF_COPYTIMERULE        16
+#define DLG_INTERF_AUTOCOMPLETE        17
+#define DLG_INTERF_PGUPCHANGEDISK      18
+#define DLG_INTERF_OK                  20
 
+/* $ 17.12.2001 IS
+   Настройка средней кнопки мыши для панелей. Воткнем пока сюда, потом надо
+   переехать в специальный диалог по программированию мыши.
+*/
 void InterfaceSettings()
 {
   static struct DialogData CfgDlgData[]={
@@ -613,27 +620,28 @@ void InterfaceSettings()
     /* $ 26.07.2000 SVS
        + Разрешить ли автодополнение в строках ввода
     */
-  /* 00 */DI_DOUBLEBOX,3,1,54,20,0,0,0,0,(char *)MConfigInterfaceTitle,
+  /* 00 */DI_DOUBLEBOX,3,1,54,21,0,0,0,0,(char *)MConfigInterfaceTitle,
   /* 01 */DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MConfigClock,
   /* 02 */DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MConfigViewerEditorClock,
-  /* 03 */DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MConfigMouse,
-  /* 04 */DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MConfigKeyBar,
-  /* 05 */DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MConfigMenuBar,
-  /* 06 */DI_CHECKBOX,5,7,0,0,0,0,DIF_AUTOMATION,0,(char *)MConfigSaver,
-  /* 07 */DI_FIXEDIT,9,8,11,8,0,0,0,0,"",
-  /* 08 */DI_TEXT,13,8,0,0,0,0,0,0,(char *)MConfigSaverMinutes,
-  /* 09 */DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MConfigDialogsEditHistory,
-  /* 10 */DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MConfigDialogsEditBlock,
-  /* 11 */DI_CHECKBOX,5,11,0,0,0,0,DIF_AUTOMATION,0,(char *)MConfigUsePromptFormat,
-  /* 12 */DI_EDIT,9,12,24,12,0,0,0,0,"",
-  /* 13 */DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MConfigAltGr,
-  /* 14 */DI_CHECKBOX,5,14,0,0,0,0,0,0,(char *)MConfigCopyTotal,
-  /* 15 */DI_CHECKBOX,5,15,0,0,0,0,0,0,(char *)MConfigCopyTimeRule,
-  /* 16 */DI_CHECKBOX,5,16,0,0,0,0,0,0,(char *)MConfigAutoComplete,
-  /* 17 */DI_CHECKBOX,5,17,0,0,0,0,0,0,(char *)MConfigPgUpChangeDisk,
-  /* 18 */DI_TEXT,3,18,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 19 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-  /* 20 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  /* 03 */DI_CHECKBOX,5,4,0,0,0,0,DIF_AUTOMATION,0,(char *)MConfigMouse,
+  /* 04 */DI_CHECKBOX,9,5,0,0,0,0,0,0,(char *)MConfigMousePanelMClickRule,
+  /* 05 */DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MConfigKeyBar,
+  /* 06 */DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MConfigMenuBar,
+  /* 07 */DI_CHECKBOX,5,8,0,0,0,0,DIF_AUTOMATION,0,(char *)MConfigSaver,
+  /* 08 */DI_FIXEDIT,9,9,11,8,0,0,0,0,"",
+  /* 09 */DI_TEXT,13,9,0,0,0,0,0,0,(char *)MConfigSaverMinutes,
+  /* 10 */DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MConfigDialogsEditHistory,
+  /* 11 */DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MConfigDialogsEditBlock,
+  /* 12 */DI_CHECKBOX,5,12,0,0,0,0,DIF_AUTOMATION,0,(char *)MConfigUsePromptFormat,
+  /* 13 */DI_EDIT,9,13,24,12,0,0,0,0,"",
+  /* 14 */DI_CHECKBOX,5,14,0,0,0,0,0,0,(char *)MConfigAltGr,
+  /* 15 */DI_CHECKBOX,5,15,0,0,0,0,0,0,(char *)MConfigCopyTotal,
+  /* 16 */DI_CHECKBOX,5,16,0,0,0,0,0,0,(char *)MConfigCopyTimeRule,
+  /* 17 */DI_CHECKBOX,5,17,0,0,0,0,0,0,(char *)MConfigAutoComplete,
+  /* 18 */DI_CHECKBOX,5,18,0,0,0,0,0,0,(char *)MConfigPgUpChangeDisk,
+  /* 19 */DI_TEXT,3,19,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 20 */DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 21 */DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
   MakeDialogItems(CfgDlgData,CfgDlg);
 
@@ -646,6 +654,9 @@ void InterfaceSettings()
   CfgDlg[DLG_INTERF_CLOCK].Selected=Opt.Clock;
   CfgDlg[DLG_INTERF_VIEWEREDITORCLOCK].Selected=Opt.ViewerEditorClock;
   CfgDlg[DLG_INTERF_MOUSE].Selected=Opt.Mouse;
+  CfgDlg[DLG_INTERF_MOUSEPMCLICKRULE].Selected=Opt.PanelMiddleClickRule;
+  if(!Opt.Mouse)
+    CfgDlg[DLG_INTERF_MOUSEPMCLICKRULE].Flags|=DIF_DISABLE;
   CfgDlg[DLG_INTERF_SHOWKEYBAR].Selected=Opt.ShowKeyBar;
   CfgDlg[DLG_INTERF_SHOWMENUBAR].Selected=Opt.ShowMenuBar;
   CfgDlg[DLG_INTERF_SCREENSAVER].Selected=Opt.ScreenSaver;
@@ -672,10 +683,11 @@ void InterfaceSettings()
   {
     Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
     Dlg.SetHelp("InterfSettings");
-    Dlg.SetPosition(-1,-1,58,22);
+    Dlg.SetPosition(-1,-1,58,23);
     Dlg.SetAutomation(DLG_INTERF_SCREENSAVER,DLG_INTERF_SCREENSAVERTIME,DIF_DISABLE,0,0,DIF_DISABLE);
     Dlg.SetAutomation(DLG_INTERF_SCREENSAVER,DLG_INTERF_SAVERMINUTES,DIF_DISABLE,0,0,DIF_DISABLE);
     Dlg.SetAutomation(DLG_INTERF_USEPROMPTFORMAT,DLG_INTERF_PROMPTFORMAT,DIF_DISABLE,0,0,DIF_DISABLE);
+    Dlg.SetAutomation(DLG_INTERF_MOUSE,DLG_INTERF_MOUSEPMCLICKRULE,DIF_DISABLE,0,0,DIF_DISABLE);
     Dlg.Process();
     if (Dlg.GetExitCode() != DLG_INTERF_OK)
       return;
@@ -684,6 +696,7 @@ void InterfaceSettings()
   Opt.Clock=CfgDlg[DLG_INTERF_CLOCK].Selected;
   Opt.ViewerEditorClock=CfgDlg[DLG_INTERF_VIEWEREDITORCLOCK].Selected;
   Opt.Mouse=CfgDlg[DLG_INTERF_MOUSE].Selected;
+  Opt.PanelMiddleClickRule=CfgDlg[DLG_INTERF_MOUSEPMCLICKRULE].Selected;
   Opt.ShowKeyBar=CfgDlg[DLG_INTERF_SHOWKEYBAR].Selected;
   Opt.ShowMenuBar=CfgDlg[DLG_INTERF_SHOWMENUBAR].Selected;
   Opt.ScreenSaver=CfgDlg[DLG_INTERF_SCREENSAVER].Selected;
@@ -715,7 +728,7 @@ void InterfaceSettings()
   CtrlObject->CmdLine->SetPersistentBlocks(Opt.DialogsEditBlock);
   /* IS $ */
 }
-
+/* IS 17.12.2001 $ */
 
 /* $ 09.02.2001 IS
    Опция Esc
@@ -1282,6 +1295,9 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeyPanel,"CtrlAltShiftRule",&Opt.PanelCtrlAltShiftRule,0, 0},
   {0, REG_DWORD,  NKeyPanel,"RememberLogicalDrives",&Opt.RememberLogicalDrives, 0, 0},
   {1, REG_DWORD,  NKeyPanel,"AutoUpdateLimit",&Opt.AutoUpdateLimit, 0, 0},
+  /* $ 17.12.2001 IS поведение средней кнопки мыши в панелях */
+  {1, REG_DWORD,  NKeyPanel,"MiddleClickRule",&Opt.PanelMiddleClickRule,1, 0},
+  /* IS $ */
 
   {1, REG_DWORD,  NKeyPanelLeft,"Type",&Opt.LeftPanel.Type,0, 0},
   {1, REG_DWORD,  NKeyPanelLeft,"Visible",&Opt.LeftPanel.Visible,1, 0},

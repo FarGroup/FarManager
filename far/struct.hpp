@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.78 07.12.2001 $ */
+/* Revision: 1.79 17.12.2001 $ */
 
 /*
 Modify:
+  17.12.2001 IS
+    + Opt.PanelMiddleClickRule - поведение средней кнопки мыши в панелях
   07.12.2001 IS
     + Opt.MultiMakeDir - опция создания нескольких каталогов за один сеанс
   03.12.2001 IS
@@ -548,6 +550,9 @@ struct Options
   */
   int PanelRightClickRule;
   /* SVS $*/
+  /* $ 17.12.2001 IS поведение средней кнопки мыши в панелях */
+  int PanelMiddleClickRule;
+  /* IS $ */
   /* $ 19.09.2000 SVS
    + Opt.PanelCtrlAltShiftRule задает поведение Ctrl-Alt-Shift для панелей.
   */
