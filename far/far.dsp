@@ -42,7 +42,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MT /Gi /O1 /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /YX /FD /c
+# ADD CPP /nologo /MT /Gi /O1 /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /YX /FD /c /D "FARTRY" /D "CREATE_JUNCTION" /J
 # ADD BASE RSC /l 0x419 /d "NDEBUG"
 # ADD RSC /l 0x419 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -66,7 +66,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /Zp4 /MTd /W3 /Gm /Gi /ZI /Od /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /FR /YX /J /FD /GZ /c
+# ADD CPP /nologo /Zp4 /MTd /W3 /Gm /Gi /ZI /Od /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /FR /YX /J /FD /GZ /c /D "FARTRY" /D "CREATE_JUNCTION"
 # ADD BASE RSC /l 0x419 /d "_DEBUG"
 # ADD RSC /l 0x419 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -87,30 +87,6 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\clipboard.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\flink.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\farqueue.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\strmix.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\eject.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\xlat.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\checkver.cpp
 # End Source File
 # Begin Source File
@@ -123,11 +99,7 @@ SOURCE=.\chgprior.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\qsortex.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\constitle.cpp
+SOURCE=.\clipboard.cpp
 # End Source File
 # Begin Source File
 
@@ -135,11 +107,11 @@ SOURCE=.\cmdline.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\stddlg.cpp
+SOURCE=.\config.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\config.cpp
+SOURCE=.\constitle.cpp
 # End Source File
 # Begin Source File
 
@@ -171,11 +143,11 @@ SOURCE=.\editor.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\far.def
+SOURCE=.\eject.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Far.ico
+SOURCE=.\far.def
 # End Source File
 # Begin Source File
 
@@ -183,7 +155,19 @@ SOURCE=.\far.rc
 # End Source File
 # Begin Source File
 
+SOURCE=.\farqueue.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\farrtl.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ffolders.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\fileattr.cpp
 # End Source File
 # Begin Source File
 
@@ -212,6 +196,10 @@ SOURCE=.\filter.cpp
 # Begin Source File
 
 SOURCE=.\findfile.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\flink.cpp
 # End Source File
 # Begin Source File
 
@@ -287,6 +275,10 @@ SOURCE=.\keybar.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\keyboard.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\lang.cpp
 # PROP Exclude_From_Build 1
 # End Source File
@@ -321,18 +313,6 @@ SOURCE=.\menubar.cpp
 # Begin Source File
 
 SOURCE=.\message.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\syslog.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\fileattr.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\keyboard.cpp
 # End Source File
 # Begin Source File
 
@@ -388,6 +368,10 @@ SOURCE=.\print.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\qsortex.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\qview.cpp
 # End Source File
 # Begin Source File
@@ -437,6 +421,18 @@ SOURCE=.\smallobj.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\stddlg.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\strmix.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\syslog.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\treelist.cpp
 # End Source File
 # Begin Source File
@@ -450,6 +446,10 @@ SOURCE=.\viewer.cpp
 # Begin Source File
 
 SOURCE=.\vmenu.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\xlat.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -707,6 +707,10 @@ SOURCE=.\vmenu.hpp
 # Begin Group "Resource Files"
 
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
+# Begin Source File
+
+SOURCE=.\Far.ico
+# End Source File
 # Begin Source File
 
 SOURCE=.\final\FarEng.hlf

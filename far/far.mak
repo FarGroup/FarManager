@@ -32,7 +32,7 @@ RSC=rc.exe
 
 OUTDIR=.\Release
 INTDIR=.\Release\obj
-CODDIR=".\\Release\\cod\\"
+CODDIR=.\Release\cod
 # Begin Custom Macros
 OutDir=.\Release
 # End Custom Macros
@@ -133,13 +133,13 @@ CLEAN :
 	-@erase "$(OUTDIR)\far.exe"
 
 "$(OUTDIR)" :
-    if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
-"$(INTDIR)" :
-    if not exist "$(INTDIR)/$(NULL)" mkdir "$(INTDIR)"
+    if not exist "$(OUTDIR)\$(NULL)" mkdir "$(OUTDIR)"
 "$(CODDIR)" :
-    if not exist "$(CODDIR)/$(NULL)" mkdir "$(CODDIR)"
+    if not exist "$(CODDIR)\$(NULL)" mkdir "$(CODDIR)"
+"$(INTDIR)" :
+    if not exist "$(INTDIR)\$(NULL)" mkdir "$(INTDIR)"
 
-CPP_PROJ=/nologo $(FARSYSLOG) $(FARTRY) /Zp4 /MT /Gi /O1 /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /Fp"$(INTDIR)\far.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)"
+CPP_PROJ=/nologo $(FARSYSLOG) $(FARTRY) $(CREATE_JUNCTION) /Zp4 /MT /Gi /O1 /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /Fp"$(INTDIR)\far.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\"
 RSC_PROJ=/l 0x419 /fo"$(INTDIR)\far.res" /d "NDEBUG"
 BSC32=bscmake.exe
 BSC32_FLAGS=/nologo /o"$(OUTDIR)\far.bsc"
@@ -256,7 +256,7 @@ LINK32_OBJS= \
 
 OUTDIR=.\Debug
 INTDIR=.\Debug\obj
-CODDIR=".\\Debug\\cod\\"
+CODDIR=.\Debug\cod
 # Begin Custom Macros
 OutDir=.\Debug
 # End Custom Macros
@@ -358,13 +358,13 @@ CLEAN :
 	-@erase "$(OUTDIR)\far.exe"
 
 "$(OUTDIR)" :
-    if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
-"$(INTDIR)" :
-    if not exist "$(INTDIR)/$(NULL)" mkdir "$(INTDIR)"
+    if not exist "$(OUTDIR)\$(NULL)" mkdir "$(OUTDIR)"
 "$(CODDIR)" :
-    if not exist "$(CODDIR)/$(NULL)" mkdir "$(CODDIR)"
+    if not exist "$(CODDIR)\$(NULL)" mkdir "$(CODDIR)"
+"$(INTDIR)" :
+    if not exist "$(INTDIR)\$(NULL)" mkdir "$(INTDIR)"
 
-CPP_PROJ=/nologo $(FARSYSLOG) $(FARTRY) /MTd /W3 /Gm /Gi /ZI /Od /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /Fp"$(INTDIR)\far.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /GZ /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)"
+CPP_PROJ=/nologo $(FARSYSLOG) $(FARTRY) $(CREATE_JUNCTION) /MTd /W3 /Gm /Gi /ZI /Od /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /Fp"$(INTDIR)\far.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /GZ /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\"
 RSC_PROJ=/l 0x419 /fo"$(INTDIR)\far.res" /d "_DEBUG"
 BSC32=bscmake.exe
 BSC32_FLAGS=/nologo /o"$(OUTDIR)\far.bsc"

@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.28 02.04.2001 $ */
+/* Revision: 1.29 09.04.2001 $ */
 
 /*
 Modify:
+  09.04.2001 SVS
+    ! проблемы с быстрым поиском.
   02.04.2001 SVS
     ! DRIVE_SUSTITUTE -> DRIVE_SUBSTITUTE
   02.04.2001 VVM
@@ -737,6 +739,17 @@ void Panel::FastFind(int FirstKey)
           if (FindEdit.ProcessKey(Key))
           {
             FindEdit.GetString(Name,sizeof(Name));
+            /* $ 09.04.2001 SVS
+               проблемы с быстрым поиском.
+               Подробнее в 00573.ChangeDirCrash.txt
+            */
+            if(*Name == '"')
+            {
+              memmove(Name,Name+1,sizeof(Name)-1);
+              Name[strlen(Name)-1]=0;
+              FindEdit.SetString(Name);
+            }
+            /* SVS $ */
             if (FindPartName(Name,FALSE))
               strcpy(LastName,Name);
             else

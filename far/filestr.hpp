@@ -7,18 +7,16 @@ filestr.hpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 09.04.2001 $ */
 
 /*
 Modify:
+  09.04.2001 SVS
+    ! stdio.h уже и так включается.
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
 */
-
-#ifndef __STDIO_H
-#include <stdio.h>
-#endif
 
 class GetFileString
 {
@@ -35,4 +33,3 @@ class GetFileString
 };
 
 #endif	// __GETFILESTRING_HPP__
-

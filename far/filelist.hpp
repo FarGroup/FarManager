@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.06 25.02.2001 $ */
+/* Revision: 1.07 09.04.2001 $ */
 
 /*
 Modify:
+  09.04.2001 SVS
+    ! ChangeDir() возвращает FALSE, если файловая панель была закрыта
   25.02.2001 VVM
     + Доп. параметр у ReadDiz - dwFlags
   09.02.2001 IS
@@ -27,10 +29,6 @@ Modify:
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
 */
-
-#ifndef __TIME_H
-#include <time.h>
-#endif
 
 class FileList:public Panel
 {
@@ -98,7 +96,11 @@ class FileList:public Panel
     void Select(struct FileListItem *SelPtr,int Selection);
     void SelectFiles(int Mode);
     void ProcessEnter(int EnableExec,int SeparateWindow);
-    void ChangeDir(char *NewDir);
+    /* $ 09.04.2001 SVS
+       ChangeDir возвращает FALSE, eсли файловая панель была закрыта
+    */
+    BOOL ChangeDir(char *NewDir);
+    /* SVS $ */
     void CountDirSize();
     void ReadFileNames(int KeepSelection);
     void UpdatePlugin(int KeepSelection);

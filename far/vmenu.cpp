@@ -7,10 +7,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.13 20.02.2001 $ */
+/* Revision: 1.14 09.04.2001 $ */
 
 /*
 Modify:
+  09.04.2001 SVS
+    ! Избавимся от некоторых варнингов
   20.02.2001 SVS
     + Добавлена функция SetSelectPos() - переместить курсор с учетом
       Disabled & Separator
@@ -916,6 +918,9 @@ void VMenu::SetSelection(int Selection,int Position)
 /* $ 20.09.2000 SVS
   + Функция GetItemPtr - получить указатель на нужный Item.
 */
+#ifndef _MSC_VER
+#pragma warn -par
+#endif
 BOOL VMenu::GetItemPtr(struct MenuItem *Item1,int Position)
 {
   if (ItemCount==0)
@@ -928,6 +933,9 @@ BOOL VMenu::GetItemPtr(struct MenuItem *Item1,int Position)
   Item1=&Item[Pos];
   return TRUE;
 }
+#ifndef _MSC_VER
+#pragma warn +par
+#endif
 /* SVS $*/
 
 int VMenu::GetSelectPos()
@@ -1003,12 +1011,21 @@ void VMenu::GetColors(short *Colors)
 
 /* SVS $*/
 
+#ifndef _MSC_VER
+#pragma warn -par
+#endif
 // функция обработки меню (по умолчанию)
 long WINAPI VMenu::DefMenuProc(HANDLE hVMenu,int Msg,int Param1,long Param2)
 {
   return 0;
 }
+#ifndef _MSC_VER
+#pragma warn +par
+#endif
 
+#ifndef _MSC_VER
+#pragma warn -par
+#endif
 // функция посылки сообщений меню
 long WINAPI VMenu::SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,long Param2)
 {
@@ -1016,3 +1033,6 @@ long WINAPI VMenu::SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,long Param2)
     return ((VMenu*)hVMenu)->VMenuProc(hVMenu,Msg,Param1,Param2);
   return 0;
 }
+#ifndef _MSC_VER
+#pragma warn +par
+#endif

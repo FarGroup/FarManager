@@ -5,10 +5,15 @@ filelist.cpp
 
 */
 
-/* Revision: 1.37 06.04.2001 $ */
+/* Revision: 1.38 09.04.2001 $ */
 
 /*
 Modify:
+  09.04.2001 SVS
+    - ChangeDir возвращает FALSE, если файловая панель была закрыта;
+      исправлен трап при переходе из файловой панели в network
+      Проверка на ChangeDir не везде введена, так что если будут трапы -
+      бум смотреть дальше...
   06.04.2001 SVS
     - забыли перерисовать панели после вызова диалога атрибутов по CtrlShiftF4
   04.04.2001 SVS
@@ -1391,8 +1396,12 @@ int FileList::ProcessKey(int Key)
       Show();
       return(TRUE);
     case KEY_CTRLPGUP:
-      ChangeDir("..");
-      Show();
+      /* $ 09.04.2001 SVS
+         Не перерисовываем, если ChangeDir закрыла панель
+      */
+      if(ChangeDir(".."))
+        Show();
+      /* SVS $ */
       return(TRUE);
     case KEY_CTRLPGDN:
       ProcessEnter(0,0);
@@ -1438,12 +1447,18 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
   strcpy(ShortFileName,*CurPtr->ShortName ? CurPtr->ShortName:CurPtr->Name);
   if (CurPtr->FileAttr & FA_DIREC)
   {
+    /* $ 09.04.2001 SVS
+       Не перерисовываем, если ChangeDir закрыла панель
+    */
+    BOOL res;
     if (PanelMode==PLUGIN_PANEL || strchr(CurPtr->Name,'?')==NULL ||
         *CurPtr->ShortName==0)
-      ChangeDir(CurPtr->Name);
+      res=ChangeDir(CurPtr->Name);
     else
-      ChangeDir(CurPtr->ShortName);
-    Show();
+      res=ChangeDir(CurPtr->ShortName);
+    if(res)
+      Show();
+    /* SVS $ */
   }
   else
   {
@@ -1528,7 +1543,7 @@ void FileList::SetCurDir(char *NewDir,int ClosePlugin)
 }
 
 
-void FileList::ChangeDir(char *NewDir)
+BOOL FileList::ChangeDir(char *NewDir)
 {
   Panel *AnotherPanel;
   char FindDir[NM],SetDir[NM];
@@ -1553,7 +1568,7 @@ void FileList::ChangeDir(char *NewDir)
     if (UpperFolder && *NullToEmpty(Info.CurDir)==0)
     {
       if (ProcessPluginEvent(FE_CLOSE,NULL))
-        return;
+        return(TRUE);
       PluginClosed=TRUE;
       strcpy(FindDir,NullToEmpty(Info.HostFile));
       if (*FindDir==0 && (Info.Flags & OPIF_REALNAMES) && CurFile<FileCount)
@@ -1600,14 +1615,14 @@ void FileList::ChangeDir(char *NewDir)
     }
     else
       CurFile=CurTopFile=0;
-    return;
+    return(TRUE);
   }
   else
   {
     char FullNewDir[NM];
 //    ConvertNameToFull(SetDir,FullNewDir, sizeof(FullNewDir));
     if (ConvertNameToFull(SetDir,FullNewDir, sizeof(FullNewDir)) >= sizeof(FullNewDir)){
-      return ;
+      return (TRUE);
     }
     if (LocalStricmp(FullNewDir,CurDir)!=0)
       CtrlObject->FolderHistory->AddToHistory(CurDir,NULL,0);
@@ -1641,7 +1656,7 @@ void FileList::ChangeDir(char *NewDir)
             if(CtrlObject->Plugins.CallPlugin(0x5774654E,OPEN_FILEPANEL,NewCurDir)) // NetWork Plugin :-)
             {
   //SysLog("2) SetDir=%s  NewCurDir=%s",SetDir,NewCurDir);
-              return;
+              return(FALSE);
             }
           }
         }
@@ -1689,6 +1704,7 @@ void FileList::ChangeDir(char *NewDir)
   }
   if (PanelMode==PLUGIN_PANEL)
     CtrlObject->RedrawKeyBar();
+  return(TRUE);
 }
 
 

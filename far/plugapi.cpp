@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.45 08.04.2001 $ */
+/* Revision: 1.46 09.04.2001 $ */
 
 /*
 Modify:
+  09.04.2001 SVS
+    ! Избавимся от некоторых варнингов
   08.04.2001 SVS
     ! Уточнение в FarShowHelp
   28.03.2001 SVS
@@ -214,6 +216,9 @@ BOOL WINAPI FarShowHelp(char *ModuleName, char *HelpTopic,DWORD Flags)
 /* $ 05.07.2000 IS
   Функция, которая будет действовать и в редакторе, и в панелях, и...
 */
+#ifndef _MSC_VER
+#pragma warn -par
+#endif
 int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
 {
  switch(Command)
@@ -336,6 +341,9 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
  }
  return FALSE;
 }
+#ifndef _MSC_VER
+#pragma warn +par
+#endif
 /* IS $ */
 
 int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
@@ -462,6 +470,9 @@ int WINAPI FarDialogFn(int PluginNumber,int X1,int Y1,int X2,int Y2,
    ! FarDialogItem.Data - копирование strcpy заменено на memmove
    (терялись данные пользователя)
 */
+#ifndef _MSC_VER
+#pragma warn -par
+#endif
 int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
            char *HelpTopic,struct FarDialogItem *Item,int ItemsNumber,
            DWORD Reserved, DWORD Flags,
@@ -514,6 +525,9 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
 //  CheckScreenLock();
   return(ExitCode);
 }
+#ifndef _MSC_VER
+#pragma warn +par
+#endif
 /* SVS 13.12.2000 $ */
 /* SVS $ */
 
