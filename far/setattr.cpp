@@ -5,10 +5,12 @@ setattr.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 14.08.2000 $ */
 
 /*
 Modify:
+  14.08.2000 KM
+    ! Изменена инициализация диалога с учётом возможностей Mask.
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
@@ -34,6 +36,18 @@ static int ESetFileTime(char *Name,FILETIME *LastWriteTime,
 void ShellSetFileAttributes(Panel *SrcPanel)
 {
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+
+  /* $ 14.08.2000 KM
+     Перменные перенесены сюда для установления маски в
+     Edit controls диалога. Добавлены в диалог маски ввода.
+  */
+  int DateSeparator=GetDateSeparator();
+  int TimeSeparator=GetTimeSeparator();
+  char DMask[20],TMask[20];
+
+  sprintf(DMask,"99%c99%c9999",DateSeparator,DateSeparator);
+  sprintf(TMask,"99%c99%c99",TimeSeparator,TimeSeparator);
+
   static struct DialogData AttrDlgData[]={
     DI_DOUBLEBOX,3,1,41,18,0,0,0,0,(char *)MSetAttrTitle,
     DI_TEXT,-1,2,0,0,0,0,0,0,(char *)MSetAttrFor,
@@ -48,14 +62,14 @@ void ShellSetFileAttributes(Panel *SrcPanel)
     DI_TEXT,6,11,0,0,0,0,DIF_BOXCOLOR,0,(char *)MSetAttrFileTime,
     DI_TEXT,21,11,0,0,0,0,0,0,"",
     DI_TEXT,5,12,0,0,0,0,0,0,(char *)MSetAttrModification,
-    DI_FIXEDIT,21,12,30,12,0,0,0,0,"",
-    DI_FIXEDIT,32,12,39,12,0,0,0,0,"",
+    DI_FIXEDIT,21,12,30,12,0,(int)DMask,DIF_MASKEDIT,0,"",
+    DI_FIXEDIT,32,12,39,12,0,(int)TMask,DIF_MASKEDIT,0,"",
     DI_TEXT,5,13,0,0,0,0,0,0,(char *)MSetAttrCreation,
-    DI_FIXEDIT,21,13,30,12,0,0,0,0,"",
-    DI_FIXEDIT,32,13,39,12,0,0,0,0,"",
+    DI_FIXEDIT,21,13,30,12,0,(int)DMask,DIF_MASKEDIT,0,"",
+    DI_FIXEDIT,32,13,39,12,0,(int)TMask,DIF_MASKEDIT,0,"",
     DI_TEXT,5,14,0,0,0,0,0,0,(char *)MSetAttrLastAccess,
-    DI_FIXEDIT,21,14,30,12,0,0,0,0,"",
-    DI_FIXEDIT,32,14,39,12,0,0,0,0,"",
+    DI_FIXEDIT,21,14,30,12,0,(int)DMask,DIF_MASKEDIT,0,"",
+    DI_FIXEDIT,32,14,39,12,0,(int)TMask,DIF_MASKEDIT,0,"",
     DI_BUTTON,21,15,0,0,0,0,0,0,(char *)MSetAttrCurrent,
     DI_TEXT,3,16,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
     DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP,1,(char *)MSetAttrSet,
@@ -84,19 +98,20 @@ void ShellSetFileAttributes(Panel *SrcPanel)
     DI_TEXT,6,13,0,0,0,0,DIF_BOXCOLOR,0,(char *)MSetAttrFileTime,
     DI_TEXT,21,13,0,0,0,0,0,0,"",
     DI_TEXT,5,14,0,0,0,0,0,0,(char *)MSetAttrModification,
-    DI_FIXEDIT,21,14,30,12,0,0,0,0,"",
-    DI_FIXEDIT,32,14,39,12,0,0,0,0,"",
+    DI_FIXEDIT,21,14,30,12,0,(int)DMask,DIF_MASKEDIT,0,"",
+    DI_FIXEDIT,32,14,39,12,0,(int)TMask,DIF_MASKEDIT,0,"",
     DI_TEXT,5,15,0,0,0,0,0,0,(char *)MSetAttrCreation,
-    DI_FIXEDIT,21,15,30,12,0,0,0,0,"",
-    DI_FIXEDIT,32,15,39,12,0,0,0,0,"",
+    DI_FIXEDIT,21,15,30,12,0,(int)DMask,DIF_MASKEDIT,0,"",
+    DI_FIXEDIT,32,15,39,12,0,(int)TMask,DIF_MASKEDIT,0,"",
     DI_TEXT,5,16,0,0,0,0,0,0,(char *)MSetAttrLastAccess,
-    DI_FIXEDIT,21,16,30,12,0,0,0,0,"",
-    DI_FIXEDIT,32,16,39,12,0,0,0,0,"",
+    DI_FIXEDIT,21,16,30,12,0,(int)DMask,DIF_MASKEDIT,0,"",
+    DI_FIXEDIT,32,16,39,12,0,(int)TMask,DIF_MASKEDIT,0,"",
     DI_BUTTON,21,17,0,0,0,0,0,0,(char *)MSetAttrCurrent,
     DI_TEXT,3,18,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
     DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,1,(char *)MSetAttrSet,
     DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
+  /* KM $ */
   MakeDialogItems(MultAttrDlgData,MultAttrDlg);
 
   char DateMask[100];
@@ -119,9 +134,6 @@ void ShellSetFileAttributes(Panel *SrcPanel)
         strcat(MultAttrDlg[13].Data,MSG(MSetAttrNTFSOnly));
       }
 
-
-  int DateSeparator=GetDateSeparator();
-  int TimeSeparator=GetTimeSeparator();
   switch(GetDateFormat())
   {
     case 0:

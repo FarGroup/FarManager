@@ -5,10 +5,17 @@ edit.cpp
 
 */
 
-/* Revision: 1.13 15.08.2000 $ */
+/* Revision: 1.14 21.08.2000 $ */
 
 /*
 Modify:
+   13.08.2000 KM
+    + Функция GetNextCursorPos - вычисляет положение курсора в строке
+      с учётом Mask.
+    + Функция RefreshStrByMask - обновляет содержимое строки на основании маски
+      ввода.
+    ! Общие изменения, добавившие возможность работать в строке
+      ввода по заданной маске, находящейся в переменной Mask.
    15.08.2000 SVS
     + У DropDowList`а выделение по полной программе - на всю видимую длину
    03.08.2000 KM
@@ -74,6 +81,12 @@ Edit::Edit()
   /* SVS $ */
   StrSize=0;
   *Str=0;
+  /* $ 12.08.2000 KM
+     Установим маску ввода и предыдущее положение курсора
+  */
+  Mask=NULL;
+  PrevCurPos=0;
+  /* KM $ */
   CurPos=0;
   CursorPos=0;
   ClearFlag=0;
@@ -113,6 +126,12 @@ Edit::~Edit()
 {
   if (ColorList!=NULL)
     delete ColorList;
+  /* $ 12.08.2000 KM
+     Если мы выделяли память под Mask, то её надо освободить.
+  */
+  if (Mask)
+    delete[] Mask;
+  /* KM $ */
   /* $ 13.07.2000 SVS
      запросы делали через malloc!
   */
@@ -136,6 +155,16 @@ void Edit::DisplayObject()
 
   if (EditOutDisabled)
     return;
+  /* $ 12.08.2000 KM
+     Вычисление нового положения курсора в строке с учётом Mask.
+  */
+  int Value;
+  if (PrevCurPos>CurPos)
+    Value=-1;
+  else
+    Value=1;
+  CurPos=GetNextCursorPos(CurPos,Value);
+  /* KM $ */
   FastShow();
   if (Overtype)
     SetCursorType(1,99);
@@ -150,6 +179,54 @@ void Edit::DisplayObject()
   MoveCursor(X1+CursorPos-LeftPos,Y1);
 }
 
+/* $ 12.08.2000 KM
+   Вычисление нового положения курсора в строке с учётом Mask.
+*/
+int Edit::GetNextCursorPos(int Position,int Where)
+{
+  int Result=Position;
+
+  if (Mask && *Mask && (Where==-1 || Where==1))
+  {
+    int i;
+    int PosChanged=FALSE;
+    int MaskLen=strlen(Mask);
+    for (i=Position;i<MaskLen && i>=0;i+=Where)
+    {
+      if (Mask[i]=='X' || Mask[i]=='9' || Mask[i]=='#' || Mask[i]=='A')
+      {
+        Result=i;
+        PosChanged=TRUE;
+        break;
+      }
+    }
+    if (!PosChanged)
+    {
+      for (i=Position;i>=0;i--)
+      {
+        if (Mask[i]=='X' || Mask[i]=='9' || Mask[i]=='#' || Mask[i]=='A')
+        {
+          Result=i;
+          PosChanged=TRUE;
+          break;
+        }
+      }
+    }
+    if (!PosChanged)
+    {
+      for (i=Position;i<MaskLen;i++)
+      {
+        if (Mask[i]=='X' || Mask[i]=='9' || Mask[i]=='#' || Mask[i]=='A')
+        {
+          Result=i;
+          break;
+        }
+      }
+    }
+  }
+  return Result;
+}
+/* KM $ */
 
 void Edit::FastShow()
 {
@@ -175,6 +252,15 @@ void Edit::FastShow()
   GotoXY(X1,Y1);
   int TabSelStart=(SelStart==-1) ? -1:RealPosToTab(SelStart);
   int TabSelEnd=(SelEnd<0) ? -1:RealPosToTab(SelEnd);
+
+  /* $ 17.08.2000 KM
+     Если есть маска, сделаем подготовку строки, то есть
+     все "постоянные" символы в маске, не являющиеся шаблонными
+     должны постоянно присутствовать в Str
+  */
+  if (Mask && *Mask)
+    RefreshStrByMask();
+  /* KM $ */
 
 #ifdef SHITHAPPENS
   ReplaceSpaces(0);
@@ -575,8 +661,13 @@ int Edit::ProcessKey(int Key)
       RecurseProcessKey(KEY_RIGHT);
       return(TRUE);
     case KEY_CTRLSHIFTLEFT:
+      /* $ 15.08.2000 KM */
       if (CurPos>StrSize)
+      {
+        PrevCurPos=CurPos;
         CurPos=StrSize;
+      }
+      /* KM $ */
       if (CurPos>0)
         RecurseProcessKey(KEY_SHIFTLEFT);
       /* $ 03.08.2000 SVS
@@ -586,8 +677,15 @@ int Edit::ProcessKey(int Key)
              strchr(Opt.WordDiv,Str[CurPos-1])!=NULL && !isspace(Str[CurPos])))
       /* SVS $ */
       {
-        if (!isspace(Str[CurPos]) && isspace(Str[CurPos-1]))
+        /* $ 18.08.2000 KM
+           Добавим выход из цикла проверив CurPos-1 на присутствие
+           в Opt.WordDiv.
+        */
+//        if (!isspace(Str[CurPos]) && isspace(Str[CurPos-1]))
+        if (!isspace(Str[CurPos]) && (isspace(Str[CurPos-1]) ||
+             strchr(Opt.WordDiv,Str[CurPos-1])))
           break;
+        /* KM $ */
         RecurseProcessKey(KEY_SHIFTLEFT);
       }
       Show();
@@ -603,8 +701,15 @@ int Edit::ProcessKey(int Key)
              strchr(Opt.WordDiv,Str[CurPos-1])==NULL))
       /* SVS $ */
       {
-        if (!isspace(Str[CurPos]) && isspace(Str[CurPos-1]))
+        /* $ 18.08.2000 KM
+           Добавим выход из цикла проверив CurPos-1 на присутствие
+           в Opt.WordDiv.
+        */
+//        if (!isspace(Str[CurPos]) && isspace(Str[CurPos-1]))
+        if (!isspace(Str[CurPos]) && (isspace(Str[CurPos-1]) ||
+             strchr(Opt.WordDiv,Str[CurPos-1])))
           break;
+        /* KM $ */
         RecurseProcessKey(KEY_SHIFTRIGHT);
         if (MaxLength!=-1 && CurPos==MaxLength-1)
           break;
@@ -628,6 +733,9 @@ int Edit::ProcessKey(int Key)
     case KEY_BS:
       if (CurPos<=0)
         return(FALSE);
+      /* $ 15.08.2000 KM */
+      PrevCurPos=CurPos;
+      /* KM $ */
       CurPos--;
       if (CurPos<=LeftPos)
       {
@@ -642,32 +750,53 @@ int Edit::ProcessKey(int Key)
     /* $ 03.07.2000 tran
        + KEY_SHIFTBS - удялем от курсора до начала строки */
     case KEY_SHIFTBS:
-      while (CurPos!=0)
+      /* $ 19.08.2000 KM
+         Немного изменён алгоритм удаления до начала строки.
+         Теперь удаление работает и с маской ввода.
+      */
+      int i;
+      for (i=CurPos;i>=0;i--)
         RecurseProcessKey(KEY_BS);
       Show();
       return(TRUE);
+      /* KM $ */
     /* tran 03.07.2000 $ */
 
     case KEY_CTRLBS:
+      /* $ 15.08.2000 KM */
       if (CurPos>StrSize)
+      {
+        PrevCurPos=CurPos;
         CurPos=StrSize;
+      }
+      /* KM $ */
       DisableEditOut(TRUE);
 //      while (CurPos>0 && isspace(Str[CurPos-1]))
 //        RecurseProcessKey(KEY_BS);
-      while (1)
+      /* $ 19.08.2000 KM
+         Поставим пока заглушку на удаление, если
+         используется маска ввода.
+      */
+      if (Mask && *Mask)
       {
-        int StopDelete=FALSE;
-        if (CurPos>1 && isspace(Str[CurPos-1])!=isspace(Str[CurPos-2]))
-          StopDelete=TRUE;
-        RecurseProcessKey(KEY_BS);
-        if (CurPos==0 || StopDelete)
-          break;
-        /* $ 03.08.2000 SVS
-          ! WordDiv -> Opt.WordDiv
-        */
-        if (strchr(Opt.WordDiv,Str[CurPos-1])!=NULL)
-          break;
-        /* SVS $ */
+      }
+      else
+      {
+        while (1)
+        {
+          int StopDelete=FALSE;
+          if (CurPos<StrSize-1 && isspace(Str[CurPos]) && !isspace(Str[CurPos+1]))
+            StopDelete=TRUE;
+          RecurseProcessKey(KEY_DEL);
+          if (CurPos>=StrSize || StopDelete)
+            break;
+          /* $ 03.08.2000 SVS
+            ! WordDiv -> Opt.WordDiv
+          */
+          if (strchr(Opt.WordDiv,Str[CurPos])!=NULL)
+            break;
+          /* SVS $*/
+        }
       }
       DisableEditOut(FALSE);
       Show();
@@ -720,6 +849,9 @@ int Edit::ProcessKey(int Key)
         return (TRUE);
       /* tran 03.07.2000 $ */
       /* tran 25.07.2000 $ */
+      /* $ 15.08.2000 KM */
+      PrevCurPos=CurPos;
+      /* KM $ */
       CurPos=0;
       *Str=0;
       StrSize=0;
@@ -755,11 +887,17 @@ int Edit::ProcessKey(int Key)
       return(TRUE);
     case KEY_HOME:
     case KEY_CTRLHOME:
+      /* $ 15.08.2000 KM */
+      PrevCurPos=CurPos;
+      /* KM $ */
       CurPos=0;
       Show();
       return(TRUE);
     case KEY_END:
     case KEY_CTRLEND:
+      /* $ 15.08.2000 KM */
+      PrevCurPos=CurPos;
+      /* KM $ */
       CurPos=StrSize;
       Show();
       return(TRUE);
@@ -767,12 +905,18 @@ int Edit::ProcessKey(int Key)
     case KEY_CTRLS:
       if (CurPos>0)
       {
+        /* $ 15.08.2000 KM */
+        PrevCurPos=CurPos;
+        /* KM $ */
         CurPos--;
         Show();
       }
       return(TRUE);
     case KEY_RIGHT:
     case KEY_CTRLD:
+      /* $ 15.08.2000 KM */
+      PrevCurPos=CurPos;
+      /* KM $ */
       CurPos++;
       Show();
       return(TRUE);
@@ -803,12 +947,38 @@ int Edit::ProcessKey(int Key)
           SelEnd=0;
         }
       }
-      memmove(Str+CurPos,Str+CurPos+1,StrSize-CurPos);
-      StrSize--;
-      Str=(char *)realloc(Str,StrSize+1);
+      /* $ 16.08.2000 KM
+         Работа с маской.
+      */
+      if (Mask && *Mask)
+      {
+        int MaskLen=strlen(Mask);
+        int i,j;
+        for (i=CurPos,j=CurPos;i<MaskLen;i++)
+        {
+          if (Mask[i+1]=='X' || Mask[i+1]=='9' || Mask[i+1]=='#' || Mask[i+1]=='A')
+          {
+            while(Mask[j]!='X' && Mask[j]!='9' && Mask[j]!='#' && Mask[j]!='A' && j<MaskLen)
+              j++;
+            Str[j]=Str[i+1];
+            j++;
+          }
+        }
+        Str[j]=' ';
+      }
+      else
+      {
+        memmove(Str+CurPos,Str+CurPos+1,StrSize-CurPos);
+        StrSize--;
+        Str=(char *)realloc(Str,StrSize+1);
+      }
+      /* KM $ */
       Show();
       return(TRUE);
     case KEY_CTRLLEFT:
+      /* $ 15.08.2000 KM */
+      PrevCurPos=CurPos;
+      /* KM $ */
       if (CurPos>StrSize)
         CurPos=StrSize;
       if (CurPos>0)
@@ -829,6 +999,9 @@ int Edit::ProcessKey(int Key)
     case KEY_CTRLRIGHT:
       if (CurPos>=StrSize)
         return(FALSE);
+      /* $ 15.08.2000 KM */
+      PrevCurPos=CurPos;
+      /* KM $ */
       CurPos++;
       /* $ 03.08.2000 SVS
         ! WordDiv -> Opt.WordDiv
@@ -903,6 +1076,9 @@ int Edit::ProcessKey(int Key)
         int Size=CurPos % Opt.TabSize;
         if (Size==0 && CurPos!=0)
           Size=Opt.TabSize;
+        /* $ 15.08.2000 KM */
+        PrevCurPos=CurPos;
+        /* KM $ */
         CurPos-=Size;
         Show();
       }
@@ -941,38 +1117,94 @@ int Edit::InsertKey(int Key)
   if ( DropDownBox || ReadOnly )
     return (TRUE);
   /* tran 03.07.2000 $ */
+  /* $ 15.08.2000 KM
+     Работа с маской ввода.
+  */
   if (Key==KEY_TAB && Overtype)
   {
+    PrevCurPos=CurPos;
     CurPos+=Opt.TabSize - (CurPos % Opt.TabSize);
     return(TRUE);
   }
-  if (CurPos>=StrSize)
+  if (Mask && *Mask)
   {
-    if ((NewStr=(char *)realloc(Str,CurPos+2))==NULL)
-      return(FALSE);
-    Str=NewStr;
-    sprintf(&Str[StrSize],"%*s",CurPos-StrSize,"");
-    StrSize=CurPos+1;
-  }
-  else
-    if (!Overtype)
-      StrSize++;
-  if ((NewStr=(char *)realloc(Str,StrSize+1))==NULL)
-    return(TRUE);
-  Str=NewStr;
-
-  if (!Overtype)
-  {
-    memmove(Str+CurPos+1,Str+CurPos,StrSize-CurPos);
-    if (SelStart!=-1)
+    int MaskLen=strlen(Mask);
+    if (CurPos<MaskLen)
     {
-      if (SelEnd!=-1 && CurPos<SelEnd)
-        SelEnd++;
-      if (CurPos<SelStart)
-        SelStart++;
+      int Inserted=FALSE;
+      if (Mask[CurPos]=='X')
+        Inserted=TRUE;
+      else if (Mask[CurPos]=='#' && (isdigit(Key) || Key==' ' || Key=='-'))
+        Inserted=TRUE;
+      else if (Mask[CurPos]=='9' && isdigit(Key))
+        Inserted=TRUE;
+      else if (Mask[CurPos]=='A' && LocalIsalpha(Key))
+        Inserted=TRUE;
+      if (Inserted)
+      {
+        if (!Overtype)
+        {
+          int i=MaskLen-1;
+          while(Mask[i]!='X' && Mask[i]!='9' && Mask[i]!='#' && Mask[i]!='A' && i>CurPos)
+            i--;
+
+          for (int j=i;i>CurPos;i--)
+          {
+            if (Mask[i]=='X' || Mask[i]=='9' || Mask[i]=='#' || Mask[i]=='A')
+            {
+              while(Mask[j-1]!='X' && Mask[j-1]!='9' && Mask[j-1]!='#' && Mask[j-1]!='A')
+              {
+                if (j<=CurPos)
+                  continue;
+                j--;
+              }
+              Str[i]=Str[j-1];
+              j--;
+            }
+          }
+        }
+        PrevCurPos=CurPos;
+        Str[CurPos++]=Key;
+      }
+    }
+    else if (CurPos<StrSize)
+    {
+      PrevCurPos=CurPos;
+      Str[CurPos++]=Key;
     }
   }
-  Str[CurPos++]=Key;
+  else
+  {
+    if (CurPos>=StrSize)
+    {
+      if ((NewStr=(char *)realloc(Str,CurPos+2))==NULL)
+        return(FALSE);
+      Str=NewStr;
+      sprintf(&Str[StrSize],"%*s",CurPos-StrSize,"");
+      StrSize=CurPos+1;
+    }
+    else
+      if (!Overtype)
+        StrSize++;
+    if ((NewStr=(char *)realloc(Str,StrSize+1))==NULL)
+      return(TRUE);
+    Str=NewStr;
+
+    if (!Overtype)
+    {
+      memmove(Str+CurPos+1,Str+CurPos,StrSize-CurPos);
+      if (SelStart!=-1)
+      {
+        if (SelEnd!=-1 && CurPos<SelEnd)
+          SelEnd++;
+        if (CurPos<SelStart)
+          SelStart++;
+      }
+    }
+    PrevCurPos=CurPos;
+    Str[CurPos++]=Key;
+  }
+  /* KM $ */
   Str[StrSize]=0;
   return(TRUE);
 }
@@ -1065,16 +1297,38 @@ void Edit::SetBinaryString(char *Str,int Length)
       }
       else
         EndType=EOL_NONE;
-  char *NewStr=(char *)realloc(Edit::Str,Length+1);
-  if (NewStr==NULL)
-    return;
-  Edit::Str=NewStr;
-  StrSize=Length;
-  memcpy(Edit::Str,Str,Length);
-  Edit::Str[Length]=0;
-  if (ConvertTabs)
-    ReplaceTabs();
-  CurPos=StrSize;
+  /* $ 15.08.2000 KM
+     Работа с маской
+  */
+  if (Mask && *Mask)
+  {
+    RefreshStrByMask();
+    for (int i=0;i<strlen(Mask);i++)
+    {
+      if (Mask[i]=='X' || Mask[i]=='9' || Mask[i]=='#' || Mask[i]=='A')
+        InsertKey(Str[i]);
+      else
+      {
+        PrevCurPos=CurPos;
+        CurPos++;
+      }
+    }
+  }
+  else
+  {
+    char *NewStr=(char *)realloc(Edit::Str,Length+1);
+    if (NewStr==NULL)
+      return;
+    Edit::Str=NewStr;
+    StrSize=Length;
+    memcpy(Edit::Str,Str,Length);
+    Edit::Str[Length]=0;
+    if (ConvertTabs)
+      ReplaceTabs();
+    PrevCurPos=CurPos;
+    CurPos=StrSize;
+  }
+  /* KM $ */
 }
 
 
@@ -1150,35 +1404,68 @@ void Edit::InsertBinaryString(char *Str,int Length)
 
   ClearFlag=0;
 
-  if (CurPos>StrSize)
+  /* $ 18.08.2000 KM
+     Обслуживание маски ввода.
+  */
+  if (Mask && *Mask)
   {
-    if ((NewStr=(char *)realloc(Edit::Str,CurPos+1))==NULL)
+    RefreshStrByMask();
+    int Pos=CurPos;
+    int MaskLen=strlen(Mask);
+    if (Pos<MaskLen)
+    {
+      int StrLen=(MaskLen-Pos>Length)?Length:MaskLen-Pos;
+      for (int i=Pos,j=0;i<StrLen+Pos;i++)
+      {
+        if (Mask[i]=='X' || Mask[i]=='9' || Mask[i]=='#' || Mask[i]=='A')
+        {
+          InsertKey(Str[j]);
+          j++;
+        }
+        else
+        {
+          PrevCurPos=CurPos;
+          CurPos++;
+        }
+      }
+    }
+  }
+  else
+  {
+    if (CurPos>StrSize)
+    {
+      if ((NewStr=(char *)realloc(Edit::Str,CurPos+1))==NULL)
+        return;
+      Edit::Str=NewStr;
+      sprintf(&Edit::Str[StrSize],"%*s",CurPos-StrSize,"");
+      StrSize=CurPos;
+    }
+
+    int TmpSize=StrSize-CurPos;
+    char *TmpStr=new char[TmpSize];
+    memcpy(TmpStr,&Edit::Str[CurPos],TmpSize);
+
+    StrSize+=Length;
+    if ((NewStr=(char *)realloc(Edit::Str,StrSize+1))==NULL)
       return;
     Edit::Str=NewStr;
-    sprintf(&Edit::Str[StrSize],"%*s",CurPos-StrSize,"");
-    StrSize=CurPos;
+    memcpy(&Edit::Str[CurPos],Str,Length);
+    /* $ 15.08.2000 KM */
+    PrevCurPos=CurPos;
+    /* KM $ */
+    CurPos+=Length;
+    memcpy(Edit::Str+CurPos,TmpStr,TmpSize);
+    Edit::Str[StrSize]=0;
+    /* $ 13.07.2000 SVS
+       раз уж вызывали через new[]...
+    */
+    delete[] TmpStr;
+    /* SVS $*/
+
+    if (ConvertTabs)
+      ReplaceTabs();
   }
-
-  int TmpSize=StrSize-CurPos;
-  char *TmpStr=new char[TmpSize];
-  memcpy(TmpStr,&Edit::Str[CurPos],TmpSize);
-
-  StrSize+=Length;
-  if ((NewStr=(char *)realloc(Edit::Str,StrSize+1))==NULL)
-    return;
-  Edit::Str=NewStr;
-  memcpy(&Edit::Str[CurPos],Str,Length);
-  CurPos+=Length;
-  memcpy(Edit::Str+CurPos,TmpStr,TmpSize);
-  Edit::Str[StrSize]=0;
-  /* $ 13.07.2000 SVS
-     раз уж вызывали через new[]...
-  */
-  delete[] TmpStr;
-  /* SVS $*/
-
-  if (ConvertTabs)
-    ReplaceTabs();
+  /* KM $ */
 }
 
 
@@ -1187,6 +1474,53 @@ int Edit::GetLength()
   return(StrSize);
 }
 
+
+/* $ 12.08.2000 KM */
+// Функция установки маски ввода в объект Edit
+void Edit::SetInputMask(char *InputMask)
+{
+  if (Mask)
+    delete[] Mask;
+  if (InputMask && *InputMask)
+  {
+    int MaskLen=strlen(InputMask);
+    Mask=new char[MaskLen+1];
+    if (Mask==NULL)
+      return;
+    strcpy(Mask,InputMask);
+    RefreshStrByMask();
+  }
+  else
+    Mask=NULL;
+}
+
+
+// Функция обновления состояния строки ввода по содержимому Mask
+void Edit::RefreshStrByMask()
+{
+  int i;
+  if (Mask && *Mask)
+  {
+    int MaskLen=strlen(Mask);
+    if (StrSize<MaskLen)
+    {
+      char *NewStr=(char *)realloc(Str,MaskLen+1);
+      if (NewStr==NULL)
+        return;
+      Str=NewStr;
+      for (i=StrSize;i<MaskLen;i++)
+        Str[i]=' ';
+      StrSize=MaskLen;
+      Str[StrSize]=0;
+    }
+    for (i=0;i<MaskLen;i++)
+    {
+      if (Mask[i]!='X' && Mask[i]!='9' && Mask[i]!='#' && Mask[i]!='A')
+        Str[i]=Mask[i];
+    }
+  }
+}
+/* KM $ */
 
 int Edit::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
@@ -1474,14 +1808,30 @@ void Edit::DeleteBlock()
 
   if (SelStart==-1 || SelStart>=SelEnd)
     return;
-  memmove(Str+SelStart,Str+SelEnd,StrSize-SelEnd+1);
-  StrSize-=SelEnd-SelStart;
-  if (CurPos>SelStart)
-    if (CurPos<SelEnd)
-      CurPos=SelStart;
-    else
-      CurPos-=SelEnd-SelStart;
-  Str=(char *)realloc(Str,StrSize+1);
+  /* $ 15.08.2000 KM
+     Учёт Mask
+  */
+  PrevCurPos=CurPos;
+  if (Mask && *Mask)
+  {
+    for (int i=SelStart;i<SelEnd;i++)
+    {
+      if (Mask[i]=='X' || Mask[i]=='9' || Mask[i]=='#' || Mask[i]=='A')
+        Str[i]=' ';
+    }
+  }
+  else
+  {
+    memmove(Str+SelStart,Str+SelEnd,StrSize-SelEnd+1);
+    StrSize-=SelEnd-SelStart;
+    if (CurPos>SelStart)
+      if (CurPos<SelEnd)
+        CurPos=SelStart;
+      else
+        CurPos-=SelEnd-SelStart;
+    Str=(char *)realloc(Str,StrSize+1);
+  }
+  /* KM $ */
   SelStart=-1;
   MarkingBlock=FALSE;
 }

@@ -7,10 +7,16 @@ edit.hpp
 
 */
 
-/* Revision: 1.05 03.08.2000 $ */
+/* Revision: 1.06 21.08.2000 $ */
 
 /*
 Modify:
+  12.08.2000 KM 1.06
+    + Новые функции SetInputMask и GetInputMask для установки и получения маски ввода.
+    + Новая переменная Mask, которая хранит маску ввода для данного объекта Edit.
+    + Новая функция GetNextCursorPos, вычисляющая следующее положение курсора
+      в строке ввода с учётом Mask.
+    + Новая функция RefreshStrByMask.
   03.08.2000 KM
     ! Изменены входные параметры функции Search - добавлен параметр int WholeWords.
     ! Добавление в поиск функциональности нахождения целых слов
@@ -41,12 +47,29 @@ class Edit:public ScreenObject
     int    RecurseProcessKey(int Key);
     void   DeleteBlock();
     void   ApplyColor();
+    /* $ 12.08.2000 KM
+       Внутренняя функция которая парсит Mask и возвращает
+       следующее возможное положение курсора в строке ввода,
+       + функция обновляющая содержимое Str на основании Mask.
+    */
+    int    GetNextCursorPos(int Position,int Where);
+    void   RefreshStrByMask();
+    /* KM $ */
     char  *Str;
+    /* $ 12.08.2000 KM
+       Переменная для хранения маски ввода
+    */
+    char  *Mask;
+    /* KM $ */
     struct CharTableSet *TableSet;
     struct ColorItem *ColorList;
     int    ColorCount;
     int    StrSize;
-    int    CurPos;
+    /* $ 12.08.2000 KM
+       Добавлена переменная для хранения предыдущего положения курсора
+    */
+    int    CurPos,PrevCurPos;
+    /* KM $ */
     /* $ 28.07.2000 SVS
       + ColorUnChanged (для диалога)
     */
@@ -102,7 +125,7 @@ class Edit:public ScreenObject
     int   Search(char *Str,int Position,int Case,int WholeWords,int Reverse);
     /* KM $ */
     void  SetClearFlag(int Flag) {ClearFlag=Flag;}
-    void  SetCurPos(int NewPos) {CurPos=NewPos;}
+    void  SetCurPos(int NewPos) {CurPos=NewPos;PrevCurPos=NewPos;}
     int   GetCurPos() {return(CurPos);}
     int   GetTabCurPos();
     int   GetLeftPos() {return(LeftPos);}
@@ -115,6 +138,12 @@ class Edit:public ScreenObject
     */
     int   GetMaxLength() {return MaxLength;};
     /* SVS $ */
+    /* $ 12.08.2000 KM
+       Функции установки и получения маски ввода
+    */
+    void  SetInputMask(char *InputMask);
+    char* GetInputMask() {return Mask;}
+    /* KM $ */
     void  SetOvertypeMode(int Mode) {Overtype=Mode;};
     int   GetOvertypeMode() {return(Overtype);};
     void  SetConvertTabs(int Mode) {ConvertTabs=Mode;};

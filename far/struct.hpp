@@ -7,10 +7,13 @@ struct.hpp
 
 */
 
-/* Revision: 1.09 18.08.2000 $ */
+/* Revision: 1.09 21.08.2000 $ */
 
 /*
 Modify:
+  12.08.2000 KM 1.09
+    ! В структурах DialogItem и DialogData новое поле, включенное
+      в union, char *Mask.
   18.08.2000 SVS
     ! struct FarListItems -> struct FarList, а то совсем запутался :-)
   03.08.2000 SVS
@@ -256,6 +259,7 @@ struct EditorUndoData
   union {
     unsigned int Selected;
     char *History;
+    char *Mask;
     struct FarList *ListItems;
   } Addons;
 
@@ -265,6 +269,9 @@ struct EditorUndoData
 Описывает один элемент диалога - внутренне представление.
 Для плагинов это FarDialogItem (за исключением ObjPtr)
 */
+/* $ 12.08.2000 KM
+   Дополнительное поле, содержащее маску ввода
+*/
 struct DialogItem
 {
   unsigned char Type;
@@ -273,6 +280,7 @@ struct DialogItem
   union {
     unsigned int Selected;
     char *History;
+    char *Mask;
     struct FarList *ListItems;
   };
   unsigned int Flags;
@@ -295,6 +303,7 @@ struct DialogData
   union {
     unsigned int Selected;
     char *History;
+    char *Mask;
     struct FarList *ListItems;
   };
   int Flags;
@@ -302,6 +311,7 @@ struct DialogData
   char *Data;
 };
 /* SVS $*/
+/* KM $*/
 
 // for class FileList
 struct FileListItem

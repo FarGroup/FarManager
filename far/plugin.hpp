@@ -6,10 +6,14 @@
   Plugin API for FAR Manager 1.70
 
 */
-/* Revision: 1.21 17.08.2000 $ */
+/* Revision: 1.22 21.08.2000 $ */
 
 /*
 Modify:
+  12.08.2000 KM 1.22
+    + DIF_MASKEDIT - новый флаг, реализующий функциональность ввода
+      по маске в строках ввода.
+    ! В структуре FarDialogItem новое поле, включенное в union, char *Mask
   17.08.2000 SVS
     ! struct FarListItems -> struct FarList, а то совсем запутался :-)
     + Сообщения диалога: DMSG_ENABLEREDRAW, DMSG_MOUSECLICK,
@@ -264,6 +268,11 @@ enum DialogItemTypes {
 };
 /* 28.07.2000 SVS $*/
 
+/* $ 12.08.2000 KM
+   Новый флаг DIF_MASKEDIT, который добавляет
+   в строку ввода возможность ввода данных по
+   заданной маске.
+*/
 enum FarDialogItemFlags {
   DIF_COLORMASK       =    0xff,
   DIF_SETCOLOR        =   0x100,
@@ -290,7 +299,9 @@ enum FarDialogItemFlags {
 */
   DIF_BTNNOCLOSE      = 0x40000,
 /* SVS $ */
+  DIF_MASKEDIT        =0x400000,
 };
+/* KM $ */
 /* SVS $ */
 
 
@@ -361,6 +372,11 @@ struct FarList
 /* SVS $ */
 
 
+/* $ 12.08.2000 KM
+   Добавлено поле char *Mask в union, в котором
+   будет содержаться маска ввода, если тип будет
+   DI_FIXEDIT и флаг будет DIF_MASKEDIT
+*/
 struct FarDialogItem
 {
   int Type;
@@ -369,12 +385,14 @@ struct FarDialogItem
   union {
     int Selected;
     char *History;
+    char *Mask;
     struct FarList *ListItems;
   };
   unsigned int Flags;
   int DefaultButton;
   char Data[512];
 };
+/* KM $ */
 
 struct FarMenuItem
 {

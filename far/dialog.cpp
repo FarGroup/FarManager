@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.21 18.08.2000 $ */
+/* Revision: 1.22 21.08.2000 $ */
 
 /*
 Modify:
+  12.08.2000 KM 1.20
+   + Добавление работы DI_FIXEDIT с флагом DIF_MASKEDIT для установки
+     маски в строку ввода.
   18.08.2000 SVS
    + DialogMode - Флаги текущего режима диалога
    + Флаг IsEnableRedraw - разрешающий/запрещающий перерисовку диалога
@@ -469,6 +472,14 @@ int Dialog::InitDialogObjects()
         //   ай-ай - было недокументированно :-)
         DialogEdit->SetMaxLength(CurItem->X2-CurItem->X1+1);
         DialogEdit->SetOvertypeMode(TRUE);
+        /* $ 12.08.2000 KM
+           Если тип строки ввода DI_FIXEDIT и установлен флаг DIF_MASKEDIT
+           и непустой параметр CurItem->Mask, то вызываем новую функцию
+           для установки маски в объект Edit.
+        */
+        if ((CurItem->Flags & DIF_MASKEDIT) && CurItem->Mask && *CurItem->Mask)
+          DialogEdit->SetInputMask(CurItem->Mask);
+        /* KM $ */
       }
       else
         // "мини-редактор"
