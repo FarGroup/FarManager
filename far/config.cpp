@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.42 07.01.2001 $ */
+/* Revision: 1.43 17.01.2001 $ */
 
 /*
 Modify:
+  17.01.2001 SVS
+    ! Opt.ShiftsKeyRules
   07.01.2001 SVS
     ! Opt.EditorReadOnlyLock = 2, т.е. выдавать предупреждение.
   16.12.2000 IS
@@ -732,6 +734,15 @@ void ReadConfig()
        дабы не шокировать публику :-)
   */
   GetRegKey("Interface","AutoComplete",Opt.AutoComplete,0);
+  /* SVS $*/
+  /* $ 17.01.2001 SVS
+     ! Opt.ShiftsKeyRules
+     1 - использовать усовершенствованный механизм обработки клавиш
+         "`-=[]\;',./" (см. ниже). Alt-НеЛатинскийСимвол будет
+         транслироваться в Alt-ЛатинскийСимвол (кроме быстрого поиска),
+     0 - использовать механизм, совместимый с FAR версии 1.70 beta 2 и ниже.
+  */
+  GetRegKey("Interface","ShiftsKeyRules",Opt.ShiftsKeyRules,1);
   /* SVS $*/
 
   GetRegKey("Viewer","ExternalViewerName",Opt.ExternalViewer,"",sizeof(Opt.ExternalViewer));

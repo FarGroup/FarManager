@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.12 09.01.2001 $ */
+/* Revision: 1.13 17.01.2001 $ */
 
 /*
 Modify:
+  17.01.2001 SVS
+    - Вернем обратно предыдущее изменение в связи с очередным уточнением клавиш
   09.01.2001 SVS
     - Для преобразования (Key>=KEY_F1 && Key<=KEY_F12) в индекс массива
       нужно сдвинуть результат (Key-KEY_F1) на 8 вправо.
@@ -483,7 +485,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
           if (Key>=KEY_F1 && Key<=KEY_F12)
           {
             int FuncItemPos;
-            if ((FuncItemPos=FuncPos[(Key-KEY_F1)>>8])!=-1)
+            if ((FuncItemPos=FuncPos[Key-KEY_F1])!=-1)
             {
               UserMenu.SetExitCode(FuncItemPos);
               continue;

@@ -7,10 +7,13 @@ keys.hpp
 
 */
 
-/* Revision: 1.07 04.01.2001 $ */
+/* Revision: 1.08 17.01.2001 $ */
 
 /*
 Modify:
+  17.01.2001 SVS
+    + KEY_COLON = ':'
+    ! Новая переделка (не пинать ногами).
   04.01.2001 SVS
     ! Полная переделка раскладки :-)
   26.12.2000 SVS
@@ -66,6 +69,7 @@ enum BaseDefKeyboard
   KEY_QUOTE                ='"',
   KEY_DOT                  ='.',
   KEY_SLASH                ='/',
+  KEY_COLON                =':',
   KEY_BACKSLASH            ='\\',
 
   KEY_BS                   =0x00000008,
@@ -74,62 +78,64 @@ enum BaseDefKeyboard
   KEY_ESC                  =0x0000001B,
   KEY_SPACE                =0x00000020,
 
-  KEY_MASKF                =0x0000FF00,
-  KEY_F1                   =0x00000100,
-  KEY_F2                   =0x00000200,
-  KEY_F3                   =0x00000300,
-  KEY_F4                   =0x00000400,
-  KEY_F5                   =0x00000500,
-  KEY_F6                   =0x00000600,
-  KEY_F7                   =0x00000700,
-  KEY_F8                   =0x00000800,
-  KEY_F9                   =0x00000900,
-  KEY_F10                  =0x00000A00,
-  KEY_F11                  =0x00000B00,
-  KEY_F12                  =0x00000C00,
+  KEY_MASKF                =0x00000FFF,
 
-  KEY_HOME                 =0x00000D00,
-  KEY_UP                   =0x00000E00,
-  KEY_PGUP                 =0x00000F00,
-  KEY_LEFT                 =0x00001000,
-  KEY_NUMPAD5              =0x00001100,
-  KEY_RIGHT                =0x00001200,
-  KEY_END                  =0x00001300,
-  KEY_DOWN                 =0x00001400,
-  KEY_PGDN                 =0x00001500,
-  KEY_INS                  =0x00001600,
-  KEY_DEL                  =0x00001700,
+  KEY_BREAK                =0x00000103,
 
-  KEY_LWIN                 =0x00001800,
-  KEY_RWIN                 =0x00001900,
-  KEY_APPS                 =0x00001A00,
+  KEY_PGUP                 =0x00000121,
+  KEY_PGDN                 =0x00000122,
+  KEY_END                  =0x00000123,
+  KEY_HOME                 =0x00000124,
+  KEY_LEFT                 =0x00000125,
+  KEY_UP                   =0x00000126,
+  KEY_RIGHT                =0x00000127,
+  KEY_DOWN                 =0x00000128,
+  KEY_INS                  =0x0000012D,
+  KEY_DEL                  =0x0000012E,
 
-  KEY_ADD                  =0x00001B00,
-  KEY_SUBTRACT             =0x00001C00,
-  KEY_MULTIPLY             =0x00001D00,
-  KEY_DIVIDE               =0x00001E00,
-  KEY_BREAK                =0x00001F00,
+  KEY_LWIN                 =0x0000015B,
+  KEY_RWIN                 =0x0000015C,
+  KEY_APPS                 =0x0000015D,
+
+  KEY_NUMPAD5              =0x00000165,
   KEY_CLEAR                =KEY_NUMPAD5,
 
-  KEY_CTRLALTSHIFTPRESS    =0x00002100,
-  KEY_CTRLALTSHIFTRELEASE  =0x00002200,
+  KEY_MULTIPLY             =0x0000016A,
+  KEY_ADD                  =0x0000016B,
+  KEY_SUBTRACT             =0x0000016D,
+  KEY_DIVIDE               =0x0000016F,
 
-  KEY_END_FKEY             =0x0000FF00,
+  KEY_F1                   =0x00000170,
+  KEY_F2                   =0x00000171,
+  KEY_F3                   =0x00000172,
+  KEY_F4                   =0x00000173,
+  KEY_F5                   =0x00000174,
+  KEY_F6                   =0x00000175,
+  KEY_F7                   =0x00000176,
+  KEY_F8                   =0x00000177,
+  KEY_F9                   =0x00000178,
+  KEY_F10                  =0x00000179,
+  KEY_F11                  =0x0000017A,
+  KEY_F12                  =0x0000017B,
 
-  KEY_NONE                 =0x00010000,
-  KEY_IDLE                 =0x00020000,
-  KEY_DRAGCOPY             =0x00030000,
-  KEY_DRAGMOVE             =0x00040000,
-  KEY_LOCKSCREEN           =0x00050000,
+  KEY_CTRLALTSHIFTPRESS    =0x00000201,
+  KEY_CTRLALTSHIFTRELEASE  =0x00000202,
 
-  KEY_END_SKEY             =0x000F0000,
+  KEY_END_FKEY             =0x00000FFF,
+
+  KEY_NONE                 =0x00001001,
+  KEY_IDLE                 =0x00001002,
+  KEY_DRAGCOPY             =0x00001003,
+  KEY_DRAGMOVE             =0x00001004,
+  KEY_LOCKSCREEN           =0x00001005,
+
+  KEY_END_SKEY             =0x0000FFFF,
   KEY_LAST_BASE            =KEY_END_SKEY,
 
-  //
-  KEY_MACRO_BASE           =0x00800000,
-  // сюды писать обобщенные макро-команды,
-  // которые доступны в других модулях
 
+  // сюды писать обобщенные макро-команды, которые доступны в других модулях
+  KEY_MACRO_BASE           =0x00800000,
+  //
   KEY_MACRODAY,
   KEY_MACROMONTH,
   KEY_MACROYEAR,
@@ -138,13 +144,9 @@ enum BaseDefKeyboard
   KEY_MACROMIN,
   KEY_MACROSEC,
 
-  KEY_LAST_MACRO_BASE,
-  KEY_MACROSPEC_BASE       =KEY_LAST_MACRO_BASE+1,
+  KEY_MACROSPEC_BASE       =0x00C00000,
   // отсюда начинаются коды специализированных макро-кодов,
   // объявленных в macro.cpp
-  // на все про все - 256 кодов
-
-  END_FARKEY_BASE          =KEY_MACROSPEC_BASE+256,
 };
 
 enum AddDefKeyboard

@@ -5,10 +5,13 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.05 09.01.2001 $ */
+/* Revision: 1.06 17.01.2001 $ */
 
 /*
 Modify:
+  17.01.2001 SVS
+    + Opt.ShiftsKeyRules - Правило на счет выбора механизма трансляции
+      Alt-Буква для нелатинским буковок
   09.01.2001 SVS
     ! Грабер должен быть раньше Alt-Number-ввода
   05.01.2001 SVS
@@ -136,6 +139,7 @@ static struct TFKey3 FKeys1[]={
   { KEY_BACKBRACKET,          1, "]"},
   { KEY_COMMA,                1, ","},
   { KEY_QUOTE,                1, "\""},
+  { KEY_COLON,                1, ":"},
   { KEY_DOT,                  1, "."},
   { KEY_SLASH,                1, "/"},
 };
@@ -511,11 +515,10 @@ int GetInputRecord(INPUT_RECORD *rec)
   }
   if (ReadKey!=0 && !GrayKey)
     CalcKey=ReadKey;
-//SysLog("2) CalcKey=0x%08X",CalcKey);
 
   if (CtrlObject!=NULL && CtrlObject->Macro.ProcessKey(CalcKey))
     CalcKey=KEY_NONE;
-//SysLog("3) CalcKey=0x%08X\n",CalcKey);
+
   return(CalcKey);
 }
 
@@ -617,13 +620,16 @@ int WINAPI KeyNameToKey(char *Name)
 {
    if(!Name || !*Name)
      return -1;
+   DWORD Key=0;
 
    // Это макроклавиша?
    if(Name[0] == '$' && Name[1])
      return KeyNameMacroToKey(Name);
+//   if((Key=KeyNameMacroToKey(Name)) != (DWORD)-1)
+//     return Key;
 
    int I, Pos, Len=strlen(Name);
-   DWORD Key=0;
+   Key=0;
 
    // пройдемся по всем модификаторам
    for(Pos=I=0; Pos < Len && I < sizeof(ModifKeyName)/sizeof(ModifKeyName[0]); ++I)
@@ -838,7 +844,8 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey)
         (ShiftPressed?KEY_SHIFT:0);
 
   if (KeyCode>=VK_F1 && KeyCode<=VK_F12)
-    return(Modif+KEY_F1+((KeyCode-VK_F1)<<8));
+//    return(Modif+KEY_F1+((KeyCode-VK_F1)<<8));
+    return(Modif+KEY_F1+((KeyCode-VK_F1)));
 
   int NotShift=!CtrlPressed && !AltPressed && !ShiftPressed;
 
@@ -866,108 +873,134 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey)
       }
   }
 
-//  if(CtrlPressed || AltPressed || ShiftPressed)
+  /* ------------------------------------------------------------- */
+  switch(KeyCode)
   {
-    switch(KeyCode)
-    {
-      case VK_INSERT:
-      case VK_NUMPAD0:
-        if (NotShift && KeyCode == VK_NUMPAD0)
-          return '0';
-        return(Modif|KEY_INS);
-      case VK_DOWN:
-      case VK_NUMPAD2:
-        if (NotShift && KeyCode == VK_NUMPAD2)
-          return '2';
-        return(Modif|KEY_DOWN);
-      case VK_LEFT:
-      case VK_NUMPAD4:
-        if (NotShift && KeyCode == VK_NUMPAD4)
-          return '4';
-        return(Modif|KEY_LEFT);
-      case VK_RIGHT:
-      case VK_NUMPAD6:
-        if (NotShift && KeyCode == VK_NUMPAD6)
-          return '6';
-        return(Modif|KEY_RIGHT);
-      case VK_UP:
-      case VK_NUMPAD8:
-        if (NotShift && KeyCode == VK_NUMPAD8)
-          return '8';
-        return(Modif|KEY_UP);
-      case VK_END:
-      case VK_NUMPAD1:
-        if (NotShift && KeyCode == VK_NUMPAD1)
-          return '1';
-        return(Modif|KEY_END);
-      case VK_HOME:
-      case VK_NUMPAD7:
-        if (NotShift && KeyCode == VK_NUMPAD7)
-          return '7';
-        return(Modif|KEY_HOME);
-      case VK_NEXT:
-      case VK_NUMPAD3:
-        if (NotShift && KeyCode == VK_NUMPAD3)
-          return '3';
-        return(Modif|KEY_PGDN);
-      case VK_PRIOR:
-      case VK_NUMPAD9:
-        if (NotShift && KeyCode == VK_NUMPAD9)
-          return '9';
-        return(Modif|KEY_PGUP);
-      case VK_CLEAR:
-      case VK_NUMPAD5:
-        if (NotShift)
-        {
-          if(KeyCode == VK_NUMPAD5)
-            return '5';
-        }
-        return(Modif|KEY_NUMPAD5);
-      case VK_DECIMAL:
-        if(NotShift)
-          return (CtrlState & NUMLOCK_ON) ? '.':KEY_DEL;
-      case VK_DELETE:
-        if(NotShift)
-        {
-          if ((CtrlState & NUMLOCK_ON) && (CtrlState & ENHANCED_KEY)==0 &&
-             AsciiChar=='.')
-            return('.');
-          return(KEY_DEL);
-        }
-        return(Modif|KEY_DEL);
-      case VK_APPS:
-        return(Modif|KEY_APPS);
-      case VK_LWIN:
-        return(Modif|KEY_LWIN);
-      case VK_RWIN:
-        return(Modif|KEY_RWIN);
-      case VK_RETURN:
-        if (ShiftPressed && RealKey && !ShiftPressedLast && !CtrlPressed && !AltPressed)
-          return(KEY_ENTER);
-        return(Modif|KEY_ENTER);
-      case VK_BACK:
-        return(Modif|KEY_BS);
-      case VK_SPACE:
-        return(Modif|KEY_SPACE);
-      case VK_TAB:
-        return(Modif|KEY_TAB);
-      case VK_ADD:
-        return(Modif|KEY_ADD);
-      case VK_SUBTRACT:
-        return(Modif|KEY_SUBTRACT);
-      case VK_MULTIPLY:
-        if (ShiftPressed && !CtrlPressed && !AltPressed)
-          return('*');
-        return(Modif|KEY_MULTIPLY);
-      case VK_ESCAPE:
-        return(Modif|KEY_ESC);
-    }
+    case VK_INSERT:
+    case VK_NUMPAD0:
+      if (NotShift && KeyCode == VK_NUMPAD0)
+        return '0';
+      return(Modif|KEY_INS);
+    case VK_DOWN:
+    case VK_NUMPAD2:
+      if (NotShift && KeyCode == VK_NUMPAD2)
+        return '2';
+      return(Modif|KEY_DOWN);
+    case VK_LEFT:
+    case VK_NUMPAD4:
+      if (NotShift && KeyCode == VK_NUMPAD4)
+        return '4';
+      return(Modif|KEY_LEFT);
+    case VK_RIGHT:
+    case VK_NUMPAD6:
+      if (NotShift && KeyCode == VK_NUMPAD6)
+        return '6';
+      return(Modif|KEY_RIGHT);
+    case VK_UP:
+    case VK_NUMPAD8:
+      if (NotShift && KeyCode == VK_NUMPAD8)
+        return '8';
+      return(Modif|KEY_UP);
+    case VK_END:
+    case VK_NUMPAD1:
+      if (NotShift && KeyCode == VK_NUMPAD1)
+        return '1';
+      return(Modif|KEY_END);
+    case VK_HOME:
+    case VK_NUMPAD7:
+      if (NotShift && KeyCode == VK_NUMPAD7)
+        return '7';
+      return(Modif|KEY_HOME);
+    case VK_NEXT:
+    case VK_NUMPAD3:
+      if (NotShift && KeyCode == VK_NUMPAD3)
+        return '3';
+      return(Modif|KEY_PGDN);
+    case VK_PRIOR:
+    case VK_NUMPAD9:
+      if (NotShift && KeyCode == VK_NUMPAD9)
+        return '9';
+      return(Modif|KEY_PGUP);
+    case VK_CLEAR:
+    case VK_NUMPAD5:
+      if (NotShift)
+      {
+        if(KeyCode == VK_NUMPAD5)
+          return '5';
+      }
+      return(Modif|KEY_NUMPAD5);
+    case VK_DECIMAL:
+      if(NotShift)
+        return (CtrlState & NUMLOCK_ON) ? '.':KEY_DEL;
+    case VK_DELETE:
+      if(NotShift)
+      {
+        if ((CtrlState & NUMLOCK_ON) && (CtrlState & ENHANCED_KEY)==0 &&
+           AsciiChar=='.')
+          return('.');
+        return(KEY_DEL);
+      }
+      return(Modif|KEY_DEL);
+    case VK_APPS:
+      return(Modif|KEY_APPS);
+    case VK_LWIN:
+      return(Modif|KEY_LWIN);
+    case VK_RWIN:
+      return(Modif|KEY_RWIN);
+    case VK_RETURN:
+      if (ShiftPressed && RealKey && !ShiftPressedLast && !CtrlPressed && !AltPressed)
+        return(KEY_ENTER);
+      return(Modif|KEY_ENTER);
+    case VK_BACK:
+      return(Modif|KEY_BS);
+    case VK_SPACE:
+      return(Modif|KEY_SPACE);
+    case VK_TAB:
+      return(Modif|KEY_TAB);
+    case VK_ADD:
+      return(Modif|KEY_ADD);
+    case VK_SUBTRACT:
+      return(Modif|KEY_SUBTRACT);
+    case VK_MULTIPLY:
+      if (ShiftPressed && !CtrlPressed && !AltPressed)
+        return('*');
+      return(Modif|KEY_MULTIPLY);
+    case VK_ESCAPE:
+      return(Modif|KEY_ESC);
   }
 
+  /* ------------------------------------------------------------- */
   if (CtrlPressed && AltPressed)
   {
+//if(KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog("%9s│0x%08X (%c)│0x%08X (%c)│","CtrlAlt",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' '));
     if (KeyCode>='A' && KeyCode<='Z')
       return(KEY_CTRL|KEY_ALT+KeyCode);
+    if(Opt.ShiftsKeyRules) //???
+      switch(KeyCode)
+      {
+        case 0xc0:
+          return(KEY_CTRL+KEY_ALT+'~');
+        case 0xbd:
+          return(KEY_CTRL+KEY_ALT+'-');
+        case 0xbb:
+          return(KEY_CTRL+KEY_ALT+'=');
+        case 0xdc:
+          return(KEY_CTRL+KEY_ALT+KEY_BACKSLASH);
+        case 0xdd:
+          return(KEY_CTRL+KEY_ALT+KEY_BACKBRACKET);
+        case 0xdb:
+          return(KEY_CTRL+KEY_ALT+KEY_BRACKET);
+        case 0xde:
+          return(KEY_CTRL+KEY_ALT+KEY_QUOTE);
+        case 0xba:
+          return(KEY_CTRL+KEY_ALT+KEY_COLON);
+        case 0xbf:
+          return(KEY_CTRL+KEY_ALT+KEY_SLASH);
+        case 0xbe:
+          return(KEY_CTRL+KEY_ALT+KEY_DOT);
+        case 0xbc:
+          return(KEY_CTRL+KEY_ALT+KEY_COMMA);
+      }
     if (AsciiChar)
       return(KEY_CTRL|KEY_ALT+AsciiChar);
     if (!RealKey && (KeyCode==VK_CONTROL || KeyCode==VK_MENU))
@@ -976,10 +1009,41 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey)
       return(KEY_CTRL|KEY_ALT+KeyCode);
   }
 
+
+  /* ------------------------------------------------------------- */
   if (AltPressed && ShiftPressed)
   {
+//if(KeyCode!=VK_MENU && KeyCode!=VK_SHIFT) SysLog("%9s│0x%08X (%c)│0x%08X (%c)│","AltShift",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' '));
+    if (KeyCode>='0' && KeyCode<='9')
+      return(KEY_ALTSHIFT0+KeyCode-'0');
     if (KeyCode>='A' && KeyCode<='Z')
       return(KEY_ALTSHIFT+KeyCode);
+    if(Opt.ShiftsKeyRules) //???
+      switch(KeyCode)
+      {
+        case 0xc0:
+          return(KEY_ALT+KEY_SHIFT+'~');
+        case 0xbd:
+          return(KEY_ALT+KEY_SHIFT+'-');
+        case 0xbb:
+          return(KEY_ALT+KEY_SHIFT+'=');
+        case 0xdc:
+          return(KEY_ALT+KEY_SHIFT+KEY_BACKSLASH);
+        case 0xdd:
+          return(KEY_ALT+KEY_SHIFT+KEY_BACKBRACKET);
+        case 0xdb:
+          return(KEY_ALT+KEY_SHIFT+KEY_BRACKET);
+        case 0xde:
+          return(KEY_ALT+KEY_SHIFT+KEY_QUOTE);
+        case 0xba:
+          return(KEY_ALT+KEY_SHIFT+KEY_COLON);
+        case 0xbf:
+          return(KEY_ALT+KEY_SHIFT+KEY_SLASH);
+        case 0xbe:
+          return(KEY_ALT+KEY_SHIFT+KEY_DOT);
+        case 0xbc:
+          return(KEY_ALT+KEY_SHIFT+KEY_COMMA);
+      }
     if (AsciiChar)
     {
       if (Opt.AltGr && WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS)
@@ -993,8 +1057,11 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey)
       return(KEY_ALT+KEY_SHIFT+KeyCode);
   }
 
+
+  /* ------------------------------------------------------------- */
   if (CtrlPressed && ShiftPressed)
   {
+//if(KeyCode!=VK_CONTROL && KeyCode!=VK_SHIFT) SysLog("%9s│0x%08X (%c)│0x%08X (%c)│","CtrlShift",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' '));
     if (KeyCode>='0' && KeyCode<='9')
       return(KEY_CTRLSHIFT0+KeyCode-'0');
     if (KeyCode>='A' && KeyCode<='Z')
@@ -1012,6 +1079,22 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey)
       case 0xdc:
         return(KEY_CTRLSHIFTBACKSLASH);
     }
+    if(Opt.ShiftsKeyRules) //???
+      switch(KeyCode)
+      {
+        case 0xc0:
+          return(KEY_CTRL+KEY_SHIFT+'~');
+        case 0xbd:
+          return(KEY_CTRL+KEY_SHIFT+'-');
+        case 0xbb:
+          return(KEY_CTRL+KEY_SHIFT+'=');
+        case 0xde:
+          return(KEY_CTRL+KEY_SHIFT+KEY_QUOTE);
+        case 0xba:
+          return(KEY_CTRL+KEY_SHIFT+KEY_COLON);
+        case 0xbc:
+          return(KEY_CTRL+KEY_SHIFT+KEY_COMMA);
+      }
     if (AsciiChar)
       return(KEY_CTRL|KEY_SHIFT+AsciiChar);
     if (!RealKey && (KeyCode==VK_CONTROL || KeyCode==VK_SHIFT))
@@ -1020,12 +1103,16 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey)
       return(KEY_CTRL|KEY_SHIFT+KeyCode);
   }
 
+
+  /* ------------------------------------------------------------- */
   if ((CtrlState & RIGHT_CTRL_PRESSED)==RIGHT_CTRL_PRESSED)
   {
     if (KeyCode>='0' && KeyCode<='9')
       return(KEY_RCTRL0+KeyCode-'0');
   }
 
+
+  /* ------------------------------------------------------------- */
   if (!CtrlPressed && !AltPressed && !ShiftPressed)
   {
     switch(KeyCode)
@@ -1037,9 +1124,10 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey)
     }
   }
 
-
+  /* ------------------------------------------------------------- */
   if (CtrlPressed)
   {
+//if(KeyCode!=VK_CONTROL) SysLog("%9s│0x%08X (%c)│0x%08X (%c)│","Ctrl",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' '));
     if (KeyCode>='0' && KeyCode<='9')
       return(KEY_CTRL0+KeyCode-'0');
     if (KeyCode>='A' && KeyCode<='Z')
@@ -1062,6 +1150,19 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey)
         return(KEY_CTRLQUOTE);
     }
 
+    if(Opt.ShiftsKeyRules) //???
+      switch(KeyCode)
+      {
+        case 0xc0:
+          return(KEY_CTRL+'~');
+        case 0xbd:
+          return(KEY_CTRL+'-');
+        case 0xbb:
+          return(KEY_CTRL+'=');
+        case 0xba:
+          return(KEY_CTRL+KEY_COLON);
+      }
+
     if (KeyCode)
     {
       if (!RealKey && KeyCode==VK_CONTROL)
@@ -1069,8 +1170,33 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey)
       return(KEY_CTRL+KeyCode);
     }
   }
+
+  /* ------------------------------------------------------------- */
   if (AltPressed)
   {
+//if(KeyCode!=VK_MENU) SysLog("%9s│0x%08X (%c)│0x%08X (%c)│","Alt",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' '));
+    if(Opt.ShiftsKeyRules) //???
+      switch(KeyCode)
+      {
+        case 0xc0:
+          return(KEY_ALT+'~');
+        case 0xbd:
+          return(KEY_ALT+'-');
+        case 0xbb:
+          return(KEY_ALT+'=');
+        case 0xdc:
+          return(KEY_ALT+KEY_BACKSLASH);
+        case 0xdd:
+          return(KEY_ALT+KEY_BACKBRACKET);
+        case 0xdb:
+          return(KEY_ALT+KEY_BRACKET);
+        case 0xde:
+          return(KEY_ALT+KEY_QUOTE);
+        case 0xba:
+          return(KEY_ALT+KEY_COLON);
+        case 0xbf:
+          return(KEY_ALT+KEY_SLASH);
+      }
     switch(KeyCode)
     {
       case 0xbc:
@@ -1083,8 +1209,10 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey)
       if (Opt.AltGr && WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS)
         if (rec->Event.KeyEvent.dwControlKeyState & RIGHT_ALT_PRESSED)
           return(AsciiChar);
-//SysLog("AltPressed) KeyCode=%x AsciiChar=%x LocalUpper(AsciiChar)=%x (%x)", KeyCode, AsciiChar,LocalUpper(AsciiChar),LocalUpper(AsciiChar)+KEY_ALT);
-      return(LocalUpper(AsciiChar)+KEY_ALT);
+      if(!Opt.ShiftsKeyRules || WaitInFastFind > 0)
+        return(LocalUpper(AsciiChar)+KEY_ALT);
+//      else
+//        return(KEY_ALT+KeyCode);
     }
     if (KeyCode==VK_CAPITAL)
       return(KEY_NONE);
