@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.140 19.11.2004 $ */
+/* Revision: 1.141 01.12.2004 $ */
 
 /*
 Modify:
+  01.12.2004 WARP
+    ! Устраняем лишние перерисовки VMenu
   19.11.2004 WARP
     ! "Нормальная" реализация UpdateRequired для VMenu,
       более интеллектальное обновление листа в поске.
@@ -660,6 +662,8 @@ void VMenu::Hide()
 
 void VMenu::Show()
 {
+  int OldX1 = X1, OldY1 = Y1, OldX2 = X2, OldY2 = Y2;
+
   if(LockRefreshCount)
     return;
 //  while (CallCount>0)
@@ -736,6 +740,12 @@ void VMenu::Show()
   }
   if (X2>X1 && Y2+(VMFlags.Check(VMENU_SHOWNOBOX)?1:0)>Y1)
   {
+    if ( (OldX1 != X1) ||
+         (OldY1 != Y1) ||
+         (OldX2 != X2) ||
+         (OldY2 != Y2) )
+       VMFlags.Clear (VMENU_DISABLEDRAWBACKGROUND);
+
     if(SelectPos == -1)
       SelectPos=SetSelectPos(0,1);
 //_SVS(SysLog("VMenu::Show()"));
@@ -806,6 +816,8 @@ void VMenu::DisplayObject()
         Box(X1,Y1,X2,Y2,VMenu::Colors[VMenuColorBox],BoxType);
     }
     /* SVS $*/
+
+    VMFlags.Set (VMENU_DISABLEDRAWBACKGROUND);
   }
   /* $ 03.06.2001 KM
      ! Вернём DI_LISTBOX'у возможность задавать заголовок.
