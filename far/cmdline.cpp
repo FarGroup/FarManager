@@ -5,10 +5,13 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.38 09.09.2001 $ */
+/* Revision: 1.39 23.09.2001 $ */
 
 /*
 Modify:
+  23.09.2001 VVM
+    ! CmdExecute: RedrawDesktop должен уничтожиться _до_ вызова UpdateIfChanged.
+      Иначе InfoPanel перерисовывается при изменении каталога и портит background
   09.09.2001 IS
     + SetPersistentBlocks - установить/сбросить постоянные блоки
   08.09.2001 VVM
@@ -427,6 +430,7 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
   }
   int Code;
   {
+    {
     RedrawDesktop Redraw;
     /*$ 22.06.2001 SKV
       Если не закомментарить это, то они не пересоздадуться,
@@ -451,6 +455,7 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
     GetCursorPos(CurX,CurY);
     if (CurY>=Y1-1)
       ScrollScreen(Min(CurY-Y1+2,Opt.ShowKeyBar ? 2:1));
+    }
     /*$ 22.06.2001 SKV
       При Update почему-то глючит перерисовка.
       Параметр 1 - Force update, иначе только раз в 2 секунды можно.
