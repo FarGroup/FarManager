@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.74 20.02.2001 $ */
+/* Revision: 1.75 21.02.2001 $ */
 
 /*
 Modify:
+  21.02.2001 IS
+   - Избавился от утечки памяти в SelectFromEditHistory (проявлялось не у всех,
+     но проявлялось же!)
   20.02.2001 SVS
    ! Пересмотр алгоритма IsKeyHighlighted с добавками Alt- на
      сколько это возможно
@@ -3149,15 +3152,20 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
                                    char *IStr,
                                    int MaxLen)
 /* SVS $ */
+/* $ 21.02.2001 IS
+     Избавился от утечки памяти (проявлялось не у всех, но проявлялось же!)
+*/
 {
   char RegKey[80],KeyValue[80],*Str[HISTORY_COUNT]={0};
   int I,Dest;
   int Checked;
+  int Final=FALSE;
 
   if(!EditLine)
     return;
 
   sprintf(RegKey,fmtSavedDialogHistory,HistoryName);
+  while(1)
   {
     // создание пустого вертикального меню
     VMenu HistoryMenu("",NULL,0,8,VMENU_ALWAYSSCROLLBAR);
@@ -3214,7 +3222,10 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
       ItemsCount++;
     }
     if (ItemsCount==0)
-      goto final;
+      {
+        Final=TRUE;
+        break;
+      }
 
     /* $ 28.07.2000 SVS
        Перед отрисовкой спросим об изменении цветовых атрибутов
@@ -3255,7 +3266,8 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
         }
         HistoryMenu.Hide();
         SelectFromEditHistory(EditLine,HistoryName,IStr,MaxLen);
-        goto final;
+        Final=TRUE;
+        break;
       }
 
       // Ins защищает пункт истории от удаления.
@@ -3279,25 +3291,32 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
       HistoryMenu.ProcessInput();
     }
 
+    if(Final) break;
+
     int ExitCode=HistoryMenu.GetExitCode();
     if (ExitCode<0)
-      goto final;
+      {
+        Final=TRUE;
+        break;
+      }
 
     HistoryMenu.GetUserData(Str[0],MaxLen,ExitCode);
+
+    break;
   }
-  if(Str[0])
+
+  if(!Final && Str[0])
   {
     EditLine->SetString(Str[0]);
     EditLine->SetLeftPos(0);
     Redraw();
   }
 
-final:
   for (I=0; I < HISTORY_COUNT; I++)
     if(Str[I])
       free(Str[I]);
 }
-
+/* IS $ */
 
 //////////////////////////////////////////////////////////////////////////
 /* Private:
