@@ -1318,7 +1318,8 @@ $ #Go to specified line and column#
  You can enter #row# or #col#, or both.
 
  Fist number interpreted as a ROW number, second as a COL.
- Number must delimited one of follow chars - "," "." ";" ":" or space.
+ Number must be delimited by one of the following characters - "," "." ";" ":"
+or space.
 
  If you enter value in form ",Col", editor jump to COL in current line.
 
