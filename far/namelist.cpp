@@ -5,10 +5,12 @@ namelist.cpp
 
 */
 
-/* Revision: 1.05 06.12.2001 $ */
+/* Revision: 1.06 08.05.2002 $ */
 
 /*
 Modify:
+  08.05.2002 SVS
+    ! Проверка на NULL перед free()
   06.12.2001 SVS
     ! PrepareDiskPath() - имеет доп.параметр - максимальный размер буфера
   26.11.2001 SVS
@@ -43,7 +45,7 @@ NamesList::~NamesList()
   /* $ 13.07.2000 SVS
      распределение памяти было чрезе realloc
   */
-  free(Names);
+  if(Names) free(Names);
   /* SVS $ */
 }
 

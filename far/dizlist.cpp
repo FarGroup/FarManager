@@ -5,10 +5,12 @@ dizlist.cpp
 
 */
 
-/* Revision: 1.08 27.03.2002 $ */
+/* Revision: 1.09 08.05.2002 $ */
 
 /*
 Modify:
+  08.05.2002 SVS
+    ! Проверка на NULL перед free()
   27.03.2002 SVS
     - имело место быть обрезаение имени файла, если оно было более, чем
       указано в "Position of new descriptions in the string"
@@ -73,16 +75,14 @@ DizList::~DizList()
 void DizList::Reset()
 {
   for (int I=0;I<DizCount;I++)
-  /* $ 13.07.2000 SVS
-       раз уж вызвали new[], то в придачу и delete[] надо... */
-    delete[] DizData[I].DizText;
-    /* а этот объект распределяется через realloc*/
-  free(DizData);
+    if(DizData[I].DizText)
+      delete[] DizData[I].DizText;
+  if(DizData)
+    free(DizData);
   DizData=NULL;
   DizCount=0;
-  /* раз уж вызвали new[], то в придачу и delete[] надо... */
-  delete[] IndexData;
-  /* SVS $ */
+  if(IndexData)
+    delete[] IndexData;
   IndexData=NULL;
   IndexCount=0;
 }

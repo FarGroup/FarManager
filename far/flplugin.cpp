@@ -5,10 +5,12 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.28 12.04.2002 $ */
+/* Revision: 1.29 08.05.2002 $ */
 
 /*
 Modify:
+  08.05.2002 SVS
+    ! ¬ременно отменим 1248 (чем исправл€ем ситуацию Ctrl-7 Enter в архив Ctrl-2 и выходим)
   12.04.2002 SVS
     - BugZ#452 - Ctrl+N на “мпѕанели
   12.04.2002 IS
@@ -167,9 +169,11 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
        Ќужно учесть тот факт, что кто-то или что-то может мен€ть
        принудительно пареметры не своей панели.
     */
+    /*
     ViewMode=PStack->PrevViewMode;
     SortMode=PStack->PrevSortMode;
     SortOrder=PStack->PrevSortOrder;
+    */
     /* </TODO>*/
   }
   PluginsStack=(struct PluginsStackItem *)realloc(PluginsStack,PluginsStackSize*sizeof(*PluginsStack));

@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.151 29.04.2002 $ */
+/* Revision: 1.152 08.05.2002 $ */
 
 /*
 Modify:
+  08.05.2002 SVS
+    !  осотыли про FullScreen (уточнение приоритетов показа активной/пассивной панели)
+    ! проверка на NULL перед free()
   29.04.2002 SVS
     -  осотыли про FullScreen
   27.04.2002 SVS
@@ -539,7 +542,7 @@ FileList::~FileList()
   /* $ 29.11.2001 DJ
      выдел€ли через realloc - освобождать надо через free
   */
-  free (PrevDataStack);
+  if(PrevDataStack) free (PrevDataStack);
   /* DJ $ */
   DeleteListData(ListData,FileCount);
   if (PanelMode==PLUGIN_PANEL)
@@ -2068,11 +2071,11 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
       else
         res=ChangeDir(CurPtr->ShortName);
 //      if(res)
-      CtrlObject->Cp()->ActivePanel->Show();
       if(CheckFullScreen)
       {
         CtrlObject->Cp()->GetAnotherPanel(this)->Show();
       }
+      CtrlObject->Cp()->ActivePanel->Show();
       /* SVS $ */
     }
   }

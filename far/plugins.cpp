@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.117 28.04.2002 $ */
+/* Revision: 1.118 08.05.2002 $ */
 
 /*
 Modify:
+  08.05.2002 SVS
+    ! Проверка на NULL перед free()
   28.04.2002 IS
     ! Внедрение const
   26.03.2002 DJ
@@ -401,7 +403,7 @@ PluginsSet::~PluginsSet()
     FreeLibrary(PData->hModule);
     PData->Lang.Close();
   }
-  free(PluginsData);
+  if(PluginsData) free(PluginsData);
 }
 
 void PluginsSet::SendExit()
