@@ -43,6 +43,8 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
   Opt.OldUserBackground=0; // $ 02.07.2002 AY
   Opt.AllowChangeDir=GetRegKey(HKEY_CURRENT_USER,"","AllowChangeDir",0);
 
+  GetRegKey(HKEY_CURRENT_USER,"","Prefix1",Opt.CommandPrefix1,"ma",sizeof(Opt.CommandPrefix1));
+
   #ifdef _NEW_ARC_SORT_
   strcpy(IniFile, Info->ModuleName);
   *((int *)(IniFile+strlen(IniFile)-3))=0x696E69; // :)
@@ -82,6 +84,39 @@ HANDLE WINAPI _export OpenFilePlugin(char *Name,const unsigned char *Data,
   return hPlugin;
 }
 
+HANDLE WINAPI OpenPlugin(int OpenFrom, int Item)
+{
+  if (ArcPlugin==NULL)
+    return INVALID_HANDLE_VALUE;
+  if (OpenFrom==OPEN_COMMANDLINE)
+  {
+    if (FSF.LStrnicmp(Opt.CommandPrefix1,(char *)Item,strlen(Opt.CommandPrefix1))==0 &&
+        (((char *)Item)[strlen(Opt.CommandPrefix1)]==':'))
+    {
+      if (((char *)Item)[strlen(Opt.CommandPrefix1)+1]==0)
+        return INVALID_HANDLE_VALUE;
+      char filename[NM];
+      char *fnp;
+      DWORD bl = GetFullPathName(&((char *)Item)[strlen(Opt.CommandPrefix1)+1],NM,filename,&fnp);
+      if (bl>NM || bl==0)
+        return INVALID_HANDLE_VALUE;
+      HANDLE h = CreateFile(filename,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,NULL);
+      if (h == INVALID_HANDLE_VALUE)
+        return INVALID_HANDLE_VALUE;
+      unsigned char data[128*1024];
+      DWORD datasize;
+      BOOL b = ReadFile(h,data,128*1024,&datasize,NULL);
+      CloseHandle(h);
+      if (!(b&&datasize))
+        return INVALID_HANDLE_VALUE;
+      h = OpenFilePlugin(filename,data,datasize);
+      if ((h==(HANDLE)-2) || h==INVALID_HANDLE_VALUE)
+        return INVALID_HANDLE_VALUE;
+      return h;
+    }
+  }
+  return INVALID_HANDLE_VALUE;
+}
 
 void WINAPI _export ClosePlugin(HANDLE hPlugin)
 {
@@ -142,10 +177,14 @@ void WINAPI _export ExitFAR()
 void WINAPI _export GetPluginInfo(struct PluginInfo *Info)
 {
   Info->StructSize=sizeof(*Info);
+  Info->Flags=PF_FULLCMDLINE;
   static const char *PluginCfgStrings[1];
   PluginCfgStrings[0]=(char*)GetMsg(MCfgLine0);
   Info->PluginConfigStrings=PluginCfgStrings;
   Info->PluginConfigStringsNumber=sizeof(PluginCfgStrings)/sizeof(PluginCfgStrings[0]);
+  static char CommandPrefix[sizeof(Opt.CommandPrefix1)];
+  strcpy(CommandPrefix,Opt.CommandPrefix1);
+  Info->CommandPrefix=CommandPrefix;
 }
 
 

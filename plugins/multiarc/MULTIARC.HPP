@@ -310,6 +310,7 @@ struct Options
   //BOOL AutoResetExactArcName; // $ 2?.11.2001 AA
   //BOOL ExactArcName;   // $ 30.11.2001 AA
   MAAdvFlags AdvFlags; //$ 06.03.2002 AA
+  char CommandPrefix1[50]; //$ 23.01.2003 AY
 };
 
 /*
