@@ -5,10 +5,13 @@ fnparce.cpp
 
 */
 
-/* Revision: 1.19 18.12.2003 $ */
+/* Revision: 1.20 01.03.2004 $ */
 
 /*
 Modify:
+  01.03.2004 SVS
+    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
+      (задел на будущее + править впоследствии только 1 файл)
   18.12.2003 SVS
     ! введение операторных скобок
   28.10.2003 SVS
@@ -1036,7 +1039,7 @@ int Panel::MakeListFile(char *ListFileName,int ShortNames,char *Modifers)
       if(strchr(Modifers,'Q')) // 'Q' - заключать имена с пробелами в кавычки;
         QuoteSpaceOnly(FileName);
       if(strchr(Modifers,'A')) // 'A' - использовать ANSI кодировку.
-        OemToChar(FileName,FileName);
+        FAR_OemToChar(FileName,FileName);
 
       if(strchr(Modifers,'S')) // 'S' - использовать '/' вместо '\' в путях файлов;
       {

@@ -5,10 +5,13 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.104 18.12.2003 $ */
+/* Revision: 1.105 01.03.2004 $ */
 
 /*
 Modify:
+  01.03.2004 SVS
+    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
+      (задел на будущее + править впоследствии только 1 файл)
   18.12.2003 SVS
     ! Пробуем различать левый и правый CAS (попытка #1).
   24.10.2003 SVS
@@ -817,7 +820,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec)
         //// // _SVS(if(rec->EventType==KEY_EVENT)SysLog(">GetInputRecord= %s",_INPUT_RECORD_Dump(rec)));
         rec->Event.KeyEvent.uChar.UnicodeChar=0;
         UnicodeToAscii(&UnicodeChar,&rec->Event.KeyEvent.uChar.AsciiChar,sizeof(WCHAR));
-        CharToOemBuff(&rec->Event.KeyEvent.uChar.AsciiChar,&rec->Event.KeyEvent.uChar.AsciiChar,1);
+        FAR_CharToOemBuff(&rec->Event.KeyEvent.uChar.AsciiChar,&rec->Event.KeyEvent.uChar.AsciiChar,1);
         //// // _SVS(if(rec->EventType==KEY_EVENT)SysLog("<GetInputRecord= %s",_INPUT_RECORD_Dump(rec)));
       }
 #endif
@@ -942,7 +945,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec)
       {
         rec->Event.KeyEvent.uChar.UnicodeChar=0;
         UnicodeToAscii(&UnicodeChar,&rec->Event.KeyEvent.uChar.AsciiChar,sizeof(WCHAR));
-        CharToOemBuff(&rec->Event.KeyEvent.uChar.AsciiChar,&rec->Event.KeyEvent.uChar.AsciiChar,1);
+        FAR_CharToOemBuff(&rec->Event.KeyEvent.uChar.AsciiChar,&rec->Event.KeyEvent.uChar.AsciiChar,1);
       }
     }
     else
@@ -1111,7 +1114,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec)
       if((UnicodeChar&0xFF00))
       {
         UnicodeToAscii(&UnicodeChar,(char*)&ReadKey,sizeof(WCHAR));
-        CharToOemBuff((char*)&ReadKey,(char*)&ReadKey,1);
+        FAR_CharToOemBuff((char*)&ReadKey,(char*)&ReadKey,1);
       }
     }
     else
@@ -1130,7 +1133,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec)
         {
           ReadKey=0;
           UnicodeToAscii(&UnicodeChar,(char*)&ReadKey,sizeof(WCHAR));
-          CharToOemBuff((char*)&ReadKey,(char*)&ReadKey,1);
+          FAR_CharToOemBuff((char*)&ReadKey,(char*)&ReadKey,1);
         }
       }
       else
@@ -1152,7 +1155,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec)
       {
         rec->Event.KeyEvent.uChar.UnicodeChar=0;
         UnicodeToAscii(&UnicodeChar,&rec->Event.KeyEvent.uChar.AsciiChar,sizeof(WCHAR));
-        CharToOemBuff(&rec->Event.KeyEvent.uChar.AsciiChar,&rec->Event.KeyEvent.uChar.AsciiChar,1);
+        FAR_CharToOemBuff(&rec->Event.KeyEvent.uChar.AsciiChar,&rec->Event.KeyEvent.uChar.AsciiChar,1);
       }
     }
     else
@@ -1570,7 +1573,7 @@ DWORD PeekInputRecord(INPUT_RECORD *rec)
       {
         rec->Event.KeyEvent.uChar.UnicodeChar=0;
         UnicodeToAscii(&UnicodeChar,&rec->Event.KeyEvent.uChar.AsciiChar,sizeof(WCHAR));
-        CharToOemBuff(&rec->Event.KeyEvent.uChar.AsciiChar,&rec->Event.KeyEvent.uChar.AsciiChar,1);
+        FAR_CharToOemBuff(&rec->Event.KeyEvent.uChar.AsciiChar,&rec->Event.KeyEvent.uChar.AsciiChar,1);
       }
     }
     else

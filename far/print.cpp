@@ -5,10 +5,13 @@ print.cpp
 
 */
 
-/* Revision: 1.15 20.02.2003 $ */
+/* Revision: 1.16 01.03.2004 $ */
 
 /*
 Modify:
+  01.03.2004 SVS
+    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
+      (задел на будущее + править впоследствии только 1 файл)
   20.02.2003 SVS
     ! Заменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
   26.01.2003 IS
@@ -202,7 +205,7 @@ void PrintFiles(Panel *SrcPanel)
       {
         DOC_INFO_1 di1;
         char AnsiName[NM];
-        OemToChar(SelName,AnsiName);
+        FAR_OemToChar(SelName,AnsiName);
         di1.pDocName=AnsiName;
         di1.pOutputFile=NULL;
         di1.pDatatype=NULL;
@@ -255,9 +258,9 @@ static void AddToPrintersMenu(VMenu *PrinterList,PRINTER_INFO_2 *pi,
     char MenuText[200],PrinterName[200];
     struct MenuItem ListItem;
     memset(&ListItem,0,sizeof(ListItem));
-    CharToOem(NullToEmpty(pi[I].pPrinterName),PrinterName);
+    FAR_CharToOem(NullToEmpty(pi[I].pPrinterName),PrinterName);
     if (pi[I].pComment!=NULL)
-      CharToOem(pi[I].pComment,pi[I].pComment);
+      FAR_CharToOem(pi[I].pComment,pi[I].pComment);
     sprintf(MenuText,"%-22.22s %c %-10s %3d %s  %s",PrinterName,0x0B3U,
             NullToEmpty(pi[I].pPortName),pi[I].cJobs,MSG(MJobs),
             NullToEmpty(pi[I].pComment));

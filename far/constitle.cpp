@@ -5,10 +5,13 @@ constitle.cpp
 
 */
 
-/* Revision: 1.04 10.05.2002 $ */
+/* Revision: 1.05 01.03.2004 $ */
 
 /*
 Modify:
+  01.03.2004 SVS
+    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
+      (задел на будущее + править впоследствии только 1 файл)
   10.05.2002 SVS
     - Хрень выводилась в заголовке. Сделаем конвертирование
   01.04.2002 SVS
@@ -33,7 +36,7 @@ ConsoleTitle::ConsoleTitle(char *title)
 {
   GetConsoleTitle(OldTitle,512);
   if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
-    CharToOem(OldTitle,OldTitle);
+    FAR_CharToOem(OldTitle,OldTitle);
 //  _SVS(SysLog(1,"ConsoleTitle> '%s'",OldTitle));
   if(title)
     SetFarTitle(title);

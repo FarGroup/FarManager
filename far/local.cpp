@@ -5,10 +5,13 @@ local.cpp
 
 */
 
-/* Revision: 1.17 11.07.2003 $ */
+/* Revision: 1.18 01.03.2004 $ */
 
 /*
 Modify:
+  01.03.2004 SVS
+    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
+      (задел на будущее + править впоследствии только 1 файл)
   11.07.2003 SVS
     + LCNumStricmp() - "цифровое" сравнение двух строк с учетом локали
   08.04.2003 SVS
@@ -80,13 +83,19 @@ void LocalUpperInit()
   {
     CvtStr[0]=I;
     LowerToUpper[I]=UpperToLower[I]=I;
+#if defined(FAR_ANSI)
     OemToChar((char *)CvtStr,(char *)CvtStr);
     CharToOem((char *)CvtStr,(char *)ReverseCvtStr);
+#else
+    FAR_OemToChar((char *)CvtStr,(char *)CvtStr);
+    FAR_CharToOem((char *)CvtStr,(char *)ReverseCvtStr);
+#endif
     IsUpperOrLower[I]=0;
     if (IsCharAlpha(CvtStr[0]) && ReverseCvtStr[0]==I)
     {
       IsUpperOrLower[I]=IsCharLower(CvtStr[0])?1:(IsCharUpper(CvtStr[0])?2:0);
       CharUpper((char *)CvtStr);
+#if defined(FAR_ANSI)
       CharToOem((char *)CvtStr,(char *)CvtStr);
       LowerToUpper[I]=CvtStr[0];
       CvtStr[0]=I;
@@ -94,6 +103,15 @@ void LocalUpperInit()
       CharLower((char *)CvtStr);
       CharToOem((char *)CvtStr,(char *)CvtStr);
       UpperToLower[I]=CvtStr[0];
+#else
+      FAR_CharToOem((char *)CvtStr,(char *)CvtStr);
+      LowerToUpper[I]=CvtStr[0];
+      CvtStr[0]=I;
+      FAR_OemToChar((char *)CvtStr,(char *)CvtStr);
+      CharLower((char *)CvtStr);
+      FAR_CharToOem((char *)CvtStr,(char *)CvtStr);
+      UpperToLower[I]=CvtStr[0];
+#endif
     }
   }
 }
@@ -169,7 +187,11 @@ void InitKeysArray()
             continue;
           CvtStr[0]=AnsiKey;
           CvtStr[1]=0;
+#if defined(FAR_ANSI)
           CharToOem((char *)CvtStr,(char *)CvtStr);
+#else
+          FAR_CharToOem((char *)CvtStr,(char *)CvtStr);
+#endif
           Keys[J]=CvtStr[0];
         }
         if (Keys[0]!=0 && Keys[1]!=0)
@@ -192,7 +214,11 @@ void InitKeysArray()
           if (AnsiKey==0xFF)
             continue;
           CvtStr[0]=I;
+#if defined(FAR_ANSI)
           CharToOem((char *)CvtStr,(char *)CvtStr);
+#else
+          FAR_CharToOem((char *)CvtStr,(char *)CvtStr);
+#endif
           KeyToKey[CvtStr[0]]=AnsiKey;
         }
       }
@@ -226,7 +252,11 @@ int WINAPI LocalIsalpha(unsigned Ch)
 
   unsigned char CvtStr[1];
   CvtStr[0]=Ch;
+#if defined(FAR_ANSI)
   OemToCharBuff((char *)CvtStr,(char *)CvtStr,1);
+#else
+  FAR_OemToCharBuff((char *)CvtStr,(char *)CvtStr,1);
+#endif
   return(IsCharAlpha(CvtStr[0]));
 }
 
@@ -237,7 +267,11 @@ int WINAPI LocalIsalphanum(unsigned Ch)
 
   unsigned char CvtStr[1];
   CvtStr[0]=Ch;
+#if defined(FAR_ANSI)
   OemToCharBuff((char *)CvtStr,(char *)CvtStr,1);
+#else
+  FAR_OemToCharBuff((char *)CvtStr,(char *)CvtStr,1);
+#endif
   return(IsCharAlphaNumeric(CvtStr[0]));
 }
 
@@ -385,8 +419,13 @@ int _cdecl LCSort(const void *el1,const void *el2)
   Str2[0]=*(char *)el2;
   Str1[1]=Str2[1]=0;
   Str1[2]=Str2[2]=0;
+#if defined(FAR_ANSI)
   OemToCharBuff(Str1,Str1,1);
   OemToCharBuff(Str2,Str2,1);
+#else
+  FAR_OemToCharBuff(Str1,Str1,1);
+  FAR_OemToCharBuff(Str2,Str2,1);
+#endif
   return(CompareString(Opt.LCIDSort,NORM_IGNORENONSPACE|SORT_STRINGSORT|NORM_IGNORECASE,Str1,1,Str2,1)-2);
 }
 

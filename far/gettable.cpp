@@ -5,10 +5,13 @@ gettable.cpp
 
 */
 
-/* Revision: 1.18 14.01.2004 $ */
+/* Revision: 1.19 01.03.2004 $ */
 
 /*
 Modify:
+  01.03.2004 SVS
+    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
+      (задел на будущее + править впоследствии только 1 файл)
   14.01.2004 SVS
     ! Если есть "AutoDetect" и он равен 0, то исключаем таблицу из автодетекта
       (см. BugZ#158 - фича)
@@ -102,8 +105,8 @@ int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
     for (I=0;I<256;I++)
     {
        *toUpper=*toLower=*decode=*encode=I;
-       CharToOem(decode, decode);
-       OemToChar(encode, encode);
+       FAR_CharToOem(decode, decode);
+       FAR_OemToChar(encode, encode);
        if(IsCharAlpha(I))
        {
          CharUpper(toUpper);
@@ -141,7 +144,7 @@ int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
     char TableKey[512];
     if (!EnumRegKey("CodeTables",I,TableKey,sizeof(TableKey)))
       break;
-    CharToOem(PointToName(TableKey),ItemName);
+    FAR_CharToOem(PointToName(TableKey),ItemName);
     sprintf(t,"CodeTables\\%s",ItemName);
     GetRegKey(t,"TableName",t2,ItemName,128);
     strcpy(ListItem.Name,t2);

@@ -332,6 +332,7 @@ BccW32.cfg : mkfar.mak cc.bat
 -x
 -I$(INCLUDEPATH)
 $(USE_WFUNC)
+$(FAR_ANSI)
 $(FARCMEM)
 $(FARALLOC)
 $(PRECOMPOPT)

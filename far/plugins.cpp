@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.149 07.01.2004 $ */
+/* Revision: 1.150 01.03.2004 $ */
 
 /*
 Modify:
+  01.03.2004 SVS
+    + FSF.SetFileApisTo
   07.01.2004 SVS
     ! небольшая оптимизация.
   11.11.2003 SVS
@@ -1049,7 +1051,7 @@ void PluginsSet::CreatePluginStartupInfo(struct PluginStartupInfo *PSI,
   */
   // заполняем структуру StandardFunctions один раз!!!
   if(!StandardFunctions.StructSize)
-{
+  {
     StandardFunctions.StructSize=sizeof(StandardFunctions);
     StandardFunctions.sprintf=FarSprintf;
     StandardFunctions.sscanf=FarSscanf;
@@ -1068,6 +1070,7 @@ void PluginsSet::CreatePluginStartupInfo(struct PluginStartupInfo *PSI,
 
     StandardFunctions.bsearch=FarBsearch;
 
+    StandardFunctions.SetFileApisTo=SetFileApisTo;
     /* $ 28.08.2000 SVS
        + Функции работы с...
     */

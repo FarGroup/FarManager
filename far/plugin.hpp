@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.243 27.02.2004 $ */
+/* Revision: 1.244 01.03.2004 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,9 @@
 ¬ этом файле писать все изменени€ только в в этом блоке!!!!
 
 Modify:
+  01.03.2004 SVS
+    + дл€ внутреннего использовани€ SetFileApisTo
+    ! SETFILEAPISTO_TYPE - так же определен в farconst.hpp
   27.02.2004 SVS
     ! ¬ыкинем нах DIF_LISTNOMOUSEREACTION - по другому пути пойдем
     + LMRT_*
@@ -2241,6 +2244,14 @@ typedef void    (WINAPI *FARSTDLOCALSTRLWR)(char *s1);
 typedef int     (WINAPI *FARSTDLOCALSTRICMP)(const char *s1,const char *s2);
 typedef int     (WINAPI *FARSTDLOCALSTRNICMP)(const char *s1,const char *s2,int n);
 
+#ifdef FAR_USE_INTERNALS
+enum SETFILEAPISTO_TYPE{
+  SFAT_APIS2OEM,
+  SFAT_APIS2ANSI,
+};
+typedef void    (WINAPI *FARSETFILEAPISTO)(int Type);
+#endif // END FAR_USE_INTERNALS
+
 enum PROCESSNAME_FLAGS{
  PN_CMPNAME      = 0x00000000UL,
  PN_CMPNAMELIST  = 0x00001000UL,
@@ -2314,7 +2325,12 @@ typedef struct FarStandardFunctions
   FARSTDBSEARCH              bsearch;
   FARSTDQSORTEX              qsortex;
 
+#ifdef FAR_USE_INTERNALS
+  FARSETFILEAPISTO           SetFileApisTo;
+  DWORD                      Reserved[8];
+#else // ELSE FAR_USE_INTERNALS
   DWORD                      Reserved[9];
+#endif // END FAR_USE_INTERNALS
 
   FARSTDLOCALISLOWER         LIsLower;
   FARSTDLOCALISUPPER         LIsUpper;

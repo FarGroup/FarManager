@@ -5,10 +5,13 @@ execute.cpp
 
 */
 
-/* Revision: 1.97 09.02.2004 $ */
+/* Revision: 1.98 01.03.2004 $ */
 
 /*
 Modify:
+  01.03.2004 SVS
+    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
+      (задел на будущее + править впоследствии только 1 файл)
   09.02.2004 SVS
     - BugZ#993 - перекрытие сообщения рамок меню (уточнение)
     - Bug 752 - Проблемы Shift-Enter для UNC ресурсов с пробелами и без (уточнение)
@@ -550,13 +553,13 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error)
         // Выделяем имя модуля
         if (*Command=='\"')
         {
-          OemToChar(Command+1,Command);
+          FAR_OemToChar(Command+1,Command);
           if ((Ptr=strchr(Command,'\"'))!=NULL)
             *Ptr=0;
         }
         else
         {
-          OemToChar(Command,Command);
+          FAR_OemToChar(Command,Command);
           if ((Ptr=strpbrk(Command," \t/"))!=NULL)
             *Ptr=0;
         }
@@ -656,14 +659,14 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
   // Выделяем имя модуля
   if (*Command=='\"')
   {
-    OemToChar(Command+1,FullName);
+    FAR_OemToChar(Command+1,FullName);
     if ((Ptr=strchr(FullName,'\"'))!=NULL)
       *Ptr=0;
     IsQuoted=TRUE;
   }
   else
   {
-    OemToChar(Command,FullName);
+    FAR_OemToChar(Command,FullName);
     if ((Ptr=strpbrk(FullName," \t/|><"))!=NULL)
       *Ptr=0;
   } VVM $ */
@@ -671,7 +674,7 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
   if(!*Command) // вот же, надо же... пустышку передали :-(
     return 0;
 
-  OemToChar(Command,FullName);
+  FAR_OemToChar(Command,FullName);
 
   /* $ 07.09.2001 VVM Обработать переменные окружения */
   ExpandEnvironmentStrings(FullName,FileName,sizeof(FullName));
@@ -833,8 +836,8 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
       VVM $ */
 
     // strncpy(TempStr,Command,sizeof(TempStr)-1);
-    CharToOem(FullName,FullName);
-    // CharToOem(FileName,FileName);
+    FAR_CharToOem(FullName,FullName);
+    // FAR_CharToOem(FileName,FileName);
     // ReplaceStrings(TempStr,FileName,FullName);
     if(!DestSize)
       DestSize=strlen(FullName);
@@ -856,13 +859,13 @@ DWORD IsCommandExeGUI(const char *Command)
 
   if (*Command=='\"')
   {
-    OemToChar(Command+1,FullName);
+    FAR_OemToChar(Command+1,FullName);
     if ((EndName=strchr(FullName,'\"'))!=NULL)
       *EndName=0;
   }
   else
   {
-    OemToChar(Command,FullName);
+    FAR_OemToChar(Command,FullName);
     if ((EndName=strpbrk(FullName," \t/"))!=NULL)
       *EndName=0;
   }
@@ -1188,7 +1191,7 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
       {
         char FarTitle[2*NM];
         int size=Min((DWORD)strlen(CmdStr),(DWORD)sizeof(FarTitle)-1);
-        OemToCharBuff(CmdStr,FarTitle,size);
+        FAR_OemToCharBuff(CmdStr,FarTitle,size);
         FarTitle[size]=0;
         SetConsoleTitle(FarTitle);
       }
@@ -1215,8 +1218,8 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
       char AnsiCmdStr[4096];
       char AnsiCmdPar[4096];
       SHELLEXECUTEINFO si;
-      OemToChar(CmdPtr, AnsiCmdStr);
-      OemToChar(NewCmdPar, AnsiCmdPar);
+      FAR_OemToChar(CmdPtr, AnsiCmdStr);
+      FAR_OemToChar(NewCmdPar, AnsiCmdPar);
 
       if (PointToName(AnsiCmdStr)==AnsiCmdStr && strcmp(AnsiCmdStr,".") && !TestParentFolderName(AnsiCmdStr))
       {
@@ -1735,7 +1738,7 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
 
     *Value=0;
 #endif
-    OemToChar(Cmd, Cmd);
+    FAR_OemToChar(Cmd, Cmd);
 
     if (Value[1]==0)
       SetEnvironmentVariable(Cmd,NULL);
@@ -1750,7 +1753,7 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
       if (ExpandEnvironmentStr(Value+1,ExpandedStr,sizeof(ExpandedStr))!=0)
       {
         // переменные окружения должны быть в ANSI???
-        OemToChar(ExpandedStr, ExpandedStr);
+        FAR_OemToChar(ExpandedStr, ExpandedStr);
         SetEnvironmentVariable(Cmd,ExpandedStr);
       }
       /* IS $ */

@@ -5,10 +5,14 @@ farwinapi.cpp
 
 */
 
-/* Revision: 1.01 09.10.2003 $ */
+/* Revision: 1.02 01.03.2004 $ */
 
 /*
 Modify:
+  01.03.2004 SVS
+    + Обертки FAR_OemTo* и FAR_CharTo* вокруг WinAPI
+    + FAR_ANSI - руками не мацать (уж больно трудно синхронизацией заниматься)
+      на "сейчас" влияния не окажет, зато потом...
   09.10.2003 SVS
     + SetFileApisTo() с параметром APIS2ANSI или APIS2OEM вместо SetFileApisToANSI() и SetFileApisToOEM()
   01.06.2003 SVS
@@ -107,7 +111,7 @@ HANDLE WINAPI FAR_CreateFile(
 }
 /* IS $ */
 
-void SetFileApisTo(int Type)
+void WINAPI SetFileApisTo(int Type)
 {
   switch(Type)
   {
@@ -118,4 +122,57 @@ void SetFileApisTo(int Type)
       SetFileApisToANSI();
       break;
   }
+}
+
+BOOL WINAPI FAR_OemToCharBuff(LPCSTR lpszSrc,LPTSTR lpszDst,DWORD cchDstLength)
+{
+#if defined(FAR_ANSI)
+  if(Opt.FarAnsi)
+  {
+    if(lpszDst != lpszSrc)
+      memmove(lpszDst,lpszSrc,cchDstLength);
+    return TRUE;
+  }
+#endif
+  return OemToCharBuff(lpszSrc,lpszDst,cchDstLength);
+}
+
+BOOL WINAPI FAR_CharToOemBuff(LPCSTR lpszSrc,LPTSTR lpszDst,DWORD cchDstLength)
+{
+#if defined(FAR_ANSI)
+  if(Opt.FarAnsi)
+  {
+    if(lpszDst != lpszSrc)
+      memmove(lpszDst,lpszSrc,cchDstLength);
+    return TRUE;
+  }
+#endif
+  return CharToOemBuff(lpszSrc,lpszDst,cchDstLength);
+}
+
+
+BOOL WINAPI FAR_OemToChar(LPCSTR lpszSrc,LPTSTR lpszDst)
+{
+#if defined(FAR_ANSI)
+  if(Opt.FarAnsi)
+  {
+    if(lpszDst != lpszSrc)
+      memmove(lpszDst,lpszSrc,strlen(lpszSrc)+1);
+    return TRUE;
+  }
+#endif
+  return OemToChar(lpszSrc,lpszDst);
+}
+
+BOOL WINAPI FAR_CharToOem(LPCSTR lpszSrc,LPTSTR lpszDst)
+{
+#if defined(FAR_ANSI)
+  if(Opt.FarAnsi)
+  {
+    if(lpszDst != lpszSrc)
+      memmove(lpszDst,lpszSrc,strlen(lpszSrc)+1);
+    return TRUE;
+  }
+#endif
+  return CharToOem(lpszSrc,lpszDst);
 }

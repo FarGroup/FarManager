@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.200 19.02.2004 $ */
+/* Revision: 1.201 01.03.2004 $ */
 
 /*
 Modify:
+  01.03.2004 SVS
+    + Обертки FAR_OemTo* и FAR_CharTo* вокруг WinAPI
   19.02.2004 SVS
     + BoxTextW2()
   09.02.2004 SVS
@@ -685,7 +687,11 @@ HANDLE WINAPI FAR_CreateFile(
    );
 /* IS $ */
 
-void SetFileApisTo(int Type);
+void WINAPI SetFileApisTo(int Type);
+BOOL WINAPI FAR_OemToCharBuff(LPCSTR lpszSrc,LPTSTR lpszDst,DWORD cchDstLength);
+BOOL WINAPI FAR_CharToOemBuff(LPCSTR lpszSrc,LPTSTR lpszDst,DWORD cchDstLength);
+BOOL WINAPI FAR_OemToChar(LPCSTR lpszSrc,LPTSTR lpszDst);
+BOOL WINAPI FAR_CharToOem(LPCSTR lpszSrc,LPTSTR lpszDst);
 
 
 char* FarMSG(int MsgID);

@@ -5,10 +5,13 @@ cvtname.cpp
 
 */
 
-/* Revision: 1.10 09.10.2003 $ */
+/* Revision: 1.11 01.03.2004 $ */
 
 /*
 Modify:
+  01.03.2004 SVS
+    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
+      (задел на будущее + править впоследствии только 1 файл)
   09.10.2003 SVS
     ! SetFileApisToANSI() и SetFileApisToOEM() заменены на SetFileApisTo() с параметром
       APIS2ANSI или APIS2OEM - задел на будущее
@@ -257,12 +260,12 @@ int ConvertNameToFull(const char *Src,char *Dest, int DestSize)
   }
 
   SetFileApisTo(APIS2ANSI);
-  OemToChar(Src,AnsiName);
+  FAR_OemToChar(Src,AnsiName);
   /* $ 08.11.2000 SVS
      Вместо DestSize использовался sizeof(FullName)...
   */
   if(GetFullPathName(AnsiName,DestSize,FullName,&NamePtr))
-    CharToOem(FullName,Dest);
+    FAR_CharToOem(FullName,Dest);
   else
     strcpy(Dest,Src);
 
@@ -404,9 +407,9 @@ void ConvertNameToShort(const char *Src,char *Dest)
 {
   char ShortName[NM],AnsiName[NM];
   SetFileApisTo(APIS2ANSI);
-  OemToChar(Src,AnsiName);
+  FAR_OemToChar(Src,AnsiName);
   if (GetShortPathName(AnsiName,ShortName,sizeof(ShortName)))
-    CharToOem(ShortName,Dest);
+    FAR_CharToOem(ShortName,Dest);
   else
     strcpy(Dest,Src);
   SetFileApisTo(APIS2OEM);

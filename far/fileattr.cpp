@@ -5,10 +5,13 @@ fileattr.cpp
 
 */
 
-/* Revision: 1.09 09.10.2003 $ */
+/* Revision: 1.10 01.03.2004 $ */
 
 /*
 Modify:
+  01.03.2004 SVS
+    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
+      (задел на будущее + править впоследствии только 1 файл)
   09.10.2003 SVS
     ! SetFileApisToANSI() и SetFileApisToOEM() заменены на SetFileApisTo() с параметром
       APIS2ANSI или APIS2OEM - задел на будущее
@@ -173,7 +176,7 @@ static int SetFileEncryption(const char *Name,int State)
   char AnsiName[NM];
 
   ApisToANSI Apis;
-  OemToChar(Name,AnsiName);
+  FAR_OemToChar(Name,AnsiName);
 
   // заодно и проверяется успешность получения адреса API...
   if(State)

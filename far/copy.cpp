@@ -5,10 +5,13 @@ copy.cpp
 
 */
 
-/* Revision: 1.131 22.10.2003 $ */
+/* Revision: 1.132 01.03.2004 $ */
 
 /*
 Modify:
+  01.03.2004 SVS
+    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
+      (задел на будущее + править впоследствии только 1 файл)
   22.10.2003 SVS
     - BugZ#976 - перемещение (F6) папки из корня в ".."
   09.10.2003 SVS
@@ -3640,7 +3643,7 @@ int ShellCopy::GetSecurity(const char *FileName,SECURITY_ATTRIBUTES &sa)
   SECURITY_DESCRIPTOR *sd=(SECURITY_DESCRIPTOR *)sddata;
   DWORD Needed;
   SetFileApisTo(APIS2ANSI);
-  OemToChar(FileName,AnsiName);
+  FAR_OemToChar(FileName,AnsiName);
   BOOL RetSec=GetFileSecurity(AnsiName,si,sd,sizeof(sddata),&Needed);
   SetFileApisTo(APIS2OEM);
   if (!RetSec)
@@ -3665,7 +3668,7 @@ int ShellCopy::SetSecurity(const char *FileName,const SECURITY_ATTRIBUTES &sa)
   char AnsiName[NM];
   SECURITY_INFORMATION si=DACL_SECURITY_INFORMATION;
   SetFileApisTo(APIS2ANSI);
-  OemToChar(FileName,AnsiName);
+  FAR_OemToChar(FileName,AnsiName);
   BOOL RetSec=SetFileSecurity(AnsiName,si,sa.lpSecurityDescriptor);
   SetFileApisTo(APIS2OEM);
   if (!RetSec)

@@ -5,10 +5,13 @@ Quick view panel
 
 */
 
-/* Revision: 1.33 12.09.2003 $ */
+/* Revision: 1.34 01.03.2004 $ */
 
 /*
 Modify:
+  01.03.2004 SVS
+    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
+      (задел на будущее + править впоследствии только 1 файл)
   12.09.2003 SVS
     ! Немного увеличим буфер для GetPathRootOne
   06.05.2003 SVS
@@ -433,7 +436,7 @@ void QuickView::ShowFile(char *FileName,int TempFile,HANDLE hDirPlugin)
       ValueSize=sizeof(CurFileType);
       if (RegQueryValue(HKEY_CLASSES_ROOT,Value,(LPTSTR)CurFileType,&ValueSize)!=ERROR_SUCCESS)
         *CurFileType=0;
-      CharToOem(CurFileType,CurFileType);
+      FAR_CharToOem(CurFileType,CurFileType);
     }
   }
   if (hDirPlugin || (FileAttr=GetFileAttributes(CurFileName))!=-1 && (FileAttr & FA_DIREC))

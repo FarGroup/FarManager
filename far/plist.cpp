@@ -5,10 +5,13 @@ plist.cpp
 
 */
 
-/* Revision: 1.14 05.07.2003 $ */
+/* Revision: 1.15 01.03.2004 $ */
 
 /*
 Modify:
+  01.03.2004 SVS
+    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
+      (задел на будущее + править впоследствии только 1 файл)
   05.07.2003 SVS
     - Ctrl-W F1 Ctrl-W F1 Ctrl-W ....
   06.05.2003 SVS
@@ -119,7 +122,7 @@ void ShowProcessList()
           {
             char WinTitle[512];
             GetWindowText(ProcWnd,WinTitle,sizeof(WinTitle));
-            CharToOem(WinTitle,WinTitle);
+            FAR_CharToOem(WinTitle,WinTitle);
             DWORD ProcID;
             GetWindowThreadProcessId(ProcWnd,&ProcID);
             if (Message(MSG_WARNING,2,MSG(MKillProcessTitle),MSG(MAskKillProcess),
@@ -207,7 +210,7 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
       memset(&ListItem,0,sizeof(ListItem));
       TruncStr(Title,sizeof(ListItem.Name)-1);
       sprintf(ListItem.Name,"%-25s",Title);
-      CharToOem(ListItem.Name,ListItem.Name);
+      FAR_CharToOem(ListItem.Name,ListItem.Name);
       ProcList->SetUserData((void*)hwnd,sizeof(hwnd),ProcList->AddItem(&ListItem));
     }
   }

@@ -5,10 +5,13 @@ stddlg.cpp
 
 */
 
-/* Revision: 1.27 22.09.2003 $ */
+/* Revision: 1.28 01.03.2004 $ */
 
 /*
 Modify:
+  01.03.2004 SVS
+    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
+      (задел на будущее + править впоследствии только 1 файл)
   22.09.2003 SVS
     - BugZ#402 - Удаление хоткея
   04.04.2003 SVS
@@ -654,8 +657,8 @@ int WINAPI GetNameAndPassword(char *Title,char *UserName,char *Password,char *He
   // Convert Name and Password to Ansi
   if(!(Flags&GNP_NOOEMTOCHAR))
   {
-    OemToChar(UserName,UserName);
-    OemToChar(Password,Password);
+    FAR_OemToChar(UserName,UserName);
+    FAR_OemToChar(Password,Password);
   }
   return(TRUE);
 }

@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.155 09.02.2004 $ */
+/* Revision: 1.156 01.03.2004 $ */
 
 /*
 Modify:
+  01.03.2004 SVS
+    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
+      (задел на будущее + править впоследствии только 1 файл)
   09.02.2004 SVS
     + SaveAllCurDir/RestoreAllCurDir - сохранение/восстановление переменных среды типа "=A:"
   27.10.2003 SVS
@@ -575,7 +578,7 @@ BOOL FarChDir(const char *NewDir, BOOL ChangeDir)
   {                                                     // буква диска, то путь
     Drive[1]=toupper(*NewDir);                          // возьмем из переменной
     if(GetEnvironmentVariable(Drive,CurDir,sizeof(CurDir)))  // окружения
-      CharToOem(CurDir,CurDir);
+      FAR_CharToOem(CurDir,CurDir);
     else
     {
       sprintf(CurDir,"%s\\",NewDir); // при неудаче переключимся в корень диска
@@ -617,7 +620,7 @@ BOOL FarChDir(const char *NewDir, BOOL ChangeDir)
         isalpha(*CurDir) && CurDir[1]==':')
     {
       Drive[1]=toupper(*CurDir);
-      OemToChar(CurDir,CurDir); // аргументы SetEnvironmentVariable должны быть ANSI
+      FAR_OemToChar(CurDir,CurDir); // аргументы SetEnvironmentVariable должны быть ANSI
       SetEnvironmentVariable(Drive,CurDir);
   //    rc=0;
     }
@@ -1269,7 +1272,7 @@ DWORD WINAPI ExpandEnvironmentStr(const char *src, char *dest, size_t size)
         *tmpSrc=(char *)alloca(strlen(src)+1);
    if(tmpDest && tmpSrc)
    {
-     OemToChar(src, tmpSrc);
+     FAR_OemToChar(src, tmpSrc);
      /* $ 15.02.2002 VVM
        ! Если строка не помещалась в буфер, то ExpandEnvironmetStr портила ее. */
 //     if(ExpandEnvironmentStrings(tmpSrc,tmpDest,size))
@@ -1282,7 +1285,7 @@ DWORD WINAPI ExpandEnvironmentStr(const char *src, char *dest, size_t size)
        strncpy(tmpDest, tmpSrc, size-1);
        strcpy(dest, tmpDest);
      }
-     CharToOem(dest, dest);
+     FAR_CharToOem(dest, dest);
      ret=strlen(dest);
    }
    /* IS $ */
@@ -1422,7 +1425,7 @@ char* DriveLocalToRemoteName(int DriveType,char Letter,char *Dest)
 
   if(IsOK)
   {
-    CharToOem(RemoteName,RemoteName);
+    FAR_CharToOem(RemoteName,RemoteName);
     strcpy(Dest,RemoteName);
   }
   return Dest;

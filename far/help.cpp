@@ -1,6 +1,3 @@
-#if defined(DHELP2)
-#include "help2.cpp"
-#else
 /*
 help.cpp
 
@@ -8,10 +5,14 @@ help.cpp
 
 */
 
-/* Revision: 1.80 22.10.2003 $ */
+/* Revision: 1.81 01.03.2004 $ */
 
 /*
 Modify:
+  01.03.2004 SVS
+    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
+      (задел на будущее + править впоследствии только 1 файл)
+    ! Выкинем нафиг упоминание про DHELP2 - нет такого
   22.10.2003 SVS
     - лишняя добавка к пути (лишний символ '\')
   13.10.2003 SVS
@@ -2130,7 +2131,7 @@ static int RunURL(char *Protocol, char *URLPath)
 #if 0
               SHELLEXECUTEINFO sei;
 
-              OemToChar(URLPath,Buf);
+              FAR_OemToChar(URLPath,Buf);
               memset(&sei,0,sizeof(sei));
               sei.cbSize=sizeof(sei);
               sei.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_DDEWAIT;
@@ -2141,7 +2142,7 @@ static int RunURL(char *Protocol, char *URLPath)
                 EditCode=1;
               SetFileApisTo(APIS2OEM);
 #else
-              OemToChar(URLPath,Buf);
+              FAR_OemToChar(URLPath,Buf);
               SetFileApisTo(APIS2ANSI);
               EditCode=ShellExecute(0, 0, RemoveExternalSpaces(Buf), 0, 0, SW_SHOWNORMAL)?1:2;
               SetFileApisTo(APIS2OEM);
@@ -2153,7 +2154,7 @@ static int RunURL(char *Protocol, char *URLPath)
               PROCESS_INFORMATION pi={0};
               si.cb=sizeof(si);
               strcat(Buf,URLPath);
-              OemToChar(Buf,Buf);
+              FAR_OemToChar(Buf,Buf);
               SetFileApisTo(APIS2ANSI); //????
               if(!CreateProcess(NULL,Buf,NULL,NULL,TRUE,0,NULL,NULL,&si,&pi))
                  EditCode=1;
@@ -2265,4 +2266,3 @@ void CallBackStack::PrintStack(const char *Title)
   SysLog(-1);
 #endif
 }
-#endif // defined(DHELP2)

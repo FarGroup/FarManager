@@ -5,10 +5,13 @@ flink.cpp
 
 */
 
-/* Revision: 1.42 25.02.2004 $ */
+/* Revision: 1.43 01.03.2004 $ */
 
 /*
 Modify:
+  01.03.2004 SVS
+    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
+      (задел на будущее + править впоследствии только 1 файл)
   25.02.2004 SVS
     + Новые сведения про _REPARSE_DATA_BUFFER ;-) (from DDK)
     - BugZ#581 - Неверно показывается свободное место
@@ -356,7 +359,7 @@ BOOL WINAPI CreateJunctionPoint(LPCTSTR SrcFolder,LPCTSTR LinkFolder)
     return FALSE;
   }
 
-  OemToChar(szDestDir,szDestDir); // !!!
+  FAR_OemToChar(szDestDir,szDestDir); // !!!
   wchar_t wszDestMountPoint[512];
   if (!MultiByteToWideChar(CP_THREAD_ACP,           // code page
                            MB_PRECOMPOSED,          // character-type options
@@ -509,7 +512,7 @@ DWORD WINAPI GetJunctionPointInfo(LPCTSTR szMountDir,
     //printf("WideCharToMultiByte failed (%d)\n", GetLastError());
     return 0;
   }
-  CharToOemBuff(szDestBuff,szDestBuff,dwBuffSize); // !!!
+  FAR_CharToOemBuff(szDestBuff,szDestBuff,dwBuffSize); // !!!
 #endif
   return rdb.SubstituteNameLength / sizeof(TCHAR);
 }

@@ -5,10 +5,15 @@ main.cpp
 
 */
 
-/* Revision: 1.73 13.10.2003 $ */
+/* Revision: 1.74 01.03.2004 $ */
 
 /*
 Modify:
+  01.03.2004 SVS
+    ! ќбертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
+      (задел на будущее + править впоследствии только 1 файл)
+    + FAR_ANSI - руками не мацать (уж больно трудно синхронизацией заниматьс€)
+      на "сейчас" вли€ни€ не окажет, зато потом...
   13.10.2003 SVS
     ! в морг "FARHOME", так в морг.
   09.10.2003 SVS
@@ -269,6 +274,11 @@ printf(
 " /8   Forces FAR to work in ANSI (non-Unicode) console.\n"
     );
   }
+#endif
+#if defined(FAR_ANSI)
+printf(
+" /fa  Use ANSI codepage.\n"
+);
 #endif
 printf(
 " /e[<line>[:<pos>]] <filename>\n"
@@ -560,17 +570,27 @@ int _cdecl main(int Argc, char *Argv[])
           }
           if (I+1<Argc)
           {
-            //CharToOem(Argv[I+1],EditName);
-            CharToOem(Argv[I+1],Argv[I+1]);
+            //FAR_CharToOem(Argv[I+1],EditName);
+            FAR_CharToOem(Argv[I+1],Argv[I+1]);
             EditName=Argv[I+1];
             I++;
           }
           break;
+#if defined(FAR_ANSI)
+        case 'F':
+          switch (toupper(Argv[I][2]))
+          {
+            case 'A':
+              Opt.FarAnsi=TRUE;
+              break;
+          }
+          break;
+#endif
         case 'V':
           if (I+1<Argc)
           {
-            //CharToOem(Argv[I+1],ViewName);
-            CharToOem(Argv[I+1],Argv[I+1]);
+            //FAR_CharToOem(Argv[I+1],ViewName);
+            FAR_CharToOem(Argv[I+1],Argv[I+1]);
             ViewName=Argv[I+1];
             I++;
           }
@@ -628,7 +648,7 @@ int _cdecl main(int Argc, char *Argv[])
                - Ќе правильно обрабатывалась команда /p[<path>], если в пути
                  были буквы национального алфавита.
             */
-            CharToOem(Opt.LoadPlug.CustomPluginsPath,Opt.LoadPlug.CustomPluginsPath);
+            FAR_CharToOem(Opt.LoadPlug.CustomPluginsPath,Opt.LoadPlug.CustomPluginsPath);
             /* IS $ */
           }
           else
@@ -676,7 +696,7 @@ int _cdecl main(int Argc, char *Argv[])
       if(CntDestName < 2)
       {
         if(GetFileAttributes(Argv[I]) != -1)
-          CharToOem(Argv[I],DestName[CntDestName++]);
+          FAR_CharToOem(Argv[I],DestName[CntDestName++]);
       }
     }
   }

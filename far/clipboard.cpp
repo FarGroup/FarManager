@@ -5,10 +5,13 @@ clipboard.cpp
 
 */
 
-/* Revision: 1.10 21.04.2003 $ */
+/* Revision: 1.11 01.03.2004 $ */
 
 /*
 Modify:
+  01.03.2004 SVS
+    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
+      (задел на будущее + править впоследствии только 1 файл)
   21.04.2003 SVS
     ! Учтем состояние, когда AnsiMode=1 - в этом случае не "корежим"
       передаваемые в/из клипьорда данные (осталось докрутить редактор)
@@ -222,7 +225,7 @@ int InternalCopyToClipboard(const char *Data,int AnsiMode)
       {
         memcpy(GData,Data,DataSize+1);
         if(!AnsiMode)
-          OemToChar((LPCSTR)GData,(LPTSTR)GData);
+          FAR_OemToChar((LPCSTR)GData,(LPTSTR)GData);
         GlobalUnlock(hData);
         FAR_SetClipboardData(CF_TEXT,(HANDLE)hData);
       }
@@ -318,7 +321,7 @@ char* InternalPasteFromClipboard(int AnsiMode)
         if (ReadType==CF_TEXT)
         {
           if(!AnsiMode)
-            CharToOem(ClipAddr,ClipText);
+            FAR_CharToOem(ClipAddr,ClipText);
         }
         else
           strcpy(ClipText,ClipAddr);
@@ -387,7 +390,7 @@ char* InternalPasteFromClipboardEx(int max,int AnsiMode)
         {
           strncpy(ClipText,ClipAddr,BufferSize);
           if(!AnsiMode)
-            CharToOem(ClipText,ClipText);
+            FAR_CharToOem(ClipText,ClipText);
           ClipText[BufferSize]=0;
         }
         else

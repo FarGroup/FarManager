@@ -5,10 +5,13 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.48 28.02.2004 $ */
+/* Revision: 1.49 01.03.2004 $ */
 
 /*
 Modify:
+  01.03.2004 SVS
+    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
+      (задел на будущее + править впоследствии только 1 файл)
   28.02.2004 SVS
     + Opt.AutoUpdateRemoteDrive - управление автоапдейтом сетевых дисков
   13.11.2003 SVS
@@ -358,7 +361,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
       SetFileApisTo(APIS2ANSI);
       if (WNetGetConnection(LocalName,NetDir,&RemoteNameSize)==NO_ERROR)
-        CharToOem(NetDir,NetDir);
+        FAR_CharToOem(NetDir,NetDir);
       SetFileApisTo(APIS2OEM);
     }
     if (NetDir[0]=='\\' && NetDir[1]=='\\')
@@ -681,7 +684,7 @@ void FileList::CreateChangeNotification(int CheckTree)
   if(Opt.AutoUpdateRemoteDrive || (!Opt.AutoUpdateRemoteDrive && DriveType != DRIVE_REMOTE))
   {
     char AnsiName[NM];
-    OemToChar(CurDir,AnsiName);
+    FAR_OemToChar(CurDir,AnsiName);
     SetFileApisTo(APIS2ANSI);
     hListChange=FindFirstChangeNotification(AnsiName,CheckTree,
                         FILE_NOTIFY_CHANGE_FILE_NAME|

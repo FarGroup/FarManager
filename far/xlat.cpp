@@ -5,10 +5,13 @@ XLat - перекодировка
 
 */
 
-/* Revision: 1.04 07.01.2003 $ */
+/* Revision: 1.05 01.03.2004 $ */
 
 /*
 Modify:
+  01.03.2004 SVS
+    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
+      (задел на будущее + править впоследствии только 1 файл)
   19.02.2002 SVS
     ! Уточнение кодера.
   25.06.2001 IS
@@ -62,7 +65,7 @@ char* WINAPI Xlat(
     return Line;
 
 
-//  OemToCharBuff(Opt.QWERTY.Table[0],Opt.QWERTY.Table[0],80);???
+//  FAR_OemToCharBuff(Opt.QWERTY.Table[0],Opt.QWERTY.Table[0],80);???
   if(!Opt.XLat.Table[0][0] || !Opt.XLat.Table[1][0])
     return Line;
 

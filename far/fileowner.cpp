@@ -5,10 +5,13 @@ fileowner.cpp
 
 */
 
-/* Revision: 1.01 09.10.2003 $ */
+/* Revision: 1.02 01.03.2004 $ */
 
 /*
 Modify:
+  01.03.2004 SVS
+    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
+      (задел на будущее + править впоследствии только 1 файл)
   09.10.2003 SVS
     ! SetFileApisToANSI() и SetFileApisToOEM() заменены на SetFileApisTo() с параметром
       APIS2ANSI или APIS2OEM - задел на будущее
@@ -38,7 +41,7 @@ int WINAPI GetFileOwner(const char *Computer,const char *Name,char *Owner)
   sd=(SECURITY_DESCRIPTOR *)sddata;
 
   char AnsiName[NM];
-  OemToChar(Name,AnsiName);
+  FAR_OemToChar(Name,AnsiName);
   SetFileApisTo(APIS2ANSI);
   int GetCode=GetFileSecurity(AnsiName,si,sd,sizeof(sddata),&Needed);
   SetFileApisTo(APIS2OEM);
@@ -57,7 +60,7 @@ int WINAPI GetFileOwner(const char *Computer,const char *Name,char *Owner)
   SID_NAME_USE snu;
   if (!LookupAccountSid(Computer,pOwner,AccountName,&AccountLength,DomainName,&DomainLength,&snu))
     return(FALSE);
-  CharToOem(AccountName,Owner);
+  FAR_CharToOem(AccountName,Owner);
   return(TRUE);
 }
 /* SVS $*/
@@ -117,7 +120,7 @@ static const char *add_sid_cache(const char *computer,PSID sid)
           new_rec->username[Len+1]=0;
           new_rec->username[Len]='\\';
           strcat(new_rec->username,AccountName);
-          CharToOem(new_rec->username,new_rec->username);
+          FAR_CharToOem(new_rec->username,new_rec->username);
           res=new_rec->username+Len+1;
         }
         else
@@ -167,7 +170,7 @@ int WINAPI GetFileOwner(const char *Computer,const char *Name,char *Owner)
   sd=(SECURITY_DESCRIPTOR *)sddata;
 
   char AnsiName[NM];
-  OemToChar(Name,AnsiName);
+  FAR_OemToChar(Name,AnsiName);
   SetFileApisTo(APIS2ANSI);
   int GetCode=GetFileSecurity(AnsiName,si,sd,sizeof(sddata),&Needed);
   SetFileApisTo(APIS2OEM);
@@ -199,7 +202,7 @@ int WINAPI GetFileOwner(const char *Computer,const char *Name,char *Owner)
   SID_NAME_USE snu;
   if (!LookupAccountSid(Computer,pOwner,AccountName,&AccountLength,DomainName,&DomainLength,&snu))
     return(FALSE);
-  CharToOem(AccountName,Owner);
+  FAR_CharToOem(AccountName,Owner);
 #endif
   return(TRUE);
 }

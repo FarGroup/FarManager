@@ -5,10 +5,13 @@ delete.cpp
 
 */
 
-/* Revision: 1.63 15.10.2003 $ */
+/* Revision: 1.64 01.03.2004 $ */
 
 /*
 Modify:
+  01.03.2004 SVS
+    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
+      (задел на будущее + править впоследствии только 1 файл)
   15.10.2003 SVS
     ! Изменение в подстановке - SE_ERR_DLLNOTFOUND имеет не ERROR_FILE_NOT_FOUND но ERROR_SHARING_VIOLATION
     + Сохраним первый вариант кода возврата SHFileOperation() и именно его выдадим за результаты,
@@ -876,7 +879,7 @@ int RemoveToRecycleBin(const char *Name)
     return 1;
   }
 
-  OemToChar(FullName,FullName);
+  FAR_OemToChar(FullName,FullName);
   FullName[strlen(FullName)+1]=0;
 
   memset(&fop,0,sizeof(fop)); // говорят помогает :-)

@@ -5,10 +5,13 @@ interf.cpp
 
 */
 
-/* Revision: 1.82 19.02.2004 $ */
+/* Revision: 1.83 01.03.2004 $ */
 
 /*
 Modify:
+  01.03.2004 SVS
+    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
+      (задел на будущее + править впоследствии только 1 файл)
   19.02.2004 SVS
     ! В BoxText() применим TextW вместо BoxTextW - "сокращение расстояния"
     + BoxTextW2()
@@ -431,7 +434,7 @@ void SetFarTitle(const char *Title)
     sprintf(FarTitle,"%.256s%s",Title,FarTitleAddons);
     TitleModified=TRUE;
     if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
-      OemToChar(FarTitle,FarTitle);
+      FAR_OemToChar(FarTitle,FarTitle);
     if(strcmp(OldFarTitle,FarTitle) &&
       (CtrlObject->Macro.IsExecuting() && !CtrlObject->Macro.IsDsableOutput() ||
        !CtrlObject->Macro.IsExecuting() || CtrlObject->Macro.IsExecutingLastKey())

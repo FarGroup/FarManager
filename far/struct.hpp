@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.115 28.02.2004 $ */
+/* Revision: 1.116 01.03.2004 $ */
 
 /*
 Modify:
+  01.03.2004 SVS
+    + FAR_ANSI
   28.02.2004 SVS
     + Opt.AutoUpdateRemoteDrive - управление автоапдейтом сетевых дисков
   15.01.2004 SVS
@@ -890,6 +892,9 @@ struct Options
   int ExecuteShowErrorMessage;
   int ExecuteUseAppPath;
 
+#if defined(FAR_ANSI)
+  int FarAnsi;
+#endif
   DWORD PluginMaxReadData;
   int UseNumPad;
   int CASRule;

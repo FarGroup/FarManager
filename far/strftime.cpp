@@ -5,10 +5,13 @@ strftime.cpp
 
 */
 
-/* Revision: 1.10 20.10.2003 $ */
+/* Revision: 1.11 01.03.2004 $ */
 
 /*
 Modify:
+  01.03.2004 SVS
+    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
+      (задел на будущее + править впоследствии только 1 файл)
   20.10.2003 SVS
     ! Уточнение некоторых деталей
   08.09.2003 SVS
@@ -42,7 +45,7 @@ Modify:
 #include "global.hpp"
 #include "lang.hpp"
 
-#define range(low, item, hi)	max(low, min(item, hi))
+#define range(low, item, hi)    max(low, min(item, hi))
 
 //extern char  *const _tzname[2];
 static const char Days[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
@@ -73,28 +76,28 @@ void PrepareStrFTime(void)
     for(ID=LOCALE_SMONTHNAME1; ID <= LOCALE_SMONTHNAME12; ++ID)
     {
       GetLocaleInfo(CurLCID,ID,TempBuf,sizeof(TempBuf));
-      CharToOem(TempBuf,Month[I][ID-LOCALE_SMONTHNAME1]);
+      FAR_CharToOem(TempBuf,Month[I][ID-LOCALE_SMONTHNAME1]);
       *Month[I][ID-LOCALE_SMONTHNAME1]=LocalUpper(*Month[I][ID-LOCALE_SMONTHNAME1]);
     }
 
     for(ID=LOCALE_SABBREVMONTHNAME1; ID <= LOCALE_SABBREVMONTHNAME12; ++ID)
     {
       GetLocaleInfo(CurLCID,ID,TempBuf,sizeof(TempBuf));
-      CharToOem(TempBuf,AMonth[I][ID-LOCALE_SABBREVMONTHNAME1]);
+      FAR_CharToOem(TempBuf,AMonth[I][ID-LOCALE_SABBREVMONTHNAME1]);
       *AMonth[I][ID-LOCALE_SABBREVMONTHNAME1]=LocalUpper(*AMonth[I][ID-LOCALE_SABBREVMONTHNAME1]);
     }
 
     for(ID=LOCALE_SDAYNAME1; ID <= LOCALE_SDAYNAME7; ++ID)
     {
       GetLocaleInfo(CurLCID,ID,TempBuf,sizeof(TempBuf));
-      CharToOem(TempBuf,Weekday[I][ID-LOCALE_SDAYNAME1]);
+      FAR_CharToOem(TempBuf,Weekday[I][ID-LOCALE_SDAYNAME1]);
       *Weekday[I][ID-LOCALE_SDAYNAME1]=LocalUpper(*Weekday[I][ID-LOCALE_SDAYNAME1]);
     }
 
     for(ID=LOCALE_SABBREVDAYNAME1; ID <= LOCALE_SABBREVDAYNAME7; ++ID)
     {
       GetLocaleInfo(CurLCID,ID,TempBuf,sizeof(TempBuf));
-      CharToOem(TempBuf,AWeekday[I][ID-LOCALE_SABBREVDAYNAME1]);
+      FAR_CharToOem(TempBuf,AWeekday[I][ID-LOCALE_SABBREVDAYNAME1]);
       *AWeekday[I][ID-LOCALE_SABBREVDAYNAME1]=LocalUpper(*AWeekday[I][ID-LOCALE_SABBREVDAYNAME1]);
     }
   }
@@ -160,131 +163,131 @@ static int st_time(char *dest,const struct tm *tmPtr,char chr)
 /* weeknumber --- figure how many weeks into the year */
 static int weeknumber(const struct tm *timeptr, int firstweekday)
 {
-	int wday = timeptr->tm_wday;
-	int ret;
+    int wday = timeptr->tm_wday;
+    int ret;
 
-	if (firstweekday == 1) {
-		if (wday == 0)	/* sunday */
-			wday = 6;
-		else
-			wday--;
-	}
-	ret = ((timeptr->tm_yday + 7 - wday) / 7);
-	if (ret < 0)
-		ret = 0;
-	return ret;
+    if (firstweekday == 1) {
+        if (wday == 0)  /* sunday */
+            wday = 6;
+        else
+            wday--;
+    }
+    ret = ((timeptr->tm_yday + 7 - wday) / 7);
+    if (ret < 0)
+        ret = 0;
+    return ret;
 }
 
 /* isleap --- is a year a leap year? */
 static int isleap(int year)
 {
-	return ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0);
+    return ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0);
 }
 
 static int iso8601wknum(const struct tm *timeptr)
 {
-	/*
-	 * From 1003.2:
-	 *	If the week (Monday to Sunday) containing January 1
-	 *	has four or more days in the new year, then it is week 1;
-	 *	otherwise it is the highest numbered week of the previous
-	 *	year (52 or 53), and the next week is week 1.
-	 *
-	 * ADR: This means if Jan 1 was Monday through Thursday,
-	 *	it was week 1, otherwise week 52 or 53.
-	 *
-	 * XPG4 erroneously included POSIX.2 rationale text in the
-	 * main body of the standard. Thus it requires week 53.
-	 */
+    /*
+     * From 1003.2:
+     *  If the week (Monday to Sunday) containing January 1
+     *  has four or more days in the new year, then it is week 1;
+     *  otherwise it is the highest numbered week of the previous
+     *  year (52 or 53), and the next week is week 1.
+     *
+     * ADR: This means if Jan 1 was Monday through Thursday,
+     *  it was week 1, otherwise week 52 or 53.
+     *
+     * XPG4 erroneously included POSIX.2 rationale text in the
+     * main body of the standard. Thus it requires week 53.
+     */
 
-	int weeknum, jan1day;
+    int weeknum, jan1day;
 
-	/* get week number, Monday as first day of the week */
-	weeknum = weeknumber(timeptr, 1);
+    /* get week number, Monday as first day of the week */
+    weeknum = weeknumber(timeptr, 1);
 
-	/*
-	 * With thanks and tip of the hatlo to tml@tik.vtt.fi
-	 *
-	 * What day of the week does January 1 fall on?
-	 * We know that
-	 *	(timeptr->tm_yday - jan1.tm_yday) MOD 7 ==
-	 *		(timeptr->tm_wday - jan1.tm_wday) MOD 7
-	 * and that
-	 * 	jan1.tm_yday == 0
-	 * and that
-	 * 	timeptr->tm_wday MOD 7 == timeptr->tm_wday
-	 * from which it follows that. . .
- 	 */
-	jan1day = timeptr->tm_wday - (timeptr->tm_yday % 7);
-	if (jan1day < 0)
-		jan1day += 7;
+    /*
+     * With thanks and tip of the hatlo to tml@tik.vtt.fi
+     *
+     * What day of the week does January 1 fall on?
+     * We know that
+     *  (timeptr->tm_yday - jan1.tm_yday) MOD 7 ==
+     *      (timeptr->tm_wday - jan1.tm_wday) MOD 7
+     * and that
+     *  jan1.tm_yday == 0
+     * and that
+     *  timeptr->tm_wday MOD 7 == timeptr->tm_wday
+     * from which it follows that. . .
+     */
+    jan1day = timeptr->tm_wday - (timeptr->tm_yday % 7);
+    if (jan1day < 0)
+        jan1day += 7;
 
-	/*
-	 * If Jan 1 was a Monday through Thursday, it was in
-	 * week 1.  Otherwise it was last year's highest week, which is
-	 * this year's week 0.
-	 *
-	 * What does that mean?
-	 * If Jan 1 was Monday, the week number is exactly right, it can
-	 *	never be 0.
-	 * If it was Tuesday through Thursday, the weeknumber is one
-	 *	less than it should be, so we add one.
-	 * Otherwise, Friday, Saturday or Sunday, the week number is
-	 * OK, but if it is 0, it needs to be 52 or 53.
-	 */
-	switch (jan1day) {
-	case 1:		/* Monday */
-		break;
-	case 2:		/* Tuesday */
-	case 3:		/* Wednesday */
-	case 4:		/* Thursday */
-		weeknum++;
-		break;
-	case 5:		/* Friday */
-	case 6:		/* Saturday */
-	case 0:		/* Sunday */
-		if (weeknum == 0) {
+    /*
+     * If Jan 1 was a Monday through Thursday, it was in
+     * week 1.  Otherwise it was last year's highest week, which is
+     * this year's week 0.
+     *
+     * What does that mean?
+     * If Jan 1 was Monday, the week number is exactly right, it can
+     *  never be 0.
+     * If it was Tuesday through Thursday, the weeknumber is one
+     *  less than it should be, so we add one.
+     * Otherwise, Friday, Saturday or Sunday, the week number is
+     * OK, but if it is 0, it needs to be 52 or 53.
+     */
+    switch (jan1day) {
+    case 1:     /* Monday */
+        break;
+    case 2:     /* Tuesday */
+    case 3:     /* Wednesday */
+    case 4:     /* Thursday */
+        weeknum++;
+        break;
+    case 5:     /* Friday */
+    case 6:     /* Saturday */
+    case 0:     /* Sunday */
+        if (weeknum == 0) {
 #ifdef USE_BROKEN_XPG4
-			/* XPG4 (as of March 1994) says 53 unconditionally */
-			weeknum = 53;
+            /* XPG4 (as of March 1994) says 53 unconditionally */
+            weeknum = 53;
 #else
-			/* get week number of last week of last year */
-			struct tm dec31ly;	/* 12/31 last year */
-			dec31ly = *timeptr;
-			dec31ly.tm_year--;
-			dec31ly.tm_mon = 11;
-			dec31ly.tm_mday = 31;
-			dec31ly.tm_wday = (jan1day == 0) ? 6 : jan1day - 1;
-			dec31ly.tm_yday = 364 + isleap(dec31ly.tm_year + 1900);
-			weeknum = iso8601wknum(& dec31ly);
+            /* get week number of last week of last year */
+            struct tm dec31ly;  /* 12/31 last year */
+            dec31ly = *timeptr;
+            dec31ly.tm_year--;
+            dec31ly.tm_mon = 11;
+            dec31ly.tm_mday = 31;
+            dec31ly.tm_wday = (jan1day == 0) ? 6 : jan1day - 1;
+            dec31ly.tm_yday = 364 + isleap(dec31ly.tm_year + 1900);
+            weeknum = iso8601wknum(& dec31ly);
 #endif
-		}
-		break;
-	}
+        }
+        break;
+    }
 
-	if (timeptr->tm_mon == 11) {
-		/*
-		 * The last week of the year
-		 * can be in week 1 of next year.
-		 * Sigh.
-		 *
-		 * This can only happen if
-		 *	M   T  W
-		 *	29  30 31
-		 *	30  31
-		 *	31
-		 */
-		int wday, mday;
+    if (timeptr->tm_mon == 11) {
+        /*
+         * The last week of the year
+         * can be in week 1 of next year.
+         * Sigh.
+         *
+         * This can only happen if
+         *  M   T  W
+         *  29  30 31
+         *  30  31
+         *  31
+         */
+        int wday, mday;
 
-		wday = timeptr->tm_wday;
-		mday = timeptr->tm_mday;
-		if (   (wday == 1 && (mday >= 29 && mday <= 31))
-		    || (wday == 2 && (mday == 30 || mday == 31))
-		    || (wday == 3 &&  mday == 31))
-			weeknum = 1;
-	}
+        wday = timeptr->tm_wday;
+        mday = timeptr->tm_mday;
+        if (   (wday == 1 && (mday >= 29 && mday <= 31))
+            || (wday == 2 && (mday == 30 || mday == 31))
+            || (wday == 3 &&  mday == 31))
+            weeknum = 1;
+    }
 
-	return weeknum;
+    return weeknum;
 }
 
 int MkStrFTime(char *Dest,int DestSize,const char *Fmt)

@@ -5,10 +5,13 @@ infolist.cpp
 
 */
 
-/* Revision: 1.39 26.02.2003 $ */
+/* Revision: 1.40 01.03.2004 $ */
 
 /*
 Modify:
+  01.03.2004 SVS
+    ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
+      (задел на будущее + править впоследствии только 1 файл)
   26.02.2003 SVS
     ! вместо ShellUpdatePanels() исполним Redraw()
   25.02.2003 SVS
@@ -197,8 +200,8 @@ void InfoList::DisplayObject()
     *ComputerName=*UserName=0;
     GetComputerName(ComputerName,&ComputerNameSize);
     GetUserName(UserName,&UserNameSize);
-    CharToOem(ComputerName,ComputerName);
-    CharToOem(UserName,UserName);
+    FAR_CharToOem(ComputerName,ComputerName);
+    FAR_CharToOem(UserName,UserName);
     GotoXY(X1+2,Y1+1);
     PrintText(MInfoCompName);
     PrintInfo(ComputerName);
@@ -290,7 +293,7 @@ void InfoList::DisplayObject()
 
     if(ShowRealPath)
     {
-      CharToOem(RemoteName,RemoteName);
+      FAR_CharToOem(RemoteName,RemoteName);
       strcat(Title,RemoteName);
       strcat(Title," ");
     }
