@@ -79,11 +79,8 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,
 
       if (Silent)
       {
-        hScreen=Info.SaveScreen(0,0,-1,0);
-#ifndef LIGHTGRAY
-#define LIGHTGRAY 7
-#endif
-        Info.Text(2,0,LIGHTGRAY,GetMsg(MWaitForExternalProgram));
+        /*hScreen=Info.SaveScreen(0,0,-1,0);
+        Info.Text(2,0,LIGHTGRAY,GetMsg(MWaitForExternalProgram))*/;
       }
       else
       {

@@ -49,9 +49,9 @@ int WINAPI ArcPlugins::LoadFmtModules(const WIN32_FIND_DATA *fdata,
     // обязательные!
     if(!(CurPlugin.pIsArchive &&
          CurPlugin.pOpenArchive &&
-         CurPlugin.pGetArcItem &&
+         CurPlugin.pGetArcItem /*&&
          CurPlugin.pGetFormatName &&
-         CurPlugin.pGetDefaultCommands))
+         CurPlugin.pGetDefaultCommands*/))
     {
       FreeLibrary(hModule);
       return TRUE;
@@ -90,11 +90,11 @@ int ArcPlugins::IsArchive(char *Name,const unsigned char *Data,int DataSize)
 {
   DWORD MinSFXSize=0xFFFFFFFF;
   DWORD CurSFXSize;
-  char *ExtPtr=strrchr(Name,'.');
   int TrueArc=-1;
   int I, J;
   struct PluginItem *CurPluginsData;
 
+/*  char *ExtPtr=strrchr(Name,'.');
   if (ExtPtr!=NULL)
   {
     ExtPtr++;
@@ -122,7 +122,7 @@ int ArcPlugins::IsArchive(char *Name,const unsigned char *Data,int DataSize)
         }
       }
     }
-  }
+  }*/
 
   for (CurPluginsData=PluginsData,I=0; I < PluginsCount; I++,CurPluginsData++)
   {

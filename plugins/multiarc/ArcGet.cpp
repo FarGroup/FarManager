@@ -91,11 +91,23 @@ int PluginClass::GetFiles(struct PluginPanelItem *PanelItem, int ItemsNumber,
   if (AskVolume)
   {
     char VolMsg[300];
-    FSF.sprintf(VolMsg,GetMsg(MExtrVolume),FSF.PointToName(ArcName));
-    const char *MsgItems[]={GetMsg(MExtractTitle),VolMsg,GetMsg(MExtrVolumeAsk1),
-                      GetMsg(MExtrVolumeAsk2),GetMsg(MExtrVolumeSelFiles),
-                      GetMsg(MExtrAllVolumes)};
-    int MsgCode=Info.Message(Info.ModuleNumber,0,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),2);
+    int MsgCode;
+
+    /*if(OpMode & OPM_TOPLEVEL) // $ 16.02.2002 AA
+    {
+      //?? есть разница между извлечением выделенных файлов тома и
+      //извлечением из выделенных томов. здесь можно ее учесть.
+      //как минимум - нужно изменить надпись в мессаджбоксе
+      MsgCode=1;
+    }
+    else        */
+    {
+      FSF.sprintf(VolMsg,GetMsg(MExtrVolume),FSF.PointToName(ArcName));
+      const char *MsgItems[]={GetMsg(MExtractTitle),VolMsg,GetMsg(MExtrVolumeAsk1),
+                        GetMsg(MExtrVolumeAsk2),GetMsg(MExtrVolumeSelFiles),
+                        GetMsg(MExtrAllVolumes)};
+      MsgCode=Info.Message(Info.ModuleNumber,0,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),2);
+    }
     if (MsgCode<0)
       return -1;
     if (MsgCode==1)

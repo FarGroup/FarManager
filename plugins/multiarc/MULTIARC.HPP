@@ -301,6 +301,10 @@ struct Options
 
 char PluginRootKey[80];
 
+#ifndef LIGHTGRAY
+#define LIGHTGRAY 7
+#endif
+
 #define RETEXEC_ARCNOTFOUND 0x40000
 
 /* $ 26.07.2001 AA */
