@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.82 02.07.2001 $ */
+/* Revision: 1.83 04.07.2001 $ */
 
 /*
 Modify:
+  04.07.2001 SVS
+    ! Кусок закомменченного кода про логи будет полезен в syslog.cpp
   02.07.2001 IS
     + RawConvertShortNameToLongName
   25.06.2001 IS
@@ -813,54 +815,6 @@ int WINAPI ProcessName(const char *param1, char *param2, DWORD flags)
  return FALSE;
 }
 /* IS $ */
-
-/*
-void ShowHeap()
-{
-  _HEAPINFO hi;
-
-  Log( "" );
-  Log( "   Size   Status" );
-  Log( "   ----   ------" );
-  hi._pentry=NULL;
-  while( _rtl_heapwalk( &hi ) == _HEAPOK )
-    Log( "%7u    %s", hi._size, hi._useflag ? "used" : "free" );
-}
-
-
-void CheckHeap(int NumLine)
-{
-  if (_heapchk()==_HEAPBADNODE)
-  {
-    char Line[10];
-    sprintf(Line,"%d",NumLine);
-    Message(MSG_WARNING,1,MSG(MError),"Heap broken",Line,MSG(MOk));
-  }
-}
-
-
-void Log(char *fmt,...)
-{
-  va_list argptr;
-  va_start(argptr,fmt);
-  char OutStr[1024];
-  vsprintf(OutStr,fmt,argptr);
-
-  char FarFileName[NM];
-  GetModuleFileName(NULL,FarFileName,sizeof(FarFileName));
-  strcpy(strrchr(FarFileName,'\\')+1,"far.log");
-  FILE *LogFile=fopen(FarFileName,"ab");
-  if (LogFile!=NULL)
-  {
-    SYSTEMTIME tm;
-    GetLocalTime(&tm);
-    fprintf(LogFile,"%02d:%02d:%02d %s\r\n",tm.wHour,tm.wMinute,tm.wSecond,OutStr);
-    fclose(LogFile);
-  }
-  va_end(argptr);
-}
-*/
-
 
 /* $ 01.11.2000 OT
   Исправление логики. Теперь функция должна в обязательном порядке

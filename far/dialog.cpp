@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.131 02.07.2001 $ */
+/* Revision: 1.132 04.07.2001 $ */
 
 /*
 Modify:
+  04.07.2001 SVS
+   - XLat в строках ввода - не снималось состо€ние Unchanged
+   - Ќемного проверок...
   02.07.2001 KM
    - »збавимс€ от потенциального (и кажетс€ не только) бага
      при Param1==-1 в SendDlgMessage (в основном) и DefDlgProc.
@@ -2123,7 +2126,8 @@ int Dialog::ProcessKey(int Key)
          ѕеред выводом диалога посылаем сообщение в обработчик
          и если вернули что надо, то выводим подсказку
       */
-      PtrStr=(char*)DlgProc((HANDLE)this,DN_HELP,FocusPos,(long)&HelpTopic[0]);
+      PtrStr=(char*)DlgProc((HANDLE)this,DN_HELP,FocusPos,
+                           (HelpTopic?(long)&HelpTopic[0]:NULL));
       if(PtrStr && *PtrStr)
       {
         /* $ 31.08.2000 SVS
@@ -2777,6 +2781,7 @@ int Dialog::ProcessKey(int Key)
         if(Opt.XLat.XLatDialogKey && Key == Opt.XLat.XLatDialogKey ||
            Opt.XLat.XLatAltDialogKey && Key == Opt.XLat.XLatAltDialogKey)
         {
+          edt->SetClearFlag(0);
           edt->Xlat();
           Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,FocusPos,0);
           return TRUE;
@@ -5212,7 +5217,8 @@ void Dialog::SetHelp (const char *Topic)
   if (HelpTopic)
     delete[] HelpTopic;
   HelpTopic = new char [strlen (Topic)+1];
-  strcpy (HelpTopic, Topic);
+  if(HelpTopic)
+    strcpy (HelpTopic, Topic);
 }
 
 void Dialog::ShowHelp()

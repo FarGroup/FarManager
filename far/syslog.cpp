@@ -5,12 +5,15 @@ syslog.cpp
 
 */
 
-/* Revision: 1.11 27.06.2001 $ */
+/* Revision: 1.12 04.07.2001 $ */
 
 /*
 Modify:
+  04.07.2001 SVS
+    ! очередное уточнение LOG-файла :-)
+    + Функции про хип
   27.06.2001 SVS
-    ! Неболшая переделка LOG-файла :-)
+    ! Небольшая переделка LOG-файла :-)
       Теперь файлы складывается в каталог %FAR%\$Log и имеют имя
       Far.YYYYMMDD.BILD.log - BILD=%05d
   25.06.2001 SVS
@@ -126,6 +129,39 @@ void CloseSysLog(void)
 #endif
 }
 
+void ShowHeap()
+{
+#if defined(SYSLOG) && defined(HEAPLOG)
+  _HEAPINFO hi;
+
+  SysLog( "   Size   Status" );
+  SysLog( "   ----   ------" );
+  DWORD Sz=0;
+  hi._pentry=NULL;
+//    int     *__pentry;
+  while( _rtl_heapwalk( &hi ) == _HEAPOK )
+  {
+    SysLog( "%7u    %s  (%p)", hi._size, (hi._useflag ? "used" : "free"),hi.__pentry);
+    Sz+=hi._useflag?hi._size:0;
+  }
+  SysLog( "   ----   ------" );
+  SysLog( "%7u      ", Sz);
+
+#endif
+}
+
+
+void CheckHeap(int NumLine)
+{
+#if defined(SYSLOG) && defined(HEAPLOG)
+  if (_heapchk()==_HEAPBADNODE)
+  {
+    SysLog("Error: Heap broken, Line=%d",NumLine);
+  }
+#endif
+}
+
+
 void SysLog(int i)
 {
 #if defined(SYSLOG)
@@ -140,8 +176,9 @@ static char *PrintTime(char *timebuf)
 {
   SYSTEMTIME st;
   GetLocalTime(&st);
-  sprintf(timebuf,"%02d.%02d.%04d %2d:%02d:%02d.%04d",
-      st.wDay,st.wMonth,st.wYear,st.wHour,st.wMinute,st.wSecond,st.wMilliseconds);
+//  sprintf(timebuf,"%02d.%02d.%04d %2d:%02d:%02d.%03d",
+//      st.wDay,st.wMonth,st.wYear,st.wHour,st.wMinute,st.wSecond,st.wMilliseconds);
+  sprintf(timebuf,"%02d:%02d:%02d.%03d",st.wHour,st.wMinute,st.wSecond,st.wMilliseconds);
   return timebuf;
 }
 #endif

@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.93 02.07.2001 $ */
+/* Revision: 1.94 04.07.2001 $ */
 
 /*
 Modify:
+  04.07.2001 SVS
+   + Функции про хип
   02.07.2001 IS
    + RawConvertShortNameToLongName
   25.06.2001 IS
@@ -719,6 +721,8 @@ void WINAPI DeleteBuffer(char* Buffer);
 void SysLog(int l);
 void SysLog(char *msg,...);
 void SysLog(int l,char *fmt,...); ///
+void ShowHeap();
+void CheckHeap(int NumLine);
 
 #if defined(_DEBUG) && defined(SYSLOG)
 #define _D(x)  x
