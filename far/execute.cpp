@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.62 05.07.2002 $ */
+/* Revision: 1.63 06.07.2002 $ */
 
 /*
 Modify:
+  06.07.2002 VVM
+    + Если не установлена переменная %COMSPEC% - предупредить и выйти.
   05.07.2002 SVS
     - ФАР ждет завершения GUI-прилад с NE-заголовком.
       Уточним этот факт (с подачи Andrzej Novosiolov <andrzej@se.kiev.ua>)
@@ -694,6 +696,7 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
   int NT = WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT;
   char NewCmdStr[4096];
   char NewCmdPar[4096];
+  char CommandName[NM];
   NewCmdPar[0] = 0;
 
   // ПРЕДпроверка на вшивость
@@ -769,10 +772,26 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
   PROCESS_INFORMATION pi;
   int Visible,Size;
   int PrevLockCount;
-  char ExecLine[4096],CommandName[NM];
+  char ExecLine[4096];
   char OldTitle[512];
   DWORD ImageSubsystem = IMAGE_SUBSYSTEM_NATIVE;
   int ExitCode=1;
+
+  int ExecutorType = GetRegKey("System\\Executor","Type",0);
+  ExitCode=PrepareExecuteModule(NewCmdStr,NewCmdStr,sizeof(NewCmdStr)-1,ImageSubsystem);
+  if (!ExecutorType || SeparateWindow==2)
+    ExitCode = 1;
+  QuoteSpace(NewCmdStr);
+  QuoteFound = NewCmdStr[0] == '"';
+  CmdPtr = NewCmdStr;
+
+  CommandName[0]=0;
+  GetEnvironmentVariable("COMSPEC",CommandName,sizeof(CommandName));
+  if ((CommandName[0] == 0) && (SetUpDirs || (!ExecutorType && SeparateWindow != 2)))
+  {
+    Message(MSG_WARNING, 1, MSG(MWarning), MSG(MComspecNotFound), MSG(MErrorCancelled), MSG(MOk));
+    return -1;
+  }
 
   /* $ 13.04.2001 VVM
     + Флаг CREATE_DEFAULT_ERROR_MODE. Что-бы показывал все ошибки */
@@ -793,10 +812,7 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
   memset(&si,0,sizeof(si));
   si.cb=sizeof(si);
 
-  *CommandName=0;
-  GetEnvironmentVariable("COMSPEC",CommandName,sizeof(CommandName));
-
-  if(SetUpDirs)
+  if (SetUpDirs)
   {
     Panel *PassivePanel=CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel);
     if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS && PassivePanel->GetType()==FILE_PANEL)
@@ -820,15 +836,7 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
   //while (IsSpace(*CmdPtr))
   //  CmdPtr++;
 
-  int ExecutorType = GetRegKey("System\\Executor","Type",0);
-  ExitCode=PrepareExecuteModule(NewCmdStr,NewCmdStr,sizeof(NewCmdStr)-1,ImageSubsystem);
-  if (!ExecutorType || SeparateWindow==2)
-    ExitCode = 1;
-  QuoteSpace(NewCmdStr);
-  QuoteFound = NewCmdStr[0] == '"';
-  CmdPtr = NewCmdStr;
-
-  if(ExitCode)
+  if (ExitCode)
   {
     if (DirectRun && !SeparateWindow)
       strcpy(ExecLine,CmdPtr);
@@ -877,9 +885,9 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
           ExpandEnvironmentStr(ExecLine,ExecLine,sizeof(ExecLine));
           // </TODO>
           //_tran(SysLog("Execute: ExecLine [%s]",ExecLine);)
+        }
       }
-      }
-      else
+      else if (SeparateWindow != 2)
       {
 //        int Pipe=strpbrk(CmdPtr,"<>|")!=NULL;
         sprintf(ExecLine,"%s /C",CommandName);

@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.108 22.05.2002 $ */
+/* Revision: 1.109 06.07.2002 $ */
 
 /*
 Modify:
+  06.07.2002 VVM
+    + MComspecNotFound
   22.05.2002 SVS
     + MConfigCloseCDGate
   29.04.2002 SVS
@@ -1916,6 +1918,8 @@ enum
   MIncorrectMask,
 
   MPanelBracketsForLongName,
+
+  MComspecNotFound,
 
   MListEval
 };

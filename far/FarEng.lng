@@ -1639,4 +1639,6 @@
 
 "{}"
 
+"Environment variable %COMSPEC% not defined!"
+
 "Evaluation version"
