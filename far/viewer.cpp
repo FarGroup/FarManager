@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.170 20.12.2004 $ */
+/* Revision: 1.171 28.12.2004 $ */
 
 /*
 Modify:
+  28.12.2004 WARP
+    ! Костыль для BugZ#708
   20.12.2004 WARP
     - Bugz#1100 часть вторая про Home Right Left
   20.12.2004 WARP
@@ -2044,7 +2046,12 @@ int Viewer::ProcessKey(int Key)
       ChangeViewKeyBar();
       if (VM.Wrap)
         LeftPos = 0;
+
+      if ( !VM.Wrap && LastPage )
+        Up ();
+
       Show();
+
       /* $ 31.08.2000 SVS
         Сохраняем тип врапа
       */
