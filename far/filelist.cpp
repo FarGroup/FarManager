@@ -5,10 +5,14 @@ filelist.cpp
 
 */
 
-/* Revision: 1.166 07.08.2002 $ */
+/* Revision: 1.167 27.08.2002 $ */
 
 /*
 Modify:
+  27.08.2002 SVS
+    ! BugZ#596 - Шифт-вправо выделить файлы
+      [*] В панели с одной колонкой Shift-Left/Right аналогично нажатию
+          Shift-PgUp/PgDn.
   07.08.2002 SVS
     - BugZ#583 - CtrlH не действует на пассивную плагиновую панель.
   26.07.2002 SKV
@@ -1021,6 +1025,19 @@ int FileList::ProcessKey(int Key)
       return(TRUE);
     }
   }
+
+  /* $ 27.08.2002 SVS
+      [*] В панели с одной колонкой Shift-Left/Right аналогично нажатию
+          Shift-PgUp/PgDn.
+  */
+  if(Columns==1 && CmdLength==0)
+  {
+    if(Key == KEY_SHIFTLEFT || Key == KEY_SHIFTNUMPAD4)
+      Key=KEY_SHIFTPGUP;
+    else if(Key == KEY_SHIFTRIGHT || Key == KEY_SHIFTNUMPAD6)
+      Key=KEY_SHIFTPGDN;
+  }
+  /* SVS$ */
 
   switch(Key)
   {

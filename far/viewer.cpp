@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.107 15.08.2002 $ */
+/* Revision: 1.108 27.08.2002 $ */
 
 /*
 Modify:
+  27.08.2002 SVS
+    - BugZ#603 - F3 - F6 убивает симлинки
   15.08.2002 IS
     - Косметический баг: для обычного (не HEX) режима, если последняя строка
       не содержит перевод строки, крутанем вверх на один раз больше - иначе
@@ -2547,8 +2549,16 @@ void Viewer::SetTempViewName(const char *Name, BOOL DeleteFolder)
 {
 //  ConvertNameToFull(Name,TempViewName, sizeof(TempViewName));
   _tran(SysLog("[%p] Viewer::SetTempViewName() [%s]",this,Name));
-  if (ConvertNameToFull(Name,TempViewName, sizeof(TempViewName)) >= sizeof(TempViewName)){
-    return;
+
+  if(Name && *Name)
+  {
+    if (ConvertNameToFull(Name,TempViewName, sizeof(TempViewName)) >= sizeof(TempViewName))
+      return;
+  }
+  else
+  {
+    *TempViewName=0;
+    DeleteFolder=FALSE;
   }
   Viewer::DeleteFolder=DeleteFolder;
 }

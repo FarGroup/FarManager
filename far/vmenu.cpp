@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.93 25.06.2002 $ */
+/* Revision: 1.94 27.08.2002 $ */
 
 /*
 Modify:
+  27.08.2002 SVS
+    - BugZ#601 - DM_LISTSETCURPOS & TopPos=-1
   25.06.2002 SVS
     ! Косметика:  BitFlags::Skip -> BitFlags::Clear
   18.06.2002 SVS
@@ -1666,11 +1668,14 @@ int VMenu::SetSelectPos(struct FarListPos *ListPos)
         TopPos=0;
       else
       {
-        TopPos=Ret-MaxHeight/2;
+        TopPos=Ret-MaxHeight/2;               //?????????
         if(TopPos+MaxHeight > ItemCount)
           TopPos=ItemCount-MaxHeight;
       }
     }
+
+    if(TopPos < 0)
+      TopPos=0;
   }
   return Ret;
 }

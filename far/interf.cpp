@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.66 23.08.2002 $ */
+/* Revision: 1.67 27.08.2002 $ */
 
 /*
 Modify:
+  27.08.2002 SVS
+    - ћд€ :-(
   23.08.2002 SVS
     ! PutRealText и GetRealText приведем к USE_WFUNC
     + _GetRealText/_PutRealText - обобщенные функции
@@ -1201,7 +1203,7 @@ void _GetRealText(HANDLE hConsoleOutput,int X1,int Y1,int X2,int Y2,const void *
 
 void GetRealText(int X1,int Y1,int X2,int Y2,void *Dest)
 {
-  _PutRealText(hConOut,X1,Y1,X2,Y2,Dest,ScrX,ScrY);
+  _GetRealText(hConOut,X1,Y1,X2,Y2,Dest,ScrX,ScrY);
 }
 
 

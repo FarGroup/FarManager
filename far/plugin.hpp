@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.215 19.08.2002 $ */
+/* Revision: 1.216 27.08.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,9 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  27.08.2002 SVS
+    ! Убираем EditorInfo.WindowPos
+    + "Очень не помешал бы у DM_SETCHECK еще один способ типа: BSTATE_TOGGLE"
   19.08.2002 SVS
     + ECTL_DELETEBLOCK - удалить блок в редакторе. Функция вернет TRUE
       в случае удачного удаления блока и FALSE, если редактор заблокирован
@@ -975,7 +978,8 @@ enum FarMessagesProc{
 enum CHECKEDSTATE {
   BSTATE_UNCHECKED = 0,
   BSTATE_CHECKED   = 1,
-  BSTATE_3STATE    = 2
+  BSTATE_3STATE    = 2,
+  BSTATE_TOGGLE    = 3,
 };
 
 
@@ -1923,8 +1927,7 @@ struct EditorInfo
   int TabSize;
   int BookMarkCount;
   DWORD CurState;
-  int WindowPos;
-  DWORD Reserved[5];
+  DWORD Reserved[6];
 };
 
 struct EditorBookMarks

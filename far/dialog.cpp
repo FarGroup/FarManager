@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.258 17.08.2002 $ */
+/* Revision: 1.259 27.08.2002 $ */
 
 /*
 Modify:
+  27.08.2002 SVS
+    - BugZ#601 - DM_CLOSE из DN_INITDIALOG не срабатывает.
   17.08.2002 SVS
     ! Обработка CtrlDown вынесена из обработчика клавиатуры в отдельную
       функцию ProcessOpenComboBox, т.к. вызов ProcessKey(KEY_CTRLDOWN)
@@ -1153,12 +1155,16 @@ void Dialog::InitDialog(void)
     */
     CheckDialogCoord();
     int InitFocus=InitDialogObjects();
-    if(DlgProc((HANDLE)this,DN_INITDIALOG,InitFocus,DataDialog))
+    int Result=DlgProc((HANDLE)this,DN_INITDIALOG,InitFocus,DataDialog);
+    if(ExitCode == -1)
     {
-      // еще разок, т.к. данные могли быть изменены
-      InitDialogObjects();
+      if(Result)
+      {
+        // еще разок, т.к. данные могли быть изменены
+        InitDialogObjects();
+      }
+      SetFarTitle(GetDialogTitle());
     }
-    SetFarTitle(GetDialogTitle());
     // все объекты проинициализированы!
     DialogMode.Set(DMODE_INITOBJECTS);
   }
@@ -5060,8 +5066,9 @@ int Dialog::IsKeyHighlighted(const char *Str,int Key,int Translate,int AmpPos)
 */
 int Dialog::ProcessHighlighting(int Key,int FocusPos,int Translate)
 {
-  int I, Type;
+  int I, Type, J;
   DWORD Flags;
+
   for (I=0;I<ItemCount;I++)
   {
     Type=Item[I].Type;
@@ -5111,7 +5118,7 @@ int Dialog::ProcessHighlighting(int Key,int FocusPos,int Translate)
         // Сообщим о случивщемся факте процедуре обработки диалога
         if(!DlgProc((HANDLE)this,DN_HOTKEY,I,Key))
           break; // сказали не продолжать обработку...
-        ChangeFocus2(FocusPos,I);
+        ChangeFocus2(FocusPos,I); //??
         ShowDialog();
         /* SVS $ */
         if ((Item[I].Type==DI_CHECKBOX || Item[I].Type==DI_RADIOBUTTON) &&
@@ -5203,7 +5210,8 @@ void Dialog::Process()
     SetRestoreScreenMode(TRUE);
 
   InitDialog();
-  FrameManager->ExecuteModal (this);
+  if(ExitCode == -1)
+    FrameManager->ExecuteModal (this);
   /* DJ $ */
 }
 /* SVS $ */
@@ -6293,6 +6301,10 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       if(Type == DI_CHECKBOX)
       {
         int Selected=CurItem->Selected;
+
+        if(Param2 == BSTATE_TOGGLE)
+          Param2=++Selected;
+
         if(CurItem->Flags&DIF_3STATE)
           Param2%=3;
         else

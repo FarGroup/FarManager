@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.190 19.08.2002 $ */
+/* Revision: 1.191 27.08.2002 $ */
 
 /*
 Modify:
+  27.08.2002 SVS
+    ! Убираем EditorInfo.WindowPos
   19.08.2002 SVS
     + ECTL_DELETEBLOCK - удалить блок в редакторе. Функция вернет TRUE
       в случае удачного удаления блока и FALSE, если редактор заблокирован
@@ -5759,7 +5761,6 @@ int Editor::EditorControl(int Command,void *Param)
         Info->CurState=Flags.Check(FEDITOR_LOCKMODE)?ECSTATE_LOCKED:0;
         Info->CurState|=!Flags.Check(FEDITOR_MODIFIED)?ECSTATE_SAVED:0;
         Info->CurState|=Flags.Check(FEDITOR_MODIFIED|FEDITOR_WASCHANGED)?ECSTATE_MODIFIED:0;
-        Info->WindowPos = FrameManager->IndexOf((Frame *)this);
       }
       return(TRUE);
     case ECTL_SETPOSITION:
