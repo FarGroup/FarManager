@@ -9,10 +9,13 @@ editor.hpp
 
 */
 
-/* Revision: 1.09 12.02.2001 $ */
+/* Revision: 1.10 13.02.2001 $ */
 
 /*
 Modify:
+  13.02.2001 IS
+    + Переменная AttrStr
+    + Функция GetFileAttributes;
   12.02.2001 IS
     + FileAttributes
   24.09.2000 SVS
@@ -61,6 +64,11 @@ class Editor:public ScreenObject
          сюда запомним атрибуты файла при открытии, пригодятся где-нибудь...
     */
     DWORD FileAttributes;
+    /* IS $ */
+    /* $ 13.02.2001 IS
+         Сюда запомним буквы атрибутов, чтобы не вычислять их много раз
+    */
+    char AttrStr[4];
     /* IS $ */
     int WasChanged;
     int Overtype;
@@ -147,6 +155,11 @@ class Editor:public ScreenObject
     void TextChanged(int State);
     /* skv $*/
 
+    /* $ 13.02.2001 IS
+         Обертка вокруг одноименной функции из win32 api
+    */
+    DWORD GetFileAttributes(LPCTSTR);
+    /* IS $ */
     int  CalcDistance(struct EditList *From,struct EditList *To,int MaxDist);
     void Paste();
     void Copy(int Append);

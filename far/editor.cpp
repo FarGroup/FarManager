@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.62 12.02.2001 $ */
+/* Revision: 1.63 13.02.2001 $ */
 
 /*
 Modify:
+  13.02.2001 IS
+    ! Строчка с атрибутами подготавливается при их считывании, а не при каждом
+      обновлении экрана. Т.с., оптимизация кода после себя самого ;)
   12.02.2001 IS
     ! Атрибуты считываются только в двух местах, а не при каждом обновлении
       статуса
@@ -997,28 +1000,15 @@ void Editor::ShowStatus()
     TruncPathStr(TruncFileName,NameLength);
     /* IS $ */
   sprintf(LineStr,"%d/%d",NumLine+1,NumLastLine);
-  /* $ 03.12.2000 IS
-    + Показывать буквами RSH соответствующие атрибуты файла, если они
-      установлены
+  /* $ 13.02.2001 IS
+    ! Используем уже готовую AttrStr, которая сформирована в
+      GetFileAttributes
   */
-  char attrStr[4];
-  int ind=0;
-  /* $ 12.02.2001 IS
-       Теперь атрибуты не считываются в этой функции вообще
-  */
-  if(FileAttributes!=0xFFFFFFFF)
-  {
-    if(FileAttributes&FILE_ATTRIBUTE_READONLY) attrStr[ind++]='R';
-    if(FileAttributes&FILE_ATTRIBUTE_SYSTEM) attrStr[ind++]='S';
-    if(FileAttributes&FILE_ATTRIBUTE_HIDDEN) attrStr[ind++]='H';
-  }
-  /* IS $ */
-  attrStr[ind]=0;
   sprintf(StatusStr,"%-*s %c%c %10.10s %7s %-12.12s %5s %-4d %3s",
           NameLength,TruncFileName,Modified ? '*':' ',LockMode ? '-':' ',
           UseDecodeTable ? TableSet.TableName:AnsiText ? "Win":"DOS",
           MSG(MEditStatusLine),LineStr,
-          MSG(MEditStatusCol),CurLine->EditLine.GetTabCurPos()+1,attrStr);
+          MSG(MEditStatusCol),CurLine->EditLine.GetTabCurPos()+1,AttrStr);
   /* IS $ */
   int StatusWidth=Opt.ViewerEditorClock ? ObjWidth-5:ObjWidth;
   if (StatusWidth<0)
@@ -4853,4 +4843,22 @@ void Editor::Xlat()
 }
 /* SVS $ */
 
+/* $ 13.02.2001
+     Узнаем атрибуты файла и заодно сформируем готовую строку атрибутов для
+     статуса.
+*/
+DWORD Editor::GetFileAttributes(LPCTSTR Name)
+{
+  DWORD attr=::GetFileAttributes(Name);
+  int ind=0;
+  if(0xFFFFFFFF!=attr)
+  {
+     if(attr&FILE_ATTRIBUTE_READONLY) AttrStr[ind++]='R';
+     if(attr&FILE_ATTRIBUTE_SYSTEM) AttrStr[ind++]='S';
+     if(attr&FILE_ATTRIBUTE_HIDDEN) AttrStr[ind++]='H';
+  }
+  AttrStr[ind]=0;
+  return attr;
+}
+/* IS $ */
 #endif //!defined(EDITOR2)
