@@ -5,10 +5,13 @@ grpsort.cpp
 
 */
 
-/* Revision: 1.04 12.02.2001 $ */
+/* Revision: 1.05 19.03.2001 $ */
 
 /*
 Modify:
+  19.03.2001 SVS
+    - Бага: Ptr был неинициализирован для случая если длины хватало.
+    + Немного оптимизации кода.
   12.02.2001 SVS
     ! Не был назначен Хелп для ввода маски группы сортировки
     - устранение утечки памяти (после 440-го)
@@ -32,53 +35,40 @@ Modify:
 #include "internalheaders.hpp"
 /* IS $ */
 
+static char fmtUpperGroup[]="UpperGroup%d";
+static char fmtLowerGroup[]="LowerGroup%d";
+static char SortGroupsKeyName[]="SortGroups";
+
 GroupSort::GroupSort()
 {
-  int I;
+  int I, J;
   char GroupName[80],GroupStr[GROUPSORT_MASK_SIZE], *Ptr;
+  static char *GroupFMT[2]={fmtUpperGroup,fmtLowerGroup};
+  int  GroupDelta[2]={0,DEFAULT_SORT_GROUP+1};
 
   GroupData=NULL;
   GroupCount=0;
-  for (I=0;;I++)
-  {
-    sprintf(GroupName,"UpperGroup%d",I);
-    GetRegKey("SortGroups",GroupName,GroupStr,"",sizeof(GroupStr));
-    if (*GroupStr==0)
-      break;
-    if((Ptr=(char *)malloc(strlen(GroupStr)+1)) == NULL)
-      break;
-    struct GroupSortData *NewGroupData=(struct GroupSortData *)realloc(GroupData,sizeof(*GroupData)*(GroupCount+1));
-    if (NewGroupData==NULL)
+  for (J=0; J < 2; ++J)
+    for (I=0;;I++)
     {
-      free(Ptr);
-      break;
+      sprintf(GroupName,GroupFMT[J],I);
+      GetRegKey(SortGroupsKeyName,GroupName,GroupStr,"",sizeof(GroupStr));
+      if (*GroupStr==0)
+        break;
+      if((Ptr=(char *)malloc(strlen(GroupStr)+1)) == NULL)
+        break;
+      struct GroupSortData *NewGroupData=(struct GroupSortData *)realloc(GroupData,sizeof(*GroupData)*(GroupCount+1));
+      if (NewGroupData==NULL)
+      {
+        free(Ptr);
+        break;
+      }
+      GroupData=NewGroupData;
+      GroupData[GroupCount].Masks=Ptr;
+      strcpy(GroupData[GroupCount].Masks,GroupStr);
+      GroupData[GroupCount].Group=I+GroupDelta[J];
+      GroupCount++;
     }
-    GroupData=NewGroupData;
-    GroupData[GroupCount].Masks=Ptr;
-    strcpy(GroupData[GroupCount].Masks,GroupStr);
-    GroupData[GroupCount].Group=I;
-    GroupCount++;
-  }
-  for (I=0;;I++)
-  {
-    sprintf(GroupName,"LowerGroup%d",I);
-    GetRegKey("SortGroups",GroupName,GroupStr,"",sizeof(GroupStr));
-    if (*GroupStr==0)
-      break;
-    if((Ptr=(char *)malloc(strlen(GroupStr)+1)) == NULL)
-      break;
-    struct GroupSortData *NewGroupData=(struct GroupSortData *)realloc(GroupData,sizeof(*GroupData)*(GroupCount+1));
-    if (NewGroupData==NULL)
-    {
-      free(Ptr);
-      break;
-    }
-    GroupData=NewGroupData;
-    GroupData[GroupCount].Masks=Ptr;
-    strcpy(GroupData[GroupCount].Masks,GroupStr);
-    GroupData[GroupCount].Group=I+DEFAULT_SORT_GROUP+1;
-    GroupCount++;
-  }
 }
 
 
@@ -122,22 +112,22 @@ void GroupSort::EditGroups()
     {
       if (GroupData[I].Group<DEFAULT_SORT_GROUP)
       {
-        sprintf(GroupName,"UpperGroup%d",UpperGroup);
+        sprintf(GroupName,fmtUpperGroup,UpperGroup);
         GroupData[I].Group=UpperGroup++;
       }
       else
       {
-        sprintf(GroupName,"LowerGroup%d",LowerGroup);
+        sprintf(GroupName,fmtLowerGroup,LowerGroup);
         GroupData[I].Group=DEFAULT_SORT_GROUP+1+LowerGroup++;
       }
-      SetRegKey("SortGroups",GroupName,GroupData[I].Masks);
+      SetRegKey(SortGroupsKeyName,GroupName,GroupData[I].Masks);
     }
     else
     {
-      sprintf(GroupName,"UpperGroup%d",UpperGroup++);
-      DeleteRegValue("SortGroups",GroupName);
-      sprintf(GroupName,"LowerGroup%d",LowerGroup++);
-      DeleteRegValue("SortGroups",GroupName);
+      sprintf(GroupName,fmtUpperGroup,UpperGroup++);
+      DeleteRegValue(SortGroupsKeyName,GroupName);
+      sprintf(GroupName,fmtLowerGroup,LowerGroup++);
+      DeleteRegValue(SortGroupsKeyName,GroupName);
     }
   }
   CtrlObject->LeftPanel->Update(UPDATE_KEEP_SELECTION);
@@ -270,11 +260,17 @@ int GroupSort::EditGroupsMenu(int Pos)
             strcpy(NewMasks,GroupData[ListPos].Masks);
             if (GetString(MSG(MSortGroupsTitle),MSG(MSortGroupsEnter),"Masks",NewMasks,NewMasks,sizeof(NewMasks),HelpSortGroups))
             {
+              /* $ 19.03.2001 SVS
+                 - Ptr был неинициализирован для случая если длины хватало.
+              */
               if(strlen(GroupData[ListPos].Masks) < strlen(NewMasks))
+              {
                 Ptr=(char *)realloc(GroupData[ListPos].Masks,strlen(NewMasks)+1);
-              if(Ptr == NULL)
-                break;
-              GroupData[ListPos].Masks=Ptr;
+                if(Ptr == NULL)
+                  break;
+                GroupData[ListPos].Masks=Ptr;
+              }
+              /* SVS $ */
               strcpy(GroupData[ListPos].Masks,NewMasks);
               GroupData[ListPos].Group=UpperGroup ? 0:DEFAULT_SORT_GROUP+1;
               return(SelPos);
@@ -296,4 +292,3 @@ int GroupSort::EditGroupsMenu(int Pos)
   }
   return(-1);
 }
-
