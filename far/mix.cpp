@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.93 27.09.2001 $ */
+/* Revision: 1.94 05.10.2001 $ */
 
 /*
 Modify:
+  05.10.2001 IS
+    - Баг: не восстанавливался курсор после запуска идиотских программ, которые
+      гасят курсор и не восстанавливают его после своего завершения.
   27.09.2001 IS
     - Левый размер при использовании strncpy
   26.09.2001 SVS
@@ -707,7 +710,14 @@ int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
     ExitCode=-1;
   }
   SetFarConsoleMode();
-  GetCursorType(Visible,Size);
+  /* $ 05.10.2001 IS
+     - Опечатка
+     + Принудительная установка курсора, т.к. SetCursorType иногда не спасает
+       вследствие своей оптимизации, которая в данном случае выходит боком.
+  */
+  SetCursorType(Visible,Size);
+  SetRealCursorType(Visible,Size);
+  /* IS $ */
   if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS &&
       WinVer.dwBuildNumber<=0x4000457)
     WriteInput(VK_F16,SKEY_VK_KEYS);
