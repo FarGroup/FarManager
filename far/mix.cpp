@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.54 23.01.2001 $ */
+/* Revision: 1.55 12.02.2001 $ */
 
 /*
 Modify:
+  12.02.2001 SKV
+    + Отделение Фар-овской консоли от неинтерактивного
+       процесса в ней запущенного.
   23.01.2001 SVS
     ! ExpandEnvironmentStr снова динамически выделяет память...
     ! Уточнение факта посылки VK_F16 как виртуального кода!
@@ -441,7 +444,69 @@ int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
   if (ExitCode)
   {
     if (!SeparateWindow && !GUIType || AlwaysWaitFinish)
-      WaitForSingleObject(pi.hProcess,INFINITE);
+    {
+      /*$ 12.02.2001 SKV
+        супер фитча ;)
+        Отделение фаровской консоли от неинтерактивного процесса.
+        Задаётся кнопкой в System/ConsoleDetachKey
+      */
+      if(Opt.ConsoleDetachKey>0)
+      {
+        HANDLE h[2];
+        HANDLE hConOut=GetStdHandle(STD_OUTPUT_HANDLE);
+        HANDLE hConInp=GetStdHandle(STD_INPUT_HANDLE);
+        h[0]=pi.hProcess;
+        h[1]=hConInp;
+        INPUT_RECORD ir[256];
+        DWORD rd;
+        CONSOLE_SCREEN_BUFFER_INFO sbi;
+        GetConsoleScreenBufferInfo(hConOut,&sbi);
+
+        int vkey=0,ctrl=0;
+        TranslateKeyToVK(Opt.ConsoleDetachKey,vkey,ctrl,NULL);
+        int alt=ctrl&PKF_ALT;
+        int shift=ctrl&PKF_SHIFT;
+        ctrl=ctrl&PKF_CONTROL;
+
+        while(WaitForMultipleObjects(2,h,FALSE,INFINITE)!=WAIT_OBJECT_0)
+        {
+          if(PeekConsoleInput(h[1],ir,256,&rd) && rd)
+          {
+            int stop=0;
+            for(int i=0;i<rd;i++)
+            {
+              PINPUT_RECORD pir=&ir[i];
+              if(pir->EventType==KEY_EVENT)
+              {
+                if(vkey==pir->Event.KeyEvent.wVirtualKeyCode &&
+                  (alt?(pir->Event.KeyEvent.dwControlKeyState&LEFT_ALT_PRESSED || pir->Event.KeyEvent.dwControlKeyState&RIGHT_ALT_PRESSED):1) &&
+                  (ctrl?(pir->Event.KeyEvent.dwControlKeyState&LEFT_CTRL_PRESSED || pir->Event.KeyEvent.dwControlKeyState&RIGHT_CTRL_PRESSED):1) &&
+                  (shift?(pir->Event.KeyEvent.dwControlKeyState&SHIFT_PRESSED):1)
+                  )
+                {
+                  ReadConsoleInput(hConInp,ir,256,&rd);
+                  CloseConsole();
+                  FreeConsole();
+                  AllocConsole();
+                  SetConsoleScreenBufferSize(hConOut,sbi.dwSize);
+                  SetConsoleWindowInfo(hConOut,TRUE,&sbi.srWindow);
+                  InitConsole();
+                  stop=1;
+                  break;
+                }
+              }
+            }
+            if(stop)break;
+          }
+          Sleep(100);
+        }
+      }
+      else
+      {
+        WaitForSingleObject(pi.hProcess,INFINITE);
+      }
+      /* SKV$*/
+    }
     int CurScrX=ScrX,CurScrY=ScrY;
 //    ReopenConsole();
     GetVideoMode();

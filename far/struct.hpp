@@ -7,10 +7,13 @@ struct.hpp
 
 */
 
-/* Revision: 1.39 11.02.2001 $ */
+/* Revision: 1.40 12.02.2001 $ */
 
 /*
 Modify:
+  12.02.2001 SKV
+   + ConsoleDetachKey. Клавиша отстёгивания консоли фара от
+     долгоиграющего процесса в ней запущенного.
   11.02.2001 SVS
    ! Изменения структур DialogItem и DialogData (DIF_VAREDIT)
    ! HighlightData.Masks - сделан ссылкой (DIF_VAREDIT)
@@ -509,6 +512,12 @@ struct Options
       Зависит от настроек в реестре CopyTimeRule */
   int CopyTimeRule;
   /* VVM $ */
+  /*$ 08.02.2001 SKV
+    Комбинация клавиш для детача Far'овской консоли
+    от длятельного неинтерактивного процесса в ней запущенного.
+  */
+  int ConsoleDetachKey;
+  /* SKV$*/
 };
 
 

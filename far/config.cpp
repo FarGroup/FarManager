@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.48 09.02.2001 $ */
+/* Revision: 1.49 12.02.2001 $ */
 
 /*
 Modify:
+  12.02.2001 SKV
+    + ConsoleDetachKey
   09.02.2001 IS
     + сохраним/считаем состояние опции "помеченное вперед"
     + Опция подтверждения нажатия Esc. По умолчанию отключена.
@@ -1086,6 +1088,12 @@ void ReadConfig()
       Зависит от настроек в реестре CopyTimeRule */
   GetRegKey("System", "CopyTimeRule", Opt.CopyTimeRule, 0);
   /* VVM $ */
+
+  /*$ 08.02.2001 SKV
+  */
+  GetRegKey("System", "ConsoleDetachKey", KeyNameFromReg, "", sizeof(KeyNameFromReg));
+  Opt.ConsoleDetachKey=KeyNameToKey(KeyNameFromReg);
+  /* SKV$*/
 
   FileList::ReadPanelModes();
   GetTempPath(sizeof(Opt.TempPath),Opt.TempPath);
