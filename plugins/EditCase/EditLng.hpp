@@ -1,0 +1,6 @@
+enum
+{
+  MCaseConversion,
+  MCaseLower,
+  MCaseUpper,
+};

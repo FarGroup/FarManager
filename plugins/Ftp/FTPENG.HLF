@@ -1,0 +1,164 @@
+.Language=English,English
+.PluginContents=FTP client
+@Contents
+$ #FTP client#
+   ~Connecting to FTP host~@FTPConnect@
+
+   ~Managing host names~@FTPNames@
+
+   ~FTP client commands~@FTPCmd@
+
+   ~FTP client configuration~@FTPCfg@
+
+   ~FTP client panel modes~@FTPPanel
+
+@FTPConnect
+$ #Connecting to FTP host#
+    You may connect to a server either from the FAR command line
+or from ~hosts panel~@FTPNames@.
+
+    FAR supports the following host name format:
+
+    #ftp://user:password@@hostname:port/folder#
+
+    where "hostname" is always required, "ftp://" prefix also is required
+to connect from the command line and optional, when connecting from
+hosts panel. All other name parts are optional. If the user name is absent,
+"anonymous" will be used. If the password is omitted, default password,
+defined in ~FTP client configuration~@FTPCfg@, will be sent to the server.
+
+    To connect from the command line enter host name, beginning from
+"ftp://" prefix, in FAR command line.
+
+    To connect from the host panel, activate FTP plugin, select desired
+server and press Enter.
+
+    To edit server parameters directly before connecting, press F4
+on the server name, make all necessary changes and press the
+"Connect" button.
+
+@FTPNames
+$ #Managing host names#
+    Host names are organized in the form of a file panel. You may
+enter a new host record using Shift-F4. Each record consists of
+host name, user password field, optional description, options
+"Ask password directly before connecting", "ASCII mode" and
+"Passive mode".
+
+    FAR supports the following host name format:
+
+    #ftp://user:password@@hostname:port/folder#
+
+    All components, except "hostname", are optional.
+
+    The user password may be entered either in the host name or in a
+separate password field. In the second case it will not be shown in
+the panel.  Also you may leave it empty to use the default password,
+defined in ~FTP client configuration~@FTPCfg@.
+
+    Additionally it is possible to set "Ask password directly before
+connecting" host option to enter password (and user name, if necessary)
+manually before connecting to the server.
+
+    "ASCII mode" option allows to use ASCII mode file transfers by default.
+
+    "Passive mode" and "Use firewall" options can be required to work with
+some types of firewall. They override similar options from
+~FTP client configuration~@FTPCfg@.
+
+    Use "Select table" button to override default character table
+for this server.
+
+    To edit parameters of an existing host press F4 on its name.
+
+    Using F7, it is possible to create folders for host names.
+
+    You may copy and move host records to and from folders and local disks
+using the F5 and F6 commands.
+
+    F8 deletes information about selected hosts.
+
+    Press Alt-F6 to save information about a currently connected host.
+
+@FTPCmd
+$ #FTP client commands#
+    The FTP client allows operation with an FTP server files just
+as if the files were located on local disks. It supports file and
+folder copying, moving, deletion, folders creation, files viewing
+and editing. Also it is possible to resume a broken transfer using
+the "Resume" button in the overwrite file dialog, but this function
+must be supported by the FTP server. You may use the "Find file"
+command to search for files on the FTP server. Ctrl-A changes the
+file access mode, if this operation is supported by the server.
+
+    Press #Shift-F7# to change the character table, used for file names
+and descriptions. Also you may specify character table in server parameters
+independently for each server.
+
+    Some FTP operations may be interrupted with Esc. If Esc does not help,
+Ctrl-Break may be used, but unlike Esc it breaks a current connection.
+
+@FTPCfg
+$ #FTP client configuration#
+    In this dialog you may change the following options:
+
+ #Add to disks menu#    Enables adding "FTP" item to the disks menu.
+
+ #Disks menu hotkey#    Hotkey for the FTP client item in disks menu.
+                      May be set from 1 to 9 or leave this field
+                      empty to autoassign.
+
+ #Description list#     Names of files with FTP files descriptions.
+ #names delimited#
+ #with commas#
+
+ #Read descriptions#    Read descriptions of FTP files when entering
+                      an FTP folder. This enables viewing of file
+                      descriptions but slows down folder reading.
+
+ #Update descriptions#  Update descriptions of FTP files after
+                      uploading or deleting.
+
+ #Upload uppercase#     If this option is on and the name of the
+ #files in lowercase#   uploaded file consists only of uppercase
+                      characters, it will be transferred to the
+                      server in lowercase.
+
+ #Show upload#          If you do not need to manually change
+ #options dialog#       the destination path and ASCII/binary mode
+                      when uploading files, you may clear this
+                      option to skip second upload dialog.
+
+ #Default password#     Password, which will be used as the default
+                      when entering new server parameters. It will
+                      also be used when connecting, if a password
+                      is not entered and the user name is empty or
+                      "anonymous".
+
+ #Firewall#             Name of the firewall server. Leave empty
+                      if you do not use a firewall. Only one type
+                      of firewall is supported:
+                      remote_userid@@remote_host is sent to
+                      the firewall as user name when connecting
+                      to a remote_host.
+
+ #Passive mode#         This mode can be required to work with
+                      some types of firewall. Because each host
+                      record has its own "Passive mode" option,
+                      the configuration option value is used when
+                      entering a new host or when connecting from
+                      the command line.
+
+
+@FTPPanel
+$ #FTP client panel modes#
+    FTP client uses panel modes 8 and 9 to display some additional
+information about FTP files.
+
+    Mode 8 (file owners) contains file owner and group information.
+
+    Mode 9 (file links) contains file access mode information in Unix
+format.
+
+    This information can be correctly displayed only if it is provided
+by FTP server in the standard Unix format.

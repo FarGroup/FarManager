@@ -1,0 +1,33 @@
+.Language=English,English
+
+"Ok"
+"Cancel"
+"Error"
+
+"Process list"
+
+"Module"
+"Priority"
+"Window title"
+
+"-bit"
+"Module"
+"Full path"
+"PID"
+"Priority"
+"Threads"
+"Started at"
+"Uptime"
+"CPU time"
+"In kernel mode"
+"In user mode"
+"Window title"
+"Window style"
+"Extended style"
+
+"Kill process"
+"Do you wish to kill \"%.40s\""
+"Kill selected processes"
+"Do you wish to kill %d processes"
+"Kill"
+"Cannot kill \"%.40s\""

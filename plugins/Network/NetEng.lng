@@ -1,0 +1,39 @@
+.Language=English,English
+
+"Ok"
+"Cancel"
+"Error"
+
+"Network browser"
+
+"network"
+
+"Map"
+"MapTo"
+"Unmap"
+
+"Cannot browse network"
+"Cannot connect \"%.40s\" to %s"
+"The disk name has a remembered connection"
+
+"If you do not close the open files, data may be lost."
+"Do you want to disconnect the device anyway?"
+"Cannot disconnect from %s"
+
+"No free disk letters available"
+
+"User name"
+"User password"
+
+"Available letters"
+
+"Network"
+"Network name"
+"*:"
+"Comment"
+
+"Network browser"
+"&Add to Disks menu"
+"Disks menu &hotkey ('1'-'9'). Leave empty to autoassign"
+"&Skip top level screen"
+

@@ -1,0 +1,163 @@
+.Language=English,English
+.PluginContents=Archive support plugin
+
+@Contents
+$ #Archive support plugin#
+    This FAR module performs transparent #archive# processing.
+Files in the archive are handled in the same manner as if they
+were in a folder: when you operate with the archive, FAR
+transforms your commands into the corresponding external
+archiver calls.
+
+   ~Adding files to archive~@AddToArc@
+
+   ~Extracting files from archive~@ExtrFromArc@
+
+   ~Archive commands~@ArcCmd@
+
+   ~Archive support configuration~@ArcCfg@
+
+   ~Archiver command lines~@ArcSettings@
+
+@AddToArc
+$ #Adding files to archive#
+    In this dialog you may choose the archiver, add or change
+command line switches (default switches may be defined using
+~Archiver settings~@ArcSettings@ dialog), enter a password
+to encrypt files during archiving.
+
+    Option #Delete files after archiving# forces the archiver to move
+rather than copy files.
+
+    The #Save settings# choice saves the current archiver and switches
+for future usage.
+
+@ExtrFromArc
+$ #Extracting files from archive#
+    In this dialog you may enter the path to extract files and set the
+password to decrypt archived files.
+
+    Option #Extract without pathnames# forces extraction of all files
+to the same folder.
+
+    To immediately extract selected archived files to the current folder
+you may also use #Alt-F6#.
+
+@ArcCmd
+$ #Archive commands#
+    From this menu you can test archive, add an archive comment,
+convert an archive to SelF-eXtracting (SFX), try to recover a
+broken archive, protect an archive from damage or disable
+archive modifications.
+
+    Notes:
+
+    1. To execute an archive management command you need to have
+the corresponding archiver tool. Archiver options may be changed
+in the ~Archiver settings~@ArcSettings@ dialog.
+
+    2. The whole set of archive management commands may only be
+used with RAR archives. Other archivers will support only a sub-set
+of these commands.
+
+@ArcCfg
+$ #Archive support configuration#
+    In this dialog you may change following parameters:
+
+ #The way of archivers#   Do not hide archiver output,
+ #output displaying#      hide for view operation or hide always
+
+ #Process Shift-F1#       Add files to archives on Shift-F1.
+ #command#                You may wish to disable this option
+                        if you have another archive support plugin
+                        installed, which processes Shift-F1 command.
+
+ #Description list#       Names of files with descriptions of archived
+ #names delimited#        files.
+ #with commas#
+
+ #Read archive#           Read descriptions of archived files
+ #descriptions#           when entering to an archive. This enables
+                        the viewing of descriptions but slows down
+                        archive reading.
+
+ #Update archive#         Update descriptions of archived files
+ #descriptions#           after adding to or deleting from an archive.
+
+@ArcSettings
+$ #Archiver command lines#
+    In this dialog you may change external archiver command lines
+for different archive processing operations and mask, which will be
+used to select all files.
+
+    The following variables may be used:
+
+ %%A - Archive name.
+
+ %%a - Short archive name.
+
+ %%W - Temporary folder including the terminating slash.
+
+ %%P - Password.
+
+ %%R - Current archive folder.
+
+ %%L - Filelist name. Filelist is the file containing names of files
+       to be processed by the external archiver.
+
+ %%l - Filelist with short file names.
+
+ %%F - Names of one or more files to be processed. If all names
+       cannot be placed in a single string, the archiver will be
+       executed several times until all file names are exhausted.
+       By default maximum total command length is 127, but you can
+       specify it directly after %%F, for example %%F512.
+       Variable %%F should be used only if the destination archiver
+       does not support filelists.
+
+ %%f - The name of a single file to process. The archiver will be
+       executed several times until all file names are exhausted.
+       This variable should be used only if the destination archiver
+       does not support filelists or multiple file names on
+       the command line.
+
+ %%E<errorlevel> - maximum acceptable command errorlevel.
+       For example, %%E2 indicates that errorlevels 0, 1 and 2
+       are acceptable. This variable may be specified in any place
+       of command. If it is absent, only errorlevel 0 is considered
+       as successful.
+
+ %%S - Place in the command line to insert additional switches,
+       specified in the second string of "Add" dialog. If this
+       variable is absent, switches are added to end of command
+       line.
+
+    Variable modifiers Q, q, S, M, N, *, W, P can be used to change
+file names format details:
+
+    'Q' - quote names with spaces;
+    'q' - quote all names;
+    'S' - use '/' instead of '\' in pathnames;
+    'M' - transfer folder names to archiver as 'foldername\*.*';
+    'N' - transfer folder names to archiver as 'foldername';
+    '*' - use '*' mask to select all files. This modifier
+          overrides "All files mask" parameter for single
+          archiver command;
+    'W' - use name only, without path;
+    'P' - use path only, without name;
+    'A' - use ANSI encoding.
+
+    These modifiers may be specified immediately after %%F, %%f, %%L
+or %%l variables without spaces. 'P' and 'A' also may be used with
+%%A and %%a. Several modifiers are allowed, for example %%LMN or
+%%F*QSN128 are valid. If neither 'M' nor 'N' modifier is specified,
+'N' is assumed. If both 'M' and 'N' are specified, both 'foldername'
+and 'foldername\*.*' will be transferred to archiver.
+
+    If a part of the external archiver command string is enclosed
+in {  } braces, it will be added to the resulting string only
+if this part contains at least one, non-empty variable,
+from those described above.
+
+    If an external archiver does not support a particular command,
+leave the corresponding string blank.
