@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.77 30.05.2001 $ */
+/* Revision: 1.78 08.06.2001 $ */
 
 /*
 Modify:
+  08.06.2001 SVS
+    + Напомним ФАРу после исполнения чего-то внешнего, что не плохобы учесть
+      размеры видеобуфера.
   30.05.2001 SVS
     ! ShellCopy::CreatePath выведена из класса в отдельню функцию CreatePath()
   21.05.2001 OT
@@ -655,6 +658,12 @@ int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
   if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS &&
       WinVer.dwBuildNumber<=0x4000457)
     WriteInput(VK_F16,SKEY_VK_KEYS);
+  /* Если юзер выполнил внешнюю команду, например
+     mode con lines=50 cols=100
+     то ФАР не знал об изменении размера консоли.
+     Для этого надо ФАРу напомнить лишний раз :-)
+  */
+  GenerateWINDOW_BUFFER_SIZE_EVENT(-1,-1);
   SetConsoleTitle(OldTitle);
   return(ExitCode);
 }

@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.86 06.06.2001 $ */
+/* Revision: 1.87 08.06.2001 $ */
 
 /*
 Modify:
+  08.06.2001 SVS
+    + GenerateWINDOW_BUFFER_SIZE_EVENT()
   06.06.2001 SVS
     ! функции получения символа юзаем пока только в режиме USE_WFUNC
   03.06.2001 SVS
@@ -892,5 +894,7 @@ void CopyMaskStr (char *PDest, const char *PSrc);
 char GetVidChar(CHAR_INFO CI);
 void SetVidChar(CHAR_INFO& CI,char Chr);
 #endif
+
+void GenerateWINDOW_BUFFER_SIZE_EVENT(int Sx=-1, int Sy=-1);
 
 #endif  // __FARFUNC_HPP__

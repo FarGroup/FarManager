@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.30 07.06.2001 $ */
+/* Revision: 1.31 08.06.2001 $ */
 
 /*
 Modify:
+  08.06.2001 SVS
+    + GenerateWINDOW_BUFFER_SIZE_EVENT()
   07.06.2001 SVS
     + "цветные часы" :-)
   06.06.2001 SVS
@@ -393,19 +395,23 @@ void ChangeVideoMode(int NumLines,int NumColumns)
     _OT(le=GetLastError());
     _OT(SysLog("SetConsoleScreenBufferSize(hConOut, coordScreen),  retSetConsole=%i",retSetConsole));
   }
-//  GetVideoMode(CurScreenBufferInfo); // Должно делаться после, в обработчике событий
-  // под масдаем внаглую зашлем эвент
-  if(WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
-  {
-    INPUT_RECORD Rec;
-    DWORD Writes;
-    Rec.EventType=WINDOW_BUFFER_SIZE_EVENT;
-    Rec.Event.WindowBufferSizeEvent.dwSize.X=NumColumns;
-    Rec.Event.WindowBufferSizeEvent.dwSize.Y=NumLines;
-    WriteConsoleInput(hConInp,&Rec,1,&Writes);
-  }
+  GenerateWINDOW_BUFFER_SIZE_EVENT(NumColumns,NumLines);
 }
 
+void GenerateWINDOW_BUFFER_SIZE_EVENT(int Sx, int Sy)
+{
+  INPUT_RECORD Rec;
+  DWORD Writes;
+  CONSOLE_SCREEN_BUFFER_INFO csbi; /* hold current console buffer info */
+  if(Sx==-1 || Sy==-1)
+    GetConsoleScreenBufferInfo(hConOut, &csbi);
+
+  Rec.EventType=WINDOW_BUFFER_SIZE_EVENT;
+  Rec.Event.WindowBufferSizeEvent.dwSize.X=Sx==-1?csbi.dwSize.X:Sx;
+  Rec.Event.WindowBufferSizeEvent.dwSize.Y=Sy==-1?csbi.dwSize.Y:Sy;
+//_SVS(SysLog("[%d:%d] = [%d:%d, %d:%d]",csbi.dwSize.X,csbi.dwSize.Y,csbi.srWindow.Left,csbi.srWindow.Top,csbi.srWindow.Right,csbi.srWindow.Bottom));
+  WriteConsoleInput(hConInp,&Rec,1,&Writes);
+}
 
 void GetVideoMode(CONSOLE_SCREEN_BUFFER_INFO &csbi)
 {
