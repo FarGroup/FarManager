@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.67 14.11.2001 $ */
+/* Revision: 1.68 30.11.2001 $ */
 
 /*
 Modify:
+  30.11.2001 DJ
+    - не забудем инициализировать MaxLength
   14.11.2001 SVS
     ! Уточнение позиционирования при TopPos=-1 - возможно ошибся
   12.11.2001 SVS
@@ -308,6 +310,16 @@ VMenu::VMenu(const char *Title,       // заголовок меню
   VMenu::Item=NULL;
   VMenu::ItemCount=0;
 
+  /* $ 01.08.2000 SVS
+   - Bug в конструкторе, если передали NULL для Title
+  */
+  /* $ 30.11.2001 DJ
+     инициализируем перед тем, как добавлять айтема
+  */
+  MaxLength=strlen(VMenu::Title)+2;
+  /* DJ $ */
+  /* SVS $ */
+
   for (I=0; I < ItemCount; I++)
   {
     struct MenuItem NewItem;
@@ -323,11 +335,6 @@ VMenu::VMenu(const char *Title,       // заголовок меню
 
   VMenu::MaxHeight=MaxHeight;
   BoxType=DOUBLE_BOX;
-  /* $ 01.08.2000 SVS
-   - Bug в конструкторе, если передали NULL для Title
-  */
-  MaxLength=strlen(VMenu::Title)+2;
-  /* SVS $ */
   for (SelectPos=0,I=0;I<ItemCount;I++)
   {
     int Length=strlen(Item[I].Name);

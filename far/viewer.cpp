@@ -1850,12 +1850,12 @@ void Viewer::Up()
     BufSize--;
     Skipped++;
   }
-  /* $ 27.11.2001 DJ
-     не обращаемся за границу массива (было I>=-1)
-  */
-  for (I=BufSize-1;I>=0;I--)   /* DJ $ */
+  for (I=BufSize-1;I>=-1;I--)
   {
-    if (Buf[I]==CRSym || I==-1)
+    /* $ 29.11.2001 DJ
+       не обращаемся за границу массива (а надо было всего лишь поменять местами условия...)
+    */
+    if (I==-1 || Buf[I]==CRSym)   /* DJ $ */
       if (!VM.Wrap)
       {
         FilePos-=BufSize-(I+1)+Skipped;

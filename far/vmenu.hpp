@@ -11,10 +11,12 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.31 06.11.2001 $ */
+/* Revision: 1.32 30.11.2001 $ */
 
 /*
 Modify:
+  30.11.2001 DJ
+    - значение VMENU_COLOR_COUNT приведено в соответствие с действительностью
   06.11.2001 SVS
     ! VMENU_REVERSIHLIGHT -> VMENU_REVERSEHIGHLIGHT
   01.11.2001 SVS
@@ -125,7 +127,13 @@ Modify:
 #include "manager.hpp"
 #include "frame.hpp"
 
-#define VMENU_COLOR_COUNT  16
+/* $ 30.11.2001 DJ
+   значение приведено в соответствие с действительностью
+*/
+
+#define VMENU_COLOR_COUNT  10
+
+/* DJ $ */
 
 /* $ 28.07.2000 SVS
    Цветовые атрибуты - индексы в массиве цветов

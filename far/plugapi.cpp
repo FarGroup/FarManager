@@ -5,10 +5,13 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.105 28.11.2001 $ */
+/* Revision: 1.106 30.11.2001 $ */
 
 /*
 Modify:
+  30.11.2001 DJ
+    - не вылетаем, если GetPluginDirList() вызывается не на плагиновой панели
+    - в GetPluginDirList() некорректно копировалась PPIF_USERDATA для каталогов
   28.11.2001 SVS
     + FIS_SHOWCOPYINGTIMEINFO
     ! Немного оптимизации для ACTL_GET*SETTINGS
@@ -1342,6 +1345,28 @@ int WINAPI FarGetPluginDirList(int PluginNumber,HANDLE hPlugin,
   {
     if (strcmp(Dir,".")==0 || strcmp(Dir,"..")==0)
       return(FALSE);
+
+    static struct PluginHandle DirListPlugin;
+
+    // А не хочет ли плагин посмотреть на текущую панель?
+    if (hPlugin==INVALID_HANDLE_VALUE)
+    {
+      /* $ 30.11.2001 DJ
+         А плагиновая ли это панель?
+      */
+      DWORD Handle = (DWORD) CtrlObject->Cp()->ActivePanel->GetPluginHandle();
+      if (!Handle || Handle == 0xffffffff)
+        return FALSE;
+
+      DirListPlugin=*((struct PluginHandle *)Handle);
+      /* DJ $ */
+    }
+    else
+    {
+      DirListPlugin.PluginNumber=PluginNumber;
+      DirListPlugin.InternalHandle=hPlugin;
+    }
+
     SaveScreen SaveScr;
 
     SetPreRedrawFunc(NULL);
@@ -1356,19 +1381,6 @@ int WINAPI FarGetPluginDirList(int PluginNumber,HANDLE hPlugin,
       FarGetPluginDirListMsg(DirName,0);
       PluginSearchMsgOut=FALSE;
 
-      static struct PluginHandle DirListPlugin;
-
-      // А не хочет ли плагин посмотреть на текущую панель?
-      if (hPlugin==INVALID_HANDLE_VALUE)
-      {
-        DirListPlugin=*(struct PluginHandle *)
-                       CtrlObject->Cp()->ActivePanel->GetPluginHandle();
-      }
-      else
-      {
-        DirListPlugin.PluginNumber=PluginNumber;
-        DirListPlugin.InternalHandle=hPlugin;
-      }
       hDirListPlugin=(HANDLE)&DirListPlugin;
       StopSearch=FALSE;
       *pItemsNumber=DirListItemsNumber=0;
@@ -1409,6 +1421,36 @@ int WINAPI FarGetPluginDirList(int PluginNumber,HANDLE hPlugin,
   return(!StopSearch);
 }
 
+/* $ 30.11.2001 DJ
+   вытащим в функцию общий код для копирования айтема в ScanPluginDir()
+*/
+
+static void CopyPluginDirItem (PluginPanelItem *CurPanelItem)
+{
+  char FullName[2*NM+1];
+  sprintf(FullName,"%.*s%.*s",NM,PluginSearchPath,NM,CurPanelItem->FindData.cFileName);
+  for (int I=0;FullName[I]!=0;I++)
+    if (FullName[I]=='\x1')
+      FullName[I]='\\';
+  PluginPanelItem *DestItem=PluginDirList+DirListItemsNumber;
+  *DestItem=*CurPanelItem;
+  if (CurPanelItem->UserData && (CurPanelItem->Flags & PPIF_USERDATA))
+  {
+    DWORD Size=*(DWORD *)CurPanelItem->UserData;
+    /* $ 13.07.2000 SVS
+       вместо new будем использовать malloc
+    */
+    DestItem->UserData=(DWORD)malloc(Size);
+    /* SVS $*/
+    memcpy((void *)DestItem->UserData,(void *)CurPanelItem->UserData,Size);
+  }
+
+  strncpy(DestItem->FindData.cFileName,FullName,sizeof(DestItem->FindData.cFileName)-1);
+  DirListItemsNumber++;
+}
+
+/* DJ $ */
+
 
 void ScanPluginDir()
 {
@@ -1441,29 +1483,12 @@ void ScanPluginDir()
   for (I=0;I<ItemCount && !StopSearch;I++)
   {
     PluginPanelItem *CurPanelItem=PanelData+I;
+    /* $ 30.11.2001 DJ
+       вытащим копирование айтема в функцию
+    */
     if ((CurPanelItem->FindData.dwFileAttributes & FA_DIREC)==0)
-    {
-      char FullName[2*NM+1];
-      sprintf(FullName,"%.*s%.*s",NM,PluginSearchPath,NM,CurPanelItem->FindData.cFileName);
-      for (int I=0;FullName[I]!=0;I++)
-        if (FullName[I]=='\x1')
-          FullName[I]='\\';
-      PluginPanelItem *DestItem=PluginDirList+DirListItemsNumber;
-      *DestItem=*CurPanelItem;
-      if (CurPanelItem->UserData && (CurPanelItem->Flags & PPIF_USERDATA))
-      {
-        DWORD Size=*(DWORD *)CurPanelItem->UserData;
-        /* $ 13.07.2000 SVS
-           вместо new будем использовать malloc
-        */
-        DestItem->UserData=(DWORD)malloc(Size);
-        /* SVS $*/
-        memcpy((void *)DestItem->UserData,(void *)CurPanelItem->UserData,Size);
-      }
-
-      strncpy(DestItem->FindData.cFileName,FullName,sizeof(DestItem->FindData.cFileName)-1);
-      DirListItemsNumber++;
-    }
+      CopyPluginDirItem (CurPanelItem);
+    /* DJ $ */
   }
   for (I=0;I<ItemCount && !StopSearch;I++)
   {
@@ -1480,14 +1505,12 @@ void ScanPluginDir()
         return;
       }
       PluginDirList=NewList;
-      char FullName[2*NM+1];
-      sprintf(FullName,"%.*s%.*s",NM,PluginSearchPath,NM,CurPanelItem->FindData.cFileName);
-      for (int I=0;FullName[I]!=0;I++)
-        if (FullName[I]=='\x1')
-          FullName[I]='\\';
-      PluginDirList[DirListItemsNumber]=*CurPanelItem;
-      strncpy(PluginDirList[DirListItemsNumber].FindData.cFileName,FullName,sizeof(PluginDirList[0].FindData.cFileName)-1);
-      DirListItemsNumber++;
+      /* $ 30.11.2001 DJ
+         используем общую функцию для копирования FindData (не забываем
+         обработать PPIF_USERDATA)
+      */
+      CopyPluginDirItem (CurPanelItem);
+      /* DJ $ */
       if (CtrlObject->Plugins.SetDirectory(hDirListPlugin,CurPanelItem->FindData.cFileName,OPM_FIND))
       {
         strcat(PluginSearchPath,CurPanelItem->FindData.cFileName);
