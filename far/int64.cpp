@@ -5,10 +5,12 @@ int64.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 16.10.2000 $ */
 
 /*
 Modify:
+  16.10.2000 SVS
+    + __int64: функции =, Set
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
@@ -48,6 +50,12 @@ int64 int64::operator = (int64 n)
   return(*this);
 }
 
+int64 int64::operator = (__int64 n)
+{
+  HighPart=(n>>32)&0xFFFFFFFFUL;
+  LowPart=n&0xFFFFFFFFUL;
+  return(*this);
+}
 
 int64 int64::operator << (int n)
 {
@@ -219,6 +227,11 @@ void int64::Set(DWORD HighPart,DWORD LowPart)
   int64::LowPart=LowPart;
 }
 
+void int64::Set(__int64 n)
+{
+  HighPart=(n>>32)&0xFFFFFFFFUL;
+  LowPart=n&0xFFFFFFFFUL;
+}
 
 void int64::itoa(char *Str)
 {
