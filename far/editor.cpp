@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.146 15.01.2002 $ */
+/* Revision: 1.147 18.01.2002 $ */
 
 /*
 Modify:
+  18.01.2002 SKV
+    - CtrlShiftEnd bug fix
   15.01.2002 SVS
     ! Флаги вместо кучи переменных типа int
     ! Первая серия по отучиванию класса Editor слову "Файл"
@@ -1681,6 +1683,11 @@ int Editor::ProcessKey(int Key)
         DisableOut--;
         Edit::DisableEditOut(FALSE);
 
+        /* $ 17.01.2002 SKV
+          Это что бы при FastShow LeftPos не становился в конец строки.
+        */
+        CurLine->EditLine.ObjWidth=X2-X1;
+        /* SKV$*/
         /* $ 13.9.2001 SKV
           Однако LeftPos апдейтится только в FastShow :-\
         */
