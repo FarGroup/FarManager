@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.47 22.03.2002 $ */
+/* Revision: 1.48 25.03.2002 $ */
 
 /*
 Modify:
+  25.03.2002 VVM
+    ! Очередная правка запускатора :)
   22.03.2002 IS
     - Устанавливали заголовок консоли крякозябрами, потому что не учили, что
       для 9x параметр у SetConsoleTitle должен быть в ANSI-кодировке
@@ -592,13 +594,57 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
             int DirectRun,         // Выполнять директом? (без CMD)
             int SetUpDirs)         // Нужно устанавливать каталоги?
 {
+  int NT = WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT;
   char NewCmdStr[4096];
+  char NewCmdPar[4096];
+  NewCmdPar[0] = 0;
 
   // ПРЕДпроверка на вшивость
   ////_tran(SysLog("Execute: CmdStr [%s]",CmdStr);)
 
-  Unquote(strcpy(NewCmdStr,CmdStr));
+  strcpy(NewCmdStr,CmdStr);
   RemoveExternalSpaces(NewCmdStr);
+
+  // Разделим собственно команду для исполнения и параметры.
+  // При этом заодно определим наличие символов переопределения потоков
+  // Работаем с учетом кавычек. Т.е. пайп в кавычках - не пайп.
+  char *CmdPtr = NewCmdStr;
+  char *ParPtr = NULL;
+  int QuoteFound = FALSE;
+  int PipeFound = FALSE;
+
+  while (*CmdPtr)
+  {
+    if (*CmdPtr == '"')
+      QuoteFound = !QuoteFound;
+    if (!QuoteFound)
+    {
+      if (*CmdPtr == '>' || *CmdPtr == '<' ||
+          *CmdPtr == '|' || *CmdPtr == ' ' ||
+      // Для НТ/2к обработаем разделитель команд
+          (NT && *CmdPtr == '&'))
+      {
+        if (!ParPtr)
+          ParPtr = CmdPtr;
+        if (*CmdPtr != ' ')
+          PipeFound = TRUE;
+      }
+    }
+    if (ParPtr && PipeFound)
+    // Нам больше ничего не надо узнавать
+      break;
+    CmdPtr++;
+  }
+
+  if (ParPtr)
+  // Мы нашли параметры и отделяем мух от котлет
+  {
+    strcpy(NewCmdPar, ParPtr);
+    *ParPtr = 0;
+  }
+  Unquote(NewCmdStr);
+  RemoveExternalSpaces(NewCmdStr);
+
   //_tran(SysLog("Execute: newCmdStr [%s]",NewCmdStr);)
 
   // Проверим, а не папку ли мы хотим открыть по Shift-Enter?
@@ -630,10 +676,7 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
   char OldTitle[512];
   DWORD GUIType;
   int ExitCode=1;
-  int NT;
-  int OldNT;
   DWORD CreateFlags;
-  char *CmdPtr;
 
   /* $ 13.04.2001 VVM
     + Флаг CREATE_DEFAULT_ERROR_MODE. Что-бы показывал все ошибки */
@@ -652,9 +695,6 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
   GetConsoleTitle(OldTitle,sizeof(OldTitle));
   memset(&si,0,sizeof(si));
   si.cb=sizeof(si);
-
-  NT=WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT;
-  OldNT=NT && WinVer.dwMajorVersion<4;
 
   *CommandName=0;
   GetEnvironmentVariable("COMSPEC",CommandName,sizeof(CommandName));
@@ -677,7 +717,10 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
         }
   }
 
-  CmdPtr=strcpy(NewCmdStr,CmdStr);
+  strcpy(NewCmdStr,CmdStr);
+  if (ParPtr)
+    *ParPtr = 0;
+  CmdPtr = NewCmdStr;
   //while (isspace(*CmdPtr))
   //  CmdPtr++;
 
@@ -718,7 +761,7 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
           GetRegKey("System\\Executor","Wait",TemplExecuteWait,"%COMSPEC% /c start /wait",sizeof(TemplExecuteWait));
 
           char *Fmt=TemplExecute;
-          if (!OldNT && (SeparateWindow || GUIType && (NT || AlwaysWaitFinish)))
+          if (SeparateWindow || GUIType && (NT || AlwaysWaitFinish))
           {
             Fmt=TemplExecuteStart;
             if (AlwaysWaitFinish)
@@ -750,17 +793,16 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
       }
       else
       {
-        int Pipe=strpbrk(CmdPtr,"<>|")!=NULL;
+//        int Pipe=strpbrk(CmdPtr,"<>|")!=NULL;
         sprintf(ExecLine,"%s /C",CommandName);
         //_tran(SysLog("1. execline='%s'",ExecLine);)
 
-        if (!OldNT && (SeparateWindow || GUIType && (NT || AlwaysWaitFinish)))
+        if (SeparateWindow || GUIType && (NT || AlwaysWaitFinish))
         {
           strcat(ExecLine," start");
           if (AlwaysWaitFinish)
             strcat(ExecLine," /wait");
-
-          if(Pipe)
+          if(PipeFound)
            sprintf(ExecLine+strlen(ExecLine)," %s /C",CommandName);
           else if (NT && *CmdPtr=='\"')
             strcat(ExecLine," \"\"");
@@ -770,49 +812,12 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
         //_tran(SysLog("2. execline=[%s]",ExecLine);)
         //_tran(SysLog("3. cmdptr=[%s]",CmdPtr);)
 
-        char *CmdEnd=CmdPtr+strlen (CmdPtr)-1;
-        if (NT &&
-             (*CmdPtr == '\"' && *CmdEnd == '\"' && strchr (CmdPtr+1, '\"') != CmdEnd ||
-             Pipe && *CmdPtr != '\"')
-           )
-        {
-          strcat (ExecLine, "\"");
-          //_tran(SysLog("4. execline='%s'",ExecLine);)
-
-          /* $ 28.01.2002 tran
-             все эти считалки и лишние скобки нужны при запуске по start*/
-          char *Ptr=CmdPtr;
-          int NumSq=0;
-          if (!OldNT && (SeparateWindow || GUIType && (NT || AlwaysWaitFinish)))
-          {
-          // посчитаемся
-            while(*Ptr)
-            {
-              if(*Ptr == '\"')
-                NumSq++;
-              ++Ptr;
-            }
-            //_tran(SysLog("NumSq=%i",NumSq);)
-
-            if(NumSq > 2)
-              strcat (ExecLine, "\"");
-            //_tran(SysLog("5. execline='%s'",ExecLine);)
-          }
-          strcat (ExecLine, CmdPtr);
-          //_tran(SysLog("6. execline='%s'",ExecLine);)
-          strcat (ExecLine, "\"");
-
-          //_tran(SysLog("7. execline='%s'",ExecLine);)
-          if (!OldNT && (SeparateWindow || GUIType && (NT || AlwaysWaitFinish)))
-          {
-            if(NumSq > 2)
-              strcat (ExecLine, "\"");
-            //_tran(SysLog("8. execline='%s'",ExecLine);)
-          }
-          /* tran $ */
-        }
-        else
-          strcat(ExecLine,CmdPtr);
+        if (PipeFound)
+          strcat(ExecLine, "\"");
+        strcat(ExecLine, CmdPtr);
+        strcat(ExecLine, NewCmdPar);
+        if (PipeFound)
+          strcat(ExecLine, "\"");
         //_tran(SysLog("Execute: ExecLine2 [%s]",ExecLine);)
       }
     }
@@ -848,7 +853,7 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
 
     if (SeparateWindow)
     {
-      CreateFlags|=(OldNT)?CREATE_NEW_CONSOLE:0;//DETACHED_PROCESS;
+//      CreateFlags|=(OldNT)?CREATE_NEW_CONSOLE:0;//DETACHED_PROCESS;
       if(ExecutorType && (GUIType&3) == 1)
         CreateFlags|=CREATE_NEW_CONSOLE;
     }
