@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.76 15.09.2001 $ */
+/* Revision: 1.77 20.09.2001 $ */
 
 /*
 Modify:
+  20.09.01 IS
+    - Ѕаг: при обработке 0x0D не учитывали левую границу при свертке
   15.09.2001 tran
     * вызовы ProcessViewerEvent легализированы
       проверил - мин нет. (см vetest.dll)
@@ -1188,11 +1190,23 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
           Str[XX2-X1+1]=0;
         continue;
       }
+      /* $ 20.09.01 IS
+         Ѕаг: не учитывали левую границу при свертке
+      */
       if (Ch==13)
       {
         CRSkipped=true;
-        continue;
+        if(OutPtr>=XX2-X1)
+        {
+          unsigned long SavePos=vtell(ViewFile);
+          int nextCh=vgetc(ViewFile);
+          if(nextCh!=CRSym && nextCh!=EOF) CRSkipped=false;
+          vseek(ViewFile,SavePos,SEEK_SET);
+        }
+        if(CRSkipped)
+           continue;
       }
+      /* IS $ */
       if (Ch==0 || Ch==10)
         Ch=' ';
       Str[OutPtr++]=Ch;
