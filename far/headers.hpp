@@ -5,7 +5,7 @@ headers.cpp
 
 */
 
-/* Revision: 1.02 11.07.2000 $ */
+/* Revision: 1.03 12.07.2000 $ */
 
 /*
 Modify:
@@ -15,6 +15,9 @@ Modify:
     + stdarg.h - Для FarAdvControl
   11.07.2000 SVS
     ! Изменения для возможности компиляции под BC & VC
+  12.07.2000 OT
+    - Исправление бага, из-за которго не работал ScreenSaver после
+      компиляции VC++
 */
 
 #define STRICT
@@ -97,7 +100,16 @@ Modify:
   #define FA_ARCH   _A_ARCH
   #define setdisk(n) _chdrive((n)+1)
   #define getdisk()  _getdrive()-1
+
+  /* $ 12.07.2000 OT
+    - Исправление бага, из-за которго не работал ScreenSaver после
+      компиляции VC++
+  */
+  #ifndef RAND_MAX
+  #define RAND_MAX 0x7fff
+  #endif
   #define randomize() srand(67898)
-  #define random(x) ( (int) rand() * (x) )
+  #define random(x) ((int) (((x) *  rand()) / RAND_MAX) )
+  /* OT $ */
   #pragma warning (once:4018)
 #endif
