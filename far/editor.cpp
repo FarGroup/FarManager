@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.69 16.02.2001 $ */
+/* Revision: 1.70 19.02.2001 $ */
 
 /*
 Modify:
+  19.02.2001 IS
+    - Забыл проинициализировать AttrStr
   16.02.2001 IS
     + Обработка ECTL_SETPARAM, пока только ESPT_TABSIZE и ESPT_EXPANDTABS
   15.02.2001 IS
@@ -212,6 +214,11 @@ static int EditorID=0;
 
 Editor::Editor()
 {
+  /* $ 19.02.2001 IS
+       Я не учел, что для нового файла GetFileAttributes не вызывается...
+  */
+  *AttrStr=0;
+  /* IS $ */
   /* $ 14.02.2001 IS
        Размер табуляции по умолчанию равен Opt.TabSize;
   */
