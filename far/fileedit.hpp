@@ -7,10 +7,12 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.09 10.05.2001 $ */
+/* Revision: 1.10 12.05.2001 $ */
 
 /*
 Modify:
+  12.05.2001 DJ
+    ! отрисовка по OnChangeFocus перенесена в Frame
   10.05.2001 DJ
     + OnDestroy(), DisableHistory, DisableF6
   07.05.2001 DJ
@@ -94,7 +96,6 @@ class FileEditor:public Frame
     virtual char *GetTypeName(){return "[FileEdit]";}; ///
     virtual int GetType() { return MODALTYPE_EDITOR; }
 
-    virtual void OnChangeFocus(int i);
     /* $ 10.05.2001 DJ */
     virtual void OnDestroy();
     /* DJ $ */

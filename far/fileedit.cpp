@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.41 10.05.2001 $ */
+/* Revision: 1.42 12.05.2001 $ */
 
 /*
 Modify:
+  12.05.2001 DJ
+    ! отрисовка по OnChangeFocus перенесена в Frame
   11.05.2001 OT
     ! ќтрисовка Background
   10.05.2001 DJ
@@ -680,15 +682,6 @@ void FileEditor::SetScreenPosition()
   }
 }
 /* tran $ */
-
-void FileEditor::OnChangeFocus(int f)
-{
-    _D(SysLog("FileEditor::OnChangeFocus(), focus=%i",f));
-    if ( f )
-    {
-        Show();
-    }
-}
 
 /* $ 10.05.2001 DJ
    добавление в view/edit history

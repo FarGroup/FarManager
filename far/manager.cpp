@@ -5,13 +5,15 @@ manager.cpp
 
 */
 
-/* Revision: 1.16 12.05.2001 $ */
+/* Revision: 1.17 12.05.2001 $ */
 
 /*
 Modify:
   12.05.2001 DJ
+    ! Убран ModalFrame.Show() в Manager::ExecuteModal()
+  12.05.2001 DJ
     ! FrameManager оторван от CtrlObject
-    ! объединены ExecuteModal() и ExecuteModalPtr() (и о чем я думал, когда 
+    ! объединены ExecuteModal() и ExecuteModalPtr() (и о чем я думал, когда
       делал две функции?)
     ! ReplaceCurrentFrame() заменена на более универсальную ReplaceFrame()
       (с подачи ОТ)
@@ -213,7 +215,7 @@ void Manager::DestroyFrame(Frame *Killed)
       FrameList [FramePos] = FrameToReplace;
       SetCurrentFrame (FrameToReplace);
     }
-    else if (ModalStackCount > 0)  
+    else if (ModalStackCount > 0)
       SetCurrentFrame (ModalStack [--ModalStackCount]);
     else
     {
@@ -273,7 +275,6 @@ int Manager::ExecuteModal (Frame &ModalFrame)
 {
   ModalSaveState();
   AddFrame (&ModalFrame);
-  ModalFrame.Show();
   DestroyedFrame = NULL;
   Frame *CurModalFrame = &ModalFrame;
   while (DestroyedFrame != CurModalFrame)

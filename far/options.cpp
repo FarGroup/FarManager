@@ -5,10 +5,13 @@ options.cpp
 
 */
 
-/* Revision: 1.07 06.05.2001 $ */
+/* Revision: 1.08 12.05.2001 $ */
 
 /*
 Modify:
+  12.05.2001 DJ
+    * нажатие Shift-F10 перед тем, как нажималось F9, показывает меню для
+      активной панели, а не всегда для левой
   06.05.2001 DJ
     ! перетрях #include
   29.04.2001 ОТ
@@ -182,7 +185,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
     MSG(MMenuRightTitle),0,RightMenu,sizeof(RightMenu)/sizeof(RightMenu[0]),"LeftRightMenu"
   };
 
-  static int LastHItem=0,LastVItem=0;
+  static int LastHItem=-1,LastVItem=0;
   int HItem,VItem;
 
   switch(CtrlObject->Cp()->LeftPanel->GetType())
@@ -243,10 +246,23 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
     if (LastCommand)
     {
       struct MenuData *VMenuTable[]={LeftMenu,FilesMenu,CmdMenu,OptionsMenu,RightMenu};
+      /* $ 12.05.2001 DJ
+         корректно обрабатываем нажатие Shift-F10 до того, как нажимали F9
+      */
+      int HItemToShow = LastHItem;
+      if (HItemToShow == -1)
+      {
+        if (CtrlObject->Cp()->ActivePanel==CtrlObject->Cp()->RightPanel &&
+          CtrlObject->Cp()->ActivePanel->IsVisible())
+          HItemToShow = 4;
+        else
+          HItemToShow = 0;
+      }
       MainMenu[0].Selected=0;
-      MainMenu[LastHItem].Selected=1;
-      VMenuTable[LastHItem][0].Selected=0;
-      VMenuTable[LastHItem][LastVItem].Selected=1;
+      MainMenu[HItemToShow].Selected=1;
+      VMenuTable[HItemToShow][0].Selected=0;
+      VMenuTable[HItemToShow][LastVItem].Selected=1;
+      /* DJ $ */
       HOptMenu.Show();
       ChangeMacroMode MacroMode(MACRO_MAINMENU);
       HOptMenu.ProcessKey(KEY_DOWN);

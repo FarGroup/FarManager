@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.19 10.05.2001 $ */
+/* Revision: 1.20 12.05.2001 $ */
 
 /*
 Modify:
+  12.05.2001 DJ
+    * курсор не останавливается на пустых строках между каталогами
   10.05.2001 DJ
     + поддержка F6 во вьюере/редакторе, вызванных из Find files
   06.05.2001 DJ
@@ -609,7 +611,12 @@ int FindFiles::FindFilesProcess()
           FindMessageReady=FALSE;
         }
 
-        Sleep(100);
+        /* $ 12.05.2001 DJ 
+           нафига спать-то, если все уже нашли???
+        */
+        if (!SearchDone)
+          Sleep(100);
+        /* DJ $ */
       }
     }
 
@@ -987,7 +994,13 @@ void AddMenuRecord(char *FullName,char *Path,WIN32_FIND_DATA *FindData)
     {
       ListItem.UserDataSize=0;
       *ListItem.Name=0;
+      /* $ 12.05.2001 DJ
+         курсор не останавливается на пустых строках между каталогами
+      */
+      ListItem.Disabled = 1;
       FilesListMenu->AddItem(&ListItem);
+      ListItem.Disabled = 0;
+      /* DJ $ */
     }
     strcpy(LastDirName,PathName);
     if (*FindFileArcName)

@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.54 12.05.2001 $ */
+/* Revision: 1.55 12.05.2001 $ */
 
 /*
 Modify:
+  12.05.2001 DJ
+    + EF_ENABLE_F6, VF_ENABLE_F6
   12.05.2001 DJ
     ! убран SaveScr при вызове редактора/вьюера из плагина
   10.05.2001 SVS
@@ -1150,14 +1152,19 @@ int WINAPI FarViewer(char *FileName,char *Title,int X1,int Y1,int X2,
     FileViewer *Viewer=new FileViewer(FileName,TRUE,Title,X1,Y1,X2,Y2);
     if (Flags & VF_DELETEONCLOSE)
       Viewer->SetTempViewName(FileName);
+    /* $ 12.05.2001 DJ */
+    Viewer->SetEnableF6 ((Flags & VF_ENABLE_F6) != 0);
+    /* DJ $ */
     FrameManager->AddFrame(Viewer);
-    ScrBuf.Flush();
   }
   else
   {
     FileViewer Viewer(FileName,FALSE,Title,X1,Y1,X2,Y2);
     if (Flags & VF_DELETEONCLOSE)
       Viewer.SetTempViewName(FileName);
+    /* $ 12.05.2001 DJ */
+    Viewer.SetEnableF6 ((Flags & VF_ENABLE_F6) != 0);
+    /* DJ $ */
     SetConsoleTitle(OldTitle);
     return FrameManager->ExecuteModal(Viewer);
   }
@@ -1185,17 +1192,23 @@ int WINAPI FarEditor(char *FileName,char *Title,int X1,int Y1,int X2,
   /* VVM $ */
   if (Flags & EF_NONMODAL)
   {
-   ExitCode=FALSE;
-   FileEditor *Editor=new FileEditor(FileName,CreateNew,TRUE,StartLine,StartChar,Title,X1,Y1,X2,Y2);
-   if(Editor)
-     {
+    ExitCode=FALSE;
+    FileEditor *Editor=new FileEditor(FileName,CreateNew,TRUE,StartLine,StartChar,Title,X1,Y1,X2,Y2);
+    if(Editor)
+    {
+      /* $ 12.05.2001 DJ */
+      Editor->SetEnableF6 ((Flags & EF_ENABLE_F6) != 0);
+      /* DJ $ */
       FrameManager->AddFrame(Editor);
       ExitCode=TRUE;
-     }
+    }
   }
   else
   {
    FileEditor Editor(FileName,CreateNew,FALSE,StartLine,StartChar,Title,X1,Y1,X2,Y2);
+   /* $ 12.05.2001 DJ */
+   Editor.SetEnableF6 ((Flags & EF_ENABLE_F6) != 0);
+   /* DJ $ */
    SetConsoleTitle(OldTitle);
    return FrameManager->ExecuteModal (Editor);
   }

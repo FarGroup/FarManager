@@ -5,10 +5,12 @@ hmenu.cpp
 
 */
 
-/* Revision: 1.01 06.05.2001 $ */
+/* Revision: 1.02 12.05.2001 $ */
 
 /*
 Modify:
+  12.05.2001 DJ
+    - EnableRestoreScreen=TRUE
   06.05.2001 DJ
     ! перетрях #include
   25.06.2000 SVS
@@ -31,6 +33,9 @@ HMenu::HMenu(struct HMenuData *Item,int ItemCount)
   SubMenu=NULL;
   HMenu::Item=Item;
   HMenu::ItemCount=ItemCount;
+  /* $ 12.05.2001 DJ */
+  SetRestoreScreenMode (TRUE);
+  /* DJ $ */
 }
 
 

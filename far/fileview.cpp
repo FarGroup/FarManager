@@ -5,10 +5,13 @@ fileview.cpp
 
 */
 
-/* Revision: 1.28 07.05.2001 $ */
+/* Revision: 1.29 12.05.2001 $ */
 
 /*
 Modify:
+  12.05.2001 DJ
+    ! отрисовка по OnChangeFocus перенесена в Frame
+    ! убран дублирующийся ExitCode
   11.05.2001 OT
     ! Отрисовка Background
   10.05.2001 DJ
@@ -278,7 +281,7 @@ int FileViewer::ProcessKey(int Key)
                 CtrlObject->Cp()->ActivePanel->SetCurDir(DirTmp,TRUE);
             /* IS */
             CtrlObject->Cp()->ActivePanel->GoToFile(NameTmp);
-            /* $ 10.05.2001 DJ 
+            /* $ 10.05.2001 DJ
                переключаемся на панели
             */
             FrameManager->SwitchToPanels();
@@ -466,11 +469,6 @@ void FileViewer::SetTempViewName(char *Name)
 }
 
 
-int FileViewer::GetExitCode()
-{
-  return(ExitCode);
-}
-
 /* $ 28.06.2000 tran
  (NT Console resize)
  resize viewer */
@@ -484,10 +482,6 @@ void FileViewer::SetScreenPosition()
 }
 /* tran $ */
 
-void FileViewer::OnCreate()
-{
-}
-
 void FileViewer::OnDestroy()
 {
   if (!DisableHistory && (CtrlObject->Cp()->ActivePanel!=NULL || strcmp(Name,"-")!=0))
@@ -498,13 +492,4 @@ void FileViewer::OnDestroy()
       return ;
     CtrlObject->ViewHistory->AddToHistory(FullFileName,MSG(MHistoryView),0);
   }
-}
-
-void FileViewer::OnChangeFocus(int f)
-{
-    _D(SysLog("FileViewer::OnChangeFocus(), focus=%i",f));
-    if ( f )
-    {
-        Show();
-    }
 }

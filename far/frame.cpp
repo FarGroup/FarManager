@@ -5,12 +5,13 @@ Parent class для немодальных объектов
 
 */
 
-/* Revision: 1.05 07.05.2001 $ */
+/* Revision: 1.06 12.05.2001 $ */
 
 /*
 Modify:
   12.05.2001 DJ
     + IsTopFrame()
+    + отрисовка по OnChangeFocus сделана дефолтным поведением
   07.05.2001 SVS
     ! SysLog(); -> _D(SysLog());
   07.05.2001 DJ
@@ -62,4 +63,11 @@ int Frame::IsTopFrame()
 {
   return FrameManager->GetCurrentFrame() == this;
 }
+
+void Frame::OnChangeFocus (int focus)
+{
+  if (focus)
+    Show();
+}
+
 /* DJ $ */

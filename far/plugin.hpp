@@ -8,13 +8,15 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.100 08.05.2001 $ */
+/* Revision: 1.101 12.05.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  12.05.2001 DJ
+    + VF_ENABLE_F6, EF_ENABLE_F6
   08.05.2001 SVS
     + FDLG_* - флаги для DialogEx
   07.05.2001 SVS
@@ -818,11 +820,13 @@ typedef void (WINAPI *FARAPIFREEDIRLIST)(struct PluginPanelItem *PanelItem);
 enum VIEWER_FLAGS {
   VF_NONMODAL      =1,
   VF_DELETEONCLOSE =2,
+  VF_ENABLE_F6     =4,
 };
 
 enum EDITOR_FLAGS {
   EF_NONMODAL      =1,
   EF_CREATENEW     =2,
+  EF_ENABLE_F6     =4,
 };
 
 typedef int (WINAPI *FARAPIVIEWER)(

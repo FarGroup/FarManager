@@ -8,10 +8,12 @@ frame.hpp
 
 */
 
-/* Revision: 1.03 12.05.2001 */
+/* Revision: 1.04 12.05.2001 */
 
 /*
   Modify:
+    12.05.2001 DJ
+      ! отрисовка по OnChangeFocus сделана дефолтным поведением
     12.05.2001 DJ
       + IsTopFrame(), GetMacroMode()
     07.05.2001 DJ
@@ -44,7 +46,7 @@ class Frame: public ScreenObject
     int  KeyBarVisible;
     KeyBar *ModalKeyBar;
     int MacroMode;
-    
+
   public:
     Frame();
     virtual ~Frame();
@@ -61,7 +63,7 @@ class Frame: public ScreenObject
 
     virtual void OnDestroy() {};  // вызывается перед уничтожением окна
     virtual void OnCreate() {};   // вызывается перед созданием окна
-    virtual void OnChangeFocus(int focus) {}; // вызывается при смене фокуса
+    virtual void OnChangeFocus(int focus); // вызывается при смене фокуса
 
     void SetKeyBar(KeyBar *ModalKeyBar);
     void UpdateKeyBar();

@@ -7,10 +7,14 @@ fileview.hpp
 
 */
 
-/* Revision: 1.06 06.05.2001 $ */
+/* Revision: 1.07 12.05.2001 $ */
 
 /*
 Modify:
+  12.05.2001 DJ
+    ! отрисовка по OnChangeFocus перенесена в Frame
+    ! убран дублирующийся ExitCode
+    + SetEnableF6()
   06.05.2001 DJ
     ! перетрях #include
   06.05.2001 ОТ
@@ -43,7 +47,6 @@ class FileViewer:public Frame
     char NewTitle[NM];
     int F3KeyOnly;
     int FullScreen;
-    int ExitCode;
     int DisableEdit;
     int DisableHistory;
     char Name[NM];
@@ -65,16 +68,17 @@ class FileViewer:public Frame
     int GetTypeAndName(char *Type,char *Name);
     void ShowConsoleTitle();
     void SetTempViewName(char *Name);
-    int GetExitCode();
     /* $ 28.06.2000 tran
        NT Console resize - resize viewer */
     virtual void SetScreenPosition();
     /* tran $ */
-    virtual void OnCreate(); ///
-    virtual void OnDestroy(); ///
-    virtual void OnChangeFocus(int f); ///
+    virtual void OnDestroy();
     virtual char *GetTypeName(){return "[FileView]";}; ///
     virtual int GetType() { return MODALTYPE_VIEWER; }
+
+    /* $ 12.05.2001 DJ */
+    void SetEnableF6 (int AEnable) { DisableEdit = !AEnable; }
+    /* DJ $ */
 };
 
 #endif	// __FILEVIEWER_HPP__
