@@ -5,10 +5,13 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.77 08.12.2004 $ */
+/* Revision: 1.78 23.12.2004 $ */
 
 /*
 Modify:
+  23.12.2004 WARP
+    ! Нафиг отрубаем показ дерева, если его создание прервали по Esc (нечего пустое дерево показывать).
+      Ставим флаг IsPanel в FALSE. Мы ведь панель не создаем.
   08.12.2004 SVS
     + CmdLine.ItemCount, CmdLine.CurPos
   11.11.2004 SVS
@@ -381,7 +384,7 @@ int CommandLine::ProcessKey(int Key)
     case KEY_ALTF10:
       {
         {
-          FolderTree Tree(Str,MODALTREE_ACTIVE,4,2,ScrX-4,ScrY-4);
+          FolderTree Tree(Str,MODALTREE_ACTIVE,4,2,ScrX-4,ScrY-4, FALSE);
           FrameManager->GetCurrentFrame()->RedrawKeyBar(); // Затычка ;-(
         }
         if (*Str)
