@@ -5,10 +5,13 @@ flink.cpp
 
 */
 
-/* Revision: 1.04 05.01.2001 $ */
+/* Revision: 1.05 25.01.2001 $ */
 
 /*
 Modify:
+  25.01.2001 SVS
+    ! ”ã­ªæ¨¨ GetSubstName ¨ DelSubstDrive â¥¯¥àì ­®à¬ «ì­® à ¡®â îâ ¨ ¤«ï
+      Windows98
   05.01.2001 SVS
     + ”ã­ªæ¨ï GetSubstName - ¯¥à¥¥å «  ¨§ mix.cpp
     + ”ã­ªæ¨ï DelSubstDrive - ã¤ «¥­¨¥ Subst ¤à ©¢¥à 
@@ -255,13 +258,9 @@ int WINAPI MkLink(char *Src,char *Dest)
 */
 int DelSubstDrive(char *DosDeviceName)
 {
-  if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
+  char NtDeviceName[512];
+  if(GetSubstName(DosDeviceName,NtDeviceName,sizeof(NtDeviceName)))
   {
-    char NtDeviceName[512];
-    if (QueryDosDevice(DosDeviceName,NtDeviceName,sizeof(NtDeviceName))==0)
-      return(-1);
-    if (strncmp(NtDeviceName,"\\??\\",4)!=0)
-      return(-1);
     return !DefineDosDevice(DDD_RAW_TARGET_PATH|
                        DDD_REMOVE_DEFINITION|
                        DDD_EXACT_MATCH_ON_REMOVE,
@@ -273,16 +272,36 @@ int DelSubstDrive(char *DosDeviceName)
 
 BOOL GetSubstName(char *LocalName,char *SubstName,int SubstSize)
 {
-  if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
+  char Name[NM*2]="";
+  LocalName=CharUpper((LPTSTR)LocalName);
+  if ((LocalName[0]>='A') && ((LocalName[0]<='Z')))
   {
-    char Name[512]="";
-    if (QueryDosDevice(LocalName,Name,sizeof(Name))==0)
-      return(FALSE);
-    if (strncmp(Name,"\\??\\",4)!=0)
-      return(FALSE);
-    strncpy(SubstName,Name+4,SubstSize);
-    return(TRUE);
+    // ’Ž ŽŸ‡€’…‹œŽ, ˆ€—… ‚ WIN98 €Ž’€’œ … “„…’!!!!
+    int SizeName=WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT?sizeof(Name):MAXPATH;
+
+    if (QueryDosDevice(LocalName,Name,SizeName) >= 3)
+    {
+      /* Subst drive format API differences:
+       *   WinNT: \??\qualified_path (e.g. \??\C:\WinNT)
+       *   Win98: qualified_path (e.g. C:\ or C:\Win98) */
+      if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
+      {
+        if (!strncmp(Name,"\\??\\",4))
+        {
+          strncpy(SubstName,Name+4,SubstSize);
+          return TRUE;
+        }
+      }
+      else
+      {
+        if(Name[1] == ':' && Name[2] == '\\')
+        {
+          strncpy(SubstName,Name,SubstSize);
+          return TRUE;
+        }
+      }
+    }
   }
-  return(FALSE);
+  return FALSE;
 }
 
