@@ -5,10 +5,13 @@ execute.cpp
 
 */
 
-/* Revision: 1.72 03.10.2002 $ */
+/* Revision: 1.73 04.10.2002 $ */
 
 /*
 Modify:
+  04.10.2002 VVM
+    ! Небольшой баг при поиске файла по списку расширений. Перед поиском расширения
+      отделим имя файла от пути к нему.
   03.10.2002 VVM
     + Default action может содержать несколько команнд через запятую.
     + При поиске в App paths учтем кавычки и переменные окружения.
@@ -609,7 +612,7 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
 
   {
     char *FilePart;
-    char *PtrFName=strrchr(strcpy(FullName,FileName),'.');
+    char *PtrFName=strrchr(PointToName(strcpy(FullName,FileName)),'.');
     char *WorkPtrFName;
     if(!PtrFName)
       WorkPtrFName=FullName+strlen(FullName);
@@ -619,7 +622,7 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
     {
       if(!PtrFName)
         strcpy(WorkPtrFName,PtrExt);
-      if(GetFileAttributes(FullName)!=-1)
+      if(GetFileAttributes(FullName) != -1)
       {
         // GetFullPathName - это нужно, т.к. если тыкаем в date.exe
         // в текущем каталоге, то нифига ничего доброго не получаем
