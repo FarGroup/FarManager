@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.17 01.08.2000 $ */
+/* Revision: 1.18 04.08.2000 $ */
 
 /*
 Modify:
+  04.08.2000 KM
+    ! !!!Неверный предыдущий патч!!!!
   01.08.2000 KM 1.16
     + Добавлен поиск по "Целым словам". Работает в связке
       с поиском по Alt-F7.
@@ -1657,6 +1659,11 @@ void Viewer::Search(int Next,int FirstChar)
                 && (SearchLength==2 || memcmp(SearchStr+2,&Buf[I+2],SearchLength-2)==0));
             }
           }
+          else
+          {
+            cmpResult=SearchStr[0]==Buf[I] && (SearchLength==1 || SearchStr[1]==Buf[I+1]
+              && (SearchLength==2 || memcmp(SearchStr+2,&Buf[I+2],SearchLength-2)==0));
+          }
           if (cmpResult)
             Match=TRUE;
           else
@@ -1695,6 +1702,7 @@ void Viewer::Search(int Next,int FirstChar)
       }
     }
   }
+
   if (Match)
   {
     char Buf[1024];
