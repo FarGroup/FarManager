@@ -9,10 +9,14 @@ editor.hpp
 
 */
 
-/* Revision: 1.11 14.02.2001 $ */
+/* Revision: 1.12 15.02.2001 $ */
 
 /*
 Modify:
+  15.02.2001 IS
+    - Тело функции SetTabSize переехало в editor.cpp
+    + За режима "Пробелы вместо табуляции" отвечает переменная ConvertTabs
+    + GetConvertTabs и SetConvertTabs
   14.02.2001 IS
     + Размер табуляции хранится в TabSize, манипулировать им можно при помощи
       GetTabSize, SetTabSize
@@ -78,6 +82,12 @@ class Editor:public ScreenObject
          а не Opt.TabSize
     */
     int TabSize;
+    /* IS $ */
+    /* $ 15.02.2001 IS
+         Сюда запомним состояние режима "Пробелы вместо табуляции"
+         и в дальнейшем будем использовать его, а не Opt.EditorExpandTabs
+    */
+    int ConvertTabs;
     /* IS $ */
     int WasChanged;
     int Overtype;
@@ -213,8 +223,14 @@ class Editor:public ScreenObject
     /* $ 14.02.2001 IS
          Функции чтения/установления размера табуляции
     */
-    void SetTabSize(int NewSize) { TabSize=NewSize; }
+    void SetTabSize(int NewSize);
     int  GetTabSize(void) {return TabSize; }
+    /* IS $ */
+    /* $ 15.02.2001 IS
+         Функции чтения/установления режима ConvertTabs.
+    */
+    void SetConvertTabs(int NewMode);
+    int  GetConvertTabs(void) {return ConvertTabs; }
     /* IS $ */
 
     /* $ tran 14.07.2000

@@ -5,10 +5,13 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.18 01.02.2001 $ */
+/* Revision: 1.19 15.02.2001 $ */
 
 /*
 Modify:
+  15.02.2001 IS
+    + Обновим размер табуляции и режим "Пробелы вместо табуляции" при смене
+      настроек редактора по AltShiftF9
   01.02.2001 IS
     ! Открываем по F6 вьюер с указанием длинного имени файла, а не короткого
   03.01.2001 SVS
@@ -440,6 +443,13 @@ int FileEditor::ProcessKey(int Key)
     case KEY_ALTSHIFTF9:
       EditorConfig();
       EditKeyBar.Show(); //???? Нужно ли????
+      /* $ 15.02.2001 IS
+         + Обновим размер табуляции и состояние
+           режима "Пробелы вместо табуляции"
+      */
+      FEdit.SetTabSize(Opt.TabSize);
+      FEdit.SetConvertTabs(Opt.EditorExpandTabs);
+      /* IS $ */
       FEdit.Show();
       return TRUE;
     /* SVS $ */

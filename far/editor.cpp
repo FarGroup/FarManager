@@ -6,10 +6,15 @@ editor.cpp
 
 */
 
-/* Revision: 1.66 14.02.2001 $ */
+/* Revision: 1.67 15.02.2001 $ */
 
 /*
 Modify:
+  15.02.2001 IS
+    + Обновим размер табуляции для всех Edit в функции SetTabSize
+    ! Opt.EditorExpandTabs -> ConvertTabs
+    + SetConvertTabs
+    ! SetTabSize вызывается везде перед SetConvertTabs
   14.02.2001 IS
     + Размер табуляции хранится в TabSize, манипулировать им можно при помощи
       GetTabSize, SetTabSize
@@ -206,6 +211,11 @@ Editor::Editor()
   */
   TabSize=Opt.TabSize;
   /* IS $ */
+  /* $ 15.02.2001 IS
+       Инициализируем режим "Пробелы вместо табуляции"
+  */
+  ConvertTabs=Opt.EditorExpandTabs;
+  /* IS $ */
   EditKeyBar=NULL;
   strcpy((char *)LastSearchStr,GlobalSearchString);
   LastSearchCase=GlobalSearchCase;
@@ -246,7 +256,7 @@ Editor::Editor()
   */
   TopList->EditLine.SetTabSize(TabSize);
   /* IS $ */
-  TopList->EditLine.SetConvertTabs(Opt.EditorExpandTabs);
+  TopList->EditLine.SetConvertTabs(ConvertTabs);
   TopList->EditLine.SetEditorMode(TRUE);
   TopList->Prev=NULL;
   TopList->Next=NULL;
@@ -519,12 +529,12 @@ int Editor::ReadFile(char *Name,int &UserBreak)
         EndList->Next=NULL;
       }
 
-      EndList->EditLine.SetConvertTabs(Opt.EditorExpandTabs);
       /* $ 14.02.2001 IS
            Установим нужный размер табуляции
       */
       EndList->EditLine.SetTabSize(TabSize);
       /* IS $ */
+      EndList->EditLine.SetConvertTabs(ConvertTabs);
       EndList->EditLine.SetBinaryString(Str,StrLength);
       EndList->EditLine.SetCurPos(0);
       EndList->EditLine.SetObjectColor(COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
@@ -539,12 +549,12 @@ int Editor::ReadFile(char *Name,int &UserBreak)
         EndList=EndList->Next;
         EndList->Prev=PrevPtr;
         EndList->Next=NULL;
-        EndList->EditLine.SetConvertTabs(Opt.EditorExpandTabs);
         /* $ 14.02.2001 IS
            Установим нужный размер табуляции
         */
         EndList->EditLine.SetTabSize(TabSize);
         /* IS $ */
+        EndList->EditLine.SetConvertTabs(ConvertTabs);
         EndList->EditLine.SetString("");
         EndList->EditLine.SetCurPos(0);
         EndList->EditLine.SetObjectColor(COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
@@ -2607,7 +2617,7 @@ void Editor::InsertString()
   */
   NewString->EditLine.SetTabSize(TabSize);
   /* IS $ */
-  NewString->EditLine.SetConvertTabs(Opt.EditorExpandTabs);
+  NewString->EditLine.SetConvertTabs(ConvertTabs);
   NewString->EditLine.SetTables(UseDecodeTable ? &TableSet:NULL);
   NewString->EditLine.SetEditBeyondEnd(Opt.EditorCursorBeyondEOL);
   NewString->EditLine.SetEditorMode(TRUE);
@@ -4429,7 +4439,7 @@ int Editor::EditorControl(int Command,void *Param)
         Info->AnsiMode=AnsiText;
         Info->TableNum=UseDecodeTable ? TableNum-1:-1;
         Info->Options=0;
-        if (Opt.EditorExpandTabs)
+        if (ConvertTabs)
           Info->Options|=EOPT_EXPANDTABS;
         if (Opt.EditorPersistentBlocks)
           Info->Options|=EOPT_PERSISTENTBLOCKS;
@@ -4943,5 +4953,46 @@ DWORD Editor::GetFileAttributes(LPCTSTR Name)
   AttrStr[ind]=0;
   return attr;
 }
+/* IS $ */
+
+/* $ 15.02.2001 IS
+     Манипуляции с табуляцией на уровне всего загруженного файла.
+     Может быть длительной во времени операцией, но тут уж, imho,
+     ничего не поделать.
+*/
+//Обновим размер табуляции
+void Editor::SetTabSize(int NewSize)
+{
+  if(NewSize!=TabSize) /* Меняем размер табуляции только в том случае, если он
+                          на самом деле изменился */
+  {
+    TabSize=NewSize;
+    struct EditList *CurPtr=TopList;
+    while (CurPtr!=NULL)
+    {
+      CurPtr->EditLine.SetTabSize(NewSize);
+      CurPtr=CurPtr->Next;
+    }
+  }
+}
+
+// обновим режим пробелы вместо табуляции
+// операция необратима, кстати, т.е. пробелы на табуляцию обратно не изменятся
+void Editor::SetConvertTabs(int NewMode)
+{
+  if(NewMode!=ConvertTabs) /* Меняем режим только в том случае, если он
+                              на самом деле изменился */
+  {
+    ConvertTabs=NewMode;
+    struct EditList *CurPtr=TopList;
+    while (CurPtr!=NULL)
+    {
+      CurPtr->EditLine.SetConvertTabs(NewMode);
+      CurPtr->EditLine.ReplaceTabs();
+      CurPtr=CurPtr->Next;
+    }
+  }
+}
+
 /* IS $ */
 #endif //!defined(EDITOR2)
