@@ -5,10 +5,14 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.41 28.05.2002 $ */
+/* Revision: 1.42 17.12.2002 $ */
 
 /*
 Modify:
+  17.12.2002 SVS
+    ! ViewerPosCache и EditorPosCache теперь сильно различаются (see класс FilePositionCache).
+      ViewerPosCache работает с типом кэша FPOSCACHE_64,
+      EditorPosCache работает с типом кэша FPOSCACHE_32.
   28.05.2002 SVS
     + Вызов PluginCommit() - убивает двух зайцев - BugZ##536, 530
   27.05.2002 SVS
@@ -138,8 +142,8 @@ ControlObject::ControlObject()
   */
   HiFiles = new HighlightFiles;
   GrpSort = new GroupSort;
-  ViewerPosCache = new FilePositionCache;
-  EditorPosCache = new FilePositionCache;
+  ViewerPosCache = new FilePositionCache(FPOSCACHE_64);
+  EditorPosCache = new FilePositionCache(FPOSCACHE_32);
   FrameManager = new Manager;
   /* DJ $ */
   ReadConfig();

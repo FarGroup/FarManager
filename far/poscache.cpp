@@ -5,10 +5,14 @@ poscache.cpp
 
 */
 
-/* Revision: 1.14 15.08.2002 $ */
+/* Revision: 1.15 17.12.2002 $ */
 
 /*
 Modify:
+  17.12.2002 SVS
+    ! класс FilePositionCache подвергся значительным переделкам,
+     т.к. позиции вьювере измеряются в терминах __int64, а редактора - DWORD
+     Т.е. класс теперь понимает 2 типа кэша - FPOSCACHE_32 и FPOSCACHE_64.
   15.08.2002 IS
     ! DirList.Start -> DirList.Reset
   29.10.2001 IS
@@ -50,6 +54,13 @@ Modify:
 #include "poscache.hpp"
 #include "global.hpp"
 #include "fn.hpp"
+#include "udlist.hpp"
+
+#define MSIZE_PARAM            (Opt.MaxPositionCache*SizeValue*5)
+#define MSIZE_POSITION         (BOOKMARK_COUNT*Opt.MaxPositionCache*SizeValue*4)
+
+#define PARAM_POS(Pos)         ((Pos)*SizeValue*5)
+#define POSITION_POS(Pos,Idx)  ((Pos)*BOOKMARK_COUNT*SizeValue*4+(Idx)*BOOKMARK_COUNT*SizeValue)
 
 /* $ 17.06.2001 IS
    + Имя файла должно быть взято в кавычки, т.к. оно может содержать
@@ -58,58 +69,71 @@ Modify:
 static char EmptyPos[]="0,0,0,0,0,\"$\"";
 /* IS $ */
 
-FilePositionCache::FilePositionCache()
+char FilePositionCache::SubKeyItem[16]="Item";
+char FilePositionCache::SubKeyShort[16]="Short";
+char *FilePositionCache::PtrSubKeyItem;
+char *FilePositionCache::PtrSubKeyShort;
+
+
+FilePositionCache::FilePositionCache(int TypeCache)
 {
+  PtrSubKeyItem=SubKeyItem+strlen(SubKeyItem);
+  PtrSubKeyShort=SubKeyShort+strlen(SubKeyShort);
+
   if(!Opt.MaxPositionCache)
   {
     GetRegKey("System","MaxPositionCache",Opt.MaxPositionCache,MAX_POSITIONS);
     if(Opt.MaxPositionCache < 16 || Opt.MaxPositionCache > 128)
       Opt.MaxPositionCache=MAX_POSITIONS;
   }
-  Names=(char*)malloc(Opt.MaxPositionCache*3*NM);
-  Positions=(unsigned int*)malloc(Opt.MaxPositionCache*5*sizeof(unsigned int));
-  ShortPos=(long*)malloc(Opt.MaxPositionCache*(BOOKMARK_COUNT*4)*sizeof(long));
 
-  if(Names  && Positions && ShortPos)
-  {
-    memset(Names,0,Opt.MaxPositionCache*3*NM);
-    memset(Positions,0,sizeof(unsigned int)*Opt.MaxPositionCache*5);
-    memset(ShortPos,0xFF,sizeof(long)*Opt.MaxPositionCache*(BOOKMARK_COUNT*4));
-    CurPos=0;
-    IsMemory=1;
-  }
-  else
-  {
-    IsMemory=0;
-  }
+  SizeValue=!TypeCache?sizeof(DWORD):sizeof(__int64);
 
+  Param=NULL;
+  Position=NULL;
+  IsMemory=0;
+  CurPos=0;
+
+  if((Names=(char*)malloc(Opt.MaxPositionCache*3*NM)) != NULL)
+  {
+    Param=(BYTE*)malloc(MSIZE_PARAM);
+    Position=(BYTE*)malloc(MSIZE_POSITION);
+    if(Param && Position)
+    {
+      memset(Names,0,Opt.MaxPositionCache*3*NM);
+      memset(Param,0,MSIZE_PARAM);
+      memset(Position,0xFF,MSIZE_POSITION);
+      IsMemory=1;
+    }
+    else
+    {
+      if(Param)       free(Param);       Param=NULL;
+      if(Position)    free(Position);    Position=NULL;
+    }
+  }
 }
 
 FilePositionCache::~FilePositionCache()
 {
-  if(IsMemory)
-  {
-    free(Names);
-    free(Positions);
-    free(ShortPos);
-  }
+  if(Names)     free(Names);
+  if(Param)     free(Param);
+  if(Position)  free(Position);
 }
 
-void FilePositionCache::AddPosition(char *Name,unsigned int Position1,
-     unsigned int Position2,unsigned int Position3,unsigned int Position4,
-     unsigned int Position5,
-     long *SPosLine,long *SPosLeftPos,
-     long *SPosCursor,long *SPosScreenLine)
+void FilePositionCache::AddPosition(const char *Name,void *PosCache)
 {
-  if(!IsMemory)
+  if(!IsMemory || !PosCache)
     return;
 
   char FullName[3*NM];
-  if (*Name=='<') {
+  if (*Name=='<')
+  {
     strcpy(FullName,Name);
-  } else {
-//    ConvertNameToFull(Name,FullName, sizeof(FullName));
-    if (ConvertNameToFull(Name,FullName, sizeof(FullName)) >= sizeof(FullName)){
+  }
+  else
+  {
+    if (ConvertNameToFull(Name,FullName, sizeof(FullName)) >= sizeof(FullName))
+    {
       return;
     }
   }
@@ -119,100 +143,122 @@ void FilePositionCache::AddPosition(char *Name,unsigned int Position1,
   int Pos = FindPosition(FullName);
   if (Pos >= 0)
     CurPos = Pos;
-  strcpy(&Names[CurPos*3*NM],FullName);
+  strcpy(Names+CurPos*3*NM,FullName);
   /* VVM $ */
-  Positions[CurPos*5+0]=Position1;
-  Positions[CurPos*5+1]=Position2;
-  Positions[CurPos*5+2]=Position3;
-  Positions[CurPos*5+3]=Position4;
-  Positions[CurPos*5+4]=Position5;
 
-  memset(&ShortPos[CurPos*(BOOKMARK_COUNT*4)],0xFF,(BOOKMARK_COUNT*4)*sizeof(long));
-  if(SPosLine)
-    memcpy(&ShortPos[CurPos*(BOOKMARK_COUNT*4)+(BOOKMARK_COUNT*0)],SPosLine,BOOKMARK_COUNT*sizeof(long));
-  if(SPosLeftPos)
-    memcpy(&ShortPos[CurPos*(BOOKMARK_COUNT*4)+(BOOKMARK_COUNT*1)],SPosLeftPos,BOOKMARK_COUNT*sizeof(long));
-  if(SPosCursor)
-    memcpy(&ShortPos[CurPos*(BOOKMARK_COUNT*4)+(BOOKMARK_COUNT*2)],SPosCursor,BOOKMARK_COUNT*sizeof(long));
-  if(SPosScreenLine)
-    memcpy(&ShortPos[CurPos*(BOOKMARK_COUNT*4)+(BOOKMARK_COUNT*3)],SPosScreenLine,BOOKMARK_COUNT*sizeof(long));
+  int I;
+
+  memset(Position+POSITION_POS(CurPos,0),0xFF,(BOOKMARK_COUNT*4)*SizeValue);
+  memcpy(Param+PARAM_POS(CurPos),PosCache,SizeValue*5); // При условии, что в TPosCache?? Param стоит первым :-)
+
+  if(SizeValue == sizeof(DWORD))
+  {
+    for(I=0; I < 4; ++I)
+      if(((struct TPosCache32*)PosCache)->Position[I])
+        memcpy(Position+POSITION_POS(CurPos,I),((struct TPosCache32*)PosCache)->Position[I],BOOKMARK_COUNT*SizeValue);
+  }
+  else
+  {
+    for(I=0; I < 4; ++I)
+      if(((struct TPosCache64*)PosCache)->Position[I])
+        memcpy(Position+POSITION_POS(CurPos,I),((struct TPosCache64*)PosCache)->Position[I],BOOKMARK_COUNT*SizeValue);
+  }
 
   if (++CurPos>=Opt.MaxPositionCache)
     CurPos=0;
 }
 
 
-void FilePositionCache::GetPosition(char *Name,unsigned int &Position1,
-     unsigned int &Position2,unsigned int &Position3,unsigned int &Position4,
-     unsigned int &Position5,
-     long *SPosLine,long *SPosLeftPos,
-     long *SPosCursor,long *SPosScreenLine)
+
+BOOL FilePositionCache::GetPosition(const char *Name,void *PosCache)
 {
-  if(!IsMemory)
-    return;
+  if(!IsMemory || !PosCache)
+    return FALSE;
 
   char FullName[3*NM];
-  if (*Name=='<'){
+  if (*Name=='<')
+  {
     strcpy(FullName,Name);
-  } else {
-//    ConvertNameToFull(Name,FullName, sizeof(FullName));
-    if (ConvertNameToFull(Name,FullName, sizeof(FullName)) >= sizeof(FullName)){
-      return ;
+  }
+  else
+  {
+    if (ConvertNameToFull(Name,FullName, sizeof(FullName)) >= sizeof(FullName))
+    {
+      return FALSE;
     }
   }
-  Position1=Position2=Position3=Position4=Position5=0;
+
   int Pos = FindPosition(FullName);
+
+  //memset(Position+POSITION_POS(CurPos,0),0xFF,(BOOKMARK_COUNT*4)*SizeValue);
+  //memcpy(Param+PARAM_POS(CurPos),PosCache,SizeValue*5); // При условии, что в TPosCache?? Param стоит первым :-)
+
   if (Pos >= 0)
   {
-    Position1=Positions[Pos*5+0];
-    Position2=Positions[Pos*5+1];
-    Position3=Positions[Pos*5+2];
-    Position4=Positions[Pos*5+3];
-    Position5=Positions[Pos*5+4];
-    if(SPosLine)
-      memcpy(SPosLine,&ShortPos[Pos*(BOOKMARK_COUNT*4)+(BOOKMARK_COUNT*0)],BOOKMARK_COUNT*sizeof(long));
-    if(SPosLeftPos)
-      memcpy(SPosLeftPos,&ShortPos[Pos*(BOOKMARK_COUNT*4)+(BOOKMARK_COUNT*1)],BOOKMARK_COUNT*sizeof(long));
-    if(SPosCursor)
-      memcpy(SPosCursor,&ShortPos[Pos*(BOOKMARK_COUNT*4)+(BOOKMARK_COUNT*2)],BOOKMARK_COUNT*sizeof(long));
-    if(SPosScreenLine)
-      memcpy(SPosScreenLine,&ShortPos[Pos*(BOOKMARK_COUNT*4)+(BOOKMARK_COUNT*3)],BOOKMARK_COUNT*sizeof(long));
+    int I;
+    memcpy(PosCache,Param+PARAM_POS(Pos),SizeValue*5); // При условии, что в TPosCache?? Param стоит первым :-)
+    if(SizeValue == sizeof(DWORD))
+    {
+      for(I=0; I < 4; ++I)
+        if(((struct TPosCache32*)PosCache)->Position[I])
+          memcpy(((struct TPosCache32*)PosCache)->Position[I],Position+POSITION_POS(Pos,I),BOOKMARK_COUNT*SizeValue);
+    }
+    else
+    {
+      for(I=0; I < 4; ++I)
+        if(((struct TPosCache64*)PosCache)->Position[I])
+          memcpy(((struct TPosCache64*)PosCache)->Position[I],Position+POSITION_POS(Pos,I),BOOKMARK_COUNT*SizeValue);
+    }
+    return TRUE;
   }
+  memset(PosCache,0,SizeValue*5); // При условии, что в TPosCache?? Param стоит первым :-)
+  return FALSE;
 }
 
-int FilePositionCache::FindPosition(char *FullName)
+int FilePositionCache::FindPosition(const char *FullName)
 {
   for (int I=1;I<=Opt.MaxPositionCache;I++)
   {
     int Pos=CurPos-I;
     if (Pos<0)
       Pos+=Opt.MaxPositionCache;
+
     int CmpRes;
+    char *Ptr=Names+Pos*3*NM;
+
     if (Opt.FlagPosixSemantics)
-      CmpRes = strcmp(&Names[Pos*3*NM],FullName);
+      CmpRes = strcmp(Ptr,FullName);
     else
-      CmpRes = LStricmp(&Names[Pos*3*NM],FullName);
+      CmpRes = LStricmp(Ptr,FullName);
+
     if (CmpRes == 0)
       return(Pos);
   }
   return(-1);
 }
 
-void FilePositionCache::Read(char *Key)
+BOOL FilePositionCache::Read(const char *Key)
 {
   if(!IsMemory)
-    return;
+    return FALSE;
+
+  char DataStr[8096];
+  BYTE DefPos[8096];
+
+  memset(DefPos,0xff,(BOOKMARK_COUNT*4)*SizeValue);
 
   for (int I=0;I < Opt.MaxPositionCache;I++)
   {
-    char SubKey[100],DataStr[512];
-    sprintf(SubKey,"Item%d",I);
-    GetRegKey(Key,SubKey,DataStr,"",sizeof(DataStr));
+    itoa(I,PtrSubKeyItem,10);
+    itoa(I,PtrSubKeyShort,10);
+
+    GetRegKey(Key,SubKeyShort,(LPBYTE)Position+POSITION_POS(I,0),(LPBYTE)DefPos,(BOOKMARK_COUNT*4)*SizeValue);
+    GetRegKey(Key,SubKeyItem,DataStr,EmptyPos,sizeof(DataStr));
 
     if(!strcmp(DataStr,EmptyPos))
     {
       Names[I*3*NM]=0;
-      memset(Positions+I*5,0,sizeof(unsigned int)*5);
+      memset(Param+PARAM_POS(I),0,SizeValue*5);
     }
     else
     {
@@ -228,77 +274,95 @@ void FilePositionCache::Read(char *Key)
       int J=0;
       const char *DataPtr;
       char ArgData[2*NM];
+
       if(DataList.Set(DataStr))
       {
          DataList.Reset();
          while(NULL!=(DataPtr=DataList.GetNext()))
          {
            if(*DataPtr=='$')
-              strcpy(Names+I*3*NM,DataPtr+1);
-           else
-             switch(J)
-             {
-               case 0:
-                 Positions[I*5+0]=atoi(DataPtr);
-                 break;
-               case 1:
-                 Positions[I*5+1]=atoi(DataPtr);
-                 break;
-               case 2:
-                 Positions[I*5+2]=atoi(DataPtr);
-                 break;
-               case 3:
-                 Positions[I*5+3]=atoi(DataPtr);
-                 break;
-               case 4:
-                 Positions[I*5+4]=atoi(DataPtr);
-                 break;
-             }
+             strcpy(Names+I*3*NM,DataPtr+1);
+           else if(J >= 0  && J <= 4)
+           {
+             if(SizeValue==sizeof(DWORD))
+               *(DWORD*)(Param+PARAM_POS(I)+J*SizeValue)=atoi(DataPtr);
+             else
+               *(__int64*)(Param+PARAM_POS(I)+J*SizeValue)=_atoi64(DataPtr);
+           }
            ++J;
          }
       }
       /* IS $ */
     }
-    sprintf(SubKey,"Short%d",I);
-    memset(DataStr,0xff,(BOOKMARK_COUNT*4)*sizeof(long));
-    GetRegKey(Key,SubKey,(LPBYTE)&ShortPos[I*(BOOKMARK_COUNT*4)],(LPBYTE)DataStr,(BOOKMARK_COUNT*4)*sizeof(long));
   }
+  return TRUE;
 }
 
 
-void FilePositionCache::Save(char *Key)
+BOOL FilePositionCache::Save(const char *Key)
 {
-  int J, I;
   if(!IsMemory)
-    return;
+    return FALSE;
+
+  char DataStr[2048];
+  int J, I, Pos;
+
   for (I=0;I < Opt.MaxPositionCache;I++)
   {
-    int Pos=CurPos+I;
-    if (Pos>=Opt.MaxPositionCache)
+    itoa(I,PtrSubKeyItem,10);
+    itoa(I,PtrSubKeyShort,10);
+
+    if ((Pos=CurPos+I)>=Opt.MaxPositionCache)
       Pos-=Opt.MaxPositionCache;
-    char SubKey[100],DataStr[512];
-    sprintf(SubKey,"Item%d",I);
     /* $ 17.06.2001 IS
        + Имя файла должно быть взято в кавычки, т.к. оно может содержать
          символы-разделители
     */
-    sprintf(DataStr,"%d,%d,%d,%d,%d,\"$%s\"",Positions[Pos*5+0],Positions[Pos*5+1],
-            Positions[Pos*5+2],Positions[Pos*5+3],Positions[Pos*5+4],&Names[Pos*3*NM]);
+    DWORD   *Ptr32=(DWORD*)(Param+PARAM_POS(Pos));
+    __int64 *Ptr64=(__int64 *)(Param+PARAM_POS(Pos));
+
+    if(SizeValue==sizeof(DWORD))
+      sprintf(DataStr,"%d,%d,%d,%d,%d,\"$%s\"",
+            Ptr32[0],Ptr32[1],Ptr32[2],Ptr32[3],Ptr32[4],Names+Pos*3*NM);
+    else
+    {
+      sprintf(DataStr,"%I64d,%I64d,%I64d,%I64d,%I64d,\"$%s\"",
+            Ptr64[0],Ptr64[1],Ptr64[2],Ptr64[3],Ptr64[4],Names+Pos*3*NM);
+    }
     /* IS $ */
-    SetRegKey(Key,SubKey,DataStr);
+
+    // ????????
+    if(!strcmp(DataStr,EmptyPos))
+    {
+      DeleteRegValue(Key,SubKeyItem);
+      continue;
+    }
+    // ????????
+
+    SetRegKey(Key,SubKeyItem,DataStr);
     if((Opt.SaveViewerShortPos && Opt.SaveViewerPos) ||
        (Opt.EdOpt.SaveShortPos && Opt.EdOpt.SavePos))
     {
       // Если не запоминались позиции по RCtrl+<N>, то и не записываем их
       for(J=0; J < (BOOKMARK_COUNT*4); J++)
-        if(ShortPos[Pos*(BOOKMARK_COUNT*4)+J] != -1)
-          break;
+      {
+        if(SizeValue==sizeof(DWORD))
+        {
+          if(*(DWORD*)(Position+POSITION_POS(Pos,J)) != -1)
+            break;
+        }
+        else
+        {
+          if(*(__int64*)(Position+POSITION_POS(Pos,J)) != -1)
+            break;
+        }
+      }
 
-      sprintf(SubKey,"Short%d",I);
       if(J < (BOOKMARK_COUNT*4))
-        SetRegKey(Key,SubKey,(LPBYTE)&ShortPos[Pos*(BOOKMARK_COUNT*4)],(BOOKMARK_COUNT*4)*sizeof(long));
+        SetRegKey(Key,SubKeyShort,Position+POSITION_POS(Pos,0),(BOOKMARK_COUNT*4)*SizeValue);
       else
-        DeleteRegValue(Key,SubKey);
+        DeleteRegValue(Key,SubKeyShort);
     }
   }
+  return TRUE;
 }

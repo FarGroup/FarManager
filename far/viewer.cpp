@@ -5,10 +5,17 @@ Internal viewer
 
 */
 
-/* Revision: 1.111 05.10.2002 $ */
+/* Revision: 1.112 17.12.2002 $ */
 
 /*
 Modify:
+  17.12.2002 SVS
+    ! Viewer64. Все файловые смещения и размеры приведены к __int64, что
+      позволяет существенно повысить верхний предел размерности
+      просматриваемых файлов.
+    ! Изменился внешний вид HEX-режима, за счет расширения адреса.
+    ! Статусная строка изменена - позволяет отображать 13 цифр размера,
+      что примерно соответствует размеру ~932 Gb
   05.10.2002 IS
     - Баг: непредсказуемое поведение после обработке VCTL_QUIT, если вьювер
       является панелью. Решение: VCTL_QUIT в этом случае не обрабатывается
@@ -412,10 +419,8 @@ Viewer::Viewer()
   *PluginData=0;
   TableChangedByUser=FALSE;
   ReadStdin=FALSE;
-  memset(SavePosAddr,0xff,sizeof(SavePosAddr));
-  memset(SavePosLeft,0xff,sizeof(SavePosLeft));
-  memset(UndoAddr,0xff,sizeof(UndoAddr));
-  memset(UndoLeft,0xff,sizeof(UndoLeft));
+  memset(&BMSavePos,0xff,sizeof(BMSavePos));
+  memset(UndoData,0xff,sizeof(UndoData));
   LastKeyUndo=FALSE;
   InternalKey=FALSE;
   Viewer::ViewerID=::ViewerID++;
@@ -456,9 +461,22 @@ Viewer::~Viewer()
             if (VM.UseDecodeTable)
               Table=VM.TableNum+3;
       }
-      CtrlObject->ViewerPosCache->AddPosition(CacheName,FilePos,LeftPos,VM.Hex,0,Table,
-          (long*)(Opt.SaveViewerShortPos?SavePosAddr:NULL),
-          (long*)(Opt.SaveViewerShortPos?SavePosLeft:NULL),NULL,NULL);
+      {
+        struct /*TPosCache32*/ TPosCache64 PosCache={0};
+        PosCache.Param[0]=FilePos;
+        PosCache.Param[1]=LeftPos;
+        PosCache.Param[2]=VM.Hex;
+        //=PosCache.Param[3];
+        PosCache.Param[4]=Table;
+        if(Opt.SaveViewerShortPos)
+        {
+          PosCache.Position[0]=BMSavePos.SavePosAddr;
+          PosCache.Position[1]=(__int64*)BMSavePos.SavePosLeft;
+          //PosCache.Position[2]=;
+          //PosCache.Position[3]=;
+        }
+        CtrlObject->ViewerPosCache->AddPosition(CacheName,&PosCache);
+      }
     }
   }
   _tran(SysLog("[%p] Viewer::~Viewer, TempViewName=[%s]",this,TempViewName));
@@ -631,11 +649,10 @@ int Viewer::OpenFile(const char *Name,int warning)
   //if(ViOpt.AutoDetectTable)
   /* IS $ */
   {
-    DWORD ReadSize;
     VM.Unicode=0;
     FirstWord=0;
     vseek(ViewFile,0,SEEK_SET);
-    ReadSize=vread((char *)&FirstWord,sizeof(FirstWord),ViewFile);
+    vread((char *)&FirstWord,sizeof(FirstWord),ViewFile);
     //if(ReadSize == sizeof(FirstWord) &&
     if(FirstWord == 0x0FEFF || FirstWord == 0x0FFFE)
     {
@@ -649,15 +666,30 @@ int Viewer::OpenFile(const char *Name,int warning)
 
   if (Opt.SaveViewerPos && !ReadStdin)
   {
-    unsigned int NewLeftPos,TempPos1,TempPos2,Table,NewFilePos;
+    __int64 NewLeftPos,NewFilePos;
+    int Table;
     char CacheName[NM*3];
     if (*PluginData)
       sprintf(CacheName,"%s%s",PluginData,PointToName(FileName));
     else
       strcpy(CacheName,FileName);
-    CtrlObject->ViewerPosCache->GetPosition(CacheName,NewFilePos,NewLeftPos,TempPos1,TempPos2,Table,
-          (long*)(Opt.SaveViewerShortPos?SavePosAddr:NULL),
-          (long*)(Opt.SaveViewerShortPos?SavePosLeft:NULL),NULL,NULL);
+
+    {
+      struct /*TPosCache32*/ TPosCache64 PosCache={0};
+      if(Opt.SaveViewerShortPos)
+      {
+        PosCache.Position[0]=BMSavePos.SavePosAddr;
+        PosCache.Position[1]=(__int64*)BMSavePos.SavePosLeft;
+        //PosCache.Position[2]=;
+        //PosCache.Position[3]=;
+      }
+      CtrlObject->ViewerPosCache->GetPosition(CacheName,&PosCache);
+      NewFilePos=PosCache.Param[0];
+      NewLeftPos=PosCache.Param[1];
+      VM.Hex=(int)PosCache.Param[2];
+      //=PosCache.Param[3];
+      Table=(int)PosCache.Param[4];
+    }
 
     if(!IsDecode)
     {
@@ -693,7 +725,6 @@ int Viewer::OpenFile(const char *Name,int warning)
     }
     LastSelPos=FilePos=NewFilePos;
     LeftPos=NewLeftPos;
-    VM.Hex=TempPos1;
   }
   else
     FilePos=0;
@@ -779,8 +810,9 @@ void Viewer::SetCRSym()
 
 void Viewer::DisplayObject()
 {
-  int SelPos,SelSize,Y,I;
-  int SaveSelectSize=SelectSize;
+  int Y,I;
+  __int64 SelPos,SelSize;
+  __int64 SaveSelectSize=SelectSize;
 
   /* $ 27.04.2001 DJ
      вычисление ширины - в отдельную функцию
@@ -820,7 +852,7 @@ void Viewer::DisplayObject()
       StrFilePos[I]=vtell(ViewFile);
       if (Y==ViewY1+1 && !feof(ViewFile))
         SecondPos=vtell(ViewFile);
-      ReadString(OutStr[I],-1,MAX_VIEWLINEB,SelPos,SelSize);
+      ReadString(OutStr[I],-1,MAX_VIEWLINEB,&SelPos,&SelSize);
       SetColor(COL_VIEWERTEXT);
       GotoXY(X1,Y);
       if (strlen((char *)OutStr[I])>(unsigned) LeftPos)
@@ -831,14 +863,14 @@ void Viewer::DisplayObject()
         if(VM.Unicode &&
              (FirstWord == 0x0FEFF || FirstWord == 0x0FFFE)
              && !I && !LeftPos && !StrFilePos[I])
-          mprintf("%-*.*s",Width,Width,&OutStr[I][LeftPos+1]);
+          mprintf("%-*.*s",Width,Width,&OutStr[I][(int)LeftPos+1]);
         else
-          mprintf("%-*.*s",Width,Width,&OutStr[I][LeftPos]);
+          mprintf("%-*.*s",Width,Width,&OutStr[I][(int)LeftPos]);
         /* SVS $*/
         /* $ 18.07.2000 tran -
            проверка флага
         */
-        if (strlen(&OutStr[I][LeftPos])>Width && ViOpt.ShowArrows)
+        if (strlen(&OutStr[I][(int)LeftPos]) > Width && ViOpt.ShowArrows)
         {
           GotoXY(XX2,Y);
           SetColor(COL_VIEWERARROWS);
@@ -867,7 +899,7 @@ void Viewer::DisplayObject()
         }
         else // SelPos >= LeftPos
         {
-          int SelX1=X1+SelPos-LeftPos;
+          int SelX1=(int)((__int64)X1+SelPos-LeftPos);
           /* $ 12.07.2000 SVS
              ! Wrap - трех позиционный
           */
@@ -889,11 +921,11 @@ void Viewer::DisplayObject()
           GotoXY(SelX1,Y);
           if (SelSize>XX2-SelX1+1)
             SelSize=XX2-SelX1+1;
-          if (SelSize>0)
           /* $ 06.02.2001 IS
                см. SelectText
           */
-            mprintf("%.*s",SelSize,&OutStr[I][SelPos+SelectPosOffSet]);
+          if (SelSize>0)
+            mprintf("%.*s",(int)SelSize,&OutStr[I][(int)(SelPos+SelectPosOffSet)]);
           /* IS $ */
         }
       }
@@ -912,10 +944,11 @@ void Viewer::DisplayObject()
 void Viewer::ShowHex()
 {
   char OutStr[MAX_VIEWLINE],TextStr[20];
-  int SelPos,SelSize,EndFile,TextPos,Ch,Ch1,X,Y;
+  int SelPos,SelSize,EndFile;
+  int Ch,Ch1,X,Y,TextPos;
   SelSize=0;
 
-  int HexLeftPos=LeftPos>80-ObjWidth ? Max(80-ObjWidth,0):LeftPos;
+  int HexLeftPos=((LeftPos>80-ObjWidth) ? Max(80-ObjWidth,0):LeftPos);
 
   for (EndFile=0,Y=ViewY1;Y<=Y2;Y++)
   {
@@ -929,7 +962,7 @@ void Viewer::ShowHex()
 
     if (Y==ViewY1+1 && !feof(ViewFile))
       SecondPos=vtell(ViewFile);
-    sprintf(OutStr,"%08X:  ",ftell(ViewFile));
+    sprintf(OutStr,"%010I64X:  ",(__int64)ftell64(ViewFile));
 
     TextPos=0;
 
@@ -966,7 +999,7 @@ void Viewer::ShowHex()
         }
         else
         {
-          sprintf(&OutStr[strlen(OutStr)],"%02X%02X ",Ch1,Ch);
+          sprintf(OutStr+strlen(OutStr),"%02X%02X ",Ch1,Ch);
           char TmpBuf[2],NewCh;
 
           /* $ 01.08.2002 tran
@@ -1026,7 +1059,7 @@ void Viewer::ShowHex()
         }
         else
         {
-          sprintf(&OutStr[strlen(OutStr)],"%02X ",Ch);
+          sprintf(OutStr+strlen(OutStr),"%02X ",Ch);
           if (Ch==0)
             Ch=' ';
           TextStr[TextPos++]=Ch;
@@ -1039,17 +1072,17 @@ void Viewer::ShowHex()
     if (VM.UseDecodeTable && !VM.Unicode)
       DecodeString(TextStr,(unsigned char *)TableSet.DecodeTable);
     strcat(TextStr," ");
-    strcat(OutStr,"  ");
+    strcat(OutStr," ");
     strcat(OutStr,TextStr);
     if (strlen(OutStr)>HexLeftPos)
-      mprintf("%-*.*s",ObjWidth,ObjWidth,&OutStr[HexLeftPos]);
+      mprintf("%-*.*s",ObjWidth,ObjWidth,OutStr+(int)HexLeftPos);
     else
       mprintf("%*s",ObjWidth,"");
     if (SelSize && SelPos>=HexLeftPos)
     {
       SetColor(COL_VIEWERSELECTEDTEXT);
-      GotoXY(X1+SelPos-HexLeftPos,Y);
-      mprintf("%.*s",VM.Unicode ? 4:2,&OutStr[SelPos]);
+      GotoXY((int)((__int64)X1+SelPos-HexLeftPos),Y);
+      mprintf("%.*s",(VM.Unicode ? 4:2),OutStr+(int)SelPos);
       SelSize=0;
     }
   }
@@ -1058,7 +1091,7 @@ void Viewer::ShowHex()
 
 void Viewer::ShowUp()
 {
-  int Tmp,Y,I;
+  int Y,I;
 
   /* $ 27.04.2001 DJ
      вычисление ширины - в отдельную функцию
@@ -1078,7 +1111,7 @@ void Viewer::ShowUp()
   StrFilePos[0]=FilePos;
   SecondPos=StrFilePos[1];
 
-  ReadString(OutStr[0],SecondPos-FilePos,MAX_VIEWLINEB,Tmp,Tmp);
+  ReadString(OutStr[0],(int)(SecondPos-FilePos),MAX_VIEWLINEB,NULL,NULL);
 
   for (I=0,Y=ViewY1;Y<=Y2;Y++,I++)
   {
@@ -1090,11 +1123,11 @@ void Viewer::ShowUp()
          -Bug: Down Down Up & первый пробел
       */
       if(VM.Unicode && (FirstWord == 0x0FEFF || FirstWord == 0x0FFFE) && !I && !LeftPos && !StrFilePos[I])
-        mprintf("%-*.*s",Width,Width,&OutStr[I][LeftPos+1]);
+        mprintf("%-*.*s",Width,Width,&OutStr[I][(int)LeftPos+1]);
       else
-        mprintf("%-*.*s",Width,Width,&OutStr[I][LeftPos]);
+        mprintf("%-*.*s",Width,Width,&OutStr[I][(int)LeftPos]);
       /* SVS $ */
-      if (strlen(&OutStr[I][LeftPos])>Width && ViOpt.ShowArrows)
+      if (strlen(&OutStr[I][(int)LeftPos])>Width && ViOpt.ShowArrows)
       {
         GotoXY(XX2,Y);
         SetColor(COL_VIEWERARROWS);
@@ -1134,7 +1167,7 @@ void Viewer::DrawScrollbar()
     /* $ 27.04.2001 DJ
        если status line выключена, рисуем скроллбар до верха окна
     */
-    ScrollBar(X2,ViewY1,Y2-ViewY1+1,LastPage ? (!FilePos?0:100):ToPercent(FilePos,FileSize),100);
+    ScrollBar(X2,ViewY1,Y2-ViewY1+1,(LastPage != 0? (!FilePos?0:100):ToPercent64(FilePos,FileSize)),100);
     /* DJ $ */
   }
   /* tran 18.07.2000 $ */
@@ -1170,7 +1203,7 @@ void Viewer::ShowStatus()
     /* tran $ */
   }
   /* IS $  */
-  int NameLength=ObjWidth-41;
+  int NameLength=ScrX-43; //???41
   if (Opt.ViewerEditorClock && HostFileViewer!=NULL && HostFileViewer->IsFullScreen())
     NameLength-=6;
   if (NameLength<20)
@@ -1195,10 +1228,12 @@ void Viewer::ShowStatus()
         TableName="Win";
       else
         TableName="DOS";
-  sprintf(Status,"%-*s %10.10s %10u %7.7s %-4d %s%3d%%",
-          NameLength,Name,TableName,FileSize,MSG(MViewerStatusCol),
-          LeftPos,(Opt.ViewerEditorClock && HostFileViewer!=NULL && HostFileViewer->IsFullScreen() ? "":" "),
-          LastPage ? 100:ToPercent(FilePos,FileSize));
+  const char *StatusFormat="%-*s %10.10s %13I64u %7.7s %-4I64d %s%3d%%";
+  sprintf(Status,StatusFormat,
+          NameLength,Name,TableName,
+          FileSize,MSG(MViewerStatusCol),LeftPos,
+          Opt.ViewerEditorClock ? "":" ",
+          (LastPage ? 100:ToPercent64(FilePos,FileSize)));
   SetColor(COL_VIEWERSTATUS);
   GotoXY(X1,Y1);
   /* $ 31.08.2000 SVS
@@ -1219,9 +1254,10 @@ void Viewer::SetStatusMode(int Mode)
 }
 
 
-void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSize)
+void Viewer::ReadString(char *Str,int MaxSize,int StrSize,__int64 *SelPos1,__int64 *SelSize1)
 {
-  int OutPtr,Ch;
+  int Ch, Ch2;
+  __int64 SelPos, SelSize, OutPtr;
 
   /* $ 27.04.2001 DJ
      вычисление ширины - в отдельную функцию
@@ -1250,27 +1286,33 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
       {
         /* $ 11.07.2000 tran
            + warp are now WORD-WRAP */
-        unsigned long SavePos=vtell(ViewFile);
+        __int64 SavePos=vtell(ViewFile);
         if ((Ch=vgetc(ViewFile))!=CRSym && (Ch!=13 || vgetc(ViewFile)!=CRSym))
         {
           vseek(ViewFile,SavePos,SEEK_SET);
           if (VM.TypeWrap && RegVer) // только для зарегестрированных
           {
-            if ( !IsSpace(Ch) && !IsSpace(Str[OutPtr]))
+            if ( !IsSpace(Ch) && !IsSpace(Str[(int)OutPtr]))
             {
-               unsigned long SavePtr=OutPtr;
+               __int64 SavePtr=OutPtr;
                /* $ 18.07.2000 tran
                   добавил в качестве wordwrap разделителей , ; > ) */
-               while (OutPtr && !(IsSpace(Str[OutPtr]) || Str[OutPtr]==',' || Str[OutPtr]==';' || Str[OutPtr]=='>'|| Str[OutPtr]==')'))
-               /* tran 18.07.2000 $ */
+               while (OutPtr)
+               {
+                  Ch2=Str[(int)OutPtr];
+                  if(IsSpace(Ch2) || Ch2==',' || Ch2==';' || Ch2=='>'|| Ch2==')')
+                    break;
                   OutPtr--;
-               if ( Str[OutPtr]==',' || Str[OutPtr]==';' || Str[OutPtr]==')' || Str[OutPtr]=='>' )
+               }
+
+               Ch2=Str[(int)OutPtr];
+               if (Ch2==',' || Ch2==';' || Ch2==')' || Ch2=='>')
                    OutPtr++;
                else
-                   while (IsSpace(Str[OutPtr]) && OutPtr<=SavePtr)
+                   while (IsSpace(Str[(int)OutPtr]) && OutPtr<=SavePtr)
                       OutPtr++;
 
-               if ( OutPtr )
+               if (OutPtr)
                {
                   vseek(ViewFile,OutPtr-SavePtr,SEEK_CUR);
                   //
@@ -1281,7 +1323,7 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
             /* tran 11.07.2000 $ */
             /* $ 13.09.2000 tran
                remove space at WWrap */
-            unsigned long savepos=vtell(ViewFile);
+            __int64 savepos=vtell(ViewFile);
             while (IsSpace(Ch))
                 Ch=vgetc(ViewFile);
             if ( vtell(ViewFile)!=savepos)
@@ -1293,7 +1335,7 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
         break;
       }
 
-      if (SelectSize>0 && SelectPos==vtell(ViewFile))
+      if (SelectSize > 0 && SelectPos==vtell(ViewFile))
       {
         SelPos=OutPtr;
         SelSize=SelectSize;
@@ -1315,14 +1357,14 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
       if (CRSkipped)
       {
         CRSkipped=false;
-        Str[OutPtr++]=13;
+        Str[(int)OutPtr++]=13;
       }
 
       if (Ch=='\t')
       {
         do
         {
-          Str[OutPtr++]=' ';
+          Str[(int)OutPtr++]=' ';
         } while ((OutPtr % ViOpt.TabSize)!=0);
         /* $ 12.07.2000 SVS
           Wrap - 3-x позиционный и если есть регистрация :-)
@@ -1345,7 +1387,7 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
         CRSkipped=true;
         if(OutPtr>=XX2-X1)
         {
-          unsigned long SavePos=vtell(ViewFile);
+          __int64 SavePos=vtell(ViewFile);
           int nextCh=vgetc(ViewFile);
           if(nextCh!=CRSym && nextCh!=EOF) CRSkipped=false;
           vseek(ViewFile,SavePos,SEEK_SET);
@@ -1356,14 +1398,16 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
       /* IS $ */
       if (Ch==0 || Ch==10)
         Ch=' ';
-      Str[OutPtr++]=Ch;
+      Str[(int)OutPtr++]=Ch;
     }
   }
-  Str[OutPtr]=0;
+  Str[(int)OutPtr]=0;
 
   if (VM.UseDecodeTable && !VM.Unicode)
     DecodeString(Str,(unsigned char *)TableSet.DecodeTable);
   LastPage=feof(ViewFile);
+  if(SelPos1) *SelPos1=SelPos;
+  if(SelSize1) *SelSize1=SelSize;
 }
 
 
@@ -1372,7 +1416,7 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
 */
 int Viewer::ProcessKey(int Key)
 {
-  int Tmp,I;
+  int I;
   char ReadStr[4096];
 
   /* $ 22.01.2001 IS
@@ -1382,15 +1426,15 @@ int Viewer::ProcessKey(int Key)
     SelectSize=0;
   /* IS $ */
 
-  if (!InternalKey && !LastKeyUndo && (FilePos!=UndoAddr[0] || LeftPos!=UndoLeft[0]))
+  if (!InternalKey && !LastKeyUndo && (FilePos!=UndoData[0].UndoAddr || LeftPos!=UndoData[0].UndoLeft))
   {
-    for (int I=sizeof(UndoAddr)/sizeof(UndoAddr[0])-1;I>0;I--)
+    for (int I=sizeof(UndoData)/sizeof(UndoData[0])-1;I>0;I--)
     {
-      UndoAddr[I]=UndoAddr[I-1];
-      UndoLeft[I]=UndoLeft[I-1];
+      UndoData[I].UndoAddr=UndoData[I-1].UndoAddr;
+      UndoData[I].UndoLeft=UndoData[I-1].UndoLeft;
     }
-    UndoAddr[0]=FilePos;
-    UndoLeft[0]=LeftPos;
+    UndoData[0].UndoAddr=FilePos;
+    UndoData[0].UndoLeft=LeftPos;
   }
 
   if (Key!=KEY_ALTBS && Key!=KEY_CTRLZ && Key!=KEY_NONE && Key!=KEY_IDLE)
@@ -1399,10 +1443,10 @@ int Viewer::ProcessKey(int Key)
   if (Key>=KEY_CTRL0 && Key<=KEY_CTRL9)
   {
     int Pos=Key-KEY_CTRL0;
-    if (SavePosAddr[Pos]!=0xffffffff)
+    if (BMSavePos.SavePosAddr[Pos]!=-1)
     {
-      FilePos=SavePosAddr[Pos];
-      LeftPos=SavePosLeft[Pos];
+      FilePos=BMSavePos.SavePosAddr[Pos];
+      LeftPos=BMSavePos.SavePosLeft[Pos];
       LastSelPos=FilePos;
       Show();
     }
@@ -1413,8 +1457,8 @@ int Viewer::ProcessKey(int Key)
   if (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9)
   {
     int Pos=Key-KEY_RCTRL0;
-    SavePosAddr[Pos]=FilePos;
-    SavePosLeft[Pos]=LeftPos;
+    BMSavePos.SavePosAddr[Pos]=FilePos;
+    BMSavePos.SavePosLeft[Pos]=LeftPos;
     return(TRUE);
   }
 
@@ -1437,19 +1481,19 @@ int Viewer::ProcessKey(int Key)
       if (SelectSize)
       {
         char *SelData;
-        unsigned long DataSize = SelectSize+(VM.Unicode?2:1);
-        unsigned long CurFilePos=vtell(ViewFile);
+        int DataSize = (int)SelectSize+(VM.Unicode?2:1);
+        __int64 CurFilePos=vtell(ViewFile);
 
         if ((SelData=(char*)malloc(DataSize)) != NULL)
         {
           memset(SelData, 0, DataSize);
           vseek(ViewFile,SelectPos,SEEK_SET);
-          vread(SelData, SelectSize, ViewFile);
+          vread(SelData, (int)SelectSize, ViewFile);
           if (VM.UseDecodeTable && !VM.Unicode)
             DecodeString(SelData, (unsigned char *)TableSet.DecodeTable);
           if (VM.Unicode)
-            WideCharToMultiByte(CP_OEMCP,0,(LPCWSTR)(SelData),SelectSize,
-                                           SelData,SelectSize," ",NULL);
+            WideCharToMultiByte(CP_OEMCP,0,(LPCWSTR)(SelData),(int)SelectSize,
+                                           SelData,(int)SelectSize," ",NULL);
           CopyToClipboard(SelData);
           free(SelData);
           vseek(ViewFile,CurFilePos,SEEK_SET);
@@ -1491,7 +1535,7 @@ int Viewer::ProcessKey(int Key)
             FindClose(ViewFindHandle);
             fflush(ViewFile);
             vseek(ViewFile,0,SEEK_END);
-            unsigned long CurFileSize=vtell(ViewFile);
+            __int64 CurFileSize=vtell(ViewFile);
             if (ViewFindData.ftLastWriteTime.dwLowDateTime!=NewViewFindData.ftLastWriteTime.dwLowDateTime ||
                 ViewFindData.ftLastWriteTime.dwHighDateTime!=NewViewFindData.ftLastWriteTime.dwHighDateTime ||
                 CurFileSize!=FileSize)
@@ -1502,7 +1546,7 @@ int Viewer::ProcessKey(int Key)
                 ProcessKey(KEY_CTRLEND);
               else
               {
-                int PrevLastPage=LastPage;
+                __int64 PrevLastPage=LastPage;
                 Show();
                 if (PrevLastPage && !LastPage)
                 {
@@ -1522,22 +1566,20 @@ int Viewer::ProcessKey(int Key)
     case KEY_ALTBS:
     case KEY_CTRLZ:
     {
+      for (int I=1;I<sizeof(UndoData)/sizeof(UndoData[0]);I++)
       {
-        for (int I=1;I<sizeof(UndoAddr)/sizeof(UndoAddr[0]);I++)
-        {
-          UndoAddr[I-1]=UndoAddr[I];
-          UndoLeft[I-1]=UndoLeft[I];
-        }
-        if (UndoAddr[0]!=0xffffffff)
-        {
-          FilePos=UndoAddr[0];
-          LeftPos=UndoLeft[0];
-          UndoAddr[sizeof(UndoAddr)/sizeof(UndoAddr[0])-1]=0xffffffff;
-          UndoLeft[sizeof(UndoAddr)/sizeof(UndoAddr[0])-1]=0xffffffff;
+        UndoData[I-1].UndoAddr=UndoData[I].UndoAddr;
+        UndoData[I-1].UndoLeft=UndoData[I].UndoLeft;
+      }
+      if (UndoData[0].UndoAddr!=-1)
+      {
+        FilePos=UndoData[0].UndoAddr;
+        LeftPos=UndoData[0].UndoLeft;
+        UndoData[sizeof(UndoData)/sizeof(UndoData[0])-1].UndoAddr=-1;
+        UndoData[sizeof(UndoData)/sizeof(UndoData[0])-1].UndoLeft=-1;
 
-          Show();
-          LastSelPos=FilePos;
-        }
+        Show();
+        LastSelPos=FilePos;
       }
       return(TRUE);
     }
@@ -1577,9 +1619,22 @@ int Viewer::ProcessKey(int Key)
                   if (VM.UseDecodeTable)
                     Table=VM.TableNum+3;
             }
-            CtrlObject->ViewerPosCache->AddPosition(CacheName,FilePos,LeftPos,VM.Hex,0,Table,
-                    (long*)(Opt.SaveViewerShortPos?SavePosAddr:NULL),
-                    (long*)(Opt.SaveViewerShortPos?SavePosLeft:NULL),NULL,NULL);
+            {
+              struct /*TPosCache32*/ TPosCache64 PosCache={0};
+              PosCache.Param[0]=FilePos;
+              PosCache.Param[1]=LeftPos;
+              PosCache.Param[2]=VM.Hex;
+              //=PosCache.Param[3];
+              PosCache.Param[4]=Table;
+              if(Opt.SaveViewerShortPos)
+              {
+                PosCache.Position[0]=BMSavePos.SavePosAddr;
+                PosCache.Position[1]=(__int64*)BMSavePos.SavePosLeft;
+                //PosCache.Position[2]=;
+                //PosCache.Position[3]=;
+              }
+              CtrlObject->ViewerPosCache->AddPosition(CacheName,&PosCache);
+            }
           }
           if (PointToName(Name)==Name)
           {
@@ -1789,13 +1844,13 @@ int Viewer::ProcessKey(int Key)
       vseek(ViewFile,FilePos,SEEK_SET);
       for (I=ViewY1;I<Y2;I++)
       {
-        ReadString(ReadStr,-1,sizeof(ReadStr),Tmp,Tmp);
+        ReadString(ReadStr,-1,sizeof(ReadStr),NULL,NULL);
         if (LastPage)
           return(TRUE);
       }
       FilePos=vtell(ViewFile);
       for (I=ViewY1;I<=Y2;I++)
-        ReadString(ReadStr,-1,sizeof(ReadStr),Tmp,Tmp);
+        ReadString(ReadStr,-1,sizeof(ReadStr),NULL,NULL);
       if (LastPage)
       {
         InternalKey++;
@@ -1895,11 +1950,33 @@ int Viewer::ProcessKey(int Key)
             ++max_counter;
         }
         FilePos=vtell(ViewFile);
+/*
+        {
+          char Buf[100];
+          sprintf(Buf,"%I64X",FilePos);
+          Message(0,1,"End",Buf,"Ok");
+        }
+*/
         for (I=0;I<max_counter;I++)
           Up();
         /* IS 15.08.2002 $ */
+/*
+        {
+          char Buf[100];
+          sprintf(Buf,"%I64X, %d",FilePos, I);
+          Message(0,1,"Up",Buf,"Ok");
+        }
+*/
         if (VM.Hex)
           FilePos&=~(VM.Unicode ? 0x7:0xf);
+/*
+        if (VM.Hex)
+        {
+          char Buf[100];
+          sprintf(Buf,"%I64X",FilePos);
+          Message(0,1,"VM.Hex",Buf,"Ok");
+        }
+*/
         Show();
         LastSelPos=FilePos;
       }
@@ -1972,8 +2049,8 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         /* DJ $ */
         if ( FilePos>FileSize )
             FilePos=FileSize;
-        //_D(SysLog("Viewer/ ToPercent()=%i, %i, %i",ToPercent(FilePos,FileSize),FilePos,FileSize));
-        if(ToPercent(FilePos,FileSize) == 100)
+        //_SVS(SysLog("Viewer/ ToPercent()=%i, %i, %i",ToPercent64(FilePos,FileSize),FilePos,FileSize));
+        if(ToPercent64(FilePos,FileSize) == 100)
           ProcessKey(KEY_CTRLEND);
         else
         /* $ 27.04.2001 DJ
@@ -2057,20 +2134,25 @@ void Viewer::Up()
 {
   char Buf[MAX_VIEWLINE];
   int BufSize,StrPos,Skipped,I,J;
-  BufSize=Min((DWORD)sizeof(Buf),FilePos);
+
+  if(FilePos > (__int64)sizeof(Buf))
+    BufSize=sizeof(Buf);
+  else
+    BufSize=(int)FilePos;
+
   if (BufSize==0)
     return;
   LastPage=0;
   if (VM.Hex)
   {
     int UpSize=VM.Unicode ? 8:16;
-    if (FilePos<UpSize)
+    if (FilePos<(__int64)UpSize)
       FilePos=0;
     else
       FilePos-=UpSize;
     return;
   }
-  vseek(ViewFile,FilePos-BufSize,SEEK_SET);
+  vseek(ViewFile,FilePos-(__int64)BufSize,SEEK_SET);
   vread(Buf,BufSize,ViewFile);
   Skipped=0;
   if (Buf[BufSize-1]==CRSym)
@@ -2238,7 +2320,7 @@ void Viewer::Search(int Next,int FirstChar)
 
   unsigned char SearchStr[SEARCHSTRINGBUFSIZE];
   char MsgStr[SEARCHSTRINGBUFSIZE+16];
-  unsigned long MatchPos;
+  __int64 MatchPos;
   /* $ 01.08.2000 KM
      Добавлена новая переменная WholeWords
   */
@@ -2336,7 +2418,7 @@ void Viewer::Search(int Next,int FirstChar)
          на -1, а CurPos не мог стать отрицательным и иногда
          выдавался неверный результат
       */
-      long CurPos=LastSelPos;
+      __int64 CurPos=LastSelPos;
       /* KM $ */
       int BufSize=sizeof(Buf);
       if (ReverseSearch)
@@ -2350,7 +2432,7 @@ void Viewer::Search(int Next,int FirstChar)
           CurPos-=sizeof(Buf)-SearchLength;
         /* KM $ */
         if (CurPos<0)
-          BufSize+=CurPos;
+          BufSize+=(int)CurPos;
       }
       int ReadSize;
       while (!Match)
@@ -2592,7 +2674,7 @@ void Viewer::SetTitle(const char *Title)
 }
 
 
-unsigned long Viewer::GetFilePos()
+__int64 Viewer::GetFilePos()
 {
   return(FilePos);
 }
@@ -2600,7 +2682,7 @@ unsigned long Viewer::GetFilePos()
 
 /* $ 18.07.2000 tran
    * changes 'long' to 'unsigned long' */
-void Viewer::SetFilePos(unsigned long Pos)
+void Viewer::SetFilePos(__int64 Pos)
 {
   FilePos=Pos;
 };
@@ -2650,18 +2732,18 @@ int Viewer::vread(char *Buf,int Size,FILE *SrcFile)
 }
 
 
-int Viewer::vseek(FILE *SrcFile,unsigned long Offset,int Whence)
+int Viewer::vseek(FILE *SrcFile,__int64 Offset,int Whence)
 {
   if (VM.Unicode)
-    return(fseek(SrcFile,Offset*2,Whence));
+    return(fseek64(SrcFile,Offset*2,Whence));
   else
-    return(fseek(SrcFile,Offset,Whence));
+    return(fseek64(SrcFile,Offset,Whence));
 }
 
 
-unsigned long Viewer::vtell(FILE *SrcFile)
+__int64 Viewer::vtell(FILE *SrcFile)
 {
-  unsigned long Pos=ftell(SrcFile);
+  __int64 Pos=ftell64(SrcFile);
   if (VM.Unicode)
     Pos=(Pos+(Pos&1))/2;
   return(Pos);
@@ -2692,7 +2774,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
 {
   /* $ 17.07.2000 tran
      + new variable*/
-  int Relative=0;
+  __int64 Relative=0;
   /* tran 17.07.2000 $ */
   const char *LineHistoryName="ViewerOffset";
   static struct DialogData GoToDlgData[]=
@@ -2737,7 +2819,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
       // strncpy(PrevLine,GoToDlg[1].Data,sizeof(PrevLine));
       /* $ 17.07.2000 tran
          тут для сокращения кода ввел ptr, который и анализирую */
-      char *ptr=&GoToDlg[1].Data[0];
+      char *ptr=GoToDlg[1].Data;
       if ( ptr[0]=='+' || ptr[0]=='-' )     // юзер хочет относительности
       {
           if (ptr[0]=='+')
@@ -2778,7 +2860,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
       /* tran 19.07.2000 $ */
       if (GoToDlg[RB_PRC].Selected)
       {
-        //int cPercent=ToPercent(FilePos,FileSize);
+        //int cPercent=ToPercent64(FilePos,FileSize);
         PrevMode=0;
         int Percent=atoi(GoToDlg[1].Data);
         //if ( Relative  && (cPercent+Percent*Relative<0) || (cPercent+Percent*Relative>100)) // за пределы - низя
@@ -2790,20 +2872,18 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
         Offset=FileSize/100*Percent;
         if (VM.Unicode)
           Offset*=2;
-        while (ToPercent(Offset,FileSize)<Percent)
+        while (ToPercent64(Offset,FileSize)<Percent)
           Offset++;
       }
       if (GoToDlg[RB_HEX].Selected)
       {
         PrevMode=1;
-        char *endptr;
-        Offset=strtoul(GoToDlg[1].Data,&endptr,16);
+        sscanf(GoToDlg[1].Data,"%I64x",&Offset);
       }
       if (GoToDlg[RB_DEC].Selected)
       {
         PrevMode=2;
-        char *endptr;
-        Offset=strtoul(GoToDlg[1].Data,&endptr,10);
+        sscanf(GoToDlg[1].Data,"%I64d",&Offset);
       }
     }// ShowDlg
     else
@@ -2811,7 +2891,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
       Relative=(Flags&VSP_RELATIVE)*(Offset<0?-1:1);
       if(Flags&VSP_PERCENT)
       {
-        int Percent=Offset;
+        __int64 Percent=Offset;
         if (Percent>100)
           return;
         //if ( Percent<0 )
@@ -2819,7 +2899,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
         Offset=FileSize/100*Percent;
         if (VM.Unicode)
           Offset*=2;
-        while (ToPercent(Offset,FileSize)<Percent)
+        while (ToPercent64(Offset,FileSize)<Percent)
           Offset++;
       }
     }
@@ -2858,11 +2938,11 @@ void Viewer::AdjustFilePos()
   if (!VM.Hex)
   {
     char Buf[4096];
-    long StartLinePos=-1,GotoLinePos=FilePos-sizeof(Buf);
+    __int64 StartLinePos=-1,GotoLinePos=FilePos-(__int64)sizeof(Buf);
     if (GotoLinePos<0)
       GotoLinePos=0;
     vseek(ViewFile,GotoLinePos,SEEK_SET);
-    int ReadSize=Min((long)sizeof(Buf),(long)(FilePos-GotoLinePos));
+    int ReadSize=(int)Min((__int64)sizeof(Buf),(__int64)(FilePos-GotoLinePos));
     ReadSize=vread(Buf,ReadSize,ViewFile);
     for (int I=ReadSize-1;I>=0;I--)
       if (Buf[I]==CRSym)
@@ -2886,7 +2966,7 @@ void Viewer::SetFileSize()
 {
   SaveFilePos SavePos(ViewFile);
   vseek(ViewFile,0,SEEK_END);
-  FileSize=vtell(ViewFile);
+  FileSize=ftell64(ViewFile);
 }
 
 
@@ -2895,14 +2975,14 @@ void Viewer::SetFileSize()
    Flags=0x01 - показывать (делать Show())
          0x02 - "обратный поиск" ?
 */
-void Viewer::SelectText(long MatchPos,int SearchLength, DWORD Flags)
+void Viewer::SelectText(__int64 MatchPos,int SearchLength, DWORD Flags)
 {
   char Buf[1024];
-  long StartLinePos=-1,SearchLinePos=MatchPos-sizeof(Buf);
+  __int64 StartLinePos=-1,SearchLinePos=MatchPos-sizeof(Buf);
   if (SearchLinePos<0)
     SearchLinePos=0;
   vseek(ViewFile,SearchLinePos,SEEK_SET);
-  int ReadSize=Min((long)sizeof(Buf),(long)(MatchPos-SearchLinePos));
+  int ReadSize=(int)Min((__int64)sizeof(Buf),(__int64)(MatchPos-SearchLinePos));
   ReadSize=vread(Buf,ReadSize,ViewFile);
   for (int I=ReadSize-1;I>=0;I--)
     if (Buf[I]==CRSym)
@@ -2931,7 +3011,7 @@ void Viewer::SelectText(long MatchPos,int SearchLength, DWORD Flags)
   {
     if (SelectPos!=StartLinePos)
       Up();
-    int Length=SelectPos-StartLinePos-1;
+    __int64 Length=SelectPos-StartLinePos-1;
     if (VM.Wrap)
       Length%=ObjWidth+1; //??
     if (Length<=Width)
@@ -2986,7 +3066,7 @@ int Viewer::ViewerControl(int Command,void *Param)
         // сюды писать добавки
         if(Info->StructSize >= sizeof(struct ViewerInfo))
         {
-          Info->LeftPos=LeftPos;
+          Info->LeftPos=(int)LeftPos;  //???
         }
         return(TRUE);
       }
@@ -3011,7 +3091,7 @@ int Viewer::ViewerControl(int Command,void *Param)
         if(!(vsp.Flags&VSP_NORETNEWPOS))
         {
           ((struct ViewerSetPosition*)Param)->StartPos=FilePos;
-          ((struct ViewerSetPosition*)Param)->LeftPos=LeftPos;
+          ((struct ViewerSetPosition*)Param)->LeftPos=(int)LeftPos; //???
         }
         return(TRUE);
       }
@@ -3023,15 +3103,13 @@ int Viewer::ViewerControl(int Command,void *Param)
     {
       if(Param)
       {
-        long SPos;
-        int SSize;
-        SPos=((ViewerSelect*)Param)->BlockStartPos;
-        SSize=((ViewerSelect*)Param)->BlockLen;
+        __int64 SPos=((ViewerSelect*)Param)->BlockStartPos;
+        int SSize=((ViewerSelect*)Param)->BlockLen;
         if(SPos < FileSize)
         {
           if(SPos+SSize > FileSize)
           {
-            SSize=FileSize-SPos;
+            SSize=(int)(FileSize-SPos);
           }
           SelectText(SPos,SSize,0x1);
           ScrBuf.Flush();

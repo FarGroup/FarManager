@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.211 11.12.2002 $ */
+/* Revision: 1.212 17.12.2002 $ */
 
 /*
 Modify:
+  17.12.2002 SVS
+    ! Изменен принцип работы с EditorPosCache (see класс FilePositionCache)
   11.12.2002 SVS
     - В EditorControl (ECTL_READINPUT) полечим вариант события для KEY_CONSOLE_BUFFER_RESIZE
   05.12.2002 SVS
@@ -1056,11 +1058,22 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
         }
       }
       unsigned int Table;
-      CtrlObject->EditorPosCache->GetPosition(CacheName,Line,ScreenLine,LinePos,LeftPos,Table,
-               (EdOpt.SaveShortPos?SavePos.Line:NULL),
-               (EdOpt.SaveShortPos?SavePos.Cursor:NULL),
-               (EdOpt.SaveShortPos?SavePos.ScreenLine:NULL),
-               (EdOpt.SaveShortPos?SavePos.LeftPos:NULL));
+      {
+        struct TPosCache32 PosCache={0};
+        if(Opt.EdOpt.SaveShortPos)
+        {
+          PosCache.Position[0]=SavePos.Line;
+          PosCache.Position[1]=SavePos.Cursor;
+          PosCache.Position[2]=SavePos.ScreenLine;
+          PosCache.Position[3]=SavePos.LeftPos;
+        }
+        CtrlObject->EditorPosCache->GetPosition(CacheName,&PosCache);
+        Line=PosCache.Param[0];
+        ScreenLine=PosCache.Param[1];
+        LinePos=PosCache.Param[2];
+        LeftPos=PosCache.Param[3];
+        Table=PosCache.Param[4];
+      }
       //_D(SysLog("after Get cache, LeftPos=%i",LeftPos));
       if((int)Line < 0) Line=0;
       if((int)ScreenLine < 0) ScreenLine=0;
@@ -1131,11 +1144,22 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
           }
         }
         unsigned int Table;
-        CtrlObject->EditorPosCache->GetPosition(CacheName,Line,ScreenLine,LinePos,LeftPos,Table,
-               (EdOpt.SaveShortPos?SavePos.Line:NULL),
-               (EdOpt.SaveShortPos?SavePos.Cursor:NULL),
-               (EdOpt.SaveShortPos?SavePos.ScreenLine:NULL),
-               (EdOpt.SaveShortPos?SavePos.LeftPos:NULL));
+        {
+          struct TPosCache32 PosCache={0};
+          if(Opt.EdOpt.SaveShortPos)
+          {
+            PosCache.Position[0]=SavePos.Line;
+            PosCache.Position[1]=SavePos.Cursor;
+            PosCache.Position[2]=SavePos.ScreenLine;
+            PosCache.Position[3]=SavePos.LeftPos;
+          }
+          CtrlObject->EditorPosCache->GetPosition(CacheName,&PosCache);
+          Line=PosCache.Param[0];
+          ScreenLine=PosCache.Param[1];
+          LinePos=PosCache.Param[2];
+          LeftPos=PosCache.Param[3];
+          Table=PosCache.Param[4];
+        }
         //_D(SysLog("after Get cache 2, LeftPos=%i",LeftPos));
         if((int)Line < 0) Line=0;
         if((int)ScreenLine < 0) ScreenLine=0;

@@ -7,10 +7,16 @@ Internal viewer
 
 */
 
-/* Revision: 1.22 14.06.2002 $ */
+/* Revision: 1.23 17.12.2002 $ */
 
 /*
 Modify:
+  17.12.2002 SVS
+    ! Viewer64. Все файловые смещения и размеры приведены к __int64, что
+      позволяет существенно повысить верхний предел размерности
+      просматриваемых файлов.
+    ! SavePos??? и Undo??? загнаны в структуры в соответствии с требованиями
+      изменного класса FilePositionCache
   14.06.2002 IS
     + SetTempViewName - параметр DeleteFolder - удалить не только файл, но
       и каталог, его содержащий (если каталог пуст).
@@ -92,6 +98,8 @@ Modify:
 #define MAX_VIEWLINEB 0x80f // 0x40f
 /* SVS $ */
 
+#define VIEWER_UNDO_COUNT   64
+
 /* $ 12.07.2000 SVS
    + Константы для WrapMode во вьювере.
 */
@@ -100,6 +108,17 @@ enum {VIEW_UNWRAP=0,VIEW_WRAP=1, VIEW_WORDWRAP=2};
 
 class FileViewer;
 class KeyBar;
+
+struct InternalViewerBookMark{
+  __int64 SavePosAddr[BOOKMARK_COUNT];
+  __int64 SavePosLeft[BOOKMARK_COUNT];
+};
+
+struct ViewerUndoData
+{
+  __int64 UndoAddr;
+  __int64 UndoLeft;
+};
 
 class Viewer:public ScreenObject
 {
@@ -122,7 +141,7 @@ class Viewer:public ScreenObject
      dymanic alloc memory for OutStr */
     char *OutStr[MAXSCRY+1]; //[MAX_VIEWLINEB];
     /* tran 12.07.2000 $ */
-    int StrFilePos[MAXSCRY+1];
+    __int64 StrFilePos[MAXSCRY+1]; //??
     char FileName[NM];
     char FullFileName[NM];
     FILE *ViewFile;
@@ -142,19 +161,20 @@ class Viewer:public ScreenObject
     struct ViewerMode VM;
     /* SVS $ */
 
-    unsigned long FilePos;
-    unsigned long SecondPos;
-    unsigned long LastScrPos;
-    unsigned long FileSize;
-    unsigned long LastSelPos;
-    int LeftPos;
-    int LastPage;
+    __int64 FilePos;
+    __int64 SecondPos;
+    __int64 LastScrPos;
+    __int64 FileSize;
+    __int64 LastSelPos;
+
+    __int64 LeftPos;
+    __int64 LastPage;
     int CRSym;
-    int SelectPos,SelectSize;
+    __int64 SelectPos,SelectSize;
     /* $ 06.02.2001 IS
        Используется для коррекции позиции выделения в юникодных файлах
     */
-    int SelectPosOffSet;
+    __int64 SelectPosOffSet;
     /* IS $ */
     int ViewY1;
     int ShowStatusLine,HideCursor;
@@ -172,11 +192,9 @@ class Viewer:public ScreenObject
     int ReadStdin;
     int InternalKey;
 
-    unsigned long SavePosAddr[10];
-    int SavePosLeft[10];
+    struct InternalViewerBookMark BMSavePos;
+    struct ViewerUndoData UndoData[VIEWER_UNDO_COUNT];
 
-    unsigned long UndoAddr[128];
-    int UndoLeft[128];
     int LastKeyUndo;
     /* $ 19.07.2000 tran
        новая переменная, используется при расчете ширины при скролбаре */
@@ -204,7 +222,7 @@ class Viewer:public ScreenObject
     void AdjustWidth();
     void AdjustFilePos();
     /* DJ $ */
-    void ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSize);
+    void ReadString(char *Str,int MaxSize,int StrSize,__int64 *SelPos,__int64 *SelSize);
     int CalcStrSize(char *Str,int Length);
     void ChangeViewKeyBar();
     void SetCRSym();
@@ -212,8 +230,8 @@ class Viewer:public ScreenObject
     void ConvertToHex(char *SearchStr,int &SearchLength);
     int HexToNum(int Hex);
     int vread(char *Buf,int Size,FILE *SrcFile);
-    int vseek(FILE *SrcFile,unsigned long Offset,int Whence);
-    unsigned long vtell(FILE *SrcFile);
+    int vseek(FILE *SrcFile,__int64 Offset,int Whence);
+    __int64 vtell(FILE *SrcFile);
     int vgetc(FILE *SrcFile);
     void SetFileSize();
 
@@ -245,9 +263,9 @@ class Viewer:public ScreenObject
     void SetTempViewName(const char *Name, BOOL DeleteFolder);
     /* IS $ */
     void SetTitle(const char *Title);
-    unsigned long GetFilePos();
+    __int64 GetFilePos();
     /* $ 18.07.2000 tran - change 'long' to 'unsigned long' */
-    void SetFilePos(unsigned long Pos);
+    void SetFilePos(__int64 Pos);
     void SetPluginData(char *PluginData);
     void SetNamesList(NamesList *List);
     /* $ 27.09.2000 SVS
@@ -259,7 +277,7 @@ class Viewer:public ScreenObject
 
     void GoTo(int ShowDlg=TRUE,__int64 NewPos=0,DWORD Flags=0);
     // Функция выделения - как самостоятельная функция
-    void SelectText(long MatchPos,int SearchLength, DWORD Flags=0x1);
+    void SelectText(__int64 MatchPos,int SearchLength, DWORD Flags=0x1);
     /* $ 29.03.2001 IS
          Манипуляции с ViewerOptions
     */

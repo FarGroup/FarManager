@@ -7,10 +7,14 @@ poscache.hpp
 
 */
 
-/* Revision: 1.03 17.06.2001 $ */
+/* Revision: 1.04 17.12.2002 $ */
 
 /*
 Modify:
+  17.12.2002 SVS
+    ! класс FilePositionCache подвергся значительным переделкам,
+     т.к. позиции вьювере измеряются в терминах __int64, а редактора - DWORD
+     Т.е. класс теперь понимает 2 типа кэша - FPOSCACHE_32 и FPOSCACHE_64.
   17.06.2001 IS
     + include "udlist.hpp"
   02.04.2001 VVM
@@ -22,38 +26,50 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
 */
 
-#include "udlist.hpp"
-
 #define MAX_POSITIONS 64
+
+enum {
+  FPOSCACHE_32,
+  FPOSCACHE_64,
+};
+
+struct TPosCache32{
+  DWORD Param[5];
+  DWORD *Position[4];
+};
+
+struct TPosCache64{
+  __int64 Param[5];
+  __int64 *Position[4];
+};
 
 class FilePositionCache
 {
   private:
     int IsMemory;
     char *Names;
-    unsigned int *Positions;
-    long *ShortPos;
+    int SizeValue;
     int CurPos;
 
-    int FindPosition(char *Name);
+    BYTE *Param;
+    BYTE *Position;
+    static char SubKeyItem[16] ,*PtrSubKeyItem;
+    static char SubKeyShort[16],*PtrSubKeyShort;
+
+  private:
+    int FindPosition(const char *FullName);
+
   public:
-    FilePositionCache();
+    FilePositionCache(int TypeCache);
    ~FilePositionCache();
 
   public:
-    void AddPosition(char *Name,unsigned int Position1,unsigned int Position2,
-                     unsigned int Position3,unsigned int Position4,
-                     unsigned int Position5,
-                     long *PosLine,long *PosCursor,long *PosScreenLine,
-                     long *PosLeftPos);
-    void GetPosition(char *Name,unsigned int &Position1,unsigned int &Position2,
-                     unsigned int &Position3,unsigned int &Position4,
-                     unsigned int &Position5,
-                     long *PosLine,long *PosCursor,long *PosScreenLine,
-                     long *PosLeftPos);
-    void Read(char *Key);
-    void Save(char *Key);
+    void AddPosition(const char *Name,void *PosCache);
+    BOOL GetPosition(const char *Name,void *PosCache);
+
+    BOOL Read(const char *Key);
+    BOOL Save(const char *Key);
 };
 
 
-#endif	// __FILEPOSITIONCACHE_HPP__
+#endif  // __FILEPOSITIONCACHE_HPP__

@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.123 11.12.2002 $ */
+/* Revision: 1.124 17.12.2002 $ */
 
 /*
 Modify:
+  17.12.2002 SVS
+    ! Изменен принцип работы с EditorPosCache (see класс FilePositionCache)
   11.12.2002 SVS
     - BugZ#292 - CtrlF10 на новых файлах ошибается.
     ! Некоторые переменные класса заменены на флаги
@@ -413,11 +415,22 @@ FileEditor::~FileEditor()
     }
 
     if (!FEdit->Flags.Check(FEDITOR_OPENFAILED)) // здесь БЯКА в кеш попадала :-(
-      CtrlObject->EditorPosCache->AddPosition(CacheName,FEdit->NumLine,ScreenLinePos,CurPos,LeftPos,Table,
-               (FEdit->EdOpt.SaveShortPos?FEdit->SavePos.Line:NULL),
-               (FEdit->EdOpt.SaveShortPos?FEdit->SavePos.Cursor:NULL),
-               (FEdit->EdOpt.SaveShortPos?FEdit->SavePos.ScreenLine:NULL),
-               (FEdit->EdOpt.SaveShortPos?FEdit->SavePos.LeftPos:NULL));
+    {
+      struct TPosCache32 PosCache={0};
+      PosCache.Param[0]=FEdit->NumLine;
+      PosCache.Param[1]=ScreenLinePos;
+      PosCache.Param[2]=CurPos;
+      PosCache.Param[3]=LeftPos;
+      PosCache.Param[4]=Table;
+      if(Opt.EdOpt.SaveShortPos)
+      {
+        PosCache.Position[0]=FEdit->SavePos.Line;
+        PosCache.Position[1]=FEdit->SavePos.Cursor;
+        PosCache.Position[2]=FEdit->SavePos.ScreenLine;
+        PosCache.Position[3]=FEdit->SavePos.LeftPos;
+      }
+      CtrlObject->EditorPosCache->AddPosition(CacheName,&PosCache);
+    }
   }
 
   BitFlags FEditFlags=FEdit->Flags;

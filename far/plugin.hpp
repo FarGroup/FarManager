@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.222 27.10.2002 $ */
+/* Revision: 1.223 17.12.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,9 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  17.12.2002 SVS
+    ! Изменены структуры ViewerSelect, ViewerSetPosition и ViewerInfo
+      в связи с вводом в строй Viewer64
   27.10.2002 DJ
     ! переименуем FarListColors.ColorItem в ColorCount (чтобы было понятно,
       что к чему)
@@ -1772,8 +1775,12 @@ enum VIEWER_OPTIONS {
 
 struct ViewerSelect
 {
+#ifdef FAR_USE_INTERNALS
+   __int64  BlockStartPos;
+#else // ELSE FAR_USE_INTERNALS
    long  BlockStartPos;
    long  Reserved1;
+#endif // END FAR_USE_INTERNALS
    int   BlockLen;
 };
 
@@ -1787,8 +1794,12 @@ enum VIEWER_SETPOS_FLAGS {
 struct ViewerSetPosition
 {
   DWORD Flags;
+#ifdef FAR_USE_INTERNALS
+  __int64 StartPos;
+#else // ELSE FAR_USE_INTERNALS
   long  StartPos;
   long  Reserved1;
+#endif // END FAR_USE_INTERNALS
   int   LeftPos;
 };
 
@@ -1808,10 +1819,15 @@ struct ViewerInfo
   int    StructSize;
   int    ViewerID;
   const char *FileName;
+#ifdef FAR_USE_INTERNALS
+  __int64 FileSize;
+  __int64 FilePos;
+#else // ELSE FAR_USE_INTERNALS
   DWORD  FileSize;
   DWORD  Reserved1;
   DWORD  FilePos;
   DWORD  Reserved2;
+#endif // END FAR_USE_INTERNALS
   int    WindowSizeX;
   int    WindowSizeY;
   DWORD  Options;

@@ -9,10 +9,13 @@ editor.hpp
 
 */
 
-/* Revision: 1.40 08.11.2002 $ */
+/* Revision: 1.41 17.12.2002 $ */
 
 /*
 Modify:
+  17.12.2002 SVS
+    ! Изменены типы полей структуры InternalEditorBookMark
+      (see класс FilePositionCache)
   08.11.2002 SVS
     ! Editor::PluginData уехал в FileEditor::PluginData
     ! Editor::SetPluginData() уехал в FileEditor::SetPluginData()
@@ -139,10 +142,10 @@ class FileEditor;
 class KeyBar;
 
 struct InternalEditorBookMark{
-  long Line[BOOKMARK_COUNT];
-  long Cursor[BOOKMARK_COUNT];
-  long ScreenLine[BOOKMARK_COUNT];
-  long LeftPos[BOOKMARK_COUNT];
+  DWORD Line[BOOKMARK_COUNT];
+  DWORD Cursor[BOOKMARK_COUNT];
+  DWORD ScreenLine[BOOKMARK_COUNT];
+  DWORD LeftPos[BOOKMARK_COUNT];
 };
 
 struct EditorUndoData
