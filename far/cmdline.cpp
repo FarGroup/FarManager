@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.37 08.09.2001 $ */
+/* Revision: 1.38 09.09.2001 $ */
 
 /*
 Modify:
+  09.09.2001 IS
+    + SetPersistentBlocks - установить/сбросить постоянные блоки
   08.09.2001 VVM
     + Использовать Opt.DialogsEditBlock
   30.08.2001 VVM
@@ -126,12 +128,18 @@ CommandLine::CommandLine()
 {
   *CurDir=0;
   CmdStr.SetEditBeyondEnd(FALSE);
-  CmdStr.SetPersistentBlocks(Opt.DialogsEditBlock);
+  SetPersistentBlocks(Opt.DialogsEditBlock);
   LastCmdPartLength=-1;
   *LastCmdStr=0;
   BackgroundScreen=NULL;
 }
 
+/* $ 09.09.2001 IS установить/сбросить постоянные блоки */
+void CommandLine::SetPersistentBlocks(int Mode)
+{
+  CmdStr.SetPersistentBlocks(Mode);
+}
+/* IS $ */
 
 void CommandLine::DisplayObject()
 {

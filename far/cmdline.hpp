@@ -7,10 +7,12 @@ cmdline.hpp
 
 */
 
-/* Revision: 1.05 13.08.2001 $ */
+/* Revision: 1.06 09.09.2001 $ */
 
 /*
 Modify:
+  09.09.2001 IS
+    + SetPersistentBlocks
   13.08.2001 SKV
     + GetSelString, Select
   17.05.2001 OT
@@ -61,6 +63,11 @@ class CommandLine:public ScreenObject
     void SetCurPos(int Pos);
     int GetCurPos();
     /* $ 11.05.2001 OT */
+
+    /* $ 09.09.2001 IS
+       установить/сбросить постоянные блоки */
+    void SetPersistentBlocks(int Mode);
+    /* IS $ */
 
     /*$ 13.08.2001 SKV*/
     void GetSelString(char*,int);

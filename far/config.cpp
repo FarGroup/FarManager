@@ -5,14 +5,17 @@ config.cpp
 
 */
 
-/* Revision: 1.92 08.09.2001 $ */
+/* Revision: 1.93 09.09.2001 $ */
 
 /*
 Modify:
+  09.09.2001 IS
+    + обновим настройки ком.строки при выходе из Interface settings, чтобы
+      установился правильный режим "постоянные блоки"
   08.09.2001 VVM
     + Настройка для блоков в строках ввода F9/Options/Interface settings
   09.08.2001 OT
-		- F9|Options|Panel settings|Highlight files - не перерисовывается
+    - F9|Options|Panel settings|Highlight files - не перерисовывается
   03.08.2001 IS
     + Учтем опцию "разрешить мультикопирование/перемещение/создание связей".
       По умолчанию она отключена.
@@ -284,6 +287,7 @@ Modify:
 #include "fn.hpp"
 #include "keys.hpp"
 #include "colors.hpp"
+#include "cmdline.hpp"
 #include "ctrlobj.hpp"
 #include "dialog.hpp"
 #include "filepanels.hpp"
@@ -471,7 +475,7 @@ void PanelSettings()
   Opt.ShowPanelScrollbar=CfgDlg[11].Selected;
   Opt.ShowScreensNumber=CfgDlg[12].Selected;
   Opt.ShowSortMode=CfgDlg[13].Selected;
-	FrameManager->RefreshFrame();
+  FrameManager->RefreshFrame();
 }
 
 
@@ -569,6 +573,9 @@ void InterfaceSettings()
   */
   CtrlObject->Cp()->Redraw();
   /* SKV$*/
+  /* $ 09.09.2001 IS обновим настройки ком.строки */
+  CtrlObject->CmdLine->SetPersistentBlocks(Opt.DialogsEditBlock);
+  /* IS $ */
 }
 
 
