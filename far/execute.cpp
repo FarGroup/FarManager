@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.111 05.01.2005 $ */
+/* Revision: 1.112 26.02.2005 $ */
 
 /*
 Modify:
+  26.02.2005 WARP
+    ! Переписал (пересобрал) функцию execute
   05.01.2005 SVS
     - нужно указывать скока мы ходим взять из реестра, а не "0"
   05.01.2005 WARP
@@ -974,566 +976,404 @@ DWORD IsCommandExeGUI(const char *Command)
 /* Функция-пускатель внешних процессов
    Возвращает -1 в случае ошибки или...
 */
-int Execute(const char *CmdStr,          // Ком.строка для исполнения
+int Execute(const char *CmdStr,    // Ком.строка для исполнения
             int AlwaysWaitFinish,  // Ждать завершение процесса?
             int SeparateWindow,    // Выполнить в отдельном окне? =2 для вызова ShellExecuteEx()
             int DirectRun,         // Выполнять директом? (без CMD)
             int SetUpDirs)         // Нужно устанавливать каталоги?
 {
-  int NT = WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT;
-  char NewCmdStr[4096];
-  char NewCmdPar[4096];
-  char TempStr[4096];
-  char CommandName[NM];
-  NewCmdPar[0] = 0;
+  int nResult = -1;
 
-  // ПРЕДпроверка на вшивость
-  ////_tran(SysLog("Execute: CmdStr [%s]",CmdStr);)
-  char *CmdPtr = NewCmdStr;
-  char *ParPtr = NULL;
-  int QuoteFound = FALSE;
-  int PipeFound = FALSE;
+  SHELLEXECUTEINFO seInfo;
+  memset (&seInfo, 0, sizeof seInfo);
 
-  PipeFound=PartCmdLine(CmdStr,NewCmdStr,sizeof(NewCmdStr),NewCmdPar,sizeof(NewCmdPar));
+  seInfo.cbSize = sizeof (SHELLEXECUTEINFO);
 
-  //_tran(SysLog("Execute: newCmdStr [%s]",NewCmdStr);)
-
-  // Проверим, а не папку ли мы хотим открыть по Shift-Enter?
-  //_SVS(SysLog("SeparateWindow=%d",SeparateWindow));
-  DWORD Attr=GetFileAttributes(NewCmdStr);
-  if(SeparateWindow) //???
-  {
-    if(!*NewCmdPar && Attr != -1 && (Attr&FILE_ATTRIBUTE_DIRECTORY) || (NewCmdStr[1]==':' && (NewCmdStr[2] == '\\' && !NewCmdStr[3] || !NewCmdStr[2])))
-    {
-      ConvertNameToFull(NewCmdStr,NewCmdStr,sizeof(NewCmdStr));
-      SeparateWindow=2;
-    }
-  }
-
-  // глянем на результат
-  if(!*NewCmdStr || (strlen(NewCmdStr)==1 && strpbrk(NewCmdStr,"<>|:")!=NULL))
-  {
-    // А может просто запустить CMD или проводник?
-    // если "да", то этот куско нужно ниже перенести.
-    return -1;
-  }
-  // запомним CP-консоли перед стартом проги
-  UINT ConsoleCP=GetConsoleCP();
-  UINT ConsoleOutputCP=GetConsoleOutputCP();
-
-  CONSOLE_SCREEN_BUFFER_INFO sbi={0,};
   STARTUPINFO si;
-  PROCESS_INFORMATION pi={0,};
-  int Visible,Size;
-  int PrevLockCount;
-  char ExecLine[4096];
-  char OldTitle[512];
-  DWORD ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
-  int ExitCode=1;
-  DWORD _LastErrCode=ERROR_SUCCESS;
+  PROCESS_INFORMATION pi;
 
-  int ExecutorType = GetRegKey(strSystemExecutor,"Type",0);
-  // частный случай - т.с. затычка, но нужно конкретное решение!
-  if(*NewCmdStr && !((*NewCmdStr == '\\'|| *NewCmdStr == '/') && !NewCmdStr[1]))
-  {
-    ExitCode=PrepareExecuteModule(NewCmdStr,NewCmdStr,sizeof(NewCmdStr)-1,ImageSubsystem);
-    Attr=GetFileAttributes(NewCmdStr);
-  }
-  // Для Виндовс-ГУИ всегда сделаем запуск через ShellExecuteEx()
-//  if (ImageSubsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI && !AlwaysWaitFinish)
-  if (ImageSubsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI)
-    SeparateWindow=2;
-  if (!ExecutorType || SeparateWindow==2)
-    ExitCode = 1;
+  memset (&si, 0, sizeof (STARTUPINFO));
 
-  ExpandEnvironmentStrings (NewCmdStr, TempStr, sizeof (TempStr)-1);
-  strcpy (NewCmdStr, TempStr);
+  si.cb = sizeof (si);
 
-  QuoteSpace(NewCmdStr);
+  char Comspec[NM] = {0};
+  GetEnvironmentVariable("COMSPEC", Comspec, sizeof(Comspec));
 
-  QuoteFound = NewCmdStr[0] == '"';
-  CmdPtr = NewCmdStr;
-
-  CommandName[0]=0;
-  GetEnvironmentVariable("COMSPEC",CommandName,sizeof(CommandName));
-  if ((CommandName[0] == 0) && (SetUpDirs || (!ExecutorType && SeparateWindow != 2)))
+  if ( !*Comspec && (SetUpDirs || (SeparateWindow != 2)) )
   {
     Message(MSG_WARNING, 1, MSG(MWarning), MSG(MComspecNotFound), MSG(MErrorCancelled), MSG(MOk));
     return -1;
   }
 
-  /* $ 13.04.2001 VVM
-    + Флаг CREATE_DEFAULT_ERROR_MODE. Что-бы показывал все ошибки */
-  DWORD CreateFlags = CREATE_DEFAULT_ERROR_MODE;
-  /* VVM $ */
+  int Visible, Size;
 
   GetCursorType(Visible,Size);
-  //SetCursorType(0,-1);
   SetInitialCursorType();
 
-  PrevLockCount=ScrBuf.GetLockCount();
+  int PrevLockCount=ScrBuf.GetLockCount();
   ScrBuf.SetLockCount(0);
-  ScrBuf.Flush();
 
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 
-  GetConsoleTitle(OldTitle,sizeof(OldTitle));
-  memset(&si,0,sizeof(si));
-  si.cb=sizeof(si);
+  int ConsoleCP = GetConsoleCP();
+  int ConsoleOutputCP = GetConsoleOutputCP();
 
-  if (SetUpDirs)
+  FlushInputBuffer();
+  ChangeConsoleMode(InitialConsoleMode);
+
+  CONSOLE_SCREEN_BUFFER_INFO sbi={0,};
+  GetConsoleScreenBufferInfo(hConOut,&sbi);
+
+  char OldTitle[512];
+  GetConsoleTitle (OldTitle, sizeof(OldTitle));
+
+  if ( SetUpDirs )
   {
     Panel *PassivePanel=CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel);
+
     if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS && PassivePanel->GetType()==FILE_PANEL)
+    {
       for (int I=0;CmdStr[I]!=0;I++)
+      {
         if (isalpha(CmdStr[I]) && CmdStr[I+1]==':' && CmdStr[I+2]!='\\')
         {
           char SavePath[NM],PanelPath[NM],SetPathCmd[NM];
           FarGetCurDir(sizeof(SavePath),SavePath);
           PassivePanel->GetCurDir(PanelPath);
-          sprintf(SetPathCmd,"%s /C chdir %s",CommandName,QuoteSpace(PanelPath));
-          CreateProcess(NULL,SetPathCmd,NULL,NULL,FALSE,CreateFlags,NULL,NULL,&si,&pi);
+          sprintf(SetPathCmd,"%s /C chdir %s",Comspec,QuoteSpace(PanelPath));
+          CreateProcess(NULL,SetPathCmd,NULL,NULL,FALSE,CREATE_DEFAULT_ERROR_MODE,NULL,NULL,&si,&pi);
           CloseHandle(pi.hThread);
           CloseHandle(pi.hProcess);
           FarChDir(SavePath);
         }
+      }
+    }
   }
 
-//  strcpy(NewCmdStr,CmdStr);
-//  if (ParPtr)
-//    *ParPtr = 0;
-  //while (IsSpace(*CmdPtr))
-  //  CmdPtr++;
+  char NewCmdStr[4096];
+  char NewCmdPar[4096];
+  char ExecLine[4096];
 
-  *ExecLine=0;
+  memset (&NewCmdStr, 0, sizeof (NewCmdStr));
+  memset (&NewCmdPar, 0, sizeof (NewCmdPar));
 
-  if (ExitCode)
+  PartCmdLine (
+      CmdStr,
+      NewCmdStr,
+      sizeof(NewCmdStr),
+      NewCmdPar,
+      sizeof(NewCmdPar)
+      );
+
+  DWORD dwSubSystem;
+  int nError = 0;
+
+  HANDLE hProcess = NULL, hThread = NULL;
+
+  PrepareExecuteModule(NewCmdStr,NewCmdStr,sizeof(NewCmdStr)-1,dwSubSystem);
+
+  if ( dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_GUI )
+    SeparateWindow = 2;
+
+  if ( SeparateWindow == 2 )
   {
-    if (DirectRun && !SeparateWindow)
-      xstrncpy(ExecLine,CmdPtr,sizeof(ExecLine)-1);
-    else
+    FAR_OemToChar (NewCmdStr, NewCmdStr);
+    FAR_OemToChar (NewCmdPar, NewCmdPar);
+
+    seInfo.lpFile = NewCmdStr;
+    seInfo.lpParameters = NewCmdPar;
+    seInfo.nShow = SW_SHOWNORMAL;
+    seInfo.lpVerb = "open";
+    seInfo.fMask = SEE_MASK_FLAG_NO_UI|SEE_MASK_FLAG_DDEWAIT|SEE_MASK_NOCLOSEPROCESS;
+
+    SetFileApisTo(APIS2ANSI);
+
+    if ( ShellExecuteEx (&seInfo) )
     {
-      if(ExecutorType)
-      {
-        if(ImageSubsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI && !AlwaysWaitFinish)
-          xstrncpy(ExecLine,NewCmdStr,sizeof(ExecLine)-1);
-        else
-        {
-          char TemplExecute[512];
-          char TemplExecuteStart[512];
-          char TemplExecuteWait[512];
-          // <TODO: здесь надо по другому переделать>
-          GetRegKey(strSystemExecutor,"Normal",TemplExecute,"%COMSPEC% /c",sizeof(TemplExecute));
-          GetRegKey(strSystemExecutor,"Start",TemplExecuteStart,"%COMSPEC% /c start",sizeof(TemplExecuteStart));
-          GetRegKey(strSystemExecutor,"Wait",TemplExecuteWait,"%COMSPEC% /c start /wait",sizeof(TemplExecuteWait));
-
-          char *Fmt=TemplExecute;
-          if (SeparateWindow || ImageSubsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI && (NT || AlwaysWaitFinish))
-          {
-            Fmt=TemplExecuteStart;
-            if (AlwaysWaitFinish)
-              Fmt=TemplExecuteWait;
-          }
-          char *CmdEnd=NewCmdStr+strlen(NewCmdStr)-1;
-          if (NT && *NewCmdStr == '\"' && *CmdEnd == '\"' &&
-             strchr(NewCmdStr+1, '\"') != CmdEnd && SeparateWindow!=2)
-          {
-            char *Ptr=NewCmdStr;
-            int NumSq=0;
-            while(*Ptr)
-            {
-              if(*Ptr == '\"')
-                NumSq++;
-              ++Ptr;
-            }
-            InsertQuote(NewCmdStr);
-            if(NumSq > 2)
-              InsertQuote(NewCmdStr);
-          }
-
-//          if(SeparateWindow)
-//            ReplaceStrings(NewCmdPar,"\"","\"\"",-1);
-          /*
-          if ( *NewCmdStr && strchr (NewCmdStr, ' ') )
-          {
-            int l = strlen (NewCmdStr);
-
-            memmove (NewCmdStr+1, NewCmdStr, ++l);
-            NewCmdStr[0] = '\"';
-            NewCmdStr[l++] = '\"';
-            NewCmdStr[l] = 0;
-          }
-          */
-
-          xstrncpy(ExecLine,Fmt,sizeof(ExecLine)-1);
-          strncat(ExecLine,(Fmt != TemplExecute && NT && *CmdPtr=='\"'?" \"\" ":" "),sizeof(ExecLine)-1);
-
-          strcat (ExecLine, "\"");
-          strncat(ExecLine, NewCmdStr,sizeof(ExecLine)-1);
-          strncat(ExecLine, NewCmdPar,sizeof(ExecLine)-1);
-          strcat (ExecLine, "\"");
-
-          ExpandEnvironmentStr(ExecLine,ExecLine,sizeof(ExecLine));
-
-          // </TODO>
-          //_tran(SysLog("Execute: ExecLine [%s]",ExecLine);)
-        }
-      }
-      else if (SeparateWindow != 2)
-      {
-//        int Pipe=strpbrk(CmdPtr,"<>|")!=NULL;
-        xstrncpy(ExecLine,CommandName,sizeof(ExecLine)-1);
-        strncat(ExecLine," /C",sizeof(ExecLine)-1);
-        //_tran(SysLog("1. execline='%s'",ExecLine);)
-
-        int QuoteAll = FALSE;
-// WINDOWS_GUI всегда пускается через ShellExecute
-//        if ((PipeFound && (SeparateWindow || ImageSubsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI && (NT || AlwaysWaitFinish))) ||
-//            (QuoteFound && NT && ImageSubsystem != IMAGE_SUBSYSTEM_WINDOWS_GUI))
-        if ((PipeFound && SeparateWindow) || (QuoteFound && NT))
-          QuoteAll = TRUE;
-
-        if (SeparateWindow)
-        {
-          strncat(ExecLine," start",sizeof(ExecLine)-1);
-          if (AlwaysWaitFinish)
-            strncat(ExecLine," /wait",sizeof(ExecLine)-1);
-          if(PipeFound || QuoteAll)
-            sprintf(ExecLine+strlen(ExecLine)," %s /C",CommandName);
-          else if (NT && *CmdPtr=='\"')
-            strncat(ExecLine," \"\"",sizeof(ExecLine)-1);
-        }
-
-        strncat(ExecLine," ",sizeof(ExecLine)-1);
-        //_tran(SysLog("2. execline=[%s]",ExecLine);)
-        //_tran(SysLog("3. cmdptr=[%s]",CmdPtr);)
-
-        if (QuoteAll) strncat(ExecLine, "\"",sizeof(ExecLine)-1);
-        strncat(ExecLine, CmdPtr,sizeof(ExecLine)-1);
-        strncat(ExecLine, NewCmdPar,sizeof(ExecLine)-1);
-        if (QuoteAll) strncat(ExecLine, "\"",sizeof(ExecLine)-1);
-        //_tran(SysLog("Execute: ExecLine2 [%s]",ExecLine);)
-      }
-    }
-
-/*
-    if (SeparateWindow)
-    {
-      ReplaceStrings(ExecLine,"^","^^",-1);
-      ReplaceStrings(ExecLine,"&","^&",-1);
-    }
-*/
-
-//_SVS(SysLog("ExecLine='%s'",ExecLine));
-    // если запуск через ShellExecuteEx(), то нефига ставить заголовок
-    /* $ 22.03.2002 IS
-         Для 9x параметр у SetConsoleTitle должен быть ANSI
-    */
-    if(SeparateWindow != 2)
-    {
-      if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
-      {
-        char FarTitle[2*NM];
-        int size=Min((DWORD)strlen(CmdStr),(DWORD)sizeof(FarTitle)-1);
-        FAR_OemToCharBuff(CmdStr,FarTitle,size);
-        FarTitle[size]=0;
-        SetConsoleTitle(FarTitle);
-      }
-      else
-        SetConsoleTitle(CmdStr);//SetFarTitle(CmdPtr);
-    }
-    /* IS $ */
-//_SVS(SysLog("CmdPtr  ='%s'",CmdPtr));
-    FlushInputBuffer();
-
-    /*$ 15.03.2001 SKV
-      Надо запомнить параметры консоли ДО запуск и т.д.
-    */
-    GetConsoleScreenBufferInfo(hConOut,&sbi);
-    /* SKV$*/
-
-    ChangeConsoleMode(InitialConsoleMode);
-
-    if (SeparateWindow && (ImageSubsystem == IMAGE_SUBSYSTEM_UNKNOWN))
-        CreateFlags|=DETACHED_PROCESS;
-
-    if (SeparateWindow==2)
-    {
-//_SVS(CleverSysLog clvrSLog("Execute() -> SeparateWindow==2"));
-      char AnsiCmdStr[4096];
-      SHELLEXECUTEINFO SEInfo;
-      memset(&SEInfo,0,sizeof(SEInfo));
-
-      xstrncpy(AnsiCmdStr,CmdPtr,sizeof(AnsiCmdStr)-1);
-      FAR_OemToChar(AnsiCmdStr, AnsiCmdStr);
-      FAR_OemToChar(NewCmdPar, NewCmdPar);
-
-      if (PointToName(AnsiCmdStr)==AnsiCmdStr && strcmp(AnsiCmdStr,".") && !TestParentFolderName(AnsiCmdStr))
-      {
-        //char FullName[4096];
-        //sprintf(FullName,".\\%s",AnsiCmdStr);
-        //strcpy(AnsiCmdStr,FullName);
-        memmove(AnsiCmdStr+2,AnsiCmdStr,Min((int)strlen(AnsiCmdStr),(int)(sizeof(AnsiCmdStr)-3))+1);
-        memcpy(AnsiCmdStr,".\\",2);
-      }
-      Unquote(AnsiCmdStr); // т.к. нафиг это ненужно?
-      // ???
-      if(Attr != -1 && (Attr&FILE_ATTRIBUTE_DIRECTORY) && !(!strcmp(AnsiCmdStr,".") || TestParentFolderName(AnsiCmdStr))
-         && !(AnsiCmdStr[0] == '\\' && AnsiCmdStr[1] == '\\') // Bug 752 - Проблемы Shift-Enter для UNC ресурсов с пробелами и без
-      )
-        strcat(AnsiCmdStr,".");
-      // ???
-//_SVS(SysLog("[%d] AnsiCmdStr='%s'  Attr=0x%08X",__LINE__,AnsiCmdStr,Attr));
-
-      SEInfo.lpVerb=(Attr&FILE_ATTRIBUTE_DIRECTORY)?NULL:GetShellAction((char *)AnsiCmdStr,ImageSubsystem,_LastErrCode);
-      if(!_LastErrCode)
-      {
-        SEInfo.cbSize=sizeof(SEInfo);
-        SEInfo.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_DDEWAIT|SEE_MASK_FLAG_NO_UI;
-        SEInfo.lpFile=AnsiCmdStr;
-        SEInfo.nShow=SW_SHOWNORMAL;
-        if (NewCmdPar[0])
-          SEInfo.lpParameters = NewCmdPar;
-#if 0
-_SVS(SysLog("SHELLEXECUTEINFO{"));
-_SVS(SysLog(" cbSize=       %d",SEInfo.cbSize));
-_SVS(SysLog(" fMask=        %08X",SEInfo.fMask));
-_SVS(SysLog(" hwnd;         %08X",SEInfo.hwnd));
-_SVS(SysLog(" lpVerb=       %s",SEInfo.lpVerb));
-_SVS(SysLog(" lpFile=       %s",SEInfo.lpFile));
-_SVS(SysLog(" lpParameters= %s",SEInfo.lpParameters));
-_SVS(SysLog(" lpDirectory=  %s",SEInfo.lpDirectory));
-_SVS(SysLog(" nShow=        %d",SEInfo.nShow));
-_SVS(SysLog(" hInstApp=     0x%08X",SEInfo.hInstApp));
-_SVS(SysLog(" lpIDList=     0x%08X",SEInfo.lpIDList));
-_SVS(SysLog(" lpClass=      %s",SEInfo.lpClass));
-_SVS(SysLog(" hkeyClass=    0x%08X",SEInfo.hkeyClass));
-_SVS(SysLog(" dwHotKey=     0x%08X",SEInfo.dwHotKey));
-_SVS(SysLog(" hIcon=        0x%08X",SEInfo.hIcon));
-_SVS(SysLog(" hProcess=     0x%08X (%d)",SEInfo.hProcess,SEInfo.hProcess));
-_SVS(SysLog("};"));
-#endif
-
-        SetFileApisTo(APIS2ANSI);
-        ExitCode=ShellExecuteEx(&SEInfo);
-        if(!ExitCode)
-          _LastErrCode=GetLastError();
-        SetFileApisTo(APIS2OEM);
-        pi.hProcess=SEInfo.hProcess;
-      }
-      else
-        ExitCode=0;
+      hProcess = seInfo.hProcess;
+      StartExecTime=clock();
     }
     else
-    {
-      SetRealColor(F_LIGHTGRAY|B_BLACK); // попытка борьбы с синим фоном в 4NT при старте консоль
-      ExitCode=CreateProcess(NULL,ExecLine,NULL,NULL,0,CreateFlags,NULL,NULL,&si,&pi);
-      if(!ExitCode)
-        _LastErrCode=GetLastError();
-    }
+      nError = GetLastError ();
 
-    StartExecTime=clock();
-  }
-
-  if (ExitCode)
-  {
-    if (!SeparateWindow && ImageSubsystem != IMAGE_SUBSYSTEM_WINDOWS_GUI || AlwaysWaitFinish)
-    {
-      /*$ 12.02.2001 SKV
-        супер фитча ;)
-        Отделение фаровской консоли от неинтерактивного процесса.
-        Задаётся кнопкой в System/ConsoleDetachKey
-      */
-      if(Opt.ConsoleDetachKey>0)
-      {
-        HANDLE h[2];
-        HANDLE hConOut=GetStdHandle(STD_OUTPUT_HANDLE);
-        HANDLE hConInp=GetStdHandle(STD_INPUT_HANDLE);
-        h[0]=pi.hProcess;
-        h[1]=hConInp;
-        INPUT_RECORD ir[256];
-        DWORD rd;
-
-        int vkey=0,ctrl=0;
-        TranslateKeyToVK(Opt.ConsoleDetachKey,vkey,ctrl,NULL);
-        int alt=ctrl&PKF_ALT;
-        int shift=ctrl&PKF_SHIFT;
-        ctrl=ctrl&PKF_CONTROL;
-
-        while(WaitForMultipleObjects(2,h,FALSE,INFINITE)!=WAIT_OBJECT_0)
-        {
-          if(PeekConsoleInput(h[1],ir,256,&rd) && rd)
-          {
-            int stop=0;
-            for(int i=0;i<rd;i++)
-            {
-              PINPUT_RECORD pir=&ir[i];
-              if(pir->EventType==KEY_EVENT)
-              {
-                if(vkey==pir->Event.KeyEvent.wVirtualKeyCode &&
-                  (alt?(pir->Event.KeyEvent.dwControlKeyState&LEFT_ALT_PRESSED || pir->Event.KeyEvent.dwControlKeyState&RIGHT_ALT_PRESSED):!(pir->Event.KeyEvent.dwControlKeyState&LEFT_ALT_PRESSED || pir->Event.KeyEvent.dwControlKeyState&RIGHT_ALT_PRESSED)) &&
-                  (ctrl?(pir->Event.KeyEvent.dwControlKeyState&LEFT_CTRL_PRESSED || pir->Event.KeyEvent.dwControlKeyState&RIGHT_CTRL_PRESSED):!(pir->Event.KeyEvent.dwControlKeyState&LEFT_CTRL_PRESSED || pir->Event.KeyEvent.dwControlKeyState&RIGHT_CTRL_PRESSED)) &&
-                  (shift?(pir->Event.KeyEvent.dwControlKeyState&SHIFT_PRESSED):!(pir->Event.KeyEvent.dwControlKeyState&SHIFT_PRESSED))
-                  )
-                {
-
-                  HICON hSmallIcon=NULL,hLargeIcon=NULL;
-                  if(hFarWnd)
-                  {
-                    hSmallIcon=CopyIcon((HICON)SendMessage(hFarWnd,WM_SETICON,0,(LPARAM)0));
-                    hLargeIcon=CopyIcon((HICON)SendMessage(hFarWnd,WM_SETICON,1,(LPARAM)0));
-                  }
-                  ReadConsoleInput(hConInp,ir,256,&rd);
-                  /*$ 07.02.2002 SKV
-                    Не будем вызыват CloseConsole, потому, что она поменяет
-                    ConsoleMode на тот, что был до запуска Far'а,
-                    чего работающее приложение могло и не ожидать.
-                  */
-                  //CloseConsole();
-                  CloseHandle(hConInp);
-                  CloseHandle(hConOut);
-                  delete KeyQueue;
-                  KeyQueue=NULL;
-                  /* SKV $*/
-
-                  FreeConsole();
-                  AllocConsole();
-
-                  /*$ 17.05.2001 SKV
-                    если окно имело HOTKEY, то старое должно его забыть.
-                  */
-                  if(hFarWnd)
-                  {
-                    SendMessage(hFarWnd,WM_SETHOTKEY,0,(LPARAM)0);
-                  }
-                  /* SKV $*/
-
-
-                  /*$ 20.03.2001 SKV
-                    вот такой вот изврат :-\
-                  */
-                  SetConsoleScreenBufferSize(hConOut,sbi.dwSize);
-                  SetConsoleWindowInfo(hConOut,TRUE,&sbi.srWindow);
-                  SetConsoleScreenBufferSize(hConOut,sbi.dwSize);
-
-                  /* SKV$*/
-
-                  Sleep(100);
-                  InitConsole(0);
-
-                  hFarWnd=0;
-                  InitDetectWindowedMode();
-
-                  if (hFarWnd)
-                  {
-                    if(Opt.SmallIcon)
-                    {
-                      char FarName[NM];
-                      GetModuleFileName(NULL,FarName,sizeof(FarName));
-                      ExtractIconEx(FarName,0,&hLargeIcon,&hSmallIcon,1);
-                    }
-                    if (hLargeIcon!=NULL)
-                      SendMessage(hFarWnd,WM_SETICON,1,(LPARAM)hLargeIcon);
-                    if (hSmallIcon!=NULL)
-                      SendMessage(hFarWnd,WM_SETICON,0,(LPARAM)hSmallIcon);
-                  }
-
-                  stop=1;
-                  break;
-                }
-              }
-            }
-            if(stop)break;
-          }
-          Sleep(100);
-        }
-      }
-      else
-      {
-        WaitForSingleObject(pi.hProcess,INFINITE);
-      }
-      /* SKV$*/
-    }
-    else if(ExecutorType && !SeparateWindow)//!(GUIType&2))// && AlwaysWaitFinish)
-    {
-      // поставим 800 мс, думаю хватит... хотя...
-      // при нынешнем положении дел - это нафиг ненать (надо проверить!)
-      WaitForSingleObject(pi.hProcess,INFINITE);//INFINITE);
-    }
-
-    GetExitCodeProcess(pi.hProcess,(LPDWORD)&ExitCode);
-    if (SeparateWindow!=2)
-      CloseHandle(pi.hThread);
-    CloseHandle(pi.hProcess);
-
-    {
-      CONSOLE_SCREEN_BUFFER_INFO csbi;
-      GetVideoMode(csbi);
-    }
-    ScrBuf.FillBuf();
-    ScrBuf.SetLockCount(PrevLockCount);
+    SetFileApisTo(APIS2OEM);
   }
   else
   {
-    //if (SeparateWindow!=2)
+    if ( WinVer.dwPlatformId != VER_PLATFORM_WIN32_NT )
     {
-      char OutStr[2048];
+      char FarTitle[2*NM];
 
-      SetLastError(_LastErrCode);
-      //Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotExecute),
-      //        SeparateWindow==2 ? CmdPtr:ExecLine,MSG(MOk));
-      //        ^^^^^^^^^^^^^^^^^ зачем? Это никогда не работает - см. выше
-      if(Opt.ExecuteShowErrorMessage)
-      {
-        SetMessageHelp("ErrCannotExecute");
-        // BugZ#993 - перекрытие сообщения рамок меню
-        xstrncpy(OutStr,CmdPtr,sizeof(OutStr)-1);
-        Unquote(OutStr);
-        TruncPathStr(OutStr,ScrX-15);
-        Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotExecute),OutStr,MSG(MOk));
-      }
-      else
-      {
-        sprintf(OutStr,MSG(MExecuteErrorMessage),CmdPtr);
-        char *PtrStr=FarFormatText(OutStr,ScrX,OutStr,sizeof(OutStr),"\n",0);
-        printf(PtrStr);
-        ScrBuf.FillBuf();
-      }
+      int size=Min((DWORD)strlen(CmdStr),(DWORD)sizeof(FarTitle)-1);
 
+      FAR_OemToCharBuff(CmdStr,FarTitle,size);
+      FarTitle[size]=0;
+
+      SetConsoleTitle(FarTitle);
     }
-    ExitCode=-1;
-    //ScrBuf.FillBuf();
-    //ScrBuf.SetLockCount(PrevLockCount);
+    else
+      SetConsoleTitle(CmdStr);
+
+
+    char TempStr[4096];
+
+    ExpandEnvironmentStrings (NewCmdStr, TempStr, sizeof (TempStr)-1);
+    strcpy (NewCmdStr, TempStr);
+
+    QuoteSpace (NewCmdStr);
+
+    strcpy (ExecLine, Comspec);
+    strcat (ExecLine, " /C ");
+
+    bool bDoubleQ = false;
+
+    if ( strpbrk (NewCmdStr, ")(&^") )
+      bDoubleQ = true;
+
+    if ( *NewCmdPar || bDoubleQ )
+      strcat (ExecLine, "\"");
+
+    strcat (ExecLine, NewCmdStr);
+
+    if ( *NewCmdPar )
+    {
+      strcat (ExecLine, " ");
+      strcat (ExecLine, NewCmdPar);
+    }
+
+    if ( *NewCmdPar || bDoubleQ)
+      strcat (ExecLine, "\"");
+
+    // // попытка борьбы с синим фоном в 4NT при старте консоль
+    SetRealColor (F_LIGHTGRAY|B_BLACK);
+
+    if ( CreateProcess (
+        NULL,
+        ExecLine,
+        NULL,
+        NULL,
+        false,
+        SeparateWindow?CREATE_NEW_CONSOLE|CREATE_DEFAULT_ERROR_MODE:CREATE_DEFAULT_ERROR_MODE,
+        NULL,
+        NULL,
+        &si,
+        &pi
+        ) )
+     {
+       hProcess = pi.hProcess;
+       hThread = pi.hThread;
+
+       StartExecTime=clock();
+     }
+    else
+       nError = GetLastError ();
   }
+
+  if ( !nError )
+  {
+    if ( hProcess )
+    {
+      ScrBuf.Flush ();
+
+//      char s[100];
+
+//      sprintf (s, "%d %d", AlwaysWaitFinish, SeparateWindow);
+
+//      MessageBox (0, s, s, MB_OK);
+
+      if ( AlwaysWaitFinish || !SeparateWindow )
+      {
+        if ( Opt.ConsoleDetachKey == 0 )
+          WaitForSingleObject(hProcess,INFINITE);
+        else
+        {
+          /*$ 12.02.2001 SKV
+            супер фитча ;)
+            Отделение фаровской консоли от неинтерактивного процесса.
+            Задаётся кнопкой в System/ConsoleDetachKey
+          */
+          HANDLE hHandles[2];
+          HANDLE hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+          HANDLE hInput = GetStdHandle(STD_INPUT_HANDLE);
+
+              INPUT_RECORD ir[256];
+          DWORD rd;
+
+          int vkey=0,ctrl=0;
+          TranslateKeyToVK(Opt.ConsoleDetachKey,vkey,ctrl,NULL);
+          int alt=ctrl&PKF_ALT;
+          int shift=ctrl&PKF_SHIFT;
+          ctrl=ctrl&PKF_CONTROL;
+
+          hHandles[0] = hProcess;
+          hHandles[1] = hInput;
+
+          bool bAlt, bShift, bCtrl;
+          DWORD dwControlKeyState;
+
+          while( WaitForMultipleObjects (
+              2,
+              hHandles,
+              FALSE,
+              INFINITE
+              ) != WAIT_OBJECT_0
+              )
+          {
+            if ( PeekConsoleInput(hHandles[1],ir,256,&rd) && rd)
+            {
+              int stop=0;
+
+              for(int i=0;i<rd;i++)
+              {
+                PINPUT_RECORD pir=&ir[i];
+
+                if(pir->EventType==KEY_EVENT)
+                {
+                  dwControlKeyState = pir->Event.KeyEvent.dwControlKeyState;
+
+                  bAlt = (dwControlKeyState & LEFT_ALT_PRESSED) || (dwControlKeyState & RIGHT_ALT_PRESSED);
+                  bCtrl = (dwControlKeyState & LEFT_CTRL_PRESSED) || (dwControlKeyState & RIGHT_CTRL_PRESSED);
+                  bShift = (dwControlKeyState & SHIFT_PRESSED);
+
+                  if ( vkey==pir->Event.KeyEvent.wVirtualKeyCode &&
+                     (alt ?bAlt:!bAlt) &&
+                     (ctrl ?bCtrl:!bCtrl) &&
+                     (shift ?bShift:!bShift) )
+                  {
+                    HICON hSmallIcon=NULL,hLargeIcon=NULL;
+
+                    if ( hFarWnd )
+                    {
+                      hSmallIcon = CopyIcon((HICON)SendMessage(hFarWnd,WM_SETICON,0,(LPARAM)0));
+                      hLargeIcon = CopyIcon((HICON)SendMessage(hFarWnd,WM_SETICON,1,(LPARAM)0));
+                    }
+
+                    ReadConsoleInput(hInput,ir,256,&rd);
+
+                    /*
+                      Не будем вызыват CloseConsole, потому, что она поменяет
+                      ConsoleMode на тот, что был до запуска Far'а,
+                      чего работающее приложение могло и не ожидать.
+                    */
+                    CloseHandle(hInput);
+                    CloseHandle(hOutput);
+
+                    delete KeyQueue;
+                    KeyQueue=NULL;
+
+                    FreeConsole();
+                    AllocConsole();
+
+                    if ( hFarWnd ) // если окно имело HOTKEY, то старое должно его забыть.
+                      SendMessage(hFarWnd,WM_SETHOTKEY,0,(LPARAM)0);
+
+                    SetConsoleScreenBufferSize(hOutput,sbi.dwSize);
+                    SetConsoleWindowInfo(hOutput,TRUE,&sbi.srWindow);
+                    SetConsoleScreenBufferSize(hOutput,sbi.dwSize);
+
+                    Sleep(100);
+                    InitConsole(0);
+
+                    hFarWnd = 0;
+                    InitDetectWindowedMode();
+
+                    if ( hFarWnd )
+                    {
+                      if ( Opt.SmallIcon )
+                      {
+                        char FarName[NM];
+                        GetModuleFileName(NULL,FarName,sizeof(FarName));
+                        ExtractIconEx(FarName,0,&hLargeIcon,&hSmallIcon,1);
+                      }
+
+                      if ( hLargeIcon != NULL )
+                        SendMessage (hFarWnd,WM_SETICON,1,(LPARAM)hLargeIcon);
+
+                      if ( hSmallIcon != NULL )
+                        SendMessage (hFarWnd,WM_SETICON,0,(LPARAM)hSmallIcon);
+                    }
+
+                    stop=1;
+                    break;
+                  }
+                }
+              }
+
+              if ( stop )
+                break;
+            }
+
+            Sleep(100);
+          }
+        }
+      }
+
+//      MessageBox (0, "close", "asd", MB_OK);
+
+      ScrBuf.FillBuf();
+
+      CloseHandle (hProcess);
+    }
+
+     if ( hThread )
+       CloseHandle (hThread);
+
+    nResult = 0;
+  }
+  else
+  {
+    char OutStr[1024];
+
+    if( Opt.ExecuteShowErrorMessage )
+    {
+      SetMessageHelp("ErrCannotExecute");
+
+      xstrncpy(OutStr,NewCmdStr,sizeof(OutStr)-1);
+      Unquote(OutStr);
+      TruncPathStr(OutStr,ScrX-15);
+
+      Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotExecute),OutStr,MSG(MOk));
+    }
+    else
+    {
+      ScrBuf.Flush ();
+
+      sprintf(OutStr,MSG(MExecuteErrorMessage),NewCmdStr);
+      char *PtrStr=FarFormatText(OutStr,ScrX,OutStr,sizeof(OutStr),"\n",0);
+      printf(PtrStr);
+      ScrBuf.FillBuf();
+    }
+
+  }
+
   SetFarConsoleMode(TRUE);
-  /* $ 05.10.2001 IS
-     - Опечатка
-     + Принудительная установка курсора, т.к. SetCursorType иногда не спасает
-       вследствие своей оптимизации, которая в данном случае выходит боком.
+
+  /* Принудительная установка курсора, т.к. SetCursorType иногда не спасает
+      вследствие своей оптимизации, которая в данном случае выходит боком.
   */
   SetCursorType(Visible,Size);
   SetRealCursorType(Visible,Size);
-  /* IS $ */
-  if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS &&
-      WinVer.dwBuildNumber<=0x4000457)
-    WriteInput(VK_F16,SKEY_VK_KEYS);
+
+  SetConsoleTitle(OldTitle);
+
   /* Если юзер выполнил внешнюю команду, например
      mode con lines=50 cols=100
      то ФАР не знал об изменении размера консоли.
      Для этого надо ФАРу напомнить лишний раз :-)
   */
-  GenerateWINDOW_BUFFER_SIZE_EVENT(-1,-1);
+  GenerateWINDOW_BUFFER_SIZE_EVENT(-1,-1); //бред...
 
-  SetConsoleTitle(OldTitle);
-
-  if(Opt.RestoreCPAfterExecute)
+  if( Opt.RestoreCPAfterExecute )
   {
     // восстановим CP-консоли после исполнения проги
     SetConsoleCP(ConsoleCP);
     SetConsoleOutputCP(ConsoleOutputCP);
   }
-  return(ExitCode);
+
+
+  return nResult;
 }
+
 
 int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
                             int SeparateWindow,int DirectRun)

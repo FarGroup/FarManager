@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.216 14.02.2005 $ */
+/* Revision: 1.217 26.02.2005 $ */
 
 /*
 Modify:
+  26.02.2005 WARP
+    ! Переписал (пересобрал) функцию execute
   14.02.2005 SVS
     ! У FileList::GetFileName() параметр Name может быть равен NULL.
       Т.о. мы можем "не хочу имя, дай атрибут".
@@ -2481,7 +2483,7 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
         strcpy(FullPath,CurPtr->Name);
       }
       QuoteSpace(FullPath);
-      Execute(FullPath,FALSE,SeparateWindow,TRUE);
+      Execute(FullPath,FALSE,SeparateWindow?2:0,TRUE);
     }
     else
     {
