@@ -10,10 +10,14 @@ dialog.hpp
 
 */
 
-/* Revision: 1.03 25.07.2000 $ */
+/* Revision: 1.04 26.07.2000 $ */
 
 /*
 Modify:
+  25.07.2000 SVS
+   + Private: lastKey - для AutoComplit последняя клавиша
+   + Дополнительный параметр в SelectFromEditHistory для выделения
+     нужной позиции в истории (если она соответствует строке ввода)
   25.07.2000 SVS
    ! новый параметр в конструкторе
   23.07.2000 SVS
@@ -34,6 +38,7 @@ class Dialog:public Modal
     int ItemCount;              // количество элементов диалога
 
     char OldConsoleTitle[512];  // предыдущий заголовок консоли
+    int lastKey;		// для AutoComplit последняя клавиша
     int InitObjects;            // элементы инициализарованы?
     int CreateObjects;          // объекты (Edit,...) созданы?
     int WarningStyle;           // TRUE - Warning Dialog Style
@@ -47,11 +52,21 @@ class Dialog:public Modal
     void ShowDialog();
     int ChangeFocus(int FocusPos,int Step,int SkipGroup);
     int IsEdit(int Type);
-    void SelectFromEditHistory(Edit *EditLine,char *HistoryName);
+    /* $ 26.07.2000 SVS
+      + Дополнительный параметр в SelectFromEditHistory для выделения
+       нужной позиции в истории (если она соответствует строке ввода)
+    */
+    void SelectFromEditHistory(Edit *EditLine,char *HistoryName,char *Str);
+    /* SVS $ */
     /* $ 18.07.2000 SVS
        + функция SelectFromComboBox для выбора из DI_COMBOBOX
     */
     void SelectFromComboBox(Edit *EditLine,struct FarListItem *HistoryName);
+    /* SVS $ */
+    /* $ 26.07.2000 SVS
+       AutoComplite: Поиск входжение подстроки в истории
+    */
+    int FindInEditHistory(Edit *EditLine,char *HistoryName,char *FindStr);
     /* SVS $ */
     void AddToEditHistory(char *AddStr,char *HistoryName);
     int ProcessHighlighting(int Key,int FocusPos,int Translate);

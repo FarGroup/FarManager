@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.06 25.07.2000 $ */
+/* Revision: 1.07 26.07.2000 $ */
 
 /*
 Modify:
+  26.07.2000 SVS
+   + AutoComplite: Для DIF_HISTORY.
   25.07.2000 SVS
    + Новый параметр в конструкторе
   23.07.2000 SVS
@@ -56,6 +58,7 @@ Dialog::Dialog(struct DialogItem *Item,int ItemCount,FARDIALOGPROC DlgProc,long 
   InitObjects=FALSE;
   DialogTooLong=FALSE;
   WarningStyle=0;
+  lastKey=0;
 
   if(!DlgProc)
     DlgProc=(FARDIALOGPROC)Dialog::DefDlgProc;
@@ -530,6 +533,7 @@ void Dialog::ShowDialog()
 int Dialog::ProcessKey(int Key)
 {
   int FocusPos=0,I;
+  char Str[1024];
 
   if (Key==KEY_NONE || Key==KEY_IDLE)
     return(FALSE);
@@ -542,6 +546,13 @@ int Dialog::ProcessKey(int Key)
     }
 
   int Type=Item[FocusPos].Type;
+
+  /* $ 26.07.2000 SVS
+     AutoComplite: Если установлен DIF_HISTORY, то запоминаем клавишу.
+  */
+  if(Item[FocusPos].Flags & DIF_HISTORY)
+    lastKey = Key; //get the last key the user hit in the ComboBox
+  /* SVS $ */
 
   switch(Key)
   {
@@ -595,7 +606,6 @@ int Dialog::ProcessKey(int Key)
           return(TRUE);
         for (I=EditorLastPos;I>FocusPos;I--)
         {
-          char Str[1024];
           int CurPos;
           if (I==FocusPos+1)
             CurPos=((Edit *)(Item[I-1].ObjPtr))->GetCurPos();
@@ -786,7 +796,16 @@ int Dialog::ProcessKey(int Key)
            (Item[FocusPos].Flags & DIF_HISTORY) &&
            Opt.DialogsEditHistory &&
            Item[FocusPos].Selected)
-        SelectFromEditHistory((Edit *)(Item[FocusPos].ObjPtr),(char *)Item[FocusPos].Selected);
+      /* $ 26.07.2000 SVS
+         Передаем то, что в строке ввода в функцию выбора из истории
+         для выделения нужного пункта в истории.
+      */
+      {
+        Edit *ed=((Edit *)(Item[FocusPos].ObjPtr));
+        ed->GetString(Str,sizeof(Str));
+        SelectFromEditHistory(ed,(char *)Item[FocusPos].Selected,Str);
+      }
+      /* SVS $ */
       /* $ 18.07.2000 SVS
          + обработка DI_COMBOBOX - выбор из списка!
       */
@@ -807,7 +826,6 @@ int Dialog::ProcessKey(int Key)
                 {
                   if (I>FocusPos)
                   {
-                    char Str[1024];
                     ((Edit *)(Item[I].ObjPtr))->GetString(Str,sizeof(Str));
                     ((Edit *)(Item[I-1].ObjPtr))->SetString(Str);
                   }
@@ -827,7 +845,6 @@ int Dialog::ProcessKey(int Key)
               */
               if (FocusPos<ItemCount+1 && (Item[FocusPos+1].Flags & DIF_EDITOR))
               {
-                char Str[1024];
                 Edit *edt=(Edit *)Item[FocusPos].ObjPtr;
                 int CurPos=edt->GetCurPos();
                 int Length=edt->GetLength();
@@ -863,7 +880,40 @@ int Dialog::ProcessKey(int Key)
               return(TRUE);
           }
         if (((Edit *)(Item[FocusPos].ObjPtr))->ProcessKey(Key))
+        {
+          /* $ 26.07.2000 SVS
+             AutoComplite: Если установлен DIF_HISTORY
+                 и разрешено автозавершение!.
+          */
+          if(Opt.AutoComplete &&
+             Key < 256 && (Item[FocusPos].Flags & DIF_HISTORY) &&
+             Key != KEY_BS && Key != KEY_DEL)
+          {
+            Edit *cb=((Edit *)(Item[FocusPos].ObjPtr));
+            int SelStart, SelEnd, IX;
+            lastKey = 0;
+
+            //text to search for
+            cb->GetString(Str,sizeof(Str));
+            cb->GetSelection(SelStart,SelEnd);
+            if(SelStart <= 0)
+              SelStart=sizeof(Str);
+            else
+              SelStart++;
+
+            SelEnd=strlen(Str);
+            //find the string in the list
+            if (FindInEditHistory(cb,(char *)Item[FocusPos].Selected,Str))
+            {
+              cb->SetString(Str);
+              cb->Select(SelEnd,sizeof(Str)); //select the appropriate text
+              cb->SetCurPos(SelEnd);
+              Redraw();
+            }
+          }
+          /* SVS $ */
           return(TRUE);
+        }
       }
 
       if (ProcessHighlighting(Key,FocusPos,FALSE))
@@ -1058,10 +1108,40 @@ int Dialog::IsEdit(int Type)
 /* SVS $ */
 
 
+/* $ 26.07.2000 SVS
+   AutoComplite: Поиск входжение подстроки в истории
+*/
+int Dialog::FindInEditHistory(Edit *EditLine,char *HistoryName,char *FindStr)
+{
+  char RegKey[80],KeyValue[80],Str[1024];
+  int I;
+
+  sprintf(RegKey,fmtSavedDialogHistory,HistoryName);
+  // просмотр пунктов истории
+  for (I=0; I < 16; I++)
+  {
+    sprintf(KeyValue,fmtLine,I);
+    GetRegKey(RegKey,KeyValue,Str,"",sizeof(Str));
+//MessageBox(0,Str,FindStr,0);
+    if (!memicmp(Str,FindStr,strlen(FindStr)))
+      break;
+  }
+  if (I == 16)
+    return FALSE;
+  strcpy(FindStr,Str);
+  return TRUE;
+}
+/*  SVS $ */
+
 /* Private:
    Заполняем выпадающий список из истории
 */
-void Dialog::SelectFromEditHistory(Edit *EditLine,char *HistoryName)
+/* $ 26.07.2000 SVS
+  + Дополнительный параметр в SelectFromEditHistory для выделения
+   нужной позиции в истории (если она соответствует строке ввода)
+*/
+void Dialog::SelectFromEditHistory(Edit *EditLine,char *HistoryName,char *IStr)
+/* SVS $ */
 {
   char RegKey[80],KeyValue[80],Str[512];
   int I,Dest;
@@ -1089,7 +1169,7 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,char *HistoryName)
 
     // заполнение пунктов меню
     ItemsCount=0;
-    for (I=0; I < 16; I++)
+    for (Dest=I=0; I < 16; I++)
     {
       sprintf(KeyValue,fmtLine,I);
       GetRegKey(RegKey,KeyValue,Str,"",sizeof(Str));
@@ -1100,7 +1180,12 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,char *HistoryName)
 
       GetRegKey(RegKey,KeyValue,(int)Checked,0);
       HistoryItem.Checked=Checked;
-      HistoryItem.Selected=FALSE;
+      /* $ 26.07.2000 SVS
+         Выставим Selected при полном совпадении строки ввода и истории
+      */
+      if((HistoryItem.Selected=(!Dest && !strcmp(IStr,Str))?TRUE:FALSE) == TRUE)
+         Dest++;
+      /* SVS $ */
       strncpy(HistoryItem.Name,Str,sizeof(HistoryItem.Name)-1);
       HistoryItem.Name[sizeof(HistoryItem.Name)-1]=0;
       strncpy(HistoryItem.UserData,Str,sizeof(HistoryItem.UserData));
@@ -1140,7 +1225,7 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,char *HistoryName)
           }
         }
         HistoryMenu.Hide();
-        SelectFromEditHistory(EditLine,HistoryName);
+        SelectFromEditHistory(EditLine,HistoryName,IStr);
         return;
       }
 
@@ -1322,7 +1407,7 @@ void Dialog::SelectFromComboBox(
   char Str[512];
   struct MenuItem ComboBoxItem;
   int EditX1,EditY1,EditX2,EditY2;
-  int I,Dest;
+  int I;
   {
     // создание пустого вертикального меню
     //  с обязательным показом ScrollBar
@@ -1379,7 +1464,6 @@ void Dialog::SelectFromComboBox(
 /* $ 23.07.2000 SVS
    функция обработки диалога (по умолчанию)
 */
-#pragma argused
 long WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 {
   switch(Msg)

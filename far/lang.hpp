@@ -12,10 +12,12 @@ lang.hpp
            подряд.
 */
 
-/* Revision: 1.09 24.07.2000 $ */
+/* Revision: 1.10 26.07.2000 $ */
 
 /*
 Modify:
+  26.07.2000 SVS
+    + Константа MConfigAutoComplete
   24.07.2000 VVM
     + Новые константы в связи с изменениеm usermenu.cpp
       MMainMenuFAR и MMainMenuREG.
@@ -174,6 +176,7 @@ enum
   MConfigAltGr,
   MConfigCopyTotal,
   MConfigShowMenuScrollbar,
+  MConfigAutoComplete,
 
   MViewConfigTitle,
   MViewConfigExternal,

@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.05 18.07.2000 $ */
+/* Revision: 1.06 26.07.2000 $ */
 
 /*
 Modify:
+  26.07.2000 SVS
+    + Opt.AutoComplete & дополнение диалога настройки интерфейса
   18.07.2000 tran 1.05
     + Opt.ShowViewerArrows, Opt.ShowViewerScrollbar
       изменил диалог ViewerSetting
@@ -181,10 +183,13 @@ void PanelSettings()
 void InterfaceSettings()
 {
   static struct DialogData CfgDlgData[]={
-    /* $ 04.07.2000
-       ! Показывать ли ScrollBar для Menu|Options|Interface settings
+    /* $ 04.07.2000 SVS
+       + Показывать ли ScrollBar для Menu|Options|Interface settings
     */
-    DI_DOUBLEBOX,3,1,52,17,0,0,0,0,(char *)MConfigInterfaceTitle,
+    /* $ 26.07.2000 SVS
+       + Разрешить ли автодополнение в строках ввода
+    */
+    DI_DOUBLEBOX,3,1,52,18,0,0,0,0,(char *)MConfigInterfaceTitle,
     DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MConfigClock,
     DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MConfigViewerEditorClock,
     DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MConfigMouse,
@@ -199,9 +204,10 @@ void InterfaceSettings()
     DI_CHECKBOX,5,12,0,0,0,0,0,0,(char *)MConfigAltGr,
     DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MConfigCopyTotal,
     DI_CHECKBOX,5,14,0,0,0,0,0,0,(char *)MConfigShowMenuScrollbar,
-    DI_TEXT,3,15,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    DI_BUTTON,0,16,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-    DI_BUTTON,0,16,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+    DI_CHECKBOX,5,15,0,0,0,0,0,0,(char *)MConfigAutoComplete,
+    DI_TEXT,3,16,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+    DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+    DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
   MakeDialogItems(CfgDlgData,CfgDlg);
 
@@ -224,13 +230,14 @@ void InterfaceSettings()
   CfgDlg[12].Selected=Opt.AltGr;
   CfgDlg[13].Selected=Opt.CopyShowTotal;
   CfgDlg[14].Selected=Opt.ShowMenuScrollbar;
+  CfgDlg[15].Selected=Opt.AutoComplete;
 
   {
     Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
     Dlg.SetHelp("InterfSettings");
-    Dlg.SetPosition(-1,-1,56,19);
+    Dlg.SetPosition(-1,-1,56,20);
     Dlg.Process();
-    if (Dlg.GetExitCode()!=16)
+    if (Dlg.GetExitCode()!=17)
       return;
   }
 
@@ -248,6 +255,7 @@ void InterfaceSettings()
   Opt.AltGr=CfgDlg[12].Selected;
   Opt.CopyShowTotal=CfgDlg[13].Selected;
   Opt.ShowMenuScrollbar=CfgDlg[14].Selected;
+  Opt.AutoComplete=CfgDlg[15].Selected;
   /* SVS $ */
   SetFarConsoleMode();
   CtrlObject->LeftPanel->Update(UPDATE_KEEP_SELECTION);
@@ -541,6 +549,8 @@ void ReadConfig()
   GetRegKey("Interface","Mouse",Opt.Mouse,1);
   GetRegKey("Interface","AltGr",Opt.AltGr,1);
   GetRegKey("Interface","CopyShowTotal",Opt.CopyShowTotal,0);
+  GetRegKey("Interface","ShowMenuBar",Opt.ShowMenuBar,0);
+  GetRegKey("Interface","AutoComplete",Opt.AutoComplete,1);
 
   GetRegKey("Viewer","ExternalViewerName",Opt.ExternalViewer,"",sizeof(Opt.ExternalViewer));
   GetRegKey("Viewer","UseExternalViewer",Opt.UseExternalViewer,0);
@@ -641,7 +651,6 @@ void ReadConfig()
 
   GetRegKey("Layout","HeightDecrement",Opt.HeightDecrement,0);
   GetRegKey("Layout","WidthDecrement",Opt.WidthDecrement,0);
-  GetRegKey("Layout","ShowMenuBar",Opt.ShowMenuBar,0);
   Help::SetFullScreenMode(GetRegKey("Layout","FullscreenHelp",0));
 
   GetRegKey("Layout","PassiveFolder",Opt.PassiveFolder,"",sizeof(Opt.PassiveFolder));
@@ -685,6 +694,8 @@ void SaveConfig(int Ask)
   SetRegKey("Interface","Mouse",Opt.Mouse);
   SetRegKey("Interface","AltGr",Opt.AltGr);
   SetRegKey("Interface","CopyShowTotal",Opt.CopyShowTotal);
+  SetRegKey("Interface","ShowMenuBar",Opt.ShowMenuBar);
+  SetRegKey("Interface","AutoComplete",Opt.AutoComplete);
 
   SetRegKey("Viewer","ExternalViewerName",Opt.ExternalViewer);
   SetRegKey("Viewer","UseExternalViewer",Opt.UseExternalViewer);
@@ -794,7 +805,6 @@ void SaveConfig(int Ask)
 
   SetRegKey("Layout","HeightDecrement",Opt.HeightDecrement);
   SetRegKey("Layout","WidthDecrement",Opt.WidthDecrement);
-  SetRegKey("Layout","ShowMenuBar",Opt.ShowMenuBar);
   SetRegKey("Layout","FullscreenHelp",Help::GetFullScreenMode());
 
   CtrlObject->GetAnotherPanel(CtrlObject->ActivePanel)->GetCurDir(OutText);

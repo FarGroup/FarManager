@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.04 18.07.2000 $ */
+/* Revision: 1.05 26.07.2000 $ */
 
 /*
 Modify:
+  26.07.2000 SVS
+    + Opt.AutoComplete
   18.07.2000 tran 1.04
     + Opt.ViewerShowScrollBar, Opt.ViewerShowArrows
   15.07.2000 tran
@@ -193,6 +195,12 @@ struct Options
   int ViewerShowScrollbar;
   int ViewerShowArrows;
   /* tran 18.07.2000 $ */
+  /* $ 26.07.2000 SVS
+     Разрешение для функции автозавершения в строках ввода в диалогах
+     имеющих History
+  */
+  int AutoComplete;
+  /* SVS $*/
 };
 
 

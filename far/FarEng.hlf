@@ -1113,6 +1113,9 @@ $ #Interface settings dialog#
   #Show scrollbar#          Enable display of scrollbars in Menus
   #in menu#                 (if items a menu more, than height a menu)
 
+  #AutoComplete#            Allows an using a function AutoComplete
+  #in input lines#          in input lines, whiches have a history
+                          of commands.
 
 @Viewer
 $ #Internal viewer#

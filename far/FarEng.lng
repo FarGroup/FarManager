@@ -123,6 +123,7 @@
 "Use right Alt as &AltGr"
 "Show &total copy progress indicator"
 "Show scrollbar in M&enus"
+"AutoComplete in input lines"
 
 "Viewer"
 "External viewer"

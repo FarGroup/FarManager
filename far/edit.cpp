@@ -5,10 +5,16 @@ edit.cpp
 
 */
 
-/* Revision: 1.07 13.07.2000 $ */
+/* Revision: 1.08 26.07.2000 $ */
 
 /*
 Modify:
+  26.07.2000 SVS
+    - Bugs #??
+      В строках ввода при выделенном блоке нажимаем BS и вместо
+      ожидаемого удаления блока (как в редакторе) получаем:
+       - символ перед курсором удален
+       - выделение блока снято
   13.07.2000 SVS
     ! Некоторые коррекции при использовании new/delete/realloc
   11.07.2000 SVS
@@ -320,13 +326,21 @@ int Edit::ProcessKey(int Key)
   }
   /* tran 03.07.2000 $ */
 
-  if ((Key==KEY_DEL && Opt.EditorDelRemovesBlocks || Key==KEY_CTRLD) &&
+  /* $ 26.07.2000 SVS
+     Bugs #??
+       В строках ввода при выделенном блоке нажимаем BS и вместо
+       ожидаемого удаления блока (как в редакторе) получаем:
+         - символ перед курсором удален
+         - выделение блока снято
+  */
+  if (((Key==KEY_BS || Key==KEY_DEL) && Opt.EditorDelRemovesBlocks || Key==KEY_CTRLD) &&
       !EditorMode && SelStart!=-1 && SelStart<SelEnd)
   {
     DeleteBlock();
     Show();
     return(TRUE);
   }
+  /* SVS $ */
 
   /* $ 04.07.2000 IG
      добавлена проврерка на запуск макроса (bug8) */
