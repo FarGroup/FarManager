@@ -5,10 +5,14 @@ iswind.cpp
 
 */
 
-/* Revision: 1.02 20.09.2000 $ */
+/* Revision: 1.03 19.01.2001 $ */
 
 /*
 Modify:
+  19.01.2001 VVM
+    + Если не нашли ФАР по pid, то ищем по уникальному заголовку окна
+      Такое бывает, если ФАР запущен из под ФАР-а или другой консольной 
+      программы
   20.09.2000 SVS
     ! hFarWnd глобальна
   25.07.2000 SVS
@@ -44,9 +48,31 @@ void DetectWindowedMode()
     WindowedMode=!IsIconic(hFarWnd);
 }
 
+/* $ 19.01.2001 VVM
+    + Если не нашли ФАР по pid, то ищем по уникальному заголовку окна */
+void FindFarWndByTitle()
+{
+  char OldTitle[256];
+  char NewTitle[256];
+
+  if (GetConsoleTitle(OldTitle, sizeof(OldTitle))) {
+    sprintf(NewTitle,"%d - %s",clock(),OldTitle);
+    SetConsoleTitle(NewTitle);
+    hFarWnd = FindWindow(NULL,NewTitle);
+    SetConsoleTitle(OldTitle);
+  } /* if */
+} /* void FindFarWndByTitle */
+/* VVM $ */
+
 void InitDetectWindowedMode()
 {
   EnumWindows(IsWindowedEnumProc,(LPARAM)GetCurrentProcessId());
+
+  /* $ 19.01.2001 VVM
+      + Если не нашли ФАР по pid, то ищем по уникальному заголовку окна */
+  if (!hFarWnd)
+    FindFarWndByTitle();
+  /* VVM $ */
 
   if (hFarWnd && Opt.SmallIcon)
   {
