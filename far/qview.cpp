@@ -5,12 +5,14 @@ Quick view panel
 
 */
 
-/* Revision: 1.08 03.11.2000 $ */
+/* Revision: 1.09 01.02.2001 $ */
 
 /*
 Modify:
+  01.02.2001 SVS
+    + В панели "Quick view" добавим инфу про Junction
   03.11.2000 OT
-    ! Введение проверки возвращаемого значения 
+    ! Введение проверки возвращаемого значения
   02.11.2000 OT
     ! Введение проверки на длину буфера, отведенного под имя файла.
   04.08.2000 tran 1.06
@@ -97,12 +99,30 @@ void QuickView::DisplayObject()
   }
   if (Directory)
   {
-    char Msg[NM];
+    char Msg[NM*2];
     sprintf(Msg,MSG(MQuickViewFolder),CurFileName);
     TruncStr(Msg,X2-X1-4);
     SetColor(COL_PANELTEXT);
     GotoXY(X1+2,Y1+2);
     PrintText(Msg);
+
+    /* $ 01.02.2001 SVS
+       В панели "Quick view" добавим инфу про Junction
+    */
+    if((GetFileAttributes(CurFileName)&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
+    {
+      char JuncName[NM*2];
+      if(GetJunctionPointInfo(CurFileName,JuncName,sizeof(JuncName))) //"\??\D:\Junc\Src\"
+      {
+        sprintf(Msg,MSG(MQuickViewJunction),TruncPathStr(JuncName+4,X2-X1-4-9));
+        TruncStr(Msg,X2-X1-4);
+        SetColor(COL_PANELTEXT);
+        GotoXY(X1+2,Y1+3);
+        PrintText(Msg);
+      }
+    }
+    /* SVS $ */
+
     if (Directory==1 || Directory==4)
     {
       GotoXY(X1+2,Y1+4);

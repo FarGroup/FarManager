@@ -647,6 +647,9 @@ size, number of files and subfolders in the folder, current disk cluster size,
 real files size, including files slack (sum of the unused cluster parts).
 Compressed size has meaning for NTFS drives only.
 
+    In Windows 2000 for Repase Point is displayed the path to
+source folder.
+
 @DragAndDrop
 $ #Drag and drop files#
     It is possible to perform #Copy# and #Move# file operations using

@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.47 30.01.2001 $ */
+/* Revision: 1.48 01.02.2001 $ */
 
 /*
 Modify:
+  01.02.2001 SVS
+    + MQuickViewJunction
   30.01.2001 VVM
     + MCopyTimeInfo
   28.01.2001 SVS
@@ -1026,6 +1028,7 @@ enum
 
   MQuickViewTitle,
   MQuickViewFolder,
+  MQuickViewJunction,
   MQuickViewContains,
   MQuickViewFolders,
   MQuickViewFiles,

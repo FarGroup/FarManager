@@ -5,10 +5,13 @@ infolist.cpp
 
 */
 
-/* Revision: 1.04 26.01.2001 $ */
+/* Revision: 1.05 01.02.2001 $ */
 
 /*
 Modify:
+  01.02.2001 SVS
+    + В Win2K корректно отображать инфу при заходе в Juction каталог
+      Здесь Рут-диск может быть другим
   26.01.2001 SVS
     + Информация о SUBST-дисках - указание пути - на манер ремотных дисков
   05.01.2001 SVS
@@ -78,11 +81,22 @@ void InfoList::DisplayObject()
 
   AnotherPanel=CtrlObject->GetAnotherPanel(this);
   AnotherPanel->GetCurDir(CurDir);
-
   if (*CurDir==0)
     GetCurrentDirectory(sizeof(CurDir),CurDir);
 
-  GetPathRoot(CurDir,DriveRoot);
+  /* $ 01.02.2001 SVS
+     В Win2K корректно отображать инфу при заходе в Juction каталог
+     Здесь Рут-диск может быть другим
+  */
+  if((GetFileAttributes(CurDir)&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
+  {
+    char JuncName[NM];
+    if(GetJunctionPointInfo(CurDir,JuncName,sizeof(JuncName)))
+      GetPathRoot(JuncName+4,DriveRoot); //"\??\D:\Junc\Src\"
+  }
+  else
+   GetPathRoot(CurDir,DriveRoot);
+  /* SVS $ */
 
   if (GetVolumeInformation(DriveRoot,VolumeName,sizeof(VolumeName),
                             &VolumeNumber,&MaxNameLength,&FileSystemFlags,
