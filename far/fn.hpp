@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.113 06.11.2001 $ */
+/* Revision: 1.114 15.11.2001 $ */
 
 /*
 Modify:
+  15.11.2001 OT
+    Исправление поведения cd c:\ на активном панельном плагине
   06.11.2001 SVS
     + EnumRegValue() - перечисление Values у ключа
     ! Немного const для функции работы с реестром
@@ -1023,5 +1025,7 @@ char *WINAPI WordWrap(const char *SrcText,int Width,
                       const char* Break, int Cut);
 
 void SetPreRedrawFunc(PREREDRAWFUNC Func);
+
+int PathMayBeAbsolute(const char *Src);
 
 #endif  // __FARFUNC_HPP__

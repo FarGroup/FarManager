@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.05 14.11.2001 $ */
+/* Revision: 1.06 15.11.2001 $ */
 
 /*
 Modify:
+  15.11.2001 OT
+    Исправление поведения cd c:\ на активном панельном плагине
   14.11.2001 SVS
     - Последствия исправлений BugZ#90 - панели не обновлялись
   12.11.2001 SVS
@@ -700,6 +702,17 @@ int CommandLine::ProcessOSCommands(char *CmdLine)
       Length++;
     char NewDir[NM];
     strcpy(NewDir,&CmdLine[Length]);
+
+    /* $ 15.11.2001 OT
+      Сначала проверяем есть ли такая "обычная" директория.
+      если уж нет, то тогда начинаем думать, что это директория плагинная
+    */
+    DWORD DirAtt=GetFileAttributes(NewDir);
+    if (DirAtt!=0xffffffff && DirAtt & FILE_ATTRIBUTE_DIRECTORY && PathMayBeAbsolute(NewDir)){
+      SetPanel->SetCurDir(NewDir,TRUE);
+      return TRUE;
+    }
+    /* OT $ */
 
     if (CtrlObject->Plugins.ProcessCommandLine(NewDir))
     {

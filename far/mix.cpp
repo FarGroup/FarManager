@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.98 02.11.2001 $ */
+/* Revision: 1.99 15.11.2001 $ */
 
 /*
 Modify:
+  15.11.2001 OT
+    Исправление поведения cd c:\ на активном панельном плагине
   02.11.2001 SVS
     ! ConvertNameToReal() аналогично GetReparsePointInfo() - параметр Dest
       можно не указывать.
@@ -1558,4 +1560,11 @@ void SetPreRedrawFunc(PREREDRAWFUNC Func)
 {
   if((PreRedrawFunc=Func) == NULL)
     memset(&PreRedrawParam,0,sizeof(PreRedrawParam));
+}
+
+int PathMayBeAbsolute(const char *Src)
+{
+  if (Src && strlen(Src)>=2 && isalpha(Src[0]) && Src[1]==':' || Src[0]=='\\' && Src[1]=='\\' || Src[0]=='/' && Src[1]=='/')
+    return TRUE;
+  return FALSE;
 }
