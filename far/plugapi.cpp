@@ -5,10 +5,15 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.80 31.07.2001 $ */
+/* Revision: 1.81 31.07.2001 $ */
 
 /*
 Modify:
+  31.07.2001 IS
+    + Изменения и новое в FarDialogEx, FarMenuFn, FarMessageFn:
+      1. Учтем флаг F*_CUSTOMNAME
+      2. Выкинем спецобработку для случая с *HelpTopic=='#'
+      3. Считается, что помощи нет, если имя темы пустое.
   31.07.2001 IS
     - Баг: меню плагина закрывалось в случае нажатия на
       ctrl-key, alt-key или shift-key, даже если эти комбинации
@@ -540,26 +545,39 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
     FarMenu.SetPosition(X,Y,0,0);
     if (BreakCode!=NULL)
       *BreakCode=-1;
-    if (HelpTopic!=NULL)
+    /* $ 31.07.2001 IS
+         1. Учтем флаг FMENU_CUSTOMNAME
+         2. Выкинем спецобработку для случая с *HelpTopic=='#'
+         3. Считается, что помощи нет, если имя темы пустое.
+    */
+    if (HelpTopic && *HelpTopic)
     {
       char Path[NM],Topic[512];
       if (*HelpTopic==':')
         strcpy(Topic,HelpTopic+1);
       else
       {
-        if(*HelpTopic == '#')
+        if(Flags & FMENU_CUSTOMNAME)
         {
-          strncpy(Topic,HelpTopic,sizeof(Topic));
+          if(PluginNumber)
+            strncpy(Path, reinterpret_cast<char *>(PluginNumber), sizeof(Path));
+          else
+            *Path=0;
         }
         else
-        {
           strcpy(Path,CtrlObject->Plugins.PluginsData[PluginNumber].ModuleName);
+
+        if(*Path)
+        {
           *PointToName(Path)=0;
           sprintf(Topic,"#%s#%s",Path,HelpTopic);
         }
+        else
+          *Topic=0;
       }
-      FarMenu.SetHelp(Topic);
+      if(*Topic) FarMenu.SetHelp(Topic);
     }
+    /* IS $ */
     if (Bottom!=NULL)
       FarMenu.SetBottomTitle(Bottom);
 
@@ -694,7 +712,7 @@ long WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 int WINAPI FarDialogFn(int PluginNumber,int X1,int Y1,int X2,int Y2,
            const char *HelpTopic,struct FarDialogItem *Item,int ItemsNumber)
 {
-  return FarDialogEx(PluginNumber,X1,Y1,X2,Y2,HelpTopic,Item,ItemsNumber,NULL,NULL,NULL,NULL);
+  return FarDialogEx(PluginNumber,X1,Y1,X2,Y2,HelpTopic,Item,ItemsNumber,0,0,NULL,0);
 }
 
 /* $   13.12.2000 SVS
@@ -755,26 +773,39 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
       FarDialog->SetCanLoseFocus(TRUE);
     FarDialog->SetOwnsItems(TRUE);
 
-    if (HelpTopic!=NULL)
+    /* $ 31.07.2001 IS
+         1. Учтем флаг FDLG_CUSTOMNAME
+         2. Выкинем спецобработку для случая с *HelpTopic=='#'
+         3. Считается, что помощи нет, если имя темы пустое.
+    */
+    if (HelpTopic && *HelpTopic)
     {
       char Path[NM],Topic[512];
       if (*HelpTopic==':')
         strcpy(Topic,HelpTopic+1);
       else
       {
-        if(*HelpTopic == '#')
+        if(Flags & FDLG_CUSTOMNAME)
         {
-          strncpy(Topic,HelpTopic,sizeof(Topic));
+          if(PluginNumber)
+            strncpy(Path, reinterpret_cast<char *>(PluginNumber), sizeof(Path));
+          else
+            *Path=0;
         }
         else
-        {
           strcpy(Path,CtrlObject->Plugins.PluginsData[PluginNumber].ModuleName);
+
+        if(*Path)
+        {
           *PointToName(Path)=0;
           sprintf(Topic,"#%s#%s",Path,HelpTopic);
         }
+        else
+          *Topic=0;
       }
-      FarDialog->SetHelp(Topic);
+      if(*Topic) FarDialog->SetHelp(Topic);
     }
+    /* IS $ */
     /* $ 29.08.2000 SVS
        Запомним номер плагина - сейчас в основном для формирования HelpTopic
     */
@@ -933,26 +964,39 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
   }
   /* tran $ */
 
-  if (HelpTopic!=NULL)
+  /* $ 31.07.2001 IS
+       1. Учтем флаг FMSG_CUSTOMNAME
+       2. Выкинем спецобработку для случая с *HelpTopic=='#'
+       3. Считается, что помощи нет, если имя темы пустое.
+  */
+  if (HelpTopic && *HelpTopic)
   {
     char Path[NM],Topic[512];
     if (*HelpTopic==':')
       strcpy(Topic,HelpTopic+1);
     else
     {
-      if(*HelpTopic == '#')
+      if(Flags & FMSG_CUSTOMNAME)
       {
-        strncpy(Topic,HelpTopic,sizeof(Topic));
+        if(PluginNumber)
+          strncpy(Path, reinterpret_cast<char *>(PluginNumber), sizeof(Path));
+        else
+          *Path=0;
       }
       else
-      {
         strcpy(Path,CtrlObject->Plugins.PluginsData[PluginNumber].ModuleName);
+
+      if(*Path)
+      {
         *PointToName(Path)=0;
         sprintf(Topic,"#%s#%s",Path,HelpTopic);
       }
+      else
+        *Topic=0;
     }
-    SetMessageHelp(Topic);
+    if(*Topic) SetMessageHelp(Topic);
   }
+  /* IS $ */
   /* $ 29.08.2000 SVS
      Запомним номер плагина - сейчас в основном для формирования HelpTopic
   */

@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.130 31.07.2001 $ */
+/* Revision: 1.131 31.07.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  31.07.2001 IS
+   + Флаги FMENU_CUSTOMNAME, FDLG_CUSTOMNAME, FMSG_CUSTOMNAME
   31.07.2001 SVS
    + Маркеры про FAR_USE_INTERNALS. Просьба не убирать! Это для скрипта,
      который будет генерить одноименный файл для дистрибутива. Если нужно
@@ -575,6 +577,7 @@ enum {
   FMENU_SHOWNOBOX           =0x0010,
 #endif // END FAR_USE_INTERNALS
   FMENU_USEEXT              =0x0020,
+  FMENU_CUSTOMNAME          =0x0040,
 };
 
 enum {
@@ -652,6 +655,7 @@ enum {
 #ifdef FAR_USE_INTERNALS
   FDLG_NONMODAL            =0x00000004,
 #endif // END FAR_USE_INTERNALS
+  FDLG_CUSTOMNAME          =0x00000040,
 };
 
 enum {
@@ -662,6 +666,8 @@ enum {
   FMSG_LEFTALIGN           =0x00000010,
 
   FMSG_ALLINONE            =0x00000020,
+
+  FMSG_CUSTOMNAME          =0x00000040,
 
   FMSG_MB_OK               =0x00010000,
   FMSG_MB_OKCANCEL         =0x00020000,
