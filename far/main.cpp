@@ -5,10 +5,12 @@ far.cpp
 
 */
 
-/* Revision: 1.15 03.04.2001 $ */
+/* Revision: 1.16 04.04.2001 $ */
 
 /*
 Modify:
+  04.04.2001 SVS
+    ! Немного опитимизации кода в SetHighlighting()
   03.04.2001 SVS
     ! CmdExt - полностью переработан с учетом %PATHEXT% и WinNT (*.cmd)
     ! Уточнение архиваторных расширений.
@@ -347,7 +349,7 @@ void SetHighlighting()
     return;
 
   int I;
-  char RegKey[80];
+  char RegKey[80], *Ptr;
   // сразу пропишем %PATHEXT%, а HighlightFiles::GetHiColor() сам подстановку
   // сделает.
   char CmdExt[512]="*.exe,*.com,*.bat,%PATHEXT%";
@@ -374,9 +376,10 @@ void SetHighlighting()
   if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
     strcat(CmdExt,",*.cmd");
 
+  Ptr=MkRegKeyHighlightName(RegKey);
   for(I=0; I < sizeof(StdHighlightData)/sizeof(StdHighlightData[0]); ++I)
   {
-    sprintf(RegKey,"%s\\Group%d",RegColorsHighlight,I);
+    itoa(I,Ptr,10);
     SetRegKey(RegKey,"Mask",StdHighlightData[I].Masks);
     if(StdHighlightData[I].IncludeAttr)
       SetRegKey(RegKey,"IncludeAttributes",StdHighlightData[I].IncludeAttr);

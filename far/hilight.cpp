@@ -5,10 +5,14 @@ Files highlighting
 
 */
 
-/* Revision: 1.14 03.04.2001 $ */
+/* Revision: 1.15 04.04.2001 $ */
 
 /*
 Modify:
+  04.04.2001 SVS
+    - Не инициализировался массив Mask в HighlightFiles::EditRecord()
+      поэтому иногда наблюдался мусор в строке ввода для маски.
+    ! Немного опитимизации кода в HighlightFiles::HiEdit()
   03.04.2001 SVS
     ! Из-за галимого формата переменной %pathext% - немного коррекции кода.
     + Показ символа пометки в меню
@@ -73,9 +77,10 @@ void HighlightFiles::InitHighlightFiles()
   HiData=NULL;
   HiDataCount=0;
   char RegKey[80],Mask[HIGHLIGHT_MASK_SIZE], *Masks=NULL;
+  char *Ptr=MkRegKeyHighlightName(RegKey); // Ptr указывает на нужное место :-)
   while (1)
   {
-    sprintf(RegKey,"%s\\Group%d",RegColorsHighlight,HiDataCount);
+    itoa(HiDataCount,Ptr,10);
     if (!GetRegKey(RegKey,"Mask",Mask,"",sizeof(Mask)))
       break;
     struct HighlightData *NewHiData,*CurHiData;
@@ -228,6 +233,7 @@ void HighlightFiles::HiEdit(int MenuPos)
     HiMenu.AddItem(&HiMenuItem);
 
     {
+      int NeedUpdate;
       HiMenu.Show();
       while (1)
       {
@@ -237,7 +243,10 @@ void HighlightFiles::HiEdit(int MenuPos)
         {
           int SelectPos=HiMenu.GetSelectPos();
           int ItemCount=HiMenu.GetItemCount();
-          switch(HiMenu.ReadInput())
+          int Key;
+          NeedUpdate=FALSE;
+          Key=HiMenu.ReadInput();
+          switch(Key)
           {
             /* $ 07.07.2000 IS
               Если нажали ctrl+r, то восстановить значения по умолчанию.
@@ -272,47 +281,32 @@ void HighlightFiles::HiEdit(int MenuPos)
                   HiData[I-1]=HiData[I];
                 HiDataCount--;
                 HiData=(struct HighlightData *)realloc(HiData,sizeof(*HiData)*(HiDataCount+1));
-                HiMenu.Hide();
-                SaveHiData();
-                LeftPanel->Update(UPDATE_KEEP_SELECTION);
-                LeftPanel->Redraw();
-                RightPanel->Update(UPDATE_KEEP_SELECTION);
-                RightPanel->Redraw();
-                HiEdit(SelectPos);
-                return;
-              }
-              break;
-            case KEY_INS:
-              if (EditRecord(SelectPos,TRUE))
-              {
-                HiMenu.Hide();
-                SaveHiData();
-                LeftPanel->Update(UPDATE_KEEP_SELECTION);
-                LeftPanel->Redraw();
-                RightPanel->Update(UPDATE_KEEP_SELECTION);
-                RightPanel->Redraw();
-                HiEdit(SelectPos);
-                return;
+                NeedUpdate=TRUE;
               }
               break;
             case KEY_ENTER:
             case KEY_F4:
-              if (SelectPos<HiMenu.GetItemCount()-1)
-                if (EditRecord(SelectPos,FALSE))
-                {
-                  HiMenu.Hide();
-                  SaveHiData();
-                  LeftPanel->Update(UPDATE_KEEP_SELECTION);
-                  LeftPanel->Redraw();
-                  RightPanel->Update(UPDATE_KEEP_SELECTION);
-                  RightPanel->Redraw();
-                  HiEdit(SelectPos);
-                  return;
-                }
+              if (SelectPos>=HiMenu.GetItemCount()-1)
+                break;
+            case KEY_INS:
+              if (EditRecord(SelectPos,Key == KEY_INS))
+                NeedUpdate=TRUE;
               break;
             default:
               HiMenu.ProcessInput();
               break;
+          }
+          // повторяющийся кусок!
+          if(NeedUpdate)
+          {
+             HiMenu.Hide();
+             SaveHiData();
+             LeftPanel->Update(UPDATE_KEEP_SELECTION);
+             LeftPanel->Redraw();
+             RightPanel->Update(UPDATE_KEEP_SELECTION);
+             RightPanel->Redraw();
+             HiEdit(SelectPos);
+             return;
           }
         }
         if (HiMenu.GetExitCode()!=-1)
@@ -327,15 +321,15 @@ void HighlightFiles::HiEdit(int MenuPos)
   }
 }
 
-
 void HighlightFiles::SaveHiData()
 {
   int I;
+  char RegKey[80];
+  char *Ptr=MkRegKeyHighlightName(RegKey);
   for (I=0;I<HiDataCount;I++)
   {
     struct HighlightData *CurHiData=&HiData[I];
-    char RegKey[80];
-    sprintf(RegKey,"%s\\Group%d",RegColorsHighlight,I);
+    itoa(I,Ptr,10);
     SetRegKey(RegKey,"Mask",CurHiData->Masks);
     SetRegKey(RegKey,"IncludeAttributes",CurHiData->IncludeAttr);
     SetRegKey(RegKey,"ExcludeAttributes",CurHiData->ExcludeAttr);
@@ -347,8 +341,7 @@ void HighlightFiles::SaveHiData()
   }
   for (I=HiDataCount;I<StartHiDataCount;I++)
   {
-    char RegKey[80];
-    sprintf(RegKey,"%s\\Group%d",RegColorsHighlight,I);
+    itoa(I,Ptr,10);
     DeleteRegKey(RegKey);
   }
 }
@@ -404,6 +397,8 @@ int HighlightFiles::EditRecord(int RecPos,int New)
   struct HighlightData EditData;
   int ExitCode=0;
   char Mask[HIGHLIGHT_MASK_SIZE];
+
+  *Mask=0;
 
   if (!New && RecPos<HiDataCount)
   {
@@ -570,4 +565,19 @@ int HighlightFiles::EditRecord(int RecPos,int New)
     strcpy(HiData[RecPos].Masks,Mask);
   }
   return(TRUE);
+}
+
+/*
+ Формирует имя ключа в реестре;  возвращает указатель на конец строки
+ Применение:
+  char RegKey[80];
+  char *Ptr=MkRegKeyHighlightName(RegKey);
+  for(I=0;...)
+  {
+    itoa(I,Ptr,10);
+  }
+*/
+char *MkRegKeyHighlightName(char *RegKey)
+{
+  return RegKey+strlen(strcat(strcpy(RegKey,RegColorsHighlight),"\\Group"));
 }
