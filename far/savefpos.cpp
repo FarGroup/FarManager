@@ -5,10 +5,12 @@ class SaveFilePos
 
 */
 
-/* Revision: 1.01 08.08.2000 $ */
+/* Revision: 1.02 09.08.2000 $ */
 
 /*
 Modify:
+  09.08.2000 svs
+    ! revert.  int64 -> long
   08.08.2000 tran 1.01
     ! long -> int64
   25.06.2000 SVS
@@ -19,25 +21,19 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "int64.hpp"
+#ifndef __SAVEFILEPOS_HPP__
 #include "savefpos.hpp"
+#endif
 
 SaveFilePos::SaveFilePos(FILE *SaveFile)
 {
-  long high,low;
-  HANDLE h=(HANDLE)_get_osfhandle(_fileno(SaveFile));
   SaveFilePos::SaveFile=SaveFile;
-  high=0;
-  low=SetFilePointer(h,0,&high,FILE_CURRENT);
-  SavePos.HighPart=high;
-  SavePos.LowPart=low;
+  SavePos=ftell(SaveFile);
 }
 
 
 SaveFilePos::~SaveFilePos()
 {
-  long high=SavePos.HighPart;
-  HANDLE h=(HANDLE)_get_osfhandle(_fileno(SaveFile));
-  SetFilePointer(h,SavePos.LowPart,&high,FILE_BEGIN);
+  fseek(SaveFile,SavePos,SEEK_SET);
 }
 
