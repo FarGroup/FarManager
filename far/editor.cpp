@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.204 28.10.2002 $ */
+/* Revision: 1.205 04.11.2002 $ */
 
 /*
 Modify:
+  04.11.2002
+    - Undo на последней строке
   28.10.2002
     - выделение с табами.
   18.10.2002 SKV
@@ -3424,7 +3426,14 @@ void Editor::DeleteString(struct EditList *DelPtr,int DeleteLast,int UndoLine)
     if (DelPtr->Next!=NULL)
       CurLine=DelPtr->Next;
     else
+    {
       CurLine=DelPtr->Prev;
+      /* $ 04.11.2002 SKV
+        Вроде как если это произошло, номер текущей строки надо изменить.
+      */
+      NumLine--;
+      /* SKV $ */
+    }
     CurLine->EditLine.SetLeftPos(LeftPos);
     CurLine->EditLine.SetTabCurPos(CurPos);
   }
