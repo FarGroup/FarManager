@@ -6,7 +6,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2002 FAR group
 */
-/* $ Revision: 1.14 05.03.2002 $ */
+/* Revision: 1.15 25.03.2002 $ */
 
 #include <windows.h>
 #include <string.h>
@@ -243,10 +243,10 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
   if (Type==0)
   {
     static char *Commands[]={
-    /*Extract               */"MsCab -i0 {-ap%%R} {-p%%P} {%%S} x %%A @%%LMA",
-    /*Extract without paths */"MsCab -i0 {-p%%P} {%%S} e %%A @%%LMA",
-    /*Test                  */"MsCab -i0 {-p%%P} {%%S} t %%A @%%LMA",
-    /*Delete                */"MsCab -i0 {-p%%P} {%%S} d %%A @%%LMA",
+    /*Extract               */"MsCab -i0 -FAR {-ap%%R} {-p%%P} {%%S} x %%A @%%LMA",
+    /*Extract without paths */"MsCab -i0 -FAR {-p%%P} {%%S} e %%A @%%LMA",
+    /*Test                  */"MsCab -i0 {-p%%P} {%%S} t %%A",
+    /*Delete                */"MsCab -i0 -FAR {-p%%P} {%%S} d %%A @%%LMA",
     /*Comment archive       */"",
     /*Comment files         */"",
     /*Convert to SFX        */"MsCab {%%S} s %%A",
