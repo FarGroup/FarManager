@@ -2663,10 +2663,10 @@ performed as a copy with subsequent deletion or as a direct move
 (within one physical drive), FAR takes into account Windows 2000/XP
 ~symbolic links~@HardSymLink@.
 
-    FAR handles copying to #con# in the same way as copying to #nul# -
+    FAR handles copying to #con# in the same way as copying to #nul# or #\\.\nul# -
 that is, the file is read from the disk but not written anywhere.
 
-    When files are moved to #nul# or #con#, they are not deleted
+    When files are moved to #nul#, #\\.\nul# or #con#, they are not deleted
 from the disk.
 
     The options "Copy access rights" and "Only newer files" affect only

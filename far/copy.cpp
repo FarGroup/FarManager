@@ -5,10 +5,14 @@ copy.cpp
 
 */
 
-/* Revision: 1.106 17.12.2002 $ */
+/* Revision: 1.107 21.12.2002 $ */
 
 /*
 Modify:
+  21.12.2002 IS
+    ! Признак копирования в nul выставим в случаях, когда цель назначения:
+       - начинается с "nul\", "\\.\nul\" или "con\"
+       - равна "nul", "\\.\nul" или "con"
   17.12.2002 SVS
     - BugZ#728 - непрорисовка во время сканирования директорий при копировании
       (дергается изображение)
@@ -788,7 +792,20 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   _tran(SysLog("[%p] ShellCopy::ShellCopy() 4",this));
 
   // Выставляем признак копирования в NUL
-  ShellCopy::Flags|=(!stricmp(CopyDlg[2].Data,"nul") || !stricmp(CopyDlg[2].Data,"con"))?FCOPY_COPYTONUL:0;
+  /* $ 21.12.2002 IS
+     Признак копирования в nul выставим в случаях, когда цель назначения:
+     - начинается с "nul\", "\\.\nul\" или "con\"
+     - равна "nul", "\\.\nul" или "con"
+  */
+  if(!LocalStricmp (CopyDlg[2].Data,"nul")             ||
+     !LocalStrnicmp(CopyDlg[2].Data,"nul\\", 4)        ||
+     !LocalStrnicmp(CopyDlg[2].Data,"\\\\.\\nul", 7)   ||
+     !LocalStrnicmp(CopyDlg[2].Data,"\\\\.\\nul\\", 8) ||
+     !LocalStricmp (CopyDlg[2].Data,"con")             ||
+     !LocalStrnicmp(CopyDlg[2].Data,"con\\", 4)
+    )
+    ShellCopy::Flags|=FCOPY_COPYTONUL;
+  /* IS $ */
   if(ShellCopy::Flags&FCOPY_COPYTONUL)
   {
     ShellCopy::Flags&=~FCOPY_MOVE;
