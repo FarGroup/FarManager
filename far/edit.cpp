@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.134 22.03.2005 $ */
+/* Revision: 1.135 24.03.2005 $ */
 
 /*
 Modify:
+  24.03.2005 SVS
+    - BugZ#1302 - Colorization problems when TABs are in text (×ÀÑÒÜ 2)
   22.03.2005 SVS
     - BugZ#1302 - Colorization problems when TABs are in text
   22.03.2005 WARP
@@ -2912,11 +2914,14 @@ void Edit::ApplyColor()
   for (Col=0;Col<ColorCount;Col++)
   {
     struct ColorItem *CurItem=ColorList+Col;
+    int Length=CurItem->EndPos-CurItem->StartPos+1;
+    if(CurItem->StartPos+Length >= StrSize)
+      Length=StrSize-CurItem->StartPos;
+
     int Start=RealPosToTab(CurItem->StartPos)-LeftPos;
     //int End=RealPosToTab(CurItem->EndPos)-LeftPos;
-    int CorrectPos=(CurItem->StartPos < StrSize && Str[CurItem->StartPos] == '\t')?1:0;
+    int CorrectPos=CurItem->StartPos < StrSize && memchr(Str+CurItem->StartPos,'\t',Length)?1:0;
     int End=RealPosToTab(CurItem->EndPos+CorrectPos)-LeftPos;
-
     CHAR_INFO TextData[1024];
     if (Start<=X2 && End>=X1)
     {
@@ -2924,7 +2929,9 @@ void Edit::ApplyColor()
         Start=X1;
       if (End>X2)
         End=X2;
-      int Length=End-Start+1-CorrectPos;
+      Length=End-Start+1;
+      if(Length < X2)
+        Length-=CorrectPos;
       if (Length>0 && Length<sizeof(TextData))
       {
         ScrBuf.Read(Start,Y1,End,Y1,TextData);
