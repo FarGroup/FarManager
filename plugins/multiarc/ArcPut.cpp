@@ -523,13 +523,14 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       strcpy(pdd.Password1,DialogItems[PDI_PASS0WEDT].Data);
       //strcpy(pdd.Password2,DialogItems[PDI_PASS1WEDT].Data); //$ AA 28.11.2001
       Opt.UserBackground=DialogItems[PDI_BGROUNDCHECK].Selected;
+
+      Opt.AdvFlags.ExactArcName=DialogItems[PDI_EXACTNAMECHECK].Selected;
+      //SetRegKey(HKEY_CURRENT_USER, "", "ExactArcName", Opt.ExactArcName);
+      SetRegKey(HKEY_CURRENT_USER, "", "AdvFlags", Opt.AdvFlags);
+
       if (AskCode!=PDI_ADDBTN || *DialogItems[PDI_ARCNAMEEDT].Data==0)
         return -1;
       //SetRegKey(HKEY_CURRENT_USER,"","Background",Opt.UserBackground); // $ 06.02.2002 AA
-      Opt.AdvFlags.ExactArcName=DialogItems[PDI_EXACTNAMECHECK].Selected;
-
-      //SetRegKey(HKEY_CURRENT_USER, "", "ExactArcName", Opt.ExactArcName);
-      SetRegKey(HKEY_CURRENT_USER, "", "AdvFlags", Opt.AdvFlags);
     }
 
     char *Ext;
@@ -618,7 +619,8 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
 #ifdef _ARC_UNDER_CURSOR_
 BOOL PluginClass::GetCursorName(char *ArcName, char *ArcFormat, char *ArcExt)
 {
-  if(!GetRegKey(HKEY_CURRENT_USER,"","ArcUnderCursor",0))
+  //if(!GetRegKey(HKEY_CURRENT_USER,"","ArcUnderCursor",0))
+  if(!Opt.AdvFlags.ArcUnderCursor)
     return FALSE;
 
   PanelInfo pi;
@@ -675,7 +677,7 @@ BOOL PluginClass::GetCursorName(char *ArcName, char *ArcFormat, char *ArcExt)
 #ifdef _GROOP_NAME_
 void PluginClass::GetGroopName(PluginPanelItem *Items, int Count, char *ArcName)
 {
-  BOOL NoGroop=!GetRegKey(HKEY_CURRENT_USER,"","GroopName",0);
+  BOOL NoGroop=!/*GetRegKey(HKEY_CURRENT_USER,"","GroopName",0)*/Opt.AdvFlags.GroopName;
 
   char *Name=Items->FindData.cFileName;
   char *Dot=strrchr(Name, '.');

@@ -265,8 +265,17 @@ int PluginClass::SelectFormat(char *ArcFormat,int AddOnly)
 
     FSF.qsort(MenuItems,MenuItemsNumber,sizeof(struct FarMenuItemEx),(FCmp)FormatSort);
 
-    ExitCode=Info.Menu(Info.ModuleNumber,-1,-1,0,
-                         FMENU_AUTOHIGHLIGHT|FMENU_WRAPMODE|FMENU_USEEXT,
+    DWORD Flags=FMENU_AUTOHIGHLIGHT|FMENU_USEEXT;
+    if(!Opt.AdvFlags.MenuWrapMode)
+      Flags|=FMENU_WRAPMODE;
+    else if(Opt.AdvFlags.MenuWrapMode==2)
+    {
+      CONSOLE_SCREEN_BUFFER_INFO csbi;
+      GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+      if(csbi.dwSize.Y-6>=MenuItemsNumber)
+        Flags|=FMENU_WRAPMODE;
+    }
+    ExitCode=Info.Menu(Info.ModuleNumber,-1,-1,0,Flags,
                          GetMsg(MSelectArchiver),GetMsg(MSelectF4),NULL,
                          BreakKeys,&BreakCode,
                          (struct FarMenuItem*)MenuItems,MenuItemsNumber);

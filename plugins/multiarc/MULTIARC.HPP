@@ -287,7 +287,7 @@ struct MAAdvFlags
   unsigned GroopName            :1;
   unsigned ArcUnderCursor       :1;
   unsigned MenuWrapMode         :2;
-  unsigned NewDialogStyle       :1;
+  unsigned PutDialogStyle       :1;
   unsigned                      :25;
 
   operator int(){return *((int *)this);}

@@ -37,7 +37,7 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
 
   //Opt.AutoResetExactArcName=GetRegKey(HKEY_CURRENT_USER,"","AutoResetExactArcName",1);
   //Opt.ExactArcName=GetRegKey(HKEY_CURRENT_USER, "", "ExactArcName", 0);
-  Opt.AdvFlags=GetRegKey(HKEY_CURRENT_USER, "", "AdvFlags", 0);
+  Opt.AdvFlags=GetRegKey(HKEY_CURRENT_USER, "", "AdvFlags", 2);
 
   GetRegKey(HKEY_CURRENT_USER,"","DescriptionNames",Opt.DescriptionNames,
             "descript.ion,files.bbs",sizeof(Opt.DescriptionNames));
