@@ -1421,7 +1421,7 @@ $ #Internal editor#
 
    #F1#                      Help
    #F2#                      Save file
-   #Shift-F2#                Save file as...
+   #Shift-F2#                ~Save file as...~@FileSaveAs@
    #Alt-F5#                  Print file or selected block
                            ("Print manager" plugin is used).
    #F6#                      Switch to viewer
@@ -1456,6 +1456,24 @@ $ #Internal editor#
        Shift-Enter on the corresponding file.
 
     2. #Alt-U#/#Alt-I# indent the current line if no block is selected.
+
+@FileSaveAs
+$ #Save file as...#
+    You can save the file being edited under a different name by
+pressing #Shift-F2# and specifying the new name.
+
+    You can also specify the format of the line break characters:
+
+    #Do not change#
+    Do not change the line break characters.
+
+    #Dos/Windows format (CR LF)#
+    Line breaks will be represented as a two-character sequence -
+    Carriage Return and Line Feed (CR LF), as used in DOS/Windows.
+
+    #Unix format (LF)#
+    Line breaks will be represented as a single character - Line
+    Feed (LF), as used in UNIX.
 
 @EditorGotoPos
 $ #Go to specified line and column#
@@ -1974,9 +1992,7 @@ files and folders:
   Rename or move the file under the cursor                #Shift-F6#
   regardless of selection
 
-    On an NTFS partition it is also possible to create ~hard file links~@HardLink@
-using #Alt-F6# command, so you may have several file names referring
-to the same data.
+  Create ~file links~@HardSymLink@                                         #Alt-F6#
 
     If you wish to create the destination folder before copying,
 terminate the name with backslash. Also in the Copy dialog you may press
@@ -2010,8 +2026,16 @@ is not available) instead of the internal copy implementation to copy files.
 It may be useful on NTFS, because CopyFileEx performs a more rational
 disk space allocation and copies file extended attributes.
 
-@HardLink
-$ #Hard link#
+@HardSymLink
+$ #Hard and Symbolic link#
+    On NTFS partitions you can create #hard links# and #symbolic links#
+using the #Alt-F6# command.
+
+    Hard links are created for files. Symbolic links are for directories
+and drives.
+
+    #Hard link#
+
     A #hard link# is an additional directory entry for the given file.
 When a hard link is created, the file is not copied itself, but receives
 one more name or location, while its previous name and location remain
@@ -2030,6 +2054,20 @@ links in a separate column (by default, it's the last column in the 9th
 panel mode) and sort the files by hard link number.
 
     Hard links are supported in NTFS since NT 4.0.
+
+    #Symbolic links#
+
+    Win2K's version of NTFS supports directory symbolic links, where a
+directory serves as a symbolic link to another directory on the computer.
+For example, if the directory D:\SYMLINK specified C:\WINNT\SYSTEM32 as
+its target, then an application accessing D:\SYMLINK\DRIVERS would in
+reality be accessing C:\WINNT\SYSTEM32\DRIVERS. Directory symbolic links
+are known as NTFS junctions in Win2K. Unfortunately, Win2K comes with no
+tools for creating junctions.
+
+    Note: Unlike hardlinks, symlinks must not necessarily point at the
+same drive.
+
 
 @ScrSwitch
 $ #Screens switching#
@@ -2098,9 +2136,9 @@ processor.
 
     The commands listed above work in:
     - ~Command line~@CmdLineCmd@
-    - "~Apply command~@ApplyCmd@"
-    - "~User menu~@UserMenu@"
-    - "~File associations~@FileAssoc@"
+    - ~Apply command~@ApplyCmd@
+    - ~User menu~@UserMenu@
+    - ~File associations~@FileAssoc@
 
 @KeyMacro
 $ #Keyboard macros#

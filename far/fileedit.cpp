@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.27 28.03.2001 $ */
+/* Revision: 1.28 05.04.2001 $ */
 
 /*
 Modify:
+  05.04.2001 SVS
+    + Добавлен вызов топика "FileSaveAs" для диалога SaveAs
   28.03.2001 SVS
     ! Передадим в SaveFile новый параметр - SaveAs?
   22.03.2001 SVS
@@ -327,25 +329,27 @@ int FileEditor::ProcessKey(int Key)
           const char *HistoryName="NewEdit";
           static struct DialogData EditDlgData[]=
           {
-            DI_DOUBLEBOX,3,1,72,10,0,0,0,0,(char *)MEditTitle,
-            DI_TEXT,5,2,0,0,0,0,DIF_SHOWAMPERSAND,0,(char *)MEditSaveAs,
-            DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY,1,"",
-            DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-            DI_RADIOBUTTON,5,5,0,0,0,0,DIF_GROUP,0,(char *)MEditSaveOriginal,
-            DI_RADIOBUTTON,5,6,0,0,0,0,0,0,(char *)MEditSaveDOS,
-            DI_RADIOBUTTON,5,7,0,0,0,0,0,0,(char *)MEditSaveUnix,
-            DI_TEXT,3,8,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-            DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-            DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel,
+            /* 0 */ DI_DOUBLEBOX,3,1,72,11,0,0,0,0,(char *)MEditTitle,
+            /* 1 */ DI_TEXT,5,2,0,0,0,0,DIF_SHOWAMPERSAND,0,(char *)MEditSaveAs,
+            /* 2 */ DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY,1,"",
+            /* 3 */ DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+            /* 4 */ DI_TEXT,5,5,0,0,0,0,0,0,(char *)MEditSaveAsFormatTitle,
+            /* 5 */ DI_RADIOBUTTON,5,6,0,0,0,0,DIF_GROUP,0,(char *)MEditSaveOriginal,
+            /* 6 */ DI_RADIOBUTTON,5,7,0,0,0,0,0,0,(char *)MEditSaveDOS,
+            /* 7 */ DI_RADIOBUTTON,5,8,0,0,0,0,0,0,(char *)MEditSaveUnix,
+            /* 8 */ DI_TEXT,3,9,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+            /* 9 */ DI_BUTTON,0,10,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+            /*10 */ DI_BUTTON,0,10,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel,
           };
           MakeDialogItems(EditDlgData,EditDlg);
           strcpy(EditDlg[2].Data,FileName);
-          EditDlg[4].Selected=EditDlg[5].Selected=EditDlg[6].Selected=0;
-          EditDlg[4+TextFormat].Selected=TRUE;
+          EditDlg[5].Selected=EditDlg[6].Selected=EditDlg[7].Selected=0;
+          EditDlg[5+TextFormat].Selected=TRUE;
           Dialog Dlg(EditDlg,sizeof(EditDlg)/sizeof(EditDlg[0]));
-          Dlg.SetPosition(-1,-1,76,12);
+          Dlg.SetPosition(-1,-1,76,13);
+          Dlg.SetHelp("FileSaveAs");
           Dlg.Process();
-          if (Dlg.GetExitCode()!=8 || *EditDlg[2].Data==0)
+          if (Dlg.GetExitCode()!=9 || *EditDlg[2].Data==0)
             return(FALSE);
           Unquote(EditDlg[2].Data);
           RemoveTrailingSpaces(EditDlg[2].Data);
@@ -355,11 +359,11 @@ int FileEditor::ProcessKey(int Key)
           if (ConvertNameToFull(FileName,FullFileName, sizeof(FullFileName)) >= sizeof(FullFileName)){
             return FALSE;
           }
-          if (EditDlg[4].Selected)
-            TextFormat=0;
           if (EditDlg[5].Selected)
-            TextFormat=1;
+            TextFormat=0;
           if (EditDlg[6].Selected)
+            TextFormat=1;
+          if (EditDlg[7].Selected)
             TextFormat=2;
         }
         ShowConsoleTitle();

@@ -15,10 +15,13 @@ lang.hpp
 
 */
 
-/* Revision: 1.59 04.04.2001 $ */
+/* Revision: 1.60 06.04.2001 $ */
 
 /*
 Modify:
+  06.04.2001 SVS
+    + MCopySymLink - резерв на будущее (не люблю смены в H-файлах делать :-)
+    + MEditSaveAsFormatTitle
   04.04.2001 VVM
     + MSetAttrBlank
   20.03.2001 tran
@@ -385,6 +388,7 @@ enum
   MLinkDlgTitle,
   MCopySecurity,
   MCopyOnlyNewerFiles,
+  MCopySymLink,
   MCopyDlgCopy,
   MCopyDlgTree,
   MCopyDlgCancel,
@@ -640,6 +644,7 @@ enum
   MEditCtrlAltF12,
 
   MEditSaveAs,
+  MEditSaveAsFormatTitle,
   MEditSaveOriginal,
   MEditSaveDOS,
   MEditSaveUnix,

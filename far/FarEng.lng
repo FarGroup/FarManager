@@ -212,6 +212,7 @@
 "Link"
 "Copy &access rights"
 "&Only newer file(s)"
+"Symb&olic link"
 "&Copy"
 "F10-&Tree"
 "Ca&ncel"
@@ -474,11 +475,13 @@
 ""
 ""
 ""
+//End of functional keys
 
 "Save file as"
-"Save in &original format"
-"Save as &DOS text"
-"Save as &Unix text"
+"Change line breaks to:"
+"Do n&ot change"
+"&Dos/Windows format (CR LF)"
+"&Unix format (LF)"
 "Cannot save the file"
 
 "Name"
