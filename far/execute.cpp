@@ -5,10 +5,13 @@ execute.cpp
 
 */
 
-/* Revision: 1.00 10.10.2001 $ */
+/* Revision: 1.01 31.10.2001 $ */
 
 /*
 Modify:
+  31.10.2001 VVM
+    + Попытка переделать запуск программ. Стараемся пускать не через "start.exe",
+      а через CREATE_NEW_CONSOLE
   10.10.2001 SVS
     + Создан
 */
@@ -51,7 +54,6 @@ char* GetShellAction(char *FileName)
   RegCloseKey(hKey);
   return(*Action==0 ? NULL:Action);
 }
-
 
 DWORD IsCommandExeGUI(char *Command)
 {
@@ -174,11 +176,23 @@ int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
 
   DWORD GUIType=IsCommandExeGUI(CmdPtr);
 
+  ExecLine[0] = 0;
   if (DirectRun && !SeparateWindow)
     strcpy(ExecLine,CmdPtr);
   else
   {
-    sprintf(ExecLine,"%s /C",CommandName);
+    /* $ 31.10.2001 VVM
+      + Стараемся пускть не через "start.exe" */
+    if (!GUIType || (!OldNT && AlwaysWaitFinish))
+      sprintf(ExecLine,"%s /c ",CommandName);
+    if (!OldNT && AlwaysWaitFinish)
+    {
+      strcat(ExecLine,"start /wait ");
+      if (NT && *CmdPtr=='\"')
+        strcat(ExecLine,"\"\" ");
+    }
+    /* VVM $ */
+/*  sprintf(ExecLine,"%s /C",CommandName);
     if (!OldNT && (SeparateWindow || GUIType && (NT || AlwaysWaitFinish)))
     {
       strcat(ExecLine," start");
@@ -188,6 +202,7 @@ int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
         strcat(ExecLine," \"\"");
     }
     strcat(ExecLine," ");
+*/
     char *CmdEnd=CmdPtr+strlen (CmdPtr)-1;
     if (NT && *CmdPtr == '\"' && *CmdEnd == '\"' && strchr (CmdPtr+1, '\"') != CmdEnd)
     {
@@ -211,9 +226,8 @@ int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
 
   ChangeConsoleMode(InitialConsoleMode);
 
-  if (SeparateWindow && OldNT)
+  if (OldNT || SeparateWindow)
     CreateFlags|=CREATE_NEW_CONSOLE;
-
 
   if (SeparateWindow==2)
   {
