@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.90 02.02.2005 $ */
+/* Revision: 1.91 22.03.2005 $ */
 
 /*
 Modify:
+  22.03.2005 SVS
+    - BugZ#1303 - Падение, вроде как из за DM_CLOSE в DN_INITDIALOG
   02.02.2005 SVS
     ! ShowBackground() теперь возвращает TRUE/FALSE
   11.11.2004 SVS
@@ -1416,21 +1418,27 @@ void Manager::DeleteCommit()
   /* SKV $ */
 
 
-  DeletedFrame->OnDestroy();
-  if (DeletedFrame->GetDynamicallyBorn())
+  if(IndexOf(DeletedFrame) != -1)
   {
-    _tran(SysLog("delete DeletedFrame %p, CurrentFrame=%p",DeletedFrame,CurrentFrame));
-    if ( CurrentFrame==DeletedFrame )
-      CurrentFrame=0;
-    /* $ 14.05.2002 SKV
-      Так как в деструкторе фрэйма неявно может быть
-      вызван commit, то надо подстраховаться.
-    */
-    Frame *tmp=DeletedFrame;
-    DeletedFrame=NULL;
-    delete tmp;
-    /* SKV $ */
+    DeletedFrame->OnDestroy();
+    if (DeletedFrame->GetDynamicallyBorn())
+    {
+      _tran(SysLog("delete DeletedFrame %p, CurrentFrame=%p",DeletedFrame,CurrentFrame));
+      if ( CurrentFrame==DeletedFrame )
+        CurrentFrame=0;
+      /* $ 14.05.2002 SKV
+        Так как в деструкторе фрэйма неявно может быть
+        вызван commit, то надо подстраховаться.
+      */
+      Frame *tmp=DeletedFrame;
+      DeletedFrame=NULL;
+      delete tmp;
+      /* SKV $ */
+    }
   }
+  else
+    DeletedFrame=NULL;
+
   // Полагаемся на то, что в ActevateFrame не будет переписан уже
   // присвоенный  ActivatedFrame
   if (ModalStackCount){
