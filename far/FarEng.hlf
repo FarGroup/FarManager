@@ -1735,6 +1735,7 @@ $ #Internal viewer#
                        ("Print manager" plugin is used).
     #F7#                 ~Search~@ViewerSearch@
     #Shift-F7, Space#    Continue search
+    #Alt-F7#             Continue search in "reverse" mode
     #F8#                 Toggle DOS/Windows text view mode
     #Shift-F8#           Select custom character table
                        (see notes below)

@@ -7,10 +7,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.24 23.01.2003 $ */
+/* Revision: 1.25 03.02.2003 $ */
 
 /*
 Modify:
+  03.02.2003 VVM
+    +  Разные флаги для поиска
   23.01.2003 VVM
     + AdjustSelPosition - устанавливается сразу после найденного слова для
       выравнивания показа по выделенному.
@@ -123,9 +125,20 @@ struct ViewerUndoData
   __int64 UndoLeft;
 };
 
+/* $ 03.02.2003 VVM
+   Разные флаги для поиска */
+enum SEARCH_FLAGS {
+  SEARCH_MODE2   = 0x00000001,
+  REVERSE_SEARCH = 0x00000002
+};
+/* VVM $ */
+
 class Viewer:public ScreenObject
 {
   private:
+
+    BitFlags SearchFlags;
+
     /* $ 29.03.2001 IS
          Часть локальных настроек переехала в ViewerOptions
     */

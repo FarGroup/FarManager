@@ -5,10 +5,15 @@ Internal viewer
 
 */
 
-/* Revision: 1.125 29.01.2003 $ */
+/* Revision: 1.126 03.02.2003 $ */
 
 /*
 Modify:
+  03.02.2003 VVM
+    ! Поиск с самого конца файла искал не всегда правильно
+	+ Alt-F7 - продолжить поиск в "обратном" направлении
+	! Если по всему документу ничего не нашли - не предлагаем
+	  продолжать поиск с начала/конца файла (исключаем STACK_OVERFLOW)
   29.01.2003 VVM
     + CtrlU не только сбрасывает выделение, но и перемещает маркер "Начало поиска"
       на начало экрана.
@@ -1810,6 +1815,14 @@ int Viewer::ProcessKey(int Key)
       return(TRUE);
     }
 
+    case KEY_ALTF7:
+    {
+      SearchFlags.Set(REVERSE_SEARCH);
+      Search(1,0);
+      SearchFlags.Clear(REVERSE_SEARCH);
+      return(TRUE);
+    }
+
     case KEY_F8:
     {
       if ((VM.AnsiMode=!VM.AnsiMode)!=0)
@@ -2486,6 +2499,9 @@ void Viewer::Search(int Next,int FirstChar)
   /* KM $ */
   SearchDlg[8].Selected=LastSearchReverse;
 
+  if (SearchFlags.Check(REVERSE_SEARCH))
+    SearchDlg[8].Selected = !SearchDlg[8].Selected;
+
   if (VM.Unicode)
   {
     SearchDlg[4].Selected=TRUE;
@@ -2500,6 +2516,7 @@ void Viewer::Search(int Next,int FirstChar)
 
   if (!Next)
   {
+    SearchFlags.Flags = 0;
     Dialog Dlg(SearchDlg,sizeof(SearchDlg)/sizeof(SearchDlg[0]),ViewerSearchDlgProc);
     Dlg.SetPosition(-1,-1,76,12);
     Dlg.SetHelp("ViewerSearch");
@@ -2531,7 +2548,8 @@ void Viewer::Search(int Next,int FirstChar)
   */
   LastSearchWholeWords=WholeWords;
   /* KM $ */
-  LastSearchReverse=ReverseSearch;
+  if (!SearchFlags.Check(REVERSE_SEARCH))
+    LastSearchReverse=ReverseSearch;
 
   if ((SearchLength=strlen((char *)SearchStr))==0)
     return;
@@ -2558,7 +2576,10 @@ void Viewer::Search(int Next,int FirstChar)
     if (Next)
     {
       if (Next == 2)
+      {
+        SearchFlags.Set(SEARCH_MODE2);
         LastSelPos = ReverseSearch?FileSize:0;
+      }
       else
         LastSelPos = SelectPos + (ReverseSearch?-1:1);
     }
@@ -2689,12 +2710,10 @@ void Viewer::Search(int Next,int FirstChar)
         }
         /* KM $ */
 
-        if (ReadSize<sizeof(Buf))
+        if ((ReverseSearch && CurPos <= 0) || (!ReverseSearch && ReadSize < BufSize))
           break;
         if (ReverseSearch)
         {
-          if (CurPos<=0)
-            break;
           /* $ 01.08.2000 KM
              Изменёно вычисление CurPos с учётом Whole words
           */
@@ -2736,17 +2755,24 @@ void Viewer::Search(int Next,int FirstChar)
     AdjustSelPosition = TRUE;
     Show();
     AdjustSelPosition = FALSE;
+    SearchFlags.Clear(SEARCH_MODE2);
     /* KM $ */
   }
   else
   {
     /* $ 27.01.2003 VVM
        + После окончания поиска спросим о переходе поиска в начало/конец */
-    if (Message(MSG_DOWN|MSG_WARNING,2,MSG(MViewSearchTitle),
-                MSG(MViewSearchCannotFind), MsgStr,
-                (ReverseSearch?MSG(MViewSearchFromEnd):MSG(MViewSearchFromBegin)),
-                MSG(MYes), MSG(MNo)) == 0)
-      Search(2,0);
+    if (SearchFlags.Check(SEARCH_MODE2))
+      Message(MSG_DOWN|MSG_WARNING,1,MSG(MViewSearchTitle),
+              MSG(MViewSearchCannotFind), MsgStr, MSG(MOk));
+    else
+    {
+      if (Message(MSG_DOWN|MSG_WARNING,2,MSG(MViewSearchTitle),
+                  MSG(MViewSearchCannotFind), MsgStr,
+                  (ReverseSearch?MSG(MViewSearchFromEnd):MSG(MViewSearchFromBegin)),
+                  MSG(MYes), MSG(MNo)) == 0)
+        Search(2,0);
+    }
     /* VVM $ */
   }
 }
