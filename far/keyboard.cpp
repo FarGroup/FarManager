@@ -5,10 +5,13 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.39 25.06.2001 $ */
+/* Revision: 1.40 28.06.2001 $ */
 
 /*
 Modify:
+  28.06.2001 SVS
+    - Для Win9x при нажатом NumLock и юзании курсорных клавиш
+      получаем в диалоге назначения ерундистику.
   25.06.2001 IS
     ! Внедрение const
   23.06.2001 OT
@@ -465,13 +468,45 @@ int GetInputRecord(INPUT_RECORD *rec)
   if (rec->EventType==KEY_EVENT)
   {
     DWORD CtrlState=rec->Event.KeyEvent.dwControlKeyState;
+
+    /* $ 28.06.2001 SVS
+       Для Win9x при нажатом NumLock и юзании курсорных клавиш
+       получаем в диалоге назначения ерундистику.
+    */
+    if(CtrlObject && CtrlObject->Macro.IsRecording() &&
+       WinVer.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS &&
+       (CtrlState&NUMLOCK_ON))
+    {
+      static WORD PrevVKKeyCode=0; // NumLock+Cursor
+      WORD PrevVKKeyCode2=PrevVKKeyCode;
+      PrevVKKeyCode=rec->Event.KeyEvent.wVirtualKeyCode;
+      if((PrevVKKeyCode2 >= 0x21 && PrevVKKeyCode2 <= 0x28 ||
+          PrevVKKeyCode2 >= 0x2D && PrevVKKeyCode2 <= 0x2E) &&
+         PrevVKKeyCode == VK_SHIFT && rec->Event.KeyEvent.bKeyDown
+         ||
+         (PrevVKKeyCode >= 0x21 && PrevVKKeyCode <= 0x28 ||
+          PrevVKKeyCode >= 0x2D && PrevVKKeyCode <= 0x2E) &&
+         PrevVKKeyCode2 == VK_SHIFT && !rec->Event.KeyEvent.bKeyDown
+        )
+      {
+        if(PrevVKKeyCode2 != VK_SHIFT)
+        {
+          INPUT_RECORD pinp;
+          DWORD nread;
+          // Удалим из очереди...
+          ReadConsoleInput(hConInp, &pinp, 1, &nread);
+          return KEY_NONE;
+        }
+      }
+    }
+    /* SVS $ */
+
     if (AltPressed && (CtrlState & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED))==0)
       DetectWindowedMode();
     CtrlPressed=(CtrlState & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED));
     AltPressed=(CtrlState & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED));
     ShiftPressed=(CtrlState & SHIFT_PRESSED);
     KeyPressedLastTime=CurClock;
-
     /* $ 24.08.2000 SVS
        + Добавление на реакцию KEY_CTRLALTSHIFTRELEASE
     */
