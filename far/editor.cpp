@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.48 03.12.2000 $ */
+/* Revision: 1.49 08.12.2000 $ */
 
 /*
 Modify:
+  08.12.2000 SLV
+    - Ctrl-Del в начале строки при выделенном блоке и
+      включенном Opt.EditorDelRemovesBlocks.
   03.12.2000 IS
     + Показывать в статусной строке буквами RSH соответствующие атрибуты файла,
       если они установлены.
@@ -2147,7 +2150,18 @@ int Editor::ProcessKey(int Key)
     default:
       {
         if ((Key==KEY_CTRLDEL || Key==KEY_CTRLT) && CurPos>=CurLine->EditLine.GetLength())
-          return(ProcessKey(KEY_DEL));
+        {
+         /*$ 08.12.2000 skv
+           - CTRL-DEL в начале строки при выделенном блоке и
+             включенном EditorDelRemovesBlocks
+         */
+          int save=Opt.EditorDelRemovesBlocks;
+          Opt.EditorDelRemovesBlocks=0;
+          int ret=ProcessKey(KEY_DEL);
+          Opt.EditorDelRemovesBlocks=save;
+          return ret;
+          /* skv$*/
+        }
 
         if (!Pasting && !Opt.EditorPersistentBlocks && BlockStart!=NULL)
           if (Key>=32 && Key<256 || Key==KEY_ADD || Key==KEY_SUBTRACT ||
