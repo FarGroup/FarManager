@@ -68,9 +68,10 @@ int WINAPI ArcPlugins::LoadFmtModules(const WIN32_FIND_DATA *fdata,
     {
       // Дабы FMT не испортил оригинальный PluginStartupInfo дадим ему
       // временную "переменную"
-      struct PluginStartupInfo TmpInfo;
-      memcpy(&TmpInfo,&Info,sizeof(struct PluginStartupInfo));
-      CurPlugin.pSetFarInfo(&TmpInfo);
+      memcpy(&CurPlugin.Info,&Info,sizeof(struct PluginStartupInfo));
+      memcpy(&CurPlugin.FSF, &FSF, sizeof(struct FarStandardFunctions));
+      CurPlugin.Info.FSF=&CurPlugin.FSF;
+      CurPlugin.pSetFarInfo(&CurPlugin.Info);
     }
 
     struct PluginItem *NewPluginsData=(struct PluginItem *)realloc(plugins->PluginsData,

@@ -506,9 +506,9 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
 #endif //_ARC_UNDER_CURSOR_
         //pdd.OldExactState=Opt.AdvFlags.AutoResetExactArcName?FALSE:Opt.AdvFlags.ExactArcName;
         pdd.OldExactState=OldExactState;
-#ifdef _GROOP_NAME_
+#ifdef _GROUP_NAME_
         GetGroopName(PanelItem, ItemsNumber, DialogItems[PDI_ARCNAMEEDT].Data);
-#else //_GROOP_NAME_
+#else //_GROUP_NAME_
         if(ItemsNumber==1)
         {
           strcpy(DialogItems[PDI_ARCNAMEEDT].Data.Data, PanelItem->FindData.cFileName);
@@ -522,7 +522,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
           GetCurrentDirectory(sizeof(CurDir),CurDir);
           strcpy(DialogItems[PDI_ARCNAMEEDT].Data.Data, FSF.PointToName(CurDir));
         }
-#endif //else _GROOP_NAME_
+#endif //else _GROUP_NAME_
         if(pdd.OldExactState && !*ArcName)
           AddExt(DialogItems[PDI_ARCNAMEEDT].Data, pdd.DefExt);
 #ifdef _ARC_UNDER_CURSOR_
@@ -720,7 +720,7 @@ BOOL PluginClass::GetCursorName(char *ArcName, char *ArcFormat, char *ArcExt)
 }
 #endif //_ARC_UNDER_CURSOR_
 
-#ifdef _GROOP_NAME_
+#ifdef _GROUP_NAME_
 void PluginClass::GetGroopName(PluginPanelItem *Items, int Count, char *ArcName)
 {
   BOOL NoGroop=!/*GetRegKey(HKEY_CURRENT_USER,"","GroopName",0)*/Opt.AdvFlags.GroopName;
@@ -742,4 +742,4 @@ void PluginClass::GetGroopName(PluginPanelItem *Items, int Count, char *ArcName)
   strncpy(ArcName, Name, Len);
   ArcName[Len]=0;
 }
-#endif //_GROOP_NAME_
+#endif //_GROUP_NAME_

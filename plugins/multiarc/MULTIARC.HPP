@@ -33,7 +33,7 @@ Modify:
 //#define _NEW_ARC_SORT_
 #define OLD_DIALOG_STYLE 1
 #define _ARC_UNDER_CURSOR_
-#define _GROOP_NAME_
+#define _GROUP_NAME_
 
 #ifndef LIGHTGRAY
 #define LIGHTGRAY 7
@@ -130,6 +130,8 @@ struct PluginItem
   char ModuleName[NM];
   HMODULE hModule;
   DWORD Flags;
+  struct PluginStartupInfo Info;
+  struct FarStandardFunctions FSF;
 
   PLUGINLOADFORMATMODULE pLoadFormatModule;
   PLUGINISARCHIVE pIsArchive;
