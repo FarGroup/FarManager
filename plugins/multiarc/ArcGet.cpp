@@ -88,6 +88,8 @@ int PluginClass::GetFiles(PluginPanelItem *PanelItem, int ItemsNumber,
   }
 
   Opt.UserBackground=0; // $ 14.02.2001 raVen //сброс галки "фоновая архивация"
+  if ((OpMode & ~OPM_SILENT) & ~OPM_TOPLEVEL)
+    Opt.OldUserBackground=0; // $ 03.07.02 AY: если OPM_SILENT но не из за Shift-F2 при несколько выбраных архивах
   DialogItems[8].Selected=Opt.UserBackground;
   DialogItems[9].Selected=Move;
 
