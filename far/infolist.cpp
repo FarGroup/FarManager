@@ -5,10 +5,12 @@ infolist.cpp
 
 */
 
-/* Revision: 1.08 02.04.2001 $ */
+/* Revision: 1.09 03.04.2001 $ */
 
 /*
 Modify:
+  03.04.2001 VVM
+    + Используется Viewer для просмотра описаний.
   02.04.2001 SVS
     ! DRIVE_SUSTITUTE -> DRIVE_SUBSTITUTE
   29.03.2001 IS
@@ -42,12 +44,25 @@ Modify:
 #include "internalheaders.hpp"
 /* IS $ */
 
+static int LastDizWrapMode = -1;
+static int LastDizWrapType = -1;
+
 InfoList::InfoList()
 {
   Type=INFO_PANEL;
+  DizView=NULL;
   *DizFileName=0;
+  if (LastDizWrapMode < 0)
+  {
+    LastDizWrapMode = Opt.ViewerIsWrap;
+    LastDizWrapType = Opt.ViewerWrap;
+  }
 }
 
+InfoList::~InfoList()
+{
+  CloseDizFile();
+}
 
 void InfoList::DisplayObject()
 {
@@ -55,7 +70,7 @@ void InfoList::DisplayObject()
   Panel *AnotherPanel;
   char DriveRoot[NM],VolumeName[NM],FileSystemName[NM];
   DWORD MaxNameLength,FileSystemFlags,VolumeNumber;
-  *DizFileName=0;
+  CloseDizFile();
   Box(X1,Y1,X2,Y2,COL_PANELBOX,DOUBLE_BOX);
   SetScreen(X1+1,Y1+1,X2-1,Y2-1,' ',COL_PANELTEXT);
   SetColor(Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
@@ -291,6 +306,8 @@ int InfoList::ProcessKey(int Key)
       Redraw();
       return(TRUE);
   }
+  if (DizView!=NULL && Key>=256)
+    return(DizView->ProcessKey(Key));
   return(FALSE);
 }
 
@@ -316,6 +333,9 @@ int InfoList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   }
 
   SetFocus();
+  if (DizView!=NULL)
+    return(DizView->ProcessMouse(MouseEvent));
+
   return(TRUE);
 }
 
@@ -362,11 +382,18 @@ void InfoList::PrintInfo(int MsgID)
 
 void InfoList::ShowDirDescription()
 {
-  char Title[NM],DizStr[100],DizDir[NM];
+  char DizStr[100],DizDir[NM];
   FILE *DizFile;
   int I,Length;
   Panel *AnotherPanel=CtrlObject->GetAnotherPanel(this);
   DrawSeparator(Y1+14);
+  if (AnotherPanel->GetMode()!=FILE_PANEL)
+  {
+    SetColor(COL_PANELTEXT);
+    GotoXY(X1+2,Y1+15);
+    PrintText(MInfoDizAbsent);
+    return;
+  }
   AnotherPanel->GetCurDir(DizDir);
   if ((Length=strlen(DizDir))>0 && DizDir[Length-1]!='\\')
     strcat(DizDir,"\\");
@@ -385,36 +412,8 @@ void InfoList::ShowDirDescription()
       continue;
     FindClose(FindHandle);
     strcpy(PointToName(FullDizName),FindData.cFileName);
-    if ((DizFile=fopen(FullDizName,"r"))!=NULL)
-    {
-      struct CharTableSet TableSet;
-      int TableNum;
-      int UseDecodeTable=FALSE;
-      if (Opt.ViOpt.AutoDetectTable)
-        UseDecodeTable=DetectTable(DizFile,&TableSet,TableNum);
-      strcpy(DizFileName,FullDizName);
-      sprintf(Title," %s ",PointToName(DizFileName));
-      TruncStr(Title,X2-X1-3);
-      GotoXY(X1+(X2-X1-strlen(Title))/2,Y1+14);
-      SetColor(COL_PANELTEXT);
-      PrintText(Title);
-      for (I=15;I<Y2;I++)
-      {
-        if (fgets(DizStr,sizeof(DizStr),DizFile)==NULL)
-          break;
-        RemoveTrailingSpaces(DizStr);
-        for (int K=0;DizStr[K]!=0;K++)
-          if (DizStr[K]=='\t')
-            DizStr[K]=' ';
-        if (UseDecodeTable)
-          DecodeString(DizStr,(unsigned char *)TableSet.DecodeTable);
-        GotoXY(X1+1,Y1+I);
-        PrintText(DizStr);
-      }
-
-      fclose(DizFile);
+    if (OpenDizFile(FullDizName))
       return;
-    }
   }
   SetColor(COL_PANELTEXT);
   GotoXY(X1+2,Y1+15);
@@ -429,6 +428,7 @@ void InfoList::ShowPluginDescription()
   AnotherPanel=CtrlObject->GetAnotherPanel(this);
   if (AnotherPanel->GetMode()!=PLUGIN_PANEL)
     return;
+  CloseDizFile();
   struct OpenPluginInfo Info;
   AnotherPanel->GetOpenPluginInfo(&Info);
   for (int I=0;I<Info.InfoLinesNumber;I++)
@@ -463,4 +463,45 @@ void InfoList::ShowPluginDescription()
       PrintInfo(NullToEmpty(InfoLine->Data));
     }
   }
+}
+
+void InfoList::CloseDizFile()
+{
+  if (DizView!=NULL)
+  {
+    LastDizWrapMode=DizView->GetWrapMode();
+    LastDizWrapType=DizView->GetWrapType();
+    DizView->SetWrapMode(OldWrapMode);
+    DizView->SetWrapType(OldWrapType);
+    delete DizView;
+    DizView=NULL;
+  }
+  *DizFileName=0;
+}
+
+int InfoList::OpenDizFile(char *DizFile)
+{
+  if (DizView == NULL)
+  {
+    DizView=new Viewer;
+    DizView->SetRestoreScreenMode(FALSE);
+    DizView->SetPosition(X1+1,Y1+15,X2-1,Y2-1);
+    DizView->SetStatusMode(0);
+    DizView->EnableHideCursor(0);
+    OldWrapMode = DizView->GetWrapMode();
+    OldWrapType = DizView->GetWrapType();
+    DizView->SetWrapMode(LastDizWrapMode);
+    DizView->SetWrapType(LastDizWrapType);
+  }
+  if (!DizView->OpenFile(DizFile,FALSE))
+    return(FALSE);
+  DizView->Show();
+  strcpy(DizFileName,DizFile);
+  char Title[NM];
+  sprintf(Title," %s ",PointToName(DizFileName));
+  TruncStr(Title,X2-X1-3);
+  GotoXY(X1+(X2-X1-strlen(Title))/2,Y1+14);
+  SetColor(COL_PANELTEXT);
+  PrintText(Title);
+  return(TRUE);
 }
