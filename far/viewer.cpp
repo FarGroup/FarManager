@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.55 27.04.2001 $ */
+/* Revision: 1.56 28.04.2001 $ */
 
 /*
 Modify:
+  28.04.2001 SVS
+    - Opt.MsWheelDeltaEdit -> Opt.MsWheelDeltaView
   27.04.2001 DJ
     - всегда обновляем key bar после загрузки файла
     * отрисовка скроллбара вынесена в DrawScrollbar(), а корректировка ширины
@@ -1417,13 +1419,13 @@ int Viewer::ProcessKey(int Key)
       + Обработка KEY_MSWHEEL_XXXX */
     case KEY_MSWHEEL_UP:
       {
-        for (int i=0; i<Opt.MsWheelDeltaEdit; i++)
+        for (int i=0; i<Opt.MsWheelDeltaView; i++)
           ProcessKey(KEY_UP);
         return(TRUE);
       }
     case KEY_MSWHEEL_DOWN:
       {
-        for (int i=0; i<Opt.MsWheelDeltaEdit; i++)
+        for (int i=0; i<Opt.MsWheelDeltaView; i++)
           ProcessKey(KEY_DOWN);
         return(TRUE);
       }

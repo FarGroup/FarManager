@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.89 27.04.2001 $ */
+/* Revision: 1.90 28.04.2001 $ */
 
 /*
 Modify:
+  28.04.2001 SVS
+   + Функция GetItemRect() получения геометрии итема.
+   - DN_MOUSECLICK фактически не работал, если рамка стояла первой в списке.
   27.04.2001 SVS
    - Не работали позиционирование в хистори и в комбобоксах - вместо
      MaxLen, стояло sizeof(MaxLen) :-((
@@ -593,6 +596,7 @@ int Dialog::InitDialogObjects(int ID)
   int Type;
   struct DialogItem *CurItem;
   int InitItemCount;
+  DWORD ItemFlags;
 
   if(ID+1 > ItemCount)
     return -1;
@@ -618,11 +622,12 @@ int Dialog::InitDialogObjects(int ID)
   for(I=ID, TitleSet=0; I < InitItemCount; I++)
   {
     CurItem=&Item[I];
+    ItemFlags=CurItem->Flags;
 
     // для кнопок не имеющи стиля "Показывает заголовок кнопки без скобок"
     //  добавим энти самые скобки
     if (CurItem->Type==DI_BUTTON &&
-        (CurItem->Flags & DIF_NOBRACKETS)==0 &&
+        (ItemFlags & DIF_NOBRACKETS)==0 &&
         *CurItem->Data != '[')
     {
       char BracketedTitle[200];
@@ -647,7 +652,7 @@ int Dialog::InitDialogObjects(int ID)
      if(FocusPos == -1 &&
         IsFocused(CurItem->Type) &&
         CurItem->Focus &&
-        !(CurItem->Flags&(DIF_DISABLE|DIF_NOFOCUS|DIF_HIDDEN)))
+        !(ItemFlags&(DIF_DISABLE|DIF_NOFOCUS|DIF_HIDDEN)))
        FocusPos=I; // запомним первый фокусный элемент
      CurItem->Focus=0; // сбросим для всех, чтобы не оказалось,
                        //   что фокусов - как у дурочка фантиков
@@ -681,12 +686,13 @@ int Dialog::InitDialogObjects(int ID)
   {
     CurItem=&Item[I];
     Type=CurItem->Type;
+    ItemFlags=CurItem->Flags;
 
     // Последовательно объявленные элементы с флагом DIF_CENTERGROUP
     // и одинаковой вертикальной позицией будут отцентрированы в диалоге.
     // Их координаты X не важны. Удобно использовать для центрирования
     // групп кнопок.
-    if ((CurItem->Flags & DIF_CENTERGROUP) &&
+    if ((ItemFlags & DIF_CENTERGROUP) &&
         (I==0 ||
         (Item[I-1].Flags & DIF_CENTERGROUP)==0 ||
         Item[I-1].Y1!=CurItem->Y1))
@@ -744,7 +750,7 @@ int Dialog::InitDialogObjects(int ID)
              DI_COMBOBOX выставляется флаг MENU_SHOWAMPERSAND. Этот флаг
              подавляет такое поведение
         */
-        if(!(CurItem->Flags&DIF_LISTNOAMPERSAND))
+        if(!(ItemFlags&DIF_LISTNOAMPERSAND))
           ListBox->SetFlags(MENU_SHOWAMPERSAND);
         /* SVS $*/
         ListBox->SetPosition(X1+CurItem->X1,Y1+CurItem->Y1,
@@ -785,7 +791,7 @@ int Dialog::InitDialogObjects(int ID)
       /* $ 30.11.200 SVS
          Уточним на что влияет флаг DIF_DROPDOWNLIST
       */
-      if ((CurItem->Flags & DIF_DROPDOWNLIST) && Type == DI_COMBOBOX)
+      if ((ItemFlags & DIF_DROPDOWNLIST) && Type == DI_COMBOBOX)
       {
          DialogEdit->DropDownBox=1;
       }
@@ -794,7 +800,7 @@ int Dialog::InitDialogObjects(int ID)
       /* $ 18.09.2000 SVS
          ReadOnly!
       */
-      if (CurItem->Flags & DIF_READONLY)
+      if (ItemFlags & DIF_READONLY)
       {
          DialogEdit->ReadOnly=1;
       }
@@ -805,7 +811,7 @@ int Dialog::InitDialogObjects(int ID)
       if(DialogEdit->GetMaxLength() == -1)
       {
         if((CurItem->Type==DI_EDIT || CurItem->Type==DI_COMBOBOX) &&
-           (CurItem->Flags&DIF_VAREDIT))
+           (ItemFlags&DIF_VAREDIT))
           DialogEdit->SetMaxLength(CurItem->Ptr.PtrLength);
         else
           DialogEdit->SetMaxLength(511);
@@ -815,16 +821,16 @@ int Dialog::InitDialogObjects(int ID)
                               X1+CurItem->X2,Y1+CurItem->Y2);
       DialogEdit->SetObjectColor(
          FarColorToReal(CheckDialogMode(DMODE_WARNINGSTYLE) ?
-             ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGEDITDISABLED:COL_WARNDIALOGEDIT):
-             ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGEDITDISABLED:COL_DIALOGEDIT)),
-         FarColorToReal((CurItem->Flags&DIF_DISABLE)?COL_DIALOGEDITDISABLED:COL_DIALOGEDITSELECTED));
+             ((ItemFlags&DIF_DISABLE)?COL_WARNDIALOGEDITDISABLED:COL_WARNDIALOGEDIT):
+             ((ItemFlags&DIF_DISABLE)?COL_DIALOGEDITDISABLED:COL_DIALOGEDIT)),
+         FarColorToReal((ItemFlags&DIF_DISABLE)?COL_DIALOGEDITDISABLED:COL_DIALOGEDITSELECTED));
       if (CurItem->Type==DI_PSWEDIT)
       {
         DialogEdit->SetPasswordMode(TRUE);
         /* $ 01.08.2000 SVS
           ...Что бы небыло повадно... и для повыщения защиты, т.с.
         */
-        CurItem->Flags&=~DIF_HISTORY;
+        ItemFlags&=~DIF_HISTORY;
         /* SVS $ */
       }
 
@@ -833,8 +839,8 @@ int Dialog::InitDialogObjects(int ID)
         /* $ 21.08.2000 SVS
            DIF_HISTORY имеет более высокий приоритет, чем DIF_MASKEDIT
         */
-        if(CurItem->Flags&DIF_HISTORY)
-          CurItem->Flags&=~DIF_MASKEDIT;
+        if(ItemFlags&DIF_HISTORY)
+          ItemFlags&=~DIF_MASKEDIT;
         /* SVS $ */
         // если DI_FIXEDIT, то курсор сразу ставится на замену...
         //   ай-ай - было недокументированно :-)
@@ -848,7 +854,7 @@ int Dialog::InitDialogObjects(int ID)
         /* $ 18.09.2000 SVS
           Маска не должна быть пустой (строка из пробелов не учитывается)!
         */
-        if ((CurItem->Flags & DIF_MASKEDIT) && CurItem->Mask)
+        if ((ItemFlags & DIF_MASKEDIT) && CurItem->Mask)
         {
           char *Ptr=CurItem->Mask;
           while(*Ptr && *Ptr == ' ') ++Ptr;
@@ -857,7 +863,7 @@ int Dialog::InitDialogObjects(int ID)
           else
           {
             CurItem->Mask=NULL;
-            CurItem->Flags&=~DIF_MASKEDIT;
+            ItemFlags&=~DIF_MASKEDIT;
           }
         }
         /* SVS $ */
@@ -868,7 +874,7 @@ int Dialog::InitDialogObjects(int ID)
         // Последовательно определенные поля ввода (edit controls),
         // имеющие этот флаг группируются в редактор с возможностью
         // вставки и удаления строк
-        if (!(CurItem->Flags & DIF_EDITOR))
+        if (!(ItemFlags & DIF_EDITOR))
         {
           DialogEdit->SetEditBeyondEnd(FALSE);
           DialogEdit->SetClearFlag(1);
@@ -878,12 +884,12 @@ int Dialog::InitDialogObjects(int ID)
          Еже ли стоит флаг DIF_USELASTHISTORY и непустая строка ввода,
          то подстанавливаем первое значение из History
       */
-      if((CurItem->Flags&(DIF_HISTORY|DIF_USELASTHISTORY)) == (DIF_HISTORY|DIF_USELASTHISTORY))
+      if((ItemFlags&(DIF_HISTORY|DIF_USELASTHISTORY)) == (DIF_HISTORY|DIF_USELASTHISTORY))
       {
         char RegKey[80];
         char *PtrData;
         int PtrLength;
-        if((CurItem->Type==DI_EDIT || CurItem->Type==DI_COMBOBOX) && (CurItem->Flags&DIF_VAREDIT))
+        if((CurItem->Type==DI_EDIT || CurItem->Type==DI_COMBOBOX) && (ItemFlags&DIF_VAREDIT))
         {
           PtrData  =(char *)CurItem->Ptr.PtrData;
           PtrLength=CurItem->Ptr.PtrLength;
@@ -900,16 +906,16 @@ int Dialog::InitDialogObjects(int ID)
         }
       }
       /* SVS $ */
-      if((CurItem->Flags&DIF_MANUALADDHISTORY) && !(CurItem->Flags&DIF_HISTORY))
-        CurItem->Flags&=~DIF_MANUALADDHISTORY; // сбросим нафиг.
+      if((ItemFlags&DIF_MANUALADDHISTORY) && !(ItemFlags&DIF_HISTORY))
+        ItemFlags&=~DIF_MANUALADDHISTORY; // сбросим нафиг.
 
       /* $ 18.03.2000 SVS
          Если это ComBoBox и данные не установлены, то берем из списка
          при условии, что хоть один из пунктов имеет Selected != 0
       */
       if (Type==DI_COMBOBOX &&
-          (!(CurItem->Flags&DIF_VAREDIT) && CurItem->Data[0] == 0 ||
-            (CurItem->Flags&DIF_VAREDIT) && *(char*)CurItem->Ptr.PtrData == 0) &&
+          (!(ItemFlags&DIF_VAREDIT) && CurItem->Data[0] == 0 ||
+            (ItemFlags&DIF_VAREDIT) && *(char*)CurItem->Ptr.PtrData == 0) &&
           CurItem->ListItems)
       {
         struct FarListItem *ListItems=CurItem->ListItems->Items;
@@ -920,7 +926,7 @@ int Dialog::InitDialogObjects(int ID)
           if(ListItems[J].Flags & LIF_SELECTED)
           {
             // берем только первый пункт для области редактирования
-            if(CurItem->Flags&DIF_VAREDIT)
+            if(ItemFlags&DIF_VAREDIT)
             {
               if(ListItems[J].Flags&LIF_PTRDATA)
                 strncpy((char *)CurItem->Ptr.PtrData, ListItems[J].Ptr.PtrData,CurItem->Ptr.PtrLength);
@@ -940,7 +946,7 @@ int Dialog::InitDialogObjects(int ID)
       }
       /* SVS $ */
       if((CurItem->Type==DI_EDIT || CurItem->Type==DI_COMBOBOX) &&
-         (CurItem->Flags&DIF_VAREDIT))
+         (ItemFlags&DIF_VAREDIT))
         DialogEdit->SetString((char *)CurItem->Ptr.PtrData);
       else
         DialogEdit->SetString(CurItem->Data);
@@ -957,6 +963,8 @@ int Dialog::InitDialogObjects(int ID)
       ((COORD *)(CurItem->ObjPtr))->X=-1;
       ((COORD *)(CurItem->ObjPtr))->Y=-1;
     }
+
+    CurItem->Flags=ItemFlags;
   }
   // если будет редактор, то обязательно будет выделен.
   SelectOnEntry(FocusPos);
@@ -966,6 +974,78 @@ int Dialog::InitDialogObjects(int ID)
   return I;
 }
 /* 24.08.2000 SVS $ */
+
+
+BOOL Dialog::GetItemRect(int I,RECT& Rect)
+{
+  if(I >= ItemCount)
+    return FALSE;
+
+  struct DialogItem *CurItem=&Item[I];
+  DWORD ItemFlags=CurItem->Flags;
+  int Type=CurItem->Type;
+
+  Rect.left=(int)CurItem->X1;
+  Rect.top=(int)CurItem->Y1;
+  Rect.right=(int)CurItem->X2;
+  Rect.bottom=(int)CurItem->Y2;
+
+  switch(Type)
+  {
+    case DI_TEXT:
+      if (CurItem->X1==(unsigned char)-1)
+        Rect.left=(X2-X1+1-((ItemFlags & DIF_SHOWAMPERSAND)?
+                                 strlen(CurItem->Data):
+                                 HiStrlen(CurItem->Data)))/2;
+      if(Rect.left < 0)
+        Rect.left=0;
+
+      if (CurItem->Y1==(unsigned char)-1)
+        Rect.top=(Y2-Y1+1)/2;
+
+      if(Rect.top < 0)
+        Rect.top=0;
+
+      if (ItemFlags & DIF_SEPARATOR)
+      {
+        Rect.bottom=Rect.top;
+        Rect.left=3;
+        Rect.right=X2-X1-5; //???
+        break;
+      }
+
+    case DI_BUTTON:
+      Rect.bottom=Rect.top;
+      Rect.right=Rect.left+((ItemFlags & DIF_SHOWAMPERSAND)?
+                                 strlen(CurItem->Data):
+                                 HiStrlen(CurItem->Data));
+      break;
+
+    case DI_CHECKBOX:
+    case DI_RADIOBUTTON:
+      Rect.bottom=Rect.top;
+      Rect.right=Rect.left+((ItemFlags & DIF_SHOWAMPERSAND)?
+                                 strlen(CurItem->Data):
+                                 HiStrlen(CurItem->Data))+
+                                 (Type == DI_CHECKBOX?4:
+                                   (ItemFlags & DIF_MOVESELECT?3:4)
+                                 );
+      break;
+
+    case DI_VTEXT:
+      Rect.right=Rect.left;
+      Rect.bottom=Rect.top+strlen(CurItem->Data);
+      break;
+
+    case DI_COMBOBOX:
+    case DI_EDIT:
+    case DI_FIXEDIT:
+    case DI_PSWEDIT:
+      Rect.bottom=Rect.top;
+      break;
+  }
+  return TRUE;
+}
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -1213,7 +1293,7 @@ void Dialog::ShowDialog(int ID)
       case DI_TEXT:
       {
         if (CurItem->X1==(unsigned char)-1)
-          X=(X2-X1+1-HiStrlen(CurItem->Data))/2;
+          X=(X2-X1+1-((CurItem->Flags & DIF_SHOWAMPERSAND)?HiStrlen(CurItem->Data):strlen(CurItem->Data)))/2;
         else
           X=CurItem->X1;
 
@@ -1221,7 +1301,6 @@ void Dialog::ShowDialog(int ID)
           Y=(Y2-Y1+1)/2;
         else
           Y=CurItem->Y1;
-
 
         if (CurItem->Flags & DIF_SETCOLOR)
           Attr=CurItem->Flags & DIF_COLORMASK;
@@ -2497,6 +2576,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   int I, J;
   int MsX,MsY;
   int Type;
+  RECT Rect;
 
   if (MouseEvent->dwButtonState==0)
     return(FALSE);
@@ -2505,6 +2585,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
   MsX=MouseEvent->dwMousePosition.X;
   MsY=MouseEvent->dwMousePosition.Y;
+
   if (MsX<X1 || MsY<Y1 || MsX>X2 || MsY>Y2)
   {
     if(!DlgProc((HANDLE)this,DN_MOUSECLICK,-1,(long)MouseEvent))
@@ -2517,45 +2598,46 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     return(TRUE);
   }
 
+//SysLog("Ms (%d,%d)",MsX,MsY);
   if (MouseEvent->dwEventFlags==0 || MouseEvent->dwEventFlags==DOUBLE_CLICK)
   {
-    /* $ 21.08.2000 SVS
-       DN_MOUSECLICK - первично.
-    */
-    for (I=0;I<ItemCount;I++)
+    // первый цикл - все за исключением рамок.
+    for (I=0; I < ItemCount;I++)
     {
-      /* $ 04.12.2000 SVS
-         Исключаем из списка оповещаемых о мыши недоступные элементы
-      */
       if(Item[I].Flags&(DIF_DISABLE|DIF_HIDDEN))
         continue;
-      /* SVS $ */
-      int IX1=Item[I].X1+X1,
-          IY1=Item[I].Y1+Y1,
-          IX2=Item[I].X2+X1,
-          IY2=Item[I].Y2+Y1;
-      BOOL Send_DN=TRUE;
 
-      if(MsX >= IX1 && MsY >= IY1 && MsY <= IY2 && MsX <= IX2)
+      GetItemRect(I,Rect);
+      Rect.left+=X1;  Rect.top+=Y1;
+      Rect.right+=X1; Rect.bottom+=Y1;
+//SysLog("? %2d) Rect (%2d,%2d) (%2d,%2d) '%s'",I,Rect.left,Rect.top,Rect.right,Rect.bottom,Item[I].Data);
+
+      if(MsX >= Rect.left && MsY >= Rect.top && MsX <= Rect.right && MsY <= Rect.bottom)
       {
-        switch(Item[I].Type)
+//SysLog("+ %2d) Rect (%2d,%2d) (%2d,%2d) '%s'",I,Rect.left,Rect.top,Rect.right,Rect.bottom,Item[I].Data);
+        // для прозрачных :-)
+        if(Item[I].Type == DI_SINGLEBOX || Item[I].Type == DI_DOUBLEBOX)
         {
-          case DI_SINGLEBOX:
-          case DI_DOUBLEBOX:
-            if(((MsX == IX1 || MsX == IX2) && MsY >= IY1 && MsY <= IY2) || // vert
-               ((MsY == IY1 || MsY == IY2) && MsX >= IX1 && MsX <= IX2) )   // hor
-                break;
-            Send_DN=FALSE;
-            break;
-          case DI_USERCONTROL:
-            // для user-типа подготовим координаты мыши
-            MouseEvent->dwMousePosition.X-=IX1;
-            MouseEvent->dwMousePosition.Y-=IY1;
-            break;
+          // если на рамке, то...
+          if(((MsX == Rect.left || MsX == Rect.right) && MsY >= Rect.top && MsY <= Rect.bottom) || // vert
+             ((MsY == Rect.top  || MsY == Rect.bottom) && MsX >= Rect.left && MsX <= Rect.right) )   // hor
+          {
+            if(DlgProc((HANDLE)this,DN_MOUSECLICK,I,(long)MouseEvent))
+              return TRUE;
+          }
+          else
+            continue;
         }
-        if(Send_DN)
-          if(DlgProc((HANDLE)this,DN_MOUSECLICK,I,(long)MouseEvent))
-            return TRUE;
+
+        if(Item[I].Type == DI_USERCONTROL)
+        {
+          // для user-типа подготовим координаты мыши
+          MouseEvent->dwMousePosition.X-=Rect.left;
+          MouseEvent->dwMousePosition.Y-=Rect.top;
+        }
+
+        if(DlgProc((HANDLE)this,DN_MOUSECLICK,I,(long)MouseEvent))
+          return TRUE;
 
         if(Item[I].Type == DI_USERCONTROL)
         {
@@ -2563,9 +2645,9 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
            ShowDialog();
            return(TRUE);
         }
+        break;
       }
     }
-    /* SVS $ */
 
     if((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED))
     {

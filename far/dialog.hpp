@@ -10,10 +10,12 @@ dialog.hpp
 
 */
 
-/* Revision: 1.23 12.04.2001 $ */
+/* Revision: 1.24 28.04.2001 $ */
 
 /*
 Modify:
+  28.04.2001 SVS
+   + GetItemRect() - получить координаты итема.
   12.04.2001 SVS
    ! функция AddToEditHistory теперь возвращает результат операции
      добавления строки в историю
@@ -230,6 +232,7 @@ class Dialog:public Modal
     /* SVS $ */
 
     void CheckDialogCoord(void);
+    BOOL GetItemRect(int I,RECT& Rect);
 
   public:
     Dialog(struct DialogItem *Item,int ItemCount,FARWINDOWPROC DlgProc=NULL,long Param=NULL);

@@ -1720,8 +1720,9 @@ settings.
 only if the ~associated~@FileAssoc@ viewer for the current file type is
 not defined.
 
-    Pressing Alt-Shift-F9 allows to invoke viewer settings dialog in the
-~viewer~@Viewer@. The changes will come into force immediately.
+    The settings dialog can also be invoked from the ~internal
+viewer~@Viewer@ by pressing #Alt-Shift-F9#. The changes will come
+into force immediately but will affect only the current session.
 
 @EditorSettings
 $ #Editor settings#
@@ -1780,8 +1781,9 @@ settings.
     If the external editor is assigned to F4 key, it will be executed only
 if ~associated~@FileAssoc@ editor for the current file type is not defined.
 
-    Pressing Alt-Shift-F9 allows to invoke editor settings dialog in the
-~editor~@Editor@. The changes will come into force immediately.
+    The settings dialog can also be invoked from the ~internal
+editor~@Editor@ by pressing #Alt-Shift-F9#. The changes will come
+into force immediately but will affect only the current session.
 
 @DistTable
 $ #Auto detect character tables#
