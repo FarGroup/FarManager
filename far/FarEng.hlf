@@ -1184,9 +1184,9 @@ $ #Internal viewer#
                           line.
     #Ctrl-S#             Show/Hide ScrollBar.
     #Alt-BS, Ctrl-Z#     Undo position change
-    #RightCtrl+<N>#      Save current position
+    #RightCtrl+<N>#      Sets bookmark in the current position
                        (N must be '0'..'9')
-    #LeftCtrl+<N>#       Restore saved position
+    #LeftCtrl+<N>#       Go to bookmark <N>
 
     Notes:
 
@@ -1300,9 +1300,9 @@ $ #Internal editor#
                            (works so long as we keep these keys)
    #Ctrl-Q#                  Treat the next key combination
                            as a character code
-   #RightCtrl+<N>#           Save current position
+   #RightCtrl+<N>#           Sets bookmark in the current position
                            (N must be '0'..'9')
-   #LeftCtrl+<N>#            Restore saved position
+   #LeftCtrl+<N>#            Go to bookmark <N>
 
     Notes:
 
@@ -1409,19 +1409,13 @@ $ #Viewer settings#
                           restoring of character table, if the table
                           was manually selected by user.
 
-  #Save current#            Save and restore current positions in the
-  #positions#               recently viewed files (created with
+  #Save bookmarks#          Save and restore bookmarks (current positions)
+                          in the recently viewed files (created with
                           RightCtrl-<N>)
 
-  #Autodetect character#    If you use several character tables and
-  #table#                   have installed a table with the character
-                          frequency distribution for your language,
-                          you may switch this option on to autodetect
-                          table of the currently viewed file. Note
-                          that correct detection is not guaranteed,
-                          especially for small or non-typical text
-                          files. You will find some character tables
-                          in "Addons\Tables" folder of Far package.
+  #Auto detect#             If you use the several character tables,
+  #character table#         you can set this option on for ~auto detecting~@DistTable@
+                          character table of the file, that is being viewed.
 
   #Tab size#                Tab display spacing.
 
@@ -1473,19 +1467,13 @@ settings to be changed.
                           restoring of character table, if the table
                           was manually selected by user.
 
-  #Save current#            Save and restore current positions in the
-  #positions#               recently edited files (created with
+  #Save bookmarks#          Save and restore bookmarks (current positions)
+                          in the recently edited files (created with
                           RightCtrl-<N>)
 
-  #Autodetect character#    If you use several character tables and
-  #table#                   have installed a table with the character
-                          frequency distribution for your language,
-                          you may switch this option on to autodetect
-                          table of the currently viewed file. Note
-                          that correct detection is not guaranteed,
-                          especially for small or non-typical text
-                          files. You will find some character tables
-                          in "Addons\Tables" folder of Far package.
+  #Auto detect#             If you use the several character tables,
+  #character table#         you can set this option on for ~auto detecting~@DistTable@
+                          character table of the file, that is being edited.
 
   #Tab size#                Tab display spacing.
 
@@ -1494,6 +1482,19 @@ settings to be changed.
 
     If external editor is assigned to F4 key, it will be executed only
 if ~associated~@FileAssoc@ editor for the current file type is absent.
+
+@DistTable
+$ #Auto detect character tables#
+    If you use the several character tables and have installed the
+table with the character frequency distribution for your language (for
+example, for Russian the table "Addons\Tables\Russian\Dist.Rus.reg"
+should be installed), FAR will try to choose the most suitable
+character table for viewing/editing a file. Note, that the correct
+detection is not guaranteed, especially for small or non-typical text
+files.
+
+    You can find some character tables in the "Addons\Tables" folder
+of the root FAR folder.
 
 @FileAttrDlg
 $ #File attributes dialog#
