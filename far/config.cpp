@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.153 14.07.2003 $ */
+/* Revision: 1.154 23.07.2003 $ */
 
 /*
 Modify:
+  23.07.2003 SVS
+    + Opt.ScrSize.DeltaXY - уточнение размера для "распаховки" консоли
   14.07.2003 SVS
     - Ctrl-PgUp для выбора диска - Галка не сохраняется и, соответственно,
       диск по Ctrl-PgUp выбирается и при снятой и при выставленной галке.
@@ -1313,6 +1315,8 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyScreen, "ScreenSaverTime",&Opt.ScreenSaverTime,5, 0},
   {1, REG_DWORD,  NKeyScreen, "UsePromptFormat", &Opt.UsePromptFormat,0, 0},
   {1, REG_SZ,     NKeyScreen, "PromptFormat",Opt.PromptFormat,sizeof(Opt.PromptFormat),"$p>"},
+  {0, REG_DWORD,  NKeyScreen, "DeltaXY", &Opt.ScrSize.DeltaXY, 0, 0},
+
 
   {1, REG_DWORD,  NKeyInterface, "Mouse",&Opt.Mouse,1, 0},
   {1, REG_DWORD,  NKeyInterface, "AltGr",&Opt.AltGr,1, 0},

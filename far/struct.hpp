@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.101 06.06.2003 $ */
+/* Revision: 1.102 23.07.2003 $ */
 
 /*
 Modify:
+  23.07.2003 SVS
+    + Opt.ScrSize.DeltaXY - уточнение размера для "распаховки" консоли
   06.06.2003 SVS
     ! Все, что связано с загрузкой плагинов объединено в структуру LoadPluginsOptions
   19.05.2003 SVS
@@ -452,8 +454,9 @@ struct NowellOptions{
   int MoveRO;               // перед операцией Move снимать R/S/H атрибуты, после переноса - выставлять обратно
 };
 
-#if defined(DETECT_ALT_ENTER)
 struct ScreenSizes{
+  COORD DeltaXY;            // на сколько поз. изменить размеры для распахнутого экрана
+#if defined(DETECT_ALT_ENTER)
   /*
     Opt.WScreenSize - Windowed/Full Screen Size
        COORD[0].X - Windowed Width  mode 1
@@ -468,8 +471,8 @@ struct ScreenSizes{
   */
   int WScreenSizeSet;
   COORD WScreenSize[4];
-};
 #endif
+};
 
 struct LoadPluginsOptions{
 //  DWORD TypeLoadPlugins;       // see TYPELOADPLUGINSOPTIONS
@@ -809,9 +812,7 @@ struct Options
   struct DialogsOptions Dialogs;
   struct PoliciesOptions Policies;
   struct NowellOptions Nowell;
-#if defined(DETECT_ALT_ENTER)
   struct ScreenSizes ScrSize;
-#endif
 };
 
 

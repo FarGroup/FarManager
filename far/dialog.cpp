@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.288 15.06.2003 $ */
+/* Revision: 1.289 25.07.2003 $ */
 
 /*
 Modify:
+  25.07.2003 SVS
+    ! учтем новые коды возврата для KeyMacro::GetCurRecord()
+    - в предыдущем патче нужное закомментировал ;-)
   15.06.2003 SVS
     - при центрировании (флаг DIF_CENTERGROUP) Type=DI_RADIOBUTTON получаем
       чудную кашу на экране
@@ -1426,7 +1429,7 @@ void Dialog::ProcessCenterGroup(void)
         switch(Type)
         {
           case DI_BUTTON:
-//            Length-=2;
+            Length-=2;
             break;
           case DI_CHECKBOX:
           case DI_RADIOBUTTON:
@@ -3623,7 +3626,7 @@ int Dialog::ProcessKey(int Key)
               Автодополнение - чтобы не работало во время проигрывания макросов.
               GetCurRecord() вернет 0 для случая, если нет ни записи ни проигрыша.
             */
-            if(!CtrlObject->Macro.GetCurRecord(NULL,NULL) &&
+            if(CtrlObject->Macro.GetCurRecord(NULL,NULL) == MACROMODE_NOMACRO &&
                ((Item[FocusPos].Flags & DIF_HISTORY) || Item[FocusPos].Type == DI_COMBOBOX))
             if((Opt.Dialogs.AutoComplete && Key && Key < 256 && Key != KEY_BS && Key != KEY_DEL) ||
                (!Opt.Dialogs.AutoComplete && (Key == KEY_CTRLEND || Key == KEY_CTRLNUMPAD1))

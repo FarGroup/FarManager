@@ -5,10 +5,13 @@ interf.cpp
 
 */
 
-/* Revision: 1.78 15.06.2003 $ */
+/* Revision: 1.79 23.07.2003 $ */
 
 /*
 Modify:
+  23.07.2003 SVS
+    ! Новый механизм "разворота" консоли для масдаев.
+    + позволим сокрректировать размер (Opt.ScrSize.DeltaXY)
   15.06.2003 SVS
     ! Из _Oem2Unicode "уберем" (обнулим) диапазон псевдографики.
       У нас все равно юзается спец таблица для рамок
@@ -497,6 +500,8 @@ void ChangeVideoMode(int Maximized)
   {
     SendMessage(hFarWnd,WM_SYSCOMMAND,SC_MAXIMIZE,(LPARAM)0);
     coordScreen = GetLargestConsoleWindowSize(hConOut);
+    coordScreen.X+=Opt.ScrSize.DeltaXY.X;
+    coordScreen.Y+=Opt.ScrSize.DeltaXY.Y;
   }
   else
   {
@@ -518,15 +523,43 @@ void ChangeVideoMode(int NumLines,int NumColumns)
   COORD coordScreen;
   int xSize=NumColumns,ySize=NumLines;
 
-  GetConsoleScreenBufferInfo(hConOut, &csbi);
+  if(!GetConsoleScreenBufferInfo(hConOut, &csbi))
+  {
+    return;
+  }
 
+#if 1
+  if(WinVer.dwPlatformId != VER_PLATFORM_WIN32_NT)
+  {
+    if (NumColumns < csbi.dwSize.X || NumLines < csbi.dwSize.Y )
+    {
+      csbi.srWindow.Right  = csbi.srWindow.Left + (NumColumns-1);
+      csbi.srWindow.Bottom = csbi.srWindow.Top  + (NumLines-1);
+      SetConsoleWindowInfo(hConOut,TRUE,&csbi.srWindow );
+
+      csbi.dwSize.X = NumColumns;
+      csbi.dwSize.Y = NumLines;
+      SetConsoleScreenBufferSize(hConOut,csbi.dwSize );
+    }
+    else
+    {
+      csbi.dwSize.X = NumColumns;
+      csbi.dwSize.Y = NumLines;
+      SetConsoleScreenBufferSize(hConOut,csbi.dwSize );
+
+      csbi.srWindow.Right  = csbi.srWindow.Left + (NumColumns-1);
+      csbi.srWindow.Bottom = csbi.srWindow.Top  + (NumLines-1);
+      SetConsoleWindowInfo(hConOut,TRUE,&csbi.srWindow );
+    }
+  }
+#else
   if(WinVer.dwPlatformId != VER_PLATFORM_WIN32_NT ||
       (NumColumns == 80 && (NumLines == 25 || NumLines == 50)) // обеспечим выполнение !Opt.AltF9
     )
   {
     /* get the largest size we can size the console window to */
     coordScreen = GetLargestConsoleWindowSize(hConOut);
-  /* define the new console window size and scroll position */
+    /* define the new console window size and scroll position */
     srWindowRect.Right = (SHORT) (Min((short)xSize, coordScreen.X) - 1);
     srWindowRect.Bottom = (SHORT) (Min((short)ySize, coordScreen.Y) - 1);
     srWindowRect.Left = srWindowRect.Top = (SHORT) 0;
@@ -549,6 +582,7 @@ void ChangeVideoMode(int NumLines,int NumColumns)
     }
 //    GetVideoMode();
   }
+#endif
   else
   {
     srWindowRect.Right = xSize-1;
@@ -562,7 +596,7 @@ void ChangeVideoMode(int NumLines,int NumColumns)
     {
       if (csbi.dwSize.X < xSize-1)
       {
-        srWindowRect.Right = csbi.dwSize.X-1;
+        srWindowRect.Right = csbi.dwSize.X - 1;
         retSetConsole=SetConsoleWindowInfo(hConOut, TRUE, &srWindowRect);
         if (!retSetConsole)
         {
@@ -573,7 +607,7 @@ void ChangeVideoMode(int NumLines,int NumColumns)
 
       if (csbi.dwSize.Y < ySize-1)
       {
-        srWindowRect.Bottom=csbi.dwSize.Y-1;
+        srWindowRect.Bottom=csbi.dwSize.Y - 1;
         retSetConsole=SetConsoleWindowInfo(hConOut, TRUE, &srWindowRect);
         if (!retSetConsole)
         {

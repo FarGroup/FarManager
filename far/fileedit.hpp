@@ -7,10 +7,12 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.34 11.12.2002 $ */
+/* Revision: 1.35 25.07.2003 $ */
 
 /*
 Modify:
+  25.07.2003 SVS
+    ! новый член класса - DWORD SysErrorCode.
   11.12.2002 SVS
     ! Некоторые переменные класса заменены на флаги
   08.11.2002 SVS
@@ -166,6 +168,7 @@ class FileEditor:public Frame
     */
     DWORD FileAttributes;
     /* IS $ */
+    DWORD SysErrorCode;
 
   public:
     FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,

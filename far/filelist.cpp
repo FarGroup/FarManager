@@ -5,10 +5,14 @@ filelist.cpp
 
 */
 
-/* Revision: 1.184 14.07.2003 $ */
+/* Revision: 1.185 25.07.2003 $ */
 
 /*
 Modify:
+  25.07.2003 SVS
+    ! Если плагиновая панель, но плагин выставил флаг OPIF_REALNAMES, то
+      Shift-F5/Shift-F6 работает как на обычной панели (можно увидеть на
+      примере TempPanel).
   14.07.2003 SVS
     + "Numeric sort" добавим в меню быстрого доступа Ctrl-F12
   11.07.2003 SVS
@@ -1941,11 +1945,24 @@ int FileList::ProcessKey(int Key)
         int OldFileCount=FileCount,OldCurFile=CurFile;
         int OldSelection=ListData[CurFile].Selected;
         int ToPlugin=0;
+        int RealName=PanelMode!=PLUGIN_PANEL;
         ReturnCurrentFile=TRUE;
-        if (PanelMode!=PLUGIN_PANEL)
+
+        if (PanelMode==PLUGIN_PANEL)
+        {
+          struct OpenPluginInfo Info;
+          CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
+          RealName=Info.Flags&OPIF_REALNAMES;
+        }
+
+        if (RealName)
+        {
           ShellCopy ShCopy(this,Key==KEY_SHIFTF6,FALSE,TRUE,TRUE,ToPlugin,NULL);
+        }
         else
+        {
           ProcessCopyKeys(Key==KEY_SHIFTF5 ? KEY_F5:KEY_F6);
+        }
         ReturnCurrentFile=FALSE;
         if (Key!=KEY_SHIFTF5 && FileCount==OldFileCount &&
             CurFile==OldCurFile && OldSelection!=ListData[CurFile].Selected)
@@ -4314,8 +4331,7 @@ void FileList::ProcessCopyKeys(int Key)
         }
       }
     }
-    if (PanelMode==PLUGIN_PANEL &&
-        !CtrlObject->Plugins.UseFarCommand(hPlugin,PLUGIN_FARGETFILES))
+    if (PanelMode==PLUGIN_PANEL && !CtrlObject->Plugins.UseFarCommand(hPlugin,PLUGIN_FARGETFILES))
     {
       if (Key!=KEY_ALTF6)
       {

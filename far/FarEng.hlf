@@ -1128,6 +1128,11 @@ files and folders matching one or more ~wildcards~@FileMasks@ (delimited
 with commas). It may also be used with file systems emulated
 by ~plugins~@Plugins@.
 
+    Примечание: если маска, введенная пользователем, не содержит
+                символов '?', '*' и '.', то FAR к введенному
+                пользователем значению добавляет символ '*' и
+                производит поиск по измененной маске.
+
     Optional text string may be specified to find only files containing
 this text. If the string is entered, the option #Case sensitive# selects case
 sensitive comparison.

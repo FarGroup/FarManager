@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.68 15.07.2003 $ */
+/* Revision: 1.69 25.07.2003 $ */
 
 /*
 Modify:
+  25.07.2003 SVS
+    + MacroRecordAndExecuteType - коды возврата для KeyMacro::GetCurRecord()
   15.07.2003 SVS
     + MFLAGS_INSIDEPLUGIN и MFLAGS_NOINSIDEPLUGIN
   15.06.2003 SVS
@@ -262,6 +264,16 @@ enum {
 #define MFLAGS_RUNAFTERFARSTART2   0x40000000
 #define MFLAGS_DISABLEMACRO        0x80000000
 
+// коды возврата для KeyMacro::GetCurRecord()
+enum MacroRecordAndExecuteType{
+  MACROMODE_NOMACRO=0,             // не в режиме макро
+  MACROMODE_EXECUTING=1,           // исполнение: без передачи плагину пимп
+  MACROMODE_EXECUTING_COMMON=2,    // исполнение: с передачей плагину пимп
+  MACROMODE_RECORDING=3,           // запись: без передачи плагину пимп
+  MACROMODE_RECORDING_COMMON=4,    // запись: с передачей плагину пимп
+};
+
+// **************************************************
 
 // for filelist
 enum {ARCHIVE_NONE,ARCHIVE_RAR,ARCHIVE_ZIP,ARCHIVE_ARJ,ARCHIVE_LZH};

@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.226 15.07.2003 $ */
+/* Revision: 1.227 25.07.2003 $ */
 
 /*
 Modify:
+  25.07.2003 SVS
+    ! выставим SetLastError в Editor::ReadFile в случае неудачи.
   15.07.2003 SVS
     - Del/Bs в самой последней позиции ничего не удаляет, поэтому не модифицируем...
   05.06.2003 SVS
@@ -843,6 +845,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
   if (hEdit==INVALID_HANDLE_VALUE)
   {
     int LastError=GetLastError();
+    SetLastError(LastError);
     if (LastError!=ERROR_FILE_NOT_FOUND && LastError!=ERROR_PATH_NOT_FOUND)
     {
       UserBreak=-1;

@@ -5,10 +5,14 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.137 15.07.2003 $ */
+/* Revision: 1.138 25.07.2003 $ */
 
 /*
 Modify:
+  25.07.2003 SVS
+    ! выставим SetLastError в случае неудачи, чтобы корректно отобразить сообщение
+      (используется новый член класса - DWORD SysErrorCode)
+    ! Отмеченные куски "#if 0" - не трогать!!! ЭТО NT! :-)
   15.07.2003 SVS
     + немного логов
   30.05.2003 SVS
@@ -539,6 +543,8 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
 {
   _ECTLLOG(CleverSysLog SL("FileEditor::Init()"));
   _ECTLLOG(SysLog("(Name=%s, Title=%s)",Name,Title));
+  SysErrorCode=0;
+
   FEdit=new Editor;
 
   if(!FEdit)
@@ -722,6 +728,7 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
     {
       if (UserBreak!=1)
       {
+        SetLastError(SysErrorCode);
         Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MEditTitle),MSG(MEditCannotOpen),FileName,MSG(MOk));
         ExitCode=XC_OPEN_ERROR;
       }
@@ -987,9 +994,17 @@ int FileEditor::ProcessKey(int Key)
 
   _KEYMACRO(CleverSysLog SL("FileEditor::ProcessKey()"));
   _KEYMACRO(SysLog("Key=%s Macro.IsExecuting()=%d",_FARKEY_ToName(Key),CtrlObject->Macro.IsExecuting()));
+#if 0
+  int ProcessedNext=TRUE;
 
+  if(CtrlObject->Macro.IsRecording() == MACROMODE_RECORDING_COMMON || CtrlObject->Macro.IsExecuting() == MACROMODE_EXECUTING_COMMON)
+    ProcessedNext=!ProcessEditorInput(FrameManager->GetLastInputRecord());
+
+  if (ProcessedNext)
+#else
   if (//CtrlObject->Macro.IsExecuting() || CtrlObject->Macro.IsRecording() || // пусть доходят!
     !ProcessEditorInput(FrameManager->GetLastInputRecord()))
+#endif
   {
     switch(Key)
     {
@@ -1165,6 +1180,7 @@ int FileEditor::ProcessKey(int Key)
 
           if(SaveFile(FullFileName,0,Key==KEY_SHIFTF2 ? TextFormat:0,Key==KEY_SHIFTF2) == SAVEFILE_ERROR)
           {
+            SetLastError(SysErrorCode);
             if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MEditTitle),MSG(MEditCannotSave),
                         FileName,MSG(MRetry),MSG(MCancel))!=0)
             {
@@ -1360,6 +1376,7 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
       SetExitCode (XC_QUIT);
       break;
     }
+    SetLastError(SysErrorCode);
     if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MEditTitle),MSG(MEditCannotSave),
                 FileName,MSG(MRetry),MSG(MCancel))!=0)
       break;
@@ -1375,6 +1392,7 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
 int FileEditor::ReadFile(const char *Name,int &UserBreak)
 {
   int Ret=FEdit->ReadFile(Name,UserBreak);
+  SysErrorCode=GetLastError();
   GetLastInfo(Name,&FileInfo);
   return Ret;
 }
@@ -1553,17 +1571,20 @@ int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
     {
       //_SVS(SysLogLastError();SysLog("Name='%s',FileAttributes=%d",Name,FileAttributes));
       RetCode=SAVEFILE_ERROR;
+      SysErrorCode=GetLastError();
       goto end;
     }
     int EditHandle=_open_osfhandle((long)hEdit,O_BINARY);
     if (EditHandle==-1)
     {
       RetCode=SAVEFILE_ERROR;
+      SysErrorCode=GetLastError();
       goto end;
     }
     if ((EditFile=fdopen(EditHandle,"wb"))==NULL)
     {
       RetCode=SAVEFILE_ERROR;
+      SysErrorCode=GetLastError();
       goto end;
     }
 
@@ -2164,6 +2185,10 @@ int FileEditor::EditorControl(int Command,void *Param)
 
     case ECTL_READINPUT:
     {
+#if 0
+      if(CtrlObject->Macro.IsRecording() == MACROMODE_RECORDING || CtrlObject->Macro.IsExecuting() == MACROMODE_EXECUTING)
+        return FALSE;
+#endif
       if(!Param)
         return FALSE;
       else

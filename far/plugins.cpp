@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.143 15.07.2003 $ */
+/* Revision: 1.144 22.07.2003 $ */
 
 /*
 Modify:
+  22.07.2003 SVS
+    - поправим комментарии
   15.07.2003 SVS
     + CurPluginItem - NULL или указатель на текущий плагин
   17.06.2003 SVS
@@ -113,7 +115,7 @@ Modify:
   22.01.2002 SVS
     ! Внедрение флагов по каждому плагину
     ! Небольшие подготовительные операции в UnloadPlugin
-    - BugZ#52 farexcpt.handling for floating point incorrect
+    - BugZ#52 exception handling for floating point incorrect
   15.01.2002 SVS
     ! Первая серия по отучиванию класса Editor слову "Файл"
   14.01.2002 IS
@@ -928,7 +930,7 @@ void PluginsSet::UnloadPlugin(struct PluginItem &CurPlugin,DWORD Exception)
 //      FrameManager->DeleteFrame();
 
   CurPluginItem=NULL;
-  if(Flags.Check(PSIF_DIALOG)) // BugZ#52 farexcpt.handling for floating point incorrect
+  if(Flags.Check(PSIF_DIALOG)) // BugZ#52 exception handling for floating point incorrect
   {
     Flags.Clear(PSIF_DIALOG);
     FrameManager->DeleteFrame();
