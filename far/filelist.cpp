@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.150 27.04.2002 $ */
+/* Revision: 1.151 29.04.2002 $ */
 
 /*
 Modify:
+  29.04.2002 SVS
+    - Косотыли про FullScreen
   27.04.2002 SVS
     ! 8192 -> MAXSIZE_SHORTCUTDATA
   17.04.2002 SVS
@@ -2057,6 +2059,7 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
          Не перерисовываем, если ChangeDir закрыла панель
       */
       BOOL res=FALSE;
+      int CheckFullScreen=IsFullScreen();
       if (PanelMode==PLUGIN_PANEL || strchr(CurPtr->Name,'?')==NULL ||
           *CurPtr->ShortName==0)
       {
@@ -2066,6 +2069,10 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
         res=ChangeDir(CurPtr->ShortName);
 //      if(res)
       CtrlObject->Cp()->ActivePanel->Show();
+      if(CheckFullScreen)
+      {
+        CtrlObject->Cp()->GetAnotherPanel(this)->Show();
+      }
       /* SVS $ */
     }
   }

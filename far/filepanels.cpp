@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.42 13.04.2002 $ */
+/* Revision: 1.43 29.04.2002 $ */
 
 /*
 Modify:
+  29.04.2002 SVS
+    ! Орисовка. Задолбала. Уморила. Думаю этот костыль поможет.
   13.04.2002 KM
     ! ??? Я не понял зачем Redraw в OnChangeFocus, если
       Redraw вызывается следом во Frame::OnChangeFocus и там
@@ -654,6 +656,7 @@ int  FilePanels::ProcessKey(int Key)
     case KEY_SHIFTF10:
       ShellOptions(1,NULL);
       return(TRUE);
+
     case KEY_CTRL1:
       ActivePanel->SetViewMode(VIEW_1);
       ChangePanelToFilled(ActivePanel,FILE_PANEL);
@@ -708,6 +711,12 @@ int  FilePanels::ProcessKey(int Key)
       if (!ActivePanel->ProcessKey(Key))
         CtrlObject->CmdLine->ProcessKey(Key);
       break;
+  }
+  // ВНИМАНИЕ! Костыль! Но Работает!
+  if(Key >= KEY_CTRL0 && Key <= KEY_CTRL9)
+  {
+    SetScreenPosition();
+    FrameManager->RefreshFrame();
   }
   return(TRUE);
 }
