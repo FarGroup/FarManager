@@ -5,10 +5,14 @@ gettable.cpp
 
 */
 
-/* Revision: 1.13 22.02.2002 $ */
+/* Revision: 1.14 17.03.2002 $ */
 
 /*
 Modify:
+  17.03.2002 IS
+    + PrepareTable: параметр UseTableName - в качестве имени таблицы
+      использовать не имя ключа реестра, а соответствующую переменную.
+      По умолчанию - FALSE (использовать имя ключа).
   22.02.2002 SVS
     ! Заюзаем fseek64
   07.08.2001 IS
@@ -305,7 +309,12 @@ static unsigned long CalcDifference(int *SrcTable,int *CheckedTable,char *Decode
 }
 
 
-int PrepareTable(struct CharTableSet *TableSet,int TableNum)
+/* $ 17.03.2002 IS
+  + PrepareTable: параметр UseTableName - в качестве имени таблицы
+    использовать не имя ключа реестра, а соответствующую переменную.
+    По умолчанию - FALSE (использовать имя ключа).
+*/
+int PrepareTable(struct CharTableSet *TableSet,int TableNum,BOOL UseTableName)
 {
   int I;
   for (I=0;I<256;I++)
@@ -318,7 +327,11 @@ int PrepareTable(struct CharTableSet *TableSet,int TableNum)
     return(FALSE);
   if (!GetRegKey(TableKey,"Mapping",(BYTE *)TableSet->DecodeTable,(BYTE *)NULL,sizeof(TableSet->DecodeTable)))
     return(FALSE);
-  strncpy(TableSet->TableName,PointToName(TableKey),sizeof(TableSet->TableName)-1);
+
+  if(UseTableName)
+    GetRegKey(TableKey,"TableName",TableSet->TableName,PointToName(TableKey),sizeof(TableSet->TableName));
+  else
+    strncpy(TableSet->TableName,PointToName(TableKey),sizeof(TableSet->TableName)-1);
 
   int EncodeSet[256];
   memset(EncodeSet,0,sizeof(EncodeSet));
@@ -346,3 +359,4 @@ int PrepareTable(struct CharTableSet *TableSet,int TableNum)
   /* IS $ */
   return(TRUE);
 }
+/* IS 17.03.2002 $ */

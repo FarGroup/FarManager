@@ -7,10 +7,14 @@ fn.hpp
 
 */
 
-/* Revision: 1.138 12.03.2002 $ */
+/* Revision: 1.139 17.03.2002 $ */
 
 /*
 Modify:
+  17.03.2002 IS
+    + PrepareTable: параметр UseTableName - в качестве имени таблицы
+      использовать не имя ключа реестра, а соответствующую переменную.
+      По умолчанию - FALSE (использовать имя ключа).
   12.03.2002 VVM
     + Новая функция - пользователь попытался прервать операцию.
       Зададим вопрос.
@@ -644,7 +648,13 @@ int GetPluginDirInfo(HANDLE hPlugin,char *DirName,unsigned long &DirCount,
 int DetectTable(FILE *SrcFile,struct CharTableSet *TableSet,int &TableNum);
 
 #ifdef __PLUGIN_HPP__
-int PrepareTable(struct CharTableSet *TableSet,int TableNum);
+/* $ 17.03.2002 IS
+   Параметр UseTableName - в качестве имени таблицы использовать не имя ключа
+   реестра, а соответствующую переменную.
+   По умолчанию - FALSE (использовать имя ключа).
+*/
+int PrepareTable(struct CharTableSet *TableSet,int TableNum,BOOL UseTableName=FALSE);
+/* IS $ */
 #endif
 
 

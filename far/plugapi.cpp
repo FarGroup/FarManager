@@ -5,18 +5,20 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.120 01.03.2002 $ */
+/* Revision: 1.121 17.03.2002 $ */
 
 /*
 Modify:
+  17.03.2002 IS
+    - FarCharTable: по возможности используем значение TableName (BugZ#331)
   01.03.2002 SVS
     ! Есть только одна функция создания временного файла - FarMkTempEx
   28.02.2002 SVS
-   - Для ACTL_CONSOLEMODE+CONSOLE_GET_MODE
-     Param=NULL - это... обычный (void*)0, так шта...
-     К тому же "*(int*)Param" - это полная хрень.
-   ! ACTL_*WINDOW* - Добавим проверку на FrameManager != NULL
-   - ACTL_GETWINDOWINFO - забыли выставить корректное значение WindowInfo.Pos
+    - Для ACTL_CONSOLEMODE+CONSOLE_GET_MODE
+      Param=NULL - это... обычный (void*)0, так шта...
+      К тому же "*(int*)Param" - это полная хрень.
+    ! ACTL_*WINDOW* - Добавим проверку на FrameManager != NULL
+    - ACTL_GETWINDOWINFO - забыли выставить корректное значение WindowInfo.Pos
   19.02.2002 SVS
     ! Добавим проверку на PluginNumber в Menu, Message & Dialog
   13.02.2002 SVS
@@ -1885,7 +1887,9 @@ int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize)
        При неудаче заполним структуру данными для OEM
   */
   CharTableSet *CTS=reinterpret_cast<CharTableSet*>(Buffer);
-  if (!PrepareTable(CTS,Command))
+  /* $ 17.03.2002 IS По возможности используем значение TableName */
+  if (!PrepareTable(CTS,Command,TRUE))
+  /* IS $ */
   {
     for(unsigned int i=0;i<256;++i)
     {
