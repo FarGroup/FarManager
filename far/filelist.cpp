@@ -5,14 +5,18 @@ filelist.cpp
 
 */
 
-/* Revision: 1.69 29.06.2001 $ */
+/* Revision: 1.70 02.07.2001 $ */
 
 /*
 Modify:
+  02.07.2001 IS
+    + При выделении файлов (серый плюс и прочие команды) можно использовать
+      маски исключения, можно использовать в качестве разделителя не только
+      запятую, но и точку с запятой, можно брать маску в кавычки.
   29.06.2001 OT
-   - Баг с вызовом редактора из плагина
+    - Баг с вызовом редактора из плагина
   25.06.2001 IS
-   ! Внедрение const
+    ! Внедрение const
   23.06.2001 OT
     - far -r
   16.06.2001 KM
@@ -212,6 +216,7 @@ Modify:
 #include "rdrwdsk.hpp"
 #include "plognmn.hpp"
 #include "scrbuf.hpp"
+#include "CFileMask.hpp"
 
 extern struct PanelViewSettings ViewSettingsArray[];
 
@@ -2424,9 +2429,12 @@ int FileList::GetCurName(char *Name,char *ShortName)
   return(TRUE);
 }
 
-
+/* $ 02.07.2001 IS
+   Для работы с масками используем соответствующий класс
+*/
 void FileList::SelectFiles(int Mode)
 {
+  CFileMask FileMask; // Класс для работы с масками
   const char *HistoryName="Masks";
   static struct DialogData SelectDlgData[]=
   {
@@ -2451,24 +2459,28 @@ void FileList::SelectFiles(int Mode)
   }
   CurPtr=&ListData[CurFile];
   char *CurName=(ShowShortNames && *CurPtr->ShortName ? CurPtr->ShortName:CurPtr->Name);
-  bool MultipleMasks=false;
   if (Mode==SELECT_ADDEXT || Mode==SELECT_REMOVEEXT)
   {
-    strcpy(Mask,"*.");
     char *DotPtr=strrchr(CurName,'.');
     if (DotPtr!=NULL)
-      strcat(Mask,DotPtr+1);
+    {
+      // Учтем тот момент, что расширение может содержать символы-разделители
+      sprintf(Mask, "\"*.%s\"", DotPtr+1);
+    }
+    else
+      strcpy(Mask,"*.");
     Mode=(Mode==SELECT_ADDEXT) ? SELECT_ADD:SELECT_REMOVE;
   }
   else
     if (Mode==SELECT_ADDNAME || Mode==SELECT_REMOVENAME)
     {
-      strcpy(Mask,CurName);
+      // Учтем тот момент, что имя может содержать символы-разделители
+      sprintf(Mask,"\"%s", CurName);
       char *DotPtr=strrchr(Mask,'.');
       if (DotPtr!=NULL)
-        strcpy(DotPtr,".*");
+        strcpy(DotPtr,".*\"");
       else
-        strcat(Mask,".*");
+        strcat(Mask,".*\"");
       Mode=(Mode==SELECT_ADDNAME) ? SELECT_ADD:SELECT_REMOVE;
     }
     else
@@ -2483,37 +2495,36 @@ void FileList::SelectFiles(int Mode)
           Dialog Dlg(SelectDlg,sizeof(SelectDlg)/sizeof(SelectDlg[0]));
           Dlg.SetHelp("SelectFiles");
           Dlg.SetPosition(-1,-1,45,5);
-          Dlg.Process();
-          if (Dlg.GetExitCode()!=1)
-            return;
+          for(;;)
+          {
+             Dlg.ClearDone();
+             Dlg.Process();
+             if (Dlg.GetExitCode()!=1)
+               return;
+             strncpy(Mask,SelectDlg[1].Data,sizeof(Mask)-1);
+             Mask[sizeof(Mask)-1]=0;
+             if(FileMask.Set(Mask, 0)) // Проверим вводимые пользователем маски
+                                       // на ошибки
+               break;
+          }
         }
-        strncpy(Mask,SelectDlg[1].Data,sizeof(Mask)-1);
-        Mask[sizeof(Mask)-1]=0;
-        Unquote(Mask);
+        // Unquote(Mask); не нужно! т.к. все делается в FileMask.Set()
         strcpy(PrevMask,Mask);
-        MultipleMasks=true;
       }
   SaveSelection();
-  for (I=0;I<FileCount;I++)
-  {
+
+  if(FileMask.Set(Mask, FMF_SILENT)) // Скомпилируем маски файлов и работаем
+                                     // дальше в зависимости от успеха
+                                     // компиляции
+   for (I=0;I<FileCount;I++)
+   {
     int Match=FALSE;
     CurPtr=&ListData[I];
     if (Mode==SELECT_INVERT || Mode==SELECT_INVERTALL)
       Match=TRUE;
     else
-      if (MultipleMasks)
-      {
-        char ArgName[NM];
-        const char *NamePtr=Mask;
-        while ((NamePtr=GetCommaWord(NamePtr,ArgName))!=NULL)
-          if (CmpName(ArgName,(ShowShortNames && *CurPtr->ShortName ? CurPtr->ShortName:CurPtr->Name)))
-          {
-            Match=TRUE;
-            break;
-          }
-      }
-      else
-        Match=CmpName(Mask,(ShowShortNames && *CurPtr->ShortName ? CurPtr->ShortName:CurPtr->Name));
+      Match=FileMask.Compare((ShowShortNames && *CurPtr->ShortName ?
+                              CurPtr->ShortName:CurPtr->Name));
 
     if (Match)
     {
@@ -2534,12 +2545,12 @@ void FileList::SelectFiles(int Mode)
           Opt.SelectFolders || RawSelection || Mode==SELECT_INVERTALL)
         Select(CurPtr,Selection);
     }
-  }
+   }
   if (SelectedFirst)
     SortFileList(TRUE);
   ShowFileList(TRUE);
 }
-
+/* IS $ */
 
 void FileList::UpdateViewPanel()
 {
