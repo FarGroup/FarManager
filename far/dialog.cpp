@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.327 04.02.2005 $ */
+/* Revision: 1.328 08.02.2005 $ */
 
 /*
 Modify:
+  08.02.2005 WARP
+    ! ≈сли X2 в DI_TEXT <= 0, то делаем ширину равной длине строки
   04.02.2005 WARP
     ! ¬ернул обработку сообщений диалога после DN_CLOSE
   04.02.2005 WARP
@@ -2797,6 +2799,9 @@ void Dialog::ShowDialog(int ID)
         X=(CX1==-1)?(X2-X1+1-LenText)/2:CX1;
         if(X < 0)
           X=0;
+
+        if ( (CX2 <= 0) || (CX2 < CX1) )
+          CW = LenStrItem(I,Str);
 
         if(X1+X+LenText > X2)
         {
