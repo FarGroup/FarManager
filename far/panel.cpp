@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.31 22.04.2001 $ */
+/* Revision: 1.32 24.04.2001 $ */
 
 /*
 Modify:
+  24.04.2001 VVM
+    - Баг при смене порядка сортировки
   22.04.2001 SVS
     ! Временная отмена куска патча 547
     + Добавка для NT/2000 - вторичный Del на CDROOM задвигает диск.
@@ -1229,7 +1231,10 @@ void Panel::SetPluginCommand(int Command,void *Param)
         /* VVM $ */
         Panel *DestPanel=(Command==FCTL_SETSORTORDER) ? this:AnotherPanel;
         if (DestPanel!=NULL)
-          DestPanel->SetSortOrder(Order);
+        /* $ 24.04.2001 VVVM
+           Использовать функция ChangeSortOrder() */
+          DestPanel->ChangeSortOrder(Order);
+        /* VVM $ */
       }
       break;
     case FCTL_CLOSEPLUGIN:

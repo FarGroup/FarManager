@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.38 09.04.2001 $ */
+/* Revision: 1.39 24.04.2001 $ */
 
 /*
 Modify:
+  24.04.2001 VVM
+    + Функция смены порядка сортировки
   09.04.2001 SVS
     - ChangeDir возвращает FALSE, если файловая панель была закрыта;
       исправлен трап при переходе из файловой панели в network
@@ -2943,3 +2945,10 @@ void FileList::SetSelectedFirstMode(int Mode)
   SortFileList(TRUE);
 }
 /* IS $ */
+
+void FileList::ChangeSortOrder(int NewOrder)
+{
+  Panel::ChangeSortOrder(NewOrder);
+  SortFileList(TRUE);
+  Show();
+}

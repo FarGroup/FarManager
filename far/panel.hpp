@@ -7,10 +7,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.03 25.02.2001 $ */
+/* Revision: 1.04 24.04.2001 $ */
 
 /*
 Modify:
+  24.04.2001 VVM
+    + функция смены сортировки.
   25.02.2001 VVM
     + Доп. параметр у ReadDiz - dwFlags
       На данном этапе флаг всего один 
@@ -97,6 +99,10 @@ class Panel:public ScreenObject
     virtual void SetSortMode(int SortMode) {Panel::SortMode=SortMode;};
     int GetSortOrder() {return(SortOrder);};
     void SetSortOrder(int SortOrder) {Panel::SortOrder=SortOrder;};
+    /* $ 24.04.2001 VVM
+      Изменить порядок сортировки на панели */
+    virtual void ChangeSortOrder(int NewOrder) {SetSortOrder(NewOrder);};
+    /* VVM $ */
     int GetSortGroups() {return(SortGroups);};
     void SetSortGroups(int SortGroups) {Panel::SortGroups=SortGroups;};
     int GetShowShortNamesMode() {return(ShowShortNames);};

@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.07 09.04.2001 $ */
+/* Revision: 1.08 24.04.2001 $ */
 
 /*
 Modify:
+  24.04.2001 VVM
+    + Функция для смены порядка сортировки.
   09.04.2001 SVS
     ! ChangeDir() возвращает FALSE, если файловая панель была закрыта
   25.02.2001 VVM
@@ -164,6 +166,7 @@ class FileList:public Panel
     void SortFileList(int KeepPosition);
     void SetViewMode(int ViewMode);
     void SetSortMode(int SortMode);
+    virtual void ChangeSortOrder(int NewOrder);
     void SetCurDir(char *NewDir,int ClosePlugin);
     int GetPrevSortMode();
     int GetPrevSortOrder();
