@@ -7,10 +7,12 @@ class RedrawDesktop
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 12.11.2001 $ */
 
 /*
 Modify:
+  12.11.2001 SVS
+    + данные про кейьбар и топменю + параметр у конструктора
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
@@ -19,11 +21,15 @@ Modify:
 class RedrawDesktop
 {
   private:
-    int LeftVisible,RightVisible;
+    int LeftVisible;
+    int RightVisible;
+    int KeyBarVisible;
+    int TopMenuBarVisible;
+
   public:
-    RedrawDesktop();
+    RedrawDesktop(BOOL IsHidden=FALSE);
     ~RedrawDesktop();
 };
 
 
-#endif	// __REDRAWDESKTOP_HPP__
+#endif  // __REDRAWDESKTOP_HPP__

@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.03 12.11.2001 $ */
+/* Revision: 1.04 12.11.2001 $ */
 
 /*
 Modify:
+  12.11.2001 SVS
+    - BugZ#90: панель остается на экране
   12.11.2001 SVS
     ! откат 1033 и 1041 до лучших времен.
   08.11.2001 SVS
@@ -421,31 +423,31 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
   int Code;
   {
     {
-    RedrawDesktop Redraw;
-    /*$ 22.06.2001 SKV
-      Если не закомментарить это, то они не пересоздадуться,
-      если update'а не случится.
-      А если вызывать Update, то глюки с отрисовкой.
-    */
-    //CtrlObject->Cp()->LeftPanel->CloseChangeNotification();
-    //CtrlObject->Cp()->RightPanel->CloseChangeNotification();
-    /* SKV$*/
-    CtrlObject->Cp()->LeftPanel->CloseFile();
-    CtrlObject->Cp()->RightPanel->CloseFile();
-    ScrollScreen(1);
-    MoveCursor(X1,Y1);
-    if (CurDir[0] && CurDir[1]==':')
-      chdir(CurDir);
-    CmdStr.SetString("");
-    if (ProcessOSCommands(CmdLine))
-      Code=-1;
-    else
-      Code=Execute(CmdLine,AlwaysWaitFinish,SeparateWindow,DirectRun);
+      RedrawDesktop Redraw(TRUE);
+      /*$ 22.06.2001 SKV
+        Если не закомментарить это, то они не пересоздадуться,
+        если update'а не случится.
+        А если вызывать Update, то глюки с отрисовкой.
+      */
+      //CtrlObject->Cp()->LeftPanel->CloseChangeNotification();
+      //CtrlObject->Cp()->RightPanel->CloseChangeNotification();
+      /* SKV$*/
+      //CtrlObject->Cp()->LeftPanel->CloseFile();
+      //CtrlObject->Cp()->RightPanel->CloseFile();
+      ScrollScreen(1);
+      MoveCursor(X1,Y1);
+      if (CurDir[0] && CurDir[1]==':')
+        chdir(CurDir);
+      CmdStr.SetString("");
+      if (ProcessOSCommands(CmdLine))
+        Code=-1;
+      else
+        Code=Execute(CmdLine,AlwaysWaitFinish,SeparateWindow,DirectRun);
 
-    int CurX,CurY;
-    GetCursorPos(CurX,CurY);
-    if (CurY>=Y1-1)
-      ScrollScreen(Min(CurY-Y1+2,Opt.ShowKeyBar ? 2:1));
+       int CurX,CurY;
+       GetCursorPos(CurX,CurY);
+       if (CurY>=Y1-1)
+         ScrollScreen(Min(CurY-Y1+2,Opt.ShowKeyBar ? 2:1));
     }
     /*$ 22.06.2001 SKV
       При Update почему-то глючит перерисовка.
@@ -453,10 +455,13 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
     */
     //CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
     //CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
+    //CtrlObject->Cp()->Redraw();
+    /*
     if (CtrlObject->Cp()->LeftPanel->UpdateIfChanged(1))
       CtrlObject->Cp()->LeftPanel->Show();
     if (CtrlObject->Cp()->RightPanel->UpdateIfChanged(1))
       CtrlObject->Cp()->RightPanel->Show();
+    */
     /* SKV$*/
   }
   ScrBuf.Flush();

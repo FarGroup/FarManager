@@ -5,12 +5,14 @@ class RedrawDesktop
 
 */
 
-/* Revision: 1.07 30.05.2001 $ */
+/* Revision: 1.08 12.11.2001 $ */
 
 /*
 Modify:
+  12.11.2001 SVS
+    ! немного уточнения с расширением сервиса
   30.05.2001 OT
-    - Не прорисовывалась командная строка при сохранении/восстановлении буфера 
+    - Не прорисовывалась командная строка при сохранении/восстановлении буфера
   21.05.2001 OT
     ! Про "Ресайзинг буфера консоли"
   11.05.2001 OT
@@ -36,12 +38,21 @@ Modify:
 #include "cmdline.hpp"
 #include "ctrlobj.hpp"
 
-RedrawDesktop::RedrawDesktop()
+RedrawDesktop::RedrawDesktop(BOOL IsHidden)
 {
   CtrlObject->CmdLine->ShowBackground();
   CtrlObject->CmdLine->Show();
   LeftVisible=CtrlObject->Cp()->LeftPanel->IsVisible();
   RightVisible=CtrlObject->Cp()->RightPanel->IsVisible();
+  KeyBarVisible=Opt.ShowKeyBar;//CtrlObject->MainKeyBar->IsVisible();
+  TopMenuBarVisible=Opt.ShowMenuBar;//CtrlObject->TopMenuBar->IsVisible();
+  if(IsHidden)
+  {
+    CtrlObject->Cp()->LeftPanel->CloseFile();
+    CtrlObject->Cp()->RightPanel->CloseFile();
+    CtrlObject->MainKeyBar->Hide();
+    CtrlObject->TopMenuBar->Hide();
+  }
 }
 
 
@@ -49,9 +60,9 @@ RedrawDesktop::~RedrawDesktop()
 {
   CtrlObject->CmdLine->SaveBackground();
   CtrlObject->CmdLine->Show();
-  if (Opt.ShowKeyBar)
+  if (KeyBarVisible)
     CtrlObject->MainKeyBar->Show();
-  if (Opt.ShowMenuBar)
+  if (TopMenuBarVisible)
     CtrlObject->TopMenuBar->Show();
   int RightType=CtrlObject->Cp()->RightPanel->GetType();
   if (RightVisible && RightType!=QVIEW_PANEL)
