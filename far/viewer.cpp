@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.25 18.09.2000 $ */
+/* Revision: 1.26 19.09.2000 $ */
 
 /*
 Modify:
+  19.09.2000 SVS
+    ! FEFF-файлы - уточнение алгоритма отображения и распознавания.
   18.09.2000 SVS
     ! Уточнение Warp и KeyBar
   14.09.2000 SVS
@@ -306,6 +308,28 @@ int Viewer::OpenFile(char *Name,int warning)
   ViewFindHandle=FindFirstFile(FileName,&ViewFindData);
   FindClose(ViewFindHandle);
 
+  /* $ 19.09.2000 SVS
+    AutoDecode Unicode
+  */
+  BOOL IsDecode=FALSE;
+
+  if(Opt.ViewerAutoDetectTable)
+  {
+    DWORD ReadSize;
+    FirstWord=0;
+    vseek(ViewFile,0,SEEK_SET);
+    ReadSize=vread((char *)&FirstWord,sizeof(FirstWord),ViewFile);
+    //if(ReadSize == sizeof(FirstWord) &&
+    if(FirstWord == 0x0FEFF)
+    {
+      AnsiText=UseDecodeTable=0;
+      Unicode=1;
+      TableChangedByUser=TRUE;
+      IsDecode=TRUE;
+    }
+  }
+  /* SVS $ */
+
   if (Opt.SaveViewerPos && !ReadStdin)
   {
     unsigned int NewLeftPos,TempPos1,TempPos2,Table,NewFilePos;
@@ -316,36 +340,38 @@ int Viewer::OpenFile(char *Name,int warning)
       strcpy(CacheName,FileName);
     CtrlObject->ViewerPosCache.GetPosition(CacheName,NewFilePos,NewLeftPos,TempPos1,TempPos2,Table);
 
-    TableChangedByUser=(Table!=0);
-    switch(Table)
+    if(!IsDecode)
     {
-      case 0:
-        break;
-      case 1:
-        AnsiText=UseDecodeTable=Unicode=0;
-        break;
-      case 2:
-        {
-          AnsiText=TRUE;
-          UseDecodeTable=TRUE;
-          Unicode=0;
-          TableNum=0;
-          int UseUnicode=TRUE;
-          GetTable(&TableSet,TRUE,TableNum,UseUnicode);
-        }
-        break;
-      case 3:
-        AnsiText=UseDecodeTable=0;
-        Unicode=1;
-        break;
-      default:
-        AnsiText=Unicode=0;
-        UseDecodeTable=1;
-        TableNum=Table-3;
-        PrepareTable(&TableSet,Table-5);
-        break;
+      TableChangedByUser=(Table!=0);
+      switch(Table)
+      {
+        case 0:
+          break;
+        case 1:
+          AnsiText=UseDecodeTable=Unicode=0;
+          break;
+        case 2:
+          {
+            AnsiText=TRUE;
+            UseDecodeTable=TRUE;
+            Unicode=0;
+            TableNum=0;
+            int UseUnicode=TRUE;
+            GetTable(&TableSet,TRUE,TableNum,UseUnicode);
+          }
+          break;
+        case 3:
+          AnsiText=UseDecodeTable=0;
+          Unicode=1;
+          break;
+        default:
+          AnsiText=Unicode=0;
+          UseDecodeTable=1;
+          TableNum=Table-3;
+          PrepareTable(&TableSet,Table-5);
+          break;
+      }
     }
-
     LastSelPos=FilePos=NewFilePos;
     LeftPos=NewLeftPos;
   }
@@ -394,18 +420,6 @@ void Viewer::SetCRSym()
   int ReadSize,I;
   vseek(ViewFile,0,SEEK_SET);
   ReadSize=vread(Buf,sizeof(Buf),ViewFile);
-  /* $ 14.09.2000 SVS
-    AutoDecode Unicode
-  */
-  FirstWord=*(WORD*)Buf;
-  if(Opt.ViewerAutoDetectTable && FirstWord == 0x0FEFF)
-  {
-    AnsiText=UseDecodeTable=0;
-    Unicode=1;
-    FilePos=2;
-    TableChangedByUser=TRUE;
-  }
-  /* SVS $ */
   for (I=0;I<ReadSize;I++)
     switch(Buf[I])
     {
@@ -461,15 +475,6 @@ void Viewer::DisplayObject()
     MoveCursor(79,24);
     SetCursorType(0,10);
   }
-  /* $ 14.09.2000 SVS
-    Unicode
-  */
-//  if(Unicode && !FilePos && !Hex && FirstWord == 0x0FEFF)
-//    FilePos++;
-//  else if(Unicode && Hex && FilePos == 1)
-//    FilePos=0;
-  /* SVS $ */
-
   vseek(ViewFile,FilePos,SEEK_SET);
 
   if (Hex)
@@ -1971,6 +1976,12 @@ int Viewer::vread(char *Buf,int Size,FILE *SrcFile)
 
 int Viewer::vseek(FILE *SrcFile,unsigned long Offset,int Whence)
 {
+  /* $ 19.09.2000 SVS
+    Unicode
+  */
+  if(!Hex && !Offset && Unicode && FirstWord == 0x0FEFF && Whence == SEEK_SET)
+    Offset++;
+  /* SVS $ */
   if (Unicode)
     return(fseek(SrcFile,Offset*2,Whence));
   else
