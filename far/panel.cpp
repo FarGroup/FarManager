@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.133 26.07.2004 $ */
+/* Revision: 1.134 26.07.2004 $ */
 
 /*
 Modify:
+  26.07.2004 SVS
+    - strcpy()
   26.07.2004 VVM
     - Функция SetCurPath() зависала при вызове из панели QuickView.
   08.07.2004 SVS
@@ -1657,7 +1659,7 @@ void Panel::DragMessage(int X,int Y,int Move)
 
   if (SelCount==1)
   {
-    char CvtName[NM];
+    char CvtName[NM+16];
     int FileAttr;
     SrcDragPanel->GetSelName(NULL,FileAttr);
     SrcDragPanel->GetSelName(SelName,FileAttr);
@@ -1705,7 +1707,7 @@ void Panel::GetCurDir(char *CurDir)
 #endif
 void Panel::SetCurDir(char *CurDir,int ClosePlugin)
 {
-  PrepareDiskPath(strcpy(Panel::CurDir,CurDir),sizeof(Panel::CurDir)-1);
+  PrepareDiskPath(strncpy(Panel::CurDir,CurDir,sizeof(Panel::CurDir)-1),sizeof(Panel::CurDir)-1);
 }
 #if defined(__BORLANDC__)
 #pragma warn +par
@@ -1714,7 +1716,7 @@ void Panel::SetCurDir(char *CurDir,int ClosePlugin)
 
 void Panel::InitCurDir(char *CurDir)
 {
-  PrepareDiskPath(strcpy(Panel::CurDir,CurDir),sizeof(Panel::CurDir)-1);
+  PrepareDiskPath(strncpy(Panel::CurDir,CurDir,sizeof(Panel::CurDir)-1),sizeof(Panel::CurDir)-1);
 }
 
 
@@ -1903,19 +1905,18 @@ void Panel::SetTitle()
 {
   if (GetFocus())
   {
-    char TitleDir[NM];
+    char TitleDir[NM+16];
+    *TitleDir='{';
     if (*CurDir)
-      sprintf(TitleDir,"{%s}",CurDir);
+      strncpy(TitleDir+1,CurDir,sizeof(TitleDir)-3);
     else
     {
       char CmdText[512];
-      /* $ 21.07.2000 IG
-         Bug 21 (заголовок после Ctrl-Q, Tab, F3, Esc был кривой)
-      */
+      // $ 21.07.2000 IG - Bug 21 (заголовок после Ctrl-Q, Tab, F3, Esc был кривой)
       CtrlObject->CmdLine->GetCurDir(CmdText);
-      /* IG $*/
-      sprintf(TitleDir,"{%s}",CmdText);
+      strncpy(TitleDir+1,CmdText,sizeof(TitleDir)-3);
     }
+    strncat(TitleDir,"}",sizeof(TitleDir)-3);
     strcpy(LastFarTitle,TitleDir);
     SetFarTitle(TitleDir);
   }
@@ -2074,7 +2075,7 @@ int Panel::SetPluginCommand(int Command,void *Param)
           Reenter++;
           struct OpenPluginInfo PInfo;
           DestFilePanel->GetOpenPluginInfo(&PInfo);
-          strcpy(Info->CurDir,PInfo.CurDir);
+          strncpy(Info->CurDir,PInfo.CurDir,sizeof(Info->CurDir)-1);
           /* $ 12.12.2001 DJ
              обработаем флаги
           */

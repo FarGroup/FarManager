@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.153 09.07.2004 $ */
+/* Revision: 1.154 26.07.2004 $ */
 
 /*
 Modify:
+  26.07.2004 SVS
+    - strcpy()
   09.07.2004 SVS
     - far /p
       F11 F4 - трап
@@ -599,7 +601,7 @@ void PluginsSet::LoadPlugins()
       if(!PathMayBeAbsolute(FullName))
       {
         strncpy(PluginsDir,FarPath,sizeof(PluginsDir)-1);
-        strcat(PluginsDir,FullName);
+        strncat(PluginsDir,FullName,sizeof(PluginsDir)-1);
         strcpy(FullName,PluginsDir);
       }
       // Получим реальное значение полного длинного пути с учетом символических связей.
@@ -621,7 +623,7 @@ void PluginsSet::LoadPlugins()
           struct PluginItem CurPlugin;
           char RegKey[100];
           memset(&CurPlugin,0,sizeof(CurPlugin));
-          strcpy(CurPlugin.ModuleName,FullName);
+          strncpy(CurPlugin.ModuleName,FullName,sizeof(CurPlugin.ModuleName)-1);
           int CachePos=GetCacheNumber(FullName,&FindData,0);
           int LoadCached;
           if(CachePos!=-1)
@@ -730,7 +732,7 @@ void PluginsSet::LoadPluginsFromCache()
   */
   int I;
   char PlgKey[512];
-  char RegKey[100];
+  char RegKey[512];
   struct PluginItem CurPlugin;
 
   for (I=0;;I++)
@@ -996,12 +998,12 @@ void PluginsSet::UnloadPlugin(struct PluginItem &CurPlugin,DWORD Exception)
 
   // имя оставляем обязательно!!! :-(
   char ModuleName[NM];
-  strcpy(ModuleName,CurPlugin.ModuleName);
+  strncpy(ModuleName,CurPlugin.ModuleName,sizeof(ModuleName)-1);
 
   BOOL NeedUpdatePanels=CurPlugin.FuncFlags.Check(PICFF_PANELPLUGIN);
 
   memset(&CurPlugin,0,sizeof(CurPlugin));
-  strcpy(CurPlugin.ModuleName,ModuleName);
+  strncpy(CurPlugin.ModuleName,ModuleName,sizeof(CurPlugin.ModuleName)-1);
   CurPlugin.WorkFlags.Set(PIWF_DONTLOADAGAIN);
 
   // BugZ#137 - обработка падения панельного плагина
@@ -1027,7 +1029,7 @@ void PluginsSet::ShowMessageAboutIllegalPluginVersion(char* plg,int required)
 {
     char msg[2][512];
     char PlgName[NM];
-    strcpy(PlgName,plg);
+    strncpy(PlgName,plg,sizeof(PlgName)-1);
     TruncPathStr(PlgName,ScrX-20);
     sprintf(msg[0],MSG(MPlgRequired),
            HIBYTE(LOWORD(required)),LOBYTE(LOWORD(required)),HIWORD(required));
@@ -1212,7 +1214,7 @@ void PluginsSet::CreatePluginStartupInfo(struct PluginStartupInfo *PSI,
   memcpy(FSF,&StandardFunctions,sizeof(StandardFunctions));
   PSI->ModuleNumber=ModuleNumber;
   PSI->FSF=FSF;
-  strcpy(PSI->ModuleName,ModuleName);
+  strncpy(PSI->ModuleName,ModuleName,sizeof(PSI->ModuleName)-1);
   PSI->RootKey=NULL;
 }
 
@@ -1243,8 +1245,8 @@ int PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNumb
     CreatePluginStartupInfo(&LocalStartupInfo,&LocalStandardFunctions,CurPlugin.ModuleName,ModuleNumber);
 
     // скорректирем адреса и плагино-зависимые поля
-    strcpy(CurPlugin.RootKey,Opt.RegRoot);
-    strcat(CurPlugin.RootKey,"\\Plugins");
+    strncpy(CurPlugin.RootKey,Opt.RegRoot,sizeof(CurPlugin.RootKey)-1);
+    strncat(CurPlugin.RootKey,"\\Plugins",sizeof(CurPlugin.RootKey)-1);
     LocalStartupInfo.RootKey=CurPlugin.RootKey;
 
     //CurPluginItem=&CurPlugin;
@@ -2041,9 +2043,9 @@ int PluginsSet::GetFile(HANDLE hPlugin,struct PluginPanelItem *PanelItem,
     PData->FuncFlags.Clear(PICFF_GETFILES);
 
     char FindPath[NM];
-    strcpy(FindPath,DestPath);
+    strncpy(FindPath,DestPath,sizeof(FindPath)-2);
     AddEndSlash(FindPath);
-    strcat(FindPath,"*.*");
+    strncat(FindPath,"*.*",sizeof(FindPath)-1);
     HANDLE FindHandle;
     WIN32_FIND_DATA fdata;
     if ((FindHandle=FindFirstFile(FindPath,&fdata))!=INVALID_HANDLE_VALUE)
@@ -3083,7 +3085,7 @@ int PluginsSet::ProcessCommandLine(const char *Command)
              NULL сделать, соответственно фар иногда с конвульсиями помирал,
              теперь - нет.
         */
-        strcpy(PluginPrefix,NullToEmpty(Info.CommandPrefix));
+        strncpy(PluginPrefix,NullToEmpty(Info.CommandPrefix),sizeof(PluginPrefix)-1);
         /* IS $ */
         PluginFlags = Info.Flags;
       } /* if */
