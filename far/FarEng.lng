@@ -105,8 +105,7 @@
 "Show &status line"
 "Show files &total information"
 "Show f&ree size"
-"Show scroll&bar in Panels"
-"Show scrollbar in M&enus"
+"Show scroll&bar"
 "Show background screens &number"
 "Show sort &mode letter"
 
@@ -122,6 +121,7 @@
 "Set command line &prompt format"
 "Use right Alt as &AltGr"
 "Show &total copy progress indicator"
+"Show scrollbar in M&enus"
 
 "Viewer"
 "External viewer"

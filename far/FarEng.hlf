@@ -1049,9 +1049,6 @@ $ #Panel settings dialog#
   #Show scrollbar#          Enable display of file and ~tree panel~@TreePanel@
   #in Panels#               scrollbars.
 
-  #Show scrollbar#          Enable display of scrollbars in Menus
-  #in menu#                 (if items a menu more, than height a menu)
-
   #Show background#         Enable display of the number of
   #screens number#          ~background screens~@ScrSwitch@.
 
@@ -1107,6 +1104,9 @@ $ #Interface settings dialog#
   #indicator#               a file copy operation. This may require
                           some additional time before starting
                           copying to calculate the total files size.
+
+  #Show scrollbar#          Enable display of scrollbars in Menus
+  #in menu#                 (if items a menu more, than height a menu)
 
 
 @Viewer

@@ -26,6 +26,9 @@ Modify:
     + Новый пункт для настройки цветов Menu для Menu Scrollbar
   29.06.2000 tran
     + пустышки для всех функциональных клавиш в viewer & editor
+  04.07.2000 SVS
+    ! Scroll bar в меню переехал из Options|Panel settings
+      в Options|Interface settings
 */
 
 enum
@@ -135,12 +138,6 @@ enum
   MConfigShowTotal,
   MConfigShowFree,
   MConfigShowScrollbar,
-  /* $ 29.06.2000 SVS
-     Новый пункт для Options|Panel settings
-     [ ] Show scrollbar in Menus
-  */
-  MConfigShowMenuScrollbar,
-  /* SVS $*/
   MConfigShowScreensNumber,
   MConfigShowSortMode,
 
@@ -156,6 +153,7 @@ enum
   MConfigUsePromptFormat,
   MConfigAltGr,
   MConfigCopyTotal,
+  MConfigShowMenuScrollbar,
 
   MViewConfigTitle,
   MViewConfigExternal,
@@ -853,11 +851,7 @@ enum
   MSetColorMenuSelectedHighlighted,
   MSetColorMenuBox,
   MSetColorMenuTitle,
-  /* $ 29.06.2000 SVS
-     Новый пункт для настройки цветов Menu
-  */
   MSetColorMenuScrollBar,
-  /* SVS $ */
   MSetColorHMenuNormal,
   MSetColorHMenuSelected,
   MSetColorHMenuHighlighted,

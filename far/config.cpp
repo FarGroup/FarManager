@@ -16,6 +16,9 @@ Modify:
     + Показывать ли ScrollBar для Menu
   30.06.2000 SVS
     - Кнопки залезли на рамку :-) в диалоге Options|Panel settings
+  04.07.2000 SVS
+    ! ScrollBar Setting for Menus переехал из Options|Panel settings
+      в Options|Interface settings
 */
 
 #include "headers.hpp"
@@ -91,11 +94,7 @@ void SystemSettings()
 void PanelSettings()
 {
   static struct DialogData CfgDlgData[]={
-    /* $ 30.06.2000 SVS
-       - Кнопки залезли на рамку :-) в диалоге Options|Panel settings
-    */
-    DI_DOUBLEBOX,3,1,52,18,0,0,0,0,(char *)MConfigPanelTitle,
-    /* SVS $ */
+    DI_DOUBLEBOX,3,1,52,17,0,0,0,0,(char *)MConfigPanelTitle,
     DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MConfigHidden,
     DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MConfigHighlight,
     DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MConfigAutoChange,
@@ -107,16 +106,11 @@ void PanelSettings()
     DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MConfigShowTotal,
     DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MConfigShowFree,
     DI_CHECKBOX,5,12,0,0,0,0,0,0,(char *)MConfigShowScrollbar,
-    /* $ 29.06.2000
-       + Показывать ли ScrollBar для Menu
-    */
-    DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MConfigShowMenuScrollbar,
-    DI_CHECKBOX,5,14,0,0,0,0,0,0,(char *)MConfigShowScreensNumber,
-    DI_CHECKBOX,5,15,0,0,0,0,0,0,(char *)MConfigShowSortMode,
-    DI_TEXT,3,16,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-    DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
-    /* SVS $ */
+    DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MConfigShowScreensNumber,
+    DI_CHECKBOX,5,14,0,0,0,0,0,0,(char *)MConfigShowSortMode,
+    DI_TEXT,3,15,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+    DI_BUTTON,0,16,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+    DI_BUTTON,0,16,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
   MakeDialogItems(CfgDlgData,CfgDlg);
 
@@ -131,19 +125,15 @@ void PanelSettings()
   CfgDlg[9].Selected=Opt.ShowPanelTotals;
   CfgDlg[10].Selected=Opt.ShowPanelFree;
   CfgDlg[11].Selected=Opt.ShowPanelScrollbar;
-  /* $ 29.06.2000 SVS
-     + Показывать ли ScrollBar для Menu
-  */
-  CfgDlg[12].Selected=Opt.ShowMenuScrollbar;
-  CfgDlg[13].Selected=Opt.ShowScreensNumber;
-  CfgDlg[14].Selected=Opt.ShowSortMode;
+  CfgDlg[12].Selected=Opt.ShowScreensNumber;
+  CfgDlg[13].Selected=Opt.ShowSortMode;
 
   {
     Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
     Dlg.SetHelp("PanelSettings");
-    Dlg.SetPosition(-1,-1,56,20);
+    Dlg.SetPosition(-1,-1,56,19);
     Dlg.Process();
-    if (Dlg.GetExitCode()!=16)
+    if (Dlg.GetExitCode()!=15)
       return;
   }
 
@@ -158,10 +148,8 @@ void PanelSettings()
   Opt.ShowPanelTotals=CfgDlg[9].Selected;
   Opt.ShowPanelFree=CfgDlg[10].Selected;
   Opt.ShowPanelScrollbar=CfgDlg[11].Selected;
-  Opt.ShowMenuScrollbar=CfgDlg[12].Selected;
-  Opt.ShowScreensNumber=CfgDlg[13].Selected;
-  Opt.ShowSortMode=CfgDlg[14].Selected;
-  /* SVS $ */
+  Opt.ShowScreensNumber=CfgDlg[12].Selected;
+  Opt.ShowSortMode=CfgDlg[13].Selected;
 
   CtrlObject->LeftPanel->Update(UPDATE_KEEP_SELECTION);
   CtrlObject->RightPanel->Update(UPDATE_KEEP_SELECTION);
@@ -172,7 +160,10 @@ void PanelSettings()
 void InterfaceSettings()
 {
   static struct DialogData CfgDlgData[]={
-    DI_DOUBLEBOX,3,1,52,16,0,0,0,0,(char *)MConfigInterfaceTitle,
+    /* $ 04.07.2000
+       ! Показывать ли ScrollBar для Menu|Options|Interface settings
+    */
+    DI_DOUBLEBOX,3,1,52,17,0,0,0,0,(char *)MConfigInterfaceTitle,
     DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MConfigClock,
     DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MConfigViewerEditorClock,
     DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MConfigMouse,
@@ -186,9 +177,10 @@ void InterfaceSettings()
     DI_EDIT,9,11,24,10,0,0,0,0,"",
     DI_CHECKBOX,5,12,0,0,0,0,0,0,(char *)MConfigAltGr,
     DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MConfigCopyTotal,
-    DI_TEXT,3,14,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    DI_BUTTON,0,15,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-    DI_BUTTON,0,15,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+    DI_CHECKBOX,5,14,0,0,0,0,0,0,(char *)MConfigShowMenuScrollbar,
+    DI_TEXT,3,15,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+    DI_BUTTON,0,16,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+    DI_BUTTON,0,16,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
   MakeDialogItems(CfgDlgData,CfgDlg);
 
@@ -210,13 +202,14 @@ void InterfaceSettings()
   strcpy(CfgDlg[11].Data,Opt.PromptFormat);
   CfgDlg[12].Selected=Opt.AltGr;
   CfgDlg[13].Selected=Opt.CopyShowTotal;
+  CfgDlg[14].Selected=Opt.ShowMenuScrollbar;
 
   {
     Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
     Dlg.SetHelp("InterfSettings");
-    Dlg.SetPosition(-1,-1,56,18);
+    Dlg.SetPosition(-1,-1,56,19);
     Dlg.Process();
-    if (Dlg.GetExitCode()!=15)
+    if (Dlg.GetExitCode()!=16)
       return;
   }
 
@@ -233,6 +226,8 @@ void InterfaceSettings()
   strncpy(Opt.PromptFormat,CfgDlg[11].Data,sizeof(Opt.PromptFormat));
   Opt.AltGr=CfgDlg[12].Selected;
   Opt.CopyShowTotal=CfgDlg[13].Selected;
+  Opt.ShowMenuScrollbar=CfgDlg[14].Selected;
+  /* SVS $ */
   SetFarConsoleMode();
   CtrlObject->LeftPanel->Update(UPDATE_KEEP_SELECTION);
   CtrlObject->RightPanel->Update(UPDATE_KEEP_SELECTION);
