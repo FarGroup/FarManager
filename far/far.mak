@@ -201,15 +201,15 @@ ALL : "$(OUTDIR)\Far.exe" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\farkeys.hp
    @if exist "$(OUTDIR)\FarRus.hlf" del "$(OUTDIR)\FarRus.hlf"  >nul
    @if exist "$(OUTDIR)\FarEng.lng" del "$(OUTDIR)\FarEng.lng"  >nul
    @if exist "$(OUTDIR)\FarRus.lng" del "$(OUTDIR)\FarRus.lng"  >nul
-   @awk -f mkhlf.awk -v FV1=$(FV1) -v FV2=$(FV2) -v FV3=$(FV3) ".\FarEng.hlf" > "$(OUTDIR)\FarEng.hlf"
-   @awk -f mkhlf.awk -v FV1=$(FV1) -v FV2=$(FV2) -v FV3=$(FV3) ".\FarRus.hlf" > "$(OUTDIR)\FarRus.hlf"
+   @awk -f mkhlf.awk -v FV1=$(FV1) -v FV2=$(FV2) -v FV3=$(FV3) -v BETA=$(FVB) ".\FarEng.hlf" > "$(OUTDIR)\FarEng.hlf"
+   @awk -f mkhlf.awk -v FV1=$(FV1) -v FV2=$(FV2) -v FV3=$(FV3) -v BETA=$(FVB) ".\FarRus.hlf" > "$(OUTDIR)\FarRus.hlf"
    @copy ".\FarEng.lng" "$(OUTDIR)\FarEng.lng" >nul
    @copy ".\FarRus.lng" "$(OUTDIR)\FarRus.lng" >nul
-   @if exist ".\plugin.pas" awk -f plugins.awk -v p1=1 -v p2=70 -v Lang=pas ".\plugin.pas" > "$(FARINCLUDE)\plugin.pas"
-   @if exist ".\fmt.hpp" awk -f plugins.awk -v p1=1 -v p2=70 ".\fmt.hpp" > "$(FARINCLUDE)\fmt.hpp"
-   @if exist ".\fmt.pas" awk -f plugins.awk -v p1=1 -v p2=70 -v Lang=pas ".\fmt.pas" > "$(FARINCLUDE)\fmt.pas"
-   @if exist ".\farcolor.pas" awk -f plugins.awk -v p1=1 -v p2=70 -v Lang=pas ".\farcolor.pas" > "$(FARINCLUDE)\farcolor.pas"
-   @if exist ".\farkeys.pas" awk -f plugins.awk -v p1=1 -v p2=70 -v Lang=pas ".\farkeys.pas" > "$(FARINCLUDE)\farkeys.pas"
+   @if exist ".\plugin.pas" awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2) -v Lang=pas ".\plugin.pas" > "$(FARINCLUDE)\plugin.pas"
+   @if exist ".\fmt.hpp" awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2) ".\fmt.hpp" > "$(FARINCLUDE)\fmt.hpp"
+   @if exist ".\fmt.pas" awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2) -v Lang=pas ".\fmt.pas" > "$(FARINCLUDE)\fmt.pas"
+   @if exist ".\farcolor.pas" awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2) -v Lang=pas ".\farcolor.pas" > "$(FARINCLUDE)\farcolor.pas"
+   @if exist ".\farkeys.pas" awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2) -v Lang=pas ".\farkeys.pas" > "$(FARINCLUDE)\farkeys.pas"
 
 
 # ************************************************************************
@@ -241,13 +241,13 @@ ALL : "$(OUTDIR)\Far.exe" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\farkeys.hp
 # Зависимости для публичных файлов
 # ************************************************************************
 "$(FARINCLUDE)\farcolor.hpp" : colors.hpp
-   @awk -f plugins.awk -v p1=1 -v p2=70  ".\colors.hpp" > "$(FARINCLUDE)\farcolor.hpp"
+   @awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2)  ".\colors.hpp" > "$(FARINCLUDE)\farcolor.hpp"
 
 "$(FARINCLUDE)\farkeys.hpp" : keys.hpp
-   @awk -f plugins.awk -v p1=1 -v p2=70  ".\keys.hpp"   > "$(FARINCLUDE)\farkeys.hpp"
+   @awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2)  ".\keys.hpp"   > "$(FARINCLUDE)\farkeys.hpp"
 
 "$(FARINCLUDE)\plugin.hpp" : plugin.hpp
-   @awk -f plugins.awk -v p1=1 -v p2=70  ".\plugin.hpp" > "$(FARINCLUDE)\plugin.hpp"
+   @awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2)  ".\plugin.hpp" > "$(FARINCLUDE)\plugin.hpp"
 
 
 !IF "$(NO_EXTERNAL_DEPS)" != "1"

@@ -903,7 +903,7 @@ InputPath=.\FarEng.hlf
 InputName=FarEng
 
 "$(OutDir)\$(InputName).hlf" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	awk -f mkhlf.awk -v FV1=1 -v FV2=70 -v FV3=4 $(InputName).hlf > $(OutDir)\$(InputName).hlf
+	awk -f mkhlf.awk -v FV1=1 -v FV2=70 -v FV3=6 -v BETA=" alpha " $(InputName).hlf > $(OutDir)\$(InputName).hlf
 
 # End Custom Build
 
@@ -915,7 +915,7 @@ InputPath=.\FarEng.hlf
 InputName=FarEng
 
 "$(OutDir)\$(InputName).hlf" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	awk -f mkhlf.awk -v FV1=1 -v FV2=70 -v FV3=4 $(InputName).hlf > $(OutDir)\$(InputName).hlf
+	awk -f mkhlf.awk -v FV1=1 -v FV2=70 -v FV3=6 -v BETA=" alpha "  $(InputName).hlf > $(OutDir)\$(InputName).hlf
 
 # End Custom Build
 
@@ -965,7 +965,7 @@ InputPath=.\FarRus.hlf
 InputName=FarRus
 
 "$(OutDir)\$(InputName).hlf" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	awk -f mkhlf.awk -v FV1=1 -v FV2=70 -v FV3=4 $(InputName).hlf > $(OutDir)\$(InputName).hlf
+	awk -f mkhlf.awk -v FV1=1 -v FV2=70 -v FV3=6 -v BETA=" alpha "  $(InputName).hlf > $(OutDir)\$(InputName).hlf
 
 # End Custom Build
 
@@ -977,7 +977,7 @@ InputPath=.\FarRus.hlf
 InputName=FarRus
 
 "$(OutDir)\$(InputName).hlf" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	awk -f mkhlf.awk -v FV1=1 -v FV2=70 -v FV3=4 $(InputName).hlf > $(OutDir)\$(InputName).hlf
+	awk -f mkhlf.awk -v FV1=1 -v FV2=70 -v FV3=6 -v BETA=" alpha "  $(InputName).hlf > $(OutDir)\$(InputName).hlf
 
 # End Custom Build
 
