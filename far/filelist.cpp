@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.129 11.02.2002 $ */
+/* Revision: 1.130 19.02.2002 $ */
 
 /*
 Modify:
+  19.02.2002 SVS
+    - BugZ#50 - Ctrl-PgUp работает с ошибкой
   11.02.2002 SVS
     + Добавка в меню - акселератор - решение BugZ#299
   24.01.2002 VVM
@@ -818,6 +820,22 @@ int FileList::ProcessKey(int Key)
       {
         if (*PluginFile)
         {
+          /* Своеобразное решение BugZ#50 */
+          char RealDir[2048], *Ptr;
+          Ptr=strrchr(strcpy(RealDir,PluginFile),'\\');
+          if(Ptr)
+          {
+            *++Ptr=0;
+            SetCurDir(RealDir,TRUE);
+            GoToFile(PointToName(PluginFile));
+            // удалим пред.значение.
+            if(PrevDataStackSize>0)
+            {
+              for(--PrevDataStackSize;PrevDataStackSize > 0;PrevDataStackSize--)
+                DeleteListData(PrevDataStack[PrevDataStackSize].PrevListData,PrevDataStack[PrevDataStackSize].PrevFileCount);
+            }
+          }
+          /**/
           OpenFilePlugin(PluginFile,FALSE);
           if (*ShortcutFolder)
             SetCurDir(ShortcutFolder,FALSE);
@@ -2024,7 +2042,7 @@ void FileList::SetCurDir(char *NewDir,int ClosePlugin)
 }
 
 
-BOOL FileList::ChangeDir(char *NewDir)
+BOOL FileList::ChangeDir(char *NewDir,BOOL IsUpdated)
 {
   Panel *AnotherPanel;
   char FindDir[4096],SetDir[4096];
@@ -2259,6 +2277,9 @@ BOOL FileList::ChangeDir(char *NewDir)
   }*/
   /* IS $ */
   GetCurrentDirectory(sizeof(CurDir),CurDir);
+
+  if(!IsUpdated)
+    return(TRUE);
 
   Update(UpdateFlags);
 

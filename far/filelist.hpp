@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.22 14.02.2002 $ */
+/* Revision: 1.23 19.02.2002 $ */
 
 /*
 Modify:
+  19.02.2002 SVS
+    ! ChangeDir() имеет доп.параметр.
   14.02.2002 VVM
     ! UpdateIfChanged принимает не булевый Force, а варианты из UIC_*
   27.11.2001 SVS
@@ -141,18 +143,18 @@ class FileList:public Panel
     char PluginDizName[NM];
     struct FileListItem *ListData;
     long FileCount;
+    HANDLE hPlugin;
     struct PrevDataItem *PrevDataStack;
     int PrevDataStackSize;
-    HANDLE hListChange;
     struct PluginsStackItem *PluginsStack;
     int PluginsStackSize;
-    HANDLE hPlugin;
+    HANDLE hListChange;
     long UpperFolderTopFile,LastCurFile;
     long ReturnCurrentFile;
     long SelFileCount;
-    int64 SelFileSize;
     long GetSelPosition,LastSelPosition;
     long TotalFileCount;
+    int64 SelFileSize;
     int64 TotalFileSize;
     int64 FreeDiskSize;
     clock_t LastUpdateTime;
@@ -202,7 +204,7 @@ class FileList:public Panel
     /* $ 09.04.2001 SVS
        ChangeDir возвращает FALSE, eсли файловая панель была закрыта
     */
-    BOOL ChangeDir(char *NewDir);
+    BOOL ChangeDir(char *NewDir,BOOL IsUpdated=TRUE);
     /* SVS $ */
     void CountDirSize();
     void ReadFileNames(int KeepSelection);

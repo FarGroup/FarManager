@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.74 18.02.2002 $ */
+/* Revision: 1.75 19.02.2002 $ */
 
 /*
 Modify:
+  19.02.2002 SVS
+    - Забыли про Disable для хоткеев и акселераторов
   18.02.2002 SVS
     - Неверный расчет AmpPos
   13.02.2002 SVS
@@ -818,9 +820,9 @@ BOOL VMenu::CheckKeyHiOrAcc(DWORD Key,int Type,int Translate)
   struct MenuItem *CurItem;
   for (CurItem=Item,I=0; I < ItemCount; I++, ++CurItem)
   {
-    if((!Type && CurItem->AccelKey && Key == CurItem->AccelKey) ||
-       (Type && Dialog::IsKeyHighlighted(CurItem->PtrName(),Key,Translate,CurItem->AmpPos))
-      )
+    if(!(CurItem->Flags&LIF_DISABLE) &&
+       ((!Type && CurItem->AccelKey && Key == CurItem->AccelKey) ||
+       (Type && Dialog::IsKeyHighlighted(CurItem->PtrName(),Key,Translate,CurItem->AmpPos))))
     {
       Item[SelectPos].Flags&=~LIF_SELECTED;
       CurItem->Flags|=LIF_SELECTED;

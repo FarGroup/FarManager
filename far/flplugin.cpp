@@ -5,10 +5,12 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.19 14.01.2002 $ */
+/* Revision: 1.20 19.02.2002 $ */
 
 /*
 Modify:
+  19.02.2002 SVS
+    ! Восстановим режимы панелей после выталкивания плагина из стека.
   14.01.2002 IS
     ! chdir -> FarChDir
   25.12.2001 SVS
@@ -136,7 +138,17 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
       DeleteFileWithFolder(PStack->HostFile);
   }
   else
+  {
     PanelMode=NORMAL_PANEL;
+    /* <TODO>
+       Нужно учесть тот факт, что кто-то или что-то может менять
+       принудительно пареметры не своей панели.
+    */
+    ViewMode=PStack->PrevViewMode;
+    SortMode=PStack->PrevSortMode;
+    SortOrder=PStack->PrevSortOrder;
+    /* </TODO>*/
+  }
   PluginsStack=(struct PluginsStackItem *)realloc(PluginsStack,PluginsStackSize*sizeof(*PluginsStack));
   if (EnableRestoreViewMode)
     CtrlObject->Cp()->RedrawKeyBar();
