@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.132 28.02.2005 $ */
+/* Revision: 1.133 21.03.2005 $ */
 
 /*
 Modify:
+  22.03.2005 WARP
+    - BugZ#1297 Неверно устанавливался TabExpandMode для Edit'ов.
   28.02.2005 SVS
     - При потери окна фокуса Far, также выделение исчезает из строки.
   02.02.2005 SVS
@@ -445,7 +447,8 @@ Edit::Edit()
   /* IS $ */
 
 #ifndef USE_OLDEXPANDTABS
-  TabExpandMode = Opt.EdOpt.ExpandTabs;
+//  TabExpandMode = Opt.EdOpt.ExpandTabs;
+  TabExpandMode = EXPAND_NOTABS;
 #endif
 
   /* $ 21.02.2001 IS
