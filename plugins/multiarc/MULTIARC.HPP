@@ -26,6 +26,7 @@ Modify:
 //#  include <windows.h>
 /* AS $*/
 #if defined __BORLANDC__ && __BORLANDC__<=0x0520
+//|| defined(__GNUC__)
 #define __USE_OWN_RTL__
 #endif // __USE_OWN_RTL__
 #include "plugin.hpp"
@@ -291,7 +292,8 @@ struct Options
   int UseLastHistory; // $ 18.05.2001 SVS
   //int DeleteExtFile; // $ 12.07.2001 SVS
   //int AddExtArchive; // $ 16.07.2001 SVS
-  BOOL AutoOffExactArcName;
+  BOOL AutoOffExactArcName; // $ 2?.11.2001 AA
+  BOOL ExactArcName;   // $ 30.11.2001 AA
 } Opt;
 
 char PluginRootKey[80];
@@ -307,8 +309,8 @@ char PluginRootKey[80];
 char IniFile[MAX_PATH];
 char *SortModes[]={"None", "Name", "RunRate", "ChoiceRate", "User"};
 void WritePrivateProfileInt(char *Section, char *Key, int Value, char *Ini);
-#endif
+#endif //_NEW_ARC_SORT_
 
 #define OLD_DIALOG_STYLE 1
-#define _PACK_IN_ARC_UNDER_CURSOR_
-#define _EQV_NAME_GROOP_
+#define _ARC_UNDER_CURSOR_
+#define _GROOP_NAME_
