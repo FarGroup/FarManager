@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.116 25.05.2002 $ */
+/* Revision: 1.117 27.05.2002 $ */
 
 /*
 Modify:
+  27.05.2002 VVM
+    - Большая бага - при поиске по словам выход за границы массива.
   25.05.2002 IS
     ! первый параметр у ConvertDate теперь ссылка на константу
   24.05.2002 SVS
@@ -2143,21 +2145,24 @@ int FindFiles::LookForString(char *Name)
           int locResultRight=FALSE;
           if (!FirstIteration)
           {
+            /* $ 27.05.2002 VVM
+              - ПИЛЯТЬ. Про правую границу-то забыли. Вот на VC/release и искало что попало... */
             if (IsSpace(Buf[I]) || IsEol(Buf[I]))
               locResultLeft=TRUE;
             if (RealReadSize!=sizeof(Buf) && I+1+Length>=RealReadSize)
               locResultRight=TRUE;
             else
-              if (IsSpace(Buf[I+1+Length]) || IsEol(Buf[I+1+Length]))
+              if (I+1+Length < RealReadSize &&
+                 (IsSpace(Buf[I+1+Length]) || IsEol(Buf[I+1+Length])))
                 locResultRight=TRUE;
 
             if (!locResultLeft)
               if (strchr(Opt.WordDiv,Buf[I])!=NULL)
                 locResultLeft=TRUE;
-            if (!locResultRight)
+            if (!locResultRight && I+1+Length < RealReadSize)
               if (strchr(Opt.WordDiv,Buf[I+1+Length])!=NULL)
                 locResultRight=TRUE;
-
+            /* VVM $ */
             cmpResult=locResultLeft && locResultRight && CmpStr[0]==Buf[I+1]
               && (Length==1 || CmpStr[1]==Buf[I+2]
               && (Length==2 || memcmp(CmpStr+2,&Buf[I+3],Length-2)==0));
