@@ -253,7 +253,7 @@ depending upon the file type and ~external editor settings~@EditorSettings@.
 
   Ctrl-Shift-F4 always calls internal editor ignoring file associations.
 
-  F4 and Ctrl-Shift-F4 for folders - always calls the dialogue of set ~file attributes~@FileAttrDlg@
+  F4 and Ctrl-Shift-F4 for directories invoke the change file ~attributes~@FileAttrDlg@ dialog.
 
   Copy                                                            #F5#
 
