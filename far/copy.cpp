@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.92 18.06.2002 $ */
+/* Revision: 1.93 18.06.2002 $ */
 
 /*
 Modify:
+  18.06.2002 SVS
+    ! Функция IsFolderNotEmpty переименована в CheckFolder
   18.06.2002 VVM
     ! ShellSetAttr: Даже если не смогли получить информацию о томе - попытаемся выставить атрибуты
       У меня на новеловском томе при UNC-пути почему-то обламывается GetVolumeInformation()
@@ -3302,7 +3304,7 @@ int ShellCopy::MkSymLink(const char *SelName,const char *Dest,DWORD Flags)
 //_SVS(SysLog("DestFullName='%s' JSAttr=0x%08X",DestFullName,JSAttr));
     if(JSAttr != -1 && (JSAttr&FILE_ATTRIBUTE_DIRECTORY)==FILE_ATTRIBUTE_DIRECTORY) // Существует такой?
     {
-      if(IsFolderNotEmpty(DestFullName)) // а пустой?
+      if(CheckFolder(DestFullName) == CHKFLD_NOTEMPTY) // а пустой?
       {
         // не пустой, ну что же, тогда пробуем сделать dest\srcname
         AddEndSlash(DestFullName);
@@ -3321,7 +3323,7 @@ int ShellCopy::MkSymLink(const char *SelName,const char *Dest,DWORD Flags)
         if(JSAttr != -1) // И такой тоже есть???
         {
 //_SVS(SysLog("Ops!"));
-          if(IsFolderNotEmpty(DestFullName)) // а пустой?
+          if(CheckFolder(DestFullName) == CHKFLD_NOTEMPTY) // а пустой?
           {
             if(!(Flags&FCOPY_NOSHOWMSGLINK))
             {

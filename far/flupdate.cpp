@@ -5,10 +5,14 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.37 12.04.2002 $ */
+/* Revision: 1.38 18.06.2002 $ */
 
 /*
 Modify:
+  18.06.2002 SVS
+    ! Перед чтением контента (функция FileList::ReadFileNames - вот здесь
+      возможно что код лишний!) проверим на "читаемость" диска и если надо
+      вызовем нашу новую функцию IfGoHome(), которая молча...
   12.04.2002 SVS
     - BugZ#452 - Ctrl+N на ТмпПанели
   11.04.2002 SVS
@@ -210,10 +214,16 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible)
   FarGetCurDir(NM, SaveDir);
   char OldCurDir[NM];
   strncpy(OldCurDir, CurDir, NM-1);
-  if (!SetCurPath()){
+  if (!SetCurPath())
+  {
     if (strcmp(CurDir, OldCurDir) == 0)
-    /* При смене каталога путь не изменился */
+    {
+      GetPathRootOne(OldCurDir,OldCurDir);
+      if(!IsDiskInDrive(OldCurDir))
+        IfGoHome(*OldCurDir);
+      /* При смене каталога путь не изменился */
       return;
+    }
   }
 
   SortGroupsRead=FALSE;

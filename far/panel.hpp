@@ -7,10 +7,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.16 08.04.2002 $ */
+/* Revision: 1.17 18.06.2002 $ */
 
 /*
 Modify:
+  18.06.2002 SVS
+    + Panel::IfGoHome()
   08.04.2002 IS
     ! Немного const
   19.03.2002 DJ
@@ -231,6 +233,9 @@ class Panel:public ScreenObject
     virtual int ProcessPluginEvent(int Event,void *Param) {return(FALSE);};
     virtual HANDLE GetPluginHandle() {return(INVALID_HANDLE_VALUE);};
     virtual void SetTitle();
+
+    virtual void IfGoHome(char Drive){};
+
     /* $ 30.04.2001 DJ
        функция вызывается для обновления кейбара; если возвращает FALSE,
        используется стандартный кейбар

@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.161 04.06.2002 $ */
+/* Revision: 1.162 18.06.2002 $ */
 
 /*
 Modify:
+  18.06.2002 SVS
+    ! Функция IsFolderNotEmpty переименована в CheckFolder
   04.06.2002 SVS
     + TextToCharInfo
     ! Немного const
@@ -520,7 +522,7 @@ void BoxText(unsigned char Chr);
 void BoxText(char *Str,int IsVert=0);
 int FarColorToReal(int FarColor);
 void ReopenConsole();
-int IsFolderNotEmpty(char *Name);
+int CheckFolder(char *Name);
 char *RemoveChar(char *Str,char Target,BOOL Dup=TRUE);
 char *InsertString(char *Str,int Pos,const char *InsStr,int InsSize=0);
 int ReplaceStrings(char *Str,const char *FindStr,const char *ReplStr,int Count=-1);

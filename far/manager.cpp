@@ -5,10 +5,13 @@ manager.cpp
 
 */
 
-/* Revision: 1.75 24.05.2002 $ */
+/* Revision: 1.76 18.06.2002 $ */
 
 /*
 Modify:
+  18.06.2002 SVS
+    + В манагер добавлена переменная StartManager, отвечающая на вопрос
+      "Манагер уже стартовал?"
   24.05.2002 SVS
     + Обработка KEY_ALTINS (временно закомменчено, до выяснения обстоятельств)
   22.05.2002 SKV
@@ -279,6 +282,7 @@ Manager::Manager()
   //SemiModalBackFramesCount=0;
   //SemiModalBackFramesSize=0;
   ModalEVCount=0;
+  StartManager=FALSE;
 }
 
 Manager::~Manager()
@@ -744,6 +748,7 @@ int Manager::HaveAnyFrame()
 void Manager::EnterMainLoop()
 {
   WaitInFastFind=0;
+  StartManager=TRUE;
   while (1)
   {
     Commit();

@@ -5,10 +5,22 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.96 24.05.2002 $ */
+/* Revision: 1.97 18.06.2002 $ */
 
 /*
 Modify:
+  18.06.2002 SVS
+    + Panel::IfGoHome()
+    ! Код из Panel::ProcessDelDisk(), отвечающий за извлечение CD вынесен
+      в обработчик KEY_DEL меню выбора дисков. Сама же обработка извелечения
+      значительно переработана для того, чтобы решить проблему с прорисовкой
+    ! В манагер добавлена переменная StartManager, отвечающая на вопрос
+      "Манагер уже стартовал?". Это позволяет в Panel::SetCurPath() избежать
+      ситуации, когда при старте FAR`а диска как бы нету (скажем CD вынут).
+      При этом мы просто перейдем в корень того диска, откуда запущен
+      ФАР (т.к. манагер еще не запущен, то возникают проблемы, когда
+      в такой ситуации ФАР пытается вызавть меню смены диска... а манагер
+      еще не стартован - получаем либо висюна, либо GPF)
   24.05.2002 SVS
     + Дублирование Numpad-клавиш
   22.05.2002 SVS
@@ -682,12 +694,64 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
             */
             if ((UserData=(DWORD)ChDisk.GetUserData(NULL,0)) != NULL)
             {
-              int Code = ProcessDelDisk (LOBYTE(LOWORD(UserData)), HIWORD(UserData));
-              if (Code != DRIVE_DEL_FAIL)
-              /* $ 19.01.2002 VVM
-                + Если диск был последним - в конце и останемся */
-                return (((DiskCount-SelPos)==1) && (SelPos > 0) && (Code != DRIVE_DEL_EJECT))?SelPos-1:SelPos;
-              /* VVM $ */
+              if(HIWORD(UserData) == DRIVE_REMOVABLE || HIWORD(UserData) == DRIVE_CDROM)
+              {
+                // первая попытка извлеч диск
+                if(!EjectVolume(LOBYTE(LOWORD(UserData)),EJECT_NO_MESSAGE))
+                {
+                  // запоминаем состояние панелей
+                  int CMode=GetMode();
+                  int AMode=CtrlObject->Cp()->GetAnotherPanel (this)->GetMode();
+                  char TmpCDir[NM], TmpADir[NM];
+                  GetCurDir (TmpCDir);
+                  CtrlObject->Cp()->GetAnotherPanel (this)->GetCurDir (TmpADir);
+
+                  // отключим меню, иначе бага с прорисовкой этой самой меню
+                  // (если меню поболее высоты экрана)
+                  ChDisk.Hide();
+                  ChDisk.LockRefresh(); // ... и запретим ее перерисовку.
+
+                  // "цикл до умопомрачения"
+                  int DoneEject=FALSE;
+                  while(!DoneEject)
+                  {
+                    // "освободим диск" - перейдем при необходимости в домашний каталог
+                    // TODO: А если домашний каталог - CD? ;-)
+                    IfGoHome(LOBYTE(LOWORD(UserData)));
+                    // очередная попытка извлечения без вывода сообщения
+                    int ResEject=EjectVolume(LOBYTE(LOWORD(UserData)),EJECT_NO_MESSAGE);
+                    if(!ResEject)
+                    {
+                      // восстановим пути - это избавит нас от левых данных в панели.
+                      if (AMode != PLUGIN_PANEL)
+                        CtrlObject->Cp()->GetAnotherPanel (this)->SetCurDir (TmpADir, FALSE);
+                      if (CMode != PLUGIN_PANEL)
+                        SetCurDir (TmpCDir, FALSE);
+
+                      // ... и выведем месаг о...
+                      char MsgText[200];
+                      sprintf(MsgText,MSG(MChangeCouldNotEjectMedia),LOBYTE(LOWORD(UserData)));
+                      SetLastError(ERROR_DRIVE_LOCKED); // ...о "The disk is in use or locked by another process."
+                      DoneEject=Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),MsgText,MSG(MRetry),MSG(MCancel))!=0;
+                    }
+                    else
+                      DoneEject=TRUE;
+                  }
+
+                  // "отпустим" менюху выбора дисков
+                  ChDisk.UnlockRefresh();
+                  ChDisk.Show();
+                }
+              }
+              else
+              {
+                int Code = ProcessDelDisk (LOBYTE(LOWORD(UserData)), HIWORD(UserData));
+                if (Code != DRIVE_DEL_FAIL)
+                /* $ 19.01.2002 VVM
+                  + Если диск был последним - в конце и останемся */
+                  return (((DiskCount-SelPos)==1) && (SelPos > 0) && (Code != DRIVE_DEL_EJECT))?SelPos-1:SelPos;
+                /* VVM $ */
+              }
             }
             /* DJ $ */
           }
@@ -884,46 +948,6 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 int Panel::ProcessDelDisk (char Drive, int DriveType)
 {
-  // если мы находимся на удаляемом диске - уходим с него, чтобы не мешать
-  // удалению
-
-  // если раскомментировать этот кусок - диск будет освобождаться
-  // правильно, но будут проблемы с отрисовкой панели после SetCurDir.
-  // Поэтому оставим на будущее...
-  //   DJ 28.12.2001
-#if 0
-  char CurDir [NM];
-
-  if (GetMode() != PLUGIN_PANEL)
-  {
-    GetCurDir (CurDir);
-    if (CurDir [0] == Drive && CurDir [1] == ':')
-    {
-      // переходим в корень диска с far.exe
-      if (GetModuleFileName (NULL, CurDir, sizeof (CurDir)-1))
-      {
-        CurDir [3] = '\0';
-        SetCurDir (CurDir, FALSE);
-      }
-    }
-  }
-
-  Panel *Another=CtrlObject->Cp()->GetAnotherPanel (this);
-  if (Another->GetMode() != PLUGIN_PANEL)
-  {
-    Another->GetCurDir (CurDir);
-    if (CurDir [0] == Drive && CurDir [1] == ':')
-    {
-      // переходим в корень диска с far.exe
-      if (GetModuleFileName (NULL, CurDir, sizeof (CurDir)-1))
-      {
-        CurDir [3] = '\0';
-        Another->SetCurDir (CurDir, FALSE);
-      }
-    }
-  }
-#endif
-
   char MsgText[200];
   int UpdateProfile=CONNECT_UPDATE_PROFILE;
 
@@ -931,15 +955,11 @@ int Panel::ProcessDelDisk (char Drive, int DriveType)
   DiskLetter[0] = Drive;
   DiskLetter[1] = ':';
   DiskLetter[2] = 0;
-  /* $ 14.12.2000 SVS
-     Попробуем сделать Eject :-)
-  */
-  if(DriveType == DRIVE_REMOVABLE || DriveType == DRIVE_CDROM)
-  {
-    EjectVolume(Drive,0);
-    return DRIVE_DEL_EJECT;
-  }
-  /* SVS $ */
+
+  // если мы находимся на удаляемом диске - уходим с него, чтобы не мешать
+  // удалению
+  IfGoHome(Drive);
+
   /* $ 05.01.2001 SVS
      Пробуем удалить SUBST-драйв.
   */
@@ -1359,7 +1379,12 @@ int  Panel::SetCurPath()
   if (!FarChDir(CurDir) || GetFileAttributes(CurDir)==0xFFFFFFFF)
   {
     if (!FarChDir(UpDir) && !FarChDir("\\"))
-      ChangeDisk();
+    {
+      if(!FrameManager->ManagerStarted())
+        IfGoHome(*CurDir);
+      else
+        ChangeDisk();
+    }
     else
       FarGetCurDir(sizeof(CurDir),CurDir);
     return FALSE;

@@ -5,10 +5,20 @@ mix.cpp
 
 */
 
-/* Revision: 1.128 30.05.2002 $ */
+/* Revision: 1.129 18.06.2002 $ */
 
 /*
 Modify:
+  18.06.2002 SVS
+    ! Функция IsFolderNotEmpty переименована в CheckFolder и теперь умеет
+      делать больше, чем возвращать состояние FolderNotEmpty, а именно
+      константы:
+       CHKFLD_NOTACCESS = -1  - нет доступа
+       CHKFLD_EMPTY     =  0  - пусто
+       CHKFLD_NOTEMPTY  =  1  - не пусто
+      Кроме переименования функция так же упрощена - кусок, юзающий класс
+     (для данной функции "сверхэнергоемкий") ScanTree заменен на вызовы
+     обычных Win32-функций Find*File
   30.05.2002 SVS
     + ShellUpdatePanels и CheckUpdateAnotherPanel вынесены из delete.cpp
       в самостоятельные функции в mix.cpp
@@ -448,6 +458,7 @@ BOOL FarChDir(const char *NewDir, BOOL ChangeDir)
     Drive[1]=toupper(*CurDir);
     OemToChar(CurDir,CurDir); // аргументы SetEnvironmentVariable должны быть ANSI
     SetEnvironmentVariable(Drive,CurDir);
+//    rc=0;
   }
   return rc;
 }
@@ -889,28 +900,38 @@ int WINAPI GetFileOwner(const char *Computer,const char *Name,char *Owner)
 /* SVS $*/
 
 
-/* $ 19.09.2000 SVS
-   немного "ускорим" за счет сокращения вызова функций `strcmp'
+/*
+   1 - не пусто
+   0 - пусто
+  -1 - нет доступа
 */
-int IsFolderNotEmpty(char *Name)
+int CheckFolder(char *Path)
 {
-  register DWORD P;
+  HANDLE FindHandle;
+  char FindPath[NM*2];
   WIN32_FIND_DATA fdata;
-  char FileName[NM];
-  ScanTree ScTree(FALSE,FALSE);
-  ScTree.SetFindPath(Name,"*.*");
-  while (ScTree.GetNextName(&fdata,FileName, sizeof (FileName)-1))
-  {
-    // немного ускорим.
-    P=(*(DWORD*)FileName)&0x00FFFFFF;
-    if((P&0xFFFF) != 0x002E && P != 0x002E2E )
-//    if (strcmp(FileName,".")!=0 && strcmp(FileName,"..")!=0)
-      return(TRUE);
-  }
-  return(FALSE);
-}
-/* SVS $ */
+  int Done=FALSE;
 
+  strcpy(FindPath,Path);
+  AddEndSlash(FindPath);
+  strcat(FindPath,"*.*");
+  if((FindHandle=FindFirstFile(FindPath,&fdata)) == INVALID_HANDLE_VALUE)
+    return CHKFLD_NOTACCESS;
+
+  while(!Done)
+  {
+    if (fdata.cFileName[0] == '.' && (fdata.cFileName[1] == 0 || fdata.cFileName[1] == '.' && fdata.cFileName[2] == 0))
+      ;
+    else
+    {
+      FindClose(FindHandle);
+      return CHKFLD_NOTEMPTY;
+    }
+    Done=!FindNextFile(FindHandle,&fdata);
+  }
+  FindClose(FindHandle);
+  return CHKFLD_EMPTY;
+}
 
 char* FarMSG(int MsgID)
 {

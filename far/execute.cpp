@@ -5,10 +5,20 @@ execute.cpp
 
 */
 
-/* Revision: 1.59 14.06.2002 $ */
+/* Revision: 1.60 18.06.2002 $ */
 
 /*
 Modify:
+  18.06.2002 SVS
+    ! В обработчике команды "CD" (see CommandLine::ProcessOSCommands)
+      посмотрим на CHKFLD_NOTACCESS (эту константу вернет нам та самая
+      CheckFolder). Если все оби - едем дальше, иначе вернем FALSE и
+      при этом ФАР матюкнется в консоль словами OS о том, что
+      "Хреновый ты путь указал, малый. Отвали!".
+      Тем самым реализуем ситуацию "пред-обработки", т.е. матюкаемся не
+      тогда, когда ввалились в FileList::ReadFileNames, а... чуток пораньше! ;-)
+      (эта побасенка про BugZ#513 - при cd на нечитаемую сетевую
+      шару остаётся старое содержимое панели).
   14.06.2002 VVM
     + IsCommandPEExeGUI переделана. Теперь она возвращает не IsGUI битовый,
       а значения IMAGE_SUBSYSTEM_*
@@ -1502,7 +1512,7 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
       если уж нет, то тогда начинаем думать, что это директория плагинная
     */
     DWORD DirAtt=GetFileAttributes(NewDir);
-    if (DirAtt!=0xffffffff && DirAtt & FILE_ATTRIBUTE_DIRECTORY && PathMayBeAbsolute(NewDir))
+    if (DirAtt!=0xffffffff && (DirAtt & FILE_ATTRIBUTE_DIRECTORY) && PathMayBeAbsolute(NewDir))
     {
       SetPanel->SetCurDir(NewDir,TRUE);
       return TRUE;
@@ -1528,8 +1538,13 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
     }
     char ExpandedDir[8192];
     if (ExpandEnvironmentStr(NewDir,ExpandedDir,sizeof(ExpandedDir))!=0)
+    {
+      if(CheckFolder(ExpandedDir) == CHKFLD_NOTACCESS)
+        return FALSE;
+
       if (!FarChDir(ExpandedDir))
         return(FALSE);
+    }
     SetPanel->ChangeDirToCurrent();
     if (!SetPanel->IsVisible())
       SetPanel->SetTitle();

@@ -7,10 +7,13 @@ manager.hpp
 
 */
 
-/* Revision: 1.31 22.05.2002 $ */
+/* Revision: 1.32 18.06.2002 $ */
 
 /*
 Modify:
+  18.06.2002 SVS
+    + ¬ манагер добавлена переменна€ StartManager, отвечающа€ на вопрос
+      "ћанагер уже стартовал?"
   22.05.2002 SKV
     + SemiModalBackFrames удалены за ненадобностью
   15.05.2002 SKV
@@ -137,6 +140,7 @@ class Manager
     /* SKV $ */
 
     int  EndLoop;            // ѕризнак выхода из цикла
+    int  StartManager;
     INPUT_RECORD LastInputRecord;
 
     int ModalExitCode;
@@ -267,6 +271,7 @@ class Manager
     Frame *GetBottomFrame() { return (*this)[FramePos]; }
 
     BOOL ManagerIsDown() {return EndLoop;}
+    BOOL ManagerStarted() {return StartManager;}
 
     void InitKeyBar(void);
 

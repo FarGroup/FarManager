@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.62 18.05.2002 $ */
+/* Revision: 1.63 18.06.2002 $ */
 
 /*
 Modify:
+  18.06.2002 SVS
+    + Коды возврата CHECKFOLDERCONST для CheckFolder()
   18.05.2002 SVS
     ! Возможность компиляции под BC 5.5
   15.05.2002 SVS
@@ -351,6 +353,12 @@ typedef BOOL (WINAPI *PISDEBUGGERPRESENT)(VOID);
 
 enum FFTMODE{
   FFTM_BREAKLONGWORD = 0x00000001,
+};
+
+enum CHECKFOLDERCONST{ // for CheckFolder()
+  CHKFLD_NOTACCESS = -1,
+  CHKFLD_EMPTY     =  0,
+  CHKFLD_NOTEMPTY  =  1,
 };
 
 #endif // __FARCONST_HPP__

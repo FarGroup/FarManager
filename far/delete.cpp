@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.50 30.05.2002 $ */
+/* Revision: 1.51 18.06.2002 $ */
 
 /*
 Modify:
+  18.06.2002 SVS
+    ! Функция IsFolderNotEmpty переименована в CheckFolder
   30.05.2002 SVS
     ! ShellDeleteUpdatePanels -> ShellUpdatePanels, and...
     ! ShellUpdatePanels и CheckUpdateAnotherPanel вынесены из delete.cpp
@@ -369,7 +371,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
           if (ConvertNameToFull(SelName,FullName, sizeof(FullName)) >= sizeof(FullName)){
             goto done;
           }
-          if (IsFolderNotEmpty(FullName))
+          if (CheckFolder(FullName) == CHKFLD_NOTEMPTY)
           {
             int MsgCode=0;
             /* $ 13.07.2001 IS усекаем имя, чтоб оно поместилось в сообщение */
@@ -432,7 +434,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
                 continue;
               }
               /* SVS $ */
-              if (!DeleteAllFolders && !ScTree.IsDirSearchDone() && IsFolderNotEmpty(FullName))
+              if (!DeleteAllFolders && !ScTree.IsDirSearchDone() && CheckFolder(FullName) == CHKFLD_NOTEMPTY)
               {
                 /* $ 13.07.2001 IS
                      усекаем имя, чтоб оно поместилось в сообщение

@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.32 14.05.2002 $ */
+/* Revision: 1.33 18.06.2002 $ */
 
 /*
 Modify:
+  18.06.2002 SVS
+    + IfGoHome()
   14.05.2002 VVM
     + ResetLastUpdateTime() - сбросить врем€ последнего обновлени€ панели.
   12.04.2002 SVS
@@ -358,6 +360,8 @@ class FileList:public Panel
     virtual BOOL UpdateKeyBar();
     /* DJ $ */
     void UpdateColorItems(void);
+
+    virtual void IfGoHome(char Drive);
 
     /* 14.05.2002 VVM
       + —бросить врем€ последнего обновлени€ панели */

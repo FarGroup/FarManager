@@ -5,10 +5,15 @@ filelist.cpp
 
 */
 
-/* Revision: 1.161 10.06.2002 $ */
+/* Revision: 1.162 18.06.2002 $ */
 
 /*
 Modify:
+  18.06.2002 SVS
+    + IfGoHome()  - виртуальная функция. Код вынесен из
+      Panel::ProcessDelDisk(), ибо нашлось применение еще в нескольких
+      местах. Функция молча переходит в корень того диска, откуда стартовал
+      ФАР (не для плагиновой панели, для пассивной неплагиновой панели).
   10.06.2002 SVS
     + FIB_EDITPATH
   31.05.2002 SVS
@@ -4291,3 +4296,42 @@ char* FileList::AddPluginPrefix(FileList *SrcPanel,char *Prefix)
   return Prefix;
 }
 /* IS $ */
+
+void FileList::IfGoHome(char Drive)
+{
+  char TmpCurDir [NM];
+
+  // СНАЧАЛА ПАССИВНАЯ ПАНЕЛЬ!!!
+  /*
+     Почему? - Просто - если активная шировая (или пассивная
+     широкая) - получаем багу с прорисовкой!
+  */
+  Panel *Another=CtrlObject->Cp()->GetAnotherPanel (this);
+  if (Another->GetMode() != PLUGIN_PANEL)
+  {
+    Another->GetCurDir (TmpCurDir);
+    if (TmpCurDir[0] == Drive && TmpCurDir[1] == ':')
+    {
+      // переходим в корень диска с far.exe
+      if (GetModuleFileName (NULL, TmpCurDir, sizeof (TmpCurDir)-1))
+      {
+        TmpCurDir [3] = '\0';
+        Another->SetCurDir (TmpCurDir, FALSE);
+      }
+    }
+  }
+
+  if (GetMode() != PLUGIN_PANEL)
+  {
+    GetCurDir (TmpCurDir);
+    if (TmpCurDir [0] == Drive && TmpCurDir [1] == ':')
+    {
+      // переходим в корень диска с far.exe
+      if (GetModuleFileName (NULL, TmpCurDir, sizeof (TmpCurDir)-1))
+      {
+        TmpCurDir [3] = '\0';
+        SetCurDir (TmpCurDir, FALSE);
+      }
+    }
+  }
+}
