@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.67 21.01.2002 $ */
+/* Revision: 1.68 28.01.2002 $ */
 
 /*
 Modify:
+  28.01.2002 SVS
+    - BugZ#271 - –едактор: кодировка Shift-Enter
   21.01.2002 SVS
     - BugZ#258 - Alt-1...Alt-30
     + ¬озможность работы с курсором в диалогах.
@@ -862,6 +864,9 @@ int Edit::ProcessKey(int Key)
              ѕредотвращает сдвиг курсора, если маска не совпадает с типом
              вставл€емого значени€.
           */
+          if(TableSet)
+             EncodeString(FileName,(unsigned char*)TableSet->EncodeTable,
+                          strlen(FileName));
           for (int I=0;FileName[I]!=0;I++)
             InsertKey(FileName[I]);
           /* KM $ */
