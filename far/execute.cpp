@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.34 04.02.2002 $ */
+/* Revision: 1.35 07.02.2002 $ */
 
 /*
 Modify:
+  07.02.2002 SKV
+    - Не надо при отрыве консоли менять её моду и т.д.
   04.02.2002 SVS
     - BugZ#289 Неправильно определяется GUI/Console для *.exe с русскими
       именами
@@ -116,6 +118,7 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
+#include "farqueue.hpp"
 #include "filepanels.hpp"
 #include "lang.hpp"
 #include "keys.hpp"
@@ -884,7 +887,18 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
                     hLargeIcon=CopyIcon((HICON)SendMessage(hFarWnd,WM_SETICON,1,(LPARAM)0));
                   }
                   ReadConsoleInput(hConInp,ir,256,&rd);
-                  CloseConsole();
+                  /*$ 07.02.2002 SKV
+                    Не будем вызыват CloseConsole, потому, что она поменяет
+                    ConsoleMode на тот, что был до запуска Far'а,
+                    чего работающее приложение могло и не ожидать.
+                  */
+                  //CloseConsole();
+                  CloseHandle(hConInp);
+                  CloseHandle(hConOut);
+                  delete KeyQueue;
+                  KeyQueue=NULL;
+                  /* SKV $*/
+
                   FreeConsole();
                   AllocConsole();
 
@@ -895,7 +909,7 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
                   {
                     SendMessage(hFarWnd,WM_SETHOTKEY,0,(LPARAM)0);
                   }
-                  /* SKV$*/
+                  /* SKV $*/
 
 
                   /*$ 20.03.2001 SKV
