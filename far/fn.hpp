@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.21 08.09.2000 $ */
+/* Revision: 1.22 10.09.2000 $ */
 
 /*
 Modify:
+  10.09.2000 SVS
+    ! Наконец-то нашлось приемлемое имя для QWERTY -> Xlat.
   08.09.2000 SVS
     ! QWERTY -> Transliterate
   07.09.2000 SVS
@@ -467,10 +469,10 @@ int FarAltEnter(int mode);
 
 
 /* $ 05.09.2000 SVS
-  QWERTY-перекодировка!
+  XLat-перекодировка!
   На основе плагина EditSwap by SVS :-)))
 */
-char* WINAPI Transliterate(char *Line,
+char* WINAPI Xlat(char *Line,
                     int StartPos,
                     int EndPos,
                     struct CharTableSet *TableSet,

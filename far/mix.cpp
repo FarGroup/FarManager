@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.21 08.09.2000 $ */
+/* Revision: 1.22 10.09.2000 $ */
 
 /*
 Modify:
+  10.09.2000 SVS
+    ! Наконец-то нашлось приемлемое имя для QWERTY -> Xlat.
   08.09.2000 SVS
     - QWERTY - ошибочка вралась :-)))
     ! QWERTY -> Transliterate
@@ -2043,15 +2045,15 @@ int WINAPI InputRecordToKey(INPUT_RECORD *r)
 
 
 /* $ 05.09.2000 SVS
-  QWERTY-перекодировка!
+  XLat-перекодировка!
   На основе плагина EditSwap by SVS :-)))
 */
-char* WINAPI Transliterate(
+char* WINAPI Xlat(
    char *Line,                    // исходная строка
    int StartPos,                  // начало переконвертирования
    int EndPos,                    // конец переконвертирования
    struct CharTableSet *TableSet, // перекодировочная таблица (может быть NULL)
-   DWORD Flags)                   // флаги (см. enum QWERTYMODE)
+   DWORD Flags)                   // флаги (см. enum XLATMODE)
 {
   BYTE Chr,ChrOld;
   int J,I;
@@ -2079,12 +2081,12 @@ char* WINAPI Transliterate(
 
 
 //  OemToCharBuff(Opt.QWERTY.Table[0],Opt.QWERTY.Table[0],80);???
-  if(!Opt.QWERTY.Table[0][0] || !Opt.QWERTY.Table[1][0])
+  if(!Opt.XLat.Table[0][0] || !Opt.XLat.Table[1][0])
     return Line;
 
 
-  I=strlen((char *)Opt.QWERTY.Table[1]),
-  J=strlen((char *)Opt.QWERTY.Table[0]);
+  I=strlen((char *)Opt.XLat.Table[1]),
+  J=strlen((char *)Opt.XLat.Table[0]);
   int MinLenTable=(I > J?J:I);
 
   if (TableSet)
@@ -2101,18 +2103,18 @@ char* WINAPI Transliterate(
     for(I=0; I < MinLenTable; ++I)
     {
       // символ из латиницы?
-      if(Chr == (BYTE)Opt.QWERTY.Table[1][I])
+      if(Chr == (BYTE)Opt.XLat.Table[1][I])
       {
-        Chr=(char)Opt.QWERTY.Table[0][I];
+        Chr=(char)Opt.XLat.Table[0][I];
         IsChange=1;
         CurLang=1; // pred - english
         LangCount[1]++;
         break;
       }
       // символ из русской?
-      else if(Chr == (BYTE)Opt.QWERTY.Table[0][I])
+      else if(Chr == (BYTE)Opt.XLat.Table[0][I])
       {
-        Chr=(char)Opt.QWERTY.Table[1][I];
+        Chr=(char)Opt.XLat.Table[1][I];
         CurLang=0; // pred - russian
         LangCount[0]++;
         IsChange=1;
@@ -2131,9 +2133,9 @@ char* WINAPI Transliterate(
         CurLang=PreLang;
 
         for(I=0; I < 20; I+=2)
-          if(ChrOld == (BYTE)Opt.QWERTY.Rules[CurLang][I])
+          if(ChrOld == (BYTE)Opt.XLat.Rules[CurLang][I])
           {
-             Chr=(BYTE)Opt.QWERTY.Rules[CurLang][I+1];
+             Chr=(BYTE)Opt.XLat.Rules[CurLang][I+1];
              break;
           }
     }
@@ -2147,7 +2149,7 @@ char* WINAPI Transliterate(
 
   // переключаем раскладку клавиатуры?
   //  к сожалению не работает под Win9x - ставьте WinNT и наслаждайтесь :-)
-  if(Flags & EDTR_SWITCHKEYBLAYER)
+  if(Flags & XLAT_SWITCHKEYBLAYOT)
     PostMessage(GetForegroundWindow(),WM_INPUTLANGCHANGEREQUEST, 1, HKL_NEXT);
 
   return Line;

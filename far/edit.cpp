@@ -5,10 +5,16 @@ edit.cpp
 
 */
 
-/* Revision: 1.17 07.09.2000 $ */
+/* Revision: 1.18 08.09.2000 $ */
 
 /*
 Modify:
+   08.09.2000 SVS 1.18
+    При UnChanget строки:
+    ! Shift-Del - вырезание строки в буфер в строках редактирования
+    ! KEY_BS так же как и KEY_DEL удаляет всю строку (опять же в строках
+      редактирования в диалогах, в редакторе поведение KEY_BS как и прежде -
+      удаление символа, без удаления блока).
    07.09.2000 KM
     - Исправление глюка при поиске по целым словам.
    24.08.2000 SVS
@@ -529,7 +535,7 @@ int Edit::ProcessKey(int Key)
   if (!EditEncodeDisabled && Key<256 && TableSet)
     Key=TableSet->EncodeTable[Key];
 
-  if (Key==KEY_DEL && ClearFlag && CurPos>=StrSize)
+  if ((Key==KEY_BS || Key==KEY_DEL) && ClearFlag && CurPos>=StrSize)
     Key=KEY_CTRLY;
 
   if (ClearFlag && (Key<256 && Key>=31 || Key==KEY_CTRLBRACKET ||
@@ -1037,6 +1043,11 @@ int Edit::ProcessKey(int Key)
       Show();
       return(TRUE);
     case KEY_SHIFTDEL:
+      if(!ClearFlag)
+      {
+        SelStart=0;
+        SelEnd=StrSize;
+      }
       if (SelStart==-1 || SelStart>=SelEnd)
         return(FALSE);
       RecurseProcessKey(KEY_CTRLINS);

@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.13 07.09.2000 $ */
+/* Revision: 1.14 09.09.2000 $ */
 
 /*
 Modify:
+  09.09.2000 SVS 1.14
+   + CHAR_INFO *VBuf; в элементах диалога
   07.09.2000 tran 1.13
    + Config//Current File
   05.09.2000 SVS 1.12
@@ -128,7 +130,7 @@ struct DizOptions
 /* $ 05.09.2000 SVS
    Структура CodeQWERTY, описывающая QWERTY-перекодировщик
 */
-struct CodeQWERTY{
+struct CodeXLAT{
   DWORD Flags;       // дополнительные флаги
   BYTE Table[2][81]; // [0] non-english буквы, [1] english буквы
   BYTE Rules[3][20]; // 3 по 10 правил:
@@ -264,7 +266,7 @@ struct Options
   /* $ 05.09.2000 SVS
      В Opt добавлен блок переменный, касаемых QWERTY-перекодировки
   */
-  struct CodeQWERTY QWERTY;
+  struct CodeXLAT XLat;
   /* SVS $*/
 };
 
@@ -325,6 +327,7 @@ struct DialogItem
     char *History;
     char *Mask;
     struct FarList *ListItems;
+    CHAR_INFO *VBuf;
   };
   DWORD Flags;
   unsigned char DefaultButton;
@@ -348,6 +351,7 @@ struct DialogData
     char *History;
     char *Mask;
     struct FarList *ListItems;
+    CHAR_INFO *VBuf;
   };
   DWORD Flags;
   unsigned char DefaultButton;

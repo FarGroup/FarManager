@@ -5,10 +5,16 @@ dialog.cpp
 
 */
 
-/* Revision: 1.36 08.09.2000 $ */
+/* Revision: 1.37 08.09.2000 $ */
 
 /*
 Modify:
+  09.09.2000 SVS
+   + DIF_NOFOCUS - элемент не получает фокуса ввода (клавиатурой)
+   + Стиль диалога DMODE_OLDSTYLE - диалог в старом стиле.
+   ! вывалить из диалога, ткнув вне диалога, сможем только в старом стиле.
+   + Функция SelectOnEntry - выделение строки редактирования
+     (Обработка флага DIF_SELECTONENTRY)
   08.09.2000 SVS
    - Если коротко, то DM_SETFOCUS вроде как и работал :-)
    ! Уточнение для DN_MOUSECLICK
@@ -251,9 +257,14 @@ Dialog::Dialog(struct DialogItem *Item,int ItemCount,
   IsEnableRedraw=0;
 
   FocusPos=-1;
+  PrevFocusPos=-1;
 
   if(!DlgProc) // функция должна быть всегда!!!
+  {
     DlgProc=(FARWINDOWPROC)Dialog::DefDlgProc;
+    // знать диалог в старом стиле - учтем этот факт!
+    SetDialogMode(DMODE_OLDSTYLE);
+  }
   Dialog::DlgProc=DlgProc;
 
   Dialog::Item=Item;
@@ -440,7 +451,7 @@ int Dialog::InitDialogObjects(int ID)
      if(FocusPos == -1 &&
         IsFocused(CurItem->Type) &&
         CurItem->Focus &&
-        !(CurItem->Flags&DIF_DISABLE))
+        !(CurItem->Flags&(DIF_DISABLE|DIF_NOFOCUS)))
        FocusPos=I; // запомним первый фокусный элемент
      CurItem->Focus=0; // сбросим для всех, чтобы не оказалось,
                        //   что фокусов - как у дурочка фантиков
@@ -453,7 +464,7 @@ int Dialog::InitDialogObjects(int ID)
     for (I=0; I < ItemCount; I++) // по всем!!!!
     {
       CurItem=&Item[I];
-      if(IsFocused(CurItem->Type) && !(CurItem->Flags&DIF_DISABLE))
+      if(IsFocused(CurItem->Type) && !(CurItem->Flags&(DIF_DISABLE|DIF_NOFOCUS)))
       {
         FocusPos=I;
         break;
@@ -467,6 +478,9 @@ int Dialog::InitDialogObjects(int ID)
 
   // ну вот и добрались до!
   Item[FocusPos].Focus=1;
+
+  // если будет редактор, то обязательно будет выделен.
+  SelectOnEntry(FocusPos);
 
   // а теперь все сначала и по полной программе...
   for (I=ID; I < InitItemCount; I++)
@@ -791,6 +805,10 @@ void Dialog::ShowDialog(int ID)
     {
 /* ***************************************************************** */
       case DI_USERCONTROL:
+        if(CurItem->VBuf)
+        {
+          PutText(X1+CurItem->X1,Y1+CurItem->Y1,X1+CurItem->X2,Y1+CurItem->Y2,CurItem->VBuf);
+        }
         break; //уже наприсовали :-)))
 
 /* ***************************************************************** */
@@ -944,6 +962,7 @@ void Dialog::ShowDialog(int ID)
             SetCursorType(1,-1);
           EditPtr->Show();
           /* KM $ */
+          SelectOnEntry(I);
         }
         else
           EditPtr->FastShow();
@@ -1229,6 +1248,18 @@ int Dialog::ProcessKey(int Key)
   if(!CheckDialogMode(DMODE_KEY))
     DlgProc((HANDLE)this,DM_KEY,FocusPos,Key);
 
+  // небольшая оптимизация
+  if(Type==DI_CHECKBOX)
+  {
+    if((Key == KEY_ADD      && !Item[FocusPos].Selected) ||
+       (Key == KEY_SUBTRACT &&  Item[FocusPos].Selected))
+    Key=KEY_SPACE;
+  }
+  else if(Key == KEY_ADD)
+    Key='+';
+  else if(Key == KEY_SUBTRACT)
+    Key='-';
+
   switch(Key)
   {
     case KEY_F1:
@@ -1302,6 +1333,11 @@ int Dialog::ProcessKey(int Key)
           ExitCode=I;
           return(TRUE);
         }
+      if(!CheckDialogMode(DMODE_OLDSTYLE))
+      {
+        EndLoop=FALSE; // только если есть
+        return TRUE; // делать больше не чего
+      }
 
     case KEY_ENTER:
       if (Item[FocusPos].Flags & DIF_EDITOR)
@@ -1363,9 +1399,14 @@ int Dialog::ProcessKey(int Key)
         }
         /* SVS $ */
         /* SVS 21.08.2000 $ */
-        ExitCode=FocusPos;
+        if(CheckDialogMode(DMODE_OLDSTYLE))
+        {
+          ExitCode=FocusPos;
+          EndLoop=TRUE;
+        }
       }
-      else
+      else if(CheckDialogMode(DMODE_OLDSTYLE))
+      {
         for (I=0;I<ItemCount;I++)
           if (Item[I].DefaultButton)
           {
@@ -1374,9 +1415,10 @@ int Dialog::ProcessKey(int Key)
             ExitCode=I;
           }
 
-      EndLoop=TRUE;
-      if (ExitCode==-1)
-        ExitCode=FocusPos;
+        EndLoop=TRUE;
+        if (ExitCode==-1)
+          ExitCode=FocusPos;
+      }
       return(TRUE);
 
     case KEY_ESC:
@@ -1385,7 +1427,7 @@ int Dialog::ProcessKey(int Key)
       EndLoop=TRUE;
       ExitCode=(Key==KEY_BREAK) ? -2:-1;
       return(TRUE);
-
+/*
     case KEY_ADD:
       if (Type==DI_CHECKBOX && !Item[FocusPos].Selected)
         ProcessKey(KEY_SPACE);
@@ -1399,7 +1441,7 @@ int Dialog::ProcessKey(int Key)
       else
         ProcessKey('-');
       return(TRUE);
-
+*/
     case KEY_SPACE:
       if (Type==DI_BUTTON)
         return(ProcessKey(KEY_ENTER));
@@ -1437,7 +1479,9 @@ int Dialog::ProcessKey(int Key)
           }
           ++I;
           /* SVS $ */
-        } while (I<ItemCount && Item[I].Type==DI_RADIOBUTTON && (Item[I].Flags & DIF_GROUP)==0);
+        } while (I<ItemCount && Item[I].Type==DI_RADIOBUTTON &&
+                 (Item[I].Flags & DIF_GROUP)==0);
+
         Item[FocusPos].Selected=1;
         /* $ 28.07.2000 SVS
           При изменении состояния каждого элемента посылаем сообщение
@@ -1840,10 +1884,20 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   if (MsX<X1 || MsY<Y1 || MsX>X2 || MsY>Y2)
   {
     DlgProc((HANDLE)this,DN_MOUSECLICK,-1,(long)MouseEvent);
-    if (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED)
-      ProcessKey(KEY_ESC);
+    /* $ 09.09.2000 SVS
+       Учтем DMODE_OLDSTYLE - вывалить из диалога, ткнув вне диалога
+       сможем только в старом стиле.
+    */
+    if(CheckDialogMode(DMODE_OLDSTYLE))
+    {
+      if (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED)
+        ProcessKey(KEY_ESC);
+      else
+        ProcessKey(KEY_ENTER);
+    }
     else
-      ProcessKey(KEY_ENTER);
+      MessageBeep(MB_ICONHAND);
+    /* SVS $ */
     return(TRUE);
   }
 
@@ -2145,11 +2199,13 @@ int Dialog::ChangeFocus(int FocusPos,int Step,int SkipGroup)
 
       Type=Item[FocusPos].Type;
 
-      if (Type==DI_LISTBOX || Type==DI_BUTTON || Type==DI_CHECKBOX || IsEdit(Type) || Type==DI_USERCONTROL)
-        break;
-      if (Type==DI_RADIOBUTTON && (!SkipGroup || Item[FocusPos].Selected))
-        break;
-
+      if(!(Item[FocusPos].Flags&DIF_NOFOCUS))
+      {
+        if (Type==DI_LISTBOX || Type==DI_BUTTON || Type==DI_CHECKBOX || IsEdit(Type) || Type==DI_USERCONTROL)
+          break;
+        if (Type==DI_RADIOBUTTON && (!SkipGroup || Item[FocusPos].Selected))
+          break;
+      }
       // убираем зацикливание с последующим подвисанием :-)
       if(OrigFocusPos == FocusPos)
         break;
@@ -2176,18 +2232,45 @@ int Dialog::ChangeFocus(int FocusPos,int Step,int SkipGroup)
 int Dialog::ChangeFocus2(int KillFocusPos,int SetFocusPos)
 {
   int FucusPosNeed=-1;
-  if(CheckDialogMode(DMODE_INITOBJECTS))
-    FucusPosNeed=DlgProc((HANDLE)this,DN_KILLFOCUS,KillFocusPos,0);
-  if(FucusPosNeed != -1 && IsFocused(Item[FucusPosNeed].Type))
-    SetFocusPos=FucusPosNeed;
+  if(!(Item[SetFocusPos].Flags&DIF_NOFOCUS))
+  {
+    if(CheckDialogMode(DMODE_INITOBJECTS))
+      FucusPosNeed=DlgProc((HANDLE)this,DN_KILLFOCUS,KillFocusPos,0);
 
-  Item[KillFocusPos].Focus=0;
-  Item[SetFocusPos].Focus=1;
+    if(FucusPosNeed != -1 && IsFocused(Item[FucusPosNeed].Type))
+      SetFocusPos=FucusPosNeed;
 
-  Dialog::FocusPos=SetFocusPos;
-  if(CheckDialogMode(DMODE_INITOBJECTS))
-    DlgProc((HANDLE)this,DN_GOTFOCUS,SetFocusPos,0);
+    if(Item[SetFocusPos].Flags&DIF_NOFOCUS)
+       SetFocusPos=KillFocusPos;
+
+    Item[KillFocusPos].Focus=0;
+    Item[SetFocusPos].Focus=1;
+
+    Dialog::PrevFocusPos=Dialog::FocusPos;
+    Dialog::FocusPos=SetFocusPos;
+    if(CheckDialogMode(DMODE_INITOBJECTS))
+      DlgProc((HANDLE)this,DN_GOTFOCUS,SetFocusPos,0);
+  }
+  else
+    SetFocusPos=KillFocusPos;
+
   return(SetFocusPos);
+}
+/* SVS $ */
+
+/* $ 08.09.2000 SVS
+  Функция SelectOnEntry - выделение строки редактирования
+  Обработка флага DIF_SELECTONENTRY
+*/
+void Dialog::SelectOnEntry(int Pos)
+{
+  if(IsEdit(Item[Pos].Type) &&
+     (Item[Pos].Flags&DIF_SELECTONENTRY) &&
+     PrevFocusPos != -1 && PrevFocusPos != Pos)
+  {
+    Edit *edt=(Edit *)Item[Pos].ObjPtr;
+    edt->Select(0,edt->GetLength());
+  }
 }
 /* SVS $ */
 
@@ -3215,8 +3298,11 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
        + принудительно закрыть диалог
     */
     case DM_CLOSE:
+      if(Param1 == -1)
+        Dlg->ExitCode=Dlg->FocusPos;
+      else
+        Dlg->ExitCode=Param1;
       Dlg->EndLoop=TRUE;
-      Dlg->ExitCode=Dlg->FocusPos;
       return TRUE;  // согласен с закрытием
     /* SVS $ */
 

@@ -6,10 +6,15 @@
   Plugin API for FAR Manager 1.70
 
 */
-/* Revision: 1.43 08.09.2000 $ */
+/* Revision: 1.44 10.09.2000 $ */
 
 /*
 Modify:
+  10.09.2000 SVS 1.44
+    ! Наконец-то нашлось приемлемое имя для QWERTY -> Xlat.
+    + DIF_NOFOCUS - элемент не получает фокуса ввода (клавиатурой)
+    + CHAR_INFO *VBuf; в элементах диалога
+    + DIF_SELECTONENTRY - выделение Edit при получении фокуса
   08.09.2000 VVM
     + FCTL_SETSORTMODE, FCTL_SETANOTHERSORTMODE
       FCTL_SETSORTORDER, FCTL_SETANOTHERSORTORDER
@@ -394,6 +399,13 @@ enum FarDialogItemFlags {
 */
   DIF_BTNNOCLOSE      =   0x40000UL,
 /* SVS $ */
+/* $ 08.09.2000 SVS
+  + DIF_SELECTONENTRY - выделение Edit при получении фокуса
+  + DIF_NOFOCUS - не получает фокуса ввода
+*/
+  DIF_SELECTONENTRY   =  0x800000UL,
+  DIF_NOFOCUS         =0x40000000UL,
+/* SVS $ */
   DIF_MASKEDIT        =  0x400000UL,
 /* $ 31.08.2000 SVS
   + Флаг DIF_DISABLE переводящий элемент в состояние Disable
@@ -502,6 +514,7 @@ struct FarDialogItem
     char *History;
     char *Mask;
     struct FarList *ListItems;
+    CHAR_INFO *VBuf;
   };
   DWORD Flags;
   int DefaultButton;
@@ -953,14 +966,14 @@ typedef int  (WINAPI *FARSTDLOCALSTRNICMP)(char *s1,char *s2,int n);
 /* SVS $*/
 
 /* $ 05.09.2000 SVS
-  + QWERTY
+  + XLat
 */
-enum TRANSLITERATEMODE{
-  EDTR_SWITCHKEYBLAYER = 0x0000001UL, // переключить раскладку клавиатуры
-                                      // после преобразования TRANSLITERATE
+enum XLATMODE{
+  XLAT_SWITCHKEYBLAYOT = 0x0000001UL, // переключить раскладку клавиатуры
+                                      // после преобразования XALT
 };
 
-typedef char* (WINAPI *FARSTDEDTRANSLITERATE)(char *Line,int StartPos,int EndPos,struct CharTableSet *TableSet,DWORD Flags);
+typedef char* (WINAPI *FARSTDXLAT)(char *Line,int StartPos,int EndPos,struct CharTableSet *TableSet,DWORD Flags);
 /* SVS $*/
 
 /* $ 06.07.2000 IS
@@ -1029,9 +1042,9 @@ typedef struct FarStandardFunctions
   FARSTDINPUTRECORDTOKEY     FarInputRecordToKey;
   /* tran 31.08.2000 $ */
   /* $ 05.09.2000 SVS
-    + QWERTY
+    + XLat
   */
-  FARSTDEDTRANSLITERATE      EDTransliterate;
+  FARSTDXLAT                 XLat;
   /* SVS 05.09.2000 $ */
   /* $ 07.09.2000 SVS
     + Добавки

@@ -5,10 +5,13 @@ Internal viewer
 
 */
 
-/* Revision: 1.20 01.09.2000 $ */
+/* Revision: 1.21 10.09.2000 $ */
 
 /*
 Modify:
+  10.09.2000 SVS
+    ! Постоянный скроллинг при нажатой клавише
+      Обыкновенный захват мыши
   01.09.2000 SVS
     - Небольшая бага с тыканием в верхнюю позицию ScrollBar`а
   31.08.2000 SVS
@@ -1282,23 +1285,37 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
   /* $ 18.07.2000 tran
      обработка сколбара */
+  /* $ 10.09.2000 SVS
+     ! Постоянный скроллинг при нажатой клавише
+       Обыкновенный захват мыши
+  */
   if ( Opt.ViewerShowScrollbar && MsX==X2)
   {
     /* $ 01.09.2000 SVS
        Небольшая бага с тыканием в верхнюю позицию ScrollBar`а
     */
-    if ( MsY==Y1+1 )
+    if (MsY == Y1+1)
+      while (IsMouseButtonPressed())
         ProcessKey(KEY_UP);
     /* SVS $*/
     else if (MsY==Y2)
+      while (IsMouseButtonPressed())
         ProcessKey(KEY_DOWN);
     else
     {
+      while (IsMouseButtonPressed())
+      {
+        INPUT_RECORD rec;
         FilePos=(FileSize-1)*(MsY-Y1)/(Y2-Y1-1);
         Show();
+        GetInputRecord(&rec);
+        MsX=rec.Event.MouseEvent.dwMousePosition.X;
+        MsY=rec.Event.MouseEvent.dwMousePosition.Y;
+      }
     }
     return (TRUE);
   }
+  /* SVS $*/
   /* tran 18.07.2000 $ */
 
   if (MsX<X1 || MsX>X2 || MsY<ViewY1 || MsY>Y2)
@@ -1319,7 +1336,6 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
           ProcessKey(KEY_DOWN);
   return(TRUE);
 }
-
 
 void Viewer::Up()
 {

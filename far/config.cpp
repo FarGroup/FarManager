@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.15 08.09.2000 $ */
+/* Revision: 1.16 10.09.2000 $ */
 
 /*
 Modify:
+  10.09.2000 SVS
+    ! Наконец-то нашлось приемлемое имя для QWERTY -> Xlat.
   08.09.2000 SVS
     ! QWED_SWITCHKEYBLAYER -> EDTR_SWITCHKEYBLAYER
   07.09.2000 tran 1.14
@@ -636,14 +638,14 @@ void ReadConfig()
      strcpy(Opt.WordDiv,WordDiv0);
   /* SVS $ */
   /* $ 05.09.2000 SVS
-     CodeQWERTY - описывающая QWERTY-перекодировщик
+     CodeXLat - описывающая XLat-перекодировщик
   */
-  GetRegKey("Editor\\QWERTY","Flags",(int&)Opt.QWERTY.Flags,(DWORD)EDTR_SWITCHKEYBLAYER);
-  GetRegKey("Editor\\QWERTY","Table1",(BYTE*)Opt.QWERTY.Table[0],(BYTE*)NULL,sizeof(Opt.QWERTY.Table[0]));
-  GetRegKey("Editor\\QWERTY","Table2",(BYTE*)Opt.QWERTY.Table[1],(BYTE*)NULL,sizeof(Opt.QWERTY.Table[1]));
-  GetRegKey("Editor\\QWERTY","Rules1",(BYTE*)Opt.QWERTY.Rules[0],(BYTE*)NULL,sizeof(Opt.QWERTY.Rules[0]));
-  GetRegKey("Editor\\QWERTY","Rules2",(BYTE*)Opt.QWERTY.Rules[1],(BYTE*)NULL,sizeof(Opt.QWERTY.Rules[1]));
-  GetRegKey("Editor\\QWERTY","Rules3",(BYTE*)Opt.QWERTY.Rules[2],(BYTE*)NULL,sizeof(Opt.QWERTY.Rules[2]));
+  GetRegKey("Editor\\XLat","Flags",(int&)Opt.XLat.Flags,(DWORD)XLAT_SWITCHKEYBLAYOT);
+  GetRegKey("Editor\\XLat","Table1",(BYTE*)Opt.XLat.Table[0],(BYTE*)NULL,sizeof(Opt.XLat.Table[0]));
+  GetRegKey("Editor\\XLat","Table2",(BYTE*)Opt.XLat.Table[1],(BYTE*)NULL,sizeof(Opt.XLat.Table[1]));
+  GetRegKey("Editor\\XLat","Rules1",(BYTE*)Opt.XLat.Rules[0],(BYTE*)NULL,sizeof(Opt.XLat.Rules[0]));
+  GetRegKey("Editor\\XLat","Rules2",(BYTE*)Opt.XLat.Rules[1],(BYTE*)NULL,sizeof(Opt.XLat.Rules[1]));
+  GetRegKey("Editor\\XLat","Rules3",(BYTE*)Opt.XLat.Rules[2],(BYTE*)NULL,sizeof(Opt.XLat.Rules[2]));
   /* SVS $ */
 
   GetRegKey("System","SaveHistory",Opt.SaveHistory,0);
@@ -818,14 +820,14 @@ void SaveConfig(int Ask)
   SetRegKey("Editor","WordDiv",Opt.WordDiv);
   /* SVS $ */
   /* $ 05.09.2000 SVS
-     CodeQWERTY - описывающая QWERTY-перекодировщик
+     CodeXLat - описывающая XLat-перекодировщик
   */
-  SetRegKey("Editor\\QWERTY","Flags",Opt.QWERTY.Flags);
-  SetRegKey("Editor\\QWERTY","Table1",(BYTE*)Opt.QWERTY.Table[0],sizeof(Opt.QWERTY.Table[0]));
-  SetRegKey("Editor\\QWERTY","Table2",(BYTE*)Opt.QWERTY.Table[1],sizeof(Opt.QWERTY.Table[1]));
-  SetRegKey("Editor\\QWERTY","Rules1",(BYTE*)Opt.QWERTY.Rules[0],sizeof(Opt.QWERTY.Rules[0]));
-  SetRegKey("Editor\\QWERTY","Rules2",(BYTE*)Opt.QWERTY.Rules[1],sizeof(Opt.QWERTY.Rules[1]));
-  SetRegKey("Editor\\QWERTY","Rules3",(BYTE*)Opt.QWERTY.Rules[2],sizeof(Opt.QWERTY.Rules[2]));
+  SetRegKey("Editor\\XLat","Flags",Opt.XLat.Flags);
+  SetRegKey("Editor\\XLat","Table1",(BYTE*)Opt.XLat.Table[0],sizeof(Opt.XLat.Table[0]));
+  SetRegKey("Editor\\XLat","Table2",(BYTE*)Opt.XLat.Table[1],sizeof(Opt.XLat.Table[1]));
+  SetRegKey("Editor\\XLat","Rules1",(BYTE*)Opt.XLat.Rules[0],sizeof(Opt.XLat.Rules[0]));
+  SetRegKey("Editor\\XLat","Rules2",(BYTE*)Opt.XLat.Rules[1],sizeof(Opt.XLat.Rules[1]));
+  SetRegKey("Editor\\XLat","Rules3",(BYTE*)Opt.XLat.Rules[2],sizeof(Opt.XLat.Rules[2]));
   /* SVS $ */
 
   SetRegKey("System","SaveHistory",Opt.SaveHistory);

@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.21 08.09.2000 $ */
+/* Revision: 1.22 10.09.2000 $ */
 
 /*
 Modify:
+  10.09.2000 SVS
+    ! Наконец-то нашлось приемлемое имя для QWERTY -> Xlat.
   08.09.2000 SVS
     ! QWERTY -> Transliterate
   07.09.2000 SVS 1.20
@@ -499,7 +501,7 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
     /* $ 05.09.2000 SVS 1.17
        + QWERTY - перекодировщик
     */
-    StandardFunctions.EDTransliterate=Transliterate;
+    StandardFunctions.XLat=Xlat;
     /* SVS $ */
     /* $ 07.09.2000 SVS 1.17
        + Функция GetFileOwner тоже доступна плагинам :-)

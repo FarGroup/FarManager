@@ -10,10 +10,14 @@ dialog.hpp
 
 */
 
-/* Revision: 1.17 30.08.2000 $ */
+/* Revision: 1.18 08.09.2000 $ */
 
 /*
 Modify:
+  08.09.2000 SVS
+   + Стиль диалога DMODE_OLDSTYLE - диалог в старом стиле.
+   + Функция SelectOnEntry - выделение строки редактирования
+     (Обработка флага DIF_SELECTONENTRY)
   30.08.2000 SVS
    + Режим диалога DMODE_SHOW - Диалог виден?
    + Метод Hide()
@@ -100,6 +104,7 @@ Modify:
 #define DMODE_ISCANMOVE		0x00000010 // можно ли двигать диалог?
 #define DMODE_KEY		0x00002000 // Идет посылка клавиш?
 #define DMODE_SHOW              0x00004000 // Диалог виден?
+#define DMODE_OLDSTYLE		0x80000000 // Диалог в старом (до 1.70) стиле
 
 // Флаги для функции ConvertItem
 #define CVTITEM_TOPLUGIN	0
@@ -118,6 +123,7 @@ class Dialog:public Modal
     */
     int FocusPos;               // всегда известно какой элемент в фокусе
     /* SVS $ */
+    int PrevFocusPos;           // всегда известно какой элемент был в фокусе
     /* $ 18.08.2000 SVS
       + Флаг IsEnableRedraw - разрешающий/запрещающий перерисовку диалога
       + DialogMode - Флаги текущего режима диалога
@@ -197,6 +203,14 @@ class Dialog:public Modal
     /* SVS $ */
     void AddToEditHistory(char *AddStr,char *HistoryName);
     int ProcessHighlighting(int Key,int FocusPos,int Translate);
+
+    /* $ 08.09.2000 SVS
+      Функция SelectOnEntry - выделение строки редактирования
+      Обработка флага DIF_SELECTONENTRY
+    */
+    void SelectOnEntry(int Pos);
+    /* SVS $ */
+
 
   public:
     Dialog(struct DialogItem *Item,int ItemCount,FARWINDOWPROC DlgProc=NULL,long Param=NULL);
