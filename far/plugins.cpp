@@ -5,10 +5,13 @@ plugins.cpp
 
 */
 
-/* Revision: 1.152 29.05.2004 $ */
+/* Revision: 1.153 09.07.2004 $ */
 
 /*
 Modify:
+  09.07.2004 SVS
+    - far /p
+      F11 F4 - трап
   29.05.2004 SVS
     - BugZ#1082 - символ "&" в качестве хоткея
   19.05.2004 SVS
@@ -2608,7 +2611,7 @@ void PluginsSet::Configure(int StartPos)
             }
             break;
           case KEY_F4:
-            if (SelPos<MenuItemNumber && GetHotKeyRegKey(LOWORD(Data),HIWORD(Data),RegKey))
+            if (PluginList.GetItemCount() > 0 && SelPos<MenuItemNumber && GetHotKeyRegKey(LOWORD(Data),HIWORD(Data),RegKey))
             {
               BlockExtKey blockExtKey;
               if(GetMenuHotKey(NULL,1,
@@ -2793,7 +2796,7 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
           WriteEvent(FLOG_PLUGINSINFO);
           break;
         case KEY_F4:
-          if (SelPos<MenuItemNumber && GetHotKeyRegKey(LOWORD(Data),HIWORD(Data),RegKey))
+          if (PluginList.GetItemCount() > 0 && SelPos<MenuItemNumber && GetHotKeyRegKey(LOWORD(Data),HIWORD(Data),RegKey))
           {
             BlockExtKey blockExtKey;
             if(GetMenuHotKey(NULL,1,(char *)MPluginHotKeyTitle,(char *)MPluginHotKey,NULL,RegKey,"Hotkey"))
