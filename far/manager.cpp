@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.47 28.07.2001 $ */
+/* Revision: 1.48 08.08.2001 $ */
 
 /*
 Modify:
+  08.08.2001 OT
+    - Исправление CtrlF10 в редакторе/вьюере
   28.07.2001 OT
     - Исправление зацикливания Reversi
   27.07.2001 SVS
@@ -893,7 +895,9 @@ void Manager::DeleteCommit()
         if ( FramePos >= FrameCount ) {
           FramePos=0;
         }
-        ActivatedFrame=FrameList[FramePos];
+        if (!ActivatedFrame){
+          ActivatedFrame=FrameList[FramePos];
+        }
       } else {
         ActivatedFrame=DeletedFrame->FrameToBack;
       }
