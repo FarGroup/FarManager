@@ -5,10 +5,14 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 02.08.2000 $ */
 
 /*
 Modify:
+  02.08.2000 tran 1.01
+    - мелкий фикс - при выходе по CtrlF10, если файл был открыт на просмотр
+      из Alt-F11, был виден keybar в панелях
+      как всегда добавил CtrlObject->Redraw()
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
@@ -199,6 +203,7 @@ int CommandLine::ProcessKey(int Key)
           if (SelectType==3)
             SetString(Str);
       }
+      CtrlObject->Redraw();
       return(TRUE);
     case KEY_F12:
       CtrlObject->ModalManager.SelectModal();
