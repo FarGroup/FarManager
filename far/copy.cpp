@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.16 01.01.2001 $ */
+/* Revision: 1.17 17.01.2001 $ */
 
 /*
 Modify:
+  17.01.2001 SVS
+    ! Не для NT - задисаблим опцию про копирование права.
   01.01.2001 VVM
     + Размер буфера для копирования берется из реестра.
   30.12.2000 SVS
@@ -245,6 +247,12 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
         break;
     }
   strcpy(InitDestDir,CopyDlg[2].Data);
+  /* $ 17.01.2001 SVS
+     Не для NT - задисаблим опцию про копирование права.
+  */
+  if(WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
+    CopyDlg[4].Flags|=DIF_DISABLE;
+  /* SVS $ */
 
   if (Ask)
   {
