@@ -5,10 +5,13 @@ flink.cpp
 
 */
 
-/* Revision: 1.41 10.10.2003 $ */
+/* Revision: 1.42 25.02.2004 $ */
 
 /*
 Modify:
+  25.02.2004 SVS
+    + Новые сведения про _REPARSE_DATA_BUFFER ;-) (from DDK)
+    - BugZ#581 - Неверно показывается свободное место
   10.10.2003 SVS
     - BugZ#970 - Сообщение об ошибке при создании хардлинка
   14.06.2003 IS
@@ -174,10 +177,19 @@ Modify:
 
 //#ifndef _MSC_VER
 #ifndef REPARSE_GUID_DATA_BUFFER_HEADER_SIZE
+//   For non-Microsoft reparse point drivers, a fixed header must be
+//used, with the remainder of the reparse point tag belonging to the
+//driver itself. The format for this information is:
 typedef struct _REPARSE_GUID_DATA_BUFFER {
   DWORD  ReparseTag;
   WORD   ReparseDataLength;
   WORD   Reserved;
+/*
+#define IO_REPARSE_TAG_IFSTEST_CONGRUENT        (0x00000009L)
+#define IO_REPARSE_TAG_ARKIVIO                  (0x0000000CL)
+#define IO_REPARSE_TAG_SOLUTIONSOFT             (0x2000000DL)
+#define IO_REPARSE_TAG_COMMVAULT                (0x0000000EL)
+*/
   GUID   ReparseGuid;
   struct {
       BYTE   DataBuffer[1];
@@ -190,6 +202,36 @@ typedef struct _REPARSE_GUID_DATA_BUFFER {
 //#endif
 #endif // REPARSE_GUID_DATA_BUFFER_HEADER_SIZE
 
+/*
+// http://www.osr.com/ntinsider/2003/reparse.htm
+// The format for Microsoft-defined reparse points (from ntifs.h) is:
+
+typedef struct _REPARSE_DATA_BUFFER {
+    ULONG  ReparseTag;
+    USHORT ReparseDataLength;
+    USHORT Reserved;
+    union {
+        struct {
+            USHORT SubstituteNameOffset;
+            USHORT SubstituteNameLength;
+            USHORT PrintNameOffset;
+            USHORT PrintNameLength;
+            WCHAR PathBuffer[1];
+        } SymbolicLinkReparseBuffer;
+        struct {
+            USHORT SubstituteNameOffset;
+            USHORT SubstituteNameLength;
+            USHORT PrintNameOffset;
+            USHORT PrintNameLength;
+            WCHAR PathBuffer[1];
+        } MountPointReparseBuffer;
+        struct {
+            UCHAR  DataBuffer[1];
+        } GenericReparseBuffer;
+    };
+} REPARSE_DATA_BUFFER, *PREPARSE_DATA_BUFFER;
+
+*/
 struct TMN_REPARSE_DATA_BUFFER
 {
   DWORD  ReparseTag;
@@ -891,7 +933,7 @@ void GetPathRootOne(const char *Path,char *Root)
 }
 
 // полный проход ПО!!!
-void WINAPI GetPathRoot(const char *Path,char *Root)
+static void _GetPathRoot(const char *Path,char *Root,int Reenter)
 {
   _LOGCOPYR(CleverSysLog Clev("GetPathRoot()"));
   _LOGCOPYR(SysLog("Params: Path='%s'",Path));
@@ -944,7 +986,10 @@ void WINAPI GetPathRoot(const char *Path,char *Root)
         {
           if(GetJunctionPointInfo(TempRoot,JuncName,sizeof(JuncName)))
           {
-             GetPathRootOne(JuncName+4,Root);
+             if(!Reenter)
+               _GetPathRoot(JuncName+4,Root,TRUE);
+             else
+               GetPathRootOne(JuncName+4,Root);
 #if 0
              _LOGCOPYR(SysLog("afret  GetPathRootOne() Root='%s', JuncName='%s'",Root,JuncName));
                //CheckParseJunction('\\vr-srv002\userhome$\vskirdin\wwwroot')=2
@@ -975,6 +1020,11 @@ void WINAPI GetPathRoot(const char *Path,char *Root)
   // Хмм... а ведь здесь может быть \\?\ и еже с ним
   //GetPathRootOne(Path+((strlen(Path) > 4 && Path[0]=='\\' && Path[2]=='?' && Path[3]=='\\')?4:0),Root);
   /* VVM $ */
+}
+
+void WINAPI GetPathRoot(const char *Path,char *Root)
+{
+  _GetPathRoot(Path,Root,0);
 }
 
 int WINAPI FarGetReparsePointInfo(const char *Src,char *Dest,int DestSize)

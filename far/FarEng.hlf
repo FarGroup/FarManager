@@ -631,6 +631,9 @@ will be executed. This behaviour can be configured in the ~settings~@InterfSetti
 
   Under Windows 2000/XP, FAR Manager supports the ~mouse wheel~@MsWheel@.
 
+  You can move a dialog (window) by dragging it with mouse or by
+pressing #Ctrl-F5# and using arrow keys.
+
 @MsWheel
 $ #Mouse wheel support#
    Under Windows 2000/XP, FAR Manager supports the mouse wheel:

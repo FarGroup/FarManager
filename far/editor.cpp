@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.243 12.01.2004 $ */
+/* Revision: 1.244 24.02.2004 $ */
 
 /*
 Modify:
+  24.02.2004 SVS
+    - Ctrl+End в редакторе
   12.01.2004 IS
    - баг: неверно "скачем по словам", когда разделители слов содержат символы
      с кодами больше 128. Решение: для сравнения с WordDiv используем
@@ -2732,7 +2734,10 @@ int Editor::ProcessKey(int Key)
         NumLine=NumLastLine-1;
         CurLine=EndList;
         for (TopScreen=CurLine,I=Y1+1;I<Y2 && TopScreen->Prev!=NULL;I++)
+        {
+          TopScreen->EditLine.SetPosition(X1,I,X2,I);
           TopScreen=TopScreen->Prev;
+        }
         CurLine->EditLine.SetLeftPos(0);
         if (Key==KEY_CTRLEND)
         {

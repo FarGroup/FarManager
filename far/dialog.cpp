@@ -5,10 +5,15 @@ dialog.cpp
 
 */
 
-/* Revision: 1.298 19.02.2004 $ */
+/* Revision: 1.299 28.02.2004 $ */
 
 /*
 Modify:
+  28.02.2004 SVS
+    ! DLGEDITLILE_ -> DLGEDITLINE_
+    + DIF_LISTNOCLOSE
+    + DLGIIF_LISTREACTIONFOCUS и DLGIIF_LISTREACTIONNOFOCUS
+    ! DM_LISTSETMOUSEREACTION: Param2=FARLISTMOUSEREACTIONTYPE - 3 значения.
   19.02.2004 SVS
     - Невозможно мышью сменить фокус между листами.
     ! Флаг DMODE_MOUSELIST ненужен, т.к. это была ошибка: управление реакцией
@@ -1648,6 +1653,8 @@ int Dialog::InitDialogObjects(int ID)
            ! Исправлена подсветка в DI_LISTBOX, теперь на самом деле :)
              для чего используется флаг DIF_LISTAUTOHIGHLIGHT.
         */
+        CurItem->IFlags.Set(DLGIIF_LISTREACTIONFOCUS|DLGIIF_LISTREACTIONNOFOCUS); // всегда!
+
         if(ItemFlags&DIF_DISABLE)
           ListPtr->SetFlags(VMENU_DISABLED);
         if(!(ItemFlags&DIF_LISTNOAMPERSAND))
@@ -3190,13 +3197,16 @@ int Dialog::ProcessKey(int Key)
           if(DialogMode.Check(DMODE_SHOW) && !(Item[FocusPos].Flags&DIF_HIDDEN))
             ShowDialog(FocusPos); // FocusPos
         }
-        if(Key != KEY_ENTER)
+        if(Key != KEY_ENTER || (Item[FocusPos].Flags&DIF_LISTNOCLOSE))
           return(TRUE);
+
     }
   }
 
   switch(Key)
   {
+//    case KEY_CTRLTAB:
+//      DLGIIF_EDITPATH
     case KEY_F1:
       // Перед выводом диалога посылаем сообщение в обработчик
       //   и если вернули что надо, то выводим подсказку
@@ -3679,7 +3689,7 @@ int Dialog::ProcessKey(int Key)
             (Item[FocusPos].Flags & DIF_READONLY) && IsNavKey(Key))
         {
           // "только что ломанулись и начинать выделение с нуля"?
-          if((Opt.Dialogs.EditLine&DLGEDITLILE_NEWSELONGOTFOCUS) && Item[FocusPos].SelStart != -1 && PrevFocusPos != FocusPos)// && Item[FocusPos].SelEnd)
+          if((Opt.Dialogs.EditLine&DLGEDITLINE_NEWSELONGOTFOCUS) && Item[FocusPos].SelStart != -1 && PrevFocusPos != FocusPos)// && Item[FocusPos].SelEnd)
           {
             edt->Flags.Clear(FEDITLINE_MARKINGBLOCK);
             PrevFocusPos=FocusPos;
@@ -3705,7 +3715,7 @@ int Dialog::ProcessKey(int Key)
                (!Opt.Dialogs.AutoComplete && (Key == KEY_CTRLEND || Key == KEY_CTRLNUMPAD1))
               )
             {
-              // (Opt.Dialogs.EditLine&DLGEDITLILE_AUTOCOMPLETECTRLEND)
+              // (Opt.Dialogs.EditLine&DLGEDITLINE_AUTOCOMPLETECTRLEND)
               /* $ 05.12.2000 IS
                  Все удалил и написал заново ;)
               */
@@ -3839,12 +3849,20 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
           ShowDialog();
         }
 
-        if (!SendDlgMessage((HANDLE)this,DN_MOUSECLICK,I,(long)MouseEvent))
+        if((Item[I].IFlags.Flags&(DLGIIF_LISTREACTIONFOCUS|DLGIIF_LISTREACTIONNOFOCUS)) == 0)
+        {
+          if (SendDlgMessage((HANDLE)this,DN_LISTCHANGE,I,(long)Pos))
+          {
+            List->ProcessMouse(MouseEvent);
+            Pos=List->GetSelectPos();
+          }
+        }
+        else if (!SendDlgMessage((HANDLE)this,DN_MOUSECLICK,I,(long)MouseEvent))
         {
           if (SendDlgMessage((HANDLE)this,DN_LISTCHANGE,I,(long)Pos))
           {
             if (MsX==X1+Item[I].X2 && MsY >= Y1+Item[I].Y1 && MsY <= Y1+Item[I].Y2)
-              Item[I].ListPtr->ProcessMouse(MouseEvent); // забыл проверить на клик на скролбар (KM)
+              List->ProcessMouse(MouseEvent); // забыл проверить на клик на скролбар (KM)
             else
               ProcessKey(KEY_ENTER);
           }
@@ -3853,9 +3871,16 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       }
       else
       {
-        if(!(Item[I].Flags&DIF_LISTNOMOUSEREACTION))
-          if (SendDlgMessage((HANDLE)this,DN_LISTCHANGE,I,(long)Pos))
-            Item[I].ListPtr->ProcessMouse(MouseEvent);
+        if(
+           (
+            I == FocusPos && (Item[I].IFlags.Flags&DLGIIF_LISTREACTIONFOCUS)
+            ||
+            I != FocusPos && (Item[I].IFlags.Flags&DLGIIF_LISTREACTIONNOFOCUS)
+           )
+           &&
+           SendDlgMessage((HANDLE)this,DN_LISTCHANGE,I,(long)Pos)
+          )
+          List->ProcessMouse(MouseEvent);
       }
       /* KM $ */
       return(TRUE);
@@ -4536,7 +4561,7 @@ int Dialog::ChangeFocus2(int KillFocusPos,int SetFocusPos)
     {
       Edit *EditPtr=(Edit*)Item[KillFocusPos].ObjPtr;
       EditPtr->GetSelection(Item[KillFocusPos].SelStart,Item[KillFocusPos].SelEnd);
-      if((Opt.Dialogs.EditLine&DLGEDITLILE_CLEARSELONKILLFOCUS))
+      if((Opt.Dialogs.EditLine&DLGEDITLINE_CLEARSELONKILLFOCUS))
       {
         EditPtr->Select(-1,0);
       }
@@ -4549,9 +4574,9 @@ int Dialog::ChangeFocus2(int KillFocusPos,int SetFocusPos)
        !(Item[SetFocusPos].Type == DI_COMBOBOX && (Item[SetFocusPos].Flags & DIF_DROPDOWNLIST)))
     {
       Edit *EditPtr=(Edit*)Item[SetFocusPos].ObjPtr;
-      if(!(Opt.Dialogs.EditLine&DLGEDITLILE_NOTSELONGOTFOCUS))
+      if(!(Opt.Dialogs.EditLine&DLGEDITLINE_NOTSELONGOTFOCUS))
       {
-        if(Opt.Dialogs.EditLine&DLGEDITLILE_SELALLGOTFOCUS)
+        if(Opt.Dialogs.EditLine&DLGEDITLINE_SELALLGOTFOCUS)
           EditPtr->Select(0,EditPtr->StrSize);
         else
           EditPtr->Select(Item[SetFocusPos].SelStart,Item[SetFocusPos].SelEnd);
@@ -4562,7 +4587,7 @@ int Dialog::ChangeFocus2(int KillFocusPos,int SetFocusPos)
       }
 
       // при получении фокуса ввода переместить курсор в конец строки?
-      if(Opt.Dialogs.EditLine&DLGEDITLILE_GOTOEOLGOTFOCUS)
+      if(Opt.Dialogs.EditLine&DLGEDITLINE_GOTOEOLGOTFOCUS)
       {
         EditPtr->SetCurPos(EditPtr->StrSize);
       }
@@ -6293,7 +6318,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     case DM_LISTSETTITLES: // Param1=ID Param2=struct FarListTitles: TitleLen=strlen(Title), BottomLen=strlen(Bottom)
     case DM_LISTGETTITLES: // Param1=ID Param2=struct FarListTitles: TitleLen=strlen(Title), BottomLen=strlen(Bottom)
     case DM_LISTGETDATASIZE: // Param1=ID Param2=Index
-    case DM_LISTSETMOUSEREACTION: // Param1=ID Param2=TRUE/FALSE Ret=OldSets
+    case DM_LISTSETMOUSEREACTION: // Param1=ID Param2=FARLISTMOUSEREACTIONTYPE Ret=OldSets
     {
       if(Type==DI_LISTBOX || Type==DI_COMBOBOX)
       {
@@ -6504,13 +6529,25 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
               break; // т.к. нужно перерисовать!
             }
 
-            case DM_LISTSETMOUSEREACTION: // Param1=ID Param2=TRUE/FALSE Ret=OldSets
+            case DM_LISTSETMOUSEREACTION: // Param1=ID Param2=FARLISTMOUSEREACTIONTYPE Ret=OldSets
             {
-              DWORD OldSets=(CurItem->Flags&DIF_LISTNOMOUSEREACTION)?TRUE:FALSE;
-              if(Param2)
-                CurItem->Flags|=DIF_LISTNOMOUSEREACTION;
+              int OldSets=CurItem->IFlags.Flags;
+              if(Param2 == LMRT_ONLYFOCUS)
+              {
+                CurItem->IFlags.Clear(DLGIIF_LISTREACTIONNOFOCUS);
+                CurItem->IFlags.Set(DLGIIF_LISTREACTIONFOCUS);
+              }
+              else if(Param2 == LMRT_NEVER)
+                CurItem->IFlags.Clear(DLGIIF_LISTREACTIONNOFOCUS|DLGIIF_LISTREACTIONFOCUS);
               else
-                CurItem->Flags&=~DIF_LISTNOMOUSEREACTION;
+                CurItem->IFlags.Set(DLGIIF_LISTREACTIONNOFOCUS|DLGIIF_LISTREACTIONFOCUS);
+
+              if((OldSets&(DLGIIF_LISTREACTIONNOFOCUS|DLGIIF_LISTREACTIONFOCUS)) == (DLGIIF_LISTREACTIONNOFOCUS|DLGIIF_LISTREACTIONFOCUS))
+                OldSets=LMRT_ALWAYS;
+              else if((OldSets&(DLGIIF_LISTREACTIONNOFOCUS|DLGIIF_LISTREACTIONFOCUS)) == 0)
+                OldSets=LMRT_NEVER;
+              else
+                OldSets=LMRT_ONLYFOCUS;
               return OldSets;
             }
           }

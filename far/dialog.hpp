@@ -10,10 +10,13 @@ dialog.hpp
 
 */
 
-/* Revision: 1.73 19.02.2004 $ */
+/* Revision: 1.74 28.02.2004 $ */
 
 /*
 Modify:
+  28.02.2004 SVS
+    ! DLGEDITLILE_ -> DLGEDITLINE_
+    + DLGITEMINTERNALFLAGS
   19.02.2004 SVS
     ! Флаг DMODE_MOUSELIST ненужен, т.к. это была ошибка: управление реакцией
       должно быть на уровне элемента, а не всего диалога
@@ -283,16 +286,23 @@ Modify:
 #define DMOUSEBUTTON_LEFT   0x00000001
 #define DMOUSEBUTTON_RIGHT  0x00000002
 
-enum {
-  DLGEDITLILE_CLEARSELONKILLFOCUS = 0x00000001, // управляет выделением блока при потере фокуса ввода
-  DLGEDITLILE_SELALLGOTFOCUS      = 0x00000002, // управляет выделением блока при получении фокуса ввода
-  DLGEDITLILE_NOTSELONGOTFOCUS    = 0x00000004, // не восстанавливать выделение строки редактирования при получении фокуса ввода
-  DLGEDITLILE_NEWSELONGOTFOCUS    = 0x00000008, // управляет процессом выделения блока при получении фокуса
-  DLGEDITLILE_GOTOEOLGOTFOCUS     = 0x00000010, // при получении фокуса ввода переместить курсор в конец строки
-  DLGEDITLILE_PERSISTBLOCK        = 0x00000020, // постоянные блоки в строках ввода
-  DLGEDITLILE_AUTOCOMPLETE        = 0x00000040, // автозавершение в строках ввода
-  DLGEDITLILE_AUTOCOMPLETECTRLEND = 0x00000040, // при автозавершение подтверждать комбинацией Ctrl-End
-  DLGEDITLILE_HISTORY             = 0x00000100, // история в строках ввода диалогов
+enum DLGEDITLINEFLAGS {
+  DLGEDITLINE_CLEARSELONKILLFOCUS = 0x00000001, // управляет выделением блока при потере фокуса ввода
+  DLGEDITLINE_SELALLGOTFOCUS      = 0x00000002, // управляет выделением блока при получении фокуса ввода
+  DLGEDITLINE_NOTSELONGOTFOCUS    = 0x00000004, // не восстанавливать выделение строки редактирования при получении фокуса ввода
+  DLGEDITLINE_NEWSELONGOTFOCUS    = 0x00000008, // управляет процессом выделения блока при получении фокуса
+  DLGEDITLINE_GOTOEOLGOTFOCUS     = 0x00000010, // при получении фокуса ввода переместить курсор в конец строки
+  DLGEDITLINE_PERSISTBLOCK        = 0x00000020, // постоянные блоки в строках ввода
+  DLGEDITLINE_AUTOCOMPLETE        = 0x00000040, // автозавершение в строках ввода
+  DLGEDITLINE_AUTOCOMPLETECTRLEND = 0x00000040, // при автозавершение подтверждать комбинацией Ctrl-End
+  DLGEDITLINE_HISTORY             = 0x00000100, // история в строках ввода диалогов
+};
+
+
+enum DLGITEMINTERNALFLAGS {
+  DLGIIF_LISTREACTIONFOCUS        = 0x00000001, // MouseReaction для фокусного элемента
+  DLGIIF_LISTREACTIONNOFOCUS      = 0x00000002, // MouseReaction для не фокусного элемента
+  DLGIIF_EDITPATH                 = 0x00000004, // здесь Ctrl-End в строке редактирования будет выдавать на гора автодополнение существующих путей в дополнении к выбору из истории
 };
 
 

@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.242 19.02.2004 $ */
+/* Revision: 1.243 27.02.2004 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,11 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  27.02.2004 SVS
+    ! Выкинем нах DIF_LISTNOMOUSEREACTION - по другому пути пойдем
+    + LMRT_*
+    + DIF_LISTNOCLOSE
+    + MCMD_CHECKMACRO - закомменчено
   19.02.2004 SVS
     + DIF_LISTNOMOUSEREACTION
   09.12.2003 SVS
@@ -943,7 +948,7 @@ enum FarDialogItemFlags {
 #endif // END FAR_USE_INTERNALS
   DIF_LISTWRAPMODE          = 0x01000000UL,
   DIF_LISTAUTOHIGHLIGHT     = 0x02000000UL,
-  DIF_LISTNOMOUSEREACTION   = 0x04000000UL,
+  DIF_LISTNOCLOSE           = 0x04000000UL,
 #ifdef FAR_USE_INTERNALS
   DIF_AUTOMATION            = 0x08000000UL,
 #endif // END FAR_USE_INTERNALS
@@ -1069,6 +1074,11 @@ enum FARCHECKEDSTATE {
   BSTATE_TOGGLE    = 3,
 };
 
+enum FARLISTMOUSEREACTIONTYPE{
+  LMRT_ONLYFOCUS   = 0,
+  LMRT_ALWAYS      = 1,
+  LMRT_NEVER       = 2,
+};
 
 enum LISTITEMFLAGS {
   LIF_SELECTED           = 0x00010000UL,
@@ -1811,6 +1821,7 @@ enum FARMACROCOMMAND{
   MCMD_POSTMACROSTRING,
 #ifdef FAR_USE_INTERNALS
   MCMD_COMPILEMACRO,
+  MCMD_CHECKMACRO,
 #endif // END FAR_USE_INTERNALS
 };
 

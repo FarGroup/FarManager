@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.168 12.01.2004 $ */
+/* Revision: 1.169 28.02.2004 $ */
 
 /*
 Modify:
+  28.02.2004 SVS
+    + MCMD_CHECKMACRO - закомменчено
   12.01.2004 SVS
     - Забыл сдвинуть флаги на 8 для MCMD_POSTMACROSTRING
   25.12.2003 SVS
@@ -783,6 +785,21 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
           {
             return Macro.PostNewMacro(KeyMacro->Param.PlainText.SequenceText,KeyMacro->Param.PlainText.Flags<<8);
           }
+
+#if 0
+          case MCMD_CHECKMACRO:  // проверка макроса. прежде чем это запусать необходимо, чтобы ParseMacroString возвращал Ptr на ошибку
+          {
+            struct MacroRecord CurMacro={0};
+            int Ret=Macro.ParseMacroString(&CurMacro,KeyMacro->Param.PlainText.SequenceText);
+            if(Ret)
+            {
+              if(CurMacro.BufferSize > 1)
+                xf_free(CurMacro.Buffer);
+            }
+            return Ret;
+          }
+#endif
+
 #if 0
           case MCMD_COMPILEMACRO:
           {

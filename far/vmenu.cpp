@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.128 19.02.2004 $ */
+/* Revision: 1.129 24.02.2004 $ */
 
 /*
 Modify:
+  24.02.2004 SVS
+    ! Проверка на макро USE_WFUNC
   19.02.2004 SVS
     - Некорретная отрисовка меню в W-режиме в связи с применением Text() вместо BoxText()
   19.01.2004 SVS
@@ -954,9 +956,11 @@ void VMenu::ShowMenu(int IsParent)
           }
         //Text(X1,Y,VMenu::Colors[VMenuColorSeparator],TmpStr); // VMenuColorBox
         SetColor(VMenu::Colors[VMenuColorSeparator]);
+#if defined(USE_WFUNC)
         if(Opt.UseUnicodeConsole)
           BoxTextW2(TmpStr,FALSE);
         else
+#endif
           BoxText(TmpStr,FALSE);
 
         if (*Item[I].PtrName())
