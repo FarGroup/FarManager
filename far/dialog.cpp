@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.277 12.02.2003 $ */
+/* Revision: 1.278 21.02.2003 $ */
 
 /*
 Modify:
+  21.02.2003 SVS
+    - неверные цвета для DI_SINGLEBOX и DI_DOUBLEBOX.
   12.02.2003 SVS
     ! не отдаем макроклавиши (для них маска 0x00C00000) в обработчик плагина.
   10.01.2003 SVS
@@ -2179,8 +2181,8 @@ DWORD Dialog::CtlColorDlgItem(int ItemPos,int Type,int Focus,DWORD Flags)
                       (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGBOXTITLE)
                    ), // Title LOBYTE
                    FarColorToReal(DialogMode.Check(DMODE_WARNINGSTYLE) ?
-                      (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGHIGHLIGHTTEXT):
-                      (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGHIGHLIGHTTEXT)
+                      (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGHIGHLIGHTBOXTITLE):
+                      (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGHIGHLIGHTBOXTITLE)
                    )
           ),// HiText HIBYTE
           MAKEWORD(FarColorToReal(Attr), // Box LOBYTE
