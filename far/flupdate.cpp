@@ -5,10 +5,13 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.06 28.02.2001 $ */
+/* Revision: 1.07 26.03.2001 $ */
 
 /*
 Modify:
+  26.03.2001 SVS
+    ! для любых сетевых путей добавляем ".." - иногда операционка этого
+      сама не делает :-(
   28.02.2001 IS
     ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   27.02.2001 VVM
@@ -154,7 +157,6 @@ void FileList::ReadFileNames(int KeepSelection)
   {
     char NetDir[NM];
     *NetDir=0;
-
     if (CurDir[0]=='\\' && CurDir[1]=='\\')
       strcpy(NetDir,CurDir);
     else
@@ -312,8 +314,8 @@ void FileList::ReadFileNames(int KeepSelection)
     if (ChPtr==NULL || strchr(ChPtr+1,'\\')==NULL)
       NetRoot=TRUE;
   }
-
-  if (!DotsPresent && *PointToName(CurDir)!=0 && !NetRoot)
+  // пока кусок закомментим, возможно он даже и не пригодится.
+  if (!DotsPresent && *PointToName(CurDir)!=0)// && !NetRoot)
   {
     if (FileCount>=AllocatedCount)
     {

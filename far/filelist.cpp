@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.34 12.03.2001 $ */
+/* Revision: 1.35 26.03.2001 $ */
 
 /*
 Modify:
+  26.03.2001 SVS
+    + Добавим возможность вызова Network-плагина из корня зашаренных
+      дисков.
   12.03.2001 SVS
     ! Коррекция в связи с изменениями в классе int64
   11.03.2001 VVM
@@ -1564,15 +1567,32 @@ void FileList::ChangeDir(char *NewDir)
     */
     if(!strcmp(SetDir,".."))
     {
-      if(CurDir[0] == '\\' && CurDir[1] == '\\')
+      if(CurDir[0] == '\\' && CurDir[1] == '\\' ||
+         CurDir[1] == ':'  && CurDir[2] == '\\' && CurDir[3]==0 &&
+           GetDriveType(CurDir) == DRIVE_REMOTE)
       {
-        char *PtrS1=strchr(CurDir+2,'\\');
+        /* $ 26.03.2001 SVS
+           Добавим возможность вызова Network-плагина из корня зашаренных
+           дисков.
+        */
+        char NewCurDir[sizeof(CurDir)];
+        strcpy(NewCurDir,CurDir);
+        if(NewCurDir[1] == ':')
+        {
+          char Letter=*NewCurDir;
+          DriveLocalToRemoteName(DRIVE_REMOTE,Letter,NewCurDir);
+        }
+        char *PtrS1=strchr(NewCurDir+2,'\\');
         if(PtrS1 && !strchr(PtrS1+1,'\\'))
         {
-          //*PtrS1=0;
-          if(CtrlObject->Plugins.CallPlugin(0x5774654E,OPEN_FILEPANEL,CurDir)) // NetWork Plugin :-)
+// SysLog("1) SetDir=%s  NewCurDir=%s",SetDir,NewCurDir);
+          if(CtrlObject->Plugins.CallPlugin(0x5774654E,OPEN_FILEPANEL,NewCurDir)) // NetWork Plugin :-)
+          {
+//SysLog("2) SetDir=%s  NewCurDir=%s",SetDir,NewCurDir);
             return;
+          }
         }
+        /* SVS $ */
       }
     }
     /* SVS $ */
