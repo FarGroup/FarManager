@@ -291,6 +291,7 @@
 
 "Cannot create the symlink"
 "Target folder must be empty"
+"Cannot create symlink. The file already exists:"
 
 "Volume mount points error"
 "Retrieving volume name for '%s' failed"

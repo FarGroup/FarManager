@@ -66,7 +66,11 @@ $^#Copyright (C) 2000-<%YEAR%> FAR Group#
 @Help
 $ # FAR: how to use help#
     Help screens may have reference items on them that lead to another help
-screen. You may use #Tab# and #Shift-Tab# keys to move the cursor from one
+screen. Also, the main page has the "~Help Index~@Index@", which lists all the
+topics available in the help file and in some cases helps to find the
+needed information faster.
+
+    You may use #Tab# and #Shift-Tab# keys to move the cursor from one
 reference item to another, then press Enter to go to a help screen
 describing that item. With the mouse, you may click a reference to go to the
 help screen about that item.
@@ -557,11 +561,21 @@ details.
   Edit new file                                             #Shift-F4#
 
     When a new file is opened, the same codepage is used as in
-    the last opened editor. If the editor is opened for the first
-    time in the current FAR session, the DOS codepage is used.
+the last opened editor. If the editor is opened for the first
+time in the current FAR session, the DOS codepage is used.
 
   Copy file under cursor                                    #Shift-F5#
   Rename or move file under cursor                          #Shift-F6#
+
+    For folders: if the specified path (absolute or relative) points to an
+existing folder, the source folder is moved inside that folder.
+Otherwise the folder is renamed/moved to the new path.
+E.g. when moving c:\folder1\ to d:\folder2\:
+If d:\folder2\ exists, contents of c:\folder1\ is moved into
+d:\folder2\folder1\. Otherwise contents of c:\folder1\ is moved into the
+newly created d:\folder2\.
+
+
   Delete file under cursor                                  #Shift-F8#
   Save configuration                                        #Shift-F9#
   Selects last executed menu item                          #Shift-F10#

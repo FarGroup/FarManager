@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.135 08.06.2004 $ */
+/* Revision: 1.136 26.07.2004 $ */
 
 /*
 Modify:
+  26.07.2004 SVS
+    - Создатель симлинков убивает файлы
   08.06.2004 SVS
     ! Вместо GetDriveType теперь вызываем FAR_GetDriveType().
     ! Вместо "DriveType==DRIVE_CDROM" вызываем IsDriveTypeCDROM()
@@ -4033,8 +4035,19 @@ int ShellCopy::MkSymLink(const char *SelName,const char *Dest,DWORD Flags)
 
     int JSAttr=GetFileAttributes(DestFullName);
     _LOGCOPYR(SysLog("%d DestFullName='%s' JSAttr=0x%08X",__LINE__,DestFullName,JSAttr));
-    if(JSAttr != -1 && (JSAttr&FILE_ATTRIBUTE_DIRECTORY)==FILE_ATTRIBUTE_DIRECTORY) // Существует такой?
+    if(JSAttr != -1) // Существует такой?
     {
+      if((JSAttr&FILE_ATTRIBUTE_DIRECTORY)!=FILE_ATTRIBUTE_DIRECTORY)
+      {
+        if(!(Flags&FCOPY_NOSHOWMSGLINK))
+        {
+          Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),
+                MSG(MCopyCannotCreateJunctionToFile),
+                DestFullName,MSG(MOk));
+        }
+        return 0;
+      }
+
       if(CheckFolder(DestFullName) == CHKFLD_NOTEMPTY) // а пустой?
       {
         _LOGCOPYR(SysLog("CheckFolder('%s') == CHKFLD_NOTEMPTY",DestFullName));

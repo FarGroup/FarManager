@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.146 06.07.2004 $ */
+/* Revision: 1.147 26.07.2004 $ */
 
 /*
 Modify:
+  26.07.2004 SVS
+    + MCopyCannotCreateJunctionToFile
   06.07.2004 SVS
     + MMacroPErr* (Macro II)
   21.06.2004 SVS
@@ -686,6 +688,7 @@ enum
 
   MCopyCannotCreateJunction,
   MCopyFolderNotEmpty,
+  MCopyCannotCreateJunctionToFile,
 
   MCopyCannotCreateVolMount,
   MCopyRetrVolFailed,
