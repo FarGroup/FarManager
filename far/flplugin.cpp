@@ -5,10 +5,13 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.16 27.09.2001 $ */
+/* Revision: 1.17 12.12.2001 $ */
 
 /*
 Modify:
+  12.12.2001 SVS
+    - Bug: после ClosePlugin переменная SortOrder по каким-то волшебным
+      причинам становится = -1 (хотя допустимы 0 или 1)...
   27.09.2001 IS
     - Левый размер при использовании strncpy
   24.09.2001 SVS
@@ -98,6 +101,12 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
     }
   }
   CtrlObject->Plugins.ClosePlugin(hPlugin);
+  // после ClosePlugin переменная SortOrder по каким-то волшебным причинам
+  // становится = -1 (хотя допустимы 0 или 1)...
+  if(SortOrder==-1) // ...восстановим.
+  {
+    SortOrder=1; // как в конструкторе заказывали ;-)
+  }
   if (PluginsStackSize>0)
   {
     hPlugin=PluginsStack[PluginsStackSize-1].hPlugin;

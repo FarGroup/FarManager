@@ -775,6 +775,8 @@ Dialog::Dialog(struct DialogItem *Item,    // Набор элементов диалога
                FARWINDOWPROC DlgProc,      // Диалоговая процедура
                long InitParam)             // Ассоцированные с диалогом данные
 {
+  _DIALOG(CleverSysLog CL("Create Dialog"));
+  _DIALOG(SysLog("Item=%p, ItemCount=%d, DlgProc=%p, Param2=0x%08X",Item,ItemCount,DlgProc,InitParam));
   _tran(SysLog("[%p] Dialog::Dialog()",this));
 
   if(!PHisLocked) // если некоторые элементы не инициализированы - сделаем это сейчас
@@ -879,6 +881,7 @@ Dialog::~Dialog()
 
   PeekInputRecord(&rec);
   SetConsoleTitle(OldConsoleTitle);
+  _DIALOG(CleverSysLog CL("Destroy Dialog"));
 }
 
 void Dialog::CheckDialogCoord(void)
@@ -1076,6 +1079,8 @@ int Dialog::InitDialogObjects(int ID)
   struct DialogItem *CurItem;
   int InitItemCount;
   DWORD ItemFlags;
+
+  _DIALOG(CleverSysLog CL("Init Dialog"));
 
   if(ID+1 > ItemCount)
     return -1;
@@ -4685,6 +4690,7 @@ void Dialog::CloseDialog()
   {
     DialogMode.Set(DMODE_ENDLOOP);
     FrameManager->DeleteFrame (this);
+    _DIALOG(CleverSysLog CL("Close Dialog"));
   }
 }
 
@@ -4841,7 +4847,7 @@ const char *MsgToName(int Msg)
   for(I=0; I < sizeof(Message)/sizeof(Message[0]); ++I)
     if(Message[I].Msg == Msg)
       return Message[I].Name;
-  return "";
+  return "(Unknown)";
 }
 #endif
 
@@ -4851,8 +4857,8 @@ long WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
   struct DialogItem *CurItem=NULL;
   char *Ptr=NULL;
   int Type=0;
-  _DIALOG(CleverSysLog CL("Dialog::DefDlgProc()"));
-  _DIALOG(SysLog("hDlg=%p, Msg=%d (%s), Param1=%d, Param2=0x%08X",hDlg,Msg,MsgToName(Msg),Param1,Param2));
+  _DIALOG(CleverSysLog CL("Dialog.DefDlgProc()"));
+  _DIALOG(SysLog("hDlg=%p, Msg=%d (%s), Param1=%d (0x%08X), Param2=%d (0x%08X)",hDlg,Msg,MsgToName(Msg),Param1,Param1,Param2,Param2));
   if(!Dlg)
     return 0;
 
@@ -4973,8 +4979,8 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
   int Len, I;
   struct FarDialogItem PluginDialogItem;
 
-  _DIALOG(CleverSysLog CL("Dialog::SendDlgMessage()"));
-  _DIALOG(SysLog("hDlg=%p, Msg=%d (%s), Param1=%d, Param2=0x%08X",hDlg,Msg,MsgToName(Msg),Param1,Param2));
+  _DIALOG(CleverSysLog CL("Dialog.SendDlgMessage()"));
+  _DIALOG(SysLog("hDlg=%p, Msg=%d (%s), Param1=%d (0x%08X), Param2=%d (0x%08X)",hDlg,Msg,MsgToName(Msg),Param1,Param1,Param2,Param2));
 
   if(!Dlg)
     return 0;
@@ -5536,7 +5542,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
           Len=0;
           break;
       }
-      return Len-(!Len?0:1);;
+      return Len-(!Len?0:1);
 
     /*****************************************************************/
     case DM_SETTEXTPTR:
