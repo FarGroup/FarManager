@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.50 26.10.2000 $ */
+/* Revision: 1.51 04.11.2000 $ */
 
 /*
 Modify:
+  04.11.2000 SVS
+   + Проверка на альтернативную клавишу при XLat-перекодировке
   26.10.2000 SVS
    ! DM_SETEDITPOS/DM_GETEDITPOS -> DM_SETCURSORPOS/DM_GETCURSORPOS
    + Работа с курсором для DI_USERCONTROL в ограниченном варианте.
@@ -1961,11 +1963,16 @@ int Dialog::ProcessKey(int Key)
         /* $ 24.09.2000 SVS
            Вызов функции Xlat
         */
-        if(Opt.XLatDialogKey && Key == Opt.XLatDialogKey)
+        /* $ 04.11.2000 SVS
+           Проверка на альтернативную клавишу
+        */
+        if(Opt.XLat.XLatDialogKey && Key == Opt.XLat.XLatDialogKey ||
+           Opt.XLat.XLatAltDialogKey && Key == Opt.XLat.XLatAltDialogKey)
         {
           edt->Xlat();
           return TRUE;
         }
+        /* SVS $ */
         /* SVS $ */
 
         if (edt->ProcessKey(Key))

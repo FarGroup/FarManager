@@ -5,12 +5,18 @@ mix.cpp
 
 */
 
-/* Revision: 1.42 03.11.2000 $ */
+/* Revision: 1.43 04.11.2000 $ */
 
 /*
 Modify:
+  04.11.2000 SVS
+    + XLAT_SWITCHKEYBBEEP в XLat перекодировке.
+    ! несколько проверок в FarBsearch, InputRecordToKey, FarQsort, FarSprintf,
+      FarAtoi64, FarAtoi, FarItoa64, FarItoa, KeyNameToKey, KeyToText,
+      FarSscanf, AddEndSlash, RemoveTrailingSpaces, RemoveLeadingSpaces,
+      TruncStr, TruncPathStr, QuoteSpaceOnly
   03.11.2000 OT
-    ! Исправление предыдущего способа проверки 
+    ! Исправление предыдущего способа проверки
   02.11.2000 OT
     ! Введение проверки на длину буфера, отведенного под имя файла.
   26.10.2000 SVS
@@ -856,15 +862,18 @@ char* QuoteSpace(char *Str)
 
 char* WINAPI QuoteSpaceOnly(char *Str)
 {
-  if (strchr(Str,' ')!=NULL)
+  if(Str)
   {
-    char *TmpStr=new char[strlen(Str)+3];
-    sprintf(TmpStr,"\"%s\"",Str);
-    strcpy(Str,TmpStr);
-    /* $ 13.07.2000 SVS
-       ну а здесь раз уж вызвали new[], то в придачу и delete[] надо... */
-    delete[] TmpStr;
-    /* SVS $ */
+    if (strchr(Str,' ')!=NULL)
+    {
+      char *TmpStr=new char[strlen(Str)+3];
+      sprintf(TmpStr,"\"%s\"",Str);
+      strcpy(Str,TmpStr);
+      /* $ 13.07.2000 SVS
+         ну а здесь раз уж вызвали new[], то в придачу и delete[] надо... */
+      delete[] TmpStr;
+      /* SVS $ */
+    }
   }
   return(Str);
 }
@@ -872,43 +881,49 @@ char* WINAPI QuoteSpaceOnly(char *Str)
 
 char* WINAPI TruncStr(char *Str,int MaxLength)
 {
-  int Length;
-  if (MaxLength<0)
-    MaxLength=0;
-  if ((Length=strlen(Str))>MaxLength)
-    if (MaxLength>3)
-    {
-      char *TmpStr=new char[MaxLength+5];
-      sprintf(TmpStr,"...%s",Str+Length-MaxLength+3);
-      strcpy(Str,TmpStr);
-    /* $ 13.07.2000 SVS
-       ну а здесь раз уж вызвали new[], то в придачу и delete[] надо... */
-    delete[] TmpStr;
-    /* SVS $ */
-    }
-    else
-      Str[MaxLength]=0;
+  if(Str)
+  {
+    int Length;
+    if (MaxLength<0)
+      MaxLength=0;
+    if ((Length=strlen(Str))>MaxLength)
+      if (MaxLength>3)
+      {
+        char *TmpStr=new char[MaxLength+5];
+        sprintf(TmpStr,"...%s",Str+Length-MaxLength+3);
+        strcpy(Str,TmpStr);
+      /* $ 13.07.2000 SVS
+         ну а здесь раз уж вызвали new[], то в придачу и delete[] надо... */
+      delete[] TmpStr;
+      /* SVS $ */
+      }
+      else
+        Str[MaxLength]=0;
+  }
   return(Str);
 }
 
 
 char* WINAPI TruncPathStr(char *Str,int MaxLength)
 {
-  char *Root=NULL;
-  if (Str[0]!=0 && Str[1]==':' && Str[2]=='\\')
-    Root=Str+3;
-  else
-    if (Str[0]=='\\' && Str[1]=='\\' && (Root=strchr(Str+2,'\\'))!=NULL &&
-        (Root=strchr(Root+1,'\\'))!=NULL)
-      Root++;
-  if (Root==NULL || Root-Str+5>MaxLength)
-    return(TruncStr(Str,MaxLength));
-  int Length=strlen(Str);
-  if (Length>MaxLength)
+  if(Str)
   {
-    char *MovePos=Root+Length-MaxLength+3;
-    memmove(Root+3,MovePos,strlen(MovePos)+1);
-    memcpy(Root,"...",3);
+    char *Root=NULL;
+    if (Str[0]!=0 && Str[1]==':' && Str[2]=='\\')
+      Root=Str+3;
+    else
+      if (Str[0]=='\\' && Str[1]=='\\' && (Root=strchr(Str+2,'\\'))!=NULL &&
+          (Root=strchr(Root+1,'\\'))!=NULL)
+        Root++;
+    if (Root==NULL || Root-Str+5>MaxLength)
+      return(TruncStr(Str,MaxLength));
+    int Length=strlen(Str);
+    if (Length>MaxLength)
+    {
+      char *MovePos=Root+Length-MaxLength+3;
+      memmove(Root+3,MovePos,strlen(MovePos)+1);
+      memcpy(Root,"...",3);
+    }
   }
   return(Str);
 }
@@ -921,10 +936,13 @@ char* WINAPI TruncPathStr(char *Str,int MaxLength)
 char* WINAPI RemoveLeadingSpaces(char *Str)
 {
   char *ChPtr;
-  for (ChPtr=Str;isspace(*ChPtr);ChPtr++)
-         ;
-  if (ChPtr!=Str)
-    memmove(Str,ChPtr,strlen(ChPtr)+1);
+  if(Str)
+  {
+    for (ChPtr=Str;isspace(*ChPtr);ChPtr++)
+           ;
+    if (ChPtr!=Str)
+      memmove(Str,ChPtr,strlen(ChPtr)+1);
+  }
   return Str;
 }
 
@@ -932,11 +950,14 @@ char* WINAPI RemoveLeadingSpaces(char *Str)
 // удалить конечные пробелы
 char* WINAPI RemoveTrailingSpaces(char *Str)
 {
-  for (int I=strlen((char *)Str)-1;I>=0;I--)
-    if (isspace(Str[I]) || iseol(Str[I]))
-      Str[I]=0;
-    else
-      break;
+  if(Str)
+  {
+    for (int I=strlen((char *)Str)-1;I>=0;I--)
+      if (isspace(Str[I]) || iseol(Str[I]))
+        Str[I]=0;
+      else
+        break;
+  }
   return Str;
 }
 
@@ -949,7 +970,7 @@ char* WINAPI RemoveExternalSpaces(char *Str)
 
 
 /* $ 01.11.2000 OT
-  Исправление логики. Теперь функция должна в обязательном порядке 
+  Исправление логики. Теперь функция должна в обязательном порядке
   получить размер буфера и выдать длину полученного имени файла.
   Если размер буфера мал, то копирование не происходит
 */
@@ -1392,10 +1413,14 @@ int GetPluginDirInfo(HANDLE hPlugin,char *DirName,unsigned long &DirCount,
 int WINAPI AddEndSlash(char *Path)
 {
   int Result=0;
-  int Length=strlen(Path);
-  if (Length==0 || Path[Length-1]!='\\') {
-    strcat(Path,"\\");
-    Result = 1;
+  if(Path)
+  {
+    int Length=strlen(Path);
+    if (Length==0 || Path[Length-1]!='\\')
+    {
+      strcat(Path,"\\");
+      Result = 1;
+    }
   }
   return Result;
 
@@ -2008,35 +2033,49 @@ DWORD WINAPI ExpandEnvironmentStr(char *src, char *dest, size_t size)
 */
 char *WINAPI FarItoa(int value, char *string, int radix)
 {
-  return itoa(value,string,radix);
+  if(string)
+    return itoa(value,string,radix);
+  return NULL;
 }
 /* $ 28.08.2000 SVS
   + FarItoa64
 */
 char *WINAPI FarItoa64(__int64 value, char *string, int radix)
 {
-  return _i64toa(value, string, radix);
+  if(string)
+    return _i64toa(value, string, radix);
+  return NULL;
 }
 /* SVS $ */
 int WINAPI FarAtoi(const char *s)
 {
-  return atoi(s);
+  if(s)
+    return atoi(s);
+  return 0;
 }
 __int64 WINAPI FarAtoi64(const char *s)
 {
-  return _atoi64(s);
+  if(s)
+    return _atoi64(s);
+  return 0i64;
 }
 void WINAPI FarQsort(void *base, size_t nelem, size_t width,
                      int (__cdecl *fcmp)(const void *, const void *))
 {
-  qsort(base,nelem,width,fcmp);
+  if(base && fcmp)
+    qsort(base,nelem,width,fcmp);
 }
+
 int WINAPIV FarSprintf(char *buffer,const char *format,...)
 {
-  va_list argptr;
-  va_start(argptr,format);
-  int ret=vsprintf(buffer,format,argptr);
-  va_end(argptr);
+  int ret=0;
+  if(buffer && format)
+  {
+    va_list argptr;
+    va_start(argptr,format);
+    ret=vsprintf(buffer,format,argptr);
+    va_end(argptr);
+  }
   return ret;
 }
 
@@ -2053,6 +2092,8 @@ int __cdecl _input (FILE *stream,const unsigned char *format,va_list arglist);
 
 int WINAPIV FarSscanf(const char *buffer, const char *format,...)
 {
+  if(!buffer || !format)
+    return 0;
 #if defined(_MSC_VER)
   // полная копия внутренностей sscanf :-)
   va_list arglist;
@@ -2092,6 +2133,8 @@ int WINAPIV FarSscanf(const char *buffer, const char *format,...)
 */
 BOOL WINAPI KeyToText(int Key0,char *KeyText0,int Size)
 {
+  if(!KeyText0)
+     return FALSE;
   int I;
   char KeyText[32];
   int fmtNum, Key=Key0;
@@ -2348,7 +2391,9 @@ BOOL WINAPI KeyToText(int Key0,char *KeyText0,int Size)
   FarInputRecordToKey */
 int WINAPI InputRecordToKey(INPUT_RECORD *r)
 {
+  if(r)
     return CalcKeyCode(r,TRUE);
+  return KEY_NONE;
 }
 /* tran 31.08.2000 $ */
 
@@ -2462,7 +2507,15 @@ char* WINAPI Xlat(
      Немного изменим условия и возьмем окно именно FAR.
   */
   if(hFarWnd && (Flags & XLAT_SWITCHKEYBLAYOUT))
+  {
     PostMessage(hFarWnd,WM_INPUTLANGCHANGEREQUEST, 1, HKL_NEXT);
+    /* $ 04.11.2000 SVS
+       Выдаем звуковой сигнал, если надо.
+    */
+    if(Flags & XLAT_SWITCHKEYBBEEP)
+      MessageBeep(0);
+    /* SVS $ */
+  }
   /* SVS $ */
 
   return Line;
@@ -2474,7 +2527,9 @@ char* WINAPI Xlat(
 */
 void *WINAPI FarBsearch(const void *key, const void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *))
 {
-  return bsearch(key,base,nelem,width,fcmp);
+  if(key && fcmp && base)
+    return bsearch(key,base,nelem,width,fcmp);
+  return NULL;
 }
 /* SVS $ */
 
@@ -2548,12 +2603,13 @@ int WINAPI KeyNameToKey(char *Name)
 {
    char KeyName[33];
 
-   for (int I=0; I < KEY_LAST_BASE;++I)
-   {
-     if(KeyToText(I,KeyName))
-       if(!strcmp(Name,KeyName))
-         return I;
-   }
+   if(Name)
+     for (int I=0; I < KEY_LAST_BASE;++I)
+     {
+       if(KeyToText(I,KeyName))
+         if(!strcmp(Name,KeyName))
+           return I;
+     }
    return -1;
 }
 /* SVS $*/

@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.04 24.09.2000 $ */
+/* Revision: 1.05 04.11.2000 $ */
 
 /*
 Modify:
+  04.11.2000 SVS
+    + Проверка на альтернативную клавишу при XLat-перекодировке
   24.09.2000 SVS
     + поведение ESC.
     + вызов функции Xlat
@@ -272,11 +274,16 @@ int CommandLine::ProcessKey(int Key)
          Если попалась клавиша вызова функции Xlat, то
          подставим клавишу для редактора, если она != 0
       */
-      if(Opt.XLatCmdLineKey && Key == Opt.XLatCmdLineKey)
+      /* $ 04.11.2000 SVS
+         Проверка на альтернативную клавишу
+      */
+      if((Opt.XLat.XLatCmdLineKey && Key == Opt.XLat.XLatCmdLineKey) ||
+         (Opt.XLat.XLatAltCmdLineKey && Key == Opt.XLat.XLatAltCmdLineKey))
       {
         CmdStr.Xlat();
         return(TRUE);
       }
+      /* SVS $ */
       /* SVS $ */
 
       if (!CmdStr.ProcessKey(Key))

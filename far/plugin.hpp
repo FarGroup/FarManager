@@ -8,13 +8,16 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000 [ FAR group ]
 */
-/* Revision: 1.66 02.11.2000 $ */
+/* Revision: 1.67 04.11.2000 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  04.11.2000 SVS
+    + XLAT_SWITCHKEYBBEEP - выдать звуковой сигнал при переключении
+      клавиатуры
   02.11.2000 OT
     ! Введение проверки на длину буфера, отведенного под имя файла.
   26.10.2000 SVS
@@ -928,6 +931,7 @@ typedef int     (WINAPI *FARSTDPROCESSNAME)(char *param1, char *param2, DWORD fl
 
 enum XLATMODE{
   XLAT_SWITCHKEYBLAYOUT = 0x0000001UL,
+  XLAT_SWITCHKEYBBEEP   = 0x0000002UL,
 };
 
 typedef char*   (WINAPI *FARSTDXLAT)(char *Line,int StartPos,int EndPos,struct CharTableSet *TableSet,DWORD Flags);

@@ -7,10 +7,14 @@ struct.hpp
 
 */
 
-/* Revision: 1.23 20.10.2000 $ */
+/* Revision: 1.24 04.11.2000 $ */
 
 /*
 Modify:
+  04.11.2000 SVS
+   ! XLat - все что относится к XLat - в одну структуру.
+   + XLat - добавление альтернативных клавиш:
+       XLatAltEditorKey, XLatAltCmdLineKey, XLatAltDialogKey;
   20.10.2000 SVS
    + Opt.PanelCtrlFRule
       Panel/CtrlFRule в реестре - задает поведение Ctrl-F
@@ -175,6 +179,20 @@ struct DizOptions
 */
 struct CodeXLAT{
   DWORD Flags;       // дополнительные флаги
+  /* $ 05.09.2000 SVS
+     В Opt добавлены клавиши, вызывающие функцию Xlat
+  */
+  int XLatEditorKey;
+  int XLatCmdLineKey;
+  int XLatDialogKey;
+  /* SVS $*/
+  /* $ 04.11.2000 SVS
+     В Opt добавлены альтернативные клавиши, вызывающие функцию Xlat
+  */
+  int XLatAltEditorKey;
+  int XLatAltCmdLineKey;
+  int XLatAltDialogKey;
+  /* SVS $*/
   BYTE Table[2][81]; // [0] non-english буквы, [1] english буквы
   BYTE Rules[3][20]; // 3 по 10 правил:
                     //  [0] "если предыдущий символ латинский"
@@ -315,19 +333,6 @@ struct Options
      seting by '/co' switch, not saved in registry. */
   int PluginsCacheOnly;
   /* tran $ */
-  /* $ 05.09.2000 SVS
-     В Opt добавлен блок переменный, касаемых QWERTY-перекодировки
-  */
-  struct CodeXLAT XLat;
-  /* SVS $*/
-  /* $ 05.09.2000 SVS
-     В Opt добавлены клавиши, вызывающие функцию Xlat
-  */
-  int XLatEditorKey;
-  int XLatCmdLineKey;
-  int XLatDialogKey;
-  /* SVS $*/
-
   /* $ 11.09.2000 SVS
      В Opt добавлена переменная DlgEULBsClear
      если = 1, то BS в диалогах для UnChanged строки удаляет такую
@@ -387,6 +392,12 @@ struct Options
    + Opt.HelpURLRules - =0 отключить возможность запуска URL-приложений
   */
   int HelpURLRules;
+  /* SVS $*/
+
+  /* $ 05.09.2000 SVS
+     В Opt добавлен блок переменный, касаемых QWERTY-перекодировки
+  */
+  struct CodeXLAT XLat;
   /* SVS $*/
 };
 

@@ -5,10 +5,13 @@ config.cpp
 
 */
 
-/* Revision: 1.30 20.10.2000 $ */
+/* Revision: 1.31 04.11.2000 $ */
 
 /*
 Modify:
+  04.11.2000 SVS
+    + XLat - добавление альтернативных клавиш:
+        XLatAltEditorKey, XLatAltCmdLineKey, XLatAltDialogKey;
   20.10.2000 SVS
     + Opt.PanelCtrlFRule
       Panel/CtrlFRule в реестре - задает поведение Ctrl-F
@@ -754,9 +757,17 @@ void ReadConfig()
   /* $ 24.09.2000 SVS
      Клавиши, вызывающие Xlat
   */
-  GetRegKey("XLat","EditorKey",Opt.XLatEditorKey,KEY_CTRLSHIFTX);
-  GetRegKey("XLat","CmdLineKey",Opt.XLatCmdLineKey,KEY_CTRLSHIFTX);
-  GetRegKey("XLat","DialogKey",Opt.XLatDialogKey,KEY_CTRLSHIFTX);
+  GetRegKey("XLat","EditorKey",Opt.XLat.XLatEditorKey,KEY_CTRLSHIFTX);
+  GetRegKey("XLat","CmdLineKey",Opt.XLat.XLatCmdLineKey,KEY_CTRLSHIFTX);
+  GetRegKey("XLat","DialogKey",Opt.XLat.XLatDialogKey,KEY_CTRLSHIFTX);
+  /* SVS $ */
+  /* $ 04.11.2000 SVS
+     Альтернативные клавиши, вызывающие Xlat
+     по умолчанию = 0 - т.е. не используются
+  */
+  GetRegKey("XLat","AltEditorKey",Opt.XLat.XLatAltEditorKey,0);
+  GetRegKey("XLat","AltCmdLineKey",Opt.XLat.XLatAltCmdLineKey,0);
+  GetRegKey("XLat","AltDialogKey",Opt.XLat.XLatAltDialogKey,0);
   /* SVS $ */
 
   GetRegKey("System","SaveHistory",Opt.SaveHistory,0);

@@ -6,16 +6,18 @@ editor.cpp
 
 */
 
-/* Revision: 1.42 23.10.2000 $ */
+/* Revision: 1.43 04.11.2000 $ */
 
 /*
 Modify:
+  04.11.2000 SVS
+    + Проверка на альтернативную клавишу при XLat-перекодировке
   03.11.2000 OT
-    ! Введение проверки возвращаемого значения 
+    ! Введение проверки возвращаемого значения
   02.11.2000 OT
     ! Введение проверки на длину буфера, отведенного под имя файла.
   23.10.2000 tran 1.40
-    ! ВБ, табуляция и CurBeyondEOL 
+    ! ВБ, табуляция и CurBeyondEOL
   16.10.2000 tran 1.39
     ! первый поиск идет с текущей позиции, а следующий - со следующей (FGWL#10)
   11.10.2000 SVS
@@ -2154,13 +2156,18 @@ int Editor::ProcessKey(int Key)
         /* $ 24.09.2000 SVS
            Вызов функции Xlat
         */
-        if(Opt.XLatEditorKey && Key == Opt.XLatEditorKey &&
+        /* $ 04.11.2000 SVS
+           Проверка на альтернативную клавишу
+        */
+        if((Opt.XLat.XLatEditorKey && Key == Opt.XLat.XLatEditorKey ||
+            Opt.XLat.XLatAltEditorKey && Key == Opt.XLat.XLatAltEditorKey) &&
            (VBlockStart || BlockStart))
         {
           Xlat();
           Show();
           return TRUE;
         }
+        /* SVS $ */
         /* SVS $ */
 
         if (CurLine->EditLine.ProcessKey(Key))
