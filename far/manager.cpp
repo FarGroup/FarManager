@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.76 18.06.2002 $ */
+/* Revision: 1.77 20.06.2002 $ */
 
 /*
 Modify:
+  20.06.2002 SVS
+    ! Для хелпа и диалога по F12 не кажим список скринов.
   18.06.2002 SVS
     + В манагер добавлена переменная StartManager, отвечающая на вопрос
       "Манагер уже стартовал?"
@@ -899,9 +901,14 @@ int  Manager::ProcessKey(int Key)
 
         case KEY_F12:
         {
-          DeactivateFrame(FrameMenu(),0);
-          _OT(SysLog(-1));
-          return TRUE;
+          int TypeFrame=FrameManager->GetCurrentFrame()->GetType();
+          if(TypeFrame != MODALTYPE_HELP && TypeFrame != MODALTYPE_DIALOG)
+          {
+            DeactivateFrame(FrameMenu(),0);
+            _OT(SysLog(-1));
+            return TRUE;
+          }
+          break; // отдадим F12 дальше по цепочке
         }
       }
 
