@@ -5,7 +5,7 @@
 
 int WINAPI _export GetMinFarVersion(void)
 {
-  return MAKEFARVERSION(1,70,1356);
+  return MAKEFARVERSION(1,70,1666);
 }
 
 void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
@@ -107,13 +107,21 @@ HANDLE WINAPI OpenPlugin(int OpenFrom, int Item)
       HANDLE h = CreateFile(filename,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,NULL);
       if (h == INVALID_HANDLE_VALUE)
         return INVALID_HANDLE_VALUE;
-      unsigned char data[128*1024];
+      DWORD size = Info.AdvControl(Info.ModuleNumber,ACTL_GETPLUGINMAXREADDATA,(void *)0);
+      unsigned char *data;
+      data = (unsigned char *) malloc(size*sizeof(unsigned char));
+      if (!data)
+        return INVALID_HANDLE_VALUE;
       DWORD datasize;
-      BOOL b = ReadFile(h,data,128*1024,&datasize,NULL);
+      BOOL b = ReadFile(h,data,size,&datasize,NULL);
       CloseHandle(h);
       if (!(b&&datasize))
+      {
+        free(data);
         return INVALID_HANDLE_VALUE;
+      }
       h = OpenFilePlugin(filename,data,datasize);
+      free(data);
       if ((h==(HANDLE)-2) || h==INVALID_HANDLE_VALUE)
         return INVALID_HANDLE_VALUE;
       return h;
