@@ -5,10 +5,12 @@ setcolor.cpp
 
 */
 
-/* Revision: 1.03 18.07.2000 $ */
+/* Revision: 1.04 13.09.2000 $ */
 
 /*
 Modify:
+  13.09.2000 tran 1.04
+    + COL_COMMANDLINEPREFIX
   18.03.2000 tran 1.03
     + COL_VIEWERSCROLLBAR
   06.07.2000 SVS
@@ -177,10 +179,11 @@ void SetColors()
   struct MenuData CommandLineItems[]=
   {
     (char *)MSetColorCommandLineNormal,1,0,0,
-    (char *)MSetColorCommandLineSelected,0,0,0
+    (char *)MSetColorCommandLineSelected,0,0,0,
+    (char *)MSetColorCommandLinePrefix,0,0,0    
   };
   int CommandLinePaletteItems[]={
-    COL_COMMANDLINE,COL_COMMANDLINESELECTED
+    COL_COMMANDLINE,COL_COMMANDLINESELECTED,COL_COMMANDLINEPREFIX
   };
 
   struct MenuData ClockItems[]=

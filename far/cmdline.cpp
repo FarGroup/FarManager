@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.01 02.08.2000 $ */
+/* Revision: 1.02 13.09.2000 $ */
 
 /*
 Modify:
+  13.09.2000 tran 1.02
+    + COL_COMMANDLINEPREFIX
   02.08.2000 tran 1.01
     - мелкий фикс - при выходе по CtrlF10, если файл был открыт на просмотр
       из Alt-F11, был виден keybar в панелях
@@ -43,7 +45,7 @@ void CommandLine::DisplayObject()
   GetPrompt(TruncDir);
   TruncPathStr(TruncDir,(X2-X1)/2);
   GotoXY(X1,Y1);
-  SetColor(COL_COMMANDLINE);
+  SetColor(COL_COMMANDLINEPREFIX);
   Text(TruncDir);
   CmdStr.SetObjectColor(COL_COMMANDLINE,COL_COMMANDLINESELECTED);
   CmdStr.SetLeftPos(0);

@@ -12,10 +12,12 @@ lang.hpp
            подряд.
 */
 
-/* Revision: 1.15 12.09.2000 $ */
+/* Revision: 1.16 13.09.2000 $ */
 
 /*
 Modify:
+  13.09.2000 tran 1.16
+    + MSetColorCommandLinePrefix
   12.09.2000 SVS
     ! MViewF2WWrap удалено и перемещено на MViewShiftF2
   04.08.2000 SVS
@@ -1029,6 +1031,7 @@ enum
 
   MSetColorCommandLineNormal,
   MSetColorCommandLineSelected,
+  MSetColorCommandLinePrefix,
 
   MSetColorClockNormal,
 

@@ -7,10 +7,12 @@ colors.hpp
 
 */
 
-/* Revision: 1.02 18.07.2000 $ */
+/* Revision: 1.03 13.09.2000 $ */
 
 /*
 Modify:
+  13.09.2000 tran 1.03
+    + COL_COMMANDLINEPREFIX
   18.07.2000 tran 1.02
     + COL_VIEWERSCROLLBAR
   11.07.2000 SVS
@@ -157,13 +159,17 @@ enum PaletteColors
   /* $ 29.06.2000 SVS
     Цветовые атрибуты для Menu ScrollBar
   */
-  COL_DIALOGMENUSCROLLBAR,	// для случая History
+  COL_DIALOGMENUSCROLLBAR,  // для случая History
   COL_MENUSCROLLBAR,            // для обычного меню
   /* SVS $ */
   /* $ 18.07.2000 tran
      scrollbar для viewer*/
   COL_VIEWERSCROLLBAR,
   /* tran 18.07.2000 $ */
+  /* $ 13.09.2000 tran
+     comman list prefix */
+  COL_COMMANDLINEPREFIX,
+  /* tran 13.09.2000 $ */
 };
 
-#endif	// __COLORS_HPP__
+#endif  // __COLORS_HPP__
