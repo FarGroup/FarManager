@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.84 29.03.2004 $ */
+/* Revision: 1.85 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   29.03.2004 SVS
     - предыдущая реализация GetVidCharW() была ошибочной
   01.03.2004 SVS
@@ -1191,7 +1193,7 @@ void HiText(const char *Str,int HiColor)
   char TextStr[600];
   int SaveColor;
   char *ChPtr;
-  strncpy(TextStr,Str,sizeof(TextStr)-1);
+  xstrncpy(TextStr,Str,sizeof(TextStr)-1);
   if ((ChPtr=strchr(TextStr,'&'))==NULL)
     Text(TextStr);
   else

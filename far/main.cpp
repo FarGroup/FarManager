@@ -5,10 +5,12 @@ main.cpp
 
 */
 
-/* Revision: 1.76 07.07.2004 $ */
+/* Revision: 1.77 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   07.07.2004 SVS
     ! Macro II
   14.06.2004 SVS
@@ -647,7 +649,7 @@ int _cdecl main(int Argc, char *Argv[])
               //Sleep(5000);
             }
             else
-              strncpy(Opt.LoadPlug.CustomPluginsPath,&Argv[I][2],sizeof(Opt.LoadPlug.CustomPluginsPath));
+              xstrncpy(Opt.LoadPlug.CustomPluginsPath,&Argv[I][2],sizeof(Opt.LoadPlug.CustomPluginsPath));
             /* 18.01.2003 IS
                - Ќе правильно обрабатывалась команда /p[<path>], если в пути
                  были буквы национального алфавита.
@@ -800,7 +802,7 @@ int _cdecl main(int Argc, char *Argv[])
   initMacroVarTable(0);
   initMacroVarTable(1);
 
-  int Result;
+  int Result=0;
   if(Opt.ExceptRules)
   {
     TRY{

@@ -5,10 +5,12 @@ setattr.cpp
 
 */
 
-/* Revision: 1.59 12.09.2003 $ */
+/* Revision: 1.60 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   12.09.2003 SVS
     ! Немного увеличим буфер для GetPathRootOne
   04.09.2003 SVS
@@ -217,7 +219,7 @@ static void GetFileDateAndTime(const char *Src,unsigned *Dst,int Separator)
   char Temp[32], Digit[16],*PtrDigit;
   int I;
 
-  strncpy(Temp,Src,sizeof(Temp)-1);
+  xstrncpy(Temp,Src,sizeof(Temp)-1);
   Dst[0]=Dst[1]=Dst[2]=(unsigned)-1;
   I=0;
   const char *Ptr=Temp;
@@ -518,7 +520,7 @@ void ShellSetFileAttributesMsg(char *Name)
 
   if(Name && *Name)
   {
-    strncpy(OutFileName,Name,sizeof(OutFileName)-1);
+    xstrncpy(OutFileName,Name,sizeof(OutFileName)-1);
     TruncPathStr(OutFileName,Width);
     CenterStr(OutFileName,OutFileName,Width+4);
   }
@@ -1106,7 +1108,7 @@ static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
   unsigned DateN[3],TimeN[3];
   int DigitCount;
   int /*SetTime,*/GetTime;
-  FILETIME *OriginalFileTime, OFTModify, OFTCreate, OFTLast;
+  FILETIME *OriginalFileTime=0, OFTModify, OFTCreate, OFTLast;
 
   /*$ 17.07.2001 SKV
     от греха подальше, занулим.

@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.56 07.07.2004 $ */
+/* Revision: 1.57 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   07.07.2004 SVS
     + Macro II
     - Bug: делаем Ctrl-Q Tab Ctrl-5 (или любой другой режим) - ФАР упал, т.к.
@@ -203,12 +205,12 @@ static void PrepareOptFolder(char *Src,int SizeSrc,int IsLocalPath_FarPath)
 {
   if(!*Src)
   {
-    strncpy(Src,FarPath,SizeSrc);
+    xstrncpy(Src,FarPath,SizeSrc);
     DeleteEndSlash(Src);
   }
   if(!strcmp(Src,"/"))
   {
-    strncpy(Src,FarPath,SizeSrc);
+    xstrncpy(Src,FarPath,SizeSrc);
     if(IsLocalPath_FarPath)
     {
       Src[2]='\\';
@@ -1255,9 +1257,9 @@ void FilePanels::GoToFile (const char *FileName)
     }
 
     char NameFile[NM], NameDir[NM];
-    strncpy(NameDir, FileName,sizeof(NameDir)-1);
+    xstrncpy(NameDir, FileName,sizeof(NameDir)-1);
     char *NameTmp=PointToName(NameDir);
-    strncpy(NameFile,NameTmp,sizeof(NameFile)-1);
+    xstrncpy(NameFile,NameTmp,sizeof(NameFile)-1);
     *NameTmp=0;
 
     /* $ 10.04.2001 IS

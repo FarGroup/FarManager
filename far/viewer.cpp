@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.163 03.08.2004 $ */
+/* Revision: 1.164 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   03.08.2004 SVS
     + MCODE_V_VIEWERSTATE
   07.07.2004 SVS
@@ -1123,7 +1125,7 @@ void Viewer::ShowHex()
   if(!ViewFile)
     return;
   char OutStr[MAX_VIEWLINE],TextStr[20];
-  int SelPos,SelSize,EndFile;
+  int SelPos=0,SelSize,EndFile;
   int Ch,Ch1,X,Y,TextPos;
   SelSize=0;
 
@@ -1520,7 +1522,7 @@ void Viewer::ShowStatus()
     TableName="Unicode";
   else if (VM.UseDecodeTable)
   {
-    strncpy(TmpTableName,TableSet.TableName,sizeof(TmpTableName));
+    xstrncpy(TmpTableName,TableSet.TableName,sizeof(TmpTableName));
     TableName=RemoveChar(TmpTableName,'&',TRUE);
   }
   else if (VM.AnsiMode)
@@ -2882,7 +2884,7 @@ void Viewer::Search(int Next,int FirstChar)
 
   unsigned char SearchStr[SEARCHSTRINGBUFSIZE];
   char MsgStr[SEARCHSTRINGBUFSIZE+16];
-  __int64 MatchPos;
+  __int64 MatchPos=0;
   /* $ 01.08.2000 KM
      Добавлена новая переменная WholeWords
   */
@@ -2894,7 +2896,7 @@ void Viewer::Search(int Next,int FirstChar)
 
   /* 23.09.2003 KM */
   if (*LastSearchStr)
-    strncpy((char *)SearchStr,(char *)LastSearchStr,sizeof(SearchStr)-1);
+    xstrncpy((char *)SearchStr,(char *)LastSearchStr,sizeof(SearchStr)-1);
   else
     *SearchStr=0;
 
@@ -2925,9 +2927,9 @@ void Viewer::Search(int Next,int FirstChar)
 
   /* $ 26.10.2003 KM */
   if(SearchDlg[6].Selected)
-    strncpy(SearchDlg[3].Data,(char *)SearchStr,sizeof(SearchDlg[3].Data)-1);
+    xstrncpy(SearchDlg[3].Data,(char *)SearchStr,sizeof(SearchDlg[3].Data)-1);
   else
-    strncpy(SearchDlg[2].Data,(char *)SearchStr,sizeof(SearchDlg[2].Data)-1);
+    xstrncpy(SearchDlg[2].Data,(char *)SearchStr,sizeof(SearchDlg[2].Data)-1);
   /* KM $ */
 
   if (!Next)
@@ -2959,14 +2961,14 @@ void Viewer::Search(int Next,int FirstChar)
   /* $ 26.10.2003 KM */
   if(SearchHex)
   {
-    strncpy((char *)SearchStr,SearchDlg[3].Data,sizeof(SearchStr)-1);
+    xstrncpy((char *)SearchStr,SearchDlg[3].Data,sizeof(SearchStr)-1);
     RemoveTrailingSpaces((char *)SearchStr);
   }
   else
-    strncpy((char *)SearchStr,SearchDlg[2].Data,sizeof(SearchStr)-1);
+    xstrncpy((char *)SearchStr,SearchDlg[2].Data,sizeof(SearchStr)-1);
   /* KM $ */
 
-  strncpy((char *)LastSearchStr,(char *)SearchStr,sizeof(LastSearchStr)-1);
+  xstrncpy((char *)LastSearchStr,(char *)SearchStr,sizeof(LastSearchStr)-1);
   LastSearchHex=SearchHex;
   LastSearchCase=Case;
   /* $ 01.08.2000 KM
@@ -2984,7 +2986,7 @@ void Viewer::Search(int Next,int FirstChar)
     //SaveScreen SaveScr;
     SetCursorType(FALSE,0);
 
-    strncpy(MsgStr,(char *)SearchStr,sizeof(MsgStr)-1);
+    xstrncpy(MsgStr,(char *)SearchStr,sizeof(MsgStr)-1);
 
     if(strlen(MsgStr)+18 > ObjWidth)
       TruncStrFromEnd(MsgStr, ObjWidth-18);
@@ -3337,7 +3339,7 @@ void Viewer::SetTitle(const char *Title)
      - Баг: не учитывался размер Title, что приводило к порче памяти и
        к падению Фара.
   */
-    strncpy(Viewer::Title,Title,sizeof(Viewer::Title)-1);
+    xstrncpy(Viewer::Title,Title,sizeof(Viewer::Title)-1);
   /* IS $ */
 }
 
@@ -3495,7 +3497,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
       if (Dlg.GetExitCode()<=0 ) //|| !isdigit(*GoToDlg[1].Data))
         return;
       /* IS $ */
-      // strncpy(PrevLine,GoToDlg[1].Data,sizeof(PrevLine));
+      // xstrncpy(PrevLine,GoToDlg[1].Data,sizeof(PrevLine));
       /* $ 17.07.2000 tran
          тут для сокращения кода ввел ptr, который и анализирую */
       char *ptr=GoToDlg[1].Data;

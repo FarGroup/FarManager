@@ -5,10 +5,12 @@ grpsort.cpp
 
 */
 
-/* Revision: 1.18 21.01.2003 $ */
+/* Revision: 1.19 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   21.01.2003 SVS
     + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
       Просьба блюсти порядок и прописывать именно xf_* вместо простых.
@@ -158,7 +160,7 @@ BOOL GroupSort::AddMask(struct GroupSortData *Dest,char *Mask,int Group)
     memmove(Ptr,Ptr+IQ1,strlen(Ptr+IQ1)+1);
 
     char Tmp1[GROUPSORT_MASK_SIZE], *pSeparator;
-    strncpy(Tmp1, Mask,sizeof(Tmp1)-1);
+    xstrncpy(Tmp1, Mask,sizeof(Tmp1)-1);
     pSeparator=strchr(Tmp1, EXCLUDEMASKSEPARATOR);
     if(pSeparator)
     {
@@ -168,7 +170,7 @@ BOOL GroupSort::AddMask(struct GroupSortData *Dest,char *Mask,int Group)
       else
       {
         char Tmp2[GROUPSORT_MASK_SIZE];
-        strncpy(Tmp2, pSeparator+1,sizeof(Tmp2)-1);
+        xstrncpy(Tmp2, pSeparator+1,sizeof(Tmp2)-1);
         *pSeparator=0;
         Add_PATHEXT(Tmp1);
         sprintf(Mask, "%s|%s", Tmp1, Tmp2);
@@ -298,7 +300,7 @@ int GroupSort::EditGroupsMenu(int Pos)
   {
     if (GroupData[GroupPos].Group>DEFAULT_SORT_GROUP)
       break;
-    strncpy(ListItem.Name,GetMask(GroupPos),sizeof(ListItem.Name)-1);
+    xstrncpy(ListItem.Name,GetMask(GroupPos),sizeof(ListItem.Name)-1);
     ListItem.SetSelect(I == Pos);
     GroupList.AddItem(&ListItem);
     GroupPos++;
@@ -317,7 +319,7 @@ int GroupSort::EditGroupsMenu(int Pos)
   memset(&ListItem2,0,sizeof(ListItem2));
   for (;GroupPos<GroupCount;I++)
   {
-    strncpy(ListItem2.Name,GetMask(GroupPos),sizeof(ListItem2.Name)-1);
+    xstrncpy(ListItem2.Name,GetMask(GroupPos),sizeof(ListItem2.Name)-1);
     ListItem2.SetSelect(I == Pos);
     GroupList.AddItem(&ListItem2);
     GroupPos++;
@@ -357,7 +359,7 @@ int GroupSort::EditGroupsMenu(int Pos)
           if (ListPos<GroupCount)
           {
             char GroupName[72]="\"";
-            strncpy(GroupName+1,GetMask(ListPos),sizeof(GroupName)-4);
+            xstrncpy(GroupName+1,GetMask(ListPos),sizeof(GroupName)-4);
             strcat(GroupName,"\"");
             if (Message(MSG_WARNING,2,MSG(MSortGroupsTitle),
                         MSG(MSortGroupsAskDel),GroupName,

@@ -5,10 +5,12 @@ filetype.cpp
 
 */
 
-/* Revision: 1.43 09.01.2004 $ */
+/* Revision: 1.44 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   09.01.2004 SVS
     + Opt.ExcludeCmdHistory - в историю только то, что вводили с клавиатуры
   12.05.2003 SVS
@@ -466,7 +468,7 @@ int ProcessGlobalFileTypes(char *Name,int AlwaysWaitFinish)
           if (SpacePresent)
           {
             char NewStr[2*NM];
-            strncpy(NewStr,ExpAssocStr,I+4);
+            xstrncpy(NewStr,ExpAssocStr,I+4);
             NewStr[I+4]=0;
             QuoteSpace(NewStr);
             strcat(NewStr,&ExpAssocStr[I+4]);
@@ -482,7 +484,7 @@ int ProcessGlobalFileTypes(char *Name,int AlwaysWaitFinish)
     char FullName[2*NM];
     if (!ConvertNameToFull(Name,FullName, sizeof(FullName)))
     // „то-ж, пробуем запускать по короткому имени...
-      strncpy(FullName,Name,sizeof(FullName)-1);
+      xstrncpy(FullName,Name,sizeof(FullName)-1);
 /*
     if (FullName[0]=='\\' && FullName[1]=='\\')
       strcpy(Name,FullName);
@@ -609,7 +611,7 @@ static int FillFileTypesMenu(VMenu *TypesMenu,int MenuPos)
 
 void EditFileTypes()
 {
-  int NumLine;
+  int NumLine=0;
   int MenuPos=0;
   int m;
   BOOL MenuModified;

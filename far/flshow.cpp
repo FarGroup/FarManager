@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.39 29.05.2004 $ */
+/* Revision: 1.40 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   29.05.2004 SVS
     - BugZ#847 - рамка слева от колонки с именем файла не подсвечивается
       (вроде артефактов не замечено :-))
@@ -328,7 +330,7 @@ void FileList::ShowFileList(int Fast)
     /* $ 21.03.2002 DJ
        не портим стек
     */
-    strncpy(Title,NullToEmpty(Info.PanelTitle),sizeof (Title)-1);
+    xstrncpy(Title,NullToEmpty(Info.PanelTitle),sizeof (Title)-1);
     /* DJ $ */
     TruncStr(Title,TruncSize);
   }
@@ -338,7 +340,7 @@ void FileList::ShowFileList(int Fast)
     if (ShowShortNames)
       ConvertNameToShort(CurDir,TitleDir);
     else
-      strncpy(TitleDir,CurDir,sizeof(TitleDir)-1);
+      xstrncpy(TitleDir,CurDir,sizeof(TitleDir)-1);
     TruncPathStr(TitleDir,TruncSize-2);
     sprintf(Title," %s ",TitleDir);
   }
@@ -987,7 +989,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                   if (strlen(PtrName) <= Width-2)
                     sprintf(Str,"<%.*s>",sizeof(Str)-3,PtrName);
                   else
-                    strncpy(Str,PtrName,sizeof(Str)-1);
+                    xstrncpy(Str,PtrName,sizeof(Str)-1);
 
                   mprintf("%*.*s",Width,Width,Str);
                 }
@@ -1084,7 +1086,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                   }
                 }
                 char DizText[1024];
-                strncpy(DizText,CurPtr->DizText ? CurPtr->DizText+CurLeftPos:"",sizeof(DizText)-1);
+                xstrncpy(DizText,CurPtr->DizText ? CurPtr->DizText+CurLeftPos:"",sizeof(DizText)-1);
                 DizText[sizeof(DizText)-1]=0;
                 char *DizEnd=strchr(DizText,'\4');
                 if (DizEnd!=NULL)

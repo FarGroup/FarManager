@@ -38,11 +38,7 @@ Return value    If template is well-formed, _tmktemp returns the
 
 *---------------------------------------------------------------------*/
 
-#if defined(_MSC_VER)
-_CRTIMP char * __cdecl mktemp(char *temp)
-#else
-char* mktemp(char *temp)
-#endif
+char* farmktemp(char *temp)
 {
     register char *cp;
     int     len;

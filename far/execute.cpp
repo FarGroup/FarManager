@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.105 18.05.2004 $ */
+/* Revision: 1.106 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   18.05.2004 SVS
     - BugZ#1077 - Падение при отсутствующей Win-ассоциации
   17.05.2004 SVS
@@ -501,14 +503,14 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error)
       ActionList.Reset();
       while (RetEnum == ERROR_SUCCESS && (ActionPtr = ActionList.GetNext()) != NULL)
       {
-        strncpy(NewValue, Value, sizeof(NewValue) - 1);
+        xstrncpy(NewValue, Value, sizeof(NewValue) - 1);
         strncat(NewValue, ActionPtr, sizeof(NewValue) - 1);
         strncat(NewValue, command_action, sizeof(NewValue) - 1);
         if (RegOpenKey(HKEY_CLASSES_ROOT,NewValue,&hOpenKey)==ERROR_SUCCESS)
         {
           RegCloseKey(hOpenKey);
           strncat(Value, ActionPtr, sizeof(Value) - 1);
-          RetPtr = strncpy(Action,ActionPtr,sizeof(Action)-1);
+          RetPtr = xstrncpy(Action,ActionPtr,sizeof(Action)-1);
           RetEnum = ERROR_NO_MORE_ITEMS;
         } /* if */
       } /* while */
@@ -541,7 +543,7 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error)
 
     // Сначала проверим "open"...
     strcpy(Action,"open");
-    strncpy(NewValue, Value, sizeof(NewValue) - 1);
+    xstrncpy(NewValue, Value, sizeof(NewValue) - 1);
     strncat(NewValue, Action, sizeof(NewValue) - 1);
     strncat(NewValue, command_action, sizeof(NewValue) - 1);
     if (RegOpenKey(HKEY_CLASSES_ROOT,NewValue,&hOpenKey)==ERROR_SUCCESS)
@@ -561,7 +563,7 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error)
       if (RetEnum == ERROR_SUCCESS)
       {
         // Проверим наличие "команды" у этого ключа
-        strncpy(NewValue, Value, sizeof(NewValue) - 1);
+        xstrncpy(NewValue, Value, sizeof(NewValue) - 1);
         strncat(NewValue, Action, sizeof(NewValue) - 1);
         strncat(NewValue, command_action, sizeof(NewValue) - 1);
         if (RegOpenKey(HKEY_CLASSES_ROOT,NewValue,&hOpenKey)==ERROR_SUCCESS)
@@ -746,7 +748,7 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
   {
     char *FilePart;
     char *PtrFName=strrchr(PointToName(strcpy(FullName,FileName)),'.');
-    char *WorkPtrFName;
+    char *WorkPtrFName=0;
     if(!PtrFName)
       WorkPtrFName=FullName+strlen(FullName);
 
@@ -879,7 +881,7 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
       IsExistExt=FALSE;
       VVM $ */
 
-    // strncpy(TempStr,Command,sizeof(TempStr)-1);
+    // xstrncpy(TempStr,Command,sizeof(TempStr)-1);
     FAR_CharToOem(FullName,FullName);
     // FAR_CharToOem(FileName,FileName);
     // ReplaceStrings(TempStr,FileName,FullName);
@@ -887,7 +889,7 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
       DestSize=strlen(FullName);
     // if(Dest && IsExistExt)
     if (Dest)
-      strncpy(Dest,FullName,DestSize);
+      xstrncpy(Dest,FullName,DestSize);
   }
 
   SetFileApisTo(APIS2OEM);
@@ -1008,9 +1010,9 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
   UINT ConsoleCP=GetConsoleCP();
   UINT ConsoleOutputCP=GetConsoleOutputCP();
 
-  CONSOLE_SCREEN_BUFFER_INFO sbi;
+  CONSOLE_SCREEN_BUFFER_INFO sbi={0,};
   STARTUPINFO si;
-  PROCESS_INFORMATION pi;
+  PROCESS_INFORMATION pi={0,};
   int Visible,Size;
   int PrevLockCount;
   char ExecLine[4096];
@@ -1092,13 +1094,13 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
   if (ExitCode)
   {
     if (DirectRun && !SeparateWindow)
-      strncpy(ExecLine,CmdPtr,sizeof(ExecLine)-1);
+      xstrncpy(ExecLine,CmdPtr,sizeof(ExecLine)-1);
     else
     {
       if(ExecutorType)
       {
         if(ImageSubsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI && !AlwaysWaitFinish)
-          strncpy(ExecLine,NewCmdStr,sizeof(ExecLine)-1);
+          xstrncpy(ExecLine,NewCmdStr,sizeof(ExecLine)-1);
         else
         {
           char TemplExecute[512];
@@ -1136,7 +1138,7 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
 //          if(SeparateWindow)
 //            ReplaceStrings(NewCmdPar,"\"","\"\"",-1);
 
-          strncpy(ExecLine,Fmt,sizeof(ExecLine)-1);
+          xstrncpy(ExecLine,Fmt,sizeof(ExecLine)-1);
           strncat(ExecLine,(Fmt != TemplExecute && NT && *CmdPtr=='\"'?" \"\" ":" "),sizeof(ExecLine)-1);
           strncat(ExecLine, NewCmdStr,sizeof(ExecLine)-1);
           strncat(ExecLine, NewCmdPar,sizeof(ExecLine)-1);
@@ -1148,7 +1150,7 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
       else if (SeparateWindow != 2)
       {
 //        int Pipe=strpbrk(CmdPtr,"<>|")!=NULL;
-        strncpy(ExecLine,CommandName,sizeof(ExecLine)-1);
+        xstrncpy(ExecLine,CommandName,sizeof(ExecLine)-1);
         strncat(ExecLine," /C",sizeof(ExecLine)-1);
         //_tran(SysLog("1. execline='%s'",ExecLine);)
 
@@ -1222,7 +1224,7 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
       SHELLEXECUTEINFO SEInfo;
       memset(&SEInfo,0,sizeof(SEInfo));
 
-      strncpy(AnsiCmdStr,CmdPtr,sizeof(AnsiCmdStr)-1);
+      xstrncpy(AnsiCmdStr,CmdPtr,sizeof(AnsiCmdStr)-1);
       FAR_OemToChar(AnsiCmdStr, AnsiCmdStr);
       FAR_OemToChar(NewCmdPar, NewCmdPar);
 
@@ -1445,7 +1447,7 @@ _SVS(SysLog("};"));
       {
         SetMessageHelp("ErrCannotExecute");
         // BugZ#993 - перекрытие сообщения рамок меню
-        strncpy(OutStr,CmdPtr,sizeof(OutStr)-1);
+        xstrncpy(OutStr,CmdPtr,sizeof(OutStr)-1);
         Unquote(OutStr);
         TruncPathStr(OutStr,ScrX-15);
         Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotExecute),OutStr,MSG(MOk));
@@ -1532,7 +1534,7 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
       else
       {
         char TempStr[2048];
-        strncpy(TempStr,CmdLine,sizeof(TempStr)-1);
+        xstrncpy(TempStr,CmdLine,sizeof(TempStr)-1);
         if(Code == -1)
           ReplaceStrings(TempStr,"/","\\",-1);
         Code=Execute(TempStr,AlwaysWaitFinish,SeparateWindow,DirectRun);
@@ -1756,7 +1758,7 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
       NeedInput=TRUE;
     }
 
-    strncpy(Cmd,CmdLine+Offset,sizeof(Cmd)-1);
+    xstrncpy(Cmd,CmdLine+Offset,sizeof(Cmd)-1);
 
     char *Value=strchr(Cmd,'=');
     if (Value==NULL)
@@ -1770,7 +1772,7 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
         return TRUE;
     }
 #else
-    strncpy(Cmd,CmdLine+4,sizeof(Cmd)-1);
+    xstrncpy(Cmd,CmdLine+4,sizeof(Cmd)-1);
     char *Value=strchr(Cmd,'=');
     if (Value==NULL)
       return(FALSE);
@@ -1890,7 +1892,7 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
       Length++;
 
     char ExpandedDir[8192];
-    strncpy(ExpandedDir,&CmdLine[Length],sizeof(ExpandedDir)-1);
+    xstrncpy(ExpandedDir,&CmdLine[Length],sizeof(ExpandedDir)-1);
 
     // скорректируем букву диска на "подступах"
     if(ExpandedDir[1] == ':' && isalpha(ExpandedDir[0]))

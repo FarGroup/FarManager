@@ -5,10 +5,12 @@ local.cpp
 
 */
 
-/* Revision: 1.21 07.07.2004 $ */
+/* Revision: 1.22 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   07.07.2004 SVS
     + LocalRevStrstri() - аналог strstr(), но с локалью, без учета регистра и сзади
   22.04.2004 SVS
@@ -137,7 +139,7 @@ void InitLCIDSort()
     LCSortBuffer[I]=I;
 
   Opt.LCIDSort=GetRegKey("System","LCID",LOCALE_USER_DEFAULT);
-  qsort((void *)LCSortBuffer,256,sizeof(LCSortBuffer[0]),LCSort);
+  far_qsort((void *)LCSortBuffer,256,sizeof(LCSortBuffer[0]),LCSort);
 
   for (I=0;I<sizeof(LCSortBuffer)/sizeof(LCSortBuffer[0]);I++)
     LCOrder[LCSortBuffer[I]]=I;

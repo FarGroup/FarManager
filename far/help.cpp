@@ -5,10 +5,12 @@ help.cpp
 
 */
 
-/* Revision: 1.84 07.06.2004 $ */
+/* Revision: 1.85 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   07.06.2004 SVS
     - BugZ#1078 - Неверная реакция на попытку открытия несуществующих ссылок
   04.06.2004 SVS
@@ -272,10 +274,10 @@ class CallBackStack
 
       ListNode(const struct StackHelpData *Data, ListNode* n=NULL)
       {
-        HelpTopic=strdup(Data->HelpTopic);
-        HelpPath=strdup(Data->HelpPath);
-        SelTopic=strdup(Data->SelTopic);
-        HelpMask=strdup(Data->HelpMask);
+        HelpTopic=xf_strdup(Data->HelpTopic);
+        HelpPath=xf_strdup(Data->HelpPath);
+        SelTopic=xf_strdup(Data->SelTopic);
+        HelpMask=xf_strdup(Data->HelpMask);
         Flags=Data->Flags;
         TopStr=Data->TopStr;
         CurX=Data->CurX;
@@ -350,7 +352,7 @@ Help::Help(const char *Topic, const char *Mask,DWORD Flags)
   CtrlTabSize = 8;
   /* DJ $ */
 
-  strncpy(StackData.HelpMask,NullToEmpty(Mask),sizeof(StackData.HelpMask)-1); // сохраним маску файла
+  xstrncpy(StackData.HelpMask,NullToEmpty(Mask),sizeof(StackData.HelpMask)-1); // сохраним маску файла
 
   KeyBarVisible = TRUE;  // Заставим обновлятся кейбар
   TopScreen=new SaveScreen;
@@ -399,7 +401,7 @@ Help::Help(const char *Topic, const char *Mask,DWORD Flags)
   }
 
 #if defined(WORK_HELP_FIND)
-  strncpy((char *)LastSearchStr,GlobalSearchString,sizeof(LastSearchStr));
+  xstrncpy((char *)LastSearchStr,GlobalSearchString,sizeof(LastSearchStr));
   LastSearchPos=0;
   LastSearchCase=GlobalSearchCase;
   LastSearchWholeWords=GlobalSearchWholeWords;
@@ -506,7 +508,7 @@ int Help::ReadHelp(const char *Mask)
   *ReadStr=0;
   if (Language::GetOptionsParam(HelpFile,"CtrlColorChar",ReadStr))
   {
-    strncpy(CtrlColorChar,ReadStr,sizeof(CtrlColorChar)-1);
+    xstrncpy(CtrlColorChar,ReadStr,sizeof(CtrlColorChar)-1);
   }
   else
     CtrlColorChar[0]=0;
@@ -746,7 +748,7 @@ void Help::AddLine(const char *Line)
   if (NewHelpData==NULL)
     return;
   HelpData=NewHelpData;
-  strncpy(HelpData+StrCount*MAX_HELP_STRING_LENGTH,Line,MAX_HELP_STRING_LENGTH-1);
+  xstrncpy(HelpData+StrCount*MAX_HELP_STRING_LENGTH,Line,MAX_HELP_STRING_LENGTH-1);
   StrCount++;
 }
 
@@ -931,7 +933,7 @@ void Help::OutString(const char *Str)
           SetColor(COL_HELPSELECTEDTOPIC);
           if (Str[1]=='@')
           {
-            strncpy(StackData.SelTopic,Str+2,sizeof(StackData.SelTopic)-1);
+            xstrncpy(StackData.SelTopic,Str+2,sizeof(StackData.SelTopic)-1);
             char *EndPtr=strchr(StackData.SelTopic,'@');
             /* $ 25.08.2000 SVS
                учтем, что может быть такой вариант: @@ или \@
@@ -1134,7 +1136,7 @@ int Help::Search(int Next)
     return TRUE;
 
   Match=FALSE;
-  strncpy((char *)SearchStr,(char *)LastSearchStr,sizeof(SearchStr));
+  xstrncpy((char *)SearchStr,(char *)LastSearchStr,sizeof(SearchStr));
   Case=LastSearchCase;
   WholeWords=LastSearchWholeWords;
   ReverseSearch=LastSearchReverse;
@@ -1145,7 +1147,7 @@ int Help::Search(int Next)
                    NULL/*&Case*/,NULL/*&WholeWords*/,NULL/*&ReverseSearch*/))
       return FALSE;
 
-  strncpy((char *)LastSearchStr,(char *)SearchStr,sizeof(LastSearchStr));
+  xstrncpy((char *)LastSearchStr,(char *)SearchStr,sizeof(LastSearchStr));
   LastSearchCase=Case;
   LastSearchWholeWords=WholeWords;
   LastSearchReverse=ReverseSearch;
@@ -1473,7 +1475,7 @@ int Help::JumpTopic(const char *JumpTopic)
      *StackData.HelpPath)
   {
     char FullPath[sizeof(NewTopic)*2];
-    strncpy(NewTopic, StackData.SelTopic+1,p-StackData.SelTopic-1);
+    xstrncpy(NewTopic, StackData.SelTopic+1,p-StackData.SelTopic-1);
     strcpy(FullPath,StackData.HelpPath);
 
     // уберем _все_ конечные слеши и добавим один
@@ -1496,7 +1498,7 @@ int Help::JumpTopic(const char *JumpTopic)
     {
       sprintf(FullPath,addSlash?HelpFormatLink:HelpFormatLinkModule,
         NewTopic,p+1);
-      strncpy(StackData.SelTopic,FullPath,sizeof(StackData.SelTopic));
+      xstrncpy(StackData.SelTopic,FullPath,sizeof(StackData.SelTopic));
     }
   }
   /* IS 14.07.2002 $ */
@@ -1849,7 +1851,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
   StackData.CurX=StackData.CurY=0;
   CtrlColorChar[0]=0;
 
-  char *PtrTitle, *ContentsName;
+  char *PtrTitle=0, *ContentsName=0;
   char Path[NM],FullFileName[NM],*PtrPath,*Slash;
   char EntryName[512],HelpLine[512],SecondParam[512];
 
@@ -1939,11 +1941,11 @@ void Help::ReadDocumentsHelp(int TypeIndex)
         {
           if((PtrPath=strrchr(FullFileName,'\\')) != NULL)
           {
-            strncpy(FMask,PtrPath+1,sizeof(FMask)-1);
+            xstrncpy(FMask,PtrPath+1,sizeof(FMask)-1);
             *++PtrPath=0;
           }
           else
-            strncpy(FMask,HelpFileMask,sizeof(FMask)-1);
+            xstrncpy(FMask,HelpFileMask,sizeof(FMask)-1);
 
           FILE *HelpFile=Language::OpenLangFile(Path,FMask,Opt.HelpLanguage,FullFileName,TRUE);
           if (HelpFile!=NULL)
@@ -1967,7 +1969,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 #endif
   }
   // сортируем по алфавиту
-  qsort(HelpData+OldStrCount*MAX_HELP_STRING_LENGTH,StrCount-OldStrCount,MAX_HELP_STRING_LENGTH,(int (__cdecl*)(const void *,const void *))LCStricmp);
+  far_qsort(HelpData+OldStrCount*MAX_HELP_STRING_LENGTH,StrCount-OldStrCount,MAX_HELP_STRING_LENGTH,(int (__cdecl*)(const void *,const void *))LCStricmp);
   /* $ 26.06.2000 IS
    Устранение глюка с хелпом по f1, shift+f2, end (решение предложил IG)
   */
@@ -1992,7 +1994,7 @@ char *Help::MkTopic(int PluginNumber,const char *HelpTopic,char *Topic)
                 HelpTopic);
       }
       else
-        strncpy(Topic,HelpTopic,511);
+        xstrncpy(Topic,HelpTopic,511);
 
       if(*Topic==HelpBeginLink)
       {

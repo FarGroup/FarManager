@@ -5,10 +5,12 @@ clipboard.cpp
 
 */
 
-/* Revision: 1.11 01.03.2004 $ */
+/* Revision: 1.12 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   01.03.2004 SVS
     ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
       (задел на будущее + править впоследствии только 1 файл)
@@ -388,14 +390,14 @@ char* InternalPasteFromClipboardEx(int max,int AnsiMode)
       {
         if (ReadType==CF_TEXT)
         {
-          strncpy(ClipText,ClipAddr,BufferSize);
+          xstrncpy(ClipText,ClipAddr,BufferSize);
           if(!AnsiMode)
             FAR_CharToOem(ClipText,ClipText);
           ClipText[BufferSize]=0;
         }
         else
         {
-          strncpy(ClipText,ClipAddr,BufferSize);
+          xstrncpy(ClipText,ClipAddr,BufferSize);
           ClipText[BufferSize]=0;
         }
       }

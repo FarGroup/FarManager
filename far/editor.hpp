@@ -9,10 +9,12 @@ editor.hpp
 
 */
 
-/* Revision: 1.48 22.04.2004 $ */
+/* Revision: 1.49 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   22.04.2004 SVS
     ! Константы SAVEFILE_* уехали из editor.hpp в fileedit.hpp
   09.12.2003 SVS
@@ -151,6 +153,7 @@ Modify:
 #include "plugin.hpp"
 #include "farconst.hpp"
 #include "bitflags.hpp"
+#include "fn.hpp"
 
 class FileEditor;
 class KeyBar;
@@ -396,7 +399,7 @@ class Editor:public ScreenObject
     void SetCharCodeBase(int NewMode) { EdOpt.CharCodeBase=NewMode%3; }
     int  GetCharCodeBase(void) const {return EdOpt.CharCodeBase; }
 
-    void SetWordDiv(const char *WordDiv) { strncpy(EdOpt.WordDiv,WordDiv,sizeof(EdOpt.WordDiv)-1); }
+    void SetWordDiv(const char *WordDiv) { xstrncpy(EdOpt.WordDiv,WordDiv,sizeof(EdOpt.WordDiv)-1); }
     const char *GetWordDiv() { return EdOpt.WordDiv; }
     /* $ 29.10.2001 IS
          Работа с настройками "сохранять позицию файла" и

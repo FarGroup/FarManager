@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.67 08.06.2004 $ */
+/* Revision: 1.68 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   08.06.2004 SVS
     ! ¬место GetDriveType теперь вызываем FAR_GetDriveType().
     ! ¬место "DriveType==DRIVE_CDROM" вызываем IsDriveTypeCDROM()
@@ -432,7 +434,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
             int MsgCode=0;
             /* $ 13.07.2001 IS усекаем им€, чтоб оно поместилось в сообщение */
             char MsgFullName[NM];
-            strncpy(MsgFullName, FullName,sizeof(MsgFullName)-1);
+            xstrncpy(MsgFullName, FullName,sizeof(MsgFullName)-1);
             TruncPathStr(MsgFullName, ScrX-16);
             // дл€ symlink`а не нужно подтверждение
             if(!(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
@@ -472,7 +474,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
             }
             ShellDeleteMsg(FullName);
             char ShortName[NM];
-            strncpy(ShortName,FullName,sizeof(ShortName)-1);
+            xstrncpy(ShortName,FullName,sizeof(ShortName)-1);
             if (*FindData.cAlternateFileName)
               strcpy(PointToName(ShortName),FindData.cAlternateFileName); //???
             if (FindData.dwFileAttributes & FA_DIREC)
@@ -513,7 +515,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
                      усекаем им€, чтоб оно поместилось в сообщение
                 */
                 char MsgFullName[NM];
-                strncpy(MsgFullName, FullName,sizeof(MsgFullName)-1);
+                xstrncpy(MsgFullName, FullName,sizeof(MsgFullName)-1);
                 TruncPathStr(MsgFullName, ScrX-16);
                 int MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(MDeleteFolderTitle),
                       MSG(MDeleteFolderConfirm),MsgFullName,
@@ -679,7 +681,7 @@ void ShellDeleteMsg(const char *Name)
     if(Width < WidthTemp)
       Width=WidthTemp;
 
-    strncpy(OutFileName,Name,sizeof(OutFileName)-1);
+    xstrncpy(OutFileName,Name,sizeof(OutFileName)-1);
     TruncPathStr(OutFileName,Width);
     CenterStr(OutFileName,OutFileName,Width+4);
 
@@ -700,7 +702,7 @@ int AskDeleteReadOnly(const char *Name,DWORD Attr)
   {
     /* $ 13.07.2001 IS усекаем им€, чтоб оно поместилось в сообщение */
     char MsgName[NM];
-    strncpy(MsgName, Name,sizeof(MsgName)-1);
+    xstrncpy(MsgName, Name,sizeof(MsgName)-1);
     TruncPathStr(MsgName, ScrX-16);
     MsgCode=Message(MSG_DOWN|MSG_WARNING,5,MSG(MWarning),MSG(MDeleteRO),MsgName,
             MSG(MAskDeleteRO),MSG(MDeleteFileDelete),MSG(MDeleteFileAll),
@@ -735,7 +737,7 @@ int ShellRemoveFile(const char *Name,const char *ShortName,int Wipe)
   if (ConvertNameToFull(Name,FullName, sizeof(FullName)) >= sizeof(FullName))
     return DELETE_CANCEL;
 
-  int MsgCode;
+  int MsgCode=0;
 
   while (1)
   {
@@ -748,7 +750,7 @@ int ShellRemoveFile(const char *Name,const char *ShortName,int Wipe)
         if(GetNumberOfLinks(FullName) > 1)
         {
           char MsgName[NM];
-          strncpy(MsgName, Name,sizeof(MsgName)-1);
+          xstrncpy(MsgName, Name,sizeof(MsgName)-1);
           TruncPathStr(MsgName, ScrX-16);
           /*
                             ‘айл
@@ -806,7 +808,7 @@ int ShellRemoveFile(const char *Name,const char *ShortName,int Wipe)
     {
       /* $ 13.07.2001 IS усекаем им€, чтоб оно поместилось в сообщение */
       char MsgName[NM];
-      strncpy(MsgName, Name,sizeof(MsgName)-1);
+      xstrncpy(MsgName, Name,sizeof(MsgName)-1);
       TruncPathStr(MsgName, ScrX-16);
       if(strlen(FullName) > NM-1)
       {
@@ -864,7 +866,7 @@ int ERemoveDirectory(const char *Name,const char *ShortName,int Wipe)
     {
       /* $ 13.07.2001 IS усекаем им€, чтоб оно поместилось в сообщение */
       char MsgName[NM];
-      strncpy(MsgName, Name,sizeof(MsgName)-1);
+      xstrncpy(MsgName, Name,sizeof(MsgName)-1);
       TruncPathStr(MsgName, ScrX-16);
       if(strlen(FullName) > NM-1)
       {
@@ -1035,7 +1037,7 @@ int DeleteFileWithFolder(const char *FileName)
   {
     if(!remove(FileName))
     {
-      strncpy(FolderName,FileName,sizeof(FolderName)-1);
+      xstrncpy(FolderName,FileName,sizeof(FolderName)-1);
       if ((Slash=strrchr(FolderName,'\\'))!=NULL)
         *Slash=0;
       return(FAR_RemoveDirectory(FolderName));

@@ -6,10 +6,12 @@ scantree.cpp
 
 */
 
-/* Revision: 1.09 14.06.2003 $ */
+/* Revision: 1.10 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   14.06.2003 SVS
     ! Внедрение новых флагов
     ! Вместо SecondPass[] и FindHandle[] вводим структуру ScanTreeData
@@ -75,8 +77,8 @@ void ScanTree::Init()
 void ScanTree::SetFindPath(const char *Path,const char *Mask, const DWORD NewScanFlags)
 {
   Init();
-  strncpy(FindMask,Mask,sizeof(FindMask)-1);
-  strncpy(FindPath,Path,sizeof(FindPath)-1);
+  xstrncpy(FindMask,Mask,sizeof(FindMask)-1);
+  xstrncpy(FindPath,Path,sizeof(FindPath)-1);
   AddEndSlash(FindPath);
   strcat(FindPath,FindMask);
   Flags.Flags=(Flags.Flags&0x0000FFFF)|(NewScanFlags&0xFFFF0000);

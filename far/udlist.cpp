@@ -8,10 +8,12 @@ udlist.cpp
 
 */
 
-/* Revision: 1.11 21.01.2003 $ */
+/* Revision: 1.12 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   21.01.2003 SVS
     + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
       Просьба блюсти порядок и прописывать именно xf_* вместо простых.
@@ -89,7 +91,7 @@ const UserDefinedListItem& UserDefinedListItem::operator=(const
       Str=NULL;
     }
     if(rhs.Str)
-      Str=strdup(rhs.Str);
+      Str=xf_strdup(rhs.Str);
     index=rhs.index;
   }
   return *this;
@@ -105,7 +107,7 @@ const UserDefinedListItem& UserDefinedListItem::operator=(const char *rhs)
       Str=NULL;
     }
     if(rhs)
-      Str=strdup(rhs);
+      Str=xf_strdup(rhs);
   }
   return *this;
 }

@@ -5,10 +5,12 @@ print.cpp
 
 */
 
-/* Revision: 1.16 01.03.2004 $ */
+/* Revision: 1.17 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   01.03.2004 SVS
     ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
       (задел на будущее + править впоследствии только 1 файл)
@@ -264,7 +266,7 @@ static void AddToPrintersMenu(VMenu *PrinterList,PRINTER_INFO_2 *pi,
     sprintf(MenuText,"%-22.22s %c %-10s %3d %s  %s",PrinterName,0x0B3U,
             NullToEmpty(pi[I].pPortName),pi[I].cJobs,MSG(MJobs),
             NullToEmpty(pi[I].pComment));
-    strncpy(ListItem.Name,MenuText,sizeof(ListItem.Name)-1);
+    xstrncpy(ListItem.Name,MenuText,sizeof(ListItem.Name)-1);
     if ((pi[I].Attributes & PRINTER_ATTRIBUTE_DEFAULT) && !DefaultPrinterFound)
     {
       DefaultPrinterFound=TRUE;

@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.155 02.08.2004 $ */
+/* Revision: 1.156 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   02.08.2004 SVS
     - если исключение проиходит где-нить в Message, то... надо бы сбросить локи.
   26.07.2004 SVS
@@ -602,14 +604,14 @@ void PluginsSet::LoadPlugins()
       Unquote(FullName); //??? здесь ХЗ
       if(!PathMayBeAbsolute(FullName))
       {
-        strncpy(PluginsDir,FarPath,sizeof(PluginsDir)-1);
+        xstrncpy(PluginsDir,FarPath,sizeof(PluginsDir)-1);
         strncat(PluginsDir,FullName,sizeof(PluginsDir)-1);
         strcpy(FullName,PluginsDir);
       }
       // Получим реальное значение полного длинного пути с учетом символических связей.
       ConvertNameToReal(FullName,FullName,sizeof(FullName));
       RawConvertShortNameToLongName(FullName,FullName,sizeof(FullName));
-      strncpy(PluginsDir,FullName,sizeof(PluginsDir)-1);
+      xstrncpy(PluginsDir,FullName,sizeof(PluginsDir)-1);
 
       if(!PluginsDir[0]) // Хмм... а нужно ли ЭТО условие после такой модернизации алгоритма загрузки?
         continue;
@@ -625,7 +627,7 @@ void PluginsSet::LoadPlugins()
           struct PluginItem CurPlugin;
           char RegKey[100];
           memset(&CurPlugin,0,sizeof(CurPlugin));
-          strncpy(CurPlugin.ModuleName,FullName,sizeof(CurPlugin.ModuleName)-1);
+          xstrncpy(CurPlugin.ModuleName,FullName,sizeof(CurPlugin.ModuleName)-1);
           int CachePos=GetCacheNumber(FullName,&FindData,0);
           int LoadCached;
           if(CachePos!=-1)
@@ -673,7 +675,7 @@ void PluginsSet::LoadPlugins()
       } // end while
     }
 
-    qsort(PluginsData,PluginsCount,sizeof(*PluginsData),PluginsSort);
+    far_qsort(PluginsData,PluginsCount,sizeof(*PluginsData),PluginsSort);
 
     int NewPlugin=FALSE;
 
@@ -779,7 +781,7 @@ void PluginsSet::LoadPluginsFromCache()
     PluginsData[PluginsCount]=CurPlugin;
     PluginsCount++;
   }
-  qsort(PluginsData,PluginsCount,sizeof(*PluginsData),PluginsSort);
+  far_qsort(PluginsData,PluginsCount,sizeof(*PluginsData),PluginsSort);
   /* $ 19.10.2000 tran
      забыл вызвать SetStartupInfo :) */
   struct PluginItem *PData=PluginsData;
@@ -805,7 +807,7 @@ int _cdecl PluginsSort(const void *el1,const void *el2)
 static BOOL PrepareModulePath(const char *ModuleName)
 {
   char ModulePath[NM];
-  strncpy(ModulePath,ModuleName,sizeof(ModulePath)-1);
+  xstrncpy(ModulePath,ModuleName,sizeof(ModulePath)-1);
   *PointToName(ModulePath)=0;
   return FarChDir(ModulePath,TRUE);
 }
@@ -849,7 +851,7 @@ int PluginsSet::LoadPlugin(struct PluginItem &CurPlugin,int ModuleNumber,int Ini
     if(!Opt.LoadPlug.SilentLoadPlugin)
     {
       char PlgName[NM];
-      strncpy(PlgName,CurPlugin.ModuleName,sizeof(PlgName)-1);
+      xstrncpy(PlgName,CurPlugin.ModuleName,sizeof(PlgName)-1);
       TruncPathStr(PlgName,ScrX-20);
       SetMessageHelp("ErrLoadPlugin");
       Message(MSG_WARNING,1,MSG(MError),MSG(MPlgLoadPluginError),PlgName,MSG(MOk));
@@ -1004,12 +1006,12 @@ void PluginsSet::UnloadPlugin(struct PluginItem &CurPlugin,DWORD Exception)
 
   // имя оставляем обязательно!!! :-(
   char ModuleName[NM];
-  strncpy(ModuleName,CurPlugin.ModuleName,sizeof(ModuleName)-1);
+  xstrncpy(ModuleName,CurPlugin.ModuleName,sizeof(ModuleName)-1);
 
   BOOL NeedUpdatePanels=CurPlugin.FuncFlags.Check(PICFF_PANELPLUGIN);
 
   memset(&CurPlugin,0,sizeof(CurPlugin));
-  strncpy(CurPlugin.ModuleName,ModuleName,sizeof(CurPlugin.ModuleName)-1);
+  xstrncpy(CurPlugin.ModuleName,ModuleName,sizeof(CurPlugin.ModuleName)-1);
   CurPlugin.WorkFlags.Set(PIWF_DONTLOADAGAIN);
 
   // BugZ#137 - обработка падения панельного плагина
@@ -1035,7 +1037,7 @@ void PluginsSet::ShowMessageAboutIllegalPluginVersion(char* plg,int required)
 {
     char msg[2][512];
     char PlgName[NM];
-    strncpy(PlgName,plg,sizeof(PlgName)-1);
+    xstrncpy(PlgName,plg,sizeof(PlgName)-1);
     TruncPathStr(PlgName,ScrX-20);
     sprintf(msg[0],MSG(MPlgRequired),
            HIBYTE(LOWORD(required)),LOBYTE(LOWORD(required)),HIWORD(required));
@@ -1070,7 +1072,11 @@ void PluginsSet::CreatePluginStartupInfo(struct PluginStartupInfo *PSI,
   {
     StandardFunctions.StructSize=sizeof(StandardFunctions);
     StandardFunctions.sprintf=FarSprintf;
+#ifndef FAR_MSVCRT
     StandardFunctions.sscanf=FarSscanf;
+#else
+    StandardFunctions.sscanf=sscanf;
+#endif
     StandardFunctions.qsort=FarQsort;
     /* $ 24.03.2001 tran
       + qsortex */
@@ -1080,7 +1086,7 @@ void PluginsSet::CreatePluginStartupInfo(struct PluginStartupInfo *PSI,
     StandardFunctions.itoa=FarItoa;
     StandardFunctions.itoa64=FarItoa64;
 
-    //StandardFunctions.qsort=FarQsort;
+    //StandardFunctions.far_qsort=FarQsort;
     // ??? почему дважды?
     /* tran $ */
 
@@ -1220,7 +1226,7 @@ void PluginsSet::CreatePluginStartupInfo(struct PluginStartupInfo *PSI,
   memcpy(FSF,&StandardFunctions,sizeof(StandardFunctions));
   PSI->ModuleNumber=ModuleNumber;
   PSI->FSF=FSF;
-  strncpy(PSI->ModuleName,ModuleName,sizeof(PSI->ModuleName)-1);
+  xstrncpy(PSI->ModuleName,ModuleName,sizeof(PSI->ModuleName)-1);
   PSI->RootKey=NULL;
 }
 
@@ -1251,7 +1257,7 @@ int PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNumb
     CreatePluginStartupInfo(&LocalStartupInfo,&LocalStandardFunctions,CurPlugin.ModuleName,ModuleNumber);
 
     // скорректирем адреса и плагино-зависимые поля
-    strncpy(CurPlugin.RootKey,Opt.RegRoot,sizeof(CurPlugin.RootKey)-1);
+    xstrncpy(CurPlugin.RootKey,Opt.RegRoot,sizeof(CurPlugin.RootKey)-1);
     strncat(CurPlugin.RootKey,"\\Plugins",sizeof(CurPlugin.RootKey)-1);
     LocalStartupInfo.RootKey=CurPlugin.RootKey;
 
@@ -2049,7 +2055,7 @@ int PluginsSet::GetFile(HANDLE hPlugin,struct PluginPanelItem *PanelItem,
     PData->FuncFlags.Clear(PICFF_GETFILES);
 
     char FindPath[NM];
-    strncpy(FindPath,DestPath,sizeof(FindPath)-2);
+    xstrncpy(FindPath,DestPath,sizeof(FindPath)-2);
     AddEndSlash(FindPath);
     strncat(FindPath,"*.*",sizeof(FindPath)-1);
     HANDLE FindHandle;
@@ -2573,7 +2579,7 @@ void PluginsSet::Configure(int StartPos)
               struct MenuItem ListItem;
               memset(&ListItem,0,sizeof(ListItem));
               char Name[sizeof(ListItem.Name)];
-              strncpy(Name,NullToEmpty(Info.PluginConfigStrings[J]),sizeof(Name)-1);
+              xstrncpy(Name,NullToEmpty(Info.PluginConfigStrings[J]),sizeof(Name)-1);
               if (!HotKeysPresent)
                 strcpy(ListItem.Name,Name);
               else
@@ -2756,7 +2762,7 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
               struct MenuItem ListItem;
               memset(&ListItem,0,sizeof(ListItem));
               char Name[sizeof(ListItem.Name)];
-              strncpy(Name,NullToEmpty(Info.PluginMenuStrings[J]),sizeof(Name)-1);
+              xstrncpy(Name,NullToEmpty(Info.PluginMenuStrings[J]),sizeof(Name)-1);
               if (!HotKeysPresent)
                 sprintf(ListItem.Name,"   %s",Name);//strcpy(ListItem.Name,Name);
               else
@@ -2978,7 +2984,7 @@ int PluginsSet::GetDiskMenuItem(int PluginNumber,int PluginItem,
       PluginTextNumber=Info.DiskMenuNumbers[PluginItem];
     else
       PluginTextNumber=0;
-    strncpy(PluginText,Info.DiskMenuStrings[PluginItem],PluginTextSize-1);
+    xstrncpy(PluginText,Info.DiskMenuStrings[PluginItem],PluginTextSize-1);
     ItemPresent=TRUE;
   }
   return(TRUE);
@@ -3050,7 +3056,7 @@ int PluginsSet::ProcessCommandLine(const char *Command)
   LoadIfCacheAbsent();
 
   char Prefix[256];
-  strncpy(Prefix,Command,PrefixLength);
+  xstrncpy(Prefix,Command,PrefixLength);
   Prefix[PrefixLength]=0;
 
   int PluginPos=-1;
@@ -3091,7 +3097,7 @@ int PluginsSet::ProcessCommandLine(const char *Command)
              NULL сделать, соответственно фар иногда с конвульсиями помирал,
              теперь - нет.
         */
-        strncpy(PluginPrefix,NullToEmpty(Info.CommandPrefix),sizeof(PluginPrefix)-1);
+        xstrncpy(PluginPrefix,NullToEmpty(Info.CommandPrefix),sizeof(PluginPrefix)-1);
         /* IS $ */
         PluginFlags = Info.Flags;
       } /* if */
@@ -3142,7 +3148,7 @@ int PluginsSet::ProcessCommandLine(const char *Command)
   /* $ 07.09.2000 VVM 1.18
     + Если флаг PF_FULLCMDLINE - отдавать с префиксом
   */
-  strncpy(PluginCommand,Command+(PluginFlags & PF_FULLCMDLINE ? 0:PrefixLength+1), sizeof (PluginCommand)-1);
+  xstrncpy(PluginCommand,Command+(PluginFlags & PF_FULLCMDLINE ? 0:PrefixLength+1), sizeof (PluginCommand)-1);
   /* VVM $ */
   /* DJ $ */
   RemoveTrailingSpaces(PluginCommand);

@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.156 07.07.2004 $ */
+/* Revision: 1.157 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   07.07.2004 SVS
     ! Macro II
   06.07.2004 SVS
@@ -669,7 +671,7 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
         if(OpenModeExstFile == FEOPMODE_QUERY)
         {
           char MsgFullFileName[NM];
-          strncpy(MsgFullFileName,FullFileName,sizeof(MsgFullFileName)-1);
+          xstrncpy(MsgFullFileName,FullFileName,sizeof(MsgFullFileName)-1);
           SetMessageHelp("EditorReload");
           MsgCode=Message(0,3,MSG(MEditTitle),
                 TruncPathStr(MsgFullFileName,ScrX-16),
@@ -1127,7 +1129,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
           //AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
           //                CurLine->EditLine.GetCurPos(),UNDO_EDIT);
           char FileName0[NM];
-          strncpy(FileName0,FullFileName,sizeof(FileName0)-1);
+          xstrncpy(FileName0,FullFileName,sizeof(FileName0)-1);
           FEdit->Paste(FileName0);
           //if (!EdOpt.PersistentBlocks)
           FEdit->UnmarkBlock();
@@ -1212,7 +1214,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
               /*11 */ DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel,
             };
             MakeDialogItems(EditDlgData,EditDlg);
-            strncpy(EditDlg[2].Data,(Flags.Check(FFILEEDIT_SAVETOSAVEAS)?FullFileName:FileName),sizeof(EditDlg[2].Data)-1);
+            xstrncpy(EditDlg[2].Data,(Flags.Check(FFILEEDIT_SAVETOSAVEAS)?FullFileName:FileName),sizeof(EditDlg[2].Data)-1);
             char *PtrEditDlgData=strstr(EditDlg[2].Data,MSG(MNewFileName));
             if(PtrEditDlgData)
               *PtrEditDlgData=0;
@@ -1626,7 +1628,7 @@ int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
   {
     // проверим путь к файлу, может его уже снесли...
     char CreatedPath[4096];
-    char *Ptr=strrchr(strncpy(CreatedPath,Name,sizeof(CreatedPath)-1),'\\'), Chr;
+    char *Ptr=strrchr(xstrncpy(CreatedPath,Name,sizeof(CreatedPath)-1),'\\'), Chr;
     if(Ptr)
     {
       Chr=*Ptr;
@@ -1959,7 +1961,7 @@ BOOL FileEditor::SetFileName(const char *NewFileName)
     AddEndSlash(FullFileName);
     strcat(FullFileName,NewFileName);
   }
-  strncpy(FileName,NewFileName,sizeof(FileName)-1);
+  xstrncpy(FileName,NewFileName,sizeof(FileName)-1);
   return TRUE;
 }
 
@@ -1972,7 +1974,7 @@ void FileEditor::SetTitle(const char *Title)
      - Баг: не учитывался размер Title, что приводило к порче памяти и
        к падению Фара.
   */
-    strncpy(FileEditor::Title, Title, sizeof(FileEditor::Title)-1);
+    xstrncpy(FileEditor::Title, Title, sizeof(FileEditor::Title)-1);
   /* IS $ */
 }
 
@@ -1997,7 +1999,7 @@ void FileEditor::ShowStatus()
      - Баг: затирался стек, потому что, например, размер Title больше,
        чем размер TruncFileName
   */
-  strncpy(TruncFileName,*PluginTitle ? PluginTitle:(*Title? Title:FullFileName),sizeof(TruncFileName)-1);
+  xstrncpy(TruncFileName,*PluginTitle ? PluginTitle:(*Title? Title:FullFileName),sizeof(TruncFileName)-1);
   /* IS $ */
   int NameLength=Opt.ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN) ? 19:25;
   /* $ 11.07.2000 tran
@@ -2042,7 +2044,7 @@ void FileEditor::ShowStatus()
   char TmpTableName[32];
   if(FEdit->UseDecodeTable)
   {
-    strncpy(TmpTableName,FEdit->TableSet.TableName,sizeof(TmpTableName));
+    xstrncpy(TmpTableName,FEdit->TableSet.TableName,sizeof(TmpTableName));
     TableName=RemoveChar(TmpTableName,'&',TRUE);
   }
   else
@@ -2108,7 +2110,7 @@ BOOL FileEditor::UpdateFileList()
   Panel *ActivePanel = CtrlObject->Cp()->ActivePanel;
   char *FileName = PointToName((char *)FullFileName);
   char FilePath[NM], PanelPath[NM];
-  strncpy(FilePath, FullFileName, FileName - FullFileName);
+  xstrncpy(FilePath, FullFileName, FileName - FullFileName);
   ActivePanel->GetCurDir(PanelPath);
   AddEndSlash(PanelPath);
   AddEndSlash(FilePath);
@@ -2206,7 +2208,7 @@ int FileEditor::EditorControl(int Command,void *Param)
     {
       // $ 08.06.2001 IS - Баг: не учитывался размер PluginTitle
       _ECTLLOG(SysLog("Title='%s'",Param));
-      strncpy(PluginTitle,NullToEmpty((char *)Param),sizeof(PluginTitle)-1);
+      xstrncpy(PluginTitle,NullToEmpty((char *)Param),sizeof(PluginTitle)-1);
       ShowStatus();
       ScrBuf.Flush();
       return TRUE;
@@ -2326,7 +2328,7 @@ int FileEditor::EditorControl(int Command,void *Param)
 
       {
         char OldFullFileName[NM];
-        strncpy(OldFullFileName,FullFileName,sizeof(OldFullFileName)-1);
+        xstrncpy(OldFullFileName,FullFileName,sizeof(OldFullFileName)-1);
         if(SetFileName(Name))
           return SaveFile(Name,FALSE,EOL,!LocalStricmp(Name,OldFullFileName));
       }

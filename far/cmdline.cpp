@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.72 05.08.2004 $ */
+/* Revision: 1.73 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   05.08.2004 SVS
     ! MCODE_C_CMDLINE_BOF, MCODE_C_CMDLINE_EOF, MCODE_C_CMDLINE_EMPTY, MCODE_C_CMDLINE_SELECTED
   02.08.2004 SVS
@@ -280,7 +282,7 @@ int CommandLine::ProcessKey(int Key)
     if(!LastCmdStr)
       return TRUE;
 
-    strncpy(Str,LastCmdStr,sizeof(Str)-1);
+    xstrncpy(Str,LastCmdStr,sizeof(Str)-1);
     int CurCmdPartLength=strlen(Str);
     CtrlObject->CmdHistory->GetSimilar(Str,LastCmdPartLength);
     if (LastCmdPartLength==-1)
@@ -523,7 +525,7 @@ int CommandLine::ProcessKey(int Key)
 
 void CommandLine::SetCurDir(const char *CurDir)
 {
-  PrepareDiskPath(strncpy(CommandLine::CurDir,CurDir,sizeof(CommandLine::CurDir)-1),sizeof(CommandLine::CurDir)-1);
+  PrepareDiskPath(xstrncpy(CommandLine::CurDir,CurDir,sizeof(CommandLine::CurDir)-1),sizeof(CommandLine::CurDir)-1);
 }
 
 
@@ -580,7 +582,7 @@ void CommandLine::GetPrompt(char *DestStr)
 {
 #if 1
   char FormatStr[512],ExpandedFormatStr[512];
-  strncpy(FormatStr,Opt.UsePromptFormat ? Opt.PromptFormat:"$p$g",sizeof(FormatStr)-1);
+  xstrncpy(FormatStr,Opt.UsePromptFormat ? Opt.PromptFormat:"$p$g",sizeof(FormatStr)-1);
   char *Format=FormatStr;
   if (Opt.UsePromptFormat)
   {

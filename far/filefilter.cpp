@@ -5,10 +5,12 @@ filefilter.cpp
 
 */
 
-/* Revision: 1.03 14.06.2004 $ */
+/* Revision: 1.04 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   14.06.2004 KM
     + Добавлена обработка атрибута FILE_ATTRIBUTE_DIRECTORY
     ! Заменим BSTATE_UNCHECKED на BSTATE_3STATE при сбросе значений.
@@ -69,7 +71,7 @@ FileFilter::FileFilter():
 
   memset(TableItemSize,0,sizeof(FarListItem)*FSIZE_IN_LAST);
   for(I=0; I < FSIZE_IN_LAST; ++I)
-    strncpy(TableItemSize[I].Text,MSG(MFileFilterSizeInBytes+I),sizeof(TableItemSize[I].Text)-1);
+    xstrncpy(TableItemSize[I].Text,MSG(MFileFilterSizeInBytes+I),sizeof(TableItemSize[I].Text)-1);
 
   // Настройка списка типов дат файла
   TableItemDate=(FarListItem *)xf_malloc(sizeof(FarListItem)*DATE_COUNT);
@@ -77,9 +79,9 @@ FileFilter::FileFilter():
   DateList.ItemsNumber=DATE_COUNT;
 
   memset(TableItemDate,0,sizeof(FarListItem)*DATE_COUNT);
-  strncpy(TableItemDate[0].Text,MSG(MFileFilterModified),sizeof(TableItemDate[0].Text)-1);
-  strncpy(TableItemDate[1].Text,MSG(MFileFilterCreated),sizeof(TableItemDate[1].Text)-1);
-  strncpy(TableItemDate[2].Text,MSG(MFileFilterOpened),sizeof(TableItemDate[2].Text)-1);
+  xstrncpy(TableItemDate[0].Text,MSG(MFileFilterModified),sizeof(TableItemDate[0].Text)-1);
+  xstrncpy(TableItemDate[1].Text,MSG(MFileFilterCreated),sizeof(TableItemDate[1].Text)-1);
+  xstrncpy(TableItemDate[2].Text,MSG(MFileFilterOpened),sizeof(TableItemDate[2].Text)-1);
 
   // Том поддерживает компрессию и шифрацию?
   unsigned long FSFlags=0;
@@ -102,7 +104,7 @@ FileFilter::FileFilter():
 
   // Проверка на валидность текущих настроек фильтра
   if ((*FF.FMask.Mask==0) || (!FilterMask.Set(FF.FMask.Mask,FMF_SILENT)))
-    strncpy(FF.FMask.Mask,"*.*",sizeof(FF.FMask.Mask));
+    xstrncpy(FF.FMask.Mask,"*.*",sizeof(FF.FMask.Mask));
 
   // Сохраним маску фильтра в члене класса для ускорения процесса проверки файла.
   FilterMask.Set(FF.FMask.Mask,FMF_SILENT);
@@ -317,7 +319,7 @@ void FileFilter::Configure()
   MakeDialogItems(FilterDlgData,FilterDlg);
 
   FilterDlg[2].Selected=FF.FMask.Used;
-  strncpy(FilterDlg[3].Data,FF.FMask.Mask,sizeof(FilterDlg[3].Data));
+  xstrncpy(FilterDlg[3].Data,FF.FMask.Mask,sizeof(FilterDlg[3].Data));
   if (!FilterDlg[2].Selected)
     FilterDlg[3].Flags|=DIF_DISABLE;
 
@@ -326,7 +328,7 @@ void FileFilter::Configure()
 
   SizeType=FF.FSize.SizeType;
 
-  strncpy(FilterDlg[6].Data,TableItemSize[SizeType].Text,sizeof(FilterDlg[6].Data));
+  xstrncpy(FilterDlg[6].Data,TableItemSize[SizeType].Text,sizeof(FilterDlg[6].Data));
   _ui64toa(FF.FSize.SizeAbove,FilterDlg[8].Data,10);
   _ui64toa(FF.FSize.SizeBelow,FilterDlg[10].Data,10);
   if (!FilterDlg[5].Selected)
@@ -338,7 +340,7 @@ void FileFilter::Configure()
 
   DateType=FF.FDate.DateType;
 
-  strncpy(FilterDlg[13].Data,TableItemDate[DateType].Text,sizeof(FilterDlg[13].Data));
+  xstrncpy(FilterDlg[13].Data,TableItemDate[DateType].Text,sizeof(FilterDlg[13].Data));
 
   ConvertDate(FF.FDate.DateAfter,FilterDlg[15].Data,FilterDlg[16].Data,8,FALSE,FALSE,TRUE);
   ConvertDate(FF.FDate.DateBefore,FilterDlg[18].Data,FilterDlg[19].Data,8,FALSE,FALSE,TRUE);
@@ -420,7 +422,7 @@ void FileFilter::Configure()
         continue;
 
       FF.FMask.Used=FilterDlg[2].Selected;
-      strncpy(FF.FMask.Mask,FilterDlg[3].Data,sizeof(FF.FMask.Mask));
+      xstrncpy(FF.FMask.Mask,FilterDlg[3].Data,sizeof(FF.FMask.Mask));
 
       // Сохраним маску фильтра в члене класса для ускорения процесса проверки файла.
       FilterMask.Set(FF.FMask.Mask,FMF_SILENT);
@@ -520,7 +522,7 @@ void FileFilter::GetFileDateAndTime(const char *Src,unsigned *Dst,int Separator)
   char Temp[32], Digit[16],*PtrDigit;
   int I;
 
-  strncpy(Temp,Src,sizeof(Temp)-1);
+  xstrncpy(Temp,Src,sizeof(Temp)-1);
   Dst[0]=Dst[1]=Dst[2]=(unsigned)-1;
   I=0;
   const char *Ptr=Temp;
@@ -585,6 +587,7 @@ int FileFilter::FileInFilter(WIN32_FIND_DATA *fd)
           sizeabove=sizeabove*1024*1024*1024;
           sizebelow=sizebelow*1024*1024*1024;
           break;
+        default:break;
       }
 
       // Есть введённый пользователем минимальный размер файла?
@@ -612,7 +615,7 @@ int FileFilter::FileInFilter(WIN32_FIND_DATA *fd)
 
     if (after!=0 || before!=0)
     {
-      unsigned __int64 ftime;
+      unsigned __int64 ftime=0;
 
       switch (FF.FDate.DateType)
       {

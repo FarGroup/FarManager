@@ -5,10 +5,12 @@ dizlist.cpp
 
 */
 
-/* Revision: 1.13 15.01.2004 $ */
+/* Revision: 1.14 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   15.01.2004 SVS
     - BugZ#455 - Некорректная работа описалова при копировании с добавлением
   25.02.2003 SVS
@@ -110,13 +112,13 @@ void DizList::Read(char *Path,char *DizName)
   while (1)
   {
     if (DizName!=NULL)
-      strncpy(DizFileName,DizName,sizeof(DizFileName)-1);
+      xstrncpy(DizFileName,DizName,sizeof(DizFileName)-1);
     else
     {
       char ArgName[NM];
       if ((NamePtr=GetCommaWord(NamePtr,ArgName))==NULL)
         break;
-      strncpy(DizFileName,Path,sizeof(DizFileName)-2); // 2 - на слешь
+      xstrncpy(DizFileName,Path,sizeof(DizFileName)-2); // 2 - на слешь
       AddEndSlash(DizFileName);
       if(strlen(DizFileName)+strlen(ArgName) < sizeof(DizFileName))
         strcat(DizFileName,ArgName);
@@ -231,7 +233,7 @@ int DizList::GetDizPosEx(char *Name,char *ShortName,int *TextPos)
 int DizList::GetDizPos(char *Name,char *ShortName,int *TextPos)
 {
   char QuotedName[NM];
-  strncpy(QuotedName,Name,sizeof(QuotedName)-3); // 3 - для кавычек
+  xstrncpy(QuotedName,Name,sizeof(QuotedName)-3); // 3 - для кавычек
   QuoteSpaceOnly(QuotedName);
   if (DizData==NULL)
     return(-1);
@@ -298,7 +300,7 @@ void DizList::BuildIndex()
     IndexData[I]=I;
 
   SearchDizData=DizData;
-  qsort((void *)IndexData,IndexCount,sizeof(*IndexData),SortDizIndex);
+  far_qsort((void *)IndexData,IndexCount,sizeof(*IndexData),SortDizIndex);
 }
 
 
@@ -355,13 +357,13 @@ int DizList::DeleteDiz(char *Name,char *ShortName)
 int DizList::Flush(char *Path,char *DizName)
 {
   if (DizName!=NULL)
-    strncpy(DizFileName,DizName,sizeof(DizFileName)-1);
+    xstrncpy(DizFileName,DizName,sizeof(DizFileName)-1);
   else if (*DizFileName==0)
   {
     if (DizData==NULL || Path==NULL)
       return(FALSE);
 
-    strncpy(DizFileName,Path,sizeof(DizFileName)-2);
+    xstrncpy(DizFileName,Path,sizeof(DizFileName)-2);
     AddEndSlash(DizFileName);
 
     char ArgName[NM];
@@ -449,7 +451,7 @@ int DizList::CopyDiz(char *Name,char *ShortName,char *DestName,
     TextPos++;
 
   char DizText[MAX_DIZ_LENGTH+NM],QuotedName[NM];
-  strncpy(QuotedName,DestName,sizeof(QuotedName)-3);
+  xstrncpy(QuotedName,DestName,sizeof(QuotedName)-3);
   QuoteSpaceOnly(QuotedName);
   int OptDizStartPos=(Opt.Diz.StartPos>1 ? Opt.Diz.StartPos-2:0);
   int LenQuotedName=strlen(QuotedName);

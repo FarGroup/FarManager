@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.110 31.05.2004 $ */
+/* Revision: 1.111 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   31.05.2004 SVS
     ! выкинем нафиг MCODE_OP_SENDKEY - ненужен
     ! ReplaceStrings - последний параметр TRUE (не различать "высоту" букв)
@@ -1586,7 +1588,7 @@ DWORD PeekInputRecord(INPUT_RECORD *rec)
 */
 DWORD WaitKey(DWORD KeyWait)
 {
-  int Visible,Size;
+  int Visible=0,Size=0;
   if(KeyWait == KEY_CTRLALTSHIFTRELEASE || KeyWait == KEY_RCTRLALTSHIFTRELEASE)
   {
     GetCursorType(Visible,Size);
@@ -1761,7 +1763,7 @@ int WINAPI KeyNameToKey(const char *Name)
 
    int I, Pos, Len=strlen(Name);
    char TmpName[128];
-   strncpy(TmpName,Name,sizeof(TmpName)-1);
+   xstrncpy(TmpName,Name,sizeof(TmpName)-1);
 
    // пройдемся по всем модификаторам
    for(Pos=I=0; I < sizeof(ModifKeyName)/sizeof(ModifKeyName[0]); ++I)
@@ -1893,7 +1895,7 @@ BOOL WINAPI KeyToText(int Key0,char *KeyText0,int Size)
   }
 
   if(Size > 0)
-    strncpy(KeyText0,KeyText,Size);
+    xstrncpy(KeyText0,KeyText,Size);
   else
     strcpy(KeyText0,KeyText);
 //_D(SysLog("KeyToText() 0x%08X %s",Key,KeyText));
@@ -2071,7 +2073,7 @@ char *FARGetKeybLayoutName(char *Dest,int DestSize)
       {
         if(Dest)
         {
-          strncpy(Dest,Buffer,DestSize);
+          xstrncpy(Dest,Buffer,DestSize);
           return Dest;
         }
         else

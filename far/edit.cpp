@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.121 07.07.2004 $ */
+/* Revision: 1.121 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   07.07.2004 SVS
     ! Macro II
     ! В Edit::TabPosToReal и Edit::RealPosToTab добавим проверку на конец строки...
@@ -717,7 +719,7 @@ void Edit::ShowString(char *ShowStr,int TabSelStart,int TabSelEnd)
         char *ShortStr=new char[StrSize+1];
         if (ShortStr==NULL)
           return;
-        strncpy(ShortStr,ShowStr,StrSize);
+        xstrncpy(ShortStr,ShowStr,StrSize);
         Len=strlen(RemoveTrailingSpaces(ShortStr));
         delete[] ShortStr;
         Size=Len;
@@ -855,7 +857,7 @@ int Edit::ProcessInsPath(int Key,int PrevSelStart,int PrevSelEnd)
       case KEY_CTRLSHIFTENTER:       // Текущий файл с пасс.панели
       case KEY_SHIFTENTER:           // Текущий файл с актив.панели
       {
-        Panel *SrcPanel;
+        Panel *SrcPanel=NULL;
         switch(Key)
         {
           case KEY_CTRLALTBRACKET:
@@ -900,7 +902,7 @@ int Edit::ProcessInsPath(int Key,int PrevSelStart,int PrevSelEnd)
                                              &uni, &uniSize) == NOERROR)
                 {
                   UNIVERSAL_NAME_INFO *lpuni = (UNIVERSAL_NAME_INFO *)&uni;
-                  strncpy(PathName, lpuni->lpUniversalName, sizeof(PathName)-1);
+                  xstrncpy(PathName, lpuni->lpUniversalName, sizeof(PathName)-1);
                 }
                 ConvertNameToReal(PathName,PathName, sizeof(PathName));
               }
@@ -1239,7 +1241,7 @@ int Edit::ProcessKey(int Key)
         char *ShortStr=new char[StrSize+1];
         if (ShortStr==NULL)
           return FALSE;
-        strncpy(ShortStr,Str,StrSize);
+        xstrncpy(ShortStr,Str,StrSize);
         Len=strlen(RemoveTrailingSpaces(ShortStr));
         delete[] ShortStr;
       }
@@ -1521,7 +1523,7 @@ int Edit::ProcessKey(int Key)
         char *ShortStr=new char[StrSize+1];
         if (ShortStr==NULL)
           return FALSE;
-        strncpy(ShortStr,Str,StrSize);
+        xstrncpy(ShortStr,Str,StrSize);
         CurPos=strlen(RemoveTrailingSpaces(ShortStr));
         delete[] ShortStr;
       }
@@ -1562,7 +1564,7 @@ int Edit::ProcessKey(int Key)
         char *ShortStr=new char[StrSize+1];
         if (ShortStr==NULL)
           return FALSE;
-        strncpy(ShortStr,Str,StrSize);
+        xstrncpy(ShortStr,Str,StrSize);
         int Len=strlen(RemoveTrailingSpaces(ShortStr));
         delete[] ShortStr;
         if (Len>CurPos)
@@ -1679,7 +1681,7 @@ int Edit::ProcessKey(int Key)
         char *ShortStr=new char[StrSize+1];
         if (ShortStr==NULL)
           return FALSE;
-        strncpy(ShortStr,Str,StrSize);
+        xstrncpy(ShortStr,Str,StrSize);
         Len=strlen(RemoveTrailingSpaces(ShortStr));
         delete[] ShortStr;
         if (Len>CurPos)
@@ -1731,7 +1733,7 @@ int Edit::ProcessKey(int Key)
             char *ShortStr=new char[StrSize+1];
             if (ShortStr==NULL)
               return FALSE;
-            strncpy(ShortStr,Str,StrSize);
+            xstrncpy(ShortStr,Str,StrSize);
             RemoveTrailingSpaces(ShortStr);
             CopyToClipboard(ShortStr);
             delete[] ShortStr;
@@ -2045,7 +2047,7 @@ void Edit::SetObjectColor(int Color,int SelColor,int ColorUnChanged)
 
 void Edit::GetString(char *Str,int MaxSize)
 {
-  strncpy(Str,Edit::Str,MaxSize-1);
+  xstrncpy(Str,Edit::Str,MaxSize-1);
   Str[MaxSize-1]=0;
 }
 
@@ -2149,7 +2151,8 @@ void Edit::SetBinaryString(const char *Str,int Length)
     /* $ 26.10.2003 KM
        ! Скорректируем вставку из клипборда с учётом маски
     */
-    for (int i=0,j=0;j<strlen(Mask),j<Length;)
+    int maskLen=strlen(Mask);
+    for (int i=0,j=0;j<maskLen && j<Length;)
     {
       if (CheckCharMask(Mask[i]))
       {
@@ -2217,7 +2220,7 @@ int Edit::GetSelString(char *Str,int MaxSize)
     CopyLength=MaxSize-1;
   else
     CopyLength=Min(MaxSize-1,SelEnd-SelStart);
-  strncpy(Str,Edit::Str+SelStart,CopyLength);
+  xstrncpy(Str,Edit::Str+SelStart,CopyLength);
   Str[CopyLength]=0;
   return(TRUE);
 }
@@ -2370,7 +2373,7 @@ void Edit::SetInputMask(const char *InputMask)
 
   if (InputMask && *InputMask)
   {
-    if((Mask=strdup(InputMask)) == NULL)
+    if((Mask=xf_strdup(InputMask)) == NULL)
       return;
     RefreshStrByMask(TRUE);
   }
@@ -2595,7 +2598,7 @@ void Edit::SetTabCurPos(int NewPos)
     char *ShortStr=new char[StrSize+1];
     if (ShortStr==NULL)
       return;
-    strncpy(ShortStr,Str,StrSize);
+    xstrncpy(ShortStr,Str,StrSize);
     Pos=strlen(RemoveTrailingSpaces(ShortStr));
     delete[] ShortStr;
     if (NewPos>Pos)

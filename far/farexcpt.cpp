@@ -5,10 +5,12 @@ farexcpt.cpp
 
 */
 
-/* Revision: 1.20 07.05.2004 $ */
+/* Revision: 1.21 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   07.05.2004 SVS
     - Для STATUS_STACK_OVERFLOW не вызываем внешний модуль, а выдаем (пытаемся)
       сообщение средствами ФАР, после чего падаем.
@@ -192,7 +194,7 @@ static DWORD _xfilter(
                                            FarEventSvc,
                                            -1);
            static char RootKey[NM];
-           strncpy(RootKey,Opt.RegRoot,sizeof(RootKey)-1);
+           xstrncpy(RootKey,Opt.RegRoot,sizeof(RootKey)-1);
            LocalStartupInfo.RootKey=RootKey;
 
            static struct PLUGINRECORD PlugRec;
@@ -301,7 +303,7 @@ static DWORD _xfilter(
    if(From == (int)INVALID_HANDLE_VALUE || !Module)
      GetModuleFileName(NULL,TruncFileName,sizeof(TruncFileName));
    else
-     strncpy(TruncFileName,NullToEmpty(Module->ModuleName),sizeof(TruncFileName));
+     xstrncpy(TruncFileName,NullToEmpty(Module->ModuleName),sizeof(TruncFileName));
 
    /* $ 26.02.2001 VVM
        ! Обработка STATUS_INVALIDFUNCTIONRESULT */

@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.169 20.05.2004 $ */
+/* Revision: 1.170 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   20.05.2004 SVS
     ! NumericSort - свойство конкретной панели, а не режима отображения
   07.05.2004 SVS
@@ -886,7 +888,7 @@ void InterfaceSettings()
   if ((Opt.ScreenSaverTime=atoi(CfgDlg[DLG_INTERF_SCREENSAVERTIME].Data))<=0)
     Opt.ScreenSaver=Opt.ScreenSaverTime=0;
   Opt.UsePromptFormat=CfgDlg[DLG_INTERF_USEPROMPTFORMAT].Selected;
-  strncpy(Opt.PromptFormat,CfgDlg[DLG_INTERF_PROMPTFORMAT].Data,sizeof(Opt.PromptFormat)-1);
+  xstrncpy(Opt.PromptFormat,CfgDlg[DLG_INTERF_PROMPTFORMAT].Data,sizeof(Opt.PromptFormat)-1);
   Opt.AltGr=CfgDlg[DLG_INTERF_ALTGR].Selected;
   Opt.CopyShowTotal=CfgDlg[DLG_INTERF_COPYSHOWTOTAL].Selected;
   Opt.PgUpChangeDisk=CfgDlg[DLG_INTERF_PGUPCHANGEDISK].Selected;
@@ -1053,7 +1055,7 @@ void SetDizConfig()
   Dlg.Process();
   if (Dlg.GetExitCode()!=13)
     return;
-  strncpy(Opt.Diz.ListNames,DizDlg[2].Data,sizeof(Opt.Diz.ListNames)-1);
+  xstrncpy(Opt.Diz.ListNames,DizDlg[2].Data,sizeof(Opt.Diz.ListNames)-1);
   if (DizDlg[9].Selected)
     Opt.Diz.UpdateMode=DIZ_NOT_UPDATE;
   else
@@ -1178,7 +1180,7 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
   if (!Local)
   {
     Opt.UseExternalViewer=CfgDlg[DLG_VIEW_USE_F3].Selected;
-    strncpy(Opt.ExternalViewer,CfgDlg[DLG_VIEW_EXTERNAL].Data,sizeof(Opt.ExternalViewer)-1);
+    xstrncpy(Opt.ExternalViewer,CfgDlg[DLG_VIEW_EXTERNAL].Data,sizeof(Opt.ExternalViewer)-1);
   }
   Opt.SaveViewerPos=CfgDlg[DLG_VIEW_SAVEFILEPOS].Selected;
   Opt.SaveViewerShortPos=CfgDlg[DLG_VIEW_SAVESHORTPOS].Selected;
@@ -1310,7 +1312,7 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
   if (!Local)
   {
     Opt.UseExternalEditor=CfgDlg[2].Selected;
-    strncpy(Opt.ExternalEditor,CfgDlg[5].Data,sizeof(Opt.ExternalEditor)-1);
+    xstrncpy(Opt.ExternalEditor,CfgDlg[5].Data,sizeof(Opt.ExternalEditor)-1);
   }
   EdOpt.ExpandTabs=CfgDlg[7].Selected;
   EdOpt.PersistentBlocks=CfgDlg[8].Selected;
@@ -1355,7 +1357,7 @@ void SetFolderInfoFiles()
   if (GetString(MSG(MSetFolderInfoTitle),MSG(MSetFolderInfoNames),"FolderInfoFiles",
       Opt.FolderInfoFiles,FolderInfoFiles,sizeof(FolderInfoFiles),"OptMenu",FIB_ENABLEEMPTY))
   {
-    strncpy(Opt.FolderInfoFiles,FolderInfoFiles,sizeof(Opt.FolderInfoFiles)-1);
+    xstrncpy(Opt.FolderInfoFiles,FolderInfoFiles,sizeof(Opt.FolderInfoFiles)-1);
     if (CtrlObject->Cp()->LeftPanel->GetType() == INFO_PANEL)
       CtrlObject->Cp()->LeftPanel->Update(0);
     if (CtrlObject->Cp()->RightPanel->GetType() == INFO_PANEL)

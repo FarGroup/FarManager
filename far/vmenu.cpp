@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.136 02.08.2004 $ */
+/* Revision: 1.137 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   02.08.2004 SVS
     - BugZ#1144 - Ќепон€тки c CheckHotkey
       «абыл учесть AmpPos
@@ -530,7 +532,7 @@ VMenu::VMenu(const char *Title,       // заголовок меню
   VMenuProc=Proc;
 
   if (Title!=NULL)
-    strncpy(VMenu::Title,Title, sizeof(VMenu::Title)-1);
+    xstrncpy(VMenu::Title,Title, sizeof(VMenu::Title)-1);
   else
     *VMenu::Title=0;
 
@@ -555,9 +557,9 @@ VMenu::VMenu(const char *Title,       // заголовок меню
   {
     memset(&NewItem,0,sizeof(NewItem));
     if ((unsigned int)Data[I].Name < MAX_MSG)
-      strncpy(NewItem.Name,MSG((unsigned int)Data[I].Name),sizeof(NewItem.Name)+1);
+      xstrncpy(NewItem.Name,MSG((unsigned int)Data[I].Name),sizeof(NewItem.Name)+1);
     else
-      strncpy(NewItem.Name,Data[I].Name,sizeof(NewItem.Name)+1);
+      xstrncpy(NewItem.Name,Data[I].Name,sizeof(NewItem.Name)+1);
     //NewItem.AmpPos=-1;
     NewItem.AccelKey=Data[I].AccelKey;
     NewItem.Flags=Data[I].Flags;
@@ -1420,7 +1422,7 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     if (MsY>SbY1 && MsY<SbY2)
     {
       int SbHeight;
-      int Delta;
+      int Delta=0;
       while (IsMouseButtonPressed())
       {
         SbHeight=Y2-Y1-2;
@@ -1761,11 +1763,11 @@ int  VMenu::AddItem(const char *NewStrItem)
   if(!NewStrItem || NewStrItem[0] == 0x1)
   {
     FarListItem0.Flags=LIF_SEPARATOR;
-    strncpy(FarListItem0.Text,NewStrItem+1,sizeof(FarListItem0.Text)-2);
+    xstrncpy(FarListItem0.Text,NewStrItem+1,sizeof(FarListItem0.Text)-2);
   }
   else
   {
-    strncpy(FarListItem0.Text,NewStrItem,sizeof(FarListItem0.Text)-1);
+    xstrncpy(FarListItem0.Text,NewStrItem,sizeof(FarListItem0.Text)-1);
   }
   FarList0.ItemsNumber=1;
   FarList0.Items=&FarListItem0;
@@ -1932,7 +1934,7 @@ struct FarListItem *VMenu::MenuItem2FarList(const struct MenuItem *MItem,
   {
     memset(FItem,0,sizeof(struct FarListItem));
     FItem->Flags=MItem->Flags&(~MIF_USETEXTPTR); //??
-    strncpy(FItem->Text,((struct MenuItem *)MItem)->PtrName(),sizeof(FItem->Text)-1);
+    xstrncpy(FItem->Text,((struct MenuItem *)MItem)->PtrName(),sizeof(FItem->Text)-1);
 //    FItem->AccelKey=MItem->AccelKey;
     //??????????????????
     //   FItem->UserData=MItem->UserData;
@@ -1951,7 +1953,7 @@ struct MenuItem *VMenu::FarList2MenuItem(const struct FarListItem *FItem,
     memset(MItem,0,sizeof(struct MenuItem));
     MItem->Flags=FItem->Flags;
 //    MItem->AccelKey=FItem->AccelKey;
-    strncpy(MItem->Name,FItem->Text,sizeof(MItem->Name)-1);
+    xstrncpy(MItem->Name,FItem->Text,sizeof(MItem->Name)-1);
     MItem->Flags&=~MIF_USETEXTPTR;
     //MItem->Flags|=LIF_DELETEUSERDATA; //???????????????????
     //VMenu::_SetUserData(MItem,FItem->UserData,FItem->UserDataSize); //???
@@ -2140,7 +2142,7 @@ void VMenu::SetTitle(const char *Title)
   int Length;
   VMFlags.Set(VMENU_UPDATEREQUIRED);
   Title=NullToEmpty(Title);
-  strncpy(VMenu::Title,Title,sizeof(VMenu::Title)-1);
+  xstrncpy(VMenu::Title,Title,sizeof(VMenu::Title)-1);
   Length=strlen(Title)+2;
   if (Length > MaxLength)
     MaxLength=Length;
@@ -2173,7 +2175,7 @@ char *VMenu::GetTitle(char *Dest,int Size)
      ≈сли заголовок пустой - это не значит, что его нельз€ вернуть!
   */
   if (Dest /*&& *VMenu::Title*/)
-    return strncpy(Dest,VMenu::Title,Size-1);
+    return xstrncpy(Dest,VMenu::Title,Size-1);
   /* DJ $ */
   return NULL;
 }
@@ -2184,7 +2186,7 @@ void VMenu::SetBottomTitle(const char *BottomTitle)
   int Length;
   VMFlags.Set(VMENU_UPDATEREQUIRED);
   BottomTitle=NullToEmpty(BottomTitle);
-  strncpy(VMenu::BottomTitle,BottomTitle,sizeof(VMenu::BottomTitle)-1);
+  xstrncpy(VMenu::BottomTitle,BottomTitle,sizeof(VMenu::BottomTitle)-1);
   Length=strlen(BottomTitle)+2;
   if (Length > MaxLength)
     MaxLength=Length;
@@ -2196,7 +2198,7 @@ void VMenu::SetBottomTitle(const char *BottomTitle)
 char *VMenu::GetBottomTitle(char *Dest,int Size)
 {
   if (Dest && *VMenu::BottomTitle)
-    return strncpy(Dest,VMenu::BottomTitle,Size-1);
+    return xstrncpy(Dest,VMenu::BottomTitle,Size-1);
   return NULL;
 }
 
@@ -2486,9 +2488,9 @@ static int __cdecl  SortItem(const struct MenuItem *el1,
                            const struct SortItemParam *Param)
 {
   char Name1[2*NM],Name2[2*NM];
-  strncpy(Name1,((struct MenuItem *)el1)->PtrName(),sizeof(Name1));
+  xstrncpy(Name1,((struct MenuItem *)el1)->PtrName(),sizeof(Name1));
   RemoveChar(Name1,'&',TRUE);
-  strncpy(Name2,((struct MenuItem *)el2)->PtrName(),sizeof(Name2));
+  xstrncpy(Name2,((struct MenuItem *)el2)->PtrName(),sizeof(Name2));
   RemoveChar(Name2,'&',TRUE);
   int Res=LocalStricmp(Name1+Param->Offset,Name2+Param->Offset);
   return(Param->Direction==0?Res:(Res<0?1:(Res>0?-1:0)));

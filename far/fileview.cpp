@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.67 05.06.2003 $ */
+/* Revision: 1.68 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   05.06.2003 SVS
     - "view:a:\a F6" - не работает, в тоже время "view:A:\a F6" - работает
   30.05.2003 SVS
@@ -248,7 +250,7 @@ void FileViewer::Init(const char *name,int EnableSwitch,int disableHistory, ///
   /* SVS $ */
 
   DisableHistory=disableHistory; ///
-  strncpy(Name,name,sizeof(Name)-1); ///
+  xstrncpy(Name,name,sizeof(Name)-1); ///
   SetCanLoseFocus(EnableSwitch);
 
   /* $ 17.08.2001 KM

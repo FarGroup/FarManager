@@ -5,10 +5,12 @@ filter.cpp
 
 */
 
-/* Revision: 1.27 20.02.2003 $ */
+/* Revision: 1.28 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   20.02.2003 SVS
     ! Заменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
   21.01.2003 SVS
@@ -248,7 +250,7 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
           break;
     }
 
-    qsort((void *)ExtPtr,ExtCount,NM,ExtSort);
+    far_qsort((void *)ExtPtr,ExtCount,NM,ExtSort);
 
     memset(&ListItem,0,sizeof(ListItem));
     if (ExtCount>0)
@@ -370,7 +372,7 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
 
             FilterDataCount++;
             memset(FilterData+SelPos,0,sizeof(struct FilterDataRecord));
-            strncpy(FilterData[SelPos].Title,Title,sizeof(FilterData[0].Title)-1);
+            xstrncpy(FilterData[SelPos].Title,Title,sizeof(FilterData[0].Title)-1);
             FilterData[SelPos].Masks=Ptr;
             strcpy(FilterData[SelPos].Masks,Masks);
             FilterData[SelPos].LeftPanelInclude=0;
@@ -780,7 +782,7 @@ int PanelFilter::ParseAndAddMasks(char **ExtPtr,const char *FileName,DWORD FileA
   *ExtPtr=NewPtr;
 
   NewPtr=*ExtPtr+ExtCount*NM;
-  strncpy(NewPtr,Mask,NM-2);
+  xstrncpy(NewPtr,Mask,NM-2);
 
   NewPtr=NewPtr+strlen(NewPtr)+1;
 //!!! Если нужно "решить" BugZ#413, то раскомментировать ЭТОТ кусок!!!

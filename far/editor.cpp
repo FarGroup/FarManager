@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.253 07.07.2004 $ */
+/* Revision: 1.254 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   07.07.2004 SVS
     ! Macro II
   30.06.2004 SVS
@@ -781,7 +783,7 @@ Editor::Editor()
     Transform(LastSearchStr,LenSearchStr,GlobalSearchString,'S');
   }
   else
-    strncpy((char *)LastSearchStr,GlobalSearchString,sizeof(LastSearchStr)-1);
+    xstrncpy((char *)LastSearchStr,GlobalSearchString,sizeof(LastSearchStr)-1);
   /* KM $ */
 
   LastSearchCase=GlobalSearchCase;
@@ -1109,7 +1111,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
       if (!LastLineCR && ((CurEOL=(char *)memchr(Str,'\r',StrLength))!=NULL ||
           (CurEOL=(char *)memchr(Str,'\n',StrLength))!=NULL))
       {
-        strncpy(GlobalEOL,CurEOL,sizeof(GlobalEOL)-1);
+        xstrncpy(GlobalEOL,CurEOL,sizeof(GlobalEOL)-1);
         GlobalEOL[sizeof(GlobalEOL)-1]=0;
         LastLineCR=1;
       }
@@ -1412,7 +1414,7 @@ int Editor::ReadData(LPCSTR SrcBuf,int SizeSrcBuf)
       if (!LastLineCR && ((CurEOL=(char *)memchr(Str,'\r',StrLength))!=NULL ||
           (CurEOL=(char *)memchr(Str,'\n',StrLength))!=NULL))
       {
-        strncpy(GlobalEOL,CurEOL,sizeof(GlobalEOL)-1);
+        xstrncpy(GlobalEOL,CurEOL,sizeof(GlobalEOL)-1);
         GlobalEOL[sizeof(GlobalEOL)-1]=0;
         LastLineCR=1;
       }
@@ -1838,7 +1840,7 @@ int Editor::ProcessKey(int Key)
   if (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9)
     return SetBookmark(Key-KEY_RCTRL0);
 
-  int SelStart,SelEnd;
+  int SelStart=0,SelEnd=0;
   int SelFirst=FALSE;
   int SelAtBeginning=FALSE;
 
@@ -3568,7 +3570,7 @@ int Editor::ProcessKey(int Key)
         }
 
         const char *Str;
-        char *CmpStr;
+        char *CmpStr=0;
         int Length,CurPos;
 
         CurLine->EditLine.GetBinaryString(Str,NULL,Length);
@@ -3583,8 +3585,8 @@ int Editor::ProcessKey(int Key)
           {
             int TabPos=CurLine->EditLine.GetTabCurPos();
             CurLine->EditLine.SetCurPos(0);
-            const char *PrevStr;
-            int PrevLength;
+            const char *PrevStr=NULL;
+            int PrevLength=0;
             PrevLine->EditLine.GetBinaryString(PrevStr,NULL,PrevLength);
             for (int I=0;I<PrevLength && IsSpace(PrevStr[I]);I++)
             {
@@ -4139,8 +4141,8 @@ void Editor::InsertString()
         int SaveOvertypeMode=CurLine->EditLine.GetOvertypeMode();
         CurLine->EditLine.SetOvertypeMode(FALSE);
 
-        const char *PrevStr;
-        int PrevLength;
+        const char *PrevStr=NULL;
+        int PrevLength=0;
 
         if (SrcIndent)
         {
@@ -4293,8 +4295,8 @@ BOOL Editor::Search(int Next)
   if (Next && *LastSearchStr==0)
     return TRUE;
 
-  strncpy((char *)SearchStr,(char *)LastSearchStr,sizeof(SearchStr)-1);
-  strncpy((char *)ReplaceStr,(char *)LastReplaceStr,sizeof(ReplaceStr)-1);
+  xstrncpy((char *)SearchStr,(char *)LastSearchStr,sizeof(SearchStr)-1);
+  xstrncpy((char *)ReplaceStr,(char *)LastReplaceStr,sizeof(ReplaceStr)-1);
   Case=LastSearchCase;
   WholeWords=LastSearchWholeWords;
   ReverseSearch=LastSearchReverse;
@@ -4306,8 +4308,8 @@ BOOL Editor::Search(int Next)
                    &Case,&WholeWords,&ReverseSearch))
       return FALSE;
 
-  strncpy((char *)LastSearchStr,(char *)SearchStr,sizeof(LastSearchStr)-1);
-  strncpy((char *)LastReplaceStr,(char *)ReplaceStr,sizeof(LastReplaceStr)-1);
+  xstrncpy((char *)LastSearchStr,(char *)SearchStr,sizeof(LastSearchStr)-1);
+  xstrncpy((char *)LastReplaceStr,(char *)ReplaceStr,sizeof(LastReplaceStr)-1);
   LastSearchCase=Case;
   LastSearchWholeWords=WholeWords;
   LastSearchReverse=ReverseSearch;
@@ -4418,7 +4420,7 @@ BOOL Editor::Search(int Next)
             SetColor(COL_EDITORSELECTEDTEXT);
             const char *Str=CurPtr->EditLine.GetStringAddr()+CurPtr->EditLine.GetCurPos();
             char *TmpStr=new char[SearchLength+1];
-            strncpy(TmpStr,Str,SearchLength);
+            xstrncpy(TmpStr,Str,SearchLength);
             TmpStr[SearchLength]=0;
             if (UseDecodeTable)
               DecodeString(TmpStr,(unsigned char *)TableSet.DecodeTable);
@@ -5060,7 +5062,7 @@ void Editor::GoToPosition()
   if (Dlg.GetExitCode()!=1 )
       return ;
   // Запомним ранее введенное значение в текущем сеансе работы FAR`а
-  //  strncpy(PrevLine,GoToDlg[1].Data,sizeof(PrevLine));
+  //  xstrncpy(PrevLine,GoToDlg[1].Data,sizeof(PrevLine));
 
   GetRowCol(GoToDlg[1].Data,&NewLine,&NewCol);
 
@@ -6366,7 +6368,7 @@ int Editor::EditorControl(int Command,void *Param)
           case ESPT_GETWORDDIV:
             _ECTLLOG(SysLog("  cParam      =(%p)",espar->Param.cParam));
             if(!IsBadWritePtr(espar->Param.cParam,sizeof(EdOpt.WordDiv)))
-              strncpy(espar->Param.cParam,EdOpt.WordDiv,sizeof(EdOpt.WordDiv)-1);
+              xstrncpy(espar->Param.cParam,EdOpt.WordDiv,sizeof(EdOpt.WordDiv)-1);
             else
               rc=FALSE;
             break;

@@ -5,10 +5,12 @@ new.cpp
 
 */
 
-/* Revision: 1.01 25.02.2003 $ */
+/* Revision: 1.02 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   25.02.2003 SVS
     ! применим счетчик CallNewDelete/CallMallocFree для отладки
   24.02.2003 SVS
@@ -37,7 +39,7 @@ void * __cdecl  _nh_malloc(size_t, int);
 void * operator new( size_t cb )
 {
   // здесь херня - что делать - ХЗ (если кто знает - сделайте!!!)
-  void *res = _nh_malloc( cb, 1 );
+  void *res = xf_malloc(cb);//_nh_malloc( cb, 1 );
   return res;
 }
 

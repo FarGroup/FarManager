@@ -5,10 +5,12 @@ registry.cpp
 
 */
 
-/* Revision: 1.19 06.07.2004 $ */
+/* Revision: 1.20 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   06.07.2004 SVS
     ! вместо sprintf заюзаем strNcpy и strNcat
   18.05.2004 SVS
@@ -171,7 +173,7 @@ int GetRegKey(const char *Key,const char *ValueName,char *ValueData,const char *
       if(TempBuffer) // Если с памятью все нормально...
       {
         if((ExitCode=RegQueryValueEx(hKey,ValueName,0,&Type,(unsigned char *)TempBuffer,&QueryDataSize)) == ERROR_SUCCESS)
-          strncpy(ValueData,TempBuffer,DataSize-1); // скопируем сколько надо.
+          xstrncpy(ValueData,TempBuffer,DataSize-1); // скопируем сколько надо.
         delete[] TempBuffer;
       }
     }
@@ -249,13 +251,13 @@ int GetRegKey(const char *Key,const char *ValueName,BYTE *ValueData,const BYTE *
 static char *MkKeyName(const char *Key, char *Dest, int DestSize)
 {
   char FullKeyName[2048];
-  strncpy(FullKeyName,Opt.RegRoot,sizeof(FullKeyName)-1);
+  xstrncpy(FullKeyName,Opt.RegRoot,sizeof(FullKeyName)-1);
   if(*Key)
   {
     strncat(FullKeyName,"\\",sizeof(FullKeyName)-1);
     strncat(FullKeyName,Key,sizeof(FullKeyName)-1);
   }
-  strncpy(Dest,FullKeyName,DestSize);
+  xstrncpy(Dest,FullKeyName,DestSize);
   return Dest;
 }
 
@@ -449,7 +451,7 @@ int CopyKeyTree(const char *Src,const char *Dest,const char *Skip)
     FILETIME LastWrite;
     if (RegEnumKeyEx(hSrcKey,I,SubkeyName,&NameSize,NULL,NULL,NULL,&LastWrite)!=ERROR_SUCCESS)
       break;
-    strncpy(SrcKeyName,Src,sizeof(SrcKeyName)-1);
+    xstrncpy(SrcKeyName,Src,sizeof(SrcKeyName)-1);
     strncat(SrcKeyName,"\\",sizeof(SrcKeyName)-1);
     strncat(SrcKeyName,SubkeyName,sizeof(SrcKeyName)-1);
     if (Skip!=NULL)
@@ -464,7 +466,7 @@ int CopyKeyTree(const char *Src,const char *Dest,const char *Skip)
       if (Found)
         continue;
     }
-    strncpy(DestKeyName,Dest,sizeof(DestKeyName)-1);
+    xstrncpy(DestKeyName,Dest,sizeof(DestKeyName)-1);
     strncat(DestKeyName,"\\",sizeof(DestKeyName)-1);
     strncat(DestKeyName,SubkeyName,sizeof(DestKeyName)-1);
     if (RegCreateKeyEx(hRegRootKey,DestKeyName,0,NULL,0,KEY_WRITE,NULL,&hDestKey,&Disposition)!=ERROR_SUCCESS)
@@ -510,7 +512,7 @@ void DeleteKeyTreePart(const char *KeyName)
     if (RegEnumKeyEx(hKey,I,SubkeyName,&NameSize,NULL,NULL,NULL,&LastWrite)!=ERROR_SUCCESS)
       break;
 
-    strncpy(FullKeyName,KeyName,sizeof(FullKeyName)-1);
+    xstrncpy(FullKeyName,KeyName,sizeof(FullKeyName)-1);
     strncat(FullKeyName,"\\",sizeof(FullKeyName)-1);
     strncat(FullKeyName,SubkeyName,sizeof(FullKeyName)-1);
     DeleteKeyTreePart(FullKeyName);
@@ -548,7 +550,7 @@ int DeleteEmptyKey(HKEY hRoot, const char *FullKeyName)
         if(ExitCode!=ERROR_SUCCESS)
           {
             char KeyName[512], *pSubKey;
-            strncpy(KeyName, FullKeyName, sizeof(KeyName)-1);
+            xstrncpy(KeyName, FullKeyName, sizeof(KeyName)-1);
             if(NULL!=(pSubKey=strrchr(KeyName,'\\')))
               {
                  *pSubKey=0;
@@ -614,11 +616,11 @@ int EnumRegKey(const char *Key,DWORD Index,char *DestName,DWORD DestSize)
     if (ExitCode==ERROR_SUCCESS)
     {
       char TempName[512];
-      strncpy(TempName,Key,sizeof(TempName)-1);
+      xstrncpy(TempName,Key,sizeof(TempName)-1);
       if (*TempName)
         AddEndSlash(TempName);
       strncat(TempName,SubName,sizeof(TempName)-1);
-      strncpy(DestName,TempName,DestSize-1);
+      xstrncpy(DestName,TempName,DestSize-1);
       return(TRUE);
     }
   }
@@ -644,7 +646,7 @@ int EnumRegValue(const char *Key,DWORD Index,char *DestName,DWORD DestSize,LPBYT
 
       if(Type == REG_SZ)
       {
-        strncpy(DestName,ValueName,DestSize-1);
+        xstrncpy(DestName,ValueName,DestSize-1);
         RetCode=TRUE;
         break;
       }

@@ -5,10 +5,12 @@ Parent class для модальных объектов
 
 */
 
-/* Revision: 1.13 11.12.2002 $ */
+/* Revision: 1.14 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   11.12.2002 SVS
     - учтем вариант с KEY_CONSOLE_BUFFER_RESIZE (динамическое изменение размера консоли)
   25.04.2002 IS
@@ -138,7 +140,7 @@ void Modal::SetExitCode(int Code)
 
 void Modal::SetHelp(const char *Topic)
 {
-  strncpy(HelpTopic,Topic,sizeof(HelpTopic)-1);
+  xstrncpy(HelpTopic,Topic,sizeof(HelpTopic)-1);
 }
 
 

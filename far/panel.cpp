@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.134 26.07.2004 $ */
+/* Revision: 1.135 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   26.07.2004 SVS
     - strcpy()
   26.07.2004 VVM
@@ -661,7 +663,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
             SetSelected=(MenuLine==Pos);
         }
 
-        strncpy(ChDiskItem.Name,MenuText,sizeof(ChDiskItem.Name)-1);
+        xstrncpy(ChDiskItem.Name,MenuText,sizeof(ChDiskItem.Name)-1);
         if (strlen(MenuText)>4)
           ShowSpecial=TRUE;
 
@@ -744,7 +746,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
           */
           *MenuText=0;
           if(HotKey<0)
-            strncpy(MenuText,ShowSpecial?PluginText:"",
+            xstrncpy(MenuText,ShowSpecial?PluginText:"",
               sizeof(MenuText)-1-4); // -4 - добавка для хоткея
           else if(PluginTextNumber<10)
           {
@@ -765,7 +767,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
           /* IS $ */
           if(HotKey>-1 && *MenuText) // IS: не добавляем пустые строки!
           {
-            strncpy(OneItem.Item.Name,MenuText,sizeof(ChDiskItem.Name)-1);
+            xstrncpy(OneItem.Item.Name,MenuText,sizeof(ChDiskItem.Name)-1);
             OneItem.Item.UserDataSize=0;
             OneItem.Item.UserData=(char*)MAKELONG(PluginNumber,PluginItem);
             OneItem.HotKey=HotKey;
@@ -777,7 +779,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
           }
           else if(HotKey<0) // IS: назначение автохоткеей отложим на потом
           {
-            strncpy(OneItem.Item.Name,MenuText,sizeof(ChDiskItem.Name)-1);
+            xstrncpy(OneItem.Item.Name,MenuText,sizeof(ChDiskItem.Name)-1);
             OneItem.Item.UserDataSize=0;
             OneItem.Item.UserData=(char*)MAKELONG(PluginNumber,PluginItem);
             OneItem.HotKey=HotKey;
@@ -824,7 +826,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
             sprintf(MenuText,"   %s", item->Item.Name);
           }
 
-          strncpy(item->Item.Name, MenuText, sizeof(item->Item.Name)-1);
+          xstrncpy(item->Item.Name, MenuText, sizeof(item->Item.Name)-1);
           if(*item->Item.Name && !MPItems.addItem(*item))
             break;
         }
@@ -1084,7 +1086,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
       if (ChDisk.Done() && ChDisk.Modal::GetExitCode()<0 && *CurDir && strncmp(CurDir,"\\\\",2)!=0)
       {
         char RootDir[10];
-        strncpy(RootDir,CurDir,3);
+        xstrncpy(RootDir,CurDir,3);
         RootDir[3]=0;
         if (FAR_GetDriveType(RootDir)==DRIVE_NO_ROOT_DIR)
           ChDisk.ClearDone();
@@ -1707,7 +1709,7 @@ void Panel::GetCurDir(char *CurDir)
 #endif
 void Panel::SetCurDir(char *CurDir,int ClosePlugin)
 {
-  PrepareDiskPath(strncpy(Panel::CurDir,CurDir,sizeof(Panel::CurDir)-1),sizeof(Panel::CurDir)-1);
+  PrepareDiskPath(xstrncpy(Panel::CurDir,CurDir,sizeof(Panel::CurDir)-1),sizeof(Panel::CurDir)-1);
 }
 #if defined(__BORLANDC__)
 #pragma warn +par
@@ -1716,7 +1718,7 @@ void Panel::SetCurDir(char *CurDir,int ClosePlugin)
 
 void Panel::InitCurDir(char *CurDir)
 {
-  PrepareDiskPath(strncpy(Panel::CurDir,CurDir,sizeof(Panel::CurDir)-1),sizeof(Panel::CurDir)-1);
+  PrepareDiskPath(xstrncpy(Panel::CurDir,CurDir,sizeof(Panel::CurDir)-1),sizeof(Panel::CurDir)-1);
 }
 
 
@@ -1908,13 +1910,13 @@ void Panel::SetTitle()
     char TitleDir[NM+16];
     *TitleDir='{';
     if (*CurDir)
-      strncpy(TitleDir+1,CurDir,sizeof(TitleDir)-3);
+      xstrncpy(TitleDir+1,CurDir,sizeof(TitleDir)-3);
     else
     {
       char CmdText[512];
       // $ 21.07.2000 IG - Bug 21 (заголовок после Ctrl-Q, Tab, F3, Esc был кривой)
       CtrlObject->CmdLine->GetCurDir(CmdText);
-      strncpy(TitleDir+1,CmdText,sizeof(TitleDir)-3);
+      xstrncpy(TitleDir+1,CmdText,sizeof(TitleDir)-3);
     }
     strncat(TitleDir,"}",sizeof(TitleDir)-3);
     strcpy(LastFarTitle,TitleDir);
@@ -1989,7 +1991,7 @@ int Panel::SetPluginCommand(int Command,void *Param)
       break;
 
     case FCTL_CLOSEPLUGIN:
-      strncpy((char *)PluginParam,NullToEmpty((char *)Param),sizeof(PluginParam)-1);
+      xstrncpy((char *)PluginParam,NullToEmpty((char *)Param),sizeof(PluginParam)-1);
       Result=TRUE;
       //if(Opt.CPAJHefuayor)
       //  CtrlObject->Plugins.ProcessCommandLine((char *)PluginParam);
@@ -2075,7 +2077,7 @@ int Panel::SetPluginCommand(int Command,void *Param)
           Reenter++;
           struct OpenPluginInfo PInfo;
           DestFilePanel->GetOpenPluginInfo(&PInfo);
-          strncpy(Info->CurDir,PInfo.CurDir,sizeof(Info->CurDir)-1);
+          xstrncpy(Info->CurDir,PInfo.CurDir,sizeof(Info->CurDir)-1);
           /* $ 12.12.2001 DJ
              обработаем флаги
           */

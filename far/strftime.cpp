@@ -5,10 +5,12 @@ strftime.cpp
 
 */
 
-/* Revision: 1.11 01.03.2004 $ */
+/* Revision: 1.12 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   01.03.2004 SVS
     ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
       (задел на будущее + править впоследствии только 1 файл)
@@ -299,7 +301,7 @@ int MkStrFTime(char *Dest,int DestSize,const char *Fmt)
   tzset();
   time(&secs_now);
   time_now = localtime(&secs_now);
-  strncpy(Fmt0,!Fmt || !Fmt[0]?Opt.DateFormat:Fmt,sizeof(Fmt0));
+  xstrncpy(Fmt0,!Fmt || !Fmt[0]?Opt.DateFormat:Fmt,sizeof(Fmt0));
   return StrFTime(Dest, DestSize, Fmt0, time_now);
 }
 
@@ -519,7 +521,7 @@ int WINAPI StrFTime(char *Dest, size_t MaxSize, const char *Format,const struct 
           break;
       }
       I=(strlen(Ptr) < MaxSize-Len?strlen(Ptr):MaxSize-Len);
-      strncpy( Dest, Ptr, I );
+      xstrncpy( Dest, Ptr, I );
       Len += I;
       Dest += I;
       Ptr = Buf;

@@ -5,10 +5,12 @@ namelist.cpp
 
 */
 
-/* Revision: 1.09 19.11.2003 $ */
+/* Revision: 1.10 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   19.11.2003 IS
     + Работа со списком (TList) на основе кода, созданного KS, чтобы
       собиралось под борманом.
@@ -66,7 +68,7 @@ bool NamesList::GetNextName(char *Name, const size_t NameSize)
 {
   if(Names.isEnd())
     return(false);
-  strncpy(Name, Names.toNext()->Value, NameSize-1);
+  xstrncpy(Name, Names.toNext()->Value, NameSize-1);
   return(true);
 }
 
@@ -75,7 +77,7 @@ bool NamesList::GetPrevName(char *Name, const size_t NameSize)
 {
   if (Names.isBegin())
     return(false);
-  strncpy(Name, Names.toPrev()->Value, NameSize-1);
+  xstrncpy(Name, Names.toPrev()->Value, NameSize-1);
   return(true);
 }
 
@@ -106,7 +108,7 @@ void NamesList::MoveData(NamesList &Dest)
 void NamesList::GetCurDir(char *Dir,int DestSize)
 {
   if(*CurDir)
-    strncpy(Dir,CurDir,DestSize);
+    xstrncpy(Dir,CurDir,DestSize);
   else
     *Dir=0;
 }
@@ -114,7 +116,7 @@ void NamesList::GetCurDir(char *Dir,int DestSize)
 
 void NamesList::SetCurDir(const char *Dir)
 {
-  PrepareDiskPath(strncpy(CurDir,Dir,sizeof(CurDir)),sizeof(CurDir)-1);
+  PrepareDiskPath(xstrncpy(CurDir,Dir,sizeof(CurDir)),sizeof(CurDir)-1);
 }
 
 void NamesList::Init()

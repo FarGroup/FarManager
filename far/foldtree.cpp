@@ -5,10 +5,12 @@ foldtree.cpp
 
 */
 
-/* Revision: 1.12 22.04.2002 $ */
+/* Revision: 1.13 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   22.04.2002 KM
     - Затычка: запрет на AltF9 в помощи. Пока.
   22.03.2002 SVS
@@ -168,7 +170,7 @@ int FolderTree::ProcessKey(int Key)
         else
         {
           FindEdit->SetString(LastName);
-          strncpy(Name,LastName,sizeof(Name)-1);
+          xstrncpy(Name,LastName,sizeof(Name)-1);
         }
         DrawEdit();
       }

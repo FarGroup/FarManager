@@ -5,10 +5,12 @@ Keybar
 
 */
 
-/* Revision: 1.14 01.04.2002 $ */
+/* Revision: 1.15 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   01.04.2002 SVS
     ! Вместо KEY_FOCUS_CHANGED заведем KEY_KILLFOCUS и KEY_GOTFOCUS.
   03.03.2002 SVS
@@ -165,7 +167,7 @@ void KeyBar::DisplayObject()
 void KeyBar::SetGroup(int Group,char **Key,int KeyCount)
 {
   for (int i=0; i<KeyCount && i<KEY_COUNT; i++)
-    strncpy (KeyTitles [Group][i], Key [i], sizeof (KeyTitles [Group][i])-1);
+    xstrncpy (KeyTitles [Group][i], Key [i], sizeof (KeyTitles [Group][i])-1);
   KeyCounts [Group]=KeyCount;
 }
 
@@ -180,7 +182,7 @@ void KeyBar::ClearGroup(int Group)
 */
 void KeyBar::Change(int Group,char *NewStr,int Pos)
 {
-  strncpy (KeyTitles [Group][Pos], NewStr, sizeof (KeyTitles [Group][Pos])-1);
+  xstrncpy (KeyTitles [Group][Pos], NewStr, sizeof (KeyTitles [Group][Pos])-1);
 }
 /* SVS $ */
 
@@ -194,7 +196,7 @@ void KeyBar::SetAllGroup (int Group, int StartIndex, int Count)
   if (Count > KEY_COUNT)
     Count = KEY_COUNT;
   for (int i=0, Index=StartIndex; i<Count; i++, Index++)
-    strncpy (KeyTitles [Group][i], MSG (Index), sizeof (KeyTitles [Group][i])-1);
+    xstrncpy (KeyTitles [Group][i], MSG (Index), sizeof (KeyTitles [Group][i])-1);
   KeyCounts [Group] = Count;
 }
 

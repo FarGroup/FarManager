@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.157 14.06.2004 $ */
+/* Revision: 1.158 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   14.06.2004 KM
     ! Уточним действие поиска при использовании фильтра, в котором
       теперь существует обработка атрибута FILE_ATTRIBUTE_DIRECTORY
@@ -633,9 +635,9 @@ int _cdecl SortItems(const void *p1,const void *p2)
   char n1[NM*2],n2[NM*2];
   n1[0]=0;n2[0]=0;
   if (*Item1->FindData.cFileName)
-    strncpy(n1,Item1->FindData.cFileName, sizeof(n1)-1);
+    xstrncpy(n1,Item1->FindData.cFileName, sizeof(n1)-1);
   if (*Item2->FindData.cFileName)
-    strncpy(n2,Item2->FindData.cFileName, sizeof(n1)-1);
+    xstrncpy(n2,Item2->FindData.cFileName, sizeof(n1)-1);
   *(PointToName(n1))=0;
   *(PointToName(n2))=0;
   return LocalStricmp(n1,n2);
@@ -681,23 +683,23 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       unsigned int W=Dlg->Item[7].X1-Dlg->Item[4].X1-5;
       if (strlen((Dlg->Item[13].Selected?FindHex:FindText))>W)
       {
-        strncpy(DataStr,(Dlg->Item[13].Selected?FindHex:FindText),W-3);
+        xstrncpy(DataStr,(Dlg->Item[13].Selected?FindHex:FindText),W-3);
         DataStr[W-4]=0;
         strcat(DataStr,"...");
       }
       else
-        strncpy(DataStr,(Dlg->Item[13].Selected?FindHex:FindText),sizeof(DataStr)-1);
+        xstrncpy(DataStr,(Dlg->Item[13].Selected?FindHex:FindText),sizeof(DataStr)-1);
       Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,4,(long)DataStr);
 
       W=Dlg->Item[0].X2-Dlg->Item[7].X1-3;
       if (strlen(FindCode)>W)
       {
-        strncpy(DataStr,FindCode,W-3);
+        xstrncpy(DataStr,FindCode,W-3);
         DataStr[W-4]=0;
         strcat(DataStr,"...");
       }
       else
-        strncpy(DataStr,FindCode,sizeof(DataStr)-1);
+        xstrncpy(DataStr,FindCode,sizeof(DataStr)-1);
       Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,7,(long)DataStr);
 
       /* Установка запомненных ранее параметров */
@@ -712,20 +714,20 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       /* -------------------------------------- */
 
       if (UseAllTables)
-        strncpy(TableSet.TableName,MSG(MFindFileAllTables),sizeof(TableSet.TableName)-1);
+        xstrncpy(TableSet.TableName,MSG(MFindFileAllTables),sizeof(TableSet.TableName)-1);
       else if (UseUnicode)
-        strncpy(TableSet.TableName,"Unicode",sizeof(TableSet.TableName)-1);
+        xstrncpy(TableSet.TableName,"Unicode",sizeof(TableSet.TableName)-1);
       /* $ 20.09.2003 KM
          Добавим поддержку ANSI таблицы
       */
       else if (UseANSI)
       {
         GetTable(&TableSet,TRUE,TableNum,UseUnicode);
-        strncpy(TableSet.TableName,MSG(MGetTableWindowsText),sizeof(TableSet.TableName)-1);
+        xstrncpy(TableSet.TableName,MSG(MGetTableWindowsText),sizeof(TableSet.TableName)-1);
       }
       /* KM $ */
       else if (!UseDecodeTable)
-        strncpy(TableSet.TableName,MSG(MGetTableNormalText),sizeof(TableSet.TableName)-1);
+        xstrncpy(TableSet.TableName,MSG(MGetTableNormalText),sizeof(TableSet.TableName)-1);
       else
         PrepareTable(&TableSet,TableNum,TRUE);
       RemoveChar(TableSet.TableName,'&',TRUE);
@@ -754,16 +756,16 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         UseDecodeTable=(Param2>=(CHAR_TABLE_SIZE+1));
         TableNum=Param2-(CHAR_TABLE_SIZE+1);
         if (UseAllTables)
-          strncpy(TableSet.TableName,MSG(MFindFileAllTables),sizeof(TableSet.TableName)-1);
+          xstrncpy(TableSet.TableName,MSG(MFindFileAllTables),sizeof(TableSet.TableName)-1);
         else if (UseUnicode)
-          strncpy(TableSet.TableName,"Unicode",sizeof(TableSet.TableName)-1);
+          xstrncpy(TableSet.TableName,"Unicode",sizeof(TableSet.TableName)-1);
         else if (UseANSI)
         {
           GetTable(&TableSet,TRUE,TableNum,UseUnicode);
-          strncpy(TableSet.TableName,MSG(MGetTableWindowsText),sizeof(TableSet.TableName)-1);
+          xstrncpy(TableSet.TableName,MSG(MGetTableWindowsText),sizeof(TableSet.TableName)-1);
         }
         else if (!UseDecodeTable)
-          strncpy(TableSet.TableName,MSG(MGetTableNormalText),sizeof(TableSet.TableName)-1);
+          xstrncpy(TableSet.TableName,MSG(MGetTableNormalText),sizeof(TableSet.TableName)-1);
         else
           PrepareTable(&TableSet,TableNum,TRUE);
         /* KM $ */
@@ -856,12 +858,12 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         unsigned int W=Dlg->Item[7].X1-Dlg->Item[4].X1-5;
         if (strlen((Param2?FindHex:FindText))>W)
         {
-          strncpy(DataStr,(Param2?FindHex:FindText),W-3);
+          xstrncpy(DataStr,(Param2?FindHex:FindText),W-3);
           DataStr[W-4]=0;
           strcat(DataStr,"...");
         }
         else
-          strncpy(DataStr,(Param2?FindHex:FindText),sizeof(DataStr)-1);
+          xstrncpy(DataStr,(Param2?FindHex:FindText),sizeof(DataStr)-1);
         Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,4,(long)DataStr);
 
         if (strlen(DataStr)>0)
@@ -918,7 +920,7 @@ static void ShowTruncateMessage(int IDMField,int MaxSize)
   char Buf2 [128];
 
   *Buf1='\'';
-  strncpy (Buf1+1, MSG(IDMField), sizeof(Buf1)-3);
+  xstrncpy (Buf1+1, MSG(IDMField), sizeof(Buf1)-3);
   strcat(Buf1,"'");
   RemoveHighlights(Buf1);
   sprintf (Buf2, MSG(MEditInputSize2), MaxSize);
@@ -954,11 +956,11 @@ FindFiles::FindFiles()
     LastSearchInSymLink=0;
   SearchInSymLink=LastSearchInSymLink;
   SearchMode=Opt.FindOpt.FileSearchMode;
-  strncpy(FindMask,LastFindMask,sizeof(FindMask)-1);
-  strncpy(FindStr,LastFindStr,sizeof(FindStr)-1);
+  xstrncpy(FindMask,LastFindMask,sizeof(FindMask)-1);
+  xstrncpy(FindStr,LastFindStr,sizeof(FindStr)-1);
   BreakMainThread=0;
 
-  strncpy(SearchFromRoot,MSG(MSearchFromRoot),sizeof(SearchFromRoot)-1);
+  xstrncpy(SearchFromRoot,MSG(MSearchFromRoot),sizeof(SearchFromRoot)-1);
   SearchFromRoot[sizeof(SearchFromRoot)-1]=0;
 
 
@@ -968,11 +970,11 @@ FindFiles::FindFiles()
   TableList.ItemsNumber=CHAR_TABLE_SIZE;
 
   memset(TableItem,0,sizeof(FarListItem)*CHAR_TABLE_SIZE);
-  strncpy(TableItem[0].Text,MSG(MFindFileAllTables),sizeof(TableItem[0].Text)-1);
+  xstrncpy(TableItem[0].Text,MSG(MFindFileAllTables),sizeof(TableItem[0].Text)-1);
   TableItem[1].Flags=LIF_SEPARATOR;
-  strncpy(TableItem[2].Text,MSG(MGetTableNormalText),sizeof(TableItem[2].Text)-1);
-  strncpy(TableItem[3].Text,MSG(MGetTableWindowsText),sizeof(TableItem[3].Text)-1);
-  strncpy(TableItem[4].Text,"Unicode",sizeof(TableItem[4].Text)-1);
+  xstrncpy(TableItem[2].Text,MSG(MGetTableNormalText),sizeof(TableItem[2].Text)-1);
+  xstrncpy(TableItem[3].Text,MSG(MGetTableWindowsText),sizeof(TableItem[3].Text)-1);
+  xstrncpy(TableItem[4].Text,"Unicode",sizeof(TableItem[4].Text)-1);
 
   for (I=0;;I++)
   {
@@ -996,7 +998,7 @@ FindFiles::FindFiles()
     if (TableItem==NULL)
       return;
     memset(&TableItem[I+CHAR_TABLE_SIZE+1],0,sizeof(FarListItem));
-    strncpy(TableItem[I+CHAR_TABLE_SIZE+1].Text,cts.TableName,sizeof(TableItem[I+CHAR_TABLE_SIZE+1].Text)-1);
+    xstrncpy(TableItem[I+CHAR_TABLE_SIZE+1].Text,cts.TableName,sizeof(TableItem[I+CHAR_TABLE_SIZE+1].Text)-1);
     RemoveChar(TableItem[I+CHAR_TABLE_SIZE+1].Text,'&',TRUE);
     TableList.Items=TableItem;
     TableList.ItemsNumber++;
@@ -1104,13 +1106,13 @@ FindFiles::FindFiles()
       FindAskDlg[14].Selected=SearchInArchives;
     /* DJ $ */
 
-    strncpy(FindAskDlg[2].Data,FindMask,sizeof(FindAskDlg[2].Data)-1);
+    xstrncpy(FindAskDlg[2].Data,FindMask,sizeof(FindAskDlg[2].Data)-1);
 
     /* $ 26.10.2003 KM */
     if (SearchHex)
-      strncpy(FindAskDlg[6].Data,FindStr,sizeof(FindAskDlg[6].Data)-1);
+      xstrncpy(FindAskDlg[6].Data,FindStr,sizeof(FindAskDlg[6].Data)-1);
     else
-      strncpy(FindAskDlg[5].Data,FindStr,sizeof(FindAskDlg[5].Data)-1);
+      xstrncpy(FindAskDlg[5].Data,FindStr,sizeof(FindAskDlg[5].Data)-1);
     /* KM $ */
 
     FindAskDlg[11].Selected=CmpCase;
@@ -1184,7 +1186,7 @@ FindFiles::FindFiles()
     if (strlen (FindAskDlg[2].Data) > sizeof(FindMask) )
       ShowTruncateMessage(MFindFileMasks,sizeof(FindMask)-1);
 
-    strncpy(FindMask,*FindAskDlg[2].Data ? FindAskDlg[2].Data:"*",sizeof(FindMask)-1);
+    xstrncpy(FindMask,*FindAskDlg[2].Data ? FindAskDlg[2].Data:"*",sizeof(FindMask)-1);
 
     if (strlen((SearchHex)?FindAskDlg[5].Data:FindAskDlg[6].Data) > sizeof(FindStr))
       ShowTruncateMessage(MFindFileText,sizeof(FindStr)-1);
@@ -1192,18 +1194,18 @@ FindFiles::FindFiles()
     /* $ 26.10.2003 KM */
     if (SearchHex)
     {
-      strncpy(FindStr,FindAskDlg[6].Data,sizeof(FindStr)-1);
+      xstrncpy(FindStr,FindAskDlg[6].Data,sizeof(FindStr)-1);
       RemoveTrailingSpaces((char *)FindStr);
     }
     else
-      strncpy(FindStr,FindAskDlg[5].Data,sizeof(FindStr)-1);
+      xstrncpy(FindStr,FindAskDlg[5].Data,sizeof(FindStr)-1);
     /* KM $ */
 
     /* OT $ */
 
     if (*FindStr)
     {
-      strncpy(GlobalSearchString,FindStr,sizeof(GlobalSearchString)-1);
+      xstrncpy(GlobalSearchString,FindStr,sizeof(GlobalSearchString)-1);
       GlobalSearchCase=CmpCase;
       /* $ 30.07.2000 KM
          Добавлена переменная
@@ -1237,8 +1239,8 @@ FindFiles::FindFiles()
     LastSearchHex=SearchHex;
     LastSearchInArchives=SearchInArchives;
     LastSearchInSymLink=SearchInSymLink;
-    strncpy(LastFindMask,FindMask,sizeof(LastFindMask)-1);
-    strncpy(LastFindStr,FindStr,sizeof(LastFindStr)-1);
+    xstrncpy(LastFindMask,FindMask,sizeof(LastFindMask)-1);
+    xstrncpy(LastFindStr,FindStr,sizeof(LastFindStr)-1);
     if (*FindStr)
       Editor::SetReplaceMode(FALSE);
   } while (FindFilesProcess());
@@ -1272,7 +1274,7 @@ int FindFiles::GetPluginFile(DWORD ArcIndex, struct PluginPanelItem *PanelItem,
   char SaveDir[NM];
   struct OpenPluginInfo Info;
   CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
-  strncpy(SaveDir,Info.CurDir,sizeof(SaveDir)-1);
+  xstrncpy(SaveDir,Info.CurDir,sizeof(SaveDir)-1);
   AddEndSlash(SaveDir);
 
   CtrlObject->Plugins.SetDirectory(hPlugin,"\\",OPM_SILENT|OPM_FIND);
@@ -1282,7 +1284,7 @@ int FindFiles::GetPluginFile(DWORD ArcIndex, struct PluginPanelItem *PanelItem,
   PluginPanelItem NewItem = *PanelItem;
   char *FileName = PointToName(RemovePseudoBackSlash(NewItem.FindData.cFileName));
   if (FileName != NewItem.FindData.cFileName)
-    strncpy(NewItem.FindData.cFileName, FileName, sizeof(NewItem.FindData.cFileName));
+    xstrncpy(NewItem.FindData.cFileName, FileName, sizeof(NewItem.FindData.cFileName));
   int Result = CtrlObject->Plugins.GetFile(hPlugin,&NewItem,DestPath,ResultName,OPM_SILENT|OPM_FIND);
 
   CtrlObject->Plugins.SetDirectory(hPlugin,"\\",OPM_SILENT|OPM_FIND);
@@ -1486,7 +1488,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
             RemoveTemp=TRUE;
           }
           else
-            strncpy(SearchFileName,FindList[ItemIndex].FindData.cFileName,sizeof(SearchFileName)-1);
+            xstrncpy(SearchFileName,FindList[ItemIndex].FindData.cFileName,sizeof(SearchFileName)-1);
 
           DWORD FileAttr;
           if ((FileAttr=GetFileAttributes(SearchFileName))!=(DWORD)-1)
@@ -1567,7 +1569,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
                       Opt.Confirm.AllowReedit)
                   {
                     char MsgFullFileName[NM];
-                    strncpy(MsgFullFileName,SearchFileName,sizeof(MsgFullFileName)-1);
+                    xstrncpy(MsgFullFileName,SearchFileName,sizeof(MsgFullFileName)-1);
                     int MsgCode=Message(0,2,MSG(MFindFileTitle),
                           TruncPathStr(MsgFullFileName,ScrX-16),
                           MSG(MAskReload),
@@ -1796,7 +1798,7 @@ int FindFiles::FindFilesProcess()
     /* $ 24.09.2003 KM */
     char Temp[NM],FStr[NM*2];
 
-    strncpy(FStr,FindStr,sizeof(FStr)-1);
+    xstrncpy(FStr,FindStr,sizeof(FStr)-1);
     sprintf(Temp," \"%s\"",TruncStrFromEnd(FStr,10));
     sprintf(SearchStr,MSG(MFindSearchingIn),Temp);
     /* KM $ */
@@ -1948,7 +1950,7 @@ int FindFiles::FindFilesProcess()
           /* KM $ */
           {
             if (IsArchive)
-              strncpy(FindList[i].FindData.cFileName, ArcList[FindList[i].ArcIndex].ArcName,
+              xstrncpy(FindList[i].FindData.cFileName, ArcList[FindList[i].ArcIndex].ArcName,
                       sizeof(FindList[i].FindData.cFileName)-1);
             PluginPanelItem *pi=&PanelItems[ItemsNumber++];
             memset(pi,0,sizeof(*pi));
@@ -1999,10 +2001,10 @@ int FindFiles::FindFilesProcess()
         if (hPlugin == INVALID_HANDLE_VALUE)
         {
           char ArcName[NM],ArcPath[NM];
-          strncpy(ArcName,ArcList[FindList[FindExitIndex].ArcIndex].ArcName,sizeof(ArcName)-1);
+          xstrncpy(ArcName,ArcList[FindList[FindExitIndex].ArcIndex].ArcName,sizeof(ArcName)-1);
           if (FindPanel->GetType()!=FILE_PANEL)
             FindPanel=CtrlObject->Cp()->ChangePanel(FindPanel,FILE_PANEL,TRUE,TRUE);
-          strncpy(ArcPath,ArcName,sizeof(ArcPath)-1);
+          xstrncpy(ArcPath,ArcName,sizeof(ArcPath)-1);
           *PointToName(ArcPath)=0;
           FindPanel->SetCurDir(ArcPath,TRUE);
           hPlugin=((FileList *)FindPanel)->OpenFilePlugin(ArcName,FALSE);
@@ -2038,7 +2040,7 @@ int FindFiles::FindFilesProcess()
         {
           char *NamePtr;
           NamePtr=PointToName(FileName);
-          strncpy(SetName,NamePtr,sizeof(SetName)-1);
+          xstrncpy(SetName,NamePtr,sizeof(SetName)-1);
           *NamePtr=0;
           Length=strlen(FileName);
           if (Length>1 && FileName[Length-1]=='\\' && FileName[Length-2]!=':')
@@ -2101,7 +2103,7 @@ void FindFiles::SetPluginDirectory(char *DirName,HANDLE hPlugin,int UpdatePanel)
   else
     IsPluginDir=FALSE;
 
-  strncpy(Name,DirName,sizeof(Name)-1);
+  xstrncpy(Name,DirName,sizeof(Name)-1);
   StartName=Name;
   while(IsPluginDir?(EndName=strchr(StartName,'\x1'))!=NULL:(EndName=strchr(StartName,'\\'))!=NULL)
   /* KM $ */
@@ -2180,16 +2182,16 @@ void _cdecl FindFiles::PrepareFilesList(void *Param)
           if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0 || TestParentFolderName(SelName) ||
               strcmp(SelName,".")==0)
             continue;
-          strncpy(CurRoot,Root,sizeof(CurRoot)-1);
+          xstrncpy(CurRoot,Root,sizeof(CurRoot)-1);
           AddEndSlash(CurRoot);
           strcat(CurRoot,SelName);
         }
         else
-          strncpy(CurRoot,Root,sizeof(CurRoot)-1);
+          xstrncpy(CurRoot,Root,sizeof(CurRoot)-1);
 
         ScTree.SetFindPath(CurRoot,"*.*");
 
-        strncpy(FindMessage,CurRoot,sizeof(FindMessage)-1);
+        xstrncpy(FindMessage,CurRoot,sizeof(FindMessage)-1);
         FindMessage[sizeof(FindMessage)-1]=0;
         FindMessageReady=TRUE;
 
@@ -2214,7 +2216,7 @@ void _cdecl FindFiles::PrepareFilesList(void *Param)
             */
             if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
             {
-              strncpy(FindMessage,FullName,sizeof(FindMessage)-1);
+              xstrncpy(FindMessage,FullName,sizeof(FindMessage)-1);
               FindMessage[sizeof(FindMessage)-1]=0;
               FindMessageReady=TRUE;
             }
@@ -2304,18 +2306,18 @@ void FindFiles::ArchiveSearch(char *ArcName)
       /* $ 19.01.2003 KM
          Запомним пути поиска в плагине, они могут измениться.
       */
-      strncpy(SaveSearchPath,PluginSearchPath,2*NM);
+      xstrncpy(SaveSearchPath,PluginSearchPath,2*NM);
       /* KM $ */
-      strncpy(SaveDirName, LastDirName, NM);
+      xstrncpy(SaveDirName, LastDirName, NM);
       *LastDirName = 0;
       PreparePluginList((void *)1);
-      strncpy(PluginSearchPath,SaveSearchPath,2*NM);
+      xstrncpy(PluginSearchPath,SaveSearchPath,2*NM);
       WaitForSingleObject(hPluginMutex,INFINITE);
       CtrlObject->Plugins.ClosePlugin(ArcList[FindFileArcIndex].hPlugin);
       ArcList[FindFileArcIndex].hPlugin = INVALID_HANDLE_VALUE;
       ReleaseMutex(hPluginMutex);
       if (SaveListCount == FindListCount)
-        strncpy(LastDirName, SaveDirName, NM);
+        xstrncpy(LastDirName, SaveDirName, NM);
     }
     /* VVM $ */
   }
@@ -2371,7 +2373,7 @@ int FindFiles::IsFileIncluded(PluginPanelItem *FileItem,char *FullName,DWORD Fil
         RemoveTemp=TRUE;
       }
       else
-        strncpy(SearchFileName,FullName,sizeof(SearchFileName)-1);
+        xstrncpy(SearchFileName,FullName,sizeof(SearchFileName)-1);
       if (LookForString(SearchFileName))
         FileFound=TRUE;
       if (RemoveTemp)
@@ -2475,7 +2477,7 @@ void FindFiles::AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData)
   sprintf(MenuText," %-*.*s",DlgWidth-3,DlgWidth-3,FileText);
 
   char PathName[2*NM];
-  strncpy(PathName,FullName,sizeof(PathName)-1);
+  xstrncpy(PathName,FullName,sizeof(PathName)-1);
   PathName[sizeof(PathName)-1]=0;
 
   RemovePseudoBackSlash(PathName);
@@ -2501,7 +2503,7 @@ void FindFiles::AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData)
       ListItem.Flags&=~LIF_DISABLE;
       /* DJ $ */
     }
-    strncpy(LastDirName,PathName,sizeof(LastDirName)-1);
+    xstrncpy(LastDirName,PathName,sizeof(LastDirName)-1);
     if ((FindFileArcIndex != LIST_INDEX_NONE) &&
         (!(ArcList[FindFileArcIndex].Flags & OPIF_REALNAMES)) &&
         (ArcList[FindFileArcIndex].ArcName) &&
@@ -2509,9 +2511,9 @@ void FindFiles::AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData)
     {
       char ArcPathName[NM*2];
       sprintf(ArcPathName,"%s:%s",ArcList[FindFileArcIndex].ArcName,*PathName=='.' ? "\\":PathName);
-      strncpy(PathName,ArcPathName,sizeof(PathName)-1);
+      xstrncpy(PathName,ArcPathName,sizeof(PathName)-1);
     }
-    strncpy(SizeText,MSG(MFindFileFolder),sizeof(SizeText)-1);
+    xstrncpy(SizeText,MSG(MFindFileFolder),sizeof(SizeText)-1);
     sprintf(FileText,"%-50.50s  <%6.6s>",TruncPathStr(PathName,50),SizeText);
     sprintf(ListItem.Name,"%-*.*s",DlgWidth-2,DlgWidth-2,FileText);
 
@@ -2521,7 +2523,7 @@ void FindFiles::AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData)
       // Сбросим данные в FindData. Они там от файла
       memset(&FindList[ItemIndex].FindData,0,sizeof(FindList[ItemIndex].FindData));
       // Используем LastDirName, т.к. PathName уже может быть искажена
-      strncpy(FindList[ItemIndex].FindData.cFileName, LastDirName,
+      xstrncpy(FindList[ItemIndex].FindData.cFileName, LastDirName,
               sizeof(FindList[ItemIndex].FindData.cFileName)-1);
       /* $ 07.04.2002 KM
         - Вместо пустого имени используем флаг, в противном
@@ -2551,7 +2553,7 @@ void FindFiles::AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData)
   DWORD ItemIndex = AddFindListItem(FindData);
   if (ItemIndex != LIST_INDEX_NONE)
   {
-    strncpy(FindList[ItemIndex].FindData.cFileName, FullName,
+    xstrncpy(FindList[ItemIndex].FindData.cFileName, FullName,
             sizeof(FindList[ItemIndex].FindData.cFileName)-1);
     /* $ 07.04.2002 KM
        Used=1 - Имя попададёт во временную панель.
@@ -2561,7 +2563,7 @@ void FindFiles::AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData)
     if (FindFileArcIndex != LIST_INDEX_NONE)
       FindList[ItemIndex].ArcIndex = FindFileArcIndex;
   }
-  strncpy(ListItem.Name,MenuText,sizeof(ListItem.Name)-1);
+  xstrncpy(ListItem.Name,MenuText,sizeof(ListItem.Name)-1);
   /* $ 17.01.2002 VVM
     ! Выделять будем не в структуре, а в списке. Дабы не двоилось выделение */
 //  ListItem.SetSelect(!FindFileCount);
@@ -2620,7 +2622,7 @@ int FindFiles::LookForString(char *Name)
     Length=LenCmpStr;
   }
   else
-    strncpy(CmpStr,FindStr,sizeof(CmpStr)-1);
+    xstrncpy(CmpStr,FindStr,sizeof(CmpStr)-1);
   /* KM $ */
 
   if (!CmpCase && !SearchHex)
@@ -2766,7 +2768,7 @@ int FindFiles::LookForString(char *Name)
       {
         if (PrepareTable(&TableSet,DecodeTableNum++,TRUE))
         {
-          strncpy(CmpStr,FindStr,sizeof(CmpStr)-1);
+          xstrncpy(CmpStr,FindStr,sizeof(CmpStr)-1);
           if (!CmpCase)
             LocalStrupr(CmpStr);
         }
@@ -2820,7 +2822,7 @@ void _cdecl FindFiles::PreparePluginList(void *Param)
   HANDLE hPlugin=ArcList[FindFileArcIndex].hPlugin;
   struct OpenPluginInfo Info;
   CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
-  strncpy(SaveDir,Info.CurDir,sizeof(SaveDir)-1);
+  xstrncpy(SaveDir,Info.CurDir,sizeof(SaveDir)-1);
   WaitForSingleObject(hPluginMutex,INFINITE);
   if (SearchMode==SEARCH_ROOT ||
       SearchMode==SEARCH_ALL ||
@@ -2876,7 +2878,7 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
      одинаковых папок по списку.
   */
 //  if (PanelData && strlen(PointToName(PanelData->FindData.cFileName))>0)
-//    qsort((void *)PanelData,ItemCount,sizeof(*PanelData),SortItems);
+//    far_qsort((void *)PanelData,ItemCount,sizeof(*PanelData),SortItems);
   /* KM $ */
   /* KM $ */
 
@@ -2895,7 +2897,7 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
 //      char AddPath[2*NM];
       if (Flags & OPIF_REALNAMES)
       {
-        strncpy(FullName,CurName,sizeof(FullName)-1);
+        xstrncpy(FullName,CurName,sizeof(FullName)-1);
 //        strcpy(AddPath,CurName);
 //        *PointToName(AddPath)=0;
       }
@@ -2921,7 +2923,7 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
         */
         if (CurPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
         {
-          strncpy(FindMessage,FullName,sizeof(FindMessage)-1);
+          xstrncpy(FindMessage,FullName,sizeof(FindMessage)-1);
           FindMessage[sizeof(FindMessage)-1]=0;
           RemovePseudoBackSlash(FindMessage);
           FindMessageReady=TRUE;
@@ -3035,7 +3037,7 @@ void _cdecl FindFiles::WriteDialogData(void *Param)
           /* $ 24.09.2003 KM */
           char Temp[NM],FStr[NM*2];
 
-          strncpy(FStr,FindStr,sizeof(FStr)-1);
+          xstrncpy(FStr,FindStr,sizeof(FStr)-1);
           sprintf(Temp," \"%s\"",TruncStrFromEnd(FStr,10));
           sprintf(SearchStr,MSG(MFindSearchingIn),Temp);
           /* KM $ */
@@ -3052,7 +3054,7 @@ void _cdecl FindFiles::WriteDialogData(void *Param)
             Sleep(10);
           Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
 
-          strncpy(DataStr,MSG(MFindCancel),sizeof(DataStr)-1);
+          xstrncpy(DataStr,MSG(MFindCancel),sizeof(DataStr)-1);
           ItemData.PtrData=DataStr;
           ItemData.PtrLength=strlen(DataStr);
           Dialog::SendDlgMessage(hDlg,DM_SETTEXT,9,(long)&ItemData);
@@ -3141,11 +3143,11 @@ DWORD FindFiles::AddArcListItem(const char *ArcName, HANDLE hPlugin,
   if ((ArcListCount == ArcListCapacity) &&
       (!ArcListGrow()))
     return(LIST_INDEX_NONE);
-  strncpy(ArcList[ArcListCount].ArcName, NullToEmpty(ArcName),
+  xstrncpy(ArcList[ArcListCount].ArcName, NullToEmpty(ArcName),
           sizeof(ArcList[ArcListCount].ArcName)-1);
   ArcList[ArcListCount].hPlugin = hPlugin;
   ArcList[ArcListCount].Flags = dwFlags;
-  strncpy(ArcList[ArcListCount].RootPath, NullToEmpty(RootPath),
+  xstrncpy(ArcList[ArcListCount].RootPath, NullToEmpty(RootPath),
           sizeof(ArcList[ArcListCount].RootPath)-1);
   AddEndSlash(ArcList[ArcListCount].RootPath);
   return(ArcListCount++);
@@ -3184,7 +3186,7 @@ char *FindFiles::PrepareDriveNameStr(char *SearchFromRoot,size_t sz)
 
   if (*CurDir==0 || PluginMode)
   {
-    strncpy(SearchFromRoot,MSG(MSearchFromRoot),sz-1);
+    xstrncpy(SearchFromRoot,MSG(MSearchFromRoot),sz-1);
   }
   else
   {

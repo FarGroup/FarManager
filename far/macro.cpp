@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.124 06.08.2004 $ */
+/* Revision: 1.125 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   06.08.2004 SVS
     ! Новое содержимое fsplitFunc
   05.08.2004 SVS
@@ -583,7 +585,7 @@ BOOL WINAPI KeyMacroToText(int Key,char *KeyText0,int Size)
     return FALSE;
   }
   if(Size > 0)
-    strncpy(KeyText0,KeyText,Size);
+    xstrncpy(KeyText0,KeyText,Size);
   else
     strcpy(KeyText0,KeyText);
 
@@ -1257,7 +1259,7 @@ static BOOL SplitFileName(const char *FileName,char *Dest,int nFlags)
       p = es;
 
     if ( (nFlags & FLAG_DISK) == FLAG_DISK )
-      strncpy (Dest, s, p-s);
+      xstrncpy (Dest, s, p-s);
   }
   else
   {
@@ -1345,7 +1347,7 @@ static TVar metaFunc(TVar *param)
   {
     char SubstText[512];
     char Name[NM],ShortName[NM];
-    strncpy(SubstText,s,sizeof(SubstText)-1);
+    xstrncpy(SubstText,s,sizeof(SubstText)-1);
     SubstFileName(SubstText,sizeof (SubstText),Name,ShortName,NULL,NULL,TRUE);
     return TVar(SubstText);
   }
@@ -1928,7 +1930,7 @@ char *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize,const char *Src)
     if((((DWORD)Buffer)&KEY_MACRO_ENDBASE) >= KEY_MACRO_BASE && (((DWORD)Buffer)&KEY_MACRO_ENDBASE) <= KEY_MACRO_ENDBASE)
     {
       xf_free(TextBuffer);
-      return Src?strdup(Src):NULL;
+      return Src?xf_strdup(Src):NULL;
     }
 
     if(KeyToText((DWORD)Buffer,MacroKeyText))
@@ -1943,7 +1945,7 @@ char *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize,const char *Src)
     if((Key&KEY_MACRO_ENDBASE) >= KEY_MACRO_BASE && (Key&KEY_MACRO_ENDBASE) <= KEY_MACRO_ENDBASE || !KeyToText(Key,MacroKeyText))
     {
       xf_free(TextBuffer);
-      return Src?strdup(Src):NULL;
+      return Src?xf_strdup(Src):NULL;
     }
     if(J)
       strcat(TextBuffer," ");
@@ -2076,7 +2078,7 @@ int KeyMacro::ReadMacros(int ReadMode,char *Buffer,int BufferSize)
       return FALSE;
     }
     MacroLIB=NewMacros;
-    CurMacro.Src=strdup(Buffer);
+    CurMacro.Src=xf_strdup(Buffer);
     memcpy(MacroLIB+MacroLIBCount,&CurMacro,sizeof(CurMacro));
     MacroLIBCount++;
   }
@@ -2220,7 +2222,7 @@ long WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Par
         *KeyText=0;
         while(NULL!=(OneKey=KeybList.GetNext()))
         {
-          strncpy(KeyText, OneKey, sizeof(KeyText)-1);
+          xstrncpy(KeyText, OneKey, sizeof(KeyText)-1);
           Dialog::SendDlgMessage(hDlg,DM_LISTADDSTR,2,(long)KeyText);
         }
       }
@@ -3535,7 +3537,7 @@ void KeyMacro::Sort(void)
 {
   typedef int (__cdecl *qsort_fn)(const void*,const void*);
   // сортируем
-  qsort(MacroLIB,
+  far_qsort(MacroLIB,
         MacroLIBCount,
         sizeof(struct MacroRecord),
         (qsort_fn)SortMacros);

@@ -5,10 +5,12 @@ fnparce.cpp
 
 */
 
-/* Revision: 1.20 01.03.2004 $ */
+/* Revision: 1.21 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   01.03.2004 SVS
     ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
       (задел на будущее + править впоследствии только 1 файл)
@@ -299,7 +301,7 @@ static char *_SubstFileName(char *CurStr,struct TSubstData *PSubstData,char *Tmp
       if(Ptr[1] != '?')
       {
         *Ptr=0;
-        strncpy(Modifers,CurStr+2,sizeof(Modifers)-1);
+        xstrncpy(Modifers,CurStr+2,sizeof(Modifers)-1);
         /* $ 02.09.2000 tran
            !@!, !#!@! bug */
         if(ListName!=NULL)
@@ -356,7 +358,7 @@ static char *_SubstFileName(char *CurStr,struct TSubstData *PSubstData,char *Tmp
       if(Ptr[1] != '?')
       {
         *Ptr=0;
-        strncpy(Modifers,CurStr+2,MaxTempStrSize-1);
+        xstrncpy(Modifers,CurStr+2,MaxTempStrSize-1);
         /* $ 02.09.2000 tran
            !@!, !#!@! bug */
         if(PSubstData->ShortListName!=NULL)
@@ -698,7 +700,7 @@ int SubstFileName(char *Str,            // результирующая строка
   if (strlen(Str) <= sizeof(TmpStr2)-1)       //we need TmpStr2  because need spase for replace !??!
     strcpy(TmpStr2,Str);
   else
-    strncpy(TmpStr2,Str,sizeof(TmpStr2)-1);
+    xstrncpy(TmpStr2,Str,sizeof(TmpStr2)-1);
 
   if (!IgnoreInput)
     ReplaceVariables(TmpStr2,PSubstData);
@@ -724,7 +726,7 @@ int SubstFileName(char *Str,            // результирующая строка
   //  ReplaceVariables(TmpStr);
   //<Skeleton>
 
-  strncpy(Str,TmpStr,StrSize-1);
+  xstrncpy(Str,TmpStr,StrSize-1);
 
   //_SVS(SysLog("[%s]\n",Str));
   return(PSubstData->PreserveLFN);
@@ -796,14 +798,14 @@ int ReplaceVariables(char *Str,struct TSubstData *PSubstData)
 
     char Title[256];
     //<Skeleton 2003 11 22>
-    //strncpy(Title,Str,sizeof(Title)-1);
+    //xstrncpy(Title,Str,sizeof(Title)-1);
     //*strchr(Title,'!')=0;
     //Str+=strlen(Title)+1;
     //char *SrcText=strchr(Title,'?');
     //if (SrcText!=NULL)
     //{
     //  *SrcText=0;
-    //  strncpy(DlgData[DlgSize+1].Data.Data,SrcText+1,sizeof(DlgData[DlgSize+1].Data.Data)-1);
+    //  xstrncpy(DlgData[DlgSize+1].Data.Data,SrcText+1,sizeof(DlgData[DlgSize+1].Data.Data)-1);
     //}
 
     char Title2[512];
@@ -882,7 +884,7 @@ int ReplaceVariables(char *Str,struct TSubstData *PSubstData)
       t = Title1;
     }
     //do it - типа здесь все уже раскрыто и преобразовано
-    strncpy(DlgData[DlgSize].Data,t,sizeof(DlgData[DlgSize].Data)-1);
+    xstrncpy(DlgData[DlgSize].Data,t,sizeof(DlgData[DlgSize].Data)-1);
 
     // Заполняем поле ввода заданным шаблоном - если есть
     char *s = Txt;
@@ -925,7 +927,7 @@ int ReplaceVariables(char *Str,struct TSubstData *PSubstData)
       strcat(Txt1,Title2);
       s = Txt1;
     }
-    strncpy(DlgData[DlgSize+1].Data,s,sizeof(DlgData[DlgSize+1].Data)-1);
+    xstrncpy(DlgData[DlgSize+1].Data,s,sizeof(DlgData[DlgSize+1].Data)-1);
 
 
     xf_free(Title1);
@@ -972,7 +974,7 @@ int ReplaceVariables(char *Str,struct TSubstData *PSubstData)
   {
     int Replace=-1;
     //<Skeleton 2003 11 22>
-    int end_pos;
+    int end_pos=0;
     for (int I=0;I<StrPosSize;I++)
       if (Str-StartStr==StrPos[I])
       {

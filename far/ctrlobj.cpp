@@ -5,10 +5,12 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.53 06.05.2004 $ */
+/* Revision: 1.54 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   06.05.2004 SVS
     - BugZ#1069 - cosmetic bug: прорисовка меню невто время.
   18.12.2003 SVS
@@ -216,7 +218,7 @@ void ControlObject::Init()
   GotoXY(0,ScrY-2);
 
   char TruncRegName[512];
-  strncpy(TruncRegName,RegName,sizeof(TruncRegName)-1);
+  xstrncpy(TruncRegName,RegName,sizeof(TruncRegName)-1);
   char *CountPtr=strstr(TruncRegName," - (");
   if (CountPtr!=NULL && isdigit(CountPtr[4]) && strchr(CountPtr+5,'/')!=NULL &&
       strchr(CountPtr+6,')')!=NULL)

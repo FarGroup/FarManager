@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.161 14.06.2004 $ */
+/* Revision: 1.162 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   14.06.2004 SVS
     + UnExpandEnvString() и PathUnExpandEnvStr().
       Функции закомменчены, т.к. пока сейчас непотребны, а в будущем - чтобы не потерялись
@@ -559,7 +561,7 @@ void RestoreAllCurDir(UserDefinedList *DirList)
   const char *NamePtr;
   while(NULL!=(NamePtr=DirList->GetNext()))
   {
-    strncpy(Drive,NamePtr,sizeof(Drive)-1);
+    xstrncpy(Drive,NamePtr,sizeof(Drive)-1);
     if((NamePtr=DirList->GetNext()) != NULL)
       SetEnvironmentVariable(Drive,(*NamePtr == '\x1'?"":NamePtr));
   }
@@ -613,7 +615,7 @@ BOOL FarChDir(const char *NewDir, BOOL ChangeDir)
   }
   else
   {
-    strncpy(CurDir,NewDir,sizeof(CurDir)-1);
+    xstrncpy(CurDir,NewDir,sizeof(CurDir)-1);
     if(!strcmp(CurDir,"\\"))
       FarGetCurDir(sizeof(CurDir),CurDir); // здесь берем корень
     char *Chr=CurDir;
@@ -1154,7 +1156,7 @@ typedef BOOL (WINAPI *GETDISKFREESPACEEX)(
    );
   static GETDISKFREESPACEEX pGetDiskFreeSpaceEx=NULL;
   static int LoadAttempt=FALSE;
-  int ExitCode;
+  int ExitCode=0;
 
   ULARGE_INTEGER uiTotalSize,uiTotalFree,uiUserFree;
   uiUserFree.u.LowPart=uiUserFree.u.HighPart=0;
@@ -1277,10 +1279,10 @@ DWORD WINAPI ExpandEnvironmentStr(const char *src, char *dest, size_t size)
      DWORD Len = ExpandEnvironmentStrings(tmpSrc,tmpDest,size);
      if (Len <= size)
      /* VVM $ */
-       strncpy(dest, tmpDest, size-1);
+       xstrncpy(dest, tmpDest, size-1);
      else
      {
-       strncpy(tmpDest, tmpSrc, size-1);
+       xstrncpy(tmpDest, tmpSrc, size-1);
        strcpy(dest, tmpDest);
      }
      FAR_CharToOem(dest, dest);
@@ -1310,7 +1312,7 @@ BOOL UnExpandEnvString(const char *Path, const char *EnvVar, char* Dest, int Des
   {
     if (strlen(Path)-I+strlen(EnvVar) < DestSize)
     {
-      strncpy(Dest, EnvVar, DestSize-1);
+      xstrncpy(Dest, EnvVar, DestSize-1);
       strncat(Dest, Path + I, DestSize-1);
       return TRUE;
     }
@@ -1335,7 +1337,7 @@ BOOL PathUnExpandEnvStr(const char *Path, char* Dest, int DestSize)
     if(UnExpandEnvironmentString(Path, StdEnv[I], Dest, DestSize))
       return TRUE;
   }
-  strncpy(Dest, Path, DestSize-1);
+  xstrncpy(Dest, Path, DestSize-1);
   return FALSE;
 
 }
@@ -1416,7 +1418,7 @@ char* FarMkTempEx(char *Dest, const char *Prefix, BOOL WithPath)
       strcpy(TempName,Opt.TempPath);
     strcat(TempName,"0000XXXXXXXX");
     memcpy(TempName+strlen(TempName)-12,Prefix,Min((int)strlen(Prefix),4));
-    if (mktemp(TempName)!=NULL)
+    if (farmktemp(TempName)!=NULL)
     {
       strcpy(Dest,strupr(TempName));
       return Dest;
@@ -1632,7 +1634,7 @@ char* PrepareDiskPath(char *Path,int MaxSize,BOOL CheckFullPath)
         *NPath=0;
         RawConvertShortNameToLongName(Path,NPath,sizeof(NPath));
         if(*NPath)
-          strncpy(Path,NPath,MaxSize);
+          xstrncpy(Path,NPath,MaxSize);
       }
       /* $ 03.12.2001 DJ
          RawConvertShortNameToLongName() не апперкейсит первую букву Path
@@ -1664,7 +1666,7 @@ int CheckShortcutFolder(char *TestPath,int LengthPath,int IsHostFile, BOOL Silen
     char Target[NM];
     int FoundPath=0;
 
-    strncpy(Target, TestPath, sizeof(Target)-1);
+    xstrncpy(Target, TestPath, sizeof(Target)-1);
     TruncPathStr(Target, ScrX-16);
 
     if(IsHostFile)
@@ -1680,7 +1682,7 @@ int CheckShortcutFolder(char *TestPath,int LengthPath,int IsHostFile, BOOL Silen
       {
         char *Ptr;
         char TestPathTemp[1024];
-        strncpy(TestPathTemp,TestPath,sizeof(TestPathTemp)-1);
+        xstrncpy(TestPathTemp,TestPath,sizeof(TestPathTemp)-1);
         while((Ptr=strrchr(TestPathTemp,'\\')) != NULL)
         {
           *Ptr=0;
@@ -1691,7 +1693,7 @@ int CheckShortcutFolder(char *TestPath,int LengthPath,int IsHostFile, BOOL Silen
             {
               if(!(TestPath[0] == '\\' && TestPath[1] == '\\' && TestPathTemp[1] == 0))
               {
-                strncpy(TestPath,TestPathTemp,LengthPath);
+                xstrncpy(TestPath,TestPathTemp,LengthPath);
                 if(strlen(TestPath) == 2) // для случая "C:", иначе попадем в текущий каталог диска C:
                   AddEndSlash(TestPath);
                 FoundPath=1;
@@ -1846,7 +1848,7 @@ void Transform(unsigned char *Buffer,int &BufLen,const char *ConvStr,char Transf
       for (I=0,J=0;I<N;I+=2,J++)
       {
         // "HH" - два входящих символа на каждый один выходящий
-        strncpy(HexNum,&NewStr[I],2);
+        xstrncpy(HexNum,&NewStr[I],2);
         HexNum[2]=0;
         unsigned long value=strtoul(HexNum,&stop,16);
         Buffer[J]=value;
@@ -1872,7 +1874,7 @@ int PartCmdLine(const char *CmdStr,char *NewCmdStr,int SizeNewCmdStr,char *NewCm
   int PipeFound = FALSE;
   int QuoteFound = FALSE;
 
-  strncpy(NewCmdStr,CmdStr,SizeNewCmdStr-1);
+  xstrncpy(NewCmdStr,CmdStr,SizeNewCmdStr-1);
   RemoveExternalSpaces(NewCmdStr);
 
   char *CmdPtr = NewCmdStr;
@@ -1912,10 +1914,10 @@ int PartCmdLine(const char *CmdStr,char *NewCmdStr,int SizeNewCmdStr,char *NewCm
     if (*ParPtr=='/')
     {
       *NewCmdPar=0x20;
-      strncpy(NewCmdPar+1, ParPtr, SizeNewCmdPar-2);
+      xstrncpy(NewCmdPar+1, ParPtr, SizeNewCmdPar-2);
     }
     else
-      strncpy(NewCmdPar, ParPtr, SizeNewCmdPar-1);
+      xstrncpy(NewCmdPar, ParPtr, SizeNewCmdPar-1);
     *ParPtr = 0;
   }
 
@@ -1959,7 +1961,7 @@ BOOL ProcessOSAliases(char *Str,int SizeStr)
   if(b > 0)
   {
     strncat(NewCmdStr,NewCmdPar,sizeof(NewCmdStr)-1);
-    strncpy(Str,NewCmdStr,SizeStr-1);
+    xstrncpy(Str,NewCmdStr,SizeStr-1);
     return TRUE;
   }
 #endif

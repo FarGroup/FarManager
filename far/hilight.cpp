@@ -5,10 +5,12 @@ Files highlighting
 
 */
 
-/* Revision: 1.45 22.09.2003 $ */
+/* Revision: 1.46 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   22.09.2003 SVS
     - В раскрасках файлов если нажать CtrlUp на самой верхней
       раскраске она становится второй! (по крайней мере нелогично)
@@ -273,7 +275,7 @@ BOOL HighlightFiles::AddMask(struct HighlightData *Dest,char *Mask,BOOL IgnoreMa
     memmove(Ptr,Ptr+IQ1,strlen(Ptr+IQ1)+1);
 
     char Tmp1[HIGHLIGHT_MASK_SIZE], *pSeparator;
-    strncpy(Tmp1, Mask,sizeof(Tmp1)-1);
+    xstrncpy(Tmp1, Mask,sizeof(Tmp1)-1);
     pSeparator=strchr(Tmp1, EXCLUDEMASKSEPARATOR);
     if(pSeparator)
     {
@@ -283,7 +285,7 @@ BOOL HighlightFiles::AddMask(struct HighlightData *Dest,char *Mask,BOOL IgnoreMa
       else
       {
         char Tmp2[HIGHLIGHT_MASK_SIZE];
-        strncpy(Tmp2, pSeparator+1,sizeof(Tmp2)-1);
+        xstrncpy(Tmp2, pSeparator+1,sizeof(Tmp2)-1);
         *pSeparator=0;
         Add_PATHEXT(Tmp1);
         sprintf(Mask, "%s|%s", Tmp1, Tmp2);
@@ -367,7 +369,7 @@ void HighlightFiles::GetHiColor(char *Path,int Attr,
 {
   struct FileListItem FileItem;
   if(Path)
-    strncpy(FileItem.Name,Path,sizeof(FileItem.Name)-1);
+    xstrncpy(FileItem.Name,Path,sizeof(FileItem.Name)-1);
   else
     *FileItem.Name=0;
   FileItem.FileAttr=Attr;
@@ -897,7 +899,7 @@ int HighlightFiles::DupHighlightData(struct HighlightData *EditData,char *Mask,B
   struct HighlightData HData={0};
   char TmpMask[HIGHLIGHT_MASK_SIZE];
 
-  strncpy(TmpMask,Mask,sizeof(TmpMask)-1);
+  xstrncpy(TmpMask,Mask,sizeof(TmpMask)-1);
   if(!AddMask(&HData,TmpMask,IgnoreMask,EditData))
     return FALSE;
 

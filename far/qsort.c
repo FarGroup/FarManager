@@ -5,10 +5,12 @@ To implement the qsort() routine for sorting arrays.
 
 */
 
-/* Revision: 1.02 15.10.2003 $ */
+/* Revision: 1.03 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   15.10.2003 SVS
     ! небольшой перетрях сорцов
   08.07.2003 SVS
@@ -39,7 +41,7 @@ void __cdecl qsort_m(
     size_t width,
     int (__cdecl *comp)(const void *, const void *));
 
-void __cdecl qsort (
+void __cdecl far_qsort (
     void *base,
     size_t num,
     size_t width,
@@ -687,5 +689,5 @@ static void  swap_m(
 #if defined(__BORLANDC__)
 #pragma intrinsic -memcpy
 #else
-#pragma intrinsic -(memcpy)
+//#pragma intrinsic -(memcpy)
 #endif

@@ -5,10 +5,12 @@ flink.cpp
 
 */
 
-/* Revision: 1.44 08.06.2004 $ */
+/* Revision: 1.45 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   08.06.2004 SVS
     ! Вместо GetDriveType теперь вызываем FAR_GetDriveType().
     ! Вместо "DriveType==DRIVE_CDROM" вызываем IsDriveTypeCDROM()
@@ -323,7 +325,7 @@ BOOL WINAPI CreateJunctionPoint(LPCTSTR SrcFolder,LPCTSTR LinkFolder)
 
   char szDestDir[1024];
   if (SrcFolder[0] == '\\' && SrcFolder[1] == '?')
-    strncpy(szDestDir, SrcFolder,sizeof(szDestDir)-1);
+    xstrncpy(szDestDir, SrcFolder,sizeof(szDestDir)-1);
   else
   {
     LPTSTR pFilePart;
@@ -849,7 +851,7 @@ BOOL GetSubstName(int DriveType,char *LocalName,char *SubstName,int SubstSize)
       {
         if (!strncmp(Name,"\\??\\",4))
         {
-          strncpy(SubstName,Name+4,SubstSize-1);
+          xstrncpy(SubstName,Name+4,SubstSize-1);
           return TRUE;
         }
       }
@@ -857,7 +859,7 @@ BOOL GetSubstName(int DriveType,char *LocalName,char *SubstName,int SubstSize)
       {
         if(Name[1] == ':' && Name[2] == '\\')
         {
-          strncpy(SubstName,Name,SubstSize-1);
+          xstrncpy(SubstName,Name,SubstSize-1);
           return TRUE;
         }
       }
@@ -870,7 +872,7 @@ BOOL GetSubstName(int DriveType,char *LocalName,char *SubstName,int SubstSize)
 void GetPathRootOne(const char *Path,char *Root)
 {
   char TempRoot[2048],*ChPtr;
-  strncpy(TempRoot,Path,NM-1);
+  xstrncpy(TempRoot,Path,NM-1);
 
   if (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5)
   {
@@ -915,7 +917,7 @@ void GetPathRootOne(const char *Path,char *Root)
       FarGetCurDir(sizeof(Temp)-2,Temp);
       AddEndSlash(Temp);
       strcat(Temp,TempRoot); //+(*TempRoot=='\\' || *TempRoot == '/'?1:0)); //??
-      strncpy(TempRoot,Temp,sizeof(TempRoot)-1);
+      xstrncpy(TempRoot,Temp,sizeof(TempRoot)-1);
     }
 
     if (TempRoot[0]=='\\' && TempRoot[1]=='\\')
@@ -935,7 +937,7 @@ void GetPathRootOne(const char *Path,char *Root)
           strcpy(ChPtr+1,"\\");
     }
   }
-  strncpy(Root,TempRoot,NM-1);
+  xstrncpy(Root,TempRoot,NM-1);
 }
 
 // полный проход ПО!!!
@@ -949,18 +951,18 @@ static void _GetPathRoot(const char *Path,char *Root,int Reenter)
     ! Учтем UNC пути */
   int IsUNC = FALSE;
   int PathLen = strlen(Path);
-  strncpy(NewPath, Path, sizeof(NewPath)-1);
+  xstrncpy(NewPath, Path, sizeof(NewPath)-1);
   // Проверим имя на UNC
   if (PathLen > 2 && Path[0] == '\\' && Path[1] == '\\')
   {
     if (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT &&
         PathLen > 3 && Path[2] == '?' && Path[3] == '\\')
     { // Проверим на длинное UNC имя под NT
-      strncpy(NewPath, &Path[4], sizeof(NewPath)-1);
+      xstrncpy(NewPath, &Path[4], sizeof(NewPath)-1);
       if (PathLen > 8 && strncmp(NewPath, "UNC\\", 4)==0)
       {
         IsUNC = TRUE;
-        strncpy(NewPath, "\\",  sizeof(NewPath)-1);
+        xstrncpy(NewPath, "\\",  sizeof(NewPath)-1);
         strncat(NewPath, &Path[7], sizeof(NewPath)-1);
       }
     }
@@ -975,7 +977,7 @@ static void _GetPathRoot(const char *Path,char *Root,int Reenter)
     DWORD FileAttr;
     char JuncName[NM];
 
-    strncpy(TempRoot,NewPath,sizeof(TempRoot)-1);
+    xstrncpy(TempRoot,NewPath,sizeof(TempRoot)-1);
     TmpPtr=TempRoot;
 
     char *CtlChar = NULL; // Указатель на начало реального пути в UNC. Без имени сервера
@@ -1040,11 +1042,11 @@ int WINAPI FarGetReparsePointInfo(const char *Src,char *Dest,int DestSize)
   if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5 && Src && *Src)
   {
       char Src2[2048];
-      strncpy(Src2,Src,sizeof(Src2)-1);
+      xstrncpy(Src2,Src,sizeof(Src2)-1);
       /* $ 27.09.2001 IS
          ! Выделяем столько памяти, сколько нужно.
          - Использовали размер указателя, а не размер буфера.
-         - Указывали не верный размер для strncpy
+         - Указывали не верный размер для xstrncpy
       */
       int TempSize=Max((int)(strlen(Src2)+1),DestSize);
       char *TempDest=(char *)alloca(TempSize);
@@ -1067,7 +1069,7 @@ int WINAPI FarGetReparsePointInfo(const char *Src,char *Dest,int DestSize)
       }
 #endif
       if(Size && Dest)
-        strncpy(Dest,TempDest,DestSize-1);
+        xstrncpy(Dest,TempDest,DestSize-1);
       /* IS $ */
 //      _LOGCOPYR(SysLog("return -> %d Dest='%s'",__LINE__,Dest));
       return Size;

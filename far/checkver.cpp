@@ -5,10 +5,12 @@ checkver.cpp
 
 */
 
-/* Revision: 1.12 09.02.2004 $ */
+/* Revision: 1.13 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   09.02.2004 SVS
     ! Про регистрацию:
       Запись = HKLM, если не удалось, то в HKCU
@@ -149,8 +151,8 @@ void Register()
   if (Dlg.GetExitCode()!=6)
     return;
   char RegName[256],RegCode[256],RegData[256];
-  strncpy(RegName,RegDlg[2].Data,sizeof(RegName)-1);
-  strncpy(RegCode,RegDlg[4].Data,sizeof(RegCode)-1);
+  xstrncpy(RegName,RegDlg[2].Data,sizeof(RegName)-1);
+  xstrncpy(RegCode,RegDlg[4].Data,sizeof(RegCode)-1);
   int Length=strlen(RegName);
   if (*RegName==0 || *RegCode==0)
     return;
@@ -234,9 +236,9 @@ void __cdecl CheckReg(void *Param)
       RegData[I]^=RegData[0];
     for (I=0;I<Size;I++)
       RegData[I]^=I+7;
-    strncpy(RegName,RegData+3,RegData[1]);
+    xstrncpy(RegName,RegData+3,RegData[1]);
     RegName[RegData[1]]=0;
-    strncpy(RegCode,RegData+RegData[1]+3,RegData[2]);
+    xstrncpy(RegCode,RegData+RegData[1]+3,RegData[2]);
     RegCode[RegData[2]]=0;
     RegVer=1;
     unsigned char Xor=17;

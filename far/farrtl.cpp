@@ -4,10 +4,12 @@ farrtl.cpp
 Переопределение функций работы с памятью: new/delete/malloc/realloc/free
 */
 
-/* Revision: 1.18 01.06.2003 $ */
+/* Revision: 1.19 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   01.06.2003 SVS
     ! FAR_CreateFile переехал из farrtl.cpp в farwinapi.cpp
   25.02.2003 SVS
@@ -238,19 +240,22 @@ __int64 ftell64(FILE *fp)
 
 #else
 
-extern "C"{
-_CRTIMP __int64 __cdecl _ftelli64 (FILE *str);
-_CRTIMP int __cdecl _fseeki64 (FILE *stream, __int64 offset, int whence);
-};
+#include <io.h>
+//extern "C"{
+//_CRTIMP __int64 __cdecl _ftelli64 (FILE *str);
+//_CRTIMP int __cdecl _fseeki64 (FILE *stream, __int64 offset, int whence);
+//};
 
 __int64 ftell64(FILE *fp)
 {
-  return _ftelli64(fp);
+  //return _ftelli64(fp);
+  return _telli64(fileno(fp));
 }
 
 int fseek64 (FILE *fp, __int64 offset, int whence)
 {
-  return _fseeki64(fp,offset,whence);
+  //return _fseeki64(fp,offset,whence);
+  return _lseeki64(fileno(fp),offset,whence);
 }
 
 #endif
@@ -292,7 +297,7 @@ void WINAPI FarQsort(void *base, size_t nelem, size_t width,
                      int (__cdecl *fcmp)(const void *, const void *))
 {
   if(base && fcmp)
-    qsort(base,nelem,width,fcmp);
+    far_qsort(base,nelem,width,fcmp);
 }
 
 /* $ 24.03.2001 tran
@@ -318,6 +323,7 @@ int WINAPIV FarSprintf(char *buffer,const char *format,...)
   return ret;
 }
 
+#ifndef FAR_MSVCRT
 /* $ 29.08.2000 SVS
    - Неверно отрабатывала функция FarSscanf
    Причина - т.к. у VC нету vsscanf, то пришлось смоделировать (взять из
@@ -359,6 +365,8 @@ int WINAPIV FarSscanf(const char *buffer, const char *format,...)
 }
 /* 29.08.2000 SVS $ */
 /* SVS $ */
+
+#endif
 
 
 /* $ 07.09.2000 SVS

@@ -5,10 +5,12 @@ stddlg.cpp
 
 */
 
-/* Revision: 1.28 01.03.2004 $ */
+/* Revision: 1.29 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   01.03.2004 SVS
     ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
       (задел на будущее + править впоследствии только 1 файл)
@@ -213,8 +215,8 @@ int WINAPI GetSearchReplaceString(
     else
       ReplaceDlg[4].History=(char*)ReplaceHistoryName;
 
-    strncpy(ReplaceDlg[2].Data,(char *)SearchStr,sizeof(ReplaceDlg[2].Data)-1);
-    strncpy(ReplaceDlg[4].Data,(char *)ReplaceStr,sizeof(ReplaceDlg[4].Data)-1);
+    xstrncpy(ReplaceDlg[2].Data,(char *)SearchStr,sizeof(ReplaceDlg[2].Data)-1);
+    xstrncpy(ReplaceDlg[4].Data,(char *)ReplaceStr,sizeof(ReplaceDlg[4].Data)-1);
 
     if(Case)
       ReplaceDlg[6].Selected=*Case;
@@ -277,8 +279,8 @@ int WINAPI GetSearchReplaceString(
       if (Dlg.GetExitCode()!=10)
         return FALSE;
     }
-    strncpy((char *)SearchStr,ReplaceDlg[2].Data,LenSearchStr-1);
-    strncpy((char *)ReplaceStr,ReplaceDlg[4].Data,LenReplaceStr-1);
+    xstrncpy((char *)SearchStr,ReplaceDlg[2].Data,LenSearchStr-1);
+    xstrncpy((char *)ReplaceStr,ReplaceDlg[4].Data,LenReplaceStr-1);
     if(Case)       *Case=ReplaceDlg[6].Selected;
     if(WholeWords) *WholeWords=ReplaceDlg[7].Selected;
     if(Reverse)    *Reverse=ReplaceDlg[8].Selected;
@@ -323,7 +325,7 @@ int WINAPI GetSearchReplaceString(
     else
       SearchDlg[2].History=(char*)TextHistoryName;
 
-    strncpy(SearchDlg[2].Data,(char *)SearchStr,sizeof(SearchDlg[2].Data)-1);
+    xstrncpy(SearchDlg[2].Data,(char *)SearchStr,sizeof(SearchDlg[2].Data)-1);
 
     if(Case)
       SearchDlg[4].Selected=*Case;
@@ -386,7 +388,7 @@ int WINAPI GetSearchReplaceString(
       if (Dlg.GetExitCode()!=8)
         return FALSE;
     }
-    strncpy((char *)SearchStr,SearchDlg[2].Data,LenSearchStr-1);
+    xstrncpy((char *)SearchStr,SearchDlg[2].Data,LenSearchStr-1);
     if(ReplaceStr) *ReplaceStr=0;
     if(Case)       *Case=SearchDlg[4].Selected;
     if(WholeWords) *WholeWords=SearchDlg[5].Selected;
@@ -514,7 +516,7 @@ int WINAPI GetString(const char *Title,const char *Prompt,
     strcpy(StrDlg[0].Data,Title);
   if(Prompt)
   {
-    TruncStrFromEnd(strncpy(StrDlg[1].Data,Prompt,sizeof(StrDlg[1].Data)-1),66);
+    TruncStrFromEnd(xstrncpy(StrDlg[1].Data,Prompt,sizeof(StrDlg[1].Data)-1),66);
     if(Flags&FIB_NOAMPERSAND)
       StrDlg[1].Flags&=~DIF_SHOWAMPERSAND;
   }
@@ -530,7 +532,7 @@ int WINAPI GetString(const char *Title,const char *Prompt,
   else
   {
     if(SrcText)
-      strncpy(StrDlg[2].Data,SrcText,sizeof(StrDlg[2].Data)-1);
+      xstrncpy(StrDlg[2].Data,SrcText,sizeof(StrDlg[2].Data)-1);
     StrDlg[2].Data[sizeof(StrDlg[2].Data)-1]=0;
   }
 
@@ -572,7 +574,7 @@ int WINAPI GetString(const char *Title,const char *Prompt,
       return(FALSE);
     if(!(StrDlg[2].Flags&DIF_VAREDIT))
     {
-      strncpy(DestText,StrDlg[2].Data,DestLength-1);
+      xstrncpy(DestText,StrDlg[2].Data,DestLength-1);
       DestText[DestLength-1]=0;
     }
     if(addCheckBox)
@@ -632,9 +634,9 @@ int WINAPI GetNameAndPassword(char *Title,char *UserName,char *Password,char *He
   strcpy(PassDlg[6].Data,MSG(MOk));
   strcpy(PassDlg[7].Data,MSG(MCancel));
   if (Title!=NULL)
-    strncpy(PassDlg[0].Data,Title,sizeof(PassDlg[0].Data)-1);
-  strncpy(PassDlg[2].Data,(Flags&GNP_USELAST)?LastName:UserName,sizeof(LastName)-1);
-  strncpy(PassDlg[4].Data,(Flags&GNP_USELAST)?LastPassword:Password,sizeof(LastPassword)-1);
+    xstrncpy(PassDlg[0].Data,Title,sizeof(PassDlg[0].Data)-1);
+  xstrncpy(PassDlg[2].Data,(Flags&GNP_USELAST)?LastName:UserName,sizeof(LastName)-1);
+  xstrncpy(PassDlg[4].Data,(Flags&GNP_USELAST)?LastPassword:Password,sizeof(LastPassword)-1);
 
   {
     Dialog Dlg(PassDlg,sizeof(PassDlg)/sizeof(PassDlg[0]));
@@ -651,8 +653,8 @@ int WINAPI GetNameAndPassword(char *Title,char *UserName,char *Password,char *He
     return(FALSE);
 
   // запоминаем всегда.
-  strcpy(LastName,strncpy(UserName,PassDlg[2].Data,sizeof(LastName)-1));
-  strcpy(LastPassword,strncpy(Password,PassDlg[4].Data,sizeof(LastPassword)-1));
+  strcpy(LastName,xstrncpy(UserName,PassDlg[2].Data,sizeof(LastName)-1));
+  strcpy(LastPassword,xstrncpy(Password,PassDlg[4].Data,sizeof(LastPassword)-1));
 
   // Convert Name and Password to Ansi
   if(!(Flags&GNP_NOOEMTOCHAR))

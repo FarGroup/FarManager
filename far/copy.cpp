@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.136 26.07.2004 $ */
+/* Revision: 1.137 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   26.07.2004 SVS
     - Создатель симлинков убивает файлы
   08.06.2004 SVS
@@ -785,7 +787,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
           /* SVS $ */
           while (strlen(CopyDlg[2].Data)<2)
             strcat(CopyDlg[2].Data,":");
-          strupr(strncpy(CDP.PluginFormat,CopyDlg[2].Data,sizeof(CDP.PluginFormat)-1));
+          strupr(xstrncpy(CDP.PluginFormat,CopyDlg[2].Data,sizeof(CDP.PluginFormat)-1));
         }
         break;
     }
@@ -1251,7 +1253,7 @@ long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         {
           char Buf[1024];
           struct FarDialogItem *DItem2=(struct FarDialogItem *)Param2;
-          strupr(strncpy(Buf,DItem2->Data.Data,sizeof(Buf)-1));
+          strupr(xstrncpy(Buf,DItem2->Data.Data,sizeof(Buf)-1));
           if(*DlgParam->PluginFormat && strstr(Buf,DlgParam->PluginFormat))
           {
             DItem4.Flags|=DIF_DISABLE;
@@ -1305,7 +1307,7 @@ long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
             DestList.Reset();
             const char *NamePtr=DestList.GetNext();
             if(NamePtr)
-              strncpy(NewFolder, NamePtr, sizeof(NewFolder)-1);
+              xstrncpy(NewFolder, NamePtr, sizeof(NewFolder)-1);
           }
         }
         if(*NewFolder == 0)
@@ -1371,7 +1373,7 @@ BOOL ShellCopy::LinkRules(DWORD *Flags9,DWORD* Flags5,int* Selected5,
   if(CDP->IsDTSrcFixed == -1)
   {
     char FSysNameSrc[NM];
-    strncpy(Root,SrcDir,sizeof(Root));
+    xstrncpy(Root,SrcDir,sizeof(Root));
     Unquote(Root);
     ConvertNameToFull(Root,Root, sizeof(Root));
     GetPathRoot(Root,Root);
@@ -1396,7 +1398,7 @@ BOOL ShellCopy::LinkRules(DWORD *Flags9,DWORD* Flags5,int* Selected5,
     char FSysNameDst[NM];
     DWORD FileSystemFlagsDst;
 
-    strncpy(Root,DstDir,sizeof(Root));
+    xstrncpy(Root,DstDir,sizeof(Root));
     Unquote(Root);
 
     ConvertNameToFull(Root,Root, sizeof(Root));
@@ -1524,7 +1526,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
   _LOGCOPYR(SysLog("Params: Dest='%s'",Dest));
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
   //SaveScreen SaveScr;
-  DWORD DestAttr;
+  DWORD DestAttr=(DWORD)-1;
   _tran(SysLog("[%p] ShellCopy::CopyFileTree()",this));
 
   char SelName[NM],SelShortName[NM];
@@ -1987,9 +1989,9 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
   _LOGCOPYR(CleverSysLog Clev("ShellCopy::ShellCopyOneFile()"));
   _LOGCOPYR(SysLog("Params: Src='%s', Dest='%s', KeepPathPos=%d, Rename=%d",Src, Dest,KeepPathPos,Rename));
   char DestPath[2*NM];
-  DWORD DestAttr;
+  DWORD DestAttr=(DWORD)-1;
   HANDLE FindHandle=INVALID_HANDLE_VALUE;
-  WIN32_FIND_DATA DestData;
+  WIN32_FIND_DATA DestData={0};
   /* $ 25.05.2002 IS
      + RenameToShortName - дополняет SameName и становится больше нуля тогда,
        когда объект переименовывается в его же _короткое_ имя.
@@ -2486,7 +2488,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
   _LOGCOPYR(CleverSysLog Clev("while (1)"));
   while (1)
   {
-    int CopyCode;
+    int CopyCode=0;
 //    int64 SaveCopiedSize=CurCopiedSize;
     int64 SaveTotalSize=TotalCopiedSize;
     if (!(ShellCopy::Flags&FCOPY_COPYTONUL) && Rename)
@@ -2854,7 +2856,7 @@ int ShellCopy::ShellCopyConvertWildcards(const char *SrcName,char *Dest)
      Скопируем SrcName во внутренний буфер, т.к. нам надо переменную изменить
   */
   char Src[2*NM];
-  strncpy(Src,SrcName,sizeof(Src)-1);
+  xstrncpy(Src,SrcName,sizeof(Src)-1);
   /* IS $ */
   char PartBeforeName[NM],PartAfterFolderName[NM];
   DestNamePtr=PointToName(Dest);
@@ -2871,7 +2873,7 @@ int ShellCopy::ShellCopyConvertWildcards(const char *SrcName,char *Dest)
   SrcNamePtr=PointToName(Src);
 
   int BeforeNameLength=DestNamePtr==Dest ? SrcNamePtr-Src:0;
-  strncpy(PartBeforeName,Src,BeforeNameLength);
+  xstrncpy(PartBeforeName,Src,BeforeNameLength);
   PartBeforeName[BeforeNameLength]=0;
 
   char *SrcNameDot=strrchr(SrcNamePtr,'.');
@@ -3022,7 +3024,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
     return COPY_FAILURE;
   }
 
-  HANDLE DestHandle;
+  HANDLE DestHandle=INVALID_HANDLE_VALUE;
   DWORD AppendPos=0;
   LONG  AppendPosHigh=0;
 
@@ -3483,7 +3485,7 @@ int ShellCopy::AskOverwrite(const WIN32_FIND_DATA &SrcData,
                int &Append,int &RetCode)
 {
   HANDLE FindHandle;
-  WIN32_FIND_DATA DestData;
+  WIN32_FIND_DATA DestData={0};
   int DestDataFilled=FALSE;
 
   int MsgCode;
@@ -3978,7 +3980,7 @@ int ShellCopy::MkSymLink(const char *SelName,const char *Dest,DWORD Flags)
     char MsgBuf[NM],MsgBuf2[NM];
 
     // выделим имя
-    strncpy(SelOnlyName,SelName,sizeof(SelOnlyName)-1);
+    xstrncpy(SelOnlyName,SelName,sizeof(SelOnlyName)-1);
     if(SelOnlyName[strlen(SelOnlyName)-1] == '\\')
       SelOnlyName[strlen(SelOnlyName)-1]=0;
     char *PtrSelName=strrchr(SelOnlyName,'\\');

@@ -5,10 +5,12 @@ history.cpp
 
 */
 
-/* Revision: 1.31 15.03.2004 $ */
+/* Revision: 1.32 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   15.03.2004 SVS
     ! LastStr должна быть указателем! (в патче от 18.12.2003 забыл про это)
   18.12.2003 SVS
@@ -106,7 +108,7 @@ History::History(int TypeHistory,int HistoryCount,const char *RegKey,const int *
 {
   LastStr=NULL;
   FreeHistory();
-  strncpy(History::RegKey,RegKey,sizeof(History::RegKey)-1);
+  xstrncpy(History::RegKey,RegKey,sizeof(History::RegKey)-1);
   History::SaveTitle=SaveTitle;
   History::SaveType=SaveType;
   History::EnableSave=EnableSave;
@@ -157,15 +159,15 @@ void History::ReloadTitle()
       switch(PtrLastStr->Type)
       {
         case 0:
-          strncpy(PtrLastStr->Title,MSG(MHistoryView),HISTORY_TITLESIZE-1);
+          xstrncpy(PtrLastStr->Title,MSG(MHistoryView),HISTORY_TITLESIZE-1);
           break;
         case 1:
         case 4:
-          strncpy(PtrLastStr->Title,MSG(MHistoryEdit),HISTORY_TITLESIZE-1);
+          xstrncpy(PtrLastStr->Title,MSG(MHistoryEdit),HISTORY_TITLESIZE-1);
           break;
         case 2:
         case 3:
-          strncpy(PtrLastStr->Title,MSG(MHistoryExt),HISTORY_TITLESIZE-1);
+          xstrncpy(PtrLastStr->Title,MSG(MHistoryExt),HISTORY_TITLESIZE-1);
           break;
       }
   }
@@ -200,7 +202,7 @@ void History::AddToHistory(const char *Str,const char *Title,int Type,int SaveFo
     memcpy(SaveLastStr,LastStr,HistoryCount*sizeof(struct HistoryRecord));
     for (int I=0;I < HistoryCount; I++)
       if(LastStr[I].Name && LastStr[I].Name[0])
-        SaveLastStr[I].Name=strdup(LastStr[I].Name);
+        SaveLastStr[I].Name=xf_strdup(LastStr[I].Name);
       else
         SaveLastStr[I].Name=NULL;
 
@@ -235,12 +237,12 @@ void History::AddToHistoryLocal(const char *Str,const char *Title,int Type)
 
   struct HistoryRecord AddRecord;
 
-  AddRecord.Name=strdup(Str);
+  AddRecord.Name=xf_strdup(Str);
   if(!AddRecord.Name)
     return;
 
   RemoveTrailingSpaces(AddRecord.Name);
-  strncpy(AddRecord.Title,NullToEmpty(Title),sizeof(AddRecord.Title)-1);
+  xstrncpy(AddRecord.Title,NullToEmpty(Title),sizeof(AddRecord.Title)-1);
   RemoveTrailingSpaces(AddRecord.Title);
   AddRecord.Type=Type;
 
@@ -352,7 +354,7 @@ BOOL History::SaveHistory()
         return FALSE;
       }
       BufferLines=PtrBuffer;
-      strncpy(BufferLines+SizeLines,LastStr[I].Name,Len);
+      xstrncpy(BufferLines+SizeLines,LastStr[I].Name,Len);
       SizeLines+=Len+1;
     }
   }
@@ -488,7 +490,7 @@ BOOL History::ReadHistory()
       StrPos=0;
       while ((int)Size > 1 && StrPos < HistoryCount)
       {
-        strncpy(LastStr[StrPos].Title,Buf,sizeof(LastStr[StrPos].Title)-1);
+        xstrncpy(LastStr[StrPos].Title,Buf,sizeof(LastStr[StrPos].Title)-1);
         ++StrPos;
         Length=strlen(Buf)+1;
         Buf+=Length;
@@ -550,7 +552,7 @@ int History::Select(const char *Title,const char *HelpTopic,char *Str,int StrLen
 
   struct MenuItem HistoryItem;
 
-  int Code,I,Height=ScrY-8,StrPos,IsUpdate;
+  int Code=-1,I,Height=ScrY-8,StrPos=0,IsUpdate;
   unsigned int CurCmd;
   int RetCode=1;
 
@@ -595,7 +597,7 @@ int History::Select(const char *Title,const char *HelpTopic,char *Str,int StrLen
           TruncPathStr(Ptr,SizeTrunc);
           ReplaceStrings(Ptr,"&","&&",-1);
           memset(&HistoryItem,0,sizeof(HistoryItem));
-          strncpy(HistoryItem.Name,Record,sizeof(HistoryItem.Name)-1);
+          xstrncpy(HistoryItem.Name,Record,sizeof(HistoryItem.Name)-1);
           HistoryItem.SetSelect(CurCmd==CurLastPtr);
           HistoryMenu.SetUserData((void*)CurCmd,sizeof(DWORD),
                                  HistoryMenu.AddItem(&HistoryItem));
@@ -702,7 +704,7 @@ int History::Select(const char *Title,const char *HelpTopic,char *Str,int StrLen
 
   *Str=0;
   if(LastStr[StrPos].Name)
-    strncpy(Str,LastStr[StrPos].Name,StrLength-1);
+    xstrncpy(Str,LastStr[StrPos].Name,StrLength-1);
 
   if(RetCode < 4)
     Type=LastStr[StrPos].Type;
@@ -736,7 +738,7 @@ void History::GetPrev(char *Str,int StrLength)
   } while (!LastStr[CurLastPtr].Name || *LastStr[CurLastPtr].Name==0);
 
   if(LastStr[CurLastPtr].Name)
-    strncpy(Str,LastStr[CurLastPtr].Name,StrLength-1);
+    xstrncpy(Str,LastStr[CurLastPtr].Name,StrLength-1);
   else
     *Str=0;
 }
@@ -755,7 +757,7 @@ void History::GetNext(char *Str,int StrLength)
       break;
   } while (!LastStr[CurLastPtr].Name || *LastStr[CurLastPtr].Name==0);
   if(LastStr[CurLastPtr].Name)
-    strncpy(Str,CurLastPtr==LastPtr ? "":LastStr[CurLastPtr].Name,StrLength-1);
+    xstrncpy(Str,CurLastPtr==LastPtr ? "":LastStr[CurLastPtr].Name,StrLength-1);
   else
     *Str=0;
 }

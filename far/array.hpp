@@ -13,16 +13,18 @@ array.hpp
  //  const Object& operator=(const Object &)
 */
 
-/* Revision: 1.02 25.02.2003 $ */
+/* Revision: 1.03 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   25.02.2003 SVS
     ! "free/malloc/realloc -> xf_*" - что-то в прошлый раз пропустил.
   21.08.2002 IS
-   ! Ќе дергаем Sort, если массив пуст
+    ! Ќе дергаем Sort, если массив пуст
   15.08.2002 IS
-   + введено в строй (перетащено из исходников S&R)
+    + введено в строй (перетащено из исходников S&R)
 */
 
 
@@ -120,7 +122,7 @@ void TArray<Object>::Sort(TARRAYCMPFUNC user_cmp_func)
   {
     if(!user_cmp_func)
       user_cmp_func=reinterpret_cast<TARRAYCMPFUNC>(CmpItems);
-    qsort(reinterpret_cast<char*>(items),Count,sizeof(Object*),user_cmp_func);
+    far_qsort(reinterpret_cast<char*>(items),Count,sizeof(Object*),user_cmp_func);
   }
 }
 

@@ -5,10 +5,12 @@ infolist.cpp
 
 */
 
-/* Revision: 1.42 01.07.2004 $ */
+/* Revision: 1.43 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   01.07.2004 SVS
     ! тип CD определяется всегда
   08.06.2004 SVS
@@ -549,7 +551,7 @@ void InfoList::PrintInfo(const char *str)
      делать нельзя, т.к. str может указывать и на r/o-строку
   */
   char Str[NM*2];
-  strncpy(Str,str,sizeof(Str));
+  xstrncpy(Str,str,sizeof(Str));
   /* IS $ */
   TruncStr(Str,MaxLength);
   int Length=strlen(Str);
@@ -592,7 +594,7 @@ void InfoList::ShowDirDescription()
   while ((NamePtr=GetCommaWord(NamePtr,ArgName))!=NULL)
   {
     char FullDizName[2048];
-    strncpy(FullDizName,DizDir,sizeof(FullDizName)-1);
+    xstrncpy(FullDizName,DizDir,sizeof(FullDizName)-1);
     if(strlen(FullDizName)+strlen(ArgName) < sizeof(FullDizName))
       strcat(FullDizName,ArgName);
     else

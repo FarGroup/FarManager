@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.175 02.08.2004 $ */
+/* Revision: 1.176 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   02.08.2004 SVS
     ! принудительно выставим область действия макроса в менюхе (FarMenuFn)
   30.07.2004 SVS
@@ -549,7 +551,7 @@ BOOL WINAPI FarShowHelp(const char *ModuleName,
   // двоеточие в начале топика надо бы игнорировать и в том случае,
   // если стоит FHELP_FARHELP...
   if((Flags&FHELP_FARHELP) || *HelpTopic==':')
-    strncpy(Topic,HelpTopic+((*HelpTopic == ':')?1:0),sizeof(Topic)-1);
+    xstrncpy(Topic,HelpTopic+((*HelpTopic == ':')?1:0),sizeof(Topic)-1);
   else
   {
     if(ModuleName)
@@ -562,7 +564,7 @@ BOOL WINAPI FarShowHelp(const char *ModuleName,
       */
       if(Flags == FHELP_SELFHELP || (Flags&(FHELP_CUSTOMFILE|FHELP_CUSTOMPATH)))
       {
-        strncpy(Path,ModuleName,sizeof(Path)-1);
+        xstrncpy(Path,ModuleName,sizeof(Path)-1);
         if(Flags == FHELP_SELFHELP || (Flags&(FHELP_CUSTOMFILE)))
         {
           Mask=PointToName(Path);
@@ -1144,9 +1146,9 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
         if(CurItem.Flags&MIF_USETEXTPTR)
           CurItem.NamePtr=(char*)ItemEx->Text.TextPtr;
         else
-          strncpy(CurItem.Name,ItemEx->Text.Text,sizeof(CurItem.Name)-1);
+          xstrncpy(CurItem.Name,ItemEx->Text.Text,sizeof(CurItem.Name)-1);
         /*
-        strncpy(CurItem.Name,
+        xstrncpy(CurItem.Name,
             ((ItemEx->Flags&MIF_USETEXTPTR) && ItemEx->Text.TextPtr)?ItemEx->Text.TextPtr:ItemEx->Text.Text,
             sizeof(CurItem.Name)-1);
         */
@@ -1164,7 +1166,7 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
         if(Item[I].Separator)
           CurItem.Name[0]=0;
         else
-          strncpy(CurItem.Name,Item[I].Text,sizeof(CurItem.Name)-1);
+          xstrncpy(CurItem.Name,Item[I].Text,sizeof(CurItem.Name)-1);
 
         DWORD SelCurItem=CurItem.Flags&LIF_SELECTED;
         CurItem.Flags&=~LIF_SELECTED;
@@ -1446,7 +1448,7 @@ char* PluginsSet::FarGetMsg(int PluginNumber,int MsgId)
   {
     struct PluginItem *CurPlugin=&PluginsData[PluginNumber];
     char Path[NM];
-    strncpy(Path,CurPlugin->ModuleName,sizeof(Path)-1);
+    xstrncpy(Path,CurPlugin->ModuleName,sizeof(Path)-1);
     *PointToName(Path)=0;
     if (CurPlugin->Lang.Init(Path))
       return(CurPlugin->Lang.GetMsg(MsgId));
@@ -1626,7 +1628,7 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
   switch(Command)
   {
     case FCTL_CLOSEPLUGIN:
-      strncpy(DirToSet,NullToEmpty((char *)Param),sizeof(DirToSet)-1);
+      xstrncpy(DirToSet,NullToEmpty((char *)Param),sizeof(DirToSet)-1);
 
     case FCTL_GETPANELINFO:
     case FCTL_GETANOTHERPANELINFO:
@@ -1949,7 +1951,7 @@ int WINAPI FarGetPluginDirList(int PluginNumber,HANDLE hPlugin,
     SetPreRedrawFunc(NULL);
     {
       char DirName[512];
-      strncpy(DirName,Dir,sizeof(DirName)-1);
+      xstrncpy(DirName,Dir,sizeof(DirName)-1);
       TruncStr(DirName,30);
       CenterStr(DirName,DirName,30);
       SetCursorType(FALSE,0);
@@ -2022,7 +2024,7 @@ static void CopyPluginDirItem (PluginPanelItem *CurPanelItem)
     memcpy((void *)DestItem->UserData,(void *)CurPanelItem->UserData,Size);
   }
 
-  strncpy(DestItem->FindData.cFileName,FullName,sizeof(DestItem->FindData.cFileName)-1);
+  xstrncpy(DestItem->FindData.cFileName,FullName,sizeof(DestItem->FindData.cFileName)-1);
   DirListItemsNumber++;
 }
 
@@ -2037,7 +2039,7 @@ void ScanPluginDir()
   int AbortOp=FALSE;
 
   char DirName[NM];
-  strncpy(DirName,PluginSearchPath,sizeof(DirName)-1);
+  xstrncpy(DirName,PluginSearchPath,sizeof(DirName)-1);
   DirName[sizeof(DirName)-1]=0;
   for (I=0;DirName[I]!=0;I++)
     if (DirName[I]=='\x1')
@@ -2411,7 +2413,7 @@ int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize)
       TableSet.UpperTable[i]=LocalUpper(i);
       TableSet.LowerTable[i]=LocalLower(i);
     }
-    strncpy(TableSet.TableName,MSG(MGetTableNormalText),sizeof(TableSet.TableName));
+    xstrncpy(TableSet.TableName,MSG(MGetTableNormalText),sizeof(TableSet.TableName));
     // *TableSet.RFCCharset=0; // пока так!
     Command=-1;
   }

@@ -5,10 +5,12 @@ gettable.cpp
 
 */
 
-/* Revision: 1.20 14.04.2004 $ */
+/* Revision: 1.21 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   14.04.2004 SVS
     - BugZ#1055 - проблема с позиционированием начальной кодировки в меню по alt-f8
   01.03.2004 SVS
@@ -358,7 +360,7 @@ int PrepareTable(struct CharTableSet *TableSet,int TableNum,BOOL UseTableName)
   if(UseTableName)
     GetRegKey(TableKey,"TableName",TableSet->TableName,PointToName(TableKey),sizeof(TableSet->TableName));
   else
-    strncpy(TableSet->TableName,PointToName(TableKey),sizeof(TableSet->TableName)-1);
+    xstrncpy(TableSet->TableName,PointToName(TableKey),sizeof(TableSet->TableName)-1);
 
   //GetRegKey(TableKey,"RFCCharset",TableSet->RFCCharset,"",sizeof(TableSet->RFCCharset));
 

@@ -5,10 +5,12 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.50 08.06.2004 $ */
+/* Revision: 1.51 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   08.06.2004 SVS
     ! Вместо GetDriveType теперь вызываем FAR_GetDriveType().
     ! Вместо "DriveType==DRIVE_CDROM" вызываем IsDriveTypeCDROM()
@@ -248,9 +250,9 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
   DizRead=FALSE;
   HANDLE FindHandle;
   WIN32_FIND_DATA fdata;
-  struct FileListItem *CurPtr,*OldData;
+  struct FileListItem *CurPtr=0,*OldData=0;
   char CurName[NM],NextCurName[NM];
-  long OldFileCount;
+  long OldFileCount=0;
   int Done;
   int I;
 
@@ -266,7 +268,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
   FarGetCurDir(NM, SaveDir);
   {
     char OldCurDir[NM*2];
-    strncpy(OldCurDir, CurDir, NM-1);
+    xstrncpy(OldCurDir, CurDir, NM-1);
     if (!SetCurPath())
     {
       FlushInputBuffer(); // Очистим буффер ввода, т.к. мы уже можем быть в другом месте...
@@ -358,7 +360,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
       */
       char LocalName[3];
       DWORD RemoteNameSize=sizeof(NetDir);
-      strncpy(LocalName,CurDir,2);
+      xstrncpy(LocalName,CurDir,2);
       LocalName[sizeof(LocalName)-1]=0;
       /* KM $ */
 
@@ -458,7 +460,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
       {
         char Owner[NM];
         GetFileOwner(*ComputerName ? ComputerName:NULL,NewPtr->Name,Owner);
-        strncpy(NewPtr->Owner,Owner,sizeof(NewPtr->Owner)-1);
+        xstrncpy(NewPtr->Owner,Owner,sizeof(NewPtr->Owner)-1);
       }
 
       if (NeedHighlight)
@@ -716,7 +718,7 @@ void FileList::MoveSelection(struct FileListItem *ListData,long FileCount,
   struct FileListItem *OldPtr;
   SelFileCount=0;
   SelFileSize=0;
-  qsort((void *)OldData,OldFileCount,sizeof(*OldData),SortSearchList);
+  far_qsort((void *)OldData,OldFileCount,sizeof(*OldData),SortSearchList);
   while (FileCount--)
   {
     OldPtr=(struct FileListItem *)bsearch((void *)ListData,(void *)OldData,
@@ -755,9 +757,9 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
   DizRead=FALSE;
 
   int I;
-  struct FileListItem *CurPtr, *OldData;
+  struct FileListItem *CurPtr, *OldData=0;
   char CurName[NM],NextCurName[NM];
-  long OldFileCount;
+  long OldFileCount=0;
 
   CloseChangeNotification();
 

@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.53 30.07.2004 $ */
+/* Revision: 1.54 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   30.07.2004 SVS
     - Если в функции PointToName() параметр Path == NULL происходит Access Violation.
   31.05.2004 SVS
@@ -384,7 +386,7 @@ int ConvertWildcards(const char *src,char *Dest, int SelectedFolderNameLength)
   if (strchr(WildName,'*')==NULL && strchr(WildName,'?')==NULL)
     return(FALSE);
 
-  strncpy(Src, src, sizeof(Src)-1);
+  xstrncpy(Src, src, sizeof(Src)-1);
 
   if (SelectedFolderNameLength!=0)
   {
@@ -395,7 +397,7 @@ int ConvertWildcards(const char *src,char *Dest, int SelectedFolderNameLength)
   SrcNamePtr=PointToName(Src);
 
   int BeforeNameLength=DestNamePtr==Dest ? SrcNamePtr-Src:0;
-  strncpy(PartBeforeName,Src,BeforeNameLength);
+  xstrncpy(PartBeforeName,Src,BeforeNameLength);
   PartBeforeName[BeforeNameLength]=0;
 
   char *SrcNameDot=strrchr(SrcNamePtr,'.');
@@ -777,12 +779,12 @@ const char *NullToEmpty(const char *Str)
 char* CenterStr(char *Src,char *Dest,int Length)
 {
   char TempSrc[1024];
-  strncpy(TempSrc,Src,sizeof(TempSrc)-1);
+  xstrncpy(TempSrc,Src,sizeof(TempSrc)-1);
   int SrcLength=strlen(Src);
   if (SrcLength >= Length)
     /* Здесь не надо отнимать 1 от длины, т.к. strlen не учитывает \0
        и мы получали обрезанные строки */
-    strncpy(Dest,TempSrc,Length);
+    xstrncpy(Dest,TempSrc,Length);
   else
   {
     int Space=(Length-SrcLength)/2;
@@ -882,7 +884,7 @@ void __PrepareKMGTbStr(void)
 {
   for(int I=0; I < 4; ++I)
   {
-    strncpy(KMGTbStr[I][0],MSG(MListKb+I),MAX_KMGTBSTR_SIZE-1);
+    xstrncpy(KMGTbStr[I][0],MSG(MListKb+I),MAX_KMGTBSTR_SIZE-1);
     strcpy(KMGTbStr[I][1],KMGTbStr[I][0]);
     LocalStrlwr(KMGTbStr[I][0]);
     LocalStrupr(KMGTbStr[I][1]);
@@ -1049,7 +1051,7 @@ char *WINAPI FarFormatText(const char *SrcText,     // источник
   if(!strpbrk(SrcText,breakchar) && strlen(SrcText) <= Width)
   {
     if(MaxLen > 0 && DestText)
-      strncpy(DestText,SrcText,MaxLen-1);
+      xstrncpy(DestText,SrcText,MaxLen-1);
     return DestText;
   }
 
@@ -1066,7 +1068,7 @@ char *WINAPI FarFormatText(const char *SrcText,     // источник
 
   if (breakcharlen == 1 && docut == 0)
   {
-    newtext = strdup (text);
+    newtext = xf_strdup (text);
     if(!newtext)
       return NULL;
 
@@ -1199,7 +1201,7 @@ char *WINAPI FarFormatText(const char *SrcText,     // источник
   }
 
   if(DestText && MaxLen > 0)
-    strncpy(DestText,newtext,MaxLen-1);
+    xstrncpy(DestText,newtext,MaxLen-1);
   xf_free(newtext);
   return DestText;
 }
@@ -1223,7 +1225,7 @@ BOOL IsWordDiv(const struct CharTableSet *TableSet, const char *WordDiv, unsigne
 #if defined(MOUSEKEY)
 /*
   Ptr=CalcWordFromString(Str,I,&Start,&End);
-  strncpy(Dest,Ptr,End-Start+1);
+  xstrncpy(Dest,Ptr,End-Start+1);
   Dest[End-Start+1]=0;
 
 // Параметры:
@@ -1238,7 +1240,7 @@ const char * const CalcWordFromString(const char *Str,int CurPos,int *Start,int 
   DWORD DistLeft, DistRight;
   int StrSize=strlen(Str);
   char WordDiv[512];
-  strncpy(WordDiv,WordDiv0,sizeof(WordDiv)-5);
+  xstrncpy(WordDiv,WordDiv0,sizeof(WordDiv)-5);
   strcat(WordDiv," \t\n\r");
 
   if(IsWordDiv(TableSet,WordDiv,Str[CurPos]))

@@ -5,10 +5,12 @@ flmodes.cpp
 
 */
 
-/* Revision: 1.16 20.05.2004 $ */
+/* Revision: 1.17 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   20.05.2004 SVS
     ! NumericSort - свойство конкретной панели, а не режима отображения
   11.07.2003 SVS
@@ -372,7 +374,7 @@ void FileList::ViewSettingsToText(unsigned int *ViewColumnTypes,
   {
     char Type[100];
     int ColumnType=ViewColumnTypes[I] & 0xff;
-    strncpy(Type,ColumnSymbol[ColumnType],sizeof(Type)-1);
+    xstrncpy(Type,ColumnSymbol[ColumnType],sizeof(Type)-1);
     if (ColumnType==NAME_COLUMN)
     {
       if (ViewColumnTypes[I] & COLUMN_MARK)

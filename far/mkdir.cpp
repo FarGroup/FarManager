@@ -5,10 +5,12 @@ mkdir.cpp
 
 */
 
-/* Revision: 1.18 27.10.2003 $ */
+/* Revision: 1.19 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   27.10.2003 SVS
     - Непозиционирование на каталог, если в имени последний символ - '.'
   15.09.2003 SVS
@@ -125,7 +127,7 @@ void ShellMakeDir(Panel *SrcPanel)
   DirList.Reset();
   while(NULL!=(OneDir=DirList.GetNext()))
   {
-    strncpy(DirName, OneDir, sizeof(DirName)-1);
+    xstrncpy(DirName, OneDir, sizeof(DirName)-1);
     strcpy(OriginalDirName,DirName);
 
     //Unquote(DirName);

@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.205 07.07.2004 $ */
+/* Revision: 1.206 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   07.07.2004 SVS
     ! Macro II
   08.06.2004 SVS
@@ -824,7 +826,7 @@ void FileList::SortFileList(int KeepPosition)
 
     hSortPlugin=(PanelMode==PLUGIN_PANEL) ? hPlugin:NULL;
 
-    qsort((void *)ListData,FileCount,sizeof(*ListData),SortList);
+    far_qsort((void *)ListData,FileCount,sizeof(*ListData),SortList);
     if (KeepPosition)
       GoToFile(CurName);
   }
@@ -1015,7 +1017,7 @@ void FileList::SetFocus()
 
 int FileList::ProcessKey(int Key)
 {
-  struct FileListItem *CurPtr;
+  struct FileListItem *CurPtr=NULL;
   int N, NeedRealName=FALSE;
   int CmdLength=CtrlObject->CmdLine->GetLength();
 
@@ -1107,7 +1109,7 @@ int FileList::ProcessKey(int Key)
       CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
       strcpy(PluginFile,NullToEmpty(Info.HostFile));
       strcpy(ShortcutFolder,NullToEmpty(Info.CurDir));
-      strncpy(PluginData,NullToEmpty(Info.ShortcutData),sizeof(PluginData)-1);
+      xstrncpy(PluginData,NullToEmpty(Info.ShortcutData),sizeof(PluginData)-1);
       PluginData[sizeof(PluginData)-1]=0;
     }
     else
@@ -1187,7 +1189,7 @@ int FileList::ProcessKey(int Key)
           if(I == CtrlObject->Plugins.PluginsCount)
           {
             char Target[NM*2];
-            strncpy(Target, PluginModule, sizeof(Target)-1);
+            xstrncpy(Target, PluginModule, sizeof(Target)-1);
             TruncPathStr(Target, ScrX-16);
             Message (MSG_WARNING | MSG_ERRORTYPE, 1, MSG(MError), Target, MSG (MNeedNearPath), MSG(MOk))
           }
@@ -1368,7 +1370,8 @@ int FileList::ProcessKey(int Key)
         }
         if (Key==KEY_CTRLF || Key==KEY_CTRLALTF)
         {
-          struct OpenPluginInfo Info;
+          bool realName=PanelMode!=PLUGIN_PANEL;
+          struct OpenPluginInfo Info={0};
           if (PanelMode==PLUGIN_PANEL)
           {
             CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
@@ -1422,7 +1425,7 @@ int FileList::ProcessKey(int Key)
           if(*AddPluginPrefix((FileList *)CtrlObject->Cp()->ActivePanel,Prefix))
           {
             strcat(Prefix,FileName);
-            strncpy(FileName,Prefix,sizeof(FileName)-1);
+            xstrncpy(FileName,Prefix,sizeof(FileName)-1);
           }
           /* IS $ */
         }
@@ -1445,7 +1448,7 @@ int FileList::ProcessKey(int Key)
     case KEY_CTRLSHIFTBACKBRACKET: // Вставить путь из пассивной панели
     {
       {
-        Panel *SrcPanel;
+        Panel *SrcPanel=NULL;
         switch(Key)
         {
           case KEY_CTRLALTBRACKET:
@@ -2750,7 +2753,7 @@ BOOL FileList::ChangeDir(char *NewDir,BOOL IsUpdated)
           При выходе из Dir2 вызывалось меню дисков.
       */
       char RootDir[NM],TempDir[NM];
-      strncpy(TempDir,CurDir,sizeof(TempDir)-1);
+      xstrncpy(TempDir,CurDir,sizeof(TempDir)-1);
       TempDir[NM-1]=0;
       AddEndSlash(TempDir);
       GetPathRoot(TempDir,RootDir);
@@ -2770,7 +2773,7 @@ BOOL FileList::ChangeDir(char *NewDir,BOOL IsUpdated)
              для правильного определения типа драйва.
         */
         char DirName[NM];
-        strncpy(DirName,CurDir,sizeof(DirName)-1);
+        xstrncpy(DirName,CurDir,sizeof(DirName)-1);
         AddEndSlash(DirName);
         if(Opt.PgUpChangeDisk &&
           (FAR_GetDriveType(DirName) != DRIVE_REMOTE ||
@@ -2852,7 +2855,7 @@ BOOL FileList::ChangeDir(char *NewDir,BOOL IsUpdated)
          Укажем имя неудачного каталога
     */
     char Target[NM];
-    strncpy(Target, SetDir, sizeof(Target)-1);
+    xstrncpy(Target, SetDir, sizeof(Target)-1);
     TruncPathStr(Target, ScrX-16);
     Message (MSG_WARNING | MSG_ERRORTYPE, 1, MSG (MError), Target, MSG (MOk));
     /* IS $ */
@@ -3268,7 +3271,7 @@ int FileList::FindPartName(char *Name,int Next)
   int DirFind = 0;
   int Length = Min((int)strlen(Name),(int)(sizeof(Mask)-1));
 
-  strncpy(Mask,Name,sizeof(Mask)-1);
+  xstrncpy(Mask,Name,sizeof(Mask)-1);
   if ( Length > 0 && (Name[Length-1] == '/' || Name[Length-1] == '\\') )
   {
     DirFind = 1;
@@ -3467,7 +3470,7 @@ void FileList::SelectFiles(int Mode)
      диктуемая CmpName.
   */
   char Mask[NM]="*.*", RawMask[NM];
-  int Selection,I;
+  int Selection=0,I;
   bool WrapBrackets=false; // говорит о том, что нужно взять кв.скобки в скобки
 
   if (CurFile>=FileCount)
@@ -3528,7 +3531,7 @@ void FileList::SelectFiles(int Mode)
              Dlg.Process();
              if (Dlg.GetExitCode()!=1)
                return;
-             strncpy(Mask,SelectDlg[1].Data,sizeof(Mask)-1);
+             xstrncpy(Mask,SelectDlg[1].Data,sizeof(Mask)-1);
              Mask[sizeof(Mask)-1]=0;
              if(FileMask.Set(Mask, 0)) // Проверим вводимые пользователем маски
                                        // на ошибки
@@ -3862,7 +3865,7 @@ void FileList::CopyNames(int FillPathName,int UNC)
           if(*AddPluginPrefix((FileList *)CtrlObject->Cp()->ActivePanel,Prefix))
           {
             strcat(Prefix,QuotedName);
-            strncpy(QuotedName,Prefix,sizeof(QuotedName)-1);
+            xstrncpy(QuotedName,Prefix,sizeof(QuotedName)-1);
           }
           /* IS $ */
         }
@@ -3892,7 +3895,7 @@ char *FileList::CreateFullPathName(char *Name, char *ShortName,DWORD FileAttr,
                                    char *Dest,int SizeDest,int UNC)
 {
   char Temp[4906], FileName[4906];
-  char *NamePtr, Chr;
+  char *NamePtr, Chr=0;
   /* $ 02.04.2001 IS
    Исправляю баг:
    -----
@@ -3911,7 +3914,7 @@ char *FileList::CreateFullPathName(char *Name, char *ShortName,DWORD FileAttr,
    3. Если имя содержит путь, то вызывать ConvertNameToFull не
       нужно.
   */
-  strncpy(FileName,Dest,sizeof(FileName)-1);
+  xstrncpy(FileName,Dest,sizeof(FileName)-1);
   char *ShortNameLastSlash=strrchr(ShortName, '\\'),
        *NameLastSlash=strrchr(Name, '\\');
   if (NULL==ShortNameLastSlash && NULL==NameLastSlash)
@@ -3955,7 +3958,7 @@ char *FileList::CreateFullPathName(char *Name, char *ShortName,DWORD FileAttr,
         WNetGetUniversalName(FileName, UNIVERSAL_NAME_INFO_LEVEL,&Temp, &uniSize) == NOERROR)
     {
       UNIVERSAL_NAME_INFO *lpuni = (UNIVERSAL_NAME_INFO *)&Temp;
-      strncpy(FileName, lpuni->lpUniversalName, sizeof(FileName)-1);
+      xstrncpy(FileName, lpuni->lpUniversalName, sizeof(FileName)-1);
     }
     else if(FileName[1] == ':')
     {
@@ -3971,7 +3974,7 @@ char *FileList::CreateFullPathName(char *Name, char *ShortName,DWORD FileAttr,
           AddEndSlash(Temp);
           strcat(Temp,++NamePtr);
         }
-        strncpy(FileName, Temp, sizeof(FileName)-1);
+        xstrncpy(FileName, Temp, sizeof(FileName)-1);
       }
     }
 
@@ -4006,7 +4009,7 @@ char *FileList::CreateFullPathName(char *Name, char *ShortName,DWORD FileAttr,
       LocalStrlwr(strrchr(FileName,'\\'));
   }
 
-  return strncpy(Dest,FileName,SizeDest);
+  return xstrncpy(Dest,FileName,SizeDest);
 }
 
 void FileList::SetTitle()
@@ -4022,7 +4025,7 @@ void FileList::SetTitle()
       */
       char Title[240];
       CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
-      strncpy(Title,NullToEmpty(Info.PanelTitle), sizeof (Title)-1);
+      xstrncpy(Title,NullToEmpty(Info.PanelTitle), sizeof (Title)-1);
       /* DJ $ */
       RemoveLeadingSpaces(Title);
       RemoveTrailingSpaces(Title);
@@ -4030,7 +4033,7 @@ void FileList::SetTitle()
     }
     else
       sprintf(TitleDir,"{%.*s}",sizeof(TitleDir)-3,CurDir);
-    strncpy(LastFarTitle,TitleDir,sizeof(LastFarTitle)-1);
+    xstrncpy(LastFarTitle,TitleDir,sizeof(LastFarTitle)-1);
     SetFarTitle(TitleDir);
   }
 }
@@ -4540,7 +4543,7 @@ void FileList::ProcessCopyKeys(int Key)
                 if (Info.HostFile!=NULL && *Info.HostFile!=0)
                 {
                   char *ExtPtr;
-                  strncpy(DestPath,PointToName(Info.HostFile),sizeof(DestPath));
+                  xstrncpy(DestPath,PointToName(Info.HostFile),sizeof(DestPath));
                   if ((ExtPtr=strrchr(DestPath,'.'))!=NULL)
                     *ExtPtr=0;
                 }

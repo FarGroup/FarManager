@@ -5,10 +5,12 @@ message.cpp
 
 */
 
-/* Revision: 1.40 01.03.2004 $ */
+/* Revision: 1.41 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   01.03.2004 SVS
     ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
       (задел на будущее + править впоследствии только 1 файл)
@@ -321,7 +323,7 @@ int Message(DWORD Flags,int Buttons,const char *Title,
   MessageY2=Y2=Y1+StrCount+3;
 
   char HelpTopic[80];
-  strncpy(HelpTopic,MsgHelpTopic,sizeof(HelpTopic)-1);
+  xstrncpy(HelpTopic,MsgHelpTopic,sizeof(HelpTopic)-1);
   *MsgHelpTopic=0;
 
   // *** Вариант с Диалогом ***
@@ -351,7 +353,7 @@ int Message(DWORD Flags,int Buttons,const char *Title,
     MsgDlg[0].Y2=Y2-Y1-1;
 
     if(Title && *Title)
-      strncpy(MsgDlg[0].Data,Title,sizeof(MsgDlg[0].Data)-1);
+      xstrncpy(MsgDlg[0].Data,Title,sizeof(MsgDlg[0].Data)-1);
 
     int TypeItem=DI_TEXT;
     DWORD FlagsItem=DIF_SHOWAMPERSAND;
@@ -386,7 +388,7 @@ int Message(DWORD Flags,int Buttons,const char *Title,
           CPtrStr++;
           PtrMsgDlg->Flags|=DIF_BOXCOLOR|(Chr==2?DIF_SEPARATOR2:DIF_SEPARATOR);
         }
-        strncpy(PtrMsgDlg->Data,CPtrStr,Min((int)MAX_WIDTH_MESSAGE,(int)sizeof(PtrMsgDlg->Data))); //?? ScrX-15 ??
+        xstrncpy(PtrMsgDlg->Data,CPtrStr,Min((int)MAX_WIDTH_MESSAGE,(int)sizeof(PtrMsgDlg->Data))); //?? ScrX-15 ??
       }
     }
 
@@ -426,7 +428,7 @@ int Message(DWORD Flags,int Buttons,const char *Title,
   if(Title && *Title)
   {
     char TempTitle[2048];
-    strncpy(TempTitle,Title,min((int)sizeof(TempTitle)-1,(int)MaxLength));
+    xstrncpy(TempTitle,Title,min((int)sizeof(TempTitle)-1,(int)MaxLength));
     GotoXY(X1+(X2-X1-1-strlen(TempTitle))/2,Y1+1);
     mprintf(" %s ",TempTitle);
   }
@@ -561,7 +563,7 @@ int GetErrorString(char *ErrStr, DWORD StrSize)
   for(I=0; I < sizeof(ErrMsgs)/sizeof(ErrMsgs[0]); ++I)
     if(ErrMsgs[I].WinMsg == LastError)
     {
-      strncpy(ErrStr,MSG(ErrMsgs[I].FarMsg),StrSize-1);
+      xstrncpy(ErrStr,MSG(ErrMsgs[I].FarMsg),StrSize-1);
       break;
     }
 
@@ -594,7 +596,7 @@ int GetErrorString(char *ErrStr, DWORD StrSize)
 
 void SetMessageHelp(const char *Topic)
 {
-  strncpy(MsgHelpTopic,Topic, sizeof(MsgHelpTopic)-1);
+  xstrncpy(MsgHelpTopic,Topic, sizeof(MsgHelpTopic)-1);
 }
 
 /* $ 12.03.2002 VVM

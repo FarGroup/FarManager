@@ -36,7 +36,7 @@ void *__cdecl xf_malloc(size_t __size);
 *
 *******************************************************************************/
 
-char * __cdecl strdup (const char * string)
+char * __cdecl xf_strdup (const char * string)
 {
   if(string)
   {

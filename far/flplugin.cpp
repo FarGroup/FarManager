@@ -5,10 +5,12 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.43 24.05.2004 $ */
+/* Revision: 1.44 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   24.05.2004 SVS
     - BugZ#1085 - сбос цифровой сортировки на панели
   13.11.2003 SVS
@@ -199,7 +201,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
       else
       {
         memset(&PanelItem,0,sizeof(PanelItem));
-        strncpy(PanelItem.FindData.cFileName,PointToName(PStack->HostFile),sizeof(PanelItem.FindData.cFileName)-1);
+        xstrncpy(PanelItem.FindData.cFileName,PointToName(PStack->HostFile),sizeof(PanelItem.FindData.cFileName)-1);
         CtrlObject->Plugins.DeleteFiles(hPlugin,&PanelItem,1,0);
       }
       FarChDir(SaveDir);
@@ -234,7 +236,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 int FileList::FileNameToPluginItem(char *Name,PluginPanelItem *pi)
 {
   char TempDir[NM],*ChPtr;
-  strncpy(TempDir,Name,sizeof(TempDir)-1);
+  xstrncpy(TempDir,Name,sizeof(TempDir)-1);
   if ((ChPtr=strrchr(TempDir,'\\'))==NULL)
     return(FALSE);
   *ChPtr=0;
@@ -252,7 +254,7 @@ int FileList::FileNameToPluginItem(char *Name,PluginPanelItem *pi)
 void FileList::FileListToPluginItem(struct FileListItem *fi,struct PluginPanelItem *pi)
 {
   strcpy(pi->FindData.cFileName,fi->Name);
-  strncpy(pi->FindData.cAlternateFileName,fi->ShortName,sizeof(pi->FindData.cAlternateFileName)-1);
+  xstrncpy(pi->FindData.cAlternateFileName,fi->ShortName,sizeof(pi->FindData.cAlternateFileName)-1);
   pi->FindData.nFileSizeHigh=fi->UnpSizeHigh;
   pi->FindData.nFileSizeLow=fi->UnpSize;
   pi->FindData.dwReserved0=pi->FindData.dwReserved1=0;
@@ -289,9 +291,9 @@ void FileList::FileListToPluginItem(struct FileListItem *fi,struct PluginPanelIt
 
 void FileList::PluginToFileListItem(struct PluginPanelItem *pi,struct FileListItem *fi)
 {
-  strncpy(fi->Name,pi->FindData.cFileName,sizeof(fi->Name)-1);
-  strncpy(fi->ShortName,pi->FindData.cAlternateFileName,sizeof(fi->ShortName)-1);
-  strncpy(fi->Owner,NullToEmpty(pi->Owner),sizeof(fi->Owner)-1);
+  xstrncpy(fi->Name,pi->FindData.cFileName,sizeof(fi->Name)-1);
+  xstrncpy(fi->ShortName,pi->FindData.cAlternateFileName,sizeof(fi->ShortName)-1);
+  xstrncpy(fi->Owner,NullToEmpty(pi->Owner),sizeof(fi->Owner)-1);
   if (pi->Description)
   {
     fi->DizText=new char[strlen(pi->Description)+1];
@@ -1014,8 +1016,8 @@ void FileList::PluginGetPanelInfo(struct PanelInfo *Info,int FullInfo)
   char ColumnTypes[80],ColumnWidths[80];
   ViewSettingsToText(ViewSettings.ColumnType,ViewSettings.ColumnWidth,
                      ViewSettings.ColumnCount,ColumnTypes,ColumnWidths);
-  strncpy(Info->ColumnTypes,ColumnTypes,sizeof(Info->ColumnTypes)-1);
-  strncpy(Info->ColumnWidths,ColumnWidths,sizeof(Info->ColumnWidths)-1);
+  xstrncpy(Info->ColumnTypes,ColumnTypes,sizeof(Info->ColumnTypes)-1);
+  xstrncpy(Info->ColumnWidths,ColumnWidths,sizeof(Info->ColumnWidths)-1);
   Info->ShortNames=ShowShortNames;
 }
 

@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.307 05.08.2004 $ */
+/* Revision: 1.308 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   05.08.2004 SVS
     + MCODE_V_DLGITEMTYPE
   02.08.2004 SVS
@@ -1900,9 +1902,9 @@ int Dialog::InitDialogObjects(int ID)
           {
             // берем только первый пункт для области редактирования
             if(ItemFlags&DIF_VAREDIT)
-              strncpy((char *)CurItem->Ptr.PtrData, ListItems[J].Text,CurItem->Ptr.PtrLength-1);
+              xstrncpy((char *)CurItem->Ptr.PtrData, ListItems[J].Text,CurItem->Ptr.PtrLength-1);
             else
-              strncpy(CurItem->Data, ListItems[J].Text,sizeof(CurItem->Data)-1);
+              xstrncpy(CurItem->Data, ListItems[J].Text,sizeof(CurItem->Data)-1);
             break;
           }
         }
@@ -2078,7 +2080,7 @@ BOOL Dialog::GetItemRect(int I,RECT& Rect)
   struct DialogItem *CurItem=&Item[I];
   DWORD ItemFlags=CurItem->Flags;
   int Type=CurItem->Type;
-  int Len;
+  int Len=0;
 
   Rect.left=(int)CurItem->X1;
   Rect.top=(int)CurItem->Y1;
@@ -2666,7 +2668,7 @@ void Dialog::ShowDialog(int ID)
           /* $ 17.12.2001 KM
             ! Пусть диалог сам заботится о ширине собственного заголовка.
           */
-          strncpy(Str,CurItem->Data,sizeof(Str)-3);
+          xstrncpy(Str,CurItem->Data,sizeof(Str)-3);
           TruncStrFromEnd(Str,CW-2); // 5 ???
           LenText=LenStrItem(I,Str);
           if(LenText < CW-2)
@@ -2695,7 +2697,7 @@ void Dialog::ShowDialog(int ID)
 /* ***************************************************************** */
       case DI_TEXT:
       {
-        strncpy(Str,CurItem->Data,sizeof(Str)-1);
+        xstrncpy(Str,CurItem->Data,sizeof(Str)-1);
         LenText=LenStrItem(I,Str);
         if ((CurItem->Flags & DIF_CENTERTEXT) && CX1!=-1)
           LenText=LenStrItem(I,CenterStr(Str,Str,CX2-CX1+1));
@@ -2730,7 +2732,7 @@ void Dialog::ShowDialog(int ID)
 /* ***************************************************************** */
       case DI_VTEXT:
       {
-        strncpy(Str,CurItem->Data,sizeof(Str)-1);
+        xstrncpy(Str,CurItem->Data,sizeof(Str)-1);
         LenText=strlen(Str);//LenStrItem(I,Str);
         if ((CurItem->Flags & DIF_CENTERTEXT) && CY1!=-1)
           LenText=strlen(CenterStr(Str,Str,CY2-CY1+1));
@@ -2811,7 +2813,7 @@ void Dialog::ShowDialog(int ID)
 /* ***************************************************************** */
       case DI_BUTTON:
       {
-        strncpy(Str,CurItem->Data,sizeof(Str)-1);
+        xstrncpy(Str,CurItem->Data,sizeof(Str)-1);
         //LenText=LenStrItem(I,Str);
         /*
            Здесь, для отсечения, необходимо учесть флаг DIF_NOBRACKETS
@@ -3439,7 +3441,7 @@ int Dialog::ProcessKey(int Key)
       }
       else
       {
-        int MinDist=1000,MinPos;
+        int MinDist=1000,MinPos=0;
         for (I=0;I<ItemCount;I++)
         {
           if (I!=FocusPos &&
@@ -4835,7 +4837,7 @@ void Dialog::DataToItem(struct DialogData *Data,struct DialogItem *Item,int Coun
     Item->DefaultButton=Data->DefaultButton;
     Item->SelStart=-1;
     if ((unsigned int)Data->Data<MAX_MSG)
-      strncpy(Item->Data,MSG((unsigned int)Data->Data),sizeof(Item->Data)-1);
+      xstrncpy(Item->Data,MSG((unsigned int)Data->Data),sizeof(Item->Data)-1);
     else
       memcpy(Item->Data,Data->Data,sizeof(Item->Data));
   }
@@ -5159,7 +5161,7 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItem *CurItem,
         itoa(I,PHisLocked,10);
         GetRegKey(RegKey,HisLocked,(int)Locked,0);
         HistoryItem.SetCheck(Locked);
-        strncpy(HistoryItem.Name,Str,sizeof(HistoryItem.Name)-1);
+        xstrncpy(HistoryItem.Name,Str,sizeof(HistoryItem.Name)-1);
         HistoryMenu.SetUserData(Str,0,HistoryMenu.AddItem(&HistoryItem));
         ItemsCount++;
       }
@@ -5377,7 +5379,7 @@ int Dialog::AddToEditHistory(char *AddStr,char *HistoryName)
 
     if(*Str)
     {
-      if((His[HistCount].Str=strdup(Str)) != NULL)
+      if((His[HistCount].Str=xf_strdup(Str)) != NULL)
       {
         His[HistCount].Locked=Locked;
         LockedCount+=Locked;
@@ -5408,7 +5410,7 @@ int Dialog::AddToEditHistory(char *AddStr,char *HistoryName)
   else // ...не только можно, но и нужно!
   {
     // добавляем в начало с учетом добавляемого
-    HisTemp[0].Str=strdup(AddStr);
+    HisTemp[0].Str=xf_strdup(AddStr);
     HisTemp[0].Locked=(AddLine == -1)?0:His[AddLine].Locked;
     J=1;
   }
@@ -6533,7 +6535,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
                 struct FarListItem *Item=&ListItems->Item;
                 memset(Item,0,sizeof(struct FarListItem));
                 Item->Flags=ListMenuItem->Flags;
-                strncpy(Item->Text,ListMenuItem->Name,sizeof(Item->Text)-1);
+                xstrncpy(Item->Text,ListMenuItem->Name,sizeof(Item->Text)-1);
                 /*
                 if(ListMenuItem->UserDataSize <= sizeof(DWORD)) //???
                    Item->UserData=ListMenuItem->UserData;
@@ -7168,7 +7170,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
           case DI_LISTBOX: // меняет только текущий итем
             if((Len=did->PtrLength) == 0)
             {
-              strncpy(Ptr,(char *)did->PtrData,511);
+              xstrncpy(Ptr,(char *)did->PtrData,511);
               Len=strlen(Ptr)+1;
             }
             else
@@ -7239,7 +7241,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
               if(ListMenuItem)
               {
                 LUpdate.Item.Flags=ListMenuItem->Flags;
-                strncpy(LUpdate.Item.Text,Ptr,sizeof(LUpdate.Item.Text));
+                xstrncpy(LUpdate.Item.Text,Ptr,sizeof(LUpdate.Item.Text));
                 Dialog::SendDlgMessage(hDlg,DM_LISTUPDATE,Param1,(DWORD)&LUpdate);
               }
               break;

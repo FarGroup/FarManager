@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.66 19.05.2004 $ */
+/* Revision: 1.67 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   19.05.2004 SVS
     ! вместо "SetFileAttributes(Name,0)" выставим "SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL)"
       пусть баундчекер не блюет.
@@ -685,7 +687,7 @@ int FillUserMenu(VMenu& UserMenu,char *MenuKey,int MenuPos,int *FuncPos,char *Na
         strcat(MenuText,SubMenuSymbol);
 //_SVS(SysLog("%2d - '%s'",HiStrlen(MenuText),MenuText));
       }
-      strncpy(UserMenuItem.Name,MenuText,sizeof(UserMenuItem.Name)-1);
+      xstrncpy(UserMenuItem.Name,MenuText,sizeof(UserMenuItem.Name)-1);
       UserMenuItem.SetSelect(NumLine==MenuPos);
       UserMenuItem.Flags&=~LIF_SEPARATOR;
     }
@@ -713,7 +715,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
   {
     struct MenuItem UserMenuItem;
     memset(&UserMenuItem,0,sizeof(UserMenuItem));
-    int NumLine,ExitCode,FuncPos[12];
+    int NumLine=0,ExitCode,FuncPos[12];
 
     for (int I=0;I<sizeof(FuncPos)/sizeof(FuncPos[0]);I++)
       FuncPos[I]=-1;
@@ -726,7 +728,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
       */
       char MenuTitle[128];
       if(Title && *Title)
-        strncpy(MenuTitle,Title,sizeof(MenuTitle)-1);
+        xstrncpy(MenuTitle,Title,sizeof(MenuTitle)-1);
       else
         switch (MenuMode)
         {
@@ -951,7 +953,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
     /* $ 14.12.2001 IS
          При выполнении команды меню не теряем старую командную строку.
     */
-    char *OldCmdLine=strdup(CtrlObject->CmdLine->GetStringAddr());
+    char *OldCmdLine=xf_strdup(CtrlObject->CmdLine->GetStringAddr());
     int OldCmdLineSelStart, OldCmdLineSelEnd;
     CtrlObject->CmdLine->GetSelection(OldCmdLineSelStart,OldCmdLineSelEnd);
     while (1)
@@ -1145,7 +1147,7 @@ int EditMenuRecord(char *MenuKey,int EditPos,int TotalRecords,int NewRec)
       sprintf(CommandName,"Command%d",CommandNumber);
       if (!GetRegKey(ItemKey,CommandName,Command,"",sizeof(Command)))
         break;
-      strncpy(EditDlg[7+CommandNumber].Data,Command,sizeof(EditDlg[0].Data)-1);
+      xstrncpy(EditDlg[7+CommandNumber].Data,Command,sizeof(EditDlg[0].Data)-1);
       CommandNumber++;
     }
   }
@@ -1305,7 +1307,7 @@ void MenuRegToFile(char *MenuKey,FILE *MenuFile)
 void MenuFileToReg(char *MenuKey,FILE *MenuFile)
 {
   char MenuStr[4096];
-  int KeyNumber=-1,CommandNumber;
+  int KeyNumber=-1,CommandNumber=0;
   while (fgets(MenuStr,sizeof(MenuStr),MenuFile)!=NULL)
   {
     char ItemKey[512];

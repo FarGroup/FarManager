@@ -7,10 +7,12 @@ namelist.hpp
 
 */
 
-/* Revision: 1.03 19.11.2003 $ */
+/* Revision: 1.04 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   19.11.2003 IS
     + Работа со списком (TList) на основе кода, созданного KS, чтобы
       собиралось под борманом.
@@ -30,6 +32,8 @@ Modify:
 
 #include "farconst.hpp"
 #include "TList.hpp"
+#include "plugin.hpp"
+#include "fn.hpp"
 
 class NamesList
 {
@@ -41,10 +45,10 @@ class NamesList
       {
         Value[0]=0;
       }
-      // для перекрывающихся объектов поведение как у strncpy!
+      // для перекрывающихся объектов поведение как у xstrncpy!
       const OneName& operator=(const char *rhs)
       {
-        strncpy(Value,rhs,sizeof(Value)-1);
+        xstrncpy(Value,rhs,sizeof(Value)-1);
         return *this;
       }
     };

@@ -5,10 +5,12 @@ cvtname.cpp
 
 */
 
-/* Revision: 1.11 01.03.2004 $ */
+/* Revision: 1.12 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   01.03.2004 SVS
     ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
       (задел на будущее + править впоследствии только 1 файл)
@@ -102,7 +104,7 @@ DWORD RawConvertShortNameToLongName(const char *src, char *dest, DWORD maxsize)
   DWORD DestSize=0, FinalSize=0, AddSize;
   BOOL Error=FALSE;
 
-  char *Src, *Dest, *DestBuf=NULL,
+  char *Src, *Dest=0, *DestBuf=NULL,
        *SrcBuf=(char *)xf_malloc(SrcSize+1);
 
   while(SrcBuf)
@@ -236,7 +238,7 @@ int ConvertNameToFull(const char *Src,char *Dest, int DestSize)
     if (Result < DestSize)
     {
       strncat(FullName,Src,Result);
-      strncpy(Dest,FullName,Result);
+      xstrncpy(Dest,FullName,Result);
       Dest [Result] = '\0';
     }
     else
@@ -398,7 +400,7 @@ int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize)
     TempDest[strlen(TempDest)-1]=0;
 
   if(Dest && DestSize)
-    strncpy(Dest,TempDest,DestSize-1);
+    xstrncpy(Dest,TempDest,DestSize-1);
   _SVS(SysLog("return Dest='%s'",Dest));
   return Ret;
 }

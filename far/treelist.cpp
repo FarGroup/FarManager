@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.55 08.06.2004 $ */
+/* Revision: 1.56 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   08.06.2004 SVS
     ! Вместо GetDriveType теперь вызываем FAR_GetDriveType().
     ! Вместо "DriveType==DRIVE_CDROM" вызываем IsDriveTypeCDROM()
@@ -232,13 +234,13 @@ static struct TreeListCache
   void Add(const char* name)
   {
     Resize();
-    ListName[TreeCount++]=strdup(name);
+    ListName[TreeCount++]=xf_strdup(name);
   }
   void Insert(int idx,const char* name)
   {
     Resize();
     memmove(ListName+idx+1,ListName+idx,sizeof(char*)*(TreeCount-idx));
-    ListName[idx]=strdup(name);
+    ListName[idx]=xf_strdup(name);
     TreeCount++;
   }
   void Delete(int idx)
@@ -295,8 +297,8 @@ TreeList::~TreeList()
 
 void TreeList::SetRootDir(char *NewRootDir)
 {
-  strncpy(Root,NewRootDir,sizeof(Root)-1);
-  strncpy(CurDir,NewRootDir,sizeof(CurDir)-1);
+  xstrncpy(Root,NewRootDir,sizeof(Root)-1);
+  xstrncpy(CurDir,NewRootDir,sizeof(CurDir)-1);
 }
 
 void TreeList::DisplayObject()
@@ -320,7 +322,7 @@ void TreeList::DisplayObject()
         NumericSort=RootNumeric;
         StaticSortCaseSensitive=CaseSensitiveSort;
         StaticSortNumeric=NumericSort;
-        qsort(ListData,TreeCount,sizeof(*ListData),SortList);
+        far_qsort(ListData,TreeCount,sizeof(*ListData),SortList);
         FillLastData();
         SyncDir();
       }
@@ -343,7 +345,7 @@ void TreeList::DisplayTree(int Fast)
 
   CorrectPosition();
   if (TreeCount>0)
-    strncpy(CurDir,ListData[CurFile].Name,sizeof(CurDir)-1);
+    xstrncpy(CurDir,ListData[CurFile].Name,sizeof(CurDir)-1);
   if (!Fast)
   {
     Box(X1,Y1,X2,Y2,COL_PANELBOX,DOUBLE_BOX);
@@ -617,7 +619,7 @@ int TreeList::ReadTree()
 
   SetPreRedrawFunc(NULL);
   StaticSortCaseSensitive=CaseSensitiveSort=StaticSortNumeric=NumericSort=FALSE;
-  qsort(ListData,TreeCount,sizeof(*ListData),SortList);
+  far_qsort(ListData,TreeCount,sizeof(*ListData),SortList);
 
   FillLastData();
   SaveTreeFile();
@@ -642,7 +644,7 @@ void TreeList::SaveTreeFile()
   int RootLength=strlen(Root)-1;
   if (RootLength<0)
     RootLength=0;
-  strncpy(Name,Root,sizeof(CurDir)-1);
+  xstrncpy(Name,Root,sizeof(CurDir)-1);
   strcat(Name,TreeFileName);
   // получим и сразу сбросим атрибуты (если получится)
   DWORD FileAttributes=GetFileAttributes(Name);
@@ -683,7 +685,7 @@ int TreeList::GetCacheTreeName(char *Root,char *Name,int CreateDir)
                             FileSystemName,sizeof(FileSystemName)))
     return(FALSE);
   char FolderName[NM];
-  strncpy(FolderName,FarPath,sizeof(FolderName)-1);
+  xstrncpy(FolderName,FarPath,sizeof(FolderName)-1);
   strcat(FolderName,TreeCacheFolderName);
   if (CreateDir)
   {
@@ -1161,7 +1163,7 @@ void TreeList::CorrectPosition()
 void TreeList::SetCurDir(char *NewDir,int ClosePlugin)
 {
   char SetDir[NM];
-  strncpy(SetDir,NewDir,sizeof(SetDir)-1);
+  xstrncpy(SetDir,NewDir,sizeof(SetDir)-1);
   if (TreeCount==0)
     Update(0);
   if (TreeCount>0 && !SetDirPosition(SetDir))
@@ -1347,7 +1349,7 @@ int TreeList::ReadTreeFile()
   ListData=NULL;
   TreeCount=0;
   *LastDirName=0;
-  strncpy(DirName,Root,sizeof(DirName)-1);
+  xstrncpy(DirName,Root,sizeof(DirName)-1);
   while (fgets(DirName+RootLength,sizeof(DirName)-RootLength,TreeFile)!=NULL)
   {
    if (LocalStricmp(DirName,LastDirName)==0)
@@ -1370,7 +1372,7 @@ int TreeList::ReadTreeFile()
       fclose(TreeFile);
       return(FALSE);
     }
-    strncpy(ListData[TreeCount++].Name,DirName,sizeof(ListData[0].Name)-1);
+    xstrncpy(ListData[TreeCount++].Name,DirName,sizeof(ListData[0].Name)-1);
   }
   fclose(TreeFile);
 
@@ -1537,9 +1539,9 @@ void TreeList::RenTreeName(char *SrcName,char *DestName)
       char NewName[2*NM];
       strcpy(NewName,DestName);
       strcat(NewName,DirName+SrcLength);
-      //strncpy(DirName,NewName,NM-1);
+      //xstrncpy(DirName,NewName,NM-1);
       xf_free(TreeCache.ListName[CachePos]);
-      TreeCache.ListName[CachePos]=strdup(NewName);
+      TreeCache.ListName[CachePos]=xf_strdup(NewName);
     }
   }
 }
@@ -1639,7 +1641,7 @@ void TreeList::FlushCache()
       ClearCache(1);
       return;
     }
-    qsort(TreeCache.ListName,TreeCache.TreeCount,sizeof(char*),SortCacheList);
+    far_qsort(TreeCache.ListName,TreeCache.TreeCount,sizeof(char*),SortCacheList);
     for (I=0;I<TreeCache.TreeCount;I++)
       fprintf(TreeFile,"%s\n",TreeCache.ListName[I]);
     if (fclose(TreeFile)==EOF)

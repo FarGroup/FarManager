@@ -5,10 +5,12 @@ savescr.cpp
 
 */
 
-/* Revision: 1.08 09.03.2004 $ */
+/* Revision: 1.09 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   09.03.2004 SVS
     + CorrectRealScreenCoord() - корректировка размеров буфера
   23.08.2002 SVS
@@ -188,8 +190,8 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner)
   int NewWidth=Min(OWi,NewX);
   int NewHeight=Min(OHe,NewY);
   int iYReal;
-  int ToIndex;
-  int FromIndex;
+  int ToIndex=0;
+  int FromIndex=0;
   if (Corner & 2){
     NY2=Y1+NewY-1;NY1=NY2-NewY+1;
   } else{

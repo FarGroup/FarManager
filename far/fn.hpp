@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.213 07.07.2004 $ */
+/* Revision: 1.214 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SKV
+    ! see 01825.MSVCRT.txt
   07.07.2004 SVS
     ! Macro II
     + LocalRevStrstri() - аналог strstr(), но с локалью, без учета регистра и сзади
@@ -1123,7 +1125,9 @@ int WINAPI FarAtoi(const char *s);
 void WINAPI FarQsort(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
 void WINAPI FarQsortEx(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *,void *),void*);
 int WINAPIV FarSprintf(char *buffer,const char *format,...);
+#ifndef FAR_MSVCRT
 int WINAPIV FarSscanf(const char *buffer, const char *format,...);
+#endif
 int WINAPI CopyToClipboard(const char *Data);
 char* WINAPI PasteFromClipboard(void);
 
@@ -1502,9 +1506,15 @@ extern "C" {
 void __cdecl qsortex(char *base, unsigned int nel, unsigned int width,
             int (__cdecl *comp_fp)(const void *, const void *,void*), void *user);
 
-#if __BORLANDC__ < 0x550 || defined(_MSC_VER)
-char * __cdecl mktemp(char *temp);
-#endif
+char * __cdecl farmktemp(char *temp);
+char * __cdecl xstrncpy (char * dest,const char * src,size_t maxlen);
+char * __cdecl xf_strdup (const char * string);
+void __cdecl far_qsort (
+    void *base,
+    size_t num,
+    size_t width,
+    int (__cdecl *comp)(const void *, const void *)
+    );
 
 void  __cdecl xf_free(void *__block);
 void *__cdecl xf_malloc(size_t __size);
