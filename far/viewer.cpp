@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.169 20.12.2004 $ */
+/* Revision: 1.170 20.12.2004 $ */
 
 /*
 Modify:
+  20.12.2004 WARP
+    - Bugz#1100 часть вторая про Home Right Left
   20.12.2004 WARP
     - BugZ#1100 неверно выставлялось выделение для юникодного файла.
   20.12.2004 WARP
@@ -1056,7 +1058,7 @@ void Viewer::DisplayObject()
         */
         if(VM.Unicode &&
              (FirstWord == 0x0FEFF || FirstWord == 0x0FFFE)
-             && !I && !LeftPos && !StrFilePos[I])
+             && !I && /*!LeftPos &&*/ !StrFilePos[I])
           mprintf("%-*.*s",Width,Width,&OutStr[I][(int)LeftPos+1]);
         else
           mprintf("%-*.*s",Width,Width,&OutStr[I][(int)LeftPos]);
@@ -1324,7 +1326,7 @@ void Viewer::ShowUp()
       /* $ 18.10.2000 SVS
          -Bug: Down Down Up & первый пробел
       */
-      if(VM.Unicode && (FirstWord == 0x0FEFF || FirstWord == 0x0FFFE) && !I && !LeftPos && !StrFilePos[I])
+      if(VM.Unicode && (FirstWord == 0x0FEFF || FirstWord == 0x0FFFE) && !I && /*!LeftPos &&*/ !StrFilePos[I])
         mprintf("%-*.*s",Width,Width,&OutStr[I][(int)LeftPos+1]);
       else
         mprintf("%-*.*s",Width,Width,&OutStr[I][(int)LeftPos]);
@@ -1418,7 +1420,7 @@ void Viewer::ShowDown()
       /* $ 18.10.2000 SVS
          -Bug: Down Down Up & первый пробел
       */
-      if(VM.Unicode && (FirstWord == 0x0FEFF || FirstWord == 0x0FFFE) && !I && !LeftPos && !StrFilePos[I])
+      if(VM.Unicode && (FirstWord == 0x0FEFF || FirstWord == 0x0FFFE) && !I /*&& !LeftPos */&& !StrFilePos[I])
         mprintf("%-*.*s",Width,Width,&OutStr[I][(int)LeftPos+1]);
       else
         mprintf("%-*.*s",Width,Width,&OutStr[I][(int)LeftPos]);
