@@ -5,10 +5,18 @@ dialog.cpp
 
 */
 
-/* Revision: 1.94 08.05.2001 $ */
+/* Revision: 1.95 14.05.2001 $ */
 
 /*
 Modify:
+  14.05.2001 SVS
+   + DIF_LISTWRAPMODE, DIF_LISTHIGHLIGHT
+   ! Для DI_COMBOBOX&DIF_DROPDOWNLIST нажатие клавиши KEY_DOWN эквивалентно
+     Ctrl-Down, т.е. список раскроется.
+   ! сбросим флаг DIF_CENTERGROUP для редакторов
+   - небольшая бага с сепараторами после введения DMODE_SMALLDILAOG
+   + Новое сообщение DM_LISTADDSTR (Param1=ID Param2=String)
+   ! DI_LISTBOX теперь "живет в DialogItem.ListPtr"
   08.05.2001 SVS
     + обработка флага DMODE_SMALLDILAOG
   07.05.2001 SVS
@@ -416,7 +424,6 @@ Modify:
 static char fmtLocked[]="Locked%d";
 static char fmtLine[]  ="Line%d";
 static char fmtSavedDialogHistory[]="SavedDialogHistory\\%s";
-static char *CheckBox3State=NULL;
 
 //////////////////////////////////////////////////////////////////////////
 /* Public:
@@ -425,12 +432,6 @@ static char *CheckBox3State=NULL;
 Dialog::Dialog(struct DialogItem *Item,int ItemCount,
                FARWINDOWPROC DlgProc,long InitParam)
 {
-  /* $ 04.12.2000 SVS
-     Если надо - загрузим символ, представляющий 3-е состояние CheckBox
-  */
-  if(!CheckBox3State)
-    CheckBox3State=MSG(MCheckBox2State);
-  /* SVS $ */
   /* $ 29.08.2000 SVS
     Номер плагина, вызвавшего диалог (-1 = Main)
   */
@@ -675,6 +676,9 @@ int Dialog::InitDialogObjects(int ID)
        FocusPos=I; // запомним первый фокусный элемент
      CurItem->Focus=0; // сбросим для всех, чтобы не оказалось,
                        //   что фокусов - как у дурочка фантиков
+     // сбросим флаг DIF_CENTERGROUP для редакторов
+     if((ItemFlags&DIF_CENTERGROUP) && IsEdit(Type))
+        CurItem->Flags&=~DIF_CENTERGROUP;
   }
 
   // Опять про фокус ввода - теперь, если "чудо" забыло выставить
@@ -757,12 +761,9 @@ int Dialog::InitDialogObjects(int ID)
     if (Type==DI_LISTBOX)
     {
       if (!CheckDialogMode(DMODE_CREATEOBJECTS))
-        CurItem->ObjPtr=new VMenu(NULL,NULL,0,CurItem->Y2-CurItem->Y1+1,
+        CurItem->ListPtr=new VMenu(NULL,NULL,0,CurItem->Y2-CurItem->Y1+1,
                         VMENU_ALWAYSSCROLLBAR|VMENU_LISTBOX,NULL/*,this*/);
-
-      VMenu *ListBox=(VMenu *)CurItem->ObjPtr;
-
-      if(ListBox)
+      if(CurItem->ListPtr)
       {
         /* $ 13.09.2000 SVS
            + Флаг DIF_LISTNOAMPERSAND. По умолчанию для DI_LISTBOX &
@@ -770,17 +771,21 @@ int Dialog::InitDialogObjects(int ID)
              подавляет такое поведение
         */
         if(!(ItemFlags&DIF_LISTNOAMPERSAND))
-          ListBox->SetFlags(MENU_SHOWAMPERSAND);
+          CurItem->ListPtr->SetFlags(MENU_SHOWAMPERSAND);
         if(ItemFlags&DIF_LISTNOBOX)
-          ListBox->SetFlags(VMENU_SHOWNOBOX);
+          CurItem->ListPtr->SetFlags(VMENU_SHOWNOBOX);
+        if(ItemFlags&DIF_LISTWRAPMODE)
+          CurItem->ListPtr->SetFlags(MENU_WRAPMODE);
+        if(ItemFlags&DIF_LISTHIGHLIGHT)
+          CurItem->ListPtr->AssignHighlights(FALSE);
         /* SVS $*/
-        ListBox->SetPosition(X1+CurItem->X1,Y1+CurItem->Y1,
+        CurItem->ListPtr->SetPosition(X1+CurItem->X1,Y1+CurItem->Y1,
                              X1+CurItem->X2,Y1+CurItem->Y2);
-        ListBox->SetBoxType(SHORT_SINGLE_BOX);
+        CurItem->ListPtr->SetBoxType(SHORT_SINGLE_BOX);
         // удалим все итемы
         //ListBox->DeleteItems(); //???? А НАДО ЛИ ????
         if(CurItem->ListItems)
-          ListBox->AddItem(CurItem->ListItems);
+          CurItem->ListPtr->AddItem(CurItem->ListItems);
       }
     }
     /* SVS $*/
@@ -788,7 +793,11 @@ int Dialog::InitDialogObjects(int ID)
     if (IsEdit(Type))
     {
       if (!CheckDialogMode(DMODE_CREATEOBJECTS))
+      {
         CurItem->ObjPtr=new Edit;
+        if(Type == DI_COMBOBOX)
+          CurItem->ListPtr=new VMenu("",NULL,0,8,VMENU_ALWAYSSCROLLBAR,NULL/*,Parent*/);
+      }
 
       Edit *DialogEdit=(Edit *)CurItem->ObjPtr;
       /* $ 26.07.2000 SVS
@@ -797,10 +806,17 @@ int Dialog::InitDialogObjects(int ID)
       /* $ 30.11.200 SVS
          Уточним на что влияет флаг DIF_DROPDOWNLIST
       */
-      if ((ItemFlags & DIF_DROPDOWNLIST) && Type == DI_COMBOBOX)
+      if (Type == DI_COMBOBOX)
       {
-         DialogEdit->DropDownBox=1;
+        CurItem->ListPtr->SetBoxType(SHORT_SINGLE_BOX);
+        if(ItemFlags & DIF_DROPDOWNLIST)
+           DialogEdit->DropDownBox=1;
+        if(ItemFlags&DIF_LISTWRAPMODE)
+          CurItem->ListPtr->SetFlags(MENU_WRAPMODE);
+        if(ItemFlags&DIF_LISTHIGHLIGHT)
+          CurItem->ListPtr->AssignHighlights(FALSE);
       }
+
       /* SVS $ */
       /* SVS $ */
       /* $ 18.09.2000 SVS
@@ -890,12 +906,13 @@ int Dialog::InitDialogObjects(int ID)
          Еже ли стоит флаг DIF_USELASTHISTORY и непустая строка ввода,
          то подстанавливаем первое значение из History
       */
-      if((ItemFlags&(DIF_HISTORY|DIF_USELASTHISTORY)) == (DIF_HISTORY|DIF_USELASTHISTORY))
+      if(CurItem->Type==DI_EDIT &&
+        (ItemFlags&(DIF_HISTORY|DIF_USELASTHISTORY)) == (DIF_HISTORY|DIF_USELASTHISTORY))
       {
         char RegKey[80];
         char *PtrData;
         int PtrLength;
-        if((CurItem->Type==DI_EDIT || CurItem->Type==DI_COMBOBOX) && (ItemFlags&DIF_VAREDIT))
+        if(ItemFlags&DIF_VAREDIT)
         {
           PtrData  =(char *)CurItem->Ptr.PtrData;
           PtrLength=CurItem->Ptr.PtrLength;
@@ -926,6 +943,8 @@ int Dialog::InitDialogObjects(int ID)
       {
         struct FarListItem *ListItems=CurItem->ListItems->Items;
         int Length=CurItem->ListItems->ItemsNumber;
+
+        CurItem->ListPtr->AddItem(CurItem->ListItems);
 
         for (J=0; J < Length; J++)
         {
@@ -1013,8 +1032,8 @@ BOOL Dialog::GetItemRect(int I,RECT& Rect)
       if (ItemFlags & DIF_SEPARATOR)
       {
         Rect.bottom=Rect.top;
-        Rect.left=!CheckDialogMode(DMODE_SMALLDILAOG)?3:0; //???
-        Rect.right=X2-X1-!CheckDialogMode(DMODE_SMALLDILAOG)?5:0; //???
+        Rect.left=(!CheckDialogMode(DMODE_SMALLDILAOG)?3:0); //???
+        Rect.right=X2-X1-(!CheckDialogMode(DMODE_SMALLDILAOG)?5:0); //???
         break;
       }
 
@@ -1071,9 +1090,11 @@ void Dialog::DeleteDialogObjects()
         case DI_PSWEDIT:
         case DI_COMBOBOX:
           delete (Edit *)(CurItem->ObjPtr);
+          if(CurItem->Type == DI_COMBOBOX && CurItem->ListPtr)
+             delete CurItem->ListPtr;
           break;
         case DI_LISTBOX:
-          delete (VMenu *)(CurItem->ObjPtr);
+          delete CurItem->ListPtr;
           break;
         case DI_USERCONTROL:
           delete (COORD *)(CurItem->ObjPtr);
@@ -1152,8 +1173,7 @@ void Dialog::GetDialogObjectsData()
 
         case DI_LISTBOX:
         {
-          VMenu *VMenuPtr=(VMenu *)(CurItem->ObjPtr);
-          CurItem->ListPos=VMenuPtr->GetSelectPos();
+          CurItem->ListPos=CurItem->ListPtr->GetSelectPos();
           break;
         }
 
@@ -1248,17 +1268,11 @@ void Dialog::ShowDialog(int ID)
       case DI_USERCONTROL:
         if(CurItem->VBuf)
         {
+          COORD *Coord=(COORD *)(CurItem->ObjPtr);
           PutText(X1+CurItem->X1,Y1+CurItem->Y1,X1+CurItem->X2,Y1+CurItem->Y2,CurItem->VBuf);
           // не забудим переместить курсор, если он спозиционирован.
-          if(((COORD *)(CurItem->ObjPtr))->X != -1 &&
-             ((COORD *)(CurItem->ObjPtr))->Y != -1 &&
-             FocusPos == I)
-          {
-             MoveCursor(
-                ((COORD *)(CurItem->ObjPtr))->X+CurItem->X1+X1,
-                ((COORD *)(CurItem->ObjPtr))->Y+CurItem->Y1+Y1
-             );
-          }
+          if(Coord->X != -1 && Coord->Y != -1 && FocusPos == I)
+            MoveCursor(Coord->X+CurItem->X1+X1,Coord->Y+CurItem->Y1+Y1);
         }
         break; //уже наприсовали :-)))
 
@@ -1342,11 +1356,11 @@ void Dialog::ShowDialog(int ID)
 
         if (CurItem->Flags & DIF_SEPARATOR)
         {
-          GotoXY(X1+!CheckDialogMode(DMODE_SMALLDILAOG)?3:0,Y1+Y); //????
+          GotoXY(X1+(!CheckDialogMode(DMODE_SMALLDILAOG)?3:0),Y1+Y); //????
           if (DialogTooLong)
-            ShowSeparator(DialogTooLong-!CheckDialogMode(DMODE_SMALLDILAOG)?5:0);
+            ShowSeparator(DialogTooLong-(!CheckDialogMode(DMODE_SMALLDILAOG)?5:0));
           else
-            ShowSeparator(X2-X1-!CheckDialogMode(DMODE_SMALLDILAOG)?5:0);
+            ShowSeparator(X2-X1-(!CheckDialogMode(DMODE_SMALLDILAOG)?5:0));
         }
 
         GotoXY(X1+X,Y1+Y);
@@ -1488,22 +1502,21 @@ void Dialog::ShowDialog(int ID)
       */
       case DI_LISTBOX:
       {
-        VMenu *ListBox=(VMenu *)(CurItem->ObjPtr);
-        if(ListBox)
+        if(CurItem->ListPtr)
         {
           /* $ 21.08.2000 SVS
              Перед отрисовкой спросим об изменении цветовых атрибутов
           */
           short Colors[9];
-          ListBox->GetColors(Colors);
+          CurItem->ListPtr->GetColors(Colors);
           if(DlgProc((HANDLE)this,DN_CTLCOLORDLGLIST,
                           sizeof(Colors)/sizeof(Colors[0]),(long)Colors))
-            ListBox->SetColors(Colors);
+            CurItem->ListPtr->SetColors(Colors);
           /* SVS $ */
           if (CurItem->Focus)
-            ListBox->Show();
+            CurItem->ListPtr->Show();
           else
-            ListBox->FastShow();
+            CurItem->ListPtr->FastShow();
         }
         break;
       }
@@ -1531,9 +1544,12 @@ void Dialog::ShowDialog(int ID)
         GotoXY(X1+CurItem->X1,Y1+CurItem->Y1);
 
         if (CurItem->Type==DI_CHECKBOX)
+        {
+          char *Chk3State=MSG(MCheckBox2State);
           mprintf("[%c] ",CurItem->Selected ?
              (((CurItem->Flags&DIF_3STATE) && CurItem->Selected == 2)?
-                *CheckBox3State:'x'):' ');
+                *Chk3State:'x'):' ');
+        }
         else
           if (CurItem->Flags & DIF_MOVESELECT)
             mprintf(" %c ",CurItem->Selected ? '\07':' ');
@@ -1800,7 +1816,7 @@ int Dialog::ProcessKey(int Key)
       case KEY_DOWN:
       case KEY_PGUP:
       case KEY_PGDN:
-        VMenu *List=(VMenu *)Item[FocusPos].ObjPtr;
+        VMenu *List=Item[FocusPos].ListPtr;
         int CurListPos=List->GetSelectPos();
         int CheckedListItem=List->GetSelection(-1);
         List->ProcessKey(Key);
@@ -1814,6 +1830,9 @@ int Dialog::ProcessKey(int Key)
         return(TRUE);
     }
   }
+
+  if(Key == KEY_DOWN && Type == DI_COMBOBOX && (Item[FocusPos].Flags&DIF_DROPDOWNLIST))
+    Key=KEY_CTRLDOWN;
 
   switch(Key)
   {
@@ -2261,7 +2280,7 @@ int Dialog::ProcessKey(int Key)
       /* $ 18.07.2000 SVS
          + обработка DI_COMBOBOX - выбор из списка!
       */
-      else if(Type == DI_COMBOBOX && Item[FocusPos].ListItems)
+      else if(Type == DI_COMBOBOX && Item[FocusPos].ListPtr)
       {
         char *PStr=Str;
         int MaxLen=sizeof(Item[FocusPos].Data);
@@ -2272,8 +2291,7 @@ int Dialog::ProcessKey(int Key)
             return TRUE;//???
         }
         CurEditLine->GetString(PStr,MaxLen);
-        SelectFromComboBox(CurEditLine,
-                      Item[FocusPos].ListItems,PStr,MaxLen);
+        SelectFromComboBox(CurEditLine,Item[FocusPos].ListPtr,PStr,MaxLen);
         Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,FocusPos,0);
         if(Item[FocusPos].Flags&DIF_VAREDIT)
           free(PStr);
@@ -2291,7 +2309,7 @@ int Dialog::ProcessKey(int Key)
       */
       if(Type == DI_LISTBOX)
       {
-        ((VMenu *)(Item[FocusPos].ObjPtr))->ProcessKey(Key);
+        Item[FocusPos].ListPtr->ProcessKey(Key);
         return(TRUE);
       }
       /* SVS $ */
@@ -2676,7 +2694,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
             if(FocusPos != I)
               ChangeFocus2(FocusPos,I);
             ShowDialog();
-            ((VMenu *)(Item[I].ObjPtr))->ProcessMouse(MouseEvent);
+            Item[I].ListPtr->ProcessMouse(MouseEvent);
             return(TRUE);
           }
           /* SVS $ */
@@ -3100,6 +3118,7 @@ void Dialog::DataToItem(struct DialogData *Data,struct DialogItem *Item,
       }
     }
     Item->ObjPtr=NULL;
+    Item->ListPtr=NULL;
   }
 }
 /* SVS 04.12.2000 $ */
@@ -3226,133 +3245,68 @@ int Dialog::FindInEditForAC(int TypeFind,void *HistoryName,char *FindStr,int Max
    $ 18.07.2000 SVS
    Функция-обработчик выбора из списка и установки...
 */
-void Dialog::SelectFromComboBox(
+int Dialog::SelectFromComboBox(
          Edit *EditLine,                   // строка редактирования
-         struct FarList *List,    // список строк
+         VMenu *ComboBox,    // список строк
          char *IStr,
          int MaxLen)
 {
   char *Str;
-  struct MenuItem ComboBoxItem={0};
-  struct FarListItem *ListItems=List->Items;
   int EditX1,EditY1,EditX2,EditY2;
   int I,Dest;
 
   if((Str=(char*)malloc(MaxLen)) != NULL)
   {
-    // создание пустого вертикального меню
-    //  с обязательным показом ScrollBar
-    VMenu ComboBoxMenu("",NULL,0,8,VMENU_ALWAYSSCROLLBAR,NULL/*,this*/);
-
     EditLine->GetPosition(EditX1,EditY1,EditX2,EditY2);
     if (EditX2-EditX1<20)
       EditX2=EditX1+20;
     if (EditX2>ScrX)
       EditX2=ScrX;
-  #if 0
-    if(!(Item[FocusPos].Flags&DIF_LISTNOAMPERSAND))
-  #endif
-      ComboBoxMenu.SetFlags(MENU_SHOWAMPERSAND);
-    ComboBoxMenu.SetPosition(EditX1,EditY1+1,EditX2,0);
-    ComboBoxMenu.SetBoxType(SHORT_SINGLE_BOX);
-
-    // заполнение пунктов меню
-    /* Последний пункт списка - ограничититель - в нем Tetx[0]
-       должен быть равен '\0'
-    */
-    for (Dest=I=0;I < List->ItemsNumber;I++)
-    {
-      memset(&ComboBoxItem,0,sizeof(ComboBoxItem));
-
-      /* $ 28.07.2000 SVS
-         Выставим Selected при полном совпадении строки ввода и списка
-      */
-
-      if(IStr && *IStr && !(ListItems[I].Flags&LIF_DISABLE))
-      {
-        if((ComboBoxItem.Selected=(!Dest &&
-         !strncmp(IStr,
-           ((ListItems[I].Flags&LIF_PTRDATA)?ListItems[I].Ptr.PtrData:ListItems[I].Text),
-           (ListItems[I].Flags&LIF_PTRDATA)?ListItems[I].Ptr.PtrLength:sizeof(ListItems[I].Text)))?
-           TRUE:FALSE) == TRUE)
-           Dest++;
-      }
-      else
-         ComboBoxItem.Selected=ListItems[I].Flags&LIF_SELECTED;
-
-      ComboBoxItem.Separator=ListItems[I].Flags&LIF_SEPARATOR;
-      ComboBoxItem.Checked=ListItems[I].Flags&LIF_CHECKED;
-      ComboBoxItem.Disabled=ListItems[I].Flags&LIF_DISABLE;
-      /* 01.08.2000 SVS $ */
-      /* SVS $ */
-      if(ListItems[I].Flags&LIF_PTRDATA)
-      {
-        // а может все таки влезим в нужные размеры?
-        if(ListItems[I].Ptr.PtrLength < sizeof(ComboBoxItem.UserData))
-        {
-          strncpy(ComboBoxItem.Name,ListItems[I].Ptr.PtrData,sizeof(ComboBoxItem.Name)-1);
-          strcpy(ComboBoxItem.UserData,ListItems[I].Ptr.PtrData);
-        }
-        else
-        {
-          ComboBoxItem.PtrData=ListItems[I].Ptr.PtrData;
-          ComboBoxItem.Flags=1;
-        }
-        ComboBoxItem.UserDataSize=strlen(ListItems[I].Ptr.PtrData);
-      }
-      else
-      {
-        strcpy(ComboBoxItem.Name,ListItems[I].Text);
-        strcpy(ComboBoxItem.UserData,ListItems[I].Text);
-        ComboBoxItem.UserDataSize=strlen(ListItems[I].Text);
-      }
-      ComboBoxMenu.AddItem(&ComboBoxItem);
-    }
-
-    /* $ 28.07.2000 SVS
-       Перед отрисовкой спросим об изменении цветовых атрибутов
-    */
+    ComboBox->SetPosition(EditX1,EditY1+1,EditX2,0);
+    // Перед отрисовкой спросим об изменении цветовых атрибутов
     short Colors[9];
-    ComboBoxMenu.GetColors(Colors);
+    ComboBox->GetColors(Colors);
     if(DlgProc((HANDLE)this,DN_CTLCOLORDLGLIST,
                     sizeof(Colors)/sizeof(Colors[0]),(long)Colors))
-      ComboBoxMenu.SetColors(Colors);
-    /* SVS $ */
+      ComboBox->SetColors(Colors);
 
-    ComboBoxMenu.Show();
+    ComboBox->Show();
 
-    Dest=ComboBoxMenu.GetSelectPos();
-    while (!ComboBoxMenu.Done())
+    Dest=ComboBox->GetSelectPos();
+    while (!ComboBox->Done())
     {
-      int Key=ComboBoxMenu.ReadInput();
+      int Key=ComboBox->ReadInput();
       // здесь можно добавить что-то свое, например,
-      I=ComboBoxMenu.GetSelectPos();
+      I=ComboBox->GetSelectPos();
       if(I != Dest)
       {
         if(!DlgProc((HANDLE)this,DN_LISTCHANGE,FocusPos,I))
-          ComboBoxMenu.SetSelectPos(Dest,Dest<I?-1:1); //????
+          ComboBox->SetSelectPos(Dest,Dest<I?-1:1); //????
         else
           Dest=I;
       }
-      //  обработку multiselect ComboBox
+      // обработку multiselect ComboBox
+      // ...
+      ComboBox->ProcessInput();
+    }
+    ComboBox->ClearDone();
+    ComboBox->Hide();
 
-      ComboBoxMenu.ProcessInput();
+    Dest=ComboBox->GetExitCode();
+    if (Dest<0)
+    {
+      free(Str);
+      return KEY_ESC;
     }
 
-    int ExitCode=ComboBoxMenu.GetExitCode();
-    if (ExitCode<0)
-      return;
-    /* Запомним текущее состояние */
-    for (I=0; I < List->ItemsNumber; I++)
-      ListItems[I].Flags&=~LIF_SELECTED;
-    ListItems[ExitCode].Flags|=LIF_SELECTED;
-    ComboBoxMenu.GetUserData(Str,MaxLen,ExitCode);
-
+    ComboBox->GetUserData(Str,MaxLen,Dest);
     EditLine->SetString(Str);
     EditLine->SetLeftPos(0);
     Redraw();
     free(Str);
+    return KEY_ENTER;
   }
+  return KEY_ESC;
 }
 /* SVS $ */
 
@@ -3958,6 +3912,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
   {
     case DM_LISTSORT: // Param1=ID Param=Direct {0|1}
     case DM_LISTADD: // Param1=ID Param2=FarList: ItemsNumber=Count, Items=Src
+    case DM_LISTADDSTR: // Param1=ID Param2=String
     case DM_LISTDELETE: // Param1=ID Param2=FarListDelete: StartIndex=BeginIndex, Count=количество (<=0 - все!)
     case DM_LISTGET: // Param1=ID Param2=FarList: ItemsNumber=Index, Items=Dest
     case DM_LISTGETCURPOS: // Param1=ID Param2=0
@@ -3965,7 +3920,8 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     //case DM_LISTINS: // Param1=ID Param2=FarList: ItemsNumber=Index, Items=Dest
       if(Type==DI_LISTBOX || Type==DI_COMBOBOX)
       {
-        VMenu *ListBox=(VMenu *)CurItem->ObjPtr;
+        VMenu *ListBox;
+        ListBox=CurItem->ListPtr;
         if(ListBox)
         {
           int Ret=TRUE;
@@ -3974,6 +3930,11 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
             case DM_LISTSORT: // Param1=ID Param=Direct {0|1}
             {
               ListBox->SortItems(Param2);
+              break;
+            }
+            case DM_LISTADDSTR: // Param1=ID Param2=String
+            {
+              ListBox->AddItem((char*)Param2);
               break;
             }
             case DM_LISTADD: // Param1=ID Param2=FarList: ItemsNumber=Count, Items=Src
@@ -4220,10 +4181,9 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 
           case DI_LISTBOX: // пока не трогаем - не реализован
           {
-            if(!CurItem->ObjPtr)
+            if(!CurItem->ListPtr)
               break;
-            VMenu *VMenuPtr=(VMenu *)(CurItem->ObjPtr);
-            did->PtrLength=VMenuPtr->GetUserData(did->PtrData,did->PtrLength,-1);
+            did->PtrLength=CurItem->ListPtr->GetUserData(did->PtrData,did->PtrLength,-1);
             break;
           }
 
@@ -4267,10 +4227,9 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 
         case DI_LISTBOX:
           Len=0;
-          if(CurItem->ObjPtr)
+          if(CurItem->ListPtr)
           {
-            VMenu *VMenuPtr=(VMenu *)(CurItem->ObjPtr);
-            Len=VMenuPtr->GetUserData(NULL,0,-1);
+            Len=CurItem->ListPtr->GetUserData(NULL,0,-1);
           }
           break;
 

@@ -8,13 +8,16 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.101 12.05.2001 $ */
+/* Revision: 1.102 14.05.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  14.05.2001 SVS
+    + DIF_LISTWRAPMODE, DIF_LISTHIGHLIGHT
+    + DM_LISTADDSTR
   12.05.2001 DJ
     + VF_ENABLE_F6, EF_ENABLE_F6
   08.05.2001 SVS
@@ -577,6 +580,8 @@ enum FarDialogItemFlags {
   DIF_MASKEDIT        =0x00400000UL,
   DIF_SELECTONENTRY   =0x00800000UL,
   DIF_3STATE          =0x00800000UL,
+  DIF_LISTWRAPMODE    =0x01000000UL,
+  DIF_LISTHIGHLIGHT   =0x02000000UL,
   DIF_HIDDEN          =0x10000000UL,
   DIF_READONLY        =0x20000000UL,
   DIF_NOFOCUS         =0x40000000UL,
@@ -616,6 +621,7 @@ enum FarMessagesProc{
   DM_LISTSETCURPOS,
   DM_LISTDELETE,
   DM_LISTADD,
+  DM_LISTADDSTR,
 
   DN_FIRST=0x1000,
   DN_BTNCLICK,
@@ -718,6 +724,7 @@ struct FarDialogItemData
 
 #define DlgEdit_AddHistory(Info,hDlg,ID,Str)   Info.SendDlgMessage(hDlg,DM_ADDHISTORY,ID,(long)Str)
 
+#define DlgList_AddString(Info,hDlg,ID,Str)    Info.SendDlgMessage(hDlg,DM_LISTADDSTR,ID,(long)Str)
 #define DlgList_GetCurPos(Info,hDlg,ID)        Info.SendDlgMessage(hDlg,DM_LISTGETCURPOS,ID,0)
 #define DlgList_SetCurPos(Info,hDlg,ID,NewPos) Info.SendDlgMessage(hDlg,DM_LISTSETCURPOS,ID,NewPos)
 #define DlgList_ClearList(Info,hDlg,ID)        Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,0)

@@ -5,10 +5,12 @@ Parent class для всех screen objects
 
 */
 
-/* Revision: 1.03 09.05.2001 $ */
+/* Revision: 1.04 12.05.2001 $ */
 
 /*
 Modify:
+  12.05.2001 SVS
+    ! Немного проверок на несозданные объекты
   09.05.2001 OT
     - Отключние в конструкторе EnableRestoreScreen=FALSE;
   06.05.2001 DJ
@@ -52,8 +54,10 @@ ScreenObject::~ScreenObject()
     if (SaveScr)
       SaveScr->Discard();
   }
-  delete ShadowSaveScr;
-  delete SaveScr;
+  if (ShadowSaveScr)
+    delete ShadowSaveScr;
+  if (SaveScr)
+    delete SaveScr;
 }
 
 
@@ -83,9 +87,11 @@ void ScreenObject::Hide()
   if (!Visible)
     return;
   Visible=FALSE;
-  delete ShadowSaveScr;
+  if (ShadowSaveScr)
+    delete ShadowSaveScr;
   ShadowSaveScr=NULL;
-  delete SaveScr;
+  if (SaveScr)
+    delete SaveScr;
   SaveScr=NULL;
 }
 

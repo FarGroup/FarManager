@@ -7,10 +7,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.17 07.05.2001 $ */
+/* Revision: 1.18 12.05.2001 $ */
 
 /*
 Modify:
+  12.05.2001 SVS
+    + AddItem(char *NewStrItem);
   07.05.2001 SVS
     ! SysLog(); -> _D(SysLog());
     + AddItem, отличается тем, что параметр типа struct FarList - для
@@ -507,6 +509,35 @@ int VMenu::AddItem(struct MenuItem *NewItem)
   return(ItemCount++);
 }
 
+int  VMenu::AddItem(char *NewStrItem)
+{
+  struct FarList FarList0;
+  struct FarListItem FarListItem0;
+  int LenNewStrItem=0;
+  if(NewStrItem)
+    LenNewStrItem=strlen(NewStrItem);
+  if(LenNewStrItem >= sizeof(FarListItem0.Text))
+  {
+    FarListItem0.Flags=LIF_PTRDATA;
+    FarListItem0.Ptr.PtrLength=LenNewStrItem;
+    FarListItem0.Ptr.PtrData=NewStrItem;
+  }
+  else
+  {
+    FarListItem0.Flags=0;
+    if(!LenNewStrItem || NewStrItem[0] == 0x1)
+    {
+      FarListItem0.Flags=LIF_SEPARATOR;
+      FarListItem0.Text[0]=0;
+    }
+    else
+      strcpy(FarListItem0.Text,NewStrItem);
+  }
+  FarList0.ItemsNumber=1;
+  FarList0.Items=&FarListItem0;
+  return VMenu::AddItem(&FarList0);
+}
+
 int VMenu::AddItem(struct FarList *List)
 {
   struct MenuItem ListItem={0};
@@ -933,6 +964,11 @@ void VMenu::SetFlags(unsigned int Flags)
   DrawBackground=!(Flags & MENU_DISABLEDRAWBACKGROUND);
   WrapMode=(Flags & MENU_WRAPMODE);
   ShowAmpersand=(Flags & MENU_SHOWAMPERSAND);
+  if(VMenu::VMFlags&VMENU_LISTBOX)
+  {
+    if(Flags&VMENU_SHOWNOBOX)
+      VMenu::VMFlags|=VMENU_SHOWNOBOX;
+  }
 }
 
 

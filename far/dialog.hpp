@@ -10,10 +10,14 @@ dialog.hpp
 
 */
 
-/* Revision: 1.26 10.05.2001 $ */
+/* Revision: 1.27 12.05.2001 $ */
 
 /*
 Modify:
+  12.05.2001 SVS
+   ! Изменился второй параметр у SelectFromComboBox();
+   ! Функция SelectFromComboBox() теперь возвращает код возврата.
+   + DialogItem.ListPtr - для DI_COMBOBOX
   10.05.2001 SVS
    + FDLG_SMALLDILAOG - не рисовать "платформу"
    ! SetWarningStyle удалена
@@ -120,6 +124,7 @@ Modify:
 #include "modal.hpp"
 #include "plugin.hpp"
 #include "edit.hpp"
+#include "vmenu.hpp"
 
 // Флаги текущего режима диалога
 #define DMODE_INITOBJECTS   0x00000001 // элементы инициализарованы?
@@ -187,6 +192,7 @@ struct DialogItem
     } Ptr;
   };
   void *ObjPtr;
+  VMenu *ListPtr;
 };
 /* SVS $ */
 
@@ -297,7 +303,7 @@ class Dialog:public Modal
     /* $ 18.07.2000 SVS
        + функция SelectFromComboBox для выбора из DI_COMBOBOX
     */
-    void SelectFromComboBox(Edit *EditLine,struct FarList *List,char *Str,int MaxLen);
+    int SelectFromComboBox(Edit *EditLine,VMenu *List,char *Str,int MaxLen);
     /* SVS $ */
     /* $ 26.07.2000 SVS
        AutoComplite: Поиск входжение подстроки в истории

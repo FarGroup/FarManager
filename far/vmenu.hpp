@@ -10,10 +10,12 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.08 07.05.2001 $ */
+/* Revision: 1.09 12.05.2001 $ */
 
 /*
 Modify:
+  12.05.2001 SVS
+   + AddItem(char *NewStrItem);
   07.05.2001 SVS
    + AddItem, отличается тем, что параметр типа struct FarList - для
      сокращения кода в диалогах :-)
@@ -190,8 +192,11 @@ class VMenu: public Modal
     */
     int  DeleteItem(int ID,int Count=1);
     /* SVS $ */
+
     int  AddItem(struct MenuItem *NewItem);
     int  AddItem(struct FarList *NewItem);
+    int  AddItem(char *NewStrItem);
+
     int  GetItemCount() {return(ItemCount);};
     int  GetUserData(void *Data,int Size,int Position=-1);
     int  GetSelectPos();
