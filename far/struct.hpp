@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.26 25.11.2000 $ */
+/* Revision: 1.26 27.11.2000 $ */
 
 /*
 Modify:
+  27.11.2000 SVS
+   + Opt.ExceptRules - Правило на счет вызова исключений
   25.11.2000 IS
    + Разграничитель слов из реестра для функции Xlat (WordDivForXlat)
   24.11.2000 SVS
@@ -406,6 +408,10 @@ struct Options
   /* $ 22.11.2000 SVS
    + Правило на счет установки атрибутов на каталоги*/
   int SetAttrFolderRules;
+  /* SVS $ */
+  /* $ 27.11.2000 SVS
+   + Opt.ExceptRules - Правило на счет вызова исключений */
+  int ExceptRules;
   /* SVS $ */
   /* $ 05.09.2000 SVS
      В Opt добавлен блок переменный, касаемых QWERTY-перекодировки

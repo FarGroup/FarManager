@@ -12,10 +12,12 @@ lang.hpp
            подряд.
 */
 
-/* Revision: 1.26 22.11.2000 $ */
+/* Revision: 1.27 27.11.2000 $ */
 
 /*
 Modify:
+  27.11.2000 SVS
+    + MExcDebugger
   22.11.2000 SVS
     + MSetColorDialogMenuScrollBar - полоса прокрутки для списка
   02.11.2000 OT
@@ -1289,6 +1291,7 @@ enum
   MExcOutOfBounds,
   MExcDivideByZero,
   MExcStackOverflow,
+  MExcDebugger,
 
   MReadFolderError,
   MPlgBadVers,

@@ -5,10 +5,13 @@ plugins.cpp
 
 */
 
-/* Revision: 1.42 02.11.2000 $ */
+/* Revision: 1.43 27.11.2000 $ */
 
 /*
 Modify:
+  27.11.2000 SVS
+    ! Введение кнопки Debug в диалоги исключений с последующим вызовом
+      системного дебагера.
   02.11.2000 OT
     ! Введение проверки на длину буфера, отведенного под имя файла.
   31.10.2000 SVS
@@ -198,7 +201,7 @@ static int xfilter(
 
    char *Ptr;
    int I;
-   int rc;
+   int rc, Ret;
    char Buf[2][64];
    char TruncFileName[2*NM];
 
@@ -209,8 +212,6 @@ static int xfilter(
    //         содержимого регистров...
    // CONTEXT *xc = xp->ContextRecord;
 
-   // Вот здесь есть подозрение - нужно ли вообще это EXCEPTION_CONTINUE_SEARCH?
-//   rc = EXCEPTION_CONTINUE_SEARCH;
    rc = EXCEPTION_EXECUTE_HANDLER;
 
    Ptr=NULL;
@@ -236,40 +237,57 @@ static int xfilter(
        sprintf(Buf[0],MSG(MExcAddress),xr->ExceptionAddress);
        if(Flags&1)
        {
-         if(!Message(MSG_WARNING,2,
+         Ret=Message(MSG_WARNING,(Opt.ExceptRules?3:2),
                  xFromMSGTitle(From),
                  MSG(MExcTrappedException),
                  Ptr,
                  Buf[0],
                  TruncPathStr(TruncFileName,40),"\1",
                  MSG(MExcUnload),
-                 MSG(MYes),MSG(MNo)))
-          CtrlObject->Plugins.UnloadPlugin(*Module);
+                 (Opt.ExceptRules?MSG(MExcDebugger):MSG(MYes)),
+                 (Opt.ExceptRules?MSG(MYes):MSG(MNo)),
+                 (Opt.ExceptRules?MSG(MNo):NULL));
+         if(Opt.ExceptRules && Ret == 1 || !Opt.ExceptRules && !Ret)
+           CtrlObject->Plugins.UnloadPlugin(*Module);
        }
        else
-         Message(MSG_WARNING,1,
+         Ret=Message(MSG_WARNING,(Opt.ExceptRules?2:1),
                  xFromMSGTitle(From),
                  MSG(MExcTrappedException),
                  Ptr,
                  Buf[0],
                  TruncPathStr(TruncFileName,40),"\1",
                  MSG(MExcUnloadYes),
-                 MSG(MOk));
+                 (Opt.ExceptRules?MSG(MExcDebugger):MSG(MOk)),
+                 (Opt.ExceptRules?MSG(MOk):NULL));
      }
    }
-   else
+   else // однозначно выгружаем эту бяку :-(
    {
-     Message(MSG_WARNING,1,
-             xFromMSGTitle(From),
-             MSG(MExcTrappedException),
-             MSG(MExcCheckOnLousys),
-             TruncPathStr(TruncFileName,40),"\1",
-             MSG(MExcUnloadYes),
-             MSG(MOk));
-     CtrlObject->Plugins.UnloadPlugin(*Module);
-     // не забудем про продолжение исполнения
-     rc=EXCEPTION_EXECUTE_HANDLER;
+     Ret=Message(MSG_WARNING,
+            (Opt.ExceptRules?2:1),
+            xFromMSGTitle(From),
+            MSG(MExcTrappedException),
+            MSG(MExcCheckOnLousys),
+            TruncPathStr(TruncFileName,40),"\1",
+            MSG(MExcUnloadYes),
+            (Opt.ExceptRules?MSG(MExcDebugger):MSG(MOk)),
+            (Opt.ExceptRules?MSG(MOk):NULL));
+
+     if(!Opt.ExceptRules || Ret == 1)
+       CtrlObject->Plugins.UnloadPlugin(*Module);
+
+     if(!Opt.ExceptRules)
+       // не забудем про продолжение исполнения
+       rc=EXCEPTION_EXECUTE_HANDLER;
    }
+
+   // Вот здесь есть подозрение - нужно ли вообще это EXCEPTION_CONTINUE_SEARCH?
+   if(Opt.ExceptRules && !Ret)
+   {
+     rc = EXCEPTION_CONTINUE_SEARCH;
+   }
+
    return rc;
 }
 /* SVS $ */

@@ -1217,6 +1217,7 @@
 ""Array out of bounds""
 ""Divide by zero""
 ""Stack Overflow""
+"Debugger"
 
 "Cannot read folder contents"
 "This plugin requeired higher FAR version"

@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.35 25.11.2000 $ */
+/* Revision: 1.36 27.11.2000 $ */
 
 /*
 Modify:
+  27.11.2000 SVS
+    + Opt.ExceptRules - Правило на счет вызова исключений
   25.11.2000 IS
     + Стандартный набор разделителей для функции Xlat (WordDivForXlat)
   24.11.2000 SVS
@@ -882,6 +884,12 @@ void ReadConfig()
       По умолчанию все разрешено.
   */
   GetRegKey("System","AllCtrlAltShiftRule",Opt.AllCtrlAltShiftRule,0x0000FFFF);
+  /* SVS $ */
+  /* $ 27.11.2000 SVS
+    Opt.ExceptRules - Правило на счет вызова исключений
+     =1 - показывать кнопку Debugger и если надо вызывать этот дебугер
+  */
+  GetRegKey("System","ExceptRules",Opt.ExceptRules,0);
   /* SVS $ */
 
   GetRegKey("Language","Main",Opt.Language,"English",sizeof(Opt.Language));
