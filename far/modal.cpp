@@ -5,13 +5,16 @@ Parent class для модальных объектов
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 29.06.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  29.06.2000 tran
+    - (NT Console resize bug)
+      adding virtual method SetScreenPosition
 */
 
 #include "headers.hpp"
@@ -50,12 +53,20 @@ Modal::Modal()
 void Modal::Process()
 {
   Show();
+  /* $ 29.06.2000 tran
+     установка ActiveModal в CtrlObject (NT Console resize) */
+  CtrlObject->ModalManager.ActiveModal=this;
+  /* tran $ */
   while (!Done())
   {
     ReadInput();
     ProcessInput();
   }
   GetDialogObjectsData();
+  /* $ 29.06.2000 tran
+     установка ActiveModal в CtrlObject (NT Console resize) */
+  CtrlObject->ModalManager.ActiveModal=0;
+  /* tran $ */
 }
 
 
@@ -131,4 +142,13 @@ void Modal::SetKeyBar(KeyBar *ModalKeyBar)
 {
   Modal::ModalKeyBar=ModalKeyBar;
 }
+
+/* $ 29.06.2000 tran
+   adding virtual method for processing NT Console resize
+*/
+
+void Modal::SetScreenPosition()
+{
+}
+/* tran $ */
 

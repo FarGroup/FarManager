@@ -5,13 +5,16 @@ fileview.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 29.06.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  28.06.2000 tran
+    - NT Console resize
+      adding SetScreenPosition
 */
 
 #include "headers.hpp"
@@ -227,3 +230,16 @@ int FileViewer::GetExitCode()
 {
   return(ExitCode);
 }
+
+/* $ 28.06.2000 tran
+ (NT Console resize)
+ resize viewer */
+void FileViewer::SetScreenPosition()
+{
+  if (FullScreen)
+  {
+    SetPosition(0,0,ScrX,ScrY);
+    Show();
+  }
+}
+/* tran $ */

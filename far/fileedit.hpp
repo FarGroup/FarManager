@@ -7,13 +7,16 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 29.06.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  28.06.2000 tran
+    - NT Console resize bug
+      adding SetScreenPosition method
 */
 
 class FileEditor:public Modal
@@ -47,6 +50,10 @@ class FileEditor:public Modal
     int IsFileChanged() {return(FEdit.IsFileChanged());};
     int IsFileModified() {return(FEdit.IsFileModified());};
     int GetExitCode();
+    /* $ 28.06.2000 tran
+       NT Console resize - resize editor */
+    virtual void SetScreenPosition();
+    /* tran $ */
 };
 
 #endif	// __FILEEDITOR_HPP__

@@ -5,7 +5,7 @@ help.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 29.06.2000 $ */
 
 /*
 Modify:
@@ -15,6 +15,9 @@ Modify:
   26.06.2000 IS
     - Глюк с хелпом по f1, shift+f2, end
       (решение предложил IG)
+  28.06.2000
+    - NT Console resize
+      adding SetScreenPosition method
 */
 
 #include "headers.hpp"
@@ -893,3 +896,15 @@ int Help::PluginPanelHelp(HANDLE hPlugin)
   return(TRUE);
 }
 
+/* $ 28.06.2000 tran
+ (NT Console resize)
+ resize help*/
+void Help::SetScreenPosition()
+{
+  if (FullScreenHelp)
+    SetPosition(0,0,ScrX,ScrY);
+  else
+    SetPosition(4,2,ScrX-4,ScrY-2);
+  Show();
+}
+/* tran $ */

@@ -7,13 +7,16 @@ help.hpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 29.06.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  28.06.2000 tran
+    - NT Console resize bug
+      adding SetScreenPosition method
 */
 
 class Help:public Modal
@@ -53,6 +56,11 @@ class Help:public Modal
     static int GetFullScreenMode();
     static void SetFullScreenMode(int Mode);
     static int PluginPanelHelp(HANDLE hPlugin);
+
+    /* $ 28.06.2000 tran
+       NT Console resize - resize help */
+    virtual void SetScreenPosition();
+    /* tran $ */
 };
 
 #endif	// __HELP_HPP__

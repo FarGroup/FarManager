@@ -7,13 +7,16 @@ fileview.hpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 29.06.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  28.06.2000 tran
+    - NT Console resize bug
+      adding SetScreenPosition method
 */
 
 class FileViewer:public Modal
@@ -43,6 +46,10 @@ class FileViewer:public Modal
     void ShowConsoleTitle();
     void SetTempViewName(char *Name);
     int GetExitCode();
+    /* $ 28.06.2000 tran
+       NT Console resize - resize viewer */
+    virtual void SetScreenPosition();
+    /* tran $ */
 };
 
 #endif	// __FILEVIEWER_HPP__

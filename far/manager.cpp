@@ -5,13 +5,16 @@ manager.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 28.06.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  28.06.2000 tran
+    - NT Console resize
+      add class member ActiveModal
 */
 
 #include "headers.hpp"
@@ -52,6 +55,10 @@ Manager::Manager()
   ModalCount=ModalPos=0;
   UpdateRequired=FALSE;
   *NextName=0;
+  /* $ 28.06.2000 tran
+     clear it */
+  ActiveModal=0;
+  /* tran $ */
 }
 
 

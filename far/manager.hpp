@@ -7,13 +7,16 @@ manager.hpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 28.06.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  28.06.2000 tran
+    - NT Console resize bug
+      add class member ActiveModal
 */
 
 class Manager
@@ -41,6 +44,10 @@ class Manager
     int FindModalByFile(int ModalType,char *FileName);
     void ShowBackground();
     void SetNextWindow(int Viewer,char *Name,long Pos);
+    /* $ 28.06.2000 tran
+       add class memer ActiveModal */
+    Modal *ActiveModal;
+    /* tran $ */
 };
 
 #endif	// __MANAGER_HPP__
