@@ -5,13 +5,15 @@ copy.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 03.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  03.07.2000 IS
+    ! Показывать проценты спереди при копировании/переносе
 */
 
 
@@ -1637,9 +1639,17 @@ void ShellCopy::ShowTitle(int FirstTime)
   if (ShowTotalCopySize && !FirstTime)
   {
     int64 CopySize=CurCopySize>>8,TotalSize=TotalCopySize>>8;
+    /* $ 03.07.2000 IS
+      Показывать проценты спереди при копировании/переносе
+    было:
     char Percent[50];
     sprintf(Percent," {%d%%}",ToPercent(CopySize.LowPart,TotalSize.LowPart));
     strcat(Title,Percent);
+    */
+    char Percent[200];
+    sprintf(Percent,"{%d%%} %s",ToPercent(CopySize.LowPart,TotalSize.LowPart),Title);
+    strcpy(Title,Percent);
+    /* IS $ */
   }
   if (strcmp(PrevTitle,Title)!=0)
   {
