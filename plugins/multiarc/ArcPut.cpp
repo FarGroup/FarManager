@@ -332,6 +332,7 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
     Info.SendDlgMessage(hDlg,MAM_SETDISABLE,0,0);
     Info.SendDlgMessage(hDlg,MAM_ARCSWITCHES,0,0);
+    Info.SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,PDI_SWITCHESEDT,1);
     //Info.SendDlgMessage(hDlg,MAM_SETNAME,0,0);
     Info.SendDlgMessage(hDlg,DM_SETFOCUS, PDI_ARCNAMEEDT, 0);
     //Info.SendDlgMessage(hDlg,MAM_ARCSWITCHES,0,0);
