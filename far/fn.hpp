@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.34 09.10.2000 $ */
+/* Revision: 1.35 16.10.2000 $ */
 
 /*
 Modify:
+  16.10.2000 tran
+   + PasteFromClipboardEx(int max);
   09.10.2000 IS
    + ProcessName
   27.09.2000 SVS
@@ -261,6 +263,11 @@ int GetErrorString(char *ErrStr);
 void ShowProcessList();
 int CopyFormatToClipboard(char *Format,char *Data);
 char* PasteFormatFromClipboard(char *Format);
+/* $ 16.10.2000 tran
+  параметер - ограничение по длины */
+char* WINAPI PasteFromClipboardEx(int max);
+/* tran $ */
+
 int GetFileTypeByName(char *Name);
 void SetFarTitle(char *Title);
 void LocalUpperInit();

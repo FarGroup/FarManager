@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.46 27.09.2000 $ */
+/* Revision: 1.47 16.10.2000 $ */
 
 /*
 Modify:
+  16.10.2000 tran 1.47
+   + для EDIT полей выставляется ограничение в 511 символов
   27.09.2000 SVS
    ! Alt-Up/Down/Left/Right - убрал (чтобы в будущем не пересекались
      с MultiEdit)
@@ -628,6 +630,10 @@ int Dialog::InitDialogObjects(int ID)
          DialogEdit->ReadOnly=1;
       }
       /* SVS $ */
+      /* $ 15.10.2000 tran
+        строка редакторирование должна иметь максимум в 511 символов */
+      DialogEdit->SetMaxLength(511);
+      /* tran $ */
       DialogEdit->SetPosition(X1+CurItem->X1,Y1+CurItem->Y1,
                               X1+CurItem->X2,Y1+CurItem->Y2);
       DialogEdit->SetObjectColor(

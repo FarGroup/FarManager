@@ -5,10 +5,13 @@ edit.cpp
 
 */
 
-/* Revision: 1.21 18.09.2000 $ */
+/* Revision: 1.22 16.10.2000 $ */
 
 /*
 Modify:
+   16.10.2000 tran
+    + если стоит MaxLength, из клипборда грузим не больше чем
+      положено
    24.09.2000 SVS $
     + Функция Xlat - перекодировка по принципу QWERTY <-> ЙЦУКЕН
    18.09.2000 SVS
@@ -1090,7 +1093,15 @@ int Edit::ProcessKey(int Key)
       return(TRUE);
     case KEY_SHIFTINS:
       {
-        char *ClipText=PasteFromClipboard();
+        /* $ 15.10.2000 tran
+           если строка ввода имет максимальную длину
+           то их клипборда грузим не больше ее*/
+        char *ClipText;
+        if (MaxLength==-1)
+            ClipText=PasteFromClipboard();
+        else
+            ClipText=PasteFromClipboardEx(MaxLength);
+        /* tran $ */
         if (ClipText==NULL)
           return(TRUE);
         if (!Opt.EditorPersistentBlocks)

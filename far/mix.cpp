@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.33 09.10.2000 $ */
+/* Revision: 1.34 16.10.2000 $ */
 
 /*
 Modify:
+  16.10.2000 tran
+    + PasteFromClipboardEx(int max);
   09.10.2000 IS
     + Новые функции для обработки имени файла: ProcessName, ConvertWildcards
   27.09.2000 skv
@@ -1097,6 +1099,69 @@ char* WINAPI PasteFromClipboard(void)
   return(ClipText);
 }
 
+
+char* WINAPI PasteFromClipboardEx(int max)
+{
+  HANDLE hClipData;
+  if (!OpenClipboard(NULL))
+    return(NULL);
+  int Unicode=FALSE;
+  int Format=0;
+  int ReadType=CF_OEMTEXT;
+  while ((Format=EnumClipboardFormats(Format))!=0)
+  {
+    if (Format==CF_UNICODETEXT && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
+    {
+      Unicode=TRUE;
+      break;
+    }
+    if (Format==CF_TEXT)
+    {
+      ReadType=CF_TEXT;
+      break;
+    }
+    if (Format==CF_OEMTEXT)
+      break;
+  }
+  char *ClipText=NULL;
+  if ((hClipData=GetClipboardData(Unicode ? CF_UNICODETEXT:ReadType))!=NULL)
+  {
+    int BufferSize;
+    char *ClipAddr=(char *)GlobalLock(hClipData);
+    if (Unicode)
+      BufferSize=lstrlenW((LPCWSTR)ClipAddr)+1;
+    else
+      BufferSize=strlen(ClipAddr)+1;
+    if ( BufferSize>max )
+        BufferSize=max+1;
+    ClipText=new char[BufferSize];
+    if (ClipText!=NULL)
+    {
+      memset(ClipText,0,BufferSize);
+      if (Unicode)
+        WideCharToMultiByte(CP_OEMCP,0,(LPCWSTR)ClipAddr,-1,ClipText,BufferSize-1,NULL,NULL);
+      else
+      {
+        if (ReadType==CF_TEXT)
+        {
+          char *tmp=new char[BufferSize];
+          strncpy(tmp,ClipAddr,BufferSize-1);
+          //tmp[BufferSize]=0;            
+          CharToOem(ClipAddr,tmp);
+          strcpy(ClipText,tmp);
+        }
+        else
+        {
+            strncpy(ClipText,ClipAddr,BufferSize-1);
+            //ClipText[BufferSize]=0;
+        }
+      }
+    }
+    GlobalUnlock(hClipData);
+  }
+  CloseClipboard();
+  return(ClipText);
+}
 
 char* PasteFormatFromClipboard(char *Format)
 {
