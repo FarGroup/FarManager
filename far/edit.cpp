@@ -5,10 +5,14 @@ edit.cpp
 
 */
 
-/* Revision: 1.111 15.12.2003 $ */
+/* Revision: 1.112 12.01.2004 $ */
 
 /*
 Modify:
+  12.01.2004 IS
+   - баг: неверно "скачем по словам", когда разделители слов содержат символы
+     с кодами больше 128. Решение: для сравнения с WordDiv используем
+     IsWordDiv, а не strchr
   15.12.2003 SVS
     - BugZ#1002 - ESPT_SETWORDDIV не влияет на переход по словам
   11.11.2003 SKV
@@ -1138,8 +1142,12 @@ int Edit::ProcessKey(int Key)
       if (CurPos>0)
         RecurseProcessKey(KEY_SHIFTLEFT);
 
-      while (CurPos>0 && !(strchr(WordDiv,Str[CurPos])==NULL &&
-             strchr(WordDiv,Str[CurPos-1])!=NULL && !IsSpace(Str[CurPos])))
+      /* $ 12.01.2004 IS
+         Для сравнения с WordDiv используем IsWordDiv, а не strchr, т.к.
+         текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
+      */
+      while (CurPos>0 && !(!IsWordDiv(TableSet, WordDiv, Str[CurPos]) &&
+             IsWordDiv(TableSet, WordDiv,Str[CurPos-1]) && !IsSpace(Str[CurPos])))
       {
         /* $ 18.08.2000 KM
            Добавим выход из цикла проверив CurPos-1 на присутствие
@@ -1147,11 +1155,12 @@ int Edit::ProcessKey(int Key)
         */
 //        if (!IsSpace(Str[CurPos]) && IsSpace(Str[CurPos-1]))
         if (!IsSpace(Str[CurPos]) && (IsSpace(Str[CurPos-1]) ||
-             strchr(WordDiv,Str[CurPos-1])))
+             IsWordDiv(TableSet, WordDiv, Str[CurPos-1])))
           break;
         /* KM $ */
         RecurseProcessKey(KEY_SHIFTLEFT);
       }
+      /* IS $ */
       Show();
       return(TRUE);
     }
@@ -1161,20 +1170,26 @@ int Edit::ProcessKey(int Key)
       if (CurPos>=StrSize)
         return(FALSE);
       RecurseProcessKey(KEY_SHIFTRIGHT);
-      while (CurPos<StrSize && !(strchr(WordDiv,Str[CurPos])!=NULL && strchr(WordDiv,Str[CurPos-1])==NULL))
+      /* $ 12.01.2004 IS
+         Для сравнения с WordDiv используем IsWordDiv, а не strchr, т.к.
+         текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
+      */
+      while (CurPos<StrSize && !(IsWordDiv(TableSet, WordDiv, Str[CurPos]) &&
+             !IsWordDiv(TableSet, WordDiv, Str[CurPos-1])))
       {
         /* $ 18.08.2000 KM
            Добавим выход из цикла проверив CurPos-1 на присутствие
            в WordDiv.
         */
 //        if (!IsSpace(Str[CurPos]) && IsSpace(Str[CurPos-1]))
-        if (!IsSpace(Str[CurPos]) && (IsSpace(Str[CurPos-1]) || strchr(WordDiv,Str[CurPos-1])))
+        if (!IsSpace(Str[CurPos]) && (IsSpace(Str[CurPos-1]) || IsWordDiv(TableSet, WordDiv, Str[CurPos-1])))
           break;
         /* KM $ */
         RecurseProcessKey(KEY_SHIFTRIGHT);
         if (MaxLength!=-1 && CurPos==MaxLength-1)
           break;
       }
+      /* IS $ */
       Show();
       return(TRUE);
     }
@@ -1283,7 +1298,12 @@ int Edit::ProcessKey(int Key)
         RecurseProcessKey(KEY_BS);
         if (CurPos==0 || StopDelete)
           break;
-        if (strchr(WordDiv,Str[CurPos-1])!=NULL)
+        /* $ 12.01.2004 IS
+           Для сравнения с WordDiv используем IsWordDiv, а не strchr, т.к.
+           текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
+        */
+        if (IsWordDiv(TableSet, WordDiv,Str[CurPos-1]))
+        /* IS $ */
           break;
       }
       DisableEditOut(FALSE);
@@ -1362,9 +1382,14 @@ int Edit::ProcessKey(int Key)
         while(ptr<MaskLen)
         {
           ptr++;
+          /* $ 12.01.2004 IS
+             Для сравнения с WordDiv используем IsWordDiv, а не strchr, т.к.
+             текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
+          */
           if (!CheckCharMask(Mask[ptr]) ||
              (IsSpace(Str[ptr]) && !IsSpace(Str[ptr+1])) ||
-             (strchr(WordDiv,Str[ptr])!=NULL))
+             (IsWordDiv(TableSet, WordDiv, Str[ptr])))
+          /* IS $ */
             break;
         }
         for (int i=0;i<ptr-CurPos;i++)
@@ -1381,7 +1406,12 @@ int Edit::ProcessKey(int Key)
           RecurseProcessKey(KEY_DEL);
           if (CurPos>=StrSize || StopDelete)
             break;
-          if (strchr(WordDiv,Str[CurPos])!=NULL)
+          /* $ 12.01.2004 IS
+             Для сравнения с WordDiv используем IsWordDiv, а не strchr, т.к.
+             текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
+          */
+          if (IsWordDiv(TableSet, WordDiv, Str[CurPos]))
+          /* IS $ */
             break;
         }
       }
@@ -1592,8 +1622,13 @@ int Edit::ProcessKey(int Key)
         CurPos=StrSize;
       if (CurPos>0)
         CurPos--;
-      while (CurPos>0 && !(strchr(WordDiv,Str[CurPos])==NULL &&
-             strchr(WordDiv,Str[CurPos-1])!=NULL && !IsSpace(Str[CurPos])))
+      /* $ 12.01.2004 IS
+         Для сравнения с WordDiv используем IsWordDiv, а не strchr, т.к.
+         текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
+      */
+      while (CurPos>0 && !(!IsWordDiv(TableSet, WordDiv, Str[CurPos]) &&
+             IsWordDiv(TableSet, WordDiv, Str[CurPos-1]) && !IsSpace(Str[CurPos])))
+      /* IS $ */
       {
         if (!IsSpace(Str[CurPos]) && IsSpace(Str[CurPos-1]))
           break;
@@ -1632,8 +1667,13 @@ int Edit::ProcessKey(int Key)
         CurPos++;
       }
 
-      while (CurPos<Len/*StrSize*/ && !(strchr(WordDiv,Str[CurPos])!=NULL &&
-             strchr(WordDiv,Str[CurPos-1])==NULL))
+      /* $ 12.01.2004 IS
+         Для сравнения с WordDiv используем IsWordDiv, а не strchr, т.к.
+         текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
+      */
+      while (CurPos<Len/*StrSize*/ && !(IsWordDiv(TableSet, WordDiv,Str[CurPos]) &&
+             !IsWordDiv(TableSet, WordDiv, Str[CurPos-1])))
+      /* IS $ */
       /* KM $ */
       {
         if (!IsSpace(Str[CurPos]) && IsSpace(Str[CurPos-1]))
@@ -2859,24 +2899,29 @@ void Edit::Xlat(BOOL All)
    int start=CurPos, end, StrSize=strlen(Str);
    BOOL DoXlat=TRUE;
 
-   if(strchr(Opt.XLat.WordDivForXlat,Str[start])!=NULL)
+   /* $ 12.01.2004 IS
+      Для сравнения с WordDiv используем IsWordDiv, а не strchr, т.к.
+      текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
+   */
+   if(IsWordDiv(TableSet,Opt.XLat.WordDivForXlat,Str[start]))
    {
       if(start) start--;
-      DoXlat=(strchr(Opt.XLat.WordDivForXlat,Str[start])==NULL);
+      DoXlat=(!IsWordDiv(TableSet,Opt.XLat.WordDivForXlat,Str[start]));
    }
 
    if(DoXlat)
    {
-    while(start>=0 && strchr(Opt.XLat.WordDivForXlat,Str[start])==NULL)
+    while(start>=0 && !IsWordDiv(TableSet,Opt.XLat.WordDivForXlat,Str[start]))
       start--;
     start++;
     end=start+1;
-    while(end<StrSize && strchr(Opt.XLat.WordDivForXlat,Str[end])==NULL)
+    while(end<StrSize && !IsWordDiv(TableSet,Opt.XLat.WordDivForXlat,Str[end]))
       end++;
     ::Xlat(Str,start,end,TableSet,Opt.XLat.Flags);
     Show();
    }
-   /* IS $ */
+   /* 12.01.2004 IS $*/
+   /* 10.12.2000 IS $ */
   }
 /* IS $ */
 }

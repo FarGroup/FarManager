@@ -6,10 +6,14 @@ editor.cpp
 
 */
 
-/* Revision: 1.242 14.12.2003 $ */
+/* Revision: 1.243 12.01.2004 $ */
 
 /*
 Modify:
+  12.01.2004 IS
+   - баг: неверно "скачем по словам", когда разделители слов содержат символы
+     с кодами больше 128. Решение: для сравнения с WordDiv используем
+     IsWordDiv, а не strchr
   14.12.2003 SVS
     - BugZ#1002 - ESPT_SETWORDDIV не влияет на переход по словам
   04.11.2003 SKV
@@ -2128,7 +2132,13 @@ int Editor::ProcessKey(int Key)
           /* $ 03.08.2000 SVS
             ! WordDiv -> Opt.WordDiv
           */
-          if (IsSpace(Str[CurPos-1]) || strchr(EdOpt.WordDiv,Str[CurPos-1])!=NULL)
+          /* $ 12.01.2004 IS
+             Для сравнения с WordDiv используем IsWordDiv, а не strchr, т.к.
+             текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
+          */
+          if (IsSpace(Str[CurPos-1]) ||
+              IsWordDiv((AnsiText || UseDecodeTable)?&TableSet:NULL,EdOpt.WordDiv,Str[CurPos-1]))
+          /* IS $ */
           /* SVS $ */
             if (SkipSpace)
             {
@@ -2170,7 +2180,13 @@ int Editor::ProcessKey(int Key)
           /* $ 03.08.2000 SVS
             ! WordDiv -> Opt.WordDiv
           */
-          if (IsSpace(Str[CurPos]) || strchr(EdOpt.WordDiv,Str[CurPos])!=NULL)
+          /* $ 12.01.2004 IS
+             Для сравнения с WordDiv используем IsWordDiv, а не strchr, т.к.
+             текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
+          */
+          if (IsSpace(Str[CurPos]) ||
+              IsWordDiv((AnsiText || UseDecodeTable)?&TableSet:NULL,EdOpt.WordDiv,Str[CurPos]))
+          /* IS $ */
           /* SVS $ */
             if (SkipSpace)
             {
@@ -3072,7 +3088,13 @@ int Editor::ProcessKey(int Key)
           /* $ 03.08.2000 SVS
             ! WordDiv -> Opt.WordDiv
           */
-          if (IsSpace(Str[CurPos-1]) || strchr(EdOpt.WordDiv,Str[CurPos-1])!=NULL)
+          /* $ 12.01.2004 IS
+             Для сравнения с WordDiv используем IsWordDiv, а не strchr, т.к.
+             текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
+          */
+          if (IsSpace(Str[CurPos-1]) ||
+              IsWordDiv((AnsiText || UseDecodeTable)?&TableSet:NULL,EdOpt.WordDiv,Str[CurPos-1]))
+          /* IS $ */
           /* SVS $ */
             if (SkipSpace)
             {
@@ -3112,7 +3134,13 @@ int Editor::ProcessKey(int Key)
           /* $ 03.08.2000 SVS
             ! WordDiv -> Opt.WordDiv
           */
-          if (IsSpace(Str[CurPos]) || strchr(EdOpt.WordDiv,Str[CurPos])!=NULL)
+          /* $ 12.01.2004 IS
+             Для сравнения с WordDiv используем IsWordDiv, а не strchr, т.к.
+             текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
+          */
+          if (IsSpace(Str[CurPos]) ||
+              IsWordDiv((AnsiText || UseDecodeTable)?&TableSet:NULL,EdOpt.WordDiv,Str[CurPos]))
+          /* IS $ */
           /* SVS $*/
             if (SkipSpace)
             {
@@ -6542,23 +6570,28 @@ void Editor::Xlat()
       */
       DoXlat=TRUE;
 
-      if(strchr(Opt.XLat.WordDivForXlat,Str[start])!=NULL)
+      /* $ 12.01.2004 IS
+         Для сравнения с WordDiv используем IsWordDiv, а не strchr, т.к.
+         текущая кодировка может отличаться от кодировки WordDiv (которая OEM)
+      */
+      if(IsWordDiv((AnsiText || UseDecodeTable)?&TableSet:NULL,Opt.XLat.WordDivForXlat,Str[start]))
       {
          if(start) start--;
-         DoXlat=(strchr(Opt.XLat.WordDivForXlat,Str[start])==NULL);
+         DoXlat=(!IsWordDiv((AnsiText || UseDecodeTable)?&TableSet:NULL,Opt.XLat.WordDivForXlat,Str[start]));
       }
 
       if(DoXlat)
       {
-        while(start>=0 && strchr(Opt.XLat.WordDivForXlat,Str[start])==NULL)
+        while(start>=0 && !IsWordDiv((AnsiText || UseDecodeTable)?&TableSet:NULL,Opt.XLat.WordDivForXlat,Str[start]))
           start--;
         start++;
         end=start+1;
-        while(end<StrSize && strchr(Opt.XLat.WordDivForXlat,Str[end])==NULL)
+        while(end<StrSize && !IsWordDiv((AnsiText || UseDecodeTable)?&TableSet:NULL,Opt.XLat.WordDivForXlat,Str[end]))
           end++;
         AddUndoData(Str,NumLine,start,UNDO_EDIT);
         ::Xlat(Str,start,end,CurLine->EditLine.TableSet,Opt.XLat.Flags);
       }
+      /* 12.01.2004 IS */
      /* IS $ */
     }
     /* IS $ */

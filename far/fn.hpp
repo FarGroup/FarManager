@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.196 26.10.2003 $ */
+/* Revision: 1.197 12.01.2004 $ */
 
 /*
 Modify:
+  12.01.2004 IS
+   + IsWordDiv - функция для сверки символа с разделителями слова
+     с учетом текущей кодировки
   26.10.2003 KM
     ! Изменение входных параметров у Transform.
   16.10.2003 SVS
@@ -1038,6 +1041,18 @@ char* WINAPI TruncStrFromEnd(char *Str, int MaxLength);
 char* WINAPI TruncPathStr(char *Str,int MaxLength);
 char* WINAPI QuoteSpaceOnly(char *Str);
 char* WINAPI PointToName(char *Path);
+/* $ 12.01.2004 IS
+   + Функция для сверки символа с разделителями слова с учетом текущей
+     кодировки
+*/
+// Проверяет - является ли символ разделителем слова (вернет TRUE, если да)
+// Параметры:
+//   TableSet - указатель на таблицы перекодировки (если отсутствует,
+//              то кодировка - OEM)
+//   WordDiv  - набор разделителей слова в кодировке OEM
+//   Chr      - проверяемый символ
+BOOL IsWordDiv(const struct CharTableSet *TableSet, const char *WordDiv, unsigned char Chr);
+/* IS $ */
 const char* WINAPI PointToName(const char *Path);
 /* $ 20.03.2002 IS
     + PointToFolderNameIfFolder - аналог PointToName, только для строк типа

@@ -5,10 +5,13 @@ strmix.cpp
 
 */
 
-/* Revision: 1.49 11.11.2003 $ */
+/* Revision: 1.50 12.01.2004 $ */
 
 /*
 Modify:
+  12.01.2004 IS
+   + IsWordDiv - функция для сверки символа с разделителями слова
+     с учетом текущей кодировки
   11.11.2003 SVS
     ! Несколько иная реализация TruncPathStr()
   11.07.2003 SVS
@@ -1185,6 +1188,21 @@ char *WINAPI FarFormatText(const char *SrcText,     // источник
   return DestText;
 }
 
+/* $ 12.01.2004 IS
+   + Функция для сверки символа с разделителями слова с учетом текущей
+     кодировки
+*/
+// Проверяет - является ли символ разделителем слова (вернет TRUE, если да)
+// Параметры:
+//   TableSet - указатель на таблицы перекодировки (если отсутствует,
+//              то кодировка - OEM)
+//   WordDiv  - набор разделителей слова в кодировке OEM
+//   Chr      - проверяемый символ
+BOOL IsWordDiv(const struct CharTableSet *TableSet, const char *WordDiv, unsigned char Chr)
+{
+  return NULL!=strchr(WordDiv, TableSet?TableSet->DecodeTable[Chr]:Chr);
+}
+/* IS $ */
 
 #if defined(MOUSEKEY)
 /*
