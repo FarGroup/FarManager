@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.151 20.10.2003 $ */
+/* Revision: 1.152 23.10.2003 $ */
 
 /*
 Modify:
+  23.10.2003 SVS
+    - Ходим GrayPlus, натыкаемся на залоченный файл, получаем бадью.
   20.10.2003 SVS
     ! переименование
         KEY_MACRO_EDITSELECTED -> KEY_MACRO_SELECTED
@@ -676,6 +678,9 @@ int Viewer::OpenFile(const char *Name,int warning)
   FILE *NewViewFile=NULL;
   OpenFailed=false;
   strcpy(FileName,Name);
+  if (ViewFile)
+    fclose(ViewFile);
+  ViewFile=NULL;
   SelectSize = 0; // Сбросим выделение
 
   if (CmdMode && strcmp(Name,"-")==0)
@@ -750,8 +755,7 @@ int Viewer::OpenFile(const char *Name,int warning)
     OpenFailed=true;
     return(FALSE);
   }
-  if (ViewFile)
-    fclose(ViewFile);
+
   TableChangedByUser=FALSE;
   ViewFile=NewViewFile;
 
@@ -966,9 +970,12 @@ void Viewer::DisplayObject()
     */
     if(*FileName)
     {
-      GotoXY(X1,Y1);
+      SetScreen(X1,Y1,X2,Y2,' ',COL_VIEWERTEXT);
+      GotoXY(X1,Y1+ShowStatusLine);
       SetColor(COL_WARNDIALOGTEXT);
       mprintf(MSG(MViewerCannotOpenFile));
+      if(ShowStatusLine)
+        ShowStatus();
     }
     return;
   }

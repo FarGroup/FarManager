@@ -30,10 +30,10 @@ Modified by Joe Huffman (d.b.a Prototronics) June 11, 1987 from Ray Gardner's,
 #include "headers.hpp"
 #pragma hdrstop
 
-void iswap (int *a, int *b);      /* swap ints */
-void cswap (char *a, char *b);    /* swap chars */
+void iswap (int *a, int *b,unsigned int n_to_swap);      /* swap ints */
+void cswap (char *a, char *b,unsigned int n_to_swap);    /* swap chars */
 
-static unsigned int n_to_swap;  /* nbr of chars or ints to swap */
+//static unsigned int n_to_swap;  /* nbr of chars or ints to swap */
 int _maxspan = 7;               /* subfiles of _maxspan or fewer elements */
                                 /* will be sorted by a simple insertion sort */
 
@@ -42,11 +42,11 @@ _maxspan (not less than 1) if a swap is very expensive such as when you have
 an array of large structures to be sorted, rather than an array of pointers to
 structures.  The default value is optimized for a high cost for compares. */
 
-#define SWAP(a,b) (*swap_fp)(a,b)
+#define SWAP(a,b) (*swap_fp)(a,b,n_to_swap)
 #define COMPEX(a,b,u) (*comp_fp)(a,b,u)
 #define COMP(a,b) (*comp_fp)(a,b)
 
-typedef void (__cdecl *SWAP_FP) (void *, void *);
+typedef void (__cdecl *SWAP_FP) (void *, void *,unsigned int);
 
 void __cdecl qsortex(char *base, unsigned int nel, unsigned int width,
             int (__cdecl *comp_fp)(const void *, const void *,void*), void *user)
@@ -54,7 +54,8 @@ void __cdecl qsortex(char *base, unsigned int nel, unsigned int width,
   char *stack[40], **sp;                 /* stack and stack pointer        */
   char *i, *j, *limit;                   /* scan and limit pointers        */
   unsigned thresh;                       /* size of _maxspan elements in   */
-  void (__cdecl  *swap_fp) (void *, void *);      /* bytes */
+  void (__cdecl  *swap_fp) (void *, void *,unsigned int );      /* bytes */
+  unsigned int n_to_swap;
 
   if ((width % sizeof(int)) != 0)
   {
@@ -140,10 +141,9 @@ void __cdecl qsortex(char *base, unsigned int nel, unsigned int width,
   }
 }
 
-static void iswap (int *a, int *b)  /* swap ints */
+static void iswap (int *a, int *b,unsigned int n_to_swap)  /* swap ints */
 {
   int tmp;
-  unsigned k = n_to_swap;
 
   do
   {
@@ -151,21 +151,19 @@ static void iswap (int *a, int *b)  /* swap ints */
     *a = *b;
     *b = tmp;
     a++; b++;
-  } while (--k);
+  } while (--n_to_swap);
 }
 
-static void cswap (char *a, char *b)    /* swap chars */
+static void cswap (char *a, char *b,unsigned int n_to_swap)    /* swap chars */
 {
   char tmp;
-  unsigned k = n_to_swap;
-
   do
   {
     tmp = *a;
     *a = *b;
     *b = tmp;
     a++; b++;
-  } while (--k);
+  } while (--n_to_swap);
 }
 
 
