@@ -5,7 +5,7 @@ User menu и есть
 
 */
 
-/* Revision: 1.03 17.07.2000 $ */
+/* Revision: 1.04 20.07.2000 $ */
 
 /*
 Modify:
@@ -20,6 +20,9 @@ Modify:
   17.07.2000 MVV
     + При первом вызове не ищет меню из родительского каталога
     + SHIFT+F2 переключает Главное меню/локальное в цикле
+  20.07.2000 tran 1.04
+    - Bug#19
+      ">" обозначающие подменю выравниваются по максимальной границе
 */
 
 #include "headers.hpp"
@@ -316,6 +319,41 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
 
       NumLine=0;
 
+      /* $ 20.07.2000 tran
+         + лишний проход для вычисления максимальной длины строки */
+      int MaxLen=20;
+
+      while (1)
+      {
+        int MenuTextLen;
+        char ItemKey[512],HotKey[10],Label[512],MenuText[512];
+        sprintf(ItemKey,"%s\\Item%d",MenuKey,NumLine);
+        if (!GetRegKey(ItemKey,"HotKey",HotKey,"",sizeof(HotKey)))
+          break;
+        if (!GetRegKey(ItemKey,"Label",Label,"",sizeof(Label)))
+          break;
+        SubstFileName(Label,Name,ShortName,NULL,NULL,TRUE);
+
+        int FuncNum=0;
+        if (strlen(HotKey)>1)
+        {
+          FuncNum=atoi(&HotKey[1]);
+          if (FuncNum<1 || FuncNum>12)
+            FuncNum=1;
+          sprintf(HotKey,"F%d",FuncNum);
+        }
+        sprintf(MenuText,"%s%-3.3s %-20.*s",FuncNum>0 ? "":"&",HotKey,ScrX-12,Label);
+        MenuTextLen=strlen(MenuText)-(FuncNum>0?1:0);
+        MaxLen=MaxLen<MenuTextLen ? MenuTextLen : MaxLen;
+        NumLine++;
+      }
+
+      MaxLen-=4; // отнимаем длину функциональных клавиш
+      /* tran 20.07.2000 $ */
+
+
+      NumLine=0;
+
       while (1)
       {
         char ItemKey[512],HotKey[10],Label[512],MenuText[512];
@@ -336,7 +374,11 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
             FuncNum=1;
           sprintf(HotKey,"F%d",FuncNum);
         }
-        sprintf(MenuText,"%s%-3.3s %-20.*s",FuncNum>0 ? "":"&",HotKey,ScrX-12,Label);
+        /* $ 20.07.2000 tran
+           %-20.*s поменял на %-*.*s и используется MaxLen как максимальная длина */
+        sprintf(MenuText,"%s%-3.3s %-*.*s",FuncNum>0 ? "":"&",HotKey,MaxLen,ScrX-12,Label);
+        /* tran 20.07.2000 $ */
+
         if (SubMenu)
           strcat(MenuText," ");
         strncpy(UserMenuItem.Name,MenuText,sizeof(UserMenuItem.Name));
