@@ -140,7 +140,8 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,
             Opt.Background?CREATE_NEW_CONSOLE:0,NULL,NULL,&si,&pi);
 
   LastError=!ExitCode?GetLastError():0;
-  /**/char Buf32[32]; wsprintf(Buf32, "%lu", LastError);
+  /**/char Buf32[32];
+  FSF.sprintf(Buf32, "%lu", LastError);
   if (HideOutput)
   {
     SetStdHandle(STD_OUTPUT_HANDLE,StdOutput);

@@ -16,6 +16,9 @@ int WINAPI _export GetMinFarVersion(void)
 
 void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
 {
+  #ifdef __USE_OWN_RTL__
+  heapNew=GetProcessHeap();
+  #endif
   ::Info=*Info;
   ::FSF=*Info->FSF;
   ::Info.FSF=&::FSF;

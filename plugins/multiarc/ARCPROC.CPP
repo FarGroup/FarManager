@@ -303,7 +303,7 @@ int PluginClass::SelectFormat(char *ArcFormat,int AddOnly)
 {
   typedef int (__cdecl *FCmp)(const void *, const void *);
   struct FarMenuItemEx *MenuItems=NULL, *NewMenuItems;
-  int MenuItemsNumber;
+  int MenuItemsNumber=0;
   char Format[100],DefExt[NM];
   int BreakCode;
   int BreakKeys[2]={VK_F4,0};
@@ -312,8 +312,6 @@ int PluginClass::SelectFormat(char *ArcFormat,int AddOnly)
 
   while(1)
   {
-    MenuItems=NULL;
-    MenuItemsNumber=0;
     for (I=0;I < ArcPlugin->FmtCount();I++)
     {
 //      if (!ArcPlugin->GetFormatName(I,0,Format,DefExt))
@@ -380,6 +378,8 @@ int PluginClass::SelectFormat(char *ArcFormat,int AddOnly)
     else
       break;
     free(MenuItems);
+    MenuItems=NULL;
+    MenuItemsNumber=0;
   }
   if(MenuItems)
     free(MenuItems);

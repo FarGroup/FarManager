@@ -25,14 +25,23 @@ Modify:
 */
 //#  include <windows.h>
 /* AS $*/
-#  include "plugin.hpp"
+#if defined __BORLANDC__ && __BORLANDC__<=0x0520
+#define __USE_OWN_RTL__
+#endif // __USE_OWN_RTL__
+#include "plugin.hpp"
 
+struct FarStandardFunctions FSF;
+
+#ifdef __USE_OWN_RTL__
+#include "ownrtl.cpp"
+#else // __USE_OWN_RTL__
 //#include <stdio.h>
 //#include <conio.h>
 
 /* $ 28.11.2000 AS
   stdlib - нужен для realloc
 */
+
 #include <stdlib.h>
 /* AS $*/
 /*AS 28.11.2000 $ */
@@ -41,6 +50,7 @@ Modify:
 //#include <dos.h>
 //#include <direct.h>
 //#include <time.h>
+#endif // __USE_OWN_RTL__
 
 #include "marclng.hpp"
 #include "fmt.hpp"
@@ -242,7 +252,6 @@ void DeleteRegValue(HKEY hRoot,const char *Key,const char *ValueName);
 void DeleteRegKey(HKEY hRoot,const char *Key);
 
 struct PluginStartupInfo Info;
-struct FarStandardFunctions FSF;
 class ArcPlugins *ArcPlugin=NULL;
 int FarVER;
 

@@ -196,7 +196,7 @@ int PluginClass::GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int 
       Append=true;
     if (Name[0]=='.' && (Name[1]=='\\' || Name[1]=='.' && Name[2]=='\\'))
       Append=true;
-    if (!Append && strlen(Name)>CurDirLength && strnicmp(Name,CurDir,CurDirLength)==0 &&
+    if (!Append && strlen(Name)>static_cast<size_t>(CurDirLength) && strnicmp(Name,CurDir,CurDirLength)==0 &&
         (CurDirLength==0 || Name[CurDirLength]=='\\'))
     {
       char *StartName,*EndName;
@@ -264,7 +264,7 @@ int PluginClass::SetDirectory(const char *Dir,int OpMode)
     {
       char *CurName=ArcData[I].FindData.cFileName;
 
-      if (strlen(CurName)>=CurDirLength+NewDirLength &&
+      if (strlen(CurName)>=static_cast<size_t>(CurDirLength+NewDirLength) &&
           LocalStrnicmp(CurName+CurDirLength,Dir,NewDirLength)==0)
       {
         char Ch=CurName[CurDirLength+NewDirLength];

@@ -368,7 +368,8 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
             else
               strcpy(Name," ");
           }
-          if (*Names==0 || strlen(Names)+strlen(Name)<MaxNamesLength &&
+          if (*Names==0 ||
+              strlen(Names)+strlen(Name)<static_cast<size_t>(MaxNamesLength) &&
               Command[2]!='f')
           {
             NameNumber+=IncreaseNumber;
