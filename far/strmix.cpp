@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.14 06.06.2001 $ */
+/* Revision: 1.15 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 IS
+    ! Внедрение const
   06.06.2001 VVM
     ! чуть-чуть переделаем Unquote()
   05.06.2001 VVM
@@ -107,14 +109,14 @@ char* WINAPI PointToName(char *Path)
   return(NamePtr);
 }
 
-int CmpName(char *pattern,char *string,int skippath)
+int CmpName(const char *pattern,const char *string,int skippath)
 {
   char stringc,patternc,rangec;
   int match;
   static int depth=0;
 
   if (skippath)
-    string=PointToName(string);
+    string=PointToName(const_cast<char*>(string));
 
   for (;; ++string)
   {
@@ -147,10 +149,10 @@ int CmpName(char *pattern,char *string,int skippath)
             return(TRUE);
           if (strpbrk (pattern, "*?[") == NULL)
           {
-            char *dot = strrchr (string, '.');
+            const char *dot = strrchr (string, '.');
             if (pattern[1] == 0)
               return (dot==NULL || dot[1]==0);
-            char *patdot = strchr (pattern+1, '.');
+            const char *patdot = strchr (pattern+1, '.');
             if (patdot != NULL && dot == NULL)
               return(FALSE);
             if (patdot == NULL && dot != NULL)
@@ -224,14 +226,16 @@ int CmpName(char *pattern,char *string,int skippath)
 // каталог dir1, а в нем файл file1. Нужно сгенерировать имя по маске для dir1.
 // Параметры могут быть следующими: Src="dir1", SelectedFolderNameLength=0
 // или Src="dir1\\file1", а SelectedFolderNameLength=4 (длина "dir1")
-int ConvertWildcards(char *Src,char *Dest, int SelectedFolderNameLength)
+int ConvertWildcards(const char *src,char *Dest, int SelectedFolderNameLength)
 {
-  char WildName[2*NM],*CurWildPtr,*DestNamePtr,*SrcNamePtr;
+  char WildName[2*NM], Src[NM], *CurWildPtr,*DestNamePtr,*SrcNamePtr;
   char PartBeforeName[NM],PartAfterFolderName[NM];
   DestNamePtr=PointToName(Dest);
   strcpy(WildName,DestNamePtr);
   if (strchr(WildName,'*')==NULL && strchr(WildName,'?')==NULL)
     return(FALSE);
+
+  strncpy(Src, src, sizeof(Src));
 
   if (SelectedFolderNameLength!=0)
   {
@@ -460,7 +464,7 @@ char *RemoveChar(char *Str,char Target)
   return StrBegin;
 }
 
-int HiStrlen(char *Str)
+int HiStrlen(const char *Str)
 {
   int Length=0;
   while (*Str)
@@ -520,6 +524,11 @@ char *NullToEmpty(char *Str)
   return (Str==NULL) ? "":Str;
 }
 
+const char *NullToEmpty(const char *Str)
+{
+  return (Str==NULL) ? "":Str;
+}
+
 
 char* CenterStr(char *Src,char *Dest,int Length)
 {
@@ -540,7 +549,7 @@ char* CenterStr(char *Src,char *Dest,int Length)
 /* $ 08.04.2001 SVS
   + дополнительный параметр - разделитель, по умолчанию = ','
 */
-char *GetCommaWord(char *Src,char *Word,char Separator)
+const char *GetCommaWord(const char *Src,char *Word,char Separator)
 {
   int WordPos,SkipBrackets;
   if (*Src==0)

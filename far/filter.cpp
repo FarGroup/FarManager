@@ -5,10 +5,12 @@ filter.cpp
 
 */
 
-/* Revision: 1.12 16.06.2001 $ */
+/* Revision: 1.13 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 IS
+   ! Внедрение const
   16.06.2001 KM
     ! Добавление WRAPMODE в меню.
   03.06.2001 SVS
@@ -449,7 +451,8 @@ void PanelFilter::AddMasks(char *Masks,int Exclude)
     ExcludeFilterMaskCount=0;
     return;
   }
-  char ArgName[NM],*NamePtr=Masks;
+  char ArgName[NM];
+  const char *NamePtr=Masks;
   while ((NamePtr=GetCommaWord(NamePtr,ArgName))!=NULL)
   {
     RemoveTrailingSpaces(ArgName);

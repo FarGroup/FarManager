@@ -9,10 +9,12 @@ editor.hpp
 
 */
 
-/* Revision: 1.22 25.06.2001 $ */
+/* Revision: 1.23 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 IS
+   ! Внедрение const
   25.06.2001 SVS
     - Падение ФАРа при поске в редакторе
   06.06.2001 SVS
@@ -263,8 +265,8 @@ class Editor:public ScreenObject
     ~Editor();
 
   public:
-    int ReadFile(char *Name,int &UserBreak);
-    int SaveFile(char *Name,int Ask,int TextFormat,int SaveAs);
+    int ReadFile(const char *Name,int &UserBreak);
+    int SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs);
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     void SetEditKeyBar(KeyBar *EditKeyBar);
@@ -272,7 +274,7 @@ class Editor:public ScreenObject
     void SetStartPos(int LineNum,int CharNum);
     int IsFileModified();
     int IsFileChanged();
-    void SetTitle(char *Title);
+    void SetTitle(const char *Title);
     long GetCurPos();
     void SetPluginData(char *PluginData);
     void SetPluginTitle(char *PluginTitle);

@@ -8,10 +8,12 @@ scantree.hpp
 
 */
 
-/* Revision: 1.01 06.05.2000 $ */
+/* Revision: 1.02 25.05.2000 $ */
 
 /*
 Modify:
+  25.06.2001 IS
+    ! Внедрение const
   06.05.2001 DJ
     ! перетрях #include
   25.06.2000 SVS
@@ -37,7 +39,7 @@ class ScanTree
   public:
     ScanTree(int RetUpDir,int Recurse=1);
     ~ScanTree();
-    void SetFindPath(char *Path,char *Mask);
+    void SetFindPath(const char *Path,const char *Mask);
     int GetNextName(WIN32_FIND_DATA *fdata,char *FullName);
     void SkipDir();
     int IsDirSearchDone() {return(SecondDirName);};

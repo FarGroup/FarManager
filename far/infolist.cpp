@@ -5,10 +5,12 @@ infolist.cpp
 
 */
 
-/* Revision: 1.21 29.05.2001 $ */
+/* Revision: 1.22 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 IS
+   ! Внедрение const
   29.05.2001 tran
     + в processMouseInput при отсутсвующем описании DizView был равен 0
   23.05.2001 OT
@@ -354,7 +356,7 @@ int InfoList::ProcessKey(int Key)
         else if (*Opt.FolderInfoFiles)
         {
           char ArgName[NM];
-          char *p = Opt.FolderInfoFiles;
+          const char *p = Opt.FolderInfoFiles;
           while ((p = GetCommaWord(p,ArgName)) != NULL)
           {
             if (!strpbrk (ArgName, "*?"))
@@ -409,7 +411,7 @@ int InfoList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     /* $ 27.04.2001 DJ
        позволяем использовать скроллбар, если он включен
     */
-    _tran(SysLog("InfoList::ProcessMouse() DizView = %p",DizView));  
+    _tran(SysLog("InfoList::ProcessMouse() DizView = %p",DizView));
     if ((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) &&
         MouseEvent->dwMousePosition.X > 2 &&
         MouseEvent->dwMousePosition.X < X2 - DizView->GetShowScrollbar() - 1)
@@ -490,7 +492,8 @@ void InfoList::ShowDirDescription()
   if ((Length=strlen(DizDir))>0 && DizDir[Length-1]!='\\')
     strcat(DizDir,"\\");
 
-  char ArgName[NM],*NamePtr=Opt.FolderInfoFiles;
+  char ArgName[NM];
+  const char *NamePtr=Opt.FolderInfoFiles;
   while ((NamePtr=GetCommaWord(NamePtr,ArgName))!=NULL)
   {
     char FullDizName[NM];
@@ -591,11 +594,11 @@ void InfoList::CloseFile()
 
 int InfoList::OpenDizFile(char *DizFile)
 {
-  _tran(SysLog("InfoList::OpenDizFile([%s]",DizFile));  
+  _tran(SysLog("InfoList::OpenDizFile([%s]",DizFile));
   if (DizView == NULL)
   {
     DizView=new Viewer;
-    _tran(SysLog("InfoList::OpenDizFile() create new Viewer = %p",DizView));  
+    _tran(SysLog("InfoList::OpenDizFile() create new Viewer = %p",DizView));
     DizView->SetRestoreScreenMode(FALSE);
     DizView->SetPosition(X1+1,Y1+15,X2-1,Y2-1);
     DizView->SetStatusMode(0);

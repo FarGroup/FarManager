@@ -5,10 +5,12 @@ dizlist.cpp
 
 */
 
-/* Revision: 1.02 06.05.2001 $ */
+/* Revision: 1.03 25.05.2001 $ */
 
 /*
 Modify:
+  25.06.2001 IS
+   ! Внедрение const
   06.05.2001 DJ
     ! перетрях #include
   13.07.2000 SVS
@@ -78,7 +80,7 @@ void DizList::Read(char *Path,char *DizName)
 {
   Reset();
 
-  char *NamePtr=Opt.Diz.ListNames;
+  const char *NamePtr=Opt.Diz.ListNames;
   while (1)
   {
     if (DizName!=NULL)

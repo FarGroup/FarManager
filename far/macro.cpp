@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.45 25.06.2001 $ */
+/* Revision: 1.46 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 IS
+    ! Внедрение const
   25.06.2001 SVS
     - Баги при отработке строк для $Date
   24.06.2001 SVS
@@ -362,7 +364,7 @@ int KeyMacro::LoadMacros()
 
 // функция преобразования названия в код макроклавиши
 // вернет -1, если нет эквивалента!
-int WINAPI KeyNameMacroToKey(char *Name)
+int WINAPI KeyNameMacroToKey(const char *Name)
 {
   // пройдемся по всем модификаторам
   for(int I=0; I < sizeof(KeyMacroCodes)/sizeof(KeyMacroCodes[0]); ++I)

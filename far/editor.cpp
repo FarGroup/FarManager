@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.107 25.06.2001 $ */
+/* Revision: 1.108 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 IS
+   ! Внедрение const
   25.06.2001 SVS
     ! Юзаем SEARCHSTRINGBUFSIZE
   22.06.2001 SVS
@@ -496,7 +498,7 @@ void Editor::KeepInitParameters()
 }
 
 
-int Editor::ReadFile(char *Name,int &UserBreak)
+int Editor::ReadFile(const char *Name,int &UserBreak)
 {
   FILE *EditFile;
   struct EditList *PrevPtr;
@@ -876,7 +878,7 @@ int Editor::ReadFile(char *Name,int &UserBreak)
      Убраны (с подачи SVS) потенциальные баги - выход из функции был до того,
      как восстановятся атрибуты файла
 */
-int Editor::SaveFile(char *Name,int Ask,int TextFormat,int SaveAs)
+int Editor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
 {
   /* $ 11.10.2000 SVS
      Редактировали, залочили, при выходе - потеряли файл :-(
@@ -4235,7 +4237,7 @@ int Editor::IsFileModified()
 }
 
 
-void Editor::SetTitle(char *Title)
+void Editor::SetTitle(const char *Title)
 {
   if (Title==NULL)
     *Editor::Title=0;

@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.67 23.06.2001 $ */
+/* Revision: 1.68 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 IS
+   ! Внедрение const
   23.06.2001 OT
     - far -r
   16.06.2001 KM
@@ -2498,7 +2500,8 @@ void FileList::SelectFiles(int Mode)
     else
       if (MultipleMasks)
       {
-        char ArgName[NM],*NamePtr=Mask;
+        char ArgName[NM];
+        const char *NamePtr=Mask;
         while ((NamePtr=GetCommaWord(NamePtr,ArgName))!=NULL)
           if (CmpName(ArgName,(ShowShortNames && *CurPtr->ShortName ? CurPtr->ShortName:CurPtr->Name)))
           {

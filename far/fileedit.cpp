@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.53 14.06.2001 $ */
+/* Revision: 1.54 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 IS
+   ! Внедрение const
   14.06.2001 OT
     ! "Бунт" ;-)
   07.06.2001 IS
@@ -163,18 +165,19 @@ Modify:
 #include "history.hpp"
 #include "cmdline.hpp"
 
-FileEditor::FileEditor(char *Name,int CreateNewFile,int EnableSwitch,
+FileEditor::FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
                        int StartLine,int StartChar,int DisableHistory,
                        char *PluginData)
 {
   ScreenObject::SetPosition(0,0,ScrX,ScrY);
   FullScreen=TRUE;
-  Init(Name,CreateNewFile,EnableSwitch,StartLine,StartChar,DisableHistory,PluginData);
+  Init(Name,CreateNewFile,EnableSwitch,StartLine,StartChar,
+       DisableHistory,PluginData);
 }
 
 
-FileEditor::FileEditor(char *Name,int CreateNewFile,int EnableSwitch,
-            int StartLine,int StartChar,char *Title,
+FileEditor::FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
+            int StartLine,int StartChar,const char *Title,
             int X1,int Y1,int X2,int Y2)
 {
   ScreenObject::SetPosition(X1,Y1,X2,Y2);
@@ -184,7 +187,7 @@ FileEditor::FileEditor(char *Name,int CreateNewFile,int EnableSwitch,
 }
 
 
-void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
+void FileEditor::Init(const char *Name,int CreateNewFile,int EnableSwitch,
                       int StartLine,int StartChar,int DisableHistory,
                       char *PluginData)
 {

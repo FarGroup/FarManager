@@ -5,10 +5,13 @@ local.cpp
 
 */
 
-/* Revision: 1.06 07.05.2001 $ */
+/* Revision: 1.07 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 IS
+    ! Приведение Local* в соответствие с "официальным" plugin.hpp
+    ! Внедрение const
   07.05.2001 DJ
     ! LowerToUpper/UpperToLower более не static (для оптимизированных
       inline-функций)
@@ -137,18 +140,18 @@ void LocalUpperInit()
 }
 
 
-int WINAPI LocalIslower(int Ch)
+int WINAPI LocalIslower(unsigned Ch)
 {
   return(Ch<256 && LowerToUpper[Ch]!=Ch);
 }
 
 
-int WINAPI LocalIsupper(int Ch)
+int WINAPI LocalIsupper(unsigned Ch)
 {
   return(Ch<256 && LowerToUpper[Ch]==Ch);
 }
 
-int WINAPI LocalIsalpha(int Ch)
+int WINAPI LocalIsalpha(unsigned Ch)
 {
   if (Ch>=256)
     return(FALSE);
@@ -158,7 +161,7 @@ int WINAPI LocalIsalpha(int Ch)
   return(IsCharAlpha(CvtStr[0]));
 }
 
-int WINAPI LocalIsalphanum(int Ch)
+int WINAPI LocalIsalphanum(unsigned Ch)
 {
   if (Ch>=256)
     return(FALSE);
@@ -169,7 +172,7 @@ int WINAPI LocalIsalphanum(int Ch)
 }
 
 
-int WINAPI LocalUpper(int LowerChar)
+unsigned WINAPI LocalUpper(unsigned LowerChar)
 {
   return(LowerChar < 256 ? LowerToUpper[LowerChar]:LowerChar);
 }
@@ -191,7 +194,7 @@ void WINAPI LocalLowerBuf(char *Buf,int Length)
 }
 /* SVS $ */
 
-int WINAPI LocalLower(int UpperChar)
+unsigned WINAPI LocalLower(unsigned UpperChar)
 {
   return(UpperChar < 256 ? UpperToLower[UpperChar]:UpperChar);
 }
@@ -211,11 +214,11 @@ void WINAPI LocalStrlwr(char *s1)
 }
 
 
-int WINAPI LStricmp(char *s1,char *s2)
+int WINAPI LStricmp(const char *s1,const char *s2)
 {
   return LocalStricmp(s1,s2);
 }
-int LocalStricmp(char *s1,char *s2)
+int LocalStricmp(const char *s1,const char *s2)
 {
   while (1)
   {
@@ -228,12 +231,12 @@ int LocalStricmp(char *s1,char *s2)
   return(0);
 }
 
-int WINAPI LStrnicmp(char *s1,char *s2,int n)
+int WINAPI LStrnicmp(const char *s1,const char *s2,int n)
 {
   return LocalStrnicmp(s1,s2,n);
 }
 
-int LocalStrnicmp(char *s1,char *s2,int n)
+int LocalStrnicmp(const char *s1,const char *s2,int n)
 {
   while (n-- > 0)
   {

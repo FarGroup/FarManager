@@ -7,10 +7,12 @@ fileview.hpp
 
 */
 
-/* Revision: 1.11 14.06.2001 $ */
+/* Revision: 1.12 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 IS
+   ! Внедрение const
   14.06.2001 OT
     ! "Бунт" ;-)
   06.06.2001 OT
@@ -62,12 +64,12 @@ class FileViewer:public Frame
     typedef class Frame inherited;
 
   public:
-    FileViewer(char *Name,int EnableSwitch=FALSE,int DisableHistory=FALSE,
+    FileViewer(const char *Name,int EnableSwitch=FALSE,int DisableHistory=FALSE,
                int DisableEdit=FALSE,long ViewStartPos=-1,char *PluginData=NULL,
                NamesList *ViewNamesList=NULL);
-    FileViewer(char *Name,int EnableSwitch,char *Title,
+    FileViewer(const char *Name,int EnableSwitch,const char *Title,
                int X1,int Y1,int X2,int Y2);
-    void Init(char *Name,int EnableSwitch,int DisableHistory,
+    void Init(const char *Name,int EnableSwitch,int DisableHistory,
               long ViewStartPos,char *PluginData,NamesList *ViewNamesList);
     ~FileViewer();
     /* $ 07.08.2000 SVS
@@ -79,7 +81,7 @@ class FileViewer:public Frame
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     int GetTypeAndName(char *Type,char *Name);
     void ShowConsoleTitle();
-    void SetTempViewName(char *Name);
+    void SetTempViewName(const char *Name);
     virtual void OnDestroy();
     virtual char *GetTypeName(){return "[FileView]";}; ///
     virtual int GetType() { return MODALTYPE_VIEWER; }

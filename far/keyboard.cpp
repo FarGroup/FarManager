@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.38 23.06.2001 $ */
+/* Revision: 1.39 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 IS
+    ! Внедрение const
   23.06.2001 OT
     - far -r
   21.06.2001 SVS
@@ -827,7 +829,7 @@ static char *GetShiftKeyName(char *Name, DWORD Key,int& Len)
    Если имя не верно или нет такого - возвращается -1
    Может и криво, но правильно и коротко!
 */
-int WINAPI KeyNameToKey(char *Name)
+int WINAPI KeyNameToKey(const char *Name)
 {
    if(!Name || !*Name)
      return -1;

@@ -5,10 +5,12 @@ clipboard.cpp
 
 */
 
-/* Revision: 1.02 06.05.2001 $ */
+/* Revision: 1.03 25.05.2001 $ */
 
 /*
 Modify:
+  25.06.2001 IS
+   ! Внедрение const
   06.05.2001 DJ
     ! перетрях #include
   23.01.2001 SVS
@@ -24,7 +26,7 @@ Modify:
 
 #include "global.hpp"
 
-int WINAPI CopyToClipboard(char *Data)
+int WINAPI CopyToClipboard(const char *Data)
 {
   long DataSize;
   if (Data!=NULL && (DataSize=strlen(Data))!=0)

@@ -8,13 +8,16 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.121 23.06.2001 $ */
+/* Revision: 1.122 25.06.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  25.06.2001 IS
+   ! Внедрение const, чтобы было как можно меньше отличий от "официального"
+     plugin.hpp
   23.06.2001 KM
    + DM_GETDROPDOWNOPENED - определить, открыт ли в диалоге комбобокс или хистори.
    + DM_SETDROPDOWNOPENED - открыть или закрыть программным путём комбобокс или хистори.
@@ -508,12 +511,12 @@ typedef int (WINAPI *FARAPIMENU)(
   int                 Y,
   int                 MaxHeight,
   DWORD               Flags,
-  char               *Title,
-  char               *Bottom,
-  char               *HelpTopic,
-  int                *BreakKeys,
+  const char         *Title,
+  const char         *Bottom,
+  const char         *HelpTopic,
+  const int          *BreakKeys,
   int                *BreakCode,
-  struct FarMenuItem *Item,
+  const struct FarMenuItem *Item,
   int                 ItemsNumber
 );
 
@@ -544,7 +547,7 @@ typedef int (WINAPI *FARAPIDIALOG)(
   int                   Y1,
   int                   X2,
   int                   Y2,
-  char                 *HelpTopic,
+  const char           *HelpTopic,
   struct FarDialogItem *Item,
   int                   ItemsNumber
 );
@@ -555,7 +558,7 @@ typedef int (WINAPI *FARAPIDIALOGEX)(
   int                   Y1,
   int                   X2,
   int                   Y2,
-  char                 *HelpTopic,
+  const char           *HelpTopic,
   struct FarDialogItem *Item,
   int                   ItemsNumber,
   DWORD                 Reserved,
@@ -590,8 +593,8 @@ enum {
 typedef int (WINAPI *FARAPIMESSAGE)(
   int PluginNumber,
   DWORD Flags,
-  char *HelpTopic,
-  char **Items,
+  const char *HelpTopic,
+  const char * const *Items,
   int ItemsNumber,
   int ButtonsNumber
 );
@@ -937,12 +940,12 @@ typedef int (WINAPI *FARAPICONTROL)(
   void *Param
 );
 
-typedef HANDLE (WINAPI *FARAPISAVESCREEN)(int X1,int Y1,int X2,int Y2);
+typedef HANDLE (WINAPI *FARAPISAVESCREEN)(int X1, int Y1, int X2, int Y2);
 
 typedef void (WINAPI *FARAPIRESTORESCREEN)(HANDLE hScreen);
 
 typedef int (WINAPI *FARAPIGETDIRLIST)(
-  char *Dir,
+  const char *Dir,
   struct PluginPanelItem **pPanelItem,
   int *pItemsNumber
 );
@@ -950,12 +953,12 @@ typedef int (WINAPI *FARAPIGETDIRLIST)(
 typedef int (WINAPI *FARAPIGETPLUGINDIRLIST)(
   int PluginNumber,
   HANDLE hPlugin,
-  char *Dir,
+  const char *Dir,
   struct PluginPanelItem **pPanelItem,
   int *pItemsNumber
 );
 
-typedef void (WINAPI *FARAPIFREEDIRLIST)(struct PluginPanelItem *PanelItem);
+typedef void (WINAPI *FARAPIFREEDIRLIST)(const struct PluginPanelItem *PanelItem);
 
 enum VIEWER_FLAGS {
   VF_NONMODAL      =1,
@@ -970,8 +973,8 @@ enum EDITOR_FLAGS {
 };
 
 typedef int (WINAPI *FARAPIVIEWER)(
-  char *FileName,
-  char *Title,
+  const char *FileName,
+  const char *Title,
   int X1,
   int Y1,
   int X2,
@@ -980,8 +983,8 @@ typedef int (WINAPI *FARAPIVIEWER)(
 );
 
 typedef int (WINAPI *FARAPIEDITOR)(
-  char *FileName,
-  char *Title,
+  const char *FileName,
+  const char *Title,
   int X1,
   int Y1,
   int X2,
@@ -992,13 +995,13 @@ typedef int (WINAPI *FARAPIEDITOR)(
 );
 
 typedef int (WINAPI *FARAPICMPNAME)(
-  char *Pattern,
-  char *String,
+  const char *Pattern,
+  const char *String,
   int SkipPath
 );
 
 
-#define FCT_DETECT 0x40000000
+enum { FCT_DETECT=0x40000000 };
 
 struct CharTableSet
 {
@@ -1011,7 +1014,7 @@ struct CharTableSet
 
 typedef int (WINAPI *FARAPICHARTABLE)(
   int Command,
-  char *Buffer,
+  const char *Buffer,
   int BufferSize
 );
 
@@ -1019,7 +1022,7 @@ typedef void (WINAPI *FARAPITEXT)(
   int X,
   int Y,
   int Color,
-  char *Str
+  const char *Str
 );
 
 
@@ -1037,7 +1040,11 @@ enum FarHelpFlags{
   FHELP_USECONTENTS =0x40000000,
 };
 
-typedef BOOL (WINAPI *FARAPISHOWHELP)(char *ModuleName,char *Topic,DWORD Flags);
+typedef BOOL (WINAPI *FARAPISHOWHELP)(
+  const char *ModuleName,
+  const char *Topic,
+  DWORD Flags
+);
 
 enum {
   ACTL_GETFARVERSION,
@@ -1338,7 +1345,12 @@ struct EditorSaveFile
 };
 
 typedef void (WINAPI *FARSTDUNQUOTE)(char *Str);
-typedef DWORD (WINAPI *FARSTDEXPANDENVIRONMENTSTR)(char *src,char *dst,size_t size);
+
+typedef DWORD (WINAPI *FARSTDEXPANDENVIRONMENTSTR)(
+  const char *src,
+  char *dst,
+  size_t size
+);
 
 enum INPUTBOXFLAGS{
   FIB_ENABLEEMPTY      = 0x0001,
@@ -1349,25 +1361,25 @@ enum INPUTBOXFLAGS{
 };
 
 typedef int (WINAPI *FARAPIINPUTBOX)(
-  char *Title,
-  char *SubTitle,
-  char *HistoryName,
-  char *SrcText,
+  const char *Title,
+  const char *SubTitle,
+  const char *HistoryName,
+  const char *SrcText,
   char *DestText,
   int   DestLength,
-  char *HelpTopic,
+  const char *HelpTopic,
   DWORD Flags
 );
 
 // <C&C++>
-typedef int     (WINAPIV *FARSTDSPRINTF)(char *buffer,const char *format,...);
-typedef int     (WINAPIV *FARSTDSSCANF)(const char *s, const char *format,...);
+typedef int     (WINAPIV *FARSTDSPRINTF)(char *Buffer,const char *Format,...);
+typedef int     (WINAPIV *FARSTDSSCANF)(const char *Buffer, const char *Format,...);
 // </C&C++>
 typedef void    (WINAPI *FARSTDQSORT)(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
-typedef void    (WINAPI *FARSTDQSORTEX)(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(void *, void *,void *userparam),void *userparam);
+typedef void    (WINAPI *FARSTDQSORTEX)(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *,void *userparam),void *userparam);
 typedef void   *(WINAPI *FARSTDBSEARCH)(const void *key, const void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
-typedef int     (WINAPI *FARSTDGETFILEOWNER)(char *Computer,char *Name,char *Owner);
-typedef int     (WINAPI *FARSTDGETNUMBEROFLINKS)(char *Name);
+typedef int     (WINAPI *FARSTDGETFILEOWNER)(const char *Computer,const char *Name,char *Owner);
+typedef int     (WINAPI *FARSTDGETNUMBEROFLINKS)(const char *Name);
 typedef int     (WINAPI *FARSTDATOI)(const char *s);
 typedef __int64 (WINAPI *FARSTDATOI64)(const char *s);
 typedef char   *(WINAPI *FARSTDITOA64)(__int64 value, char *string, int radix);
@@ -1379,36 +1391,36 @@ typedef char   *(WINAPI *FARSTDTRUNCSTR)(char *Str,int MaxLength);
 typedef char   *(WINAPI *FARSTDTRUNCPATHSTR)(char *Str,int MaxLength);
 typedef char   *(WINAPI *FARSTDQUOTESPACEONLY)(char *Str);
 typedef char   *(WINAPI *FARSTDPOINTTONAME)(char *Path);
-typedef void    (WINAPI *FARSTDGETPATHROOT)(char *Path,char *Root);
+typedef void    (WINAPI *FARSTDGETPATHROOT)(const char *Path,char *Root);
 typedef int     (WINAPI *FARSTDADDENDSLASH)(char *Path);
-typedef int     (WINAPI *FARSTDCOPYTOCLIPBOARD)(char *Data);
+typedef int     (WINAPI *FARSTDCOPYTOCLIPBOARD)(const char *Data);
 typedef char   *(WINAPI *FARSTDPASTEFROMCLIPBOARD)(void);
 typedef int     (WINAPI *FARSTDINPUTRECORDTOKEY)(INPUT_RECORD *r);
-typedef int     (WINAPI *FARSTDLOCALISLOWER)(int Ch);
-typedef int     (WINAPI *FARSTDLOCALISUPPER)(int Ch);
-typedef int     (WINAPI *FARSTDLOCALISALPHA)(int Ch);
-typedef int     (WINAPI *FARSTDLOCALISALPHANUM)(int Ch);
-typedef int     (WINAPI *FARSTDLOCALUPPER)(int LowerChar);
+typedef int     (WINAPI *FARSTDLOCALISLOWER)(unsigned Ch);
+typedef int     (WINAPI *FARSTDLOCALISUPPER)(unsigned Ch);
+typedef int     (WINAPI *FARSTDLOCALISALPHA)(unsigned Ch);
+typedef int     (WINAPI *FARSTDLOCALISALPHANUM)(unsigned Ch);
+typedef unsigned (WINAPI *FARSTDLOCALUPPER)(unsigned LowerChar);
+typedef unsigned (WINAPI *FARSTDLOCALLOWER)(unsigned UpperChar);
 typedef void    (WINAPI *FARSTDLOCALUPPERBUF)(char *Buf,int Length);
 typedef void    (WINAPI *FARSTDLOCALLOWERBUF)(char *Buf,int Length);
-typedef int     (WINAPI *FARSTDLOCALLOWER)(int UpperChar);
 typedef void    (WINAPI *FARSTDLOCALSTRUPR)(char *s1);
 typedef void    (WINAPI *FARSTDLOCALSTRLWR)(char *s1);
-typedef int     (WINAPI *FARSTDLOCALSTRICMP)(char *s1,char *s2);
-typedef int     (WINAPI *FARSTDLOCALSTRNICMP)(char *s1,char *s2,int n);
-typedef int     (WINAPI *FARSTDPROCESSNAME)(char *param1, char *param2, DWORD flags);
+typedef int     (WINAPI *FARSTDLOCALSTRICMP)(const char *s1,const char *s2);
+typedef int     (WINAPI *FARSTDLOCALSTRNICMP)(const char *s1,const char *s2,int n);
+typedef int     (WINAPI *FARSTDPROCESSNAME)(const char *param1, char *param2, DWORD flags);
 
 enum XLATMODE{
   XLAT_SWITCHKEYBLAYOUT = 0x0000001UL,
   XLAT_SWITCHKEYBBEEP   = 0x0000002UL,
 };
 
-typedef char*   (WINAPI *FARSTDXLAT)(char *Line,int StartPos,int EndPos,struct CharTableSet *TableSet,DWORD Flags);
+typedef char*   (WINAPI *FARSTDXLAT)(char *Line,int StartPos,int EndPos,const struct CharTableSet *TableSet,DWORD Flags);
 typedef BOOL    (WINAPI *FARSTDKEYTOKEYNAME)(int Key,char *KeyText,int Size);
-typedef int     (WINAPI *FARSTDKEYNAMETOKEY)(char *Name);
-typedef int     (WINAPI *FRSUSERFUNC)(WIN32_FIND_DATA *FData,char *FullName,void *Param);
-typedef void    (WINAPI *FARSTDRECURSIVESEARCH)(char *InitDir,char *Mask,FRSUSERFUNC Func,DWORD Flags,void *Param);
-typedef char*   (WINAPI *FARSTDMKTEMP)(char *Dest, char *Prefix);
+typedef int     (WINAPI *FARSTDKEYNAMETOKEY)(const char *Name);
+typedef int     (WINAPI *FRSUSERFUNC)(const WIN32_FIND_DATA *FData,const char *FullName,void *Param);
+typedef void    (WINAPI *FARSTDRECURSIVESEARCH)(const char *InitDir,const char *Mask,FRSUSERFUNC Func,DWORD Flags,void *Param);
+typedef char*   (WINAPI *FARSTDMKTEMP)(char *Dest,const char *Prefix);
 typedef void    (WINAPI *FARSTDDELETEBUFFER)(char *Buffer);
 
 enum MKLINKOP{
@@ -1531,14 +1543,14 @@ struct PluginInfo
 {
   int StructSize;
   DWORD Flags;
-  char **DiskMenuStrings;
+  const char * const *DiskMenuStrings;
   int *DiskMenuNumbers;
   int DiskMenuStringsNumber;
-  char **PluginMenuStrings;
+  const char * const *PluginMenuStrings;
   int PluginMenuStringsNumber;
-  char **PluginConfigStrings;
+  const char * const *PluginConfigStrings;
   int PluginConfigStringsNumber;
-  char *CommandPrefix;
+  const char *CommandPrefix;
   DWORD SysID;
 };
 
@@ -1612,7 +1624,7 @@ struct OpenPluginInfo
   char                 *HostFile;
   char                 *CurDir;
   char                 *Format;
-  char                 *PanelTitle;
+  const char           *PanelTitle;
   struct InfoPanelLine *InfoLines;
   int                   InfoLinesNumber;
   char                **DescrFiles;
@@ -1665,7 +1677,7 @@ extern "C"{
 // Exported Functions
 
 void   WINAPI _export ClosePlugin(HANDLE hPlugin);
-int    WINAPI _export Compare(HANDLE hPlugin,struct PluginPanelItem *Item1,struct PluginPanelItem *Item2,unsigned int Mode);
+int    WINAPI _export Compare(HANDLE hPlugin,const struct PluginPanelItem *Item1,const struct PluginPanelItem *Item2,unsigned int Mode);
 int    WINAPI _export Configure(int ItemNumber);
 int    WINAPI _export DeleteFiles(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
 void   WINAPI _export ExitFAR(void);
@@ -1676,19 +1688,19 @@ int    WINAPI _export GetFindData(HANDLE hPlugin,struct PluginPanelItem **pPanel
 int    WINAPI _export GetMinFarVersion(void);
 void   WINAPI _export GetOpenPluginInfo(HANDLE hPlugin,struct OpenPluginInfo *Info);
 void   WINAPI _export GetPluginInfo(struct PluginInfo *Info);
-int    WINAPI _export GetVirtualFindData(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,char *Path);
+int    WINAPI _export GetVirtualFindData(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,const char *Path);
 int    WINAPI _export MakeDirectory(HANDLE hPlugin,char *Name,int OpMode);
 HANDLE WINAPI _export OpenFilePlugin(char *Name,const unsigned char *Data,int DataSize);
 HANDLE WINAPI _export OpenPlugin(int OpenFrom,int Item);
+int    WINAPI _export ProcessEditorEvent(int Event,void *Param);
+int    WINAPI _export ProcessEditorInput(const INPUT_RECORD *Rec);
 int    WINAPI _export ProcessEvent(HANDLE hPlugin,int Event,void *Param);
 int    WINAPI _export ProcessHostFile(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
 int    WINAPI _export ProcessKey(HANDLE hPlugin,int Key,unsigned int ControlState);
 int    WINAPI _export PutFiles(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,int OpMode);
-int    WINAPI _export SetDirectory(HANDLE hPlugin,char *Dir,int OpMode);
+int    WINAPI _export SetDirectory(HANDLE hPlugin,const char *Dir,int OpMode);
 int    WINAPI _export SetFindList(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber);
-void   WINAPI _export SetStartupInfo(struct PluginStartupInfo *Info);
-int    WINAPI _export ProcessEditorInput(INPUT_RECORD *Rec);
-int    WINAPI _export ProcessEditorEvent(int Event,void *Param);
+void   WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info);
 
 #ifdef __cplusplus
 };

@@ -5,10 +5,12 @@ setattr.cpp
 
 */
 
-/* Revision: 1.31 10.06.2001 $ */
+/* Revision: 1.32 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 IS
+   ! Внедрение const
   10.06.2001 SVS
     - ошибка в логике при работе с атрибутами для каталога
   20.05.2001 SVS
@@ -849,8 +851,8 @@ static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
   int DigitCount,I;
   int SetTime,GetTime;
   FILETIME *OriginalFileTime, OFTModify, OFTCreate, OFTLast;
-  char SrcDate[32], SrcTime[32];
-  char *Ptr,Digit[16],*PtrDigit;
+  char SrcDate[32], SrcTime[32], Digit[16],*PtrDigit;
+  const char *Ptr;
 
   // ****** ОБРАБОТКА ДАТЫ ******** //
   strncpy(SrcDate,OSrcDate,sizeof(SrcDate));

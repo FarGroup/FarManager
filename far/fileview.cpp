@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.37 14.06.2001 $ */
+/* Revision: 1.38 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 IS
+   ! Внедрение const
   14.06.2001 OT
     ! "Бунт" ;-)
   06.06.2001 OT
@@ -114,7 +116,7 @@ Modify:
 #include "fileedit.hpp"
 #include "cmdline.hpp"
 
-FileViewer::FileViewer(char *Name,int EnableSwitch,int DisableHistory,
+FileViewer::FileViewer(const char *Name,int EnableSwitch,int DisableHistory,
                        int DisableEdit,long ViewStartPos,char *PluginData,
                        NamesList *ViewNamesList)
 {
@@ -126,7 +128,7 @@ FileViewer::FileViewer(char *Name,int EnableSwitch,int DisableHistory,
 }
 
 
-FileViewer::FileViewer(char *Name,int EnableSwitch,char *Title,
+FileViewer::FileViewer(const char *Name,int EnableSwitch,const char *Title,
                        int X1,int Y1,int X2,int Y2)
 {
   _OT(SysLog("[%p] FileViewer::FileViewer(II variant...)", this));
@@ -138,7 +140,7 @@ FileViewer::FileViewer(char *Name,int EnableSwitch,char *Title,
 }
 
 
-void FileViewer::Init(char *name,int EnableSwitch,int disableHistory,  ///
+void FileViewer::Init(const char *name,int EnableSwitch,int disableHistory, ///
                       long ViewStartPos,char *PluginData,
                       NamesList *ViewNamesList)
 {
@@ -465,7 +467,7 @@ void FileViewer::ShowConsoleTitle()
 }
 
 
-void FileViewer::SetTempViewName(char *Name)
+void FileViewer::SetTempViewName(const char *Name)
 {
   View.SetTempViewName(Name);
 }

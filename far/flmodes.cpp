@@ -5,10 +5,12 @@ flmodes.cpp
 
 */
 
-/* Revision: 1.06 16.06.2001 $ */
+/* Revision: 1.07 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 IS
+   ! Внедрение const
   16.06.2001 KM
     ! Добавление WRAPMODE в меню.
   14.06.2001 OT
@@ -251,7 +253,7 @@ void FileList::SavePanelModes()
 void FileList::TextToViewSettings(char *ColumnTitles,char *ColumnWidths,
      unsigned int *ViewColumnTypes,int *ViewColumnWidths,int &ColumnCount)
 {
-  char *TextPtr=ColumnTitles;
+  const char *TextPtr=ColumnTitles;
   for (ColumnCount=0;ColumnCount<sizeof(ViewSettingsArray[0].ColumnType)/sizeof(ViewSettingsArray[0].ColumnType[0]);ColumnCount++)
   {
     char ArgName[NM];

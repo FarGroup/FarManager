@@ -5,10 +5,13 @@ message.cpp
 
 */
 
-/* Revision: 1.09 18.05.2001 $ */
+/* Revision: 1.10 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 IS
+    ! Внедрение const
+    - Устранение бага (порча стека) в SetMessageHelp
   18.05.2001 DJ
     + #include "colors.hpp"
   10.05.2001 SVS
@@ -49,37 +52,44 @@ static char MsgHelpTopic[80];
 #include "farftp.hpp"
 #include "scrbuf.hpp"
 
-int Message(int Flags,int Buttons,char *Title,char *Str1,char *Str2,
-            char *Str3,char *Str4,int PluginNumber)
+int Message(int Flags,int Buttons,const char *Title,const char *Str1,
+            const char *Str2,const char *Str3,const char *Str4,
+            int PluginNumber)
 {
   return(Message(Flags,Buttons,Title,Str1,Str2,Str3,Str4,NULL,NULL,NULL,
                  NULL,NULL,NULL,NULL,NULL,NULL,NULL,PluginNumber));
 }
 
-int Message(int Flags,int Buttons,char *Title,char *Str1,char *Str2,
-            char *Str3,char *Str4,char *Str5,char *Str6,char *Str7,int PluginNumber)
+int Message(int Flags,int Buttons,const char *Title,const char *Str1,
+            const char *Str2,const char *Str3,const char *Str4,
+            const char *Str5,const char *Str6,const char *Str7,
+            int PluginNumber)
 {
   return(Message(Flags,Buttons,Title,Str1,Str2,Str3,Str4,Str5,Str6,Str7,
                  NULL,NULL,NULL,NULL,NULL,NULL,NULL,PluginNumber));
 }
 
 
-int Message(int Flags,int Buttons,char *Title,char *Str1,char *Str2,
-            char *Str3,char *Str4,char *Str5,char *Str6,char *Str7,
-            char *Str8,char *Str9,char *Str10,int PluginNumber)
+int Message(int Flags,int Buttons,const char *Title,const char *Str1,
+            const char *Str2,const char *Str3,const char *Str4,
+            const char *Str5,const char *Str6,const char *Str7,
+            const char *Str8,const char *Str9,const char *Str10,
+            int PluginNumber)
 {
   return(Message(Flags,Buttons,Title,Str1,Str2,Str3,Str4,Str5,Str6,Str7,Str8,
                  Str9,Str10,NULL,NULL,NULL,NULL,PluginNumber));
 }
 
 
-int Message(int Flags,int Buttons,char *Title,char *Str1,char *Str2,
-            char *Str3,char *Str4,char *Str5,char *Str6,char *Str7,
-            char *Str8,char *Str9,char *Str10,char *Str11,char *Str12,
-            char *Str13,char *Str14,int PluginNumber)
+int Message(int Flags,int Buttons,const char *Title,const char *Str1,
+            const char *Str2,const char *Str3,const char *Str4,
+            const char *Str5,const char *Str6,const char *Str7,
+            const char *Str8,const char *Str9,const char *Str10,
+            const char *Str11,const char *Str12,const char *Str13,
+            const char *Str14,int PluginNumber)
 {
   char TmpStr[256],ErrStr[256],HelpTopic[80];
-  char *Str[14],*Btn[14];
+  const char *Str[14],*Btn[14];
   int X1,Y1,X2,Y2;
   int Length,MaxLength,BtnLength,StrCount,I;
 
@@ -430,7 +440,7 @@ int GetErrorString(char *ErrStr, DWORD StrSize)
   return(TRUE);
 }
 
-void SetMessageHelp(char *Topic)
+void SetMessageHelp(const char *Topic)
 {
-  strcpy(MsgHelpTopic,Topic);
+  strncpy(MsgHelpTopic,Topic, sizeof(MsgHelpTopic));
 }

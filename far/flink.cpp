@@ -5,10 +5,12 @@ flink.cpp
 
 */
 
-/* Revision: 1.18 01.06.2001 $ */
+/* Revision: 1.19 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 IS
+   ! Внедрение const
   01.06.2001 SVS
     + Добавки для вывода лога.
   30.05.2001 SVS
@@ -376,7 +378,7 @@ DWORD WINAPI GetJunctionPointInfo(LPCTSTR szMountDir,
 /* $ 07.09.2000 SVS
    Функция GetNumberOfLinks тоже доступна плагинам :-)
 */
-int WINAPI GetNumberOfLinks(char *Name)
+int WINAPI GetNumberOfLinks(const char *Name)
 {
   HANDLE hFile=CreateFile(Name,0,FILE_SHARE_READ|FILE_SHARE_WRITE,
                           NULL,OPEN_EXISTING,0,NULL);
@@ -571,7 +573,7 @@ BOOL GetSubstName(int DriveType,char *LocalName,char *SubstName,int SubstSize)
 }
 
 // просмотр одной позиции :-)
-void GetPathRootOne(char *Path,char *Root)
+void GetPathRootOne(const char *Path,char *Root)
 {
   char TempRoot[1024],*ChPtr;
   strncpy(TempRoot,Path,NM);
@@ -629,7 +631,7 @@ void GetPathRootOne(char *Path,char *Root)
 }
 
 // полный проход ПО!!!
-void WINAPI GetPathRoot(char *Path,char *Root)
+void WINAPI GetPathRoot(const char *Path,char *Root)
 {
   if (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5)
   {

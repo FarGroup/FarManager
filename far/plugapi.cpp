@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.71 21.06.2001 $ */
+/* Revision: 1.72 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 IS
+   ! Внедрение const
   21.06.2001 SVS
     ! ACTL_POSTSEQUENCEKEY -> ACTL_POSTKEYSEQUENCE - (с точки зрения eng)
     ! SequenceKey           -> KeySequence
@@ -227,7 +229,8 @@ void ScanPluginDir();
 /* $ 03.07.2000 IS
   Функция вывода помощи
 */
-BOOL WINAPI FarShowHelp(char *ModuleName, char *HelpTopic,DWORD Flags)
+BOOL WINAPI FarShowHelp(const char *ModuleName,
+                        const char *HelpTopic,DWORD Flags)
 {
   if (!HelpTopic)
     HelpTopic="Contents";
@@ -467,9 +470,9 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
 /* IS $ */
 
 int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
-           DWORD Flags,char *Title,char *Bottom,char *HelpTopic,
-           int *BreakKeys,int *BreakCode,struct FarMenuItem *Item,
-           int ItemsNumber)
+           DWORD Flags,const char *Title,const char *Bottom,
+           const char *HelpTopic, const int *BreakKeys,int *BreakCode,
+           const struct FarMenuItem *Item, int ItemsNumber)
 {
   if (DisablePluginsOutput)
     return(-1);
@@ -588,7 +591,7 @@ long WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 /* SVS $ */
 
 int WINAPI FarDialogFn(int PluginNumber,int X1,int Y1,int X2,int Y2,
-           char *HelpTopic,struct FarDialogItem *Item,int ItemsNumber)
+           const char *HelpTopic,struct FarDialogItem *Item,int ItemsNumber)
 {
   return FarDialogEx(PluginNumber,X1,Y1,X2,Y2,HelpTopic,Item,ItemsNumber,NULL,NULL,NULL,NULL);
 }
@@ -601,7 +604,7 @@ int WINAPI FarDialogFn(int PluginNumber,int X1,int Y1,int X2,int Y2,
 #pragma warn -par
 #endif
 int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
-           char *HelpTopic,struct FarDialogItem *Item,int ItemsNumber,
+           const char *HelpTopic,struct FarDialogItem *Item,int ItemsNumber,
            DWORD Reserved, DWORD Flags,
            FARWINDOWPROC DlgProc,long Param)
 
@@ -723,8 +726,9 @@ char* PluginsSet::FarGetMsg(int PluginNumber,int MsgId)
 */
 
 #define MAXMSG  15
-int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,char *HelpTopic,
-                        char **Items,int ItemsNumber,int ButtonsNumber)
+int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
+                        const char * const *Items,int ItemsNumber,
+                        int ButtonsNumber)
 {
   if (DisablePluginsOutput)
     return(-1);
@@ -732,7 +736,8 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,char *HelpTopic,
   if ((!(Flags&(FMSG_ALLINONE|FMSG_ERRORTYPE)) && ItemsNumber<2) || !Items)
     return(-1);
 
-  char *MsgItems[MAXMSG], *SingleItems=NULL;
+  const char *MsgItems[MAXMSG];
+  char *SingleItems=NULL;
   int I;
 
   memset(MsgItems,0,sizeof(MsgItems));
@@ -966,7 +971,7 @@ void WINAPI FarRestoreScreen(HANDLE hScreen)
 }
 
 
-int WINAPI FarGetDirList(char *Dir,struct PluginPanelItem **pPanelItem,
+int WINAPI FarGetDirList(const char *Dir,struct PluginPanelItem **pPanelItem,
                   int *pItemsNumber)
 {
   PluginPanelItem *ItemsList=NULL;
@@ -1038,7 +1043,7 @@ static struct
 } DirListNumbers[16];
 
 int WINAPI FarGetPluginDirList(int PluginNumber,HANDLE hPlugin,
-                  char *Dir,struct PluginPanelItem **pPanelItem,
+                  const char *Dir,struct PluginPanelItem **pPanelItem,
                   int *pItemsNumber)
 {
   {
@@ -1048,7 +1053,7 @@ int WINAPI FarGetPluginDirList(int PluginNumber,HANDLE hPlugin,
 
     {
       char DirName[512];
-      strcpy(DirName,Dir);
+      strncpy(DirName,Dir,sizeof(DirName));
       TruncStr(DirName,30);
       CenterStr(DirName,DirName,30);
       SetCursorType(FALSE,0);
@@ -1205,7 +1210,7 @@ void ScanPluginDir()
 }
 
 
-void WINAPI FarFreeDirList(struct PluginPanelItem *PanelItem)
+void WINAPI FarFreeDirList(const struct PluginPanelItem *PanelItem)
 {
   if (PanelItem==NULL)
     return;
@@ -1221,7 +1226,7 @@ void WINAPI FarFreeDirList(struct PluginPanelItem *PanelItem)
 
   for (I=0;I<ItemsNumber;I++)
   {
-    PluginPanelItem *CurPanelItem=PanelItem+I;
+    const PluginPanelItem *CurPanelItem=PanelItem+I;
     if (CurPanelItem->UserData && (CurPanelItem->Flags & PPIF_USERDATA))
       /* $ 13.07.2000 SVS
         для запроса использовали malloc
@@ -1232,7 +1237,7 @@ void WINAPI FarFreeDirList(struct PluginPanelItem *PanelItem)
   /* $ 13.07.2000 SVS
     для запроса использовали realloc
   */
-  free(PanelItem);
+  free(static_cast<void*>(const_cast<PluginPanelItem *>(PanelItem)));
   /* SVS $*/
 }
 
@@ -1240,8 +1245,8 @@ void WINAPI FarFreeDirList(struct PluginPanelItem *PanelItem)
 #if defined(__BORLANDC__)
 #pragma warn -par
 #endif
-int WINAPI FarViewer(char *FileName,char *Title,int X1,int Y1,int X2,
-                            int Y2,DWORD Flags)
+int WINAPI FarViewer(const char *FileName,const char *Title,
+                     int X1,int Y1,int X2, int Y2,DWORD Flags)
 {
   if (X2==-1)
     X2=ScrX;
@@ -1278,8 +1283,9 @@ int WINAPI FarViewer(char *FileName,char *Title,int X1,int Y1,int X2,
 }
 
 
-int WINAPI FarEditor(char *FileName,char *Title,int X1,int Y1,int X2,
-                            int Y2,DWORD Flags,int StartLine,int StartChar)
+int WINAPI FarEditor(const char *FileName,const char *Title,
+                     int X1,int Y1,int X2,
+                     int Y2,DWORD Flags,int StartLine,int StartChar)
 {
   if (X2==-1)
     X2=ScrX;
@@ -1334,13 +1340,13 @@ int WINAPI FarEditor(char *FileName,char *Title,int X1,int Y1,int X2,
 #endif
 
 
-int WINAPI FarCmpName(char *pattern,char *string,int skippath)
+int WINAPI FarCmpName(const char *pattern,const char *string,int skippath)
 {
   return(CmpName(pattern,string,skippath));
 }
 
 
-int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize)
+int WINAPI FarCharTable(int Command,const char *Buffer,int BufferSize)
 {
   if (Command==FCT_DETECT)
   {
@@ -1372,7 +1378,7 @@ int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize)
 }
 
 
-void WINAPI FarText(int X,int Y,int Color,char *Str)
+void WINAPI FarText(int X,int Y,int Color,const char *Str)
 {
   if (Str==NULL)
   {

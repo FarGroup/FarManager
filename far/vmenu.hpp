@@ -10,10 +10,12 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.19 14.06.2001 $ */
+/* Revision: 1.20 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 IS
+   ! Внедрение const
   14.06.2001 SVS
     ! число -> VMENU_COLOR_COUNT
   10.06.2001 SVS
@@ -209,7 +211,7 @@ class VMenu: public Modal
     /* $ 01.08.2000 SVS
        Изменен вызов конструктора для указания функции-обработчика и родителя!
     */
-    VMenu(char *Title,
+    VMenu(const char *Title,
           struct MenuData *Data,int ItemCount,
           int MaxHeight=0,
           DWORD Flags=0,
@@ -222,9 +224,9 @@ class VMenu: public Modal
     void Show();
     void Hide();
 
-    void SetTitle(char *Title);
+    void SetTitle(const char *Title);
     char *GetTitle(char *Dest,int Size);
-    void SetBottomTitle(char *BottomTitle);
+    void SetBottomTitle(const char *BottomTitle);
     char *GetBottomTitle(char *Dest,int Size);
     void SetDialogStyle(int Style) {ChangeFlags(VMENU_WARNDIALOG,Style);SetColors(NULL);}
     void SetUpdateRequired(int SetUpdate) {ChangeFlags(VMENU_UPDATEREQUIRED,SetUpdate);}

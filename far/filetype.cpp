@@ -5,10 +5,12 @@ filetype.cpp
 
 */
 
-/* Revision: 1.21 18.06.2001 $ */
+/* Revision: 1.22 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 IS
+   ! Внедрение const
   18.06.2001 SVS
     ! SubstFileName и ReplaceVariables переехали в новый модуль fnparce.cpp
   06.06.2001 SVS
@@ -132,7 +134,8 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
     sprintf(RegKey,"Associations\\Type%d",I);
     if (!GetRegKey(RegKey,"Mask",Mask,"",sizeof(Mask)))
       break;
-    char NewCommand[512],ArgName[NM],*NamePtr=Mask;
+    char NewCommand[512],ArgName[NM];
+    const char *NamePtr=Mask;
     while ((NamePtr=GetCommaWord(NamePtr,ArgName))!=NULL)
       if (CmpName(ArgName,Name))
       {

@@ -5,10 +5,12 @@ stddlg.cpp
 
 */
 
-/* Revision: 1.12 11.06.2001 $ */
+/* Revision: 1.13 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 IS
+   ! Внедрение const
   11.06.2001 SVS
     ! Новые параметры у GetSearchReplaceString() - указывающие размеры буферов
   16.05.2001 SVS
@@ -273,8 +275,9 @@ static long WINAPI GetStringDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
   return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
-int WINAPI GetString(char *Title,char *Prompt,char *HistoryName,char *SrcText,
-    char *DestText,int DestLength,char *HelpTopic,DWORD Flags)
+int WINAPI GetString(const char *Title,const char *Prompt,
+                     const char *HistoryName,const char *SrcText,
+    char *DestText,int DestLength,const char *HelpTopic,DWORD Flags)
 {
   int Substract=3; // дополнительная величина :-)
   int ExitCode;

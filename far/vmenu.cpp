@@ -7,10 +7,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.37 14.06.2001 $ */
+/* Revision: 1.38 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 IS
+   ! Внедрение const
   14.06.2001 SVS
     - Установка позиции всегда приводит к выбору 0 итема.
   13.06.2001 SVS
@@ -170,7 +172,7 @@ Modify:
    ! изменен вызов конструктора (isListBoxControl) с учетом необходимости
      scrollbar в DI_LISTBOX & DI_COMBOBOX
 */
-VMenu::VMenu(char *Title,       // заголовок меню
+VMenu::VMenu(const char *Title,       // заголовок меню
              struct MenuData *Data, // пункты меню
              int ItemCount,     // количество пунктов меню
              int MaxHeight,     // максимальная высота
@@ -205,7 +207,7 @@ VMenu::VMenu(char *Title,       // заголовок меню
   VMenuProc=Proc;
 
   if (Title!=NULL)
-    strcpy(VMenu::Title,Title);
+    strncpy(VMenu::Title,Title, sizeof(VMenu::Title));
   else
     *VMenu::Title=0;
 
@@ -1103,7 +1105,7 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 }
 
 
-void VMenu::SetTitle(char *Title)
+void VMenu::SetTitle(const char *Title)
 {
   int Length;
   VMFlags|=VMENU_UPDATEREQUIRED;
@@ -1123,7 +1125,7 @@ char *VMenu::GetTitle(char *Dest,int Size)
 }
 
 
-void VMenu::SetBottomTitle(char *BottomTitle)
+void VMenu::SetBottomTitle(const char *BottomTitle)
 {
   int Length;
   VMFlags|=VMENU_UPDATEREQUIRED;
@@ -1397,7 +1399,7 @@ static int _cdecl SortItem(const struct MenuItem *el1,
 // Сортировка элементов списка
 void VMenu::SortItems(int Direction)
 {
-  typedef int (*qsortex_fn)(void*,void*,void*);
+  typedef int (*qsortex_fn)(const void*,const void*,void*);
   qsortex((char *)Item,
           ItemCount,
           sizeof(*Item),

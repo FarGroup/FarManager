@@ -7,10 +7,12 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.15 14.06.2001 $ */
+/* Revision: 1.16 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 IS
+   ! Внедрение const
   14.06.2001 OT
     ! "Бунт" ;-)
   31.05.2001 OT
@@ -78,16 +80,16 @@ class FileEditor:public Frame
     int EnableF6;
     /* DJ $ */
   public:
-    FileEditor(char *Name,int CreateNewFile,int EnableSwitch,
+    FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
                int StartLine=-1,int StartChar=-1,int DisableHistory=FALSE,
                char *PluginData=NULL);
-    FileEditor(char *Name,int CreateNewFile,int EnableSwitch,
-               int StartLine,int StartChar,char *Title,
+    FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
+               int StartLine,int StartChar,const char *Title,
                int X1,int Y1,int X2,int Y2);
     /* $ 07.05.2001 DJ */
     virtual ~FileEditor();
     /* DJ $ */
-    void Init(char *Name,int CreateNewFile,int EnableSwitch,
+    void Init(const char *Name,int CreateNewFile,int EnableSwitch,
               int StartLine,int StartChar,int DisableHistory,char *PluginData);
     /* $ 07.08.2000 SVS
        Функция инициализации KeyBar Labels

@@ -5,10 +5,12 @@ strftime.cpp
 
 */
 
-/* Revision: 1.02 25.06.2001 $ */
+/* Revision: 1.03 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 IS
+    ! Внедрение const
   25.06.2001 SVS
     - ошибка для '%m' неверно учитывался ведущий нуль
     + '%m0' - с ведущим нулем (%m - без ведущего нуля)
@@ -39,7 +41,7 @@ static char  Word[80];
 void PrepareStrFTime(void)
 {
   int I,J;
-  char *TempBuf;
+  const char *TempBuf;
   for(I=MStrFTimeMonth1; I < MStrFTimeMonth12; ++I)
   {
     TempBuf=MSG(I);

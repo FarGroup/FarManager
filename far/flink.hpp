@@ -8,10 +8,12 @@ flink.hpp
 
 */
 
-/* Revision: 1.07 30.05.2001 $ */
+/* Revision: 1.08 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 IS
+   ! Внедрение const
   30.05.2001 SVS
     + FarMkLink()
   29.05.2001 SVS
@@ -35,7 +37,7 @@ Modify:
 int   WINAPI MkLink(char *Src,char *Dest);
 int   WINAPI FarMkLink(char *Src,char *Dest,DWORD Flags);
 BOOL  WINAPI CanCreateHardLinks(char *TargetFile,char *HardLinkName);
-int   WINAPI GetNumberOfLinks(char *Name);
+int   WINAPI GetNumberOfLinks(const char *Name);
 int   WINAPI CreateVolumeMountPoint(LPCTSTR SrcVolume,LPCTSTR LinkFolder);
 BOOL  WINAPI CreateJunctionPoint(LPCTSTR szMountDir, LPCTSTR szDestDir);
 BOOL  WINAPI DeleteJunctionPoint(LPCTSTR szMountDir);
@@ -45,7 +47,7 @@ DWORD WINAPI GetJunctionPointInfo(LPCTSTR szMountDir,
 
 BOOL GetSubstName(int DriveType,char *LocalName,char *SubstName,int SubstSize);
 int DelSubstDrive(char *DosDeviceName);
-void  WINAPI GetPathRoot(char *Path,char *Root);
-void GetPathRootOne(char *Path,char *Root);
+void  WINAPI GetPathRoot(const char *Path,char *Root);
+void GetPathRootOne(const char *Path,char *Root);
 
 #endif // __FLINK_HPP__

@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.80 17.06.2001 $ */
+/* Revision: 1.81 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 IS
+    ! Внедрение const
   17.06.2001 IS
     - Баг в ExpandEnvironmentStr: не учитывалось то, что
       ExpandEnvironmentStrings возвращает значения переменных окружения в ANSI
@@ -781,7 +783,7 @@ int ToPercent(unsigned long N1,unsigned long N2)
     + Новая функция для обработки имени файла
 */
 // обработать имя файла: сравнить с маской, масками, сгенерировать по маске
-int WINAPI ProcessName(char *param1, char *param2, DWORD flags)
+int WINAPI ProcessName(const char *param1, char *param2, DWORD flags)
 {
  int skippath=flags&PN_SKIPPATH;
 
@@ -791,7 +793,8 @@ int WINAPI ProcessName(char *param1, char *param2, DWORD flags)
  if(flags&PN_CMPNAMELIST)
  {
   int Found=FALSE;
-  static char FileMask[NM],*MaskPtr;
+  char FileMask[NM];
+  const char *MaskPtr;
   MaskPtr=param1;
   while ((MaskPtr=GetCommaWord(MaskPtr,FileMask))!=NULL)
   if (CmpName(FileMask,param2,skippath))
@@ -869,7 +872,7 @@ void CharBufferToSmallWarn(int BufSize, int FileNameSize)
   Message(MSG_WARNING,1,MSG(MWarning),MSG(MBuffSizeTooSmall_1),Buf2,MSG(MOk));
 }
 
-int ConvertNameToFull(char *Src,char *Dest, int DestSize)
+int ConvertNameToFull(const char *Src,char *Dest, int DestSize)
 {
   int Result = 0;
 //  char *FullName = (char *) malloc (DestSize);
@@ -880,7 +883,7 @@ int ConvertNameToFull(char *Src,char *Dest, int DestSize)
   *((int *)AnsiName) = 0;
 
 //  char FullName[NM],AnsiName[NM],
-  char *NamePtr=PointToName(Src);
+  char *NamePtr=PointToName(const_cast<char *>(Src));
   Result+=strlen(Src);
 
   if (NamePtr==Src && (NamePtr[0]!='.' || NamePtr[1]!=0))
@@ -923,7 +926,7 @@ end:
 }
 
 
-void ConvertNameToShort(char *Src,char *Dest)
+void ConvertNameToShort(const char *Src,char *Dest)
 {
   char ShortName[NM],AnsiName[NM];
   SetFileApisToANSI();
@@ -936,7 +939,7 @@ void ConvertNameToShort(char *Src,char *Dest)
 }
 
 
-int GetFileTypeByName(char *Name)
+int GetFileTypeByName(const char *Name)
 {
   HANDLE hFile=CreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
                           NULL,OPEN_EXISTING,0,NULL);
@@ -1083,7 +1086,7 @@ int GetPluginDirInfo(HANDLE hPlugin,char *DirName,unsigned long &DirCount,
 /* $ 07.09.2000 SVS
    Функция GetFileOwner тоже доступна плагинам :-)
 */
-int WINAPI GetFileOwner(char *Computer,char *Name,char *Owner)
+int WINAPI GetFileOwner(const char *Computer,const char *Name,char *Owner)
 {
   SECURITY_INFORMATION si;
   SECURITY_DESCRIPTOR *sd;
@@ -1300,7 +1303,7 @@ int GetClusterSize(char *Root)
    Вынесена в качестве самостоятельной вместо прямого вызова
      ExpandEnvironmentStrings.
 */
-DWORD WINAPI ExpandEnvironmentStr(char *src, char *dest, size_t size)
+DWORD WINAPI ExpandEnvironmentStr(const char *src, char *dest, size_t size)
 {
   DWORD ret=0;
   if(size)
@@ -1373,7 +1376,7 @@ void WINAPI FarQsort(void *base, size_t nelem, size_t width,
 /* $ 24.03.2001 tran
    новая фишка...*/
 void WINAPI FarQsortEx(void *base, size_t nelem, size_t width,
-                     int (__cdecl *fcmp)(void *, void *,void *user),void *user)
+                     int (__cdecl *fcmp)(const void *, const void *,void *user),void *user)
 {
   if(base && fcmp)
     qsortex((char*)base,nelem,width,fcmp,user);
@@ -1450,7 +1453,7 @@ void *WINAPI FarBsearch(const void *key, const void *base, size_t nelem, size_t 
 
 /* $ 10.09.2000 tran
    FSF/FarRecurseSearch */
-void WINAPI FarRecursiveSearch(char *InitDir,char *Mask,FRSUSERFUNC Func,DWORD Flags,void *Param)
+void WINAPI FarRecursiveSearch(const char *InitDir,const char *Mask,FRSUSERFUNC Func,DWORD Flags,void *Param)
 {
   if(Func) // SVS: а проверить? :-(
   {
@@ -1484,7 +1487,7 @@ void WINAPI FarRecursiveSearch(char *InitDir,char *Mask,FRSUSERFUNC Func,DWORD F
    Параметр Prefix - строка, указывающая на первые символы имени временного
    файла. Используются только первые 3 символа из этой строки.
 */
-char* WINAPI FarMkTemp(char *Dest, char *Prefix)
+char* WINAPI FarMkTemp(char *Dest, const char *Prefix)
 {
   if(Dest && Prefix && *Prefix)
   {
@@ -1595,8 +1598,8 @@ char *Add_PATHEXT(char *Dest)
   char Buf[1024];
   if(GetEnvironmentVariable("PATHEXT",Buf,sizeof(Buf)))
   {
-    char Tmp[32]="*";
-    char *Ptr,ArgName[NM];
+    char Tmp[32]="*", ArgName[NM];
+    const char *Ptr;
 
     if((Ptr=GetCommaWord((Ptr=strlwr(Buf)),ArgName,';')) != NULL)
     {

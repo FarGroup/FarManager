@@ -6,10 +6,12 @@ scantree.cpp
 
 */
 
-/* Revision: 1.02 06.05.2001 $ */
+/* Revision: 1.03 25.05.2001 $ */
 
 /*
 Modify:
+  25.06.2001 IS
+    ! Внедрение const
   06.05.2001 DJ
     ! перетрях #include
   28.11.2000 SVS
@@ -52,7 +54,7 @@ void ScanTree::Init()
 }
 
 
-void ScanTree::SetFindPath(char *Path,char *Mask)
+void ScanTree::SetFindPath(const char *Path,const char *Mask)
 {
   Init();
   strcpy(FindPath,Path);

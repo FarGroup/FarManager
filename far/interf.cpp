@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.31 08.06.2001 $ */
+/* Revision: 1.32 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 IS
+   ! Внедрение const
   08.06.2001 SVS
     + GenerateWINDOW_BUFFER_SIZE_EVENT()
   07.06.2001 SVS
@@ -535,7 +537,7 @@ void GetRealCursorType(int &Visible,int &Size)
 /* $ 02.02.2001 VVM
     ! Переделал функции Text(...). Т.к. они вызываются очень часто,
       то основной вывод будет идти в Text(char *Str) */
-void Text(int X, int Y, int Color, char *Str)
+void Text(int X, int Y, int Color, const char *Str)
 {
   CurColor=FarColorToReal(Color);
   if (X<0) X=0;
@@ -545,7 +547,7 @@ void Text(int X, int Y, int Color, char *Str)
   Text(Str);
 }
 
-void Text(char *Str)
+void Text(const char *Str)
 {
   int Length=strlen(Str);
   if (CurX+Length>ScrX)
@@ -581,7 +583,7 @@ void Text(int MsgId)
 /* VVM $ */
 /* SVS $ */
 
-void VText(char *Str)
+void VText(const char *Str)
 {
   int Length=strlen(Str);
   if (CurY+Length>ScrY)
@@ -599,7 +601,7 @@ void VText(char *Str)
 }
 
 
-void HiText(char *Str,int HiColor)
+void HiText(const char *Str,int HiColor)
 {
   char TextStr[300];
   int SaveColor;
@@ -912,7 +914,7 @@ void GetRealText(int X1,int Y1,int X2,int Y2,void *Dest)
   ReadConsoleOutput(hConOut,(PCHAR_INFO)Dest,Size,Corner,&Coord);
 }
 
-void SetFarTitle(char *Title)
+void SetFarTitle(const char *Title)
 {
   char FarTitle[2*NM];
   sprintf(FarTitle,"%.256s - Far",Title);

@@ -7,10 +7,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.19 25.06.2001 $ */
+/* Revision: 1.20 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 IS
+   ! Внедрение const
   25.06.2001 SVS
     ! Юзаем SEARCHSTRINGBUFSIZE
   07.05.2001 DJ
@@ -210,7 +212,7 @@ class Viewer:public ScreenObject
   public:
     /* $ 04.07.2000 tran
        + 'warning' parameter */
-    int OpenFile(char *Name,int warning);
+    int OpenFile(const char *Name,int warning);
     /* tran $ */
     void SetViewKeyBar(KeyBar *ViewKeyBar);
     int ProcessKey(int Key);
@@ -224,8 +226,8 @@ class Viewer:public ScreenObject
     void KeepInitParameters();
     void GetFileName(char *Name);
     void ShowConsoleTitle();
-    void SetTempViewName(char *Name);
-    void SetTitle(char *Title);
+    void SetTempViewName(const char *Name);
+    void SetTitle(const char *Title);
     unsigned long GetFilePos();
     /* $ 18.07.2000 tran - change 'long' to 'unsigned long' */
     void SetFilePos(unsigned long Pos);

@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.35 23.06.2001 $ */
+/* Revision: 1.36 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 IS
+   ! Внедрение const
   25.06.2001 SVS
     ! Юзаем SEARCHSTRINGBUFSIZE
   23.06.2001 OT
@@ -1018,7 +1020,8 @@ void ArchiveSearch(char *ArcName)
 
 int IsFileIncluded(PluginPanelItem *FileItem,char *FullName,DWORD FileAttr)
 {
-  char ArgName[NM],*NamePtr=FindMask;
+  char ArgName[NM];
+  const char *NamePtr=FindMask;
   int FileFound=FALSE;
   while (!FileFound && (NamePtr=GetCommaWord(NamePtr,ArgName))!=NULL)
   {

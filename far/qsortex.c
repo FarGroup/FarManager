@@ -41,7 +41,7 @@ structures.  The default value is optimized for a high cost for compares. */
 #define COMP(a,b,u) (*comp_fp)(a,b,u)
 
 void qsortex(char *base, unsigned int nel, unsigned int width,
-            int (*comp_fp)(void *, void *,void*), void *user)
+            int (*comp_fp)(const void *, const void *,void*), void *user)
 {
   char *stack[40], **sp;                 /* stack and stack pointer        */
   char *i, *j, *limit;                   /* scan and limit pointers        */

@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.75 06.06.2001 $ */
+/* Revision: 1.76 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 IS
+   ! Внедрение const
   07.06.2001 SVS
     + F4 - назначение хоткеев в списке конф.плагинов.
       Дальше нужна оптимизация кода, т.е. из CommandsMenu и Configure
@@ -1276,7 +1278,7 @@ void PluginsSet::FreeFindData(HANDLE hPlugin,PluginPanelItem *PanelItem,
 
 
 int PluginsSet::GetVirtualFindData(HANDLE hPlugin,PluginPanelItem **pPanelData,
-                                   int *pItemsNumber,char *Path)
+                                   int *pItemsNumber,const char *Path)
 {
   //EXCEPTION_POINTERS *xp;
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
@@ -1317,7 +1319,7 @@ void PluginsSet::FreeVirtualFindData(HANDLE hPlugin,PluginPanelItem *PanelItem,i
 }
 
 
-int PluginsSet::SetDirectory(HANDLE hPlugin,char *Dir,int OpMode)
+int PluginsSet::SetDirectory(HANDLE hPlugin,const char *Dir,int OpMode)
 {
   //EXCEPTION_POINTERS *xp;
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
@@ -1619,7 +1621,8 @@ int PluginsSet::ProcessEvent(HANDLE hPlugin,int Event,void *Param)
 }
 
 
-int PluginsSet::Compare(HANDLE hPlugin,struct PluginPanelItem *Item1,struct PluginPanelItem *Item2,unsigned int Mode)
+int PluginsSet::Compare(HANDLE hPlugin,const struct PluginPanelItem *Item1,
+                        const struct PluginPanelItem *Item2,unsigned int Mode)
 {
   struct PluginHandle *ph=(struct PluginHandle *)hPlugin;
   if (PluginsData[ph->PluginNumber].pCompare)

@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.68 25.06.2001 $ */
+/* Revision: 1.69 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 IS
+   ! Внедрение const
   25.06.2001 SVS
     ! Юзаем SEARCHSTRINGBUFSIZE
     + Немного логики в диалог поиска :-)
@@ -394,7 +396,7 @@ void Viewer::KeepInitParameters()
 }
 
 
-int Viewer::OpenFile(char *Name,int warning)
+int Viewer::OpenFile(const char *Name,int warning)
 {
   FILE *NewViewFile=NULL;
   OpenFailed=false;
@@ -2258,7 +2260,7 @@ void Viewer::ShowConsoleTitle()
 }
 
 
-void Viewer::SetTempViewName(char *Name)
+void Viewer::SetTempViewName(const char *Name)
 {
 //  ConvertNameToFull(Name,TempViewName, sizeof(TempViewName));
   _tran(SysLog("[%p] Viewer::SetTempViewName() [%s]",this,Name));
@@ -2268,7 +2270,7 @@ void Viewer::SetTempViewName(char *Name)
 }
 
 
-void Viewer::SetTitle(char *Title)
+void Viewer::SetTitle(const char *Title)
 {
   if (Title==NULL)
     *Viewer::Title=0;

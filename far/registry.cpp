@@ -5,10 +5,12 @@ registry.cpp
 
 */
 
-/* Revision: 1.07 04.06.2001 $ */
+/* Revision: 1.08 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 IS
+   ! Внедрение const
   04.06.2001 SVS
     + Уточнение GetRegKeySize()
   03.06.2001 SVS
@@ -72,7 +74,7 @@ void CloseSameRegKey()
 }
 
 
-void SetRegKey(char *Key,char *ValueName,char *ValueData)
+void SetRegKey(char *Key,char *ValueName,const char * const ValueData)
 {
   HKEY hKey=CreateRegKey(Key);
   RegSetValueEx(hKey,ValueName,0,REG_SZ,(unsigned char *)ValueData,strlen(ValueData)+1);

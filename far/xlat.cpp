@@ -5,10 +5,12 @@ XLat - перекодировка
 
 */
 
-/* Revision: 1.01 06.05.2001 $ */
+/* Revision: 1.02 25.05.2001 $ */
 
 /*
 Modify:
+  25.06.2001 IS
+    ! Внедрение const
   06.05.2001 DJ
     ! перетрях #include
   22.12.2000 SVS
@@ -30,7 +32,7 @@ char* WINAPI Xlat(
    char *Line,                    // исходная строка
    int StartPos,                  // начало переконвертирования
    int EndPos,                    // конец переконвертирования
-   struct CharTableSet *TableSet, // перекодировочная таблица (может быть NULL)
+   const struct CharTableSet *TableSet, // перекодировочная таблица (может быть NULL)
    DWORD Flags)                   // флаги (см. enum XLATMODE)
 {
   BYTE Chr,ChrOld;
