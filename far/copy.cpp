@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.59 11.12.2001 $ */
+/* Revision: 1.60 19.12.2001 $ */
 
 /*
 Modify:
+  19.12.2001 VVM
+    ! Не сканируем каталоги при создании линков
   11.12.2001 SVS
     - BugZ#171 - Ошибка в [x] Process multiple destinations
   06.12.2001 VVM
@@ -1039,7 +1041,9 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
   if(TotalCopySize == 0)
   {
     *TotalCopySizeText=0;
-    if (ShowTotalCopySize && !CalcTotalSize())
+    /* $ 19.12.2001 VVM
+      ! Не сканируем каталоги при создании линков */
+    if (ShowTotalCopySize && !(ShellCopy::Flags&FCOPY_LINK) && !CalcTotalSize())
       return COPY_FAILURE;
   }
   else
