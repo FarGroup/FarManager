@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.156 15.08.2001 $ */
+/* Revision: 1.157 30.08.2001 $ */
 
 /*
 Modify:
+  30.08.2001 VVM
+   + Для обычных строк отрубим постоянные блоки
   15.08.2001 SVS
    + DN_MOUSEEVENT, DM_SETNOTIFYMOUSEEVENT, DMODE_MOUSEEVENT
   13.10.2001 SVS
@@ -1239,6 +1241,12 @@ int Dialog::InitDialogObjects(int ID)
 
       if (Type==DI_FIXEDIT)
         DialogEdit->SetCurPos(0);
+
+      /* $ 30.08.2001 VVM
+        + Для обычных строк отрубим постоянные блоки */
+      if (!(ItemFlags&DIF_EDITOR))
+        DialogEdit->SetPersistentBlocks(FALSE);
+      /*  VVM $ */
     }
     if (Type == DI_USERCONTROL)
     {

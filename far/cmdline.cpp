@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.35 23.08.2001 $ */
+/* Revision: 1.36 30.08.2001 $ */
 
 /*
 Modify:
+  30.08.2001 VVM
+    ! В командной строке блоки всегда непостояные.
   23.08.2001 OT
     - исправление far -e file -> AltF9
   13.08.2001 SKV
@@ -122,6 +124,7 @@ CommandLine::CommandLine()
 {
   *CurDir=0;
   CmdStr.SetEditBeyondEnd(FALSE);
+  CmdStr.SetPersistentBlocks(FALSE);
   LastCmdPartLength=-1;
   *LastCmdStr=0;
   BackgroundScreen=NULL;

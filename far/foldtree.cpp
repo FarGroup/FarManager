@@ -5,10 +5,12 @@ foldtree.cpp
 
 */
 
-/* Revision: 1.06 06.06.2001 $ */
+/* Revision: 1.07 30.08.2001 $ */
 
 /*
 Modify:
+  30.08.2001 VVM
+    ! Блоки в строке поиска непостоянны :)
   06.06.2001 SVS
     ! Mix/Max
   16.05.2001 DJ
@@ -71,6 +73,7 @@ FolderTree::FolderTree(char *ResultFolder,int ModalMode,int TX1,int TY1,int TX2,
         return;
       }
       FindEdit->SetEditBeyondEnd(FALSE);
+      FindEdit->SetPersistentBlocks(FALSE);
       DrawEdit();
     }
 
