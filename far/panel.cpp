@@ -5,10 +5,12 @@ Parent class ¤«ï ¯ ­¥«¥©
 
 */
 
-/* Revision: 1.21 15.03.2001 $ */
+/* Revision: 1.22 15.03.2001 $ */
 
 /*
 Modify:
+  15.03.2001 SVS
+    ! Del ¢ ¬¥­î ¤¨áª®¢
   15.03.2001 IS
     + ˆá¯®«ì§ã¥¬ ¤®¯®«­¨â¥«ì­ë¥ å®âª¥¨,   ­¥ ¯à®áâ® '#', ª ª à ­ìè¥, ¥á«¨ áâà®ª
       ®â ¯« £¨­®¢ ¢ ¬¥­î ¢ë¡®à  ¤¨áª  ¡®«ìè¥ 9 èâãª
@@ -80,12 +82,16 @@ Modify:
 #include "internalheaders.hpp"
 /* IS $ */
 
+
 static int DragX,DragY,DragMove;
 static Panel *SrcDragPanel;
 static SaveScreen *DragSaveScr=NULL;
 static char DragName[NM];
 
 static unsigned char VerticalLine=0x0B3;
+
+static int MessageRemoveConnection(char Letter, int &UpdateProfile);
+
 
 Panel::Panel()
 {
@@ -437,7 +443,9 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
         case KEY_DEL:
           if (SelPos<DiskCount)
           {
+            char MsgText[200];
             char Letter[50],LocalName[50];
+            int UpdateProfile=CONNECT_UPDATE_PROFILE;
             if (ChDisk.GetUserData(Letter,sizeof(Letter)))
             {
               /* $ 14.12.2000 SVS
@@ -462,7 +470,6 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
                 else
                 {
                   int LastError=GetLastError();
-                  char MsgText[200];
                   sprintf(MsgText,MSG(MChangeDriveCannotDelSubst),DosDeviceName);
                   if (LastError==ERROR_OPEN_FILES || LastError==ERROR_DEVICE_IN_USE)
                     if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),MsgText,
@@ -476,34 +483,39 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
                       break;
                   Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MsgText,MSG(MOk));
                 }
+                break; // ¡«¨­. ¢ ¯à®è«ë© à § § ¡ë« ¯à® íâ® ¤¥«®...
               }
               /* SVS $ */
 
-              sprintf(LocalName,"%c:",*Letter);
-              if (WNetCancelConnection2(LocalName,/*CONNECT_UPDATE_PROFILE*/0,FALSE)==NO_ERROR)
-                return(SelPos);
-              else
+              if(DriveType == DRIVE_REMOTE && MessageRemoveConnection(*Letter,UpdateProfile))
               {
-                int LastError=GetLastError();
-                char MsgText[200];
-                sprintf(MsgText,MSG(MChangeDriveCannotDisconnect),LocalName);
-                if (LastError==ERROR_OPEN_FILES || LastError==ERROR_DEVICE_IN_USE)
-                  if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),MsgText,
-                          "\x1",MSG(MChangeDriveOpenFiles),
-                          MSG(MChangeDriveAskDisconnect),MSG(MOk),MSG(MCancel))==0)
-                  {
-                    if (WNetCancelConnection2(LocalName,0,TRUE)==NO_ERROR)
-                      return(SelPos);
-                  }
-                  else
-                    break;
-                char RootDir[50];
-                sprintf(RootDir,"%c:\\",*Letter);
-                if (GetDriveType(RootDir)==DRIVE_REMOTE)
-                  Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MsgText,MSG(MOk));
+                sprintf(LocalName,"%c:",*Letter);
+
+                if (WNetCancelConnection2(LocalName,UpdateProfile,FALSE)==NO_ERROR)
+                  return(SelPos);
+                else
+                {
+                  int LastError=GetLastError();
+                  sprintf(MsgText,MSG(MChangeDriveCannotDisconnect),LocalName);
+                  if (LastError==ERROR_OPEN_FILES || LastError==ERROR_DEVICE_IN_USE)
+                    if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),MsgText,
+                            "\x1",MSG(MChangeDriveOpenFiles),
+                            MSG(MChangeDriveAskDisconnect),MSG(MOk),MSG(MCancel))==0)
+                    {
+                      if (WNetCancelConnection2(LocalName,UpdateProfile,TRUE)==NO_ERROR)
+                        return(SelPos);
+                    }
+                    else
+                      break;
+                  char RootDir[50];
+                  sprintf(RootDir,"%c:\\",*Letter);
+                  if (GetDriveType(RootDir)==DRIVE_REMOTE)
+                    Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MsgText,MSG(MOk));
+                }
+                break;
               }
-            }
-          }
+            } // END: if (ChDisk.GetUserData(Letter,...
+          } // END: if (SelPos<DiskCount)
           break;
         case KEY_CTRL1:
         case KEY_RCTRL1:
@@ -1277,4 +1289,88 @@ int Panel::GetCurName(char *Name,char *ShortName)
 {
   *Name=*ShortName=0;
   return(FALSE);
+}
+
+static int MessageRemoveConnection(char Letter, int &UpdateProfile)
+{
+  int Len1, Len2, Len3;
+  char MsgText[NM];
+/*
+  0         1         2         3         4         5         6         7
+  0123456789012345678901234567890123456789012345678901234567890123456789012345
+0
+1   ÉÍÍÍÍÍÍÍÍ Žâª«îç¥­¨¥ á¥â¥¢®£® ãáâà®©áâ¢  ÍÍÍÍÍÍÍÍ»
+2   º ‚ë å®â¨â¥ ã¤ «¨âì á®¥¤¨­¥­¨¥ á ãáâà®©áâ¢®¬ C:? º
+3   º [ ] ‚®ááâ ­ ¢«¨¢ âì ¯à¨ ¢å®¤¥ ¢ á¨áâ¥¬ã        º
+4   ÇÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¶
+5   º              [ „  ]   [ Žâ¬¥­  ]               º
+6   ÈÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼
+7
+
+  0         1         2         3         4         5         6         7
+  0123456789012345678901234567890123456789012345678901234567890123456789012345
+0
+1   ÉÍÍÍÍÍÍÍÍÍÍÍÍÍÍ Disconnect network drive ÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ»
+2   º Do you want to remove your connection with the C: drive? º
+3   º [ ] Reconnect at Logon                                   º
+4   ÇÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¶
+5   º                   [ Yes ]   [ Cancel ]                   º
+6   ÈÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼
+7
+*/
+  static struct DialogData DCDlgData[]=
+  {
+/*      Type          X1 Y1 X2  Y2 Focus Flags             DefaultButton
+                                      Selected               Data
+*/
+/* 0 */ DI_DOUBLEBOX, 3, 1, 72, 6, 0, 0, 0,                0,"",
+/* 1 */ DI_TEXT,      5, 2,  0, 0, 0, 0, DIF_SHOWAMPERSAND,0,"",
+/* 2 */ DI_CHECKBOX,  5, 3, 70, 3, 0, 0, 0,                0,"",
+/* 3 */ DI_TEXT,      0, 4,  0, 4, 0, 0, DIF_SEPARATOR,    0,"",
+/* 4 */ DI_BUTTON,    0, 5,  0, 0, 1, 0, DIF_CENTERGROUP,  1,"",
+/* 5 */ DI_BUTTON,    0, 5,  0, 0, 0, 0, DIF_CENTERGROUP,  0,""
+  };
+  MakeDialogItems(DCDlgData,DCDlg);
+
+  sprintf(MsgText,MSG(MChangeDriveDisconnectQuestion),Letter);
+
+  Len1=strlen(strcpy(DCDlg[0].Data,MSG(MChangeDriveDisconnectTitle)));
+  Len2=strlen(strcpy(DCDlg[1].Data,MsgText));
+  Len3=strlen(strcpy(DCDlg[2].Data,MSG(MChangeDriveDisconnectReconnect)));
+
+  Len1=max(Len1,max(Len2,Len3));
+
+  strcpy(DCDlg[4].Data,MSG(MYes));
+  strcpy(DCDlg[5].Data,MSG(MCancel));
+
+  // ¯à®¢¥àï¥¬ - íâ® ¡ë«® ¯®áâ®ï­­®¥ á®¥¤¥­¨¥ ¨«¨ ­¥â?
+  // …á«¨ ¢¥âª  ¢ à¥¥áâà¥ HKCU\Network\ãª¢ „¨áª  ¥áâì - íâ®
+  //   ¥áâì ¯®áâ®ï­­®¥ ¯®¤ª«îç¥­¨¥.
+  {
+    HKEY hKey;
+    sprintf(MsgText,"Network\\%c",toupper(Letter));
+    if(RegOpenKeyEx(HKEY_CURRENT_USER,MsgText,0,KEY_QUERY_VALUE,&hKey)!=ERROR_SUCCESS)
+    {
+      DCDlg[2].Flags|=DIF_DISABLE;
+      DCDlg[2].Selected=0;
+    }
+    else
+      DCDlg[2].Selected=1;
+    RegCloseKey(hKey);
+  }
+
+  // áª®àà¥ªâ¨àã¥¬ à §¬¥àë ¤¨ «®£  - ¤«ï ¤¨§ ©­“
+  DCDlg[0].X2=DCDlg[0].X1+Len1+2;
+
+  int ExitCode=4;
+  if(Opt.Confirm.RemoveConnection)
+  {
+    Dialog Dlg(DCDlg,sizeof(DCDlg)/sizeof(DCDlg[0]));
+    Dlg.SetPosition(-1,-1,DCDlg[0].X2+4,8);
+    // Dlg.SetHelp("????");
+    Dlg.Process();
+    ExitCode=Dlg.GetExitCode();
+  }
+  UpdateProfile=DCDlg[2].Selected?0:CONNECT_UPDATE_PROFILE;
+  return ExitCode == 4;
 }

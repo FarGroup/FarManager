@@ -15,10 +15,14 @@ lang.hpp
 
 */
 
-/* Revision: 1.54 15.03.2001 $ */
+/* Revision: 1.55 15.03.2001 $ */
 
 /*
 Modify:
+  15.03.2001 SVS
+    + По поводу удаление коннектенных дисков:
+      MChangeDriveDisconnectTitle, MChangeDriveDisconnectQuestion,
+      MChangeDriveDisconnectReconnect, MSetConfirmRemoveConnection
   15.03.2001 IS
     + MAdditionalHotKey - должен содержать не меньше 11 дополнительных хоткеев
       для меню выбора диска. Разрешено использовать только символы с кодами до
@@ -1023,6 +1027,11 @@ enum
   MChangeDriveCannotDisconnect,
   MChangeDriveCannotDelSubst,
   MChangeDriveOpenFiles,
+
+  MChangeDriveDisconnectTitle,
+  MChangeDriveDisconnectQuestion,
+  MChangeDriveDisconnectReconnect,
+
   MChangeDriveAskDisconnect,
   MChangeVolumeInUse,
   MChangeVolumeInUse2,
@@ -1207,6 +1216,7 @@ enum
   MSetConfirmDeleteFolders,
   MSetConfirmExit,
   MSetConfirmEsc,
+  MSetConfirmRemoveConnection,
 
   MFindFolderTitle,
   MTreeTitle,

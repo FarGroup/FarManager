@@ -883,6 +883,11 @@
 "Cannot disconnect from %s"
 "Cannot delete a substituted drive %s"
 "If you do not close the open files, data may be lost."
+
+"Disconnect network drive"
+"Do you want to remove your connection with the %c: drive?"
+"&Reconnect at Logon"
+
 "Do you want to disconnect the device anyway?"
 "Volume %c: it cannot be ejected."
 "It use by another application"
@@ -1067,6 +1072,7 @@
 "Delete non-empty &folders"
 "E&xit"
 "&Pressing the Esc"
+"Disconnect &network drive"
 
 "Find folder"
 "Tree"

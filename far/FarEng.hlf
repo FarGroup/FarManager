@@ -873,7 +873,9 @@ for following operations:
 
  - exit from FAR;
 
- - press the Esc key.
+ - press the Esc key;
+
+ - disconnect network drive.
 
 @FindFile
 $ #Find file#

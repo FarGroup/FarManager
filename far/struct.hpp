@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.45 12.03.2001 $ */
+/* Revision: 1.46 15.03.2001 $ */
 
 /*
 Modify:
+  15.03.2001 SVS
+   + Opt.Confirm.RemoveConnection - подтверждение для удаления мапленных дисков
   12.03.2001 SVS
    + Opt.DeleteSymbolWipe -> Opt.WipeSymbol
   12.03.2001 SVS
@@ -119,39 +121,39 @@ Modify:
   07.09.2000 tran 1.13
    + Config//Current File
   05.09.2000 SVS 1.12
-    + Структура CodeQWERTY, описывающая QWERTY-перекодировщик
-    ! В Opt добавлен блок переменный, касаемых QWERTY-перекодировки
+   + Структура CodeQWERTY, описывающая QWERTY-перекодировщик
+   ! В Opt добавлен блок переменный, касаемых QWERTY-перекодировки
   01.09.2000 tran 1.11
-    + Options.PluginsCacheOnly - грузить плагины только из кеша
+   + Options.PluginsCacheOnly - грузить плагины только из кеша
   31.08.2000 SVS
-    ! DialogItem.Flags, DialogData.Flags - тип DWORD
-    - не сохраняется тип врапа.
-      Добавлена переменная Options.ViewerTypeWrap
+   ! DialogItem.Flags, DialogData.Flags - тип DWORD
+   - не сохраняется тип врапа.
+     Добавлена переменная Options.ViewerTypeWrap
   12.08.2000 KM 1.09
-    ! В структурах DialogItem и DialogData новое поле, включенное
-      в union, char *Mask.
+   ! В структурах DialogItem и DialogData новое поле, включенное
+     в union, char *Mask.
   18.08.2000 SVS
-    ! struct FarListItems -> struct FarList, а то совсем запутался :-)
+   ! struct FarListItems -> struct FarList, а то совсем запутался :-)
   03.08.2000 SVS
-    ! WordDiv -> Opt.WordDiv
+   ! WordDiv -> Opt.WordDiv
   03.08.2000 SVS
-    + Добавка в Options: MainPluginDir - использовать основной путь для
-      поиска плагинов...
+   + Добавка в Options: MainPluginDir - использовать основной путь для
+     поиска плагинов...
   01.08.2000 SVS
-    ! Изменения в структурах Dialog*
+   ! Изменения в структурах Dialog*
   26.07.2000 SVS
-    + Opt.AutoComplete
+   + Opt.AutoComplete
   18.07.2000 tran 1.04
-    + Opt.ViewerShowScrollBar, Opt.ViewerShowArrows
+   + Opt.ViewerShowScrollBar, Opt.ViewerShowArrows
   15.07.2000 tran
-    + добавлен аттрибут показа KeyBar в Viewer - Options::ShowKeyBarViewer
+   + добавлен аттрибут показа KeyBar в Viewer - Options::ShowKeyBarViewer
   15.07.2000 SVS
-    + Opt.PersonalPluginsPath - путь для поиска персональных плагинов
+   + Opt.PersonalPluginsPath - путь для поиска персональных плагинов
   29.06.2000 SVS
-    + Добавлен атрибут показа Scroll Bar в меню - Options::ShowMenuScrollbar
+   + Добавлен атрибут показа Scroll Bar в меню - Options::ShowMenuScrollbar
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+   ! Подготовка Master Copy
+   ! Выделение в качестве самостоятельного модуля
 */
 
 struct PanelOptions
@@ -179,6 +181,7 @@ struct Confirmation
   */
   int Esc;
   /* IS $ */
+  int RemoveConnection;
 };
 
 struct MenuItem

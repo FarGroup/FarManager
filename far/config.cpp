@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.56 12.03.2001 $ */
+/* Revision: 1.57 15.03.2001 $ */
 
 /*
 Modify:
+  15.03.2001 SVS
+    + Opt.Confirm.RemoveConnection - подтверждение для удаления мапленных дисков
   12.03.2001 SVS
     + Opt.DeleteSymbolWipe -> Opt.WipeSymbol
   12.03.2001 SVS
@@ -426,10 +428,13 @@ void InterfaceSettings()
 /* $ 09.02.2001 IS
    Опция Esc
 */
+/* $ 15.03.2001 SVS
+    Подтверждение удаления мапленных дисков из меню дисков
+*/
 void SetConfirmations()
 {
   static struct DialogData ConfDlgData[]={
-    DI_DOUBLEBOX,3,1,41,11,0,0,0,0,(char *)MSetConfirmTitle,
+    DI_DOUBLEBOX,3,1,41,12,0,0,0,0,(char *)MSetConfirmTitle,
     DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MSetConfirmCopy,
     DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MSetConfirmMove,
     DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MSetConfirmDrag,
@@ -437,9 +442,10 @@ void SetConfirmations()
     DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MSetConfirmDeleteFolders,
     DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MSetConfirmExit,
     DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MSetConfirmEsc,
-    DI_TEXT,3,9,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    DI_BUTTON,0,10,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-    DI_BUTTON,0,10,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+    DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MSetConfirmRemoveConnection,
+    DI_TEXT,3,10,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+    DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+    DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
   MakeDialogItems(ConfDlgData,ConfDlg);
   ConfDlg[1].Selected=Opt.Confirm.Copy;
@@ -449,11 +455,13 @@ void SetConfirmations()
   ConfDlg[5].Selected=Opt.Confirm.DeleteFolder;
   ConfDlg[6].Selected=Opt.Confirm.Exit;
   ConfDlg[7].Selected=Opt.Confirm.Esc;
+  ConfDlg[8].Selected=Opt.Confirm.RemoveConnection;
+
   Dialog Dlg(ConfDlg,sizeof(ConfDlg)/sizeof(ConfDlg[0]));
   Dlg.SetHelp("ConfirmDlg");
-  Dlg.SetPosition(-1,-1,45,13);
+  Dlg.SetPosition(-1,-1,45,14);
   Dlg.Process();
-  if (Dlg.GetExitCode()!=9)
+  if (Dlg.GetExitCode()!=10)
     return;
   Opt.Confirm.Copy=ConfDlg[1].Selected;
   Opt.Confirm.Move=ConfDlg[2].Selected;
@@ -462,7 +470,9 @@ void SetConfirmations()
   Opt.Confirm.DeleteFolder=ConfDlg[5].Selected;
   Opt.Confirm.Exit=ConfDlg[6].Selected;
   Opt.Confirm.Esc=ConfDlg[7].Selected;
+  Opt.Confirm.RemoveConnection=ConfDlg[8].Selected;
 }
+/* SVS $ */
 /* IS $ */
 
 void SetDizConfig()
@@ -1032,6 +1042,11 @@ void ReadConfig()
   */
   GetRegKey("Confirmations","Esc",Opt.Confirm.Esc,0);
   /* IS $ */
+  /* $   15.03.2001 SVS
+       Подтверждение удаления мапленных дисков из меню дисков
+  */
+  GetRegKey("Confirmations","RemoveConnection",Opt.Confirm.RemoveConnection,1);
+  /* SVS $ */
 
   GetRegKey("Panel","ShowHidden",Opt.ShowHidden,1);
   GetRegKey("Panel","Highlight",Opt.Highlight,1);
@@ -1248,6 +1263,11 @@ void SaveConfig(int Ask)
   */
   SetRegKey("Confirmations","Esc",Opt.Confirm.Esc);
   /* IS $ */
+  /* $   15.03.2001 SVS
+       Подтверждение удаления мапленных дисков из меню дисков
+  */
+  SetRegKey("Confirmations","RemoveConnection",Opt.Confirm.RemoveConnection);
+  /* SVS $ */
 
   SetRegKey("Panel","ShowHidden",Opt.ShowHidden);
   SetRegKey("Panel","Highlight",Opt.Highlight);
