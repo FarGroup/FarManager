@@ -5,10 +5,14 @@ language.cpp
 
 */
 
-/* Revision: 1.02 01.09.2000 $ */
+/* Revision: 1.03 03.09.2000 $ */
 
 /*
 Modify:
+  03.09.2000 IS
+    ! Нормальное сообщение об отсутствии строки в языковом файле
+      (раньше имя файла обрезалось справа и приходилось иногда гадать - в
+      каком же файле ошибка)
   01.09.2000 SVS
     + Новый метод, для получения параметров для .Options
   13.07.2000 SVS
@@ -157,8 +161,16 @@ char* Language::GetMsg(int MsgId)
 {
   if (MsgId>=MsgCount)
   {
-    char Msg1[100],Msg2[100];
-    sprintf(Msg1,"Incorrect or damaged %s",MessageFile);
+    /* $ 03.09.2000 IS
+       ! Нормальное сообщение об отсутствии строки в языковом файле
+         (раньше имя файла обрезалось справа и приходилось иногда гадать - в
+         каком же файле ошибка)
+    */
+    char Msg1[100],Msg2[100],Tmp[NM];
+    strcpy(Tmp,MessageFile);
+    TruncPathStr(Tmp,41);
+    sprintf(Msg1,"Incorrect or damaged %s",Tmp);
+    /* IS $ */
     sprintf(Msg2,"Message %d not found",MsgId);
     if (Message(MSG_WARNING,2,"Error",Msg1,Msg2,"Ok","Quit")==1)
       exit(0);
