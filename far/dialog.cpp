@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.215 27.02.2002 $ */
+/* Revision: 1.216 11.03.2002 $ */
 
 /*
 Modify:
+  11.03.2002 SVS
+    !  Для DI_COMBOBOX и DI_LISTBOX если Param.Selected > 0x2000, то
+       обнулим его (иначе... это не есть правильно)
   27.02.2002 SVS
     ! LIFIND_NOPATTERN -> LIFIND_EXACTMATCH
   26.02.2002 SVS
@@ -3940,7 +3943,10 @@ void Dialog::ConvertItem(int FromPlugin,
       if(Data->X2 < Data->X1) Data->X2=Data->X1;
       if(Data->Y2 < Data->Y1) Data->Y2=Data->Y1;
       Data->Focus=Item->Focus;
-      Data->Selected=Item->Param.Selected;
+      if((Data->Type == DI_COMBOBOX || Data->Type == DI_LISTBOX) && Item->Param.Selected > 0x2000)
+        Data->Selected=Item->Param.Selected;
+      else
+        Data->Selected=0;
       Data->Flags=Item->Flags;
       Data->DefaultButton=Item->DefaultButton;
       memmove(Data->Data,Item->Data.Data,sizeof(Data->Data));

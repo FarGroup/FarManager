@@ -10,12 +10,16 @@ dialog.hpp
 
 */
 
-/* Revision: 1.53 13.02.2002 $ */
+/* Revision: 1.54 11.03.2002 $ */
 
 /*
 Modify:
+  11.03.2002 SVS
+   ! Немного выравнивания... с переносом полей.
+     На общей функциональности не отобразится, т.к. структура DialogItem
+     приватная и в чистом виде не юзается.
   13.02.2002 SVS
-    ! Первый параметр у IsKeyHighlighted() - const
+   ! Первый параметр у IsKeyHighlighted() - const
   11.02.2002 SVS
    ! OriginalListItems к терапевту... - юзаем DlgProc
   05.02.2002 SVS
@@ -252,7 +256,8 @@ struct DialogItem
   WORD Type;
   short X1,Y1,X2,Y2;
   BYTE Focus;
-  BYTE Reserved;
+  BYTE DefaultButton;
+  BYTE Reserved[2];
   union {
     unsigned int Selected;
     char *History;
@@ -262,7 +267,6 @@ struct DialogItem
     CHAR_INFO *VBuf;
   };
   DWORD Flags;
-  unsigned char DefaultButton;
   union {
     char Data[512];
     struct {
@@ -289,9 +293,9 @@ Russian Help Encyclopedia of Developer")
 */
 struct DialogData
 {
-  unsigned char Type;
+  WORD  Type;
   short X1,Y1,X2,Y2;
-  unsigned char Focus;
+  BYTE  Focus;
   union {
     unsigned int Selected;
     char *History;
@@ -301,7 +305,7 @@ struct DialogData
     CHAR_INFO *VBuf;
   };
   DWORD Flags;
-  unsigned char DefaultButton;
+  BYTE  DefaultButton;
   char *Data;
 };
 
