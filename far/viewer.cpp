@@ -5,10 +5,14 @@ Internal viewer
 
 */
 
-/* Revision: 1.114 23.12.2002 $ */
+/* Revision: 1.115 27.12.2002 $ */
 
 /*
 Modify:
+  27.12.2002 IS
+    - Мое исправление от 05.10.2002 сломало обработку VCTL_QUIT вообще.
+      Разрешаем выполнение VCTL_QUIT только для вьюера, который
+      не является панелью информации и быстрого просмотра
   23.12.2002 SVS
     - бага с невыводом "немогу отобразить файло" в QView
     ! Учтем, что у нас __int64 теперь как часть FARINT64 во вьюверных структурах
@@ -3192,11 +3196,12 @@ int Viewer::ViewerControl(int Command,void *Param)
     // Param=0
     case VCTL_QUIT:
     {
-      /* $ 05.10.2002 IS
+      /* $ 27.12.2002 IS
          Разрешаем выполнение VCTL_QUIT только для вьюера, который
-         не является панелью
+         не является панелью информации и быстрого просмотра
       */
-      if(!CtrlObject->Cp()->ActivePanel->IsVisible())
+      if(CtrlObject->Cp()->ActivePanel->GetType()!=QVIEW_PANEL &&
+         CtrlObject->Cp()->ActivePanel->GetType()!=INFO_PANEL)
       {
         /* $ 29.09.2002 IS
            без этого не закрывался вьюер, а просили именно это
@@ -3207,7 +3212,7 @@ int Viewer::ViewerControl(int Command,void *Param)
           HostFileViewer->SetExitCode(0);
         return(TRUE);
       }
-      /* IS 05.10.2002 $ */
+      /* IS 27.12.2002 $ */
     }
   }
   return(FALSE);
