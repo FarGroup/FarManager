@@ -5,10 +5,16 @@ config.cpp
 
 */
 
-/* Revision: 1.151 06.06.2003 $ */
+/* Revision: 1.152 13.06.2003 $ */
 
 /*
 Modify:
+  13.06.2003 SVS
+    + В диалог "Системные параметры" ("System settings") добавлена опция
+      "Сканировать символические связи" ("Scan symbolic links"). Позволяет
+      обрабатывать символические связи наравне с обычными подкаталогами
+      при построении дерева каталогов, определении суммарного размера
+      файлов в подкаталогах. По умолчанию включена.
   06.06.2003 SVS
     ! Все, что связано с загрузкой плагинов объединено в структуру LoadPluginsOptions
   27.05.2003 SVS
@@ -502,26 +508,27 @@ void SystemSettings()
      + Добавка в виде задания дополнительного пути для поиска плагинов
   */
   static struct DialogData CfgDlgData[]={
-  /*  0 */  DI_DOUBLEBOX,3,1,52,19,0,0,0,0,(char *)MConfigSystemTitle,
-  /*  1 */  DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MConfigRO,
-  /*  2 */  DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MConfigRecycleBin,
-  /*  3 */  DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MConfigSystemCopy,
-  /*  4 */  DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MConfigCopySharing,
-  /*  5 */  DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MConfigCreateUppercaseFolders,
-  /*  6 */  DI_CHECKBOX,5,7,0,0,0,0,DIF_AUTOMATION,0,(char *)MConfigInactivity,
-  /*  7 */  DI_FIXEDIT,9,8,11,6,0,0,0,0,"",
-  /*  8 */  DI_TEXT,13,8,0,0,0,0,0,0,(char *)MConfigInactivityMinutes,
-  /*  9 */  DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MConfigSaveHistory,
-  /* 10 */  DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MConfigSaveFoldersHistory,
-  /* 11 */  DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MConfigSaveViewHistory,
-  /* 12 */  DI_CHECKBOX,5,12,0,0,0,0,0,0,(char *)MConfigRegisteredTypes,
-  /* 13 */  DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MConfigCloseCDGate,
-  /* 14 */  DI_TEXT,5,14,0,0,0,0,0,0,(char *)MConfigPersonalPath,
-  /* 15 */  DI_EDIT,5,15,50,15,0,(DWORD)HistoryName,DIF_HISTORY|DIF_VAREDIT,0,"",
-  /* 16 */  DI_CHECKBOX,5,16,0,0,0,0,0,0,(char *)MConfigAutoSave,
-  /* 17 */  DI_TEXT,5,17,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 18 */  DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-  /* 19 */  DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  /* 00 */ DI_DOUBLEBOX,3,1,52,20,0,0,0,0,(char *)MConfigSystemTitle,
+  /* 01 */ DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MConfigRO,
+  /* 02 */ DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MConfigRecycleBin,
+  /* 03 */ DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MConfigSystemCopy,
+  /* 04 */ DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MConfigCopySharing,
+  /* 05 */ DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MConfigScanJunction,
+  /* 06 */ DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MConfigCreateUppercaseFolders,
+  /* 07 */ DI_CHECKBOX,5,8,0,0,0,0,DIF_AUTOMATION,0,(char *)MConfigInactivity,
+  /* 08 */ DI_FIXEDIT,9,9,11,9,0,0,0,0,"",
+  /* 09 */ DI_TEXT,13,9,0,0,0,0,0,0,(char *)MConfigInactivityMinutes,
+  /* 10 */ DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MConfigSaveHistory,
+  /* 11 */ DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MConfigSaveFoldersHistory,
+  /* 12 */ DI_CHECKBOX,5,12,0,0,0,0,0,0,(char *)MConfigSaveViewHistory,
+  /* 13 */ DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MConfigRegisteredTypes,
+  /* 14 */ DI_CHECKBOX,5,14,0,0,0,0,0,0,(char *)MConfigCloseCDGate,
+  /* 15 */ DI_TEXT,5,15,0,0,0,0,0,0,(char *)MConfigPersonalPath,
+  /* 16 */ DI_EDIT,5,16,50,16,0,(DWORD)HistoryName,DIF_HISTORY|DIF_VAREDIT,0,"",
+  /* 17 */ DI_CHECKBOX,5,17,0,0,0,0,0,0,(char *)MConfigAutoSave,
+  /* 18 */ DI_TEXT,5,18,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 19 */ DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 20 */ DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
   MakeDialogItems(CfgDlgData,CfgDlg);
 
@@ -529,34 +536,45 @@ void SystemSettings()
   CfgDlg[2].Selected=Opt.DeleteToRecycleBin;
   CfgDlg[3].Selected=Opt.UseSystemCopy;
   CfgDlg[4].Selected=Opt.CopyOpened;
-  CfgDlg[5].Selected=Opt.CreateUppercaseFolders;
-
-  CfgDlg[6].Selected=Opt.InactivityExit;
-  sprintf(CfgDlg[7].Data,"%d",Opt.InactivityExitTime);
-  if(!Opt.InactivityExit)
+  if (!RegVer)
   {
-    CfgDlg[7].Flags|=DIF_DISABLE;
-    CfgDlg[8].Flags|=DIF_DISABLE;
+    CfgDlg[5].Flags|=DIF_DISABLE;
+    CfgDlg[5].Selected=0;
+  }
+  else
+  {
+    CfgDlg[5].Selected=Opt.ScanJunction;
   }
 
-  CfgDlg[9].Selected=Opt.SaveHistory;
-  CfgDlg[10].Selected=Opt.SaveFoldersHistory;
-  CfgDlg[11].Selected=Opt.SaveViewHistory;
-  CfgDlg[12].Selected=Opt.UseRegisteredTypes;
-  CfgDlg[13].Selected=Opt.CloseCDGate;
+
+  CfgDlg[6].Selected=Opt.CreateUppercaseFolders;
+
+  CfgDlg[7].Selected=Opt.InactivityExit;
+  sprintf(CfgDlg[8].Data,"%d",Opt.InactivityExitTime);
+  if(!Opt.InactivityExit)
+  {
+    CfgDlg[8].Flags|=DIF_DISABLE;
+    CfgDlg[9].Flags|=DIF_DISABLE;
+  }
+
+  CfgDlg[10].Selected=Opt.SaveHistory;
+  CfgDlg[11].Selected=Opt.SaveFoldersHistory;
+  CfgDlg[12].Selected=Opt.SaveViewHistory;
+  CfgDlg[13].Selected=Opt.UseRegisteredTypes;
+  CfgDlg[14].Selected=Opt.CloseCDGate;
   strcpy(PersonalPluginsPath,Opt.LoadPlug.PersonalPluginsPath);
-  CfgDlg[15].Ptr.PtrData=PersonalPluginsPath;
-  CfgDlg[15].Ptr.PtrLength=sizeof(PersonalPluginsPath);
-  CfgDlg[16].Selected=Opt.AutoSaveSetup;
+  CfgDlg[16].Ptr.PtrData=PersonalPluginsPath;
+  CfgDlg[16].Ptr.PtrLength=sizeof(PersonalPluginsPath);
+  CfgDlg[17].Selected=Opt.AutoSaveSetup;
 
   {
     Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
     Dlg.SetHelp("SystemSettings");
-    Dlg.SetPosition(-1,-1,56,21);
+    Dlg.SetPosition(-1,-1,56,22);
     Dlg.SetAutomation(6,7,DIF_DISABLE,0,0,DIF_DISABLE);
     Dlg.SetAutomation(6,8,DIF_DISABLE,0,0,DIF_DISABLE);
     Dlg.Process();
-    if (Dlg.GetExitCode()!=18)
+    if (Dlg.GetExitCode()!=19)
       return;
   }
 
@@ -564,16 +582,19 @@ void SystemSettings()
   Opt.DeleteToRecycleBin=CfgDlg[2].Selected;
   Opt.UseSystemCopy=CfgDlg[3].Selected;
   Opt.CopyOpened=CfgDlg[4].Selected;
-  Opt.CreateUppercaseFolders=CfgDlg[5].Selected;
-  Opt.InactivityExit=CfgDlg[6].Selected;
-  if ((Opt.InactivityExitTime=atoi(CfgDlg[7].Data))<=0)
+  _SVS(SysLog("1. Cfg=Opt.ScanJunction=%d CfgDlg[5].Selected=%d",Opt.ScanJunction,CfgDlg[5].Selected));
+  Opt.ScanJunction=CfgDlg[5].Selected;
+  _SVS(SysLog("2. Cfg=Opt.ScanJunction=%d CfgDlg[5].Selected=%d",Opt.ScanJunction,CfgDlg[5].Selected));
+  Opt.CreateUppercaseFolders=CfgDlg[6].Selected;
+  Opt.InactivityExit=CfgDlg[7].Selected;
+  if ((Opt.InactivityExitTime=atoi(CfgDlg[8].Data))<=0)
     Opt.InactivityExit=Opt.InactivityExitTime=0;
-  Opt.SaveHistory=CfgDlg[9].Selected;
-  Opt.SaveFoldersHistory=CfgDlg[10].Selected;
-  Opt.SaveViewHistory=CfgDlg[11].Selected;
-  Opt.UseRegisteredTypes=CfgDlg[12].Selected;
-  Opt.CloseCDGate=CfgDlg[13].Selected;
-  Opt.AutoSaveSetup=CfgDlg[16].Selected;
+  Opt.SaveHistory=CfgDlg[10].Selected;
+  Opt.SaveFoldersHistory=CfgDlg[11].Selected;
+  Opt.SaveViewHistory=CfgDlg[12].Selected;
+  Opt.UseRegisteredTypes=CfgDlg[13].Selected;
+  Opt.CloseCDGate=CfgDlg[14].Selected;
+  Opt.AutoSaveSetup=CfgDlg[17].Selected;
   strcpy(Opt.LoadPlug.PersonalPluginsPath,PersonalPluginsPath);
   /* SVS $ */
 }
@@ -1426,7 +1447,7 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeySystem,"PluginMaxReadData",&Opt.PluginMaxReadData,0x20000, 0},
   {1, REG_DWORD,  NKeySystem,"CloseCDGate",&Opt.CloseCDGate,-1, 0},
   {0, REG_DWORD,  NKeySystem,"UseNumPad",&Opt.UseNumPad,0, 0},
-  {0, REG_DWORD,  NKeySystem,"ScanJunction",&Opt.ScanJunction,1, 0},
+  {1, REG_DWORD,  NKeySystem,"ScanJunction",&Opt.ScanJunction,1, 0},
 
   {0, REG_DWORD,  NKeySystemNowell,"MoveRO",&Opt.Nowell.MoveRO,1, 0},
 

@@ -1149,6 +1149,16 @@ decreases the performance of the search. FAR cannot search in nested archives.
 that match the wildcards. Also the counter of found files takes account of
 found folders.
 
+     Параметр #Искать в символических связях# позволяет искать файлы в
+ ~символических связях~@HardSymLink@ наравне с обычными подкаталогами.
+
+     Примечание: если при помощи символических связей в файловой
+                 системе образованы рекурсивные кольца (например,
+                 символическая связь указывает на один из
+                 собственных родительских каталогов), поиск будет
+                 идти до достижения максимально допустимой длины
+                 полного пути файлов.
+
     Search may be performed in all non-removable disks, in all disks, except
 removable and network, in all folders from the disk root, from the current
 folder, in the current folder only or in selected folders (the current version
@@ -1543,6 +1553,17 @@ $ #System settings dialog#
                           time, but it could be dangerous, if a file
                           is being modified at the same time as
                           copying.
+
+  #Scan symbolic links#     Обрабатывать ~символические связи~@HardSymLink@ наравне
+                          с обычными подкаталогами при построении
+                          дерева каталогов, определении суммарного
+                          размера файлов в подкаталогах.
+
+  Примечание: если при помощи символических связей в файловой системе
+              образованы рекурсивные кольца (например, символическая
+              связь указывает на один из собственных родительских
+              каталогов), сканирование будет идти до достижения
+              максимально допустимой длины полного пути файлов.
 
   #Create folders#          If the name of a new folder contains only
   #in uppercase#            lowercase letters and this option is on,

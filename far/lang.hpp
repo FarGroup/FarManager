@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.122 19.05.2003 $ */
+/* Revision: 1.123 12.06.2003 $ */
 
 /*
 Modify:
+  12.06.2003 SVS
+    + MConfigScanJunction, MFindSymLinks
   19.05.2003 SVS
     + MConfigDlgSetsTitle, MConfigDialogsEditHistory, MConfigDialogsEditBlock, MConfigDialogsAutoComplete,
       MConfigDialogsEULBsClear, MMenuDialogSettings,
@@ -489,6 +491,7 @@ enum
   MConfigRecycleBin,
   MConfigSystemCopy,
   MConfigCopySharing,
+  MConfigScanJunction,
   MConfigCreateUppercaseFolders,
   MConfigInactivity,
   MConfigInactivityMinutes,
@@ -1247,6 +1250,7 @@ enum
   MFindFileAllTables,
   MFindArchives,
   MFindFolders,
+  MFindSymLinks,
   MSearchAllDisks,
   MSearchAllButNetwork,
   MSearchFromRoot,

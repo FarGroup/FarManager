@@ -5,10 +5,17 @@ mix.cpp
 
 */
 
-/* Revision: 1.140 06.06.2003 $ */
+/* Revision: 1.141 14.06.2003 $ */
 
 /*
 Modify:
+  14.06.2003 SVS
+    ! Для FRS_SCANJUNCTION только младший байт!
+    ! Исправлена функция CheckUpdateAnotherPanel - были траблы с удалением:
+      Активная_панель         Пассивная_панель
+      D:\FAR\1                D:\FAR\170
+      Если удаляем на активной '1', то пассивная тоже обновляется :-(
+      причем становится равной активной, т.е. D:\FAR
   06.06.2003 SVS
     ! GetFileOwner уехала из mix.cpp в fileowner.cpp
   01.06.2003 SVS
@@ -1168,7 +1175,8 @@ void WINAPI FarRecursiveSearch(const char *InitDir,const char *Mask,FRSUSERFUNC 
     CFileMask FMask;
     if(!FMask.Set(Mask, FMF_SILENT)) return;
 
-    ScanTree ScTree(Flags& FRS_RETUPDIR,Flags & FRS_RECUR, Flags & FRS_SCANJUNCTION);
+    Flags=Flags&0x000000FF; // только младший байт!
+    ScanTree ScTree(Flags & FRS_RETUPDIR,Flags & FRS_RECUR, Flags & FRS_SCANJUNCTION);
     WIN32_FIND_DATA FindData;
     char FullName[NM];
 
@@ -1571,17 +1579,22 @@ void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir)
 
 int CheckUpdateAnotherPanel(Panel *SrcPanel,const char *SelName)
 {
-  char AnotherCurDir[2048];
-  char FullName[2058];
   if(!SrcPanel)
     SrcPanel=CtrlObject->Cp()->ActivePanel;
   Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
   AnotherPanel->CloseFile();
   if(AnotherPanel->GetMode() == NORMAL_PANEL)
   {
+    char AnotherCurDir[2048];
+    char FullName[2058];
+
     AnotherPanel->GetCurDir(AnotherCurDir);
+    AddEndSlash(AnotherCurDir);
+
     if (ConvertNameToFull(SelName,FullName, sizeof(FullName)) >= sizeof(FullName))
       return -1;
+    AddEndSlash(FullName);
+
     if(strstr(AnotherCurDir,FullName))
     {
       ((FileList*)AnotherPanel)->CloseChangeNotification();

@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.229 30.05.2003 $ */
+/* Revision: 1.230 13.06.2003 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,9 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  13.06.2003 SVS
+    ! Для FRS_SCANJUNCTION только младший байт!
+    + FSS_SCANSYMLINK (забыл про доступность опции :-))
   30.05.2003 SVS
     + ACTL_GETPLUGINMAXREADDATA
     ! ACTL_GETWCHARMODE доступна
@@ -1671,6 +1674,7 @@ enum FarSystemSettings{
   FSS_SAVEVIEWANDEDITHISTORY         = 0x00000080,
   FSS_USEWINDOWSREGISTEREDTYPES      = 0x00000100,
   FSS_AUTOSAVESETUP                  = 0x00000200,
+  FSS_SCANSYMLINK                    = 0x00000400,
 };
 
 enum FarPanelSettings{
@@ -2200,9 +2204,9 @@ typedef int (WINAPI *FRSUSERFUNC)(
 );
 
 enum FRSMODE{
-  FRS_RETUPDIR      = 0x0001,
-  FRS_RECUR         = 0x0002,
-  FRS_SCANJUNCTION  = 0x0004,
+  FRS_RETUPDIR             = 0x01,
+  FRS_RECUR                = 0x02,
+  FRS_SCANJUNCTION         = 0x04,
 };
 
 typedef void    (WINAPI *FARSTDRECURSIVESEARCH)(const char *InitDir,const char *Mask,FRSUSERFUNC Func,DWORD Flags,void *Param);

@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.157 30.05.2003 $ */
+/* Revision: 1.158 14.06.2003 $ */
 
 /*
 Modify:
+  14.06.2003 SVS
+    + FSS_SCANSYMLINK
   30.05.2003 SVS
     + ACTL_GETPLUGINMAXREADDATA
   06.05.2003 SVS
@@ -880,6 +882,7 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
         {&Opt.DeleteToRecycleBin,FSS_DELETETORECYCLEBIN},
         {&Opt.UseSystemCopy,FSS_USESYSTEMCOPYROUTINE},
         {&Opt.CopyOpened,FSS_COPYFILESOPENEDFORWRITING},
+        {&Opt.ScanJunction,FSS_SCANSYMLINK},
         {&Opt.CreateUppercaseFolders,FSS_CREATEFOLDERSINUPPERCASE},
         {&Opt.SaveHistory,FSS_SAVECOMMANDSHISTORY},
         {&Opt.SaveFoldersHistory,FSS_SAVEFOLDERSHISTORY},
