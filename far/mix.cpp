@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.149 23.09.2003 $ */
+/* Revision: 1.150 24.09.2003 $ */
 
 /*
 Modify:
+  24.09.2003 KM
+    - Transform() некорректно преобразовывала из hex в строку.
   23.09.2003 KM
     + Transform() - преобразует строку в hex представление и обратно.
   12.09.2003 SVS
@@ -1692,32 +1694,39 @@ int CheckUpdateAnotherPanel(Panel *SrcPanel,const char *SelName)
 */
 char *Transform(char *Str,const char *ConvStr,int StrLen,char TransformType)
 {
-  int I,L;
+  int I,L,N;
   char *stop;
 
   switch(TransformType)
   {
-    case 'X': // Convert common string to hexadecimal string representation
+    case 'X': // Convert common string to hexadecimal string representation using "HH " template
     {
       *Str=0;
       L=strlen(ConvStr);
-      for (I=0;I<StrLen/3,I<L;I++) // StrLen/3 - три выходящих символа на каждый один входящий
+      N=min(StrLen,L);
+      for (I=0;I<N;I++)
+        // "%02X " - три выходящих символа на каждый один входящий
         sprintf(Str+strlen(Str),"%02X ",ConvStr[I]);
 
-	  break;
+      RemoveTrailingSpaces(Str);
+      break;
     }
-	case 'S': // Convert hexadecimal string representation to common string
-	{
+    case 'S': // Convert hexadecimal string representation using "HH " template to common string
+    {
       *Str=0;
       L=strlen(ConvStr);
-	  for (I=0;I<StrLen/3,I<L;I++) // StrLen/3 - три входящих символа на каждый один выходящий
-	  {
-        unsigned long value=strtoul(&ConvStr[I*3],&stop,16);
+      N=min(StrLen,L);
+      for (I=0;I<N;I+=3)
+      {
+        // "HH " - три входящих символа на каждый один выходящий
+        unsigned long value=strtoul(&ConvStr[I],&stop,16);
+        if (value==0)
+          break;
         sprintf(Str+strlen(Str),"%c",value);
-	  }
+      }
 
-	  break;
-	}
+      break;
+    }
     default:
       break;
   }

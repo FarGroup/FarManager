@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.145 22.09.2003 $ */
+/* Revision: 1.146 24.09.2003 $ */
 
 /*
 Modify:
+  24.09.2003 KM
+    - Маленькие правки на предыдущий патч.
   22.09.2003 KM
     + Добавлен поиск 16-ричного кода.
   20.09.2003 KM
@@ -598,7 +600,7 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
   Dialog* Dlg=(Dialog*)hDlg;
   char *FindText=MSG(MFindFileText),*FindHex=MSG(MFindFileHex),*FindCode=MSG(MFindFileCodePage);
   char DataStr[NM*2];
- 
+
   switch(Msg)
   {
     case DN_INITDIALOG:
@@ -614,6 +616,7 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         Dialog::SendDlgMessage(hDlg,DM_ENABLE,8,FALSE);
         Dialog::SendDlgMessage(hDlg,DM_ENABLE,11,FALSE);
         Dialog::SendDlgMessage(hDlg,DM_ENABLE,12,FALSE);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,15,FALSE);
       }
       else
       {
@@ -622,6 +625,7 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         Dialog::SendDlgMessage(hDlg,DM_ENABLE,8,TRUE);
         Dialog::SendDlgMessage(hDlg,DM_ENABLE,11,TRUE);
         Dialog::SendDlgMessage(hDlg,DM_ENABLE,12,TRUE);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,15,TRUE);
       }
 
       Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,5,1);
@@ -786,6 +790,10 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
           Dialog::SendDlgMessage(hDlg,DM_ENABLE,8,FALSE);
           Dialog::SendDlgMessage(hDlg,DM_ENABLE,11,FALSE);
           Dialog::SendDlgMessage(hDlg,DM_ENABLE,12,FALSE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,15,FALSE);
+
+          Transform(DataStr,Dlg->Item[5].Data,sizeof(DataStr),'X');
+          Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,6,(long)DataStr);
         }
         else
         {
@@ -794,6 +802,10 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
           Dialog::SendDlgMessage(hDlg,DM_ENABLE,8,TRUE);
           Dialog::SendDlgMessage(hDlg,DM_ENABLE,11,TRUE);
           Dialog::SendDlgMessage(hDlg,DM_ENABLE,12,TRUE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,15,TRUE);
+
+          Transform(DataStr,Dlg->Item[6].Data,sizeof(DataStr),'S');
+          Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,5,(long)DataStr);
         }
         /* KM $ */
 
@@ -807,9 +819,6 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         else
           strncpy(DataStr,(Param2?FindHex:FindText),sizeof(DataStr)-1);
         Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,4,(long)DataStr);
-
-        Transform(DataStr,Dlg->Item[5].Data,sizeof(DataStr),'X');
-        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,6,(long)DataStr);
 
         if (strlen(DataStr)>0)
         {
@@ -827,7 +836,7 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     {
       FarDialogItem &Item=*reinterpret_cast<FarDialogItem*>(Param2);
 
-      if (((Param1==5) || (Param1==6)) && (!FindFoldersChanged))
+      if ((Param1==5) && (!FindFoldersChanged))
       // Строка "Содержащий текст"
       {
         BOOL Checked = (*Item.Data.Data)?FALSE:Opt.FindFolders;
@@ -842,8 +851,7 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         Transform(DataStr,Item.Data.Data,sizeof(DataStr),'X');
         Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,6,(long)DataStr);
       }
-
-      if (Param1==6) // Containing hexadecimal code
+      else if (Param1==6) // Containing hexadecimal code
       {
         Transform(DataStr,Item.Data.Data,sizeof(DataStr),'S');
         Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,5,(long)DataStr);
@@ -856,8 +864,9 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       if (Param2==KEY_ALTT) // Обработка "горячей" клавиши Alt-T
         if (Dlg->Item[13].Selected)
           Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,6,0);
-        else
-          Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,5,0);
+      if (Param2==KEY_ALTC) // Обработка "горячей" клавиши Alt-C
+        if (Dlg->Item[13].Selected)
+          Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,6,0);
     }
   }
   return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
@@ -1693,10 +1702,15 @@ int FindFiles::FindFilesProcess()
     sprintf(Title,"%s",MSG(MFindFileTitle));
   if (*FindStr)
   {
-    char Temp[NM],FStr[NM];
-    strncpy(FStr,FindStr,sizeof(FStr)-1);
+    /* $ 24.09.2003 KM */
+    char Temp[NM],FStr[NM*2];
+    if (SearchHex)
+      Transform(FStr,(char *)FindStr,sizeof(FStr),'X');
+    else
+      strncpy(FStr,FindStr,sizeof(FStr)-1);
     sprintf(Temp," \"%s\"",TruncStrFromEnd(FStr,10));
     sprintf(SearchStr,MSG(MFindSearchingIn),Temp);
+    /* KM $ */
   }
   else
     sprintf(SearchStr,MSG(MFindSearchingIn),"");
@@ -1832,11 +1846,16 @@ int FindFiles::FindFilesProcess()
           int IsArchive = ((FindList[i].ArcIndex != LIST_INDEX_NONE) &&
                           !(ArcList[FindList[i].ArcIndex].Flags&OPIF_REALNAMES));
           // Добавляем только файлы или имена архивов
+          /* $ 24.09.2003 KM
+             Если включен режим поиска hex-кодов, тогда папки в поиск не включаем
+          */
           /* $ 13.11.2001 VVM
             ! Хм. Добавим папки, если их искали... */
           if (IsArchive || Opt.FindFolders ||
-              !(FindList[i].FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
+              !(FindList[i].FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) &&
+              !SearchHex)
           /* VVM $ */
+          /* KM $ */
           {
             if (IsArchive)
               strncpy(FindList[i].FindData.cFileName, ArcList[FindList[i].ArcIndex].ArcName,
@@ -2208,14 +2227,18 @@ int FindFiles::IsFileIncluded(PluginPanelItem *FileItem,char *FullName,DWORD Fil
     hPlugin = ArcList[FindFileArcIndex].hPlugin;
   while(FileFound)
   {
+    /* $ 24.09.2003 KM
+       Если включен режим поиска hex-кодов, тогда папки в поиск не включаем
+    */
     /* $ 17.01.2002 VVM
       ! Поскольку работу с поиском в папках вынесли в диалог -
         флаг в плагине потерял свою актуальность */
-    if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) && (Opt.FindFolders==0))
+    if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) && ((Opt.FindFolders==0) || SearchHex))
 //        ((hPlugin == INVALID_HANDLE_VALUE) ||
 //        (ArcList[FindFileArcIndex].Flags & OPIF_FINDFOLDERS)==0))
       return FALSE;
     /* VVM $ */
+    /* KM $ */
 
     if (*FindStr && FileFound)
     {
@@ -2827,10 +2850,15 @@ void _cdecl FindFiles::WriteDialogData(void *Param)
         char SearchStr[NM];
         if (*FindStr)
         {
-          char Temp[NM],FStr[NM];
-          strncpy(FStr,FindStr,sizeof(FStr)-1);
+          /* $ 24.09.2003 KM */
+          char Temp[NM],FStr[NM*2];
+          if (SearchHex)
+            Transform(FStr,(char *)FindStr,sizeof(FStr),'X');
+          else
+            strncpy(FStr,FindStr,sizeof(FStr)-1);
           sprintf(Temp," \"%s\"",TruncStrFromEnd(FStr,10));
           sprintf(SearchStr,MSG(MFindSearchingIn),Temp);
+          /* KM $ */
         }
         else
           sprintf(SearchStr,MSG(MFindSearchingIn),"");

@@ -1147,11 +1147,6 @@ character table for the text search or forces usage of all character tables
 available to FAR by selecting #All character tables# item to search text in files
 with different codepages.
 
-    By checking the #Search for hex# option you can search for the files
-containing hexadecimal sequence of the specified bytes. In this case
-#Case sensitive#, #Whole words# and #Using character table# options are disabled
-and their values doesn't affect the search process.
-
     If the option #Search in archives# is set, FAR also performs the search in
 archives with known formats. However, using this option significantly
 decreases the performance of the search. FAR cannot search in nested archives.
@@ -1159,6 +1154,11 @@ decreases the performance of the search. FAR cannot search in nested archives.
     The #Search for folders# option includes in search list those folders,
 that match the wildcards. Also the counter of found files takes account of
 found folders.
+
+    By checking the #Search for hex# option you can search for the files
+containing hexadecimal sequence of the specified bytes. In this case
+#Case sensitive#, #Whole words#, #Using character table# and #Search for folders#
+options are disabled and their values doesn't affect the search process.
 
     The #Search in symbolic links# option allows searching files in
 ~symbolic links~@HardSymLink@ along with normal sub-foledrs.
