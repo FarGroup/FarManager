@@ -212,6 +212,7 @@ FAROBJ=\
    $(OBJPATH)\new.obj\
    $(OBJPATH)\del.obj\
    $(OBJPATH)\strncpy.obj\
+   $(OBJPATH)\qsort.obj\
    $(OBJPATH)\cmem.obj\
    $(OBJPATH)\main.obj
 
