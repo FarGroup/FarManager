@@ -22,6 +22,8 @@ archiver calls.
 
    ~Archiver command lines~@ArcSettings2@
 
+   ~Storage of plugin settings~@ArcSettings3@
+
    E-mail all bugs and suggestions to ~multiarc@@farmanager.com~@mailto:multiarc@@farmanager.com@
 
 @AddToArc
@@ -96,6 +98,8 @@ $ #Plugin configuration#
     ~Archive support configuration~@ArcSettings1@
 
     ~Archiver command lines~@ArcSettings2@
+
+    ~Storage of plugin settings~@ArcSettings3@
 
 @ArcSettings1
 $ #Archive support configuration#
@@ -219,3 +223,23 @@ from those described above.
 
     If an external archiver does not support a particular command,
 leave the corresponding string blank.
+
+@ArcSettings3
+$ #Storage of plugin settings#
+    The plugin uses the following rules to load/save the settings of
+supported format modules:
+
+  1. #[HKEY_LOCAL_MACHINE\SOFTWARE\Far\Plugins\MultiArc\Type]#
+     contains the settings common for all users. These settings can
+     only be changed by editing the registry manually, for example,
+     using *.reg files.
+
+  2. Any changes to the archiver command line settings are stored to
+     #[HKEY_CURRENT_USER\SOFTWARE\Far\Plugins\MultiArc\Type]#.
+
+  3. The plugin reads the archiver command line settings in the
+     following sequence:
+
+     a) [HKEY_CURRENT_USER\SOFTWARE\Far\Plugins\MultiArc\Type]
+     b) [HKEY_LOCAL_MACHINE\SOFTWARE\Far\Plugins\MultiArc\Type]
+     c) settings provided by the FMT module.
