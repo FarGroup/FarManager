@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.128 11.04.2002 $ */
+/* Revision: 1.129 15.04.2002 $ */
 
 /*
 Modify:
+  15.04.2002 SVS
+    - Message(FMSG_ALLINONE,"\n\nFoobar") приводил к падению
   11.04.2002 SVS
     + FCTL_GET[ANOTHER]PANELSHORTINFO
     - Message(FMSG_ALLINONE,"\nFoobar") приводил к падению (первым '\n'
@@ -1215,7 +1217,7 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
     Msg=strcpy(SingleItems,(char *)Items);
     while ((Msg = strchr(Msg, '\n')) != NULL)
     {
-      *Msg='\0';
+//      *Msg='\0';
 
       if(*++Msg == '\0')
         break;
@@ -1239,11 +1241,17 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
     Msg=SingleItems;
 
     // анализ количества строк и разбивка на пункты
-    do {
+    char *MsgTemp;
+    while ((MsgTemp = strchr(Msg, '\n')) != NULL)
+    {
+      *MsgTemp='\0';
       MsgItems[I]=Msg;
       Msg+=strlen(Msg)+1;
+
+      if(*Msg == '\0')
+        break;
       ++I;
-    } while (*Msg);
+    }
   }
   else
   {

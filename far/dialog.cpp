@@ -5,10 +5,14 @@ dialog.cpp
 
 */
 
-/* Revision: 1.230 10.04.2002 $ */
+/* Revision: 1.231 15.04.2002 $ */
 
 /*
 Modify:
+  15.04.2002 SVS
+    - BugZ#418 - мерцание окна "ѕредупреждение" при удалении
+      «аодно уберем холостой ход: (DN_DRAGGED,0) посылаетс€ только если было движение
+    - –азмеры подкачали (когда требуем полные координаты - получаем на 2 меньше)
   10.04.2002 SVS
     ! BugZ#453 - ќбрезание длинных строк в диалогах.
   08.04.2002 SVS
@@ -999,7 +1003,7 @@ void Dialog::CheckDialogCoord(void)
   if(X2 > ScrX)
   {
     X1=-1;
-    X2=ScrX-1;
+    X2=ScrX;//-1; //???
   }
 
   if (X1 < 0) // задано центрирование диалога по горизонтали?
@@ -3542,8 +3546,10 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     return FALSE;
 
   if(DialogMode.Check(DMODE_MOUSEEVENT))
-   if(!DlgProc((HANDLE)this,DN_MOUSEEVENT,0,(long)MouseEvent))
-     return TRUE;
+  {
+    if(!DlgProc((HANDLE)this,DN_MOUSEEVENT,0,(long)MouseEvent))
+      return TRUE;
+  }
 
   MsX=MouseEvent->dwMousePosition.X;
   MsY=MouseEvent->dwMousePosition.Y;
@@ -3607,7 +3613,6 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   if (MouseEvent->dwButtonState==0)
     return(FALSE);
 
-//_D(SysLog("Ms (%d,%d)",MsX,MsY));
   if (MouseEvent->dwEventFlags==0 || MouseEvent->dwEventFlags==DOUBLE_CLICK)
   {
     // первый цикл - все за исключением рамок.
@@ -3796,7 +3801,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       /* $ 10.08.2000 SVS
          ƒвигаем, если разрешено! (IsCanMove)
       */
-      if (DialogMode.Check(DMODE_ISCANMOVE) && DlgProc((HANDLE)this,DN_DRAGGED,0,0))
+      if (DialogMode.Check(DMODE_ISCANMOVE))
       {
         /* $ 03.08.2000 tran
            ну раз попадаем - то будем перемещать */
@@ -3805,62 +3810,88 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         // запомним delta места хватани€ и Left-Top диалогового окна
         MsX=abs(X1-MouseX);
         MsY=abs(Y1-MouseY);
+
+        int NeedSendMsg=0;
+
         while (1)
         {
-            int mb=IsMouseButtonPressed();
-            /* $ 15.12.2000 SVS
-               Ќовый движок мышиного перемещени€
-            */
-            int mx,my,X0,Y0;
-            if ( mb==1 ) // left key, still dragging
-            {
-                Hide();
-                X0=X1;
-                Y0=Y1;
-                if(MouseX==PrevMouseX)
-                  mx=X1;
-                else
-                  mx=MouseX-MsX;
-                if(MouseY==PrevMouseY)
-                  my=Y1;
-                else
-                  my=MouseY-MsY;
+          int mb=IsMouseButtonPressed();
+          /* $ 15.12.2000 SVS
+             Ќовый движок мышиного перемещени€
+          */
+          int mx,my,X0,Y0;
+          if ( mb==1 ) // left key, still dragging
+          {
+            int AdjX=0,AdjY=0;
+            int OX1=X1;
+            int OY1=Y1;
+            int NX1=X0=X1;
+            int NX2=X2;
+            int NY1=Y0=Y1;
+            int NY2=Y2;
 
-                if(mx >= 0 && mx+(X2-X1)<=ScrX)
-                {
-                  X2=mx+(X2-X1);
-                  X1=mx;
-                  AdjustEditPos(X1-X0,0); //?
-                }
-                if(my >= 0 && my+(Y2-Y1)<=ScrY)
-                {
-                  Y2=my+(Y2-Y1);
-                  Y1=my;
-                  AdjustEditPos(0,Y1-Y0); //?
-                }
-                Show();
-            }
-            /* SVS $ */
-            else if (mb==2) // right key, abort
+            if(MouseX==PrevMouseX)
+              mx=X1;
+            else
+              mx=MouseX-MsX;
+            if(MouseY==PrevMouseY)
+              my=Y1;
+            else
+              my=MouseY-MsY;
+
+            if(mx >= 0 && mx+(X2-X1)<=ScrX)
             {
-                Hide();
-                AdjustEditPos(OldX1-X1,OldY1-Y1);
-                X1=OldX1;
-                X2=OldX2;
-                Y1=OldY1;
-                Y2=OldY2;
-                DialogMode.Skip(DMODE_DRAGGED);
-                DlgProc((HANDLE)this,DN_DRAGGED,1,TRUE);
-                Show();
-                break;
+              NX2=mx+(X2-X1);
+              NX1=mx;
+              AdjX=NX1-X0;
             }
-            else  // release key, drop dialog
+            if(my >= 0 && my+(Y2-Y1)<=ScrY)
             {
-                DialogMode.Skip(DMODE_DRAGGED);
-                DlgProc((HANDLE)this,DN_DRAGGED,1,0);
-                Show();
-                break;
+              NY2=my+(Y2-Y1);
+              NY1=my;
+              AdjY=NY1-Y0;
             }
+
+            // "ј был ли мальчик?" (про холостой ход)
+            if(OX1 != NX1 || OY1 != NY1)
+            {
+              if(!NeedSendMsg) // тыкс, а уже посылку делали в диалоговую процедуру?
+              {
+                NeedSendMsg++;
+                if(!DlgProc((HANDLE)this,DN_DRAGGED,0,0)) // а может нас обломали?
+                  break;  // валим отсель...плагин сказал - в морг перемещени€
+              }
+
+              // ƒа, мальчик был. «ачнем...
+              Hide();
+              X1=NX1; X2=NX2; Y1=NY1; Y2=NY2;
+              if(AdjX || AdjY)
+                AdjustEditPos(AdjX,AdjY); //?
+              Show();
+            }
+          }
+          /* SVS $ */
+          else if (mb==2) // right key, abort
+          {
+            Hide();
+            AdjustEditPos(OldX1-X1,OldY1-Y1);
+            X1=OldX1;
+            X2=OldX2;
+            Y1=OldY1;
+            Y2=OldY2;
+            DialogMode.Skip(DMODE_DRAGGED);
+            DlgProc((HANDLE)this,DN_DRAGGED,1,TRUE);
+            Show();
+            break;
+          }
+          else  // release key, drop dialog
+          {
+            DialogMode.Skip(DMODE_DRAGGED);
+            DlgProc((HANDLE)this,DN_DRAGGED,1,0);
+            Show();
+            break;
+          }
+
         }// while (1)
         /* tran 03.08.2000 $ */
       }

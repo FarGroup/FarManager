@@ -5,10 +5,12 @@ fnparce.cpp
 
 */
 
-/* Revision: 1.10 05.03.2002 $ */
+/* Revision: 1.11 15.04.2002 $ */
 
 /*
 Modify:
+  15.04.2002 SVS
+    - Dialog Dlg(DlgData,DlgSize); нужно в скобки брать в функции ReplaceVariables()
   05.03.2002 DJ
     - борьба с переполнением буфера
   01.03.2002 SVS
@@ -554,19 +556,23 @@ void ReplaceVariables(char *Str)
   DlgData[DlgSize].X2=72;
   DlgData[DlgSize].Y2=DlgSize+2;
   DlgSize++;
-  Dialog Dlg(DlgData,DlgSize);
-  Dlg.SetPosition(-1,-1,76,DlgSize+3);
-  Dlg.Process();
-  if (Dlg.GetExitCode()==-1)
+
   {
-    /* $ 13.07.2000 SVS
-       запрос был по realloc
-    */
-    free(DlgData);
-    /* SVS $ */
-    *StartStr=0;
-    return;
+    Dialog Dlg(DlgData,DlgSize);
+    Dlg.SetPosition(-1,-1,76,DlgSize+3);
+    Dlg.Process();
+    if (Dlg.GetExitCode()==-1)
+    {
+      /* $ 13.07.2000 SVS
+         запрос был по realloc
+      */
+      free(DlgData);
+      /* SVS $ */
+      *StartStr=0;
+      return;
+    }
   }
+
   char TmpStr[4096];
   *TmpStr=0;
   for (Str=StartStr;*Str!=0;Str++)

@@ -8,10 +8,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.76 12.04.2002 $ */
+/* Revision: 1.77 15.04.2002 $ */
 
 /*
 Modify:
+  15.04.2002 SVS
+    - откат обратно.
   12.04.2002 SVS
     ! Уберем #if/#endif - выбор на уровне MAK-файла (технологический патч)
     ! SaveMacros - один параметр
@@ -620,19 +622,19 @@ int KeyMacro::ProcessKey(int Key)
         if(!CheckAll(CurFlags))
           return FALSE;
 
+        // Скопируем текущее исполнение в MacroRAM
+        //PostTempKeyMacro(MacroPROM+I);
         // Подавлять вывод?
         if (CurFlags&MFLAGS_DISABLEOUTPUT)
         {
           if(LockScr) delete LockScr;
           LockScr=new LockScreen;
         }
-        /*
+
         Executing=TRUE;
         ExecMacroPos=I;
         ExecKeyPos=0;
-        */
-        // Скопируем текущее исполнение в MacroRAM
-        PostTempKeyMacro(MacroPROM+I);
+
         IsRedrawEditor=CtrlObject->Plugins.CheckFlags(PSIF_ENTERTOOPENPLUGIN)?FALSE:TRUE;
 
         if (StartMacroPos==-1) // сбросим признак автостарта
@@ -1432,9 +1434,10 @@ int KeyMacro::PostTempKeyMacro(struct MacroRecord *MRec)
   }
 
   // теперь добавим в нашу "очередь" новые данные
+  memcpy(NewMacroRAM2.Buffer,MRec->Buffer,sizeof(DWORD)*MRec->BufferSize);
+
   MacroRAM=NewMacroRAM;
   NewMacroRAM=MacroRAM+MacroRAMCount;
-  memcpy(NewMacroRAM2.Buffer,MRec->Buffer,sizeof(DWORD)*MRec->BufferSize);
   memcpy(NewMacroRAM,&NewMacroRAM2,sizeof(struct MacroRecord));
   MacroRAMCount++;
 
