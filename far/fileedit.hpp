@@ -7,10 +7,16 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.32 04.09.2002 $ */
+/* Revision: 1.33 08.11.2002 $ */
 
 /*
 Modify:
+  08.11.2002 SVS
+    ! Editor::PluginData уехал в FileEditor::PluginData
+    ! Editor::SetPluginData() уехал в FileEditor::SetPluginData()
+    + GetPluginData()
+    + UpdateFileList()
+    ! Очередная порция отучения Editor от понятия "файл"
   04.09.2002 SVS
     + GetLastInfo() & FileInfo - информация о файле
   25.06.2002 SVS
@@ -133,6 +139,7 @@ class FileEditor:public Frame
 
     char Title[512];
     char PluginTitle[512];
+    char PluginData[NM*2];
 
     int FullScreen;
     /* $ 10.05.2001 DJ */
@@ -182,8 +189,19 @@ class FileEditor:public Frame
 
   private:
     void DisplayObject();
-    int ProcessQuitKey(int FirstSave,BOOL NeedQuestion=TRUE);
+    int  ProcessQuitKey(int FirstSave,BOOL NeedQuestion=TRUE);
     BOOL GetLastInfo(const char *Name,WIN32_FIND_DATA *FInfo);
+    BOOL UpdateFileList();
+    /* $ 10.10.2001 IS установка DeleteOnClose */
+    /* $ 14.06.2002 IS
+        DeleteOnClose стал int:
+          0 - не удалять ничего
+          1 - удалять файл и каталог
+          2 - удалять только файл
+    */
+    void SetDeleteOnClose(int NewMode);
+    /* IS 14.06.2002 */
+    /* IS 10.10.2001 */
 
   public:
     /* $ 14.06.2002 IS
@@ -259,6 +277,8 @@ class FileEditor:public Frame
     */
     DWORD GetFileAttributes(LPCTSTR);
     /* IS $ */
+    void SetPluginData(char *PluginData);
+    char *GetPluginData(void){return PluginData;};
 };
 
 #endif  // __FILEEDITOR_HPP__

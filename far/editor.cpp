@@ -6,10 +6,23 @@ editor.cpp
 
 */
 
-/* Revision: 1.206 07.11.2002 $ */
+/* Revision: 1.207 08.11.2002 $ */
 
 /*
 Modify:
+  08.11.2002 SVS
+    ! Очередная порция отучения Editor от понятия "файл":
+      * Editor::PluginData уехал в FileEditor::PluginData
+      * Editor::SetPluginData() уехал в FileEditor::SetPluginData()
+      * Команды ECTL_EDITORTOOEM, ECTL_OEMTOEDITOR и ECTL_GETBOOKMARKS
+        исполняются на уровне FileEditor (для DI_MEMOEDIT ЭТОГО ненать)
+      * ECTL_GETINFO разбит на 2 части. В FileEditor заполняется поле
+        EditorInfo.FileName.
+      * KEY_CTRLF - теперь обрабатывается в FileEditor::ProcessKey()
+      * Из Editor::~Editor() немного кода вынесено туда, где и должно быть
+        в FileEditor::~FileEditor()
+      * Editor::ReadFile() - Name уже в полном формате!!!
+        посему закомментим "преобразовалку" - нефига воду в ступе толочь
   07.11.2002 SVS
     ! Немного _SVS() для отладки :-)
   04.11.2002 SKV
@@ -651,7 +664,6 @@ Editor::Editor()
   NumLine=0;
   NumLastLine=1;
   LastChangeStrPos=0;
-  *FileName=0;
   BlockStart=NULL;
   BlockStartLine=0;
   TopList=EndList=TopScreen=CurLine=new struct EditList;
@@ -680,7 +692,6 @@ Editor::Editor()
   UndoDataPos=0;
   StartLine=StartChar=-1;
   BlockUndo=FALSE;
-  *PluginData=0;
   VBlockStart=NULL;
   memset(&SavePos,0xff,sizeof(SavePos));
   MaxRightPos=0;
@@ -696,89 +707,13 @@ Editor::Editor()
 Editor::~Editor()
 {
   _SVS(SysLog("[%p] Editor::~Editor()",this));
-  if (EdOpt.SavePos && CtrlObject!=NULL)
-  {
-    int ScreenLinePos=CalcDistance(TopScreen,CurLine,-1);
-    int CurPos=CurLine->EditLine.GetTabCurPos();
-    int LeftPos=CurLine->EditLine.GetLeftPos();
-    char CacheName[NM*3];
-    if (*PluginData)
-      sprintf(CacheName,"%s%s",PluginData,PointToName(FileName));
-    else
-      strcpy(CacheName,FileName);
-    unsigned int Table=0;
-    if (Flags.Check(FEDITOR_TABLECHANGEDBYUSER))
-    {
-      Table=1;
-      if (AnsiText)
-        Table=2;
-      else
-        if (UseDecodeTable)
-          Table=TableNum+2;
-    }
-
-    if (!Flags.Check(FEDITOR_OPENFAILED)) // здесь БЯКА в кеш попадала :-(
-      CtrlObject->EditorPosCache->AddPosition(CacheName,NumLine,ScreenLinePos,CurPos,LeftPos,Table,
-               (EdOpt.SaveShortPos?SavePos.Line:NULL),
-               (EdOpt.SaveShortPos?SavePos.Cursor:NULL),
-               (EdOpt.SaveShortPos?SavePos.ScreenLine:NULL),
-               (EdOpt.SaveShortPos?SavePos.LeftPos:NULL));
-  }
-
-
   FreeAllocatedData();
 
   KeepInitParameters();
 
-  if (!Flags.Check(FEDITOR_OPENFAILED))
-  {
-    FileEditor *save = CtrlObject->Plugins.CurEditor;
-    CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
-//_D(SysLog("%08d EE_CLOSE",__LINE__));
-    CtrlObject->Plugins.ProcessEditorEvent(EE_CLOSE,&EditorID);
-    /* $ 11.10.2001 IS
-       Удалим файл вместе с каталогом, если это просится и файла с таким же
-       именем не открыто в других фреймах.
-    */
-    /* $ 14.06.2001 IS
-       Если установлен FEDITOR_DELETEONLYFILEONCLOSE и сброшен
-       FEDITOR_DELETEONCLOSE, то удаляем только файл.
-    */
-    if (Flags.Check(FEDITOR_DELETEONCLOSE|FEDITOR_DELETEONLYFILEONCLOSE) &&
-       !FrameManager->CountFramesWithName(FileName))
-    {
-       if(Flags.Check(FEDITOR_DELETEONCLOSE))
-         DeleteFileWithFolder(FileName);
-       else
-       {
-         SetFileAttributes(FileName,0);
-         remove(FileName);
-       }
-    }
-    /* IS 14.06.2002 $ */
-    /* IS 11.10.2001 $ */
-    CtrlObject->Plugins.CurEditor = save;
-  }
-
   _KEYMACRO(SysLog(-1));
   _KEYMACRO(SysLog("Editor::~Editor()"));
 }
-
-/* $ 14.06.2002 IS
-   DeleteOnClose стал int:
-     0 - не удалять ничего
-     1 - удалять файл и каталог
-     2 - удалять только файл
-*/
-void Editor::SetDeleteOnClose(int NewMode)
-{
-  Flags.Clear(FEDITOR_DELETEONCLOSE|FEDITOR_DELETEONLYFILEONCLOSE);
-  if(NewMode==1)
-    Flags.Set(FEDITOR_DELETEONCLOSE);
-  else if(NewMode==2)
-    Flags.Set(FEDITOR_DELETEONLYFILEONCLOSE);
-}
-/* IS $ */
 
 void Editor::FreeAllocatedData()
 {
@@ -833,13 +768,17 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
   FILE *EditFile;
   struct EditList *PrevPtr;
   int Count=0,LastLineCR=0,MessageShown=FALSE;
+
   UserBreak=0;
   Flags.Clear(FEDITOR_OPENFAILED);
-//  ConvertNameToFull(Name,FileName,sizeof(FileName));
-  if (ConvertNameToFull(Name,FileName, sizeof(FileName)) >= sizeof(FileName)){
+
+/* Name уже в полном формате!!!
+  if (ConvertNameToFull(Name,FileName, sizeof(FileName)) >= sizeof(FileName))
+  {
     Flags.Set(FEDITOR_OPENFAILED);
     return FALSE;
   }
+*/
 
   DWORD FileFlags=FILE_FLAG_SEQUENTIAL_SCAN;
   if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
@@ -1096,11 +1035,11 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
          LeftPos надо было инициализировать... */
       unsigned int Line,ScreenLine,LinePos,LeftPos=0;
       char CacheName[NM*3];
-      if (*PluginData)
-        sprintf(CacheName,"%s%s",PluginData,PointToName(FileName));
+      if (HostFileEditor && *HostFileEditor->GetPluginData())
+        sprintf(CacheName,"%s%s",HostFileEditor->GetPluginData(),PointToName(Name));
       else
       {
-        strcpy(CacheName,FileName);
+        strcpy(CacheName,Name);
         for(int i=0;CacheName[i];i++)
         {
           if(CacheName[i]=='/')CacheName[i]='\\';
@@ -1171,11 +1110,11 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
       else
       {
         char CacheName[NM*3];
-        if (*PluginData)
-          sprintf(CacheName,"%s%s",PluginData,PointToName(FileName));
+        if (HostFileEditor && *HostFileEditor->GetPluginData())
+          sprintf(CacheName,"%s%s",HostFileEditor->GetPluginData(),PointToName(Name));
         else
         {
-          strcpy(CacheName,FileName);
+          strcpy(CacheName,Name);
           for(int i=0;CacheName[i];i++)
           {
             if(CacheName[i]=='/')CacheName[i]='\\';
@@ -1247,7 +1186,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
   CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
 //_D(SysLog("%08d EE_READ",__LINE__));
   CtrlObject->Plugins.ProcessEditorEvent(EE_READ,NULL);
-  _SVS(SysLog("Editor::ReadFile _heapchk() = %d",_heapchk()));
+  //_SVS(SysLog("Editor::ReadFile _heapchk() = %d",_heapchk()));
   return(TRUE);
 }
 
@@ -1255,12 +1194,6 @@ void Editor::DisplayObject()
 {
   if (!DisableOut)
   {
-    if(Flags.Check(FEDITOR_ISRESIZEDCONSOLE))
-    {
-      Flags.Clear(FEDITOR_ISRESIZEDCONSOLE);
-      CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
-      CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
-    }
     ShowEditor(FALSE);
   }
 }
@@ -1268,10 +1201,11 @@ void Editor::DisplayObject()
 
 void Editor::ShowEditor(int CurLineOnly)
 {
-  struct EditList *CurPtr;
-  int LeftPos,CurPos,Y;
   if (DisableOut)
     return;
+
+  struct EditList *CurPtr;
+  int LeftPos,CurPos,Y;
 
 //_SVS(SysLog("Enter to ShowEditor, CurLineOnly=%i",CurLineOnly));
   /*$ 10.08.2000 skv
@@ -3084,35 +3018,6 @@ int Editor::ProcessKey(int Key)
       return(TRUE);
     }
 
-    /* $ 25.04.2001 IS
-         ctrl+f - вставить в строку полное имя редактируемого файла
-    */
-    case KEY_CTRLF:
-    {
-      if (!Flags.Check(FEDITOR_LOCKMODE))
-      {
-        Pasting++;
-        TextChanged(1);
-        BOOL IsBlock=VBlockStart || BlockStart;
-        if (!EdOpt.PersistentBlocks && IsBlock)
-        {
-          Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
-          DeleteBlock();
-        }
-        //AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
-        //                CurLine->EditLine.GetCurPos(),UNDO_EDIT);
-        char FileName0[NM];
-        strncpy(FileName0,FileName,sizeof(FileName0)-1);
-        Paste(FileName0);
-        //if (!EdOpt.PersistentBlocks)
-        UnmarkBlock();
-        Pasting--;
-        Show();
-      }
-      return (TRUE);
-    }
-    /* IS $ */
-
     /* $ 25.04.2001 SVS
        Для макросов - есть блок или нету
     */
@@ -4871,11 +4776,6 @@ long Editor::GetCurPos()
 }
 
 
-void Editor::SetPluginData(char *PluginData)
-{
-  strcpy(Editor::PluginData,NullToEmpty(PluginData));
-}
-
 void Editor::SetStringsTable()
 {
   struct EditList *CurPtr=TopList;
@@ -5487,11 +5387,13 @@ int Editor::EditorControl(int Command,void *Param)
       Pasting--;
       return(TRUE);
     case ECTL_GETINFO:
+    {
+      struct EditorInfo *Info=(struct EditorInfo *)Param;
+      if(Info && !IsBadWritePtr(Info,sizeof(struct EditorInfo)))
       {
-        struct EditorInfo *Info=(struct EditorInfo *)Param;
         memset(Info,0,sizeof(*Info));
         Info->EditorID=Editor::EditorID;
-        Info->FileName=FileName;
+        Info->FileName="";
         Info->WindowSizeX=ObjWidth;
         Info->WindowSizeY=Y2-Y1;
         Info->TotalLines=NumLastLine;
@@ -5509,7 +5411,7 @@ int Editor::EditorControl(int Command,void *Param)
         Info->BlockStartLine=Info->BlockType==BTYPE_NONE ? 0:BlockStartLine;
         Info->AnsiMode=AnsiText;
         Info->TableNum=UseDecodeTable ? TableNum-1:-1;
-        Info->Options=0;
+        //Info->Options=0;
         if (EdOpt.ExpandTabs)
           Info->Options|=EOPT_EXPANDTABS;
         if (EdOpt.PersistentBlocks)
@@ -5529,8 +5431,10 @@ int Editor::EditorControl(int Command,void *Param)
         Info->CurState=Flags.Check(FEDITOR_LOCKMODE)?ECSTATE_LOCKED:0;
         Info->CurState|=!Flags.Check(FEDITOR_MODIFIED)?ECSTATE_SAVED:0;
         Info->CurState|=Flags.Check(FEDITOR_MODIFIED|FEDITOR_WASCHANGED)?ECSTATE_MODIFIED:0;
+        return TRUE;
       }
-      return(TRUE);
+      return FALSE;
+    }
 
     case ECTL_SETPOSITION:
       // "Вначале было слово..."
@@ -5637,22 +5541,6 @@ int Editor::EditorControl(int Command,void *Param)
       //_SVS(SysLog("Editor::EditorControl[%d]: ECTL_REDRAW",__LINE__));
       Show();
       ScrBuf.Flush();
-      return(TRUE);
-    // должно выполняется в FileEditor::EditorControl()
-    case ECTL_EDITORTOOEM:
-      {
-        struct EditorConvertText *ect=(struct EditorConvertText *)Param;
-        if (UseDecodeTable)
-          DecodeString(ect->Text,(unsigned char *)TableSet.DecodeTable,ect->TextLength);
-      }
-      return(TRUE);
-    // должно выполняется в FileEditor::EditorControl()
-    case ECTL_OEMTOEDITOR:
-      {
-        struct EditorConvertText *ect=(struct EditorConvertText *)Param;
-        if (UseDecodeTable)
-          EncodeString(ect->Text,(unsigned char *)TableSet.EncodeTable,ect->TextLength);
-      }
       return(TRUE);
     case ECTL_TABTOREAL:
       {
@@ -5866,23 +5754,6 @@ int Editor::EditorControl(int Command,void *Param)
       return  FALSE;
     }
     /* IS $ */
-    case ECTL_GETBOOKMARKS:
-    {
-      if(!Flags.Check(FEDITOR_OPENFAILED) && Param)
-      {
-        struct EditorBookMarks *ebm=(struct EditorBookMarks *)Param;
-        if(ebm->Line && !IsBadWritePtr(ebm->Line,BOOKMARK_COUNT*sizeof(long)))
-          memcpy(ebm->Line,SavePos.Line,BOOKMARK_COUNT*sizeof(long));
-        if(ebm->Cursor && !IsBadWritePtr(ebm->Cursor,BOOKMARK_COUNT*sizeof(long)))
-          memcpy(ebm->Cursor,SavePos.Cursor,BOOKMARK_COUNT*sizeof(long));
-        if(ebm->ScreenLine && !IsBadWritePtr(ebm->ScreenLine,BOOKMARK_COUNT*sizeof(long)))
-          memcpy(ebm->ScreenLine,SavePos.ScreenLine,BOOKMARK_COUNT*sizeof(long));
-        if(ebm->LeftPos && !IsBadWritePtr(ebm->LeftPos,BOOKMARK_COUNT*sizeof(long)))
-          memcpy(ebm->LeftPos,SavePos.LeftPos,BOOKMARK_COUNT*sizeof(long));
-        return TRUE;
-      }
-      return FALSE;
-    }
     /* $ 04.04.2002 IS
        Убрать флаг редактора "осуществляется выделение блока"
     */

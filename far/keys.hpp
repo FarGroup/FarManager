@@ -24,11 +24,13 @@ keys.hpp
 */
 #endif // END FAR_USE_INTERNALS
 
-/* Revision: 1.21 24.05.2002 $ */
+/* Revision: 1.22 09.11.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
 Modify:
+  09.11.2002 SVS
+    + KEY_ALTDIGIT - типа... "ввод был аля Alt-Num
   24.05.2002 SVS
     + ????KEY_NUMPAD?
   01.04.2002 SVS
@@ -117,6 +119,9 @@ enum BaseDefKeyboard
   KEY_SHIFT                =0x04000000,
   KEY_RCTRL                =0x10000000,
   KEY_RALT                 =0x20000000,
+#ifdef FAR_USE_INTERNALS
+  KEY_ALTDIGIT             =0x40000000,
+#endif
 
   KEY_BRACKET              ='[',
   KEY_BACKBRACKET          =']',

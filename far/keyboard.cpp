@@ -5,10 +5,14 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.81 04.11.2002 $ */
+/* Revision: 1.82 09.11.2002 $ */
 
 /*
 Modify:
+  09.11.2002 SVS
+    ! В связи с коррекцией "ReturnAltValue" вводим в макросах понятие
+      AltXXXXX - т.е. то, что было введено как Alt-Num. Для того, чтобы
+      не конвертировать код клавиши в редакторе!
   04.11.2002 SVS
     ! ReturnAltValue уехала из keyboard.cpp в global.cpp
   18.09.2002 VVM
@@ -1486,15 +1490,24 @@ int WINAPI KeyNameToKey(const char *Name)
          Pos+=FKeys1[I].Len;
          break;
        }
-     if(I  == sizeof(FKeys1)/sizeof(FKeys1[0]) && (Len == 1 || Pos == Len-1))
+     if(I  == sizeof(FKeys1)/sizeof(FKeys1[0]))
      {
-       WORD Chr=(WORD)(BYTE)Name[Pos];
-       if (Chr > 0 && Chr < 256)
+       if(Len == 1 || Pos == Len-1)
        {
-//         if (Key&(0xFF000000-KEY_SHIFT))
-//           Chr=LocalUpper(Chr);
-         Key|=Chr;
-         Pos++;
+         WORD Chr=(WORD)(BYTE)Name[Pos];
+         if (Chr > 0 && Chr < 256)
+         {
+  //         if (Key&(0xFF000000-KEY_SHIFT))
+  //           Chr=LocalUpper(Chr);
+           Key|=Chr;
+           Pos++;
+         }
+       }
+       else
+       {
+         // Было введение Alt-Num
+         Key=(Key|atoi(Ptr)|KEY_ALTDIGIT)&(~(KEY_ALT|KEY_RALT));
+         Pos=Len;
        }
      }
    }
@@ -1516,47 +1529,54 @@ BOOL WINAPI KeyToText(int Key0,char *KeyText0,int Size)
   if(Key&KEY_MACRO_BASE)
     return KeyMacroToText(Key0,KeyText0,Size);
 
-  /* $ 27.12.2001 KM
-    ! Обнулим KeyText (как и было раньше), в противном случае
-      в буфере возвращался мусор!
-  */
-  memset(KeyText,0,sizeof(KeyText));
-  /* KM $ */
-  GetShiftKeyName(KeyText,Key,Len);
-
-  for (I=0;I<sizeof(FKeys1)/sizeof(FKeys1[0]);I++)
+  if(Key&KEY_ALTDIGIT)
   {
-    if (FKey==FKeys1[I].Key)
-    {
-      strcat(KeyText,FKeys1[I].Name);
-      break;
-    }
+    sprintf(KeyText,"Alt%05d",Key&FKey);
   }
-
-  if(I  == sizeof(FKeys1)/sizeof(FKeys1[0]))
+  else
   {
-#if defined(SYSLOG)
-    for (I=0;I<sizeof(SpecKeyName)/sizeof(SpecKeyName[0]);I++)
-      if (FKey==SpecKeyName[I].Key)
+    /* $ 27.12.2001 KM
+      ! Обнулим KeyText (как и было раньше), в противном случае
+        в буфере возвращался мусор!
+    */
+    memset(KeyText,0,sizeof(KeyText));
+    /* KM $ */
+
+    GetShiftKeyName(KeyText,Key,Len);
+
+    for (I=0;I<sizeof(FKeys1)/sizeof(FKeys1[0]);I++)
+    {
+      if (FKey==FKeys1[I].Key)
       {
-        strcat(KeyText,SpecKeyName[I].Name);
+        strcat(KeyText,FKeys1[I].Name);
         break;
       }
-    if(I  == sizeof(SpecKeyName)/sizeof(SpecKeyName[0]))
-#endif
-    {
-      FKey=(Key&0xFF)&(~0x20);
-      if (FKey >= 'A' && FKey <= 'Z')
-        KeyText[Len]=(char)Key&0xFF;
-      else if ((Key&0xFF) > 0 && (Key&0xFF) < 256)
-        KeyText[Len]=(char)Key&0xFF;
     }
-  }
 
-  if(!KeyText[0])
-  {
-    *KeyText0='\0';
-    return FALSE;
+    if(I  == sizeof(FKeys1)/sizeof(FKeys1[0]))
+    {
+  #if defined(SYSLOG)
+      for (I=0;I<sizeof(SpecKeyName)/sizeof(SpecKeyName[0]);I++)
+        if (FKey==SpecKeyName[I].Key)
+        {
+          strcat(KeyText,SpecKeyName[I].Name);
+          break;
+        }
+      if(I  == sizeof(SpecKeyName)/sizeof(SpecKeyName[0]))
+  #endif
+      {
+        FKey=(Key&0xFF)&(~0x20);
+        if (FKey >= 'A' && FKey <= 'Z')
+          KeyText[Len]=(char)Key&0xFF;
+        else if ((Key&0xFF) > 0 && (Key&0xFF) < 256)
+          KeyText[Len]=(char)Key&0xFF;
+      }
+    }
+    if(!KeyText[0])
+    {
+      *KeyText0='\0';
+      return FALSE;
+    }
   }
 
   if(Size > 0)

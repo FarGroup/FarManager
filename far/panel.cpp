@@ -5,10 +5,13 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.100 27.09.2002 $ */
+/* Revision: 1.101 09.11.2002 $ */
 
 /*
 Modify:
+  09.11.2002 SVS
+    - Bug: В панелях Ctrl-L Ctrl-U - видим багу.
+      Лечится путем инициализации ViewSettings.FullScreen в 0
   27.09.2002 SVS
     - BugZ#640 - отрисовка
   22.01.2002 IS
@@ -370,6 +373,7 @@ Panel::Panel()
   SrcDragPanel=NULL;
   ModalMode=0;
   ViewSettings.ColumnCount=0;
+  ViewSettings.FullScreen=0;
   ProcessingPluginCommand=0;
 };
 

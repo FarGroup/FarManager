@@ -5,10 +5,14 @@ macro.cpp
 
 */
 
-/* Revision: 1.86 23.08.2002 $ */
+/* Revision: 1.87 09.11.2002 $ */
 
 /*
 Modify:
+  09.11.2002 SVS
+    ! В связи с коррекцией "ReturnAltValue" вводим в макросах понятие
+      AltXXXXX - т.е. то, что было введено как Alt-Num. Для того, чтобы
+      не конвертировать код клавиши в редакторе!
   23.08.2002 SVS
     - Перед юзанием *Buffer* надобы проверить его на NULL, т.к.
       процесс убиения макроса физически не создает буфер
@@ -605,6 +609,10 @@ int KeyMacro::ProcessKey(int Key)
       RecBuffer=(DWORD *)realloc(RecBuffer,sizeof(*RecBuffer)*(RecBufferSize+1));
       if (RecBuffer==NULL)
         return(FALSE);
+
+      if(ReturnAltValue) // "подтасовка" фактов ;-)
+        Key|=KEY_ALTDIGIT;
+
       RecBuffer[RecBufferSize++]=Key;
       return(FALSE);
     }
@@ -922,6 +930,13 @@ done:
   }
 
   DWORD Key=KeyFromBuffer(MR,ExecKeyPos++);
+
+  if(Key&KEY_ALTDIGIT) // "подтасовка" фактов ;-)
+  {
+    Key&=~KEY_ALTDIGIT;
+    ReturnAltValue=1;
+  }
+
   switch(Key)
   {
     case KEY_MACROSTOPIFNOT: // $StopIfNot Flag|Area

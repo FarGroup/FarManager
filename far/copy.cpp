@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.100 14.10.2002 $ */
+/* Revision: 1.101 09.11.2002 $ */
 
 /*
 Modify:
+  09.11.2002 SVS
+    - траблы с копированием прав под XP. Делаем *Apis*
   14.10.2002 SVS
     - В одном ФАРе выделяем все файлы в каталоге, жмем F6
       В другом (это обычная эмуляция!) удаляем пару файлов из
@@ -3062,8 +3064,11 @@ int ShellCopy::GetSecurity(const char *FileName,SECURITY_ATTRIBUTES &sa)
   SECURITY_INFORMATION si=DACL_SECURITY_INFORMATION;
   SECURITY_DESCRIPTOR *sd=(SECURITY_DESCRIPTOR *)sddata;
   DWORD Needed;
+  SetFileApisToANSI();
   OemToChar(FileName,AnsiName);
-  if (!GetFileSecurity(AnsiName,si,sd,sizeof(sddata),&Needed))
+  BOOL RetSec=GetFileSecurity(AnsiName,si,sd,sizeof(sddata),&Needed);
+  SetFileApisToOEM();
+  if (!RetSec)
   {
     sd=NULL;
     int LastError=GetLastError();
@@ -3084,8 +3089,11 @@ int ShellCopy::SetSecurity(const char *FileName,const SECURITY_ATTRIBUTES &sa)
 {
   char AnsiName[NM];
   SECURITY_INFORMATION si=DACL_SECURITY_INFORMATION;
+  SetFileApisToANSI();
   OemToChar(FileName,AnsiName);
-  if (!SetFileSecurity(AnsiName,si,sa.lpSecurityDescriptor))
+  BOOL RetSec=SetFileSecurity(AnsiName,si,sa.lpSecurityDescriptor);
+  SetFileApisToOEM();
+  if (!RetSec)
   {
     int LastError=GetLastError();
     if (LastError!=ERROR_SUCCESS && LastError!=ERROR_FILE_NOT_FOUND &&

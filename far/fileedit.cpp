@@ -5,10 +5,16 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.119 07.11.2002 $ */
+/* Revision: 1.120 08.11.2002 $ */
 
 /*
 Modify:
+  08.11.2002 SVS
+    ! Editor::PluginData уехал в FileEditor::PluginData
+    ! Editor::SetPluginData() уехал в FileEditor::SetPluginData()
+    ! Код по апдейту панелей вынесен в оттдельную функцию FileEditor::UpdateFileList()
+    - "The file was changed by an external program"
+    ! Очередная порция отучения Editor от понятия "файл"
   07.11.2002 SVS
     - BugZ#660 - "Reading: %d files" в заголовке окна редактора
       Перенес код из функции сохранение в функцию выхода из редактора.
@@ -316,6 +322,7 @@ Modify:
 #include "lang.hpp"
 #include "keys.hpp"
 #include "ctrlobj.hpp"
+#include "poscache.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
 #include "dialog.hpp"
@@ -374,8 +381,72 @@ FileEditor::FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
 FileEditor::~FileEditor()
 {
   _OT(SysLog("[%p] FileEditor::~FileEditor()",this));
+
+  if (FEdit->EdOpt.SavePos && CtrlObject!=NULL)
+  {
+    int ScreenLinePos=FEdit->CalcDistance(FEdit->TopScreen,FEdit->CurLine,-1);
+    int CurPos=FEdit->CurLine->EditLine.GetTabCurPos();
+    int LeftPos=FEdit->CurLine->EditLine.GetLeftPos();
+    char CacheName[NM*3];
+    if (*PluginData)
+      sprintf(CacheName,"%s%s",PluginData,PointToName(FullFileName));
+    else
+      strcpy(CacheName,FullFileName);
+
+    unsigned int Table=0;
+    if (FEdit->Flags.Check(FEDITOR_TABLECHANGEDBYUSER))
+    {
+      Table=1;
+      if (FEdit->AnsiText)
+        Table=2;
+      else
+        if (FEdit->UseDecodeTable)
+          Table=FEdit->TableNum+2;
+    }
+
+    if (!FEdit->Flags.Check(FEDITOR_OPENFAILED)) // здесь БЯКА в кеш попадала :-(
+      CtrlObject->EditorPosCache->AddPosition(CacheName,FEdit->NumLine,ScreenLinePos,CurPos,LeftPos,Table,
+               (FEdit->EdOpt.SaveShortPos?FEdit->SavePos.Line:NULL),
+               (FEdit->EdOpt.SaveShortPos?FEdit->SavePos.Cursor:NULL),
+               (FEdit->EdOpt.SaveShortPos?FEdit->SavePos.ScreenLine:NULL),
+               (FEdit->EdOpt.SaveShortPos?FEdit->SavePos.LeftPos:NULL));
+  }
+
+  BitFlags FEditFlags=FEdit->Flags;
+  int FEditEditorID=FEdit->EditorID;
+
   if(FEdit)
     delete FEdit;
+
+
+  if (!FEditFlags.Check(FEDITOR_OPENFAILED))
+  {
+    FileEditor *save = CtrlObject->Plugins.CurEditor;
+    CtrlObject->Plugins.CurEditor=this;
+    CtrlObject->Plugins.ProcessEditorEvent(EE_CLOSE,&FEditEditorID);
+    /* $ 11.10.2001 IS
+       Удалим файл вместе с каталогом, если это просится и файла с таким же
+       именем не открыто в других фреймах.
+    */
+    /* $ 14.06.2001 IS
+       Если установлен FEDITOR_DELETEONLYFILEONCLOSE и сброшен
+       FEDITOR_DELETEONCLOSE, то удаляем только файл.
+    */
+    if (FEditFlags.Check(FEDITOR_DELETEONCLOSE|FEDITOR_DELETEONLYFILEONCLOSE) &&
+       !FrameManager->CountFramesWithName(FullFileName))
+    {
+       if(FEditFlags.Check(FEDITOR_DELETEONCLOSE))
+         DeleteFileWithFolder(FullFileName);
+       else
+       {
+         SetFileAttributes(FullFileName,0);
+         remove(FullFileName);
+       }
+    }
+    /* IS 14.06.2002 $ */
+    /* IS 11.10.2001 $ */
+    CtrlObject->Plugins.CurEditor = save;
+  }
 
   CurrentEditor=NULL;
   if (EditNamesList)
@@ -429,7 +500,7 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
     return;
   }
 
-  FEdit->SetPluginData(PluginData);
+  SetPluginData(PluginData);
   FEdit->SetHostFileEditor(this);
   _OT(SysLog("Editor;:Editor(), EnableSwitch=%i",EnableSwitch));
   SetCanLoseFocus(EnableSwitch);
@@ -556,7 +627,7 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
 
   FEdit->SetPosition(X1,Y1,X2,Y2-1);
   FEdit->SetStartPos(StartLine,StartChar);
-  FEdit->SetDeleteOnClose(DeleteOnClose);
+  SetDeleteOnClose(DeleteOnClose);
   int UserBreak;
   /* $ 06.07.2001 IS
      При создании файла с нуля так же посылаем плагинам событие EE_READ, дабы
@@ -687,7 +758,16 @@ void FileEditor::Show()
 
 void FileEditor::DisplayObject()
 {
-  FEdit->Show();
+  if (!FEdit->DisableOut)
+  {
+    if(FEdit->Flags.Check(FEDITOR_ISRESIZEDCONSOLE))
+    {
+      FEdit->Flags.Clear(FEDITOR_ISRESIZEDCONSOLE);
+      CtrlObject->Plugins.CurEditor=this;
+      CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_CHANGE);//EEREDRAW_ALL);
+    }
+    FEdit->Show();
+  }
 }
 
 
@@ -897,7 +977,7 @@ int FileEditor::ProcessKey(int Key)
                не будем удалять файл, если было включено удаление, но при этом
                пользователь переключился во вьюер
             */
-            FEdit->SetDeleteOnClose(0);
+            SetDeleteOnClose(0);
             /* IS $ */
             /* $ 06.05.2001 DJ
                обработка F6 под NWZ
@@ -1091,6 +1171,35 @@ int FileEditor::ProcessKey(int Key)
         Help Hlp ("Editor");
         return(TRUE);
       }
+
+      /* $ 25.04.2001 IS
+           ctrl+f - вставить в строку полное имя редактируемого файла
+      */
+      case KEY_CTRLF:
+      {
+        if (!FEdit->Flags.Check(FEDITOR_LOCKMODE))
+        {
+          FEdit->Pasting++;
+          FEdit->TextChanged(1);
+          BOOL IsBlock=FEdit->VBlockStart || FEdit->BlockStart;
+          if (!FEdit->EdOpt.PersistentBlocks && IsBlock)
+          {
+            FEdit->Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+            FEdit->DeleteBlock();
+          }
+          //AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
+          //                CurLine->EditLine.GetCurPos(),UNDO_EDIT);
+          char FileName0[NM];
+          strncpy(FileName0,FullFileName,sizeof(FileName0)-1);
+          FEdit->Paste(FileName0);
+          //if (!EdOpt.PersistentBlocks)
+          FEdit->UnmarkBlock();
+          FEdit->Pasting--;
+          FEdit->Show(); //???
+        }
+        return (TRUE);
+      }
+      /* IS $ */
     }
 
     /* $ 22.03.2001 SVS
@@ -1124,19 +1233,9 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
     {
       /* $ 09.02.2002 VVM
         + Обновить панели, если писали в текущий каталог */
-      //if (NeedQuestion)
+      if (NeedQuestion)
       {
-        GetLastInfo(FullFileName,&FileInfo);
-
-        Panel *ActivePanel = CtrlObject->Cp()->ActivePanel;
-        char *FileName = PointToName((char *)FullFileName);
-        char FilePath[NM], PanelPath[NM];
-        strncpy(FilePath, FullFileName, FileName - FullFileName);
-        ActivePanel->GetCurDir(PanelPath);
-        AddEndSlash(PanelPath);
-        AddEndSlash(FilePath);
-        if (!strcmp(PanelPath, FilePath))
-          ActivePanel->Update(UPDATE_KEEP_SELECTION);
+        UpdateFileList();
       }
       /* VVM $ */
 
@@ -1352,12 +1451,14 @@ int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
     FEdit->Flags.Clear(FEDITOR_UNDOOVERFLOW);
 
 //    ConvertNameToFull(Name,FileName, sizeof(FileName));
+/*
     if (ConvertNameToFull(Name,FEdit->FileName, sizeof(FEdit->FileName)) >= sizeof(FEdit->FileName))
     {
       FEdit->Flags.Set(FEDITOR_OPENFAILED);
       RetCode=SAVEFILE_ERROR;
       goto end;
     }
+*/
     SetCursorType(FALSE,0);
     SetPreRedrawFunc(Editor::PR_EditorShowMsg);
     Editor::EditorShowMsg(MSG(MEditTitle),MSG(MEditSaving),Name);
@@ -1408,6 +1509,7 @@ end:
 
   if (FileAttributes!=-1)
     SetFileAttributes(Name,FileAttributes|FA_ARCH);
+  GetLastInfo(FullFileName,&FileInfo);
 
   if (FEdit->Flags.Check(FEDITOR_MODIFIED) || NewFile)
     FEdit->Flags.Set(FEDITOR_WASCHANGED);
@@ -1700,6 +1802,46 @@ DWORD FileEditor::GetFileAttributes(LPCTSTR Name)
 }
 /* IS $ */
 
+/* Return TRUE - панель обовили
+*/
+BOOL FileEditor::UpdateFileList()
+{
+  Panel *ActivePanel = CtrlObject->Cp()->ActivePanel;
+  char *FileName = PointToName((char *)FullFileName);
+  char FilePath[NM], PanelPath[NM];
+  strncpy(FilePath, FullFileName, FileName - FullFileName);
+  ActivePanel->GetCurDir(PanelPath);
+  AddEndSlash(PanelPath);
+  AddEndSlash(FilePath);
+  if (!strcmp(PanelPath, FilePath))
+  {
+    ActivePanel->Update(UPDATE_KEEP_SELECTION);
+    return TRUE;
+  }
+  return FALSE;
+}
+
+void FileEditor::SetPluginData(char *PluginData)
+{
+  strcpy(FileEditor::PluginData,NullToEmpty(PluginData));
+}
+
+/* $ 14.06.2002 IS
+   DeleteOnClose стал int:
+     0 - не удалять ничего
+     1 - удалять файл и каталог
+     2 - удалять только файл
+*/
+void FileEditor::SetDeleteOnClose(int NewMode)
+{
+  FEdit->Flags.Clear(FEDITOR_DELETEONCLOSE|FEDITOR_DELETEONLYFILEONCLOSE);
+  if(NewMode==1)
+    FEdit->Flags.Set(FEDITOR_DELETEONCLOSE);
+  else if(NewMode==2)
+    FEdit->Flags.Set(FEDITOR_DELETEONLYFILEONCLOSE);
+}
+/* IS $ */
+
 int FileEditor::EditorControl(int Command,void *Param)
 {
 #if defined(SYSLOG_KEYMACRO)
@@ -1714,11 +1856,61 @@ int FileEditor::EditorControl(int Command,void *Param)
 #endif
   switch(Command)
   {
+    case ECTL_GETINFO:
+    {
+      FEdit->EditorControl(Command,Param);
+      struct EditorInfo *Info=(struct EditorInfo *)Param;
+      Info->FileName=FullFileName;
+      return TRUE;
+    }
+
+    case ECTL_GETBOOKMARKS:
+    {
+      if(!FEdit->Flags.Check(FEDITOR_OPENFAILED) && Param)
+      {
+        struct EditorBookMarks *ebm=(struct EditorBookMarks *)Param;
+        if(ebm->Line && !IsBadWritePtr(ebm->Line,BOOKMARK_COUNT*sizeof(long)))
+          memcpy(ebm->Line,FEdit->SavePos.Line,BOOKMARK_COUNT*sizeof(long));
+        if(ebm->Cursor && !IsBadWritePtr(ebm->Cursor,BOOKMARK_COUNT*sizeof(long)))
+          memcpy(ebm->Cursor,FEdit->SavePos.Cursor,BOOKMARK_COUNT*sizeof(long));
+        if(ebm->ScreenLine && !IsBadWritePtr(ebm->ScreenLine,BOOKMARK_COUNT*sizeof(long)))
+          memcpy(ebm->ScreenLine,FEdit->SavePos.ScreenLine,BOOKMARK_COUNT*sizeof(long));
+        if(ebm->LeftPos && !IsBadWritePtr(ebm->LeftPos,BOOKMARK_COUNT*sizeof(long)))
+          memcpy(ebm->LeftPos,FEdit->SavePos.LeftPos,BOOKMARK_COUNT*sizeof(long));
+        return TRUE;
+      }
+      return FALSE;
+    }
+
     case ECTL_SETTITLE:
     {
       // $ 08.06.2001 IS - Баг: не учитывался размер PluginTitle
       strncpy(PluginTitle,NullToEmpty((char *)Param),sizeof(PluginTitle)-1);
       ShowStatus();
+      ScrBuf.Flush();
+      return TRUE;
+    }
+
+    case ECTL_EDITORTOOEM:
+    {
+      struct EditorConvertText *ect=(struct EditorConvertText *)Param;
+      if (FEdit->UseDecodeTable)
+        DecodeString(ect->Text,(unsigned char *)FEdit->TableSet.DecodeTable,ect->TextLength);
+      return TRUE;
+    }
+
+    case ECTL_OEMTOEDITOR:
+    {
+      struct EditorConvertText *ect=(struct EditorConvertText *)Param;
+      if (FEdit->UseDecodeTable)
+        EncodeString(ect->Text,(unsigned char *)FEdit->TableSet.EncodeTable,ect->TextLength);
+      return TRUE;
+    }
+
+    case ECTL_REDRAW:
+    {
+      //_SVS(SysLog("FileEditor::EditorControl[%d]: ECTL_REDRAW",__LINE__));
+      FileEditor::DisplayObject();
       ScrBuf.Flush();
       return(TRUE);
     }

@@ -5,10 +5,14 @@ plugins.cpp
 
 */
 
-/* Revision: 1.127 18.09.2002 $ */
+/* Revision: 1.128 09.11.2002 $ */
 
 /*
 Modify:
+  09.11.2002 SVS
+    - F4 Esc в меню конфигурации и вызова плагинов: менюха становится выше
+      на 1 строку. + блокируем клавиши (AltF9), т.к. после распахивания
+      пока не в состоянии корректно отрисовать меню на нужную высоту.
   18.09.2002 SVS
     ! Вернем обратно сортировку модулей после сбора инфы.
   17.09.2002 SVS
@@ -2357,6 +2361,7 @@ void PluginsSet::Configure(int StartPos)
           case KEY_F4:
             if (SelPos<MenuItemNumber && GetHotKeyRegKey(LOWORD(Data),HIWORD(Data),RegKey))
             {
+              BlockExtKey blockExtKey;
               if(GetMenuHotKey(NULL,1,
                         (char *)MPluginHotKeyTitle,
                         (char *)MPluginHotKey,
@@ -2366,11 +2371,11 @@ void PluginsSet::Configure(int StartPos)
                 NeedUpdateItems=TRUE;
                 StartPos=SelPos;
                 PluginList.SetExitCode(SelPos);
+                /* Грязный хак :-( */
+//              PluginList.Hide();
+                PluginList.Show();
                 break;
               }
-              /* Грязный хак :-( */
-              PluginList.Hide();
-              PluginList.Show();
             }
             break;
           default:
@@ -2541,17 +2546,18 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
         case KEY_F4:
           if (SelPos<MenuItemNumber && GetHotKeyRegKey(LOWORD(Data),HIWORD(Data),RegKey))
           {
+            BlockExtKey blockExtKey;
             if(GetMenuHotKey(NULL,1,(char *)MPluginHotKeyTitle,(char *)MPluginHotKey,NULL,RegKey,"Hotkey"))
             {
               PluginList.Hide();
               NeedUpdateItems=TRUE;
               StartPos=SelPos;
               PluginList.SetExitCode(SelPos);
+              /* Грязный хак :-( */
+//            PluginList.Hide();
+              PluginList.Show();
               break;
             }
-            /* Грязный хак :-( */
-            PluginList.Hide();
-            PluginList.Show();
           }
           break;
         default:

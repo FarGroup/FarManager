@@ -9,10 +9,14 @@ editor.hpp
 
 */
 
-/* Revision: 1.39 04.09.2002 $ */
+/* Revision: 1.40 08.11.2002 $ */
 
 /*
 Modify:
+  08.11.2002 SVS
+    ! Editor::PluginData уехал в FileEditor::PluginData
+    ! Editor::SetPluginData() уехал в FileEditor::SetPluginData()
+    ! Очередная порция отучения Editor от понятия "файл"
   04.09.2002 SVS
     ! Класс Editor "потерял" свойство запоминать файлы самостоятельно,
       теперь это привелегия FileEditor`а
@@ -197,9 +201,6 @@ class Editor:public ScreenObject
 {
   friend class FileEditor;
   private:
-    char PluginData[NM*2];
-    char FileName[NM];
-
     struct EditList *TopList,*EndList,*TopScreen,*CurLine;
     /* $ 03.12.2001 IS теперь указатель, т.к. размер может меняться */
     struct EditorUndoData *UndoData;
@@ -318,7 +319,6 @@ class Editor:public ScreenObject
     int IsFileChanged();
     void SetTitle(const char *Title);
     long GetCurPos();
-    void SetPluginData(char *PluginData);
     int EditorControl(int Command,void *Param);
     void SetHostFileEditor(FileEditor *Editor) {HostFileEditor=Editor;};
     static void SetReplaceMode(int Mode);
@@ -355,17 +355,6 @@ class Editor:public ScreenObject
 
     void SetCharCodeBase(int NewMode) { EdOpt.CharCodeBase=NewMode%3; }
     int  GetCharCodeBase(void) const {return EdOpt.CharCodeBase; }
-
-    /* $ 10.10.2001 IS установка DeleteOnClose */
-    /* $ 14.06.2002 IS
-        DeleteOnClose стал int:
-          0 - не удалять ничего
-          1 - удалять файл и каталог
-          2 - удалять только файл
-    */
-    void SetDeleteOnClose(int NewMode);
-    /* IS 14.06.2002 */
-    /* IS 10.10.2001 */
 
     /* $ 29.10.2001 IS
          Работа с настройками "сохранять позицию файла" и
