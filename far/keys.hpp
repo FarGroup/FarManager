@@ -7,10 +7,12 @@ keys.hpp
 
 */
 
-/* Revision: 1.10 26.04.2001 $ */
+/* Revision: 1.11 28.04.2001 $ */
 
 /*
 Modify:
+  28.04.2001 VVM
+    + KEY_FOCUS_CHANGED - посылается при получении/потере фокуса окном.
   26.04.2001 VVM
     + KEY_MSWHEEL_UP/KEY_MSWHEEL_DOWN - для колеса мышки.
   25.04.2001 SVS
@@ -128,6 +130,8 @@ enum BaseDefKeyboard
 
   KEY_MSWHEEL_UP           =0x00000203,
   KEY_MSWHEEL_DOWN         =0x00000204,
+
+  KEY_FOCUS_CHANGED        =0x00000205,
 
   KEY_END_FKEY             =0x00000FFF,
 

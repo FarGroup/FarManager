@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.30 19.04.2001 $ */
+/* Revision: 1.31 28.04.2001 $ */
 
 /*
 Modify:
+  28.04.2001 VVM
+    + KeyBar тоже умеет обрабатывать клавиши.
   19.04.2001 SVS
     ! Диалог SaveAs некорректно работал при нажатии Ctrl-Enter
   10.04.2001 IS
@@ -529,7 +531,8 @@ int FileEditor::ProcessKey(int Key)
         if (FullScreen && !CtrlObject->Macro.IsExecuting())
           EditKeyBar.Show();
         /* SVS $ */
-        return(FEdit.ProcessKey(Key));
+        if (!EditKeyBar.ProcessKey(Key))
+          return(FEdit.ProcessKey(Key));
       }
       return(TRUE);
   }

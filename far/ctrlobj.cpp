@@ -5,10 +5,12 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.17 22.04.2001 $ */
+/* Revision: 1.18 28.04.2001 $ */
 
 /*
 Modify:
+  28.04.2001 VVM
+    + KeyBar тоже умеет обрабатывать клавиши.
   22.04.2001 SVS
     ! Загрузка плагнов - после создания ВСЕХ основных объектов
   02.04.2001 VVM
@@ -668,7 +670,8 @@ int ControlObject::ProcessKey(int Key)
       ActivePanel->SetViewMode(VIEW_0);
       break;
     default:
-      if (!ActivePanel->ProcessKey(Key))
+      if (!ActivePanel->ProcessKey(Key) &&
+          !MainKeyBar.ProcessKey(Key))
         CmdLine->ProcessKey(Key);
       break;
   }

@@ -7,10 +7,12 @@ Keybar
 
 */
 
-/* Revision: 1.03 04.04.2001 $ */
+/* Revision: 1.04 28.04.2001 $ */
 
 /*
 Modify:
+  28.04.2001 VVM
+    + ProcessKey() функция.
   04.04.2001 SVS
     - Избавляемся от "залипания" :-)
     ! убран "мусор" - ненужные новые переменные CtrlShiftState
@@ -61,6 +63,7 @@ class KeyBar:public ScreenObject
   public:
     KeyBar();
     void SetOwner(BaseInput *Owner);
+    int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     void Set(char **Key,int KeyCount);
     void SetShift(char **Key,int KeyCount);

@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.19 10.04.2001 $ */
+/* Revision: 1.20 28.04.2001 $ */
 
 /*
 Modify:
+  28.04.2001 VVM
+    + KeyBar тоже умеет обрабатывать клавиши.
   10.04.2001 IS
     ! Не делаем SetCurDir при ctrl-f10, если нужный путь уже есть на открытых
       панелях, тем самым добиваемся того, что выделение с элементов
@@ -396,7 +398,8 @@ int FileViewer::ProcessKey(int Key)
           if ( Opt.ShowKeyBarViewer )
               ViewKeyBar.Show();
         /* SVS $ */
-        return(View.ProcessKey(Key));
+        if (!ViewKeyBar.ProcessKey(Key))
+          return(View.ProcessKey(Key));
       }
       return(TRUE);
   }

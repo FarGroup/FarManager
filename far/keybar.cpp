@@ -5,10 +5,12 @@ Keybar
 
 */
 
-/* Revision: 1.06 04.04.2001 $ */
+/* Revision: 1.07 28.04.2001 $ */
 
 /*
 Modify:
+  28.04.2001 VVM
+    + ProcessKey()
   04.04.2001 SVS
     - Избавляемся от "залипания" :-)
     ! убран "мусор" - ненужные новые переменные CtrlShiftState
@@ -258,6 +260,20 @@ void KeyBar::SetCtrlAlt(char **Key,int KeyCount)
 }
 /* SVS $*/
 
+/* $ 28.04.2001 VVM
+  + ProcessKey() */
+int KeyBar::ProcessKey(int Key)
+{
+  switch (Key)
+  {
+    case KEY_FOCUS_CHANGED:
+      RedrawIfChanged();
+      return(TRUE);
+  } /* switch */
+  return(FALSE);
+}
+
+/* VVM */
 int KeyBar::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
   INPUT_RECORD rec;

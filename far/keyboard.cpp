@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.23 27.04.2001 $ */
+/* Revision: 1.24 28.04.2001 $ */
 
 /*
 Modify:
+  28.04.2001 vvm
+    + KEY_FOCUS_CHANGED для прорисовки кейбара.
   27.04.2001 SVS
     + Добавлены:
        "MsWheelDown" для KEY_MSWHEEL_DOWN и
@@ -383,11 +385,16 @@ int GetInputRecord(INPUT_RECORD *rec)
   clock_t CurClock=clock();
   if (rec->EventType==FOCUS_EVENT)
   {
-    ShiftPressedLast=FALSE;
-    CtrlPressedLast=RightCtrlPressedLast=FALSE;
-    AltPressedLast=RightAltPressedLast=FALSE;
+    /* $ 28.04.2001 VVM
+      + Не только обработаем сами смену фокуса, но и передадим дальше */
+    ShiftPressed=ShiftPressedLast=FALSE;
+    CtrlPressed=CtrlPressedLast=RightCtrlPressedLast=FALSE;
+    AltPressed=AltPressedLast=RightAltPressedLast=FALSE;
     PressedLastTime=0;
-//    SysLog("Focus!!!");
+    ReadConsoleInput(hConInp,rec,1,&ReadCount);
+    rec->EventType=KEY_EVENT;
+    return(KEY_FOCUS_CHANGED);
+    /* VVM $ */
   }
   if (rec->EventType==KEY_EVENT)
   {
