@@ -5,10 +5,14 @@ execute.cpp
 
 */
 
-/* Revision: 1.86 02.09.2003 $ */
+/* Revision: 1.87 03.09.2003 $ */
 
 /*
 Modify:
+  03.09.2003 SVS
+    - bugz#933 - задолбал этот strcpy :-(
+    + В CommandLine::ProcessOSCommands() добавлен закомментированный кусок
+      ...вариант для "SET /P variable=[promptString]" - что бы не потерялось...
   02.09.2003 SVS
     ! уточнение кода возврата функции CheckFolder()
   31.07.2003 VVM
@@ -1557,10 +1561,14 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
 {
   Panel *SetPanel;
   int Length;
+
   SetPanel=CtrlObject->Cp()->ActivePanel;
+
   if (SetPanel->GetType()!=FILE_PANEL && CtrlObject->Cp()->GetAnotherPanel(SetPanel)->GetType()==FILE_PANEL)
     SetPanel=CtrlObject->Cp()->GetAnotherPanel(SetPanel);
+
   RemoveTrailingSpaces(CmdLine);
+
   if (!SeparateWindow && isalpha(CmdLine[0]) && CmdLine[1]==':' && CmdLine[2]==0)
   {
     char NewDir[10];
@@ -1574,15 +1582,44 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
     SetPanel->ChangeDirToCurrent();
     return(TRUE);
   }
+
+  // SET [переменная=[строка]]
   if (strnicmp(CmdLine,"SET ",4)==0)
   {
     char Cmd[1024];
-    strcpy(Cmd,CmdLine+4);
+#if 0
+    // Вариант для "SET /P variable=[promptString]"
+    int Offset=4, NeedInput=FALSE;
+    char *ParamP=strchr(CmdLine,'/');
+    if (ParamP && (ParamP[1] == 'P' || ParamP[1] == 'p') && ParamP[2] == ' ')
+    {
+      Offset=ParamP-CmdLine+3;
+      NeedInput=TRUE;
+    }
+
+    strncpy(Cmd,CmdLine+Offset,sizeof(Cmd)-1);
+
     char *Value=strchr(Cmd,'=');
     if (Value==NULL)
       return(FALSE);
+
     *Value=0;
+    if(NeedInput)
+    {
+      Offset=Value-Cmd+1;
+      if(!::GetString("",Value+1,"PromptSetEnv","",Value+1,sizeof(Cmd)-Offset-1,NULL,FIB_ENABLEEMPTY))
+        return TRUE;
+    }
+#else
+    strncpy(Cmd,CmdLine+4,sizeof(Cmd)-1);
+    char *Value=strchr(Cmd,'=');
+    if (Value==NULL)
+      return(FALSE);
+
+    *Value=0;
+#endif
     OemToChar(Cmd, Cmd);
+
     if (Value[1]==0)
       SetEnvironmentVariable(Cmd,NULL);
     else
@@ -1686,25 +1723,28 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
       (IsSpace(CmdLine[Length]) || CmdLine[Length]=='\\' || TestParentFolderName(CmdLine+Length)))
   {
     int ChDir=(Length==5);
+
     while (IsSpace(CmdLine[Length]))
       Length++;
+
     if (CmdLine[Length]=='\"')
       Length++;
-    char NewDir[NM];
-    strcpy(NewDir,&CmdLine[Length]);
+
+    char ExpandedDir[8192];
+    strncpy(ExpandedDir,&CmdLine[Length],sizeof(ExpandedDir)-1);
 
     // скорректируем букву диска на "подступах"
-    if(NewDir[1] == ':' && isalpha(NewDir[0]))
-      NewDir[0]=toupper(NewDir[0]);
+    if(ExpandedDir[1] == ':' && isalpha(ExpandedDir[0]))
+      ExpandedDir[0]=toupper(ExpandedDir[0]);
 
     /* $ 15.11.2001 OT
       Сначала проверяем есть ли такая "обычная" директория.
       если уж нет, то тогда начинаем думать, что это директория плагинная
     */
-    DWORD DirAtt=GetFileAttributes(NewDir);
-    if (DirAtt!=0xffffffff && (DirAtt & FILE_ATTRIBUTE_DIRECTORY) && PathMayBeAbsolute(NewDir))
+    DWORD DirAtt=GetFileAttributes(ExpandedDir);
+    if (DirAtt!=0xffffffff && (DirAtt & FILE_ATTRIBUTE_DIRECTORY) && PathMayBeAbsolute(ExpandedDir))
     {
-      SetPanel->SetCurDir(NewDir,TRUE);
+      SetPanel->SetCurDir(ExpandedDir,TRUE);
       return TRUE;
     }
     /* OT $ */
@@ -1717,7 +1757,7 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
       каталога не имеют никакого отношения.
     */
     /*
-    if (CtrlObject->Plugins.ProcessCommandLine(NewDir))
+    if (CtrlObject->Plugins.ProcessCommandLine(ExpandedDir))
     {
       CmdStr.SetString("");
       GotoXY(X1,Y1);
@@ -1728,16 +1768,17 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
     */
     /* SKV $ */
 
-    char *ChPtr=strrchr(NewDir,'\"');
+    char *ChPtr=strrchr(ExpandedDir,'\"');
     if (ChPtr!=NULL)
       *ChPtr=0;
+
     if (SetPanel->GetType()==FILE_PANEL && SetPanel->GetMode()==PLUGIN_PANEL)
     {
-      SetPanel->SetCurDir(NewDir,ChDir);
+      SetPanel->SetCurDir(ExpandedDir,ChDir);
       return(TRUE);
     }
-    char ExpandedDir[8192];
-    if (ExpandEnvironmentStr(NewDir,ExpandedDir,sizeof(ExpandedDir))!=0)
+
+    if (ExpandEnvironmentStr(ExpandedDir,ExpandedDir,sizeof(ExpandedDir))!=0)
     {
       if(CheckFolder(ExpandedDir) <= CHKFLD_NOTACCESS)
         return FALSE;
@@ -1745,9 +1786,11 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
       if (!FarChDir(ExpandedDir))
         return(FALSE);
     }
+
     SetPanel->ChangeDirToCurrent();
     if (!SetPanel->IsVisible())
       SetPanel->SetTitle();
+
     return(TRUE);
   }
   return(FALSE);

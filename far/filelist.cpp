@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.187 31.08.2003 $ */
+/* Revision: 1.188 03.09.2003 $ */
 
 /*
 Modify:
+  03.09.2003 SVS
+    ! При откавычивании учтем биты QUOTEDNAME_
   31.08.2003 SVS
     ! В FileList::CountDirSize() передается 1 параметр - DWORD, флаги плагина
     - Попытка исправить BugZ#894 - F3 на папке во временной панели всегда возвращает 0
@@ -1341,7 +1343,7 @@ int FileList::ProcessKey(int Key)
           }
           /* IS $ */
         }
-        if(Opt.QuotedName)
+        if(Opt.QuotedName&QUOTEDNAME_INSERT)
           QuoteSpace(FileName);
         strcat(FileName," ");
         CtrlObject->CmdLine->InsertString(FileName);
@@ -1414,7 +1416,7 @@ int FileList::ProcessKey(int Key)
           /* SVS $ */
         }
 
-        if(Opt.QuotedName)
+        if(Opt.QuotedName&QUOTEDNAME_INSERT)
           QuoteSpace(PanelDir);
 
         CtrlObject->CmdLine->InsertString(PanelDir);
@@ -3715,7 +3717,7 @@ void FileList::CopyNames(int FillPathName,int UNC)
         }
       }
     }
-    if(Opt.QuotedName)
+    if(Opt.QuotedName&QUOTEDNAME_CLIPBOARD)
       QuoteSpace(QuotedName);
     int Length=strlen(QuotedName);
     char *NewPtr=(char *)xf_realloc(CopyData,DataSize+Length+3);

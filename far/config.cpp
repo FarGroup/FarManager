@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.155 25.08.2003 $ */
+/* Revision: 1.156 03.09.2003 $ */
 
 /*
 Modify:
+  03.09.2003 SVS
+    ! Все биты у Opt.QuotedName установлены в 1 - типа, кавычим все!
   25.08.2003 SVS
     + Opt.QuotedName - заключать имена файлов/папок в кавычки
   23.07.2003 SVS
@@ -1450,7 +1452,7 @@ static struct FARConfig{
     ! Новые символы, наличие которых в имени файла окавычит его.
   */
   {0, REG_SZ,     NKeySystem,"QuotedSymbols",Opt.QuotedSymbols,sizeof(Opt.QuotedSymbols)," &()[]{}^=;!'+,`"},
-  {0, REG_DWORD,  NKeySystem,"QuotedName",&Opt.QuotedName,1, 0},
+  {0, REG_DWORD,  NKeySystem,"QuotedName",&Opt.QuotedName,0xFFFFFFFFU, 0},
   /* KM $ */
   //{0, REG_DWORD,  NKeySystem,"CPAJHefuayor",&Opt.CPAJHefuayor,0, 0},
   {0, REG_DWORD,  NKeySystem,"CloseConsoleRule",&Opt.CloseConsoleRule,1, 0},

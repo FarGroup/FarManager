@@ -5,10 +5,17 @@ User menu и есть
 
 */
 
-/* Revision: 1.62 21.01.2003 $ */
+/* Revision: 1.63 03.09.2003 $ */
 
 /*
 Modify:
+  03.09.2003 SVS
+    ! Введено немного интелекта:
+      a) изменена функция CanCloseDialog - другие коды возврата
+         0 -все ОБИ,
+         1 или 2 - ошибка и, соответственно, на какой контрол поставить фокус
+      b) и, посредством Dialog::SendDlgMessage() после некорректного заполенения
+         метки или хоткея ставим фокус на нужный элемент диалога.
   21.01.2003 SVS
     + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
       Просьба блюсти порядок и прописывать именно xf_* вместо простых.
@@ -1039,20 +1046,21 @@ int DeleteMenuRecord(char *MenuKey,int DeletePos)
 
 /* $ 29.08.2001 VVM
   + Добавим немного логики на закрытие диалога */
+// возвращает: 0 -все ОБИ, 1 или 2 - ошибка и, соответственно, на какой контрол поставить фокус
 int CanCloseDialog(char *Hotkey, char *Label)
 {
   if (strcmp(Hotkey,"-") == 0)
-    return (TRUE);
+    return 0;
   if (strlen(Label) == 0)
-    return (FALSE);
+    return 2;
   if (strlen(Hotkey) < 2)
-    return(TRUE);
+    return 0;
   /* Проверить на правильность задания функциональной клавиши */
   int FuncNum=atoi(&Hotkey[1]);
   if (((*Hotkey == 'f') || (*Hotkey == 'F')) &&
       ((FuncNum > 0) && (FuncNum < 13)))
-    return (TRUE);
-  return (FALSE);
+    return 0;
+  return 1;
 }
 /* VVM $ */
 
@@ -1083,6 +1091,7 @@ int EditMenuRecord(char *MenuKey,int EditPos,int TotalRecords,int NewRec)
   };
   MakeDialogItems(EditDlgData,EditDlg);
 
+  int I;
   char ItemKey[512];
   sprintf(ItemKey,"%s\\Item%d",MenuKey,EditPos);
 
@@ -1134,12 +1143,14 @@ int EditMenuRecord(char *MenuKey,int EditPos,int TotalRecords,int NewRec)
       Dlg.Process();
       if(18==Dlg.GetExitCode())
       {
-       if (CanCloseDialog(EditDlg[2].Data, EditDlg[4].Data))
-         break;
-       Message(MSG_WARNING,1,MSG(MUserMenuTitle),MSG(MUserMenuInvalidInput),MSG(MOk));
-       Dlg.ClearDone();
+         if ((I=CanCloseDialog(EditDlg[2].Data, EditDlg[4].Data)) == 0)
+           break;
+         Message(MSG_WARNING,1,MSG(MUserMenuTitle),MSG((I==1?MUserMenuInvalidInputHotKey:MUserMenuInvalidInputLabel)),MSG(MOk));
+         Dlg.ClearDone();
+         Dialog::SendDlgMessage((HANDLE)&Dlg,DM_SETFOCUS,I*2,0); // Здесь внимательно, если менять дизайн диалога
       }
-      else return FALSE;
+      else
+        return FALSE;
     }
     /* IS $ */
   }
@@ -1155,7 +1166,7 @@ int EditMenuRecord(char *MenuKey,int EditPos,int TotalRecords,int NewRec)
   SetRegKey(ItemKey,"Label",EditDlg[4].Data);
   SetRegKey(ItemKey,"Submenu",(DWORD)0);
 
-  int CommandNumber=0,I;
+  int CommandNumber=0;
   for (I=0;I<10;I++)
     if (*EditDlg[I+7].Data)
       CommandNumber=I+1;
@@ -1187,6 +1198,7 @@ int EditSubMenu(char *MenuKey,int EditPos,int TotalRecords,int NewRec)
   };
   MakeDialogItems(EditDlgData,EditDlg);
 
+  int I;
   char ItemKey[512];
   sprintf(ItemKey,"%s\\Item%d",MenuKey,EditPos);
   if (NewRec)
@@ -1208,12 +1220,14 @@ int EditSubMenu(char *MenuKey,int EditPos,int TotalRecords,int NewRec)
       Dlg.Process();
       if(6==Dlg.GetExitCode())
       {
-       if (CanCloseDialog(EditDlg[2].Data, EditDlg[4].Data))
-         break;
-       Message(MSG_WARNING,1,MSG(MUserMenuTitle),MSG(MUserMenuInvalidInput),MSG(MOk));
-       Dlg.ClearDone();
+        if ((I=CanCloseDialog(EditDlg[2].Data, EditDlg[4].Data)) == 0)
+          break;
+        Message(MSG_WARNING,1,MSG(MUserMenuTitle),MSG((I==1?MUserMenuInvalidInputHotKey:MUserMenuInvalidInputLabel)),MSG(MOk));
+        Dlg.ClearDone();
+        Dialog::SendDlgMessage((HANDLE)&Dlg,DM_SETFOCUS,I*2,0); // Здесь внимательно, если менять дизайн диалога
       }
-      else return FALSE;
+      else
+        return FALSE;
     }
 /*
     Dlg.Process();

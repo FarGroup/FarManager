@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.72 02.09.2003 $ */
+/* Revision: 1.73 03.09.2003 $ */
 
 /*
 Modify:
+  03.09.2003 SVS
+    + QUOTEDNAMETYPE
   02.09.2003 SVS
     + CHKFLD_ERROR
   25.08.2003 SVS
@@ -430,5 +432,11 @@ typedef union {
   WCHAR UnicodeChar;
   CHAR  AsciiChar;
 } CHAR_WCHAR;
+
+// для Opt.QuotedName
+enum QUOTEDNAMETYPE{
+  QUOTEDNAME_INSERT         = 0x00000001,            // кавычить при сбросе в командную строку, в диалогах и редакторе
+  QUOTEDNAME_CLIPBOARD      = 0x00000002,            // кавычить при помещении в буфер обмена
+};
 
 #endif // __FARCONST_HPP__

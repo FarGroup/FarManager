@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.103 25.08.2003 $ */
+/* Revision: 1.104 03.09.2003 $ */
 
 /*
 Modify:
+  25.08.2003 SVS
+    ! Opt.QuotedName - DWORD, т.к. битовые флаги
   25.08.2003 SVS
     + Opt.QuotedName - заключать имена файлов/папок в кавычки
   23.07.2003 SVS
@@ -588,7 +590,7 @@ struct Options
   char WordDiv[256];
   /* SVS $ */
   char QuotedSymbols[32];
-  int QuotedName;
+  DWORD QuotedName;
   int SaveHistory;
   int SaveFoldersHistory;
   int SaveViewHistory;

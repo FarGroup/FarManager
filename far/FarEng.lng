@@ -1395,7 +1395,8 @@
 "Local menu"
 "Do you wish to delete the menu item"
 "Do you wish to delete the submenu"
-"Invalid format for UserMenu Label or HotKey!"
+"Invalid format for UserMenu Label!"
+"Invalid format for Hot Key!"
 
 "Edit user menu"
 "&Hot key:"

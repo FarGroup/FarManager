@@ -15,10 +15,13 @@ lang.hpp
 
 */
 
-/* Revision: 1.127 31.08.2003 $ */
+/* Revision: 1.128 03.09.2003 $ */
 
 /*
 Modify:
+  03.09.2003 SVS
+    ! Вместо MUserMenuInvalidInput добавлена пара: MUserMenuInvalidInputLabel
+      и MUserMenuInvalidInputHotKey,
   31.08.2003 SVS
     + MOpenPluginCannotOpenFile
   29.07.2003 SVS
@@ -1710,7 +1713,8 @@ enum
   MLocalMenuTitle,
   MAskDeleteMenuItem,
   MAskDeleteSubMenuItem,
-  MUserMenuInvalidInput,
+  MUserMenuInvalidInputLabel,
+  MUserMenuInvalidInputHotKey,
 
   MEditMenuTitle,
   MEditMenuHotKey,

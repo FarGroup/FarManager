@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.98 25.08.2003 $ */
+/* Revision: 1.99 03.09.2003 $ */
 
 /*
 Modify:
+  03.09.2003 SVS
+    ! При откавычивании учтем биты QUOTEDNAME_
   25.08.2003 SVS
     + Opt.QuotedName - заключать имена файлов/папок в кавычки
   08.05.2003 SVS
@@ -827,7 +829,7 @@ int Edit::ProcessInsPath(int Key,int PrevSelStart,int PrevSelEnd)
               strcat(FileList::AddPluginPrefix(SrcFilePanel,PathName),NullToEmpty(Info.CurDir));
             }
             AddEndSlash(PathName);
-            if(Opt.QuotedName)
+            if(Opt.QuotedName&QUOTEDNAME_INSERT)
               QuoteSpace(PathName);
           }
 

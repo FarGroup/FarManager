@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.63 21.08.2003 $ */
+/* Revision: 1.64 03.09.2003 $ */
 
 /*
 Modify:
+  03.09.2003 SVS
+    + Продвинутый вариант промптера, как в XP. Добавил, чтобы не потерялось (трудные времена настают :-(
   21.08.2003 SVS
     ! Сделаем LastCmdStr динамической переменной.
       Отсюда все остальные изменения
@@ -554,6 +556,7 @@ int CommandLine::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 void CommandLine::GetPrompt(char *DestStr)
 {
+#if 1
   char FormatStr[512],ExpandedFormatStr[512];
   strncpy(FormatStr,Opt.UsePromptFormat ? Opt.PromptFormat:"$p$g",sizeof(FormatStr)-1);
   char *Format=FormatStr;
@@ -592,6 +595,87 @@ void CommandLine::GetPrompt(char *DestStr)
       *(DestStr++)=*(Format++);
   }
   *DestStr=0;
+#else
+  // продвинутый вариант промптера, как в XP
+  if (Opt.UsePromptFormat)
+  {
+    char FormatStr[512],ExpandedFormatStr[512];
+    strcpy(FormatStr,Opt.PromptFormat);
+    char *Format=FormatStr;
+    ExpandEnvironmentStr(FormatStr,ExpandedFormatStr,sizeof(ExpandedFormatStr));
+    Format=ExpandedFormatStr;
+    char ChrFmt[][2]={
+      {'A','&'},   // $A - & (Ampersand)
+      {'B','|'},   // $B - | (pipe)
+      {'C','('},   // $C - ( (Left parenthesis)
+      {'F',')'},   // $F - ) (Right parenthesis)
+      {'G','>'},   // $G - > (greater-than sign)
+      {'L','<'},   // $L - < (less-than sign)
+      {'Q','='},   // $Q - = (equal sign)
+      {'S',' '},   // $S - (space)
+      {'$','$'},   // $$ - $ (dollar sign)
+    };
+    while (*Format)
+    {
+      if (*Format=='$')
+      {
+        char Chr=toupper(*++Format);
+        int I;
+        for(I=0; I < sizeof(ChrFmt)/sizeof(ChrFmt[0]); ++I)
+        {
+          if(ChrFmt[I][0] == Chr)
+          {
+            *(DestStr++)=ChrFmt[I][1];
+            break;
+          }
+        }
+
+        if(I == sizeof(ChrFmt)/sizeof(ChrFmt[0]))
+        {
+          switch(Chr)
+          {
+            /* эти не раелизованы
+            $E - Escape code (ASCII code 27)
+            $V - Windows XP version number
+            $_ - Carriage return and linefeed
+            */
+            case 'H': // $H - Backspace (erases previous character)
+              DestStr--;
+              break;
+            case 'D': // $D - Current date
+            case 'T': // $T - Current time
+            {
+              char DateTime[64];
+              MkStrFTime(DateTime,sizeof(DateTime)-1,(Chr=='D'?"%D":"%T"));
+              strcpy(DestStr,DateTime);
+              DestStr+=strlen(DateTime);
+              break;
+            }
+            case 'N': // $N - Current drive
+              if (IsLocalPath(CurDir) && CurDir[2]=='\\')
+                *(DestStr++)=LocalUpper(*CurDir);
+              else
+                *(DestStr++)='?';
+              break;
+            case 'P': // $P - Current drive and path
+              strcpy(DestStr,CurDir);
+              DestStr+=strlen(CurDir);
+              break;
+          }
+        }
+        Format++;
+      }
+      else
+        *(DestStr++)=*(Format++);
+    }
+    *DestStr=0;
+  }
+  else // default prompt = "$p$g"
+  {
+    strcpy(DestStr,CurDir);
+    strcat(DestStr,">");
+  }
+#endif
 }
 
 
