@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.33 18.05.2001 $ */
+/* Revision: 1.34 26.05.2001 $ */
 
 /*
 Modify:
+  26.05.2001 OT
+    - »справление наведенного NFZ-бага - не отрсовка в диалогах копировани€, удалени€...
   18.05.2001 DJ
     + #include "colors.hpp"
   17.05.2001 SKV
@@ -115,6 +117,7 @@ Modify:
 #include "chgprior.hpp"
 #include "scantree.hpp"
 #include "savescr.hpp"
+#include "manager.hpp"
 
 #define COPY_BUFFER_SIZE 0x10000
 
@@ -171,6 +174,9 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
               MSG(MOk));
     return;
   }
+/*& 26.05.2001 OT «апретить перерисовку панелей во врем€ копировани€ */
+  (*FrameManager)[0]->LockRefresh();
+/* OT &*/
 
   const char *HistoryName="Copy";
   static struct DialogData CopyDlgData[]={
@@ -384,7 +390,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
     Dlg.SetHelp(Link?"HardSymLink":"CopyFiles");
     Dlg.SetPosition(-1,-1,76,11);
 
-    Dlg.Show();
+//    Dlg.Show();
     Dlg.Process();
     if(Dlg.GetExitCode() != 7)
     {
@@ -649,6 +655,11 @@ ShellCopy::~ShellCopy()
        раз уж вызвали new[], то в придачу и delete[] надо... */
   delete[] CopyBuffer;
   /* SVS $ */
+/*& 26.05.2001 OT –азрешить перерисовку панелей */
+  (*FrameManager)[0]->UnlockRefresh();
+/* OT &*/
+
+
 }
 
 

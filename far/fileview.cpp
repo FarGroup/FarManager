@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.32 20.05.2001 $ */
+/* Revision: 1.33 26.05.2001 $ */
 
 /*
 Modify:
+  26.05.2001 OT
+    - ¬ьюер возможно запускать в модальном режиме
   20.05.2001 DJ
     - починим макросы
   15.05.2001 OT
@@ -181,7 +183,11 @@ void FileViewer::Init(char *name,int EnableSwitch,int disableHistory,  ///
   SetFarTitle(NewTitle);
   ShowConsoleTitle();
   F3KeyOnly=TRUE;
-  FrameManager->InsertFrame(this);
+  if (EnableSwitch) {
+    FrameManager->InsertFrame(this);
+  } else {
+    FrameManager->ExecuteFrame(this);
+  }
 }
 
 

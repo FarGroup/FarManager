@@ -5,10 +5,13 @@ help.cpp
 
 */
 
-/* Revision: 1.23 16.05.2001 $ */
+/* Revision: 1.24 26.05.2001 $ */
 
 /*
 Modify:
+  26.05.2001 OT
+    - Выпрямление логики вызовов в NFZ
+    - По умолчанию хелпы создаются статически. 
   16.05.2001 DJ
     ! proof-of-concept
   15.05.2001 OT
@@ -102,6 +105,9 @@ static int RunURL(char *Protocol, char *URLPath);
 
 Help::Help(char *Topic, char *Mask,DWORD Flags)
 {
+  /* $ OT По умолчанию все хелпы создаются статически*/
+  SetDynamicallyBorn(FALSE);
+
   CanLoseFocus=FALSE;
   Help::Flags=Flags;
   /* $ 12.04.2001 SVS
@@ -158,7 +164,7 @@ Help::Help(char *Topic, char *Mask,DWORD Flags)
   {
     InitKeyBar();
     MacroMode = MACRO_HELP;
-    FrameManager->ExecuteModal (*this);
+    FrameManager->ExecuteModal (this);//OT
   }
   else
   {
@@ -173,6 +179,9 @@ Help::Help(char *Topic, char *Mask,DWORD Flags)
 */
 Help::Help(char *Topic,int &ShowPrev,int PrevFullScreen,DWORD Flags,char *Mask)
 {
+  /* $ OT По умолчанию все хелпы создаются статически*/
+  SetDynamicallyBorn(FALSE);
+
   CanLoseFocus=FALSE;
   Help::Flags=Flags;
   //if (PrevMacroMode!=MACRO_HELP) {
@@ -217,7 +226,7 @@ Help::Help(char *Topic,int &ShowPrev,int PrevFullScreen,DWORD Flags,char *Mask)
   {
     InitKeyBar();
     MacroMode = MACRO_HELP;
-    FrameManager->ExecuteModal (*this);
+    FrameManager->ExecuteModal (this);//OT
     ShowPrev=Help::ShowPrev;
   }
   else

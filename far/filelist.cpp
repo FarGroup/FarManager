@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.56 21.05.2001 $ */
+/* Revision: 1.57 26.05.2001 $ */
 
 /*
 Modify:
+  26.05.2001 OT
+    - Выпрямление логики вызовов в NFZ
   21.05.2001 SVS
     ! struct MenuData|MenuItem
       Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
@@ -1127,25 +1129,14 @@ int FileList::ProcessKey(int Key)
                 if (PluginMode)
                 {
                   FileEditor ShellEditor (FileName,Key==KEY_SHIFTF4,FALSE,-1,-1,TRUE,PluginData);
-                  FrameManager->ExecuteModal(ShellEditor);
+                  FrameManager->ExecuteModal();//OT
                   UploadFile=ShellEditor.IsFileChanged();
                   Modaling=TRUE;///
                 }
                 else
                 {
                   FileEditor *ShellEditor=new FileEditor(FileName,Key==KEY_SHIFTF4,TRUE);
-/*                  int ExitCode=ShellEditor->GetExitCode();
-                  if (XC_QUIT==ExitCode) {
-                    delete ShellEditor;
-                    return TRUE;
-                  } else if (-1==ExitCode){
-                    FrameManager->InsertFrame(ShellEditor);
-                    Modaling=FALSE;
-                    break;
-                  } else if (-2==ExitCode){
-                    return TRUE;
-                  }
-*/
+                  FrameManager->ExecuteModal();//OT
                 }
             if (PluginMode && UploadFile)
             {
@@ -1201,6 +1192,7 @@ int FileList::ProcessKey(int Key)
                   ViewList.SetCurName(FileName);
                 }
                 FileViewer *ShellViewer=new FileViewer(FileName,TRUE,PluginMode,PluginMode,-1,PluginData,&ViewList);
+#if 0
                 /* $ 11.05.2001 VVM
                   - Проверить, открылся ли файл... */
                 if (ShellViewer->GetExitCode() != FALSE)
@@ -1213,6 +1205,7 @@ int FileList::ProcessKey(int Key)
                   delete ShellViewer;
                 Modaling=FALSE; ///
                 /* VVM $ */
+#endif 0
               }
           }
         if (PluginMode)

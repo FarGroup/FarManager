@@ -5,10 +5,13 @@ Parent class для немодальных объектов
 
 */
 
-/* Revision: 1.08 16.05.2001 $ */
+/* Revision: 1.09 26.05.2001 $ */
 
 /*
 Modify:
+  26.05.2001 OT
+    + Новый атрибут - DynamicallyBorn - показывает, статически или динамически был создан объект
+    + Возможность блокировки перерисовки фрейма: LockRefreshCount, LockRefresh(),UnlockRefresh(),Refreshable()
   16.05.2001 SVS
     ! _D() -> _OT()
   15.05.2001 OT
@@ -45,7 +48,8 @@ Frame::Frame()
   FrameKeyBar=NULL;
   ModalStack=NULL;
   ModalStackCount = ModalStackSize=0;
-
+  DynamicallyBorn=TRUE; //OT
+  LockRefreshCount=0;
 }
 
 Frame::~Frame()

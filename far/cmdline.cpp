@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.24 17.05.2001 $ */
+/* Revision: 1.25 26.05.2001 $ */
 
 /*
 Modify:
+  26.05.2001 OT
+    - Выпрямление логики вызовов в NFZ
   17.05.2001 OT
     - Отрисовка при изменении размеров консоли - ResizeConsole().
   15.05.2001 OT
@@ -744,10 +746,10 @@ void CommandLine::ShowViewEditHistory()
     switch(Type)
     {
     case 0:
-      FrameManager->InsertFrame(new FileViewer(Str,TRUE));
+      new FileViewer(Str,TRUE);
       break;
     case 1:
-      FrameManager->InsertFrame(new FileEditor(Str,FALSE,TRUE));
+      new FileEditor(Str,FALSE,TRUE);
       break;
     case 2:
     case 3:

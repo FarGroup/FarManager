@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.61 21.05.2001 $ */
+/* Revision: 1.62 26.05.2001 $ */
 
 /*
 Modify:
+  26.05.2001 OT
+    - Выпрямление логики вызовов в NFZ
   21.05.2001 DJ
     + FDLG_NONMODAL
   21.05.2001 SVS
@@ -349,7 +351,7 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
       Return - TRUE - успешное извлечение, FALSE - ошибка.
     */
     case ACTL_EJECTMEDIA:
-      return Param?EjectVolume(((ActlEjectMedia*)Param)->Letter,
+      return Param?EjectVolume((char)((ActlEjectMedia*)Param)->Letter,
                                ((ActlEjectMedia*)Param)->Flags):FALSE;
 
     /* $ 21.12.2000 SVS
@@ -1183,7 +1185,7 @@ int WINAPI FarViewer(char *FileName,char *Title,int X1,int Y1,int X2,
     /* $ 12.05.2001 DJ */
     Viewer->SetEnableF6 ((Flags & VF_ENABLE_F6) != 0);
     /* DJ $ */
-    FrameManager->InsertFrame(Viewer);
+// OT    FrameManager->InsertFrame(Viewer);
   }
   else
   {
@@ -1194,7 +1196,7 @@ int WINAPI FarViewer(char *FileName,char *Title,int X1,int Y1,int X2,
     Viewer.SetEnableF6 ((Flags & VF_ENABLE_F6) != 0);
     /* DJ $ */
     SetConsoleTitle(OldTitle);
-    FrameManager->ExecuteModal(Viewer);
+    FrameManager->ExecuteModal();//OT
     return TRUE;
   }
   return(TRUE);
@@ -1228,7 +1230,7 @@ int WINAPI FarEditor(char *FileName,char *Title,int X1,int Y1,int X2,
       /* $ 12.05.2001 DJ */
       Editor->SetEnableF6 ((Flags & EF_ENABLE_F6) != 0);
       /* DJ $ */
-      FrameManager->InsertFrame(Editor);
+// OT      FrameManager->InsertFrame(Editor);
       ExitCode=TRUE;
     }
   }
@@ -1239,7 +1241,7 @@ int WINAPI FarEditor(char *FileName,char *Title,int X1,int Y1,int X2,
    Editor.SetEnableF6 ((Flags & EF_ENABLE_F6) != 0);
    /* DJ $ */
    SetConsoleTitle(OldTitle);
-   FrameManager->ExecuteModal (Editor); //##
+   FrameManager->ExecuteModal(); //OT
    return TRUE;
   }
   return ExitCode;

@@ -8,10 +8,14 @@ frame.hpp
 
 */
 
-/* Revision: 1.07 18.05.2001 */
+/* Revision: 1.08 26.05.2001 */
 
 /*
 Modify:
+  26.05.2001 OT
+    + Новый атрибут - DynamicallyBorn - показывает, статически или динамически был создан объект
+    + SetDynamicallyBorn() и GetDynamicallyBorn()
+    + Возможность блокировки перерисовки фрейма: LockRefreshCount, LockRefresh(),UnlockRefresh(),Refreshable()
   18.05.2001 DJ
     ! Функция SetExitCode() теперь виртуальная
   15.05.2001 OT
@@ -50,12 +54,15 @@ class Frame: public ScreenObject
     Frame **ModalStack;
     int  ModalStackCount, ModalStackSize;
 
+
   protected:
+    int  DynamicallyBorn;
     int  CanLoseFocus;
     int  ExitCode;
     int  KeyBarVisible;
     KeyBar *FrameKeyBar;
     int MacroMode;
+    int LockRefreshCount;
 
   public:
     Frame();
@@ -90,8 +97,13 @@ class Frame: public ScreenObject
     bool Pop();
     Frame *operator[](int Index);
     int operator[](Frame *ModalFarame);
-    int ModalCount() {return ModalStackCount;};
+    int ModalCount() {return ModalStackCount;}
     void DestroyAllModal();
+    void SetDynamicallyBorn(int Born) {DynamicallyBorn=Born;}
+    int GetDynamicallyBorn(){return DynamicallyBorn;};
+    void LockRefresh() {LockRefreshCount++;}
+    void UnlockRefresh() {LockRefreshCount--;}
+    int Refreshable() {return !LockRefreshCount;}
 };
 
 #endif // __FRAME_HPP__

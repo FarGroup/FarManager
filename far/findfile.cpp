@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.25 25.05.2001 $ */
+/* Revision: 1.26 26.05.2001 $ */
 
 /*
 Modify:
+  26.05.2001 OT
+    ! Починка AltF7 в NFZ
   25.05.2001 DJ
     - ставим правильный цвет для disabled строчек
   21.05.2001 SVS
@@ -389,15 +391,16 @@ int FindFiles::FindFilesProcess()
 
   {
     DlgWidth=FindDlg[0].X2-FindDlg[0].X1-4;
-    Dialog Dlg(FindDlg,sizeof(FindDlg)/sizeof(FindDlg[0]));
-    Dlg.SetHelp("FindFile");
+    Dialog *pDlg=new Dialog(FindDlg,sizeof(FindDlg)/sizeof(FindDlg[0]));
+    pDlg->SetDynamicallyBorn(TRUE);
+    pDlg->SetHelp("FindFile");
     /* $ 10.09.2000 SVS
        Запрещаем двигать диалог
     */
-    Dlg.SetModeMoving(FALSE);
+    pDlg->SetModeMoving(FALSE);
     /* SVS $ */
-    Dlg.SetPosition(-1,-1,76,21+IncY);
-    Dlg.Show();
+    pDlg->SetPosition(-1,-1,76,21+IncY);
+    pDlg->Show();
 
     VMenu FindList("",NULL,0,13+IncY);
     FindList.SetDialogStyle(TRUE);
@@ -411,7 +414,7 @@ int FindFiles::FindFilesProcess()
     /* DJ $ */
 
     int DlgX1,DlgY1,DlgX2,DlgY2;
-    Dlg.GetPosition(DlgX1,DlgY1,DlgX2,DlgY2);
+    pDlg->GetPosition(DlgX1,DlgY1,DlgX2,DlgY2);
     FindList.SetPosition(DlgX1+4,DlgY1+1,DlgX2-4,DlgY2-5);
     FindList.Show();
     LastFoundNumber=0;
@@ -450,9 +453,9 @@ int FindFiles::FindFilesProcess()
       INPUT_RECORD rec;
       int Key;
 
-      if (Dlg.Done())
+      if (pDlg->Done())
       {
-        DlgExitCode=Dlg.GetExitCode();
+        DlgExitCode=pDlg->GetExitCode();
         switch (DlgExitCode)
         {
           case 4:
@@ -488,32 +491,34 @@ int FindFiles::FindFilesProcess()
                       ViewList.SetCurName(FileFindData.cFileName);
                     }
                     FindList.Hide();
-                    Dlg.Hide();
+                    pDlg->Hide();
                     {
                       FileViewer ShellViewer (FileFindData.cFileName,FALSE,FALSE,FALSE,-1,NULL,&ViewList);//?
-                      FrameManager->ExecuteModal (ShellViewer);
+                      ShellViewer.SetDynamicallyBorn(FALSE);
+                      FrameManager->ExecuteModal ();//OT
                     }
-                    Dlg.Show();
+                    pDlg->Show();
                     FindList.Show();
                   }
                   else
                   {
                     FindList.Hide();
-                    Dlg.Hide();
+                    pDlg->Hide();
                     {
                       FileEditor ShellEditor (FileFindData.cFileName,FALSE,FALSE);
+                      ShellEditor.SetDynamicallyBorn(FALSE);
                       ShellEditor.SetEnableF6 (TRUE);
-                      FrameManager->ExecuteModal (ShellEditor);
+                      FrameManager->ExecuteModal ();//OT
                     }
-                    Dlg.Show();
+                    pDlg->Show();
                     FindList.Show();
                   }
                   SetConsoleTitle(OldTitle);
                 }
               }
             }
-            Dlg.ClearDone();
-//            Dlg.Show();
+            pDlg->ClearDone();
+//            pDlg->Show();
             FindList.SetUpdateRequired(TRUE);
             FindList.Show();
             continue;
@@ -521,7 +526,7 @@ int FindFiles::FindFilesProcess()
             if (SearchDone)
               return(FALSE);
             StopSearch=TRUE;
-            Dlg.ClearDone();
+            pDlg->ClearDone();
             continue;
         }
         break;
@@ -544,10 +549,10 @@ int FindFiles::FindFilesProcess()
           if (FindList.ProcessMouse(&rec.Event.MouseEvent))
           {
             if (rec.Event.MouseEvent.dwEventFlags==DOUBLE_CLICK)
-              Dlg.ProcessKey(KEY_ENTER);
+              pDlg->ProcessKey(KEY_ENTER);
           }
           else
-            Dlg.ProcessMouse(&rec.Event.MouseEvent);
+            pDlg->ProcessMouse(&rec.Event.MouseEvent);
         }
         else
         {
@@ -557,12 +562,12 @@ int FindFiles::FindFilesProcess()
           {
             if (Key==KEY_F3 || Key==KEY_NUMPAD5)
             {
-              Dlg.SetExitCode(6);
+              pDlg->SetExitCode(6);
               continue;
             }
             if (Key==KEY_F4)
             {
-              Dlg.SetExitCode(100);
+              pDlg->SetExitCode(100);
               continue;
             }
           }
@@ -580,7 +585,7 @@ int FindFiles::FindFilesProcess()
           else
           {
             if (Key!=KEY_ENTER || !FindDlg[5].Focus || FindList.GetUserData(NULL,0))
-              if (Dlg.ProcessKey(Key))
+              if (pDlg->ProcessKey(Key))
               {
                 FindList.SetUpdateRequired(TRUE);
                 FindList.Show();
@@ -604,7 +609,7 @@ int FindFiles::FindFilesProcess()
         if (FindCountReady)
         {
           int DlgX1,DlgY1,DlgX2,DlgY2;
-          Dlg.GetPosition(DlgX1,DlgY1,DlgX2,DlgY2);
+          pDlg->GetPosition(DlgX1,DlgY1,DlgX2,DlgY2);
           char Msg[256];
           sprintf(Msg," %s: %d ",MSG(MFindFound),FileCount);
           GotoXY(DlgX1+(DlgX2-DlgX1-strlen(Msg)+1)/2,DlgY1+FindDlg[1].Y1);
@@ -619,8 +624,8 @@ int FindFiles::FindFilesProcess()
           {
             sprintf(FindDlg[2].Data,"%-*.*s",DlgWidth,DlgWidth,FindMessage);
             strcpy(FindDlg[8].Data,MSG(MFindCancel));
-            Dlg.InitDialogObjects();
-            Dlg.Show();
+            pDlg->InitDialogObjects();
+            pDlg->Show();
             FindList.SetUpdateRequired(TRUE);
             FindList.Show();
             SetFarTitle(FindMessage);
@@ -628,7 +633,7 @@ int FindFiles::FindFilesProcess()
           else
           {
             int DlgX1,DlgY1,DlgX2,DlgY2,TextX;
-            Dlg.GetPosition(DlgX1,DlgY1,DlgX2,DlgY2);
+            pDlg->GetPosition(DlgX1,DlgY1,DlgX2,DlgY2);
             TextX=DlgX1+FindDlg[2].X1+strlen(FindDlg[2].Data)+1;
             GotoXY(TextX,DlgY1+FindDlg[2].Y1);
             SetColor(COL_DIALOGTEXT);
@@ -658,7 +663,7 @@ int FindFiles::FindFilesProcess()
       Sleep(10);
 
     FindList.Hide();
-    Dlg.Hide();
+    pDlg->Hide();
 
     delete FindSaveScr;
     FindSaveScr=NULL;

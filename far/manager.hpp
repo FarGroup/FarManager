@@ -7,10 +7,15 @@ manager.hpp
 
 */
 
-/* Revision: 1.13 21.05.2001 $ */
+/* Revision: 1.14 26.05.2001 $ */
 
 /*
 Modify:
+  26.05.2001 OT
+    + Новые методы ExecuteComit(), ExecuteFrame(), IndexOfStack()
+    + Новый член Frame *ExecutedFrameж
+    - удаленные методы и члены типа Destruct
+    - удаление метода ModalSaveState()
   21.05.2001 OT
     + Добавился RefreshedFrame
   21.05.2001 DJ
@@ -68,8 +73,9 @@ class Manager
     Frame *DeactivatedFrame;
     /* OT $*/
     /* $ 21.05.2001 DJ */
-    Frame *FrameToDestruct;  // отложенное удаление для корректной посылки OnChangeFocus(0)
+//    Frame *FrameToDestruct;  // отложенное удаление для корректной посылки OnChangeFocus(0)
     /* DJ $ */
+    Frame *ExecutedFrame;
       
     Frame *CurrentFrame;     // текущий модал
 
@@ -82,7 +88,7 @@ class Manager
 
     INPUT_RECORD LastInputRecord;
 
-    void ModalSaveState();
+//OT    void ModalSaveState();
 
   private:
 
@@ -97,8 +103,9 @@ class Manager
     void InsertCommit();
     void DeleteCommit();
     /* $ 21.05.2001 DJ */
-    void DestructCommit();
+//    void DestructCommit();
     /* DJ $ */
+    void ExecuteCommit();
 
   public:
     Manager();
@@ -109,16 +116,21 @@ class Manager
     void InsertFrame(Frame *NewFrame, int Index=-1);
     void DeleteFrame(Frame *Deleted=NULL);
     void DeleteFrame(int Index);
-    void ModalizeFrame (Frame *Modalized=NULL, int Mode=TRUE); // вместо ExecuteModal
+    void ModalizeFrame (Frame *Modalized=NULL, int Mode=TRUE);
     void DeactivateFrame (Frame *Deactivated,int Direction);
     void ActivateFrame (Frame *Activated);
     void ActivateFrame (int Index);  //вместо ActivateFrameByPos (int NewPos);
     void RefreshFrame(Frame *Refreshed);
     void RefreshFrame(int Index);
-
-
-    int ExecuteModal (Frame &ModalFrame);
-
+// Функции для запуска модальных фреймов.
+    void ExecuteFrame(Frame *Executed, int DynamicallyBorn=FALSE);
+    void ExecuteModal (Frame *Executed=NULL); // возвращает то, что возвращает ModalExitCode();
+  private:
+//    bool IsModalExit();
+    int GetModalExitCode();
+    int ModalExitCode;
+//OT
+  public:
     void CloseAll();
     /* $ 29.12.2000 IS
          Аналог CloseAll, но разрешает продолжение полноценной работы в фаре,
@@ -163,6 +175,8 @@ class Manager
     */
     int IndexOf(Frame *Frame);
     /* DJ $ */
+
+    int IndexOfStack(Frame *Frame);
 };
 
 extern Manager *FrameManager;

@@ -5,10 +5,12 @@ infolist.cpp
 
 */
 
-/* Revision: 1.19 16.05.2001 $ */
+/* Revision: 1.20 23.05.2001 $ */
 
 /*
 Modify:
+  23.05.2001 OT
+    - Выпрямление логики вызовов в NFZ
   16.05.2001 DJ
     ! proof-of-concept
   15.05.2001 OT
@@ -328,7 +330,7 @@ int InfoList::ProcessKey(int Key)
       {
         CtrlObject->Cp()->GetAnotherPanel(this)->GetCurDir(CurDir);
         chdir(CurDir);
-        FrameManager->InsertFrame(new FileViewer(DizFileName,TRUE));
+        new FileViewer(DizFileName,TRUE);//OT
       }
       /* $ 20.07.2000 tran
          после показа перерисовываем панели */
@@ -346,7 +348,7 @@ int InfoList::ProcessKey(int Key)
         AnotherPanel->GetCurDir(CurDir);
         chdir(CurDir);
         if (*DizFileName)
-          FrameManager->InsertFrame(new FileEditor(DizFileName,FALSE,TRUE));
+          new FileEditor(DizFileName,FALSE,TRUE);
         else if (*Opt.FolderInfoFiles)
         {
           char ArgName[NM];
@@ -355,7 +357,7 @@ int InfoList::ProcessKey(int Key)
           {
             if (!strpbrk (ArgName, "*?"))
             {
-              FrameManager->InsertFrame(new FileEditor(ArgName,TRUE,TRUE));
+              new FileEditor(ArgName,TRUE,TRUE);
               break;
             }
           }

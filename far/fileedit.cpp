@@ -5,10 +5,13 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.47 23.05.2001 $ */
+/* Revision: 1.48 26.05.2001 $ */
 
 /*
 Modify:
+  26.05.2001 OT
+    - Выпрямление логики вызовов в NFZ
+    - Редактор возможно запускать в модальном режиме
   23.05.2001 OT
     + Опция AllowReedit
     ! Исправление бага из-за которго файл трапался по отмене ReloadAgain
@@ -195,8 +198,7 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
   }
 
   /*$ 11.05.2001 OT */
-  if (EnableSwitch)
-  {
+  if (EnableSwitch){
     int FramePos=FrameManager->FindFrameByFile(MODALTYPE_EDITOR,FullFileName);
     if (FramePos!=-1) {
       int SwitchTo=FALSE;
@@ -210,7 +212,6 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
         case 1:
           if (Opt.Confirm.AllowReedit){
             SwitchTo=FALSE;
-//            SetExitCode(-1);
           }else {
             FrameManager->DeleteFrame(FramePos);
             SetExitCode(-2);
@@ -291,8 +292,14 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
   InitKeyBar();
   /* SVS $*/
 
-   MacroMode=MACRO_EDITOR;
-   FrameManager->InsertFrame(this);
+  MacroMode=MACRO_EDITOR;
+/*& OT */
+  if (EnableSwitch){
+    FrameManager->InsertFrame(this);
+  } else {
+    FrameManager->ExecuteFrame(this);
+  }
+/* OT &*/
 
 }
 
@@ -497,7 +504,7 @@ int FileEditor::ProcessKey(int Key)
           FileViewer *Viewer = new FileViewer (FullFileName, GetCanLoseFocus(), FALSE,
             FALSE, FilePos, NULL, EditNamesList);
           /* DJ $ */
-          FrameManager->InsertFrame (Viewer);
+//OT          FrameManager->InsertFrame (Viewer);
           /* DJ $ */
         }
         /* IS $ */

@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.105 24.05.2001 $ */
+/* Revision: 1.106 26.05.2001 $ */
 
 /*
 Modify:
+  26.05.2001 OT
+   - Выпрямление логики вызовов в NFZ
+   + Добавление признака способа "конструирования" объекта
   24.05.2001 SVS
    ! Если используется USeLastHistory, то учитываем флаг в реестре, который
      нам подскажет - а нужно ли вообще...
@@ -474,6 +477,8 @@ static char fmtSavedDialogHistory[]="SavedDialogHistory\\%s";
 Dialog::Dialog(struct DialogItem *Item,int ItemCount,
                FARWINDOWPROC DlgProc,long InitParam)
 {
+  /* $ OT По умолчанию все диалоги создаются статически*/
+  SetDynamicallyBorn(FALSE);
   /* $ 17.05.2001 DJ */
   CanLoseFocus = FALSE;
   HelpTopic = NULL;
@@ -3895,7 +3900,7 @@ void Dialog::Process()
   /* $ 17.05.2001 DJ
      NDZ
   */
-  FrameManager->ExecuteModal (*this);
+  FrameManager->ExecuteModal (this);
   /* DJ $ */
 }
 /* SVS $ */
