@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.133 18.05.2002 $ */
+/* Revision: 1.134 22.05.2002 $ */
 
 /*
 Modify:
+  22.05.2002 SKV
+    + ?F_IMMEDIATERETURN
   18.05.2002 SVS
     ! Удавлен жучара, из-за которого не было возможности вводить ФЛАГИ
       Закомментим SetOwnsItems до той поры, пока не появятся немодальные
@@ -1875,7 +1877,16 @@ int WINAPI FarViewer(const char *FileName,const char *Title,
     /* $ 12.05.2001 DJ */
     Viewer->SetEnableF6 ((Flags & VF_ENABLE_F6) != 0);
     /* DJ $ */
-    FrameManager->ExecuteNonModal();
+
+    /* $ 21.05.2002 SKV
+      Запускаем свой цикл только если
+      не был указан флаг.
+    */
+    if(!(Flags&VF_IMMEDIATERETURN))
+    {
+      FrameManager->ExecuteNonModal();
+    }
+    /* SKV $ */
   }
   else
   {
@@ -1956,7 +1967,15 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
       /* $ 12.05.2001 DJ */
       Editor->SetEnableF6 ((Flags & EF_ENABLE_F6) != 0);
       /* DJ $ */
-      FrameManager->ExecuteNonModal();
+      /* $ 21.05.2002 SKV
+        Запускаем свой цикл, только если
+        не был указан флаг.
+      */
+      if(!(Flags&EF_IMMEDIATERETURN))
+      {
+        FrameManager->ExecuteNonModal();
+      }
+      /* SKV $ */
       ExitCode=TRUE;
     }
   }

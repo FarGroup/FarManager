@@ -7,10 +7,12 @@ manager.hpp
 
 */
 
-/* Revision: 1.30 15.05.2002 $ */
+/* Revision: 1.31 22.05.2002 $ */
 
 /*
 Modify:
+  22.05.2002 SKV
+    + SemiModalBackFrames удалены за ненадобностью
   15.05.2002 SKV
     + Счётчик мадалов.
     + Список SemiModalBackFrame'ов
@@ -118,9 +120,9 @@ class Manager
     /* $ 15.05.2002 SKV
       Теперь это список.
     */
-    Frame **SemiModalBackFrames;
+    /*Frame **SemiModalBackFrames;
     int SemiModalBackFramesCount;
-    int SemiModalBackFramesSize;
+    int SemiModalBackFramesSize;*/
     /* SKV $ */
 
     /* $ 15.05.2002 SKV
@@ -159,9 +161,9 @@ class Manager
 
     int GetModalExitCode();
 
-    void AddSemiModalBackFrame(Frame* frame);
+    /*void AddSemiModalBackFrame(Frame* frame);
     BOOL IsSemiModalBackFrame(Frame *frame);
-    void RemoveSemiModalBackFrame(Frame* frame);
+    void RemoveSemiModalBackFrame(Frame* frame);*/
 
   public:
     Manager();

@@ -5,10 +5,13 @@ manager.cpp
 
 */
 
-/* Revision: 1.73 15.05.2002 $ */
+/* Revision: 1.74 22.05.2002 $ */
 
 /*
 Modify:
+  22.05.2002 SKV
+    + удалён институт semimodal фрэймов, и всё что с ним связано.
+    + У ExecuteNonModal своё цикл работы.
   14.05.2002 SKV
     - Куча багов связанных с переключениями между полумодальными
       редакторами и вьюерами.
@@ -270,9 +273,9 @@ Manager::Manager()
   ModalizedFrame=NULL;
   UnmodalizedFrame=NULL;
   ExecutedFrame=NULL;
-  SemiModalBackFrames=NULL; //Теперь это массив
-  SemiModalBackFramesCount=0;
-  SemiModalBackFramesSize=0;
+  //SemiModalBackFrames=NULL; //Теперь это массив
+  //SemiModalBackFramesCount=0;
+  //SemiModalBackFramesSize=0;
   ModalEVCount=0;
 }
 
@@ -282,8 +285,8 @@ Manager::~Manager()
     free(FrameList);
   if (ModalStack)
     free (ModalStack);
-  if (SemiModalBackFrames)
-    free(SemiModalBackFrames);
+  /*if (SemiModalBackFrames)
+    free(SemiModalBackFrames);*/
 }
 
 
@@ -419,8 +422,8 @@ void Manager::ExecuteNonModal ()
   /* $ 14.05.2002 SKV
     Положим текущий фрэйм в список "родителей" полумодальных фрэймов
   */
-  Frame *SaveFrame=CurrentFrame;
-  AddSemiModalBackFrame(SaveFrame);
+  //Frame *SaveFrame=CurrentFrame;
+  //AddSemiModalBackFrame(SaveFrame);
   /* SKV $ */
   int NonModalIndex=IndexOf(NonModal);
   if (-1==NonModalIndex){
@@ -432,11 +435,20 @@ void Manager::ExecuteNonModal ()
     ActivateFrame(NonModalIndex);
   }
 
-  ExecuteModal(NonModal);
+  //Frame* ModalStartLevel=NonModal;
+  while (1){
+    Commit();
+    if (CurrentFrame!=NonModal){
+      break;
+    }
+    ProcessMainLoop();
+  }
+
+  //ExecuteModal(NonModal);
   /* $ 14.05.2002 SKV
     ... и уберём его же.
   */
-  RemoveSemiModalBackFrame(SaveFrame);
+  //RemoveSemiModalBackFrame(SaveFrame);
   /* SKV $ */
 }
 
@@ -1080,12 +1092,12 @@ void Manager::DeactivateCommit()
   int modalIndex=IndexOfStack(DeactivatedFrame);
   if (-1 != modalIndex && modalIndex== ModalStackCount-1)
   {
-    if (IsSemiModalBackFrame(ActivatedFrame))
+    /*if (IsSemiModalBackFrame(ActivatedFrame))
     { // Является ли "родителем" полумодального фрэйма?
       ModalStackCount--;
     }
     else
-    {
+    {*/
       if(IndexOfStack(ActivatedFrame)==-1)
       {
         ModalStack[ModalStackCount-1]=ActivatedFrame;
@@ -1094,7 +1106,7 @@ void Manager::DeactivateCommit()
       {
         ModalStackCount--;
       }
-    }
+//    }
   }
 }
 
@@ -1487,7 +1499,7 @@ void Manager::InitKeyBar(void)
     FrameList[I]->InitKeyBar();
 }
 
-void Manager::AddSemiModalBackFrame(Frame* frame)
+/*void Manager::AddSemiModalBackFrame(Frame* frame)
 {
   if(SemiModalBackFramesCount>=SemiModalBackFramesSize)
   {
@@ -1526,3 +1538,4 @@ void Manager::RemoveSemiModalBackFrame(Frame* frame)
     }
   }
 }
+*/

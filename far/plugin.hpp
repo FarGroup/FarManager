@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.208 13.05.2002 $ */
+/* Revision: 1.209 22.05.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  22.05.2002 SKV
+    + ?F_IMMEDIATERETURN
   13.05.2002 VVM
     + EditorInfo.WindowPos - номер окна редактора. Может использоваться с ACTL_*WINDOW*
   11.05.2002 SVS
@@ -1417,6 +1419,7 @@ enum VIEWER_FLAGS {
   VF_DELETEONCLOSE  = 0x00000002,
   VF_ENABLE_F6      = 0x00000004,
   VF_DISABLEHISTORY = 0x00000008,
+  VF_IMMEDIATERETURN= 0x00000100,
 };
 
 typedef int (WINAPI *FARAPIVIEWER)(
@@ -1440,6 +1443,7 @@ enum EDITOR_FLAGS {
   EF_BREAKIFOPEN    = 0x00000040,
   EF_NEWIFOPEN      = 0x00000080,
 #endif // END FAR_USE_INTERNALS
+  EF_IMMEDIATERETURN= 0x00000100,
 };
 
 enum EDITOR_EXITCODE{
