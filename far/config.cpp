@@ -5,10 +5,13 @@ config.cpp
 
 */
 
-/* Revision: 1.09 03.08.2000 $ */
+/* Revision: 1.10 03.08.2000 $ */
 
 /*
 Modify:
+  03.08.2000 SVS
+    + WordDiv в случае пустого (юзвер убил, значит, случайно) ставится
+      стандартный набор
   03.08.2000 SVS
     + WordDiv внесен в Options|Editor settings
   01.08.2000 SVS
@@ -51,6 +54,12 @@ Modify:
 */
 #include "internalheaders.hpp"
 /* IS $ */
+
+/* $ 03.08.2000 SVS
+   Стандартный набор разделителей
+*/
+static char WordDiv0[]="!%^&*()+|{}:\"<>?`-=\\[];',./";
+/* SVS $ */
 
 void SystemSettings()
 {
@@ -517,7 +526,13 @@ void EditorConfig()
   if (Opt.TabSize<1 || Opt.TabSize>512)
     Opt.TabSize=8;
   Opt.EditorCursorBeyondEOL=CfgDlg[15].Selected;
-  strncpy(Opt.WordDiv,CfgDlg[17].Data,sizeof(Opt.WordDiv)-1);
+  /* $ 03.08.2000 SVS
+     Исключаем случайное стирание разделителей ;-)
+  */
+  strncpy(Opt.WordDiv,RemoveExternalSpaces(CfgDlg[17].Data),sizeof(Opt.WordDiv)-1);
+  if(!strlen(Opt.WordDiv))
+     strcpy(Opt.WordDiv,WordDiv0);
+  /* SVS $*/
 }
 /* SVS $ */
 
@@ -603,7 +618,13 @@ void ReadConfig()
   /* $ 03.08.2000 SVS
      Записать разграничитель слов из реестра
   */
-  GetRegKey("Editor","WordDiv",Opt.WordDiv,"!%^&*()+|{}:\"<>?`-=\\[];',./",79);
+  GetRegKey("Editor","WordDiv",Opt.WordDiv,WordDiv0,79);
+  /* SVS $ */
+  /* $ 03.08.2000 SVS
+     Исключаем случайное стирание разделителей ;-)
+  */
+  if(!strlen(Opt.WordDiv))
+     strcpy(Opt.WordDiv,WordDiv0);
   /* SVS $ */
 
   GetRegKey("System","SaveHistory",Opt.SaveHistory,0);

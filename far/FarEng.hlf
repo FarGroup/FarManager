@@ -393,9 +393,10 @@ $ #Command line switches#
            will view dir command output.
 
   /p[<path>]
-           Search "main" plugins in the directory, specified in <path>.
-           If <path> not specified, "main" plugins will not be loaded.
-           In <path> possibled use the Environment Variables.
+           It is also possible to use the Environment variables in
+           the <path>. If <path> not specified, "main" plugins will not
+           be loaded. It is also possible to type the Environment
+           variables in the "/p" command line switch.
 
            For example: far /p%SystemRoot%\Profiles\%USERNAME%\FAR
 
@@ -1026,9 +1027,9 @@ $ #System settings dialog#
                           automatically. Both panel current folders
                           will be saved also.
 
-  #Path for#                Indicate a full path, where FAR will
-  #personal plugins#        search "personal" plugins (possible use
-                          the Environment Variables).
+  #Path for#                Specify a full path, where FAR will look
+  #personal plugins#        for "personal" plugins (it is possible to
+                          use the Environment variables).
 
 @PanelSettings
 $ #Panel settings dialog#
