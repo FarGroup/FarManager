@@ -55,7 +55,7 @@ struct FarStandardFunctions FSF;
 
 #include "marclng.hpp"
 #include "fmt.hpp"
-//#include "farkeys.hpp"
+#include "farkeys.hpp"
 //#ifdef _MSC_VER
 //#include <io.h>  //for mktemp()
 //#endif

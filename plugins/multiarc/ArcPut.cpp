@@ -190,6 +190,18 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     }
 
   }
+  else if(Msg == DN_KEY && Param2 == KEY_SHIFTF1) // Select archiver
+  {
+    if(OLD_DIALOG_STYLE)
+    {
+      Info.SendDlgMessage(hDlg, DN_BTNCLICK, PDI_SELARCBTN, 0);
+    }
+    else
+    {
+      ; // здесь код для раскрытия комбобокса выборора архиватора
+    }
+    return TRUE; // не обрабатывать эту клавишу
+  }
   else if(Msg == DN_BTNCLICK)
   {
     switch(Param1)
