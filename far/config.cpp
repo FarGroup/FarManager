@@ -5,10 +5,13 @@ config.cpp
 
 */
 
-/* Revision: 1.165 07.01.2004 $ */
+/* Revision: 1.166 09.01.2004 $ */
 
 /*
 Modify:
+  09.01.2004 SVS
+    + Opt.ExcludeCmdHistory - в историю только то, что вводили с клавиатуры
+    - Время бездействия в системных параметрах не меняется.
   07.01.2004 SVS
     + XLat.XLatFastFindKey и XLat.XLatAltFastFindKey - транслитерация для FastFind
     + Opt.ExecuteShowErrorMessage
@@ -614,8 +617,8 @@ void SystemSettings()
     Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
     Dlg.SetHelp("SystemSettings");
     Dlg.SetPosition(-1,-1,56,22);
-    Dlg.SetAutomation(6,7,DIF_DISABLE,0,0,DIF_DISABLE);
-    Dlg.SetAutomation(6,8,DIF_DISABLE,0,0,DIF_DISABLE);
+    Dlg.SetAutomation(7,8,DIF_DISABLE,0,0,DIF_DISABLE);
+    Dlg.SetAutomation(7,9,DIF_DISABLE,0,0,DIF_DISABLE);
     Dlg.Process();
     if (Dlg.GetExitCode()!=19)
       return;
@@ -1622,6 +1625,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyFileFilter,"AttrSet",&Opt.OpFilter.FAttr.AttrSet,0,0},
   {1, REG_DWORD,  NKeyFileFilter,"AttrClear",&Opt.OpFilter.FAttr.AttrClear,0,0},
   /* KM $ */
+  {0, REG_DWORD,  NKeySystem,"ExcludeCmdHistory",&Opt.ExcludeCmdHistory,0, 0}, //AN
 };
 
 

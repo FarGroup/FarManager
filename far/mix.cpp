@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.154 27.10.2003 $ */
+/* Revision: 1.155 09.02.2004 $ */
 
 /*
 Modify:
+  09.02.2004 SVS
+    + SaveAllCurDir/RestoreAllCurDir - сохранение/восстановление переменных среды типа "=A:"
   27.10.2003 SVS
     - Падение ФАРа при запуске в случае недоступности примонтированного диска.
   26.10.2003 KM
@@ -508,6 +510,42 @@ __int64 filelen64(FILE *FPtr)
   SaveFilePos SavePos(FPtr);
   fseek64(FPtr,0,SEEK_END);
   return(ftell64(FPtr));
+}
+
+
+UserDefinedList *SaveAllCurDir(void)
+{
+  UserDefinedList *DirList=new UserDefinedList(0,0,0);
+  if(!DirList)
+    return NULL;
+
+  char CurDir[NM*2], Drive[4]="=A:";
+  for(int I='A'; I <= 'Z'; ++I)
+  {
+    Drive[1]=I;
+    DirList->AddItem(Drive);
+    char *Ptr=CurDir;
+    if(!GetEnvironmentVariable(Drive,CurDir,sizeof(CurDir)))  // окружения
+      Ptr="\x01";
+    DirList->AddItem(Ptr);
+  }
+  return DirList;
+}
+
+void RestoreAllCurDir(UserDefinedList *DirList)
+{
+  if(!DirList)
+    return;
+
+  char Drive[NM*2];
+  const char *NamePtr;
+  while(NULL!=(NamePtr=DirList->GetNext()))
+  {
+    strncpy(Drive,NamePtr,sizeof(Drive)-1);
+    if((NamePtr=DirList->GetNext()) != NULL)
+      SetEnvironmentVariable(Drive,(*NamePtr == '\x1'?"":NamePtr));
+  }
+  delete DirList;
 }
 
 

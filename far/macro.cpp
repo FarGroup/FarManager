@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.114 25.12.2003 $ */
+/* Revision: 1.115 09.02.2004 $ */
 
 /*
 Modify:
+  09.02.2004 SVS
+    + MCODE_F_SWITCHKBD ($KbdSwitch) - просто переключить раскладку клавиатуры
   25.12.2003 SVS
     - падение ФАРа при повторном использовании макроса - не инициализ. Src
   20.12.2003 IS
@@ -413,6 +415,7 @@ enum MACRO_OP_CODE {
 
   // функции
   MCODE_F_XLAT,                  // вызывать XLat: Param=0 или 1
+  MCODE_F_SWITCHKBD,             // переключить раскладку клавиатуры
 
   // булевые условия
   MCODE_C_DISABLEOUTPUT,         // вывод запрещен?
@@ -540,6 +543,7 @@ static struct TKeyCodeName{
 #if defined(MOUSEKEY)
    { KEY_MACROSELWORD,              8, "$SelWord" },
 #endif
+   { MCODE_F_SWITCHKBD,            10, "$KbdSwitch"},
    { MCODE_OP_ENDREP,               7, "$EndRep"  },
    { MCODE_OP_ENDIF,                6, "$EndIf"   },
    { MCODE_OP_MACROMODE,            6, "$MMode"   },
@@ -1239,6 +1243,17 @@ done:
 
   switch(Key)
   {
+    case MCODE_F_SWITCHKBD:
+    {
+      if(hFarWnd)
+      {
+        PostMessage(hFarWnd,WM_INPUTLANGCHANGEREQUEST, 1, HKL_NEXT);
+        //if(Flags & XLAT_SWITCHKEYBBEEP)
+        //  MessageBeep(0);
+      }
+      goto begin;
+    }
+
     /* $Rep Count Seq $EndRep
 
                0: MCODE_OP_REP

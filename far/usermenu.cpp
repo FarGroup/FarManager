@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.63 03.09.2003 $ */
+/* Revision: 1.64 09.02.2004 $ */
 
 /*
 Modify:
+  09.02.2004 SVS
+    - BugZ#1016 - Самопроизвольное изменение текущего каталога
   03.09.2003 SVS
     ! Введено немного интелекта:
       a) изменена функция CanCloseDialog - другие коды возврата
@@ -245,12 +247,14 @@ void ProcessUserMenu(int EditMenu)
 //  char MenuKey[512];
 //  char CurDir[NM];
   char MenuFilePath[NM];    // Путь к текущему каталогу с файлом LocalMenuFileName
+  char PrevPath[NM];
   char *ChPtr;
   int  ExitCode = 0;
   int RunFirst  = 1;
 /* VVM $ */
 
-  CtrlObject->CmdLine->GetCurDir(MenuFilePath);
+  CtrlObject->CmdLine->GetCurDir(PrevPath);
+  strcpy(MenuFilePath,PrevPath);
 /* $ 14.07.2000 VVM
   ! Менять пока ничего не надо - потом сменим.
 */
@@ -285,6 +289,9 @@ void ProcessUserMenu(int EditMenu)
       strcpy(MenuFilePath, FarPath);
     } /* if */
   }
+
+  UserDefinedList *SavedCurDirs=SaveAllCurDir();
+
 /* $ 14.07.2000 VVM
    + Почти полностью переписан алгоритм функции ProcessUserMenu. Добавлен цикл.
 */
@@ -427,8 +434,9 @@ void ProcessUserMenu(int EditMenu)
     } /* switch */
   } /* while */
 
-  CtrlObject->CmdLine->GetCurDir(MenuFilePath);
-  FarChDir(MenuFilePath);
+  //CtrlObject->CmdLine->GetCurDir(MenuFilePath);
+  CtrlObject->CmdLine->SetCurDir(PrevPath);
+  FarChDir(PrevPath);
   /* $ 25.04.2001 DJ
      не перерисовываем панель, если пользователь ничего не сделал
      в меню
@@ -496,6 +504,8 @@ void ProcessUserMenu(int EditMenu)
   if (!MainMenu)
     DeleteKeyTree(LocalMenuKey);
 */
+
+  RestoreAllCurDir(SavedCurDirs);
 }
 
 

@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.194 13.11.2003 $ */
+/* Revision: 1.195 09.01.2004 $ */
 
 /*
 Modify:
+  09.01.2004 SVS
+    + Opt.ExcludeCmdHistory
   13.11.2003 SVS
     + _ALGO()
     - BugZ#989 - Сообщение о несуществующем каталоге при Shift-F4
@@ -2523,8 +2525,9 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
     if (EnableExec && (ExeType || BatType))
     {
       QuoteSpace(FileName);
-      if (!PluginMode)
+      if (!(Opt.ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTPANEL) && !PluginMode) //AN
         CtrlObject->CmdHistory->AddToHistory(FileName);
+
       int DirectRun=(CurDir[0]=='\\' && CurDir[1]=='\\' && ExeType);
       CtrlObject->CmdLine->ExecString(FileName,PluginMode,SeparateWindow,DirectRun);
       if (PluginMode)

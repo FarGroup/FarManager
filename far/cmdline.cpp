@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.66 25.09.2003 $ */
+/* Revision: 1.67 09.01.2004 $ */
 
 /*
 Modify:
+  09.01.2004 SVS
+    + Opt.ExcludeCmdHistory
   25.09.2003 SVS
     ! KEY_MACROXLAT переименован в KEY_MACRO_XLAT
   09.09.2003 SVS
@@ -417,7 +419,8 @@ int CommandLine::ProcessKey(int Key)
         if (*Str==0)
           break;
         ActivePanel->SetCurPath();
-        CtrlObject->CmdHistory->AddToHistory(Str);
+        if(!(Opt.ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTCMDLINE))
+          CtrlObject->CmdHistory->AddToHistory(Str);
         if (!ActivePanel->ProcessPluginEvent(FE_COMMAND,(void *)Str))
           CmdExecute(Str,FALSE,Key==KEY_SHIFTENTER,FALSE);
       }

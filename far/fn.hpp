@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.198 12.01.2004 $ */
+/* Revision: 1.199 09.02.2004 $ */
 
 /*
 Modify:
+  09.02.2004 SVS
+    ! SetRegKey возвращают значени€!
+    + SaveAllCurDir/RestoreAllCurDir - сохранение/восстановление переменных среды типа "=A:"
   12.01.2004 SVS
     !  орректировка CalcWordFromString с учетом IsWordDiv()
   12.01.2004 IS
@@ -852,9 +855,9 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent);
 
 // Registry
 void SetRegRootKey(HKEY hRootKey);
-void SetRegKey(const char *Key,const char *ValueName,const char * const ValueData);
-void SetRegKey(const char *Key,const char *ValueName,DWORD ValueData);
-void SetRegKey(const char *Key,const char *ValueName,const BYTE *ValueData,DWORD ValueSize);
+LONG SetRegKey(const char *Key,const char *ValueName,const char * const ValueData);
+LONG SetRegKey(const char *Key,const char *ValueName,DWORD ValueData);
+LONG SetRegKey(const char *Key,const char *ValueName,const BYTE *ValueData,DWORD ValueSize);
 int GetRegKey(const char *Key,const char *ValueName,char *ValueData,const char *Default,DWORD DataSize);
 int GetRegKey(const char *Key,const char *ValueName,int &ValueData,DWORD Default);
 int GetRegKey(const char *Key,const char *ValueName,DWORD Default);
@@ -1164,6 +1167,10 @@ BOOL FarChDir(const char *NewDir,BOOL ChangeDir=TRUE);
 // обертка вокруг функции получени€ текущего пути.
 // дл€ локального пути делает букву диска в uppercase
 DWORD FarGetCurDir(DWORD Length,char *Buffer);
+
+class UserDefinedList;
+UserDefinedList *SaveAllCurDir(void);
+void RestoreAllCurDir(UserDefinedList *DirList);
 
 /*$ 27.09.2000 skv
 */

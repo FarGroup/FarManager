@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.113 07.01.2004 $ */
+/* Revision: 1.114 09.02.2004 $ */
 
 /*
 Modify:
+  15.01.2004 SVS
+    + Opt.ExcludeCmdHistory - в историю только то, что вводили с клавиатуры
   07.01.2004 SVS
     + XLat.XLatFastFindKey и XLat.XLatAltFastFindKey - транслитерация для FastFind
     + Opt.ExecuteShowErrorMessage
@@ -764,6 +766,7 @@ struct Options
   */
   int CmdHistoryRule;
   /* SVS $*/
+  DWORD ExcludeCmdHistory;
   /* $ 20.09.2000 SVS
    + Opt.SubstPluginPrefix - 1 = подстанавливать префикс плагина
      для Ctrl-[ и ему подобные

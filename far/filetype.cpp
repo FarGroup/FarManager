@@ -5,10 +5,12 @@ filetype.cpp
 
 */
 
-/* Revision: 1.42 12.05.2003 $ */
+/* Revision: 1.43 09.01.2004 $ */
 
 /*
 Modify:
+  09.01.2004 SVS
+    + Opt.ExcludeCmdHistory - в историю только то, что вводили с клавиатуры
   12.05.2003 SVS
     ! EditFileTypes() теперь без параметра.
     - BugZ#829 - Траблы с ассоциациями (в реестре пропущен TypeN)...
@@ -360,7 +362,7 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
       if (*Command!='@')
       {
         CtrlObject->CmdLine->ExecString(Command,AlwaysWaitFinish);
-        if (!AlwaysWaitFinish)
+        if (!(Opt.ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTFARASS) && !AlwaysWaitFinish) //AN
           CtrlObject->CmdHistory->AddToHistory(Command);
       }
       else
@@ -493,7 +495,7 @@ int ProcessGlobalFileTypes(char *Name,int AlwaysWaitFinish)
 */
     QuoteSpace(FullName);
     CtrlObject->CmdLine->ExecString(FullName,AlwaysWaitFinish,2,FALSE);
-    if (!AlwaysWaitFinish)
+    if (!(Opt.ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTWINASS) && !AlwaysWaitFinish) //AN
     {
       char QuotedName[2*NM];
       strcpy(QuotedName,Name);
@@ -808,7 +810,7 @@ int GetDescriptionWidth (char *Name, char *ShortName)
       if(!FMask.Compare(Name))
         continue;
       char ExpandedDesc [512];
-	  strcpy (ExpandedDesc, Description);
+          strcpy (ExpandedDesc, Description);
       SubstFileName(ExpandedDesc,sizeof (ExpandedDesc),Name,ShortName,NULL,NULL,TRUE);
       CurWidth = HiStrlen (ExpandedDesc);
     }

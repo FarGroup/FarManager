@@ -5,10 +5,15 @@ checkver.cpp
 
 */
 
-/* Revision: 1.11 22.04.2003 $ */
+/* Revision: 1.12 09.02.2004 $ */
 
 /*
 Modify:
+  09.02.2004 SVS
+    ! Про регистрацию:
+      Запись = HKLM, если не удалось, то в HKCU
+      Чтение = HKCU а потом HKLM
+    + "FAR Group" 8-)
   22.04.2003 SVS
     ! strcpy -> strNcpy
   21.04.2003 SVS
@@ -50,9 +55,15 @@ Modify:
 #include "dialog.hpp"
 #include "fn.hpp"
 
-unsigned char MyName[]={
+static const char KeyRegistration[]="Registration";
+
+static const unsigned char MyName[]={
     'E'^0x50,'u'^0x51,'g'^0x52,'e'^0x53,'n'^0x54,'e'^0x55,
-    ' '^0x56,'R'^0x57,'o'^0x58,'s'^0x59,'h'^0x5a,'a'^0x5b,'l'^0x5c};
+    ' '^0x56,'R'^0x57,'o'^0x58,'s'^0x59,'h'^0x5a,'a'^0x5b,'l'^0x5c,
+    ' '^0x5d,'a'^0x5e,'n'^0x5f,'d'^0x60,
+    ' '^0x61,'F'^0x62,'A'^0x63,'R'^0x64,
+    ' '^0x65,'G'^0x66,'r'^0x67,'o'^0x68,'u'^0x69,'p'^0x6a,
+};
 
 static const char *GetDaysName(int wDayOfWeek)
 {
@@ -175,7 +186,17 @@ void Register()
   char SaveKey[512];
   strcpy(SaveKey,Opt.RegRoot);
   strcpy(Opt.RegRoot,"Software\\Far");
-  SetRegKey("Registration","Data",(const BYTE *)RegData,Size);
+  if(SetRegKey(KeyRegistration,"Data",(const BYTE *)RegData,Size) != ERROR_SUCCESS)
+  {
+    // в случае неудачи пишем в HKCU
+    SetRegRootKey(HKEY_CURRENT_USER);
+    strcpy(Opt.RegRoot,SaveKey);
+    if(SetRegKey(KeyRegistration,"Data",(const BYTE *)RegData,Size) != ERROR_SUCCESS)
+    {
+      Message(MSG_WARNING,1,MSG(MError),MSG(MRegFailed),MSG(MOk));
+      return;
+    }
+  }
   strcpy(Opt.RegRoot,SaveKey);
   SetRegRootKey(HKEY_CURRENT_USER);
   Message(0,1,MSG(MRegTitle),MSG(MRegThanks),MSG(MOk));
@@ -187,13 +208,22 @@ void __cdecl CheckReg(void *Param)
   struct RegInfo *Reg=(struct RegInfo *)Param;
   char RegName[256],RegCode[256],RegData[256];
   DWORD Size=sizeof(RegData);
-  SetRegRootKey(HKEY_LOCAL_MACHINE);
-  char SaveKey[512];
-  strcpy(SaveKey,Opt.RegRoot);
-  strcpy(Opt.RegRoot,"Software\\Far");
-  Size=GetRegKey("Registration","Data",(BYTE *)RegData,NULL,Size);
-  strcpy(Opt.RegRoot,SaveKey);
-  SetRegRootKey(HKEY_CURRENT_USER);
+
+  // в первую очередь читаем из HKCU
+  if(!CheckRegKey(KeyRegistration))
+  {
+    // а потом из HKLM
+    char SaveKey[512];
+    strcpy(SaveKey,Opt.RegRoot);
+    strcpy(Opt.RegRoot,"Software\\Far");
+    SetRegRootKey(HKEY_LOCAL_MACHINE);
+    Size=GetRegKey(KeyRegistration,"Data",(BYTE *)RegData,NULL,Size);
+    SetRegRootKey(HKEY_CURRENT_USER);
+    strcpy(Opt.RegRoot,SaveKey);
+  }
+  else
+    Size=GetRegKey(KeyRegistration,"Data",(BYTE *)RegData,NULL,Size);
+
   memset(Reg,0,sizeof(*Reg));
   if (Size==0)
     RegVer=0;

@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.77 18.12.2003 $ */
+/* Revision: 1.78 09.01.2004 $ */
 
 /*
 Modify:
+  09.01.2004 SVS
+    + ExcludeCmdHistoryType
   18.12.2003 SVS
     ! перечисления FSizeType и FDateType переехали из struct.hpp в farconst.hpp
   09.10.2003 SVS
@@ -487,5 +489,11 @@ enum FSizeType
   FSIZE_IN_LAST, // всегда последний !!!
 };
 
+enum ExcludeCmdHistoryType{
+  EXCLUDECMDHISTORY_NOTWINASS    = 0x00000001,  // не помещать в историю команды ассоциаций Windows
+  EXCLUDECMDHISTORY_NOTFARASS    = 0x00000002,  // не помещать в историю команды выполнения ассоциаций файлов
+  EXCLUDECMDHISTORY_NOTPANEL     = 0x00000004,  // не помещать в историю команды выполнения с панели
+  EXCLUDECMDHISTORY_NOTCMDLINE   = 0x00000008,  // не помещать в историю команды выполнения с ком.строки
+};
 
 #endif // __FARCONST_HPP__

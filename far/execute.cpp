@@ -5,10 +5,13 @@ execute.cpp
 
 */
 
-/* Revision: 1.96 15.01.2004 $ */
+/* Revision: 1.97 09.02.2004 $ */
 
 /*
 Modify:
+  09.02.2004 SVS
+    - BugZ#993 - перекрытие сообщения рамок меню (уточнение)
+    - Bug 752 - Проблемы Shift-Enter для UNC ресурсов с пробелами и без (уточнение)
   15.01.2004 SVS
     - BugZ#993 - перекрытие сообщения рамок меню
   08.01.2004 SVS
@@ -1223,7 +1226,9 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
       }
       Unquote(AnsiCmdStr); // т.к. нафиг это ненужно?
       // ???
-      if(Attr != -1 && (Attr&FILE_ATTRIBUTE_DIRECTORY) && !(!strcmp(AnsiCmdStr,".") || TestParentFolderName(AnsiCmdStr)))
+      if(Attr != -1 && (Attr&FILE_ATTRIBUTE_DIRECTORY) && !(!strcmp(AnsiCmdStr,".") || TestParentFolderName(AnsiCmdStr))
+         && !(AnsiCmdStr[0] == '\\' && AnsiCmdStr[1] == '\\') // Bug 752 - Проблемы Shift-Enter для UNC ресурсов с пробелами и без
+      )
         strcat(AnsiCmdStr,".");
       // ???
 
@@ -1410,7 +1415,9 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
       {
         SetMessageHelp("ErrCannotExecute");
         // BugZ#993 - перекрытие сообщения рамок меню
-        TruncPathStr(strncpy(OutStr,CmdPtr,sizeof(OutStr)-1),ScrX-15);
+        strncpy(OutStr,CmdPtr,sizeof(OutStr)-1);
+        Unquote(OutStr);
+        TruncPathStr(OutStr,ScrX-15);
         Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotExecute),OutStr,MSG(MOk));
       }
       else

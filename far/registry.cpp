@@ -5,10 +5,12 @@ registry.cpp
 
 */
 
-/* Revision: 1.16 12.05.2003 $ */
+/* Revision: 1.17 02.02.2004 $ */
 
 /*
 Modify:
+  02.02.2004 SVS
+    ! SetRegKey возвращают значения!
   12.05.2003 SVS
     + RenumKeyRecord() делает перенумерацию итемов
   27.06.2002 SVS
@@ -93,30 +95,36 @@ void CloseSameRegKey()
 }
 
 
-void SetRegKey(const char *Key,const char *ValueName,const char * const ValueData)
+LONG SetRegKey(const char *Key,const char *ValueName,const char * const ValueData)
 {
   HKEY hKey;
+  LONG Ret=ERROR_SUCCESS;
   if((hKey=CreateRegKey(Key)) != NULL)
-    RegSetValueEx(hKey,ValueName,0,REG_SZ,(unsigned char *)ValueData,strlen(ValueData)+1);
+    Ret=RegSetValueEx(hKey,ValueName,0,REG_SZ,(unsigned char *)ValueData,strlen(ValueData)+1);
   CloseRegKey(hKey);
+  return Ret;
 }
 
 
-void SetRegKey(const char *Key,const char *ValueName,DWORD ValueData)
+LONG SetRegKey(const char *Key,const char *ValueName,DWORD ValueData)
 {
   HKEY hKey;
+  LONG Ret=ERROR_SUCCESS;
   if((hKey=CreateRegKey(Key)) != NULL)
-    RegSetValueEx(hKey,ValueName,0,REG_DWORD,(BYTE *)&ValueData,sizeof(ValueData));
+    Ret=RegSetValueEx(hKey,ValueName,0,REG_DWORD,(BYTE *)&ValueData,sizeof(ValueData));
   CloseRegKey(hKey);
+  return Ret;
 }
 
 
-void SetRegKey(const char *Key,const char *ValueName,const BYTE *ValueData,DWORD ValueSize)
+LONG SetRegKey(const char *Key,const char *ValueName,const BYTE *ValueData,DWORD ValueSize)
 {
   HKEY hKey;
+  LONG Ret=ERROR_SUCCESS;
   if((hKey=CreateRegKey(Key)) != NULL)
-    RegSetValueEx(hKey,ValueName,0,REG_BINARY,ValueData,ValueSize);
+    Ret=RegSetValueEx(hKey,ValueName,0,REG_BINARY,ValueData,ValueSize);
   CloseRegKey(hKey);
+  return Ret;
 }
 
 
