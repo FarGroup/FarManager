@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.166 11.12.2004 $ */
+/* Revision: 1.167 23.01.2005 $ */
 
 /*
 Modify:
+  23.01.2005 SVS
+    ! Продолжаем клеить поиск (см. 01916.search.txt)
   11.12.2004 WARP
     - Накосячил с обработкой ESC/F10 в поиске.
   09.12.2004 WARP
@@ -604,6 +606,8 @@ static DWORD       ArcListCapacity;
 static DWORD       ArcListCount;
 
 static CriticalSection ffCS; // чтобы не ресайзили список найденных файлов, пока мы из него читаем
+static CriticalSection statusCS; // чтобы не писали в FindMessage/FindFileCount/FindDirCount пока мы оттуда читаем
+
 
 static DWORD FindFileArcIndex;
 // Используются для отправки файлов на временную панель.
@@ -1739,8 +1743,6 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     case DN_CLOSE:
     {
       StopSearch=TRUE;
-      while (!SearchDone /*|| WriteDataUsed*/)
-        Sleep(10);
       return TRUE;
     }
     /* 10.08.2001 KM
@@ -1891,15 +1893,15 @@ int FindFiles::FindFilesProcess()
     }
   }
 
-  Dialog *pDlg=new Dialog(FindDlg,sizeof(FindDlg)/sizeof(FindDlg[0]),FindDlgProc);
-  hDlg=(HANDLE)pDlg;
-  pDlg->SetDynamicallyBorn(TRUE);
-  pDlg->SetHelp("FindFileResult");
-  pDlg->SetPosition(-1,-1,DLG_WIDTH+4,DLG_HEIGHT-2+IncY);
+  Dialog Dlg=Dialog(FindDlg,sizeof(FindDlg)/sizeof(FindDlg[0]),FindDlgProc);
+  hDlg=(HANDLE)&Dlg;
+//  pDlg->SetDynamicallyBorn();
+  Dlg.SetHelp("FindFileResult");
+  Dlg.SetPosition(-1,-1,DLG_WIDTH+4,DLG_HEIGHT-2+IncY);
   // Надо бы показать диалог, а то инициализация элементов запаздывает
   // иногда при поиске и первые элементы не добавляются
-  pDlg->InitDialog();
-  pDlg->Show();
+  Dlg.InitDialog();
+  Dlg.Show();
 
   LastFoundNumber=0;
   SearchDone=FALSE;
@@ -1928,7 +1930,7 @@ int FindFiles::FindFilesProcess()
     return FALSE;
 
   IsProcessAssignMacroKey++; // отключим все спец. клавиши
-  pDlg->Process();
+  Dlg.Process();
   IsProcessAssignMacroKey--;
 
   while(WriteDataUsed || PrepareFilesListUsed > 0)
@@ -2215,9 +2217,13 @@ void _cdecl FindFiles::PrepareFilesList(void *Param)
 
           ScTree.SetFindPath(CurRoot,"*.*");
 
+          statusCS.Enter ();
+
           xstrncpy(FindMessage,CurRoot,sizeof(FindMessage)-1);
           FindMessage[sizeof(FindMessage)-1]=0;
           FindMessageReady=TRUE;
+
+          statusCS.Leave ();
 
           while (!StopSearch && ScTree.GetNextName(&FindData,FullName, sizeof (FullName)-1))
           {
@@ -2240,9 +2246,13 @@ void _cdecl FindFiles::PrepareFilesList(void *Param)
               */
               if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
               {
+                statusCS.Enter();
+
                 xstrncpy(FindMessage,FullName,sizeof(FindMessage)-1);
                 FindMessage[sizeof(FindMessage)-1]=0;
                 FindMessageReady=TRUE;
+
+                statusCS.Leave();
               }
               /* KM $ */
 
@@ -2263,14 +2273,22 @@ void _cdecl FindFiles::PrepareFilesList(void *Param)
       }
     }
 
+    statusCS.Enter();
     sprintf(FindMessage,MSG(MFindDone),FindFileCount,FindDirCount);
     SetFarTitle (FindMessage);
+    statusCS.Leave();
 
     while (!StopSearch && FindMessageReady)
       Sleep(10);
   //  sprintf(FindMessage,MSG(MFindDone),FindFileCount,FindDirCount);
+
+    statusCS.Enter ();
+
     SearchDone=TRUE;
     FindMessageReady=TRUE;
+
+    statusCS.Leave ();
+
     PrepareFilesListUsed--;
   }
   EXCEPT (xfilter((int)INVALID_HANDLE_VALUE,GetExceptionInformation(),NULL,1))
@@ -2611,10 +2629,14 @@ void FindFiles::AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData)
     ListBox->SetSelectPos(ListPos, -1);
   /* VVM $ */
 
+  statusCS.Enter();
+
   if (FindData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
     FindDirCount++;
   else
     FindFileCount++;
+
+  statusCS.Leave();
   /* KM $ */
 
   LastFoundNumber++;
@@ -2877,9 +2899,13 @@ void _cdecl FindFiles::PreparePluginList(void *Param)
       Sleep(10);
     if (Param==NULL)
     {
+      statusCS.Enter();
+
       sprintf(FindMessage,MSG(MFindDone),FindFileCount,FindDirCount);
       FindMessageReady=TRUE;
       SearchDone=TRUE;
+
+      statusCS.Leave();
     }
   }
   EXCEPT (xfilter((int)INVALID_HANDLE_VALUE,GetExceptionInformation(),NULL,1))
@@ -2963,10 +2989,15 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
         */
         if (CurPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
         {
+          statusCS.Enter();
+
           xstrncpy(FindMessage,FullName,sizeof(FindMessage)-1);
           FindMessage[sizeof(FindMessage)-1]=0;
           RemovePseudoBackSlash(FindMessage);
           FindMessageReady=TRUE;
+
+          statusCS.Leave();
+
         }
         /* KM $ */
 
@@ -3037,108 +3068,106 @@ void _cdecl FindFiles::WriteDialogData(void *Param)
   char DataStr[NM];
 
   WriteDataUsed=TRUE;
-  BOOL StopWriteDialogData=FALSE;
-  while(!StopWriteDialogData)
+
+  while( true )
   {
-    TRY {
-      Dialog* Dlg=(Dialog*)hDlg;
-      if(!Dlg)
+    Dialog* Dlg=(Dialog*)hDlg;
+
+    if( !Dlg )
+      break;
+
+    VMenu *ListBox=Dlg->Item[1].ListPtr;
+
+    if (ListBox && !PauseSearch && !ScreenSaverActive)
+    {
+      if (BreakMainThread)
+        StopSearch=TRUE;
+
+      if (FindCountReady)
       {
-        break;
+        statusCS.Enter ();
+
+        sprintf(DataStr," %s: %d ",MSG(MFindFound),FindFileCount+FindDirCount);
+        ItemData.PtrData=DataStr;
+        ItemData.PtrLength=strlen(DataStr);
+
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXT,2,(long)&ItemData);
+
+        FindCountReady=FALSE;
+
+        statusCS.Leave ();
       }
 
-      VMenu *ListBox=Dlg->Item[1].ListPtr;
-      /* $ 11.12.2001 VVM
-        - Не рисуем диалог при активном скрин-сэйвере */
-      if (ListBox && !PauseSearch && !ScreenSaverActive)
-      /* VVM $ */
+      if (FindMessageReady)
       {
+        statusCS.Enter ();
 
-        if (BreakMainThread)
-          StopSearch=TRUE;
+        char SearchStr[NM];
 
-        if (FindCountReady)
+        if (*FindStr)
         {
-          sprintf(DataStr," %s: %d ",MSG(MFindFound),FindFileCount+FindDirCount);
+          char Temp[NM],FStr[NM*2];
+
+          xstrncpy(FStr,FindStr,sizeof(FStr)-1);
+          sprintf(Temp," \"%s\"",TruncStrFromEnd(FStr,10));
+          sprintf(SearchStr,MSG(MFindSearchingIn),Temp);
+        }
+        else
+          sprintf(SearchStr,MSG(MFindSearchingIn),"");
+
+        int Wid1=strlen(SearchStr);
+        int Wid2=DlgWidth-strlen(SearchStr)-1;
+
+        if (SearchDone)
+        {
+          Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
+
+          xstrncpy(DataStr,MSG(MFindCancel),sizeof(DataStr)-1);
           ItemData.PtrData=DataStr;
           ItemData.PtrLength=strlen(DataStr);
+          Dialog::SendDlgMessage(hDlg,DM_SETTEXT,9,(long)&ItemData);
 
+          sprintf(DataStr,"%-*.*s",DlgWidth,DlgWidth,FindMessage);
+          ItemData.PtrData=DataStr;
+          ItemData.PtrLength=strlen(DataStr);
+          Dialog::SendDlgMessage(hDlg,DM_SETTEXT,3,(long)&ItemData);
+
+          ItemData.PtrData="";
+          ItemData.PtrLength=strlen(DataStr);
           Dialog::SendDlgMessage(hDlg,DM_SETTEXT,2,(long)&ItemData);
 
-          FindCountReady=FALSE;
+          Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
+          SetFarTitle(FindMessage);
+          StopSearch=TRUE;
         }
-        if (FindMessageReady)
+        else
         {
-          char SearchStr[NM];
-          if (*FindStr)
-          {
-            /* $ 26.10.2003 KM */
-            /* $ 24.09.2003 KM */
-            char Temp[NM],FStr[NM*2];
-
-            xstrncpy(FStr,FindStr,sizeof(FStr)-1);
-            sprintf(Temp," \"%s\"",TruncStrFromEnd(FStr,10));
-            sprintf(SearchStr,MSG(MFindSearchingIn),Temp);
-            /* KM $ */
-            /* KM $ */
-          }
-          else
-            sprintf(SearchStr,MSG(MFindSearchingIn),"");
-          int Wid1=strlen(SearchStr);
-          int Wid2=DlgWidth-strlen(SearchStr)-1;
-
-          if (SearchDone)
-          {
-            Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
-
-            xstrncpy(DataStr,MSG(MFindCancel),sizeof(DataStr)-1);
-            ItemData.PtrData=DataStr;
-            ItemData.PtrLength=strlen(DataStr);
-            Dialog::SendDlgMessage(hDlg,DM_SETTEXT,9,(long)&ItemData);
-
-            sprintf(DataStr,"%-*.*s",DlgWidth,DlgWidth,FindMessage);
-            ItemData.PtrData=DataStr;
-            ItemData.PtrLength=strlen(DataStr);
-            Dialog::SendDlgMessage(hDlg,DM_SETTEXT,3,(long)&ItemData);
-
-            ItemData.PtrData="";
-            ItemData.PtrLength=strlen(DataStr);
-            Dialog::SendDlgMessage(hDlg,DM_SETTEXT,2,(long)&ItemData);
-
-            Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
-            SetFarTitle(FindMessage);
-            StopSearch=TRUE;
-          }
-          else
-          {
-            sprintf(DataStr,"%-*.*s %-*.*s",Wid1,Wid1,SearchStr,Wid2,Wid2,TruncPathStr(FindMessage,Wid2));
-            ItemData.PtrData=DataStr;
-            ItemData.PtrLength=strlen(DataStr);
-            Dialog::SendDlgMessage(hDlg,DM_SETTEXT,3,(long)&ItemData);
-          }
-          FindMessageReady=FALSE;
+          sprintf(DataStr,"%-*.*s %-*.*s",Wid1,Wid1,SearchStr,Wid2,Wid2,TruncPathStr(FindMessage,Wid2));
+          ItemData.PtrData=DataStr;
+          ItemData.PtrLength=strlen(DataStr);
+          Dialog::SendDlgMessage(hDlg,DM_SETTEXT,3,(long)&ItemData);
         }
 
-        if (LastFoundNumber && ListBox)
-        {
-          LastFoundNumber=0;
+        FindMessageReady=FALSE;
 
-          if ( ListBox->UpdateRequired () )
-             Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,1,1);
-        }
+        statusCS.Leave ();
       }
 
-      if (StopSearch && SearchDone && !FindMessageReady && !FindCountReady && !LastFoundNumber)
+      if (LastFoundNumber && ListBox)
+      {
+        LastFoundNumber=0;
+
+        if ( ListBox->UpdateRequired () )
+          Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,1,1);
+      }
+    }
+
+    if (StopSearch && SearchDone && !FindMessageReady && !FindCountReady && !LastFoundNumber)
         break;
 
-      Sleep(20);
-    }
-    EXCEPT (EXCEPTION_EXECUTE_HANDLER)
-    {
-      StopSearch = TRUE;
-      StopWriteDialogData=TRUE;
-    }
+    Sleep(20);
   }
+
   WriteDataUsed=FALSE;
 }
 
