@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.103 14.11.2001 $ */
+/* Revision: 1.104 19.11.2001 $ */
 
 /*
 Modify:
+  19.11.2001 OT
+    ! Не нужный запрос на сохранение отредактированного в архиве файла
+      (118 Бацилла)
   14.11.2001 SVS
     ! Ctrl-Alt-Ins теперь корректно работает и с панельными плагинами
   12.11.2001 SVS
@@ -1262,7 +1265,7 @@ int FileList::ProcessKey(int Key)
                   FileEditor ShellEditor (FileName,Key==KEY_SHIFTF4,FALSE,-1,-1,TRUE,PluginData);
                   ShellEditor.SetDynamicallyBorn(false);
                   FrameManager->ExecuteModal();//OT
-                  UploadFile=ShellEditor.IsFileChanged();
+                  UploadFile=ShellEditor.IsFileModified();
                   Modaling=TRUE;///
                 }
                 else
