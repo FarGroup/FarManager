@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.106 06.08.2004 $ */
+/* Revision: 1.107 14.12.2004 $ */
 
 /*
 Modify:
+  14.12.2004 WARP
+    ! Немного поломал executor. (see 01875.Executor.txt)
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   18.05.2004 SVS
@@ -973,6 +975,7 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
   int NT = WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT;
   char NewCmdStr[4096];
   char NewCmdPar[4096];
+  char TempStr[4096];
   char CommandName[NM];
   NewCmdPar[0] = 0;
 
@@ -1034,7 +1037,12 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
     SeparateWindow=2;
   if (!ExecutorType || SeparateWindow==2)
     ExitCode = 1;
+
+  ExpandEnvironmentStrings (NewCmdStr, TempStr, sizeof (TempStr)-1);
+  strcpy (NewCmdStr, TempStr);
+
   QuoteSpace(NewCmdStr);
+
   QuoteFound = NewCmdStr[0] == '"';
   CmdPtr = NewCmdStr;
 
@@ -1138,11 +1146,22 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
 //          if(SeparateWindow)
 //            ReplaceStrings(NewCmdPar,"\"","\"\"",-1);
 
+          if ( *NewCmdStr && strchr (NewCmdStr, ' ') )
+          {
+            int l = strlen (NewCmdStr);
+
+            memmove (NewCmdStr+1, NewCmdStr, ++l);
+            NewCmdStr[0] = '\"';
+            NewCmdStr[l++] = '\"';
+            NewCmdStr[l] = 0;
+          }
+
           xstrncpy(ExecLine,Fmt,sizeof(ExecLine)-1);
           strncat(ExecLine,(Fmt != TemplExecute && NT && *CmdPtr=='\"'?" \"\" ":" "),sizeof(ExecLine)-1);
           strncat(ExecLine, NewCmdStr,sizeof(ExecLine)-1);
           strncat(ExecLine, NewCmdPar,sizeof(ExecLine)-1);
           ExpandEnvironmentStr(ExecLine,ExecLine,sizeof(ExecLine));
+
           // </TODO>
           //_tran(SysLog("Execute: ExecLine [%s]",ExecLine);)
         }
