@@ -5,7 +5,7 @@ Internal viewer
 
 */
 
-/* Revision: 1.09 12.07.2000 $ */
+/* Revision: 1.10 12.07.2000 $ */
 
 /*
 Modify:
@@ -36,6 +36,9 @@ Modify:
     + wrap are now WORD-WRAP
   12.07.2000 SVS
     + wrap имеет 3 положения :-) Но только для зарегестрированных.
+  12.07.2000 tran
+    ! OutStr are dynamic, new, delete,
+      and sizeof(OutStr[i]) changed to MAX_VIEWLINEB
 */
 
 #include "headers.hpp"
@@ -56,6 +59,13 @@ static int InitWrap=VIEW_WRAP,InitHex=FALSE;
 
 Viewer::Viewer()
 {
+  /* $ 12.07.2000 tran
+     alloc memory for OutStr */
+  for ( int i=0; i<=MAXSCRY; i++ )
+  {
+    OutStr[i]=new char[MAX_VIEWLINEB];
+  }
+  /* tran 12.07.2000 $ */
   strcpy((char *)LastSearchStr,GlobalSearchString);
   LastSearchCase=GlobalSearchCase;
   LastSearchReverse=GlobalSearchReverse;
@@ -138,6 +148,13 @@ Viewer::~Viewer()
     *PointToName(TempViewName)=0;
     RemoveDirectory(TempViewName);
   }
+  /* $ 12.07.2000 tran
+     free memory  */
+  for ( int i=0; i<=MAXSCRY; i++ )
+  {
+    delete OutStr[i];
+  }
+  /* tran 12.07.2000 $ */
 }
 
 
@@ -358,7 +375,7 @@ void Viewer::DisplayObject()
       StrFilePos[I]=vtell(ViewFile);
       if (Y==ViewY1+1 && !feof(ViewFile))
         SecondPos=vtell(ViewFile);
-      ReadString(OutStr[I],-1,sizeof(OutStr[I]),SelPos,SelSize);
+      ReadString(OutStr[I],-1,MAX_VIEWLINEB,SelPos,SelSize);
       SetColor(COL_VIEWERTEXT);
       GotoXY(X1,Y);
       if (strlen((char *)OutStr[I])>LeftPos)
@@ -552,7 +569,7 @@ void Viewer::ShowUp()
   StrFilePos[0]=FilePos;
   SecondPos=StrFilePos[1];
 
-  ReadString(OutStr[0],SecondPos-FilePos,sizeof(OutStr[0]),Tmp,Tmp);
+  ReadString(OutStr[0],SecondPos-FilePos,MAX_VIEWLINEB,Tmp,Tmp);
 
   for (I=0,Y=ViewY1;Y<=Y2;Y++,I++)
   {

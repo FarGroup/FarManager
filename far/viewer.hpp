@@ -7,7 +7,7 @@ Internal viewer
 
 */
 
-/* Revision: 1.03 12.07.2000 $ */
+/* Revision: 1.04 12.07.2000 $ */
 
 /*
 Modify:
@@ -22,14 +22,17 @@ Modify:
   12.07.2000 SVS
     - из-за увеличения длины строки до 0x800 вылетал FAR
       по Alt-F7. Сократим MAX_VIEWLINE до 1024 (0x400)
+  12.07.2000 tran
+    ! OutStr are dynamic, new, delete,
+      and sizeof(OutStr[i]) changed to MAX_VIEWLINEB
 */
 
-/*$ 12.07.2000 SVS
+/* $ 12.07.2000 SVS
   - из-за увеличения длины строки до 0x800 вылетал FAR
     по Alt-F7. Сократим MAX_VIEWLINE до 1024 (0x400)
 */
-#define MAX_VIEWLINE  0x400 // 0x800
-#define MAX_VIEWLINEB 0x40f // 0x80f
+#define MAX_VIEWLINE  0x800 // 0x400
+#define MAX_VIEWLINEB 0x80f // 0x40f
 /* SVS $ */
 
 class Viewer:public ScreenObject
@@ -56,7 +59,10 @@ class Viewer:public ScreenObject
 
     NamesList ViewNamesList;
     KeyBar *ViewKeyBar;
-    char OutStr[MAXSCRY+1][MAX_VIEWLINEB];
+    /* $ 12.07.2000 tran
+     dymanic alloc memory for OutStr */
+    char *OutStr[MAXSCRY+1]; //[MAX_VIEWLINEB];
+    /* tran 12.07.2000 $ */
     int StrFilePos[MAXSCRY+1];
     char FileName[NM];
     char FullFileName[NM];
