@@ -5,10 +5,13 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.68 28.10.2001 $ */
+/* Revision: 1.69 29.10.2001 $ */
 
 /*
 Modify:
+  29.10.2001 IS
+    + Обновим настройки "сохранять позицию файла" и "сохранять закладки" после
+      смены настроек по alt-shift-f9.
   28.10.2001 SVS
     - Не чистится экран после отмены открытия редактора
   19.10.2001 OT
@@ -695,6 +698,7 @@ int FileEditor::ProcessKey(int Key)
       EdOpt.AutoDetectTable=FEdit.GetAutoDetectTable();
       EdOpt.CursorBeyondEOL=FEdit.GetCursorBeyondEOL();
       EdOpt.CharCodeBase=FEdit.GetCharCodeBase();
+      FEdit.GetSavePosMode(EdOpt.SavePos, EdOpt.SaveShortPos);
       //EdOpt.BSLikeDel=FEdit.GetBSLikeDel();
 
       EditorConfig(EdOpt);
@@ -708,6 +712,7 @@ int FileEditor::ProcessKey(int Key)
       FEdit.SetAutoDetectTable(EdOpt.AutoDetectTable);
       FEdit.SetCursorBeyondEOL(EdOpt.CursorBeyondEOL);
       FEdit.SetCharCodeBase(EdOpt.CharCodeBase);
+      FEdit.SetSavePosMode(EdOpt.SavePos, EdOpt.SaveShortPos);
       //FEdit.SetBSLikeDel(EdOpt.BSLikeDel);
       /* IS $ */
       FEdit.Show();

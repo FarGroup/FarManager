@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.154 23.10.2001 $ */
+/* Revision: 1.155 29.10.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  29.10.2001 IS
+    + ESPT_SAVEFILEPOSITION
   23.10.2001 SVS
     ! FarListTitle -> FarListTitles
   19.10.2001 SVS
@@ -1412,7 +1414,7 @@ enum EDITOR_CONTROL_COMMANDS {
 
 enum EDITOR_SETPARAMETER_TYPES {
   ESPT_TABSIZE, ESPT_EXPANDTABS, ESPT_AUTOINDENT, ESPT_CURSORBEYONDEOL,
-  ESPT_CHARCODEBASE, ESPT_SETTABLE,
+  ESPT_CHARCODEBASE, ESPT_SETTABLE, ESPT_SAVEFILEPOSITION
 };
 
 struct EditorSetParameter

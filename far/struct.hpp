@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.73 19.10.2001 $ */
+/* Revision: 1.74 29.10.2001 $ */
 
 /*
 Modify:
+  29.10.2001 IS
+    ! SaveEditorPos и SaveEditorShortPos переехали в EditorOptions
   26.10.2001 KM
     + Opt.FindFolders. Запомнить флаг разрешения поиска каталогов в Alt-F7
   19.10.2001 SVS
@@ -334,6 +336,8 @@ struct EditorOptions
   int CursorBeyondEOL;
   int BSLikeDel;
   int CharCodeBase;
+  int SavePos;
+  int SaveShortPos;
 };
 /* IS $ */
 
@@ -448,8 +452,6 @@ struct Options
   char WordDiv[256];
   /* SVS $ */
   char QuotedSymbols[32];
-  int SaveEditorPos;
-  int SaveEditorShortPos;
   int SaveHistory;
   int SaveFoldersHistory;
   int SaveViewHistory;

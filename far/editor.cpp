@@ -6,10 +6,14 @@ editor.cpp
 
 */
 
-/* Revision: 1.127 28.10.2001 $ */
+/* Revision: 1.128 29.10.2001 $ */
 
 /*
 Modify:
+  29.10.2001 IS
+    ! SaveEditorPos и SaveEditorShortPos переехали в EditorOptions
+      Теперь они локальны для каждой копии редактора, а первая опция может
+      быть изменена плагином.
   28.10.2001 SVS
     ! Приведем к одному знаманателю реакцию на вставку путей (то же как и
       в панелях)
@@ -484,7 +488,7 @@ Editor::Editor()
 Editor::~Editor()
 {
   _OT(SysLog("[%p] Editor::~Editor()",this));
-  if (Opt.SaveEditorPos && CtrlObject!=NULL)
+  if (EdOpt.SavePos && CtrlObject!=NULL)
   {
     int ScreenLinePos=CalcDistance(TopScreen,CurLine,-1);
     int CurPos=CurLine->EditLine.GetTabCurPos();
@@ -507,10 +511,10 @@ Editor::~Editor()
 
     if (!OpenFailed) // здесь БЯКА в кеш попадала :-(
       CtrlObject->EditorPosCache->AddPosition(CacheName,NumLine,ScreenLinePos,CurPos,LeftPos,Table,
-               (Opt.SaveEditorShortPos?SavePos.Line:NULL),
-               (Opt.SaveEditorShortPos?SavePos.Cursor:NULL),
-               (Opt.SaveEditorShortPos?SavePos.ScreenLine:NULL),
-               (Opt.SaveEditorShortPos?SavePos.LeftPos:NULL));
+               (EdOpt.SaveShortPos?SavePos.Line:NULL),
+               (EdOpt.SaveShortPos?SavePos.Cursor:NULL),
+               (EdOpt.SaveShortPos?SavePos.ScreenLine:NULL),
+               (EdOpt.SaveShortPos?SavePos.LeftPos:NULL));
   }
 
   while (EndList!=NULL)
@@ -808,7 +812,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
       NumLine++;
     }
     TopScreen=CurLine=CurPtr;
-    if (Opt.SaveEditorPos && CtrlObject!=NULL)
+    if (EdOpt.SavePos && CtrlObject!=NULL)
     {
       /* $ 14.01.2001 tran
          LeftPos надо было инициализировать... */
@@ -820,10 +824,10 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
         strcpy(CacheName,FileName);
       unsigned int Table;
       CtrlObject->EditorPosCache->GetPosition(CacheName,Line,ScreenLine,LinePos,LeftPos,Table,
-               (Opt.SaveEditorShortPos?SavePos.Line:NULL),
-               (Opt.SaveEditorShortPos?SavePos.Cursor:NULL),
-               (Opt.SaveEditorShortPos?SavePos.ScreenLine:NULL),
-               (Opt.SaveEditorShortPos?SavePos.LeftPos:NULL));
+               (EdOpt.SaveShortPos?SavePos.Line:NULL),
+               (EdOpt.SaveShortPos?SavePos.Cursor:NULL),
+               (EdOpt.SaveShortPos?SavePos.ScreenLine:NULL),
+               (EdOpt.SaveShortPos?SavePos.LeftPos:NULL));
       //_D(SysLog("after Get cache, LeftPos=%i",LeftPos));
       TableChangedByUser=(Table!=0);
       switch(Table)
@@ -862,7 +866,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
     }
   }
   else
-    if (StartLine!=-1 || Opt.SaveEditorPos && CtrlObject!=NULL)
+    if (StartLine!=-1 || EdOpt.SavePos && CtrlObject!=NULL)
     {
       /* $ 14.01.2001 tran
          LeftPos надо было инициализировать... */
@@ -884,10 +888,10 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
           strcpy(CacheName,FileName);
         unsigned int Table;
         CtrlObject->EditorPosCache->GetPosition(CacheName,Line,ScreenLine,LinePos,LeftPos,Table,
-               (Opt.SaveEditorShortPos?SavePos.Line:NULL),
-               (Opt.SaveEditorShortPos?SavePos.Cursor:NULL),
-               (Opt.SaveEditorShortPos?SavePos.ScreenLine:NULL),
-               (Opt.SaveEditorShortPos?SavePos.LeftPos:NULL));
+               (EdOpt.SaveShortPos?SavePos.Line:NULL),
+               (EdOpt.SaveShortPos?SavePos.Cursor:NULL),
+               (EdOpt.SaveShortPos?SavePos.ScreenLine:NULL),
+               (EdOpt.SaveShortPos?SavePos.LeftPos:NULL));
         //_D(SysLog("after Get cache 2, LeftPos=%i",LeftPos));
         TableChangedByUser=(Table!=0);
         switch(Table)
@@ -5093,7 +5097,7 @@ int Editor::EditorControl(int Command,void *Param)
           Info->Options|=EOPT_DELREMOVESBLOCKS;
         if (EdOpt.AutoIndent)
           Info->Options|=EOPT_AUTOINDENT;
-        if (Opt.SaveEditorPos)
+        if (EdOpt.SavePos)
           Info->Options|=EOPT_SAVEFILEPOSITION;
         if (EdOpt.AutoDetectTable)
           Info->Options|=EOPT_AUTODETECTTABLE;
@@ -5419,6 +5423,11 @@ int Editor::EditorControl(int Command,void *Param)
             ChangeEditKeyBar();
             Show();
           }
+          /* IS $ */
+          /* $ 29.10.2001 IS изменение настройки "Сохранять позицию файла" */
+          case ESPT_SAVEFILEPOSITION:
+            SetSavePosMode(espar->iParam, -1);
+            break;
           /* IS $ */
           default:
             return FALSE;
@@ -5810,6 +5819,27 @@ void Editor::SetCursorBeyondEOL(int NewMode)
     MaxRightPos=0;
   }
   /* SKV$*/
+}
+/* IS $ */
+
+/* $ 29.10.200 IS
+     Работа с настройками "сохранять позицию файла" и
+     "сохранять закладки" после смены настроек по alt-shift-f9.
+*/
+void Editor::GetSavePosMode(int &SavePos, int &SaveShortPos)
+{
+   SavePos=EdOpt.SavePos;
+   SaveShortPos=EdOpt.SaveShortPos;
+}
+
+// передавайте в качестве значения параметра "-1" для параметра,
+// который не нужно менять
+void Editor::SetSavePosMode(int SavePos, int SaveShortPos)
+{
+   if(SavePos!=-1)
+      EdOpt.SavePos=SavePos;
+   if(SaveShortPos!=-1)
+      EdOpt.SaveShortPos=SaveShortPos;
 }
 /* IS $ */
 

@@ -9,10 +9,12 @@ editor.hpp
 
 */
 
-/* Revision: 1.26 21.10.2001 $ */
+/* Revision: 1.27 29.10.2001 $ */
 
 /*
 Modify:
+  29.10.2001 IS
+    + GetSavePosMode/SetSavePosMode
   21.10.2001 SVS
     + CALLBACK-функци€ дл€ избавлени€ от BugZ#85
   10.10.2001 IS
@@ -331,6 +333,17 @@ class Editor:public ScreenObject
     /* $ 10.10.2001 IS установка DeleteOnClose */
     void SetDeleteOnClose(BOOL NewMode) { DeleteOnClose=NewMode; }
     /* IS */
+
+    /* $ 29.10.2001 IS
+         –абота с настройками "сохран€ть позицию файла" и
+         "сохран€ть закладки" после смены настроек по alt-shift-f9.
+    */
+    void GetSavePosMode(int &SavePos, int &SaveShortPos);
+
+    // передавайте в качестве значени€ параметра "-1" дл€ параметра,
+    // который не нужно мен€ть
+    void SetSavePosMode(int SavePos, int SaveShortPos);
+    /* IS $ */
 
     /* $ tran 14.07.2000
       + goto to percent support */

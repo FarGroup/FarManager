@@ -5,10 +5,12 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.33 24.10.2001 $ */
+/* Revision: 1.34 29.10.2001 $ */
 
 /*
 Modify:
+  29.10.2001 IS
+    ! SaveEditorPos переехала в EditorOptions
   24.10.2001 SVS
     ! подсократим "лишний" код
   26.09.2001 SVS
@@ -214,7 +216,7 @@ ControlObject::~ControlObject()
       FolderHistory->AddToHistory(CurDir,NULL,0);
     }
   }
-  if (Opt.SaveEditorPos)
+  if (Opt.EdOpt.SavePos)
     EditorPosCache->Save("Editor\\LastPositions");
   if (Opt.SaveViewerPos)
     ViewerPosCache->Save("Viewer\\LastPositions");

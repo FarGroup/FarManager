@@ -5,10 +5,12 @@ poscache.cpp
 
 */
 
-/* Revision: 1.12 20.08.2001 $ */
+/* Revision: 1.13 29.10.2001 $ */
 
 /*
 Modify:
+  29.10.2001 IS
+    ! SaveEditorPos и SaveEditorShortPos переехали в EditorOptions
   20.08.2001 VVM
     ! Ошибка при задании разделителя списка.
   11.08.2001 IS
@@ -283,7 +285,7 @@ void FilePositionCache::Save(char *Key)
     /* IS $ */
     SetRegKey(Key,SubKey,DataStr);
     if((Opt.SaveViewerShortPos && Opt.SaveViewerPos) ||
-       (Opt.SaveEditorShortPos && Opt.SaveEditorPos))
+       (Opt.EdOpt.SaveShortPos && Opt.EdOpt.SavePos))
     {
       // Если не запоминались позиции по RCtrl+<N>, то и не записываем их
       for(J=0; J < (BOOKMARK_COUNT*4); J++)

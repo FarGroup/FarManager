@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.102 24.10.2001 $ */
+/* Revision: 1.103 29.10.2001 $ */
 
 /*
 Modify:
+  29.10.2001 IS
+    !  SaveEditorPos и SaveEditorShortPos переехали в EditorOptions
   24.10.2001 KM
     + Opt.FindFolders. Запомнить флаг разрешения поиска каталогов в Alt-F7
   15.10.2001 SVS
@@ -873,8 +875,8 @@ void EditorConfig(struct EditorOptions &EdOpt)
   CfgDlg[8].Selected=EdOpt.PersistentBlocks;
   CfgDlg[9].Selected=EdOpt.DelRemovesBlocks;
   CfgDlg[10].Selected=EdOpt.AutoIndent;
-  CfgDlg[11].Selected=Opt.SaveEditorPos;
-  CfgDlg[12].Selected=Opt.SaveEditorShortPos;
+  CfgDlg[11].Selected=EdOpt.SavePos;
+  CfgDlg[12].Selected=EdOpt.SaveShortPos;
   /* 15.09.2000 IS
      Отключение автоопределения таблицы символов, если отсутствует таблица с
      распределением частот символов
@@ -908,8 +910,8 @@ void EditorConfig(struct EditorOptions &EdOpt)
   EdOpt.PersistentBlocks=CfgDlg[8].Selected;
   EdOpt.DelRemovesBlocks=CfgDlg[9].Selected;
   EdOpt.AutoIndent=CfgDlg[10].Selected;
-  Opt.SaveEditorPos=CfgDlg[11].Selected;
-  Opt.SaveEditorShortPos=CfgDlg[12].Selected;
+  EdOpt.SavePos=CfgDlg[11].Selected;
+  EdOpt.SaveShortPos=CfgDlg[12].Selected;
   EdOpt.AutoDetectTable=CfgDlg[13].Selected;
   /* 15.09.2000 IS
      Отключение автоопределения таблицы символов, если отсутствует таблица с
@@ -1017,8 +1019,8 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyEditor,"PersistentBlocks",&Opt.EdOpt.PersistentBlocks,1, 0},
   {1, REG_DWORD,  NKeyEditor,"DelRemovesBlocks",&Opt.EdOpt.DelRemovesBlocks,0, 0},
   {1, REG_DWORD,  NKeyEditor,"AutoIndent",&Opt.EdOpt.AutoIndent,0, 0},
-  {1, REG_DWORD,  NKeyEditor,"SaveEditorPos",&Opt.SaveEditorPos,0, 0},
-  {1, REG_DWORD,  NKeyEditor,"SaveEditorShortPos",&Opt.SaveEditorShortPos,0, 0},
+  {1, REG_DWORD,  NKeyEditor,"SaveEditorPos",&Opt.EdOpt.SavePos,0, 0},
+  {1, REG_DWORD,  NKeyEditor,"SaveEditorShortPos",&Opt.EdOpt.SaveShortPos,0, 0},
   {1, REG_DWORD,  NKeyEditor,"AutoDetectTable",&Opt.EdOpt.AutoDetectTable,0, 0},
   {1, REG_DWORD,  NKeyEditor,"EditorCursorBeyondEOL",&Opt.EdOpt.CursorBeyondEOL,1, 0},
   {1, REG_DWORD,  NKeyEditor,"ReadOnlyLock",&Opt.EditorReadOnlyLock,0, 0}, // Вернём назад дефолт 1.65 - не предупреждать и не блокировать
