@@ -2733,6 +2733,12 @@ the command "CD" in the command line may be used to change the folder
 in the plugin file system. Unlike "CD", "CHDIR" command always treats the
 specified parameter as a real folder name, regardless of the file panel type.
 
+    #CHCP [nnn]#
+
+    Displays or sets the active code page number. "nnn" - specifies a code
+page number. Type CHCP without a parameter to display the active code
+page number.
+
     #SET variable=[string]#
 
     Set environment variable "variable" to the value "string". If "string"

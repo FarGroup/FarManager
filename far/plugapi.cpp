@@ -5,10 +5,14 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.130 30.04.2002 $ */
+/* Revision: 1.131 10.05.2002 $ */
 
 /*
 Modify:
+  10.05.2002 SVS
+    - BugZ#502 - вызов Info.Control дл€ из редактора far /e
+      «апрещаем использование Control дл€ CmdMode=1 (дл€ /e и /v)
+    + FCTL_CHECKPANELSEXIST - работаем в командном режиме (панели доступны?)
   30.04.2002 SVS
     - —нова Message :-(
   15.04.2002 SVS
@@ -840,6 +844,7 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
       return Options;
     }
     /* DJ $ */
+
   }
   return FALSE;
 }
@@ -1334,7 +1339,10 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
 
 int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
 {
-  if (FrameManager->ManagerIsDown())
+  if(Command == FCTL_CHECKPANELSEXIST)
+    return CmdMode == FALSE?TRUE:FALSE;
+
+  if (CmdMode || FrameManager->ManagerIsDown())
     return 0;
 
   if (CtrlObject->Cp()->LeftPanel==NULL || CtrlObject->Cp()->RightPanel==NULL)

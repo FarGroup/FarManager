@@ -5,10 +5,12 @@ stddlg.cpp
 
 */
 
-/* Revision: 1.22 29.04.2002 $ */
+/* Revision: 1.23 10.05.2002 $ */
 
 /*
 Modify:
+  10.05.2002 SVS
+    ! Загоним в блок вызов Dialog (щоб глюков избежать)
   29.04.2002 SVS
     ! Убираем "Грязный Хак" в функции GetString от 12.03.2001, т.к.
       теперь все решается на уровне диалога.
@@ -252,13 +254,13 @@ int WINAPI GetSearchReplaceString(
         ReplaceDlg[I].Y2--;
       }
     }
-
-    Dialog Dlg(ReplaceDlg,sizeof(ReplaceDlg)/sizeof(ReplaceDlg[0]));
-    Dlg.SetPosition(-1,-1,76,HeightDialog);
-    Dlg.Process();
-    if (Dlg.GetExitCode()!=10)
-      return FALSE;
-
+    {
+      Dialog Dlg(ReplaceDlg,sizeof(ReplaceDlg)/sizeof(ReplaceDlg[0]));
+      Dlg.SetPosition(-1,-1,76,HeightDialog);
+      Dlg.Process();
+      if (Dlg.GetExitCode()!=10)
+        return FALSE;
+    }
     strncpy((char *)SearchStr,ReplaceDlg[2].Data,LenSearchStr-1);
     strncpy((char *)ReplaceStr,ReplaceDlg[4].Data,LenReplaceStr-1);
     if(Case)       *Case=ReplaceDlg[6].Selected;
@@ -359,13 +361,13 @@ int WINAPI GetSearchReplaceString(
         SearchDlg[I].Y2--;
       }
     }
-
-    Dialog Dlg(SearchDlg,sizeof(SearchDlg)/sizeof(SearchDlg[0]));
-    Dlg.SetPosition(-1,-1,76,HeightDialog);
-    Dlg.Process();
-    if (Dlg.GetExitCode()!=8)
-      return FALSE;
-
+    {
+      Dialog Dlg(SearchDlg,sizeof(SearchDlg)/sizeof(SearchDlg[0]));
+      Dlg.SetPosition(-1,-1,76,HeightDialog);
+      Dlg.Process();
+      if (Dlg.GetExitCode()!=8)
+        return FALSE;
+    }
     strncpy((char *)SearchStr,SearchDlg[2].Data,LenSearchStr-1);
     if(ReplaceStr) *ReplaceStr=0;
     if(Case)       *Case=SearchDlg[4].Selected;

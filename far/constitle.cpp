@@ -5,10 +5,12 @@ constitle.cpp
 
 */
 
-/* Revision: 1.03 01.04.2002 $ */
+/* Revision: 1.04 10.05.2002 $ */
 
 /*
 Modify:
+  10.05.2002 SVS
+    - Хрень выводилась в заголовке. Сделаем конвертирование
   01.04.2002 SVS
     ! Про заголовок - заюзаем SetFarTitle для корректного восстановления после
       макроса
@@ -30,6 +32,8 @@ Modify:
 ConsoleTitle::ConsoleTitle(char *title)
 {
   GetConsoleTitle(OldTitle,512);
+  if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
+    CharToOem(OldTitle,OldTitle);
 //  _SVS(SysLog(1,"ConsoleTitle> '%s'",OldTitle));
   if(title)
     SetFarTitle(title);

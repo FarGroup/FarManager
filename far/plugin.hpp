@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.205 29.04.2002 $ */
+/* Revision: 1.206 10.05.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  10.05.2002 SVS
+    + FCTL_CHECKPANELSEXIST - панели доступны?
   29.04.2002 SVS
     ! WTYPE_COMBOBOX -> for internal
   28.04.2002 KM
@@ -1366,6 +1368,7 @@ enum FILE_CONTROL_COMMANDS{
   FCTL_GETCMDLINESELECTION,
   FCTL_GETPANELSHORTINFO,
   FCTL_GETANOTHERPANELSHORTINFO,
+  FCTL_CHECKPANELSEXIST,
 };
 
 typedef int (WINAPI *FARAPICONTROL)(

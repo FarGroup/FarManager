@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.53 17.04.2002 $ */
+/* Revision: 1.54 10.05.2002 $ */
 
 /*
 Modify:
+  10.05.2002 SVS
+    + обработка CHCP
   17.04.2002 VVM
     ! Уточнение исполнятора.
   16.04.2002 DJ
@@ -1369,6 +1371,41 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
 
     ClearScreen(F_LIGHTGRAY|B_BLACK);
     return TRUE;
+  }
+
+  /*
+  Displays or sets the active code page number.
+  CHCP [nnn]
+    nnn   Specifies a code page number (Dec or Hex).
+  Type CHCP without a parameter to display the active code page number.
+  */
+  if (!memicmp(CmdLine,"CHCP",4))
+  {
+    if(CmdLine[4] == 0 || !(CmdLine[4] == ' ' || CmdLine[4] == '\t'))
+      return(FALSE);
+
+    char *Ptr=RemoveExternalSpaces(CmdLine+5), Chr;
+
+    if(!isdigit(*Ptr))
+      return FALSE;
+
+    while((Chr=*Ptr) != 0)
+    {
+      if(!isdigit(Chr))
+        break;
+      ++Ptr;
+    }
+    UINT cp=(UINT)strtol(CmdLine+5,&Ptr,10);
+    BOOL r1=SetConsoleCP(cp);
+    BOOL r2=SetConsoleOutputCP(cp);
+    if(r1 && r2) // Если все ОБИ, то так  и...
+    {
+      CtrlObject->Cp()->Redraw();
+      ScrBuf.Flush();
+      return TRUE;
+    }
+    else  // про траблы внешняя chcp сама скажет ;-)
+     return FALSE;
   }
 
   /* $ 14.01.2001 SVS
