@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.02 29.06.2000 $ */
+/* Revision: 1.03 21.07.2000 $ */
 
 /*
 Modify:
+  21.07.2000 SKV
+    + выход с позиционированием на редактируемом файле по CTRLF10
   29.06.2000 tran
     + названия всех функциональных клавиш
   28.06.2000 tran
@@ -242,6 +244,32 @@ int FileEditor::ProcessKey(int Key)
         ShowTime(2);
       }
       return(TRUE);
+    /*$ 21.07.2000 SKV
+        + выход с позиционированием на редактируемом файле по CTRLF10
+    */
+    case KEY_CTRLF10:
+      {
+        if(GetEnableSwitch())
+        {
+          ProcessKey(KEY_F10);
+          if(strchr(FileName,'\\') || strchr(FileName,'/'))
+          {
+            char DirTmp[NM],*NameTmp;
+            strncpy(DirTmp,FileName,NM);
+            NameTmp=PointToName(DirTmp);
+            if(NameTmp>DirTmp)NameTmp[-1]=0;
+            CtrlObject->ActivePanel->SetCurDir(DirTmp,TRUE);
+            CtrlObject->ActivePanel->GoToFile(NameTmp);
+          }else
+          {
+            CtrlObject->ActivePanel->SetCurDir(StartDir,TRUE);
+            CtrlObject->ActivePanel->GoToFile(FileName);
+          }
+        }
+        return (TRUE);
+      }
+    /* SKV $*/
+
     case KEY_SHIFTF10:
       ProcessKey(KEY_F2);
     case KEY_ESC:
