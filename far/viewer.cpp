@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.174 16.01.2005 $ */
+/* Revision: 1.175 03.02.2005 $ */
 
 /*
 Modify:
+  03.02.2005 WARP
+    ! Новая отрисовка вьювера (см. 01923.viewer.show.txt)
   16.01.2005 WARP
     ! Исправляем выделение в хексвью
   04.01.2005 WARP
@@ -996,32 +998,20 @@ void Viewer::SetCRSym()
     CRSym=10;
 }
 
-
-void Viewer::DisplayObject()
+void Viewer::ShowPage (int nMode)
 {
-  int Y,I;
-  __int64 SelPos,SelSize;
-  __int64 SaveSelectSize=SelectSize;
+  bool bSelStartFound, bSelEndFound;
 
-  /* $ 27.04.2001 DJ
-     вычисление ширины - в отдельную функцию
-  */
+  __int64 fpos;
+  __int64 SelStart, SelEnd;
+
+  int I,Y;
+
   AdjustWidth();
-  /* DJ $ */
 
-  /* $ 04.07.2000 tran
-    + показ строки "Cannot open the file" красным цветом
-      в случае невозножности его открытия */
-  if (ViewFile==NULL)
+  if ( ViewFile==NULL )
   {
-    /* BugZ#742/2 - проблемы с Qview
-       Когда бегаю по папкам с включенным Qview 100% на
-       некоторое время в окне Qview видна надпись
-       "Ошибка открытия файла"
-
-       Проверим еще и имя файла - для каталога здесь будет 0
-    */
-    if(*FileName)
+    if( *FileName && ((nMode == SHOW_RELOAD) || (nMode == SHOW_HEX)) )
     {
       SetScreen(X1,Y1,X2,Y2,' ',COL_VIEWERTEXT);
       GotoXY(X1,Y1+ShowStatusLine);
@@ -1029,126 +1019,175 @@ void Viewer::DisplayObject()
       mprintf(MSG(MViewerCannotOpenFile));
       ShowStatus();
     }
+
     return;
   }
-  /* tran $ */
 
-  CtrlObject->Plugins.CurViewer=this; //HostFileViewer;
 
-  ViewY1=Y1+ShowStatusLine;
-
-  if (HideCursor)
+  if ( HideCursor )
   {
     MoveCursor(79,ScrY);
     SetCursorType(0,10);
   }
-  vseek(ViewFile,FilePos,SEEK_SET);
-  if (SelectSize == 0)
-    SelectPos=FilePos;
 
-  if (VM.Hex)
-    ShowHex();
-  else
+  switch ( nMode )
   {
-    for (I=0,Y=ViewY1;Y<=Y2;Y++,I++)
+    case SHOW_HEX:
+      ShowHex ();
+      break;
+
+    case SHOW_RELOAD:
+      CtrlObject->Plugins.CurViewer = this; //HostFileViewer;
+
+      ViewY1 = Y1+ShowStatusLine;
+
+      vseek(ViewFile,FilePos,SEEK_SET);
+
+      if ( SelectSize == 0 )
+        SelectPos=FilePos;
+
+      for (I=0,Y=ViewY1;Y<=Y2;Y++,I++)
+      {
+        StrFilePos[I]=vtell(ViewFile);
+
+        if ( Y==ViewY1+1 && !feof(ViewFile) )
+          SecondPos=vtell(ViewFile);
+
+        ReadString(OutStr[I],-1,MAX_VIEWLINEB, NULL, NULL);
+      }
+
+      break;
+
+    case SHOW_UP:
+      vseek(ViewFile,FilePos,SEEK_SET);
+
+      if (SelectSize == 0)
+        SelectPos=FilePos;
+
+      for (I=Y2-ViewY1-1;I>=0;I--)
+      {
+        StrFilePos[I+1]=StrFilePos[I];
+        strcpy(OutStr[I+1],OutStr[I]);
+      }
+
+      StrFilePos[0]=FilePos;
+      SecondPos=StrFilePos[1];
+
+      ReadString(OutStr[0],(int)(SecondPos-FilePos),MAX_VIEWLINEB,NULL,NULL);
+      break;
+
+    case SHOW_DOWN:
+
+      for (I=0; I<Y2-ViewY1;I++)
+      {
+        StrFilePos[I]=StrFilePos[I+1];
+        strcpy(OutStr[I],OutStr[I+1]);
+      }
+
+      FilePos = StrFilePos[0];
+      SecondPos = StrFilePos[1];
+
+      if (SelectSize == 0)
+        SelectPos=FilePos;
+
+      vseek(ViewFile,StrFilePos[Y2-ViewY1],SEEK_SET);
+      ReadString(OutStr[Y2-ViewY1],-1,MAX_VIEWLINEB,NULL,NULL);
+      StrFilePos[Y2-ViewY1] = vtell(ViewFile);
+      ReadString(OutStr[Y2-ViewY1],-1,MAX_VIEWLINEB,NULL,NULL);
+
+      break;
+  }
+
+  for (I=0,Y=ViewY1;Y<=Y2;Y++,I++)
+  {
+    int StrLength = strlen(OutStr[I]);
+
+    bSelStartFound = false;
+    bSelEndFound = false;
+
+    fpos = StrFilePos[I];
+    SelStart = 0;
+
+    if ( fpos >= SelectPos )
+       bSelStartFound = true;
+
+    if ( (fpos < SelectPos) && (fpos+StrLength > SelectPos) )
     {
-      StrFilePos[I]=vtell(ViewFile);
-      if (Y==ViewY1+1 && !feof(ViewFile))
-        SecondPos=vtell(ViewFile);
-      ReadString(OutStr[I],-1,MAX_VIEWLINEB,&SelPos,&SelSize);
-      SetColor(COL_VIEWERTEXT);
-      GotoXY(X1,Y);
-      int StrLength = strlen((char *)OutStr[I]);
-      if (StrLength > LeftPos)
-      {
-        /* $ 18.10.2000 SVS
-           -Bug: Down Down Up & первый пробел
-        */
-        if(VM.Unicode &&
-             (FirstWord == 0x0FEFF || FirstWord == 0x0FFFE)
-             && !I && /*!LeftPos &&*/ !StrFilePos[I])
-          mprintf("%-*.*s",Width,Width,&OutStr[I][(int)LeftPos+1]);
-        else
-          mprintf("%-*.*s",Width,Width,&OutStr[I][(int)LeftPos]);
-        /* SVS $*/
-      }
+      SelStart = SelectPos-fpos;
+      bSelStartFound = true;
+    }
+
+    SelEnd = StrLength-1;
+
+    if ( fpos <= (SelectPos+SelectSize) )
+    {
+       SelEnd = (SelectPos+SelectSize)-fpos;
+       bSelEndFound = true;
+    }
+
+    SetColor(COL_VIEWERTEXT);
+    GotoXY(X1,Y);
+
+    if ( StrLength > LeftPos )
+    {
+      if(VM.Unicode && (FirstWord == 0x0FEFF || FirstWord == 0x0FFFE) && !I && !StrFilePos[I])
+         mprintf("%-*.*s",Width,Width,&OutStr[I][(int)LeftPos+1]);
       else
-        mprintf("%*s",Width,"");
+         mprintf("%-*.*s",Width,Width,&OutStr[I][(int)LeftPos]);
+    }
+    else
+      mprintf("%*s",Width,"");
 
-      if (SelSize && SelPos >= LeftPos)
-      {
-        int nLastVisiblePos = XX2;
+    if ( bSelStartFound && bSelEndFound )
+    {
+      int SelX1;
 
-        if (StrLength > LeftPos + Width && ViOpt.ShowArrows)
-            nLastVisiblePos--;
+      SetColor(COL_VIEWERSELECTEDTEXT);
 
-        int SelX1=X1+SelPos-LeftPos;
-        /* $ 12.07.2000 SVS
-           ! Wrap - трех позиционный
-        */
-        if (!VM.Wrap && SelPos > LeftPos &&
-        /* SVS $ */
-           SelX1+SaveSelectSize-1> nLastVisiblePos && LeftPos<MAX_VIEWLINE
-        /* $ 11.01.2000 VVM
-           Левый край считается за раз, а не итерациями по +4 */
-           && (X1+SelPos+SaveSelectSize-nLastVisiblePos<MAX_VIEWLINE))
-        /* VVM $ */
-        {
-          if (AdjustSelPosition)
-          {
-            LeftPos=X1+SelPos+SaveSelectSize-XX2;
-            SelectSize=SaveSelectSize;
-            AdjustSelPosition = FALSE;
-            Show();
-            return;
-          }
-        } /* if */
-        else
-        {
-          SetColor(COL_VIEWERSELECTEDTEXT);
-          GotoXY(SelX1,Y);
-          if (SelSize>XX2-SelX1+1)
-            SelSize=XX2-SelX1+1;
-          /* $ 06.02.2001 IS
-             см. SelectText
-          */
-          if (SelSize>0)
-            mprintf("%.*s",(int)SelSize,&OutStr[I][(int)(SelPos+SelectPosOffSet)]);
-          /* IS $ */
-        } /* else */
-      }
+      if ( LeftPos > SelStart )
+        SelX1 = X1;
+      else
+        SelX1 = SelStart-LeftPos;
 
-      /* $ 18.07.2000 tran -
-         проверка флага
-      */
-      if (StrLength > LeftPos + Width && ViOpt.ShowArrows)
-      {
-        GotoXY(XX2,Y);
-        SetColor(COL_VIEWERARROWS);
-        BoxText(Opt.UseUnicodeConsole?0xbb:'>');
-      }
-      if (LeftPos>0 && *OutStr[I]!=0  && ViOpt.ShowArrows)
-      {
-        GotoXY(X1,Y);
-        SetColor(COL_VIEWERARROWS);
-        BoxText(Opt.UseUnicodeConsole?0xab:'<');
-      }
-    } /* for */
-  } // if (Hex)  - else
+      GotoXY(SelX1,Y);
 
+      __int64 Length = SelEnd-SelStart;
 
-  /* $ 27.04.2001 DJ
-     рисование скроллбара - в отдельную функцию
-  */
+      if ( LeftPos > SelStart )
+        Length = SelEnd-LeftPos;
+
+      if ( LeftPos > SelEnd )
+        Length = 0;
+
+      mprintf("%.*s",(int)Length,&OutStr[I][(int)(SelX1+LeftPos+SelectPosOffSet)]);
+    }
+
+    if (StrLength > LeftPos + Width && ViOpt.ShowArrows)
+    {
+      GotoXY(XX2,Y);
+      SetColor(COL_VIEWERARROWS);
+      BoxText(Opt.UseUnicodeConsole?0xbb:'>');
+    }
+
+    if (LeftPos>0 && *OutStr[I]!=0  && ViOpt.ShowArrows)
+    {
+      GotoXY(X1,Y);
+      SetColor(COL_VIEWERARROWS);
+      BoxText(Opt.UseUnicodeConsole?0xab:'<');
+    }
+  }
+
   DrawScrollbar();
-  /* DJ $ */
   ShowStatus();
+}
+
+void Viewer::DisplayObject()
+{
+  ShowPage (VM.Hex?SHOW_HEX:SHOW_RELOAD);
 }
 
 void Viewer::ShowHex()
 {
-  if(!ViewFile)
-    return;
   char OutStr[MAX_VIEWLINE],TextStr[20];
   int SelPos=0,SelSize,EndFile;
   int Ch,Ch1,X,Y,TextPos;
@@ -1347,194 +1386,6 @@ void Viewer::ShowHex()
       SelSize = 0;
     }
   }
-}
-
-
-void Viewer::ShowUp()
-{
-  if(!ViewFile)
-    return;
-
-  int Y,I;
-
-  /* $ 27.04.2001 DJ
-     вычисление ширины - в отдельную функцию
-  */
-  AdjustWidth();
-  /* DJ $ */
-
-  if (HideCursor)
-    SetCursorType(0,10);
-  vseek(ViewFile,FilePos,SEEK_SET);
-  if (SelectSize == 0)
-    SelectPos=FilePos;
-
-  for (I=Y2-ViewY1-1;I>=0;I--)
-  {
-    StrFilePos[I+1]=StrFilePos[I];
-    strcpy(OutStr[I+1],OutStr[I]);
-  }
-  StrFilePos[0]=FilePos;
-  SecondPos=StrFilePos[1];
-
-  ReadString(OutStr[0],(int)(SecondPos-FilePos),MAX_VIEWLINEB,NULL,NULL);
-
-  for (I=0,Y=ViewY1;Y<=Y2;Y++,I++)
-  {
-    SetColor(COL_VIEWERTEXT);
-    GotoXY(X1,Y);
-    int StrLength = strlen(OutStr[I]);
-    if (StrLength > LeftPos)
-    {
-      /* $ 18.10.2000 SVS
-         -Bug: Down Down Up & первый пробел
-      */
-      if(VM.Unicode && (FirstWord == 0x0FEFF || FirstWord == 0x0FFFE) && !I && /*!LeftPos &&*/ !StrFilePos[I])
-        mprintf("%-*.*s",Width,Width,&OutStr[I][(int)LeftPos+1]);
-      else
-        mprintf("%-*.*s",Width,Width,&OutStr[I][(int)LeftPos]);
-      /* SVS $ */
-    }
-    else
-      mprintf("%*s",Width,"");
-
-    if (SelectPos >= StrFilePos[I] + LeftPos && SelectPos <= StrFilePos[I] + StrLength)
-    {
-      __int64 SelPos, SelSize;
-      char OutStrTmp[MAX_VIEWLINEB];
-      __int64 SavePos = vtell(ViewFile);
-      int SaveLastPage = LastPage;
-      vseek(ViewFile,StrFilePos[I],SEEK_SET);
-      ReadString(OutStrTmp,-1,MAX_VIEWLINEB,&SelPos,&SelSize);
-      vseek(ViewFile,SavePos,SEEK_SET);
-      LastPage = SaveLastPage;
-      int SelX1=(int)((__int64)X1+SelPos - LeftPos);
-      if (SelPos - LeftPos < Width)
-      {
-        SetColor(COL_VIEWERSELECTEDTEXT);
-        GotoXY(SelX1,Y);
-        if (SelSize>XX2-SelX1+1)
-          SelSize=XX2-SelX1+1;
-        if (SelSize>0)
-          mprintf("%.*s",(int)SelSize,&OutStr[I][(int)(SelPos+SelectPosOffSet)]);
-      }
-    }
-
-    if (StrLength > LeftPos + Width && ViOpt.ShowArrows)
-    {
-      GotoXY(XX2,Y);
-      SetColor(COL_VIEWERARROWS);
-      BoxText(Opt.UseUnicodeConsole?0xbb:'>');
-    }
-    if (LeftPos>0 && *OutStr[I]!=0 && ViOpt.ShowArrows)
-    {
-      GotoXY(X1,Y);
-      SetColor(COL_VIEWERARROWS);
-      BoxText(Opt.UseUnicodeConsole?0xab:'<');
-    }
-  }
-
-  /* $ 27.04.2001 DJ
-     отрисовка скроллбара - в отдельную функцию
-  */
-  DrawScrollbar();
-  /* DJ $ */
-  ShowStatus();
-}
-
-void Viewer::ShowDown()
-{
-  if(!ViewFile)
-    return;
-
-  int Y,I;
-
-  /* $ 27.04.2001 DJ
-     вычисление ширины - в отдельную функцию
-  */
-  AdjustWidth();
-  /* DJ $ */
-
-  if (HideCursor)
-    SetCursorType(0,10);
-
-  for (I=0; I<Y2-ViewY1;I++)
-  {
-    StrFilePos[I]=StrFilePos[I+1];
-    strcpy(OutStr[I],OutStr[I+1]);
-  }
-  FilePos = StrFilePos[0];
-  SecondPos = StrFilePos[1];
-  if (SelectSize == 0)
-    SelectPos=FilePos;
-
-  vseek(ViewFile,StrFilePos[Y2-ViewY1],SEEK_SET);
-  ReadString(OutStr[Y2-ViewY1],-1,MAX_VIEWLINEB,NULL,NULL);
-  StrFilePos[Y2-ViewY1] = vtell(ViewFile);
-  ReadString(OutStr[Y2-ViewY1],-1,MAX_VIEWLINEB,NULL,NULL);
-
-  for (I=0,Y=ViewY1;Y<=Y2;Y++,I++)
-  {
-    SetColor(COL_VIEWERTEXT);
-    GotoXY(X1,Y);
-    int StrLength = strlen(OutStr[I]);
-    if (StrLength > LeftPos)
-    {
-      /* $ 18.10.2000 SVS
-         -Bug: Down Down Up & первый пробел
-      */
-      if(VM.Unicode && (FirstWord == 0x0FEFF || FirstWord == 0x0FFFE) && !I /*&& !LeftPos */&& !StrFilePos[I])
-        mprintf("%-*.*s",Width,Width,&OutStr[I][(int)LeftPos+1]);
-      else
-        mprintf("%-*.*s",Width,Width,&OutStr[I][(int)LeftPos]);
-      /* SVS $ */
-    }
-    else
-      mprintf("%*s",Width,"");
-
-    if (SelectPos >= StrFilePos[I] + LeftPos && SelectPos <= StrFilePos[I] + StrLength)
-    {
-      __int64 SelPos, SelSize;
-      char OutStrTmp[MAX_VIEWLINEB];
-      __int64 SavePos = vtell(ViewFile);
-      int SaveLastPage = LastPage;
-      vseek(ViewFile,StrFilePos[I],SEEK_SET);
-      ReadString(OutStrTmp,-1,MAX_VIEWLINEB,&SelPos,&SelSize);
-      vseek(ViewFile,SavePos,SEEK_SET);
-      LastPage = SaveLastPage;
-      int SelX1=(int)((__int64)X1+SelPos - LeftPos);
-      if (SelPos - LeftPos < Width)
-      {
-        SetColor(COL_VIEWERSELECTEDTEXT);
-        GotoXY(SelX1,Y);
-        if (SelSize>XX2-SelX1+1)
-          SelSize=XX2-SelX1+1;
-        if (SelSize>0)
-          mprintf("%.*s",(int)SelSize,&OutStr[I][(int)(SelPos+SelectPosOffSet)]);
-      }
-    }
-
-    if (StrLength > LeftPos + Width && ViOpt.ShowArrows)
-    {
-      GotoXY(XX2,Y);
-      SetColor(COL_VIEWERARROWS);
-      BoxText(Opt.UseUnicodeConsole?0xbb:'>');
-
-    }
-    if (LeftPos>0 && *OutStr[I]!=0 && ViOpt.ShowArrows)
-    {
-      GotoXY(X1,Y);
-      SetColor(COL_VIEWERARROWS);
-      BoxText(Opt.UseUnicodeConsole?0xab:'<');
-    }
-  }
-
-  /* $ 27.04.2001 DJ
-     отрисовка скроллбара - в отдельную функцию
-  */
-  DrawScrollbar();
-  /* DJ $ */
-  ShowStatus();
 }
 
 /* $ 27.04.2001 DJ
@@ -2268,7 +2119,7 @@ int Viewer::ProcessKey(int Key)
           Show();
         }
         else
-          ShowUp();
+          ShowPage(SHOW_UP);
       }
 //      LastSelPos=FilePos;
       return(TRUE);
@@ -2284,7 +2135,7 @@ int Viewer::ProcessKey(int Key)
           Show();
         }
         else
-          ShowDown();
+          ShowPage(SHOW_DOWN);
       }
 //      LastSelPos=FilePos;
       return(TRUE);

@@ -7,10 +7,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.28 14.05.2003 $ */
+/* Revision: 1.29 03.02.2005 $ */
 
 /*
 Modify:
+  03.02.2005 WARP
+    ! Новая отрисовка вьювера (см. 01923.viewer.show.txt)
   14.05.2003 VVM
     + Обработка ViOpt.PersistentBlocks;
   24.04.2003
@@ -139,6 +141,13 @@ enum SEARCH_FLAGS {
 };
 /* VVM $ */
 
+enum SHOW_MODES {
+    SHOW_RELOAD,
+    SHOW_HEX,
+    SHOW_UP,
+    SHOW_DOWN
+};
+
 class Viewer:public ScreenObject
 {
   private:
@@ -233,10 +242,11 @@ class Viewer:public ScreenObject
 
   private:
     void DisplayObject();
+
+    void ShowPage (int nMode);
+
     void Up();
     void ShowHex();
-    void ShowUp();
-    void ShowDown();
     void ShowStatus();
     /* $ 27.04.2001 DJ
        функции для рисования скроллбара, для корректировки ширины в
