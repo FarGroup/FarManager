@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.142 17.05.2003 $ */
+/* Revision: 1.143 21.05.2003 $ */
 
 /*
 Modify:
+  21.05.2003 VVM
+    ! Изменим поведение при скроллинге вниз.
   17.05.2003 VVM
     - В режиме Hex-просмотра 80х25 скроллбар затирал последний символ.
   16.05.2003 VVM
@@ -1251,9 +1253,11 @@ void Viewer::ShowUp()
       __int64 SelPos, SelSize;
       char OutStrTmp[MAX_VIEWLINEB];
       __int64 SavePos = vtell(ViewFile);
+	  int SaveLastPage = LastPage;
       vseek(ViewFile,StrFilePos[I],SEEK_SET);
       ReadString(OutStrTmp,-1,MAX_VIEWLINEB,&SelPos,&SelSize);
       vseek(ViewFile,SavePos,SEEK_SET);
+	  LastPage = SaveLastPage;
       int SelX1=(int)((__int64)X1+SelPos - LeftPos);
       if (SelPos - LeftPos < Width)
       {
@@ -1340,9 +1344,11 @@ void Viewer::ShowDown()
       __int64 SelPos, SelSize;
       char OutStrTmp[MAX_VIEWLINEB];
       __int64 SavePos = vtell(ViewFile);
+	  int SaveLastPage = LastPage;
       vseek(ViewFile,StrFilePos[I],SEEK_SET);
       ReadString(OutStrTmp,-1,MAX_VIEWLINEB,&SelPos,&SelSize);
       vseek(ViewFile,SavePos,SEEK_SET);
+	  LastPage = SaveLastPage;
       int SelX1=(int)((__int64)X1+SelPos - LeftPos);
       if (SelPos - LeftPos < Width)
       {
@@ -2115,13 +2121,18 @@ int Viewer::ProcessKey(int Key)
       FilePos=vtell(ViewFile);
       for (I=ViewY1;I<=Y2;I++)
         ReadString(ReadStr,-1,sizeof(ReadStr),NULL,NULL);
-      if (LastPage)
-      {
-        InternalKey++;
-        ProcessKey(KEY_CTRLPGDN);
-        InternalKey--;
-        return(TRUE);
-      }
+      /* $ 21.05.2003 VVM
+        + По PgDn листаем всегда по одной странице,
+          даже если осталась всего одна строчка.
+          Удобно тексты читать */
+//      if (LastPage)
+//      {
+//        InternalKey++;
+//        ProcessKey(KEY_CTRLPGDN);
+//        InternalKey--;
+//        return(TRUE);
+//      }
+      /* VVM $ */
       Show();
 //      LastSelPos=FilePos;
       return(TRUE);
