@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.138 04.11.2004 $ */
+/* Revision: 1.139 08.12.2004 $ */
 
 /*
 Modify:
+  08.12.2004 SVS
+    ! "...т.е. последовательно разрешать шаринг все более другой...."
   04.11.2004 SVS
     ! убираем *_EDITPATH
   06.08.2004 SKV
@@ -3022,8 +3024,23 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
   HANDLE SrcHandle=FAR_CreateFile(SrcName,GENERIC_READ,OpenMode,NULL,OPEN_EXISTING,0,NULL);
   if (SrcHandle==INVALID_HANDLE_VALUE)
   {
-    _LOGCOPYR(SysLog("return COPY_FAILURE -> %d if (SrcHandle==INVALID_HANDLE_VALUE)",__LINE__));
-    return COPY_FAILURE;
+    if (Opt.CopyOpened)
+    {
+      if ( GetLastError() == ERROR_SHARING_VIOLATION )
+      {
+        SrcHandle = FAR_CreateFile( SrcName,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,NULL,OPEN_EXISTING, 0, NULL );
+        if (SrcHandle == INVALID_HANDLE_VALUE )
+        {
+          _LOGCOPYR(SysLog("return COPY_FAILURE -> %d if (SrcHandle==INVALID_HANDLE_VALUE)",__LINE__));
+          return COPY_FAILURE;
+        }
+      }
+    }
+    else
+    {
+      _LOGCOPYR(SysLog("return COPY_FAILURE -> %d if (SrcHandle==INVALID_HANDLE_VALUE)",__LINE__));
+      return COPY_FAILURE;
+    }
   }
 
   HANDLE DestHandle=INVALID_HANDLE_VALUE;
