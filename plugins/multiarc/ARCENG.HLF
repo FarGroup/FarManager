@@ -15,7 +15,7 @@ archiver calls.
 
    ~Archive commands~@ArcCmd@
 
-   ~Archive support configuration~@ArcCfg@
+   ~Archive support configuration~@Config@
 
    ~Archiver command lines~@ArcSettings@
 
@@ -62,7 +62,7 @@ in the ~Archiver settings~@ArcSettings@ dialog.
 used with RAR archives. Other archivers will support only a sub-set
 of these commands.
 
-@ArcCfg
+@Config
 $ #Archive support configuration#
     In this dialog you may change following parameters:
 
