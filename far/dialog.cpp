@@ -5,10 +5,15 @@ dialog.cpp
 
 */
 
-/* Revision: 1.263 20.09.2002 $ */
+/* Revision: 1.264 23.09.2002 $ */
 
 /*
 Modify:
+  23.09.2002 SVS
+    - BugZ#652 - Узкая консоль и DialogEx
+    + DialogItem имеет IFlags - для внутренних нужд.
+    ! Для DI_CHECKBOX и DI_RADIOBUTTON... если Text == "", то лишний
+      пробел не рисуем
   20.09.2002 SVS
     - BugZ#648 - Проблемы в диалоге выбора цветов.
     ! Предобработка KEY_ENTER в DI_LISTBOX
@@ -1129,8 +1134,17 @@ void Dialog::CheckDialogCoord(void)
 
   if(X2 > ScrX)
   {
-    X1=-1;
-    X2=ScrX;//-1; //???
+    if(X1 != -1 && X2-X1+1 < ScrX) // если мы все же вмещаемся в консоль, то
+    {                              // произведем обычный сдвиг диалога...
+      int D=X2-ScrX;
+      X1-=D;
+      X2-=D;
+    }
+    else
+    {
+      X1=-1;
+      X2=ScrX;//-1; //???
+    }
   }
 
   if (X1 < 0) // задано центрирование диалога по горизонтали?
@@ -2346,10 +2360,7 @@ void Dialog::ShowDialog(int ID)
       SetScreen(X1,Y1,X2,Y2,' ',Attr);
     }
     /* SVS $ */
-  }
 
-  if(ID == -1) // рисуем все?
-  {
     ID=0;
     DrawItemCount=ItemCount;
   }
@@ -2357,6 +2368,13 @@ void Dialog::ShowDialog(int ID)
   {
     DrawItemCount=ID+1;
   }
+
+  //IFlags.Set(DIMODE_REDRAW)
+  /* TODO:
+     если рисуется контрол и по Z-order`у он пересекается с
+     другим контролом (по координатам), то для "позднего"
+     контрола тоже нужна прорисовка.
+  */
 
   for (I=ID,CurItem=&Item[I]; I < DrawItemCount; I++, ++CurItem)
   {
@@ -2507,19 +2525,21 @@ void Dialog::ShowDialog(int ID)
         SetColor(Attr&0xFF);
 
         GotoXY(X1+CX1,Y1+CY1);
+        char *AddSpace=strlen(CurItem->Data) > 0?" ":"";
+
         if (CurItem->Type==DI_CHECKBOX)
         {
           char *Chk3State=MSG(MCheckBox2State);
-          sprintf(Str,"[%c] ",CurItem->Selected ?
+          sprintf(Str,"[%c]%s",(CurItem->Selected ?
              (((CurItem->Flags&DIF_3STATE) && CurItem->Selected == 2)?
-                *Chk3State:'x'):' ');
+                *Chk3State:'x'):' '),AddSpace);
         }
         else
         {
           if (CurItem->Flags & DIF_MOVESELECT)
             sprintf(Str," %c ",CurItem->Selected ? '\07':' ');
           else
-            sprintf(Str,"(%c) ",CurItem->Selected ? '\07':' ');
+            sprintf(Str,"(%c)%s",(CurItem->Selected ? '\07':' '),AddSpace);
         }
 
         strncat(Str,CurItem->Data,sizeof(Str)-1);

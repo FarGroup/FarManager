@@ -5,10 +5,13 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.143 20.09.2002 $ */
+/* Revision: 1.144 23.09.2002 $ */
 
 /*
 Modify:
+  23.09.2002 SVS
+    + ACTL_SETARRAYCOLOR, FARCOLORFLAGS, FARColor пока для внутренного юзания
+      (хотя, блин, работает на ура!)
   20.09.2002 SVS
     + флаги FDLG_NODRAWSHADOW и FDLG_NODRAWPANEL
   10.09.2002 SVS
@@ -631,6 +634,39 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
       return SizeArrayPalette;
     }
     /* SVS $ */
+
+    /*
+      Param=struct FARColor{
+        DWORD Flags;
+        int StartIndex;
+        int ColorItem;
+        LPBYTE Colors;
+      };
+    */
+    case ACTL_SETARRAYCOLOR:
+    {
+      if(Param && !IsBadReadPtr(Param,sizeof(struct FARColor)))
+      {
+        struct FARColor *Pal=(struct FARColor*)Param;
+        if(Pal->Colors &&
+           Pal->StartIndex >= 0 &&
+           Pal->StartIndex+Pal->ColorItem <= SizeArrayPalette &&
+           !IsBadReadPtr(Pal->Colors,Pal->ColorItem)
+          )
+        {
+          memmove(Palette+Pal->StartIndex,Pal->Colors,Pal->ColorItem);
+          if(Pal->Flags&FCLR_REDRAW)
+          {
+            ScrBuf.Lock(); // отменяем всякую прорисовку
+            FrameManager->RefreshFrame(); // рефрешим
+            ScrBuf.Unlock(); // разрешаем прорисовку
+            FrameManager->PluginCommit(); // коммитим.
+          }
+          return TRUE;
+        }
+      }
+      return FALSE;
+    }
 
     /* $ 14.12.2000 SVS
       ACTL_EJECTMEDIA - извлечь диск из съемного накопителя

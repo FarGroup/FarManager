@@ -10,10 +10,12 @@ dialog.hpp
 
 */
 
-/* Revision: 1.64 20.09.2002 $ */
+/* Revision: 1.65 23.09.2002 $ */
 
 /*
 Modify:
+  23.09.2002 SVS
+    + DialogItem имеет IFlags - для внутренних нужд.
   20.09.2002 SVS
     + флаги DMODE_NODRAWSHADOW и DMODE_NODRAWPANEL
   10.09.2002 SVS
@@ -245,6 +247,8 @@ Modify:
 #define DMODE_NODRAWPANEL   0x00200000 // не рисовать подложку?
 #define DMODE_OLDSTYLE      0x80000000 // Диалог в старом (до 1.70) стиле
 
+#define DIMODE_REDRAW       0x00000001 // требуется принудительная прорисовка итема?
+
 // Флаги для функции ConvertItem
 #define CVTITEM_TOPLUGIN    0
 #define CVTITEM_FROMPLUGIN  1
@@ -306,6 +310,7 @@ struct DialogItem
   };
 
   WORD ID;
+  BitFlags IFlags;
   int AutoCount;   // Автоматизация
   struct DialogItemAutomation* AutoPtr;
   DWORD UserData; // ассоциированные данные

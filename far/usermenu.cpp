@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.59 20.09.2002 $ */
+/* Revision: 1.60 23.09.2002 $ */
 
 /*
 Modify:
+  23.09.2002 SVS
+    - BugZ#634 - Лишний пробел после хоткея в юзер меню
   20.09.2002 SVS
     ! В юзвер-меню теперь можно вводить хоткей ала '&'
   12.07.2002 VVM
@@ -487,7 +489,7 @@ void ProcessUserMenu(int EditMenu)
 
 int FillUserMenu(VMenu& UserMenu,char *MenuKey,int MenuPos,int *FuncPos,char *Name,char *ShortName)
 {
-  int NumLine=0;
+  int NumLine;
   struct MenuItem UserMenuItem;
   memset(&UserMenuItem,0,sizeof(UserMenuItem));
 
@@ -496,7 +498,25 @@ int FillUserMenu(VMenu& UserMenu,char *MenuKey,int MenuPos,int *FuncPos,char *Na
   /* $ 20.07.2000 tran
      + лишний проход для вычисления максимальной длины строки */
   int MaxLen=20;
+  BOOL HotKeyPresent=FALSE;
 
+  // лишний проход - выясняем есть ли хотя бы один хоткей
+  NumLine=0;
+  while (1)
+  {
+    char ItemKey[512],HotKey[10];
+    sprintf(ItemKey,"%s\\Item%d",MenuKey,NumLine);
+    if(!GetRegKey(ItemKey,"HotKey",HotKey,"",sizeof(HotKey)))
+      break;
+    if(*HotKey)
+    {
+      HotKeyPresent=TRUE;
+      break;
+    }
+    NumLine++;
+  }
+
+  NumLine=0;
   while (1)
   {
     int MenuTextLen;
@@ -540,8 +560,16 @@ int FillUserMenu(VMenu& UserMenu,char *MenuKey,int MenuPos,int *FuncPos,char *Na
 //        sprintf(MenuText,"%-3.3s& %-20.*s",HotKey,ScrX-12,Label);
 //      else
 //        sprintf(MenuText,"%s%-3.3s %-20.*s",(*HotKey?"&":""),HotKey,ScrX-12,Label);
-      int AddHotKey = (*HotKey) && (!FuncNum);
-      sprintf(MenuText,"%s%-*.*s %-20.*s%s",(AddHotKey?"&":""),(*HotKey=='&'?4:3),(*HotKey=='&'?4:3),HotKey,ScrX-12,Label,((strchr(Label, '&')==NULL)||(AddHotKey))?"":" ");
+      if(HotKeyPresent)
+      {
+        int AddHotKey = (*HotKey) && (!FuncNum);
+        sprintf(MenuText,"%s%-*.*s %-20.*s%s",(AddHotKey?"&":""),(*HotKey=='&'?4:3),(*HotKey=='&'?4:3),HotKey,ScrX-12,Label,((strchr(Label, '&')==NULL)||(AddHotKey))?"":" ");
+      }
+      else
+      {
+        char *Ptr=(strchr(Label, '&')==NULL?"":" ");
+        sprintf(MenuText,"%-20.*s%s",ScrX-12,Label,Ptr);
+      }
       /* VVM $ */
       MenuTextLen=strlen(MenuText)-(FuncNum>0?1:0);
       MaxLen=(MaxLen<MenuTextLen ? MenuTextLen : MaxLen);
@@ -555,7 +583,6 @@ int FillUserMenu(VMenu& UserMenu,char *MenuKey,int MenuPos,int *FuncPos,char *Na
     MaxLen = ScrX-15;
 
   NumLine=0;
-
   while (1)
   {
     char ItemKey[512],HotKey[10],Label[512],MenuText[512];
@@ -607,8 +634,16 @@ int FillUserMenu(VMenu& UserMenu,char *MenuKey,int MenuPos,int *FuncPos,char *Na
 //        sprintf(MenuText,"%-3.3s& %-*.*s",HotKey,MaxLen,MaxLen,Label);
 //      else
 //        sprintf(MenuText,"%s%-3.3s %-*.*s",(*HotKey?"&":""),HotKey,MaxLen,MaxLen,Label);
-      int AddHotKey = (*HotKey) && (!FuncNum);
-      sprintf(MenuText,"%s%-*.*s %-*.*s%s",(AddHotKey?"&":""),(*HotKey=='&'?4:3),(*HotKey=='&'?4:3),HotKey,MaxLen,MaxLen,Label,((strchr(Label, '&')==NULL)||(AddHotKey))?"":" ");
+      if(HotKeyPresent)
+      {
+        int AddHotKey = (*HotKey) && (!FuncNum);
+        sprintf(MenuText,"%s%-*.*s %-*.*s%s",(AddHotKey?"&":""),(*HotKey=='&'?4:3),(*HotKey=='&'?4:3),HotKey,MaxLen,MaxLen,Label,((strchr(Label, '&')==NULL)||(AddHotKey))?"":" ");
+      }
+      else
+      {
+        char *Ptr=(strchr(Label, '&')==NULL?"":" ");
+        sprintf(MenuText,"%-*.*s%s",MaxLen,MaxLen,Label,Ptr);
+      }
       /* VVM $ */
 
     /* tran 20.07.2000 $ */

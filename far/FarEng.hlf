@@ -1734,11 +1734,18 @@ $ #Internal viewer#
 
     1. Custom character tables are provided in "Addons\Tables"
        subfolder of FAR folder in the form of .reg files.
-       Before any table may be used, it must be installed: just press
-       Shift-Enter on the corresponding file.
+       Before any table may be used, it must be installed:
+       just press Shift-Enter on the corresponding file.
 
-    2. Also to call search dialog you may just start typing the text
-       to be located.
+    2. Also to call search dialog you may just start typing the
+       text to be located.
+
+    3. When the viewer opens a file, it permits the file to be
+       deleted by other processes. If such a deletion happens,
+       the file is actually deleted from the directory only after
+       the viewer is closed, but any operations on the deleted
+       file fail - this is a Windows feature.
+
 
 @ViewerGotoPos
 $ #Go to specified position
