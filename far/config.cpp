@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.32 05.11.2000 $ */
+/* Revision: 1.33 16.11.2000 $ */
 
 /*
 Modify:
+  16.11.2000 SVS
+    ! Клавиши, вызывающие Xlat - теперь хранятся в реестре в текстовом виде
   05.11.2000 SVS
     - В настройках вьювера вместо Opt.SaveViewerShortPos стоялО
       Opt.SaveEditorShortPos :-(((
@@ -757,20 +759,38 @@ void ReadConfig()
   GetRegKey("XLat","Rules2",(BYTE*)Opt.XLat.Rules[1],(BYTE*)NULL,sizeof(Opt.XLat.Rules[1]));
   GetRegKey("XLat","Rules3",(BYTE*)Opt.XLat.Rules[2],(BYTE*)NULL,sizeof(Opt.XLat.Rules[2]));
   /* SVS $ */
+  /* $ 16.11.2000 SVS
+     Клавиши, вызывающие Xlat - теперь хранятся в реестре в текстовом виде
+  */
   /* $ 24.09.2000 SVS
      Клавиши, вызывающие Xlat
   */
-  GetRegKey("XLat","EditorKey",Opt.XLat.XLatEditorKey,KEY_CTRLSHIFTX);
-  GetRegKey("XLat","CmdLineKey",Opt.XLat.XLatCmdLineKey,KEY_CTRLSHIFTX);
-  GetRegKey("XLat","DialogKey",Opt.XLat.XLatDialogKey,KEY_CTRLSHIFTX);
+  char KeyNameFromReg[34];
+  char szCtrlShiftX[]="CtrlShiftX";
+  GetRegKey("XLat","EditorKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
+  if((Opt.XLat.XLatEditorKey=KeyNameToKey(KeyNameFromReg)) == -1)
+    Opt.XLat.XLatEditorKey=KEY_CTRLSHIFTX;
+  GetRegKey("XLat","CmdLineKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
+  if((Opt.XLat.XLatCmdLineKey=KeyNameToKey(KeyNameFromReg)) == -1)
+    Opt.XLat.XLatCmdLineKey=KEY_CTRLSHIFTX;
+  GetRegKey("XLat","DialogKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
+  if((Opt.XLat.XLatDialogKey=KeyNameToKey(KeyNameFromReg)) == -1)
+    Opt.XLat.XLatDialogKey=KEY_CTRLSHIFTX;
   /* SVS $ */
   /* $ 04.11.2000 SVS
      Альтернативные клавиши, вызывающие Xlat
-     по умолчанию = 0 - т.е. не используются
+     по умолчанию = KEY_CTRLSHIFTX
   */
-  GetRegKey("XLat","AltEditorKey",Opt.XLat.XLatAltEditorKey,0);
-  GetRegKey("XLat","AltCmdLineKey",Opt.XLat.XLatAltCmdLineKey,0);
-  GetRegKey("XLat","AltDialogKey",Opt.XLat.XLatAltDialogKey,0);
+  GetRegKey("XLat","AltEditorKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
+  if((Opt.XLat.XLatAltEditorKey=KeyNameToKey(KeyNameFromReg)) == -1)
+    Opt.XLat.XLatAltEditorKey=KEY_CTRLSHIFTX;
+  GetRegKey("XLat","AltCmdLineKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
+  if((Opt.XLat.XLatAltCmdLineKey=KeyNameToKey(KeyNameFromReg)) == -1)
+    Opt.XLat.XLatAltCmdLineKey=KEY_CTRLSHIFTX;
+  GetRegKey("XLat","AltDialogKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
+  if((Opt.XLat.XLatAltDialogKey=KeyNameToKey(KeyNameFromReg)) == -1)
+    Opt.XLat.XLatAltDialogKey=KEY_CTRLSHIFTX;
+  /* SVS $ */
   /* SVS $ */
 
   GetRegKey("System","SaveHistory",Opt.SaveHistory,0);
