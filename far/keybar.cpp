@@ -10,36 +10,36 @@ Keybar
 /*
 Modify:
   30.04.2001 DJ
-    ! Все нафиг переделано :-) Убран (почти) весь дублирующийся код.
-      Публичный API сохранен.
+    ! ┬ёх эрЇшу яхЁхфхырэю :-) ╙сЁрэ (яюўЄш) тхё№ фєсышЁє■∙шщё  ъюф.
+      ╧єсышўэ√щ API ёюїЁрэхэ.
   28.04.2001 VVM
     + ProcessKey()
   04.04.2001 SVS
-    - Избавляемся от "залипания" :-)
-    ! убран "мусор" - ненужные новые переменные CtrlShiftState
+    - ╚чсрты хьё  юЄ "чрышярэш " :-)
+    ! єсЁрэ "ьєёюЁ" - эхэєцэ√х эют√х яхЁхьхээ√х CtrlShiftState
   17.01.2001 SVS
-    - Вернем обратно предыдущее изменение в связи с очередным уточнением клавиш
+    - ┬хЁэхь юсЁрЄэю яЁхф√фє∙хх шчьхэхэшх т ёт чш ё юўхЁхфэ√ь єЄюўэхэшхь ъыртш°
   07.01.2001 OT
-    - После смены клавиатуры выскочил баг:
-      "Кликаю мышкой на кейбаре, например, на f10 - ноль реакции."
+    - ╧юёых ёьхэ√ ъыртшрЄєЁ√ т√ёъюўшы сру:
+      "╩ышър■ ь√°ъющ эр ъхщсрЁх, эряЁшьхЁ, эр f10 - эюы№ ЁхръЎшш."
   19.09.2000 SVS
-    ! При нажатии Ctrl-Alt-Shift неверно отображается KeyBar
+    ! ╧Ёш эрцрЄшш Ctrl-Alt-Shift эхтхЁэю юЄюсЁрцрхЄё  KeyBar
   07.08.2000 SVS
-    + Изменение любого Label - функция Change(Group,...)
+    + ╚чьхэхэшх ы■сюую Label - ЇєэъЎш  Change(Group,...)
   02.08.2000 SVS
-    + Дополнительные индикаторы
+    + ─юяюыэшЄхы№э√х шэфшърЄюЁ√
       CtrlShiftName, AltShiftName, CtrlAltName
-    + К этим индикаторам - функции
+    + ╩ ¤Єшь шэфшърЄюЁрь - ЇєэъЎшш
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -65,7 +65,7 @@ void KeyBar::SetOwner(BaseInput *Owner)
 
 
 /* $ 02.08.2000 SVS
-   Переработка с учетом новых индикаторов
+   ╧хЁхЁрсюЄър ё єўхЄюь эют√ї шэфшърЄюЁют
 */
 void KeyBar::DisplayObject()
 {
@@ -93,7 +93,7 @@ void KeyBar::DisplayObject()
       if (CtrlPressed)
       {
         CtrlState=CtrlPressed;
-        if(!AltPressed) // Ctrl-Alt-Shift - это особый случай :-)
+        if(!AltPressed) // Ctrl-Alt-Shift - ¤Єю юёюс√щ ёыєўрщ :-)
         {
           if (I<KeyCounts [KBL_CTRLSHIFT])
             Label=KeyTitles [KBL_CTRLSHIFT][I];
@@ -167,7 +167,7 @@ void KeyBar::ClearGroup(int Group)
 }
 
 /* $ 07.08.2000 SVS
-   Изменение любого Label
+   ╚чьхэхэшх ы■сюую Label
 */
 void KeyBar::Change(int Group,char *NewStr,int Pos)
 {
@@ -177,7 +177,7 @@ void KeyBar::Change(int Group,char *NewStr,int Pos)
 
 
 /* $ 30.04.2001 DJ
-   Групповая установка идущих подряд строк LNG для указанной группы
+   ├Ёєяяютр  єёЄрэютър шфє∙шї яюфЁ ф ёЄЁюъ LNG фы  єърчрээющ уЁєяя√
 */
 
 void KeyBar::SetAllGroup (int Group, int StartIndex, int Count)
@@ -251,7 +251,7 @@ int KeyBar::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     Key=11;
 
   /* $ 02.08.2000 SVS
-     Добавка к новым индикаторам
+     ─юсртър ъ эют√ь шэфшърЄюЁрь
   */
   if (MouseEvent->dwControlKeyState & (RIGHT_ALT_PRESSED|LEFT_ALT_PRESSED) ||
       (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED))

@@ -1,7 +1,7 @@
 /*
 options.cpp
 
-Фаровское горизонтальное меню (вызов hmenu.cpp с конкретными параметрами)
+╘рЁютёъюх уюЁшчюэЄры№эюх ьхэ■ (т√чют hmenu.cpp ё ъюэъЁхЄэ√ьш ярЁрьхЄЁрьш)
 
 */
 
@@ -9,29 +9,29 @@ options.cpp
 
 /*
 Modify:
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
+  29.04.2001 ╬╥
+    + ┬эхфЁхэшх NWZ юЄ ╥ЁхЄ№ ъютр
   30.03.2001 SVS
-    ! В OptionsDisabled() задействуем Opt.Policies.DisabledOptions, которая
-      централизовано и успешно считывается в config.cpp
+    ! ┬ OptionsDisabled() чрфхщёЄтєхь Opt.Policies.DisabledOptions, ъюЄюЁр 
+      ЎхэЄЁрышчютрэю ш єёях°эю ёўшЄ√трхЄё  т config.cpp
   29.03.2001 IS
-    + ViewerConfig вызывается с Opt.ViOpt
+    + ViewerConfig т√ч√трхЄё  ё Opt.ViOpt
   28.02.2001 IS
     ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   21.02.2001 IS
-    + EditorConfig вызывается с Opt.EdOpt
+    + EditorConfig т√ч√трхЄё  ё Opt.EdOpt
   05.09.2000 tran
     + OptionsEnabled - reg:Policies/DisabledOptions
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -405,7 +405,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
       break;
     case 3:
       /* $ 05.09.2000 tran
-        + обработка разрешения настройки
+        + юсЁрсюЄър ЁрчЁх°хэш  эрёЄЁющъш
       */
       if ( !OptionsDisabled(VItem) )
         break;
@@ -520,7 +520,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 }
 
 /* $ 05.09.2000 tran
-   функция проверки разрешенности конфигурации */
+   ЇєэъЎш  яЁютхЁъш ЁрчЁх°хээюёЄш ъюэЇшуєЁрЎшш */
 int OptionsDisabled(int I)
 {
   if (Opt.Policies.DisabledOptions)

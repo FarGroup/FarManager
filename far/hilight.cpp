@@ -9,64 +9,64 @@ Files highlighting
 
 /*
 Modify:
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
+  29.04.2001 ╬╥
+    + ┬эхфЁхэшх NWZ юЄ ╥ЁхЄ№ ъютр
   23.04.2001 SVS
-    ! КХЕ! Новый вз<ляд на %PATHEXT% - то что редактируем и то, что
-      юзаем - разные сущности.
+    ! ╩╒┼! ═ют√щ тч<ы ф эр %PATHEXT% - Єю ўЄю ЁхфръЄшЁєхь ш Єю, ўЄю
+      ■чрхь - Ёрчэ√х ёє∙эюёЄш.
   08.04.2001 SVS
-    ! Раскраска не поддерживает переменные среды. В морг! Ставим скорость
-      во главу угла.
+    ! ╨рёъЁрёър эх яюффхЁцштрхЄ яхЁхьхээ√х ёЁхф√. ┬ ьюЁу! ╤Єртшь ёъюЁюёЄ№
+      тю уыртє єуыр.
   06.04.2001 SVS
-    ! Код по анализу PATHEXT вынесен в отдельную функцию ExpandPATHEXT()
+    ! ╩юф яю рэрышчє PATHEXT т√эхёхэ т юЄфхы№эє■ ЇєэъЎш■ ExpandPATHEXT()
   04.04.2001 SVS
-    - Не инициализировался массив Mask в HighlightFiles::EditRecord()
-      поэтому иногда наблюдался мусор в строке ввода для маски.
-    ! Немного опитимизации кода в HighlightFiles::HiEdit()
+    - ═х шэшЎшрышчшЁютрыё  ьрёёшт Mask т HighlightFiles::EditRecord()
+      яю¤Єюьє шэюуфр эрсы■фрыё  ьєёюЁ т ёЄЁюъх ттюфр фы  ьрёъш.
+    ! ═хьэюую юяшЄшьшчрЎшш ъюфр т HighlightFiles::HiEdit()
   03.04.2001 SVS
-    ! Из-за галимого формата переменной %pathext% - немного коррекции кода.
-    + Показ символа пометки в меню
+    ! ╚ч-чр урышьюую ЇюЁьрЄр яхЁхьхээющ %pathext% - эхьэюую ъюЁЁхъЎшш ъюфр.
+    + ╧юърч ёшьтюыр яюьхЄъш т ьхэ■
   02.04.2001 VVM
-    + В масках можно задавать переменные окружения
+    + ┬ ьрёърї ьюцэю чрфртрЄ№ яхЁхьхээ√х юъЁєцхэш 
   01.03.2001 SVS
-    ! Переезд ветки "Highlight" в "Colors\Highlight"
+    ! ╧хЁххчф тхЄъш "Highlight" т "Colors\Highlight"
   27.02.2001 VVM
-    ! Символы, зависимые от кодовой страницы
+    ! ╤шьтюы√, чртшёшь√х юЄ ъюфютющ ёЄЁрэшЎ√
       /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
-      переведены в коды.
+      яхЁхтхфхэ√ т ъюф√.
   26.02.2001 SVS
-    - Забыл при редактировании инициализировать данные...
+    - ╟рс√ы яЁш ЁхфръЄшЁютрэшш шэшЎшрышчшЁютрЄ№ фрээ√х...
   12.02.2001 SVS
-    + Функция ClearData - очистка HiData
-    - устранение утечки памяти (после 440-го)
+    + ╘єэъЎш  ClearData - юўшёЄър HiData
+    - єёЄЁрэхэшх єЄхўъш ярь Єш (яюёых 440-ую)
   11.02.2001 SVS
-    ! Введение DIF_VAREDIT позволило расширить размер под маски до
-      HIGHLIGHT_MASK_SIZE символов
+    ! ┬тхфхэшх DIF_VAREDIT яючтюышыю Ёрё°шЁшЄ№ ЁрчьхЁ яюф ьрёъш фю
+      HIGHLIGHT_MASK_SIZE ёшьтюыют
   11.02.2001 SVS
-    ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
+    ! ═хёъюы№ъю єЄюўэхэшщ ъюфр т ёт чш ё шчьхэхэш ьш т ёЄЁєъЄєЁх MenuItem
   14.01.2001 SVS
-    + Маска для reparse point
+    + ╠рёър фы  reparse point
   24.11.2000 SVS
-    - Для Encrypted вместо EditData.ExcludeAttr стоял IncludeAttr :-(
+    - ─ы  Encrypted тьхёЄю EditData.ExcludeAttr ёЄю ы IncludeAttr :-(
   30.10.2000 SVS
-    - Не редактируются маски файлов в Files Highlighting!
+    - ═х ЁхфръЄшЁє■Єё  ьрёъш Їрщыют т Files Highlighting!
   20.10.2000 SVS
-    ! Добавлен атрибут Enctripted и введена логика взаимоисключений
-      для Include & Exclude атрибутов.
+    ! ─юсртыхэ рЄЁшсєЄ Enctripted ш ттхфхэр ыюушър тчршьюшёъы■ўхэшщ
+      фы  Include & Exclude рЄЁшсєЄют.
   13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
+    ! ═хъюЄюЁ√х ъюЁЁхъЎшш яЁш шёяюы№чютрэшш new/delete/realloc
   07.07.2000 IS
-    + Если нажали ctrl+r в меню, то восстановить значения по умолчанию.
+    + ┼ёыш эрцрыш ctrl+r т ьхэ■, Єю тюёёЄрэютшЄ№ чэрўхэш  яю єьюыўрэш■.
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -75,8 +75,8 @@ Modify:
 HighlightFiles::HighlightFiles()
 {
  /* $ 07.07.2000 IS
-   Весь код вынесен в отдельную функцию, чтобы можно было его использовать
-   повторно
+   ┬хё№ ъюф т√эхёхэ т юЄфхы№эє■ ЇєэъЎш■, ўЄюс√ ьюцэю с√ыю хую шёяюы№чютрЄ№
+   яютЄюЁэю
  */
  InitHighlightFiles();
  /* IS $ */
@@ -87,7 +87,7 @@ void HighlightFiles::InitHighlightFiles()
   HiData=NULL;
   HiDataCount=0;
   char RegKey[80],Mask[HIGHLIGHT_MASK_SIZE], *Masks=NULL;
-  char *Ptr=MkRegKeyHighlightName(RegKey); // Ptr указывает на нужное место :-)
+  char *Ptr=MkRegKeyHighlightName(RegKey); // Ptr єърч√трхЄ эр эєцэюх ьхёЄю :-)
   while (1)
   {
     itoa(HiDataCount,Ptr,10);
@@ -125,8 +125,8 @@ HighlightFiles::~HighlightFiles()
   ClearData();
 }
 
-// вернуть шоумаску - маску, которая редактируется и отображается на экране
-// возможно это даже маска рабочая.
+// тхЁэєЄ№ °юєьрёъє - ьрёъє, ъюЄюЁр  ЁхфръЄшЁєхЄё  ш юЄюсЁрцрхЄё  эр ¤ъЁрэх
+// тючьюцэю ¤Єю фрцх ьрёър Ёрсюўр .
 char *HighlightFiles::GetMask(int Idx)
 {
   struct HighlightData *HData=HiData+Idx;
@@ -136,26 +136,26 @@ char *HighlightFiles::GetMask(int Idx)
 BOOL HighlightFiles::AddMask(struct HighlightData *Dest,char *Mask,struct HighlightData *Src)
 {
   char *Ptr, *OPtr;
-  /* Обработка %PATHEXT% */
-  // память под оригинал - OriginalMasks
+  /* ╬сЁрсюЄър %PATHEXT% */
+  // ярь Є№ яюф юЁшушэры - OriginalMasks
   if((OPtr=(char *)realloc(Dest->OriginalMasks,strlen(Mask)+1)) == NULL)
     return FALSE;
-  strcpy(OPtr,Mask); // сохраняем оригинал.
-  // проверим
+  strcpy(OPtr,Mask); // ёюїЁрэ хь юЁшушэры.
+  // яЁютхЁшь
   if((Ptr=strchr(Mask,'%')) != NULL && !strnicmp(Ptr,"%PATHEXT%",9))
   {
     int IQ1=(*(Ptr+9) == ',')?10:9;
-    // Если встречается %pathext%, то допишем в конец...
+    // ┼ёыш тёЄЁхўрхЄё  %pathext%, Єю фюяш°хь т ъюэхЎ...
     memmove(Ptr,Ptr+IQ1,strlen(Ptr+IQ1)+1);
-    Add_PATHEXT(Mask); // добавляем то, чего нету.
-    // в GroupStr находится рабочая маска
+    Add_PATHEXT(Mask); // фюсрты хь Єю, ўхую эхЄє.
+    // т GroupStr эрїюфшЄё  Ёрсюўр  ьрёър
   }
   else
   {
-    free(OPtr); // "съэкономи пару байт"
+    free(OPtr); // "ё·¤ъюэюьш ярЁє срщЄ"
     OPtr=NULL;
   }
-  // память под рабочую маску
+  // ярь Є№ яюф Ёрсюўє■ ьрёъє
   if((Ptr=(char *)realloc(Dest->Masks,strlen(Mask)+1)) == NULL)
   {
     if(OPtr) free(OPtr);
@@ -165,7 +165,7 @@ BOOL HighlightFiles::AddMask(struct HighlightData *Dest,char *Mask,struct Highli
   if(Src)
     memmove(Dest,Src,sizeof(struct HighlightData));
 
-  // корректирем ссылки на маски.
+  // ъюЁЁхъЄшЁхь ёё√ыъш эр ьрёъш.
   strcpy((Dest->Masks=Ptr),Mask);
   Dest->OriginalMasks=OPtr;
   return TRUE;
@@ -208,7 +208,7 @@ void HighlightFiles::GetHiColor(char *Path,int Attr,unsigned char &Color,
     if ((Attr & CurHiData->IncludeAttr)==CurHiData->IncludeAttr &&
         (Attr & CurHiData->ExcludeAttr)==0)
     {
-      char ArgName[NM], *NamePtr=CurHiData->Masks; // ЗДЕСЬ МАСКА РАБОЧАЯ!!!
+      char ArgName[NM], *NamePtr=CurHiData->Masks; // ╟─┼╤▄ ╠└╤╩└ ╨└┴╬╫└▀!!!
       while ((NamePtr=GetCommaWord(NamePtr,ArgName))!=NULL)
         if (Path==NULL && (strcmp(ArgName,"*")==0 || strcmp(ArgName,"*.*")==0) ||
             Path!=NULL && CmpName(ArgName,Path))
@@ -244,7 +244,7 @@ void HighlightFiles::HiEdit(int MenuPos)
     {
       struct HighlightData *CurHiData=&HiData[I];
       sprintf(HiMenuItem.Name,"%c %c %c%c%c%c%c%c%c %c %c%c%c%c%c%c%c %c %.60s",
-        (CurHiData->MarkChar?CurHiData->MarkChar:' '), // добавим показ символа
+        (CurHiData->MarkChar?CurHiData->MarkChar:' '), // фюсртшь яюърч ёшьтюыр
 
         VerticalLine,
 
@@ -295,7 +295,7 @@ void HighlightFiles::HiEdit(int MenuPos)
           switch(Key)
           {
             /* $ 07.07.2000 IS
-              Если нажали ctrl+r, то восстановить значения по умолчанию.
+              ┼ёыш эрцрыш ctrl+r, Єю тюёёЄрэютшЄ№ чэрўхэш  яю єьюыўрэш■.
             */
             case KEY_CTRLR:
               if (Message(MSG_WARNING,2,MSG(MHighlightTitle),
@@ -341,7 +341,7 @@ void HighlightFiles::HiEdit(int MenuPos)
               HiMenu.ProcessInput();
               break;
           }
-          // повторяющийся кусок!
+          // яютЄюЁ ■∙шщё  ъєёюъ!
           if(NeedUpdate)
           {
              HiMenu.Hide();
@@ -490,7 +490,7 @@ int HighlightFiles::EditRecord(int RecPos,int New)
        Dlg.ReadInput();
        Dlg.ProcessInput();
        FocusPos=Dialog::SendDlgMessage((HANDLE)&Dlg,DM_GETFOCUS,0,0);
-       // отработаем взаимоисключения
+       // юЄЁрсюЄрхь тчршьюшёъы■ўхэш 
        if(FocusPos >= 5 && FocusPos <= 21)
        {
          IncludeExcludeAttrib(FocusPos,HiEditDlg,5,14); // Read only
@@ -607,8 +607,8 @@ int HighlightFiles::EditRecord(int RecPos,int New)
 }
 
 /*
- Формирует имя ключа в реестре;  возвращает указатель на конец строки
- Применение:
+ ╘юЁьшЁєхЄ шь  ъы■ўр т ЁххёЄЁх;  тючтЁр∙рхЄ єърчрЄхы№ эр ъюэхЎ ёЄЁюъш
+ ╧Ёшьхэхэшх:
   char RegKey[80];
   char *Ptr=MkRegKeyHighlightName(RegKey);
   for(I=0;...)

@@ -1,7 +1,7 @@
 /*
 registry.cpp
 
-Работа с registry
+╨рсюЄр ё registry
 
 */
 
@@ -10,27 +10,27 @@ registry.cpp
 /*
 Modify:
   07.03.2001 IS
-    + DeleteEmptyKey - удаление пустого ключа в том случае, если он не содержит
-      никаких переменных и подключей. Возвращает TRUE при успехе.
+    + DeleteEmptyKey - єфрыхэшх яєёЄюую ъы■ўр т Єюь ёыєўрх, хёыш юэ эх ёюфхЁцшЄ
+      эшъръшї яхЁхьхээ√ї ш яюфъы■ўхщ. ┬ючтЁр∙рхЄ TRUE яЁш єёяхїх.
   22.02.2001 SVS
-    ! Для получения строки (GetRegKey) отработаем ситуацию с ERROR_MORE_DATA
-      Если такая ситуация встретилась - получим сколько надо в любом случае
-    + Проверки на корректность открытия ключа!
+    ! ─ы  яюыєўхэш  ёЄЁюъш (GetRegKey) юЄЁрсюЄрхь ёшЄєрЎш■ ё ERROR_MORE_DATA
+      ┼ёыш Єрър  ёшЄєрЎш  тёЄЁхЄшырё№ - яюыєўшь ёъюы№ъю эрфю т ы■сюь ёыєўрх
+    + ╧ЁютхЁъш эр ъюЁЁхъЄэюёЄ№ юЄъЁ√Єш  ъы■ўр!
   15.09.2000 IS
-    + Функция CheckRegValue(char *Key, char *ValueName) - возвращает FALSE,
-      если указанная переменная не содержит данные или размер данных равен нулю
+    + ╘єэъЎш  CheckRegValue(char *Key, char *ValueName) - тючтЁр∙рхЄ FALSE,
+      хёыш єърчрээр  яхЁхьхээр  эх ёюфхЁцшЄ фрээ√х шыш ЁрчьхЁ фрээ√ї Ёртхэ эєы■
   11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
+    ! ╚чьхэхэш  фы  тючьюцэюёЄш ъюьяшы Ўшш яюф BC & VC
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -94,24 +94,24 @@ void SetRegKey(char *Key,char *ValueName,BYTE *ValueData,DWORD ValueSize)
 
 
 /* $ 22.02.2001 SVS
-  Для получения строки (GetRegKey) отработаем ситуацию с ERROR_MORE_DATA
-  Если такая ситуация встретилась - получим сколько надо в любом случае
+  ─ы  яюыєўхэш  ёЄЁюъш (GetRegKey) юЄЁрсюЄрхь ёшЄєрЎш■ ё ERROR_MORE_DATA
+  ┼ёыш Єрър  ёшЄєрЎш  тёЄЁхЄшырё№ - яюыєўшь ёъюы№ъю эрфю т ы■сюь ёыєўрх
 */
 int GetRegKey(char *Key,char *ValueName,char *ValueData,char *Default,DWORD DataSize)
 {
   int ExitCode;
   HKEY hKey=OpenRegKey(Key);
-  if(hKey) // надобно проверить!
+  if(hKey) // эрфюсэю яЁютхЁшЄ№!
   {
     DWORD Type,QueryDataSize=DataSize;
     ExitCode=RegQueryValueEx(hKey,ValueName,0,&Type,(unsigned char *)ValueData,&QueryDataSize);
-    if(ExitCode == ERROR_MORE_DATA) // если размер не подходящие...
+    if(ExitCode == ERROR_MORE_DATA) // хёыш ЁрчьхЁ эх яюфїюф ∙шх...
     {
-      char *TempBuffer=new char[QueryDataSize+1]; // ...то выделим сколько надо
-      if(TempBuffer) // Если с памятью все нормально...
+      char *TempBuffer=new char[QueryDataSize+1]; // ...Єю т√фхышь ёъюы№ъю эрфю
+      if(TempBuffer) // ┼ёыш ё ярь Є№■ тёх эюЁьры№эю...
       {
         if((ExitCode=RegQueryValueEx(hKey,ValueName,0,&Type,(unsigned char *)TempBuffer,&QueryDataSize)) == ERROR_SUCCESS)
-          strncpy(ValueData,TempBuffer,DataSize); // скопируем сколько надо.
+          strncpy(ValueData,TempBuffer,DataSize); // ёъюяшЁєхь ёъюы№ъю эрфю.
         delete[] TempBuffer;
       }
     }
@@ -162,13 +162,13 @@ int GetRegKey(char *Key,char *ValueName,BYTE *ValueData,BYTE *Default,DWORD Data
   {
     DWORD Type,Required=DataSize;
     ExitCode=RegQueryValueEx(hKey,ValueName,0,&Type,ValueData,&Required);
-    if(ExitCode == ERROR_MORE_DATA) // если размер не подходящие...
+    if(ExitCode == ERROR_MORE_DATA) // хёыш ЁрчьхЁ эх яюфїюф ∙шх...
     {
-      char *TempBuffer=new char[Required+1]; // ...то выделим сколько надо
-      if(TempBuffer) // Если с памятью все нормально...
+      char *TempBuffer=new char[Required+1]; // ...Єю т√фхышь ёъюы№ъю эрфю
+      if(TempBuffer) // ┼ёыш ё ярь Є№■ тёх эюЁьры№эю...
       {
         if((ExitCode=RegQueryValueEx(hKey,ValueName,0,&Type,(unsigned char *)TempBuffer,&Required)) == ERROR_SUCCESS)
-          memcpy(ValueData,TempBuffer,DataSize);  // скопируем сколько надо.
+          memcpy(ValueData,TempBuffer,DataSize);  // ёъюяшЁєхь ёъюы№ъю эрфю.
         delete[] TempBuffer;
       }
     }
@@ -379,8 +379,8 @@ void DeleteKeyTreePart(char *KeyName)
 
 
 /* 07.03.2001 IS
-   Удаление пустого ключа в том случае, если он не содержит никаких переменных
-   и подключей. Возвращает TRUE при успехе.
+   ╙фрыхэшх яєёЄюую ъы■ўр т Єюь ёыєўрх, хёыш юэ эх ёюфхЁцшЄ эшъръшї яхЁхьхээ√ї
+   ш яюфъы■ўхщ. ┬ючтЁр∙рхЄ TRUE яЁш єёяхїх.
 */
 int DeleteEmptyKey(HKEY hRoot, char *FullKeyName)
 {
@@ -439,8 +439,8 @@ int CheckRegKey(char *Key)
 }
 
 /* 15.09.2000 IS
-   Возвращает FALSE, если указанная переменная не содержит данные
-   или размер данных равен нулю.
+   ┬ючтЁр∙рхЄ FALSE, хёыш єърчрээр  яхЁхьхээр  эх ёюфхЁцшЄ фрээ√х
+   шыш ЁрчьхЁ фрээ√ї Ёртхэ эєы■.
 */
 int CheckRegValue(char *Key,char *ValueName)
 {

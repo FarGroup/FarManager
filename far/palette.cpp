@@ -1,7 +1,7 @@
 /*
 palette.cpp
 
-Таблица цветов
+╥рсышЎр ЎтхЄют
 
 */
 
@@ -12,25 +12,25 @@ Modify:
   04.12.2000 SVS
     + COL_*DIALOG*DISABLED
   06.10.2000 SVS
-    - попытка №1 исправить падение ФАРы в ночное время :-)
+    - яюя√Єър ?1 шёяЁртшЄ№ ярфхэшх ╘└╨√ т эюўэюх тЁхь  :-)
   13.09.2000 tran 1.04
     + COL_COMMANDLINEPREFIX
   18.07.2000 tran 1.03
-    + скролбар во вьювере
+    + ёъЁюысрЁ тю т№■тхЁх
   11.07.2000
-    + 1 Служебная позиция перед новыми цветами :-)
+    + 1 ╤ыєцхсэр  яючшЎш  яхЁхф эют√ьш ЎтхЄрьш :-)
   29.06.2000 SVS
-    + Цветовые атрибуты для Menu ScrollBar
+    + ╓тхЄют√х рЄЁшсєЄ√ фы  Menu ScrollBar
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -79,18 +79,18 @@ unsigned char DefaultPalette[]=
   F_BLACK|B_LIGHTGRAY,
   F_YELLOW|B_BLUE,
   /* $ 11.07.2000 SVS
-    + 1 Служебная позиция перед новыми цветами :-)
+    + 1 ╤ыєцхсэр  яючшЎш  яхЁхф эют√ьш ЎтхЄрьш :-)
   */
-  0,  // 1 - это есть default color
+  0,  // 1 - ¤Єю хёЄ№ default color
   /* SVS $ */
   /* 29.06.2000 SVS
-    Цветовые атрибуты для Menu ScrollBar
+    ╓тхЄют√х рЄЁшсєЄ√ фы  Menu ScrollBar
   */
   F_BLACK|B_LIGHTGRAY,
   F_WHITE|B_CYAN,
   /* SVS $ */
   /* $ 18.07.2000 tran
-     скролбар во вьювере */
+     ёъЁюысрЁ тю т№■тхЁх */
   F_LIGHTCYAN|B_BLUE,
   /* tran 18.07.2000 $ */
 
@@ -156,18 +156,18 @@ unsigned char BlackPalette[]=
   F_BLACK|B_LIGHTGRAY,
   F_WHITE|B_BLACK,
   /* $ 11.07.2000 SVS
-    + 1 Служебная позиция перед новыми цветами :-)
+    + 1 ╤ыєцхсэр  яючшЎш  яхЁхф эют√ьш ЎтхЄрьш :-)
   */
-  1, // 1 - это есть default mono
+  1, // 1 - ¤Єю хёЄ№ default mono
   /* SVS $ */
   /* 29.06.2000 SVS
-    Цветовые атрибуты для Menu ScrollBar
+    ╓тхЄют√х рЄЁшсєЄ√ фы  Menu ScrollBar
   */
   F_BLACK|B_LIGHTGRAY,
   F_BLACK|B_LIGHTGRAY,
   /* SVS $ */
   /* $ 18.07.2000 tran
-     скролбар во вьювере */
+     ёъЁюысрЁ тю т№■тхЁх */
   F_LIGHTGRAY|B_BLACK,
   /* tran 18.07.2000 $ */
   /* $ 13.09.2000 tran
@@ -197,4 +197,3 @@ int FarColorToReal(int FarColor)
   else
     return(Palette[(FarColor-COL_FIRSTPALETTECOLOR)%SizeArrayPalette]);
 }
-

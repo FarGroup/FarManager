@@ -1,7 +1,7 @@
 /*
 cmdline.cpp
 
-Š®¬ ­¤­ ï áâà®ª 
+Êîìàíäíàÿ ñòðîêà
 
 */
 
@@ -9,60 +9,60 @@ cmdline.cpp
 
 /*
 Modify:
-  06.05.2001 Ž’
-    ! ¥à¥¨¬¥­®¢ ­¨¥ Window ¢ Frame :)
+  06.05.2001 ÎÒ
+    ! Ïåðåèìåíîâàíèå Window â Frame :)
   05.05.2001 DJ
-    + ¯¥à¥âàïå NWZ
-  29.04.2001 Ž’
-    + ‚­¥¤à¥­¨¥ NWZ ®â ’à¥âìïª®¢ 
+    + ïåðåòðÿõ NWZ
+  29.04.2001 ÎÒ
+    + Âíåäðåíèå NWZ îò Òðåòüÿêîâà
   25.04.2001 DJ
-    * ®¡à ¡®âª  @ ¢ IF EXIST
-    * ®¡à ¡®âª  ª ¢ëç¥ª ¢­ãâà¨ ¨¬¥­¨ ä ©«  ¢ IF EXIST
+    * îáðàáîòêà @ â IF EXIST
+    * îáðàáîòêà êàâû÷åê âíóòðè èìåíè ôàéëà â IF EXIST
   11.04.2001 SVS
-    ! „«ï Alt-F11 ¨ Alt-F12 - â¥¯¥àì ¡ã¤ãâ á¢®¨ ª®­ªà¥â­ë¥ â¥¬ë ¯®¬®é¨,   ­¥
-       ¡áâà ªâ­®¥ ®¯¨á ­¨¥ ª®¬ ­¤ ª®¬ ­¤­®© áâà®ª¨ (­¥ ­ã¦­®¥ ¤«ï íâ¨å
-      ¨áâ®à¨©)
+    ! Äëÿ Alt-F11 è Alt-F12 - òåïåðü áóäóò ñâîè êîíêðåòíûå òåìû ïîìîùè, à íå
+      àáñòðàêòíîå îïèñàíèå êîìàíä êîìàíäíîé ñòðîêè (íå íóæíîå äëÿ ýòèõ
+      èñòîðèé)
   02.04.2001 VVM
-    + Ž¡à ¡®âª  Opt.FlagPosixSemantics
+    + Îáðàáîòêà Opt.FlagPosixSemantics
   12.03.2001 SVS
-    + Alt-Shift-Left, Alt-Shift-Right, Alt-Shift-Home ¨ Alt-Shift-End ¢ë¤¥«ïîâ
-      ¡«®ª ¢ ª®¬ ­¤­®© áâà®ª¥ ­¥§ ¢¨á¨¬® ®â á®áâ®ï­¨ï ¯ ­¥«¥©.
+    + Alt-Shift-Left, Alt-Shift-Right, Alt-Shift-Home è Alt-Shift-End âûäåëÿþò
+      áëîê â êîìàíäíîé ñòðîêå íåçàâèñèìî îò ñîñòîÿíèÿ ïàíåëåé.
   21.02.2001 IS
     ! Opt.EditorPersistentBlocks -> Opt.EdOpt.PersistentBlocks
   19.02.2001 IS
-    - ¡ £: ­¥ á¡à áë¢ «®áì ¢ë¤¥«¥­¨¥ ¢ ª®¬ ­¤­®© áâà®ª¥ ¯® enter ¨ shift-enter
+    - áàã: íå ñáðàñûâàëîñü âûäåëåíèå â êîìàíäíîé ñòðîêå ïî enter è shift-enter
   14.01.2001 SVS
-    + ‚ ProcessOSCommands ¤®¡ ¢«¥­  ®¡à ¡®âª 
+    + Â ProcessOSCommands äîáàâëåíà îáðàáîòêà
        "IF [NOT] EXIST filename command"
        "IF [NOT] DEFINED variable command"
   18.12.2000 SVS
-    -  ¯¨á ­® ¦¥ "Ctrl-D - ‘¨¬¢®« ¢¯à ¢®"!
-    + ‘¡à áë¢ ¥¬ ¢ë¤¥«¥­¨¥ ¯à¨ à¥¤ ªâ¨à®¢ ­¨¨ ­  ­¥ª®â®àëå ª« ¢¨è å
+    - Íàïèñàíî æå "Ctrl-D - Ñèìâîë âïðàâî"!
+    + Ñáðàñûâàåì âûäåëåíèå ïðè ðåäàêòèðîâàíèè íà íåêîòîðûõ êëàâèøàõ
   13.12.2000 SVS
-    ! „«ï CmdLine - ¥á«¨ ­¥â ¢ë¤¥«¥­¨ï, ¯à¥®¡à §ã¥¬ ¢áî áâà®ªã (XLat)
+    ! Äëÿ CmdLine - åñëè íåò âûäåëåíèÿ, ïðåîáðàçóåì âñþ ñòðîêó (XLat)
   04.11.2000 SVS
-    + à®¢¥àª  ­   «ìâ¥à­ â¨¢­ãî ª« ¢¨èã ¯à¨ XLat-¯¥à¥ª®¤¨à®¢ª¥
+    + Ïðîâåðêà íà àëüòåðíàòèâíóþ êëàâèøó ïðè XLat-ïåðåêîäèðîâêå
   24.09.2000 SVS
-    + ¯®¢¥¤¥­¨¥ ESC.
-    + ¢ë§®¢ äã­ªæ¨¨ Xlat
+    + ïîâåäåíèå ESC.
+    + âûçîâ ôóíêöèè Xlat
   19.09.2000 SVS
-    - à¨ ¢ë¡®à¥ ¨§ History (¯® Alt-F8) ¯« £¨­ ­¥ ¯®«ãç « ã¯à ¢«¥­¨¥!
+    - Ïðè âûáîðå èç History (ïî Alt-F8) ïëàãèí íå ïîëó÷àë óïðàâëåíèå!
   13.09.2000 tran 1.02
     + COL_COMMANDLINEPREFIX
   02.08.2000 tran 1.01
-    - ¬¥«ª¨© ä¨ªá - ¯à¨ ¢ëå®¤¥ ¯® CtrlF10, ¥á«¨ ä ©« ¡ë« ®âªàëâ ­  ¯à®á¬®âà
-      ¨§ Alt-F11, ¡ë« ¢¨¤¥­ keybar ¢ ¯ ­¥«ïå
-      ª ª ¢á¥£¤  ¤®¡ ¢¨« CtrlObject->Cp()->Redraw()
+    - ìåëêèé ôèêñ - ïðè âûõîäå ïî CtrlF10, åñëè ôàéë áûë îòêðûò íà ïðîñìîòð
+      èç Alt-F11, áûë âèäåí keybar â ïàíåëÿõ
+      êàê âñåãäà äîáàâèë CtrlObject->Cp()->Redraw()
   25.06.2000 SVS
-    ! ®¤£®â®¢ª  Master Copy
-    ! ‚ë¤¥«¥­¨¥ ¢ ª ç¥áâ¢¥ á ¬®áâ®ïâ¥«ì­®£® ¬®¤ã«ï
+    ! Ïîäãîòîâêà Master Copy
+    ! Âûäåëåíèå â êà÷åñòâå ñàìîñòîÿòåëüíîãî ìîäóëÿ
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   ‘â ­¤ àâ­ë¥ § £®«®¢ª¨
+   Ñòàíäàðòíûå çàãîëîâêè
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -158,7 +158,7 @@ int CommandLine::ProcessKey(int Key)
         char Str[1024];
         int Type;
         /* $ 19.09.2000 SVS
-           - à¨ ¢ë¡®à¥ ¨§ History (¯® Alt-F8) ¯« £¨­ ­¥ ¯®«ãç « ã¯à ¢«¥­¨¥!
+           - Ïðè âûáîðå èç History (ïî Alt-F8) ïëàãèí íå ïîëó÷àë óïðàâëåíèå!
         */
         switch(CtrlObject->CmdHistory->Select(MSG(MHistoryTitle),"History",Str,Type))
         {
@@ -275,7 +275,7 @@ int CommandLine::ProcessKey(int Key)
       {
         Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
         /* $ 19.02.2001 IS
-             - ¢ë¤¥«¥­¨¥ ­ ¬ ã¦¥ ­¥ ­ã¦­®
+             - âûäåëåíèå íàì óæå íå íóæíî
         */
         CmdStr.Select(-1,0);
         CmdStr.Show();
@@ -291,8 +291,8 @@ int CommandLine::ProcessKey(int Key)
       return(TRUE);
     case KEY_ESC:
       /* $ 24.09.2000 SVS
-         …á«¨ § ¤ ­® ¯®¢¥¤¥­¨¥ ¯® "¥á®åà ­¥­¨î ¯à¨ Esc", â® ¯®§¨æ¨î ¢
-         å¨áâ®à¨ ­¥ ¬¥­ï¥¬ ¨ áâ ¢¨¬ ¢ ¯¥à¢®¥ ¯®«®¦¥­¨¥.
+         Åñëè çàäàíî ïîâåäåíèå ïî "Íåñîõðàíåíèþ ïðè Esc", òî ïîçèöèþ â
+         õèñòîðè íå ìåíÿåì è ñòàâèì â ïåðâîå ïîëîæåíèå.
       */
       if(Opt.CmdHistoryRule)
         CtrlObject->CmdHistory->SetFirst();
@@ -303,9 +303,9 @@ int CommandLine::ProcessKey(int Key)
       LastCmdPartLength=-1;
       return(TRUE);
 
-    /* ¤®¯®«­¨â¥«ì­ë¥ ª« ¢¨è¨ ¤«ï ¢ë¤¥«¥­¨ï ¢ ª®¬ áâà®ª¥.
-       ‚ˆŒ€ˆ…!
-       „«ï á®ªà é¥­¨ï ª®¤  íâ®â ªãá®ª ¤®«¦¥­ áâ®ïâì ¯¥à¥¤ "default"
+    /* äîïîëíèòåëüíûå êëàâèøè äëÿ âûäåëåíèÿ â êîì ñòðîêå.
+       ÂÍÈÌÀÍÈÅ!
+       Äëÿ ñîêðàùåíèÿ êîäà ýòîò êóñîê äîëæåí ñòîÿòü ïåðåä "default"
     */
     case KEY_ALTSHIFTLEFT:
     case KEY_ALTSHIFTRIGHT:
@@ -315,17 +315,17 @@ int CommandLine::ProcessKey(int Key)
 
     default:
       /* $ 24.09.2000 SVS
-         …á«¨ ¯®¯ « áì ª« ¢¨è  ¢ë§®¢  äã­ªæ¨¨ Xlat, â®
-         ¯®¤áâ ¢¨¬ ª« ¢¨èã ¤«ï à¥¤ ªâ®à , ¥á«¨ ®­  != 0
+         Åñëè ïîïàëàñü êëàâèøà âûçîâà ôóíêöèè Xlat, òî
+         ïîäñòàâèì êëàâèøó äëÿ ðåäàêòîðà, åñëè îíà != 0
       */
       /* $ 04.11.2000 SVS
-         à®¢¥àª  ­   «ìâ¥à­ â¨¢­ãî ª« ¢¨èã
+         Ïðîâåðêà íà àëüòåðíàòèâíóþ êëàâèøó
       */
       if((Opt.XLat.XLatCmdLineKey && Key == Opt.XLat.XLatCmdLineKey) ||
          (Opt.XLat.XLatAltCmdLineKey && Key == Opt.XLat.XLatAltCmdLineKey))
       {
         /* 13.12.2000 SVS
-           ! „«ï CmdLine - ¥á«¨ ­¥â ¢ë¤¥«¥­¨ï, ¯à¥®¡à §ã¥¬ ¢áî áâà®ªã (XLat)
+           ! Äëÿ CmdLine - åñëè íåò âûäåëåíèÿ, ïðåîáðàçóåì âñþ ñòðîêó (XLat)
         */
         CmdStr.Xlat(TRUE);
         /* SVS $ */
@@ -335,7 +335,7 @@ int CommandLine::ProcessKey(int Key)
       /* SVS $ */
 
       /* $ 18.12.2000 SVS
-         ‘¡à áë¢ ¥¬ ¢ë¤¥«¥­¨¥ ­  ­¥ª®â®àëå ª« ¢¨è å
+         Ñáðàñûâàåì âûäåëåíèå íà íåêîòîðûõ êëàâèøàõ
       */
       if (!Opt.EdOpt.PersistentBlocks)
       {
@@ -353,7 +353,7 @@ int CommandLine::ProcessKey(int Key)
       /* SVS $ */
 
       /* $ 18.12.2000 SVS
-          ¯¨á ­® ¦¥ "Ctrl-D - ‘¨¬¢®« ¢¯à ¢®"
+         Íàïèñàíî æå "Ctrl-D - Ñèìâîë âïðàâî"
       */
       if(Key == KEY_CTRLD)
         Key=KEY_RIGHT;
@@ -424,21 +424,21 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
 
 
 /* $ 14.01.2001 SVS
-   + ‚ ProcessOSCommands ¤®¡ ¢«¥­  ®¡à ¡®âª 
+   + Â ProcessOSCommands äîáàâëåíà îáðàáîòêà
      "IF [NOT] EXIST filename command"
      "IF [NOT] DEFINED variable command"
 
-   â  äã­ªæ¨ï ¯à¥¤­ §­ ç¥­  ¤«ï ®¡à ¡®âª¨ ¢«®¦¥­­®£® IF` 
-   CmdLine - ¯®«­ ï áâà®ª  ¢¨¤ 
+   Ýòà ôóíêöèÿ ïðåäíàçíà÷åíà äëÿ îáðàáîòêè âëîæåííîãî IF`à
+   CmdLine - ïîëíàÿ ñòðîêà âèäà
      if exist file if exist file2 command
-   Return - ãª § â¥«ì ­  "command"
-            ¯ãáª ï áâà®ª  - ãá«®¢¨¥ ­¥ ¢ë¯®«­¨¬®
-            NULL - ­¥ ¯®¯ «áï "IF" ¨«¨ ®è¨¡ª¨ ¢ ¯à¥¤«®¦¥­¨¨, ­ ¯à¨¬¥à
-                   ­¥ exist,   esist ¨«¨ ¯à¥¤«®¦¥­¨¥ ­¥¯®«­®.
+   Return - óêàçàòåëü íà "command"
+            ïóñêàÿ ñòðîêà - óñëîâèå íå âûïîëíèìî
+            NULL - íå ïîïàëñÿ "IF" èëè îøèáêè â ïðåäëîæåíèè, íàïðèìåð
+                   íå exist, à esist èëè ïðåäëîæåíèå íåïîëíî.
 
-   DEFINED - ¯®¤®¡­® EXIST, ­® ®¯¥à¨àã¥â á ¯¥à¥¬¥­­ë¬¨ áà¥¤ë
+   DEFINED - ïîäîáíî EXIST, íî îïåðèðóåò ñ ïåðåìåííûìè ñðåäû
 
-   ˆáå®¤­ ï áâà®ª  (CmdLine) ­¥ ¬®¤¨ä¨æ¨àã¥âáï!!!
+   Èñõîäíàÿ ñòðîêà (CmdLine) íå ìîäèôèöèðóåòñÿ!!!
 */
 char* WINAPI PrepareOSIfExist(char *CmdLine)
 {
@@ -447,16 +447,16 @@ char* WINAPI PrepareOSIfExist(char *CmdLine)
 
   char Cmd[1024], *PtrCmd=CmdLine, *CmdStart;
   int Not=FALSE;
-  int Exist=0; // ¯à¨§­ ª ­ «¨ç¨ï ª®­áâàãªæ¨¨ "IF [NOT] EXIST filename command"
-               // > 0 - íáâì â ª ï ª®­áâàãªæ¨ï
+  int Exist=0; // ïðèçíàê íàëè÷èÿ êîíñòðóêöèè "IF [NOT] EXIST filename command"
+               // > 0 - ýñòü òàêàÿ êîíñòðóêöèÿ
 
   /* $ 25.04.2001 DJ
-     ®¡à ¡®âª  @ ¢ IF EXIST
+     îáðàáîòêà @ â IF EXIST
   */
   if (*PtrCmd == '@')
   {
-    // §¤¥áì @ ¨£­®à¨àã¥âáï; ¥¥ ¢áâ ¢¨â ¢ ¯à ¢¨«ì­®¥ ¬¥áâ® äã­ªæ¨ï
-    // ExtractIfExistCommand ¢ filetype.cpp
+    // çäåñü @ èãíîðèðóåòñÿ; åå âñòàâèò â ïðàâèëüíîå ìåñòî ôóíêöèÿ
+    // ExtractIfExistCommand â filetype.cpp
     PtrCmd++;
     while(*PtrCmd && isspace(*PtrCmd)) ++PtrCmd;
   }
@@ -480,7 +480,7 @@ char* WINAPI PrepareOSIfExist(char *CmdLine)
       CmdStart=PtrCmd;
 
       /* $ 25.04.01 DJ
-         ®¡à ¡®âª  ª ¢ëç¥ª ¢­ãâà¨ ¨¬¥­¨ ä ©«  ¢ IF EXIST
+         îáðàáîòêà êàâû÷åê âíóòðè èìåíè ôàéëà â IF EXIST
       */
       BOOL InQuotes=FALSE;
       while (*PtrCmd)
@@ -589,14 +589,14 @@ int CommandLine::ProcessOSCommands(char *CmdLine)
     return(TRUE);
   }
   /* $ 14.01.2001 SVS
-     + ‚ ProcessOSCommands ¤®¡ ¢«¥­  ®¡à ¡®âª 
+     + Â ProcessOSCommands äîáàâëåíà îáðàáîòêà
        "IF [NOT] EXIST filename command"
        "IF [NOT] DEFINED variable command"
   */
   if (memicmp(CmdLine,"IF ",3)==0)
   {
     char *PtrCmd=PrepareOSIfExist(CmdLine);
-    // §¤¥áì PtrCmd - ã¦¥ £®â®¢ ï ª®¬ ­¤ , ¡¥§ IF
+    // çäåñü PtrCmd - óæå ãîòîâàÿ êîìàíäà, áåç IF
     if(PtrCmd && *PtrCmd && CtrlObject->Plugins.ProcessCommandLine(PtrCmd))
     {
       CmdStr.SetString("");

@@ -1,7 +1,7 @@
 /*
 fileview.cpp
 
-à®á¬®âà ä ©«  - ­ ¤áâà®©ª  ­ ¤ viewer.cpp
+Ïðîñìîòð ôàéëà - íàäñòðîéêà íàä viewer.cpp
 
 */
 
@@ -9,68 +9,68 @@ fileview.cpp
 
 /*
 Modify:
-  06.05.2001 Ž’
-    ! ¥à¥¨¬¥­®¢ ­¨¥ Window ¢ Frame :)
+  06.05.2001 ÎÒ
+    ! Ïåðåèìåíîâàíèå Window â Frame :)
   05.05.2001 DJ
-    + ¯¥à¥âàïå NWZ
-  29.04.2001 Ž’
-    + ‚­¥¤à¥­¨¥ NWZ ®â ’à¥âìïª®¢ 
+    + ïåðåòðÿõ NWZ
+  29.04.2001 ÎÒ
+    + Âíåäðåíèå NWZ îò Òðåòüÿêîâà
   28.04.2001 VVM
-    + KeyBar â®¦¥ ã¬¥¥â ®¡à ¡ âë¢ âì ª« ¢¨è¨.
+    + KeyBar òîæå óìååò îáðàáàòûâàòü êëàâèøè.
   10.04.2001 IS
-    ! ¥ ¤¥« ¥¬ SetCurDir ¯à¨ ctrl-f10, ¥á«¨ ­ã¦­ë© ¯ãâì ã¦¥ ¥áâì ­  ®âªàëâëå
-      ¯ ­¥«ïå, â¥¬ á ¬ë¬ ¤®¡¨¢ ¥¬áï â®£®, çâ® ¢ë¤¥«¥­¨¥ á í«¥¬¥­â®¢
-      ¯ ­¥«¥© ­¥ á¡à áë¢ ¥âáï.
+    ! Íå äåëàåì SetCurDir ïðè ctrl-f10, åñëè íóæíûé ïóòü óæå åñòü íà îòêðûòûõ
+      ïàíåëÿõ, òåì ñàìûì äîáèâàåìñÿ òîãî, ÷òî âûäåëåíèå ñ ýëåìåíòîâ
+      ïàíåëåé íå ñáðàñûâàåòñÿ.
   29.03.2001 IS
-    +  ¡®â  á «®ª «ì­®© ª®¯¨¥© ViewerOptions ¯à¨ KEY_ALTSHIFTF9
+    + Ðàáîòà ñ ëîêàëüíîé êîïèåé ViewerOptions ïðè KEY_ALTSHIFTF9
   22.03.2001 SVS
-    - "‡ «¨¯ ­¨¥" ª¥©¡ à  ¯®á«¥ ¨á¯®«­¥­¨ï ¬ ªà®á 
+    - "Çàëèïàíèå" êåéáàðà ïîñëå èñïîëíåíèÿ ìàêðîñà
   03.01.2001 SVS
-    ! ¤«ï KEY_ALTSHIFTF9 § ¡ë«¨ á¤¥« âì Show()
+    ! äëÿ KEY_ALTSHIFTF9 çàáûëè ñäåëàòü Show()
   19.12.2000 SVS
-    + Alt-Shift-F9 - ‚ë§®¢ ¤¨ «®£  ­ áâà®¥ª (á ¯®¤ ç¨ IS)
-    - [*] ‡ ¡ë«¨ "§ áâ®«¡¨âì" ¬¥áâ® ¢ LNG-ä ©« å ¯®¤ ª« ¢¨èã F9 :-)
-      § áâ®«¡¨âì -§ áâ®«¡¨«¨, ­® ­¥ ¯®ª §ë¢ ¥â.
+    + Alt-Shift-F9 - Âûçîâ äèàëîãà íàñòðîåê (ñ ïîäà÷è IS)
+    - [*] Çàáûëè "çàñòîëáèòü" ìåñòî â LNG-ôàéëàõ ïîä êëàâèøó F9 :-)
+      çàñòîëáèòü -çàñòîëáèëè, íî íå ïîêàçûâàåò.
   16.12.2000 tran 1.14
-    ! Ctrl-F10 á¬®âà¨â ­  ¯ áá¨¢­ãî ¯ ­¥«ì
+    ! Ctrl-F10 ñìîòðèò íà ïàññèâíóþ ïàíåëü
   03.11.2000 OT
-    ! ‚¢¥¤¥­¨¥ ¯à®¢¥àª¨ ¢®§¢à é ¥¬®£® §­ ç¥­¨ï
+    ! Ââåäåíèå ïðîâåðêè âîçâðàùàåìîãî çíà÷åíèÿ
   02.11.2000 OT
-    ! ‚¢¥¤¥­¨¥ ¯à®¢¥àª¨ ­  ¤«¨­ã ¡ãä¥à , ®â¢¥¤¥­­®£® ¯®¤ ¨¬ï ä ©« .
+    ! Ââåäåíèå ïðîâåðêè íà äëèíó áóôåðà, îòâåäåííîãî ïîä èìÿ ôàéëà.
   27.09.2000 SVS
-    + ¥ç âì ä ©«  á ¨á¯®«ì§®¢ ­¨¥¬ ¯« £¨­  PrintMan
-    ! Ctrl-Alt-Shift - à¥ £¨àã¥¬, ¥á«¨ ­ ¤®.
+    + Ïå÷àòü ôàéëà ñ èñïîëüçîâàíèåì ïëàãèíà PrintMan
+    ! Ctrl-Alt-Shift - ðåàãèðóåì, åñëè íàäî.
   15.09.2000 tran 1.09
     - FKL bug
   14.09.2000 SVS
-    - Bug #NN1 - ¥¯®­ïâª¨  ¯®¢¥¤¥­¨¥¬ KeyBar (á¬. ®¯¨á ­¨¥ ª Patch#191)
+    - Bug #NN1 - Íåïîíÿòêè  ïîâåäåíèåì KeyBar (ñì. îïèñàíèå ê Patch#191)
   24.08.2000 SVS
-    + „®¡ ¢«ï¥¬ à¥ ªæ¨î ¯®ª §  ¡ ª£à ã­¤  ­  ª« ¢¨èã CtrlAltShift
+    + Äîáàâëÿåì ðåàêöèþ ïîêàçà áàêãðàóíäà íà êëàâèøó CtrlAltShift
   07.08.2000 SVS
-    + ¤®¡ ¢¨« ­ §¢ ­¨ï à áè¨à¥­­ëå äã­ªæ¨®­ «ì­ëå ª« ¢¨è
+    + äîáàâèë íàçâàíèÿ ðàñøèðåííûõ ôóíêöèîíàëüíûõ êëàâèø
   22.07.2000 tran 1.06
-    + Ctrl-F10 ¢ëå®¤¨â á ãáâ ­®¢ª®© ­  ä ©« ­  â¥ªãé¥© ¯ ­¥«¨
+    + Ctrl-F10 âûõîäèò ñ óñòàíîâêîé íà ôàéë íà òåêóùåé ïàíåëè
   21.07.2000 tran 1.05
-      -  àâ¥ä ªâ ¯à¨ CtrlO ¯à¨ ¢ëª«îç¥­­®¬ ª¥©¡ à¥
+      - àðòåôàêò ïðè CtrlO ïðè âûêëþ÷åííîì êåéáàðå
   15.07.2000 tran
-      + CtrlB ¢ëª«îç ¥â/¢ª«îç ¥â keybar
+      + CtrlB âûêëþ÷àåò/âêëþ÷àåò keybar
   04.07.2000 tran
-    + ­¥ ¯®ª §ë¢ âì ¬¥áá £ ¡ ªá ¯à¨ ­¥¢®§¢®¦­®áâ¨ ®âªàëâì ä ©«
+    + íå ïîêàçûâàòü ìåññàã áàêñ ïðè íåâîçâîæíîñòè îòêðûòü ôàéë
   29.06.2000 tran
-    + ­ §¢ ­¨ï ¢á¥å äã­ªæ¨®­ «ì­ëå ª« ¢¨è
+    + íàçâàíèÿ âñåõ ôóíêöèîíàëüíûõ êëàâèø
   28.06.2000 tran
     - NT Console resize
       adding SetScreenPosition
   25.06.2000 SVS
-    ! ®¤£®â®¢ª  Master Copy
-    ! ‚ë¤¥«¥­¨¥ ¢ ª ç¥áâ¢¥ á ¬®áâ®ïâ¥«ì­®£® ¬®¤ã«ï
+    ! Ïîäãîòîâêà Master Copy
+    ! Âûäåëåíèå â êà÷åñòâå ñàìîñòîÿòåëüíîãî ìîäóëÿ
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   ‘â ­¤ àâ­ë¥ § £®«®¢ª¨
+   Ñòàíäàðòíûå çàãîëîâêè
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -114,7 +114,7 @@ void FileViewer::Init(char *name,int EnableSwitch,int disableHistory,  ///
   SetEnableSwitch(EnableSwitch);
 
   /* $ 07.08.2000 SVS
-    ! Š®¤, ª á ¥¬ë© KeyBar ¢ë­¥á¥­ ¢ ®â¤¥«ì­ãî äã­ªæ¨î */
+    ! Êîä, êàñàåìûé KeyBar âûíåñåí â îòäåëüíóþ ôóíêöèþ */
   InitKeyBar();
   /* SVS $*/
 
@@ -160,12 +160,12 @@ void FileViewer::Init(char *name,int EnableSwitch,int disableHistory,  ///
 
 
 /* $ 07.08.2000 SVS
-  ”ã­ªæ¨ï ¨­¨æ¨ «¨§ æ¨¨ KeyBar Labels
+  Ôóíêöèÿ èíèöèàëèçàöèè KeyBar Labels
 */
 void FileViewer::InitKeyBar(void)
 {
   /* $ 29.06.2000 tran
-     ¤®¡ ¢¨« ­ §¢ ­¨ï ¢á¥å äã­ªæ¨®­ «ì­ëå ª« ¢¨è */
+     äîáàâèë íàçâàíèÿ âñåõ ôóíêöèîíàëüíûõ êëàâèø */
   char *FViewKeys[]={MSG(MViewF1),MSG(MViewF2),MSG(MViewF3),MSG(MViewF4),MSG(MViewF5),DisableEdit ? "":MSG(MViewF6),MSG(MViewF7),MSG(MViewF8),MSG(MViewF9),MSG(MViewF10),MSG(MViewF11),MSG(MViewF12)};
   char *FViewShiftKeys[]={MSG(MViewShiftF1),MSG(MViewShiftF2),MSG(MViewShiftF3),MSG(MViewShiftF4),MSG(MViewShiftF5),MSG(MViewShiftF6),MSG(MViewShiftF7),MSG(MViewShiftF8),MSG(MViewShiftF9),MSG(MViewShiftF10),MSG(MViewShiftF11),MSG(MViewShiftF12)};
   char *FViewAltKeys[]={MSG(MViewAltF1),MSG(MViewAltF2),MSG(MViewAltF3),MSG(MViewAltF4),MSG(MViewAltF5),MSG(MViewAltF6),MSG(MViewAltF7),MSG(MViewAltF8),MSG(MViewAltF9),MSG(MViewAltF10),MSG(MViewAltF11),MSG(MViewAltF12)};
@@ -175,7 +175,7 @@ void FileViewer::InitKeyBar(void)
     FViewAltKeys[5-1]="";
 
   /* $ 07.08.2000 SVS
-     ¤®¡ ¢¨« ­ §¢ ­¨ï à áè¨à¥­­ëå äã­ªæ¨®­ «ì­ëå ª« ¢¨è */
+     äîáàâèë íàçâàíèÿ ðàñøèðåííûõ ôóíêöèîíàëüíûõ êëàâèø */
   char *FViewAltShiftKeys[]={MSG(MViewAltShiftF1),MSG(MViewAltShiftF2),MSG(MViewAltShiftF3),MSG(MViewAltShiftF4),MSG(MViewAltShiftF5),MSG(MViewAltShiftF6),MSG(MViewAltShiftF7),MSG(MViewAltShiftF8),MSG(MViewAltShiftF9),MSG(MViewAltShiftF10),MSG(MViewAltShiftF11),MSG(MViewAltShiftF12)};
   char *FViewCtrlShiftKeys[]={MSG(MViewCtrlShiftF1),MSG(MViewCtrlShiftF2),MSG(MViewCtrlShiftF3),MSG(MViewCtrlShiftF4),MSG(MViewCtrlShiftF5),MSG(MViewCtrlShiftF6),MSG(MViewCtrlShiftF7),MSG(MViewCtrlShiftF8),MSG(MViewCtrlShiftF9),MSG(MViewCtrlShiftF10),MSG(MViewCtrlShiftF11),MSG(MViewCtrlShiftF12)};
   char *FViewCtrlAltKeys[]={MSG(MViewCtrlAltF1),MSG(MViewCtrlAltF2),MSG(MViewCtrlAltF3),MSG(MViewCtrlAltF4),MSG(MViewCtrlAltF5),MSG(MViewCtrlAltF6),MSG(MViewCtrlAltF7),MSG(MViewCtrlAltF8),MSG(MViewCtrlAltF9),MSG(MViewCtrlAltF10),MSG(MViewCtrlAltF11),MSG(MViewCtrlAltF12)};
@@ -186,7 +186,7 @@ void FileViewer::InitKeyBar(void)
   ViewKeyBar.SetAlt(FViewAltKeys,sizeof(FViewAltKeys)/sizeof(FViewAltKeys[0]));
   ViewKeyBar.SetCtrl(FViewCtrlKeys,sizeof(FViewCtrlKeys)/sizeof(FViewCtrlKeys[0]));
   /* $ 07.08.2000 SVS
-     ¤®¡ ¢¨« ­ §¢ ­¨ï à áè¨à¥­­ëå äã­ªæ¨®­ «ì­ëå ª« ¢¨è */
+     äîáàâèë íàçâàíèÿ ðàñøèðåííûõ ôóíêöèîíàëüíûõ êëàâèø */
   ViewKeyBar.SetCtrlAlt(FViewCtrlAltKeys,sizeof(FViewCtrlAltKeys)/sizeof(FViewCtrlAltKeys[0]));
   ViewKeyBar.SetCtrlShift(FViewCtrlShiftKeys,sizeof(FViewCtrlShiftKeys)/sizeof(FViewCtrlShiftKeys[0]));
   ViewKeyBar.SetAltShift(FViewAltShiftKeys,sizeof(FViewAltShiftKeys)/sizeof(FViewAltShiftKeys[0]));
@@ -235,7 +235,7 @@ int FileViewer::ProcessKey(int Key)
   switch(Key)
   {
     /* $ 22.07.2000 tran
-       + ¢ëå®¤ ¯® ctrl-f10 á ãáâ ­®¢ª®© ªãàá®à  ­  ä ©« */
+       + âûõîä ïî ctrl-f10 ñ óñòàíîâêîé êóðñîðà íà ôàéë */
     case KEY_CTRLF10:
       {
         if(GetEnableSwitch())
@@ -251,13 +251,13 @@ int FileViewer::ProcessKey(int Key)
             CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel)->GetCurDir(PDir);
             CtrlObject->Cp()->ActivePanel->GetCurDir(ADir);
             /* $ 10.04.2001 IS
-                 ¥ ¤¥« ¥¬ SetCurDir, ¥á«¨ ­ã¦­ë© ¯ãâì ã¦¥ ¥áâì ­  ®âªàëâëå
-                 ¯ ­¥«ïå, â¥¬ á ¬ë¬ ¤®¡¨¢ ¥¬áï â®£®, çâ® ¢ë¤¥«¥­¨¥ á í«¥¬¥­â®¢
-                 ¯ ­¥«¥© ­¥ á¡à áë¢ ¥âáï.
+                 Íå äåëàåì SetCurDir, åñëè íóæíûé ïóòü óæå åñòü íà îòêðûòûõ
+                 ïàíåëÿõ, òåì ñàìûì äîáèâàåìñÿ òîãî, ÷òî âûäåëåíèå ñ ýëåìåíòîâ
+                 ïàíåëåé íå ñáðàñûâàåòñÿ.
             */
             BOOL AExist=LocalStricmp(ADir,DirTmp)==0,
                  PExist=LocalStricmp(PDir,DirTmp)==0;
-            // ¥á«¨ ­ã¦­ë© ¯ãâì ¥áâì ­  ¯ áá¨¢­®© ¯ ­¥«¨
+            // åñëè íóæíûé ïóòü åñòü íà ïàññèâíîé ïàíåëè
             if ( !AExist && PExist)
             {
                 CtrlObject->ProcessKey(KEY_TAB);
@@ -288,7 +288,7 @@ int FileViewer::ProcessKey(int Key)
       return (TRUE);
     /* tran 15.07.2000 $ */
     /* $ 24.08.2000 SVS
-       + „®¡ ¢«ï¥¬ à¥ ªæ¨î ¯®ª §  ¡ ª£à ã­¤  ­  ª« ¢¨èã CtrlAltShift
+       + Äîáàâëÿåì ðåàêöèþ ïîêàçà áàêãðàóíäà íà êëàâèøó CtrlAltShift
     */
     case KEY_CTRLALTSHIFTPRESS:
       if(!(Opt.AllCtrlAltShiftRule & CASR_VIEWER))
@@ -304,7 +304,7 @@ int FileViewer::ProcessKey(int Key)
           WaitKey(Key==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:-1);
       }
       /* $ 21.07.2000 tran
-         -  àâ¥ä ªâ ¯à¨ Ctrl-O*/
+         - àðòåôàêò ïðè Ctrl-O*/
       if ( Opt.ShowKeyBarViewer )
         ViewKeyBar.Show();
       else
@@ -349,7 +349,7 @@ int FileViewer::ProcessKey(int Key)
       return(TRUE);
 
     /* $ 27.09.2000 SVS
-       + ¥ç âì ä ©«  á ¨á¯®«ì§®¢ ­¨¥¬ ¯« £¨­  PrintMan
+       + Ïå÷àòü ôàéëà ñ èñïîëüçîâàíèåì ïëàãèíà PrintMan
     */
     case KEY_ALTF5:
     {
@@ -360,11 +360,11 @@ int FileViewer::ProcessKey(int Key)
     /* SVS $*/
 
     /* $ 19.12.2000 SVS
-       ‚ë§®¢ ¤¨ «®£  ­ áâà®¥ª (á ¯®¤ ç¨ IS)
+       Âûçîâ äèàëîãà íàñòðîåê (ñ ïîäà÷è IS)
     */
     case KEY_ALTSHIFTF9:
       /* $ 29.03.2001 IS
-            ¡®â  á «®ª «ì­®© ª®¯¨¥© ViewerOptions
+           Ðàáîòà ñ ëîêàëüíîé êîïèåé ViewerOptions
       */
       struct ViewerOptions ViOpt;
 
@@ -387,11 +387,11 @@ int FileViewer::ProcessKey(int Key)
     /* SVS $ */
 
     default:
-//      â®â ªãá®ª - ­  ¡ã¤ãé¥¥ (¯®  ­ «®£¨¨ á à¥¤ ªâ®à®¬ :-)
+//      Ýòîò êóñîê - íà áóäóùåå (ïî àíàëîãèè ñ ðåäàêòîðîì :-)
 //      if (CtrlObject->Macro.IsExecuting() || !View.ProcessViewerInput(&ReadRec))
       {
         /* $ 22.03.2001 SVS
-           â® ¯®¬®£«® ®â § «¨¯ ­¨ï :-)
+           Ýòî ïîìîãëî îò çàëèïàíèÿ :-)
         */
         if (!CtrlObject->Macro.IsExecuting())
           if ( Opt.ShowKeyBarViewer )

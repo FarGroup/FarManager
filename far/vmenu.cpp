@@ -1,9 +1,9 @@
 /*
 vmenu.cpp
 
-Обычное вертикальное меню
-  а так же:
-    * список в DI_COMBOBOX
+╬с√ўэюх тхЁЄшъры№эюх ьхэ■
+  р Єръ цх:
+    * ёяшёюъ т DI_COMBOBOX
     * ...
 */
 
@@ -12,83 +12,83 @@ vmenu.cpp
 /*
 Modify:
   27.04.2001 VVM
-    + Обработка KEY_MSWHEEL_XXXX
-    + В меню нажатие средней кнопки аналогично нажатию ЕНТЕР
+    + ╬сЁрсюЄър KEY_MSWHEEL_XXXX
+    + ┬ ьхэ■ эрцрЄшх ёЁхфэхщ ъэюяъш рэрыюушўэю эрцрЄш■ ┼═╥┼╨
   09.04.2001 SVS
-    ! Избавимся от некоторых варнингов
+    ! ╚чсртшьё  юЄ эхъюЄюЁ√ї трЁэшэуют
   20.02.2001 SVS
-    + Добавлена функция SetSelectPos() - переместить курсор с учетом
+    + ─юсртыхэр ЇєэъЎш  SetSelectPos() - яхЁхьхёЄшЄ№ ъєЁёюЁ ё єўхЄюь
       Disabled & Separator
-    ! Изменения в клавишнике и "мышнике" :-) с учетом введения SetSelectPos()
-    ! Символы, зависимые от кодовой страницы
+    ! ╚чьхэхэш  т ъыртш°эшъх ш "ь√°эшъх" :-) ё єўхЄюь ттхфхэш  SetSelectPos()
+    ! ╤шьтюы√, чртшёшь√х юЄ ъюфютющ ёЄЁрэшЎ√
       /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
-      переведены в коды.
-    ! Оптимизирован механизм отображения сепаратора - сначала формируем в
-      памяти, потом выводим в виртуальный буфер
+      яхЁхтхфхэ√ т ъюф√.
+    ! ╬яЄшьшчшЁютрэ ьхїрэшчь юЄюсЁрцхэш  ёхярЁрЄюЁр - ёэрўрыр ЇюЁьшЁєхь т
+      ярь Єш, яюЄюь т√тюфшь т тшЁЄєры№э√щ сєЇхЁ
   11.02.2001 SVS
-    ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
+    ! ═хёъюы№ъю єЄюўэхэшщ ъюфр т ёт чш ё шчьхэхэш ьш т ёЄЁєъЄєЁх MenuItem
   11.12.2000 tran
-    + прокрутка мышью не должна врапить меню
+    + яЁюъЁєЄър ь√°№■ эх фюыцэр тЁряшЄ№ ьхэ■
   20.09.2000 SVS
-    + Функция GetItemPtr - получить указатель на нужный Item.
+    + ╘єэъЎш  GetItemPtr - яюыєўшЄ№ єърчрЄхы№ эр эєцэ√щ Item.
   29.08.2000 tran 1.09
-    - BUG с не записью \0 в конец строки в GetUserData
+    - BUG ё эх чряшё№■ \0 т ъюэхЎ ёЄЁюъш т GetUserData
   01.08.2000 SVS
-    + В ShowMenu добавлен параметр, сообщающий - вызвали ли функцию
-      самостоятельно или из другой функции ;-)
-    - Bug в конструкторе, если передали NULL для Title
+    + ┬ ShowMenu фюсртыхэ ярЁрьхЄЁ, ёююс∙р■∙шщ - т√чтрыш ыш ЇєэъЎш■
+      ёрьюёЄю Єхы№эю шыш шч фЁєующ ЇєэъЎшш ;-)
+    - Bug т ъюэёЄЁєъЄюЁх, хёыш яхЁхфрыш NULL фы  Title
     ! ListBoxControl -> VMFlags
-    + функция удаления N пунктов меню
-    + функция обработки меню (по умолчанию)
-    + функция посылки сообщений меню
-    ! Изменен вызов конструктора для указания функции-обработчика и родителя!
+    + ЇєэъЎш  єфрыхэш  N яєэъЄют ьхэ■
+    + ЇєэъЎш  юсЁрсюЄъш ьхэ■ (яю єьюыўрэш■)
+    + ЇєэъЎш  яюё√ыъш ёююс∙хэшщ ьхэ■
+    ! ╚чьхэхэ т√чют ъюэёЄЁєъЄюЁр фы  єърчрэш  ЇєэъЎшш-юсЁрсюЄўшър ш ЁюфшЄхы !
   28.07.2000 SVS
-    + Добавлены цветовые атрибуты (в переменных) и функции, связанные с
-      атрибутами:
+    + ─юсртыхэ√ ЎтхЄют√х рЄЁшсєЄ√ (т яхЁхьхээ√ї) ш ЇєэъЎшш, ёт чрээ√х ё
+      рЄЁшсєЄрьш:
       SetColors();
       GetColors();
   23.07.2000 SVS
-    + Куча рамарок в исходниках :-)
-    ! AlwaysScrollBar изменен на ListBoxControl
-    ! Тень рисуется только для меню, для ListBoxControl она ненужна
+    + ╩єўр ЁрьрЁюъ т шёїюфэшърї :-)
+    ! AlwaysScrollBar шчьхэхэ эр ListBoxControl
+    ! ╥хэ№ ЁшёєхЄё  Єюы№ъю фы  ьхэ■, фы  ListBoxControl юэр эхэєцэр
   18.07.2000 SVS
-    ! изменен вызов конструктора (пареметр isAlwaysScrollBar) с учетом
-      необходимости scrollbar в DI_COMBOBOX (и в будущем - DI_LISTBOX)
+    ! шчьхэхэ т√чют ъюэёЄЁєъЄюЁр (ярЁхьхЄЁ isAlwaysScrollBar) ё єўхЄюь
+      эхюсїюфшьюёЄш scrollbar т DI_COMBOBOX (ш т сєфє∙хь - DI_LISTBOX)
   13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
+    ! ═хъюЄюЁ√х ъюЁЁхъЎшш яЁш шёяюы№чютрэшш new/delete/realloc
   11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
+    ! ╚чьхэхэш  фы  тючьюцэюёЄш ъюьяшы Ўшш яюф BC & VC
   06.07.2000 tran
     + mouse support for menu scrollbar
   29.06.2000 SVS
-    ! Показывать ScrollBar в меню если включена опция ShowMenuScrollbar
+    ! ╧юърч√трЄ№ ScrollBar т ьхэ■ хёыш тъы■ўхэр юяЎш  ShowMenuScrollbar
   28.06.2000 tran
-    + вертикальный скролбар в меню при необходимости
+    + тхЁЄшъры№э√щ ёъЁюысрЁ т ьхэ■ яЁш эхюсїюфшьюёЄш
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */
 
 /* $ 18.07.2000 SVS
-   ! изменен вызов конструктора (isListBoxControl) с учетом необходимости
-     scrollbar в DI_LISTBOX & DI_COMBOBOX
+   ! шчьхэхэ т√чют ъюэёЄЁєъЄюЁр (isListBoxControl) ё єўхЄюь эхюсїюфшьюёЄш
+     scrollbar т DI_LISTBOX & DI_COMBOBOX
 */
-VMenu::VMenu(char *Title,       // заголовок меню
-             struct MenuData *Data, // пункты меню
-             int ItemCount,     // количество пунктов меню
-             int MaxHeight,     // максимальная высота
-             DWORD Flags,       // нужен ScrollBar?
-             FARWINDOWPROC Proc,    // обработчик
-             Dialog *ParentDialog)  // родитель для ListBox
+VMenu::VMenu(char *Title,       // чруюыютюъ ьхэ■
+             struct MenuData *Data, // яєэъЄ√ ьхэ■
+             int ItemCount,     // ъюышўхёЄтю яєэъЄют ьхэ■
+             int MaxHeight,     // ьръёшьры№эр  т√ёюЄр
+             DWORD Flags,       // эєцхэ ScrollBar?
+             FARWINDOWPROC Proc,    // юсЁрсюЄўшъ
+             Dialog *ParentDialog)  // ЁюфшЄхы№ фы  ListBox
 {
   int I;
   VMenu::VMFlags=Flags;
@@ -102,7 +102,7 @@ VMenu::VMenu(char *Title,       // заголовок меню
   ShowAmpersand=FALSE;
   SaveScr=NULL;
 
-  if(!Proc) // функция должна быть всегда!!!
+  if(!Proc) // ЇєэъЎш  фюыцэр с√Є№ тёхуфр!!!
     Proc=(FARWINDOWPROC)VMenu::DefMenuProc;
   VMenuProc=Proc;
 
@@ -135,7 +135,7 @@ VMenu::VMenu(char *Title,       // заголовок меню
   DialogStyle=0;
   BoxType=DOUBLE_BOX;
   /* $ 01.08.2000 SVS
-   - Bug в конструкторе, если передали NULL для Title
+   - Bug т ъюэёЄЁєъЄюЁх, хёыш яхЁхфрыш NULL фы  Title
   */
   MaxLength=strlen(VMenu::Title)+2;
   /* SVS $ */
@@ -148,7 +148,7 @@ VMenu::VMenu(char *Title,       // заголовок меню
       SelectPos=I;
   }
   /* $ 28.07.2000 SVS
-     Установим цвет по умолчанию
+     ╙ёЄрэютшь ЎтхЄ яю єьюыўрэш■
   */
   SetColors(NULL);
   /* SVS $*/
@@ -173,7 +173,7 @@ VMenu::~VMenu()
 void VMenu::DeleteItems()
 {
   /* $ 13.07.2000 SVS
-     ни кто не вызывал запрос памяти через new :-)
+     эш ъЄю эх т√ч√тры чряЁюё ярь Єш ўхЁхч new :-)
   */
   if(Item)
     free(Item);
@@ -264,8 +264,8 @@ void VMenu::Show()
 }
 
 /* $ 28.07.2000 SVS
-   Переработка функции с учетом VMenu::Colors[] -
-      заменены константы на VMenu::Colors[]
+   ╧хЁхЁрсюЄър ЇєэъЎшш ё єўхЄюь VMenu::Colors[] -
+      чрьхэхэ√ ъюэёЄрэЄ√ эр VMenu::Colors[]
 */
 void VMenu::DisplayObject()
 {
@@ -285,7 +285,7 @@ void VMenu::DisplayObject()
   if (DrawBackground)
   {
     /* $ 23.07.2000 SVS
-       Тень для ListBox ненужна
+       ╥хэ№ фы  ListBox эхэєцэр
     */
     if (BoxType==SHORT_DOUBLE_BOX || BoxType==SHORT_SINGLE_BOX)
     {
@@ -331,8 +331,8 @@ void VMenu::DisplayObject()
 
 
 /* $ 28.07.2000 SVS
-   Переработка функции с учетом VMenu::Colors[] -
-      заменены константы на VMenu::Colors[]
+   ╧хЁхЁрсюЄър ЇєэъЎшш ё єўхЄюь VMenu::Colors[] -
+      чрьхэхэ√ ъюэёЄрэЄ√ эр VMenu::Colors[]
 */
 void VMenu::ShowMenu(int IsParent)
 {
@@ -443,13 +443,13 @@ void VMenu::ShowMenu(int IsParent)
     }
   }
   /* $ 28.06.2000 tran
-       показываем скролбар если пунктов в меню больше чем
-       его высота
+       яюърч√трхь ёъЁюысрЁ хёыш яєэъЄют т ьхэ■ сюы№°х ўхь
+       хую т√ёюЄр
      $ 29.06.2000 SVS
-       Показывать ScrollBar в меню если включена опция Opt.ShowMenuScrollbar
+       ╧юърч√трЄ№ ScrollBar т ьхэ■ хёыш тъы■ўхэр юяЎш  Opt.ShowMenuScrollbar
      $ 18.07.2000 SVS
-       + всегда покажет scrollbar для DI_LISTBOX & DI_COMBOBOX и опционально
-         для вертикального меню
+       + тёхуфр яюърцхЄ scrollbar фы  DI_LISTBOX & DI_COMBOBOX ш юяЎшюэры№эю
+         фы  тхЁЄшъры№эюую ьхэ■
   */
   if (((VMenu::VMFlags&(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR)) ||
        Opt.ShowMenuScrollbar) &&
@@ -492,7 +492,7 @@ int VMenu::AddItem(struct MenuItem *NewItem)
   return(ItemCount++);
 }
 /* $ 01.08.2000 SVS
-   функция удаления N пунктов меню
+   ЇєэъЎш  єфрыхэш  N яєэъЄют ьхэ■
 */
 int VMenu::DeleteItem(int ID,int Count)
 {
@@ -503,7 +503,7 @@ int VMenu::DeleteItem(int ID,int Count)
     if(ID+Count >= ItemCount)
       Count=ItemCount-ID; //???
   }
-  else // Если ID < 0, то подразумеваем, что счет ведется с конца списка
+  else // ┼ёыш ID < 0, Єю яюфЁрчєьхтрхь, ўЄю ёўхЄ тхфхЄё  ё ъюэЎр ёяшёър
   {
     if(ItemCount+ID < 0)
       return ItemCount;
@@ -614,7 +614,7 @@ int VMenu::ProcessKey(int Key)
       ShowMenu(TRUE);
       break;
     /* $ 27.04.2001 VVM
-      + Обработка KEY_MSWHEEL_XXXX */
+      + ╬сЁрсюЄър KEY_MSWHEEL_XXXX */
     case KEY_MSWHEEL_UP:
     /* VVM $ */
     case KEY_LEFT:
@@ -623,7 +623,7 @@ int VMenu::ProcessKey(int Key)
       ShowMenu(TRUE);
       break;
     /* $ 27.04.2001 VVM
-      + Обработка KEY_MSWHEEL_XXXX */
+      + ╬сЁрсюЄър KEY_MSWHEEL_XXXX */
     case KEY_MSWHEEL_DOWN:
     /* VVM $ */
     case KEY_RIGHT:
@@ -675,7 +675,7 @@ int VMenu::ProcessKey(int Key)
   return(TRUE);
 }
 
-// переместить курсор с учетом Disabled & Separator
+// яхЁхьхёЄшЄ№ ъєЁёюЁ ё єўхЄюь Disabled & Separator
 int VMenu::SetSelectPos(int Pos,int Direct)
 {
   int OrigPos=Pos, Pass=0;
@@ -705,7 +705,7 @@ int VMenu::SetSelectPos(int Pos,int Direct)
     if(Pass)
       return SelectPos;
 
-    if(OrigPos == Pos) // круг пройден - ничего не найдено :-(
+    if(OrigPos == Pos) // ъЁєу яЁющфхэ - эшўхую эх эрщфхэю :-(
       Pass++;
   } while (1);
 
@@ -728,7 +728,7 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   }
 
   /* $ 27.04.2001 VVM
-    + Считать нажатие средней кнопки за ЕНТЕР */
+    + ╤ўшЄрЄ№ эрцрЄшх ёЁхфэхщ ъэюяъш чр ┼═╥┼╨ */
   if (MouseEvent->dwButtonState & 4)
   {
     ProcessKey(KEY_ENTER);
@@ -746,7 +746,7 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
   XX2=X2;
   if (Opt.ShowMenuScrollbar && (Y2-Y1-1)<ItemCount)
-    XX2--;  // уменьшает площадь, в которой меню следит за мышью само
+    XX2--;  // єьхэ№°рхЄ яыю∙рф№, т ъюЄюЁющ ьхэ■ ёыхфшЄ чр ь√°№■ ёрью
 
   if (Opt.ShowMenuScrollbar && MsX==X2 && (Y2-Y1-1)<ItemCount &&
       (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) )
@@ -756,7 +756,7 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       while (IsMouseButtonPressed())
       {
         /* $ 11.12.2000 tran
-           прокрутка мышью не должна врапить меню
+           яЁюъЁєЄър ь√°№■ эх фюыцэр тЁряшЄ№ ьхэ■
         */
         if (SelectPos!=0)
             ProcessKey(KEY_UP);
@@ -770,7 +770,7 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       while (IsMouseButtonPressed())
       {
         /* $ 11.12.2000 tran
-           прокрутка мышью не должна врапить меню
+           яЁюъЁєЄър ь√°№■ эх фюыцэр тЁряшЄ№ ьхэ■
         */
         if (SelectPos!=ItemCount-1)
             ProcessKey(KEY_DOWN);
@@ -898,7 +898,7 @@ int VMenu::GetUserData(void *Data,int Size,int Position)
   {
     char *Ptr=(Item[DataPos].Flags&1)?Item[DataPos].PtrData:Item[DataPos].UserData;
     memmove(Data,Ptr,Min(Size,DataSize));
-    // вот тут кое-кто забыл в конец строки 0 записать....
+    // тюЄ ЄєЄ ъюх-ъЄю чрс√ы т ъюэхЎ ёЄЁюъш 0 чряшёрЄ№....
     ((char*)Data)[Min(Size,DataSize)]=0;
   }
   /* tran 29.08.2000 $ */
@@ -936,7 +936,7 @@ void VMenu::SetSelection(int Selection,int Position)
 }
 
 /* $ 20.09.2000 SVS
-  + Функция GetItemPtr - получить указатель на нужный Item.
+  + ╘єэъЎш  GetItemPtr - яюыєўшЄ№ єърчрЄхы№ эр эєцэ√щ Item.
 */
 #ifndef _MSC_VER
 #pragma warn -par
@@ -1034,7 +1034,7 @@ void VMenu::GetColors(short *Colors)
 #ifndef _MSC_VER
 #pragma warn -par
 #endif
-// функция обработки меню (по умолчанию)
+// ЇєэъЎш  юсЁрсюЄъш ьхэ■ (яю єьюыўрэш■)
 long WINAPI VMenu::DefMenuProc(HANDLE hVMenu,int Msg,int Param1,long Param2)
 {
   return 0;
@@ -1046,7 +1046,7 @@ long WINAPI VMenu::DefMenuProc(HANDLE hVMenu,int Msg,int Param1,long Param2)
 #ifndef _MSC_VER
 #pragma warn -par
 #endif
-// функция посылки сообщений меню
+// ЇєэъЎш  яюё√ыъш ёююс∙хэшщ ьхэ■
 long WINAPI VMenu::SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,long Param2)
 {
   if(hVMenu)

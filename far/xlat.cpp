@@ -1,7 +1,7 @@
 /*
 xlat.cpp
 
-XLat - перекодировка
+XLat - яхЁхъюфшЁютър
 
 */
 
@@ -10,7 +10,7 @@ XLat - перекодировка
 /*
 Modify:
   22.12.2000 SVS
-    + Выделение в качестве самостоятельного модуля
+    + ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
@@ -19,15 +19,15 @@ Modify:
 
 
 /* $ 05.09.2000 SVS
-  XLat-перекодировка!
-  На основе плагина EditSwap by SVS :-)))
+  XLat-яхЁхъюфшЁютър!
+  ═р юёэютх яырушэр EditSwap by SVS :-)))
 */
 char* WINAPI Xlat(
-   char *Line,                    // исходная строка
-   int StartPos,                  // начало переконвертирования
-   int EndPos,                    // конец переконвертирования
-   struct CharTableSet *TableSet, // перекодировочная таблица (может быть NULL)
-   DWORD Flags)                   // флаги (см. enum XLATMODE)
+   char *Line,                    // шёїюфэр  ёЄЁюър
+   int StartPos,                  // эрўрыю яхЁхъюэтхЁЄшЁютрэш 
+   int EndPos,                    // ъюэхЎ яхЁхъюэтхЁЄшЁютрэш 
+   struct CharTableSet *TableSet, // яхЁхъюфшЁютюўэр  ЄрсышЎр (ьюцхЄ с√Є№ NULL)
+   DWORD Flags)                   // Їыруш (ёь. enum XLATMODE)
 {
   BYTE Chr,ChrOld;
   int J,I;
@@ -36,7 +36,7 @@ char* WINAPI Xlat(
   int IsChange=0;
 
   /* $ 08.09.2000 SVS
-     Ошибочка вкралась :-)))
+     ╬°шсюўър тъЁрырё№ :-)))
   */
   if(!Line || *Line == 0)
     return NULL;
@@ -64,19 +64,19 @@ char* WINAPI Xlat(
   int MinLenTable=(I > J?J:I);
 
   if (TableSet)
-    // из текущей кодировки в OEM
+    // шч Єхъє∙хщ ъюфшЁютъш т OEM
     DecodeString(Line+StartPos,(LPBYTE)TableSet->DecodeTable,EndPos-StartPos+1);
 
-  // цикл по всей строке
+  // Ўшъы яю тёхщ ёЄЁюъх
   for(J=StartPos; J < EndPos; J++)
   {
     ChrOld=Chr=(BYTE)Line[J];
-    // ChrOld - пред символ
+    // ChrOld - яЁхф ёшьтюы
     IsChange=0;
-    // цикл по просмотру Chr в таблицах
+    // Ўшъы яю яЁюёьюЄЁє Chr т ЄрсышЎрї
     for(I=0; I < MinLenTable; ++I)
     {
-      // символ из латиницы?
+      // ёшьтюы шч ырЄшэшЎ√?
       if(Chr == (BYTE)Opt.XLat.Table[1][I])
       {
         Chr=(char)Opt.XLat.Table[0][I];
@@ -85,7 +85,7 @@ char* WINAPI Xlat(
         LangCount[1]++;
         break;
       }
-      // символ из русской?
+      // ёшьтюы шч Ёєёёъющ?
       else if(Chr == (BYTE)Opt.XLat.Table[0][I])
       {
         Chr=(char)Opt.XLat.Table[1][I];
@@ -96,7 +96,7 @@ char* WINAPI Xlat(
       }
     }
 
-    if(!IsChange) // особые случаи...
+    if(!IsChange) // юёюс√х ёыєўрш...
     {
       PreLang=CurLang;
       if(LangCount[0] > LangCount[1])
@@ -118,19 +118,19 @@ char* WINAPI Xlat(
   }
 
   if (TableSet)
-    // из OEM в текущую кодировку
+    // шч OEM т Єхъє∙є■ ъюфшЁютъє
     EncodeString(Line+StartPos,(LPBYTE)TableSet->EncodeTable,EndPos-StartPos+1);
 
-  // переключаем раскладку клавиатуры?
-  //  к сожалению не работает под Win9x - ставьте WinNT и наслаждайтесь :-)
+  // яхЁхъы■ўрхь Ёрёъырфъє ъыртшрЄєЁ√?
+  //  ъ ёюцрыхэш■ эх ЁрсюЄрхЄ яюф Win9x - ёЄрт№Єх WinNT ш эрёырцфрщЄхё№ :-)
   /* $ 20.09.2000 SVS
-     Немного изменим условия и возьмем окно именно FAR.
+     ═хьэюую шчьхэшь єёыютш  ш тюч№ьхь юъэю шьхээю FAR.
   */
   if(hFarWnd && (Flags & XLAT_SWITCHKEYBLAYOUT))
   {
     PostMessage(hFarWnd,WM_INPUTLANGCHANGEREQUEST, 1, HKL_NEXT);
     /* $ 04.11.2000 SVS
-       Выдаем звуковой сигнал, если надо.
+       ┬√фрхь чтєъютющ ёшуэры, хёыш эрфю.
     */
     if(Flags & XLAT_SWITCHKEYBBEEP)
       MessageBeep(0);

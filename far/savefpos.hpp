@@ -16,8 +16,8 @@ Modify:
   08.08.2000 tran 1.01
     ! long -> int64
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 class SaveFilePos
@@ -32,4 +32,3 @@ class SaveFilePos
 
 
 #endif	// __SAVEFILEPOS_HPP__
-

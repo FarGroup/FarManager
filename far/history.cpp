@@ -1,7 +1,7 @@
 /*
 history.cpp
 
-История (Alt-F8, Alt-F11, Alt-F12)
+╚ёЄюЁш  (Alt-F8, Alt-F11, Alt-F12)
 
 */
 
@@ -10,23 +10,23 @@ history.cpp
 /*
 Modify:
   09.04.2001 SVS
-    + Фича - копирование из истории строки в Clipboard
+    + ╘шўр - ъюяшЁютрэшх шч шёЄюЁшш ёЄЁюъш т Clipboard
   11.02.2001 SVS
-    ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
+    ! ═хёъюы№ъю єЄюўэхэшщ ъюфр т ёт чш ё шчьхэхэш ьш т ёЄЁєъЄєЁх MenuItem
   09.01.2001 SVS
-    - Бага с CmdHistoryRule=1
+    - ┴рур ё CmdHistoryRule=1
   11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
+    ! ╚чьхэхэш  фы  тючьюцэюёЄш ъюьяшы Ўшш яюф BC & VC
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -268,7 +268,7 @@ int History::Select(char *Title,char *HelpTopic,char *Str,int &Type,char *ItemTi
       switch(Key)
       {
         /* $ 09.04.2001 SVS
-           Фича - копирование из истории строки в Clipboard
+           ╘шўр - ъюяшЁютрэшх шч шёЄюЁшш ёЄЁюъш т Clipboard
         */
         case KEY_CTRLC:
         case KEY_CTRLINS:

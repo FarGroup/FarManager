@@ -1,7 +1,7 @@
 /*
 filestr.cpp
 
-Класс GetFileString
+╩ырёё GetFileString
 
 */
 
@@ -10,12 +10,12 @@ filestr.cpp
 /*
 Modify:
   20.02.2001 SVS
-    ! Заголовки - к общему виду!
+    ! ╟руюыютъш - ъ юс∙хьє тшфє!
   13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
+    ! ═хъюЄюЁ√х ъюЁЁхъЎшш яЁш шёяюы№чютрэшш new/delete/realloc
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
@@ -25,8 +25,8 @@ Modify:
 GetFileString::GetFileString(FILE *SrcFile)
 {
   /* $ 13.07.2000 SVS
-     Т.к. в последствии память перераспределяется через realloc, то
-     конструкция Str=new char[1024]; не применима...
+     ╥.ъ. т яюёыхфёЄтшш ярь Є№ яхЁхЁрёяЁхфхы хЄё  ўхЁхч realloc, Єю
+     ъюэёЄЁєъЎш  Str=new char[1024]; эх яЁшьхэшьр...
   */
   Str=(char*)malloc(1024);
   /* SVS $ */
@@ -39,7 +39,7 @@ GetFileString::GetFileString(FILE *SrcFile)
 GetFileString::~GetFileString()
 {
   /* $ 13.07.2000 SVS
-     используем free
+     шёяюы№чєхь free
   */
   free(Str);
   /* SVS $ */
@@ -83,4 +83,3 @@ int GetFileString::GetString(char **DestStr,int &Length)
   Length=CurLength;
   return(ExitCode);
 }
-

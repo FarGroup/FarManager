@@ -3,7 +3,7 @@
 /*
 fn.hpp
 
-Описания функций
+╬яшёрэш  ЇєэъЎшщ
 
 */
 
@@ -11,15 +11,15 @@ fn.hpp
 
 /*
 Modify:
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
+  29.04.2001 ╬╥
+    + ┬эхфЁхэшх NWZ юЄ ╥ЁхЄ№ ъютр
   28.04.2001 SVS
    + xfilter
-   + Новый параметр у DumpExceptionInfo - указатель на PluginItem.
-   + Фунция печати дампа памяти SysLogDump()
+   + ═ют√щ ярЁрьхЄЁ є DumpExceptionInfo - єърчрЄхы№ эр PluginItem.
+   + ╘єэЎш  яхўрЄш фрьяр ярь Єш SysLogDump()
   08.04.2001 SVS
-   ! GetCommaWord() - дополнительный параметр - разделитель, по умолчанию = ','
-   ! ExpandPATHEXT() выкинуты за ненадобностью.
+   ! GetCommaWord() - фюяюыэшЄхы№э√щ ярЁрьхЄЁ - ЁрчфхышЄхы№, яю єьюыўрэш■ = ','
+   ! ExpandPATHEXT() т√ъшэєЄ√ чр эхэрфюсэюёЄ№■.
   06.04.2001 SVS
    + ExpandPATHEXT()
   04.04.2001 SVS
@@ -27,84 +27,84 @@ Modify:
   03.04.2001 SVS
    + Add_PATHEXT()
   30.03.2001 SVS
-   + FarGetLogicalDrives - оболочка вокруг GetLogicalDrives, с учетом
-     скрытых логических дисков
+   + FarGetLogicalDrives - юсюыюўър тюъЁєу GetLogicalDrives, ё єўхЄюь
+     ёъЁ√Є√ї ыюушўхёъшї фшёъют
   29.03.2001 IS
    ! void ViewerConfig() -> void ViewerConfig(struct ViewerOptions &ViOpt);
   24.03.2001 tran 1.69
    + FarQsortEx, qsortex
   20.03.2001 tran 1.67
-   + FarRecursiveSearch - добавлен void *param
+   + FarRecursiveSearch - фюсртыхэ void *param
   20.03.2001 SVS
-   + FileSizeToStr - функция преобразования размера файла в... удобочитаемый
-     вид - выдрана из FileList::ShowList()
+   + FileSizeToStr - ЇєэъЎш  яЁхюсЁрчютрэш  ЁрчьхЁр Їрщыр т... єфюсюўшЄрхь√щ
+     тшф - т√фЁрэр шч FileList::ShowList()
   16.03.2001 SVS
-   + Функция DriveLocalToRemoteName() - Получить из имени диска RemoteName
+   + ╘єэъЎш  DriveLocalToRemoteName() - ╧юыєўшЄ№ шч шьхэш фшёър RemoteName
    + GetNameAndPassword();
   13.03.2001 SVS
-   ! GetPathRoot переехала в flink.hpp :-)
+   ! GetPathRoot яхЁххїрыр т flink.hpp :-)
   07.03.2001 IS
    + DeleteEmptyKey
   06.03.2001 SVS
-   ! InsertCommas возвращает знчение на Dest
+   ! InsertCommas тючтЁр∙рхЄ чэўхэшх эр Dest
   28.02.2001 SVS
-   ! CenterStr возвращает указатель на Dest
+   ! CenterStr тючтЁр∙рхЄ єърчрЄхы№ эр Dest
   27.02.2001 SVS
-   + BoxText(Char) - вывод одного символа
+   + BoxText(Char) - т√тюф юфэюую ёшьтюыр
   22.02.2001 SVS
-   + RemoveChar - удаляет символ из строки
-   ! RemoveHighlights(Str) как макрос - вызывает RemoveChar(Str,'&')
+   + RemoveChar - єфры хЄ ёшьтюы шч ёЄЁюъш
+   ! RemoveHighlights(Str) ъръ ьръЁюё - т√ч√трхЄ RemoveChar(Str,'&')
   21.02.2001 IS
-   + EditorConfig вызывается с ссылкой на EditorOptions
+   + EditorConfig т√ч√трхЄё  ё ёё√ыъющ эр EditorOptions
   20.02.2001 SVS
-   ! ShowSeparator - дополнительный параметр - тип сепаратора
-   + MakeSeparator - создание разделителя в памяти
+   ! ShowSeparator - фюяюыэшЄхы№э√щ ярЁрьхЄЁ - Єшя ёхярЁрЄюЁр
+   + MakeSeparator - ёючфрэшх ЁрчфхышЄхы  т ярь Єш
   14.02.2001 SKV
-   ! Параметр setpal для InitConsole, с default значением 1.
-     Переинитить ли палитру.
+   ! ╧рЁрьхЄЁ setpal фы  InitConsole, ё default чэрўхэшхь 1.
+     ╧хЁхшэшЄшЄ№ ыш ярышЄЁє.
   02.02.2001 IS
    + RemoveUnprintableCharacters
   28.01.2001 SVS
    ! DumpExeptionInfo -> DumpExceptionInfo ;-)
   27.01.2001 VVM
-   + Дополнительный параметр у GetErrorString - резмер буфера
+   + ─юяюыэшЄхы№э√щ ярЁрьхЄЁ є GetErrorString - ЁхчьхЁ сєЇхЁр
   25.01.2001 SVS
-   ! WriteInput - имеет дополнительный параметр - флаги
-   ! TranslateKeyToVK - имеет дополнительный параметр - указатель на эвенты.
+   ! WriteInput - шьххЄ фюяюыэшЄхы№э√щ ярЁрьхЄЁ - Їыруш
+   ! TranslateKeyToVK - шьххЄ фюяюыэшЄхы№э√щ ярЁрьхЄЁ - єърчрЄхы№ эр ¤тхэЄ√.
   23.01.2001 SVS
    + DumpExeptionInfo()
   23.01.2001 SVS
-   ! CalcKeyCode - новый параметр.
+   ! CalcKeyCode - эют√щ ярЁрьхЄЁ.
   22.01.2001 SVS
-   ! ShellSetFileAttributes теперь возвращает результат в виде TRUE или FALSE
+   ! ShellSetFileAttributes ЄхяхЁ№ тючтЁр∙рхЄ Ёхчєы№ЄрЄ т тшфх TRUE шыш FALSE
   20.01.2001 SVS
    + GetSearchReplaceString, WriteSequenceInput
-   ! WriteInput теперь возвращает результат в виде FALASE/TRUE.
+   ! WriteInput ЄхяхЁ№ тючтЁр∙рхЄ Ёхчєы№ЄрЄ т тшфх FALASE/TRUE.
   14.01.2001 SVS
    + PrepareOSIfExist
   05.01.2001 SVS
-   ! Функция GetSubstName переехала в flink.hpp
+   ! ╘єэъЎш  GetSubstName яхЁххїрыр т flink.hpp
   04.01.2001 SVS
-   + KeyNameMacroToKey() и TranslateKeyToVK()
+   + KeyNameMacroToKey() ш TranslateKeyToVK()
   04.01.2001 SVS
-   ! Описания MkLink, GetNumberOfLinks переехали в flink.hpp
+   ! ╬яшёрэш  MkLink, GetNumberOfLinks яхЁххїрыш т flink.hpp
   03.01.2001 SVS
-   ! Дополнительный параметр у ConvertDate -
-     "как взять формат даты - динамически или статически?"
+   ! ─юяюыэшЄхы№э√щ ярЁрьхЄЁ є ConvertDate -
+     "ъръ тч Є№ ЇюЁьрЄ фрЄ√ - фшэрьшўхёъш шыш ёЄрЄшўхёъш?"
   30.12.2000 SVS
-   + Функции работы с атрибутами файлов "опубликованы"
+   + ╘єэъЎшш ЁрсюЄ√ ё рЄЁшсєЄрьш Їрщыют "юяєсышъютрэ√"
   26.12.2000 SVS
    + KeyMacroToText()
   14.12.2000 SVS
    + EjectVolume()
   02.11.2000 OT
-   ! Введение проверки на длину буфера, отведенного под имя файла.
+   ! ┬тхфхэшх яЁютхЁъш эр фышэє сєЇхЁр, юЄтхфхээюую яюф шь  Їрщыр.
   25.10.2000 IS
-   ! Изменил имя параметра в FarMkTemp с Template на Prefix
+   ! ╚чьхэшы шь  ярЁрьхЄЁр т FarMkTemp ё Template эр Prefix
   23.10.2000 SVS
-   ! Узаконненая версия SysLog :-)
+   ! ╙чръюээхэр  тхЁёш  SysLog :-)
   20.10.2000 SVS
-   ! ProcessName: Flags должен быть DWORD, а не int
+   ! ProcessName: Flags фюыцхэ с√Є№ DWORD, р эх int
   20.10.2000 SVS
    + SysLog
   16.10.2000 tran
@@ -114,107 +114,107 @@ Modify:
   27.09.2000 SVS
    + FarViewerControl
   27.09.2000 skv
-   + DeleteBuffer. Удалять то, что вернул PasteFromClipboard.
+   + DeleteBuffer. ╙фры Є№ Єю, ўЄю тхЁэєы PasteFromClipboard.
   24.09.2000 SVS
-   + Функция KeyNameToKey - получение кода клавиши по имени
-     Если имя не верно или нет такого - возвращается -1
+   + ╘єэъЎш  KeyNameToKey - яюыєўхэшх ъюфр ъыртш°ш яю шьхэш
+     ┼ёыш шь  эх тхЁэю шыш эхЄ Єръюую - тючтЁр∙рхЄё  -1
   20.09.2000 SVS
-   ! удалил FolderPresent (блин, совсем крышу сорвало :-(
+   ! єфрышы FolderPresent (сышэ, ёютёхь ъЁ√°є ёюЁтрыю :-(
   19.09.2000 SVS
-   + функция FolderPresent - "сужествует ли каталог"
+   + ЇєэъЎш  FolderPresent - "ёєцхёЄтєхЄ ыш ърЄрыюу"
   18.09.2000 SVS
-   ! Функция FarDialogEx имеет 2 дополнительных параметра (Future)
+   ! ╘єэъЎш  FarDialogEx шьххЄ 2 фюяюыэшЄхы№э√ї ярЁрьхЄЁр (Future)
    ! FarRecurseSearch -> FarRecursiveSearch
   15.09.2000 IS
-   + Функция CheckRegValue - возвращает FALSE, если указанная переменная не
-     содержит данные или размер данных равен нулю.
-   + Функция DistrTableExist - проверяет, установлена ли таблица с
-     распределением частот символов, возвращает TRUE в случае успеха
+   + ╘єэъЎш  CheckRegValue - тючтЁр∙рхЄ FALSE, хёыш єърчрээр  яхЁхьхээр  эх
+     ёюфхЁцшЄ фрээ√х шыш ЁрчьхЁ фрээ√ї Ёртхэ эєы■.
+   + ╘єэъЎш  DistrTableExist - яЁютхЁ хЄ, єёЄрэютыхэр ыш ЄрсышЎр ё
+     ЁрёяЁхфхыхэшхь ўрёЄюЄ ёшьтюыют, тючтЁр∙рхЄ TRUE т ёыєўрх єёяхїр
   14.09.2000 SVS
-    + Функция FarMkTemp - получение имени временного файла с полным путем.
+    + ╘єэъЎш  FarMkTemp - яюыєўхэшх шьхэш тЁхьхээюую Їрщыр ё яюыэ√ь яєЄхь.
   12.09.2000 SVS
-    ! FarShowHelp возвращает BOOL
+    ! FarShowHelp тючтЁр∙рхЄ BOOL
   10.09.2000 SVS
-    ! KeyToText возвращает BOOL
+    ! KeyToText тючтЁр∙рхЄ BOOL
   10.09.2000 tran 1.23
     + FSF/FarRecurseSearch
   10.09.2000 SVS
-    ! Наконец-то нашлось приемлемое имя для QWERTY -> Xlat.
+    ! ═ръюэхЎ-Єю эр°ыюё№ яЁшхьыхьюх шь  фы  QWERTY -> Xlat.
   08.09.2000 SVS
     ! QWERTY -> Transliterate
   07.09.2000 SVS
-    ! Функции GetFileOwner и GetNumberOfLinks имеют вызов WINAPI
+    ! ╘єэъЎшш GetFileOwner ш GetNumberOfLinks шьх■Є т√чют WINAPI
     + FarBsearch
   05.09.2000 SVS
-    + QWERTY-перекодировка!
-      На основе плагина EditSwap by SVS :-)))
+    + QWERTY-яхЁхъюфшЁютър!
+      ═р юёэютх яырушэр EditSwap by SVS :-)))
   31.08.2000 tran
     + FSF/FarInputRecordToKey
   29.08.2000 SVS
-    + Дополнительный параметр у Message* - номер плагина.
+    + ─юяюыэшЄхы№э√щ ярЁрьхЄЁ є Message* - эюьхЁ яырушэр.
   28.08.2000 SVS
-    + Модификация вызова под WINAPI у функций Local*
-    ! уточнение для FarQsort
-    ! Не FarAtoa64, но FarAtoi64
+    + ╠юфшЇшърЎш  т√чютр яюф WINAPI є ЇєэъЎшщ Local*
+    ! єЄюўэхэшх фы  FarQsort
+    ! ═х FarAtoa64, эю FarAtoi64
     + FarItoa64
   24.08.2000 SVS
-    + Пераметр у фунции WaitKey - возможность ожидать конкретную клавишу
+    + ╧хЁрьхЄЁ є ЇєэЎшш WaitKey - тючьюцэюёЄ№ юцшфрЄ№ ъюэъЁхЄэє■ ъыртш°є
   23.08.2000 SVS
-    ! Все Flags приведены к одному виду -> DWORD.
-      Модифицированы:
-        * функции   FarMenuFn, FarMessageFn, FarShowHelp
-        * структуры FarListItem, FarDialogItem
+    ! ┬ёх Flags яЁштхфхэ√ ъ юфэюьє тшфє -> DWORD.
+      ╠юфшЇшЎшЁютрэ√:
+        * ЇєэъЎшш   FarMenuFn, FarMessageFn, FarShowHelp
+        * ёЄЁєъЄєЁ√ FarListItem, FarDialogItem
   23.08.2000 SVS
-    + Уточнения (комментарий) для IsMouseButtonPressed()
+    + ╙Єюўэхэш  (ъюььхэЄрЁшщ) фы  IsMouseButtonPressed()
   18.08.2000 tran
     + Flags parameter in FarShowHelp
   14.08.2000 SVS
-    + Функции семейства seek под __int64
+    + ╘єэъЎшш ёхьхщёЄтр seek яюф __int64
   01.08.2000 SVS
-    ! Функция ввода строки GetString имеет один параметр для всех флагов
-    ! дополнительный параметра у KeyToText - размер данных
+    ! ╘єэъЎш  ттюфр ёЄЁюъш GetString шьххЄ юфшэ ярЁрьхЄЁ фы  тёхї Їыруют
+    ! фюяюыэшЄхы№э√щ ярЁрьхЄЁр є KeyToText - ЁрчьхЁ фрээ√ї
   31.07.2000 SVS
-    ! функция GetString имеет еще один параметр - расширение среды
+    ! ЇєэъЎш  GetString шьххЄ х∙х юфшэ ярЁрьхЄЁ - Ёрё°шЁхэшх ёЁхф√
   24.07.2000 SVS
-    ! Все функции, попадающие в разряд FSF должны иметь WINAPI!!!
+    ! ┬ёх ЇєэъЎшш, яюярфр■∙шх т ЁрчЁ ф FSF фюыцэ√ шьхЄ№ WINAPI!!!
   23.07.2000 SVS
-    + Функция FarDialogEx - расширенный диалог
-    + Функция FarDefDlgProc обработки диалога по умолчанию
-    + Функция FarSendDlgMessage - посылка сообщения диалогу
+    + ╘єэъЎш  FarDialogEx - Ёрё°шЁхээ√щ фшрыюу
+    + ╘єэъЎш  FarDefDlgProc юсЁрсюЄъш фшрыюур яю єьюыўрэш■
+    + ╘єэъЎш  FarSendDlgMessage - яюё√ыър ёююс∙хэш  фшрыюує
     + Text(int X, int Y, int Color, char *Str);
     + Text(int X, int Y, int Color, int MsgId);
   18.07.2000 tran 1.06
-    ! изменил тип аргумента у ScrollBar с 'int' на 'unsigned long'
-      нужно для Viewer
+    ! шчьхэшы Єшя рЁуєьхэЄр є ScrollBar ё 'int' эр 'unsigned long'
+      эєцэю фы  Viewer
   11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
+    ! ╚чьхэхэш  фы  тючьюцэюёЄш ъюьяшы Ўшш яюф BC & VC
   07.07.2000 IS
-    + SetHighlighting из main.cpp
+    + SetHighlighting шч main.cpp
   07.07.2000 SVS
-    + Дополнительная функция обработки строк: RemoveExternalSpaces
+    + ─юяюыэшЄхы№эр  ЇєэъЎш  юсЁрсюЄъш ёЄЁюъ: RemoveExternalSpaces
   06.07.2000 IS
-    + Функция FarAdvControl
+    + ╘єэъЎш  FarAdvControl
   05.07.2000 SVS
-    + Функция ExpandEnvironmentStr
+    + ╘єэъЎш  ExpandEnvironmentStr
   03.07.2000 IS
-    + Функция вывода помощи
+    + ╘єэъЎш  т√тюфр яюью∙ш
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 
 /* $ 07.07.2000 IS
-   Функция перешла сюда из main.cpp
+   ╘єэъЎш  яхЁх°ыр ё■фр шч main.cpp
 */
 void SetHighlighting();
 /* IS $ */
 void _export StartFAR();
 void Box(int x1,int y1,int x2,int y2,int Color,int Type);
 /*$ 14.02.2001 SKV
-  Инитить ли палитру default значениями.
-  По умолчанию - да.
-  С 0 используется для ConsoleDetach.
+  ╚эшЄшЄ№ ыш ярышЄЁє default чэрўхэш ьш.
+  ╧ю єьюыўрэш■ - фр.
+  ╤ 0 шёяюы№чєхЄё  фы  ConsoleDetach.
 */
 void InitConsole(int setpal=1);
 /* SKV$*/
@@ -295,7 +295,7 @@ int IsCaseLower(char *Str);
 int DeleteFileWithFolder(char *FileName);
 char* FarMSG(int MsgID);
 /* $ 29.08.2000 SVS
-   Дополнительный параметр у Message* - номер плагина.
+   ─юяюыэшЄхы№э√щ ярЁрьхЄЁ є Message* - эюьхЁ яырушэр.
 */
 int Message(int Flags,int Buttons,char *Title,char *Str1,char *Str2,
             char *Str3,char *Str4,char *Str5,char *Str6=NULL,char *Str7=NULL,
@@ -316,14 +316,14 @@ int Message(int Flags,int Buttons,char *Title,char *Str1,char *Str2=NULL,
 void SetMessageHelp(char *Topic);
 void GetMessagePosition(int &X1,int &Y1,int &X2,int &Y2);
 int ToPercent(unsigned long N1,unsigned long N2);
-// возвращает: 1 - LeftPressed, 2 - Right Pressed, 3 - Middle Pressed, 0 - none
+// тючтЁр∙рхЄ: 1 - LeftPressed, 2 - Right Pressed, 3 - Middle Pressed, 0 - none
 int IsMouseButtonPressed();
 int CmpName(char *pattern,char *string,int skippath=TRUE);
 int CheckForEsc();
 /* $ 09.10.2000 IS
-    + Новая функция для обработки имени файла
+    + ═ютр  ЇєэъЎш  фы  юсЁрсюЄъш шьхэш Їрщыр
 */
-// обработать имя файла: сравнить с маской, масками, сгенерировать по маске
+// юсЁрсюЄрЄ№ шь  Їрщыр: ёЁртэшЄ№ ё ьрёъющ, ьрёърьш, ёухэхЁшЁютрЄ№ яю ьрёъх
 int WINAPI ProcessName(char *param1, char *param2, DWORD flags);
 /* IS $ */
 void ShowHeap();
@@ -355,14 +355,14 @@ void SetColors();
 int GetColorDialog(unsigned int &Color);
 int HiStrlen(char *Str);
 /* $ 27.01.2001 VVM
-   + Дополнительный параметр у GetErrorString - резмер буфера */
+   + ─юяюыэшЄхы№э√щ ярЁрьхЄЁ є GetErrorString - ЁхчьхЁ сєЇхЁр */
 int GetErrorString(char *ErrStr, DWORD StrSize);
 /* VVM $ */
 void ShowProcessList();
 int CopyFormatToClipboard(char *Format,char *Data);
 char* PasteFormatFromClipboard(char *Format);
 /* $ 16.10.2000 tran
-  параметер - ограничение по длины */
+  ярЁрьхЄхЁ - юуЁрэшўхэшх яю фышэ√ */
 char* WINAPI PasteFromClipboardEx(int max);
 /* tran $ */
 
@@ -370,7 +370,7 @@ int GetFileTypeByName(char *Name);
 void SetFarTitle(char *Title);
 void LocalUpperInit();
 /* $ 28.08.2000 SVS
-   Модификация вызова под WINAPI
+   ╠юфшЇшърЎш  т√чютр яюф WINAPI
 */
 int WINAPI LocalIslower(int Ch);
 int WINAPI LocalIsupper(int Ch);
@@ -396,7 +396,7 @@ int SaveFolderShortcut(int Key,char *SrcFolder,char *PluginModule,
 void ShowFolderShortcut();
 void ShowFilter();
 /* 15.09.2000 IS
-   Проверяет, установлена ли таблица с распределением частот символов
+   ╧ЁютхЁ хЄ, єёЄрэютыхэр ыш ЄрсышЎр ё ЁрёяЁхфхыхэшхь ўрёЄюЄ ёшьтюыют
 */
 int DistrTableExist(void);
 /* IS $ */
@@ -488,7 +488,7 @@ BOOL operator >= (ULARGE_INTEGER &c1,ULARGE_INTEGER &c2);
 #endif
 
 #ifdef __PLUGIN_HPP__
-// эти функции _были_ как static
+// ¤Єш ЇєэъЎшш _с√ыш_ ъръ static
 int WINAPI FarGetPluginDirList(int PluginNumber,HANDLE hPlugin,
                   char *Dir,struct PluginPanelItem **pPanelItem,
                   int *pItemsNumber);
@@ -522,28 +522,28 @@ int WINAPI FarViewerControl(int Command,void *Param);
 /* $ 18.08.2000 tran
    add Flags parameter */
 /* $ 03.07.2000 IS
-  Функция вывода помощи
+  ╘єэъЎш  т√тюфр яюью∙ш
 */
 BOOL WINAPI FarShowHelp(char *ModuleName, char *HelpTopic,DWORD Flags);
 /* IS $ */
 /* tran 18.08.2000 $ */
 
 /* $ 06.07.2000 IS
-  Функция, которая будет действовать и в редакторе, и в панелях, и...
+  ╘єэъЎш , ъюЄюЁр  сєфхЄ фхщёЄтютрЄ№ ш т ЁхфръЄюЁх, ш т ярэхы ї, ш...
 */
 int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param);
 /* IS $ */
 /* $ 23.07.2000 IS
-   Функции для расширенного диалога
+   ╘єэъЎшш фы  Ёрё°шЁхээюую фшрыюур
 */
-//  Функция расширенного диалога
+//  ╘єэъЎш  Ёрё°шЁхээюую фшрыюур
 int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
       char *HelpTopic,struct FarDialogItem *Item,int ItemsNumber,
       DWORD Reserved, DWORD Flags,
       FARWINDOWPROC Proc,long Param);
-//  Функция обработки диалога по умолчанию
+//  ╘єэъЎш  юсЁрсюЄъш фшрыюур яю єьюыўрэш■
 long WINAPI FarDefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
-// Посылка сообщения диалогу
+// ╧юё√ыър ёююс∙хэш  фшрыюує
 long WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1, long Param2);
 
 /* SVS $ */
@@ -551,26 +551,26 @@ long WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1, long Param2);
 
 
 /* $ 24.07.2000 SVS
-   Те функции, которые попадают в FSF
-   Должны иметь WINAPI
+   ╥х ЇєэъЎшш, ъюЄюЁ√х яюярфр■Є т FSF
+   ─юыцэ√ шьхЄ№ WINAPI
 */
 /* $ 05.07.2000 SVS
-   Расширение переменной среды
+   ╨рё°шЁхэшх яхЁхьхээющ ёЁхф√
 */
 DWORD WINAPI ExpandEnvironmentStr(char *src, char *dst, size_t size=8192);
 /* SVS $ */
 void WINAPI Unquote(char *Str);
 
 /* $ 07.07.2000 SVS
-   + удалить пробелы снаружи
-   ! изменен тип возврата
+   + єфрышЄ№ яЁюсхы√ ёэрЁєцш
+   ! шчьхэхэ Єшя тючтЁрЄр
 */
 char* WINAPI RemoveLeadingSpaces(char *Str);
 char* WINAPI RemoveTrailingSpaces(char *Str);
 char* WINAPI RemoveExternalSpaces(char *Str);
 /* SVS $ */
 /* $ 02.02.2001 IS
-  + Новая функция: заменяет пробелами непечатные символы в строке
+  + ═ютр  ЇєэъЎш : чрьхэ хЄ яЁюсхырьш эхяхўрЄэ√х ёшьтюы√ т ёЄЁюъх
 */
 char* WINAPI RemoveUnprintableCharacters(char *Str);
 /* IS $ */
@@ -590,20 +590,20 @@ int WINAPIV FarSscanf(const char *buffer, const char *format,...);
 int WINAPI CopyToClipboard(char *Data);
 char* WINAPI PasteFromClipboard(void);
 /* $ 01.08.2000 SVS
-   ! Функция ввода строки GetString имеет один параметр для всех флагов
+   ! ╘єэъЎш  ттюфр ёЄЁюъш GetString шьххЄ юфшэ ярЁрьхЄЁ фы  тёхї Їыруют
 */
 /* $ 31.07.2000 SVS
-    ! функция GetString имеет еще один параметр - расширение среды
+    ! ЇєэъЎш  GetString шьххЄ х∙х юфшэ ярЁрьхЄЁ - Ёрё°шЁхэшх ёЁхф√
 */
 int WINAPI GetString(char *Title,char *SubTitle,char *HistoryName,char *SrcText,
     char *DestText,int DestLength,char *HelpTopic=NULL,DWORD Flags=0);
 /* SVS $ */
 int WINAPI GetNameAndPassword(char *Title,char *UserName,char *Password,char *HelpTopic,DWORD Flags);
 
-/* Программое переключение FulScreen <-> Windowed
-   (с подачи "Vasily V. Moshninov" <vmoshninov@newmail.ru>)
+/* ╧ЁюуЁрььюх яхЁхъы■ўхэшх FulScreen <-> Windowed
+   (ё яюфрўш "Vasily V. Moshninov" <vmoshninov@newmail.ru>)
    mode = -2 - GetMode
-          -1 - как тригер
+          -1 - ъръ ЄЁшухЁ
            0 - Windowed
            1 - FulScreen
    Return
@@ -614,8 +614,8 @@ int FarAltEnter(int mode);
 
 
 /* $ 05.09.2000 SVS
-  XLat-перекодировка!
-  На основе плагина EditSwap by SVS :-)))
+  XLat-яхЁхъюфшЁютър!
+  ═р юёэютх яырушэр EditSwap by SVS :-)))
 */
 char* WINAPI Xlat(char *Line,
                     int StartPos,
@@ -625,7 +625,7 @@ char* WINAPI Xlat(char *Line,
 /* SVS $ */
 
 /* $ 14.08.2000 SVS
-    + Функции семейства seek под __int64
+    + ╘єэъЎшш ёхьхщёЄтр seek яюф __int64
 */
 #ifdef __cplusplus
 extern "C" {
@@ -642,10 +642,10 @@ typedef int  (WINAPI *FRSUSERFUNC)(WIN32_FIND_DATA *FData,char *FullName,void *p
 void WINAPI FarRecursiveSearch(char *initdir,char *mask,FRSUSERFUNC func,DWORD flags,void *param);
 /* tran 10.09.2000 $ */
 /* $ 14.09.2000 SVS
- + Функция FarMkTemp - получение имени временного файла с полным путем.
+ + ╘єэъЎш  FarMkTemp - яюыєўхэшх шьхэш тЁхьхээюую Їрщыр ё яюыэ√ь яєЄхь.
 */
 /* $ 25.10.2000 IS
- ! Изменил имя параметра с Template на Prefix
+ ! ╚чьхэшы шь  ярЁрьхЄЁр ё Template эр Prefix
 */
 char* WINAPI FarMkTemp(char *Dest, char *Prefix);
 /* IS $*/
@@ -694,7 +694,7 @@ FILE *OpenLogStream(char *file);
 BOOL EjectVolume(char Letter,DWORD Flags);
 
 /* $ 30.12.2000 SVS
-   Функции работы с атрибутами файлов "опубликованы"
+   ╘єэъЎшш ЁрсюЄ√ ё рЄЁшсєЄрьш Їрщыют "юяєсышъютрэ√"
 */
 int GetEncryptFunctions(void);
 int ESetFileAttributes(const char *Name,int Attr);
@@ -725,13 +725,13 @@ BOOL WINAPI KeyMacroToText(int Key,char *KeyText0,int Size);
 int WINAPI KeyNameMacroToKey(char *Name);
 int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *rec=NULL);
 /* $ 24.09.2000 SVS
- + Функция KeyNameToKey - получение кода клавиши по имени
-   Если имя не верно или нет такого - возвращается -1
+ + ╘єэъЎш  KeyNameToKey - яюыєўхэшх ъюфр ъыртш°ш яю шьхэш
+   ┼ёыш шь  эх тхЁэю шыш эхЄ Єръюую - тючтЁр∙рхЄё  -1
 */
 int WINAPI KeyNameToKey(char *Name);
 /* SVS $*/
-// ! дополнительный параметра у KeyToText - размер данных
-//   Size=0 - по максимуму!
+// ! фюяюыэшЄхы№э√щ ярЁрьхЄЁр є KeyToText - ЁрчьхЁ фрээ√ї
+//   Size=0 - яю ьръёшьєьє!
 BOOL WINAPI KeyToText(int Key,char *KeyText,int Size=0);
 /* SVS $ */
 /* 01.08.2000 SVS $ */
@@ -744,13 +744,13 @@ int GetInputRecord(INPUT_RECORD *rec);
 int PeekInputRecord(INPUT_RECORD *rec);
 int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros=NULL);
 /* $ 24.08.2000 SVS
- + Пераметр у фунции WaitKey - возможность ожидать конкретную клавишу
+ + ╧хЁрьхЄЁ є ЇєэЎшш WaitKey - тючьюцэюёЄ№ юцшфрЄ№ ъюэъЁхЄэє■ ъыртш°є
 */
 void WaitKey(int KeyWait=-1);
 /* SVS $ */
 int WriteInput(int Key,DWORD Flags=0);
 
-// Получить из имени диска RemoteName
+// ╧юыєўшЄ№ шч шьхэш фшёър RemoteName
 char* DriveLocalToRemoteName(int DriveType,char Letter,char *Dest);
 char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size,
                                 int Width=-1, int ViewFlags=COLUMN_COMMAS);
@@ -759,7 +759,7 @@ DWORD WINAPI FarGetLogicalDrives(void);
 
 char *Add_PATHEXT(char *Dest);
 
-// сама функция в hilight.cpp
+// ёрьр ЇєэъЎш  т hilight.cpp
 char *MkRegKeyHighlightName(char *RegKey);
 
 #ifdef __cplusplus
@@ -775,10 +775,10 @@ void qsortex(char *base, unsigned int nel, unsigned int width,
 
 
 int xfilter(
-    int From,                 // откуда: 0 = OpenPlugin, 1 = OpenFilePlugin
-    EXCEPTION_POINTERS *xp,   // данные ситуации
-    struct PluginItem *Module,// модуль, приведший к исключению.
-    DWORD Flags);             // дополнительные флаги - пока только один
-                              //        0x1 - спрашивать про выгрузку?
+    int From,                 // юЄъєфр: 0 = OpenPlugin, 1 = OpenFilePlugin
+    EXCEPTION_POINTERS *xp,   // фрээ√х ёшЄєрЎшш
+    struct PluginItem *Module,// ьюфєы№, яЁштхф°шщ ъ шёъы■ўхэш■.
+    DWORD Flags);             // фюяюыэшЄхы№э√х Їыруш - яюър Єюы№ъю юфшэ
+                              //        0x1 - ёяЁр°штрЄ№ яЁю т√уЁєчъє?
 
 #endif  // __FARFUNC_HPP__

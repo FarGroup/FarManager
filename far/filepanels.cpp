@@ -1,7 +1,7 @@
 /*
 filepanels.cpp
 
-Файловые панели
+╘рщыют√х ярэхыш
 
 */
 
@@ -9,10 +9,10 @@ filepanels.cpp
 
 /*
 Modify:
-  06.05.2001 ОТ
-   ! Переименование Window в Frame :)
+  06.05.2001 ╬╥
+   ! ╧хЁхшьхэютрэшх Window т Frame :)
   05.05.2001 DJ
-   + перетрях NWZ
+   + яхЁхЄЁ ї NWZ
   09.01.2001 tran
      Created
 */
@@ -21,7 +21,7 @@ Modify:
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -157,7 +157,7 @@ void FilePanels::RedrawKeyBar()
         if (Info.KeyBar->ShiftTitles[I]!=NULL)
           FShiftKeys[I]=Info.KeyBar->ShiftTitles[I];
 
-      // Ага, мы ведь недаром увеличивали размер структуры ;-)
+      // └ур, ь√ тхф№ эхфрЁюь єтхышўштрыш ЁрчьхЁ ёЄЁєъЄєЁ√ ;-)
       if(Info.StructSize >= sizeof(struct OpenPluginInfo))
       {
         for (I=0;I<sizeof(Info.KeyBar->CtrlShiftTitles)/sizeof(Info.KeyBar->CtrlShiftTitles[0]);I++)
@@ -307,7 +307,7 @@ int  FilePanels::ProcessKey(int Key)
         {
           if (AnotherPanel->GetType()==NewType)
           /* $ 19.09.2000 IS
-            Повторное нажатие на ctrl-l|q|t всегда включает файловую панель
+            ╧ютЄюЁэюх эрцрЄшх эр ctrl-l|q|t тёхуфр тъы■ўрхЄ Їрщыютє■ ярэхы№
           */
             AnotherPanel=ChangePanel(AnotherPanel,FILE_PANEL,FALSE,FALSE);
           /* IS % */
@@ -321,15 +321,15 @@ int  FilePanels::ProcessKey(int Key)
       }
       break;
     /* $ 19.09.2000 SVS
-       + Добавляем реакцию показа бакграунда в панелях на CtrlAltShift
+       + ─юсрты хь ЁхръЎш■ яюърчр сръуЁрєэфр т ярэхы ї эр CtrlAltShift
     */
     case KEY_CTRLALTSHIFTPRESS:
     {
       if(Opt.AllCtrlAltShiftRule & CASR_PANEL)
       {
         /* $ 19.09.2000 SVS
-         + Opt.PanelCtrlAltShiftRule задает поведение
-           Ctrl-Alt-Shift для панелей.
+         + Opt.PanelCtrlAltShiftRule чрфрхЄ яютхфхэшх
+           Ctrl-Alt-Shift фы  ярэхыхщ.
         */
         int LeftVisible=LeftPanel->IsVisible();
         int RightVisible=RightPanel->IsVisible();
@@ -666,7 +666,7 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
   }
   else
     /* $ 13.07.2000 SVS
-       немного сократим код путем вызова функции класса CreatePanel(int Type)
+       эхьэюую ёюъЁрЄшь ъюф яєЄхь т√чютр ЇєэъЎшш ъырёёр CreatePanel(int Type)
     */
     NewPanel=CreatePanel(NewType);
     /* SVS $*/

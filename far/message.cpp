@@ -1,7 +1,7 @@
 /*
 message.cpp
 
-Вывод MessageBox
+┬√тюф MessageBox
 
 */
 
@@ -10,28 +10,28 @@ message.cpp
 /*
 Modify:
   14.03.2001 SVS
-    ! Если GetLastError() вернул ERROR_SUCCESS, то нефига показывать
-      инфу про успешное выполнение в сообщении об ошибке.
+    ! ┼ёыш GetLastError() тхЁэєы ERROR_SUCCESS, Єю эхЇшур яюърч√трЄ№
+      шэЇє яЁю єёях°эюх т√яюыэхэшх т ёююс∙хэшш юс ю°шсъх.
   27.02.2001 VVM
-    ! Отрисовка сепаратора - функцией MakeSeparator()
+    ! ╬ЄЁшёютър ёхярЁрЄюЁр - ЇєэъЎшхщ MakeSeparator()
   02.02.2001 IS
-    + Заменим cr и lf на пробелы в GetErrorString
+    + ╟рьхэшь cr ш lf эр яЁюсхы√ т GetErrorString
   02.02.2001 SVS
-    ! Забыли сделать CharToOem в GetErrorString...
+    ! ╟рс√ыш ёфхырЄ№ CharToOem т GetErrorString...
   27.01.2001 VVM
-    + Если GetErrorString не распознает ошибку - пытается узнать у системы
+    + ┼ёыш GetErrorString эх ЁрёяючэрхЄ ю°шсъє - я√ЄрхЄё  єчэрЄ№ є ёшёЄхь√
   29.08.2000 SVS
-    + Дополнительный параметр у Message* - номер плагина.
+    + ─юяюыэшЄхы№э√щ ярЁрьхЄЁ є Message* - эюьхЁ яырушэр.
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -202,7 +202,7 @@ int Message(int Flags,int Buttons,char *Title,char *Str1,char *Str2,
     if (*HelpTopic)
       Dlg.SetHelp(HelpTopic);
     /* $ 29.08.2000 SVS
-       Запомним номер плагина
+       ╟ряюьэшь эюьхЁ яырушэр
     */
     Dlg.SetPluginNumber(PluginNumber);
     /* SVS $ */
@@ -400,14 +400,14 @@ int GetErrorString(char *ErrStr, DWORD StrSize)
       break;
     default:
     /* $ 27.01.2001 VVM
-         + Если GetErrorString не распознает ошибку - пытается узнать у системы */
-      if (LastError != ERROR_SUCCESS && // нефига показывать лажу...
+         + ┼ёыш GetErrorString эх ЁрёяючэрхЄ ю°шсъє - я√ЄрхЄё  єчэрЄ№ є ёшёЄхь√ */
+      if (LastError != ERROR_SUCCESS && // эхЇшур яюърч√трЄ№ ырцє...
           FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ARGUMENT_ARRAY,
                         NULL, LastError, 0, ErrStr, StrSize, NULL))
       {
         CharToOem(ErrStr,ErrStr);
         /* $ 02.02.2001 IS
-           + Заменим cr и lf на пробелы
+           + ╟рьхэшь cr ш lf эр яЁюсхы√
         */
         RemoveUnprintableCharacters(ErrStr);
         /* IS $ */

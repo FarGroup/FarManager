@@ -9,20 +9,20 @@ class RedrawDesktop
 
 /*
 Modify:
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
+  29.04.2001 ╬╥
+    + ┬эхфЁхэшх NWZ юЄ ╥ЁхЄ№ ъютр
   28.02.2001 IS
     ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */

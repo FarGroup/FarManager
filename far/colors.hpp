@@ -3,7 +3,7 @@
 /*
 colors.hpp
 
-Цвета
+╓тхЄр
 
 */
 
@@ -14,22 +14,22 @@ Modify:
   13.12.2000 SVS
     + COL_LASTPALETTECOLOR
   04.12.2000 SVS
-    + COL_*DIALOG*DISABLED - Недоступный элемент диалога с
-      атрибутом DIF_DISABLE
+    + COL_*DIALOG*DISABLED - ═хфюёЄєяэ√щ ¤ыхьхэЄ фшрыюур ё
+      рЄЁшсєЄюь DIF_DISABLE
   13.09.2000 tran 1.03
     + COL_COMMANDLINEPREFIX
   18.07.2000 tran 1.02
     + COL_VIEWERSCROLLBAR
   11.07.2000 SVS
-    + 1 Служебная позиция перед новыми цветами :-)
+    + 1 ╤ыєцхсэр  яючшЎш  яхЁхф эют√ьш ЎтхЄрьш :-)
   29.06.2000 SVS
-    + Цветовые атрибуты для Menu ScrollBar
+    + ╓тхЄют√х рЄЁшсєЄ√ фы  Menu ScrollBar
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
-// Стандартные цвета FAR Manager
+// ╤ЄрэфрЁЄэ√х ЎтхЄр FAR Manager
 enum {
     F_BLACK=0,
     F_BLUE=FOREGROUND_BLUE,
@@ -157,18 +157,18 @@ enum PaletteColors
   COL_VIEWERARROWS,
 
   /* $ 11.07.2000 SVS
-    + 1 Служебная позиция перед новыми цветами :-)
+    + 1 ╤ыєцхсэр  яючшЎш  яхЁхф эют√ьш ЎтхЄрьш :-)
   */
   COL_PRIVATEPOSITION_FOR_XRENZNAETCHEGO,
   /* SVS $ */
   /* $ 29.06.2000 SVS
-    Цветовые атрибуты для Menu ScrollBar
+    ╓тхЄют√х рЄЁшсєЄ√ фы  Menu ScrollBar
   */
-  COL_DIALOGMENUSCROLLBAR,  // для случая History
-  COL_MENUSCROLLBAR,            // для обычного меню
+  COL_DIALOGMENUSCROLLBAR,  // фы  ёыєўр  History
+  COL_MENUSCROLLBAR,            // фы  юс√ўэюую ьхэ■
   /* SVS $ */
   /* $ 18.07.2000 tran
-     scrollbar для viewer*/
+     scrollbar фы  viewer*/
   COL_VIEWERSCROLLBAR,
   /* tran 18.07.2000 $ */
   /* $ 13.09.2000 tran
@@ -176,7 +176,7 @@ enum PaletteColors
   COL_COMMANDLINEPREFIX,
   /* tran 13.09.2000 $ */
   /* $ 04.12.2000 SVS
-     COL_*DIALOG*DISABLED - Недоступный элемент диалога с атрибутом DIF_DISABLE */
+     COL_*DIALOG*DISABLED - ═хфюёЄєяэ√щ ¤ыхьхэЄ фшрыюур ё рЄЁшсєЄюь DIF_DISABLE */
   COL_DIALOGDISABLED,
   COL_DIALOGEDITDISABLED,
   COL_DIALOGLISTDISABLED,
@@ -189,7 +189,7 @@ enum PaletteColors
 
 
   /* $ 13.12.2000 SVS
-     Этот пункт должен быть самым последним!!!!!!
+     ▌ЄюЄ яєэъЄ фюыцхэ с√Є№ ёрь√ь яюёыхфэшь!!!!!!
   */
   COL_LASTPALETTECOLOR
   /* SVS $ */

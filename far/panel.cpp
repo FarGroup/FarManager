@@ -1,7 +1,7 @@
 /*
 panel.cpp
 
-Parent class для панелей
+Parent class фы  ярэхыхщ
 
 */
 
@@ -9,121 +9,121 @@ Parent class для панелей
 
 /*
 Modify:
-  06.05.2001 ОТ
-    ! Переименование Window в Frame :)
+  06.05.2001 ╬╥
+    ! ╧хЁхшьхэютрэшх Window т Frame :)
   05.05.2001 DJ
-    + перетрях NWZ
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
+    + яхЁхЄЁ ї NWZ
+  29.04.2001 ╬╥
+    + ┬эхфЁхэшх NWZ юЄ ╥ЁхЄ№ ъютр
   30.04.2001 DJ
-    - не давало закрыть по Esc менюшку выбора диска, вызванную из quick view
-      панели
+    - эх фртрыю чръЁ√Є№ яю Esc ьхэ■°ъє т√сюЁр фшёър, т√чтрээє■ шч quick view
+      ярэхыш
   28.04.2001 VVM
-    + GetSubstName() принимает тип носителя
+    + GetSubstName() яЁшэшьрхЄ Єшя эюёшЄхы 
   27.04.2001 SVS
-    + Т.к. нет способа получить состояние "открытости" устройства,
-      то добавим обработку Ins для CD - "закрыть диск"
+    + ╥.ъ. эхЄ ёяюёюср яюыєўшЄ№ ёюёЄю эшх "юЄъЁ√ЄюёЄш" єёЄЁющёЄтр,
+      Єю фюсртшь юсЁрсюЄъє Ins фы  CD - "чръЁ√Є№ фшёъ"
   26.04.2001 VVM
-    ! Отмена патча 547
+    ! ╬Єьхэр ярЄўр 547
   24.04.2001 SVS
-    + Заполнение флагов PanelInfo.Flags
-    - !@AFQ! в корне любого диска делал "E:\\file.txt", т.е. 2 слеша.
+    + ╟ряюыэхэшх Їыруют PanelInfo.Flags
+    - !@AFQ! т ъюЁэх ы■сюую фшёър фхыры "E:\\file.txt", Є.х. 2 ёых°р.
   24.04.2001 VVM
-    - Баг при смене порядка сортировки
+    - ┴ру яЁш ёьхэх яюЁ фър ёюЁЄшЁютъш
   22.04.2001 SVS
-    ! Временная отмена куска патча 547
-    + Добавка для NT/2000 - вторичный Del на CDROOM задвигает диск.
-      Афишировать пока не бум :-)
+    ! ┬Ёхьхээр  юЄьхэр ъєёър ярЄўр 547
+    + ─юсртър фы  NT/2000 - тЄюЁшўэ√щ Del эр CDROOM чрфтшурхЄ фшёъ.
+      └Їш°шЁютрЄ№ яюър эх сєь :-)
   19.04.2001 SVS
-    - не удалялся SUBST-диск - портилось оригинальное значение DriveType
-      в момент проверки "Мы хотим спрятать cd-rom или сменный диск"
+    - эх єфры ыё  SUBST-фшёъ - яюЁЄшыюё№ юЁшушэры№эюх чэрўхэшх DriveType
+      т ьюьхэЄ яЁютхЁъш "╠√ їюЄшь ёяЁ ЄрЄ№ cd-rom шыш ёьхээ√щ фшёъ"
   09.04.2001 SVS
-    ! проблемы с быстрым поиском.
+    ! яЁюсыхь√ ё с√ёЄЁ√ь яюшёъюь.
   02.04.2001 SVS
     ! DRIVE_SUSTITUTE -> DRIVE_SUBSTITUTE
   02.04.2001 VVM
-    ! Попытка не будить спящие диски...
+    ! ╧юя√Єър эх сєфшЄ№ ёя ∙шх фшёъш...
   30.03.2001 SVS
-    ! GetLogicalDrives заменен на FarGetLogicalDrives() в связи с началом
-      компании по поддержке виндовой "полиции".
+    ! GetLogicalDrives чрьхэхэ эр FarGetLogicalDrives() т ёт чш ё эрўрыюь
+      ъюьярэшш яю яюффхЁцъх тшэфютющ "яюышЎшш".
   28.03.2001 VVM
-    + Обработка Opt.RememberLogicalDrives.
+    + ╬сЁрсюЄър Opt.RememberLogicalDrives.
   27.03.2001 SVS
-    + Shift-F1 на пункте плагина в меню выбора дисков тоже покажет хелп...
+    + Shift-F1 эр яєэъЄх яырушэр т ьхэ■ т√сюЁр фшёъют Єюцх яюърцхЄ їхыя...
   16.03.2001 SVS
-    + добавлена информация о пути соединения в диалог подтверждения удаления
-      мапленного диска.
-    ! Кусок кода, получающий информацию о RemoteName вынесен в функцию
+    + фюсртыхэр шэЇюЁьрЎш  ю яєЄш ёюхфшэхэш  т фшрыюу яюфЄтхЁцфхэш  єфрыхэш 
+      ьряыхээюую фшёър.
+    ! ╩єёюъ ъюфр, яюыєўр■∙шщ шэЇюЁьрЎш■ ю RemoteName т√эхёхэ т ЇєэъЎш■
       DriveLocalToRemoteName()
   15.03.2001 SVS
-    ! Del в меню дисков
+    ! Del т ьхэ■ фшёъют
   15.03.2001 IS
-    + Используем дополнительные хоткеи, а не просто '#', как раньше, если строк
-      от плагинов в меню выбора диска больше 9 штук
+    + ╚ёяюы№чєхь фюяюыэшЄхы№э√х їюЄъхш, р эх яЁюёЄю '#', ъръ Ёрэ№°х, хёыш ёЄЁюъ
+      юЄ яырушэют т ьхэ■ т√сюЁр фшёър сюы№°х 9 °Єєъ
   12.03.2001 SVS
-    ! Коррекция в связи с изменениями в классе int64
+    ! ╩юЁЁхъЎш  т ёт чш ё шчьхэхэш ьш т ъырёёх int64
   28.02.2001 IS
     ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   27.02.2001 VVM
-    ! Символы, зависимые от кодовой страницы
+    ! ╤шьтюы√, чртшёшь√х юЄ ъюфютющ ёЄЁрэшЎ√
       /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
-      переведены в коды.
+      яхЁхтхфхэ√ т ъюф√.
   26.02.2001 VVM
-    - Отмена предыдущего патча
+    - ╬Єьхэр яЁхф√фє∙хую ярЄўр
   26.02.2001 VVM
-    ! Обработка NULL после OpenPlugin
+    ! ╬сЁрсюЄър NULL яюёых OpenPlugin
   14.02.2001 SVS
-    ! Дополнительный параметр для MakeListFile - модификаторы
+    ! ─юяюыэшЄхы№э√щ ярЁрьхЄЁ фы  MakeListFile - ьюфшЇшърЄюЁ√
   11.02.2001 SVS
-    ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
+    ! ═хёъюы№ъю єЄюўэхэшщ ъюфр т ёт чш ё шчьхэхэш ьш т ёЄЁєъЄєЁх MenuItem
   22.01.2001 VVM
-    - Порядок сортировки задается аналогично StartSortOrder
+    - ╧юЁ фюъ ёюЁЄшЁютъш чрфрхЄё  рэрыюушўэю StartSortOrder
   09.01.2001 SVS
-    - Для KEY_XXX_BASE нужно прибавить 0x01
+    - ─ы  KEY_XXX_BASE эєцэю яЁшсртшЄ№ 0x01
   05.01.2001 SVS
-    + Попробуем удалить SUBST диск
-    + Покажем инфу, что ЭТО - SUBST-диск
+    + ╧юяЁюсєхь єфрышЄ№ SUBST фшёъ
+    + ╧юърцхь шэЇє, ўЄю ▌╥╬ - SUBST-фшёъ
   14.12.2000 SVS
-    + Попробуем сделать Eject для съемных дисков в меню выбора дисковода.
+    + ╧юяЁюсєхь ёфхырЄ№ Eject фы  ё·хьэ√ї фшёъют т ьхэ■ т√сюЁр фшёъютюфр.
   11.11.2000 SVS
-    ! FarMkTemp() - убираем (как всегда - то ставим, то тут же убираем :-(((
+    ! FarMkTemp() - єсшЁрхь (ъръ тёхуфр - Єю ёЄртшь, Єю ЄєЄ цх єсшЁрхь :-(((
   11.11.2000 SVS
-    ! Используем конструкцию FarMkTemp()
+    ! ╚ёяюы№чєхь ъюэёЄЁєъЎш■ FarMkTemp()
   24.09.2000 SVS
-    ! Перерисовка CtrlObject->MainKeyBar (случай, если:
-       Ctr-Alt-Shift, потом, Alt-отжать, появится быстрый поиск,
-       дальше отпускаем Ctrl и Shift - окно быстрого поиска на месте.
-       Теперь, если нажать Esc - KeyBar не перерисуется)
+    ! ╧хЁхЁшёютър CtrlObject->MainKeyBar (ёыєўрщ, хёыш:
+       Ctr-Alt-Shift, яюЄюь, Alt-юЄцрЄ№, яю тшЄё  с√ёЄЁ√щ яюшёъ,
+       фры№°х юЄяєёърхь Ctrl ш Shift - юъэю с√ёЄЁюую яюшёър эр ьхёЄх.
+       ╥хяхЁ№, хёыш эрцрЄ№ Esc - KeyBar эх яхЁхЁшёєхЄё )
   08.09.2000 VVM
-    + Обработка команд
+    + ╬сЁрсюЄър ъюьрэф
       FCTL_SETSORTMODE, FCTL_SETANOTHERSORTMODE
       FCTL_SETSORTORDER, FCTL_SETANOTHERSORTORDER
   07.09.2000 SVS
-    ! Еще одна поправочка (с подачи AT) для Bug#12:
-      еще косяк, не дает выйти из меню, если у нас текущий путь - UNC
+    ! ┼∙х юфэр яюяЁртюўър (ё яюфрўш AT) фы  Bug#12:
+      х∙х ъюё ъ, эх фрхЄ т√щЄш шч ьхэ■, хёыш є эрё Єхъє∙шщ яєЄ№ - UNC
       "\\server\share\"
   06.09.2000 tran
-    - правя баг, внесли пару новых:
-       1. strncpy не записывает 0 в конец строки
-       2. GetDriveType вызывается постоянно, что грузит комп.
+    - яЁрт  сру, тэхёыш ярЁє эют√ї:
+       1. strncpy эх чряшё√трхЄ 0 т ъюэхЎ ёЄЁюъш
+       2. GetDriveType т√ч√трхЄё  яюёЄю ээю, ўЄю уЁєчшЄ ъюья.
   05.09.2000 SVS
-    - Bug#12 -   При удалении сетевого диска по Del и отказе от меню
-        фар продолжает показывать удаленный диск. хотя не должен.
-        по ctrl-r переходит на ближайший.
+    - Bug#12 -   ╧Ёш єфрыхэшш ёхЄхтюую фшёър яю Del ш юЄърчх юЄ ьхэ■
+        ЇрЁ яЁюфюыцрхЄ яюърч√трЄ№ єфрыхээ√щ фшёъ. їюЄ  эх фюыцхэ.
+        яю ctrl-r яхЁхїюфшЄ эр сышцрщ°шщ.
   21.07.2000 IG
-    - Bug 21 (заголовок после Ctrl-Q, Tab, F3, Esc был кривой)
+    - Bug 21 (чруюыютюъ яюёых Ctrl-Q, Tab, F3, Esc с√ы ъЁштющ)
   11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
+    ! ╚чьхэхэш  фы  тючьюцэюёЄш ъюьяшы Ўшш яюф BC & VC
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -216,7 +216,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
     int LabelWidth=Max(11,strlen(MSG(MChangeDriveLabelAbsent)));
 
     /* $ 02.04.2001 VVM
-      ! Попытка не будить спящие диски... */
+      ! ╧юя√Єър эх сєфшЄ№ ёя ∙шх фшёъш... */
     for (DiskMask=Mask,MenuLine=I=0;DiskMask!=0;DiskMask>>=1,I++)
       if (DiskMask & 1)
       {
@@ -247,7 +247,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
               break;
           }
           /* 05.01.2001 SVS
-             + Информация про Subst-тип диска
+             + ╚эЇюЁьрЎш  яЁю Subst-Єшя фшёър
           */
           {
             char LocalName[8],SubstName[NM];
@@ -315,7 +315,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
           ShowSpecial=TRUE;
 
         /* $ 14.12.2000 SVS
-           Дополнительно запомним тип драйва.
+           ─юяюыэшЄхы№эю чряюьэшь Єшя фЁрщтр.
         */
         ChDiskItem.UserData[0]='A'+I;
         ChDiskItem.UserData[1]=0;
@@ -335,15 +335,15 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
     int PluginMenuItemsCount=0;
     memset(PluginMenuItems,0,sizeof(PluginMenuItems));
     /* $ 15.03.2001 IS
-         Список дополнительных хоткеев, для случая, когда плагинов, добавляющих
-         пункт в меню, больше 9. Всего, btw, обрабатывается не больше 20
-         плагинов, поэтому дополнительных хоткеев нужно МИНИМУМ 11(=20-9)
-         штук.
+         ╤яшёюъ фюяюыэшЄхы№э√ї їюЄъххт, фы  ёыєўр , ъюуфр яырушэют, фюсрты ■∙шї
+         яєэъЄ т ьхэ■, сюы№°х 9. ┬ёхую, btw, юсЁрсрЄ√трхЄё  эх сюы№°х 20
+         яырушэют, яю¤Єюьє фюяюыэшЄхы№э√ї їюЄъххт эєцэю ╠╚═╚╠╙╠ 11(=20-9)
+         °Єєъ.
     */
     char *AdditionalHotKey=MSG(MAdditionalHotKey);
-    int AHKPos=0,                           // индекс в списке хоткеев
-        AHKSize=strlen(AdditionalHotKey);   /* для предотвращения выхода за
-                                               границу массива */
+    int AHKPos=0,                           // шэфхъё т ёяшёъх їюЄъххт
+        AHKSize=strlen(AdditionalHotKey);   /* фы  яЁхфюЄтЁр∙хэш  т√їюфр чр
+                                               уЁрэшЎє ьрёёштр */
     /* IS $ */
 
     if (Opt.ChangeDriveMode & DRIVE_SHOW_PLUGINS)
@@ -371,7 +371,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
             PluginTextNumber++;
           UsedNumbers[PluginTextNumber%10]=1;
           /* $ 15.03.2001 IS
-               Используем дополнительные хоткеи, а не просто '#', как раньше.
+               ╚ёяюы№чєхь фюяюыэшЄхы№э√х їюЄъхш, р эх яЁюёЄю '#', ъръ Ёрэ№°х.
           */
           sprintf(MenuText,"&%c: %s",
                   PluginTextNumber>9 ? AdditionalHotKey[(AHKPos++)%AHKSize]:
@@ -408,7 +408,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
             PluginTextNumber++;
           UsedNumbers[PluginTextNumber%10]=1;
           /* $ 15.03.2001 IS
-               Используем дополнительные хоткеи, а не просто '#', как раньше.
+               ╚ёяюы№чєхь фюяюыэшЄхы№э√х їюЄъхш, р эх яЁюёЄю '#', ъръ Ёрэ№°х.
           */
           sprintf(MenuText,"&%c: %s",
                   PluginTextNumber>9 ? AdditionalHotKey[(AHKPos++)%AHKSize]:
@@ -468,8 +468,8 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
       switch(Key)
       {
         /* $ 27.04.2001 SVS
-           Т.к. нет способа получить состояние "открытости" устройства,
-           то добавим обработку Ins для CD - "закрыть диск"
+           ╥.ъ. эхЄ ёяюёюср яюыєўшЄ№ ёюёЄю эшх "юЄъЁ√ЄюёЄш" єёЄЁющёЄтр,
+           Єю фюсртшь юсЁрсюЄъє Ins фы  CD - "чръЁ√Є№ фшёъ"
         */
         case KEY_INS:
           if (SelPos<DiskCount && WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
@@ -495,7 +495,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
             if (ChDisk.GetUserData(DiskLetter,sizeof(DiskLetter)))
             {
               /* $ 14.12.2000 SVS
-                 Попробуем сделать Eject :-)
+                 ╧юяЁюсєхь ёфхырЄ№ Eject :-)
               */
               DriveType=(DWORD)(BYTE)DiskLetter[2];
               if(DriveType == DRIVE_REMOVABLE || DriveType == DRIVE_CDROM)
@@ -505,7 +505,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
               }
               /* SVS $ */
               /* $ 05.01.2001 SVS
-                 Пробуем удалить SUBST-драйв.
+                 ╧Ёюсєхь єфрышЄ№ SUBST-фЁрщт.
               */
               if(DriveType == DRIVE_SUBSTITUTE)
               {
@@ -529,7 +529,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
                       break;
                   Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MsgText,MSG(MOk));
                 }
-                break; // блин. в прошлый раз забыл про это дело...
+                break; // сышэ. т яЁю°ы√щ Ёрч чрс√ы яЁю ¤Єю фхыю...
               }
               /* SVS $ */
 
@@ -596,12 +596,12 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
           Opt.ChangeDriveMode^=DRIVE_SHOW_CDROM;
           return(SelPos);
         /* $ 27.03.2001 SVS
-          Shift-F1 на пункте плагина в меню выбора дисков тоже покажет хелп...
+          Shift-F1 эр яєэъЄх яырушэр т ьхэ■ т√сюЁр фшёъют Єюцх яюърцхЄ їхыя...
         */
         case KEY_SHIFTF1:
           if (SelPos>DiskCount)
           {
-            // Вызываем нужный топик, который передали в CommandsMenu()
+            // ┬√ч√трхь эєцэ√щ Єюяшъ, ъюЄюЁ√щ яхЁхфрыш т CommandsMenu()
             UserDataSize=ChDisk.GetUserData(DiskLetter,sizeof(DiskLetter));
             FarShowHelp(CtrlObject->Plugins.PluginsData[DiskLetter[0]].ModuleName,
                     NULL,FHELP_SELFHELP|FHELP_NOSHOWERROR|FHELP_USECONTENTS);
@@ -613,25 +613,25 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
           break;
       }
       /* $ 05.09.2000 SVS
-        Bug#12 -   При удалении сетевого диска по Del и отказе от меню
-               фар продолжает показывать удаленный диск. хотя не должен.
-               по ctrl-r переходит на ближайший.
-               Лучше будет, если он не даст выходить из меню если удален
-               текущий диск
+        Bug#12 -   ╧Ёш єфрыхэшш ёхЄхтюую фшёър яю Del ш юЄърчх юЄ ьхэ■
+               ЇрЁ яЁюфюыцрхЄ яюърч√трЄ№ єфрыхээ√щ фшёъ. їюЄ  эх фюыцхэ.
+               яю ctrl-r яхЁхїюфшЄ эр сышцрщ°шщ.
+               ╦єў°х сєфхЄ, хёыш юэ эх фрёЄ т√їюфшЄ№ шч ьхэ■ хёыш єфрыхэ
+               Єхъє∙шщ фшёъ
       */
       /* $ 06.09.2000 tran
-         правя баг, внесли пару новых:
-         1. strncpy не записывает 0 в конец строки
-         2. GetDriveType вызывается постоянно, что грузит комп.
+         яЁрт  сру, тэхёыш ярЁє эют√ї:
+         1. strncpy эх чряшё√трхЄ 0 т ъюэхЎ ёЄЁюъш
+         2. GetDriveType т√ч√трхЄё  яюёЄю ээю, ўЄю уЁєчшЄ ъюья.
       */
       /* $ 07.09.2000 SVS
-         Еще одна поправочка (с подачи AT):
-             еще косяк, не дает выйти из меню, если у нас текущий путь - UNC
+         ┼∙х юфэр яюяЁртюўър (ё яюфрўш AT):
+             х∙х ъюё ъ, эх фрхЄ т√щЄш шч ьхэ■, хёыш є эрё Єхъє∙шщ яєЄ№ - UNC
              "\\server\share\"
       */
       /* $ 30.04.2001 DJ
-         и еще одна поправочка: не дает выйти из меню, если оно вызвано
-         из quick view panel (в нем CurDir пустая)
+         ш х∙х юфэр яюяЁртюўър: эх фрхЄ т√щЄш шч ьхэ■, хёыш юэю т√чтрэю
+         шч quick view panel (т эхь CurDir яєёЄр )
       */
       if (ChDisk.Done() && ChDisk.GetExitCode()<0 && *CurDir && strncmp(CurDir,"\\\\",2)!=0)
       {
@@ -778,8 +778,8 @@ void Panel::FastFind(int FirstKey)
           {
             FindEdit.GetString(Name,sizeof(Name));
             /* $ 09.04.2001 SVS
-               проблемы с быстрым поиском.
-               Подробнее в 00573.ChangeDirCrash.txt
+               яЁюсыхь√ ё с√ёЄЁ√ь яюшёъюь.
+               ╧юфЁюсэхх т 00573.ChangeDirCrash.txt
             */
             if(*Name == '"')
             {
@@ -849,7 +849,7 @@ int Panel::MakeListFile(char *ListFileName,int ShortNames,char *Modifers)
 
     if(Modifers && *Modifers)
     {
-      if(strchr(Modifers,'F')) // 'F' - использовать полный путь;
+      if(strchr(Modifers,'F')) // 'F' - шёяюы№чютрЄ№ яюыэ√щ яєЄ№;
       {
         char TempFileName[NM*2];
         strcpy(TempFileName,CurDir);
@@ -858,12 +858,12 @@ int Panel::MakeListFile(char *ListFileName,int ShortNames,char *Modifers)
           ConvertNameToShort(TempFileName,TempFileName);
         strcpy(FileName,TempFileName);
       }
-      if(strchr(Modifers,'Q')) // 'Q' - заключать имена с пробелами в кавычки;
+      if(strchr(Modifers,'Q')) // 'Q' - чръы■ўрЄ№ шьхэр ё яЁюсхырьш т ърт√ўъш;
         QuoteSpaceOnly(FileName);
-      if(strchr(Modifers,'A')) // 'A' - использовать ANSI кодировку.
+      if(strchr(Modifers,'A')) // 'A' - шёяюы№чютрЄ№ ANSI ъюфшЁютъє.
         OemToChar(FileName,FileName);
 
-      if(strchr(Modifers,'S')) // 'S' - использовать '/' вместо '\' в путях файлов;
+      if(strchr(Modifers,'S')) // 'S' - шёяюы№чютрЄ№ '/' тьхёЄю '\' т яєЄ ї Їрщыют;
       {
         int I,Len=strlen(FileName);
         for(I=0; I < Len; ++I)
@@ -1196,7 +1196,7 @@ void Panel::SetTitle()
     {
       char CmdText[512];
       /* $ 21.07.2000 IG
-         Bug 21 (заголовок после Ctrl-Q, Tab, F3, Esc был кривой)
+         Bug 21 (чруюыютюъ яюёых Ctrl-Q, Tab, F3, Esc с√ы ъЁштющ)
       */
       CtrlObject->CmdLine->GetCurDir(CmdText);
       /* IG $*/
@@ -1237,7 +1237,7 @@ void Panel::SetPluginCommand(int Command,void *Param)
         {
           Panel *DestPanel=(Command==FCTL_SETSORTMODE) ? this:AnotherPanel;
           if (DestPanel!=NULL)
-          // Уменьшим на 1 из-за SM_DEFAULT
+          // ╙ьхэ№°шь эр 1 шч-чр SM_DEFAULT
             DestPanel->SetSortMode(--Mode);
         }
       }
@@ -1247,13 +1247,13 @@ void Panel::SetPluginCommand(int Command,void *Param)
       if (Param!=NULL)
       {
         /* $ 22.01.2001 VVM
-           - Порядок сортировки задается аналогично StartSortOrder */
+           - ╧юЁ фюъ ёюЁЄшЁютъш чрфрхЄё  рэрыюушўэю StartSortOrder */
         int Order = (*(int *)Param) ? -1:1;
         /* VVM $ */
         Panel *DestPanel=(Command==FCTL_SETSORTORDER) ? this:AnotherPanel;
         if (DestPanel!=NULL)
         /* $ 24.04.2001 VVVM
-           Использовать функция ChangeSortOrder() */
+           ╚ёяюы№чютрЄ№ ЇєэъЎш  ChangeSortOrder() */
           DestPanel->ChangeSortOrder(Order);
         /* VVM $ */
       }
@@ -1313,7 +1313,7 @@ void Panel::SetPluginCommand(int Command,void *Param)
         DestFilePanel->PluginGetPanelInfo(Info);
       }
       /* $ 24.04.2001 SVS
-         Заполнение флагов PanelInfo.Flags
+         ╟ряюыэхэшх Їыруют PanelInfo.Flags
       */
       {
         static struct {
@@ -1409,15 +1409,15 @@ static int MessageRemoveConnection(char Letter, int &UpdateProfile)
   0         1         2         3         4         5         6         7
   0123456789012345678901234567890123456789012345678901234567890123456789012345
 0
-1   ╔════════ Отключение сетевого устройства ════════╗
-2   ║ Вы хотите удалить соединение с устройством C:? ║
-3   ║ На устройство %c: отображен каталог            ║
-4   ║ \\host\share                                   ║
-6   ╟────────────────────────────────────────────────╢
-7   ║ [ ] Восстанавливать при входе в систему        ║
-8   ╟────────────────────────────────────────────────╢
-9   ║              [ Да ]   [ Отмена ]               ║
-10  ╚════════════════════════════════════════════════╝
+1   +-------- ╬Єъы■ўхэшх ёхЄхтюую єёЄЁющёЄтр --------+
+2   | ┬√ їюЄшЄх єфрышЄ№ ёюхфшэхэшх ё єёЄЁющёЄтюь C:? |
+3   | ═р єёЄЁющёЄтю %c: юЄюсЁрцхэ ърЄрыюу            |
+4   | \\host\share                                   |
+6   +------------------------------------------------+
+7   | [ ] ┬юёёЄрэртыштрЄ№ яЁш тїюфх т ёшёЄхьє        |
+8   +------------------------------------------------+
+9   |              [ ─р ]   [ ╬Єьхэр ]               |
+10  +------------------------------------------------+
 11
 */
   static struct DialogData DCDlgData[]=
@@ -1452,9 +1452,9 @@ static int MessageRemoveConnection(char Letter, int &UpdateProfile)
   strcpy(DCDlg[7].Data,MSG(MYes));
   strcpy(DCDlg[8].Data,MSG(MCancel));
 
-  // проверяем - это было постоянное соедение или нет?
-  // Если ветка в реестре HKCU\Network\БукваДиска есть - это
-  //   есть постоянное подключение.
+  // яЁютхЁ хь - ¤Єю с√ыю яюёЄю ээюх ёюхфхэшх шыш эхЄ?
+  // ┼ёыш тхЄър т ЁххёЄЁх HKCU\Network\┴єътр─шёър хёЄ№ - ¤Єю
+  //   хёЄ№ яюёЄю ээюх яюфъы■ўхэшх.
   {
     HKEY hKey;
     IsPersistent=TRUE;
@@ -1470,7 +1470,7 @@ static int MessageRemoveConnection(char Letter, int &UpdateProfile)
     RegCloseKey(hKey);
   }
 
-  // скорректируем размеры диалога - для дизайнУ
+  // ёъюЁЁхъЄшЁєхь ЁрчьхЁ√ фшрыюур - фы  фшчрщэ╙
   DCDlg[0].X2=DCDlg[0].X1+Len1+3;
 
   int ExitCode=7;

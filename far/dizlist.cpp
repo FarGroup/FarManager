@@ -1,7 +1,7 @@
 /*
 dizlist.cpp
 
-Описания файлов
+╬яшёрэш  Їрщыют
 
 */
 
@@ -10,17 +10,17 @@ dizlist.cpp
 /*
 Modify:
   13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
+    ! ═хъюЄюЁ√х ъюЁЁхъЎшш яЁш шёяюы№чютрэшш new/delete/realloc
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -52,13 +52,13 @@ void DizList::Reset()
 {
   for (int I=0;I<DizCount;I++)
   /* $ 13.07.2000 SVS
-       раз уж вызвали new[], то в придачу и delete[] надо... */
+       Ёрч єц т√чтрыш new[], Єю т яЁшфрўє ш delete[] эрфю... */
     delete[] DizData[I].DizText;
-    /* а этот объект распределяется через realloc*/
+    /* р ¤ЄюЄ юс·хъЄ ЁрёяЁхфхы хЄё  ўхЁхч realloc*/
   free(DizData);
   DizData=NULL;
   DizCount=0;
-  /* раз уж вызвали new[], то в придачу и delete[] надо... */
+  /* Ёрч єц т√чтрыш new[], Єю т яЁшфрўє ш delete[] эрфю... */
   delete[] IndexData;
   /* SVS $ */
   IndexData=NULL;
@@ -234,7 +234,7 @@ int DizList::GetDizPos(char *Name,char *ShortName,int *TextPos)
 void DizList::BuildIndex()
 {
   /* $ 13.07.2000 SVS
-       раз уж вызвали new[], то в придачу и delete[] надо... */
+       Ёрч єц т√чтрыш new[], Єю т яЁшфрўє ш delete[] эрфю... */
   if(IndexData) delete[] IndexData;
   /* SVS $ */
   if ((IndexData=new int[DizCount])==NULL)
@@ -386,4 +386,3 @@ void DizList::GetDizName(char *DizName)
 {
   strcpy(DizName,DizFileName);
 }
-

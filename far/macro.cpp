@@ -1,7 +1,7 @@
 /*
 macro.cpp
 
-Макросы
+╠ръЁюё√
 
 */
 
@@ -9,127 +9,127 @@ macro.cpp
 
 /*
 Modify:
-  06.05.2001 ОТ
-    ! Переименование Window в Frame :)
+  06.05.2001 ╬╥
+    ! ╧хЁхшьхэютрэшх Window т Frame :)
   05.05.2001 DJ
-    + перетрях NWZ
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
+    + яхЁхЄЁ ї NWZ
+  29.04.2001 ╬╥
+    + ┬эхфЁхэшх NWZ юЄ ╥ЁхЄ№ ъютр
   25.04.2001 SVS
-    + MFLAGS_SELECTION - флаг проверки выделения:
-      для панелей - больше одного выделенного объекта,
-      для редактора - про блоки.
-    ! Код проверки флагов для старта макросов вынесен в функции Check* -
-      слишком много повторяющегося кода :-(
-    ! Новый диалог настройки макроса - используются 3-х позиционные чекбоксы,
-      что позволило "ужать" диалог в размерах.
+    + MFLAGS_SELECTION - Їыру яЁютхЁъш т√фхыхэш :
+      фы  ярэхыхщ - сюы№°х юфэюую т√фхыхээюую юс·хъЄр,
+      фы  ЁхфръЄюЁр - яЁю сыюъш.
+    ! ╩юф яЁютхЁъш Їыруют фы  ёЄрЁЄр ьръЁюёют т√эхёхэ т ЇєэъЎшш Check* -
+      ёыш°ъюь ьэюую яютЄюЁ ■∙хуюё  ъюфр :-(
+    ! ═ют√щ фшрыюу эрёЄЁющъш ьръЁюёр - шёяюы№чє■Єё  3-ї яючшЎшюээ√х ўхъсюъё√,
+      ўЄю яючтюышыю "єцрЄ№" фшрыюу т ЁрчьхЁрї.
   05.04.2001 VVM
-    + 3 дополнительных области макросов - "Info", "QView", "Tree"
+    + 3 фюяюыэшЄхы№э√ї юсырёЄш ьръЁюёют - "Info", "QView", "Tree"
   21.03.2001 SVS
-    + Обработка особых клавиш: F1 & Enter
+    + ╬сЁрсюЄър юёюс√ї ъыртш°: F1 & Enter
   11.03.2001 SVS
-    ! Название MFLAGS_RUNAFTERSTART заменено на MFLAGS_RUNAFTERFARSTART
-    + Функция MkTextSequence - формирование строкового представления Sequence
-    + проверка на "вводили тоже самое"
-    ! изменен диалог - подняли на одну строку вверх :-)
-    ! небольшая оптимизация кода.
+    ! ═рчтрэшх MFLAGS_RUNAFTERSTART чрьхэхэю эр MFLAGS_RUNAFTERFARSTART
+    + ╘єэъЎш  MkTextSequence - ЇюЁьшЁютрэшх ёЄЁюъютюую яЁхфёЄртыхэш  Sequence
+    + яЁютхЁър эр "ттюфшыш Єюцх ёрьюх"
+    ! шчьхэхэ фшрыюу - яюфэ ыш эр юфэє ёЄЁюъє ттхЁї :-)
+    ! эхсюы№°р  юяЄшьшчрЎш  ъюфр.
   28.02.2001 IS
     ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   22.02.2001 SVS
-    + MFLAGS_DISABLEMACRO - ЭТОТ макрос задисаблен!
-    ! Учтем, что символ '~' в начале названия макроса - это задисабленный
-      макрос
-    + В диалогах про удаление, переназначение добавлена краткая инфа про
-      текущий Sequence
+    + MFLAGS_DISABLEMACRO - ▌╥╬╥ ьръЁюё чрфшёрсыхэ!
+    ! ╙ўЄхь, ўЄю ёшьтюы '~' т эрўрых эрчтрэш  ьръЁюёр - ¤Єю чрфшёрсыхээ√щ
+      ьръЁюё
+    + ┬ фшрыюурї яЁю єфрыхэшх, яхЁхэрчэрўхэшх фюсртыхэр ъЁрЄър  шэЇр яЁю
+      Єхъє∙шщ Sequence
   19.02.2001 SVS
-    - Затирание диалога параметров макроса (при обновлении панелей)
+    - ╟рЄшЁрэшх фшрыюур ярЁрьхЄЁют ьръЁюёр (яЁш юсэютыхэшш ярэхыхщ)
   30.01.2001 SVS
-    - Забыл сделать проверку на код возврата из диалога назначения
+    - ╟рс√ы ёфхырЄ№ яЁютхЁъє эр ъюф тючтЁрЄр шч фшрыюур эрчэрўхэш 
   21.01.2001 SVS
-    - ошибка в назначении клавиши - учитывался текущий контекст макроса, а
-      не стартовый при окончании записи макроса.
+    - ю°шсър т эрчэрўхэшш ъыртш°ш - єўшЄ√трыё  Єхъє∙шщ ъюэЄхъёЄ ьръЁюёр, р
+      эх ёЄрЁЄют√щ яЁш юъюэўрэшш чряшёш ьръЁюёр.
   19.01.2001 SVS
-    + Зарезервировано: MFLAGS_REUSEMACRO - повторное использование макросов
-      Это чуть позже, когда будет механизм линеризации...
-      А пока пусть будет :-)
+    + ╟рЁхчхЁтшЁютрэю: MFLAGS_REUSEMACRO - яютЄюЁэюх шёяюы№чютрэшх ьръЁюёют
+      ▌Єю ўєЄ№ яючцх, ъюуфр сєфхЄ ьхїрэшчь ышэхЁшчрЎшш...
+      └ яюър яєёЄ№ сєфхЄ :-)
   18.01.2001 SVS
-    ! немного оптимизации кода
-    + Функции поиска макроклавиши и определения размера этой клавиши
-    + Хотелка - выдавать предупреждения, что такая клавиша существует
-      или подтверждение желания удалить макроклавишу.
+    ! эхьэюую юяЄшьшчрЎшш ъюфр
+    + ╘єэъЎшш яюшёър ьръЁюъыртш°ш ш юяЁхфхыхэш  ЁрчьхЁр ¤Єющ ъыртш°ш
+    + ╒юЄхыър - т√фртрЄ№ яЁхфєяЁхцфхэш , ўЄю Єрър  ъыртш°р ёє∙хёЄтєхЄ
+      шыш яюфЄтхЁцфхэшх цхырэш  єфрышЄ№ ьръЁюъыртш°є.
   09.01.2001 SVS
-    - Бага с пропаданием диалога назначения во время изменения файловой
-      структуры в панелях.
+    - ┴рур ё яЁюярфрэшхь фшрыюур эрчэрўхэш  тю тЁхь  шчьхэхэш  Їрщыютющ
+      ёЄЁєъЄєЁ√ т ярэхы ї.
   09.01.2001 SVS
-    + Учтем правило Opt.ShiftsKeyRules (WaitInFastFind)
+    + ╙ўЄхь яЁртшыю Opt.ShiftsKeyRules (WaitInFastFind)
   04.01.2001 SVS
-    ! Конкретная переделка некоторых интересненьких функций :-)
-    ! Новый диалог назначений клавиши
-    ! дополнительные макро - про часы
-    + Исключения "NoFolders" и "NoFiles"
+    ! ╩юэъЁхЄэр  яхЁхфхыър эхъюЄюЁ√ї шэЄхЁхёэхэ№ъшї ЇєэъЎшщ :-)
+    ! ═ют√щ фшрыюу эрчэрўхэшщ ъыртш°ш
+    ! фюяюыэшЄхы№э√х ьръЁю - яЁю ўрё√
+    + ╚ёъы■ўхэш  "NoFolders" ш "NoFiles"
   28.12.2000 SVS
-    - Бага с исключениями про панели.
+    - ┴рур ё шёъы■ўхэш ьш яЁю ярэхыш.
   26.12.2000 SVS
     + KeyMacroToText()
-    ! Скинируем до END_FARKEY_BASE
-    + Обработка спец-макроклавиш.
+    ! ╤ъшэшЁєхь фю END_FARKEY_BASE
+    + ╬сЁрсюЄър ёяхЎ-ьръЁюъыртш°.
   25.12.2000 SVS
-    ! MFLAGS_ вернулись из plugin.hpp
+    ! MFLAGS_ тхЁэєышё№ шч plugin.hpp
   23.12.2000 SVS
-    ! MFLAGS_ переехали в plugin.hpp
+    ! MFLAGS_ яхЁххїрыш т plugin.hpp
     + int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,char *BufPtr)
     + int KeyMacro::PlayKeyMacro(struct MacroRecord *MRec)
     + int KeyMacro::PlayKeyMacro(char *KeyBuffer)
   22.12.2000 SVS
-    - Отвлекли - забыл сбросить новые 2 флага :-(
+    - ╬Єтыхъыш - чрс√ы ёсЁюёшЄ№ эют√х 2 Їырур :-(
   22.12.2000 SVS
-    - При неправильно выбранных названиях начинается суматоха :-(
-      После 333 патча перестали работать макросы ВЕЗДЕ!
+    - ╧Ёш эхяЁртшы№эю т√сЁрээ√ї эрчтрэш ї эрўшэрхЄё  ёєьрЄюїр :-(
+      ╧юёых 333 ярЄўр яхЁхёЄрыш ЁрсюЄрЄ№ ьръЁюё√ ┬┼╟─┼!
   21.12.2000 SVS
-    ! 3-е состояние для типа панелей.
+    ! 3-х ёюёЄю эшх фы  Єшяр ярэхыхщ.
     + LoadMacros(), InitVars(), ReleaseTempBuffer()
-    ! ReadMacros - возвращает TRUE или FALSE (все зависит от выделения памяти)
-    + TempMacroType, TempMacro - будут использоваться для команд
+    ! ReadMacros - тючтЁр∙рхЄ TRUE шыш FALSE (тёх чртшёшЄ юЄ т√фхыхэш  ярь Єш)
+    + TempMacroType, TempMacro - сєфєЄ шёяюы№чютрЄ№ё  фы  ъюьрэф
       MCMD_PLAYRECORD, MCMD_PLAYSTRING.
   21.12.2000 SVS
-    - неверно работало считывание параметров по новым ключам
-      FilePanels и PluginPanels
+    - эхтхЁэю ЁрсюЄрыю ёўшЄ√трэшх ярЁрьхЄЁют яю эют√ь ъы■ўрь
+      FilePanels ш PluginPanels
   21.12.2000 SVS
-    + "убираем утечку памяти  (LockScr)
-    ! Функция KeyToText удалена за ненадобностью
-    ! структура MacroRecord "сжата"
-    + 2 режима работы макросов в панелях:
-       MFLAGS_PLUGINPANEL - работаем на панели плагинов
-       MFLAGS_FILEPANEL - работаем на файловой панели
-      по умолчанию они включены.
+    + "єсшЁрхь єЄхўъє ярь Єш  (LockScr)
+    ! ╘єэъЎш  KeyToText єфрыхэр чр эхэрфюсэюёЄ№■
+    ! ёЄЁєъЄєЁр MacroRecord "ёцрЄр"
+    + 2 Ёхцшьр ЁрсюЄ√ ьръЁюёют т ярэхы ї:
+       MFLAGS_PLUGINPANEL - ЁрсюЄрхь эр ярэхыш яырушэют
+       MFLAGS_FILEPANEL - ЁрсюЄрхь эр Їрщыютющ ярэхыш
+      яю єьюыўрэш■ юэш тъы■ўхэ√.
   27.09.2000 SKV
     - Don't redraw editor after macro finished if it is hidden.
   10.09.2000 SVS
-    ! Исправим ситуацию с макросами в связи с переработаными кодами клавиш
-    ! Функция ReadMacros имеет дополнительные аргументы
+    ! ╚ёяЁртшь ёшЄєрЎш■ ё ьръЁюёрьш т ёт чш ё яхЁхЁрсюЄрэ√ьш ъюфрьш ъыртш°
+    ! ╘єэъЎш  ReadMacros шьххЄ фюяюыэшЄхы№э√х рЁуєьхэЄ√
   10.08.2000 skv
-    ! Изменение а GetKey для отработки окончания макро в Едиторе.
+    ! ╚чьхэхэшх р GetKey фы  юЄЁрсюЄъш юъюэўрэш  ьръЁю т ┼фшЄюЁх.
   25.07.2000 SVS
-    ! Функция KeyToText сделана самосотоятельной - вошла в состав
+    ! ╘єэъЎш  KeyToText ёфхырэр ёрьюёюЄю Єхы№эющ - тю°ыр т ёюёЄрт
       FSF
   23.07.2000 SVS
-    + Клавиши:
+    + ╩ыртш°ш:
        Ctrl- Shift- Alt- CtrlShift- AltShift- CtrlAlt- Apps :-)
        KEY_LWIN (VK_LWIN), KEY_RWIN (VK_RWIN)
   13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
+    ! ═хъюЄюЁ√х ъюЁЁхъЎшш яЁш шёяюы№чютрэшш new/delete/realloc
   11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
+    ! ╚чьхэхэш  фы  тючьюцэюёЄш ъюьяшы Ўшш яюф BC & VC
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -173,26 +173,26 @@ static struct TMacroFlagsName {
   {"NoSelection",         MFLAGS_NOSELECTION},
 };
 
-// тип временного буфера
+// Єшя тЁхьхээюую сєЇхЁр
 enum MacroTempType{
-  MTEMP_POINTER,  // передано откуда то
-  MTEMP_DYNAMIC,  // использовалось выделение памяти
+  MTEMP_POINTER,  // яхЁхфрэю юЄъєфр Єю
+  MTEMP_DYNAMIC,  // шёяюы№чютрыюё№ т√фхыхэшх ярь Єш
 };
 
-// для диалога назначения клавиши
+// фы  фшрыюур эрчэрўхэш  ъыртш°ш
 struct DlgParam{
   KeyMacro *Handle;
   DWORD Key;
   int Mode;
 };
 
-// Коды МАКРОКЛАВИШ
+// ╩юф√ ╠└╩╨╬╩╦└┬╚╪
 enum{
   KEY_MACROSTOP=KEY_MACROSPEC_BASE,
   KEY_MACROMODE,
 };
 
-// транслирующая таблица - имя <-> код макроклавиши
+// ЄЁрэёышЁє■∙р  ЄрсышЎр - шь  <-> ъюф ьръЁюъыртш°ш
 static struct TKeyCodeName{
   int Key;
   int Len;
@@ -208,7 +208,7 @@ static struct TKeyCodeName{
    { KEY_MACROMODE,                          6, "$MMODE" },
 };
 
-// функция преобразования кода макроклавиши в текст
+// ЇєэъЎш  яЁхюсЁрчютрэш  ъюфр ьръЁюъыртш°ш т ЄхъёЄ
 BOOL WINAPI KeyMacroToText(int Key,char *KeyText0,int Size)
 {
   if(!KeyText0)
@@ -251,7 +251,7 @@ KeyMacro::~KeyMacro()
   InitVars();
 }
 
-// инициализация всех переменных
+// шэшЎшрышчрЎш  тёхї яхЁхьхээ√ї
 void KeyMacro::InitVars()
 {
   if(Macros)
@@ -281,8 +281,8 @@ void KeyMacro::InitVars()
   InternalInput=FALSE;
 }
 
-// удаление временного буфера, если он создавался динамически
-// (динамически - значит в PlayMacros передали строку.
+// єфрыхэшх тЁхьхээюую сєЇхЁр, хёыш юэ ёючфртрыё  фшэрьшўхёъш
+// (фшэрьшўхёъш - чэрўшЄ т PlayMacros яхЁхфрыш ёЄЁюъє.
 void KeyMacro::ReleaseTempBuffer()
 {
   if(TempMacroType == MTEMP_DYNAMIC && TempMacro)
@@ -295,7 +295,7 @@ void KeyMacro::ReleaseTempBuffer()
   TempMacroType=MTEMP_POINTER;
 }
 
-// загрузка ВСЕХ макросов из реестра
+// чруЁєчър ┬╤┼╒ ьръЁюёют шч ЁххёЄЁр
 int KeyMacro::LoadMacros()
 {
   int Ret=FALSE;
@@ -319,8 +319,8 @@ int KeyMacro::LoadMacros()
     Ret+=ReadMacros(MACRO_TREEPANEL,Buffer,TEMP_BUFFER_SIZE);
     Ret+=ReadMacros(MACRO_OTHER,Buffer,TEMP_BUFFER_SIZE);
 
-    // выставим код возврата - если не все ВСЕ загрузились, то
-    // будет FALSE
+    // т√ёЄртшь ъюф тючтЁрЄр - хёыш эх тёх ┬╤┼ чруЁєчшышё№, Єю
+    // сєфхЄ FALSE
     Ret=(Ret < 12)?FALSE:TRUE;
     delete Buffer;
   }
@@ -328,11 +328,11 @@ int KeyMacro::LoadMacros()
   return Ret;
 }
 
-// функция преобразования названия в код макроклавиши
-// вернет -1, если нет эквивалента!
+// ЇєэъЎш  яЁхюсЁрчютрэш  эрчтрэш  т ъюф ьръЁюъыртш°ш
+// тхЁэхЄ -1, хёыш эхЄ ¤ътштрыхэЄр!
 int WINAPI KeyNameMacroToKey(char *Name)
 {
-  // пройдемся по всем модификаторам
+  // яЁющфхьё  яю тёхь ьюфшЇшърЄюЁрь
   for(int I=0; I < sizeof(KeyMacroCodes)/sizeof(KeyMacroCodes[0]); ++I)
     if(!memicmp(Name,KeyMacroCodes[I].Name,KeyMacroCodes[I].Len))
       return KeyMacroCodes[I].Key;
@@ -344,9 +344,9 @@ int KeyMacro::ProcessKey(int Key)
   if (InternalInput || Key==KEY_IDLE || Key==KEY_NONE)
     return(FALSE);
 
-  if (Recording) // Идет запись?
+  if (Recording) // ╚фхЄ чряшё№?
   {
-    if (Key==KEY_CTRLSHIFTDOT || Key==KEY_CTRLDOT) // признак конца записи?
+    if (Key==KEY_CTRLSHIFTDOT || Key==KEY_CTRLDOT) // яЁшчэръ ъюэЎр чряшёш?
     {
       DWORD MacroKey;
       int WaitInMainLoop0=WaitInMainLoop;
@@ -356,8 +356,8 @@ int KeyMacro::ProcessKey(int Key)
 
       DWORD Flags=MFLAGS_DISABLEOUTPUT;
 
-      // добавим проверку на удаление
-      // если удаляем, то не нужно выдавать диалог настройки.
+      // фюсртшь яЁютхЁъє эр єфрыхэшх
+      // хёыш єфры хь, Єю эх эєцэю т√фртрЄ№ фшрыюу эрёЄЁющъш.
       if (MacroKey != KEY_ESC && (Key==KEY_CTRLSHIFTDOT || Recording==2) && RecBufferSize)
       {
         if (!GetMacroSettings(MacroKey,Flags))
@@ -402,9 +402,9 @@ int KeyMacro::ProcessKey(int Key)
       WaitInFastFind++;
       return(TRUE);
     }
-    else // процесс записи продолжается.
+    else // яЁюЎхёё чряшёш яЁюфюыцрхЄё .
     {
-      if (Key>=KEY_NONE && Key<=KEY_END_SKEY) // специальные клавиши прокинем
+      if (Key>=KEY_NONE && Key<=KEY_END_SKEY) // ёяхЎшры№э√х ъыртш°ш яЁюъшэхь
         return(FALSE);
       RecBuffer=(int *)realloc(RecBuffer,sizeof(*RecBuffer)*(RecBufferSize+1));
       if (RecBuffer==NULL)
@@ -413,14 +413,14 @@ int KeyMacro::ProcessKey(int Key)
       return(FALSE);
     }
   }
-  else if (Key==KEY_CTRLSHIFTDOT || Key==KEY_CTRLDOT) // Начало записи?
+  else if (Key==KEY_CTRLSHIFTDOT || Key==KEY_CTRLDOT) // ═рўрыю чряшёш?
   {
     if(LockScr) delete LockScr;
     LockScr=NULL;
 
-    // Где мы?
+    // ├фх ь√?
     StartMode=(Mode==MACRO_SHELL && !WaitInMainLoop)?MACRO_OTHER:Mode;
-    // тип записи - с вызовом диалога настроек или...
+    // Єшя чряшёш - ё т√чютюь фшрыюур эрёЄЁюхъ шыш...
     Recording=(Key==KEY_CTRLSHIFTDOT) ? 2:1;
     delete RecBuffer;
     RecBuffer=NULL;
@@ -432,7 +432,7 @@ int KeyMacro::ProcessKey(int Key)
   }
   else
   {
-    if (!Executing) // Это еще не режим исполнения?
+    if (!Executing) // ▌Єю х∙х эх Ёхцшь шёяюыэхэш ?
     {
       DWORD CurFlags;
       int I=GetIndex(LocalUpper(Key),
@@ -443,7 +443,7 @@ int KeyMacro::ProcessKey(int Key)
         if(!CheckAll(CurFlags))
           return FALSE;
 
-        // Подавлять вывод?
+        // ╧юфрты Є№ т√тюф?
         if (CurFlags&MFLAGS_DISABLEOUTPUT)
         {
           if(LockScr) delete LockScr;
@@ -459,7 +459,7 @@ int KeyMacro::ProcessKey(int Key)
   }
 }
 
-// Получить очередной код клавиши из макроса
+// ╧юыєўшЄ№ юўхЁхфэющ ъюф ъыртш°ш шч ьръЁюёр
 int KeyMacro::GetKey()
 {
   struct MacroRecord *MR;
@@ -522,7 +522,7 @@ done:
         if(Key == '1')
         {
           DWORD Flags=MR->Flags;
-          if(Flags&MFLAGS_DISABLEOUTPUT) // если был - удалим
+          if(Flags&MFLAGS_DISABLEOUTPUT) // хёыш с√ы - єфрышь
           {
             if(LockScr) delete LockScr;
             LockScr=NULL;
@@ -530,7 +530,7 @@ done:
 
           SwitchFlags(MR->Flags,MFLAGS_DISABLEOUTPUT);
 
-          if(MR->Flags&MFLAGS_DISABLEOUTPUT) // если стал - залочим
+          if(MR->Flags&MFLAGS_DISABLEOUTPUT) // хёыш ёЄры - чрыюўшь
           {
             if(LockScr) delete LockScr;
             LockScr=new LockScreen;
@@ -543,7 +543,7 @@ done:
   return(Key);
 }
 
-// Проверить - еслть ли еще клавиша?
+// ╧ЁютхЁшЄ№ - хёыЄ№ ыш х∙х ъыртш°р?
 int KeyMacro::PeekKey()
 {
   struct MacroRecord *MR=!TempMacro?Macros+ExecMacroPos:TempMacro;
@@ -572,12 +572,12 @@ char *KeyMacro::MkRegKeyName(int IdxMacro,char *RegKeyName)
   return RegKeyName;
 }
 
-// после вызова этой функции нужно удалить память!!!
+// яюёых т√чютр ¤Єющ ЇєэъЎшш эєцэю єфрышЄ№ ярь Є№!!!
 char *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize)
 {
   char MacroKeyText[50], *TextBuffer;
 
-  // выделяем заведомо большой кусок
+  // т√фхы хь чртхфюью сюы№°ющ ъєёюъ
   if((TextBuffer=(char*)malloc(BufferSize*50+1)) == NULL)
     return NULL;
 
@@ -594,7 +594,7 @@ char *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize)
   return TextBuffer;
 }
 
-// Сохранение ВСЕХ макросов
+// ╤юїЁрэхэшх ┬╤┼╒ ьръЁюёют
 void KeyMacro::SaveMacros()
 {
   char *TextBuffer;
@@ -617,7 +617,7 @@ void KeyMacro::SaveMacros()
     if(TextBuffer)
       free(TextBuffer);
 
-    // подсократим кодУ...
+    // яюфёюъЁрЄшь ъюф╙...
     for(int J=0; J < sizeof(MacroFlagsName)/sizeof(MacroFlagsName[0]); ++J)
     {
       if (Macros[I].Flags & MacroFlagsName[J].Flag)
@@ -630,8 +630,8 @@ void KeyMacro::SaveMacros()
 
 
 /* $ 10.09.2000 SVS
-  ! Исправим ситуацию с макросами в связи с переработаными кодами клавиш
-  ! Функция ReadMacros имеет дополнительные аргументы
+  ! ╚ёяЁртшь ёшЄєрЎш■ ё ьръЁюёрьш т ёт чш ё яхЁхЁрсюЄрэ√ьш ъюфрьш ъыртш°
+  ! ╘єэъЎш  ReadMacros шьххЄ фюяюыэшЄхы№э√х рЁуєьхэЄ√
 */
 int KeyMacro::ReadMacros(int ReadMode,char *Buffer,int BufferSize)
 {
@@ -650,8 +650,8 @@ int KeyMacro::ReadMacros(int ReadMode,char *Buffer,int BufferSize)
     if (KeyNamePtr!=NULL)
     {
       strcpy(KeyText,KeyNamePtr+1);
-      // ПОМНИМ! что название макроса, начинающееся на символ ~ - это
-      // блокированный макрос!!!
+      // ╧╬╠═╚╠! ўЄю эрчтрэшх ьръЁюёр, эрўшэр■∙ххё  эр ёшьтюы ~ - ¤Єю
+      // сыюъшЁютрээ√щ ьръЁюё!!!
       if(*KeyText == '~' && KeyText[1])
       {
         memmove(KeyText,KeyText+1,sizeof(KeyText)-1);
@@ -687,9 +687,9 @@ int KeyMacro::ReadMacros(int ReadMode,char *Buffer,int BufferSize)
 }
 /* SVS $ */
 
-// Функция, запускающая макросы при старте ФАРа
-// если уж вставлять предупреждение о недопустимости выполения
-// подобных макросов, то именно сюды!
+// ╘єэъЎш , чряєёър■∙р  ьръЁюё√ яЁш ёЄрЁЄх ╘└╨р
+// хёыш єц тёЄрты Є№ яЁхфєяЁхцфхэшх ю эхфюяєёЄшьюёЄш т√яюыхэш 
+// яюфюсэ√ї ьръЁюёют, Єю шьхээю ё■ф√!
 void KeyMacro::RunStartMacro()
 {
   if (StartMacroPos==-1)
@@ -702,7 +702,7 @@ void KeyMacro::RunStartMacro()
     int CurPos=StartMacroPos++;
     if (((CurFlags=Macros[CurPos].Flags)&MFLAGS_MODEMASK)==MACRO_SHELL &&
         Macros[CurPos].BufferSize>0 &&
-        // исполняем не задисабленные макросы
+        // шёяюыэ хь эх чрфшёрсыхээ√х ьръЁюё√
         !(CurFlags&MFLAGS_DISABLEMACRO) &&
         (CurFlags&MFLAGS_RUNAFTERFARSTART) && CtrlObject)
     {
@@ -723,7 +723,7 @@ void KeyMacro::RunStartMacro()
   StartMacroPos=-1;
 }
 
-// обработчик диалогового окна назначения клавиши
+// юсЁрсюЄўшъ фшрыюуютюую юъэр эрчэрўхэш  ъыртш°ш
 long WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 {
   char KeyText[50];
@@ -738,32 +738,32 @@ long WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Par
   }
   else if(Msg == DM_KEY)
   {
-    // <Обработка особых клавиш: F1 & Enter>
-    // Esc & (Enter и предыдущий Enter) - не обрабатываем
+    // <╬сЁрсюЄър юёюс√ї ъыртш°: F1 & Enter>
+    // Esc & (Enter ш яЁхф√фє∙шщ Enter) - эх юсЁрсрЄ√трхь
     if(Param2 == KEY_ESC ||
        Param2 == KEY_ENTER && LastKey == KEY_ENTER)
       return FALSE;
 
-    // F1 - особый случай - нужно жать 2 раза
-    // первый раз будет выведен хелп,
-    // а второй раз - второй раз уже назначение
+    // F1 - юёюс√щ ёыєўрщ - эєцэю црЄ№ 2 Ёрчр
+    // яхЁт√щ Ёрч сєфхЄ т√тхфхэ їхыя,
+    // р тЄюЁющ Ёрч - тЄюЁющ Ёрч єцх эрчэрўхэшх
     if(Param2 == KEY_F1 && LastKey!=KEY_F1)
     {
       LastKey=KEY_F1;
       return FALSE;
     }
 
-    // Было что-то уже нажато и Enter`ом подтверждаем
+    // ┴√ыю ўЄю-Єю єцх эрцрЄю ш Enter`юь яюфЄтхЁцфрхь
     if(Param2 == KEY_ENTER && LastKey && LastKey != KEY_ENTER)
       return FALSE;
-    // </Обработка особых клавиш: F1 & Enter>
+    // </╬сЁрсюЄър юёюс√ї ъыртш°: F1 & Enter>
 
     KeyMacro *MacroDlg=KMParam->Handle;
 
     KMParam->Key=(DWORD)Param2;
     KeyToText(Param2,KeyText);
 
-    // если УЖЕ есть такой макрос...
+    // хёыш ╙╞┼ хёЄ№ Єръющ ьръЁюё...
     if((Index=MacroDlg->GetIndex(Param2,KMParam->Mode)) != -1)
     {
       DWORD DisFlags=MacroDlg->Macros[Index].Flags&MFLAGS_DISABLEMACRO;
@@ -773,7 +773,7 @@ long WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Par
       char *TextBuffer;
 
       MacroDlg->MkRegKeyName(Index,RegKeyName);
-      // берем из памяти.
+      // схЁхь шч ярь Єш.
       if((TextBuffer=MacroDlg->MkTextSequence(MacroDlg->Macros[Index].Buffer,
                                   MacroDlg->Macros[Index].BufferSize)) != NULL)
       {
@@ -793,7 +793,7 @@ long WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Par
            MMacroReDefinedKey),
         KeyText);
 
-      // проверим "а не совпадает ли всё?"
+      // яЁютхЁшь "р эх ёютярфрхЄ ыш тё╕?"
       if(!DisFlags &&
          MacroDlg->Macros[Index].Buffer &&
          MacroDlg->RecBuffer &&
@@ -815,20 +815,20 @@ long WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Par
       {
         if(DisFlags)
         {
-          if (Opt.AutoSaveSetup) // удаляем из реестра только в случае
-          {                      // когда включен автосейв
-            // удалим старую запись из реестра
+          if (Opt.AutoSaveSetup) // єфры хь шч ЁххёЄЁр Єюы№ъю т ёыєўрх
+          {                      // ъюуфр тъы■ўхэ ртЄюёхщт
+            // єфрышь ёЄрЁє■ чряшё№ шч ЁххёЄЁр
             DeleteRegKey(RegKeyName);
           }
-          // раздисаблим
+          // Ёрчфшёрсышь
           MacroDlg->Macros[Index].Flags&=~MFLAGS_DISABLEMACRO;
         }
-        // в любом случае - вываливаемся
+        // т ы■сюь ёыєўрх - т√трыштрхьё 
         Dialog::SendDlgMessage(hDlg,DM_CLOSE,1,0);
         return TRUE;
       }
-      // здесь - здесь мы нажимали "Нет", ну а на нет и суда нет
-      //  и значит очистим поле ввода.
+      // чфхё№ - чфхё№ ь√ эрцшьрыш "═хЄ", эє р эр эхЄ ш ёєфр эхЄ
+      //  ш чэрўшЄ юўшёЄшь яюых ттюфр.
       KeyText[0]=0;
     }
     Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,2,(long)KeyText);
@@ -838,9 +838,9 @@ long WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Par
       LastKey=Param2;
     return TRUE;
   }
-  else if(Msg == DN_CTLCOLORDLGITEM) // сбросим Unchanged
+  else if(Msg == DN_CTLCOLORDLGITEM) // ёсЁюёшь Unchanged
   {
-    Param2&=0xFF00FFFFU;      // Unchanged у нас сидит в младшем байте старшего слова
+    Param2&=0xFF00FFFFU;      // Unchanged є эрё ёшфшЄ т ьырф°хь срщЄх ёЄрЁ°хую ёыютр
     Param2|=(Param2&0xFF)<<16;
     return Param2;
   }
@@ -850,10 +850,10 @@ long WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Par
 DWORD KeyMacro::AssignMacroKey()
 {
 /*
-  ╔══════ Define macro ══════╗
-  ║ Press the desired key    ║
-  ║ ________________________ ║
-  ╚══════════════════════════╝
+  +------ Define macro ------+
+  | Press the desired key    |
+  | ________________________ |
+  +--------------------------+
 */
 
   static struct DialogData MacroAssignDlgData[]={
@@ -869,7 +869,7 @@ DWORD KeyMacro::AssignMacroKey()
   Dlg.SetHelp("KeyMacro");
   Dlg.Process();
   /* $ 30.01.2001 SVS
-     Забыл сделать проверку на код возврата из диалога назначения
+     ╟рс√ы ёфхырЄ№ яЁютхЁъє эр ъюф тючтЁрЄр шч фшрыюур эрчэрўхэш 
   */
   if(Dlg.GetExitCode() == -1)
     return KEY_ESC;
@@ -986,17 +986,17 @@ int KeyMacro::PlayKeyMacro(struct MacroRecord *MRec)
   return TRUE;
 }
 
-// Парсер строковых эквивалентов в коды клавиш
+// ╧рЁёхЁ ёЄЁюъют√ї ¤ътштрыхэЄют т ъюф√ ъыртш°
 int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,char *BufPtr)
 {
   int J;
   if(!CurMacro || !BufPtr || !*BufPtr)
     return FALSE;
-  // здесь структура сформирована, начинаем разбор последовательности,
-  // которая находится в Buffer
+  // чфхё№ ёЄЁєъЄєЁр ёЇюЁьшЁютрэр, эрўшэрхь ЁрчсюЁ яюёыхфютрЄхы№эюёЄш,
+  // ъюЄюЁр  эрїюфшЄё  т Buffer
   while (1)
   {
-    // пропускаем ведущие пробельные символы
+    // яЁюяєёърхь тхфє∙шх яЁюсхы№э√х ёшьтюы√
     while (isspace(*BufPtr))
       BufPtr++;
     if (*BufPtr==0)
@@ -1004,7 +1004,7 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,char *BufPtr)
 
     char *CurBufPtr=BufPtr;
 
-    // ищем конец очередного названия клавиши
+    // ш∙хь ъюэхЎ юўхЁхфэюую эрчтрэш  ъыртш°ш
     while (*BufPtr && !isspace(*BufPtr))
       BufPtr++;
     int Length=BufPtr-CurBufPtr;
@@ -1012,10 +1012,10 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,char *BufPtr)
     memcpy(CurKeyText,CurBufPtr,Length);
     CurKeyText[Length]=0;
 
-    // в CurKeyText - название клавиши. Попробуем отыскать ее код...
+    // т CurKeyText - эрчтрэшх ъыртш°ш. ╧юяЁюсєхь юЄ√ёърЄ№ хх ъюф...
     DWORD KeyCode;
     KeyCode=KeyNameToKey(CurKeyText);
-    // код найден, добавим этот код в буфер последовательности.
+    // ъюф эрщфхэ, фюсртшь ¤ЄюЄ ъюф т сєЇхЁ яюёыхфютрЄхы№эюёЄш.
     if (KeyCode!=-1)
     {
       CurMacro->Buffer=(DWORD *)realloc(CurMacro->Buffer,sizeof(*CurMacro->Buffer)*(CurMacro->BufferSize+1));
@@ -1031,9 +1031,9 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,char *BufPtr)
 }
 
 
-// Функция получения индекса нужного макроса в массиве
-// Ret=-1 - не найден таковой.
-// если CheckMode=-1 - значит пофигу в каком режиме, т.е. первый попавшийся
+// ╘єэъЎш  яюыєўхэш  шэфхъёр эєцэюую ьръЁюёр т ьрёёштх
+// Ret=-1 - эх эрщфхэ Єръютющ.
+// хёыш CheckMode=-1 - чэрўшЄ яюЇшує т ъръюь Ёхцшьх, Є.х. яхЁт√щ яюярт°шщё 
 int KeyMacro::GetIndex(int Key, int ChechMode)
 {
   int Pos;
@@ -1046,9 +1046,9 @@ int KeyMacro::GetIndex(int Key, int ChechMode)
   return -1;
 }
 
-// получение размера, занимаемого указанным макросом
-// Ret= 0 - не найден таковой.
-// если CheckMode=-1 - значит пофигу в каком режиме, т.е. первый попавшийся
+// яюыєўхэшх ЁрчьхЁр, чрэшьрхьюую єърчрээ√ь ьръЁюёюь
+// Ret= 0 - эх эрщфхэ Єръютющ.
+// хёыш CheckMode=-1 - чэрўшЄ яюЇшує т ъръюь Ёхцшьх, Є.х. яхЁт√щ яюярт°шщё 
 int KeyMacro::GetRecordSize(int Key, int CheckMode)
 {
   int Pos=GetIndex(Key,CheckMode);
@@ -1058,9 +1058,9 @@ int KeyMacro::GetRecordSize(int Key, int CheckMode)
 }
 
 /* $ 21.12.2000 SVS
-   Подсократим код.
+   ╧юфёюъЁрЄшь ъюф.
 */
-// получить название моды по коду
+// яюыєўшЄ№ эрчтрэшх ьюф√ яю ъюфє
 char* KeyMacro::GetSubKey(int Mode)
 {
   return (char *)((Mode >= MACRO_SHELL && Mode < MACRO_LAST)?
@@ -1068,7 +1068,7 @@ char* KeyMacro::GetSubKey(int Mode)
             (Mode == MACRO_OTHER?MacroModeNameOther:""));
 }
 
-// получить код моды по имени
+// яюыєўшЄ№ ъюф ьюф√ яю шьхэш
 int KeyMacro::GetSubKey(char *Mode)
 {
   if(!stricmp(MacroModeNameOther,Mode))
@@ -1129,11 +1129,11 @@ BOOL KeyMacro::CheckFileFolder(Panel *ActivePanel,DWORD CurFlags)
 
 BOOL KeyMacro::CheckAll(DWORD CurFlags)
 {
-  // проверка на пусто/не пусто в ком.строке (а в редакторе? :-)
+  // яЁютхЁър эр яєёЄю/эх яєёЄю т ъюь.ёЄЁюъх (р т ЁхфръЄюЁх? :-)
   if(!CheckCmdLine(CtrlObject->CmdLine->GetLength(),CurFlags))
     return FALSE;
 
-  // проверки панели и типа файла
+  // яЁютхЁъш ярэхыш ш Єшяр Їрщыр
   Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
   if(ActivePanel!=NULL)// && (CurFlags&MFLAGS_MODEMASK)==MACRO_SHELL)
   {
@@ -1144,7 +1144,7 @@ BOOL KeyMacro::CheckAll(DWORD CurFlags)
       return FALSE;
 
     int SelCount=ActivePanel->GetRealSelCount();
-    if(Mode!=MACRO_EDITOR) // ??? видимо не весь диапазон !!!
+    if(Mode!=MACRO_EDITOR) // ??? тшфшью эх тхё№ фшрярчюэ !!!
     {
       if((CurFlags&MFLAGS_SELECTION) && SelCount < 1 ||
          (CurFlags&MFLAGS_NOSELECTION) && SelCount >= 1)

@@ -3,7 +3,7 @@
 /*
 language.hpp
 
-Работа с LNG-файлами
+╨рсюЄр ё LNG-Їрщырьш
 
 */
 
@@ -12,14 +12,14 @@ language.hpp
 /*
 Modify:
   27.02.2001 SVS
-    ! Нафига сюда впиндювивали stdio.h - ума не дам...
+    ! ═рЇшур ё■фр тяшэф■тштрыш stdio.h - єьр эх фрь...
   19.01.2001 SVS
-    + дополнительный параметр для Init - количество нужных строк
+    + фюяюыэшЄхы№э√щ ярЁрьхЄЁ фы  Init - ъюышўхёЄтю эєцэ√ї ёЄЁюъ
   01.09.2000 SVS
-    + Новый метод, для получения параметров для .Options
+    + ═ют√щ ьхЄюф, фы  яюыєўхэш  ярЁрьхЄЁют фы  .Options
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 class Language
@@ -39,7 +39,7 @@ class Language
     static FILE* OpenLangFile(char *Path,char *Mask,char *Language,char *FileName);
     static int GetLangParam(FILE *SrcFile,char *ParamName,char *Param1,char *Param2);
     /* $ 01.09.2000 SVS
-      + Новый метод, для получения параметров для .Options
+      + ═ют√щ ьхЄюф, фы  яюыєўхэш  ярЁрьхЄЁют фы  .Options
         .Options <KeyName>=<Value>
     */
     static int GetOptionsParam(FILE *SrcFile,char *KeyName,char *Value);

@@ -1,7 +1,7 @@
 /*
 plugins.cpp
 
-Работа с плагинами (низкий уровень, кое-что повыше в flplugin.cpp)
+╨рсюЄр ё яырушэрьш (эшчъшщ єЁютхэ№, ъюх-ўЄю яют√°х т flplugin.cpp)
 
 */
 
@@ -10,201 +10,201 @@ plugins.cpp
 /*
 Modify:
   04.05.2001 OT
-    + Неверно формировалось меню плагинов по F11 (NWZ)
-      Изменился PluginSet::CommandsMenu()
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
+    + ═хтхЁэю ЇюЁьшЁютрыюё№ ьхэ■ яырушэют яю F11 (NWZ)
+      ╚чьхэшыё  PluginSet::CommandsMenu()
+  29.04.2001 ╬╥
+    + ┬эхфЁхэшх NWZ юЄ ╥ЁхЄ№ ъютр
   28.04.2001 SVS
-    ! xfilter - видна в других модулях
-    ! небольшие уточнения исключений
+    ! xfilter - тшфэр т фЁєушї ьюфєы ї
+    ! эхсюы№°шх єЄюўэхэш  шёъы■ўхэшщ
   08.06.2001 SVS
-    ! Небольшая оптимизация:
-      StartupInfo и StandardFunctions сделаны статическими - заполняются
-      один раз, потом копируются в локальные структуры и...
-      т.о. (локальные) передаются плагину.
-      Модифицируются только плагино-зависимые данные.
+    ! ═хсюы№°р  юяЄшьшчрЎш :
+      StartupInfo ш StandardFunctions ёфхырэ√ ёЄрЄшўхёъшьш - чряюыэ ■Єё 
+      юфшэ Ёрч, яюЄюь ъюяшЁє■Єё  т ыюъры№э√х ёЄЁєъЄєЁ√ ш...
+      Є.ю. (ыюъры№э√х) яхЁхфр■Єё  яырушэє.
+      ╠юфшЇшЎшЁє■Єё  Єюы№ъю яырушэю-чртшёшь√х фрээ√х.
   04.04.2001 SVS
-    ! Попытка исключить ненужные вызовы в CallPlugin()
+    ! ╧юя√Єър шёъы■ўшЄ№ эхэєцэ√х т√чют√ т CallPlugin()
   26.03.2001 SVS
-    + дополнительный параметр у CommandsMenu() - HistoryName
+    + фюяюыэшЄхы№э√щ ярЁрьхЄЁ є CommandsMenu() - HistoryName
   24.03.2001 tran
     + qsortex
   20.03.2001 tran
-    + при прогонке файла через OpenFilePlugin
-      в заголовке окна показывается имя плагина
+    + яЁш яЁюуюэъх Їрщыр ўхЁхч OpenFilePlugin
+      т чруюыютъх юъэр яюърч√трхЄё  шь  яырушэр
   28.02.2001 IS
     ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   26.02.2001 VVM
-    ! Уточнение для обработки NULL в OpenPlugin
-    + Обработка исключения при OpenPlugin(OPEN_FINDLIST)
+    ! ╙Єюўэхэшх фы  юсЁрсюЄъш NULL т OpenPlugin
+    + ╬сЁрсюЄър шёъы■ўхэш  яЁш OpenPlugin(OPEN_FINDLIST)
   26.02.2001 VVM
-    ! Обработка NULL после OpenPlugin
+    ! ╬сЁрсюЄър NULL яюёых OpenPlugin
   11.02.2001 SVS
-    ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
+    ! ═хёъюы№ъю єЄюўэхэшщ ъюфр т ёт чш ё шчьхэхэш ьш т ёЄЁєъЄєЁх MenuItem
   01.02.2001 SVS
-    ! Shift-F9 викинут из списка плагинов
+    ! Shift-F9 тшъшэєЄ шч ёяшёър яырушэют
   28.01.2001 SVS
     ! DumpExeptionInfo -> DumpExceptionInfo ;-)
   25.01.2001 SVS
-    ! попытка локализовать причину исключения при неверно заполненных полях
-      структур OpenPluginInfo и PluginInfo
+    ! яюя√Єър ыюърышчютрЄ№ яЁшўшэє шёъы■ўхэш  яЁш эхтхЁэю чряюыэхээ√ї яюы ї
+      ёЄЁєъЄєЁ OpenPluginInfo ш PluginInfo
   23.01.2001 SVS
-    + DumpExeptionInfo(xp); - запись информации об исключении в дамп.
+    + DumpExeptionInfo(xp); - чряшё№ шэЇюЁьрЎшш юс шёъы■ўхэшш т фрья.
   23.01.2001 skv
-    + Добавил EXCEPTION_BREAKPOINT в список известных
-    + Unknown Exception на не известные.
+    + ─юсртшы EXCEPTION_BREAKPOINT т ёяшёюъ шчтхёЄэ√ї
+    + Unknown Exception эр эх шчтхёЄэ√х.
   29.12.2000 IS
-    ! При настройке "параметров внешних модулей" закрывать окно с их
-      списком только при нажатии на ESC
+    ! ╧Ёш эрёЄЁющъх "ярЁрьхЄЁют тэх°эшї ьюфєыхщ" чръЁ√трЄ№ юъэю ё шї
+      ёяшёъюь Єюы№ъю яЁш эрцрЄшш эр ESC
   19.12.2000 IS
-    + Shift-F9 в списке плагинов вызывает настройки редактора/программы
-      просмотра, если этот список был вызван соответственно из
-      редактора/программы просмотра. Эта возможность нужна для макросов, да
-      и просто удобно.
+    + Shift-F9 т ёяшёъх яырушэют т√ч√трхЄ эрёЄЁющъш ЁхфръЄюЁр/яЁюуЁрьь√
+      яЁюёьюЄЁр, хёыш ¤ЄюЄ ёяшёюъ с√ы т√чтрэ ёююЄтхЄёЄтхээю шч
+      ЁхфръЄюЁр/яЁюуЁрьь√ яЁюёьюЄЁр. ▌Єр тючьюцэюёЄ№ эєцэр фы  ьръЁюёют, фр
+      ш яЁюёЄю єфюсэю.
   18.12.2000 SVS
-    + Shift-F1 в списке плагинов вызывает хелп по данному плагину
+    + Shift-F1 т ёяшёъх яырушэют т√ч√трхЄ їхыя яю фрээюьє яырушэє
   07.12.2000 SVS
-    + Проверка не только версии, но и номера билда в функции проверки версии.
+    + ╧ЁютхЁър эх Єюы№ъю тхЁёшш, эю ш эюьхЁр сшыфр т ЇєэъЎшш яЁютхЁъш тхЁёшш.
   27.11.2000 SVS
-    ! Введение кнопки Debug в диалоги исключений с последующим вызовом
-      системного дебагера.
+    ! ┬тхфхэшх ъэюяъш Debug т фшрыюуш шёъы■ўхэшщ ё яюёыхфє■∙шь т√чютюь
+      ёшёЄхьэюую фхсрухЁр.
   02.11.2000 OT
-    ! Введение проверки на длину буфера, отведенного под имя файла.
+    ! ┬тхфхэшх яЁютхЁъш эр фышэє сєЇхЁр, юЄтхфхээюую яюф шь  Їрщыр.
   31.10.2000 SVS
-    + Функция TestOpenPluginInfo - проверка на вшивость переданных
-      плагином данных
-    ! Уточнения в эксепшинах
+    + ╘єэъЎш  TestOpenPluginInfo - яЁютхЁър эр т°штюёЄ№ яхЁхфрээ√ї
+      яырушэюь фрээ√ї
+    ! ╙Єюўэхэш  т ¤ъёхя°шэрї
   26.10.2000 SVS
-    - ошибки с "int Ret;" :-)
+    - ю°шсъш ё "int Ret;" :-)
   23.10.2000 SVS
-    + Функция TestPluginInfo - проверка на вшивость переданных плагином данных
+    + ╘єэъЎш  TestPluginInfo - яЁютхЁър эр т°штюёЄ№ яхЁхфрээ√ї яырушэюь фрээ√ї
   19.10.2000 tran
     + /co & PF_PRELOAD = friendship forever
-      теперь верно :)
+      ЄхяхЁ№ тхЁэю :)
   17.10.2000 SVS
-    + Везде, в экспортируемых функция введена спарка try-__except
+    + ┬хчфх, т ¤ъёяюЁЄшЁєхь√ї ЇєэъЎш  ттхфхэр ёярЁър try-__except
   16.10.2000 SVS
-    + Обработка исключений при вызове галимого плагина (пока только при вызове
-      двух функций - OpenPlugin и OpenFilePlugin).
+    + ╬сЁрсюЄър шёъы■ўхэшщ яЁш т√чютх урышьюую яырушэр (яюър Єюы№ъю яЁш т√чютх
+      фтєї ЇєэъЎшщ - OpenPlugin ш OpenFilePlugin).
   12.10.2000 tran
     + /co & PF_PRELOAD = friendship.
     + PluginsSet::DumpPluginsInfo(), call by AltF11 in plugins menu
   12.10.2000 IS
-    + Указатель на ProcessName в StandardFunctions
+    + ╙ърчрЄхы№ эр ProcessName т StandardFunctions
   27.09.2000 SVS
-    + Указатель на текущий Viewer
+    + ╙ърчрЄхы№ эр Єхъє∙шщ Viewer
     + ProcessViewerEvent
     + CallPlugin
   27.09.2000 skv
     + DeleteBuffer
   24.09.2000 SVS
-    + Функция FarNameToKey - получение кода клавиши по имени
-      Если имя не верно или нет такого - возвращается -1
+    + ╘єэъЎш  FarNameToKey - яюыєўхэшх ъюфр ъыртш°ш яю шьхэш
+      ┼ёыш шь  эх тхЁэю шыш эхЄ Єръюую - тючтЁр∙рхЄё  -1
   21.09.2000 SVS
-    + Работа с  PluginItem.SysID - системный идентификатор плагина
+    + ╨рсюЄр ё  PluginItem.SysID - ёшёЄхьэ√щ шфхэЄшЇшърЄюЁ яырушэр
   20.09.2000 SVS
-    ! удалил FolderPresent (блин, совсем крышу сорвало :-(
+    ! єфрышы FolderPresent (сышэ, ёютёхь ъЁ√°є ёюЁтрыю :-(
   19.09.2000 SVS
-    + функция FolderPresent - "сужествует ли каталог"
+    + ЇєэъЎш  FolderPresent - "ёєцхёЄтєхЄ ыш ърЄрыюу"
   18.09.2000 SVS
-    ! PluginsSet::SetPluginStartupInfo - заполним стркутуру PluginStartupInfo
-      нулями.
+    ! PluginsSet::SetPluginStartupInfo - чряюыэшь ёЄЁъєЄєЁє PluginStartupInfo
+      эєы ьш.
     ! FarRecurseSearch -> FarRecursiveSearch
   14.09.2000 SVS
     + FSF.MkTemp
   10.09.2000 IS 1.21
-    - Забыли проверку Info.CommandPrefix на NULL сделать, соответственно фар
-      иногда с конвульсиями помирал, теперь - нет.
+    - ╟рс√ыш яЁютхЁъє Info.CommandPrefix эр NULL ёфхырЄ№, ёююЄтхЄёЄтхээю ЇрЁ
+      шэюуфр ё ъюэтєы№ёш ьш яюьшЁры, ЄхяхЁ№ - эхЄ.
   10.09.2000 tran 1.21
     + FSF/FarRecurseSearch
   10.09.2000 SVS
-    ! Наконец-то нашлось приемлемое имя для QWERTY -> Xlat.
+    ! ═ръюэхЎ-Єю эр°ыюё№ яЁшхьыхьюх шь  фы  QWERTY -> Xlat.
   08.09.2000 SVS
     ! QWERTY -> Transliterate
   07.09.2000 SVS 1.20
     - MultiPrefix
-      По каким-то непонятным причинам из кэше для Flags возвращалось
-      значение равное 0 (хотя вижу что в реестре стоит 0x10) :-(
+      ╧ю ъръшь-Єю эхяюэ Єэ√ь яЁшўшэрь шч ъ¤°х фы  Flags тючтЁр∙рыюё№
+      чэрўхэшх Ёртэюх 0 (їюЄ  тшцє ўЄю т ЁххёЄЁх ёЄюшЄ 0x10) :-(
   07.09.2000 VVM 1.19
-    + Несколько префиксов у плагина, разделенных через ":"
-    + Если флаг PF_FULLCMDLINE - отдавать с префиксом
+    + ═хёъюы№ъю яЁхЇшъёют є яырушэр, Ёрчфхыхээ√ї ўхЁхч ":"
+    + ┼ёыш Їыру PF_FULLCMDLINE - юЄфртрЄ№ ё яЁхЇшъёюь
   07.09.2000 SVS
-    + Функция GetFileOwner тоже доступна плагинам :-)
-    + Функция GetNumberOfLinks тоже доступна плагинам :-)
-    + Оболочка FarBsearch для плагинов (функция bsearch)
+    + ╘єэъЎш  GetFileOwner Єюцх фюёЄєяэр яырушэрь :-)
+    + ╘єэъЎш  GetNumberOfLinks Єюцх фюёЄєяэр яырушэрь :-)
+    + ╬сюыюўър FarBsearch фы  яырушэют (ЇєэъЎш  bsearch)
   05.09.2000 SVS 1.17
-    + QWERTY - перекодировщик - StandardFunctions.EDQwerty
+    + QWERTY - яхЁхъюфшЁют∙шъ - StandardFunctions.EDQwerty
   01.09.2000 tran 1.16
     + PluginsSet::LoadPluginsFromCache()
   31.08.2000 tran
     + FSF/FarInputRecordTokey
   31.08.2000 SVS
-    ! изменение FSF-функций
+    ! шчьхэхэшх FSF-ЇєэъЎшщ
       FSF.RemoveLeadingSpaces =FSF.LTrim
       FSF.RemoveTrailingSpaces=FSF.RTrim
       FSF.RemoveExternalSpaces=FSF.Trim
   28.08.2000 SVS
-    + Добавка для Local*
-    ! не FarStandardFunctions._atoi64, но FarStandardFunctions.atoi64
+    + ─юсртър фы  Local*
+    ! эх FarStandardFunctions._atoi64, эю FarStandardFunctions.atoi64
     + FARSTDITOA64
   25.08.2000 SVS
-    ! Удалены из FSF функции:
+    ! ╙фрыхэ√ шч FSF ЇєэъЎшш:
       memset, memcpy, memmove, memcmp, strchr, strrchr, strstr, strtok, strpbrk
   03.08.2000 tran 1.12
     + GetMinFarVersion export
-      для определения минимально-неодходимой версии фара.
+      фы  юяЁхфхыхэш  ьшэшьры№эю-эхюфїюфшьющ тхЁёшш ЇрЁр.
   03.08.2000 SVS
-    + Учтем, что можут быть указан параметр -P в командной строке...
+    + ╙ўЄхь, ўЄю ьюцєЄ с√Є№ єърчрэ ярЁрьхЄЁ -P т ъюьрэфэющ ёЄЁюъх...
   01.08.2000 SVS
-    ! Расширение дополнительного пути для поиска персональных плагином
-      происходит непосредственно перед поиском
-    + Исключаем фичу при совпадении двух путей поиска
+    ! ╨рё°шЁхэшх фюяюыэшЄхы№эюую яєЄш фы  яюшёър яхЁёюэры№э√ї яырушэюь
+      яЁюшёїюфшЄ эхяюёЁхфёЄтхээю яхЁхф яюшёъюь
+    + ╚ёъы■ўрхь Їшўє яЁш ёютярфхэшш фтєї яєЄхщ яюшёър
   23.07.2000 SVS
-    + Функции
-       - Ввод тестовой строки
-       - FSF-функция KeyToName
-       - FSF: работа с буфером обмена CopyToClipboard, PasteFromClipboard
+    + ╘єэъЎшш
+       - ┬тюф ЄхёЄютющ ёЄЁюъш
+       - FSF-ЇєэъЎш  KeyToName
+       - FSF: ЁрсюЄр ё сєЇхЁюь юсьхэр CopyToClipboard, PasteFromClipboard
   23.07.2000 SVS
-    + Функции для обработчика диалога
-       - расширенная функция диалога FarDialogEx;
-       - обмен сообщениями SendDlgMessage;
-       - функция по умолчанию DefDlgProc;
+    + ╘єэъЎшш фы  юсЁрсюЄўшър фшрыюур
+       - Ёрё°шЁхээр  ЇєэъЎш  фшрыюур FarDialogEx;
+       - юсьхэ ёююс∙хэш ьш SendDlgMessage;
+       - ЇєэъЎш  яю єьюыўрэш■ DefDlgProc;
   15.07.2000 SVS
-    + Добавка в виде задания дополнительного пути для поиска плагинов
+    + ─юсртър т тшфх чрфрэш  фюяюыэшЄхы№эюую яєЄш фы  яюшёър яырушэют
   13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
+    ! ═хъюЄюЁ√х ъюЁЁхъЎшш яЁш шёяюы№чютрэшш new/delete/realloc
   13.07.2000 IS
-    - Пофикшен трап при входе в редактор (PluginsSet::ProcessEditorInput)
-      Решения подсказал tran.
-    - Исправлен глюк в PluginsSet::SavePluginSettings, допущенный при
-      неправильном переводе под VC: переменная I изменялась во всех циклах
-      (внимательнее над быть, вашу мать $%#...)
-      Решения подсказал tran.
+    - ╧юЇшъ°хэ ЄЁря яЁш тїюфх т ЁхфръЄюЁ (PluginsSet::ProcessEditorInput)
+      ╨х°хэш  яюфёърчры tran.
+    - ╚ёяЁртыхэ уы■ъ т PluginsSet::SavePluginSettings, фюяє∙хээ√щ яЁш
+      эхяЁртшы№эюь яхЁхтюфх яюф VC: яхЁхьхээр  I шчьхэ ырё№ тю тёхї Ўшъырї
+      (тэшьрЄхы№эхх эрф с√Є№, тр°є ьрЄ№ $%#...)
+      ╨х°хэш  яюфёърчры tran.
   11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
+    ! ╚чьхэхэш  фы  тючьюцэюёЄш ъюьяшы Ўшш яюф BC & VC
   07.07.2000 IS
-    + Инициализация: atoi, _atoi64, itoa, RemoveLeadingSpaces,
+    + ╚эшЎшрышчрЎш : atoi, _atoi64, itoa, RemoveLeadingSpaces,
       RemoveTrailingSpaces, RemoveExternalSpaces, TruncStr, TruncPathStr,
       QuoteSpaceOnly, PointToName, GetPathRoot, AddEndSlash
   06.07.2000 IS
-    + Объявление структуры типа FarStandardFunctions (см. plugin.hpp)
-      Инициализация ее членов:
+    + ╬с· тыхэшх ёЄЁєъЄєЁ√ Єшяр FarStandardFunctions (ёь. plugin.hpp)
+      ╚эшЎшрышчрЎш  хх ўыхэют:
       StructSize, Unquote, ExpandEnvironmentStr, sprintf, sscanf, qsort,
       memcpy, memmove, memcmp, strchr, strrchr, strstr, strtok, memset, strpbrk
   05.07.2000 IS
-    + Функция AdvControl
+    + ╘єэъЎш  AdvControl
   01.07.2000 IS
-    + Функция вывода помощи в api
+    + ╘єэъЎш  т√тюфр яюью∙ш т api
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -218,7 +218,7 @@ static char FmtPluginsCache_PluginD[]="PluginsCache\\Plugin%d";
 static char FmtDiskMenuStringD[]="DiskMenuString%d";
 static char FmtDiskMenuNumberD[]="DiskMenuNumber%d";
 
-// требуется в plugapi.cpp (было раньше static)
+// ЄЁхсєхЄё  т plugapi.cpp (с√ыю Ёрэ№°х static)
 int KeepUserScreen;
 char DirToSet[NM];
 
@@ -226,7 +226,7 @@ static int _cdecl PluginsSort(const void *el1,const void *el2);
 
 
 /* $ 16.10.2000 SVS
-   Простенький обработчик исключений.
+   ╧ЁюёЄхэ№ъшщ юсЁрсюЄўшъ шёъы■ўхэшщ.
 */
 static char* xFromMSGTitle(int From)
 {
@@ -237,49 +237,49 @@ static char* xFromMSGTitle(int From)
 }
 
 int xfilter(
-    int From,                 // откуда: 0 = OpenPlugin, 1 = OpenFilePlugin
-    EXCEPTION_POINTERS *xp,   // данные ситуации
-    struct PluginItem *Module,// модуль, приведший к исключению.
-    DWORD Flags)              // дополнительные флаги - пока только один
-                              //        0x1 - спрашивать про выгрузку?
+    int From,                 // юЄъєфр: 0 = OpenPlugin, 1 = OpenFilePlugin
+    EXCEPTION_POINTERS *xp,   // фрээ√х ёшЄєрЎшш
+    struct PluginItem *Module,// ьюфєы№, яЁштхф°шщ ъ шёъы■ўхэш■.
+    DWORD Flags)              // фюяюыэшЄхы№э√х Їыруш - яюър Єюы№ъю юфшэ
+                              //        0x1 - ёяЁр°штрЄ№ яЁю т√уЁєчъє?
 {
    struct __ECODE {
-     DWORD Code;     // код исключения
-     DWORD IdMsg;    // ID сообщения из LNG-файла
-     DWORD RetCode;  // Что вернем?
+     DWORD Code;     // ъюф шёъы■ўхэш 
+     DWORD IdMsg;    // ID ёююс∙хэш  шч LNG-Їрщыр
+     DWORD RetCode;  // ╫Єю тхЁэхь?
    } ECode[]={
      {EXCEPTION_ACCESS_VIOLATION, MExcRAccess, EXCEPTION_EXECUTE_HANDLER},
      {EXCEPTION_ARRAY_BOUNDS_EXCEEDED, MExcOutOfBounds, EXCEPTION_EXECUTE_HANDLER},
      {EXCEPTION_INT_DIVIDE_BY_ZERO,MExcDivideByZero, EXCEPTION_EXECUTE_HANDLER},
      {EXCEPTION_STACK_OVERFLOW,MExcStackOverflow, EXCEPTION_EXECUTE_HANDLER},
      {EXCEPTION_BREAKPOINT,MExcBreakPoint, EXCEPTION_EXECUTE_HANDLER},
-     // сюды добавляем.
+     // ё■ф√ фюсрты хь.
    };
    // EXCEPTION_CONTINUE_EXECUTION  ??????
    char *pName;
    int  I, rc, Ret=1;
    char Buf[2][80];
    char TruncFileName[2*NM];
-   BOOL Unload = FALSE; // Установить в истину, если плагин нужно выгрузить
+   BOOL Unload = FALSE; // ╙ёЄрэютшЄ№ т шёЄшэє, хёыш яырушэ эєцэю т√уЁєчшЄ№
 
-   // получим запись исключения
+   // яюыєўшь чряшё№ шёъы■ўхэш 
    EXCEPTION_RECORD *xr = xp->ExceptionRecord;
 
-   // CONTEXT можно использовать для отображения или записи в лог
-   //         содержимого регистров...
+   // CONTEXT ьюцэю шёяюы№чютрЄ№ фы  юЄюсЁрцхэш  шыш чряшёш т ыюу
+   //         ёюфхЁцшьюую ЁхушёЄЁют...
    // CONTEXT *xc = xp->ContextRecord;
 
    rc = EXCEPTION_EXECUTE_HANDLER;
 
    /*$ 23.01.2001 skv
-     Неизвестное исключение не стоит игнорировать.
+     ═хшчтхёЄэюх шёъы■ўхэшх эх ёЄюшЄ шуэюЁшЁютрЄ№.
    */
    pName=NULL;
    strcpy(TruncFileName,NullToEmpty(Module->ModuleName));
 
    /* $ 26.02.2001 VVM
-       ! Обработка STATUS_INVALIDFUNCTIONRESULT */
-   // Этот кусок обрабатываем в первую очередь, т.к. это проверки "на вшивость"
+       ! ╬сЁрсюЄър STATUS_INVALIDFUNCTIONRESULT */
+   // ▌ЄюЄ ъєёюъ юсЁрсрЄ√трхь т яхЁтє■ юўхЁхф№, Є.ъ. ¤Єю яЁютхЁъш "эр т°штюёЄ№"
    if (From == EXCEPT_GETPLUGININFO_DATA || From == EXCEPT_GETOPENPLUGININFO_DATA)
    {
      I = 0;
@@ -326,8 +326,8 @@ int xfilter(
 //       CtrlObject->Plugins.UnloadPlugin(*Module);
    } /* EXCEPT_GETPLUGININFO_DATA && EXCEPT_GETOPENPLUGININFO_DATA */
 
-   // теперь обработаем исключение по возврату 0 вместо INVALID_HANDLE_VALUE
-   // из Open*Plugin()
+   // ЄхяхЁ№ юсЁрсюЄрхь шёъы■ўхэшх яю тючтЁрЄє 0 тьхёЄю INVALID_HANDLE_VALUE
+   // шч Open*Plugin()
    else if (xr->ExceptionCode == STATUS_INVALIDFUNCTIONRESULT)
    {
      switch (From)
@@ -356,13 +356,13 @@ int xfilter(
      if (Ret == 0)
      {
        Unload = TRUE;
-       Ret++; // Исключить вызов дебаггера при Ret == 0
+       Ret++; // ╚ёъы■ўшЄ№ т√чют фхсруухЁр яЁш Ret == 0
      }
    }
 
    else
    {
-     // просмотрим "знакомые" FAR`у исключения и обработаем...
+     // яЁюёьюЄЁшь "чэръюь√х" FAR`є шёъы■ўхэш  ш юсЁрсюЄрхь...
      for(I=0; I < sizeof(ECode)/sizeof(ECode[0]); ++I)
        if(ECode[I].Code == xr->ExceptionCode)
        {
@@ -408,7 +408,7 @@ int xfilter(
      /* skv$*/
    } /* else */
 
-   // выведим дамп перед выгрузкой плагина.
+   // т√тхфшь фрья яхЁхф т√уЁєчъющ яырушэр.
    if (xr->ExceptionCode != STATUS_INVALIDFUNCTIONRESULT)
      DumpExceptionInfo(xp,Module);
 
@@ -447,7 +447,7 @@ PluginsSet::~PluginsSet()
     PluginsData[I].Lang.Close();
   }
   /* $ 13.07.2000 SVS
-    Ни кто не запрашивал память через new
+    ═ш ъЄю эх чряЁр°штры ярь Є№ ўхЁхч new
   */
   free(PluginsData);
   /* SVS $ */
@@ -477,8 +477,8 @@ void PluginsSet::SendExit()
 void PluginsSet::LoadPlugins()
 {
   /* $ 15.07.2000 SVS
-     Плагины ищутся сначала в персональном каталоге, а потом в "системном"
-     для того, чтобы перекрыть "системные" своими... :-)
+     ╧ырушэ√ ш∙єЄё  ёэрўрыр т яхЁёюэры№эюь ърЄрыюух, р яюЄюь т "ёшёЄхьэюь"
+     фы  Єюую, ўЄюс√ яхЁхъЁ√Є№ "ёшёЄхьэ√х" ётюшьш... :-)
   */
   int IPath;
   char PluginsDir[NM],FullName[NM];
@@ -496,7 +496,7 @@ void PluginsSet::LoadPlugins()
   for(IPath=0; IPath < 2; ++IPath)
   {
     /* $ 03.08.2000 SVS
-       Учтем, что можут быть указан параметр -P в командной строке
+       ╙ўЄхь, ўЄю ьюцєЄ с√Є№ єърчрэ ярЁрьхЄЁ -P т ъюьрэфэющ ёЄЁюъх
     */
     if(Opt.MainPluginDir)
       sprintf(PluginsDir,"%s%s",FarPath,PluginsFolderName);
@@ -506,25 +506,25 @@ void PluginsSet::LoadPlugins()
 
     if(!IPath)
     {
-      // если пусто то прерываем поиск :-) независимо ни от чего...
+      // хёыш яєёЄю Єю яЁхЁ√трхь яюшёъ :-) эхчртшёшью эш юЄ ўхую...
       if(Opt.PersonalPluginsPath[0])
       {
         /* $ 01.08.2000 SVS
-           Вот здесь и расширяем значение пути!!!
+           ┬юЄ чфхё№ ш Ёрё°шЁ хь чэрўхэшх яєЄш!!!
         */
         ExpandEnvironmentStr(Opt.PersonalPluginsPath,FullName,sizeof(FullName));
-        // проверка на вшивость!
+        // яЁютхЁър эр т°штюёЄ№!
         if(stricmp(PluginsDir,FullName))
           strcpy(PluginsDir,FullName);
         else
-          continue; // продолжем дальше
+          continue; // яЁюфюыцхь фры№°х
         /* SVS $ */
       }
       else
-        continue; // продолжем дальше
+        continue; // яЁюфюыцхь фры№°х
     }
     /* $ 03.08.2000 SVS
-       Может быть случай, когда вообще без плагинов запускаемся!!!
+       ╠юцхЄ с√Є№ ёыєўрщ, ъюуфр тююс∙х схч яырушэют чряєёърхьё !!!
     */
     if(!PluginsDir[0])
       continue;
@@ -541,7 +541,7 @@ void PluginsSet::LoadPlugins()
         int CachePos=GetCacheNumber(FullName,&FindData,0);
         int LoadCached=(CachePos!=-1);
         /* $ 12.10.2000 tran
-           Preload=1 нужно для корректной обработки -co */
+           Preload=1 эєцэю фы  ъюЁЁхъЄэющ юсЁрсюЄъш -co */
         sprintf(RegKey,"PluginsCache\\Plugin%d",CachePos);
         if ( GetRegKey(RegKey,"Preload",0)==1 )
         {
@@ -643,12 +643,12 @@ void PluginsSet::LoadPluginsFromCache()
         strcpy(RegKey,PlgKey); // "PLuginsCache\PluginXX"
         GetRegKey(RegKey,"Name",CurPlugin.ModuleName,"",NM);
         /* $ 12.10.2000 tran
-          -co должен понимать PRELOAD плагины */
+          -co фюыцхэ яюэшьрЄ№ PRELOAD яырушэ√ */
         if ( GetRegKey(RegKey,"Preload",0)==1 )
         {
 
           if (!LoadPlugin(CurPlugin,-1,TRUE))
-            continue; // загрузка не удалась
+            continue; // чруЁєчър эх єфрырё№
           CurPlugin.Cached=FALSE;
         }
         else
@@ -665,7 +665,7 @@ void PluginsSet::LoadPluginsFromCache()
           CurPlugin.pProcessViewerEvent=(PLUGINPROCESSVIEWEREVENT)GetRegKey(RegKey,"ProcessViewerEvent",0);
           CurPlugin.CachePos=atoi(PlgKey+19);
           CurPlugin.Cached=TRUE;
-          // вот тут это поле не заполнено, надеюсь, что оно не критично
+          // тюЄ ЄєЄ ¤Єю яюых эх чряюыэхэю, эрфх■ё№, ўЄю юэю эх ъЁшЄшўэю
           // CurPlugin.FindData=FindData;
         }
         struct PluginItem *NewPluginsData=(struct PluginItem *)realloc(PluginsData,sizeof(*PluginsData)*(PluginsCount+1));
@@ -677,7 +677,7 @@ void PluginsSet::LoadPluginsFromCache()
     }
     qsort(PluginsData,PluginsCount,sizeof(*PluginsData),PluginsSort);
     /* $ 19.10.2000 tran
-       забыл вызвать SetStartupInfo :) */
+       чрс√ы т√чтрЄ№ SetStartupInfo :) */
     for (I=0;I<PluginsCount;I++)
     {
         if (!PluginsData[I].Cached)
@@ -737,14 +737,14 @@ int PluginsSet::LoadPlugin(struct PluginItem &CurPlugin,int ModuleNumber,int Ini
   if (ModuleNumber!=-1 && Init)
   {
     /* $ 03.08.2000 tran
-       проверка на минимальную версию фара */
+       яЁютхЁър эр ьшэшьры№эє■ тхЁёш■ ЇрЁр */
     if ( CheckMinVersion(CurPlugin) )
     {
       SetPluginStartupInfo(CurPlugin,ModuleNumber);
     }
     else
     {
-        UnloadPlugin(CurPlugin); // тест не пройден, выгружаем его
+        UnloadPlugin(CurPlugin); // ЄхёЄ эх яЁющфхэ, т√уЁєцрхь хую
         return (FALSE);
     }
   }
@@ -752,13 +752,13 @@ int PluginsSet::LoadPlugin(struct PluginItem &CurPlugin,int ModuleNumber,int Ini
 }
 
 /* $ 03.08.2000 tran
-   функция проверки минимальной версии */
+   ЇєэъЎш  яЁютхЁъш ьшэшьры№эющ тхЁёшш */
 /* $ 07.12.2000 SVS
-   Проверка не только версии, но и номера билда
+   ╧ЁютхЁър эх Єюы№ъю тхЁёшш, эю ш эюьхЁр сшыфр
 */
 int  PluginsSet::CheckMinVersion(struct PluginItem &CurPlugin)
 {
-    if ( CurPlugin.pMinFarVersion==0 ) // плагин не эскпортирует, ему или неважно, или он для <1.65
+    if ( CurPlugin.pMinFarVersion==0 ) // яырушэ эх ¤ёъяюЁЄшЁєхЄ, хьє шыш эхтрцэю, шыш юэ фы  <1.65
     {
         return (TRUE);
     }
@@ -771,7 +771,7 @@ int  PluginsSet::CheckMinVersion(struct PluginItem &CurPlugin)
     __except ( xfilter(EXCEPT_MINFARVERSION,
                      GetExceptionInformation(),&CurPlugin,0) )
     {
-       UnloadPlugin(CurPlugin); // тест не пройден, выгружаем его
+       UnloadPlugin(CurPlugin); // ЄхёЄ эх яЁющфхэ, т√уЁєцрхь хую
        return (FALSE);
     }
 
@@ -779,16 +779,16 @@ int  PluginsSet::CheckMinVersion(struct PluginItem &CurPlugin)
         (LOWORD(v) == LOWORD(FAR_VERSION) &&
          HIWORD(v) > HIWORD(FAR_VERSION)
         )
-    ) // кранты - плагин требует старший фар
+    ) // ъЁрэЄ√ - яырушэ ЄЁхсєхЄ ёЄрЁ°шщ ЇрЁ
     {
         ShowMessageAboutIllegialPluginVersion(CurPlugin.ModuleName,v);
         return (FALSE);
     }
-    return (TRUE); // нормально, свой парень
+    return (TRUE); // эюЁьры№эю, ётющ ярЁхэ№
 }
 
-// выгрузка плагина
-// причем без всяких ему объяснений
+// т√уЁєчър яырушэр
+// яЁшўхь схч тё ъшї хьє юс· ёэхэшщ
 void PluginsSet::UnloadPlugin(struct PluginItem &CurPlugin)
 {
     FreeLibrary(CurPlugin.hModule);
@@ -817,18 +817,18 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
     static struct PluginStartupInfo StartupInfo={0};
     static struct FarStandardFunctions StandardFunctions={0};
     /* $ 06.07.2000 IS
-      Объявление структуры типа FarStandardFunctions (см. plugin.hpp)
-      Инициализация ее членов:
+      ╬с· тыхэшх ёЄЁєъЄєЁ√ Єшяр FarStandardFunctions (ёь. plugin.hpp)
+      ╚эшЎшрышчрЎш  хх ўыхэют:
          StructSize, Unquote, ExpandEnvironmentStr,
          sprintf, sscanf, qsort, memcpy, memmove, memcmp, strchr,
          strrchr, strstr, strtok, memset, strpbrk
      $ 07.07.2000 IS
-       Эпопея продолжается... Инициализация: atoi, _atoi64, itoa,
+       ▌яюях  яЁюфюыцрхЄё ... ╚эшЎшрышчрЎш : atoi, _atoi64, itoa,
        RemoveLeadingSpaces, RemoveTrailingSpaces, RemoveExternalSpaces,
        TruncStr, TruncPathStr, QuoteSpaceOnly, PointToName, GetPathRoot,
        AddEndSlash
     */
-    // заполняем структуру StandardFunctions один раз!!!
+    // чряюыэ хь ёЄЁєъЄєЁє StandardFunctions юфшэ Ёрч!!!
     if(!StandardFunctions.StructSize)
     {
       StandardFunctions.StructSize=sizeof(StandardFunctions);
@@ -844,13 +844,13 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
       StandardFunctions.itoa64=FarItoa64;
 
       //StandardFunctions.qsort=FarQsort;
-      // ??? почему дважды?
+      // ??? яюўхьє фтрцф√?
       /* tran $ */
 
       StandardFunctions.bsearch=FarBsearch;
 
       /* $ 28.08.2000 SVS
-         + Функции работы с...
+         + ╘єэъЎшш ЁрсюЄ√ ё...
       */
       StandardFunctions.LIsLower   =LocalIslower;
       StandardFunctions.LIsUpper   =LocalIsupper;
@@ -879,15 +879,15 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
       StandardFunctions.AddEndSlash=AddEndSlash;
       /* IS $ */
       /* $ 25.07.2000 SVS
-         Моя очередь продолжать эпопею :-)
+         ╠ю  юўхЁхф№ яЁюфюыцрЄ№ ¤яюях■ :-)
       */
       StandardFunctions.CopyToClipboard=CopyToClipboard;
       StandardFunctions.PasteFromClipboard=PasteFromClipboard;
       StandardFunctions.FarKeyToName=KeyToText;
       /* SVS $ */
       /* $ 24.09.2000 SVS
-       + Функция FarNameToKey - получение кода клавиши по имени
-         Если имя не верно или нет такого - возвращается -1
+       + ╘єэъЎш  FarNameToKey - яюыєўхэшх ъюфр ъыртш°ш яю шьхэш
+         ┼ёыш шь  эх тхЁэю шыш эхЄ Єръюую - тючтЁр∙рхЄё  -1
       */
       StandardFunctions.FarNameToKey=KeyNameToKey;
       /* SVS $ */
@@ -896,23 +896,23 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
       StandardFunctions.FarInputRecordToKey=InputRecordToKey;
       /* tran 31.08.2000 $ */
       /* $ 05.09.2000 SVS 1.17
-         + QWERTY - перекодировщик
+         + QWERTY - яхЁхъюфшЁют∙шъ
       */
       StandardFunctions.XLat=Xlat;
       /* SVS $ */
       /* $ 07.09.2000 SVS 1.17
-         + Функция GetFileOwner тоже доступна плагинам :-)
-         + Функция GetNumberOfLinks тоже доступна плагинам :-)
+         + ╘єэъЎш  GetFileOwner Єюцх фюёЄєяэр яырушэрь :-)
+         + ╘єэъЎш  GetNumberOfLinks Єюцх фюёЄєяэр яырушэрь :-)
       */
       StandardFunctions.GetFileOwner=GetFileOwner;
       StandardFunctions.GetNumberOfLinks=GetNumberOfLinks;
       /* SVS $ */
       /* $ 10.09.2000 tran
-        + нижеуказанное */
+        + эшцхєърчрээюх */
       StandardFunctions.FarRecursiveSearch=FarRecursiveSearch;
       /* tran 08.09.2000 $ */
       /* $ 14.09.2000 SVS
-        Функция получения временного файла с полным путем.
+        ╘єэъЎш  яюыєўхэш  тЁхьхээюую Їрщыр ё яюыэ√ь яєЄхь.
       */
       StandardFunctions.MkTemp=FarMkTemp;
       /* SVS $ */
@@ -922,8 +922,8 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
       StandardFunctions.DeleteBuffer=DeleteBuffer;
       /* skv$*/
       /* $ 12.10.2000 IS
-        + ProcessName - обработать имя файла: сравнить с маской, масками,
-          сгенерировать по маске
+        + ProcessName - юсЁрсюЄрЄ№ шь  Їрщыр: ёЁртэшЄ№ ё ьрёъющ, ьрёърьш,
+          ёухэхЁшЁютрЄ№ яю ьрёъх
       */
       StandardFunctions.ProcessName=ProcessName;
       /* IS $ */
@@ -950,40 +950,40 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
       StartupInfo.EditorControl=FarEditorControl;
       StartupInfo.ViewerControl=FarViewerControl;
       /* 01.07.2000 IS
-         Функция вывода помощи
+         ╘єэъЎш  т√тюфр яюью∙ш
       */
       StartupInfo.ShowHelp=FarShowHelp;
       /* IS $ */
       /* 05.07.2000 IS
-         Функция, которая будет действовать и в редакторе, и в панелях, и...
+         ╘єэъЎш , ъюЄюЁр  сєфхЄ фхщёЄтютрЄ№ ш т ЁхфръЄюЁх, ш т ярэхы ї, ш...
       */
       StartupInfo.AdvControl=FarAdvControl;
       /* IS $ */
       /* $ 23.07.2000 SVS
-         Функции для обработчика диалога
-           - расширенная функция диалога
-           - обмен сообщениями
-           - функция по умолчанию
+         ╘єэъЎшш фы  юсЁрсюЄўшър фшрыюур
+           - Ёрё°шЁхээр  ЇєэъЎш  фшрыюур
+           - юсьхэ ёююс∙хэш ьш
+           - ЇєэъЎш  яю єьюыўрэш■
       */
       StartupInfo.DialogEx=FarDialogEx;
       StartupInfo.SendDlgMessage=FarSendDlgMessage;
       StartupInfo.DefDlgProc=FarDefDlgProc;
       /* $ 25.07.2000 SVS
-         Функция-стандартный диалог ввода текста
+         ╘єэъЎш -ёЄрэфрЁЄэ√щ фшрыюу ттюфр ЄхъёЄр
       */
       StartupInfo.InputBox=GetString;
       /* SVS $ */
     }
 
-    // Это есть локальные копии статических структур, что бы случайно
-    // како-нить урод не засрал адреса.
+    // ▌Єю хёЄ№ ыюъры№э√х ъюяшш ёЄрЄшўхёъшї ёЄЁєъЄєЁ, ўЄю с√ ёыєўрщэю
+    // ъръю-эшЄ№ єЁюф эх чрёЁры рфЁхёр.
     struct PluginStartupInfo LocalStartupInfo;
     struct FarStandardFunctions LocalStandardFunctions;
 
     memcpy(&LocalStartupInfo,&StartupInfo,sizeof(StartupInfo));
     memcpy(&LocalStandardFunctions,&StandardFunctions,sizeof(StandardFunctions));
 
-    // скорректирем адреса и плагино-зависимые поля
+    // ёъюЁЁхъЄшЁхь рфЁхёр ш яырушэю-чртшёшь√х яюы 
     strcpy(LocalStartupInfo.ModuleName,CurPlugin.ModuleName);
     LocalStartupInfo.ModuleNumber=ModuleNumber;
     strcpy(CurPlugin.RootKey,Opt.RegRoot);
@@ -998,7 +998,7 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
       __except ( xfilter(EXCEPT_SETSTARTUPINFO,
                          GetExceptionInformation(),&CurPlugin,0) )
       {
-         UnloadPlugin(CurPlugin); // тест не пройден, выгружаем его
+         UnloadPlugin(CurPlugin); // ЄхёЄ эх яЁющфхэ, т√уЁєцрхь хую
       }
   }
 }
@@ -1056,7 +1056,7 @@ int PluginsSet::SavePluginSettings(struct PluginItem &CurPlugin,
   __except ( xfilter(EXCEPT_GETPLUGININFO,
                      GetExceptionInformation(),&CurPlugin,0) )
   {
-     UnloadPlugin(CurPlugin); // тест не пройден, выгружаем его
+     UnloadPlugin(CurPlugin); // ЄхёЄ эх яЁющфхэ, т√уЁєцрхь хую
      return FALSE;
   }
 
@@ -1065,17 +1065,17 @@ int PluginsSet::SavePluginSettings(struct PluginItem &CurPlugin,
 
   CurPlugin.SysID=Info.SysID;
   /* $ 12.10.2000 tran
-     при PF_PRELOAD в кеш будет записано, что плагин не кешируется
-     так будет работать -co */
+     яЁш PF_PRELOAD т ъх° сєфхЄ чряшёрэю, ўЄю яырушэ эх ъх°шЁєхЄё 
+     Єръ сєфхЄ ЁрсюЄрЄ№ -co */
 //  if (Info.Flags & PF_PRELOAD)
 //    return(FALSE);
   /* tran $ */
 
   /* $ 13.07.2000 IS
-    Исправлен глюк, допущенный при неправильном переводе под VC:
-    переменная I изменялась во всех циклах (внимательнее над быть,
-    вашу мать $%#...)
-    (подсказал tran)
+    ╚ёяЁртыхэ уы■ъ, фюяє∙хээ√щ яЁш эхяЁртшы№эюь яхЁхтюфх яюф VC:
+    яхЁхьхээр  I шчьхэ ырё№ тю тёхї Ўшъырї (тэшьрЄхы№эхх эрф с√Є№,
+    тр°є ьрЄ№ $%#...)
+    (яюфёърчры tran)
   */
   int I,I0;
   for (I0=0;;I0++)
@@ -1093,7 +1093,7 @@ int PluginsSet::SavePluginSettings(struct PluginItem &CurPlugin,
               FindData.ftLastWriteTime.dwLowDateTime);
       SetRegKey(RegKey,"ID",CurPluginID);
       /* $ 12.10.2000 tran
-         если плагин PRELOAD, в кеш пишется об этом */
+         хёыш яырушэ PRELOAD, т ъх° яш°хЄё  юс ¤Єюь */
       if (Info.Flags & PF_PRELOAD)
       {
         SetRegKey(RegKey,"Preload",1);
@@ -1157,12 +1157,12 @@ HANDLE PluginsSet::OpenPlugin(int PluginNumber,int OpenFrom,int Item)
     if (PreparePlugin(PluginNumber))
     {
       /* $ 16.10.2000 SVS
-         + Обработка исключений при вызове галимого плагина.
+         + ╬сЁрсюЄър шёъы■ўхэшщ яЁш т√чютх урышьюую яырушэр.
       */
       TRY {
          hInternal=PluginsData[PluginNumber].pOpenPlugin(OpenFrom,Item);
          /* $ 26.02.2201 VVM
-             ! Выгрузить плагин, если вернули NULL */
+             ! ┬√уЁєчшЄ№ яырушэ, хёыш тхЁэєыш NULL */
          if (!hInternal)
            RaiseException(STATUS_INVALIDFUNCTIONRESULT, 0, 0, 0);
          /* VVM $ */
@@ -1206,7 +1206,7 @@ HANDLE PluginsSet::OpenFilePlugin(char *Name,const unsigned char *Data,int DataS
         NamePtr=FullName;
       }
       /* $ 16.10.2000 SVS
-         + Обработка исключений при вызове галимого плагина.
+         + ╬сЁрсюЄър шёъы■ўхэшщ яЁш т√чютх урышьюую яырушэр.
       */
       HANDLE hInternal;
       //EXCEPTION_POINTERS *xp;
@@ -1248,12 +1248,12 @@ HANDLE PluginsSet::OpenFindListPlugin(PluginPanelItem *PanelItem,int ItemsNumber
         PreparePlugin(I))
     {
       /* $ 26.02.2001 VVM
-          + Обработка исключения при OpenPlugin(OPEN_FINDLIST) */
+          + ╬сЁрсюЄър шёъы■ўхэш  яЁш OpenPlugin(OPEN_FINDLIST) */
       HANDLE hInternal;
       TRY {
          hInternal = PluginsData[I].pOpenPlugin(OPEN_FINDLIST,0);
          /* $ 26.02.2201 VVM
-             ! Выгрузить плагин, если вернули NULL */
+             ! ┬√уЁєчшЄ№ яырушэ, хёыш тхЁэєыш NULL */
          if (!hInternal)
            RaiseException(STATUS_INVALIDFUNCTIONRESULT, 0, 0, 0);
          /* VVM $ */
@@ -1314,7 +1314,7 @@ int PluginsSet::ProcessEditorInput(INPUT_RECORD *Rec)
   for (int I=0;I<PluginsCount;I++)
     if (PluginsData[I].pProcessEditorInput && PreparePlugin(I))
       /* $ 13.07.2000 IS
-         Фиксит трап при входе в редактор (подсказал tran)
+         ╘шъёшЄ ЄЁря яЁш тїюфх т ЁхфръЄюЁ (яюфёърчры tran)
       */
       if (PluginsData[I].pProcessEditorInput)
       {
@@ -1356,7 +1356,7 @@ void PluginsSet::ProcessEditorEvent(int Event,void *Param)
 
 
 /* $ 27.09.2000 SVS
-   События во вьювере
+   ╤юс√Єш  тю т№■тхЁх
 */
 void PluginsSet::ProcessViewerEvent(int Event,void *Param)
 {
@@ -1842,14 +1842,14 @@ void PluginsSet::Configure()
   PluginList.AssignHighlights(FALSE);
 
   /* $ 29.12.2000 IS
-     ! При настройке "параметров внешних модулей" закрывать окно с их
-       списком только при нажатии на ESC
+     ! ╧Ёш эрёЄЁющъх "ярЁрьхЄЁют тэх°эшї ьюфєыхщ" чръЁ√трЄ№ юъэю ё шї
+       ёяшёъюь Єюы№ъю яЁш эрцрЄшш эр ESC
   */
   while(1)
   {
       PluginList.ClearDone();
       /* $ 18.12.2000 SVS
-         Shift-F1 в списке плагинов вызывает хелп по данному плагину
+         Shift-F1 т ёяшёъх яырушэют т√ч√трхЄ їхыя яю фрээюьє яырушэє
       */
       PluginList.Show();
       while (!PluginList.Done())
@@ -1950,8 +1950,8 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
       {
         sprintf(RegKey,FmtPluginsCache_PluginD,RegNumber);
         int Flags=GetRegKey(RegKey,"Flags",0);
-        /* todo: тут надо не смотреть на Editor/Viewer
-                 а сделать четкий анализ на ModalType */
+        /* todo: ЄєЄ эрфю эх ёьюЄЁхЄ№ эр Editor/Viewer
+                 р ёфхырЄ№ ўхЄъшщ рэрышч эр ModalType */
         if (Editor && (Flags & PF_EDITOR)==0 ||
             Viewer && (Flags & PF_VIEWER)==0 ||
             !Editor && !Viewer && (Flags & PF_DISABLEPANELS))
@@ -2031,11 +2031,11 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
     switch(PluginList.ReadInput())
     {
       /* $ 18.12.2000 SVS
-         Shift-F1 в списке плагинов вызывает хелп по данному плагину
+         Shift-F1 т ёяшёъх яырушэют т√ч√трхЄ їхыя яю фрээюьє яырушэє
       */
       case KEY_SHIFTF1:
       {
-        // Вызываем нужный топик, который передали в CommandsMenu()
+        // ┬√ч√трхь эєцэ√щ Єюяшъ, ъюЄюЁ√щ яхЁхфрыш т CommandsMenu()
         FarShowHelp(PluginsData[Data[0]].ModuleName,HistoryName,FHELP_SELFHELP|FHELP_NOSHOWERROR|FHELP_USECONTENTS);
         break;
       }
@@ -2241,7 +2241,7 @@ int PluginsSet::ProcessCommandLine(char *Command)
 
   int PluginPos=-1;
   /* $ 07.09.2000 VVM 1.18
-     + Несколько префиксов у плагина, разделенных через ":"
+     + ═хёъюы№ъю яЁхЇшъёют є яырушэр, Ёрчфхыхээ√ї ўхЁхч ":"
   */
   DWORD PluginFlags = 0;
   char PluginPrefix[512]="";
@@ -2257,8 +2257,8 @@ int PluginsSet::ProcessCommandLine(char *Command)
         sprintf(RegKey,FmtPluginsCache_PluginD,RegNumber);
         GetRegKey(RegKey,"CommandPrefix",PluginPrefix,"",sizeof(PluginPrefix));
         /* $ 07.09.2000 SVS
-             По каким-то непонятным причинам из кэше для Flags возвращалось
-             значение равное 0 (хотя вижу что в реестре стоит 0x10) :-(
+             ╧ю ъръшь-Єю эхяюэ Єэ√ь яЁшўшэрь шч ъ¤°х фы  Flags тючтЁр∙рыюё№
+             чэрўхэшх Ёртэюх 0 (їюЄ  тшцє ўЄю т ЁххёЄЁх ёЄюшЄ 0x10) :-(
         */
         PluginFlags=GetRegKey(RegKey,"Flags",0);
         /* SVS $ */
@@ -2272,9 +2272,9 @@ int PluginsSet::ProcessCommandLine(char *Command)
       if (GetPluginInfo(I,&Info))
       {
         /* $ 10.09.2000 IS
-             Вай, вай, как не хорошо... Забыли проверку Info.CommandPrefix на
-             NULL сделать, соответственно фар иногда с конвульсиями помирал,
-             теперь - нет.
+             ┬рщ, трщ, ъръ эх їюЁю°ю... ╟рс√ыш яЁютхЁъє Info.CommandPrefix эр
+             NULL ёфхырЄ№, ёююЄтхЄёЄтхээю ЇрЁ шэюуфр ё ъюэтєы№ёш ьш яюьшЁры,
+             ЄхяхЁ№ - эхЄ.
         */
         strcpy(PluginPrefix,NullToEmpty(Info.CommandPrefix));
         /* IS $ */
@@ -2314,7 +2314,7 @@ int PluginsSet::ProcessCommandLine(char *Command)
 
   char PluginCommand[512];
   /* $ 07.09.2000 VVM 1.18
-    + Если флаг PF_FULLCMDLINE - отдавать с префиксом
+    + ┼ёыш Їыру PF_FULLCMDLINE - юЄфртрЄ№ ё яЁхЇшъёюь
   */
   strcpy(PluginCommand,Command+(PluginFlags & PF_FULLCMDLINE ? 0:PrefixLength+1));
   /* VVM $ */
@@ -2355,8 +2355,8 @@ void CheckScreenLock()
 }
 
 /* $ 27.09.2000 SVS
-  Функция CallPlugin - найти плагин по ID и запустить
-  в зачаточном состоянии!
+  ╘єэъЎш  CallPlugin - эрщЄш яырушэ яю ID ш чряєёЄшЄ№
+  т чрўрЄюўэюь ёюёЄю эшш!
 */
 int PluginsSet::CallPlugin(DWORD SysID,int OpenFrom, void *Data)
 {
@@ -2376,8 +2376,8 @@ int PluginsSet::CallPlugin(DWORD SysID,int OpenFrom, void *Data)
         if (Data && *(char *)Data)
           SetDirectory(hNewPlugin,(char *)Data,0);
         /* $ 04.04.2001 SVS
-           Код закомментирован! Попытка исключить ненужные вызовы в CallPlugin()
-           Если что-то не так - раскомментировать!!!
+           ╩юф чръюььхэЄшЁютрэ! ╧юя√Єър шёъы■ўшЄ№ эхэєцэ√х т√чют√ т CallPlugin()
+           ┼ёыш ўЄю-Єю эх Єръ - ЁрёъюььхэЄшЁютрЄ№!!!
         */
 //        NewPanel->Update(0);
         if (CurFocus || !CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible())
@@ -2393,7 +2393,7 @@ int PluginsSet::CallPlugin(DWORD SysID,int OpenFrom, void *Data)
 
 int PluginsSet::FindPlugin(DWORD SysID)
 {
-  if(SysID != 0 && SysID != 0xFFFFFFFFUl) // не допускается 0 и -1
+  if(SysID != 0 && SysID != 0xFFFFFFFFUl) // эх фюяєёърхЄё  0 ш -1
     for (int I=0;I<PluginsCount;I++)
       if (PluginsData[I].SysID == SysID)
         return I;
@@ -2402,7 +2402,7 @@ int PluginsSet::FindPlugin(DWORD SysID)
 /* SVS $ */
 
 /* $ 12.10.2000 tran
-  новый метод - сбрасывает в файл список плагинов */
+  эют√щ ьхЄюф - ёсЁрё√трхЄ т Їрщы ёяшёюъ яырушэют */
 void PluginsSet::DumpPluginsInfo()
 {
     char file[NM];
@@ -2440,7 +2440,7 @@ void PluginsSet::DumpPluginsInfo()
 }
 
 /* $ 23.10.2000 SVS
-   Функция TestPluginInfo - проверка на вшивость переданных плагином данных
+   ╘єэъЎш  TestPluginInfo - яЁютхЁър эр т°штюёЄ№ яхЁхфрээ√ї яырушэюь фрээ√ї
 */
 BOOL PluginsSet::TestPluginInfo(struct PluginItem& Item,struct PluginInfo *Info)
 {
@@ -2478,7 +2478,7 @@ BOOL PluginsSet::TestPluginInfo(struct PluginItem& Item,struct PluginInfo *Info)
 /* SVS $ */
 
 /* $ 31.10.2000 SVS
-   Функция TestOpenPluginInfo - проверка на вшивость переданных плагином данных
+   ╘єэъЎш  TestOpenPluginInfo - яЁютхЁър эр т°штюёЄ№ яхЁхфрээ√ї яырушэюь фрээ√ї
 */
 BOOL PluginsSet::TestOpenPluginInfo(struct PluginItem& Item,struct OpenPluginInfo *Info)
 {

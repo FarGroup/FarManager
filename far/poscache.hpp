@@ -3,7 +3,7 @@
 /*
 poscache.hpp
 
-Кэш позиций в файлах для viewer/editor
+╩¤° яючшЎшщ т Їрщырї фы  viewer/editor
 
 */
 
@@ -14,10 +14,10 @@ Modify:
   02.04.2001 VVM
     + int FindPosition()
   24.09.2000 SVS
-    + Работа по сохранению/восстановлению позиций в файле по RCtrl+<N>
+    + ╨рсюЄр яю ёюїЁрэхэш■/тюёёЄрэютыхэш■ яючшЎшщ т Їрщых яю RCtrl+<N>
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #define MAX_POSITIONS 64
@@ -53,4 +53,3 @@ class FilePositionCache
 
 
 #endif	// __FILEPOSITIONCACHE_HPP__
-

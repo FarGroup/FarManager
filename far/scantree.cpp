@@ -1,8 +1,8 @@
 /*
 scantree.cpp
 
-‘ª ­¨à®¢ ­¨¥ â¥ªãé¥£® ª â «®£  ¨, ®¯æ¨®­ «ì­®, ¯®¤ª â «®£®¢ ­ 
-¯à¥¤¬¥â ¨¬¥­ ä ©«®¢
+Ñêàíèðîâàíèå òåêóùåãî êàòàëîãà è, îïöèîíàëüíî, ïîäêàòàëîãîâ íà
+ïðåäìåò èìåí ôàéëîâ
 
 */
 
@@ -11,18 +11,18 @@ scantree.cpp
 /*
 Modify:
   28.11.2000 SVS
-    + …á«¨ ª â «®£ ï¢«ï¥âáï SymLink (â.­. "Directory Junctions"),
-      â® ¢ ­¥£® ­¥ «®¬¨¬áï.
+    + Åñëè êàòàëîã ÿâëÿåòñÿ SymLink (ò.í. "Directory Junctions"),
+      òî â íåãî íå ëîìèìñÿ.
   25.06.2000 SVS
-    ! ®¤£®â®¢ª  Master Copy
-    ! ‚ë¤¥«¥­¨¥ ¢ ª ç¥áâ¢¥ á ¬®áâ®ïâ¥«ì­®£® ¬®¤ã«ï
+    ! Ïîäãîòîâêà Master Copy
+    ! Âûäåëåíèå â êà÷åñòâå ñàìîñòîÿòåëüíîãî ìîäóëÿ
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   ‘â ­¤ àâ­ë¥ § £®«®¢ª¨
+   Ñòàíäàðòíûå çàãîëîâêè
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -129,8 +129,8 @@ int ScanTree::GetNextName(WIN32_FIND_DATA *fdata,char *FullName)
   }
   else
     /* $ 28.11.2000 SVS
-       …á«¨ ª â «®£ ï¢«ï¥âáï SymLink (â.­. "Directory Junctions"),
-       â® ¢ ­¥£® ­¥ «®¬¨¬áï.
+       Åñëè êàòàëîã ÿâëÿåòñÿ SymLink (ò.í. "Directory Junctions"),
+       òî â íåãî íå ëîìèìñÿ.
     */
     if ((fdata->dwFileAttributes & FA_DIREC) &&
        !(fdata->dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) &&
@@ -172,5 +172,3 @@ void ScanTree::SkipDir()
     *(ChPtr+1)=0;
   strcat(FindPath,FindMask);
 }
-
-

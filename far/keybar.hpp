@@ -12,26 +12,26 @@ Keybar
 /*
 Modify:
   30.04.2001 DJ
-    ! Все нафиг переделано :-) Убран весь дублирующийся код. Публичный API
-      сохранен.
+    ! ┬ёх эрЇшу яхЁхфхырэю :-) ╙сЁрэ тхё№ фєсышЁє■∙шщё  ъюф. ╧єсышўэ√щ API
+      ёюїЁрэхэ.
   28.04.2001 VVM
-    + ProcessKey() функция.
+    + ProcessKey() ЇєэъЎш .
   04.04.2001 SVS
-    - Избавляемся от "залипания" :-)
-    ! убран "мусор" - ненужные новые переменные CtrlShiftState
+    - ╚чсрты хьё  юЄ "чрышярэш " :-)
+    ! єсЁрэ "ьєёюЁ" - эхэєцэ√х эют√х яхЁхьхээ√х CtrlShiftState
   07.08.2000 SVS
-    + Изменение любого Label - функция Change(Group,...)
+    + ╚чьхэхэшх ы■сюую Label - ЇєэъЎш  Change(Group,...)
   02.08.2000 SVS
-    + Дополнительные индикаторы
+    + ─юяюыэшЄхы№э√х шэфшърЄюЁ√
       CtrlShiftName, AltShiftName, CtrlAltName
-    + К этим индикаторам - функции
+    + ╩ ¤Єшь шэфшърЄюЁрь - ЇєэъЎшш
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 /* $ 07.08.2000 SVS
-   Группы меток
+   ├Ёєяя√ ьхЄюъ
 */
 enum {
   KBL_MAIN=0,
@@ -51,8 +51,8 @@ enum {
 const int KEY_COUNT = 12;
 
 /* $ 30.04.2001 DJ
-   добавлен typedef; структура класса переделана, дабы избавиться от
-   дублирования кода и данных
+   фюсртыхэ typedef; ёЄЁєъЄєЁр ъырёёр яхЁхфхырэр, фрс√ шчсртшЄ№ё  юЄ
+   фєсышЁютрэш  ъюфр ш фрээ√ї
 */
 
 typedef char KeyBarTitle [10];
@@ -86,7 +86,7 @@ class KeyBar: public ScreenObject
     void SetAlt(char **Key,int KeyCount)         { SetGroup (KBL_ALT, Key, KeyCount); }
     void SetCtrl(char **Key,int KeyCount)        { SetGroup (KBL_CTRL, Key, KeyCount); }
     /* $ 02.08.2000 SVS
-       Дополнительные индикаторы
+       ─юяюыэшЄхы№э√х шэфшърЄюЁ√
     */
     void SetCtrlShift(char **Key,int KeyCount)   { SetGroup (KBL_CTRLSHIFT, Key, KeyCount); }
     void SetAltShift(char **Key,int KeyCount)    { SetGroup (KBL_ALTSHIFT, Key, KeyCount); }
@@ -97,13 +97,13 @@ class KeyBar: public ScreenObject
     void Change(char *NewStr,int Pos)            { Change (KBL_MAIN, NewStr, Pos); }
 
     /* $ 07.08.2000 SVS
-       Изменение любого Label
+       ╚чьхэхэшх ы■сюую Label
     */
     void Change(int Group,char *NewStr,int Pos);
     /* SVS $ */
 
     /* $ 30.04.2001 DJ
-       Групповая установка идущих подряд строк LNG для указанной группы
+       ├Ёєяяютр  єёЄрэютър шфє∙шї яюфЁ ф ёЄЁюъ LNG фы  єърчрээющ уЁєяя√
     */
     void SetAllGroup (int Group, int StartIndex, int Count);
     /* DJ $ */

@@ -1,7 +1,7 @@
 /*
 infolist.cpp
 
-Информационная панель
+╚эЇюЁьрЎшюээр  ярэхы№
 
 */
 
@@ -9,53 +9,53 @@ infolist.cpp
 
 /*
 Modify:
-  06.05.2001 ОТ
-    ! Переименование Window в Frame :)
+  06.05.2001 ╬╥
+    ! ╧хЁхшьхэютрэшх Window т Frame :)
   05.05.2001 DJ
-    + перетрях NWZ
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
+    + яхЁхЄЁ ї NWZ
+  29.04.2001 ╬╥
+    + ┬эхфЁхэшх NWZ юЄ ╥ЁхЄ№ ъютр
   30.04.2001 DJ
     + UpdateKeyBar()
-    - еще немного всяких фиксов (F1, редактирование описаний)
-    ! вместо CloseDizFile() используется виртуальный CloseFile()
+    - х∙х эхьэюую тё ъшї Їшъёют (F1, ЁхфръЄшЁютрэшх юяшёрэшщ)
+    ! тьхёЄю CloseDizFile() шёяюы№чєхЄё  тшЁЄєры№э√щ CloseFile()
   28.04.2001 VVM
-    + GetSubstName() принимает тип носителя
+    + GetSubstName() яЁшэшьрхЄ Єшя эюёшЄхы 
   27.04.2001 DJ
-    - всякие фиксы про скроллбар в viewer'е для просмотра описаний
+    - тё ъшх Їшъё√ яЁю ёъЁюыысрЁ т viewer'х фы  яЁюёьюЄЁр юяшёрэшщ
   05.04.2001 VVM
-    + Переключение макросов в режим MACRO_INFOPANEL
+    + ╧хЁхъы■ўхэшх ьръЁюёют т Ёхцшь MACRO_INFOPANEL
   03.04.2001 VVM
-    + Используется Viewer для просмотра описаний.
+    + ╚ёяюы№чєхЄё  Viewer фы  яЁюёьюЄЁр юяшёрэшщ.
   02.04.2001 SVS
     ! DRIVE_SUSTITUTE -> DRIVE_SUBSTITUTE
   29.03.2001 IS
     ! Opt.ViewerAutoDetectTable -> Opt.ViOpt.AutoDetectTable
   27.02.2001 VVM
-    ! Символы, зависимые от кодовой страницы
+    ! ╤шьтюы√, чртшёшь√х юЄ ъюфютющ ёЄЁрэшЎ√
       /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
-      переведены в коды.
+      яхЁхтхфхэ√ т ъюф√.
   01.02.2001 SVS
-    + В Win2K корректно отображать инфу при заходе в Juction каталог
-      Здесь Рут-диск может быть другим
+    + ┬ Win2K ъюЁЁхъЄэю юЄюсЁрцрЄ№ шэЇє яЁш чрїюфх т Juction ърЄрыюу
+      ╟фхё№ ╨єЄ-фшёъ ьюцхЄ с√Є№ фЁєушь
   26.01.2001 SVS
-    + Информация о SUBST-дисках - указание пути - на манер ремотных дисков
+    + ╚эЇюЁьрЎш  ю SUBST-фшёърї - єърчрэшх яєЄш - эр ьрэхЁ ЁхьюЄэ√ї фшёъют
   05.01.2001 SVS
-    + Покажем инфу, что ЭТО - SUBST-диск
+    + ╧юърцхь шэЇє, ўЄю ▌╥╬ - SUBST-фшёъ
   20.07.2000 tran
-    - артефакт при f3 (при наличии dirinfo)
+    - рЁЄхЇръЄ яЁш f3 (яЁш эрышўшш dirinfo)
   11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
+    ! ╚чьхэхэш  фы  тючьюцэюёЄш ъюьяшы Ўшш яюф BC & VC
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -63,7 +63,7 @@ Modify:
 static int LastDizWrapMode = -1;
 static int LastDizWrapType = -1;
 /* $ 27.04.2001 DJ
-   запоминаем, был ли включен скроллбар
+   чряюьшэрхь, с√ы ыш тъы■ўхэ ёъЁюыысрЁ
 */
 static int LastDizShowScrollbar = -1;
 /* DJ $ */
@@ -79,7 +79,7 @@ InfoList::InfoList()
     LastDizWrapMode = Opt.ViewerIsWrap;
     LastDizWrapType = Opt.ViewerWrap;
     /* $ 27.04.2001 DJ
-       запоминаем, был ли включен скроллбар
+       чряюьшэрхь, с√ы ыш тъы■ўхэ ёъЁюыысрЁ
     */
     LastDizShowScrollbar = Opt.ViOpt.ShowScrollbar;
     /* DJ $ */
@@ -144,8 +144,8 @@ void InfoList::DisplayObject()
     GetCurrentDirectory(sizeof(CurDir),CurDir);
 
   /* $ 01.02.2001 SVS
-     В Win2K корректно отображать инфу при заходе в Juction каталог
-     Здесь Рут-диск может быть другим
+     ┬ Win2K ъюЁЁхъЄэю юЄюсЁрцрЄ№ шэЇє яЁш чрїюфх т Juction ърЄрыюу
+     ╟фхё№ ╨єЄ-фшёъ ьюцхЄ с√Є№ фЁєушь
   */
   if((GetFileAttributes(CurDir)&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
   {
@@ -193,7 +193,7 @@ void InfoList::DisplayObject()
         break;
     }
     /* 05.01.2001 SVS
-       + Информация про Subst-тип диска
+       + ╚эЇюЁьрЎш  яЁю Subst-Єшя фшёър
     */
     {
       if(GetSubstName(DriveType,LocalName,RemoteName,sizeof(RemoteName)))
@@ -299,7 +299,7 @@ int InfoList::ProcessKey(int Key)
   switch(Key)
   {
     /* $ 30.04.2001 DJ
-       показываем правильную тему хелпа
+       яюърч√трхь яЁртшы№эє■ Єхьє їхыяр
     */
     case KEY_F1:
       {
@@ -317,15 +317,15 @@ int InfoList::ProcessKey(int Key)
         CtrlObject->ModalManager.AddFrame(ShellViewer);
       }
       /* $ 20.07.2000 tran
-         после показа перерисовываем панели */
+         яюёых яюърчр яхЁхЁшёют√трхь ярэхыш */
       CtrlObject->Cp()->Redraw();
       /* tran 20.07.2000 $ */
       return(TRUE);
     case KEY_F4:
       /* $ 30.04.2001 DJ
-         не показываем редактор, если ничего не задано в именах файлов;
-         не редактируем имена описаний со звездочками;
-         убираем лишнюю перерисовку панелей
+         эх яюърч√трхь ЁхфръЄюЁ, хёыш эшўхую эх чрфрэю т шьхэрї Їрщыют;
+         эх ЁхфръЄшЁєхь шьхэр юяшёрэшщ ёю чтхчфюўърьш;
+         єсшЁрхь ыш°э■■ яхЁхЁшёютъє ярэхыхщ
       */
       {
         Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
@@ -356,7 +356,7 @@ int InfoList::ProcessKey(int Key)
       }
       /* DJ $ */
       /* $ 20.07.2000 tran
-         после показа перерисовываем панели */
+         яюёых яюърчр яхЁхЁшёют√трхь ярэхыш */
       CtrlObject->Cp()->Redraw();
       /* tran 20.07.2000 $ */
       return(TRUE);
@@ -365,7 +365,7 @@ int InfoList::ProcessKey(int Key)
       return(TRUE);
   }
   /* $ 30.04.2001 DJ
-     обновляем кейбар после нажатия F8, F2 или Shift-F2
+     юсэюты хь ъхщсрЁ яюёых эрцрЄш  F8, F2 шыш Shift-F2
   */
   if (DizView!=NULL && Key>=256)
   {
@@ -391,7 +391,7 @@ int InfoList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   if (MouseEvent->dwMousePosition.Y>=14)
   {
     /* $ 27.04.2001 DJ
-       позволяем использовать скроллбар, если он включен
+       яючтюы хь шёяюы№чютрЄ№ ёъЁюыысрЁ, хёыш юэ тъы■ўхэ
     */
     if ((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) &&
         MouseEvent->dwMousePosition.X > 2 &&
@@ -559,7 +559,7 @@ void InfoList::CloseFile()
     LastDizWrapMode=DizView->GetWrapMode();
     LastDizWrapType=DizView->GetWrapType();
     /* $ 27.04.2001 DJ
-       запоминаем, был ли включен скроллбар
+       чряюьшэрхь, с√ы ыш тъы■ўхэ ёъЁюыысрЁ
     */
     LastDizShowScrollbar=DizView->GetShowScrollbar();
     /* DJ $ */
@@ -586,7 +586,7 @@ int InfoList::OpenDizFile(char *DizFile)
     DizView->SetWrapMode(LastDizWrapMode);
     DizView->SetWrapType(LastDizWrapType);
     /* $ 27.04.2001 DJ
-       если скроллбар был включен, включаем
+       хёыш ёъЁюыысрЁ с√ы тъы■ўхэ, тъы■ўрхь
     */
     DizView->SetShowScrollbar (LastDizShowScrollbar);
     /* DJ $ */
@@ -626,7 +626,7 @@ void InfoList::SetMacroMode(int Restore)
 }
 
 /* $ 30.04.2001 DJ
-   свой кейбар
+   ётющ ъхщсрЁ
 */
 
 BOOL InfoList::UpdateKeyBar()

@@ -16,52 +16,52 @@ Modify:
   27.04.2001 DJ
     * DrawScrollbar(), AdjustWidth(), AdjustFilePos()
   29.03.2001 IS
-    + структура ViOpt и Get/Set для ее обслуживания
+    + ёЄЁєъЄєЁр ViOpt ш Get/Set фы  хх юсёыєцштрэш 
   20.02.2001 VVM
     + GetWrapType()/SetWrapType()
   06.02.2001 IS
     + SelectPosOffSet;
   19.01.2001 SVS
-    ! GoTo - с параметрами & public member
+    ! GoTo - ё ярЁрьхЄЁрьш & public member
     + SelectText()
   27.09.2000 SVS
-    + ViewerControl - "Ядро" будущего Viewer API :-)
+    + ViewerControl - "▀фЁю" сєфє∙хую Viewer API :-)
     + FileViewer *HostFileViewer;
-    ! Переменные UseDecodeTable,TableNum,AnsiText,Unicode,Wrap, TypeWrap, Hex
-      введены в одну структуру ViewerMode.
+    ! ╧хЁхьхээ√х UseDecodeTable,TableNum,AnsiText,Unicode,Wrap, TypeWrap, Hex
+      ттхфхэ√ т юфэє ёЄЁєъЄєЁє ViewerMode.
   14.06.2000 SVS
-    + Переменная FirstWord - первое слово из файла
-      (для автоопределения Unicode)
+    + ╧хЁхьхээр  FirstWord - яхЁтюх ёыютю шч Їрщыр
+      (фы  ртЄююяЁхфхыхэш  Unicode)
   12.09.2000 SVS
-    + Введена переменная TypeWrap. Теперь
-      Wrap - Состояние (Wrap/UnWrap) и
-      TypeWrap - тип (Wrap/WWrap)
+    + ┬тхфхэр яхЁхьхээр  TypeWrap. ╥хяхЁ№
+      Wrap - ╤юёЄю эшх (Wrap/UnWrap) ш
+      TypeWrap - Єшя (Wrap/WWrap)
   30.07.2000 KM 1.07
     + LastSearchWholeWords
   19.07.2000 tran 1/06
     + Viewer::Width, ::XX2
   18.07.2000 tran 1.05
-    * изменил тип параметра у SetFilePos()
-      на unsigned
+    * шчьхэшы Єшя ярЁрьхЄЁр є SetFilePos()
+      эр unsigned
   12.07.2000 tran
     ! OutStr are dynamic, new, delete,
       and sizeof(OutStr[i]) changed to MAX_VIEWLINEB
   12.07.2000 SVS
-    - из-за увеличения длины строки до 0x800 вылетал FAR
-      по Alt-F7. Сократим MAX_VIEWLINE до 1024 (0x400)
+    - шч-чр єтхышўхэш  фышэ√ ёЄЁюъш фю 0x800 т√ыхЄры FAR
+      яю Alt-F7. ╤юъЁрЄшь MAX_VIEWLINE фю 1024 (0x400)
   10.07.2000 tran
-    + увеличение длины строки - с 512 на MAX_VIEWLINE
+    + єтхышўхэшх фышэ√ ёЄЁюъш - ё 512 эр MAX_VIEWLINE
       MAX_VIEWLINEB = MAX_VIEWLINE + 16
   04.07.2000 tran
     + 'warning' parameter in OpenFile() method
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 /* $ 12.07.2000 SVS
-  - из-за увеличения длины строки до 0x800 вылетал FAR
-    по Alt-F7. Сократим MAX_VIEWLINE до 1024 (0x400)
+  - шч-чр єтхышўхэш  фышэ√ ёЄЁюъш фю 0x800 т√ыхЄры FAR
+    яю Alt-F7. ╤юъЁрЄшь MAX_VIEWLINE фю 1024 (0x400)
 */
 #define MAX_VIEWLINE  0x800 // 0x400
 #define MAX_VIEWLINEB 0x80f // 0x40f
@@ -72,13 +72,13 @@ class Viewer:public ScreenObject
 {
   private:
     /* $ 29.03.2001 IS
-         Часть локальных настроек переехала в ViewerOptions
+         ╫рёЄ№ ыюъры№э√ї эрёЄЁюхъ яхЁххїрыр т ViewerOptions
     */
     struct ViewerOptions ViOpt;
     /* IS $ */
     /* $ 14.06.2000 SVS
-      + Переменная FirstWord - первое слово из файла
-      (для автоопределения Unicode)
+      + ╧хЁхьхээр  FirstWord - яхЁтюх ёыютю шч Їрщыр
+      (фы  ртЄююяЁхфхыхэш  Unicode)
     */
     WORD FirstWord;
     /* SVS $ */
@@ -97,14 +97,14 @@ class Viewer:public ScreenObject
 
     unsigned char LastSearchStr[256];
     /* $ 30.07.2000 KM
-       Новая переменная для поиска
+       ═ютр  яхЁхьхээр  фы  яюшёър
     */
     int LastSearchCase,LastSearchWholeWords,LastSearchReverse,LastSearchHex;
     /* KM $ */
 
     struct CharTableSet TableSet;
     /* $ 27.09.2000 SVS
-       Переменные "mode" вогнаны под одну крышу
+       ╧хЁхьхээ√х "mode" тюуэрэ√ яюф юфэє ъЁ√°є
     */
     struct ViewerMode VM;
     /* SVS $ */
@@ -119,7 +119,7 @@ class Viewer:public ScreenObject
     int CRSym;
     int SelectPos,SelectSize;
     /* $ 06.02.2001 IS
-       Используется для коррекции позиции выделения в юникодных файлах
+       ╚ёяюы№чєхЄё  фы  ъюЁЁхъЎшш яючшЎшш т√фхыхэш  т ■эшъюфэ√ї Їрщырї
     */
     int SelectPosOffSet;
     /* IS $ */
@@ -139,7 +139,7 @@ class Viewer:public ScreenObject
     int UndoLeft[128];
     int LastKeyUndo;
     /* $ 19.07.2000 tran
-       новая переменная, используется при расчете ширины при скролбаре */
+       эютр  яхЁхьхээр , шёяюы№чєхЄё  яЁш ЁрёўхЄх °шЁшэ√ яЁш ёъЁюысрЁх */
     int Width,XX2;
     /* tran 19.07.2000 $ */
     /* $ 27.09.2000 SVS
@@ -156,9 +156,9 @@ class Viewer:public ScreenObject
     void ShowUp();
     void ShowStatus();
     /* $ 27.04.2001 DJ
-       функции для рисования скроллбара, для корректировки ширины в
-       зависимости от наличия скроллбара и для корректировки позиции файла
-       на границу строки
+       ЇєэъЎшш фы  Ёшёютрэш  ёъЁюыысрЁр, фы  ъюЁЁхъЄшЁютъш °шЁшэ√ т
+       чртшёшьюёЄш юЄ эрышўш  ёъЁюыысрЁр ш фы  ъюЁЁхъЄшЁютъш яючшЎшш Їрщыр
+       эр уЁрэшЎє ёЄЁюъш
     */
     void DrawScrollbar();
     void AdjustWidth();
@@ -207,17 +207,17 @@ class Viewer:public ScreenObject
     void SetPluginData(char *PluginData);
     void SetNamesList(NamesList *List);
     /* $ 27.09.2000 SVS
-       "Ядро" будущего Viewer API :-)
+       "▀фЁю" сєфє∙хую Viewer API :-)
     */
     int  ViewerControl(int Command,void *Param);
     void SetHostFileViewer(FileViewer *Viewer) {HostFileViewer=Viewer;};
     /* SVS $ */
 
     void GoTo(int ShowDlg=TRUE,__int64 NewPos=0,DWORD Flags=0);
-    // Функция выделения - как самостоятельная функция
+    // ╘єэъЎш  т√фхыхэш  - ъръ ёрьюёЄю Єхы№эр  ЇєэъЎш 
     void SelectText(long MatchPos,int SearchLength, DWORD Flags=0x1);
     /* $ 29.03.2001 IS
-         Манипуляции с ViewerOptions
+         ╠рэшяєы Ўшш ё ViewerOptions
     */
     int GetTabSize() const { return ViOpt.TabSize; }
     void SetTabSize(int newValue) { ViOpt.TabSize=newValue; }

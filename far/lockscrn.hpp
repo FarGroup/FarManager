@@ -12,8 +12,8 @@ class LockScreen
 /*
 Modify:
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 class LockScreen
@@ -26,4 +26,3 @@ class LockScreen
 
 
 #endif	// __LOCKSCREEN_HPP__
-

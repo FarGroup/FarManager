@@ -1,7 +1,7 @@
 /*
 checkver.cpp
 
-Проверка регистрации
+╧ЁютхЁър ЁхушёЄЁрЎшш
 
 */
 
@@ -10,27 +10,27 @@ checkver.cpp
 /*
 Modify:
   09.04.2001 SVS
-    - проблемы с отладкой под VC - трапается на GetxUSSRRegName()
+    - яЁюсыхь√ ё юЄырфъющ яюф VC - ЄЁрярхЄё  эр GetxUSSRRegName()
   03.04.2001 SVS
-    - проблемы с компиляцией под VC
+    - яЁюсыхь√ ё ъюьяшы Ўшхщ яюф VC
   30.03.2001 SVS
-    ! ...а все началось с того, что нужно было убрать кирилицу из строк в
-      исходниках... и получился вот такой исзврат с "xUSSR регистрация" и
-      именами дней недели :-)
+    ! ...р тёх эрўрыюё№ ё Єюую, ўЄю эєцэю с√ыю єсЁрЄ№ ъшЁшышЎє шч ёЄЁюъ т
+      шёїюфэшърї... ш яюыєўшыё  тюЄ Єръющ шёчтЁрЄ ё "xUSSR ЁхушёЄЁрЎш " ш
+      шьхэрьш фэхщ эхфхыш :-)
   21.02.2001 IS
     ! Opt.TabSize -> Opt.EdOpt.TabSize
   11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
+    ! ╚чьхэхэш  фы  тючьюцэюёЄш ъюьяшы Ўшш яюф BC & VC
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -43,13 +43,13 @@ unsigned char MyName[]={
 static const char *GetDaysName(int wDayOfWeek)
 {
   static unsigned char *Days[7]={
-    {(BYTE*)"\x0C\xF7\xF8\xB6\xF2\xB9\xFF\xBA\xF9\xF0\xB2\xFA"}, // "воскресенье",
-    {(BYTE*)"\x0c\xFA\xF8\xFA\xFD\xFD\xFF\xF0\xB0\xF0\xF6\xF5"}, // "понедельник",
-    {(BYTE*)"\x08\xF7\xB4\xF9\xB8\xF4\xF2\xF1"},                 // "вторник",
-    {(BYTE*)"\x06\xB4\xB6\xF2\xFC\xF9"},                         // "среда",
-    {(BYTE*)"\x08\xB2\xF3\xB5\xFA\xFC\xBA\xF8"},                 // "четверг",
-    {(BYTE*)"\x08\xFA\xB9\xB5\xF5\xF1\xBC\xFB"},                 // "пятница",
-    {(BYTE*)"\x08\xB4\xB5\xF6\xF9\xF7\xB8\xFB"},                 // "суббота"
+    {(BYTE*)"\x0C\xF7\xF8\xB6\xF2\xB9\xFF\xBA\xF9\xF0\xB2\xFA"}, // "тюёъЁхёхэ№х",
+    {(BYTE*)"\x0c\xFA\xF8\xFA\xFD\xFD\xFF\xF0\xB0\xF0\xF6\xF5"}, // "яюэхфхы№эшъ",
+    {(BYTE*)"\x08\xF7\xB4\xF9\xB8\xF4\xF2\xF1"},                 // "тЄюЁэшъ",
+    {(BYTE*)"\x06\xB4\xB6\xF2\xFC\xF9"},                         // "ёЁхфр",
+    {(BYTE*)"\x08\xB2\xF3\xB5\xFA\xFC\xBA\xF8"},                 // "ўхЄтхЁу",
+    {(BYTE*)"\x08\xFA\xB9\xB5\xF5\xF1\xBC\xFB"},                 // "я ЄэшЎр",
+    {(BYTE*)"\x08\xB4\xB5\xF6\xF9\xF7\xB8\xFB"},                 // "ёєссюЄр"
   };
   if(Days[0][0])
   {
@@ -67,7 +67,7 @@ static const char *GetDaysName(int wDayOfWeek)
 
 static const char *GetxUSSRRegName()
 {
-  // "xUSSR регистрация"
+  // "xUSSR ЁхушёЄЁрЎш "
   static unsigned char *xUSSRRegName=(BYTE*)"\x12\x2D\x03\x04\x0B\x0B\x7A\xBB\xF9\xFE\xF6\xBE\x82\x81\xC2\x85\xCC\x8A";
   static unsigned char xUSSRRegNameDec [64];
   static int xUSSRDecrypted = 0;

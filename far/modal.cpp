@@ -1,7 +1,7 @@
 /*
 modal.cpp
 
-Parent class для модальных объектов
+Parent class фы  ьюфры№э√ї юс·хъЄют
 
 */
 
@@ -10,24 +10,24 @@ Parent class для модальных объектов
 /*
 Modify:
   05.05.2001 DJ
-    + перетрях NWZ
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
+    + яхЁхЄЁ ї NWZ
+  29.04.2001 ╬╥
+    + ┬эхфЁхэшх NWZ юЄ ╥ЁхЄ№ ъютр
   11.07.2000 tran
     - trap if no lang files found
   29.06.2000 tran
     - (NT Console resize bug)
       adding virtual method SetScreenPosition
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */

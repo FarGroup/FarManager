@@ -1,7 +1,7 @@
 /*
 config.cpp
 
-Конфигурация
+╩юэЇшуєЁрЎш 
 
 */
 
@@ -9,66 +9,66 @@ config.cpp
 
 /*
 Modify:
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
+  29.04.2001 ╬╥
+    + ┬эхфЁхэшх NWZ юЄ ╥ЁхЄ№ ъютр
   30.04.2001 DJ
-    * не было history в SetFolderInfoFiles; не обновлялись инфо-панели
-      после его изменения
+    * эх с√ыю history т SetFolderInfoFiles; эх юсэюты ышё№ шэЇю-ярэхыш
+      яюёых хую шчьхэхэш 
   28.04.2001 VVM
-    + Opt.SubstNameRule битовая маска:
-      0 - если установлен, то опрашивать сменные диски при GetSubstName()
-      1 - если установлен, то опрашивать все остальные при GetSubstName()
+    + Opt.SubstNameRule сшЄютр  ьрёър:
+      0 - хёыш єёЄрэютыхэ, Єю юяЁр°штрЄ№ ёьхээ√х фшёъш яЁш GetSubstName()
+      1 - хёыш єёЄрэютыхэ, Єю юяЁр°штрЄ№ тёх юёЄры№э√х яЁш GetSubstName()
   16.04.2001 VVM
-    + Opt.MsWheelDeltaView - задает смещение для прокрутки вьюера.
-    + Opt.MsWheelDeltaEdit - задает смещение для прокрутки редактора.
+    + Opt.MsWheelDeltaView - чрфрхЄ ёьх∙хэшх фы  яЁюъЁєЄъш т№■хЁр.
+    + Opt.MsWheelDeltaEdit - чрфрхЄ ёьх∙хэшх фы  яЁюъЁєЄъш ЁхфръЄюЁр.
     ! Opt.MouseWheelDelta -> Opt.MsWheelDelta
   22.04.2001 SVS
-    + Opt.QuotedSymbols - разделители для QuoteSpace()
-    ! ConsoleDetachKey - по умолчанию назначается "CtrlAltTab"
+    + Opt.QuotedSymbols - ЁрчфхышЄхыш фы  QuoteSpace()
+    ! ConsoleDetachKey - яю єьюыўрэш■ эрчэрўрхЄё  "CtrlAltTab"
   16.04.2001 VVM
-    + Opt.MouseWheelDelta - задает смещение для прокрутки. Сколько раз посылать UP/DOWN
+    + Opt.MouseWheelDelta - чрфрхЄ ёьх∙хэшх фы  яЁюъЁєЄъш. ╤ъюы№ъю Ёрч яюё√ырЄ№ UP/DOWN
   02.04.2001 VVM
-    + Opt.FlagPosixSemantics будет влиять на:
-        добавление файлов в историю с разным регистром
-        добавление LastPositions в редакторе и вьюере
+    + Opt.FlagPosixSemantics сєфхЄ тыш Є№ эр:
+        фюсртыхэшх Їрщыют т шёЄюЁш■ ё Ёрчэ√ь ЁхушёЄЁюь
+        фюсртыхэшх LastPositions т ЁхфръЄюЁх ш т№■хЁх
   30.03.2001 SVS
     + Opt.Policies.*
-    ! ViewerConfig, EditorConfig - ограничение на размер поля ввода
+    ! ViewerConfig, EditorConfig - юуЁрэшўхэшх эр ЁрчьхЁ яюы  ттюфр
   29.03.2001 IS
-    + По аналогии с редактором часть настроек переехала в ViewerOptions,
-      соответственно произведены замены по всему файлу типа
-      Opt.ViewerTabSize -> Opt.ViOpt.TabSize и т.п.
+    + ╧ю рэрыюушш ё ЁхфръЄюЁюь ўрёЄ№ эрёЄЁюхъ яхЁххїрыр т ViewerOptions,
+      ёююЄтхЄёЄтхээю яЁюшчтхфхэ√ чрьхэ√ яю тёхьє Їрщыє Єшяр
+      Opt.ViewerTabSize -> Opt.ViOpt.TabSize ш Є.я.
   28.03.2001 VVM
-    + Opt.RememberLogicalDrives = запоминать логические диски и не опрашивать
-      каждый раз. Для предотвращения "просыпания" "зеленых" винтов.
+    + Opt.RememberLogicalDrives = чряюьшэрЄ№ ыюушўхёъшх фшёъш ш эх юяЁр°штрЄ№
+      ърцф√щ Ёрч. ─ы  яЁхфюЄтЁр∙хэш  "яЁюё√ярэш " "чхыхэ√ї" тшэЄют.
   26.03.2001 SVS
-    + SystemSettings() - путь к персональным плагинам - DIF_VAREDIT
-    ! Выставляем ограничение в SetDizConfig() в sizeof(DizOptions.ListNames)
-      для поля ввода.
+    + SystemSettings() - яєЄ№ ъ яхЁёюэры№э√ь яырушэрь - DIF_VAREDIT
+    ! ┬√ёЄрты хь юуЁрэшўхэшх т SetDizConfig() т sizeof(DizOptions.ListNames)
+      фы  яюы  ттюфр.
   20.03.2001 SVS
-    + В стандартные раздилители WordDiv0 добавлена тильда '~'
+    + ┬ ёЄрэфрЁЄэ√х ЁрчфшышЄхыш WordDiv0 фюсртыхэр Єшы№фр '~'
   20.03.2001 SVS
-    ! основательная переделка SaveConfig и ReadConfig: введена структура
-      FARConfig в которой описывается ВСЕ, что проходит по линии реестра
-      (в основном все)
+    ! юёэютрЄхы№эр  яхЁхфхыър SaveConfig ш ReadConfig: ттхфхэр ёЄЁєъЄєЁр
+      FARConfig т ъюЄюЁющ юяшё√трхЄё  ┬╤┼, ўЄю яЁюїюфшЄ яю ышэшш ЁххёЄЁр
+      (т юёэютэюь тёх)
   16.03.2001 SVS
-    ! В конфирм-диалоге операция Exit должна по смыслу стоять последней
+    ! ┬ ъюэЇшЁь-фшрыюух юяхЁрЎш  Exit фюыцэр яю ёь√ёыє ёЄю Є№ яюёыхфэхщ
     + Opt.ChangeDriveDisconnetMode
   15.03.2001 SVS
-    + Opt.Confirm.RemoveConnection - подтверждение для удаления мапленных дисков
+    + Opt.Confirm.RemoveConnection - яюфЄтхЁцфхэшх фы  єфрыхэш  ьряыхээ√ї фшёъют
   12.03.2001 SVS
     + Opt.DeleteSymbolWipe -> Opt.WipeSymbol
   12.03.2001 SVS
-    + Opt.DeleteSymbolWipe символ заполнитель для "ZAP-операции"
+    + Opt.DeleteSymbolWipe ёшьтюы чряюыэшЄхы№ фы  "ZAP-юяхЁрЎшш"
   27.02.2001 SVS
-    + Opt.EdOpt.CharCodeBase - В каком виде представлять в редакторе
-      в статусной строке код текущего символа
+    + Opt.EdOpt.CharCodeBase - ┬ ъръюь тшфх яЁхфёЄрты Є№ т ЁхфръЄюЁх
+      т ёЄрЄєёэющ ёЄЁюъх ъюф Єхъє∙хую ёшьтюыр
   26.02.2001 IS
-    - Недочет в EditorConfig
+    - ═хфюўхЄ т EditorConfig
   26.02.2001 VVM
     + Opt.ExceptCallDebugger
   21.02.2001 IS
-    + Работа в EditorConfig идет со структурой EditorOptions
+    + ╨рсюЄр т EditorConfig шфхЄ ёю ёЄЁєъЄєЁющ EditorOptions
     ! Opt.EditorBSLikeDel -> Opt.EdOpt.BSLikeDel
       Opt.TabSize -> Opt.EdOpt.TabSize
       Opt.EditorExpandTabs -> Opt.EdOpt.ExpandTabs
@@ -78,169 +78,169 @@ Modify:
       Opt.EditorPersistentBlocks -> Opt.EdOpt.PersistentBlocks
       Opt.EditorDelRemovesBlocks -> Opt.EdOpt.DelRemovesBlocks
   20.02.2001 VVM
-    ! Сохранение параметра "Тип врапа"
+    ! ╤юїЁрэхэшх ярЁрьхЄЁр "╥шя тЁряр"
   12.02.2001 SKV
     + ConsoleDetachKey
   09.02.2001 IS
-    + сохраним/считаем состояние опции "помеченное вперед"
-    + Опция подтверждения нажатия Esc. По умолчанию отключена.
+    + ёюїЁрэшь/ёўшЄрхь ёюёЄю эшх юяЎшш "яюьхўхээюх тяхЁхф"
+    + ╬яЎш  яюфЄтхЁцфхэш  эрцрЄш  Esc. ╧ю єьюыўрэш■ юЄъы■ўхэр.
   30.01.2001 VVM
-    + Показывает время копирования,оставшееся время и среднюю скорость.
-      Зависит от настроек в реестре CopyTimeRule
+    + ╧юърч√трхЄ тЁхь  ъюяшЁютрэш ,юёЄрт°ххё  тЁхь  ш ёЁхфэ■■ ёъюЁюёЄ№.
+      ╟ртшёшЄ юЄ эрёЄЁюхъ т ЁххёЄЁх CopyTimeRule
   22.01.2001 SVS
-    + Opt.CursorSize - Размер курсора ФАРа :-)
+    + Opt.CursorSize - ╨рчьхЁ ъєЁёюЁр ╘└╨р :-)
   19.01.2001 SVS
-    + Opt.MacroReuseRules - Правило на счет повторно использования забинденных
-      клавиш
+    + Opt.MacroReuseRules - ╧Ёртшыю эр ёўхЄ яютЄюЁэю шёяюы№чютрэш  чрсшэфхээ√ї
+      ъыртш°
   17.01.2001 SVS
     ! Opt.ShiftsKeyRules
   07.01.2001 SVS
-    ! Opt.EditorReadOnlyLock = 2, т.е. выдавать предупреждение.
+    ! Opt.EditorReadOnlyLock = 2, Є.х. т√фртрЄ№ яЁхфєяЁхцфхэшх.
   16.12.2000 IS
-    - баг: забыли считать опцию DLG_VIEW_AUTODETECT из диалога
+    - сру: чрс√ыш ёўшЄрЄ№ юяЎш■ DLG_VIEW_AUTODETECT шч фшрыюур
   13.12.2000 SVS
-    ! Уточняем алгоритм "взятия" палитры.
+    ! ╙Єюўэ хь рыуюЁшЄь "тч Єш " ярышЄЁ√.
   10.12.2000 IS
-    ! Убрал из WordDivForXlat кавычки и квадратные скобки
+    ! ╙сЁры шч WordDivForXlat ърт√ўъш ш ътрфЁрЄэ√х ёъюсъш
   29.11.2000 SVS
-    + Opt.EditorReadOnlyLock - лочить файл при открытии в редакторе, если
-      он имеет атрибуты R|S|H
-    + Opt.EditorFileSizeLimit - минимально допустимый размер файла, после
-      которого будет выдан диалог о целесообразности открытия подобного
-      файла на редактирование
+    + Opt.EditorReadOnlyLock - ыюўшЄ№ Їрщы яЁш юЄъЁ√Єшш т ЁхфръЄюЁх, хёыш
+      юэ шьххЄ рЄЁшсєЄ√ R|S|H
+    + Opt.EditorFileSizeLimit - ьшэшьры№эю фюяєёЄшь√щ ЁрчьхЁ Їрщыр, яюёых
+      ъюЄюЁюую сєфхЄ т√фрэ фшрыюу ю ЎхыхёююсЁрчэюёЄш юЄъЁ√Єш  яюфюсэюую
+      Їрщыр эр ЁхфръЄшЁютрэшх
   28.11.2000 SVS
-    + Opt.EditorF7Rules - Правило на счет поиска в редакторе
+    + Opt.EditorF7Rules - ╧Ёртшыю эр ёўхЄ яюшёър т ЁхфръЄюЁх
   27.11.2000 SVS
-    + Opt.ExceptRules - Правило на счет вызова исключений
+    + Opt.ExceptRules - ╧Ёртшыю эр ёўхЄ т√чютр шёъы■ўхэшщ
   25.11.2000 IS
-    + Стандартный набор разделителей для функции Xlat (WordDivForXlat)
+    + ╤ЄрэфрЁЄэ√щ эрсюЁ ЁрчфхышЄхыхщ фы  ЇєэъЎшш Xlat (WordDivForXlat)
   24.11.2000 SVS
-    - Проблема с Alt* при XLat
-    + SetAttrFolderRules задает поведение Ctrl-A на каталоге:
-      1 - отображать со снятой опцией "для подкаталогов" (по умолчанию)
-      0 - как и ранее
+    - ╧Ёюсыхьр ё Alt* яЁш XLat
+    + SetAttrFolderRules чрфрхЄ яютхфхэшх Ctrl-A эр ърЄрыюух:
+      1 - юЄюсЁрцрЄ№ ёю ёэ Єющ юяЎшхщ "фы  яюфърЄрыюуют" (яю єьюыўрэш■)
+      0 - ъръ ш Ёрэхх
   16.11.2000 SVS
-    ! Клавиши, вызывающие Xlat - теперь хранятся в реестре в текстовом виде
+    ! ╩ыртш°ш, т√ч√тр■∙шх Xlat - ЄхяхЁ№ їЁрэ Єё  т ЁххёЄЁх т ЄхъёЄютюь тшфх
   05.11.2000 SVS
-    - В настройках вьювера вместо Opt.SaveViewerShortPos стоялО
+    - ┬ эрёЄЁющърї т№■тхЁр тьхёЄю Opt.SaveViewerShortPos ёЄю ы╬
       Opt.SaveEditorShortPos :-(((
   04.11.2000 SVS
-    + XLat - добавление альтернативных клавиш:
+    + XLat - фюсртыхэшх ры№ЄхЁэрЄштэ√ї ъыртш°:
         XLatAltEditorKey, XLatAltCmdLineKey, XLatAltDialogKey;
   20.10.2000 SVS
     + Opt.PanelCtrlFRule
-      Panel/CtrlFRule в реестре - задает поведение Ctrl-F
-      Если = 0, то штампуется файл как есть, иначе - с учетом
-      отображения на панели
+      Panel/CtrlFRule т ЁххёЄЁх - чрфрхЄ яютхфхэшх Ctrl-F
+      ┼ёыш = 0, Єю °ЄрьяєхЄё  Їрщы ъръ хёЄ№, шэрўх - ё єўхЄюь
+      юЄюсЁрцхэш  эр ярэхыш
   17.10.2000 SVS
-    ! WordDiv имеет размер 256;
+    ! WordDiv шьххЄ ЁрчьхЁ 256;
   16.10.2000 SVS
-    ! System\CopyOpened по умолчанию установлен в 1 (разрешен)
+    ! System\CopyOpened яю єьюыўрэш■ єёЄрэютыхэ т 1 (ЁрчЁх°хэ)
   11.10.2000 SVS
-    + Opt.EditorBSLikeDel - если = 0, то BS действует как в FAR 1.65
+    + Opt.EditorBSLikeDel - хёыш = 0, Єю BS фхщёЄтєхЄ ъръ т FAR 1.65
   05.10.2000 SVS
-    ! Все новые фишки (из TechInfo) только читаем...
+    ! ┬ёх эют√х Їш°ъш (шч TechInfo) Єюы№ъю ўшЄрхь...
   27.09.2000 SVS
     + HelpURLRules
-    - XLat-таблицы только читаем.
-    ! Ctrl-Alt-Shift - реагируем, если надо.
+    - XLat-ЄрсышЎ√ Єюы№ъю ўшЄрхь.
+    ! Ctrl-Alt-Shift - ЁхрушЁєхь, хёыш эрфю.
   24.09.2000 SVS
     + Opt.MaxPositionCache
     + Opt.SaveViewerShortPos & Opt.SaveEditorShortPos
-    + Opt.CmdHistoryRule задает поведение Esc для командной строки:
-       =1 - Не изменять положение в History, если после Ctrl-E/Ctrl-X
-            нажали ESC (поведение - аля VC).
-       =0 - поведение как и было - изменять положение в History
-    ! "Editor\XLat" -> "XLat" - как самостоятельный раздел.
-    + Клавиши вызывающие функцию Xlat
+    + Opt.CmdHistoryRule чрфрхЄ яютхфхэшх Esc фы  ъюьрэфэющ ёЄЁюъш:
+       =1 - ═х шчьхэ Є№ яюыюцхэшх т History, хёыш яюёых Ctrl-E/Ctrl-X
+            эрцрыш ESC (яютхфхэшх - ры  VC).
+       =0 - яютхфхэшх ъръ ш с√ыю - шчьхэ Є№ яюыюцхэшх т History
+    ! "Editor\XLat" -> "XLat" - ъръ ёрьюёЄю Єхы№э√щ Ёрчфхы.
+    + ╩ыртш°ш т√ч√тр■∙шх ЇєэъЎш■ Xlat
       Opt.XLatEditorKey, Opt.XLatCmdLineKey, Opt.XLatDialogKey
   20.09.2000 SVS
-    + Opt.SubstPluginPrefix - 1 = подстанавливать префикс плагина
-      для Ctrl-[ и ему подобные
+    + Opt.SubstPluginPrefix - 1 = яюфёЄрэртыштрЄ№ яЁхЇшъё яырушэр
+      фы  Ctrl-[ ш хьє яюфюсэ√х
   19.09.2000 SVS
-    + Opt.PanelCtrlAltShiftRule задает поведение Ctrl-Alt-Shift для панелей.
+    + Opt.PanelCtrlAltShiftRule чрфрхЄ яютхфхэшх Ctrl-Alt-Shift фы  ярэхыхщ.
   15.09.2000 IS
-    + Отключение автоопределения таблицы символов, если отсутствует таблица с
-      распределением частот символов
+    + ╬Єъы■ўхэшх ртЄююяЁхфхыхэш  ЄрсышЎ√ ёшьтюыют, хёыш юЄёєЄёЄтєхЄ ЄрсышЎр ё
+      ЁрёяЁхфхыхэшхь ўрёЄюЄ ёшьтюыют
   15.09.2000 SVS
-    ! RightClickRule по умолчанию ставится в положение 2
+    ! RightClickRule яю єьюыўрэш■ ёЄртшЄё  т яюыюцхэшх 2
   14.09.2000 SVS
-    ! Ошибка в названии XLAT_SWITCHKEYBLAYOUT.
+    ! ╬°шсър т эрчтрэшш XLAT_SWITCHKEYBLAYOUT.
   12.09.2000 SVS
-    ! Разделение Wrap/WWrap/UnWrap на 2 составляющих -
-      Состояние (Wrap/UnWrap) и тип (Wrap/WWrap)
-    + Panel/RightClickRule в реестре - задает поведение правой клавиши
-      мыши (это по поводу Bug#17)
+    ! ╨рчфхыхэшх Wrap/WWrap/UnWrap эр 2 ёюёЄрты ■∙шї -
+      ╤юёЄю эшх (Wrap/UnWrap) ш Єшя (Wrap/WWrap)
+    + Panel/RightClickRule т ЁххёЄЁх - чрфрхЄ яютхфхэшх яЁртющ ъыртш°ш
+      ь√°ш (¤Єю яю яютюфє Bug#17)
   11.09.2000 SVS
-    + если Far\Dialog\EULBsClear = 1, то BS в диалогах для UnChanged строки
-      удаляет такую строку также, как и Del
+    + хёыш Far\Dialog\EULBsClear = 1, Єю BS т фшрыюурї фы  UnChanged ёЄЁюъш
+      єфры хЄ Єръє■ ёЄЁюъє Єръцх, ъръ ш Del
   10.09.2000 SVS
-    ! Наконец-то нашлось приемлемое имя для QWERTY -> Xlat.
+    ! ═ръюэхЎ-Єю эр°ыюё№ яЁшхьыхьюх шь  фы  QWERTY -> Xlat.
   08.09.2000 SVS
     ! QWED_SWITCHKEYBLAYER -> EDTR_SWITCHKEYBLAYER
   07.09.2000 tran 1.14
     + Config//Current File
   05.09.2000 SVS 1.13
-    + QWERTY - поддержка
+    + QWERTY - яюффхЁцър
   31.08.2000 SVS
-    + Теперь FAR помнит тип Wrap
+    + ╥хяхЁ№ FAR яюьэшЄ Єшя Wrap
   04.08.2000 SVS
-    ! WordDiv выкинул - будет описан в TechInfo.txt
-      Но пустую строку все равно (даже в реестре) ввести нельзя!
+    ! WordDiv т√ъшэєы - сєфхЄ юяшёрэ т TechInfo.txt
+      ═ю яєёЄє■ ёЄЁюъє тёх Ёртэю (фрцх т ЁххёЄЁх) ттхёЄш эхы№ч !
   03.08.2000 SVS
-    + WordDiv в случае пустого (юзвер убил, значит, случайно) ставится
-      стандартный набор
+    + WordDiv т ёыєўрх яєёЄюую (■чтхЁ єсшы, чэрўшЄ, ёыєўрщэю) ёЄртшЄё 
+      ёЄрэфрЁЄэ√щ эрсюЁ
   03.08.2000 SVS
-    + WordDiv внесен в Options|Editor settings
+    + WordDiv тэхёхэ т Options|Editor settings
   01.08.2000 SVS
-    ! Добавка в виде задания дополнительного пути для поиска плагинов
-      расширяется на месте - не имеет флаг по умолчанию!
-    + "Вспомним" путь для дополнительных плагинов по шаблону!!!
-      Сам шаблон берем из ключика в реестре!
+    ! ─юсртър т тшфх чрфрэш  фюяюыэшЄхы№эюую яєЄш фы  яюшёър яырушэют
+      Ёрё°шЁ хЄё  эр ьхёЄх - эх шьххЄ Їыру яю єьюыўрэш■!
+    + "┬ёяюьэшь" яєЄ№ фы  фюяюыэшЄхы№э√ї яырушэют яю °рсыюэє!!!
+      ╤рь °рсыюэ схЁхь шч ъы■ўшър т ЁххёЄЁх!
   27.07.2000 SVS
-    ! Opt.AutoComplete по умолчанию не активизирован,
-      дабы не шокировать публику :-)
+    ! Opt.AutoComplete яю єьюыўрэш■ эх ръЄштшчшЁютрэ,
+      фрс√ эх °юъшЁютрЄ№ яєсышъє :-)
   26.07.2000 SVS
-    + Opt.AutoComplete & дополнение диалога настройки интерфейса
+    + Opt.AutoComplete & фюяюыэхэшх фшрыюур эрёЄЁющъш шэЄхЁЇхщёр
   18.07.2000 tran 1.05
     + Opt.ShowViewerArrows, Opt.ShowViewerScrollbar
-      изменил диалог ViewerSetting
+      шчьхэшы фшрыюу ViewerSetting
   15.07.2000 tran
     + Opt.ShowKeyBarViewer
   15.07.2000 SVS
-    + Добавка в виде задания дополнительного пути для поиска плагинов
+    + ─юсртър т тшфх чрфрэш  фюяюыэшЄхы№эюую яєЄш фы  яюшёър яырушэют
   11.07.2000 SVS
-    ! Последниие 5 индексов внаглую перезаписываются (если на этих местах
-      стоят нули)
+    ! ╧юёыхфэшшх 5 шэфхъёют тэруыє■ яхЁхчряшё√тр■Єё  (хёыш эр ¤Єшї ьхёЄрї
+      ёЄю Є эєыш)
   04.07.2000 SVS
-    ! ScrollBar Setting for Menus переехал из Options|Panel settings
-      в Options|Interface settings
+    ! ScrollBar Setting for Menus яхЁххїры шч Options|Panel settings
+      т Options|Interface settings
   30.06.2000 SVS
-    - Кнопки залезли на рамку :-) в диалоге Options|Panel settings
+    - ╩эюяъш чрыхчыш эр Ёрьъє :-) т фшрыюух Options|Panel settings
   29.06.2000 SVS
-    + Показывать ли ScrollBar для Menu
+    + ╧юърч√трЄ№ ыш ScrollBar фы  Menu
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */
 
 /* $ 03.08.2000 SVS
-   Стандартный набор разделителей
+   ╤ЄрэфрЁЄэ√щ эрсюЁ ЁрчфхышЄхыхщ
 */
 static char WordDiv0[257]="~!%^&*()+|{}:\"<>?`-=\\[];',./";
 /* SVS $ */
 
 /* $ 12.10.2000 IS
-   Стандартный набор разделителей для функции Xlat
+   ╤ЄрэфрЁЄэ√щ эрсюЁ ЁрчфхышЄхыхщ фы  ЇєэъЎшш Xlat
 */
 static char WordDivForXlat0[257]=" \t!#$%^&*()+|=\\/@?";
 /* IS $ */
@@ -276,7 +276,7 @@ void SystemSettings()
   const char *HistoryName="PersPath";
   char PersonalPluginsPath[sizeof(Opt.PersonalPluginsPath)];
   /* $ 15.07.2000 SVS
-     + Добавка в виде задания дополнительного пути для поиска плагинов
+     + ─юсртър т тшфх чрфрэш  фюяюыэшЄхы№эюую яєЄш фы  яюшёър яырушэют
   */
   static struct DialogData CfgDlgData[]={
   /*  0 */  DI_DOUBLEBOX,3,1,52,19,0,0,0,0,(char *)MConfigSystemTitle,
@@ -421,10 +421,10 @@ void InterfaceSettings()
 {
   static struct DialogData CfgDlgData[]={
     /* $ 04.07.2000 SVS
-       + Показывать ли ScrollBar для Menu|Options|Interface settings
+       + ╧юърч√трЄ№ ыш ScrollBar фы  Menu|Options|Interface settings
     */
     /* $ 26.07.2000 SVS
-       + Разрешить ли автодополнение в строках ввода
+       + ╨рчЁх°шЄ№ ыш ртЄюфюяюыэхэшх т ёЄЁюърї ттюфр
     */
     DI_DOUBLEBOX,3,1,52,18,0,0,0,0,(char *)MConfigInterfaceTitle,
     DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MConfigClock,
@@ -502,10 +502,10 @@ void InterfaceSettings()
 
 
 /* $ 09.02.2001 IS
-   Опция Esc
+   ╬яЎш  Esc
 */
 /* $ 15.03.2001 SVS
-    Подтверждение удаления мапленных дисков из меню дисков
+    ╧юфЄтхЁцфхэшх єфрыхэш  ьряыхээ√ї фшёъют шч ьхэ■ фшёъют
 */
 void SetConfirmations()
 {
@@ -574,7 +574,7 @@ void SetDizConfig()
   Dialog Dlg(DizDlg,sizeof(DizDlg)/sizeof(DizDlg[0]));
   Dlg.SetPosition(-1,-1,76,15);
   Dlg.SetHelp("FileDiz");
-  // ограничим размер поля ввода.
+  // юуЁрэшўшь ЁрчьхЁ яюы  ттюфр.
   Dialog::SendDlgMessage((HANDLE)&Dlg,DM_SETTEXTLENGTH,2,sizeof(Opt.Diz.ListNames)-1);
   strcpy(DizDlg[2].Data,Opt.Diz.ListNames);
   if (Opt.Diz.UpdateMode==DIZ_NOT_UPDATE)
@@ -603,25 +603,25 @@ void SetDizConfig()
 }
 
 /* $ 18.07.2000 tran
-   настройка двух новых параметров для вьювера */
+   эрёЄЁющър фтєї эют√ї ярЁрьхЄЁют фы  т№■тхЁр */
 /*
- ╔═════════════════ Viewer ══════════════════╗
- ║ ┌ External viewer ──────────────────────┐ ║
- ║ │ ( ) Use for F3                        │ ║
- ║ │ () Use for Alt-F3                    │ ║
- ║ │ Viewer command:                       │ ║
- ║ │                                       │ ║
- ║ └───────────────────────────────────────┘ ║
- ║ ┌ Internal viewer ──────────────────────┐ ║
- ║ │ [x] Save file position                │ ║
- ║ │ [x] Save shortcut position            │ ║
- ║ │ [x] Autodetect character table        │ ║
- ║ │ 8   Tab size                          │ ║
- ║ │ [x] Show scrollbar                    │ ║
- ║ │ [x] Show arrows                       │ ║
- ║ └───────────────────────────────────────┘ ║
- ║            [ Ok ]  [ Cancel ]             ║
- ╚═══════════════════════════════════════════╝
+ +----------------- Viewer ------------------+
+ | + External viewer ----------------------+ |
+ | | ( ) Use for F3                        | |
+ | | () Use for Alt-F3                    | |
+ | | Viewer command:                       | |
+ | |                                       | |
+ | +---------------------------------------+ |
+ | + Internal viewer ----------------------+ |
+ | | [x] Save file position                | |
+ | | [x] Save shortcut position            | |
+ | | [x] Autodetect character table        | |
+ | | 8   Tab size                          | |
+ | | [x] Show scrollbar                    | |
+ | | [x] Show arrows                       | |
+ | +---------------------------------------+ |
+ |            [ Ok ]  [ Cancel ]             |
+ +-------------------------------------------+
 */
 #define DLG_VIEW_USE_F3      2
 #define DLG_VIEW_USE_ALTF3   3
@@ -635,7 +635,7 @@ void SetDizConfig()
 #define DLG_VIEW_OK         14
 
 /* $ 29.03.2001 IS
-  + По аналогии с редактором часть настроек переехала в ViewerOptions
+  + ╧ю рэрыюушш ё ЁхфръЄюЁюь ўрёЄ№ эрёЄЁюхъ яхЁххїрыр т ViewerOptions
 */
 void ViewerConfig(struct ViewerOptions &ViOpt)
 {
@@ -665,8 +665,8 @@ void ViewerConfig(struct ViewerOptions &ViOpt)
   CfgDlg[DLG_VIEW_SAVEFILEPOS].Selected=Opt.SaveViewerPos;
   CfgDlg[DLG_VIEW_SAVESHORTPOS].Selected=Opt.SaveViewerShortPos;
   /* 15.09.2000 IS
-     Отключение автоопределения таблицы символов, если отсутствует таблица с
-     распределением частот символов
+     ╬Єъы■ўхэшх ртЄююяЁхфхыхэш  ЄрсышЎ√ ёшьтюыют, хёыш юЄёєЄёЄтєхЄ ЄрсышЎр ё
+     ЁрёяЁхфхыхэшхь ўрёЄюЄ ёшьтюыют
   */
   CfgDlg[DLG_VIEW_AUTODETECT].Selected=ViOpt.AutoDetectTable&&DistrTableExist();
   /* IS $ */
@@ -695,13 +695,13 @@ void ViewerConfig(struct ViewerOptions &ViOpt)
   Opt.SaveViewerPos=CfgDlg[DLG_VIEW_SAVEFILEPOS].Selected;
   Opt.SaveViewerShortPos=CfgDlg[DLG_VIEW_SAVESHORTPOS].Selected;
   /* $ 16.12.2000 IS
-    - баг: забыли считать опцию DLG_VIEW_AUTODETECT из диалога
+    - сру: чрс√ыш ёўшЄрЄ№ юяЎш■ DLG_VIEW_AUTODETECT шч фшрыюур
   */
   ViOpt.AutoDetectTable=CfgDlg[DLG_VIEW_AUTODETECT].Selected;
   /* IS $ */
   /* 15.09.2000 IS
-     Отключение автоопределения таблицы символов, если отсутствует таблица с
-     распределением частот символов
+     ╬Єъы■ўхэшх ртЄююяЁхфхыхэш  ЄрсышЎ√ ёшьтюыют, хёыш юЄёєЄёЄтєхЄ ЄрсышЎр ё
+     ЁрёяЁхфхыхэшхь ўрёЄюЄ ёшьтюыют
   */
   if(!DistrTableExist() && ViOpt.AutoDetectTable)
   {
@@ -721,13 +721,13 @@ void ViewerConfig(struct ViewerOptions &ViOpt)
 /* tran 18.07.2000 $ */
 
 /* $ 04.08.2000 SVS
-   ! WordDiv выкинул - будет описан в TechInfo.txt
+   ! WordDiv т√ъшэєы - сєфхЄ юяшёрэ т TechInfo.txt
 */
 /* $ 03.08.2000 SVS
-  + WordDiv внесен в Options|Editor settings
+  + WordDiv тэхёхэ т Options|Editor settings
 */
 /* $ 21.02.2001 IS
-  + Работа идет со структурой EditorOptions
+  + ╨рсюЄр шфхЄ ёю ёЄЁєъЄєЁющ EditorOptions
 */
 void EditorConfig(struct EditorOptions &EdOpt)
 {
@@ -764,8 +764,8 @@ void EditorConfig(struct EditorOptions &EdOpt)
   CfgDlg[11].Selected=Opt.SaveEditorPos;
   CfgDlg[12].Selected=Opt.SaveEditorShortPos;
   /* 15.09.2000 IS
-     Отключение автоопределения таблицы символов, если отсутствует таблица с
-     распределением частот символов
+     ╬Єъы■ўхэшх ртЄююяЁхфхыхэш  ЄрсышЎ√ ёшьтюыют, хёыш юЄёєЄёЄтєхЄ ЄрсышЎр ё
+     ЁрёяЁхфхыхэшхь ўрёЄюЄ ёшьтюыют
   */
   CfgDlg[13].Selected=EdOpt.AutoDetectTable&&DistrTableExist();
   /* IS $ */
@@ -798,8 +798,8 @@ void EditorConfig(struct EditorOptions &EdOpt)
   Opt.SaveEditorShortPos=CfgDlg[12].Selected;
   EdOpt.AutoDetectTable=CfgDlg[13].Selected;
   /* 15.09.2000 IS
-     Отключение автоопределения таблицы символов, если отсутствует таблица с
-     распределением частот символов
+     ╬Єъы■ўхэшх ртЄююяЁхфхыхэш  ЄрсышЎ√ ёшьтюыют, хёыш юЄёєЄёЄтєхЄ ЄрсышЎр ё
+     ЁрёяЁхфхыхэшхь ўрёЄюЄ ёшьтюыют
   */
   if(!DistrTableExist() && EdOpt.AutoDetectTable)
   {
@@ -821,7 +821,7 @@ void EditorConfig(struct EditorOptions &EdOpt)
 void SetFolderInfoFiles()
 {
   /* 30.04.2001 DJ
-     добавлена history; обновляем инфо-панель после изменения
+     фюсртыхэр history; юсэюты хь шэЇю-ярэхы№ яюёых шчьхэхэш 
   */
   if (GetString(MSG(MSetFolderInfoTitle),MSG(MSetFolderInfoNames),"FolderInfoFiles",
       Opt.FolderInfoFiles,Opt.FolderInfoFiles,sizeof(Opt.FolderInfoFiles),"OptMenu",FIB_ENABLEEMPTY))
@@ -835,15 +835,15 @@ void SetFolderInfoFiles()
 }
 
 
-// Структура, описывающая всю конфигурацию(!)
+// ╤ЄЁєъЄєЁр, юяшё√тр■∙р  тё■ ъюэЇшуєЁрЎш■(!)
 static struct FARConfig{
-  int   IsSave;   // =1 - будет записываться в SaveConfig()
+  int   IsSave;   // =1 - сєфхЄ чряшё√трЄ№ё  т SaveConfig()
   DWORD ValType;  // REG_DWORD, REG_SZ, REG_BINARY
-  char *KeyName;  // Имя ключа
-  char *ValName;  // Имя параметра
-  void *ValPtr;   // адрес переменной, куда помещаем данные
-  DWORD DefDWord; // он же размер данных для REG_SZ и REG_BINARY
-  char *DefStr;   // строка/данные по умолчанию
+  char *KeyName;  // ╚ь  ъы■ўр
+  char *ValName;  // ╚ь  ярЁрьхЄЁр
+  void *ValPtr;   // рфЁхё яхЁхьхээющ, ъєфр яюьх∙рхь фрээ√х
+  DWORD DefDWord; // юэ цх ЁрчьхЁ фрээ√ї фы  REG_SZ ш REG_BINARY
+  char *DefStr;   // ёЄЁюър/фрээ√х яю єьюыўрэш■
 } CFG[]={
   {1, REG_BINARY, NKeyColors,"CurrentPalette",(char*)Palette,SizeArrayPalette,(char*)DefaultPalette},
 
@@ -933,26 +933,26 @@ static struct FARConfig{
   {0, REG_SZ,     NKeySystem,"ConsoleDetachKey", KeyNameConsoleDetachKey, sizeof(KeyNameConsoleDetachKey),"CtrlAltTab"},
   {1, REG_SZ,     NKeySystem,"PersonalPluginsPath",Opt.PersonalPluginsPath,sizeof(Opt.PersonalPluginsPath),PersonalPluginsPath},
   /* $ 02.04.2001 VVM
-    + Будет влиять на:
-        добавление файлов в историю с разным регистром
-        добавление LastPositions в редакторе и вьюере */
+    + ┴єфхЄ тыш Є№ эр:
+        фюсртыхэшх Їрщыют т шёЄюЁш■ ё Ёрчэ√ь ЁхушёЄЁюь
+        фюсртыхэшх LastPositions т ЁхфръЄюЁх ш т№■хЁх */
   {0, REG_DWORD,  NKeySystem,"FlagPosixSemantics", &Opt.FlagPosixSemantics, 1, 0},
   /* VVM $ */
   /* $ 16.04.2001 VVM
-    + Opt.MsWheelDelta - задает смещение для прокрутки в панелях. */
+    + Opt.MsWheelDelta - чрфрхЄ ёьх∙хэшх фы  яЁюъЁєЄъш т ярэхы ї. */
   {0, REG_DWORD,  NKeySystem,"MsWheelDelta", &Opt.MsWheelDelta, 1, 0},
   /* VVM $ */
   /* VVM $ */
   /* $ 26.04.2001 VVM
-    + Opt.MsWheelDeltaView - задает смещение для прокрутки во вьюере.
-    + Opt.MsWheelDeltaEdit - задает смещение для прокрутки в редакторе. */
+    + Opt.MsWheelDeltaView - чрфрхЄ ёьх∙хэшх фы  яЁюъЁєЄъш тю т№■хЁх.
+    + Opt.MsWheelDeltaEdit - чрфрхЄ ёьх∙хэшх фы  яЁюъЁєЄъш т ЁхфръЄюЁх. */
   {0, REG_DWORD,  NKeySystem,"MsWheelDeltaView", &Opt.MsWheelDeltaView, 1, 0},
   {0, REG_DWORD,  NKeySystem,"MsWheelDeltaEdit", &Opt.MsWheelDeltaEdit, 1, 0},
   /* VVM $ */
   /* $ 28.04.2001 VVM
-    + Opt.SubstNameRule битовая маска:
-      0 - если установлен, то опрашивать сменные диски при GetSubstName()
-      1 - если установлен, то опрашивать все остальные при GetSubstName() */
+    + Opt.SubstNameRule сшЄютр  ьрёър:
+      0 - хёыш єёЄрэютыхэ, Єю юяЁр°штрЄ№ ёьхээ√х фшёъш яЁш GetSubstName()
+      1 - хёыш єёЄрэютыхэ, Єю юяЁр°штрЄ№ тёх юёЄры№э√х яЁш GetSubstName() */
   {0, REG_DWORD,  NKeySystem,"SubstNameRule", &Opt.SubstNameRule, 2, 0},
   /* VVM $ */
 
@@ -1037,12 +1037,12 @@ void ReadConfig()
   int I;
   char KeyNameFromReg[34];
 
-  /* <ПРЕПРОЦЕССЫ> *************************************************** */
-  // "Вспомним" путь для дополнительного поиска плагинов
+  /* <╧╨┼╧╨╬╓┼╤╤█> *************************************************** */
+  // "┬ёяюьэшь" яєЄ№ фы  фюяюыэшЄхы№эюую яюшёър яырушэют
   SetRegRootKey(HKEY_LOCAL_MACHINE);
   GetRegKey("System","TemplatePluginsPath",PersonalPluginsPath,"",sizeof(Opt.PersonalPluginsPath));
   SetRegRootKey(HKEY_CURRENT_USER);
-  /* *************************************************** </ПРЕПРОЦЕССЫ> */
+  /* *************************************************** </╧╨┼╧╨╬╓┼╤╤█> */
 
   for(I=0; I < sizeof(CFG)/sizeof(CFG[0]); ++I)
   {
@@ -1060,13 +1060,13 @@ void ReadConfig()
     }
   }
 
-  /* <ПОСТПРОЦЕССЫ> *************************************************** */
+  /* <╧╬╤╥╧╨╬╓┼╤╤█> *************************************************** */
   /* $ 02.04.2001 VVM
-    + Opt.FlagPosixSemantics не пашет под 9x */
+    + Opt.FlagPosixSemantics эх яр°хЄ яюф 9x */
   if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
     Opt.FlagPosixSemantics=0;
   /* VVM $ */
-  //   Уточняем алгоритм "взятия" палитры.
+  //   ╙Єюўэ хь рыуюЁшЄь "тч Єш " ярышЄЁ√.
   for(I=COL_PRIVATEPOSITION_FOR_XRENZNAETCHEGO-COL_FIRSTPALETTECOLOR+1;
       I < (COL_LASTPALETTECOLOR-COL_FIRSTPALETTECOLOR);
       ++I)
@@ -1078,18 +1078,18 @@ void ReadConfig()
         Palette[I]=BlackPalette[I];
       /*
       else
-        в других случаях нифига ничего не делаем, т.к.
-        есть другие палитры...
+        т фЁєушї ёыєўр ї эшЇшур эшўхую эх фхырхь, Є.ъ.
+        хёЄ№ фЁєушх ярышЄЁ√...
       */
   }
   /* SVS 13.12.2000 $ */
 
   Opt.ViewerIsWrap&=1;
   if(RegVer) Opt.ViewerWrap&=1; else Opt.ViewerWrap=0;
-  // Исключаем случайное стирание разделителей ;-)
+  // ╚ёъы■ўрхь ёыєўрщэюх ёЄшЁрэшх ЁрчфхышЄхыхщ ;-)
   if(!strlen(Opt.WordDiv))
      strcpy(Opt.WordDiv,WordDiv0);
-  // Исключаем случайное стирание разделителей
+  // ╚ёъы■ўрхь ёыєўрщэюх ёЄшЁрэшх ЁрчфхышЄхыхщ
   if(!strlen(Opt.XLat.WordDivForXlat))
      strcpy(Opt.XLat.WordDivForXlat,WordDivForXlat0);
   if(Opt.MaxPositionCache < 16 || Opt.MaxPositionCache > 128)
@@ -1129,7 +1129,7 @@ void ReadConfig()
   AddEndSlash(Opt.TempPath);
   CtrlObject->EditorPosCache.Read("Editor\\LastPositions");
   CtrlObject->ViewerPosCache.Read("Viewer\\LastPositions");
-  /* *************************************************** </ПОСТПРОЦЕССЫ> */
+  /* *************************************************** </╧╬╤╥╧╨╬╓┼╤╤█> */
 }
 
 
@@ -1141,7 +1141,7 @@ void SaveConfig(int Ask)
   if (Ask && Message(0,2,MSG(MSaveSetupTitle),MSG(MSaveSetupAsk1),MSG(MSaveSetupAsk2),MSG(MSaveSetup),MSG(MCancel))!=0)
     return;
 
-  /* <ПРЕПРОЦЕССЫ> *************************************************** */
+  /* <╧╨┼╧╨╬╓┼╤╤█> *************************************************** */
   Panel *LeftPanel=CtrlObject->Cp()->LeftPanel;
   Panel *RightPanel=CtrlObject->Cp()->RightPanel;
 
@@ -1178,7 +1178,7 @@ void SaveConfig(int Ask)
     RightPanel->GetCurName(Opt.RightCurFile,OutText2);
     Opt.RightSelectedFirst=RightPanel->GetSelectedFirstMode();
   }
-  /* *************************************************** </ПРЕПРОЦЕССЫ> */
+  /* *************************************************** </╧╨┼╧╨╬╓┼╤╤█> */
 
   for(I=0; I < sizeof(CFG)/sizeof(CFG[0]); ++I)
   {
@@ -1197,10 +1197,10 @@ void SaveConfig(int Ask)
       }
   }
 
-  /* <ПОСТПРОЦЕССЫ> *************************************************** */
+  /* <╧╬╤╥╧╨╬╓┼╤╤█> *************************************************** */
   PanelFilter::SaveSelection();
   FileList::SavePanelModes();
   if (Ask)
     CtrlObject->Macro.SaveMacros();
-  /* *************************************************** </ПОСТПРОЦЕССЫ> */
+  /* *************************************************** </╧╬╤╥╧╨╬╓┼╤╤█> */
 }

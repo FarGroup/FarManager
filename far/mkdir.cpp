@@ -1,7 +1,7 @@
 /*
 mkdir.cpp
 
-Ñîçäàíèå êàòàëîãà
++þ÷ôðýøõ úð²ðûþóð
 
 */
 
@@ -9,22 +9,22 @@ mkdir.cpp
 
 /*
 Modify:
-  29.04.2001 ÎÒ
-    + Âíåäðåíèå NWZ îò Òðåòüÿêîâà
+  29.04.2001 ++
+    + +ýõô¨õýøõ NWZ þ² +¨õ²¼¿úþòð
   31.07.2000 SVS
-    ! Ðàñøèðèì ïåðåìåííûå ñðåäû â äèàëîãå ñîçäàíèÿ êàòàëîãà
+    ! +ð¸¸ø¨øü ÿõ¨õüõýý»õ ¸¨õô» ò ôøðûþóõ ¸þ÷ôðýø¿ úð²ðûþóð
   25.07.2000 IG
-    - Bug 24 (íå ïåðåµèòûâàëàñü ïàíåëü, ïîñëå íåóäàµíîãî âëîæåííîãî ñîçäàíèÿ äèðåêòîðèé)
+    - Bug 24 (ýõ ÿõ¨õ…ø²»òðûð¸¼ ÿðýõû¼, ÿþ¸ûõ ýõ³ôð…ýþóþ òûþöõýýþóþ ¸þ÷ôðýø¿ ôø¨õú²þ¨øù)
   25.06.2000 SVS
-    ! Ïîäãîòîâêà Master Copy
-    ! Âûäåëåíèå â êàµåñòâå ñàìîñòîÿòåëüíîãî ìîäóëÿ
+    ! +þôóþ²þòúð Master Copy
+    ! +»ôõûõýøõ ò úð…õ¸²òõ ¸ðüþ¸²þ¿²õû¼ýþóþ üþô³û¿
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Ñòàíäàðòíûå çàãîëîâêè
+   +²ðýôð¨²ý»õ ÷ðóþûþòúø
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -35,7 +35,7 @@ void ShellMakeDir(Panel *SrcPanel)
   if (!GetString(MSG(MMakeFolderTitle),MSG(MCreateFolder),"NewFolder","",DirName,sizeof(DirName)))
     return;
   /* $ 31.07.2000 SVS
-     Ðàñøèðèì ïåðåìåííûå ñðåäû!
+     +ð¸¸ø¨øü ÿõ¨õüõýý»õ ¸¨õô»!
   */
   ExpandEnvironmentStr(DirName, DirName, sizeof(DirName));
   /* SVS $ */
@@ -45,7 +45,7 @@ void ShellMakeDir(Panel *SrcPanel)
 
   int Length=strlen(DirName);
   /* $ 25.07.2000 IG
-     Bug 24 (íå ïåðåµèòûâàëàñü ïàíåëü, ïîñëå íåóäàµíîãî âëîæåííîãî ñîçäàíèÿ äèðåêòîðèé)
+     Bug 24 (ýõ ÿõ¨õ…ø²»òðûð¸¼ ÿðýõû¼, ÿþ¸ûõ ýõ³ôð…ýþóþ òûþöõýýþóþ ¸þ÷ôðýø¿ ôø¨õú²þ¨øù)
   */
   while (Length>0 && DirName[Length-1]==' ')
     Length--;
@@ -95,5 +95,3 @@ void ShellMakeDir(Panel *SrcPanel)
   AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
   AnotherPanel->Redraw();
 }
-
-

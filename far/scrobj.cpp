@@ -1,7 +1,7 @@
 /*
 scrobj.cpp
 
-Parent class для всех screen objects
+Parent class фы  тёхї screen objects
 
 */
 
@@ -13,15 +13,15 @@ Modify:
     + add new dirty method - Hide0(), jys set Visible to False
       used in FileViewer, for keybar hiding
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -131,5 +131,3 @@ void ScreenObject::Shadow()
     MakeShadow(X2+1,Y1+1,X2+2,Y2+1);
   }
 }
-
-

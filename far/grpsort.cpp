@@ -1,7 +1,7 @@
 /*
 grpsort.cpp
 
-ƒàã¯¯ë á®àâ¨à®¢ª¨
+Ãðóïïû ñîðòèðîâêè
 
 */
 
@@ -9,39 +9,39 @@ grpsort.cpp
 
 /*
 Modify:
-  29.04.2001 Ž’
-    + ‚­¥¤à¥­¨¥ NWZ ®â ’à¥âìïª®¢ 
+  29.04.2001 ÎÒ
+    + Âíåäðåíèå NWZ îò Òðåòüÿêîâà
   23.04.2001 SVS
-    ! Š•…! ®¢ë© ¢§¡«ï¤ ­  %PATHEXT% - â® çâ® à¥¤ ªâ¨àã¥¬ ¨ â®, çâ®
-      î§ ¥¬ - à §­ë¥ áãé­®áâ¨.
+    ! ÊÕÅ! Íîâûé âçáëÿä íà %PATHEXT% - òî ÷òî ðåäàêòèðóåì è òî, ÷òî
+      þçàåì - ðàçíûå ñóùíîñòè.
   08.04.2001 SVS
-    ! ƒàã¯¯ë á®àâ¨à®¢ª¨ ­¥ ¯®¤¤¥à¦¨¢ îâ ¯¥à¥¬¥­­ë¥ áà¥¤ë. ‚ ¬®à£!
-      ‘â ¢¨¬ áª®à®áâì ¢® £« ¢ã ã£« .
+    ! Ãðóïïû ñîðòèðîâêè íå ïîääåðæèâàþò ïåðåìåííûå ñðåäû. Â ìîðã!
+      Ñòàâèì ñêîðîñòü âî ãëàâó óãëà.
   06.04.2001 SVS
-    + ‚ £àã¯¯ å á®àâ¨à®¢ª¨ ¬®¦­® § ¤ ¢ âì ¯¥à¥¬¥­­ë¥ ®ªàã¦¥­¨ï, á ãç¥â®¬
-      ¯¥à¥¬¥­­®© PATHEXT
+    + Â ãðóïïàõ ñîðòèðîâêè ìîæíî çàäàâàòü ïåðåìåííûå îêðóæåíèÿ, ñ ó÷åòîì
+      ïåðåìåííîé PATHEXT
   19.03.2001 SVS
-    -  £ : Ptr ¡ë« ­¥¨­¨æ¨ «¨§¨à®¢ ­ ¤«ï á«ãç ï ¥á«¨ ¤«¨­ë å¢ â «®.
-    + ¥¬­®£® ®¯â¨¬¨§ æ¨¨ ª®¤ .
+    - Áàãà: Ptr áûë íåèíèöèàëèçèðîâàí äëÿ ñëó÷àÿ åñëè äëèíû õâàòàëî.
+    + Íåìíîãî îïòèìèçàöèè êîäà.
   12.02.2001 SVS
-    ! ¥ ¡ë« ­ §­ ç¥­ •¥«¯ ¤«ï ¢¢®¤  ¬ áª¨ £àã¯¯ë á®àâ¨à®¢ª¨
-    - ãáâà ­¥­¨¥ ãâ¥çª¨ ¯ ¬ïâ¨ (¯®á«¥ 440-£®)
+    ! Íå áûë íàçíà÷åí Õåëï äëÿ ââîäà ìàñêè ãðóïïû ñîðòèðîâêè
+    - óñòðàíåíèå óòå÷êè ïàìÿòè (ïîñëå 440-ãî)
   11.02.2001 SVS
-    ! ‚¢¥¤¥­¨¥ DIF_VAREDIT ¯®§¢®«¨«® à áè¨à¨âì à §¬¥à ¯®¤ ¬ áª¨
+    ! Ââåäåíèå DIF_VAREDIT ïîçâîëèëî ðàñøèðèòü ðàçìåð ïîä ìàñêè
   11.02.2001 SVS
-    ! ¥áª®«ìª® ãâ®ç­¥­¨© ª®¤  ¢ á¢ï§¨ á ¨§¬¥­¥­¨ï¬¨ ¢ áâàãªâãà¥ MenuItem
+    ! Íåñêîëüêî óòî÷íåíèé êîäà â ñâÿçè ñ èçìåíåíèÿìè â ñòðóêòóðå MenuItem
   13.07.2000 SVS
-    ! ¥ª®â®àë¥ ª®àà¥ªæ¨¨ ¯à¨ ¨á¯®«ì§®¢ ­¨¨ new/delete/realloc
+    ! Íåêîòîðûå êîððåêöèè ïðè èñïîëüçîâàíèè new/delete/realloc
   25.06.2000 SVS
-    ! ®¤£®â®¢ª  Master Copy
-    ! ‚ë¤¥«¥­¨¥ ¢ ª ç¥áâ¢¥ á ¬®áâ®ïâ¥«ì­®£® ¬®¤ã«ï
+    ! Ïîäãîòîâêà Master Copy
+    ! Âûäåëåíèå â êà÷åñòâå ñàìîñòîÿòåëüíîãî ìîäóëÿ
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   ‘â ­¤ àâ­ë¥ § £®«®¢ª¨
+   Ñòàíäàðòíûå çàãîëîâêè
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -66,7 +66,7 @@ GroupSort::GroupSort()
       GetRegKey(SortGroupsKeyName,GroupName,GroupStr,"",sizeof(GroupStr));
       if (*GroupStr==0)
         break;
-      struct GroupSortData NewGroup={0}; // ®¡ï§ â¥«ì­® ¯à®¨­¨æ¨ «¨§¨àã¥¬
+      struct GroupSortData NewGroup={0}; // îáÿçàòåëüíî ïðîèíèöèàëèçèðóåì
       if(AddMask(&NewGroup,GroupStr,I+GroupDelta[J]))
       {
         struct GroupSortData *NewGroupData=(struct GroupSortData *)realloc(GroupData,sizeof(*GroupData)*(GroupCount+1));
@@ -98,26 +98,26 @@ GroupSort::~GroupSort()
 BOOL GroupSort::AddMask(struct GroupSortData *Dest,char *Mask,int Group)
 {
   char *Ptr, *OPtr;
-  /* Ž¡à ¡®âª  %PATHEXT% */
-  // ¯ ¬ïâì ¯®¤ ®à¨£¨­ « - OriginalMasks
+  /* Îáðàáîòêà %PATHEXT% */
+  // ïàìÿòü ïîä îðèãèíàë - OriginalMasks
   if((OPtr=(char *)realloc(Dest->OriginalMasks,strlen(Mask)+1)) == NULL)
     return FALSE;
-  strcpy(OPtr,Mask); // á®åà ­ï¥¬ ®à¨£¨­ «.
-  // ¯à®¢¥à¨¬
+  strcpy(OPtr,Mask); // ñîõðàíÿåì îðèãèíàë.
+  // ïðîâåðèì
   if((Ptr=strchr(Mask,'%')) != NULL && !strnicmp(Ptr,"%PATHEXT%",9))
   {
     int IQ1=(*(Ptr+9) == ',')?10:9;
-    // …á«¨ ¢áâà¥ç ¥âáï %pathext%, â® ¤®¯¨è¥¬ ¢ ª®­¥æ...
+    // Åñëè âñòðå÷àåòñÿ %pathext%, òî äîïèøåì â êîíåö...
     memmove(Ptr,Ptr+IQ1,strlen(Ptr+IQ1)+1);
-    Add_PATHEXT(Mask); // ¤®¡ ¢«ï¥¬ â®, ç¥£® ­¥âã.
-    // ¢ GroupStr ­ å®¤¨âáï à ¡®ç ï ¬ áª 
+    Add_PATHEXT(Mask); // äîáàâëÿåì òî, ÷åãî íåòó.
+    // â GroupStr íàõîäèòñÿ ðàáî÷àÿ ìàñêà
   }
   else
   {
-    free(OPtr); // "áêíª®­®¬¨ ¯ àã ¡ ©â"
+    free(OPtr); // "ñúýêîíîìè ïàðó áàéò"
     OPtr=NULL;
   }
-  // ¯ ¬ïâì ¯®¤ à ¡®çãî ¬ áªã
+  // ïàìÿòü ïîä ðàáî÷óþ ìàñêó
   if((Ptr=(char *)realloc(Dest->Masks,strlen(Mask)+1)) == NULL)
   {
     if(OPtr) free(OPtr);

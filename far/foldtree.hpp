@@ -3,7 +3,7 @@
 /*
 foldtree.hpp
 
-Поиск каталога по Alt-F10
+╧юшёъ ърЄрыюур яю Alt-F10
 
 */
 
@@ -12,8 +12,8 @@ foldtree.hpp
 /*
 Modify:
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 class FolderTree:public Modal
@@ -32,4 +32,3 @@ class FolderTree:public Modal
 
 
 #endif	// __FOLDERTREE_HPP__
-

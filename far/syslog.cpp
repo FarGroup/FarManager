@@ -1,7 +1,7 @@
 /*
 syslog.cpp
 
-Системный отладочный лог :-)
+╤шёЄхьэ√щ юЄырфюўэ√щ ыюу :-)
 
 */
 
@@ -10,22 +10,22 @@ syslog.cpp
 /*
 Modify:
   06.05.2001 SVS
-    ! немного изменений в SysLog* ;-)
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
+    ! эхьэюую шчьхэхэшщ т SysLog* ;-)
+  29.04.2001 ╬╥
+    + ┬эхфЁхэшх NWZ юЄ ╥ЁхЄ№ ъютр
   28.04.2001 SVS
-    - Неверно выставлен флаг, вместо теста CONTEXT_INTEGER стояло
+    - ═хтхЁэю т√ёЄртыхэ Їыру, тьхёЄю ЄхёЄр CONTEXT_INTEGER ёЄю ыю
       CONTEXT_SEGMENTS
-    ! Полная переделка функций семейства SysLog()
-    + Функция печати дампа памяти SysLogDump()
-      Если указатель на файл = NULL, то будет писаться в стандартный лог,
-      иначе в указанный открытый файл.
+    ! ╧юыэр  яхЁхфхыър ЇєэъЎшщ ёхьхщёЄтр SysLog()
+    + ╘єэъЎш  яхўрЄш фрьяр ярь Єш SysLogDump()
+      ┼ёыш єърчрЄхы№ эр Їрщы = NULL, Єю сєфхЄ яшёрЄ№ё  т ёЄрэфрЁЄэ√щ ыюу,
+      шэрўх т єърчрээ√щ юЄъЁ√Є√щ Їрщы.
   26.01.2001 SVS
     ! DumpExeptionInfo -> DumpExceptionInfo ;-)
   23.01.2001 SVS
     + DumpExeptionInfo()
   22.12.2000 SVS
-    + Выделение в качестве самостоятельного модуля
+    + ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
@@ -212,23 +212,23 @@ void SysLogDump(char *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,FILE *fp)
 }
 
 /*
-Структура файла "farexcpt.dmp"
+╤ЄЁєъЄєЁр Їрщыр "farexcpt.dmp"
 
 00000: CountRecords:DWORD
 Record {
-    SizeRecord:DWORD    - общий размер
-    RecFlags:DWORD      - дополнительные флаги (пока =0)
+    SizeRecord:DWORD    - юс∙шщ ЁрчьхЁ
+    RecFlags:DWORD      - фюяюыэшЄхы№э√х Їыруш (яюър =0)
     Time:SYSTEMTIME     - The system time is expressed in Coordinated Universal Time (UTC))
     WinVer:OSVERSIONINFO
-    SizePlugin:DWORD    - размер поля Plugin, если = 0 - то нету Plugin
+    SizePlugin:DWORD    - ЁрчьхЁ яюы  Plugin, хёыш = 0 - Єю эхЄє Plugin
     {Plugin:PLUGINITEM} * SizePlugin
     Regs:CONTEXT
-    ExcRecCount:DWORD   - количество исключений, если = 0 - то нету ExcRec
+    ExcRecCount:DWORD   - ъюышўхёЄтю шёъы■ўхэшщ, хёыш = 0 - Єю эхЄє ExcRec
     {ExcRec[0]:EXCEPTION_RECORD
-      SizeExcAddr:DWORD   - размер поля ExcAddr, если = 0 - то нету ExcAddr
+      SizeExcAddr:DWORD   - ЁрчьхЁ яюы  ExcAddr, хёыш = 0 - Єю эхЄє ExcAddr
       {ExcAddr}
     } * ExcRecCount
-    SizeStack:DWORD     - размер поля Stack, если = 0 - то нету Stack
+    SizeStack:DWORD     - ЁрчьхЁ яюы  Stack, хёыш = 0 - Єю эхЄє Stack
     {Stack} * SizeStack
 }
 */
@@ -253,10 +253,10 @@ int DumpExceptionInfo(EXCEPTION_POINTERS *xp,struct PluginItem *Module)
       DWORD Zero=0;
       DWORD SizePlugin=0;
 
-      // Немного посчитаем
+      // ═хьэюую яюёўшЄрхь
       CONTEXT *cn=xp->ContextRecord;
       struct _EXCEPTION_RECORD *xpn=xp->ExceptionRecord;
-      // посчитаем размер записи
+      // яюёўшЄрхь ЁрчьхЁ чряшёш
       SizeOfRecord=sizeof(SYSTEMTIME)+
                    sizeof(DWORD)+
                    sizeof(CONTEXT)+
@@ -275,12 +275,12 @@ int DumpExceptionInfo(EXCEPTION_POINTERS *xp,struct PluginItem *Module)
                       (EXCEPTION_MAXIMUM_PARAMETERS*sizeof(DWORD))+
                       sizeof(DWORD)*xpn->NumberParameters;
         if(xpn->ExceptionAddress)
-          SizeOfRecord+=sizeof(DWORD); // учтем поле SizeExcAddr
+          SizeOfRecord+=sizeof(DWORD); // єўЄхь яюых SizeExcAddr
         NumExt++;
         xpn=xpn->ExceptionRecord;
       }
 
-      // подготовим заголовок
+      // яюфуюЄютшь чруюыютюъ
       if((Pos=GetFileSize(fp,NULL)) == -1 || !Pos)
         CountDump=0;
       else
@@ -292,60 +292,60 @@ int DumpExceptionInfo(EXCEPTION_POINTERS *xp,struct PluginItem *Module)
       SetFilePointer(fp,0,NULL,FILE_BEGIN);
       WriteFile(fp,&CountDump,sizeof(CountDump),&Temp,NULL);
 
-      // первым дело впишем время
+      // яхЁт√ь фхыю тяш°хь тЁхь 
       // The system time is expressed in Coordinated Universal Time (UTC).
       SYSTEMTIME st;
       GetSystemTime(&st);
       SetFilePointer(fp,0,NULL,FILE_END);
-      // размер записи
+      // ЁрчьхЁ чряшёш
       WriteFile(fp,&SizeOfRecord,sizeof(SizeOfRecord),&Temp,NULL);
-      // флаги
+      // Їыруш
       WriteFile(fp,&RecFlags,sizeof(RecFlags),&Temp,NULL);
-      // время
+      // тЁхь 
       WriteFile(fp,&st,sizeof(st),&Temp,NULL);
       // OS
       WriteFile(fp,&WinVer,sizeof(WinVer),&Temp,NULL);
 
-      // пишем данные по плагину, если надо
+      // яш°хь фрээ√х яю яырушэє, хёыш эрфю
       WriteFile(fp,&SizePlugin,sizeof(SizePlugin),&Temp,NULL);
       if(SizePlugin)
       {
         WriteFile(fp,&Module,sizeof(*Module),&Temp,NULL);
       }
 
-      // пишем регистры
+      // яш°хь ЁхушёЄЁ√
       WriteFile(fp,cn,sizeof(CONTEXT),&Temp,NULL);
 
-      // количество блоков исключений
+      // ъюышўхёЄтю сыюъют шёъы■ўхэшщ
       WriteFile(fp,&NumExt,sizeof(NumExt),&Temp,NULL);
 
-      // Сами исключения
+      // ╤рьш шёъы■ўхэш 
       xpn=xp->ExceptionRecord;
       while(xpn)
       {
         WriteFile(fp,&xpn->ExceptionCode,sizeof(DWORD),&Temp,NULL);
         WriteFile(fp,&xpn->ExceptionFlags,sizeof(DWORD),&Temp,NULL);
-        Pos=0;//xpn->ExceptionRecord - пока ставим 0
+        Pos=0;//xpn->ExceptionRecord - яюър ёЄртшь 0
         WriteFile(fp,&Pos,sizeof(DWORD),&Temp,NULL);
         WriteFile(fp,xpn->ExceptionAddress,sizeof(PVOID),&Temp,NULL);
         WriteFile(fp,&xpn->NumberParameters,sizeof(DWORD),&Temp,NULL);
         WriteFile(fp,xpn->ExceptionInformation,sizeof(DWORD)*xpn->NumberParameters,&Temp,NULL);
 
-        // данные из адреса исключения
-        /* ЭТОГО ПОКА НЕ ЗНАЮ КАК СДЕЛАТЬ :-( */
+        // фрээ√х шч рфЁхёр шёъы■ўхэш 
+        /* ▌╥╬├╬ ╧╬╩└ ═┼ ╟═└▐ ╩└╩ ╤─┼╦└╥▄ :-( */
         //if(xpn->ExceptionAddress)
-          Zero=0; // Пока 0
+          Zero=0; // ╧юър 0
         WriteFile(fp,&Zero,sizeof(Zero),&Temp,NULL);
-        // ... здесь будут
+        // ... чфхё№ сєфєЄ
         //if(xpn->ExceptionAddress)
         xpn=xpn->ExceptionRecord;
       }
 
-      // данные из стека возврата
-      /* ЭТОГО ПОКА НЕ ЗНАЮ КАК СДЕЛАТЬ :-( */
-      Zero=0; // Пока 0
+      // фрээ√х шч ёЄхър тючтЁрЄр
+      /* ▌╥╬├╬ ╧╬╩└ ═┼ ╟═└▐ ╩└╩ ╤─┼╦└╥▄ :-( */
+      Zero=0; // ╧юър 0
       WriteFile(fp,&Zero,sizeof(Zero),&Temp,NULL);
-      // ... здесь будут
+      // ... чфхё№ сєфєЄ
 
       CloseHandle(fp);
     }

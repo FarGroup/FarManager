@@ -14,13 +14,13 @@ Modify:
   25.04.2001 SVS
     + SetRootDir()
   05.04.2001 VVM
-    + Переключение макросов в режим MACRO_TREEPANEL
+    + ╧хЁхъы■ўхэшх ьръЁюёют т Ёхцшь MACRO_TREEPANEL
   16.10.2000 tran
-    + MustBeCached(Root) - функция, определяющая необходимость кеширования
-      дерева
+    + MustBeCached(Root) - ЇєэъЎш , юяЁхфхы ■∙р  эхюсїюфшьюёЄ№ ъх°шЁютрэш 
+      фхЁхтр
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 class TreeList:public Panel
@@ -80,8 +80,8 @@ class TreeList:public Panel
     static void FlushCache();
 
     /* $ 16.10.2000 tran
-       функция, определяющаяя необходимость кеширования
-       файла */
+       ЇєэъЎш , юяЁхфхы ■∙р   эхюсїюфшьюёЄ№ ъх°шЁютрэш 
+       Їрщыр */
     static int MustBeCached(char *Root);
     /* tran $ */
     virtual void SetFocus();

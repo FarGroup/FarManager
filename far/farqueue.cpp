@@ -1,8 +1,8 @@
 /*
 farqueue.cpp
 
-Шаблон работы с очередью
-Использование:
+╪рсыюэ ЁрсюЄ√ ё юўхЁхф№■
+╚ёяюы№чютрэшх:
      FarQueue<int> *q;
      q=new FarQueue<int>(10);
 
@@ -21,9 +21,9 @@ farqueue.cpp
 /*
 Modify:
   31.01.2001 OT
-   -  "Explicit instantiation" для темплитов под VC++
+   -  "Explicit instantiation" фы  ЄхьяышЄют яюф VC++
   24.01.2001 SVS
-   + Новый файл.
+   + ═ют√щ Їрщы.
 */
 
 #include "headers.hpp"

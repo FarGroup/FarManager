@@ -5,7 +5,7 @@
 /*
 editor.hpp
 
-Редактор
+╨хфръЄюЁ
 
 */
 
@@ -14,57 +14,57 @@ editor.hpp
 /*
 Modify:
   28.03.2001 SVS
-    + дополнительный параметр для SaveFile() - SaveAs
+    + фюяюыэшЄхы№э√щ ярЁрьхЄЁ фы  SaveFile() - SaveAs
   27.02.2001 SVS
-    + *CharCodeBase() - по поводу базы вывода
+    + *CharCodeBase() - яю яютюфє срч√ т√тюфр
   26.02.2001 IS
-    ! Часть самостоятельных переменных заменено соответствующими из
-      EditorOptions. Надо было это сразу сделать, да я что-то стормозил :)
+    ! ╫рёЄ№ ёрьюёЄю Єхы№э√ї яхЁхьхээ√ї чрьхэхэю ёююЄтхЄёЄтє■∙шьш шч
+      EditorOptions. ═рфю с√ыю ¤Єю ёЁрчє ёфхырЄ№, фр   ўЄю-Єю ёЄюЁьючшы :)
     + SetAutoIndent/GetAutoIndent
       SetAutoDetectTable/GetAutoDetectTable
       SetCursorBeyondEOL/GetCursorBeyondEOL
       SetBSLikeDel/GetBSLikeDel
   15.02.2001 IS
-    + Локальные переменные, в которых запоминается то, что храниться в
-      настройках редактора:
-      DelRemovesBlocks - "Del удаляет блоки"
-      PersistentBlocks - "Постоянные блоки"
-    + Функции для управления их состоянием:
+    + ╦юъры№э√х яхЁхьхээ√х, т ъюЄюЁ√ї чряюьшэрхЄё  Єю, ўЄю їЁрэшЄ№ё  т
+      эрёЄЁющърї ЁхфръЄюЁр:
+      DelRemovesBlocks - "Del єфры хЄ сыюъш"
+      PersistentBlocks - "╧юёЄю ээ√х сыюъш"
+    + ╘єэъЎшш фы  єяЁртыхэш  шї ёюёЄю эшхь:
       SetDelRemovesBlocks/GetDelRemovesBlocks
       SetPersistentBlocks/GetPersistentBlocks
   15.02.2001 IS
-    - Тело функции SetTabSize переехало в editor.cpp
-    + За режима "Пробелы вместо табуляции" отвечает переменная ConvertTabs
-    + GetConvertTabs и SetConvertTabs
+    - ╥хыю ЇєэъЎшш SetTabSize яхЁххїрыю т editor.cpp
+    + ╟р Ёхцшьр "╧Ёюсхы√ тьхёЄю Єрсєы Ўшш" юЄтхўрхЄ яхЁхьхээр  ConvertTabs
+    + GetConvertTabs ш SetConvertTabs
   14.02.2001 IS
-    + Размер табуляции хранится в TabSize, манипулировать им можно при помощи
+    + ╨рчьхЁ Єрсєы Ўшш їЁрэшЄё  т TabSize, ьрэшяєышЁютрЄ№ шь ьюцэю яЁш яюью∙ш
       GetTabSize, SetTabSize
   13.02.2001 IS
-    + Переменная AttrStr
-    + Функция GetFileAttributes;
+    + ╧хЁхьхээр  AttrStr
+    + ╘єэъЎш  GetFileAttributes;
   12.02.2001 IS
     + FileAttributes
   24.09.2000 SVS
-    + Функция Xlat
+    + ╘єэъЎш  Xlat
   10.08.2000 skv
-    + добавлены int JustModied и void TextChanged(state);
+    + фюсртыхэ√ int JustModied ш void TextChanged(state);
   30.07.2000 KM 1.06
     + LastSearchWholeWords
   21.07.2000 tran
-    - три новых метода  - Bug22
+    - ЄЁш эют√ї ьхЄюфр  - Bug22
   21.07.2000 tran
-    ! GotoLine стала как раньше void и добавилась GoToPosition
+    ! GotoLine ёЄрыр ъръ Ёрэ№°х void ш фюсртшырё№ GoToPosition
   17.07.2000 OT
-    + Застолбить место под разработку "моего" редактора
+    + ╟рёЄюысшЄ№ ьхёЄю яюф ЁрчЁрсюЄъє "ьюхую" ЁхфръЄюЁр
   14.07.2000 tran
-    ! функцию GetRowCol сделал методом класса
+    ! ЇєэъЎш■ GetRowCol ёфхыры ьхЄюфюь ъырёёр
   05.07.2000 tran
-    ! изменил тип возврата у GoToLine() с 'void ' на 'int'
-      возвращаемое значение - это колонка, введенная пользователем
-      используется только в одном месте - в обработке Alt-F8
+    ! шчьхэшы Єшя тючтЁрЄр є GoToLine() ё 'void ' эр 'int'
+      тючтЁр∙рхьюх чэрўхэшх - ¤Єю ъюыюэър, ттхфхээр  яюы№чютрЄхыхь
+      шёяюы№чєхЄё  Єюы№ъю т юфэюь ьхёЄх - т юсЁрсюЄъх Alt-F8
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 class Editor:public ScreenObject
@@ -87,18 +87,18 @@ class Editor:public ScreenObject
     int JustModified;
     /* skv $*/
     /* $ 12.02.2001 IS
-         сюда запомним атрибуты файла при открытии, пригодятся где-нибудь...
+         ё■фр чряюьэшь рЄЁшсєЄ√ Їрщыр яЁш юЄъЁ√Єшш, яЁшуюф Єё  уфх-эшсєф№...
     */
     DWORD FileAttributes;
     /* IS $ */
     /* $ 13.02.2001 IS
-         Сюда запомним буквы атрибутов, чтобы не вычислять их много раз
+         ╤■фр чряюьэшь сєът√ рЄЁшсєЄют, ўЄюс√ эх т√ўшёы Є№ шї ьэюую Ёрч
     */
     char AttrStr[4];
     /* IS $ */
     /* $ 26.02.2001 IS
-         Сюда запомним размер табуляции и в дальнейшем будем использовать его,
-         а не Opt.TabSize
+         ╤■фр чряюьэшь ЁрчьхЁ Єрсєы Ўшш ш т фры№эхщ°хь сєфхь шёяюы№чютрЄ№ хую,
+         р эх Opt.TabSize
     */
     struct EditorOptions EdOpt;
     /* IS $ */
@@ -127,7 +127,7 @@ class Editor:public ScreenObject
 
     unsigned char LastSearchStr[256];
     /* $ 30.07.2000 KM
-       Новая переменная для поиска "Whole words"
+       ═ютр  яхЁхьхээр  фы  яюшёър "Whole words"
     */
     int LastSearchCase,LastSearchWholeWords,LastSearchReverse;
     /* $ KM */
@@ -165,13 +165,13 @@ class Editor:public ScreenObject
     void ScrollUp();
     void Search(int Next);
     /* $ 05.07.2000 tran
-       ! изменил тип возврата у GoToLine() с 'void ' на 'int'
-       возвращаемое значение - это колонка, введенная пользователем
-       используется только в одном месте - в обработке Alt-F8
+       ! шчьхэшы Єшя тючтЁрЄр є GoToLine() ё 'void ' эр 'int'
+       тючтЁр∙рхьюх чэрўхэшх - ¤Єю ъюыюэър, ттхфхээр  яюы№чютрЄхыхь
+       шёяюы№чєхЄё  Єюы№ъю т юфэюь ьхёЄх - т юсЁрсюЄъх Alt-F8
     */
     /* $ 21.07.2000 tran
-       GotoLine стала как раньше void
-       и добавилась GoToPosition
+       GotoLine ёЄрыр ъръ Ёрэ№°х void
+       ш фюсртшырё№ GoToPosition
        */
 
     void GoToLine(int Line);
@@ -188,7 +188,7 @@ class Editor:public ScreenObject
     /* skv $*/
 
     /* $ 13.02.2001 IS
-         Обертка вокруг одноименной функции из win32 api
+         ╬схЁЄър тюъЁєу юфэюшьхээющ ЇєэъЎшш шч win32 api
     */
     DWORD GetFileAttributes(LPCTSTR);
     /* IS $ */
@@ -234,7 +234,7 @@ class Editor:public ScreenObject
     static void SetReplaceMode(int Mode);
 
     /* $ 26.02.2001 IS
-         Функции чтения/установления текущих настроек редактирования
+         ╘єэъЎшш ўЄхэш /єёЄрэютыхэш  Єхъє∙шї эрёЄЁюхъ ЁхфръЄшЁютрэш 
     */
     void SetTabSize(int NewSize);
     int  GetTabSize(void) const {return EdOpt.TabSize; }
@@ -270,7 +270,7 @@ class Editor:public ScreenObject
     /* tran 14.07.2000 $ */
 
     /* $ 21.07.2000 tran
-       три новых метода*/
+       ЄЁш эют√ї ьхЄюфр*/
     int  GetLineCurPos();
     void BeginVBlockMarking();
     void AdjustVBlock(int PrevX);

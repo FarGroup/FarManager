@@ -3,7 +3,7 @@
 /*
 menubar.hpp
 
-Показ горизонтального меню при включенном "Always show menu bar"
+╧юърч уюЁшчюэЄры№эюую ьхэ■ яЁш тъы■ўхээюь "Always show menu bar"
 
 */
 
@@ -12,8 +12,8 @@ menubar.hpp
 /*
 Modify:
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 class MenuBar:public ScreenObject
@@ -23,4 +23,3 @@ class MenuBar:public ScreenObject
 };
 
 #endif	// __MENUBAR_HPP__
-

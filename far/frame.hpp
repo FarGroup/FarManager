@@ -4,7 +4,7 @@
 /*
 frame.hpp
 
-Немодальное окно (базовый класс для FilePanels, FileEditor, FileViewer)
+═хьюфры№эюх юъэю (срчют√щ ъырёё фы  FilePanels, FileEditor, FileViewer)
 
 */
 
@@ -36,9 +36,9 @@ class Frame: public ScreenObject
     virtual int GetTypeAndName(char *Type,char *Name) {return(MODALTYPE_VIRTUAL);};
     virtual int GetType() { return MODALTYPE_VIRTUAL; }
 
-    virtual void OnDestroy() {};  // вызывается перед уничтожением окна
-    virtual void OnCreate() {};   // вызывается перед созданием окна
-    virtual void OnChangeFocus(int focus) {}; // вызывается при смене фокуса
+    virtual void OnDestroy() {};  // т√ч√трхЄё  яхЁхф єэшўЄюцхэшхь юъэр
+    virtual void OnCreate() {};   // т√ч√трхЄё  яхЁхф ёючфрэшхь юъэр
+    virtual void OnChangeFocus(int focus) {}; // т√ч√трхЄё  яЁш ёьхэх Їюъєёр
 
     void SetKeyBar(KeyBar *ModalKeyBar);
     void UpdateKeyBar();

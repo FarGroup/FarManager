@@ -1,7 +1,7 @@
 /*
 poscache.cpp
 
-Кэш позиций в файлах для viewer/editor
+╩¤° яючшЎшщ т Їрщырї фы  viewer/editor
 
 */
 
@@ -10,25 +10,25 @@ poscache.cpp
 /*
 Modify:
   06.04.2001 VVM
-    - Неправильное позиционирование в открытых файлах
+    - ═хяЁртшы№эюх яючшЎшюэшЁютрэшх т юЄъЁ√Є√ї Їрщырї
   02.04.2001 VVM
-    + Обработка Opt.FlagPosixSemantics и убирание дупов с помощью FindPosition()
+    + ╬сЁрсюЄър Opt.FlagPosixSemantics ш єсшЁрэшх фєяют ё яюью∙№■ FindPosition()
   03.11.2000 OT
-    ! Введение проверки возвращаемого значения 
+    ! ┬тхфхэшх яЁютхЁъш тючтЁр∙рхьюую чэрўхэш 
   02.11.2000 OT
-    ! Введение проверки на длину буфера, отведенного под имя файла.
+    ! ┬тхфхэшх яЁютхЁъш эр фышэє сєЇхЁр, юЄтхфхээюую яюф шь  Їрщыр.
   24.09.2000 SVS
-    + Работа по сохранению/восстановлению позиций в файле по RCtrl+<N>
+    + ╨рсюЄр яю ёюїЁрэхэш■/тюёёЄрэютыхэш■ яючшЎшщ т Їрщых яю RCtrl+<N>
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -89,8 +89,8 @@ void FilePositionCache::AddPosition(char *Name,unsigned int Position1,
     }
   }
   /* $ 06.04.2001 VVM
-    - Неправильное позиционирование в открытых файлах 
-      Имена копировал до поиска, а не после :) */
+    - ═хяЁртшы№эюх яючшЎшюэшЁютрэшх т юЄъЁ√Є√ї Їрщырї
+      ╚ьхэр ъюяшЁютры фю яюшёър, р эх яюёых :) */
   int Pos = FindPosition(FullName);
   if (Pos >= 0)
     CurPos = Pos;
@@ -226,7 +226,7 @@ void FilePositionCache::Save(char *Key)
     if((Opt.SaveViewerShortPos && Opt.SaveViewerPos) ||
        (Opt.SaveEditorShortPos && Opt.SaveEditorPos))
     {
-      // Если не запоминались позиции по RCtrl+<N>, то и не записываем их
+      // ┼ёыш эх чряюьшэрышё№ яючшЎшш яю RCtrl+<N>, Єю ш эх чряшё√трхь шї
       for(J=0; J < 40*sizeof(long); ++J)
         if(ShortPos[Pos*40+J] != 0xFFFFFFFFU)
           break;
@@ -239,4 +239,3 @@ void FilePositionCache::Save(char *Key)
     }
   }
 }
-

@@ -1,7 +1,7 @@
 /*
 manager.cpp
 
-¥à¥ª«îç¥­¨¥ ¬¥¦¤ã ­¥áª®«ìª¨¬¨ file panels, viewers, editors
+Ïåðåêëþ÷åíèå ìåæäó íåñêîëüêèìè file panels, viewers, editors
 
 */
 
@@ -9,39 +9,39 @@ manager.cpp
 
 /*
 Modify:
-  06.05.2001 Ž’
-    ! ¥à¥¨¬¥­®¢ ­¨¥ Window ¢ Frame :)
+  06.05.2001 ÎÒ
+    ! Ïåðåèìåíîâàíèå Window â Frame :)
   05.05.2001 DJ
-    + ¯¥à¥âàïå NWZ
+    + ïåðåòðÿõ NWZ
   04.05.2001 OT
-    + ¥¢¥à­® ä®à¬¨à®¢ «®áì ¬¥­î ¯« £¨­®¢ ¯® F11 (NWZ)
-      ˆ§¬¥­¨«áï PluginSet::CommandsMenu()
-  29.04.2001 Ž’
-    + ‚­¥¤à¥­¨¥ NWZ ®â ’à¥âìïª®¢ 
+    + Íåâåðíî ôîðìèðîâàëîñü ìåíþ ïëàãèíîâ ïî F11 (NWZ)
+      Èçìåíèëñÿ PluginSet::CommandsMenu()
+  29.04.2001 ÎÒ
+    + Âíåäðåíèå NWZ îò Òðåòüÿêîâà
   29.12.2000 IS
-    + Œ¥â®¤ ExitAll -  ­ «®£ CloseAll, ­® à §à¥è ¥â ¯à®¤®«¦¥­¨¥ ¯®«­®æ¥­­®©
-      à ¡®âë ¢ ä à¥, ¥á«¨ ¯®«ì§®¢ â¥«ì ¯à®¤®«¦¨« à¥¤ ªâ¨à®¢ âì ä ©«.
-      ‚®§¢à é ¥â TRUE, ¥á«¨ ¢á¥ § ªàë«¨ ¨ ¬®¦­® ¢ëå®¤¨âì ¨§ ä à .
+    + Ìåòîä ExitAll - àíàëîã CloseAll, íî ðàçðåøàåò ïðîäîëæåíèå ïîëíîöåííîé
+      ðàáîòû â ôàðå, åñëè ïîëüçîâàòåëü ïðîäîëæèë ðåäàêòèðîâàòü ôàéë.
+      Âîçâðàùàåò TRUE, åñëè âñå çàêðûëè è ìîæíî âûõîäèòü èç ôàðà.
   28.07.2000 tran 1.04
-    + ª®á¬¥â¨ª  ¯à¨ ¢ë¢®¤¥ á¯¨áª  ®ª®­ -
-      ¨§¬¥­¥­­ë¥ ä ©«ë ¢ à¥¤ ªâ®à¥ ¬ àª¨àãîâáï "*"
+    + êîñìåòèêà ïðè âûâîäå ñïèñêà îêîí -
+      èçìåíåííûå ôàéëû â ðåäàêòîðå ìàðêèðóþòñÿ "*"
   13.07.2000 SVS
-    ! ¥ª®â®àë¥ ª®àà¥ªæ¨¨ ¯à¨ ¨á¯®«ì§®¢ ­¨¨ new/delete/realloc
+    ! Íåêîòîðûå êîððåêöèè ïðè èñïîëüçîâàíèè new/delete/realloc
   11.07.2000 SVS
-    ! ˆ§¬¥­¥­¨ï ¤«ï ¢®§¬®¦­®áâ¨ ª®¬¯¨«ïæ¨¨ ¯®¤ BC & VC
+    ! Èçìåíåíèÿ äëÿ âîçìîæíîñòè êîìïèëÿöèè ïîä BC & VC
   28.06.2000 tran
     - NT Console resize
       add class member ActiveModal
   25.06.2000 SVS
-    ! ®¤£®â®¢ª  Master Copy
-    ! ‚ë¤¥«¥­¨¥ ¢ ª ç¥áâ¢¥ á ¬®áâ®ïâ¥«ì­®£® ¬®¤ã«ï
+    ! Ïîäãîòîâêà Master Copy
+    ! Âûäåëåíèå â êà÷åñòâå ñàìîñòîÿòåëüíîãî ìîäóëÿ
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   ‘â ­¤ àâ­ë¥ § £®«®¢ª¨
+   Ñòàíäàðòíûå çàãîëîâêè
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -66,9 +66,9 @@ Manager::~Manager()
 
 
 /* $ 29.12.2000 IS
-  €­ «®£ CloseAll, ­® à §à¥è ¥â ¯à®¤®«¦¥­¨¥ ¯®«­®æ¥­­®© à ¡®âë ¢ ä à¥,
-  ¥á«¨ ¯®«ì§®¢ â¥«ì ¯à®¤®«¦¨« à¥¤ ªâ¨à®¢ âì ä ©«.
-  ‚®§¢à é ¥â TRUE, ¥á«¨ ¢á¥ § ªàë«¨ ¨ ¬®¦­® ¢ëå®¤¨âì ¨§ ä à .
+  Àíàëîã CloseAll, íî ðàçðåøàåò ïðîäîëæåíèå ïîëíîöåííîé ðàáîòû â ôàðå,
+  åñëè ïîëüçîâàòåëü ïðîäîëæèë ðåäàêòèðîâàòü ôàéë.
+  Âîçâðàùàåò TRUE, åñëè âñå çàêðûëè è ìîæíî âûõîäèòü èç ôàðà.
 */
 BOOL Manager::ExitAll()
 {
@@ -120,8 +120,8 @@ void Manager::CloseAll()
     delete CurModal;
   }
   /* $ 13.07.2000 SVS
-     ‡¤¥áì ¡ë«® "delete ModalList;", ­® ¯¥à¥à á¯à¥¤¥«¥­¨¥ ¬ áá¨¢  ááë«®ª
-     ¨¤¥â ç¥à¥§ realloc...
+     Çäåñü áûëî "delete ModalList;", íî ïåðåðàñïðåäåëåíèå ìàññèâà ññûëîê
+     èäåò ÷åðåç realloc...
   */
   free(ModalList);
   /* SVS $ */
@@ -320,9 +320,9 @@ void Manager::SelectFrame()
       else
         strcpy(NumText,"&   ");
       /* $ 28.07.2000 tran
-         ä ©« ãá¥ª ¥â ¯® è¨à¨­¥ íªà ­  */
+         ôàéë óñåêàåò ïî øèðèíå ýêðàíà */
       TruncPathStr(Name,ScrX-40);
-      /*  ¤®¡ ¢«ï¥âáï "*" ¥á«¨ ä ©« ¨§¬¥­¥­ */
+      /*  äîáàâëÿåòñÿ "*" åñëè ôàéë èçìåíåí */
       sprintf(ModalMenuItem.Name,"%s%-20s %c %s",NumText,Type,(FrameList[I]->IsFileModified()?'*':' '),Name);
       /* tran 28.07.2000 $ */
       ModalMenuItem.Selected=(I==FramePos);
@@ -476,8 +476,8 @@ void Manager::ExitMainLoop(int Ask)
 {
   if (!Ask || !Opt.Confirm.Exit || Message(0,2,MSG(MQuit),MSG(MAskQuit),MSG(MYes),MSG(MNo))==0)
    /* $ 29.12.2000 IS
-      + à®¢¥àï¥¬, á®åà ­¥­ë «¨ ¢á¥ ¨§¬¥­¥­­ë¥ ä ©«ë. …á«¨ ­¥â, â® ­¥ ¢ëå®¤¨¬
-        ¨§ ä à .
+      + Ïðîâåðÿåì, ñîõðàíåíû ëè âñå èçìåíåííûå ôàéëû. Åñëè íåò, òî íå âûõîäèì
+        èç ôàðà.
    */
    if(ExitAll())
    /* IS $ */
@@ -521,14 +521,14 @@ int  Manager::ProcessKey(int Key)
         }
         SysLog("Manager::ProcessKey(), to CurrentFrame 0x%p, '%s'",CurrentFrame, CurrentFrame->GetTypeName());;
         CurrentFrame->UpdateKeyBar();
-        // á®åà ­ï¥¬, ¯®â®¬ã çâ® ¢­ãâà¨ ProcessKey
-        // ¬®¦¥â ¡ëâì ¢ë§¢ ­ AddModal ¨
-        // CurrentModal ¡ã¤¥â ¨§¬¥­¥­.
+        // ñîõðàíÿåì, ïîòîìó ÷òî âíóòðè ProcessKey
+        // ìîæåò áûòü âûçâàí AddModal è
+        // CurrentModal áóäåò èçìåíåí.
         Frame *cw=CurrentFrame;
         ret=CurrentFrame->ProcessKey(Key);
         if ( ret )
         {
-            //   â ª ¯à®¢¥àï¥¬ ª®¤ ¢ëå®¤  ã â®£®, ª®£® ­ ¤®
+            // à òàê ïðîâåðÿåì êîä âûõîäà ó òîãî, êîãî íàäî
             if ( cw->GetExitCode()==XC_QUIT )
                 DestroyFrame(cw);
         }
@@ -552,7 +552,7 @@ int  Manager::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 void Manager::PluginsMenu()
 {
   SysLog(1);
- // ®¬¥­ï«áï ¢ë§®¢ ª®¬¬ ­¤á  §®¡à âìáï
+ // Ïîìåíÿëñÿ âûçîâ êîììàíäñ Ðàçîáðàòüñÿ
 ///    CtrlObject->Plugins.CommandsMenu(CurrentModal->GetTypeAndName(0,0),0,0);
   int curType = CurrentFrame->GetType();
   if (curType == MODALTYPE_PANELS || curType == MODALTYPE_EDITOR || curType == MODALTYPE_VIEWER)

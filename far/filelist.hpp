@@ -3,7 +3,7 @@
 /*
 filelist.hpp
 
-Файловая панель - общие функции
+╘рщыютр  ярэхы№ - юс∙шх ЇєэъЎшш
 
 */
 
@@ -14,28 +14,28 @@ Modify:
   30.04.2001 DJ
     + UpdateKeyBar()
   26.04.2001 VVM
-    + Scroll() - прокрутить файлы, не двигая курсор
+    + Scroll() - яЁюъЁєЄшЄ№ Їрщы√, эх фтшур  ъєЁёюЁ
   25.04.2001 SVS
-    + GetRealSelCount() - сейчас используется для макросов.
+    + GetRealSelCount() - ёхщўрё шёяюы№чєхЄё  фы  ьръЁюёют.
   24.04.2001 VVM
-    + Функция для смены порядка сортировки.
+    + ╘єэъЎш  фы  ёьхэ√ яюЁ фър ёюЁЄшЁютъш.
   09.04.2001 SVS
-    ! ChangeDir() возвращает FALSE, если файловая панель была закрыта
+    ! ChangeDir() тючтЁр∙рхЄ FALSE, хёыш Їрщыютр  ярэхы№ с√ыр чръЁ√Єр
   25.02.2001 VVM
-    + Доп. параметр у ReadDiz - dwFlags
+    + ─юя. ярЁрьхЄЁ є ReadDiz - dwFlags
   09.02.2001 IS
     + Get(Set)SelectedFirstMode
   04.01.2001 SVS
     ! TranslateKeyToVK() -> keyboard.cpp
   27.09.2000 SVS
-    ! FileList::CallPlugin() перенесен в PluginsSet
+    ! FileList::CallPlugin() яхЁхэхёхэ т PluginsSet
   21.09.2000 SVS
-    + Функция CallPlugin - найти плагин по ID и запустить
+    + ╘єэъЎш  CallPlugin - эрщЄш яырушэ яю ID ш чряєёЄшЄ№
   11.09.2000 SVS
-    + Переменная IsEmpty, указывающая на полностью пустую колонку
+    + ╧хЁхьхээр  IsEmpty, єърч√тр■∙р  эр яюыэюёЄ№■ яєёЄє■ ъюыюэъє
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 class FileList:public Panel
@@ -68,7 +68,7 @@ class FileList:public Panel
     int MouseSelection;
     int SelectedFirst;
     /* $ 11.09.2000 SVS
-       Переменная IsEmpty, указывающая на полностью пустую колонку
+       ╧хЁхьхээр  IsEmpty, єърч√тр■∙р  эр яюыэюёЄ№■ яєёЄє■ ъюыюэъє
     */
     int IsEmpty;
     /* SVS $ */
@@ -83,8 +83,8 @@ class FileList:public Panel
 
   private:
     /* $ 09.02.2001 IS
-       Функции установления/считывания состояния режима
-       "Помеченные файлы вперед"
+       ╘єэъЎшш єёЄрэютыхэш /ёўшЄ√трэш  ёюёЄю эш  Ёхцшьр
+       "╧юьхўхээ√х Їрщы√ тяхЁхф"
     */
     void SetSelectedFirstMode(int Mode);
     int GetSelectedFirstMode(void) {return SelectedFirst;};
@@ -106,7 +106,7 @@ class FileList:public Panel
     void SelectFiles(int Mode);
     void ProcessEnter(int EnableExec,int SeparateWindow);
     /* $ 09.04.2001 SVS
-       ChangeDir возвращает FALSE, eсли файловая панель была закрыта
+       ChangeDir тючтЁр∙рхЄ FALSE, eёыш Їрщыютр  ярэхы№ с√ыр чръЁ√Єр
     */
     BOOL ChangeDir(char *NewDir);
     /* SVS $ */
@@ -212,7 +212,7 @@ class FileList:public Panel
     void SetTitle();
 
     /* $ 30.04.2001 DJ
-       добавлен UpdateKeyBar()
+       фюсртыхэ UpdateKeyBar()
     */
     virtual BOOL UpdateKeyBar();
     /* DJ $ */

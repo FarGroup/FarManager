@@ -11,90 +11,90 @@
 /* Revision: 1.98 04.05.2001 $ */
 
 /*
-ВНИМАНИЕ!
-В этом файле писать все изменения только в в этом блоке!!!!
+┬═╚╠└═╚┼!
+┬ ¤Єюь Їрщых яшёрЄ№ тёх шчьхэхэш  Єюы№ъю т т ¤Єюь сыюъх!!!!
 
 Modify:
   04.05.2001 SVS
-    ! Наконец то дошли руки до DI_LISTBOX ;-) - новый член FarDialogItem.ListPos
+    ! ═ръюэхЎ Єю фю°ыш Ёєъш фю DI_LISTBOX ;-) - эют√щ ўыхэ FarDialogItem.ListPos
   24.04.2001 SVS
-    + PanelInfo.Flags, флаги PANELINFOFLAGS.
+    + PanelInfo.Flags, Їыруш PANELINFOFLAGS.
   22.04.2001 SVS
-    + EJECT_LOAD_MEDIA - работает только в NT/2000
+    + EJECT_LOAD_MEDIA - ЁрсюЄрхЄ Єюы№ъю т NT/2000
   12.04.2001 SVS
-    + DM_ADDHISTORY - добавить строку в историю
-    + DIF_MANUALADDHISTORY - добавлять в историю только "ручками"
+    + DM_ADDHISTORY - фюсртшЄ№ ёЄЁюъє т шёЄюЁш■
+    + DIF_MANUALADDHISTORY - фюсрты Є№ т шёЄюЁш■ Єюы№ъю "Ёєўърьш"
   03.04.2001 IS
     + ESPT_AUTOINDENT, ESPT_CURSORBEYONDEOL, ESPT_CHARCODEBASE
   26.03.2001 SVS
-    + FHELP_USECONTENTS - если не найден требует топик, то отобразить "Contents"
+    + FHELP_USECONTENTS - хёыш эх эрщфхэ ЄЁхсєхЄ Єюяшъ, Єю юЄюсЁрчшЄ№ "Contents"
   24.03.2001 tran
     + qsortex
   21.03.2001 VVM
-    + Флаг EF_CREATENEW для редактора - создать новый файл (аналог SHIFT+F4)
+    + ╘ыру EF_CREATENEW фы  ЁхфръЄюЁр - ёючфрЄ№ эют√щ Їрщы (рэрыюу SHIFT+F4)
   20.03.2001 tran 1.89
-    + FarRecursiveSearch - добавлен void *param
+    + FarRecursiveSearch - фюсртыхэ void *param
   19.03.2001 SVS
-    ! DN_CLOSE=DM_CLOSE, DN_KEY=DM_KEY - для наглядности. :-)
+    ! DN_CLOSE=DM_CLOSE, DN_KEY=DM_KEY - фы  эруы фэюёЄш. :-)
   16.02.2001 IS
-    + Добавлена проверка правильности выравнивания на основе известного
-      размера PluginPanelItem - он должен быть равным 366. Если это не так, то
-      если определено STRICT, то компилирование вообще прекратится, иначе -
-      будет выдан warning
+    + ─юсртыхэр яЁютхЁър яЁртшы№эюёЄш т√Ёртэштрэш  эр юёэютх шчтхёЄэюую
+      ЁрчьхЁр PluginPanelItem - юэ фюыцхэ с√Є№ Ёртэ√ь 366. ┼ёыш ¤Єю эх Єръ, Єю
+      хёыш юяЁхфхыхэю STRICT, Єю ъюьяшышЁютрэшх тююс∙х яЁхъЁрЄшЄё , шэрўх -
+      сєфхЄ т√фрэ warning
   16.02.2001 IS
-    + команда ECTL_SETPARAM - изменить некую настройку редактора
-    + EDITOR_SETPARAMETER_TYPES - тип настройки
-    + структура EditorSetParameter - информация о типе настройки и все
-      остальном
+    + ъюьрэфр ECTL_SETPARAM - шчьхэшЄ№ эхъє■ эрёЄЁющъє ЁхфръЄюЁр
+    + EDITOR_SETPARAMETER_TYPES - Єшя эрёЄЁющъш
+    + ёЄЁєъЄєЁр EditorSetParameter - шэЇюЁьрЎш  ю Єшях эрёЄЁющъш ш тёх
+      юёЄры№эюь
   13.02.2001 SVS
-    ! В связи с введением DIF_VAREDIT для DI_COMBOBOX изменена структура
-      FarListItem и добавлен флаг LIF_PTRDATA
-    ! Изменено значение флага LIF_DISABLE
-    ! Изменены имена полей структуры FarDialogItemData - для "похожести"
-      на диалог.
+    ! ┬ ёт чш ё ттхфхэшхь DIF_VAREDIT фы  DI_COMBOBOX шчьхэхэр ёЄЁєъЄєЁр
+      FarListItem ш фюсртыхэ Їыру LIF_PTRDATA
+    ! ╚чьхэхэю чэрўхэшх Їырур LIF_DISABLE
+    ! ╚чьхэхэ√ шьхэр яюыхщ ёЄЁєъЄєЁ√ FarDialogItemData - фы  "яюїюцхёЄш"
+      эр фшрыюу.
   11.02.2001 SVS
-    ! FarDialogItem - изменения, касаемые Ptr
-    + DIF_VAREDIT - флаг, указывающий на то, что будет использоваться
-      FarDialogItem.Ptr вместо FarDialogItem.Data
+    ! FarDialogItem - шчьхэхэш , ърёрхь√х Ptr
+    + DIF_VAREDIT - Їыру, єърч√тр■∙шщ эр Єю, ўЄю сєфхЄ шёяюы№чютрЄ№ё 
+      FarDialogItem.Ptr тьхёЄю FarDialogItem.Data
   11.02.2001 SVS
-    ! Изменения в LISTITEMFLAGS - флаги переехали в старшее слово
+    ! ╚чьхэхэш  т LISTITEMFLAGS - Їыруш яхЁххїрыш т ёЄрЁ°хх ёыютю
   28.01.2001 SVS
-    ! SequenceKey.Sequence НЕ! "валяются" VK_* - только KEY_*
-    + FMSG_ALLINONE - в качестве Items передается указатель на
-      строку, в которой разделители строк - символ '\n'
-    + FMSG_MB_* - дополнительно показать кнопки (в Items можно не указывать)
+    ! SequenceKey.Sequence ═┼! "тры ■Єё " VK_* - Єюы№ъю KEY_*
+    + FMSG_ALLINONE - т ърўхёЄтх Items яхЁхфрхЄё  єърчрЄхы№ эр
+      ёЄЁюъє, т ъюЄюЁющ ЁрчфхышЄхыш ёЄЁюъ - ёшьтюы '\n'
+    + FMSG_MB_* - фюяюыэшЄхы№эю яюърчрЄ№ ъэюяъш (т Items ьюцэю эх єърч√трЄ№)
   25.01.2001 SVS
-    ! Тип SequenceKey.Sequence изменен на DWORD
-    + SKEY_VK_KEYS - в SequenceKey.Sequence "валяются" VK_* вместо KEY_*
+    ! ╥шя SequenceKey.Sequence шчьхэхэ эр DWORD
+    + SKEY_VK_KEYS - т SequenceKey.Sequence "тры ■Єё " VK_* тьхёЄю KEY_*
   23.01.2001 SVS
-    + SKEY_NOTMACROS - не использовать бинденные клавиши в SequenceKey
-    + ViewerInfo.LeftPos и ViewerInfo.Reserved3;
+    + SKEY_NOTMACROS - эх шёяюы№чютрЄ№ сшэфхээ√х ъыртш°ш т SequenceKey
+    + ViewerInfo.LeftPos ш ViewerInfo.Reserved3;
   21.01.2001 SVS
     + struct SequenceKey
     + ACTL_PROCESSSEQUENCEKEY
   21.01.2001 IS
-    ! Для однообразия с редактором изменил пару названий:
+    ! ─ы  юфэююсЁрчш  ё ЁхфръЄюЁюь шчьхэшы ярЁє эрчтрэшщ:
       VCTL_SETPOS -> VCTL_SETPOSITION
       AnsiText -> AnsiMode
   19.01.2001 SVS
-    ! перестановки в командах VIEWER_CONTROL_COMMANDS
-    + некоторые структуры для Viewer API: ViewerSelect, ViewerSetPosition и
-      перечисление VIEWER_SETPOS_FLAGS
+    ! яхЁхёЄрэютъш т ъюьрэфрї VIEWER_CONTROL_COMMANDS
+    + эхъюЄюЁ√х ёЄЁєъЄєЁ√ фы  Viewer API: ViewerSelect, ViewerSetPosition ш
+      яхЁхўшёыхэшх VIEWER_SETPOS_FLAGS
   03.01.2001 SVS
-    + DIF_HIDDEN - элемент не видим
-    + DM_SHOWITEM показать/скрыть элемент
+    + DIF_HIDDEN - ¤ыхьхэЄ эх тшфшь
+    + DM_SHOWITEM яюърчрЄ№/ёъЁ√Є№ ¤ыхьхэЄ
   25.12.2000 SVS
-    ! ACTL_KEYMACRO поддерживает только 2 команды: MCMD_LOADALL, MCMD_SAVEALL
+    ! ACTL_KEYMACRO яюффхЁцштрхЄ Єюы№ъю 2 ъюьрэф√: MCMD_LOADALL, MCMD_SAVEALL
   23.12.2000 SVS
-    + MCMD_PLAYSTRING - "проиграть" строку.
-    + MACRO_* - области действия макросов
-    ! ActlKeyMacro - уточнения содержимого стркутуры для команды MCMD_PLAYSTRING
-    + MFLAGS_ - флаги макроса
+    + MCMD_PLAYSTRING - "яЁюшуЁрЄ№" ёЄЁюъє.
+    + MACRO_* - юсырёЄш фхщёЄтш  ьръЁюёют
+    ! ActlKeyMacro - єЄюўэхэш  ёюфхЁцшьюую ёЄЁъєЄєЁ√ фы  ъюьрэф√ MCMD_PLAYSTRING
+    + MFLAGS_ - Їыруш ьръЁюёр
   21.12.2000 SVS
     + ACTL_KEYMACRO
-    + структура ActlKeyMacro (с зарезервированными полями :-)
-    + MacroCommand: MCMD_LOADALL, MCMD_SAVEALL (на этом пока остановимся,
-      остальное будет опосля)
+    + ёЄЁєъЄєЁр ActlKeyMacro (ё чрЁхчхЁтшЁютрээ√ьш яюы ьш :-)
+    + MacroCommand: MCMD_LOADALL, MCMD_SAVEALL (эр ¤Єюь яюър юёЄрэютшьё ,
+      юёЄры№эюх сєфхЄ юяюёы )
   21.12.2000 SVS
     + DM_GETTEXTPTR, DM_SETTEXTPTR
   18.12.2000 SVS
@@ -102,90 +102,90 @@ Modify:
   14.12.2000 SVS
     + ACTL_EJECTMEDIA & struct ActlEjectMedia & EJECT_NO_MESSAGE
   08.12.2000 SVS 1.70
-    ! Оригинальный номер ревизии получился - 1.70 ;-) - символично.
-      Для DM_SETTEXT, DM_GETTEXT в Param2 передается структура
+    ! ╬Ёшушэры№э√щ эюьхЁ Ёхтшчшш яюыєўшыё  - 1.70 ;-) - ёшьтюышўэю.
+      ─ы  DM_SETTEXT, DM_GETTEXT т Param2 яхЁхфрхЄё  ёЄЁєъЄєЁр
       FarDialogItemData.
   07.12.2000 SVS
-    ! Изменена константа FARMANAGERVERSION. Остальное читайте в
+    ! ╚чьхэхэр ъюэёЄрэЄр FARMANAGERVERSION. ╬ёЄры№эюх ўшЄрщЄх т
       DIFF.DOC\00300.FAR_VERSION.txt
   04.12.2000 SVS
-    + DIF_3STATE - 3-х уровневый CheckBox
-    + ACTL_GETCOLOR - получить определенный цвет
-    + ACTL_GETARRAYCOLOR - получить весь массив цветов
+    + DIF_3STATE - 3-ї єЁютэхт√щ CheckBox
+    + ACTL_GETCOLOR - яюыєўшЄ№ юяЁхфхыхээ√щ ЎтхЄ
+    + ACTL_GETARRAYCOLOR - яюыєўшЄ№ тхё№ ьрёёшт ЎтхЄют
   04.11.2000 SVS
-    + XLAT_SWITCHKEYBBEEP - выдать звуковой сигнал при переключении
-      клавиатуры
+    + XLAT_SWITCHKEYBBEEP - т√фрЄ№ чтєъютющ ёшуэры яЁш яхЁхъы■ўхэшш
+      ъыртшрЄєЁ√
   02.11.2000 OT
-    ! Введение проверки на длину буфера, отведенного под имя файла.
+    ! ┬тхфхэшх яЁютхЁъш эр фышэє сєЇхЁр, юЄтхфхээюую яюф шь  Їрщыр.
   26.10.2000 SVS
     ! DM_SETEDITPOS/DM_GETEDITPOS -> DM_SETCURSORPOS/DM_GETCURSORPOS
   25.10.2000 IS
-    + Изменил имя параметра в MkTemp с Template на Prefix
+    + ╚чьхэшы шь  ярЁрьхЄЁр т MkTemp ё Template эр Prefix
   23.10.2000 SVS
     + DM_SETEDITPOS, DM_GETEDITPOS -
-      позиционирование курсора в строках редактирования.
+      яючшЎшюэшЁютрэшх ъєЁёюЁр т ёЄЁюърї ЁхфръЄшЁютрэш .
   20.10.2000 SVS
-    ! ProcessName: Flags должен быть DWORD, а не int
+    ! ProcessName: Flags фюыцхэ с√Є№ DWORD, р эх int
   20.10.2000 SVS
-    + DM_GETFOCUS - получить ID элемента имеющего фокус ввода
+    + DM_GETFOCUS - яюыєўшЄ№ ID ¤ыхьхэЄр шьх■∙хую Їюъєё ттюфр
   09.10.2000 IS
-    + Флаги для ProcessName (PN_*)
-    + Указатель в FARSTANDARDFUNCTIONS на ProcessName;
+    + ╘ыруш фы  ProcessName (PN_*)
+    + ╙ърчрЄхы№ т FARSTANDARDFUNCTIONS эр ProcessName;
   27.09.2000 SVS
-    + VCTL_QUIT      - закрыть вьювер
-    + VCTL_GETINFO   - получение информации о Viewer
-    + VCTL_SETKEYBAR - функция установки KeyBar Labels во вьювере
+    + VCTL_QUIT      - чръЁ√Є№ т№■тхЁ
+    + VCTL_GETINFO   - яюыєўхэшх шэЇюЁьрЎшш ю Viewer
+    + VCTL_SETKEYBAR - ЇєэъЎш  єёЄрэютъш KeyBar Labels тю т№■тхЁх
   27.09.2000 skv
     + DeleteBuffer
   26.09.2000 SVS
     ! FARSTDKEYTOTEXT -> FARSTDKEYTOKEYNAME
   24.09.2000 SVS
-    ! Чистка файла от комментариев - писать только в этом блоке (Modify)!!!
+    ! ╫шёЄър Їрщыр юЄ ъюььхэЄрЁшхт - яшёрЄ№ Єюы№ъю т ¤Єюь сыюъх (Modify)!!!
     ! FarKeyToText -> FarKeyToName
     + FarNameToKey
   21.09.2000 SVS
-    + OPEN_FILEPANEL открыт из файловой панели.
-    + Поле PluginInfo.SysID - системный идентификатор плагина
+    + OPEN_FILEPANEL юЄъЁ√Є шч Їрщыютющ ярэхыш.
+    + ╧юых PluginInfo.SysID - ёшёЄхьэ√щ шфхэЄшЇшърЄюЁ яырушэр
   20.09.2000 SVS
-    ! удалил FolderPresent (блин, совсем крышу сорвало :-(
+    ! єфрышы FolderPresent (сышэ, ёютёхь ъЁ√°є ёюЁтрыю :-(
   19.09.2000 SVS
-    + выравнивание на 2 байта
-    + функция FSF.FolderPresent - "сужествует ли каталог"
+    + т√Ёртэштрэшх эр 2 срщЄр
+    + ЇєэъЎш  FSF.FolderPresent - "ёєцхёЄтєхЄ ыш ърЄрыюу"
   18.09.2000 SVS
-    + DIF_READONLY - флаг для строк редактирования
-      (пока! для строк редактирования).
+    + DIF_READONLY - Їыру фы  ёЄЁюъ ЁхфръЄшЁютрэш 
+      (яюър! фы  ёЄЁюъ ЁхфръЄшЁютрэш ).
   18.09.2000 SVS
-    ! Функция DialogEx имеет 2 дополнительных параметра (Future)
-    ! переделки в struct PluginStartupInfo!!!!
+    ! ╘єэъЎш  DialogEx шьххЄ 2 фюяюыэшЄхы№э√ї ярЁрьхЄЁр (Future)
+    ! яхЁхфхыъш т struct PluginStartupInfo!!!!
     ! FarRecurseSearch -> FarRecursiveSearch
     ! FRS_RECURSE -> FRS_RECUR
   14.09.2000 SVS
-    ! Ошибка в названии XLAT_SWITCHKEYBLAYOUT.
+    ! ╬°шсър т эрчтрэшш XLAT_SWITCHKEYBLAYOUT.
     + FSF.MkTemp
-    + Флаг DIF_LISTNOAMPERSAND. По умолчанию для DI_LISTBOX
-      выставляется флаг MENU_SHOWAMPERSAND. Этот флаг подавляет такое
-      повдедение
+    + ╘ыру DIF_LISTNOAMPERSAND. ╧ю єьюыўрэш■ фы  DI_LISTBOX
+      т√ёЄрты хЄё  Їыру MENU_SHOWAMPERSAND. ▌ЄюЄ Їыру яюфрты хЄ Єръюх
+      яютфхфхэшх
   13.09.2000 skv
     + EEREDRAW_XXXXX defines
   12.09.2000 SVS
-    + Флаги FHELP_* для функции ShowHelp
-    ! FSF.ShowHelp возвращает BOOL
+    + ╘ыруш FHELP_* фы  ЇєэъЎшш ShowHelp
+    ! FSF.ShowHelp тючтЁр∙рхЄ BOOL
   10.09.2000 SVS
-    ! KeyToText возвращает BOOL, если нет такой клавиши.
+    ! KeyToText тючтЁр∙рхЄ BOOL, хёыш эхЄ Єръющ ъыртш°ш.
   10.09.2000 SVS 1.46
     + typedef struct _CHAR_INFO    CHAR_INFO;
-      На тот случай, если wincon.h не был загружен.
+      ═р ЄюЄ ёыєўрщ, хёыш wincon.h эх с√ы чруЁєцхэ.
   10.09.2000 tran 1.45
     + FSF/FarRecurseSearch
   10.09.2000 SVS 1.44
-    ! Наконец-то нашлось приемлемое имя для QWERTY -> Xlat.
-    + DIF_NOFOCUS - элемент не получает фокуса ввода (клавиатурой)
-    + CHAR_INFO *VBuf; в элементах диалога
-    + DIF_SELECTONENTRY - выделение Edit при получении фокуса
+    ! ═ръюэхЎ-Єю эр°ыюё№ яЁшхьыхьюх шь  фы  QWERTY -> Xlat.
+    + DIF_NOFOCUS - ¤ыхьхэЄ эх яюыєўрхЄ Їюъєёр ттюфр (ъыртшрЄєЁющ)
+    + CHAR_INFO *VBuf; т ¤ыхьхэЄрї фшрыюур
+    + DIF_SELECTONENTRY - т√фхыхэшх Edit яЁш яюыєўхэшш Їюъєёр
   08.09.2000 VVM
     + FCTL_SETSORTMODE, FCTL_SETANOTHERSORTMODE
       FCTL_SETSORTORDER, FCTL_SETANOTHERSORTORDER
-      Смена сортировки на панели
+      ╤ьхэр ёюЁЄшЁютъш эр ярэхыш
   08.09.2000 SVS
     ! QWERTY -> Transliterate
     ! QWED_SWITCHKEYBLAYER -> EDTR_SWITCHKEYBLAYER
@@ -195,65 +195,65 @@ Modify:
   07.09.2000 skv
     + ECTL_PROCESSKEY
   07.09.2000 VVM 1.39
-    + PF_FULLCMDLINE флаг для передачи плагину всей строки вместе с
-      префиксом
+    + PF_FULLCMDLINE Їыру фы  яхЁхфрўш яырушэє тёхщ ёЄЁюъш тьхёЄх ё
+      яЁхЇшъёюь
   07.09.2000 SVS 1.38
     + FSF.bsearch
     + FSF.GetFileOwner
     + FSF.GetNumberOfLinks;
   05.09.2000 SVS 1.37
-    + QWERTY - перекодировщик - StandardFunctions.EDQwerty
+    + QWERTY - яхЁхъюфшЁют∙шъ - StandardFunctions.EDQwerty
   01.09.2000 SVS
-    + конструкция (с подачи MY)
+    + ъюэёЄЁєъЎш  (ё яюфрўш MY)
       #ifndef _WINCON_
       typedef struct _INPUT_RECORD INPUT_RECORD;
       #endif
   31.08.2000 tran 1.35
     + FSF: int FarInputRecordToKey(INPUT_RECORD*r);
   31.08.2000 SVS
-    ! изменение FSF-функций
+    ! шчьхэхэшх FSF-ЇєэъЎшщ
       FSF.RemoveLeadingSpaces =FSF.LTrim
       FSF.RemoveTrailingSpaces=FSF.RTrim
       FSF.RemoveExternalSpaces=FSF.Trim
     + DM_ENABLE
-    + Флаг DIF_DISABLE переводящий элемент диалога в состояние Disable
-    + Флаг LIF_DISABLE переводящий элемент списка в состояние Disable
+    + ╘ыру DIF_DISABLE яхЁхтюф ∙шщ ¤ыхьхэЄ фшрыюур т ёюёЄю эшх Disable
+    + ╘ыру LIF_DISABLE яхЁхтюф ∙шщ ¤ыхьхэЄ ёяшёър т ёюёЄю эшх Disable
   30.08.2000 SVS
-    ! Пал смертью храбрых флаг FMI_GETFARMSGID
-    + DM_MOVEDIALOG - переместить диалог.
+    ! ╧ры ёьхЁЄ№■ їЁрсЁ√ї Їыру FMI_GETFARMSGID
+    + DM_MOVEDIALOG - яхЁхьхёЄшЄ№ фшрыюу.
   29.08.2000 SVS
-    ! Вот и глючек вылез с unsigned char во внутренней структуре DialogItem,
-      и из-за этого uchar элемент DI_USERCONTROL не может быть > 255 :-((((((
+    ! ┬юЄ ш уы■ўхъ т√ыхч ё unsigned char тю тэєЄЁхээхщ ёЄЁєъЄєЁх DialogItem,
+      ш шч-чр ¤Єюую uchar ¤ыхьхэЄ DI_USERCONTROL эх ьюцхЄ с√Є№ > 255 :-((((((
   29.08.2000 SVS
-    + Плагин может запросить "месаг" из FAR*.LNG, для этого
-      небходимо к MsgId (в функции GetMsg)добавить флаг FMI_GETFARMSGID
+    + ╧ырушэ ьюцхЄ чряЁюёшЄ№ "ьхёру" шч FAR*.LNG, фы  ¤Єюую
+      эхсїюфшью ъ MsgId (т ЇєэъЎшш GetMsg)фюсртшЄ№ Їыру FMI_GETFARMSGID
   28.08.2000 SVS
-    + SFS-функции аля Local*
-    ! уточнение для FARSTDQSORT - явное указание __cdecl для функции сравнения
-    ! не FarStandardFunctions._atoi64, но FarStandardFunctions.atoi64
+    + SFS-ЇєэъЎшш ры  Local*
+    ! єЄюўэхэшх фы  FARSTDQSORT -  тэюх єърчрэшх __cdecl фы  ЇєэъЎшш ёЁртэхэш 
+    ! эх FarStandardFunctions._atoi64, эю FarStandardFunctions.atoi64
     + FARSTDITOA64
   25.08.2000 SVS
-    + DM_GETDLGRECT - получить координаты диалогового окна
-    + DM_USER - эт для юзеровских месагов :-)
+    + DM_GETDLGRECT - яюыєўшЄ№ ъююЁфшэрЄ√ фшрыюуютюую юъэр
+    + DM_USER - ¤Є фы  ■чхЁютёъшї ьхёруют :-)
   25.08.2000 SVS
-    ! Удалены из FSF функции:
+    ! ╙фрыхэ√ шч FSF ЇєэъЎшш:
       memset, memcpy, memmove, memcmp,
       strchr, strrchr, strstr, strtok, strpbrk
-    + Флаг FIB_BUTTONS - в функции InputBox если нужно - показываем
-      кнопки <Ok> & <Cancel>
+    + ╘ыру FIB_BUTTONS - т ЇєэъЎшш InputBox хёыш эєцэю - яюърч√трхь
+      ъэюяъш <Ok> & <Cancel>
   24.08.2000 SVS
-    + ACTL_WAITKEY - ожидать определенную (или любую) клавишу
-    + Элемент DI_USERCONTROL - отрисовкой занимается плагин.
+    + ACTL_WAITKEY - юцшфрЄ№ юяЁхфхыхээє■ (шыш ы■сє■) ъыртш°є
+    + ▌ыхьхэЄ DI_USERCONTROL - юЄЁшёютъющ чрэшьрхЄё  яырушэ.
   23.08.2000 SVS
-    ! Уточнения категорий DMSG_* -> DM_ (месаг) & DN_ (нотифи)
-    + DM_KEY        - послать/получить клавишу(ы)
-    + DM_GETDLGDATA - взять данные диалога.
-    + DM_SETDLGDATA - установить данные диалога.
-    + DM_SHOWDIALOG - показать/спрятать диалог
-    ! Все Flags приведены к одному виду -> DWORD.
-      Модифицированы:
-        * функции   FarMenuFn, FarMessageFn, FarShowHelp
-        * структуры FarListItem, FarDialogItem
+    ! ╙Єюўэхэш  ърЄхуюЁшщ DMSG_* -> DM_ (ьхёру) & DN_ (эюЄшЇш)
+    + DM_KEY        - яюёырЄ№/яюыєўшЄ№ ъыртш°є(√)
+    + DM_GETDLGDATA - тч Є№ фрээ√х фшрыюур.
+    + DM_SETDLGDATA - єёЄрэютшЄ№ фрээ√х фшрыюур.
+    + DM_SHOWDIALOG - яюърчрЄ№/ёяЁ ЄрЄ№ фшрыюу
+    ! ┬ёх Flags яЁштхфхэ√ ъ юфэюьє тшфє -> DWORD.
+      ╠юфшЇшЎшЁютрэ√:
+        * ЇєэъЎшш   FarMenuFn, FarMessageFn, FarShowHelp
+        * ёЄЁєъЄєЁ√ FarListItem, FarDialogItem
   22.08.2000 SVS
     ! DMSG_PAINT -> DMSG_DRAWDIALOG
     ! DMSG_DRAWITEM -> DMSG_DRAWDLGITEM
@@ -264,50 +264,50 @@ Modify:
   18.08.2000 tran
     + Flags in ShowHelp
   12.08.2000 KM 1.22
-    + DIF_MASKEDIT - новый флаг, реализующий функциональность ввода
-      по маске в строках ввода.
-    ! В структуре FarDialogItem новое поле, включенное в union, char *Mask
+    + DIF_MASKEDIT - эют√щ Їыру, Ёхрышчє■∙шщ ЇєэъЎшюэры№эюёЄ№ ттюфр
+      яю ьрёъх т ёЄЁюърї ттюфр.
+    ! ┬ ёЄЁєъЄєЁх FarDialogItem эютюх яюых, тъы■ўхээюх т union, char *Mask
   17.08.2000 SVS
-    ! struct FarListItems -> struct FarList, а то совсем запутался :-)
-    + Сообщения диалога: DMSG_ENABLEREDRAW, DMSG_MOUSECLICK,
-    + Флаг для DI_BUTTON - DIF_BTNNOCLOSE - "кнопка не для закрытия диалога"
+    ! struct FarListItems -> struct FarList, р Єю ёютёхь чряєЄрыё  :-)
+    + ╤ююс∙хэш  фшрыюур: DMSG_ENABLEREDRAW, DMSG_MOUSECLICK,
+    + ╘ыру фы  DI_BUTTON - DIF_BTNNOCLOSE - "ъэюяър эх фы  чръЁ√Єш  фшрыюур"
   17.08.2000 SVS
-    ! Изменение номера весрии :-)
+    ! ╚чьхэхэшх эюьхЁр тхёЁшш :-)
   09.08.2000 SVS
-    + FIB_NOUSELASTHISTORY - флаг для использовании пред значения из
-      истории задается отдельно!!!
+    + FIB_NOUSELASTHISTORY - Їыру фы  шёяюы№чютрэшш яЁхф чэрўхэш  шч
+      шёЄюЁшш чрфрхЄё  юЄфхы№эю!!!
   09.08.2000 tran
     + #define CONSOLE_*
   04.08.2000 SVS
-    + ECTL_SETKEYBAR - функция установки KeyBar Labels в редакторе
+    + ECTL_SETKEYBAR - ЇєэъЎш  єёЄрэютъш KeyBar Labels т ЁхфръЄюЁх
   04.08.2000 SVS
     + FarListItems.CountItems -> FarListItems.ItemsNumber
   03.08.2000 SVS
-    + Функция от AT: GetMinFarVersion
+    + ╘єэъЎш  юЄ AT: GetMinFarVersion
   03.08.2000 SVS
-    + ACTL_GETSYSWORDDIV получить строку с символами разделителями слов
+    + ACTL_GETSYSWORDDIV яюыєўшЄ№ ёЄЁюъє ё ёшьтюырьш ЁрчфхышЄхы ьш ёыют
   02.08.2000 SVS
-    + Дополнения для KeyBarTitles:
+    + ─юяюыэхэш  фы  KeyBarTitles:
         CtrlShiftTitles
         AltShiftTitles,
         CtrlAltTitles
-    + Добавка в OpenPluginInfo для того, чтобы различить FAR <= 1.65 и > 1.65
+    + ─юсртър т OpenPluginInfo фы  Єюую, ўЄюс√ ЁрчышўшЄ№ FAR <= 1.65 ш > 1.65
   01.08.2000 SVS
-    ! Функция ввода строки имеет один параметр для всех флагов
-    ! дополнительный параметра у KeyToText - размер данных
-    + Флаг DIF_USELASTHISTORY для строк ввода.
-      если у строки ввода есть история то начальное значение брать первым
-      из истории
-    ! Полная переделка структуры списка и "оболочка" вокруг списка
-    + флаги для FarListItem.Flags
+    ! ╘єэъЎш  ттюфр ёЄЁюъш шьххЄ юфшэ ярЁрьхЄЁ фы  тёхї Їыруют
+    ! фюяюыэшЄхы№э√щ ярЁрьхЄЁр є KeyToText - ЁрчьхЁ фрээ√ї
+    + ╘ыру DIF_USELASTHISTORY фы  ёЄЁюъ ттюфр.
+      хёыш є ёЄЁюъш ттюфр хёЄ№ шёЄюЁш  Єю эрўры№эюх чэрўхэшх сЁрЄ№ яхЁт√ь
+      шч шёЄюЁшш
+    ! ╧юыэр  яхЁхфхыър ёЄЁєъЄєЁ√ ёяшёър ш "юсюыюўър" тюъЁєу ёяшёър
+    + Їыруш фы  FarListItem.Flags
       LIF_SELECTED, LIF_CHECKED, LIF_SEPARATOR
-    + Сообщения для обработки диалога, имееющий место быть :-)
+    + ╤ююс∙хэш  фы  юсЁрсюЄъш фшрыюур, шьхх■∙шщ ьхёЄю с√Є№ :-)
       DMSG_SETDLGITEM, DMSG_CHANGELIST
-    ! Изменено наименование типа функции обработчика на универсальное
+    ! ╚чьхэхэю эршьхэютрэшх Єшяр ЇєэъЎшш юсЁрсюЄўшър эр єэштхЁёры№эюх
       FARDIALOGPROC -> FARWINDOWPROC
   28.07.2000 SVS
-    + Введен новый элемент DI_LISTBOX (зарезервировано место)
-    + Сообщения для обработки диалога, имееющий место быть :-)
+    + ┬тхфхэ эют√щ ¤ыхьхэЄ DI_LISTBOX (чрЁхчхЁтшЁютрэю ьхёЄю)
+    + ╤ююс∙хэш  фы  юсЁрсюЄъш фшрыюур, шьхх■∙шщ ьхёЄю с√Є№ :-)
         DMSG_INITDIALOG, DMSG_ENTERIDLE, DMSG_HELP, DMSG_PAINT,
         DMSG_SETREDRAW, DMSG_DRAWITEM, DMSG_GETDLGITEM, DMSG_KILLFOCUS,
         DMSG_GOTFOCUS, DMSG_SETFOCUS, DMSG_GETTEXTLENGTH, DMSG_GETTEXT,
@@ -315,49 +315,49 @@ Modify:
         DMSG_SETTEXTLENGTH, DMSG_SETTEXT, DMSG_CHANGEITEM, DMSG_HOTKEY,
         DMSG_CLOSE,
   25.07.2000 SVS
-    ! Некоторое упорядочение в FarStandardFunctions
-    + Программое переключение FulScreen <-> Windowed (ACTL_CONSOLEMODE)
-    + FSF-функция KeyToText
-    ! WINAPI для сервисных дополнительных функций
-    + Функция-диалог ввода тестовой строки InputBox
+    ! ═хъюЄюЁюх єяюЁ фюўхэшх т FarStandardFunctions
+    + ╧ЁюуЁрььюх яхЁхъы■ўхэшх FulScreen <-> Windowed (ACTL_CONSOLEMODE)
+    + FSF-ЇєэъЎш  KeyToText
+    ! WINAPI фы  ёхЁтшёэ√ї фюяюыэшЄхы№э√ї ЇєэъЎшщ
+    + ╘єэъЎш -фшрыюу ттюфр ЄхёЄютющ ёЄЁюъш InputBox
   23.07.2000 SVS
     + DialogEx, SendDlgMessage, DefDlgProc,
-    ! WINAPI для сервисных дополнительных функций
+    ! WINAPI фы  ёхЁтшёэ√ї фюяюыэшЄхы№э√ї ЇєэъЎшщ
   18.07.2000 SVS
-    + Введен новый элемент: DI_COMBOBOX и флаг DIF_DROPDOWNLIST
-      (для нередактируемого DI_COMBOBOX - пока не реализовано!)
+    + ┬тхфхэ эют√щ ¤ыхьхэЄ: DI_COMBOBOX ш Їыру DIF_DROPDOWNLIST
+      (фы  эхЁхфръЄшЁєхьюую DI_COMBOBOX - яюър эх Ёхрышчютрэю!)
   12.07.2000 IS
-    + Флаги  редактора:
-      EF_NONMODAL - открытие немодального редактора
+    + ╘ыруш  ЁхфръЄюЁр:
+      EF_NONMODAL - юЄъЁ√Єшх эхьюфры№эюую ЁхфръЄюЁр
   11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
+    ! ╚чьхэхэш  фы  тючьюцэюёЄш ъюьяшы Ўшш яюф BC & VC
   10.07.2000 IS
-    ! Некоторые изменения с учетом голого C (по совету SVS)
+    ! ═хъюЄюЁ√х шчьхэхэш  ё єўхЄюь уюыюую C (яю ёютхЄє SVS)
   07.07.2000 IS
-    + Указатели на функции в FarStandardFunctions:
+    + ╙ърчрЄхыш эр ЇєэъЎшш т FarStandardFunctions:
       atoi, _atoi64, itoa, RemoveLeadingSpaces, RemoveTrailingSpaces,
       RemoveExternalSpaces, TruncStr, TruncPathStr, QuoteSpaceOnly,
       PointToName, GetPathRoot, AddEndSlash
   06.07.2000 IS
-    + Функция AdvControl (PluginStartupInfo)
-    + Команда ACTL_GETFARVERSION для AdvControl
-    + Указатель на структуру FarStandardFunctions в PluginStartupInfo - она
-      содержит указатели на полезные функции. Плагин должен обязательно
-      скопировать ее себе, если хочет использовать в дальнейшем.
-    + Указатели на функции в FarStandardFunctions:
+    + ╘єэъЎш  AdvControl (PluginStartupInfo)
+    + ╩юьрэфр ACTL_GETFARVERSION фы  AdvControl
+    + ╙ърчрЄхы№ эр ёЄЁєъЄєЁє FarStandardFunctions т PluginStartupInfo - юэр
+      ёюфхЁцшЄ єърчрЄхыш эр яюыхчэ√х ЇєэъЎшш. ╧ырушэ фюыцхэ юс чрЄхы№эю
+      ёъюяшЁютрЄ№ хх ёхсх, хёыш їюўхЄ шёяюы№чютрЄ№ т фры№эхщ°хь.
+    + ╙ърчрЄхыш эр ЇєэъЎшш т FarStandardFunctions:
       Unquote, ExpandEnvironmentStr,
       sprintf, sscanf, qsort, memcpy, memmove, memcmp, strchr, strrchr, strstr,
       strtok, memset, strpbrk
   05.06.2000 SVS
-    + DI_EDIT имеет флаг DIF_EDITEXPAND - расширение переменных среды
-      в enum FarDialogItemFlags
+    + DI_EDIT шьххЄ Їыру DIF_EDITEXPAND - Ёрё°шЁхэшх яхЁхьхээ√ї ёЁхф√
+      т enum FarDialogItemFlags
   03.07.2000 IS
-    + Функция вывода помощи в api
+    + ╘єэъЎш  т√тюфр яюью∙ш т api
   28.06.2000 SVS
-    + Для MSVC тоже требуется extern "C" при декларации
-      экспортируемых функций + коррекция на Borland C++ 5.5
+    + ─ы  MSVC Єюцх ЄЁхсєхЄё  extern "C" яЁш фхъырЁрЎшш
+      ¤ъёяюЁЄшЁєхь√ї ЇєэъЎшщ + ъюЁЁхъЎш  эр Borland C++ 5.5
   26.06.2000 SVS
-    ! Подготовка Master Copy
+    ! ╧юфуюЄютър Master Copy
 */
 
 #define FARMANAGERVERSION 0x012C0146UL

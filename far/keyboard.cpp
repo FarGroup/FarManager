@@ -1,7 +1,7 @@
 /*
 keyboard.cpp
 
-Функций, имеющие отношение к клавитуре
+╘єэъЎшщ, шьх■∙шх юЄэю°хэшх ъ ъыртшЄєЁх
 
 */
 
@@ -9,83 +9,83 @@ keyboard.cpp
 
 /*
 Modify:
-  06.05.2001 ОТ
-    ! Переименование Window в Frame :)
+  06.05.2001 ╬╥
+    ! ╧хЁхшьхэютрэшх Window т Frame :)
   05.05.2001 DJ
-    + перетрях NWZ
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
+    + яхЁхЄЁ ї NWZ
+  29.04.2001 ╬╥
+    + ┬эхфЁхэшх NWZ юЄ ╥ЁхЄ№ ъютр
   28.04.2001 vvm
-    + KEY_FOCUS_CHANGED для прорисовки кейбара.
+    + KEY_FOCUS_CHANGED фы  яЁюЁшёютъш ъхщсрЁр.
   27.04.2001 SVS
-    + Добавлены:
-       "MsWheelDown" для KEY_MSWHEEL_DOWN и
-       "MsWheelUp" для KEY_MSWHEEL_UP
-      в массив FKeys1[]
-    ! Не были учтены шифтовые клавиши при прокрутке колеса, из-за чего
-      нельзя было использовать в макросах нечто вроде "ShiftMsWheelUp"
+    + ─юсртыхэ√:
+       "MsWheelDown" фы  KEY_MSWHEEL_DOWN ш
+       "MsWheelUp" фы  KEY_MSWHEEL_UP
+      т ьрёёшт FKeys1[]
+    ! ═х с√ыш єўЄхэ√ °шЇЄют√х ъыртш°ш яЁш яЁюъЁєЄъх ъюыхёр, шч-чр ўхую
+      эхы№ч  с√ыю шёяюы№чютрЄ№ т ьръЁюёрї эхўЄю тЁюфх "ShiftMsWheelUp"
   26.04.2001 VVM
-    - Выкинул нафиг MouseWheeled
-    + Обработка спецклавиш KEY_MSWHEEL_XXXX
+    - ┬√ъшэєы эрЇшу MouseWheeled
+    + ╬сЁрсюЄър ёяхЎъыртш° KEY_MSWHEEL_XXXX
   24.04.2001 SVS
-    + MouseWheeled - признак того, что крутанули колесо.
+    + MouseWheeled - яЁшчэръ Єюую, ўЄю ъЁєЄрэєыш ъюыхёю.
   16.04.2001 VVM
-    + Прокрутка с шифтом подменяется на PgUp/PgDn
-    + Opt.MouseWheelDelta - задает смещение для прокрутки. Сколько раз посылать UP/DOWN
+    + ╧ЁюъЁєЄър ё °шЇЄюь яюфьхэ хЄё  эр PgUp/PgDn
+    + Opt.MouseWheelDelta - чрфрхЄ ёьх∙хэшх фы  яЁюъЁєЄъш. ╤ъюы№ъю Ёрч яюё√ырЄ№ UP/DOWN
   13.04.2001 VVM
-    + Обработка колесика мышки под 2000.
+    + ╬сЁрсюЄър ъюыхёшър ь√°ъш яюф 2000.
   12.03.2001 SVS
-    ! К терапевту предыдущие изменения - неудобно...
+    ! ╩ ЄхЁряхтЄє яЁхф√фє∙шх шчьхэхэш  - эхєфюсэю...
   07.03.2001 SVS
-    ! Небольшое изменение - может быть и временное (как работает не пойму пока
-      и на что потом повлияет - тоже не знаю, но Shift-F4 Shift-Enter, не
-      отпуская Shift - работает корректно :-)
+    ! ═хсюы№°юх шчьхэхэшх - ьюцхЄ с√Є№ ш тЁхьхээюх (ъръ ЁрсюЄрхЄ эх яющьє яюър
+      ш эр ўЄю яюЄюь яютыш хЄ - Єюцх эх чэр■, эю Shift-F4 Shift-Enter, эх
+      юЄяєёър  Shift - ЁрсюЄрхЄ ъюЁЁхъЄэю :-)
   28.02.2001 IS
     ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   25.02.2001 SVS
-    ! Уточнения для Alt-Shift-...
+    ! ╙Єюўэхэш  фы  Alt-Shift-...
   09.02.2001 IS
-    + Подтверждение нажатия Esc в CheckForEsc (опционально)
+    + ╧юфЄтхЁцфхэшх эрцрЄш  Esc т CheckForEsc (юяЎшюэры№эю)
   06.02.2001 SVS
-    - ОНИ... :-)
-      Приведение в порядок "непослушных" Divide & Multiple на цифровой клаве.
+    - ╬═╚... :-)
+      ╧Ёштхфхэшх т яюЁ фюъ "эхяюёыє°э√ї" Divide & Multiple эр ЎшЇЁютющ ъыртх.
   05.02.2001 SVS
-    - Снова про клавиши... :-( Все переводилось в Upper.
+    - ╤эютр яЁю ъыртш°ш... :-( ┬ёх яхЁхтюфшыюё№ т Upper.
   01.02.2001 SVS
-    - бага - неверно конвертилось имя клавиши :-(
+    - срур - эхтхЁэю ъюэтхЁЄшыюё№ шь  ъыртш°ш :-(
   01.02.2001 SVS
-    - Неверное преобразование клавиш в VK_* в функции TranslateKeyToVK()
-      из-за чего не отрабатывал ENTER, etc в плагинах.
-    - Не отрабатывались комбинации Alt-Shift-* и Alt-Shift-? при быстром
-      поиске в панелях.
+    - ═хтхЁэюх яЁхюсЁрчютрэшх ъыртш° т VK_* т ЇєэъЎшш TranslateKeyToVK()
+      шч-чр ўхую эх юЄЁрсрЄ√тры ENTER, etc т яырушэрї.
+    - ═х юЄЁрсрЄ√трышё№ ъюьсшэрЎшш Alt-Shift-* ш Alt-Shift-? яЁш с√ёЄЁюь
+      яюшёъх т ярэхы ї.
   28.01.2001 SVS
-    ! Снова про... WriteInput (с учетом данных на VK_F16)
+    ! ╤эютр яЁю... WriteInput (ё єўхЄюь фрээ√ї эр VK_F16)
   24.01.2001 SVS
-    ! Вернем взад содержимое WriteInput
+    ! ┬хЁэхь тчрф ёюфхЁцшьюх WriteInput
   23.01.2001 SVS
-    ! CalcKeyCode - дополнительный параметр - проверка на макросы.
-    ! Исключения вызовов макросов при указании "не использовать макросы"
+    ! CalcKeyCode - фюяюыэшЄхы№э√щ ярЁрьхЄЁ - яЁютхЁър эр ьръЁюё√.
+    ! ╚ёъы■ўхэш  т√чютют ьръЁюёют яЁш єърчрэшш "эх шёяюы№чютрЄ№ ьръЁюё√"
   21.01.2001 SVS
-    ! Уточнения в WriteInput!
-    ! WriteInput теперь возвращает результат в виде FALASE/TRUE.
+    ! ╙Єюўэхэш  т WriteInput!
+    ! WriteInput ЄхяхЁ№ тючтЁр∙рхЄ Ёхчєы№ЄрЄ т тшфх FALASE/TRUE.
     + WriteSequenceInput
   17.01.2001 SVS
-    + Opt.ShiftsKeyRules - Правило на счет выбора механизма трансляции
-      Alt-Буква для нелатинским буковок
+    + Opt.ShiftsKeyRules - ╧Ёртшыю эр ёўхЄ т√сюЁр ьхїрэшчьр ЄЁрэёы Ўшш
+      Alt-┴єътр фы  эхырЄшэёъшь сєъютюъ
   09.01.2001 SVS
-    ! Грабер должен быть раньше Alt-Number-ввода
+    ! ├ЁрсхЁ фюыцхэ с√Є№ Ёрэ№°х Alt-Number-ттюфр
   05.01.2001 SVS
-    - И снова CalcKeyCode - не работал Alt-Ins
+    - ╚ ёэютр CalcKeyCode - эх ЁрсюЄры Alt-Ins
   05.01.2001 SVS
-    - База в "вычислителе" клавиш :-(
+    - ┴рчр т "т√ўшёышЄхых" ъыртш° :-(
   04.01.2001 SVS
-    + Переделка алгоритмов декодирования клавиш...
+    + ╧хЁхфхыър рыуюЁшЄьют фхъюфшЁютрэш  ъыртш°...
     + TranslateKeyToVK
   26.12.2000 SVS
-    + вызов KeyMacroToText() (функция определена в macro.cpp)
+    + т√чют KeyMacroToText() (ЇєэъЎш  юяЁхфхыхэр т macro.cpp)
   22.12.2000 SVS
-    + Выделение в качестве самостоятельного модуля, после чего можно смело
-      ваять интерфейс пвсевдоклавиатурного драйвера :-)
+    + ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы , яюёых ўхую ьюцэю ёьхыю
+      тр Є№ шэЄхЁЇхщё ятёхтфюъыртшрЄєЁэюую фЁрщтхЁр :-)
 */
 
 #include "headers.hpp"
@@ -95,7 +95,7 @@ Modify:
 static int AltValue=0,ReturnAltValue;
 static int ShiftPressedLast=FALSE,AltPressedLast=FALSE,CtrlPressedLast=FALSE;
 static int RightAltPressedLast=FALSE,RightCtrlPressedLast=FALSE;
-static BOOL IsKeyCASPressed=FALSE; // CtrlAltShift - нажато или нет?
+static BOOL IsKeyCASPressed=FALSE; // CtrlAltShift - эрцрЄю шыш эхЄ?
 static clock_t PressedLastTime,KeyPressedLastTime;
 
 /* ----------------------------------------------------------------- */
@@ -235,7 +235,7 @@ int IsMouseButtonPressed()
   if (RButtonPressed)
     return(2);
   /* $ 23.08.2000 SVS
-     + Дополнительно - для средней клавиши мыши
+     + ─юяюыэшЄхы№эю - фы  ёЁхфэхщ ъыртш°ш ь√°ш
   */
   if(MButtonPressed)
     return(3);
@@ -300,7 +300,7 @@ int GetInputRecord(INPUT_RECORD *rec)
   {
     PeekConsoleInput(hConInp,rec,1,&ReadCount);
     /* $ 26.04.2001 VVM
-       ! Убрал подмену колесика */
+       ! ╙сЁры яюфьхэє ъюыхёшър */
     if (ReadCount!=0)
       break;
     /* VVM $ */
@@ -392,7 +392,7 @@ int GetInputRecord(INPUT_RECORD *rec)
   if (rec->EventType==FOCUS_EVENT)
   {
     /* $ 28.04.2001 VVM
-      + Не только обработаем сами смену фокуса, но и передадим дальше */
+      + ═х Єюы№ъю юсЁрсюЄрхь ёрьш ёьхэє Їюъєёр, эю ш яхЁхфрфшь фры№°х */
     ShiftPressed=ShiftPressedLast=FALSE;
     CtrlPressed=CtrlPressedLast=RightCtrlPressedLast=FALSE;
     AltPressed=AltPressedLast=RightAltPressedLast=FALSE;
@@ -413,7 +413,7 @@ int GetInputRecord(INPUT_RECORD *rec)
     KeyPressedLastTime=CurClock;
 
     /* $ 24.08.2000 SVS
-       + Добавление на реакцию KEY_CTRLALTSHIFTRELEASE
+       + ─юсртыхэшх эр ЁхръЎш■ KEY_CTRLALTSHIFTRELEASE
     */
     if(IsKeyCASPressed && (!CtrlPressed || !AltPressed || !ShiftPressed))
     {
@@ -459,7 +459,7 @@ int GetInputRecord(INPUT_RECORD *rec)
     else
     {
       /* 06.07.2000 SVS
-        Временная отмена патча 11 (NT Console resize bug) до лучших времен :-)
+        ┬Ёхьхээр  юЄьхэр ярЄўр 11 (NT Console resize bug) фю ыєў°шї тЁхьхэ :-)
       */
       /*
       GetVideoMode();
@@ -545,7 +545,7 @@ int GetInputRecord(INPUT_RECORD *rec)
         KeyCode==VK_NUMLOCK || KeyCode==VK_SCROLL)
     {
       /* $ 24.08.2000 SVS
-         + Добавление на реакцию KEY_CTRLALTSHIFTPRESS
+         + ─юсртыхэшх эр ЁхръЎш■ KEY_CTRLALTSHIFTPRESS
       */
       switch(KeyCode)
       {
@@ -565,7 +565,7 @@ int GetInputRecord(INPUT_RECORD *rec)
   }
   if (rec->EventType==MOUSE_EVENT)
   {
-    // проверка на Swap клавиш мыши
+    // яЁютхЁър эр Swap ъыртш° ь√°ш
     static int SwapButton=GetSystemMetrics(SM_SWAPBUTTON);
     if (SwapButton && WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS && !IsWindowed())
     {
@@ -581,7 +581,7 @@ int GetInputRecord(INPUT_RECORD *rec)
     }
     DWORD CtrlState=rec->Event.MouseEvent.dwButtonState;
     /* $ 23.08.2000 SVS
-       + Дополнительно - для средней клавиши мыши
+       + ─юяюыэшЄхы№эю - фы  ёЁхфэхщ ъыртш°ш ь√°ш
     */
     MButtonPressed=(CtrlState & FROM_LEFT_2ND_BUTTON_PRESSED);
     /* SVS $ */
@@ -592,14 +592,14 @@ int GetInputRecord(INPUT_RECORD *rec)
     MouseX=rec->Event.MouseEvent.dwMousePosition.X;
     MouseY=rec->Event.MouseEvent.dwMousePosition.Y;
     /* $ 26.04.2001 VVM
-       + Обработка колесика мышки под 2000. */
+       + ╬сЁрсюЄър ъюыхёшър ь√°ъш яюф 2000. */
     if (rec->Event.MouseEvent.dwEventFlags & MOUSE_WHEELED)
-    { // Обработаем колесо и заменим на спец.клавиши
+    { // ╬сЁрсюЄрхь ъюыхёю ш чрьхэшь эр ёяхЎ.ъыртш°ш
       short zDelta = (short)HIWORD(rec->Event.MouseEvent.dwButtonState);
       CalcKey = (zDelta>0)?KEY_MSWHEEL_UP:KEY_MSWHEEL_DOWN;
       /* $ 27.04.2001 SVS
-         Не были учтены шифтовые клавиши при прокрутке колеса, из-за чего
-         нельзя было использовать в макросах нечто вроде "ShiftMsWheelUp"
+         ═х с√ыш єўЄхэ√ °шЇЄют√х ъыртш°ш яЁш яЁюъЁєЄъх ъюыхёр, шч-чр ўхую
+         эхы№ч  с√ыю шёяюы№чютрЄ№ т ьръЁюёрї эхўЄю тЁюфх "ShiftMsWheelUp"
       */
       DWORD SMState=rec->Event.MouseEvent.dwControlKeyState;
       CalcKey |= (SMState&SHIFT_PRESSED?KEY_SHIFT:0)|
@@ -638,8 +638,8 @@ int PeekInputRecord(INPUT_RECORD *rec)
 
 
 /* $ 24.08.2000 SVS
- + Пераметр у фунции WaitKey - возможность ожидать конкретную клавишу
-     Если KeyWait = -1 - как и раньше
+ + ╧хЁрьхЄЁ є ЇєэЎшш WaitKey - тючьюцэюёЄ№ юцшфрЄ№ ъюэъЁхЄэє■ ъыртш°є
+     ┼ёыш KeyWait = -1 - ъръ ш Ёрэ№°х
 */
 void WaitKey(int KeyWait)
 {
@@ -684,7 +684,7 @@ int WriteInput(int Key,DWORD Flags)
     return 0;
 }
 
-// Возвращает количество записанных из Sequence во внутреннюю очередь
+// ┬ючтЁр∙рхЄ ъюышўхёЄтю чряшёрээ√ї шч Sequence тю тэєЄЁхээ■■ юўхЁхф№
 int WriteSequenceInput(struct SequenceKey *Sequence)
 {
   if(Sequence && KeyQueue)
@@ -700,7 +700,7 @@ int WriteSequenceInput(struct SequenceKey *Sequence)
 
 
 /* $ 09.02.2001 IS
-     Подтверждение нажатия Esc
+     ╧юфЄтхЁцфхэшх эрцрЄш  Esc
 */
 int CheckForEsc()
 {
@@ -720,14 +720,14 @@ int CheckForEsc()
 /* IS $ */
 
 /* $ 25.07.2000 SVS
-    ! Функция KeyToText сделана самосотоятельной - вошла в состав FSF
+    ! ╘єэъЎш  KeyToText ёфхырэр ёрьюёюЄю Єхы№эющ - тю°ыр т ёюёЄрт FSF
 */
 /* $ 01.08.2000 SVS
-   ! дополнительный параметра у KeyToText - размер данных
-   Size=0 - по максимуму!
+   ! фюяюыэшЄхы№э√щ ярЁрьхЄЁр є KeyToText - ЁрчьхЁ фрээ√ї
+   Size=0 - яю ьръёшьєьє!
 */
 /* $ 10.09.2000 SVS
-  ! KeyToText возвращает BOOL
+  ! KeyToText тючтЁр∙рхЄ BOOL
 */
 
 static char *GetShiftKeyName(char *Name, DWORD Key,int& Len)
@@ -749,9 +749,9 @@ static char *GetShiftKeyName(char *Name, DWORD Key,int& Len)
 }
 
 /* $ 24.09.2000 SVS
- + Функция KeyNameToKey - получение кода клавиши по имени
-   Если имя не верно или нет такого - возвращается -1
-   Может и криво, но правильно и коротко!
+ + ╘єэъЎш  KeyNameToKey - яюыєўхэшх ъюфр ъыртш°ш яю шьхэш
+   ┼ёыш шь  эх тхЁэю шыш эхЄ Єръюую - тючтЁр∙рхЄё  -1
+   ╠юцхЄ ш ъЁштю, эю яЁртшы№эю ш ъюЁюЄъю!
 */
 int WINAPI KeyNameToKey(char *Name)
 {
@@ -759,7 +759,7 @@ int WINAPI KeyNameToKey(char *Name)
      return -1;
    DWORD Key=0;
 
-   // Это макроклавиша?
+   // ▌Єю ьръЁюъыртш°р?
    if(Name[0] == '$' && Name[1])
      return KeyNameMacroToKey(Name);
 //   if((Key=KeyNameMacroToKey(Name)) != (DWORD)-1)
@@ -767,7 +767,7 @@ int WINAPI KeyNameToKey(char *Name)
 
    int I, Pos, Len=strlen(Name);
 
-   // пройдемся по всем модификаторам
+   // яЁющфхьё  яю тёхь ьюфшЇшърЄюЁрь
    for(Pos=I=0; Pos < Len && I < sizeof(ModifKeyName)/sizeof(ModifKeyName[0]); ++I)
    {
      if(!memicmp(Name+Pos,ModifKeyName[I].Name,ModifKeyName[I].Len))
@@ -777,10 +777,10 @@ int WINAPI KeyNameToKey(char *Name)
      }
    }
 //SysLog("Name=%s",Name);
-   // если что-то осталось - преобразуем.
+   // хёыш ўЄю-Єю юёЄрыюё№ - яЁхюсЁрчєхь.
    if(Pos < Len)
    {
-     // сначала - FKeys1
+     // ёэрўрыр - FKeys1
      for (I=0;I<sizeof(FKeys1)/sizeof(FKeys1[0]);I++)
        if (!memicmp(Name+Pos,FKeys1[I].Name,FKeys1[I].Len))
        {
@@ -855,7 +855,7 @@ BOOL WINAPI KeyToText(int Key0,char *KeyText0,int Size)
 int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 {
   int FKey  =Key&0x0000FFFF;
-  int FShift=Key&0x7F000000; // старший бит используется в других целях!
+  int FShift=Key&0x7F000000; // ёЄрЁ°шщ сшЄ шёяюы№чєхЄё  т фЁєушї Ўхы ї!
   int I;
 
   VirtKey=0;
@@ -980,7 +980,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   }
 
   /* $ 24.08.2000 SVS
-     "Персональные 100 грамм" :-)
+     "╧хЁёюэры№э√х 100 уЁрьь" :-)
   */
   if(CtrlPressed && AltPressed && ShiftPressed)
   {
@@ -1102,8 +1102,8 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
     case VK_RWIN:
       return(Modif|KEY_RWIN);
     case VK_RETURN:
-      //  !!!!!!!!!!!!! - Если "!ShiftPressed", то Shift-F4 Shift-Enter, не
-      //                  отпуская Shift...
+      //  !!!!!!!!!!!!! - ┼ёыш "!ShiftPressed", Єю Shift-F4 Shift-Enter, эх
+      //                  юЄяєёър  Shift...
       if (ShiftPressed && RealKey && !ShiftPressedLast && !CtrlPressed && !AltPressed)
         return(KEY_ENTER);
       return(Modif|KEY_ENTER);
@@ -1124,7 +1124,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   /* ------------------------------------------------------------- */
   if (CtrlPressed && AltPressed)
   {
-//if(KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog("%9s│0x%08X (%c)│0x%08X (%c)│","CtrlAlt",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' '));
+//if(KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog("%9s|0x%08X (%c)|0x%08X (%c)|","CtrlAlt",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' '));
     if (KeyCode>='A' && KeyCode<='Z')
       return(KEY_CTRL|KEY_ALT+KeyCode);
     if(Opt.ShiftsKeyRules) //???
@@ -1172,7 +1172,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   /* ------------------------------------------------------------- */
   if (AltPressed && ShiftPressed)
   {
-//if(KeyCode!=VK_MENU && KeyCode!=VK_SHIFT) SysLog("%9s│0x%08X (%c)│0x%08X (%c)│WaitInMainLoop=%d WaitInFastFind=%d","AltShift",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' '),WaitInMainLoop,WaitInFastFind);
+//if(KeyCode!=VK_MENU && KeyCode!=VK_SHIFT) SysLog("%9s|0x%08X (%c)|0x%08X (%c)|WaitInMainLoop=%d WaitInFastFind=%d","AltShift",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' '),WaitInMainLoop,WaitInFastFind);
     if (KeyCode>='0' && KeyCode<='9')
     {
       if(WaitInFastFind>0)
@@ -1241,7 +1241,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   /* ------------------------------------------------------------- */
   if (CtrlPressed && ShiftPressed)
   {
-//if(KeyCode!=VK_CONTROL && KeyCode!=VK_SHIFT) SysLog("%9s│0x%08X (%c)│0x%08X (%c)│","CtrlShift",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' '));
+//if(KeyCode!=VK_CONTROL && KeyCode!=VK_SHIFT) SysLog("%9s|0x%08X (%c)|0x%08X (%c)|","CtrlShift",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' '));
     if (KeyCode>='0' && KeyCode<='9')
       return(KEY_CTRLSHIFT0+KeyCode-'0');
     if (KeyCode>='A' && KeyCode<='Z')
@@ -1313,7 +1313,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   /* ------------------------------------------------------------- */
   if (CtrlPressed)
   {
-//if(KeyCode!=VK_CONTROL) SysLog("%9s│0x%08X (%c)│0x%08X (%c)│","Ctrl",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' '));
+//if(KeyCode!=VK_CONTROL) SysLog("%9s|0x%08X (%c)|0x%08X (%c)|","Ctrl",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' '));
     if (KeyCode>='0' && KeyCode<='9')
       return(KEY_CTRL0+KeyCode-'0');
     if (KeyCode>='A' && KeyCode<='Z')
@@ -1364,7 +1364,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   /* ------------------------------------------------------------- */
   if (AltPressed)
   {
-//if(KeyCode!=VK_MENU) SysLog("%9s│0x%08X (%c)│0x%08X (%c)│","Alt",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' '));
+//if(KeyCode!=VK_MENU) SysLog("%9s|0x%08X (%c)|0x%08X (%c)|","Alt",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' '));
     if(Opt.ShiftsKeyRules) //???
       switch(KeyCode)
       {

@@ -3,7 +3,7 @@
 /*
 history.hpp
 
-История (Alt-F8, Alt-F11, Alt-F12)
+╚ёЄюЁш  (Alt-F8, Alt-F11, Alt-F12)
 
 */
 
@@ -12,12 +12,12 @@ history.hpp
 /*
 Modify:
   09.01.2001 SVS
-    - Бага с CmdHistoryRule=1
+    - ┴рур ё CmdHistoryRule=1
   24.09.2000 SVS
-    + SetFirst() - для CmdHistoryRule
+    + SetFirst() - фы  CmdHistoryRule
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 class History

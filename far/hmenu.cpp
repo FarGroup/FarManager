@@ -1,7 +1,7 @@
 /*
 hmenu.cpp
 
-Горизонтальное меню
+├юЁшчюэЄры№эюх ьхэ■
 
 */
 
@@ -10,15 +10,15 @@ hmenu.cpp
 /*
 Modify:
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -241,4 +241,3 @@ void HMenu::ProcessSubMenu(struct MenuData *Data,int DataCount,
   delete SubMenu;
   SubMenu=NULL;
 }
-

@@ -3,8 +3,8 @@
 /*
 global.hpp
 
-Описание глобальных переменных
-Включать последним.
+╬яшёрэшх уыюсры№э√ї яхЁхьхээ√ї
+┬ъы■ўрЄ№ яюёыхфэшь.
 
 */
 
@@ -13,40 +13,40 @@ global.hpp
 /*
 Modify:
   26.04.2001 VVM
-    - Выкинул нафиг MouseWheeled
+    - ┬√ъшэєы эрЇшу MouseWheeled
   24.04.2001 SVS
-    + MouseWheeled - признак того, что крутанули колесо
+    + MouseWheeled - яЁшчэръ Єюую, ўЄю ъЁєЄрэєыш ъюыхёю
   01.03.2001 SVS
-    + RegColorsHighlight - для сокращения
+    + RegColorsHighlight - фы  ёюъЁр∙хэш 
   24.01.2001 SVS
-    + KeyQueue - внутренняя очередь клавиатуры
+    + KeyQueue - тэєЄЁхээ   юўхЁхф№ ъыртшрЄєЁ√
   09.01.2001 SVS
-    + WaitInFastFind - требуется ли трасляция буковок для правила ShiftsKeyRules
+    + WaitInFastFind - ЄЁхсєхЄё  ыш ЄЁрёы Ўш  сєъютюъ фы  яЁртшыр ShiftsKeyRules
   30.12.2000 SVS
     + IsCryptFileASupport
   22.12.2000 SVS
     + hConOut,hConInp
   07.12.2000 SVS
-    + Описание версии FAR_VERSION - как константа.
+    + ╬яшёрэшх тхЁёшш FAR_VERSION - ъръ ъюэёЄрэЄр.
   11.11.2000 SVS
-    ! Косметика: "FarTmpXXXXXX" заменена на переменную FarTmpXXXXXX
+    ! ╩юёьхЄшър: "FarTmpXXXXXX" чрьхэхэр эр яхЁхьхээє■ FarTmpXXXXXX
   20.09.2000 SVS
-    ! hFarWnd глобальна
+    ! hFarWnd уыюсры№эр
   23.08.2000 SVS
-    + MButtonPressed - для средней клавиши мыши.
+    + MButtonPressed - фы  ёЁхфэхщ ъыртш°ш ь√°ш.
   03.08.2000 KM 1.03
-    + Добавлена переменная int GlobalSearchWholeWords.
+    + ─юсртыхэр яхЁхьхээр  int GlobalSearchWholeWords.
   03.08.2000 SVS
     ! WordDiv -> Opt.WordDiv
   03.08.2000 SVS
-    + путь для поиска основных плагинов
+    + яєЄ№ фы  яюшёър юёэютэ√ї яырушэют
   11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
+    ! ╚чьхэхэш  фы  тючьюцэюёЄш ъюьяшы Ўшш яюф BC & VC
   07.07.2000 SVS
-    + Разграничитель слов из реестра (общий для редактирования)
+    + ╨рчуЁрэшўшЄхы№ ёыют шч ЁххёЄЁр (юс∙шщ фы  ЁхфръЄшЁютрэш )
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #ifdef __LANGUAGE_HPP__
@@ -94,7 +94,7 @@ extern HANDLE hConOut,hConInp;
 extern int AltPressed,CtrlPressed,ShiftPressed;
 extern int LButtonPressed,RButtonPressed,PrevMouseX,PrevMouseY,MouseX,MouseY;
 /* $ 23.08.2000 SVS
-    + MButtonPressed - для средней клавиши мыши.
+    + MButtonPressed - фы  ёЁхфэхщ ъыртш°ш ь√°ш.
 */
 extern int MButtonPressed;
 /* SVS $ */
@@ -104,7 +104,7 @@ extern int WaitInFastFind;
 
 extern char FarPath[NM];
 /* $ 03.08.2000 SVS
-    + путь для поиска основных плагинов
+    + яєЄ№ фы  яюшёър юёэютэ√ї яырушэют
 */
 extern char MainPluginsPath[NM];
 /* SVS $ */
@@ -112,7 +112,7 @@ extern char MainPluginsPath[NM];
 extern char GlobalSearchString[512];
 extern int GlobalSearchCase;
 /* $ 29.07.2000 KM
-   Глобальная переменная, хранящая значение "Whole words" для поиска
+   ├ыюсры№эр  яхЁхьхээр , їЁрэ ∙р  чэрўхэшх "Whole words" фы  яюшёър
 */
 extern int GlobalSearchWholeWords;
 /* KM $*/
@@ -137,19 +137,19 @@ extern unsigned char BlackPalette[];
 extern int SizeArrayPalette;
 
 /* $ 20.09.2000 SVS
-  ! hFarWnd глобальна
+  ! hFarWnd уыюсры№эр
 */
 extern HWND hFarWnd;
 /* SVS $ */
 
 /* $ 09.11.2000 SVS
-  + Для того, чтобы...
+  + ─ы  Єюую, ўЄюс√...
 */
 extern const char FarTmpXXXXXX[];
 /* SVS $ */
 
 /* $ 07.12.2000 SVS
-  + Описание версии FAR_VERSION - как константа.
+  + ╬яшёрэшх тхЁёшш FAR_VERSION - ъръ ъюэёЄрэЄр.
 */
 extern const DWORD FAR_VERSION;
 /* SVS $ */

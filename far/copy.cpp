@@ -1,7 +1,7 @@
 /*
 copy.cpp
 
-Копирование файлов
+╩юяшЁютрэшх Їрщыют
 
 */
 
@@ -9,82 +9,82 @@ copy.cpp
 
 /*
 Modify:
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
+  29.04.2001 ╬╥
+    + ┬эхфЁхэшх NWZ юЄ ╥ЁхЄ№ ъютр
   24.04.2001 VVM
-    ! При подсчете времени копирования игнорировать время простоя (в диалогах)
+    ! ╧Ёш яюфёўхЄх тЁхьхэш ъюяшЁютрэш  шуэюЁшЁютрЄ№ тЁхь  яЁюёЄю  (т фшрыюурї)
   08.04.2001 SVS
-    ! Создание линков только под NT - о чем честно и предупредим.
-    + Отладочный код для создания repase point. Просьба в нем пока не
-      ковыряться - внес сейчас, т.к. тяжко каждый раз copy.cpp перелапачивать.
-      Этот код сейчас отключен!
+    ! ╤ючфрэшх ышэъют Єюы№ъю яюф NT - ю ўхь ўхёЄэю ш яЁхфєяЁхфшь.
+    + ╬Єырфюўэ√щ ъюф фы  ёючфрэш  repase point. ╧Ёюё№ср т эхь яюър эх
+      ъют√Ё Є№ё  - тэхё ёхщўрё, Є.ъ. Є цъю ърцф√щ Ёрч copy.cpp яхЁхырярўштрЄ№.
+      ▌ЄюЄ ъюф ёхщўрё юЄъы■ўхэ!
   05.04.2001 IS
-    + Если при копировании/перемещении выделенных элементов больше 1 и среди
-      них есть каталог, то всегда делаем так, чтобы на конце был '\\', чтобы
-      не было все свалено в кучу :(
+    + ┼ёыш яЁш ъюяшЁютрэшш/яхЁхьх∙хэшш т√фхыхээ√ї ¤ыхьхэЄют сюы№°х 1 ш ёЁхфш
+      эшї хёЄ№ ърЄрыюу, Єю тёхуфр фхырхь Єръ, ўЄюс√ эр ъюэЎх с√ы '\\', ўЄюс√
+      эх с√ыю тёх ётрыхэю т ъєўє :(
   14.03.2001 SVS
-    + Зарезервирован кусок кода для создания SymLink для каталогов.
+    + ╟рЁхчхЁтшЁютрэ ъєёюъ ъюфр фы  ёючфрэш  SymLink фы  ърЄрыюуют.
   12.03.2001 SVS
-    ! Коррекция в связи с изменениями в классе int64
+    ! ╩юЁЁхъЎш  т ёт чш ё шчьхэхэш ьш т ъырёёх int64
   06.03.2001 SVS
-    ! Немного оптимизации в "индикаторе скорости" + добавка для 'Gb'
+    ! ═хьэюую юяЄшьшчрЎшш т "шэфшърЄюЁх ёъюЁюёЄш" + фюсртър фы  'Gb'
   27.02.2001 VVM
-    ! Символы, зависимые от кодовой страницы
+    ! ╤шьтюы√, чртшёшь√х юЄ ъюфютющ ёЄЁрэшЎ√
       /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
-      переведены в коды.
+      яхЁхтхфхэ√ т ъюф√.
   12.02.2001 VVM
-    - При включенном TotalCopyIndicator и показе CPS размер показывается 1 раз :)
+    - ╧Ёш тъы■ўхээюь TotalCopyIndicator ш яюърчх CPS ЁрчьхЁ яюърч√трхЄё  1 Ёрч :)
   06.02.2001 SKV
-    - char SelNameShort[NM];, а не char SelNameShort[40];
+    - char SelNameShort[NM];, р эх char SelNameShort[40];
   30.01.2001 VVM
-    + Показывает время копирования,оставшееся время и среднюю скорость.
-      Зависит от настроек в реестре CopyTimeRule
+    + ╧юърч√трхЄ тЁхь  ъюяшЁютрэш ,юёЄрт°ххё  тЁхь  ш ёЁхфэ■■ ёъюЁюёЄ№.
+      ╟ртшёшЄ юЄ эрёЄЁюхъ т ЁххёЄЁх CopyTimeRule
   25.01.2001 IS
-    - Не очень правильно обрезалось имя в диалоге копирования/перемещения
+    - ═х юўхэ№ яЁртшы№эю юсЁхчрыюё№ шь  т фшрыюух ъюяшЁютрэш /яхЁхьх∙хэш 
   17.01.2001 SVS
-    ! Не для NT - задисаблим опцию про копирование права.
+    ! ═х фы  NT - чрфшёрсышь юяЎш■ яЁю ъюяшЁютрэшх яЁртр.
   01.01.2001 VVM
-    + Размер буфера для копирования берется из реестра.
+    + ╨рчьхЁ сєЇхЁр фы  ъюяшЁютрэш  схЁхЄё  шч ЁххёЄЁр.
   30.12.2000 SVS
-    - При копировании/переносе забыли выставить FILE_ATTRIBUTE_ENCRYPTED
-      для каталога, если он есть
-    ! Опция "[ ] Только новые/обновленные файлы" теперь не "прячется", а
-      просто задисаблена
+    - ╧Ёш ъюяшЁютрэшш/яхЁхэюёх чрс√ыш т√ёЄртшЄ№ FILE_ATTRIBUTE_ENCRYPTED
+      фы  ърЄрыюур, хёыш юэ хёЄ№
+    ! ╬яЎш  "[ ] ╥юы№ъю эют√х/юсэютыхээ√х Їрщы√" ЄхяхЁ№ эх "яЁ ўхЄё ", р
+      яЁюёЄю чрфшёрсыхэр
   14.12.2000 SVS
     + Copy to "NUL"
   03.11.2000 OT
-    ! Введение проверки возвращаемого значения
+    ! ┬тхфхэшх яЁютхЁъш тючтЁр∙рхьюую чэрўхэш 
   02.11.2000 OT
-    ! Введение проверки на длину буфера, отведенного под имя файла.
+    ! ┬тхфхэшх яЁютхЁъш эр фышэє сєЇхЁр, юЄтхфхээюую яюф шь  Їрщыр.
   23.10.2000 VVM
-    + Динамический буфер копирования
+    + ─шэрьшўхёъшщ сєЇхЁ ъюяшЁютрэш 
   21.10.2000 SVS
-    + Проинициализируем новую переменную Copy_Buffer_Size в стандартное
-      значение = 64К
+    + ╧ЁюшэшЎшрышчшЁєхь эютє■ яхЁхьхээє■ Copy_Buffer_Size т ёЄрэфрЁЄэюх
+      чэрўхэшх = 64╩
   11.10.2000 SVS
-    ! Если Dest-панель плагиновая, то не показываем "[ ] Only never..."
+    ! ┼ёыш Dest-ярэхы№ яырушэютр , Єю эх яюърч√трхь "[ ] Only never..."
   14.08.2000 SVS
-    ! Данные, усеченные до 40 символов... :-(
-      А потом используются (CopyDlg[2].Data) по полной программе...
+    ! ─рээ√х, єёхўхээ√х фю 40 ёшьтюыют... :-(
+      └ яюЄюь шёяюы№чє■Єё  (CopyDlg[2].Data) яю яюыэющ яЁюуЁрььх...
   09.08.2000 KM
-    ! Добавлена проверка на режим перемещения диалога
-      в ShellCopy::ShellCopy, чтобы избежать в этом режиме
-      возможность вызова дерева каталогов.
+    ! ─юсртыхэр яЁютхЁър эр Ёхцшь яхЁхьх∙хэш  фшрыюур
+      т ShellCopy::ShellCopy, ўЄюс√ шчсхцрЄ№ т ¤Єюь Ёхцшьх
+      тючьюцэюёЄ№ т√чютр фхЁхтр ърЄрыюуют.
   04.08.2000 SVS
-    + Опция "Only newer file(s)"
+    + ╬яЎш  "Only newer file(s)"
   01.08.2000 tran 1.05
-    + DIF_USELASTHISTORY в диалогах
+    + DIF_USELASTHISTORY т фшрыюурї
   31.07.2000 SVS
-    + Расширение переменных среды для строки ввода в диалоге Copy/Move!
+    + ╨рё°шЁхэшх яхЁхьхээ√ї ёЁхф√ фы  ёЄЁюъш ттюфр т фшрыюух Copy/Move!
   13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
+    ! ═хъюЄюЁ√х ъюЁЁхъЎшш яЁш шёяюы№чютрэшш new/delete/realloc
   11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
+    ! ╚чьхэхэш  фы  тючьюцэюёЄш ъюьяшы Ўшш яюф BC & VC
   03.07.2000 IS
-    ! Показывать проценты спереди при копировании/переносе
+    ! ╧юърч√трЄ№ яЁюЎхэЄ√ ёяхЁхфш яЁш ъюяшЁютрэшш/яхЁхэюёх
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 
@@ -93,7 +93,7 @@ Modify:
 
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -101,8 +101,8 @@ Modify:
 #define COPY_BUFFER_SIZE 0x10000
 
 /* $ 30.01.2001 VVM
-   + Константы для правил показа
-   + Рабочие перменные */
+   + ╩юэёЄрэЄ√ фы  яЁртшы яюърчр
+   + ╨рсюўшх яхЁьхээ√х */
 #define COPY_RULE_NUL   0x0001;
 #define COPY_RULE_FILES 0x0002;
 
@@ -139,12 +139,12 @@ struct CopyDlgParam {
 #endif
 
 /* $ 04.07.2000 SVS
-  "Только новые/обновленные файлы"
+  "╥юы№ъю эют√х/юсэютыхээ√х Їрщы√"
 */
 ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
                      int &ToPlugin,char *PluginDestPath)
 {
-  // Создание линков только под NT
+  // ╤ючфрэшх ышэъют Єюы№ъю яюф NT
   if(Link && WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
   {
     Message(MSG_DOWN|MSG_WARNING,1,MSG(MWarning),
@@ -161,7 +161,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
             /* $ 01.08.2000 tran
              + |DIF_USELASTHISTORY :) */
             /* $ 31.07.2000 SVS
-               + Расширение переменных среды!
+               + ╨рё°шЁхэшх яхЁхьхээ√ї ёЁхф√!
             */
   /* 02 */  DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY|DIF_EDITEXPAND|DIF_USELASTHISTORY,0,"",
             /* SVS $ */
@@ -178,13 +178,13 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
 
   char CopyStr[100],SelName[NM],DestDir[NM],InitDestDir[NM];
   /* $ 25.01.2001 IS
-      Будет содержать усеченное имя файла, которое покажем в диалоге
-      копирования
+      ┴єфхЄ ёюфхЁцрЄ№ єёхўхээюх шь  Їрщыр, ъюЄюЁюх яюърцхь т фшрыюух
+      ъюяшЁютрэш 
   */
   /*$ 06.02.2001 SKV
-    едрёна вошь!
-    почему 40 то???
-    А потом туда SelFile strcpy делаем.
+    хфЁ╕эр тю°№!
+    яюўхьє 40 Єю???
+    └ яюЄюь Єєфр SelFile strcpy фхырхь.
   */
   char SelNameShort[NM];
   /* SKV$*/
@@ -197,7 +197,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
 
 
 /* $ 06.01.2001 VVM
-   Размер буфера берется из реестра */
+   ╨рчьхЁ сєЇхЁр схЁхЄё  шч ЁххёЄЁр */
   GetRegKey("System", "CopyBufferSize", CopyBufferSize, COPY_BUFFER_SIZE);
   if (CopyBufferSize == 0)
     CopyBufferSize = COPY_BUFFER_SIZE;
@@ -212,11 +212,11 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
 
   strcpy(CopyDlg[5].Data,MSG(MCopyOnlyNewerFiles));
   /* $ 11.10.2000 SVS
-     Если противоположная панель - плагин, то не показываем
-     "[ ] Только новые/обновленные файлы"
+     ┼ёыш яЁюЄштюяюыюцэр  ярэхы№ - яырушэ, Єю эх яюърч√трхь
+     "[ ] ╥юы№ъю эют√х/юсэютыхээ√х Їрщы√"
   */
   /* $ 30.12.2000 SVS
-     нефига от народа прятать эту опцию - мы ее просто задисаблим.
+     эхЇшур юЄ эрЁюфр яЁ ЄрЄ№ ¤Єє юяЎш■ - ь√ хх яЁюёЄю чрфшёрсышь.
   */
   if(PanelMode == PLUGIN_PANEL)
     CopyDlg[5].Flags|=DIF_DISABLE;
@@ -251,7 +251,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
     {
       strcpy(CopyDlg[0].Data,MSG(MLinkDlgTitle));
       strcpy(CopyDlg[7].Data,MSG(MCopyDlgLink));
-      // покажем...
+      // яюърцхь...
       strcpy(CopyDlg[5].Data,MSG(MCopySymLink));
 #if defined(CREATE_JUNCTION)
       if(WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT ||
@@ -285,7 +285,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
     if (strcmp(SelName,"..")==NULL)
       return;
     /* $ 25.01.2001 IS
-       Урезаем имя до размеров диалога.
+       ╙Ёхчрхь шь  фю ЁрчьхЁют фшрыюур.
     */
     strcpy(SelNameShort,SelName);
     TruncPathStr(SelNameShort,33);
@@ -329,8 +329,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
           struct OpenPluginInfo Info;
           AnotherPanel->GetOpenPluginInfo(&Info);
           /* $ 14.08.2000 SVS
-             Данные, усеченные до 40 символов... :-(
-             А потом используются (CopyDlg[2].Data) по полной программе...
+             ─рээ√х, єёхўхээ√х фю 40 ёшьтюыют... :-(
+             └ яюЄюь шёяюы№чє■Єё  (CopyDlg[2].Data) яю яюыэющ яЁюуЁрььх...
              "%.40s:" -> "%s:"
           */
           sprintf(CopyDlg[2].Data,"%s:",NullToEmpty(Info.Format));
@@ -342,7 +342,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
     }
   strcpy(InitDestDir,CopyDlg[2].Data);
   /* $ 17.01.2001 SVS
-     Не для NT - задисаблим опцию про копирование права.
+     ═х фы  NT - чрфшёрсышь юяЎш■ яЁю ъюяшЁютрэшх яЁртр.
   */
   if(Link)
   {
@@ -386,10 +386,10 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
       {
         int Key=Dlg.ReadInput();
         /* $ 09.08.2000 KM
-           Добавление проверки на режим перемещения
-           диалога, чтобы отменить в этом режиме работу дерева
-           каталогов, а то как-то некузяво выходит - диалог
-           перемещается, а дерево вызывается.
+           ─юсртыхэшх яЁютхЁъш эр Ёхцшь яхЁхьх∙хэш 
+           фшрыюур, ўЄюс√ юЄьхэшЄ№ т ¤Єюь Ёхцшьх ЁрсюЄє фхЁхтр
+           ърЄрыюуют, р Єю ъръ-Єю эхъєч тю т√їюфшЄ - фшрыюу
+           яхЁхьх∙рхЄё , р фхЁхтю т√ч√трхЄё .
         */
         if (Dlg.IsMoving())
         {
@@ -453,14 +453,14 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
   RemoveTrailingSpaces(CopyDlg[2].Data);
 
   /* $ 14.12.2000 SVS
-     Выставляем признак копирования в NUL
+     ┬√ёЄрты хь яЁшчэръ ъюяшЁютрэш  т NUL
   */
   CopyToNUL=stricmp(CopyDlg[2].Data,"nul") == 0;
   /* SVS $ */
 
   /* $ 05.04.2001 IS
-     Если выделенных элементов больше 1 и среди них есть каталог, то всегда
-     делаем так, чтобы на конце был '\\'
+     ┼ёыш т√фхыхээ√ї ¤ыхьхэЄют сюы№°х 1 ш ёЁхфш эшї хёЄ№ ърЄрыюу, Єю тёхуфр
+     фхырхь Єръ, ўЄюс√ эр ъюэЎх с√ы '\\'
   */
   if(SelCount>1 && !CopyToNUL)
   {
@@ -509,8 +509,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
     ShowTotalCopySize=FALSE;
 
 /* $ 30.01.2001 VVM
-    + Определем, нужно ли показывать время копирования
-      Зависит от настроек в реестре CopyTimeRule */
+    + ╬яЁхфхыхь, эєцэю ыш яюърч√трЄ№ тЁхь  ъюяшЁютрэш 
+      ╟ртшёшЄ юЄ эрёЄЁюхъ т ЁххёЄЁх CopyTimeRule */
   if (CopyToNUL) {
     ShowCopyTime = Opt.CopyTimeRule & COPY_RULE_NUL; }
   else {
@@ -605,13 +605,13 @@ static long WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
   GetPathRoot(Path,Root);
   GetVolumeInformation(Root,NULL,0,NULL,NULL,&FileSystemFlags,FSysName,sizeof(FSysName));
 
-  //   Не для NT - задисаблим опцию про копирование права.
+  //   ═х фы  NT - чрфшёрсышь юяЎш■ яЁю ъюяшЁютрэшх яЁртр.
   if(!(FileSystemFlags&FS_PERSISTENT_ACLS))
   {
     CopyDlg[4].Flags|=DIF_DISABLE;
     CopyDlg[4].Selected=0;
   }
-  // Дисаблим
+  // ─шёрсышь
   CopyDlg[7].Flags|=DIF_DISABLE;
 }
 */
@@ -620,7 +620,7 @@ static long WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 ShellCopy::~ShellCopy()
 {
   /* $ 13.07.2000 SVS
-       раз уж вызвали new[], то в придачу и delete[] надо... */
+       Ёрч єц т√чтрыш new[], Єю т яЁшфрўє ш delete[] эрфю... */
   delete[] CopyBuffer;
   /* SVS $ */
 }
@@ -634,7 +634,7 @@ void ShellCopy::CopyFileTree(char *Dest)
   char SelName[NM],SelShortName[NM];
   int Length,FileAttr;
 
-  CopyBufSize=1024; // Начинаем с 1к
+  CopyBufSize=1024; // ═рўшэрхь ё 1ъ
   ReadOnlyDelMode=ReadOnlyOvrMode=OvrMode=-1;
   SetCursorType(FALSE,0);
 
@@ -643,7 +643,7 @@ void ShellCopy::CopyFileTree(char *Dest)
     return;
 
 /* $ 30.01.2001 VVM
-    + Запомним время начала. */
+    + ╟ряюьэшь тЁхь  эрўрыр. */
   if (ShowCopyTime)
     CopyStartTime = clock();
   CopyTime = 0;
@@ -798,7 +798,7 @@ void ShellCopy::CopyFileTree(char *Dest)
       SrcPanel->CopyDiz(SelName,SelShortName,CopiedName,CopiedName,&DestDiz);
     }
 #if defined(CREATE_JUNCTION)
-    // Кусок для создания SymLink для каталогов.
+    // ╩єёюъ фы  ёючфрэш  SymLink фы  ърЄрыюуют.
     if (Link && OnlyNewerFiles && (SrcData.dwFileAttributes & FA_DIREC))
     {
       char SrcFullName[NM], DestFullName[NM];
@@ -1058,8 +1058,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
         SetAttr&=~FA_RDONLY;
       SetFileAttributes(DestPath,SetAttr);
       /* $ 30.12.2000 SVS
-         При копировании/переносе забыли выставить FILE_ATTRIBUTE_ENCRYPTED
-         для каталога, если он есть
+         ╧Ёш ъюяшЁютрэшш/яхЁхэюёх чрс√ыш т√ёЄртшЄ№ FILE_ATTRIBUTE_ENCRYPTED
+         фы  ърЄрыюур, хёыш юэ хёЄ№
       */
       if(SetAttr&FILE_ATTRIBUTE_ENCRYPTED)
         if(!ESetFileEncryption(DestPath,1,0))
@@ -1248,8 +1248,8 @@ void ShellCopy::ShellCopyMsg(char *Src,char *Dest,int Flags)
   {
     sprintf(FilesStr,MSG(MCopyProcessed),TotalFiles);
     /* $ 30.01.2001 VVM
-        + Запомнить время начала.
-          Работает для каждого файла при выключенном ShowTotalIndicator  */
+        + ╟ряюьэшЄ№ тЁхь  эрўрыр.
+          ╨рсюЄрхЄ фы  ърцфюую Їрщыр яЁш т√ъы■ўхээюь ShowTotalIndicator  */
     if ((Src!=NULL) && (ShowCopyTime))
     {
       CopyStartTime = clock();
@@ -1272,7 +1272,7 @@ void ShellCopy::ShellCopyMsg(char *Src,char *Dest,int Flags)
     Message(Flags,0,Move ? MSG(MMoveDlgTitle):MSG(MCopyDlgTitle),"",MSG(MCopyScanning),DestName,"","",BarStr,"");
   else
 /* $ 30.01.2001 VVM
-    + Показывает время копирования,оставшееся время и среднюю скорость. */
+    + ╧юърч√трхЄ тЁхь  ъюяшЁютрэш ,юёЄрт°ххё  тЁхь  ш ёЁхфэ■■ ёъюЁюёЄ№. */
     if (Move)
     {
       if (ShowCopyTime)
@@ -1536,7 +1536,7 @@ int ShellCopy::ShellCopyFile(char *SrcName,WIN32_FIND_DATA *SrcData,
     DWORD BytesRead,BytesWritten;
 
     /* $ 23.10.2000 VVM
-       + Динамический буфер копирования */
+       + ─шэрьшўхёъшщ сєЇхЁ ъюяшЁютрэш  */
 
     if (CopyBufSize < CopyBufferSize)
       StartTime=clock();
@@ -1710,7 +1710,7 @@ int ShellCopy::ShellCopyFile(char *SrcName,WIN32_FIND_DATA *SrcData,
     }
     else
     {
-      BytesWritten=BytesRead; // не забудем приравнять количество записанных байт
+      BytesWritten=BytesRead; // эх чрсєфхь яЁшЁртэ Є№ ъюышўхёЄтю чряшёрээ√ї срщЄ
     }
 
     if ((CopyBufSize < CopyBufferSize) && (BytesWritten==CopyBufSize))
@@ -1752,7 +1752,7 @@ int ShellCopy::ShellCopyFile(char *SrcName,WIN32_FIND_DATA *SrcData,
 }
 
 /* $ 30.01.2001 VVM
-    + Перевод секунд в текст */
+    + ╧хЁхтюф ёхъєэф т ЄхъёЄ */
 void static GetTimeText(int Time, char *TimeText)
 {
   int Sec = Time;
@@ -1767,7 +1767,7 @@ void static GetTimeText(int Time, char *TimeText)
 void ShellCopy::ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar)
 {
 /* $ 30.01.2001 VVM
-    + Запомнить размеры */
+    + ╟ряюьэшЄ№ ЁрчьхЁ√ */
   int64 OldWrittenSize = WrittenSize;
   int64 OldTotalSize = TotalSize;
 /* VVM $ */
@@ -1793,7 +1793,7 @@ void ShellCopy::ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar)
   GotoXY(BarX,BarY+(TotalBar ? 2:0));
   Text(ProgressBar);
 /* $ 30.01.2001 VVM
-    + Показывает время копирования,оставшееся время и среднюю скорость. */
+    + ╧юърч√трхЄ тЁхь  ъюяшЁютрэш ,юёЄрт°ххё  тЁхь  ш ёЁхфэ■■ ёъюЁюёЄ№. */
   if (ShowCopyTime &&
       (!ShowTotalCopySize || TotalBar) &&
       (clock() - LastShowTime > 1000))
@@ -1825,7 +1825,7 @@ void ShellCopy::ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar)
         CPS = CPS/1024;
       }
       /* $ 06.03.2001 SVS
-         А у меня и такое есть :-)
+         └ є ьхэ  ш Єръюх хёЄ№ :-)
       */
       if (CPS > 99999) {
         c[0]='G';
@@ -1920,11 +1920,11 @@ int ShellCopy::AskOverwrite(WIN32_FIND_DATA *SrcData,char *DestName,
       char DestSizeText[20];
       DestSize.itoa(DestSizeText);
       /* $ 04.08.2000 SVS
-         Опция "Only newer file(s)"
+         ╬яЎш  "Only newer file(s)"
       */
       if(OnlyNewerFiles)
       {
-        // сравним время
+        // ёЁртэшь тЁхь 
         int RetCompare=CompareFileTime(&DestData.ftLastWriteTime,&SrcData->ftLastWriteTime);
         if(RetCompare < 0)
           MsgCode=0;
@@ -2244,8 +2244,8 @@ void ShellCopy::ShowTitle(int FirstTime)
   {
     int64 CopySize=CurCopySize>>8,TotalSize=TotalCopySize>>8;
     /* $ 03.07.2000 IS
-      Показывать проценты спереди при копировании/переносе
-    было:
+      ╧юърч√трЄ№ яЁюЎхэЄ√ ёяхЁхфш яЁш ъюяшЁютрэшш/яхЁхэюёх
+    с√ыю:
     char Percent[50];
     sprintf(Percent," {%d%%}",ToPercent(CopySize.LowPart,TotalSize.LowPart));
     strcat(Title,Percent);

@@ -1,7 +1,7 @@
 /*
 iswind.cpp
 
-Проверка fullscreen/windowed
+╧ЁютхЁър fullscreen/windowed
 
 */
 
@@ -10,23 +10,23 @@ iswind.cpp
 /*
 Modify:
   19.01.2001 VVM
-    + Если не нашли ФАР по pid, то ищем по уникальному заголовку окна
-      Такое бывает, если ФАР запущен из под ФАР-а или другой консольной 
-      программы
+    + ┼ёыш эх эр°ыш ╘└╨ яю pid, Єю ш∙хь яю єэшъры№эюьє чруюыютъє юъэр
+      ╥ръюх с√трхЄ, хёыш ╘└╨ чряє∙хэ шч яюф ╘└╨-р шыш фЁєующ ъюэёюы№эющ
+      яЁюуЁрьь√
   20.09.2000 SVS
-    ! hFarWnd глобальна
+    ! hFarWnd уыюсры№эр
   25.07.2000 SVS
-    + Программое переключение FulScreen <-> Windowed
+    + ╧ЁюуЁрььюх яхЁхъы■ўхэшх FulScreen <-> Windowed
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -49,7 +49,7 @@ void DetectWindowedMode()
 }
 
 /* $ 19.01.2001 VVM
-    + Если не нашли ФАР по pid, то ищем по уникальному заголовку окна */
+    + ┼ёыш эх эр°ыш ╘└╨ яю pid, Єю ш∙хь яю єэшъры№эюьє чруюыютъє юъэр */
 void FindFarWndByTitle()
 {
   char OldTitle[256];
@@ -69,7 +69,7 @@ void InitDetectWindowedMode()
   EnumWindows(IsWindowedEnumProc,(LPARAM)GetCurrentProcessId());
 
   /* $ 19.01.2001 VVM
-      + Если не нашли ФАР по pid, то ищем по уникальному заголовку окна */
+      + ┼ёыш эх эр°ыш ╘└╨ яю pid, Єю ш∙хь яю єэшъры№эюьє чруюыютъє юъэр */
   if (!hFarWnd)
     FindFarWndByTitle();
   /* VVM $ */
@@ -123,10 +123,10 @@ void RestoreIcons()
 }
 
 /* $ 25.07.2000 SVS
-   Программое переключение FulScreen <-> Windowed
-   (с подачи "Vasily V. Moshninov" <vmoshninov@newmail.ru>)
-   mode = -2 - получить текущее состояние
-          -1 - как тригер
+   ╧ЁюуЁрььюх яхЁхъы■ўхэшх FulScreen <-> Windowed
+   (ё яюфрўш "Vasily V. Moshninov" <vmoshninov@newmail.ru>)
+   mode = -2 - яюыєўшЄ№ Єхъє∙хх ёюёЄю эшх
+          -1 - ъръ ЄЁшухЁ
            0 - Windowed
            1 - FulScreen
    Return
@@ -151,8 +151,8 @@ int FarAltEnter(int mode)
     }
     else if (hFarWnd) // win9x
     {
-      //Windows9X посылает сообщение WM_COMMAND со специальным идентификатором,
-      //когда пользователь нажимает ALT+ENTER:
+      //Windows9X яюё√ырхЄ ёююс∙хэшх WM_COMMAND ёю ёяхЎшры№э√ь шфхэЄшЇшърЄюЁюь,
+      //ъюуфр яюы№чютрЄхы№ эрцшьрхЄ ALT+ENTER:
       #define ID_SWITCH_CONSOLEMODE 0xE00F
       SendMessage(hFarWnd,WM_COMMAND,ID_SWITCH_CONSOLEMODE,
            (mode == -1)?(IsWindowed()?1:0):(mode&1));

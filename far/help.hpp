@@ -3,7 +3,7 @@
 /*
 help.hpp
 
-Помощь
+╧юью∙№
 
 */
 
@@ -11,33 +11,33 @@ help.hpp
 
 /*
 Modify:
-  06.05.2001 ОТ
-    ! Переименование Window в Frame :)
+  06.05.2001 ╬╥
+    ! ╧хЁхшьхэютрэшх Window т Frame :)
   05.05.2001 DJ
-    + перетрях NWZ
+    + яхЁхЄЁ ї NWZ
   12.04.2001 SVS
-    + сохранение значения Mask, переданного в конструктор
-    + передача сохраненной Mask в конструктор с ShowPrev
+    + ёюїЁрэхэшх чэрўхэш  Mask, яхЁхфрээюую т ъюэёЄЁєъЄюЁ
+    + яхЁхфрўр ёюїЁрэхээющ Mask т ъюэёЄЁєъЄюЁ ё ShowPrev
   26.03.2001 SVS
-    ! ReadHelp возвращает TRUE/FALSE
+    ! ReadHelp тючтЁр∙рхЄ TRUE/FALSE
   30.12.2000 SVS
-    + KeyBar в Help`е
+    + KeyBar т Help`х
   18.12.2000 SVS
-    + Дополнительный параметр у конструктора - DWORD Flags.
-    + Член класса - Flags
+    + ─юяюыэшЄхы№э√щ ярЁрьхЄЁ є ъюэёЄЁєъЄюЁр - DWORD Flags.
+    + ╫ыхэ ъырёёр - Flags
   12.09.2000 SVS
-    + Параметры у функции ReadHelp и конструктора, задающие маску поиска
-      файлов.
-    + GetError() - возвращает ErrorHelp.
+    + ╧рЁрьхЄЁ√ є ЇєэъЎшш ReadHelp ш ъюэёЄЁєъЄюЁр, чрфр■∙шх ьрёъє яюшёър
+      Їрщыют.
+    + GetError() - тючтЁр∙рхЄ ErrorHelp.
   01.09.2000 SVS
-    + CtrlColorChar - опция! для спецсимвола-символа - для атрибутов
-    + CurColor - текущий цвет отрисовки
+    + CtrlColorChar - юяЎш ! фы  ёяхЎёшьтюыр-ёшьтюыр - фы  рЄЁшсєЄют
+    + CurColor - Єхъє∙шщ ЎтхЄ юЄЁшёютъш
   28.06.2000 tran
     - NT Console resize bug
       adding SetScreenPosition method
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 class Help:public Frame
@@ -50,14 +50,14 @@ class Help:public Frame
     char SelTopic[512];
     char HelpPath[NM];
     /* $ 12.04.2001 SVS
-       Значение маски, переданной в конструктор
+       ╟эрўхэшх ьрёъш, яхЁхфрээющ т ъюэёЄЁєъЄюЁ
     */
     char *HelpMask;
     /* SVS $ */
 
     DWORD Flags;
     /* $ 01.09.2000 SVS
-      CurColor - текущий цвет отрисовки
+      CurColor - Єхъє∙шщ ЎтхЄ юЄЁшёютъш
     */
     int CurColor;
     /* SVS $ */
@@ -73,7 +73,7 @@ class Help:public Frame
     int PrevMacroMode;
 
     /* $ 01.09.2000 SVS
-      CtrlColorChar - опция! для спецсимвола-символа - для атрибутов
+      CtrlColorChar - юяЎш ! фы  ёяхЎёшьтюыр-ёшьтюыр - фы  рЄЁшсєЄют
     */
     BYTE CtrlColorChar;
     /* SVS $ */
@@ -95,7 +95,7 @@ class Help:public Frame
   public:
     Help(char *Topic,char *Mask=NULL,DWORD Flags=0);
     /* $ 12.04.2001 SVS
-       передача Mask
+       яхЁхфрўр Mask
     */
     Help(char *Topic,int &ShowPrev,int PrevFullScreen,DWORD Flags=0,char *Mask=NULL);
     /* SVS $ */

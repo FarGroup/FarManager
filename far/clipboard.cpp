@@ -1,7 +1,7 @@
 /*
 clipboard.cpp
 
-Работа с буфером обмена.
+╨рсюЄр ё сєЇхЁюь юсьхэр.
 
 */
 
@@ -10,11 +10,11 @@ clipboard.cpp
 /*
 Modify:
   23.01.2001 SVS
-    ! Изменения в PasteFromClipboardEx в надежде на устранение падения
-      при попытке вставить охрененный кусок кода в диалоге :-)
-    - Опять же - утечка памяти в PasteFromClipboardEx :-((((
+    ! ╚чьхэхэш  т PasteFromClipboardEx т эрфхцфх эр єёЄЁрэхэшх ярфхэш 
+      яЁш яюя√Єъх тёЄртшЄ№ юїЁхэхээ√щ ъєёюъ ъюфр т фшрыюух :-)
+    - ╬я Є№ цх - єЄхўър ярь Єш т PasteFromClipboardEx :-((((
   22.12.2000 SVS
-    + Выделение в качестве самостоятельного модуля
+    + ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
@@ -224,4 +224,3 @@ char* PasteFormatFromClipboard(char *Format)
   CloseClipboard();
   return(ClipText);
 }
-

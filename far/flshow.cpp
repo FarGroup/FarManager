@@ -1,7 +1,7 @@
 /*
 flshow.cpp
 
-” ©«®¢ ï ¯ ­¥«ì - ¢ë¢®¤ ­  íªà ­
+Ôàéëîâàÿ ïàíåëü - âûâîä íà ýêðàí
 
 */
 
@@ -9,37 +9,37 @@ flshow.cpp
 
 /*
 Modify:
-  29.04.2001 Ž’
-    + ‚­¥¤à¥­¨¥ NWZ ®â ’à¥âìïª®¢ 
+  29.04.2001 ÎÒ
+    + Âíåäðåíèå NWZ îò Òðåòüÿêîâà
   20.03.2001 SVS
-    ! ¯®¤á®ªà â¨¬ - ¢¥áì ª®¤ ¯® ä®à¬ â¨à®¢ ­¨î à §¬¥à  ä ©«  ¨§
-      FileList::ShowList() ¢ë­¥á¥­ ¢ ®â¤¥«ì­ãî äã­ªæ¨î - FileSizeToStr()
+    ! ïîäñîêðàòèì - âåñü êîä ïî ôîðìàòèðîâàíèþ ðàçìåðà ôàéëà èç
+      FileList::ShowList() âûíåñåí â îòäåëüíóþ ôóíêöèþ - FileSizeToStr()
       (strmix.cpp).
   28.02.2001 IS
     ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   27.02.2001 VVM
-    ! ‘¨¬¢®«ë, § ¢¨á¨¬ë¥ ®â ª®¤®¢®© áâà ­¨æë
+    ! Ñèìâîëû, çàâèñèìûå îò êîäîâîé ñòðàíèöû
       /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
-      ¯¥à¥¢¥¤¥­ë ¢ ª®¤ë.
+      ïåðåâåäåíû â êîäû.
   16.02.2001 OT
-    - €ƒ€ ¯à¨ ®ç¥­ì è¨à®ª®¬ áâ®«¡æ¥ ¢ ¯ ­¥«¨
+    - ÁÀÃÀ ïðè î÷åíü øèðîêîì ñòîëáöå â ïàíåëè
   14.01.2001 SVS
-    ! 'P' - ®¡®§­ ç îé¨© reparse point § ¬¥­¥­ ­  'L'
+    ! 'P' - îáîçíà÷àþùèé reparse point çàìåíåí íà 'L'
   20.10.2000 SVS
-    + „®¡ ¢«¥­ Encrypted
-      ®â®ª ¬®¦¥â ¡ëâì «¨¡® COMPRESSED (‘) «¨¡® ENCRYPTED (E)
+    + Äîáàâëåí Encrypted
+      Ïîòîê ìîæåò áûòü ëèáî COMPRESSED (Ñ) ëèáî ENCRYPTED (E)
   11.07.2000 SVS
-    ! ˆ§¬¥­¥­¨ï ¤«ï ¢®§¬®¦­®áâ¨ ª®¬¯¨«ïæ¨¨ ¯®¤ BC & VC
+    ! Èçìåíåíèÿ äëÿ âîçìîæíîñòè êîìïèëÿöèè ïîä BC & VC
   25.06.2000 SVS
-    ! ®¤£®â®¢ª  Master Copy
-    ! ‚ë¤¥«¥­¨¥ ¢ ª ç¥áâ¢¥ á ¬®áâ®ïâ¥«ì­®£® ¬®¤ã«ï
+    ! Ïîäãîòîâêà Master Copy
+    ! Âûäåëåíèå â êà÷åñòâå ñàìîñòîÿòåëüíîãî ìîäóëÿ
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   ‘â ­¤ àâ­ë¥ § £®«®¢ª¨
+   Ñòàíäàðòíûå çàãîëîâêè
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -838,8 +838,8 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 else
                 {
                   char OutStr[64];
-                  // ¯®¤á®ªà â¨¬ - ¢¥áì ª®¤ ¯® ä®à¬ â¨à®¢ ­¨î à §¬¥à 
-                  //   ¢ ®â¤¥«ì­ãî äã­ªæ¨î - FileSizeToStr().
+                  // ïîäñîêðàòèì - âåñü êîä ïî ôîðìàòèðîâàíèþ ðàçìåðà
+                  //   â îòäåëüíóþ ôóíêöèþ - FileSizeToStr().
                   mprintf("%s",FileSizeToStr(OutStr,
                            Packed?CurPtr->PackSizeHigh:CurPtr->UnpSizeHigh,
                            Packed?CurPtr->PackSize:CurPtr->UnpSize,
@@ -899,7 +899,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 char OutStr[30];
                 /* $ 20.10.2000 SVS
                    Encrypted NTFS/Win2K
-                   ®â®ª ¬®¦¥â ¡ëâì «¨¡® COMPRESSED (‘) «¨¡® ENCRYPTED (E)
+                   Ïîòîê ìîæåò áûòü ëèáî COMPRESSED (Ñ) ëèáî ENCRYPTED (E)
                 */
                 sprintf(OutStr,"%c%c%c%c%c%c",
                         (CurPtr->FileAttr & FILE_ATTRIBUTE_REPARSE_POINT) ? 'L' : ' ',

@@ -4,7 +4,7 @@
 /*
 flink.hpp
 
-Заголовочный файл для работы с Hard & SymLink
+╟руюыютюўэ√щ Їрщы фы  ЁрсюЄ√ ё Hard & SymLink
 
 */
 
@@ -13,19 +13,19 @@ flink.hpp
 /*
 Modify:
   28.04.2001 VVM
-    + GetSubstName получает тип носителя
+    + GetSubstName яюыєўрхЄ Єшя эюёшЄхы 
   25.04.2001 SVS
-    + CreateVolumeMountPoint() - монтирование диска на файловую систему
+    + CreateVolumeMountPoint() - ьюэЄшЁютрэшх фшёър эр Їрщыютє■ ёшёЄхьє
   06.04.2001 SVS
-    + CanCreateHardLinks() - проверка на вшивость.
+    + CanCreateHardLinks() - яЁютхЁър эр т°штюёЄ№.
   13.03.2001 SVS
-    ! GetPathRoot переехала в fn.hpp :-)
+    ! GetPathRoot яхЁххїрыр т fn.hpp :-)
   05.01.2001 SVS
-    + Функция DelSubstDrive - удаление Subst драйвера
-    + Функция GetSubstName переехала из fh.hpp
+    + ╘єэъЎш  DelSubstDrive - єфрыхэшх Subst фЁрщтхЁр
+    + ╘єэъЎш  GetSubstName яхЁххїрыр шч fh.hpp
   04.01.2001 SVS
-    + Создан.
-    + Описания MkLink, GetNumberOfLinks переехали из fn.hpp
+    + ╤ючфрэ.
+    + ╬яшёрэш  MkLink, GetNumberOfLinks яхЁххїрыш шч fn.hpp
 
 */
 

@@ -3,7 +3,7 @@
 /*
 macro.hpp
 
-Макросы
+╠ръЁюё√
 
 */
 
@@ -12,20 +12,20 @@ macro.hpp
 /*
 Modify:
   25.04.2001 SVS
-    ! Код проверки флагов для старта макросов вынесен в функции Check* -
-      слишком много повторяющегося кода :-(
+    ! ╩юф яЁютхЁъш Їыруют фы  ёЄрЁЄр ьръЁюёют т√эхёхэ т ЇєэъЎшш Check* -
+      ёыш°ъюь ьэюую яютЄюЁ ■∙хуюё  ъюфр :-(
   08.03.2001 SVS
-    + Функция MkTextSequence - формирование строкового представления Sequence
+    + ╘єэъЎш  MkTextSequence - ЇюЁьшЁютрэшх ёЄЁюъютюую яЁхфёЄртыхэш  Sequence
   22.01.2001 SVS
-    + Функция MkRegKeyName - формирование имени ключа в реестре.
+    + ╘єэъЎш  MkRegKeyName - ЇюЁьшЁютрэшх шьхэш ъы■ўр т ЁххёЄЁх.
   17.01.2001 SVS
-    + функции получения индекса макроса и размера под макропоследовательность:
+    + ЇєэъЎшш яюыєўхэш  шэфхъёр ьръЁюёр ш ЁрчьхЁр яюф ьръЁюяюёыхфютрЄхы№эюёЄ№:
        int GetIndex(int Key, int Mode);
        int GetRecordSize(int Key, int Mode);
   04.01.2001 SVS
-    ! изменен ReadMacros и GetMacroSettings
-    + функция AssignMacroKey
-    ! удалена структура struct TKeyNames
+    ! шчьхэхэ ReadMacros ш GetMacroSettings
+    + ЇєэъЎш  AssignMacroKey
+    ! єфрыхэр ёЄЁєъЄєЁр struct TKeyNames
   26.12.2000 SVS
     + SwitchFlags()
   23.12.2000 SVS
@@ -33,13 +33,13 @@ Modify:
     + int PlayKeyMacro(struct MacroRecord *MRec)
     + int PlayKeyMacro(char *KeyBuffer)
   21.12.2000 SVS
-    ! структура MacroRecord перенесена из struct.hpp и "сжата"
-    ! Функция KeyToText удалена за ненадобностью
+    ! ёЄЁєъЄєЁр MacroRecord яхЁхэхёхэр шч struct.hpp ш "ёцрЄр"
+    ! ╘єэъЎш  KeyToText єфрыхэр чр эхэрфюсэюёЄ№■
   10.09.2000 SVS
-    ! Функция ReadMacros имеет дополнительные аргументы
+    ! ╘єэъЎш  ReadMacros шьххЄ фюяюыэшЄхы№э√х рЁуєьхэЄ√
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 struct MacroRecord
@@ -54,14 +54,14 @@ class KeyMacro
 {
   private:
     /* $ 10.09.2000 SVS
-      ! Функция ReadMacros имеет дополнительные аргументы
+      ! ╘єэъЎш  ReadMacros шьххЄ фюяюыэшЄхы№э√х рЁуєьхэЄ√
     */
     class LockScreen *LockScr;
 
     struct MacroRecord *Macros;
     int MacrosNumber;
-    // тип записи - с вызовом диалога настроек или...
-    // 0 - нет записи, 1 - простая запись, 2 - вызов диалога настроек
+    // Єшя чряшёш - ё т√чютюь фшрыюур эрёЄЁюхъ шыш...
+    // 0 - эхЄ чряшёш, 1 - яЁюёЄр  чряшё№, 2 - т√чют фшрыюур эрёЄЁюхъ
     int Recording;
 
     int *RecBuffer;
@@ -74,17 +74,17 @@ class KeyMacro
     int StartMode;
     int StartMacroPos;
 
-    struct MacroRecord *TempMacro; // временный буфер для 1 макро
-    int TempMacroType;             // тип этого буфера
+    struct MacroRecord *TempMacro; // тЁхьхээ√щ сєЇхЁ фы  1 ьръЁю
+    int TempMacroType;             // Єшя ¤Єюую сєЇхЁр
 
   private:
     int ReadMacros(int ReadMode, char *Buffer, int BufferSize);
     DWORD AssignMacroKey();
     int GetMacroSettings(int Key,DWORD &Flags);
     void InitVars();
-    void ReleaseTempBuffer(); // удалить временный буфер
+    void ReleaseTempBuffer(); // єфрышЄ№ тЁхьхээ√щ сєЇхЁ
 
-    // из строкового представления макроса сделать MacroRecord
+    // шч ёЄЁюъютюую яЁхфёЄртыхэш  ьръЁюёр ёфхырЄ№ MacroRecord
     int ParseMacroString(struct MacroRecord *CurMacro,char *BufPtr);
     DWORD SwitchFlags(DWORD& Flags,DWORD Value);
     static long WINAPI AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
@@ -112,17 +112,17 @@ class KeyMacro
 
     void RunStartMacro();
 
-    // "играть" строковое представление макроса
+    // "шуЁрЄ№" ёЄЁюъютюх яЁхфёЄртыхэшх ьръЁюёр
     int PlayKeyMacro(char *KeyBuffer);
-    // "играть" рекорд (бинарное представление)
+    // "шуЁрЄ№" ЁхъюЁф (сшэрЁэюх яЁхфёЄртыхэшх)
     int PlayKeyMacro(struct MacroRecord *MRec);
 
     int  LoadMacros();
     void SaveMacros();
 
-    // Функция получения индекса нужного макроса в массиве
+    // ╘єэъЎш  яюыєўхэш  шэфхъёр эєцэюую ьръЁюёр т ьрёёштх
     int GetIndex(int Key, int Mode);
-    // получение размера, занимаемого указанным макросом
+    // яюыєўхэшх ЁрчьхЁр, чрэшьрхьюую єърчрээ√ь ьръЁюёюь
     int GetRecordSize(int Key, int Mode);
 
     static char* GetSubKey(int Mode);

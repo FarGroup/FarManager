@@ -3,7 +3,7 @@
 /*
 copy.hpp
 
-class ShellCopy - Копирование файлов
+class ShellCopy - ╩юяшЁютрэшх Їрщыют
 
 */
 
@@ -12,18 +12,18 @@ class ShellCopy - Копирование файлов
 /*
 Modify:
   01.01.2001 VVM
-    + Переменная CopyBufferSize -  размер буфера для копирования
+    + ╧хЁхьхээр  CopyBufferSize -  ЁрчьхЁ сєЇхЁр фы  ъюяшЁютрэш 
   14.12.2000 SVS
-    + CopyToNUL - Признак копирования в NUL
+    + CopyToNUL - ╧Ёшчэръ ъюяшЁютрэш  т NUL
   23.10.2000 VVM
-    + Динамический буфер копирования - рабочие переменные
+    + ─шэрьшўхёъшщ сєЇхЁ ъюяшЁютрэш  - Ёрсюўшх яхЁхьхээ√х
   21.10.2000 SVS
-    + Переменная Copy_Buffer_Size -  размер буфера для копирования
+    + ╧хЁхьхээр  Copy_Buffer_Size -  ЁрчьхЁ сєЇхЁр фы  ъюяшЁютрэш 
   04.08.2000 SVS
-    + Опция "Only newer file(s)"
+    + ╬яЎш  "Only newer file(s)"
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 class ShellCopy
@@ -36,7 +36,7 @@ class ShellCopy
     Panel *SrcPanel,*AnotherPanel;
     char *CopyBuffer;
     /* $ 23.10.2000 VVM
-       + Динамический буфер копирования - рабочие переменные */
+       + ─шэрьшўхёъшщ сєЇхЁ ъюяшЁютрэш  - Ёрсюўшх яхЁхьхээ√х */
     int CopyBufSize;
     clock_t StartTime;
     clock_t StopTime;
@@ -59,7 +59,7 @@ class ShellCopy
     int SelectedFolderNameLength;
     int OverwriteNext;
     /* $ 14.12.2000 SVS
-       CopyToNUL - Признак копирования в NUL
+       CopyToNUL - ╧Ёшчэръ ъюяшЁютрэш  т NUL
     */
     int CopyToNUL;
     /* SVS $ */

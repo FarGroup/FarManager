@@ -1,7 +1,7 @@
 /*
 mix.cpp
 
-Куча разных вспомогательных функций
+╩єўр Ёрчэ√ї тёяюьюурЄхы№э√ї ЇєэъЎшщ
 
 */
 
@@ -9,223 +9,223 @@ mix.cpp
 
 /*
 Modify:
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
+  29.04.2001 ╬╥
+    + ┬эхфЁхэшх NWZ юЄ ╥ЁхЄ№ ъютр
   01.05.2001 SVS
-    ! mktemp - создаем имена временных файлов в верхнем регистре (strupr)
+    ! mktemp - ёючфрхь шьхэр тЁхьхээ√ї Їрщыют т тхЁїэхь ЁхушёЄЁх (strupr)
   28.04.2001 VVM
-    + GetSubstName() принимает тип носителя
+    + GetSubstName() яЁшэшьрхЄ Єшя эюёшЄхы 
   24.04.2001 SVS
-    - Бага с кавычками (с подачи DJ)
+    - ┴рур ё ърт√ўърьш (ё яюфрўш DJ)
   13.04.2001 VVM
-    + Флаг CREATE_DEFAULT_ERROR_MODE при CreateProcess.
+    + ╘ыру CREATE_DEFAULT_ERROR_MODE яЁш CreateProcess.
   08.06.2001 SVS
-    ! В Add_PATHEXT() используем модифицированную GetCommaWord().
-    ! ExpandPATHEXT() выкинем за ненадобностью.
-    ! В ExpandEnvironmentStr(), ConvertNameToFull()
-      применяем alloca() вместо malloc().
+    ! ┬ Add_PATHEXT() шёяюы№чєхь ьюфшЇшЎшЁютрээє■ GetCommaWord().
+    ! ExpandPATHEXT() т√ъшэхь чр эхэрфюсэюёЄ№■.
+    ! ┬ ExpandEnvironmentStr(), ConvertNameToFull()
+      яЁшьхэ хь alloca() тьхёЄю malloc().
   06.06.2001 SVS
-    + ExpandPATHEXT() - Расширение переменных среды с учетом %PATHEXT%
-      При этом значение %PATHEXT% приводим к ФАРовскому формату.
+    + ExpandPATHEXT() - ╨рё°шЁхэшх яхЁхьхээ√ї ёЁхф√ ё єўхЄюь %PATHEXT%
+      ╧Ёш ¤Єюь чэрўхэшх %PATHEXT% яЁштюфшь ъ ╘└╨ютёъюьє ЇюЁьрЄє.
   03.04.2001 SVS
     + Add_PATHEXT()
   30.03.2001 SVS
-    + FarGetLogicalDrives - оболочка вокруг GetLogicalDrives, с учетом
-      скрытых логических дисков
+    + FarGetLogicalDrives - юсюыюўър тюъЁєу GetLogicalDrives, ё єўхЄюь
+      ёъЁ√Є√ї ыюушўхёъшї фшёъют
   24.03.2001 tran
     + qsortex
   20.03.2001 tran
-    + FarRecursiveSearch - добавлен void *param
+    + FarRecursiveSearch - фюсртыхэ void *param
   20.03.2001 SKV
-    - еще один фикс с размером консоли при детаче.
+    - х∙х юфшэ Їшъё ё ЁрчьхЁюь ъюэёюыш яЁш фхЄрўх.
   16.03.2001 SVS
-    + Функция DriveLocalToRemoteName() - Получить из имени диска RemoteName
+    + ╘єэъЎш  DriveLocalToRemoteName() - ╧юыєўшЄ№ шч шьхэш фшёър RemoteName
   15.03.2001 SKV
-    - фикс с размером консоли при detach far console.
+    - Їшъё ё ЁрчьхЁюь ъюэёюыш яЁш detach far console.
   12.03.2001 SVS
-    ! Коррекция в связи с изменениями в классе int64
+    ! ╩юЁЁхъЎш  т ёт чш ё шчьхэхэш ьш т ъырёёх int64
   02.03.2001 IS
-    ! Переписал ExpandEnvironmentStr, ибо не понравилась она мне - могла быть
-      источником багов.
+    ! ╧хЁхяшёры ExpandEnvironmentStr, шсю эх яюэЁртшырё№ юэр ьэх - ьюуыр с√Є№
+      шёЄюўэшъюь сруют.
   21.02.2001 VVM
-    ! GetFileOwner()::Под НТ/2000 переменная Needed устанавливается
-      независимо от результат.
+    ! GetFileOwner()::╧юф ═╥/2000 яхЁхьхээр  Needed єёЄрэртыштрхЄё 
+      эхчртшёшью юЄ Ёхчєы№ЄрЄ.
   14.02.2001 SKV
-    ! доработка фитчи отделения консоли.
+    ! фюЁрсюЄър ЇшЄўш юЄфхыхэш  ъюэёюыш.
   12.02.2001 SKV
-    + Отделение Фар-овской консоли от неинтерактивного
-       процесса в ней запущенного.
+    + ╬Єфхыхэшх ╘рЁ-ютёъющ ъюэёюыш юЄ эхшэЄхЁръЄштэюую
+       яЁюЎхёёр т эхщ чряє∙хээюую.
   23.01.2001 SVS
-    ! ExpandEnvironmentStr снова динамически выделяет память...
-    ! Уточнение факта посылки VK_F16 как виртуального кода!
+    ! ExpandEnvironmentStr ёэютр фшэрьшўхёъш т√фхы хЄ ярь Є№...
+    ! ╙Єюўэхэшх ЇръЄр яюё√ыъш VK_F16 ъръ тшЁЄєры№эюую ъюфр!
   23.01.2001 SVS
-    ! Сделаем статичный массив символов временного буфера в
+    ! ╤фхырхь ёЄрЄшўэ√щ ьрёёшт ёшьтюыют тЁхьхээюую сєЇхЁр т
       ExpandEnvironmentStr()
   21.01.2001 SVS
-    ! Функция GetString - переехала в stddlg.cpp
+    ! ╘єэъЎш  GetString - яхЁххїрыр т stddlg.cpp
   05.01.2001 SVS
-    ! Функция GetSubstName - переехала в flink.cpp
-    ! Функции InsertCommas, PointToName, GetPathRoot, CmpName, ConvertWildcards,
+    ! ╘єэъЎш  GetSubstName - яхЁххїрыр т flink.cpp
+    ! ╘єэъЎшш InsertCommas, PointToName, GetPathRoot, CmpName, ConvertWildcards,
       QuoteSpace, QuoteSpaceOnly, TruncStr, TruncPathStr, Remove???Spaces,
       HiStrlen, AddEndSlash, NullToEmpty, CenterStr, GetCommaWord,
       RemoveHighlights, IsCaseMixed, IsCaseLower, Unquote,
-      переехали в strmix.cpp
+      яхЁххїрыш т strmix.cpp
   03.01.2001 SVS
-    ! Функции SetFarTitle, ScrollBar, ShowSeparator
-      переехали в interf.cpp
-    ! Функции MkLink, GetNumberOfLinks
-      переехали в flink.cpp
+    ! ╘єэъЎшш SetFarTitle, ScrollBar, ShowSeparator
+      яхЁххїрыш т interf.cpp
+    ! ╘єэъЎшш MkLink, GetNumberOfLinks
+      яхЁххїрыш т flink.cpp
   03.01.2001 SVS
-    ! ConvertDate - динамически получает форматы (если ее об этом попросить)
+    ! ConvertDate - фшэрьшўхёъш яюыєўрхЄ ЇюЁьрЄ√ (хёыш хх юс ¤Єюь яюяЁюёшЄ№)
   22.12.2000 SVS
-    ! Немного разгрузим файл:
+    ! ═хьэюую ЁрчуЁєчшь Їрщы:
       KeyNameToKey -> keyboard.cpp
       InputRecordToKey -> keyboard.cpp
       KeyToText -> keyboard.cpp
-      Все, что касается SysLog -> syslog.cpp
+      ┬ёх, ўЄю ърёрхЄё  SysLog -> syslog.cpp
       Eject -> eject.cpp
       Xlat  -> xlat.cpp
       *Clipboard* -> clipboard.cpp
   21.12.2000 SVS
-    + KEY_DTDAY, KEY_DTMONTH, KEY_DTYEAR - небольшое дополнение к макросам :-)
+    + KEY_DTDAY, KEY_DTMONTH, KEY_DTYEAR - эхсюы№°юх фюяюыэхэшх ъ ьръЁюёрь :-)
   14.12.2000 SVS
-    + Добавлен код для выполнения Eject съемных носителей для
+    + ─юсртыхэ ъюф фы  т√яюыэхэш  Eject ё·хьэ√ї эюёшЄхыхщ фы 
       Win9x & WinNT/2K
   06.12.2000 IS
-    ! Теперь функция AddEndSlash работает с обоими видами слешей, также
-      происходит изменение уже существующего конечного слеша на такой, который
-      встречается чаще.
+    ! ╥хяхЁ№ ЇєэъЎш  AddEndSlash ЁрсюЄрхЄ ё юсюшьш тшфрьш ёых°хщ, Єръцх
+      яЁюшёїюфшЄ шчьхэхэшх єцх ёє∙хёЄтє■∙хую ъюэхўэюую ёых°р эр Єръющ, ъюЄюЁ√щ
+      тёЄЁхўрхЄё  ўр∙х.
   24.11.2000 SVS
-    ! XLat сделаем несколько совершенной :-))) Что бы не зависеть от размера!
+    ! XLat ёфхырхь эхёъюы№ъю ёютхЁ°хээющ :-))) ╫Єю с√ эх чртшёхЄ№ юЄ ЁрчьхЁр!
   08.11.2000 SVS
-    - Бага в функции ConvertNameToFull.
+    - ┴рур т ЇєэъЎшш ConvertNameToFull.
   04.11.2000 SVS
-    + XLAT_SWITCHKEYBBEEP в XLat перекодировке.
-    ! несколько проверок в FarBsearch, InputRecordToKey, FarQsort, FarSprintf,
+    + XLAT_SWITCHKEYBBEEP т XLat яхЁхъюфшЁютъх.
+    ! эхёъюы№ъю яЁютхЁюъ т FarBsearch, InputRecordToKey, FarQsort, FarSprintf,
       FarAtoi64, FarAtoi, FarItoa64, FarItoa, KeyNameToKey, KeyToText,
       FarSscanf, AddEndSlash, RemoveTrailingSpaces, RemoveLeadingSpaces,
       TruncStr, TruncPathStr, QuoteSpaceOnly
   03.11.2000 OT
-    ! Исправление предыдущего способа проверки
+    ! ╚ёяЁртыхэшх яЁхф√фє∙хую ёяюёюср яЁютхЁъш
   02.11.2000 OT
-    ! Введение проверки на длину буфера, отведенного под имя файла.
+    ! ┬тхфхэшх яЁютхЁъш эр фышэє сєЇхЁр, юЄтхфхээюую яюф шь  Їрщыр.
   26.10.2000 SVS
-    ! У MkTemp префикс нафиг ненужно переводить в ANSI
+    ! ╙ MkTemp яЁхЇшъё эрЇшу эхэєцэю яхЁхтюфшЄ№ т ANSI
   25.10.2000 SVS
-    ! Уточнения OpenLogStream
-    ! У MkTemp префикс может быть и по русски, так что переведем в ANSI
+    ! ╙Єюўэхэш  OpenLogStream
+    ! ╙ MkTemp яЁхЇшъё ьюцхЄ с√Є№ ш яю Ёєёёъш, Єръ ўЄю яхЁхтхфхь т ANSI
   25.10.2000 IS
-    ! Заменил mktemp на вызов соответствующей апишной функции, т.к. предыдущий
-      вариант приводил к ошибке (заметили на Multiarc'е)
+    ! ╟рьхэшы mktemp эр т√чют ёююЄтхЄёЄтє■∙хщ ряш°эющ ЇєэъЎшш, Є.ъ. яЁхф√фє∙шщ
+      трЁшрэЄ яЁштюфшы ъ ю°шсъх (чрьхЄшыш эр Multiarc'х)
   23.10.2000 SVS
-    ! Узаконненая версия SysLog :-)
-      Задолбался я ставить комметарии после AT ;-)
+    ! ╙чръюээхэр  тхЁёш  SysLog :-)
+      ╟рфюысрыё    ёЄртшЄ№ ъюььхЄрЁшш яюёых AT ;-)
   20.10.2000 SVS
-    ! ProcessName: Flags должен быть DWORD, а не int
+    ! ProcessName: Flags фюыцхэ с√Є№ DWORD, р эх int
   20.10.2000 SVS
     + SysLog
   16.10.2000 tran
     + PasteFromClipboardEx(int max);
   09.10.2000 IS
-    + Новые функции для обработки имени файла: ProcessName, ConvertWildcards
+    + ═ют√х ЇєэъЎшш фы  юсЁрсюЄъш шьхэш Їрщыр: ProcessName, ConvertWildcards
   27.09.2000 skv
-    + DeleteBuffer. Удалять то, что вернул PasteFromClipboard.
+    + DeleteBuffer. ╙фры Є№ Єю, ўЄю тхЁэєы PasteFromClipboard.
   24.09.2000 SVS
-    + Функция KeyNameToKey - получение кода клавиши по имени
-      Если имя не верно или нет такого - возвращается -1
+    + ╘єэъЎш  KeyNameToKey - яюыєўхэшх ъюфр ъыртш°ш яю шьхэш
+      ┼ёыш шь  эх тхЁэю шыш эхЄ Єръюую - тючтЁр∙рхЄё  -1
   20.09.2000 SVS
-    ! удалил FolderPresent (блин, совсем крышу сорвало :-(
+    ! єфрышы FolderPresent (сышэ, ёютёхь ъЁ√°є ёюЁтрыю :-(
   20.09.2000 SVS
-    ! Уточнения в функции Xlat()
+    ! ╙Єюўэхэш  т ЇєэъЎшш Xlat()
   19.09.2000 SVS
-    + функция FolderPresent - "сужествует ли каталог"
+    + ЇєэъЎш  FolderPresent - "ёєцхёЄтєхЄ ыш ърЄрыюу"
   19.09.2000 SVS
-    + IsFolderNotEmpty немного "ускорим"
-    ! Функция FarMkTemp - уточнение!
+    + IsFolderNotEmpty эхьэюую "єёъюЁшь"
+    ! ╘єэъЎш  FarMkTemp - єЄюўэхэшх!
   18.09.2000 skv
-    + в IsCommandExeGUI проверка на наличие .bat и .cmd в тек. директории
+    + т IsCommandExeGUI яЁютхЁър эр эрышўшх .bat ш .cmd т Єхъ. фшЁхъЄюЁшш
   18.09.2000 SVS
     ! FarRecurseSearch -> FarRecursiveSearch
-    ! Исправление ошибочки в функции FarMkTemp :-)))
+    ! ╚ёяЁртыхэшх ю°шсюўъш т ЇєэъЎшш FarMkTemp :-)))
   14.09.2000 SVS
-    + Функция FarMkTemp - получение имени временного файла с полным путем.
+    + ╘єэъЎш  FarMkTemp - яюыєўхэшх шьхэш тЁхьхээюую Їрщыр ё яюыэ√ь яєЄхь.
   10.09.2000 SVS
-    ! KeyToText возвращает BOOL
+    ! KeyToText тючтЁр∙рхЄ BOOL
   10.09.2000 tran
     + FSF/FarRecurseSearch
   10.09.2000 SVS
-    ! Наконец-то нашлось приемлемое имя для QWERTY -> Xlat.
+    ! ═ръюэхЎ-Єю эр°ыюё№ яЁшхьыхьюх шь  фы  QWERTY -> Xlat.
   08.09.2000 SVS
-    - QWERTY - ошибочка вралась :-)))
+    - QWERTY - ю°шсюўър тЁрырё№ :-)))
     ! QWERTY -> Transliterate
     ! QWED_SWITCHKEYBLAYER -> EDTR_SWITCHKEYBLAYER
     + KEY_CTRLSHIFTDEL, KEY_ALTSHIFTDEL
   07.09.2000 SVS
-    + Функция GetFileOwner тоже доступна плагинам :-)
-    + Функция GetNumberOfLinks тоже доступна плагинам :-)
-    + Оболочка FarBsearch для плагинов (функция bsearch)
+    + ╘єэъЎш  GetFileOwner Єюцх фюёЄєяэр яырушэрь :-)
+    + ╘єэъЎш  GetNumberOfLinks Єюцх фюёЄєяэр яырушэрь :-)
+    + ╬сюыюўър FarBsearch фы  яырушэют (ЇєэъЎш  bsearch)
   05.09.2000 SVS 1.19
-    + QWERTY - функция перекодировки QWERTY<->ЙЦУКЕН
+    + QWERTY - ЇєэъЎш  яхЁхъюфшЁютъш QWERTY<->╔╓╙╩┼═
   31.08.2000 tran 1.18
     + InputRecordToKey
   29.08.2000 SVS
-    - Неверно отрабатывала функция FarSscanf
+    - ═хтхЁэю юЄЁрсрЄ√трыр ЇєэъЎш  FarSscanf
   28.08.2000 SVS
-    ! уточнение для FarQsort
-    ! Не FarAtoa64, но FarAtoi64
+    ! єЄюўэхэшх фы  FarQsort
+    ! ═х FarAtoa64, эю FarAtoi64
     + FarItoa64
   25.08.2000 SVS
-    ! Функция GetString может при соответсвующем флаге (FIB_BUTTONS) отображать
-      сепаратор и кнопки <Ok> & <Cancel>
+    ! ╘єэъЎш  GetString ьюцхЄ яЁш ёююЄтхЄётє■∙хь Їырух (FIB_BUTTONS) юЄюсЁрцрЄ№
+      ёхярЁрЄюЁ ш ъэюяъш <Ok> & <Cancel>
   24.08.2000 SVS
-    + В функции KeyToText добавлена обработка клавиш
+    + ┬ ЇєэъЎшш KeyToText фюсртыхэр юсЁрсюЄър ъыртш°
       KEY_CTRLALTSHIFTPRESS, KEY_CTRLALTSHIFTRELEASE
   09.08.2000 SVS
-    + FIB_NOUSELASTHISTORY - флаг для использовании пред значения из
-      истории задается отдельно!!! (int function GetString())
+    + FIB_NOUSELASTHISTORY - Їыру фы  шёяюы№чютрэшш яЁхф чэрўхэш  шч
+      шёЄюЁшш чрфрхЄё  юЄфхы№эю!!! (int function GetString())
   01.08.2000 SVS
-    ! Функция ввода строки GetString имеет один параметр для всех флагов
-    ! дополнительный параметра у KeyToText - размер данных
+    ! ╘єэъЎш  ттюфр ёЄЁюъш GetString шьххЄ юфшэ ярЁрьхЄЁ фы  тёхї Їыруют
+    ! фюяюыэшЄхы№э√щ ярЁрьхЄЁр є KeyToText - ЁрчьхЁ фрээ√ї
   31.07.2000 SVS
-    ! Функция GetString имеет еще один параметр - расширять ли переменные среды!
-    ! Если в GetString указан History, то добавляется еще и DIF_USELASTHISTORY
+    ! ╘єэъЎш  GetString шьххЄ х∙х юфшэ ярЁрьхЄЁ - Ёрё°шЁ Є№ ыш яхЁхьхээ√х ёЁхф√!
+    ! ┼ёыш т GetString єърчрэ History, Єю фюсрты хЄё  х∙х ш DIF_USELASTHISTORY
   25.07.2000 SVS
-    ! Функция KeyToText сделана самосотоятельной - вошла в состав FSF
-    ! Функции, попадающие в разряд FSF должны иметь WINAPI!!!
+    ! ╘єэъЎш  KeyToText ёфхырэр ёрьюёюЄю Єхы№эющ - тю°ыр т ёюёЄрт FSF
+    ! ╘єэъЎшш, яюярфр■∙шх т ЁрчЁ ф FSF фюыцэ√ шьхЄ№ WINAPI!!!
   23.07.2000 SVS
-    ! Функция GetString имеет вызов WINAPI
+    ! ╘єэъЎш  GetString шьххЄ т√чют WINAPI
   18.07.2000 tran 1.08
-    ! изменил типа аргумента у ScrollBar
+    ! шчьхэшы Єшяр рЁуєьхэЄр є ScrollBar
   13.07.2000 IG
-    - в VC, похоже, нельзя сказать так: 0x4550 == 'PE', надо
-      делать проверку побайтово (функция IsCommandExeGUI)
+    - т VC, яюїюцх, эхы№ч  ёърчрЄ№ Єръ: 0x4550 == 'PE', эрфю
+      фхырЄ№ яЁютхЁъє яюсрщЄютю (ЇєэъЎш  IsCommandExeGUI)
   13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
+    ! ═хъюЄюЁ√х ъюЁЁхъЎшш яЁш шёяюы№чютрэшш new/delete/realloc
   11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
+    ! ╚чьхэхэш  фы  тючьюцэюёЄш ъюьяшы Ўшш яюф BC & VC
   07.07.2000 tran
     - trap under win2000, or console height > 210
       bug was in ScrollBar ! :)))
   07.07.2000 SVS
-    + Дополнительная функция обработки строк: RemoveExternalSpaces
-    ! Изменен тип 2-х функций:
+    + ─юяюыэшЄхы№эр  ЇєэъЎш  юсЁрсюЄъш ёЄЁюъ: RemoveExternalSpaces
+    ! ╚чьхэхэ Єшя 2-ї ЇєэъЎшщ:
         RemoveLeadingSpaces
         RemoveTrailingSpaces
-      Возвращают char*
+      ┬ючтЁр∙р■Є char*
   05.07.2000 SVS
-    + Добавлена функция ExpandEnvironmentStr
+    + ─юсртыхэр ЇєэъЎш  ExpandEnvironmentStr
   28.06.2000 IS
-    ! Функция Unquote стала универсальной
+    ! ╘єэъЎш  Unquote ёЄрыр єэштхЁёры№эющ
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -387,7 +387,7 @@ int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
   char OldTitle[512];
   int ExitCode;
   /* $ 13.04.2001 VVM
-    + Флаг CREATE_DEFAULT_ERROR_MODE. Что-бы показывал все ошибки */
+    + ╘ыру CREATE_DEFAULT_ERROR_MODE. ╫Єю-с√ яюърч√тры тёх ю°шсъш */
   DWORD CreateFlags=CREATE_DEFAULT_ERROR_MODE;
   /* VVM $ */
 
@@ -462,7 +462,7 @@ int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
   FlushInputBuffer();
 
   /*$ 15.03.2001 SKV
-    Надо запомнить параметры консоли ДО запуск и т.д.
+    ═рфю чряюьэшЄ№ ярЁрьхЄЁ√ ъюэёюыш ─╬ чряєёъ ш Є.ф.
   */
   CONSOLE_SCREEN_BUFFER_INFO sbi;
   GetConsoleScreenBufferInfo(hConOut,&sbi);
@@ -508,9 +508,9 @@ int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
     if (!SeparateWindow && !GUIType || AlwaysWaitFinish)
     {
       /*$ 12.02.2001 SKV
-        супер фитча ;)
-        Отделение фаровской консоли от неинтерактивного процесса.
-        Задаётся кнопкой в System/ConsoleDetachKey
+        ёєяхЁ ЇшЄўр ;)
+        ╬Єфхыхэшх ЇрЁютёъющ ъюэёюыш юЄ эхшэЄхЁръЄштэюую яЁюЎхёёр.
+        ╟рфр╕Єё  ъэюяъющ т System/ConsoleDetachKey
       */
       if(Opt.ConsoleDetachKey>0)
       {
@@ -556,7 +556,7 @@ int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
                   FreeConsole();
                   AllocConsole();
                   /*$ 20.03.2001 SKV
-                    вот такой вот изврат :-\
+                    тюЄ Єръющ тюЄ шчтЁрЄ :-\
                   */
                   SetConsoleScreenBufferSize(hConOut,sbi.dwSize);
                   SetConsoleWindowInfo(hConOut,TRUE,&sbi.srWindow);
@@ -691,8 +691,8 @@ DWORD IsCommandExeGUI(char *Command)
       DWORD ExeType=SHGetFileInfo(FullName,0,&sfi,sizeof(sfi),SHGFI_EXETYPE);
       GUIType=HIWORD(ExeType)>=0x0300 && HIWORD(ExeType)<=0x1000 &&
               /* $ 13.07.2000 IG
-                 в VC, похоже, нельзя сказать так: 0x4550 == 'PE', надо
-                 делать проверку побайтово.
+                 т VC, яюїюцх, эхы№ч  ёърчрЄ№ Єръ: 0x4550 == 'PE', эрфю
+                 фхырЄ№ яЁютхЁъє яюсрщЄютю.
               */
               HIBYTE(ExeType)=='E' && (LOBYTE(ExeType)=='N' || LOBYTE(ExeType)=='P');
               /* IG $ */
@@ -725,9 +725,9 @@ int ToPercent(unsigned long N1,unsigned long N2)
 
 
 /* $ 09.10.2000 IS
-    + Новая функция для обработки имени файла
+    + ═ютр  ЇєэъЎш  фы  юсЁрсюЄъш шьхэш Їрщыр
 */
-// обработать имя файла: сравнить с маской, масками, сгенерировать по маске
+// юсЁрсюЄрЄ№ шь  Їрщыр: ёЁртэшЄ№ ё ьрёъющ, ьрёърьш, ёухэхЁшЁютрЄ№ яю ьрёъх
 int WINAPI ProcessName(char *param1, char *param2, DWORD flags)
 {
  int skippath=flags&PN_SKIPPATH;
@@ -805,9 +805,9 @@ void Log(char *fmt,...)
 
 
 /* $ 01.11.2000 OT
-  Исправление логики. Теперь функция должна в обязательном порядке
-  получить размер буфера и выдать длину полученного имени файла.
-  Если размер буфера мал, то копирование не происходит
+  ╚ёяЁртыхэшх ыюушъш. ╥хяхЁ№ ЇєэъЎш  фюыцэр т юс чрЄхы№эюь яюЁ фъх
+  яюыєўшЄ№ ЁрчьхЁ сєЇхЁр ш т√фрЄ№ фышэє яюыєўхээюую шьхэш Їрщыр.
+  ┼ёыш ЁрчьхЁ сєЇхЁр ьры, Єю ъюяшЁютрэшх эх яЁюшёїюфшЄ
 */
 void CharBufferToSmallWarn(int BufSize, int FileNameSize)
 {
@@ -855,7 +855,7 @@ int ConvertNameToFull(char *Src,char *Dest, int DestSize)
   SetFileApisToANSI();
   OemToChar(Src,AnsiName);
   /* $ 08.11.2000 SVS
-     Вместо DestSize использовался sizeof(FullName)...
+     ┬ьхёЄю DestSize шёяюы№чютрыё  sizeof(FullName)...
   */
   if (GetFullPathName(AnsiName,DestSize,FullName,&NamePtr))
     CharToOem(FullName,Dest);
@@ -1028,7 +1028,7 @@ int GetPluginDirInfo(HANDLE hPlugin,char *DirName,unsigned long &DirCount,
 
 
 /* $ 07.09.2000 SVS
-   Функция GetFileOwner тоже доступна плагинам :-)
+   ╘єэъЎш  GetFileOwner Єюцх фюёЄєяэр яырушэрь :-)
 */
 int WINAPI GetFileOwner(char *Computer,char *Name,char *Owner)
 {
@@ -1047,7 +1047,7 @@ int WINAPI GetFileOwner(char *Computer,char *Name,char *Owner)
   SetFileApisToOEM();
 
   /* $ 21.02.2001 VVM
-      ! Под НТ/2000 переменная Needed устанавливается независимо от результат. */
+      ! ╧юф ═╥/2000 яхЁхьхээр  Needed єёЄрэртыштрхЄё  эхчртшёшью юЄ Ёхчєы№ЄрЄ. */
   if (!GetCode || (Needed>sizeof(sddata)))
     return(FALSE);
   /* VVM $ */
@@ -1067,7 +1067,7 @@ int WINAPI GetFileOwner(char *Computer,char *Name,char *Owner)
 
 
 /* $ 19.09.2000 SVS
-   немного "ускорим" за счет сокращения вызова функций `strcmp'
+   эхьэюую "єёъюЁшь" чр ёўхЄ ёюъЁр∙хэш  т√чютр ЇєэъЎшщ `strcmp'
 */
 int IsFolderNotEmpty(char *Name)
 {
@@ -1078,7 +1078,7 @@ int IsFolderNotEmpty(char *Name)
   ScTree.SetFindPath(Name,"*.*");
   while (ScTree.GetNextName(&fdata,FileName))
   {
-    // немного ускорим.
+    // эхьэюую єёъюЁшь.
     P=(*(DWORD*)FileName)&0x00FFFFFF;
     if((P&0xFFFF) != 0x002E && P != 0x002E2E )
 //    if (strcmp(FileName,".")!=0 && strcmp(FileName,"..")!=0)
@@ -1243,8 +1243,8 @@ int GetClusterSize(char *Root)
 
 
 /* $ 02.03.2001 IS
-   Расширение переменных среды
-   Вынесена в качестве самостоятельной вместо прямого вызова
+   ╨рё°шЁхэшх яхЁхьхээ√ї ёЁхф√
+   ┬√эхёхэр т ърўхёЄтх ёрьюёЄю Єхы№эющ тьхёЄю яЁ ьюую т√чютр
      ExpandEnvironmentStrings.
 */
 DWORD WINAPI ExpandEnvironmentStr(char *src, char *dest, size_t size)
@@ -1271,7 +1271,7 @@ DWORD WINAPI ExpandEnvironmentStr(char *src, char *dest, size_t size)
 /* IS $ */
 
 /* $ 25.07.2000 SVS
-   Оболочки вокруг вызовов стандартных функцйи, приведенных к WINAPI
+   ╬сюыюўъш тюъЁєу т√чютют ёЄрэфрЁЄэ√ї ЇєэъЎщш, яЁштхфхээ√ї ъ WINAPI
 */
 char *WINAPI FarItoa(int value, char *string, int radix)
 {
@@ -1310,7 +1310,7 @@ void WINAPI FarQsort(void *base, size_t nelem, size_t width,
 }
 
 /* $ 24.03.2001 tran
-   новая фишка...*/
+   эютр  Їш°ър...*/
 void WINAPI FarQsortEx(void *base, size_t nelem, size_t width,
                      int (__cdecl *fcmp)(void *, void *,void *user),void *user)
 {
@@ -1333,9 +1333,9 @@ int WINAPIV FarSprintf(char *buffer,const char *format,...)
 }
 
 /* $ 29.08.2000 SVS
-   - Неверно отрабатывала функция FarSscanf
-   Причина - т.к. у VC нету vsscanf, то пришлось смоделировать (взять из
-   исходников VC sscanf и "нарисовать" ее сюда
+   - ═хтхЁэю юЄЁрсрЄ√трыр ЇєэъЎш  FarSscanf
+   ╧Ёшўшэр - Є.ъ. є VC эхЄє vsscanf, Єю яЁш°ыюё№ ёьюфхышЁютрЄ№ (тч Є№ шч
+   шёїюфэшъют VC sscanf ш "эрЁшёютрЄ№" хх ё■фр
 */
 #if defined(_MSC_VER)
 extern "C" {
@@ -1348,7 +1348,7 @@ int WINAPIV FarSscanf(const char *buffer, const char *format,...)
   if(!buffer || !format)
     return 0;
 #if defined(_MSC_VER)
-  // полная копия внутренностей sscanf :-)
+  // яюыэр  ъюяш  тэєЄЁхээюёЄхщ sscanf :-)
   va_list arglist;
   FILE str;
   FILE *infile = &str;
@@ -1376,7 +1376,7 @@ int WINAPIV FarSscanf(const char *buffer, const char *format,...)
 
 
 /* $ 07.09.2000 SVS
-   Оболочка FarBsearch для плагинов (функция bsearch)
+   ╬сюыюўър FarBsearch фы  яырушэют (ЇєэъЎш  bsearch)
 */
 void *WINAPI FarBsearch(const void *key, const void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *))
 {
@@ -1391,7 +1391,7 @@ void *WINAPI FarBsearch(const void *key, const void *base, size_t nelem, size_t 
    FSF/FarRecurseSearch */
 void WINAPI FarRecursiveSearch(char *InitDir,char *Mask,FRSUSERFUNC Func,DWORD Flags,void *Param)
 {
-  if(Func) // SVS: а проверить? :-(
+  if(Func) // SVS: р яЁютхЁшЄ№? :-(
   {
     ScanTree ScTree(Flags& FRS_RETUPDIR,Flags & FRS_RECUR);
     WIN32_FIND_DATA FindData;
@@ -1409,19 +1409,19 @@ void WINAPI FarRecursiveSearch(char *InitDir,char *Mask,FRSUSERFUNC Func,DWORD F
 /* tran 10.09.2000 $ */
 
 /* $ 14.09.2000 SVS
- + Функция FarMkTemp - получение имени временного файла с полным путем.
-    Dest - приемник результата (должен быть достаточно большим, например NM
-    Template - шаблон по правилам функции mktemp, например "FarTmpXXXXXX"
-   Вернет либо NULL, либо указатель на Dest.
+ + ╘єэъЎш  FarMkTemp - яюыєўхэшх шьхэш тЁхьхээюую Їрщыр ё яюыэ√ь яєЄхь.
+    Dest - яЁшхьэшъ Ёхчєы№ЄрЄр (фюыцхэ с√Є№ фюёЄрЄюўэю сюы№°шь, эряЁшьхЁ NM
+    Template - °рсыюэ яю яЁртшырь ЇєэъЎшш mktemp, эряЁшьхЁ "FarTmpXXXXXX"
+   ┬хЁэхЄ ышсю NULL, ышсю єърчрЄхы№ эр Dest.
 */
 /* $ 18.09.2000 SVS
-  Не ту функцию впихнул :-)))
+  ═х Єє ЇєэъЎш■ тяшїэєы :-)))
 */
 /* $ 25.10.2000 IS
- ! Заменил mktemp на вызов соответствующей апишной функции, т.к. предыдущий
-   вариант приводил к ошибке (заметили на Multiarc'е)
-   Параметр Prefix - строка, указывающая на первые символы имени временного
-   файла. Используются только первые 3 символа из этой строки.
+ ! ╟рьхэшы mktemp эр т√чют ёююЄтхЄёЄтє■∙хщ ряш°эющ ЇєэъЎшш, Є.ъ. яЁхф√фє∙шщ
+   трЁшрэЄ яЁштюфшы ъ ю°шсъх (чрьхЄшыш эр Multiarc'х)
+   ╧рЁрьхЄЁ Prefix - ёЄЁюър, єърч√тр■∙р  эр яхЁт√х ёшьтюы√ шьхэш тЁхьхээюую
+   Їрщыр. ╚ёяюы№чє■Єё  Єюы№ъю яхЁт√х 3 ёшьтюыр шч ¤Єющ ёЄЁюъш.
 */
 char* WINAPI FarMkTemp(char *Dest, char *Prefix)
 {
@@ -1431,8 +1431,8 @@ char* WINAPI FarMkTemp(char *Dest, char *Prefix)
     int Len;
     TempPath[Len=GetTempPath(sizeof(TempPath),TempPath)]=0;
     /* $ 25.10.2000 SVS
-       Соблюдем условие, что префикс должен быть в ANSI
-       А нужно ли???!!!
+       ╤юсы■фхь єёыютшх, ўЄю яЁхЇшъё фюыцхэ с√Є№ т ANSI
+       └ эєцэю ыш???!!!
     */
 //    char Pref[32];
 //    OemToChar(Prefix,Pref);
@@ -1451,8 +1451,8 @@ char* WINAPI FarMkTemp(char *Dest, char *Prefix)
 /* SVS $ */
 
 /*$ 27.09.2000 skv
-  + Удаление буфера выделенного через new char[n];
-    Сделано для удаления возвращенного PasteFromClipboard
+  + ╙фрыхэшх сєЇхЁр т√фхыхээюую ўхЁхч new char[n];
+    ╤фхырэю фы  єфрыхэш  тючтЁр∙хээюую PasteFromClipboard
 */
 void WINAPI DeleteBuffer(char *Buffer)
 {
@@ -1460,7 +1460,7 @@ void WINAPI DeleteBuffer(char *Buffer)
 }
 /* skv$*/
 
-// Получить из имени диска RemoteName
+// ╧юыєўшЄ№ шч шьхэш фшёър RemoteName
 char* DriveLocalToRemoteName(int DriveType,char Letter,char *Dest)
 {
   int NetPathShown=FALSE, IsOK=FALSE;
@@ -1494,14 +1494,14 @@ char* DriveLocalToRemoteName(int DriveType,char Letter,char *Dest)
 
 /*
   FarGetLogicalDrives
-  оболочка вокруг GetLogicalDrives, с учетом скрытых логических дисков
+  юсюыюўър тюъЁєу GetLogicalDrives, ё єўхЄюь ёъЁ√Є√ї ыюушўхёъшї фшёъют
   HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer
   NoDrives:DWORD
-    Последние 26 бит определяют буквы дисков от A до Z (отсчет справа налево).
-    Диск виден при установленном 0 и скрыт при значении 1.
-    Диск A представлен правой последней цифрой при двоичном представлении.
-    Например, значение 00000000000000000000010101(0x7h)
-    скрывает диски A, C, и E
+    ╧юёыхфэшх 26 сшЄ юяЁхфхы ■Є сєът√ фшёъют юЄ A фю Z (юЄёўхЄ ёяЁртр эрыхтю).
+    ─шёъ тшфхэ яЁш єёЄрэютыхээюь 0 ш ёъЁ√Є яЁш чэрўхэшш 1.
+    ─шёъ A яЁхфёЄртыхэ яЁртющ яюёыхфэхщ ЎшЇЁющ яЁш фтюшўэюь яЁхфёЄртыхэшш.
+    ═ряЁшьхЁ, чэрўхэшх 00000000000000000000010101(0x7h)
+    ёъЁ√трхЄ фшёъш A, C, ш E
 */
 DWORD WINAPI FarGetLogicalDrives(void)
 {
@@ -1526,9 +1526,9 @@ DWORD WINAPI FarGetLogicalDrives(void)
   return LogicalDrivesMask&(~NoDrives);
 }
 
-// Преобразование корявого формата PATHEXT в ФАРовский :-)
-// Функции передается нужные расширения, она лишь добавляет то, что есть
-//   в %PATHEXT% и  нету в Dest.
+// ╧ЁхюсЁрчютрэшх ъюЁ тюую ЇюЁьрЄр PATHEXT т ╘└╨ютёъшщ :-)
+// ╘єэъЎшш яхЁхфрхЄё  эєцэ√х Ёрё°шЁхэш , юэр ыш°№ фюсрты хЄ Єю, ўЄю хёЄ№
+//   т %PATHEXT% ш  эхЄє т Dest.
 char *Add_PATHEXT(char *Dest)
 {
   char Buf[1024];
@@ -1554,7 +1554,7 @@ char *Add_PATHEXT(char *Dest)
       }
     }
   }
-  // лишняя запятая - в морг!
+  // ыш°э   чря Єр  - т ьюЁу!
   if(*Dest && Dest[strlen(Dest)-1] == ',')
     Dest[strlen(Dest)-1]=0;
   return Dest;

@@ -3,9 +3,9 @@
 /*
 vmenu.hpp
 
-Обычное вертикальное меню
-  а так же:
-    * список в DI_COMBOBOX
+╬с√ўэюх тхЁЄшъры№эюх ьхэ■
+  р Єръ цх:
+    * ёяшёюъ т DI_COMBOBOX
     * ...
 
 */
@@ -15,52 +15,52 @@ vmenu.hpp
 /*
 Modify:
   20.01.2001 SVS
-   + SetSelectPos() - установить позицию курсора!
+   + SetSelectPos() - єёЄрэютшЄ№ яючшЎш■ ъєЁёюЁр!
   20.09.2000 SVS
-   + Функция GetItemPtr - получить указатель на нужный Item.
+   + ╘єэъЎш  GetItemPtr - яюыєўшЄ№ єърчрЄхы№ эр эєцэ√щ Item.
   01.08.2000 SVS
-   + В ShowMenu добавлен параметр, сообщающий - вызвали ли функцию
-     самостоятельно или из другой функции ;-)
-   ! Вызов конструктора
+   + ┬ ShowMenu фюсртыхэ ярЁрьхЄЁ, ёююс∙р■∙шщ - т√чтрыш ыш ЇєэъЎш■
+     ёрьюёЄю Єхы№эю шыш шч фЁєующ ЇєэъЎшш ;-)
+   ! ┬√чют ъюэёЄЁєъЄюЁр
    ! ListBoxControl -> VMFlags
-   + Флаги для параметра Flags в конструкторе
-   + функция обработки меню (по умолчанию)
-   + функция посылки сообщений меню
-   + функция удаления N пунктов меню
-   ! Изменен вызов конструктора для указания функции-обработчика!
+   + ╘ыруш фы  ярЁрьхЄЁр Flags т ъюэёЄЁєъЄюЁх
+   + ЇєэъЎш  юсЁрсюЄъш ьхэ■ (яю єьюыўрэш■)
+   + ЇєэъЎш  яюё√ыъш ёююс∙хэшщ ьхэ■
+   + ЇєэъЎш  єфрыхэш  N яєэъЄют ьхэ■
+   ! ╚чьхэхэ т√чют ъюэёЄЁєъЄюЁр фы  єърчрэш  ЇєэъЎшш-юсЁрсюЄўшър!
   28.07.2000 SVS
-   + Добавлены цветовые атрибуты (в переменных) и функции, связанные с
-     атрибутами:
+   + ─юсртыхэ√ ЎтхЄют√х рЄЁшсєЄ√ (т яхЁхьхээ√ї) ш ЇєэъЎшш, ёт чрээ√х ё
+     рЄЁшсєЄрьш:
   22.07.2000 SVS
-   !  AlwaysScrollBar изменен на ListBoxControl
+   !  AlwaysScrollBar шчьхэхэ эр ListBoxControl
   18.07.2000 SVS
-    + Добавлена переменная класса AlwaysScrollBar, предназначенная
-      для отображения (всегда, по мере надобности!) в элементах
+    + ─юсртыхэр яхЁхьхээр  ъырёёр AlwaysScrollBar, яЁхфэрчэрўхээр 
+      фы  юЄюсЁрцхэш  (тёхуфр, яю ьхЁх эрфюсэюёЄш!) т ¤ыхьхэЄрї
       DI_LISTBOX & DI_COMBOBOX
-    ! В связи с этим изменен вызов конструктора класса.
+    ! ┬ ёт чш ё ¤Єшь шчьхэхэ т√чют ъюэёЄЁєъЄюЁр ъырёёр.
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 /* $ 28.07.2000 SVS
-   Цветовые атрибуты - индексы в массиве цветов
+   ╓тхЄют√х рЄЁшсєЄ√ - шэфхъё√ т ьрёёштх ЎтхЄют
 */
 enum{
-  VMenuColorBody=0,      // подложка
-  VMenuColorBox=1,       // рамка
-  VMenuColorTitle=2,     // заголовок - верхний и нижний
-  VMenuColorText=3,      // Текст пункта
+  VMenuColorBody=0,      // яюфыюцър
+  VMenuColorBox=1,       // Ёрьър
+  VMenuColorTitle=2,     // чруюыютюъ - тхЁїэшщ ш эшцэшщ
+  VMenuColorText=3,      // ╥хъёЄ яєэъЄр
   VMenuColorHilite=4,    // HotKey
   VMenuColorSeparator=5, // separator
-  VMenuColorSelected=6,  // Выбранный
-  VMenuColorHSelect=7,   // Выбранный - HotKey
+  VMenuColorSelected=6,  // ┬√сЁрээ√щ
+  VMenuColorHSelect=7,   // ┬√сЁрээ√щ - HotKey
   VMenuColorScrollBar=8  // ScrollBar
 };
 /* SVS */
 
 /* $ 01.08.2000 SVS
-   Константы для флагов - для конструктора
+   ╩юэёЄрэЄ√ фы  Їыруют - фы  ъюэёЄЁєъЄюЁр
 */
 #define VMENU_ALWAYSSCROLLBAR 0x0100
 #define VMENU_LISTBOX	      0x0200
@@ -84,25 +84,25 @@ class VMenu:public Modal
     int CallCount;
     int PrevMacroMode;
     /* $ 18.07.2000 SVS
-       + переменная, отвечающая за отображение scrollbar в
+       + яхЁхьхээр , юЄтхўр■∙р  чр юЄюсЁрцхэшх scrollbar т
          DI_LISTBOX & DI_COMBOBOX
     */
     DWORD VMFlags;
     /* SVS $ */
 
     /* $ 01.08.2000 SVS
-       + Для LisBox - родитель в виде диалога
-       + Обработчик меню!
+       + ─ы  LisBox - ЁюфшЄхы№ т тшфх фшрыюур
+       + ╬сЁрсюЄўшъ ьхэ■!
     */
     Dialog *ParentDialog;
-    FARWINDOWPROC VMenuProc;      // функция обработки меню
+    FARWINDOWPROC VMenuProc;      // ЇєэъЎш  юсЁрсюЄъш ьхэ■
     /* SVS $ */
 
   protected:
     struct MenuItem *Item;
     int ItemCount;
     /* $ 28.07.2000 SVS
-       Цветовые атрибуты
+       ╓тхЄют√х рЄЁшсєЄ√
     */
     short Colors[9];
     /* SVS */
@@ -113,14 +113,14 @@ class VMenu:public Modal
 
   public:
     /* $ 18.07.2000 SVS
-       ! изменен вызов конструктора с учетом необходимости scrollbar в
+       ! шчьхэхэ т√чют ъюэёЄЁєъЄюЁр ё єўхЄюь эхюсїюфшьюёЄш scrollbar т
          DI_LISTBOX & DI_COMBOBOX
-         По умолчанию - зависит от настроек показа scrollbar в меню,
-         т.е. не требуется. Для данных элементов (DI_LISTBOX & DI_COMBOBOX)
-         параметр isListBoxControl должен быть равен TRUE.
+         ╧ю єьюыўрэш■ - чртшёшЄ юЄ эрёЄЁюхъ яюърчр scrollbar т ьхэ■,
+         Є.х. эх ЄЁхсєхЄё . ─ы  фрээ√ї ¤ыхьхэЄют (DI_LISTBOX & DI_COMBOBOX)
+         ярЁрьхЄЁ isListBoxControl фюыцхэ с√Є№ Ёртхэ TRUE.
     */
     /* $ 01.08.2000 SVS
-       Изменен вызов конструктора для указания функции-обработчика и родителя!
+       ╚чьхэхэ т√чют ъюэёЄЁєъЄюЁр фы  єърчрэш  ЇєэъЎшш-юсЁрсюЄўшър ш ЁюфшЄхы !
     */
     VMenu(char *Title,
           struct MenuData *Data,int ItemCount,
@@ -150,7 +150,7 @@ class VMenu:public Modal
 
     void DeleteItems();
     /* $ 01.08.2000 SVS
-       функция удаления N пунктов меню
+       ЇєэъЎш  єфрыхэш  N яєэъЄют ьхэ■
     */
     int  DeleteItem(int ID,int Count=1);
     /* SVS $ */
@@ -163,16 +163,16 @@ class VMenu:public Modal
     void SetSelection(int Selection,int Position=-1);
 
     /* $ 20.09.2000 SVS
-      + Функция GetItemPtr - получить указатель на нужный Item.
+      + ╘єэъЎш  GetItemPtr - яюыєўшЄ№ єърчрЄхы№ эр эєцэ√щ Item.
     */
     BOOL GetItemPtr(struct MenuItem *Item,int Position=-1);
     /* SVS $*/
 
     /* $ 01.08.2000 SVS
-       функция обработки меню (по умолчанию)
+       ЇєэъЎш  юсЁрсюЄъш ьхэ■ (яю єьюыўрэш■)
     */
     static long WINAPI DefMenuProc(HANDLE hVMenu,int Msg,int Param1,long Param2);
-    // функция посылки сообщений меню
+    // ЇєэъЎш  яюё√ыъш ёююс∙хэшщ ьхэ■
     static long WINAPI SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,long Param2);
     /* SVS $ */
 };

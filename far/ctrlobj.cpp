@@ -1,7 +1,7 @@
 /*
 ctrlobj.cpp
 
-Управление остальными объектами, раздача сообщений клавиатуры и мыши
+╙яЁртыхэшх юёЄры№э√ьш юс·хъЄрьш, Ёрчфрўр ёююс∙хэшщ ъыртшрЄєЁ√ ш ь√°ш
 
 */
 
@@ -9,62 +9,62 @@ ctrlobj.cpp
 
 /*
 Modify:
-  06.05.2001 ОТ
-    ! Переименование Window в Frame :)
+  06.05.2001 ╬╥
+    ! ╧хЁхшьхэютрэшх Window т Frame :)
   05.05.2001 DJ
-    + перетрях NWZ
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
+    + яхЁхЄЁ ї NWZ
+  29.04.2001 ╬╥
+    + ┬эхфЁхэшх NWZ юЄ ╥ЁхЄ№ ъютр
   28.04.2001 VVM
-    + KeyBar тоже умеет обрабатывать клавиши.
+    + KeyBar Єюцх єьххЄ юсЁрсрЄ√трЄ№ ъыртш°ш.
   22.04.2001 SVS
-    ! Загрузка плагнов - после создания ВСЕХ основных объектов
+    ! ╟руЁєчър яыруэют - яюёых ёючфрэш  ┬╤┼╒ юёэютэ√ї юс·хъЄют
   02.04.2001 VVM
-    + Обработка Opt.FlagPosixSemantics
+    + ╬сЁрсюЄър Opt.FlagPosixSemantics
   28.02.2001 IS
-    ! Т.е. CmdLine теперь указатель, то произведем замену
-      "CmdLine." на "CmdLine->" и собственно создадим/удалим ее в конструкторе
-      и деструкторе CtrlObject.
+    ! ╥.х. CmdLine ЄхяхЁ№ єърчрЄхы№, Єю яЁюшчтхфхь чрьхэє
+      "CmdLine." эр "CmdLine->" ш ёюсёЄтхээю ёючфрфшь/єфрышь хх т ъюэёЄЁєъЄюЁх
+      ш фхёЄЁєъЄюЁх CtrlObject.
   09.02.2001 IS
-    + восстановим состояние опций "помеченное вперед"
+    + тюёёЄрэютшь ёюёЄю эшх юяЎшщ "яюьхўхээюх тяхЁхф"
   09.01.2001 SVS
-    + Учтем правило Opt.ShiftsKeyRules (WaitInFastFind)
+    + ╙ўЄхь яЁртшыю Opt.ShiftsKeyRules (WaitInFastFind)
   29.12.2000 IS
-    + Проверяем при выходе, сохранены ли все измененные файлы. Если нет, то
-      не выходим из фара.
+    + ╧ЁютхЁ хь яЁш т√їюфх, ёюїЁрэхэ√ ыш тёх шчьхэхээ√х Їрщы√. ┼ёыш эхЄ, Єю
+      эх т√їюфшь шч ЇрЁр.
   15.12.2000 SVS
-    ! Метод ShowCopyright - public static & параметр Flags.
-      Если Flags&1, то использовать printf вместо внутренних функций
+    ! ╠хЄюф ShowCopyright - public static & ярЁрьхЄЁ Flags.
+      ┼ёыш Flags&1, Єю шёяюы№чютрЄ№ printf тьхёЄю тэєЄЁхээшї ЇєэъЎшщ
   25.11.2000 SVS
-    ! Copyright в 2 строки
+    ! Copyright т 2 ёЄЁюъш
   27.09.2000 SVS
-    ! Ctrl-Alt-Shift - реагируем, если надо.
+    ! Ctrl-Alt-Shift - ЁхрушЁєхь, хёыш эрфю.
   19.09.2000 IS
-    ! Повторное нажатие на ctrl-l|q|t всегда включает файловую панель
+    ! ╧ютЄюЁэюх эрцрЄшх эр ctrl-l|q|t тёхуфр тъы■ўрхЄ Їрщыютє■ ярэхы№
   19.09.2000 SVS
-    + Opt.PanelCtrlAltShiftRule задает поведение Ctrl-Alt-Shift для панелей.
+    + Opt.PanelCtrlAltShiftRule чрфрхЄ яютхфхэшх Ctrl-Alt-Shift фы  ярэхыхщ.
   19.09.2000 SVS
-    + Добавляем реакцию показа бакграунда в панелях на CtrlAltShift
+    + ─юсрты хь ЁхръЎш■ яюърчр сръуЁрєэфр т ярэхы ї эр CtrlAltShift
   07.09.2000 tran 1.05
     + Current File
   15.07.2000 tran
-    + а я код раздуваю :) вводя новый метод Redraw
+    + р   ъюф Ёрчфєтр■ :) ттюф  эют√щ ьхЄюф Redraw
   13.07.2000 SVS
-    ! Некоторые коррекция по сокращению кода ;-)
+    ! ═хъюЄюЁ√х ъюЁЁхъЎш  яю ёюъЁр∙хэш■ ъюфр ;-)
   11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
+    ! ╚чьхэхэш  фы  тючьюцэюёЄш ъюьяшы Ўшш яюф BC & VC
   29.06.2000 tran
-    ! соощение о копирайте включается из copyright.inc
+    ! ёюю∙хэшх ю ъюяшЁрщЄх тъы■ўрхЄё  шч copyright.inc
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -76,7 +76,7 @@ ControlObject::ControlObject()
   CtrlObject=this;
   ReadConfig();
   /* $ 28.02.2001 IS
-       Создадим обязательно только после того, как прочитали настройки
+       ╤ючфрфшь юс чрЄхы№эю Єюы№ъю яюёых Єюую, ъръ яЁюўшЄрыш эрёЄЁющъш
   */
   CmdLine=new CommandLine;
   /* IS $ */
@@ -271,13 +271,13 @@ void ControlObject::SetScreenPositions()
 *///
 
 /* $ 02.08.2000 SVS
-   Новые индикаторы!
+   ═ют√х шэфшърЄюЁ√!
 */
 #if 0
 void ControlObject::RedrawKeyBar()
 {
   /* $ 30.04.2001 DJ
-     использование UpdateKeyBar() и SetAllGroup()
+     шёяюы№чютрэшх UpdateKeyBar() ш SetAllGroup()
   */
   if (!ActivePanel || !ActivePanel->UpdateKeyBar())
   {
@@ -427,7 +427,7 @@ int ControlObject::ProcessKey(int Key)
         {
           if (AnotherPanel->GetType()==NewType)
           /* $ 19.09.2000 IS
-            Повторное нажатие на ctrl-l|q|t всегда включает файловую панель
+            ╧ютЄюЁэюх эрцрЄшх эр ctrl-l|q|t тёхуфр тъы■ўрхЄ Їрщыютє■ ярэхы№
           */
             AnotherPanel=Cp()->ChangePanel(AnotherPanel,FILE_PANEL,FALSE,FALSE);
           /* IS % */
@@ -441,15 +441,15 @@ int ControlObject::ProcessKey(int Key)
       }
       break;
     /* $ 19.09.2000 SVS
-       + Добавляем реакцию показа бакграунда в панелях на CtrlAltShift
+       + ─юсрты хь ЁхръЎш■ яюърчр сръуЁрєэфр т ярэхы ї эр CtrlAltShift
     */
     case KEY_CTRLALTSHIFTPRESS:
     {
       if(Opt.AllCtrlAltShiftRule & CASR_PANEL)
       {
         /* $ 19.09.2000 SVS
-         + Opt.PanelCtrlAltShiftRule задает поведение
-           Ctrl-Alt-Shift для панелей.
+         + Opt.PanelCtrlAltShiftRule чрфрхЄ яютхфхэшх
+           Ctrl-Alt-Shift фы  ярэхыхщ.
         */
         int LeftVisible=Cp()->LeftPanel->IsVisible();
         int RightVisible=Cp()->RightPanel->IsVisible();
@@ -808,7 +808,7 @@ Panel* ControlObject::ChangePanel(Panel *Current,int NewType,int CreateNew,int F
   }
   else
     /* $ 13.07.2000 SVS
-       немного сократим код путем вызова функции класса CreatePanel(int Type)
+       эхьэюую ёюъЁрЄшь ъюф яєЄхь т√чютр ЇєэъЎшш ъырёёр CreatePanel(int Type)
     * /
     NewPanel=CreatePanel(NewType);
     /* SVS $* /
@@ -858,15 +858,15 @@ Panel* ControlObject::ChangePanel(Panel *Current,int NewType,int CreateNew,int F
 *///
 
 /* $ 25.11.2000 SVS
-   Copyright в 2 строки
+   Copyright т 2 ёЄЁюъш
 */
 /* $ 15.12.2000 SVS
- Метод ShowCopyright - public static & параметр Flags.
+ ╠хЄюф ShowCopyright - public static & ярЁрьхЄЁ Flags.
 */
 void ControlObject::ShowCopyright(DWORD Flags)
 {
 /* $ 29.06.2000 tran
-  берем char *CopyRight из inc файла */
+  схЁхь char *CopyRight шч inc Їрщыр */
 #include "copyright.inc"
 /* tran $ */
   char Str[256];
@@ -909,7 +909,7 @@ void ControlObject::ShowCopyright(DWORD Flags)
 
 
 /* $ 15.07.2000 tran
-   + этот метод просто перерисовывает панели, ком.строку и кейбар */
+   + ¤ЄюЄ ьхЄюф яЁюёЄю яхЁхЁшёют√трхЄ ярэхыш, ъюь.ёЄЁюъє ш ъхщсрЁ */
 /*///
 void ControlObject::Redraw()
 {

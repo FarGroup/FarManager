@@ -3,7 +3,7 @@
 /*
 struct.hpp
 
-все независимые структуры (которые содержат только простые типы)
+тёх эхчртшёшь√х ёЄЁєъЄєЁ√ (ъюЄюЁ√х ёюфхЁцрЄ Єюы№ъю яЁюёЄ√х Єшя√)
 
 */
 
@@ -12,182 +12,182 @@ struct.hpp
 /*
 Modify:
   04.05.2001 SVS
-    ! Наконец то дошли руки до DI_LISTBOX ;-) - новый член FarDialogItem.ListPos
+    ! ═ръюэхЎ Єю фю°ыш Ёєъш фю DI_LISTBOX ;-) - эют√щ ўыхэ FarDialogItem.ListPos
   28.04.2001 VVM
-    + Opt.SubstNameRule битовая маска:
-      0 - если установлен, то опрашивать сменные диски при GetSubstName()
-      1 - если установлен, то опрашивать все остальные при GetSubstName()
+    + Opt.SubstNameRule сшЄютр  ьрёър:
+      0 - хёыш єёЄрэютыхэ, Єю юяЁр°штрЄ№ ёьхээ√х фшёъш яЁш GetSubstName()
+      1 - хёыш єёЄрэютыхэ, Єю юяЁр°штрЄ№ тёх юёЄры№э√х яЁш GetSubstName()
   26.04.2001 VVM
-    + Opt.MsWheelDeltaView - задает смещение для прокрутки вьюера.
-    + Opt.MsWheelDeltaEdit - задает смещение для прокрутки редактора.
+    + Opt.MsWheelDeltaView - чрфрхЄ ёьх∙хэшх фы  яЁюъЁєЄъш т№■хЁр.
+    + Opt.MsWheelDeltaEdit - чрфрхЄ ёьх∙хэшх фы  яЁюъЁєЄъш ЁхфръЄюЁр.
     + Opt.MouseWheelDelta -> Opt.MsWheelDelta
   23.04.2001 SVS
-    ! Новые члены GroupSortData.OriginalMasks и HighlightData.OriginalMasks
-      новый вгляд на %PATHEXT% - то что редактируем и то, что юзаем -
-      разные сущности.
+    ! ═ют√х ўыхэ√ GroupSortData.OriginalMasks ш HighlightData.OriginalMasks
+      эют√щ туы ф эр %PATHEXT% - Єю ўЄю ЁхфръЄшЁєхь ш Єю, ўЄю ■чрхь -
+      Ёрчэ√х ёє∙эюёЄш.
   22.04.2001 SVS
-    + Opt.QuotedSymbols - разделители для QuoteSpace()
+    + Opt.QuotedSymbols - ЁрчфхышЄхыш фы  QuoteSpace()
   16.04.2001 VVM
-    + Opt.MouseWheelDelta - задает смещение для прокрутки.
+    + Opt.MouseWheelDelta - чрфрхЄ ёьх∙хэшх фы  яЁюъЁєЄъш.
   02.04.2001 VVM
-    + Opt.FlagPosixSemantics будет влиять на:
-        добавление файлов в историю с разным регистром
-        добавление LastPositions в редакторе и вьюере
+    + Opt.FlagPosixSemantics сєфхЄ тыш Є№ эр:
+        фюсртыхэшх Їрщыют т шёЄюЁш■ ё Ёрчэ√ь ЁхушёЄЁюь
+        фюсртыхэшх LastPositions т ЁхфръЄюЁх ш т№■хЁх
   30.03.2001 SVS
-   + Opt.Policies - прообраз полиции.
+   + Opt.Policies - яЁююсЁрч яюышЎшш.
   29.03.2001 IS
    + struct ViewerOptions
   28.03.2001 VVM
-   + Opt.RememberLogicalDrives = запоминать логические диски и не опрашивать
-     каждый раз. Для предотвращения "просыпания" "зеленых" винтов.
+   + Opt.RememberLogicalDrives = чряюьшэрЄ№ ыюушўхёъшх фшёъш ш эх юяЁр°штрЄ№
+     ърцф√щ Ёрч. ─ы  яЁхфюЄтЁр∙хэш  "яЁюё√ярэш " "чхыхэ√ї" тшэЄют.
   20.03.2001 SVS
-   + Opt.FullScreenHelp - для унификации интерфейса конфигурации
+   + Opt.FullScreenHelp - фы  єэшЇшърЎшш шэЄхЁЇхщёр ъюэЇшуєЁрЎшш
   16.03.2001 SVS
-   + Opt.ChangeDriveDisconnetMode - для запоминания - как удалять мапленные
-     диски (для CheckBox`а)
+   + Opt.ChangeDriveDisconnetMode - фы  чряюьшэрэш  - ъръ єфры Є№ ьряыхээ√х
+     фшёъш (фы  CheckBox`р)
   15.03.2001 SVS
-   + Opt.Confirm.RemoveConnection - подтверждение для удаления мапленных дисков
+   + Opt.Confirm.RemoveConnection - яюфЄтхЁцфхэшх фы  єфрыхэш  ьряыхээ√ї фшёъют
   12.03.2001 SVS
    + Opt.DeleteSymbolWipe -> Opt.WipeSymbol
   12.03.2001 SVS
-   + Opt.DeleteSymbolWipe символ заполнитель для "ZAP-операции"
+   + Opt.DeleteSymbolWipe ёшьтюы чряюыэшЄхы№ фы  "ZAP-юяхЁрЎшш"
   27.02.2001 SVS
-   + EditorOptions.CharCodeBase - база вывода кода символа
+   + EditorOptions.CharCodeBase - срчр т√тюфр ъюфр ёшьтюыр
   26.02.2001 VVM
-   + Opt.ExceptCallDebugger - вызывать дебаггер или нет
-   ! Opt.ExceptRules - битовая маска
+   + Opt.ExceptCallDebugger - т√ч√трЄ№ фхсруухЁ шыш эхЄ
+   ! Opt.ExceptRules - сшЄютр  ьрёър
   21.02.2001 IS
-   ! Часть настроек редактора переехала в EditorOptions
+   ! ╫рёЄ№ эрёЄЁюхъ ЁхфръЄюЁр яхЁххїрыр т EditorOptions
   12.02.2001 SKV
-   + ConsoleDetachKey. Клавиша отстёгивания консоли фара от
-     долгоиграющего процесса в ней запущенного.
+   + ConsoleDetachKey. ╩ыртш°р юЄёЄ╕уштрэш  ъюэёюыш ЇрЁр юЄ
+     фюыуюшуЁр■∙хую яЁюЎхёёр т эхщ чряє∙хээюую.
   11.02.2001 SVS
-   ! Изменения структур DialogItem и DialogData (DIF_VAREDIT)
-   ! HighlightData.Masks - сделан ссылкой (DIF_VAREDIT)
-   ! GroupSortData.Masks - сделан ссылкой (DIF_VAREDIT)
-   ! FilterDataRecord.Masks - сделан ссылкой (DIF_VAREDIT)
+   ! ╚чьхэхэш  ёЄЁєъЄєЁ DialogItem ш DialogData (DIF_VAREDIT)
+   ! HighlightData.Masks - ёфхырэ ёё√ыъющ (DIF_VAREDIT)
+   ! GroupSortData.Masks - ёфхырэ ёё√ыъющ (DIF_VAREDIT)
+   ! FilterDataRecord.Masks - ёфхырэ ёё√ыъющ (DIF_VAREDIT)
   11.02.2001 SVS
-   ! Изменения в MenuItem.
+   ! ╚чьхэхэш  т MenuItem.
   09.02.2001 IS
    + RightSelectedFirst, LeftSelectedFirst;
    + Confirmation.Esc
   30.01.2001 VVM
-   + Показывает время копирования,оставшееся время и среднюю скорость.
-      Зависит от настроек в реестре CopyTimeRule
+   + ╧юърч√трхЄ тЁхь  ъюяшЁютрэш ,юёЄрт°ххё  тЁхь  ш ёЁхфэ■■ ёъюЁюёЄ№.
+      ╟ртшёшЄ юЄ эрёЄЁюхъ т ЁххёЄЁх CopyTimeRule
   22.01.2001 SVS
-   + Opt.CursorSize[2] - Размер курсора ФАРа :-)
+   + Opt.CursorSize[2] - ╨рчьхЁ ъєЁёюЁр ╘└╨р :-)
   19.01.2001 SVS
-   + Opt.MacroReuseRules - повторное использование.
+   + Opt.MacroReuseRules - яютЄюЁэюх шёяюы№чютрэшх.
   09.01.2001 SVS
-   + Opt.ShiftsKeyRules - Правило на счет выбора механизма трансляции
-     Alt-Буква для нелатинским буковок и символов "`-=[]\;',./" с
-     модификаторами Alt-, Ctrl-, Alt-Shift-, Ctrl-Shift-, Ctrl-Alt-
+   + Opt.ShiftsKeyRules - ╧Ёртшыю эр ёўхЄ т√сюЁр ьхїрэшчьр ЄЁрэёы Ўшш
+     Alt-┴єътр фы  эхырЄшэёъшь сєъютюъ ш ёшьтюыют "`-=[]\;',./" ё
+     ьюфшЇшърЄюЁрьш Alt-, Ctrl-, Alt-Shift-, Ctrl-Shift-, Ctrl-Alt-
   28.12.2000 SVS
-   + Opt.HotkeyRules - Правило на счет выбора механизма хоткеев
+   + Opt.HotkeyRules - ╧Ёртшыю эр ёўхЄ т√сюЁр ьхїрэшчьр їюЄъххт
   21.12.2000 SVS
-   ! структура MacroRecord перенесена в macro.hpp
+   ! ёЄЁєъЄєЁр MacroRecord яхЁхэхёхэр т macro.hpp
   08.12.2000 SVS
-   ! изменения в структуре DialogItem.
+   ! шчьхэхэш  т ёЄЁєъЄєЁх DialogItem.
   29.11.2000 SVS
-   + Opt.EditorReadOnlyLock - лочить файл при открытии в редакторе, если
-     он имеет атрибуты R|S|H
-   + Opt.EditorFileSizeLimit - минимально допустимый размер файла, после
-     которого будет выдан диалог о целесообразности открытия подобного
-     файла на редактирование
+   + Opt.EditorReadOnlyLock - ыюўшЄ№ Їрщы яЁш юЄъЁ√Єшш т ЁхфръЄюЁх, хёыш
+     юэ шьххЄ рЄЁшсєЄ√ R|S|H
+   + Opt.EditorFileSizeLimit - ьшэшьры№эю фюяєёЄшь√щ ЁрчьхЁ Їрщыр, яюёых
+     ъюЄюЁюую сєфхЄ т√фрэ фшрыюу ю ЎхыхёююсЁрчэюёЄш юЄъЁ√Єш  яюфюсэюую
+     Їрщыр эр ЁхфръЄшЁютрэшх
   28.11.2000 SVS
-   + Opt.EditorF7Rules - Правило на счет поиска в редакторе
+   + Opt.EditorF7Rules - ╧Ёртшыю эр ёўхЄ яюшёър т ЁхфръЄюЁх
   27.11.2000 SVS
-   + Opt.ExceptRules - Правило на счет вызова исключений
+   + Opt.ExceptRules - ╧Ёртшыю эр ёўхЄ т√чютр шёъы■ўхэшщ
   25.11.2000 IS
-   + Разграничитель слов из реестра для функции Xlat (WordDivForXlat)
+   + ╨рчуЁрэшўшЄхы№ ёыют шч ЁххёЄЁр фы  ЇєэъЎшш Xlat (WordDivForXlat)
   24.11.2000 SVS
-   ! XLat.Rules - 3 по 30 правил, вместо 10
-   + Правило на счет установки атрибутов на каталоги
+   ! XLat.Rules - 3 яю 30 яЁртшы, тьхёЄю 10
+   + ╧Ёртшыю эр ёўхЄ єёЄрэютъш рЄЁшсєЄют эр ърЄрыюуш
   04.11.2000 SVS
-   ! XLat - все что относится к XLat - в одну структуру.
-   + XLat - добавление альтернативных клавиш:
+   ! XLat - тёх ўЄю юЄэюёшЄё  ъ XLat - т юфэє ёЄЁєъЄєЁє.
+   + XLat - фюсртыхэшх ры№ЄхЁэрЄштэ√ї ъыртш°:
        XLatAltEditorKey, XLatAltCmdLineKey, XLatAltDialogKey;
   20.10.2000 SVS
    + Opt.PanelCtrlFRule
-      Panel/CtrlFRule в реестре - задает поведение Ctrl-F
-      Если = 0, то штампуется файл как есть, иначе - с учетом
-      отображения на панели
+      Panel/CtrlFRule т ЁххёЄЁх - чрфрхЄ яютхфхэшх Ctrl-F
+      ┼ёыш = 0, Єю °ЄрьяєхЄё  Їрщы ъръ хёЄ№, шэрўх - ё єўхЄюь
+      юЄюсЁрцхэш  эр ярэхыш
   17.10.2000 SVS
-   ! WordDiv имеет размер 256;
+   ! WordDiv шьххЄ ЁрчьхЁ 256;
   10.10.2000 SVS
    + Opt.EditorBSLikeDel
   27.09.2000 SVS
-   + Opt.HelpURLRules - =0 отключить возможность запуска URL-приложений
-   + Opt.AllCtrlAltShiftRule - битовые флаги, задают поведение Ctrl-Alt-Shift
-     бит установлен - функция включена:
+   + Opt.HelpURLRules - =0 юЄъы■ўшЄ№ тючьюцэюёЄ№ чряєёър URL-яЁшыюцхэшщ
+   + Opt.AllCtrlAltShiftRule - сшЄют√х Їыруш, чрфр■Є яютхфхэшх Ctrl-Alt-Shift
+     сшЄ єёЄрэютыхэ - ЇєэъЎш  тъы■ўхэр:
      0 - Panel
      1 - Edit
      2 - View
      3 - Help
      4 - Dialog
   24.09.2000 SVS
-   + Opt.MaxPositionCache - количество позиций в кэше сохранения
-   + Opt.SaveViewerShortPos - запоминание позиций во вьювере по Ctrl-0..9
-   + Opt.SaveEditorShortPos - запоминание позиций в редакторе по Ctrl-0..9
-   + Opt.CmdHistoryRule задает поведение Esc для командной строки.
-   + Клавиши для вызова функции Xlat:
+   + Opt.MaxPositionCache - ъюышўхёЄтю яючшЎшщ т ъ¤°х ёюїЁрэхэш 
+   + Opt.SaveViewerShortPos - чряюьшэрэшх яючшЎшщ тю т№■тхЁх яю Ctrl-0..9
+   + Opt.SaveEditorShortPos - чряюьшэрэшх яючшЎшщ т ЁхфръЄюЁх яю Ctrl-0..9
+   + Opt.CmdHistoryRule чрфрхЄ яютхфхэшх Esc фы  ъюьрэфэющ ёЄЁюъш.
+   + ╩ыртш°ш фы  т√чютр ЇєэъЎшш Xlat:
      Opt.XLatEditorKey, Opt.XLatCmdLineKey, Opt.XLatDialogKey
   20.09.2000 SVS
-   + Opt.SubstPluginPrefix - 1 = подстанавливать префикс плагина
-     для Ctrl-[ и ему подобные
+   + Opt.SubstPluginPrefix - 1 = яюфёЄрэртыштрЄ№ яЁхЇшъё яырушэр
+     фы  Ctrl-[ ш хьє яюфюсэ√х
   19.09.2000 SVS
-   + Opt.PanelCtrlAltShiftRule задает поведение Ctrl-Alt-Shift для панелей.
+   + Opt.PanelCtrlAltShiftRule чрфрхЄ яютхфхэшх Ctrl-Alt-Shift фы  ярэхыхщ.
   12.09.2000 SVS
-   + Добавлена переменная Options.ViewerWrap
-   ! ViewerTypeWrap переименована в ViewerIsWrap
-       Разделение Wrap/WWrap/UnWrap на 2 составляющих -
-       Состояние (Wrap/UnWrap) и тип (Wrap/WWrap)
-        ViewerIsWrap  =  UnWrap=0  | Перенос=1
+   + ─юсртыхэр яхЁхьхээр  Options.ViewerWrap
+   ! ViewerTypeWrap яхЁхшьхэютрэр т ViewerIsWrap
+       ╨рчфхыхэшх Wrap/WWrap/UnWrap эр 2 ёюёЄрты ■∙шї -
+       ╤юёЄю эшх (Wrap/UnWrap) ш Єшя (Wrap/WWrap)
+        ViewerIsWrap  =  UnWrap=0  | ╧хЁхэюё=1
         ViewerWrap    =  Wrap=0    | WordWarp=1
-   + Opt.PanelRightClickRule задает поведение правой клавиши мыши
-     (это по поводу Bug#17)
+   + Opt.PanelRightClickRule чрфрхЄ яютхфхэшх яЁртющ ъыртш°ш ь√°ш
+     (¤Єю яю яютюфє Bug#17)
   11.09.2000 SVS
-   + В Opt добавлена переменная DlgEULBsClear
-     если = 1, то BS в диалогах для UnChanged строки удаляет такую
-     строку также, как и Del
+   + ┬ Opt фюсртыхэр яхЁхьхээр  DlgEULBsClear
+     хёыш = 1, Єю BS т фшрыюурї фы  UnChanged ёЄЁюъш єфры хЄ Єръє■
+     ёЄЁюъє Єръцх, ъръ ш Del
   09.09.2000 SVS 1.14
-   + CHAR_INFO *VBuf; в элементах диалога
+   + CHAR_INFO *VBuf; т ¤ыхьхэЄрї фшрыюур
   07.09.2000 tran 1.13
    + Config//Current File
   05.09.2000 SVS 1.12
-   + Структура CodeQWERTY, описывающая QWERTY-перекодировщик
-   ! В Opt добавлен блок переменный, касаемых QWERTY-перекодировки
+   + ╤ЄЁєъЄєЁр CodeQWERTY, юяшё√тр■∙р  QWERTY-яхЁхъюфшЁют∙шъ
+   ! ┬ Opt фюсртыхэ сыюъ яхЁхьхээ√щ, ърёрхь√ї QWERTY-яхЁхъюфшЁютъш
   01.09.2000 tran 1.11
-   + Options.PluginsCacheOnly - грузить плагины только из кеша
+   + Options.PluginsCacheOnly - уЁєчшЄ№ яырушэ√ Єюы№ъю шч ъх°р
   31.08.2000 SVS
-   ! DialogItem.Flags, DialogData.Flags - тип DWORD
-   - не сохраняется тип врапа.
-     Добавлена переменная Options.ViewerTypeWrap
+   ! DialogItem.Flags, DialogData.Flags - Єшя DWORD
+   - эх ёюїЁрэ хЄё  Єшя тЁряр.
+     ─юсртыхэр яхЁхьхээр  Options.ViewerTypeWrap
   12.08.2000 KM 1.09
-   ! В структурах DialogItem и DialogData новое поле, включенное
-     в union, char *Mask.
+   ! ┬ ёЄЁєъЄєЁрї DialogItem ш DialogData эютюх яюых, тъы■ўхээюх
+     т union, char *Mask.
   18.08.2000 SVS
-   ! struct FarListItems -> struct FarList, а то совсем запутался :-)
+   ! struct FarListItems -> struct FarList, р Єю ёютёхь чряєЄрыё  :-)
   03.08.2000 SVS
    ! WordDiv -> Opt.WordDiv
   03.08.2000 SVS
-   + Добавка в Options: MainPluginDir - использовать основной путь для
-     поиска плагинов...
+   + ─юсртър т Options: MainPluginDir - шёяюы№чютрЄ№ юёэютэющ яєЄ№ фы 
+     яюшёър яырушэют...
   01.08.2000 SVS
-   ! Изменения в структурах Dialog*
+   ! ╚чьхэхэш  т ёЄЁєъЄєЁрї Dialog*
   26.07.2000 SVS
    + Opt.AutoComplete
   18.07.2000 tran 1.04
    + Opt.ViewerShowScrollBar, Opt.ViewerShowArrows
   15.07.2000 tran
-   + добавлен аттрибут показа KeyBar в Viewer - Options::ShowKeyBarViewer
+   + фюсртыхэ рЄЄЁшсєЄ яюърчр KeyBar т Viewer - Options::ShowKeyBarViewer
   15.07.2000 SVS
-   + Opt.PersonalPluginsPath - путь для поиска персональных плагинов
+   + Opt.PersonalPluginsPath - яєЄ№ фы  яюшёър яхЁёюэры№э√ї яырушэют
   29.06.2000 SVS
-   + Добавлен атрибут показа Scroll Bar в меню - Options::ShowMenuScrollbar
+   + ─юсртыхэ рЄЁшсєЄ яюърчр Scroll Bar т ьхэ■ - Options::ShowMenuScrollbar
   25.06.2000 SVS
-   ! Подготовка Master Copy
-   ! Выделение в качестве самостоятельного модуля
+   ! ╧юфуюЄютър Master Copy
+   ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 struct PanelOptions
@@ -211,7 +211,7 @@ struct Confirmation
   int DeleteFolder;
   int Exit;
   /* $ 09.02.2001 IS
-     Для CheckForEsc
+     ─ы  CheckForEsc
   */
   int Esc;
   /* IS $ */
@@ -276,39 +276,39 @@ struct DizOptions
 };
 
 /* $ 05.09.2000 SVS
-   Структура CodeQWERTY, описывающая QWERTY-перекодировщик
+   ╤ЄЁєъЄєЁр CodeQWERTY, юяшё√тр■∙р  QWERTY-яхЁхъюфшЁют∙шъ
 */
 struct CodeXLAT{
-  DWORD Flags;       // дополнительные флаги
+  DWORD Flags;       // фюяюыэшЄхы№э√х Їыруш
   /* $ 05.09.2000 SVS
-     В Opt добавлены клавиши, вызывающие функцию Xlat
+     ┬ Opt фюсртыхэ√ ъыртш°ш, т√ч√тр■∙шх ЇєэъЎш■ Xlat
   */
   int XLatEditorKey;
   int XLatCmdLineKey;
   int XLatDialogKey;
   /* SVS $*/
   /* $ 04.11.2000 SVS
-     В Opt добавлены альтернативные клавиши, вызывающие функцию Xlat
+     ┬ Opt фюсртыхэ√ ры№ЄхЁэрЄштэ√х ъыртш°ш, т√ч√тр■∙шх ЇєэъЎш■ Xlat
   */
   int XLatAltEditorKey;
   int XLatAltCmdLineKey;
   int XLatAltDialogKey;
   /* SVS $*/
   /* $ 25.11.2000 IS
-     Разграничитель слов из реестра для функции Xlat
+     ╨рчуЁрэшўшЄхы№ ёыют шч ЁххёЄЁр фы  ЇєэъЎшш Xlat
   */
   char WordDivForXlat[256];
   /* IS $ */
-  BYTE Table[2][81]; // [0] non-english буквы, [1] english буквы
-  BYTE Rules[3][60]; // 3 по 30 правил:
-                    //  [0] "если предыдущий символ латинский"
-                    //  [1] "если предыдущий символ нелатинский символ"
-                    //  [2] "если предыдущий символ не рус/lat"
+  BYTE Table[2][81]; // [0] non-english сєът√, [1] english сєът√
+  BYTE Rules[3][60]; // 3 яю 30 яЁртшы:
+                    //  [0] "хёыш яЁхф√фє∙шщ ёшьтюы ырЄшэёъшщ"
+                    //  [1] "хёыш яЁхф√фє∙шщ ёшьтюы эхырЄшэёъшщ ёшьтюы"
+                    //  [2] "хёыш яЁхф√фє∙шщ ёшьтюы эх Ёєё/lat"
 };
 /* SVS $*/
 
 /* $ 21.02.2001 IS
-     Новая структура: настройки редактора
+     ═ютр  ёЄЁєъЄєЁр: эрёЄЁющъш ЁхфръЄюЁр
 */
 struct EditorOptions
 {
@@ -326,30 +326,30 @@ struct EditorOptions
 
 
 /* $ 29.03.2001 IS
-     Тут следует хранить "локальные" настройки для программы просмотра
+     ╥єЄ ёыхфєхЄ їЁрэшЄ№ "ыюъры№э√х" эрёЄЁющъш фы  яЁюуЁрьь√ яЁюёьюЄЁр
 */
 struct ViewerOptions
 {
   int TabSize;
   int AutoDetectTable;
   /* $ 18.07.2000 tran
-    + пара настроек для viewer*/
+    + ярЁр эрёЄЁюхъ фы  viewer*/
   int ShowScrollbar;
   int ShowArrows;
   /* tran 18.07.2000 $ */
 };
 /* IS $ */
 
-// "Полиция"
+// "╧юышЎш "
 struct PoliciesOptions {
-  int DisabledOptions;  // разрешенность меню конфигурации
-  int ShowHiddenDrives; // показывать скрытые логические диски
+  int DisabledOptions;  // ЁрчЁх°хээюёЄ№ ьхэ■ ъюэЇшуєЁрЎшш
+  int ShowHiddenDrives; // яюърч√трЄ№ ёъЁ√Є√х ыюушўхёъшх фшёъш
 };
 
 struct Options
 {
   /* $ 03.08.2000 SVS
-     TRUE - использовать стандартный путь к основным плагинам
+     TRUE - шёяюы№чютрЄ№ ёЄрэфрЁЄэ√щ яєЄ№ ъ юёэютэ√ь яырушэрь
   */
   int MainPluginDir;
   /* SVS $*/
@@ -377,7 +377,7 @@ struct Options
   /* tran 07.09.2000 $ */
 
   /* $ 09.02.2001 IS
-     состояние режима "помеченное вперед"
+     ёюёЄю эшх Ёхцшьр "яюьхўхээюх тяхЁхф"
   */
   int RightSelectedFirst, LeftSelectedFirst;
   /* IS $ */
@@ -385,7 +385,7 @@ struct Options
   int ReverseSort;
   int ClearReadOnly;
   int DeleteToRecycleBin;
-  int WipeSymbol; // символ заполнитель для "ZAP-операции"
+  int WipeSymbol; // ёшьтюы чряюыэшЄхы№ фы  "ZAP-юяхЁрЎшш"
   int UseSystemCopy;
   int CopyOpened;
   int CopyShowTotal;
@@ -398,31 +398,31 @@ struct Options
   int SaveViewerPos;
   int SaveViewerShortPos;
   /* $ 21.02.2001 IS
-       Переменные для редактора переехали в соответствующую структуру
+       ╧хЁхьхээ√х фы  ЁхфръЄюЁр яхЁххїрыш т ёююЄтхЄёЄтє■∙є■ ёЄЁєъЄєЁє
   */
   struct EditorOptions EdOpt;
   /* IS $ */
   /* $ 29.03.2001 IS
-       Некоторые переменные для вьюера переехали в соответствующую структуру
+       ═хъюЄюЁ√х яхЁхьхээ√х фы  т№■хЁр яхЁххїрыш т ёююЄтхЄёЄтє■∙є■ ёЄЁєъЄєЁє
   */
   struct ViewerOptions ViOpt;
   /* IS $ */
   /* $ 29.11.2000 SVS
-   + Opt.EditorReadOnlyLock - лочить файл при открытии в редакторе, если
-     он имеет атрибуты R|S|H
+   + Opt.EditorReadOnlyLock - ыюўшЄ№ Їрщы яЁш юЄъЁ√Єшш т ЁхфръЄюЁх, хёыш
+     юэ шьххЄ рЄЁшсєЄ√ R|S|H
   */
   int EditorReadOnlyLock;
   /* SVS $ */
   /* $ 29.11.2000 SVS
-   + Opt.EditorFileSizeLimit - минимально допустимый размер файла, после
-     которого будет выдан диалог о целесообразности открытия подобного
-     файла на редактирование
+   + Opt.EditorFileSizeLimit - ьшэшьры№эю фюяєёЄшь√щ ЁрчьхЁ Їрщыр, яюёых
+     ъюЄюЁюую сєфхЄ т√фрэ фшрыюу ю ЎхыхёююсЁрчэюёЄш юЄъЁ√Єш  яюфюсэюую
+     Їрщыр эр ЁхфръЄшЁютрэшх
   */
   DWORD EditorFileSizeLimitLo;
   DWORD EditorFileSizeLimitHi;
   /* SVS $ */
   /* $ 03.08.2000 SVS
-     Разграничитель слов из реестра
+     ╨рчуЁрэшўшЄхы№ ёыют шч ЁххёЄЁр
   */
   char WordDiv[256];
   /* SVS $ */
@@ -446,7 +446,7 @@ struct Options
   int ShowPanelFree;
   int ShowPanelScrollbar;
   /* $ 29.06.2000 SVS
-    Добавлен атрибут показа Scroll Bar в меню.
+    ─юсртыхэ рЄЁшсєЄ яюърчр Scroll Bar т ьхэ■.
   */
   int ShowMenuScrollbar;
   /* SVS $*/
@@ -469,23 +469,23 @@ struct Options
   int SmallIcon;
   char RegRoot[NM];
   /* $ 15.07.2000 SVS
-    + путь для поиска персональных плагинов, большой размер из-за того,
-      что здесь может стоять сетевой путь...
+    + яєЄ№ фы  яюшёър яхЁёюэры№э√ї яырушэют, сюы№°ющ ЁрчьхЁ шч-чр Єюую,
+      ўЄю чфхё№ ьюцхЄ ёЄю Є№ ёхЄхтющ яєЄ№...
   */
   char PersonalPluginsPath[1024];
   /* SVS $*/
   /* $ 26.07.2000 SVS
-     Разрешение для функции автозавершения в строках ввода в диалогах
-     имеющих History
+     ╨рчЁх°хэшх фы  ЇєэъЎшш ртЄючртхЁ°хэш  т ёЄЁюърї ттюфр т фшрыюурї
+     шьх■∙шї History
   */
   int AutoComplete;
   /* SVS $*/
   /* $ 31.08.2000 SVS
-     Добавлена переменная Options.ViewerTypeWrap
+     ─юсртыхэр яхЁхьхээр  Options.ViewerTypeWrap
   */
   /* $ 12.09.2000 SVS
-     Добавлена переменная Options.ViewerWrap
-     ViewerTypeWrap переименована в ViewerIsWrap
+     ─юсртыхэр яхЁхьхээр  Options.ViewerWrap
+     ViewerTypeWrap яхЁхшьхэютрэр т ViewerIsWrap
   */
   int ViewerIsWrap; // (Wrap|WordWarp)=1 | UnWrap=0
   int ViewerWrap; // Wrap=0|WordWarp=1
@@ -496,33 +496,33 @@ struct Options
   int PluginsCacheOnly;
   /* tran $ */
   /* $ 11.09.2000 SVS
-     В Opt добавлена переменная DlgEULBsClear
-     если = 1, то BS в диалогах для UnChanged строки удаляет такую
-     строку также, как и Del
+     ┬ Opt фюсртыхэр яхЁхьхээр  DlgEULBsClear
+     хёыш = 1, Єю BS т фшрыюурї фы  UnChanged ёЄЁюъш єфры хЄ Єръє■
+     ёЄЁюъє Єръцх, ъръ ш Del
   */
   int DlgEULBsClear;
   /* SVS $*/
   /* $ 12.09.2000 SVS
-   + Opt.PanelRightClickRule задает поведение правой клавиши мыши
-     (это по поводу Bug#17)
+   + Opt.PanelRightClickRule чрфрхЄ яютхфхэшх яЁртющ ъыртш°ш ь√°ш
+     (¤Єю яю яютюфє Bug#17)
   */
   int PanelRightClickRule;
   /* SVS $*/
   /* $ 19.09.2000 SVS
-   + Opt.PanelCtrlAltShiftRule задает поведение Ctrl-Alt-Shift для панелей.
+   + Opt.PanelCtrlAltShiftRule чрфрхЄ яютхфхэшх Ctrl-Alt-Shift фы  ярэхыхщ.
   */
   int PanelCtrlAltShiftRule;
   /* SVS $*/
   /* $ 20.10.2000 SVS
-    Panel/CtrlFRule в реестре - задает поведение Ctrl-F
-    Если = 0, то штампуется файл как есть, иначе - с учетом
-    отображения на панели
+    Panel/CtrlFRule т ЁххёЄЁх - чрфрхЄ яютхфхэшх Ctrl-F
+    ┼ёыш = 0, Єю °ЄрьяєхЄё  Їрщы ъръ хёЄ№, шэрўх - ё єўхЄюь
+    юЄюсЁрцхэш  эр ярэхыш
   */
   int PanelCtrlFRule;
   /* SVS $*/
   /* $ 27.09.2000 SVS
-   + Opt.AllCtrlAltShiftRule - битовые флаги, задают поведение Ctrl-Alt-Shift
-     бит установлен - функция включена:
+   + Opt.AllCtrlAltShiftRule - сшЄют√х Їыруш, чрфр■Є яютхфхэшх Ctrl-Alt-Shift
+     сшЄ єёЄрэютыхэ - ЇєэъЎш  тъы■ўхэр:
      0 - Panel
      1 - Edit
      2 - View
@@ -532,103 +532,103 @@ struct Options
   int AllCtrlAltShiftRule;
   /* SVS $*/
   /* $ 24.09.2000 SVS
-   + Opt.CmdHistoryRule задает поведение Esc для командной строки:
-      =1 - Не изменять положение в History, если после Ctrl-E/Ctrl/-X
-           нажали ESC (поведение - аля VC).
-      =0 - поведение как и было - изменять положение в History
+   + Opt.CmdHistoryRule чрфрхЄ яютхфхэшх Esc фы  ъюьрэфэющ ёЄЁюъш:
+      =1 - ═х шчьхэ Є№ яюыюцхэшх т History, хёыш яюёых Ctrl-E/Ctrl/-X
+           эрцрыш ESC (яютхфхэшх - ры  VC).
+      =0 - яютхфхэшх ъръ ш с√ыю - шчьхэ Є№ яюыюцхэшх т History
   */
   int CmdHistoryRule;
   /* SVS $*/
   /* $ 20.09.2000 SVS
-   + Opt.SubstPluginPrefix - 1 = подстанавливать префикс плагина
-     для Ctrl-[ и ему подобные
+   + Opt.SubstPluginPrefix - 1 = яюфёЄрэртыштрЄ№ яЁхЇшъё яырушэр
+     фы  Ctrl-[ ш хьє яюфюсэ√х
   */
   int SubstPluginPrefix;
   /* SVS $*/
   /* $ 24.09.2000 SVS
-   + Opt.MaxPositionCache - количество позиций в кэше сохранения
+   + Opt.MaxPositionCache - ъюышўхёЄтю яючшЎшщ т ъ¤°х ёюїЁрэхэш 
   */
   int MaxPositionCache;
   /* SVS $*/
   /* $ 27.09.2000 SVS
-   + Opt.HelpURLRules - =0 отключить возможность запуска URL-приложений
+   + Opt.HelpURLRules - =0 юЄъы■ўшЄ№ тючьюцэюёЄ№ чряєёър URL-яЁшыюцхэшщ
   */
   int HelpURLRules;
   /* SVS $*/
   /* $ 22.11.2000 SVS
-   + Правило на счет установки атрибутов на каталоги*/
+   + ╧Ёртшыю эр ёўхЄ єёЄрэютъш рЄЁшсєЄют эр ърЄрыюуш*/
   int SetAttrFolderRules;
   /* SVS $ */
   /* $ 27.11.2000 SVS
-   + Opt.ExceptRules - Правило на счет вызова исключений */
+   + Opt.ExceptRules - ╧Ёртшыю эр ёўхЄ т√чютр шёъы■ўхэшщ */
   int ExceptRules;
   /* $ 26.02.2001 VVM
-   + Opt.ExceptCallDebugger - вызывать дебаггер при исключении */
+   + Opt.ExceptCallDebugger - т√ч√трЄ№ фхсруухЁ яЁш шёъы■ўхэшш */
   int ExceptCallDebugger;
   /* VVM $ */
   /* SVS $ */
   /* $ 28.11.2000 SVS
-   + Opt.EditorF7Rules - Правило на счет поиска в редакторе */
+   + Opt.EditorF7Rules - ╧Ёртшыю эр ёўхЄ яюшёър т ЁхфръЄюЁх */
   int EditorF7Rules;
   /* SVS $ */
   /* $ 28.12.2000 SVS
-   + Opt.HotkeyRules - Правило на счет выбора механизма хоткеев */
+   + Opt.HotkeyRules - ╧Ёртшыю эр ёўхЄ т√сюЁр ьхїрэшчьр їюЄъххт */
   int HotkeyRules;
   /* SVS $ */
   /* $ 09.01.2001 SVS
-   + Opt.ShiftsKeyRules - Правило на счет выбора механизма трансляции
-     Alt-Буква для нелатинским буковок и символов "`-=[]\;',./" с
-     модификаторами Alt-, Ctrl-, Alt-Shift-, Ctrl-Shift-, Ctrl-Alt- */
+   + Opt.ShiftsKeyRules - ╧Ёртшыю эр ёўхЄ т√сюЁр ьхїрэшчьр ЄЁрэёы Ўшш
+     Alt-┴єътр фы  эхырЄшэёъшь сєъютюъ ш ёшьтюыют "`-=[]\;',./" ё
+     ьюфшЇшърЄюЁрьш Alt-, Ctrl-, Alt-Shift-, Ctrl-Shift-, Ctrl-Alt- */
   int ShiftsKeyRules;
   /* SVS $ */
   /* $ 19.01.2001 SVS
-   + Opt.MacroReuseRules - Правило на счет повторно использования забинденных
-     клавиш */
+   + Opt.MacroReuseRules - ╧Ёртшыю эр ёўхЄ яютЄюЁэю шёяюы№чютрэш  чрсшэфхээ√ї
+     ъыртш° */
   int MacroReuseRules;
   /* SVS $ */
   /* $ 22.01.2001 SVS
-   + Opt.CursorSize - Размер курсора ФАРа :-)
-     клавиш */
+   + Opt.CursorSize - ╨рчьхЁ ъєЁёюЁр ╘└╨р :-)
+     ъыртш° */
   int CursorSize[2];
   /* SVS $ */
   /* $ 05.09.2000 SVS
-     В Opt добавлен блок переменный, касаемых QWERTY-перекодировки
+     ┬ Opt фюсртыхэ сыюъ яхЁхьхээ√щ, ърёрхь√ї QWERTY-яхЁхъюфшЁютъш
   */
   struct CodeXLAT XLat;
   /* SVS $*/
   /* $ 30.01.2001 VVM
-    + Показывает время копирования,оставшееся время и среднюю скорость.
-      Зависит от настроек в реестре CopyTimeRule */
+    + ╧юърч√трхЄ тЁхь  ъюяшЁютрэш ,юёЄрт°ххё  тЁхь  ш ёЁхфэ■■ ёъюЁюёЄ№.
+      ╟ртшёшЄ юЄ эрёЄЁюхъ т ЁххёЄЁх CopyTimeRule */
   int CopyTimeRule;
   /* VVM $ */
   /*$ 08.02.2001 SKV
-    Комбинация клавиш для детача Far'овской консоли
-    от длятельного неинтерактивного процесса в ней запущенного.
+    ╩юьсшэрЎш  ъыртш° фы  фхЄрўр Far'ютёъющ ъюэёюыш
+    юЄ фы Єхы№эюую эхшэЄхЁръЄштэюую яЁюЎхёёр т эхщ чряє∙хээюую.
   */
   int ConsoleDetachKey;
   /* SKV$*/
   int FullScreenHelp;
   /* $ 28.03.2001 VVM
-    + RememberLogicalDrives = запоминать логические диски и не опрашивать
-      каждый раз. Для предотвращения "просыпания" "зеленых" винтов. */
+    + RememberLogicalDrives = чряюьшэрЄ№ ыюушўхёъшх фшёъш ш эх юяЁр°штрЄ№
+      ърцф√щ Ёрч. ─ы  яЁхфюЄтЁр∙хэш  "яЁюё√ярэш " "чхыхэ√ї" тшэЄют. */
   int RememberLogicalDrives;
   /* VVM $ */
   /* $ 02.04.2001 VVM
-    + Opt.FlagPosixSemantics будет влиять на:
-        добавление файлов в историю с разным регистром
-        добавление LastPositions в редакторе и вьюере */
+    + Opt.FlagPosixSemantics сєфхЄ тыш Є№ эр:
+        фюсртыхэшх Їрщыют т шёЄюЁш■ ё Ёрчэ√ь ЁхушёЄЁюь
+        фюсртыхэшх LastPositions т ЁхфръЄюЁх ш т№■хЁх */
   int FlagPosixSemantics;
   /* VVM $ */
   /* $ 16.04.2001 VVM
-    + Opt.MouseWheelDelta - задает смещение для прокрутки. */
+    + Opt.MouseWheelDelta - чрфрхЄ ёьх∙хэшх фы  яЁюъЁєЄъш. */
   int MsWheelDelta;
   /* VVM $ */
   int MsWheelDeltaView;
   int MsWheelDeltaEdit;
   /* $ 28.04.2001 VVM
-    + Opt.SubstNameRule битовая маска:
-      0 - если установлен, то опрашивать сменные диски при GetSubstName()
-      1 - если установлен, то опрашивать все остальные при GetSubstName() */
+    + Opt.SubstNameRule сшЄютр  ьрёър:
+      0 - хёыш єёЄрэютыхэ, Єю юяЁр°штрЄ№ ёьхээ√х фшёъш яЁш GetSubstName()
+      1 - хёыш єёЄрэютыхэ, Єю юяЁр°штрЄ№ тёх юёЄры№э√х яЁш GetSubstName() */
   int SubstNameRule;
   /* VVM $ */
 
@@ -665,7 +665,7 @@ struct EditorUndoData
 
 
 /* $ 01.08.2000 SVS
-  У структур DialogI* изменены:
+  ╙ ёЄЁєъЄєЁ DialogI* шчьхэхэ√:
   union {
     unsigned int Selected;
     char *History;
@@ -676,14 +676,14 @@ struct EditorUndoData
 */
 // for class Dialog
 /*
-Описывает один элемент диалога - внутренне представление.
-Для плагинов это FarDialogItem (за исключением ObjPtr)
+╬яшё√трхЄ юфшэ ¤ыхьхэЄ фшрыюур - тэєЄЁхээх яЁхфёЄртыхэшх.
+─ы  яырушэют ¤Єю FarDialogItem (чр шёъы■ўхэшхь ObjPtr)
 */
 /* $ 12.08.2000 KM
-   Дополнительное поле, содержащее маску ввода
+   ─юяюыэшЄхы№эюх яюых, ёюфхЁцр∙хх ьрёъє ттюфр
 */
 /* $ 08.12.2000 SVS
-   Data "объединен" с новой структурой
+   Data "юс·хфшэхэ" ё эютющ ёЄЁєъЄєЁющ
 */
 struct DialogItem
 {
@@ -714,8 +714,8 @@ struct DialogItem
 /* SVS $ */
 
 /*
-Описывает один элемент диалога - для сокращения объемов
-Структура аналогичена структуре InitDialogItem (см. "Far PlugRinG
+╬яшё√трхЄ юфшэ ¤ыхьхэЄ фшрыюур - фы  ёюъЁр∙хэш  юс·хьют
+╤ЄЁєъЄєЁр рэрыюушўхэр ёЄЁєъЄєЁх InitDialogItem (ёь. "Far PlugRinG
 Russian Help Encyclopedia of Developer")
 */
 struct DialogData
@@ -804,7 +804,7 @@ struct GroupSortData
   char *Masks;
   char *OriginalMasks;
   int Group;
-  int reserved; // для выравнивания на 16 :-)
+  int reserved; // фы  т√Ёртэштрэш  эр 16 :-)
 };
 
 // for class PanelFilter

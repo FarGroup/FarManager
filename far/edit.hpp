@@ -3,7 +3,7 @@
 /*
 edit.hpp
 
-Реализация одиночной строки редактирования
+╨хрышчрЎш  юфшэюўэющ ёЄЁюъш ЁхфръЄшЁютрэш 
 
 */
 
@@ -12,46 +12,46 @@ edit.hpp
 /*
 Modify:
   13.04.2001 SVS
-    ! Обработка Ctrl-Q вынесена в отдельную функцию ProcessCtrlQ(), т.к.
-      используется в editor.cpp
+    ! ╬сЁрсюЄър Ctrl-Q т√эхёхэр т юЄфхы№эє■ ЇєэъЎш■ ProcessCtrlQ(), Є.ъ.
+      шёяюы№чєхЄё  т editor.cpp
   15.02.2001 IS
-    + Локальные переменные, в которых запоминается то, что храниться в
-      настройках редактора:
-      DelRemovesBlocks - "Del удаляет блоки"
-      PersistentBlocks - "Постоянные блоки"
-    + Функции для управления их состоянием:
+    + ╦юъры№э√х яхЁхьхээ√х, т ъюЄюЁ√ї чряюьшэрхЄё  Єю, ўЄю їЁрэшЄ№ё  т
+      эрёЄЁющърї ЁхфръЄюЁр:
+      DelRemovesBlocks - "Del єфры хЄ сыюъш"
+      PersistentBlocks - "╧юёЄю ээ√х сыюъш"
+    + ╘єэъЎшш фы  єяЁртыхэш  шї ёюёЄю эшхь:
       SetDelRemovesBlocks/GetDelRemovesBlocks
       SetPersistentBlocks/GetPersistentBlocks
   14.02.2001 IS
-    + Размер табуляции хранится в TabSize, манипулировать им можно при помощи
+    + ╨рчьхЁ Єрсєы Ўшш їЁрэшЄё  т TabSize, ьрэшяєышЁютрЄ№ шь ьюцэю яЁш яюью∙ш
       GetTabSize, SetTabSize
   13.12.2000 SVS
-    + Дополнительный параметр в функции  Xlat()
+    + ─юяюыэшЄхы№э√щ ярЁрьхЄЁ т ЇєэъЎшш  Xlat()
   16.11.2000 KM & SVS
-    + KeyMatchedMask - Проверяет: попадает ли символ в разрешённый
-      диапазон символов, пропускаемых маской
-    ! Кометика (от SVS :-)
+    + KeyMatchedMask - ╧ЁютхЁ хЄ: яюярфрхЄ ыш ёшьтюы т ЁрчЁх°╕ээ√щ
+      фшрярчюэ ёшьтюыют, яЁюяєёърхь√ї ьрёъющ
+    ! ╩юьхЄшър (юЄ SVS :-)
   24.09.2000 SVS
-    + Класс Editor - друг
-    + Функция Xlat - перекодировка по принципу QWERTY <-> ЙЦУКЕН
+    + ╩ырёё Editor - фЁєу
+    + ╘єэъЎш  Xlat - яхЁхъюфшЁютър яю яЁшэЎшяє QWERTY <-> ╔╓╙╩┼═
   18.09.2000 SVS
-    + класс Dialog является "другом" (т.е. полноправным совладельцем)
+    + ъырёё Dialog  ты хЄё  "фЁєуюь" (Є.х. яюыэюяЁртэ√ь ёютырфхы№Ўхь)
   12.08.2000 KM 1.06
-    + Новые функции SetInputMask и GetInputMask для установки и получения маски ввода.
-    + Новая переменная Mask, которая хранит маску ввода для данного объекта Edit.
-    + Новая функция GetNextCursorPos, вычисляющая следующее положение курсора
-      в строке ввода с учётом Mask.
-    + Новая функция RefreshStrByMask.
+    + ═ют√х ЇєэъЎшш SetInputMask ш GetInputMask фы  єёЄрэютъш ш яюыєўхэш  ьрёъш ттюфр.
+    + ═ютр  яхЁхьхээр  Mask, ъюЄюЁр  їЁрэшЄ ьрёъє ттюфр фы  фрээюую юс·хъЄр Edit.
+    + ═ютр  ЇєэъЎш  GetNextCursorPos, т√ўшёы ■∙р  ёыхфє■∙хх яюыюцхэшх ъєЁёюЁр
+      т ёЄЁюъх ттюфр ё єў╕Єюь Mask.
+    + ═ютр  ЇєэъЎш  RefreshStrByMask.
   03.08.2000 KM
-    ! Изменены входные параметры функции Search - добавлен параметр int WholeWords.
-    ! Добавление в поиск функциональности нахождения целых слов
+    ! ╚чьхэхэ√ тїюфэ√х ярЁрьхЄЁ√ ЇєэъЎшш Search - фюсртыхэ ярЁрьхЄЁ int WholeWords.
+    ! ─юсртыхэшх т яюшёъ ЇєэъЎшюэры№эюёЄш эрїюцфхэш  Ўхы√ї ёыют
   28.07.2000 SVS
-    + Получение максимального значения строки для потребностей
+    + ╧юыєўхэшх ьръёшьры№эюую чэрўхэш  ёЄЁюъш фы  яюЄЁхсэюёЄхщ
        Dialod API - GetMaxLength()
-    + Функция получения текущих Color,SelColor
-    + Переменная класса ColorUnChanged (для диалога)
-    + Функция GetObjectColorUnChanged получения текущего ColorUnChanged
-    ! SetObjectColor имеет дополнительный параметр для установки ColorUnChanged
+    + ╘єэъЎш  яюыєўхэш  Єхъє∙шї Color,SelColor
+    + ╧хЁхьхээр  ъырёёр ColorUnChanged (фы  фшрыюур)
+    + ╘єэъЎш  GetObjectColorUnChanged яюыєўхэш  Єхъє∙хую ColorUnChanged
+    ! SetObjectColor шьххЄ фюяюыэшЄхы№э√щ ярЁрьхЄЁ фы  єёЄрэютъш ColorUnChanged
   25.07.2000 tran
     + DropDownBox style
   21.07.2000 tran
@@ -59,8 +59,8 @@ Modify:
   03.07.2000 tran
     + ReadOnly style
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 class Dialog;
@@ -74,7 +74,7 @@ class Edit:public ScreenObject
   private:
     char  *Str;
     /* $ 12.08.2000 KM
-       Переменная для хранения маски ввода
+       ╧хЁхьхээр  фы  їЁрэхэш  ьрёъш ттюфр
     */
     char  *Mask;
     /* KM $ */
@@ -83,12 +83,12 @@ class Edit:public ScreenObject
     int    ColorCount;
     int    StrSize;
     /* $ 12.08.2000 KM
-       Добавлена переменная для хранения предыдущего положения курсора
+       ─юсртыхэр яхЁхьхээр  фы  їЁрэхэш  яЁхф√фє∙хую яюыюцхэш  ъєЁёюЁр
     */
     int    CurPos,PrevCurPos;
     /* KM $ */
     /* $ 28.07.2000 SVS
-      + ColorUnChanged (для диалога)
+      + ColorUnChanged (фы  фшрыюур)
     */
     int    Color,SelColor,ColorUnChanged;
     /* SVS $ */
@@ -109,15 +109,15 @@ class Edit:public ScreenObject
     int    ReadOnly;
     /* tran 03.07.2000 $ */
     /* $ 14.02.2001 IS
-         Размер табуляции - по умолчанию равен Opt.TabSize;
+         ╨рчьхЁ Єрсєы Ўшш - яю єьюыўрэш■ Ёртхэ Opt.TabSize;
     */
     int	   TabSize;
     /* IS $ */
     /* $ 15.02.2001 IS
-         Различные опции из настроек редактора теперь запоминаются локально
+         ╨рчышўэ√х юяЎшш шч эрёЄЁюхъ ЁхфръЄюЁр ЄхяхЁ№ чряюьшэр■Єё  ыюъры№эю
     */
-    int	   DelRemovesBlocks; // Del удаляет блоки (Opt.EditorDelRemovesBlocks)
-    int    PersistentBlocks; // Постоянные блоки (Opt.EditorPersistentBlocks)
+    int	   DelRemovesBlocks; // Del єфры хЄ сыюъш (Opt.EditorDelRemovesBlocks)
+    int    PersistentBlocks; // ╧юёЄю ээ√х сыюъш (Opt.EditorPersistentBlocks)
     /* IS $ */
 
   private:
@@ -128,16 +128,16 @@ class Edit:public ScreenObject
     void   DeleteBlock();
     void   ApplyColor();
     /* $ 12.08.2000 KM
-       Внутренняя функция которая парсит Mask и возвращает
-       следующее возможное положение курсора в строке ввода,
-       + функция обновляющая содержимое Str на основании Mask.
+       ┬эєЄЁхээ   ЇєэъЎш  ъюЄюЁр  ярЁёшЄ Mask ш тючтЁр∙рхЄ
+       ёыхфє■∙хх тючьюцэюх яюыюцхэшх ъєЁёюЁр т ёЄЁюъх ттюфр,
+       + ЇєэъЎш  юсэюты ■∙р  ёюфхЁцшьюх Str эр юёэютрэшш Mask.
     */
     int    GetNextCursorPos(int Position,int Where);
     void   RefreshStrByMask(int InitMode=FALSE);
     /* KM $ */
     /* $ 15.11.2000 KM
-       Проверяет: попадает ли символ в разрешённый
-       диапазон символов, пропускаемых маской
+       ╧ЁютхЁ хЄ: яюярфрхЄ ыш ёшьтюы т ЁрчЁх°╕ээ√щ
+       фшрярчюэ ёшьтюыют, яЁюяєёърхь√ї ьрёъющ
     */
     int KeyMatchedMask(int Key);
     /* KM $ */
@@ -154,21 +154,21 @@ class Edit:public ScreenObject
     int   ProcessKey(int Key);
     int   ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     /* $ 28.07.2000 SVS
-       ! Функция установки текущих Color,SelColor и ColorUnChanged!
+       ! ╘єэъЎш  єёЄрэютъш Єхъє∙шї Color,SelColor ш ColorUnChanged!
     */
     void  SetObjectColor(int Color,int SelColor=0xf,int ColorUnChanged=COL_DIALOGEDITUNCHANGED);
-    //   + Функция получения текущих Color,SelColor
+    //   + ╘єэъЎш  яюыєўхэш  Єхъє∙шї Color,SelColor
     long  GetObjectColor() {return MAKELONG(Color,SelColor);}
     int   GetObjectColorUnChanged() {return ColorUnChanged;}
     /* SVS $*/
     /* $ 14.02.2001 IS
-         Функции чтения/установления размера табуляции
+         ╘єэъЎшш ўЄхэш /єёЄрэютыхэш  ЁрчьхЁр Єрсєы Ўшш
     */
     void SetTabSize(int NewSize) { TabSize=NewSize; }
     int  GetTabSize(void) {return TabSize; }
     /* IS $ */
     /* $ 15.02.2001 IS
-         Функции чтения/установления текущих настроек редактирования
+         ╘єэъЎшш ўЄхэш /єёЄрэютыхэш  Єхъє∙шї эрёЄЁюхъ ЁхфръЄшЁютрэш 
     */
     void SetDelRemovesBlocks(int NewMode) { DelRemovesBlocks=NewMode; }
     int  GetDelRemovesBlocks(void) {return DelRemovesBlocks; }
@@ -187,8 +187,8 @@ class Edit:public ScreenObject
     void  InsertString(char *Str);
     void  InsertBinaryString(char *Str,int Length);
     /* $ 03.08.2000 KM
-       Добавление параметра WholeWords для поиска целых слов
-       в функцию Search.
+       ─юсртыхэшх ярЁрьхЄЁр WholeWords фы  яюшёър Ўхы√ї ёыют
+       т ЇєэъЎш■ Search.
     */
     int   Search(char *Str,int Position,int Case,int WholeWords,int Reverse);
     /* KM $ */
@@ -202,12 +202,12 @@ class Edit:public ScreenObject
     void  SetPasswordMode(int Mode) {PasswordMode=Mode;};
     void  SetMaxLength(int Length) {MaxLength=Length;};
     /* $ 28.07.2000 SVS
-       Получение максимального значения строки для потребностей Dialod API
+       ╧юыєўхэшх ьръёшьры№эюую чэрўхэш  ёЄЁюъш фы  яюЄЁхсэюёЄхщ Dialod API
     */
     int   GetMaxLength() {return MaxLength;};
     /* SVS $ */
     /* $ 12.08.2000 KM
-       Функции установки и получения маски ввода
+       ╘єэъЎшш єёЄрэютъш ш яюыєўхэш  ьрёъш ттюфр
     */
     void  SetInputMask(char *InputMask);
     char* GetInputMask() {return Mask;}
@@ -237,10 +237,10 @@ class Edit:public ScreenObject
     int DropDownBox;
     /* tran 25.07.2000 $ */
     /* $ 24.09.2000 SVS $
-      Функция Xlat - перекодировка по принципу QWERTY <-> ЙЦУКЕН
+      ╘єэъЎш  Xlat - яхЁхъюфшЁютър яю яЁшэЎшяє QWERTY <-> ╔╓╙╩┼═
     */
     /* $ 13.12.2000 SVS
-       Дополнительный параметр в функции  Xlat()
+       ─юяюыэшЄхы№э√щ ярЁрьхЄЁ т ЇєэъЎшш  Xlat()
     */
     void Xlat(BOOL All=FALSE);
     /* SVS $ */

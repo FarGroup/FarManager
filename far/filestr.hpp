@@ -3,7 +3,7 @@
 /*
 filestr.hpp
 
-Класс GetFileString
+╩ырёё GetFileString
 
 */
 
@@ -12,10 +12,10 @@ filestr.hpp
 /*
 Modify:
   09.04.2001 SVS
-    ! stdio.h уже и так включается.
+    ! stdio.h єцх ш Єръ тъы■ўрхЄё .
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 class GetFileString

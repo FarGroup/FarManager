@@ -1,7 +1,7 @@
 /*
 flink.cpp
 
-Šãç  à §­ëå äã­ªæ¨© ¯® ®¡à ¡®âª¥ Link`®¢ - Hard&Sym
+Êó÷à ðàçíûõ ôóíêöèé ïî îáðàáîòêå Link`îâ - Hard&Sym
 
 */
 
@@ -10,45 +10,45 @@ flink.cpp
 /*
 Modify:
   28.04.2001 VVM
-    ! GetSubstName() ¯®«ãç ¥â â¨¯ ­®á¨â¥«ï
-    + Ž¡à ¡®âª  Opt.SubstNameRule
+    ! GetSubstName() ïîëó÷àåò òèï íîñèòåëÿ
+    + Îáðàáîòêà Opt.SubstNameRule
   25.04.2001 SVS
-    + CreateVolumeMountPoint() - ¬®­â¨à®¢ ­¨¥ ¤¨áª  ­  ä ©«®¢ãî á¨áâ¥¬ã
+    + CreateVolumeMountPoint() - ìîíòèðîâàíèå äèñêà íà ôàéëîâóþ ñèñòåìó
   06.04.2001 SVS
-    - ‚ Win2K ¢ ª®à¥­ì ¯ ¯ª¨ "Program Files" ­¥ á®§¤ ¢ «áï HardLink (Alt-F6)
-      ‡­ ç¨â ¯à¨¬¥­ï¥¬ "à®¤­ãî", £®â®¢ãî ª ã¯®âà¥¡«¥­¨î äã­ªæ¨î CreateHardLink()
-    + CanCreateHardLinks() - ¯à®¢¥àª  ­  ¢è¨¢®áâì.
+    - Â Win2K â êîðåíü ïàïêè "Program Files" íå ñîçäàâàëñÿ HardLink (Alt-F6)
+      Çíà÷èò ïðèìåíÿåì "ðîäíóþ", ãîòîâóþ ê óïîòðåáëåíèþ ôóíêöèþ CreateHardLink()
+    + CanCreateHardLinks() - ïðîâåðêà íà âøèâîñòü.
   02.04.2001 SVS
-    ! “â®ç­¥­¨ï ¤«ï GetPathRoot[One]()
+    ! Óòî÷íåíèÿ äëÿ GetPathRoot[One]()
   14.03.2001 OT
-    - ‚ vc++ ã¦¥ ¥áâì ®¯à¥¤¥«¥­¨¥ _REPARSE_GUID_DATA_BUFFER
+    - Â vc++ óæå åñòü îïðåäåëåíèå _REPARSE_GUID_DATA_BUFFER
   14.03.2001 SVS
-    + ‡ à¥§¥à¢¨à®¢ ­ ªãá®ª ª®¤  ¤«ï á®§¤ ­¨ï SymLink ¤«ï ª â «®£®¢
-      ¢ äã­ªæ¨¨ CreateJunctionPoint
+    + Çàðåçåðâèðîâàí êóñîê êîäà äëÿ ñîçäàíèÿ SymLink äëÿ êàòàëîãîâ
+      â ôóíêöèè CreateJunctionPoint
   13.03.2001 SVS
-    ! „®¡ ¢«¥­ ­¥®¡å®¤¨¬ë© ª®¤ ¢ äã­ªæ¨î DeleteJunctionPoint()
+    ! Äîáàâëåí íåîáõîäèìûé êîä â ôóíêöèþ DeleteJunctionPoint()
   13.03.2001 SVS
-    ! GetPathRoot ¯¥à¥¥å «  ¨§ strmix.cpp :-)
-    + ‚ äã­ªæ¨î GetPathRoot ¤®¡ ¢«¥­  ®¡à ¡®âª  mounted volume
+    ! GetPathRoot ïåðååõàëà èç strmix.cpp :-)
+    + Â ôóíêöèþ GetPathRoot äîáàâëåíà îáðàáîòêà mounted volume
   01.02.2001 SKV
-    - MAXPATH ¨«¨ _MAX_PATH ¢®â ¢ çñ¬ ¢®¯à®á.
+    - MAXPATH èëè _MAX_PATH âîò â ÷¸ì âîïðîñ.
   26.01.2001 SVS
-    -  £  ¢ NT ¯à¨ ã¤ «¥­¨¨ SUBST-¤¨áª®¢. ‚ NT ’Ž ¤®«¦­® ¢ë£«ï¤¥âì ª ª
+    - Áàãà â NT ïðè óäàëåíèè SUBST-äèñêîâ. Â NT ÝÒÎ äîëæíî âûãëÿäåòü êàê
       '\??\K:\Foo'
   25.01.2001 SVS
-    ! ”ã­ªæ¨¨ GetSubstName ¨ DelSubstDrive â¥¯¥àì ­®à¬ «ì­® à ¡®â îâ ¨ ¤«ï
+    ! Ôóíêöèè GetSubstName è DelSubstDrive òåïåðü íîðìàëüíî ðàáîòàþò è äëÿ
       Windows98
   05.01.2001 SVS
-    + ”ã­ªæ¨ï GetSubstName - ¯¥à¥¥å «  ¨§ mix.cpp
-    + ”ã­ªæ¨ï DelSubstDrive - ã¤ «¥­¨¥ Subst ¤à ©¢¥à 
+    + Ôóíêöèÿ GetSubstName - ïåðååõàëà èç mix.cpp
+    + Ôóíêöèÿ DelSubstDrive - óäàëåíèå Subst äðàéâåðà
   05.01.2000 OT
-    - Š®á¬¥â¨ª , ¨§-§  ª®â®à®© ­¥ ª®¬¯¨«¨«áï ¯®¤ VC :)
+    - Êîñìåòèêà, èç-çà êîòîðîé íå êîìïèëèëñÿ ïîä VC :)
   04.01.2001 SVS
-    + ‡ £«ãèª¨ ¤«ï CreateJunctionPoint, DeleteJunctionPoint
-    + GetJunctionPointInfo - ¯®«ãç¨âì ¨­äã ¯à® Junc
+    + Çàãëóøêè äëÿ CreateJunctionPoint, DeleteJunctionPoint
+    + GetJunctionPointInfo - ïîëó÷èòü èíôó ïðî Junc
   03.01.2001 SVS
-    ! ‚ë¤¥«¥­¨¥ ¢ ª ç¥áâ¢¥ á ¬®áâ®ïâ¥«ì­®£® ¬®¤ã«ï
-    + GetNumberOfLinks ¨ MkLink ¯¥à¥¥å «¨ ¨§ mix.cpp
+    ! Âûäåëåíèå â êà÷åñòâå ñàìîñòîÿòåëüíîãî ìîäóëÿ
+    + GetNumberOfLinks è MkLink ïåðååõàëè èç mix.cpp
 */
 
 #include "headers.hpp"
@@ -357,7 +357,7 @@ DWORD WINAPI GetJunctionPointInfo(LPCTSTR szMountDir,
 
 
 /* $ 07.09.2000 SVS
-   ”ã­ªæ¨ï GetNumberOfLinks â®¦¥ ¤®áâã¯­  ¯« £¨­ ¬ :-)
+   Ôóíêöèÿ GetNumberOfLinks òîæå äîñòóïíà ïëàãèíàì :-)
 */
 int WINAPI GetNumberOfLinks(char *Name)
 {
@@ -389,7 +389,7 @@ int WINAPI MkLink(char *Src,char *Dest)
     return FALSE;
   }
 
-  // íâ®â ªãá®ª ¤«ï Win2K
+  // ýòîò êóñîê äëÿ Win2K
   if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5)
   {
     typedef BOOL (WINAPI *PCREATEHARDLINK)(
@@ -406,7 +406,7 @@ int WINAPI MkLink(char *Src,char *Dest)
     }
   }
 
-  // ¢á¥ çâ® ­¨¦¥ à ¡®â ¥â ¢ NT4/2000
+  // âñå ÷òî íèæå ðàáîòàåò â NT4/2000
   struct CORRECTED_WIN32_STREAM_ID
   {
     DWORD          dwStreamId ;
@@ -475,10 +475,10 @@ int WINAPI MkLink(char *Src,char *Dest)
 #endif
 
 /* $ 05.01.2001 SVS
-   ”ã­ªæ¨ï DelSubstDrive - ã¤ «¥­¨¥ Subst ¤à ©¢¥à 
-   Return: -1 - íâ® «¨¡® ­¥ SUBST-¤à ©¢¥à, «¨¡® OS ­¥ â .
-            0 - ¢á¥ ã¤ «¥­® ­  ãà 
-            1 - ®è¨¡ª  ¯à¨ ã¤ «¥­¨¨.
+   Ôóíêöèÿ DelSubstDrive - óäàëåíèå Subst äðàéâåðà
+   Return: -1 - ýòî ëèáî íå SUBST-äðàéâåð, ëèáî OS íå òà.
+            0 - âñå óäàëåíî íà óðà
+            1 - îøèáêà ïðè óäàëåíèè.
 */
 int DelSubstDrive(char *DosDeviceName)
 {
@@ -499,10 +499,10 @@ int DelSubstDrive(char *DosDeviceName)
 BOOL GetSubstName(int DriveType,char *LocalName,char *SubstName,int SubstSize)
 {
   /* $28.04.2001 VVM
-    + Ž¡à ¡®âª  ¢ § ¢¨á¨¬®áâ¨ ®â Opt.SubstNameRule
-      ¡¨â®¢ ï ¬ áª :
-      0 - ¥á«¨ ãáâ ­®¢«¥­, â® ®¯à è¨¢ âì á¬¥­­ë¥ ¤¨áª¨
-      1 - ¥á«¨ ãáâ ­®¢«¥­, â® ®¯à è¨¢ âì ¢á¥ ®áâ «ì­ë¥ */
+    + Îáðàáîòêà â çàâèñèìîñòè îò Opt.SubstNameRule
+      áèòîâàÿ ìàñêà:
+      0 - åñëè óñòàíîâëåí, òî îïðàøèâàòü ñìåííûå äèñêè
+      1 - åñëè óñòàíîâëåí, òî îïðàøèâàòü âñå îñòàëüíûå */
   if (DriveType!=DRIVE_NOT_INIT)
   {
     int DriveRemovable = (DriveType==DRIVE_REMOVABLE) || (DriveType==DRIVE_CDROM);
@@ -516,9 +516,9 @@ BOOL GetSubstName(int DriveType,char *LocalName,char *SubstName,int SubstSize)
   LocalName=CharUpper((LPTSTR)LocalName);
   if ((LocalName[0]>='A') && ((LocalName[0]<='Z')))
   {
-    // ’Ž ŽŸ‡€’…‹œŽ, ˆ€—… ‚ WIN98 €Ž’€’œ … “„…’!!!!
+    // ÝÒÎ ÎÁßÇÀÒÅËÜÍÎ, ÈÍÀ×Å Â WIN98 ÐÀÁÎÒÀÒÜ ÍÅ ÁÓÄÅÒ!!!!
 /*$ 01.02.2001 skv
-  •®ææ  ª®¬¯¨«ïâáï ¨ ¯®¤ ‚–++ ®¤­ ª®.
+  Õîööà êîìïèëÿòñÿ è ïîä ÂÖ++ îäíàêî.
 */
 #ifdef _MSC_VER
     int SizeName=WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT?sizeof(Name):_MAX_PATH;
@@ -553,7 +553,7 @@ BOOL GetSubstName(int DriveType,char *LocalName,char *SubstName,int SubstSize)
   return FALSE;
 }
 
-// ¯à®á¬®âà ®¤­®© ¯®§¨æ¨¨ :-)
+// ïðîñìîòð îäíîé ïîçèöèè :-)
 void GetPathRootOne(char *Path,char *Root)
 {
   char TempRoot[1024],*ChPtr;
@@ -562,10 +562,10 @@ void GetPathRootOne(char *Path,char *Root)
   if (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5)
   {
     if(!pGetVolumeNameForVolumeMountPoint)
-      // à ¡®â ¥â â®«ìª® ¯®¤ Win2000!
+      // ðàáîòàåò òîëüêî ïîä Win2000!
       pGetVolumeNameForVolumeMountPoint=(PGETVOLUMENAMEFORVOLUMEMOUNTPOINT)GetProcAddress(GetModuleHandle("KERNEL32"),"GetVolumeNameForVolumeMountPointA");
 
-    // ®¡à ¡®âª  mounted volume
+    // îáðàáîòêà mounted volume
     if(pGetVolumeNameForVolumeMountPoint && !strncmp(Path,"Volume{",7))
     {
       char Drive[] = "C:\\"; // \\?\Volume{...
@@ -584,7 +584,7 @@ void GetPathRootOne(char *Path,char *Root)
            return;
         }
       }
-      // Ops. „¨áª â® ­¥ ¨¬¥¥â ¡ãª®¢ª¨
+      // Ops. Äèñê òî íå èìååò áóêîâêè
       strcpy(Root,"\\\\?\\");
       strcat(Root,Path);
       return;
@@ -611,7 +611,7 @@ void GetPathRootOne(char *Path,char *Root)
   strncpy(Root,TempRoot,NM);
 }
 
-// ¯®«­ë© ¯à®å®¤ Ž!!!
+// ïîëíûé ïðîõîä ÏÎ!!!
 void WINAPI GetPathRoot(char *Path,char *Root)
 {
   if (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5)

@@ -1,7 +1,7 @@
 /*
 filter.cpp
 
-Фильтр (Ctrl-I)
+╘шы№ЄЁ (Ctrl-I)
 
 */
 
@@ -9,34 +9,34 @@ filter.cpp
 
 /*
 Modify:
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
+  29.04.2001 ╬╥
+    + ┬эхфЁхэшх NWZ юЄ ╥ЁхЄ№ ъютр
   27.02.2001 VVM
-    ! Символы, зависимые от кодовой страницы
+    ! ╤шьтюы√, чртшёшь√х юЄ ъюфютющ ёЄЁрэшЎ√
       /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
-      переведены в коды.
+      яхЁхтхфхэ√ т ъюф√.
   13.02.2001 SVS
-    - Ошибка, синтаксическая :-( "ListItem.Flags==0;"
+    - ╬°шсър, ёшэЄръёшўхёър  :-( "ListItem.Flags==0;"
   12.02.2001 SVS
-    - Баги после #440-го
+    - ┴руш яюёых #440-ую
   11.02.2001 SVS
-    ! Введение DIF_VAREDIT позволило расширить размер под маски
+    ! ┬тхфхэшх DIF_VAREDIT яючтюышыю Ёрё°шЁшЄ№ ЁрчьхЁ яюф ьрёъш
   11.02.2001 SVS
-    ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
+    ! ═хёъюы№ъю єЄюўэхэшщ ъюфр т ёт чш ё шчьхэхэш ьш т ёЄЁєъЄєЁх MenuItem
   13.10.2000 tran
-    - при изменении custum фильтра и при отказе от меню панель не менялась
+    - яЁш шчьхэхэшш custum Їшы№ЄЁр ш яЁш юЄърчх юЄ ьхэ■ ярэхы№ эх ьхэ ырё№
   13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
+    ! ═хъюЄюЁ√х ъюЁЁхъЎшш яЁш шёяюы№чютрэшш new/delete/realloc
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -84,8 +84,8 @@ PanelFilter::~PanelFilter()
 void PanelFilter::FilterEdit()
 {
   /* $ 13.10.2000 tran
-     NeedUpdate - если фильтр менялся по f4, ins, del
-     панель перерисуется при выходе по esc
+     NeedUpdate - хёыш Їшы№ЄЁ ьхэ ыё  яю f4, ins, del
+     ярэхы№ яхЁхЁшёєхЄё  яЁш т√їюфх яю esc
   */
   int FirstCall=TRUE,Pos=0,NeedUpdate=0;
   while (Pos!=-1)
@@ -233,7 +233,7 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
       FilterList.AddItem(&ListItem);
     }
     /* $ 13.07.2000 SVS
-       ни кто не вызывал запрос памяти через new :-)
+       эш ъЄю эх т√ч√тры чряЁюё ярь Єш ўхЁхч new :-)
     */
     free(ExtPtr);
     /* SVS $ */
@@ -419,14 +419,14 @@ void PanelFilter::AddMasks(char *Masks,int Exclude)
   if (Masks==NULL)
   {
     /* $ 13.07.2000 SVS
-       ни кто не вызывал запрос памяти через new :-)
+       эш ъЄю эх т√ч√тры чряЁюё ярь Єш ўхЁхч new :-)
     */
     free(FilterMask);
     /* SVS $ */
     FilterMask=NULL;
     FilterMaskCount=0;
     /* $ 13.07.2000 SVS
-       ни кто не вызывал запрос памяти через new :-)
+       эш ъЄю эх т√ч√тры чряЁюё ярь Єш ўхЁхч new :-)
     */
     free(ExcludeFilterMask);
     /* SVS $ */

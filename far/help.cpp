@@ -1,7 +1,7 @@
 /*
 help.cpp
 
-Помощь
+╧юью∙№
 
 */
 
@@ -10,68 +10,68 @@ help.cpp
 /*
 Modify:
   26.04.2001 DJ
-    - используем сохраненный Mask при обработке F5
+    - шёяюы№чєхь ёюїЁрэхээ√щ Mask яЁш юсЁрсюЄъх F5
   16.04.2001 SVS
-    - не поганим SelTopic, если и так в "Help on Help"
+    - эх яюурэшь SelTopic, хёыш ш Єръ т "Help on Help"
   12.04.2001 SVS
-    + сохранение значения Mask, переданного в конструктор (для корректной
-      работы HlfViewer)
-    - не работало последовательное нажатие F1, Shift-F1, Enter
+    + ёюїЁрэхэшх чэрўхэш  Mask, яхЁхфрээюую т ъюэёЄЁєъЄюЁ (фы  ъюЁЁхъЄэющ
+      ЁрсюЄ√ HlfViewer)
+    - эх ЁрсюЄрыю яюёыхфютрЄхы№эюх эрцрЄшх F1, Shift-F1, Enter
   26.03.2001 SVS
-    + FHELP_USECONTENTS - если не найден требует топик, то отобразить "Contents"
-    ! ReadHelp возвращает TRUE/FALSE
+    + FHELP_USECONTENTS - хёыш эх эрщфхэ ЄЁхсєхЄ Єюяшъ, Єю юЄюсЁрчшЄ№ "Contents"
+    ! ReadHelp тючтЁр∙рхЄ TRUE/FALSE
   21.03.2001 VVM
-    ! уточнение поведения символа '$'
+    ! єЄюўэхэшх яютхфхэш  ёшьтюыр '$'
   16.03.2001 VVM
-    ! Если топик не найден - остаемся, где были
-    - В функции ReadPluginsHelp инициализировать CtrlColorChar
+    ! ┼ёыш Єюяшъ эх эрщфхэ - юёЄрхьё , уфх с√ыш
+    - ┬ ЇєэъЎшш ReadPluginsHelp шэшЎшрышчшЁютрЄ№ CtrlColorChar
   22.02.2001 SVS
-    ! в активаторе замена двойных символов ~~ и ## на одинарные эквиваленты
+    ! т ръЄштрЄюЁх чрьхэр фтющэ√ї ёшьтюыют ~~ ш ## эр юфшэрЁэ√х ¤ътштрыхэЄ√
   06.02.2001 SVS
-    - Исправлен(?) баг с активатором...
-      (новый кусок пока не трогать - возможно потом исключим его вообще)
+    - ╚ёяЁртыхэ(?) сру ё ръЄштрЄюЁюь...
+      (эют√щ ъєёюъ яюър эх ЄЁюурЄ№ - тючьюцэю яюЄюь шёъы■ўшь хую тююс∙х)
   20.01.2001 SVS
-    - Пропадал курсор при вызове справки.
-      Бяка появилась на 354-м патче, когда была введена поддержка кеёбар
+    - ╧Ёюярфры ъєЁёюЁ яЁш т√чютх ёяЁртъш.
+      ┴ ър яю тшырё№ эр 354-ь ярЄўх, ъюуфр с√ыр ттхфхэр яюффхЁцър ъх╕срЁ
   18.12.2000 SVS
-    + Дополнительный параметр у конструктора - DWORD Flags.
-    + учитываем флаг FHELP_NOSHOWERROR
+    + ─юяюыэшЄхы№э√щ ярЁрьхЄЁ є ъюэёЄЁєъЄюЁр - DWORD Flags.
+    + єўшЄ√трхь Їыру FHELP_NOSHOWERROR
   18.12.2000 SVS
-    - ExpandEnv забыл поставить в активаторе :-(
+    - ExpandEnv чрс√ы яюёЄртшЄ№ т ръЄштрЄюЁх :-(
   07.12.2000 SVS
-    ! Изменен механизм запуска URL приложения - были нарекания со стороны
-      владельцев оутглюка.
+    ! ╚чьхэхэ ьхїрэшчь чряєёър URL яЁшыюцхэш  - с√ыш эрЁхърэш  ёю ёЄюЁюэ√
+      тырфхы№Ўхт юєЄуы■ър.
   27.09.2000 SVS
-    ! Разрешения для активизации URL-ссылок.
-    ! Ctrl-Alt-Shift - реагируем, если надо.
+    ! ╨рчЁх°хэш  фы  ръЄштшчрЎшш URL-ёё√ыюъ.
+    ! Ctrl-Alt-Shift - ЁхрушЁєхь, хёыш эрфю.
   19.09.2000 OT
-    - Ошибка при отрисовки хелпа
+    - ╬°шсър яЁш юЄЁшёютъш їхыяр
   12.09.2000 SVS
-    + Параметры у функции ReadHelp и конструктора, задающие маску поиска
-      файлов.
+    + ╧рЁрьхЄЁ√ є ЇєэъЎшш ReadHelp ш ъюэёЄЁєъЄюЁр, чрфр■∙шх ьрёъє яюшёър
+      Їрщыют.
   01.09.2000 SVS
-    + Мои любимые цветовые атрибуты - Учтем символ CtrlColorChar
+    + ╠юш ы■сшь√х ЎтхЄют√х рЄЁшсєЄ√ - ╙ўЄхь ёшьтюы CtrlColorChar
   25.08.2000 SVS
-    + CtrlAltShift - спрятать/показать помощь...
-    + URL активатор - это ведь так просто :-)))
+    + CtrlAltShift - ёяЁ ЄрЄ№/яюърчрЄ№ яюью∙№...
+    + URL ръЄштрЄюЁ - ¤Єю тхф№ Єръ яЁюёЄю :-)))
   13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
+    ! ═хъюЄюЁ√х ъюЁЁхъЎшш яЁш шёяюы№чютрэшш new/delete/realloc
   28.06.2000
     - NT Console resize
       adding SetScreenPosition method
   26.06.2000 IS
-    - Глюк с хелпом по f1, shift+f2, end
-      (решение предложил IG)
+    - ├ы■ъ ё їхыяюь яю f1, shift+f2, end
+      (Ёх°хэшх яЁхфыюцшы IG)
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -90,7 +90,7 @@ Help::Help(char *Topic, char *Mask,DWORD Flags)
 {
   Help::Flags=Flags;
   /* $ 12.04.2001 SVS
-     в конструкторе PrevMacroMode не инициализирован!
+     т ъюэёЄЁєъЄюЁх PrevMacroMode эх шэшЎшрышчшЁютрэ!
   */
   //if (PrevMacroMode!=MACRO_HELP) {
   PrevMacroMode=CtrlObject->Macro.GetMode();
@@ -100,12 +100,12 @@ Help::Help(char *Topic, char *Mask,DWORD Flags)
 
   ErrorHelp=TRUE;
   /* $ 01.09.2000 SVS
-     Установим по умолчанию текущий цвет отрисовки...
+     ╙ёЄрэютшь яю єьюыўрэш■ Єхъє∙шщ ЎтхЄ юЄЁшёютъш...
   */
   CurColor=COL_HELPTEXT;
   /* SVS $ */
   /* $ 12.04.2001 SVS
-     сохраним Mask
+     ёюїЁрэшь Mask
   */
   if(Mask)
   {
@@ -151,7 +151,7 @@ Help::Help(char *Topic, char *Mask,DWORD Flags)
 }
 
 /* $ 12.04.2001 SVS
-   передаем в конструктор Mask, запоминаем
+   яхЁхфрхь т ъюэёЄЁєъЄюЁ Mask, чряюьшэрхь
 */
 Help::Help(char *Topic,int &ShowPrev,int PrevFullScreen,DWORD Flags,char *Mask)
 {
@@ -190,7 +190,7 @@ Help::Help(char *Topic,int &ShowPrev,int PrevFullScreen,DWORD Flags,char *Mask)
     ReadHelp(Mask);
   }
   /* $ 16.03.2001 VVM
-    ! Если топик не найден - остаемся, где были */
+    ! ┼ёыш Єюяшъ эх эрщфхэ - юёЄрхьё , уфх с√ыш */
   if (HelpData!=NULL)
   {
     InitKeyBar();
@@ -215,12 +215,12 @@ Help::~Help()
   CtrlObject->Macro.SetMode(PrevMacroMode);
   SetRestoreScreenMode(FALSE);
   /* $ 13.07.2000
-    для выделения памяти использовалась функция realloc
+    фы  т√фхыхэш  ярь Єш шёяюы№чютрырё№ ЇєэъЎш  realloc
   */
   free(HelpData);
   /* SVS $ */
   /* $ 12.04.2001 SVS
-     удаляем HelpMask
+     єфры хь HelpMask
   */
   if(HelpMask)
     delete HelpMask;
@@ -291,7 +291,7 @@ int Help::ReadHelp(char *Mask)
   CurX=CurY=0;
   if (HelpData!=NULL)
     /* $ 13.07.2000
-      для выделения памяти использовалась функция realloc
+      фы  т√фхыхэш  ярь Єш шёяюы№чютрырё№ ЇєэъЎш  realloc
     */
     free(HelpData);
     /* SVS $ */
@@ -357,9 +357,9 @@ int Help::ReadHelp(char *Mask)
     else
       if (TopicFound)
       {
-        /* $<text> в начале строки, определение темы
-           Определяет не прокручиваемую область помощи
-           Если идут несколько подряд сразу после строки обозначения темы...
+        /* $<text> т эрўрых ёЄЁюъш, юяЁхфхыхэшх Єхь√
+           ╬яЁхфхы хЄ эх яЁюъЁєўштрхьє■ юсырёЄ№ яюью∙ш
+           ┼ёыш шфєЄ эхёъюы№ъю яюфЁ ф ёЁрчє яюёых ёЄЁюъш юсючэрўхэш  Єхь√...
         */
         if (*ReadStr=='$' && NearTopicFound && (PrevSymbol == '$' || PrevSymbol == '@'))
         {
@@ -523,8 +523,8 @@ void Help::FastShow()
   CorrectPosition();
   *SelTopic=0;
   /* $ 01.09.2000 SVS
-     Установим по умолчанию текущий цвет отрисовки...
-     чтобы новая тема начиналась с нормальными атрибутами
+     ╙ёЄрэютшь яю єьюыўрэш■ Єхъє∙шщ ЎтхЄ юЄЁшёютъш...
+     ўЄюс√ эютр  Єхьр эрўшэрырё№ ё эюЁьры№э√ьш рЄЁшсєЄрьш
   */
   CurColor=COL_HELPTEXT;
   /* SVS $ */
@@ -574,7 +574,7 @@ void Help::FastShow()
 }
 
 /* $ 01.09.2000 SVS
-  Учтем символ CtrlColorChar & CurColor
+  ╙ўЄхь ёшьтюы CtrlColorChar & CurColor
 */
 void Help::OutString(char *Str)
 {
@@ -610,8 +610,8 @@ void Help::OutString(char *Str)
             strncpy(SelTopic,Str+2,sizeof(SelTopic));
             char *EndPtr=strchr(SelTopic,'@');
             /* $ 25.08.2000 SVS
-               учтем, что может быть такой вариант: @@ или \@
-               этот вариант только для URL!
+               єўЄхь, ўЄю ьюцхЄ с√Є№ Єръющ трЁшрэЄ: @@ шыш \@
+               ¤ЄюЄ трЁшрэЄ Єюы№ъю фы  URL!
             */
             if (EndPtr!=NULL)
             {
@@ -657,8 +657,8 @@ void Help::OutString(char *Str)
     if (*Str=='@')
     {
       /* $ 25.08.2000 SVS
-         учтем, что может быть такой вариант: @@
-         этот вариант только для URL!
+         єўЄхь, ўЄю ьюцхЄ с√Є№ Єръющ трЁшрэЄ: @@
+         ¤ЄюЄ трЁшрэЄ Єюы№ъю фы  URL!
       */
       while (*Str)
         if (*(++Str)=='@' && *(Str-1)!='@')
@@ -678,7 +678,7 @@ void Help::OutString(char *Str)
       WORD Chr;
 
       Chr=(BYTE)Str[1];
-      if(Chr == '-') // "\-" - установить дефолтовый цвет
+      if(Chr == '-') // "\-" - єёЄрэютшЄ№ фхЇюыЄют√щ ЎтхЄ
       {
         Str+=2;
         CurColor=COL_HELPTEXT;
@@ -730,8 +730,8 @@ int Help::StringLen(char *Str)
     if (*Str=='@')
     {
       /* $ 25.08.2000 SVS
-         учтем, что может быть такой вариант: @@
-         этот вариант только для URL!
+         єўЄхь, ўЄю ьюцхЄ с√Є№ Єръющ трЁшрэЄ: @@
+         ¤ЄюЄ трЁшрэЄ Єюы№ъю фы  URL!
       */
       while (*Str)
         if (*(++Str)=='@' && *(Str-1)!='@')
@@ -741,7 +741,7 @@ int Help::StringLen(char *Str)
       continue;
     }
     /* $ 01.09.2000 SVS
-       учтем наше нововведение \XX или \-
+       єўЄхь эр°х эютюттхфхэшх \XX шыш \-
     */
     if(*Str == CtrlColorChar)
     {
@@ -800,8 +800,8 @@ int Help::ProcessKey(int Key)
     case KEY_IDLE:
       break;
     /* $ 25.08.2000 SVS
-       + CtrlAltShift - спрятать/показать помощь...
-       // "ХАчу глянуть на то, что под диалогом..."
+       + CtrlAltShift - ёяЁ ЄрЄ№/яюърчрЄ№ яюью∙№...
+       // "╒└ўє уы эєЄ№ эр Єю, ўЄю яюф фшрыюуюь..."
     */
     case KEY_CTRLALTSHIFTPRESS:
     {
@@ -816,7 +816,7 @@ int Help::ProcessKey(int Key)
     /* SVS $ */
     case KEY_F1:
       /* $ 16.04.2001 SVS
-         - не поганим SelTopic, если и так в Help on Help
+         - эх яюурэшь SelTopic, хёыш ш Єръ т Help on Help
       */
       if(LocalStricmp(HelpTopic,HelpOnHelpTopic)!=0)
       {
@@ -836,7 +836,7 @@ int Help::ProcessKey(int Key)
       else
         SetPosition(4,2,ScrX-4,ScrY-2);
       /* $ 26.04.2001 DJ
-         используем сохраненный Mask
+         шёяюы№чєхь ёюїЁрэхээ√щ Mask
       */
       ReadHelp(HelpMask);
       /* DJ $ */
@@ -939,18 +939,18 @@ int Help::ProcessKey(int Key)
         {
           char NewTopic[512];
           /* $ 25.08.2000 SVS
-             URL активатор - это ведь так просто :-)))
+             URL ръЄштрЄюЁ - ¤Єю тхф№ Єръ яЁюёЄю :-)))
           */
           {
             strcpy(NewTopic,SelTopic);
             char *p=strchr(NewTopic,':');
-            if(p && NewTopic[0] != ':') // наверное подразумевается URL
+            if(p && NewTopic[0] != ':') // эртхЁэюх яюфЁрчєьхтрхЄё  URL
             {
               *p=0;
               if(RunURL(NewTopic,SelTopic))
                 return(TRUE);
             }
-            // а вот теперь попробуем...
+            // р тюЄ ЄхяхЁ№ яюяЁюсєхь...
           }
           /* SVS $ */
           if (*HelpPath && *SelTopic!='#' && strcmp(SelTopic,HelpOnHelpTopic)!=0)
@@ -964,7 +964,7 @@ int Help::ProcessKey(int Key)
             strcpy(NewTopic,SelTopic);
 
           /* $ 12.04.2001 SVS
-             передаем запомненный HelpMask
+             яхЁхфрхь чряюьэхээ√щ HelpMask
           */
           char *NewHelpMask=NULL;
           if(*SelTopic != ':' && LocalStricmp(SelTopic,PluginContents) != 0)
@@ -987,7 +987,7 @@ int Help::ProcessKey(int Key)
       return(TRUE);
     case KEY_SHIFTF1:
       /* $ 12.04.2001 SVS
-         не поганим SelTopic, если и так в теме Contents
+         эх яюурэшь SelTopic, хёыш ш Єръ т Єхьх Contents
       */
       if(LocalStricmp(HelpTopic,"Contents")!=0)
       {
@@ -998,7 +998,7 @@ int Help::ProcessKey(int Key)
       return(TRUE);
     case KEY_SHIFTF2:
       /* $ 12.04.2001 SVS
-         не поганим SelTopic, если и так в PluginContents
+         эх яюурэшь SelTopic, хёыш ш Єръ т PluginContents
       */
       if(LocalStricmp(HelpTopic,PluginContents)!=0)
       {
@@ -1073,7 +1073,7 @@ int Help::IsReferencePresent()
   CorrectPosition();
   int StrPos=FixCount+TopStr+CurY;
   /* $ 19.09.2000 OT
-    Ошибка при отрисовки хелпа
+    ╬°шсър яЁш юЄЁшёютъш їхыяр
     */
   if (StrPos >= StrCount) {
     return FALSE;
@@ -1152,7 +1152,7 @@ void Help::SetFullScreenMode(int Mode)
 void Help::ReadPluginsHelp()
 {
   /* $ 13.07.2000
-    для выделения памяти использовалась функция realloc
+    фы  т√фхыхэш  ярь Єш шёяюы№чютрырё№ ЇєэъЎш  realloc
   */
   free(HelpData);
   /* SVS $ */
@@ -1191,7 +1191,7 @@ void Help::ReadPluginsHelp()
     }
   }
   /* $ 26.06.2000 IS
-   Устранение глюка с хелпом по f1, shift+f2, end (решение предложил IG)
+   ╙ёЄЁрэхэшх уы■ър ё їхыяюь яю f1, shift+f2, end (Ёх°хэшх яЁхфыюцшы IG)
   */
   AddLine("");
   /* IS $ */
@@ -1228,7 +1228,7 @@ void Help::SetScreenPosition()
 /* tran $ */
 
 /* $ 30.12.2000 SVS
-  Функция инициализации KeyBar Labels
+  ╘єэъЎш  шэшЎшрышчрЎшш KeyBar Labels
 */
 void Help::InitKeyBar(void)
 {
@@ -1256,14 +1256,14 @@ void Help::InitKeyBar(void)
 /* SVS $ */
 
 /* $ 25.08.2000 SVS
-   Запуск URL-ссылок... ;-)
-   Это ведь так просто... ась?
-   Вернет:
-     0 - это не URL ссылка (не похожа)
-     1 - CreateProcess вернул FALSE
-     2 - Все Ок
+   ╟ряєёъ URL-ёё√ыюъ... ;-)
+   ▌Єю тхф№ Єръ яЁюёЄю... рё№?
+   ┬хЁэхЄ:
+     0 - ¤Єю эх URL ёё√ыър (эх яюїюцр)
+     1 - CreateProcess тхЁэєы FALSE
+     2 - ┬ёх ╬ъ
 
-   Параметры (например):
+   ╧рЁрьхЄЁ√ (эряЁшьхЁ):
      Protocol="mailto"
      URLPath ="mailto:vskirdin@mail.ru?Subject=Reversi"
 */
@@ -1290,14 +1290,14 @@ static int RunURL(char *Protocol, char *URLPath)
           char *pp=strrchr(Buf,'%');
           if(pp) *pp='\0'; else strcat(Buf," ");
 
-          // удалим два идущих в подряд ~~
+          // єфрышь фтр шфє∙шї т яюфЁ ф ~~
           pp=URLPath;
           while(*pp && (pp=strstr(pp,"~~")) != NULL)
           {
             memmove(pp,pp+1,strlen(pp+1)+1);
             ++pp;
           }
-          // удалим два идущих в подряд ##
+          // єфрышь фтр шфє∙шї т яюфЁ ф ##
           pp=URLPath;
           while(*pp && (pp=strstr(pp,"##")) != NULL)
           {
@@ -1316,12 +1316,12 @@ static int RunURL(char *Protocol, char *URLPath)
                         MSG(MHelpActivatorQ),
                         MSG(MYes),MSG(MNo));
 
-          EditCode=2; // Все Ok!
+          EditCode=2; // ┬ёх Ok!
           if(Disposition == 0)
           {
             /*
-              СЮДЫ НУЖНО ВПИНДЮЛИТЬ МЕНЮХУ С ВОЗМОЖНОСТЬЮ ВЫБОРА
-              ТОГО ИЛИ ИНОГО АКТИВАТОРА - ИХ МОЖЕТ БЫТЬ НЕСКОЛЬКО!!!!!
+              ╤▐─█ ═╙╞═╬ ┬╧╚═─▐╦╚╥▄ ╠┼═▐╒╙ ╤ ┬╬╟╠╬╞═╬╤╥▄▐ ┬█┴╬╨└
+              ╥╬├╬ ╚╦╚ ╚═╬├╬ └╩╥╚┬└╥╬╨└ - ╚╒ ╠╬╞┼╥ ┴█╥▄ ═┼╤╩╬╦▄╩╬!!!!!
             */
             if(Opt.HelpURLRules < 256) // SHELLEXECUTEEX_METHOD
             {
@@ -1366,7 +1366,7 @@ static int RunURL(char *Protocol, char *URLPath)
   return EditCode;
 }
 #else
-// ЕЩЕ ОДИН ВАРИАНТ
+// ┼┘┼ ╬─╚═ ┬└╨╚└═╥
 static int RunURL(char *Protocol, char *URLPath)
 {
   if (!(Protocol && *Protocol && URLPath && *URLPath && (Opt.HelpURLRules&0xFF)))

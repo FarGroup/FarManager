@@ -1,7 +1,7 @@
 /*
 setattr.cpp
 
-Установка атрибутов файлов
+╙ёЄрэютър рЄЁшсєЄют Їрщыют
 
 */
 
@@ -9,86 +9,86 @@ setattr.cpp
 
 /*
 Modify:
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
+  29.04.2001 ╬╥
+    + ┬эхфЁхэшх NWZ юЄ ╥ЁхЄ№ ъютр
   12.04.2001 SVS
-    ! Для FILE_ATTRIBUTE_REPARSE_POINT всегда показываем "Link to:",
-      но, если данные не доступны - так и говорим - "НЕТУ!"
+    ! ─ы  FILE_ATTRIBUTE_REPARSE_POINT тёхуфр яюърч√трхь "Link to:",
+      эю, хёыш фрээ√х эх фюёЄєяэ√ - Єръ ш уютюЁшь - "═┼╥╙!"
   09.04.2001 SVS
-    - нужно было использовать локальные копии для параметров SrcDate и SrcTime
-      в функции ReadFileTime
-    ! немного оптимизации в функции ReadFileTime
+    - эєцэю с√ыю шёяюы№чютрЄ№ ыюъры№э√х ъюяшш фы  ярЁрьхЄЁют SrcDate ш SrcTime
+      т ЇєэъЎшш ReadFileTime
+    ! эхьэюую юяЄшьшчрЎшш т ЇєэъЎшш ReadFileTime
   08.04.2001 SVS
-    ! Полная независимость выставления значений для даты и времени.
-    - Исправлен баг с "неустановкой" даты для одиночного файла.
+    ! ╧юыэр  эхчртшёшьюёЄ№ т√ёЄртыхэш  чэрўхэшщ фы  фрЄ√ ш тЁхьхэш.
+    - ╚ёяЁртыхэ сру ё "эхєёЄрэютъющ" фрЄ√ фы  юфшэюўэюую Їрщыр.
   08.04.2001 IS
-    - не работало изменение атрибутов после №557
+    - эх ЁрсюЄрыю шчьхэхэшх рЄЁшсєЄют яюёых ?557
   04.04.2001 VVM
-    + Кнопка [ Blank ] в диалоге. Очистить поля даты/времени.
+    + ╩эюяър [ Blank ] т фшрыюух. ╬ўшёЄшЄ№ яюы  фрЄ√/тЁхьхэш.
   03.04.2001 SVS
     ! FillFileldDir -> FillingOfFields ;-)
   28.02.2001 SVS
-    - Бага в Win2K с взаимоисключениями Сжатого и Шифрованного атрибута
-    + Выставляем заголовок консоли во время процесса установки атрибутов
-    + В месаге процесса установки отображаем текущЕЕ файлО.
+    - ┴рур т Win2K ё тчршьюшёъы■ўхэш ьш ╤црЄюую ш ╪шЇЁютрээюую рЄЁшсєЄр
+    + ┬√ёЄрты хь чруюыютюъ ъюэёюыш тю тЁхь  яЁюЎхёёр єёЄрэютъш рЄЁшсєЄют
+    + ┬ ьхёрух яЁюЎхёёр єёЄрэютъш юЄюсЁрцрхь Єхъє∙┼┼ Їрщы╬.
   30.01.2001 SVS
-    ! снимаем 3-state, если "есть все или нет ничего"
-      за исключением случая, если есть Фолдер среди объектов
+    ! ёэшьрхь 3-state, хёыш "хёЄ№ тёх шыш эхЄ эшўхую"
+      чр шёъы■ўхэшхь ёыєўр , хёыш хёЄ№ ╘юыфхЁ ёЁхфш юс·хъЄют
   23.01.2001 SVS
-    + Немного оптимизации кода :-)
+    + ═хьэюую юяЄшьшчрЎшш ъюфр :-)
   22.01.2001 SVS
-    ! ShellSetFileAttributes теперь возвращает результат в виде TRUE или FALSE
-    + Если это плагиновая панель, то посмотрим на OPIF_REALNAMES
+    ! ShellSetFileAttributes ЄхяхЁ№ тючтЁр∙рхЄ Ёхчєы№ЄрЄ т тшфх TRUE шыш FALSE
+    + ┼ёыш ¤Єю яырушэютр  ярэхы№, Єю яюёьюЄЁшь эр OPIF_REALNAMES
   22.01.2001 SVS
-    + Больше интелектуальности диалогу установки атрибутов !!!! :-)))
-      Теперь, для случая Multi, если есть подряд идущие атрибуты, то
-      они изначально инициализируются как надо - либо [x] либо [ ] либо
-      [*] для случая если "не все"
+    + ┴юы№°х шэЄхыхъЄєры№эюёЄш фшрыюує єёЄрэютъш рЄЁшсєЄют !!!! :-)))
+      ╥хяхЁ№, фы  ёыєўр  Multi, хёыш хёЄ№ яюфЁ ф шфє∙шх рЄЁшсєЄ√, Єю
+      юэш шчэрўры№эю шэшЎшрышчшЁє■Єё  ъръ эрфю - ышсю [x] ышсю [ ] ышсю
+      [*] фы  ёыєўр  хёыш "эх тёх"
   14.01.2001 SVS
-    + обработка случая, если ЭТО SymLink
+    + юсЁрсюЄър ёыєўр , хёыш ▌╥╬ SymLink
   04.01.2001 SVS
-    - Бага с одиночным файлом - переоптимизировал ;-(
+    - ┴рур ё юфшэюўэ√ь Їрщыюь - яхЁхюяЄшьшчшЁютры ;-(
   03.01.2001 SVS
-    ! ускорим процесс за счет "необработки" подобных атрибут
-    - бага с переходами между контролами
+    ! єёъюЁшь яЁюЎхёё чр ёўхЄ "эхюсЁрсюЄъш" яюфюсэ√ї рЄЁшсєЄ
+    - срур ё яхЁхїюфрьш ьхцфє ъюэЄЁюырьш
   03.01.2001 SVS
-    ! новый имидж диалога атрибутов - один интелектуальный диалог на
-      все случаи жизни :-)
+    ! эют√щ шьшфц фшрыюур рЄЁшсєЄют - юфшэ шэЄхыхъЄєры№э√щ фшрыюу эр
+      тёх ёыєўрш цшчэш :-)
   30.12.2000 SVS
-    ! Функции для работы с файловыми атрибутами вынесены в fileattr.cpp
+    ! ╘єэъЎшш фы  ЁрсюЄ√ ё Їрщыют√ьш рЄЁшсєЄрьш т√эхёхэ√ т fileattr.cpp
   21.12.2000 SVS
-    ! Если папка одна, то включение "Process subfolders" не очищает
-      область с атрибутами.
+    ! ┼ёыш яряър юфэр, Єю тъы■ўхэшх "Process subfolders" эх юўш∙рхЄ
+      юсырёЄ№ ё рЄЁшсєЄрьш.
   14.12.2000 SVS
-    ! Показываем недостающие атрибуты, но делаем их недоступными.
+    ! ╧юърч√трхь эхфюёЄр■∙шх рЄЁшсєЄ√, эю фхырхь шї эхфюёЄєяэ√ьш.
   24.11.2000 SVS
-    + Правило на счет установки атрибутов на каталоги
+    + ╧Ёртшыю эр ёўхЄ єёЄрэютъш рЄЁшсєЄют эр ърЄрыюуш
   16.11.2000 SVS
-    ! массивы для масок имеют постоянный адрес прописки - объявлены как static
+    ! ьрёёшт√ фы  ьрёюъ шьх■Є яюёЄю ээ√щ рфЁхё яЁюяшёъш - юс· тыхэ√ ъръ static
   11.11.2000 SVS
-    - "сложности" с криптованием :-))))
+    - "ёыюцэюёЄш" ё ъЁшяЄютрэшхь :-))))
   02.11.2000 SVS
-    - исправляем баги :-)
+    - шёяЁрты хь сруш :-)
   20.10.2000 SVS
-    + Новый атрибут Encripted (NTFS/Win2K)
+    + ═ют√щ рЄЁшсєЄ Encripted (NTFS/Win2K)
   14.08.2000 KM
-    ! Изменена инициализация диалога с учётом возможностей Mask.
+    ! ╚чьхэхэр шэшЎшрышчрЎш  фшрыюур ё єў╕Єюь тючьюцэюёЄхщ Mask.
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */
 
-int OriginalCBAttr0[16]; // значения CheckBox`ов на момент старта диалога
-int OriginalCBAttr[16]; // значения CheckBox`ов на момент старта диалога
+int OriginalCBAttr0[16]; // чэрўхэш  CheckBox`ют эр ьюьхэЄ ёЄрЁЄр фшрыюур
+int OriginalCBAttr[16]; // чэрўхэш  CheckBox`ют эр ьюьхэЄ ёЄрЁЄр фшрыюур
 int OriginalCBAttr2[16]; //
 DWORD OriginalCBFlag[16];
 
@@ -104,7 +104,7 @@ static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
   char SrcDate[32], SrcTime[32];
   char *Ptr,Digit[16],*PtrDigit;
 
-  // ****** ОБРАБОТКА ДАТЫ ******** //
+  // ****** ╬┴╨└┴╬╥╩└ ─└╥█ ******** //
   strncpy(SrcDate,OSrcDate,sizeof(SrcDate));
   DateN[0]=DateN[1]=DateN[2]=(unsigned)-1;
   I=0;
@@ -120,7 +120,7 @@ static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
     ++I;
   }
 
-  // ****** ОБРАБОТКА ВРЕМЕНИ ******** //
+  // ****** ╬┴╨└┴╬╥╩└ ┬╨┼╠┼═╚ ******** //
   strncpy(SrcTime,OSrcTime,sizeof(SrcTime));
   TimeN[0]=TimeN[1]=TimeN[2]=(unsigned)-1;
   I=0;
@@ -136,11 +136,11 @@ static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
     ++I;
   }
 
-  // исключаем лишние телодвижения
+  // шёъы■ўрхь ыш°эшх Єхыюфтшцхэш 
   if(DateN[0] == -1 || DateN[1] == -1 || DateN[2] == -1 ||
      TimeN[0] == -1 || TimeN[1] == -1 || TimeN[2] == -1)
   {
-    // получаем инфу про оригинальную дату и время файла.
+    // яюыєўрхь шэЇє яЁю юЁшушэры№эє■ фрЄє ш тЁхь  Їрщыр.
     HANDLE hFile=CreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
                  NULL,OPEN_EXISTING,
                  (FileAttr & FA_DIREC) ? FILE_FLAG_BACKUP_SEMANTICS:0,NULL);
@@ -155,7 +155,7 @@ static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
     if(!GetTime)
       return(FALSE);
 
-    // конвертнем в локальное время.
+    // ъюэтхЁЄэхь т ыюъры№эюх тЁхь .
     FileTimeToLocalFileTime(&OriginalFileTime,&oft);
     FileTimeToSystemTime(&oft,&ost);
     st.wDayOfWeek=ost.wDayOfWeek;
@@ -165,7 +165,7 @@ static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
   else
     DigitCount=FALSE;
 
-  // "Оформим"
+  // "╬ЇюЁьшь"
   switch(GetDateFormat())
   {
     case 0:
@@ -194,7 +194,7 @@ static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
     else
       st.wYear+=1900;
 
-  // преобразование в "удобоваримый" формат
+  // яЁхюсЁрчютрэшх т "єфюсютрЁшь√щ" ЇюЁьрЄ
   SystemTimeToFileTime(&st,&ft);
   LocalFileTimeToFileTime(&ft,FileTime);
   if(DigitCount)
@@ -233,7 +233,7 @@ static void EmptyDialog(struct DialogItem *AttrDlg,int ClrAttr,int SelCount1)
 }
 
 /* $ 22.11.2000 SVS
-   Заполнение полей
+   ╟ряюыэхэшх яюыхщ
 */
 static void FillingOfFields(char *SelName,int FileAttr,
                           struct DialogItem *AttrDlg,
@@ -261,7 +261,7 @@ static void FillingOfFields(char *SelName,int FileAttr,
 /* SVS $ */
 
 
-// обработчик диалога - пока это отлов нажатий нужных кнопок.
+// юсЁрсюЄўшъ фшрыюур - яюър ¤Єю юЄыют эрцрЄшщ эєцэ√ї ъэюяюъ.
 long WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 {
   if(Msg == DN_BTNCLICK)
@@ -280,28 +280,28 @@ int ShellSetFileAttributes(Panel *SrcPanel)
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 /*MSetAttrJunction
 00                                             00
-01   ╔════════════ Attributes ═════════════╗   01
-02   ║     Change file attributes for      ║   02
-03   ║                 foo                 ║   03
-04   ║          Link: blach blach          ║ < 04 <<
-05   ╟─────────────────────────────────────╢   05
-06   ║ [ ] Read only                       ║   06
-07   ║ [ ] Archive                         ║   07
-08   ║ [ ] Hidden                          ║   08
-09   ║ [ ] System                          ║   09
-10   ║ [ ] Compressed                      ║   10
-11   ║ [ ] Encrypted                       ║   11
-12   ╟─────────────────────────────────────╢   12
-13   ║ [x] Process subfolders              ║   13
-14   ╟─────────────────────────────────────╢   14
-15   ║  File time      DD.MM.YYYY hh:mm:ss ║   15
-16   ║ Modification      .  .       :  :   ║   16
-17   ║ Creation          .  .       :  :   ║   17
-18   ║ Last access       .  .       :  :   ║   18
-19   ║               [ Current ] [ Blank ] ║   19
-20   ╟─────────────────────────────────────╢   20
-21   ║         [ Set ]  [ Cancel ]         ║   21
-22   ╚═════════════════════════════════════╝   22
+01   +------------ Attributes -------------+   01
+02   |     Change file attributes for      |   02
+03   |                 foo                 |   03
+04   |          Link: blach blach          | < 04 <<
+05   +-------------------------------------+   05
+06   | [ ] Read only                       |   06
+07   | [ ] Archive                         |   07
+08   | [ ] Hidden                          |   08
+09   | [ ] System                          |   09
+10   | [ ] Compressed                      |   10
+11   | [ ] Encrypted                       |   11
+12   +-------------------------------------+   12
+13   | [x] Process subfolders              |   13
+14   +-------------------------------------+   14
+15   |  File time      DD.MM.YYYY hh:mm:ss |   15
+16   | Modification      .  .       :  :   |   16
+17   | Creation          .  .       :  :   |   17
+18   | Last access       .  .       :  :   |   18
+19   |               [ Current ] [ Blank ] |   19
+20   +-------------------------------------+   20
+21   |         [ Set ]  [ Cancel ]         |   21
+22   +-------------------------------------+   22
 23                                             23
 */
   static struct DialogData AttrDlgData[]={
@@ -423,18 +423,18 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         if(Opt.SetAttrFolderRules)
         {
           FillingOfFields(SelName,FileAttr,AttrDlg,1);
-          // убираем 3-State
+          // єсшЁрхь 3-State
           for(I=4; I <= 9; ++I)
             AttrDlg[I].Flags&=~DIF_3STATE;
         }
         FolderPresent=TRUE;
 
-        // обработка случая, если ЭТО SymLink
+        // юсЁрсюЄър ёыєўр , хёыш ▌╥╬ SymLink
         if(FileAttr&FILE_ATTRIBUTE_REPARSE_POINT)
         {
           char JuncName[NM*2];
           DWORD LenJunction=GetJunctionPointInfo(SelName,JuncName,sizeof(JuncName));
-          //"\??\D:\Junc\Src\" или "\\?\Volume{..."
+          //"\??\D:\Junc\Src\" шыш "\\?\Volume{..."
 
           AttrDlg[0].Y2++;
           for(I=3; I  < DlgCountItems; ++I)
@@ -453,7 +453,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       }
       else
       {
-        // убираем 3-State
+        // єсшЁрхь 3-State
         for(I=4; I <= 9; ++I)
           AttrDlg[I].Flags&=~DIF_3STATE;
       }
@@ -491,12 +491,12 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       EmptyDialog(AttrDlg,1,0);
 
       strcpy(AttrDlg[2].Data,MSG(MSetAttrSelectedObjects));
-      // выставим -1 - потом учтем этот факт :-)
+      // т√ёЄртшь -1 - яюЄюь єўЄхь ¤ЄюЄ ЇръЄ :-)
       for(I=4; I <= 9; ++I)
         AttrDlg[I].Selected=0;
 
-      // проверка - есть ли среди выделенных - каталоги?
-      // так же проверка на атрибуты
+      // яЁютхЁър - хёЄ№ ыш ёЁхфш т√фхыхээ√ї - ърЄрыюуш?
+      // Єръ цх яЁютхЁър эр рЄЁшсєЄ√
       J=0;
       SrcPanel->GetSelName(NULL,FileAttr);
       while (SrcPanel->GetSelName(SelName,FileAttr))
@@ -516,12 +516,12 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       }
       SrcPanel->GetSelName(NULL,FileAttr);
       SrcPanel->GetSelName(SelName,FileAttr);
-      // выставим "неопределенку" или то, что нужно
+      // т√ёЄртшь "эхюяЁхфхыхэъє" шыш Єю, ўЄю эєцэю
       for(I=4; I <= 9; ++I)
       {
         J=AttrDlg[I].Selected;
-        // снимаем 3-state, если "есть все или нет ничего"
-        // за исключением случая, если есть Фолдер среди объектов
+        // ёэшьрхь 3-state, хёыш "хёЄ№ тёх шыш эхЄ эшўхую"
+        // чр шёъы■ўхэшхь ёыєўр , хёыш хёЄ№ ╘юыфхЁ ёЁхфш юс·хъЄют
         if((!J || J >= SelCount) && !FolderPresent)
           AttrDlg[I].Flags&=~DIF_3STATE;
 
@@ -529,7 +529,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       }
     }
 
-    // запомним состояние переключателей.
+    // чряюьэшь ёюёЄю эшх яхЁхъы■ўрЄхыхщ.
     for(I=4; I <= 9; ++I)
     {
       OriginalCBAttr0[I-4]=OriginalCBAttr[I-4]=AttrDlg[I].Selected;
@@ -589,7 +589,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         }
 
         /* $ 08.04.2001 IS
-             Акелла промахнулся на охоте...
+             └ъхыыр яЁюьрїэєыё  эр юїюЄх...
         */
         if (Dlg.GetExitCode()!=27)
           return 0;
@@ -619,8 +619,8 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       else
         SetWriteTime=TRUE;
 
-//      if(NewAttr != (FileAttr & (~FA_DIREC))) // нужно ли что-нить менять???
-      if(SetWriteTime) // если время удалось выставить...
+//      if(NewAttr != (FileAttr & (~FA_DIREC))) // эєцэю ыш ўЄю-эшЄ№ ьхэ Є№???
+      if(SetWriteTime) // хёыш тЁхь  єфрыюё№ т√ёЄртшЄ№...
       {
         if((NewAttr&FILE_ATTRIBUTE_COMPRESSED) && !(FileAttr&FILE_ATTRIBUTE_COMPRESSED))
           ESetFileCompression(SelName,1,FileAttr);
@@ -659,12 +659,12 @@ int ShellSetFileAttributes(Panel *SrcPanel)
             Dlg.ReadInput();
             Dlg.ProcessInput();
             FocusPos=Dialog::SendDlgMessage((HANDLE)&Dlg,DM_GETFOCUS,0,0);
-            // отработаем взаимоисключения
+            // юЄЁрсюЄрхь тчршьюшёъы■ўхэш 
             if(((FileSystemFlags & (FS_FILE_COMPRESSION|FS_FILE_ENCRYPTION))==
                  (FS_FILE_COMPRESSION|FS_FILE_ENCRYPTION)) &&
                (FocusPos == 8 || FocusPos == 9))
             {
-              if(FocusPos == 8 && Sel8 != AttrDlg[8].Selected) // Состояние изменилось?
+              if(FocusPos == 8 && Sel8 != AttrDlg[8].Selected) // ╤юёЄю эшх шчьхэшыюё№?
               {
                 if(AttrDlg[8].Selected == 1 && AttrDlg[9].Selected)
                    AttrDlg[9].Selected=0;
@@ -672,7 +672,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
                    AttrDlg[9].Selected=2;
                 RefreshNeed=TRUE;
               }
-              else if(FocusPos == 9 && Sel9 != AttrDlg[9].Selected) // Состояние изменилось?
+              else if(FocusPos == 9 && Sel9 != AttrDlg[9].Selected) // ╤юёЄю эшх шчьхэшыюё№?
               {
                 if(AttrDlg[9].Selected == 1 && AttrDlg[8].Selected)
                    AttrDlg[8].Selected=0;
@@ -684,25 +684,25 @@ int ShellSetFileAttributes(Panel *SrcPanel)
               Sel8=AttrDlg[8].Selected;
             }
 
-            // если снимаем атрибуты для SubFolders
-            // этот кусок всегда работает если есть хотя бы одна папка
-            // иначе 11-й недоступен и всегда снят.
+            // хёыш ёэшьрхь рЄЁшсєЄ√ фы  SubFolders
+            // ¤ЄюЄ ъєёюъ тёхуфр ЁрсюЄрхЄ хёыш хёЄ№ їюЄ  с√ юфэр яряър
+            // шэрўх 11-щ эхфюёЄєяхэ ш тёхуфр ёэ Є.
             if(FocusPos == 11)
             {
-              if(SelCount==1) // каталог однозначно!
+              if(SelCount==1) // ърЄрыюу юфэючэрўэю!
               {
-                if(Sel11 != AttrDlg[11].Selected) // Состояние изменилось?
+                if(Sel11 != AttrDlg[11].Selected) // ╤юёЄю эшх шчьхэшыюё№?
                 {
 //                  EmptyDialog(AttrDlg,1,1);
-                  // убираем 3-State
+                  // єсшЁрхь 3-State
                   for(I=4; I <= 9; ++I)
                   {
-                    if(!AttrDlg[11].Selected) // сняли?
+                    if(!AttrDlg[11].Selected) // ёэ ыш?
                     {
                       AttrDlg[I].Selected=OriginalCBAttr[I-4];
                       AttrDlg[I].Flags&=~DIF_3STATE;
                     }
-                    else                      // установили?
+                    else                      // єёЄрэютшыш?
                     {
                       AttrDlg[I].Flags|=DIF_3STATE;
                       if(OriginalCBAttr2[I-4] == -1)
@@ -714,19 +714,19 @@ int ShellSetFileAttributes(Panel *SrcPanel)
                   RefreshNeed=TRUE;
                 }
               }
-              else  // много объектов
+              else  // ьэюую юс·хъЄют
               {
-                if(Sel11 != AttrDlg[11].Selected) // Состояние изменилось?
+                if(Sel11 != AttrDlg[11].Selected) // ╤юёЄю эшх шчьхэшыюё№?
                 {
 //                  EmptyDialog(AttrDlg,1,0);
                   for(I=4; I <= 9; ++I)
                   {
-                    if(!AttrDlg[11].Selected) // сняли?
+                    if(!AttrDlg[11].Selected) // ёэ ыш?
                     {
                       AttrDlg[I].Selected=OriginalCBAttr[I-4];
                       AttrDlg[I].Flags=OriginalCBFlag[I-4];
                     }
-                    else                      // установили?
+                    else                      // єёЄрэютшыш?
                     {
                       if(OriginalCBAttr2[I-4] == -1)
                       {
@@ -776,7 +776,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         }
 
         /* $ 08.04.2001 IS
-             Акелла промахнулся на охоте...
+             └ъхыыр яЁюьрїэєыё  эр юїюЄх...
         */
         if (Dlg.GetExitCode()!=27)
           return 0;
@@ -811,7 +811,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       else if (!AttrDlg[9].Selected)
         ClearAttr|=FILE_ATTRIBUTE_ENCRYPTED;
 
-      // добавим заголовок окна
+      // фюсртшь чруюыютюъ юъэр
       GetConsoleTitle(OldConsoleTitle,sizeof(OldConsoleTitle));
       SetFarTitle(MSG(MSetAttrTitle));
 
@@ -840,23 +840,23 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           if (AttrDlg[8].Selected == 1) // -E +C
           {
             if (!ESetFileCompression(SelName,1,FileAttr))
-              break; // неудача сжать :-(
+              break; // эхєфрўр ёцрЄ№ :-(
           }
           else if (AttrDlg[9].Selected == 1) // +E -C
           {
             if (!ESetFileEncryption(SelName,1,FileAttr))
-              break; // неудача зашифровать :-(
+              break; // эхєфрўр чр°шЇЁютрЄ№ :-(
           }
           else //???
           if (AttrDlg[8].Selected == 0) // -C ?E
           {
             if (!ESetFileCompression(SelName,0,FileAttr))
-              break; // неудача разжать :-(
+              break; // эхєфрўр ЁрчцрЄ№ :-(
           }
           else if (AttrDlg[9].Selected == 0) // ?C -E
           {
             if (!ESetFileEncryption(SelName,0,FileAttr))
-              break; // неудача разшифровать :-(
+              break; // эхєфрўр Ёрч°шЇЁютрЄ№ :-(
           }
 
           if (!ESetFileAttributes(SelName,(FileAttr|SetAttr)&(~ClearAttr)))
@@ -901,7 +901,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
                 if (!ESetFileCompression(FullName,1,FindData.dwFileAttributes))
                 {
                   Cancel=1;
-                  break; // неудача сжать :-(
+                  break; // эхєфрўр ёцрЄ№ :-(
                 }
               }
               else if (AttrDlg[9].Selected == 1) // +E -C
@@ -909,7 +909,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
                 if (!ESetFileEncryption(FullName,1,FindData.dwFileAttributes))
                 {
                   Cancel=1;
-                  break; // неудача зашифровать :-(
+                  break; // эхєфрўр чр°шЇЁютрЄ№ :-(
                 }
               }
               else //???
@@ -918,7 +918,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
                 if (!ESetFileCompression(FullName,0,FindData.dwFileAttributes))
                 {
                   Cancel=1;
-                  break; // неудача разжать :-(
+                  break; // эхєфрўр ЁрчцрЄ№ :-(
                 }
               }
               else if (!AttrDlg[9].Selected) // ?C -E
@@ -926,7 +926,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
                 if (!ESetFileEncryption(FullName,0,FindData.dwFileAttributes))
                 {
                   Cancel=1;
-                  break; // неудача разшифровать :-(
+                  break; // эхєфрўр Ёрч°шЇЁютрЄ№ :-(
                 }
               }
               if (!ESetFileAttributes(FullName,(FindData.dwFileAttributes|SetAttr)&(~ClearAttr)))

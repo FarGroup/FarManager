@@ -1,7 +1,7 @@
 /*
 savescr.cpp
 
-Сохраняем и восстанавливааем экран кусками и целиком
+╤юїЁрэ хь ш тюёёЄрэртыштррхь ¤ъЁрэ ъєёърьш ш Ўхышъюь
 
 */
 
@@ -10,17 +10,17 @@ savescr.cpp
 /*
 Modify:
   13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
+    ! ═хъюЄюЁ√х ъюЁЁхъЎшш яЁш шёяюы№чютрэшш new/delete/realloc
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -52,7 +52,7 @@ SaveScreen::~SaveScreen()
     return;
   RestoreArea();
   /* $ 13.07.2000 SVS
-     раз уж вызвали new[], то и нужно delete[]
+     Ёрч єц т√чтрыш new[], Єю ш эєцэю delete[]
   */
   delete[] ScreenBuf;
   /* SVS $ */
@@ -64,7 +64,7 @@ void SaveScreen::Discard()
   if (!ScreenBuf)
     return;
   /* $ 13.07.2000 SVS
-     раз уж вызвали new[], то и нужно delete[]
+     Ёрч єц т√чтрыш new[], Єю ш эєцэю delete[]
   */
   delete[] ScreenBuf;
   /* SVS $ */

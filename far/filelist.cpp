@@ -1,7 +1,7 @@
 /*
 filelist.cpp
 
-” ©«®¢ ï ¯ ­¥«ì - ®¡é¨¥ äã­ªæ¨¨
+Ôàéëîâàÿ ïàíåëü - îáùèå ôóíêöèè
 
 */
 
@@ -9,141 +9,141 @@ filelist.cpp
 
 /*
 Modify:
-  06.05.2001 Ž’
-    ! ¥à¥¨¬¥­®¢ ­¨¥ Window ¢ Frame :)
-  29.04.2001 Ž’
-    + ‚­¥¤à¥­¨¥ NWZ ®â ’à¥âìïª®¢ 
+  06.05.2001 ÎÒ
+    ! Ïåðåèìåíîâàíèå Window â Frame :)
+  29.04.2001 ÎÒ
+    + Âíåäðåíèå NWZ îò Òðåòüÿêîâà
   30.04.2001 DJ
     + UpdateKeyBar()
   28.04.2001 IS
-    - ¥ à ¡®â «¨ "ááë«ª¨ ­  ¯ ¯ª¨" ¯®á«¥ 606.
+    - Íå ðàáîòàëè "ññûëêè íà ïàïêè" ïîñëå 606.
   26.04.2001 VVM
-    + Ž¡à ¡®âª  KEY_MSWHEEL_XXXX
+    + Îáðàáîòêà KEY_MSWHEEL_XXXX
   26.04.2001 DJ
-    * ¯à®¢¥àª  ­  â®, ã¤ «®áì «¨ ¢®©â¨ ¢ ª â «®£, ¨ ¢ë¢®¤ á®®¡é¥­¨ï, ¥á«¨
-      ­¥ ã¤ «®áì
+    * ïðîâåðêà íà òî, óäàëîñü ëè âîéòè â êàòàëîã, è âûâîä ñîîáùåíèÿ, åñëè
+      íå óäàëîñü
   25.04.2001 SVS
-    + GetRealSelCount() - á¥©ç á ¨á¯®«ì§ã¥âáï ¤«ï ¬ ªà®á®¢.
+    + GetRealSelCount() - ñåé÷àñ èñïîëüçóåòñÿ äëÿ ìàêðîñîâ.
   25.04.2001 DJ
-    - ®¯â¨¬¨§ æ¨ï Shift-áâà¥«®ª ¤«ï Selected first
-    * ¥á«¨ SetDirectory ¢¥à­ã«® FALSE, Update() ¤¥« ¥âáï á UPDATE_KEEP_SELECTION
+    - îïòèìèçàöèÿ Shift-ñòðåëîê äëÿ Selected first
+    * åñëè SetDirectory âåðíóëî FALSE, Update() äåëàåòñÿ ñ UPDATE_KEEP_SELECTION
   24.01.2001 SVS
-    - ‚ë¤¥«¥­¨ï ä ©«®¢ (á ¯®¤ ç¨ DJ)
+    - Âûäåëåíèÿ ôàéëîâ (ñ ïîäà÷è DJ)
   24.04.2001 IS
-    - ® ctrlpgup ¯à®¨­¨æ¨ «¨§¨àã¥¬ § ­®¢® à¥¦¨¬ ¯ ­¥«¨ (¨­ ç¥ ­¥ª®â®àë¥
-      ¯ à ¬¥âàë â¥àïîâáï, ¯®ç¥¬ã - •‡).
+    - Ïî ctrlpgup ïðîèíèöèàëèçèðóåì çàíîâî ðåæèì ïàíåëè (èíà÷å íåêîòîðûå
+      ïàðàìåòðû òåðÿþòñÿ, ïî÷åìó - ÕÇ).
   24.04.2001 VVM
-    + ”ã­ªæ¨ï á¬¥­ë ¯®àï¤ª  á®àâ¨à®¢ª¨
+    + Ôóíêöèÿ ñìåíû ïîðÿäêà ñîðòèðîâêè
   09.04.2001 SVS
-    - ChangeDir ¢®§¢à é ¥â FALSE, ¥á«¨ ä ©«®¢ ï ¯ ­¥«ì ¡ë«  § ªàëâ ;
-      ¨á¯à ¢«¥­ âà ¯ ¯à¨ ¯¥à¥å®¤¥ ¨§ ä ©«®¢®© ¯ ­¥«¨ ¢ network
-      à®¢¥àª  ­  ChangeDir ­¥ ¢¥§¤¥ ¢¢¥¤¥­ , â ª çâ® ¥á«¨ ¡ã¤ãâ âà ¯ë -
-      ¡ã¬ á¬®âà¥âì ¤ «ìè¥...
+    - ChangeDir âîçâðàùàåò FALSE, åñëè ôàéëîâàÿ ïàíåëü áûëà çàêðûòà;
+      èñïðàâëåí òðàï ïðè ïåðåõîäå èç ôàéëîâîé ïàíåëè â network
+      Ïðîâåðêà íà ChangeDir íå âåçäå ââåäåíà, òàê ÷òî åñëè áóäóò òðàïû -
+      áóì ñìîòðåòü äàëüøå...
   06.04.2001 SVS
-    - § ¡ë«¨ ¯¥à¥à¨á®¢ âì ¯ ­¥«¨ ¯®á«¥ ¢ë§®¢  ¤¨ «®£   âà¨¡ãâ®¢ ¯® CtrlShiftF4
+    - çàáûëè ïåðåðèñîâàòü ïàíåëè ïîñëå âûçîâà äèàëîãà àòðèáóòîâ ïî CtrlShiftF4
   04.04.2001 SVS
-    + ¤®¯®«­¨â¥«ì­ ï ¯à®¢¥àª  ¢ FileList::ChangeDir()
-      *RemoteName != 0 ¯¥à¥¤ ¢ë§®¢®¬ ­¥â¢®àª ¯« £¨­ 
-      (  ¢¤àã£ ­¥ ã¤ «®áì ®¯à¥¤¥«¨âì RemoteName)
-    ! ‘®¬­¨â¥«ì­ë© ªãá®ª ¢ FileList::ChangeDir()
-      NewCurDir[sizeof(...)]; § ¬¥­¥­ ­  NewCurDir[NM*2];
+    + äîïîëíèòåëüíàÿ ïðîâåðêà â FileList::ChangeDir()
+      *RemoteName != 0 ïåðåä âûçîâîì íåòâîðê ïëàãèíà
+      (à âäðóã íå óäàëîñü îïðåäåëèòü RemoteName)
+    ! Ñîìíèòåëüíûé êóñîê â FileList::ChangeDir()
+      NewCurDir[sizeof(...)]; çàìåíåí íà NewCurDir[NM*2];
   02.04.2001 IS
-    - ˆá¯à ¢«ïî ¡ £, á¢ï§ ­­ë© á ¢ë¤ ç¥© ¥àã­¤ë ¯à¨ ctrl-n ¨ ctrl-f ¤«ï ¤«¨­­ëå
-      ¨¬¥­ ­  ¯« £¨­¥ â¨¯  ¢à¥¬¥­­®© ¯ ­¥«¨ (â.¥. ª®â®àë¥ á®¤¥à¦ â ¨¬ï ä ©« 
-      ¢¬¥áâ¥ á ¯ãâ¥¬)
+    - Èñïðàâëÿþ áàã, ñâÿçàííûé ñ âûäà÷åé åðóíäû ïðè ctrl-n è ctrl-f äëÿ äëèííûõ
+      èìåí íà ïëàãèíå òèïà âðåìåííîé ïàíåëè (ò.å. êîòîðûå ñîäåðæàò èìÿ ôàéëà
+      âìåñòå ñ ïóòåì)
   26.03.2001 SVS
-    + „®¡ ¢¨¬ ¢®§¬®¦­®áâì ¢ë§®¢  Network-¯« £¨­  ¨§ ª®à­ï § è à¥­­ëå
-      ¤¨áª®¢.
+    + Äîáàâèì âîçìîæíîñòü âûçîâà Network-ïëàãèíà èç êîðíÿ çàøàðåííûõ
+      äèñêîâ.
   12.03.2001 SVS
-    ! Š®àà¥ªæ¨ï ¢ á¢ï§¨ á ¨§¬¥­¥­¨ï¬¨ ¢ ª« áá¥ int64
+    ! Êîððåêöèÿ â ñâÿçè ñ èçìåíåíèÿìè â êëàññå int64
   11.03.2001 VVM
-    ! ¥ç âì ç¥à¥§ pman â®«ìª® ¨§ ä ©«®¢ëå ¯ ­¥«¥©.
+    ! Ïå÷àòü ÷åðåç pman òîëüêî èç ôàéëîâûõ ïàíåëåé.
   05.03.2001 SVS
-    ! ˆáª«îç ¥¬ Alt-[Shift-]-Bs ¨§ ¡ëáâà®£® ¯®¨áª 
+    ! Èñêëþ÷àåì Alt-[Shift-]-Bs èç áûñòðîãî ïîèñêà
   28.02.2001 IS
     ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   26.02.2001 VVM
-    - Žâ¬¥­  ¯à¥¤ë¤ãé¥£® ¯ âç 
+    - Îòìåíà ïðåäûäóùåãî ïàò÷à
   26.02.2001 VVM
-    ! Ž¡à ¡®âª  NULL ¯®á«¥ OpenPlugin
+    ! Îáðàáîòêà NULL ïîñëå OpenPlugin
   21.02.2001 SKV
-    - ¯¥à¥à¨á®¢ª  FileList ¯à¨ DOUBLE_CLICK ¡¥§ ¯à®áâ®£® ª«¨ª  ¯¥à¥¤ ­¨¬.
+    - ïåðåðèñîâêà FileList ïðè DOUBLE_CLICK áåç ïðîñòîãî êëèêà ïåðåä íèì.
   14.02.2001 VVM
-    + Ctrl: ¢áâ ¢«ï¥â ¨¬ï ä ©«  á ¯ áá¨¢­®© ¯ ­¥«¨.
-    + CtrlAlt: ¢áâ ¢«ï¥â UNC-¨¬ï ä ©«  á ¯ áá¨¢­®© ¯ ­¥«¨
+    + Ctrl: âñòàâëÿåò èìÿ ôàéëà ñ ïàññèâíîé ïàíåëè.
+    + CtrlAlt: âñòàâëÿåò UNC-èìÿ ôàéëà ñ ïàññèâíîé ïàíåëè
   14.02.2001 SVS
-    ! ‚ ApplyCommand() ­¥ ¡ë«  ¢®§¬®¦­®áâì à ¡®âë á ¬®¤¨ä¨ª â®à ¬¨ !@! ¨ !$!
-      ‚ˆŒ€ˆ…!
-      à¨ Ctrl-G á­¨¬ ¥âáï ¢ë¤¥«¥­¨¥ ¤«ï !@@! ¨ !$! â®«ìª® ¤«ï ¯®á«¥¤­¥£®
-      ®¡ê¥ªâ  - íâ® ¡ £ !
+    ! Â ApplyCommand() íå áûëà âîçìîæíîñòü ðàáîòû ñ ìîäèôèêàòîðàìè !@! è !$!
+      ÂÍÈÌÀÍÈÅ!
+      Ïðè Ctrl-G ñíèìàåòñÿ âûäåëåíèå äëÿ !@@! è !$! òîëüêî äëÿ ïîñëåäíåãî
+      îáúåêòà - ýòî áàãà!
   09.02.2001 IS
     + SetSelectedFirstMode
   29.01.2001 VVM
-    + ® CTRL+ALT+F ¢ ª®¬ ­¤­ãî áâà®ªã á¡à áë¢ ¥âáï UNC-¨¬ï â¥ªãé¥£® ä ©« .
+    + Ïî CTRL+ALT+F â êîìàíäíóþ ñòðîêó ñáðàñûâàåòñÿ UNC-èìÿ òåêóùåãî ôàéëà.
   09.01.2001 SVS
-    - „«ï KEY_XXX_BASE ­ã¦­® ¯à¨¡ ¢¨âì 0x01
+    - Äëÿ KEY_XXX_BASE íóæíî ïðèáàâèòü 0x01
   21.12.2000 SVS
-    - ¤¨ «®£  âà¨¡ãâ®¢ ¯® F4 ¢ë§ë¢ «áï ¢ ¯« £¨­®¢®© ¯ ­¥«¨...
-      ...¯ãáâì ®¡ íâ®¬ ¯®§ ¡®â¨âáï Ctrl-A :-)
+    - äèàëîã àòðèáóòîâ ïî F4 âûçûâàëñÿ â ïëàãèíîâîé ïàíåëè...
+      ...ïóñòü îá ýòîì ïîçàáîòèòñÿ Ctrl-A :-)
   27.11.2000 SVS
-    - ® Shift-F4 ­¥ á¡à áë¢ «áï KeyBar ¯®á«¥ ¢ë§®¢  ¤¨ «®£  ãáâ ­®¢ª¨  âà¨¡ãâ®¢
+    - Ïî Shift-F4 íå ñáðàñûâàëñÿ KeyBar ïîñëå âûçîâà äèàëîãà óñòàíîâêè àòðèáóòîâ
   27.11.2000 SVS
-    + „«ï ª â «®£®¢ KEY_CTRLSHIFTF4 ¨ KEY_F4 ¢ë§ë¢ ¥â ¤¨ «®£  âà¨¡ãâ®¢
+    + Äëÿ êàòàëîãîâ KEY_CTRLSHIFTF4 è KEY_F4 âûçûâàåò äèàëîã àòðèáóòîâ
   11.11.2000 SVS
-    ! FarMkTemp() - ã¡¨à ¥¬ (ª ª ¢á¥£¤  - â® áâ ¢¨¬, â® âãâ ¦¥ ã¡¨à ¥¬ :-(((
+    ! FarMkTemp() - óáèðàåì (êàê âñåãäà - òî ñòàâèì, òî òóò æå óáèðàåì :-(((
   11.11.2000 SVS
-    ! ˆá¯®«ì§ã¥¬ ª®­áâàãªæ¨î FarMkTemp()
+    ! Èñïîëüçóåì êîíñòðóêöèþ FarMkTemp()
   09.11.2000 OT
-    ! F3 ­  ".." ¢ ¯« £¨­ å
+    ! F3 íà ".." â ïëàãèíàõ
   03.11.2000 OT
-    ! ‚¢¥¤¥­¨¥ ¯à®¢¥àª¨ ¢®§¢à é ¥¬®£® §­ ç¥­¨ï
+    ! Ââåäåíèå ïðîâåðêè âîçâðàùàåìîãî çíà÷åíèÿ
   02.11.2000 OT
-    ! ‚¢¥¤¥­¨¥ ¯à®¢¥àª¨ ­  ¤«¨­ã ¡ãä¥à , ®â¢¥¤¥­­®£® ¯®¤ ¨¬ï ä ©« .
+    ! Ââåäåíèå ïðîâåðêè íà äëèíó áóôåðà, îòâåäåííîãî ïîä èìÿ ôàéëà.
   23.10.2000 SVS
-    ! “â®ç­¥­¨¥ ¤«ï Ctlr-F (á ¯®¤ ç¨ tran!)
+    ! Óòî÷íåíèå äëÿ Ctlr-F (ñ ïîäà÷è tran!)
   20.10.2000 SVS
-    ! ‘¤¥« ¥¬ ä¨çã Ctrl-F ®¯æ¨®­ «ì­®©!
+    ! Ñäåëàåì ôè÷ó Ctrl-F îïöèîíàëüíîé!
   13.10.2000 tran 1.12
-    + ¯® Ctrl-f ¨¬ï ®â¢¥ç ¥â ãá«®¢¨ï¬ ­  ¯ ­¥«¨
+    + ïî Ctrl-f èìÿ îòâå÷àåò óñëîâèÿì íà ïàíåëè
   27.09.2000 SVS
-    + ¥ç âì â¥ªãé¥£®/¢ë¡à ­­ëå ä ©« /®¢
-    ! FileList::CallPlugin() ¯¥à¥­¥á¥­ ¢ PluginsSet
+    + Ïå÷àòü òåêóùåãî/âûáðàííûõ ôàéëà/îâ
+    ! FileList::CallPlugin() ïåðåíåñåí â PluginsSet
   20.09.2000 SVS
-    + …á«¨ ã ¯« £¨­  ¥áâì ¯à¥ä¨ªá, â® Ctrl-[ ¨ ¥¦¥ á ­¨¬
-      ¯®¤áâ ¢ïâ ¯¥à¢ë© ¯à¥ä¨ªá.
+    + Åñëè ó ïëàãèíà åñòü ïðåôèêñ, òî Ctrl-[ è åæå ñ íèì
+      ïîäñòàâÿò ïåðâûé ïðåôèêñ.
   18.09.2000 SVS
-    + à¨ ¢ë§®¢¥ à¥¤ ªâ®à  ¯® Shift-F4 ¬®¦­® ã¯®âà¥¡«ïâì
-      ¯¥à¥¬¥­­ë¥ áà¥¤ë.
+    + Ïðè âûçîâå ðåäàêòîðà ïî Shift-F4 ìîæíî óïîòðåáëÿòü
+      ïåðåìåííûå ñðåäû.
   12.09.2000 SVS
-    + Ž¯æ¨®­ «ì­®¥ ¯®¢¥¤¥­¨¥ ¤«ï ¯à ¢®© ª« ¢¨è¨ ¬ëè¨ ­  ¯ãáâ®© ¯ ­¥«¨
+    + Îïöèîíàëüíîå ïîâåäåíèå äëÿ ïðàâîé êëàâèøè ìûøè íà ïóñòîé ïàíåëè
   11.09.2000 SVS
-    - Bug #17: ‹®£¨ª  â ª®¢  - ¥á«¨ ª®«®­ª  ¯®«­®áâìî ¯ãáâ , â®
-      ¤¥©áâ¢¨ï  ­ «®£¨ç­ë ­ ¦ â¨î «¥¢®© ª« ¢¨è¨, ¨­ ç¥ ®â¬¥ç ¥¬ ä ©«.
+    - Bug #17: Ëîãèêà òàêîâà - åñëè êîëîíêà ïîëíîñòüþ ïóñòà, òî
+      äåéñòâèÿ àíàëîãè÷íû íàæàòèþ ëåâîé êëàâèøè, èíà÷å îòìå÷àåì ôàéë.
   09.08.2000 SVS
-    ! „«ï Ctrl-Z ­¥­ã¦­® ¡à âì ¯à¥¤ë¤ãé¥¥ §­ ç¥­¨¥!
-      áâ ¢¨¬ á®®â¢¥âáâ¢ãîé¨© ä« £!
+    ! Äëÿ Ctrl-Z íåíóæíî áðàòü ïðåäûäóùåå çíà÷åíèå!
+      ñòàâèì ñîîòâåòñòâóþùèé ôëàã!
   02.08.2000 IG
-    ! Wish.Mix #21 - ¯à¨ ­ ¦ â¨¨ '/' ¨«¨ '\' ¢ QuickSerach ¯¥à¥å®¤¨¬
-      ­  ¤¨à¥ªâ®à¨î
+    ! Wish.Mix #21 - ïðè íàæàòèè '/' èëè '\' â QuickSerach ïåðåõîäèì
+      íà äèðåêòîðèþ
   01.08.2000 SVS
-    ! ˆ§¬¥­¥­¨ï ¯à¨ ¢ë§®¢¥ GetString
+    ! Èçìåíåíèÿ ïðè âûçîâå GetString
   15.07.2000 tran
-    ! "...¢ë§ë¢ ¥¬ ¯¥à¥à¨á®¢ªã ¯ ­¥«¥© ¯®â®¬ã çâ® íâ®â viewer,
-      editor ¬®£ãâ ­ ¬ ­¥¢¥à­® ¢®ááâ ­®¢¨âì..."
+    ! "...âûçûâàåì ïåðåðèñîâêó ïàíåëåé ïîòîìó ÷òî ýòîò viewer,
+      editor ìîãóò íàì íåâåðíî âîññòàíîâèòü..."
   13.07.2000 SVS
-    ! ¥ª®â®àë¥ ª®àà¥ªæ¨¨ ¯à¨ ¨á¯®«ì§®¢ ­¨¨ new/delete/realloc
+    ! Íåêîòîðûå êîððåêöèè ïðè èñïîëüçîâàíèè new/delete/realloc
   11.07.2000 SVS
-    ! ˆ§¬¥­¥­¨ï ¤«ï ¢®§¬®¦­®áâ¨ ª®¬¯¨«ïæ¨¨ ¯®¤ BC & VC
+    ! Èçìåíåíèÿ äëÿ âîçìîæíîñòè êîìïèëÿöèè ïîä BC & VC
   25.06.2000 SVS
-    ! ®¤£®â®¢ª  Master Copy
-    ! ‚ë¤¥«¥­¨¥ ¢ ª ç¥áâ¢¥ á ¬®áâ®ïâ¥«ì­®£® ¬®¤ã«ï
+    ! Ïîäãîòîâêà Master Copy
+    ! Âûäåëåíèå â êà÷åñòâå ñàìîñòîÿòåëüíîãî ìîäóëÿ
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   ‘â ­¤ àâ­ë¥ § £®«®¢ª¨
+   Ñòàíäàðòíûå çàãîëîâêè
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -237,7 +237,7 @@ void FileList::DeleteListData(struct FileListItem *(&ListData),long &FileCount)
       delete ListData[I].DizText;
   }
   /* $ 13.07.2000 SVS
-     ­¨ ªâ® ­¥ ¢ë§ë¢ « § ¯à®á ¯ ¬ïâ¨ ç¥à¥§ new :-)
+     íè êòî íå âûçûâàë çàïðîñ ïàìÿòè ÷åðåç new :-)
   */
   free(ListData);
   /* SVS $ */
@@ -640,8 +640,8 @@ int FileList::ProcessKey(int Key)
       Redraw();
       return(TRUE);
     /* $ 14.02.2001 VVM
-      + Ctrl: ¢áâ ¢«ï¥â ¨¬ï ä ©«  á ¯ áá¨¢­®© ¯ ­¥«¨.
-      + CtrlAlt: ¢áâ ¢«ï¥â UNC-¨¬ï ä ©«  á ¯ áá¨¢­®© ¯ ­¥«¨ */
+      + Ctrl: âñòàâëÿåò èìÿ ôàéëà ñ ïàññèâíîé ïàíåëè.
+      + CtrlAlt: âñòàâëÿåò UNC-èìÿ ôàéëà ñ ïàññèâíîé ïàíåëè */
     case KEY_CTRL|KEY_COLON:
     case KEY_CTRL|KEY_ALT|KEY_COLON:
     {
@@ -660,7 +660,7 @@ int FileList::ProcessKey(int Key)
     case KEY_CTRLJ:
     case KEY_CTRLF:
     /* $ 29.01.2001 VVM
-      + ® CTRL+ALT+F ¢ ª®¬ ­¤­ãî áâà®ªã á¡à áë¢ ¥âáï UNC-¨¬ï â¥ªãé¥£® ä ©« . */
+      + Ïî CTRL+ALT+F â êîìàíäíóþ ñòðîêó ñáðàñûâàåòñÿ UNC-èìÿ òåêóùåãî ôàéëà. */
     case KEY_CTRLALTF:
     /* VVM $ */
       if (FileCount>0 && SetCurPath())
@@ -683,22 +683,22 @@ int FileList::ProcessKey(int Key)
           if (PanelMode!=PLUGIN_PANEL || (Info.Flags & OPIF_REALNAMES))
           {
             /* $ 02.04.2001 IS
-                 ˆá¯à ¢«ïî ¡ £:
+                 Èñïðàâëÿþ áàã:
                  -----
-1) ¢ Temporary panel Ctrl+F ­  .. ¢ë¤ ¥â: C:\dr_dr_dr\ (£¤¥ "C:\dr_dr_dr\" ¯ãâì
-¤® ¯¥à¥ª«îç¥­¨ï ¢ Temporary panel)
+1) â Temporary panel Ctrl+F íà .. âûäàåò: C:\dr_dr_dr\ (ãäå "C:\dr_dr_dr\" ïóòü
+äî ïåðåêëþ÷åíèÿ â Temporary panel)
 
-2) ¢ Temporary panel -> Ctrl+N (¢ª«îç ¥¬ ª®à®âª¨¥ ¨¬¥­ ) -> Ctrl+F ­  «î¡®¬
-ä ©«¥ ¯®«ãç ¥¬: C:\dr_dr_dr\FILENAME.EXT (£¤¥ "C:\dr_dr_dr\" ­¥ ¯ãâì ¤® ä ©« ,
-  á¬.1)
+2) â Temporary panel -> Ctrl+N (âêëþ÷àåì êîðîòêèå èìåíà) -> Ctrl+F íà ëþáîì
+ôàéëå ïîëó÷àåì: C:\dr_dr_dr\FILENAME.EXT (ãäå "C:\dr_dr_dr\" íå ïóòü äî ôàéëà,
+à ñì.1)
                  -----
-                 ã­ªâ 1 ®¡êï¢«ï¥âáï ä¨ç¥©, ¯ã­ªâ 2 ¨á¯à ¢«ï¥âáï ­¨¦¥.
-                  §®¢ë¥ ¯à¥¤¯®áë«ª¨:
-                 1. …á«¨ ¨¬ï á®¤¥à¦¨â '\\', â® ®­® á®¤¥à¦¨â ¯ãâì
-                 2. …á«¨ ª®à®âª®¥ ¨¬ï á®¤¥à¦¨â ¯ãâì, â® ¤«¨­­®¥ ¨¬ï â ª¦¥
-                    á®¤¥à¦¨â ¯ãâì.
-                 3. …á«¨ ¨¬ï á®¤¥à¦¨â ¯ãâì, â® ¢ë§ë¢ âì ConvertNameToFull ­¥
-                    ­ã¦­®.
+                 Ïóíêò 1 îáúÿâëÿåòñÿ ôè÷åé, ïóíêò 2 èñïðàâëÿåòñÿ íèæå.
+                 Áàçîâûå ïðåäïîñûëêè:
+                 1. Åñëè èìÿ ñîäåðæèò '\\', òî îíî ñîäåðæèò ïóòü
+                 2. Åñëè êîðîòêîå èìÿ ñîäåðæèò ïóòü, òî äëèííîå èìÿ òàêæå
+                    ñîäåðæèò ïóòü.
+                 3. Åñëè èìÿ ñîäåðæèò ïóòü, òî âûçûâàòü ConvertNameToFull íå
+                    íóæíî.
             */
             char *ShortNameLastSlash=strrchr(CurPtr->ShortName, '\\'),
                  *NameLastSlash=strrchr(CurPtr->Name, '\\');
@@ -725,7 +725,7 @@ int FileList::ProcessKey(int Key)
               ConvertNameToShort(FileName,FileName);
 
             /* $ 29.01.2001 VVM
-              + ® CTRL+ALT+F ¢ ª®¬ ­¤­ãî áâà®ªã á¡à áë¢ ¥âáï UNC-¨¬ï â¥ªãé¥£® ä ©« . */
+              + Ïî CTRL+ALT+F â êîìàíäíóþ ñòðîêó ñáðàñûâàåòñÿ UNC-èìÿ òåêóùåãî ôàéëà. */
             if (Key==KEY_CTRLALTF) {
               Key = KEY_CTRLF;
               char uni[1024];
@@ -738,11 +738,11 @@ int FileList::ProcessKey(int Key)
             } /* if */
             /* VVM $ */
             /* $ 20.10.2000 SVS
-               ‘¤¥« ¥¬ ä¨çã Ctrl-F ®¯æ¨®­ «ì­®©!*/
+               Ñäåëàåì ôè÷ó Ctrl-F îïöèîíàëüíîé!*/
             if(Opt.PanelCtrlFRule)
             {
               /* $ 13.10.2000 tran
-                ¯® Ctrl-f ¨¬ï ¤®«¦­® ®â¢¥ç âì ãá«®¢¨ï¬ ­  ¯ ­¥«¨ */
+                ïî Ctrl-f èìÿ äîëæíî îòâå÷àòü óñëîâèÿì íà ïàíåëè */
               if (ViewSettings.FolderUpperCase)
               {
                 if ( CurPtr->FileAttr & FA_DIREC )
@@ -769,9 +769,9 @@ int FileList::ProcessKey(int Key)
             char FullName[NM];
             strcpy(FullName,NullToEmpty(Info.CurDir));
             /* $ 13.10.2000 tran
-              ¯® Ctrl-f ¨¬ï ¤®«¦­® ®â¢¥ç âì ãá«®¢¨ï¬ ­  ¯ ­¥«¨ */
+              ïî Ctrl-f èìÿ äîëæíî îòâå÷àòü óñëîâèÿì íà ïàíåëè */
             /* $ 20.10.2000 SVS
-               ‘¤¥« ¥¬ ä¨çã Ctrl-F ®¯æ¨®­ «ì­®©!*/
+               Ñäåëàåì ôè÷ó Ctrl-F îïöèîíàëüíîé!*/
             if (Opt.PanelCtrlFRule && ViewSettings.FolderUpperCase)
               LocalStrupr(FullName);
             /* SVS $ */
@@ -782,11 +782,11 @@ int FileList::ProcessKey(int Key)
             if (*FullName)
               AddEndSlash(FullName);
             /* $ 20.10.2000 SVS
-               ‘¤¥« ¥¬ ä¨çã Ctrl-F ®¯æ¨®­ «ì­®©!*/
+               Ñäåëàåì ôè÷ó Ctrl-F îïöèîíàëüíîé!*/
             if(Opt.PanelCtrlFRule)
             {
               /* $ 13.10.2000 tran
-                ¯® Ctrl-f ¨¬ï ¤®«¦­® ®â¢¥ç âì ãá«®¢¨ï¬ ­  ¯ ­¥«¨ */
+                ïî Ctrl-f èìÿ äîëæíî îòâå÷àòü óñëîâèÿì íà ïàíåëè */
               if ( ViewSettings.FileLowerCase && !(CurPtr->FileAttr & FA_DIREC))
                 LocalStrlwr(FileName);
               if (ViewSettings.FileUpperToLowerCase)
@@ -842,8 +842,8 @@ int FileList::ProcessKey(int Key)
         else
         {
           /* $ 20.09.2000 SVS
-             + …á«¨ ã ¯« £¨­  ¥áâì ¯à¥ä¨ªá, â® Ctrl-[ ¨ ¥¦¥ á ­¨¬
-             ¯®¤áâ ¢ïâ ¯¥à¢ë© ¯à¥ä¨ªá.
+             + Åñëè ó ïëàãèíà åñòü ïðåôèêñ, òî Ctrl-[ è åæå ñ íèì
+             ïîäñòàâÿò ïåðâûé ïðåôèêñ.
           */
           PanelDir[0]=0;
           if(Opt.SubstPluginPrefix)
@@ -987,8 +987,8 @@ int FileList::ProcessKey(int Key)
         {
           static char LastFileName[NM];
           /* $ 18.09.2000 SVS
-             + à¨ ¢ë§®¢¥ à¥¤ ªâ®à  ¯® Shift-F4 ¬®¦­® ã¯®âà¥¡«ïâì
-               ¯¥à¥¬¥­­ë¥ áà¥¤ë.
+             + Ïðè âûçîâå ðåäàêòîðà ïî Shift-F4 ìîæíî óïîòðåáëÿòü
+               ïåðåìåííûå ñðåäû.
           */
           if (!GetString(MSG(MEditTitle),
                          MSG(MFileToEdit),
@@ -1015,10 +1015,10 @@ int FileList::ProcessKey(int Key)
           if (CurPtr->FileAttr & FA_DIREC)
           {
             /* $ 27.11.2000 SVS
-               „«ï ª â «®£®¢ F4 ¢ë§ë¢ ¥â ¤¨ «®£  âà¨¡ãâ®¢
+               Äëÿ êàòàëîãîâ F4 âûçûâàåò äèàëîã àòðèáóòîâ
             */
             /* $ 21.12.2000 SVS
-               ...¯ãáâì ®¡ íâ®¬ ¯®§ ¡®â¨âáï Ctrl-A :-)
+               ...ïóñòü îá ýòîì ïîçàáîòèòñÿ Ctrl-A :-)
             */
             if (Edit)
               return ProcessKey(KEY_CTRLA);
@@ -1179,8 +1179,8 @@ int FileList::ProcessKey(int Key)
             AccessTimeUpdateRequired=TRUE;
       }
       /* $ 15.07.2000 tran
-           âãâ ¬ë ¢ë§ë¢ ¥¬ ¯¥à¥à¨á®¢ªã ¯ ­¥«¥©
-         ¯®â®¬ã çâ® íâ®â viewer, editor ¬®£ãâ ­ ¬ ­¥¢¥à­® ¢®ááâ ­®¢¨âì
+         à òóò ìû âûçûâàåì ïåðåðèñîâêó ïàíåëåé
+         ïîòîìó ÷òî ýòîò viewer, editor ìîãóò íàì íåâåðíî âîññòàíîâèòü
          */
       CtrlObject->Cp()->Redraw();
       /* tran 15.07.2000 $ */
@@ -1195,11 +1195,11 @@ int FileList::ProcessKey(int Key)
       return(TRUE);
 
     /* $ 27.09.2000 SVS
-       ¥ç âì â¥ªãé¥£®/¢ë¡à ­­ëå ä ©« /®¢
+       Ïå÷àòü òåêóùåãî/âûáðàííûõ ôàéëà/îâ
     */
     case KEY_ALTF5:
       /* $ 11.03.2001 VVM
-        ! ¥ç âì ç¥à¥§ pman â®«ìª® ¨§ ä ©«®¢ëå ¯ ­¥«¥©. */
+        ! Ïå÷àòü ÷åðåç pman òîëüêî èç ôàéëîâûõ ïàíåëåé. */
       if ((PanelMode!=PLUGIN_PANEL) &&
       /* VVM $ */
          (CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) != -1))
@@ -1274,7 +1274,7 @@ int FileList::ProcessKey(int Key)
       }
       return(TRUE);
     /* $ 26.04.2001 VVM
-       + Ž¡à ¡®âª  ª®«¥á  ¬ëèª¨ */
+       + Îáðàáîòêà êîëåñà ìûøêè */
     case KEY_MSWHEEL_UP:
       Scroll(-Opt.MsWheelDelta);
       return(TRUE);
@@ -1325,8 +1325,8 @@ int FileList::ProcessKey(int Key)
       }
       return(FALSE);
     /* $ 25.04.2001 DJ
-       ®¯â¨¬¨§ æ¨ï Shift-áâà¥«®ª ¤«ï Selected files first: ¤¥« ¥¬ á®àâ¨à®¢ªã
-       ®¤¨­ à §
+       îïòèìèçàöèÿ Shift-ñòðåëîê äëÿ Selected files first: äåëàåì ñîðòèðîâêó
+       îäèí ðàç
     */
     case KEY_SHIFTHOME:
       InternalProcessKey++;
@@ -1462,11 +1462,11 @@ int FileList::ProcessKey(int Key)
       return(TRUE);
     case KEY_CTRLPGUP:
       /* $ 09.04.2001 SVS
-         ¥ ¯¥à¥à¨á®¢ë¢ ¥¬, ¥á«¨ ChangeDir § ªàë«  ¯ ­¥«ì
+         Íå ïåðåðèñîâûâàåì, åñëè ChangeDir çàêðûëà ïàíåëü
       */
       if(ChangeDir(".."))
       /* $ 24.04.2001 IS
-           à®¨­¨æ¨ «¨§¨àã¥¬ § ­®¢® à¥¦¨¬ ¯ ­¥«¨.
+           Ïðîèíèöèàëèçèðóåì çàíîâî ðåæèì ïàíåëè.
       */
       {
         SetViewMode(GetViewMode());
@@ -1520,7 +1520,7 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
   if (CurPtr->FileAttr & FA_DIREC)
   {
     /* $ 09.04.2001 SVS
-       ¥ ¯¥à¥à¨á®¢ë¢ ¥¬, ¥á«¨ ChangeDir § ªàë«  ¯ ­¥«ì
+       Íå ïåðåðèñîâûâàåì, åñëè ChangeDir çàêðûëà ïàíåëü
     */
     BOOL res;
     if (PanelMode==PLUGIN_PANEL || strchr(CurPtr->Name,'?')==NULL ||
@@ -1637,7 +1637,7 @@ BOOL FileList::ChangeDir(char *NewDir)
     CtrlObject->FolderHistory->AddToHistory(NullToEmpty(Info.CurDir),Info.Format,1);
 
     /* $ 25.04.01 DJ
-       ¯à¨ ­¥ã¤ ç¥ SetDirectory ­¥ á¡à áë¢ ¥¬ ¢ë¤¥«¥­¨¥
+       ïðè íåóäà÷å SetDirectory íå ñáðàñûâàåì âûäåëåíèå
     */
     BOOL SetDirectorySuccess = TRUE;
     /* DJ $ */
@@ -1662,7 +1662,7 @@ BOOL FileList::ChangeDir(char *NewDir)
     {
       strcpy(FindDir,NullToEmpty(Info.CurDir));
       /* $ 25.04.01 DJ
-         ¯à¨ ­¥ã¤ ç¥ SetDirectory ­¥ á¡à áë¢ ¥¬ ¢ë¤¥«¥­¨¥
+         ïðè íåóäà÷å SetDirectory íå ñáðàñûâàåì âûäåëåíèå
       */
       SetDirectorySuccess=CtrlObject->Plugins.SetDirectory(hPlugin,SetDir,0);
     }
@@ -1698,7 +1698,7 @@ BOOL FileList::ChangeDir(char *NewDir)
       CorrectPosition();
     }
     /* $ 26.04.2001 DJ
-       ¤®¤¥«ª  ¯à® ­¥á¡à®á ¢ë¤¥«¥­¨ï ¯à¨ ­¥ã¤ ç¥ SetDirectory
+       äîäåëêà ïðî íåñáðîñ âûäåëåíèÿ ïðè íåóäà÷å SetDirectory
     */
     else if (SetDirectorySuccess)
       CurFile=CurTopFile=0;
@@ -1716,7 +1716,7 @@ BOOL FileList::ChangeDir(char *NewDir)
       CtrlObject->FolderHistory->AddToHistory(CurDir,NULL,0);
 
     /* $ 21.09.2000 SVS
-       Žâ«®¢¨¬ ¬®¬¥­â ".." ¨ "\\host\share"
+       Îòëîâèì ìîìåíò ".." è "\\host\share"
     */
     if(!strcmp(SetDir,".."))
     {
@@ -1725,8 +1725,8 @@ BOOL FileList::ChangeDir(char *NewDir)
            GetDriveType(CurDir) == DRIVE_REMOTE)
       {
         /* $ 26.03.2001 SVS
-           „®¡ ¢¨¬ ¢®§¬®¦­®áâì ¢ë§®¢  Network-¯« £¨­  ¨§ ª®à­ï § è à¥­­ëå
-           ¤¨áª®¢.
+           Äîáàâèì âîçìîæíîñòü âûçîâà Network-ïëàãèíà èç êîðíÿ çàøàðåííûõ
+           äèñêîâ.
         */
         char NewCurDir[NM*2];
         strcpy(NewCurDir,CurDir);
@@ -1735,7 +1735,7 @@ BOOL FileList::ChangeDir(char *NewDir)
           char Letter=*NewCurDir;
           DriveLocalToRemoteName(DRIVE_REMOTE,Letter,NewCurDir);
         }
-        if(*NewCurDir) // ¯à®¢¥à¨¬ - ¬®¦¥â ­¥ ã¤ «®áì ®¯à¥¤¥«¨âì RemoteName
+        if(*NewCurDir) // ïðîâåðèì - ìîæåò íå óäàëîñü îïðåäåëèòü RemoteName
         {
           char *PtrS1=strchr(NewCurDir+2,'\\');
           if(PtrS1 && !strchr(PtrS1+1,'\\'))
@@ -1760,8 +1760,8 @@ BOOL FileList::ChangeDir(char *NewDir)
     chdir(CurDir);
 
   /* $ 26.04.2001 DJ
-     ¯à®¢¥àï¥¬, ã¤ «®áì «¨ á¬¥­¨âì ª â «®£, ¨ ®¡­®¢«ï¥¬ á KEEP_SELECTION,
-     ¥á«¨ ­¥ ã¤ «®áì
+     ïðîâåðÿåì, óäàëîñü ëè ñìåíèòü êàòàëîã, è îáíîâëÿåì ñ KEEP_SELECTION,
+     åñëè íå óäàëîñü
   */
   int UpdateFlags = 0;
   if (!SetCurrentDirectory(SetDir))
@@ -1770,10 +1770,10 @@ BOOL FileList::ChangeDir(char *NewDir)
     UpdateFlags = UPDATE_KEEP_SELECTION;
   }
   /* $ 28.04.2001 IS
-       ‡ ª®¬¬¥­â à¨¬ "¤® «ãçè¨å ¢à¥¬¥­".
-       Ÿ ­¥ §­ î, ¯®ç¥¬ã £«îª ¯à®ï¢«ï«áï â®«ìª® ã ¬¥­ï, ­® § â® §­ î, ¯®ç¥¬ã ®­
-       ¡ë« ¯à®áâ®-â ª¨ ®¡ï§ ­ ¯à®ï¢¨âáï. †¥« îé¨¥ ¬®£ãâ ­¥¬­®£® RTFM. ’¥¬  ¤«ï
-       ¨§ãç¥­¨ï: chdir, setdisk, SetCurrentDirectory ¨ ¯¥à¥¬¥­­ë¥ ®ªàã¦¥­¨ï
+       Çàêîììåíòàðèì "äî ëó÷øèõ âðåìåí".
+       ß íå çíàþ, ïî÷åìó ãëþê ïðîÿâëÿëñÿ òîëüêî ó ìåíÿ, íî çàòî çíàþ, ïî÷åìó îí
+       áûë ïðîñòî-òàêè îáÿçàí ïðîÿâèòñÿ. Æåëàþùèå ìîãóò íåìíîãî RTFM. Òåìà äëÿ
+       èçó÷åíèÿ: chdir, setdisk, SetCurrentDirectory è ïåðåìåííûå îêðóæåíèÿ
 
   */
   /*else {
@@ -1883,13 +1883,13 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
           return(TRUE);
       }
       /*$ 21.02.2001 SKV
-        …á«¨ ¯à¨è¥« DOUBLE_CLICK ¡¥§ ¯à¥¤è¥¢áâ¢ãîé¥£® ¥¬ã
-        ¯à®áâ®£® ª«¨ª , â® ªãàá®à ­¥ ¯¥à¥à¨á®¢ë¢ ¥âáï.
-        ¥à¥à¥áã¥¬ ¥£®.
-        ® ¨¤¥¥ ¯à¨ ­®à¬ «ì­®¬ DOUBLE_CLICK, ¡ã¤¥â
-        ¤¢®©­ ï ¯¥à¥à¨á®¢ª ...
-        ® ¬ë ¦¥ ¢ë§ë¢ ¥¬ Fast=TRUE...
-        ‚à®¤¥ ¢áñ ¤®«¦­® ¡ëâì ®ª.
+        Åñëè ïðèøåë DOUBLE_CLICK áåç ïðåäøåâñòâóþùåãî åìó
+        ïðîñòîãî êëèêà, òî êóðñîð íå ïåðåðèñîâûâàåòñÿ.
+        Ïåðåðåñóåì åãî.
+        Ïî èäåå ïðè íîðìàëüíîì DOUBLE_CLICK, áóäåò
+        äâîéíàÿ ïåðåðèñîâêà...
+        Íî ìû æå âûçûâàåì Fast=TRUE...
+        Âðîäå âñ¸ äîëæíî áûòü îê.
       */
       ShowFileList(TRUE);
       /* SKV$*/
@@ -1898,7 +1898,7 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     }
     else
       /* $ 11.09.2000 SVS
-         Bug #17: ‚ë¤¥«ï¥¬ ¯à¨ ãá«®¢¨¨, çâ® ª®«®­ª  Ž‹Ž‘’œž ¯ãáâ .
+         Bug #17: Âûäåëÿåì ïðè óñëîâèè, ÷òî êîëîíêà ÏÎËÍÎÑÒÜÞ ïóñòà.
       */
       if ((MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED) && !IsEmpty)
       {
@@ -1953,7 +1953,7 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 
 /* $ 12.09.2000 SVS
-  + Ž¯æ¨®­ «ì­®¥ ¯®¢¥¤¥­¨¥ ¤«ï ¯à ¢®© ª« ¢¨è¨ ¬ëè¨ ­  ¯ãáâ®© ¯ ­¥«¨
+  + Îïöèîíàëüíîå ïîâåäåíèå äëÿ ïðàâîé êëàâèøè ìûøè íà ïóñòîé ïàíåëè
 */
 void FileList::MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
@@ -1976,7 +1976,7 @@ void FileList::MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent)
     CurFile+=(CurColumn-1)*Height;
   CorrectPosition();
   /* $ 11.09.2000 SVS
-     Bug #17: à®¢¥à¨¬ ­  Ž‹Ž‘’œž ¯ãáâãî ª®«®­ªã.
+     Bug #17: Ïðîâåðèì íà ÏÎËÍÎÑÒÜÞ ïóñòóþ êîëîíêó.
   */
   if(Opt.PanelRightClickRule == 1)
     IsEmpty=((CurColumn-1)*Height > FileCount);
@@ -2134,7 +2134,7 @@ int FileList::FindPartName(char *Name,int Next)
   int I;
 
   /* $ 02.08.2000 IG
-     Wish.Mix #21 - ¯à¨ ­ ¦ â¨¨ '/' ¨«¨ '\' ¢ QuickSerach ¯¥à¥å®¤¨¬ ­  ¤¨à¥ªâ®à¨î
+     Wish.Mix #21 - ïðè íàæàòèè '/' èëè '\' â QuickSerach ïåðåõîäèì íà äèðåêòîðèþ
   */
   int DirFind = 0;
   int Length = strlen(Name);
@@ -2757,7 +2757,7 @@ void FileList::DescribeFiles()
     sprintf(Msg,MSG(MEnterDescription),QuotedName);
     sprintf(TruncMsg,"%.65s",Msg);
     /* $ 09.08.2000 SVS
-       „«ï Ctrl-Z ­¥­ã¦­® ¡à âì ¯à¥¤ë¤ãé¥¥ §­ ç¥­¨¥!
+       Äëÿ Ctrl-Z íåíóæíî áðàòü ïðåäûäóùåå çíà÷åíèå!
     */
     if (!GetString(MSG(MDescribeFiles),TruncMsg,"DizText",
                    PrevText!=NULL ? PrevText:"",DizText,sizeof(DizText),
@@ -2827,7 +2827,7 @@ void FileList::CountDirSize()
   int64 FileSize,CompressedFileSize,RealFileSize;
   unsigned long SelDirCount=0;
   /* $ 09.11.2000 OT
-    F3 ­  ".." ¢ ¯« £¨­ å
+    F3 íà ".." â ïëàãèíàõ
   */
   if ( PanelMode==PLUGIN_PANEL && !CurFile && !strcmp(ListData->Name,"..")){
     struct FileListItem *DoubleDotDir = NULL;
@@ -3050,7 +3050,7 @@ void FileList::ProcessCopyKeys(int Key)
 }
 
 /* $ 09.02.2001 IS
-   “áâ ­®¢¨âì/á¡à®á¨âì à¥¦¨¬ "¯®¬¥ç¥­­®¥ ¢¯¥à¥¤"
+   Óñòàíîâèòü/ñáðîñèòü ðåæèì "ïîìå÷åííîå âïåðåä"
 */
 void FileList::SetSelectedFirstMode(int Mode)
 {
@@ -3067,13 +3067,13 @@ void FileList::ChangeSortOrder(int NewOrder)
 }
 
 /* $ 30.04.2001 DJ
-   UpdateKeyBar() (¯¥à¥­¥á¥­ ª®¤ ¨§ CtrlObject::RedrawKeyBar())
+   UpdateKeyBar() (ïåðåíåñåí êîä èç CtrlObject::RedrawKeyBar())
 */
 
 BOOL FileList::UpdateKeyBar()
 {
-  // á­ ç «  ¯à®¢¥à¨¬, ¯« £¨­®¢ ï «¨ ã ­ á ¯ ­¥«ì ¨ ãáâ ­®¢¨« «¨ ¯« £¨­
-  // á®¡áâ¢¥­­ë© ª¥©¡ à
+  // ñíà÷àëà ïðîâåðèì, ïëàãèíîâàÿ ëè ó íàñ ïàíåëü è óñòàíîâèë ëè ïëàãèí
+  // ñîáñòâåííûé êåéáàð
   if (GetMode() != PLUGIN_PANEL)
     return FALSE;
 
@@ -3105,7 +3105,7 @@ BOOL FileList::UpdateKeyBar()
     if (Info.KeyBar->ShiftTitles[I]!=NULL)
       FShiftKeys[I]=Info.KeyBar->ShiftTitles[I];
 
-  // €£ , ¬ë ¢¥¤ì ­¥¤ à®¬ ã¢¥«¨ç¨¢ «¨ à §¬¥à áâàãªâãàë ;-)
+  // Àãà, ìû âåäü íåäàðîì óâåëè÷èâàëè ðàçìåð ñòðóêòóðû ;-)
   if(Info.StructSize >= sizeof(struct OpenPluginInfo))
   {
     for (I=0;I<sizeof(Info.KeyBar->CtrlShiftTitles)/sizeof(Info.KeyBar->CtrlShiftTitles[0]);I++)

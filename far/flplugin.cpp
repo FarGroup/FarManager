@@ -1,7 +1,7 @@
 /*
 flplugin.cpp
 
-” ©«®¢ ï ¯ ­¥«ì - à ¡®â  á ¯« £¨­ ¬¨
+Ôàéëîâàÿ ïàíåëü - ðàáîòà ñ ïëàãèíàìè
 
 */
 
@@ -9,30 +9,30 @@ flplugin.cpp
 
 /*
 Modify:
-  29.04.2001 Ž’
-    + ‚­¥¤à¥­¨¥ NWZ ®â ’à¥âìïª®¢ 
+  29.04.2001 ÎÒ
+    + Âíåäðåíèå NWZ îò Òðåòüÿêîâà
   26.04.2001 DJ
-    - ¢ ProcessHostFile() ­¥ ¯¥à¥¤ ¢ «áï OPM_TOPLEVEL
+    - â ProcessHostFile() íå ïåðåäàâàëñÿ OPM_TOPLEVEL
   04.01.2001 SVS
     ! TranslateKeyToVK() -> keyboard.cpp
   11.11.2000 SVS
-    ! FarMkTemp() - ã¡¨à ¥¬ (ª ª ¢á¥£¤  - â® áâ ¢¨¬, â® âãâ ¦¥ ã¡¨à ¥¬ :-(((
+    ! FarMkTemp() - óáèðàåì (êàê âñåãäà - òî ñòàâèì, òî òóò æå óáèðàåì :-(((
   11.11.2000 SVS
-    ! ˆá¯®«ì§ã¥¬ ª®­áâàãªæ¨î FarMkTemp()
+    ! Èñïîëüçóåì êîíñòðóêöèþ FarMkTemp()
   08.09.2000 SVS
-    + „®¡ ¢ª  ¢ FileList::TranslateKeyToVK ¤«ï âà ­á«ïæ¨¨
+    + Äîáàâêà â FileList::TranslateKeyToVK äëÿ òðàíñëÿöèè
       KEY_SHIFTDEL, KEY_ALTSHIFTDEL, KEY_CTRLSHIFTDEL
   23.07.2000 SVS
-    + Š« ¢¨è¨ (FileList::TranslateKeyToVK):
+    + Êëàâèøè (FileList::TranslateKeyToVK):
        Ctrl- Shift- Alt- CtrlShift- AltShift- CtrlAlt- Apps :-)
        KEY_LWIN (VK_LWIN), KEY_RWIN (VK_RWIN)
   13.07.2000 SVS
-    ! ¥ª®â®àë¥ ª®àà¥ªæ¨¨ ¯à¨ ¨á¯®«ì§®¢ ­¨¨ new/delete/realloc
+    ! Íåêîòîðûå êîððåêöèè ïðè èñïîëüçîâàíèè new/delete/realloc
   11.07.2000 SVS
-    ! ˆ§¬¥­¥­¨ï ¤«ï ¢®§¬®¦­®áâ¨ ª®¬¯¨«ïæ¨¨ ¯®¤ BC & VC
+    ! Èçìåíåíèÿ äëÿ âîçìîæíîñòè êîìïèëÿöèè ïîä BC & VC
   25.06.2000 SVS
-    ! ®¤£®â®¢ª  Master Copy
-    ! ‚ë¤¥«¥­¨¥ ¢ ª ç¥áâ¢¥ á ¬®áâ®ïâ¥«ì­®£® ¬®¤ã«ï
+    ! Ïîäãîòîâêà Master Copy
+    ! Âûäåëåíèå â êà÷åñòâå ñàìîñòîÿòåëüíîãî ìîäóëÿ
 */
 
 #include "headers.hpp"
@@ -40,7 +40,7 @@ Modify:
 
 
 /* $ 30.06.2000 IS
-   ‘â ­¤ àâ­ë¥ § £®«®¢ª¨
+   Ñòàíäàðòíûå çàãîëîâêè
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -155,7 +155,7 @@ void FileList::FileListToPluginItem(FileListItem *fi,PluginPanelItem *pi)
   {
     DWORD Size=*(DWORD *)fi->UserData;
     /* $ 13.07.2000 SVS
-       § ¬¥­¨¬ new ­  malloc
+       çàìåíèì new íà malloc
     */
     pi->UserData=(DWORD)malloc(Size);
     /* SVS $ */
@@ -196,7 +196,7 @@ void FileList::PluginToFileListItem(PluginPanelItem *pi,FileListItem *fi)
   {
     DWORD Size=*(DWORD *)pi->UserData;
     /* $ 13.07.2000 SVS
-       § ¬¥­¨¬ new ­  malloc
+       çàìåíèì new íà malloc
     */
     fi->UserData=(DWORD)malloc(Size);
     /* SVS $ */
@@ -227,7 +227,7 @@ HANDLE FileList::OpenPluginForFile(char *FileName)
   SetCurPath();
   FILE *ProcessFile=fopen(FileName,"rb");
   /* $ 13.07.2000 SVS
-     ¢¬¥áâ® delete -> delete[]
+     âìåñòî delete -> delete[]
   */
   if (ProcessFile==NULL)
   {
@@ -632,7 +632,7 @@ void FileList::ProcessHostFile()
         if (CtrlObject->Plugins.GetFindData(hNewPlugin,&ItemList,&ItemNumber,OPM_TOPLEVEL))
         {
           /* $ 26.04.2001 DJ
-             ¢ ProcessHostFile ­¥ ¯¥à¥¤ ¢ «áï OPM_TOPLEVEL
+             â ProcessHostFile íå ïåðåäàâàëñÿ OPM_TOPLEVEL
           */
           Done=CtrlObject->Plugins.ProcessHostFile(hNewPlugin,ItemList,ItemNumber,OPM_TOPLEVEL);
           /* DJ $ */

@@ -1,7 +1,7 @@
 /*
 findfile.cpp
 
-Поиск (Alt-F7)
+╧юшёъ (Alt-F7)
 
 */
 
@@ -10,55 +10,55 @@ findfile.cpp
 /*
 Modify:
   05.05.2001 DJ
-    + перетрях NWZ
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
+    + яхЁхЄЁ ї NWZ
+  29.04.2001 ╬╥
+    + ┬эхфЁхэшх NWZ юЄ ╥ЁхЄ№ ъютр
   30.03.2001 SVS
-    ! GetLogicalDrives заменен на FarGetLogicalDrives() в связи с началом
-      компании по поддержке виндовой "полиции".
+    ! GetLogicalDrives чрьхэхэ эр FarGetLogicalDrives() т ёт чш ё эрўрыюь
+      ъюьярэшш яю яюффхЁцъх тшэфютющ "яюышЎшш".
   28.02.2001 IS
     ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   27.02.2001 VVM
-    ! Символы, зависимые от кодовой страницы
+    ! ╤шьтюы√, чртшёшь√х юЄ ъюфютющ ёЄЁрэшЎ√
       /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
-      переведены в коды.
+      яхЁхтхфхэ√ т ъюф√.
   11.02.2001 SVS
-    ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
+    ! ═хёъюы№ъю єЄюўэхэшщ ъюфр т ёт чш ё шчьхэхэш ьш т ёЄЁєъЄєЁх MenuItem
   14.12.2000 OT
-    -  баг: поиск по Alt-F7 с очень длинной маской поиска/текста
+    -  сру: яюшёъ яю Alt-F7 ё юўхэ№ фышээющ ьрёъющ яюшёър/ЄхъёЄр
   11.11.2000 SVS
-    ! FarMkTemp() - убираем (как всегда - то ставим, то тут же убираем :-(((
+    ! FarMkTemp() - єсшЁрхь (ъръ тёхуфр - Єю ёЄртшь, Єю ЄєЄ цх єсшЁрхь :-(((
   11.11.2000 SVS
-    ! Используем конструкцию FarMkTemp()
+    ! ╚ёяюы№чєхь ъюэёЄЁєъЎш■ FarMkTemp()
   21.10.2000 SVS
-    ! Добавка для поиска в FFFE-файлах.
+    ! ─юсртър фы  яюшёър т FFFE-Їрщырї.
   10.09.2000 SVS
-    - Запрещаем двигать диалог результатов поиска!
+    - ╟ряЁх∙рхь фтшурЄ№ фшрыюу Ёхчєы№ЄрЄют яюшёър!
   07.08.2000 KM
-    - Глюк в поиске при запароленном архиве, если после получения
-      запроса на ввод пароля понажимать долго стрелки вверх или вниз
-      или пошевелить мышкой, диалог запроса пароля исчезал.
+    - ├ы■ъ т яюшёъх яЁш чрярЁюыхээюь рЁїштх, хёыш яюёых яюыєўхэш 
+      чряЁюёр эр ттюф ярЁюы  яюэрцшьрЄ№ фюыую ёЄЁхыъш ттхЁї шыш тэшч
+      шыш яю°хтхышЄ№ ь√°ъющ, фшрыюу чряЁюёр ярЁюы  шёўхчры.
   05.08.2000 KM
-    - Перерисовка каталога поиска в Alt-F7, если пользователь во время
-      поиска нажимает стрелки вправо или влево.
+    - ╧хЁхЁшёютър ърЄрыюур яюшёър т Alt-F7, хёыш яюы№чютрЄхы№ тю тЁхь 
+      яюшёър эрцшьрхЄ ёЄЁхыъш тяЁртю шыш тыхтю.
   03.08.2000 KM
-    + Добавлена возможность поиска по "Целым словам"
+    + ─юсртыхэр тючьюцэюёЄ№ яюшёър яю "╓хы√ь ёыютрь"
   01.08.2000 tran 1.03
     + |DIF_USELASTHISTORY
   13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
+    ! ═хъюЄюЁ√х ъюЁЁхъЎшш яЁш шёяюы№чютрэшш new/delete/realloc
   11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
+    ! ╚чьхэхэш  фы  тючьюцэюёЄш ъюьяшы Ўшш яюф BC & VC
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -75,7 +75,7 @@ void RereadPlugin(HANDLE hPlugin);
 static char FindMask[NM],FindStr[260];
 static VMenu *FilesListMenu;
 /* $ 30.07.2000 KM
-   Добавлена переменная WholeWords для поиска по точному совпадению
+   ─юсртыхэр яхЁхьхээр  WholeWords фы  яюшёър яю Єюўэюьє ёютярфхэш■
 */
 static int SearchMode,CmpCase,WholeWords,UseAllTables,SearchInArchives;
 /* KM $ */
@@ -90,7 +90,7 @@ static struct OpenPluginInfo Info;
 static int RecurseLevel;
 static int BreakMainThread;
 /* $ 07.08.2000 KM
-   Добавление переменной для борьбы с глюком при поиске в запароленном архиве
+   ─юсртыхэшх яхЁхьхээющ фы  сюЁ№с√ ё уы■ъюь яЁш яюшёъх т чрярЁюыхээюь рЁїштх
 */
 static int IsPluginGetsFile;
 /* KM $ */
@@ -102,7 +102,7 @@ FindFiles::FindFiles()
 {
   static char LastFindMask[NM]="*.*",LastFindStr[512];
   /* $ 30.07.2000 KM
-     Добавлена переменная LastWholeWords для поиска по точному совпадению
+     ─юсртыхэр яхЁхьхээр  LastWholeWords фы  яюшёър яю Єюўэюьє ёютярфхэш■
   */
   static int LastCmpCase=0,LastWholeWords=0,LastUseAllTables=0,LastSearchInArchives=0;
   /* KM $ */
@@ -116,7 +116,7 @@ FindFiles::FindFiles()
   strcpy(FindStr,LastFindStr);
   BreakMainThread=0;
   /* $ 07.08.2000 KM
-     Инициализация переменной для борьбы с глюком при поиске в запароленном архиве
+     ╚эшЎшрышчрЎш  яхЁхьхээющ фы  сюЁ№с√ ё уы■ъюь яЁш яюшёъх т чрярЁюыхээюь рЁїштх
   */
   IsPluginGetsFile=0;
   /* KM $ */
@@ -126,7 +126,7 @@ FindFiles::FindFiles()
     const char *MasksHistoryName="Masks",*TextHistoryName="SearchText";
     static char H2Separator[72]={0};
     /* $ 30.07.2000 KM
-       Добавлен новый checkbox "Whole words" в диалог поиска
+       ─юсртыхэ эют√щ checkbox "Whole words" т фшрыюу яюшёър
     */
     static struct DialogData FindAskDlgData[]=
     {
@@ -156,7 +156,7 @@ FindFiles::FindFiles()
     MakeDialogItems(FindAskDlgData,FindAskDlg);
 
     /* $ 27.02.2001 SVS
-       Динамически сформируем разделительную линию */
+       ─шэрьшўхёъш ёЇюЁьшЁєхь ЁрчфхышЄхы№эє■ ышэш■ */
     if(!H2Separator[0])
       MakeSeparator(70,H2Separator,3);
 
@@ -244,7 +244,7 @@ FindFiles::FindFiles()
     /* OT $ */
     CmpCase=FindAskDlg[7].Selected;
     /* $ 30.07.2000 KM
-       Добавлена переменная
+       ─юсртыхэр яхЁхьхээр 
     */
     WholeWords=FindAskDlg[8].Selected;
     /* KM $ */
@@ -255,7 +255,7 @@ FindFiles::FindFiles()
       strcpy(GlobalSearchString,FindStr);
       GlobalSearchCase=CmpCase;
       /* $ 30.07.2000 KM
-         Добавлена переменная
+         ─юсртыхэр яхЁхьхээр 
       */
       GlobalSearchWholeWords=WholeWords;
       /* KM $ */
@@ -273,7 +273,7 @@ FindFiles::FindFiles()
     Opt.FileSearchMode=SearchMode;
     LastCmpCase=CmpCase;
     /* $ 30.07.2000 KM
-       Добавлена переменная
+       ─юсртыхэр яхЁхьхээр 
     */
     LastWholeWords=WholeWords;
     /* KM $ */
@@ -349,7 +349,7 @@ int FindFiles::FindFilesProcess()
     Dialog Dlg(FindDlg,sizeof(FindDlg)/sizeof(FindDlg[0]));
     Dlg.SetHelp("FindFile");
     /* $ 10.09.2000 SVS
-       Запрещаем двигать диалог
+       ╟ряЁх∙рхь фтшурЄ№ фшрыюу
     */
     Dlg.SetModeMoving(FALSE);
     /* SVS $ */
@@ -388,7 +388,7 @@ int FindFiles::FindFilesProcess()
         break;
       }
       /* $ 07.08.2000 KM
-         Добавление кода для борьбы с глюком при поиске в запароленном архиве
+         ─юсртыхэшх ъюфр фы  сюЁ№с√ ё уы■ъюь яЁш яюшёъх т чрярЁюыхээюь рЁїштх
       */
       if (IsPluginGetsFile)
       {
@@ -529,12 +529,12 @@ int FindFiles::FindFilesProcess()
                 FindList.SetUpdateRequired(TRUE);
                 FindList.Show();
                 /* $ 05.08.2000 KM
-                   При движении курсорных клавиш в диалоге во время поиска
-                   диалог перерисовывается и строка, показывающая текущее
-                   место поиска исчезает. Инициализация этой переменной
-                   заставляет фар перерисовать эту строку заново (она рисуется поверх
-                   диалога, вместо внесения этой строки в контрол диалога - для
-                   ускорения процедуры поиска).
+                   ╧Ёш фтшцхэшш ъєЁёюЁэ√ї ъыртш° т фшрыюух тю тЁхь  яюшёър
+                   фшрыюу яхЁхЁшёют√трхЄё  ш ёЄЁюър, яюърч√тр■∙р  Єхъє∙хх
+                   ьхёЄю яюшёър шёўхчрхЄ. ╚эшЎшрышчрЎш  ¤Єющ яхЁхьхээющ
+                   чрёЄрты хЄ ЇрЁ яхЁхЁшёютрЄ№ ¤Єє ёЄЁюъє чрэютю (юэр ЁшёєхЄё  яютхЁї
+                   фшрыюур, тьхёЄю тэхёхэш  ¤Єющ ёЄЁюъш т ъюэЄЁюы фшрыюур - фы 
+                   єёъюЁхэш  яЁюЎхфєЁ√ яюшёър).
                 */
                 if (!SearchDone)
                   FindMessageReady=TRUE;
@@ -636,7 +636,7 @@ int FindFiles::FindFilesProcess()
         hPlugin=NULL;
       }
       /* $ 13.07.2000 SVS
-         использовали new[]
+         шёяюы№чютрыш new[]
       */
       delete[] PanelItems;
       /* SVS $ */
@@ -828,7 +828,7 @@ void ArchiveSearch(char *ArcName)
   if (ProcessFile==NULL)
   {
     /* $ 13.07.2000 SVS
-       использовали new[]
+       шёяюы№чютрыш new[]
     */
     delete[] Buffer;
     /* SVS $ */
@@ -842,7 +842,7 @@ void ArchiveSearch(char *ArcName)
   DisablePluginsOutput=FALSE;
 
   /* $ 13.07.2000 SVS
-     использовали new[]
+     шёяюы№чютрыш new[]
   */
   delete[] Buffer;
   /* SVS $ */
@@ -898,7 +898,7 @@ int IsFileIncluded(PluginPanelItem *FileItem,char *FullName,DWORD FileAttr)
         mktemp(TempDir);
         CreateDirectory(TempDir,NULL);
         /* $ 07.08.2000 KM
-           Добавление переменных для борьбы с глюком при поиске в запароленном архиве
+           ─юсртыхэшх яхЁхьхээ√ї фы  сюЁ№с√ ё уы■ъюь яЁш яюшёъх т чрярЁюыхээюь рЁїштх
         */
         IsPluginGetsFile=TRUE;
         if (!CtrlObject->Plugins.GetFile(hPlugin,FileItem,TempDir,SearchFileName,OPM_SILENT|OPM_FIND))
@@ -1032,7 +1032,7 @@ int LookForString(char *Name)
   if (!CmpCase)
     LocalStrupr(CmpStr);
   /* $ 30.07.2000 KM
-     Добавочные переменные
+     ─юсртюўэ√х яхЁхьхээ√х
   */
   int FirstIteration=TRUE;
   /* KM $ */
@@ -1049,7 +1049,7 @@ int LookForString(char *Name)
       memcpy(SaveBuf,Buf,ReadSize);
 
       /* $ 21.10.2000 SVS
-         Хреново получилось, в лоб так сказать, но ищет в FFFE-файлах
+         ╒Ёхэютю яюыєўшыюё№, т ыюс Єръ ёърчрЄ№, эю ш∙хЄ т FFFE-Їрщырї
       */
       if(!IsFirst)
       {
@@ -1089,7 +1089,7 @@ int LookForString(char *Name)
         LocalUpperBuf(Buf,ReadSize);
       int CheckSize=ReadSize-Length+1;
       /* $ 30.07.2000 KM
-         Обработка "Whole words" в поиске
+         ╬сЁрсюЄър "Whole words" т яюшёъх
       */
       for (int I=0;I<CheckSize;I++)
       {
@@ -1175,7 +1175,7 @@ int LookForString(char *Name)
     if (RealReadSize==sizeof(Buf))
     {
       /* $ 30.07.2000 KM
-         Изменение offset при чтении нового блока с учётом WordDiv
+         ╚чьхэхэшх offset яЁш ўЄхэшш эютюую сыюър ё єў╕Єюь WordDiv
       */
       int NewPos;
       if (UnicodeSearch)

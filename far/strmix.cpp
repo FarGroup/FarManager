@@ -1,7 +1,7 @@
 /*
 strmix.cpp
 
-Куча разных вспомогательных функций по работе со строками
+╩єўр Ёрчэ√ї тёяюьюурЄхы№э√ї ЇєэъЎшщ яю ЁрсюЄх ёю ёЄЁюърьш
 
 */
 
@@ -10,42 +10,42 @@ strmix.cpp
 /*
 Modify:
   22.04.2001 SVS
-    + Opt.QuotedSymbols - разделители для QuoteSpace()
-    ! немного оптимизации в Unquote
+    + Opt.QuotedSymbols - ЁрчфхышЄхыш фы  QuoteSpace()
+    ! эхьэюую юяЄшьшчрЎшш т Unquote
   13.04.2001 SVS
-    ! переделаны QuoteSpaceOnly & QuoteSpace - общий код вынесен во
-      вспомогательную функцию InsertQuote и добавлена проверка на присутствие
-      кавычек в начала и в конце строки.
+    ! яхЁхфхырэ√ QuoteSpaceOnly & QuoteSpace - юс∙шщ ъюф т√эхёхэ тю
+      тёяюьюурЄхы№эє■ ЇєэъЎш■ InsertQuote ш фюсртыхэр яЁютхЁър эр яЁшёєЄёЄтшх
+      ърт√ўхъ т эрўрыр ш т ъюэЎх ёЄЁюъш.
   08.04.2001 SVS
-    ! GetCommaWord() - дополнительный параметр - разделитель, по умолчанию = ','
+    ! GetCommaWord() - фюяюыэшЄхы№э√щ ярЁрьхЄЁ - ЁрчфхышЄхы№, яю єьюыўрэш■ = ','
   20.03.2001 SVS
-    + FileSizeToStr - функция преобразования размера файла в... удобочитаемый
-      вид - выдрана из FileList::ShowList()
+    + FileSizeToStr - ЇєэъЎш  яЁхюсЁрчютрэш  ЁрчьхЁр Їрщыр т... єфюсюўшЄрхь√щ
+      тшф - т√фЁрэр шч FileList::ShowList()
   13.03.2001 SVS
-    ! GetPathRoot переехала в flink.cpp :-)
+    ! GetPathRoot яхЁххїрыр т flink.cpp :-)
   12.03.2001 SVS
-    ! Коррекция в связи с изменениями в классе int64
+    ! ╩юЁЁхъЎш  т ёт чш ё шчьхэхэш ьш т ъырёёх int64
   06.03.2001 SVS
-    ! Немного оптимизации в TruncStr() - избавляемся от лишнего вызова new[]
-    ! Немного оптимизации в InsertCommas() - избавляемся от лишнего sprintf()
+    ! ═хьэюую юяЄшьшчрЎшш т TruncStr() - шчсрты хьё  юЄ ыш°эхую т√чютр new[]
+    ! ═хьэюую юяЄшьшчрЎшш т InsertCommas() - шчсрты хьё  юЄ ыш°эхую sprintf()
   05.03.2001 SVS
-    ! Немного оптимизации в фунциях QuoteSpace и QuoteSpaceOnly -
-      убрал лишний malloc()
+    ! ═хьэюую юяЄшьшчрЎшш т ЇєэЎш ї QuoteSpace ш QuoteSpaceOnly -
+      єсЁры ыш°эшщ malloc()
   28.02.2001 SVS
-    ! CenterStr возвращает указатель на Dest
+    ! CenterStr тючтЁр∙рхЄ єърчрЄхы№ эр Dest
   22.02.2001 IS
-    + RemoveChar - удаляет символ из строки
-    ! RemoveHighlights(Str) как макрос (в fn.hpp) - вызывает RemoveChar(Str,'&')
+    + RemoveChar - єфры хЄ ёшьтюы шч ёЄЁюъш
+    ! RemoveHighlights(Str) ъръ ьръЁюё (т fn.hpp) - т√ч√трхЄ RemoveChar(Str,'&')
   02.02.2001 IS
-    + Функция RemoveUnprintableCharacters - заменяет пробелами непечатные
-      символы в строке. В настоящий момент обрабатываются только cr и lf.
+    + ╘єэъЎш  RemoveUnprintableCharacters - чрьхэ хЄ яЁюсхырьш эхяхўрЄэ√х
+      ёшьтюы√ т ёЄЁюъх. ┬ эрёЄю ∙шщ ьюьхэЄ юсЁрсрЄ√тр■Єё  Єюы№ъю cr ш lf.
   05.01.2001 SVS
-    ! Выделение в качестве самостоятельного модуля
-    + Функции InsertCommas, PointToName, GetPathRoot, CmpName, ConvertWildcards,
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
+    + ╘єэъЎшш InsertCommas, PointToName, GetPathRoot, CmpName, ConvertWildcards,
       QuoteSpace, QuoteSpaceOnly, TruncStr, TruncPathStr, Remove???Spaces,
       HiStrlen, AddEndSlash, NullToEmpty, CenterStr, GetCommaWord,
       RemoveHighlights, IsCaseMixed, IsCaseLower, Unquote,
-      переехали из mix.cpp
+      яхЁххїрыш шч mix.cpp
 */
 
 #include "headers.hpp"
@@ -192,14 +192,14 @@ int CmpName(char *pattern,char *string,int skippath)
 }
 
 /* $ 09.10.2000 IS
-    Генерация нового имени по маске
-    (взял из ShellCopy::ShellCopyConvertWildcards)
+    ├хэхЁрЎш  эютюую шьхэш яю ьрёъх
+    (тч ы шч ShellCopy::ShellCopyConvertWildcards)
 */
-// На основе имени файла (Src) и маски (Dest) генерируем новое имя
-// SelectedFolderNameLength - длина каталога. Например, есть
-// каталог dir1, а в нем файл file1. Нужно сгенерировать имя по маске для dir1.
-// Параметры могут быть следующими: Src="dir1", SelectedFolderNameLength=0
-// или Src="dir1\\file1", а SelectedFolderNameLength=4 (длина "dir1")
+// ═р юёэютх шьхэш Їрщыр (Src) ш ьрёъш (Dest) ухэхЁшЁєхь эютюх шь 
+// SelectedFolderNameLength - фышэр ърЄрыюур. ═ряЁшьхЁ, хёЄ№
+// ърЄрыюу dir1, р т эхь Їрщы file1. ═єцэю ёухэхЁшЁютрЄ№ шь  яю ьрёъх фы  dir1.
+// ╧рЁрьхЄЁ√ ьюуєЄ с√Є№ ёыхфє■∙шьш: Src="dir1", SelectedFolderNameLength=0
+// шыш Src="dir1\\file1", р SelectedFolderNameLength=4 (фышэр "dir1")
 int ConvertWildcards(char *Src,char *Dest, int SelectedFolderNameLength)
 {
   char WildName[2*NM],*CurWildPtr,*DestNamePtr,*SrcNamePtr;
@@ -321,7 +321,7 @@ char* WINAPI TruncStr(char *Str,int MaxLength)
         sprintf(TmpStr,"...%s",Str+Length-MaxLength+3);
         strcpy(Str,TmpStr);
         /* $ 13.07.2000 SVS
-           ну а здесь раз уж вызвали new[], то в придачу и delete[] надо... */
+           эє р чфхё№ Ёрч єц т√чтрыш new[], Єю т яЁшфрўє ш delete[] эрфю... */
         delete[] TmpStr;
         /* SVS $ */
       }
@@ -367,10 +367,10 @@ char* WINAPI TruncPathStr(char *Str,int MaxLength)
 }
 
 /* $ 07.07.2000 SVS
-    + Дополнительная функция обработки строк: RemoveExternalSpaces
-    ! Функции Remove*Spaces возвращают char*
+    + ─юяюыэшЄхы№эр  ЇєэъЎш  юсЁрсюЄъш ёЄЁюъ: RemoveExternalSpaces
+    ! ╘єэъЎшш Remove*Spaces тючтЁр∙р■Є char*
 */
-// удалить ведущие пробелы
+// єфрышЄ№ тхфє∙шх яЁюсхы√
 char* WINAPI RemoveLeadingSpaces(char *Str)
 {
   char *ChPtr;
@@ -385,7 +385,7 @@ char* WINAPI RemoveLeadingSpaces(char *Str)
 }
 
 
-// удалить конечные пробелы
+// єфрышЄ№ ъюэхўэ√х яЁюсхы√
 char* WINAPI RemoveTrailingSpaces(char *Str)
 {
   if(Str)
@@ -399,7 +399,7 @@ char* WINAPI RemoveTrailingSpaces(char *Str)
   return Str;
 }
 
-// удалить пробелы снаружи
+// єфрышЄ№ яЁюсхы√ ёэрЁєцш
 char* WINAPI RemoveExternalSpaces(char *Str)
 {
   return RemoveTrailingSpaces(RemoveLeadingSpaces(Str));
@@ -407,8 +407,8 @@ char* WINAPI RemoveExternalSpaces(char *Str)
 /* SVS $ */
 
 /* $ 02.02.2001 IS
-   Заменяет пробелами непечатные символы в строке. В настоящий момент
-   обрабатываются только cr и lf.
+   ╟рьхэ хЄ яЁюсхырьш эхяхўрЄэ√х ёшьтюы√ т ёЄЁюъх. ┬ эрёЄю ∙шщ ьюьхэЄ
+   юсЁрсрЄ√тр■Єё  Єюы№ъю cr ш lf.
 */
 char* WINAPI RemoveUnprintableCharacters(char *Str)
 {
@@ -422,7 +422,7 @@ char* WINAPI RemoveUnprintableCharacters(char *Str)
 }
 /* IS $ */
 
-// Удалить символ Target из строки Str (везде!)
+// ╙фрышЄ№ ёшьтюы Target шч ёЄЁюъш Str (тхчфх!)
 char *RemoveChar(char *Str,char Target)
 {
   char *Ptr = Str, *StrBegin = Str, Chr;
@@ -455,9 +455,9 @@ int WINAPI AddEndSlash(char *Path)
   if(Path)
   {
     /* $ 06.12.2000 IS
-      ! Теперь функция работает с обоими видами слешей, также происходит
-        изменение уже существующего конечного слеша на такой, который
-        встречается чаще.
+      ! ╥хяхЁ№ ЇєэъЎш  ЁрсюЄрхЄ ё юсюшьш тшфрьш ёых°хщ, Єръцх яЁюшёїюфшЄ
+        шчьхэхэшх єцх ёє∙хёЄтє■∙хую ъюэхўэюую ёых°р эр Єръющ, ъюЄюЁ√щ
+        тёЄЁхўрхЄё  ўр∙х.
     */
     char *end=Path;
     int Slash=0, BackSlash=0;
@@ -514,7 +514,7 @@ char* CenterStr(char *Src,char *Dest,int Length)
 
 
 /* $ 08.04.2001 SVS
-  + дополнительный параметр - разделитель, по умолчанию = ','
+  + фюяюыэшЄхы№э√щ ярЁрьхЄЁ - ЁрчфхышЄхы№, яю єьюыўрэш■ = ','
 */
 char *GetCommaWord(char *Src,char *Word,char Separator)
 {
@@ -566,24 +566,24 @@ int IsCaseLower(char *Str)
 
 
 /* $ 28.06.2000 IS
-  Теперь функция Unquote убирает ВСЕ начальные и заключительные кавычки
+  ╥хяхЁ№ ЇєэъЎш  Unquote єсшЁрхЄ ┬╤┼ эрўры№э√х ш чръы■ўшЄхы№э√х ърт√ўъш
 */
 /* $ 25.07.2000 SVS
-   Вызов WINAPI
+   ┬√чют WINAPI
 */
 void WINAPI Unquote(char *Str)
 {
   if(Str && *Str)
   {
     int Length=lstrlen(Str)-1;
-    /*убираем заключительные кавычки*/
+    /*єсшЁрхь чръы■ўшЄхы№э√х ърт√ўъш*/
     while(Str[Length]=='\"')
     {
      Str[Length]='\0';
      if(!Length)break;
      Length--;
     }
-    /*убираем начальные кавычки*/
+    /*єсшЁрхь эрўры№э√х ърт√ўъш*/
     char *start=Str;
     while(*start=='\"') start++;
     if(start!=Str)
@@ -593,7 +593,7 @@ void WINAPI Unquote(char *Str)
 /* IS $ */
 
 /* FileSizeToStr()
-   Форматирование размера файла в удобочитаемый вид.
+   ╘юЁьрЄшЁютрэшх ЁрчьхЁр Їрщыр т єфюсюўшЄрхь√щ тшф.
 */
 char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size, int Width, int ViewFlags)
 {

@@ -1,7 +1,7 @@
 /*
 fileattr.cpp
 
-Работа с атрибутами файлов
+╨рсюЄр ё рЄЁшсєЄрьш Їрщыют
 
 */
 
@@ -10,7 +10,7 @@ fileattr.cpp
 /*
 Modify:
   30.12.2000 SVS
-    ! Выделение в качестве самостоятельного модуля
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
@@ -29,7 +29,7 @@ static int SetFileEncryption(const char *Name,int State);
 static int SetFileCompression(const char *Name,int State);
 
 
-// получим функции криптования
+// яюыєўшь ЇєэъЎшш ъЁшяЄютрэш 
 int GetEncryptFunctions(void)
 {
   const char *Names[]={
@@ -38,7 +38,7 @@ int GetEncryptFunctions(void)
 
   if(!pEncryptFileA)
   {
-    // работает только под Win2000! Если не 2000, то не надо и показывать эту опцию.
+    // ЁрсюЄрхЄ Єюы№ъю яюф Win2000! ┼ёыш эх 2000, Єю эх эрфю ш яюърч√трЄ№ ¤Єє юяЎш■.
     pEncryptFileA = (PEncryptFileA)GetProcAddress(GetModuleHandle(Names[0]),Names[2]);
     if(!pEncryptFileA)
       pEncryptFileA = (PEncryptFileA)GetProcAddress(GetModuleHandle(Names[1]),Names[2]);
@@ -88,8 +88,8 @@ static int SetFileCompression(const char *Name,int State)
 }
 
 /*
-  Для безусловного выставления атрибута FILE_ATTRIBUTE_COMPRESSED
-  необходимо в качестве параметра FileAttr передать значение 0
+  ─ы  схчєёыютэюую т√ёЄртыхэш  рЄЁшсєЄр FILE_ATTRIBUTE_COMPRESSED
+  эхюсїюфшью т ърўхёЄтх ярЁрьхЄЁр FileAttr яхЁхфрЄ№ чэрўхэшх 0
 */
 int ESetFileCompression(const char *Name,int State,int FileAttr)
 {
@@ -125,11 +125,11 @@ int ESetFileCompression(const char *Name,int State,int FileAttr)
 }
 
 /* $ 20.10.2000 SVS
-   Новый атрибут Encripted
+   ═ют√щ рЄЁшсєЄ Encripted
 */
 static int SetFileEncryption(const char *Name,int State)
 {
-  // заодно и проверяется успешность получения адреса API...
+  // чрюфэю ш яЁютхЁ хЄё  єёях°эюёЄ№ яюыєўхэш  рфЁхёр API...
   if(State)
      return pEncryptFileA ? (*pEncryptFileA)(Name) : FALSE;
   else
@@ -137,8 +137,8 @@ static int SetFileEncryption(const char *Name,int State)
 }
 
 /*
-  Для безусловного выставления атрибута FILE_ATTRIBUTE_ENCRYPTED
-  необходимо в качестве параметра FileAttr передать значение 0
+  ─ы  схчєёыютэюую т√ёЄртыхэш  рЄЁшсєЄр FILE_ATTRIBUTE_ENCRYPTED
+  эхюсїюфшью т ърўхёЄтх ярЁрьхЄЁр FileAttr яхЁхфрЄ№ чэрўхэшх 0
 */
 int ESetFileEncryption(const char *Name,int State,int FileAttr)
 {
@@ -151,8 +151,8 @@ int ESetFileEncryption(const char *Name,int State,int FileAttr)
   int Ret=TRUE;
 
   // Drop Compress
-  // Этот кусок не нужен, т.к. функция криптования сама умеет
-  // разжимать сжатые файлы.
+  // ▌ЄюЄ ъєёюъ эх эєцхэ, Є.ъ. ЇєэъЎш  ъЁшяЄютрэш  ёрьр єьххЄ
+  // ЁрчцшьрЄ№ ёцрЄ√х Їрщы√.
   //if ((FileAttr & FILE_ATTRIBUTE_COMPRESSED) && State)
   //  SetFileCompression(Name,0);
 

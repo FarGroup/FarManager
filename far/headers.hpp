@@ -1,7 +1,7 @@
 /*
 headers.cpp
 
-Стандартные заголовки
+╤ЄрэфрЁЄэ√х чруюыютъш
 
 */
 
@@ -12,30 +12,30 @@ Modify:
   25.04.2001 SVS
     + FILE_SUPPORTS_REPARSE_POINTS
   08.04.2001 SVS
-    ! вместо alloc.h просто вызываем malloc.h
+    ! тьхёЄю alloc.h яЁюёЄю т√ч√трхь malloc.h
   24.10.2000 SVS
     + share.h
   20.10.2000 SVS
     + FILE_SUPPORTS_ENCRYPTION,
       FILE_ATTRIBUTE_ENCRYPTED,
       FS_FILE_ENCRYPTION
-    ! FILE_ATTRIBUTE_REPARSE_POINT перенесен из farconst.hpp в headers.hpp
+    ! FILE_ATTRIBUTE_REPARSE_POINT яхЁхэхёхэ шч farconst.hpp т headers.hpp
   11.10.2000 SVS
-    ! В BC RAND_MAX = 0x7fffU, а не 0x7fff
+    ! ┬ BC RAND_MAX = 0x7fffU, р эх 0x7fff
   19.09.2000 SVS
-    + выравнивание на 2 байта
+    + т√Ёртэштрэшх эр 2 срщЄр
   19.07.2000 SVS
-    - Из-за различий в реализации функции getdisk в BC & VC
-      не работал AltFx если панель имела UNC путь
+    - ╚ч-чр Ёрчышўшщ т ЁхрышчрЎшш ЇєэъЎшш getdisk т BC & VC
+      эх ЁрсюЄры AltFx хёыш ярэхы№ шьхыр UNC яєЄ№
   12.07.2000 OT
-    - Исправление бага, из-за которго не работал ScreenSaver после
-      компиляции VC++
+    - ╚ёяЁртыхэшх срур, шч-чр ъюЄюЁую эх ЁрсюЄры ScreenSaver яюёых
+      ъюьяшы Ўшш VC++
   11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
+    ! ╚чьхэхэш  фы  тючьюцэюёЄш ъюьяшы Ўшш яюф BC & VC
   07.07.2000 SVS
-    + stdarg.h - Для FarAdvControl
+    + stdarg.h - ─ы  FarAdvControl
   27.06.2000 AT
-    + Данный патч сделан для использования предкомпилированных заголовков
+    + ─рээ√щ ярЄў ёфхырэ фы  шёяюы№чютрэш  яЁхфъюьяшышЁютрээ√ї чруюыютъют
 */
 
 #define STRICT
@@ -142,8 +142,8 @@ Modify:
   #define setdisk(n) _chdrive((n)+1)
 
   /* $ 12.07.2000 OT
-    - Исправление бага, из-за которго не работал ScreenSaver после
-      компиляции VC++
+    - ╚ёяЁртыхэшх срур, шч-чр ъюЄюЁую эх ЁрсюЄры ScreenSaver яюёых
+      ъюьяшы Ўшш VC++
   */
   #ifndef RAND_MAX
   #define RAND_MAX 0x7fffU
@@ -153,9 +153,9 @@ Modify:
   /* OT $ */
 
   /* $ 19.07.2000 SVS
-    - Из-за различий в реализации функции getdisk в BC & VC
-      не работал AltFx если панель имела UNC путь
-      Сама функция находится в farrtl.cpp
+    - ╚ч-чр Ёрчышўшщ т ЁхрышчрЎшш ЇєэъЎшш getdisk т BC & VC
+      эх ЁрсюЄры AltFx хёыш ярэхы№ шьхыр UNC яєЄ№
+      ╤рьр ЇєэъЎш  эрїюфшЄё  т farrtl.cpp
   */
   #ifdef  __cplusplus
   extern "C" {

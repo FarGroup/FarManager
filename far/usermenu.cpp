@@ -1,7 +1,7 @@
 /*
 usermenu.cpp
 
-User menu и есть
+User menu ш хёЄ№
 
 */
 
@@ -10,64 +10,64 @@ User menu и есть
 /*
 Modify:
   01.05.2001 IS
-    ! Теперь при выполнении команд из меню панели и их обновление не
-      отключаются.
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
+    ! ╥хяхЁ№ яЁш т√яюыэхэшш ъюьрэф шч ьхэ■ ярэхыш ш шї юсэютыхэшх эх
+      юЄъы■ўр■Єё .
+  29.04.2001 ╬╥
+    + ┬эхфЁхэшх NWZ юЄ ╥ЁхЄ№ ъютр
   25.04.2001 DJ
-    * новая константа EC_COMMAND_EXECUTED; не обновляем панели, если
-      меню было закрыто без выбора команды
+    * эютр  ъюэёЄрэЄр EC_COMMAND_EXECUTED; эх юсэюты хь ярэхыш, хёыш
+      ьхэ■ с√ыю чръЁ√Єю схч т√сюЁр ъюьрэф√
   28.02.2001 IS
     ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   27.02.2001 VVM
-    ! Символы, зависимые от кодовой страницы
+    ! ╤шьтюы√, чртшёшь√х юЄ ъюфютющ ёЄЁрэшЎ√
       /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
-      переведены в коды.
+      яхЁхтхфхэ√ т ъюф√.
   11.02.2001 SVS
-    ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
+    ! ═хёъюы№ъю єЄюўэхэшщ ъюфр т ёт чш ё шчьхэхэш ьш т ёЄЁєъЄєЁх MenuItem
   17.01.2001 SVS
-    - Вернем обратно предыдущее изменение в связи с очередным уточнением клавиш
+    - ┬хЁэхь юсЁрЄэю яЁхф√фє∙хх шчьхэхэшх т ёт чш ё юўхЁхфэ√ь єЄюўэхэшхь ъыртш°
   09.01.2001 SVS
-    - Для преобразования (Key>=KEY_F1 && Key<=KEY_F12) в индекс массива
-      нужно сдвинуть результат (Key-KEY_F1) на 8 вправо.
+    - ─ы  яЁхюсЁрчютрэш  (Key>=KEY_F1 && Key<=KEY_F12) т шэфхъё ьрёёштр
+      эєцэю ёфтшэєЄ№ Ёхчєы№ЄрЄ (Key-KEY_F1) эр 8 тяЁртю.
   22.12.2000 IS
-    ! Если не ввели метку и нажали "продолжить", то не выходим из диалога
-      редактирования команд, т.к. теряем те команды, что, возможно, ввели.
-      Для выхода из меню нужно воспользоваться esc или кнопкой "отменить".
+    ! ┼ёыш эх ттхыш ьхЄъє ш эрцрыш "яЁюфюыцшЄ№", Єю эх т√їюфшь шч фшрыюур
+      ЁхфръЄшЁютрэш  ъюьрэф, Є.ъ. ЄхЁ хь Єх ъюьрэф√, ўЄю, тючьюцэю, ттхыш.
+      ─ы  т√їюфр шч ьхэ■ эєцэю тюёяюы№чютрЄ№ё  esc шыш ъэюяъющ "юЄьхэшЄ№".
   11.11.2000 SVS
-    ! FarMkTemp() - убираем (как всегда - то ставим, то тут же убираем :-(((
+    ! FarMkTemp() - єсшЁрхь (ъръ тёхуфр - Єю ёЄртшь, Єю ЄєЄ цх єсшЁрхь :-(((
   11.11.2000 SVS
-    ! Используем конструкцию FarMkTemp()
+    ! ╚ёяюы№чєхь ъюэёЄЁєъЎш■ FarMkTemp()
   14.10.2000 VVM
-    + Разделитель меню, если Метка пуста, а ХотКей="-"
+    + ╨рчфхышЄхы№ ьхэ■, хёыш ╠хЄър яєёЄр, р ╒юЄ╩хщ="-"
   02.09.2000 tran
     - !@!, !#!@! bug
   28.07.2000 VVM
-    + Обработка переменных окружения в названии меню
-    - Исправлен баг с клавишей BkSpace
+    + ╬сЁрсюЄър яхЁхьхээ√ї юъЁєцхэш  т эрчтрэшш ьхэ■
+    - ╚ёяЁртыхэ сру ё ъыртш°хщ BkSpace
   24.07.2000 VVM
-    + При показе главного меню в заголовок добавляет тип - FAR/Registry
+    + ╧Ёш яюърчх уыртэюую ьхэ■ т чруюыютюъ фюсрты хЄ Єшя - FAR/Registry
   20.07.2000 tran 1.04
     - Bug#19
-      ">" обозначающие подменю выравниваются по максимальной границе
+      ">" юсючэрўр■∙шх яюфьхэ■ т√Ёртэштр■Єё  яю ьръёшьры№эющ уЁрэшЎх
   17.07.2000 VVM
-    + При первом вызове не ищет меню из родительского каталога
-    + SHIFT+F2 переключает Главное меню/локальное в цикле
+    + ╧Ёш яхЁтюь т√чютх эх ш∙хЄ ьхэ■ шч ЁюфшЄхы№ёъюую ърЄрыюур
+    + SHIFT+F2 яхЁхъы■ўрхЄ ├ыртэюх ьхэ■/ыюъры№эюх т Ўшъых
   14.07.2000 VVM
-    + Вызов главного меню по SHIFT+F2
-    + Показ меню из родительского каталога по BkSpace
+    + ┬√чют уыртэюую ьхэ■ яю SHIFT+F2
+    + ╧юърч ьхэ■ шч ЁюфшЄхы№ёъюую ърЄрыюур яю BkSpace
   28.06.2000 tran
-    + выход из пользовтельского меню любого уровня вложенности
+    + т√їюф шч яюы№чютЄхы№ёъюую ьхэ■ ы■сюую єЁютэ  тыюцхээюёЄш
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -83,8 +83,8 @@ static int MenuModified;
 static char MenuRootKey[100],LocalMenuKey[100];
 
 /* $ 14.07.2000 VVM
-   + Режимы показа меню (Menu mode) и Коды выхода из меню (Exit codes)
-   SVS> вынесены в farconst.hpp :-)
+   + ╨хцшь√ яюърчр ьхэ■ (Menu mode) ш ╩юф√ т√їюфр шч ьхэ■ (Exit codes)
+   SVS> т√эхёхэ√ т farconst.hpp :-)
 */
 static int MenuMode;
 /* VVM $ */
@@ -94,13 +94,13 @@ static char SubMenuSymbol[]={0x020,0x010,0x000};
 void ProcessUserMenu(int EditMenu)
 {
 /* $ 14.07.2000 VVM
-   + Вынес все описания в начало процедуры. Привык я к паскалю :)
+   + ┬√эхё тёх юяшёрэш  т эрўрыю яЁюЎхфєЁ√. ╧Ёшт√ъ   ъ ярёъры■ :)
 */
   FILE *MenuFile;
 //  char MenuFileName[NM];
   char MenuKey[512];
 //  char CurDir[NM];
-  char MenuFilePath[NM];    // Путь к текущему каталогу с файлом LocalMenuFileName
+  char MenuFilePath[NM];    // ╧єЄ№ ъ Єхъє∙хьє ърЄрыюує ё Їрщыюь LocalMenuFileName
   char *ChPtr;
   int  ExitCode = 0;
   int RunFirst  = 1;
@@ -108,7 +108,7 @@ void ProcessUserMenu(int EditMenu)
 
   CtrlObject->CmdLine->GetCurDir(MenuFilePath);
 /* $ 14.07.2000 VVM
-  ! Менять пока ничего не надо - потом сменим.
+  ! ╠хэ Є№ яюър эшўхую эх эрфю - яюЄюь ёьхэшь.
 */
 //  if (chdir(MenuFilePath)==-1)
 //    chdir(FarPath);
@@ -142,10 +142,10 @@ void ProcessUserMenu(int EditMenu)
     } /* if */
   }
 /* $ 14.07.2000 VVM
-   + Почти полностью переписан алгоритм функции ProcessUserMenu. Добавлен цикл.
+   + ╧юўЄш яюыэюёЄ№■ яхЁхяшёрэ рыуюЁшЄь ЇєэъЎшш ProcessUserMenu. ─юсртыхэ Ўшъы.
 */
 /* $ 25.04.2001 DJ
-   добавлена EC_COMMAND_EXECUTED
+   фюсртыхэр EC_COMMAND_EXECUTED
 */
   while((ExitCode != EC_CLOSE_LEVEL) && (ExitCode != EC_CLOSE_MENU) &&
       (ExitCode != EC_COMMAND_SELECTED))
@@ -154,7 +154,7 @@ void ProcessUserMenu(int EditMenu)
 
     if (MenuMode!=MM_MAIN)
     {
-      // Пытаемся открыть файл на локальном диске
+      // ╧√Єрхьё  юЄъЁ√Є№ Їрщы эр ыюъры№эюь фшёъх
       if ((chdir(MenuFilePath)==0) &&
          ((MenuFile=fopen(LocalMenuFileName,"rb"))!=NULL))
       {
@@ -162,17 +162,17 @@ void ProcessUserMenu(int EditMenu)
         fclose(MenuFile);
       } /* if */
       else
-      // Файл не открылся. Смотрим дальше.
+      // ╘рщы эх юЄъЁ√ыё . ╤ьюЄЁшь фры№°х.
         if (MenuMode==MM_FAR)
           MenuMode=MM_MAIN;
         else
           if (!EditMenu)
           {
 /* $ 14.07.2000 VVM
-    + При первом вызове не ищет меню из родительского каталога
+    + ╧Ёш яхЁтюь т√чютх эх ш∙хЄ ьхэ■ шч ЁюфшЄхы№ёъюую ърЄрыюур
 */
 /* $ 28.07.2000 VVM
-    + Введен флаг для первого вызова
+    + ┬тхфхэ Їыру фы  яхЁтюую т√чютр
 */
             if (!RunFirst)
             {
@@ -195,7 +195,7 @@ void ProcessUserMenu(int EditMenu)
     strcpy(MenuRootKey,(MenuMode==MM_MAIN) ? "UserMenu\\MainMenu":LocalMenuKey);
     ExitCode=ProcessSingleMenu(MenuRootKey, 0);
 
-    // Фаровский кусок по записи файла
+    // ╘рЁютёъшщ ъєёюъ яю чряшёш Їрщыр
     if ((MenuMode!=MM_MAIN) && (MenuModified))
     {
       chdir(MenuFilePath);
@@ -248,7 +248,7 @@ void ProcessUserMenu(int EditMenu)
       case EC_MAIN_MENU:
       {
 /* $ 14.07.2000 VVM
-    + SHIFT+F2 переключает Главное меню/локальное в цикле
+    + SHIFT+F2 яхЁхъы■ўрхЄ ├ыртэюх ьхэ■/ыюъры№эюх т Ўшъых
 */
         switch(MenuMode)
         {
@@ -286,8 +286,8 @@ void ProcessUserMenu(int EditMenu)
   CtrlObject->CmdLine->GetCurDir(MenuFilePath);
   chdir(MenuFilePath);
   /* $ 25.04.2001 DJ
-     не перерисовываем панель, если пользователь ничего не сделал
-     в меню
+     эх яхЁхЁшёют√трхь ярэхы№, хёыш яюы№чютрЄхы№ эшўхую эх ёфхыры
+     т ьхэ■
   */
   if (ExitCode == EC_COMMAND_SELECTED || MenuModified)
   {
@@ -356,7 +356,7 @@ void ProcessUserMenu(int EditMenu)
 
 
 /* $ 14.07.2000 VVM
-   + Вместо TRUE/FALSE возвращает коды EC_*
+   + ┬ьхёЄю TRUE/FALSE тючтЁр∙рхЄ ъюф√ EC_*
 */
 /* VVM $ */
 int ProcessSingleMenu(char *MenuKey,int MenuPos)
@@ -375,7 +375,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
 
     {
       /* $ 24.07.2000 VVM
-       + При показе главного меню в заголовок добавляет тип - FAR/Registry
+       + ╧Ёш яюърчх уыртэюую ьхэ■ т чруюыютюъ фюсрты хЄ Єшя - FAR/Registry
       */
       char MenuTitle[128];
       switch (MenuMode)
@@ -398,7 +398,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
       NumLine=0;
 
       /* $ 20.07.2000 tran
-         + лишний проход для вычисления максимальной длины строки */
+         + ыш°эшщ яЁюїюф фы  т√ўшёыхэш  ьръёшьры№эющ фышэ√ ёЄЁюъш */
       int MaxLen=20;
 
       while (1)
@@ -412,7 +412,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
           break;
         SubstFileName(Label,Name,ShortName,NULL,NULL,TRUE);
         /* $ 28.07.2000 VVM
-           + Обработка переменных окружения
+           + ╬сЁрсюЄър яхЁхьхээ√ї юъЁєцхэш 
         */
         ExpandEnvironmentStr(Label, Label, sizeof(Label));
         /* VVM $ */
@@ -426,7 +426,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
           sprintf(HotKey,"F%d",FuncNum);
         }
         /* $ 14.10.2000 VVM
-           + Разделитель меню, если Метка пуста, а ХотКей="-"
+           + ╨рчфхышЄхы№ ьхэ■, хёыш ╠хЄър яєёЄр, р ╒юЄ╩хщ="-"
         */
         if ((strlen(Label)==0) && (strcmp(HotKey,"-")==0))
         {
@@ -442,7 +442,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
         NumLine++;
       }
 
-      MaxLen-=4; // отнимаем длину функциональных клавиш
+      MaxLen-=4; // юЄэшьрхь фышэє ЇєэъЎшюэры№э√ї ъыртш°
       /* tran 20.07.2000 $ */
 
 
@@ -458,7 +458,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
           break;
         SubstFileName(Label,Name,ShortName,NULL,NULL,TRUE);
         /* $ 28.07.2000 VVM
-           + Обработка переменных окружения
+           + ╬сЁрсюЄър яхЁхьхээ√ї юъЁєцхэш 
         */
         ExpandEnvironmentStr(Label, Label, sizeof(Label));
         /* VVM $ */
@@ -475,7 +475,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
           sprintf(HotKey,"F%d",FuncNum);
         }
         /* $ 14.10.2000 VVM
-           + Разделитель меню, если Метка пуста, а ХотКей="-"
+           + ╨рчфхышЄхы№ ьхэ■, хёыш ╠хЄър яєёЄр, р ╒юЄ╩хщ="-"
         */
         if ((strlen(Label)==0) && (strcmp(HotKey,"-")==0))
         {
@@ -487,7 +487,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
         else
         {
         /* $ 20.07.2000 tran
-           %-20.*s поменял на %-*.*s и используется MaxLen как максимальная длина */
+           %-20.*s яюьхэ ы эр %-*.*s ш шёяюы№чєхЄё  MaxLen ъръ ьръёшьры№эр  фышэр */
           sprintf(MenuText,"%s%-3.3s %-*.*s",FuncNum>0 ? "":"&",HotKey,MaxLen,ScrX-12,Label);
         /* tran 20.07.2000 $ */
           if (SubMenu)
@@ -578,7 +578,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
                 UserMenu.Hide();
                 MenuModified=TRUE;
 /* $ 14.07.2000 VVM
-   ! Закрыть меню
+   ! ╟ръЁ√Є№ ьхэ■
 */
                 return(EC_CLOSE_MENU);
 /* VVM $ */
@@ -587,20 +587,20 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
                 Message(MSG_WARNING,1,MSG(MWarning),MSG(MRegOnly),MSG(MOk));
               break;
             /* $ 28.06.2000 tran
-               выход из пользовательского меню по ShiftF10 из любого уровня
-               вложенности просто задаем ExitCode -1, и возвращаем FALSE -
-               по FALSE оно и выйдет откуда угодно */
+               т√їюф шч яюы№чютрЄхы№ёъюую ьхэ■ яю ShiftF10 шч ы■сюую єЁютэ 
+               тыюцхээюёЄш яЁюёЄю чрфрхь ExitCode -1, ш тючтЁр∙рхь FALSE -
+               яю FALSE юэю ш т√щфхЄ юЄъєфр єуюфэю */
             case KEY_SHIFTF10:
 //              UserMenu.SetExitCode(-1);
               return(EC_CLOSE_MENU);
              /* tran $ */
 /* $ 14.07.2000 VVM
-   + Показать главное меню
+   + ╧юърчрЄ№ уыртэюх ьхэ■
 */
             case KEY_SHIFTF2:
                 return(EC_MAIN_MENU);
 /* $ 17.07.2000 VVM
-   + Показать меню из родительского каталога только в MM_LOCAL режиме
+   + ╧юърчрЄ№ ьхэ■ шч ЁюфшЄхы№ёъюую ърЄрыюур Єюы№ъю т MM_LOCAL Ёхцшьх
 */
             case KEY_BS:
               if (MenuMode!=MM_MAIN)
@@ -617,7 +617,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
 
     if (ExitCode<0 || ExitCode>=NumLine)
 /* $ 14.07.2000 VVM
-   ! вверх на один уровень
+   ! ттхЁї эр юфшэ єЁютхэ№
 */
       return(EC_CLOSE_LEVEL);
 /* VVM $ */
@@ -632,7 +632,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
       char SubMenuKey[512];
       sprintf(SubMenuKey,"%s\\Item%d",MenuKey,ExitCode);
 /* $ 14.07.2000 VVM
-   ! Если закрыли подменю, то остаться. Инече передать управление выше
+   ! ┼ёыш чръЁ√ыш яюфьхэ■, Єю юёЄрЄ№ё . ╚эхўх яхЁхфрЄ№ єяЁртыхэшх т√°х
 */
       MenuPos=ProcessSingleMenu(SubMenuKey,0);
       if (MenuPos!=EC_CLOSE_LEVEL)
@@ -643,7 +643,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
     }
 
     /* $ 01.05.2001 IS
-         Отключим до лучших времен
+         ╬Єъы■ўшь фю ыєў°шї тЁхьхэ
     */
     //int LeftVisible,RightVisible,PanelsHidden=0;
     /* IS $ */
@@ -664,7 +664,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
         int PreserveLFN=SubstFileName(Command,Name,ShortName,ListName,ShortListName,FALSE,CmdLineDir);
         PreserveLongName PreserveName(ShortName,PreserveLFN);
         /* $ 01.05.2001 IS
-           Отключим до лучших времен
+           ╬Єъы■ўшь фю ыєў°шї тЁхьхэ
         */
         /*if (!PanelsHidden)
         {
@@ -691,7 +691,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
       CurLine++;
     }
     /* $ 01.05.2001 IS
-         Отключим до лучших времен
+         ╬Єъы■ўшь фю ыєў°шї тЁхьхэ
     */
     /*if (PanelsHidden)
     {
@@ -706,10 +706,10 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
     }*/
     /* IS $ */
 /* $ 14.07.2000 VVM
-   ! Закрыть меню
+   ! ╟ръЁ√Є№ ьхэ■
 */
 /* $ 25.04.2001 DJ
-   сообщаем, что была выполнена команда (нужно перерисовать панели)
+   ёююс∙рхь, ўЄю с√ыр т√яюыэхэр ъюьрэфр (эєцэю яхЁхЁшёютрЄ№ ярэхыш)
 */
     return(EC_COMMAND_SELECTED);
 /* DJ $ */
@@ -802,9 +802,9 @@ int EditMenuRecord(char *MenuKey,int EditPos,int TotalRecords,int NewRec)
     Dlg.SetHelp("UserMenu");
     Dlg.SetPosition(-1,-1,76,22);
     /* $ 22.12.2000 IS
-       ! Если не ввели метку и нажали "продолжить", то не выходим из диалога
-         редактирования команд, т.к. теряем те команды, что, возможно, ввели.
-         Для выхода из меню нужно воспользоваться esc или кнопкой "отменить".
+       ! ┼ёыш эх ттхыш ьхЄъє ш эрцрыш "яЁюфюыцшЄ№", Єю эх т√їюфшь шч фшрыюур
+         ЁхфръЄшЁютрэш  ъюьрэф, Є.ъ. ЄхЁ хь Єх ъюьрэф√, ўЄю, тючьюцэю, ттхыш.
+         ─ы  т√їюфр шч ьхэ■ эєцэю тюёяюы№чютрЄ№ё  esc шыш ъэюяъющ "юЄьхэшЄ№".
     */
     while(1)
     {

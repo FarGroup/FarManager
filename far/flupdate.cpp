@@ -1,7 +1,7 @@
 /*
 flupdate.cpp
 
-” ©«®¢ ï ¯ ­¥«ì - çâ¥­¨¥ ¨¬¥­ ä ©«®¢
+Ôàéëîâàÿ ïàíåëü - ÷òåíèå èìåí ôàéëîâ
 
 */
 
@@ -9,35 +9,35 @@ flupdate.cpp
 
 /*
 Modify:
-  29.04.2001 Ž’
-    + ‚­¥¤à¥­¨¥ NWZ ®â ’à¥âìïª®¢ 
+  29.04.2001 ÎÒ
+    + Âíåäðåíèå NWZ îò Òðåòüÿêîâà
   26.03.2001 SVS
-    ! ¤«ï «î¡ëå á¥â¥¢ëå ¯ãâ¥© ¤®¡ ¢«ï¥¬ ".." - ¨­®£¤  ®¯¥à æ¨®­ª  íâ®£®
-      á ¬  ­¥ ¤¥« ¥â :-(
+    ! äëÿ ëþáûõ ñåòåâûõ ïóòåé äîáàâëÿåì ".." - èíîãäà îïåðàöèîíêà ýòîãî
+      ñàìà íå äåëàåò :-(
   28.02.2001 IS
     ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   27.02.2001 VVM
-    ! ‘¨¬¢®«ë, § ¢¨á¨¬ë¥ ®â ª®¤®¢®© áâà ­¨æë
+    ! Ñèìâîëû, çàâèñèìûå îò êîäîâîé ñòðàíèöû
       /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
-      ¯¥à¥¢¥¤¥­ë ¢ ª®¤ë.
+      ïåðåâåäåíû â êîäû.
   25.02.2001 VVM
-    + Ž¡à ¡®âª  ä« £  RDF_NO_UPDATE ¢ ReadDiz()
+    + Îáðàáîòêà ôëàãà RDF_NO_UPDATE â ReadDiz()
   11.11.2000 SVS
-    ! FarMkTemp() - ã¡¨à ¥¬ (ª ª ¢á¥£¤  - â® áâ ¢¨¬, â® âãâ ¦¥ ã¡¨à ¥¬ :-(((
+    ! FarMkTemp() - óáèðàåì (êàê âñåãäà - òî ñòàâèì, òî òóò æå óáèðàåì :-(((
   11.11.2000 SVS
-    ! ˆá¯®«ì§ã¥¬ ª®­áâàãªæ¨î FarMkTemp()
+    ! Èñïîëüçóåì êîíñòðóêöèþ FarMkTemp()
   13.07.2000 SVS
-    ! ¥ª®â®àë¥ ª®àà¥ªæ¨¨ ¯à¨ ¨á¯®«ì§®¢ ­¨¨ new/delete/realloc
+    ! Íåêîòîðûå êîððåêöèè ïðè èñïîëüçîâàíèè new/delete/realloc
   25.06.2000 SVS
-    ! ®¤£®â®¢ª  Master Copy
-    ! ‚ë¤¥«¥­¨¥ ¢ ª ç¥áâ¢¥ á ¬®áâ®ïâ¥«ì­®£® ¬®¤ã«ï
+    ! Ïîäãîòîâêà Master Copy
+    ! Âûäåëåíèå â êà÷åñòâå ñàìîñòîÿòåëüíîãî ìîäóëÿ
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   ‘â ­¤ àâ­ë¥ § £®«®¢ª¨
+   Ñòàíäàðòíûå çàãîëîâêè
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -316,7 +316,7 @@ void FileList::ReadFileNames(int KeepSelection)
     if (ChPtr==NULL || strchr(ChPtr+1,'\\')==NULL)
       NetRoot=TRUE;
   }
-  // ¯®ª  ªãá®ª § ª®¬¬¥­â¨¬, ¢®§¬®¦­® ®­ ¤ ¦¥ ¨ ­¥ ¯à¨£®¤¨âáï.
+  // ïîêà êóñîê çàêîììåíòèì, âîçìîæíî îí äàæå è íå ïðèãîäèòñÿ.
   if (!DotsPresent && *PointToName(CurDir)!=0)// && !NetRoot)
   {
     if (FileCount>=AllocatedCount)
@@ -554,7 +554,7 @@ void FileList::UpdatePlugin(int KeepSelection)
 
   FileCount=PluginFileCount;
   /* $ 13.07.2000 SVS
-     áâà ­­®,   ¯®â®¬ ¯¥à¥à á¯à¥¤¥«¥­¨¥ ç¥à¥§ realloc ¨¤¥â :-(
+     ñòðàííî, à ïîòîì ïåðåðàñïðåäåëåíèå ÷åðåç realloc èäåò :-(
   */
   ListData=(struct FileListItem*)malloc(sizeof(struct FileListItem)*(FileCount+1));
   /* SVS $ */
@@ -640,7 +640,7 @@ void FileList::UpdatePlugin(int KeepSelection)
   }
 
   /* $ 25.02.2001 VVM
-      ! ¥ áç¨âë¢ âì ¯®¢â®à­® á¯¨á®ª ä ©«®¢ á ¯ ­¥«¨ ¯« £¨­  */
+      ! Íå ñ÷èòûâàòü ïîâòîðíî ñïèñîê ôàéëîâ ñ ïàíåëè ïëàãèíà */
   if (IsColumnDisplayed(DIZ_COLUMN))
     ReadDiz(PanelData,PluginFileCount,RDF_NO_UPDATE);
   /* VVM $ */
@@ -692,7 +692,7 @@ void FileList::ReadDiz(struct PluginPanelItem *ItemList,int ItemLength,DWORD dwF
 
     int GetCode=TRUE;
     /* $ 25.02.2001 VVM
-        + Ž¡à ¡®âª  ä« £  RDF_NO_UPDATE */
+        + Îáðàáîòêà ôëàãà RDF_NO_UPDATE */
     if ((ItemList==NULL) && ((dwFlags & RDF_NO_UPDATE) == 0))
       GetCode=CtrlObject->Plugins.GetFindData(hPlugin,&PanelData,&PluginFileCount,0);
     /* VVM $ */
@@ -725,7 +725,7 @@ void FileList::ReadDiz(struct PluginPanelItem *ItemList,int ItemLength,DWORD dwF
             }
           }
       /* $ 25.02.2001 VVM
-          + Ž¡à ¡®âª  ä« £  RDF_NO_UPDATE */
+          + Îáðàáîòêà ôëàãà RDF_NO_UPDATE */
       if ((ItemList==NULL) && ((dwFlags & RDF_NO_UPDATE) == 0))
         CtrlObject->Plugins.FreeFindData(hPlugin,PanelData,PluginFileCount);
       /* VVM $ */

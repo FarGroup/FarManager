@@ -3,7 +3,7 @@
 /*
 panel.hpp
 
-Parent class для панелей
+Parent class фы  ярэхыхщ
 
 */
 
@@ -12,22 +12,22 @@ Parent class для панелей
 /*
 Modify:
   30.04.2001 DJ
-    + UpdateKeyBar() - установка key bar titles
+    + UpdateKeyBar() - єёЄрэютър key bar titles
   25.04.2001 SVS
-    + GetRealSelCount() - сейчас используется для макросов.
+    + GetRealSelCount() - ёхщўрё шёяюы№чєхЄё  фы  ьръЁюёют.
   24.04.2001 VVM
-    + функция смены сортировки.
+    + ЇєэъЎш  ёьхэ√ ёюЁЄшЁютъш.
   25.02.2001 VVM
-    + Доп. параметр у ReadDiz - dwFlags
-      На данном этапе флаг всего один
-      RDF_NO_UPDATE - Не выполнять GetFindData.
+    + ─юя. ярЁрьхЄЁ є ReadDiz - dwFlags
+      ═р фрээюь ¤Єрях Їыру тёхую юфшэ
+      RDF_NO_UPDATE - ═х т√яюыэ Є№ GetFindData.
   14.02.2001 SVS
-    ! Дополнительный параметр для MakeListFile - модификаторы
+    ! ─юяюыэшЄхы№э√щ ярЁрьхЄЁ фы  MakeListFile - ьюфшЇшърЄюЁ√
   09.02.2001 IS
     + Get(Set)SelectedFirstMode
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 
@@ -84,8 +84,8 @@ class Panel:public ScreenObject
     virtual int GoToFile(char *Name) {return(TRUE);};
     virtual int IsSelected(char *Name) {return(FALSE);};
     /* $ 09.02.2001 IS
-       Функции установления/считывания состояния режима
-       "Помеченные файлы вперед"
+       ╘єэъЎшш єёЄрэютыхэш /ёўшЄ√трэш  ёюёЄю эш  Ёхцшьр
+       "╧юьхўхээ√х Їрщы√ тяхЁхф"
     */
     virtual void SetSelectedFirstMode(int) {};
     virtual int GetSelectedFirstMode(void) {return 0;};
@@ -105,7 +105,7 @@ class Panel:public ScreenObject
     int GetSortOrder() {return(SortOrder);};
     void SetSortOrder(int SortOrder) {Panel::SortOrder=SortOrder;};
     /* $ 24.04.2001 VVM
-      Изменить порядок сортировки на панели */
+      ╚чьхэшЄ№ яюЁ фюъ ёюЁЄшЁютъш эр ярэхыш */
     virtual void ChangeSortOrder(int NewOrder) {SetSortOrder(NewOrder);};
     /* VVM $ */
     int GetSortGroups() {return(SortGroups);};
@@ -141,8 +141,8 @@ class Panel:public ScreenObject
     virtual HANDLE GetPluginHandle() {return(INVALID_HANDLE_VALUE);};
     virtual void SetTitle();
     /* $ 30.04.2001 DJ
-       функция вызывается для обновления кейбара; если возвращает FALSE,
-       используется стандартный кейбар
+       ЇєэъЎш  т√ч√трхЄё  фы  юсэютыхэш  ъхщсрЁр; хёыш тючтЁр∙рхЄ FALSE,
+       шёяюы№чєхЄё  ёЄрэфрЁЄэ√щ ъхщсрЁ
     */
     virtual BOOL UpdateKeyBar() { return FALSE; };
     /* DJ $ */

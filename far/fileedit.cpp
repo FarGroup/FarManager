@@ -1,7 +1,7 @@
 /*
 fileedit.cpp
 
-¥¤ ªâ¨à®¢ ­¨¥ ä ©«  - ­ ¤áâà®©ª  ­ ¤ editor.cpp
+Ðåäàêòèðîâàíèå ôàéëà - íàäñòðîéêà íàä editor.cpp
 
 */
 
@@ -9,102 +9,102 @@ fileedit.cpp
 
 /*
 Modify:
-  06.05.2001 Ž’
-    ! ¥à¥¨¬¥­®¢ ­¨¥ Window ¢ Frame :)
+  06.05.2001 ÎÒ
+    ! Ïåðåèìåíîâàíèå Window â Frame :)
   05.05.2001 DJ
-    + ¯¥à¥âàïå NWZ
+    + ïåðåòðÿõ NWZ
   04.05.2001 DJ
-    - ‚ ¯à®æ¥áá¥ ­ «®¦¥­¨ï 623-£® ¡ë« ¢ëª¨­ãâ ¯ âç 616:
-      "­¥ ¯¥à¥¤ ¥¬ KEY_MACRO* ¢ ProcessEditorInput()"
-      ‚¥à­ã« ¥£® ®¡à â­®.
-  29.04.2001 Ž’
-    + ‚­¥¤à¥­¨¥ NWZ ®â ’à¥âìïª®¢ 
+    - Â ïðîöåññå íàëîæåíèÿ 623-ãî áûë âûêèíóò ïàò÷ 616:
+      "íå ïåðåäàåì KEY_MACRO* â ProcessEditorInput()"
+      Âåðíóë åãî îáðàòíî.
+  29.04.2001 ÎÒ
+    + Âíåäðåíèå NWZ îò Òðåòüÿêîâà
   28.04.2001 VVM
-    + KeyBar â®¦¥ ã¬¥¥â ®¡à ¡ âë¢ âì ª« ¢¨è¨.
+    + KeyBar òîæå óìååò îáðàáàòûâàòü êëàâèøè.
   19.04.2001 SVS
-    ! „¨ «®£ SaveAs ­¥ª®àà¥ªâ­® à ¡®â « ¯à¨ ­ ¦ â¨¨ Ctrl-Enter
+    ! Äèàëîã SaveAs íåêîððåêòíî ðàáîòàë ïðè íàæàòèè Ctrl-Enter
   10.04.2001 IS
-    ! ¥ ¤¥« ¥¬ SetCurDir ¯à¨ ctrl-f10, ¥á«¨ ­ã¦­ë© ¯ãâì ã¦¥ ¥áâì ­  ®âªàëâëå
-      ¯ ­¥«ïå, â¥¬ á ¬ë¬ ¤®¡¨¢ ¥¬áï â®£®, çâ® ¢ë¤¥«¥­¨¥ á í«¥¬¥­â®¢
-      ¯ ­¥«¥© ­¥ á¡à áë¢ ¥âáï.
+    ! Íå äåëàåì SetCurDir ïðè ctrl-f10, åñëè íóæíûé ïóòü óæå åñòü íà îòêðûòûõ
+      ïàíåëÿõ, òåì ñàìûì äîáèâàåìñÿ òîãî, ÷òî âûäåëåíèå ñ ýëåìåíòîâ
+      ïàíåëåé íå ñáðàñûâàåòñÿ.
   05.04.2001 SVS
-    + „®¡ ¢«¥­ ¢ë§®¢ â®¯¨ª  "FileSaveAs" ¤«ï ¤¨ «®£  SaveAs
+    + Äîáàâëåí âûçîâ òîïèêà "FileSaveAs" äëÿ äèàëîãà SaveAs
   28.03.2001 SVS
-    ! ¥à¥¤ ¤¨¬ ¢ SaveFile ­®¢ë© ¯ à ¬¥âà - SaveAs?
+    ! Ïåðåäàäèì â SaveFile íîâûé ïàðàìåòð - SaveAs?
   22.03.2001 SVS
-    - "‡ «¨¯ ­¨¥" ª¥©¡ à  ¯®á«¥ ¨á¯®«­¥­¨ï ¬ ªà®á 
+    - "Çàëèïàíèå" êåéáàðà ïîñëå èñïîëíåíèÿ ìàêðîñà
   18.03.2001 IS
-    ! ®¬¥­ï« ¬¥áâ ¬¨ ¯à®¢¥àªã ¯à¨ ®âªàëâ¨¨ ­  "â®«ìª® ¤«ï çâ¥­¨ï" ¨
-      "ã¦¥ ®âªàëâ", â¥¬ á ¬ë¬ ¨§¡ ¢¨«¨áì ®â á¨âã æ¨¨, ª®£¤  § ¤ ¢ «áï ¢®¯à®á
-      "¢ë ã¢¥à¥­ë, çâ® å®â¨â¥ à¥¤ ªâ¨à®¢ âì r/o ä ©«" ¤«ï ã¦… ®âªàëâëå ä ©«®¢.
+    ! Ïîìåíÿë ìåñòàìè ïðîâåðêó ïðè îòêðûòèè íà "òîëüêî äëÿ ÷òåíèÿ" è
+      "óæå îòêðûò", òåì ñàìûì èçáàâèëèñü îò ñèòóàöèè, êîãäà çàäàâàëñÿ âîïðîñ
+      "âû óâåðåíû, ÷òî õîòèòå ðåäàêòèðîâàòü r/o ôàéë" äëÿ óæÅ îòêðûòûõ ôàéëîâ.
   01.03.2001 IS
-    -  £: ­¥ ãç¨âë¢ «®áì, § ªàë«áï «¨ ä ©« ­  á ¬®¬ ¤¥«¥ ¯® ctrl-f10
+    - Áàã: íå ó÷èòûâàëîñü, çàêðûëñÿ ëè ôàéë íà ñàìîì äåëå ïî ctrl-f10
   27.02.2001 SVS
-    + „®¡ ¢ª¨ ¯® ¯®¢®¤ã ¡ §ë ¢ë¢®¤ .
+    + Äîáàâêè ïî ïîâîäó áàçû âûâîäà.
   26.02.2001 IS
-    + ‚ ¯à®è«ë© à § ï ­¥ ¢á¥ ¤®¤¥« « :(
-      ’¥¯¥àì ­  á ¬®¬ ¤¥«¥ ¡®«ìè¨­áâ¢® ¯¥à¥¬¥­­ëå, à¥¤ ªâ¨àã¥¬ëå ¢ à¥¤ ªâ®à¥ ¯®
-      alt-shift-f9, «®ª «ì­ë¥, ªà®¬¥ ­ áâà®¥ª ¢­¥è­¥£® à¥¤ ªâ®à  ¨ ®¯æ¨©
-      "‘®åà ­ïâì ¯®§¨æ¨î ä ©« ", "‘®åà ­ïâì § ª« ¤ª¨"
+    + Â ïðîøëûé ðàç ÿ íå âñå äîäåëàë :(
+      Òåïåðü íà ñàìîì äåëå áîëüøèíñòâî ïåðåìåííûõ, ðåäàêòèðóåìûõ â ðåäàêòîðå ïî
+      alt-shift-f9, ëîêàëüíûå, êðîìå íàñòðîåê âíåøíåãî ðåäàêòîðà è îïöèé
+      "Ñîõðàíÿòü ïîçèöèþ ôàéëà", "Ñîõðàíÿòü çàêëàäêè"
   21.02.2001 IS
-    + à¨ ®¡à ¡®âª¥ alt-shift-f9 à ¡®â ¥¬ á «®ª «ì­ë¬¨ ¯¥à¥¬¥­­ë¬¨
+    + Ïðè îáðàáîòêå alt-shift-f9 ðàáîòàåì ñ ëîêàëüíûìè ïåðåìåííûìè
   15.02.2001 IS
-    + Ž¡­®¢¨¬ "¯®áâ®ï­­ë¥ ¡«®ª¨" ¨ "del ã¤ «ï¥â ¡«®ª¨"
-      ¯à¨ á¬¥­¥ ­ áâà®¥ª à¥¤ ªâ®à  ¯® AltShiftF9
+    + Îáíîâèì "ïîñòîÿííûå áëîêè" è "del óäàëÿåò áëîêè"
+      ïðè ñìåíå íàñòðîåê ðåäàêòîðà ïî AltShiftF9
   15.02.2001 IS
-    + Ž¡­®¢¨¬ à §¬¥à â ¡ã«ïæ¨¨ ¨ à¥¦¨¬ "à®¡¥«ë ¢¬¥áâ® â ¡ã«ïæ¨¨" ¯à¨ á¬¥­¥
-      ­ áâà®¥ª à¥¤ ªâ®à  ¯® AltShiftF9
+    + Îáíîâèì ðàçìåð òàáóëÿöèè è ðåæèì "Ïðîáåëû âìåñòî òàáóëÿöèè" ïðè ñìåíå
+      íàñòðîåê ðåäàêòîðà ïî AltShiftF9
   01.02.2001 IS
-    ! Žâªàë¢ ¥¬ ¯® F6 ¢ìî¥à á ãª § ­¨¥¬ ¤«¨­­®£® ¨¬¥­¨ ä ©« ,   ­¥ ª®à®âª®£®
+    ! Îòêðûâàåì ïî F6 âüþåð ñ óêàçàíèåì äëèííîãî èìåíè ôàéëà, à íå êîðîòêîãî
   03.01.2001 SVS
-    ! ¤«ï KEY_ALTSHIFTF9 § ¡ë«¨ á¤¥« âì Show()
+    ! äëÿ KEY_ALTSHIFTF9 çàáûëè ñäåëàòü Show()
   19.12.2000 SVS
-    + Alt-Shift-F9 - ‚ë§®¢ ¤¨ «®£  ­ áâà®¥ª (á ¯®¤ ç¨ IS)
+    + Alt-Shift-F9 - Âûçîâ äèàëîãà íàñòðîåê (ñ ïîäà÷è IS)
   16.12.2000 tran 1.15
-    ! Ctrl-F10 á¬®âà¨â ­  ¯ áá¨¢­ãî ¯ ­¥«ì
+    ! Ctrl-F10 ñìîòðèò íà ïàññèâíóþ ïàíåëü
   15.12.2000 SVS
-    - Shift-F4, ­®¢ë© ä ©«. ‚ë¤ ¥â á®®¡é¥­¨¥ :-(
+    - Shift-F4, íîâûé ôàéë. Âûäàåò ñîîáùåíèå :-(
   03.12.2000 SVS
-    + "…á«¨ ä ©« ¨¬¥¥â  âà¨¡ãâ ReadOnly..." §¤¥áì System ¨ Hidden - § ¤ îâáï
-      ®â¤¥«ì­®.
+    + "Åñëè ôàéë èìååò àòðèáóò ReadOnly..." çäåñü System è Hidden - çàäàþòñÿ
+      îòäåëüíî.
   29.11.2000 SVS
-    + …á«¨ ä ©« ¨¬¥¥â  âà¨¡ãâ ReadOnly ¨«¨ System ¨«¨ Hidden,
-      ˆ ¯ à ¬¥âà ­  § ¯à®á ¢ëáâ ¢«¥­, â® á­ ç «  á¯à®á¨¬.
+    + Åñëè ôàéë èìååò àòðèáóò ReadOnly èëè System èëè Hidden,
+      È ïàðàìåòð íà çàïðîñ âûñòàâëåí, òî ñíà÷àëà ñïðîñèì.
   03.11.2000 OT
-    ! ‚¢¥¤¥­¨¥ ¯à®¢¥àª¨ ¢®§¢à é ¥¬®£® §­ ç¥­¨ï
+    ! Ââåäåíèå ïðîâåðêè âîçâðàùàåìîãî çíà÷åíèÿ
   02.11.2000 OT
-    ! ‚¢¥¤¥­¨¥ ¯à®¢¥àª¨ ­  ¤«¨­ã ¡ãä¥à , ®â¢¥¤¥­­®£® ¯®¤ ¨¬ï ä ©« .
+    ! Ââåäåíèå ïðîâåðêè íà äëèíó áóôåðà, îòâåäåííîãî ïîä èìÿ ôàéëà.
   16.10.2000 SVS
-    ! Žâ¬¥­  1.08 (#229)
+    ! Îòìåíà 1.08 (#229)
   13.10.2000 tran 1.08
-    ! ª®¤ ¢®§¢à â  ®¯à¥¤¥ï¥âáï ¯® IsFileModified ¢¬¥áâ® IsFileChanged()
+    ! êîä âîçâðàòà îïðåäåÿåòñÿ ïî IsFileModified âìåñòî IsFileChanged()
   27.09.2000 SVS
-    + ¥ç âì ä ©« /¡«®ª  á ¨á¯®«ì§®¢ ­¨¥¬ ¯« £¨­  PrintMan
-    ! Ctrl-Alt-Shift - à¥ £¨àã¥¬, ¥á«¨ ­ ¤®.
+    + Ïå÷àòü ôàéëà/áëîêà ñ èñïîëüçîâàíèåì ïëàãèíà PrintMan
+    ! Ctrl-Alt-Shift - ðåàãèðóåì, åñëè íàäî.
   27.09.2000 SKV
-    + „«ï ¯à ¢¨«ì­®£® äã­ªæ¨®­¨à®¢ ­¨ï ¬ ªà® á Ctrl-O ¤¥« ¥âáï FEdit.Hide()
+    + Äëÿ ïðàâèëüíîãî ôóíêöèîíèðîâàíèÿ ìàêðî ñ Ctrl-O äåëàåòñÿ FEdit.Hide()
   24.08.2000 SVS
-    + „®¡ ¢«ï¥¬ à¥ ªæ¨î ¯®ª §  ¡ ª£à ã­¤  ­  ª« ¢¨èã CtrlAltShift
+    + Äîáàâëÿåì ðåàêöèþ ïîêàçà áàêãðàóíäà íà êëàâèøó CtrlAltShift
   07.08.2000 SVS
-    + ¤®¡ ¢¨« ­ §¢ ­¨ï à áè¨à¥­­ëå äã­ªæ¨®­ «ì­ëå ª« ¢¨è
-    + ”ã­ªæ¨ï ¨­¨æ¨ «¨§ æ¨¨ KeyBar Labels - InitKeyBar()
+    + äîáàâèë íàçâàíèÿ ðàñøèðåííûõ ôóíêöèîíàëüíûõ êëàâèø
+    + Ôóíêöèÿ èíèöèàëèçàöèè KeyBar Labels - InitKeyBar()
   21.07.2000 SKV
-    + ¢ëå®¤ á ¯®§¨æ¨®­¨à®¢ ­¨¥¬ ­  à¥¤ ªâ¨àã¥¬®¬ ä ©«¥ ¯® CTRLF10
+    + âûõîä ñ ïîçèöèîíèðîâàíèåì íà ðåäàêòèðóåìîì ôàéëå ïî CTRLF10
   29.06.2000 tran
-    + ­ §¢ ­¨ï ¢á¥å äã­ªæ¨®­ «ì­ëå ª« ¢¨è
+    + íàçâàíèÿ âñåõ ôóíêöèîíàëüíûõ êëàâèø
   28.06.2000 tran
     - (NT Console resize bug)
       adding FileEditor::SetScreenPosition
   25.06.2000 SVS
-    ! ®¤£®â®¢ª  Master Copy
-    ! ‚ë¤¥«¥­¨¥ ¢ ª ç¥áâ¢¥ á ¬®áâ®ïâ¥«ì­®£® ¬®¤ã«ï
+    ! Ïîäãîòîâêà Master Copy
+    ! Âûäåëåíèå â êà÷åñòâå ñàìîñòîÿòåëüíîãî ìîäóëÿ
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   ‘â ­¤ àâ­ë¥ § £®«®¢ª¨
+   Ñòàíäàðòíûå çàãîëîâêè
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -168,24 +168,24 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
   }
 
   /* $ 29.11.2000 SVS
-     …á«¨ ä ©« ¨¬¥¥â  âà¨¡ãâ ReadOnly ¨«¨ System ¨«¨ Hidden,
-     ˆ ¯ à ¬¥âà ­  § ¯à®á ¢ëáâ ¢«¥­, â® á­ ç «  á¯à®á¨¬.
+     Åñëè ôàéë èìååò àòðèáóò ReadOnly èëè System èëè Hidden,
+     È ïàðàìåòð íà çàïðîñ âûñòàâëåí, òî ñíà÷àëà ñïðîñèì.
   */
   /* $ 03.12.2000 SVS
-     System ¨«¨ Hidden - § ¤ îâáï ®â¤¥«ì­®
+     System èëè Hidden - çàäàþòñÿ îòäåëüíî
   */
   /* $ 15.12.2000 SVS
-    - Shift-F4, ­®¢ë© ä ©«. ‚ë¤ ¥â á®®¡é¥­¨¥ :-(
+    - Shift-F4, íîâûé ôàéë. Âûäàåò ñîîáùåíèå :-(
   */
   DWORD FAttr=GetFileAttributes(Name);
   if((Opt.EditorReadOnlyLock&2) &&
      FAttr != -1 &&
      (FAttr &
         (FILE_ATTRIBUTE_READONLY|
-           /* Hidden=0x2 System=0x4 - à á¯®« £ îâáï ¢® 2-¬ ¯®«ã¡ ©â¥,
-              ¯®íâ®¬ã ¯à¨¬¥­ï¥¬ ¬ áªã 0110.0000 ¨
-              á¤¢¨£ ¥¬ ­  á¢®¥ ¬¥áâ® => 0000.0110 ¨ ¯®«ãç ¥¬
-              â¥ á ¬ë¥ ­ã¦­ë¥  âà¨¡ãâë  */
+           /* Hidden=0x2 System=0x4 - ðàñïîëàãàþòñÿ âî 2-ì ïîëóáàéòå,
+              ïîýòîìó ïðèìåíÿåì ìàñêó 0110.0000 è
+              ñäâèãàåì íà ñâîå ìåñòî => 0000.0110 è ïîëó÷àåì
+              òå ñàìûå íóæíûå àòðèáóòû  */
            ((Opt.EditorReadOnlyLock&0x60)>>4)
         )
      )
@@ -221,7 +221,7 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
   EditKeyBar.SetPosition(X1,Y2,X2,Y2);
 
   /* $ 07.08.2000 SVS
-    ! Š®¤, ª á ¥¬ë© KeyBar ¢ë­¥á¥­ ¢ ®â¤¥«ì­ãî äã­ªæ¨î */
+    ! Êîä, êàñàåìûé KeyBar âûíåñåí â îòäåëüíóþ ôóíêöèþ */
   InitKeyBar();
   /* SVS $*/
 
@@ -236,12 +236,12 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
 }
 
 /* $ 07.08.2000 SVS
-  ”ã­ªæ¨ï ¨­¨æ¨ «¨§ æ¨¨ KeyBar Labels
+  Ôóíêöèÿ èíèöèàëèçàöèè KeyBar Labels
 */
 void FileEditor::InitKeyBar(void)
 {
   /* $ 29.06.2000 tran
-     ¤®¡ ¢¨« ­ §¢ ­¨ï ¢á¥å äã­ªæ¨®­ «ì­ëå ª« ¢¨è */
+     äîáàâèë íàçâàíèÿ âñåõ ôóíêöèîíàëüíûõ êëàâèø */
   char *FEditKeys[]={MSG(MEditF1),MSG(MEditF2),MSG(MEditF3),MSG(MEditF4),MSG(MEditF5),EnableSwitch ? MSG(MEditF6):"",MSG(MEditF7),MSG(MEditF8),MSG(MEditF9),MSG(MEditF10),MSG(MEditF11),MSG(MEditF12)};
   char *FEditShiftKeys[]={MSG(MEditShiftF1),MSG(MEditShiftF2),MSG(MEditShiftF3),MSG(MEditShiftF4),MSG(MEditShiftF5),MSG(MEditShiftF6),MSG(MEditShiftF7),MSG(MEditShiftF8),MSG(MEditShiftF9),MSG(MEditShiftF10),MSG(MEditShiftF11),MSG(MEditShiftF12)};
   char *FEditAltKeys[]={MSG(MEditAltF1),MSG(MEditAltF2),MSG(MEditAltF3),MSG(MEditAltF4),MSG(MEditAltF5),MSG(MEditAltF6),MSG(MEditAltF7),MSG(MEditAltF8),MSG(MEditAltF9),MSG(MEditAltF10),MSG(MEditAltF11),MSG(MEditAltF12)};
@@ -251,7 +251,7 @@ void FileEditor::InitKeyBar(void)
     FEditAltKeys[5-1]="";
   /* tran $ */
   /* $ 07.08.2000 SVS
-     ¤®¡ ¢¨« ­ §¢ ­¨ï à áè¨à¥­­ëå äã­ªæ¨®­ «ì­ëå ª« ¢¨è */
+     äîáàâèë íàçâàíèÿ ðàñøèðåííûõ ôóíêöèîíàëüíûõ êëàâèø */
   char *FEditAltShiftKeys[]={MSG(MEditAltShiftF1),MSG(MEditAltShiftF2),MSG(MEditAltShiftF3),MSG(MEditAltShiftF4),MSG(MEditAltShiftF5),MSG(MEditAltShiftF6),MSG(MEditAltShiftF7),MSG(MEditAltShiftF8),MSG(MEditAltShiftF9),MSG(MEditAltShiftF10),MSG(MEditAltShiftF11),MSG(MEditAltShiftF12)};
   char *FEditCtrlShiftKeys[]={MSG(MEditCtrlShiftF1),MSG(MEditCtrlShiftF2),MSG(MEditCtrlShiftF3),MSG(MEditCtrlShiftF4),MSG(MEditCtrlShiftF5),MSG(MEditCtrlShiftF6),MSG(MEditCtrlShiftF7),MSG(MEditCtrlShiftF8),MSG(MEditCtrlShiftF9),MSG(MEditCtrlShiftF10),MSG(MEditCtrlShiftF11),MSG(MEditCtrlShiftF12)};
   char *FEditCtrlAltKeys[]={MSG(MEditCtrlAltF1),MSG(MEditCtrlAltF2),MSG(MEditCtrlAltF3),MSG(MEditCtrlAltF4),MSG(MEditCtrlAltF5),MSG(MEditCtrlAltF6),MSG(MEditCtrlAltF7),MSG(MEditCtrlAltF8),MSG(MEditCtrlAltF9),MSG(MEditCtrlAltF10),MSG(MEditCtrlAltF11),MSG(MEditCtrlAltF12)};
@@ -263,7 +263,7 @@ void FileEditor::InitKeyBar(void)
   EditKeyBar.SetCtrl(FEditCtrlKeys,sizeof(FEditCtrlKeys)/sizeof(FEditCtrlKeys[0]));
 
   /* $ 07.08.2000 SVS
-     ¤®¡ ¢¨« ­ §¢ ­¨ï à áè¨à¥­­ëå äã­ªæ¨®­ «ì­ëå ª« ¢¨è */
+     äîáàâèë íàçâàíèÿ ðàñøèðåííûõ ôóíêöèîíàëüíûõ êëàâèø */
   EditKeyBar.SetCtrlAlt(FEditCtrlAltKeys,sizeof(FEditCtrlAltKeys)/sizeof(FEditCtrlAltKeys[0]));
   EditKeyBar.SetCtrlShift(FEditCtrlShiftKeys,sizeof(FEditCtrlShiftKeys)/sizeof(FEditCtrlShiftKeys[0]));
   EditKeyBar.SetAltShift(FEditAltShiftKeys,sizeof(FEditAltShiftKeys)/sizeof(FEditAltShiftKeys[0]));
@@ -299,7 +299,7 @@ int FileEditor::ProcessKey(int Key)
   switch(Key)
   {
     /* $ 24.08.2000 SVS
-       + „®¡ ¢«ï¥¬ à¥ ªæ¨î ¯®ª §  ¡ ª£à ã­¤  ­  ª« ¢¨èã CtrlAltShift
+       + Äîáàâëÿåì ðåàêöèþ ïîêàçà áàêãðàóíäà íà êëàâèøó CtrlAltShift
     */
     case KEY_CTRLALTSHIFTPRESS:
       if(!(Opt.AllCtrlAltShiftRule & CASR_EDITOR))
@@ -404,7 +404,7 @@ int FileEditor::ProcessKey(int Key)
       {
         long FilePos=FEdit.GetCurPos();
         /* $ 01.02.2001 IS
-           ! Žâªàë¢ ¥¬ ¢ìî¥à á ãª § ­¨¥¬ ¤«¨­­®£® ¨¬¥­¨ ä ©« ,   ­¥ ª®à®âª®£®
+           ! Îòêðûâàåì âüþåð ñ óêàçàíèåì äëèííîãî èìåíè ôàéëà, à íå êîðîòêîãî
         */
         if (ProcessQuitKey())
           CtrlObject->ModalManager.SetNextFrame(TRUE,FullFileName,FilePos);
@@ -413,14 +413,14 @@ int FileEditor::ProcessKey(int Key)
       }
       return(TRUE);
     /*$ 21.07.2000 SKV
-        + ¢ëå®¤ á ¯®§¨æ¨®­¨à®¢ ­¨¥¬ ­  à¥¤ ªâ¨àã¥¬®¬ ä ©«¥ ¯® CTRLF10
+        + âûõîä ñ ïîçèöèîíèðîâàíèåì íà ðåäàêòèðóåìîì ôàéëå ïî CTRLF10
     */
     case KEY_CTRLF10:
       {
         if(GetEnableSwitch())
         {
           /* $ 01.03.2001 IS
-               -  £: ­¥ ãç¨âë¢ «®áì, § ªàë«áï «¨ ä ©« ­  á ¬®¬ ¤¥«¥
+               - Áàã: íå ó÷èòûâàëîñü, çàêðûëñÿ ëè ôàéë íà ñàìîì äåëå
           */
           if(!ProcessQuitKey()) return TRUE;
           /* IS $ */
@@ -433,13 +433,13 @@ int FileEditor::ProcessKey(int Key)
             CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel)->GetCurDir(PDir);
             CtrlObject->Cp()->ActivePanel->GetCurDir(ADir);
             /* $ 10.04.2001 IS
-                 ¥ ¤¥« ¥¬ SetCurDir, ¥á«¨ ­ã¦­ë© ¯ãâì ã¦¥ ¥áâì ­  ®âªàëâëå
-                 ¯ ­¥«ïå, â¥¬ á ¬ë¬ ¤®¡¨¢ ¥¬áï â®£®, çâ® ¢ë¤¥«¥­¨¥ á í«¥¬¥­â®¢
-                 ¯ ­¥«¥© ­¥ á¡à áë¢ ¥âáï.
+                 Íå äåëàåì SetCurDir, åñëè íóæíûé ïóòü óæå åñòü íà îòêðûòûõ
+                 ïàíåëÿõ, òåì ñàìûì äîáèâàåìñÿ òîãî, ÷òî âûäåëåíèå ñ ýëåìåíòîâ
+                 ïàíåëåé íå ñáðàñûâàåòñÿ.
             */
             BOOL AExist=LocalStricmp(ADir,DirTmp)==0,
                  PExist=LocalStricmp(PDir,DirTmp)==0;
-            // ¥á«¨ ­ã¦­ë© ¯ãâì ¥áâì ­  ¯ áá¨¢­®© ¯ ­¥«¨
+            // åñëè íóæíûé ïóòü åñòü íà ïàññèâíîé ïàíåëè
             if ( !AExist && PExist)
             {
                 CtrlObject->ProcessKey(KEY_TAB);
@@ -466,7 +466,7 @@ int FileEditor::ProcessKey(int Key)
       return(TRUE);
 
     /* $ 27.09.2000 SVS
-       ¥ç âì ä ©« /¡«®ª  á ¨á¯®«ì§®¢ ­¨¥¬ ¯« £¨­  PrintMan
+       Ïå÷àòü ôàéëà/áëîêà ñ èñïîëüçîâàíèåì ïëàãèíà PrintMan
     */
     case KEY_ALTF5:
     {
@@ -477,11 +477,11 @@ int FileEditor::ProcessKey(int Key)
     /* SVS $*/
 
     /* $ 19.12.2000 SVS
-       ‚ë§®¢ ¤¨ «®£  ­ áâà®¥ª (á ¯®¤ ç¨ IS)
+       Âûçîâ äèàëîãà íàñòðîåê (ñ ïîäà÷è IS)
     */
     case KEY_ALTSHIFTF9:
       /* $ 26.02.2001 IS
-            ¡®â  á «®ª «ì­®© ª®¯¨¥© EditorOptions
+           Ðàáîòà ñ ëîêàëüíîé êîïèåé EditorOptions
       */
       struct EditorOptions EdOpt;
 
@@ -496,7 +496,7 @@ int FileEditor::ProcessKey(int Key)
       //EdOpt.BSLikeDel=FEdit.GetBSLikeDel();
 
       EditorConfig(EdOpt);
-      EditKeyBar.Show(); //???? ã¦­® «¨????
+      EditKeyBar.Show(); //???? Íóæíî ëè????
 
       FEdit.SetTabSize(EdOpt.TabSize);
       FEdit.SetConvertTabs(EdOpt.ExpandTabs);
@@ -514,18 +514,18 @@ int FileEditor::ProcessKey(int Key)
 
     default:
       /* $ 28.04.2001 DJ
-         ­¥ ¯¥à¥¤ ¥¬ KEY_MACRO* ¯« £¨­ã - ¯®áª®«ìªã ReadRec ¢ íâ®¬ á«ãç ¥
-         ­¨ª ª ­¥ á®®â¢¥âáâ¢ã¥â ®¡à ¡ âë¢ ¥¬®© ª« ¢¨è¥, ¢®§­¨ª îâ à §­®¬ áâ­ë¥
-         £«îª¨
+         íå ïåðåäàåì KEY_MACRO* ïëàãèíó - ïîñêîëüêó ReadRec â ýòîì ñëó÷àå
+         íèêàê íå ñîîòâåòñòâóåò îáðàáàòûâàåìîé êëàâèøå, âîçíèêàþò ðàçíîìàñòíûå
+         ãëþêè
       */
-      if(Key&KEY_MACROSPEC_BASE) // ¨áª«îç ¥¬ MACRO
+      if(Key&KEY_MACROSPEC_BASE) // èñêëþ÷àåì MACRO
          return(FEdit.ProcessKey(Key));
       /* DJ $ */
       if (CtrlObject->Macro.IsExecuting() ||
         !FEdit.ProcessEditorInput(CtrlObject->ModalManager.GetLastInputRecord()))
       {
         /* $ 22.03.2001 SVS
-           â® ¯®¬®£«® ®â § «¨¯ ­¨ï :-)
+           Ýòî ïîìîãëî îò çàëèïàíèÿ :-)
         */
         if (FullScreen && !CtrlObject->Macro.IsExecuting())
           EditKeyBar.Show();

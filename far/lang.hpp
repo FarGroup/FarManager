@@ -3,15 +3,15 @@
 /*
 lang.hpp
 
-Идентификаторы фаровских строк
+╚фхэЄшЇшърЄюЁ√ ЇрЁютёъшї ёЄЁюъ
 
-Внимание - не ставьте комментарии внутри enum!
-           а lngedit собъется только в истории изменений
+┬эшьрэшх - эх ёЄрт№Єх ъюььхэЄрЁшш тэєЄЁш enum!
+           р lngedit ёюс·хЄё  Єюы№ъю т шёЄюЁшш шчьхэхэшщ
 
-           также в lng Файле не ставьте более 2х комментариев
-           подряд.
+           Єръцх т lng ╘рщых эх ёЄрт№Єх сюыхх 2ї ъюььхэЄрЁшхт
+           яюфЁ ф.
 
-  MListEval - должен быть всегда последним - за ним ни чего не писать
+  MListEval - фюыцхэ с√Є№ тёхуфр яюёыхфэшь - чр эшь эш ўхую эх яшёрЄ№
 
 */
 
@@ -22,14 +22,14 @@ Modify:
   30.04.2001 DJ
     + MInfo*F1-F12, MQView*F1-F12
   25.04.2001 SVS
-    ! Пересмотр некоторых MMacroSettings* в связи с "упрощением" диалога
-      параметров макроса.
+    ! ╧хЁхёьюЄЁ эхъюЄюЁ√ї MMacroSettings* т ёт чш ё "єяЁю∙хэшхь" фшрыюур
+      ярЁрьхЄЁют ьръЁюёр.
   12.04.2001 SVS
     + MSetAttrUnknownJunction
   08.04.2001 SVS
     + MCopyNotSupportLinkX
   06.04.2001 SVS
-    + MCopySymLink - резерв на будущее (не люблю смены в H-файлах делать :-)
+    + MCopySymLink - ЁхчхЁт эр сєфє∙хх (эх ы■сы■ ёьхэ√ т H-Їрщырї фхырЄ№ :-)
     + MEditSaveAsFormatTitle
   04.04.2001 VVM
     + MSetAttrBlank
@@ -39,22 +39,22 @@ Modify:
     + MEditFileLong2
   16.03.2001 SVS
     + MNetUserName, MNetUserPassword,
-    ! В конфирм-диалоге операция Exit должна по смыслу стоять последней
+    ! ┬ ъюэЇшЁь-фшрыюух юяхЁрЎш  Exit фюыцэр яю ёь√ёыє ёЄю Є№ яюёыхфэхщ
     + MChangeDriveDisconnectMapped
   15.03.2001 SVS
-    + По поводу удаление коннектенных дисков:
+    + ╧ю яютюфє єфрыхэшх ъюээхъЄхээ√ї фшёъют:
       MChangeDriveDisconnectTitle, MChangeDriveDisconnectQuestion,
       MChangeDriveDisconnectReconnect, MSetConfirmRemoveConnection
   15.03.2001 IS
-    + MAdditionalHotKey - должен содержать не меньше 11 дополнительных хоткеев
-      для меню выбора диска. Разрешено использовать только символы с кодами до
-      48 (т.е. до '0').
+    + MAdditionalHotKey - фюыцхэ ёюфхЁцрЄ№ эх ьхэ№°х 11 фюяюыэшЄхы№э√ї їюЄъххт
+      фы  ьхэ■ т√сюЁр фшёър. ╨рчЁх°хэю шёяюы№чютрЄ№ Єюы№ъю ёшьтюы√ ё ъюфрьш фю
+      48 (Є.х. фю '0').
   13.03.2001 SVS
     + MAskDeleteLink, MDeleteLinkDelete, MDeleteLinkUnlink
   26.02.2001 VVM
     + MExcInvalidFuncResult
   22.02.2001 SVS
-    + MMacroDis* - по поводу дизабленных макросов
+    + MMacroDis* - яю яютюфє фшчрсыхээ√ї ьръЁюёют
   09.02.2001 IS
     + MSetConfirmEsc
     + MKeyESCWasPressed, MDoYouWantToStopWork
@@ -69,8 +69,8 @@ Modify:
   23.01.2001 skv
     + MExcBreakPoint, MExcUnknown
   19.01.2001 SVS
-    ! данные с MRegTitle по MListEval перенесены в конец списка.
-      MListEval - должен быть всегда последним - за ним ни чего не писать
+    ! фрээ√х ё MRegTitle яю MListEval яхЁхэхёхэ√ т ъюэхЎ ёяшёър.
+      MListEval - фюыцхэ с√Є№ тёхуфр яюёыхфэшь - чр эшь эш ўхую эх яшёрЄ№
   17.01.2001 SVS
     + MMacroReDefinedKey, MMacroReDefinedKey2, MMacroDeleteKey, MMacroDeleteKey2,
   14.01.2001 SVS
@@ -106,23 +106,23 @@ Modify:
   29.11.2000 SVS
     + MEditROOpen, MEditRSH, MEditFileLong
   29.11.2000 SVS
-    + MViewF9: в lng файле почему то нет места для F9 во вьюере -
-      недосмотр однако :))
+    + MViewF9: т lng Їрщых яюўхьє Єю эхЄ ьхёЄр фы  F9 тю т№■хЁх -
+      эхфюёьюЄЁ юфэръю :))
   27.11.2000 SVS
     + MExcDebugger
   22.11.2000 SVS
-    + MSetColorDialogMenuScrollBar - полоса прокрутки для списка
+    + MSetColorDialogMenuScrollBar - яюыюёр яЁюъЁєЄъш фы  ёяшёър
   02.11.2000 OT
     + MBuffSizeTooSmall_1, MBuffSizeTooSmall_2
  23.10.2000 SVS
     + MExcCheckOnLousys :-)
   20.10.2000 SVS
     + MHighlightEncrypted, MSetAttrEncrypted, MSetAttrEncryptedCannotFor,
-    ! удален MSetAttrNTFSOnly за ненадобностью
+    ! єфрыхэ MSetAttrNTFSOnly чр эхэрфюсэюёЄ№■
   17.10.2000 SVS
-    + Еще несколько MExc*
+    + ┼∙х эхёъюы№ъю MExc*
   16.10.2000 SVS
-    + MExc* - для Исключений
+    + MExc* - фы  ╚ёъы■ўхэшщ
   27.09.2000 SVS
     + MHelpActivatorFormat
     + MHelpActivatorURL
@@ -137,54 +137,54 @@ Modify:
   13.09.2000 tran 1.16
     + MSetColorCommandLinePrefix
   12.09.2000 SVS
-    ! MViewF2WWrap удалено и перемещено на MViewShiftF2
+    ! MViewF2WWrap єфрыхэю ш яхЁхьх∙хэю эр MViewShiftF2
   04.08.2000 SVS
     + MCopyOnlyNewerFiles
     - MEditConfigWordDiv
   03.08.2000 tran
-    + Новые константы для "версии" MPlgBadVers, MPlgRequired
+    + ═ют√х ъюэёЄрэЄ√ фы  "тхЁёшш" MPlgBadVers, MPlgRequired
   03.08.2000 KM 1.12
-    + Новые константы MFindFileWholeWords,MViewSearchWholeWords,
-      MEditSearchWholeWords для поиска по целым словам в Find file (Alt-F7),
-      поиске во вьювере и редакторе.
+    + ═ют√х ъюэёЄрэЄ√ MFindFileWholeWords,MViewSearchWholeWords,
+      MEditSearchWholeWords фы  яюшёър яю Ўхы√ь ёыютрь т Find file (Alt-F7),
+      яюшёъх тю т№■тхЁх ш ЁхфръЄюЁх.
   03.08.2000 SVS
-    + MEditConfigWordDiv - разделитель слов в настройках редактора
+    + MEditConfigWordDiv - ЁрчфхышЄхы№ ёыют т эрёЄЁющърї ЁхфръЄюЁр
   02.08.2000 SVS
     + CtrlAlt*, AltShift*, CtrlShift*
   26.07.2000 SVS
-    + Константа MConfigAutoComplete
+    + ╩юэёЄрэЄр MConfigAutoComplete
   24.07.2000 VVM
-    + Новые константы в связи с изменениеm usermenu.cpp
-      MMainMenuFAR и MMainMenuREG.
+    + ═ют√х ъюэёЄрэЄ√ т ёт чш ё шчьхэхэшхm usermenu.cpp
+      MMainMenuFAR ш MMainMenuREG.
   18.07.2000 tran
-    + Новые константы в связи с ScrollBar in Viewer
+    + ═ют√х ъюэёЄрэЄ√ т ёт чш ё ScrollBar in Viewer
   15.07.2000 SVS
-    + Константа MConfigPersonalPath
+    + ╩юэёЄрэЄр MConfigPersonalPath
   12.07.2000 SVS
-    + Константа MViewF2WWrap
+    + ╩юэёЄрэЄр MViewF2WWrap
   07.07.2000 IS
-    + Пункты для сообщения о подтверждении восстановления раскраски файлов по
-      умолчанию: MHighlightWarning, MHighlightAskRestore,
-    ! В lng-файлах изменилась строка MHighlightBottom - добавил информацию о
+    + ╧єэъЄ√ фы  ёююс∙хэш  ю яюфЄтхЁцфхэшш тюёёЄрэютыхэш  ЁрёъЁрёъш Їрщыют яю
+      єьюыўрэш■: MHighlightWarning, MHighlightAskRestore,
+    ! ┬ lng-Їрщырї шчьхэшырё№ ёЄЁюър MHighlightBottom - фюсртшы шэЇюЁьрЎш■ ю
       "Ctrl+R"
   06.07.2000 tran
-    ! выправка ланг файлов
+    ! т√яЁртър ырэу Їрщыют
   06.07.2000 SVS
-    + Добавка
+    + ─юсртър
       MSetColorDialogMenuHighLight,
       MSetColorDialogMenuSelectedHighLight,
   04.07.2000 SVS
-    ! Scroll bar в меню переехал из Options|Panel settings
-      в Options|Interface settings
+    ! Scroll bar т ьхэ■ яхЁххїры шч Options|Panel settings
+      т Options|Interface settings
   29.06.2000 tran
-    + пустышки для всех функциональных клавиш в viewer & editor
+    + яєёЄ√°ъш фы  тёхї ЇєэъЎшюэры№э√ї ъыртш° т viewer & editor
   29.06.2000 SVS
-    + Новый пункт для Options|Panel settings
+    + ═ют√щ яєэъЄ фы  Options|Panel settings
       [ ] Show scrollbar into Menus
-    + Новый пункт для настройки цветов Menu для Menu Scrollbar
+    + ═ют√щ яєэъЄ фы  эрёЄЁющъш ЎтхЄют Menu фы  Menu Scrollbar
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 enum

@@ -3,7 +3,7 @@
 /*
 fileview.hpp
 
-Просмотр файла - надстройка над viewer.cpp
++ЁюёьюІЁ ґрщыр - эрфёІЁющър эрф viewer.cpp
 
 */
 
@@ -11,20 +11,20 @@ fileview.hpp
 
 /*
 Modify:
-  06.05.2001 ОТ
-    ! Переименование Window в Frame :)
+  06.05.2001 ++
+    ! +хЁхшьхэютрэшх Window т Frame :)
   05.05.2001 DJ
-    + Перетрях NWZ
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
+    + +хЁхІЁїµ NWZ
+  29.04.2001 ++
+    + +эхфЁхэшх NWZ юІ +ЁхІјїъютр
   07.08.2000 SVS
-    + Функция инициализации KeyBar Labels - InitKeyBar()
+    + +іэъ¶шї шэш¶шрышчр¶шш KeyBar Labels - InitKeyBar()
   28.06.2000 tran
     - NT Console resize bug
       adding SetScreenPosition method
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в каµестве самостоятельного модуля
+    ! +юфуюІютър Master Copy
+    ! +»фхыхэшх т ър…хёІтх ёрьюёІюїІхыјэюую ьюфіыї
 */
 
 class FileViewer:public Frame
@@ -50,7 +50,7 @@ class FileViewer:public Frame
     void Init(char *Name,int EnableSwitch,int DisableHistory,
               long ViewStartPos,char *PluginData,NamesList *ViewNamesList);
     /* $ 07.08.2000 SVS
-       Функция инициализации KeyBar Labels
+       +іэъ¶шї шэш¶шрышчр¶шш KeyBar Labels
     */
     void InitKeyBar(void);
     /* SVS $ */

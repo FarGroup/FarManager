@@ -1,7 +1,7 @@
 /*
 plugapi.cpp
 
-API, доступное плагинам (диалоги, меню, ...)
+API, фюёЄєяэюх яырушэрь (фшрыюуш, ьхэ■, ...)
 
 */
 
@@ -9,143 +9,143 @@ API, доступное плагинам (диалоги, меню, ...)
 
 /*
 Modify:
-  06.05.2001 ОТ
-    ! Переименование Window в Frame :)
+  06.05.2001 ╬╥
+    ! ╧хЁхшьхэютрэшх Window т Frame :)
   05.05.2001 DJ
-    + перетрях NWZ
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
+    + яхЁхЄЁ ї NWZ
+  29.04.2001 ╬╥
+    + ┬эхфЁхэшх NWZ юЄ ╥ЁхЄ№ ъютр
   01.05.2001 SVS
-    - Вместо PluginNumber в FarDialogEx() залудил ItemsNumber :-(((
+    - ┬ьхёЄю PluginNumber т FarDialogEx() чрыєфшы ItemsNumber :-(((
   28.04.2001 SVS
-    + Обработка исключений в FarDialogEx() - равеновский чекер валил ФАР
-      именно в диалогах, гад такой.
+    + ╬сЁрсюЄър шёъы■ўхэшщ т FarDialogEx() - Ёртхэютёъшщ ўхъхЁ трышы ╘└╨
+      шьхээю т фшрыюурї, урф Єръющ.
   11.09.2001 SVS
-    - FarMessageFn(): если установлен флаг FMSG_ERRORTYPE, ItemsNumber равное 1,
-      тоже должно позволять показывать сообщение.
-    - FarMessageFn(): неверно сделанный патч #530 - исправляем.
+    - FarMessageFn(): хёыш єёЄрэютыхэ Їыру FMSG_ERRORTYPE, ItemsNumber Ёртэюх 1,
+      Єюцх фюыцэю яючтюы Є№ яюърч√трЄ№ ёююс∙хэшх.
+    - FarMessageFn(): эхтхЁэю ёфхырээ√щ ярЄў #530 - шёяЁрты хь.
   09.04.2001 SVS
-    ! Избавимся от некоторых варнингов
+    ! ╚чсртшьё  юЄ эхъюЄюЁ√ї трЁэшэуют
   08.04.2001 SVS
-    ! Уточнение в FarShowHelp
+    ! ╙Єюўэхэшх т FarShowHelp
   28.03.2001 SVS
-    ! ACTL_GETFARVERSION возвращает номер версии, а не TRUE - так практичнее
+    ! ACTL_GETFARVERSION тючтЁр∙рхЄ эюьхЁ тхЁёшш, р эх TRUE - Єръ яЁръЄшўэхх
     ! ACTL_KEYMACRO, ACTL_EJECTMEDIA, ACTL_WAITKEY, ACTL_CONSOLEMODE -
-      проверка Param на NULL.
-    ! FarGetMsgFn - проверка на "готовность" CtrlObject (проверка на NULL)
+      яЁютхЁър Param эр NULL.
+    ! FarGetMsgFn - яЁютхЁър эр "уюЄютэюёЄ№" CtrlObject (яЁютхЁър эр NULL)
   26.03.2001 SVS
-    + добавлена обработка флага FHELP_USECONTENTS
+    + фюсртыхэр юсЁрсюЄър Їырур FHELP_USECONTENTS
   22.03.2001 tran 1.42
-    ! мелкий баг в FarMessageFn/FMSG_ALLINONE
+    ! ьхыъшщ сру т FarMessageFn/FMSG_ALLINONE
   21.03.2001 VVM
-    + Обработка флага EF_CREATENEW
+    + ╬сЁрсюЄър Їырур EF_CREATENEW
   28.02.2001 IS
     ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   11.02.2001 SVS
-    ! Сократим повторяющийся код в FarDialogEx
+    ! ╤юъЁрЄшь яютЄюЁ ■∙шщё  ъюф т FarDialogEx
   11.02.2001 SVS
-    ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
+    ! ═хёъюы№ъю єЄюўэхэшщ ъюфр т ёт чш ё шчьхэхэш ьш т ёЄЁєъЄєЁх MenuItem
   28.01.2001 SVS
-    ! Конкретно обновим функцию FarMessageFn()
+    ! ╩юэъЁхЄэю юсэютшь ЇєэъЎш■ FarMessageFn()
   23.01.2001 SVS
-    ! Проверки параметров в FarDialogEx()
+    ! ╧ЁютхЁъш ярЁрьхЄЁют т FarDialogEx()
   21.01.2001 SVS
     + ACTL_PROCESSSEQUENCEKEY
   24.12.2000 SVS
-    ! Отключаем "MCMD_PLAYSTRING"
-    ! Уточнения MCMD_LOADALL и MCMD_SAVEALL - не работать во время записи
-      или "воспроизведения макроса
+    ! ╬Єъы■ўрхь "MCMD_PLAYSTRING"
+    ! ╙Єюўэхэш  MCMD_LOADALL ш MCMD_SAVEALL - эх ЁрсюЄрЄ№ тю тЁхь  чряшёш
+      шыш "тюёяЁюшчтхфхэш  ьръЁюёр
   23.12.2000 SVS
-    + MCMD_PLAYSTRING - "проиграть" строку (строка в том виде, как в реестре)
+    + MCMD_PLAYSTRING - "яЁюшуЁрЄ№" ёЄЁюъє (ёЄЁюър т Єюь тшфх, ъръ т ЁххёЄЁх)
   21.12.2000 SVS
-    + ACTL_KEYMACRO - зачатки будущего KeyMacro API
+    + ACTL_KEYMACRO - чрўрЄъш сєфє∙хую KeyMacro API
   18.12.2000 SVS
-    ! Коррекции в FarShowHelp
+    ! ╩юЁЁхъЎшш т FarShowHelp
   14.12.2000 SVS
     + ACTL_EJECTMEDIA
   13.12.2000 SVS
-    ! FarDialogItem.Data - копирование strcpy заменено на memmove
-      (терялись данные пользователя)
+    ! FarDialogItem.Data - ъюяшЁютрэшх strcpy чрьхэхэю эр memmove
+      (ЄхЁ ышё№ фрээ√х яюы№чютрЄхы )
   04.12.2000 SVS
-    + ACTL_GETCOLOR - получить определенный цвет
-    + ACTL_GETARRAYCOLOR - получить весь массив цветов
+    + ACTL_GETCOLOR - яюыєўшЄ№ юяЁхфхыхээ√щ ЎтхЄ
+    + ACTL_GETARRAYCOLOR - яюыєўшЄ№ тхё№ ьрёёшт ЎтхЄют
   17.11.2000 SVS
-    ! "Приколы нашего городка" - бага в функцию ShowHelp закралась :-(
+    ! "╧Ёшъюы√ эр°хую уюЁюфър" - срур т ЇєэъЎш■ ShowHelp чръЁрырё№ :-(
   11.11.2000 SVS
-    ! FarMkTemp() - убираем (как всегда - то ставим, то тут же убираем :-(((
+    ! FarMkTemp() - єсшЁрхь (ъръ тёхуфр - Єю ёЄртшь, Єю ЄєЄ цх єсшЁрхь :-(((
   11.11.2000 SVS
-    ! Используем конструкцию FarMkTemp()
+    ! ╚ёяюы№чєхь ъюэёЄЁєъЎш■ FarMkTemp()
   03.11.2000 OT
-    ! Введение проверки возвращаемого значения
+    ! ┬тхфхэшх яЁютхЁъш тючтЁр∙рхьюую чэрўхэш 
   02.11.2000 OT
-    ! Введение проверки на длину буфера, отведенного под имя файла.
+    ! ┬тхфхэшх яЁютхЁъш эр фышэє сєЇхЁр, юЄтхфхээюую яюф шь  Їрщыр.
   05.10.2000 SVS
-   - бага с вызовом хелпа (FHELP_CUSTOMFILE)
+   - срур ё т√чютюь їхыяр (FHELP_CUSTOMFILE)
   27.09.2000 SVS
    + FarViewerControl
   18.09.2000 SVS
-    ! Функция FarDialogEx имеет 2 дополнительных параметра (Future)
+    ! ╘єэъЎш  FarDialogEx шьххЄ 2 фюяюыэшЄхы№э√ї ярЁрьхЄЁр (Future)
   12.09.2000 SVS
-    + Реализация флагов FHELP_* для вывода помощи.
+    + ╨хрышчрЎш  Їыруют FHELP_* фы  т√тюфр яюью∙ш.
   08.09.2000 VVM
-    + Обработка команд
+    + ╬сЁрсюЄър ъюьрэф
       FCTL_SETSORTMODE, FCTL_SETANOTHERSORTMODE
       FCTL_SETSORTORDER, FCTL_SETANOTHERSORTORDER
   30.08.2000 SVS
-    ! Пал смертью храбрых флаг FMI_GETFARMSGID
+    ! ╧ры ёьхЁЄ№■ їЁрсЁ√ї Їыру FMI_GETFARMSGID
   29.08.2000 SVS
-    + Для диалога запомним номер плагина, вызвавшего этот диалог. Сейчас
-      это для того, чтобы правильно отреагировать в Dialog API на DN_HELP
+    + ─ы  фшрыюур чряюьэшь эюьхЁ яырушэр, т√чтрт°хую ¤ЄюЄ фшрыюу. ╤хщўрё
+      ¤Єю фы  Єюую, ўЄюс√ яЁртшы№эю юЄЁхрушЁютрЄ№ т Dialog API эр DN_HELP
   29.08.2000 SVS
-    ! Если PluginStartupInfo.GetMsg(?,N|FMI_GETFARMSGID), то подразумеваем, что
-      хотим использовать "месаги" из САМОГО far*.lng
+    ! ┼ёыш PluginStartupInfo.GetMsg(?,N|FMI_GETFARMSGID), Єю яюфЁрчєьхтрхь, ўЄю
+      їюЄшь шёяюы№чютрЄ№ "ьхёруш" шч ╤└╠╬├╬ far*.lng
   24.08.2000 SVS
-    + ACTL_WAITKEY - ожидать определенную (или любую) клавишу
+    + ACTL_WAITKEY - юцшфрЄ№ юяЁхфхыхээє■ (шыш ы■сє■) ъыртш°є
   23.08.2000 SVS
-    ! Все Flags приведены к одному виду -> DWORD.
-      Модифицированы:
-        * функции   FarMenuFn, FarMessageFn, FarShowHelp
-        * структуры FarListItem, FarDialogItem
+    ! ┬ёх Flags яЁштхфхэ√ ъ юфэюьє тшфє -> DWORD.
+      ╠юфшЇшЎшЁютрэ√:
+        * ЇєэъЎшш   FarMenuFn, FarMessageFn, FarShowHelp
+        * ёЄЁєъЄєЁ√ FarListItem, FarDialogItem
   22.08.2000 SVS
-    ! Исключаем ненужные вызовы из FarText.
+    ! ╚ёъы■ўрхь эхэєцэ√х т√чют√ шч FarText.
   18.08.2000 tran 1.12
     + Flags parameter in FarShowHelp
   09.08.2000 tran 1.11
-    ! ACTL_GETSYSWORDDIV при Param==NULL просто возвращает длину строки
+    ! ACTL_GETSYSWORDDIV яЁш Param==NULL яЁюёЄю тючтЁр∙рхЄ фышэє ёЄЁюъш
   03.08.2000 SVS
-    + ACTL_GETSYSWORDDIV получить строку с символами разделителями слов
+    + ACTL_GETSYSWORDDIV яюыєўшЄ№ ёЄЁюъє ё ёшьтюырьш ЁрчфхышЄхы ьш ёыют
   01.08.2000 SVS
     ! FARDIALOGPROC -> FARWINDOWPROC
   28.07.2000 SVS
-    ! В связи с появлением SendDlgMessage в классе Dialog
-      вносим некоторые изменения!
+    ! ┬ ёт чш ё яю тыхэшхь SendDlgMessage т ъырёёх Dialog
+      тэюёшь эхъюЄюЁ√х шчьхэхэш !
   25.07.2000 SVS
-    + Программое переключение FulScreen <-> Windowed (ACTL_CONSOLEMODE)
+    + ╧ЁюуЁрььюх яхЁхъы■ўхэшх FulScreen <-> Windowed (ACTL_CONSOLEMODE)
   23.07.2000 SVS
-    + Функция FarDefDlgProc обработки диалога по умолчанию
-    + Функция FarSendDlgMessage - посылка сообщения диалогу
+    + ╘єэъЎш  FarDefDlgProc юсЁрсюЄъш фшрыюур яю єьюыўрэш■
+    + ╘єэъЎш  FarSendDlgMessage - яюё√ыър ёююс∙хэш  фшрыюує
   13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
+    ! ═хъюЄюЁ√х ъюЁЁхъЎшш яЁш шёяюы№чютрэшш new/delete/realloc
   12.07.2000 IS
-    + Проверка флагов редактора в FarEditor (раньше они игнорировались) и
-      открытие _немодального_ редактора, если есть соответствующий флаг.
+    + ╧ЁютхЁър Їыруют ЁхфръЄюЁр т FarEditor (Ёрэ№°х юэш шуэюЁшЁютрышё№) ш
+      юЄъЁ√Єшх _эхьюфры№эюую_ ЁхфръЄюЁр, хёыш хёЄ№ ёююЄтхЄёЄтє■∙шщ Їыру.
   11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
+    ! ╚чьхэхэш  фы  тючьюцэюёЄш ъюьяшы Ўшш яюф BC & VC
   05.07.2000 IS
-    + Функция FarAdvControl
-    + Команда ACTL_GETFARVERSION (в FarAdvControl)
+    + ╘єэъЎш  FarAdvControl
+    + ╩юьрэфр ACTL_GETFARVERSION (т FarAdvControl)
   03.07.2000 IS
-    + Функция вывода помощи
+    + ╘єэъЎш  т√тюфр яюью∙ш
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -158,12 +158,12 @@ extern char DirToSet[NM];
 void ScanPluginDir();
 
 /* $ 12.09.2000 SVS
-  + Реализация флагов для вывода помощи.
+  + ╨хрышчрЎш  Їыруют фы  т√тюфр яюью∙ш.
 */
 /* $ 18.08.2000 tran
    + Flags parameter */
 /* $ 03.07.2000 IS
-  Функция вывода помощи
+  ╘єэъЎш  т√тюфр яюью∙ш
 */
 BOOL WINAPI FarShowHelp(char *ModuleName, char *HelpTopic,DWORD Flags)
 {
@@ -175,19 +175,19 @@ BOOL WINAPI FarShowHelp(char *ModuleName, char *HelpTopic,DWORD Flags)
   char Path[2*NM],Topic[512];
   char *Mask=NULL;
 
-  // двоеточие в начале топика надо бы игнорировать и в том случае,
-  // если стоит FHELP_FARHELP...
+  // фтюхЄюўшх т эрўрых Єюяшър эрфю с√ шуэюЁшЁютрЄ№ ш т Єюь ёыєўрх,
+  // хёыш ёЄюшЄ FHELP_FARHELP...
   if((Flags&FHELP_FARHELP) || *HelpTopic==':')
     strcpy(Topic,HelpTopic+((*HelpTopic == ':')?1:0));
   else
   {
     if(ModuleName)
     {
-      // FHELP_SELFHELP=0 - трактовать первый пар-р как Info.ModuleName
-      //                   и показать топик из хелпа вызвавшего плагина
+      // FHELP_SELFHELP=0 - ЄЁръЄютрЄ№ яхЁт√щ ярЁ-Ё ъръ Info.ModuleName
+      //                   ш яюърчрЄ№ Єюяшъ шч їхыяр т√чтрт°хую яырушэр
       /* $ 17.11.2000 SVS
-         А значение FHELP_SELFHELP равно чему? Правильно - 0
-         И фигля здесь удивлятся тому, что функция не работает :-(
+         └ чэрўхэшх FHELP_SELFHELP Ёртэю ўхьє? ╧Ёртшы№эю - 0
+         ╚ Їшуы  чфхё№ єфшты Єё  Єюьє, ўЄю ЇєэъЎш  эх ЁрсюЄрхЄ :-(
       */
       if(Flags == FHELP_SELFHELP || (Flags&(FHELP_CUSTOMFILE|FHELP_CUSTOMPATH)))
       {
@@ -229,7 +229,7 @@ BOOL WINAPI FarShowHelp(char *ModuleName, char *HelpTopic,DWORD Flags)
 
 
 /* $ 05.07.2000 IS
-  Функция, которая будет действовать и в редакторе, и в панелях, и...
+  ╘єэъЎш , ъюЄюЁр  сєфхЄ фхщёЄтютрЄ№ ш т ЁхфръЄюЁх, ш т ярэхы ї, ш...
 */
 #ifndef _MSC_VER
 #pragma warn -par
@@ -243,9 +243,9 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
         *(DWORD*)Param=FAR_VERSION;
       return FAR_VERSION;
     /* $ 25.07.2000 SVS
-       + Программое переключение FulScreen <-> Windowed (ACTL_CONSOLEMODE)
-       mode = -2 - получить текущее состояние
-              -1 - как тригер
+       + ╧ЁюуЁрььюх яхЁхъы■ўхэшх FulScreen <-> Windowed (ACTL_CONSOLEMODE)
+       mode = -2 - яюыєўшЄ№ Єхъє∙хх ёюёЄю эшх
+              -1 - ъръ ЄЁшухЁ
                0 - Windowed
                1 - FulScreen
        Return
@@ -257,14 +257,14 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     /* SVS $ */
 
     /* $ 03.08.2000 SVS
-       получение строки с разделителями слов
-       Возвращает размер полученных данных без '\0'
-       Максимальный размер приемного буфера = 80 с заключительным '\0'
-       Строка выбирается не из реестра, а из Opt.
+       яюыєўхэшх ёЄЁюъш ё ЁрчфхышЄхы ьш ёыют
+       ┬ючтЁр∙рхЄ ЁрчьхЁ яюыєўхээ√ї фрээ√ї схч '\0'
+       ╠ръёшьры№э√щ ЁрчьхЁ яЁшхьэюую сєЇхЁр = 80 ё чръы■ўшЄхы№э√ь '\0'
+       ╤ЄЁюър т√сшЁрхЄё  эх шч ЁххёЄЁр, р шч Opt.
     */
     case ACTL_GETSYSWORDDIV:
       /* $ 09.08.2000 tran
-       + if param==NULL, plugin хочет только узнать длину строки  */
+       + if param==NULL, plugin їюўхЄ Єюы№ъю єчэрЄ№ фышэє ёЄЁюъш  */
       if ( Param )
           strcpy((char *)Param,Opt.WordDiv);
       /* tran 09.08.2000 $ */
@@ -272,10 +272,10 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     /* SVS $ */
 
     /* $ 24.08.2000 SVS
-       ожидать определенную (или любую) клавишу
-       (int)Param - внутренний код клавиши, которую ожидаем, или -1
-       если все равно какую клавишу ждать.
-       возвращает 0;
+       юцшфрЄ№ юяЁхфхыхээє■ (шыш ы■сє■) ъыртш°є
+       (int)Param - тэєЄЁхээшщ ъюф ъыртш°ш, ъюЄюЁє■ юцшфрхь, шыш -1
+       хёыш тёх Ёртэю ъръє■ ъыртш°є цфрЄ№.
+       тючтЁр∙рхЄ 0;
     */
     case ACTL_WAITKEY:
       WaitKey(Param?(int)Param:-1);
@@ -283,10 +283,10 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     /* SVS $ */
 
     /* $ 04.12.2000 SVS
-      ACTL_GETCOLOR - получить определенный цвет по индекс, определенному
-       в farcolor.hpp
-      (int)Param - индекс.
-      Return - значение цвета или -1 если индекс неверен.
+      ACTL_GETCOLOR - яюыєўшЄ№ юяЁхфхыхээ√щ ЎтхЄ яю шэфхъё, юяЁхфхыхээюьє
+       т farcolor.hpp
+      (int)Param - шэфхъё.
+      Return - чэрўхэшх ЎтхЄр шыш -1 хёыш шэфхъё эхтхЁхэ.
     */
     case ACTL_GETCOLOR:
       if((int)Param < SizeArrayPalette && (int)Param >= 0)
@@ -295,9 +295,9 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     /* SVS $ */
 
     /* $ 04.12.2000 SVS
-      ACTL_GETARRAYCOLOR - получить весь массив цветов
-      Param - указатель на массив или NULL - чтобы получить размер буфера
-      Return - размер массива.
+      ACTL_GETARRAYCOLOR - яюыєўшЄ№ тхё№ ьрёёшт ЎтхЄют
+      Param - єърчрЄхы№ эр ьрёёшт шыш NULL - ўЄюс√ яюыєўшЄ№ ЁрчьхЁ сєЇхЁр
+      Return - ЁрчьхЁ ьрёёштр.
     */
     case ACTL_GETARRAYCOLOR:
       if(Param)
@@ -306,9 +306,9 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     /* SVS $ */
 
     /* $ 14.12.2000 SVS
-      ACTL_EJECTMEDIA - извлечь диск из съемного накопителя
-      Param - указатель на структуру ActlEjectMedia
-      Return - TRUE - успешное извлечение, FALSE - ошибка.
+      ACTL_EJECTMEDIA - шчтыхў№ фшёъ шч ё·хьэюую эръюяшЄхы 
+      Param - єърчрЄхы№ эр ёЄЁєъЄєЁє ActlEjectMedia
+      Return - TRUE - єёях°эюх шчтыхўхэшх, FALSE - ю°шсър.
     */
     case ACTL_EJECTMEDIA:
       return Param?EjectVolume(((ActlEjectMedia*)Param)->Letter,
@@ -319,27 +319,27 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     */
     case ACTL_KEYMACRO:
     {
-      if(CtrlObject && Param) // все зависит от этой бадяги.
+      if(CtrlObject && Param) // тёх чртшёшЄ юЄ ¤Єющ срф уш.
       {
         KeyMacro& Macro=CtrlObject->Macro; //??
         struct ActlKeyMacro *KeyMacro=(struct ActlKeyMacro*)Param;
         switch(KeyMacro->Command)
         {
-          case MCMD_LOADALL: // из реестра в память ФАР с затиранием предыдущего
+          case MCMD_LOADALL: // шч ЁххёЄЁр т ярь Є№ ╘└╨ ё чрЄшЁрэшхь яЁхф√фє∙хую
             if(Macro.IsRecording() || Macro.IsExecuting())
               return FALSE;
             return Macro.LoadMacros();
 
-          case MCMD_SAVEALL: // из памяти ФАРа в реестра
+          case MCMD_SAVEALL: // шч ярь Єш ╘└╨р т ЁххёЄЁр
             if(Macro.IsRecording() || Macro.IsExecuting())
               return FALSE;
             Macro.SaveMacros();
             return TRUE;
 #if 0
           /* $ 23.12.2000 SVS
-               MCMD_PLAYSTRING - "проиграть" строку (строка в том виде,
-               как в реестре)
-             Param - указатель на структуру struct ActlKeyMacro.
+               MCMD_PLAYSTRING - "яЁюшуЁрЄ№" ёЄЁюъє (ёЄЁюър т Єюь тшфх,
+               ъръ т ЁххёЄЁх)
+             Param - єърчрЄхы№ эр ёЄЁєъЄєЁє struct ActlKeyMacro.
           */
           case MCMD_PLAYSTRING:
             if(KeyMacro->Str.KeyBuffer && *KeyMacro->Str.KeyBuffer)
@@ -452,24 +452,24 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
 }
 
 /* $ 23.07.2000 SVS
-   Функции для расширенного диалога
+   ╘єэъЎшш фы  Ёрё°шЁхээюую фшрыюур
 */
-// Функция FarDefDlgProc обработки диалога по умолчанию
+// ╘єэъЎш  FarDefDlgProc юсЁрсюЄъш фшрыюур яю єьюыўрэш■
 long WINAPI FarDefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 {
-  if(hDlg)  // исключаем лишний вызов для hDlg=0
+  if(hDlg)  // шёъы■ўрхь ыш°эшщ т√чют фы  hDlg=0
     return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
   return 0;
 }
 
 /* $ 28.07.2000 SVS
-    ! В связи с появлением SendDlgMessage в классе Dialog
-      вносим некоторые изменения!
+    ! ┬ ёт чш ё яю тыхэшхь SendDlgMessage т ъырёёх Dialog
+      тэюёшь эхъюЄюЁ√х шчьхэхэш !
 */
-// Посылка сообщения диалогу
+// ╧юё√ыър ёююс∙хэш  фшрыюує
 long WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 {
-  if(hDlg) // исключаем лишний вызов для hDlg=0
+  if(hDlg) // шёъы■ўрхь ыш°эшщ т√чют фы  hDlg=0
     return Dialog::SendDlgMessage(hDlg,Msg,Param1,Param2);
   return 0;
 }
@@ -482,8 +482,8 @@ int WINAPI FarDialogFn(int PluginNumber,int X1,int Y1,int X2,int Y2,
 }
 
 /* $   13.12.2000 SVS
-   ! FarDialogItem.Data - копирование strcpy заменено на memmove
-   (терялись данные пользователя)
+   ! FarDialogItem.Data - ъюяшЁютрэшх strcpy чрьхэхэю эр memmove
+   (ЄхЁ ышё№ фрээ√х яюы№чютрЄхы )
 */
 #ifndef _MSC_VER
 #pragma warn -par
@@ -498,7 +498,7 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
     return(-1);
 
   if(PluginNumber >= CtrlObject->Plugins.PluginsCount)
-    return(-1); // к терапевту.
+    return(-1); // ъ ЄхЁряхтЄє.
 
   struct DialogItem *InternalItem=new DialogItem[ItemsNumber];
 
@@ -518,7 +518,7 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
                    GetExceptionInformation(),CurPlugin,0))
   {
     delete[] InternalItem;
-    CtrlObject->Plugins.UnloadPlugin(*CurPlugin); // тест не пройден, выгружаем
+    CtrlObject->Plugins.UnloadPlugin(*CurPlugin); // ЄхёЄ эх яЁющфхэ, т√уЁєцрхь
     return -1;
   }
 
@@ -540,7 +540,7 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
       FarDialog.SetHelp(Topic);
     }
     /* $ 29.08.2000 SVS
-       Запомним номер плагина - сейчас в основном для формирования HelpTopic
+       ╟ряюьэшь эюьхЁ яырушэр - ёхщўрё т юёэютэюь фы  ЇюЁьшЁютрэш  HelpTopic
     */
     FarDialog.SetPluginNumber(PluginNumber);
     /* SVS $ */
@@ -555,7 +555,7 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
     ;
   }
   /* $ 13.07.2000 SVS
-     для new[] нужен delete[]
+     фы  new[] эєцхэ delete[]
   */
   delete[] InternalItem;
   /* SVS $*/
@@ -588,7 +588,7 @@ char* PluginsSet::FarGetMsg(int PluginNumber,int MsgId)
 }
 
 /* $ 28.01.2001 SVS
-   ! Конкретно обновим функцию FarMessageFn()
+   ! ╩юэъЁхЄэю юсэютшь ЇєэъЎш■ FarMessageFn()
 */
 
 #define MAXMSG  15
@@ -628,7 +628,7 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,char *HelpTopic,
     if(!SingleItems)
       return -1;
     MsgItems[ItemsNumber=0]=Msg=strcpy(SingleItems,(char *)Items);
-    // анализ количества строк и разбивка на пункты
+    // рэрышч ъюышўхёЄтр ёЄЁюъ ш Ёрчсштър эр яєэъЄ√
     while ((Msg = strchr(Msg, '\n')) != NULL)
     {
       *Msg='\0';
@@ -657,7 +657,7 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,char *HelpTopic,
 
   /* $ 22.03.2001 tran
      ItemsNumber++ -> ++ItemsNumber
-     тереялся последний элемент */
+     ЄхЁх ыё  яюёыхфэшщ ¤ыхьхэЄ */
   switch(Flags&0x000F0000)
   {
     case FMSG_MB_OK:
@@ -702,7 +702,7 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,char *HelpTopic,
     SetMessageHelp(Topic);
   }
   /* $ 29.08.2000 SVS
-     Запомним номер плагина - сейчас в основном для формирования HelpTopic
+     ╟ряюьэшь эюьхЁ яырушэр - ёхщўрё т юёэютэюь фы  ЇюЁьшЁютрэш  HelpTopic
   */
   int MsgCode=Message(Flags,ButtonsNumber,MsgItems[0],MsgItems[1],
               MsgItems[2],MsgItems[3],MsgItems[4],MsgItems[5],MsgItems[6],
@@ -740,7 +740,7 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
     case FCTL_SETVIEWMODE:
     case FCTL_SETANOTHERVIEWMODE:
 /* $ VVM 08.09.2000
-   + Смена сортировки из плагина
+   + ╤ьхэр ёюЁЄшЁютъш шч яырушэр
 */
     case FCTL_SETSORTMODE:
     case FCTL_SETANOTHERSORTMODE:
@@ -864,7 +864,7 @@ int WINAPI FarGetDirList(char *Dir,struct PluginPanelItem **pPanelItem,
       if (CheckForEsc())
       {
         /* $ 13.07.2000 SVS
-           Запросы были через realloc, потому и free
+           ╟ряЁюё√ с√ыш ўхЁхч realloc, яюЄюьє ш free
         */
         if(ItemsList) free(ItemsList);
         /* SVS $ */
@@ -1016,7 +1016,7 @@ void ScanPluginDir()
       {
         DWORD Size=*(DWORD *)CurPanelItem->UserData;
         /* $ 13.07.2000 SVS
-           вместо new будем использовать malloc
+           тьхёЄю new сєфхь шёяюы№чютрЄ№ malloc
         */
         DestItem->UserData=(DWORD)malloc(Size);
         /* SVS $*/
@@ -1093,13 +1093,13 @@ void WINAPI FarFreeDirList(struct PluginPanelItem *PanelItem)
     PluginPanelItem *CurPanelItem=PanelItem+I;
     if (CurPanelItem->UserData && (CurPanelItem->Flags & PPIF_USERDATA))
       /* $ 13.07.2000 SVS
-        для запроса использовали malloc
+        фы  чряЁюёр шёяюы№чютрыш malloc
       */
       free((void *)CurPanelItem->UserData);
       /* SVS $*/
   }
   /* $ 13.07.2000 SVS
-    для запроса использовали realloc
+    фы  чряЁюёр шёяюы№чютрыш realloc
   */
   free(PanelItem);
   /* SVS $*/
@@ -1149,12 +1149,12 @@ int WINAPI FarEditor(char *FileName,char *Title,int X1,int Y1,int X2,
   GetConsoleTitle(OldTitle,sizeof(OldTitle));
   SaveScreen SaveScr;
   /* $ 12.07.2000 IS
-   Проверка флагов редактора (раньше они игнорировались) и открытие
-   немодального редактора, если есть соответствующий флаг
+   ╧ЁютхЁър Їыруют ЁхфръЄюЁр (Ёрэ№°х юэш шуэюЁшЁютрышё№) ш юЄъЁ√Єшх
+   эхьюфры№эюую ЁхфръЄюЁр, хёыш хёЄ№ ёююЄтхЄёЄтє■∙шщ Їыру
   */
   int ExitCode;
   /* $ 21.03.2001 VVM
-    + Обработка флага EF_CREATENEW */
+    + ╬сЁрсюЄър Їырур EF_CREATENEW */
   int CreateNew = (Flags & EF_CREATENEW)?TRUE:FALSE;
   /* VVM $ */
   if (Flags & EF_NONMODAL)
@@ -1226,7 +1226,7 @@ void WINAPI FarText(int X,int Y,int Color,char *Str)
   else
   {
     /* $ 22.08.2000 SVS
-       Исключаем ненужные вызовы из FarText.
+       ╚ёъы■ўрхь эхэєцэ√х т√чют√ шч FarText.
     */
     Text(X,Y,Color,Str);
     /* SVS $ */
@@ -1242,7 +1242,7 @@ int WINAPI FarEditorControl(int Command,void *Param)
 }
 
 /* $ 27.09.2000 SVS
-  Управление вьювером
+  ╙яЁртыхэшх т№■тхЁюь
 */
 int WINAPI FarViewerControl(int Command,void *Param)
 {

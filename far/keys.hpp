@@ -3,7 +3,7 @@
 /*
 keys.hpp
 
-Внутренние фаровские имена клавиш
+┬эєЄЁхээшх ЇрЁютёъшх шьхэр ъыртш°
 
 */
 
@@ -12,42 +12,42 @@ keys.hpp
 /*
 Modify:
   28.04.2001 VVM
-    + KEY_FOCUS_CHANGED - посылается при получении/потере фокуса окном.
+    + KEY_FOCUS_CHANGED - яюё√ырхЄё  яЁш яюыєўхэшш/яюЄхЁх Їюъєёр юъэюь.
   26.04.2001 VVM
-    + KEY_MSWHEEL_UP/KEY_MSWHEEL_DOWN - для колеса мышки.
+    + KEY_MSWHEEL_UP/KEY_MSWHEEL_DOWN - фы  ъюыхёр ь√°ъш.
   25.04.2001 SVS
-    + KEY_MEDIT_ISSELECTED, в ответ на которую Editor::ProcessKey возвращает
-      TRUE - если есть помеченный блок или FALSE - блока нету.
+    + KEY_MEDIT_ISSELECTED, т юЄтхЄ эр ъюЄюЁє■ Editor::ProcessKey тючтЁр∙рхЄ
+      TRUE - хёыш хёЄ№ яюьхўхээ√щ сыюъ шыш FALSE - сыюър эхЄє.
   17.01.2001 SVS
     + KEY_COLON = ':'
-    ! Новая переделка (не пинать ногами).
+    ! ═ютр  яхЁхфхыър (эх яшэрЄ№ эюурьш).
   04.01.2001 SVS
-    ! Полная переделка раскладки :-)
+    ! ╧юыэр  яхЁхфхыър Ёрёъырфъш :-)
   26.12.2000 SVS
-    + KEY_MACRO_BASE - для макросов. Соответственно изменены названия:
+    + KEY_MACRO_BASE - фы  ьръЁюёют. ╤ююЄтхЄёЄтхээю шчьхэхэ√ эрчтрэш :
       KEY_DTDAY   -> KEY_MACRODAY
       KEY_DTMONTH -> KEY_MACROMONTH
       KEY_DTYEAR  -> KEY_MACROYEAR
-      END_FARKEY_BASE - дальшу уже некуда :-)
-      Т.о. KEY_LAST_BASE - это для официального опубликования, а
-        END_FARKEY_BASE - это истинный предел :-)
+      END_FARKEY_BASE - фры№°є єцх эхъєфр :-)
+      ╥.ю. KEY_LAST_BASE - ¤Єю фы  юЇшЎшры№эюую юяєсышъютрэш , р
+        END_FARKEY_BASE - ¤Єю шёЄшээ√щ яЁхфхы :-)
   21.12.2000 SVS
-    + 3 пвсевдоклавиши для макросов: KEY_DTDAY, KEY_DTMONTH, KEY_DTYEAR
-      т.е. текущий день, месяц, год. Это так, в качестве полезного
-      дополнения.
+    + 3 ятёхтфюъыртш°ш фы  ьръЁюёют: KEY_DTDAY, KEY_DTMONTH, KEY_DTYEAR
+      Є.х. Єхъє∙шщ фхэ№, ьхё Ў, уюф. ▌Єю Єръ, т ърўхёЄтх яюыхчэюую
+      фюяюыэхэш .
   30.10.2000 SVS
-    - Уточнение... :-)
+    - ╙Єюўэхэшх... :-)
   08.09.2000 SVS
-    ! Глобальная чистка и уточнение кодов клавиш.
+    ! ├ыюсры№эр  ўшёЄър ш єЄюўэхэшх ъюфют ъыртш°.
   24.08.2000 SVS
     + KEY_CTRLALTSHIFTPRESS, KEY_CTRLALTSHIFTRELEASE :-)
   23.07.2000 SVS
-    + Клавиши:
+    + ╩ыртш°ш:
        Ctrl- Shift- Alt- CtrlShift- AltShift- CtrlAlt- Apps :-)
        KEY_LWIN (VK_LWIN), KEY_RWIN (VK_RWIN)
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 /*
 HiWord
@@ -144,7 +144,7 @@ enum BaseDefKeyboard
   KEY_END_SKEY             =0x0000FFFF,
   KEY_LAST_BASE            =KEY_END_SKEY,
 
-  // сюды писать обобщенные макро-команды, которые доступны в других модулях
+  // ё■ф√ яшёрЄ№ юсюс∙хээ√х ьръЁю-ъюьрэф√, ъюЄюЁ√х фюёЄєяэ√ т фЁєушї ьюфєы ї
   KEY_MACRO_BASE           =0x00800000,
   //
   KEY_MACRODAY,
@@ -158,8 +158,8 @@ enum BaseDefKeyboard
   KEY_MEDIT_ISSELECTED,
 
   KEY_MACROSPEC_BASE       =0x00C00000,
-  // отсюда начинаются коды специализированных макро-кодов,
-  // объявленных в macro.cpp
+  // юЄё■фр эрўшэр■Єё  ъюф√ ёяхЎшрышчшЁютрээ√ї ьръЁю-ъюфют,
+  // юс· тыхээ√ї т macro.cpp
 };
 
 enum AddDefKeyboard

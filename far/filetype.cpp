@@ -1,7 +1,7 @@
 /*
 filetype.cpp
 
-Работа с ассоциациями файлов
+╨рсюЄр ё рёёюЎшрЎш ьш Їрщыют
 
 */
 
@@ -9,43 +9,43 @@ filetype.cpp
 
 /*
 Modify:
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
+  29.04.2001 ╬╥
+    + ┬эхфЁхэшх NWZ юЄ ╥ЁхЄ№ ъютр
   24.04.2001 DJ
-    * обработка @ в ассоциациях IF EXIST
+    * юсЁрсюЄър @ т рёёюЎшрЎш ї IF EXIST
   28.02.2001 IS
     ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   27.02.2001 VVM
-    ! Символы, зависимые от кодовой страницы
+    ! ╤шьтюы√, чртшёшь√х юЄ ъюфютющ ёЄЁрэшЎ√
       /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
-      переведены в коды.
+      яхЁхтхфхэ√ т ъюф√.
   14.02.2001 SVS
-    ! Модификаторы для !@! и !$! - AFQS
+    ! ╠юфшЇшърЄюЁ√ фы  !@! ш !$! - AFQS
   11.02.2001 SVS
-    ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
+    ! ═хёъюы№ъю єЄюўэхэшщ ъюфр т ёт чш ё шчьхэхэш ьш т ёЄЁєъЄєЁх MenuItem
   14.01.2001 SVS
-    + Интелектуальное поведение списка ассоциаций
-    + Модификаторы !&, !&~ и !^
+    + ╚эЄхыхъЄєры№эюх яютхфхэшх ёяшёър рёёюЎшрЎшщ
+    + ╠юфшЇшърЄюЁ√ !&, !&~ ш !^
   03.11.2000 OT
-    ! Введение проверки возвращаемого значения
+    ! ┬тхфхэшх яЁютхЁъш тючтЁр∙рхьюую чэрўхэш 
   02.11.2000 OT
-    ! Введение проверки на длину буфера, отведенного под имя файла.
+    ! ┬тхфхэшх яЁютхЁъш эр фышэє сєЇхЁр, юЄтхфхээюую яюф шь  Їрщыр.
   01.11.2000 IS
-    - Имя файла в случае !$! должно быть коротким
+    - ╚ь  Їрщыр т ёыєўрх !$! фюыцэю с√Є№ ъюЁюЄъшь
   02.09.2000 tran
     - !@!, !#!@! bug
   01.08.2000 SVS
-    ! Изменения, касаемые измений в структурах DialogItem
-    ! в usermenu конструкция !?<title>?<init>! с расширением переменных среды!
+    ! ╚чьхэхэш , ърёрхь√х шчьхэшщ т ёЄЁєъЄєЁрї DialogItem
+    ! т usermenu ъюэёЄЁєъЎш  !?<title>?<init>! ё Ёрё°шЁхэшхь яхЁхьхээ√ї ёЁхф√!
   21.07.2000 IG
-    - Bug 15 (не работала комманда executable.exe !.!?ext:?!)
+    - Bug 15 (эх ЁрсюЄрыр ъюььрэфр executable.exe !.!?ext:?!)
   13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
+    ! ═хъюЄюЁ√х ъюЁЁхъЎшш яЁш шёяюы№чютрэшш new/delete/realloc
   11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
+    ! ╚чьхэхэш  фы  тючьюцэюёЄш ъюьяшы Ўшш яюф BC & VC
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
@@ -53,7 +53,7 @@ Modify:
 
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -66,9 +66,9 @@ static void ReplaceVariables(char *Str);
 static unsigned char VerticalLine=0x0B3;
 
 /* $ 25.04.2001 DJ
-   обработка @ в IF EXIST: функция, которая извлекает команду из строки
-   с IF EXIST с учетом @ и возвращает TRUE, если условие IF EXIST
-   выполено, и FALSE в противном случае/
+   юсЁрсюЄър @ т IF EXIST: ЇєэъЎш , ъюЄюЁр  шчтыхърхЄ ъюьрэфє шч ёЄЁюъш
+   ё IF EXIST ё єўхЄюь @ ш тючтЁр∙рхЄ TRUE, хёыш єёыютшх IF EXIST
+   т√яюыхэю, ш FALSE т яЁюЄштэюь ёыєўрх/
 */
 
 BOOL ExtractIfExistCommand (char *CommandText)
@@ -76,11 +76,11 @@ BOOL ExtractIfExistCommand (char *CommandText)
   char *PtrCmd=PrepareOSIfExist(CommandText);
   if(PtrCmd)
   {
-    if(!*PtrCmd) // Во! Условие не выполнено!!!
-                 // (например, пока рассматривали менюху, в это время)
-                 // какой-то злобный чебурашка стер файл!
+    if(!*PtrCmd) // ┬ю! ╙ёыютшх эх т√яюыэхэю!!!
+                 // (эряЁшьхЁ, яюър ЁрёёьрЄЁштрыш ьхэ■їє, т ¤Єю тЁхь )
+                 // ъръющ-Єю чыюсэ√щ ўхсєЁр°ър ёЄхЁ Їрщы!
       return FALSE;
-    // прокинем "if exist"
+    // яЁюъшэхь "if exist"
     if (*CommandText == '@')
       memmove(CommandText+1,PtrCmd,strlen(PtrCmd)+1);
     else
@@ -93,12 +93,12 @@ BOOL ExtractIfExistCommand (char *CommandText)
 
 
 /* $ 14.01.2001 SVS
-   Добавим интелектуальности.
-   Если встречается "IF" и оно выполняется, то команда
-   помещается в список
+   ─юсртшь шэЄхыхъЄєры№эюёЄш.
+   ┼ёыш тёЄЁхўрхЄё  "IF" ш юэю т√яюыэ хЄё , Єю ъюьрэфр
+   яюьх∙рхЄё  т ёяшёюъ
 
-   Вызывается для F3, F4 - ассоциации
-   Enter в ком строке - ассоциации.
+   ┬√ч√трхЄё  фы  F3, F4 - рёёюЎшрЎшш
+   Enter т ъюь ёЄЁюъх - рёёюЎшрЎшш.
 */
 int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFinish)
 {
@@ -150,7 +150,7 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
     TypesMenu.SetPosition(-1,-1,0,0);
 
     int DizWidth=GetDescriptionWidth();
-    int ActualCmdCount=0; // отображаемых ассоциаций в меню
+    int ActualCmdCount=0; // юЄюсЁрцрхь√ї рёёюЎшрЎшщ т ьхэ■
 
     for (int I=0;I<CommandCount;I++)
     {
@@ -159,15 +159,15 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
       strcpy(CommandText,Commands[I]);
       SubstFileName(CommandText,Name,ShortName,NULL,NULL,TRUE);
 
-      // все "подставлено", теперь проверим условия "if exist"
+      // тёх "яюфёЄртыхэю", ЄхяхЁ№ яЁютхЁшь єёыютш  "if exist"
       /* $ 25.04.2001 DJ
-         обработка @ в IF EXIST
+         юсЁрсюЄър @ т IF EXIST
       */
       if (!ExtractIfExistCommand (CommandText))
         continue;
       /* DJ $ */
 
-      // запомним индекс оригинальной команды из мессива Commands
+      // чряюьэшь шэфхъё юЁшушэры№эющ ъюьрэф√ шч ьхёёштр Commands
       NumCommands[ActualCmdCount++]=I;
 
       if (DizWidth==0)
@@ -204,9 +204,9 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
   {
     int PreserveLFN=SubstFileName(Command,Name,ShortName,ListName,ShortListName);
 
-    // Снова все "подставлено", теперь проверим условия "if exist"
+    // ╤эютр тёх "яюфёЄртыхэю", ЄхяхЁ№ яЁютхЁшь єёыютш  "if exist"
     /* $ 25.04.2001 DJ
-       обработка @ в IF EXIST
+       юсЁрсюЄър @ т IF EXIST
     */
     if (!ExtractIfExistCommand (Command))
       return TRUE;
@@ -344,7 +344,7 @@ int ProcessGlobalFileTypes(char *Name,int AlwaysWaitFinish)
 }
 
 /*
-  Используется для запуска внешнего редактора и вьювера
+  ╚ёяюы№чєхЄё  фы  чряєёър тэх°эхую ЁхфръЄюЁр ш т№■тхЁр
 */
 void ProcessExternal(char *Command,char *Name,char *ShortName,int AlwaysWaitFinish)
 {
@@ -355,9 +355,9 @@ void ProcessExternal(char *Command,char *Name,char *ShortName,int AlwaysWaitFini
   strcpy(FullExecStr,Command);
   {
     int PreserveLFN=SubstFileName(ExecStr,Name,ShortName,ListName,ShortListName);
-    // Снова все "подставлено", теперь проверим условия "if exist"
+    // ╤эютр тёх "яюфёЄртыхэю", ЄхяхЁ№ яЁютхЁшь єёыютш  "if exist"
     /* $ 25.04.2001 DJ
-       обработка @ в IF EXIST
+       юсЁрсюЄър @ т IF EXIST
     */
     if (!ExtractIfExistCommand (ExecStr))
       return;
@@ -371,9 +371,9 @@ void ProcessExternal(char *Command,char *Name,char *ShortName,int AlwaysWaitFini
     }
     ConvertNameToShort(FullName,FullShortName);
     SubstFileName(FullExecStr,FullName,FullShortName,ListName,ShortListName);
-    // Снова все "подставлено", теперь проверим условия "if exist"
+    // ╤эютр тёх "яюфёЄртыхэю", ЄхяхЁ№ яЁютхЁшь єёыютш  "if exist"
     /* $ 25.04.2001 DJ
-       обработка @ в IF EXIST
+       юсЁрсюЄър @ т IF EXIST
     */
     if (!ExtractIfExistCommand (FullExecStr))
       return;
@@ -402,9 +402,9 @@ void ProcessExternal(char *Command,char *Name,char *ShortName,int AlwaysWaitFini
 
 
 /* Used in:
-   filelist.cpp  FileList::ApplyCommand() 1 раз
-   usermenu.cpp  ProcessSingleMenu 3 раза
-   filetype.cpp  описание и ProcessLocalFileTypes - 2 раза, ProcessExternal -2
+   filelist.cpp  FileList::ApplyCommand() 1 Ёрч
+   usermenu.cpp  ProcessSingleMenu 3 Ёрчр
+   filetype.cpp  юяшёрэшх ш ProcessLocalFileTypes - 2 Ёрчр, ProcessExternal -2
 */
 // Str=if exist !#!\!^!.! far:edit < diff -c -p "!#!\!^!.!" !\!.!
 int SubstFileName(char *Str,char *Name,char *ShortName,
@@ -496,7 +496,7 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
     if (!SkipQuotes)
     {
       /* $ 21.07.2000 IG
-         Bug 15 (не работала комманда executable.exe !.!?ext:?!)
+         Bug 15 (эх ЁрсюЄрыр ъюььрэфр executable.exe !.!?ext:?!)
       */
       if (strncmp(CurStr,"!!",2)==0 && CurStr[2] != '?')
       /* IG $ */
@@ -507,7 +507,7 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
         continue;
       }
       /* $ 21.07.2000 IG
-         Bug 15 (не работала комманда executable.exe !.!?ext:?!)
+         Bug 15 (эх ЁрсюЄрыр ъюььрэфр executable.exe !.!?ext:?!)
       */
       if (strncmp(CurStr,"!.!",3)==0 && CurStr[3] != '?')
       /* IG $ */
@@ -533,7 +533,7 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
         continue;
       }
 
-      // список файлов разделенных пробелом.
+      // ёяшёюъ Їрщыют Ёрчфхыхээ√ї яЁюсхыюь.
       if (!strncmp(CurStr,"!&~",3) && CurStr[3] != '?' ||
           !strncmp(CurStr,"!&",2) && CurStr[2] != '?')
       {
@@ -552,8 +552,8 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
         {
           if (ShortN0)
             strcpy(FileNameL,ShortNameL);
-// Вот здесь фиг его знает - нужно/ненужно...
-//   если будет нужно - раскомментируем :-)
+// ┬юЄ чфхё№ Їшу хую чэрхЄ - эєцэю/эхэєцэю...
+//   хёыш сєфхЄ эєцэю - ЁрёъюььхэЄшЁєхь :-)
 //          if(FileAttrL & FA_DIREC)
 //            AddEndSlash(FileNameL);
           QuoteSpaceOnly(FileNameL);
@@ -565,7 +565,7 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
         continue;
       }
       /* $ 21.07.2000 IG
-         Bug 15 (не работала комманда executable.exe !.!?ext:?!)
+         Bug 15 (эх ЁрсюЄрыр ъюььрэфр executable.exe !.!?ext:?!)
       */
       if (strncmp(CurStr,"!@",2)==0 && ListName!=NULL)
       /* IG $ */
@@ -595,7 +595,7 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
         }
       }
       /* $ 21.07.2000 IG
-         Bug 15 (не работала комманда executable.exe !.!?ext:?!)
+         Bug 15 (эх ЁрсюЄрыр ъюььрэфр executable.exe !.!?ext:?!)
       */
       if (strncmp(CurStr,"!$",2)==0 && ShortListName!=NULL)
       /* IG $ */
@@ -613,7 +613,7 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
             if ( PassivePanel && (ShortListName[NM] || AnotherPanel->MakeListFile(ShortListName+NM,TRUE,Modifers)))
             {
               /* $ 01.11.2000 IS
-                 Имя файла в данном случае должно быть коротким
+                 ╚ь  Їрщыр т фрээюь ёыєўрх фюыцэю с√Є№ ъюЁюЄъшь
               */
               ConvertNameToShort(ShortListName+NM,ShortListName+NM);
               /* IS $ */
@@ -622,7 +622,7 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
             if ( !PassivePanel && (*ShortListName || CtrlObject->Cp()->ActivePanel->MakeListFile(ShortListName,TRUE,Modifers)))
             {
               /* $ 01.11.2000 IS
-                 Имя файла в данном случае должно быть коротким
+                 ╚ь  Їрщыр т фрээюь ёыєўрх фюыцэю с√Є№ ъюЁюЄъшь
               */
               ConvertNameToShort(ShortListName,ShortListName);
               /* IS $ */
@@ -636,7 +636,7 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
         }
       }
       /* $ 21.07.2000 IG
-         Bug 15 (не работала комманда executable.exe !.!?ext:?!)
+         Bug 15 (эх ЁрсюЄрыр ъюььрэфр executable.exe !.!?ext:?!)
       */
       if (strncmp(CurStr,"!-!",3)==0 && CurStr[3] != '?')
       /* IG $ */
@@ -647,7 +647,7 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
         continue;
       }
       /* $ 21.07.2000 IG
-         Bug 15 (не работала комманда executable.exe !.!?ext:?!)
+         Bug 15 (эх ЁрсюЄрыр ъюььрэфр executable.exe !.!?ext:?!)
       */
       if (strncmp(CurStr,"!+!",3)==0 && CurStr[3] != '?')
       /* IG $ */
@@ -678,7 +678,7 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
         continue;
       }
       /* $ 21.07.2000 IG
-         Bug 15 (не работала комманда executable.exe !.!?ext:?!)
+         Bug 15 (эх ЁрсюЄрыр ъюььрэфр executable.exe !.!?ext:?!)
       */
       if (strncmp(CurStr,"!\\!.!",5)==0 && CurStr[5] != '?')
       /* IG $ */
@@ -1026,7 +1026,7 @@ void ReplaceVariables(char *Str)
     }
     strcpy(DlgData[DlgSize].Data,Title);
     /* $ 01.08.2000 SVS
-       "расширяем" заголовок
+       "Ёрё°шЁ хь" чруюыютюъ
     */
     ExpandEnvironmentStr(DlgData[DlgSize].Data,DlgData[DlgSize].Data,sizeof(DlgData[DlgSize].Data));
     /* SVS $*/
@@ -1048,7 +1048,7 @@ void ReplaceVariables(char *Str)
   if (Dlg.GetExitCode()==-1)
   {
     /* $ 13.07.2000 SVS
-       запрос был по realloc
+       чряЁюё с√ы яю realloc
     */
     free(DlgData);
     /* SVS $ */
@@ -1076,12 +1076,12 @@ void ReplaceVariables(char *Str)
   }
   strcpy(StartStr,TmpStr);
   /* $ 01.08.2000 SVS
-     после "жмаканья" Enter "расширяем" данные
+     яюёых "цьрърэ№ " Enter "Ёрё°шЁ хь" фрээ√х
   */
   ExpandEnvironmentStr(TmpStr,StartStr,sizeof(DlgData[0].Data));
   /* SVS $ */
   /* $ 13.07.2000 SVS
-     запрос был по realloc
+     чряЁюё с√ы яю realloc
   */
   free(DlgData);
   /* SVS $ */

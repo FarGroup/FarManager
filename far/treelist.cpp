@@ -9,46 +9,46 @@ Tree panel
 
 /*
 Modify:
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
+  29.04.2001 ╬╥
+    + ┬эхфЁхэшх NWZ юЄ ╥ЁхЄ№ ъютр
   25.04.2001 SVS
-    ! Добавка для MODALTREE_FREE
+    ! ─юсртър фы  MODALTREE_FREE
   23.04.2001 SVS
-    ! Если файл существует, то позаботимся о сохранении оригинальных атрибутов
-      Часть вторая, т.с. - в прошлый раз забыл еще в одном месте выставить...
+    ! ┼ёыш Їрщы ёє∙хёЄтєхЄ, Єю яючрсюЄшьё  ю ёюїЁрэхэшш юЁшушэры№э√ї рЄЁшсєЄют
+      ╫рёЄ№ тЄюЁр , Є.ё. - т яЁю°ы√щ Ёрч чрс√ы х∙х т юфэюь ьхёЄх т√ёЄртшЄ№...
   06.04.2001 SVS
-    ! Корректный вызов удаления папки по F8 и Shift-F8
+    ! ╩юЁЁхъЄэ√щ т√чют єфрыхэш  яряъш яю F8 ш Shift-F8
   05.04.2001 VVM
-    + Переключение макросов в режим MACRO_TREEPANEL
+    + ╧хЁхъы■ўхэшх ьръЁюёют т Ёхцшь MACRO_TREEPANEL
   26.03.2001 SVS
-    ! Если файл существует, то позаботимся о сохранении оригинальных атрибутов
+    ! ┼ёыш Їрщы ёє∙хёЄтєхЄ, Єю яючрсюЄшьё  ю ёюїЁрэхэшш юЁшушэры№э√ї рЄЁшсєЄют
   28.02.2001 IS
     ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   27.02.2001 VVM
-    ! Символы, зависимые от кодовой страницы
+    ! ╤шьтюы√, чртшёшь√х юЄ ъюфютющ ёЄЁрэшЎ√
       /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
-      переведены в коды.
+      яхЁхтхфхэ√ т ъюф√.
   09.01.2001 SVS
-    - Для KEY_XXX_BASE нужно прибавить 0x01
+    - ─ы  KEY_XXX_BASE эєцэю яЁшсртшЄ№ 0x01
   02.11.2000 OT
-    ! Введение проверки на длину буфера, отведенного под имя файла.
+    ! ┬тхфхэшх яЁютхЁъш эр фышэє сєЇхЁр, юЄтхфхээюую яюф шь  Їрщыр.
   16.10.2000 tran
-    + MustBeCached(Root) - функция, определяющая необходимость кеширования
-      дерева
+    + MustBeCached(Root) - ЇєэъЎш , юяЁхфхы ■∙р  эхюсїюфшьюёЄ№ ъх°шЁютрэш 
+      фхЁхтр
   13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
+    ! ═хъюЄюЁ√х ъюЁЁхъЎшш яЁш шёяюы№чютрэшш new/delete/realloc
   11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
+    ! ╚чьхэхэш  фы  тючьюцэюёЄш ъюьяшы Ўшш яюф BC & VC
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -90,7 +90,7 @@ TreeList::TreeList()
 TreeList::~TreeList()
 {
   /* $ 13.07.2000 SVS
-     не надо смешивать new/delete с realloc
+     эх эрфю ёьх°штрЄ№ new/delete ё realloc
   */
   free(ListData);
   /* SVS $ */
@@ -271,7 +271,7 @@ void TreeList::ReadTree()
     RootLength=0;
 
   /* $ 13.07.2000 SVS
-     не надо смешивать new/delete с realloc
+     эх эрфю ёьх°штрЄ№ new/delete ё realloc
   */
   free(ListData);
   TreeCount=0;
@@ -293,7 +293,7 @@ void TreeList::ReadTree()
         (ListData=(struct TreeItem *)realloc(ListData,(TreeCount+1)*sizeof(struct TreeItem)))==0)
     {
       /* $ 13.07.2000 SVS
-         не надо смешивать new/delete с realloc
+         эх эрфю ёьх°штрЄ№ new/delete ё realloc
       */
       free(ListData);
       /* SVS $ */
@@ -324,14 +324,14 @@ void TreeList::SaveTreeFile()
   if (RootLength<0)
     RootLength=0;
   sprintf(Name,"%s%s",Root,TreeFileName);
-  // получим и сразу сбросим атрибуты (если получится)
+  // яюыєўшь ш ёЁрчє ёсЁюёшь рЄЁшсєЄ√ (хёыш яюыєўшЄё )
   DWORD FileAttributes=GetFileAttributes(Name);
   if(FileAttributes != -1)
     SetFileAttributes(Name,0);
   if ((TreeFile=fopen(Name,"wb"))==NULL)
   {
     /* $ 16.10.2000 tran
-       если диск должен кешироваться, то и пытаться не стоит */
+       хёыш фшёъ фюыцхэ ъх°шЁютрЄ№ё , Єю ш я√ЄрЄ№ё  эх ёЄюшЄ */
     if (MustBeCached(Root) || (TreeFile=fopen(Name,"wb"))==NULL)
       if (!GetCacheTreeName(Root,Name,TRUE) || (TreeFile=fopen(Name,"wb"))==NULL)
         return;
@@ -349,7 +349,7 @@ void TreeList::SaveTreeFile()
     remove(Name);
     Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotSaveTree),Name,MSG(MOk));
   }
-  else if(FileAttributes != -1) // вернем атрибуты (если получится :-)
+  else if(FileAttributes != -1) // тхЁэхь рЄЁшсєЄ√ (хёыш яюыєўшЄё  :-)
     SetFileAttributes(Name,FileAttributes);
 }
 
@@ -587,7 +587,7 @@ int TreeList::ProcessKey(int Key)
           if (CtrlObject->Plugins.PutFiles(hAnotherPlugin,ItemList,ItemNumber,Move,0)==1)
             AnotherPanel->SetPluginModified();
           /* $ 13.07.2000 SVS
-             не надо смешивать new/delete с realloc
+             эх эрфю ёьх°штрЄ№ new/delete ё realloc
           */
           free(ItemList);
           /* SVS $ */
@@ -605,14 +605,14 @@ int TreeList::ProcessKey(int Key)
         ShellMakeDir(this);
       return(TRUE);
     /*
-      Удаление                                   Shift-Del, Shift-F8, F8
+      ╙фрыхэшх                                   Shift-Del, Shift-F8, F8
 
-      Удаление файлов и папок. F8 и Shift-Del удаляют все выбранные
-     файлы, Shift-F8 - только файл под курсором. Shift-Del всегда удаляет
-     файлы, не используя Корзину (Recycle Bin). Использование Корзины
-     командами F8 и Shift-F8 зависит от конфигурации.
+      ╙фрыхэшх Їрщыют ш яряюъ. F8 ш Shift-Del єфры ■Є тёх т√сЁрээ√х
+     Їрщы√, Shift-F8 - Єюы№ъю Їрщы яюф ъєЁёюЁюь. Shift-Del тёхуфр єфры хЄ
+     Їрщы√, эх шёяюы№чє  ╩юЁчшэє (Recycle Bin). ╚ёяюы№чютрэшх ╩юЁчшэ√
+     ъюьрэфрьш F8 ш Shift-F8 чртшёшЄ юЄ ъюэЇшуєЁрЎшш.
 
-      Уничтожение файлов и папок                                 Alt-Del
+      ╙эшўЄюцхэшх Їрщыют ш яряюъ                                 Alt-Del
     */
     case KEY_F8:
     case KEY_SHIFTDEL:
@@ -902,7 +902,7 @@ int TreeList::ReadTreeFile()
     if (!GetCacheTreeName(Root,Name,FALSE) || (TreeFile=fopen(Name,"rb"))==NULL)
       return(FALSE);
   /* $ 13.07.2000 SVS
-     не надо смешивать new/delete с realloc
+     эх эрфю ёьх°штрЄ№ new/delete ё realloc
   */
   free(ListData);
   /* SVS $ */
@@ -923,7 +923,7 @@ int TreeList::ReadTreeFile()
     if ((TreeCount & 255)==0 && (ListData=(struct TreeItem *)realloc(ListData,(TreeCount+256+1)*sizeof(struct TreeItem)))==0)
     {
       /* $ 13.07.2000 SVS
-         не надо смешивать new/delete с realloc
+         эх эрфю ёьх°штрЄ№ new/delete ё realloc
       */
       free(ListData);
       /* SVS $ */
@@ -1054,7 +1054,7 @@ void TreeList::AddTreeName(char *Name)
     if ((TreeCount & 31)==0 && (NewPtr=(char *)realloc(ListName,(TreeCount+32+1)*NM))==NULL)
     {
       /* $ 13.07.2000 SVS
-         не надо смешивать new/delete с realloc
+         эх эрфю ёьх°штрЄ№ new/delete ё realloc
       */
       free(NewPtr);
       /* SVS $ */
@@ -1064,7 +1064,7 @@ void TreeList::AddTreeName(char *Name)
     strncpy(&ListName[NM*TreeCount++],DirName,NM);
   }
   /* $ 13.07.2000 SVS
-     не надо смешивать new/delete с realloc
+     эх эрфю ёьх°штрЄ№ new/delete ё realloc
   */
   free(TreeCache.ListName);
   /* SVS $ */
@@ -1098,7 +1098,7 @@ void TreeList::DelTreeName(char *Name)
     if ((TreeCount & 31)==0 && (NewPtr=(char *)realloc(ListName,(TreeCount+32+1)*NM))==NULL)
     {
       /* $ 13.07.2000 SVS
-        не надо смешивать new/delete с realloc
+        эх эрфю ёьх°штрЄ№ new/delete ё realloc
       */
       free(NewPtr);
       /* SVS $ */
@@ -1108,7 +1108,7 @@ void TreeList::DelTreeName(char *Name)
     strncpy(&ListName[NM*TreeCount++],DirName,NM);
   }
   /* $ 13.07.2000 SVS
-     не надо смешивать new/delete с realloc
+     эх эрфю ёьх°штрЄ№ new/delete ё realloc
   */
   free(TreeCache.ListName);
   /* SVS $ */
@@ -1180,7 +1180,7 @@ void TreeList::ClearCache(int EnableFreeMem)
 {
   if (EnableFreeMem && TreeCache.ListName!=NULL)
     /* $ 13.07.2000 SVS
-       не надо смешивать new/delete с realloc
+       эх эрфю ёьх°штрЄ№ new/delete ё realloc
     */
     free(TreeCache.ListName);
     /* SVS $ */
@@ -1249,7 +1249,7 @@ void TreeList::FlushCache()
       Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotSaveTree),
               TreeCache.TreeName,MSG(MOk));
     }
-    else if(FileAttributes != -1) // вернем атрибуты (если получится :-)
+    else if(FileAttributes != -1) // тхЁэхь рЄЁшсєЄ√ (хёыш яюыєўшЄё  :-)
       SetFileAttributes(TreeCache.TreeName,FileAttributes);
   }
   ClearCache(1);
@@ -1318,8 +1318,8 @@ int TreeCmp(char *Str1,char *Str2)
 }
 
 /* $ 16.10.2000 tran
- функция, определяющаяя необходимость кеширования
- файла */
+ ЇєэъЎш , юяЁхфхы ■∙р   эхюсїюфшьюёЄ№ ъх°шЁютрэш 
+ Їрщыр */
 int TreeList::MustBeCached(char *Root)
 {
     UINT type;
@@ -1335,13 +1335,13 @@ int TreeList::MustBeCached(char *Root)
         {
             if ( toupper(Root[0])=='A' || toupper(Root[0])=='B')
             {
-                return FALSE; // это дискеты
+                return FALSE; // ¤Єю фшёъхЄ√
             }
         }
         return TRUE;
-        // кешируются CD, removable и неизвестно что :)
+        // ъх°шЁє■Єё  CD, removable ш эхшчтхёЄэю ўЄю :)
     }
-    /* остались
+    /* юёЄрышё№
         DRIVE_REMOTE
         DRIVE_RAMDISK
         DRIVE_FIXED

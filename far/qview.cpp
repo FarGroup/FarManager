@@ -9,62 +9,62 @@ Quick view panel
 
 /*
 Modify:
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
+  29.04.2001 ╬╥
+    + ┬эхфЁхэшх NWZ юЄ ╥ЁхЄ№ ъютр
   30.04.2001 DJ
     + UpdateKeyBar()
-    - правильный help topic
+    - яЁртшы№э√щ help topic
   05.04.2001 VVM
-    + Переключение макросов в режим MACRO_QVIEWPANEL
+    + ╧хЁхъы■ўхэшх ьръЁюёют т Ёхцшь MACRO_QVIEWPANEL
   12.03.2001 SVS
-    ! Коррекция в связи с изменениями в классе int64
+    ! ╩юЁЁхъЎш  т ёт чш ё шчьхэхэш ьш т ъырёёх int64
   28.02.2001 IS
     ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   20.02.2001 VVM
-    ! Исправление поведения врапа. (Оторвал зависимость от вьюере)
+    ! ╚ёяЁртыхэшх яютхфхэш  тЁряр. (╬ЄюЁтры чртшёшьюёЄ№ юЄ т№■хЁх)
   12.02.2001 SVS
-    ! Выделенный текст отображается COL_PANELINFOTEXT (Highlighted info),
-      а не COL_PANELSELECTEDTEXT (Selected text)
+    ! ┬√фхыхээ√щ ЄхъёЄ юЄюсЁрцрхЄё  COL_PANELINFOTEXT (Highlighted info),
+      р эх COL_PANELSELECTEDTEXT (Selected text)
   01.02.2001 SVS
-    + В панели "Quick view" добавим инфу про Junction
+    + ┬ ярэхыш "Quick view" фюсртшь шэЇє яЁю Junction
   03.11.2000 OT
-    ! Введение проверки возвращаемого значения
+    ! ┬тхфхэшх яЁютхЁъш тючтЁр∙рхьюую чэрўхэш 
   02.11.2000 OT
-    ! Введение проверки на длину буфера, отведенного под имя файла.
+    ! ┬тхфхэшх яЁютхЁъш эр фышэє сєЇхЁр, юЄтхфхээюую яюф шь  Їрщыр.
   04.08.2000 tran 1.06
-     Gray+, Gray- передвигают курсор на другой панели
+     Gray+, Gray- яхЁхфтшур■Є ъєЁёюЁ эр фЁєующ ярэхыш
   20.07.2000 tran
-    - bug#21, пустой заголовок консоли
-      теперь он верный всегда
+    - bug#21, яєёЄющ чруюыютюъ ъюэёюыш
+      ЄхяхЁ№ юэ тхЁэ√щ тёхуфр
   12.07.2000 SVS
-    ! Для возможности 3-х позиционного Wrap`а статическая переменная
-      LastWrapMode имеет не булевое значение, а обычный int
+    ! ─ы  тючьюцэюёЄш 3-ї яючшЎшюээюую Wrap`р ёЄрЄшўхёър  яхЁхьхээр 
+      LastWrapMode шьххЄ эх сєыхтюх чэрўхэшх, р юс√ўэ√щ int
   11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
+    ! ╚чьхэхэш  фы  тючьюцэюёЄш ъюьяшы Ўшш яюф BC & VC
   04.07.2000 tran
-    + не показывать мессаг бакс при невозвожности открыть файл
+    + эх яюърч√трЄ№ ьхёёру сръё яЁш эхтючтюцэюёЄш юЄъЁ√Є№ Їрщы
   28.06.2000 IS
-    - Не показывать тип файла для каталогов в "Быстром просмотре"
+    - ═х яюърч√трЄ№ Єшя Їрщыр фы  ърЄрыюуют т "┴√ёЄЁюь яЁюёьюЄЁх"
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */
 
 /* $ 12.07.2000 SVS
-    ! Для возможности 3-х позиционного Wrap`а статическая переменная
-      LastWrapMode имеет не булевое значение, а обычный int
+    ! ─ы  тючьюцэюёЄш 3-ї яючшЎшюээюую Wrap`р ёЄрЄшўхёър  яхЁхьхээр 
+      LastWrapMode шьххЄ эх сєыхтюх чэрўхэшх, р юс√ўэ√щ int
 */
 /* $ 20.02.2001 VVM
-    ! Врап хранится в 2х переменных. */
+    ! ┬Ёря їЁрэшЄё  т 2ї яхЁхьхээ√ї. */
 static int LastWrapMode = -1;
 static int LastWrapType = -1;
 /* VVM $ */
@@ -80,7 +80,7 @@ QuickView::QuickView()
   Directory=0;
   PrevMacroMode = -1;
   /* $ 20.02.2001 VVM
-    + Проинициализируем режим врап-а */
+    + ╧ЁюшэшЎшрышчшЁєхь Ёхцшь тЁря-р */
   if (LastWrapMode < 0) {
     LastWrapMode = Opt.ViewerIsWrap;
     LastWrapType = Opt.ViewerWrap;
@@ -136,7 +136,7 @@ void QuickView::DisplayObject()
     PrintText(Msg);
 
     /* $ 01.02.2001 SVS
-       В панели "Quick view" добавим инфу про Junction
+       ┬ ярэхыш "Quick view" фюсртшь шэЇє яЁю Junction
     */
     if((GetFileAttributes(CurFileName)&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
     {
@@ -235,7 +235,7 @@ int QuickView::ProcessKey(int Key)
     }
   }
   /* $ 30.04.2001 DJ
-     показываем правильный help topic
+     яюърч√трхь яЁртшы№э√щ help topic
   */
   if (Key == KEY_F1)
   {
@@ -250,7 +250,7 @@ int QuickView::ProcessKey(int Key)
     return(TRUE);
   }
   /* $ 04.08.2000 tran
-     Gray+, Gray- передвигают курсор на другой панели*/
+     Gray+, Gray- яхЁхфтшур■Є ъєЁёюЁ эр фЁєующ ярэхыш*/
   if (Key==KEY_ADD || Key==KEY_SUBTRACT)
   {
     Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
@@ -261,7 +261,7 @@ int QuickView::ProcessKey(int Key)
   /* tran 04.08.2000 $ */
 
   /* $ 30.04.2001 DJ
-     обновляем кейбар
+     юсэюты хь ъхщсрЁ
   */
   if (QView!=NULL && !Directory && Key>=256)
   {
@@ -328,7 +328,7 @@ void QuickView::ShowFile(char *FileName,int TempFile,HANDLE hDirPlugin)
   QView->SetStatusMode(0);
   QView->EnableHideCursor(0);
   /* $ 20.02.2001 VVM
-      + Запомнить старое состояние врапа и потом восстановить. */
+      + ╟ряюьэшЄ№ ёЄрЁюх ёюёЄю эшх тЁряр ш яюЄюь тюёёЄрэютшЄ№. */
   OldWrapMode = QView->GetWrapMode();
   OldWrapType = QView->GetWrapType();
   QView->SetWrapMode(LastWrapMode);
@@ -351,7 +351,7 @@ void QuickView::ShowFile(char *FileName,int TempFile,HANDLE hDirPlugin)
   if (hDirPlugin || (FileAttr=GetFileAttributes(CurFileName))!=-1 && (FileAttr & FA_DIREC))
   {
     /* $ 28.06.2000 IS
-     Не показывать тип файла для каталогов в "Быстром просмотре" /
+     ═х яюърч√трЄ№ Єшя Їрщыр фы  ърЄрыюуют т "┴√ёЄЁюь яЁюёьюЄЁх" /
     */
     *CurFileType=0;
     /* IS $ */
@@ -393,7 +393,7 @@ void QuickView::ShowFile(char *FileName,int TempFile,HANDLE hDirPlugin)
   }
   Redraw();
   /* $ 30.04.2001 DJ
-     обновляем кейбар
+     юсэюты хь ъхщсрЁ
   */
   if (CtrlObject->Cp()->ActivePanel == this)
   {
@@ -409,7 +409,7 @@ void QuickView::CloseFile()
   if (QView!=NULL)
   {
     /* $ 20.02.2001 VVM
-        ! Восстановить старое значение врапа */
+        ! ┬юёёЄрэютшЄ№ ёЄрЁюх чэрўхэшх тЁряр */
     LastWrapMode=QView->GetWrapMode();
     LastWrapType=QView->GetWrapType();
     QView->SetWrapMode(OldWrapMode);
@@ -431,7 +431,7 @@ void QuickView::QViewDelTempName()
     if (QView!=NULL)
     {
       /* $ 20.02.2001 VVM
-          ! Восстановить старое значение врапа */
+          ! ┬юёёЄрэютшЄ№ ёЄрЁюх чэрўхэшх тЁряр */
       LastWrapMode=QView->GetWrapMode();
       LastWrapType=QView->GetWrapType();
       QView->SetWrapMode(OldWrapMode);
@@ -470,7 +470,7 @@ int QuickView::UpdateIfChanged()
 }
 
 /* $ 20.07.2000 tran
-   два метода - установка заголовка*/
+   фтр ьхЄюфр - єёЄрэютър чруюыютър*/
 void QuickView::SetTitle()
 {
   if (GetFocus())
@@ -488,7 +488,7 @@ void QuickView::SetTitle()
     SetFarTitle(TitleDir);
   }
 }
-// и его показ в случае получения фокуса
+// ш хую яюърч т ёыєўрх яюыєўхэш  Їюъєёр
 void QuickView::SetFocus()
 {
   Panel::SetFocus();
@@ -513,7 +513,7 @@ void QuickView::SetMacroMode(int Restore)
 }
 
 /* $ 30.04.2001 DJ
-   свой кейбар
+   ётющ ъхщсрЁ
 */
 
 BOOL QuickView::UpdateKeyBar()

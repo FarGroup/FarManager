@@ -3,7 +3,7 @@
 /*
 plugins.hpp
 
-Работа с плагинами (низкий уровень, кое-что повыше в flplugin.cpp)
+╨рсюЄр ё яырушэрьш (эшчъшщ єЁютхэ№, ъюх-ўЄю яют√°х т flplugin.cpp)
 
 */
 
@@ -12,31 +12,31 @@ plugins.hpp
 /*
 Modify:
   04.05.2001 OT
-    + Неверно формировалось меню плагинов по F11 (NWZ)
-      Изменился PluginSet::CommandsMenu()
+    + ═хтхЁэю ЇюЁьшЁютрыюё№ ьхэ■ яырушэют яю F11 (NWZ)
+      ╚чьхэшыё  PluginSet::CommandsMenu()
   26.03.2001 SVS
-    + дополнительный параметр у CommandsMenu() - HistoryName
+    + фюяюыэшЄхы№э√щ ярЁрьхЄЁ є CommandsMenu() - HistoryName
   31.10.2000 SVS
-    + Функция TestOpenPluginInfo - проверка на вшивость переданных плагином
-      данных
+    + ╘єэъЎш  TestOpenPluginInfo - яЁютхЁър эр т°штюёЄ№ яхЁхфрээ√ї яырушэюь
+      фрээ√ї
   23.10.2000 SVS
-    + Функция TestPluginInfo - проверка на вшивость переданных плагином данных
+    + ╘єэъЎш  TestPluginInfo - яЁютхЁър эр т°штюёЄ№ яхЁхфрээ√ї яырушэюь фрээ√ї
   12.10.2000 tran 1.05
     + DumpPluginsInfo()
   27.09.2000 SVS
-    + Функция CallPlugin - найти плагин по ID и запустить
+    + ╘єэъЎш  CallPlugin - эрщЄш яырушэ яю ID ш чряєёЄшЄ№
     + CurViewer
     + pProcessViewerEvent
   21.09.2000 SVS
-    + поле SysID - системный идентификатор плагина
+    + яюых SysID - ёшёЄхьэ√щ шфхэЄшЇшърЄюЁ яырушэр
   01.09.2000 tran 1.02
     + PluginsSet::LoadPluginsFromCache()
   03.08.2000 tran 1.01
     + GetFarMinVersion
-      и три новых метода
+      ш ЄЁш эют√ї ьхЄюфр
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 class SaveScreen;
@@ -69,7 +69,7 @@ typedef int (WINAPI *PLUGINCOMPARE)(HANDLE hPlugin,struct PluginPanelItem *Item1
 typedef int (WINAPI *PLUGINPROCESSEDITORINPUT)(INPUT_RECORD *Rec);
 typedef int (WINAPI *PLUGINMINFARVERSION)();
 /* $ 27.09.2000 SVS
-   События во вьювере
+   ╤юс√Єш  тю т№■тхЁх
 */
 typedef int (WINAPI *PLUGINPROCESSVIEWEREVENT)(int Event,void *Param);
 /* SVS $ */
@@ -81,8 +81,8 @@ struct PluginItem
   WIN32_FIND_DATA FindData;
   Language Lang;
   /* $ 21.09.2000 SVS
-     поле - системный идентификатор плагина
-     Плагин должен сам задавать, например для
+     яюых - ёшёЄхьэ√щ шфхэЄшЇшърЄюЁ яырушэр
+     ╧ырушэ фюыцхэ ёрь чрфртрЄ№, эряЁшьхЁ фы 
      Network      = 0x5774654E (NetW)
      PrintManager = 0x6E614D50 (PMan)  SYSID_PRINTMANAGER
   */
@@ -92,8 +92,8 @@ struct PluginItem
   int CachePos;
   int EditorPlugin;
   /* $ 03.08.2000 tran
-     поле - не загружать плагин снова
-     ставится в результате проверки требуемой версии фара */
+     яюых - эх чруЁєцрЄ№ яырушэ ёэютр
+     ёЄртшЄё  т Ёхчєы№ЄрЄх яЁютхЁъш ЄЁхсєхьющ тхЁёшш ЇрЁр */
   int DontLoadAgain;
   /* tran 03.08.2000 $ */
   char RootKey[512];
@@ -133,7 +133,7 @@ class PluginsSet
 
     Editor *CurEditor;
     /* $ 27.09.2000 SVS
-       Указательна текущий Viewer
+       ╙ърчрЄхы№эр Єхъє∙шщ Viewer
     */
     Viewer *CurViewer;
     /* SVS $*/
@@ -191,14 +191,14 @@ class PluginsSet
     int ProcessCommandLine(char *Command);
 
     /* $ 03.08.2000 tran
-       новые методы для проверки минимальной версии */
+       эют√х ьхЄюф√ фы  яЁютхЁъш ьшэшьры№эющ тхЁёшш */
     int  CheckMinVersion(struct PluginItem &CurPlg);
     void UnloadPlugin(struct PluginItem &CurPlg);
     void ShowMessageAboutIllegialPluginVersion(char* plg,int required);
     /* tran 03.08.2000 $ */
 
     /* $ .09.2000 SVS
-      Функция CallPlugin - найти плагин по ID и запустить
+      ╘єэъЎш  CallPlugin - эрщЄш яырушэ яю ID ш чряєёЄшЄ№
       OpenFrom = OPEN_*
     */
     int CallPlugin(DWORD SysID,int OpenFrom, void *Data);

@@ -1,7 +1,7 @@
 /*
 delete.cpp
 
-Удаление файлов
+╙фрыхэшх Їрщыют
 
 */
 
@@ -9,51 +9,51 @@ delete.cpp
 
 /*
 Modify:
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
+  29.04.2001 ╬╥
+    + ┬эхфЁхэшх NWZ юЄ ╥ЁхЄ№ ъютр
   24.04.2001 SVS
-    ! для symlink`а не нужно дополниетльное подтверждение на удаление
+    ! фы  symlink`р эх эєцэю фюяюыэшхЄы№эюх яюфЄтхЁцфхэшх эр єфрыхэшх
   14.03.2001 SVS
-    - Неверный анализ кода возврата функции SHFileOperation(),
-      коей файл удаляется в корзину.
+    - ═хтхЁэ√щ рэрышч ъюфр тючтЁрЄр ЇєэъЎшш SHFileOperation(),
+      ъюхщ Їрщы єфры хЄё  т ъюЁчшэє.
   13.03.2001 SVS
-    + Обработка "удаления" линков - Part I
+    + ╬сЁрсюЄър "єфрыхэш " ышэъют - Part I
   13.03.2001 SVS
-    - удаление симлинка в корзину чревато потерей оригинала!!!!!!
+    - єфрыхэшх ёшьышэър т ъюЁчшэє ўЁхтрЄю яюЄхЁхщ юЁшушэрыр!!!!!!
   12.03.2001 SVS
     + Opt.DeleteSymbolWipe -> Opt.WipeSymbol
   12.03.2001 SVS
-    + Opt.DeleteSymbolWipe символ заполнитель для "ZAP-операции"
+    + Opt.DeleteSymbolWipe ёшьтюы чряюыэшЄхы№ фы  "ZAP-юяхЁрЎшш"
   07.03.2001 SVS
-    - Падение ФАРа у Веши :-)))
+    - ╧рфхэшх ╘└╨р є ┬х°ш :-)))
   05.01.2001 SVS
-    ! в зависимости от числа ставим нужное окончание для удаления
+    ! т чртшёшьюёЄш юЄ ўшёыр ёЄртшь эєцэюх юъюэўрэшх фы  єфрыхэш 
   05.01.2001 IS
-    ! Косметика в сообщениях - разные сообщения в зависимости от того,
-      какие и сколько элементов выделено.
+    ! ╩юёьхЄшър т ёююс∙хэш ї - Ёрчэ√х ёююс∙хэш  т чртшёшьюёЄш юЄ Єюую,
+      ъръшх ш ёъюы№ъю ¤ыхьхэЄют т√фхыхэю.
   28.11.2000 SVS
-    + Обеспечим корректную работу с SymLink (т.н. "Directory Junctions")
+    + ╬схёяхўшь ъюЁЁхъЄэє■ ЁрсюЄє ё SymLink (Є.э. "Directory Junctions")
   11.11.2000 SVS
-    ! Косметика: "FarTmpXXXXXX" заменена на переменную FarTmpXXXXXX
-    - исправлен небольшой баг в функциях Wipe*
+    ! ╩юёьхЄшър: "FarTmpXXXXXX" чрьхэхэр эр яхЁхьхээє■ FarTmpXXXXXX
+    - шёяЁртыхэ эхсюы№°ющ сру т ЇєэъЎш ї Wipe*
   03.11.2000 OT
-    ! Введение проверки возвращаемого значения
+    ! ┬тхфхэшх яЁютхЁъш тючтЁр∙рхьюую чэрўхэш 
   02.11.2000 OT
-    ! Введение проверки на длину буфера, отведенного под имя файла.
+    ! ┬тхфхэшх яЁютхЁъш эр фышэє сєЇхЁр, юЄтхфхээюую яюф шь  Їрщыр.
   13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
+    ! ═хъюЄюЁ√х ъюЁЁхъЎшш яЁш шёяюы№чютрэшш new/delete/realloc
   11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
+    ! ╚чьхэхэш  фы  тючьюцэюёЄш ъюьяшы Ўшш яюф BC & VC
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -95,10 +95,10 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   }
   else
   /* $ 05.01.2001 SVS
-     в зависимости от числа ставим нужное окончание*/
+     т чртшёшьюёЄш юЄ ўшёыр ёЄртшь эєцэюх юъюэўрэшх*/
   {
   /* $ 05.01.2001 IS
-  Вместо "файлов" пишем нейтральное - "элементов"
+  ┬ьхёЄю "Їрщыют" яш°хь эхщЄЁры№эюх - "¤ыхьхэЄют"
   */
     char *Ends;
     char StrItems[16];
@@ -119,7 +119,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   int Ret=1;
 
   /* $ 13.02.2001 SVS
-     Обработка "удаления" линков
+     ╬сЁрсюЄър "єфрыхэш " ышэъют
   */
   if((FileAttr & FILE_ATTRIBUTE_REPARSE_POINT) && SelCount==1)
   {
@@ -154,8 +154,8 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   {
     char *DelMsg;
     /* $ 05.01.2001 IS
-       ! Косметика в сообщениях - разные сообщения в зависимости от того,
-         какие и сколько элементов выделено.
+       ! ╩юёьхЄшър т ёююс∙хэш ї - Ёрчэ√х ёююс∙хэш  т чртшёшьюёЄш юЄ Єюую,
+         ъръшх ш ёъюы№ъю ¤ыхьхэЄют т√фхыхэю.
     */
     BOOL folder=(FileAttr & FA_DIREC);
     if (SelCount==1)
@@ -237,7 +237,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
           if (IsFolderNotEmpty(FullName))
           {
             int MsgCode=0;
-            // для symlink`а не нужно подтверждение
+            // фы  symlink`р эх эєцэю яюфЄтхЁцфхэшх
             if(!(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
                MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(MDeleteFolderTitle),
                   MSG(MDeleteFolderConfirm),FullName,
@@ -273,8 +273,8 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
             if (FindData.dwFileAttributes & FA_DIREC)
             {
               /* $ 28.11.2000 SVS
-                 Обеспечим корректную работу с SymLink
-                 (т.н. "Directory Junctions")
+                 ╬схёяхўшь ъюЁЁхъЄэє■ ЁрсюЄє ё SymLink
+                 (Є.э. "Directory Junctions")
               */
               if(FindData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
               {
@@ -341,8 +341,8 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
           if (FileAttr & FA_RDONLY)
             SetFileAttributes(SelName,0);
           int DeleteCode;
-          // нефига здесь выделываться, а надо учесть, что удаление
-          // симлинка в корзину чревато потерей оригинала.
+          // эхЇшур чфхё№ т√фхы√трЄ№ё , р эрфю єўхёЄ№, ўЄю єфрыхэшх
+          // ёшьышэър т ъюЁчшэє ўЁхтрЄю яюЄхЁхщ юЁшушэрыр.
           if (SymLink || !Opt.DeleteToRecycleBin || Wipe)
             DeleteCode=ERemoveDirectory(SelName,SelShortName,Wipe);
           else
@@ -514,8 +514,8 @@ int ERemoveDirectory(char *Name,char *ShortName,int Wipe)
 }
 
 /* 14.03.2001 SVS
-   Неверный анализ кода возврата функции SHFileOperation(),
-   коей файл удаляется в корзину.
+   ═хтхЁэ√щ рэрышч ъюфр тючтЁрЄр ЇєэъЎшш SHFileOperation(),
+   ъюхщ Їрщы єфры хЄё  т ъюЁчшэє.
 */
 int RemoveToRecycleBin(char *Name)
 {
@@ -544,7 +544,7 @@ int RemoveToRecycleBin(char *Name)
   OemToChar(FullName,FullName);
   FullName[strlen(FullName)+1]=0;
 
-  memset(&fop,0,sizeof(fop)); // говорят помогает :-)
+  memset(&fop,0,sizeof(fop)); // уютюЁ Є яюьюурхЄ :-)
   fop.wFunc=FO_DELETE;
   fop.pFrom=FullName;
   fop.fFlags=FOF_NOCONFIRMATION|FOF_SILENT;
@@ -582,7 +582,7 @@ int WipeFile(char *Name)
   }
   const int BufSize=65536;
   char *Buf=new char[BufSize];
-  memset(Buf,(BYTE)Opt.WipeSymbol,BufSize); // используем символ заполнитель
+  memset(Buf,(BYTE)Opt.WipeSymbol,BufSize); // шёяюы№чєхь ёшьтюы чряюыэшЄхы№
   DWORD Written;
   while (FileSize>0)
   {
@@ -592,7 +592,7 @@ int WipeFile(char *Name)
   }
   WriteFile(WipeHandle,Buf,BufSize,&Written,NULL);
   /* $ 13.07.2000 SVS
-       раз уж вызвали new[], то в придачу и delete[] надо... */
+       Ёрч єц т√чтрыш new[], Єю т яЁшфрўє ш delete[] эрфю... */
   delete[] Buf;
   /* SVS $ */
   SetFilePointer(WipeHandle,0,NULL,FILE_BEGIN);

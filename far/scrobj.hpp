@@ -3,7 +3,7 @@
 /*
 scrobj.hpp
 
-Parent class для всех screen objects
+Parent class фы  тёхї screen objects
 
 */
 
@@ -15,8 +15,8 @@ Modify:
     + add new dirty method - Hide0(), jys set Visible to False
       used in FileViewer, for keybar hiding
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 class ScreenObject:public BaseInput

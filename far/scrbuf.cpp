@@ -1,7 +1,7 @@
 /*
 scrbuf.cpp
 
-Буферизация вывода на экран, весь вывод идет через этот буфер
+┴єЇхЁшчрЎш  т√тюфр эр ¤ъЁрэ, тхё№ т√тюф шфхЄ ўхЁхч ¤ЄюЄ сєЇхЁ
 
 */
 
@@ -10,20 +10,20 @@ scrbuf.cpp
 /*
 Modify:
   09.01.2001 SVS
-    ! По наводке ER - в SetCursorType не дергать раньше
-      времени установку курсора
+    ! ╧ю эртюфъх ER - т SetCursorType эх фхЁурЄ№ Ёрэ№°х
+      тЁхьхэш єёЄрэютъє ъєЁёюЁр
   13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
+    ! ═хъюЄюЁ√х ъюЁЁхъЎшш яЁш шёяюы№чютрэшш new/delete/realloc
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -44,7 +44,7 @@ ScreenBuf::ScreenBuf()
 ScreenBuf::~ScreenBuf()
 {
   /* $ 13.07.2000 SVS
-     раз уж вызвали new[], то и нужно delete[]
+     Ёрч єц т√чтрыш new[], Єю ш эєцэю delete[]
   */
   if(Buf)    delete[] Buf;
   if(Shadow) delete[] Shadow;
@@ -53,7 +53,7 @@ ScreenBuf::~ScreenBuf()
 
 
 /* $ 13.07.2000 SVS
-   раз уж вызвали new[], то и нужно delete[]
+   Ёрч єц т√чтрыш new[], Єю ш эєцэю delete[]
 */
 void ScreenBuf::AllocBuf(int X,int Y)
 {
@@ -64,9 +64,9 @@ void ScreenBuf::AllocBuf(int X,int Y)
   Buf=new CHAR_INFO[X*Y];
   Shadow=new CHAR_INFO[X*Y];
 #if !defined(ALLOC)
-  /* а вот здесь самая интересность: при переопределенных функция запроса
-     памяти - память уже проинициализированна нулями ;-)
-     поэтому этот кусок пропустится...
+  /* р тюЄ чфхё№ ёрьр  шэЄхЁхёэюёЄ№: яЁш яхЁхюяЁхфхыхээ√ї ЇєэъЎш  чряЁюёр
+     ярь Єш - ярь Є№ єцх яЁюшэшЎшрышчшЁютрээр эєы ьш ;-)
+     яю¤Єюьє ¤ЄюЄ ъєёюъ яЁюяєёЄшЄё ...
   */
   memset(Buf,0,X*Y*sizeof(CHAR_INFO));
   memset(Shadow,0,X*Y*sizeof(CHAR_INFO));
@@ -268,8 +268,8 @@ void ScreenBuf::GetCursorPos(int& X,int& Y)
 void ScreenBuf::SetCursorType(int Visible,int Size)
 {
   /* $ 09.01.2001 SVS
-     По наводке ER - в SetCursorType не дергать раньше
-     времени установку курсора
+     ╧ю эртюфъх ER - т SetCursorType эх фхЁурЄ№ Ёрэ№°х
+     тЁхьхэш єёЄрэютъє ъєЁёюЁр
   */
   if (CurVisible!=Visible || CurSize!=Size)
   {

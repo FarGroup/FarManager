@@ -1,7 +1,7 @@
 /*
 foldtree.cpp
 
-Поиск каталога по Alt-F10
+╧юшёъ ърЄрыюур яю Alt-F10
 
 */
 
@@ -10,19 +10,19 @@ foldtree.cpp
 /*
 Modify:
   25.04.2001 SVS
-    + Обработка MODALTREE_FREE
+    + ╬сЁрсюЄър MODALTREE_FREE
   09.01.2001 SVS
-    - Для KEY_XXX_BASE нужно прибавить 0x01
+    - ─ы  KEY_XXX_BASE эєцэю яЁшсртшЄ№ 0x01
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */

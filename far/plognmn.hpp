@@ -12,8 +12,8 @@ class PreserveLongName
 /*
 Modify:
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 class PreserveLongName
@@ -29,4 +29,3 @@ class PreserveLongName
 
 
 #endif	// __PRESERVELONGNAME_HPP__
-

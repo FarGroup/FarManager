@@ -1,7 +1,7 @@
 /*
 print.cpp
 
-Печать (Alt-F5)
+╧хўрЄ№ (Alt-F5)
 
 */
 
@@ -10,20 +10,20 @@ print.cpp
 /*
 Modify:
   27.02.2001 VVM
-    ! Символы, зависимые от кодовой страницы
+    ! ╤шьтюы√, чртшёшь√х юЄ ъюфютющ ёЄЁрэшЎ√
       /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
-      переведены в коды.
+      яхЁхтхфхэ√ т ъюф√.
   11.02.2001 SVS
-    ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
+    ! ═хёъюы№ъю єЄюўэхэшщ ъюфр т ёт чш ё шчьхэхэш ьш т ёЄЁєъЄєЁх MenuItem
   11.11.2000 SVS
-    ! FarMkTemp() - убираем (как всегда - то ставим, то тут же убираем :-(((
+    ! FarMkTemp() - єсшЁрхь (ъръ тёхуфр - Єю ёЄртшь, Єю ЄєЄ цх єсшЁрхь :-(((
   11.11.2000 SVS
-    ! Используем конструкцию FarMkTemp()
+    ! ╚ёяюы№чєхь ъюэёЄЁєъЎш■ FarMkTemp()
   13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
+    ! ═хъюЄюЁ√х ъюЁЁхъЎшш яЁш шёяюы№чютрэшш new/delete/realloc
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
@@ -31,7 +31,7 @@ Modify:
 
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -59,7 +59,7 @@ void PrintFiles(Panel *SrcPanel)
   if (pi==NULL || !EnumPrinters(PRINTER_ENUM_LOCAL,NULL,2,(LPBYTE)pi,pi_count*sizeof(PRINTER_INFO_2),&Needed,&Returned))
   {
     /* $ 13.07.2000 SVS
-       использовалась new[]
+       шёяюы№чютрырё№ new[]
     */
     delete[] pi;
     /* SVS $ */
@@ -102,7 +102,7 @@ void PrintFiles(Panel *SrcPanel)
     if (PrinterNumber<0)
     {
       /* $ 13.07.2000 SVS
-         использовалась new[]
+         шёяюы№чютрырё№ new[]
       */
       delete[] pi;
       /* SVS $ */
@@ -117,7 +117,7 @@ void PrintFiles(Panel *SrcPanel)
     Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MPrintTitle),MSG(MCannotOpenPrinter),
             PrinterName,MSG(MOk));
     /* $ 13.07.2000 SVS
-       использовалась new[]
+       шёяюы№чютрырё№ new[]
     */
     delete[] pi;
     /* SVS $ */
@@ -207,7 +207,7 @@ void PrintFiles(Panel *SrcPanel)
   }
   SrcPanel->Redraw();
   /* $ 13.07.2000 SVS
-     использовалась new[]
+     шёяюы№чютрырё№ new[]
   */
   delete[] pi;
   /* SVS $ */

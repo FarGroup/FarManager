@@ -1,7 +1,7 @@
 /*
 frame.cpp
 
-Parent class для немодальных объектов
+Parent class фы  эхьюфры№э√ї юс·хъЄют
 
 */
 
@@ -17,7 +17,7 @@ Modify:
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */

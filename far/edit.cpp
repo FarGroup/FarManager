@@ -1,7 +1,7 @@
 /*
 edit.cpp
 
-Реализация одиночной строки редактирования
+╨хрышчрЎш  юфшэюўэющ ёЄЁюъш ЁхфръЄшЁютрэш 
 
 */
 
@@ -9,13 +9,13 @@ edit.cpp
 
 /*
 Modify:
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
+  29.04.2001 ╬╥
+    + ┬эхфЁхэшх NWZ юЄ ╥ЁхЄ№ ъютр
   13.04.2001 OT
-    - Исправляет ситуацию (не до конца) с дерганьем строк в редакторе
+    - ╚ёяЁрты хЄ ёшЄєрЎш■ (эх фю ъюэЎр) ё фхЁурэ№хь ёЄЁюъ т ЁхфръЄюЁх
   13.04.2001 SVS
-    ! Обработка Ctrl-Q вынесена в отдельную функцию ProcessCtrlQ(), т.к.
-      используется в editor.cpp
+    ! ╬сЁрсюЄър Ctrl-Q т√эхёхэр т юЄфхы№эє■ ЇєэъЎш■ ProcessCtrlQ(), Є.ъ.
+      шёяюы№чєхЄё  т editor.cpp
   21.02.2001 IS
     ! Opt.TabSize -> Opt.EdOpt.TabSize
       Opt.EditorPersistentBlocks -> Opt.EdOpt.PersistentBlocks
@@ -24,125 +24,125 @@ Modify:
     ! Opt.EditorDelRemovesBlocks -> DelRemovesBlocks
       Opt.EditorPersistentBlocks -> PersistentBlocks
   14.02.2001 IS
-    + За размер табуляции отвечает TabSize, а поэтому произведена замена
-      "Opt.TabSize" на "TabSize"
+    + ╟р ЁрчьхЁ Єрсєы Ўшш юЄтхўрхЄ TabSize, р яю¤Єюьє яЁюшчтхфхэр чрьхэр
+      "Opt.TabSize" эр "TabSize"
   13.02.2001 VVM
-    + Обработка SHIFT+SPACE
+    + ╬сЁрсюЄър SHIFT+SPACE
   23.01.2001 SVS
-    + На всякий случай проверим Str в деструкторе при освобождении памяти
-    ! В паре мест не освобождалась память :-((
+    + ═р тё ъшщ ёыєўрщ яЁютхЁшь Str т фхёЄЁєъЄюЁх яЁш юётюсюцфхэшш ярь Єш
+    ! ┬ ярЁх ьхёЄ эх юётюсюцфрырё№ ярь Є№ :-((
   04.01.2001 SVS
-    ! Недольшое безобразие с проникновением в "чужой огород" - дополнение 2 :-)
-      Часы, минуты, секунды - в диалогах у нас плагины пока не работают :-(
+    ! ═хфюы№°юх схчюсЁрчшх ё яЁюэшъэютхэшхь т "ўєцющ юуюЁюф" - фюяюыэхэшх 2 :-)
+      ╫рё√, ьшэєЄ√, ёхъєэф√ - т фшрыюурї є эрё яырушэ√ яюър эх ЁрсюЄр■Є :-(
   26.12.2000 SVS
     ! KEY_DTDAY   -> KEY_MACRODAY
       KEY_DTMONTH -> KEY_MACROMONTH
       KEY_DTYEAR  -> KEY_MACROYEAR
    21.12.2000 SVS
-    + Обработка пвсевдоклавиш:
-      KEY_DTDAY - текущий день месяца - "$Day"
-      KEY_DTMONTH - текущий месяц - "$Month"
-      KEY_DTYEAR - текущий год - "$Year"
+    + ╬сЁрсюЄър ятёхтфюъыртш°:
+      KEY_DTDAY - Єхъє∙шщ фхэ№ ьхё Ўр - "$Day"
+      KEY_DTMONTH - Єхъє∙шщ ьхё Ў - "$Month"
+      KEY_DTYEAR - Єхъє∙шщ уюф - "$Year"
    15.12.2000 OT
-    - Исправление бага с (KEY_TAB && OverType)
+    - ╚ёяЁртыхэшх срур ё (KEY_TAB && OverType)
    10.12.2000 tran & OT
-    ! KEY_SHIFTBS изменен на KEY_CTRLSHIFTBS (tran)
-    - Исправление бага с KEY_SHIFTTAB (OT)
+    ! KEY_SHIFTBS шчьхэхэ эр KEY_CTRLSHIFTBS (tran)
+    - ╚ёяЁртыхэшх срур ё KEY_SHIFTTAB (OT)
    13.12.2000 SVS
-    + Дополнительный параметр в функции  Xlat()
+    + ─юяюыэшЄхы№э√щ ярЁрьхЄЁ т ЇєэъЎшш  Xlat()
    10.12.2000 IS
-    ! Обрабатываем при Xlat только то слово, на котором стоит курсор, или то
-      слово, что находится левее позиции курсора на 1 символ
-    - иногда не работала конвертация из-за того, что было SelStart==SelEnd
+    ! ╬сЁрсрЄ√трхь яЁш Xlat Єюы№ъю Єю ёыютю, эр ъюЄюЁюь ёЄюшЄ ъєЁёюЁ, шыш Єю
+      ёыютю, ўЄю эрїюфшЄё  ыхтхх яючшЎшш ъєЁёюЁр эр 1 ёшьтюы
+    - шэюуфр эх ЁрсюЄрыр ъюэтхЁЄрЎш  шч-чр Єюую, ўЄю с√ыю SelStart==SelEnd
    25.11.2000 IS
-    + Если нет выделения, то обработаем текущее слово. Слово определяется на
-      основе специальной группы разделителей.
-   15.11.2000 KM 1.23 (номер верный)
-    + Функция KeyMatchedMask проверяет позволяемость символу
-      быть введённым на основании заданной маски.
-    ! Теперь Str не может быть длиннее маски и для Str задан параметр
-      MaxLength, равный длине маски.
-    - Исправлен баг со вставкой строки символов в строку с маской.
-    ! Убрано разрешение ввода пробелов в цифровых масках.
-    + Заработал CtrlDel в строках с маской.
+    + ┼ёыш эхЄ т√фхыхэш , Єю юсЁрсюЄрхь Єхъє∙хх ёыютю. ╤ыютю юяЁхфхы хЄё  эр
+      юёэютх ёяхЎшры№эющ уЁєяя√ ЁрчфхышЄхыхщ.
+   15.11.2000 KM 1.23 (эюьхЁ тхЁэ√щ)
+    + ╘єэъЎш  KeyMatchedMask яЁютхЁ хЄ яючтюы хьюёЄ№ ёшьтюыє
+      с√Є№ ттхф╕ээ√ь эр юёэютрэшш чрфрээющ ьрёъш.
+    ! ╥хяхЁ№ Str эх ьюцхЄ с√Є№ фышээхх ьрёъш ш фы  Str чрфрэ ярЁрьхЄЁ
+      MaxLength, Ёртэ√щ фышэх ьрёъш.
+    - ╚ёяЁртыхэ сру ёю тёЄртъющ ёЄЁюъш ёшьтюыют т ёЄЁюъє ё ьрёъющ.
+    ! ╙сЁрэю ЁрчЁх°хэшх ттюфр яЁюсхыют т ЎшЇЁют√ї ьрёърї.
+    + ╟рЁрсюЄры CtrlDel т ёЄЁюърї ё ьрёъющ.
    20.10.2000 SVS
-    ! Уточнение для масок.
+    ! ╙Єюўэхэшх фы  ьрёюъ.
    16.10.2000 tran
-    + если стоит MaxLength, из клипборда грузим не больше чем
-      положено
+    + хёыш ёЄюшЄ MaxLength, шч ъышясюЁфр уЁєчшь эх сюы№°х ўхь
+      яюыюцхэю
    24.09.2000 SVS $
-    + Функция Xlat - перекодировка по принципу QWERTY <-> ЙЦУКЕН
+    + ╘єэъЎш  Xlat - яхЁхъюфшЁютър яю яЁшэЎшяє QWERTY <-> ╔╓╙╩┼═
    18.09.2000 SVS
-    - Для Mask - забыли скорректировать позицию :-)
+    - ─ы  Mask - чрс√ыш ёъюЁЁхъЄшЁютрЄ№ яючшЎш■ :-)
    15.09.2000 SVS
-    - Bug - Выделяем кусочек строки -> Shift-Del удяляет всю строку
-           Так должно быть только для UnChanged состояния
+    - Bug - ┬√фхы хь ъєёюўхъ ёЄЁюъш -> Shift-Del єф ы хЄ тё■ ёЄЁюъє
+           ╥ръ фюыцэю с√Є№ Єюы№ъю фы  UnChanged ёюёЄю эш 
    11.09.2000 SVS 1.19
-    ! если Opt.DlgEULBsClear = 1, то BS в диалогах для UnChanged строки
-      удаляет такую строку также, как и Del
+    ! хёыш Opt.DlgEULBsClear = 1, Єю BS т фшрыюурї фы  UnChanged ёЄЁюъш
+      єфры хЄ Єръє■ ёЄЁюъє Єръцх, ъръ ш Del
    08.09.2000 SVS 1.18
-    При UnChanget строки:
-    ! Shift-Del - вырезание строки в буфер в строках редактирования
-    ! KEY_BS так же как и KEY_DEL удаляет всю строку (опять же в строках
-      редактирования в диалогах, в редакторе поведение KEY_BS как и прежде -
-      удаление символа, без удаления блока).
+    ╧Ёш UnChanget ёЄЁюъш:
+    ! Shift-Del - т√Ёхчрэшх ёЄЁюъш т сєЇхЁ т ёЄЁюърї ЁхфръЄшЁютрэш 
+    ! KEY_BS Єръ цх ъръ ш KEY_DEL єфры хЄ тё■ ёЄЁюъє (юя Є№ цх т ёЄЁюърї
+      ЁхфръЄшЁютрэш  т фшрыюурї, т ЁхфръЄюЁх яютхфхэшх KEY_BS ъръ ш яЁхцфх -
+      єфрыхэшх ёшьтюыр, схч єфрыхэш  сыюър).
    07.09.2000 KM
-    - Исправление глюка при поиске по целым словам.
+    - ╚ёяЁртыхэшх уы■ър яЁш яюшёъх яю Ўхы√ь ёыютрь.
    24.08.2000 SVS
-    ! У DropDowList`а выделение по полной программе - на всю видимую длину
-      ДАЖЕ ЕСЛИ ПУСТАЯ СТРОКА
+    ! ╙ DropDowList`р т√фхыхэшх яю яюыэющ яЁюуЁрььх - эр тё■ тшфшьє■ фышэє
+      ─└╞┼ ┼╤╦╚ ╧╙╤╥└▀ ╤╥╨╬╩└
    23.08.2000 SVS
-    - исправление глюкавости моих рук :-(((
+    - шёяЁртыхэшх уы■ъртюёЄш ьюшї Ёєъ :-(((
    13.08.2000 KM
-    + Функция GetNextCursorPos - вычисляет положение курсора в строке
-      с учётом Mask.
-    + Функция RefreshStrByMask - обновляет содержимое строки на основании маски
-      ввода.
-    ! Общие изменения, добавившие возможность работать в строке
-      ввода по заданной маске, находящейся в переменной Mask.
+    + ╘єэъЎш  GetNextCursorPos - т√ўшёы хЄ яюыюцхэшх ъєЁёюЁр т ёЄЁюъх
+      ё єў╕Єюь Mask.
+    + ╘єэъЎш  RefreshStrByMask - юсэюты хЄ ёюфхЁцшьюх ёЄЁюъш эр юёэютрэшш ьрёъш
+      ттюфр.
+    ! ╬с∙шх шчьхэхэш , фюсртшт°шх тючьюцэюёЄ№ ЁрсюЄрЄ№ т ёЄЁюъх
+      ттюфр яю чрфрээющ ьрёъх, эрїюф ∙хщё  т яхЁхьхээющ Mask.
    15.08.2000 SVS
-    + У DropDowList`а выделение по полной программе - на всю видимую длину
+    + ╙ DropDowList`р т√фхыхэшх яю яюыэющ яЁюуЁрььх - эр тё■ тшфшьє■ фышэє
    03.08.2000 KM
-    ! В функцию Search добавлен входной параметр int WholeWords.
-    ! Теперь в этой функции реализована возможность поиска целых слов.
+    ! ┬ ЇєэъЎш■ Search фюсртыхэ тїюфэющ ярЁрьхЄЁ int WholeWords.
+    ! ╥хяхЁ№ т ¤Єющ ЇєэъЎшш Ёхрышчютрэр тючьюцэюёЄ№ яюшёър Ўхы√ї ёыют.
    03.08.2000 SVS
     ! WordDiv -> Opt.WordDiv
    28.07.2000 SVS
-    ! В функции ApplyColor() SelColor может быть и реальным цветом.
-    + Переменная класса ColorUnChanged (для диалога)
-    ! SetObjectColor имеет дополнительный параметр для установки ColorUnChanged
+    ! ┬ ЇєэъЎшш ApplyColor() SelColor ьюцхЄ с√Є№ ш Ёхры№э√ь ЎтхЄюь.
+    + ╧хЁхьхээр  ъырёёр ColorUnChanged (фы  фшрыюур)
+    ! SetObjectColor шьххЄ фюяюыэшЄхы№э√щ ярЁрьхЄЁ фы  єёЄрэютъш ColorUnChanged
   26.08.2000 tran
-    + DropDownBox стиль
+    + DropDownBox ёЄшы№
   26.07.2000 SVS
     - Bugs #??
-      В строках ввода при выделенном блоке нажимаем BS и вместо
-      ожидаемого удаления блока (как в редакторе) получаем:
-       - символ перед курсором удален
-       - выделение блока снято
+      ┬ ёЄЁюърї ттюфр яЁш т√фхыхээюь сыюъх эрцшьрхь BS ш тьхёЄю
+      юцшфрхьюую єфрыхэш  сыюър (ъръ т ЁхфръЄюЁх) яюыєўрхь:
+       - ёшьтюы яхЁхф ъєЁёюЁюь єфрыхэ
+       - т√фхыхэшх сыюър ёэ Єю
   13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
+    ! ═хъюЄюЁ√х ъюЁЁхъЎшш яЁш шёяюы№чютрэшш new/delete/realloc
   11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
+    ! ╚чьхэхэш  фы  тючьюцэюёЄш ъюьяшы Ўшш яюф BC & VC
   07.07.2000 SVS
-    + Разграничитель слов WordDiv находится теперь в global.cpp и
-      берется из реестра (общий для редактирования)
+    + ╨рчуЁрэшўшЄхы№ ёыют WordDiv эрїюфшЄё  ЄхяхЁ№ т global.cpp ш
+      схЁхЄё  шч ЁххёЄЁр (юс∙шщ фы  ЁхфръЄшЁютрэш )
   04.07.2000 IG
-    - в макросе сбрасывалось выделение до ShiftIns (bug8)
+    - т ьръЁюёх ёсЁрё√трыюё№ т√фхыхэшх фю ShiftIns (bug8)
   03.07.2000 tran
-    + обработка SHIFT_BS - удаление до начала строки
-    - Bug #10 ( ^[,^], ShiftEnter не удаляли выделнный текст)
-    + ReadOnly флаг
-    + Ctrl-L переключает ReadOnly флаг
+    + юсЁрсюЄър SHIFT_BS - єфрыхэшх фю эрўрыр ёЄЁюъш
+    - Bug #10 ( ^[,^], ShiftEnter эх єфры ыш т√фхыээ√щ ЄхъёЄ)
+    + ReadOnly Їыру
+    + Ctrl-L яхЁхъы■ўрхЄ ReadOnly Їыру
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -156,17 +156,17 @@ Edit::Edit()
 {
   ConvertTabs=0;
   /* $ 13.07.2000 SVS
-     Нет, так нельзя - все последующие расширения памяти делаются через
-     realloc, а здесь:
+     ═хЄ, Єръ эхы№ч  - тёх яюёыхфє■∙шх Ёрё°шЁхэш  ярь Єш фхыр■Єё  ўхЁхч
+     realloc, р чфхё№:
         Str=new char[1];
-     Будет malloc :-)
+     ┴єфхЄ malloc :-)
   */
   Str=(char*) malloc(1);
   /* SVS $ */
   StrSize=0;
   *Str=0;
   /* $ 12.08.2000 KM
-     Установим маску ввода и предыдущее положение курсора
+     ╙ёЄрэютшь ьрёъє ттюфр ш яЁхф√фє∙хх яюыюцхэшх ъєЁёюЁр
   */
   Mask=NULL;
   PrevCurPos=0;
@@ -185,7 +185,7 @@ Edit::Edit()
   Color=F_LIGHTGRAY|B_BLACK;
   SelColor=F_WHITE|B_BLACK;
   /* $ 28.07.2000 SVS
-     Дополнительная переменная для обработки в диалогах
+     ─юяюыэшЄхы№эр  яхЁхьхээр  фы  юсЁрсюЄъш т фшрыюурї
   */
   ColorUnChanged=COL_DIALOGEDITUNCHANGED;
   /* SVS $*/
@@ -203,12 +203,12 @@ Edit::Edit()
   DropDownBox=0;
   /* tran 26.07.2000 $ */
   /* $ 21.02.2001 IS
-       Размер табуляции по умолчанию равен Opt.EdOpt.TabSize;
+       ╨рчьхЁ Єрсєы Ўшш яю єьюыўрэш■ Ёртхэ Opt.EdOpt.TabSize;
   */
   TabSize=Opt.EdOpt.TabSize;
   /* IS $ */
   /* $ 21.02.2001 IS
-       Инициализация внутренних переменных по умолчанию
+       ╚эшЎшрышчрЎш  тэєЄЁхээшї яхЁхьхээ√ї яю єьюыўрэш■
   */
   DelRemovesBlocks=Opt.EdOpt.DelRemovesBlocks;
   PersistentBlocks=Opt.EdOpt.PersistentBlocks;
@@ -221,16 +221,16 @@ Edit::~Edit()
   if (ColorList!=NULL)
     delete ColorList;
   /* $ 12.08.2000 KM
-     Если мы выделяли память под Mask, то её надо освободить.
+     ┼ёыш ь√ т√фхы ыш ярь Є№ яюф Mask, Єю х╕ эрфю юётюсюфшЄ№.
   */
   if (Mask)
     delete[] Mask;
   /* KM $ */
   /* $ 13.07.2000 SVS
-     запросы делали через malloc!
+     чряЁюё√ фхырыш ўхЁхч malloc!
   */
   /* $ 23.01.2001 SVS
-     На всякий случай проверим Str в деструкторе при освобождении памяти
+     ═р тё ъшщ ёыєўрщ яЁютхЁшь Str т фхёЄЁєъЄюЁх яЁш юётюсюцфхэшш ярь Єш
   */
   if(Str)
     free(Str);
@@ -245,17 +245,17 @@ void Edit::DisplayObject()
     + dropdown style */
   if ( DropDownBox )
   {
-    ClearFlag=0; // при дроп-даун нам не нужно никакого unchanged text
+    ClearFlag=0; // яЁш фЁюя-фрєэ эрь эх эєцэю эшъръюую unchanged text
     SelStart=0;
-    SelEnd=StrSize; // а также считаем что все выделено -
-                    //    надо же отличаться от обычных Edit
+    SelEnd=StrSize; // р Єръцх ёўшЄрхь ўЄю тёх т√фхыхэю -
+                    //    эрфю цх юЄышўрЄ№ё  юЄ юс√ўэ√ї Edit
   }
   /* tran 26.07.2000 $ */
 
   if (EditOutDisabled)
     return;
   /* $ 12.08.2000 KM
-     Вычисление нового положения курсора в строке с учётом Mask.
+     ┬√ўшёыхэшх эютюую яюыюцхэш  ъєЁёюЁр т ёЄЁюъх ё єў╕Єюь Mask.
   */
   int Value;
   if (PrevCurPos>CurPos)
@@ -270,8 +270,8 @@ void Edit::DisplayObject()
   else
     SetCursorType(1,-1);
   /* $ 26.07.2000 tran
-     при DropDownBox курсор выключаем
-     не знаю даже - попробовал но не очень красиво вышло */
+     яЁш DropDownBox ъєЁёюЁ т√ъы■ўрхь
+     эх чэр■ фрцх - яюяЁюсютры эю эх юўхэ№ ъЁрёштю т√°ыю */
   if ( DropDownBox )
     SetCursorType(0,10);
   /* tran 26.07.2000 $ */
@@ -280,7 +280,7 @@ void Edit::DisplayObject()
 
 
 /* $ 12.08.2000 KM
-   Вычисление нового положения курсора в строке с учётом Mask.
+   ┬√ўшёыхэшх эютюую яюыюцхэш  ъєЁёюЁр т ёЄЁюъх ё єў╕Єюь Mask.
 */
 int Edit::GetNextCursorPos(int Position,int Where)
 {
@@ -354,9 +354,9 @@ void Edit::FastShow()
   int TabSelEnd=(SelEnd<0) ? -1:RealPosToTab(SelEnd);
 
   /* $ 17.08.2000 KM
-     Если есть маска, сделаем подготовку строки, то есть
-     все "постоянные" символы в маске, не являющиеся шаблонными
-     должны постоянно присутствовать в Str
+     ┼ёыш хёЄ№ ьрёър, ёфхырхь яюфуюЄютъє ёЄЁюъш, Єю хёЄ№
+     тёх "яюёЄю ээ√х" ёшьтюы√ т ьрёъх, эх  ты ■∙шхё  °рсыюээ√ьш
+     фюыцэ√ яюёЄю ээю яЁшёєЄёЄтютрЄ№ т Str
   */
   if (Mask && *Mask)
     RefreshStrByMask();
@@ -379,7 +379,7 @@ void Edit::FastShow()
     memcpy(Str,SaveStr,SaveStrSize);
     Str[SaveStrSize]=0;
     /* $ 13.07.2000 SVS
-       раз уж вызывали через new[]...
+       Ёрч єц т√ч√трыш ўхЁхч new[]...
     */
     delete[] SaveStr;
     /* SVS $*/
@@ -393,7 +393,7 @@ void Edit::FastShow()
     CursorPos=CurPos;
   }
   /* $ 26.07.2000 tran
-     при дроп-даун цвета нам не нужны */
+     яЁш фЁюя-фрєэ ЎтхЄр эрь эх эєцэ√ */
   if ( !DropDownBox )
       ApplyColor();
   /* tran 26.07.2000 $ */
@@ -418,7 +418,7 @@ void Edit::ShowString(char *ShowStr,int TabSelStart,int TabSelEnd)
     ShowString(PswStr,TabSelStart,TabSelEnd);
     PasswordMode=1;
     /* $ 13.07.2000 SVS
-       раз уж вызывали через new[]...
+       Ёрч єц т√ч√трыш ўхЁхч new[]...
     */
     delete[] PswStr;
     /* SVS $*/
@@ -478,8 +478,8 @@ void Edit::ShowString(char *ShowStr,int TabSelStart,int TabSelEnd)
         TabSelEnd=0;
     sprintf(OutStr,"%-*.*s",EditLength,EditLength,LeftPos>StrSize ? "":&ShowStr[LeftPos]);
     /* $ 24.08.2000 SVS
-       ! У DropDowList`а выделение по полной программе - на всю видимую длину
-         ДАЖЕ ЕСЛИ ПУСТАЯ СТРОКА
+       ! ╙ DropDowList`р т√фхыхэшх яю яюыэющ яЁюуЁрььх - эр тё■ тшфшьє■ фышэє
+         ─└╞┼ ┼╤╦╚ ╧╙╤╥└▀ ╤╥╨╬╩└
     */
     if (TabSelStart>=EditLength || !AllString && TabSelStart>=StrSize ||
         TabSelEnd<TabSelStart)
@@ -498,7 +498,7 @@ void Edit::ShowString(char *ShowStr,int TabSelStart,int TabSelEnd)
       mprintf("%.*s",TabSelStart,OutStr);
       SetColor(SelColor);
       /* $ 15.08.2000 SVS
-         + У DropDowList`а выделение по полной программе - на всю видимую длину
+         + ╙ DropDowList`р т√фхыхэшх яю яюыэющ яЁюуЁрььх - эр тё■ тшфшьє■ фышэє
       */
       if(!DropDownBox)
       {
@@ -516,7 +516,7 @@ void Edit::ShowString(char *ShowStr,int TabSelStart,int TabSelEnd)
       /* SVS $*/
     }
     /* $ 13.07.2000 SVS
-       раз уж вызывали через new[]...
+       Ёрч єц т√ч√трыш ўхЁхч new[]...
     */
     delete[] OutStr;
     /* SVS $*/
@@ -525,7 +525,7 @@ void Edit::ShowString(char *ShowStr,int TabSelStart,int TabSelEnd)
   {
     memcpy(Str,SaveStr,StrSize);
     /* $ 13.07.2000 SVS
-       раз уж вызывали через new[]...
+       Ёрч єц т√ч√трыш ўхЁхч new[]...
     */
     delete[] SaveStr;
     /* SVS $*/
@@ -573,9 +573,9 @@ int Edit::ProcessKey(int Key)
   int PrevSelStart=-1,PrevSelEnd=0;
 
   /* $ 25.07.2000 tran
-     при дроп-даун, нам Ctrl-l не нужен */
+     яЁш фЁюя-фрєэ, эрь Ctrl-l эх эєцхэ */
   /* $ 03.07.2000 tran
-     + обработка Ctrl-L как переключателя состояния ReadOnly  */
+     + юсЁрсюЄър Ctrl-L ъръ яхЁхъы■ўрЄхы  ёюёЄю эш  ReadOnly  */
   if ( !DropDownBox && Key==KEY_CTRLL )
   {
     ReadOnly=ReadOnly?0:1;
@@ -586,10 +586,10 @@ int Edit::ProcessKey(int Key)
 
   /* $ 26.07.2000 SVS
      Bugs #??
-       В строках ввода при выделенном блоке нажимаем BS и вместо
-       ожидаемого удаления блока (как в редакторе) получаем:
-         - символ перед курсором удален
-         - выделение блока снято
+       ┬ ёЄЁюърї ттюфр яЁш т√фхыхээюь сыюъх эрцшьрхь BS ш тьхёЄю
+       юцшфрхьюую єфрыхэш  сыюър (ъръ т ЁхфръЄюЁх) яюыєўрхь:
+         - ёшьтюы яхЁхф ъєЁёюЁюь єфрыхэ
+         - т√фхыхэшх сыюър ёэ Єю
   */
   if (((Key==KEY_BS || Key==KEY_DEL) && DelRemovesBlocks || Key==KEY_CTRLD) &&
       !EditorMode && SelStart!=-1 && SelStart<SelEnd)
@@ -601,7 +601,7 @@ int Edit::ProcessKey(int Key)
   /* SVS $ */
 
   /* $ 04.07.2000 IG
-     добавлена проврерка на запуск макроса (bug8) */
+     фюсртыхэр яЁютЁхЁър эр чряєёъ ьръЁюёр (bug8) */
   if (!ShiftPressed && !CtrlObject->Macro.IsExecuting() &&
   /* IG $ */
       !Editor::IsShiftKey(Key) && !Recurse &&
@@ -622,16 +622,16 @@ int Edit::ProcessKey(int Key)
     Key=TableSet->EncodeTable[Key];
 
   /* $ 11.09.2000 SVS
-     если Opt.DlgEULBsClear = 1, то BS в диалогах для UnChanged строки
-     удаляет такую строку также, как и Del
+     хёыш Opt.DlgEULBsClear = 1, Єю BS т фшрыюурї фы  UnChanged ёЄЁюъш
+     єфры хЄ Єръє■ ёЄЁюъє Єръцх, ъръ ш Del
   */
   if (((Opt.DlgEULBsClear && Key==KEY_BS) || Key==KEY_DEL) &&
      ClearFlag && CurPos>=StrSize)
     Key=KEY_CTRLY;
   /* SVS $ */
   /* $ 15.09.2000 SVS
-     Bug - Выделяем кусочек строки -> Shift-Del удяляет всю строку
-           Так должно быть только для UnChanged состояния
+     Bug - ┬√фхы хь ъєёюўхъ ёЄЁюъш -> Shift-Del єф ы хЄ тё■ ёЄЁюъє
+           ╥ръ фюыцэю с√Є№ Єюы№ъю фы  UnChanged ёюёЄю эш 
   */
   if(Key == KEY_SHIFTDEL && ClearFlag && CurPos>=StrSize && SelStart==-1)
   {
@@ -660,7 +660,7 @@ int Edit::ProcessKey(int Key)
         SetString("");
       }
       /* $ 03.07.2000 tran
-         - bug#10, если был выделен текст, то удаляем его */
+         - bug#10, хёыш с√ы т√фхыхэ ЄхъёЄ, Єю єфры хь хую */
       if (PrevSelStart!=-1)
       {
         SelStart=PrevSelStart;
@@ -669,9 +669,9 @@ int Edit::ProcessKey(int Key)
       DeleteBlock();
       /* tran 03.07.2000 $ */
       /* $ 12.11.2000 KM
-         Некоторые изменения вставки шортката в строку ввода с маской.
-         Предотвращает сдвиг курсора, если маска не совпадает с типом
-         вставляемого значения.
+         ═хъюЄюЁ√х шчьхэхэш  тёЄртъш °юЁЄърЄр т ёЄЁюъє ттюфр ё ьрёъющ.
+         ╧ЁхфюЄтЁр∙рхЄ ёфтшу ъєЁёюЁр, хёыш ьрёър эх ёютярфрхЄ ё Єшяюь
+         тёЄрты хьюую чэрўхэш .
       */
       for (int I=0;ShortcutFolder[I]!=0;I++)
         InsertKey(ShortcutFolder[I]);
@@ -698,7 +698,7 @@ int Edit::ProcessKey(int Key)
         if (CtrlObject->Cp()->ActivePanel!=NULL && CtrlObject->Cp()->ActivePanel->GetCurName(FileName,ShortFileName))
         {
           /* $ 03.07.2000 tran
-             - bug#10, если был выделен текст, то удаляем его */
+             - bug#10, хёыш с√ы т√фхыхэ ЄхъёЄ, Єю єфры хь хую */
           if (PrevSelStart!=-1)
           {
             SelStart=PrevSelStart;
@@ -707,9 +707,9 @@ int Edit::ProcessKey(int Key)
           DeleteBlock();
           /* tran 03.07.2000 $ */
           /* $ 12.11.2000 KM
-             Некоторые изменения вставки имени файла в строку ввода с маской.
-             Предотвращает сдвиг курсора, если маска не совпадает с типом
-             вставляемого значения.
+             ═хъюЄюЁ√х шчьхэхэш  тёЄртъш шьхэш Їрщыр т ёЄЁюъє ттюфр ё ьрёъющ.
+             ╧ЁхфюЄтЁр∙рхЄ ёфтшу ъєЁёюЁр, хёыш ьрёър эх ёютярфрхЄ ё Єшяюь
+             тёЄрты хьюую чэрўхэш .
           */
           for (int I=0;FileName[I]!=0;I++)
             InsertKey(FileName[I]);
@@ -747,7 +747,7 @@ int Edit::ProcessKey(int Key)
             ConvertNameToShort(PanelDir,PanelDir);
           AddEndSlash(PanelDir);
           /* $ 03.07.2000 tran
-             - bug#10, если был выделен текст, то удаляем его */
+             - bug#10, хёыш с√ы т√фхыхэ ЄхъёЄ, Єю єфры хь хую */
           if (PrevSelStart!=-1)
           {
             SelStart=PrevSelStart;
@@ -820,8 +820,8 @@ int Edit::ProcessKey(int Key)
       /* SVS $ */
       {
         /* $ 18.08.2000 KM
-           Добавим выход из цикла проверив CurPos-1 на присутствие
-           в Opt.WordDiv.
+           ─юсртшь т√їюф шч Ўшъыр яЁютхЁшт CurPos-1 эр яЁшёєЄёЄтшх
+           т Opt.WordDiv.
         */
 //        if (!isspace(Str[CurPos]) && isspace(Str[CurPos-1]))
         if (!isspace(Str[CurPos]) && (isspace(Str[CurPos-1]) ||
@@ -844,8 +844,8 @@ int Edit::ProcessKey(int Key)
       /* SVS $ */
       {
         /* $ 18.08.2000 KM
-           Добавим выход из цикла проверив CurPos-1 на присутствие
-           в Opt.WordDiv.
+           ─юсртшь т√їюф шч Ўшъыр яЁютхЁшт CurPos-1 эр яЁшёєЄёЄтшх
+           т Opt.WordDiv.
         */
 //        if (!isspace(Str[CurPos]) && isspace(Str[CurPos-1]))
         if (!isspace(Str[CurPos]) && (isspace(Str[CurPos-1]) ||
@@ -890,14 +890,14 @@ int Edit::ProcessKey(int Key)
       return(TRUE);
 
     /* $ 10.12.2000 tran
-       KEY_SHIFTBS изменен на KEY_CTRLSHIFTBS*/
+       KEY_SHIFTBS шчьхэхэ эр KEY_CTRLSHIFTBS*/
     /* $ 03.07.2000 tran
-       + KEY_SHIFTBS - удялем от курсора до начала строки */
+       + KEY_SHIFTBS - єф ыхь юЄ ъєЁёюЁр фю эрўрыр ёЄЁюъш */
     case KEY_CTRLSHIFTBS:
     /* tran $ */
       /* $ 19.08.2000 KM
-         Немного изменён алгоритм удаления до начала строки.
-         Теперь удаление работает и с маской ввода.
+         ═хьэюую шчьхэ╕э рыуюЁшЄь єфрыхэш  фю эрўрыр ёЄЁюъш.
+         ╥хяхЁ№ єфрыхэшх ЁрсюЄрхЄ ш ё ьрёъющ ттюфр.
       */
       int i;
       for (i=CurPos;i>=0;i--)
@@ -948,14 +948,14 @@ int Edit::ProcessKey(int Key)
 //      while (CurPos<StrSize && isspace(Str[CurPos]))
 //        RecurseProcessKey(KEY_DEL);
       /* $ 19.08.2000 KM
-         Поставим пока заглушку на удаление, если
-         используется маска ввода.
+         ╧юёЄртшь яюър чруыє°ъє эр єфрыхэшх, хёыш
+         шёяюы№чєхЄё  ьрёър ттюфр.
       */
       if (Mask && *Mask)
       {
         /* $ 12.11.2000 KM
-           Добавим код для удаления части строки
-           с учётом маски.
+           ─юсртшь ъюф фы  єфрыхэш  ўрёЄш ёЄЁюъш
+           ё єў╕Єюь ьрёъш.
         */
         int MaskLen=strlen(Mask);
         int ptr=CurPos;
@@ -996,7 +996,7 @@ int Edit::ProcessKey(int Key)
       /* $ 25.07.2000 tran
          + DropDown style */
       /* $ 03.07.2000 tran
-         + обработка ReadOnly */
+         + юсЁрсюЄър ReadOnly */
       if ( DropDownBox || ReadOnly )
         return (TRUE);
       /* tran 03.07.2000 $ */
@@ -1015,7 +1015,7 @@ int Edit::ProcessKey(int Key)
       /* $ 25.07.2000 tran
          + DropDown style */
       /* $ 03.07.2000 tran
-         + обработка ReadOnly */
+         + юсЁрсюЄър ReadOnly */
       if ( DropDownBox || ReadOnly )
         return (TRUE);
       /* tran 03.07.2000 $ */
@@ -1080,7 +1080,7 @@ int Edit::ProcessKey(int Key)
       /* $ 25.07.2000 tran
          + DropDown style */
       /* $ 03.07.2000 tran
-         + обработка ReadOnly */
+         + юсЁрсюЄър ReadOnly */
       if ( DropDownBox || ReadOnly )
         return (TRUE);
       /* tran 03.07.2000 $ */
@@ -1100,7 +1100,7 @@ int Edit::ProcessKey(int Key)
         }
       }
       /* $ 16.08.2000 KM
-         Работа с маской.
+         ╨рсюЄр ё ьрёъющ.
       */
       if (Mask && *Mask)
       {
@@ -1191,8 +1191,8 @@ int Edit::ProcessKey(int Key)
     case KEY_SHIFTINS:
       {
         /* $ 15.10.2000 tran
-           если строка ввода имет максимальную длину
-           то их клипборда грузим не больше ее*/
+           хёыш ёЄЁюър ттюфр шьхЄ ьръёшьры№эє■ фышэє
+           Єю шї ъышясюЁфр уЁєчшь эх сюы№°х хх*/
         char *ClipText;
         if (MaxLength==-1)
             ClipText=PasteFromClipboard();
@@ -1224,7 +1224,7 @@ int Edit::ProcessKey(int Key)
         else
           InsertString(ClipText);
         /* $ 13.07.2000 SVS
-           в PasteFromClipboard запрос памятиче через new[]
+           т PasteFromClipboard чряЁюё ярь Єшўх ўхЁхч new[]
         */
         if(ClipText)
           delete[] ClipText;
@@ -1245,10 +1245,10 @@ int Edit::ProcessKey(int Key)
       }
       return(TRUE);
     /* $ 21.12.2000 SVS
-       Недольшое безобразие с проникновением в "чужой огород" :-)
+       ═хфюы№°юх схчюсЁрчшх ё яЁюэшъэютхэшхь т "ўєцющ юуюЁюф" :-)
     */
     /* $ 04.01.2001 SVS
-       Недольшое безобразие с проникновением в "чужой огород" - дополнение 2 :-)
+       ═хфюы№°юх схчюсЁрчшх ё яЁюэшъэютхэшхь т "ўєцющ юуюЁюф" - фюяюыэхэшх 2 :-)
     */
     case KEY_MACRODAY:
     case KEY_MACROMONTH:
@@ -1279,7 +1279,7 @@ int Edit::ProcessKey(int Key)
     /* SVS 04.01.2001 $ */
     /* SVS $ */
     /* $ 13.02.2001 VVM
-      + Обработка SHIFT+SPACE */
+      + ╬сЁрсюЄър SHIFT+SPACE */
     case KEY_SHIFTSPACE:
       Key = KEY_SPACE;
     /* VVM $ */
@@ -1308,7 +1308,7 @@ int Edit::ProcessKey(int Key)
   return(FALSE);
 }
 
-// обработка Ctrl-Q
+// юсЁрсюЄър Ctrl-Q
 int Edit::ProcessCtrlQ(void)
 {
   INPUT_RECORD rec;
@@ -1330,12 +1330,12 @@ int Edit::InsertKey(int Key)
   /* $ 25.07.2000 tran
      + drop-down */
   /* $ 03.07.2000 tran
-     + обработка ReadOnly */
+     + юсЁрсюЄър ReadOnly */
   if ( DropDownBox || ReadOnly )
     return (TRUE);
   /* tran 03.07.2000 $ */
   /* $ 15.08.2000 KM
-     Работа с маской ввода.
+     ╨рсюЄр ё ьрёъющ ттюфр.
   */
   if (Key==KEY_TAB && Overtype)
   {
@@ -1353,8 +1353,8 @@ int Edit::InsertKey(int Key)
     if (CurPos<MaskLen)
     {
       /* $ 15.11.2000 KM
-         Убран кусок кода и сделана функция KeyMatchedMask,
-         проверяющая разрешение символа на ввод по маске.
+         ╙сЁрэ ъєёюъ ъюфр ш ёфхырэр ЇєэъЎш  KeyMatchedMask,
+         яЁютхЁ ■∙р  ЁрчЁх°хэшх ёшьтюыр эр ттюф яю ьрёъх.
       */
       /* KM $*/
       if (KeyMatchedMask(Key))
@@ -1373,7 +1373,7 @@ int Edit::InsertKey(int Key)
               {
                 if (j<=CurPos)
                   /* $ 15.11.2000 KM
-                     Замена continue на break
+                     ╟рьхэр continue эр break
                   */
                   break;
                   /* KM $ */
@@ -1431,7 +1431,7 @@ int Edit::InsertKey(int Key)
 }
 
 /* $ 28.07.2000 SVS
-   ! имеет дополнительный параметр для установки ColorUnChanged
+   ! шьххЄ фюяюыэшЄхы№э√щ ярЁрьхЄЁ фы  єёЄрэютъш ColorUnChanged
 */
 void Edit::SetObjectColor(int Color,int SelColor,int ColorUnChanged)
 {
@@ -1456,13 +1456,13 @@ char* Edit::GetStringAddr()
 
 
 /* $ 25.07.2000 tran
-   примечание:
-   в этом методе DropDownBox не обрабатывается
-   ибо именно этот метод вызывается для установки из истории */
+   яЁшьхўрэшх:
+   т ¤Єюь ьхЄюфх DropDownBox эх юсЁрсрЄ√трхЄё 
+   шсю шьхээю ¤ЄюЄ ьхЄюф т√ч√трхЄё  фы  єёЄрэютъш шч шёЄюЁшш */
 void Edit::SetString(char *Str)
 {
   /* $ 03.07.2000 tran
-     + обработка ReadOnly */
+     + юсЁрсюЄър ReadOnly */
   if ( ReadOnly )
     return;
   /* tran 03.07.2000 $ */
@@ -1487,14 +1487,14 @@ void Edit::SetEOL(char *EOL)
 
 
 /* $ 25.07.2000 tran
-   примечание:
-   в этом методе DropDownBox не обрабатывается
-   ибо он вызывается только из SetString и из класса Editor
-   в Dialog он нигде не вызывается */
+   яЁшьхўрэшх:
+   т ¤Єюь ьхЄюфх DropDownBox эх юсЁрсрЄ√трхЄё 
+   шсю юэ т√ч√трхЄё  Єюы№ъю шч SetString ш шч ъырёёр Editor
+   т Dialog юэ эшуфх эх т√ч√трхЄё  */
 void Edit::SetBinaryString(char *Str,int Length)
 {
   /* $ 03.07.2000 tran
-     + обработка ReadOnly */
+     + юсЁрсюЄър ReadOnly */
   if ( ReadOnly )
     return;
   /* tran 03.07.2000 $ */
@@ -1519,11 +1519,11 @@ void Edit::SetBinaryString(char *Str,int Length)
       else
         EndType=EOL_NONE;
   /* $ 15.08.2000 KM
-     Работа с маской
+     ╨рсюЄр ё ьрёъющ
   */
   /* $ 12.11.2000 KM
-     Убран кусок кода от SVS проверяющий конец строки.
-     Он не работал НИКОГДА.
+     ╙сЁрэ ъєёюъ ъюфр юЄ SVS яЁютхЁ ■∙шщ ъюэхЎ ёЄЁюъш.
+     ╬э эх ЁрсюЄры ═╚╩╬├─└.
   */
   CurPos=0;
   if (Mask && *Mask)
@@ -1606,7 +1606,7 @@ void Edit::InsertString(char *Str)
   /* $ 25.07.2000 tran
      + drop-down */
   /* $ 03.07.2000 tran
-     + обработка ReadOnly */
+     + юсЁрсюЄър ReadOnly */
   if ( DropDownBox || ReadOnly )
     return;
   /* tran 03.07.2000 $ */
@@ -1624,7 +1624,7 @@ void Edit::InsertBinaryString(char *Str,int Length)
   /* $ 25.07.2000 tran
      + drop-down */
   /* $ 03.07.2000 tran
-     + обработка ReadOnly */
+     + юсЁрсюЄър ReadOnly */
   if ( DropDownBox || ReadOnly )
     return;
   /* tran 03.07.2000 $ */
@@ -1632,7 +1632,7 @@ void Edit::InsertBinaryString(char *Str,int Length)
   ClearFlag=0;
 
   /* $ 18.08.2000 KM
-     Обслуживание маски ввода.
+     ╬сёыєцштрэшх ьрёъш ттюфр.
   */
   if (Mask && *Mask)
   {
@@ -1642,8 +1642,8 @@ void Edit::InsertBinaryString(char *Str,int Length)
     {
       int StrLen=(MaskLen-Pos>Length)?Length:MaskLen-Pos;
       /* $ 15.11.2000 KM
-         Внесены исправления для правильной работы PasteFromClipboard
-         в строке с маской
+         ┬эхёхэ√ шёяЁртыхэш  фы  яЁртшы№эющ ЁрсюЄ√ PasteFromClipboard
+         т ёЄЁюъх ё ьрёъющ
       */
       for (int i=Pos,j=0;j<StrLen+Pos && Str[j];)
       {
@@ -1701,7 +1701,7 @@ void Edit::InsertBinaryString(char *Str,int Length)
     memcpy(Edit::Str+CurPos,TmpStr,TmpSize);
     Edit::Str[StrSize]=0;
     /* $ 13.07.2000 SVS
-       раз уж вызывали через new[]...
+       Ёрч єц т√ч√трыш ўхЁхч new[]...
     */
     delete[] TmpStr;
     /* SVS $*/
@@ -1720,7 +1720,7 @@ int Edit::GetLength()
 
 
 /* $ 12.08.2000 KM */
-// Функция установки маски ввода в объект Edit
+// ╘єэъЎш  єёЄрэютъш ьрёъш ттюфр т юс·хъЄ Edit
 void Edit::SetInputMask(char *InputMask)
 {
   if (Mask)
@@ -1739,7 +1739,7 @@ void Edit::SetInputMask(char *InputMask)
 }
 
 
-// Функция обновления состояния строки ввода по содержимому Mask
+// ╘єэъЎш  юсэютыхэш  ёюёЄю эш  ёЄЁюъш ттюфр яю ёюфхЁцшьюьє Mask
 void Edit::RefreshStrByMask(int InitMode)
 {
   int i;
@@ -1747,9 +1747,9 @@ void Edit::RefreshStrByMask(int InitMode)
   {
     int MaskLen=strlen(Mask);
     /* $12.11.2000 KM
-       Некоторые изменения в работе с маской.
-       Теперь Str не может быть длиннее Mask и
-       MaxLength будет равна длине маски.
+       ═хъюЄюЁ√х шчьхэхэш  т ЁрсюЄх ё ьрёъющ.
+       ╥хяхЁ№ Str эх ьюцхЄ с√Є№ фышээхх Mask ш
+       MaxLength сєфхЄ Ёртэр фышэх ьрёъш.
     */
     if (StrSize!=MaskLen)
     {
@@ -1789,8 +1789,8 @@ int Edit::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 
 /* $ 03.08.2000 KM
-   Немного изменён алгоритм из-за необходимости
-   добавления поиска целых слов.
+   ═хьэюую шчьхэ╕э рыуюЁшЄь шч-чр эхюсїюфшьюёЄш
+   фюсртыхэш  яюшёър Ўхы√ї ёыют.
 */
 int Edit::Search(char *Str,int Position,int Case,int WholeWords,int Reverse)
 {
@@ -1814,7 +1814,7 @@ int Edit::Search(char *Str,int Position,int Case,int WholeWords,int Reverse)
           return(TRUE);
         }
         /* $ 03.08.2000 KM
-           Добавлен кусок кода для работы при поиске целых слов
+           ─юсртыхэ ъєёюъ ъюфр фы  ЁрсюЄ√ яЁш яюшёъх Ўхы√ї ёыют
         */
         if (WholeWords)
         {
@@ -1824,7 +1824,7 @@ int Edit::Search(char *Str,int Position,int Case,int WholeWords,int Reverse)
 
           ChLeft=(TableSet==NULL) ? Edit::Str[I-1]:TableSet->DecodeTable[Edit::Str[I-1]];
           /* $ 07.09.2000 KM
-             Исправление глюка при поиске по целым словам.
+             ╚ёяЁртыхэшх уы■ър яЁш яюшёъх яю Ўхы√ь ёыютрь.
           */
           if (I>0)
             locResultLeft=(ChLeft==' ' || ChLeft=='\t' || strchr(Opt.WordDiv,ChLeft)!=NULL);
@@ -1865,7 +1865,7 @@ void Edit::ReplaceTabs()
   char *TabPtr;
   int Pos,S;
   /* $ 03.07.2000 tran
-     + обработка ReadOnly */
+     + юсЁрсюЄър ReadOnly */
   if ( ReadOnly )
     return;
   /* tran 03.07.2000 $ */
@@ -1905,7 +1905,7 @@ void Edit::ReplaceSpaces(int i)
     b=' '; a=0xFA;
   }
   /* $ 03.07.2000 tran
-     + обработка ReadOnly */
+     + юсЁрсюЄър ReadOnly */
   if ( ReadOnly )
     return;
   /* tran 03.07.2000 $ */
@@ -2064,7 +2064,7 @@ void Edit::DeleteBlock()
   /* $ 25.07.2000 tran
      + drop-down */
   /* $ 03.07.2000 tran
-     + обработка ReadOnly */
+     + юсЁрсюЄър ReadOnly */
   if ( DropDownBox || ReadOnly )
     return;
   /* tran 03.07.2000 $ */
@@ -2073,7 +2073,7 @@ void Edit::DeleteBlock()
   if (SelStart==-1 || SelStart>=SelEnd)
     return;
   /* $ 15.08.2000 KM
-     Учёт Mask
+     ╙ў╕Є Mask
   */
   PrevCurPos=CurPos;
   if (Mask && *Mask)
@@ -2084,7 +2084,7 @@ void Edit::DeleteBlock()
         Str[i]=' ';
     }
     /* $ 18.09.2000 SVS
-      Для Mask - забыли скорректировать позицию :-)
+      ─ы  Mask - чрс√ыш ёъюЁЁхъЄшЁютрЄ№ яючшЎш■ :-)
     */
     CurPos=SelStart;
     /* SVS $*/
@@ -2167,7 +2167,7 @@ void Edit::ApplyColor()
       {
         ScrBuf.Read(Start,Y1,End,Y1,TextData);
         /* $ 28.07.2000 SVS
-           SelColor может быть и реальным цветом.
+           SelColor ьюцхЄ с√Є№ ш Ёхры№э√ь ЎтхЄюь.
         */
         SelColor0=SelColor;
         if(SelColor >= COL_FIRSTPALETTECOLOR)
@@ -2183,15 +2183,15 @@ void Edit::ApplyColor()
 }
 
 /* $ 24.09.2000 SVS $
-  Функция Xlat - перекодировка по принципу QWERTY <-> ЙЦУКЕН
+  ╘єэъЎш  Xlat - яхЁхъюфшЁютър яю яЁшэЎшяє QWERTY <-> ╔╓╙╩┼═
 */
 /* $ 13.12.2000 SVS
-   Дополнительный параметр в функции  Xlat()
+   ─юяюыэшЄхы№э√щ ярЁрьхЄЁ т ЇєэъЎшш  Xlat()
 */
 void Edit::Xlat(BOOL All)
 {
   /* $ 13.12.2000 SVS
-     Для CmdLine - если нет выделения, преобразуем всю строку
+     ─ы  CmdLine - хёыш эхЄ т√фхыхэш , яЁхюсЁрчєхь тё■ ёЄЁюъє
   */
   if(All && SelStart == -1 && SelEnd == 0)
   {
@@ -2201,7 +2201,7 @@ void Edit::Xlat(BOOL All)
   }
   /* SVS $ */
   /* $ 10.10.2000 IS
-     - иногда не работала конвертация из-за того, что было SelStart==SelEnd
+     - шэюуфр эх ЁрсюЄрыр ъюэтхЁЄрЎш  шч-чр Єюую, ўЄю с√ыю SelStart==SelEnd
   */
   if(SelStart != -1 && SelStart != SelEnd)
   /* IS $ */
@@ -2212,14 +2212,14 @@ void Edit::Xlat(BOOL All)
     Show();
   }
 /* $ 25.11.2000 IS
-   Если нет выделения, то обработаем текущее слово. Слово определяется на
-   основе специальной группы разделителей.
+   ┼ёыш эхЄ т√фхыхэш , Єю юсЁрсюЄрхь Єхъє∙хх ёыютю. ╤ыютю юяЁхфхы хЄё  эр
+   юёэютх ёяхЎшры№эющ уЁєяя√ ЁрчфхышЄхыхщ.
 */
   else
   {
    /* $ 10.12.2000 IS
-      Обрабатываем только то слово, на котором стоит курсор, или то слово, что
-      находится левее позиции курсора на 1 символ
+      ╬сЁрсрЄ√трхь Єюы№ъю Єю ёыютю, эр ъюЄюЁюь ёЄюшЄ ъєЁёюЁ, шыш Єю ёыютю, ўЄю
+      эрїюфшЄё  ыхтхх яючшЎшш ъєЁёюЁр эр 1 ёшьтюы
    */
    int start=CurPos, end, StrSize=strlen(Str);
    BOOL DoXlat=TRUE;
@@ -2248,8 +2248,8 @@ void Edit::Xlat(BOOL All)
 /* SVS $ */
 
 /* $ 15.11.2000 KM
-   Проверяет: попадает ли символ в разрешённый
-   диапазон символов, пропускаемых маской
+   ╧ЁютхЁ хЄ: яюярфрхЄ ыш ёшьтюы т ЁрчЁх°╕ээ√щ
+   фшрярчюэ ёшьтюыют, яЁюяєёърхь√ї ьрёъющ
 */
 int Edit::KeyMatchedMask(int Key)
 {
@@ -2259,7 +2259,7 @@ int Edit::KeyMatchedMask(int Key)
   else if (Mask[CurPos]=='#' && (isdigit(Key) || Key==' ' || Key=='-'))
     Inserted=TRUE;
   /* $ 15.11.2000 KM
-     Убрано разрешение пробелов в цифровой маске.
+     ╙сЁрэю ЁрчЁх°хэшх яЁюсхыют т ЎшЇЁютющ ьрёъх.
   */
   else if (Mask[CurPos]=='9' && (isdigit(Key)))
     Inserted=TRUE;

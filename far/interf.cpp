@@ -1,7 +1,7 @@
 /*
 interf.cpp
 
-Консольные функции ввода-вывода
+╩юэёюы№э√х ЇєэъЎшш ттюфр-т√тюфр
 
 */
 
@@ -9,43 +9,43 @@ interf.cpp
 
 /*
 Modify:
-  06.05.2001 ОТ
-    ! Переименование Window в Frame :)
+  06.05.2001 ╬╥
+    ! ╧хЁхшьхэютрэшх Window т Frame :)
   05.05.2001 DJ
-    + перетрях NWZ
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
+    + яхЁхЄЁ ї NWZ
+  29.04.2001 ╬╥
+    + ┬эхфЁхэшх NWZ юЄ ╥ЁхЄ№ ъютр
   06.03.2001 SVS
-   ! SetScreen() - размер строки 256 заменен на 4096 во избежании проблем
-     в будущем (new или malloc делать не стоит, т.к. функция часто вызывается)
+   ! SetScreen() - ЁрчьхЁ ёЄЁюъш 256 чрьхэхэ эр 4096 тю шчсхцрэшш яЁюсыхь
+     т сєфє∙хь (new шыш malloc фхырЄ№ эх ёЄюшЄ, Є.ъ. ЇєэъЎш  ўрёЄю т√ч√трхЄё )
   27.02.2001 SVS
-   + BoxText(Char) - вывод одного символа
-   ! В MakeSeparator добавлена отрисовка двойной разделительной линии (Type=3)
+   + BoxText(Char) - т√тюф юфэюую ёшьтюыр
+   ! ┬ MakeSeparator фюсртыхэр юЄЁшёютър фтющэющ ЁрчфхышЄхы№эющ ышэшш (Type=3)
   20.02.2001 SVS
-   ! ShowSeparator - дополнительный параметр - тип сепаратора
-   + MakeSeparator - создание разделителя в памяти
-   ! Символы, зависимые от кодовой страницы
+   ! ShowSeparator - фюяюыэшЄхы№э√щ ярЁрьхЄЁ - Єшя ёхярЁрЄюЁр
+   + MakeSeparator - ёючфрэшх ЁрчфхышЄхы  т ярь Єш
+   ! ╤шьтюы√, чртшёшь√х юЄ ъюфютющ ёЄЁрэшЎ√
      /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
-     переведены в коды.
+     яхЁхтхфхэ√ т ъюф√.
   14.02.2001 SKV
-    ! параметр setpal в InitConsole.
+    ! ярЁрьхЄЁ setpal т InitConsole.
   02.02.2001 VVM
-    ! Переделал функции Text(...). Т.к. они вызываются очень часто,
-      то основной вывод будет идти в Text(char *Str)
+    ! ╧хЁхфхыры ЇєэъЎшш Text(...). ╥.ъ. юэш т√ч√тр■Єё  юўхэ№ ўрёЄю,
+      Єю юёэютэющ т√тюф сєфхЄ шфЄш т Text(char *Str)
   24.01.2001 SVS
-    + Инициализация клавиатурной очереди KeyQueue,
-      размером  = 1024 кода клавиши
+    + ╚эшЎшрышчрЎш  ъыртшрЄєЁэющ юўхЁхфш KeyQueue,
+      ЁрчьхЁюь  = 1024 ъюфр ъыртш°ш
   22.01.2001 SVS
-    ! Для FS & WM применяются 2 разных курсора - их параметры можно
-      задавать через реестр.
+    ! ─ы  FS & WM яЁшьхэ ■Єё  2 Ёрчэ√ї ъєЁёюЁр - шї ярЁрьхЄЁ√ ьюцэю
+      чрфртрЄ№ ўхЁхч ЁххёЄЁ.
   22.01.2001 SVS
-    ! Проблемы с курсором при больших разрешениях - ставим тот курсор в
-      SetCursorType, который был до запуска ФАРа.
+    ! ╧Ёюсыхь√ ё ъєЁёюЁюь яЁш сюы№°шї ЁрчЁх°хэш ї - ёЄртшь ЄюЄ ъєЁёюЁ т
+      SetCursorType, ъюЄюЁ√щ с√ы фю чряєёър ╘└╨р.
   03.01.2001 SVS
-    + Функции SetFarTitle, ScrollBar, ShowSeparator
-      переехали из mix.cpp
+    + ╘єэъЎшш SetFarTitle, ScrollBar, ShowSeparator
+      яхЁххїрыш шч mix.cpp
   22.12.2000 SVS
-    ! Перетасовка исходников
+    ! ╧хЁхЄрёютър шёїюфэшъют
       IsMouseButtonPressed -> keyboard.cpp
       GetInputRecord -> keyboard.cpp
       CheckForEsc -> keyboard.cpp
@@ -53,46 +53,46 @@ Modify:
       WaitKey -> keyboard.cpp
       PeekInputRecord -> keyboard.cpp
       CalcKeyCode -> keyboard.cpp
-    ! hConOut,hConInp - public статус -> global.cpp
+    ! hConOut,hConInp - public ёЄрЄєё -> global.cpp
   08.09.2000 SVS
-    + KEY_CTRLSHIFTDEL, KEY_ALTSHIFTDEL в функции CalcKeyCode
+    + KEY_CTRLSHIFTDEL, KEY_ALTSHIFTDEL т ЇєэъЎшш CalcKeyCode
   24.08.2000 SVS
-    + Пераметр у фунции WaitKey - возможность ожидать конкретную клавишу
-    + Добавление на реакцию KEY_CTRLALTSHIFTPRESS & KEY_CTRLALTSHIFTRELEASE
+    + ╧хЁрьхЄЁ є ЇєэЎшш WaitKey - тючьюцэюёЄ№ юцшфрЄ№ ъюэъЁхЄэє■ ъыртш°є
+    + ─юсртыхэшх эр ЁхръЎш■ KEY_CTRLALTSHIFTPRESS & KEY_CTRLALTSHIFTRELEASE
   23.08.2000 SVS
-    + Код для средней клавиши мыши :-) (ну есть у меня дома эта хрень...)
+    + ╩юф фы  ёЁхфэхщ ъыртш°ш ь√°ш :-) (эє хёЄ№ є ьхэ  фюьр ¤Єр їЁхэ№...)
   09.08.2000 KM
-    ! Изменена MakeShadow таким образом, что теперь при достижении
-      окном (диалогом) правой или нижней границы экрана и при выходе за неё
-      тень продолжает рисоваться, что при нынешней идеологии движения окон
-      более правильно.
+    ! ╚чьхэхэр MakeShadow Єръшь юсЁрчюь, ўЄю ЄхяхЁ№ яЁш фюёЄшцхэшш
+      юъэюь (фшрыюуюь) яЁртющ шыш эшцэхщ уЁрэшЎ√ ¤ъЁрэр ш яЁш т√їюфх чр эх╕
+      Єхэ№ яЁюфюыцрхЄ ЁшёютрЄ№ё , ўЄю яЁш э√эх°эхщ шфхюыюушш фтшцхэш  юъюэ
+      сюыхх яЁртшы№эю.
   23.07.2000 SVS
-    ! Немного оптимизации в функциях Box(), HiText() :-)
-    + Клавиши (CalcKeyCode):
+    ! ═хьэюую юяЄшьшчрЎшш т ЇєэъЎш ї Box(), HiText() :-)
+    + ╩ыртш°ш (CalcKeyCode):
        Ctrl- Shift- Alt- CtrlShift- AltShift- CtrlAlt- Apps :-)
        KEY_LWIN (VK_LWIN), KEY_RWIN (VK_RWIN)
     + Text(int X, int Y, int Color, char *Str);
     + Text(int X, int Y, int Color, int MsgId);
   13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
+    ! ═хъюЄюЁ√х ъюЁЁхъЎшш яЁш шёяюы№чютрэшш new/delete/realloc
   11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
+    ! ╚чьхэхэш  фы  тючьюцэюёЄш ъюьяшы Ўшш яюф BC & VC
   06.07.2000 SVS
-    - Временная отмена патча 11 (NT Console resize bug) до лучших времен :-)
+    - ┬Ёхьхээр  юЄьхэр ярЄўр 11 (NT Console resize bug) фю ыєў°шї тЁхьхэ :-)
   28.06.2000 tran
     - NT Console resize bug
       adding resize support in GetInputRecord for modal window like
       Viewer, Editor, Help
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -121,7 +121,7 @@ void InitConsole(int setpal)
   GetRealCursorType(InitCurVisible,InitCurSize);
   GetRegKey("Interface","Mouse",Opt.Mouse,1);
 
-  // размер клавиатурной очереди = 1024 кода клавиши
+  // ЁрчьхЁ ъыртшрЄєЁэющ юўхЁхфш = 1024 ъюфр ъыртш°ш
   if(!KeyQueue)
     KeyQueue=new FarQueue<DWORD>(1024);
 
@@ -129,9 +129,9 @@ void InitConsole(int setpal)
   SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX);
   GetVideoMode();
   ScrBuf.FillBuf();
-  // было sizeof(Palette)
+  // с√ыю sizeof(Palette)
   /*$ 14.02.2001 SKV
-    для consoledetach не нужно, что бы инитилась палитра.
+    фы  consoledetach эх эєцэю, ўЄю с√ шэшЄшырё№ ярышЄЁр.
   */
   if(setpal)memcpy(Palette,DefaultPalette,SizeArrayPalette);
   /* SKV$*/
@@ -361,11 +361,11 @@ void GetRealCursorType(int &Visible,int &Size)
 }
 
 /* $ 23.07.2000 SVS
-   + две полных функции Text
+   + фтх яюыэ√ї ЇєэъЎшш Text
 */
 /* $ 02.02.2001 VVM
-    ! Переделал функции Text(...). Т.к. они вызываются очень часто,
-      то основной вывод будет идти в Text(char *Str) */
+    ! ╧хЁхфхыры ЇєэъЎшш Text(...). ╥.ъ. юэш т√ч√тр■Єё  юўхэ№ ўрёЄю,
+      Єю юёэютэющ т√тюф сєфхЄ шфЄш т Text(char *Str) */
 void Text(int X, int Y, int Color, char *Str)
 {
   CurColor=FarColorToReal(Color);
@@ -438,7 +438,7 @@ void HiText(char *Str,int HiColor)
     if (ChPtr[1])
     {
       /* $ 23.07.2000 SVS
-         Немного оптимизации :-)
+         ═хьэюую юяЄшьшчрЎшш :-)
       */
       char Chr[2];
       SaveColor=CurColor;
@@ -477,8 +477,8 @@ void MakeShadow(int X1,int Y1,int X2,int Y2)
   int I;
   CHAR_INFO *CharBuf=new CHAR_INFO[(X2-X1+1)*(Y2-Y1+1)];
   /* $ 09.08.2000 KM
-     Данное изменение позволяет отрисовывать тень, даже
-     если край окна вышел за границы экрана
+     ─рээюх шчьхэхэшх яючтюы хЄ юЄЁшёют√трЄ№ Єхэ№, фрцх
+     хёыш ъЁрщ юъэр т√°хы чр уЁрэшЎ√ ¤ъЁрэр
   */
   if (X1<0 || Y1<0)  // || X2>ScrX || Y2>ScrY)
     return;
@@ -488,7 +488,7 @@ void MakeShadow(int X1,int Y1,int X2,int Y2)
     CharBuf[I].Attributes&=~0xf8;
   PutText(X1,Y1,X2,Y2,CharBuf);
   /* $ 13.07.2000 SVS
-     раз уж вызвали new[], то и нужно delete[]
+     Ёрч єц т√чтрыш new[], Єю ш эєцэю delete[]
   */
   delete[] CharBuf;
   /* SVS $ */
@@ -546,7 +546,7 @@ void ScrollScreen(int Count)
   PutText(0,0,ScrX,ScrY-Count,ScreenBuf);
   SetScreen(0,ScrY+1-Count,ScrX,ScrY,' ',F_LIGHTGRAY|B_BLACK);
   /* $ 13.07.2000 SVS
-     раз уж вызвали new[], то и нужно delete[]
+     Ёрч єц т√чтрыш new[], Єю ш эєцэю delete[]
   */
   delete[] ScreenBuf;
   /* SVS $ */
@@ -648,10 +648,10 @@ void BoxText(char *Str)
 }
 
 /*
-   Отрисовка прямоугольника.
+   ╬ЄЁшёютър яЁ ьюєуюы№эшър.
 */
 /* $ 23.07.2000 SVS
-   Немного оптимизации :-)
+   ═хьэюую юяЄшьшчрЎшш :-)
 */
 void Box(int x1,int y1,int x2,int y2,int Color,int Type)
 {
@@ -771,7 +771,7 @@ void ShowSeparator(int Length,int Type)
   }
 }
 
-// "Нарисовать" сепаратор в памяти.
+// "═рЁшёютрЄ№" ёхярЁрЄюЁ т ярь Єш.
 char* MakeSeparator(int Length,char *DestStr,int Type)
 {
   if (Length>1 && DestStr)

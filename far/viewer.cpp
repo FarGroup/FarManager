@@ -10,176 +10,176 @@ Internal viewer
 /*
 Modify:
   04.05.2001 OT
-    + Неверно формировалось меню плагинов по F11 (NWZ)
-      Изменился PluginSet::CommandsMenu()
+    + ═хтхЁэю ЇюЁьшЁютрыюё№ ьхэ■ яырушэют яю F11 (NWZ)
+      ╚чьхэшыё  PluginSet::CommandsMenu()
   28.04.2001 SVS
     - Opt.MsWheelDeltaEdit -> Opt.MsWheelDeltaView
   27.04.2001 DJ
-    - всегда обновляем key bar после загрузки файла
-    * отрисовка скроллбара вынесена в DrawScrollbar(), а корректировка ширины
-      в зависимости от его наличия - в AdjustWidth()
-    - коррекное позиционирование скроллбара, когда отключена строка статуса
+    - тёхуфр юсэюты хь key bar яюёых чруЁєчъш Їрщыр
+    * юЄЁшёютър ёъЁюыысрЁр т√эхёхэр т DrawScrollbar(), р ъюЁЁхъЄшЁютър °шЁшэ√
+      т чртшёшьюёЄш юЄ хую эрышўш  - т AdjustWidth()
+    - ъюЁЁхъэюх яючшЎшюэшЁютрэшх ёъЁюыысрЁр, ъюуфр юЄъы■ўхэр ёЄЁюър ёЄрЄєёр
   27.04.2001 VVM
-    + Обработка KEY_MSWHEEL_XXXX
+    + ╬сЁрсюЄър KEY_MSWHEEL_XXXX
   29.03.2001 IS
-    + структура ViOpt и Get/Set для ее обслуживания
+    + ёЄЁєъЄєЁр ViOpt ш Get/Set фы  хх юсёыєцштрэш 
   26.03.2001 SVS
-    ! Корректировка ScrollBar`а по алгоритму "от процентов"
+    ! ╩юЁЁхъЄшЁютър ScrollBar`р яю рыуюЁшЄьє "юЄ яЁюЎхэЄют"
   26.03.2001 SVS
-    + При вызове списка плагинов говорим манагеру о том, чтобы он искал
-      предопределенный топик "Viewer" для Shift-F1 из списка плагинов
+    + ╧Ёш т√чютх ёяшёър яырушэют уютюЁшь ьрэрухЁє ю Єюь, ўЄюс√ юэ шёъры
+      яЁхфюяЁхфхыхээ√щ Єюяшъ "Viewer" фы  Shift-F1 шч ёяшёър яырушэют
   22.03.2001 IS
-    - Баг с переходом по alt-f8: переход происходил только тогда, когда в
-      момент закрытия диалога курсор находился в строке ввода (была неверная
-      проверка кода возврата из диалога).
+    - ┴ру ё яхЁхїюфюь яю alt-f8: яхЁхїюф яЁюшёїюфшы Єюы№ъю Єюуфр, ъюуфр т
+      ьюьхэЄ чръЁ√Єш  фшрыюур ъєЁёюЁ эрїюфшыё  т ёЄЁюъх ттюфр (с√ыр эхтхЁэр 
+      яЁютхЁър ъюфр тючтЁрЄр шч фшрыюур).
   13.02.2001 IS
-    ! При исправлении бага с выделением в юникодных файлах (06.02.2001) не учел
-      то, что коррекция должна быть только для самой первой строки, поэтому баг
-      не до конца был исправлен. Сейчас ситуация уже лучше.
+    ! ╧Ёш шёяЁртыхэшш срур ё т√фхыхэшхь т ■эшъюфэ√ї Їрщырї (06.02.2001) эх єўхы
+      Єю, ўЄю ъюЁЁхъЎш  фюыцэр с√Є№ Єюы№ъю фы  ёрьющ яхЁтющ ёЄЁюъш, яю¤Єюьє сру
+      эх фю ъюэЎр с√ы шёяЁртыхэ. ╤хщўрё ёшЄєрЎш  єцх ыєў°х.
   27.02.2001 VVM
-    ! Символы, зависимые от кодовой страницы
+    ! ╤шьтюы√, чртшёшь√х юЄ ъюфютющ ёЄЁрэшЎ√
       /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
-      переведены в коды.
+      яхЁхтхфхэ√ т ъюф√.
   20.02.2001 VVM
     + GetWrapType()/SetWrapType()
   06.02.2001 IS
-   - Бага с выделением, которую добавили, когда убрали показ начального пробела
-     в юникодных файлах. См. SelectPosOffSet в SelectText
+   - ┴рур ё т√фхыхэшхь, ъюЄюЁє■ фюсртшыш, ъюуфр єсЁрыш яюърч эрўры№эюую яЁюсхыр
+     т ■эшъюфэ√ї Їрщырї. ╤ь. SelectPosOffSet т SelectText
   29.01.2001 IS
-   - баг - затирался StructSize в ViewerInfo
+   - сру - чрЄшЁрыё  StructSize т ViewerInfo
   28.01.2001
-   - Путем проверки ViewFile на NULL в ProcessKey  избавляемся от падения
+   - ╧єЄхь яЁютхЁъш ViewFile эр NULL т ProcessKey  шчсрты хьё  юЄ ярфхэш 
   23.01.2001 SVS
-   + Заполнение Info->LeftPos в VCTL_GETINFO.
+   + ╟ряюыэхэшх Info->LeftPos т VCTL_GETINFO.
   22.01.2001 IS
-   !  Внимание! Возможно, это не совсем верное решение проблемы
-      выделения из плагинов, но мне пока другого в голову не пришло.
-      Я приравниваю SelectSize нулю _только_ в Process*
+   !  ┬эшьрэшх! ┬ючьюцэю, ¤Єю эх ёютёхь тхЁэюх Ёх°хэшх яЁюсыхь√
+      т√фхыхэш  шч яырушэют, эю ьэх яюър фЁєуюую т уюыютє эх яЁш°ыю.
+      ▀ яЁшЁртэштр■ SelectSize эєы■ _Єюы№ъю_ т Process*
   21.01.2001 IS
-   ! Для однообразия с редактором изменил пару названий:
+   ! ─ы  юфэююсЁрчш  ё ЁхфръЄюЁюь шчьхэшы ярЁє эрчтрэшщ:
       VCTL_SETPOS -> VCTL_SETPOSITION
       AnsiText -> AnsiMode
   19.01.2001 SVS
-    ! Изменен вызов функции GoTo() - три дополнительных параметра
-    - Устранение висячих строк при переходе (функция GoTo)
-    + Функция выделения SelectText() - как самостоятельная функция
+    ! ╚чьхэхэ т√чют ЇєэъЎшш GoTo() - ЄЁш фюяюыэшЄхы№э√ї ярЁрьхЄЁр
+    - ╙ёЄЁрэхэшх тшё ўшї ёЄЁюъ яЁш яхЁхїюфх (ЇєэъЎш  GoTo)
+    + ╘єэъЎш  т√фхыхэш  SelectText() - ъръ ёрьюёЄю Єхы№эр  ЇєэъЎш 
     + VCTL_SELECT
-    ! Изменения в VCTL_SETPOS
-    + Хотелка:
-       "чтобы запоминался режим просмотра файла Hex/норм.
-       отдельно для каждого файла"
-      стала возможной потому, что были резервы при кешировании :-)
-      Остался еще один пункт :-)
+    ! ╚чьхэхэш  т VCTL_SETPOS
+    + ╒юЄхыър:
+       "ўЄюс√ чряюьшэрыё  Ёхцшь яЁюёьюЄЁр Їрщыр Hex/эюЁь.
+       юЄфхы№эю фы  ърцфюую Їрщыр"
+      ёЄрыр тючьюцэющ яюЄюьє, ўЄю с√ыш ЁхчхЁт√ яЁш ъх°шЁютрэшш :-)
+      ╬ёЄрыё  х∙х юфшэ яєэъЄ :-)
   11.01.2000 VVM
-    ! Левый край считается за раз, а не итерациями по +4
+    ! ╦хт√щ ъЁрщ ёўшЄрхЄё  чр Ёрч, р эх шЄхЁрЎш ьш яю +4
   21.12.2000 SVS
-    ! Не спрячем элемент HEX в поисковом диалоге, а задизаблим (для Unicode)
+    ! ═х ёяЁ ўхь ¤ыхьхэЄ HEX т яюшёъютюь фшрыюух, р чрфшчрсышь (фы  Unicode)
   16.12.2000 tran
-    + шелчок мышью на статус баре (ProcessMouseEvent())
+    + °хыўюъ ь√°№■ эр ёЄрЄєё срЁх (ProcessMouseEvent())
   03.11.2000 OT
-    ! Введение проверки возвращаемого значения
+    ! ┬тхфхэшх яЁютхЁъш тючтЁр∙рхьюую чэрўхэш 
   02.11.2000 OT
-    ! Введение проверки на длину буфера, отведенного под имя файла.
+    ! ┬тхфхэшх яЁютхЁъш эр фышэє сєЇхЁр, юЄтхфхээюую яюф шь  Їрщыр.
   20.10.2000 tran
-    + обратный порядок байтов в юникоде (fffe)
+    + юсЁрЄэ√щ яюЁ фюъ срщЄют т ■эшъюфх (fffe)
   18.10.2000 SVS
-    - бага: DownDownUp в Уникод-файлах (FEFF)
+    - срур: DownDownUp т ╙эшъюф-Їрщырї (FEFF)
   02.10.2000 SVS
-    - бага со скроллером.
-      > Если нажать в самом низу скролбара, вьюер отмотается на страницу
-      > ниже нижней границы текста. Перед глазами будет пустой экран.
+    - срур ёю ёъЁюыыхЁюь.
+      > ┼ёыш эрцрЄ№ т ёрьюь эшчє ёъЁюысрЁр, т№■хЁ юЄьюЄрхЄё  эр ёЄЁрэшЎє
+      > эшцх эшцэхщ уЁрэшЎ√ ЄхъёЄр. ╧хЁхф уырчрьш сєфхЄ яєёЄющ ¤ъЁрэ.
   01.10.2000 IS
-    ! Показывать букву диска в статусной строке
+    ! ╧юърч√трЄ№ сєътє фшёър т ёЄрЄєёэющ ёЄЁюъх
   29.09.2000 SVS
     ! TableNum - 2
   27.09.2000 SVS
-    + ViewerControl - (пока только: получить минимум необходимой
-      информации - для PrintMan)
-    ! Переменные UseDecodeTable,TableNum,AnsiText,Unicode,Wrap, TypeWrap, Hex
-      введены в одну структуру ViewerMode.
+    + ViewerControl - (яюър Єюы№ъю: яюыєўшЄ№ ьшэшьєь эхюсїюфшьющ
+      шэЇюЁьрЎшш - фы  PrintMan)
+    ! ╧хЁхьхээ√х UseDecodeTable,TableNum,AnsiText,Unicode,Wrap, TypeWrap, Hex
+      ттхфхэ√ т юфэє ёЄЁєъЄєЁє ViewerMode.
   27.09.2000 SVS
-    + Глюки с определением Unicode при просмотре по '+' & '-'
+    + ├ы■ъш ё юяЁхфхыхэшхь Unicode яЁш яЁюёьюЄЁх яю '+' & '-'
   24.09.2000 SVS
-    + Работа по сохранению/восстановлению позиций в файле по RCtrl+<N>
+    + ╨рсюЄр яю ёюїЁрэхэш■/тюёёЄрэютыхэш■ яючшЎшщ т Їрщых яю RCtrl+<N>
   19.09.2000 SVS
-    ! FEFF-файлы - уточнение алгоритма отображения и распознавания.
+    ! FEFF-Їрщы√ - єЄюўэхэшх рыуюЁшЄьр юЄюсЁрцхэш  ш Ёрёяючэртрэш .
   18.09.2000 SVS
-    ! Уточнение Warp и KeyBar
+    ! ╙Єюўэхэшх Warp ш KeyBar
   14.09.2000 SVS
-    + AutoDecode Unicode - те файлы, которые начинаются с 0xFEFF
+    + AutoDecode Unicode - Єх Їрщы√, ъюЄюЁ√х эрўшэр■Єё  ё 0xFEFF
   13.09.2000 tran 1.23
-    + при WWrap обрезаются пробелы в начале строки
+    + яЁш WWrap юсЁхчр■Єё  яЁюсхы√ т эрўрых ёЄЁюъш
   12.09.2000 SVS
-    ! Разделение Wrap/WWrap/UnWrap на 2 составляющих -
-      F2 Состояние (Wrap/UnWrap) и Shift-F2 тип (Wrap/WWrap)
+    ! ╨рчфхыхэшх Wrap/WWrap/UnWrap эр 2 ёюёЄрты ■∙шї -
+      F2 ╤юёЄю эшх (Wrap/UnWrap) ш Shift-F2 Єшя (Wrap/WWrap)
   10.09.2000 SVS
-    ! Постоянный скроллинг при нажатой клавише
-      Обыкновенный захват мыши
+    ! ╧юёЄю ээ√щ ёъЁюыышэу яЁш эрцрЄющ ъыртш°х
+      ╬с√ъэютхээ√щ чрїтрЄ ь√°ш
   01.09.2000 SVS
-    - Небольшая бага с тыканием в верхнюю позицию ScrollBar`а
+    - ═хсюы№°р  срур ё Є√ърэшхь т тхЁїэ■■ яючшЎш■ ScrollBar`р
   31.08.2000 SVS
-    + Теперь FAR помнит тип Wrap
-    - Бага - без часиков и со ScrollBar неверно отображается верхний статус
+    + ╥хяхЁ№ FAR яюьэшЄ Єшя Wrap
+    - ┴рур - схч ўрёшъют ш ёю ScrollBar эхтхЁэю юЄюсЁрцрхЄё  тхЁїэшщ ёЄрЄєё
   04.08.2000 KM
-    ! !!!Неверный предыдущий патч!!!!
+    ! !!!═хтхЁэ√щ яЁхф√фє∙шщ ярЄў!!!!
   01.08.2000 KM 1.16
-    + Добавлен поиск по "Целым словам". Работает в связке
-      с поиском по Alt-F7.
+    + ─юсртыхэ яюшёъ яю "╓хы√ь ёыютрь". ╨рсюЄрхЄ т ёт чъх
+      ё яюшёъюь яю Alt-F7.
   01.08.2000 tran 1.16
     + |DIF_USELASTHISTORY
   19.07.2000 tran 1.15
-    + при рисовке скролбара граница уменьшается на 1
+    + яЁш Ёшёютъх ёъЁюысрЁр уЁрэшЎр єьхэ№°рхЄё  эр 1
   18.07.2000 tran 1.14
-    + рисование сколбара и стрелок в зависимости от настроек
-      скролбар также реагирует на мышку
-      и переключается Ctrl-S
+    + Ёшёютрэшх ёъюысрЁр ш ёЄЁхыюъ т чртшёшьюёЄш юЄ эрёЄЁюхъ
+      ёъЁюысрЁ Єръцх ЁхрушЁєхЄ эр ь√°ъє
+      ш яхЁхъы■ўрхЄё  Ctrl-S
   17.07.2000 tran
-    + я не суеверный, 1.13 пойдет :)
-      теперь диалог по alt-f8 реагирует на
-      nn% - проценты
+    +   эх ёєхтхЁэ√щ, 1.13 яющфхЄ :)
+      ЄхяхЁ№ фшрыюу яю alt-f8 ЁхрушЁєхЄ эр
+      nn% - яЁюЎхэЄ√
       0xnn, nnh, nn$ - hex offset
-      +/-nn - относительное смещение
+      +/-nn - юЄэюёшЄхы№эюх ёьх∙хэшх
   15.07.2000 SVS
-    ! Wrap должен показываться следующий, а не текущий
+    ! Wrap фюыцхэ яюърч√трЄ№ё  ёыхфє■∙шщ, р эх Єхъє∙шщ
   13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
+    ! ═хъюЄюЁ√х ъюЁЁхъЎшш яЁш шёяюы№чютрэшш new/delete/realloc
   12.07.2000 tran
     ! OutStr are dynamic, new, delete,
       and sizeof(OutStr[i]) changed to MAX_VIEWLINEB
   12.07.2000 SVS
-    + wrap имеет 3 положения :-) Но только для зарегестрированных.
+    + wrap шьххЄ 3 яюыюцхэш  :-) ═ю Єюы№ъю фы  чрЁхухёЄЁшЁютрээ√ї.
   11.07.2000 tran
     + wrap are now WORD-WRAP
   11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
+    ! ╚чьхэхэш  фы  тючьюцэюёЄш ъюьяшы Ўшш яюф BC & VC
   10.07.2000 tran
-    ! увеличение длины строки с 512 до MAX_VIEWLINE (2048)
-      изменений по тексту - 8, "512" заменено на MAX_VIEWLINE,
-      а "511" на MAX_VIEWLINE-1
+    ! єтхышўхэшх фышэ√ ёЄЁюъш ё 512 фю MAX_VIEWLINE (2048)
+      шчьхэхэшщ яю ЄхъёЄє - 8, "512" чрьхэхэю эр MAX_VIEWLINE,
+      р "511" эр MAX_VIEWLINE-1
   04.07.2000 tran
-    + параметер warning в методе OpenFile()
-      нужно для QuickView
+    + ярЁрьхЄхЁ warning т ьхЄюфх OpenFile()
+      эєцэю фы  QuickView
   03.07.2000 tran
-    - баг с неверным показом последней строки в hex
-      (внесенный мною патчем номер 2)
+    - сру ё эхтхЁэ√ь яюърчюь яюёыхфэхщ ёЄЁюъш т hex
+      (тэхёхээ√щ ьэю■ ярЄўхь эюьхЁ 2)
   30.06.2000 tran
-    - баг с двойным путем в имени файла,
-      если он показывается файл с temppanel (например)
-      в таком случае файл уже имеет путь, и добавлять его не надо
+    - сру ё фтющэ√ь яєЄхь т шьхэш Їрщыр,
+      хёыш юэ яюърч√трхЄё  Їрщы ё temppanel (эряЁшьхЁ)
+      т Єръюь ёыєўрх Їрщы єцх шьххЄ яєЄ№, ш фюсрты Є№ хую эх эрфю
   28.06.2000 IS (22.06.2000)
-    + Показывать полное имя файла во вьюере
+    + ╧юърч√трЄ№ яюыэюх шь  Їрщыр тю т№■хЁх
   28.06.2000 tran
-    - показ пустой строки в hex viewer
+    - яюърч яєёЄющ ёЄЁюъш т hex viewer
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   Стандартные заголовки
+   ╤ЄрэфрЁЄэ√х чруюыютъш
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -191,7 +191,7 @@ static int InitUseDecodeTable=FALSE,InitTableNum=0,InitAnsiText=FALSE;
 
 static int InitHex=FALSE;
 /* $ 27.09.2000 SVS
-   ID вьювера - по аналогии с Editor
+   ID т№■тхЁр - яю рэрыюушш ё Editor
 */
 static int ViewerID=0;
 /* SVS $*/
@@ -201,7 +201,7 @@ static char BorderLine[]={0x0B3,0x020,0x00};
 Viewer::Viewer()
 {
   /* $ 29.03.2001 IS
-       "Наследуем" некоторые глобальные
+       "═рёыхфєхь" эхъюЄюЁ√х уыюсры№э√х
   */
   memcpy(&ViOpt, &Opt.ViOpt, sizeof(ViewerOptions));
   /* IS $ */
@@ -215,7 +215,7 @@ Viewer::Viewer()
   strcpy((char *)LastSearchStr,GlobalSearchString);
   LastSearchCase=GlobalSearchCase;
   /* $ 01.08.2000 KM
-     Переменная для поиска "Whole words"
+     ╧хЁхьхээр  фы  яюшёър "Whole words"
   */
   LastSearchWholeWords=GlobalSearchWholeWords;
   /* KM $ */
@@ -235,7 +235,7 @@ Viewer::Viewer()
   }
   VM.Unicode=(VM.TableNum==1) && VM.UseDecodeTable;
   /* $ 31.08.2000 SVS
-    Вспомним тип врапа
+    ┬ёяюьэшь Єшя тЁряр
   */
   VM.Wrap=Opt.ViewerIsWrap;
   VM.TypeWrap=Opt.ViewerWrap;
@@ -270,7 +270,7 @@ Viewer::Viewer()
   OpenFailed=false;
   HostFileViewer=NULL;
   /* $ 06.02.2001 IS
-     См. SelectText
+     ╤ь. SelectText
   */
   SelectPosOffSet=0;
   /* IS $ */
@@ -320,7 +320,7 @@ Viewer::~Viewer()
   for ( int i=0; i<=MAXSCRY; i++ )
   {
     /* $ 13.07.2000 SVS
-      раз уж вызвали new[], то и нужно delete[]
+      Ёрч єц т√чтрыш new[], Єю ш эєцэю delete[]
     */
     delete[] OutStr[i];
     /* SVS $ */
@@ -339,7 +339,7 @@ void Viewer::KeepInitParameters()
   strcpy(GlobalSearchString,(char *)LastSearchStr);
   GlobalSearchCase=LastSearchCase;
   /* $ 01.08.2000 KM
-     Сохранение параметра "Whole words" в глобальной GlobalSearchWholeWords
+     ╤юїЁрэхэшх ярЁрьхЄЁр "Whole words" т уыюсры№эющ GlobalSearchWholeWords
   */
   GlobalSearchWholeWords=LastSearchWholeWords;
   /* KM $ */
@@ -526,8 +526,8 @@ int Viewer::OpenFile(char *Name,int warning)
       SetFileSize();
     }
     /* $ 27.04.2001 DJ
-       всегда обновляем keybar после загрузки файла;
-       вычисление ширины - в отдельную функцию
+       тёхуфр юсэюты хь keybar яюёых чруЁєчъш Їрщыр;
+       т√ўшёыхэшх °шЁшэ√ - т юЄфхы№эє■ ЇєэъЎш■
     */
     if (VM.AnsiMode)
       VM.AnsiMode=FALSE;
@@ -542,13 +542,13 @@ int Viewer::OpenFile(char *Name,int warning)
 
 
 /* $ 27.04.2001 DJ
-   функция вычисления ширины в зависимости от наличия скроллбара
+   ЇєэъЎш  т√ўшёыхэш  °шЁшэ√ т чртшёшьюёЄш юЄ эрышўш  ёъЁюыысрЁр
 */
 
 void Viewer::AdjustWidth()
 {
   /* $ 19.07.2000 tran
-    + вычисление нужного */
+    + т√ўшёыхэшх эєцэюую */
   Width=X2-X1+1;
   XX2=X2;
 
@@ -593,14 +593,14 @@ void Viewer::DisplayObject()
   int SaveSelectSize=SelectSize;
 
   /* $ 27.04.2001 DJ
-     вычисление ширины - в отдельную функцию
+     т√ўшёыхэшх °шЁшэ√ - т юЄфхы№эє■ ЇєэъЎш■
   */
   AdjustWidth();
   /* DJ $ */
 
   /* $ 04.07.2000 tran
-    + показ строки "Cannot open the file" красным цветом
-      в случае невозножности его открытия */
+    + яюърч ёЄЁюъш "Cannot open the file" ъЁрёэ√ь ЎтхЄюь
+      т ёыєўрх эхтючэюцэюёЄш хую юЄъЁ√Єш  */
   if (ViewFile==NULL)
   {
     GotoXY(X1,Y1);
@@ -636,7 +636,7 @@ void Viewer::DisplayObject()
       if (strlen((char *)OutStr[I])>(unsigned) LeftPos)
       {
         /* $ 18.10.2000 SVS
-           -Bug: Down Down Up & первый пробел
+           -Bug: Down Down Up & яхЁт√щ яЁюсхы
         */
         if(VM.Unicode &&
              (FirstWord == 0x0FEFF || FirstWord == 0x0FFFE)
@@ -646,7 +646,7 @@ void Viewer::DisplayObject()
           mprintf("%-*.*s",Width,Width,&OutStr[I][LeftPos]);
         /* SVS $*/
         /* $ 18.07.2000 tran -
-           проверка флага
+           яЁютхЁър Їырур
         */
         if (strlen(&OutStr[I][LeftPos])>Width && ViOpt.ShowArrows)
         {
@@ -658,7 +658,7 @@ void Viewer::DisplayObject()
       else
         mprintf("%*s",Width,"");
       /* $ 18.07.2000 tran -
-         проверка флага
+         яЁютхЁър Їырур
       */
       if (LeftPos>0 && *OutStr[I]!=0  && ViOpt.ShowArrows)
       {
@@ -677,13 +677,13 @@ void Viewer::DisplayObject()
       {
         int SelX1=X1+SelPos-LeftPos;
         /* $ 12.07.2000 SVS
-           ! Wrap - трех позиционный
+           ! Wrap - ЄЁхї яючшЎшюээ√щ
         */
         if (!VM.Wrap &&
         /* SVS $ */
            SelX1+SaveSelectSize-1>XX2 && LeftPos<MAX_VIEWLINE
         /* $ 11.01.2000 VVM
-           Левый край считается за раз, а не итерациями по +4 */
+           ╦хт√щ ъЁрщ ёўшЄрхЄё  чр Ёрч, р эх шЄхЁрЎш ьш яю +4 */
            && (X1+SelPos+SaveSelectSize-XX2<MAX_VIEWLINE))
         {
 //          LeftPos+=4;
@@ -699,7 +699,7 @@ void Viewer::DisplayObject()
           SelSize=XX2-SelX1+1;
         if (SelSize>0)
         /* $ 06.02.2001 IS
-             см. SelectText
+             ёь. SelectText
         */
           mprintf("%.*s",SelSize,&OutStr[I][SelPos+SelectPosOffSet]);
         /* IS $ */
@@ -708,7 +708,7 @@ void Viewer::DisplayObject()
   } // if (Hex)  - else
 
   /* $ 27.04.2001 DJ
-     рисование скроллбара - в отдельную функцию
+     Ёшёютрэшх ёъЁюыысрЁр - т юЄфхы№эє■ ЇєэъЎш■
   */
   DrawScrollbar();
   /* DJ $ */
@@ -748,9 +748,9 @@ void Viewer::ShowHex()
           SelPos=strlen(OutStr);
           SelSize=SelectSize;
           /* $ 22.01.2001 IS
-              Внимание! Возможно, это не совсем верное решение проблемы
-              выделения из плагинов, но мне пока другого в голову не пришло.
-              Я приравниваю SelectSize нулю в Process*
+              ┬эшьрэшх! ┬ючьюцэю, ¤Єю эх ёютёхь тхЁэюх Ёх°хэшх яЁюсыхь√
+              т√фхыхэш  шч яырушэют, эю ьэх яюър фЁєуюую т уюыютє эх яЁш°ыю.
+              ▀ яЁшЁртэштр■ SelectSize эєы■ т Process*
           */
           //SelectSize=0;
           /* IS $ */
@@ -759,8 +759,8 @@ void Viewer::ShowHex()
         if ((Ch=getc(ViewFile))==EOF || (Ch1=getc(ViewFile))==EOF)
         {
           /* $ 28.06.2000 tran
-             убираем показ пустой строки, если длина
-             файла кратна 16 */
+             єсшЁрхь яюърч яєёЄющ ёЄЁюъш, хёыш фышэр
+             Їрщыр ъЁрЄэр 16 */
           EndFile=LastPage=1;
           if ( X==0 )
           {
@@ -794,9 +794,9 @@ void Viewer::ShowHex()
           SelPos=strlen(OutStr);
           SelSize=SelectSize;
           /* $ 22.01.2001 IS
-              Внимание! Возможно, это не совсем верное решение проблемы
-              выделения из плагинов, но мне пока другого в голову не пришло.
-              Я приравниваю SelectSize нулю в Process*
+              ┬эшьрэшх! ┬ючьюцэю, ¤Єю эх ёютёхь тхЁэюх Ёх°хэшх яЁюсыхь√
+              т√фхыхэш  шч яырушэют, эю ьэх яюър фЁєуюую т уюыютє эх яЁш°ыю.
+              ▀ яЁшЁртэштр■ SelectSize эєы■ т Process*
           */
           //SelectSize=0;
           /* IS $ */
@@ -804,8 +804,8 @@ void Viewer::ShowHex()
         if ((Ch=vgetc(ViewFile))==EOF)
         {
           /* $ 28.06.2000 tran
-             убираем показ пустой строки, если длина
-             файла кратна 16 */
+             єсшЁрхь яюърч яєёЄющ ёЄЁюъш, хёыш фышэр
+             Їрщыр ъЁрЄэр 16 */
           EndFile=LastPage=1;
           if ( X==0 )
           {
@@ -813,7 +813,7 @@ void Viewer::ShowHex()
              break;
           }
           /* $ 03.07.2000 tran
-             - вместо 5 пробелов тут надо 3 */
+             - тьхёЄю 5 яЁюсхыют ЄєЄ эрфю 3 */
           strcat(OutStr,"   ");
           /* tran $ */
           TextStr[TextPos++]=' ';
@@ -856,7 +856,7 @@ void Viewer::ShowUp()
   int Tmp,Y,I;
 
   /* $ 27.04.2001 DJ
-     вычисление ширины - в отдельную функцию
+     т√ўшёыхэшх °шЁшэ√ - т юЄфхы№эє■ ЇєэъЎш■
   */
   AdjustWidth();
   /* DJ $ */
@@ -882,7 +882,7 @@ void Viewer::ShowUp()
     if (strlen(OutStr[I])>LeftPos)
     {
       /* $ 18.10.2000 SVS
-         -Bug: Down Down Up & первый пробел
+         -Bug: Down Down Up & яхЁт√щ яЁюсхы
       */
       if(VM.Unicode && (FirstWord == 0x0FEFF || FirstWord == 0x0FFFE) && !I && !LeftPos && !StrFilePos[I])
         mprintf("%-*.*s",Width,Width,&OutStr[I][LeftPos+1]);
@@ -907,7 +907,7 @@ void Viewer::ShowUp()
   }
 
   /* $ 27.04.2001 DJ
-     отрисовка скроллбара - в отдельную функцию
+     юЄЁшёютър ёъЁюыысрЁр - т юЄфхы№эє■ ЇєэъЎш■
   */
   DrawScrollbar();
   /* DJ $ */
@@ -916,18 +916,18 @@ void Viewer::ShowUp()
 
 
 /* $ 27.04.2001 DJ
-   отрисовка скроллбара - в отдельную функцию
+   юЄЁшёютър ёъЁюыысрЁр - т юЄфхы№эє■ ЇєэъЎш■
 */
 
 void Viewer::DrawScrollbar()
 {
   /* $ 18.07.2000 tran
-     рисование скролбара */
+     Ёшёютрэшх ёъЁюысрЁр */
   if ( ViOpt.ShowScrollbar )
   {
     SetColor(COL_VIEWERSCROLLBAR);
     /* $ 27.04.2001 DJ
-       если status line выключена, рисуем скроллбар до верха окна
+       хёыш status line т√ъы■ўхэр, Ёшёєхь ёъЁюыысрЁ фю тхЁїр юъэр
     */
     ScrollBar(X2,ViewY1,Y2-ViewY1+1,LastPage ? (!FilePos?0:100):ToPercent(FilePos,FileSize),100);
     /* DJ $ */
@@ -944,7 +944,7 @@ void Viewer::ShowStatus()
   if (!ShowStatusLine)
     return;
   /* $ 22.06.2000 IS
-    Показывать полное имя файла во вьюере
+    ╧юърч√трЄ№ яюыэюх шь  Їрщыр тю т№■хЁх
     Was: strcpy(Name,*Title ? Title:FileName);
   */
   if(*Title) strcpy(Name,Title);
@@ -971,7 +971,7 @@ void Viewer::ShowStatus()
   if (NameLength<20)
     NameLength=20;
   /* $ 01.10.2000 IS
-     ! Показывать букву диска в статусной строке
+     ! ╧юърч√трЄ№ сєътє фшёър т ёЄрЄєёэющ ёЄЁюъх
   */
   TruncPathStr(Name,NameLength);
   /* IS $ */
@@ -993,7 +993,7 @@ void Viewer::ShowStatus()
   SetColor(COL_VIEWERSTATUS);
   GotoXY(X1,Y1);
   /* $ 31.08.2000 SVS
-     Бага - без часиков неверно отображается верхний статус
+     ┴рур - схч ўрёшъют эхтхЁэю юЄюсЁрцрхЄё  тхЁїэшщ ёЄрЄєё
   */
   mprintf("%-*.*s",Width+(ViOpt.ShowScrollbar?1:0),
                    Width+(ViOpt.ShowScrollbar?1:0),Status);
@@ -1015,7 +1015,7 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
   int OutPtr,Ch;
 
   /* $ 27.04.2001 DJ
-     вычисление ширины - в отдельную функцию
+     т√ўшёыхэшх °шЁшэ√ - т юЄфхы№эє■ ЇєэъЎш■
   */
   AdjustWidth();
   /* DJ $ */
@@ -1035,7 +1035,7 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
       if (OutPtr>=StrSize-16)
         break;
       /* $ 12.07.2000 SVS
-        ! Wrap - трехпозиционный
+        ! Wrap - ЄЁхїяючшЎшюээ√щ
       */
       if (VM.Wrap && OutPtr>XX2-X1)
       {
@@ -1045,13 +1045,13 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
         if ((Ch=vgetc(ViewFile))!=CRSym && (Ch!=13 || vgetc(ViewFile)!=CRSym))
         {
           vseek(ViewFile,SavePos,SEEK_SET);
-          if (VM.TypeWrap && RegVer) // только для зарегестрированных
+          if (VM.TypeWrap && RegVer) // Єюы№ъю фы  чрЁхухёЄЁшЁютрээ√ї
           {
             if ( ! (Ch==' ' || Ch=='\t'  ) && !(Str[OutPtr]==' ' || Str[OutPtr]=='\t'))
             {
                unsigned long SavePtr=OutPtr;
                /* $ 18.07.2000 tran
-                  добавил в качестве wordwrap разделителей , ; > ) */
+                  фюсртшы т ърўхёЄтх wordwrap ЁрчфхышЄхыхщ , ; > ) */
                while (OutPtr && !(Str[OutPtr]==' ' || Str[OutPtr]=='\t' || Str[OutPtr]==',' || Str[OutPtr]==';' || Str[OutPtr]=='>'|| Str[OutPtr]==')'))
                /* tran 18.07.2000 $ */
                   OutPtr--;
@@ -1089,9 +1089,9 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
         SelPos=OutPtr;
         SelSize=SelectSize;
         /* $ 22.01.2001 IS
-            Внимание! Возможно, это не совсем верное решение проблемы
-            выделения из плагинов, но мне пока другого в голову не пришло.
-            Я приравниваю SelectSize нулю в Process*
+            ┬эшьрэшх! ┬ючьюцэю, ¤Єю эх ёютёхь тхЁэюх Ёх°хэшх яЁюсыхь√
+            т√фхыхэш  шч яырушэют, эю ьэх яюър фЁєуюую т уюыютє эх яЁш°ыю.
+            ▀ яЁшЁртэштр■ SelectSize эєы■ т Process*
         */
         //SelectSize=0;
         /* IS $ */
@@ -1116,7 +1116,7 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
           Str[OutPtr++]=' ';
         } while ((OutPtr % ViOpt.TabSize)!=0);
         /* $ 12.07.2000 SVS
-          Wrap - 3-x позиционный и если есть регистрация :-)
+          Wrap - 3-x яючшЎшюээ√щ ш хёыш хёЄ№ ЁхушёЄЁрЎш  :-)
         */
         if ((VM.Wrap && (VM.TypeWrap && RegVer))
         /* SVS $ */
@@ -1143,7 +1143,7 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
 
 
 /* $ 28.01.2001
-   - Путем проверки ViewFile на NULL избавляемся от падения
+   - ╧єЄхь яЁютхЁъш ViewFile эр NULL шчсрты хьё  юЄ ярфхэш 
 */
 int Viewer::ProcessKey(int Key)
 {
@@ -1151,7 +1151,7 @@ int Viewer::ProcessKey(int Key)
   char ReadStr[528];
 
   /* $ 22.01.2001 IS
-       Происходят какие-то манипуляции -> снимем выделение
+       ╧Ёюшёїюф Є ъръшх-Єю ьрэшяєы Ўшш -> ёэшьхь т√фхыхэшх
   */
   if(Key!=KEY_IDLE && Key!=KEY_NONE) SelectSize=0;
   /* IS $ */
@@ -1196,7 +1196,7 @@ int Viewer::ProcessKey(int Key)
   switch(Key)
   {
     /* $ 18.07.2000 tran
-       включить/выключить скролбар */
+       тъы■ўшЄ№/т√ъы■ўшЄ№ ёъЁюысрЁ */
     case KEY_CTRLS:
         ViOpt.ShowScrollbar=!ViOpt.ShowScrollbar;
         Show();
@@ -1310,7 +1310,7 @@ int Viewer::ProcessKey(int Key)
             chdir(ViewDir);
           }
           /* $ 04.07.2000 tran
-             + параметер 'warning' в OpenFile в данном месте он TRUE
+             + ярЁрьхЄхЁ 'warning' т OpenFile т фрээюь ьхёЄх юэ TRUE
           */
           if (OpenFile(Name,TRUE))
           /* tran $ */
@@ -1345,13 +1345,13 @@ int Viewer::ProcessKey(int Key)
 
     case KEY_F2:
       /* $ 12.07.200 SVS
-        ! Wrap имеет 3 положения и...
+        ! Wrap шьххЄ 3 яюыюцхэш  ш...
       */
       VM.Wrap=!VM.Wrap;
       ChangeViewKeyBar();
       Show();
       /* $ 31.08.2000 SVS
-        Сохраняем тип врапа
+        ╤юїЁрэ хь Єшя тЁряр
       */
       Opt.ViewerIsWrap=VM.Wrap;
       /* SVS $ */
@@ -1419,7 +1419,7 @@ int Viewer::ProcessKey(int Key)
       Show();
       return(TRUE);
     /* $ 27.04.2001 VVM
-      + Обработка KEY_MSWHEEL_XXXX */
+      + ╬сЁрсюЄър KEY_MSWHEEL_XXXX */
     case KEY_MSWHEEL_UP:
       {
         for (int i=0; i<Opt.MsWheelDeltaView; i++)
@@ -1571,7 +1571,7 @@ int Viewer::ProcessKey(int Key)
 int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
   /* $ 18.07.2000 tran
-     просто для сокращения кода*/
+     яЁюёЄю фы  ёюъЁр∙хэш  ъюфр*/
   int MsX=MouseEvent->dwMousePosition.X;
   int MsY=MouseEvent->dwMousePosition.Y;
   /* tran 18.07.2000 $ */
@@ -1581,25 +1581,25 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     return(FALSE);
 
   /* $ 22.01.2001 IS
-       Происходят какие-то манипуляции -> снимем выделение
+       ╧Ёюшёїюф Є ъръшх-Єю ьрэшяєы Ўшш -> ёэшьхь т√фхыхэшх
   */
   SelectSize=0;
   /* IS $ */
 
   /* $ 18.07.2000 tran
-     обработка сколбара */
+     юсЁрсюЄър ёъюысрЁр */
   /* $ 10.09.2000 SVS
-     ! Постоянный скроллинг при нажатой клавише
-       Обыкновенный захват мыши
+     ! ╧юёЄю ээ√щ ёъЁюыышэу яЁш эрцрЄющ ъыртш°х
+       ╬с√ъэютхээ√щ чрїтрЄ ь√°ш
   */
   /* $ 02.10.2000 SVS
-    > Если нажать в самом низу скролбара, вьюер отмотается на страницу
-    > ниже нижней границы текста. Перед глазами будет пустой экран.
+    > ┼ёыш эрцрЄ№ т ёрьюь эшчє ёъЁюысрЁр, т№■хЁ юЄьюЄрхЄё  эр ёЄЁрэшЎє
+    > эшцх эшцэхщ уЁрэшЎ√ ЄхъёЄр. ╧хЁхф уырчрьш сєфхЄ яєёЄющ ¤ъЁрэ.
   */
   if ( ViOpt.ShowScrollbar && MsX==X2)
   {
     /* $ 01.09.2000 SVS
-       Небольшая бага с тыканием в верхнюю позицию ScrollBar`а
+       ═хсюы№°р  срур ё Є√ърэшхь т тхЁїэ■■ яючшЎш■ ScrollBar`р
     */
     if (MsY == Y1+1)
       while (IsMouseButtonPressed())
@@ -1625,7 +1625,7 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
           ProcessKey(KEY_CTRLEND);
         else
         /* $ 27.04.2001 DJ
-           не рвем строки посередине
+           эх Ётхь ёЄЁюъш яюёхЁхфшэх
         */
         {
           AdjustFilePos();
@@ -1644,7 +1644,7 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   /* tran 18.07.2000 $ */
 
   /* $ 16.12.2000 tran
-     шелчок мышью на статус баре */
+     °хыўюъ ь√°№■ эр ёЄрЄєё срЁх */
   if ( MsY==Y1 ) // Status line
   {
     int XTable, XPos, NameLength;
@@ -1800,10 +1800,10 @@ void Viewer::ChangeViewKeyBar()
   if (ViewKeyBar)
   {
     /* $ 12.07.2000 SVS
-       Wrap имеет 3 позиции
+       Wrap шьххЄ 3 яючшЎшш
     */
     /* $ 15.07.2000 SVS
-       Wrap должен показываться следующий, а не текущий
+       Wrap фюыцхэ яюърч√трЄ№ё  ёыхфє■∙шщ, р эх Єхъє∙шщ
     */
     ViewKeyBar->Change(
        MSG(
@@ -1836,7 +1836,7 @@ void Viewer::Search(int Next,int FirstChar)
 {
   const char *TextHistoryName="SearchText";
   /* $ 01.08.2000 KM
-     Добавлен новый checkbox для поиска "Whole words"
+     ─юсртыхэ эют√щ checkbox фы  яюшёър "Whole words"
   */
   static struct DialogData SearchDlgData[]={
   /* 00 */ DI_DOUBLEBOX,3,1,72,10,0,0,0,0,(char *)MViewSearchTitle,
@@ -1859,7 +1859,7 @@ void Viewer::Search(int Next,int FirstChar)
   char MsgStr[256];
   unsigned long MatchPos;
   /* $ 01.08.2000 KM
-     Добавлена новая переменная WholeWords
+     ─юсртыхэр эютр  яхЁхьхээр  WholeWords
   */
   int SearchLength,Case,WholeWords,ReverseSearch,SearchHex,Match;
   /* KM $ */
@@ -1872,7 +1872,7 @@ void Viewer::Search(int Next,int FirstChar)
   SearchDlg[5].Selected=LastSearchHex;
   SearchDlg[6].Selected=LastSearchCase;
   /* $ 01.08.2000 KM
-     Инициализация checkbox'а "Whole words"
+     ╚эшЎшрышчрЎш  checkbox'р "Whole words"
   */
   SearchDlg[7].Selected=LastSearchWholeWords;
   /* KM $ */
@@ -1881,7 +1881,7 @@ void Viewer::Search(int Next,int FirstChar)
   if (VM.Unicode)
   {
     /* $ 21.12.2000 SVS
-       Не спрячем HEX, а задизаблим.
+       ═х ёяЁ ўхь HEX, р чрфшчрсышь.
     */
     SearchDlg[4].Selected=TRUE;
     SearchDlg[5].Flags|=DIF_DISABLE;
@@ -1906,7 +1906,7 @@ void Viewer::Search(int Next,int FirstChar)
   SearchHex=SearchDlg[5].Selected;
   Case=SearchDlg[6].Selected;
   /* $ 01.08.2000 KM
-     Сохранение состояния checkbox'а "Whole words"
+     ╤юїЁрэхэшх ёюёЄю эш  checkbox'р "Whole words"
   */
   WholeWords=SearchDlg[7].Selected;
   /* KM $ */
@@ -1916,7 +1916,7 @@ void Viewer::Search(int Next,int FirstChar)
   LastSearchHex=SearchHex;
   LastSearchCase=Case;
   /* $ 01.08.2000 KM
-     Сохранение последнего состояния WholeWords
+     ╤юїЁрэхэшх яюёыхфэхую ёюёЄю эш  WholeWords
   */
   LastSearchWholeWords=WholeWords;
   /* KM $ */
@@ -1944,10 +1944,10 @@ void Viewer::Search(int Next,int FirstChar)
     {
       char Buf[8192];
       /* $ 01.08.2000 KM
-         Изменён тип CurPos с unsigned long на long
-         из-за того, что дальше шла проверка при вычитании
-         на -1, а CurPos не мог стать отрицательным и иногда
-         выдавался неверный результат
+         ╚чьхэ╕э Єшя CurPos ё unsigned long эр long
+         шч-чр Єюую, ўЄю фры№°х °ыр яЁютхЁър яЁш т√ўшЄрэшш
+         эр -1, р CurPos эх ьюу ёЄрЄ№ юЄЁшЎрЄхы№э√ь ш шэюуфр
+         т√фртрыё  эхтхЁэ√щ Ёхчєы№ЄрЄ
       */
       long CurPos=LastSelPos;
       /* KM $ */
@@ -1955,7 +1955,7 @@ void Viewer::Search(int Next,int FirstChar)
       if (ReverseSearch)
       {
         /* $ 01.08.2000 KM
-           Изменёно вычисление CurPos с учётом Whole words
+           ╚чьхэ╕эю т√ўшёыхэшх CurPos ё єў╕Єюь Whole words
         */
         if (WholeWords)
           CurPos-=sizeof(Buf)-SearchLength+1;
@@ -1969,9 +1969,9 @@ void Viewer::Search(int Next,int FirstChar)
       while (!Match)
       {
         /* $ 01.08.2000 KM
-           Изменена строка if (ReverseSearch && CurPos<0) на if (CurPos<0),
-           так как при обычном прямом и LastSelPos=0xFFFFFFFF, поиск
-           заканчивался так и не начавшись.
+           ╚чьхэхэр ёЄЁюър if (ReverseSearch && CurPos<0) эр if (CurPos<0),
+           Єръ ъръ яЁш юс√ўэюь яЁ ьюь ш LastSelPos=0xFFFFFFFF, яюшёъ
+           чрърэўштрыё  Єръ ш эх эрўрт°шё№.
         */
         if (CurPos<0)
           CurPos=0;
@@ -1987,24 +1987,24 @@ void Viewer::Search(int Next,int FirstChar)
             Buf[I]=TableSet.DecodeTable[Buf[I]];
 
         /* $ 01.08.2000 KM
-           Сделана сразу проверка на Case sensitive и Hex
-           и если нет, тогда Buf приводится к верхнему регистру
+           ╤фхырэр ёЁрчє яЁютхЁър эр Case sensitive ш Hex
+           ш хёыш эхЄ, Єюуфр Buf яЁштюфшЄё  ъ тхЁїэхьє ЁхушёЄЁє
         */
         if (!Case && !SearchHex)
           LocalUpperBuf(Buf,ReadSize);
         /* KM $ */
 
         /* $ 01.08.2000 KM
-           Убран кусок текста после приведения поисковой строки
-           и Buf к единому регистру, если поиск не регистрозависимый
-           или не ищется Hex-строка и в связи с этим переработан код поиска
+           ╙сЁрэ ъєёюъ ЄхъёЄр яюёых яЁштхфхэш  яюшёъютющ ёЄЁюъш
+           ш Buf ъ хфшэюьє ЁхушёЄЁє, хёыш яюшёъ эх ЁхушёЄЁючртшёшь√щ
+           шыш эх ш∙хЄё  Hex-ёЄЁюър ш т ёт чш ё ¤Єшь яхЁхЁрсюЄрэ ъюф яюшёър
         */
         int MaxSize=ReadSize-SearchLength+1;
         int Increment=ReverseSearch ? -1:+1;
         for (int I=ReverseSearch ? MaxSize-1:0;I<MaxSize && I>=0;I+=Increment)
         {
           /* $ 01.08.2000 KM
-             Обработка поиска "Whole words"
+             ╬сЁрсюЄър яюшёър "Whole words"
           */
           int cmpResult;
           int locResultLeft=FALSE;
@@ -2079,7 +2079,7 @@ void Viewer::Search(int Next,int FirstChar)
           if (CurPos<=0)
             break;
           /* $ 01.08.2000 KM
-             Изменёно вычисление CurPos с учётом Whole words
+             ╚чьхэ╕эю т√ўшёыхэшх CurPos ё єў╕Єюь Whole words
           */
           if (WholeWords)
             CurPos-=sizeof(Buf)-SearchLength+1;
@@ -2246,7 +2246,7 @@ int Viewer::vread(char *Buf,int Size,FILE *SrcFile)
     int ReadSize=fread(TmpBuf,1,Size*2,SrcFile);
     TmpBuf[ReadSize]=0;
     /* $ 20.10.2000 tran
-       обратный порядок байтов */
+       юсЁрЄэ√щ яюЁ фюъ срщЄют */
     TmpBuf[ReadSize+1]=0;
     if ( FirstWord == 0x0FFFE )
     {
@@ -2303,8 +2303,8 @@ int Viewer::vgetc(FILE *SrcFile)
 #define RB_HEX 4
 #define RB_DEC 5
 
-//   ! Изменен вызов функции GoTo() - два дополнительных параметра
-//   - Устранение висячих строк при переходе (функция GoTo)
+//   ! ╚чьхэхэ т√чют ЇєэъЎшш GoTo() - фтр фюяюыэшЄхы№э√ї ярЁрьхЄЁр
+//   - ╙ёЄЁрэхэшх тшё ўшї ёЄЁюъ яЁш яхЁхїюфх (ЇєэъЎш  GoTo)
 void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
 {
   /* $ 17.07.2000 tran
@@ -2323,7 +2323,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
   };
   MakeDialogItems(GoToDlgData,GoToDlg);
   /* $ 01.08.2000 tran
-     с DIF_USELASTHISTORY эот не нужно*/
+     ё DIF_USELASTHISTORY ¤юЄ эх эєцэю*/
   //  static char PrevLine[20];
   static int PrevMode=0;
 
@@ -2342,45 +2342,45 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
       Dlg.Process();
       /* $ 17.07.2000 tran
          - remove isdigit check()
-           кстати, тут баг был
-           если ввести ffff при hex offset, то фар все равно никуда не шел */
+           ъёЄрЄш, ЄєЄ сру с√ы
+           хёыш ттхёЄш ffff яЁш hex offset, Єю ЇрЁ тёх Ёртэю эшъєфр эх °хы */
       /* $ 22.03.2001 IS
-         - Переход происходил только тогда, когда в момент закрытия диалога
-           курсор находился в строке ввода.
+         - ╧хЁхїюф яЁюшёїюфшы Єюы№ъю Єюуфр, ъюуфр т ьюьхэЄ чръЁ√Єш  фшрыюур
+           ъєЁёюЁ эрїюфшыё  т ёЄЁюъх ттюфр.
       */
       if (Dlg.GetExitCode()<=0 ) //|| !isdigit(*GoToDlg[1].Data))
         return;
       /* IS $ */
       // strncpy(PrevLine,GoToDlg[1].Data,sizeof(PrevLine));
       /* $ 17.07.2000 tran
-         тут для сокращения кода ввел ptr, который и анализирую */
+         ЄєЄ фы  ёюъЁр∙хэш  ъюфр ттхы ptr, ъюЄюЁ√щ ш рэрышчшЁє■ */
       char *ptr=&GoToDlg[1].Data[0];
-      if ( ptr[0]=='+' || ptr[0]=='-' )     // юзер хочет относительности
+      if ( ptr[0]=='+' || ptr[0]=='-' )     // ■чхЁ їюўхЄ юЄэюёшЄхы№эюёЄш
       {
           if (ptr[0]=='+')
               Relative=1;
           else
               Relative=-1;
-          memmove(ptr,ptr+1,strlen(ptr)); // если вы думаете про strlen(ptr)-1,
-                                          // то вы ошибаетесь :)
+          memmove(ptr,ptr+1,strlen(ptr)); // хёыш т√ фєьрхЄх яЁю strlen(ptr)-1,
+                                          // Єю т√ ю°шсрхЄхё№ :)
       }
-      if ( strchr(ptr,'%') )   // он хочет процентов
+      if ( strchr(ptr,'%') )   // юэ їюўхЄ яЁюЎхэЄют
       {
           GoToDlg[RB_HEX].Selected=GoToDlg[RB_DEC].Selected=0;
           GoToDlg[RB_PRC].Selected=1;
       }
-      else if ( strnicmp(ptr,"0x",2)==0 || ptr[0]=='$' || strchr(ptr,'h') ||strchr(ptr,'H') ) // он умный - hex код ввел!
+      else if ( strnicmp(ptr,"0x",2)==0 || ptr[0]=='$' || strchr(ptr,'h') ||strchr(ptr,'H') ) // юэ єьэ√щ - hex ъюф ттхы!
       {
           GoToDlg[RB_PRC].Selected=GoToDlg[RB_DEC].Selected=0;
           GoToDlg[RB_HEX].Selected=1;
           if ( strnicmp(ptr,"0x",2)==0)
-              memmove(ptr,ptr+2,strlen(ptr)-1); // а тут надо -1, а не -2  // сдвинем строку
+              memmove(ptr,ptr+2,strlen(ptr)-1); // р ЄєЄ эрфю -1, р эх -2  // ёфтшэхь ёЄЁюъє
           else if (ptr[0]=='$')
               memmove(ptr,ptr+1,strlen(ptr));
-          //Relative=0; // при hex значении никаких относительных значений?
+          //Relative=0; // яЁш hex чэрўхэшш эшъръшї юЄэюёшЄхы№э√ї чэрўхэшщ?
       }
       /* $ 19.07.2000 tran
-         при форме NNNd - десятичная форма */
+         яЁш ЇюЁьх NNNd - фхё Єшўэр  ЇюЁьр */
       else if (strchr(ptr,'d') || strchr(ptr,'D'))
       {
           GoToDlg[RB_HEX].Selected=GoToDlg[RB_PRC].Selected=0;
@@ -2392,7 +2392,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
         //int cPercent=ToPercent(FilePos,FileSize);
         PrevMode=0;
         int Percent=atoi(GoToDlg[1].Data);
-        //if ( Relative  && (cPercent+Percent*Relative<0) || (cPercent+Percent*Relative>100)) // за пределы - низя
+        //if ( Relative  && (cPercent+Percent*Relative<0) || (cPercent+Percent*Relative>100)) // чр яЁхфхы√ - эшч 
         //  return;
         if (Percent>100)
           return;
@@ -2437,20 +2437,20 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
 
     if ( Relative )
     {
-        if ( Relative==-1 && Offset>FilePos ) // меньше нуля, if (FilePos<0) не пройдет - FilePos у нас unsigned long
+        if ( Relative==-1 && Offset>FilePos ) // ьхэ№°х эєы , if (FilePos<0) эх яЁющфхЄ - FilePos є эрё unsigned long
             FilePos=0;
         else
             FilePos=VM.Unicode? FilePos+Offset*Relative/2 : FilePos+Offset*Relative;
     }
     else
         FilePos=VM.Unicode ? Offset/2:Offset;
-    if ( FilePos>FileSize )   // и куда его несет?
-        FilePos=FileSize;     // там все равно ничего нету
+    if ( FilePos>FileSize )   // ш ъєфр хую эхёхЄ?
+        FilePos=FileSize;     // Єрь тёх Ёртэю эшўхую эхЄє
     /* tran 17.07.2000 $ */
   }
-  // коррекция
+  // ъюЁЁхъЎш 
   /* $ 27.04.2001 DJ
-     коррекция вынесена в отдельную функцию
+     ъюЁЁхъЎш  т√эхёхэр т юЄфхы№эє■ ЇєэъЎш■
   */
   AdjustFilePos();
   /* DJ $ */
@@ -2461,7 +2461,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
 
 
 /* $ 27.04.2001 DJ
-   корректировка позиции вынесена в отдельную функцию
+   ъюЁЁхъЄшЁютър яючшЎшш т√эхёхэр т юЄфхы№эє■ ЇєэъЎш■
 */
 
 void Viewer::AdjustFilePos()
@@ -2502,9 +2502,9 @@ void Viewer::SetFileSize()
 
 
 /* $ 19.01.2001 SVS
-   Выделение - в качестве самостоятельной функции.
-   Flags=0x01 - показывать (делать Show())
-         0x02 - "обратный поиск" ?
+   ┬√фхыхэшх - т ърўхёЄтх ёрьюёЄю Єхы№эющ ЇєэъЎшш.
+   Flags=0x01 - яюърч√трЄ№ (фхырЄ№ Show())
+         0x02 - "юсЁрЄэ√щ яюшёъ" ?
 */
 void Viewer::SelectText(long MatchPos,int SearchLength, DWORD Flags)
 {
@@ -2527,10 +2527,10 @@ void Viewer::SelectText(long MatchPos,int SearchLength, DWORD Flags)
   SelectSize=SearchLength;
   LastSelPos=SelectPos+((Flags&0x2) ? -1:1);
   /* $ 13.03.2001 IS
-     Если найденное расположено в самой первой строке юникодного файла и файл
-     имеет в начале fffe или feff, то для более правильного выделения, его
-     позицию нужно уменьшить на единицу (из-за того, что пустой символ не
-     показывается)
+     ┼ёыш эрщфхээюх Ёрёяюыюцхэю т ёрьющ яхЁтющ ёЄЁюъх ■эшъюфэюую Їрщыр ш Їрщы
+     шьххЄ т эрўрых fffe шыш feff, Єю фы  сюыхх яЁртшы№эюую т√фхыхэш , хую
+     яючшЎш■ эєцэю єьхэ№°шЄ№ эр хфшэшЎє (шч-чр Єюую, ўЄю яєёЄющ ёшьтюы эх
+     яюърч√трхЄё )
   */
   SelectPosOffSet=VM.Unicode && (FirstWord==0x0FFFE || FirstWord==0x0FEFF)
            && (MatchPos+SelectSize<=ObjWidth && MatchPos<strlen(OutStr[0]));
@@ -2564,7 +2564,7 @@ void Viewer::SelectText(long MatchPos,int SearchLength, DWORD Flags)
 
 
 /* $ 27.09.2000 SVS
-   "Ядро" будущего Viewer API :-)
+   "▀фЁю" сєфє∙хую Viewer API :-)
 */
 int Viewer::ViewerControl(int Command,void *Param)
 {
@@ -2577,7 +2577,7 @@ int Viewer::ViewerControl(int Command,void *Param)
       if(Info)
       {
         /* $ 29.01.2001 IS
-          - баг - затирался StructSize
+          - сру - чрЄшЁрыё  StructSize
         */
         memset(&Info->ViewerID,0,Info->StructSize-sizeof(Info->StructSize));
         /* IS */
@@ -2594,7 +2594,7 @@ int Viewer::ViewerControl(int Command,void *Param)
         if (ViOpt.AutoDetectTable)     Info->Options|=VOPT_AUTODETECTTABLE;
         Info->TabSize=ViOpt.TabSize;
 
-        // сюды писать добавки
+        // ё■ф√ яшёрЄ№ фюсртъш
         if(Info->StructSize >= sizeof(struct ViewerInfo))
         {
           Info->LeftPos=LeftPos;
@@ -2605,8 +2605,8 @@ int Viewer::ViewerControl(int Command,void *Param)
     }
     /*
        Param = struct ViewerSetPosition
-               сюда же будет записано новое смещение
-               В основном совпадает с переданным
+               ё■фр цх сєфхЄ чряшёрэю эютюх ёьх∙хэшх
+               ┬ юёэютэюь ёютярфрхЄ ё яхЁхфрээ√ь
     */
     case VCTL_SETPOSITION:
     {
@@ -2652,22 +2652,22 @@ int Viewer::ViewerControl(int Command,void *Param)
       break;
     }
 
-    /* Функция установки Keybar Labels
-         Param = NULL - восстановить, пред. значение
-         Param = -1   - обновить полосу (перерисовать)
+    /* ╘єэъЎш  єёЄрэютъш Keybar Labels
+         Param = NULL - тюёёЄрэютшЄ№, яЁхф. чэрўхэшх
+         Param = -1   - юсэютшЄ№ яюыюёє (яхЁхЁшёютрЄ№)
          Param = KeyBarTitles
     */
     case VCTL_SETKEYBAR:
     {
       struct KeyBarTitles *Kbt=(struct KeyBarTitles*)Param;
       if(!Kbt)
-      {        // восстановить пред значение!
+      {        // тюёёЄрэютшЄ№ яЁхф чэрўхэшх!
         if (HostFileViewer!=NULL)
           HostFileViewer->InitKeyBar();
       }
       else
       {
-        if((long)Param != (long)-1) // не только перерисовать?
+        if((long)Param != (long)-1) // эх Єюы№ъю яхЁхЁшёютрЄ№?
         {
           for(I=0; I < 12; ++I)
           {

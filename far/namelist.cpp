@@ -1,7 +1,7 @@
 /*
 namelist.cpp
 
-Список имен файлов, используется в viewer при нажатии Gray+/Gray-
+╤яшёюъ шьхэ Їрщыют, шёяюы№чєхЄё  т viewer яЁш эрцрЄшш Gray+/Gray-
 
 */
 
@@ -10,12 +10,12 @@ namelist.cpp
 /*
 Modify:
   20.02.2001 SVS
-    ! Заголовки - к общему виду!
+    ! ╟руюыютъш - ъ юс∙хьє тшфє!
   13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
+    ! ═хъюЄюЁ√х ъюЁЁхъЎшш яЁш шёяюы№чютрэшш new/delete/realloc
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
@@ -33,7 +33,7 @@ NamesList::NamesList()
 NamesList::~NamesList()
 {
   /* $ 13.07.2000 SVS
-     распределение памяти было чрезе realloc
+     ЁрёяЁхфхыхэшх ярь Єш с√ыю ўЁхчх realloc
   */
   free(Names);
   /* SVS $ */
@@ -118,4 +118,3 @@ void NamesList::SetCurDir(char *Dir)
 {
   strcpy(CurDir,Dir);
 }
-

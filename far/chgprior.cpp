@@ -10,8 +10,8 @@ class ChangePriority
 /*
 Modify:
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #include "headers.hpp"
@@ -33,5 +33,3 @@ ChangePriority::~ChangePriority()
 {
   SetThreadPriority(GetCurrentThread(),SavePriority);
 }
-
-

@@ -3,7 +3,7 @@
 /*
 farconst.hpp
 
-содержит все enum, #define, etc
+ёюфхЁцшЄ тёх enum, #define, etc
 
 */
 
@@ -12,75 +12,75 @@ farconst.hpp
 /*
 Modify:
   05.05.2001 DJ
-    + перетрях NWZ
-  29.04.2001 ОТ
-    + Внедрение NWZ от Третьякова
+    + яхЁхЄЁ ї NWZ
+  29.04.2001 ╬╥
+    + ┬эхфЁхэшх NWZ юЄ ╥ЁхЄ№ ъютр
   28.04.2001 SVS
     + EXCEPT_OPENPLUGIN_FINDLIST, EXCEPT_FARDIALOG
   26.04.2001 DJ
-    + новая константа для UserMenu EC_COMMAND_SELECTED
+    + эютр  ъюэёЄрэЄр фы  UserMenu EC_COMMAND_SELECTED
   25.04.2001 SVS
     + MODALTREE_FREE
   13.04.2001 VVM
-    + Обработка колесика мышки под 2000.
+    + ╬сЁрсюЄър ъюыхёшър ь√°ъш яюф 2000.
   04.04.2001 SVS
     + MACRO_INFOPANEL,MACRO_QVIEWPANEL,MACRO_TREEPANEL,MACRO_LAST
-      MACRO_LAST должен всегда стоять последним. Испрользуется в циклах.
+      MACRO_LAST фюыцхэ тёхуфр ёЄю Є№ яюёыхфэшь. ╚ёяЁюы№чєхЄё  т Ўшъырї.
   02.04.2001 SVS
     ! DRIVE_SUSTITUTE -> DRIVE_SUBSTITUTE
   02.04.2001 VVM
-    + DRIVE_NOT_INIT. Используется при показе меню дисков.
+    + DRIVE_NOT_INIT. ╚ёяюы№чєхЄё  яЁш яюърчх ьхэ■ фшёъют.
   16.03.2001 SVS
     + FlagsNameAndPassword
   26.02.2001 VVM
-    + STATUS_INVALIDFUNCTIONRESULT - когда функция вернула недопустимое значение
+    + STATUS_INVALIDFUNCTIONRESULT - ъюуфр ЇєэъЎш  тхЁэєыр эхфюяєёЄшьюх чэрўхэшх
   25.02.2001 VVM
-    + Флаги для ReadDiz() - RDF_*
+    + ╘ыруш фы  ReadDiz() - RDF_*
   11.02.2001 SVS
-    + *_MASK_SIZE - размеры для масок
+    + *_MASK_SIZE - ЁрчьхЁ√ фы  ьрёюъ
   28.01.2001 SVS
-    + SKEY_VK_KEYS - переехал из plugin.hpp
+    + SKEY_VK_KEYS - яхЁххїры шч plugin.hpp
   25.01.2001 SVS
-    + STATUS_STRUCTWRONGFILLED - когда Count>0 и **Ptr=NULL
+    + STATUS_STRUCTWRONGFILLED - ъюуфр Count>0 ш **Ptr=NULL
   22.01.2001 SVS
-    + EXCEPT_PROCESSVIEWERINPUT - на будущее.
+    + EXCEPT_PROCESSVIEWERINPUT - эр сєфє∙хх.
   05.01.2001 SVS
-    + DRIVE_SUSTITUTE - это про SUBST-диски.
+    + DRIVE_SUSTITUTE - ¤Єю яЁю SUBST-фшёъш.
   25.12.2000 SVS
-    ! MACRO_ переехали из plugin.hpp :-)
+    ! MACRO_ яхЁххїрыш шч plugin.hpp :-)
   23.12.2000 SVS
-    ! MACRO_ переехали в plugin.hpp
+    ! MACRO_ яхЁххїрыш т plugin.hpp
   21.12.2000 SVS
-    ! Изменения в константах MACRO_*
+    ! ╚чьхэхэш  т ъюэёЄрэЄрї MACRO_*
   07.12.2000 SVS
-    ! farversion.hpp исключен за ненадобностью
+    ! farversion.hpp шёъы■ўхэ чр эхэрфюсэюёЄ№■
   31.10.2000 SVS
     + EXCEPT_GETOPENPLUGININFO_DATA
   23.10.2000 SVS
     + EXCEPT_GETPLUGININFO_DATA
   20.10.2000 SVS
-    ! FILE_ATTRIBUTE_REPARSE_POINT перенесен в headers.hpp
+    ! FILE_ATTRIBUTE_REPARSE_POINT яхЁхэхёхэ т headers.hpp
   17.10.2000 SVS
-    + ИСКЛЮЧЕНИЯ! Константы EXCEPT_* и макрос TRY
+    + ╚╤╩╦▐╫┼═╚▀! ╩юэёЄрэЄ√ EXCEPT_* ш ьръЁюё TRY
   27.09.2000 SVS
-    +CASR_* Поведение Ctrl-Alt-Shift для AllCtrlAltShiftRule
+    +CASR_* ╧ютхфхэшх Ctrl-Alt-Shift фы  AllCtrlAltShiftRule
   15.07.2000 SVS
-    + Константы для Меню от VVM - вынесены из usermenu.cpp
+    + ╩юэёЄрэЄ√ фы  ╠хэ■ юЄ VVM - т√эхёхэ√ шч usermenu.cpp
   12.07.2000 SVS
-    + Константы для WrapMode во вьювере.
+    + ╩юэёЄрэЄ√ фы  WrapMode тю т№■тхЁх.
   11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
+    ! ╚чьхэхэш  фы  тючьюцэюёЄш ъюьяшы Ўшш яюф BC & VC
   10.07.2000 tran
-    ! увеличено MAXSCRY с 120 до 300
-      иначе под вин200 фар падает на Viewer
-      там эта константа используется в качестве размера массива
-      видимых строк.
-      увеличивать выше не имеет смысла...
+    ! єтхышўхэю MAXSCRY ё 120 фю 300
+      шэрўх яюф тшэ200 ЇрЁ ярфрхЄ эр Viewer
+      Єрь ¤Єр ъюэёЄрэЄр шёяюы№чєхЄё  т ърўхёЄтх ЁрчьхЁр ьрёёштр
+      тшфшь√ї ёЄЁюъ.
+      єтхышўштрЄ№ т√°х эх шьххЄ ёь√ёыр...
   29.06.2000 tran
-    ! Версия берется из авто-генерируемого farversion.hpp
+    ! ┬хЁёш  схЁхЄё  шч ртЄю-ухэхЁшЁєхьюую farversion.hpp
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
 #define TreeFileName "Tree.Far"
@@ -117,7 +117,7 @@ enum {FILE_PANEL,TREE_PANEL,QVIEW_PANEL,INFO_PANEL};
 enum {UNSORTED,BY_NAME,BY_EXT,BY_MTIME,BY_CTIME,BY_ATIME,BY_SIZE,BY_DIZ,
       BY_OWNER,BY_COMPRESSEDSIZE,BY_NUMLINKS};
 enum {VIEW_0=0,VIEW_1,VIEW_2,VIEW_3,VIEW_4,VIEW_5,VIEW_6,VIEW_7,VIEW_8,VIEW_9};
-// типы рамок
+// Єшя√ Ёрьюъ
 enum {NO_BOX,SINGLE_BOX,SHORT_SINGLE_BOX,DOUBLE_BOX,SHORT_DOUBLE_BOX};
 enum {MSG_WARNING=1,MSG_ERRORTYPE=2,MSG_KEEPBACKGROUND=4,MSG_DOWN=8,
       MSG_LEFTALIGN=16};
@@ -131,7 +131,7 @@ enum {UPDATE_KEEP_SELECTION=1,UPDATE_SECONDARY=2};
 enum {SEARCH_ALL=0,SEARCH_ROOT,SEARCH_FROM_CURRENT,SEARCH_CURRENT_ONLY,
       SEARCH_SELECTED};
 ///enum {MODALTYPE_VIEWER,MODALTYPE_EDITOR};
-enum { MODALTYPE_VIRTUAL,  // тючтЁр∙рхЄё  т Modal
+enum { MODALTYPE_VIRTUAL,  // Є■ўЄиЁ╣ЁїI╕┐ Є Modal
        MODALTYPE_PANELS,
        MODALTYPE_VIEWER,
        MODALTYPE_EDITOR,
@@ -152,7 +152,7 @@ enum {
   MACRO_DISKS,MACRO_MAINMENU,MACRO_HELP,
   MACRO_INFOPANEL,MACRO_QVIEWPANEL,MACRO_TREEPANEL,
   /* $ 05.04.2001 VVM
-    ! Должен быть всегда последним. Используется в циклах */
+    ! ─юыцхэ с√Є№ тёхуфр яюёыхфэшь. ╚ёяюы№чєхЄё  т Ўшъырї */
   MACRO_LAST,
   /* VVM $ */
   MACRO_OTHER=0x1000
@@ -222,34 +222,34 @@ enum {NAME_COLUMN=0,SIZE_COLUMN,PACKED_COLUMN,DATE_COLUMN,TIME_COLUMN,
 enum {STAR_NONE,STAR_NORMAL,STAR_PLANET};
 
 /* $ 12.07.2000 SVS
-   + Константы для WrapMode во вьювере.
+   + ╩юэёЄрэЄ√ фы  WrapMode тю т№■тхЁх.
 */
 enum {VIEW_UNWRAP=0,VIEW_WRAP=1, VIEW_WORDWRAP=2};
 /* SVS $ */
 
 /* $ 15.07.2000 SVS
-   + Константы для Меню от VVM - вынесены из usermenu.cpp
+   + ╩юэёЄрэЄ√ фы  ╠хэ■ юЄ VVM - т√эхёхэ√ шч usermenu.cpp
 */
-// VVM> Режимы показа меню (Menu mode) и Коды выхода из меню (Exit codes)
-enum {MM_LOCAL=0,           // Локальное меню
-      MM_FAR=1,             // Меню из каталога ФАРа
-      MM_MAIN=2};           // Главное меню
+// VVM> ╨хцшь√ яюърчр ьхэ■ (Menu mode) ш ╩юф√ т√їюфр шч ьхэ■ (Exit codes)
+enum {MM_LOCAL=0,           // ╦юъры№эюх ьхэ■
+      MM_FAR=1,             // ╠хэ■ шч ърЄрыюур ╘└╨р
+      MM_MAIN=2};           // ├ыртэюх ьхэ■
 
 /* $ 25.04.2001 DJ
-   новая константа EC_COMMAND_SELECTED
+   эютр  ъюэёЄрэЄр EC_COMMAND_SELECTED
 */
-enum {EC_CLOSE_LEVEL      = -1,   // Выйти из меню на один уровень вверх
-      EC_CLOSE_MENU       = -2,   // Выйти из меню по SHIFT+F10
-      EC_PARENT_MENU      = -3,   // Показать меню родительского каталога
-      EC_MAIN_MENU        = -4,   // Показать главное меню
-      EC_COMMAND_SELECTED = -5};  // Выбрана команда - закрыть меню и
-                                  // обновить папку
+enum {EC_CLOSE_LEVEL      = -1,   // ┬√щЄш шч ьхэ■ эр юфшэ єЁютхэ№ ттхЁї
+      EC_CLOSE_MENU       = -2,   // ┬√щЄш шч ьхэ■ яю SHIFT+F10
+      EC_PARENT_MENU      = -3,   // ╧юърчрЄ№ ьхэ■ ЁюфшЄхы№ёъюую ърЄрыюур
+      EC_MAIN_MENU        = -4,   // ╧юърчрЄ№ уыртэюх ьхэ■
+      EC_COMMAND_SELECTED = -5};  // ┬√сЁрэр ъюьрэфр - чръЁ√Є№ ьхэ■ ш
+                                  // юсэютшЄ№ яряъє
 /* DJ $ */
 
 /* SVS $ */
 
 /* $ 27.09.2000 SVS
-  +CASR_* Поведение Ctrl-Alt-Shift для AllCtrlAltShiftRule
+  +CASR_* ╧ютхфхэшх Ctrl-Alt-Shift фы  AllCtrlAltShiftRule
 */
 enum {
   CASR_PANEL  = 0x0001,
@@ -263,7 +263,7 @@ enum {
 #define SYSID_PRINTMANAGER	0x6E614D50
 
 /* $ 17.10.2000 SVS
-   ИСКЛЮЧЕНИЯ!
+   ╚╤╩╦▐╫┼═╚▀!
 */
 enum EceptFunctionsType{
   EXCEPT_SETSTARTUPINFO,
@@ -300,7 +300,7 @@ enum EceptFunctionsType{
 };
 
 /* $ 25.02.2001 VVM
-  + Флаги для ReadDiz() */
+  + ╘ыруш фы  ReadDiz() */
 enum ReadDizFlags {
   RDF_NO_UPDATE		= 0x00000001UL,
 };
@@ -323,19 +323,19 @@ enum ReadDizFlags {
 #define SKEY_VK_KEYS        0x40000000
 
 
-// размеры для полей ввода
+// ЁрчьхЁ√ фы  яюыхщ ттюфр
 #define HIGHLIGHT_MASK_SIZE      2048
 #define GROUPSORT_MASK_SIZE      2048
 #define PANELFILTER_MASK_SIZE    2048
 
-// для диалога GetNameAndPassword()
+// фы  фшрыюур GetNameAndPassword()
 enum FlagsNameAndPassword{
-  GNP_USELAST      = 0x00000001UL, // использовать последние введенные данные
-  GNP_NOOEMTOCHAR  = 0x00000002UL, // не конвертировать имя и пароль OEM->CHAR
+  GNP_USELAST      = 0x00000001UL, // шёяюы№чютрЄ№ яюёыхфэшх ттхфхээ√х фрээ√х
+  GNP_NOOEMTOCHAR  = 0x00000002UL, // эх ъюэтхЁЄшЁютрЄ№ шь  ш ярЁюы№ OEM->CHAR
 };
 
 /* $ 13.04.2001 VVM
-  + 2000 посылает консольному окну событие с dwEventFlags == MOUSE_WHEELED */
+  + 2000 яюё√ырхЄ ъюэёюы№эюьє юъэє ёюс√Єшх ё dwEventFlags == MOUSE_WHEELED */
 #define MOUSE_WHEELED 0x0004
 /* VVM $ */
 
@@ -347,7 +347,7 @@ enum FlagsNameAndPassword{
 #define XC_QUIT           0
 
 /* $ 11.08.2000 tran
-   ьхыюў№ фы  ыєў°хщ ўшЄрсхы№эюёЄш */
+   №ї√■╖? Ї√┐ √i╖╕ї∙ ╖°IЁёї√?¤■╕I° */
 #define ENABLE_SWITCH TRUE
 #define DISABLE_SWITCH FALSE
 ///

@@ -3,10 +3,10 @@
 /*
 dialog.hpp
 
-Класс диалога Dialog.
+╩ырёё фшрыюур Dialog.
 
-Предназначен для отображения модальных диалогов.
-Является производным от класса Modal.
+╧Ёхфэрчэрўхэ фы  юЄюсЁрцхэш  ьюфры№э√ї фшрыюуют.
+▀ты хЄё  яЁюшчтюфэ√ь юЄ ъырёёр Modal.
 
 */
 
@@ -15,171 +15,171 @@ dialog.hpp
 /*
 Modify:
   28.04.2001 SVS
-   + GetItemRect() - получить координаты итема.
+   + GetItemRect() - яюыєўшЄ№ ъююЁфшэрЄ√ шЄхьр.
   12.04.2001 SVS
-   ! функция AddToEditHistory теперь возвращает результат операции
-     добавления строки в историю
+   ! ЇєэъЎш  AddToEditHistory ЄхяхЁ№ тючтЁр∙рхЄ Ёхчєы№ЄрЄ юяхЁрЎшш
+     фюсртыхэш  ёЄЁюъш т шёЄюЁш■
   12.04.2001 SVS
-   + CheckDialogCoord() - проверка и корректировка координат диалога
+   + CheckDialogCoord() - яЁютхЁър ш ъюЁЁхъЄшЁютър ъююЁфшэрЄ фшрыюур
   23.03.2001 SVS
-   ! У функции ConvertItem() новый параметр InternalCall - сейчас
-     используется только для DN_EDITCHANGE
+   ! ╙ ЇєэъЎшш ConvertItem() эют√щ ярЁрьхЄЁ InternalCall - ёхщўрё
+     шёяюы№чєхЄё  Єюы№ъю фы  DN_EDITCHANGE
   13.02.2001 SVS
-   + Дополнительный параметр у FindInEditForAC, SelectFromEditHistory,
-     AddToEditHistory и SelectFromComboBox - MaxLen - максимальный размер
-     строки назначения.
+   + ─юяюыэшЄхы№э√щ ярЁрьхЄЁ є FindInEditForAC, SelectFromEditHistory,
+     AddToEditHistory ш SelectFromComboBox - MaxLen - ьръёшьры№э√щ ЁрчьхЁ
+     ёЄЁюъш эрчэрўхэш .
   24.09.2000 SVS
-   + DMODE_ALTDRAGGED - при движении диалога по Alt-стрелка
+   + DMODE_ALTDRAGGED - яЁш фтшцхэшш фшрыюур яю Alt-ёЄЁхыър
   08.09.2000 SVS
-   + Стиль диалога DMODE_OLDSTYLE - диалог в старом стиле.
-   + Функция SelectOnEntry - выделение строки редактирования
-     (Обработка флага DIF_SELECTONENTRY)
+   + ╤Єшы№ фшрыюур DMODE_OLDSTYLE - фшрыюу т ёЄрЁюь ёЄшых.
+   + ╘єэъЎш  SelectOnEntry - т√фхыхэшх ёЄЁюъш ЁхфръЄшЁютрэш 
+     (╬сЁрсюЄър Їырур DIF_SELECTONENTRY)
   30.08.2000 SVS
-   + Режим диалога DMODE_SHOW - Диалог виден?
-   + Метод Hide()
+   + ╨хцшь фшрыюур DMODE_SHOW - ─шрыюу тшфхэ?
+   + ╠хЄюф Hide()
   29.08.2000 SVS
-   ! При подмене темы помощи из диаловой процедуры...
-     короче, нужно вновь формировать контент!
+   ! ╧Ёш яюфьхэх Єхь√ яюью∙ш шч фшрыютющ яЁюЎхфєЁ√...
+     ъюЁюўх, эєцэю тэют№ ЇюЁьшЁютрЄ№ ъюэЄхэЄ!
   24.08.2000 SVS
-   + InitDialogObjects() имеет параметр - для выборочной реинициализации
-     элементов
+   + InitDialogObjects() шьххЄ ярЁрьхЄЁ - фы  т√сюЁюўэющ ЁхшэшЎшрышчрЎшш
+     ¤ыхьхэЄют
   23.08.2000 SVS
-   ! изменения для DataDialog.
-   + Переменная класса FocusPos - всегда известно какой элемент в фокусе
-   ! Переменные IsCanMove, InitObjects, CreateObjects, WarningStyle, Dragged
-     удалены -> битовые флаги в DialogMode
-   ! Массив LV удален за ненадобностью.
-   + CheckDialogMode - функция проверки флага DialogMode
+   ! шчьхэхэш  фы  DataDialog.
+   + ╧хЁхьхээр  ъырёёр FocusPos - тёхуфр шчтхёЄэю ъръющ ¤ыхьхэЄ т Їюъєёх
+   ! ╧хЁхьхээ√х IsCanMove, InitObjects, CreateObjects, WarningStyle, Dragged
+     єфрыхэ√ -> сшЄют√х Їыруш т DialogMode
+   ! ╠рёёшт LV єфрыхэ чр эхэрфюсэюёЄ№■.
+   + CheckDialogMode - ЇєэъЎш  яЁютхЁъш Їырур DialogMode
   22.08.2000 SVS
-   ! С моим английским вообще ни как :-((
+   ! ╤ ьюшь рэуышщёъшь тююс∙х эш ъръ :-((
      IsMovedDialog -> IsCanMove
      SetModeMoving -> SetMoveEnable
      GetModeMoving -> GetMoveEnable
-   ! ShowDialog - дополнительный параметр - какой элемент отрисовывать
+   ! ShowDialog - фюяюыэшЄхы№э√щ ярЁрьхЄЁ - ъръющ ¤ыхьхэЄ юЄЁшёют√трЄ№
   18.08.2000 SVS
-   + Флаг IsEnableRedraw - разрешающий/запрещающий перерисовку диалога
-   + DialogMode - Флаги текущего режима диалога
+   + ╘ыру IsEnableRedraw - ЁрчЁх°р■∙шщ/чряЁх∙р■∙шщ яхЁхЁшёютъє фшрыюур
+   + DialogMode - ╘ыруш Єхъє∙хую Ёхцшьр фшрыюур
   11.08.2000 SVS
-   + Данные, специфические для конкретного экземпляра диалога
-   + Для того, чтобы послать DMSG_CLOSE нужно переопределить Process
+   + ─рээ√х, ёяхЎшЇшўхёъшх фы  ъюэъЁхЄэюую ¤ъчхьяы Ёр фшрыюур
+   + ─ы  Єюую, ўЄюс√ яюёырЄ№ DMSG_CLOSE эєцэю яхЁхюяЁхфхышЄ№ Process
   10.08.2000 SVS
-   + переменная IsMovedDialog - можно ли двигать диалог :-)
-   + функция установки IsMovedDialog
+   + яхЁхьхээр  IsMovedDialog - ьюцэю ыш фтшурЄ№ фшрыюу :-)
+   + ЇєэъЎш  єёЄрэютъш IsMovedDialog
   09.08.2000 KM 1.09
-   + Добавление функции проверки на режим перемещения диалога.
-     Кстати новер редакции действительно 1.09 - один был пропущен.
+   + ─юсртыхэшх ЇєэъЎшш яЁютхЁъш эр Ёхцшь яхЁхьх∙хэш  фшрыюур.
+     ╩ёЄрЄш эютхЁ ЁхфръЎшш фхщёЄтшЄхы№эю 1.09 - юфшэ с√ы яЁюяє∙хэ.
   01.08.2000 SVS
-   - переменная класса lastKey удалена за ненадобностью :-)
+   - яхЁхьхээр  ъырёёр lastKey єфрыхэр чр эхэрфюсэюёЄ№■ :-)
   31.07.2000 tran & SVS
-   + переменная класса Dragged - флаг перемещения
-     а также OldX*, OldY*,
-     метод - AdjustEditPos(int dx,int dy) - подравнивает координаты Edit"ов
-   + Сохранение того, что под индикатором перемещения диалога
+   + яхЁхьхээр  ъырёёр Dragged - Їыру яхЁхьх∙хэш 
+     р Єръцх OldX*, OldY*,
+     ьхЄюф - AdjustEditPos(int dx,int dy) - яюфЁртэштрхЄ ъююЁфшэрЄ√ Edit"ют
+   + ╤юїЁрэхэшх Єюую, ўЄю яюф шэфшърЄюЁюь яхЁхьх∙хэш  фшрыюур
   28.07.2000 SVS
-   + Переменная класса InitParam - хранит параметр, переданный
-     в диалог.
-   ! Теперь InitDialogObjects возвращает ID элемента с фокусом ввода
-   + Функция ChangeFocus2
-     Изменяет фокус ввода между двумя элементами.
-   ! Переметр Edit *EditLine в функции FindInEditForAC нафиг ненужен!
+   + ╧хЁхьхээр  ъырёёр InitParam - їЁрэшЄ ярЁрьхЄЁ, яхЁхфрээ√щ
+     т фшрыюу.
+   ! ╥хяхЁ№ InitDialogObjects тючтЁр∙рхЄ ID ¤ыхьхэЄр ё Їюъєёюь ттюфр
+   + ╘єэъЎш  ChangeFocus2
+     ╚чьхэ хЄ Їюъєё ттюфр ьхцфє фтєь  ¤ыхьхэЄрьш.
+   ! ╧хЁхьхЄЁ Edit *EditLine т ЇєэъЎшш FindInEditForAC эрЇшу эхэєцхэ!
    ! FindInEditHistory -> FindInEditForAC
-     Поиск как в истории, так и в ComboBox`е (чтобы не пладить кода)
-   ! SelectFromComboBox имеет дополнительный параметр с тем, чтобы
-     позиционировать item в меню со списком в соответсвии со строкой ввода
-   + Функция IsFocused, определяющая - "Может ли элемент диалога
-     иметь фокус ввода"
-   ! IsEdit стал Static-методом!
-   + функция посылки сообщений диалогу SendDlgMessage
-   + Функция ConvertItem - преобразования из внутреннего представления
-     в FarDialogItem и обратно
+     ╧юшёъ ъръ т шёЄюЁшш, Єръ ш т ComboBox`х (ўЄюс√ эх яырфшЄ№ ъюфр)
+   ! SelectFromComboBox шьххЄ фюяюыэшЄхы№э√щ ярЁрьхЄЁ ё Єхь, ўЄюс√
+     яючшЎшюэшЁютрЄ№ item т ьхэ■ ёю ёяшёъюь т ёююЄтхЄётшш ёю ёЄЁюъющ ттюфр
+   + ╘єэъЎш  IsFocused, юяЁхфхы ■∙р  - "╠юцхЄ ыш ¤ыхьхэЄ фшрыюур
+     шьхЄ№ Їюъєё ттюфр"
+   ! IsEdit ёЄры Static-ьхЄюфюь!
+   + ЇєэъЎш  яюё√ыъш ёююс∙хэшщ фшрыюує SendDlgMessage
+   + ╘єэъЎш  ConvertItem - яЁхюсЁрчютрэш  шч тэєЄЁхээхую яЁхфёЄртыхэш 
+     т FarDialogItem ш юсЁрЄэю
   26.07.2000 SVS
-   + FindInEditHistory: Поиск входжение подстроки в истории
+   + FindInEditHistory: ╧юшёъ тїюфцхэшх яюфёЄЁюъш т шёЄюЁшш
   25.07.2000 SVS
-   + Private: lastKey - для AutoComplit последняя клавиша
-   + Дополнительный параметр в SelectFromEditHistory для выделения
-     нужной позиции в истории (если она соответствует строке ввода)
+   + Private: lastKey - фы  AutoComplit яюёыхфэ   ъыртш°р
+   + ─юяюыэшЄхы№э√щ ярЁрьхЄЁ т SelectFromEditHistory фы  т√фхыхэш 
+     эєцэющ яючшЎшш т шёЄюЁшш (хёыш юэр ёююЄтхЄёЄтєхЄ ёЄЁюъх ттюфр)
   25.07.2000 SVS
-   ! новый параметр в конструкторе
+   ! эют√щ ярЁрьхЄЁ т ъюэёЄЁєъЄюЁх
   23.07.2000 SVS
-   + Куча ремарок в исходниках :-)
-   + Функция обработки диалога (по умолчанию) - забито место :-)
-   ! Изменен вызов конструктора
+   + ╩єўр ЁхьрЁюъ т шёїюфэшърї :-)
+   + ╘єэъЎш  юсЁрсюЄъш фшрыюур (яю єьюыўрэш■) - чрсшЄю ьхёЄю :-)
+   ! ╚чьхэхэ т√чют ъюэёЄЁєъЄюЁр
   18.07.2000 SVS
-    + функция SelectFromComboBox для выбора из DI_COMBOBOX
+    + ЇєэъЎш  SelectFromComboBox фы  т√сюЁр шч DI_COMBOBOX
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+    ! ╧юфуюЄютър Master Copy
+    ! ┬√фхыхэшх т ърўхёЄтх ёрьюёЄю Єхы№эюую ьюфєы 
 */
 
-// Флаги текущего режима диалога
-#define DMODE_INITOBJECTS	0x00000001 // элементы инициализарованы?
-#define DMODE_CREATEOBJECTS	0x00000002 // объекты (Edit,...) созданы?
+// ╘ыруш Єхъє∙хую Ёхцшьр фшрыюур
+#define DMODE_INITOBJECTS	0x00000001 // ¤ыхьхэЄ√ шэшЎшрышчрЁютрэ√?
+#define DMODE_CREATEOBJECTS	0x00000002 // юс·хъЄ√ (Edit,...) ёючфрэ√?
 #define DMODE_WARNINGSTYLE	0x00000004 // Warning Dialog Style?
-#define DMODE_DRAGGED		0x00000008 // диалог двигается?
-#define DMODE_ISCANMOVE		0x00000010 // можно ли двигать диалог?
-#define DMODE_ALTDRAGGED	0x00000020 // диалог двигается по Alt-Стрелка?
-#define DMODE_DRAWING		0x00001000 // диалог рисуется?
-#define DMODE_KEY		0x00002000 // Идет посылка клавиш?
-#define DMODE_SHOW              0x00004000 // Диалог виден?
-#define DMODE_OLDSTYLE		0x80000000 // Диалог в старом (до 1.70) стиле
+#define DMODE_DRAGGED		0x00000008 // фшрыюу фтшурхЄё ?
+#define DMODE_ISCANMOVE		0x00000010 // ьюцэю ыш фтшурЄ№ фшрыюу?
+#define DMODE_ALTDRAGGED	0x00000020 // фшрыюу фтшурхЄё  яю Alt-╤ЄЁхыър?
+#define DMODE_DRAWING		0x00001000 // фшрыюу ЁшёєхЄё ?
+#define DMODE_KEY		0x00002000 // ╚фхЄ яюё√ыър ъыртш°?
+#define DMODE_SHOW              0x00004000 // ─шрыюу тшфхэ?
+#define DMODE_OLDSTYLE		0x80000000 // ─шрыюу т ёЄрЁюь (фю 1.70) ёЄшых
 
-// Флаги для функции ConvertItem
+// ╘ыруш фы  ЇєэъЎшш ConvertItem
 #define CVTITEM_TOPLUGIN	0
 #define CVTITEM_FROMPLUGIN	1
 
-// размер истории...
+// ЁрчьхЁ шёЄюЁшш...
 #define HISTORY_COUNT 16
 
 class Dialog:public Modal
 {
   private:
     /* $ 29.08.2000 SVS
-       + Номер плагина, для формирования HelpTopic
+       + ═юьхЁ яырушэр, фы  ЇюЁьшЁютрэш  HelpTopic
     */
     int PluginNumber;
     /* SVS $ */
     /* $ 23.08.2000 SVS
-       + Переменная класса FocusPos
+       + ╧хЁхьхээр  ъырёёр FocusPos
     */
-    int FocusPos;               // всегда известно какой элемент в фокусе
+    int FocusPos;               // тёхуфр шчтхёЄэю ъръющ ¤ыхьхэЄ т Їюъєёх
     /* SVS $ */
-    int PrevFocusPos;           // всегда известно какой элемент был в фокусе
+    int PrevFocusPos;           // тёхуфр шчтхёЄэю ъръющ ¤ыхьхэЄ с√ы т Їюъєёх
     /* $ 18.08.2000 SVS
-      + Флаг IsEnableRedraw - разрешающий/запрещающий перерисовку диалога
-      + DialogMode - Флаги текущего режима диалога
+      + ╘ыру IsEnableRedraw - ЁрчЁх°р■∙шщ/чряЁх∙р■∙шщ яхЁхЁшёютъє фшрыюур
+      + DialogMode - ╘ыруш Єхъє∙хую Ёхцшьр фшрыюур
     */
-    int IsEnableRedraw;         // Разрешена перерисовка диалога? ( 0 - разрешена)
-    DWORD DialogMode;		// Флаги текущего режима диалога
+    int IsEnableRedraw;         // ╨рчЁх°хэр яхЁхЁшёютър фшрыюур? ( 0 - ЁрчЁх°хэр)
+    DWORD DialogMode;		// ╘ыруш Єхъє∙хую Ёхцшьр фшрыюур
     /* SVS $ */
     /* $ 11.08.2000 SVS
-      + Данные, специфические для конкретного экземпляра диалога
+      + ─рээ√х, ёяхЎшЇшўхёъшх фы  ъюэъЁхЄэюую ¤ъчхьяы Ёр фшрыюур
     */
-    long DataDialog;            // первоначально здесь параметр,
-                                //   переданный в конструктор
+    long DataDialog;            // яхЁтюэрўры№эю чфхё№ ярЁрьхЄЁ,
+                                //   яхЁхфрээ√щ т ъюэёЄЁєъЄюЁ
     /* SVS $ */
-    struct DialogItem *Item;    // массив элементов диалога
-    int ItemCount;              // количество элементов диалога
+    struct DialogItem *Item;    // ьрёёшт ¤ыхьхэЄют фшрыюур
+    int ItemCount;              // ъюышўхёЄтю ¤ыхьхэЄют фшрыюур
 
-    char OldConsoleTitle[512];  // предыдущий заголовок консоли
+    char OldConsoleTitle[512];  // яЁхф√фє∙шщ чруюыютюъ ъюэёюыш
     int DialogTooLong;          //
-    int PrevMacroMode;          // предыдущий режим макро
+    int PrevMacroMode;          // яЁхф√фє∙шщ Ёхцшь ьръЁю
 
-    FARWINDOWPROC DlgProc;      // функция обработки диалога
+    FARWINDOWPROC DlgProc;      // ЇєэъЎш  юсЁрсюЄъш фшрыюур
 
     /* $ 31.07.2000 tran
-       переменные для перемещения диалога */
+       яхЁхьхээ√х фы  яхЁхьх∙хэш  фшрыюур */
     int  OldX1,OldX2,OldY1,OldY2;
     /* tran 31.07.2000 $ */
 
   private:
     /* $ 18.08.2000 SVS
-      + SetDialogMode - Управление флагами текущего режима диалога
+      + SetDialogMode - ╙яЁртыхэшх Їырурьш Єхъє∙хую Ёхцшьр фшрыюур
     */
     void SetDialogMode(DWORD Flags){ DialogMode|=Flags; }
     void SkipDialogMode(DWORD Flags){ DialogMode&=~Flags; }
     /* SVS $ */
     /* $ 23.08.2000 SVS
-       + Проверка флага
+       + ╧ЁютхЁър Їырур
     */
     int CheckDialogMode(DWORD Flags){ return(DialogMode&Flags); }
     /* SVS $ */
@@ -187,37 +187,37 @@ class Dialog:public Modal
     void DisplayObject();
     void DeleteDialogObjects();
     /* $ 22.08.2000 SVS
-      ! ShowDialog - дополнительный параметр - какой элемент отрисовывать
+      ! ShowDialog - фюяюыэшЄхы№э√щ ярЁрьхЄЁ - ъръющ ¤ыхьхэЄ юЄЁшёют√трЄ№
     */
     void ShowDialog(int ID=-1);
     /* SVS $ */
 
     /* $ 28.07.2000 SVS
-       + Изменяет фокус ввода между двумя элементами.
-         Вынесен отдельно для того, чтобы обработать DMSG_KILLFOCUS & DMSG_SETFOCUS
+       + ╚чьхэ хЄ Їюъєё ттюфр ьхцфє фтєь  ¤ыхьхэЄрьш.
+         ┬√эхёхэ юЄфхы№эю фы  Єюую, ўЄюс√ юсЁрсюЄрЄ№ DMSG_KILLFOCUS & DMSG_SETFOCUS
     */
     int ChangeFocus2(int KillFocusPos,int SetFocusPos);
     /* SVS $ */
     int ChangeFocus(int FocusPos,int Step,int SkipGroup);
     static int IsEdit(int Type);
     /* $ 28.07.2000 SVS
-       Функция, определяющая - "Может ли элемент диалога иметь фокус ввода"
+       ╘єэъЎш , юяЁхфхы ■∙р  - "╠юцхЄ ыш ¤ыхьхэЄ фшрыюур шьхЄ№ Їюъєё ттюфр"
     */
     static int IsFocused(int Type);
     /* SVS $ */
     /* $ 26.07.2000 SVS
-      + Дополнительный параметр в SelectFromEditHistory для выделения
-       нужной позиции в истории (если она соответствует строке ввода)
+      + ─юяюыэшЄхы№э√щ ярЁрьхЄЁ т SelectFromEditHistory фы  т√фхыхэш 
+       эєцэющ яючшЎшш т шёЄюЁшш (хёыш юэр ёююЄтхЄёЄтєхЄ ёЄЁюъх ттюфр)
     */
     void SelectFromEditHistory(Edit *EditLine,char *HistoryName,char *Str,int MaxLen);
     /* SVS $ */
     /* $ 18.07.2000 SVS
-       + функция SelectFromComboBox для выбора из DI_COMBOBOX
+       + ЇєэъЎш  SelectFromComboBox фы  т√сюЁр шч DI_COMBOBOX
     */
     void SelectFromComboBox(Edit *EditLine,struct FarList *List,char *Str,int MaxLen);
     /* SVS $ */
     /* $ 26.07.2000 SVS
-       AutoComplite: Поиск входжение подстроки в истории
+       AutoComplite: ╧юшёъ тїюфцхэшх яюфёЄЁюъш т шёЄюЁшш
     */
     int FindInEditForAC(int TypeFind,void *HistoryName,char *FindStr,int MaxLen);
     /* SVS $ */
@@ -225,8 +225,8 @@ class Dialog:public Modal
     int ProcessHighlighting(int Key,int FocusPos,int Translate);
 
     /* $ 08.09.2000 SVS
-      Функция SelectOnEntry - выделение строки редактирования
-      Обработка флага DIF_SELECTONENTRY
+      ╘єэъЎш  SelectOnEntry - т√фхыхэшх ёЄЁюъш ЁхфръЄшЁютрэш 
+      ╬сЁрсюЄър Їырур DIF_SELECTONENTRY
     */
     void SelectOnEntry(int Pos);
     /* SVS $ */
@@ -243,18 +243,18 @@ class Dialog:public Modal
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     void Show();
     /* $ 30.08.2000 SVS
-       Надобно перехватить Hide()
+       ═рфюсэю яхЁхїтрЄшЄ№ Hide()
     */
     void Hide();
     /* SVS $ */
     void FastShow() {ShowDialog();}
     /* $ 28.07.2000 SVS
-       Теперь InitDialogObjects возвращает ID элемента
-       с фокусом ввода
+       ╥хяхЁ№ InitDialogObjects тючтЁр∙рхЄ ID ¤ыхьхэЄр
+       ё Їюъєёюь ттюфр
     */
     /* $ 24.08.2000 SVS
-       InitDialogObjects имеет параметр - для выборочной реинициализации
-       элементов
+       InitDialogObjects шьххЄ ярЁрьхЄЁ - фы  т√сюЁюўэющ ЁхшэшЎшрышчрЎшш
+       ¤ыхьхэЄют
     */
     int  InitDialogObjects(int ID=-1);
     /* 24.08.2000 SVS $ */
@@ -266,8 +266,8 @@ class Dialog:public Modal
     };
 
     /* $ 28.07.2000 SVS
-       + Функция ConvertItem - преобразования из внутреннего представления
-        в FarDialogItem и обратно
+       + ╘єэъЎш  ConvertItem - яЁхюсЁрчютрэш  шч тэєЄЁхээхую яЁхфёЄртыхэш 
+        т FarDialogItem ш юсЁрЄэю
     */
     static void ConvertItem(int FromPlugin,struct FarDialogItem *Item,struct DialogItem *Data,
                            int Count,BOOL InternalCall=FALSE);
@@ -276,29 +276,29 @@ class Dialog:public Modal
                            int Count);
     static int IsKeyHighlighted(char *Str,int Key,int Translate);
     /* $ 23.07.2000 SVS
-       функция обработки диалога (по умолчанию)
+       ЇєэъЎш  юсЁрсюЄъш фшрыюур (яю єьюыўрэш■)
     */
     static long WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
     /* SVS $ */
     /* $ 28.07.2000 SVS
-       функция посылки сообщений диалогу
+       ЇєэъЎш  яюё√ыъш ёююс∙хэшщ фшрыюує
     */
     static long WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2);
     /* SVS $ */
 
     /* $ 31.07.2000 tran
-       метод для перемещения диалога */
+       ьхЄюф фы  яхЁхьх∙хэш  фшрыюур */
     void AdjustEditPos(int dx,int dy);
     /* tran 31.07.2000 $ */
 
     /* $ 09.08.2000 KM
-       Добавление функции, которая позволяет проверить
-       находится ли диалог в режиме перемещения.
+       ─юсртыхэшх ЇєэъЎшш, ъюЄюЁр  яючтюы хЄ яЁютхЁшЄ№
+       эрїюфшЄё  ыш фшрыюу т Ёхцшьх яхЁхьх∙хэш .
     */
     int IsMoving() {return CheckDialogMode(DMODE_DRAGGED);}
     /* KM $ */
     /* $ 10.08.2000 SVS
-       можно ли двигать диалог :-)
+       ьюцэю ыш фтшурЄ№ фшрыюу :-)
     */
     void SetModeMoving(int IsMoving) {
       if(IsMoving)
@@ -309,19 +309,19 @@ class Dialog:public Modal
     int  GetModeMoving(void) {return CheckDialogMode(DMODE_ISCANMOVE);};
     /* SVS $ */
     /* $ 11.08.2000 SVS
-       Работа с доп. данными экземпляра диалога
+       ╨рсюЄр ё фюя. фрээ√ьш ¤ъчхьяы Ёр фшрыюур
     */
     void SetDialogData(long NewDataDialog);
     long GetDialogData(void) {return DataDialog;};
     /* SVS $ */
 
     /* $ 11.08.2000 SVS
-       Для того, чтобы послать DMSG_CLOSE нужно переопределить Process
+       ─ы  Єюую, ўЄюс√ яюёырЄ№ DMSG_CLOSE эєцэю яхЁхюяЁхфхышЄ№ Process
     */
     void Process();
     /* SVS $ */
     /* $ 29.08.2000 SVS
-       + Установить номер плагина, для формирования HelpTopic
+       + ╙ёЄрэютшЄ№ эюьхЁ яырушэр, фы  ЇюЁьшЁютрэш  HelpTopic
     */
     void SetPluginNumber(int NewPluginNumber){PluginNumber=NewPluginNumber;}
     /* SVS $ */
