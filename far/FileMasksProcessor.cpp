@@ -1,8 +1,8 @@
 /*
 FileMasksProcessor.cpp
 
-Класс для работы с простыми масками файлов (не учитывается наличие масок
-исключения).
+╩ырёё фы  ЁрсюЄ√ ё яЁюёЄ√ьш ьрёърьш Їрщыют (эх єўшЄ√трхЄё  эрышўшх ьрёюъ
+шёъы■ўхэш ).
 */
 
 /* Revision: 1.02 11.08.2001 $ */
@@ -10,11 +10,11 @@ FileMasksProcessor.cpp
 /*
 Modify:
   11.08.2001 IS
-    + Используем UDL_FLAGS:
+    + ╚ёяюы№чєхь UDL_FLAGS:
   10.07.2001 SVS
-    ! В морг для CPP-файлов if/endif
+    ! ┬ ьюЁу фы  CPP-Їрщыют if/endif
   01.07.2001 IS
-    + Впервые в эфире
+    + ┬яхЁт√х т ¤ЇшЁх
 */
 #include "headers.hpp"
 #pragma hdrstop
@@ -32,14 +32,14 @@ void FileMasksProcessor::Free()
 }
 
 /*
- Инициализирует список масок. Принимает список, разделенных запятой.
- Возвращает FALSE при неудаче (например, одна из
- длина одной из масок равна 0)
+ ╚эшЎшрышчшЁєхЄ ёяшёюъ ьрёюъ. ╧ЁшэшьрхЄ ёяшёюъ, Ёрчфхыхээ√ї чря Єющ.
+ ┬ючтЁр∙рхЄ FALSE яЁш эхєфрўх (эряЁшьхЁ, юфэр шч
+ фышэр юфэющ шч ьрёюъ Ёртэр 0)
 */
 
 BOOL FileMasksProcessor::Set(const char *masks, DWORD Flags)
 {
-  // разделителем масок является не только запятая, но и точка с запятой!
+  // ЁрчфхышЄхыхь ьрёюъ  ты хЄё  эх Єюы№ъю чря Єр , эю ш Єюўър ё чря Єющ!
   DWORD flags=ULF_PACKASTERISKS|ULF_PROCESSBRACKETS;
   if(Flags&FMPF_ADDASTERISK) flags|=ULF_ADDASTERISK;
   Masks.SetParameters(',',';',flags);
@@ -52,16 +52,16 @@ BOOL FileMasksProcessor::IsEmpty(void)
   return Masks.IsEmpty();
 }
 
-/* сравнить имя файла со списком масок
-   Возвращает TRUE в случае успеха.
-   Путь к файлу в FileName НЕ игнорируется */
+/* ёЁртэшЄ№ шь  Їрщыр ёю ёяшёъюь ьрёюъ
+   ┬ючтЁр∙рхЄ TRUE т ёыєўрх єёяхїр.
+   ╧єЄ№ ъ Їрщыє т FileName ═┼ шуэюЁшЁєхЄё  */
 BOOL FileMasksProcessor::Compare(const char *FileName)
 {
   Masks.Start();
   while(NULL!=(MaskPtr=Masks.GetNext()))
   {
     if (CmpName(MaskPtr,FileName, FALSE))
-    // SkipPath=FALSE, т.к. в CFileMask вызывается PointToName
+    // SkipPath=FALSE, Є.ъ. т CFileMask т√ч√трхЄё  PointToName
        return TRUE;
   }
   return FALSE;

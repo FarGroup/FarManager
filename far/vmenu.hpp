@@ -11,10 +11,13 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.36 13.02.2002 $ */
+/* Revision: 1.37 21.02.2002 $ */
 
 /*
 Modify:
+  21.02.2002 DJ
+    ! корректна€ отрисовка списков, имеющих рамку, но не имеющих фокуса
+    + функци€ корректировки текущей позиции в меню
   13.02.2002 SVS
     + ќдин интересный повтор€ющийс€ кусок вынесен в CheckKeyHighlighted()
     + MenuItem.NamePtr
@@ -177,6 +180,11 @@ enum{
 #define VMENU_NOTCENTER             0x00040000
 #define VMENU_LEFTMOST              0x00080000
 #define VMENU_NOTCHANGE             0x00100000
+/* $ 21.02.2002 DJ
+   меню €вл€етс€ списком в диалоге и имеет фокус
+*/
+#define VMENU_LISTHASFOCUS          0x00200000   
+/* DJ $ */
 
 class Dialog;
 class SaveScreen;
@@ -389,6 +397,11 @@ class VMenu: virtual public Modal, virtual public Frame
     int  SetSelectPos(struct FarListPos *ListPos);
     int  GetSelection(int Position=-1);
     void SetSelection(int Selection,int Position=-1);
+    /* $ 21.02.2002 DJ
+       функци€, провер€юща€ корректность текущей позиции и флагов SELECTED
+    */
+    void AdjustSelectPos();
+    /* DJ $ */
 
     void Process();
     void ResizeConsole();

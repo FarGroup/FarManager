@@ -8,10 +8,14 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.75 19.02.2002 $ */
+/* Revision: 1.76 21.02.2002 $ */
 
 /*
 Modify:
+  21.02.2002 DJ
+    ! корректная отрисовка списков, не имеющих фокуса
+    - зависание, если в меню без WRAPMODE последний элемент - сепаратор
+    + функция корректировки текущей позиции в меню
   19.02.2002 SVS
     - Забыли про Disable для хоткеев и акселераторов
   18.02.2002 SVS
@@ -613,8 +617,19 @@ void VMenu::ShowMenu(int IsParent)
      ShowMenu с параметром TRUE, что давало неверную
      отрисовку меню.
   */
+  /* $ 21.02.2002 DJ
+     а для списков, не имеющих фокуса, нужна одиночная рамка!
+  */
   if (VMFlags.Check(VMENU_LISTBOX))
-    BoxType=VMFlags.Check(VMENU_SHOWNOBOX)?NO_BOX:SHORT_DOUBLE_BOX;
+  {
+    if (VMFlags.Check(VMENU_SHOWNOBOX))
+      BoxType = NO_BOX;
+    else if (VMFlags.Check (VMENU_LISTHASFOCUS))  
+      BoxType = SHORT_DOUBLE_BOX;
+    else
+      BoxType = SHORT_SINGLE_BOX;
+  }
+  /* DJ $ */
   /* KM $ */
   if(!IsParent && VMFlags.Check(VMENU_LISTBOX))
   {
@@ -656,7 +671,6 @@ void VMenu::ShowMenu(int IsParent)
   if (SelectPos<TopPos)
     TopPos=SelectPos;
 
-  char *NamePtr;
   for (Y=Y1+((BoxType!=NO_BOX)?1:0),I=TopPos;Y<((BoxType!=NO_BOX)?Y2:Y2+1);Y++,I++)
   /* KM $ */
   {
@@ -816,7 +830,7 @@ BOOL VMenu::UpdateRequired(void)
 
 BOOL VMenu::CheckKeyHiOrAcc(DWORD Key,int Type,int Translate)
 {
-  int I, Result;
+  int I;
   struct MenuItem *CurItem;
   for (CurItem=Item,I=0; I < ItemCount; I++, ++CurItem)
   {
@@ -1520,13 +1534,21 @@ int VMenu::SetSelectPos(int Pos,int Direct)
 
   int OrigPos=Pos, Pass=0;
 
-  do{
+  do
+  {
+  	/* $ 21.02.2002 DJ
+	     в меню без WRAPMODE условие OrigPos == Pos никогда не выполнится =>
+       нужно использовать немного другую логику для выхода из цикла
+  	*/
     if (Pos<0)
     {
       if (VMFlags.Check(VMENU_WRAPMODE))
         Pos=ItemCount-1;
       else
+      {
         Pos=0;
+        Pass++;
+      }
     }
 
     if (Pos>=ItemCount)
@@ -1534,8 +1556,12 @@ int VMenu::SetSelectPos(int Pos,int Direct)
       if (VMFlags.Check(VMENU_WRAPMODE))
         Pos=0;
       else
+      {
         Pos=ItemCount-1;
+        Pass++;
+      }
     }
+    /* DJ $ */
 
     if(!(Item[Pos].Flags&LIF_SEPARATOR) && !(Item[Pos].Flags&LIF_DISABLE))
       break;
@@ -1560,6 +1586,50 @@ int VMenu::SetSelectPos(int Pos,int Direct)
   /* KM $ */
   return Pos;
 }
+
+/* $ 21.02.2002 DJ
+   корректировка текущей позиции (чтобы не было двух выделенных элементов,
+   или чтобы выделенный элемент не был сепаратором)
+*/
+
+void VMenu::AdjustSelectPos()
+{
+  if (!Item || !ItemCount)
+    return;
+
+  int OldSelectPos = SelectPos;
+  // если selection стоит в некорректном месте - сбросим его
+  if (Item [SelectPos].Flags & (LIF_SEPARATOR | LIF_DISABLE))
+    SelectPos = -1;
+    
+  for (int i=0; i<ItemCount; i++)
+  {
+    if (Item [i].Flags & (LIF_SEPARATOR | LIF_DISABLE))
+      Item [i].SetSelect (FALSE);
+    else
+    {
+      if (SelectPos == -1)
+      {
+        Item [i].SetSelect (TRUE);
+        SelectPos = i;
+      }
+      else if (SelectPos >= 0 && SelectPos != i)
+      {
+        // если уже есть выделенный элемент - оставим как было
+        Item [i].SetSelect (FALSE);
+      }
+    }
+  }
+
+  // если ничего не нашли - оставим как было
+  if (SelectPos == -1)
+  {
+    SelectPos = OldSelectPos;
+    Item [SelectPos].SetSelect (TRUE);
+  }
+}
+
+/* DJ $ */
 
 void VMenu::SetTitle(const char *Title)
 {

@@ -180,7 +180,7 @@ struct FARExceptionState {
   DWORD               Version;       // Версия "писателя"
 
   //FAR additional error info
-  char RecomendedDumpFileName[MAXPATH];
+  char RecomendedDumpFileName[_MAX_PATH];
   const char         *RootKey;
 
   //FAR error context

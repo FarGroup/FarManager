@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.210 13.02.2002 $ */
+/* Revision: 1.211 21.02.2002 $ */
 
 /*
 Modify:
+  21.02.2002 DJ
+    ! корректная отрисовка списков, не имеющих фокуса
+    + скорректируем позицию после DM_LISTADD и DM_LISTSET
   13.02.2002 SVS
     ! Первый параметр у IsKeyHighlighted() - const
   11.02.2002 SVS
@@ -1115,7 +1118,6 @@ void Dialog::ProcessCenterGroup(void)
 int Dialog::InitDialogObjects(int ID)
 {
   int I, J;
-  int Length,StartX;
   int Type;
   struct DialogItem *CurItem;
   int InitItemCount;
@@ -1255,6 +1257,12 @@ int Dialog::InitDialogObjects(int ID)
           ListPtr->AddItem(CurItem->ListItems);
         /* KM $ */
         /* KM $ */
+		/* $ 21.02.2002 DJ
+		   и еще про фокус сообщить надо!
+		*/
+		if (CurItem->Focus)
+		  ListPtr->SetFlags (VMENU_LISTHASFOCUS);
+		/* DJ $ */
       }
     }
     /* SVS $*/
@@ -3805,6 +3813,14 @@ int Dialog::ChangeFocus2(int KillFocusPos,int SetFocusPos)
 
     Item[KillFocusPos].Focus=0;
     Item[SetFocusPos].Focus=1;
+	/* $ 21.02.2002 DJ
+	   проинформируем листбокс, есть ли у него фокус
+	*/
+	if (Item[KillFocusPos].Type == DI_LISTBOX)
+      Item[KillFocusPos].ListPtr->SkipFlags (VMENU_LISTHASFOCUS);
+    if (Item[SetFocusPos].Type == DI_LISTBOX)
+      Item[SetFocusPos].ListPtr->SetFlags (VMENU_LISTHASFOCUS);
+	/* DJ */
 
     Dialog::PrevFocusPos=Dialog::FocusPos;
     Dialog::FocusPos=SetFocusPos;
@@ -5155,6 +5171,11 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
               if(!ListItems)
                 return FALSE;
               Ret=ListBox->AddItem(ListItems);
+              /* $ 21.02.2002 DJ
+                 а вдруг какую фигню добавили?
+              */
+              ListBox->AdjustSelectPos();
+              /* DJ $ */
               break;
             }
 
@@ -5243,6 +5264,11 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
                 return FALSE;
               ListBox->DeleteItems();
               Ret=ListBox->AddItem(ListItems);
+              /* $ 21.02.2002 DJ
+                 а вдруг какую фигню добавили?
+              */
+              ListBox->AdjustSelectPos();
+              /* DJ $ */
               break;
             }
             /* KM $ */

@@ -1,8 +1,8 @@
 /*
 FileMasksWithExclude.cpp
 
-Класс для работы со сложными масками файлов (учитывается наличие масок
-исключения).
+╩ырёё фы  ЁрсюЄ√ ёю ёыюцэ√ьш ьрёърьш Їрщыют (єўшЄ√трхЄё  эрышўшх ьрёюъ
+шёъы■ўхэш ).
 */
 
 /* Revision: 1.02 10.07.2001 $ */
@@ -10,11 +10,11 @@ FileMasksWithExclude.cpp
 /*
 Modify:
   10.07.2001 SVS
-    ! В морг для CPP-файлов if/endif
+    ! ┬ ьюЁу фы  CPP-Їрщыют if/endif
   02.07.2001 IS
-    ! Воспользуемся тем, что доступен FileMasksProcessor.Free()
+    ! ┬юёяюы№чєхьё  Єхь, ўЄю фюёЄєяхэ FileMasksProcessor.Free()
   01.07.2001 IS
-    + Впервые в эфире
+    + ┬яхЁт√х т ¤ЇшЁх
 */
 
 #include "headers.hpp"
@@ -33,9 +33,9 @@ void FileMasksWithExclude::Free()
 }
 
 /*
- Инициализирует список масок. Принимает список, разделенных запятой.
- Возвращает FALSE при неудаче (например, одна из
- длина одной из масок равна 0)
+ ╚эшЎшрышчшЁєхЄ ёяшёюъ ьрёюъ. ╧ЁшэшьрхЄ ёяшёюъ, Ёрчфхыхээ√ї чря Єющ.
+ ┬ючтЁр∙рхЄ FALSE яЁш эхєфрўх (эряЁшьхЁ, юфэр шч
+ фышэр юфэющ шч ьрёюъ Ёртэр 0)
 */
 
 BOOL FileMasksWithExclude::Set(const char *masks, DWORD Flags)
@@ -74,9 +74,9 @@ BOOL FileMasksWithExclude::Set(const char *masks, DWORD Flags)
   return rc;
 }
 
-/* сравнить имя файла со списком масок
-   Возвращает TRUE в случае успеха.
-   Путь к файлу в FileName НЕ игнорируется */
+/* ёЁртэшЄ№ шь  Їрщыр ёю ёяшёъюь ьрёюъ
+   ┬ючтЁр∙рхЄ TRUE т ёыєўрх єёяхїр.
+   ╧єЄ№ ъ Їрщыє т FileName ═┼ шуэюЁшЁєхЄё  */
 BOOL FileMasksWithExclude::Compare(const char *FileName)
 {
    return (Include.Compare(FileName) && !Exclude.Compare(FileName));
