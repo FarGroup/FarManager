@@ -2798,37 +2798,47 @@ on. The last item, "Alternative full", corresponds to view mode called with
   - #Column types# - column types are encoded as one or several
 characters, delimited with commas. Allowed column types are:
 
-    N[M,O,R]  - file name
-                where: M - show selection marks
-                       O - show names without paths
-                           (intended mainly for plugins)
-                       R - right aligned names
-                These modifiers may be used in combination,
-                for example NMR
+    N[M,O,R]   - file name
+                 where: M - show selection marks;
+                        O - show names without paths
+                            (intended mainly for plugins);
+                        R - right aligned names;
+                 These modifiers may be used in combination,
+                 for example NMR
 
-    S[C,T]    - file size
-                where: C - format file size with commas;
-                       T - use 1000 instead of 1024 as divider,
-                           if column width is too small to show
-                           full size;
-    P[C,T]    - packed file size
-                where: C - format file size with commas;
-                       T - use 1000 instead of 1024 as divider,
-                           if column width is too small to show
-                           full size;
-    D         - file modification date
-    T         - file modification time
+    S[C,T,F,E] - file size
+                 where: C - format file size with commas;
+                        T - use 1000 instead of 1024 as a divider;
+                        F - show file sizes similar to Windows
+                            Explorer (i.e. 999 bytes will be
+                            displayed as 999 and 1000 bytes will
+                            be displayed as 0.97 KB);
+                        E - economic mode, no space between file
+                            size and suffix will be shown;
 
-    DM[B,M]   - file modification date and time
-    DC[B,M]   - file creation date and time
-    DA[B,M]   - file last access date and time
-                where: B - brief (Unix style) file time format;
-                       M - use text month names;
+    P[C,T,F,E] - packed file size
+                 where: C - format file size with commas;
+                        T - use 1000 instead of 1024 as a divider;
+                        F - show file sizes similar to Windows
+                            Explorer (i.e. 999 bytes will be
+                            displayed as 999 and 1000 bytes will
+                            be displayed as 0.97 KB);
+                        E - economic mode, no space between file
+                            size and suffix will be shown;
 
-    A         - file attributes
-    Z         - file descriptions
-    O         - file owner
-    LN        - hard links number
+    D          - file modification date
+    T          - file modification time
+
+    DM[B,M]    - file modification date and time
+    DC[B,M]    - file creation date and time
+    DA[B,M]    - file last access date and time
+                 where: B - brief (Unix style) file time format;
+                        M - use text month names;
+
+    A          - file attributes
+    Z          - file descriptions
+    O          - file owner
+    LN         - hard links number
 
     If the column types description contains more than one file name column,
 the file panel will be displayed in multicolumn form.

@@ -5,10 +5,13 @@ execute.cpp
 
 */
 
-/* Revision: 1.116 03.04.2005 $ */
+/* Revision: 1.117 05.04.2005 $ */
 
 /*
 Modify:
+  05.04.2005 AY
+    ! Добавил в Execute все описаные в cmd.exe /? символы которые
+      надо дабл-квотить "&<>()@^|".
   03.04.2005 WARP
     ! Изменения в execut'оре на предмет работы в 9x
   28.03.2005 SVS
@@ -1161,7 +1164,7 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
 
     bool bDoubleQ = false;
 
-    if ( bIsNT && strpbrk (NewCmdStr, ")(&^") )
+    if ( bIsNT && strpbrk (NewCmdStr, "&<>()@^|") )
       bDoubleQ = true;
 
     if ( (bIsNT && *NewCmdPar) || bDoubleQ )
