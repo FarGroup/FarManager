@@ -5,10 +5,15 @@ execute.cpp
 
 */
 
-/* Revision: 1.58 30.05.2002 $ */
+/* Revision: 1.59 14.06.2002 $ */
 
 /*
 Modify:
+  14.06.2002 VVM
+    + IsCommandPEExeGUI переделана. Теперь она возвращает не IsGUI битовый,
+      а значения IMAGE_SUBSYSTEM_*
+    + Переделана запускалка. Теперь в строке можно набрать "excel" и запустится ексель.
+      Т.е. по реестру дополнительный поиск с расширениями из StdExecuteEx
   30.05.2002 SVS
     ! Для CHCP добавлен вызов InitRecodeOutTable().
   29.05.2002 SVS
@@ -189,12 +194,15 @@ Modify:
 
 // Выдранный кусок из будущего GetFileInfo, получаем достоверную информацию о
 // ГУЯХ PE-модуля
-static int IsCommandPEExeGUI(const char *FileName,DWORD& IsPEGUI)
+/* 14.06.2002 VVM
+  + Возвращаем константы IMAGE_SUBSYSTEM_*
+    Дабы консоль отличать */
+static int IsCommandPEExeGUI(const char *FileName,DWORD& ImageSubsystem)
 {
-  char NameFile[NM];
+//  char NameFile[NM];
   HANDLE hFile;
   int Ret=FALSE;
-  IsPEGUI=0;
+  ImageSubsystem = IMAGE_SUBSYSTEM_NATIVE;
 
   if((hFile=CreateFile(FileName,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,0,NULL)) != INVALID_HANDLE_VALUE)
   {
@@ -231,10 +239,11 @@ static int IsCommandPEExeGUI(const char *FileName,DWORD& IsPEGUI)
             pheader=&header;
 
             if(signature == IMAGE_NT_SIGNATURE) // PE
-            {
-              IsPEGUI=1;
-              IsPEGUI|=(header.opt_head.Subsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI)?2:0;
-            }
+               ImageSubsystem = header.opt_head.Subsystem;
+//            {
+//              IsPEGUI=1;
+//              IsPEGUI|=(header.opt_head.Subsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI)?2:0;
+//            }
             else if((WORD)signature == IMAGE_OS2_SIGNATURE) // NE
             {
               ; // NE,  хмм...  а как определить что оно ГУЕВОЕ?
@@ -264,20 +273,25 @@ static int IsCommandPEExeGUI(const char *FileName,DWORD& IsPEGUI)
     }
     CloseHandle(hFile);
   }
+
+  if (ImageSubsystem == IMAGE_SUBSYSTEM_UNKNOWN)
+    ImageSubsystem = IMAGE_SUBSYSTEM_NATIVE;
+
   return Ret;
 }
+/* VVM $ */
 
 // по имени файла (по его расширению) получить команду активации
 // Дополнительно смотрится гуевость команды-активатора
 // (чтобы не ждать завершения)
-char* GetShellAction(const char *FileName,DWORD& GUIType)
+char* GetShellAction(const char *FileName,DWORD& ImageSubsystem)
 {
   char Value[512];
   const char *ExtPtr;
   char *RetPtr;
   LONG ValueSize;
 
-  GUIType=0;
+  ImageSubsystem = IMAGE_SUBSYSTEM_NATIVE;
 
   if ((ExtPtr=strrchr(FileName,'.'))==NULL)
     return(NULL);
@@ -337,7 +351,7 @@ char* GetShellAction(const char *FileName,DWORD& GUIType)
         if ((Ptr=strpbrk(Command," \t/"))!=NULL)
           *Ptr=0;
       }
-      IsCommandPEExeGUI(Command,GUIType);
+      IsCommandPEExeGUI(Command,ImageSubsystem);
     }
   }
 
@@ -353,12 +367,16 @@ char* GetShellAction(const char *FileName,DWORD& GUIType)
  В случае неудачи Dest не заполняется!
  Return: TRUE/FALSE - нашли/не нашли
 */
-int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWORD& GUIType)
+/* $ 14.06.2002 VVM
+ Команда в функцию передается уже разкавыченная. Ничего не меняем.
+ И подменять ничего не надо, т.к. все параметры мы отсекли раньше
+*/
+int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWORD& ImageSubsystem)
 {
   int Ret, I;
   char FileName[4096],FullName[4096], *Ptr;
-  int IsQuoted=FALSE;
-  int IsExistExt=FALSE;
+  // int IsQuoted=FALSE;
+  // int IsExistExt=FALSE;
 
   // Здесь порядок важен! Сначала батники,  а потом остальная фигня.
   static char StdExecuteExt[NM]=".BAT;.CMD;.EXE;.COM;";
@@ -406,9 +424,11 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
     PrepareExcludeCmds=TRUE;
   }
 
-  GUIType=0; // GUIType всегда вначале инициализируется в FALSE
+  ImageSubsystem = IMAGE_SUBSYSTEM_NATIVE; // GUIType всегда вначале инициализируется в FALSE
   Ret=FALSE;
 
+  /* $ 14.06.2002 VVM
+     Имя модуля всегда передается без кавычек. Нефиг лишний раз гонять туда/сюда
   // Выделяем имя модуля
   if (*Command=='\"')
   {
@@ -422,13 +442,15 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
     OemToChar(Command,FullName);
     if ((Ptr=strpbrk(FullName," \t/|><"))!=NULL)
       *Ptr=0;
-  }
+  } VVM $ */
 
-  if(!*FullName) // вот же, надо же... пустышку передали :-(
+  if(!*Command) // вот же, надо же... пустышку передали :-(
     return 0;
 
+  OemToChar(Command,FullName);
+
   /* $ 07.09.2001 VVM Обработать переменные окружения */
-  ExpandEnvironmentStrings(FullName,FileName,sizeof(FileName));
+  ExpandEnvironmentStrings(FullName,FileName,sizeof(FullName));
 
   // нулевой проход - смотрим исключения
   {
@@ -445,7 +467,7 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
 
   // IsExistExt - если точки нету (расширения), то потом модифицировать не
   // будем.
-  IsExistExt=strrchr(FileName,'.')!=NULL;
+  // IsExistExt=strrchr(FullName,'.')!=NULL;
 
   SetFileApisToANSI();
 
@@ -489,64 +511,89 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
         PtrExt+=strlen(PtrExt)+1;
       }
 
-      if(!Ret) // третий проход - лезим в реестр в "App Paths"
+      if (!Ret) // третий проход - лезим в реестр в "App Paths"
       {
         // В строке Command заменть исполняемый модуль на полный путь, который
         // берется из SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths
         // Сначала смотрим в HKCU, затем - в HKLM
         HKEY hKey;
         HKEY RootFindKey[2]={HKEY_CURRENT_USER,HKEY_LOCAL_MACHINE};
-        PtrExt=StdExecuteExt;
-        while(*PtrExt)
+
+        for(I=0; I < sizeof(RootFindKey)/sizeof(RootFindKey[0]); ++I)
         {
-          if(!PtrFName)
-            strcpy(WorkPtrFName,PtrExt);
-          for(I=0; I < sizeof(RootFindKey)/sizeof(RootFindKey[0]); ++I)
+          sprintf(FullName,"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\%s",FileName);
+          if (RegOpenKeyEx(RootFindKey[I], FullName, 0,KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
           {
-            sprintf(FullName,"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\%s",FileName);
-            if (RegOpenKeyEx(RootFindKey[I], FullName, 0,KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
-            {
-              DWORD Type, DataSize=sizeof(FullName);
-              RegQueryValueEx(hKey,"", 0, &Type, (LPBYTE)FullName,&DataSize);
-              RegCloseKey(hKey);
-              Ret=TRUE;
-              break;
-            }
-          }
-          if(Ret)
+            DWORD Type, DataSize=sizeof(FullName);
+            RegQueryValueEx(hKey,"", 0, &Type, (LPBYTE)FullName,&DataSize);
+            RegCloseKey(hKey);
+            Ret=TRUE;
             break;
-          PtrExt+=strlen(PtrExt)+1;
+          }
         }
-      }
+
+        if (!Ret)
+        /* $ 14.06.2002 VVM
+           Не нашли - попробуем с расширением */
+        {
+          PtrExt=StdExecuteExt;
+          while(*PtrExt && !Ret)
+          {
+            for(I=0; I < sizeof(RootFindKey)/sizeof(RootFindKey[0]); ++I)
+            {
+              sprintf(FullName,"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\%s%s",FileName,PtrExt);
+              if (RegOpenKeyEx(RootFindKey[I], FullName, 0,KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
+              {
+                DWORD Type, DataSize=sizeof(FullName);
+                RegQueryValueEx(hKey,"", 0, &Type, (LPBYTE)FullName,&DataSize);
+                RegCloseKey(hKey);
+                Ret=TRUE;
+                break;
+              }
+            } /* for */
+            PtrExt+=strlen(PtrExt)+1;
+          }
+        } /* if */
+      } /* if */
     }
   }
 
   if(Ret) // некоторые "подмены" данных
   {
-    char TempStr[4096];
+    // char TempStr[4096];
     // сначала проверим...
-    IsCommandPEExeGUI(FullName,GUIType);
+    IsCommandPEExeGUI(FullName,ImageSubsystem);
+    /* $ 14.06.2002 VVM
+       Не надо квотить - взяли без кавычек - так и отдадим...
     QuoteSpaceOnly(FullName);
     QuoteSpaceOnly(FileName);
+      VVM $ */
 
     // Для случая, когда встретились скобки:
+    /* $ 14.06.2002 VVM
+       Скобки - допустимый символ в имени файла...
     if(strpbrk(FullName,"()"))
       IsExistExt=FALSE;
+      VVM $ */
 
-    strncpy(TempStr,Command,sizeof(TempStr)-1);
+    // strncpy(TempStr,Command,sizeof(TempStr)-1);
     CharToOem(FullName,FullName);
-    CharToOem(FileName,FileName);
-    ReplaceStrings(TempStr,FileName,FullName);
+    // CharToOem(FileName,FileName);
+    // ReplaceStrings(TempStr,FileName,FullName);
     if(!DestSize)
-      DestSize=strlen(TempStr);
-    if(Dest && IsExistExt)
-      strncpy(Dest,TempStr,DestSize);
+      DestSize=strlen(FullName);
+    // if(Dest && IsExistExt)
+    if (Dest)
+      strncpy(Dest,FullName,DestSize);
   }
 
   SetFileApisToOEM();
   return(Ret);
 }
 
+/* $ 14.06.2002 VVM
+   Отключим эту функцию, т.к. ее никто не пользует */
+#ifdef ADD_GUI_CHECK
 DWORD IsCommandExeGUI(const char *Command)
 {
   char FileName[4096],FullName[4096],*EndName,*FilePart;
@@ -606,6 +653,8 @@ DWORD IsCommandExeGUI(const char *Command)
   SetFileApisToOEM();
   return(GUIType);
 }
+#endif
+/* VVM $ */
 
 /* Функция-пускатель внешних процессов
    Возвращает -1 в случае ошибки или...
@@ -696,13 +745,12 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
   int PrevLockCount;
   char ExecLine[4096],CommandName[NM];
   char OldTitle[512];
-  DWORD GUIType;
+  DWORD ImageSubsystem = IMAGE_SUBSYSTEM_NATIVE;
   int ExitCode=1;
-  DWORD CreateFlags;
 
   /* $ 13.04.2001 VVM
     + Флаг CREATE_DEFAULT_ERROR_MODE. Что-бы показывал все ошибки */
-  CreateFlags=CREATE_DEFAULT_ERROR_MODE;
+  DWORD CreateFlags = CREATE_DEFAULT_ERROR_MODE;
   /* VVM $ */
 
   GetCursorType(Visible,Size);
@@ -743,27 +791,16 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
 //  strcpy(NewCmdStr,CmdStr);
 //  if (ParPtr)
 //    *ParPtr = 0;
-  QuoteSpace(NewCmdStr);
-  QuoteFound = NewCmdStr[0] == '"';
-  CmdPtr = NewCmdStr;
   //while (IsSpace(*CmdPtr))
   //  CmdPtr++;
 
-  int  ExecutorType;
-  ExecutorType=GetRegKey("System\\Executor","Type",0);
-
-  if(ExecutorType)
-  {
-    // Поиск исполнятора....
-    if (SeparateWindow!=2)
-      ExitCode=PrepareExecuteModule(NewCmdStr,NewCmdStr,sizeof(NewCmdStr)-1,GUIType);
-    /*
-      Если ExitCode=0, значит ненашли и, следовательно нефига
-      запусками заниматься
-    */
-  }
-  else
-    GUIType=IsCommandExeGUI(CmdPtr);
+  int ExecutorType = GetRegKey("System\\Executor","Type",0);
+  ExitCode=PrepareExecuteModule(NewCmdStr,NewCmdStr,sizeof(NewCmdStr)-1,ImageSubsystem);
+  if (!ExecutorType || SeparateWindow==2)
+    ExitCode = 1;
+  QuoteSpace(NewCmdStr);
+  QuoteFound = NewCmdStr[0] == '"';
+  CmdPtr = NewCmdStr;
 
   if(ExitCode)
   {
@@ -773,7 +810,7 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
     {
       if(ExecutorType)
       {
-        if(GUIType && !AlwaysWaitFinish)
+        if(ImageSubsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI && !AlwaysWaitFinish)
           strcpy(ExecLine,NewCmdStr);
         else
         {
@@ -786,7 +823,7 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
           GetRegKey("System\\Executor","Wait",TemplExecuteWait,"%COMSPEC% /c start /wait",sizeof(TemplExecuteWait));
 
           char *Fmt=TemplExecute;
-          if (SeparateWindow || GUIType && (NT || AlwaysWaitFinish))
+          if (SeparateWindow || ImageSubsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI && (NT || AlwaysWaitFinish))
           {
             Fmt=TemplExecuteStart;
             if (AlwaysWaitFinish)
@@ -822,12 +859,17 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
         sprintf(ExecLine,"%s /C",CommandName);
         //_tran(SysLog("1. execline='%s'",ExecLine);)
 
-        if (SeparateWindow || GUIType && (NT || AlwaysWaitFinish))
+        int QuoteAll = FALSE;
+        if ((PipeFound && (SeparateWindow || ImageSubsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI && (NT || AlwaysWaitFinish))) ||
+            (QuoteFound && NT && ImageSubsystem != IMAGE_SUBSYSTEM_WINDOWS_GUI))
+          QuoteAll = TRUE;
+
+        if (SeparateWindow || ImageSubsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI && (NT || AlwaysWaitFinish))
         {
           strcat(ExecLine," start");
           if (AlwaysWaitFinish)
             strcat(ExecLine," /wait");
-          if(PipeFound)
+          if(PipeFound || QuoteAll)
            sprintf(ExecLine+strlen(ExecLine)," %s /C",CommandName);
           else if (NT && *CmdPtr=='\"')
             strcat(ExecLine," \"\"");
@@ -837,10 +879,6 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
         //_tran(SysLog("2. execline=[%s]",ExecLine);)
         //_tran(SysLog("3. cmdptr=[%s]",CmdPtr);)
 
-        int QuoteAll = FALSE;
-        if ((PipeFound && (SeparateWindow || GUIType && (NT || AlwaysWaitFinish))) ||
-            (QuoteFound && NT && !SeparateWindow && !GUIType))
-          QuoteAll = TRUE;
         if (QuoteAll) strcat(ExecLine, "\"");
         strcat(ExecLine, CmdPtr);
         strcat(ExecLine, NewCmdPar);
@@ -881,7 +919,9 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
     if (SeparateWindow)
     {
 //      CreateFlags|=(OldNT)?CREATE_NEW_CONSOLE:0;//DETACHED_PROCESS;
-      if(ExecutorType && (GUIType&3) == 1)
+      if(ExecutorType &&
+         (ImageSubsystem != IMAGE_SUBSYSTEM_NATIVE) &&
+         (ImageSubsystem != IMAGE_SUBSYSTEM_WINDOWS_GUI))
         CreateFlags|=CREATE_NEW_CONSOLE;
     }
 
@@ -908,7 +948,7 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
       si.cbSize=sizeof(si);
       si.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_DDEWAIT;
       si.lpFile=AnsiLine;
-      si.lpVerb=(Attr&FILE_ATTRIBUTE_DIRECTORY)?NULL:GetShellAction((char *)si.lpFile,GUIType);
+      si.lpVerb=(Attr&FILE_ATTRIBUTE_DIRECTORY)?NULL:GetShellAction((char *)si.lpFile,ImageSubsystem);
       si.nShow=SW_SHOWNORMAL;
       SetFileApisToANSI();
       ExitCode=ShellExecuteEx(&si);
@@ -924,7 +964,7 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
 
   if (ExitCode)
   {
-    if (!SeparateWindow && !GUIType || AlwaysWaitFinish)
+    if (!SeparateWindow && ImageSubsystem != IMAGE_SUBSYSTEM_WINDOWS_GUI || AlwaysWaitFinish)
     {
       /*$ 12.02.2001 SKV
         супер фитча ;)
