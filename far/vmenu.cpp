@@ -5,7 +5,7 @@ vmenu.cpp
 
 */
 
-/* Revision: 1.04 13.07.2000 $ */
+/* Revision: 1.05 18.07.2000 $ */
 
 /*
 Modify:
@@ -22,6 +22,9 @@ Modify:
     ! Изменения для возможности компиляции под BC & VC
   13.07.2000 SVS
     ! Некоторые коррекции при использовании new/delete/realloc
+  18.07.2000 SVS
+   ! изменен вызов конструктора (пареметр isAlwaysScrollBar) с учетом
+     необходимости scrollbar в DI_COMBOBOX (и в будущем - DI_LISTBOX)
 */
 
 #include "headers.hpp"
@@ -33,9 +36,19 @@ Modify:
 #include "internalheaders.hpp"
 /* IS $ */
 
-VMenu::VMenu(char *Title,struct MenuData *Data,int ItemCount,int MaxHeight)
+/* $ 18.07.2000 SVS
+   ! изменен вызов конструктора (isAlwaysScrollBar) с учетом необходимости
+     scrollbar в DI_LISTBOX & DI_COMBOBOX
+*/
+VMenu::VMenu(char *Title,		// заголовок меню
+             struct MenuData *Data,	// пункты меню
+             int ItemCount,		// количество пунктов меню
+             int MaxHeight,		// максимальная высота
+             int isAlwaysScrollBar)	// нужен ScrollBar?
 {
   int I;
+  AlwaysScrollBar=isAlwaysScrollBar;
+/* SVS $ */
   UpdateRequired=TRUE;
   WrapMode=TRUE;
   CallCount=0;
@@ -372,12 +385,16 @@ void VMenu::ShowMenu()
        его высота
      $ 29.06.2000 SVS
        Показывать ScrollBar в меню если включена опция Opt.ShowMenuScrollbar
+     $ 18.07.2000 SVS
+       + всегда покажет scrollbar для DI_LISTBOX & DI_COMBOBOX и опционально
+         для вертикального меню
   */
-  if (Opt.ShowMenuScrollbar && (Y2-Y1-1)<ItemCount )
+  if ((AlwaysScrollBar || Opt.ShowMenuScrollbar) && (Y2-Y1-1)<ItemCount )
   {
     SetColor(DialogStyle ? COL_DIALOGMENUSCROLLBAR: COL_MENUSCROLLBAR);
     ScrollBar(X2,Y1+1,Y2-Y1-1,SelectPos,ItemCount);
   }
+  /* 18.07.2000 SVS $ */
   /* SVS $ */
   /* tran $ */
 }

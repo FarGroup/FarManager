@@ -5,7 +5,7 @@ dialog.cpp
 
 */
 
-/* Revision: 1.02 11.07.2000 $ */
+/* Revision: 1.03 18.07.2000 $ */
 
 /*
 Modify:
@@ -17,6 +17,9 @@ Modify:
       среды в элементе диалога DI_EDIT
   11.07.2000 SVS
     ! Изменения для возможности компиляции под BC & VC
+  18.07.2000 SVS
+    + Обработка элемента DI_COMBOBOX (пока все еще редактируемого)
+    + Функция-обработчик выбора из списка - SelectFromComboBox
 */
 
 #include "headers.hpp"
@@ -76,17 +79,10 @@ void Dialog::Show()
   if (Y1==-1)
   {
     Y1=(ScrY-Y2+1)/2;
-    if (Y1>1)
-      Y1--;
-    if (Y1>5)
-      Y1--;
-    if (Y1<0)
-    {
-      Y1=0;
-      Y2=ScrY;
-    }
-    else
-      Y2+=Y1-1;
+    if (Y1>1)      Y1--;
+    if (Y1>5)      Y1--;
+    if (Y1<0)    { Y1=0; Y2=ScrY; }
+    else           Y2+=Y1-1;
   }
   ScreenObject::Show();
 }
@@ -114,14 +110,17 @@ void Dialog::InitDialogObjects()
   for (I=0,TitleSet=0;I<ItemCount;I++)
   {
     struct DialogItem *CurItem=&Item[I];
-    if (CurItem->Type==DI_BUTTON && (CurItem->Flags & DIF_NOBRACKETS)==0 &&
+    if (CurItem->Type==DI_BUTTON &&
+        (CurItem->Flags & DIF_NOBRACKETS)==0 &&
         *CurItem->Data!='[')
     {
       char BracketedTitle[200];
       sprintf(BracketedTitle,"[ %s ]",CurItem->Data);
       strcpy(CurItem->Data,BracketedTitle);
     }
-    if (!TitleSet && (CurItem->Type==DI_TEXT || CurItem->Type==DI_DOUBLEBOX || CurItem->Type==DI_SINGLEBOX))
+    if (!TitleSet && (CurItem->Type==DI_TEXT ||
+                      CurItem->Type==DI_DOUBLEBOX ||
+                      CurItem->Type==DI_SINGLEBOX))
       for (int J=0;CurItem->Data[J]!=0;J++)
         if (LocalIsalpha(CurItem->Data[J]))
         {
@@ -166,10 +165,14 @@ void Dialog::InitDialogObjects()
       DialogEdit->SetPosition(X1+CurItem->X1,Y1+CurItem->Y1,
                               X1+CurItem->X2,Y1+CurItem->Y2);
       DialogEdit->SetObjectColor(WarningStyle ? COL_WARNDIALOGEDIT:COL_DIALOGEDIT,COL_DIALOGEDITSELECTED);
+
       if (CurItem->Type==DI_PSWEDIT)
         DialogEdit->SetPasswordMode(TRUE);
+
       if (CurItem->Type==DI_FIXEDIT)
       {
+        // если DI_FIXEDIT, то курсор сразу ставится на замену...
+        //   ай-ай - было недокументированно :-)
         DialogEdit->SetMaxLength(CurItem->X2-CurItem->X1+1);
         DialogEdit->SetOvertypeMode(TRUE);
       }
@@ -179,6 +182,26 @@ void Dialog::InitDialogObjects()
           DialogEdit->SetEditBeyondEnd(FALSE);
           DialogEdit->SetClearFlag(1);
         }
+      /* $ 18.03.2000 SVS
+         Если это ComBoBox и данные не установлены, то берем из списка
+         при условии, что хоть один из пунктов имеет Selected != 0
+      */
+      if (CurItem->Type==DI_COMBOBOX && CurItem->Data[0] == 0)
+      {
+        int nItem;
+        struct FarListItem *ListItems=(struct FarListItem *)CurItem->Selected;
+
+        for (nItem=0;ListItems[nItem].Text[0];nItem++)
+        {
+          if(ListItems[nItem].Selected)
+          {
+            // берем только первый пункт
+            strcpy(CurItem->Data,ListItems[nItem].Text);
+            break;
+          }
+        }
+      }
+      /* SVS $ */
       DialogEdit->SetString(CurItem->Data);
       if (CurItem->Type==DI_FIXEDIT)
         DialogEdit->SetCurPos(0);
@@ -302,9 +325,13 @@ void Dialog::ShowDialog()
         GotoXY(X1+CurItem->X1,Y1+CurItem->Y1);
         VText(CurItem->Data);
         break;
+      /* $ 18.07.2000 SVS
+         + обработка элемента DI_COMBOBOX
+      */
       case DI_EDIT:
       case DI_FIXEDIT:
       case DI_PSWEDIT:
+      case DI_COMBOBOX:
         if (CurItem->Focus)
         {
           SetCursorType(1,-1);
@@ -312,15 +339,23 @@ void Dialog::ShowDialog()
         }
         else
           ((Edit *)(CurItem->ObjPtr))->FastShow();
-        if ((CurItem->Flags & DIF_HISTORY) && Opt.DialogsEditHistory && CurItem->Selected)
+        //if ((CurItem->Flags & DIF_HISTORY) && Opt.DialogsEditHistory && CurItem->Selected)
+        if (CurItem->Selected &&
+             ((CurItem->Flags & DIF_HISTORY) &&
+              Opt.DialogsEditHistory
+              || CurItem->Type == DI_COMBOBOX))
         {
           int EditX1,EditY1,EditX2,EditY2;
           ((Edit *)(CurItem->ObjPtr))->GetPosition(EditX1,EditY1,EditX2,EditY2);
           SetColor(COL_DIALOGTEXT);
           GotoXY(EditX2+1,EditY1);
+          //Text((CurItem->Type == DI_COMBOBOX?"\x1F":"\x19"));
           Text("");
         }
+        // для DI_COMBOBOX здесь должна быть обработка флага DIF_DROPDOWNLIST
+        // это когда Edit будет иметь не просто ReadOnly, а ...
         break;
+      /* SVS $ */
       case DI_CHECKBOX:
       case DI_RADIOBUTTON:
         if (CurItem->Flags & DIF_SETCOLOR)
@@ -611,6 +646,12 @@ int Dialog::ProcessKey(int Key)
            Opt.DialogsEditHistory &&
            Item[FocusPos].Selected)
         SelectFromEditHistory((Edit *)(Item[FocusPos].ObjPtr),(char *)Item[FocusPos].Selected);
+      /* $ 18.07.2000 SVS
+         + обработка DI_COMBOBOX - выбор из списка!
+      */
+      else if(Type == DI_COMBOBOX && Item[FocusPos].Selected)
+        SelectFromComboBox((Edit *)(Item[FocusPos].ObjPtr),(struct FarListItem *)Item[FocusPos].Selected);
+      /* SVS $ */
       return(TRUE);
     default:
       if (IsEdit(Type))
@@ -717,9 +758,13 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
           {
             int EditX1,EditY1,EditX2,EditY2;
             EditLine->GetPosition(EditX1,EditY1,EditX2,EditY2);
-            if (MsX==EditX2+1 && MsY==EditY1 &&
-                (Item[I].Flags & DIF_HISTORY) && Opt.DialogsEditHistory &&
-                Item[I].Selected)
+            /* $ 18.07.2000 SVS
+               + Проверка на тип элемента DI_COMBOBOX
+            */
+            if (MsX==EditX2+1 && MsY==EditY1 && Item[I].Selected &&
+                ((Item[I].Flags & DIF_HISTORY) && Opt.DialogsEditHistory
+                 || Item[I].Type == DI_COMBOBOX))
+            /* SVS $ */
             {
               Item[FocusPos].Focus=0;
               Item[I].Focus=1;
@@ -809,7 +854,7 @@ void Dialog::DataToItem(struct DialogData *Data,struct DialogItem *Item,
       strcpy(Item[I].Data,MSG((unsigned int)Data[I].Data));
     else
       strcpy(Item[I].Data,Data[I].Data);
-    Item[I].ObjPtr=0;
+    Item[I].ObjPtr=NULL;
   }
 }
 
@@ -817,10 +862,17 @@ void Dialog::DataToItem(struct DialogData *Data,struct DialogItem *Item,
 Проверяет тип элемента диалога на предмет строки ввода
 (DI_EDIT, DI_FIXEDIT, DI_PSWEDIT) и в случае успеха возвращает TRUE
 */
+/* $ 18.07.2000 SVS
+   ! элемент DI_COMBOBOX относится к категории строковых редакторов...
+*/
 int Dialog::IsEdit(int Type)
 {
-  return(Type==DI_EDIT || Type==DI_FIXEDIT || Type==DI_PSWEDIT);
+  return(Type==DI_EDIT ||
+         Type==DI_FIXEDIT ||
+         Type==DI_PSWEDIT ||
+         Type == DI_COMBOBOX);
 }
+/* SVS $ */
 
 
 void Dialog::SelectFromEditHistory(Edit *EditLine,char *HistoryName)
@@ -1051,3 +1103,67 @@ int Dialog::ProcessHighlighting(int Key,int FocusPos,int Translate)
   }
   return(FALSE);
 }
+
+/* $ 18.07.2000 SVS
+   Функция-обработчик выбора из списка и установки...
+*/
+void Dialog::SelectFromComboBox(
+         Edit *EditLine,                   // строка редактирования
+         struct FarListItem *ListItems)    // список строк
+{
+  char Str[512];
+  struct MenuItem ComboBoxItem;
+  int EditX1,EditY1,EditX2,EditY2;
+  int I;
+  {
+    // создание пустого вертикального меню
+    //  с обязательным показом ScrollBar
+    VMenu ComboBoxMenu("",NULL,0,8,TRUE);
+
+    EditLine->GetPosition(EditX1,EditY1,EditX2,EditY2);
+    if (EditX2-EditX1<20)
+      EditX2=EditX1+20;
+    if (EditX2>ScrX)
+      EditX2=ScrX;
+    ComboBoxItem.Checked=ComboBoxItem.Separator=0;
+    ComboBoxMenu.SetFlags(MENU_SHOWAMPERSAND);
+    ComboBoxMenu.SetPosition(EditX1,EditY1+1,EditX2,0);
+    ComboBoxMenu.SetBoxType(SHORT_SINGLE_BOX);
+
+    // заполнение пунктов меню
+    int ItemsCount=0;
+    /* Последний пункт списка - ограничититель - в нем Tetx[0]
+       должен быть равен '\0'
+    */
+    for (I=0;ListItems[I].Text[0];I++)
+    {
+      // int Checked;
+      ComboBoxItem.Selected=ListItems[I].Selected;
+      strcpy(ComboBoxItem.Name,ListItems[I].Text);
+      strcpy(ComboBoxItem.UserData,ListItems[I].Text);
+      ComboBoxItem.UserDataSize=strlen(ListItems[I].Text);
+      ComboBoxMenu.AddItem(&ComboBoxItem);
+      ItemsCount++;
+    }
+    if (ItemsCount==0)
+      return;
+
+    ComboBoxMenu.Show();
+    while (!ComboBoxMenu.Done())
+    {
+      int Key=ComboBoxMenu.ReadInput();
+      // здесь можно добавить что-то свое, например,
+      //  обработку multiselect ComboBox
+      ComboBoxMenu.ProcessInput();
+    }
+
+    int ExitCode=ComboBoxMenu.GetExitCode();
+    if (ExitCode<0)
+      return;
+    ComboBoxMenu.GetUserData(Str,sizeof(Str),ExitCode);
+  }
+  EditLine->SetString(Str);
+  EditLine->SetLeftPos(0);
+  Redraw();
+}
+/* SVS $ */

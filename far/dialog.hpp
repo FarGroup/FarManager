@@ -7,13 +7,15 @@ dialog.hpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 18.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  18.07.2000 SVS
+    + функция SelectFromComboBox для выбора из DI_COMBOBOX
 */
 
 class Dialog:public Modal
@@ -25,10 +27,16 @@ class Dialog:public Modal
     int ChangeFocus(int FocusPos,int Step,int SkipGroup);
     int IsEdit(int Type);
     void SelectFromEditHistory(Edit *EditLine,char *HistoryName);
+    /* $ 18.07.2000 SVS
+       + функция SelectFromComboBox для выбора из DI_COMBOBOX
+    */
+    void SelectFromComboBox(Edit *EditLine,struct FarListItem *HistoryName);
+    /* SVS $ */
     void AddToEditHistory(char *AddStr,char *HistoryName);
     int ProcessHighlighting(int Key,int FocusPos,int Translate);
 
     struct DialogItem *Item;
+
     char OldConsoleTitle[512];
     int ItemCount;
     int InitObjects;

@@ -6,7 +6,7 @@
   Plugin API for FAR Manager 1.66
 
 */
-/* Revision: 1.07 13.07.2000 $ */
+/* Revision: 1.08 18.07.2000 $ */
 
 /*
 Modify:
@@ -42,6 +42,9 @@ Modify:
   12.07.2000 IS
     + Флаги  редактора:
       EF_NONMODAL - открытие немодального редактора
+  18.07.2000 SVS
+    + Введен новый элемент: DI_COMBOBOX и флаг DIF_DROPDOWNLIST
+      (для нередактируемого DI_COMBOBOX - пока не реализовано!)
 */
 
 #if defined(__BORLANDC__) && (__BORLANDC__ <= 0x550)
@@ -136,6 +139,10 @@ typedef char* (WINAPI *FARAPIGETMSG)(
 );
 
 
+/* $ 18.07.2000 SVS
+  + Введены новые элементы (зарезервированы!)
+    DI_LISTBOX, DI_COMBOBOX и флаг DIF_DROPDOWNLIST
+*/
 enum DialogItemTypes {
   DI_TEXT,
   DI_VTEXT,
@@ -146,7 +153,8 @@ enum DialogItemTypes {
   DI_FIXEDIT,
   DI_BUTTON,
   DI_CHECKBOX,
-  DI_RADIOBUTTON
+  DI_RADIOBUTTON,
+  DI_COMBOBOX,
 };
 
 enum FarDialogItemFlags {
@@ -163,7 +171,21 @@ enum FarDialogItemFlags {
   DIF_EDITOR          = 0x20000,
   DIF_HISTORY         = 0x40000,
   DIF_EDITEXPAND      = 0x80000,
+  DIF_DROPDOWNLIST    =0x100000,
 };
+/* SVS $ */
+
+/* $ 18.07.2000 SVS
+   Список Items для DI_COMBOBOX & DI_LISTBOX
+*/
+struct FarListItem
+{
+  char Text[128];
+  int Selected;
+  int Checked;
+  int Separator;
+};
+/* SVS $ */
 
 struct FarDialogItem
 {
