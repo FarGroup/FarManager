@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.181 04.06.2003 $ */
+/* Revision: 1.182 05.07.2003 $ */
 
 /*
 Modify:
+  05.07.2003 SVS
+    ! Èçìåíåíà ôóíêöèÿ ñîðòèðîâêè SortList (ïîäðîáíåå see 01680.Mix.txt)
   04.06.2003 SVS
     - Bug: Çàõîäèì íà ïóñòîé äèñê A:, æìåì Shift-Left è... âûëåòàåì
   29.05.2003 SVS
@@ -761,6 +763,7 @@ void FileList::SortFileList(int KeepPosition)
 int _cdecl SortList(const void *el1,const void *el2)
 {
   int RetCode;
+  __int64 RetCode64;
   char *ChPtr1,*ChPtr2;
   struct FileListItem *SPtr1,*SPtr2;
   SPtr1=(struct FileListItem *)el1;
@@ -810,87 +813,96 @@ int _cdecl SortList(const void *el1,const void *el2)
         return(ListSortOrder*RetCode);
   }
 
-  int NameCmp;
-  if (ListCaseSensitive)
-    NameCmp=ListSortOrder*strcmp(Name1,Name2);
-  else
-    NameCmp=ListSortOrder*LCStricmp(Name1,Name2);
+  // ÍÅ ÑÎÐÒÈÐÓÅÌ ÊÀÒÀËÎÃÈ Â ÐÅÆÈÌÅ "ÏÎ ÐÀÑØÈÐÅÍÈÞ" (Îïöèîíàëüíî!)
+  if(!(ListSortMode == BY_EXT && !Opt.SortFolderExt && (SPtr1->FileAttr & FA_DIREC)))
+  {
+    switch(ListSortMode)
+    {
+      case BY_NAME:
+        break;
+
+      case BY_EXT:
+        ChPtr1=strrchr(*Name1 ? Name1+1:Name1,'.');
+        ChPtr2=strrchr(*Name2 ? Name2+1:Name2,'.');
+        if (ChPtr1==NULL && ChPtr2==NULL)
+          break;
+        if (ChPtr1==NULL)
+          return(-ListSortOrder);
+        if (ChPtr2==NULL)
+          return(ListSortOrder);
+        if (*(ChPtr1+1)=='.')
+          return(-ListSortOrder);
+        if (*(ChPtr2+1)=='.')
+          return(ListSortOrder);
+        RetCode=ListSortOrder*LocalStricmp(ChPtr1+1,ChPtr2+1);
+        if(RetCode)
+          return RetCode;
+        break;
+
+      case BY_MTIME:
+        if((RetCode64=*(__int64*)&SPtr1->WriteTime - *(__int64*)&SPtr2->WriteTime) == 0)
+          break;
+        return -ListSortOrder*(RetCode64<0?-1:1);
+
+      case BY_CTIME:
+        if((RetCode64=*(__int64*)&SPtr1->CreationTime - *(__int64*)&SPtr2->CreationTime) == 0)
+          break;
+        return -ListSortOrder*(RetCode64<0?-1:1);
+
+      case BY_ATIME:
+        if((RetCode64=*(__int64*)&SPtr1->AccessTime - *(__int64*)&SPtr2->AccessTime) == 0)
+          break;
+        return -ListSortOrder*(RetCode64<0?-1:1);
+
+      case BY_SIZE:
+        if (SPtr1->UnpSizeHigh==SPtr2->UnpSizeHigh)
+        {
+          if (SPtr1->UnpSize==SPtr2->UnpSize)
+            break;
+          return((SPtr1->UnpSize > SPtr2->UnpSize) ? -ListSortOrder : ListSortOrder);
+        }
+        return((SPtr1->UnpSizeHigh > SPtr2->UnpSizeHigh) ? -ListSortOrder : ListSortOrder);
+
+      case BY_DIZ:
+        if (SPtr1->DizText==NULL)
+          if (SPtr2->DizText==NULL)
+            break;
+          else
+            return(ListSortOrder);
+        if (SPtr2->DizText==NULL)
+          return(-ListSortOrder);
+        RetCode=ListSortOrder*LCStricmp(SPtr1->DizText,SPtr2->DizText);
+        if(RetCode)
+          return RetCode;
+        break;
+
+      case BY_OWNER:
+        RetCode=ListSortOrder*LocalStricmp(SPtr1->Owner,SPtr2->Owner);
+        if(RetCode)
+          return RetCode;
+        break;
+
+      case BY_COMPRESSEDSIZE:
+        if (SPtr1->PackSizeHigh==SPtr2->PackSizeHigh)
+        {
+          if (SPtr1->PackSize==SPtr2->PackSize)
+            break;
+          return((SPtr1->PackSize > SPtr2->PackSize) ? -ListSortOrder : ListSortOrder);
+        }
+        return((SPtr1->PackSizeHigh > SPtr2->PackSizeHigh) ? -ListSortOrder : ListSortOrder);
+
+      case BY_NUMLINKS:
+        if (SPtr1->NumberOfLinks==SPtr2->NumberOfLinks)
+          break;
+        return((SPtr1->NumberOfLinks > SPtr2->NumberOfLinks) ? -ListSortOrder : ListSortOrder);
+    }
+  }
+
+  int NameCmp=ListSortOrder*(ListCaseSensitive?strcmp(Name1,Name2):LCStricmp(Name1,Name2));
   if (NameCmp==0)
     NameCmp=SPtr1->Position>SPtr2->Position ? ListSortOrder:-ListSortOrder;
 
-  // ÍÅ ÑÎÐÒÈÐÓÅÌ ÊÀÒÀËÎÃÈ Â ÐÅÆÈÌÅ "ÏÎ ÐÀÑØÈÐÅÍÈÞ" (Îïöèîíàëüíî!)
-  if(ListSortMode == BY_EXT && !Opt.SortFolderExt && (SPtr1->FileAttr & FA_DIREC))
-    return(NameCmp);
-
-  switch(ListSortMode)
-  {
-    case BY_NAME:
-      return(NameCmp);
-    case BY_EXT:
-      ChPtr1=strrchr(*Name1 ? Name1+1:Name1,'.');
-      ChPtr2=strrchr(*Name2 ? Name2+1:Name2,'.');
-      if (ChPtr1==NULL && ChPtr2==NULL)
-        return(NameCmp);
-      if (ChPtr1==NULL)
-        return(-ListSortOrder);
-      if (ChPtr2==NULL)
-        return(ListSortOrder);
-      if (*(ChPtr1+1)=='.')
-        return(-ListSortOrder);
-      if (*(ChPtr2+1)=='.')
-        return(ListSortOrder);
-      RetCode=ListSortOrder*LocalStricmp(ChPtr1+1,ChPtr2+1);
-      return(RetCode!=0 ? RetCode:NameCmp);
-    case BY_MTIME:
-      RetCode=CompareFileTime(&SPtr1->WriteTime,&SPtr2->WriteTime);
-      if (RetCode==0)
-        return(NameCmp);
-      return(-ListSortOrder*RetCode);
-    case BY_CTIME:
-      RetCode=CompareFileTime(&SPtr1->CreationTime,&SPtr2->CreationTime);
-      if (RetCode==0)
-        return(NameCmp);
-      return(-ListSortOrder*RetCode);
-    case BY_ATIME:
-      RetCode=CompareFileTime(&SPtr1->AccessTime,&SPtr2->AccessTime);
-      if (RetCode==0)
-        return(NameCmp);
-      return(-ListSortOrder*RetCode);
-    case BY_SIZE:
-      if (SPtr1->UnpSizeHigh==SPtr2->UnpSizeHigh)
-      {
-        if (SPtr1->UnpSize==SPtr2->UnpSize)
-          return(NameCmp);
-        return((SPtr1->UnpSize > SPtr2->UnpSize) ? -ListSortOrder : ListSortOrder);
-      }
-      return((SPtr1->UnpSizeHigh > SPtr2->UnpSizeHigh) ? -ListSortOrder : ListSortOrder);
-    case BY_DIZ:
-      if (SPtr1->DizText==NULL)
-        if (SPtr2->DizText==NULL)
-          return(NameCmp);
-        else
-          return(ListSortOrder);
-      if (SPtr2->DizText==NULL)
-        return(-ListSortOrder);
-      RetCode=ListSortOrder*LCStricmp(SPtr1->DizText,SPtr2->DizText);
-      return(RetCode!=0 ? RetCode:NameCmp);
-    case BY_OWNER:
-      RetCode=ListSortOrder*LocalStricmp(SPtr1->Owner,SPtr2->Owner);
-      return(RetCode!=0 ? RetCode:NameCmp);
-    case BY_COMPRESSEDSIZE:
-      if (SPtr1->PackSizeHigh==SPtr2->PackSizeHigh)
-      {
-        if (SPtr1->PackSize==SPtr2->PackSize)
-          return(NameCmp);
-        return((SPtr1->PackSize > SPtr2->PackSize) ? -ListSortOrder : ListSortOrder);
-      }
-      return((SPtr1->PackSizeHigh > SPtr2->PackSizeHigh) ? -ListSortOrder : ListSortOrder);
-    case BY_NUMLINKS:
-      if (SPtr1->NumberOfLinks==SPtr2->NumberOfLinks)
-        return(NameCmp);
-      return((SPtr1->NumberOfLinks > SPtr2->NumberOfLinks) ? -ListSortOrder : ListSortOrder);
-  }
-  return(0);
+  return(NameCmp);
 }
 
 

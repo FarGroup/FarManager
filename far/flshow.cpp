@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.32 06.05.2003 $ */
+/* Revision: 1.33 05.07.2003 $ */
 
 /*
 Modify:
+  05.07.2003 SVS
+    - под масдаем неотрисовка верхних стыковочных линий (BoxText!)
   06.05.2003 SVS
     ! W-console: замена вида "BoxText(209);" на  "BoxText(BoxSymbols[0xD1-0x0B0]);"
   03.03.2003 SVS
@@ -249,7 +251,7 @@ void FileList::ShowFileList(int Fast)
     SetColor(COL_PANELBOX);
     ColumnPos+=ViewSettings.ColumnWidth[I];
     GotoXY(ColumnPos,Y1);
-    BoxText(BoxSymbols[0xD1-0x0B0]);
+    BoxText(Opt.UseUnicodeConsole?BoxSymbols[0xD1-0x0B0]:0xD1);
     if (Opt.ShowColumnTitles)
     {
       GotoXY(ColumnPos,Y1+1);
@@ -258,7 +260,7 @@ void FileList::ShowFileList(int Fast)
     if (!Opt.ShowPanelStatus)
     {
       GotoXY(ColumnPos,Y2);
-      BoxText(BoxSymbols[0xCF-0x0B0]);
+      BoxText(Opt.UseUnicodeConsole?BoxSymbols[0xCF-0x0B0]:0xCF);
     }
     ColumnPos++;
   }
@@ -452,7 +454,7 @@ void FileList::ShowSelectedSize()
         continue;
       ColumnPos+=ViewSettings.ColumnWidth[I];
       GotoXY(ColumnPos,Y2-2);
-      BoxText(BoxSymbols[0x0C1-0x0B0]);
+      BoxText(Opt.UseUnicodeConsole?BoxSymbols[0x0C1-0x0B0]:0x0C1);
       ColumnPos++;
     }
   }

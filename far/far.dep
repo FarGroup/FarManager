@@ -1775,6 +1775,7 @@
 	".\bitflags.hpp"\
 	".\farconst.hpp"\
 	".\fn.hpp"\
+	".\help.hpp"\
 	".\frame.hpp"\
 	".\global.hpp"\
 	".\headers.hpp"\

@@ -5,10 +5,12 @@ plist.cpp
 
 */
 
-/* Revision: 1.13 06.05.2003 $ */
+/* Revision: 1.14 05.07.2003 $ */
 
 /*
 Modify:
+  05.07.2003 SVS
+    - Ctrl-W F1 Ctrl-W F1 Ctrl-W ....
   06.05.2003 SVS
     ! Если выставлена полиция, то покажет соответствующее сообщение
   21.03.2003 SVS
@@ -50,6 +52,7 @@ Modify:
 #include "global.hpp"
 #include "fn.hpp"
 #include "keys.hpp"
+#include "help.hpp"
 #include "lang.hpp"
 #include "vmenu.hpp"
 #include "BlockExtKey.hpp"
@@ -65,7 +68,7 @@ void ShowProcessList()
   */
   ProcList.SetFlags(VMENU_WRAPMODE);
   /* IS $ */
-  ProcList.SetHelp("TaskList");
+//  ProcList.SetHelp("TaskList");
   ProcList.SetPosition(-1,-1,0,0);
   if (!EnumWindows(EnumWindowsProc,(LPARAM)&ProcList))
     return;
@@ -77,6 +80,15 @@ void ShowProcessList()
     int Key=ProcList.ReadInput();
     switch(Key)
     {
+      case KEY_F1:
+      {
+        BlockExtKey blockExtKey;
+        {
+          Help Hlp ("TaskList");
+        }
+        break;
+      }
+
       case KEY_CTRLR:
       {
         ProcList.Hide();
