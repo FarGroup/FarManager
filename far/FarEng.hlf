@@ -517,6 +517,11 @@ $ #Command line switches#
         this parameter.
         If there is no plugins cache, no plugins will be loaded.
 
+  #/x#
+        Disable exception handling. This option has been designed
+        for plugin developers, and it is not recommended to specify
+        it during normal operation.
+
   FAR <filename> command starts FAR and forces it to show <filename>
 contents if it is an archive or show folder contents if <filename>
 is a folder.
@@ -2493,12 +2498,12 @@ directories, but this restriction can be overcome by mounting a CD-ROM
 to a directory on an NTFS partition.
 
 @ErrCopyItSelf
-$ #Ошибка: копирование/перенос "в самого себя"#
-    Вы не можете копировать/переносить файл или каталог "в самого себя".
+$ #Error: copy/move onto itself.#
+    You may not copy or move a file or folder onto itself.
 
-    Данная ошибка также возникает в Windows 2000, если имеются два
-каталога, один из которых является ~символической связью~@HardSymLink@ на
-другой.
+    This error can also happen under Windows 2000, if there are two
+directories, one of which is a ~symbolic link~@HardSymLink@ to another.
+
 
 @ScrSwitch
 $ #Screens switching#

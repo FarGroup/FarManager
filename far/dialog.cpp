@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.159 08.09.2001 $ */
+/* Revision: 1.160 16.09.2001 $ */
 
 /*
 Modify:
+  16.09.2001 SVS
+   ! Отключаемые исключения
   08.09.2001 VVM
    + Использовать Opt.DialogsEditBlock для строк ввода
   05.09.2001 SVS
@@ -3499,6 +3501,8 @@ void Dialog::ConvertItem(int FromPlugin,
         }
       }
       {
+        if(Opt.ExceptRules)
+        {
           TRY{
             memmove(Item->Data,Data->Data,sizeof(Item->Data));
           }
@@ -3506,6 +3510,9 @@ void Dialog::ConvertItem(int FromPlugin,
           {
             ;
           }
+        }
+        else
+          memmove(Item->Data,Data->Data,sizeof(Item->Data));
       }
     }
   else
@@ -3522,6 +3529,7 @@ void Dialog::ConvertItem(int FromPlugin,
       Data->Selected=Item->Selected;
       Data->Flags=Item->Flags;
       Data->DefaultButton=Item->DefaultButton;
+      if(Opt.ExceptRules)
       {
          TRY{
            memmove(Data->Data,Item->Data,sizeof(Data->Data));
@@ -3531,6 +3539,8 @@ void Dialog::ConvertItem(int FromPlugin,
            ;
          }
       }
+      else
+        memmove(Data->Data,Item->Data,sizeof(Data->Data));
       /* Этот кусок будет работать после тчательной проверки.
       Он позволит менять данные в ответ на DN_EDITCHANGE
       if(InternalCall)
@@ -3588,13 +3598,18 @@ void Dialog::DataToItem(struct DialogData *Data,struct DialogItem *Item,
       strcpy(Item->Data,MSG((unsigned int)Data->Data));
     else
     {
-      TRY{
-        memmove(Item->Data,Data->Data,sizeof(Item->Data));
-      }
-      EXCEPT (EXCEPTION_EXECUTE_HANDLER)
+      if(Opt.ExceptRules)
       {
-        ;
+        TRY{
+          memmove(Item->Data,Data->Data,sizeof(Item->Data));
+        }
+        EXCEPT (EXCEPTION_EXECUTE_HANDLER)
+        {
+          ;
+        }
       }
+      else
+        memmove(Item->Data,Data->Data,sizeof(Item->Data));
     }
     Item->ObjPtr=NULL;
     Item->ListPtr=NULL;

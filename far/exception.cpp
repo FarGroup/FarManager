@@ -5,10 +5,13 @@ farexcpt.cpp
 
 */
 
-/* Revision: 1.05 11.07.2001 $ */
+/* Revision: 1.06 16.09.2001 $ */
 
 /*
 Modify:
+  16.09.2001 SVS
+    ! Отключаемые исключения
+    ! Удалена кнопка "Debug" за ненадобностью
   10.07.2001 SVS
     + FARAREARECORD.ScrWH - размеры экрана - ширина, высота
   26.06.2001 SVS
@@ -555,8 +558,7 @@ int xfilter(
      else
        sprintf(Buf[0],MSG(MExcStructWrongFilled),pName);
 
-     Ret=Message(MSG_WARNING,
-            (Opt.ExceptCallDebugger?2:1),
+     Ret=Message(MSG_WARNING,1,
             xFromMSGTitle(From),
             MSG(MExcTrappedException),
             MSG(MExcCheckOnLousys),
@@ -564,8 +566,7 @@ int xfilter(
             Buf[0],
             "\1",
             MSG(MExcUnloadYes),
-            (Opt.ExceptCallDebugger?MSG(MExcDebugger):MSG(MOk)),
-            (Opt.ExceptCallDebugger?MSG(MOk):NULL));
+            MSG(MOk));
 
      if (!Opt.ExceptCallDebugger || Ret!=0)
        Unload = TRUE;
@@ -627,40 +628,35 @@ int xfilter(
      sprintf(Buf[0],MSG(MExcAddress),xr->ExceptionAddress);
      if (Flags&1)
      {
-       Ret=Message(MSG_WARNING,(Opt.ExceptCallDebugger?3:2),
+       Ret=Message(MSG_WARNING,2,
                xFromMSGTitle(From),
                MSG(MExcTrappedException),
                pName,
                Buf[0],
                TruncPathStr(TruncFileName,40),"\1",
                MSG(MExcUnload),
-               (Opt.ExceptCallDebugger?MSG(MExcDebugger):MSG(MYes)),
-               (Opt.ExceptCallDebugger?MSG(MYes):MSG(MNo)),
-               (Opt.ExceptCallDebugger?MSG(MNo):NULL));
-       if ((Opt.ExceptCallDebugger && Ret == 1) ||
-           (!Opt.ExceptCallDebugger && Ret == 0))
+               MSG(MYes),
+               MSG(MNo));
+
+       if (Ret == 1)
          Unload = TRUE; // CtrlObject->Plugins.UnloadPlugin(*Module);
      }
      else
-       Ret=Message(MSG_WARNING,(Opt.ExceptCallDebugger?2:1),
+       Ret=Message(MSG_WARNING,1,
                xFromMSGTitle(From),
                MSG(MExcTrappedException),
                pName,
                Buf[0],
                TruncPathStr(TruncFileName,40),"\1",
                MSG(MExcUnloadYes),
-               (Opt.ExceptCallDebugger?MSG(MExcDebugger):MSG(MOk)),
-               (Opt.ExceptCallDebugger?MSG(MOk):NULL));
+               MSG(MOk));
      /* skv$*/
    } /* else */
 
    if (Unload)
      CtrlObject->Plugins.UnloadPlugin(*Module);
 
-   if (Opt.ExceptCallDebugger && Ret==0)
-     rc = EXCEPTION_CONTINUE_SEARCH;
-   else
-     rc = EXCEPTION_EXECUTE_HANDLER;
+   rc = EXCEPTION_EXECUTE_HANDLER;
    /* VVM $ */
 
 //   if(IsDebuggerPresent())

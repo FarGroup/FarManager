@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.49 07.09.2001 $ */
+/* Revision: 1.50 16.09.2001 $ */
 
 /*
 Modify:
+  16.09.2001 SVS
+    ! Отключаемые исключения
   07.09.2001 SVS
     ! Флаги для макросов MFLAGS_* переехали из macro.cpp
   02.08.2001 IS
@@ -234,17 +236,12 @@ enum ReadDizFlags {
 #define STATUS_STRUCTWRONGFILLED       0xE0001000
 #define STATUS_INVALIDFUNCTIONRESULT   0xE0002000
 
-#if defined(FARTRY)
- #if defined(__BORLANDC__)
-  #define TRY      try
- #else
-  #define TRY   __try
- #endif
- #define EXCEPT __except
+#if defined(__BORLANDC__)
+#define TRY      try
 #else
-  #define TRY
-  #define EXCEPT(a) if(0)
+#define TRY   __try
 #endif
+#define EXCEPT __except
 
 #define DRIVE_SUBSTITUTE    0x0F
 #define DRIVE_NOT_INIT      0xFF

@@ -5,10 +5,12 @@ stddlg.cpp
 
 */
 
-/* Revision: 1.16 09.09.2001 $ */
+/* Revision: 1.17 14.09.2001 $ */
 
 /*
 Modify:
+  14.09.2001 SVS
+    ! Отключаемые исключения
   09.09.2001 SVS
     + GetMenuHotKey()
   01.08.2001 SVS
@@ -470,21 +472,29 @@ int WINAPI GetString(const char *Title,const char *Prompt,
     StrDlg[2].Data[sizeof(StrDlg[2].Data)-1]=0;
   }
 
-
-  TRY{
+  {
     Dialog Dlg(StrDlg,sizeof(StrDlg)/sizeof(StrDlg[0])-Substract,GetStringDlgProc);
     Dlg.SetPosition(-1,-1,76,(Flags&FIB_BUTTONS)?8:6);
 
     if (HelpTopic!=NULL)
       Dlg.SetHelp(HelpTopic);
 
-    Dlg.Process();
+    if(Opt.ExceptRules)
+    {
+      TRY{
+        Dlg.Process();
+      }
+      EXCEPT ( xfilter(EXCEPT_FARDIALOG,
+                       GetExceptionInformation(),NULL,1)) // NULL=???
+      {
+        return FALSE;
+      }
+    }
+    else
+    {
+      Dlg.Process();
+    }
     ExitCode=Dlg.GetExitCode();
-  }
-  EXCEPT ( xfilter(EXCEPT_FARDIALOG,
-                   GetExceptionInformation(),NULL,1)) // NULL=???
-  {
-    return FALSE;
   }
 
   if (DestLength >= 1 && (ExitCode == 2 || ExitCode == 4))

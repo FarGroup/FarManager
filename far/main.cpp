@@ -5,10 +5,12 @@ main.cpp
 
 */
 
-/* Revision: 1.33 05.09.2001 $ */
+/* Revision: 1.34 16.09.2001 $ */
 
 /*
 Modify:
+  16.09.2001 SVS
+    - Отключаемые исключения (+ спец опция ком.строки для этих целей)
   05.09.2001 SVS
     ! SetHighlighting() переехала в hilight.cpp
   08.08.2001 SVS
@@ -156,6 +158,8 @@ printf(
 "      View the specified file. If <filename> is -, data is read from the stdin.\n"
 " /co\n"
 "      Forces FAR to load plugins from the cache only.\n"
+" /x\n"
+"      Disable exception handling.\n"
 #ifdef DIRECT_RT
 " /do\n"
 "      Direct output.\n"
@@ -171,6 +175,7 @@ int _cdecl main(int Argc, char *Argv[])
   int StartLine=-1,StartChar=-1,RegOpt=FALSE;
   *EditName=*ViewName=*DestName=0;
   CmdMode=FALSE;
+  Opt.ExceptRules=-1;
 
   /* $ 30.12.2000 SVS
      Проинициализируем функции работы с атрибутами Encryped сразу после
@@ -231,6 +236,9 @@ int _cdecl main(int Argc, char *Argv[])
           break;
         case 'I':
           Opt.SmallIcon=TRUE;
+          break;
+        case 'X':
+          Opt.ExceptRules=0;
           break;
         case 'U':
           if (I+1<Argc)

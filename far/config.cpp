@@ -5,10 +5,13 @@ config.cpp
 
 */
 
-/* Revision: 1.93 09.09.2001 $ */
+/* Revision: 1.94 16.09.2001 $ */
 
 /*
 Modify:
+  16.09.2001 SVS
+    ! Opt.ExceptCallDebugger удален в связи со сменой статуса опции
+      Opt.ExceptRules
   09.09.2001 IS
     + обновим настройки ком.строки при выходе из Interface settings, чтобы
       установился правильный режим "постоянные блоки"
@@ -1033,7 +1036,6 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeySystem,"SetAttrFolderRules",&Opt.SetAttrFolderRules,1, 0},
   {0, REG_DWORD,  NKeySystem,"MaxPositionCache",&Opt.MaxPositionCache,64, 0},
   {0, REG_DWORD,  NKeySystem,"AllCtrlAltShiftRule",&Opt.AllCtrlAltShiftRule,0x0000FFFF, 0},
-  {0, REG_DWORD,  NKeySystem,"ExceptRules",&Opt.ExceptRules,0, 0},
   {0, REG_DWORD,  NKeySystem,"CopyTimeRule",  &Opt.CopyTimeRule, 0, 0},
   {0, REG_SZ,     NKeySystem,"ConsoleDetachKey", KeyNameConsoleDetachKey, sizeof(KeyNameConsoleDetachKey),"CtrlAltTab"},
   {1, REG_SZ,     NKeySystem,"PersonalPluginsPath",Opt.PersonalPluginsPath,sizeof(Opt.PersonalPluginsPath),PersonalPluginsPath},
@@ -1153,6 +1155,8 @@ void ReadConfig()
   SetRegRootKey(HKEY_LOCAL_MACHINE);
   GetRegKey("System","TemplatePluginsPath",PersonalPluginsPath,"",sizeof(Opt.PersonalPluginsPath));
   SetRegRootKey(HKEY_CURRENT_USER);
+  if(Opt.ExceptRules == -1)
+    GetRegKey("System","ExceptRules",Opt.ExceptRules,1);
   /* *************************************************** </ПРЕПРОЦЕССЫ> */
 
   for(I=0; I < sizeof(CFG)/sizeof(CFG[0]); ++I)
@@ -1210,7 +1214,6 @@ void ReadConfig()
      strcpy(Opt.XLat.WordDivForXlat,WordDivForXlat0);
   if(Opt.MaxPositionCache < 16 || Opt.MaxPositionCache > 128)
     Opt.MaxPositionCache=64;
-  Opt.ExceptCallDebugger = Opt.ExceptRules & 0x00000001;
   Opt.PanelRightClickRule%=3;
   Opt.PanelCtrlAltShiftRule%=3;
   Opt.ConsoleDetachKey=KeyNameToKey(KeyNameConsoleDetachKey);
