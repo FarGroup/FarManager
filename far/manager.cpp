@@ -5,10 +5,14 @@ manager.cpp
 
 */
 
-/* Revision: 1.04 28.07.2000 $ */
+/* Revision: 1.05 29.12.2000 $ */
 
 /*
 Modify:
+  29.12.2000 IS
+    + Метод ExitAll - аналог CloseAll, но разрешает продолжение полноценной
+      работы в фаре, если пользователь продолжил редактировать файл.
+      Возвращает TRUE, если все закрыли и можно выходить из фара.
   28.07.2000 tran 1.04
     + косметика при выводе списка окон -
       измененные файлы в редакторе маркируются "*"
@@ -45,6 +49,38 @@ Manager::Manager()
   /* tran $ */
 }
 
+/* $ 29.12.2000 IS
+  Аналог CloseAll, но разрешает продолжение полноценной работы в фаре,
+  если пользователь продолжил редактировать файл.
+  Возвращает TRUE, если все закрыли и можно выходить из фара.
+*/
+BOOL Manager::ExitAll()
+{
+  int I, J;
+  for (I=0;I<ModalCount;I++)
+  {
+    Modal *CurModal=ModalList[I];
+    CurModal->ClearDone();
+    CurModal->Show();
+    CurModal->ProcessKey(KEY_ESC);
+    if (!CurModal->Done())
+    {
+      CurModal->ShowConsoleTitle();
+      ModalPos=I;
+      NextModal(0);
+      return FALSE;
+    }
+    else
+    {
+     delete CurModal;
+     if(ModalCount>1) for (J=I+1;J<ModalCount;J++) ModalList[J-1]=ModalList[J];
+     ModalCount--;
+     I--;
+    }
+  }
+  return TRUE;
+}
+/* IS $ */
 
 void Manager::CloseAll()
 {

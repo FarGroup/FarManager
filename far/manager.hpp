@@ -7,10 +7,12 @@ manager.hpp
 
 */
 
-/* Revision: 1.01 28.06.2000 $ */
+/* Revision: 1.02 29.12.2000 $ */
 
 /*
 Modify:
+  29.12.2000 IS
+    + Метод ExitAll
   28.06.2000 tran
     - NT Console resize bug
       add class member ActiveModal
@@ -36,6 +38,13 @@ class Manager
     void AddModal(Modal *NewModal);
     void NextModal(int Increment);
     void CloseAll();
+    /* $ 29.12.2000 IS
+         Аналог CloseAll, но разрешает продолжение полноценной работы в фаре,
+         если пользователь продолжил редактировать файл.
+         Возвращает TRUE, если все закрыли и можно выходить из фара.
+    */
+    BOOL ExitAll();
+    /* IS $ */
     BOOL IsAnyModalModified(int Activate);
     void SelectModal();
     int GetModalCount() {return(ModalCount);};
@@ -50,5 +59,4 @@ class Manager
     /* tran $ */
 };
 
-#endif	// __MANAGER_HPP__
-
+#endif  // __MANAGER_HPP__

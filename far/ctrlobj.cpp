@@ -5,10 +5,13 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.11 15.12.2000 $ */
+/* Revision: 1.12 29.12.2000 $ */
 
 /*
 Modify:
+  29.12.2000 IS
+    + Проверяем при выходе, сохранены ли все измененные файлы. Если нет, то
+      не выходим из фара.
   15.12.2000 SVS
     ! Метод ShowCopyright - public static & параметр Flags.
       Если Flags&1, то использовать printf вместо внутренних функций
@@ -699,6 +702,12 @@ void ControlObject::EnterMainLoop()
 void ControlObject::ExitMainLoop(int Ask)
 {
   if (!Ask || !Opt.Confirm.Exit || Message(0,2,MSG(MQuit),MSG(MAskQuit),MSG(MYes),MSG(MNo))==0)
+   /* $ 29.12.2000 IS
+      + Проверяем, сохранены ли все измененные файлы. Если нет, то не выходим
+        из фара.
+   */
+   if(ModalManager.ExitAll())
+   /* IS $ */
     if (!LeftPanel->ProcessPluginEvent(FE_CLOSE,NULL) && !RightPanel->ProcessPluginEvent(FE_CLOSE,NULL))
       EndLoop=TRUE;
 }
