@@ -37,11 +37,8 @@ void PluginClass::FreeArcData()
   ArcDataCount=0;
 }
 
-int PluginClass::ReadArchive(char *Name)
+int PluginClass::PreReadArchive(char *Name)
 {
-  FreeArcData();
-  DizPresent=FALSE;
-
   HANDLE ArcFindHandle;
   ArcFindHandle=FindFirstFile(Name,&ArcFindData);
   FindClose(ArcFindHandle);
@@ -49,13 +46,28 @@ int PluginClass::ReadArchive(char *Name)
   if (ArcFindHandle==INVALID_HANDLE_VALUE)
     return FALSE;
 
-  if (!ArcPlugin->OpenArchive(ArcPluginNumber,Name,&ArcPluginType))
-    return FALSE;
-
   strcpy(ArcName,Name);
 
   if (strchr(FSF.PointToName(ArcName),'.')==NULL)
     strcat(ArcName,".");
+
+  return TRUE;
+}
+
+int PluginClass::ReadArchive(char *Name)
+{
+  FreeArcData();
+  DizPresent=FALSE;
+
+  HANDLE ArcFindHandle;
+  ArcFindHandle=FindFirstFile(ArcName,&ArcFindData);
+  FindClose(ArcFindHandle);
+
+  if (ArcFindHandle==INVALID_HANDLE_VALUE)
+    return FALSE;
+
+  if (!ArcPlugin->OpenArchive(ArcPluginNumber,Name,&ArcPluginType))
+    return FALSE;
 
   memset(&ItemsInfo,0,sizeof(ItemsInfo));
   memset(&CurArcInfo,0,sizeof(CurArcInfo));
@@ -234,8 +246,7 @@ int PluginClass::GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int 
     return FALSE;
 
   if (CompareFileTime(&NewArcFindData.ftLastWriteTime,&ArcFindData.ftLastWriteTime)!=0 ||
-      NewArcFindData.nFileSizeLow!=ArcFindData.nFileSizeLow
-      /* || ArcData==NULL AY: Вроде это не надо*/)
+      NewArcFindData.nFileSizeLow!=ArcFindData.nFileSizeLow || ArcData==NULL)
   {
     BOOL ReadArcOK=FALSE;
     DWORD size = Info.AdvControl(Info.ModuleNumber,ACTL_GETPLUGINMAXREADDATA,(void *)0);

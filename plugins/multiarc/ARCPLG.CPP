@@ -9,6 +9,8 @@ Modify:
 #include "multiarc.hpp"
 #include "marclng.hpp"
 
+typedef int (__cdecl *FCMP)(const void *, const void *);
+
 ArcPlugins::ArcPlugins(const char *ModuleName)
 {
   char PluginsFolder[NM],*NamePtr;
@@ -23,6 +25,23 @@ ArcPlugins::ArcPlugins(const char *ModuleName)
   strcpy(NamePtr,"\\Formats\\");
   FSF.FarRecursiveSearch(PluginsFolder,"*.fmt",
                     (FRSUSERFUNC)LoadFmtModules,FRS_RECUR,this);
+
+  FSF.qsort(PluginsData,PluginsCount,sizeof(struct PluginItem),(FCMP)CompareFmtModules);
+}
+
+int __cdecl ArcPlugins::CompareFmtModules(const void *elem1, const void *elem2)
+{
+  char *left = (((struct PluginItem *)elem1)->ModuleName);
+  char *right = (((struct PluginItem *)elem2)->ModuleName);
+  DWORD try_left=(((struct PluginItem *)elem1)->TryIfNoOther);
+  DWORD try_right=(((struct PluginItem *)elem2)->TryIfNoOther);
+
+  if (try_left && !try_right)
+    return 1;
+  if (!try_left && try_right)
+    return -1;
+
+  return FSF.LStricmp(left,right);
 }
 
 int WINAPI ArcPlugins::LoadFmtModules(const WIN32_FIND_DATA *fdata,
@@ -40,6 +59,7 @@ int WINAPI ArcPlugins::LoadFmtModules(const WIN32_FIND_DATA *fdata,
     strcpy(CurPlugin.ModuleName,fdata->cFileName);
     CurPlugin.hModule=hModule;
     CurPlugin.Flags=0;
+    CurPlugin.TryIfNoOther=GetRegKey(HKEY_CURRENT_USER,"TryIfNoOther",CurPlugin.ModuleName,0);
     CurPlugin.pLoadFormatModule=(PLUGINLOADFORMATMODULE)GetProcAddress(hModule,"LoadFormatModule");
     CurPlugin.pIsArchive=(PLUGINISARCHIVE)GetProcAddress(hModule,"IsArchive");
     CurPlugin.pOpenArchive=(PLUGINOPENARCHIVE)GetProcAddress(hModule,"OpenArchive");
@@ -105,7 +125,9 @@ int ArcPlugins::IsArchive(char *Name,const unsigned char *Data,int DataSize)
   int I, J;
 
   for (I=0; I < PluginsCount; I++)
-  { 
+  {
+    if (TrueArc>-1 && PluginsData[I].TryIfNoOther)
+      break;
     if (IsArchive(I, Name, Data, DataSize, &CurSFXSize))
     {
       if(CurSFXSize <= MinSFXSize)
@@ -120,17 +142,17 @@ int ArcPlugins::IsArchive(char *Name,const unsigned char *Data,int DataSize)
 
 BOOL ArcPlugins::IsArchive(int ArcPluginNumber, char *Name,const unsigned char *Data,int DataSize, DWORD* SFXSize)
 {
-	struct PluginItem *CurPluginsData=PluginsData+ArcPluginNumber;
-	if (CurPluginsData->pIsArchive &&
-		CurPluginsData->pIsArchive(Name,Data,DataSize))
-	{
+  struct PluginItem *CurPluginsData=PluginsData+ArcPluginNumber;
+  if (CurPluginsData->pIsArchive &&
+    CurPluginsData->pIsArchive(Name,Data,DataSize))
+  {
       if(CurPluginsData->pGetSFXPos)
         *SFXSize=CurPluginsData->pGetSFXPos();
       else
         *SFXSize=0;
-	  return TRUE;
-	}
-	return FALSE;
+    return TRUE;
+  }
+  return FALSE;
 }
 
 BOOL ArcPlugins::OpenArchive(int PluginNumber,char *Name,int *Type)

@@ -131,6 +131,7 @@ struct PluginItem
   char ModuleName[NM];
   HMODULE hModule;
   DWORD Flags;
+  DWORD TryIfNoOther;
   struct PluginStartupInfo Info;
   struct FarStandardFunctions FSF;
 
@@ -166,6 +167,8 @@ class ArcPlugins
     BOOL GetDefaultCommands(int PluginNumber,int Type,int Command,char *Dest);
     int  FmtCount() {return PluginsCount;}
     static int WINAPI LoadFmtModules(const WIN32_FIND_DATA *FData,const char *FullName,ArcPlugins *plugins);
+    static int __cdecl CompareFmtModules(const void *elem1, const void *elem2);
+
 };
 
 
@@ -198,6 +201,7 @@ class PluginClass
     ~PluginClass();
 
   public:
+    int PreReadArchive(char *Name);
     int ReadArchive(char *Name);
     int GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode);
     void FreeFindData(PluginPanelItem *PanelItem,int ItemsNumber);

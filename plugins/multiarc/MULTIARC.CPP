@@ -79,11 +79,8 @@ HANDLE WINAPI _export OpenFilePlugin(char *Name,const unsigned char *Data,
   if (Name!=NULL)
   {
     PluginClass *Plugin=(PluginClass *)hPlugin;
-    int ReadCode=Plugin->ReadArchive(Name);
-    if (ReadCode==0)
+    if (!Plugin->PreReadArchive(Name))
       return INVALID_HANDLE_VALUE;
-    if (ReadCode==-1)
-      return (HANDLE)-2;
   }
   return hPlugin;
 }
@@ -99,9 +96,14 @@ HANDLE WINAPI OpenPlugin(int OpenFrom, int Item)
     {
       if (((char *)Item)[strlen(Opt.CommandPrefix1)+1]==0)
         return INVALID_HANDLE_VALUE;
+      char oldfilename[NM+2];
+      strncpy(oldfilename,&((char *)Item)[strlen(Opt.CommandPrefix1)+1],sizeof(oldfilename)-1);
+      oldfilename[sizeof(oldfilename)-1]=0;
+      FSF.Unquote(oldfilename);
+      FSF.ExpandEnvironmentStr(oldfilename,oldfilename,NM);
       char filename[NM];
       char *fnp;
-      DWORD bl = GetFullPathName(&((char *)Item)[strlen(Opt.CommandPrefix1)+1],NM,filename,&fnp);
+      DWORD bl = GetFullPathName(oldfilename,NM,filename,&fnp);
       if (bl>NM || bl==0)
         return INVALID_HANDLE_VALUE;
       HANDLE h = CreateFile(filename,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,NULL);
