@@ -11,7 +11,7 @@ $^#Copyright (C) 2000 FAR Group.#
    ~Keyboard reference~@KeyRef@
    ~Command line switches~@CmdLine@
    ~Plugins support~@Plugins@
-   ~Plugin possibilities review~@PluginsReviews@
+   ~Plugins possibilities review~@PluginsReviews@
 
    ~Panels:~@Panels@  ~File panel~@FilePanel@
             ~Tree panel~@TreePanel@
@@ -463,7 +463,7 @@ folder. Unlike "CD" "CHDIR" command always treats the specified parameter as
 a real folder name regardless a file panel type.
 
 @PluginsReviews
-$ #Plugin possibilities review#
+$ #Plugins possibilities review#
     The FAR manager shell as far as possible integrated with its
 plugins, so to talk about FAR and do not talk about plugins is simply
 senselessly. Plugins are extremely widen FAR manager possibilities,
