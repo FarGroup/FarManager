@@ -5,10 +5,13 @@ Screen grabber
 
 */
 
-/* Revision: 1.09 24.05.2002 $ */
+/* Revision: 1.10 02.06.2002 $ */
 
 /*
 Modify:
+  02.06.2002 SVS
+    ! Grabber::CopyGrabbedArea - изменен алгоритм преобразования
+      CHAR_INFO в char (исключены strcat)
   24.05.2002 SVS
     ! "FAR_VerticalBlock" -> FAR_VerticalBlock
     ! Запуск грабера вынесен в отдельную функцию grabber.cpp::RunGraber()
@@ -109,24 +112,26 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
   X2=Max(GArea.X1,GArea.X2);
   Y1=Min(GArea.Y1,GArea.Y2);
   Y2=Max(GArea.Y1,GArea.Y2);
-  int BufSize=(X2-X1+3)*(Y2-Y1+1);
-  CHAR_INFO *CharBuf=new CHAR_INFO[BufSize];
-  char *CopyBuf=new char[BufSize];
+  int GWidth=X2-X1+1,GHeight=Y2-Y1+1;
+  int BufSize=(GWidth+3)*GHeight;
+  CHAR_INFO *CharBuf=new CHAR_INFO[BufSize], *PtrCharBuf;
+  char *CopyBuf=new char[BufSize], *PtrCopyBuf;
   GetText(X1,Y1,X2,Y2,CharBuf);
   *CopyBuf=0;
-  for (int I=0;I<Y2-Y1+1;I++)
+  PtrCharBuf=CharBuf;
+  PtrCopyBuf=CopyBuf;
+  for (int I=0;I<GHeight;I++)
   {
     if (I>0)
-      strcat(CopyBuf,"\r\n");
-    for (int J=0;J<X2-X1+1;J++)
     {
-#if defined(USE_WFUNC)
-      int Idx=I*(X2-X1+1)+J;
-      char Chr=GetVidChar(CharBuf[Idx]);
-      strncat(CopyBuf,&Chr,1);
-#else
-      strncat(CopyBuf,&CharBuf[I*(X2-X1+1)+J].Char.AsciiChar,1);
-#endif
+      *PtrCopyBuf++='\r';
+      *PtrCopyBuf++='\n';
+      *PtrCopyBuf=0;
+    }
+    for (int J=0;J<GWidth;J++, ++PtrCharBuf)
+    {
+      *PtrCopyBuf++=GetVidChar(*PtrCharBuf);
+      *PtrCopyBuf=0;
     }
     for (int K=strlen(CopyBuf)-1;K>=0 && CopyBuf[K]==' ';K--)
       CopyBuf[K]=0;

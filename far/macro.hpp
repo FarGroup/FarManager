@@ -7,10 +7,13 @@ macro.hpp
 
 */
 
-/* Revision: 1.21 12.04.2002 $ */
+/* Revision: 1.22 02.06.2002 $ */
 
 /*
 Modify:
+  02.06.2002 SVS
+    ! Внедрение const
+    ! ParseMacroString стала public
   12.04.2002 SVS
     ! Уберем #if/#endif - выбор на уровне MAK-файла (технологический патч)
     ! SaveMacros - один параметр
@@ -130,8 +133,6 @@ class KeyMacro
     void InitVars();
     void ReleaseTempBuffer(BOOL All=FALSE); // удалить временный буфер
 
-    // из строкового представления макроса сделать MacroRecord
-    int ParseMacroString(struct MacroRecord *CurMacro,char *BufPtr);
     DWORD SwitchFlags(DWORD& Flags,DWORD Value);
     static long WINAPI AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
     char *MkRegKeyName(int IdxMacro,char *RegKeyName);
@@ -187,6 +188,8 @@ class KeyMacro
     static char* GetSubKey(int Mode);
     static int   GetSubKey(char *Mode);
     static char *MkTextSequence(DWORD *Buffer,int BufferSize);
+    // из строкового представления макроса сделать MacroRecord
+    int ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr);
 };
 
 #endif	// __KEYMACRO_HPP__

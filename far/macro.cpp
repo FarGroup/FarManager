@@ -8,10 +8,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.81 24.05.2002 $ */
+/* Revision: 1.82 02.06.2002 $ */
 
 /*
 Modify:
+  02.06.2002 SVS
+    ! Внедрение const
   24.05.2002 SVS
     + Обработка KEY_ALTINS
   18.05.2002 SVS
@@ -1463,7 +1465,7 @@ int KeyMacro::PostTempKeyMacro(struct MacroRecord *MRec)
 }
 
 // Парсер строковых эквивалентов в коды клавиш
-int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,char *BufPtr)
+int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
 {
   int J,I;
   BOOL IsKeyWord2;
@@ -1486,7 +1488,7 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,char *BufPtr)
     if (*BufPtr==0)
       break;
 
-    char *CurBufPtr=BufPtr;
+    const char *CurBufPtr=BufPtr;
 
     // ищем конец очередного названия клавиши
     while (*BufPtr && !IsSpace(*BufPtr))
@@ -1542,7 +1544,7 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,char *BufPtr)
     {
       case KEY_MACRODATE:
       {
-        char *BufPtr2=BufPtr;
+        const char *BufPtr2=BufPtr;
         memset(CurKeyText,0,sizeof(CurKeyText));
         // ищем первую кавычку
         while (*BufPtr && *BufPtr != '"')
@@ -1551,23 +1553,23 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,char *BufPtr)
         {
             ++BufPtr;
           // ищем конечную кавычку
-          CurBufPtr=CurKeyText;
+          char *PtrCurKeyText=CurKeyText;
           while (*BufPtr)
           {
             if(*BufPtr == '\\' && BufPtr[1] == '"')
             {
-              *CurBufPtr++='\\';
-              *CurBufPtr++='"';
+              *PtrCurKeyText++='\\';
+              *PtrCurKeyText++='"';
               BufPtr+=2;
             }
             else if(*BufPtr == '"')
             {
-              *CurBufPtr=0;
+              *PtrCurKeyText=0;
               BufPtr++;
               break;
             }
             else
-              *CurBufPtr++=*BufPtr++;
+              *PtrCurKeyText++=*BufPtr++;
           }
           if(*BufPtr)
             BufPtr++;

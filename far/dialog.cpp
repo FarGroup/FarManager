@@ -5,10 +5,17 @@ dialog.cpp
 
 */
 
-/* Revision: 1.249 31.05.2002 $ */
+/* Revision: 1.250 02.06.2002 $ */
 
 /*
 Modify:
+  02.06.2002 SVS
+    - Проблема с unchanged так и осталась - после посылки DN_KEY проверим
+      состояние элемента (могло изменится плагином в обработчике)
+    - DM_LISTSETDATA возвращает 0, если ему не приходится выделять память
+      (т.е. размер <= 4). Это как-то не соответствует букве закона. По
+      энциклопедии 0 - ошибка.
+      Вернем "4" в этом случае.
   31.05.2002 SVS
     - BugZ#412 - bug в combobox'ах
       (при изменении размеров листа добавим вызов функции VMenu::SetMaxHeight)
@@ -2786,6 +2793,10 @@ int Dialog::ProcessKey(int Key)
   if(!DialogMode.Check(DMODE_KEY))
     if(DlgProc((HANDLE)this,DM_KEY,CurFocusPos,Key)) // FocusPos?
       return TRUE;
+
+  // А ХЗ, может в этот момент изменилось состояние элемента!
+  if(CurItem->Flags&DIF_HIDDEN)
+    return TRUE;
 
   // небольшая оптимизация
   if(Type==DI_CHECKBOX)
@@ -5899,9 +5910,12 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
               if(ListItems &&
                  ListItems->Index < ListBox->GetItemCount())
               {
-                  return ListBox->SetUserData(ListItems->Data,
-                                              ListItems->DataSize,
-                                              ListItems->Index);
+                Ret=ListBox->SetUserData(ListItems->Data,
+                                            ListItems->DataSize,
+                                            ListItems->Index);
+                if(!Ret && ListBox->GetUserData(NULL,0,ListItems->Index))
+                  Ret=sizeof(DWORD);
+                return Ret;
               }
               return 0;
             }

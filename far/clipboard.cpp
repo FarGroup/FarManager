@@ -5,10 +5,13 @@ clipboard.cpp
 
 */
 
-/* Revision: 1.06 29.04.2002 $ */
+/* Revision: 1.07 02.06.2002 $ */
 
 /*
 Modify:
+  02.06.2002 SVS
+    ! ≈сли в CopyToClipboard переданы пуста€ строка, то это верный
+      признак того, что очищаем клипборд.
   29.04.2002 SVS
     ! немного const
   16.10.2001 SVS
@@ -35,13 +38,13 @@ Modify:
 int WINAPI CopyToClipboard(const char *Data)
 {
   long DataSize;
+  if (!OpenClipboard(NULL))
+    return(FALSE);
+  EmptyClipboard();
   if (Data!=NULL && (DataSize=strlen(Data))!=0)
   {
     HGLOBAL hData;
     void *GData;
-    if (!OpenClipboard(NULL))
-      return(FALSE);
-    EmptyClipboard();
     int BufferSize=DataSize+1;
     if ((hData=GlobalAlloc(GMEM_MOVEABLE|GMEM_DDESHARE,BufferSize))!=NULL)
       if ((GData=GlobalLock(hData))!=NULL)
@@ -66,8 +69,8 @@ int WINAPI CopyToClipboard(const char *Data)
           GlobalUnlock(hData);
           SetClipboardData(CF_UNICODETEXT,(HANDLE)hData);
         }
-    CloseClipboard();
   }
+  CloseClipboard();
   return(TRUE);
 }
 
