@@ -1758,6 +1758,8 @@ $ #Internal viewer#
 
     #Ctrl-Ins, Ctrl-C#   Copy selection to clipboard
 
+    #Ctrl-U#             Clear selection
+
     Notes:
 
     1. Custom character tables are provided in "Addons\Tables"

@@ -7,10 +7,13 @@ Internal viewer
 
 */
 
-/* Revision: 1.23 17.12.2002 $ */
+/* Revision: 1.24 23.01.2003 $ */
 
 /*
 Modify:
+  23.01.2003 VVM
+    + AdjustSelPosition - устанавливается сразу после найденного слова для
+      выравнивания показа по выделенному.
   17.12.2002 SVS
     ! Viewer64. Все файловые смещения и размеры приведены к __int64, что
       позволяет существенно повысить верхний предел размерности
@@ -206,6 +209,7 @@ class Viewer:public ScreenObject
     bool OpenFailed;
     FileViewer *HostFileViewer;
     /* SVS $ */
+    bool AdjustSelPosition;
 
   private:
     void DisplayObject();

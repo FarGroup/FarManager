@@ -5,10 +5,15 @@ Internal viewer
 
 */
 
-/* Revision: 1.117 07.01.2003 $ */
+/* Revision: 1.118 23.01.2003 $ */
 
 /*
 Modify:
+  23.01.2003 VVM
+    + Выделение не сбрасывается после перемещения по файлу.
+    + Новое сочетание CTRL+U - сбросить выделение.
+    - В режиме hex-просмотра при нажати на RIGHT в строке состояния "бежали колонки"
+      Заблокировал сдвиг вправо при hex-просмотре.
   07.01.2003 SVS
     - BugZ#761 - Searching window disappears
   28.12.2002 IS
@@ -572,6 +577,7 @@ int Viewer::OpenFile(const char *Name,int warning)
   FILE *NewViewFile=NULL;
   OpenFailed=false;
   strcpy(FileName,Name);
+  SelectSize = 0; // Сбросим выделение
 
   if (CmdMode && strcmp(Name,"-")==0)
   {
@@ -901,70 +907,66 @@ void Viewer::DisplayObject()
         else
           mprintf("%-*.*s",Width,Width,&OutStr[I][(int)LeftPos]);
         /* SVS $*/
-        /* $ 18.07.2000 tran -
-           проверка флага
-        */
-        if (strlen(&OutStr[I][(int)LeftPos]) > Width && ViOpt.ShowArrows)
-        {
-          GotoXY(XX2,Y);
-          SetColor(COL_VIEWERARROWS);
-          mprintf(">");
-        }
       }
       else
         mprintf("%*s",Width,"");
-      /* $ 18.07.2000 tran -
-         проверка флага
-      */
-      if (LeftPos>0 && *OutStr[I]!=0  && ViOpt.ShowArrows)
+
+      if (SelSize && SelPos >= LeftPos)
       {
-        GotoXY(X1,Y);
-        SetColor(COL_VIEWERARROWS);
-        mprintf("<");
-      }
-      if (SelSize)
-      {
-        if(SelPos < LeftPos)
+        int SelX1=(int)((__int64)X1+SelPos-LeftPos);
+        /* $ 12.07.2000 SVS
+           ! Wrap - трех позиционный
+        */
+        if (!VM.Wrap && SelPos > LeftPos &&
+        /* SVS $ */
+           SelX1+SaveSelectSize-1>XX2 && LeftPos<MAX_VIEWLINE
+        /* $ 11.01.2000 VVM
+           Левый край считается за раз, а не итерациями по +4 */
+           && (X1+SelPos+SaveSelectSize-XX2<MAX_VIEWLINE))
+        /* VVM $ */
         {
-          LeftPos=SelPos;
-          SelectSize=SaveSelectSize;
-          Show();
-          return;
-        }
-        else // SelPos >= LeftPos
-        {
-          int SelX1=(int)((__int64)X1+SelPos-LeftPos);
-          /* $ 12.07.2000 SVS
-             ! Wrap - трех позиционный
-          */
-          if (!VM.Wrap && SelPos > LeftPos &&
-          /* SVS $ */
-             SelX1+SaveSelectSize-1>XX2 && LeftPos<MAX_VIEWLINE
-          /* $ 11.01.2000 VVM
-             Левый край считается за раз, а не итерациями по +4 */
-             && (X1+SelPos+SaveSelectSize-XX2<MAX_VIEWLINE))
-          {
-  //          LeftPos+=4;
+          if (AdjustSelPosition)
+	  {
             LeftPos=X1+SelPos+SaveSelectSize-XX2;
-          /* VVM $ */
             SelectSize=SaveSelectSize;
+            AdjustSelPosition = FALSE;
             Show();
             return;
-          }
+	  }
+        } /* if */
+        else
+		{
           SetColor(COL_VIEWERSELECTEDTEXT);
           GotoXY(SelX1,Y);
           if (SelSize>XX2-SelX1+1)
             SelSize=XX2-SelX1+1;
           /* $ 06.02.2001 IS
-               см. SelectText
+             см. SelectText
           */
           if (SelSize>0)
             mprintf("%.*s",(int)SelSize,&OutStr[I][(int)(SelPos+SelectPosOffSet)]);
           /* IS $ */
-        }
+		} /* else */
       }
-    }
+
+      /* $ 18.07.2000 tran -
+         проверка флага
+      */
+      if (strlen(&OutStr[I][(int)LeftPos]) > Width && ViOpt.ShowArrows)
+	  {
+        GotoXY(XX2,Y);
+        SetColor(COL_VIEWERARROWS);
+        mprintf(">");
+	  }
+      if (LeftPos>0 && *OutStr[I]!=0  && ViOpt.ShowArrows)
+	  {
+        GotoXY(X1,Y);
+        SetColor(COL_VIEWERARROWS);
+        mprintf("<");
+	  }
+    } /* for */
   } // if (Hex)  - else
+
 
   /* $ 27.04.2001 DJ
      рисование скроллбара - в отдельную функцию
@@ -1161,15 +1163,32 @@ void Viewer::ShowUp()
       else
         mprintf("%-*.*s",Width,Width,&OutStr[I][(int)LeftPos]);
       /* SVS $ */
-      if (strlen(&OutStr[I][(int)LeftPos])>Width && ViOpt.ShowArrows)
-      {
-        GotoXY(XX2,Y);
-        SetColor(COL_VIEWERARROWS);
-        mprintf(">");
-      }
     }
     else
       mprintf("%*s",Width,"");
+
+    if (SelectPos >= StrFilePos[I] + LeftPos && SelectPos <= StrFilePos[I] + strlen(OutStr[I]))
+	{
+      int SelPos = SelectPos - StrFilePos[I];
+	  int SelSize = SelectSize;
+      int SelX1=(int)((__int64)X1+SelPos - LeftPos);
+	  if (SelPos - LeftPos < Width)
+	  {
+	    SetColor(COL_VIEWERSELECTEDTEXT);
+        GotoXY(SelX1,Y);
+        if (SelSize>XX2-SelX1+1)
+          SelSize=XX2-SelX1+1;
+        if (SelSize>0)
+          mprintf("%.*s",(int)SelSize,&OutStr[I][(int)(SelPos+SelectPosOffSet)]);
+	  }
+	}
+
+    if (strlen(&OutStr[I][(int)LeftPos])>Width && ViOpt.ShowArrows)
+    {
+      GotoXY(XX2,Y);
+      SetColor(COL_VIEWERARROWS);
+      mprintf(">");
+    }
     if (LeftPos>0 && *OutStr[I]!=0 && ViOpt.ShowArrows)
     {
       GotoXY(X1,Y);
@@ -1185,7 +1204,6 @@ void Viewer::ShowUp()
   /* DJ $ */
   ShowStatus();
 }
-
 
 /* $ 27.04.2001 DJ
    отрисовка скроллбара - в отдельную функцию
@@ -1456,8 +1474,8 @@ int Viewer::ProcessKey(int Key)
   /* $ 22.01.2001 IS
        Происходят какие-то манипуляции -> снимем выделение
   */
-  if (Key!=KEY_IDLE && Key!=KEY_NONE && !(Key==KEY_CTRLINS||Key==KEY_CTRLNUMPAD0) && Key!=KEY_CTRLC)
-    SelectSize=0;
+//  if (Key!=KEY_IDLE && Key!=KEY_NONE && !(Key==KEY_CTRLINS||Key==KEY_CTRLNUMPAD0) && Key!=KEY_CTRLC)
+//    SelectSize=0;
   /* IS $ */
 
   if (!InternalKey && !LastKeyUndo && (FilePos!=UndoData[0].UndoAddr || LeftPos!=UndoData[0].UndoLeft))
@@ -1506,6 +1524,16 @@ int Viewer::ProcessKey(int Key)
       }
       return(TRUE);
     }
+
+	case KEY_CTRLU:
+	{
+		if (SelectSize)
+		{
+			SelectSize = 0;
+			Show();
+		}
+		return(TRUE);
+	}
 
     /* $ 05.09.2001 VVM
       + Копирование выделения в клипбоард */
@@ -1912,7 +1940,7 @@ int Viewer::ProcessKey(int Key)
 
     case KEY_RIGHT: case KEY_NUMPAD6: case KEY_SHIFTNUMPAD6:
     {
-      if (LeftPos<MAX_VIEWLINE && ViewFile)
+      if (LeftPos<MAX_VIEWLINE && ViewFile && !VM.Hex)
       {
         LeftPos++;
         Show();
@@ -2042,7 +2070,7 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   /* $ 22.01.2001 IS
        Происходят какие-то манипуляции -> снимем выделение
   */
-  SelectSize=0;
+//  SelectSize=0;
   /* IS $ */
 
   /* $ 18.07.2000 tran
@@ -2453,6 +2481,10 @@ void Viewer::Search(int Next,int FirstChar)
       if (!Case)
         for (int I=0;I<SearchLength;I++)
           SearchStr[I]=LocalUpper(SearchStr[I]);
+
+    SelectSize = 0;
+	if (Next)
+		LastSelPos = SelectPos + 1;
 
     vseek(ViewFile,LastSelPos,SEEK_SET);
     Match=0;
@@ -3085,7 +3117,11 @@ void Viewer::SelectText(__int64 MatchPos,int SearchLength, DWORD Flags)
     }
   }
   if(Flags&1)
+  {
+    AdjustSelPosition = TRUE;
     Show();
+	AdjustSelPosition = FALSE;
+  }
 }
 /* SVS $ */
 
