@@ -6,10 +6,14 @@
   Plugin API for FAR Manager 1.70
 
 */
-/* Revision: 1.20 17.08.2000 $ */
+/* Revision: 1.21 17.08.2000 $ */
 
 /*
 Modify:
+  17.08.2000 SVS
+    ! struct FarListItems -> struct FarList, а то совсем запутался :-)
+    + Сообщения диалога: DMSG_ENABLEREDRAW, DMSG_MOUSECLICK,
+    + Флаг для DI_BUTTON - DIF_BTNNOCLOSE - "кнопка не для закрытия диалога"
   17.08.2000 SVS
     ! Изменение номера весрии :-)
   09.08.2000 SVS
@@ -281,6 +285,11 @@ enum FarDialogItemFlags {
 */
   DIF_USELASTHISTORY  =0x200000,
 /* SVS $ */
+/* $ 17.08.2000 SVS
+  + Флаг для DI_BUTTON - DIF_BTNNOCLOSE - "кнопка не для закрытия диалога"
+*/
+  DIF_BTNNOCLOSE      = 0x40000,
+/* SVS $ */
 };
 /* SVS $ */
 
@@ -311,6 +320,8 @@ enum FarMessagesProc{
   DMSG_CTLCOLORDLGITEM,
   DMSG_CTLCOLORDLGLIST,
   DMSG_HOTKEY,
+  DMSG_ENABLEREDRAW,
+  DMSG_MOUSECLICK,
 };
 /* SVS $*/
 
@@ -318,7 +329,7 @@ enum FarMessagesProc{
    Список Items для DI_COMBOBOX & DI_LISTBOX
 */
 /* $ 01.08.2000 SVS
-   Полная переделка структуры списка и "оболочка" вокрус списка
+   Полная переделка структуры списка и "оболочка" вокруг списка
 */
 
 // флаги для FarListItem.Flags
@@ -336,7 +347,7 @@ struct FarListItem
 };
 
 // весь список
-struct FarListItems
+struct FarList
 {
   /* $ 04.08.2000 SVS
     + FarListItems.CountItems -> FarListItems.ItemsNumber
@@ -358,7 +369,7 @@ struct FarDialogItem
   union {
     int Selected;
     char *History;
-    struct FarListItems *ListItems;
+    struct FarList *ListItems;
   };
   unsigned int Flags;
   int DefaultButton;

@@ -5,10 +5,18 @@ dialog.cpp
 
 */
 
-/* Revision: 1.20 15.08.2000 $ */
+/* Revision: 1.21 18.08.2000 $ */
 
 /*
 Modify:
+  18.08.2000 SVS
+   + DialogMode - Флаги текущего режима диалога
+   + Флаг IsEnableRedraw - разрешающий/запрещающий перерисовку диалога
+   + Сообщения: DMSG_ENABLEREDRAW, DMSG_MOUSECLICK
+   + DI_BUTTON тоже теперь может иметь DIF_SETCOLOR
+   + Флаг для DI_BUTTON - DIF_BTNNOCLOSE - "кнопка не для закрытия диалога"
+   - Если на выход процедура ответила "НЕТ", то диалог зацикливался, т.к.
+     не был сброшен флаг выхода.
   15.08.2000 SVS
    ! Для DropDownList цвета обрабатываем по иному.
    + Сделаем так, чтобы ткнув мышкой в DropDownList список раскрывался сам.
@@ -132,6 +140,9 @@ Modify:
 #include "internalheaders.hpp"
 /* IS $ */
 
+// Флаги текущего режима диалога
+#define DMODE_DRAWING		0x00000001
+
 static char fmtLocked[]="Locked%d";
 static char fmtLine[]  ="Line%d";
 static char fmtSavedDialogHistory[]="SavedDialogHistory\\%s";
@@ -155,6 +166,20 @@ Dialog::Dialog(struct DialogItem *Item,int ItemCount,
      Изначально диалоги можно таскать
   */
   IsMovedDialog=TRUE;
+  /* SVS $ */
+  /* $ 18.08.2000 SVS
+  */
+  /*
+    + Флаг IsEnableRedraw - разрешающий/запрещающий перерисовку диалога
+      =0 - разрешена, другие значение - не перерисовывать
+        Когда посылается сообщение DMSG_ENABLEREDRAW, то этот флаг
+        при Param1=TRUE увеличивается, при Param1 = FALSE - уменьшается
+  */
+  IsEnableRedraw=0;
+  /*
+    Режимы диалога.
+  */
+  DialogMode=0;
   /* SVS $ */
 
   if(!DlgProc) // функция должна быть всегда!!!
@@ -374,7 +399,7 @@ int Dialog::InitDialogObjects()
     {
       if (!CreateObjects)
         CurItem->ObjPtr=new VMenu(NULL,NULL,0,CurItem->Y2-CurItem->Y1+1,
-                               VMENU_ALWAYSSCROLLBAR|VMENU_LISTBOX,NULL);
+                               VMENU_ALWAYSSCROLLBAR|VMENU_LISTBOX,NULL/*,this*/);
 
       VMenu *ListBox=(VMenu *)CurItem->ObjPtr;
 
@@ -389,7 +414,7 @@ int Dialog::InitDialogObjects()
                              X1+CurItem->X2,Y1+CurItem->Y2);
         ListBox->SetBoxType(SHORT_SINGLE_BOX);
 
-        struct FarListItems *List=CurItem->ListItems;
+        struct FarList *List=CurItem->ListItems;
         if(List && List->Items)
         {
           struct FarListItem *Items=List->Items;
@@ -476,8 +501,8 @@ int Dialog::InitDialogObjects()
       if (Type==DI_COMBOBOX && CurItem->Data[0] == 0 && CurItem->ListItems)
       {
         struct FarListItem *ListItems=
-                   ((struct FarListItems *)CurItem->ListItems)->Items;
-        int Length=((struct FarListItems *)CurItem->ListItems)->ItemsNumber;
+                   ((struct FarList *)CurItem->ListItems)->Items;
+        int Length=((struct FarList *)CurItem->ListItems)->ItemsNumber;
 
         for (J=0; J < Length; J++)
         {
@@ -576,6 +601,13 @@ void Dialog::ShowDialog()
   int X,Y;
   int I;
   unsigned long Attr;
+
+  /* $ 18.08.2000 SVS
+     Если не разрешена отрисовка, то вываливаем.
+  */
+  if(IsEnableRedraw)
+    return;
+  /* SVS $ */
 
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 
@@ -822,19 +854,25 @@ void Dialog::ShowDialog()
       case DI_BUTTON:
         GotoXY(X1+CurItem->X1,Y1+CurItem->Y1);
 
+        /* $ 18.08.2000 SVS
+           + DI_BUTTON тоже теперь может иметь DIF_SETCOLOR
+        */
         if (CurItem->Focus)
         {
           SetCursorType(0,10);
           Attr=MAKEWORD(
-             FarColorToReal(WarningStyle ? COL_WARNDIALOGSELECTEDBUTTON:COL_DIALOGSELECTEDBUTTON), // TEXT
+             (CurItem->Flags & DIF_SETCOLOR)?(CurItem->Flags & DIF_COLORMASK):
+               FarColorToReal(WarningStyle ? COL_WARNDIALOGSELECTEDBUTTON:COL_DIALOGSELECTEDBUTTON), // TEXT
              FarColorToReal(WarningStyle ? COL_WARNDIALOGHIGHLIGHTSELECTEDBUTTON:COL_DIALOGHIGHLIGHTSELECTEDBUTTON)); // HiText
         }
         else
         {
           Attr=MAKEWORD(
-             FarColorToReal(WarningStyle ? COL_WARNDIALOGBUTTON:COL_DIALOGBUTTON), // TEXT
+             (CurItem->Flags & DIF_SETCOLOR)?(CurItem->Flags & DIF_COLORMASK):
+               FarColorToReal(WarningStyle ? COL_WARNDIALOGBUTTON:COL_DIALOGBUTTON), // TEXT
              FarColorToReal(WarningStyle ? COL_WARNDIALOGHIGHLIGHTBUTTON:COL_DIALOGHIGHLIGHTBUTTON)); // HiText
         }
+        /* SVS $ */
         Attr=DlgProc((HANDLE)this,DMSG_CTLCOLORDLGITEM,I,Attr);
         SetColor(Attr&0xFF);
         HiText(CurItem->Data,HIBYTE(LOWORD(Attr)));
@@ -1081,9 +1119,17 @@ int Dialog::ProcessKey(int Key)
           ShowDialog();
         return(TRUE);
       }
-      EndLoop=TRUE;
       if (Type==DI_BUTTON)
       {
+        /* $ 18.08.2000 SVS
+           + Флаг для DI_BUTTON - DIF_BTNNOCLOSE - "кнопка не для закрытия диалога"
+        */
+        if((Item[FocusPos].Flags&DIF_BTNNOCLOSE))
+        {
+//          ShowDialog(); //???
+          return(TRUE);
+        }
+        /* SVS $ */
         Item[FocusPos].Selected=1;
         ExitCode=FocusPos;
       }
@@ -1095,6 +1141,8 @@ int Dialog::ProcessKey(int Key)
               Item[I].Selected=1;
             ExitCode=I;
           }
+
+      EndLoop=TRUE;
       if (ExitCode==-1)
         ExitCode=FocusPos;
       return(TRUE);
@@ -1484,7 +1532,9 @@ int Dialog::ProcessKey(int Key)
   }
 }
 
-
+/* $ 18.08.2000 SVS
+   + DMSG_MOUSECLICK
+*/
 /* Public, Virtual:
    Обработка данных от "мыши".
    Перекрывает BaseInput::ProcessMouse.
@@ -1509,6 +1559,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   MsY=MouseEvent->dwMousePosition.Y;
   if (MsX<X1 || MsY<Y1 || MsX>X2 || MsY>Y2)
   {
+    DlgProc((HANDLE)this,DMSG_MOUSECLICK,I,(long)MouseEvent);
     if (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED)
       ProcessKey(KEY_ESC);
     else
@@ -1534,6 +1585,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
           if(FocusPos != I)
             ChangeFocus2(FocusPos,I);
           ShowDialog();
+          DlgProc((HANDLE)this,DMSG_MOUSECLICK,I,(long)MouseEvent);
           ((VMenu *)(Item[I].ObjPtr))->ProcessMouse(MouseEvent);
           return(TRUE);
         }
@@ -1558,6 +1610,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
           {
             EditLine->SetClearFlag(0);
             ChangeFocus2(FocusPos,I);
+            DlgProc((HANDLE)this,DMSG_MOUSECLICK,I,(long)MouseEvent);
             ShowDialog();
             ProcessKey(KEY_CTRLDOWN);
             return(TRUE);
@@ -1568,6 +1621,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
           {
             EditLine->SetClearFlag(0);
             ChangeFocus2(FocusPos,I);
+            DlgProc((HANDLE)this,DMSG_MOUSECLICK,I,(long)MouseEvent);
             ShowDialog();
             return(TRUE);
           }
@@ -1582,6 +1636,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
             /* SVS $ */
             {
               ChangeFocus2(FocusPos,I);
+              DlgProc((HANDLE)this,DMSG_MOUSECLICK,I,(long)MouseEvent);
               ProcessKey(KEY_CTRLDOWN);
               return(TRUE);
             }
@@ -1592,6 +1647,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
             MsX < X1+Item[I].X1+HiStrlen(Item[I].Data))
         {
           ChangeFocus2(FocusPos,I);
+          DlgProc((HANDLE)this,DMSG_MOUSECLICK,I,(long)MouseEvent);
           ShowDialog();
           while (IsMouseButtonPressed())
             ;
@@ -1613,6 +1669,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
             MsX < (X1+Item[I].X1+HiStrlen(Item[I].Data)+4-((Item[I].Flags & DIF_MOVESELECT)!=0)))
         {
           ChangeFocus2(FocusPos,I);
+          DlgProc((HANDLE)this,DMSG_MOUSECLICK,I,(long)MouseEvent);
           ProcessKey(KEY_SPACE);
           return(TRUE);
         }
@@ -1732,6 +1789,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   }
   return(FALSE);
 }
+/* SVS 18.08.2000 $ */
 
 
 /* Private:
@@ -1938,8 +1996,8 @@ int Dialog::FindInEditForAC(int TypeFind,void *HistoryName,char *FindStr)
   }
   else
   {
-    struct FarListItem *ListItems=((struct FarListItems *)HistoryName)->Items;
-    int Count=((struct FarListItems *)HistoryName)->ItemsNumber;
+    struct FarListItem *ListItems=((struct FarList *)HistoryName)->Items;
+    int Count=((struct FarList *)HistoryName)->ItemsNumber;
 
     for (I=0; I < Count ;I++)
     {
@@ -2239,7 +2297,7 @@ int Dialog::ProcessHighlighting(int Key,int FocusPos,int Translate)
 */
 void Dialog::SelectFromComboBox(
          Edit *EditLine,                   // строка редактирования
-         struct FarListItems *List,    // список строк
+         struct FarList *List,    // список строк
          char *IStr)
 {
   char Str[512];
@@ -2250,7 +2308,7 @@ void Dialog::SelectFromComboBox(
   {
     // создание пустого вертикального меню
     //  с обязательным показом ScrollBar
-    VMenu ComboBoxMenu("",NULL,0,8,VMENU_ALWAYSSCROLLBAR);
+    VMenu ComboBoxMenu("",NULL,0,8,VMENU_ALWAYSSCROLLBAR,NULL/*,this*/);
 
     EditLine->GetPosition(EditX1,EditY1,EditX2,EditY2);
     if (EditX2-EditX1<20)
@@ -2483,6 +2541,15 @@ long WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
   switch(Msg)
   {
+    /* Сообщение DMSG_CLICK посылается обработчику после того, как
+       пользователь кликнул клавишей мыши на одном из элементов диалога.
+       Param1 = ID элемента диалога.
+       Param2 = Указатель на MOUSE_EVENT_RECORD.
+       Return = 0
+    */
+    case DMSG_MOUSECLICK:
+      return 0;
+
     /* Сообщение DMSG_DRAWITEM посылается обработчику диалога перед отрисовкой
        элемента диалога.
        Param1 = ID элемента диалога, который будет отрисован.
@@ -2520,7 +2587,7 @@ long WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     /* Сообщение LMSG_CHANGELIST оповещает обработчик об изменении состояния
        элемента списка (DI_COMBOBOX, DI_LISTBOX, DIF_HISTORY).
        Param1 = ID элемента (DI_COMBOBOX, DI_LISTBOX, DIF_HISTORY).
-       Param2 = Указатель на структуру FarListItems, описывающую
+       Param2 = Указатель на структуру FarList, описывающую
                 измененный элемент.
        Return = TRUE - разрешить изменение (и соответственно отрисовку того,
                 что пользователь ввёл)
@@ -2573,11 +2640,15 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       {
         switch(Type)
         {
-          case DI_BUTTON:
           case DI_TEXT:
           case DI_VTEXT:
           case DI_SINGLEBOX:
           case DI_DOUBLEBOX:
+            strcpy(Ptr,(char *)Param2);
+            //Dlg->Show();
+            return strlen((char *)Param2)+1;
+
+          case DI_BUTTON:
           case DI_CHECKBOX:
           case DI_RADIOBUTTON:
             strcpy(Ptr,(char *)Param2);
@@ -2598,6 +2669,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
             return 0;
         }
         Dlg->InitDialogObjects(); // переинициализируем элементы диалога
+        SendDlgMessage(hDlg,DMSG_SETREDRAW,0,0);
         return strlen((char *)Param2)+1;
       }
       return 0;
@@ -2624,7 +2696,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     /* Сообщение LMSG_CHANGELIST оповещает обработчик об изменении состояния
        элемента списка (DI_COMBOBOX, DI_LISTBOX, DIF_HISTORY).
        Param1 = ID элемента (DI_COMBOBOX, DI_LISTBOX, DIF_HISTORY).
-       Param2 = Указатель на структуру FarListItems, описывающую
+       Param2 = Указатель на структуру FarList, описывающую
                 измененный элемент.
        Return = TRUE - разрешить изменение (и соответственно отрисовку того,
                 что пользователь ввёл)
@@ -2793,6 +2865,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       if(Param2)
       {
         Dialog::ConvertItem(0,(struct FarDialogItem *)Param2,CurItem,1);
+/*
         if(IsEdit(Type))
         {
           ((Edit *)(CurItem->ObjPtr))->GetString(Str,sizeof(Str));
@@ -2800,6 +2873,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         }
         else
           strcpy(((struct FarDialogItem *)Param2)->Data,CurItem->Data);
+*/
         return TRUE;
       }
       return FALSE;
@@ -2820,6 +2894,41 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         return TRUE;
       }
       return FALSE;
+
+
+    /* $ 18.08.2000 SVS
+       + Разрешение/запрещение отрисовки диалога
+    */
+    /* Команда DMSG_ENABLEREDRAW посылается обработчику диалога для
+       отключения/включение перерисовки всего диалога.
+       Param1 = TRUE - Включить отрисовку диалога
+                FALSE - Отключить отрисовку диалога
+       Param2 = 0
+       Return = 0
+       Remark:  Эта команда предназначена в основном для того,
+                что исключить перерисовку диалога при изменении
+                некоторого количества элементов. Когда посылается
+                это сообщение - внутренний флаг при Param1=TRUE
+                увеличивается, при Param1 = FALSE - уменьшается.
+                Сигнал на прорисовку - внутренний флаг =0. Это нормальное
+                поведение для вложенных манипуляций.
+                Типичное использование:
+                 Send(DMSG_ENABLEREDRAW,FALSE)
+                 // изменяем кучу заголовков, состояний, etc.
+                 Send(DMSG_ENABLEREDRAW,TRUE)
+    */
+    case DMSG_ENABLEREDRAW:
+      if(Param1)
+        Dlg->IsEnableRedraw++;
+      else
+        Dlg->IsEnableRedraw--;
+
+      if(!Dlg->IsEnableRedraw)
+        if(Dlg->InitObjects)
+          Dlg->Show();
+      return 0;
+   /* SVS $ */
+
   }
 
   // Все, что сами не отрабатываем - посылаем на обработку обработчику.
@@ -2876,6 +2985,11 @@ void Dialog::Process()
     Modal::Process();
     if(DlgProc((HANDLE)this,DMSG_CLOSE,ExitCode,0) || ExitCode == -2)
       break;
+    /* $ 18.08.2000 SVS
+       Вах-вах, а сбросить-то флаг забыли 8-=(((
+    */
+    ClearDone();
+    /* SVS $ */
   }while(1);
 }
 /* SVS $ */

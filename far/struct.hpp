@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.08 03.08.2000 $ */
+/* Revision: 1.09 18.08.2000 $ */
 
 /*
 Modify:
+  18.08.2000 SVS
+    ! struct FarListItems -> struct FarList, а то совсем запутался :-)
   03.08.2000 SVS
     ! WordDiv -> Opt.WordDiv
   03.08.2000 SVS
@@ -254,7 +256,7 @@ struct EditorUndoData
   union {
     unsigned int Selected;
     char *History;
-    struct FarListItems *ListItems;
+    struct FarList *ListItems;
   } Addons;
 
 */
@@ -271,7 +273,7 @@ struct DialogItem
   union {
     unsigned int Selected;
     char *History;
-    struct FarListItems *ListItems;
+    struct FarList *ListItems;
   };
   unsigned int Flags;
   unsigned char DefaultButton;
@@ -293,7 +295,7 @@ struct DialogData
   union {
     unsigned int Selected;
     char *History;
-    struct FarListItems *ListItems;
+    struct FarList *ListItems;
   };
   int Flags;
   unsigned char DefaultButton;

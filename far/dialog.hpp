@@ -10,10 +10,13 @@ dialog.hpp
 
 */
 
-/* Revision: 1.11 11.08.2000 $ */
+/* Revision: 1.12 18.08.2000 $ */
 
 /*
 Modify:
+  18.08.2000 SVS
+   + Флаг IsEnableRedraw - разрешающий/запрещающий перерисовку диалога
+   + DialogMode - Флаги текущего режима диалога
   11.08.2000 SVS
    + Данные, специфические для конкретного экземпляра диалога
    + Для того, чтобы послать DMSG_CLOSE нужно переопределить Process
@@ -69,6 +72,19 @@ Modify:
 class Dialog:public Modal
 {
   private:
+    /* $ 18.08.2000 SVS
+      + Флаг IsEnableRedraw - разрешающий/запрещающий перерисовку диалога
+      + DialogMode - Флаги текущего режима диалога
+    */
+    int IsEnableRedraw;         // Разрешена перерисовка диалога? ( 0 - разрешена)
+    DWORD DialogMode;		// Флаги текущего режима диалога
+    /* SVS $ */
+    /* $ 10.08.2000 SVS
+       можно ли двигать диалог :-)
+    */
+    int IsMovedDialog;
+    /* SVS $ */
+
     /* $ 11.08.2000 SVS
       + Данные, специфические для конкретного экземпляра диалога
     */
@@ -83,6 +99,7 @@ class Dialog:public Modal
     int WarningStyle;           // TRUE - Warning Dialog Style
     int DialogTooLong;          //
     int PrevMacroMode;          // предыдущий режим макро
+
     long InitParam;		// параметр, переданный в конструктор
     FARWINDOWPROC DlgProc;      // функция обработки диалога
 
@@ -91,11 +108,6 @@ class Dialog:public Modal
     int  Dragged;
     int  OldX1,OldX2,OldY1,OldY2;
     /* tran 31.07.2000 $ */
-    /* $ 10.08.2000 SVS
-       можно ли двигать диалог :-)
-    */
-    int IsMovedDialog;
-    /* SVS $ */
 
     /* $ 31.07.2000 SVS
        Сохранение того, что под индикатором перемещения диалога
@@ -104,6 +116,13 @@ class Dialog:public Modal
     /* SVS $ */
 
   private:
+    /* $ 18.08.2000 SVS
+      + SetDialogMode - Управление флагами текущего режима диалога
+    */
+    void SetDialogMode(DWORD Flags){ DialogMode|=Flags; }
+    void SkipDialogMode(DWORD Flags){ DialogMode&=~Flags; }
+    /* SVS $ */
+
     void DisplayObject();
     void DeleteDialogObjects();
     void ShowDialog();
@@ -130,7 +149,7 @@ class Dialog:public Modal
     /* $ 18.07.2000 SVS
        + функция SelectFromComboBox для выбора из DI_COMBOBOX
     */
-    void SelectFromComboBox(Edit *EditLine,struct FarListItems *HistoryName,char *Str=NULL);
+    void SelectFromComboBox(Edit *EditLine,struct FarList *HistoryName,char *Str=NULL);
     /* SVS $ */
     /* $ 26.07.2000 SVS
        AutoComplite: Поиск входжение подстроки в истории
