@@ -5,10 +5,12 @@ filetype.cpp
 
 */
 
-/* Revision: 1.31 25.01.2002 $ */
+/* Revision: 1.32 29.01.2002 $ */
 
 /*
 Modify:
+  29.01.2002 SVS
+    - BugZ#272 - метасимволы в ассоциациях файлов
   25.01.2002 SVS
     - Бага с прорисовкой, если в ассоциациях строка предварялась символом "@"
       Вопрос спорный... потому оставим в комментариях...
@@ -180,7 +182,7 @@ BOOL ExtractIfExistCommand (char *CommandText)
 int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFinish)
 {
   CFileMask FMask; // для работы с масками файлов
-  char Commands[32][512],Descriptions[32][128],Command[512];
+  char Commands[32][512],Descriptions[32][128],Command[4096];
   int NumCommands[32];
   int CommandCount=0;
   for (int I=0;;I++)
@@ -191,7 +193,7 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
       break;
     if(FMask.Set(Mask, FMF_SILENT))
     {
-      char NewCommand[512];
+      char NewCommand[4096];
       if(FMask.Compare(Name))
       {
         switch(Mode)
@@ -265,9 +267,13 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
         *MenuText=0;
       else
       {
-        char Title[256];
+        char Title[4096];
         if (*Descriptions[I])
+        {
           strcpy(Title,Descriptions[I]);
+          SubstFileName(Title,Name,ShortName,NULL,NULL,TRUE);
+          TruncStrFromEnd(Title,Min(ScrX/2,(int)strlen(Title))-18);
+        }
         else
           *Title=0;
         char *PtrAmp;
@@ -458,9 +464,9 @@ int ProcessGlobalFileTypes(char *Name,int AlwaysWaitFinish)
 */
 void ProcessExternal(char *Command,char *Name,char *ShortName,int AlwaysWaitFinish)
 {
-  char ExecStr[512],FullExecStr[512];
+  char ExecStr[4096],FullExecStr[4096];
   char ListName[NM*2],ShortListName[NM*2];
-  char FullName[NM],FullShortName[NM];
+  char FullName[4096],FullShortName[NM];
   strcpy(ExecStr,Command);
   strcpy(FullExecStr,Command);
   {
