@@ -141,7 +141,7 @@ void WINAPI _export ExitFAR()
 void WINAPI _export GetPluginInfo(struct PluginInfo *Info)
 {
   Info->StructSize=sizeof(*Info);
-  static char *PluginCfgStrings[1];
+  static const char *PluginCfgStrings[1];
   PluginCfgStrings[0]=(char*)GetMsg(MCfgLine0);
   Info->PluginConfigStrings=PluginCfgStrings;
   Info->PluginConfigStringsNumber=sizeof(PluginCfgStrings)/sizeof(PluginCfgStrings[0]);

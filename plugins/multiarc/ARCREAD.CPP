@@ -144,8 +144,6 @@ int PluginClass::ReadArchive(char *Name)
     if (NewArcData==NULL)
       break;
 
-    DWORD Sz;
-
     TotalSize+=(((__int64)CurArcData.FindData.nFileSizeHigh)<<32)|(__int64)CurArcData.FindData.nFileSizeLow;
     PackedSize+=(((__int64)CurArcData.PackSizeHigh)<<32)|(__int64)CurArcData.PackSize;
 

@@ -26,35 +26,35 @@ int ConfigGeneral()
 
   struct FarDialogItem DialogItems[sizeof(InitItems)/sizeof(InitItems[0])];
   InitDialogItems(InitItems,DialogItems,sizeof(InitItems)/sizeof(InitItems[0]));
-  DialogItems[1].Param.Selected=(Opt.HideOutput==0);
-  DialogItems[2].Param.Selected=(Opt.HideOutput==1);
-  DialogItems[3].Param.Selected=(Opt.HideOutput==2);
-  DialogItems[5].Param.Selected=Opt.ProcessShiftF1;
-  DialogItems[6].Param.Selected=Opt.UseLastHistory;
+  DialogItems[1].Selected=(Opt.HideOutput==0);
+  DialogItems[2].Selected=(Opt.HideOutput==1);
+  DialogItems[3].Selected=(Opt.HideOutput==2);
+  DialogItems[5].Selected=Opt.ProcessShiftF1;
+  DialogItems[6].Selected=Opt.UseLastHistory;
 //  DialogItems[7].Param.Selected=Opt.DeleteExtFile;
 //  DialogItems[8].Param.Selected=Opt.AddExtArchive;
-  DialogItems[7].Param.Selected=Opt.AutoResetExactArcName;
-  strcpy(DialogItems[11].Data.Data,Opt.DescriptionNames);
-  DialogItems[12].Param.Selected=Opt.ReadDescriptions;
-  DialogItems[13].Param.Selected=Opt.UpdateDescriptions;
+  DialogItems[7].Selected=Opt.AutoResetExactArcName;
+  strcpy(DialogItems[11].Data,Opt.DescriptionNames);
+  DialogItems[12].Selected=Opt.ReadDescriptions;
+  DialogItems[13].Selected=Opt.UpdateDescriptions;
   int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,18,"ArcSettings1",DialogItems,
                            sizeof(DialogItems)/sizeof(DialogItems[0]));
   if (ExitCode==16 || ExitCode < 0)
     return FALSE;
-  if (DialogItems[1].Param.Selected)
+  if (DialogItems[1].Selected)
     Opt.HideOutput=0;
   else
-    Opt.HideOutput=(DialogItems[2].Param.Selected) ? 1 : 2;
-  Opt.ProcessShiftF1=DialogItems[5].Param.Selected;
-  Opt.UseLastHistory=DialogItems[6].Param.Selected;
+    Opt.HideOutput=(DialogItems[2].Selected) ? 1 : 2;
+  Opt.ProcessShiftF1=DialogItems[5].Selected;
+  Opt.UseLastHistory=DialogItems[6].Selected;
 
   //Opt.DeleteExtFile=DialogItems[7].Param.Selected;
   //Opt.AddExtArchive=DialogItems[8].Param.Selected;
-  Opt.AutoResetExactArcName=DialogItems[7].Param.Selected;
+  Opt.AutoResetExactArcName=DialogItems[7].Selected;
 
-  strcpy(Opt.DescriptionNames,DialogItems[11].Data.Data);
-  Opt.ReadDescriptions=DialogItems[12].Param.Selected;
-  Opt.UpdateDescriptions=DialogItems[13].Param.Selected;
+  strcpy(Opt.DescriptionNames,DialogItems[11].Data);
+  Opt.ReadDescriptions=DialogItems[12].Selected;
+  Opt.UpdateDescriptions=DialogItems[13].Selected;
   SetRegKey(HKEY_CURRENT_USER,"","HideOutput",Opt.HideOutput);
   SetRegKey(HKEY_CURRENT_USER,"","UseLastHistory",Opt.UseLastHistory);
   SetRegKey(HKEY_CURRENT_USER,"","ProcessShiftF1",Opt.ProcessShiftF1);
@@ -178,7 +178,7 @@ int ConfigCommands(char *ArcFormat,int IDFocus)
   DialogItems[IDFocus].Focus=1;
 
   for (I=1;I<=31;I+=2)
-    if ((Length=strlen(DialogItems[I].Data.Data))>MaxLength)
+    if ((Length=strlen(DialogItems[I].Data))>MaxLength)
       MaxLength=Length;
 
   for (I=2,J=0;I<=32;I+=2,J++)
@@ -192,7 +192,7 @@ int ConfigCommands(char *ArcFormat,int IDFocus)
     return FALSE;
 
   for (I=2,J=0;I<=32;I+=2,J++)
-     SetRegKey(HKEY_LOCAL_MACHINE,ArcFormat,CmdNames[J],DialogItems[I].Data.Data);
+     SetRegKey(HKEY_LOCAL_MACHINE,ArcFormat,CmdNames[J],DialogItems[I].Data);
 
   return TRUE;
 }

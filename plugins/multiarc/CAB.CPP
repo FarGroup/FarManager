@@ -6,7 +6,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2002 FAR group
 */
-/* $Revision: 1.04 29.01.2002 $ */
+/* $Revision: 1.05 31.01.2002 $ */
 
 #include <windows.h>
 #include <string.h>
@@ -147,7 +147,7 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
       goto blad;
     if (FileHeader.iFolder == 0xFFFD || FileHeader.iFolder == 0xFFFF)
     {
-      EndPos = FileHeader.szName;
+      EndPos = (char*)FileHeader.szName;
       while (EndPos - (char*)&FileHeader < sizeof(FileHeader) && *EndPos)
         EndPos++;
       if (EndPos - (char*)&FileHeader >= sizeof(FileHeader))
@@ -159,7 +159,6 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
     else
     {
       SetFilePointer( ArcHandle, 0 - ReadSize, NULL, FILE_CURRENT );
-      break;
     }
   }
 ///

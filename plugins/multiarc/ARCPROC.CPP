@@ -215,18 +215,18 @@ int PluginClass::GetFiles(struct PluginPanelItem *PanelItem, int ItemsNumber,
 
   if (!AskVolume)
   {
-    DialogItems[7].Param.Selected=TRUE;
+    DialogItems[7].Selected=TRUE;
     for (int I=0;I<ItemsNumber;I++)
       if (PanelItem[I].FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
       {
-        DialogItems[7].Param.Selected=FALSE;
+        DialogItems[7].Selected=FALSE;
         break;
       }
   }
 
   Opt.UserBackground=0; // $ 14.02.2001 raVen //сброс галки "фоновая архивация"
-  DialogItems[8].Param.Selected=Opt.UserBackground;
-  DialogItems[9].Param.Selected=Move;
+  DialogItems[8].Selected=Opt.UserBackground;
+  DialogItems[9].Selected=Move;
 
   if ((OpMode & OPM_SILENT)==0)
   {
@@ -234,12 +234,12 @@ int PluginClass::GetFiles(struct PluginPanelItem *PanelItem, int ItemsNumber,
                 DialogItems,sizeof(DialogItems)/sizeof(DialogItems[0]));
     if (AskCode!=11)
       return -1;
-    strcpy(DestPath,DialogItems[2].Data.Data);
-    Opt.UserBackground=DialogItems[8].Param.Selected;
+    strcpy(DestPath,DialogItems[2].Data);
+    Opt.UserBackground=DialogItems[8].Selected;
     SetRegKey(HKEY_CURRENT_USER,"","Background",Opt.UserBackground);
   }
 
-  LastWithoutPathsState=DialogItems[7].Param.Selected;
+  LastWithoutPathsState=DialogItems[7].Selected;
 
   Opt.Background=OpMode & OPM_SILENT ? 0 : Opt.UserBackground;
 
@@ -295,12 +295,12 @@ int PluginClass::GetFiles(struct PluginPanelItem *PanelItem, int ItemsNumber,
   int CommandType=LastWithoutPathsState ? CMD_EXTRACTWITHOUTPATH:CMD_EXTRACT;
   GetCommandFormat(CommandType,Command,sizeof(Command));
 
-  if (*DialogItems[5].Data.Data==0 && strstr(Command,"%%P")!=NULL)
+  if (*DialogItems[5].Data==0 && strstr(Command,"%%P")!=NULL)
     for (int I=0;I<ItemsNumber;I++)
       if ((PanelItem[I].Flags & F_ENCRYPTED) || ItemsInfo.Encrypted &&
           (PanelItem[I].FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
       {
-        if (!GetPassword(DialogItems[5].Data.Data,FSF.PointToName(ArcName)))
+        if (!GetPassword(DialogItems[5].Data,FSF.PointToName(ArcName)))
           return -1;
         break;
       }
@@ -312,7 +312,7 @@ int PluginClass::GetFiles(struct PluginPanelItem *PanelItem, int ItemsNumber,
   int IgnoreErrors=(CurArcInfo.Flags & AF_IGNOREERRORS);
 
   ArcCommand ArcCmd(PanelItem,ItemsNumber,Command,ArcName,CurDir,
-             DialogItems[5].Data.Data,AllFilesMask,IgnoreErrors,
+             DialogItems[5].Data,AllFilesMask,IgnoreErrors,
              (OpMode & OPM_VIEW)!=0,(OpMode & OPM_FIND),CurDir,CurArcInfo.Prefix);
 
   Opt.HideOutput=SaveHideOut;
@@ -321,7 +321,7 @@ int PluginClass::GetFiles(struct PluginPanelItem *PanelItem, int ItemsNumber,
     if (!(OpMode & OPM_VIEW))
       return 0;
 
-  if (DialogItems[9].Param.Selected)
+  if (DialogItems[9].Selected)
     DeleteFiles(PanelItem,ItemsNumber,TRUE);
 
   if (Opt.UpdateDescriptions)

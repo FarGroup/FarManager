@@ -112,8 +112,8 @@
 "Always &hide archivers output"
 "Process &Shift-F1 command"
 "Use last h&istory"
-"&Автосброс настройки "Точное соответствие имени архива""
-"Старый стиль диалога "Добавить к архиву""
+"&Automatically reset "Exact archive filename""
+"Old style of the "Add to archive" dialog"
 "Description &list names delimited with commas:"
 "&Read archive descriptions"
 "&Update archive descriptions"
@@ -138,5 +138,5 @@
 "&Background"
 "E&xact archive filename"
 
-"&Комментарий"
-"Введите комментарий"
+"&Comment"
+"Enter a comment"

@@ -27,20 +27,22 @@ the ~Archiver settings~@ArcSettings2@ dialog), enter a password
 to encrypt files during archiving.
 
     The option #Delete files after archiving# forces the archiver
-to move rather than copy files to the archive.
+to move rather than copy files to the archive. This option is turned
+on automatically if the key #F6# is used to add files to an archive.
 
-    Option #Background# starts the archiving process in a separate window.
+    The option #Background# starts the archiving process in a separate window.
 
-    Опция #Точное соответствие имени архива# позволяет создавать архивы
-с нестандартными расширениями (если это поддерживается архиватором). Если
-опция выключена, архив создается с расширением, определенным в диалоге
-~Параметры архиваторов~@ArcSettings2@.
+    The option #Exact archive filename# allows to create archives with
+nonstandard extensions (if this is supported by the archiver). If the
+option is turned off, the extension defined in the
+~Archiver command lines~@ArcSettings2@ dialog is appended to the name
+entered in the dialog.
 
     Pressing the #Save settings# button saves the current archiver and
 switches for future usage.
 
-    Клавиша #Shift-F1# аналогична нажатию на кнопку "Архиватор"
-("Select archiver") - позволяет выбрать тип архиватора.
+    Pressing the keys #Shift-F1# has the same effect as pushing the
+"Select archiver" button and allows to select the archiver type to use.
 
 @ExtrFromArc
 $ #Extracting files from archive#
@@ -50,8 +52,10 @@ password to decrypt archived files.
     Option #Extract without pathnames# forces extraction of all files
 to the same folder.
 
-    Включенная опция #Удалить из архива после распаковки# удалит файловые
-объекты из архива после распаковки.
+    If the option #Delete from archive after extracting# is turned on,
+the files will be deleted from the archive after they are extracted.
+This option is turned on automatically if the key #F6# is used to extract
+files from an archive.
 
     To immediately extract selected archived files to the current folder
 you may also use #Alt-F6#.
@@ -69,12 +73,12 @@ archive modifications.
 the corresponding archiver tool. Archiver options may be changed
 in the ~Archiver settings~@ArcSettings2@ dialog.
 
-    Для оперативного изменения ключей нажмите F4 в меню "Архивные команды").
-
+    For quick access to archiver options, you can press the key
+F4 in the "Archive commands" menu.
 
     2. The whole set of archive management commands may only be
-used with RAR archives. Other archivers will support only a sub-set
-of these commands.
+used with RAR and ACE archives. Other archivers will support only
+a sub-set of these commands.
 
 @Config
 $ #Plugin configuration#
@@ -100,9 +104,9 @@ $ #Archive support configuration#
                         switches will be placed in the "Switches"
                         edit line.
 
- #Автосброс настройки#    "Точное соответствие имени архива" будет
- #"Точное соответствие#   выключаться при каждом открытии диалога
- #имени архива"#          "Добавить к архиву"
+ #Automatically reset#    The option "Exact archive filename"
+ #"Exact archive#         will be turned off every time the dialog
+ #filename"#              "Add to archive" is invoked
 
  #Description list#       Names of files with ~descriptions~@:FileDiz@ of archived
  #names delimited#        files.
@@ -116,22 +120,6 @@ $ #Archive support configuration#
  #Update archive#         Update descriptions of archived files
  #descriptions#           after adding to or deleting from an archive.
 
-
-    Notes:
-
- 1. Option #Remove file extension from archive name# determines how to deduce
-    initial #Add to archive# field value from the name of file/folder
-    to be archived. For example (for a RAR archive):
-
-     #option#   #file.name.ext#       #FOLDER.NAME.EXT\*.*#
-
-       [x]    file.name.RAR       FOLDER.NAME.EXT.RAR
-       [ ]    file.name.ext.RAR   FOLDER.NAME.EXT.RAR
-
-    Consider how different archivers handle archive name with
-    extension passed to them: some of them append a default archive
-    extension to it (PKZip: #file.name# => #file.name.ZIP#), some
-    don't (RAR: #file.name# => #file.name#).
 
 @ArcSettings2
 $ #Archiver command lines#
