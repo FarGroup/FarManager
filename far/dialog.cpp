@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.233 22.04.2002 $ */
+/* Revision: 1.234 23.04.2002 $ */
 
 /*
 Modify:
+  23.04.2002 SVS
+    - BugZ#471 -  Focus
   22.04.2002 KM
     - Убрана потерявшая свою актуальность функция OnDestroy.
       Этим убит неприятный баг у двух диалогов в панелях:
@@ -3719,11 +3721,14 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
               if(!(Item[I].Flags&DIF_NOFOCUS))
                 ChangeFocus2(FocusPos,I);
               else
+              {
+                Item[FocusPos].Focus=0; //??
                 FocusPos=I;
+              }
               ShowDialog();
               ProcessKey(KEY_CTRLDOWN);
-              if(Item[I].Flags&DIF_NOFOCUS)
-                FocusPos=OldFocusPos;
+              if(Item[I].Flags&DIF_NOFOCUS) //???
+                FocusPos=OldFocusPos;       //???
               return(TRUE);
             }
 
@@ -3732,8 +3737,11 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
               EditLine->SetClearFlag(0); // а может это делать в самом edit?
               if(!(Item[I].Flags&DIF_NOFOCUS)) //??? !!!
                 ChangeFocus2(FocusPos,I);      //??? !!!
-              else                             //??? !!!
-                FocusPos=I;                    //??? !!!
+              else
+              {
+                Item[FocusPos].Focus=0; //??
+                FocusPos=I;
+              }
               /* $ 23.06.2001 KM
                  ! Оказалось нужно перерисовывать весь диалог иначе
                    не снимался признак активности с комбобокса с которго уходим.
@@ -3754,12 +3762,15 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
                 if(!(Item[I].Flags&DIF_NOFOCUS))
                   ChangeFocus2(FocusPos,I);
                 else
+                {
+                  Item[FocusPos].Focus=0; //??
                   FocusPos=I;
+                }
                 if(!(Item[I].Flags&DIF_HIDDEN))
                   ShowDialog(I);
                 ProcessKey(KEY_CTRLDOWN);
-                if(Item[I].Flags&DIF_NOFOCUS)
-                   FocusPos=OldFocusPos;
+                if(Item[I].Flags&DIF_NOFOCUS) //???
+                   FocusPos=OldFocusPos;      //???
                 return(TRUE);
               }
             }
@@ -3776,7 +3787,10 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
               ShowDialog();
             }
             else
+            {
+              Item[FocusPos].Focus=0;
               FocusPos=I;
+            }
             while (IsMouseButtonPressed())
               ;
             if (MouseX <  X1 ||
@@ -3791,8 +3805,6 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
               return(TRUE);
             }
             ProcessKey(KEY_ENTER);
-            if(Item[I].Flags&DIF_NOFOCUS)
-              FocusPos=OldFocusPos;
             return(TRUE);
           }
 
@@ -3805,10 +3817,13 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
             if(!(Item[I].Flags&DIF_NOFOCUS))
               ChangeFocus2(FocusPos,I);
             else
+            {
+              Item[FocusPos].Focus=0; //??
               FocusPos=I;
+            }
             ProcessKey(KEY_SPACE);
-            if(Item[I].Flags&DIF_NOFOCUS)
-              FocusPos=OldFocusPos;
+//            if(Item[I].Flags&DIF_NOFOCUS)
+//              FocusPos=OldFocusPos;
             return(TRUE);
           }
         }
@@ -4401,6 +4416,7 @@ int Dialog::SelectFromComboBox(
     SetDropDownOpened(FALSE); // Установим флаг "закрытия" комбобокса.
     if (Dest<0)
     {
+      Redraw();
       free(Str);
       return KEY_ESC;
     }
