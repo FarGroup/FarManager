@@ -5,10 +5,14 @@ Parent class дл€ панелей
 
 */
 
-/* Revision: 1.135 06.08.2004 $ */
+/* Revision: 1.136 16.01.2005 $ */
 
 /*
 Modify:
+  16.01.2005 WARP
+    - ѕри вставлении в быствый поиск строки из буфера обмена
+      происходил переход на первый файл даже если строка не
+      совпадала не с одним из имен.
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   26.07.2004 SVS
@@ -1286,10 +1290,17 @@ void Panel::FastFindProcessName(Edit *FindEdit,const char *Src,char *LastName,ch
     {
       strcpy(Ptr,Src);
       Unquote(Ptr);
+
       char *EndPtr=Ptr+strlen(Ptr);
       DWORD Key;
       while(1)
       {
+        if(EndPtr == Ptr)
+        {
+          Key=KEY_NONE;
+          break;
+        }
+
         if (FindPartName(Ptr,FALSE))
         {
           Key=*(EndPtr-1);
@@ -1300,11 +1311,7 @@ void Panel::FastFindProcessName(Edit *FindEdit,const char *Src,char *LastName,ch
           FindEdit->Show();
           break;
         }
-        if(EndPtr == Ptr)
-        {
-          Key=KEY_NONE;
-          break;
-        }
+
         *--EndPtr=0;
       }
       xf_free(Ptr);
