@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.40 20.06.2001 $ */
+/* Revision: 1.41 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 SVS
+    + SEARCHSTRINGBUFSIZE - размер буфера для строки поиска.
   20.06.2001 SVS
     ! SKEY_NOTMACROS переехал из plugin.hpp
   06.06.2001 SVS
@@ -125,6 +127,7 @@ inline const T&Max(const T &a, const T &b) { return a>b?a:b; }
 #define  NM          260
 
 #define  DEFAULT_SORT_GROUP 10000
+#define  SEARCHSTRINGBUFSIZE 512
 
 // типы рамок
 enum {NO_BOX,SINGLE_BOX,SHORT_SINGLE_BOX,DOUBLE_BOX,SHORT_DOUBLE_BOX};

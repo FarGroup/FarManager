@@ -1465,7 +1465,7 @@ $ #Internal viewer#
     #F6#                 Switch to ~editor~@Editor@
     #Alt-F5#             Print the file
                        ("Print manager" plugin is used).
-    #F7#                 Search
+    #F7#                 ~Search~@ViewerSearch@
     #Shift-F7, Space#    Continue search
     #F8#                 Toggle DOS/Windows text view mode
     #Shift-F8#           Select custom character table
@@ -1524,6 +1524,31 @@ or by format specifiers added before or after the value.
 
   If you enter the value with one of the format specifiers (%, '0x', 'h',
 '$', 'd'), the radio buttons selected in the dialog will be ignored.
+
+@ViewerSearch
+$ #Поиск в программе просмотра#
+    Для поиска в ~программе просмотра~@Viewer@ вам доступны следующие
+режимы и опции:
+
+    #Искать текст#
+
+      Поиск произвольного теста, набранного в строке #Искать#.
+      В этом режиме доступны следующие опции:
+
+        #Учитывать регистр#   - при поиске будет учитываться
+                              регистр введенных символов
+
+        #Только целые слова#  - при поиске будет произведен
+                              поиск только целого слова
+
+    #Искать 16-ричный код#
+
+      Поиск фрагмента, соответствующего шестнадцатеричным кодам,
+      набранного в строке #Искать#.
+
+    #Обратный поиск#
+
+      Изменить поиск на обратный - искать от конца файла к началу.
 
 @Editor
 $ #Internal editor#

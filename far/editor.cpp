@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.106 22.06.2001 $ */
+/* Revision: 1.107 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 SVS
+    ! Юзаем SEARCHSTRINGBUFSIZE
   22.06.2001 SVS
     + обработка KEY_MACRODATE
   11.06.2001 SVS
@@ -356,7 +358,7 @@ Editor::Editor()
   /* IS $ */
 
   EditKeyBar=NULL;
-  strcpy((char *)LastSearchStr,GlobalSearchString);
+  strncpy((char *)LastSearchStr,GlobalSearchString,sizeof(LastSearchStr));
   LastSearchCase=GlobalSearchCase;
   /* $ 03.08.2000 KM
      Переменная для поиска "Whole words"
@@ -3333,8 +3335,8 @@ void Editor::ScrollUp()
 BOOL Editor::Search(int Next)
 {
   struct EditList *CurPtr;
-  unsigned char SearchStr[512],ReplaceStr[512];
-  static char LastReplaceStr[512];
+  unsigned char SearchStr[SEARCHSTRINGBUFSIZE],ReplaceStr[SEARCHSTRINGBUFSIZE];
+  static char LastReplaceStr[SEARCHSTRINGBUFSIZE];
   static int LastSuccessfulReplaceMode=0;
   char MsgStr[512];
   const char *TextHistoryName="SearchText",*ReplaceHistoryName="ReplaceText";
@@ -3453,7 +3455,7 @@ BOOL Editor::Search(int Next)
             Text(TmpStr);
             delete[] TmpStr;
 
-            char QSearchStr[512],QReplaceStr[512];
+            char QSearchStr[SEARCHSTRINGBUFSIZE+4],QReplaceStr[SEARCHSTRINGBUFSIZE+4];
             sprintf(QSearchStr,"\"%s\"",LastSearchStr);
             sprintf(QReplaceStr,"\"%s\"",LastReplaceStr);
             MsgCode=Message(0,4,MSG(MEditReplaceTitle),MSG(MEditAskReplace),

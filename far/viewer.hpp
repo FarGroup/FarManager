@@ -7,10 +7,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.18 07.05.2001 $ */
+/* Revision: 1.19 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 SVS
+    ! Юзаем SEARCHSTRINGBUFSIZE
   07.05.2001 DJ
     + GetNamesList()
   06.05.2001 DJ
@@ -118,7 +120,7 @@ class Viewer:public ScreenObject
     FILE *ViewFile;
     WIN32_FIND_DATA ViewFindData;
 
-    unsigned char LastSearchStr[256];
+    unsigned char LastSearchStr[SEARCHSTRINGBUFSIZE];
     /* $ 30.07.2000 KM
        Новая переменная для поиска
     */

@@ -8,15 +8,17 @@ global.hpp
 
 */
 
-/* Revision: 1.19 21.05.2001 $ */
+/* Revision: 1.20 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 SVS
+    ! Юзаем SEARCHSTRINGBUFSIZE
   21.05.2001 OT
     + Переменные CONSOLE_SCREEN_BUFFER_INFO InitScreenBufferInfo, CurScreenBufferInfo
       нужны для более естественного поведения AltF9
   12.05.2001 DJ
-    ! еще перетряхи #include: убран #include "ctrlobj.hpp", а указатель на 
+    ! еще перетряхи #include: убран #include "ctrlobj.hpp", а указатель на
       CtrlObject переехал в ctrlobj.hpp; еще немного переездов
   06.05.2001 DJ
     ! перетрях #include
@@ -107,7 +109,7 @@ extern char FarPath[NM];
 extern char MainPluginsPath[NM];
 /* SVS $ */
 
-extern char GlobalSearchString[512];
+extern char GlobalSearchString[SEARCHSTRINGBUFSIZE];
 extern int GlobalSearchCase;
 /* $ 29.07.2000 KM
    Глобальная переменная, хранящая значение "Whole words" для поиска

@@ -9,10 +9,12 @@ editor.hpp
 
 */
 
-/* Revision: 1.21 06.06.2001 $ */
+/* Revision: 1.22 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 SVS
+    - Падение ФАРа при поске в редакторе
   06.06.2001 SVS
     + EDITOR_UNDO_COUNT - "от чисел к символам" (для наглядности :-)
     ! SavePos* заменено на SavePos (одной структурой - InternalEditorBookMark)
@@ -174,7 +176,7 @@ class Editor:public ScreenObject
 
     int MaxRightPos;
 
-    unsigned char LastSearchStr[256];
+    unsigned char LastSearchStr[SEARCHSTRINGBUFSIZE];
     /* $ 30.07.2000 KM
        Новая переменная для поиска "Whole words"
     */

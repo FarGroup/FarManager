@@ -5,10 +5,13 @@ Internal viewer
 
 */
 
-/* Revision: 1.67 21.06.2001 $ */
+/* Revision: 1.68 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 SVS
+    ! Юзаем SEARCHSTRINGBUFSIZE
+    + Немного логики в диалог поиска :-)
   21.06.2001 SVS
     ! "Небольшое" увеличение размера буферов (костыли, одним словом :-(
   08.06.2001
@@ -1871,6 +1874,19 @@ void Viewer::ChangeViewKeyBar()
 //  CtrlObject->Plugins.ProcessViewerEvent(VE_MODE,&vm);
 }
 
+long WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
+{
+  if(Msg == DN_BTNCLICK)
+  {
+    if(Param1 == 4 || Param1 == 5)
+    {
+      Dialog::SendDlgMessage(hDlg,DM_ENABLE,6,(Param1 == 4));
+      Dialog::SendDlgMessage(hDlg,DM_ENABLE,7,(Param1 == 4));
+      return TRUE;
+    }
+  }
+  return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
+}
 
 void Viewer::Search(int Next,int FirstChar)
 {
@@ -1895,7 +1911,7 @@ void Viewer::Search(int Next,int FirstChar)
   /* KM $ */
   MakeDialogItems(SearchDlgData,SearchDlg);
 
-  unsigned char SearchStr[512];
+  unsigned char SearchStr[SEARCHSTRINGBUFSIZE];
   char MsgStr[512];
   unsigned long MatchPos;
   /* $ 01.08.2000 KM
@@ -1908,8 +1924,16 @@ void Viewer::Search(int Next,int FirstChar)
     return;
 
   strncpy(SearchDlg[2].Data,(char *)LastSearchStr,sizeof(SearchDlg[2].Data));
-  SearchDlg[4].Selected=!LastSearchHex;
-  SearchDlg[5].Selected=LastSearchHex;
+  if(VM.Hex && !Next) // при первом поиске все зависит от режима
+  {
+    SearchDlg[4].Selected=FALSE;
+    SearchDlg[5].Selected=TRUE;
+  }
+  else
+  {
+    SearchDlg[4].Selected=!LastSearchHex;
+    SearchDlg[5].Selected=LastSearchHex;
+  }
   SearchDlg[6].Selected=LastSearchCase;
   /* $ 01.08.2000 KM
      Инициализация checkbox'а "Whole words"
@@ -1920,19 +1944,22 @@ void Viewer::Search(int Next,int FirstChar)
 
   if (VM.Unicode)
   {
-    /* $ 21.12.2000 SVS
-       Не спрячем HEX, а задизаблим.
-    */
     SearchDlg[4].Selected=TRUE;
     SearchDlg[5].Flags|=DIF_DISABLE;
     SearchDlg[5].Selected=FALSE;
-    /* SVS $ */
+  }
+
+  if(SearchDlg[5].Selected)
+  {
+    SearchDlg[6].Flags|=DIF_DISABLE;
+    SearchDlg[7].Flags|=DIF_DISABLE;
   }
 
   if (!Next)
   {
-    Dialog Dlg(SearchDlg,sizeof(SearchDlg)/sizeof(SearchDlg[0]));
+    Dialog Dlg(SearchDlg,sizeof(SearchDlg)/sizeof(SearchDlg[0]),ViewerSearchDlgProc);
     Dlg.SetPosition(-1,-1,76,12);
+    Dlg.SetHelp("ViewerSearch");
     if (FirstChar)
     {
       Dlg.Show();

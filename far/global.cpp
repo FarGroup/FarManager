@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.17 21.05.2001 $ */
+/* Revision: 1.18 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 SVS
+    ! Юзаем SEARCHSTRINGBUFSIZE
   21.05.2001 OT
     + Переменные CONSOLE_SCREEN_BUFFER_INFO InitScreenBufferInfo, CurScreenBufferInfo
       нужны для более естественного поведения AltF9
@@ -97,7 +99,7 @@ char FarPath[NM];
 char MainPluginsPath[NM];
 /* SVS $ */
 
-char GlobalSearchString[512];
+char GlobalSearchString[SEARCHSTRINGBUFSIZE];
 int GlobalSearchCase;
 /* $ 29.07.2000 KM
    Глобальная переменная, хранящая значение "Whole words" для поиска

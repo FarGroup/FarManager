@@ -9,6 +9,8 @@ findfile.cpp
 
 /*
 Modify:
+  25.06.2001 SVS
+    ! Юзаем SEARCHSTRINGBUFSIZE
   23.06.2001 OT
     - косметические исправления, чтобы VC не "предупреждал" :)
   18.06.2001 SVS
@@ -132,7 +134,7 @@ static void ArchiveSearch(char *ArcName);
 static void AddMenuRecord(char *FullName,char *Path,WIN32_FIND_DATA *FindData);
 void RereadPlugin(HANDLE hPlugin);
 
-static char FindMask[NM],FindStr[260];
+static char FindMask[NM],FindStr[SEARCHSTRINGBUFSIZE];
 static VMenu *FilesListMenu;
 /* $ 30.07.2000 KM
    Добавлена переменная WholeWords для поиска по точному совпадению
@@ -167,7 +169,7 @@ struct ListItemUserData{
 
 FindFiles::FindFiles()
 {
-  static char LastFindMask[NM]="*.*",LastFindStr[512];
+  static char LastFindMask[NM]="*.*",LastFindStr[SEARCHSTRINGBUFSIZE];
   /* $ 30.07.2000 KM
      Добавлена переменная LastWholeWords для поиска по точному совпадению
   */
