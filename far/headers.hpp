@@ -5,7 +5,7 @@ headers.cpp
 
 */
 
-/* Revision: 1.03 12.07.2000 $ */
+/* Revision: 1.04 19.07.2000 $ */
 
 /*
 Modify:
@@ -18,6 +18,9 @@ Modify:
   12.07.2000 OT
     - Исправление бага, из-за которго не работал ScreenSaver после
       компиляции VC++
+  19.07.2000 SVS
+    - Из-за различий в реализации функции getdisk в BC & VC
+      не работал AltFx если панель имела UNC путь
 */
 
 #define STRICT
@@ -99,7 +102,6 @@ Modify:
   #define FA_RDONLY _A_RDONLY
   #define FA_ARCH   _A_ARCH
   #define setdisk(n) _chdrive((n)+1)
-  #define getdisk()  _getdrive()-1
 
   /* $ 12.07.2000 OT
     - Исправление бага, из-за которго не работал ScreenSaver после
@@ -111,5 +113,20 @@ Modify:
   #define randomize() srand(67898)
   #define random(x) ((int) (((x) *  rand()) / RAND_MAX) )
   /* OT $ */
+
+  /* $ 19.07.2000 SVS
+    - Из-за различий в реализации функции getdisk в BC & VC
+      не работал AltFx если панель имела UNC путь
+      Сама функция находится в farrtl.cpp
+  */
+  #ifdef  __cplusplus
+  extern "C" {
+  #endif
+  int _cdecl getdisk(void);
+  #ifdef  __cplusplus
+  }
+  #endif
+  /* SVS $ */
+
   #pragma warning (once:4018)
 #endif

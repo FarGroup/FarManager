@@ -1,12 +1,10 @@
-#if defined(__BORLANDC__)
-#ifdef ALLOC
 /*
 farrtl.cpp
 
 Переопределение функций работы с памятью: new/delete/malloc/realloc/free
 */
 
-/* Revision: 1.04 13.07.2000 $ */
+/* Revision: 1.05 19.07.2000 $ */
 
 /*
 Modify:
@@ -31,8 +29,17 @@ Modify:
       VVM> ошибку, а НТ проглатывает...
       VVM> if(!size)
       VVM>   HeapFree(FARHeapForNew,0,block);
-
+  19.07.2000 SVS
+    + Добавлена функция getdisk
+      Из-за различий в реализации функции getdisk в BC & VC
+      не работал AltFx если панель имела UNC путь
 */
+
+#include "headers.hpp"
+#pragma hdrstop
+
+#if defined(__BORLANDC__)
+#ifdef ALLOC
 
 #ifdef __cplusplus
 extern "C" {
@@ -47,10 +54,6 @@ void free(void *block);
 #ifdef __cplusplus
 }
 #endif
-
-#include "headers.hpp"
-#pragma hdrstop
-
 
 #define MEM_DELTA	4095
 
@@ -154,4 +157,26 @@ void operator delete[](void *ptr) {::operator delete(ptr);}
 
 #endif // ALLOC
 #endif // defined(__BORLANDC__)
+
+
+
+/* $ 19.07.2000 SVS
+  - Из-за различий в реализации функции getdisk в BC & VC
+    не работал AltFx если панель имела UNC путь
+    Сама функция находится в farrtl.cpp
+*/
+int _cdecl getdisk(void)
+{
+    unsigned drive;
+    char    buf[MAX_PATH];
+
+    /* Use GetCurrentDirectory to get the current directory path, then
+     * parse the drive name.
+     */
+    GetCurrentDirectory(sizeof(buf), buf);    /* ignore errors */
+    drive = buf[0] >= 'a' ? buf[0] - 'a' + 1 : buf[0] - 'A' + 1;
+    return (int)drive - 1;
+}
+/* SVS $*/
+
 
