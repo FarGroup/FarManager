@@ -5,10 +5,14 @@ clipboard.cpp
 
 */
 
-/* Revision: 1.00 22.12.2000 $ */
+/* Revision: 1.01 23.01.2001 $ */
 
 /*
 Modify:
+  23.01.2001 SVS
+    ! Изменения в PasteFromClipboardEx в надежде на устранение падения
+      при попытке вставить охрененный кусок кода в диалоге :-)
+    - Опять же - утечка памяти в PasteFromClipboardEx :-((((
   22.12.2000 SVS
     + Выделение в качестве самостоятельного модуля
 */
@@ -117,6 +121,7 @@ char* WINAPI PasteFromClipboard(void)
       BufferSize=lstrlenW((LPCWSTR)ClipAddr)+1;
     else
       BufferSize=strlen(ClipAddr)+1;
+
     ClipText=new char[BufferSize];
     if (ClipText!=NULL)
       if (Unicode)
@@ -135,12 +140,15 @@ char* WINAPI PasteFromClipboard(void)
 
 char* WINAPI PasteFromClipboardEx(int max)
 {
+  char *ClipText=NULL;
   HANDLE hClipData;
-  if (!OpenClipboard(NULL))
-    return(NULL);
   int Unicode=FALSE;
   int Format=0;
   int ReadType=CF_OEMTEXT;
+
+  if (!OpenClipboard(NULL))
+    return(NULL);
+
   while ((Format=EnumClipboardFormats(Format))!=0)
   {
     if (Format==CF_UNICODETEXT && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
@@ -156,7 +164,7 @@ char* WINAPI PasteFromClipboardEx(int max)
     if (Format==CF_OEMTEXT)
       break;
   }
-  char *ClipText=NULL;
+
   if ((hClipData=GetClipboardData(Unicode ? CF_UNICODETEXT:ReadType))!=NULL)
   {
     int BufferSize;
@@ -166,27 +174,26 @@ char* WINAPI PasteFromClipboardEx(int max)
     else
       BufferSize=strlen(ClipAddr)+1;
     if ( BufferSize>max )
-        BufferSize=max+1;
-    ClipText=new char[BufferSize];
+        BufferSize=max;
+
+    ClipText=new char[BufferSize+2];
     if (ClipText!=NULL)
     {
-      memset(ClipText,0,BufferSize);
+      memset(ClipText,0,BufferSize+2);
       if (Unicode)
-        WideCharToMultiByte(CP_OEMCP,0,(LPCWSTR)ClipAddr,-1,ClipText,BufferSize-1,NULL,NULL);
+        WideCharToMultiByte(CP_OEMCP,0,(LPCWSTR)ClipAddr,-1,ClipText,BufferSize,NULL,NULL);
       else
       {
         if (ReadType==CF_TEXT)
         {
-          char *tmp=new char[BufferSize];
-          strncpy(tmp,ClipAddr,BufferSize-1);
-          //tmp[BufferSize]=0;
-          CharToOem(ClipAddr,tmp);
-          strcpy(ClipText,tmp);
+          strncpy(ClipText,ClipAddr,BufferSize);
+          CharToOem(ClipText,ClipText);
+          ClipText[BufferSize]=0;
         }
         else
         {
-            strncpy(ClipText,ClipAddr,BufferSize-1);
-            //ClipText[BufferSize]=0;
+          strncpy(ClipText,ClipAddr,BufferSize);
+          ClipText[BufferSize]=0;
         }
       }
     }

@@ -5,10 +5,12 @@ setattr.cpp
 
 */
 
-/* Revision: 1.15 22.01.2001 $ */
+/* Revision: 1.16 23.01.2001 $ */
 
 /*
 Modify:
+  23.01.2001 SVS
+    + Немного оптимизации кода :-)
   22.01.2001 SVS
     ! ShellSetFileAttributes теперь возвращает результат в виде TRUE или FALSE
     + Если это плагиновая панель, то посмотрим на OPIF_REALNAMES
@@ -249,7 +251,6 @@ int ShellSetFileAttributes(Panel *SrcPanel)
   MakeDialogItems(AttrDlgData,AttrDlg);
   int DlgCountItems=sizeof(AttrDlgData)/sizeof(AttrDlgData[0])-1;
 
-  char DateMask[100];
   DWORD FileSystemFlags;
   int SelCount, I, J;
 
@@ -302,15 +303,15 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     switch(GetDateFormat())
     {
       case 0:
-        sprintf(DateMask,MSG(MSetAttrTimeTitle1),DateSeparator,DateSeparator,TimeSeparator,TimeSeparator);
+        sprintf(AttrDlg[14].Data,MSG(MSetAttrTimeTitle1),DateSeparator,DateSeparator,TimeSeparator,TimeSeparator);
         sprintf(DMask,"99%c99%c9999",DateSeparator,DateSeparator);
         break;
       case 1:
-        sprintf(DateMask,MSG(MSetAttrTimeTitle2),DateSeparator,DateSeparator,TimeSeparator,TimeSeparator);
+        sprintf(AttrDlg[14].Data,MSG(MSetAttrTimeTitle2),DateSeparator,DateSeparator,TimeSeparator,TimeSeparator);
         sprintf(DMask,"99%c99%c9999",DateSeparator,DateSeparator);
         break;
       default:
-        sprintf(DateMask,MSG(MSetAttrTimeTitle3),DateSeparator,DateSeparator,TimeSeparator,TimeSeparator);
+        sprintf(AttrDlg[14].Data,MSG(MSetAttrTimeTitle3),DateSeparator,DateSeparator,TimeSeparator,TimeSeparator);
         sprintf(DMask,"9999%c99%c99",DateSeparator,DateSeparator);
         break;
     }
@@ -321,8 +322,6 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     AttrDlg[20].Mask=TMask;
     AttrDlg[22].Mask=DMask;
     AttrDlg[23].Mask=TMask;
-
-    strcpy(AttrDlg[14].Data,DateMask);
 
     if (SelCount==1)
     {
@@ -436,45 +435,49 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     {
       int NewAttr;
 
-      Dialog Dlg(AttrDlg,DlgCountItems);
-      Dlg.SetHelp("FileAttrDlg");
-      Dlg.SetPosition(-1,-1,45,JunctionPresent?24:23);
-
-      while (1)
       {
-        Dlg.Show();
-        while (!Dlg.Done())
-        {
-          Dlg.ReadInput();
-          Dlg.ProcessInput();
-          FocusPos=Dialog::SendDlgMessage((HANDLE)&Dlg,DM_GETFOCUS,0,0);
-          if(((FileSystemFlags & (FS_FILE_COMPRESSION|FS_FILE_ENCRYPTION))==
-               (FS_FILE_COMPRESSION|FS_FILE_ENCRYPTION)) &&
-             (FocusPos == 8 || FocusPos == 9))
-          {
-            IncludeExcludeAttrib(FocusPos,AttrDlg,8,9);
-            Dlg.FastShow();
-          }
-        }
-        Dlg.GetDialogObjectsData();
-        if (Dlg.GetExitCode()!=24)
-          break;
-        FILETIME ft;
-        GetSystemTimeAsFileTime(&ft);
-        ConvertDate(&ft,AttrDlg[16].Data,AttrDlg[17].Data,8,FALSE,FALSE,TRUE,TRUE);
-        ConvertDate(&ft,AttrDlg[19].Data,AttrDlg[20].Data,8,FALSE,FALSE,TRUE,TRUE);
-        ConvertDate(&ft,AttrDlg[22].Data,AttrDlg[23].Data,8,FALSE,FALSE,TRUE,TRUE);
-        if (AttrDlg[24].Focus)
-        {
-          AttrDlg[24].Focus=0;
-          AttrDlg[16].Focus=1;
-        }
-        Dlg.ClearDone();
-        Dlg.InitDialogObjects();
-      }
+        Dialog Dlg(AttrDlg,DlgCountItems);
+        Dlg.SetHelp("FileAttrDlg");
+        Dlg.SetPosition(-1,-1,45,JunctionPresent?24:23);
 
-      if (Dlg.GetExitCode()!=26)
-        return 0;
+        while (1)
+        {
+          Dlg.Show();
+          while (!Dlg.Done())
+          {
+            Dlg.ReadInput();
+            Dlg.ProcessInput();
+            FocusPos=Dialog::SendDlgMessage((HANDLE)&Dlg,DM_GETFOCUS,0,0);
+            if(((FileSystemFlags & (FS_FILE_COMPRESSION|FS_FILE_ENCRYPTION))==
+                 (FS_FILE_COMPRESSION|FS_FILE_ENCRYPTION)) &&
+               (FocusPos == 8 || FocusPos == 9))
+            {
+              IncludeExcludeAttrib(FocusPos,AttrDlg,8,9);
+              Dlg.FastShow();
+            }
+          }
+          Dlg.GetDialogObjectsData();
+          if (Dlg.GetExitCode()!=24)
+            break;
+          FILETIME ft;
+          GetSystemTimeAsFileTime(&ft);
+          ConvertDate(&ft,AttrDlg[16].Data,AttrDlg[17].Data,8,FALSE,FALSE,TRUE,TRUE);
+          ConvertDate(&ft,AttrDlg[19].Data,AttrDlg[20].Data,8,FALSE,FALSE,TRUE,TRUE);
+          ConvertDate(&ft,AttrDlg[22].Data,AttrDlg[23].Data,8,FALSE,FALSE,TRUE,TRUE);
+          if (AttrDlg[24].Focus)
+          {
+            AttrDlg[24].Focus=0;
+            AttrDlg[16].Focus=1;
+          }
+          Dlg.ClearDone();
+          Dlg.InitDialogObjects();
+        }
+
+        if (Dlg.GetExitCode()!=26)
+          return 0;
+
+        Dlg.Hide();
+      }
 
       NewAttr=FileAttr & FA_DIREC;
       if (AttrDlg[4].Selected)        NewAttr|=FA_RDONLY;
@@ -484,7 +487,6 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       if (AttrDlg[8].Selected)        NewAttr|=FILE_ATTRIBUTE_COMPRESSED;
       if (AttrDlg[9].Selected)        NewAttr|=FILE_ATTRIBUTE_ENCRYPTED;
 
-      Dlg.Hide();
       Message(0,0,MSG(MSetAttrTitle),MSG(MSetAttrSetting));
 
       if (!strcmp(TimeText[0],AttrDlg[16].Data) ||

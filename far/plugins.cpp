@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.48 23.01.2001 $ */
+/* Revision: 1.49 23.01.2001 $ */
 
 /*
 Modify:
+  23.01.2001 SVS
+    + DumpExeptionInfo(xp); - запись информации об исключении в дамп.
   23.01.2001 skv
     + Добавил EXCEPTION_BREAKPOINT в список известных
     + Unknown Exception на не известные.
@@ -214,7 +216,7 @@ static int xfilter(
      {EXCEPTION_BREAKPOINT,MExcBreakPoint, EXCEPTION_EXECUTE_HANDLER},
      // сюды добавляем.
    };
-
+   // EXCEPTION_CONTINUE_EXECUTION  ??????
    char *Ptr;
    int I;
    int rc, Ret=1;
@@ -307,6 +309,9 @@ static int xfilter(
      rc = EXCEPTION_CONTINUE_SEARCH;
    }
 
+   DumpExeptionInfo(xp);
+   if(xr->ExceptionFlags&EXCEPTION_NONCONTINUABLE)
+     rc=EXCEPTION_CONTINUE_SEARCH; //?
    return rc;
 }
 /* SVS $ */

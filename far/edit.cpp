@@ -5,10 +5,13 @@ edit.cpp
 
 */
 
-/* Revision: 1.31 04.01.2001 $ */
+/* Revision: 1.32 23.01.2001 $ */
 
 /*
 Modify:
+  23.01.2001 SVS
+    + На всякий случай проверим Str в деструкторе при освобождении памяти
+    ! В паре мест не освобождалась память :-((
   04.01.2001 SVS
     ! Недольшое безобразие с проникновением в "чужой огород" - дополнение 2 :-)
       Часы, минуты, секунды - в диалогах у нас плагины пока не работают :-(
@@ -197,7 +200,12 @@ Edit::~Edit()
   /* $ 13.07.2000 SVS
      запросы делали через malloc!
   */
-  free(Str);
+  /* $ 23.01.2001 SVS
+     На всякий случай проверим Str в деструкторе при освобождении памяти
+  */
+  if(Str)
+    free(Str);
+  /* SVS $ */
   /* SVS $ */
 }
 
@@ -1166,7 +1174,7 @@ int Edit::ProcessKey(int Key)
         /* $ 15.10.2000 tran
            если строка ввода имет максимальную длину
            то их клипборда грузим не больше ее*/
-        char *ClipText;
+        char *ClipText=NULL;
         if (MaxLength==-1)
             ClipText=PasteFromClipboard();
         else
@@ -1199,7 +1207,8 @@ int Edit::ProcessKey(int Key)
         /* $ 13.07.2000 SVS
            в PasteFromClipboard запрос памятиче через new[]
         */
-        delete[] ClipText;
+        if(ClipText)
+          delete[] ClipText;
         /* SVS $ */
         Show();
       }
@@ -1630,12 +1639,18 @@ void Edit::InsertBinaryString(char *Str,int Length)
     }
 
     int TmpSize=StrSize-CurPos;
-    char *TmpStr=new char[TmpSize];
+    char *TmpStr=new char[TmpSize+16];
+    if(!TmpStr)
+      return;
+
     memcpy(TmpStr,&Edit::Str[CurPos],TmpSize);
 
     StrSize+=Length;
     if ((NewStr=(char *)realloc(Edit::Str,StrSize+1))==NULL)
+    {
+      delete[] TmpStr;
       return;
+    }
     Edit::Str=NewStr;
     memcpy(&Edit::Str[CurPos],Str,Length);
     /* $ 15.08.2000 KM */

@@ -5,10 +5,12 @@ stddlg.cpp
 
 */
 
-/* Revision: 1.01 22.01.2001 $ */
+/* Revision: 1.02 23.01.2001 $ */
 
 /*
 Modify:
+  23.01.2001 SVS
+    + добавим немного эксепшина :-)
   23.01.2001 SVS
     - Ну вот и первая бага в диалоге поиска/замены :-(
   21.01.2001 SVS
@@ -290,20 +292,28 @@ int WINAPI GetString(char *Title,char *Prompt,char *HistoryName,char *SrcText,
     strncpy(StrDlg[2].Data,SrcText,sizeof(StrDlg[2].Data));
   StrDlg[2].Data[sizeof(StrDlg[2].Data)-1]=0;
 
-  Dialog Dlg(StrDlg,sizeof(StrDlg)/sizeof(StrDlg[0])-Substract);
-  Dlg.SetPosition(-1,-1,76,(Flags&FIB_BUTTONS)?8:6);
+  TRY{
+    Dialog Dlg(StrDlg,sizeof(StrDlg)/sizeof(StrDlg[0])-Substract);
+    Dlg.SetPosition(-1,-1,76,(Flags&FIB_BUTTONS)?8:6);
 
-  if (HelpTopic!=NULL)
-    Dlg.SetHelp(HelpTopic);
+    if (HelpTopic!=NULL)
+      Dlg.SetHelp(HelpTopic);
 
-  Dlg.Process();
-  ExitCode=Dlg.GetExitCode();
+    Dlg.Process();
+    ExitCode=Dlg.GetExitCode();
+  }
+  __except (DumpExeptionInfo(GetExceptionInformation()))
+  {
+    return FALSE;
+  }
 
   if (DestLength >= 1 && (ExitCode == 2 || ExitCode == 4))
   {
     if(!(Flags&FIB_ENABLEEMPTY) && *StrDlg[2].Data==0)
+    {
       return(FALSE);
-    strncpy(DestText,StrDlg[2].Data,DestLength-1);
+    }
+    strncpy(DestText,StrDlg[2].Data,DestLength);
     DestText[DestLength-1]=0;
     return(TRUE);
   }

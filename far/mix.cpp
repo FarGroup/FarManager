@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.53 21.01.2001 $ */
+/* Revision: 1.54 23.01.2001 $ */
 
 /*
 Modify:
+  23.01.2001 SVS
+    ! Сделаем статичный массив символов временного буфера в
+      ExpandEnvironmentStr()
   21.01.2001 SVS
     ! Функция GetString - переехала в stddlg.cpp
   05.01.2001 SVS
@@ -1081,8 +1084,13 @@ int GetClusterSize(char *Root)
 /* $ 25.07.2000 SVS
    Вызов WINAPI
 */
+/* $ 23.01.2001 SVS
+   Сделаем статичный массив символов временного буфера в ExpandEnvironmentStr
+   Возможно это будет место потенциальных ошибок, а может и нет :-)
+*/
 DWORD WINAPI ExpandEnvironmentStr(char *src, char *dest, size_t size)
 {
+#if 0
  DWORD ret=0;
  char *tmp=(char *)malloc(size);
  if(tmp)
@@ -1092,7 +1100,15 @@ DWORD WINAPI ExpandEnvironmentStr(char *src, char *dest, size_t size)
    free(tmp);
   }
  return ret;
+#else
+  static char tmp[8192];
+  ExpandEnvironmentStrings(src,tmp,size);
+  strncpy(dest,tmp,size);
+  dest[size-1]=0;
+  return strlen(dest);
+#endif
 }
+/* SVS $ */
 /* SVS $ */
 
 

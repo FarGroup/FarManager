@@ -5,10 +5,14 @@ dialog.cpp
 
 */
 
-/* Revision: 1.66 04.01.2001 $ */
+/* Revision: 1.67 23.01.2001 $ */
 
 /*
 Modify:
+  23.01.2001 SVS
+   ! Изменены функции DeleteDialogObjects() и GetDialogObjectsData()
+   + Введены ексепшины в DataToItem и ConvertItem
+   ! Введена проверка на NULL объектов ObjPtr
   04.01.2001 SVS
    - Bug - DM_KEY не реагировал на то, что возвращает пользовательская функция
   04.01.2001 SVS
@@ -844,27 +848,27 @@ int Dialog::InitDialogObjects(int ID)
 void Dialog::DeleteDialogObjects()
 {
   int I;
+  struct DialogItem *CurItem;
 
   for (I=0; I < ItemCount; I++)
-    if (IsEdit(Item[I].Type))
-    {
-      ((Edit *)(Item[I].ObjPtr))->GetString(Item[I].Data,sizeof(Item[I].Data));
-      /* $ 05.07.2000 SVS
-          Проверка - этот элемент предполагает расширение переменных среды?
-      */
-      /* $ 04.12.2000 SVS
-        ! Для DI_PSWEDIT и DI_FIXEDIT обработка DIF_EDITEXPAND не нужна
-         (DI_FIXEDIT допускается для случая если нету маски)
-      */
-      if((Item[I].Flags&DIF_EDITEXPAND) &&
-          Item[I].Type != DI_PSWEDIT && Item[I].Type != DI_FIXEDIT)
-         ExpandEnvironmentStr(Item[I].Data, Item[I].Data,sizeof(Item[I].Data));
-      /* SVS */
-      /* SVS */
-      delete (Edit *)(Item[I].ObjPtr);
-    }
-    else if(Item[I].Type == DI_LISTBOX && Item[I].ObjPtr)
-      delete (VMenu *)(Item[I].ObjPtr);
+  {
+    if((CurItem=Item+I)->ObjPtr)
+      switch(CurItem->Type)
+      {
+        case DI_EDIT:
+        case DI_FIXEDIT:
+        case DI_PSWEDIT:
+        case DI_COMBOBOX:
+          delete (Edit *)(CurItem->ObjPtr);
+          break;
+        case DI_LISTBOX:
+          delete (VMenu *)(CurItem->ObjPtr);
+          break;
+        case DI_USERCONTROL:
+          delete (COORD *)(CurItem->ObjPtr);
+          break;
+      }
+   }
 }
 
 
@@ -876,32 +880,42 @@ void Dialog::DeleteDialogObjects()
 void Dialog::GetDialogObjectsData()
 {
   int I;
+  struct DialogItem *CurItem;
+
   for (I=0; I < ItemCount; I++)
-    if (IsEdit(Item[I].Type))
-    {
-      ((Edit *)(Item[I].ObjPtr))->GetString(Item[I].Data,sizeof(Item[I].Data));
-      if (ExitCode>=0 && (Item[I].Flags & DIF_HISTORY) && Item[I].History && Opt.DialogsEditHistory)
-        AddToEditHistory(Item[I].Data,Item[I].History);
-      /* $ 01.08.2000 SVS
-         ! В History должно заносится значение (для DIF_EXPAND...) перед
-          расширением среды!
-      */
-      /*$ 05.07.2000 SVS $
-      Проверка - этот элемент предполагает расширение переменных среды?
-      т.к. функция GetDialogObjectsData() может вызываться самостоятельно
-      Но надо проверить!*/
-      /* $ 04.12.2000 SVS
-        ! Для DI_PSWEDIT и DI_FIXEDIT обработка DIF_EDITEXPAND не нужна
-         (DI_FIXEDIT допускается для случая если нету маски)
-      */
-      if((Item[I].Flags&DIF_EDITEXPAND) &&
-          Item[I].Type != DI_PSWEDIT &&
-          Item[I].Type != DI_FIXEDIT)
-         ExpandEnvironmentStr(Item[I].Data, Item[I].Data,sizeof(Item[I].Data));
-      /* SVS $ */
-      /* SVS $ */
-      /* 01.08.2000 SVS $ */
-    }
+  {
+    if((CurItem=Item+I)->ObjPtr)
+      switch(CurItem->Type)
+      {
+        case DI_EDIT:
+        case DI_FIXEDIT:
+        case DI_PSWEDIT:
+        case DI_COMBOBOX:
+          ((Edit *)(CurItem->ObjPtr))->GetString(CurItem->Data,sizeof(CurItem->Data));
+          if (ExitCode>=0 && (CurItem->Flags & DIF_HISTORY) && CurItem->History && Opt.DialogsEditHistory)
+            AddToEditHistory(CurItem->Data,CurItem->History);
+          /* $ 01.08.2000 SVS
+             ! В History должно заносится значение (для DIF_EXPAND...) перед
+              расширением среды!
+          */
+          /*$ 05.07.2000 SVS $
+          Проверка - этот элемент предполагает расширение переменных среды?
+          т.к. функция GetDialogObjectsData() может вызываться самостоятельно
+          Но надо проверить!*/
+          /* $ 04.12.2000 SVS
+            ! Для DI_PSWEDIT и DI_FIXEDIT обработка DIF_EDITEXPAND не нужна
+             (DI_FIXEDIT допускается для случая если нету маски)
+          */
+          if((CurItem->Flags&DIF_EDITEXPAND) &&
+              CurItem->Type != DI_PSWEDIT &&
+              CurItem->Type != DI_FIXEDIT)
+             ExpandEnvironmentStr(CurItem->Data, CurItem->Data,sizeof(CurItem->Data)-1);
+          /* SVS $ */
+          /* SVS $ */
+          /* 01.08.2000 SVS $ */
+          break;
+      }
+   }
 }
 
 
@@ -2658,6 +2672,9 @@ void Dialog::ConvertItem(int FromPlugin,
                          int Count)
 {
   int I;
+  if(!Item || !Data)
+    return;
+
   if(FromPlugin == CVTITEM_TOPLUGIN)
     for (I=0; I < Count; I++, ++Item, ++Data)
     {
@@ -2674,7 +2691,15 @@ void Dialog::ConvertItem(int FromPlugin,
          У DI_USERCONTROL могут в Data быть бинарные данные
       */
       if(Data->Type == DI_USERCONTROL)
-        memmove(Item->Data,Data->Data,512);
+      {
+          TRY{
+            memmove(Item->Data,Data->Data,sizeof(Item->Data));
+          }
+          __except (EXCEPTION_EXECUTE_HANDLER)
+          {
+            ;
+          }
+      }
       else
         strcpy(Item->Data,Data->Data);
       /* SVS $ */
@@ -2695,7 +2720,15 @@ void Dialog::ConvertItem(int FromPlugin,
          У DI_USERCONTROL могут в Data быть бинарные данные
       */
       if(Item->Type == DI_USERCONTROL)
-        memmove(Data->Data,Item->Data,512);
+      {
+         TRY{
+           memmove(Data->Data,Item->Data,sizeof(Data->Data));
+         }
+         __except (EXCEPTION_EXECUTE_HANDLER)
+         {
+           ;
+         }
+      }
       else
         strcpy(Data->Data,Item->Data);
       /* SVS $ */
@@ -2713,6 +2746,10 @@ void Dialog::DataToItem(struct DialogData *Data,struct DialogItem *Item,
                         int Count)
 {
   int I;
+
+  if(!Item || !Data)
+    return;
+
   for (I=0;I<Count;I++, ++Item, ++Data)
   {
     Item->Type=Data->Type;
@@ -2726,6 +2763,16 @@ void Dialog::DataToItem(struct DialogData *Data,struct DialogItem *Item,
     Item->DefaultButton=Data->DefaultButton;
     if ((unsigned int)Data->Data<MAX_MSG)
       strcpy(Item->Data,MSG((unsigned int)Data->Data));
+    else if(Data->Type == DI_USERCONTROL)
+    {
+      TRY{
+        memmove(Item->Data,Data->Data,sizeof(Item->Data));
+      }
+      __except (EXCEPTION_EXECUTE_HANDLER)
+      {
+        ;
+      }
+    }
     else
       strcpy(Item->Data,Data->Data);
     Item->ObjPtr=NULL;
@@ -2841,6 +2888,9 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,char *HistoryName,char *IStr)
   char RegKey[80],KeyValue[80],Str[512];
   int I,Dest;
   int Checked;
+
+  if(!EditLine)
+    return;
 
   sprintf(RegKey,fmtSavedDialogHistory,HistoryName);
   {
@@ -3268,7 +3318,7 @@ void Dialog::AdjustEditPos(int dx, int dy)
   for (I=0; I < ItemCount; I++)
   {
     CurItem=&Item[I];
-    if (IsEdit(CurItem->Type) || CurItem->Type == DI_LISTBOX)
+    if (CurItem->ObjPtr && (IsEdit(CurItem->Type) || CurItem->Type == DI_LISTBOX))
     {
        DialogEdit=(ScreenObject *)CurItem->ObjPtr;
        DialogEdit->GetPosition(x1,y1,x2,y2);
@@ -3462,6 +3512,8 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
        Получить/установить позицию в строках редактирования
     */
     case DM_GETCURSORPOS:
+      if(!CurItem->ObjPtr || !Param2)
+        return FALSE;
       if (IsEdit(Type))
       {
         ((COORD*)Param2)->X=((Edit *)(CurItem->ObjPtr))->GetCurPos();
@@ -3477,6 +3529,8 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       return FALSE;
 
     case DM_SETCURSORPOS:
+      if(!CurItem->ObjPtr)
+        return FALSE;
       if (IsEdit(Type))
       {
         ((Edit *)(CurItem->ObjPtr))->SetCurPos(((COORD*)Param2)->X);
@@ -3577,6 +3631,8 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
           case DI_EDIT:
           case DI_PSWEDIT:
           case DI_FIXEDIT:
+            if(!CurItem->ObjPtr)
+              break;
             ((Edit *)(CurItem->ObjPtr))->GetString(Str,sizeof(Str));
             Ptr=Str;
 
@@ -3650,7 +3706,8 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         case DI_EDIT:
         case DI_PSWEDIT:
         case DI_FIXEDIT:
-          Len=((Edit *)(CurItem->ObjPtr))->GetLength();
+          if(CurItem->ObjPtr)
+            Len=((Edit *)(CurItem->ObjPtr))->GetLength();
 
         case DI_LISTBOX: // пока не трогаем - не реализован
           Len=0;
@@ -3742,8 +3799,11 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
               memmove(Ptr,(char *)did->DataPtr,Len);
               Ptr[Len]=0;
             }
-            ((Edit *)(CurItem->ObjPtr))->SetString((char *)Ptr);
-            ((Edit *)(CurItem->ObjPtr))->Select(-1,-1); // снимаем выделение
+            if(CurItem->ObjPtr)
+            {
+              ((Edit *)(CurItem->ObjPtr))->SetString((char *)Ptr);
+              ((Edit *)(CurItem->ObjPtr))->Select(-1,-1); // снимаем выделение
+            }
             break;
 
           case DI_LISTBOX: // пока не трогаем - не реализован
@@ -3763,12 +3823,13 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       return 0;
 
     case DM_SETTEXTLENGTH:
-      if(IsEdit(Type) && !(CurItem->Flags & DIF_DROPDOWNLIST))
+      if(IsEdit(Type) && !(CurItem->Flags & DIF_DROPDOWNLIST) && CurItem->ObjPtr)
       {
-        Param1=((Edit *)(CurItem->ObjPtr))->GetMaxLength();
+        int MaxLen=((Edit *)(CurItem->ObjPtr))->GetMaxLength();
+        if(Param2 > 511) Param2=511;
         ((Edit *)(CurItem->ObjPtr))->SetMaxLength(Param2);
         Dlg->InitDialogObjects(Param1); // переинициализируем элементы диалога
-        return Param1;
+        return MaxLen;
       }
       return 0;
 

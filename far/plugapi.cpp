@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.35 21.01.2001 $ */
+/* Revision: 1.36 23.01.2001 $ */
 
 /*
 Modify:
+  23.01.2001 SVS
+    ! Проверки параметров в FarDialogEx()
   21.01.2001 SVS
     + ACTL_PROCESSSEQUENCEKEY
   24.12.2000 SVS
@@ -441,11 +443,17 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
            FARWINDOWPROC DlgProc,long Param)
 
 {
-  if (DisablePluginsOutput)
+  if (DisablePluginsOutput || ItemsNumber <= 0 || !Item)
     return(-1);
+
   struct DialogItem *InternalItem=new DialogItem[ItemsNumber];
 
+  if(!InternalItem)
+    return -1;
+
   int ExitCode,I;
+
+  memset(InternalItem,0,sizeof(DialogItem)*ItemsNumber);
 
   for (I=0;I<ItemsNumber;I++)
   {

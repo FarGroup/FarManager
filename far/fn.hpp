@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.51 23.01.2001 $ */
+/* Revision: 1.52 23.01.2001 $ */
 
 /*
 Modify:
+  23.01.2001 SVS
+   + DumpExeptionInfo()
   23.01.2001 SVS
    ! CalcKeyCode - новый параметр.
   22.01.2001 SVS
@@ -639,6 +641,8 @@ int WINAPI GetSearchReplaceString(
          int *Case,
          int *WholeWords,
          int *Reverse);
+
+int DumpExeptionInfo(EXCEPTION_POINTERS *xp);
 
 
 BOOL WINAPI KeyMacroToText(int Key,char *KeyText0,int Size);
