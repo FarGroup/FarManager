@@ -5,10 +5,12 @@ language.cpp
 
 */
 
-/* Revision: 1.26 22.04.2004 $ */
+/* Revision: 1.27 18.12.2004 $ */
 
 /*
 Modify:
+  18.12.2004 WARP
+    - ѕри сравнении затиралась строка .Options.
   22.04.2004 SVS
     + ћетод Language::Free() и декструктор Language::~Language()
     ! “ак же изменена логика класса Language по причине... описанной в 01768.Mix.txt (слишком много сюда писать :-)
@@ -467,23 +469,30 @@ int Language::Select(int HelpLanguage,VMenu **MenuPtr)
 int Language::GetOptionsParam(FILE *SrcFile,char *KeyName,char *Value)
 {
   char ReadStr[1024],FullParamName[64], *Ptr;
-  strcpy(FullParamName,".Options");
-  int Length=strlen(FullParamName);
+
+  memset (FullParamName, 0, 64);
+
+  int Length=strlen(".Options");
+
   long CurFilePos=ftell(SrcFile);
   fseek(SrcFile,0,SEEK_SET);
   while (fgets(ReadStr,sizeof(ReadStr),SrcFile)!=NULL)
-    if (!strnicmp(ReadStr,FullParamName,Length))
+  {
+    if (!strnicmp(ReadStr,".Options",Length))
     {
       strcpy(FullParamName,RemoveExternalSpaces(ReadStr+Length));
+
       if((Ptr=strchr(FullParamName,'=')) == NULL)
         continue;
       *Ptr++=0;
+
       if (!LocalStricmp(RemoveExternalSpaces(FullParamName),KeyName))
       {
         strcpy(Value,RemoveExternalSpaces(Ptr));
         return(TRUE);
       }
     }
+  }
   fseek(SrcFile,CurFilePos,SEEK_SET);
   return(FALSE);
 }
