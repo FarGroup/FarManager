@@ -5,10 +5,14 @@ delete.cpp
 
 */
 
-/* Revision: 1.58 20.02.2003 $ */
+/* Revision: 1.59 21.04.2003 $ */
 
 /*
 Modify:
+  21.04.2003 SVS
+    + Opt.DelThreadPriority
+    ! Исключим лишние телодвижения, если LastError входит в диапазон
+      ошибок, определенных в функции: CheckErrorForProcessed
   20.02.2003 SVS
     ! Заменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
   10.02.2003 SVS
@@ -182,7 +186,7 @@ static int WipeDirectory(const char *Name);
 static void PR_ShellDeleteMsg(void);
 
 static int ReadOnlyDeleteMode,SkipMode,SkipFoldersMode,DeleteAllFolders;
-
+static int localLastError;
 static clock_t DeleteStartTime;
 
 enum {DELETE_SUCCESS,DELETE_YES,DELETE_SKIP,DELETE_CANCEL};
@@ -200,17 +204,21 @@ BOOL WINAPI FAR_DeleteFile(const char *FileName)
   BOOL rc=DeleteFile(FileName);
   if(!rc) // IS: вот тут лишние телодвижения и начнем...
   {
-    char FullName[NM*2]="\\\\?\\";
-    // IS: +4 - чтобы не затереть наши "\\?\"
-    if(ConvertNameToFull(FileName, FullName+4, sizeof(FullName)-4) < sizeof(FullName)-4)
+    SetLastError((localLastError = GetLastError()));
+    if(CheckErrorForProcessed(localLastError))
     {
-      // IS: проверим, а вдруг уже есть есть нужные символы в пути
-      if( (FullName[4]=='/' && FullName[5]=='/') ||
-          (FullName[4]=='\\' && FullName[5]=='\\') )
-        rc=DeleteFile(FullName+4);
-      // IS: нужных символов в пути нет, поэтому используем наши
-      else
-        rc=DeleteFile(FullName);
+      char FullName[NM*2]="\\\\?\\";
+      // IS: +4 - чтобы не затереть наши "\\?\"
+      if(ConvertNameToFull(FileName, FullName+4, sizeof(FullName)-4) < sizeof(FullName)-4)
+      {
+        // IS: проверим, а вдруг уже есть есть нужные символы в пути
+        if( (FullName[4]=='/' && FullName[5]=='/') ||
+            (FullName[4]=='\\' && FullName[5]=='\\') )
+          rc=DeleteFile(FullName+4);
+        // IS: нужных символов в пути нет, поэтому используем наши
+        else
+          rc=DeleteFile(FullName);
+      }
     }
   }
   return rc;
@@ -224,17 +232,21 @@ BOOL WINAPI FAR_RemoveDirectory(const char *DirName)
   BOOL rc=RemoveDirectory(DirName);
   if(!rc) // IS: вот тут лишние телодвижения и начнем...
   {
-    char FullName[NM+16]="\\\\?\\";
-    // IS: +4 - чтобы не затереть наши "\\?\"
-    if(ConvertNameToFull(DirName, FullName+4, sizeof(FullName)-4) < sizeof(FullName)-4)
+    SetLastError((localLastError = GetLastError()));
+    if(CheckErrorForProcessed(localLastError))
     {
-      // IS: проверим, а вдруг уже есть есть нужные символы в пути
-      if( (FullName[4]=='/' && FullName[5]=='/') ||
-          (FullName[4]=='\\' && FullName[5]=='\\') )
-        rc=RemoveDirectory(FullName+4);
-      // IS: нужных символов в пути нет, поэтому используем наши
-      else
-        rc=RemoveDirectory(FullName);
+      char FullName[NM+16]="\\\\?\\";
+      // IS: +4 - чтобы не затереть наши "\\?\"
+      if(ConvertNameToFull(DirName, FullName+4, sizeof(FullName)-4) < sizeof(FullName)-4)
+      {
+        // IS: проверим, а вдруг уже есть есть нужные символы в пути
+        if( (FullName[4]=='/' && FullName[5]=='/') ||
+            (FullName[4]=='\\' && FullName[5]=='\\') )
+          rc=RemoveDirectory(FullName+4);
+        // IS: нужных символов в пути нет, поэтому используем наши
+        else
+          rc=RemoveDirectory(FullName);
+      }
     }
   }
   return rc;
@@ -243,7 +255,7 @@ BOOL WINAPI FAR_RemoveDirectory(const char *DirName)
 
 void ShellDelete(Panel *SrcPanel,int Wipe)
 {
-  ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+  ChangePriority ChPriority(Opt.DelThreadPriority);
   WIN32_FIND_DATA FindData;
   char DeleteFilesMsg[300],SelName[NM],SelShortName[NM],DizName[NM];
   char FullName[2058];
@@ -770,8 +782,7 @@ int ShellRemoveFile(const char *Name,const char *ShortName,int Wipe)
         break;
     }
     else
-      if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion<4 ||
-          !Opt.DeleteToRecycleBin)
+      if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion<4 || !Opt.DeleteToRecycleBin)
       {
 /*
         if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
@@ -840,11 +851,11 @@ int ERemoveDirectory(const char *Name,const char *ShortName,int Wipe)
   {
     if (Wipe)
     {
-      if (WipeDirectory(Name) || WipeDirectory(ShortName))
+      if (WipeDirectory(Name) || (localLastError != ERROR_ACCESS_DENIED && WipeDirectory(ShortName)))
         break;
     }
     else
-      if (FAR_RemoveDirectory(Name) || FAR_RemoveDirectory(ShortName))
+      if (FAR_RemoveDirectory(Name) || (localLastError != ERROR_ACCESS_DENIED && FAR_RemoveDirectory(ShortName)))
         break;
     /* $ 19.01.2003 KM
        Добавлен Skip и Skip all
@@ -996,28 +1007,43 @@ int WipeFile(const char *Name)
   SetFilePointer(WipeHandle,0,NULL,FILE_BEGIN);
   SetEndOfFile(WipeHandle);
   CloseHandle(WipeHandle);
+
   char TempName[NM];
-  MoveFile(Name,FarMkTempEx(TempName,NULL,FALSE));
-  return(FAR_DeleteFile(TempName));
+  if(MoveFile(Name,FarMkTempEx(TempName,NULL,FALSE)))
+    return(FAR_DeleteFile(TempName));
+  SetLastError((localLastError = GetLastError()));
+  return FALSE;
 }
 
 
 int WipeDirectory(const char *Name)
 {
   char TempName[NM];
-  MoveFile(Name,FarMkTempEx(TempName,NULL,FALSE));
+  BOOL Ret=MoveFile(Name,FarMkTempEx(TempName,NULL,FALSE));
+  if(!Ret)
+  {
+    SetLastError((localLastError = GetLastError()));
+    return FALSE;
+  }
   return(FAR_RemoveDirectory(TempName));
 }
 
 int DeleteFileWithFolder(const char *FileName)
 {
   char FolderName[NM],*Slash;
-  SetFileAttributes(FileName,0);
-  remove(FileName);
-  strncpy(FolderName,FileName,sizeof(FolderName)-1);
-  if ((Slash=strrchr(FolderName,'\\'))!=NULL)
-    *Slash=0;
-  return(FAR_RemoveDirectory(FolderName));
+  BOOL Ret=SetFileAttributes(FileName,0);
+  if(Ret)
+  {
+    if(!remove(FileName))
+    {
+      strncpy(FolderName,FileName,sizeof(FolderName)-1);
+      if ((Slash=strrchr(FolderName,'\\'))!=NULL)
+        *Slash=0;
+      return(FAR_RemoveDirectory(FolderName));
+    }
+  }
+  SetLastError((localLastError = GetLastError()));
+  return FALSE;
 }
 
 

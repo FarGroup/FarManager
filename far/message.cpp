@@ -5,10 +5,13 @@ message.cpp
 
 */
 
-/* Revision: 1.29 31.03.2003 $ */
+/* Revision: 1.30 21.04.2003 $ */
 
 /*
 Modify:
+  21.04.2003 SVS
+    + CheckErrorForProcessed() - ѕроверка на "продолжаемость" экспериментов
+      по... например, удалению файла с разными именами!
   31.03.2003 SVS
     - BugZ#827 - перекрытие кнопок и рамки диалога
       ѕопробуем уточнить за счет увелечени€ допустимой ширины месага
@@ -573,3 +576,18 @@ int AbortMessage()
     return (FALSE);
 }
 /* VVM $ */
+
+// ѕроверка на "продолжаемость" экспериментов по... например, удалению файла с разными именами!
+BOOL CheckErrorForProcessed(DWORD Err)
+{
+  switch(Err)
+  {
+    case ERROR_ACCESS_DENIED:
+    case ERROR_WRITE_PROTECT:
+    case ERROR_NOT_READY:
+    case ERROR_SHARING_VIOLATION:
+    case ERROR_LOCK_VIOLATION:
+      return FALSE;
+  }
+  return TRUE;
+}

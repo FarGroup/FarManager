@@ -5,10 +5,13 @@ global.cpp
 
 */
 
-/* Revision: 1.51 25.02.2003 $ */
+/* Revision: 1.52 21.04.2003 $ */
 
 /*
 Modify:
+  21.04.2003 SVS
+    + RegistrationBugs - =TRUE, если трид создать не удалось.
+    + PrevFarAltEnterMode - для тестирования "Alt-Enetr"
   25.02.2003 SVS
     ! применим счетчик CallNewDelete/CallMallocFree для отладки
   04.02.2003 SVS
@@ -270,4 +273,10 @@ int UsedInternalClipboard=0;
 
 #ifdef _DEBUGEXC
 int CheckRegistration=TRUE;
+#endif
+
+int RegistrationBugs=FALSE;
+
+#if defined(DETECT_ALT_ENTER)
+int PrevFarAltEnterMode=-1;
 #endif

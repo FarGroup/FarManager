@@ -5,10 +5,15 @@ clipboard.cpp
 
 */
 
-/* Revision: 1.09 10.01.2003 $ */
+/* Revision: 1.10 21.04.2003 $ */
 
 /*
 Modify:
+  21.04.2003 SVS
+    ! Учтем состояние, когда AnsiMode=1 - в этом случае не "корежим"
+      передаваемые в/из клипьорда данные (осталось докрутить редактор)
+      Для этого: редактор должен вызывать InternalCopyToClipboard и
+      InternalPasteFromClipboard/InternalPasteFromClipboardEx
   10.01.2003 SVS
     + Врапим функции работы с клипбордом на свои и... эмулируем работу
       этого самого клипборда в нужные моменты (глобальная переменная
@@ -189,8 +194,12 @@ static HANDLE WINAPI FAR_SetClipboardData(UINT uFormat,HANDLE hMem)
 
 
 /* ------------------------------------------------------------ */
-
 int WINAPI CopyToClipboard(const char *Data)
+{
+  return InternalCopyToClipboard(Data,0);
+}
+
+int InternalCopyToClipboard(const char *Data,int AnsiMode)
 {
   long DataSize;
   if (!FAR_OpenClipboard(NULL))
@@ -212,7 +221,8 @@ int WINAPI CopyToClipboard(const char *Data)
       if ((GData=GlobalLock(hData))!=NULL)
       {
         memcpy(GData,Data,DataSize+1);
-        OemToChar((LPCSTR)GData,(LPTSTR)GData);
+        if(!AnsiMode)
+          OemToChar((LPCSTR)GData,(LPTSTR)GData);
         GlobalUnlock(hData);
         FAR_SetClipboardData(CF_TEXT,(HANDLE)hData);
       }
@@ -220,7 +230,7 @@ int WINAPI CopyToClipboard(const char *Data)
       if ((hData=GlobalAlloc(GMEM_MOVEABLE|GMEM_DDESHARE,BufferSize*2))!=NULL)
         if ((GData=GlobalLock(hData))!=NULL)
         {
-          MultiByteToWideChar(CP_OEMCP,0,Data,-1,(LPWSTR)GData,BufferSize);
+          MultiByteToWideChar(((AnsiMode)?CP_ACP:CP_OEMCP),0,Data,-1,(LPWSTR)GData,BufferSize);
           GlobalUnlock(hData);
           FAR_SetClipboardData(CF_UNICODETEXT,(HANDLE)hData);
         }
@@ -259,6 +269,11 @@ int CopyFormatToClipboard(const char *Format,char *Data)
 
 char* WINAPI PasteFromClipboard(void)
 {
+  return InternalPasteFromClipboard(0);
+}
+
+char* InternalPasteFromClipboard(int AnsiMode)
+{
   HANDLE hClipData;
   if (!FAR_OpenClipboard(NULL))
     return(NULL);
@@ -293,10 +308,18 @@ char* WINAPI PasteFromClipboard(void)
     ClipText=new char[BufferSize];
     if (ClipText!=NULL)
       if (Unicode)
-        UnicodeToOEM((LPCWSTR)ClipAddr,ClipText,BufferSize);
+      {
+        if(AnsiMode)
+          UnicodeToAscii((LPCWSTR)ClipAddr,ClipText,BufferSize);
+        else
+          UnicodeToOEM((LPCWSTR)ClipAddr,ClipText,BufferSize);
+      }
       else
         if (ReadType==CF_TEXT)
-          CharToOem(ClipAddr,ClipText);
+        {
+          if(!AnsiMode)
+            CharToOem(ClipAddr,ClipText);
+        }
         else
           strcpy(ClipText,ClipAddr);
     GlobalUnlock(hClipData);
@@ -305,9 +328,13 @@ char* WINAPI PasteFromClipboard(void)
   return(ClipText);
 }
 
+char* WINAPI PasteFromClipboardEx(int max)
+{
+  return InternalPasteFromClipboardEx(max,0);
+}
 
 // max - без учета символа конца строки!
-char* WINAPI PasteFromClipboardEx(int max)
+char* InternalPasteFromClipboardEx(int max,int AnsiMode)
 {
   char *ClipText=NULL;
   HANDLE hClipData;
@@ -350,13 +377,17 @@ char* WINAPI PasteFromClipboardEx(int max)
     {
       memset(ClipText,0,BufferSize+2);
       if (Unicode)
-        UnicodeToOEM((LPCWSTR)ClipAddr,ClipText,BufferSize);
+        if(AnsiMode)
+          UnicodeToAscii((LPCWSTR)ClipAddr,ClipText,BufferSize);
+        else
+          UnicodeToOEM((LPCWSTR)ClipAddr,ClipText,BufferSize);
       else
       {
         if (ReadType==CF_TEXT)
         {
           strncpy(ClipText,ClipAddr,BufferSize);
-          CharToOem(ClipText,ClipText);
+          if(!AnsiMode)
+            CharToOem(ClipText,ClipText);
           ClipText[BufferSize]=0;
         }
         else

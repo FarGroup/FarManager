@@ -7,10 +7,13 @@ struct.hpp
 
 */
 
-/* Revision: 1.96 05.03.2003 $ */
+/* Revision: 1.97 21.04.2003 $ */
 
 /*
 Modify:
+  21.04.2003 SVS
+    + Opt.DelThreadPriority
+    + struct ScreenSizes, Opt.ScrSize - для отладки "Alt-Enter"
   05.03.2003 SVS
     + Opt.ScanJunction - сканировать так же симлинки.
   10.02.2003 SVS
@@ -436,6 +439,25 @@ struct NowellOptions{
   int MoveRO;               // перед операцией Move снимать R/S/H атрибуты, после переноса - выставлять обратно
 };
 
+#if defined(DETECT_ALT_ENTER)
+struct ScreenSizes{
+  /*
+    Opt.WScreenSize - Windowed/Full Screen Size
+       COORD[0].X - Windowed Width  mode 1
+       COORD[0].Y - Windowed Height mode 1
+       COORD[1].X - Windowed Width  mode 2
+       COORD[1].Y - Windowed Height mode 2
+
+       COORD[2].X - FullScreen Width  mode 1
+       COORD[2].Y - FullScreen Height mode 1
+       COORD[3].X - FullScreen Width  mode 2
+       COORD[3].Y - FullScreen Height mode 2
+  */
+  int WScreenSizeSet;
+  COORD WScreenSize[4];
+};
+#endif
+
 struct Options
 {
   /* $ 03.08.2000 SVS
@@ -756,6 +778,7 @@ struct Options
   int OnlyEditorViewerUsed; // =1, если старт был /e или /v
 
   DWORD ShowTimeoutDelFiles; // тайаут в процессе удаления (в ms)
+  int DelThreadPriority; // приоритет процесса удаления, по умолчанию = THREAD_PRIORITY_NORMAL
 
   //int CPAJHefuayor; // производное от "Close Plugin And Jump:
                   // Highly experimental feature, use at your own risk"
@@ -765,6 +788,9 @@ struct Options
   struct DialogsOptions Dialogs;
   struct PoliciesOptions Policies;
   struct NowellOptions Nowell;
+#if defined(DETECT_ALT_ENTER)
+  struct ScreenSizes ScrSize;
+#endif
 };
 
 

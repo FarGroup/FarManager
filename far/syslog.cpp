@@ -5,10 +5,12 @@ syslog.cpp
 
 */
 
-/* Revision: 1.40 31.03.2003 $ */
+/* Revision: 1.41 16.04.2003 $ */
 
 /*
 Modify:
+  16.04.2003 SVS
+    + Логирование DM_GETSELECTION и DM_SETSELECTION.
   31.03.2003 SVS
     + _EE_ToName(), _EEREDRAW_ToName()
     + _SYS_EE_REDRAW
@@ -1143,7 +1145,7 @@ const char *_INPUT_RECORD_Dump(INPUT_RECORD *rec)
           rec->Event.KeyEvent.wRepeatCount,
           _VK_KEY_ToName(rec->Event.KeyEvent.wVirtualKeyCode),
           rec->Event.KeyEvent.wVirtualScanCode,
-          (rec->Event.KeyEvent.uChar.UnicodeChar && rec->Event.KeyEvent.uChar.UnicodeChar != 9 && rec->Event.KeyEvent.uChar.UnicodeChar != 0xd && rec->Event.KeyEvent.uChar.UnicodeChar != 0xa?rec->Event.KeyEvent.uChar.UnicodeChar:L' '),
+          (rec->Event.KeyEvent.uChar.UnicodeChar && !(rec->Event.KeyEvent.uChar.UnicodeChar == 9 || rec->Event.KeyEvent.uChar.UnicodeChar == 0xd || rec->Event.KeyEvent.uChar.UnicodeChar == 0xa)?rec->Event.KeyEvent.uChar.UnicodeChar:L' '),
               rec->Event.KeyEvent.uChar.UnicodeChar,
           (rec->Event.KeyEvent.uChar.AsciiChar && rec->Event.KeyEvent.uChar.AsciiChar != 0x0d && rec->Event.KeyEvent.uChar.AsciiChar != 0x9 && rec->Event.KeyEvent.uChar.AsciiChar !=0xA ?rec->Event.KeyEvent.uChar.AsciiChar:' '),
               rec->Event.KeyEvent.uChar.AsciiChar,
@@ -1158,6 +1160,7 @@ const char *_INPUT_RECORD_Dump(INPUT_RECORD *rec)
             (rec->Event.KeyEvent.dwControlKeyState&NUMLOCK_ON?'N':'n'),
             (rec->Event.KeyEvent.dwControlKeyState&SCROLLLOCK_ON?'S':'s')
         );
+        //sprintf(Records+strlen(Records)," (%C %C)",(rec->Event.KeyEvent.uChar.UnicodeChar && !(rec->Event.KeyEvent.uChar.UnicodeChar == 9 || rec->Event.KeyEvent.uChar.UnicodeChar == 0xd || rec->Event.KeyEvent.uChar.UnicodeChar == 0xa)?rec->Event.KeyEvent.uChar.UnicodeChar:L' '),rec->Event.KeyEvent.uChar.UnicodeChar);
       break;
     case MOUSE_EVENT:
       sprintf(Records,
@@ -1311,6 +1314,7 @@ const char *_DLGMSG_ToName(int Msg)
     DEF_MESSAGE(DM_USER),               DEF_MESSAGE(DM_KILLSAVESCREEN),
     DEF_MESSAGE(DM_ALLKEYMODE),         DEF_MESSAGE(DM_LISTGETDATASIZE),
     DEF_MESSAGE(DN_ACTIVATEAPP),
+    DEF_MESSAGE(DM_GETSELECTION),       DEF_MESSAGE(DM_SETSELECTION),
   };
   int I;
 

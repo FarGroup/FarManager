@@ -5,11 +5,14 @@ copy.cpp
 
 */
 
-/* Revision: 1.114 16.04.2003 $ */
+/* Revision: 1.115 21.04.2003 $ */
 
 /*
 Modify:
-  14.04.2003 VVM
+  21.04.2003 SVS
+    ! В обработчике DN_KEY сделаем "break", а не "return". Логика не
+      изменится, но суть поменяется!
+  16.04.2003 VVM
     ! Показывать прогресс 4 раза в секунду, вместо одного.
   08.03.2003 SVS
     ! Небольшое уточнение логики диалога (доделано не все... иначе выпуск
@@ -1000,8 +1003,12 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
 #if 1
   SrcPanel->Update(UPDATE_KEEP_SELECTION);
+  int LenRenamedName=0;
   if (CDP.SelCount==1 && *RenamedName)
+  {
+    LenRenamedName=strlen(RenamedName);
     SrcPanel->GoToFile(RenamedName);
+  }
 
   if(CDP.FileAttr != -1 && (CDP.FileAttr&FILE_ATTRIBUTE_DIRECTORY) && DestPanelMode != PLUGIN_PANEL)
   {
@@ -1009,7 +1016,10 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     DestPanel->GetCurDir(DestDir);
     SrcPanel->GetCurDir(SrcDir);
     int LenSrcDir=strlen(SrcDir);
-    if(strlen(DestDir) > strlen(SrcDir) && !LocalStrnicmp(DestDir,SrcDir,LenSrcDir))
+    int LenDstDir=strlen(DestDir);
+
+    if(CDP.SelCount == 1 && !LocalStrnicmp(DestDir,RenamedName,Min(LenDstDir,LenRenamedName)) ||
+      (LenDstDir > LenSrcDir && !LocalStrnicmp(DestDir,SrcDir,Min(LenDstDir,LenSrcDir)) && !IsLocalRootPath(SrcDir)))
     {
       // ...то просто.. ;-) выставим тот же каталог, что позволит обновить
       // панель.
@@ -1075,7 +1085,7 @@ long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         Dialog::SendDlgMessage(hDlg,DM_CALLTREE,DlgParam->AltF10,0);
         return TRUE;
       }
-      return FALSE;
+      break;
     }
 
     case DN_EDITCHANGE:
@@ -3076,6 +3086,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
     CloseHandle(SrcHandle);
     CloseHandle(DestHandle);
 
+    // ЗДЕСЯ СТАВИТЬ Compressed???
     if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS &&
         (SrcData.dwFileAttributes & (FA_HIDDEN|FA_SYSTEM|FA_RDONLY)))
       ShellSetAttr(DestName,SrcData.dwFileAttributes);

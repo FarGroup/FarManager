@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.137 26.01.2003 $ */
+/* Revision: 1.138 17.04.2003 $ */
 
 /*
 Modify:
+  17.04.2003 SVS
+    + IsLocalRootPath()
   26.01.2003 IS
     ! FAR_CreateFile - обертка для CreateFile, просьба использовать именно
       ее вместо CreateFile
@@ -1453,6 +1455,11 @@ int PathMayBeAbsolute(const char *Path)
 BOOL IsLocalPath(const char *Path)
 {
   return (Path && isalpha(*Path) && Path[1]==':' && Path[2]);
+}
+
+BOOL IsLocalRootPath(const char *Path)
+{
+  return (Path && isalpha(*Path) && Path[1]==':' && Path[2] == '\\' && !Path[3]);
 }
 
 // Косметические преобразования строки пути.

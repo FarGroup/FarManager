@@ -5,10 +5,16 @@ interf.cpp
 
 */
 
-/* Revision: 1.72 31.03.2003 $ */
+/* Revision: 1.73 21.04.2003 $ */
 
 /*
 Modify:
+  21.04.2003 SVS
+    + RegistrationBugs - =TRUE, если трид создать не удалось.
+    + PrevFarAltEnterMode - для тестирования "Alt-Enetr"
+    ! Уточнение для _beginthread() - вызовем функции напрямую, иначе
+      зарегистрированные пользователи в пролете :-(
+    + видоизменение "ламерской" защиты - считайте что это бзик :-)
   31.03.2003 SVS
     ! Проверим код возврата _beginthread() и выставим "Евалюшин копия"
     - CtrlHandler() инициализировался до создания CtrlObject
@@ -244,8 +250,10 @@ static int OutputCP;
 static BYTE RecodeOutTable[256];
 static int InitCurVisible,InitCurSize;
 static const char CONOUT[]="CONOUT$";
+static const char CONIN[]="CONIN$";
 #if defined(USE_WFUNC)
 static const WCHAR LCONOUT[]=L"CONOUT$";
+static const WCHAR LCONIN[]=L"CONIN$";
 #endif
 
 #if defined(USE_WFUNC)
@@ -272,13 +280,13 @@ static void __Create_CONIN()
 {
 #if defined(USE_WFUNC_IN)
   if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
-    hConInp=CreateFileW(L"CONIN$",GENERIC_READ|GENERIC_WRITE,
+    hConInp=CreateFileW(LCONIN,GENERIC_READ|GENERIC_WRITE,
           FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
   else
-    hConInp=CreateFileA("CONIN$",GENERIC_READ|GENERIC_WRITE,
+    hConInp=CreateFileA(CONIN,GENERIC_READ|GENERIC_WRITE,
           FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
 #else
-   hConInp=CreateFile("CONIN$",GENERIC_READ|GENERIC_WRITE,
+   hConInp=CreateFile(CONIN,GENERIC_READ|GENERIC_WRITE,
           FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
 #endif
 }
@@ -332,6 +340,9 @@ void InitConsole(int FirstInit)
   if(FirstInit)
     memcpy(Palette,DefaultPalette,SizeArrayPalette);
   /* SKV$*/
+#if defined(DETECT_ALT_ENTER)
+  PrevFarAltEnterMode=FarAltEnter(FAR_CONSOLE_GET_MODE);
+#endif
 }
 
 
@@ -1075,16 +1086,16 @@ void ShowTime(int ShowAlways)
     RegChecked=TRUE;
     struct RegInfo Reg;
     Reg.Done=0;
+    RegistrationBugs=FALSE;
     if(_beginthread(CheckReg,0x10000,&Reg) == -1)
     {
-       Reg.Done=TRUE;
-       RegVer=0;
-       *Reg.RegName=0;
-       Opt.EdOpt.TabSize=8;
-       Opt.ViewerEditorClock=0;
+      RegistrationBugs=TRUE;
+      CheckReg(&Reg);
     }
+
     while (!Reg.Done)
       Sleep(10);
+
     if (*Reg.RegName)
     {
       unsigned char Add=158,Xor1=211;
@@ -1095,13 +1106,23 @@ void ShowTime(int ShowAlways)
       }
       if ((Add & 0xf)!=ToHex(Reg.RegCode[1]) || ((Add>>3) & 0xf)!=ToHex(Reg.RegCode[2]))
       {
-        void *ErrRegFnPtr=((char *)ErrRegFn-111);
-        _beginthread((void (__cdecl *)(void *))((char *)ErrRegFnPtr+111),0x10000,NULL);
+        RegistrationBugs=FALSE;
+        void *ErrRegFnPtr=((char *)ErrRegFn-(200*lasttm.wMilliseconds));
+        if(_beginthread((void (__cdecl *)(void *))((char *)ErrRegFnPtr+(200*lasttm.wMilliseconds)),0x10000,NULL) == -1)
+        {
+          RegistrationBugs=TRUE;
+          ((void (__cdecl *)(void *))((char *)ErrRegFnPtr+(200*lasttm.wMilliseconds)))(NULL);
+        }
       }
       if (RegVer!=3 && (((Xor1>>5) & 0xf)!=ToHex(Reg.RegCode[4]) || (~Xor1 & 0xf)!=ToHex(Reg.RegCode[6])))
       {
-        void *ErrRegFnPtr=((char *)ErrRegFn-50);
-        _beginthread((void (__cdecl *)(void *))((char *)ErrRegFnPtr+50),0x10000,NULL);
+        RegistrationBugs=FALSE;
+        void *ErrRegFnPtr=((char *)ErrRegFn-(0x55*lasttm.wMilliseconds));
+        if(_beginthread((void (__cdecl *)(void *))((char *)ErrRegFnPtr+(0x55*lasttm.wMilliseconds)),0x10000,NULL) == -1)
+        {
+          RegistrationBugs=TRUE;
+          ((void (__cdecl *)(void *))((char *)ErrRegFnPtr+(0x55*lasttm.wMilliseconds)))(NULL);
+        }
       }
     }
   }

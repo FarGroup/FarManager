@@ -7,10 +7,15 @@ fn.hpp
 
 */
 
-/* Revision: 1.180 31.03.2003 $ */
+/* Revision: 1.181 21.04.2003 $ */
 
 /*
 Modify:
+  21.04.2003 SVS
+    + IsLocalRootPath()
+    + InternalPasteFromClipboard(int AnsiMode);
+    + InternalPasteFromClipboardEx(int max,int AnsiMode)
+    + InternalCopyToClipboard(const char *Data,int AnsiMode);
   31.03.2003 SVS
     + _EE_ToName(), _EEREDRAW_ToName()
     + SYSLOG_EE_REDRAW
@@ -695,6 +700,8 @@ int HiStrlen(const char *Str,BOOL Dup=TRUE);
    + Дополнительный параметр у GetErrorString - резмер буфера */
 int GetErrorString(char *ErrStr, DWORD StrSize);
 /* VVM $ */
+// Проверка на "продолжаемость" экспериментов по... например, удалению файла с разными именами!
+BOOL CheckErrorForProcessed(DWORD Err);
 void ShowProcessList();
 int CopyFormatToClipboard(const char *Format,char *Data);
 char* PasteFormatFromClipboard(const char *Format);
@@ -970,6 +977,10 @@ int WINAPIV FarSprintf(char *buffer,const char *format,...);
 int WINAPIV FarSscanf(const char *buffer, const char *format,...);
 int WINAPI CopyToClipboard(const char *Data);
 char* WINAPI PasteFromClipboard(void);
+
+char* InternalPasteFromClipboard(int AnsiMode);
+char* InternalPasteFromClipboardEx(int max,int AnsiMode);
+int InternalCopyToClipboard(const char *Data,int AnsiMode);
 /* $ 01.08.2000 SVS
    ! Функция ввода строки GetString имеет один параметр для всех флагов
 */
@@ -1400,6 +1411,7 @@ int fseek64 (FILE *fp, __int64 offset, int whence);
 BOOL IsDiskInDrive(const char *Drive);
 
 BOOL IsLocalPath(const char *Path);
+BOOL IsLocalRootPath(const char *Path);
 
 BOOL RunGraber(void);
 

@@ -5,10 +5,13 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.91 05.03.2003 $ */
+/* Revision: 1.92 21.04.2003 $ */
 
 /*
 Modify:
+  21.04.2003 SVS
+    ! Автостартующие макросы запускаем только после загрузки всех плагинов!
+    + Alt-Enter - пока в тестовой моде.
   05.03.2003 SVS
     ! Закоментим _SVS
   03.02.2003 SVS
@@ -303,6 +306,7 @@ static int PrePreMouseEventFlags;
 static BOOL IsKeyCASPressed=FALSE; // CtrlAltShift - нажато или нет?
 static clock_t PressedLastTime,KeyPressedLastTime;
 static int ShiftState=0;
+static int AltEnter=-1;
 
 /* ----------------------------------------------------------------- */
 static struct TTable_KeyToVK{
@@ -506,7 +510,7 @@ int GetInputRecord(INPUT_RECORD *rec)
 //      memset(rec,0,sizeof(*rec));
       return(MacroKey);
     }
-    if (CtrlObject->Cp()&&CtrlObject->Cp()->ActivePanel&&!CmdMode)
+    if (CtrlObject->Cp()&&CtrlObject->Cp()->ActivePanel && !CmdMode && CtrlObject->Plugins.IsPluginsLoaded())
       CtrlObject->Macro.RunStartMacro();
     MacroKey=CtrlObject->Macro.GetKey();
     if (MacroKey)
@@ -561,9 +565,70 @@ int GetInputRecord(INPUT_RECORD *rec)
        ! Убрал подмену колесика */
     if (ReadCount!=0)
     {
-      // // _SVS(if(rec->EventType==KEY_EVENT))
-        // // _SVS(SysLog("@@@> %s",_INPUT_RECORD_Dump(rec)));
+      //_SVS(if(rec->EventType!=MOUSE_EVENT))
+      _SVS(if(rec->EventType==KEY_EVENT))
+      {
+        _SVS(SysLog(">>> %s",_INPUT_RECORD_Dump(rec)));
+       // _SVS(SysLog("FarAltEnter -> %d",FarAltEnter(FAR_CONSOLE_GET_MODE)));
+      }
+#if defined(DETECT_ALT_ENTER)
 
+      /*
+         Windowed -> FullScreen
+           KEY_EVENT_RECORD:   Dn, Vk="VK_MENU"    FarAltEnter:  0
+           FOCUS_EVENT_RECORD: FALSE               FarAltEnter:  1
+             FOCUS_EVENT_RECORD: TRUE                FarAltEnter:  1
+             FOCUS_EVENT_RECORD: TRUE                FarAltEnter:  1
+
+         FullScreen -> Windowed
+           KEY_EVENT_RECORD:   Dn, Vk="VK_MENU"    FarAltEnter:  1
+           WINDOW_BUFFER_SIZE_RECORD: Size=[W,H]   FarAltEnter:  0
+             FOCUS_EVENT_RECORD: FALSE               FarAltEnter:  0
+             FOCUS_EVENT_RECORD: TRUE                FarAltEnter:  0
+      */
+
+      if(rec->EventType==KEY_EVENT && rec->Event.KeyEvent.wVirtualKeyCode == VK_MENU && rec->Event.KeyEvent.bKeyDown)
+      {
+        AltEnter=1;
+      }
+      else if(AltEnter &&
+              (rec->EventType==FOCUS_EVENT && !rec->Event.FocusEvent.bSetFocus ||
+               rec->EventType==WINDOW_BUFFER_SIZE_EVENT) &&
+              PrevFarAltEnterMode != FarAltEnter(FAR_CONSOLE_GET_MODE))
+      {
+        CONSOLE_SCREEN_BUFFER_INFO csbi;
+        GetConsoleScreenBufferInfo(hConOut,&csbi);
+        _SVS(SysLog("AltEnter >>> dwSize={%d,%d} srWindow={%d,%d,%d,%d} dwMaximumWindowSize={%d,%d}  ScrX=%d (%d) ScrY=%d (%d)",
+              csbi.dwSize.X,csbi.dwSize.Y,
+              csbi.srWindow.Left, csbi.srWindow.Top,csbi.srWindow.Right,csbi.srWindow.Bottom,
+              csbi.dwMaximumWindowSize.X,csbi.dwMaximumWindowSize.Y,
+              ScrX,PrevScrX,ScrY,PrevScrY));
+
+        if(rec->EventType==FOCUS_EVENT)
+        {
+          DWORD ReadCount2;
+          INPUT_RECORD TmpRec2;
+          TmpRec2.EventType=WINDOW_BUFFER_SIZE_EVENT;
+          TmpRec2.Event.WindowBufferSizeEvent.dwSize.X=csbi.dwSize.X;
+          TmpRec2.Event.WindowBufferSizeEvent.dwSize.Y=csbi.dwSize.Y;
+          WriteConsoleInput(hConInp,&TmpRec2,1,&ReadCount2); // вернем самый первый!
+        }
+        else
+          AltEnter=1;
+        //PrevFarAltEnterMode=FarAltEnter(FAR_CONSOLE_GET_MODE);
+      /*
+        DWORD ReadCount2,ReadCount3;
+        GetNumberOfConsoleInputEvents(hConInp,&ReadCount2);
+        if(ReadCount2 >= 3)
+        {
+          INPUT_RECORD TmpRec2[2];
+          ReadConsoleInput(hConInp,TmpRec2,2,&ReadCount3); // удалим 2, третья считается позже
+        }
+      */
+      }
+      else
+        AltEnter=0;
+#endif
       // в масдае хрен знает что творится с расширенными курсорными клавишами ;-(
       // Эта фигня нужна только в диалоге назначения макро - остальное по барабану - и так работает
       // ... иначе хреновень с эфектом залипшего шифта проскакивает
@@ -1049,25 +1114,59 @@ int GetInputRecord(INPUT_RECORD *rec)
   /*& 17.05.2001 OT Изменился размер консоли, генерим клавишу*/
   if (rec->EventType==WINDOW_BUFFER_SIZE_EVENT)
   {
+#if defined(DETECT_ALT_ENTER)
+    _SVS(CleverSysLog Clev(""));
+    _SVS(SysLog("ScrX=%d (%d) ScrY=%d (%d), AltEnter=%d",ScrX,PrevScrX,ScrY,PrevScrY,AltEnter));
+    //_SVS(SysLog("FarAltEnter -> %d",FarAltEnter(FAR_CONSOLE_GET_MODE)));
+#endif
     int PScrX=ScrX;
     int PScrY=ScrY;
     //// // _SVS(SysLog(1,"GetInputRecord(WINDOW_BUFFER_SIZE_EVENT)"));
     Sleep(1);
     GetVideoMode(CurScreenBufferInfo);
+#if defined(DETECT_ALT_ENTER)
+    if (PScrX+1 == CurScreenBufferInfo.dwSize.X &&
+        PScrY+1 == CurScreenBufferInfo.dwSize.Y &&
+        PScrX+1 <= CurScreenBufferInfo.dwMaximumWindowSize.X &&
+        PScrY+1 <= CurScreenBufferInfo.dwMaximumWindowSize.Y)
+#else
     if (PScrX+1 == CurScreenBufferInfo.dwSize.X &&
         PScrY+1 == CurScreenBufferInfo.dwSize.Y)
+#endif
     {
-      //// // _SVS(SysLog(-1,"GetInputRecord(WINDOW_BUFFER_SIZE_EVENT); return KEY_NONE"));
+#if defined(DETECT_ALT_ENTER)
+      _SVS(SysLog("return KEY_NONE"));
+#endif
       return KEY_NONE;
     }
     else
     {
+#if defined(DETECT_ALT_ENTER)
+      _SVS(SysLog("return KEY_CONSOLE_BUFFER_RESIZE ScrX=%d (%d) ScrY=%d (%d)",ScrX,PrevScrX,ScrY,PrevScrY));
+      if(FarAltEnter(FAR_CONSOLE_GET_MODE) == FAR_CONSOLE_FULLSCREEN)
+      {
+        _SVS(SysLog("call ChangeVideoMode"));
+        PrevFarAltEnterMode=FarAltEnter(FAR_CONSOLE_GET_MODE);
+        ChangeVideoMode(PScrY==24?50:25,80);
+        GetVideoMode(CurScreenBufferInfo);
+      }
+      else
+      {
+        _SVS(SysLog("PrevScrX=PScrX"));
+        PrevScrX=PScrX;
+        PrevScrY=PScrY;
+      }
+#else
       PrevScrX=PScrX;
       PrevScrY=PScrY;
       //// // _SVS(SysLog(-1,"GetInputRecord(WINDOW_BUFFER_SIZE_EVENT); return KEY_CONSOLE_BUFFER_RESIZE"));
+#endif
       Sleep(1);
       if(FrameManager)
       {
+#if defined(DETECT_ALT_ENTER)
+        _SVS(SysLog("if(FrameManager)"));
+#endif
         // апдейтим панели (именно они сейчас!)
         LockScreen LckScr;
         if(GlobalSaveScrPtr)

@@ -7,10 +7,12 @@ plugins.hpp
 
 */
 
-/* Revision: 1.28 21.08.2002 $ */
+/* Revision: 1.29 21.04.2003 $ */
 
 /*
 Modify:
+  21.04.2003 SVS
+    + IsPluginsLoaded(), PSIF_PLUGINSLOADDED
   21.08.2002 IS
     + ѕараметр PluginTextSize в GetDiskMenuItem, чтобы знать, сколько брать
   25.06.2002 SVS
@@ -226,6 +228,7 @@ struct PluginItem
 enum PLUGINSETFLAGS{
   PSIF_ENTERTOOPENPLUGIN        = 0x00000001, // ввалились в плагин OpenPlugin
   PSIF_DIALOG                   = 0x00000002, // была бад€га с диалогом
+  PSIF_PLUGINSLOADDED           = 0x80000000, // пагины загружены
 };
 
 class PluginsSet
@@ -270,6 +273,7 @@ class PluginsSet
   public:
     void LoadPlugins();
     void LoadPluginsFromCache();
+    BOOL IsPluginsLoaded() {return Flags.Check(PSIF_PLUGINSLOADDED);}
     HANDLE OpenPlugin(int PluginNumber,int OpenFrom,int Item);
     HANDLE OpenFilePlugin(char *Name,const unsigned char *Data,int DataSize);
     HANDLE OpenFindListPlugin(const PluginPanelItem *PanelItem,int ItemsNumber);

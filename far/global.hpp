@@ -8,10 +8,13 @@ global.hpp
 
 */
 
-/* Revision: 1.49 25.02.2003 $ */
+/* Revision: 1.50 21.04.2003 $ */
 
 /*
 Modify:
+  21.04.2003 SVS
+    + RegistrationBugs - =TRUE, если трид создать не удалось.
+    + PrevFarAltEnterMode - для тестирования "Alt-Enetr"
   25.02.2003 SVS
     ! применим счетчик CallNewDelete/CallMallocFree для отладки
   04.02.2003 SVS
@@ -272,6 +275,12 @@ extern int UsedInternalClipboard;
 
 #ifdef _DEBUGEXC
 extern int CheckRegistration;
+#endif
+
+extern int RegistrationBugs;
+
+#if defined(DETECT_ALT_ENTER)
+extern int PrevFarAltEnterMode;
 #endif
 
 #endif  // __FARGLOBAL_HPP__

@@ -5,10 +5,14 @@ main.cpp
 
 */
 
-/* Revision: 1.66 31.03.2003 $ */
+/* Revision: 1.67 16.04.2003 $ */
 
 /*
 Modify:
+  16.04.2003 SVS
+    ! /co преобладает над /p
+    ! Уточнение для _beginthread() - вызовем функции напрямую, иначе
+      зарегистрированные пользователи в пролете :-(
   31.03.2003 SVS
     ! Проверим код возврата _beginthread() и выставим "Евалюшин копия"
   17.03.2003 SVS
@@ -243,7 +247,11 @@ printf(
   if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
   {
     printf(
+#if !defined(USE_WFUNC_ALW)
 " /aw  Disable TrueType font autodetection.\n"
+#else
+" /8   Disable Unicode console.\n"
+#endif
     );
   }
 #endif
@@ -350,12 +358,11 @@ static int MainProcess(char *EditName,char *ViewName,char *DestName1,char *DestN
         static struct RegInfo Reg;
         if(_beginthread(CheckReg,0x10000,&Reg) == -1)
         {
-          Reg.Done=TRUE;
-          *Reg.RegName=0;
-          RegVer=0;
-          Opt.EdOpt.TabSize=8;
-          Opt.ViewerEditorClock=0;
+          RegistrationBugs=TRUE;
+          CheckReg(&Reg);
         }
+        else
+          RegistrationBugs=FALSE;
         while (!Reg.Done)
           Sleep(10);
 #ifdef _DEBUGEXC
@@ -540,12 +547,21 @@ int _cdecl main(int Argc, char *Argv[])
               Opt.NoGraphics=TRUE;
               break;
 #if defined(USE_WFUNC)
+#if !defined(USE_WFUNC_ALW)
             case 'W':
               Opt.UseTTFFont=FALSE;
               break;
 #endif
+#endif
           }
           break;
+#if defined(USE_WFUNC)
+#if defined(USE_WFUNC_ALW)
+        case '8':
+          Opt.UseTTFFont=FALSE;
+          break;
+#endif
+#endif
         case 'E':
           if (isdigit(Argv[I][2]))
           {
@@ -692,6 +708,9 @@ int _cdecl main(int Argc, char *Argv[])
   /* $ 08.01.2003 SVS
      BugZ#765 - Ключи командной строки парсятся неоднозначно.
   */
+  if(Opt.PluginsCacheOnly)
+    *MainPluginsPath=0;
+
   if(*MainPluginsPath)
   {
     ExpandEnvironmentStr(MainPluginsPath,MainPluginsPath,sizeof(MainPluginsPath));
@@ -704,17 +723,26 @@ int _cdecl main(int Argc, char *Argv[])
     RawConvertShortNameToLongName(MainPluginsPath,MainPluginsPath,sizeof(MainPluginsPath));
     /* IS $ */
   }
-  else
-    Opt.PluginsCacheOnly=FALSE;
   /* SVS $ */
 
   SetFileApisToOEM();
   GetModuleFileName(NULL,FarPath,sizeof(FarPath));
 #if defined(USE_WFUNC)
+#if defined(USE_WFUNC_ALW)
+  if(Opt.UseTTFFont == -1 && WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5)
+  {
+    Opt.UseTTFFont=TRUE;
+    Opt.CleanAscii=FALSE;
+    Opt.NoGraphics=FALSE;
+  }
+  else
+    Opt.UseTTFFont=0;
+#else
   if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
     DetectTTFFont(FarPath);
   else
     Opt.UseTTFFont=0;
+#endif
 #endif
   /* $ 02.07.2001 IS
      Учтем то, что GetModuleFileName иногда возвращает короткое имя, которое

@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.282 27.02.2003 $ */
+/* Revision: 1.283 16.04.2003 $ */
 
 /*
 Modify:
+  16.04.2003 SVS
+    + DM_GETSELECTION и DM_SETSELECTION.
   27.02.2003 SVS
     - BugZ#813 - DM_RESIZEDIALOG в DN_DRAWDIALOG -> проблема: Ctrl-F5 - отрисовка только полозьев.
       Убираем вызов плагиновго обработчика.
@@ -5639,6 +5641,12 @@ long WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
     case DN_MOUSEEVENT:
       return TRUE;
+
+    case DM_GETSELECTION: // Msg=DM_GETSELECTION, Param1=ID, Param2=*EditorSelect
+      return FALSE;
+
+    case DM_SETSELECTION:
+      return FALSE;
   }
 
   return 0;
@@ -7087,6 +7095,56 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
           }
         }
         return ClearFlag;
+      }
+      break;
+    }
+
+    /*****************************************************************/
+    case DM_GETSELECTION: // Msg=DM_GETSELECTION, Param1=ID, Param2=*EditorSelect
+    case DM_SETSELECTION: // Msg=DM_SETSELECTION, Param1=ID, Param2=*EditorSelect
+    {
+      if(IsEdit(Type) && Param2)
+      {
+        if(Msg == DM_GETSELECTION)
+        {
+          if(!IsBadWritePtr((void*)Param2,sizeof(struct EditorSelect)))
+          {
+            struct EditorSelect *EdSel=(struct EditorSelect *)Param2;
+            DlgEdit *EditLine=(DlgEdit *)(CurItem->ObjPtr);
+            EdSel->BlockStartLine=0;
+            EdSel->BlockHeight=1;
+            EditLine->GetSelection(EdSel->BlockStartPos,EdSel->BlockWidth);
+            if(EdSel->BlockStartPos == -1 && EdSel->BlockWidth==0)
+              EdSel->BlockType=BTYPE_NONE;
+            else
+            {
+              EdSel->BlockType=BTYPE_STREAM;
+              EdSel->BlockWidth-=EdSel->BlockStartPos;
+            }
+            return TRUE;
+          }
+        }
+        else
+        {
+          if(!IsBadReadPtr((void*)Param2,sizeof(struct EditorSelect)))
+          {
+            struct EditorSelect *EdSel=(struct EditorSelect *)Param2;
+            DlgEdit *EditLine=(DlgEdit *)(CurItem->ObjPtr);
+            //EdSel->BlockType=BTYPE_STREAM;
+            //EdSel->BlockStartLine=0;
+            //EdSel->BlockHeight=1;
+            if(EdSel->BlockType==BTYPE_NONE)
+              EditLine->Select(-1,0);
+            else
+              EditLine->Select(EdSel->BlockStartPos,EdSel->BlockStartPos+EdSel->BlockWidth);
+            if(Dlg->DialogMode.Check(DMODE_SHOW)) //???
+            {
+              Dlg->ShowDialog(Param1);
+              ScrBuf.Flush();
+            }
+            return TRUE;
+          }
+        }
       }
       break;
     }

@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.133 14.04.2003 $ */
+/* Revision: 1.134 21.04.2003 $ */
 
 /*
 Modify:
+  21.04.2003 SVS
+    + Немного логов
   14.04.2003 SVS
     - Перестали работать некоторые функциональные клавиши (например, F1 -
       вызов помощи) во время работы плагинов, использующих ProcessEditorInput
@@ -376,6 +378,7 @@ FileEditor::FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
                        int StartLine,int StartChar,int DisableHistory,
                        char *PluginData,int ToSaveAs, int OpenModeExstFile)
 {
+  _ECTLLOG(CleverSysLog SL("FileEditor::FileEditor(1)"));
   _KEYMACRO(SysLog("FileEditor::FileEditor(1)"));
   _KEYMACRO(SysLog(1));
   ScreenObject::SetPosition(0,0,ScrX,ScrY);
@@ -390,7 +393,8 @@ FileEditor::FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
             int X1,int Y1,int X2,int Y2,int DisableHistory, int DeleteOnClose,
             int OpenModeExstFile)
 {
-  _KEYMACRO(SysLog("FileEditor::FileEditor(1)"));
+  _ECTLLOG(CleverSysLog SL("FileEditor::FileEditor(2)"));
+  _KEYMACRO(SysLog("FileEditor::FileEditor(2)"));
   _KEYMACRO(SysLog(1));
   /* $ 02.11.2001 IS
        отрицательные координаты левого верхнего угла заменяются на нулевые
@@ -525,6 +529,8 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
                       char *PluginData,int ToSaveAs,int DeleteOnClose,
                       int OpenModeExstFile)
 {
+  _ECTLLOG(CleverSysLog SL("FileEditor::Init()"));
+  _ECTLLOG(SysLog("(Name=%s, Title=%s)",Name,Title));
   FEdit=new Editor;
 
   if(!FEdit)
@@ -677,6 +683,7 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
   )
   /* SVS $ */
   {
+    _ECTLLOG(SysLog("Message: %s",MSG(MEditROOpen)));
     if(Message(MSG_WARNING,2,MSG(MEditTitle),Name,MSG(MEditRSH),
                              MSG(MEditROOpen),MSG(MYes),MSG(MNo)))
     {
@@ -719,7 +726,9 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
       return;
     }
     CtrlObject->Plugins.CurEditor=this;//&FEdit;
+    _ECTLLOG(SysLog("call ProcessEditorEvent(EE_READ,NULL) {"));
     CtrlObject->Plugins.ProcessEditorEvent(EE_READ,NULL);
+    _ECTLLOG(SysLog("} return From ProcessEditorEvent(EE_READ,NULL)"));
   }
   /* IS $ */
   ShowConsoleTitle();

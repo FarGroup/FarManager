@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.136 31.03.2003 $ */
+/* Revision: 1.137 21.04.2003 $ */
 
 /*
 Modify:
+  21.04.2003 SVS
+    + IsPluginsLoaded(), PSIF_PLUGINSLOADDED
   31.03.2003 SVS
     + _ECTLLOG для PluginsSet::ProcessEditorEvent()
   17.03.2003 SVS
@@ -491,6 +493,7 @@ void PluginsSet::LoadPlugins()
   struct PluginItem *PData;
 
   BlockExtKey blockExtKey;
+  Flags.Clear(PSIF_PLUGINSLOADDED);
 
   /* $ 01.09.2000 tran
      '/co' switch */
@@ -625,6 +628,7 @@ void PluginsSet::LoadPlugins()
         I--;
       }
     }
+  Flags.Set(PSIF_PLUGINSLOADDED);
 }
 
 /* $ 01.09.2000 tran
@@ -711,6 +715,7 @@ void PluginsSet::LoadPluginsFromCache()
     }
   }
   /* tran $ */
+  Flags.Set(PSIF_PLUGINSLOADDED);
 }
 /* tran $ */
 
@@ -1371,6 +1376,7 @@ HANDLE PluginsSet::OpenPlugin(int PluginNumber,int OpenFrom,int Item)
       Flags.Set(PSIF_ENTERTOOPENPLUGIN);
       if(Opt.ExceptRules)
       {
+        _ECTLLOG(CleverSysLog SL("OpenPlugin"));
         TRY {
            _SVS(SysLog("OPENPLUGIN >>> '%s'",(char *)Item));
            hInternal=PData->pOpenPlugin(OpenFrom,Item);

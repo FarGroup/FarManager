@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.145 17.03.2003 $ */
+/* Revision: 1.146 17.04.2003 $ */
 
 /*
 Modify:
+  17.04.2003 SVS
+    + Opt.DelThreadPriority
   17.03.2003 SVS
     + Opt.ScanJunction - сканировать так же симлинки. По умолчанию включен
   10.02.2003 SVS
@@ -1369,6 +1371,7 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeySystem,"SubstNameRule", &Opt.SubstNameRule, 2, 0},
   /* VVM $ */
   {0, REG_DWORD,  NKeySystem,"ShowCheckingFile", &Opt.ShowCheckingFile, 0, 0},
+  {0, REG_DWORD,  NKeySystem,"DelThreadPriority", &Opt.DelThreadPriority, THREAD_PRIORITY_NORMAL, 0},
 
   /* $ 10.06.2002 KM
     ! Новые символы, наличие которых в имени файла окавычит его.

@@ -5,10 +5,14 @@ checkver.cpp
 
 */
 
-/* Revision: 1.09 28.02.2003 $ */
+/* Revision: 1.10 21.04.2003 $ */
 
 /*
 Modify:
+  21.04.2003 SVS
+    ! Уточним. Если трид не удалось создать, то функции вызываются напрамую, но
+      если не предпренять спец.мер, то _endthread вываливат сам ФАР.
+      Т.е. если RegistrationBugs==FALSE, то вызываем _endthread
   28.02.2003 SVS
     + Выставим DMODE_MSGINTERNAL перед работой диалога
       (как вариант решения разногласий между BugZ#811 и BugZ#806)
@@ -102,7 +106,8 @@ void __cdecl CheckVersion(void *Param)
     Opt.EdOpt.TabSize=8;
     Opt.ViewerEditorClock=0;
   }
-  _endthread();
+  if(!RegistrationBugs)
+    _endthread();
 }
 #ifndef _MSC_VER
 #pragma warn +par
@@ -215,7 +220,8 @@ void __cdecl CheckReg(void *Param)
     strcpy(::RegName,RegName);
   }
   Reg->Done=TRUE;
-  _endthread();
+  if(!RegistrationBugs)
+    _endthread();
 }
 
 
@@ -241,7 +247,8 @@ void __cdecl ErrRegFn(void *Param)
     Message(0,1,MSG(MRegTitle),MSG(MRegFailed),MSG(MOk));
     RegVer=0;
   }
-  _endthread();
+  if(!RegistrationBugs)
+    _endthread();
 }
 #ifndef _MSC_VER
 #pragma warn +par

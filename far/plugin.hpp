@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.226 17.03.2003 $ */
+/* Revision: 1.227 16.04.2003 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  16.04.2003 SVS
+    + DM_GETSELECTION и DM_SETSELECTION - пока для внутреннего юзания
   17.03.2003 SVS
     + ACTL_GETPOLICIES + FFPOL_* - пока для внутреннего юзания
   07.01.2003 SVS
@@ -968,6 +970,11 @@ enum FarMessagesProc{
   DM_SETCURSORSIZE,
 
   DM_LISTGETDATASIZE,
+
+#ifdef FAR_USE_INTERNALS
+  DM_GETSELECTION,
+  DM_SETSELECTION,
+#endif // END FAR_USE_INTERNALS
 
   DN_FIRST=0x1000,
   DN_BTNCLICK,

@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.137 07.04.2003 $ */
+/* Revision: 1.138 21.04.2003 $ */
 
 /*
 Modify:
+  21.04.2003 SVS
+    ! Не "return FALSE;", но "DefDlgProc"
   07.04.2003 VVM
     ! Если во время поиска выбрать найденный файл мышью - вешаемся.
       Не надо посылать сообщение на закрытие диалога. Оно ни к чему...
@@ -1021,6 +1023,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 {
   WaitForSingleObject(hDialogMutex,INFINITE);
 
+  int Result;
   Dialog* Dlg=(Dialog*)hDlg;
   VMenu *ListBox=Dlg->Item[1].ListPtr;
 
@@ -1353,8 +1356,9 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         ReleaseMutex(hDialogMutex);
         return TRUE;
       }
+      Result = Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
       ReleaseMutex(hDialogMutex);
-      return FALSE;
+      return Result;
     }
     case DN_BTNCLICK:
     {
@@ -1490,7 +1494,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     }
     /* KM $ */
   }
-  int Result = Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
+  Result = Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
   ReleaseMutex(hDialogMutex);
   return Result;
 }

@@ -5,10 +5,12 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.48 14.04.2003 $ */
+/* Revision: 1.49 21.04.2003 $ */
 
 /*
 Modify:
+  21.04.2003 SVS
+    ! Если _beginthread вернула -1, то вызовен функцию CheckVersion() напрямую
   14.04.2003 SVS
     ! принудительно запоминаем и выставляем заголовок консоли после загрузки плагинов
   25.02.2003 SVS
@@ -224,10 +226,15 @@ void ControlObject::Init()
   FPanels->Init();
   FPanels->SetScreenPosition();
 
+  RegistrationBugs=FALSE;
 #ifdef _DEBUGEXC
   if(CheckRegistration)
 #endif
-    _beginthread(CheckVersion,0x10000,NULL);
+    if(_beginthread(CheckVersion,0x10000,NULL) == -1)
+    {
+      RegistrationBugs=TRUE;
+      CheckVersion(NULL);
+    }
 
   CmdLine->Show();
   if(Opt.ShowKeyBar)
