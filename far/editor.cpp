@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.258 06.01.2005 $ */
+/* Revision: 1.259 29.03.2005 $ */
 
 /*
 Modify:
+  29.03.2005 SVS
+    - BugZ#1237 - некоректное значение EditorInfo.BlockStartLine
   06.01.2005 WARP
     ! Добавки к трехпозиционному ExpandTabs
   23.12.2004 WARP
@@ -2115,9 +2117,15 @@ int Editor::ProcessKey(int Key)
       }
       int LeftPos=CurLine->EditLine.GetLeftPos();
       EditList *OldCur=CurLine;
+      int _OldNumLine=NumLine;
       Pasting++;
       ProcessKey(KEY_LEFT);
       Pasting--;
+
+      if(_OldNumLine!=NumLine)
+      {
+        BlockStartLine=NumLine;
+      }
 
       ShowEditor(OldCur==CurLine && LeftPos==CurLine->EditLine.GetLeftPos());
       return(TRUE);
