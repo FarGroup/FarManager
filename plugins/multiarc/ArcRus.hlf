@@ -22,8 +22,6 @@ $^#Copyright (C) 2000-<%YEAR%> FAR Group#
 
    ~Правила хранения настроек плагина~@ArcSettings3@
 
-   Email для писем об ошибках и предложениях: ~multiarc@@farmanager.com~@mailto:multiarc@@farmanager.com@
-
 
 @AddToArc
 $ #Добавление файлов к архиву#
