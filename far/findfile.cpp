@@ -5,13 +5,15 @@ findfile.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 11.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
 */
 
 #include "headers.hpp"
@@ -586,7 +588,9 @@ void FindFiles::SetPluginDirectory(char *FileName)
 }
 
 
+#if defined(__BORLANDC__)
 #pragma warn -par
+#endif
 void _cdecl PrepareFilesList(void *Param)
 {
   WIN32_FIND_DATA FindData;
@@ -670,7 +674,9 @@ void _cdecl PrepareFilesList(void *Param)
   FindMessageReady=TRUE;
   _endthread();
 }
+#if defined(__BORLANDC__)
 #pragma warn +par
+#endif
 
 
 void ArchiveSearch(char *ArcName)
@@ -687,7 +693,7 @@ void ArchiveSearch(char *ArcName)
   fclose(ProcessFile);
 
   DisablePluginsOutput=TRUE;
-  HANDLE hArc=CtrlObject->Plugins.OpenFilePlugin(ArcName,Buffer,ReadSize);
+  HANDLE hArc=CtrlObject->Plugins.OpenFilePlugin(ArcName,(unsigned char *)Buffer,ReadSize);
   DisablePluginsOutput=FALSE;
 
   delete Buffer;
@@ -938,7 +944,9 @@ int LookForString(char *Name)
 }
 
 
+#if defined(__BORLANDC__)
 #pragma warn -par
+#endif
 void _cdecl PreparePluginList(void *Param)
 {
   char SaveDir[NM];
@@ -960,8 +968,9 @@ void _cdecl PreparePluginList(void *Param)
     _endthread();
   }
 }
+#if defined(__BORLANDC__)
 #pragma warn +par
-
+#endif
 
 void ScanPluginTree()
 {

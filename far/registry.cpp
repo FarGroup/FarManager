@@ -5,13 +5,15 @@ registry.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 11.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
 */
 
 #include "headers.hpp"
@@ -24,7 +26,7 @@ Modify:
 /* IS $ */
 
 static LONG CloseRegKey(HKEY hKey);
-static int CopyKeyTree(char *Src,char *Dest,char *Skip=NULL);
+int CopyKeyTree(char *Src,char *Dest,char *Skip=NULL);
 void DeleteFullKeyTree(char *KeyName);
 static void DeleteKeyTreePart(char *KeyName);
 static int DeleteCount;
@@ -60,7 +62,7 @@ void CloseSameRegKey()
 void SetRegKey(char *Key,char *ValueName,char *ValueData)
 {
   HKEY hKey=CreateRegKey(Key);
-  RegSetValueEx(hKey,ValueName,0,REG_SZ,ValueData,strlen(ValueData)+1);
+  RegSetValueEx(hKey,ValueName,0,REG_SZ,(unsigned char *)ValueData,strlen(ValueData)+1);
   CloseRegKey(hKey);
 }
 
@@ -85,7 +87,7 @@ int GetRegKey(char *Key,char *ValueName,char *ValueData,char *Default,DWORD Data
 {
   HKEY hKey=OpenRegKey(Key);
   DWORD Type;
-  int ExitCode=RegQueryValueEx(hKey,ValueName,0,&Type,ValueData,&DataSize);
+  int ExitCode=RegQueryValueEx(hKey,ValueName,0,&Type,(unsigned char *)ValueData,&DataSize);
   CloseRegKey(hKey);
   if (hKey==NULL || ExitCode!=ERROR_SUCCESS)
   {

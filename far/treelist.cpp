@@ -5,13 +5,15 @@ Tree panel
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 11.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
 */
 
 #include "headers.hpp"
@@ -631,7 +633,9 @@ void TreeList::CorrectPosition()
 }
 
 
+#if defined(__BORLANDC__)
 #pragma warn -par
+#endif
 void TreeList::SetCurDir(char *NewDir,int ClosePlugin)
 {
   char SetDir[NM];
@@ -649,7 +653,9 @@ void TreeList::SetCurDir(char *NewDir,int ClosePlugin)
     CtrlObject->CmdLine.Show();
   }
 }
+#if defined(__BORLANDC__)
 #pragma warn +par
+#endif
 
 
 int TreeList::SetDirPosition(char *NewDir)
@@ -846,7 +852,8 @@ int TreeList::FindPartName(char *Name,int Next)
 {
   char Mask[NM];
   sprintf(Mask,"%s*",Name);
-  for (int I=(Next) ? CurFile+1:CurFile;I<TreeCount;I++)
+  int I;
+  for (I=(Next) ? CurFile+1:CurFile;I<TreeCount;I++)
   {
     CmpNameSearchMode=(I==CurFile);
     if (CmpName(Mask,ListData[I].Name,TRUE))
@@ -859,7 +866,7 @@ int TreeList::FindPartName(char *Name,int Next)
     }
   }
   CmpNameSearchMode=FALSE;
-  for (int I=0;I<CurFile;I++)
+  for (I=0;I<CurFile;I++)
     if (CmpName(Mask,ListData[I].Name,TRUE))
     {
       CurFile=I;

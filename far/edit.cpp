@@ -5,7 +5,7 @@ edit.cpp
 
 */
 
-/* Revision: 1.05 07.07.2000 $ */
+/* Revision: 1.06 11.07.2000 $ */
 
 /*
 Modify:
@@ -22,6 +22,8 @@ Modify:
   07.07.2000 SVS
     + Разграничитель слов WordDiv находится теперь в global.cpp и
       берется из реестра (общий для редактирования)
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
 */
 
 #include "headers.hpp"
@@ -167,7 +169,7 @@ void Edit::ShowString(char *ShowStr,int TabSelStart,int TabSelEnd)
     if (SaveStr==NULL)
       return;
     memcpy(SaveStr,Str,StrSize);
-    DecodeString(ShowStr,TableSet->DecodeTable,StrSize);
+    DecodeString(ShowStr,(unsigned char*)TableSet->DecodeTable,StrSize);
   }
   if (memchr(Str,0,StrSize)!=0)
   {
@@ -248,6 +250,7 @@ int Edit::RecurseProcessKey(int Key)
 
 int Edit::ProcessKey(int Key)
 {
+  int I;
   switch(Key)
   {
     case KEY_ADD:
@@ -726,9 +729,9 @@ int Edit::ProcessKey(int Key)
           return(TRUE);
         if (!Opt.EditorPersistentBlocks)
           DeleteBlock();
-        for (int I=strlen(Str)-1;I>=0 && iseol(Str[I]);I--)
+        for (I=strlen(Str)-1;I>=0 && iseol(Str[I]);I--)
           Str[I]=0;
-        for (int I=0;ClipText[I];I++)
+        for (I=0;ClipText[I];I++)
           if (iseol(ClipText[I]))
           {
             if (iseol(ClipText[I+1]))
@@ -1029,6 +1032,7 @@ int Edit::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 int Edit::Search(char *Str,int Position,int Case,int Reverse)
 {
+  int I,J;
   if (Reverse)
   {
     Position--;
@@ -1038,8 +1042,8 @@ int Edit::Search(char *Str,int Position,int Case,int Reverse)
       return(FALSE);
   }
   if (Position<StrSize && *Str)
-    for (int I=Position;Reverse && I>=0 || !Reverse && I<StrSize;Reverse ? I--:I++)
-      for (int J=0;;J++)
+    for (I=Position;Reverse && I>=0 || !Reverse && I<StrSize;Reverse ? I--:I++)
+      for (J=0;;J++)
       {
         if (Str[J]==0)
         {
@@ -1256,10 +1260,11 @@ void Edit::AddColor(struct ColorItem *col)
 
 int Edit::DeleteColor(int ColorPos)
 {
+  int Src;
   if (ColorCount==0)
     return(FALSE);
   int Dest=0;
-  for (int Src=0;Src<ColorCount;Src++)
+  for (Src=0;Src<ColorCount;Src++)
     if (ColorPos!=-1 && ColorList[Src].StartPos!=ColorPos)
     {
       if (Dest!=Src)
@@ -1288,7 +1293,8 @@ int Edit::GetColor(struct ColorItem *col,int Item)
 
 void Edit::ApplyColor()
 {
-  for (int Col=0;Col<ColorCount;Col++)
+  int Col,I;
+  for (Col=0;Col<ColorCount;Col++)
   {
     struct ColorItem *CurItem=ColorList+Col;
     int Start=RealPosToTab(CurItem->StartPos)-LeftPos;
@@ -1304,7 +1310,7 @@ void Edit::ApplyColor()
       if (Length>0 && Length<sizeof(TextData))
       {
         ScrBuf.Read(Start,Y1,End,Y1,TextData);
-        for (int I=0;I<Length;I++)
+        for (I=0;I<Length;I++)
           if (TextData[I].Attributes!=Palette[SelColor-COL_FIRSTPALETTECOLOR])
             TextData[I].Attributes=CurItem->Color;
         ScrBuf.Write(Start,Y1,TextData,Length);

@@ -5,7 +5,7 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.02 05.07.2000 $ */
+/* Revision: 1.03 11.07.2000 $ */
 
 /*
 Modify:
@@ -17,6 +17,8 @@ Modify:
   05.07.2000 IS
     + Функция FarAdvControl
     + Команда ACTL_GETFARVERSION (в FarAdvControl)
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
 */
 
 #include "headers.hpp"
@@ -168,9 +170,9 @@ int WINAPI FarDialogFn(int PluginNumber,int X1,int Y1,int X2,int Y2,
     return(-1);
   struct DialogItem *InternalItem=new DialogItem[ItemsNumber];
 
-  int ExitCode;
+  int ExitCode,I;
 
-  for (int I=0;I<ItemsNumber;I++)
+  for (I=0;I<ItemsNumber;I++)
   {
     InternalItem[I].Type=Item[I].Type;
     InternalItem[I].X1=Item[I].X1;
@@ -205,7 +207,7 @@ int WINAPI FarDialogFn(int PluginNumber,int X1,int Y1,int X2,int Y2,
     ExitCode=FarDialog.GetExitCode();
   }
 
-  for (int I=0;I<ItemsNumber;I++)
+  for (I=0;I<ItemsNumber;I++)
   {
     Item[I].Type=InternalItem[I].Type;
     Item[I].X1=InternalItem[I].X1;
@@ -472,6 +474,7 @@ int WINAPI FarGetPluginDirList(int PluginNumber,HANDLE hPlugin,
         HANDLE InternalHandle;
         int PluginNumber;
       } DirListPlugin;
+
       DirListPlugin.PluginNumber=PluginNumber;
       DirListPlugin.InternalHandle=hPlugin;
       hDirListPlugin=(HANDLE)&DirListPlugin;
@@ -516,6 +519,7 @@ int WINAPI FarGetPluginDirList(int PluginNumber,HANDLE hPlugin,
 
 void ScanPluginDir()
 {
+  int I;
   PluginPanelItem *PanelData=NULL;
   int ItemCount=0;
   if (CheckForEsc())
@@ -524,7 +528,7 @@ void ScanPluginDir()
   char DirName[NM];
   strncpy(DirName,PluginSearchPath,sizeof(DirName));
   DirName[sizeof(DirName)-1]=0;
-  for (int I=0;DirName[I]!=0;I++)
+  for (I=0;DirName[I]!=0;I++)
     if (DirName[I]=='\x1')
       DirName[I]=DirName[I+1]==0 ? 0:'\\';
   TruncStr(DirName,30);
@@ -541,7 +545,7 @@ void ScanPluginDir()
     return;
   }
   PluginDirList=NewList;
-  for (int I=0;I<ItemCount && !StopSearch;I++)
+  for (I=0;I<ItemCount && !StopSearch;I++)
   {
     PluginPanelItem *CurPanelItem=PanelData+I;
     if ((CurPanelItem->FindData.dwFileAttributes & FA_DIREC)==0)
@@ -564,7 +568,7 @@ void ScanPluginDir()
       DirListItemsNumber++;
     }
   }
-  for (int I=0;I<ItemCount && !StopSearch;I++)
+  for (I=0;I<ItemCount && !StopSearch;I++)
   {
     PluginPanelItem *CurPanelItem=PanelData+I;
     if ((CurPanelItem->FindData.dwFileAttributes & FA_DIREC) &&
@@ -616,7 +620,8 @@ void WINAPI FarFreeDirList(struct PluginPanelItem *PanelItem)
   if (PanelItem==NULL)
     return;
   int ItemsNumber=0;
-  for (int I=0;I<sizeof(DirListNumbers)/sizeof(DirListNumbers[0]);I++)
+  int I;
+  for (I=0;I<sizeof(DirListNumbers)/sizeof(DirListNumbers[0]);I++)
     if (DirListNumbers[I].Addr==PanelItem)
     {
       DirListNumbers[I].Addr=NULL;
@@ -624,7 +629,7 @@ void WINAPI FarFreeDirList(struct PluginPanelItem *PanelItem)
       break;
     }
 
-  for (int I=0;I<ItemsNumber;I++)
+  for (I=0;I<ItemsNumber;I++)
   {
     PluginPanelItem *CurPanelItem=PanelItem+I;
     if (CurPanelItem->UserData && (CurPanelItem->Flags & PPIF_USERDATA))
@@ -635,7 +640,9 @@ void WINAPI FarFreeDirList(struct PluginPanelItem *PanelItem)
 }
 
 
+#if defined(__BORLANDC__)
 #pragma warn -par
+#endif
 int WINAPI FarViewer(char *FileName,char *Title,int X1,int Y1,int X2,
                             int Y2,DWORD Flags)
 {
@@ -679,7 +686,9 @@ int WINAPI FarEditor(char *FileName,char *Title,int X1,int Y1,int X2,
   SetConsoleTitle(OldTitle);
   return(Editor.GetExitCode());
 }
+#if defined(__BORLANDC__)
 #pragma warn +par
+#endif
 
 
 int WINAPI FarCmpName(char *pattern,char *string,int skippath)

@@ -5,7 +5,7 @@ editor.cpp
 
 */
 
-/* Revision: 1.04 07.07.2000 $ */
+/* Revision: 1.05 11.07.2000 $ */
 
 /*
 Modify:
@@ -21,6 +21,8 @@ Modify:
   07.07.2000 SVS
     + Разграничитель слов WordDiv находится теперь в global.cpp и
       берется из реестра (общий для редактирования)
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
 */
 
 #include "headers.hpp"
@@ -42,7 +44,7 @@ static int EditorID=0;
 
 Editor::Editor()
 {
-  strcpy(LastSearchStr,GlobalSearchString);
+  strcpy((char *)LastSearchStr,GlobalSearchString);
   LastSearchCase=GlobalSearchCase;
   LastSearchReverse=GlobalSearchReverse;
   memcpy(&TableSet,&InitTableSet,sizeof(TableSet));
@@ -145,7 +147,7 @@ Editor::~Editor()
 
 void Editor::KeepInitParameters()
 {
-  strcpy(GlobalSearchString,LastSearchStr);
+  strcpy(GlobalSearchString,(char *)LastSearchStr);
   GlobalSearchCase=LastSearchCase;
   GlobalSearchReverse=LastSearchReverse;
   memcpy(&InitTableSet,&TableSet,sizeof(InitTableSet));
@@ -2380,7 +2382,7 @@ void Editor::Search(int Next)
 
   if (ReplaceMode)
   {
-    strncpy(ReplaceDlg[2].Data,LastSearchStr,sizeof(ReplaceDlg[2].Data));
+    strncpy(ReplaceDlg[2].Data,(char *)LastSearchStr,sizeof(ReplaceDlg[2].Data));
     strncpy(ReplaceDlg[4].Data,LastReplaceStr,sizeof(ReplaceDlg[4].Data));
     ReplaceDlg[6].Selected=LastSearchCase;
     ReplaceDlg[7].Selected=LastSearchReverse;
@@ -2396,15 +2398,15 @@ void Editor::Search(int Next)
         return;
       }
     }
-    strncpy(SearchStr,ReplaceDlg[2].Data,sizeof(SearchStr));
-    strncpy(ReplaceStr,ReplaceDlg[4].Data,sizeof(ReplaceStr));
-    strcpy(LastReplaceStr,ReplaceStr);
+    strncpy((char *)SearchStr,ReplaceDlg[2].Data,sizeof(SearchStr));
+    strncpy((char *)ReplaceStr,ReplaceDlg[4].Data,sizeof(ReplaceStr));
+    strcpy(LastReplaceStr,(char *)ReplaceStr);
     Case=ReplaceDlg[6].Selected;
     ReverseSearch=ReplaceDlg[7].Selected;
   }
   else
   {
-    strncpy(SearchDlg[2].Data,LastSearchStr,sizeof(SearchDlg[2].Data));
+    strncpy(SearchDlg[2].Data,(char *)LastSearchStr,sizeof(SearchDlg[2].Data));
     SearchDlg[4].Selected=LastSearchCase;
     SearchDlg[5].Selected=LastSearchReverse;
 
@@ -2419,13 +2421,13 @@ void Editor::Search(int Next)
         return;
       }
     }
-    strncpy(SearchStr,SearchDlg[2].Data,sizeof(SearchStr));
+    strncpy((char *)SearchStr,SearchDlg[2].Data,sizeof(SearchStr));
     *ReplaceStr=0;
     Case=SearchDlg[4].Selected;
     ReverseSearch=SearchDlg[5].Selected;
   }
 
-  strncpy(LastSearchStr,SearchStr,sizeof(LastSearchStr));
+  strncpy((char *)LastSearchStr,(char *)SearchStr,sizeof(LastSearchStr));
   LastSearchCase=Case;
   LastSearchReverse=ReverseSearch;
 
@@ -2440,7 +2442,7 @@ void Editor::Search(int Next)
   {
     SaveScreen SaveScr;
 
-    int SearchLength=strlen(SearchStr);
+    int SearchLength=strlen((char *)SearchStr);
 
     sprintf(MsgStr,"\"%s\"",SearchStr);
     SetCursorType(FALSE,0);
@@ -2463,7 +2465,7 @@ void Editor::Search(int Next)
         UserBreak=TRUE;
         break;
       }
-      if (CurPtr->EditLine.Search(SearchStr,CurPos,Case,ReverseSearch))
+      if (CurPtr->EditLine.Search((char *)SearchStr,CurPos,Case,ReverseSearch))
       {
         int Skip=FALSE;
         TopScreen=CurLine=CurPtr;
@@ -2489,7 +2491,7 @@ void Editor::Search(int Next)
             strncpy(TmpStr,Str,SearchLength);
             TmpStr[SearchLength]=0;
             if (UseDecodeTable)
-              DecodeString(TmpStr,TableSet.DecodeTable);
+              DecodeString(TmpStr,(unsigned char *)TableSet.DecodeTable);
             Text(TmpStr);
             delete TmpStr;
 
@@ -2515,9 +2517,10 @@ void Editor::Search(int Next)
             int SaveOvertypeMode=Overtype;
             Overtype=FALSE;
             int CurPos=CurLine->EditLine.GetCurPos();
-            for (int I=0;SearchStr[I]!=0;I++)
+            int I;
+            for (I=0;SearchStr[I]!=0;I++)
               ProcessKey(KEY_DEL);
-            for (int I=0;ReplaceStr[I]!=0;I++)
+            for (I=0;ReplaceStr[I]!=0;I++)
             {
               int Ch=ReplaceStr[I];
               if (Ch!=KEY_BS && Ch!=KEY_DEL)
@@ -2579,7 +2582,7 @@ void Editor::Paste()
   {
     NewUndo=TRUE;
     if (UseDecodeTable)
-      EncodeString(ClipText,TableSet.EncodeTable);
+      EncodeString(ClipText,(unsigned char *)TableSet.EncodeTable);
     Modified=1;
     int SaveOvertype=Overtype;
     UnmarkBlock();
@@ -2687,7 +2690,7 @@ void Editor::Copy(int Append)
   if (CopyData!=NULL)
   {
     if (UseDecodeTable)
-      DecodeString(CopyData+PrevSize,TableSet.DecodeTable);
+      DecodeString(CopyData+PrevSize,(unsigned char *)TableSet.DecodeTable);
     CopyToClipboard(CopyData);
     delete CopyData;
   }
@@ -3381,7 +3384,7 @@ void Editor::VCopy(int Append)
   if (CopyData!=NULL)
   {
     if (UseDecodeTable)
-      DecodeString(CopyData+PrevSize,TableSet.DecodeTable);
+      DecodeString(CopyData+PrevSize,(unsigned char *)TableSet.DecodeTable);
     CopyToClipboard(CopyData);
     CopyFormatToClipboard("FAR_VerticalBlock",CopyData);
     delete CopyData;
@@ -3763,14 +3766,14 @@ int Editor::EditorControl(int Command,void *Param)
       {
         struct EditorConvertText *ect=(struct EditorConvertText *)Param;
         if (UseDecodeTable)
-          DecodeString(ect->Text,TableSet.DecodeTable,ect->TextLength);
+          DecodeString(ect->Text,(unsigned char *)TableSet.DecodeTable,ect->TextLength);
       }
       return(TRUE);
     case ECTL_OEMTOEDITOR:
       {
         struct EditorConvertText *ect=(struct EditorConvertText *)Param;
         if (UseDecodeTable)
-          EncodeString(ect->Text,TableSet.EncodeTable,ect->TextLength);
+          EncodeString(ect->Text,(unsigned char *)TableSet.EncodeTable,ect->TextLength);
       }
       return(TRUE);
     case ECTL_TABTOREAL:

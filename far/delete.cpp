@@ -5,13 +5,15 @@ delete.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 11.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
 */
 
 #include "headers.hpp"
@@ -150,7 +152,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
           }
         }
 
-        bool SymLink=(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT);
+        bool SymLink=(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT)!=0;
 
         if (!SymLink && (!Opt.DeleteToRecycleBin || Wipe))
         {

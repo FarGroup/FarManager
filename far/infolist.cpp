@@ -5,13 +5,15 @@ infolist.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 11.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
 */
 
 #include "headers.hpp"
@@ -350,7 +352,7 @@ void InfoList::ShowDirDescription()
           if (DizStr[K]=='\t')
             DizStr[K]=' ';
         if (UseDecodeTable)
-          DecodeString(DizStr,TableSet.DecodeTable);
+          DecodeString(DizStr,(unsigned char *)TableSet.DecodeTable);
         GotoXY(X1+1,Y1+I);
         PrintText(DizStr);
       }

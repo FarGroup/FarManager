@@ -7,7 +7,7 @@ fn.hpp
 
 */
 
-/* Revision: 1.04 07.07.2000 $ */
+/* Revision: 1.05 11.07.2000 $ */
 
 /*
 Modify:
@@ -24,6 +24,8 @@ Modify:
     + Функция FarAdvControl
   07.07.2000 IS
     + SetHighlighting из main.cpp
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
 */
 
 
@@ -133,9 +135,15 @@ char* TruncPathStr(char *Str,int MaxLength);
    + удалить пробелы снаружи
    ! изменен тип возврата
 */
+#ifndef _MSC_VER
 unsigned char* RemoveLeadingSpaces(unsigned char *Str);
 unsigned char* RemoveTrailingSpaces(unsigned char *Str);
 unsigned char* RemoveExternalSpaces(unsigned char *Str);
+#else
+char* RemoveLeadingSpaces(char *Str);
+char* RemoveTrailingSpaces(char *Str);
+char* RemoveExternalSpaces(char *Str);
+#endif
 /* SVS $ */
 int ProcessGlobalFileTypes(char *Name,int AlwaysWaitFinish);
 int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFinish);
@@ -256,9 +264,14 @@ int GetPluginDirInfo(HANDLE hPlugin,char *DirName,unsigned long &DirCount,
                int64 &CompressedFileSize);
 #endif
 
-#ifdef __STDIO_H
-long filelen(FILE *FPtr);
-int DetectTable(FILE *SrcFile,struct CharTableSet *TableSet,int &TableNum);
+#if defined(__BORLANDC__)
+ #ifdef __STDIO_H
+ long filelen(FILE *FPtr);
+ int DetectTable(FILE *SrcFile,struct CharTableSet *TableSet,int &TableNum);
+ #endif
+#else
+ long filelen(FILE *FPtr);
+ int DetectTable(FILE *SrcFile,struct CharTableSet *TableSet,int &TableNum);
 #endif
 
 #ifdef __PLUGIN_HPP__

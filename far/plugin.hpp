@@ -6,7 +6,7 @@
   Plugin API for FAR Manager 1.66
 
 */
-/* Revision: 1.05 07.07.2000 $ */
+/* Revision: 1.06 11.07.2000 $ */
 
 /*
 Modify:
@@ -37,6 +37,8 @@ Modify:
       PointToName, GetPathRoot, AddEndSlash
   10.07.2000 IS
     ! Некоторые изменения с учетом голого C (по совету SVS)
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
 */
 
 #if defined(__BORLANDC__) && (__BORLANDC__ <= 0x550)
@@ -483,18 +485,26 @@ typedef DWORD (*FARSTDEXPANDENVIRONMENTSTR)(
   sprintf, sscanf, qsort, memcpy, memmove, memcmp, strchr, strrchr, strstr,
   strtok, memset, strpbrk
 */
-typedef int (*FARSTDSPRINTF)(char *buffer,const char *format,...);
-typedef int (*FARSTDSSCANF)(const char *s, const char *format,...);
-typedef void (*FARSTDQSORT)(void *base, size_t nelem, size_t width, int ( *fcmp)(const void *, const void *));
+typedef int   (*FARSTDSPRINTF)(char *buffer,const char *format,...);
+typedef int   (*FARSTDSSCANF)(const char *s, const char *format,...);
+typedef void  (*FARSTDQSORT)(void *base, size_t nelem, size_t width, int ( *fcmp)(const void *, const void *));
 typedef void *(*FARSTDMEMCPY)(void *dest, const void *src, size_t n);
 typedef void *(*FARSTDMEMMOVE)(void *dest, const void *src, size_t n);
-typedef int (*FARSTDMEMCMP)(const void *s1, const void *s2, size_t n);
+typedef int   (*FARSTDMEMCMP)(const void *s1, const void *s2, size_t n);
+#if defined(__BORLANDC__)
 typedef char *(*FARSTDSTRCHR)(char *s, int c);
 typedef char *(*FARSTDSTRRCHR)(char *s, int c);
 typedef char *(*FARSTDSTRSTR)(char *s1, const char *s2);
 typedef char *(*FARSTDSTRTOK)(char *s1, const char *s2);
-typedef void *(*FARSTDMEMSET)(void *s, int c, size_t n);
 typedef char *(*FARSTDSTRPBRK)(char *s1, const char *s2);
+#else
+typedef char *(*FARSTDSTRCHR)(const char *s, int c);
+typedef char *(*FARSTDSTRRCHR)(const char *s, int c);
+typedef char *(*FARSTDSTRSTR)(const char *s1, const char *s2);
+typedef char *(*FARSTDSTRTOK)(char *s1, const char *s2);
+typedef char *(*FARSTDSTRPBRK)(const char *s1, const char *s2);
+#endif
+typedef void *(*FARSTDMEMSET)(void *s, int c, size_t n);
 /* IS $ */
 
 /* $ 07.07.2000 IS
@@ -506,9 +516,15 @@ typedef char *(*FARSTDSTRPBRK)(char *s1, const char *s2);
 typedef int (*FARSTDATOI)(const char *s);
 typedef __int64 (*FARSTDATOI64)(const char *s);
 typedef char *(*FARSTDITOA)(int value, char *string, int radix);
+#if defined(__BORLANDC__)
 typedef unsigned char *(*FARSTDREMOVELEADINGSPACES)(unsigned char *Str);
 typedef unsigned char *(*FARSTDREMOVETRAILINGSPACES)(unsigned char *Str);
 typedef unsigned char *(*FARSTDREMOVEEXTERNALSPACES)(unsigned char *Str);
+#else
+typedef char *(*FARSTDREMOVELEADINGSPACES)(char *Str);
+typedef char *(*FARSTDREMOVETRAILINGSPACES)(char *Str);
+typedef char *(*FARSTDREMOVEEXTERNALSPACES)(char *Str);
+#endif
 typedef char *(*FARSTDTRUNCSTR)(char *Str,int MaxLength);
 typedef char *(*FARSTDTRUNCPATHSTR)(char *Str,int MaxLength);
 typedef char *(*FARSTDQUOTESPACEONLY)(char *Str);

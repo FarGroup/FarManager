@@ -5,13 +5,15 @@ local.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 11.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
 */
 
 #include "headers.hpp"
@@ -33,45 +35,46 @@ static unsigned char KeyToKey[256];
 void LocalUpperInit()
 {
   unsigned char CvtStr[2],ReverseCvtStr[2];
+  int I;
   CvtStr[1]=0;
-  for (int I=0;I<sizeof(LowerToUpper)/sizeof(LowerToUpper[0]);I++)
+  for (I=0;I<sizeof(LowerToUpper)/sizeof(LowerToUpper[0]);I++)
   {
     CvtStr[0]=I;
     LowerToUpper[I]=UpperToLower[I]=I;
-    OemToChar(CvtStr,CvtStr);
-    CharToOem(CvtStr,ReverseCvtStr);
+    OemToChar((char *)CvtStr,(char *)CvtStr);
+    CharToOem((char *)CvtStr,(char *)ReverseCvtStr);
     if (IsCharAlpha(CvtStr[0]) && ReverseCvtStr[0]==I)
     {
-      CharUpper(CvtStr);
-      CharToOem(CvtStr,CvtStr);
+      CharUpper((char *)CvtStr);
+      CharToOem((char *)CvtStr,(char *)CvtStr);
       LowerToUpper[I]=CvtStr[0];
       CvtStr[0]=I;
-      OemToChar(CvtStr,CvtStr);
-      CharLower(CvtStr);
-      CharToOem(CvtStr,CvtStr);
+      OemToChar((char *)CvtStr,(char *)CvtStr);
+      CharLower((char *)CvtStr);
+      CharToOem((char *)CvtStr,(char *)CvtStr);
       UpperToLower[I]=CvtStr[0];
     }
   }
   char LCSortBuffer[256];
-  for (int I=0;I<sizeof(LCSortBuffer)/sizeof(LCSortBuffer[0]);I++)
+  for (I=0;I<sizeof(LCSortBuffer)/sizeof(LCSortBuffer[0]);I++)
     LCSortBuffer[I]=I;
   qsort((void *)LCSortBuffer,256,sizeof(LCSortBuffer[0]),LCSort);
-  for (int I=0;I<sizeof(LCSortBuffer)/sizeof(LCSortBuffer[0]);I++)
+  for (I=0;I<sizeof(LCSortBuffer)/sizeof(LCSortBuffer[0]);I++)
     LCOrder[LCSortBuffer[I]]=I;
   LCOrder[0]=0;
   LCOrder['\\']=1;
   LCOrder['.']=2;
-  for (int I=0;I<sizeof(LCSortBuffer)/sizeof(LCSortBuffer[0])-1;I++)
+  for (I=0;I<sizeof(LCSortBuffer)/sizeof(LCSortBuffer[0])-1;I++)
     if (LCSort(&LCSortBuffer[I],&LCSortBuffer[I+1])==0)
       LCOrder[LCSortBuffer[I+1]]=LCOrder[LCSortBuffer[I]];
-  for (int I=0;I<sizeof(LCOrder)/sizeof(LCOrder[0]);I++)
+  for (I=0;I<sizeof(LCOrder)/sizeof(LCOrder[0]);I++)
     LCOrder[I]=LCOrder[UpperToLower[I]];
-  for (int I=0;I<sizeof(KeyToKey)/sizeof(KeyToKey[0]);I++)
+  for (I=0;I<sizeof(KeyToKey)/sizeof(KeyToKey[0]);I++)
     KeyToKey[I]=I;
   HKL Layout[10];
   int LayoutNumber=GetKeyboardLayoutList(sizeof(Layout)/sizeof(Layout[0]),Layout);
   if (LayoutNumber<5)
-    for (int I=0;I<=255;I++)
+    for (I=0;I<=255;I++)
     {
       int Keys[10];
       memset(Keys,0,sizeof(Keys));
@@ -82,7 +85,7 @@ void LocalUpperInit()
           continue;
         CvtStr[0]=AnsiKey;
         CvtStr[1]=0;
-        CharToOem(CvtStr,CvtStr);
+        CharToOem((char *)CvtStr,(char *)CvtStr);
         Keys[J]=CvtStr[0];
       }
       if (Keys[0]!=0 && Keys[1]!=0)
@@ -115,7 +118,7 @@ int LocalIsalpha(int Ch)
     return(FALSE);
   unsigned char CvtStr[1];
   CvtStr[0]=Ch;
-  OemToCharBuff(CvtStr,CvtStr,1);
+  OemToCharBuff((char *)CvtStr,(char *)CvtStr,1);
   return(IsCharAlpha(CvtStr[0]));
 }
 
@@ -126,7 +129,7 @@ int LocalIsalphanum(int Ch)
     return(FALSE);
   unsigned char CvtStr[1];
   CvtStr[0]=Ch;
-  OemToCharBuff(CvtStr,CvtStr,1);
+  OemToCharBuff((char *)CvtStr,(char *)CvtStr,1);
   return(IsCharAlphaNumeric(CvtStr[0]));
 }
 

@@ -5,13 +5,15 @@ gettable.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 11.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
 */
 
 #include "headers.hpp"
@@ -23,7 +25,11 @@ Modify:
 #include "internalheaders.hpp"
 /* IS $ */
 
+#if defined(__BORLANDC__)
 static unsigned long CalcDifference(int *SrcTable,int *CheckedTable,unsigned char *DecodeTable);
+#else
+static unsigned long CalcDifference(int *SrcTable,int *CheckedTable,char *DecodeTable);
+#endif
 
 int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
              int &UseUnicode)
@@ -165,21 +171,21 @@ int DetectTable(FILE *SrcFile,struct CharTableSet *TableSet,int &TableNum)
   if (ProcessedSize<10)
     return(FALSE);
 
-  int MaxDistr=0,MaxFileDistr=0;
-  for (int I=0;I<sizeof(DistrTable)/sizeof(DistrTable[0]);I++)
+  int MaxDistr=0,MaxFileDistr=0,I;
+  for (I=0;I<sizeof(DistrTable)/sizeof(DistrTable[0]);I++)
     if (DistrTable[I]!=0xff && DistrTable[I]>MaxDistr)
       MaxDistr=DistrTable[I];
-  for (int I=0;I<sizeof(FileDistr)/sizeof(FileDistr[0]);I++)
+  for (I=0;I<sizeof(FileDistr)/sizeof(FileDistr[0]);I++)
     if (FileDistr[I]!=0xff && FileDistr[I]>MaxFileDistr)
       MaxFileDistr=FileDistr[I];
 
   int SrcTable[256],CheckedTable[256];
-  for (int I=0;I<sizeof(DistrTable)/sizeof(DistrTable[0]);I++)
+  for (I=0;I<sizeof(DistrTable)/sizeof(DistrTable[0]);I++)
     if (DistrTable[I]==0xff)
       SrcTable[I]=-1;
     else
       SrcTable[I]=MaxFileDistr*DistrTable[I];
-  for (int I=0;I<sizeof(FileDistr)/sizeof(FileDistr[0]);I++)
+  for (I=0;I<sizeof(FileDistr)/sizeof(FileDistr[0]);I++)
     if (FileDistr[I]==0xff)
       CheckedTable[I]=-1;
     else
@@ -187,12 +193,16 @@ int DetectTable(FILE *SrcFile,struct CharTableSet *TableSet,int &TableNum)
 
   unsigned long BestValue=CalcDifference(SrcTable,CheckedTable,NULL);
   int BestTable=-1;
-  for (int I=0;;I++)
+  for (I=0;;I++)
   {
     char TableKey[512];
     if (!EnumRegKey("CodeTables",I,TableKey,sizeof(TableKey)))
       break;
+#if defined(__BORLANDC__)
     unsigned char DecodeTable[256];
+#else
+    char DecodeTable[256];
+#endif
     if (!GetRegKey(TableKey,"Mapping",(BYTE *)DecodeTable,(BYTE *)NULL,sizeof(DecodeTable)))
       return(FALSE);
     unsigned long CurValue=CalcDifference(SrcTable,CheckedTable,DecodeTable);
@@ -214,27 +224,32 @@ int DetectTable(FILE *SrcFile,struct CharTableSet *TableSet,int &TableNum)
 }
 
 
-unsigned long CalcDifference(int *SrcTable,int *CheckedTable,unsigned char *DecodeTable)
+#if defined(__BORLANDC__)
+static unsigned long CalcDifference(int *SrcTable,int *CheckedTable,unsigned char *DecodeTable)
+#else
+static unsigned long CalcDifference(int *SrcTable,int *CheckedTable,char *DecodeTable)
+#endif
 {
   unsigned char EncodeTable[256];
   int CheckedTableProcessed[256];
-  for (int I=0;I<256;I++)
+  int I;
+  for (I=0;I<256;I++)
   {
     EncodeTable[I]=I;
     CheckedTableProcessed[I]=FALSE;
   }
   if (DecodeTable!=NULL)
-    for (int I=0;I<256;I++)
+    for (I=0;I<256;I++)
       EncodeTable[DecodeTable[I]]=I;
   unsigned long Diff=0;
-  for (int I=0;I<256;I++)
+  for (I=0;I<256;I++)
     if (SrcTable[I]!=-1)
     {
       int N=EncodeTable[I];
       Diff+=abs(SrcTable[I]-CheckedTable[N]);
       CheckedTableProcessed[N]=TRUE;
     }
-  for (int I=0;I<256;I++)
+  for (I=0;I<256;I++)
     if (SrcTable[I]!=-1 && !CheckedTableProcessed[I])
       Diff+=CheckedTable[I];
   return(Diff);
@@ -243,7 +258,8 @@ unsigned long CalcDifference(int *SrcTable,int *CheckedTable,unsigned char *Deco
 
 int PrepareTable(struct CharTableSet *TableSet,int TableNum)
 {
-  for (int I=0;I<256;I++)
+  int I;
+  for (I=0;I<256;I++)
   {
     TableSet->DecodeTable[I]=TableSet->EncodeTable[I]=I;
     TableSet->LowerTable[I]=TableSet->UpperTable[I]=I;
@@ -257,7 +273,7 @@ int PrepareTable(struct CharTableSet *TableSet,int TableNum)
 
   int EncodeSet[256];
   memset(EncodeSet,0,sizeof(EncodeSet));
-  for (int I=0;I<256;I++)
+  for (I=0;I<256;I++)
   {
     int Ch=TableSet->DecodeTable[I];
     if (!EncodeSet[Ch] || Ch>=128)
@@ -266,7 +282,7 @@ int PrepareTable(struct CharTableSet *TableSet,int TableNum)
       EncodeSet[Ch]=TRUE;
     }
   }
-  for (int I=0;I<256;I++)
+  for (I=0;I<256;I++)
   {
     int Ch=TableSet->DecodeTable[I];
     TableSet->LowerTable[I]=TableSet->EncodeTable[LocalLower(Ch)];

@@ -5,7 +5,7 @@ plugins.cpp
 
 */
 
-/* Revision: 1.04 07.07.2000 $ */
+/* Revision: 1.05 11.07.2000 $ */
 
 /*
 Modify:
@@ -26,6 +26,8 @@ Modify:
     + Инициализация: atoi, _atoi64, itoa, RemoveLeadingSpaces,
       RemoveTrailingSpaces, RemoveExternalSpaces, TruncStr, TruncPathStr,
       QuoteSpaceOnly, PointToName, GetPathRoot, AddEndSlash
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
 */
 
 #include "headers.hpp"
@@ -326,7 +328,8 @@ int PluginsSet::SavePluginSettings(struct PluginItem &CurPlugin,
   CurPlugin.pGetPluginInfo(&Info);
   if (Info.Flags & PF_PRELOAD)
     return(FALSE);
-  for (int I=0;;I++)
+  int I;
+  for (I=0;;I++)
   {
     char RegKey[100],PluginName[NM],CurPluginID[100];
     sprintf(RegKey,"PluginsCache\\Plugin%d",I);
@@ -340,7 +343,7 @@ int PluginsSet::SavePluginSettings(struct PluginItem &CurPlugin,
               FindData.ftCreationTime.dwLowDateTime,
               FindData.ftLastWriteTime.dwLowDateTime);
       SetRegKey(RegKey,"ID",CurPluginID);
-      for (int I=0;I<Info.DiskMenuStringsNumber;I++)
+      for (I=0;I<Info.DiskMenuStringsNumber;I++)
       {
         char Value[100];
         sprintf(Value,"DiskMenuString%d",I);
@@ -351,13 +354,13 @@ int PluginsSet::SavePluginSettings(struct PluginItem &CurPlugin,
           SetRegKey(RegKey,Value,Info.DiskMenuNumbers[I]);
         }
       }
-      for (int I=0;I<Info.PluginMenuStringsNumber;I++)
+      for (I=0;I<Info.PluginMenuStringsNumber;I++)
       {
         char Value[100];
         sprintf(Value,"PluginMenuString%d",I);
         SetRegKey(RegKey,Value,Info.PluginMenuStrings[I]);
       }
-      for (int I=0;I<Info.PluginConfigStringsNumber;I++)
+      for (I=0;I<Info.PluginConfigStringsNumber;I++)
       {
         char Value[100];
         sprintf(Value,"PluginConfigString%d",I);
@@ -723,13 +726,14 @@ int PluginsSet::Compare(HANDLE hPlugin,struct PluginPanelItem *Item1,struct Plug
 void PluginsSet::Configure()
 {
   int MenuItemNumber=0;
+  int I, J;
   VMenu PluginList(MSG(MPluginConfigTitle),NULL,0,ScrY-4);
   PluginList.SetFlags(MENU_WRAPMODE);
   PluginList.SetPosition(-1,-1,0,0);
 
   LoadIfCacheAbsent();
 
-  for (int I=0;I<PluginsCount;I++)
+  for (I=0;I<PluginsCount;I++)
   {
     if (PluginsData[I].Cached)
     {
@@ -738,7 +742,7 @@ void PluginsSet::Configure()
       if (RegNumber==-1)
         continue;
       else
-        for (int J=0;;J++)
+        for (J=0;;J++)
         {
           struct MenuItem ListItem;
           ListItem.Checked=ListItem.Separator=0;
@@ -759,7 +763,7 @@ void PluginsSet::Configure()
       struct PluginInfo Info;
       if (!GetPluginInfo(I,&Info))
         continue;
-      for (int J=0;J<Info.PluginConfigStringsNumber;J++)
+      for (J=0;J<Info.PluginConfigStringsNumber;J++)
       {
         struct MenuItem ListItem;
         ListItem.Checked=ListItem.Separator=0;

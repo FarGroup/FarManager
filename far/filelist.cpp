@@ -5,13 +5,15 @@ filelist.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 11.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
 */
 
 #include "headers.hpp"
@@ -1650,8 +1652,9 @@ int FileList::IsSelected(char *Name)
 int FileList::FindPartName(char *Name,int Next)
 {
   char Mask[NM];
+  int I;
   sprintf(Mask,"%s*",Name);
-  for (int I=(Next) ? CurFile+1:CurFile;I<FileCount;I++)
+  for (I=(Next) ? CurFile+1:CurFile;I<FileCount;I++)
   {
     CmpNameSearchMode=(I==CurFile);
     if (CmpName(Mask,ListData[I].Name,TRUE))
@@ -1665,7 +1668,7 @@ int FileList::FindPartName(char *Name,int Next)
       }
   }
   CmpNameSearchMode=FALSE;
-  for (int I=0;I<CurFile;I++)
+  for (I=0;I<CurFile;I++)
     if (CmpName(Mask,ListData[I].Name,TRUE))
       if (strcmp(ListData[I].Name,"..")!=0)
       {

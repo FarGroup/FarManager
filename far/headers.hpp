@@ -5,7 +5,7 @@ headers.cpp
 
 */
 
-/* Revision: 1.01 07.07.2000 $ */
+/* Revision: 1.02 11.07.2000 $ */
 
 /*
 Modify:
@@ -13,12 +13,23 @@ Modify:
     + Данный патч сделан для использования предкомпилированных заголовков
   07.07.2000 SVS
     + stdarg.h - Для FarAdvControl
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
 */
 
 #define STRICT
 
 #if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
-#include <windows.h>
+ #if defined(_MSC_VER)
+  #define _WINCON_ // to prevent including wincon.h
+  #pragma pack(push,2)
+  #include <windows.h>
+  #undef _WINCON_
+  #pragma pack(pop)
+  #include <wincon.h> //this file wants 8-byte alignment
+ #else
+  #include <windows.h>
+ #endif
 #endif
 
 #include <winioctl.h>
@@ -27,15 +38,27 @@ Modify:
 #include <dos.h>	// FA_*
 #endif
 #ifndef __DIR_H
-#include <dir.h>	// chdir
-#endif
+ #ifdef _MSC_VER
+  #include <direct.h>	// chdir
+ #else
+  #include <dir.h>	// chdir
+ #endif
+#endif //__DIR_H
 #if !defined(__NEW_H)
-#pragma option -p-
-#include <new.h>
-#pragma option -p.
-#endif
+ #if defined(__BORLANDC__)
+  #pragma option -p-
+ #endif
+  #include <new.h>
+ #if defined(__BORLANDC__)
+  #pragma option -p.
+ #endif
+#endif  //!defined(__NEW_H)
 #ifndef __ALLOC_H
-#include <alloc.h>
+ #ifdef _MSC_VER
+  #include <malloc.h>
+ #else
+  #include <alloc.h>
+ #endif
 #endif
 #ifndef __FCNTL_H
 #include <fcntl.h>
@@ -63,4 +86,18 @@ Modify:
 #endif
 #ifndef __STDARG_H
 #include <stdarg.h>
+#endif
+#if _MSC_VER
+  #define _export
+  #define FA_DIREC _A_SUBDIR
+  #define FA_RDONLY _A_RDONLY
+  #define FA_HIDDEN _A_HIDDEN
+  #define FA_SYSTEM _A_SYSTEM
+  #define FA_RDONLY _A_RDONLY
+  #define FA_ARCH   _A_ARCH
+  #define setdisk(n) _chdrive((n)+1)
+  #define getdisk()  _getdrive()-1
+  #define randomize() srand(67898)
+  #define random(x) ( (int) rand() * (x) )
+  #pragma warning (once:4018)
 #endif

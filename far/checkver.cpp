@@ -5,13 +5,15 @@ checkver.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 11.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
 */
 
 #include "headers.hpp"
@@ -28,7 +30,9 @@ unsigned char MyName[]={'E'^0x50,'u'^0x51,'g'^0x52,'e'^0x53,'n'^0x54,'e'^0x55,' 
 char *Days[]={"воскресенье","понедельник","вторник","среда","четверг",
               "пятница","суббота"};
 
+#ifndef _MSC_VER
 #pragma warn -par
+#endif
 void _cdecl CheckVersion(void *Param)
 {
   Sleep(1000);
@@ -40,8 +44,9 @@ void _cdecl CheckVersion(void *Param)
   }
   _endthread();
 }
+#ifndef _MSC_VER
 #pragma warn +par
-
+#endif
 
 void Register()
 {
@@ -70,7 +75,8 @@ void Register()
   if (*RegName==0 || *RegCode==0)
     return;
   unsigned char Xor=17;
-  for (int I=0;RegName[I]!=0;I++)
+  int I;
+  for (I=0;RegName[I]!=0;I++)
     Xor^=RegName[I];
   int xUSSR=FALSE;
   if (strcmp(RegName,"xUSSR регистрация")==0)
@@ -92,9 +98,9 @@ void Register()
   strcpy(RegData+3,RegName);
   strcpy(RegData+RegData[1]+3,RegCode);
   int Size=RegData[1]+RegData[2]+3;
-  for (int I=0;I<Size;I++)
+  for (I=0;I<Size;I++)
     RegData[I]^=I+7;
-  for (int I=1;I<Size;I++)
+  for (I=1;I<Size;I++)
     RegData[I]^=RegData[0];
   SetRegRootKey(HKEY_LOCAL_MACHINE);
   char SaveKey[512];
@@ -124,9 +130,10 @@ void _cdecl CheckReg(void *Param)
     RegVer=0;
   else
   {
-    for (int I=1;I<Size;I++)
+    int I;
+    for (I=1;I<Size;I++)
       RegData[I]^=RegData[0];
-    for (int I=0;I<Size;I++)
+    for (I=0;I<Size;I++)
       RegData[I]^=I+7;
     strncpy(RegName,RegData+3,RegData[1]);
     RegName[RegData[1]]=0;
@@ -134,7 +141,7 @@ void _cdecl CheckReg(void *Param)
     RegCode[RegData[2]]=0;
     RegVer=1;
     unsigned char Xor=17;
-    for (int I=0;RegName[I]!=0;I++)
+    for (I=0;RegName[I]!=0;I++)
       Xor^=RegName[I];
     if ((Xor & 0xf)!=ToHex(RegCode[0]) || ((~(Xor>>4))&0xf)!=ToHex(RegCode[3]))
       RegVer=0;
@@ -161,7 +168,9 @@ char ToHex(char Ch)
 }
 
 
+#ifndef _MSC_VER
 #pragma warn -par
+#endif
 void _cdecl ErrRegFn(void *Param)
 {
   if (RegVer!=3)
@@ -171,4 +180,7 @@ void _cdecl ErrRegFn(void *Param)
   }
   _endthread();
 }
+#ifndef _MSC_VER
 #pragma warn +par
+#endif
+

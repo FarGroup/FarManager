@@ -5,13 +5,15 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 11.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
 */
 
 #include "headers.hpp"
@@ -227,9 +229,11 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
     if (Opt.ChangeDriveMode & DRIVE_SHOW_PLUGINS)
     {
-      for (int PluginNumber=0;PluginMenuItemsCount<sizeof(PluginMenuItems)/sizeof(PluginMenuItems[0]);PluginNumber++)
+      int PluginNumber;
+      int PluginItem,Done;
+      for (PluginNumber=0;PluginMenuItemsCount<sizeof(PluginMenuItems)/sizeof(PluginMenuItems[0]);PluginNumber++)
       {
-        int PluginItem,Done=FALSE;
+        Done=FALSE;
         for (PluginItem=0;;PluginItem++)
         {
           char PluginText[100];
@@ -259,9 +263,9 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
         if (Done)
           break;
       }
-      for (int PluginNumber=0;PluginMenuItemsCount<sizeof(PluginMenuItems)/sizeof(PluginMenuItems[0]);PluginNumber++)
+      for (PluginNumber=0;PluginMenuItemsCount<sizeof(PluginMenuItems)/sizeof(PluginMenuItems[0]);PluginNumber++)
       {
-        int PluginItem,Done=FALSE;
+        Done=FALSE;
         for (PluginItem=0;;PluginItem++)
         {
           char PluginText[100];
@@ -793,12 +797,16 @@ void Panel::GetCurDir(char *CurDir)
 }
 
 
+#if defined(__BORLANDC__)
 #pragma warn -par
+#endif
 void Panel::SetCurDir(char *CurDir,int ClosePlugin)
 {
   strcpy(Panel::CurDir,CurDir);
 }
+#if defined(__BORLANDC__)
 #pragma warn +par
+#endif
 
 
 void Panel::InitCurDir(char *CurDir)
@@ -940,7 +948,7 @@ void Panel::SetPluginCommand(int Command,void *Param)
       }
       break;
     case FCTL_CLOSEPLUGIN:
-      strcpy(PluginParam,NullToEmpty((char *)Param));
+      strcpy((char *)PluginParam,NullToEmpty((char *)Param));
       break;
     case FCTL_GETPANELINFO:
     case FCTL_GETANOTHERPANELINFO:

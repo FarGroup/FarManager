@@ -5,7 +5,7 @@ manager.cpp
 
 */
 
-/* Revision: 1.01 28.06.2000 $ */
+/* Revision: 1.02 11.07.2000 $ */
 
 /*
 Modify:
@@ -15,6 +15,8 @@ Modify:
   28.06.2000 tran
     - NT Console resize
       add class member ActiveModal
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
 */
 
 #include "headers.hpp"
@@ -41,7 +43,8 @@ Manager::Manager()
 
 void Manager::CloseAll()
 {
-  for (int I=0;I<ModalCount;I++)
+  int I;
+  for (I=0;I<ModalCount;I++)
   {
     Modal *CurModal=ModalList[I];
     CurModal->ClearDone();
@@ -259,7 +262,8 @@ void Manager::ShowBackground()
   }
 
   SaveScreen SaveScr;
-  for (int I=0;I<ModalCount;I++)
+  int I;
+  for (I=0;I<ModalCount;I++)
   {
     Modal *CurModal=ModalList[I];
     CurModal->Hide();
@@ -271,7 +275,7 @@ void Manager::ShowBackground()
     WaitKey();
     CtrlObject->CmdLine.Show();
   }
-  for (int I=0;I<ModalCount;I++)
+  for (I=0;I<ModalCount;I++)
   {
     Modal *CurModal=ModalList[I];
     CurModal->SavePrevScreen();

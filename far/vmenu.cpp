@@ -5,7 +5,7 @@ vmenu.cpp
 
 */
 
-/* Revision: 1.02 06.07.2000 $ */
+/* Revision: 1.03 11.07.2000 $ */
 
 /*
 Modify:
@@ -18,6 +18,8 @@ Modify:
     ! Показывать ScrollBar в меню если включена опция ShowMenuScrollbar
   06.07.2000 tran
     + mouse support for menu scrollbar
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
 */
 
 #include "headers.hpp"
@@ -700,7 +702,8 @@ void VMenu::AssignHighlights(int Reverse)
 {
   char Used[256];
   memset(Used,0,sizeof(Used));
-  for (int I=Reverse ? ItemCount-1:0;I>=0 && I<ItemCount;I+=Reverse ? -1:1)
+  int I;
+  for (I=Reverse ? ItemCount-1:0;I>=0 && I<ItemCount;I+=Reverse ? -1:1)
   {
     char *Name=Item[I].Name;
     char *ChPtr=strchr(Name,'&');
@@ -710,7 +713,7 @@ void VMenu::AssignHighlights(int Reverse)
       Used[LocalLower(ChPtr[1])]=TRUE;
     }
   }
-  for (int I=Reverse ? ItemCount-1:0;I>=0 && I<ItemCount;I+=Reverse ? -1:1)
+  for (I=Reverse ? ItemCount-1:0;I>=0 && I<ItemCount;I+=Reverse ? -1:1)
   {
     char *Name=Item[I].Name;
     char *ChPtr=strchr(Name,'&');

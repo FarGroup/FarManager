@@ -5,7 +5,7 @@ interf.cpp
 
 */
 
-/* Revision: 1.02 06.07.2000 $ */
+/* Revision: 1.03 11.07.2000 $ */
 
 /*
 Modify:
@@ -18,6 +18,8 @@ Modify:
       Viewer, Editor, Help
   06.07.2000 SVS
     - Временная отмена патча 11 (NT Console resize bug) до лучших времен :-)
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
 */
 
 #include "headers.hpp"
@@ -295,7 +297,7 @@ void Text(char *Str)
     Length=ScrX-CurX+1;
   if (Length<=0)
     return;
-  CHAR_INFO CharBuf[1024];
+  CHAR_INFO CharBuf[1024]={0};
   for (int I=0;I<Length;I++)
   {
     CharBuf[I].Char.AsciiChar=RecodeOutTable[Str[I]];

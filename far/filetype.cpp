@@ -5,13 +5,15 @@ filetype.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 11.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
 */
 
 #include "headers.hpp"
@@ -156,7 +158,11 @@ int ProcessGlobalFileTypes(char *Name,int AlwaysWaitFinish)
     if (RegOpenKey(HKEY_CLASSES_ROOT,Value,&hKey)!=ERROR_SUCCESS)
       return(FALSE);
     ValueSize=sizeof(AssocStr);
+#if defined(__BORLANDC__) && (__BORLANDC__ <= 0x520)
     if (RegQueryValueEx(hKey,"",NULL,NULL,(LPTSTR)AssocStr,(LPDWORD)&ValueSize)!=ERROR_SUCCESS)
+#else
+    if (RegQueryValueEx(hKey,"",NULL,NULL,(unsigned char *)AssocStr,(LPDWORD)&ValueSize)!=ERROR_SUCCESS)
+#endif
       return(FALSE);
     RegCloseKey(hKey);
     ExpandEnvironmentStrings(AssocStr,ExpAssocStr,sizeof(ExpAssocStr));

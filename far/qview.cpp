@@ -5,7 +5,7 @@ Quick view panel
 
 */
 
-/* Revision: 1.02 04.07.2000 $ */
+/* Revision: 1.03 11.07.2000 $ */
 
 /*
 Modify:
@@ -16,6 +16,8 @@ Modify:
     - Не показывать тип файла для каталогов в "Быстром просмотре"
   04.07.2000 tran
     + не показывать мессаг бакс при невозвожности открыть файл
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
 */
 
 #include "headers.hpp"
@@ -192,7 +194,9 @@ int QuickView::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   return(FALSE);
 }
 
+#if defined(__BORLANDC__)
 #pragma warn -par
+#endif
 void QuickView::Update(int Mode)
 {
   if (!EnableUpdate)
@@ -201,7 +205,9 @@ void QuickView::Update(int Mode)
     CtrlObject->GetAnotherPanel(this)->UpdateViewPanel();
   Redraw();
 }
+#if defined(__BORLANDC__)
 #pragma warn +par
+#endif
 
 
 void QuickView::ShowFile(char *FileName,int TempFile,HANDLE hDirPlugin)

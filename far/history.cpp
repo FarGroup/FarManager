@@ -5,13 +5,15 @@ history.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 11.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
 */
 
 #include "headers.hpp"
@@ -128,7 +130,7 @@ void History::SaveHistory()
     Size+=strlen(LastStr[I].Name)+1;
   }
   Buffer[Size++]=0;
-  RegSetValueEx(hKey,"Lines",0,REG_BINARY,Buffer,Size);
+  RegSetValueEx(hKey,"Lines",0,REG_BINARY,(unsigned char *)Buffer,Size);
 
   if (SaveTitle)
   {
@@ -139,7 +141,7 @@ void History::SaveHistory()
       Size+=strlen(LastStr[I].Title)+1;
     }
     Buffer[Size++]=0;
-    RegSetValueEx(hKey,"Titles",0,REG_BINARY,Buffer,Size);
+    RegSetValueEx(hKey,"Titles",0,REG_BINARY,(unsigned char *)Buffer,Size);
   }
 
   if (SaveType)
@@ -147,7 +149,7 @@ void History::SaveHistory()
     for (Size=0;Size<sizeof(LastStr)/sizeof(LastStr[0]);Size++)
       Buffer[Size]=LastStr[Size].Type+'0';
     Buffer[Size++]=0;
-    RegSetValueEx(hKey,"Types",0,REG_SZ,Buffer,Size);
+    RegSetValueEx(hKey,"Types",0,REG_SZ,(unsigned char *)Buffer,Size);
   }
 
   RegSetValueEx(hKey,"Position",0,REG_DWORD,(BYTE *)&CurLastPtr,sizeof(CurLastPtr));
@@ -165,7 +167,7 @@ void History::ReadHistory()
   if ((hKey=OpenRegKey(RegKey))==NULL)
     return;
   Size=sizeof(Buffer);
-  if (RegQueryValueEx(hKey,"Lines",0,&Type,Buffer,&Size)==ERROR_SUCCESS)
+  if (RegQueryValueEx(hKey,"Lines",0,&Type,(unsigned char *)Buffer,&Size)==ERROR_SUCCESS)
   {
     int StrPos=0;
     Buf=Buffer;
@@ -178,7 +180,7 @@ void History::ReadHistory()
     }
   }
   Size=sizeof(Buffer);
-  if (SaveTitle && RegQueryValueEx(hKey,"Titles",0,&Type,Buffer,&Size)==ERROR_SUCCESS)
+  if (SaveTitle && RegQueryValueEx(hKey,"Titles",0,&Type,(unsigned char *)Buffer,&Size)==ERROR_SUCCESS)
   {
     int StrPos=0;
     Buf=Buffer;
@@ -191,7 +193,7 @@ void History::ReadHistory()
     }
   }
   Size=sizeof(Buffer);
-  if (SaveType && RegQueryValueEx(hKey,"Types",0,&Type,Buffer,&Size)==ERROR_SUCCESS)
+  if (SaveType && RegQueryValueEx(hKey,"Types",0,&Type,(unsigned char *)Buffer,&Size)==ERROR_SUCCESS)
   {
     int StrPos=0;
     Buf=Buffer;

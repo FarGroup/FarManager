@@ -5,13 +5,15 @@ flshow.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 11.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
 */
 
 #include "headers.hpp"
@@ -1055,10 +1057,11 @@ int FileList::IsDizDisplayed()
 
 int FileList::IsColumnDisplayed(int Type)
 {
-  for (int I=0;I<ViewSettings.ColumnCount;I++)
+  int I;
+  for (I=0;I<ViewSettings.ColumnCount;I++)
     if ((ViewSettings.ColumnType[I] & 0xff)==Type)
       return(TRUE);
-  for (int I=0;I<ViewSettings.StatusColumnCount;I++)
+  for (I=0;I<ViewSettings.StatusColumnCount;I++)
     if ((ViewSettings.StatusColumnType[I] & 0xff)==Type)
       return(TRUE);
   return(FALSE);

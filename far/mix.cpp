@@ -5,7 +5,7 @@ mix.cpp
 
 */
 
-/* Revision: 1.04 07.07.2000 $ */
+/* Revision: 1.05 11.07.2000 $ */
 
 /*
 Modify:
@@ -25,6 +25,8 @@ Modify:
   07.07.2000 tran
     - trap under win2000, or console height > 210
       bug was in ScrollBar ! :)))
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
 */
 
 #include "headers.hpp"
@@ -334,7 +336,7 @@ char* GetShellAction(char *FileName)
 
   static char Action[80];
   ValueSize=sizeof(Action);
-  if (RegQueryValueEx(hKey,"",NULL,NULL,(LPTSTR)Action,(LPDWORD)&ValueSize)!=ERROR_SUCCESS)
+  if (RegQueryValueEx(hKey,"",NULL,NULL,(unsigned char *)Action,(LPDWORD)&ValueSize)!=ERROR_SUCCESS)
     return(NULL);
   RegCloseKey(hKey);
   return(*Action==0 ? NULL:Action);
@@ -670,7 +672,11 @@ char* TruncPathStr(char *Str,int MaxLength)
     ! Функции Remove*Spaces возвращают char*
 */
 // удалить ведущие пробелы
+#ifndef _MSC_VER
 unsigned char* RemoveLeadingSpaces(unsigned char *Str)
+#else
+char* RemoveLeadingSpaces(char *Str)
+#endif
 {
   char *ChPtr;
   for (ChPtr=Str;isspace(*ChPtr);ChPtr++)
@@ -682,7 +688,11 @@ unsigned char* RemoveLeadingSpaces(unsigned char *Str)
 
 
 // удалить конечные пробелы
+#ifndef _MSC_VER
 unsigned char* RemoveTrailingSpaces(unsigned char *Str)
+#else
+char* RemoveTrailingSpaces(char *Str)
+#endif
 {
   for (int I=strlen(Str)-1;I>=0;I--)
     if (isspace(Str[I]) || iseol(Str[I]))
@@ -693,7 +703,11 @@ unsigned char* RemoveTrailingSpaces(unsigned char *Str)
 }
 
 // удалить пробелы снаружи
+#ifndef _MSC_VER
 unsigned char* RemoveExternalSpaces(unsigned char *Str)
+#else
+char* RemoveExternalSpaces(char *Str)
+#endif
 {
   return RemoveTrailingSpaces(RemoveLeadingSpaces(Str));
 }
@@ -1364,7 +1378,9 @@ void DeleteDirTree(char *Dir)
 }
 
 
+#if defined(__BORLANDC__)
 #pragma option -a4
+#endif
 int MkLink(char *Src,char *Dest)
 {
   struct CORRECTED_WIN32_STREAM_ID
@@ -1433,7 +1449,9 @@ int MkLink(char *Src,char *Dest)
 
   return(bSuccess);
 }
+#if defined(__BORLANDC__)
 #pragma option -a.
+#endif
 
 
 int GetClusterSize(char *Root)
@@ -1554,4 +1572,3 @@ DWORD ExpandEnvironmentStr(char *src, char *dest, size_t size)
  return ret;
 }
 /* SVS $ */
-

@@ -5,13 +5,15 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 11.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
 */
 
 #include "headers.hpp"
@@ -205,7 +207,7 @@ HANDLE FileList::OpenPluginForFile(char *FileName)
   int ReadSize=fread(Buffer,1,MaxRead,ProcessFile);
   fclose(ProcessFile);
   CtrlObject->GetAnotherPanel(this)->CloseFile();
-  HANDLE hNewPlugin=CtrlObject->Plugins.OpenFilePlugin(FileName,Buffer,ReadSize);
+  HANDLE hNewPlugin=CtrlObject->Plugins.OpenFilePlugin(FileName,(unsigned char *)Buffer,ReadSize);
   delete Buffer;
   return(hNewPlugin);
 }
@@ -694,7 +696,7 @@ void FileList::ProcessPluginCommand()
     switch(Command)
     {
       case FCTL_CLOSEPLUGIN:
-        SetCurDir(PluginParam,TRUE);
+        SetCurDir((char *)PluginParam,TRUE);
         Redraw();
         break;
     }

@@ -5,7 +5,7 @@ Internal viewer
 
 */
 
-/* Revision: 1.06 10.07.2000 $ */
+/* Revision: 1.07 11.07.2000 $ */
 
 /*
 Modify:
@@ -30,6 +30,8 @@ Modify:
     ! увеличение длины строки с 512 до MAX_VIEWLINE (2048)
       изменений по тексту - 8, "512" заменено на MAX_VIEWLINE,
       а "511" на MAX_VIEWLINE-1
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
 */
 
 #include "headers.hpp"
@@ -50,7 +52,7 @@ static int InitWrap=TRUE,InitHex=FALSE;
 
 Viewer::Viewer()
 {
-  strcpy(LastSearchStr,GlobalSearchString);
+  strcpy((char *)LastSearchStr,GlobalSearchString);
   LastSearchCase=GlobalSearchCase;
   LastSearchReverse=GlobalSearchReverse;
   LastSearchHex=InitLastSearchHex;
@@ -137,7 +139,7 @@ Viewer::~Viewer()
 
 void Viewer::KeepInitParameters()
 {
-  strcpy(GlobalSearchString,LastSearchStr);
+  strcpy(GlobalSearchString,(char *)LastSearchStr);
   GlobalSearchCase=LastSearchCase;
   GlobalSearchReverse=LastSearchReverse;
   InitLastSearchHex=LastSearchHex;
@@ -355,7 +357,7 @@ void Viewer::DisplayObject()
       ReadString(OutStr[I],-1,sizeof(OutStr[I]),SelPos,SelSize);
       SetColor(COL_VIEWERTEXT);
       GotoXY(X1,Y);
-      if (strlen(OutStr[I])>LeftPos)
+      if (strlen((char *)OutStr[I])>LeftPos)
       {
         mprintf("%-*.*s",ObjWidth,ObjWidth,&OutStr[I][LeftPos]);
         if (strlen(&OutStr[I][LeftPos])>ObjWidth)
@@ -506,7 +508,7 @@ void Viewer::ShowHex()
       }
     TextStr[TextPos]=0;
     if (UseDecodeTable && !Unicode)
-      DecodeString(TextStr,TableSet.DecodeTable);
+      DecodeString(TextStr,(unsigned char *)TableSet.DecodeTable);
     strcat(TextStr," ");
     strcat(OutStr,"  ");
     strcat(OutStr,TextStr);
@@ -701,7 +703,7 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
   Str[OutPtr]=0;
 
   if (UseDecodeTable && !Unicode)
-    DecodeString(Str,TableSet.DecodeTable);
+    DecodeString(Str,(unsigned char *)TableSet.DecodeTable);
   LastPage=feof(ViewFile);
 }
 
@@ -1240,7 +1242,7 @@ void Viewer::Search(int Next,int FirstChar)
   if (ViewFile==NULL || Next && *LastSearchStr==0)
     return;
 
-  strncpy(SearchDlg[2].Data,LastSearchStr,sizeof(SearchDlg[2].Data));
+  strncpy(SearchDlg[2].Data,(char *)LastSearchStr,sizeof(SearchDlg[2].Data));
   SearchDlg[4].Selected=!LastSearchHex;
   SearchDlg[5].Selected=LastSearchHex;
   SearchDlg[6].Selected=LastSearchCase;
@@ -1267,17 +1269,17 @@ void Viewer::Search(int Next,int FirstChar)
     if (Dlg.GetExitCode()!=9)
       return;
   }
-  strncpy(SearchStr,SearchDlg[2].Data,sizeof(SearchStr));
+  strncpy((char *)SearchStr,SearchDlg[2].Data,sizeof(SearchStr));
   SearchHex=SearchDlg[5].Selected;
   Case=SearchDlg[6].Selected;
   ReverseSearch=SearchDlg[7].Selected;
 
-  strncpy(LastSearchStr,SearchStr,sizeof(LastSearchStr));
+  strncpy((char *)LastSearchStr,(char *)SearchStr,sizeof(LastSearchStr));
   LastSearchHex=SearchHex;
   LastSearchCase=Case;
   LastSearchReverse=ReverseSearch;
 
-  if ((SearchLength=strlen(SearchStr))==0)
+  if ((SearchLength=strlen((char *)SearchStr))==0)
     return;
 
   {
@@ -1287,7 +1289,7 @@ void Viewer::Search(int Next,int FirstChar)
     Message(0,0,MSG(MViewSearchTitle),MSG(MViewSearchingFor),MsgStr);
 
     if (SearchHex)
-      ConvertToHex(SearchStr,SearchLength);
+      ConvertToHex((char *)SearchStr,SearchLength);
     else
       if (!Case)
         for (int I=0;I<SearchLength;I++)

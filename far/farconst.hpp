@@ -7,7 +7,7 @@ farconst.hpp
 
 */
 
-/* Revision: 1.02 10.06.2000 $ */
+/* Revision: 1.03 11.07.2000 $ */
 
 /*
 Modify:
@@ -22,6 +22,8 @@ Modify:
       там эта константа используется в качестве размера массива
       видимых строк.
       увеличивать выше не имеет смысла...
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
 */
 
 /* $ 29.06.2000 tran
@@ -29,8 +31,9 @@ Modify:
 #include "farversion.hpp"
 /* tran $ */
 
-#define FILE_ATTRIBUTE_REPARSE_POINT 0x400
-
+#ifndef _MSC_VER
+ #define FILE_ATTRIBUTE_REPARSE_POINT 0x400
+#endif
 
 #define TreeFileName "Tree.Far"
 #define LocalMenuFileName "FarMenu.Ini"
@@ -75,6 +78,8 @@ enum {DRIVE_SHOW_TYPE=1,DRIVE_SHOW_NETNAME=2,DRIVE_SHOW_LABEL=4,
       DRIVE_SHOW_FILESYSTEM=8,DRIVE_SHOW_SIZE=16,DRIVE_SHOW_REMOVABLE=32,
       DRIVE_SHOW_PLUGINS=64,DRIVE_SHOW_CDROM=128};
 enum {UPDATE_KEEP_SELECTION=1,UPDATE_SECONDARY=2};
+
+#undef SEARCH_ALL
 enum {SEARCH_ALL=0,SEARCH_ROOT,SEARCH_FROM_CURRENT,SEARCH_CURRENT_ONLY,
       SEARCH_SELECTED};
 enum {MODALTYPE_VIEWER,MODALTYPE_EDITOR};

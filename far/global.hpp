@@ -8,7 +8,7 @@ global.hpp
 
 */
 
-/* Revision: 1.01 07.07.2000 $ */
+/* Revision: 1.02 11.07.2000 $ */
 
 /*
 Modify:
@@ -17,6 +17,8 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
   07.07.2000 SVS
     + Разграничитель слов из реестра (общий для редактирования)
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
 */
 
 #ifdef __LANGUAGE_HPP__
@@ -27,9 +29,14 @@ extern Language Lang;
 extern ControlObject *CtrlObject;
 #endif
 
-#ifdef __TIME_H
-extern clock_t StartIdleTime;
-extern clock_t StartExecTime;
+#if defined(__BORLANDC__)
+ #ifdef __TIME_H
+ extern clock_t StartIdleTime;
+ extern clock_t StartExecTime;
+ #endif
+#else
+ extern clock_t StartIdleTime;
+ extern clock_t StartExecTime;
 #endif
 
 #if defined(_INC_WINDOWS) || defined(_WINDOWS_)

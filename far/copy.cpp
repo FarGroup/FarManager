@@ -5,7 +5,7 @@ copy.cpp
 
 */
 
-/* Revision: 1.01 03.07.2000 $ */
+/* Revision: 1.02 11.07.2000 $ */
 
 /*
 Modify:
@@ -14,6 +14,8 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
   03.07.2000 IS
     ! Показывать проценты спереди при копировании/переносе
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
 */
 
 
@@ -67,7 +69,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
 
   *SelName=0;
 
-  ShowTotalCopySize=Opt.CopyShowTotal;
+  ShowTotalCopySize=Opt.CopyShowTotal != 0;
 
   DestPlugin=ToPlugin;
   ToPlugin=FALSE;
@@ -1535,7 +1537,10 @@ int ShellCopy::ShellSystemCopy(char *SrcName,char *DestName,WIN32_FIND_DATA *Src
 
 #define PROGRESS_CONTINUE  0
 #define PROGRESS_CANCEL    1
+#if defined(__BORLANDC__)
 #pragma warn -par
+#endif
+
 DWORD WINAPI CopyProgressRoutine(LARGE_INTEGER TotalFileSize,
       LARGE_INTEGER TotalBytesTransferred,LARGE_INTEGER StreamSize,
       LARGE_INTEGER StreamBytesTransferred,DWORD dwStreamNumber,
@@ -1554,7 +1559,9 @@ DWORD WINAPI CopyProgressRoutine(LARGE_INTEGER TotalFileSize,
   ShellCopy::ShowBar(TransferredSize,TotalSize,false);
   return(CheckForEsc() ? PROGRESS_CANCEL:PROGRESS_CONTINUE);
 }
+#if defined(__BORLANDC__)
 #pragma warn +par
+#endif
 
 
 int ShellCopy::IsSameDisk(char *SrcPath,char *DestPath)
@@ -1664,9 +1671,10 @@ int ShellCopy::CmpFullNames(char *Src,char *Dest)
   char SrcFullName[NM],DestFullName[NM];
   ConvertNameToFull(Src,SrcFullName);
   ConvertNameToFull(Dest,DestFullName);
-  for (int I=strlen(SrcFullName)-1;I>0 && SrcFullName[I]=='.';I--)
+  int I;
+  for (I=strlen(SrcFullName)-1;I>0 && SrcFullName[I]=='.';I--)
     SrcFullName[I]=0;
-  for (int I=strlen(DestFullName)-1;I>0 && DestFullName[I]=='.';I--)
+  for (I=strlen(DestFullName)-1;I>0 && DestFullName[I]=='.';I--)
     DestFullName[I]=0;
   if (LocalStricmp(SrcFullName,DestFullName)!=0)
     return(0);

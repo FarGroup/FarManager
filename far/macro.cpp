@@ -5,13 +5,15 @@ macro.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 11.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
 */
 
 #include "headers.hpp"
@@ -431,7 +433,9 @@ void KeyMacro::KeyToText(int Key,char *KeyText)
     "CtrlAltUp","CtrlAltEnd","CtrlAltHome","CtrlAltPgDn","CtrlAltPgUp",
     "CtrlAltEnter","ShiftBS","Apps"
   };
-  for (int I=0;I<sizeof(KeyCodes)/sizeof(KeyCodes[0]);I++)
+  int I;
+
+  for (I=0;I<sizeof(KeyCodes)/sizeof(KeyCodes[0]);I++)
     if (Key==KeyCodes[I])
     {
       strcpy(KeyText,KeyNames[I]);
@@ -456,7 +460,7 @@ void KeyMacro::KeyToText(int Key,char *KeyText)
               sprintf(KeyText,"CtrlAlt%c",Key-KEY_CTRLALT_BASE);
             else
               *KeyText=0;
-  for (int I=0;KeyText[I]!=0;I++)
+  for (I=0;KeyText[I]!=0;I++)
     if (KeyText[I]=='\\')
     {
       strcpy(KeyText+I,"BackSlash");
@@ -469,10 +473,11 @@ void KeyMacro::ReadMacros(int ReadMode)
 {
   char KeyNames[2048][32];
   char Buffer[32768];
+  int I;
 
-  for (int I=0;I<sizeof(KeyNames)/sizeof(KeyNames[0]);I++)
+  for (I=0;I<sizeof(KeyNames)/sizeof(KeyNames[0]);I++)
     KeyToText(I,KeyNames[I]);
-  for (int I=0;;I++)
+  for (I=0;;I++)
   {
     char RegKeyName[50],KeyText[50],*Subkey;
     switch(ReadMode)

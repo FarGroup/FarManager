@@ -5,7 +5,7 @@ dialog.cpp
 
 */
 
-/* Revision: 1.01 05.07.2000 $ */
+/* Revision: 1.02 11.07.2000 $ */
 
 /*
 Modify:
@@ -15,6 +15,8 @@ Modify:
   05.07.2000 SVS
     + добавлена проверка на флаг DIF_EDITEXPAND - расширение переменных
       среды в элементе диалога DI_EDIT
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
 */
 
 #include "headers.hpp"
@@ -108,7 +110,8 @@ void Dialog::DisplayObject()
 */
 void Dialog::InitDialogObjects()
 {
-  for (int I=0,TitleSet=0;I<ItemCount;I++)
+  int I,TitleSet;
+  for (I=0,TitleSet=0;I<ItemCount;I++)
   {
     struct DialogItem *CurItem=&Item[I];
     if (CurItem->Type==DI_BUTTON && (CurItem->Flags & DIF_NOBRACKETS)==0 &&
@@ -128,7 +131,7 @@ void Dialog::InitDialogObjects()
         }
   }
 
-  for (int I=0;I<ItemCount;I++)
+  for (I=0;I<ItemCount;I++)
   {
     struct DialogItem *CurItem=&Item[I];
 
@@ -823,6 +826,7 @@ int Dialog::IsEdit(int Type)
 void Dialog::SelectFromEditHistory(Edit *EditLine,char *HistoryName)
 {
   char RegKey[80],KeyValue[80],Str[512];
+  int I,Dest;
   sprintf(RegKey,"SavedDialogHistory\\%s",HistoryName);
   {
     // создание пустого вертикального меню
@@ -841,7 +845,7 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,char *HistoryName)
 
     // заполнение пунктов меню
     int ItemsCount=0;
-    for (int I=0;I<16;I++)
+    for (I=0;I<16;I++)
     {
       sprintf(KeyValue,"Line%d",I);
       GetRegKey(RegKey,KeyValue,Str,"",sizeof(Str));
@@ -870,7 +874,7 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,char *HistoryName)
       // Del очищает историю команд.
       if (Key==KEY_DEL)
       {
-        for (int I=0,Dest=0;I<16;I++)
+        for (I=0,Dest=0;I<16;I++)
         {
           sprintf(KeyValue,"Line%d",I);
           GetRegKey(RegKey,KeyValue,Str,"",sizeof(Str));
@@ -929,12 +933,13 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,char *HistoryName)
 
 void Dialog::AddToEditHistory(char *AddStr,char *HistoryName)
 {
-  int LastLine=15,FirstLine=16;
+  int LastLine=15,FirstLine=16, I;
+
   if (*AddStr==0)
     return;
   char RegKey[80],SrcKeyValue[80],DestKeyValue[80],Str[512];
   sprintf(RegKey,"SavedDialogHistory\\%s",HistoryName);
-  for (int I=0;I<16;I++)
+  for (I=0;I<16;I++)
   {
     sprintf(SrcKeyValue,"Locked%d",I);
     int Locked;
@@ -945,7 +950,7 @@ void Dialog::AddToEditHistory(char *AddStr,char *HistoryName)
       break;
     }
   }
-  for (int I=0;I<16;I++)
+  for (I=0;I<16;I++)
   {
     sprintf(SrcKeyValue,"Line%d",I);
     GetRegKey(RegKey,SrcKeyValue,Str,"",sizeof(Str));
@@ -1007,7 +1012,8 @@ int Dialog::IsKeyHighlighted(char *Str,int Key,int Translate)
 
 int Dialog::ProcessHighlighting(int Key,int FocusPos,int Translate)
 {
-  for (int I=0;I<ItemCount;I++)
+  int I;
+  for (I=0;I<ItemCount;I++)
   {
     if (!IsEdit(Item[I].Type) && (Item[I].Flags & DIF_SHOWAMPERSAND)==0)
       if (IsKeyHighlighted(Item[I].Data,Key,Translate))

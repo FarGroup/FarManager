@@ -5,7 +5,7 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.01 29.06.2000 $ */
+/* Revision: 1.02 11.07.2000 $ */
 
 /*
 Modify:
@@ -14,6 +14,8 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
   29.06.2000 tran
     ! соощение о копирайте включается из copyright.inc
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
 */
 
 #include "headers.hpp"
@@ -205,16 +207,17 @@ void ControlObject::RedrawKeyBar()
     ActivePanel->GetOpenPluginInfo(&Info);
     if (Info.KeyBar!=NULL)
     {
-      for (int I=0;I<sizeof(Info.KeyBar->Titles)/sizeof(Info.KeyBar->Titles[0]);I++)
+      int I;
+      for (I=0;I<sizeof(Info.KeyBar->Titles)/sizeof(Info.KeyBar->Titles[0]);I++)
         if (Info.KeyBar->Titles[I]!=NULL)
           FKeys[I]=Info.KeyBar->Titles[I];
-      for (int I=0;I<sizeof(Info.KeyBar->CtrlTitles)/sizeof(Info.KeyBar->CtrlTitles[0]);I++)
+      for (I=0;I<sizeof(Info.KeyBar->CtrlTitles)/sizeof(Info.KeyBar->CtrlTitles[0]);I++)
         if (Info.KeyBar->CtrlTitles[I]!=NULL)
           FCtrlKeys[I]=Info.KeyBar->CtrlTitles[I];
-      for (int I=0;I<sizeof(Info.KeyBar->AltTitles)/sizeof(Info.KeyBar->AltTitles[0]);I++)
+      for (I=0;I<sizeof(Info.KeyBar->AltTitles)/sizeof(Info.KeyBar->AltTitles[0]);I++)
         if (Info.KeyBar->AltTitles[I]!=NULL)
           FAltKeys[I]=Info.KeyBar->AltTitles[I];
-      for (int I=0;I<sizeof(Info.KeyBar->ShiftTitles)/sizeof(Info.KeyBar->ShiftTitles[0]);I++)
+      for (I=0;I<sizeof(Info.KeyBar->ShiftTitles)/sizeof(Info.KeyBar->ShiftTitles[0]);I++)
         if (Info.KeyBar->ShiftTitles[I]!=NULL)
           FShiftKeys[I]=Info.KeyBar->ShiftTitles[I];
     }
