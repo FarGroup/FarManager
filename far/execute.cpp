@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.09 20.11.2001 $ */
+/* Revision: 1.10 21.11.2001 $ */
 
 /*
 Modify:
+  21.11.2001 VVM
+    ! Очереднйо перетрях прорисовки при запуске программ.
   20.11.2001 SVS
     - BugZ#111 - для cd Це: скорректируем букву диска - сделаем ее Upper.
   20.11.2001 SVS
@@ -588,19 +590,20 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
     return(-1);
   }
   int Code;
+  /* 21.11.2001 VVM
+    ! В очередной раз проблемы с прорисовкой фона.
+      Вроде бы теперь полегче стало :) */
   {
+
+    // Запомним состояния панелей и спрячем их, что-бы не перерисовывались из плагина
+    // А иначе глюки с восстановлением фона
+    int LeftVisible = CtrlObject->Cp()->LeftPanel->IsVisible();
+    int RightVisible = CtrlObject->Cp()->RightPanel->IsVisible();
+    CtrlObject->Cp()->LeftPanel->SetVisible(FALSE);
+    CtrlObject->Cp()->RightPanel->SetVisible(FALSE);
+
     {
       RedrawDesktop Redraw(TRUE);
-      /*$ 22.06.2001 SKV
-        Если не закомментарить это, то они не пересоздадуться,
-        если update'а не случится.
-        А если вызывать Update, то глюки с отрисовкой.
-      */
-      //CtrlObject->Cp()->LeftPanel->CloseChangeNotification();
-      //CtrlObject->Cp()->RightPanel->CloseChangeNotification();
-      /* SKV$*/
-      //CtrlObject->Cp()->LeftPanel->CloseFile();
-      //CtrlObject->Cp()->RightPanel->CloseFile();
       ScrollScreen(1);
       MoveCursor(X1,Y1);
       if (CurDir[0] && CurDir[1]==':')
@@ -611,24 +614,21 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
       else
         Code=Execute(CmdLine,AlwaysWaitFinish,SeparateWindow,DirectRun);
 
-       int CurX,CurY;
-       GetCursorPos(CurX,CurY);
-       if (CurY>=Y1-1)
-         ScrollScreen(Min(CurY-Y1+2,Opt.ShowKeyBar ? 2:1));
+      int CurX,CurY;
+      GetCursorPos(CurX,CurY);
+      if (CurY>=Y1-1)
+        ScrollScreen(Min(CurY-Y1+2,Opt.ShowKeyBar ? 2:1));
     }
-    /*$ 22.06.2001 SKV
-      При Update почему-то глючит перерисовка.
-      Параметр 1 - Force update, иначе только раз в 2 секунды можно.
-    */
-    //CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
-    //CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
-    //CtrlObject->Cp()->Redraw();
-    if (CtrlObject->Cp()->LeftPanel->UpdateIfChanged(1))
-      CtrlObject->Cp()->LeftPanel->Show();
-    if (CtrlObject->Cp()->RightPanel->UpdateIfChanged(1))
-      CtrlObject->Cp()->RightPanel->Show();
-    /* SKV$*/
+
+    // Воссатновим состояния панелей, обновим, если менялись и
+    // перерисуем весь экран (панели, кейбар, меню...)
+    CtrlObject->Cp()->LeftPanel->SetVisible(LeftVisible);
+    CtrlObject->Cp()->RightPanel->SetVisible(RightVisible);
+    CtrlObject->Cp()->LeftPanel->UpdateIfChanged(1);
+    CtrlObject->Cp()->RightPanel->UpdateIfChanged(1);
+    CtrlObject->Cp()->Redraw();
   }
+  /* VVM $ */
   ScrBuf.Flush();
   return(Code);
 }

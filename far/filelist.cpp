@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.105 19.11.2001 $ */
+/* Revision: 1.106 21.11.2001 $ */
 
 /*
 Modify:
+  21.11.2001 VVM
+    ! В методе SetViewMode делаем Show() для панели только если она не была спрятана.
   19.11.2001 IS
     - Баг: подставлялись префиксы плагинов при добавлении пути в командную
       строку даже, если панель содержала реальные файлы.
@@ -2381,6 +2383,7 @@ void FileList::SetViewMode(int ViewMode)
     {
       Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
       int AnotherVisible=AnotherPanel->IsVisible();
+      int CurrentVisible=IsVisible();
       Hide();
       AnotherPanel->Hide();
       if (Y2>0)
@@ -2391,7 +2394,8 @@ void FileList::SetViewMode(int ViewMode)
       FileList::ViewMode=ViewMode;
       if (AnotherVisible)
         AnotherPanel->Show();
-      Show();
+      if (CurrentVisible)
+        Show();
     }
     else
     {
