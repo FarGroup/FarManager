@@ -5,10 +5,13 @@ copy.cpp
 
 */
 
-/* Revision: 1.107 21.12.2002 $ */
+/* Revision: 1.108 30.12.2002 $ */
 
 /*
 Modify:
+  30.12.2002 VVM
+    - При копировании в несколько каталогов после первого копирования прогресс замораживался.
+      Перенесли инициализацию внутрь цикла :)
   21.12.2002 IS
     ! Признак копирования в nul выставим в случаях, когда цель назначения:
        - начинается с "nul\", "\\.\nul\" или "con\"
@@ -507,11 +510,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   ShellCopy::Flags|=Link?FCOPY_LINK:0;
   ShellCopy::Flags|=CurrentOnly?FCOPY_CURRENTONLY:0;
 
-  TotalFiles=0;
   ShowTotalCopySize=Opt.CopyShowTotal != 0;
-
-  TotalCopySize=TotalCopiedSize=0;
-  TotalSkippedSize=CurCopiedSize=0;
 
   *TotalCopySizeText=0;
   SelectedFolderNameLength=0;
@@ -874,6 +873,11 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
         DestList.Reset();
         while(NULL!=(NamePtr=DestList.GetNext()))
         {
+
+          TotalFiles=0;
+          TotalCopySize=TotalCopiedSize=0;
+          TotalSkippedSize=CurCopiedSize=0;
+
           if(DestList.IsEmpty()) // нужно учесть моменты связанные с операцией Move.
           {
             ShellCopy::Flags|=Move?FCOPY_MOVE:0; // только для последней операции
