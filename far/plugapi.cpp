@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.170 24.05.2004 $ */
+/* Revision: 1.171 03.06.2004 $ */
 
 /*
 Modify:
+  03.06.2004 SVS
+    ! подсократим код... за счет CtrlObject->Cp() -> FPanels
   24.05.2004 SVS
     + FCTL_SETNUMERICSORT,FCTL_SETANOTHERNUMERICSORT - логическое дополнение к NumericSort
   28.02.2004 SVS
@@ -1603,6 +1605,9 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
   if (CmdMode || !CtrlObject || !FrameManager || FrameManager->ManagerIsDown())
     return 0;
 
+  FilePanels *FPanels=CtrlObject->Cp();
+  CommandLine *CmdLine=CtrlObject->CmdLine;
+
   switch(Command)
   {
     case FCTL_CLOSEPLUGIN:
@@ -1629,22 +1634,22 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
     case FCTL_SETNUMERICSORT:
     case FCTL_SETANOTHERNUMERICSORT:
     {
-      if(!CtrlObject->Cp())
+      if(!FPanels)
         return FALSE;
 
       if (hPlugin==INVALID_HANDLE_VALUE)
       {
-        if(CtrlObject->Cp()->ActivePanel)
+        if(FPanels->ActivePanel)
         {
-          CtrlObject->Cp()->ActivePanel->SetPluginCommand(Command,Param);
+          FPanels->ActivePanel->SetPluginCommand(Command,Param);
           return TRUE;
         }
         return FALSE; //??
       }
 
       HANDLE hInternal;
-      Panel *LeftPanel=CtrlObject->Cp()->LeftPanel;
-      Panel *RightPanel=CtrlObject->Cp()->RightPanel;
+      Panel *LeftPanel=FPanels->LeftPanel;
+      Panel *RightPanel=FPanels->RightPanel;
       int Processed=FALSE;
       struct PluginHandle *PlHandle;
 
@@ -1681,34 +1686,34 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
 
     case FCTL_SETUSERSCREEN:
     {
-      if (!CtrlObject->Cp() || !CtrlObject->Cp()->LeftPanel || !CtrlObject->Cp()->RightPanel)
+      if (!FPanels || !FPanels->LeftPanel || !FPanels->RightPanel)
         return(FALSE);
 
       KeepUserScreen++;
-      CtrlObject->Cp()->LeftPanel->ProcessingPluginCommand++;
-      CtrlObject->Cp()->RightPanel->ProcessingPluginCommand++;
+      FPanels->LeftPanel->ProcessingPluginCommand++;
+      FPanels->RightPanel->ProcessingPluginCommand++;
       ScrBuf.FillBuf();
       SaveScreen SaveScr;
       {
         RedrawDesktop Redraw;
-        CtrlObject->CmdLine->Hide();
+        CmdLine->Hide();
         SaveScr.RestoreArea(FALSE);
       }
       KeepUserScreen--;
-      CtrlObject->Cp()->LeftPanel->ProcessingPluginCommand--;
-      CtrlObject->Cp()->RightPanel->ProcessingPluginCommand--;
+      FPanels->LeftPanel->ProcessingPluginCommand--;
+      FPanels->RightPanel->ProcessingPluginCommand--;
       return(TRUE);
     }
 
     case FCTL_GETCMDLINE:
     case FCTL_GETCMDLINESELECTEDTEXT:
     {
-      if(!IsBadWritePtr(Param,sizeof(char) * 1024))
+      if(Param && !IsBadWritePtr(Param,sizeof(char) * 1024))
       {
         if (Command==FCTL_GETCMDLINE)
-          CtrlObject->CmdLine->GetString((char *)Param,1024);
+          CmdLine->GetString((char *)Param,1024);
         else
-          CtrlObject->CmdLine->GetSelString((char *)Param,1024);
+          CmdLine->GetSelString((char *)Param,1024);
         return TRUE;
       }
       return FALSE;
@@ -1718,19 +1723,19 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
     case FCTL_INSERTCMDLINE:
     {
       if (Command==FCTL_SETCMDLINE)
-        CtrlObject->CmdLine->SetString(NullToEmpty((char *)Param));
+        CmdLine->SetString(NullToEmpty((char *)Param));
       else
-        CtrlObject->CmdLine->InsertString(NullToEmpty((char *)Param));
-      CtrlObject->CmdLine->Redraw();
+        CmdLine->InsertString(NullToEmpty((char *)Param));
+      CmdLine->Redraw();
       return(TRUE);
     }
 
     case FCTL_SETCMDLINEPOS:
     {
-      if(!IsBadReadPtr(Param,sizeof(int)))
+      if(Param && !IsBadReadPtr(Param,sizeof(int)))
       {
-        CtrlObject->CmdLine->SetCurPos(*(int *)Param);
-        CtrlObject->CmdLine->Redraw();
+        CmdLine->SetCurPos(*(int *)Param);
+        CmdLine->Redraw();
         return TRUE;
       }
       return FALSE;
@@ -1738,9 +1743,9 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
 
     case FCTL_GETCMDLINEPOS:
     {
-      if(!IsBadWritePtr(Param,sizeof(int)))
+      if(Param && !IsBadWritePtr(Param,sizeof(int)))
       {
-        *(int *)Param=CtrlObject->CmdLine->GetCurPos();
+        *(int *)Param=CmdLine->GetCurPos();
         return TRUE;
       }
       return FALSE;
@@ -1751,7 +1756,7 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
       CmdLineSelect *sel=(CmdLineSelect*)Param;
       if(sel && !IsBadWritePtr(sel,sizeof(struct CmdLineSelect)))
       {
-        CtrlObject->CmdLine->GetSelection(sel->SelStart,sel->SelEnd);
+        CmdLine->GetSelection(sel->SelStart,sel->SelEnd);
         return TRUE;
       }
       return FALSE;
@@ -1762,8 +1767,8 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
       CmdLineSelect *sel=(CmdLineSelect*)Param;
       if(sel && !IsBadReadPtr(sel,sizeof(struct CmdLineSelect)))
       {
-        CtrlObject->CmdLine->Select(sel->SelStart,sel->SelEnd);
-        CtrlObject->CmdLine->Redraw();
+        CmdLine->Select(sel->SelStart,sel->SelEnd);
+        CmdLine->Redraw();
         return TRUE;
       }
       return FALSE;
@@ -1783,6 +1788,7 @@ HANDLE WINAPI FarSaveScreen(int X1,int Y1,int X2,int Y2)
     X2=ScrX;
   if (Y2==-1)
     Y2=ScrY;
+
   return((HANDLE)(new SaveScreen(X1,Y1,X2,Y2,FALSE)));
 }
 
@@ -1791,6 +1797,7 @@ void WINAPI FarRestoreScreen(HANDLE hScreen)
 {
   if (FrameManager->ManagerIsDown())
     return;
+
   if (hScreen==NULL)
     ScrBuf.FillBuf();
   if (hScreen)
@@ -2421,7 +2428,7 @@ void WINAPI FarText(int X,int Y,int Color,const char *Str)
 
 int WINAPI FarEditorControl(int Command,void *Param)
 {
-  if (CtrlObject->Plugins.CurEditor==NULL || FrameManager->ManagerIsDown())
+  if (FrameManager->ManagerIsDown() || !CtrlObject->Plugins.CurEditor)
     return(0);
   return(CtrlObject->Plugins.CurEditor->EditorControl(Command,Param));
 }
@@ -2431,7 +2438,7 @@ int WINAPI FarEditorControl(int Command,void *Param)
 */
 int WINAPI FarViewerControl(int Command,void *Param)
 {
-  if (CtrlObject->Plugins.CurViewer==NULL || FrameManager->ManagerIsDown())
+  if (FrameManager->ManagerIsDown() || !CtrlObject->Plugins.CurViewer)
     return(0);
   return(CtrlObject->Plugins.CurViewer->ViewerControl(Command,Param));
 }

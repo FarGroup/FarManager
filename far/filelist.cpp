@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.201 24.05.2004 $ */
+/* Revision: 1.202 03.06.2004 $ */
 
 /*
 Modify:
+  03.06.2004 SVS
+    - BugZ#633 - Compare folders on temporaly panels bug
   24.05.2004 SVS
     + FileList::GetPrevNumericSort()
   20.05.2004 SVS
@@ -3696,10 +3698,10 @@ void FileList::CompareDir()
     // ...сравниваем с элементом пассивной панели...
     for (AnotherCurPtr=Another->ListData,J=0; J < Another->FileCount; J++, AnotherCurPtr++)
     {
+      int Cmp=0;
       if (LocalStricmp(PointToName(CurPtr->Name),PointToName(AnotherCurPtr->Name))==0)
       //if (LocalStricmp(CurPtr->Name,AnotherCurPtr->Name)==0)
       {
-        int Cmp;
         if (CompareFatTime)
         {
           WORD DosDate,DosTime,AnotherDosDate,AnotherDosTime;
@@ -3729,7 +3731,8 @@ void FileList::CompareDir()
 
         if (Cmp > -1 && AnotherCurPtr->Selected)
           Another->Select(AnotherCurPtr,0);
-        break;
+        if (Another->PanelMode!=PLUGIN_PANEL)
+          break;
       }
     }
   }

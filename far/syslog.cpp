@@ -5,10 +5,13 @@ syslog.cpp
 
 */
 
-/* Revision: 1.48 24.05.2004 $ */
+/* Revision: 1.49 03.06.2004 $ */
 
 /*
 Modify:
+  03.06.2004 SVS
+    ! уточнения в _FCTL_ToName
+    - ошибка в _INPUT_RECORD_Dump - нехватало пятой спецификации '%c'
   24.05.2004 SVS
     + PrevNumericSort в PluginsStackItem_Dump
   28.04.2004 SVS
@@ -1008,6 +1011,9 @@ const char *_FCTL_ToName(int Command)
      DEF_FCTL_(SETANOTHERSORTMODE),    DEF_FCTL_(SETSORTORDER),
      DEF_FCTL_(SETANOTHERSORTORDER),   DEF_FCTL_(GETCMDLINESELECTEDTEXT),
      DEF_FCTL_(SETCMDLINESELECTION),   DEF_FCTL_(GETCMDLINESELECTION),
+     DEF_FCTL_(GETPANELSHORTINFO),     DEF_FCTL_(GETANOTHERPANELSHORTINFO),
+     DEF_FCTL_(CHECKPANELSEXIST),      DEF_FCTL_(SETNUMERICSORT),
+     DEF_FCTL_(SETANOTHERNUMERICSORT),
   };
   int I;
   static char Name[512];
@@ -1251,7 +1257,7 @@ const char *_INPUT_RECORD_Dump(INPUT_RECORD *rec)
     case KEY_EVENT:
     case 0:
       sprintf(Records,
-            "%s: %s, %d, Vk=%s, Scan=0x%04X uChar=[U='%C' (0x%04X): A='%c' (0x%02X)] Ctrl=0x%08X (%c%c%c%c - %c%c%c%c)",
+            "%s: %s, %d, Vk=%s, Scan=0x%04X uChar=[U='%C' (0x%04X): A='%c' (0x%02X)] Ctrl=0x%08X (%c%c%c%c%c - %c%c%c%c)",
           (rec->EventType==KEY_EVENT?"KEY_EVENT_RECORD":(rec->EventType==FARMACRO_KEY_EVENT?"FARMACRO_KEY_EVENT":"(internal, macro)_KEY_EVENT")),
           (rec->Event.KeyEvent.bKeyDown?"Dn":"Up"),
           rec->Event.KeyEvent.wRepeatCount,

@@ -64,7 +64,7 @@ $^#Copyright (C) 2000-<%YEAR%> FAR Group#
    ~Keyboard macro commands (macro command)~@KeyMacro@
 
 @Help
-$ #How to use help#
+$ # FAR: how to use help#
     Help screens may have reference items on them that lead to another help
 screen. You may use #Tab# and #Shift-Tab# keys to move the cursor from one
 reference item to another, then press Enter to go to a help screen
@@ -82,7 +82,7 @@ and #Shift-F1# to view the help contents.
     #F5# switches help between window and fullscreen modes.
 
 @About
-$ #About FAR#
+$ # FAR: about#
     FAR is a text mode file and archive manager for Windows 95/98/Me,
 Windows NT and Windows 2000/XP. It supports #long file names# and provides
 a wide set of file and folder operations.
@@ -97,7 +97,7 @@ transforms your commands into the corresponding external archiver calls.
     FAR offers a number of service functions as well.
 
 @Register
-$ #How to register#
+$ # FAR: how to register#
     FAR is #shareware# software. You must register it to continue to use
 after the 40-days trial period. Please read License.txt file for user license.
 
@@ -108,7 +108,7 @@ may read the latest version of this list on:
     ~http://www.rarlab.com~@http://www.rarlab.com@
 
 @CmdLine
-$ #Command line switches#
+$ # FAR: command line switches#
   The following switches may be used in the command line:
 
   #/a#    Disable display of characters with codes 0 - 31
@@ -202,12 +202,12 @@ $ #Keyboard reference#
 
  ~File management and service commands~@FuncCmd@
 
- ~Mouse wheel support~@MsWheel@
+ ~Mouse: wheel support~@MsWheel@
 
  ~Miscellaneous~@MiscCmd@
 
 @PanelCmd
-$ #Panel control commands#
+$ #Panel control commands #
  #Common panel commands#
 
   Change active panel                                            #Tab#
@@ -448,7 +448,7 @@ $ #Command line commands#
      ~symbolic links~@HardSymLink@ expanded.
 
 @FuncCmd
-$ #File management and service commands#
+$ #Panel control commands - service commands#
   Online help                                                     #F1#
 
   Show ~user menu~@UserMenu@                                                  #F2#
@@ -617,7 +617,7 @@ substituting all extensions listed in the environment variable
 
 
 @MiscCmd
-$ #Miscellaneous#
+$ #Panel control commands - miscellaneous#
   Screen grabber                                             #Alt-Ins#
 
   Screen grabber allows to select and copy to the clipboard any screen area.
@@ -675,7 +675,7 @@ will be executed. This behaviour can be configured in the ~settings~@InterfSetti
 pressing #Ctrl-F5# and using arrow keys.
 
 @MsWheel
-$ #Mouse wheel support#
+$ #Mouse: wheel support#
    Under Windows 2000/XP, FAR Manager supports the mouse wheel:
 
    #Panels#
@@ -826,7 +826,7 @@ plugins, one can recommend:
 
 
 @Panels
-$ #Panels#
+$ #Panels #
     Normally FAR shows two panels (left and right windows), with different
 information. If you want to change the type of information displayed in the
 panel, use the ~panel menu~@LeftRightMenu@ or corresponding ~keyboard commands~@KeyRef@.
@@ -841,7 +841,7 @@ panel, use the ~panel menu~@LeftRightMenu@ or corresponding ~keyboard commands~@
       ~Customizing file panel view modes~@PanelViewModes@
 
 @FilePanel
-$ #File panel#
+$ #Panels: file panel#
     The file panel displays the current folder.
 You may select or deselect files and folders, perform different file
 and archive operations. Read ~Keyboard reference~@KeyRef@ for commands list.
@@ -887,7 +887,7 @@ set to the file panel.
 first letters of its name.
 
 @TreePanel
-$ #Tree panel#
+$ #Panels: tree panel#
     The tree panel displays the folder structure of the current disk as a tree.
 Within tree mode you may change to a folder quickly and perform folder
 operations.
@@ -901,7 +901,7 @@ Hold the Alt key and type the folder name until you point to the right
 folder. Pressing #Ctrl-Enter# keys simultaneously will select the next match.
 
 @InfoPanel
-$ #Info panel#
+$ #Panels: info panel#
     The information panel contains the following data:
 
  - #network# names of the computer and the current user;
@@ -924,7 +924,7 @@ selection and so on) for viewing the folder description file.
 using "Folder description files" command in the ~Options menu~@OptMenu@.
 
 @QViewPanel
-$ #Quick view panel#
+$ #Panels: quick view panel#
     The quick view panel is used to show information about the selected item
 in  the ~file panel~@FilePanel@ or ~tree panel~@TreePanel@.
 
@@ -951,7 +951,7 @@ is enabled.
 to the same file.
 
 @DragAndDrop
-$ #Drag and drop files#
+$ #Copy: drag and drop files#
     It is possible to perform #Copy# and #Move# file operations using
 #drag and drop#. Press left mouse button on the source file or folder,
 drag it to the another panel and release the mouse button.
@@ -965,7 +965,7 @@ button while dragging. Also to move files you can hold the #Shift# key while
 pressing the left mouse button.
 
 @Menus
-$ #Menus#
+$ #Menus #
     To choose an action from the menu you may press F9 or click on top
 of the screen.
 
@@ -984,7 +984,7 @@ the passive panel.
      ~Commands menu~@CmdMenu@                 ~Options menu~@OptMenu@
 
 @LeftRightMenu
-$ #Left and right menus#
+$ #Menus: left and right menus#
     The #Left# and #Right# menus allow to change left and right panel
 settings respectively. These menus include the following items:
 
@@ -1028,7 +1028,7 @@ settings respectively. These menus include the following items:
    #Change drive#         Change current drive.
 
 @FilesMenu
-$ #Files menu#
+$ #Menus: files menu#
    #View#               ~View files~@Viewer@, count folder sizes.
 
    #Edit#               ~Edit~@Editor@ files.
@@ -1066,7 +1066,7 @@ $ #Files menu#
 ~File management and service commands~@FuncCmd@ topic.
 
 @CmdMenu
-$ #Commands menu#
+$ #Menus: commands menu#
    #Find file#            Search for files in the folders tree,
                         wildcards may be used.
                         See ~Find file~@FindFile@ for more info.
@@ -1119,7 +1119,7 @@ $ #Commands menu#
    #Task list#            Shows ~active tasks list~@TaskList@.
 
 @OptMenu
-$ #Options menu#
+$ #Menus: options menu#
    #System settings#      Shows ~system settings~@SystemSettings@ dialog.
 
    #Panel settings#       Shows ~panel settings~@PanelSettings@ dialog.
@@ -1204,7 +1204,7 @@ it must be enclosed in quotes. For example, if the user enters
 and "#D:\\foo3#" will be created.
 
 @FindFile
-$ #Find file#
+$ #Find file #
     This command allows to locate in the folder tree one or more
 files and folders matching one or more ~wildcards~@FileMasks@ (delimited
 with commas). It may also be used with file systems emulated
@@ -1262,7 +1262,7 @@ user defined conditions. Press the #Filter# button to open the
 conditions configuration ~dialog~@OpFilter@.
 
 @FindFileResult
-$ #Find file results#
+$ #Find file: control keys#
     While ~search~@FindFile@ is in progress or when it is finished, you may use
 the cursor keys to scroll the files list and the buttons to perform
 required actions.
@@ -1350,7 +1350,7 @@ only in Windows 2000/XP.
 checkboxes.
 
 @History
-$ #History#
+$ #History #
     The commands history shows the list of previously executed
 commands. Besides the cursor control keys, the following keyboard
 shortcuts are available:
@@ -1381,7 +1381,7 @@ the respective option in the ~system settings dialog~@SystemSettings@.
      symbols before they are stored in the history.
 
 @HistoryViews
-$ #File view and edit history#
+$ #History: file view and edit#
     The file view history shows the list of files that have been
 recently viewed or edited. Besides the cursor control keys, the following
 keyboard shortcuts are available:
@@ -1416,7 +1416,7 @@ the respective option in the ~system settings dialog~@SystemSettings@.
      symbols before they are stored in the history.
 
 @HistoryFolders
-$ #Folders history#
+$ #History: folders#
     The folders history shows the list of folders that have been
 recently visited. Besides the cursor control keys, the following
 keyboard shortcuts are available:
@@ -1520,7 +1520,7 @@ to store it in a file. If you create a local menu in the FAR folder,
 it will be used instead of the main menu saved in the registry.
 
 @FileAssoc
-$ #File associations#
+$ #File associations #
     FAR Manager supports file associations, that allow to associate
 various actions to running, viewing and editing files with a specified
 ~mask~@FileMasks@.
@@ -1544,7 +1544,7 @@ the desired association from the menu.
 is on, FAR tries to use Windows association to execute this file type;
 
 @FileAssocModify
-$ #Editing file associations#
+$ #File associations: editing#
     FAR allows to specify six commands associated with each file type
 specified as a ~mask~@FileMasks@:
 
@@ -1685,7 +1685,7 @@ example:
 
 
 @SystemSettings
-$ #System settings dialog#
+$ #Settings dialog: system#
   #Clear R/O attribute#     Clear read-only attribute from files copied
   #from CD files#           from CD.
 
@@ -1772,7 +1772,7 @@ $ #System settings dialog#
                           both panels will be also saved.
 
 @PanelSettings
-$ #Panel settings dialog#
+$ #Settings dialog: panel#
   #Show hidden and#         Enable to show files with Hidden
   #system files#            and System attributes. This option may
                           also be switched by Ctrl-H.
@@ -1838,7 +1838,7 @@ $ #Panel settings dialog#
   #letter#                  upper left panel corner.
 
 @InterfSettings
-$ #Interface settings dialog#
+$ #Settings dialog: interface#
   #Clock in panels#         Show clock at the right top corner of
                           the screen.
 
@@ -1905,7 +1905,7 @@ $ #Interface settings dialog#
                             Network plugin is not available).
 
 @DialogSettings
-$ #Dialog settings#
+$ #Settings dialog: settings#
   #History in dialog#       Keep history in edit controls of some
   #edit controls#           FAR dialogs. The previous strings history
                           list may be activated by mouse or using
@@ -1935,7 +1935,7 @@ $ #Dialog settings#
                           This option allows to switch off this
                           functionality.
 @Viewer
-$ #Internal viewer#
+$ #Viewer: control keys#
    Viewer commands
 
     #Left#               Character left
@@ -2018,7 +2018,7 @@ $ #Internal viewer#
        the beginning of the area currently displayed.
 
 @ViewerGotoPos
-$ #Go to specified position#
+$ #Viewer: go to specified position#
   This dialog allows to change the position in the internal viewer.
 
   You can enter decimal offset, percent, or hexadecimal offset. The meaning
@@ -2044,7 +2044,7 @@ or by format specifiers added before or after the value.
 '$', 'd'), the radio buttons selected in the dialog will be ignored.
 
 @ViewerSearch
-$ #Searching in the viewer#
+$ #Viewer: search#
     For searching in the ~viewer~@Viewer@, the following modes and
 options are available:
 
@@ -2074,7 +2074,7 @@ options are available:
       towards the beginning.
 
 @Editor
-$ #Internal editor#
+$ #Editor: control keys#
   Cursor movement
 
    #Left#                    Character left
@@ -2193,7 +2193,7 @@ $ #Internal editor#
 
 
 @FileSaveAs
-$ #Save file as...#
+$ #Editor: save file as...#
     You can save the file being edited under a different name by
 pressing #Shift-F2# and specifying the new name.
 
@@ -2215,7 +2215,7 @@ pressing #Shift-F2# and specifying the new name.
     Return (CR), as used in Mac OS.
 
 @EditorGotoPos
-$ #Go to specified line and column#
+$ #Editor: go to specified line and column#
  This dialog allows to change the position in the internal editor.
 
  You can enter a #row# or a #column#, or both.
@@ -2232,7 +2232,7 @@ to the specified percent of the file. For example, if you enter #50%#,
 the editor will jump to the middle of the text.
 
 @EditorReload
-$ #Reloading a file in the editor#
+$ #Editor: reloading a file#
     FAR Manager tracks all attempts to repeatedly open for editing a
 file that is already being edited. The rules for reloading files are
 as follows:
@@ -2331,7 +2331,7 @@ connected network drives.
   The confirmation can be disabled in the ~confirmations~@ConfirmDlg@ dialog.
 
 @Highlight
-$ #Files highlighting#
+$ #Files highlighting #
     For more convenient and obvious display of files and directories in
 the panels, FAR Manager has the possibility of color highlighting for
 file objects. You can group file objects by different criteria
@@ -2344,7 +2344,7 @@ dialog (menu item Options | Panel settings).
 through the "~Options~@OptMenu@" menu (item "Files highlighting").
 
 @HighlightList
-$ #List of file highlighting groups#
+$ #File highlighting: control keys#
     The ~file highlighting~@Highlight@ groups menu allows you to perform
 various operations with the list of the groups. The following key
 combinations are available:
@@ -2367,7 +2367,7 @@ combinations are available:
 detected that a file belongs to a group, no further groups are checked.
 
 @HighlightEdit
-$ #Files highlighting#
+$ #Files highlighting: editing#
     The #Files highlighting# dialog in the ~Options menu~@OptMenu@ allows
 to define file highlighting groups. Each group definition includes:
 
@@ -2404,7 +2404,7 @@ NTFS drives only. The Encrypted attribute and Symbolic links can be used
 only in Windows 2000/XP.
 
 @ViewerSettings
-$ #Viewer settings#
+$ #Settings dialog: viewer#
     This dialog allows to change the default external or
 ~internal viewer~@Viewer@ settings.
 
@@ -2463,7 +2463,7 @@ viewer~@Viewer@ by pressing #Alt-Shift-F9#. The changes will come
 into force immediately but will affect only the current session.
 
 @EditorSettings
-$ #Editor settings#
+$ #Settings dialog: editor#
     This dialog allows to change the default external and
 ~internal editor~@Editor@ settings.
 
@@ -2963,7 +2963,7 @@ the current copy session and are not saved for later copy operations.
 
 
 @CopyRule
-$ #Copying/Moving rules#
+$ #Copying: rules#
     When ~copying/moving~@CopyFiles@ folders and/or
 ~symbolic links~@HardSymLink@ the following rules apply:
 
@@ -3197,7 +3197,7 @@ available to child processes:
                        ~command line~@CmdLine@ option.
 
 @KeyMacro
-$ #Keyboard macro commands (macro command)#
+$ #Macro command #
     Keyboard macro commands or macro commands - are recorded sequences of key
 presses that can be used to perform repetitive task unlimited number of times
 by pressing a single hotkey.
@@ -3236,7 +3236,7 @@ external plugins and for overloading FAR actions.
 
 
 @KeyMacroArea
-$ #Macro command areas of execution#
+$ #Macro command: areas of execution#
     FAR allows the creation of independent ~macro commands~@KeyMacro@ (commands with
 identical hotkeys) for different areas of execution.
 
@@ -3269,7 +3269,7 @@ in different areas of execution.
 
 
 @KeyMacroAssign
-$ #Hotkeys#
+$ #Macro command: hotkeys#
     A ~macro command~@KeyMacro@ can be assigned to:
 
     1. any key;
@@ -3288,7 +3288,7 @@ meanings. To assign a macro command to such key combination, select it from
 the dropdown list.
 
 @KeyMacroRecPlay
-$ #Recording and playing-back macro commands#
+$ #Macro command: recording and playing-back#
     A ~macro command~@KeyMacro@ can be played-back in one of the two following modes:
 
     1. General mode: keys pressed during the recording or the
@@ -3346,7 +3346,7 @@ do what it usually does as a reaction to this combination.
        set.
 
 @KeyMacroDelete
-$ #Deleting a macro command#
+$ #Macro command: deleting a macro command#
     To delete a ~macro command~@KeyMacro@ an empty (containing no commands)
 macro should be recorded and assigned the hotkey of the macro command that
 needs to be deleted.
@@ -3368,7 +3368,7 @@ needs to be deleted.
                the past.
 
 @KeyMacroSetting
-$ #Macro command settings#
+$ #Macro command: settings#
     To specify additional ~macro command~@KeyMacro@ settings, start or
 finish macro recording with #Ctrl-Shift-<.># instead of Ctrl-<.> and select
 the desired options in the dialog:
@@ -3430,7 +3430,7 @@ To assign a macro to one of those key combinations, select it from
 the drop-down list.
 
 @KeyMacroCmds
-$ #Commands, used inside the text of a macro command#
+$ #Macro command: commands, used inside the text of a macro command#
    Several pseudo-keys that cannot be entered during standard
 ~macro recording~@KeyMacroRecPlay@ are supported by FAR Manager:
 

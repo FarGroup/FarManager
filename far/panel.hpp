@@ -7,10 +7,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.24 24.05.2004 $ */
+/* Revision: 1.25 03.06.2004 $ */
 
 /*
 Modify:
+  03.06.2004 SVS
+    ! SetPluginCommand теперь возвращает TRUE/FALSE
   24.05.2004 SVS
     + GetPrevNumericSort()
   18.05.2004 SVS
@@ -272,7 +274,7 @@ class Panel:public ScreenObject
     static void EndDrag();
     void Hide();
     void Show();
-    void SetPluginCommand(int Command,void *Param);
+    int SetPluginCommand(int Command,void *Param);
     int PanelProcessMouse(MOUSE_EVENT_RECORD *MouseEvent,int &RetCode);
     void ChangeDisk();
     int GetFocus() {return(Focus);};

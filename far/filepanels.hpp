@@ -7,10 +7,18 @@ filepanels.hpp
 
 */
 
-/* Revision: 1.13 08.04.2002 $ */
+/* Revision: 1.14 03.06.2004 $ */
 
 /*
 Modify:
+  03.06.2004 SVS
+    ! Часть кода вынесена в отдельные функции:
+       a) Установить фокус на противоположную панель (Tab)
+          FilePanels::SetAnhoterPanelFocus()
+       b) поменять панели местами (Ctrl-U)
+          FilePanels::SwapPanels()
+       c) сменить режим панели
+          FilePanels::ChangePanelViewMode()
   08.04.2002 IS
     ! Немного const
   16.01.2002 OT
@@ -93,6 +101,9 @@ class FilePanels:public Frame
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 
+    int SetAnhoterPanelFocus(void);
+    int SwapPanels(void);
+    int ChangePanelViewMode(Panel *Current,int Mode,BOOL RefreshFrame);
 
     void SetScreenPosition();
 

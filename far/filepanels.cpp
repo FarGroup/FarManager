@@ -5,10 +5,18 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.54 24.05.2004 $ */
+/* Revision: 1.55 03.06.2004 $ */
 
 /*
 Modify:
+  03.06.2004 SVS
+    ! Часть кода вынесена в отдельные функции:
+       a) Установить фокус на противоположную панель (Tab)
+          FilePanels::SetAnhoterPanelFocus()
+       b) поменять панели местами (Ctrl-U)
+          FilePanels::SwapPanels()
+       c) сменить режим панели
+          FilePanels::ChangePanelViewMode()
   24.05.2004 SVS
     - BugZ#1085 - сбос цифровой сортировки на панели
   20.05.2004 SVS
@@ -477,6 +485,75 @@ void FilePanels::DeletePanel(Panel *Deleted)
   /* DJ $ */
 }
 
+int FilePanels::SetAnhoterPanelFocus(void)
+{
+  int Ret=FALSE;
+  if (ActivePanel==LeftPanel)
+  {
+    if (RightPanel->IsVisible())
+    {
+      RightPanel->SetFocus();
+      Ret=TRUE;
+    }
+  }
+  else
+  {
+    if (LeftPanel->IsVisible())
+    {
+      LeftPanel->SetFocus();
+      Ret=TRUE;
+    }
+  }
+  return Ret;
+}
+
+
+int FilePanels::SwapPanels(void)
+{
+  int Ret=FALSE; // это значит ни одна из панелей не видна
+
+  if (LeftPanel->IsVisible() || RightPanel->IsVisible())
+  {
+    int XL1,YL1,XL2,YL2;
+    int XR1,YR1,XR2,YR2;
+
+    LeftPanel->GetPosition(XL1,YL1,XL2,YL2);
+    RightPanel->GetPosition(XR1,YR1,XR2,YR2);
+    if (!LeftPanel->ViewSettings.FullScreen || !RightPanel->ViewSettings.FullScreen)
+    {
+      Opt.WidthDecrement=-Opt.WidthDecrement;
+      if (!LeftPanel->ViewSettings.FullScreen){
+        LeftPanel->SetPosition(ScrX/2+1-Opt.WidthDecrement,YR1,ScrX,YR2);
+        if (LastLeftFilePanel)
+          LastLeftFilePanel->SetPosition(ScrX/2+1-Opt.WidthDecrement,YR1,ScrX,YR2);
+      }
+      if(!RightPanel->ViewSettings.FullScreen){
+        RightPanel->SetPosition(0,YL1,ScrX/2-Opt.WidthDecrement,YL2);
+        if (LastRightFilePanel)
+          LastRightFilePanel->SetPosition(0,YL1,ScrX/2-Opt.WidthDecrement,YL2);
+      }
+    }
+
+    Panel *Swap;
+    int SwapType;
+
+    Swap=LeftPanel;
+    LeftPanel=RightPanel;
+    RightPanel=Swap;
+    Swap=LastLeftFilePanel;
+    LastLeftFilePanel=LastRightFilePanel;
+    LastRightFilePanel=Swap;
+    SwapType=LastLeftType;
+    LastLeftType=LastRightType;
+    LastRightType=SwapType;
+    PanelFilter::SwapFilter();
+
+    Ret=TRUE;
+  }
+  FrameManager->RefreshFrame();
+  return Ret;
+}
+
 int  FilePanels::ProcessKey(int Key)
 {
   if (!Key)
@@ -501,16 +578,18 @@ int  FilePanels::ProcessKey(int Key)
 
   switch(Key)
   {
+    case KEY_F1:
+    {
+      if (!ActivePanel->ProcessKey(KEY_F1))
+      {
+        Help Hlp ("Contents");
+      }
+      return(TRUE);
+    }
+
     case KEY_TAB:
     {
-      if (ActivePanel==LeftPanel)
-      {
-        if (RightPanel->IsVisible())
-          RightPanel->SetFocus();
-      }
-      else
-        if (LeftPanel->IsVisible())
-          LeftPanel->SetFocus();
+      SetAnhoterPanelFocus();
       break;
     }
 
@@ -530,15 +609,6 @@ int  FilePanels::ProcessKey(int Key)
       }
       Redraw();
       break;
-    }
-
-    case KEY_F1:
-    {
-      if (!ActivePanel->ProcessKey(KEY_F1))
-      {
-        Help Hlp ("Contents");
-      }
-      return(TRUE);
     }
 
     case KEY_CTRLF2:
@@ -675,40 +745,7 @@ int  FilePanels::ProcessKey(int Key)
 
     case KEY_CTRLU:
     {
-      if (LeftPanel->IsVisible() || RightPanel->IsVisible())
-      {
-        int XL1,YL1,XL2,YL2;
-        int XR1,YR1,XR2,YR2;
-        int SwapType;
-        Panel *Swap;
-        LeftPanel->GetPosition(XL1,YL1,XL2,YL2);
-        RightPanel->GetPosition(XR1,YR1,XR2,YR2);
-        if (!LeftPanel->ViewSettings.FullScreen || !RightPanel->ViewSettings.FullScreen)
-        {
-          Opt.WidthDecrement=-Opt.WidthDecrement;
-          if (!LeftPanel->ViewSettings.FullScreen){
-            LeftPanel->SetPosition(ScrX/2+1-Opt.WidthDecrement,YR1,ScrX,YR2);
-            if (LastLeftFilePanel)
-              LastLeftFilePanel->SetPosition(ScrX/2+1-Opt.WidthDecrement,YR1,ScrX,YR2);
-          }
-          if(!RightPanel->ViewSettings.FullScreen){
-            RightPanel->SetPosition(0,YL1,ScrX/2-Opt.WidthDecrement,YL2);
-            if (LastRightFilePanel)
-              LastRightFilePanel->SetPosition(0,YL1,ScrX/2-Opt.WidthDecrement,YL2);
-          }
-        }
-        Swap=LeftPanel;
-        LeftPanel=RightPanel;
-        RightPanel=Swap;
-        Swap=LastLeftFilePanel;
-        LastLeftFilePanel=LastRightFilePanel;
-        LastRightFilePanel=Swap;
-        SwapType=LastLeftType;
-        LastLeftType=LastRightType;
-        LastRightType=SwapType;
-        PanelFilter::SwapFilter();
-      }
-      FrameManager->RefreshFrame();
+      SwapPanels();
       break;
     }
 
@@ -810,101 +847,34 @@ int  FilePanels::ProcessKey(int Key)
       return(TRUE);
     }
 
-    case KEY_CTRL1:
-    {
-      ActivePanel->SetViewMode(VIEW_1);
-      ChangePanelToFilled(ActivePanel,FILE_PANEL);
-      ActivePanel->SetViewMode(VIEW_1);
-      break;
-    }
-
-    case KEY_CTRL2:
-    {
-      ActivePanel->SetViewMode(VIEW_2);
-      ChangePanelToFilled(ActivePanel,FILE_PANEL);
-      ActivePanel->SetViewMode(VIEW_2);
-      break;
-    }
-
-    case KEY_CTRL3:
-    {
-      ActivePanel->SetViewMode(VIEW_3);
-      ChangePanelToFilled(ActivePanel,FILE_PANEL);
-      ActivePanel->SetViewMode(VIEW_3);
-      break;
-    }
-
-    case KEY_CTRL4:
-    {
-      ActivePanel->SetViewMode(VIEW_4);
-      ChangePanelToFilled(ActivePanel,FILE_PANEL);
-      ActivePanel->SetViewMode(VIEW_4);
-      break;
-    }
-
-    case KEY_CTRL5:
-    {
-      ActivePanel->SetViewMode(VIEW_5);
-      ChangePanelToFilled(ActivePanel,FILE_PANEL);
-      ActivePanel->SetViewMode(VIEW_5);
-      break;
-    }
-
-    case KEY_CTRL6:
-    {
-      ActivePanel->SetViewMode(VIEW_6);
-      ChangePanelToFilled(ActivePanel,FILE_PANEL);
-      ActivePanel->SetViewMode(VIEW_6);
-      break;
-    }
-
-    case KEY_CTRL7:
-    {
-      ActivePanel->SetViewMode(VIEW_7);
-      ChangePanelToFilled(ActivePanel,FILE_PANEL);
-      ActivePanel->SetViewMode(VIEW_7);
-      break;
-    }
-
-    case KEY_CTRL8:
-    {
-      ActivePanel->SetViewMode(VIEW_8);
-      ChangePanelToFilled(ActivePanel,FILE_PANEL);
-      ActivePanel->SetViewMode(VIEW_8);
-      break;
-    }
-
-    case KEY_CTRL9:
-    {
-      ActivePanel->SetViewMode(VIEW_9);
-      ChangePanelToFilled(ActivePanel,FILE_PANEL);
-      ActivePanel->SetViewMode(VIEW_9);
-      break;
-    }
-
-    case KEY_CTRL0:
-    {
-      ActivePanel->SetViewMode(VIEW_0);
-      ChangePanelToFilled(ActivePanel,FILE_PANEL);
-      ActivePanel->SetViewMode(VIEW_0);
-      break;
-    }
-
     default:
     {
-      if (!ActivePanel->ProcessKey(Key))
+      if(Key >= KEY_CTRL0 && Key <= KEY_CTRL9)
+        ChangePanelViewMode(ActivePanel,Key-KEY_CTRL0,TRUE);
+      else if (!ActivePanel->ProcessKey(Key))
         CtrlObject->CmdLine->ProcessKey(Key);
       break;
     }
   }
 
-  // ВНИМАНИЕ! Костыль! Но Работает!
-  if(Key >= KEY_CTRL0 && Key <= KEY_CTRL9)
-  {
-    SetScreenPosition();
-    FrameManager->RefreshFrame();
-  }
   return(TRUE);
+}
+
+int FilePanels::ChangePanelViewMode(Panel *Current,int Mode,BOOL RefreshFrame)
+{
+  if(Current && Mode >= VIEW_0 && Mode <= VIEW_9)
+  {
+    Current->SetViewMode(Mode);
+    ChangePanelToFilled(Current,FILE_PANEL);
+    Current->SetViewMode(Mode);
+    // ВНИМАНИЕ! Костыль! Но Работает!
+    SetScreenPosition();
+    if(RefreshFrame)
+      FrameManager->RefreshFrame();
+
+    return TRUE;
+  }
+  return FALSE;
 }
 
 Panel* FilePanels::ChangePanelToFilled(Panel *Current,int NewType)
