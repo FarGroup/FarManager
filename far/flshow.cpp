@@ -5,10 +5,13 @@ flshow.cpp
 
 */
 
-/* Revision: 1.26 25.03.2002 $ */
+/* Revision: 1.27 15.06.2002 $ */
 
 /*
 Modify:
+  15.06.2002 VVM
+    ! Скорректировать позицию после подготовки режима панели. Т.к. колонки могут
+      измениться и надо-юы сдвинуть курсор. (bug #472)
   25.05.2002 IS
     ! первый параметр у ConvertDate теперь ссылка на константу
   22.03.2002 SVS
@@ -114,19 +117,21 @@ void FileList::DisplayObject()
 
 void FileList::ShowFileList(int Fast)
 {
-  CorrectPosition();
   if (DisableOut)
     return;
   char Title[NM];
   int Length;
   struct OpenPluginInfo Info;
+
   if (PanelMode==PLUGIN_PANEL)
   {
     if (ProcessPluginEvent(FE_REDRAW,NULL))
       return;
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
   }
+
   PrepareViewSettings(ViewMode,&Info);
+  CorrectPosition();
 
   SetScreen(X1+1,Y1+1,X2-1,Y2-1,' ',COL_PANELTEXT);
   Box(X1,Y1,X2,Y2,COL_PANELBOX,DOUBLE_BOX);
