@@ -263,17 +263,25 @@ void InitDialogItems(const struct InitDialogItem *Init,struct FarDialogItem *Ite
 }
 
 
-void InsertCommas(unsigned long Number,char *Dest)
+static void __InsertCommas(char *Dest)
 {
   int I;
-  //FSF.sprintf(Dest,"%u",Number);
-  FSF.itoa(Number,Dest,10);
   for (I=strlen(Dest)-4;I>=0;I-=3)
     if (Dest[I])
     {
       memmove(Dest+I+2,Dest+I+1,strlen(Dest+I));
       Dest[I+1]=',';
     }
+}
+
+void InsertCommas(unsigned long Number,char *Dest)
+{
+  __InsertCommas(FSF.itoa(Number,Dest,10));
+}
+
+void InsertCommas(__int64 Number,char *Dest)
+{
+  __InsertCommas(FSF.itoa64(Number,Dest,10));
 }
 
 
@@ -291,6 +299,19 @@ int ToPercent(long N1,long N2)
   return (int)(N1*100/N2);
 }
 
+int ToPercent(__int64 N1,__int64 N2)
+{
+  if (N1 > 10000)
+  {
+    N1/=100;
+    N2/=100;
+  }
+  if (N2==0)
+    return 0;
+  if (N2<N1)
+    return 100;
+  return (int)(N1*100/N2);
+}
 
 int IsCaseMixed(const char *Str)
 {

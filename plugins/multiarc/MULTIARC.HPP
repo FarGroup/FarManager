@@ -129,8 +129,8 @@ class PluginClass
     int LastTestState,LastWithoutPathsState;
     struct ArcItemInfo ItemsInfo;
     struct ArcInfo CurArcInfo;
-    DWORD TotalSize;
-    DWORD PackedSize;
+    __int64 TotalSize;
+    __int64 PackedSize;
     int DizPresent;
 
   private:
@@ -244,7 +244,9 @@ void ConvertNameToShort(const char *Src,char *Dest);
 void InitDialogItems(const struct InitDialogItem *Init,struct FarDialogItem *Item,
                      int ItemsNumber);
 void InsertCommas(unsigned long Number,char *Dest);
+void InsertCommas(__int64 Number,char *Dest);
 int ToPercent(long N1,long N2);
+int ToPercent(__int64 N1,__int64 N2);
 int IsCaseMixed(const char *Str);
 int CheckForEsc();
 int LocalStrnicmp(const char *Str1,const char *Str2,int Length);
