@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.64 03.09.2003 $ */
+/* Revision: 1.65 09.09.2003 $ */
 
 /*
 Modify:
+  09.09.2003 SVS
+    - Автодополнение по ^End в пустой строке сразу после старта не работает.
   03.09.2003 SVS
     + Продвинутый вариант промптера, как в XP. Добавил, чтобы не потерялось (трудные времена настают :-(
   21.08.2003 SVS
@@ -235,7 +237,7 @@ void CommandLine::SetCurPos(int Pos)
 
 BOOL CommandLine::SetLastCmdStr(const char *Ptr,int LenPtr)
 {
-  if(LenPtr > LastCmdLength)
+  if(LenPtr+1 > LastCmdLength)
     LastCmdStr=(char *)xf_realloc(LastCmdStr, LenPtr+1);
   if(LastCmdStr)
   {

@@ -5,10 +5,12 @@ Screen grabber
 
 */
 
-/* Revision: 1.14 05.09.2003 $ */
+/* Revision: 1.15 09.09.2003 $ */
 
 /*
 Modify:
+  09.09.2003 SVS
+    - Ctrl-U полность не сбрасывал выделение
   05.09.2003 SVS
     + Grabber::Reset() - сброс выделения
     + Реация на Ctrl-U в грабере - сброс выделения.
@@ -250,6 +252,7 @@ int Grabber::ProcessKey(int Key)
   {
     case KEY_CTRLU:
       Reset();
+      GArea.X1=-1;
       break;
     case KEY_ESC:
       SetExitCode(0);

@@ -3337,14 +3337,13 @@ to the format used by the strftime function):
 
    Arbitrary text in the format string must be in the OEM codepage.
 
-     #$Text "string"#
+   #$Text "string"#
 
-   Вставка текста. Вставляемый текст 'string' должен быть только
-в OEM-кодировке.
+   Insert text. The inserted text 'string' must be in the OEM code page.
 
-   Макрокоманда '$Text' позволяет сократить расход памяти при хранении
-длинной макропоследовательности, содержащей произвольный вставляемый
-текст.
+   The '$Text' macro command is helpful when manually writing a macro
+sequence containing lengths of arbitrary text and will also lower memory
+usage in such macro sequences.
 
    #$MMode 1#
 
@@ -3358,11 +3357,11 @@ what key is assigned in TechInfo##10.
 
    Notes:
 
-   1. В макрокомандах '$Date' и '$Text' допускается применение следующих
-escape-последовательностей:
+   1. In the '$Date' and '$Text' macro commands the following escape
+sequences are allowed:
 
-        \"   Символ '"'
-        \\   Символ '\'
-        \n   Переводу строки `\n'
-        \t   Табуляции `\t'
-        \xNN 16-ричные символы из OEM кодировки
+        \"   The '"' character
+        \\   The '\' character
+        \n   New line `\n'
+        \t   Tab `\t'
+        \xNN Hex code of characters in the OEM code page

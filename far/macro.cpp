@@ -5,10 +5,13 @@ macro.cpp
 
 */
 
-/* Revision: 1.100 08.09.2003 $ */
+/* Revision: 1.101 09.09.2003 $ */
 
 /*
 Modify:
+  09.09.2003 SVS
+    - Переполнение буфера при анализе макроса в функции KeyMacro::ParseMacroString
+      Сделаем CurKeyText динамическим
   08.09.2003 SVS
     ! уточнение $Date
     + обработка KEY_MACROPLAINTEXT - новый оператор $Text - вставка текста.
@@ -1734,7 +1737,12 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
   DWORD KeyCode=KEY_NONE;
   DWORD PrevKeyKode=KEY_NONE; // для $StopIf
   int Size;
-  char CurKeyText[NM*2];
+  int SizeCurKeyText=strlen(BufPtr)*2; // возмем чуток поболее
+  char *CurKeyText=(char *)xf_malloc(SizeCurKeyText); // возмем чуток поболее
+
+  if(!CurKeyText)
+    return FALSE;
+
   DWORD *CurMacro_Buffer=NULL;
 
   IsKeyWord2=FALSE;
@@ -1770,6 +1778,7 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
           xf_free(CurMacro_Buffer);
           CurMacro->Buffer=NULL;
         }
+        xf_free(CurKeyText);
         CurMacro->BufferSize=0;
         return FALSE;
       }
@@ -1810,12 +1819,21 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
       case KEY_MACRODATE:
       {
         const char *BufPtr2=BufPtr;
-        memset(CurKeyText,0,sizeof(CurKeyText));
+        memset(CurKeyText,0,SizeCurKeyText);
 //        if(KeyCode == KEY_MACRODATE)
         {
           // ищем первую кавычку
-          while (*BufPtr && *BufPtr != '"')
+          while (*BufPtr)
+          {
+            if(*BufPtr == '\\' && BufPtr[1] == '"')
+              BufPtr++;
+            else if(*BufPtr == '"')
+            {
+              //BufPtr++;
+              break;
+            }
             BufPtr++;
+          }
           if(*BufPtr)
             BufPtr=ParsePlainText(CurKeyText,BufPtr);
           else
@@ -1849,6 +1867,7 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
       {
         CurMacro->Buffer=NULL;
         CurMacro->BufferSize=0;
+        xf_free(CurKeyText);
         return FALSE;
       }
       CurMacro_Buffer[CurMacro->BufferSize]=KeyCode;
@@ -1870,6 +1889,7 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
     CurMacro->Buffer=reinterpret_cast<DWORD*>(*CurMacro_Buffer);
     xf_free(CurMacro_Buffer);
   }
+  xf_free(CurKeyText);
   return TRUE;
 }
 
