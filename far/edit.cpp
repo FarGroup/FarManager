@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.64 11.01.2002 $ */
+/* Revision: 1.65 12.01.2002 $ */
 
 /*
 Modify:
+  12.01.2002 IS
+    ! внедрение const
   11.01.2002 SVS
     - Не квочились пути с пробелами при вставке.
   26.12.2001 SVS
@@ -1760,9 +1762,9 @@ void Edit::SetBinaryString(const char *Str,int Length)
 }
 
 
-void Edit::GetBinaryString(char **Str,char **EOL,int &Length)
+void Edit::GetBinaryString(const char *&Str,const char **EOL,int &Length)
 {
-  *Str=Edit::Str;
+  Str=Edit::Str;
   if (EOL!=NULL)
     switch(EndType)
     {

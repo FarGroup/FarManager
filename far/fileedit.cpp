@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.80 10.01.2002 $ */
+/* Revision: 1.81 12.01.2002 $ */
 
 /*
 Modify:
+  12.01.2002 IS
+    ! ExitCode=0 -> ExitCode=XC_OPEN_ERROR
   10.01.2002 SVS
     - Bugz#213 - Не туда сохраняется файл
   28.12.2001 DJ
@@ -113,7 +115,7 @@ Modify:
     ! перетрях #include
     + обработка F6
   07.05.2001 ОТ
-    - Избавимся от "дублирования" ExitCode здесь и во Frame :)
+    - Избавимся от "дублирования" УчшеСщву здесь и во Frame :)
   06.05.2001 ОТ
     ! Переименование Window в Frame :)
   05.05.2001 DJ
@@ -373,7 +375,7 @@ void FileEditor::Init(const char *Name,int CreateNewFile,int EnableSwitch,
   if(FAttr!=-1 && FAttr&FILE_ATTRIBUTE_DIRECTORY)
   {
     Message(MSG_WARNING,1,MSG(MEditTitle),MSG(MEditCanNotEditDirectory),MSG(MOk));
-    ExitCode=0;
+    ExitCode=XC_OPEN_ERROR;
     return;
   }
   /* IS $ */
@@ -395,7 +397,7 @@ void FileEditor::Init(const char *Name,int CreateNewFile,int EnableSwitch,
                              MSG(MEditROOpen),MSG(MYes),MSG(MNo)))
     {
       //SetLastError(ERROR_ACCESS_DENIED);
-      ExitCode=0;
+      ExitCode=XC_OPEN_ERROR;
       return;
     }
   }
@@ -417,7 +419,7 @@ void FileEditor::Init(const char *Name,int CreateNewFile,int EnableSwitch,
       if (UserBreak!=1)
       {
         Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MEditTitle),MSG(MEditCannotOpen),FileName,MSG(MOk));
-        ExitCode=0;
+        ExitCode=XC_OPEN_ERROR;
       }
       else
         ExitCode=XC_LOADING_INTERRUPTED;

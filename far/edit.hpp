@@ -7,10 +7,12 @@ edit.hpp
 
 */
 
-/* Revision: 1.19 14.12.2001 $ */
+/* Revision: 1.20 12.01.2002 $ */
 
 /*
 Modify:
+  12.01.2002 IS
+    ! внедрение const
   14.12.2001 IS
     ! внедрение const
   28.11.2001 SVS
@@ -211,7 +213,7 @@ class Edit:public ScreenObject
     const char* GetStringAddr();
     void  SetString(const char *Str);
     void  SetBinaryString(const char *Str,int Length);
-    void  GetBinaryString(char **Str,char **EOL,int &Length);
+    void  GetBinaryString(const char *&Str,const char **EOL,int &Length);
     void  SetEOL(const char *EOL);
     int   GetSelString(char *Str,int MaxSize);
     int   GetLength();
