@@ -7,10 +7,12 @@ edit.hpp
 
 */
 
-/* Revision: 1.20 12.01.2002 $ */
+/* Revision: 1.21 21.01.2002 $ */
 
 /*
 Modify:
+  21.01.2002 SVS
+    + ¬озможность работы с курсором в диалогах (CursorVisible,CursorSize).
   12.01.2002 IS
     ! внедрение const
   14.12.2001 IS
@@ -150,6 +152,7 @@ class Edit:public ScreenObject
     /* IS $ */
 
     int    IsDialogParent;   // ѕризнак принадлежности строки к диалогу
+    int    CursorVisible,CursorSize;
 
   private:
     void   DisplayObject();
@@ -285,6 +288,8 @@ class Edit:public ScreenObject
 
     void SetDialogParent(int Sets) {IsDialogParent=Sets;}
     int  GetDialogParent() {return IsDialogParent;}
+    void SetCursorType(int Visible,int Size);
+    void GetCursorType(int &Visible,int &Size);
 };
 
 #endif  // __EDIT_HPP__

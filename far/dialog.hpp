@@ -10,10 +10,12 @@ dialog.hpp
 
 */
 
-/* Revision: 1.49 08.01.2002 $ */
+/* Revision: 1.50 21.01.2002 $ */
 
 /*
 Modify:
+  21.01.2002 SVS
+    ! Изменены данные для UserControl
   08.01.2002 SVS
    + SetListMouseReaction()
   21.12.2001 SVS
@@ -223,6 +225,16 @@ struct DialogItemAutomation{
                               // [][0] - Set, [][1] - Skip
 };
 
+// Данные для DI_USERCONTROL
+class DlgUserControl{
+  public:
+    COORD CursorPos;
+    int   CursorVisible,CursorSize;
+
+  public:
+    DlgUserControl(){CursorSize=CursorPos.X=CursorPos.Y=-1;CursorVisible=0;}
+   ~DlgUserControl(){};
+};
 
 /*
 Описывает один элемент диалога - внутренне представление.
@@ -261,6 +273,7 @@ struct DialogItem
   // прочее
   void *ObjPtr;
   VMenu *ListPtr;
+  DlgUserControl *UCData;
 };
 
 /*

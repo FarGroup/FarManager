@@ -5,10 +5,13 @@ edit.cpp
 
 */
 
-/* Revision: 1.66 16.01.2002 $ */
+/* Revision: 1.67 21.01.2002 $ */
 
 /*
 Modify:
+  21.01.2002 SVS
+    - BugZ#258 - Alt-1...Alt-30
+    + ¬озможность работы с курсором в диалогах.
   16.01.2002 SVS
     - BugZ#246 - RCtrl-Digit при неизменненом тексте.
   12.01.2002 IS
@@ -257,6 +260,8 @@ Edit::Edit()
   /* KM $ */
   CurPos=0;
   CursorPos=0;
+  CursorVisible=0;
+  CursorSize=-1;
   ClearFlag=0;
   Overtype=0;
   TableSet=NULL;
@@ -360,8 +365,8 @@ void Edit::DisplayObject()
   */
   if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS)
   {
-    SetCursorType(TRUE,99);
-    SetCursorType(TRUE,-1);
+    ::SetCursorType(TRUE,99);
+    ::SetCursorType(TRUE,CursorSize);
   }
   /* KM $ */
   /* KM $ */
@@ -370,7 +375,7 @@ void Edit::DisplayObject()
      при DropDownBox курсор выключаем
      не знаю даже - попробовал но не очень красиво вышло */
   if (DropDownBox)
-    SetCursorType(0,10);
+    ::SetCursorType(0,10);
   else
   {
     if (Overtype)
@@ -378,14 +383,27 @@ void Edit::DisplayObject()
       int NewCursorSize=IsWindowed()?
        (Opt.CursorSize[2]?Opt.CursorSize[2]:99):
        (Opt.CursorSize[3]?Opt.CursorSize[3]:99);
-      SetCursorType(1,NewCursorSize);
+      ::SetCursorType(1,CursorSize==-1?NewCursorSize:CursorSize);
     }
     else
-      SetCursorType(1,-1);
+      ::SetCursorType(1,CursorSize);
   }
   MoveCursor(X1+CursorPos-LeftPos,Y1);
 }
 
+
+void Edit::SetCursorType(int Visible,int Size)
+{
+  CursorVisible=Visible;
+  CursorSize=Size;
+  ::SetCursorType(Visible,Size);
+}
+
+void Edit::GetCursorType(int &Visible,int &Size)
+{
+  Visible=CursorVisible;
+  Size=CursorSize;
+}
 
 /* $ 12.08.2000 KM
    ¬ычисление нового положени€ курсора в строке с учЄтом Mask.
@@ -761,7 +779,7 @@ int Edit::ProcessKey(int Key)
   }
   /* SVS $ */
 
-  if (ClearFlag && (Key<256 && Key>=31 || Key==KEY_CTRLBRACKET ||
+  if (ClearFlag && (Key<256 && Key!=KEY_BS || Key==KEY_CTRLBRACKET ||
       Key==KEY_CTRLBACKBRACKET || Key==KEY_CTRLSHIFTBRACKET ||
       Key==KEY_CTRLSHIFTBACKBRACKET || Key==KEY_SHIFTENTER))
   {
@@ -1112,7 +1130,11 @@ int Edit::ProcessKey(int Key)
       Show();
       return(TRUE);
     case KEY_CTRLQ:
+      EditOutDisabled++;
+      if (!PersistentBlocks && (SelStart != -1 || ClearFlag))
+        RecurseProcessKey(KEY_DEL);
       ProcessCtrlQ();
+      EditOutDisabled--;
       Show();
       return(TRUE);
 #if defined(MOUSEKEY)
@@ -1492,6 +1514,7 @@ int Edit::ProcessCtrlQ(void)
     if (Key!=KEY_NONE && Key!=KEY_IDLE && rec.Event.KeyEvent.uChar.AsciiChar)
       break;
   }
+/*
   EditOutDisabled++;
   if (!PersistentBlocks)
   {
@@ -1500,6 +1523,7 @@ int Edit::ProcessCtrlQ(void)
   else
     ClearFlag=0;
   EditOutDisabled--;
+*/
   return InsertKey(rec.Event.KeyEvent.uChar.AsciiChar);
 }
 

@@ -5,10 +5,12 @@ ScreenSaver
 
 */
 
-/* Revision: 1.06 06.05.2001 $ */
+/* Revision: 1.07 21.01.2002 $ */
 
 /*
 Modify:
+  21.01.2002 SVS
+    - BugZ#259 - Не востанавливается размер курсора после скринсейвера.
   06.05.2001 DJ
     ! перетрях #include
   06.05.2001 ОТ
@@ -76,6 +78,10 @@ int ScreenSaver(int EnableExit)
     Sleep(100);
   }
   ScreenSaverActive=TRUE;
+
+  int CursorVisible, CursorSize;
+  GetRealCursorType(CursorVisible, CursorSize);
+
   {
     SaveScreen SaveScr;
     SetCursorType(0,10);
@@ -108,10 +114,12 @@ int ScreenSaver(int EnableExit)
       ShowSaver(Step++);
     }
   }
+
+  SetCursorType(CursorVisible, CursorSize);
   ScreenSaverActive=FALSE;
   FlushInputBuffer();
   StartIdleTime=clock();
-  return(1);
+  return 1;
 }
 
 

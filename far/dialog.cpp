@@ -5,10 +5,14 @@ dialog.cpp
 
 */
 
-/* Revision: 1.204 16.01.2002 $ */
+/* Revision: 1.205 21.01.2002 $ */
 
 /*
 Modify:
+  21.01.2002 SVS
+    + ƒобавлены 2 месага - DM_SETCURSORSIZE/DM_GETCURSORSIZE. –аботают с
+      редакторами и UserControl
+    ! »зменены данные дл€ UserControl
   16.01.2002 SVS
     ! DIF_NOFOCUS шалит
   08.01.2002 SVS
@@ -1430,9 +1434,7 @@ int Dialog::InitDialogObjects(int ID)
     else if (Type == DI_USERCONTROL)
     {
       if (!DialogMode.Check(DMODE_CREATEOBJECTS))
-        CurItem->ObjPtr=new COORD; // пока ограничимс€ хранением координат курсора
-      ((COORD *)(CurItem->ObjPtr))->X=-1;
-      ((COORD *)(CurItem->ObjPtr))->Y=-1;
+        CurItem->UCData=new DlgUserControl;
     }
 
     CurItem->Flags=ItemFlags;
@@ -1691,8 +1693,8 @@ void Dialog::DeleteDialogObjects()
            delete CurItem->ListPtr;
         break;
       case DI_USERCONTROL:
-        if(CurItem->ObjPtr)
-          delete (COORD *)(CurItem->ObjPtr);
+        if(CurItem->UCData)
+          delete CurItem->UCData;
         break;
     }
     if(CurItem->Flags&DIF_AUTOMATION)
@@ -2283,15 +2285,15 @@ void Dialog::ShowDialog(int ID)
       case DI_USERCONTROL:
         if(CurItem->VBuf)
         {
-          COORD *Coord=(COORD *)(CurItem->ObjPtr);
           PutText(X1+CX1,Y1+CY1,X1+CX2,Y1+CY2,CurItem->VBuf);
           // не забудим переместить курсор, если он спозиционирован.
           if(FocusPos == I)
           {
-            if(Coord->X != -1 && Coord->Y != -1)
+            if(CurItem->UCData->CursorPos.X != -1 &&
+               CurItem->UCData->CursorPos.Y != -1)
             {
-              MoveCursor(Coord->X+CX1+X1,Coord->Y+CY1+Y1);
-              SetCursorType(1,-1);
+              MoveCursor(CurItem->UCData->CursorPos.X+CX1+X1,CurItem->UCData->CursorPos.Y+CY1+Y1);
+              SetCursorType(CurItem->UCData->CursorVisible,CurItem->UCData->CursorSize);
             }
             else
               SetCursorType(0,-1);
@@ -5300,7 +5302,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
                вынесем в отдельную функцию
             */
             Dlg->ProcessLastHistory (CurItem, Param1);
-			/* DJ $ */
+      /* DJ $ */
           }
         }
         else
@@ -5336,18 +5338,18 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     */
     case DM_GETCURSORPOS:
     {
-      if(!CurItem->ObjPtr || !Param2)
+      if(!Param2)
         return FALSE;
-      if (IsEdit(Type))
+      if (IsEdit(Type) && CurItem->ObjPtr)
       {
         ((COORD*)Param2)->X=((Edit *)(CurItem->ObjPtr))->GetCurPos();
         ((COORD*)Param2)->Y=0;
         return TRUE;
       }
-      else if(Type == DI_USERCONTROL)
+      else if(Type == DI_USERCONTROL && CurItem->UCData)
       {
-        ((COORD*)Param2)->X=((COORD*)(CurItem->ObjPtr))->X;
-        ((COORD*)Param2)->Y=((COORD*)(CurItem->ObjPtr))->Y;
+        ((COORD*)Param2)->X=CurItem->UCData->CursorPos.X;
+        ((COORD*)Param2)->Y=CurItem->UCData->CursorPos.Y;
         return TRUE;
       }
       return FALSE;
@@ -5356,14 +5358,12 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     /*****************************************************************/
     case DM_SETCURSORPOS:
     {
-      if(!CurItem->ObjPtr)
-        return FALSE;
-      if (IsEdit(Type))
+      if (IsEdit(Type) && CurItem->ObjPtr)
       {
         ((Edit *)(CurItem->ObjPtr))->SetCurPos(((COORD*)Param2)->X);
         return TRUE;
       }
-      else if(Type == DI_USERCONTROL)
+      else if(Type == DI_USERCONTROL && CurItem->UCData)
       {
         // учтем, что координаты дл€ этого элемента всегда относительные!
         //  и начинаютс€ с 0,0
@@ -5377,8 +5377,8 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
           Coord.Y=CurItem->Y2;
 
         // «апомним
-        ((COORD*)(CurItem->ObjPtr))->X=Coord.X-CurItem->X1;
-        ((COORD*)(CurItem->ObjPtr))->Y=Coord.Y-CurItem->Y1;
+        CurItem->UCData->CursorPos.X=Coord.X-CurItem->X1;
+        CurItem->UCData->CursorPos.Y=Coord.Y-CurItem->Y1;
         // переместим если надо
         if(Dlg->DialogMode.Check(DMODE_SHOW) && Dlg->FocusPos == Param1)
         {
@@ -5391,6 +5391,55 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       return FALSE;
     }
 
+    /*****************************************************************/
+    /* $ 23.10.2000 SVS
+       ѕолучить/установить размер курсора
+       Param2=0
+       Return MAKELONG(Visible,Size)
+    */
+    case DM_GETCURSORSIZE:
+    {
+      if (IsEdit(Type) && CurItem->ObjPtr)
+      {
+        int Visible,Size;
+        ((Edit *)(CurItem->ObjPtr))->GetCursorType(Visible,Size);
+        return MAKELONG(Visible,Size);
+      }
+      else if(Type == DI_USERCONTROL && CurItem->UCData)
+      {
+        return MAKELONG(CurItem->UCData->CursorVisible,CurItem->UCData->CursorSize);
+      }
+      return FALSE;
+    }
+
+    /*****************************************************************/
+    // Param2=MAKELONG(Visible,Size)
+    //   Return MAKELONG(OldVisible,OldSize)
+    case DM_SETCURSORSIZE:
+    {
+      int Visible=0,Size=0;
+      if (IsEdit(Type) && CurItem->ObjPtr)
+      {
+        ((Edit *)(CurItem->ObjPtr))->GetCursorType(Visible,Size);
+        ((Edit *)(CurItem->ObjPtr))->SetCursorType(LOWORD(Param2),HIWORD(Param2));
+      }
+      else if(Type == DI_USERCONTROL && CurItem->UCData)
+      {
+        Visible=CurItem->UCData->CursorVisible;
+        Size=CurItem->UCData->CursorSize;
+
+        CurItem->UCData->CursorVisible=LOWORD(Param2);
+        CurItem->UCData->CursorSize=HIWORD(Param2);
+
+        int CCX=CurItem->UCData->CursorPos.X;
+        int CCY=CurItem->UCData->CursorPos.Y;
+        if(Dlg->DialogMode.Check(DMODE_SHOW) &&
+           Dlg->FocusPos == Param1 &&
+           CCX != -1 && CCY != -1)
+          SetCursorType(CurItem->UCData->CursorVisible,CurItem->UCData->CursorSize);
+      }
+      return MAKELONG(Visible,Size);
+    }
 
     /*****************************************************************/
     case DN_LISTCHANGE:

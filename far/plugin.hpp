@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.182 14.01.2002 $ */
+/* Revision: 1.183 21.01.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  21.01.2002 SVS
+    + DM_GETCURSORSIZE, DM_SETCURSORSIZE
   14.01.2002 SVS
     ! "Косметика" - небольшая перетаксовка фрагментов.
   10.01.2002 SVS
@@ -822,6 +824,9 @@ enum FarMessagesProc{
 
   DM_LISTSET,
   DM_SETLISTMOUSEREACTION,
+
+  DM_GETCURSORSIZE,
+  DM_SETCURSORSIZE,
 
   DN_FIRST=0x1000,
   DN_BTNCLICK,
