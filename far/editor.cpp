@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.21 30.08.2000 $ */
+/* Revision: 1.22 07.09.2000 $ */
 
 /*
 Modify:
+   07.09.2000 skv
+    - пофиксан быстрый replace при установленной перекодировке
    30.08.2000 tran 1.21
     - bug в автоотступе, внесенный патчем 66
    15.08.2000 skv
@@ -2850,6 +2852,14 @@ void Editor::Search(int Next)
               int CurPos=CurLine->EditLine.GetCurPos();
               memcpy(NewStr,Str,CurPos);
               memcpy(NewStr+CurPos,ReplaceStr,RStrLen);
+              /*$ 07.09.2000 skv
+                If table set need to encode string.
+              */
+              if(UseDecodeTable)
+              {
+                EncodeString(NewStr+CurPos,(unsigned char*)TableSet.EncodeTable,RStrLen);
+              }
+              /* skv$*/
               memcpy(NewStr+CurPos+RStrLen,Str+CurPos+SStrLen,StrLen-CurPos-SStrLen);
               memcpy(NewStr+NewStrLen-EolLen,Eol,EolLen);
               AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
