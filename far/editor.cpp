@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.156 19.02.2002 $ */
+/* Revision: 1.157 21.02.2002 $ */
 
 /*
 Modify:
+  21.02.2002 SKV
+    - Порча EOL'а строки при вставке оной.
   19.02.2002 SVS
     - По поводу Ins - пока не жмакнули стрелку - размер курсора не изменился :-(
   15.02.2002 SVS
@@ -3439,7 +3441,13 @@ void Editor::InsertString()
     }
     /* tran 17.07.2000 $ */
 
+    /*$ SKV 21.02.2002
+      В этом месте портится EOL строки.
+      Надо его вернуть на базу.
+    */
     CurLine->EditLine.SetBinaryString(CurLineStr,StrSize);
+    CurLine->EditLine.SetEOL(EndSeq);
+    /* skv $*/
   }
   else
   {
