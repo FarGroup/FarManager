@@ -7,10 +7,12 @@ scrbuf.hpp
 
 */
 
-/* Revision: 1.04 04.03.2002 $ */
+/* Revision: 1.05 18.05.2002 $ */
 
 /*
 Modify:
+  18.05.2002 SVS
+    ! Выносим некоторые переменные во флаги
   04.03.2002 DJ
     ! Appli -> Apply
   03.03.2002 SVS
@@ -24,19 +26,24 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
 */
 
+#include "bitflags.hpp"
+
 class ScreenBuf
 {
   private:
+    BitFlags SBFlags;
+
     CHAR_INFO *Buf;
     CHAR_INFO *Shadow;
     CHAR_INFO MacroChar;
     HANDLE hScreen;
+
     int BufX,BufY;
-    int Flushed;
+    int CurX,CurY;
+    int CurVisible,CurSize;
+
     int LockCount;
-    int UseShadow;
-    int CurX,CurY,CurVisible,CurSize;
-    int FlushedCurPos,FlushedCurType;
+
   public:
     ScreenBuf();
     ~ScreenBuf();

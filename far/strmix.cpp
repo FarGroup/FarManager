@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.39 25.04.2002 $ */
+/* Revision: 1.40 18.05.2002 $ */
 
 /*
 Modify:
+  18.05.2002 SVS
+    ! Возможность компиляции под BC 5.5
   25.04.2002 IS
     + const вариант PointToName
   25.04.2002 SVS
@@ -501,7 +503,7 @@ char* WINAPI RemoveLeadingSpaces(char *Str)
   if(!(ChPtr=Str))
     return NULL;
 
-  for (; isspace(*ChPtr); ChPtr++)
+  for (; IsSpace(*ChPtr); ChPtr++)
          ;
   if (ChPtr!=Str)
     memmove(Str,ChPtr,strlen(ChPtr)+1);
@@ -521,7 +523,7 @@ char* WINAPI RemoveTrailingSpaces(char *Str)
   int I;
 
   for (ChPtr=Str+(I=strlen((char *)Str)-1); I >= 0; I--, ChPtr--)
-    if (isspace(*ChPtr) || iseol(*ChPtr))
+    if (IsSpace(*ChPtr) || IsEol(*ChPtr))
       *ChPtr=0;
     else
       break;
@@ -545,7 +547,7 @@ char* WINAPI RemoveUnprintableCharacters(char *Str)
  char *p=Str;
  while(*p)
  {
-   if(iseol(*p)) *p=' ';
+   if(IsEol(*p)) *p=' ';
    p++;
  }
  return RemoveExternalSpaces(Str);
@@ -717,7 +719,7 @@ const char *GetCommaWord(const char *Src,char *Word,char Separator)
     {
       Word[WordPos]=0;
       Src++;
-      while (isspace(*Src))
+      while (IsSpace(*Src))
         Src++;
       return(Src);
     }

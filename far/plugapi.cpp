@@ -5,10 +5,14 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.132 14.05.2002 $ */
+/* Revision: 1.133 18.05.2002 $ */
 
 /*
 Modify:
+  18.05.2002 SVS
+    ! Удавлен жучара, из-за которого не было возможности вводить ФЛАГИ
+      Закомментим SetOwnsItems до той поры, пока не появятся немодальные
+      диалоги
   14.05.2002 SKV
     + запретим создание немодального viewer/editor из модального,
       а так же переключение на другие фреймы.
@@ -1131,7 +1135,7 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
       FarDialog.SetDialogMode(DMODE_SMALLDIALOG);
     if(Flags & FDLG_NONMODAL)
       FarDialog.SetCanLoseFocus(TRUE);
-    FarDialog.SetOwnsItems(TRUE);
+    //FarDialog.SetOwnsItems(TRUE);
     FarDialog.SetHelp(HelpTopic);
 
     /* IS $ */

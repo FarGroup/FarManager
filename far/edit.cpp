@@ -5,10 +5,13 @@ edit.cpp
 
 */
 
-/* Revision: 1.78 29.04.2002 $ */
+/* Revision: 1.79 18.05.2002 $ */
 
 /*
 Modify:
+  18.05.2002 SVS
+    ! Возможность компиляции под BC 5.5
+    ! ФЛАГИ - сведем в кучу двухпозиционные переменные
   29.04.2002 SVS
     - не туда залудил этот BugZ#488 (лишнее)
   29.04.2002 SVS
@@ -267,8 +270,6 @@ enum {EOL_NONE,EOL_CR,EOL_LF,EOL_CRLF};
 
 Edit::Edit()
 {
-  ConvertTabs=0;
-  IsDialogParent=EDPARENT_NONE;
   /* $ 13.07.2000 SVS
      Нет, так нельзя - все последующие расширения памяти делаются через
      realloc, а здесь:
@@ -287,17 +288,13 @@ Edit::Edit()
   /* KM $ */
   CurPos=0;
   CursorPos=0;
-  CursorVisible=0;
   CursorSize=-1;
-  ClearFlag=0;
-  Overtype=0;
   TableSet=NULL;
   LeftPos=0;
-  PasswordMode=0;
   MaxLength=-1;
   SelStart=-1;
   SelEnd=0;
-  EditBeyondEnd=TRUE;
+  Flags.Set(FEDITLINE_EDITBEYONDEND);
   Color=F_LIGHTGRAY|B_BLACK;
   SelColor=F_WHITE|B_BLACK;
   /* $ 28.07.2000 SVS
@@ -306,18 +303,8 @@ Edit::Edit()
   ColorUnChanged=COL_DIALOGEDITUNCHANGED;
   /* SVS $*/
   EndType=EOL_NONE;
-  MarkingBlock=FALSE;
-  EditorMode=FALSE;
   ColorList=NULL;
   ColorCount=0;
-  /* $ 03.07.2000 tran
-    + ReadOnly deafult value */
-  ReadOnly=0;
-  /* tran 03.07.2000 $ */
-  /* $ 26.07.2000 tran
-     + DropDownBox style */
-  DropDownBox=0;
-  /* tran 26.07.2000 $ */
   /* $ 21.02.2001 IS
        Размер табуляции по умолчанию равен Opt.EdOpt.TabSize;
   */
@@ -326,32 +313,20 @@ Edit::Edit()
   /* $ 21.02.2001 IS
        Инициализация внутренних переменных по умолчанию
   */
-  DelRemovesBlocks=Opt.EdOpt.DelRemovesBlocks;
-  PersistentBlocks=Opt.EdOpt.PersistentBlocks;
+  Flags.Change(FEDITLINE_DELREMOVESBLOCKS,Opt.EdOpt.DelRemovesBlocks);
+  Flags.Change(FEDITLINE_PERSISTENTBLOCKS,Opt.EdOpt.PersistentBlocks);
   /* IS $ */
 }
 
 
 Edit::~Edit()
 {
-  if (ColorList!=NULL)
+  if (ColorList)
     free (ColorList);
-  /* $ 12.08.2000 KM
-     Если мы выделяли память под Mask, то её надо освободить.
-  */
   if (Mask)
     delete[] Mask;
-  /* KM $ */
-  /* $ 13.07.2000 SVS
-     запросы делали через malloc!
-  */
-  /* $ 23.01.2001 SVS
-     На всякий случай проверим Str в деструкторе при освобождении памяти
-  */
   if(Str)
     free(Str);
-  /* SVS $ */
-  /* SVS $ */
 }
 
 
@@ -359,9 +334,9 @@ void Edit::DisplayObject()
 {
   /* $ 26.07.2000 tran
     + dropdown style */
-  if ( DropDownBox )
+  if (Flags.Check(FEDITLINE_DROPDOWNBOX))
   {
-    ClearFlag=0; // при дроп-даун нам не нужно никакого unchanged text
+    Flags.Skip(FEDITLINE_CLEARFLAG);  // при дроп-даун нам не нужно никакого unchanged text
     SelStart=0;
     SelEnd=StrSize; // а также считаем что все выделено -
                     //    надо же отличаться от обычных Edit
@@ -373,11 +348,7 @@ void Edit::DisplayObject()
   /* $ 12.08.2000 KM
      Вычисление нового положения курсора в строке с учётом Mask.
   */
-  int Value;
-  if (PrevCurPos>CurPos)
-    Value=-1;
-  else
-    Value=1;
+  int Value=(PrevCurPos>CurPos)?-1:1;
   CurPos=GetNextCursorPos(CurPos,Value);
   /* KM $ */
   FastShow();
@@ -401,11 +372,11 @@ void Edit::DisplayObject()
   /* $ 26.07.2000 tran
      при DropDownBox курсор выключаем
      не знаю даже - попробовал но не очень красиво вышло */
-  if (DropDownBox)
+  if (Flags.Check(FEDITLINE_DROPDOWNBOX))
     ::SetCursorType(0,10);
   else
   {
-    if (Overtype)
+    if (Flags.Check(FEDITLINE_OVERTYPE))
     {
       int NewCursorSize=IsWindowed()?
        (Opt.CursorSize[2]?Opt.CursorSize[2]:99):
@@ -421,14 +392,14 @@ void Edit::DisplayObject()
 
 void Edit::SetCursorType(int Visible,int Size)
 {
-  CursorVisible=Visible;
+  Flags.Change(FEDITLINE_CURSORVISIBLE,Visible);
   CursorSize=Size;
   ::SetCursorType(Visible,Size);
 }
 
 void Edit::GetCursorType(int &Visible,int &Size)
 {
-  Visible=CursorVisible;
+  Visible=Flags.Check(FEDITLINE_CURSORVISIBLE);
   Size=CursorSize;
 }
 
@@ -484,7 +455,7 @@ int Edit::GetNextCursorPos(int Position,int Where)
 void Edit::FastShow()
 {
   int EditLength;
-  if (!EditBeyondEnd && CurPos>StrSize && StrSize>=0)
+  if (!Flags.Check(FEDITLINE_EDITBEYONDEND) && CurPos>StrSize && StrSize>=0)
     CurPos=StrSize;
   EditLength=ObjWidth;
   if (MaxLength!=-1)
@@ -502,7 +473,7 @@ void Edit::FastShow()
     ! Для комбобокса сделаем отображение строки
       с первой позиции.
   */
-  if (!DropDownBox)
+  if (!Flags.Check(FEDITLINE_DROPDOWNBOX))
   {
     if (TabCurPos-LeftPos>EditLength-1)
       LeftPos=TabCurPos-EditLength+1;
@@ -525,7 +496,7 @@ void Edit::FastShow()
 #ifdef SHITHAPPENS
   ReplaceSpaces(0);
 #endif
-  if (!ConvertTabs && memchr(Str,'\t',StrSize)!=NULL)
+  if (!Flags.Check(FEDITLINE_CONVERTTABS) && memchr(Str,'\t',StrSize)!=NULL)
   {
     char *SaveStr;
     int SaveStrSize=StrSize,SaveCurPos=CurPos;
@@ -555,7 +526,7 @@ void Edit::FastShow()
   }
   /* $ 26.07.2000 tran
      при дроп-даун цвета нам не нужны */
-  if ( !DropDownBox )
+  if ( !Flags.Check(FEDITLINE_DROPDOWNBOX) )
       ApplyColor();
   /* tran 26.07.2000 $ */
 
@@ -568,16 +539,16 @@ void Edit::FastShow()
 void Edit::ShowString(char *ShowStr,int TabSelStart,int TabSelEnd)
 {
   int EditLength=ObjWidth;
-  if (PasswordMode)
+  if (Flags.Check(FEDITLINE_PASSWORDMODE))
   {
     char *PswStr=new char[StrSize+1];
     if (PswStr==NULL)
       return;
     memset(PswStr,'*',StrSize);
     PswStr[StrSize]=0;
-    PasswordMode=0;
+    Flags.Skip(FEDITLINE_PASSWORDMODE);
     ShowString(PswStr,TabSelStart,TabSelEnd);
-    PasswordMode=1;
+    Flags.Set(FEDITLINE_PASSWORDMODE);
     /* $ 13.07.2000 SVS
        раз уж вызывали через new[]...
     */
@@ -612,7 +583,7 @@ void Edit::ShowString(char *ShowStr,int TabSelStart,int TabSelEnd)
 
   if (TabSelStart==-1)
   {
-    if (ClearFlag && LeftPos<StrSize)
+    if (Flags.Check(FEDITLINE_CLEARFLAG) && LeftPos<StrSize)
     {
       SetColor(ColorUnChanged);
       int Len=strlen(&ShowStr[LeftPos]);
@@ -650,7 +621,7 @@ void Edit::ShowString(char *ShowStr,int TabSelStart,int TabSelEnd)
     if (TabSelStart>=EditLength || !AllString && TabSelStart>=StrSize ||
         TabSelEnd<TabSelStart)
     {
-      if(DropDownBox)
+      if(Flags.Check(FEDITLINE_DROPDOWNBOX))
       {
         SetColor(SelColor);
         mprintf("%*s",X2-X1+1,OutStr);
@@ -666,12 +637,12 @@ void Edit::ShowString(char *ShowStr,int TabSelStart,int TabSelEnd)
       /* $ 15.08.2000 SVS
          + У DropDowList`а выделение по полной программе - на всю видимую длину
       */
-      if(!DropDownBox)
+      if(!Flags.Check(FEDITLINE_DROPDOWNBOX))
       {
         mprintf("%.*s",TabSelEnd-TabSelStart,OutStr+TabSelStart);
         if (TabSelEnd<EditLength)
         {
-          //SetColor(ClearFlag ? SelColor:Color);
+          //SetColor(Flags.Check(FEDITLINE_CLEARFLAG) ? SelColor:Color);
           SetColor(Color);
           Text(OutStr+TabSelEnd);
         }
@@ -814,7 +785,7 @@ int Edit::ProcessInsPath(int Key,int PrevSelStart,int PrevSelEnd)
   // Если что-нить получилось, именно его и вставим (PathName)
   if(RetCode)
   {
-    if (ClearFlag)
+    if (Flags.Check(FEDITLINE_CLEARFLAG))
     {
       LeftPos=0;
       SetString("");
@@ -826,7 +797,7 @@ int Edit::ProcessInsPath(int Key,int PrevSelStart,int PrevSelEnd)
       SelEnd=PrevSelEnd;
     }
 
-    if (!PersistentBlocks)
+    if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
       DeleteBlock();
 
     if(TableSet)
@@ -835,7 +806,7 @@ int Edit::ProcessInsPath(int Key,int PrevSelStart,int PrevSelEnd)
     char *Ptr=PathName;
     for (;*Ptr;Ptr++)
       InsertKey(*Ptr);
-    ClearFlag=0;
+    Flags.Skip(FEDITLINE_CLEARFLAG);
   }
 
   return RetCode;
@@ -883,9 +854,9 @@ int Edit::ProcessKey(int Key)
      при дроп-даун, нам Ctrl-l не нужен */
   /* $ 03.07.2000 tran
      + обработка Ctrl-L как переключателя состояния ReadOnly  */
-  if ( !DropDownBox && Key==KEY_CTRLL )
+  if ( !Flags.Check(FEDITLINE_DROPDOWNBOX) && Key==KEY_CTRLL )
   {
-    ReadOnly=ReadOnly?0:1;
+    Flags.Swap(FEDITLINE_READONLY);
   }
   /* tran 03.07.2000 $ */
   /* tran 25.07.2000 $ */
@@ -898,8 +869,8 @@ int Edit::ProcessKey(int Key)
          - символ перед курсором удален
          - выделение блока снято
   */
-  if (((Key==KEY_BS || Key==KEY_DEL) && DelRemovesBlocks || Key==KEY_CTRLD) &&
-      !EditorMode && SelStart!=-1 && SelStart<SelEnd)
+  if (((Key==KEY_BS || Key==KEY_DEL) && Flags.Check(FEDITLINE_DELREMOVESBLOCKS) || Key==KEY_CTRLD) &&
+      !Flags.Check(FEDITLINE_EDITORMODE) && SelStart!=-1 && SelStart<SelEnd)
   {
     DeleteBlock();
     Show();
@@ -915,8 +886,8 @@ int Edit::ProcessKey(int Key)
       Key!=KEY_SHIFT && Key!=KEY_CTRL && Key!=KEY_ALT && Key!=KEY_RCTRL &&
       Key!=KEY_RALT && Key!=KEY_NONE)
   {
-    MarkingBlock=FALSE;
-    if (!PersistentBlocks && Key!=KEY_CTRLINS && Key!=KEY_SHIFTDEL && !EditorMode && Key != KEY_CTRLQ && Key != KEY_SHIFTINS)
+    Flags.Skip(FEDITLINE_MARKINGBLOCK);
+    if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS) && Key!=KEY_CTRLINS && Key!=KEY_SHIFTDEL && !Flags.Check(FEDITLINE_EDITORMODE) && Key != KEY_CTRLQ && Key != KEY_SHIFTINS)
     {
       PrevSelStart=SelStart;
       PrevSelEnd=SelEnd;
@@ -933,21 +904,21 @@ int Edit::ProcessKey(int Key)
      удаляет такую строку также, как и Del
   */
   if (((Opt.Dialogs.EULBsClear && Key==KEY_BS) || Key==KEY_DEL) &&
-     ClearFlag && CurPos>=StrSize)
+     Flags.Check(FEDITLINE_CLEARFLAG) && CurPos>=StrSize)
     Key=KEY_CTRLY;
   /* SVS $ */
   /* $ 15.09.2000 SVS
      Bug - Выделяем кусочек строки -> Shift-Del удяляет всю строку
            Так должно быть только для UnChanged состояния
   */
-  if(Key == KEY_SHIFTDEL && ClearFlag && CurPos>=StrSize && SelStart==-1)
+  if(Key == KEY_SHIFTDEL && Flags.Check(FEDITLINE_CLEARFLAG) && CurPos>=StrSize && SelStart==-1)
   {
     SelStart=0;
     SelEnd=StrSize;
   }
   /* SVS $ */
 
-  if (ClearFlag && (Key<256 && Key!=KEY_BS || Key==KEY_CTRLBRACKET ||
+  if (Flags.Check(FEDITLINE_CLEARFLAG) && (Key<256 && Key!=KEY_BS || Key==KEY_CTRLBRACKET ||
       Key==KEY_CTRLBACKBRACKET || Key==KEY_CTRLSHIFTBRACKET ||
       Key==KEY_CTRLSHIFTBACKBRACKET || Key==KEY_SHIFTENTER))
   {
@@ -969,7 +940,7 @@ int Edit::ProcessKey(int Key)
       (Key<KEY_ALT_BASE || Key>=KEY_ALT_BASE+256) &&
       (Key<KEY_MACRO_BASE || Key>KEY_MACROSPEC_BASE) && Key!=KEY_CTRLQ)
   {
-    ClearFlag=0;
+    Flags.Skip(FEDITLINE_CLEARFLAG);
     Show();
   }
 
@@ -980,10 +951,10 @@ int Edit::ProcessKey(int Key)
       if (CurPos>0)
       {
         RecurseProcessKey(KEY_LEFT);
-        if (!MarkingBlock)
+        if (!Flags.Check(FEDITLINE_MARKINGBLOCK))
         {
           Select(-1,0);
-          MarkingBlock=TRUE;
+          Flags.Set(FEDITLINE_MARKINGBLOCK);
         }
         if (SelStart!=-1 && SelStart<=CurPos)
           Select(SelStart,CurPos);
@@ -1001,10 +972,10 @@ int Edit::ProcessKey(int Key)
       }
       return(TRUE);
     case KEY_SHIFTRIGHT:
-      if (!MarkingBlock)
+      if (!Flags.Check(FEDITLINE_MARKINGBLOCK))
       {
         Select(-1,0);
-        MarkingBlock=TRUE;
+        Flags.Set(FEDITLINE_MARKINGBLOCK);
       }
       if (SelStart!=-1 && SelEnd==-1 || SelEnd>CurPos)
       {
@@ -1031,15 +1002,15 @@ int Edit::ProcessKey(int Key)
         ! WordDiv -> Opt.WordDiv
       */
       while (CurPos>0 && !(strchr(Opt.WordDiv,Str[CurPos])==NULL &&
-             strchr(Opt.WordDiv,Str[CurPos-1])!=NULL && !isspace(Str[CurPos])))
+             strchr(Opt.WordDiv,Str[CurPos-1])!=NULL && !IsSpace(Str[CurPos])))
       /* SVS $ */
       {
         /* $ 18.08.2000 KM
            Добавим выход из цикла проверив CurPos-1 на присутствие
            в Opt.WordDiv.
         */
-//        if (!isspace(Str[CurPos]) && isspace(Str[CurPos-1]))
-        if (!isspace(Str[CurPos]) && (isspace(Str[CurPos-1]) ||
+//        if (!IsSpace(Str[CurPos]) && IsSpace(Str[CurPos-1]))
+        if (!IsSpace(Str[CurPos]) && (IsSpace(Str[CurPos-1]) ||
              strchr(Opt.WordDiv,Str[CurPos-1])))
           break;
         /* KM $ */
@@ -1062,8 +1033,8 @@ int Edit::ProcessKey(int Key)
            Добавим выход из цикла проверив CurPos-1 на присутствие
            в Opt.WordDiv.
         */
-//        if (!isspace(Str[CurPos]) && isspace(Str[CurPos-1]))
-        if (!isspace(Str[CurPos]) && (isspace(Str[CurPos-1]) ||
+//        if (!IsSpace(Str[CurPos]) && IsSpace(Str[CurPos-1]))
+        if (!IsSpace(Str[CurPos]) && (IsSpace(Str[CurPos-1]) ||
              strchr(Opt.WordDiv,Str[CurPos-1])))
           break;
         /* KM $ */
@@ -1131,12 +1102,12 @@ int Edit::ProcessKey(int Key)
       }
       /* KM $ */
       DisableEditOut(TRUE);
-//      while (CurPos>0 && isspace(Str[CurPos-1]))
+//      while (CurPos>0 && IsSpace(Str[CurPos-1]))
 //        RecurseProcessKey(KEY_BS);
       while (1)
       {
         int StopDelete=FALSE;
-        if (CurPos>1 && isspace(Str[CurPos-1])!=isspace(Str[CurPos-2]))
+        if (CurPos>1 && IsSpace(Str[CurPos-1])!=IsSpace(Str[CurPos-2]))
           StopDelete=TRUE;
         RecurseProcessKey(KEY_BS);
         if (CurPos==0 || StopDelete)
@@ -1153,7 +1124,7 @@ int Edit::ProcessKey(int Key)
       return(TRUE);
     case KEY_CTRLQ:
       EditOutDisabled++;
-      if (!PersistentBlocks && (SelStart != -1 || ClearFlag))
+      if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS) && (SelStart != -1 || Flags.Check(FEDITLINE_CLEARFLAG)))
         RecurseProcessKey(KEY_DEL);
       ProcessCtrlQ();
       EditOutDisabled--;
@@ -1183,7 +1154,7 @@ int Edit::ProcessKey(int Key)
     }
 #endif
     case KEY_MACRODATE:
-      if (!PersistentBlocks)
+      if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
         RecurseProcessKey(KEY_DEL);
       ProcessInsDate();
       Show();
@@ -1193,7 +1164,7 @@ int Edit::ProcessKey(int Key)
       if (CurPos>=StrSize)
         return(FALSE);
       DisableEditOut(TRUE);
-//      while (CurPos<StrSize && isspace(Str[CurPos]))
+//      while (CurPos<StrSize && IsSpace(Str[CurPos]))
 //        RecurseProcessKey(KEY_DEL);
       /* $ 19.08.2000 KM
          Поставим пока заглушку на удаление, если
@@ -1211,7 +1182,7 @@ int Edit::ProcessKey(int Key)
         {
           ptr++;
           if (!CheckCharMask(Mask[ptr]) ||
-             (isspace(Str[ptr]) && !isspace(Str[ptr+1])) ||
+             (IsSpace(Str[ptr]) && !IsSpace(Str[ptr+1])) ||
              (strchr(Opt.WordDiv,Str[ptr])!=NULL))
             break;
         }
@@ -1224,7 +1195,7 @@ int Edit::ProcessKey(int Key)
         while (1)
         {
           int StopDelete=FALSE;
-          if (CurPos<StrSize-1 && isspace(Str[CurPos]) && !isspace(Str[CurPos+1]))
+          if (CurPos<StrSize-1 && IsSpace(Str[CurPos]) && !IsSpace(Str[CurPos+1]))
             StopDelete=TRUE;
           RecurseProcessKey(KEY_DEL);
           if (CurPos>=StrSize || StopDelete)
@@ -1245,7 +1216,7 @@ int Edit::ProcessKey(int Key)
          + DropDown style */
       /* $ 03.07.2000 tran
          + обработка ReadOnly */
-      if ( DropDownBox || ReadOnly )
+      if (Flags.Check(FEDITLINE_READONLY|FEDITLINE_DROPDOWNBOX))
         return (TRUE);
       /* tran 03.07.2000 $ */
       /* tran 25.07.2000 $ */
@@ -1264,13 +1235,13 @@ int Edit::ProcessKey(int Key)
          + DropDown style */
       /* $ 03.07.2000 tran
          + обработка ReadOnly */
-      if ( DropDownBox || ReadOnly )
+      if (Flags.Check(FEDITLINE_READONLY|FEDITLINE_DROPDOWNBOX))
         return (TRUE);
       /* tran 03.07.2000 $ */
       /* tran 25.07.2000 $ */
       if (CurPos>=StrSize)
         return(FALSE);
-      if (!EditBeyondEnd)
+      if (!Flags.Check(FEDITLINE_EDITBEYONDEND))
       {
         if (CurPos<SelEnd)
           SelEnd=CurPos;
@@ -1321,7 +1292,7 @@ int Edit::ProcessKey(int Key)
       Show();
       return(TRUE);
     case KEY_INS:
-      Overtype^=1;
+      Flags.Swap(FEDITLINE_OVERTYPE);
       Show();
       return(TRUE);
     case KEY_DEL:
@@ -1329,7 +1300,7 @@ int Edit::ProcessKey(int Key)
          + DropDown style */
       /* $ 03.07.2000 tran
          + обработка ReadOnly */
-      if ( DropDownBox || ReadOnly )
+      if (Flags.Check(FEDITLINE_READONLY|FEDITLINE_DROPDOWNBOX))
         return (TRUE);
       /* tran 03.07.2000 $ */
       /* tran 25.07.2000 $ */
@@ -1387,10 +1358,10 @@ int Edit::ProcessKey(int Key)
         ! WordDiv -> Opt.WordDiv
       */
       while (CurPos>0 && !(strchr(Opt.WordDiv,Str[CurPos])==NULL &&
-             strchr(Opt.WordDiv,Str[CurPos-1])!=NULL && !isspace(Str[CurPos])))
+             strchr(Opt.WordDiv,Str[CurPos-1])!=NULL && !IsSpace(Str[CurPos])))
       /* SVS $*/
       {
-        if (!isspace(Str[CurPos]) && isspace(Str[CurPos-1]))
+        if (!IsSpace(Str[CurPos]) && IsSpace(Str[CurPos-1]))
           break;
         CurPos--;
       }
@@ -1410,7 +1381,7 @@ int Edit::ProcessKey(int Key)
              strchr(Opt.WordDiv,Str[CurPos-1])==NULL))
       /* SVS $ */
       {
-        if (!isspace(Str[CurPos]) && isspace(Str[CurPos-1]))
+        if (!IsSpace(Str[CurPos]) && IsSpace(Str[CurPos-1]))
           break;
         CurPos++;
       }
@@ -1424,7 +1395,7 @@ int Edit::ProcessKey(int Key)
       Show();
       return(TRUE);
     case KEY_CTRLINS:
-      if (!PasswordMode)
+      if (!Flags.Check(FEDITLINE_PASSWORDMODE))
         if (SelStart==-1 || SelStart>=SelEnd)
           CopyToClipboard(Str);
         else
@@ -1449,27 +1420,27 @@ int Edit::ProcessKey(int Key)
         /* tran $ */
         if (ClipText==NULL)
           return(TRUE);
-        if (!PersistentBlocks){
+        if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS)){
           DeleteBlock();
         }
 
-        for (I=strlen(Str)-1;I>=0 && iseol(Str[I]);I--)
+        for (I=strlen(Str)-1;I>=0 && IsEol(Str[I]);I--)
           Str[I]=0;
         for (I=0;ClipText[I];I++)
-          if (iseol(ClipText[I]))
+          if (IsEol(ClipText[I]))
           {
-            if (iseol(ClipText[I+1]))
+            if (IsEol(ClipText[I+1]))
               memmove(&ClipText[I],&ClipText[I+1],strlen(&ClipText[I+1])+1);
             if (ClipText[I+1]==0)
               ClipText[I]=0;
             else
               ClipText[I]=' ';
           }
-        if (ClearFlag)
+        if (Flags.Check(FEDITLINE_CLEARFLAG))
         {
           LeftPos=0;
           SetString(ClipText);
-          ClearFlag=FALSE;
+          Flags.Skip(FEDITLINE_CLEARFLAG);
         }
         else
           InsertString(ClipText);
@@ -1504,7 +1475,7 @@ int Edit::ProcessKey(int Key)
 
       if (Key==KEY_NONE || Key==KEY_IDLE || Key==KEY_ENTER || Key>=256)
         break;
-      if (!PersistentBlocks)
+      if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
       {
         if (PrevSelStart!=-1)
         {
@@ -1515,7 +1486,7 @@ int Edit::ProcessKey(int Key)
       }
       if (InsertKey(Key))
       {
-        if (Key==KEY_TAB && ConvertTabs)
+        if (Key==KEY_TAB && Flags.Check(FEDITLINE_CONVERTTABS))
           ReplaceTabs();
         Show();
       }
@@ -1538,12 +1509,12 @@ int Edit::ProcessCtrlQ(void)
   }
 /*
   EditOutDisabled++;
-  if (!PersistentBlocks)
+  if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
   {
     DeleteBlock();
   }
   else
-    ClearFlag=0;
+    Flags.Skip(FEDITLINE_CLEARFLAG);
   EditOutDisabled--;
 */
   return InsertKey(rec.Event.KeyEvent.uChar.AsciiChar);
@@ -1575,13 +1546,13 @@ int Edit::InsertKey(int Key)
      + drop-down */
   /* $ 03.07.2000 tran
      + обработка ReadOnly */
-  if ( DropDownBox || ReadOnly )
+  if (Flags.Check(FEDITLINE_READONLY|FEDITLINE_DROPDOWNBOX))
     return (TRUE);
   /* tran 03.07.2000 $ */
   /* $ 15.08.2000 KM
      Работа с маской ввода.
   */
-  if (Key==KEY_TAB && Overtype)
+  if (Key==KEY_TAB && Flags.Check(FEDITLINE_OVERTYPE))
   {
     PrevCurPos=CurPos;
     /* $ 14.12.2000 OT KEY_TAB Bug Fix*/
@@ -1603,7 +1574,7 @@ int Edit::InsertKey(int Key)
       /* KM $*/
       if (KeyMatchedMask(Key))
       {
-        if (!Overtype)
+        if (!Flags.Check(FEDITLINE_OVERTYPE))
         {
           int i=MaskLen-1;
           while(!CheckCharMask(Mask[i]) && i>CurPos)
@@ -1652,13 +1623,13 @@ int Edit::InsertKey(int Key)
         StrSize=CurPos+1;
       }
       else
-        if (!Overtype)
+        if (!Flags.Check(FEDITLINE_OVERTYPE))
           StrSize++;
       if ((NewStr=(char *)realloc(Str,StrSize+1))==NULL)
         return(TRUE);
       Str=NewStr;
 
-      if (!Overtype)
+      if (!Flags.Check(FEDITLINE_OVERTYPE))
       {
         memmove(Str+CurPos+1,Str+CurPos,StrSize-CurPos);
         if (SelStart!=-1)
@@ -1672,7 +1643,7 @@ int Edit::InsertKey(int Key)
       PrevCurPos=CurPos;
       Str[CurPos++]=Key;
     }
-    else if (Overtype)
+    else if (Flags.Check(FEDITLINE_OVERTYPE))
     {
       if(CurPos < StrSize)
       {
@@ -1721,7 +1692,7 @@ void Edit::SetString(const char *Str)
 {
   /* $ 03.07.2000 tran
      + обработка ReadOnly */
-  if ( ReadOnly )
+  if ( Flags.Check(FEDITLINE_READONLY) )
     return;
   /* tran 03.07.2000 $ */
   Select(-1,0);
@@ -1753,10 +1724,10 @@ void Edit::SetBinaryString(const char *Str,int Length)
 {
   /* $ 03.07.2000 tran
      + обработка ReadOnly */
-  if ( ReadOnly )
+  if ( Flags.Check(FEDITLINE_READONLY) )
     return;
   /* tran 03.07.2000 $ */
-  if (Length>0 && IsDialogParent != EDPARENT_SINGLELINE)
+  if (Length>0 && !Flags.Check(FEDITLINE_PARENT_SINGLELINE))
   {
     if (Str[Length-1]=='\r')
     {
@@ -1816,7 +1787,7 @@ void Edit::SetBinaryString(const char *Str,int Length)
     StrSize=Length;
     memcpy(Edit::Str,Str,Length);
     Edit::Str[Length]=0;
-    if (ConvertTabs)
+    if (Flags.Check(FEDITLINE_CONVERTTABS))
       ReplaceTabs();
     PrevCurPos=CurPos;
     CurPos=StrSize;
@@ -1873,7 +1844,7 @@ void Edit::InsertString(const char *Str)
      + drop-down */
   /* $ 03.07.2000 tran
      + обработка ReadOnly */
-  if ( DropDownBox || ReadOnly )
+  if (Flags.Check(FEDITLINE_READONLY|FEDITLINE_DROPDOWNBOX))
     return;
   /* tran 03.07.2000 $ */
   /* tran 25.07.2000 $ */
@@ -1891,11 +1862,11 @@ void Edit::InsertBinaryString(const char *Str,int Length)
      + drop-down */
   /* $ 03.07.2000 tran
      + обработка ReadOnly */
-  if ( DropDownBox || ReadOnly )
+  if (Flags.Check(FEDITLINE_READONLY|FEDITLINE_DROPDOWNBOX))
     return;
   /* tran 03.07.2000 $ */
 
-  ClearFlag=0;
+  Flags.Skip(FEDITLINE_CLEARFLAG);
 
   /* $ 18.08.2000 KM
      Обслуживание маски ввода.
@@ -1984,7 +1955,7 @@ void Edit::InsertBinaryString(const char *Str,int Length)
       delete[] TmpStr;
       /* SVS $*/
 
-      if (ConvertTabs)
+      if (Flags.Check(FEDITLINE_CONVERTTABS))
         ReplaceTabs();
     }
     else
@@ -2069,7 +2040,7 @@ int Edit::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     Для непостоянных блоков снимаем выделение
     А ТАК ЛИ Я СДЕЛАЛ?????
   */
-  if (!PersistentBlocks)
+  if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
     Select(-1,0);
   /* SVS $ */
   Show();
@@ -2116,14 +2087,14 @@ int Edit::Search(char *Str,int Position,int Case,int WholeWords,int Reverse)
              Исправление глюка при поиске по целым словам.
           */
           if (I>0)
-            locResultLeft=(isspace(ChLeft) || strchr(Opt.WordDiv,ChLeft)!=NULL);
+            locResultLeft=(IsSpace(ChLeft) || strchr(Opt.WordDiv,ChLeft)!=NULL);
           else
             locResultLeft=TRUE;
           /* KM $ */
           if (I+Length<StrSize)
           {
             ChRight=(TableSet==NULL) ? Edit::Str[I+Length]:TableSet->DecodeTable[Edit::Str[I+Length]];
-            locResultRight=(isspace(ChRight) || strchr(Opt.WordDiv,ChRight)!=NULL);
+            locResultRight=(IsSpace(ChRight) || strchr(Opt.WordDiv,ChRight)!=NULL);
           }
           else
             locResultRight=TRUE;
@@ -2155,7 +2126,7 @@ void Edit::ReplaceTabs()
   int Pos,S;
   /* $ 03.07.2000 tran
      + обработка ReadOnly */
-  if ( ReadOnly )
+  if ( Flags.Check(FEDITLINE_READONLY) )
     return;
   /* tran 03.07.2000 $ */
 
@@ -2195,7 +2166,7 @@ void Edit::ReplaceSpaces(int i)
   }
   /* $ 03.07.2000 tran
      + обработка ReadOnly */
-  if ( ReadOnly )
+  if ( Flags.Check(FEDITLINE_READONLY) )
     return;
   /* tran 03.07.2000 $ */
 
@@ -2223,7 +2194,7 @@ int Edit::RealPosToTab(int Pos)
 {
   int TabPos,I;
 
-  if (ConvertTabs || memchr(Str,'\t',StrSize)==NULL)
+  if (Flags.Check(FEDITLINE_CONVERTTABS) || memchr(Str,'\t',StrSize)==NULL)
     return(Pos);
 
   for (TabPos=0,I=0;I<Pos;I++)
@@ -2249,7 +2220,7 @@ int Edit::TabPosToReal(int Pos)
 {
   int TabPos,I;
 
-  if (ConvertTabs || memchr(Str,'\t',StrSize)==NULL)
+  if (Flags.Check(FEDITLINE_CONVERTTABS) || memchr(Str,'\t',StrSize)==NULL)
     return(Pos);
 
   for (TabPos=0,I=0;TabPos<Pos;I++)
@@ -2353,7 +2324,7 @@ void Edit::DeleteBlock()
      + drop-down */
   /* $ 03.07.2000 tran
      + обработка ReadOnly */
-  if ( DropDownBox || ReadOnly )
+  if (Flags.Check(FEDITLINE_READONLY|FEDITLINE_DROPDOWNBOX))
     return;
   /* tran 03.07.2000 $ */
   /* tran 25.07.2000 $ */
@@ -2391,9 +2362,10 @@ void Edit::DeleteBlock()
 
   /* KM $ */
   SelStart=-1;
-  MarkingBlock=FALSE;
+  Flags.Skip(FEDITLINE_MARKINGBLOCK);
   // OT: Проверка на корректность поведени строки при удалении и вставки
-  if (IsDialogParent){
+  if (Flags.Check((FEDITLINE_PARENT_SINGLELINE|FEDITLINE_PARENT_MULTILINE)))
+  {
     if (LeftPos>CurPos)
       LeftPos=CurPos;
   }
@@ -2569,4 +2541,21 @@ int Edit::KeyMatchedMask(int Key)
 int Edit::CheckCharMask(char Chr)
 {
   return (Chr==EDMASK_ANY || Chr==EDMASK_DIGIT || Chr==EDMASK_DSS || Chr==EDMASK_ALPHA)?TRUE:FALSE;
+}
+
+void Edit::SetDialogParent(DWORD Sets)
+{
+  if((Sets&(FEDITLINE_PARENT_SINGLELINE|FEDITLINE_PARENT_MULTILINE)) == (FEDITLINE_PARENT_SINGLELINE|FEDITLINE_PARENT_MULTILINE) ||
+     (Sets&(FEDITLINE_PARENT_SINGLELINE|FEDITLINE_PARENT_MULTILINE)) == 0)
+    Flags.Skip(FEDITLINE_PARENT_SINGLELINE|FEDITLINE_PARENT_MULTILINE);
+  else if(Sets&FEDITLINE_PARENT_SINGLELINE)
+  {
+    Flags.Skip(FEDITLINE_PARENT_MULTILINE);
+    Flags.Set(FEDITLINE_PARENT_SINGLELINE);
+  }
+  else if(Sets&FEDITLINE_PARENT_MULTILINE)
+  {
+    Flags.Skip(FEDITLINE_PARENT_SINGLELINE);
+    Flags.Set(FEDITLINE_PARENT_MULTILINE);
+  }
 }

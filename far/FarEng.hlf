@@ -2606,6 +2606,9 @@ performed as a copy with subsequent deletion or as a direct move
     FAR handles copying to #con# in the same way as copying to #nul# -
 that is, the file is read from the disk but not written anywhere.
 
+    When files are moved to #nul# or #con#, they are not deleted
+from the disk.
+
     The options "Copy access rights" and "Only newer files" affect only
 the current copy session and are not saved for later copy operations.
 

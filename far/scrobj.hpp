@@ -7,17 +7,19 @@ Parent class для всех screen objects
 
 */
 
-/* Revision: 1.07 19.11.2001 $ */
+/* Revision: 1.08 18.05.2002 $ */
 
 /*
 Modify:
+  18.05.2002 SVS
+    ! Выносим некоторые переменные во флаги
   19.11.2001 OT
-    Исправление поведения режима фуллскриновых панелей. 115 и 116 баги
+    - Исправление поведения режима фуллскриновых панелей. 115 и 116 баги
   11.07.2001 OT
-    Перенос ShadowSaveScr из приватной области в protected
-   23.06.2001
+    ! Перенос ShadowSaveScr из приватной области в protected
+  23.06.2001
     ! Убран член под названиес Type, который нигде не используется...
-   14.06.2001
+  14.06.2001
     + Новый метод SetScreenPosition() - без аргументов. Будет использоваться объектами,
       которым требуется выставить свои размеры, не прямям, а косвенным образом,
       зависяшим от состояния других объектов.
@@ -32,42 +34,52 @@ Modify:
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
 */
+#include "bitflags.hpp"
 
 class SaveScreen;
 
+// можно юзать только бладший байт (т.е. мыска 0xFF) остальное - порожденным классам
+enum {
+  FSCROBJ_VISIBLE              = 0x00000001,
+  FSCROBJ_ENABLERESTORESCREEN  = 0x00000002,
+  FSCROBJ_SETPOSITIONDONE      = 0x00000004,
+};
+
 class ScreenObject
 {
-  private:
-    virtual void DisplayObject() {};
-    int EnableRestoreScreen;
   protected:
-    int Visible;
+    BitFlags Flags;
     SaveScreen *ShadowSaveScr;
     int X1,Y1,X2,Y2;
     int ObjWidth,ObjHeight;
-    int SetPositionDone;
+
   public:
     SaveScreen *SaveScr;
+
+  private:
+    virtual void DisplayObject() {};
+
+  public:
     ScreenObject();
     virtual ~ScreenObject();
+
+  public:
     virtual int ProcessKey(int Key) { return(0); };
     virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent) { return(0); };
     virtual void Hide();
-    /* $ 15.07.2000 tran
-       dirty hack :( */
-    virtual void Hide0();
-    /* tran 15.07.2000 $ */
+    virtual void Hide0();   // 15.07.2000 tran - dirty hack :(
     virtual void Show();
     virtual void ShowConsoleTitle() {};
-    void SavePrevScreen();
-    void Redraw();
     virtual void SetPosition(int X1,int Y1,int X2,int Y2);
     virtual void SetScreenPosition();
     virtual void ResizeConsole(){};
+
+    void SavePrevScreen();
+    void Redraw();
     void GetPosition(int& X1,int& Y1,int& X2,int& Y2);
-    int IsVisible() { return(Visible); };
-    void SetVisible(int Visible) {ScreenObject::Visible=Visible;};
-    void SetRestoreScreenMode(int Mode) {EnableRestoreScreen=Mode;};
+    int  IsVisible() { return Flags.Check(FSCROBJ_VISIBLE); };
+    void SetVisible(int Visible) {Flags.Change(FSCROBJ_VISIBLE,Visible);};
+    void SetRestoreScreenMode(int Mode) {Flags.Change(FSCROBJ_ENABLERESTORESCREEN,Mode);};
     void Shadow();
 };
 

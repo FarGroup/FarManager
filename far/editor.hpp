@@ -9,10 +9,12 @@ editor.hpp
 
 */
 
-/* Revision: 1.35 07.03.2002 $ */
+/* Revision: 1.36 18.05.2002 $ */
 
 /*
 Modify:
+  18.05.2002 SVS
+    ! ФЛАГИ - сведем в кучу двухпозиционные переменные
   07.03.2002 IS
     + UnmarkEmptyBlock(): удалить выделение, если оно пустое (выделено ноль
       символов в ширину)
@@ -147,35 +149,36 @@ enum {
 };
 /* DJ $ */
 
+// Младший байт (маска 0xFF) юзается классом ScreenObject!!!
 enum FLAGS_CLASS_EDITOR{
-  FEDITOR_DELETEONCLOSE         = 0x00000001,   // 10.10.2001 IS: Если TRUE, то удалить
+  FEDITOR_DELETEONCLOSE         = 0x00000100,   // 10.10.2001 IS: Если TRUE, то удалить
                                                 // в деструкторе файл вместе с каталогом
                                                 // (если тот пуст
-  FEDITOR_MODIFIED              = 0x00000002,
-  FEDITOR_JUSTMODIFIED          = 0x00000004,   // 10.08.2000 skv: need to send EE_REDRAW 2.
+  FEDITOR_MODIFIED              = 0x00000200,
+  FEDITOR_JUSTMODIFIED          = 0x00000400,   // 10.08.2000 skv: need to send EE_REDRAW 2.
                                                 // set to 1 by TextChanged, no matter what
                                                 // is value of State.
-  FEDITOR_MARKINGBLOCK          = 0x00000008,
-  FEDITOR_MARKINGVBLOCK         = 0x00000010,
-  FEDITOR_WASCHANGED            = 0x00000020,
-  FEDITOR_OVERTYPE              = 0x00000040,
-  FEDITOR_UNDOOVERFLOW          = 0x00000080,
-  FEDITOR_NEWUNDO               = 0x00000100,
-  FEDITOR_DISABLEUNDO           = 0x00000400,
-  FEDITOR_LOCKMODE              = 0x00000800,
-  FEDITOR_CURPOSCHANGEDBYPLUGIN = 0x00001000,   // TRUE, если позиция в редакторе была изменена
+  FEDITOR_MARKINGBLOCK          = 0x00000800,
+  FEDITOR_MARKINGVBLOCK         = 0x00001000,
+  FEDITOR_WASCHANGED            = 0x00002000,
+  FEDITOR_OVERTYPE              = 0x00004000,
+  FEDITOR_UNDOOVERFLOW          = 0x00008000,
+  FEDITOR_NEWUNDO               = 0x00010000,
+  FEDITOR_DISABLEUNDO           = 0x00040000,
+  FEDITOR_LOCKMODE              = 0x00080000,
+  FEDITOR_CURPOSCHANGEDBYPLUGIN = 0x00100000,   // TRUE, если позиция в редакторе была изменена
                                                 // плагином (ECTL_SETPOSITION)
-  FEDITOR_TABLECHANGEDBYUSER    = 0x00002000,
-  FEDITOR_OPENFAILED            = 0x00004000,
-  FEDITOR_ISRESIZEDCONSOLE      = 0x00008000,
+  FEDITOR_TABLECHANGEDBYUSER    = 0x00200000,
+  FEDITOR_OPENFAILED            = 0x00400000,
+  FEDITOR_ISRESIZEDCONSOLE      = 0x00800000,
 };
+
+struct EditList;
 
 class Editor:public ScreenObject
 {
   friend class FileEditor;
   private:
-    BitFlags EFlags;
-
     char Title[512];
     char PluginData[NM*2];
     char PluginTitle[512];
@@ -325,7 +328,7 @@ class Editor:public ScreenObject
     void SetHostFileEditor(FileEditor *Editor) {HostFileEditor=Editor;};
     static void SetReplaceMode(int Mode);
     FileEditor *GetHostFileEditor() {return HostFileEditor;};
-    void PrepareResizedConsole(){EFlags.Set(FEDITOR_ISRESIZEDCONSOLE);}
+    void PrepareResizedConsole(){Flags.Set(FEDITOR_ISRESIZEDCONSOLE);}
 
     /* $ 26.02.2001 IS
          Функции чтения/установления текущих настроек редактирования
@@ -359,7 +362,7 @@ class Editor:public ScreenObject
     int  GetCharCodeBase(void) const {return EdOpt.CharCodeBase; }
 
     /* $ 10.10.2001 IS установка DeleteOnClose */
-    void SetDeleteOnClose(BOOL NewMode) { EFlags.Change(FEDITOR_DELETEONCLOSE,NewMode); }
+    void SetDeleteOnClose(BOOL NewMode) { Flags.Change(FEDITOR_DELETEONCLOSE,NewMode); }
     /* IS */
 
     /* $ 29.10.2001 IS

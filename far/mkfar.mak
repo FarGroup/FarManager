@@ -32,7 +32,7 @@ BCCPATH=$(FARBCC)
 FARINCLUDE=Include
 
 # сюда будет помещен результат
-FINALPATH=final
+FINALPATH=Final
 
 # путь к каталогу с временными файлами - obj, etc
 !ifdef DEBUG
@@ -94,7 +94,11 @@ BRC32   = $(BCCPATH)\bin\Brc32
 #
 # Options
 #
+!ifdef ILINK
 LINKFLAGS =  -L$(LIBPATH) -Tpe -ap -c $(OPTLINKDEBUG) -s -V4.0 -j.\$(OBJPATH)
+!else
+LINKFLAGS =  -L$(LIBPATH) -Tpe -ap -c $(OPTLINKDEBUG) -s -V4.0 -j.\$(OBJPATH)
+!endif
 
 
 CCFLAGS =
@@ -255,6 +259,7 @@ $(OBJPATH)\Far.res :  Far.rc
 !ifdef ILINK
 $(FINALPATH)\Far.exe : BccW32.cfg Far.def $(OBJPATH)\Far.res $(FAROBJ)
   -@settitle "Linking..."
+  @if not exist $(FINALPATH) mkdir $(FINALPATH)
   @if not exist $(FARINCLUDE) mkdir $(FARINCLUDE)
   @$(TLINK32)  $(LINKFLAGS) @&&|
 $(LIBPATH)\c0x32.obj $(FAROBJ) $(FAR_STDHDR_OBJ)
@@ -267,6 +272,7 @@ $(OBJPATH)\Far.res
 $(FINALPATH)\Far.exe : BccW32.cfg Far.def $(OBJPATH)\Far.res $(FAROBJ)
   -@settitle "Linking..."
   @if not exist $(FINALPATH) mkdir $(FINALPATH)
+  @if not exist $(FINALPATH) mkdir $(FINALPATH)
   @$(TLINK32)  $(LINKFLAGS) @&&|
 $(LIBPATH)\c0x32.obj $(FAROBJ) $(FAR_STDHDR_OBJ)
 $<,$*
@@ -278,17 +284,10 @@ Far.def
 !endif
 
 # обязательно! Что бы в ручную не делать...
-   -@del $(FINALPATH)\FarEng.hlf  >nul
-   -@del $(FINALPATH)\FarRus.hlf  >nul
-   -@del $(FINALPATH)\FarEng.lng  >nul
-   -@del $(FINALPATH)\FarRus.lng  >nul
-!ifdef ILINK
-   -@del $(FINALPATH)\Far.ilc  >nul
-   -@del $(FINALPATH)\Far.ild  >nul
-   -@del $(FINALPATH)\Far.ilf  >nul
-   -@del $(FINALPATH)\Far.ils  >nul
-   -@del $(FINALPATH)\Far.tds  >nul
-!endif
+   -@if not exist $(FINALPATH)\FarEng.hlf del $(FINALPATH)\FarEng.hlf  >nul
+   -@if not exist $(FINALPATH)\FarRus.hlf del $(FINALPATH)\FarRus.hlf  >nul
+   -@if not exist $(FINALPATH)\FarEng.lng del $(FINALPATH)\FarEng.lng  >nul
+   -@if not exist $(FINALPATH)\FarRus.lng del $(FINALPATH)\FarRus.lng  >nul
    @awk -f mkhlf.awk -v FV1=$(FV1) -v FV2=$(FV2) -v FV3=$(FV3) FarEng.hlf > $(FINALPATH)\FarEng.hlf
    @awk -f mkhlf.awk -v FV1=$(FV1) -v FV2=$(FV2) -v FV3=$(FV3) FarRus.hlf > $(FINALPATH)\FarRus.hlf
    @copy FarEng.lng $(FINALPATH)\FarEng.lng >nul
@@ -346,3 +345,10 @@ CLEAN :
 	-@del /q /f $(FINALPATH)\FarEng.lng  > nul
 	-@del /q /f $(FINALPATH)\FarRus.hlf  > nul
 	-@del /q /f $(FINALPATH)\FarRus.lng  > nul
+!ifdef ILINK
+	-@if not exist $(FINALPATH)\Far.ilc del $(FINALPATH)\Far.ilc  >nul
+	-@if not exist $(FINALPATH)\Far.ild del $(FINALPATH)\Far.ild  >nul
+	-@if not exist $(FINALPATH)\Far.ilf del $(FINALPATH)\Far.ilf  >nul
+	-@if not exist $(FINALPATH)\Far.ils del $(FINALPATH)\Far.ils  >nul
+	-@if not exist $(FINALPATH)\Far.tds del $(FINALPATH)\Far.tds  >nul
+!endif

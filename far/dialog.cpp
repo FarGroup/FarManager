@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.244 16.05.2002 $ */
+/* Revision: 1.245 18.05.2002 $ */
 
 /*
 Modify:
+  18.05.2002 SVS
+    ! OwnsItems -> DMODE_OWNSITEMS
+    ! Edit::ReadOnly и Edit::DropDownBox - юзачем через функции.
   16.05.2002 SVS
     - При отрисовки для DI_VTEXT была неопределена переменная LenText
   15.05.2002 SVS
@@ -947,9 +950,6 @@ Dialog::Dialog(struct DialogItem *Item,    // Набор элементов диалога
   CanLoseFocus = FALSE;
   HelpTopic = NULL;
   /* DJ $ */
-  /* $ 19.05.2001 DJ */
-  OwnsItems = FALSE;
-  /* DJ $ */
   /* $ 29.08.2000 SVS
     Номер плагина, вызвавшего диалог (-1 = Main)
   */
@@ -1033,7 +1033,7 @@ Dialog::~Dialog()
   /* $ 19.05.2001 DJ
      если мы владеем айтемами, удаляем их
   */
-  if (OwnsItems)
+  if (DialogMode.Check(DMODE_OWNSITEMS))
     delete [] Item;
   /* DJ $ */
 
@@ -1415,7 +1415,7 @@ int Dialog::InitDialogObjects(int ID)
 
       if (!DialogMode.Check(DMODE_CREATEOBJECTS))
       {
-        CurItem->ObjPtr=new Edit;
+        CurItem->ObjPtr=new DlgEdit;
         if(Type == DI_COMBOBOX)
         {
           CurItem->ListPtr=new VMenu("",NULL,0,8,VMENU_ALWAYSSCROLLBAR,NULL/*,Parent*/);
@@ -1424,8 +1424,8 @@ int Dialog::InitDialogObjects(int ID)
 
       DlgEdit *DialogEdit=(DlgEdit *)CurItem->ObjPtr;
       DialogEdit->SetDialogParent((Type != DI_COMBOBOX && (ItemFlags & DIF_EDITOR))?
-                                  EDPARENT_MULTILINE:EDPARENT_SINGLELINE);
-      DialogEdit->ReadOnly=0;
+                                  FEDITLINE_PARENT_SINGLELINE:FEDITLINE_PARENT_MULTILINE);
+      DialogEdit->SetReadOnly(0);
       /* $ 26.07.2000 SVS
          Ну наконец-то - долгожданный нередактируемый ComboBox
       */
@@ -1439,7 +1439,7 @@ int Dialog::InitDialogObjects(int ID)
           VMenu *ListPtr=CurItem->ListPtr;
           ListPtr->SetBoxType(SHORT_SINGLE_BOX);
           if(ItemFlags & DIF_DROPDOWNLIST)
-             DialogEdit->DropDownBox=1;
+             DialogEdit->SetDropDownBox(TRUE);
           if(ItemFlags&DIF_LISTWRAPMODE)
             ListPtr->SetFlags(VMENU_WRAPMODE);
           /* $ 15.05.2001 KM
@@ -1516,7 +1516,7 @@ int Dialog::InitDialogObjects(int ID)
         /* $ 12.08.2000 KM
            Если тип строки ввода DI_FIXEDIT и установлен флаг DIF_MASKEDIT
            и непустой параметр CurItem->Mask, то вызываем новую функцию
-           для установки маски в объект Edit.
+           для установки маски в объект DlgEdit.
         */
         /* $ 18.09.2000 SVS
           Маска не должна быть пустой (строка из пробелов не учитывается)!
@@ -1608,7 +1608,7 @@ int Dialog::InitDialogObjects(int ID)
         DialogEdit->SetPersistentBlocks(Opt.Dialogs.EditBlock);
       /*  VVM $ */
       if(ItemFlags&DIF_READONLY)
-        DialogEdit->ReadOnly=1;
+        DialogEdit->SetReadOnly(1);
     }
     else if (Type == DI_USERCONTROL)
     {
@@ -4435,7 +4435,7 @@ int Dialog::SelectFromComboBox(
     SetDropDownOpened(TRUE); // Установим флаг "открытия" комбобокса.
 
     // Выставим то, что есть в строке ввода!
-    // if(EditLine->DropDownBox == 1) //???
+    // if(EditLine->GetDropDownBox()) //???
     EditLine->GetString(Str,MaxLen);
     ComboBox->SetSelectPos(ComboBox->FindItem(0,Str,LIFIND_EXACTMATCH),1);
 
@@ -4465,7 +4465,7 @@ int Dialog::SelectFromComboBox(
         // связанной строке
         // ВНИМАНИЕ!!!
         //  Очень медленная реакция!
-        if(EditLine->DropDownBox == 1)
+        if(EditLine->GetDropDownBox())
         {
           struct MenuItem *CurCBItem=ComboBox->GetItemPtr();
           EditLine->SetString(CurCBItem->Name);
@@ -4993,7 +4993,7 @@ int Dialog::ProcessHighlighting(int Key,int FocusPos,int Translate)
       {
         int DisableSelect=FALSE;
 
-        // Если ЭТО: Edit(пред контрол) и DI_TEXT в одну строку, то...
+        // Если ЭТО: DlgEdit(пред контрол) и DI_TEXT в одну строку, то...
         if (I>0 &&
             Type==DI_TEXT &&                              // DI_TEXT
             IsEdit(Item[I-1].Type) &&                     // и редактор
@@ -6480,14 +6480,14 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
             if(CurItem->ObjPtr)
             {
               DlgEdit *EditLine=(DlgEdit *)(CurItem->ObjPtr);
-              int ReadOnly=EditLine->ReadOnly;
-              EditLine->ReadOnly=0;
+              int ReadOnly=EditLine->GetReadOnly();
+              EditLine->SetReadOnly(0);
               EditLine->SetString((char *)Ptr);
-              EditLine->ReadOnly=ReadOnly;
+              EditLine->SetReadOnly(ReadOnly);
               if(Dlg->DialogMode.Check(DMODE_INITOBJECTS)) // не меняем клеар-флаг, пока не проиницализировались
                 EditLine->SetClearFlag(0);
               EditLine->Select(-1,0); // снимаем выделение
-              // ...оно уже снимается в Edit::SetString()
+              // ...оно уже снимается в DlgEdit::SetString()
             }
             break;
 

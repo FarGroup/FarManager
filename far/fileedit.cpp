@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.101 13.05.2002 $ */
+/* Revision: 1.102 18.05.2002 $ */
 
 /*
 Modify:
+  18.05.2002 SVS
+    ! ФЛАГИ
   13.05.2002 VVM
     + Перерисуем заголовок консоли после позиционирования на файл.
   11.05.2002 SVS
@@ -1026,13 +1028,13 @@ int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
   /* $ 11.10.2000 SVS
      Редактировали, залочили, при выходе - потеряли файл :-(
   */
-  if (FEdit.EFlags.Check(FEDITOR_LOCKMODE) && !FEdit.EFlags.Check(FEDITOR_MODIFIED) && !SaveAs)
+  if (FEdit.Flags.Check(FEDITOR_LOCKMODE) && !FEdit.Flags.Check(FEDITOR_MODIFIED) && !SaveAs)
     return SAVEFILE_SUCCESS;
   /* SVS $ */
 
   if (Ask)
   {
-    if(!FEdit.EFlags.Check(FEDITOR_MODIFIED))
+    if(!FEdit.Flags.Check(FEDITOR_MODIFIED))
       return SAVEFILE_SUCCESS;
 
     if (Ask)
@@ -1162,7 +1164,7 @@ void FileEditor::OnDestroy()
   _OT(SysLog("[%p] FileEditor::OnDestroy()",this));
   if (!DisableHistory)
     CtrlObject->ViewHistory->AddToHistory(FullFileName,MSG(MHistoryEdit),
-                  (FEdit.EFlags.Check(FEDITOR_LOCKMODE)?4:1));
+                  (FEdit.Flags.Check(FEDITOR_LOCKMODE)?4:1));
   /* $ 19.10.2001 OT
   */
   if (CtrlObject->Plugins.CurEditor==this)//&this->FEdit)
@@ -1190,9 +1192,9 @@ int FileEditor::GetCanLoseFocus(int DynamicMode)
 void FileEditor::SetLockEditor(BOOL LockMode)
 {
   if(LockMode)
-    FEdit.EFlags.Set(FEDITOR_LOCKMODE);
+    FEdit.Flags.Set(FEDITOR_LOCKMODE);
   else
-    FEdit.EFlags.Skip(FEDITOR_LOCKMODE);
+    FEdit.Flags.Skip(FEDITOR_LOCKMODE);
 }
 
 int FileEditor::FastHide()

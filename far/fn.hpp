@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.151 16.05.2002 $ */
+/* Revision: 1.152 18.05.2002 $ */
 
 /*
 Modify:
+  18.05.2002 SVS
+    ! Возможность компиляции под BC 5.5
   16.05.2002 SVS
     ! Лишние описания функций
   29.04.2002 SVS
@@ -1155,7 +1157,10 @@ extern "C" {
 void __cdecl qsortex(char *base, unsigned int nel, unsigned int width,
             int (__cdecl *comp_fp)(const void *, const void *,void*), void *user);
 
+#if __BORLANDC__ < 0x550 || defined(_MSC_VER)
 char * __cdecl mktemp(char *temp);
+#endif
+
 #ifdef __cplusplus
 }
 #endif

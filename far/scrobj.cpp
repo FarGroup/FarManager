@@ -5,10 +5,12 @@ Parent class для всех screen objects
 
 */
 
-/* Revision: 1.07 13.04.2002 $ */
+/* Revision: 1.08 18.05.2002 $ */
 
 /*
 Modify:
+  18.05.2002 SVS
+    ! Выносим некоторые переменные во флаги
   13.04.2002 KM
     - Раз меняем позицию объекта на экране, то тогда перед этим
       восстановим изображение под ним для предотвращения
@@ -41,21 +43,15 @@ Modify:
 ScreenObject::ScreenObject()
 {
 //  _OT(SysLog("[%p] ScreenObject::ScreenObject()", this));
-  Visible=0;
-  X1=Y1=X2=Y2=0;
-  SaveScr=NULL;
-  ShadowSaveScr=NULL;
-//  EnableRestoreScreen=TRUE;
-  EnableRestoreScreen=FALSE;
-  SetPositionDone=FALSE;
-  ObjWidth=ObjHeight=0;
+  ObjWidth=ObjHeight=X1=Y1=X2=Y2=0;
+  SaveScr=ShadowSaveScr=NULL;
 }
 
 
 ScreenObject::~ScreenObject()
 {
 //  _OT(SysLog("[%p] ScreenObject::~ScreenObject()", this));
-  if (!EnableRestoreScreen)
+  if (!Flags.Check(FSCROBJ_ENABLERESTORESCREEN))
   {
     if (ShadowSaveScr)
       ShadowSaveScr->Discard();
@@ -89,12 +85,12 @@ void ScreenObject::SetPosition(int X1,int Y1,int X2,int Y2)
   ScreenObject::Y2=Y2;
   ObjWidth=X2-X1+1;
   ObjHeight=Y2-Y1+1;
-  SetPositionDone=TRUE;
+  Flags.Set(FSCROBJ_SETPOSITIONDONE);
 }
 
 void ScreenObject::SetScreenPosition()
 {
-  SetPositionDone=FALSE;
+  Flags.Skip(FSCROBJ_SETPOSITIONDONE);
 }
 
 
@@ -110,29 +106,36 @@ void ScreenObject::GetPosition(int& X1,int& Y1,int& X2,int& Y2)
 void ScreenObject::Hide()
 {
 //  _tran(SysLog("[%p] ScreenObject::Hide()",this));
-  if (!Visible)
+  if (!Flags.Check(FSCROBJ_VISIBLE))
     return;
-  Visible=FALSE;
+
+  Flags.Skip(FSCROBJ_VISIBLE);
+
   if (ShadowSaveScr)
+  {
     delete ShadowSaveScr;
-  ShadowSaveScr=NULL;
+    ShadowSaveScr=NULL;
+  }
+
   if (SaveScr)
+  {
     delete SaveScr;
-  SaveScr=NULL;
+    SaveScr=NULL;
+  }
 }
 
 /* $ 15.07.2000 tran
    add ugly new method */
 void ScreenObject::Hide0()
 {
-  Visible=FALSE;
+  Flags.Skip(FSCROBJ_VISIBLE);
 }
 /* tran 15.07.2000 $ */
 
 void ScreenObject::Show()
 {
 //  _tran(SysLog("[%p] ScreenObject::Show()",this));
-  if (!SetPositionDone)
+  if (!Flags.Check(FSCROBJ_SETPOSITIONDONE))
     return;
   SavePrevScreen();
   DisplayObject();
@@ -141,12 +144,12 @@ void ScreenObject::Show()
 
 void ScreenObject::SavePrevScreen()
 {
-  if (!SetPositionDone)
+  if (!Flags.Check(FSCROBJ_SETPOSITIONDONE))
     return;
-  if (!Visible)
+  if (!Flags.Check(FSCROBJ_VISIBLE))
   {
-    Visible=TRUE;
-    if (EnableRestoreScreen && SaveScr==NULL)
+    Flags.Set(FSCROBJ_VISIBLE);
+    if (Flags.Check(FSCROBJ_ENABLERESTORESCREEN) && SaveScr==NULL)
       SaveScr=new SaveScreen(X1,Y1,X2,Y2);
   }
 }
@@ -155,14 +158,14 @@ void ScreenObject::SavePrevScreen()
 void ScreenObject::Redraw()
 {
 //  _tran(SysLog("[%p] ScreenObject::Redraw()",this));
-  if (IsVisible())
+  if (Flags.Check(FSCROBJ_VISIBLE))
     Show();
 }
 
 
 void ScreenObject::Shadow()
 {
-  if (IsVisible())
+  if (Flags.Check(FSCROBJ_VISIBLE))
   {
     if (ShadowSaveScr==NULL)
       ShadowSaveScr=new SaveScreen(X1,Y1,X2+2,Y2+1);

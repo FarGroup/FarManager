@@ -5,10 +5,12 @@ scrbuf.cpp
 
 */
 
-/* Revision: 1.15 04.03.2002 $ */
+/* Revision: 1.16 18.05.2002 $ */
 
 /*
 Modify:
+  18.05.2002 SVS
+    ! Выносим некоторые переменные во флаги
   04.03.2002 DJ
     ! Appli -> Apply
   03.03.2002 SVS
@@ -55,6 +57,14 @@ Modify:
 #include "colors.hpp"
 #include "ctrlobj.hpp"
 
+enum{
+  SBFLAGS_FLUSHED         = 0x00000001,
+  SBFLAGS_FLUSHEDCURPOS   = 0x00000002,
+  SBFLAGS_FLUSHEDCURTYPE  = 0x00000004,
+  SBFLAGS_USESHADOW       = 0x00000008,
+};
+
+
 //#if defined(SYSLOG_OT)
 // #define DIRECT_SCREEN_OUT
 //#endif
@@ -73,10 +83,9 @@ ScreenBuf::ScreenBuf()
 {
   Buf=Shadow=NULL;
   BufX=BufY=0;
-  Flushed=FlushedCurPos=FlushedCurType=TRUE;
+  SBFlags.Set(SBFLAGS_FLUSHED|SBFLAGS_FLUSHEDCURPOS|SBFLAGS_FLUSHEDCURTYPE);
   LockCount=0;
   hScreen=NULL;
-  UseShadow=FALSE;
 }
 
 
@@ -140,7 +149,7 @@ void ScreenBuf::FillBuf()
     ReadConsoleOutput(hScreen,Buf,Size,Corner,&Coord);
 #endif
   memcpy(Shadow,Buf,BufX*BufY*sizeof(CHAR_INFO));
-  UseShadow=TRUE;
+  SBFlags.Set(SBFLAGS_USESHADOW);
 
   CONSOLE_SCREEN_BUFFER_INFO csbi;
   GetConsoleScreenBufferInfo(hScreen,&csbi);
@@ -157,7 +166,7 @@ void ScreenBuf::Write(int X,int Y,CHAR_INFO *Text,int TextLength)
   if(X+TextLength >= BufX)
     TextLength=BufX-X; //??
   memcpy(Buf+Y*BufX+X,Text,sizeof(CHAR_INFO)*TextLength);
-  Flushed=FALSE;
+  SBFlags.Skip(SBFLAGS_FLUSHED);
 
 #ifdef DIRECT_SCREEN_OUT
   Flush();
@@ -250,7 +259,7 @@ void ScreenBuf::FillRect(int X1,int Y1,int X2,int Y2,int Ch,int Color)
       *PtrBuf=CI;
   }
 
-  Flushed=FALSE;
+  SBFlags.Skip(SBFLAGS_FLUSHED);
 
 #ifdef DIRECT_SCREEN_OUT
   Flush();
@@ -266,6 +275,7 @@ void ScreenBuf::Flush()
 {
   if (LockCount>0)
     return;
+
   if (CtrlObject!=NULL && CtrlObject->Macro.IsRecording())
   {
     if (GetVidChar(Buf[0])!='R')
@@ -273,22 +283,25 @@ void ScreenBuf::Flush()
     SetVidChar(Buf[0],'R');
     Buf[0].Attributes=FarColorToReal(COL_WARNDIALOGTEXT);
   }
-  if (!FlushedCurType && !CurVisible)
+
+  if (!SBFlags.Check(SBFLAGS_FLUSHEDCURTYPE) && !CurVisible)
   {
     CONSOLE_CURSOR_INFO cci;
     cci.dwSize=CurSize;
     cci.bVisible=CurVisible;
     SetConsoleCursorInfo(hScreen,&cci);
-    FlushedCurType=TRUE;
+    SBFlags.Set(SBFLAGS_FLUSHEDCURTYPE);
   }
-  if (!Flushed)
+
+  if (!SBFlags.Check(SBFLAGS_FLUSHED))
   {
-    Flushed=TRUE;
-    if (WaitInMainLoop && Opt.Clock)
+    SBFlags.Set(SBFLAGS_FLUSHED);
+    if (WaitInMainLoop && Opt.Clock && !ProcessShowClock)
       ShowTime(FALSE);
+
     int WriteX1=BufX-1,WriteY1=BufY-1,WriteX2=0,WriteY2=0;
     int NoChanges=TRUE;
-    if (UseShadow)
+    if (SBFlags.Check(SBFLAGS_USESHADOW))
     {
       CHAR_INFO *PtrBuf=Buf, *PtrShadow=Shadow;
 
@@ -346,24 +359,23 @@ void ScreenBuf::Flush()
       memcpy(Shadow,Buf,BufX*BufY*sizeof(CHAR_INFO));
     }
   }
-  if (!FlushedCurPos)
+  if (!SBFlags.Check(SBFLAGS_FLUSHEDCURPOS))
   {
     COORD C;
     C.X=CurX;
     C.Y=CurY;
     SetConsoleCursorPosition(hScreen,C);
-    FlushedCurPos=TRUE;
+    SBFlags.Set(SBFLAGS_FLUSHEDCURPOS);
   }
-  if (!FlushedCurType && CurVisible)
+  if (!SBFlags.Check(SBFLAGS_FLUSHEDCURTYPE) && CurVisible)
   {
     CONSOLE_CURSOR_INFO cci;
     cci.dwSize=CurSize;
     cci.bVisible=CurVisible;
     SetConsoleCursorInfo(hScreen,&cci);
-    FlushedCurType=TRUE;
+    SBFlags.Set(SBFLAGS_FLUSHEDCURTYPE);
   }
-  UseShadow=TRUE;
-  Flushed=TRUE;
+  SBFlags.Set(SBFLAGS_USESHADOW|SBFLAGS_FLUSHED);
 }
 
 
@@ -388,7 +400,7 @@ void ScreenBuf::SetHandle(HANDLE hScreen)
 
 void ScreenBuf::ResetShadow()
 {
-  Flushed=FlushedCurType=FlushedCurPos=UseShadow=FALSE;
+  SBFlags.Skip(SBFLAGS_FLUSHED|SBFLAGS_FLUSHEDCURTYPE|SBFLAGS_FLUSHEDCURPOS|SBFLAGS_USESHADOW);
 }
 
 
@@ -396,7 +408,7 @@ void ScreenBuf::MoveCursor(int X,int Y)
 {
   CurX=X;
   CurY=Y;
-  FlushedCurPos=FALSE;
+  SBFlags.Skip(SBFLAGS_FLUSHEDCURPOS);
 }
 
 
@@ -417,7 +429,7 @@ void ScreenBuf::SetCursorType(int Visible,int Size)
   {
     CurVisible=Visible;
     CurSize=Size;
-    FlushedCurType=FALSE;
+    SBFlags.Skip(SBFLAGS_FLUSHEDCURTYPE);
   }
   /* SVS $ */
 }

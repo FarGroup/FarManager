@@ -8,10 +8,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.79 16.05.2002 $ */
+/* Revision: 1.80 18.05.2002 $ */
 
 /*
 Modify:
+  18.05.2002 SVS
+    ! Возможность компиляции под BC 5.5
   16.05.2002 SVS
     - "KSFLAGS_DISABLEOUTPUT не работает"
   05.05.2002 SVS
@@ -1084,7 +1086,7 @@ int KeyMacro::ReadMacros(int ReadMode,char *Buffer,int BufferSize)
       if(*KeyText == '~' && KeyText[1])
       {
         char *Ptr=KeyText+1;
-        while(*Ptr && *Ptr == '~')// && isspace(KeyText[1]))
+        while(*Ptr && *Ptr == '~')// && IsSpace(KeyText[1]))
           ++Ptr;
         memmove(KeyText,Ptr,strlen(Ptr)+1);
         MFlags|=MFLAGS_DISABLEMACRO;
@@ -1470,7 +1472,7 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,char *BufPtr)
   while (1)
   {
     // пропускаем ведущие пробельные символы
-    while (isspace(*BufPtr))
+    while (IsSpace(*BufPtr))
       BufPtr++;
     if (*BufPtr==0)
       break;
@@ -1478,7 +1480,7 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,char *BufPtr)
     char *CurBufPtr=BufPtr;
 
     // ищем конец очередного названия клавиши
-    while (*BufPtr && !isspace(*BufPtr))
+    while (*BufPtr && !IsSpace(*BufPtr))
       BufPtr++;
     int Length=BufPtr-CurBufPtr;
 

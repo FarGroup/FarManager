@@ -7,10 +7,12 @@ edit.hpp
 
 */
 
-/* Revision: 1.22 28.01.2002 $ */
+/* Revision: 1.23 18.05.2002 $ */
 
 /*
 Modify:
+  18.05.2002 SVS
+    ! ФЛАГИ - сведем в кучу двухпозиционные переменные
   28.01.2002 SVS
     + ProcessInsPath() - вставка пути с учетом кодовой таблицы
   21.01.2002 SVS
@@ -84,12 +86,27 @@ Modify:
 
 #include "scrobj.hpp"
 #include "colors.hpp"
+#include "bitflags.hpp"
 
-// Константы для Edit::IsDialogParent
-enum {
-  EDPARENT_NONE=0,       // это явно не в диалоге юзается
-  EDPARENT_SINGLELINE=1, // обычная строка ввода в диалоге
-  EDPARENT_MULTILINE=2,  // для будущего Memo-Edit (DI_EDITOR или DIF_MULTILINE)
+
+// Младший байт (маска 0xFF) юзается классом ScreenObject!!!
+enum FLAGS_CLASS_EDITLINE{
+  FEDITLINE_MARKINGBLOCK         = 0x00000100,
+  FEDITLINE_DROPDOWNBOX          = 0x00000200,
+  FEDITLINE_CLEARFLAG            = 0x00000400,
+  FEDITLINE_PASSWORDMODE         = 0x00000800,
+  FEDITLINE_EDITBEYONDEND        = 0x00001000,
+  FEDITLINE_EDITORMODE           = 0x00002000,
+  FEDITLINE_OVERTYPE             = 0x00004000,
+  FEDITLINE_DELREMOVESBLOCKS     = 0x00008000,  // Del удаляет блоки (Opt.EditorDelRemovesBlocks)
+  FEDITLINE_PERSISTENTBLOCKS     = 0x00010000,  // Постоянные блоки (Opt.EditorPersistentBlocks)
+  FEDITLINE_CONVERTTABS          = 0x00020000,
+  FEDITLINE_READONLY             = 0x00040000,
+  FEDITLINE_CURSORVISIBLE        = 0x00080000,
+  // Если ни один из FEDITLINE_PARENT_ не указан (или указаны оба), то Edit
+  // явно не в диалоге юзается.
+  FEDITLINE_PARENT_SINGLELINE    = 0x00100000,  // обычная строка ввода в диалоге
+  FEDITLINE_PARENT_MULTILINE     = 0x00200000,  // для будущего Memo-Edit (DI_EDITOR или DIF_MULTILINE)
 };
 
 class Dialog;
@@ -102,59 +119,32 @@ class Edit:public ScreenObject
 
   private:
     char  *Str;
-    /* $ 12.08.2000 KM
-       Переменная для хранения маски ввода
-    */
-    char  *Mask;
-    /* KM $ */
+    int    StrSize;
+    int    MaxLength;
+
+    char  *Mask;             // 12.08.2000 KM - Переменная для хранения маски ввода
+
     struct CharTableSet *TableSet;
     struct ColorItem *ColorList;
     int    ColorCount;
-    int    StrSize;
-    /* $ 12.08.2000 KM
-       Добавлена переменная для хранения предыдущего положения курсора
-    */
-    int    CurPos;
-    int    PrevCurPos;
-    /* KM $ */
-    /* $ 28.07.2000 SVS
-      + ColorUnChanged (для диалога)
-    */
+
     int    Color;
     int    SelColor;
-    int    ColorUnChanged;
-    /* SVS $ */
+    int    ColorUnChanged;   // 28.07.2000 SVS - для диалога
+
     int    LeftPos;
-    int    ConvertTabs;
-    int    CursorPos;
-    int    EndType;
-    int    MaxLength;
+    int    CurPos;
+    int    PrevCurPos;       // 12.08.2000 KM - предыдущее положение курсора
+
+    int    TabSize;          // 14.02.2001 IS - Размер табуляции - по умолчанию равен Opt.TabSize;
+
     int    SelStart;
     int    SelEnd;
-    char   MarkingBlock;
-    char   ClearFlag;
-    char   PasswordMode;
-    char   EditBeyondEnd;
-    char   Overtype;
-    char   EditorMode;
-    /* $ 03.07.2000 tran
-       + ReadOnly style*/
-    int    ReadOnly;
-    /* tran 03.07.2000 $ */
-    /* $ 14.02.2001 IS
-         Размер табуляции - по умолчанию равен Opt.TabSize;
-    */
-    int    TabSize;
-    /* IS $ */
-    /* $ 15.02.2001 IS
-         Различные опции из настроек редактора теперь запоминаются локально
-    */
-    int    DelRemovesBlocks; // Del удаляет блоки (Opt.EditorDelRemovesBlocks)
-    int    PersistentBlocks; // Постоянные блоки (Opt.EditorPersistentBlocks)
-    /* IS $ */
 
-    int    IsDialogParent;   // Признак принадлежности строки к диалогу
-    int    CursorVisible,CursorSize;
+    int    EndType;
+
+    int    CursorSize;
+    int    CursorPos;
 
   private:
     void   DisplayObject();
@@ -209,11 +199,11 @@ class Edit:public ScreenObject
     /* $ 15.02.2001 IS
          Функции чтения/установления текущих настроек редактирования
     */
-    void SetDelRemovesBlocks(int NewMode) { DelRemovesBlocks=NewMode; }
-    int  GetDelRemovesBlocks(void) {return DelRemovesBlocks; }
+    void SetDelRemovesBlocks(int Mode) {Flags.Change(FEDITLINE_DELREMOVESBLOCKS,Mode);}
+    int  GetDelRemovesBlocks(void) {return Flags.Check(FEDITLINE_DELREMOVESBLOCKS); }
 
-    void SetPersistentBlocks(int NewMode) { PersistentBlocks=NewMode; }
-    int  GetPersistentBlocks(void) {return PersistentBlocks; }
+    void SetPersistentBlocks(int Mode) {Flags.Change(FEDITLINE_PERSISTENTBLOCKS,Mode);}
+    int  GetPersistentBlocks(void) {return Flags.Check(FEDITLINE_PERSISTENTBLOCKS); }
     /* IS $ */
     void  GetString(char *Str,int MaxSize);
     const char* GetStringAddr();
@@ -231,15 +221,15 @@ class Edit:public ScreenObject
     */
     int   Search(char *Str,int Position,int Case,int WholeWords,int Reverse);
     /* KM $ */
-    void  SetClearFlag(int Flag) {ClearFlag=Flag;}
-    int   GetClearFlag(void) {return ClearFlag;}
+    void  SetClearFlag(int Flag) {Flags.Change(FEDITLINE_CLEARFLAG,Flag);}
+    int   GetClearFlag(void) {return Flags.Check(FEDITLINE_CLEARFLAG);}
     void  SetCurPos(int NewPos) {CurPos=NewPos;PrevCurPos=NewPos;}
     int   GetCurPos() {return(CurPos);}
     int   GetTabCurPos();
     int   GetLeftPos() {return(LeftPos);}
     void  SetLeftPos(int NewPos) {LeftPos=NewPos;}
     void  SetTabCurPos(int NewPos);
-    void  SetPasswordMode(int Mode) {PasswordMode=Mode;};
+    void  SetPasswordMode(int Mode) {Flags.Change(FEDITLINE_PASSWORDMODE,Mode);};
     void  SetMaxLength(int Length) {MaxLength=Length;};
     /* $ 28.07.2000 SVS
        Получение максимального значения строки для потребностей Dialod API
@@ -252,9 +242,9 @@ class Edit:public ScreenObject
     void  SetInputMask(char *InputMask);
     char* GetInputMask() {return Mask;}
     /* KM $ */
-    void  SetOvertypeMode(int Mode) {Overtype=Mode;};
-    int   GetOvertypeMode() {return(Overtype);};
-    void  SetConvertTabs(int Mode) {ConvertTabs=Mode;};
+    void  SetOvertypeMode(int Mode) {Flags.Change(FEDITLINE_OVERTYPE,Mode);};
+    int   GetOvertypeMode() {return Flags.Check(FEDITLINE_OVERTYPE);};
+    void  SetConvertTabs(int Mode) {Flags.Change(FEDITLINE_CONVERTTABS,Mode);};
     int   RealPosToTab(int Pos);
     int   TabPosToReal(int Pos);
     void  SetTables(struct CharTableSet *TableSet);
@@ -262,8 +252,8 @@ class Edit:public ScreenObject
     void  AddSelect(int Start,int End);
     void  GetSelection(int &Start,int &End);
     void  GetRealSelection(int &Start,int &End);
-    void  SetEditBeyondEnd(int Mode) {EditBeyondEnd=Mode;};
-    void  SetEditorMode(int Mode) {EditorMode=Mode;};
+    void  SetEditBeyondEnd(int Mode) {Flags.Change(FEDITLINE_EDITBEYONDEND,Mode);};
+    void  SetEditorMode(int Mode) {Flags.Change(FEDITLINE_EDITORMODE,Mode);};
     void  ReplaceTabs();
     void  AddColor(struct ColorItem *col);
     int   DeleteColor(int ColorPos);
@@ -272,10 +262,6 @@ class Edit:public ScreenObject
 #ifdef SHITHAPPENS
     void ReplaceSpaces(int i);
 #endif
-    /* $ 25.07.2000 tran
-       + DropDownBox style */
-    int DropDownBox;
-    /* tran 25.07.2000 $ */
     /* $ 24.09.2000 SVS $
       Функция Xlat - перекодировка по принципу QWERTY <-> ЙЦУКЕН
     */
@@ -288,11 +274,13 @@ class Edit:public ScreenObject
 
     static void DisableEditOut(int Disable);
     static void DisableEncode(int Disable);
-
-    void SetDialogParent(int Sets) {IsDialogParent=Sets;}
-    int  GetDialogParent() {return IsDialogParent;}
+    void SetDialogParent(DWORD Sets);
     void SetCursorType(int Visible,int Size);
     void GetCursorType(int &Visible,int &Size);
+    int  GetReadOnly() {return Flags.Check(FEDITLINE_READONLY);}
+    void SetReadOnly(int NewReadOnly) {Flags.Change(FEDITLINE_READONLY,NewReadOnly);}
+    int  GetDropDownBox() {return Flags.Check(FEDITLINE_DROPDOWNBOX);}
+    void SetDropDownBox(int NewDropDownBox) {Flags.Change(FEDITLINE_DROPDOWNBOX,NewDropDownBox);}
 };
 
 #endif  // __EDIT_HPP__

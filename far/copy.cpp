@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.83 15.05.2002 $ */
+/* Revision: 1.84 18.05.2002 $ */
 
 /*
 Modify:
+  18.05.2002 SVS
+    ! В операции перемещения (F6) в "nul" или "con" удаления файлов не производится.
   15.05.2002 SVS
     ! Поправим копир на предмет "некопирования в сетевые симлинки"
   06.05.2002 VVM
@@ -674,6 +676,11 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
   // Выставляем признак копирования в NUL
   ShellCopy::Flags|=(!stricmp(CopyDlg[2].Data,"nul") || !stricmp(CopyDlg[2].Data,"con"))?FCOPY_COPYTONUL:0;
+  if(ShellCopy::Flags&FCOPY_COPYTONUL)
+  {
+    ShellCopy::Flags&=~FCOPY_MOVE;
+    StaticMove=Move=0;
+  }
 
   if(CDP.SelCount==1 || (ShellCopy::Flags&FCOPY_COPYTONUL))
     AddSlash=FALSE; //???
@@ -1258,7 +1265,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
     strcpy(DestPath,Dest);
     HANDLE FindHandle;
     WIN32_FIND_DATA SrcData;
-    int CopyCode,KeepPathPos;
+    int CopyCode=COPY_SUCCESS,KeepPathPos;
 
     ShellCopy::Flags&=~FCOPY_OVERWRITENEXT;
 
@@ -1802,7 +1809,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
     int64 SaveTotalSize=TotalCopySize;
     if (!(ShellCopy::Flags&FCOPY_COPYTONUL) && Rename)
     {
-      int MoveCode,AskDelete;
+      int MoveCode=FALSE,AskDelete;
 
       if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT && !Append && DestAttr!=(DWORD)-1 && !SameName)
       {

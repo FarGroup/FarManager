@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.95 11.05.2002 $ */
+/* Revision: 1.96 18.05.2002 $ */
 
 /*
 Modify:
+  18.05.2002 SVS
+    ! ¬озможность компил€ции под BC 5.5
   11.05.2002 SVS
     - Bug: viewer find. во вьювере начинаем набирать текст, по€вл€етс€ окно
       поиска, но первый символ в строку поиска не попадает.
@@ -1177,18 +1179,18 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
           vseek(ViewFile,SavePos,SEEK_SET);
           if (VM.TypeWrap && RegVer) // только дл€ зарегестрированных
           {
-            if ( !isspace(Ch) && !isspace(Str[OutPtr]))
+            if ( !IsSpace(Ch) && !IsSpace(Str[OutPtr]))
             {
                unsigned long SavePtr=OutPtr;
                /* $ 18.07.2000 tran
                   добавил в качестве wordwrap разделителей , ; > ) */
-               while (OutPtr && !(isspace(Str[OutPtr]) || Str[OutPtr]==',' || Str[OutPtr]==';' || Str[OutPtr]=='>'|| Str[OutPtr]==')'))
+               while (OutPtr && !(IsSpace(Str[OutPtr]) || Str[OutPtr]==',' || Str[OutPtr]==';' || Str[OutPtr]=='>'|| Str[OutPtr]==')'))
                /* tran 18.07.2000 $ */
                   OutPtr--;
                if ( Str[OutPtr]==',' || Str[OutPtr]==';' || Str[OutPtr]==')' || Str[OutPtr]=='>' )
                    OutPtr++;
                else
-                   while (isspace(Str[OutPtr]) && OutPtr<=SavePtr)
+                   while (IsSpace(Str[OutPtr]) && OutPtr<=SavePtr)
                       OutPtr++;
 
                if ( OutPtr )
@@ -1203,7 +1205,7 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
             /* $ 13.09.2000 tran
                remove space at WWrap */
             unsigned long savepos=vtell(ViewFile);
-            while (isspace(Ch))
+            while (IsSpace(Ch))
                 Ch=vgetc(ViewFile);
             if ( vtell(ViewFile)!=savepos)
                 vseek(ViewFile,-1,SEEK_CUR);
@@ -2237,13 +2239,13 @@ void Viewer::Search(int Next,int FirstChar)
             int locResultRight=FALSE;
             if (I!=0)
             {
-              if (isspace(Buf[I]) || iseol(Buf[I]))
+              if (IsSpace(Buf[I]) || IsEol(Buf[I]))
                 locResultLeft=TRUE;
               if (ReadSize!=BufSize && I+1+SearchLength>=ReadSize)
                 locResultRight=TRUE;
               else
-                if (isspace(Buf[I+1+SearchLength]) ||
-                    iseol(Buf[I+1+SearchLength]))
+                if (IsSpace(Buf[I+1+SearchLength]) ||
+                    IsEol(Buf[I+1+SearchLength]))
                   locResultRight=TRUE;
 
               if (!locResultLeft)
@@ -2262,7 +2264,7 @@ void Viewer::Search(int Next,int FirstChar)
               if (ReadSize!=BufSize && I+SearchLength>=ReadSize)
                 locResultRight=TRUE;
               else
-                if (isspace(Buf[I+SearchLength]) || iseol(Buf[I+SearchLength]))
+                if (IsSpace(Buf[I+SearchLength]) || IsEol(Buf[I+SearchLength]))
                   locResultRight=TRUE;
 
               if (!locResultRight)
@@ -2333,10 +2335,10 @@ void Viewer::ConvertToHex(char *SearchStr,int &SearchLength)
   SrcPtr=SearchStr;
   while (*SrcPtr)
   {
-    while (isspace(*SrcPtr))
+    while (IsSpace(*SrcPtr))
       SrcPtr++;
     if (SrcPtr[0])
-      if (SrcPtr[1]==0 || isspace(SrcPtr[1]))
+      if (SrcPtr[1]==0 || IsSpace(SrcPtr[1]))
       {
         N=HexToNum(SrcPtr[0]);
         SrcPtr++;

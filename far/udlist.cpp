@@ -8,10 +8,12 @@ udlist.cpp
 
 */
 
-/* Revision: 1.06 11.08.2001 $ */
+/* Revision: 1.07 18.05.2002 $ */
 
 /*
 Modify:
+  18.05.2002 SVS
+    ! ¬озможность компил€ции под BC 5.5
   11.08.2001 IS
     - Ќекритическа€ опечатка
     ! SetSeparators -> SetParameters
@@ -162,7 +164,7 @@ BOOL UserDefinedList::Set(const char *List)
     else
       {
          const char *End=List+1;
-         while(isspace(*End)) ++End; // пропустим мусор
+         while(IsSpace(*End)) ++End; // пропустим мусор
          if(!*End) // ≈сли кроме разделител€ ничего больше в строке нет,
                    // то считаетс€, что это не разделитель, а простой символ
          {
@@ -192,9 +194,9 @@ const char *UserDefinedList::Skip(const char *Str, int &Length, int &RealLength,
    Length=RealLength=0;
    Error=FALSE;
 
-   while(isspace(*Str)) ++Str;
+   while(IsSpace(*Str)) ++Str;
    if(*Str==Separator1 || *Str==Separator2) ++Str;
-   while(isspace(*Str)) ++Str;
+   while(IsSpace(*Str)) ++Str;
    if(!*Str) return NULL;
 
    const char *cur=Str;
@@ -223,7 +225,7 @@ const char *UserDefinedList::Skip(const char *Str, int &Length, int &RealLength,
     {
       RealLength=Length=cur-Str;
       --cur;
-      while(isspace(*cur))
+      while(IsSpace(*cur))
        {
          --Length;
          --cur;
@@ -241,7 +243,7 @@ const char *UserDefinedList::Skip(const char *Str, int &Length, int &RealLength,
     }
 
    const char *End=QuoteEnd+1;
-   while(isspace(*End)) ++End;
+   while(IsSpace(*End)) ++End;
    if(!*End || *End==Separator1 || *End==Separator2)
    {
      Length=QuoteEnd-cur;

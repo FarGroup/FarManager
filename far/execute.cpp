@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.54 10.05.2002 $ */
+/* Revision: 1.55 18.05.2002 $ */
 
 /*
 Modify:
+  18.05.2002 SVS
+    ! Возможность компиляции под BC 5.5
   10.05.2002 SVS
     + обработка CHCP
   17.04.2002 VVM
@@ -738,7 +740,7 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
   QuoteSpace(NewCmdStr);
   QuoteFound = NewCmdStr[0] == '"';
   CmdPtr = NewCmdStr;
-  //while (isspace(*CmdPtr))
+  //while (IsSpace(*CmdPtr))
   //  CmdPtr++;
 
   int  ExecutorType;
@@ -1193,7 +1195,7 @@ const char* WINAPI PrepareOSIfExist(const char *CmdLine)
     // здесь @ игнорируется; ее вставит в правильное место функция
     // ExtractIfExistCommand в filetype.cpp
     PtrCmd++;
-    while(*PtrCmd && isspace(*PtrCmd)) ++PtrCmd;
+    while(*PtrCmd && IsSpace(*PtrCmd)) ++PtrCmd;
   }
   /* DJ $ */
   while(1)
@@ -1201,17 +1203,17 @@ const char* WINAPI PrepareOSIfExist(const char *CmdLine)
     if (!PtrCmd || !*PtrCmd || memicmp(PtrCmd,"IF ",3))
       break;
 
-    PtrCmd+=3; while(*PtrCmd && isspace(*PtrCmd)) ++PtrCmd; if(!*PtrCmd) break;
+    PtrCmd+=3; while(*PtrCmd && IsSpace(*PtrCmd)) ++PtrCmd; if(!*PtrCmd) break;
 
     if (memicmp(PtrCmd,"NOT ",4)==0)
     {
       Not=TRUE;
-      PtrCmd+=4; while(*PtrCmd && isspace(*PtrCmd)) ++PtrCmd; if(!*PtrCmd) break;
+      PtrCmd+=4; while(*PtrCmd && IsSpace(*PtrCmd)) ++PtrCmd; if(!*PtrCmd) break;
     }
 
     if (*PtrCmd && !memicmp(PtrCmd,"EXIST ",6))
     {
-      PtrCmd+=6; while(*PtrCmd && isspace(*PtrCmd)) ++PtrCmd; if(!*PtrCmd) break;
+      PtrCmd+=6; while(*PtrCmd && IsSpace(*PtrCmd)) ++PtrCmd; if(!*PtrCmd) break;
       CmdStart=PtrCmd;
 
       /* $ 25.04.01 DJ
@@ -1265,7 +1267,7 @@ const char* WINAPI PrepareOSIfExist(const char *CmdLine)
 //_SVS(SysLog("%08X FullPath=%s",FileAttr,FullPath));
           if(FileAttr != (DWORD)-1 && !Not || FileAttr == (DWORD)-1 && Not)
           {
-            while(*PtrCmd && isspace(*PtrCmd)) ++PtrCmd;
+            while(*PtrCmd && IsSpace(*PtrCmd)) ++PtrCmd;
             Exist++;
           }
           else
@@ -1277,7 +1279,7 @@ const char* WINAPI PrepareOSIfExist(const char *CmdLine)
     // "IF [NOT] DEFINED variable command"
     else if (*PtrCmd && !memicmp(PtrCmd,"DEFINED ",8))
     {
-      PtrCmd+=8; while(*PtrCmd && isspace(*PtrCmd)) ++PtrCmd; if(!*PtrCmd) break;
+      PtrCmd+=8; while(*PtrCmd && IsSpace(*PtrCmd)) ++PtrCmd; if(!*PtrCmd) break;
       CmdStart=PtrCmd;
       if(*PtrCmd == '"')
         PtrCmd=strchr(PtrCmd+1,'"');
@@ -1294,7 +1296,7 @@ const char* WINAPI PrepareOSIfExist(const char *CmdLine)
 //_SVS(SysLog(Cmd));
           if(ERet && !Not || !ERet && Not)
           {
-            while(*PtrCmd && isspace(*PtrCmd)) ++PtrCmd;
+            while(*PtrCmd && IsSpace(*PtrCmd)) ++PtrCmd;
             Exist++;
           }
           else
@@ -1434,10 +1436,10 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
   */
   if (!SeparateWindow &&  /* DJ $ */
       (strnicmp(CmdLine,"CD",Length=2)==0 || strnicmp(CmdLine,"CHDIR",Length=5)==0) &&
-      (isspace(CmdLine[Length]) || CmdLine[Length]=='\\' || strcmp(CmdLine+Length,"..")==0))
+      (IsSpace(CmdLine[Length]) || CmdLine[Length]=='\\' || strcmp(CmdLine+Length,"..")==0))
   {
     int ChDir=(Length==5);
-    while (isspace(CmdLine[Length]))
+    while (IsSpace(CmdLine[Length]))
       Length++;
     if (CmdLine[Length]=='\"')
       Length++;

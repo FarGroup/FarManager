@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.118 08.05.2002 $ */
+/* Revision: 1.120 18.05.2002 $ */
 
 /*
 Modify:
+  18.05.2002 SVS
+    ! Возможность компиляции под BC 5.5
   14.05.2002 SKV
     + проверочка на существование CurEditor
   08.05.2002 SVS
@@ -2701,7 +2703,7 @@ int PluginsSet::ProcessCommandLine(const char *Command)
   while (1)
   {
     int Ch=Command[PrefixLength];
-    if (Ch==0 || isspace(Ch) || Ch=='/' || PrefixLength>64)
+    if (Ch==0 || IsSpace(Ch) || Ch=='/' || PrefixLength>64)
       return(FALSE);
     if (Ch==':' && PrefixLength>0)
       break;

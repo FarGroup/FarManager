@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.61 15.05.2002 $ */
+/* Revision: 1.62 18.05.2002 $ */
 
 /*
 Modify:
+  18.05.2002 SVS
+    ! Возможность компиляции под BC 5.5
   15.05.2002 SVS
     + SKEY_IDLE - вместо VK_ послать FOCUS
   04.04.2002 SVS
@@ -171,11 +173,8 @@ inline const T&Min(const T &a, const T &b) { return a<b?a:b; }
 template <class T>
 inline const T&Max(const T &a, const T &b) { return a>b?a:b; }
 
-#ifndef _MSC_VER
-#undef isspace
-inline int isspace(int x) { return x==' ' || x=='\t'; }
-#endif
-inline int iseol(int x)  { return x=='\r' || x=='\n'; }
+inline int IsSpace(int x) { return x==' ' || x=='\t'; }
+inline int IsEol(int x)  { return x=='\r' || x=='\n'; }
 
 #define  FALSE        0
 #define  TRUE         1

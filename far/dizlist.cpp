@@ -5,10 +5,12 @@ dizlist.cpp
 
 */
 
-/* Revision: 1.09 08.05.2002 $ */
+/* Revision: 1.10 18.05.2002 $ */
 
 /*
 Modify:
+  18.05.2002 SVS
+    ! Возможность компиляции под BC 5.5
   08.05.2002 SVS
     ! Проверка на NULL перед free()
   27.03.2002 SVS
@@ -179,7 +181,7 @@ char* DizList::GetDizTextAddr(char *Name,char *ShortName,DWORD FileSize)
   if (DizPos!=-1)
   {
     DizText=DizData[DizPos].DizText+TextPos;
-    while (*DizText && isspace(*DizText))
+    while (*DizText && IsSpace(*DizText))
       DizText++;
     if (isdigit(*DizText))
     {
@@ -193,10 +195,10 @@ char* DizList::GetDizTextAddr(char *Name,char *ShortName,DWORD FileSize)
             SkipSize=FALSE;
             break;
           }
-      if (SkipSize && isspace(*DizPtr))
+      if (SkipSize && IsSpace(*DizPtr))
       {
         DizText=DizPtr;
-        while (*DizText && isspace(*DizText))
+        while (*DizText && IsSpace(*DizText))
           DizText++;
       }
     }
@@ -311,12 +313,12 @@ int _cdecl SortDizSearch(const void *key,const void *elem)
   if (CmpCode==0)
   {
     int Ch=TableName[NameLength];
-    if (Ch==0 || isspace(Ch))
+    if (Ch==0 || IsSpace(Ch))
       return(0);
     if (Ch=='.')
     {
       int Ch1=TableName[NameLength+1];
-      if (Ch1==0 || isspace(Ch1))
+      if (Ch1==0 || IsSpace(Ch1))
         return(0);
     }
     return(-1);
@@ -334,7 +336,7 @@ int DizList::DeleteDiz(char *Name,char *ShortName)
   DizData[DizPos++].Deleted=TRUE;
   while (DizPos<DizCount)
   {
-    if (*DizData[DizPos].DizText && !isspace(DizData[DizPos].DizText[0]))
+    if (*DizData[DizPos].DizText && !IsSpace(DizData[DizPos].DizText[0]))
       break;
     DizData[DizPos].Deleted=TRUE;
     DizPos++;
@@ -436,7 +438,7 @@ int DizList::CopyDiz(char *Name,char *ShortName,char *DestName,
   if (DizPos==-1)
     return(FALSE);
 
-  while (isspace(DizData[DizPos].DizText[TextPos]))
+  while (IsSpace(DizData[DizPos].DizText[TextPos]))
     TextPos++;
 
   char DizText[MAX_DIZ_LENGTH+NM],QuotedName[NM];
@@ -455,7 +457,7 @@ int DizList::CopyDiz(char *Name,char *ShortName,char *DestName,
   DestDiz->AddDiz(DestName,DestShortName,DizText);
   while (++DizPos<DizCount)
   {
-    if (*DizData[DizPos].DizText && !isspace(DizData[DizPos].DizText[0]))
+    if (*DizData[DizPos].DizText && !IsSpace(DizData[DizPos].DizText[0]))
       break;
     DestDiz->AddDiz(DestName,DestShortName,DizData[DizPos].DizText);
   }

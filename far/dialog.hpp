@@ -10,10 +10,12 @@ dialog.hpp
 
 */
 
-/* Revision: 1.60 15.05.2002 $ */
+/* Revision: 1.61 18.05.2002 $ */
 
 /*
 Modify:
+  18.05.2002 SVS
+    ! OwnsItems -> DMODE_OWNSITEMS
   15.05.2002 SVS
     ! Вместо Edit юзаем новый класс DlgEdit
   06.05.2002 SVS
@@ -228,6 +230,7 @@ Modify:
 #define DMODE_RESIZED       0x00010000 //
 #define DMODE_ENDLOOP       0x00020000 // Конец цикла обработки диалога?
 #define DMODE_MOUSELIST     0x00040000 // Мышь должна реагировать на нефокусный лист?
+#define DMODE_OWNSITEMS     0x00080000 // если TRUE, Dialog освобождает список Item в деструкторе
 #define DMODE_OLDSTYLE      0x80000000 // Диалог в старом (до 1.70) стиле
 
 // Флаги для функции ConvertItem
@@ -374,12 +377,6 @@ class Dialog: public Frame
 
     /* $ 17.05.2001 DJ */
     char *HelpTopic;
-    /* DJ $ */
-
-    /* $ 19.05.2001 DJ
-       если true, Dialog освобождает список Item в деструкторе
-    */
-    int OwnsItems;
     /* DJ $ */
     /* $ 23.06.2001 KM
        + Содержит статус комбобокса и хистори:
@@ -560,7 +557,8 @@ class Dialog: public Frame
     /* DJ $ */
 
     /* $ 19.05.2001 DJ */
-    void SetOwnsItems (int AOwnsItems) { AOwnsItems = OwnsItems; }
+    // void SetOwnsItems (int AOwnsItems) { AOwnsItems = OwnsItems; } !!!!!!! :-)
+    void SetOwnsItems (int AOwnsItems) { DialogMode.Change(DMODE_OWNSITEMS,AOwnsItems); }
 
     virtual int GetTypeAndName(char *Type,char *Name);
     virtual int GetType() { return MODALTYPE_DIALOG; }

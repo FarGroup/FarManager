@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.86 11.05.2002 $ */
+/* Revision: 1.87 18.05.2002 $ */
 
 /*
 Modify:
+  18.05.2002 SVS
+    ! MouseDown -> VMENU_MOUSEDOWN
   11.05.2002 SVS
     ! Меняем LIF_UPDATEKEEPUSERDATA на противоположный LIF_DELETEUSERDATA,
       делаем этот флаг доступным (соответственно меняется логика -
@@ -346,8 +348,8 @@ VMenu::VMenu(const char *Title,       // заголовок меню
   int I;
   SetDynamicallyBorn(false);
 
-  MouseDown = FALSE;
   VMenu::VMFlags.Set(Flags);
+  VMenu::VMFlags.Skip(VMENU_MOUSEDOWN);
 /* SVS $ */
 
 /*& 28.05.2001 OT Запретить перерисовку фрема во время запуска меню */
@@ -1188,12 +1190,12 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         + Запомнить нажатие клавиши мышки и только в этом случае реагировать при отпускании */
       if (MouseEvent->dwEventFlags==0 &&
          (MouseEvent->dwButtonState & (FROM_LEFT_1ST_BUTTON_PRESSED|RIGHTMOST_BUTTON_PRESSED)))
-        MouseDown = TRUE;
+        VMenu::VMFlags.Set(VMENU_MOUSEDOWN);
       if (MouseEvent->dwEventFlags==0 &&
          (MouseEvent->dwButtonState & (FROM_LEFT_1ST_BUTTON_PRESSED|RIGHTMOST_BUTTON_PRESSED))==0 &&
-          MouseDown)
+          VMenu::VMFlags.Check(VMENU_MOUSEDOWN))
       {
-        MouseDown = FALSE;
+        VMenu::VMFlags.Skip(VMENU_MOUSEDOWN);
         ProcessKey(KEY_ENTER);
       }
       /* VVM $ */

@@ -11,10 +11,12 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.39 28.04.2002 $ */
+/* Revision: 1.40 18.05.2002 $ */
 
 /*
 Modify:
+  18.05.2002 SVS
+    ! MouseDown -> VMENU_MOUSEDOWN
   28.04.2002 KM
     + VMENU_COMBOBOX
     + Меню может быть типа MODALTYPE_VMENU и MODALTYPE_COMBOBOX
@@ -199,11 +201,10 @@ enum{
 */
 #define VMENU_COMBOBOX              0x00400000
 /* KM $ */
+#define VMENU_MOUSEDOWN             0x00800000
 
 class Dialog;
 class SaveScreen;
-
-
 
 struct MenuItem
 {
@@ -281,13 +282,13 @@ class VMenu: virtual public Modal, virtual public Frame
   private:
     char Title[100];
     char BottomTitle[100];
-    int SelectPos,TopPos;
+    int SelectPos;
+    int TopPos;
     int MaxHeight;
     int MaxLength;
     int BoxType;
     int CallCount;
     int PrevMacroMode;
-    int MouseDown;
     /* $ 18.07.2000 SVS
        + переменная, отвечающая за отображение scrollbar в
          DI_LISTBOX & DI_COMBOBOX

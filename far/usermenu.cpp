@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.56 15.05.2002 $ */
+/* Revision: 1.57 18.05.2002 $ */
 
 /*
 Modify:
+  18.05.2002 SVS
+    ! Возможность компиляции под BC 5.5
   15.05.2002 SKV
     + зафиксируем вход в модальный редактор
   26.04.2002 SVS
@@ -1229,7 +1231,7 @@ void MenuFileToReg(char *MenuKey,FILE *MenuFile)
     }
     if (*MenuStr=='}')
       break;
-    if (!isspace(*MenuStr))
+    if (!IsSpace(*MenuStr))
     {
       char HotKey[10],Label[512],*ChPtr;
       int SubMenu;

@@ -8,10 +8,12 @@ help.cpp
 
 */
 
-/* Revision: 1.68 25.04.2002 $ */
+/* Revision: 1.69 18.05.2002 $ */
 
 /*
 Modify:
+  18.05.2002 SVS
+    ! Возможность компиляции под BC 5.5
   25.04.2002 SVS
     - BugZ#476 - Проблемы с .Options TabSize
   15.03.2002 DJ
@@ -590,7 +592,7 @@ m1:
             }
           }
 
-          if (*ReadStr && isspace(*ReadStr) && Formatting)
+          if (*ReadStr && IsSpace(*ReadStr) && Formatting)
           {
             if (StringLen(SplitLine)<MaxLength)
             {

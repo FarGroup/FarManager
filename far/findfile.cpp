@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.113 16.05.2002 $ */
+/* Revision: 1.114 18.05.2002 $ */
 
 /*
 Modify:
+  18.05.2002 SVS
+    ! Возможность компиляции под BC 5.5
   16.05.2002 SVS
     ! Нужно вместо GetPathRoot в поисковике юзать GetPathRootOne
   15.05.2002 SKV
@@ -2137,12 +2139,12 @@ int FindFiles::LookForString(char *Name)
           int locResultRight=FALSE;
           if (!FirstIteration)
           {
-            if (isspace(Buf[I]) || iseol(Buf[I]))
+            if (IsSpace(Buf[I]) || IsEol(Buf[I]))
               locResultLeft=TRUE;
             if (RealReadSize!=sizeof(Buf) && I+1+Length>=RealReadSize)
               locResultRight=TRUE;
             else
-              if (isspace(Buf[I+1+Length]) || iseol(Buf[I+1+Length]))
+              if (IsSpace(Buf[I+1+Length]) || IsEol(Buf[I+1+Length]))
                 locResultRight=TRUE;
 
             if (!locResultLeft)
@@ -2163,7 +2165,7 @@ int FindFiles::LookForString(char *Name)
             if (RealReadSize!=sizeof(Buf) && I+Length>=RealReadSize)
               locResultRight=TRUE;
             else
-              if (isspace(Buf[I+Length]) || iseol(Buf[I+Length]))
+              if (IsSpace(Buf[I+Length]) || IsEol(Buf[I+Length]))
                 locResultRight=TRUE;
 
             if (!locResultRight)
