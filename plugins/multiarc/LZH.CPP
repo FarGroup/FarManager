@@ -6,7 +6,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2002 FAR group
 */
-/* Revision: 1.15 24.04.2002 $ */
+/* Revision: 1.16 19.06.2002 $ */
 
 #include <windows.h>
 #include <string.h>
@@ -66,7 +66,9 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
     const unsigned char *D=Data+I;
     if (D[0]=='-' && D[1]=='l' && (D[2]=='h' || D[2]=='z') &&
         (D[3]>='0' && D[3]<='9' || D[3]=='d' || D[3]=='s' || D[3]=='d') &&
-        D[4]=='-')
+        D[4]=='-' &&
+        D[20-2] >= 0 && D[20-2] <= 2 // Level ={0-2}
+       )
     {
       SFXSize=I-2;
       return(TRUE);
