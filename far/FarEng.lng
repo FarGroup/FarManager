@@ -361,6 +361,7 @@
 "Delete files"
 "The following folder will be deleted:"
 "&Delete"
+"&Wipe"
 "&All"
 "&Skip"
 "S&kip all"
@@ -375,6 +376,10 @@
 
 "The file is read only"
 "Do you wish to delete it?"
+
+"Several hard links link to this file."
+"Wiping this file will void all files linking to it."
+"Do you wish to wipe this file?"
 
 "Cannot delete the file"
 "Cannot delete the folder"

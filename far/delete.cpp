@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.64 01.03.2004 $ */
+/* Revision: 1.65 14.04.2004 $ */
 
 /*
 Modify:
+  14.04.2004 SVS
+    ! Добавим соответствующее сообщение для Alt-Del на файле, имеющем несколько жестких связей
   01.03.2004 SVS
     ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
       (задел на будущее + править впоследствии только 1 файл)
@@ -287,8 +289,9 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   */
   if((FileAttr & FILE_ATTRIBUTE_REPARSE_POINT) && SelCount==1)
   {
-    char JuncName[NM];
-    if(GetJunctionPointInfo(DeleteFilesMsg,JuncName,sizeof(JuncName)))
+    char JuncName[1024];
+    ConvertNameToFull(SelName,JuncName, sizeof(JuncName));
+    if(GetJunctionPointInfo(JuncName,JuncName,sizeof(JuncName))) // ? SelName ?
     {
       TruncPathStr(JuncName+4,sizeof(JuncName)-4);
 
@@ -726,12 +729,49 @@ int ShellRemoveFile(const char *Name,const char *ShortName,int Wipe)
   if (ConvertNameToFull(Name,FullName, sizeof(FullName)) >= sizeof(FullName))
     return DELETE_CANCEL;
 
+  int MsgCode;
+
   while (1)
   {
     if (Wipe)
     {
-      if (WipeFile(Name) || WipeFile(ShortName))
-        break;
+      if (SkipMode!=-1)
+        MsgCode=SkipMode;
+      else
+      {
+        if(GetNumberOfLinks(FullName) > 1)
+        {
+          char MsgName[NM];
+          strncpy(MsgName, Name,sizeof(MsgName)-1);
+          TruncPathStr(MsgName, ScrX-16);
+          /*
+                            Файл
+                         "имя файла"
+                Файл имеет несколько жестких связей.
+  Уничтожение файла приведет к обнулению всех ссылающихся на него файлов.
+                        Уничтожать файл?
+          */
+          MsgCode=Message(MSG_DOWN|MSG_WARNING,5,MSG(MError),
+                          MSG(MDeleteHardLink1),MSG(MDeleteHardLink2),MSG(MDeleteHardLink3),
+                          MSG(MDeleteFileWipe),MSG(MDeleteFileAll),MSG(MDeleteFileSkip),MSG(MDeleteFileSkipAll),MSG(MDeleteCancel));
+        }
+
+        switch(MsgCode)
+        {
+          case -1:
+          case -2:
+          case 4:
+            return DELETE_CANCEL;
+          case 2:
+            return DELETE_SKIP;
+          case 3:
+            SkipMode=3;
+            return DELETE_SKIP;
+          default:
+            if (WipeFile(Name) || WipeFile(ShortName))
+              return DELETE_SUCCESS;
+        }
+      }
     }
     else
       if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion<4 || !Opt.DeleteToRecycleBin)
@@ -754,7 +794,6 @@ int ShellRemoveFile(const char *Name,const char *ShortName,int Wipe)
     /* $ 19.01.2003 KM
        Добавлен Skip all
     */
-    int MsgCode;
     if (SkipMode!=-1)
         MsgCode=SkipMode;
     else
@@ -781,15 +820,15 @@ int ShellRemoveFile(const char *Name,const char *ShortName,int Wipe)
       case -1:
       case -2:
       case 3:
-        return(DELETE_CANCEL);
+        return DELETE_CANCEL;
       case 1:
-        return(DELETE_SKIP);
+        return DELETE_SKIP;
       case 2:
         SkipMode=2;
         return DELETE_SKIP;
     }
   }
-  return(DELETE_SUCCESS);
+  return DELETE_SUCCESS;
 }
 
 

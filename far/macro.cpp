@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.115 09.02.2004 $ */
+/* Revision: 1.116 14.04.2004 $ */
 
 /*
 Modify:
+  14.04.2004 SVS
+    - BugZ#1052 - Неправильно работает логика определения где мы сейчас в MainMenu и Menu
   09.02.2004 SVS
     + MCODE_F_SWITCHKBD ($KbdSwitch) - просто переключить раскладку клавиатуры
   25.12.2003 SVS
@@ -953,7 +955,10 @@ int KeyMacro::IfCondition(DWORD OpCode,DWORD Flags,DWORD CheckCode)
   {
     case 0: // проверка на область
     {
-      Cond=CheckCode == FrameManager->GetCurrentFrame()->GetMacroMode()?1:0;
+      if(WaitInMainLoop) // здесь надо учесть тот самый WaitInMainLoop, хотя могу и ошибаться!!!
+        Cond=CheckCode == FrameManager->GetCurrentFrame()->GetMacroMode()?1:0;
+      else
+        Cond=CheckCode == CtrlObject->Macro.GetMode()?1:0;
       break;
     }
 

@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.113 12.01.2004 $ */
+/* Revision: 1.114 14.04.2004 $ */
 
 /*
 Modify:
+  14.04.2004 SVS
+    - BugZ#1053 - Неточности в $Text
   12.01.2004 SVS
     ! Корректировка KEY_MACROSELWORD
   12.01.2004 IS
@@ -1352,7 +1354,10 @@ int Edit::ProcessKey(int Key)
     case KEY_MACRO_PLAINTEXT:
     {
       if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
-        RecurseProcessKey(KEY_DEL);
+      {
+        if(SelStart != -1) // BugZ#1053 - Неточности в $Text
+          RecurseProcessKey(KEY_DEL);
+      }
       if(Key == KEY_MACRO_DATE)
         ProcessInsDate();
       else

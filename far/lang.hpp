@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.139 02.03.2004 $ */
+/* Revision: 1.140 14.04.2004 $ */
 
 /*
 Modify:
+  14.04.2004 SVS
+    + MDeleteFileWipe, MDeleteHardLink1, MDeleteHardLink2, MDeleteHardLink3
   02.03.2004 SVS
     ! Вместо MEditInputSize заюзаем 2 строки - MEditInputSize1 и MEditInputSize2
   28.02.2004 SVS
@@ -742,6 +744,7 @@ enum
   MDeleteFilesTitle,
   MDeleteFolderConfirm,
   MDeleteFileDelete,
+  MDeleteFileWipe,
   MDeleteFileAll,
   MDeleteFileSkip,
   MDeleteFileSkipAll,
@@ -756,6 +759,10 @@ enum
 
   MDeleteRO,
   MAskDeleteRO,
+
+  MDeleteHardLink1,
+  MDeleteHardLink2,
+  MDeleteHardLink3,
 
   MCannotDeleteFile,
   MCannotDeleteFolder,

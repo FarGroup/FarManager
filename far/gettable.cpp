@@ -5,10 +5,12 @@ gettable.cpp
 
 */
 
-/* Revision: 1.19 01.03.2004 $ */
+/* Revision: 1.20 14.04.2004 $ */
 
 /*
 Modify:
+  14.04.2004 SVS
+    - BugZ#1055 - проблема с позиционированием начальной кодировки в меню по alt-f8
   01.03.2004 SVS
     ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
       (задел на будущее + править впоследствии только 1 файл)
@@ -204,7 +206,10 @@ int DetectTable(FILE *SrcFile,struct CharTableSet *TableSet,int &TableNum)
   unsigned char DistrTable[256],FileDistr[256],FileData[4096];
   int ReadSize;
   if (!GetRegKey("CodeTables","Distribution",(BYTE *)DistrTable,(BYTE *)NULL,sizeof(DistrTable)))
+  {
+    TableNum=0;
     return(FALSE);
+  }
   SaveFilePos SavePos(SrcFile);
   fseek64(SrcFile,0,SEEK_SET);
 
@@ -239,7 +244,10 @@ int DetectTable(FILE *SrcFile,struct CharTableSet *TableSet,int &TableNum)
   }
 
   if (ProcessedSize<10)
+  {
+    TableNum=0;
     return(FALSE);
+  }
 
   int MaxDistr=0,MaxFileDistr=0,I;
   for (I=0;I<sizeof(DistrTable)/sizeof(DistrTable[0]);I++)
@@ -291,7 +299,10 @@ int DetectTable(FILE *SrcFile,struct CharTableSet *TableSet,int &TableNum)
     return(FALSE);
   }
   if (!PrepareTable(TableSet,BestTable))
+  {
+    TableNum=0;
     return(FALSE);
+  }
   TableNum=BestTable+1;
   return(TRUE);
 }

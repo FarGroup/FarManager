@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.106 29.03.2004 $ */
+/* Revision: 1.107 14.04.2004 $ */
 
 /*
 Modify:
+  14.04.2004 SVS
+    - "Ожил (или появился?) макрос"
   29.03.2004 SVS
     - Т.к. работаем в OEM + W-Input-функции, то... необходима перекодировка
       Unicode-символа из входного потока в OEM.
@@ -1791,7 +1793,8 @@ int WINAPI KeyNameToKey(const char *Name)
              Chr=LocalUpper(Chr);
            }
            Key|=Chr;
-           Pos++;
+           if(Chr)
+             Pos++;
          }
        }
        else if(Key & (KEY_ALT|KEY_RALT))
