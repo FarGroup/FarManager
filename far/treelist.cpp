@@ -5,10 +5,16 @@ Tree panel
 
 */
 
-/* Revision: 1.37 26.03.2002 $ */
+/* Revision: 1.38 26.03.2002 $ */
 
 /*
 Modify:
+  26.03.2002 KM
+    - Падало в SetTitle на конструкции:
+      ===
+      sprintf(TitleDir,"{%s - Tree}",NM-1,Ptr);
+      ===
+      Так как %s был указан без модификатора ".*"
   26.03.2002 DJ
     ! ScanTree::GetNextName() принимает размер буфера для имени файла
   22.03.2002 SVS
@@ -1602,7 +1608,7 @@ void TreeList::SetTitle()
       Ptr=CurPtr->Name;
     }
     if (*Ptr)
-      sprintf(TitleDir,"{%s - Tree}",NM-1,Ptr);
+      sprintf(TitleDir,"{%.*s - Tree}",NM-1,Ptr);
     else
     {
       sprintf(TitleDir,"{Tree}");
