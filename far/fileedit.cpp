@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.60 17.08.2001 $ */
+/* Revision: 1.61 08.09.2001 $ */
 
 /*
 Modify:
+  08.09.2001 IS
+    + Дополнительный параметр у второго конструктора: DisableHistory
   17.08.2001 KM
     + Добавлена функция SetSaveToSaveAs для установки дефолтной реакции
       на клавишу F2 в вызов ShiftF2 для поиска, в случае редактирования
@@ -196,12 +198,12 @@ FileEditor::FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
 
 FileEditor::FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
             int StartLine,int StartChar,const char *Title,
-            int X1,int Y1,int X2,int Y2)
+            int X1,int Y1,int X2,int Y2,int DisableHistory)
 {
   ScreenObject::SetPosition(X1,Y1,X2,Y2);
   FullScreen=(X1==0 && Y1==0 && X2==ScrX && Y2==ScrY);
   FEdit.SetTitle(Title);
-  Init(Name,CreateNewFile,EnableSwitch,StartLine,StartChar,TRUE,"",FALSE);
+  Init(Name,CreateNewFile,EnableSwitch,StartLine,StartChar,DisableHistory,"",FALSE);
 }
 
 

@@ -7,10 +7,12 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.18 17.08.2001 $ */
+/* Revision: 1.19 08.09.2001 $ */
 
 /*
 Modify:
+  08.09.2001 IS
+    + Дополнительный параметр у второго конструктора: DisableHistory
   17.08.2001 KM
     + Добавлена функция SetSaveToSaveAs для установки дефолтной реакции
       на клавишу F2 в вызов ShiftF2 для поиска, в случае редактирования
@@ -98,7 +100,7 @@ class FileEditor:public Frame
                char *PluginData=NULL,int ToSaveAs=FALSE);
     FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
                int StartLine,int StartChar,const char *Title,
-               int X1,int Y1,int X2,int Y2);
+               int X1,int Y1,int X2,int Y2, int DisableHistory);
     /* $ 07.05.2001 DJ */
     virtual ~FileEditor();
     /* DJ $ */
@@ -145,4 +147,4 @@ class FileEditor:public Frame
 
 };
 
-#endif	// __FILEEDITOR_HPP__
+#endif  // __FILEEDITOR_HPP__

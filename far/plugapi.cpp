@@ -5,10 +5,13 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.86 13.08.2001 $ */
+/* Revision: 1.87 08.09.2001 $ */
 
 /*
 Modify:
+  08.09.2001 IS
+    ! Теперь имя файла добавляется в историю просмотра/редактирования
+      при использовании функций апи Editor/Viewer
   13.08.2001 SKV
     + FCTL_GETCMDLINESELECTION,FCTL_SETCMDLINESELECTION
   13.08.2001 SVS
@@ -1367,7 +1370,9 @@ int WINAPI FarViewer(const char *FileName,const char *Title,
   GetConsoleTitle(OldTitle,sizeof(OldTitle));
   if (Flags & VF_NONMODAL)
   {
-    FileViewer *Viewer=new FileViewer(FileName,TRUE,Title,X1,Y1,X2,Y2);
+    /* 08.09.2001 IS ! Добавим имя файла в историю */
+    FileViewer *Viewer=new FileViewer(FileName,TRUE,FALSE,Title,X1,Y1,X2,Y2);
+    /* IS $ */
     if (Flags & VF_DELETEONCLOSE)
       Viewer->SetTempViewName(FileName);
     /* $ 12.05.2001 DJ */
@@ -1376,7 +1381,9 @@ int WINAPI FarViewer(const char *FileName,const char *Title,
   }
   else
   {
-    FileViewer Viewer (FileName,FALSE,Title,X1,Y1,X2,Y2);
+    /* 08.09.2001 IS ! Добавим имя файла в историю */
+    FileViewer Viewer (FileName,FALSE,FALSE,Title,X1,Y1,X2,Y2);
+    /* IS $ */
     /* $ 28.05.2001 По умолчанию Вьюер, поэтому нужно здесь признак выставиль явно */
     Viewer.SetDynamicallyBorn(false);
     FrameManager->ExecuteModal();
@@ -1416,7 +1423,9 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
   if (Flags & EF_NONMODAL)
   {
     ExitCode=FALSE;
-    FileEditor *Editor=new FileEditor(FileName,CreateNew,TRUE,StartLine,StartChar,Title,X1,Y1,X2,Y2);
+    /* 08.09.2001 IS ! Добавим имя файла в историю */
+    FileEditor *Editor=new FileEditor(FileName,CreateNew,TRUE,StartLine,StartChar,Title,X1,Y1,X2,Y2,FALSE);
+    /* IS $ */
     if (Editor)
     {
       /* $ 12.05.2001 DJ */
@@ -1427,7 +1436,9 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
   }
   else
   {
-   FileEditor Editor(FileName,CreateNew,FALSE,StartLine,StartChar,Title,X1,Y1,X2,Y2);
+   /* 08.09.2001 IS ! Добавим имя файла в историю */
+   FileEditor Editor(FileName,CreateNew,FALSE,StartLine,StartChar,Title,X1,Y1,X2,Y2,FALSE);
+   /* IS $ */
    Editor.SetDynamicallyBorn(false);
    /* $ 12.05.2001 DJ */
    Editor.SetEnableF6 ((Flags & EF_ENABLE_F6) != 0);

@@ -7,10 +7,12 @@ fileview.hpp
 
 */
 
-/* Revision: 1.14 17.08.2001 $ */
+/* Revision: 1.15 08.09.2001 $ */
 
 /*
 Modify:
+  08.09.2001 IS
+    + Дополнительный параметр у второго конструктора: DisableHistory
   17.08.2001 KM
     + Добавлена функция SetSaveToSaveAs для установки дефолтной реакции
       на клавишу F2 в вызов ShiftF2 для поиска, в случае редактирования
@@ -80,8 +82,8 @@ class FileViewer:public Frame
     FileViewer(const char *Name,int EnableSwitch=FALSE,int DisableHistory=FALSE,
                int DisableEdit=FALSE,long ViewStartPos=-1,char *PluginData=NULL,
                NamesList *ViewNamesList=NULL,int ToSaveAs=FALSE);
-    FileViewer(const char *Name,int EnableSwitch,const char *Title,
-               int X1,int Y1,int X2,int Y2);
+    FileViewer(const char *Name,int EnableSwitch,int DisableHistory,
+               const char *Title,int X1,int Y1,int X2,int Y2);
     void Init(const char *Name,int EnableSwitch,int DisableHistory,
               long ViewStartPos,char *PluginData,NamesList *ViewNamesList,int ToSaveAs);
     ~FileViewer();
