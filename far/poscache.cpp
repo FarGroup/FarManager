@@ -5,10 +5,12 @@ poscache.cpp
 
 */
 
-/* Revision: 1.04 02.04.2001 $ */
+/* Revision: 1.05 06.04.2001 $ */
 
 /*
 Modify:
+  06.04.2001 VVM
+    - Неправильное позиционирование в открытых файлах
   02.04.2001 VVM
     + Обработка Opt.FlagPosixSemantics и убирание дупов с помощью FindPosition()
   03.11.2000 OT
@@ -86,10 +88,14 @@ void FilePositionCache::AddPosition(char *Name,unsigned int Position1,
       return;
     }
   }
-  strcpy(&Names[CurPos*3*NM],FullName);
+  /* $ 06.04.2001 VVM
+    - Неправильное позиционирование в открытых файлах 
+      Имена копировал до поиска, а не после :) */
   int Pos = FindPosition(FullName);
   if (Pos >= 0)
     CurPos = Pos;
+  strcpy(&Names[CurPos*3*NM],FullName);
+  /* VVM $ */
   Positions[CurPos*5+0]=Position1;
   Positions[CurPos*5+1]=Position2;
   Positions[CurPos*5+2]=Position3;
