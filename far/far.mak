@@ -47,6 +47,7 @@ CLEAN :
 	-@erase "$(INTDIR)\farqueue.obj"
 	-@erase "$(INTDIR)\qsortex.obj"
 	-@erase "$(INTDIR)\mktemp.obj"
+	-@erase "$(INTDIR)\execute.obj"
 	-@erase "$(INTDIR)\strncpy.obj"
 	-@erase "$(INTDIR)\constitle.obj"
 	-@erase "$(INTDIR)\stddlg.obj"
@@ -182,6 +183,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\farexcpt.obj" \
 	"$(INTDIR)\qsortex.obj" \
 	"$(INTDIR)\mktemp.obj" \
+	"$(INTDIR)\execute.obj" \
 	"$(INTDIR)\strncpy.obj" \
 	"$(INTDIR)\dialog.obj" \
 	"$(INTDIR)\dizlist.obj" \
@@ -318,6 +320,7 @@ CLEAN :
 	-@erase "$(INTDIR)\editor.obj"
 	-@erase "$(INTDIR)\qsortex.obj"
 	-@erase "$(INTDIR)\mktemp.obj"
+	-@erase "$(INTDIR)\execute.obj"
 	-@erase "$(INTDIR)\strncpy.obj"
 	-@erase "$(INTDIR)\far.res"
 	-@erase "$(INTDIR)\ffolders.obj"
@@ -419,6 +422,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\strmix.obj" \
 	"$(INTDIR)\qsortex.obj" \
 	"$(INTDIR)\mktemp.obj" \
+	"$(INTDIR)\execute.obj" \
 	"$(INTDIR)\strncpy.obj" \
 	"$(INTDIR)\flink.obj" \
 	"$(INTDIR)\checkver.obj" \
@@ -1016,6 +1020,10 @@ SOURCE=.\strncpy.c
 SOURCE=.\mktemp.c
 
 "$(INTDIR)\mktemp.obj" : $(SOURCE) "$(INTDIR)"
+
+SOURCE=.\execute.cpp
+
+"$(INTDIR)\execute.obj" : $(SOURCE) "$(INTDIR)"
 
 
 !ENDIF

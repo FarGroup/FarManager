@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.148 07.10.2001 $ */
+/* Revision: 1.149 10.10.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,9 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  10.10.2001 SVS
+    + EditorInfo.CurState - состояние редактора (дополнительные флаги)
+    ! EditorGetString.StringText и StringEOL для плагинов имеют суть const
   07.10.2001 SVS 1.148
     + По просьбам трудящихся - добавлен "|| defined(__WATCOMC__)"
   01.10.2001 SVS 1.147
@@ -1404,8 +1407,13 @@ struct EditorSetParameter
 struct EditorGetString
 {
   int StringNumber;
+#ifdef FAR_USE_INTERNALS
   char *StringText;
   char *StringEOL;
+#else // ELSE FAR_USE_INTERNALS
+  const char *StringText;
+  const char *StringEOL;
+#endif // END FAR_USE_INTERNALS
   int StringLength;
   int SelStart;
   int SelEnd;
@@ -1432,6 +1440,12 @@ enum EDITOR_BLOCK_TYPES {
   BTYPE_NONE,BTYPE_STREAM,BTYPE_COLUMN
 };
 
+enum EDITOR_CURRENTSTATE {
+  ECSTATE_MODIFIED=1,
+  ECSTATE_SAVED=2,
+  ECSTATE_LOCKED=4,
+};
+
 
 struct EditorInfo
 {
@@ -1453,7 +1467,8 @@ struct EditorInfo
   DWORD Options;
   int TabSize;
   int BookMarkCount;
-  DWORD Reserved[7];
+  DWORD CurState;
+  DWORD Reserved[6];
 };
 
 struct EditorBookMark

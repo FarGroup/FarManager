@@ -1,15 +1,15 @@
 #include <string.h>
 #include <memory.h>
 
-// dest Ё src ¬®Јгв ЇҐаҐбҐЄ вмбп
+// dest и src НЕ ДОЛЖНЫ пересекаться
+// maxlen - максимальное число символов, которое можно скопировать
+//          в dest БЕЗ учета заключительного нуля, т.е. в общем
+//          случае это "sizeof-1"
 char * __cdecl strncpy (char * dest,const char * src,size_t maxlen)
 {
-  size_t len;
-
-  len = strlen(src);
-  len = (len > maxlen)?maxlen:len;
-  memmove(dest,src,len);
-  // §¤Ґбм Ўл try/except Ї®бв ўЁвм...
-  dest[len]=0;
-  return (dest);
+  char *tmpsrc = dest;
+  while (maxlen && 0 != (*dest++ = *src++))
+    --maxlen;
+  *dest = 0;
+  return tmpsrc;
 }

@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.119 27.09.2001 $ */
+/* Revision: 1.120 10.10.2001 $ */
 
 /*
 Modify:
+  10.10.2001 SVS
+    + EditorInfo.CurState
   27.09.2001 IS
     - Левый размер при использовании strncpy
   24.09.2001 SKV
@@ -5010,6 +5012,9 @@ int Editor::EditorControl(int Command,void *Param)
           Info->Options|=EOPT_CURSORBEYONDEOL;
         Info->TabSize=EdOpt.TabSize;
         Info->BookMarkCount=BOOKMARK_COUNT;
+        Info->CurState=LockMode?ECSTATE_LOCKED:0;
+        Info->CurState|=!Modified?ECSTATE_SAVED:0;
+        Info->CurState|=WasChanged || Modified?ECSTATE_MODIFIED:0;
       }
       return(TRUE);
     case ECTL_SETPOSITION:

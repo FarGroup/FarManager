@@ -1946,3 +1946,20 @@
 
 .\strncpy.c : \
 	".\headers.hpp"\
+
+
+.\execute.cpp : \
+	".\headers.hpp"\
+	".\filepanels.hpp"\
+	".\lang.hpp"\
+	".\keys.hpp"\
+	".\plugin.hpp"\
+	".\ctrlobj.hpp"\
+	".\scrbuf.hpp"\
+	".\chgprior.hpp"\
+	".\global.hpp"\
+	".\cmdline.hpp"\
+	".\panel.hpp"\
+	".\fn.hpp"\
+	".\rdrwdsk.hpp"\
+

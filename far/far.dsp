@@ -156,6 +156,10 @@ SOURCE=.\farexcpt.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\execute.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\far.def
 # End Source File
 # Begin Source File

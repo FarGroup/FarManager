@@ -182,6 +182,7 @@ FAROBJ=\
    $(OBJPATH)\namelist.obj\
    $(OBJPATH)\options.obj\
    $(OBJPATH)\palette.obj\
+   $(OBJPATH)\execute.obj\
    $(OBJPATH)\fnparce.obj\
    $(OBJPATH)\panel.obj\
    $(OBJPATH)\plist.obj\

@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.164 08.10.2001 $ */
+/* Revision: 1.165 10.10.2001 $ */
 
 /*
 Modify:
+  10.10.2001 SVS
+   ! Если "редактор" имеет флаг DIF_NOFOCUS, то показывать его нефокусным
+     цветом (BugZ#71)
   08.10.2001 SVS
    - Неверно рассчитывались координаты элементов DI_TEXT & DI_VTEXT
   04.10.2001 SVS
@@ -1911,7 +1914,7 @@ void Dialog::ShowDialog(int ID)
 
         EditPtr->SetObjectColor(Attr&0xFF,HIBYTE(LOWORD(Attr)),LOBYTE(HIWORD(Attr)));
 
-        if (CurItem->Focus)
+        if (CurItem->Focus && !(CurItem->Flags&DIF_NOFOCUS))
         {
           /* $ 09.08.2000 KM
              Отключение мигающего курсора при перемещении диалога
