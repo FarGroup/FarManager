@@ -5,10 +5,14 @@ Tree panel
 
 */
 
-/* Revision: 1.16 14.06.2001 $ */
+/* Revision: 1.17 18.06.2001 $ */
 
 /*
 Modify:
+  18.06.2001 SVS
+    - Вот же елы палы :-( Вместо MACRO_TREEPANEL макромода стояла
+      MACRO_INFOPANEL. К чему бы это?
+    + F4 в дереве работает так же как и Ctrl-A
   14.06.2001 SVS
     + KEY_CTRLALTINS - вставляет в клипборд полное имя каталога
   25.05.2001 SVS
@@ -571,6 +575,7 @@ int TreeList::ProcessKey(int Key)
         break;
       ProcessEnter();
       return(TRUE);
+    case KEY_F4:
     case KEY_CTRLA:
       if (SetCurPath())
         ShellSetFileAttributes(this);
@@ -1405,5 +1410,5 @@ void TreeList::SetMacroMode(int Restore)
     return;
   if (PrevMacroMode == -1)
     PrevMacroMode = CtrlObject->Macro.GetMode();
-  CtrlObject->Macro.SetMode(Restore ? PrevMacroMode:MACRO_INFOPANEL);
+  CtrlObject->Macro.SetMode(Restore ? PrevMacroMode:MACRO_TREEPANEL);
 }
