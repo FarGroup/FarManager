@@ -5,10 +5,12 @@ stddlg.cpp
 
 */
 
-/* Revision: 1.05 12.02.2001 $ */
+/* Revision: 1.06 12.03.2001 $ */
 
 /*
 Modify:
+  12.03.2001 SVS
+    ! Грязный Хак в функции GetString :-)
   12.02.2001 SVS
     ! Ops. Баги в GetString :-)
   11.02.2001 SVS
@@ -231,6 +233,24 @@ int WINAPI GetSearchReplaceString(
 /* $ 31.07.2000 SVS
    ! Функция GetString имеет еще один параметр - расширять ли переменные среды!
 */
+// Функция для коррекции аля Shift-F4 Shift-Enter без отпускания Shift ;-)
+static long WINAPI GetStringDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
+{
+  if(Msg == DM_KEY)
+  {
+//    char KeyText[50];
+//    KeyToText(Param2,KeyText);
+//    SysLog("%s (0x%08X) ShiftPressed=%d",KeyText,Param2,ShiftPressed);
+    if(ShiftPressed && Param2 == KEY_ENTER)
+    {
+      DWORD Arr[1]={KEY_SHIFTENTER};
+      Dialog::SendDlgMessage(hDlg,Msg,Param1,(long)Arr);
+      return TRUE;
+    }
+  }
+  return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
+}
+
 int WINAPI GetString(char *Title,char *Prompt,char *HistoryName,char *SrcText,
     char *DestText,int DestLength,char *HelpTopic,DWORD Flags)
 {
@@ -312,7 +332,7 @@ int WINAPI GetString(char *Title,char *Prompt,char *HistoryName,char *SrcText,
 
 
   TRY{
-    Dialog Dlg(StrDlg,sizeof(StrDlg)/sizeof(StrDlg[0])-Substract);
+    Dialog Dlg(StrDlg,sizeof(StrDlg)/sizeof(StrDlg[0])-Substract,GetStringDlgProc);
     Dlg.SetPosition(-1,-1,76,(Flags&FIB_BUTTONS)?8:6);
 
     if (HelpTopic!=NULL)
