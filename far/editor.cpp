@@ -5,7 +5,7 @@ editor.cpp
 
 */
 
-/* Revision: 1.03 07.07.2000 $ */
+/* Revision: 1.04 07.07.2000 $ */
 
 /*
 Modify:
@@ -18,6 +18,9 @@ Modify:
     + CtrlAltLeft, CtrlAltRight для вертикальный блоков
   07.07.2000 tran & SVS
     + in AltF8 - row,col support
+  07.07.2000 SVS
+    + Разграничитель слов WordDiv находится теперь в global.cpp и
+      берется из реестра (общий для редактирования)
 */
 
 #include "headers.hpp"
@@ -32,7 +35,6 @@ Modify:
 static struct CharTableSet InitTableSet;
 static int InitUseDecodeTable=FALSE,InitTableNum=0,InitAnsiText=FALSE;
 
-static const char *WordDiv="!%^&*()+|{}:\"<>?`-=\\[];',./";
 static int ReplaceMode,ReplaceAll;
 static BOOL GetRowCol(char *argv,int *row,int *col);
 

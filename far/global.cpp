@@ -5,13 +5,15 @@ global.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 07.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  07.07.2000 SVS
+    + Разграничитель слов из реестра (общий для редактирования)
 */
 
 #include "headers.hpp"
@@ -63,3 +65,9 @@ char RegName[256];
 int CmpNameSearchMode;
 int DisablePluginsOutput;
 int CmdMode;
+
+/* $ 07.07.2000 SVS
+   Разграничитель слов из реестра
+*/
+char WordDiv[80];
+/* SVS $ */

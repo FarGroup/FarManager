@@ -5,13 +5,15 @@ far.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 06.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  07.07.2000 SVS
+    + Получить разграничитель слов из реестра (общий для редактирования)
 */
 
 #include "headers.hpp"
@@ -96,6 +98,13 @@ int _cdecl main(int Argc, char *Argv[])
   GetConsoleTitle(OldTitle,sizeof(OldTitle));
 
   set_new_handler(0);
+
+  /* $ 07.07.2000 SVS
+     Получить разграничитель слов из реестра
+  */
+  GetRegKey("Editor","WordDiv",WordDiv,"!%^&*()+|{}:\"<>?`-=\\[];',./",79);
+  SetRegKey("Editor","WordDiv",WordDiv);
+  /* SVS $ */
 
   SetFileApisToOEM();
   WinVer.dwOSVersionInfoSize=sizeof(WinVer);

@@ -5,7 +5,7 @@ edit.cpp
 
 */
 
-/* Revision: 1.03 04.07.2000 $ */
+/* Revision: 1.05 07.07.2000 $ */
 
 /*
 Modify:
@@ -19,6 +19,9 @@ Modify:
     + Ctrl-L переключает ReadOnly флаг
   04.07.2000 IG
     - в макросе сбрасывалось выделение до ShiftIns (bug8)
+  07.07.2000 SVS
+    + Разграничитель слов WordDiv находится теперь в global.cpp и
+      берется из реестра (общий для редактирования)
 */
 
 #include "headers.hpp"
@@ -29,8 +32,6 @@ Modify:
 */
 #include "internalheaders.hpp"
 /* IS $ */
-
-static const char *WordDiv="!%^&*()+|{}:\"<>?`-=\\[];',./";
 
 static int EditOutDisabled=0;
 static int EditEncodeDisabled=0;
