@@ -5,10 +5,12 @@ filter.cpp
 
 */
 
-/* Revision: 1.18 27.07.2001 $ */
+/* Revision: 1.19 11.10.2001 $ */
 
 /*
 Modify:
+  11.10.2001 VVM
+    ! Если пользовательских фильтров нет, то надпись во всю ширину меню
   27.09.2001 IS
     - Левый размер при использовании strncpy
   26.07.2001 SVS
@@ -182,7 +184,10 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
     memset(&ListItem,0,sizeof(ListItem));
     if (FilterDataCount==0)
     {
-      sprintf(ListItem.Name,"%-30.30s %c",MSG(MNoCustomFilters),VerticalLine);
+      /* $ 11.10.2001 VVM
+        ! Если пользовательских фильтров нет, то надпись во всю ширину меню */
+      sprintf(ListItem.Name,"%-60.60s",MSG(MNoCustomFilters));
+      /* VVM $ */
       if(!Pos)
         ListItem.Flags|=LIF_SELECTED;
       FilterList.AddItem(&ListItem);
