@@ -5,10 +5,35 @@ findfile.cpp
 
 */
 
-/* Revision: 1.101 21.03.2002 $ */
+/* Revision: 1.102 24.03.2002 $ */
 
 /*
 Modify:
+  24.03.2002 KM
+    - Неверно выкидывались во временную панель список файлов
+      с папками. При поиске по маске, в которую каталоги не
+      попадали, во временную панель попадали папки, в которых
+      эти файлы были найдены, но отнюдь не найденные по маске,
+      что не есть правильно.
+    ! Восстановил поведение поиска в отношении добавления найденных
+      каталогов в список к стандарту 1.65 и 3 беты. А речь идёт
+      вот о чём. В старом фаре, если при поиске по маске в неё
+      попадали и каталоги то они попадали в список найденного
+      аналогично файлам:
+      ===
+      г======================== Find file =========================¬
+      ¦C:\Work\FAR_SRC\Far\new\Debug\Plugins\                      ¦
+      ¦  p_1.bat                                 0  24.03.02 04:31 ¦
+      ¦  p1                                 Folder  24.03.02 04:31 ¦
+      ¦  ProcList                           Folder  17.01.02 21:35 ¦
+      ===
+      При глобальной переделке поиска я это случайно убил.
+    ! Сортировку в плагинах по именам папок делаем в случае,
+      если имя файла содержит в себе путь, а не только при
+      OPIF_REALNAMES, в противном случае в результатах поиска
+      получается некрасивый визуальный эффект разбросанности
+      одинаковых папок по списку.
+
   21.03.2002 VVM
     + Передаем имена каталогов на панель без заключительного "\"
   15.01.2002 VVM
@@ -1783,7 +1808,6 @@ int FindFiles::IsFileIncluded(PluginPanelItem *FileItem,char *FullName,DWORD Fil
 /* IS $ */
 
 
-//void FindFiles::AddMenuRecord(char *FullName, char *Path, WIN32_FIND_DATA *FindData)
 void FindFiles::AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData)
 {
   char MenuText[NM],FileText[NM],SizeText[30];
@@ -1800,11 +1824,20 @@ void FindFiles::AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData)
 
   memset(&ListItem,0,sizeof(ListItem));
 
-  sprintf(SizeText,"%10u",FindData->nFileSizeLow);
+  if (FindData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+    sprintf(SizeText,"%10s",MSG(MFindFileFolder));
+  else
+    sprintf(SizeText,"%10u",FindData->nFileSizeLow);
   char *DisplayName=FindData->cFileName;
-  if ((FindFileArcIndex != LIST_INDEX_NONE) &&
-      (ArcList[FindFileArcIndex].Flags & OPIF_REALNAMES))
+  /* $ 24.03.2002 KM
+     В плагинах принудительно поставим указатель в имени на имя
+     для корректного его отображения в списке, отбросив путь,
+     т.к. некоторые плагины возвращают имя вместе с полным путём,
+     к примеру временная панель.
+  */
+  if (FindFileArcIndex != LIST_INDEX_NONE)
     DisplayName=PointToName(DisplayName);
+  /* KM $ */
 
   sprintf(FileText," %-30.30s %10.10s",DisplayName,SizeText);
   ConvertDate(&FindData->ftLastWriteTime,DateStr,TimeStr,5);
@@ -1819,25 +1852,10 @@ void FindFiles::AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData)
   }
 
   char PathName[2*NM];
-  /* $ 16.01.2002 VVM
-    ! Все равно полный путь передается в FullName, так что эта обработка лишняя */
-//  if (Path)
-//  {
-//    for (i=0;Path[i]!=0;i++)
-//    {
-//      if (Path[i]=='\x1')
-//        Path[i]='\\';
-//    }
-//    strcpy(PathName,Path);
-//  }
-//  else
-//  {
-    strncpy(PathName,FullName,sizeof(PathName)-1);
-    PathName[sizeof(PathName)-1]=0;
-    if ((FindData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0)
-      *PointToName(PathName)=0;
-//  }
-  /* VVM $ */
+  strncpy(PathName,FullName,sizeof(PathName)-1);
+  PathName[sizeof(PathName)-1]=0;
+  *PointToName(PathName)=0;
+
   if (*PathName==0)
     strcpy(PathName,".\\");
 
@@ -1876,9 +1894,15 @@ void FindFiles::AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData)
     {
       // Сбросим данные в FindData. Они там от файла
       memset(&FindList[ItemIndex].FindData,0,sizeof(FindList[ItemIndex].FindData));
-      // Используем LastDirName, т.к. PathName уже может быть искажена
-      strncpy(FindList[ItemIndex].FindData.cFileName, LastDirName,
-              sizeof(FindList[ItemIndex].FindData.cFileName)-1);
+      /* $ 24.03.2002 KM
+         Для каталога, в котором производится поиск, выставим
+         пустое имя, для того чтобы в дальнейшем это имя
+         не попало во временную панель. Найденные по маске
+         каталоги при использовании опции "Искать папки"
+         добавляются в список отдельно далее.
+      */
+      *FindList[ItemIndex].FindData.cFileName=0;
+      /* KM $ */
       // Поставим атрибут у каталога, что-бы он не был файлом :)
       FindList[ItemIndex].FindData.dwFileAttributes = FILE_ATTRIBUTE_DIRECTORY;
       if (FindFileArcIndex != LIST_INDEX_NONE)
@@ -1891,34 +1915,40 @@ void FindFiles::AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData)
     }
   }
 
-  if ((FindData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0)
+  /* $ 24.03.2002 KM
+     Дополнительно добавляем в список найденного
+     папки. Так было в 1.65 и в 3 бете, но при
+     полной переделке поиска я это где-то отломил,
+     теперь возвращаю на место.
+  */
+  DWORD ItemIndex = AddFindListItem(FindData);
+  if (ItemIndex != LIST_INDEX_NONE)
   {
-    DWORD ItemIndex = AddFindListItem(FindData);
-    if (ItemIndex != LIST_INDEX_NONE)
-    {
-      strncpy(FindList[ItemIndex].FindData.cFileName, FullName,
-              sizeof(FindList[ItemIndex].FindData.cFileName)-1);
-      if (FindFileArcIndex != LIST_INDEX_NONE)
-        FindList[ItemIndex].ArcIndex = FindFileArcIndex;
-    }
-    strncpy(ListItem.Name,MenuText,sizeof(ListItem.Name)-1);
-    /* $ 17.01.2002 VVM
-      ! Выделять будем не в структуре, а в списке. Дабы не двоилось выделение */
-//    ListItem.SetSelect(!FindFileCount);
-
-    while (ListBox->GetCallCount())
-      Sleep(10);
-
-    int ListPos = ListBox->AddItem(&ListItem);
-    ListBox->SetUserData((void*)ItemIndex,sizeof(ItemIndex), ListPos);
-    // Выделим как положено - в списке.
-    if (!FindFileCount)
-      ListBox->SetSelectPos(ListPos, -1);
-    /* VVM $ */
-    FindFileCount++;
+    strncpy(FindList[ItemIndex].FindData.cFileName, FullName,
+            sizeof(FindList[ItemIndex].FindData.cFileName)-1);
+    if (FindFileArcIndex != LIST_INDEX_NONE)
+      FindList[ItemIndex].ArcIndex = FindFileArcIndex;
   }
-  else
+  strncpy(ListItem.Name,MenuText,sizeof(ListItem.Name)-1);
+  /* $ 17.01.2002 VVM
+    ! Выделять будем не в структуре, а в списке. Дабы не двоилось выделение */
+//  ListItem.SetSelect(!FindFileCount);
+
+  while (ListBox->GetCallCount())
+    Sleep(10);
+
+  int ListPos = ListBox->AddItem(&ListItem);
+  ListBox->SetUserData((void*)ItemIndex,sizeof(ItemIndex), ListPos);
+  // Выделим как положено - в списке.
+  if (!FindFileCount && !FindDirCount)
+    ListBox->SetSelectPos(ListPos, -1);
+  /* VVM $ */
+
+  if (FindData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
     FindDirCount++;
+  else
+    FindFileCount++;
+  /* KM $ */
 
   LastFoundNumber++;
   FindCountReady=TRUE;
@@ -2165,11 +2195,16 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
     ReleaseMutex(hPluginMutex);
   RecurseLevel++;
 
-  if ((FindFileArcIndex != LIST_INDEX_NONE) &&
-      (ArcList[FindFileArcIndex].Flags & OPIF_REALNAMES))
-  {
+  /* $ 24.03.2002 KM
+     Сортировку в плагинах по именам папок делаем в случае,
+     если имя файла содержит в себе путь, а не только при
+     OPIF_REALNAMES, в противном случае в результатах поиска
+     получается некрасивый визуальный эффект разбросанности
+     одинаковых папок по списку.
+  */
+  if (PanelData && strlen(PointToName(PanelData->FindData.cFileName))>0)
     qsort((void *)PanelData,ItemCount,sizeof(*PanelData),SortItems);
-  }
+  /* KM $ */
 
   if (SearchMode!=SEARCH_SELECTED || RecurseLevel!=1)
   {
