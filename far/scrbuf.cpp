@@ -5,10 +5,12 @@ scrbuf.cpp
 
 */
 
-/* Revision: 1.20 25.06.2002 $ */
+/* Revision: 1.21 27.08.2002 $ */
 
 /*
 Modify:
+  27.08.2002 tran
+    ! ::fillbuf() - на больших консол€х берем по строкам
   25.06.2002 SVS
     !  осметика:  BitFlags::Skip -> BitFlags::Clear
   04.06.2002 SVS
@@ -149,14 +151,43 @@ void ScreenBuf::FillBuf()
   Coord.Top=0;
   Coord.Right=BufX-1;
   Coord.Bottom=BufY-1;
-#if defined(USE_WFUNC)
-  if(Opt.UseTTFFont)
-    ReadConsoleOutputW(hScreen,Buf,Size,Corner,&Coord);
+
+  _tran(SysLog("BufX*BufY=%i",BufX*BufY));
+  if ( BufX*BufY>6000 )
+  {
+    _tran(SysLog("fucked method"));
+    CHAR_INFO *ci=(CHAR_INFO*)Buf;
+    for ( int y=0; y<BufY; y++ )
+    {
+        Size.Y=1;
+        Coord.Top=y;
+        Coord.Bottom=y;
+        BOOL r;
+        #if defined(USE_WFUNC)
+        if(Opt.UseTTFFont)
+          r=ReadConsoleOutputW(hScreen,ci,Size,Corner,&Coord);
+        else
+          r=ReadConsoleOutputA(hScreen,ci,Size,Corner,&Coord);
+        #else
+        r=ReadConsoleOutput(hScreen,ci,Size,Corner,&Coord);
+        #endif
+        _tran(SysLog("r=%i, le=%i",r,GetLastError()));
+        ci+=BufX;
+    }
+    _tran(SysLog("fucked method end"));
+  }
   else
-    ReadConsoleOutputA(hScreen,Buf,Size,Corner,&Coord);
+  {
+#if defined(USE_WFUNC)
+    if(Opt.UseTTFFont)
+      ReadConsoleOutputW(hScreen,Buf,Size,Corner,&Coord);
+    else
+      ReadConsoleOutputA(hScreen,Buf,Size,Corner,&Coord);
 #else
     ReadConsoleOutput(hScreen,Buf,Size,Corner,&Coord);
 #endif
+  }
+
   memcpy(Shadow,Buf,BufX*BufY*sizeof(CHAR_INFO));
   SBFlags.Set(SBFLAGS_USESHADOW);
 
