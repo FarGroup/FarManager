@@ -2710,12 +2710,16 @@ active file panel.
 items will be indicated by '+' marks. If filters are present, only files which
 are filtered will be shown. Items selected with '-' will be indicated by '-'
 mark, and all files matching these items will be excluded from the file panel.
+#Shift-GrayMinus# combination will clear all marks.
 
     Custom filters selection is stored in the FAR configuration.
 
     When a filter is used in a panel, it is indicated by '*' after the sort
 mode letter in the upper left corner of the panel.
 
+    To remove the filter from the panel it is necessary to remove all "+" or
+"-" marks from user's filters and from file masks of the current panel,
+and press Enter.
 
 @FileDiz
 $ #File descriptions#

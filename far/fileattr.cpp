@@ -5,10 +5,12 @@ fileattr.cpp
 
 */
 
-/* Revision: 1.10 01.03.2004 $ */
+/* Revision: 1.11 16.09.2004 $ */
 
 /*
 Modify:
+  16.09.2004 SVS
+    - в функции ESetFileTime() перед выставлением времени RO снимается, но назад не ставится
   01.03.2004 SVS
     ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
       (задел на будущее + править впоследствии только 1 файл)
@@ -248,6 +250,7 @@ int ESetFileTime(const char *Name,FILETIME *LastWriteTime,FILETIME *CreationTime
   {
     if (FileAttr & FA_RDONLY)
       SetFileAttributes(Name,FileAttr & ~FA_RDONLY);
+
     HANDLE hFile=FAR_CreateFile(Name,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,
                  NULL,OPEN_EXISTING,
                  (FileAttr & FA_DIREC) ? FILE_FLAG_BACKUP_SEMANTICS:0,NULL);
@@ -259,32 +262,23 @@ int ESetFileTime(const char *Name,FILETIME *LastWriteTime,FILETIME *CreationTime
       SetTime=SetFileTime(hFile,CreationTime,LastAccessTime,LastWriteTime);
       CloseHandle(hFile);
     }
+
+    DWORD LastError=GetLastError();
+    if (FileAttr & FA_RDONLY)
+      SetFileAttributes(Name,FileAttr);
+    SetLastError(LastError);
+
     if (SetTime)
       break;
     int Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
                 MSG(MSetAttrTimeCannotFor),(char *)Name,MSG(MHRetry),
                 MSG(MHSkip),MSG(MHCancel));
     if (Code<0)
-    {
-      break;
-    }
+      return 0; //???
     if(Code == 1)
-    {
-      if (FileAttr & FA_RDONLY)
-        SetFileAttributes(Name,FileAttr);
       return 2;
-    }
     if(Code == 2)
-    {
-      if (FileAttr & FA_RDONLY)
-        SetFileAttributes(Name,FileAttr);
       return 0;
-    }
   }
-  /* $ 14.05.2001 SVS
-     Кхе, RO сбросили (см. выше), а выставлять дядя будет?
-  */
-  SetFileAttributes(Name,FileAttr);
-  /* SVS $ */
   return 1;
 }

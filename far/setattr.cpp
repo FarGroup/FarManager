@@ -5,10 +5,13 @@ setattr.cpp
 
 */
 
-/* Revision: 1.60 06.08.2004 $ */
+/* Revision: 1.61 16.09.2004 $ */
 
 /*
 Modify:
+  16.09.2004 SVS
+    - Если файл залочен, то попытка выставить атрибуты неправильная (см. описание патча)
+    + функция CheckWratableFile, которая еще "на подступах" к выставлению атрибутов матерится
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   12.09.2003 SVS
@@ -208,6 +211,7 @@ struct SetAttrDlgParam{
   int OLastWriteTime,OCreationTime,OLastAccessTime;
 };
 
+static int CheckWratableFile(const char *Name, DWORD FileAttr, BOOL IsShowErrMsg, int Msg);
 static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
                        char *OSrcDate,char *OSrcTime);
 static void PR_ShellSetFileAttributesMsg(void);
@@ -885,42 +889,45 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
     if (SelCount==1 && (FileAttr & FA_DIREC)==0)
     {
-      int NewAttr;
-      NewAttr=FileAttr & FA_DIREC;
-      if (AttrDlg[4].Selected)        NewAttr|=FA_RDONLY;
-      if (AttrDlg[5].Selected)        NewAttr|=FA_ARCH;
-      if (AttrDlg[6].Selected)        NewAttr|=FA_HIDDEN;
-      if (AttrDlg[7].Selected)        NewAttr|=FA_SYSTEM;
-      if (AttrDlg[8].Selected)        NewAttr|=FILE_ATTRIBUTE_COMPRESSED;
-      if (AttrDlg[9].Selected)        NewAttr|=FILE_ATTRIBUTE_ENCRYPTED;
-
-      SetWriteTime=ReadFileTime(0,SelName,FileAttr,&LastWriteTime,AttrDlg[16].Data,AttrDlg[17].Data);
-      SetCreationTime=ReadFileTime(1,SelName,FileAttr,&CreationTime,AttrDlg[19].Data,AttrDlg[20].Data);
-      SetLastAccessTime=ReadFileTime(2,SelName,FileAttr,&LastAccessTime,AttrDlg[22].Data,AttrDlg[23].Data);
-//_SVS(SysLog("\n\tSetWriteTime=%d\n\tSetCreationTime=%d\n\tSetLastAccessTime=%d",SetWriteTime,SetCreationTime,SetLastAccessTime));
-      if(SetWriteTime || SetCreationTime || SetLastAccessTime)
-        SetWriteTimeRetCode=ESetFileTime(SelName,
-                     (SetWriteTime ? &LastWriteTime:NULL),
-                     (SetCreationTime ? &CreationTime:NULL),
-                     (SetLastAccessTime ? &LastAccessTime:NULL),
-                     FileAttr);
-      else
-        SetWriteTimeRetCode=TRUE;
-
-//      if(NewAttr != (FileAttr & (~FA_DIREC))) // нужно ли что-нить менять???
-      if(SetWriteTimeRetCode == 1) // если время удалось выставить...
+      if(CheckWratableFile(SelName,FileAttr,TRUE,MSetAttrCannotFor) == 1)
       {
-        if((NewAttr&FILE_ATTRIBUTE_COMPRESSED) && !(FileAttr&FILE_ATTRIBUTE_COMPRESSED))
-          ESetFileCompression(SelName,1,FileAttr);
-        else if(!(NewAttr&FILE_ATTRIBUTE_COMPRESSED) && (FileAttr&FILE_ATTRIBUTE_COMPRESSED))
-          ESetFileCompression(SelName,0,FileAttr);
+        int NewAttr;
+        NewAttr=FileAttr & FA_DIREC;
+        if (AttrDlg[4].Selected)        NewAttr|=FA_RDONLY;
+        if (AttrDlg[5].Selected)        NewAttr|=FA_ARCH;
+        if (AttrDlg[6].Selected)        NewAttr|=FA_HIDDEN;
+        if (AttrDlg[7].Selected)        NewAttr|=FA_SYSTEM;
+        if (AttrDlg[8].Selected)        NewAttr|=FILE_ATTRIBUTE_COMPRESSED;
+        if (AttrDlg[9].Selected)        NewAttr|=FILE_ATTRIBUTE_ENCRYPTED;
 
-        if((NewAttr&FILE_ATTRIBUTE_ENCRYPTED) && !(FileAttr&FILE_ATTRIBUTE_ENCRYPTED))
-          ESetFileEncryption(SelName,1,FileAttr);
-        else if(!(NewAttr&FILE_ATTRIBUTE_ENCRYPTED) && (FileAttr&FILE_ATTRIBUTE_ENCRYPTED))
-          ESetFileEncryption(SelName,0,FileAttr);
+        SetWriteTime=ReadFileTime(0,SelName,FileAttr,&LastWriteTime,AttrDlg[16].Data,AttrDlg[17].Data);
+        SetCreationTime=ReadFileTime(1,SelName,FileAttr,&CreationTime,AttrDlg[19].Data,AttrDlg[20].Data);
+        SetLastAccessTime=ReadFileTime(2,SelName,FileAttr,&LastAccessTime,AttrDlg[22].Data,AttrDlg[23].Data);
+  //_SVS(SysLog("\n\tSetWriteTime=%d\n\tSetCreationTime=%d\n\tSetLastAccessTime=%d",SetWriteTime,SetCreationTime,SetLastAccessTime));
+        if(SetWriteTime || SetCreationTime || SetLastAccessTime)
+          SetWriteTimeRetCode=ESetFileTime(SelName,
+                                           (SetWriteTime ? &LastWriteTime:NULL),
+                                           (SetCreationTime ? &CreationTime:NULL),
+                                           (SetLastAccessTime ? &LastAccessTime:NULL),
+                                           FileAttr);
+        else
+          SetWriteTimeRetCode=TRUE;
 
-        ESetFileAttributes(SelName,NewAttr&(~(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_COMPRESSED)));
+  //      if(NewAttr != (FileAttr & (~FA_DIREC))) // нужно ли что-нить менять???
+        if(SetWriteTimeRetCode == 1) // если время удалось выставить...
+        {
+          if((NewAttr&FILE_ATTRIBUTE_COMPRESSED) && !(FileAttr&FILE_ATTRIBUTE_COMPRESSED))
+            ESetFileCompression(SelName,1,FileAttr);
+          else if(!(NewAttr&FILE_ATTRIBUTE_COMPRESSED) && (FileAttr&FILE_ATTRIBUTE_COMPRESSED))
+            ESetFileCompression(SelName,0,FileAttr);
+
+          if((NewAttr&FILE_ATTRIBUTE_ENCRYPTED) && !(FileAttr&FILE_ATTRIBUTE_ENCRYPTED))
+            ESetFileEncryption(SelName,1,FileAttr);
+          else if(!(NewAttr&FILE_ATTRIBUTE_ENCRYPTED) && (FileAttr&FILE_ATTRIBUTE_ENCRYPTED))
+            ESetFileEncryption(SelName,0,FileAttr);
+
+          ESetFileAttributes(SelName,NewAttr&(~(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_COMPRESSED)));
+        }
       }
     }
 
@@ -969,6 +976,12 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
         if (CheckForEsc())
           break;
+
+        RetCode=CheckWratableFile(SelName,FileAttr,TRUE,MSetAttrCannotFor);
+        if(!RetCode)
+          break;
+        if(RetCode == 2)
+          continue;
 
         SetWriteTime=ReadFileTime(0,SelName,FileAttr,&LastWriteTime,AttrDlg[16].Data,AttrDlg[17].Data);
         SetCreationTime=ReadFileTime(1,SelName,FileAttr,&CreationTime,AttrDlg[19].Data,AttrDlg[20].Data);
@@ -1029,6 +1042,16 @@ int ShellSetFileAttributes(Panel *SrcPanel)
               Cancel=1;
               break;
             }
+
+            RetCode=CheckWratableFile(SelName,FileAttr,TRUE,MSetAttrCannotFor);
+            if(!RetCode)
+            {
+              Cancel=1;
+              break;
+            }
+            if(RetCode == 2)
+              continue;
+
             SetWriteTime=ReadFileTime(0,FullName,FindData.dwFileAttributes,&LastWriteTime,AttrDlg[16].Data,AttrDlg[17].Data);
             SetCreationTime=ReadFileTime(1,FullName,FindData.dwFileAttributes,&CreationTime,AttrDlg[19].Data,AttrDlg[20].Data);
             SetLastAccessTime=ReadFileTime(2,FullName,FindData.dwFileAttributes,&LastAccessTime,AttrDlg[22].Data,AttrDlg[23].Data);
@@ -1195,4 +1218,45 @@ static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
   if(DigitCount)
     return (*(__int64*)&FileTime - *(__int64*)&OriginalFileTime) == 0?FALSE:TRUE;
   return TRUE;
+}
+
+// Возвращает 0 - ошибка, 1 - Ок, 2 - Skip
+static int CheckWratableFile(const char *Name, DWORD FileAttr, BOOL IsShowErrMsg, int Msg)
+{
+  while (1)
+  {
+    if (FileAttr & FA_RDONLY)
+      SetFileAttributes(Name,FileAttr & ~FA_RDONLY);
+
+    HANDLE hFile=FAR_CreateFile(Name,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,(FileAttr & FA_DIREC) ? FILE_FLAG_BACKUP_SEMANTICS:0,NULL);
+    BOOL Writable=TRUE;
+    if(hFile == INVALID_HANDLE_VALUE)
+      Writable=FALSE;
+    else
+      CloseHandle(hFile);
+
+    DWORD LastError=GetLastError();
+    if (FileAttr & FA_RDONLY)
+      SetFileAttributes(Name,FileAttr);
+    SetLastError(LastError);
+
+    if (Writable)
+      break;
+
+    int Code;
+    if(IsShowErrMsg)
+        Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
+                     MSG(Msg),(char *)Name,
+                     MSG(MHRetry),MSG(MHSkip),MSG(MHCancel));
+    else
+       return 0;
+
+    if (Code<0)
+      return 0;
+    if(Code == 1)
+      return 2;
+    if(Code == 2)
+      return 0;
+  }
+  return 1;
 }

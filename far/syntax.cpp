@@ -5,10 +5,12 @@ syntax.cpp
 
 */
 
-/* Revision: 1.01 05.08.2004 $ */
+/* Revision: 1.02 10.09.2004 $ */
 
 /*
 Modify:
+  10.09.2004 SVS
+    + UCase, LCase
   05.08.2004 SVS
     + MCODE_V_VIEWERSTATE, MCODE_F_FSPLIT, MCODE_F_MSGBOX
     ! funcLook() стала глобальной
@@ -635,6 +637,8 @@ static TMacroFunction macroFunction[]={
   {"RINDEX",         2,    MCODE_F_RINDEX},              // S=rindex(S1,S2)
   {"STRING",         1,    MCODE_F_STRING},              // S=string(V)
   {"SUBSTR",         3,    MCODE_F_SUBSTR},              // S=substr(S1,S2,N)
+  {"UCASE",          1,    MCODE_F_UCASE},               // S=UCase(S1)
+  {"LCASE",          1,    MCODE_F_LCASE},               // S=LCase(S1)
   {"XLAT",           1,    MCODE_F_XLAT},                // S=xlat(S)
 };
 

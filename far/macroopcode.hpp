@@ -5,10 +5,12 @@ OpCode для макросов
 
 */
 
-/* Revision: 1.02 05.08.2004 $ */
+/* Revision: 1.03 10.09.2004 $ */
 
 /*
 Modify:
+  10.09.2004 SVS
+    + UCase (MCODE_F_UCASE), LCase (MCODE_F_UCASE)
   05.08.2004 SVS
     + MCODE_V_VIEWERSTATE, MCODE_F_FSPLIT, MCODE_F_MSGBOX, MCODE_C_CMDLINE_EMPTY, MCODE_C_CMDLINE_SELECTED, MCODE_V_DLGITEMTYPE
   02.08.2004 SVS
@@ -108,6 +110,8 @@ enum MACRO_OP_CODE {
   MCODE_F_FATTR,                    // возвращает атрибуты файловго объекта
   MCODE_F_FSPLIT,                   // возвращает заданную компоненту пути
   MCODE_F_MSGBOX,                   // MsgBox("Title","Text",flags)
+  MCODE_F_UCASE,                    // UpperCase
+  MCODE_F_LCASE,                    // LowerCase
 
   /* ************************************************************************* */
   // булевые переменные - различные состояния

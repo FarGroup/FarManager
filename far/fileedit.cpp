@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.157 06.08.2004 $ */
+/* Revision: 1.158 17.09.2004 $ */
 
 /*
 Modify:
+  17.09.2004 SVS
+    ! Если файл не изменен (!FEDITOR_MODIFIED), то не производим апдейт панелей.
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   07.07.2004 SVS
@@ -1398,6 +1400,9 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
                 return FALSE;
             }
           }
+          else if(!FEdit->Flags.Check(FEDITOR_MODIFIED)) //????
+            NeedQuestion=0;
+
         }
         if(!ProcessQuitKey(FirstSave,NeedQuestion))
           return FALSE;

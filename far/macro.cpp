@@ -5,10 +5,13 @@ macro.cpp
 
 */
 
-/* Revision: 1.126 26.08.2004 $ */
+/* Revision: 1.127 10.09.2004 $ */
 
 /*
 Modify:
+  10.09.2004 SVS
+    + UCase (MCODE_F_UCASE), LCase (MCODE_F_UCASE)
+    - В APanel.SelCount и PPanel.SelCount в подстроке "SelCount" буква 'C' была русской :-(
   26.08.2004 SVS & AN
     ! Пока FrameManager->GetCurrentFrame() == NULL функция KeyMacro::ProcessKey() возвращает FALSE
     - BugZ#1157 - Viewer.State не работает в области Qview
@@ -494,8 +497,8 @@ struct TMacroKeywords MKeywords[] ={
 
   {2,  "APanel.Current",     MCODE_V_APANEL_CURRENT,0},
   {2,  "PPanel.Current",     MCODE_V_PPANEL_CURRENT,0},
-  {2,  "APanel.SelСount",    MCODE_V_APANEL_SELCOUNT,0},
-  {2,  "PPanel.SelСount",    MCODE_V_PPANEL_SELCOUNT,0},
+  {2,  "APanel.SelCount",    MCODE_V_APANEL_SELCOUNT,0},
+  {2,  "PPanel.SelCount",    MCODE_V_PPANEL_SELCOUNT,0},
   {2,  "APanel.Path",        MCODE_V_APANEL_PATH,0},
   {2,  "PPanel.Path",        MCODE_V_PPANEL_PATH,0},
   {2,  "APanel.Width",       MCODE_V_APANEL_WIDTH,0},
@@ -1723,6 +1726,12 @@ done:
           }
           case MCODE_F_LEN:
             eStack[ePos] = strlen(eStack[ePos].toString());
+            break;
+          case MCODE_F_UCASE:
+            LocalStrupr((char *)eStack[ePos].toString()); //??? strupr
+            break;
+          case MCODE_F_LCASE:
+            LocalStrlwr((char *)eStack[ePos].toString()); //??? strlwr
             break;
           case MCODE_F_FEXIST:
             eStack[ePos] = GetFileAttributes(eStack[ePos].toString()) != (DWORD)-1?1L:0L;
