@@ -1,3 +1,7 @@
+#include "plugin.hpp"
+#include "fmt.hpp"
+#include "multiarc.hpp"
+
 HKEY CreateRegKey(HKEY hRoot,const char *Key);
 HKEY OpenRegKey(HKEY hRoot,const char *Key);
 

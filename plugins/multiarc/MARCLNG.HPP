@@ -1,3 +1,6 @@
+#ifndef __MARCLNG_HPP__
+#define __MARCLNG_HPP__
+
 enum LanguageID
 {
   MOk,
@@ -144,3 +147,5 @@ enum LanguageID
   MComment,
   MInputComment,
 };
+
+#endif // __MARCLNG_HPP__

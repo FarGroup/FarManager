@@ -1,8 +1,14 @@
 /*
 Modify:
   13.04.2001 DJ
-   - перенос сброса Opt.Background в PutFiles в более подходящее место
+   - яхЁхэюё ёсЁюёр Opt.Background т PutFiles т сюыхх яюфїюф ∙хх ьхёЄю
 */
+
+#include "plugin.hpp"
+#include "fmt.hpp"
+#include "multiarc.hpp"
+#include "marclng.hpp"
+
 
 BOOL PluginClass::GetFormatName(char *FormatName, char *DefExt)
 {
@@ -334,7 +340,7 @@ int PluginClass::ProcessKey(int Key,unsigned int ControlState)
   if ((ControlState & PKF_ALT) && Key==VK_F6)
   {
 //    HANDLE hScreen=Info.SaveScreen(0,0,-1,-1);
-    if(strstr(ArcName,/*"FarTmp"*/"FTMP")==NULL)//$AA какая-то бяка баловалась
+    if(strstr(ArcName,/*"FarTmp"*/"FTMP")==NULL)//$AA ърър -Єю с ър срыютрырё№
     {
       char CurDir[NM];
       strcpy(CurDir,ArcName);

@@ -1,14 +1,7 @@
+#include "plugin.hpp"
+#include "fmt.hpp"
 #include "multiarc.hpp"
-#include "arcread.cpp"
-#include "ArcGet.cpp"
-#include "ArcPut.cpp"
-#include "arcproc.cpp"
-#include "arcmix.cpp"
-#include "arccfg.cpp"
-#include "arccmd.cpp"
-#include "arcplg.cpp"
-#include "arcreg.cpp"
-
+#include "marclng.hpp"
 
 int WINAPI _export GetMinFarVersion(void)
 {

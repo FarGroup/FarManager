@@ -1,3 +1,8 @@
+#include "plugin.hpp"
+#include "fmt.hpp"
+#include "multiarc.hpp"
+#include "marclng.hpp"
+
 PluginClass::PluginClass(int ArcPluginNumber)
 {
   *ArcName=0;

@@ -1,19 +1,30 @@
 /*
-Modify:
-  13.04.2001 DJ
-   - вместо QuoteSpace используется QuoteSpaceOnly из FSF
+  arcmix.cpp
+
 */
 
-bool FileExists(const char* Name)
+/*
+Modify:
+  13.04.2001 DJ
+   - тьхёЄю QuoteSpace шёяюы№чєхЄё  QuoteSpaceOnly шч FSF
+*/
+
+#include "plugin.hpp"
+#include "fmt.hpp"
+#include "multiarc.hpp"
+#include "marclng.hpp"
+
+
+BOOL FileExists(const char* Name)
 {
   return GetFileAttributes(Name)!=0xFFFFFFFF;
 }
 
-bool GoToFile(const char *Target)
+BOOL GoToFile(const char *Target)
 {
   if(!Target || !*Target)
-    return false;
-  bool rc=false;
+    return FALSE;
+  BOOL rc=FALSE;
   PanelRedrawInfo PRI;
   PanelInfo PInfo;
   char Name[NM], Dir[NM*5];
@@ -56,11 +67,11 @@ bool GoToFile(const char *Target)
     {
       PRI.CurrentItem=J;
       PRI.TopPanelItem=J;
-      rc=true;
+      rc=TRUE;
       break;
     }
   }
-  return rc?Info.Control(INVALID_HANDLE_VALUE,FCTL_REDRAWPANEL,&PRI):false;
+  return rc?Info.Control(INVALID_HANDLE_VALUE,FCTL_REDRAWPANEL,&PRI):FALSE;
 }
 
 int __isspace(int Chr)
@@ -76,7 +87,7 @@ const char *GetMsg(int MsgId)
 
 
 /* $ 13.09.2000 tran
-   запуск треда для ожидания момента убийства лист файла */
+   чряєёъ ЄЁхфр фы  юцшфрэш  ьюьхэЄр єсшщёЄтр ышёЄ Їрщыр */
 void StartThreadForKillListFile(PROCESS_INFORMATION *pi,char *list)
 {
     if ( pi==0 || list==0 || *list==0)
@@ -184,7 +195,7 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,
     SetConsoleTitle(ExpandedCmd);
 
   /* $ 14.02.2001 raVen
-     делать окошку minimize, если в фоне */
+     фхырЄ№ юъю°ъє minimize, хёыш т Їюэх */
   if (Opt.Background)
   {
     si.dwFlags=si.dwFlags | STARTF_USESHOWWINDOW;
@@ -235,7 +246,7 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,
       CloseHandle(hChildStdoutRd);
     }
     /* $ 13.09.2000 tran
-       фоновой выполнение */
+       Їюэютющ т√яюыэхэшх */
     if ( !Opt.Background )
     {
         WaitForSingleObject(pi.hProcess,INFINITE);
@@ -245,7 +256,7 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,
     }
     else
     {
-        StartThreadForKillListFile(&pi,ListFileName); // нехай за процессом тред следит, и файл бъет тапком
+        StartThreadForKillListFile(&pi,ListFileName); // эхїрщ чр яЁюЎхёёюь ЄЁхф ёыхфшЄ, ш Їрщы с·хЄ Єряъюь
         ExitCode=0;
     }
     /* tran 13.09.2000 $ */

@@ -1,3 +1,13 @@
+/*
+  arccfg.cpp
+
+*/
+#include "plugin.hpp"
+#include "fmt.hpp"
+#include "multiarc.hpp"
+#include "marclng.hpp"
+#include "farkeys.hpp"
+
 int ConfigGeneral()
 {
   struct InitDialogItem InitItems[]={
@@ -102,7 +112,7 @@ long WINAPI CfgCmdProc(HANDLE hDlg,int Msg,int Param1,long Param2)
           else
             ArcPlugin->GetDefaultCommands(PluginNumber,PluginType,J,Command);
         }
-        //еЁвал© ЇаЁҐ¬ - ЇҐаҐ¤ з  Command ў Є зҐбвўҐ ¤Ґд®«в  ¤«п Command
+        //хитрый прием - передача Command в качестве дефолта для Command
         GetRegKey(HKEY_LOCAL_MACHINE,ArcFormat,CmdNames[J],Command,Command,sizeof(Command));
         Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,I,(long)Command);
       }

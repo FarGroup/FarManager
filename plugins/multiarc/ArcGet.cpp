@@ -1,3 +1,14 @@
+/*
+  arcget.cpp
+
+*/
+
+#include "plugin.hpp"
+#include "fmt.hpp"
+#include "multiarc.hpp"
+#include "marclng.hpp"
+#include "farkeys.hpp"
+
 class TRecur //$ 07.04.2002 AA
 {
 public:
@@ -30,7 +41,7 @@ inline void CreateDirectory(char *FullPath) //$ 16.05.2002 AA
 int PluginClass::GetFiles(PluginPanelItem *PanelItem, int ItemsNumber,
                           int Move, char *DestPath, int OpMode)
 {
-  //костыль против зацикливания в FAR'е при Quick View архивов с паролем
+  //ъюёЄ√ы№ яЁюЄшт чрЎшъыштрэш  т FAR'х яЁш Quick View рЁїштют ё ярЁюыхь
   TRecur Recur;   //$ 07.04.2002 AA
   if(Recur.Count>1 && OpMode&(OPM_VIEW|OPM_QUICKVIEW))
     return 0;
@@ -39,7 +50,7 @@ int PluginClass::GetFiles(PluginPanelItem *PanelItem, int ItemsNumber,
   GetCurrentDirectory(sizeof(SaveDir),SaveDir);
   char Command[512],AllFilesMask[32];
   if (ItemsNumber==0)
-    return /*0*/1; //$ 07.02.2002 AA чтобы многотомные CABы нормально распаковывались
+    return /*0*/1; //$ 07.02.2002 AA ўЄюс√ ьэюуюЄюьэ√х CAB√ эюЁьры№эю Ёрёяръют√трышё№
   if (*DestPath)
     FSF.AddEndSlash(DestPath);
   const char *PathHistoryName="ExtrDestPath";
@@ -76,7 +87,7 @@ int PluginClass::GetFiles(PluginPanelItem *PanelItem, int ItemsNumber,
       }
   }
 
-  Opt.UserBackground=0; // $ 14.02.2001 raVen //сброс галки "фоновая архивация"
+  Opt.UserBackground=0; // $ 14.02.2001 raVen //ёсЁюё урыъш "Їюэютр  рЁїштрЎш "
   DialogItems[8].Selected=Opt.UserBackground;
   DialogItems[9].Selected=Move;
 
@@ -130,9 +141,9 @@ int PluginClass::GetFiles(PluginPanelItem *PanelItem, int ItemsNumber,
 
     /*if(OpMode & OPM_TOPLEVEL) // $ 16.02.2002 AA
     {
-      //?? есть разница между извлечением выделенных файлов тома и
-      //извлечением из выделенных томов. здесь можно ее учесть.
-      //как минимум - нужно изменить надпись в мессаджбоксе
+      //?? хёЄ№ ЁрчэшЎр ьхцфє шчтыхўхэшхь т√фхыхээ√ї Їрщыют Єюьр ш
+      //шчтыхўхэшхь шч т√фхыхээ√ї Єюьют. чфхё№ ьюцэю хх єўхёЄ№.
+      //ъръ ьшэшьєь - эєцэю шчьхэшЄ№ эрфяшё№ т ьхёёрфцсюъёх
       MsgCode=1;
     }
     else        */
@@ -180,7 +191,7 @@ int PluginClass::GetFiles(PluginPanelItem *PanelItem, int ItemsNumber,
              DialogItems[5].Data,AllFilesMask,IgnoreErrors,
              (OpMode & OPM_VIEW)!=0,(OpMode & OPM_FIND),CurDir);
 
-  //последующие операции (тестирование и тд) не должны быть фоновыми
+  //яюёыхфє■∙шх юяхЁрЎшш (ЄхёЄшЁютрэшх ш Єф) эх фюыцэ√ с√Є№ Їюэют√ьш
   Opt.Background=0; // $ 06.02.2002 AA
 
   Opt.HideOutput=SaveHideOut;

@@ -3,14 +3,20 @@
 
 */
 
-/* $Revision: 1.01 13.04.2001 $ */
+/* Revision: 1.01 13.04.2001 $ */
+
+#include "plugin.hpp"
+#include "fmt.hpp"
+#include "multiarc.hpp"
+#include "marclng.hpp"
+#include "farkeys.hpp"
 
 /*
 Modify:
   13.04.2001 DJ
-   * вместо QuoteSpace используется FSF.QuoteSpaceOnly
+   * тьхёЄю QuoteSpace шёяюы№чєхЄё  FSF.QuoteSpaceOnly
   28.11.2000 AS
-   ! правка '//' комбинаций
+   ! яЁртър '//' ъюьсшэрЎшщ
 */
 
 ArcCommand::ArcCommand(struct PluginPanelItem *PanelItem,int ItemsNumber,
@@ -300,7 +306,7 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
       strcpy(Command,Password);
       break;
     case 'C':
-      if(*CommentFileName) //второй раз сюда не лезем
+      if(*CommentFileName) //тЄюЁющ Ёрч ё■фр эх ыхчхь
         break;
       {
         *Command=0;
@@ -322,8 +328,8 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
         {
           DWORD Count;
           if(Info.InputBox(GetMsg(MComment), GetMsg(MInputComment), NULL, "", Buf, sizeof(Buf), NULL, 0))
-          //??тут можно и заполнить строку комментарием, но надо знать, файловый
-          //?? он или архивный. да и имя файла в архиве тоже надо знать...
+          //??ЄєЄ ьюцэю ш чряюыэшЄ№ ёЄЁюъє ъюььхэЄрЁшхь, эю эрфю чэрЄ№, Їрщыют√щ
+          //?? юэ шыш рЁїштэ√щ. фр ш шь  Їрщыр т рЁїштх Єюцх эрфю чэрЄ№...
           {
             WriteFile(CommentFile, Buf, strlen(Buf), &Count, NULL);
             strcpy(Command, CommentFileName);

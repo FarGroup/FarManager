@@ -1,3 +1,9 @@
+#include "plugin.hpp"
+#include "farkeys.hpp"
+#include "fmt.hpp"
+#include "multiarc.hpp"
+#include "marclng.hpp"
+
 //#define MAX_PASSW_LEN 256
 
 struct PutDlgData
@@ -21,7 +27,7 @@ struct PutDlgData
 #define MAM_ADDDEFEXT    DM_USER+5
 #define MAM_DELDEFEXT    DM_USER+6
 
-//номера элементов диалога PutFiles
+//эюьхЁр ¤ыхьхэЄют фшрыюур PutFiles
 #define PDI_DOUBLEBOX       0
 #define PDI_ARCNAMECAPT     1
 #define PDI_ARCNAMEEDT      2
@@ -85,9 +91,9 @@ SelectFormatComboBox::SelectFormatComboBox(FarDialogItem *DialogItem, char *ArcF
 
       char Buffer[512];
 
-      //*Buffer=0; //$ AA сбросится в GetDefaultCommands
+      //*Buffer=0; //$ AA ёсЁюёшЄё  т GetDefaultCommands
       ArcPlugin->GetDefaultCommands(i, j, CMD_ADD, Buffer);
-      //хитрый финт - подстановка Buffer в качестве дефолта для самого Buffer
+      //їшЄЁ√щ ЇшэЄ - яюфёЄрэютър Buffer т ърўхёЄтх фхЇюыЄр фы  ёрьюую Buffer
       GetRegKey(HKEY_LOCAL_MACHINE, Format, CmdNames[CMD_ADD], Buffer, Buffer, sizeof(Buffer));
       if(*Buffer == 0)
         continue;
@@ -198,9 +204,9 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     }
     else
     {
-      ; // здесь код для раскрытия комбобокса выборора архиватора
+      ; // чфхё№ ъюф фы  ЁрёъЁ√Єш  ъюьсюсюъёр т√сюЁюЁр рЁїштрЄюЁр
     }
-    return TRUE; // не обрабатывать эту клавишу
+    return TRUE; // эх юсЁрсрЄ√трЄ№ ¤Єє ъыртш°є
   }
   else if(Msg == DN_BTNCLICK)
   {
@@ -210,7 +216,7 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         //break;
       case PDI_ADDBTN:
       {
-        /*// проверка совпадения введенного пароля и подтверждения
+        /*// яЁютхЁър ёютярфхэш  ттхфхээюую ярЁюы  ш яюфЄтхЁцфхэш 
         char Password1[256],Password2[256];
         Info.SendDlgMessage(hDlg, DM_GETTEXTPTR, PDI_PASS0WEDT, (long)Password1);
         Info.SendDlgMessage(hDlg, DM_GETTEXTPTR, PDI_PASS1WEDT, (long)Password2);
@@ -268,7 +274,7 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
   {
     if(Param1==PDI_ADDBTN && Info.SendDlgMessage(hDlg, DM_ENABLE, PDI_ADDBTN, -1))
     {
-      // проверка совпадения введенного пароля и подтверждения
+      // яЁютхЁър ёютярфхэш  ттхфхээюую ярЁюы  ш яюфЄтхЁцфхэш 
       char Password1[256],Password2[256];
       Info.SendDlgMessage(hDlg, DM_GETTEXTPTR, PDI_PASS0WEDT, (long)Password1);
       Info.SendDlgMessage(hDlg, DM_GETTEXTPTR, PDI_PASS1WEDT, (long)Password2);
@@ -293,14 +299,14 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
   }
   else if(Msg == MAM_ARCSWITCHES)
   {
-    // Выставляем данные из AddSwitches
+    // ┬√ёЄрты хь фрээ√х шч AddSwitches
     GetRegKey(HKEY_CURRENT_USER,pdd->ArcFormat,"AddSwitches",Buffer,"",sizeof(Buffer));
     Info.SendDlgMessage(hDlg,DM_SETTEXTPTR, PDI_SWITCHESEDT, (long)Buffer);
     Info.SendDlgMessage(hDlg,DM_SETTEXTPTR, PDI_SWITCHESEDT, (long)"");
-    // если AddSwitches пустой и юзается UseLastHistory, то...
+    // хёыш AddSwitches яєёЄющ ш ■чрхЄё  UseLastHistory, Єю...
     static char SwHistoryName[NM];
     FSF.sprintf(SwHistoryName,"ArcSwitches\\%s",pdd->ArcFormat);
-    // ...следующая команда заставит выставить LastHistory
+    // ...ёыхфє■∙р  ъюьрэфр чрёЄртшЄ т√ёЄртшЄ№ LastHistory
     Info.SendDlgMessage(hDlg, DM_SETHISTORY, PDI_SWITCHESEDT, (long)SwHistoryName);
     //Info.SendDlgMessage(hDlg, DM_EDITUNCHANGEDFLAG, PDI_SWITCHESEDT, 1);
     return TRUE;
@@ -363,27 +369,26 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
   return Info.DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
-//новый стиль диалога "Добавить к архиву"
-//▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
-//▓                                                                            ▓
-//▓   ╔════════════════════════════ Add to ZIP ════════════════════════════╗   ░
-//▓   ║ Add to archive                                                     ║   ░
-//▓   ║ backup░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░║   ░
-//▓   ║ Select archiver        Switches                                    ║   ░
-//▓   ║ ZIP░░░░░░░░░░░░░░░░░░ ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░║   ░
-//▓   ╟────────────────────────────────────────────────────────────────────╢   ░
-//▓   ║ Archive password                  Reenter password                 ║   ░
-//▓   ║ ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ ║   ░
-//▓   ╟────────────────────────────────────────────────────────────────────╢   ░
-//▓   ║ [ ] Delete files after archiving                                   ║   ░
-//▓   ║ [ ] Exact archive filename                                         ║   ░
-//▓   ║ [ ] Background                                                     ║   ░
-//▓   ╟────────────────────────────────────────────────────────────────────╢   ░
-//▓   ║               [ Add ]  [ Save settings ]  [ Cancel ]               ║   ░
-//▓   ╚════════════════════════════════════════════════════════════════════╝   ░
-//▓                                                                            ░
-//▓▓▓░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
-//▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
+//эют√щ ёЄшы№ фшрыюур "─юсртшЄ№ ъ рЁїштє"
+//+----------------------------------------------------------------------------+
+//|                                                                            |
+//|   +---------------------------- Add to ZIP ----------------------------+   |
+//|   | Add to archive                                                     |   |
+//|   | backup************************************************************|   |
+//|   | Select archiver        Switches                                    |   |
+//|   | ZIP****************** *******************************************|   |
+//|   |--------------------------------------------------------------------|   |
+//|   | Archive password                  Reenter password                 |   |
+//|   | ********************************  ******************************** |   |
+//|   |--------------------------------------------------------------------|   |
+//|   | [ ] Delete files after archiving                                   |   |
+//|   | [ ] Exact archive filename                                         |   |
+//|   | [ ] Background                                                     |   |
+//|   |--------------------------------------------------------------------|   |
+//|   |               [ Add ]  [ Save settings ]  [ Cancel ]               |   |
+//|   +--------------------------------------------------------------------+   |
+//|                                                                            |
+//+----------------------------------------------------------------------------+
 
 int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
                           int Move,int OpMode)
@@ -391,6 +396,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
   if (ItemsNumber==0)
     return 0;
 
+  int I;
   char Command[512],AllFilesMask[32];
   int ArcExitCode=1;
   BOOL OldExactState=Opt.AdvFlags.AutoResetExactArcName?FALSE:Opt.AdvFlags.ExactArcName;
@@ -419,9 +425,9 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
   }
 
   /* $ 14.02.2001 raVen
-     сброс галки "фоновая архивация" */
+     ёсЁюё урыъш "Їюэютр  рЁїштрЎш " */
   /* $ 13.04.2001 DJ
-     перенесен в более подходящее место */
+     яхЁхэхёхэ т сюыхх яюфїюф ∙хх ьхёЄю */
   Opt.UserBackground=0;
   /* DJ $ */
   /* raVen $ */
@@ -521,7 +527,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
 #ifdef _ARC_UNDER_CURSOR_
       }
 #endif //_ARC_UNDER_CURSOR_
-/*    $ AA 29.11.2001 //нафига нам имя усреднять?
+/*    $ AA 29.11.2001 //эрЇшур эрь шь  єёЁхфэ Є№?
       char AnsiName[NM];
       OemToAnsi(DialogItems[PDI_ARCNAMEEDT].Data,AnsiName);
       if(!IsCaseMixed(AnsiName))
@@ -574,14 +580,14 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       AddExt(DialogItems[PDI_ARCNAMEEDT].Data, pdd.DefExt);
 
     int Recurse=FALSE;
-    for (int I=0;I<ItemsNumber;I++)
+    for (I=0;I<ItemsNumber;I++)
       if (PanelItem[I].FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
       {
         Recurse=TRUE;
         break;
       }
 
-    for (int I=0;I<ItemsNumber;I++) //!! $ 22.03.2002 AA временный фикс !!
+    for (I=0;I<ItemsNumber;I++) //!! $ 22.03.2002 AA тЁхьхээ√щ Їшъё !!
       PanelItem[I].UserData=0;
 
     int CommandType;
@@ -629,7 +635,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
                       DialogItems[PDI_ARCNAMEEDT].Data,"",pdd.Password1,
                       AllFilesMask,IgnoreErrors,0,0,CurDir);
 
-    //последующие операции (тестирование и тд) не должны быть фоновыми
+    //яюёыхфє■∙шх юяхЁрЎшш (ЄхёЄшЁютрэшх ш Єф) эх фюыцэ√ с√Є№ Їюэют√ьш
     Opt.Background=0; // $ 06.02.2002 AA
 
 #ifdef _NEW_ARC_SORT_
@@ -667,30 +673,30 @@ BOOL PluginClass::GetCursorName(char *ArcName, char *ArcFormat, char *ArcExt)
   PluginPanelItem *SelItems=pi.SelectedItems;
   PluginPanelItem *CurItem=Items+pi.CurrentItem;
 
-  //под курсором должна быть не папка
+  //яюф ъєЁёюЁюь фюыцэр с√Є№ эх яряър
   if(CurItem->FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
     return FALSE;
 
-  //должно быть непустое расширение
+  //фюыцэю с√Є№ эхяєёЄюх Ёрё°шЁхэшх
   char *Dot=strrchr(CurItem->FindData.cFileName, '.');
   if(!Dot || !*(++Dot))
     return FALSE;
 
   int i,j;
 
-  //курсор должен быть вне выделения
+  //ъєЁёюЁ фюыцхэ с√Є№ тэх т√фхыхэш 
   for(i=0; i<pi.SelectedItemsNumber; i++)
     if(!strcmpi(CurItem->FindData.cFileName, SelItems[i].FindData.cFileName))
       return FALSE;
 
-  //под курсором должен быть файл с расширением архива
+  //яюф ъєЁёюЁюь фюыцхэ с√Є№ Їрщы ё Ёрё°шЁхэшхь рЁїштр
   char Format[100],DefExt[NM];
   for(i=0; i<ArcPlugin->FmtCount(); i++)
     for(j=0; ; j++)
     {
       if(!ArcPlugin->GetFormatName(i, j, Format, DefExt))
         break;
-      //хитрый хинт, чтение ключа с дефолтом из DefExt
+      //їшЄЁ√щ їшэЄ, ўЄхэшх ъы■ўр ё фхЇюыЄюь шч DefExt
       GetRegKey(HKEY_LOCAL_MACHINE, Format, "DefExt", DefExt, DefExt, sizeof(DefExt));
 
       if(!strcmpi(Dot, DefExt))
@@ -700,7 +706,7 @@ BOOL PluginClass::GetCursorName(char *ArcName, char *ArcFormat, char *ArcExt)
         //strncpy(ArcName, CurItem->FindData.cFileName, Len);
         //ArcName[Len]=0;
 
-        //выбрать соответствующий архиватор
+        //т√сЁрЄ№ ёююЄтхЄёЄтє■∙шщ рЁїштрЄюЁ
         ArcPluginNumber=i;
         ArcPluginType=j;
         strcpy(ArcFormat, Format);
@@ -725,7 +731,7 @@ void PluginClass::GetGroopName(PluginPanelItem *Items, int Count, char *ArcName)
     if(NoGroop || FSF.LStrnicmp(Name, Items[i].FindData.cFileName, Len))
 //    if(strncmpi(Name, Items[i].FindData.cFileName, Len))
     {
-      //взять имя папки
+      //тч Є№ шь  яряъш
       char CurDir[NM];
       GetCurrentDirectory(sizeof(CurDir), CurDir);
       strcpy(ArcName, FSF.PointToName(CurDir));

@@ -22,8 +22,8 @@
 #define __RWSTDDEFS_H__
 
 /*
-Если определено _check_mem, то будет увеличиваться/уменьшаться
-переменная _check_mem_DAT при вызове malloc/realloc/free
+┼ёыш юяЁхфхыхэю _check_mem, Єю сєфхЄ єтхышўштрЄ№ё /єьхэ№°рЄ№ё 
+яхЁхьхээр  _check_mem_DAT яЁш т√чютх malloc/realloc/free
 */
 #ifdef _DEBUG
 #define _check_mem
@@ -35,31 +35,31 @@
 #endif
 
 /* stdlib.h */
-  void *malloc(size_t size);
-  void *realloc(void *block, size_t size);
-  void free(void *block);
+void *malloc(size_t size);
+void *realloc(void *block, size_t size);
+void free(void *block);
 
 /* mem.h */
-  void *memcpy(void *dest, const void *src, size_t n);
-  void *memmove(void *dest, const void *src, size_t n);
-  void *memset(void *s, int c, size_t n);
-  int memcmp(const void *s1, const void *s2, size_t n);
+void *memcpy(void *dest, const void *src, size_t n);
+void *memmove(void *dest, const void *src, size_t n);
+void *memset(void *s, int c, size_t n);
+int memcmp(const void *s1, const void *s2, size_t n);
 
 /* string.h */
 #define __STRING_H
 #define __STDC__
 #define __STDIO_H
-  char *strdup(const char *s);
-  char *strchr(char *s, int c);
-  char *strrchr(char *s, int c);
-  char *strncpy(char *dest, const char *src, size_t n);
-  int strcmp(const char *s1, const char *s2);
-  int stricmp(const char *s1, const char *s2);
-  int strnicmp(const char *s1, const char *s2, size_t n);
-  int strncmp(const char *s1, const char *s2, size_t n);
-  size_t strlen(const char * str);
-  char *strcat(char * dst, const char * src);
-  char *strcpy(char * dst, const char * src);
+char *strdup(const char *s);
+char *strchr(char *s, int c);
+char *strrchr(char *s, int c);
+char *strncpy(char *dest, const char *src, size_t n);
+int strcmp(const char *s1, const char *s2);
+int stricmp(const char *s1, const char *s2);
+int strnicmp(const char *s1, const char *s2, size_t n);
+int strncmp(const char *s1, const char *s2, size_t n);
+size_t strlen(const char * str);
+char *strcat(char * dst, const char * src);
+char *strcpy(char * dst, const char * src);
 
 #ifdef __cplusplus
 #ifndef __NEW_DEFINED
@@ -89,7 +89,7 @@ void operator delete[] (void *ptr)
 #endif // __NEW_DEFINED
 #endif // __cplusplus
 
-#include <windows.h>
+#include "plugin.hpp"
 
 #ifdef __cplusplus
 template <class T>inline const T&Min(const T &a, const T &b) { return a<b?a:b; }
@@ -98,9 +98,9 @@ template <class T>inline const T&Max(const T &a, const T &b) { return a>b?a:b; }
 
 HANDLE heapNew = NULL;
 
-#ifdef _check_mem      // проверка и подсчет выделенной памяти
+#ifdef _check_mem      // яЁютхЁър ш яюфёўхЄ т√фхыхээющ ярь Єш
 
-DWORD _check_mem_DAT;  // счетчик, должен инициализироваться нулем при старте
+DWORD _check_mem_DAT;  // ёўхЄўшъ, фюыцхэ шэшЎшрышчшЁютрЄ№ё  эєыхь яЁш ёЄрЁЄх
 
 void *malloc(size_t size)
 {
@@ -153,7 +153,7 @@ void free(void *block)
       HeapFree(heapNew, 0, block);
     }
 }
-#else // обычный режим без проверки
+#else // юс√ўэ√щ Ёхцшь схч яЁютхЁъш
 void *malloc(size_t size)
 {
   if (heapNew)
@@ -360,11 +360,13 @@ char *strcpy(char * dst, const char * src)
 
 int stricmp(const char *s1, const char *s2)
 {
+  extern struct FarStandardFunctions FSF;
   return FSF.LStricmp(s1, s2);
 }
 
 int strnicmp(const char *s1, const char *s2, size_t n)
 {
+  extern struct FarStandardFunctions FSF;
   return FSF.LStrnicmp(s1, s2, n);
 }
 

@@ -1,3 +1,5 @@
+#ifndef __MULTIARC_HPP__
+#define __MULTIARC_HPP__
 /*
   MULTIARC.HPP
 
@@ -8,41 +10,98 @@
 /*
 Modify:
   09.03.2002 AA
-    вести дальнейшие логи нет возможности :)
+    тхёЄш фры№эхщ°шх ыюуш эхЄ тючьюцэюёЄш :)
   18.05.2001 SVS
-    + Опция: "Use Last History" для диалога Shift-F1
-    + PluginItem.Flags - на будущее :-)
+    + ╬яЎш : "Use Last History" фы  фшрыюур Shift-F1
+    + PluginItem.Flags - эр сєфє∙хх :-)
   13.04.2001 DJ
-    - вместо QuoteSpace используется FSF.QuoteSpaceOnly
-    - вся необходимая механика для wincon.h уже есь в plugin.hpp
+    - тьхёЄю QuoteSpace шёяюы№чєхЄё  FSF.QuoteSpaceOnly
+    - тё  эхюсїюфшьр  ьхїрэшър фы  wincon.h єцх хё№ т plugin.hpp
   19.02.2001 AS
-    ! исключаем windows.h - он должен подключаться из plugin.hpp
-                            после того как будет задано выравнивание
+    ! шёъы■ўрхь windows.h - юэ фюыцхэ яюфъы■ўрЄ№ё  шч plugin.hpp
+                            яюёых Єюую ъръ сєфхЄ чрфрэю т√Ёртэштрэшх
   28.11.2000 AS
-    ! включаем stdlib.h - нужен для realloc
+    ! тъы■ўрхь stdlib.h - эєцхэ фы  realloc
 */
 
 /* $ 19.02.2001 AS
-  windows.h - подключается из plugin.hpp после указания выравнивания
+  windows.h - яюфъы■ўрхЄё  шч plugin.hpp яюёых єърчрэш  т√Ёртэштрэш 
 */
 //#  include <windows.h>
 /* AS $*/
-#if defined __BORLANDC__ && __BORLANDC__<=0x0520
-//|| defined(__GNUC__)
-#define __USE_OWN_RTL__
-#endif // __USE_OWN_RTL__
-#include "plugin.hpp"
 
-struct FarStandardFunctions FSF;
+//#define _NEW_ARC_SORT_
+#define OLD_DIALOG_STYLE 1
+#define _ARC_UNDER_CURSOR_
+#define _GROOP_NAME_
+
+#ifndef LIGHTGRAY
+#define LIGHTGRAY 7
+#endif
+
+#define RETEXEC_ARCNOTFOUND 0x40000
+
+/* $ 26.07.2001 AA */
+#define COUNT(Msg) (sizeof(Msg)/sizeof(*Msg))
+/* 26.07.2001 AA $ */
+
+#define F_ENCRYPTED 1
+#define MAX_COMMAND_LENGTH 32768
+
+#define SUPER_PUPER_ZERO (0)
+
+enum {
+  CMD_EXTRACT=0,
+  CMD_EXTRACTWITHOUTPATH,
+  CMD_TEST,
+  CMD_DELETE,
+  CMD_COMMENT,
+  CMD_COMMENTFILES,
+  CMD_SFX,
+  CMD_LOCK,
+  CMD_PROTECT,
+  CMD_RECOVER,
+  CMD_ADD,
+  CMD_MOVE,
+  CMD_ADDRECURSE,
+  CMD_MOVERECURSE,
+  CMD_ALLFILESMASK,
+  CMD_DEFEXT
+};
 
 #ifdef __USE_OWN_RTL__
-#include "ownrtl.cpp"
-#else // __USE_OWN_RTL__
+/* stdlib.h */
+void *malloc(size_t size);
+void *realloc(void *block, size_t size);
+void free(void *block);
+
+/* mem.h */
+void *memcpy(void *dest, const void *src, size_t n);
+void *memmove(void *dest, const void *src, size_t n);
+void *memset(void *s, int c, size_t n);
+int memcmp(const void *s1, const void *s2, size_t n);
+
+/* string.h */
+#define __STRING_H
+#define __STDC__
+#define __STDIO_H
+char *strdup(const char *s);
+char *strchr(char *s, int c);
+char *strrchr(char *s, int c);
+char *strncpy(char *dest, const char *src, size_t n);
+int strcmp(const char *s1, const char *s2);
+int stricmp(const char *s1, const char *s2);
+int strnicmp(const char *s1, const char *s2, size_t n);
+int strncmp(const char *s1, const char *s2, size_t n);
+size_t strlen(const char * str);
+char *strcat(char * dst, const char * src);
+char *strcpy(char * dst, const char * src);
+#else
 //#include <stdio.h>
 //#include <conio.h>
 
 /* $ 28.11.2000 AS
-  stdlib - нужен для realloc
+  stdlib - эєцхэ фы  realloc
 */
 
 #include <stdlib.h>
@@ -55,15 +114,6 @@ struct FarStandardFunctions FSF;
 //#include <time.h>
 #endif // __USE_OWN_RTL__
 
-#include "marclng.hpp"
-#include "fmt.hpp"
-#include "farkeys.hpp"
-//#ifdef _MSC_VER
-//#include <io.h>  //for mktemp()
-//#endif
-
-#define MAX_COMMAND_LENGTH 32768
-
 
 typedef DWORD (WINAPI *PLUGINLOADFORMATMODULE)(const char *ModuleName);
 typedef BOOL (WINAPI *PLUGINISARCHIVE)(const char *Name,const unsigned char *Data,int DataSize);
@@ -72,10 +122,7 @@ typedef int (WINAPI *PLUGINGETARCITEM)(struct PluginPanelItem *Item,struct ArcIt
 typedef BOOL (WINAPI *PLUGINCLOSEARCHIVE)(struct ArcInfo *Info);
 typedef BOOL (WINAPI *PLUGINGETFORMATNAME)(int Type,char *FormatName,char *DefaultExt);
 typedef BOOL (WINAPI *PLUGINGETDEFAULTCOMMANDS)(int Type,int Command,char *Dest);
-/* $ 13.09.2000 tran
-  + Fmt.SetFarInfo */
 typedef void (WINAPI *PLUGINSETFARINFO)(const struct PluginStartupInfo *plg);
-/* tran 13.09.2000 $ */
 typedef DWORD (WINAPI *PLUGINGETSFXPOS)(void);
 
 struct PluginItem
@@ -220,69 +267,15 @@ struct InitDialogItem
   char *Data;
 };
 
-int ConfigGeneral();
-int ConfigCommands(char *ArcFormat,int IDFocus=2);
-
-const char *GetMsg(int MsgId);
-int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,char *ListFileName=0);
-char *SeekDefExtPoint(char *Name, char *DefExt=NULL, char **Ext=NULL); //$AA 28.11.2001
-BOOL AddExt(char *Name, char *Ext);                               //$AA 28.11.2001
-
 /* $ 13.09.2000 tran
-   разное для ожидания процесса, чтобы убить лист-файл */
+   Ёрчэюх фы  юцшфрэш  яЁюЎхёёр, ўЄюс√ єсшЄ№ ышёЄ-Їрщы */
 struct KillStruct
 {
     char ListFileName[260];
     HANDLE hProcess;
     HANDLE hThread;
 };
-
-void StartThreadForKillListFile(PROCESS_INFORMATION *pi,char *list);
-DWORD WINAPI ThreadWhatWaitingForKillListFile(LPVOID par);
-#define SUPER_PUPER_ZERO (0)
 /* tran 13.09.2000 $ */
-
-
-char* QuoteText(char *Str);
-void ConvertNameToShort(const char *Src,char *Dest);
-void InitDialogItems(const struct InitDialogItem *Init,struct FarDialogItem *Item,
-                     int ItemsNumber);
-void InsertCommas(unsigned long Number,char *Dest);
-void InsertCommas(__int64 Number,char *Dest);
-int ToPercent(long N1,long N2);
-int ToPercent(__int64 N1,__int64 N2);
-int IsCaseMixed(const char *Str);
-int CheckForEsc();
-int LocalStrnicmp(const char *Str1,const char *Str2,int Length);
-int __isspace(int Chr);
-int FindExecuteFile(char *OriginalName,char *DestName,int SizeDest);
-char *GetCommaWord(char *Src,char *Word,char Separator);
-bool GoToFile(const char *Target);
-bool FileExists(const char* Name);
-
-void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData);
-void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,DWORD ValueData);
-int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData,char *Default,DWORD DataSize);
-int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,int &ValueData,DWORD Default);
-int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,DWORD Default);
-void DeleteRegValue(HKEY hRoot,const char *Key,const char *ValueName);
-void DeleteRegKey(HKEY hRoot,const char *Key);
-
-struct PluginStartupInfo Info;
-class ArcPlugins *ArcPlugin=NULL;
-int FarVER;
-
-enum {CMD_EXTRACT=0,CMD_EXTRACTWITHOUTPATH,CMD_TEST,CMD_DELETE,CMD_COMMENT,
-      CMD_COMMENTFILES,CMD_SFX,CMD_LOCK,CMD_PROTECT,CMD_RECOVER,
-      CMD_ADD,CMD_MOVE,CMD_ADDRECURSE,CMD_MOVERECURSE,CMD_ALLFILESMASK,
-      CMD_DEFEXT};
-
-char *CmdNames[]={"Extract","ExtractWithoutPath","Test","Delete",
-                  "Comment","CommentFiles","SFX","Lock","Protect","Recover",
-                  "Add","Move","AddRecurse","MoveRecurse","AllFilesMask",
-                  "DefExt"};
-
-#define F_ENCRYPTED 1
 
 struct MAAdvFlags
 {
@@ -306,7 +299,7 @@ struct Options
   int ReadDescriptions;
   int UpdateDescriptions;
   /* $ 13.09.2000 tran
-     запуск процесса в фоне */
+     чряєёъ яЁюЎхёёр т Їюэх */
   int UserBackground;
   int Background;
   /* tran 13.09.2000 $ */
@@ -316,27 +309,69 @@ struct Options
   //BOOL AutoResetExactArcName; // $ 2?.11.2001 AA
   //BOOL ExactArcName;   // $ 30.11.2001 AA
   MAAdvFlags AdvFlags; //$ 06.03.2002 AA
-} Opt;
+};
 
-char PluginRootKey[80];
+/*
+  Global Data
+*/
+extern char PluginRootKey[80];
+extern struct FarStandardFunctions FSF;
+extern struct Options Opt;
+extern struct PluginStartupInfo Info;
+extern class ArcPlugins *ArcPlugin;
+extern int FarVER;
+extern char *CmdNames[];
 
-#ifndef LIGHTGRAY
-#define LIGHTGRAY 7
+#ifdef _NEW_ARC_SORT_
+extern char IniFile[];
+extern char *SortModes[];
+#endif //_NEW_ARC_SORT_
+#ifdef __USE_OWN_RTL__
+extern HANDLE heapNew;
 #endif
 
-#define RETEXEC_ARCNOTFOUND 0x40000
 
-/* $ 26.07.2001 AA */
-#define COUNT(Msg) (sizeof(Msg)/sizeof(*Msg))
-/* 26.07.2001 AA $ */
+/*
+  Functions
+*/
 
-//#define _NEW_ARC_SORT_
 #ifdef _NEW_ARC_SORT_
-char IniFile[MAX_PATH];
-char *SortModes[]={"None", "Name", "RunRate", "ChoiceRate", "User"};
 void WritePrivateProfileInt(char *Section, char *Key, int Value, char *Ini);
 #endif //_NEW_ARC_SORT_
 
-#define OLD_DIALOG_STYLE 1
-#define _ARC_UNDER_CURSOR_
-#define _GROOP_NAME_
+int ConfigGeneral();
+int ConfigCommands(char *ArcFormat,int IDFocus=2);
+
+const char *GetMsg(int MsgId);
+int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,char *ListFileName=0);
+char *SeekDefExtPoint(char *Name, char *DefExt=NULL, char **Ext=NULL); //$AA 28.11.2001
+BOOL AddExt(char *Name, char *Ext);                               //$AA 28.11.2001
+void StartThreadForKillListFile(PROCESS_INFORMATION *pi,char *list);
+DWORD WINAPI ThreadWhatWaitingForKillListFile(LPVOID par);
+char* QuoteText(char *Str);
+void ConvertNameToShort(const char *Src,char *Dest);
+void InitDialogItems(const struct InitDialogItem *Init,struct FarDialogItem *Item,
+                     int ItemsNumber);
+void InsertCommas(unsigned long Number,char *Dest);
+void InsertCommas(__int64 Number,char *Dest);
+int ToPercent(long N1,long N2);
+int ToPercent(__int64 N1,__int64 N2);
+int IsCaseMixed(const char *Str);
+int CheckForEsc();
+int LocalStrnicmp(const char *Str1,const char *Str2,int Length);
+int __isspace(int Chr);
+int FindExecuteFile(char *OriginalName,char *DestName,int SizeDest);
+char *GetCommaWord(char *Src,char *Word,char Separator);
+BOOL GoToFile(const char *Target);
+BOOL FileExists(const char* Name);
+
+
+void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData);
+void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,DWORD ValueData);
+int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData,char *Default,DWORD DataSize);
+int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,int &ValueData,DWORD Default);
+int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,DWORD Default);
+void DeleteRegKey(HKEY hRoot,const char *Key);
+void DeleteRegValue(HKEY hRoot,const char *Key,const char *ValueName);
+
+#endif // __MULTIARC_HPP__

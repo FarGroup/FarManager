@@ -1,9 +1,13 @@
 /*
 Modify:
   19.02.2001 AS
-   ! ¯à ¢ª  ¢ëá¢®¡®¦¤¥­¨ï á¯¨áª  PluginsData ¢ ¤¥áâàãªâ®à¥ ArcPlugins
+   ! ïðàâêà âûñâîáîæäåíèÿ ñïèñêà PluginsData â äåñòðóêòîðå ArcPlugins
 */
 
+#include "plugin.hpp"
+#include "fmt.hpp"
+#include "multiarc.hpp"
+#include "marclng.hpp"
 
 ArcPlugins::ArcPlugins(const char *ModuleName)
 {
@@ -46,7 +50,7 @@ int WINAPI ArcPlugins::LoadFmtModules(const WIN32_FIND_DATA *fdata,
     CurPlugin.pSetFarInfo=(PLUGINSETFARINFO)GetProcAddress(hModule,"SetFarInfo");
     CurPlugin.pGetSFXPos=(PLUGINGETSFXPOS)GetProcAddress(hModule,"GetSFXPos");
 
-    // ®¡ï§ â¥«ì­ë¥!
+    // îáÿçàòåëüíûå!
     if(!(CurPlugin.pIsArchive &&
          CurPlugin.pOpenArchive &&
          CurPlugin.pGetArcItem /*&&
@@ -68,7 +72,7 @@ int WINAPI ArcPlugins::LoadFmtModules(const WIN32_FIND_DATA *fdata,
     if (NewPluginsData==NULL)
     {
       FreeLibrary(hModule);
-      return FALSE; // ¯à¨ ­¥å¢ âª¥ ¯ ¬ïâ¨ ®áâ ­®¢¨¬ ¯à®æ¥áá ¯®¨áª .
+      return FALSE; // ïðè íåõâàòêå ïàìÿòè îñòàíîâèì ïðîöåññ ïîèñêà.
     }
     plugins->PluginsData=NewPluginsData;
     memcpy(&plugins->PluginsData[plugins->PluginsCount],&CurPlugin,sizeof(struct PluginItem));
