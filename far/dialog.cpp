@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.16 09.08.2000 $ */
+/* Revision: 1.17 09.08.2000 $ */
 
 /*
 Modify:
+  09.08.2000 tran 1.16
+   - убраны "салазки"
   09.08.2000 KM
    ! При включении режима перемещения диалога добавлено
      отключение мигающего курсора. Так косметика.
@@ -1558,6 +1560,8 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
     Dragged=1;
     OldX1=X1; OldX2=X2; OldY1=Y1; OldY2=Y2;
+    MsX=MouseX;
+    MsY=MouseY;
     /* $ 09.08.2000 KM
        Переменные для сохранения последних координат мыши.
        А то без этого диалог катается по экрану, как намазанный
@@ -1568,7 +1572,16 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     while (1)
     {
         int mb=IsMouseButtonPressed();
+        /* $ 09.08.2000 tran
+           - долой "салазки" :) */
+        if ( mb==1 && MouseX==MsX && MouseY==MsY )
+            continue;
+        MsX=MouseX;
+        MsY=MouseY;
+        /* tran 09.08.2000 $ */
+
         int mx,my;
+//        SysLog("MouseMove:(), MouseX=%i, MousePrevX=%i,MouseY=%i, MousePrevY=%i",MouseX,PrevMouseX,MouseY,PrevMouseY);
         if ( mb==1 ) // left key, still dragging
         {
             /* $ 09.08.2000 KM
