@@ -5,10 +5,12 @@ help.cpp
 
 */
 
-/* Revision: 1.08 07.12.2000 $ */
+/* Revision: 1.09 18.12.2000 $ */
 
 /*
 Modify:
+  18.12.2000 SVS
+    - ExpandEnv забыл поставить в активаторе :-(
   07.12.2000 SVS
     ! Изменен механизм запуска URL приложения - были нарекания со стороны
       владельцев оутглюка.
@@ -78,6 +80,11 @@ static int RunURL(char *Protocol, char *URLPath)
       if(RegOpenKeyEx(HKEY_CLASSES_ROOT,Buf,0,KEY_READ,&hKey) == ERROR_SUCCESS)
       {
         Disposition=RegQueryValueEx(hKey,"",0,&Disposition,(LPBYTE)Buf,&DataSize);
+        /* $ 18.12.2000 SVS
+           Хммм... а здесь может быть и так: "%ProgramFiles%\Outlook Express\msimn.exe"
+        */
+        ExpandEnvironmentStr(Buf, Buf, 2048);
+        /* SVS $ */
         RegCloseKey(hKey);
         if(Disposition == ERROR_SUCCESS)
         {

@@ -5,10 +5,13 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.06 13.12.2000 $ */
+/* Revision: 1.07 18.12.2000 $ */
 
 /*
 Modify:
+  18.12.2000 SVS
+    - Написано же "Ctrl-D - Символ вправо"!
+    + Сбрасываем выделение при редактировании на некоторых клавишах
   13.12.2000 SVS
     ! Для CmdLine - если нет выделения, преобразуем всю строку (XLat)
   04.11.2000 SVS
@@ -292,6 +295,30 @@ int CommandLine::ProcessKey(int Key)
       /* SVS $ */
       /* SVS $ */
 
+      /* $ 18.12.2000 SVS
+         Сбрасываем выделение на некоторых клавишах
+      */
+      if (!Opt.EditorPersistentBlocks)
+      {
+        static int UnmarkKeys[]={KEY_LEFT,KEY_CTRLS,KEY_RIGHT,KEY_CTRLD,
+                   KEY_CTRLLEFT,KEY_CTRLRIGHT,KEY_CTRLHOME,KEY_CTRLEND,
+                   KEY_HOME,KEY_END
+                   };
+        for (int I=0;I<sizeof(UnmarkKeys)/sizeof(UnmarkKeys[0]);I++)
+          if (Key==UnmarkKeys[I])
+          {
+            CmdStr.Select(-1,0);
+            break;
+          }
+      }
+      /* SVS $ */
+
+      /* $ 18.12.2000 SVS
+         Написано же "Ctrl-D - Символ вправо"
+      */
+      if(Key == KEY_CTRLD)
+        Key=KEY_RIGHT;
+      /* SVS $ */
       if (!CmdStr.ProcessKey(Key))
         break;
       LastCmdPartLength=-1;
