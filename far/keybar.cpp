@@ -5,10 +5,13 @@ Keybar
 
 */
 
-/* Revision: 1.03 19.09.2000 $ */
+/* Revision: 1.04 07.01.2001 $ */
 
 /*
 Modify:
+  07.01.2001 OT
+    - После смены клавиатуры выскочил баг: 
+      "Кликаю мышкой на кейбаре, например, на f10 - ноль реакции."
   19.09.2000 SVS
     ! При нажатии Ctrl-Alt-Shift неверно отображается KeyBar
   07.08.2000 SVS
@@ -272,6 +275,7 @@ int KeyBar::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   else
     Key=9+(X-KeyWidth*9)/(KeyWidth+1);
 
+
   while (1)
   {
     GetInputRecord(&rec);
@@ -289,12 +293,14 @@ int KeyBar::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     NewKey=NewX/KeyWidth;
   else
     NewKey=9+(NewX-KeyWidth*9)/(KeyWidth+1);
-
+  
   if (Key!=NewKey)
     return(FALSE);
 
-  if (Key>11)
-    Key=11;
+  ++Key <<= 8;
+
+  if (Key>KEY_F12)
+    Key=KEY_F12;
 
   /* $ 02.08.2000 SVS
      Добавка к новым индикаторам
@@ -303,23 +309,21 @@ int KeyBar::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED))
   {
     if (MouseEvent->dwControlKeyState & SHIFT_PRESSED)
-      Key+=KEY_ALTSHIFTF1;
+      Key+=KEY_ALTSHIFT;
     else if (MouseEvent->dwControlKeyState & (RIGHT_CTRL_PRESSED|LEFT_CTRL_PRESSED))
-      Key+=KEY_CTRLALTF1;
+      Key+=KEY_CTRLALT;
     else
-      Key+=KEY_ALTF1;
+      Key+=KEY_ALT;
   }
   else if (MouseEvent->dwControlKeyState & (RIGHT_CTRL_PRESSED|LEFT_CTRL_PRESSED))
   {
     if (MouseEvent->dwControlKeyState & SHIFT_PRESSED)
-      Key+=KEY_CTRLSHIFTF1;
+      Key+=KEY_CTRLSHIFT;
     else
-      Key+=KEY_CTRLF1;
+      Key+=KEY_CTRL;
   }
   else if (MouseEvent->dwControlKeyState & SHIFT_PRESSED)
-    Key+=KEY_SHIFTF1;
-  else
-    Key+=KEY_F1;
+    Key+=KEY_SHIFT;
   /* SVS $ */
 
   if (Owner)
