@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.143 21.05.2003 $ */
+/* Revision: 1.144 29.05.2003 $ */
 
 /*
 Modify:
+  29.05.2003 SVS
+    - BugZ#912 - падение FAR и добавление хэлпа надо....
   21.05.2003 VVM
     ! Изменим поведение при скроллинге вниз.
   17.05.2003 VVM
@@ -891,6 +893,9 @@ void Viewer::AdjustWidth()
 
 void Viewer::SetCRSym()
 {
+  if(!ViewFile)
+    return;
+
   char Buf[2048];
   int CRCount=0,LFCount=0;
   int ReadSize,I;
@@ -1058,6 +1063,8 @@ void Viewer::DisplayObject()
 
 void Viewer::ShowHex()
 {
+  if(!ViewFile)
+    return;
   char OutStr[MAX_VIEWLINE],TextStr[20];
   int SelPos,SelSize,EndFile;
   int Ch,Ch1,X,Y,TextPos;
@@ -1205,6 +1212,9 @@ void Viewer::ShowHex()
 
 void Viewer::ShowUp()
 {
+  if(!ViewFile)
+    return;
+
   int Y,I;
 
   /* $ 27.04.2001 DJ
@@ -1253,11 +1263,11 @@ void Viewer::ShowUp()
       __int64 SelPos, SelSize;
       char OutStrTmp[MAX_VIEWLINEB];
       __int64 SavePos = vtell(ViewFile);
-	  int SaveLastPage = LastPage;
+      int SaveLastPage = LastPage;
       vseek(ViewFile,StrFilePos[I],SEEK_SET);
       ReadString(OutStrTmp,-1,MAX_VIEWLINEB,&SelPos,&SelSize);
       vseek(ViewFile,SavePos,SEEK_SET);
-	  LastPage = SaveLastPage;
+      LastPage = SaveLastPage;
       int SelX1=(int)((__int64)X1+SelPos - LeftPos);
       if (SelPos - LeftPos < Width)
       {
@@ -1294,6 +1304,9 @@ void Viewer::ShowUp()
 
 void Viewer::ShowDown()
 {
+  if(!ViewFile)
+    return;
+
   int Y,I;
 
   /* $ 27.04.2001 DJ
@@ -1344,11 +1357,11 @@ void Viewer::ShowDown()
       __int64 SelPos, SelSize;
       char OutStrTmp[MAX_VIEWLINEB];
       __int64 SavePos = vtell(ViewFile);
-	  int SaveLastPage = LastPage;
+      int SaveLastPage = LastPage;
       vseek(ViewFile,StrFilePos[I],SEEK_SET);
       ReadString(OutStrTmp,-1,MAX_VIEWLINEB,&SelPos,&SelSize);
       vseek(ViewFile,SavePos,SEEK_SET);
-	  LastPage = SaveLastPage;
+      LastPage = SaveLastPage;
       int SelX1=(int)((__int64)X1+SelPos - LeftPos);
       if (SelPos - LeftPos < Width)
       {
@@ -1720,7 +1733,7 @@ int Viewer::ProcessKey(int Key)
     case KEY_CTRLC:
     case KEY_CTRLINS:  case KEY_CTRLNUMPAD0:
     {
-      if (SelectSize)
+      if (SelectSize && ViewFile)
       {
         char *SelData;
         int DataSize = (int)SelectSize+(VM.Unicode?2:1);
@@ -2455,6 +2468,9 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 void Viewer::Up()
 {
+  if(!ViewFile)
+    return;
+
   char Buf[MAX_VIEWLINE];
   int BufSize,StrPos,Skipped,I,J;
 
@@ -3110,6 +3126,8 @@ void Viewer::SetNamesList(NamesList *List)
 
 int Viewer::vread(char *Buf,int Size,FILE *SrcFile)
 {
+  if(!SrcFile)
+    return -1;
   if (VM.Unicode)
   {
     char TmpBuf[16384+10];
@@ -3141,6 +3159,8 @@ int Viewer::vread(char *Buf,int Size,FILE *SrcFile)
 
 int Viewer::vseek(FILE *SrcFile,__int64 Offset,int Whence)
 {
+  if(!SrcFile)
+    return -1;
   if (VM.Unicode)
     return(fseek64(SrcFile,Offset*2,Whence));
   else
@@ -3150,6 +3170,8 @@ int Viewer::vseek(FILE *SrcFile,__int64 Offset,int Whence)
 
 __int64 Viewer::vtell(FILE *SrcFile)
 {
+  if(!SrcFile)
+    return -1;
   __int64 Pos=ftell64(SrcFile);
   if (VM.Unicode)
     Pos=(Pos+(Pos&1))/2;
@@ -3159,6 +3181,8 @@ __int64 Viewer::vtell(FILE *SrcFile)
 
 int Viewer::vgetc(FILE *SrcFile)
 {
+  if(!SrcFile)
+    return -1;
   if (VM.Unicode)
   {
     char TmpBuf[1];
@@ -3371,6 +3395,9 @@ void Viewer::AdjustFilePos()
 
 void Viewer::SetFileSize()
 {
+  if(!ViewFile)
+    return;
+
   SaveFilePos SavePos(ViewFile);
   vseek(ViewFile,0,SEEK_END);
   FileSize=ftell64(ViewFile);
@@ -3398,6 +3425,9 @@ void Viewer::GetSelectedParam(__int64& Pos,int& Length, DWORD& Flags)
 */
 void Viewer::SelectText(__int64 MatchPos,int SearchLength, DWORD Flags)
 {
+  if(!ViewFile)
+    return;
+
   char Buf[1024];
   __int64 StartLinePos=-1,SearchLinePos=MatchPos-sizeof(Buf);
   if (SearchLinePos<0)

@@ -5,10 +5,12 @@ class SaveFilePos
 
 */
 
-/* Revision: 1.05 22.02.2002 $ */
+/* Revision: 1.06 29.05.2003 $ */
 
 /*
 Modify:
+  29.05.2003 SVS
+    ! Сделаем проверку на NULL
   22.02.2002 SVS
     ! revert.  long -> int64 :-\
   06.05.2001 DJ
@@ -33,11 +35,13 @@ Modify:
 SaveFilePos::SaveFilePos(FILE *SaveFile)
 {
   SaveFilePos::SaveFile=SaveFile;
-  SavePos=ftell64(SaveFile);
+  if(SaveFile)
+    SavePos=ftell64(SaveFile);
 }
 
 
 SaveFilePos::~SaveFilePos()
 {
-  fseek64(SaveFile,SavePos,SEEK_SET);
+  if(SaveFile)
+    fseek64(SaveFile,SavePos,SEEK_SET);
 }

@@ -847,7 +847,9 @@ $ #Quick view panel#
 in  the ~file panel~@FilePanel@ or ~tree panel~@TreePanel@.
 
     If the selected item is a file then the contents of the file is displayed.
-For files of registered Windows types the type is shown as well.
+Many of the ~internal viewer~@Viewer@ commands can be used with the
+file displayed in the panel. For files of registered Windows types the
+type is shown as well.
 
     For folders, the quick view panel displays total size, total compressed
 size, number of files and subfolders in the folder, current disk cluster size,

@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.61 22.04.2003 $ */
+/* Revision: 1.62 28.05.2003 $ */
 
 /*
 Modify:
+  28.05.2003 SVS
+    ! Opt.EdOpt.PersistentBlocks -> Opt.Dialogs.EditBlock
   22.04.2003 SVS
     ! strcpy -> strNcpy
   20.09.2002 SVS
@@ -424,7 +426,7 @@ int CommandLine::ProcessKey(int Key)
       /* $ 18.12.2000 SVS
          —брасываем выделение на некоторых клавишах
       */
-      if (!Opt.EdOpt.PersistentBlocks)
+      if (!Opt.Dialogs.EditBlock)
       {
         static int UnmarkKeys[]={
                KEY_LEFT,       KEY_NUMPAD4,

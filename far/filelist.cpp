@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.179 27.05.2003 $ */
+/* Revision: 1.180 29.05.2003 $ */
 
 /*
 Modify:
+  29.05.2003 SVS
+    ! ¬ьюверу подсунем либо короткое им€, либо длинное в зависимости от
+      режима панели.
   27.05.2003 SVS
     ! ƒл€ PanelMode==PLUGIN_PANEL && OPIF_REALNAMES Shift-Enter на каталоге
       обрабатываем стандартным способом, как и дл€ обычно каталога, но
@@ -1808,7 +1811,8 @@ int FileList::ProcessKey(int Key)
                   ViewList.SetCurDir(CurDir);
                   ViewList.SetCurName(FileName);
                 }
-                FileViewer *ShellViewer=new FileViewer(FileName,TRUE,PluginMode,PluginMode,-1,PluginData,&ViewList);
+                //FileViewer *ShellViewer=new FileViewer(FileName,TRUE,PluginMode,PluginMode,-1,PluginData,&ViewList);
+                FileViewer *ShellViewer=new FileViewer(GetShowShortNamesMode()?ShortFileName:FileName,TRUE,PluginMode,PluginMode,-1,PluginData,&ViewList);
                 /* $ 08.04.2002 IS
                    —бросим DeleteViewedFile, т.к. внутренний вьюер сам все
                    удалит

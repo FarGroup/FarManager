@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.285 19.05.2003 $ */
+/* Revision: 1.286 28.05.2003 $ */
 
 /*
 Modify:
+  28.05.2003 SVS
+    ! Opt.EdOpt.PersistentBlocks -> Opt.Dialogs.EditBlock
   19.05.2003 SVS
     + Про выделения в строках ввода.
     + Добавка к DialogItem - SelStart, SelEnd. Отвечают за сохранение
@@ -3602,7 +3604,7 @@ int Dialog::ProcessKey(int Key)
               if(CurPos<SelStart) DoAutoComplete=FALSE;
               if(SelStart<SelEnd && SelEnd<len) DoAutoComplete=FALSE;
 
-              if(Opt.EdOpt.PersistentBlocks)
+              if(Opt.Dialogs.EditBlock)
               {
                 if(DoAutoComplete && CurPos <= SelEnd)
                 {
