@@ -48,7 +48,7 @@ OPTDEBUG=-v
 CSMFILE=fard.csm
 !else
 OPTDEBUG=-v-
-CSMFILE=far.csm
+CSMFILE=Far.csm
 !endif
 
 
@@ -90,7 +90,7 @@ CCFLAGS =
 # Dependency List
 #
 Dep_Far = \
-   $(FINALPATH)\far.exe
+   $(FINALPATH)\Far.exe
 
 Far : BccW32.cfg $(Dep_Far)
   echo MakeNode
@@ -184,32 +184,32 @@ FAROBJ=\
    $(OBJPATH)\main.obj
 
 Dep_fardexe = BccW32.cfg\
-   far.def\
-   $(OBJPATH)\far.res \
+   Far.def\
+   $(OBJPATH)\Far.res \
    $(FAROBJ)
 
 
 !ifdef ILINK
-$(FINALPATH)\far.exe : $(Dep_fardexe)
+$(FINALPATH)\Far.exe : $(Dep_fardexe)
   @settitle "Linking..."
   @$(TLINK32)  $(LINKFLAGS) @&&|
 $(LIBPATH)\c0x32.obj $(FAROBJ)
 $<,$*
 $(LIBPATH)\import32.lib $(LIBPATH)\cw32mt.lib
-far.def
-$(OBJPATH)\far.res
+Far.def
+$(OBJPATH)\Far.res
 |
 !else
-$(FINALPATH)\far.exe : $(Dep_fardexe)
+$(FINALPATH)\Far.exe : $(Dep_fardexe)
   @settitle "Linking..."
   @$(TLINK32)  $(LINKFLAGS) @&&|
 $(LIBPATH)\c0x32.obj $(FAROBJ)
 $<,$*
 $(LIBPATH)\import32.lib $(LIBPATH)\cw32mt.lib
-far.def
+Far.def
 |
-   @copy far.map $(FINALPATH)\far.map
-   @$(BRC32) $(OBJPATH)\far.res $(OBJPATH)\far.res $<
+   @copy Far.map $(FINALPATH)\Far.map
+   @$(BRC32) $(OBJPATH)\Far.res $(OBJPATH)\Far.res $<
 !endif
 
 # обязательно! Что бы в ручную не делать...
@@ -218,21 +218,21 @@ far.def
    @del $(FINALPATH)\FarEng.lng  >nul
    @del $(FINALPATH)\FarRus.lng  >nul
 !ifdef ILINK
-   @del $(FINALPATH)\far.ilc  >nul
-   @del $(FINALPATH)\far.ild  >nul
-   @del $(FINALPATH)\far.ilf  >nul
-   @del $(FINALPATH)\far.ils  >nul
-   @del $(FINALPATH)\far.tds  >nul
+   @del $(FINALPATH)\Far.ilc  >nul
+   @del $(FINALPATH)\Far.ild  >nul
+   @del $(FINALPATH)\Far.ilf  >nul
+   @del $(FINALPATH)\Far.ils  >nul
+   @del $(FINALPATH)\Far.tds  >nul
 !endif
    @copy FarEng.hlf $(FINALPATH)\FarEng.hlf >nul
    @copy FarRus.hlf $(FINALPATH)\FarRus.hlf >nul
    @copy FarEng.lng $(FINALPATH)\FarEng.lng >nul
    @copy FarRus.lng $(FINALPATH)\FarRus.lng >nul
 
-$(OBJPATH)\far.res :  far.rc
+$(OBJPATH)\Far.res :  Far.rc
   @settitle "Compiling resource..."
   $(BRC32) -R @&&|
- $(RESFLAGS)  -FO$@ far.rc
+ $(RESFLAGS)  -FO$@ Far.rc
 |
 
 # Compiler configuration file
