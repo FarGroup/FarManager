@@ -5,10 +5,12 @@ language.cpp
 
 */
 
-/* Revision: 1.04 19.01.2001 $ */
+/* Revision: 1.05 11.02.2001 $ */
 
 /*
 Modify:
+  11.02.2001 SVS
+    ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
   19.01.2001 SVS
     + Проведем проверку на количество строк в LNG-файлах
   03.09.2000 IS
@@ -279,7 +281,7 @@ int Language::Select(int HelpLanguage,VMenu **MenuPtr)
   }
 
   struct MenuItem LangMenuItem;
-  LangMenuItem.Checked=LangMenuItem.Separator=*LangMenuItem.UserData=LangMenuItem.UserDataSize=0;
+  memset(&LangMenuItem,0,sizeof(LangMenuItem));
   VMenu *LangMenu=new VMenu(Title,NULL,0,ScrY-4);
   *MenuPtr=LangMenu;
   LangMenu->SetFlags(MENU_WRAPMODE);

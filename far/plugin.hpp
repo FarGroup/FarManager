@@ -6,15 +6,17 @@
   Plugin API for FAR Manager 1.70
 
   Copyright (c) 1996-2000 Eugene Roshal
-  Copyrigth (c) 2000 [ FAR group ]
+  Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.83 28.01.2001 $ */
+/* Revision: 1.84 11.02.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  11.02.2001 SVS
+    ! Изменения в LISTITEMFLAGS - флаги переехали в старшее слово
   28.01.2001 SVS
     ! SequenceKey.Sequence НЕ! "валяются" VK_* - только KEY_*
     + FMSG_ALLINONE - в качестве Items передается указатель на
@@ -558,9 +560,9 @@ enum FarMessagesProc{
 };
 
 enum LISTITEMFLAGS{
-  LIF_SELECTED = 0x00000001UL,
-  LIF_CHECKED  = 0x00000002UL,
-  LIF_SEPARATOR= 0x00000004UL,
+  LIF_SELECTED = 0x00010000UL,
+  LIF_CHECKED  = 0x00020000UL,
+  LIF_SEPARATOR= 0x00040000UL,
   LIF_DISABLE  = 0x80000000UL,
 };
 

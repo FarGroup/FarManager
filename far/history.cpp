@@ -5,10 +5,12 @@ history.cpp
 
 */
 
-/* Revision: 1.02 09.01.2001 $ */
+/* Revision: 1.03 11.02.2001 $ */
 
 /*
 Modify:
+  11.02.2001 SVS
+    ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
   09.01.2001 SVS
     - Бага с CmdHistoryRule=1
   11.07.2000 SVS
@@ -216,7 +218,7 @@ void History::ReadHistory()
 int History::Select(char *Title,char *HelpTopic,char *Str,int &Type,char *ItemTitle)
 {
   struct MenuItem HistoryItem;
-  HistoryItem.Checked=HistoryItem.Separator=*HistoryItem.UserData=HistoryItem.UserDataSize=0;
+  memset(&HistoryItem,0,sizeof(HistoryItem));
 
   int Line,CurCmd,Code,I,Height=ScrY-8;
   int LineToStr[sizeof(LastStr)/sizeof(LastStr[0])+1];

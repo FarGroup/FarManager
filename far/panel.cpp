@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.13 22.01.2001 $ */
+/* Revision: 1.14 11.02.2001 $ */
 
 /*
 Modify:
+  11.02.2001 SVS
+    ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
   22.01.2001 VVM
     - Порядок сортировки задается аналогично StartSortOrder
   09.01.2001 SVS
@@ -120,7 +122,7 @@ void Panel::ChangeDisk()
 int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 {
   struct MenuItem ChDiskItem;
-  ChDiskItem.Separator=ChDiskItem.Checked=0;
+  memset(&ChDiskItem,0,sizeof(ChDiskItem));
   char DiskType[100],RootDir[10],DiskLetter[50];
   DWORD Mask,DiskMask;
   int DiskCount,Focus,I;

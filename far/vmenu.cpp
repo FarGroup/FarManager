@@ -8,10 +8,12 @@ vmenu.cpp
 
 */
 
-/* Revision: 1.11 11.12.2000 $ */
+/* Revision: 1.12 11.02.2001 $ */
 
 /*
 Modify:
+  11.02.2001 SVS
+    ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
   11.12.2000 tran
    + прокрутка мышью не должна врапить меню
   20.09.2000 SVS
@@ -105,6 +107,7 @@ VMenu::VMenu(char *Title,       // заголовок меню
   for (I=0; I < ItemCount; I++)
   {
     struct MenuItem NewItem;
+    memset(&NewItem,0,sizeof(NewItem));
     if ((unsigned int)Data[I].Name < MAX_MSG)
       strcpy(NewItem.Name,MSG((unsigned int)Data[I].Name));
     else
@@ -112,7 +115,6 @@ VMenu::VMenu(char *Title,       // заголовок меню
     NewItem.Selected=Data[I].Selected;
     NewItem.Checked=Data[I].Checked;
     NewItem.Separator=Data[I].Separator;
-    *NewItem.UserData=NewItem.UserDataSize=0;
     AddItem(&NewItem);
   }
 

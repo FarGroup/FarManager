@@ -5,10 +5,12 @@ plist.cpp
 
 */
 
-/* Revision: 1.01 31.01.2001 $ */
+/* Revision: 1.02 11.02.2001 $ */
 
 /*
 Modify:
+  11.02.2001 SVS
+    ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
   31.01.2001 IS
     ! Теперь это меню более дружелюбно - попытка перемещения курсора выше
       первого пункта или ниже последнего будет приводить к перемещению
@@ -132,7 +134,7 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
     if (*Title)
     {
       struct MenuItem ListItem;
-      ListItem.Checked=ListItem.Separator=ListItem.Selected=0;
+      memset(&ListItem,0,sizeof(ListItem));
       TruncStr(Title,sizeof(ListItem.Name)-1);
       sprintf(ListItem.Name,"%-25s",Title);
       CharToOem(ListItem.Name,ListItem.Name);

@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.52 01.02.2001 $ */
+/* Revision: 1.53 11.02.2001 $ */
 
 /*
 Modify:
+  11.02.2001 SVS
+    ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
   01.02.2001 SVS
     ! Shift-F9 викинут из списка плагинов
   28.01.2001 SVS
@@ -1698,7 +1700,7 @@ void PluginsSet::Configure()
         for (J=0;;J++)
         {
           struct MenuItem ListItem;
-          ListItem.Checked=ListItem.Separator=0;
+          memset(&ListItem,0,sizeof(ListItem));
           ListItem.UserData[0]=I;
           ListItem.UserData[1]=J;
           ListItem.UserDataSize=2;
@@ -1719,7 +1721,7 @@ void PluginsSet::Configure()
       for (J=0;J<Info.PluginConfigStringsNumber;J++)
       {
         struct MenuItem ListItem;
-        ListItem.Checked=ListItem.Separator=0;
+        memset(&ListItem,0,sizeof(ListItem));
         ListItem.UserData[0]=I;
         ListItem.UserData[1]=J;
         ListItem.UserDataSize=2;
@@ -1842,7 +1844,7 @@ int PluginsSet::CommandsMenu(int Editor,int Viewer,int StartPos)
           if (GetHotKeyRegKey(I,J,HotRegKey))
             GetRegKey(HotRegKey,"Hotkey",HotKey,"",sizeof(HotKey));
           struct MenuItem ListItem;
-          ListItem.Checked=ListItem.Separator=0;
+          memset(&ListItem,0,sizeof(ListItem));
           ListItem.UserData[0]=I;
           ListItem.UserData[1]=J;
           ListItem.UserDataSize=2;
@@ -1878,7 +1880,7 @@ int PluginsSet::CommandsMenu(int Editor,int Viewer,int StartPos)
         if (GetHotKeyRegKey(I,J,HotRegKey))
           GetRegKey(HotRegKey,"Hotkey",HotKey,"",sizeof(HotKey));
         struct MenuItem ListItem;
-        ListItem.Checked=ListItem.Separator=0;
+        memset(&ListItem,0,sizeof(ListItem));
         ListItem.UserData[0]=I;
         ListItem.UserData[1]=J;
         ListItem.UserDataSize=2;

@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.37 09.02.2001 $ */
+/* Revision: 1.38 11.02.2001 $ */
 
 /*
 Modify:
+  11.02.2001 SVS
+    ! Изменения в MenuItem.
   09.02.2001 IS
     + RightSelectedFirst, LeftSelectedFirst;
     + Confirmation.Esc
@@ -162,12 +164,15 @@ struct Confirmation
 
 struct MenuItem
 {
+  DWORD Flags;
   char Name[128];
   unsigned char Selected;
   unsigned char Checked;
   unsigned char Separator;
-  char UserData[sizeof(WIN32_FIND_DATA)+NM+10];
-  int UserDataSize;
+  unsigned char Disabled;
+  char  UserData[sizeof(WIN32_FIND_DATA)+NM+10];
+  int   UserDataSize;
+  char *PtrData;
 };
 
 

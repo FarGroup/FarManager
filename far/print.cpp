@@ -5,10 +5,12 @@ print.cpp
 
 */
 
-/* Revision: 1.03 11.11.2000 $ */
+/* Revision: 1.04 11.02.2001 $ */
 
 /*
 Modify:
+  11.02.2001 SVS
+    ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
   11.11.2000 SVS
     ! FarMkTemp() - убираем (как всегда - то ставим, то тут же убираем :-(((
   11.11.2000 SVS
@@ -215,7 +217,7 @@ static void AddToPrintersMenu(VMenu *PrinterList,PRINTER_INFO_2 *pi,
   {
     char MenuText[200],PrinterName[200];
     struct MenuItem ListItem;
-    ListItem.Checked=ListItem.Separator=0;
+    memset(&ListItem,0,sizeof(ListItem));
     CharToOem(NullToEmpty(pi[I].pPrinterName),PrinterName);
     if (pi[I].pComment!=NULL)
       CharToOem(pi[I].pComment,pi[I].pComment);

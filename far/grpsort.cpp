@@ -5,10 +5,12 @@ grpsort.cpp
 
 */
 
-/* Revision: 1.01 13.07.2000 $ */
+/* Revision: 1.02 11.02.2001 $ */
 
 /*
 Modify:
+  11.02.2001 SVS
+    ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
   13.07.2000 SVS
     ! Некоторые коррекции при использовании new/delete/realloc
   25.06.2000 SVS
@@ -129,7 +131,7 @@ void GroupSort::EditGroups()
 int GroupSort::EditGroupsMenu(int Pos)
 {
   struct MenuItem ListItem;
-  ListItem.Checked=ListItem.Separator=*ListItem.UserData=ListItem.UserDataSize=0;
+  memset(&ListItem,0,sizeof(ListItem));
 
   VMenu GroupList(MSG(MSortGroupsTitle),NULL,0,ScrY-4);
   GroupList.SetFlags(MENU_WRAPMODE|MENU_SHOWAMPERSAND);
@@ -158,14 +160,13 @@ int GroupSort::EditGroupsMenu(int Pos)
   ListItem.Separator=0;
   I+=2;
 
+  struct MenuItem ListItem2;
+  memset(&ListItem2,0,sizeof(ListItem2));
   for (;GroupPos<GroupCount;I++)
   {
-    struct MenuItem ListItem;
-    ListItem.Checked=ListItem.Separator=*ListItem.UserData=ListItem.UserDataSize=0;
-
-    strncpy(ListItem.Name,GroupData[GroupPos].Masks,sizeof(ListItem.Name));
-    ListItem.Selected=(I == Pos);
-    GroupList.AddItem(&ListItem);
+    strncpy(ListItem2.Name,GroupData[GroupPos].Masks,sizeof(ListItem2.Name));
+    ListItem2.Selected=(I == Pos);
+    GroupList.AddItem(&ListItem2);
     GroupPos++;
   }
 

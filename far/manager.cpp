@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.05 29.12.2000 $ */
+/* Revision: 1.06 11.02.2001 $ */
 
 /*
 Modify:
+  11.02.2001 SVS
+    ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
   29.12.2000 IS
     + Метод ExitAll - аналог CloseAll, но разрешает продолжение полноценной
       работы в фаре, если пользователь продолжил редактировать файл.
@@ -227,7 +229,7 @@ void Manager::SelectModal()
   int ExitCode;
   {
     struct MenuItem ModalMenuItem;
-    ModalMenuItem.Checked=ModalMenuItem.Separator=*ModalMenuItem.UserData=ModalMenuItem.UserDataSize=0;
+    memset(&ModalMenuItem,0,sizeof(ModalMenuItem));
     VMenu ModalMenu(MSG(MScreensTitle),NULL,0,ScrY-4);
     ModalMenu.SetHelp("ScrSwitch");
     ModalMenu.SetFlags(MENU_WRAPMODE);

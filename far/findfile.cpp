@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.11 14.12.2000 $ */
+/* Revision: 1.12 11.02.2001 $ */
 
 /*
 Modify:
+  11.02.2001 SVS
+    ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
   14.12.2000 OT
     -  баг: поиск по Alt-F7 с очень длинной маской поиска/текста
   11.11.2000 SVS
@@ -903,7 +905,7 @@ void AddMenuRecord(char *FullName,char *Path,WIN32_FIND_DATA *FindData)
   char MenuText[NM],FileText[NM],SizeText[30];
   char Date[30],DateStr[30],TimeStr[30];
   struct MenuItem ListItem;
-  ListItem.Checked=ListItem.Separator=*ListItem.UserData=ListItem.UserDataSize=0;
+  memset(&ListItem,0,sizeof(ListItem));
   if (FindData->dwFileAttributes & FA_DIREC)
     strcpy(SizeText,MSG(MFindFileFolder));
   else

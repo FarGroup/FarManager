@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.37 28.01.2001 $ */
+/* Revision: 1.38 11.02.2001 $ */
 
 /*
 Modify:
+  11.02.2001 SVS
+    ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
   28.01.2001 SVS
     ! Конкретно обновим функцию FarMessageFn()
   23.01.2001 SVS
@@ -345,7 +347,7 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
       FarMenu.SetBottomTitle(Bottom);
     for (int I=0;I<ItemsNumber;I++)
     {
-      struct MenuItem CurItem;
+      struct MenuItem CurItem={0};
       CurItem.Selected=Item[I].Selected;
       CurItem.Checked=Item[I].Checked;
       CurItem.Separator=Item[I].Separator;

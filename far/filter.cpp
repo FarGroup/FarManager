@@ -5,10 +5,12 @@ filter.cpp
 
 */
 
-/* Revision: 1.02 13.10.07.2000 $ */
+/* Revision: 1.03 11.02.2001 $ */
 
 /*
 Modify:
+  11.02.2001 SVS
+    ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
   13.10.2000 tran
     - при изменении custum фильтра и при отказе от меню панель не менялась
   13.07.2000 SVS
@@ -91,7 +93,6 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
     int I;
     VMenu FilterList(MSG(MFilterTitle),NULL,0,ScrY-6);
     struct MenuItem ListItem;
-    ListItem.Checked=ListItem.Separator=*ListItem.UserData=ListItem.UserDataSize=0;
 
     FilterList.SetHelp("Filter");
     FilterList.SetPosition(-1,-1,0,0);
@@ -103,6 +104,7 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
 
     for (I=0;I<FilterDataCount;I++)
     {
+      memset(&ListItem,0,sizeof(ListItem));
       sprintf(ListItem.Name,"%-30.30s │ %-30.30s",&FilterData[I].Title,&FilterData[I].Masks);
       ListItem.Selected=(I == Pos);
       strcpy(ListItem.UserData,FilterData[I].Masks);

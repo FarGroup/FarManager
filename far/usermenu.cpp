@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.13 17.01.2001 $ */
+/* Revision: 1.14 11.02.2001 $ */
 
 /*
 Modify:
+  11.02.2001 SVS
+    ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
   17.01.2001 SVS
     - Вернем обратно предыдущее изменение в связи с очередным уточнением клавиш
   09.01.2001 SVS
@@ -333,7 +335,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
   while (1)
   {
     struct MenuItem UserMenuItem;
-    UserMenuItem.Checked=UserMenuItem.Separator=*UserMenuItem.UserData=UserMenuItem.UserDataSize=0;
+    memset(&UserMenuItem,0,sizeof(UserMenuItem));
     int NumLine,ExitCode,FuncPos[12];
 
     for (int I=0;I<sizeof(FuncPos)/sizeof(FuncPos[0]);I++)

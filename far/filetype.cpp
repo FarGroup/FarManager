@@ -5,10 +5,12 @@ filetype.cpp
 
 */
 
-/* Revision: 1.09 14.01.2001 $ */
+/* Revision: 1.10 11.02.2001 $ */
 
 /*
 Modify:
+  11.02.2001 SVS
+    ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
   14.01.2001 SVS
     + Интелектуальное поведение списка ассоциаций
     + Модификаторы !&, !&~ и !^
@@ -101,7 +103,6 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
   if (CommandCount>1)
   {
     struct MenuItem TypesMenuItem;
-    TypesMenuItem.Checked=TypesMenuItem.Separator=*TypesMenuItem.UserData=TypesMenuItem.UserDataSize=0;
     VMenu TypesMenu(MSG(MSelectAssocTitle),NULL,0,ScrY-4);
     TypesMenu.SetHelp("FileAssoc");
     TypesMenu.SetFlags(MENU_WRAPMODE);
@@ -113,6 +114,7 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
     for (int I=0;I<CommandCount;I++)
     {
       char CommandText[512],MenuText[512], *PtrCmd;
+      memset(&TypesMenuItem,0,sizeof(TypesMenuItem));
       strcpy(CommandText,Commands[I]);
       SubstFileName(CommandText,Name,ShortName,NULL,NULL,TRUE);
 
@@ -742,7 +744,6 @@ void EditFileTypes(int MenuPos)
   struct MenuItem TypesMenuItem;
   int NumLine=0;
 
-  TypesMenuItem.Checked=TypesMenuItem.Separator=*TypesMenuItem.UserData=TypesMenuItem.UserDataSize=0;
   VMenu TypesMenu(MSG(MAssocTitle),NULL,0,ScrY-4);
   TypesMenu.SetHelp("FileAssoc");
   TypesMenu.SetFlags(MENU_WRAPMODE);
@@ -755,6 +756,7 @@ void EditFileTypes(int MenuPos)
   {
     char RegKey[80],Mask[512],MenuText[512];
     sprintf(RegKey,"Associations\\Type%d",NumLine);
+    memset(&TypesMenuItem,0,sizeof(TypesMenuItem));
     if (!GetRegKey(RegKey,"Mask",Mask,"",sizeof(Mask)))
       break;
     if (DizWidth==0)

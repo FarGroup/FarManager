@@ -5,10 +5,12 @@ Folder shortcuts
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 11.02.2001 $ */
 
 /*
 Modify:
+  11.02.2001 SVS
+    ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
@@ -73,6 +75,7 @@ void ShowFolderShortcut()
 
 int ShowFolderShortcutMenu(int Pos)
 {
+  struct MenuItem ListItem;
   VMenu FolderList(MSG(MFolderShortcutsTitle),NULL,0,ScrY-4);
   FolderList.SetFlags(MENU_SHOWAMPERSAND);
   FolderList.SetHelp("FolderShortcuts");
@@ -81,10 +84,8 @@ int ShowFolderShortcutMenu(int Pos)
 
   for (int I=0;I<10;I++)
   {
-    struct MenuItem ListItem;
-    ListItem.Checked=ListItem.Separator=*ListItem.UserData=ListItem.UserDataSize=0;
-
     char ValueName[100],FolderName[NM];
+    memset(&ListItem,0,sizeof(ListItem));
     sprintf(ValueName,"Shortcut%d",I);
     GetRegKey("FolderShortcuts",ValueName,FolderName,"",sizeof(FolderName));
     TruncStr(FolderName,60);

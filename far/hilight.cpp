@@ -5,10 +5,12 @@ Files highlighting
 
 */
 
-/* Revision: 1.06 14.01.2001 $ */
+/* Revision: 1.07 11.02.2001 $ */
 
 /*
 Modify:
+  11.02.2001 SVS
+    ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
   14.01.2001 SVS
     + Маска для reparse point
   24.11.2000 SVS
@@ -121,7 +123,7 @@ void HighlightFiles::GetHiColor(char *Path,int Attr,unsigned char &Color,
 void HighlightFiles::HiEdit(int MenuPos)
 {
   struct MenuItem HiMenuItem;
-  HiMenuItem.Checked=HiMenuItem.Separator=*HiMenuItem.UserData=HiMenuItem.UserDataSize=0;
+  memset(&HiMenuItem,0,sizeof(HiMenuItem));
 
   {
     VMenu HiMenu(MSG(MHighlightTitle),NULL,0,ScrY-4);

@@ -5,10 +5,12 @@ gettable.cpp
 
 */
 
-/* Revision: 1.04 15.09.2000 $ */
+/* Revision: 1.05 11.02.2001 $ */
 
 /*
 Modify:
+  11.02.2001 SVS
+    ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
   15.09.2000 IS
     + Функция DistrTableExist - проверяет, установлена ли таблица с
       распределением частот символов, возвращает TRUE в случае успеха
@@ -82,8 +84,7 @@ int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
   TableList.SetPosition(-1,-1,0,0);
 
   struct MenuItem ListItem;
-  ListItem.Checked=ListItem.Separator=*ListItem.UserData=ListItem.UserDataSize=0;
-
+  memset(&ListItem,0,sizeof(ListItem));
   ListItem.Selected=(TableNum==0);
   strcpy(ListItem.Name,MSG(MGetTableNormalText));
   TableList.AddItem(&ListItem);

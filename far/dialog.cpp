@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.67 23.01.2001 $ */
+/* Revision: 1.68 11.02.2001 $ */
 
 /*
 Modify:
+  11.02.2001 SVS
+   ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
   23.01.2001 SVS
    ! Изменены функции DeleteDialogObjects() и GetDialogObjectsData()
    + Введены ексепшины в DataToItem и ConvertItem
@@ -657,7 +659,7 @@ int Dialog::InitDialogObjects(int ID)
         // удалим все итемы
         ListBox->DeleteItems();
 
-        struct MenuItem ListItem;
+        struct MenuItem ListItem={0};
         /* $ 13.09.2000 SVS
            + Флаг DIF_LISTNOAMPERSAND. По умолчанию для DI_LISTBOX &
              DI_COMBOBOX выставляется флаг MENU_SHOWAMPERSAND. Этот флаг
@@ -679,9 +681,12 @@ int Dialog::InitDialogObjects(int ID)
             ListItem.Separator=Items[J].Flags&LIF_SEPARATOR;
             ListItem.Selected=Items[J].Flags&LIF_SELECTED;
             ListItem.Checked=Items[J].Flags&LIF_CHECKED;
+            ListItem.Disabled=Items[J].Flags&LIF_DISABLE;
             strcpy(ListItem.Name,Items[J].Text);
             strcpy(ListItem.UserData,Items[J].Text);
             ListItem.UserDataSize=strlen(Items[J].Text);
+            ListItem.Flags=0;
+            ListItem.PtrData=NULL;
 
             ListBox->AddItem(&ListItem);
           }
@@ -2907,7 +2912,7 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,char *HistoryName,char *IStr)
     if (EditX2>ScrX)
       EditX2=ScrX;
 
-    HistoryItem.Checked=HistoryItem.Separator=0;
+    memset(&HistoryItem,0,sizeof(HistoryItem));
     HistoryMenu.SetFlags(MENU_SHOWAMPERSAND);
     HistoryMenu.SetPosition(EditX1,EditY1+1,EditX2,0);
     HistoryMenu.SetBoxType(SHORT_SINGLE_BOX);
@@ -2916,6 +2921,8 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,char *HistoryName,char *IStr)
     ItemsCount=0;
     for (Dest=I=0; I < 16; I++)
     {
+      memset(&HistoryItem,0,sizeof(HistoryItem));
+
       sprintf(KeyValue,fmtLine,I);
       GetRegKey(RegKey,KeyValue,Str,"",sizeof(Str));
       if (*Str==0)
@@ -2932,7 +2939,6 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,char *HistoryName,char *IStr)
          Dest++;
       /* SVS $ */
       strncpy(HistoryItem.Name,Str,sizeof(HistoryItem.Name)-1);
-      HistoryItem.Name[sizeof(HistoryItem.Name)-1]=0;
       strncpy(HistoryItem.UserData,Str,sizeof(HistoryItem.UserData));
       HistoryItem.UserDataSize=strlen(Str)+1;
       HistoryMenu.AddItem(&HistoryItem);
@@ -3212,7 +3218,7 @@ void Dialog::SelectFromComboBox(
          char *IStr)
 {
   char Str[512];
-  struct MenuItem ComboBoxItem;
+  struct MenuItem ComboBoxItem={0};
   struct FarListItem *ListItems=List->Items;
   int EditX1,EditY1,EditX2,EditY2;
   int I,Dest;
@@ -3239,11 +3245,13 @@ void Dialog::SelectFromComboBox(
   */
   for (Dest=I=0;I < List->ItemsNumber;I++)
   {
+    memset(&ComboBoxItem,0,sizeof(ComboBoxItem));
+
     /* $ 28.07.2000 SVS
        Выставим Selected при полном совпадении строки ввода и списка
     */
 
-    if(IStr && *IStr)
+    if(IStr && *IStr && !(ListItems[I].Flags&LIF_DISABLE))
     {
       if((ComboBoxItem.Selected=(!Dest && !strcmp(IStr,ListItems[I].Text))?TRUE:FALSE) == TRUE)
          Dest++;
@@ -3253,6 +3261,7 @@ void Dialog::SelectFromComboBox(
 
     ComboBoxItem.Separator=ListItems[I].Flags&LIF_SEPARATOR;
     ComboBoxItem.Checked=ListItems[I].Flags&LIF_CHECKED;
+    ComboBoxItem.Disabled=ListItems[I].Flags&LIF_DISABLE;
     /* 01.08.2000 SVS $ */
     /* SVS $ */
     strcpy(ComboBoxItem.Name,ListItems[I].Text);
