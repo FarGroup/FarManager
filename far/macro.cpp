@@ -5,10 +5,13 @@ macro.cpp
 
 */
 
-/* Revision: 1.10 21.12.2000 $ */
+/* Revision: 1.11 22.12.2000 $ */
 
 /*
 Modify:
+  22.12.2000 SVS
+    - При неправильно выбранных названиях начинается суматоха :-(
+      После 333 патча перестали работать макросы ВЕЗДЕ!
   21.12.2000 SVS
     ! 3-е состояние для типа панелей.
     + LoadMacros(), InitVars(), ReleaseTempBuffer()
@@ -63,8 +66,8 @@ Modify:
 #define MFLAGS_RUNAFTERSTART       0x00020000
 #define MFLAGS_EMPTYCOMMANDLINE    0x00040000
 #define MFLAGS_NOTEMPTYCOMMANDLINE 0x00080000
-#define MFLAGS_FILEPANELS          0x00100000
-#define MFLAGS_PLUGINPANELS        0x00200000
+#define MFLAGS_NOFILEPANELS        0x00100000
+#define MFLAGS_NOPLUGINPANELS      0x00200000
 
 static const char *MacroModeName[]={
   "Shell", "Viewer", "Editor", "Dialog", "Search",
@@ -248,8 +251,8 @@ int KeyMacro::ProcessKey(int Key)
         Macros[Pos].Flags|=RunAfterStart?MFLAGS_RUNAFTERSTART:0;
         Macros[Pos].Flags|=EmptyCommandLine?MFLAGS_EMPTYCOMMANDLINE:0;
         Macros[Pos].Flags|=NotEmptyCommandLine?MFLAGS_NOTEMPTYCOMMANDLINE:0;
-        Macros[Pos].Flags|=FilePanels?MFLAGS_FILEPANELS:0;
-        Macros[Pos].Flags|=PluginPanels?MFLAGS_PLUGINPANELS:0;
+        Macros[Pos].Flags|=FilePanels?MFLAGS_NOFILEPANELS:0;
+        Macros[Pos].Flags|=PluginPanels?MFLAGS_NOPLUGINPANELS:0;
       }
 
       Recording=FALSE;
@@ -304,17 +307,17 @@ int KeyMacro::ProcessKey(int Key)
             if ((Macros[I].Flags&MFLAGS_EMPTYCOMMANDLINE) && CmdLength!=0 ||
                 (Macros[I].Flags&MFLAGS_NOTEMPTYCOMMANDLINE) && CmdLength==0)
               return(FALSE);
-            if(CtrlObject->ActivePanel!=NULL)
+            if(CtrlObject->ActivePanel!=NULL)// && (Macros[I].Flags&MFLAGS_MODEMASK)==MACRO_SHELL)
             {
               int PanelMode=CtrlObject->ActivePanel->GetMode();
               if(PanelMode == PLUGIN_PANEL)
               {
-                if(!(Macros[I].Flags&MFLAGS_PLUGINPANELS))
+                if(Macros[I].Flags&MFLAGS_NOPLUGINPANELS)
                   return FALSE;
               }
               if(PanelMode == NORMAL_PANEL)
               {
-                if(!(Macros[I].Flags&MFLAGS_FILEPANELS))
+                if(Macros[I].Flags&MFLAGS_NOFILEPANELS)
                   return FALSE;
               }
             }
@@ -439,14 +442,14 @@ void KeyMacro::SaveMacros()
       SetRegKey(RegKeyName,"NotEmptyCommandLine",1);
     else
       DeleteRegValue(RegKeyName,"NotEmptyCommandLine");
-    if (Macros[I].Flags&MFLAGS_FILEPANELS)
-      SetRegKey(RegKeyName,"FilePanels",1);
+    if (Macros[I].Flags&MFLAGS_NOFILEPANELS)
+      SetRegKey(RegKeyName,"NoFilePanels",1);
     else
-      DeleteRegValue(RegKeyName,"FilePanels");
-    if (Macros[I].Flags&MFLAGS_PLUGINPANELS)
-      SetRegKey(RegKeyName,"PluginPanels",1);
+      DeleteRegValue(RegKeyName,"NoFilePanels");
+    if (Macros[I].Flags&MFLAGS_NOPLUGINPANELS)
+      SetRegKey(RegKeyName,"NoPluginPanels",1);
     else
-      DeleteRegValue(RegKeyName,"PluginPanels");
+      DeleteRegValue(RegKeyName,"NoPluginPanels");
     delete TextBuffer;
   }
 }
@@ -501,8 +504,8 @@ int KeyMacro::ReadMacros(int ReadMode,
     CurMacro->Flags|=GetRegKey(RegKeyName,"RunAfterFARStart",0)?MFLAGS_RUNAFTERSTART:0;
     CurMacro->Flags|=GetRegKey(RegKeyName,"EmptyCommandLine",0)?MFLAGS_EMPTYCOMMANDLINE:0;
     CurMacro->Flags|=GetRegKey(RegKeyName,"NotEmptyCommandLine",0)?MFLAGS_NOTEMPTYCOMMANDLINE:0;
-    CurMacro->Flags|=GetRegKey(RegKeyName,"FilePanels",0)?MFLAGS_FILEPANELS:0;
-    CurMacro->Flags|=GetRegKey(RegKeyName,"PluginPanels",0)?MFLAGS_PLUGINPANELS:0;
+    CurMacro->Flags|=GetRegKey(RegKeyName,"NoFilePanels",0)?MFLAGS_NOFILEPANELS:0;
+    CurMacro->Flags|=GetRegKey(RegKeyName,"NoPluginPanels",0)?MFLAGS_NOPLUGINPANELS:0;
     char *BufPtr=Buffer;
     while (1)
     {
@@ -565,12 +568,12 @@ void KeyMacro::RunStartMacro()
         int PanelMode=CtrlObject->ActivePanel->GetMode();
         if(PanelMode == PLUGIN_PANEL)
         {
-          if(!(Macros[CurPos].Flags&MFLAGS_PLUGINPANELS))
+          if(Macros[CurPos].Flags&MFLAGS_NOPLUGINPANELS)
             return;
         }
         if(PanelMode == NORMAL_PANEL)
         {
-          if(!(Macros[CurPos].Flags&MFLAGS_FILEPANELS))
+          if(Macros[CurPos].Flags&MFLAGS_NOFILEPANELS)
             return;
         }
       }
@@ -649,8 +652,8 @@ int KeyMacro::GetMacroSettings(
   NotEmptyCommandLine=MacroSettingsDlg[6].Selected;
   if(!MacroSettingsDlg[8].Selected)
   {
-    FilePanels=MacroSettingsDlg[9].Selected;
-    PluginPanels=MacroSettingsDlg[10].Selected;
+    FilePanels=MacroSettingsDlg[10].Selected;
+    PluginPanels=MacroSettingsDlg[9].Selected;
   }
   else
     FilePanels=PluginPanels=1;
