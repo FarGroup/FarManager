@@ -7,13 +7,16 @@ Files highlighting
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 07.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  07.07.2000 IS
+    + Новая функция InitHighlightFiles, в которую я вынес содержимое
+      конструктора. Нужна, чтобы повторно использовать один и тот же код.
 */
 
 
@@ -25,6 +28,12 @@ class HighlightFiles
     struct HighlightData *HiData;
     int HiDataCount;
     int StartHiDataCount;
+    /* $ 07.07.2000 IS
+      В эту функцию я вынес содержимое конструктора, чтобы использовать его
+      повторно при восстановлении значений раскраски файлов по умолчанию
+    */
+    void InitHighlightFiles();
+    /* IS $ */
   public:
     HighlightFiles();
     ~HighlightFiles();

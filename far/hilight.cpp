@@ -5,13 +5,15 @@ Files highlighting
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 07.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  07.07.2000 IS
+    + Если нажали ctrl+r в меню, то восстановить значения по умолчанию.
 */
 
 #include "headers.hpp"
@@ -25,6 +27,16 @@ Modify:
 
 
 HighlightFiles::HighlightFiles()
+{
+ /* $ 07.07.2000 IS
+   Весь код вынесен в отдельную функцию, чтобы можно было его использовать
+   повторно
+ */
+ InitHighlightFiles();
+ /* IS $ */
+}
+
+void HighlightFiles::InitHighlightFiles()
 {
   HiData=NULL;
   HiDataCount=0;
@@ -138,6 +150,26 @@ void HighlightFiles::HiEdit(int MenuPos)
           int ItemCount=HiMenu.GetItemCount();
           switch(HiMenu.ReadInput())
           {
+            /* $ 07.07.2000 IS
+              Если нажали ctrl+r, то восстановить значения по умолчанию.
+            */
+            case KEY_CTRLR:
+              if (Message(MSG_WARNING,2,MSG(MHighlightTitle),
+                            MSG(MHighlightWarning),MSG(MHighlightAskRestore),
+                            MSG(MYes),MSG(MCancel))!=0)
+                 break;
+              DeleteKeyTree("Highlight");
+              SetHighlighting();
+              HiMenu.Hide();
+              delete(HiData);
+              InitHighlightFiles();
+              LeftPanel->Update(UPDATE_KEEP_SELECTION);
+              LeftPanel->Redraw();
+              RightPanel->Update(UPDATE_KEEP_SELECTION);
+              RightPanel->Redraw();
+              HiEdit(0);
+              return;
+            /* IS $ */
             case KEY_DEL:
               if (SelectPos<HiMenu.GetItemCount()-1)
               {
