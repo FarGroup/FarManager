@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.21 27.11.2000 $ */
+/* Revision: 1.22 21.12.2000 $ */
 
 /*
 Modify:
+  21.12.2000 SVS
+    - диалог атрибутов по F4 вызывался в плагиновой панели...
+      ...пусть об этом позаботится Ctrl-A :-)
   27.11.2000 SVS
     - По Shift-F4 не сбрасывался KeyBar после вызова диалога установки атрибутов
   27.11.2000 SVS
@@ -861,16 +864,12 @@ int FileList::ProcessKey(int Key)
             /* $ 27.11.2000 SVS
                Для каталогов F4 вызывает диалог атрибутов
             */
+            /* $ 21.12.2000 SVS
+               ...пусть об этом позаботится Ctrl-A :-)
+            */
             if (Edit)
-            {
-              ShellSetFileAttributes(this);
-              /* $ 27.11.2000 SVS
-                 По Shift-F4 не сбрасывался KeyBar
-              */
-              CtrlObject->RedrawKeyBar();
-              /* SVS $ */
-              return(TRUE);
-            }
+              return ProcessKey(KEY_CTRLA);
+            /* SVS $ */
             /* SVS $ */
             CountDirSize();
             return(TRUE);
