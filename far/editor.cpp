@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.78 26.03.2001 $ */
+/* Revision: 1.79 28.03.2001 $ */
 
 /*
 Modify:
+  28.03.2001 VVM
+    ! При переходе на строку сдвигалась позиция на символ вправо.
   26.03.2001 SVS
     + При вызове списка плагинов говорим манагеру о том, чтобы он искал
       предопределенный топик "Editor" для Shift-F1 из списка плагинов
@@ -3639,7 +3641,7 @@ void Editor::GetRowCol(char *argv,int *row,int *col)
 {
   int x=0xffff,y=0,l;
   char *argvx=0;
-  int LeftPos=CurLine->EditLine.GetTabCurPos()+1;
+  int LeftPos=CurLine->EditLine.GetTabCurPos() + 1;
 
   // что бы не оставить "врагу" выбора - только то, что мы хотим ;-)
   // "прибьем" все внешние пробелы.
@@ -3682,7 +3684,10 @@ void Editor::GetRowCol(char *argv,int *row,int *col)
   if ( x!=0xffff )
     *col=x;
   else
-    *col=LeftPos+1;
+    /* $ 28.03.2001 VVM
+      ! Зачем-то прибавляли 1. И сдвигались вправо... */
+    *col=LeftPos;
+    /* VVM $ */
 
 
   (*row)--;
