@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.90 24.09.2001 $ */
+/* Revision: 1.91 24.09.2001 $ */
 
 /*
 Modify:
+  24.09.2001 SVS
+    - бага в ConvertNameToReal() (вот же, дятел, блин :-((
   24.09.2001 SVS
     - бага в ConvertNameToReal().
       Алгоритм "вычисления" изменен - начинаем сканирование с
@@ -1084,7 +1086,7 @@ int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize)
         break;
 
       Chr=*Ptr;
-      Ptr=0;
+      *Ptr=0;
       FileAttr=GetFileAttributes(TempDest);
 
       // О! Это наш клиент - одна из "компонент" пути - симлинк
