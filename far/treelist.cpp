@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.42 24.05.2002 $ */
+/* Revision: 1.43 29.05.2002 $ */
 
 /*
 Modify:
+  29.05.2002 SKV
+    ! Оптимизация TreeCache
   24.05.2002 SVS
     + Дублирование Numpad-клавиш
   27.04.2002 SVS
@@ -167,8 +169,58 @@ static char TreeLineSymbol[4][3]={
 static struct TreeListCache
 {
   char TreeName[NM];
-  char *ListName;
+  char **ListName;
   int TreeCount;
+  int TreeSize;
+
+  TreeListCache()
+  {
+    ListName=NULL;
+    TreeCount=0;
+    TreeSize=0;
+  }
+  void Resize()
+  {
+    if(TreeCount==TreeSize)
+    {
+      TreeSize+=TreeSize?TreeSize>>2:32;
+      char **NewPtr=(char**)realloc(ListName,sizeof(char*)*TreeSize);
+      if(!NewPtr)return;
+      ListName=NewPtr;
+    }
+  }
+  void Add(const char* name)
+  {
+    Resize();
+    ListName[TreeCount++]=strdup(name);
+  }
+  void Insert(int idx,const char* name)
+  {
+    Resize();
+    memmove(ListName+idx+1,ListName+idx,sizeof(char*)*(TreeCount-idx));
+    ListName[idx]=strdup(name);
+    TreeCount++;
+  }
+  void Delete(int idx)
+  {
+    free(ListName[idx]);
+    memmove(ListName+idx,ListName+idx+1,sizeof(char*)*(TreeCount-idx-1));
+    TreeCount--;
+  }
+
+  void Clean()
+  {
+    if(!TreeSize)return;
+    for(int i=0;i<TreeCount;i++)
+    {
+      free(ListName[i]);
+    }
+    free(ListName);
+    ListName=NULL;
+    TreeCount=0;
+    TreeSize=0;
+    TreeName[0]=0;
+  }
 } TreeCache;
 
 
@@ -1268,8 +1320,8 @@ int TreeList::GetCurName(char *Name,char *ShortName)
 void TreeList::AddTreeName(char *Name)
 {
   char *ListName,*NewPtr;
-  char FullName[NM],DirName[NM],Root[NM],*ChPtr;
-  long CachePos,TreeCount,CmpLength;
+  char FullName[NM],Root[NM],*ChPtr;
+  long CachePos;
 
   if (*Name==0)
     return;
@@ -1279,56 +1331,24 @@ void TreeList::AddTreeName(char *Name)
   Name+=strlen(Root)-1;
   if ((ChPtr=strrchr(Name,'\\'))==NULL)
     return;
-  CmpLength=ChPtr-Name;
   ReadCache(Root);
-  ListName=NULL;
-  TreeCount=0;
-  *DirName=0;
-  CachePos=0;
-  while (1)
+  for(CachePos=0;CachePos<TreeCache.TreeCount;CachePos++)
   {
-    if (CmpLength>=0 && *DirName &&
-        (CmpLength==0 || LocalStrnicmp(DirName,Name,CmpLength)==0) &&
-        (DirName[CmpLength]==0 || DirName[CmpLength]=='\\'))
+    if(LCStricmp(TreeCache.ListName[CachePos],Name)>0)
     {
-      strcpy(DirName,Name);
-      CmpLength=-1;
+      TreeCache.Insert(CachePos,Name);
+      break;
     }
-    else
-      if (CachePos<TreeCache.TreeCount)
-        strncpy(DirName,&TreeCache.ListName[NM*CachePos++],sizeof(DirName)-1);
-      else
-        break;
-
-    if ((TreeCount & DELTA_TREECOUNT)==0 &&
-      (NewPtr=(char *)realloc(ListName,(TreeCount+(DELTA_TREECOUNT+1)+1)*NM))==NULL)
-    {
-      /* $ 13.07.2000 SVS
-         не надо смешивать new/delete с realloc
-      */
-      free(NewPtr);
-      /* SVS $ */
-      return;
-    }
-    ListName=NewPtr;
-    strncpy(&ListName[NM*TreeCount++],DirName,NM-1);
   }
-  /* $ 13.07.2000 SVS
-     не надо смешивать new/delete с realloc
-  */
-  free(TreeCache.ListName);
-  /* SVS $ */
-  TreeCache.ListName=ListName;
-  TreeCache.TreeCount=TreeCount;
 }
 
 
 void TreeList::DelTreeName(char *Name)
 {
   char *ListName,*NewPtr;
-  char FullName[NM],DirName[NM],Root[NM];
+  char FullName[NM],*DirName,Root[NM];
   long CachePos,TreeCount;
-  int Length;
+  int Length,DirLength;
   if (*Name==0)
     return;
   ConvertNameToFull(Name,FullName, sizeof(FullName));
@@ -1336,35 +1356,19 @@ void TreeList::DelTreeName(char *Name)
   GetPathRoot(Name,Root);
   Name+=strlen(Root)-1;
   ReadCache(Root);
-  ListName=NULL;
-  TreeCount=0;
-  *DirName=0;
   for (CachePos=0;CachePos<TreeCache.TreeCount;CachePos++)
   {
-    strncpy(DirName,&TreeCache.ListName[NM*CachePos],sizeof(DirName)-1);
-    if (LocalStrnicmp(Name,DirName,Length=strlen(Name))==0 &&
+    DirName=TreeCache.ListName[CachePos];
+    Length=strlen(Name);
+    DirLength=strlen(DirName);
+    if(DirLength<Length)continue;
+    if (LocalStrnicmp(Name,DirName,Length)==0 &&
         (DirName[Length]==0 || DirName[Length]=='\\'))
-      continue;
-    if ((TreeCount & DELTA_TREECOUNT)==0 &&
-      (NewPtr=(char *)realloc(ListName,(TreeCount+(DELTA_TREECOUNT+1)+1)*NM))==NULL)
     {
-      /* $ 13.07.2000 SVS
-        не надо смешивать new/delete с realloc
-      */
-      free(NewPtr);
-      /* SVS $ */
-      return;
+      TreeCache.Delete(CachePos);
+      CachePos--;
     }
-    ListName=NewPtr;
-    strncpy(&ListName[NM*TreeCount++],DirName,NM-1);
   }
-  /* $ 13.07.2000 SVS
-     не надо смешивать new/delete с realloc
-  */
-  free(TreeCache.ListName);
-  /* SVS $ */
-  TreeCache.ListName=ListName;
-  TreeCache.TreeCount=TreeCount;
 }
 
 
@@ -1388,14 +1392,16 @@ void TreeList::RenTreeName(char *SrcName,char *DestName)
   int SrcLength=strlen(SrcName);
   for (int CachePos=0;CachePos<TreeCache.TreeCount;CachePos++)
   {
-    char *DirName=TreeCache.ListName+NM*CachePos;
+    char *DirName=TreeCache.ListName[CachePos];
     if (LocalStrnicmp(SrcName,DirName,SrcLength)==0 &&
         (DirName[SrcLength]==0 || DirName[SrcLength]=='\\'))
     {
       char NewName[2*NM];
       strcpy(NewName,DestName);
       strcat(NewName,DirName+SrcLength);
-      strncpy(DirName,NewName,NM-1);
+      //strncpy(DirName,NewName,NM-1);
+      free(TreeCache.ListName[CachePos]);
+      TreeCache.ListName[CachePos]=strdup(NewName);
     }
   }
 }
@@ -1431,15 +1437,7 @@ void TreeList::ReadSubTree(char *Path)
 
 void TreeList::ClearCache(int EnableFreeMem)
 {
-  if (EnableFreeMem && TreeCache.ListName!=NULL)
-    /* $ 13.07.2000 SVS
-       не надо смешивать new/delete с realloc
-    */
-    free(TreeCache.ListName);
-    /* SVS $ */
-  *TreeCache.TreeName=0;
-  TreeCache.ListName=NULL;
-  TreeCache.TreeCount=0;
+  TreeCache.Clean();
 }
 
 
@@ -1458,7 +1456,7 @@ void TreeList::ReadCache(char *TreeRoot)
   if (strcmp(TreeName,TreeCache.TreeName)==0)
     return;
   /* SVS $ */
-  if (TreeCache.ListName!=NULL)
+  if (TreeCache.TreeCount!=0)
     FlushCache();
 
   if (MustBeCached(TreeRoot) || (TreeFile=fopen(TreeName,"rb"))==NULL)
@@ -1472,14 +1470,7 @@ void TreeList::ReadCache(char *TreeRoot)
   {
     if ((ChPtr=strchr(DirName,'\n'))!=NULL)
       *ChPtr=0;
-    if ((TreeCache.TreeCount & DELTA_TREECOUNT)==0 &&
-      (ListName=(char *)realloc(TreeCache.ListName,(TreeCache.TreeCount+(DELTA_TREECOUNT+1)+1)*NM))==NULL)
-    {
-      fclose(TreeFile);
-      return;
-    }
-    TreeCache.ListName=ListName;
-    strncpy(&TreeCache.ListName[NM*TreeCache.TreeCount++],DirName,NM-1);
+    TreeCache.Add(DirName);
   }
   fclose(TreeFile);
 }
@@ -1499,9 +1490,9 @@ void TreeList::FlushCache()
       ClearCache(1);
       return;
     }
-    qsort(TreeCache.ListName,TreeCache.TreeCount,NM,SortCacheList);
+    qsort(TreeCache.ListName,TreeCache.TreeCount,sizeof(char*),SortCacheList);
     for (I=0;I<TreeCache.TreeCount;I++)
-      fprintf(TreeFile,"%s\n",&TreeCache.ListName[NM*I]);
+      fprintf(TreeFile,"%s\n",TreeCache.ListName[I]);
     if (fclose(TreeFile)==EOF)
     {
       clearerr(TreeFile);
@@ -1551,7 +1542,7 @@ int _cdecl SortList(const void *el1,const void *el2)
 
 int _cdecl SortCacheList(const void *el1,const void *el2)
 {
-  return(LCStricmp((char *)el1,(char *)el2));
+  return(LCStricmp(*(char **)el1,*(char **)el2));
 }
 
 
