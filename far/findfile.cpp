@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.38 02.07.2001 $ */
+/* Revision: 1.39 20.07.2001 $ */
 
 /*
 Modify:
+  20.07.2001 OT
+    »справление бага с отрисовкой по AltF7. ”бран ранее поставленый костыль
   02.07.2001 IS
     ! FileMaskForFindFile.Set(NULL) -> FileMaskForFindFile.Free()
     + ¬ернул автоматическое добавление '*' к концу маски при определенных
@@ -595,7 +597,6 @@ int FindFiles::FindFilesProcess()
                       FileViewer ShellViewer (UserDataItem.FileFindData.cFileName,FALSE,FALSE,FALSE,-1,NULL,&ViewList);//?
                       ShellViewer.SetDynamicallyBorn(FALSE);
                       FrameManager->ExecuteModal ();
-                      (*FrameManager)[0]->LockRefresh();
                     }
                     pDlg->Show();
                     FindList.Show();
@@ -610,7 +611,6 @@ int FindFiles::FindFilesProcess()
                       ShellEditor.SetDynamicallyBorn(FALSE);
                       ShellEditor.SetEnableF6 (TRUE);
                       FrameManager->ExecuteModal ();
-                      (*FrameManager)[0]->LockRefresh();
                     }
                     pDlg->Show();
                     FindList.Show();
