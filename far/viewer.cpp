@@ -5,7 +5,7 @@ Internal viewer
 
 */
 
-/* Revision: 1.01 28.06.2000 $ */
+/* Revision: 1.03 30.06.2000 $ */
 
 /*
 Modify:
@@ -16,6 +16,10 @@ Modify:
     - показ пустой строки в hex viewer
   28.06.2000 IS (22.06.2000)
     + Показывать полное имя файла во вьюере
+  30.06.2000 tran
+    - баг с двойным путем в имени файла,
+      если он показывается файл с temppanel (например)
+      в таком случае файл уже имеет путь, и добавлять его не надо
 
 */
 
@@ -551,9 +555,19 @@ void Viewer::ShowStatus()
   if(*Title) strcpy(Name,Title);
   else
   {
-   ViewNamesList.GetCurDir(Name);
-   if(int len=strlen(Name)) if(Name[len-1]!='\\')strcat(Name,"\\");
-   strcat(Name,FileName);
+    /* $ 30.06.2000 tran
+       - double path when show file from temp panel */
+    if ( ! (FileName[1]==':' && FileName[2]=='\\') )
+    {
+        ViewNamesList.GetCurDir(Name);
+        if(int len=strlen(Name))
+            if(Name[len-1]!='\\')
+                strcat(Name,"\\");
+        strcat(Name,FileName);
+    }
+    else
+        strcpy(Name,FileName);
+    /* tran $ */
   }
   /* IS $  */
   int NameLength=ScrX-40;
