@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.13 03.11.2000 $ */
+/* Revision: 1.14 16.12.2000 $ */
 
 /*
 Modify:
+  16.12.2000 tran 1.14
+    ! Ctrl-F10 смотрит на пассивную панель
   03.11.2000 OT
     ! Введение проверки возвращаемого значения 
   02.11.2000 OT
@@ -226,7 +228,7 @@ int FileViewer::ProcessKey(int Key)
       {
         if(GetEnableSwitch())
         {
-          char DirTmp[NM],*NameTmp,FileName[NM];
+          char DirTmp[NM],ADir[NM],PDir[NM],*NameTmp,FileName[NM];
           View.GetFileName(FileName);
           ProcessKey(KEY_F10);
           if(strchr(FileName,'\\') || strchr(FileName,'/'))
@@ -234,6 +236,13 @@ int FileViewer::ProcessKey(int Key)
             strncpy(DirTmp,FileName,NM);
             NameTmp=PointToName(DirTmp);
             if(NameTmp>DirTmp)NameTmp[-1]=0;
+            CtrlObject->GetAnotherPanel(CtrlObject->ActivePanel)->GetCurDir(PDir);
+            CtrlObject->ActivePanel->GetCurDir(ADir);
+            // если нужный путь есть на пассивной панели
+            if ( LocalStricmp(ADir,DirTmp)!=0  && LocalStricmp(PDir,DirTmp)==0)
+            {
+                CtrlObject->ProcessKey(KEY_TAB);
+            }
             CtrlObject->ActivePanel->SetCurDir(DirTmp,TRUE);
             CtrlObject->ActivePanel->GoToFile(NameTmp);
           }
