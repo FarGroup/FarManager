@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.171 10.01.2003 $ */
+/* Revision: 1.172 18.01.2003 $ */
 
 /*
 Modify:
+  18.01.2003 IS
+    - Аналогично предыдущему исправлению VVM - выделяли память по new[],
+      а удаляли при помощи простого delete
   18.01.2003 VVM
     - В DeleteListData память освободим через free()
   10.01.2003 SVS
@@ -626,8 +629,8 @@ void FileList::DeleteListData(struct FileListItem *(&ListData),long &FileCount)
     if (CurPtr->CustomColumnNumber>0 && CurPtr->CustomColumnData!=NULL)
     {
       for (int J=0; J < CurPtr->CustomColumnNumber; J++)
-        delete CurPtr->CustomColumnData[J];
-      delete CurPtr->CustomColumnData;
+        delete[] CurPtr->CustomColumnData[J];
+      delete[] CurPtr->CustomColumnData;
     }
     /* $ 18.01.2003 VVM
       - Выделяли через malloc() и освобождать будем через free() */
@@ -635,7 +638,7 @@ void FileList::DeleteListData(struct FileListItem *(&ListData),long &FileCount)
       free((void *)CurPtr->UserData);
     /* VVM $ */
     if (CurPtr->DizText && CurPtr->DeleteDiz)
-      delete CurPtr->DizText;
+      delete[] CurPtr->DizText;
   }
   free(ListData);
   ListData=NULL;
