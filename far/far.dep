@@ -376,7 +376,6 @@
 	".\frame.hpp"\
 	".\global.hpp"\
 	".\headers.hpp"\
-	".\help.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
@@ -541,6 +540,7 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\fileedit.hpp"\
+	".\help.hpp"\
 	".\filepanels.hpp"\
 	".\fileview.hpp"\
 	".\fn.hpp"\

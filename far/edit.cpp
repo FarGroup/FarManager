@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.85 04.07.2002 $ */
+/* Revision: 1.86 12.07.2002 $ */
 
 /*
 Modify:
+  12.07.2002 SVS
+    ! Не сбрасываем Unchanged-состояние в строках ввода для Ctrl-Ins
   04.07.2002 SKV
     - Bugz#512 - доделка :)
   02.07.2002 SKV
@@ -959,7 +961,7 @@ int Edit::ProcessKey(int Key)
     return TRUE;
   }
 
-  if (Key!=KEY_NONE && Key!=KEY_IDLE && Key!=KEY_SHIFTINS &&
+  if (Key!=KEY_NONE && Key!=KEY_IDLE && Key!=KEY_SHIFTINS && Key!=KEY_CTRLINS &&
       (Key<KEY_F1 || Key>KEY_F12) && Key!=KEY_ALT && Key!=KEY_SHIFT &&
       Key!=KEY_CTRL && Key!=KEY_RALT && Key!=KEY_RCTRL &&
       (Key<KEY_ALT_BASE || Key>=KEY_ALT_BASE+256) &&

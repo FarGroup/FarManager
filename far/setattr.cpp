@@ -5,10 +5,13 @@ setattr.cpp
 
 */
 
-/* Revision: 1.53 12.06.2002 $ */
+/* Revision: 1.54 12.07.2002 $ */
 
 /*
 Modify:
+  12.07.2002 SVS
+    ! SetAttr - для одиночного фолдера не меняем те поля, которые изменили!
+      Но! Если клинкнули на оригинал, то делаем вид, будто ничего не менялось.
   12.06.2002 SVS
     - Бага: Skip был аналогичен кнопке Cancel
   25.05.2002 IS
@@ -188,6 +191,7 @@ struct SetAttrDlgParam{
   int OriginalCBAttr2[16]; //
   DWORD OriginalCBFlag[16];
   int OState11, OState8, OState9;
+  int OLastWriteTime,OCreationTime,OLastAccessTime;
 };
 
 static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
@@ -223,12 +227,12 @@ long WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
   int State8, State9, State11;
   struct SetAttrDlgParam *DlgParam;
 
+  DlgParam=(struct SetAttrDlgParam *)Dialog::SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
   switch(Msg)
   {
     case DN_BTNCLICK:
       if(Param1 >= 4 && Param1 <= 9 || Param1 == 11)
       {
-        DlgParam=(struct SetAttrDlgParam *)Dialog::SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
         DlgParam->OriginalCBAttr[Param1-4] = Param2;
         DlgParam->OriginalCBAttr2[Param1-4] = 0;
 
@@ -305,17 +309,53 @@ long WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
                       Dialog::SendDlgMessage(hDlg,DM_SETCHECK,I,BSTATE_3STATE);
                   }
                 }
-                if(!State11 && Opt.SetAttrFolderRules)
+                if(Opt.SetAttrFolderRules)
                 {
                   HANDLE FindHandle;
                   WIN32_FIND_DATA FindData;
-                  if ((FindHandle=FindFirstFile(DlgParam->SelName,&FindData))!=INVALID_HANDLE_VALUE)
+                  FindHandle=FindFirstFile(DlgParam->SelName,&FindData);
+                  FindClose(FindHandle);
+
+                  if (FindHandle!=INVALID_HANDLE_VALUE)
                   {
-                    FindClose(FindHandle);
-                    Dialog::SendDlgMessage(hDlg,DM_SETATTR,15,(DWORD)&FindData.ftLastWriteTime);
-                    Dialog::SendDlgMessage(hDlg,DM_SETATTR,18,(DWORD)&FindData.ftCreationTime);
-                    Dialog::SendDlgMessage(hDlg,DM_SETATTR,21,(DWORD)&FindData.ftLastAccessTime);
+                    if(!State11)
+                    {
+                      if(!DlgParam->OLastWriteTime)
+                      {
+                        Dialog::SendDlgMessage(hDlg,DM_SETATTR,15,(DWORD)&FindData.ftLastWriteTime);
+                        DlgParam->OLastWriteTime=0;
+                      }
+                      if(!DlgParam->OCreationTime)
+                      {
+                        Dialog::SendDlgMessage(hDlg,DM_SETATTR,18,(DWORD)&FindData.ftCreationTime);
+                        DlgParam->OCreationTime=0;
+                      }
+                      if(!DlgParam->OLastAccessTime)
+                      {
+                        Dialog::SendDlgMessage(hDlg,DM_SETATTR,21,(DWORD)&FindData.ftLastAccessTime);
+                        DlgParam->OLastAccessTime=0;
+                      }
+                    }
+                    else
+                    {
+                      if(!DlgParam->OLastWriteTime)
+                      {
+                        Dialog::SendDlgMessage(hDlg,DM_SETATTR,15,0);
+                        DlgParam->OLastWriteTime=0;
+                      }
+                      if(!DlgParam->OCreationTime)
+                      {
+                        Dialog::SendDlgMessage(hDlg,DM_SETATTR,18,0);
+                        DlgParam->OCreationTime=0;
+                      }
+                      if(!DlgParam->OLastAccessTime)
+                      {
+                        Dialog::SendDlgMessage(hDlg,DM_SETATTR,21,0);
+                        DlgParam->OLastAccessTime=0;
+                      }
+                    }
                   }
+
                 }
               }
             }
@@ -359,6 +399,7 @@ long WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
           Dialog::SendDlgMessage(hDlg,DM_SETATTR,15,(DWORD)&FindData.ftLastWriteTime);
           Dialog::SendDlgMessage(hDlg,DM_SETATTR,18,(DWORD)&FindData.ftCreationTime);
           Dialog::SendDlgMessage(hDlg,DM_SETATTR,21,(DWORD)&FindData.ftLastAccessTime);
+          DlgParam->OLastWriteTime=DlgParam->OCreationTime=DlgParam->OLastAccessTime=0;
         }
         Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,16,0);
         return TRUE;
@@ -368,6 +409,7 @@ long WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         Dialog::SendDlgMessage(hDlg,DM_SETATTR,15,Param1 == 25?-1:0);
         Dialog::SendDlgMessage(hDlg,DM_SETATTR,18,Param1 == 25?-1:0);
         Dialog::SendDlgMessage(hDlg,DM_SETATTR,21,Param1 == 25?-1:0);
+        DlgParam->OLastWriteTime=DlgParam->OCreationTime=DlgParam->OLastAccessTime=1;
         Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,16,0);
         return TRUE;
       }
@@ -392,6 +434,17 @@ long WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
      }
      break;
 
+    case DN_EDITCHANGE:
+    {
+      if(Param1 >= 16 && Param1 <= 23)
+      {
+             if(Param1 == 16 || Param1 == 17) { DlgParam->OLastWriteTime=1;}
+        else if(Param1 == 19 || Param1 == 20) { DlgParam->OCreationTime=1;}
+        else if(Param1 == 22 || Param1 == 23) { DlgParam->OLastAccessTime=1;}
+      }
+      break;
+    }
+
     case DM_SETATTR:
       {
         FILETIME ft;
@@ -411,9 +464,9 @@ long WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         }
 
         // Глянем на место, где был клик
-             if(Param1 == 15) { Set1=16; Set2=17; }
-        else if(Param1 == 18) { Set1=19; Set2=20; }
-        else if(Param1 == 21) { Set1=22; Set2=23; }
+             if(Param1 == 15) { Set1=16; Set2=17; DlgParam->OLastWriteTime=1;}
+        else if(Param1 == 18) { Set1=19; Set2=20; DlgParam->OCreationTime=1;}
+        else if(Param1 == 21) { Set1=22; Set2=23; DlgParam->OLastAccessTime=1;}
         else if(Param1 == 16 || Param1 == 19 || Param1 == 22) { Set1=Param1; Set2=-1; }
         else { Set1=-1; Set2=Param1; }
 
@@ -532,7 +585,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
   int DlgCountItems=sizeof(AttrDlgData)/sizeof(AttrDlgData[0])-1;
 
   int SelCount, I, J;
-  struct SetAttrDlgParam DlgParam;
+  struct SetAttrDlgParam DlgParam={0};
 
   if((SelCount=SrcPanel->GetSelCount())==0)
     return 0;

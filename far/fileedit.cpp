@@ -5,10 +5,13 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.113 25.06.2002 $ */
+/* Revision: 1.114 12.07.2002 $ */
 
 /*
 Modify:
+  12.07.2002 SVS
+    ! Очередная "потеха" для "Editor Not File" - перенесем обработку F1
+      из Editor в FileEditor
   25.06.2002 SVS
     ! Косметика:  BitFlags::Skip -> BitFlags::Clear
     ! классу Editor нафиг ненужен кейбар - это привелегия FileEditor
@@ -298,6 +301,7 @@ Modify:
 #include "panel.hpp"
 #include "dialog.hpp"
 #include "fileview.hpp"
+#include "help.hpp"
 #include "ctrlobj.hpp"
 #include "manager.hpp"
 #include "namelist.hpp"
@@ -676,6 +680,14 @@ int FileEditor::ProcessKey(int Key)
 
   switch(Key)
   {
+    case KEY_F1:
+    {
+      {
+        Help Hlp ("Editor");
+      }
+      return(TRUE);
+    }
+
     /* $ 24.08.2000 SVS
        + Добавляем реакцию показа бакграунда на клавишу CtrlAltShift
     */
@@ -1386,6 +1398,7 @@ int FileEditor::EditorControl(int Command,void *Param)
       return(TRUE);
     }
     /* SVS $ */
+
   }
 
   return FEdit->EditorControl(Command,Param);

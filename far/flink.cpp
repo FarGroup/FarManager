@@ -5,10 +5,13 @@ flink.cpp
 
 */
 
-/* Revision: 1.36 13.06.2002 $ */
+/* Revision: 1.37 12.07.2002 $ */
 
 /*
 Modify:
+  12.07.2002 SVS
+    ! Применяем CreateHardLink только для случая DRIVE_FIXED
+      В остальных случаях - по старинке. ;-)
   13.06.2002 SVS
     - Если делать симлинк из-под SUBST-диска - траблы с именем
       (забыл в прошлый раз выставить разделитель '\')
@@ -502,7 +505,10 @@ int WINAPI MkLink(const char *Src,const char *Dest)
   }
 
   // этот кусок для Win2K
-  if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5)
+  if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT &&
+     WinVer.dwMajorVersion >= 5 &&
+     GetDriveType(FileSource) == DRIVE_FIXED
+    )
   {
     typedef BOOL (WINAPI *PCREATEHARDLINK)(
        LPCTSTR lpFileName,                         // new file name

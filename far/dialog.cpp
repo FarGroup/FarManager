@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.255 25.06.2002 $ */
+/* Revision: 1.256 12.07.2002 $ */
 
 /*
 Modify:
+  12.07.2002 SVS
+    - При жмакании Enter нужно прервать цикл после нахождения первого
+      дефолтного элемента
   25.06.2002 SVS
     ! Косметика:  BitFlags::Skip -> BitFlags::Clear
   10.06.2002 SVS
@@ -3020,6 +3023,7 @@ int Dialog::ProcessKey(int Key)
       {
         ExitCode=-1;
         for (I=0;I<ItemCount;I++)
+        {
           if (Item[I].DefaultButton && !(Item[I].Flags&DIF_BTNNOCLOSE))
           {
             if(Item[I].Flags&DIF_DISABLE)
@@ -3030,7 +3034,9 @@ int Dialog::ProcessKey(int Key)
             if (!IsEdit(Item[I].Type))
               Item[I].Selected=1;
             ExitCode=I;
+            break;
           }
+        }
       }
 
       if (ExitCode==-1)

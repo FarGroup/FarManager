@@ -5,10 +5,16 @@ copy.cpp
 
 */
 
-/* Revision: 1.94 02.07.2002 $ */
+/* Revision: 1.95 12.07.2002 $ */
 
 /*
 Modify:
+  12.07.2002 SVS
+    - Хардлинки не создавались на мапленных сетевых NTFS-дисках
+      (хотя ЭТО ВОЗМОЖНО!)
+      Есть лажа одна. Связанная с логикой. Недодумал. Как - пока не знаю.
+      Смысл: Симлинки делаются, но иногда указывают в никуда (про сеть!)
+      Рулить в ShellCopy::LinkRules()
   02.07.2002 SVS
     - BugZ#522 - Refreshing panels after renaming directory (changing its register)
   18.06.2002 SVS
@@ -365,6 +371,7 @@ struct CopyDlgParam {
   char PluginFormat[32]; // я думаю этого достаточно.
   DWORD FileSystemFlagsSrc;
   int IsDTSrcFixed;
+  int IsDTDstFixed;
 };
 
 
@@ -414,6 +421,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
   memset(&CDP,0,sizeof(CDP));
   CDP.IsDTSrcFixed=-1;
+  CDP.IsDTDstFixed=-1;
 
   if ((CDP.SelCount=SrcPanel->GetSelCount())==0)
     return;
@@ -1125,7 +1133,7 @@ BOOL ShellCopy::LinkRules(DWORD *Flags8,DWORD* Flags5,int* Selected5,
   }
 
   // 1. если источник находится не на логическом диске
-  if(CDP->IsDTSrcFixed)
+  if(CDP->IsDTSrcFixed || CDP->FSysNTFS)
   {
     char FSysNameDst[NM];
     DWORD FileSystemFlagsDst;
@@ -1136,16 +1144,16 @@ BOOL ShellCopy::LinkRules(DWORD *Flags8,DWORD* Flags5,int* Selected5,
       return TRUE;
 
     //GetVolumeInformation(Root,NULL,0,NULL,NULL,&FileSystemFlagsDst,FSysNameDst,sizeof(FSysNameDst));
-
     // 3. если приемник находится не на логическом диске
-    if(GetDriveType(Root) == DRIVE_FIXED &&
-       GetVolumeInformation(Root,NULL,0,NULL,NULL,&FileSystemFlagsDst,FSysNameDst,sizeof(FSysNameDst)) &&
-       // 4. если источник находится на логическом диске, отличном от NTFS
-       !stricmp(FSysNameDst,"NTFS")
-      )
+    CDP->IsDTDstFixed=GetDriveType(Root);
+    CDP->IsDTDstFixed=CDP->IsDTDstFixed == DRIVE_FIXED || CDP->IsDTSrcFixed == DRIVE_CDROM;
+    *FSysNameDst=0;
+    GetVolumeInformation(Root,NULL,0,NULL,NULL,&FileSystemFlagsDst,FSysNameDst,sizeof(FSysNameDst));
+    int SameDisk=IsSameDisk(SrcDir,DstDir);
+    int IsHardLink=(!CDP->FolderPresent && CDP->FilesPresent && SameDisk && (CDP->IsDTDstFixed || !stricmp(FSysNameDst,"NTFS")));
+    // 4. если источник находится на логическом диске, отличном от NTFS
+    if(!IsHardLink && (CDP->IsDTDstFixed || !stricmp(FSysNameDst,"NTFS")) || IsHardLink)
     {
-      int SameDisk=IsSameDisk(SrcDir,DstDir);
-
       if(CDP->SelCount == 1)
       {
         if(CDP->FolderPresent) // Folder?
@@ -1160,6 +1168,13 @@ BOOL ShellCopy::LinkRules(DWORD *Flags8,DWORD* Flags5,int* Selected5,
             // диске и... сняли галку с симлинка.
             if(*Selected5 || (!*Selected5 && SameDisk))
                *Flags8 &=~ DIF_DISABLE;
+
+            if(!CDP->IsDTDstFixed && SameDisk)
+            {
+              *Selected5=0;
+              *Flags5 |= DIF_DISABLE;
+              *Flags8 &=~ DIF_DISABLE;
+            }
           }
           else if(NT && !NT5 && SameDisk)
           {
@@ -1184,6 +1199,13 @@ BOOL ShellCopy::LinkRules(DWORD *Flags8,DWORD* Flags5,int* Selected5,
             *Flags5 &=~ DIF_DISABLE;
             if(!CDP->FilesPresent)
             {
+              *Flags8 &=~ DIF_DISABLE;
+            }
+
+            if(!CDP->IsDTDstFixed && SameDisk)
+            {
+              *Selected5=0;
+              *Flags5 |= DIF_DISABLE;
               *Flags8 &=~ DIF_DISABLE;
             }
           }

@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.186 10.07.2002 $ */
+/* Revision: 1.187 12.07.2002 $ */
 
 /*
 Modify:
+  12.07.2002 SVS
+    ! Очередная "потеха" для "Editor Not File" - перенесем обработку F1
+      из Editor в FileEditor
   10.07.2002 SKV
     - Shift-Up на пустых строках.
   02.07.2002 SKV
@@ -552,7 +555,6 @@ Modify:
 #include "poscache.hpp"
 #include "chgprior.hpp"
 #include "filestr.hpp"
-#include "help.hpp"
 #include "dialog.hpp"
 #include "fileedit.hpp"
 #include "savescr.hpp"
@@ -1712,14 +1714,6 @@ int Editor::ProcessKey(int Key)
 
   switch(Key)
   {
-    case KEY_F1:
-    {
-      {
-        Help Hlp ("Editor");
-      }
-      return(TRUE);
-    }
-
     case KEY_CTRLSHIFTPGUP:   case KEY_CTRLSHIFTNUMPAD9:
     case KEY_CTRLSHIFTHOME:   case KEY_CTRLSHIFTNUMPAD7:
     {
