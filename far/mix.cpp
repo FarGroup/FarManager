@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.131 13.10.2002 $ */
+/* Revision: 1.132 07.11.2002 $ */
 
 /*
 Modify:
+  07.11.2002 IS
+    + FarChDir: принудительно меняем все / на \ (попытка побороть bugz#568)
   13.10.2002 IS
     - баг в Add_PATHEXT: Переписано заново с учетом того, чтобы избавиться
       от strstr и GetCommaWord - от них только проблемы, в частности,
@@ -440,6 +442,9 @@ __int64 filelen64(FILE *FPtr)
    + Новый параметр ChangeDir, если FALSE, то не меняем текущий диск, а только
      устанавливаем переменные окружения. По умолчанию - TRUE.
 */
+/* $ 07.11.2002 IS
+   + Принудительно меняем все / на \ (попытка побороть bugz#568)
+*/
 BOOL FarChDir(const char *NewDir, BOOL ChangeDir)
 {
   BOOL rc=FALSE;
@@ -450,15 +455,31 @@ BOOL FarChDir(const char *NewDir, BOOL ChangeDir)
     if(GetEnvironmentVariable(Drive,CurDir,sizeof(CurDir)))  // окружения
       CharToOem(CurDir,CurDir);
     else
+    {
       sprintf(CurDir,"%s\\",NewDir); // при неудаче переключимся в корень диска
+      char *Chr=CurDir;
+      while(*Chr)
+      {
+        if(*Chr=='/') *Chr='\\';
+        ++Chr;
+      }
+    }
     *CurDir=toupper(*CurDir);
     if(ChangeDir)
       rc=SetCurrentDirectory(CurDir);
   }
-  else if(ChangeDir)
-    rc=SetCurrentDirectory(NewDir);
   else
+  {
     strncpy(CurDir,NewDir,sizeof(CurDir)-1);
+    char *Chr=CurDir;
+    while(*Chr)
+    {
+      if(*Chr=='/') *Chr='\\';
+      ++Chr;
+    }
+    if(ChangeDir)
+      rc=SetCurrentDirectory(NewDir);
+  }
 
   if ((!ChangeDir || GetCurrentDirectory(sizeof(CurDir),CurDir)) &&
       isalpha(*CurDir) && CurDir[1]==':')
@@ -470,6 +491,7 @@ BOOL FarChDir(const char *NewDir, BOOL ChangeDir)
   }
   return rc;
 }
+/* IS 07.11.2002 $ */
 /* IS 15.02.2002 $ */
 /* IS 22.01.2002 $ */
 /* IS 14.01.2002 $ */
