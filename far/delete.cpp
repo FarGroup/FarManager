@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.68 06.08.2004 $ */
+/* Revision: 1.69 26.02.2005 $ */
 
 /*
 Modify:
+  26.02.2005 WARP
+    - Запускатор отдавал удалятору имена в кавычках. Научил удалятор Unquote'у.
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   08.06.2004 SVS
@@ -1031,16 +1033,21 @@ int WipeDirectory(const char *Name)
 
 int DeleteFileWithFolder(const char *FileName)
 {
-  char FolderName[NM],*Slash;
-  BOOL Ret=SetFileAttributes(FileName,FILE_ATTRIBUTE_NORMAL);
+  char FileOrFolderName[NM],*Slash;
+
+  xstrncpy(FileOrFolderName,FileName,sizeof(FileOrFolderName)-1);
+
+  Unquote (FileOrFolderName);
+
+  BOOL Ret=SetFileAttributes(FileOrFolderName,FILE_ATTRIBUTE_NORMAL);
+
   if(Ret)
   {
-    if(!remove(FileName))
+    if(!remove(FileOrFolderName))
     {
-      xstrncpy(FolderName,FileName,sizeof(FolderName)-1);
-      if ((Slash=strrchr(FolderName,'\\'))!=NULL)
+      if ((Slash=strrchr(FileOrFolderName,'\\'))!=NULL)
         *Slash=0;
-      return(FAR_RemoveDirectory(FolderName));
+      return(FAR_RemoveDirectory(FileOrFolderName));
     }
   }
   SetLastError((_localLastError = GetLastError()));
