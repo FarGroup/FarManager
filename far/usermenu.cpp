@@ -5,16 +5,17 @@ User menu и есть
 
 */
 
-/* Revision: 1.07 02.09.2000 $ */
+/* Revision: 1.08 14.10.2000 $ */
 
 /*
 Modify:
+  14.10.2000 VVM
+    + Разделитель меню, если Метка пуста, а ХотКей="-"
   02.09.2000 tran
     - !@!, !#!@! bug
   28.07.2000 VVM
     + Обработка переменных окружения в названии меню
     - Исправлен баг с клавишей BkSpace
-
   24.07.2000 VVM
     + При показе главного меню в заголовок добавляет тип - FAR/Registry
   20.07.2000 tran 1.04
@@ -240,7 +241,7 @@ void ProcessUserMenu(int EditMenu)
 //      }
 //      else
 //        MenuMode=MM_MAIN;
-/* $ VVM */
+/* VVM $ */
         break;
       } /* case */
     } /* switch */
@@ -370,7 +371,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
            + Обработка переменных окружения
         */
         ExpandEnvironmentStr(Label, Label, sizeof(Label));
-        /* $ VVM */
+        /* VVM $ */
 
         int FuncNum=0;
         if (strlen(HotKey)>1)
@@ -380,9 +381,20 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
             FuncNum=1;
           sprintf(HotKey,"F%d",FuncNum);
         }
-        sprintf(MenuText,"%s%-3.3s %-20.*s",FuncNum>0 ? "":"&",HotKey,ScrX-12,Label);
-        MenuTextLen=strlen(MenuText)-(FuncNum>0?1:0);
-        MaxLen=MaxLen<MenuTextLen ? MenuTextLen : MaxLen;
+        /* $ 14.10.2000 VVM
+           + Разделитель меню, если Метка пуста, а ХотКей="-"
+        */
+        if ((strlen(Label)==0) && (strcmp(HotKey,"-")==0))
+        {
+         // Nothing to do
+        }
+        else
+        {
+          sprintf(MenuText,"%s%-3.3s %-20.*s",FuncNum>0 ? "":"&",HotKey,ScrX-12,Label);
+          MenuTextLen=strlen(MenuText)-(FuncNum>0?1:0);
+          MaxLen=MaxLen<MenuTextLen ? MenuTextLen : MaxLen;
+        } /* else */
+        /* VVM $ */
         NumLine++;
       }
 
@@ -405,7 +417,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
            + Обработка переменных окружения
         */
         ExpandEnvironmentStr(Label, Label, sizeof(Label));
-        /* $ VVM */
+        /* VVM $ */
 
         int SubMenu;
         GetRegKey(ItemKey,"Submenu",SubMenu,0);
@@ -418,22 +430,36 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
             FuncNum=1;
           sprintf(HotKey,"F%d",FuncNum);
         }
+        /* $ 14.10.2000 VVM
+           + Разделитель меню, если Метка пуста, а ХотКей="-"
+        */
+        if ((strlen(Label)==0) && (strcmp(HotKey,"-")==0))
+        {
+          UserMenuItem.Separator=1;
+          UserMenuItem.Selected=0;
+          if (NumLine==MenuPos)
+            MenuPos++;
+        }
+        else
+        {
         /* $ 20.07.2000 tran
            %-20.*s поменял на %-*.*s и используется MaxLen как максимальная длина */
-        sprintf(MenuText,"%s%-3.3s %-*.*s",FuncNum>0 ? "":"&",HotKey,MaxLen,ScrX-12,Label);
+          sprintf(MenuText,"%s%-3.3s %-*.*s",FuncNum>0 ? "":"&",HotKey,MaxLen,ScrX-12,Label);
         /* tran 20.07.2000 $ */
-
-        if (SubMenu)
-          strcat(MenuText," ");
-        strncpy(UserMenuItem.Name,MenuText,sizeof(UserMenuItem.Name));
-        UserMenuItem.Selected=(NumLine==MenuPos);
+          if (SubMenu)
+            strcat(MenuText," ");
+          strncpy(UserMenuItem.Name,MenuText,sizeof(UserMenuItem.Name));
+          UserMenuItem.Selected=(NumLine==MenuPos);
+          UserMenuItem.Separator=0;
+        }
+        /* VVM $ */
         int ItemPos=UserMenu.AddItem(&UserMenuItem);
         if (FuncNum>0)
           FuncPos[FuncNum-1]=ItemPos;
         NumLine++;
       }
 
-      *UserMenuItem.Name=0;
+      *UserMenuItem.Name=UserMenuItem.Separator=0;
       UserMenuItem.Selected=(NumLine==MenuPos);
       UserMenu.AddItem(&UserMenuItem);
 
@@ -715,7 +741,9 @@ int EditMenuRecord(char *MenuKey,int EditPos,int TotalRecords,int NewRec)
     Dlg.SetHelp("UserMenu");
     Dlg.SetPosition(-1,-1,76,22);
     Dlg.Process();
-    if (Dlg.GetExitCode()!=18 || *EditDlg[4].Data==0)
+    if (Dlg.GetExitCode()!=18 ||
+        ((*EditDlg[4].Data==0) && (strcmp(EditDlg[2].Data,"-")!=0))
+       )
       return(FALSE);
   }
 
