@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.19 11.11.2000 $ */
+/* Revision: 1.20 27.11.2000 $ */
 
 /*
 Modify:
+  27.11.2000 SVS
+    + Для каталогов KEY_CTRLSHIFTF4 и KEY_F4 вызывает диалог атрибутов
   11.11.2000 SVS
     ! FarMkTemp() - убираем (как всегда - то ставим, то тут же убираем :-(((
   11.11.2000 SVS
@@ -854,8 +856,15 @@ int FileList::ProcessKey(int Key)
 
           if (CurPtr->FileAttr & FA_DIREC)
           {
+            /* $ 27.11.2000 SVS
+               Для каталогов F4 вызывает диалог атрибутов
+            */
             if (Edit)
+            {
+              ShellSetFileAttributes(this);
               return(TRUE);
+            }
+            /* SVS $ */
             CountDirSize();
             return(TRUE);
           }
