@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.194 17.09.2002 $ */
+/* Revision: 1.195 17.09.2002 $ */
 
 /*
 Modify:
+  17.09.2002 SKV
+    - BugZ#538, продолжение эпопеи выделения.
   17.09.2002 SVS
     - BugZ#616 - ctrl-shift-alt в редакторе
       "На экране диалог замены ("replace"). Нажимаю ctrl-shift-alt,
@@ -1662,7 +1664,8 @@ int Editor::ProcessKey(int Key)
             CurLine->EditLine.GetSelection(SelStart,SelEnd);
             if(SelStart!=-1 && (CurPos<SelStart || // если курсор до выделения
                (SelEnd!=-1 && (CurPos>SelEnd ||    // ... после выделения
-                (CurPos>SelStart && CurPos<SelEnd))))) // ... внутри выдления
+                (CurPos>SelStart && CurPos<SelEnd)))) &&
+               CurPos<CurLine->EditLine.GetLength()) // ... внутри выдления
               Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
             Flags.Clear(FEDITOR_CURPOSCHANGEDBYPLUGIN);
           }
@@ -1747,7 +1750,7 @@ int Editor::ProcessKey(int Key)
         {
           CurLine->EditLine.GetSelection(SelStart,SelEnd);
           /* $ 04.02.2002 IS уточним условие */
-          if(SelStart!=-1 && (CurPos<SelStart || (SelEnd!=-1 && CurPos>SelEnd)))
+          if(SelStart!=-1 && (CurPos<SelStart || (SelEnd!=-1 && CurPos>SelEnd && CurPos<CurLine->EditLine.GetLength())))
           /* IS $ */
             Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
           Flags.Clear(FEDITOR_CURPOSCHANGEDBYPLUGIN);
@@ -1805,7 +1808,7 @@ int Editor::ProcessKey(int Key)
         {
           CurLine->EditLine.GetSelection(SelStart,SelEnd);
           /* $ 04.02.2002 IS уточним условие */
-          if(SelStart!=-1 && (CurPos<SelStart || (SelEnd!=-1 && CurPos>SelEnd)))
+          if(SelStart!=-1 && (CurPos<SelStart || (SelEnd!=-1 && CurPos>SelEnd && CurPos<CurLine->EditLine.GetLength())))
           /* IS $ */
             Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
           Flags.Clear(FEDITOR_CURPOSCHANGEDBYPLUGIN);
