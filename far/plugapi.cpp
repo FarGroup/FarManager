@@ -5,10 +5,15 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.43 26.03.2001 $ */
+/* Revision: 1.44 28.03.2001 $ */
 
 /*
 Modify:
+  28.03.2001 SVS
+    ! ACTL_GETFARVERSION возвращает номер версии, а не TRUE - так практичнее
+    ! ACTL_KEYMACRO, ACTL_EJECTMEDIA, ACTL_WAITKEY, ACTL_CONSOLEMODE -
+      проверка Param на NULL.
+    ! FarGetMsgFn - проверка на "готовность" CtrlObject (проверка на NULL)
   26.03.2001 SVS
     + добавлена обработка флага FHELP_USECONTENTS
   22.03.2001 tran 1.42
@@ -210,8 +215,9 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
  switch(Command)
  {
     case ACTL_GETFARVERSION:
-      *(DWORD*)Param=FAR_VERSION;
-      return TRUE;
+      if(Param)
+        *(DWORD*)Param=FAR_VERSION;
+      return FAR_VERSION;
     /* $ 25.07.2000 SVS
        + Программое переключение FulScreen <-> Windowed (ACTL_CONSOLEMODE)
        mode = -2 - получить текущее состояние
@@ -223,7 +229,7 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
                1 - FulScreen
     */
     case ACTL_CONSOLEMODE:
-      return FarAltEnter(*(int*)Param);
+      return FarAltEnter(Param?*(int*)Param:-2);
     /* SVS $ */
 
     /* $ 03.08.2000 SVS
@@ -248,7 +254,7 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
        возвращает 0;
     */
     case ACTL_WAITKEY:
-      WaitKey((int)Param);
+      WaitKey(Param?(int)Param:-1);
       return 0;
     /* SVS $ */
 
@@ -281,14 +287,15 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
       Return - TRUE - успешное извлечение, FALSE - ошибка.
     */
     case ACTL_EJECTMEDIA:
-      return EjectVolume(((ActlEjectMedia*)Param)->Letter, ((ActlEjectMedia*)Param)->Flags);
+      return Param?EjectVolume(((ActlEjectMedia*)Param)->Letter,
+                               ((ActlEjectMedia*)Param)->Flags):FALSE;
 
     /* $ 21.12.2000 SVS
        Macro API
     */
     case ACTL_KEYMACRO:
     {
-      if(CtrlObject) // все зависит от этой бадяги.
+      if(CtrlObject && Param) // все зависит от этой бадяги.
       {
         KeyMacro& Macro=CtrlObject->Macro; //??
         struct ActlKeyMacro *KeyMacro=(struct ActlKeyMacro*)Param;
@@ -321,7 +328,7 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     }
 
     case ACTL_PROCESSSEQUENCEKEY:
-      return WriteSequenceInput((struct SequenceKey*)Param);
+      return Param?WriteSequenceInput((struct SequenceKey*)Param):FALSE;
  }
  return FALSE;
 }
@@ -469,22 +476,6 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
 
   memset(InternalItem,0,sizeof(DialogItem)*ItemsNumber);
   Dialog::ConvertItem(CVTITEM_FROMPLUGIN,Item,InternalItem,ItemsNumber);
-/*
-  for (I=0;I<ItemsNumber;I++)
-  {
-    InternalItem[I].Type=Item[I].Type;
-    InternalItem[I].X1=Item[I].X1;
-    InternalItem[I].Y1=Item[I].Y1;
-    InternalItem[I].X2=Item[I].X2;
-    InternalItem[I].Y2=Item[I].Y2;
-    InternalItem[I].Focus=Item[I].Focus;
-    InternalItem[I].Selected=Item[I].Selected;
-    InternalItem[I].Flags=Item[I].Flags;
-    InternalItem[I].DefaultButton=Item[I].DefaultButton;
-    memmove(InternalItem[I].Data,Item[I].Data,sizeof(Item[I].Data));
-    InternalItem[I].ObjPtr=NULL;
-  }
-*/
   {
     Dialog FarDialog(InternalItem,ItemsNumber,DlgProc,Param);
     FarDialog.SetPosition(X1,Y1,X2,Y2);
@@ -511,21 +502,6 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
   }
 
   Dialog::ConvertItem(CVTITEM_TOPLUGIN,Item,InternalItem,ItemsNumber);
-/*
-  for (I=0;I<ItemsNumber;I++)
-  {
-    Item[I].Type=InternalItem[I].Type;
-    Item[I].X1=InternalItem[I].X1;
-    Item[I].Y1=InternalItem[I].Y1;
-    Item[I].X2=InternalItem[I].X2;
-    Item[I].Y2=InternalItem[I].Y2;
-    Item[I].Focus=InternalItem[I].Focus;
-    Item[I].Selected=InternalItem[I].Selected;
-    Item[I].Flags=InternalItem[I].Flags;
-    Item[I].DefaultButton=InternalItem[I].DefaultButton;
-    memmove(Item[I].Data,InternalItem[I].Data,sizeof(Item[I].Data));
-  }
-*/
   /* $ 13.07.2000 SVS
      для new[] нужен delete[]
   */
@@ -539,7 +515,7 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
 
 char* WINAPI FarGetMsgFn(int PluginNumber,int MsgId)
 {
-  return(CtrlObject->Plugins.FarGetMsg(PluginNumber,MsgId));
+  return(CtrlObject?CtrlObject->Plugins.FarGetMsg(PluginNumber,MsgId):"");
 }
 
 char* PluginsSet::FarGetMsg(int PluginNumber,int MsgId)

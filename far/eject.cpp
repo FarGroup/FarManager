@@ -5,10 +5,12 @@ Eject съемных носителей
 
 */
 
-/* Revision: 1.00 22.12.2000 $ */
+/* Revision: 1.01 28.03.2001 $ */
 
 /*
 Modify:
+  28.03.2001 SVS
+    - Кхе. Забыли вернуть значение из EjectVolume95 :-(
   22.12.2000 SVS
     + Выделение в качестве самостоятельного модуля
 */
@@ -336,6 +338,7 @@ BOOL EjectVolume95 (char Letter,DWORD Flags)
    BYTE   bDrive;
    BOOL   fDriveLocked = FALSE;
    char MsgText[200];
+   BOOL Ret=FALSE;
 
    // convert command line arg 1 from a drive letter to a DOS drive
    // number
@@ -371,7 +374,7 @@ BOOL EjectVolume95 (char Letter,DWORD Flags)
    }
 
    // Eject the media
-   if (!EjectMedia (hVWin32, bDrive))
+   if ((Ret=EjectMedia (hVWin32, bDrive)) == 0)
    {
       if(!(Flags&EJECT_NO_MESSAGE))
       {
@@ -386,6 +389,8 @@ CLEANUP_AND_EXIT_APP:
 
    if (hVWin32 != INVALID_HANDLE_VALUE)
       CloseHandle (hVWin32);
+
+   return Ret;
 }
 
 
@@ -523,4 +528,3 @@ BOOL EjectVolume(char Letter,DWORD Flags)
   return TRUE;
 }
 /* SVS $ */
-
