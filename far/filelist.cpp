@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.90 07.09.2001 $ */
+/* Revision: 1.91 10.09.2001 $ */
 
 /*
 Modify:
+  10.09.2001 SVS
+    - Ctrl-Alt-Ins неверно работал для ".."
   07.09.2001 VVM
     ! Обновить соседнюю панель с установкой на новый каталог при F7
   23.08.2001 VVM
@@ -827,7 +829,8 @@ int FileList::ProcessKey(int Key)
         if (strcmp(FileName,"..")==0)
         {
           strcpy(FileName,".");
-          Key=(Key==KEY_CTRLALTF)?KEY_CTRLALTF:KEY_CTRLF;
+          if(Key != KEY_CTRLALTINS)
+            Key=(Key==KEY_CTRLALTF)?KEY_CTRLALTF:KEY_CTRLF;
           CurrentPath=TRUE;
         }
         if (Key==KEY_CTRLF || Key==KEY_CTRLALTF || Key == KEY_CTRLALTINS)
