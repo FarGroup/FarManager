@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.40 19.06.2001 $ */
+/* Revision: 1.41 27.06.2001 $ */
 
 /*
 Modify:
+  27.06.2001 SVS
+    - неверная работа мультикопи.
   19.06.2001 SVS
     ! Учтем возможности файловой системы при выставлении target-атрибутов
   07.06.2001 IS
@@ -541,6 +543,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   // **** к процессу Copy/Move/Link
   // ***********************************************************************
 
+  int NeedDizUpdate=FALSE;
+
 #ifndef COPY_NOMULTICOPY
   /*
      ЕСЛИ ПРИНЯТЬ В КАЧЕСТВЕ РАЗДЕЛИТЕЛЯ ПУТЕЙ, НАПРИМЕР ';',
@@ -581,8 +585,36 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
               ShowTotalCopySize=FALSE;
           }
 
+          // Обнулим инфу про дизы
+          *DestDizPath=0;
+          ShellCopy::Flags&=~FCOPY_DIZREAD;
+
+          // сохраним выделение
+          SrcPanel->SaveSelection();
+
+          // собственно - один проход копирования
           if(CopyFileTree(NameTmp) == COPY_CANCEL)
+          {
+            NeedDizUpdate=TRUE;
             break;
+          }
+
+          // если "есть порох в пороховницах" - восстановим выделение
+          if(!DestList.IsEmpty())
+            SrcPanel->RestoreSelection();
+
+          // Позаботимся о дизах.
+          if (!(ShellCopy::Flags&FCOPY_COPYTONUL) && *DestDizPath)
+          {
+            char DestDizName[NM];
+            DestDiz.GetDizName(DestDizName);
+            DWORD Attr=GetFileAttributes(DestDizName);
+            int DestReadOnly=(Attr!=0xffffffff && (Attr & FA_RDONLY));
+            if(DestList.IsEmpty()) // Скидываем только во время последней Op.
+              if (Move && !DestReadOnly)
+                SrcPanel->FlushDiz();
+            DestDiz.Flush(DestDizPath);
+          }
         }
       }
   }
@@ -606,6 +638,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   }
 
   CopyFileTree(CopyDlg[2].Data);
+  NeedDizUpdate=TRUE;
 #endif
 
   // ***********************************************************************
@@ -615,15 +648,18 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
   SetConsoleTitle(OldTitle);
 
-  if (!(ShellCopy::Flags&FCOPY_COPYTONUL) && *DestDizPath)
-  {
-    char DestDizName[NM];
-    DestDiz.GetDizName(DestDizName);
-    DWORD Attr=GetFileAttributes(DestDizName);
-    int DestReadOnly=(Attr!=0xffffffff && (Attr & FA_RDONLY));
-    if (Move && !DestReadOnly)
-      SrcPanel->FlushDiz();
-    DestDiz.Flush(DestDizPath);
+  if(NeedDizUpdate) // при мультикопировании может быть обрыв, но нам все
+  {                 // равно нужно апдейтить дизы!
+    if (!(ShellCopy::Flags&FCOPY_COPYTONUL) && *DestDizPath)
+    {
+      char DestDizName[NM];
+      DestDiz.GetDizName(DestDizName);
+      DWORD Attr=GetFileAttributes(DestDizName);
+      int DestReadOnly=(Attr!=0xffffffff && (Attr & FA_RDONLY));
+      if (Move && !DestReadOnly)
+        SrcPanel->FlushDiz();
+      DestDiz.Flush(DestDizPath);
+    }
   }
 
   SrcPanel->Update(UPDATE_KEEP_SELECTION);
@@ -867,7 +903,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
   SaveScreen SaveScr;
   DWORD DestAttr;
-  _tran(SysLog("[%p] ShellCopy::CopyFileTree()",this));  
+  _tran(SysLog("[%p] ShellCopy::CopyFileTree()",this));
 
   int DestNew=FALSE;
   char SelName[NM],SelShortName[NM];
@@ -968,7 +1004,9 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
       CopyTime+= (clock() - CopyStartTime);
       if (Message(MSG_DOWN|MSG_WARNING,2,MSG(MError),MSG(MCopyCannotFind),
               SelName,MSG(MSkip),MSG(MCancel))==1)
+      {
         return COPY_FAILURE;
+      }
       CopyStartTime = clock();
       int64 SubSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
       TotalCopySize-=SubSize;
@@ -1023,7 +1061,9 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
           continue;
         }
         if (CopyCode==COPY_CANCEL)
+        {
           return COPY_CANCEL;
+        }
         if (CopyCode==COPY_NEXT)
         {
           int64 SubSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
@@ -1040,7 +1080,9 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
       CopyCode=ShellCopyOneFile(SelName,&SrcData,Dest,KeepPathPos,0);
       ShellCopy::Flags&=~FCOPY_OVERWRITENEXT;
       if (CopyCode==COPY_CANCEL)
+      {
         return COPY_CANCEL;
+      }
       if (CopyCode!=COPY_SUCCESS)
       {
         int64 SubSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
@@ -1075,7 +1117,9 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
           AttemptToMove=TRUE;
           int SubMoveCode=ShellCopyOneFile(FullName,&SrcData,Dest,KeepPathPos,1);
           if (SubMoveCode==COPY_CANCEL)
+          {
             return COPY_CANCEL;
+          }
           if (SubMoveCode==COPY_NEXT)
           {
             int64 SubSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
@@ -1095,7 +1139,9 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
         if (AttemptToMove)
           OvrMode=SaveOvrMode;
         if (SubCopyCode==COPY_CANCEL)
+        {
           return COPY_CANCEL;
+        }
         if (SubCopyCode==COPY_NEXT)
         {
           int64 SubSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
@@ -1114,7 +1160,9 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
           }
           else
             if (DeleteAfterMove(FullName,SrcData.dwFileAttributes)==COPY_CANCEL)
+            {
               return COPY_CANCEL;
+            }
       }
       if ((ShellCopy::Flags&FCOPY_MOVE) && CopyCode==COPY_SUCCESS)
       {
@@ -1138,9 +1186,11 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
           SrcPanel->DeleteDiz(SelName,SelShortName);
       }
     if (!(ShellCopy::Flags&FCOPY_CURRENTONLY))
+    {
       SrcPanel->ClearLastGetSelection();
+    }
   }
-  _tran(SysLog("[%p] ShellCopy::CopyFileTree() end",this));  
+  _tran(SysLog("[%p] ShellCopy::CopyFileTree() end",this));
   return COPY_SUCCESS; //COPY_SUCCESS_MOVE???
 }
 
@@ -1465,7 +1515,7 @@ void ShellCopy::ShellCopyMsg(char *Src,char *Dest,int Flags)
 {
   char FilesStr[100],BarStr[100],SrcName[NM],DestName[NM];
 
-  _tran(SysLog("[%p] ShellCopy::ShellCopyMsg()",this));  
+  _tran(SysLog("[%p] ShellCopy::ShellCopyMsg()",this));
   #define BAR_SIZE  40
   static char Bar[BAR_SIZE+2]={0};
   if(!Bar[0])

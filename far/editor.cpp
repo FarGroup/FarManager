@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.108 25.06.2001 $ */
+/* Revision: 1.109 27.06.2001 $ */
 
 /*
 Modify:
+  27.06.2001 SVS
+   - Stream Block можно двигать в залоченном состо€нии :-((
   25.06.2001 IS
    ! ¬недрение const
   25.06.2001 SVS
@@ -2302,12 +2304,18 @@ int Editor::ProcessKey(int Key)
       }
       return(TRUE);
     case KEY_ALTU:
-      BlockLeft();
-      Show();
+      if (!LockMode)
+      {
+        BlockLeft();
+        Show();
+      }
       return(TRUE);
     case KEY_ALTI:
-      BlockRight();
-      Show();
+      if (!LockMode)
+      {
+        BlockRight();
+        Show();
+      }
       return(TRUE);
     case KEY_ALTSHIFTLEFT:
     case KEY_ALTLEFT:
