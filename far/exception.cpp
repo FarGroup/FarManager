@@ -5,10 +5,13 @@ farexcpt.cpp
 
 */
 
-/* Revision: 1.14 19.02.2002 $ */
+/* Revision: 1.15 21.02.2002 $ */
 
 /*
 Modify:
+  21.02.2002 SVS
+    + В обработчике исключений выставляем флаг процесса обработки этого
+      самого исключения (ProcessException) и блокируем некоторые клавиши.
   19.02.2002 SVS
     ! Из четверки удаляем писателя. Кода подсократим, да и выглядеть
       (фунциклировать) он будет совсем по другой схеме.
@@ -72,6 +75,7 @@ Modify:
 #include "ctrlobj.hpp"
 #include "manager.hpp"
 #include "farexcpt.hpp"
+#include "BlockExtKey.hpp"
 
 #define MAX_DELTA_CODE  100
 
@@ -103,6 +107,9 @@ int xfilter(
     DWORD Flags)              // дополнительные флаги - пока только один
                               //        0x1 - спрашивать про выгрузку?
 {
+   ProcessException=TRUE;
+   BlockExtKey blockExtKey;
+
    struct __ECODE {
      DWORD Code;     // код исключения
      DWORD IdMsg;    // ID сообщения из LNG-файла

@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.32 22.01.2002 $ */
+/* Revision: 1.33 21.02.2002 $ */
 
 /*
 Modify:
+  21.02.2002 SVS
+    + ProcessException - признак процесса обработки исключения
   22.01.2002 SVS
     + OnliEditorViewerUsed,  =TRUE, если старт был /e или /v
   14.01.2002 SVS
@@ -208,5 +210,7 @@ extern const char DOS_EOL_fmt[], UNIX_EOL_fmt[];
 
 // TRUE, если старт был /e или /v
 extern int OnliEditorViewerUsed;
+
+extern BOOL ProcessException;
 
 #endif  // __FARGLOBAL_HPP__
