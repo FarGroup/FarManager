@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.197 17.12.2001 $ */
+/* Revision: 1.198 19.12.2001 $ */
 
 /*
 Modify:
+  19.12.2001 SVS
+    ! Раз уж пред.патч влез в область клиппинга, то... сделаем это самое
+      отсечение для максимального количества элементов (читай - не для всех).
   17.12.2001 KM
     ! Пусть диалог сам заботится о ширине собственного заголовка.
       > IS "Если ввести слишком длинную маску, то она рисуется за краями
@@ -1035,7 +1038,7 @@ void Dialog::ProcessCenterGroup(void)
                 (JCurItem->Flags & DIF_CENTERGROUP) &&
                 JCurItem->Y1==CurItem->Y1; J++, ++JCurItem)
       {
-        Length+=(JCurItem->Flags&DIF_SHOWAMPERSAND)?strlen(JCurItem->Data):HiStrlen(JCurItem->Data);
+        Length+=LenStrItem(J);
 
         if (JCurItem->Type==DI_BUTTON && *JCurItem->Data!=' ')
           Length+=2;
@@ -1054,7 +1057,7 @@ void Dialog::ProcessCenterGroup(void)
                 JCurItem->Y1==CurItem->Y1; J++, ++JCurItem)
       {
         JCurItem->X1=StartX;
-        StartX+=(JCurItem->Flags&DIF_SHOWAMPERSAND)?strlen(JCurItem->Data):HiStrlen(JCurItem->Data);
+        StartX+=LenStrItem(J);
 
         if (JCurItem->Type==DI_BUTTON && *JCurItem->Data!=' ')
           StartX+=2;
@@ -1436,18 +1439,19 @@ int Dialog::InitDialogObjects(int ID)
 
 char *Dialog::GetDialogTitle()
 {
-  for(int I=0; I < ItemCount; I++)
+  struct DialogItem *CurItem;
+  int I;
+  for(CurItem=Item,I=0; I < ItemCount; I++, CurItem++)
   {
-    DialogItem *CurItem=&Item[I];
-
     // по первому попавшемуся "тексту" установим заголовок консоли!
     if ((CurItem->Type==DI_TEXT ||
           CurItem->Type==DI_DOUBLEBOX ||
           CurItem->Type==DI_SINGLEBOX))
     {
-      for (int J=0;CurItem->Data[J]!=0;J++)
-        if (LocalIsalpha(CurItem->Data[J]))
-          return(CurItem->Data+J);
+      char *Ptr=CurItem->Data;
+      for (; *Ptr; Ptr++)
+        if (LocalIsalpha(*Ptr))
+          return(Ptr);
     }
   }
   return "";
@@ -1776,6 +1780,7 @@ void Dialog::GetDialogObjectsData()
 */
 void Dialog::ShowDialog(int ID)
 {
+  char Str[1024];
   struct DialogItem *CurItem;
   int X,Y;
   int I,DrawItemCount;
@@ -1841,51 +1846,36 @@ void Dialog::ShowDialog(int ID)
     */
     if(!Dialog::SendDlgMessage((HANDLE)this,DN_DRAWDLGITEM,I,0))
        continue;
-    /* SVS $ */
-    /* $ 28.07.2000 SVS
-       перед прорисовкой каждого элемента диалога выясним атритубы отрисовки
-    */
+
+    int LenText;
+    short CX1=CurItem->X1;
+    short CY1=CurItem->Y1;
+    short CX2=CurItem->X2;
+    short CY2=CurItem->Y2;
+    short CW=CX2-CX1+1;
+    BOOL DisabledItem=CurItem->Flags&DIF_DISABLE?TRUE:FALSE;
+
     switch(CurItem->Type)
     {
-/* ***************************************************************** */
-      case DI_USERCONTROL:
-        if(CurItem->VBuf)
-        {
-          COORD *Coord=(COORD *)(CurItem->ObjPtr);
-          PutText(X1+CurItem->X1,Y1+CurItem->Y1,X1+CurItem->X2,Y1+CurItem->Y2,CurItem->VBuf);
-          // не забудим переместить курсор, если он спозиционирован.
-          if(FocusPos == I)
-          {
-            if(Coord->X != -1 && Coord->Y != -1)
-            {
-              MoveCursor(Coord->X+CurItem->X1+X1,Coord->Y+CurItem->Y1+Y1);
-              SetCursorType(1,-1);
-            }
-            else
-              SetCursorType(0,-1);
-          }
-        }
-        break; //уже наприсовали :-)))
-
 /* ***************************************************************** */
       case DI_SINGLEBOX:
       case DI_DOUBLEBOX:
       {
         Attr=MAKELONG(
           MAKEWORD(FarColorToReal(DialogMode.Check(DMODE_WARNINGSTYLE) ?
-                      ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOXTITLE):
-                      ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGBOXTITLE)), // Title LOBYTE
+                      (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOXTITLE):
+                      (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGBOXTITLE)), // Title LOBYTE
                  FarColorToReal(DialogMode.Check(DMODE_WARNINGSTYLE) ?
-                      ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGHIGHLIGHTTEXT):
-                      ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGHIGHLIGHTTEXT))),// HiText HIBYTE
+                      (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGHIGHLIGHTTEXT):
+                      (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGHIGHLIGHTTEXT))),// HiText HIBYTE
           MAKEWORD(FarColorToReal(DialogMode.Check(DMODE_WARNINGSTYLE) ?
-                  ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOX):
-                  ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGBOX)), // Box LOBYTE
+                  (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOX):
+                  (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGBOX)), // Box LOBYTE
                  0)                                               // HIBYTE
         );
         Attr=DlgProc((HANDLE)this,DN_CTLCOLORDLGITEM,I,Attr);
 
-        Box(X1+CurItem->X1,Y1+CurItem->Y1,X1+CurItem->X2,Y1+CurItem->Y2,
+        Box(X1+CX1,Y1+CY1,X1+CX2,Y1+CY2,
             LOBYTE(HIWORD(Attr)),
             (CurItem->Type==DI_SINGLEBOX) ? SINGLE_BOX:DOUBLE_BOX);
 
@@ -1894,23 +1884,26 @@ void Dialog::ShowDialog(int ID)
           /* $ 17.12.2001 KM
             ! Пусть диалог сам заботится о ширине собственного заголовка.
           */
-          char Title[512];
-          int XB;
+          sprintf(Str," %s ",CurItem->Data);
+          LenText=LenStrItem(I,Str);
+          if(LenText > CW-4)
+          {
+            TruncStrFromEnd(Str,CW-5); // 5 ???
+            strcat(Str," ");
+            LenText=LenStrItem(I,Str);
+          }
 
-          sprintf(Title," %s ",TruncStrFromEnd(CurItem->Data,(CurItem->X2-CurItem->X1>7)?CurItem->X2-CurItem->X1-7:4));
-          /* KM $ */
-          XB=X1+CurItem->X1+(CurItem->X2-CurItem->X1+1-HiStrlen(Title))/2;
+          X=X1+CX1+(CW-LenText)/2;
 
-          if (CurItem->Flags & DIF_LEFTTEXT && X1+CurItem->X1+1 < XB)
-            XB=X1+CurItem->X1+1;
+          if ((CurItem->Flags & DIF_LEFTTEXT) && X1+CX1+1 < X)
+            X=X1+CX1+1;
 
           SetColor(Attr&0xFF);
-          GotoXY(XB,Y1+CurItem->Y1);
-          //HiText(Title,HIBYTE(LOWORD(Attr)));
+          GotoXY(X,Y1+CY1);
           if (CurItem->Flags & DIF_SHOWAMPERSAND)
-            Text(Title);
+            Text(Str);
           else
-            HiText(Title,HIBYTE(LOWORD(Attr)));
+            HiText(Str,HIBYTE(LOWORD(Attr)));
         }
         break;
       }
@@ -1918,33 +1911,33 @@ void Dialog::ShowDialog(int ID)
 /* ***************************************************************** */
       case DI_TEXT:
       {
-        if (CurItem->X1==(unsigned char)-1)
-          X=(X2-X1+1-((CurItem->Flags & DIF_SHOWAMPERSAND)?HiStrlen(CurItem->Data):strlen(CurItem->Data)))/2;
-        else
-          X=CurItem->X1;
+        strcpy(Str,CurItem->Data);
+        LenText=LenStrItem(I,Str);
+        Y=(CY1==-1)?(Y2-Y1+1)/2:CY1;
+        X=(CX1==-1)?(X2-X1+1-LenText)/2:CX1;
+        if(X < 0)
+          X=0;
 
-        if (CurItem->Y1==(unsigned char)-1)
-          Y=(Y2-Y1+1)/2;
-        else
-          Y=CurItem->Y1;
+        if(X1+X+LenText > X2)
+           Str[ObjWidth-1]=0;
 
         if (CurItem->Flags & DIF_SETCOLOR)
           Attr=CurItem->Flags & DIF_COLORMASK;
         else
           if (CurItem->Flags & DIF_BOXCOLOR)
             Attr=DialogMode.Check(DMODE_WARNINGSTYLE) ?
-                  ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOX):
-                  ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGBOX);
+                  (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOX):
+                  (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGBOX);
           else
             Attr=DialogMode.Check(DMODE_WARNINGSTYLE) ?
-                  ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGTEXT):
-                  ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGTEXT);
+                  (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGTEXT):
+                  (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGTEXT);
 
         Attr=MAKELONG(
            MAKEWORD(FarColorToReal(Attr),
                    FarColorToReal(DialogMode.Check(DMODE_WARNINGSTYLE) ?
-                      ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGHIGHLIGHTTEXT):
-                      ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGHIGHLIGHTTEXT))), // HIBYTE HiText
+                      (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGHIGHLIGHTTEXT):
+                      (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGHIGHLIGHTTEXT))), // HIBYTE HiText
              0);
         Attr=DlgProc((HANDLE)this,DN_CTLCOLORDLGITEM,I,Attr);
         SetColor(Attr&0xFF);
@@ -1961,37 +1954,35 @@ void Dialog::ShowDialog(int ID)
         GotoXY(X1+X,Y1+Y);
 
         if (CurItem->Flags & DIF_SHOWAMPERSAND)
-          Text(CurItem->Data);
+          Text(Str);
         else
-          HiText(CurItem->Data,HIBYTE(LOWORD(Attr)));
-
+          HiText(Str,HIBYTE(LOWORD(Attr)));
         break;
       }
 
 /* ***************************************************************** */
       case DI_VTEXT:
       {
-        if (CurItem->X1==(unsigned char)-1)
-          X=(X2-X1+1)/2;
-        else
-          X=CurItem->X1;
+        strncpy(Str,CurItem->Data,sizeof(Str)-1);
+        X=(CX1==-1)?(X2-X1+1)/2:CX1;
+        Y=(CY1==-1)?(Y2-Y1+1-strlen(Str))/2:CY1;
+        if(Y < 0)
+          Y=0;
 
-        if (CurItem->Y1==(unsigned char)-1)
-          Y=(Y2-Y1+1-strlen(CurItem->Data))/2;
-        else
-          Y=CurItem->Y1;
+        if(Y1+Y+LenText > Y2)
+          Str[ObjHeight-1]=0;
 
         if (CurItem->Flags & DIF_BOXCOLOR)
           Attr=DialogMode.Check(DMODE_WARNINGSTYLE) ?
-                   ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOX):
-                   ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGBOX);
+                   (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOX):
+                   (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGBOX);
         else
           if (CurItem->Flags & DIF_SETCOLOR)
             Attr=(CurItem->Flags & DIF_COLORMASK);
           else
             Attr=(DialogMode.Check(DMODE_WARNINGSTYLE) ?
-                   ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGTEXT):
-                   ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGTEXT));
+                   (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGTEXT):
+                   (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGTEXT));
 
         Attr=DlgProc((HANDLE)this,DN_CTLCOLORDLGITEM,I,FarColorToReal(Attr));
         SetColor(Attr&0xFF);
@@ -2008,7 +1999,116 @@ void Dialog::ShowDialog(int ID)
         */
 
         GotoXY(X1+X,Y1+Y);
-        VText(CurItem->Data);
+        VText(Str);
+        break;
+      }
+
+/* ***************************************************************** */
+      case DI_CHECKBOX:
+      case DI_RADIOBUTTON:
+      {
+        if (CurItem->Flags & DIF_SETCOLOR)
+          Attr=(CurItem->Flags & DIF_COLORMASK);
+        else
+          Attr=(DialogMode.Check(DMODE_WARNINGSTYLE) ?
+                  (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGTEXT):
+                  (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGTEXT));
+
+        Attr=MAKEWORD(FarColorToReal(Attr),
+             FarColorToReal(DialogMode.Check(DMODE_WARNINGSTYLE) ?
+                   (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGHIGHLIGHTTEXT):
+                   (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGHIGHLIGHTTEXT))); // HiText
+        Attr=DlgProc((HANDLE)this,DN_CTLCOLORDLGITEM,I,Attr);
+
+        SetColor(Attr&0xFF);
+
+        GotoXY(X1+CX1,Y1+CY1);
+        if (CurItem->Type==DI_CHECKBOX)
+        {
+          char *Chk3State=MSG(MCheckBox2State);
+          sprintf(Str,"[%c] ",CurItem->Selected ?
+             (((CurItem->Flags&DIF_3STATE) && CurItem->Selected == 2)?
+                *Chk3State:'x'):' ');
+        }
+        else
+        {
+          if (CurItem->Flags & DIF_MOVESELECT)
+            sprintf(Str," %c ",CurItem->Selected ? '\07':' ');
+          else
+            sprintf(Str,"(%c) ",CurItem->Selected ? '\07':' ');
+        }
+
+        strncat(Str,CurItem->Data,sizeof(Str)-1);
+        LenText=LenStrItem(I,Str);
+        if(X1+CX1+LenText > X2)
+          Str[ObjWidth-1]=0;
+
+        if (CurItem->Flags & DIF_SHOWAMPERSAND)
+          Text(Str);
+        else
+          HiText(Str,HIBYTE(LOWORD(Attr)));
+
+        if (CurItem->Focus)
+        {
+          /* $ 09.08.2000 KM
+             Отключение мигающего курсора при перемещении диалога
+          */
+          if (!DialogMode.Check(DMODE_DRAGGED))
+            SetCursorType(1,-1);
+          MoveCursor(X1+CX1+1,Y1+CY1);
+          /* KM $ */
+        }
+
+        break;
+      }
+
+/* ***************************************************************** */
+      case DI_BUTTON:
+      {
+        GotoXY(X1+CX1,Y1+CY1);
+
+        /* $ 18.08.2000 SVS
+           + DI_BUTTON тоже теперь может иметь DIF_SETCOLOR
+        */
+        if (CurItem->Focus)
+        {
+          SetCursorType(0,10);
+          Attr=MAKEWORD(
+             (CurItem->Flags & DIF_SETCOLOR)?(CurItem->Flags & DIF_COLORMASK):
+               FarColorToReal(DialogMode.Check(DMODE_WARNINGSTYLE) ?
+                   (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGSELECTEDBUTTON):
+                   (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGSELECTEDBUTTON)), // TEXT
+             FarColorToReal(DialogMode.Check(DMODE_WARNINGSTYLE) ?
+                   (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGHIGHLIGHTSELECTEDBUTTON):
+                   (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGHIGHLIGHTSELECTEDBUTTON))); // HiText
+        }
+        else
+        {
+          Attr=MAKEWORD(
+             (CurItem->Flags & DIF_SETCOLOR)?(CurItem->Flags & DIF_COLORMASK):
+               FarColorToReal(DialogMode.Check(DMODE_WARNINGSTYLE) ?
+                      (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBUTTON):
+                      (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGBUTTON)), // TEXT
+             FarColorToReal(DialogMode.Check(DMODE_WARNINGSTYLE) ?
+                      (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGHIGHLIGHTBUTTON):
+                      (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGHIGHLIGHTBUTTON))); // HiText
+        }
+        /* SVS $ */
+        Attr=DlgProc((HANDLE)this,DN_CTLCOLORDLGITEM,I,Attr);
+        SetColor(Attr&0xFF);
+
+        strncpy(Str,CurItem->Data,sizeof(Str)-1);
+        //LenText=LenStrItem(I,Str);
+        /*
+           Здесь, для отсечения, необходимо учесть флаг DIF_NOBRACKETS
+           Т.е. с флагом DIF_NOBRACKETS кнопка рисуется как "%s", без
+           этого флага - "[ %s ]"
+        */
+
+        if (CurItem->Flags & DIF_SHOWAMPERSAND)
+          Text(Str);
+        else
+          HiText(Str,HIBYTE(LOWORD(Attr)));
         break;
       }
 
@@ -2034,30 +2134,30 @@ void Dialog::ShowDialog(int ID)
             Attr=MAKELONG(
               MAKEWORD( //LOWORD
                 // LOLO (Text)
-                FarColorToReal((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGEDITDISABLED:COL_WARNDIALOGEDIT),
+                FarColorToReal(DisabledItem?COL_WARNDIALOGEDITDISABLED:COL_WARNDIALOGEDIT),
                 // LOHI (Select)
-                FarColorToReal((CurItem->Flags&DIF_DISABLE)?COL_DIALOGEDITDISABLED:COL_DIALOGEDITSELECTED)
+                FarColorToReal(DisabledItem?COL_DIALOGEDITDISABLED:COL_DIALOGEDITSELECTED)
               ),
               MAKEWORD( //HIWORD
                 // HILO (Unchanged)
                 FarColorToReal(COL_DIALOGEDITUNCHANGED),
                 // HIHI (History)
-                FarColorToReal((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGTEXT)
+                FarColorToReal(DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGTEXT)
               )
             );
           else
             Attr=MAKELONG(
               MAKEWORD( //LOWORD
                 // LOLO (Text)
-                FarColorToReal((CurItem->Flags&DIF_DISABLE)?COL_DIALOGEDITDISABLED:(!CurItem->Focus?COL_DIALOGEDIT:COL_DIALOGEDITSELECTED)),
+                FarColorToReal(DisabledItem?COL_DIALOGEDITDISABLED:(!CurItem->Focus?COL_DIALOGEDIT:COL_DIALOGEDITSELECTED)),
                 // LOHI (Select)
-                FarColorToReal((CurItem->Flags&DIF_DISABLE)?COL_DIALOGEDITDISABLED:(!CurItem->Focus?COL_DIALOGEDIT:COL_DIALOGEDITSELECTED))
+                FarColorToReal(DisabledItem?COL_DIALOGEDITDISABLED:(!CurItem->Focus?COL_DIALOGEDIT:COL_DIALOGEDITSELECTED))
               ),
               MAKEWORD( //HIWORD
                 // HILO (Unchanged)
                 FarColorToReal(COL_DIALOGEDITUNCHANGED),
                 // HIHI (History)
-                FarColorToReal((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGTEXT)
+                FarColorToReal(DisabledItem?COL_DIALOGDISABLED:COL_DIALOGTEXT)
               )
             );
         }
@@ -2067,32 +2167,32 @@ void Dialog::ShowDialog(int ID)
             Attr=MAKELONG(
               MAKEWORD( //LOWORD
                 // LOLO (Text)
-                FarColorToReal((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGEDITDISABLED:
+                FarColorToReal(DisabledItem?COL_WARNDIALOGEDITDISABLED:
                   (CurItem->Flags&DIF_NOFOCUS?COL_DIALOGEDITUNCHANGED:COL_WARNDIALOGEDIT)),
                 // LOHI (Select)
-                FarColorToReal((CurItem->Flags&DIF_DISABLE)?COL_DIALOGEDITDISABLED:COL_DIALOGEDITSELECTED)
+                FarColorToReal(DisabledItem?COL_DIALOGEDITDISABLED:COL_DIALOGEDITSELECTED)
               ),
               MAKEWORD( //HIWORD
                 // HILO (Unchanged)
                 FarColorToReal(COL_DIALOGEDITUNCHANGED),
                 // HIHI (History)
-                FarColorToReal((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGTEXT)
+                FarColorToReal(DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGTEXT)
               )
             );
           else
             Attr=MAKELONG(
               MAKEWORD( //LOWORD
                 // LOLO (Text)
-                FarColorToReal((CurItem->Flags&DIF_DISABLE)?COL_DIALOGEDITDISABLED:
+                FarColorToReal(DisabledItem?COL_DIALOGEDITDISABLED:
                   (CurItem->Flags&DIF_NOFOCUS?COL_DIALOGEDITUNCHANGED:COL_DIALOGEDIT)),
                 // LOHI (Select)
-                FarColorToReal((CurItem->Flags&DIF_DISABLE)?COL_DIALOGEDITDISABLED:COL_DIALOGEDITSELECTED)
+                FarColorToReal(DisabledItem?COL_DIALOGEDITDISABLED:COL_DIALOGEDITSELECTED)
               ),
               MAKEWORD( //HIWORD
                 // HILO (Unchanged)
                 FarColorToReal(COL_DIALOGEDITUNCHANGED),
                 // HIHI (History)
-                FarColorToReal((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGTEXT)
+                FarColorToReal(DisabledItem?COL_DIALOGDISABLED:COL_DIALOGTEXT)
               )
             );
         }
@@ -2125,10 +2225,8 @@ void Dialog::ShowDialog(int ID)
           SetCursorType(FALSE,0);
         /* KM $ */
 
-        if (CurItem->History &&
-             ((CurItem->Flags & DIF_HISTORY) &&
-              Opt.DialogsEditHistory
-              || CurItem->Type == DI_COMBOBOX))
+        if (CurItem->History && ((CurItem->Flags & DIF_HISTORY) && Opt.DialogsEditHistory ||
+            CurItem->Type == DI_COMBOBOX))
         {
           int EditX1,EditY1,EditX2,EditY2;
 
@@ -2166,103 +2264,29 @@ void Dialog::ShowDialog(int ID)
       }
       /* 01.08.2000 SVS $ */
 
-/* ***************************************************************** */
-      case DI_CHECKBOX:
-      case DI_RADIOBUTTON:
-      {
-        if (CurItem->Flags & DIF_SETCOLOR)
-          Attr=(CurItem->Flags & DIF_COLORMASK);
-        else
-          Attr=(DialogMode.Check(DMODE_WARNINGSTYLE) ?
-                  ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGTEXT):
-                  ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGTEXT));
-
-        Attr=MAKEWORD(FarColorToReal(Attr),
-             FarColorToReal(DialogMode.Check(DMODE_WARNINGSTYLE) ?
-                   ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGHIGHLIGHTTEXT):
-                   ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGHIGHLIGHTTEXT))); // HiText
-        Attr=DlgProc((HANDLE)this,DN_CTLCOLORDLGITEM,I,Attr);
-
-        SetColor(Attr&0xFF);
-
-        GotoXY(X1+CurItem->X1,Y1+CurItem->Y1);
-
-        if (CurItem->Type==DI_CHECKBOX)
-        {
-          char *Chk3State=MSG(MCheckBox2State);
-          mprintf("[%c] ",CurItem->Selected ?
-             (((CurItem->Flags&DIF_3STATE) && CurItem->Selected == 2)?
-                *Chk3State:'x'):' ');
-        }
-        else
-          if (CurItem->Flags & DIF_MOVESELECT)
-            mprintf(" %c ",CurItem->Selected ? '\07':' ');
-          else
-            mprintf("(%c) ",CurItem->Selected ? '\07':' ');
-
-        if (CurItem->Flags & DIF_SHOWAMPERSAND)
-          Text(CurItem->Data);
-        else
-          HiText(CurItem->Data,HIBYTE(LOWORD(Attr)));
-
-        if (CurItem->Focus)
-        {
-          /* $ 09.08.2000 KM
-             Отключение мигающего курсора при перемещении диалога
-          */
-          if (!DialogMode.Check(DMODE_DRAGGED))
-            SetCursorType(1,-1);
-          MoveCursor(X1+CurItem->X1+1,Y1+CurItem->Y1);
-          /* KM $ */
-        }
-
-        break;
-      }
 
 /* ***************************************************************** */
-      case DI_BUTTON:
-      {
-        GotoXY(X1+CurItem->X1,Y1+CurItem->Y1);
-
-        /* $ 18.08.2000 SVS
-           + DI_BUTTON тоже теперь может иметь DIF_SETCOLOR
-        */
-        if (CurItem->Focus)
+      case DI_USERCONTROL:
+        if(CurItem->VBuf)
         {
-          SetCursorType(0,10);
-          Attr=MAKEWORD(
-             (CurItem->Flags & DIF_SETCOLOR)?(CurItem->Flags & DIF_COLORMASK):
-               FarColorToReal(DialogMode.Check(DMODE_WARNINGSTYLE) ?
-                   ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGSELECTEDBUTTON):
-                   ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGSELECTEDBUTTON)), // TEXT
-             FarColorToReal(DialogMode.Check(DMODE_WARNINGSTYLE) ?
-                   ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGHIGHLIGHTSELECTEDBUTTON):
-                   ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGHIGHLIGHTSELECTEDBUTTON))); // HiText
+          COORD *Coord=(COORD *)(CurItem->ObjPtr);
+          PutText(X1+CX1,Y1+CY1,X1+CX2,Y1+CY2,CurItem->VBuf);
+          // не забудим переместить курсор, если он спозиционирован.
+          if(FocusPos == I)
+          {
+            if(Coord->X != -1 && Coord->Y != -1)
+            {
+              MoveCursor(Coord->X+CX1+X1,Coord->Y+CY1+Y1);
+              SetCursorType(1,-1);
+            }
+            else
+              SetCursorType(0,-1);
+          }
         }
-        else
-        {
-          Attr=MAKEWORD(
-             (CurItem->Flags & DIF_SETCOLOR)?(CurItem->Flags & DIF_COLORMASK):
-               FarColorToReal(DialogMode.Check(DMODE_WARNINGSTYLE) ?
-                      ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBUTTON):
-                      ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGBUTTON)), // TEXT
-             FarColorToReal(DialogMode.Check(DMODE_WARNINGSTYLE) ?
-                      ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGHIGHLIGHTBUTTON):
-                      ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGHIGHLIGHTBUTTON))); // HiText
-        }
-        /* SVS $ */
-        Attr=DlgProc((HANDLE)this,DN_CTLCOLORDLGITEM,I,Attr);
-        SetColor(Attr&0xFF);
-        if (CurItem->Flags & DIF_SHOWAMPERSAND)
-          Text(CurItem->Data);
-        else
-          HiText(CurItem->Data,HIBYTE(LOWORD(Attr)));
-        break;
-      }
+        break; //уже наприсовали :-)))
 
 /* ***************************************************************** */
     } // end switch(...
-    /* 28.07.2000 SVS $ */
   } // end for (I=...
 
   // КОСТЫЛЬ!
@@ -2304,6 +2328,12 @@ void Dialog::ShowDialog(int ID)
 }
 /* SVS 22.08.2000 $ */
 
+int Dialog::LenStrItem(int ID,char *Str)
+{
+  if(!Str)
+    Str=Item[ID].Data;
+  return (Item[ID].Flags & DIF_SHOWAMPERSAND)?strlen(Str):HiStrlen(Str);
+}
 
 //////////////////////////////////////////////////////////////////////////
 /* Public, Virtual:

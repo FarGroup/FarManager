@@ -10,10 +10,13 @@ dialog.hpp
 
 */
 
-/* Revision: 1.47 09.12.2001 $ */
+/* Revision: 1.48 21.12.2001 $ */
 
 /*
 Modify:
+  21.12.2001 SVS
+   ! unsigned char -> short для координат в структурах DialogItem и DialogData
+   + LenStrItem() - выдает на гора размер с учетом флага DIF_SHOWAMPERSAND
   09.12.2001 DJ
    + ProcessLastHistory() - обработка DIF_USELASTHISTORY
   04.12.2001 SVS
@@ -226,7 +229,7 @@ struct DialogItem
 {
   WORD ID;
   WORD Type;
-  BYTE X1,Y1,X2,Y2;
+  short X1,Y1,X2,Y2;
   BYTE Focus;
   BYTE Reserved;
   union {
@@ -265,7 +268,7 @@ Russian Help Encyclopedia of Developer")
 struct DialogData
 {
   unsigned char Type;
-  unsigned char X1,Y1,X2,Y2;
+  short X1,Y1,X2,Y2;
   unsigned char Focus;
   union {
     unsigned int Selected;
@@ -346,6 +349,7 @@ class Dialog: public Frame
   private:
     void DisplayObject();
     void DeleteDialogObjects();
+    int  LenStrItem(int ID,char *Str=NULL);
     /* $ 22.08.2000 SVS
       ! ShowDialog - дополнительный параметр - какой элемент отрисовывать
         ID=-1 - отрисовать весь диалог

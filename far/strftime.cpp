@@ -1,14 +1,16 @@
 /*
 strftime.cpp
 
-Макросы
+Функция StrFTime
 
 */
 
-/* Revision: 1.04 27.06.2001 $ */
+/* Revision: 1.05 20.12.2001 $ */
 
 /*
 Modify:
+  20.12.2001 SVS
+    - BugZ#191 - %C вставляет последние две цифры года
   27.06.2001 SVS
     - в StrFTime учтем момент, что LNG могут быть еще не загружены
   25.06.2001 IS
@@ -320,7 +322,7 @@ int WINAPI StrFTime(char *Dest, size_t MaxSize, const char *Format,const struct 
         // Столетие как десятичное число (00 - 99). Например, 1992 => 19
         //
         case 'C':
-          I = t->tm_year / 100;
+          I = (t->tm_year+1900) / 100;
           ultoa((long)(I&0xffff), Buf + (I < 10),10 );
           break;
         // day of month, blank padded

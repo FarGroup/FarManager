@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.24 14.12.2001 $ */
+/* Revision: 1.25 20.12.2001 $ */
 
 /*
 Modify:
+  20.12.2001 SVS
+    ! Для Shift-Enter учтем перенаправления и каналы.
   14.12.2001 IS
     ! stricmp -> LocalStricmp
   08.12.2001 SVS
@@ -550,7 +552,7 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
   PROCESS_INFORMATION pi;
   int Visible,Size;
   int PrevLockCount;
-  char ExecLine[1024],CommandName[NM];
+  char ExecLine[2048],CommandName[NM];
   char OldTitle[512];
   DWORD GUIType;
   int ExitCode=1;
@@ -661,19 +663,26 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
       }
       else
       {
+        int Pipe=strpbrk(CmdPtr,"<>|")!=NULL;
         sprintf(ExecLine,"%s /C",CommandName);
+
         if (!OldNT && (SeparateWindow || GUIType && (NT || AlwaysWaitFinish)))
         {
           strcat(ExecLine," start");
           if (AlwaysWaitFinish)
             strcat(ExecLine," /wait");
-          if (NT && *CmdPtr=='\"')
+
+          if(Pipe)
+            sprintf(ExecLine+strlen(ExecLine)," %s /C",CommandName);
+          else if (NT && *CmdPtr=='\"')
             strcat(ExecLine," \"\"");
         }
+
         strcat(ExecLine," ");
 
         char *CmdEnd=CmdPtr+strlen (CmdPtr)-1;
-        if (NT && *CmdPtr == '\"' && *CmdEnd == '\"' && strchr (CmdPtr+1, '\"') != CmdEnd)
+        if (NT && *CmdPtr == '\"' && *CmdEnd == '\"' && strchr (CmdPtr+1, '\"') != CmdEnd ||
+            Pipe && *CmdPtr != '\"')
         {
           strcat (ExecLine, "\"");
           strcat (ExecLine, CmdPtr);
