@@ -7,10 +7,14 @@ Internal viewer
 
 */
 
-/* Revision: 1.07 30.07.2000 $ */
+/* Revision: 1.08 12.09.2000 $ */
 
 /*
 Modify:
+  12.09.2000 SVS
+    + Введена переменная TypeWrap. Теперь
+      Wrap - Состояние (Wrap/UnWrap) и
+      TypeWrap - тип (Wrap/WWrap)
   30.07.2000 KM 1.07
     + LastSearchWholeWords
   19.07.2000 tran 1/06
@@ -87,7 +91,13 @@ class Viewer:public ScreenObject
     int UseDecodeTable,TableNum,AnsiText;
     int Unicode;
 
-    int Wrap,Hex;
+    /* $ 12.09.2000 SVS
+       Введена переменная TypeWrap. Теперь
+       Wrap - Состояние (Wrap/UnWrap) и
+       TypeWrap - тип (Wrap/WWrap)
+    */
+    int Wrap, TypeWrap, Hex;
+    /* SVS $*/
 
     unsigned long FilePos;
     unsigned long SecondPos;

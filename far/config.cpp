@@ -5,10 +5,15 @@ config.cpp
 
 */
 
-/* Revision: 1.17 11.09.2000 $ */
+/* Revision: 1.18 12.09.2000 $ */
 
 /*
 Modify:
+  12.09.2000 SVS
+    ! Разделение Wrap/WWrap/UnWrap на 2 составляющих -
+      Состояние (Wrap/UnWrap) и тип (Wrap/WWrap)
+    + Panel/RightClickRule в реестре - задает поведение правой клавиши
+      мыши (это по поводу Bug#17)
   11.09.2000 SVS
     + если Far\Dialog\EULBsClear = 1, то BS в диалогах для UnChanged строки
       удаляет такую строку также, как и Del
@@ -613,9 +618,12 @@ void ReadConfig()
   GetRegKey("Viewer","ShowScrollbar",Opt.ViewerShowScrollbar,0);
   /* tran 18.07.2000 $ */
   /* $ 31.08.2000 SVS
-     ! Opt.ViewerTypeWrap
+     ! Opt.ViewerIsWrap
   */
-  GetRegKey("Viewer","TypeWrap",Opt.ViewerTypeWrap,VIEW_WRAP);
+  GetRegKey("Viewer","IsWrap",Opt.ViewerIsWrap,1);
+  Opt.ViewerIsWrap&=1;
+  GetRegKey("Viewer","Wrap",Opt.ViewerWrap,0);
+  if(RegVer) Opt.ViewerWrap&=1; else Opt.ViewerWrap=0;
   /* SVS $*/
 
   /* $ 11.09.2000 SVS
@@ -703,6 +711,13 @@ void ReadConfig()
   GetRegKey("Panel","AutoChangeFolder",Opt.AutoChangeFolder,0);
   GetRegKey("Panel","SelectFolders",Opt.SelectFolders,0);
   GetRegKey("Panel","ReverseSort",Opt.ReverseSort,1);
+  /* $ 12.09.2000 SVS
+    + Panel/RightClickRule в реестре - задает поведение правой клавиши
+      мыши (это по поводу Bug#17)
+  */
+  GetRegKey("Panel","RightClickRule",Opt.PanelRightClickRule,0);
+  Opt.PanelRightClickRule%=3;
+  /* SVS $ */
 
   GetRegKey("Panel\\Left","Type",Opt.LeftPanel.Type,0);
   GetRegKey("Panel\\Left","Visible",Opt.LeftPanel.Visible,1);
@@ -808,9 +823,10 @@ void SaveConfig(int Ask)
   SetRegKey("Viewer","ShowScrollbar",Opt.ViewerShowScrollbar);
   /* tran 18.07.2000 $ */
   /* $ 31.08.2000 SVS
-     ! Opt.ViewerTypeWrap
+     ! Opt.ViewerIsWrap
   */
-  SetRegKey("Viewer","TypeWrap",Opt.ViewerTypeWrap);
+  SetRegKey("Viewer","IsWrap",Opt.ViewerIsWrap);
+  GetRegKey("Viewer","Wrap",Opt.ViewerWrap);
   /* SVS $*/
 
   /* $ 11.09.2000 SVS
@@ -882,6 +898,12 @@ void SaveConfig(int Ask)
   SetRegKey("Panel","AutoChangeFolder",Opt.AutoChangeFolder);
   SetRegKey("Panel","SelectFolders",Opt.SelectFolders);
   SetRegKey("Panel","ReverseSort",Opt.ReverseSort);
+  /* $ 12.09.2000 SVS
+    + Panel/RightClickRule в реестре - задает поведение правой клавиши
+      мыши (это по поводу Bug#17)
+  */
+  SetRegKey("Panel","RightClickRule",Opt.PanelRightClickRule);
+  /* SVS $ */
 
   Panel *LeftPanel=CtrlObject->LeftPanel;
   SetRegKey("Panel\\Left","Visible",LeftPanel->IsVisible());

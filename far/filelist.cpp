@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.07 11.08.2000 $ */
+/* Revision: 1.08 12.08.2000 $ */
 
 /*
 Modify:
+  12.09.2000 SVS
+    + Опциональное поведение для правой клавиши мыши на пустой панели
   11.09.2000 SVS
     - Bug #17: Логика такова - если колонка полностью пуста, то
       действия аналогичны нажатию левой клавиши, иначе отмечаем файл.
@@ -1522,6 +1524,9 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 }
 
 
+/* $ 12.09.2000 SVS
+  + Опциональное поведение для правой клавиши мыши на пустой панели
+*/
 void FileList::MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
   int CurColumn=0,ColumnsWidth,I;
@@ -1537,6 +1542,7 @@ void FileList::MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent)
   }
   if (CurColumn==0)
     CurColumn=1;
+  int OldCurFile=CurFile;
   CurFile=CurTopFile+MouseEvent->dwMousePosition.Y-Y1-1-Opt.ShowColumnTitles;
   if (CurColumn>1)
     CurFile+=(CurColumn-1)*Height;
@@ -1544,10 +1550,20 @@ void FileList::MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent)
   /* $ 11.09.2000 SVS
      Bug #17: Проверим на ПОЛНОСТЬЮ пустую колонку.
   */
-  IsEmpty=((CurColumn-1)*Height > FileCount);
+  if(Opt.PanelRightClickRule == 1)
+    IsEmpty=((CurColumn-1)*Height > FileCount);
+  else if(Opt.PanelRightClickRule == 2 &&
+          (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED) &&
+          ((CurColumn-1)*Height > FileCount))
+  {
+    CurFile=OldCurFile;
+    IsEmpty=TRUE;
+  }
+  else
+    IsEmpty=FALSE;
   /* SVS $ */
 }
-
+/* SVS $ */
 
 void FileList::SetViewMode(int ViewMode)
 {

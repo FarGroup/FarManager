@@ -5,10 +5,16 @@ dialog.cpp
 
 */
 
-/* Revision: 1.38 11.09.2000 $ */
+/* Revision: 1.39 12.09.2000 $ */
 
 /*
 Modify:
+  12.09.2000 SVS
+   ! Задаем поведение для кнопки с DefaultButton=1:
+     Такая кнопка независимо от стиля диалога инициирует сообщение DM_CLOSE.
+   ! Исправляем ситуацию с BackSpace в DIF_EDITOR
+   ! Решаем проблему, если Del нажали в позиции большей, чем длина
+     строки (DIF_EDITOR)
   11.09.2000 SVS
    + Ctrl-U в строках ввода снимает пометку блока
   09.09.2000 SVS
@@ -1401,11 +1407,15 @@ int Dialog::ProcessKey(int Key)
         }
         /* SVS $ */
         /* SVS 21.08.2000 $ */
-        if(CheckDialogMode(DMODE_OLDSTYLE))
+        /* $ 12.09.2000 SVS
+          ! Задаем поведение для кнопки с DefaultButton=1
+        */
+        if(CheckDialogMode(DMODE_OLDSTYLE) || Item[FocusPos].DefaultButton)
         {
           ExitCode=FocusPos;
           EndLoop=TRUE;
         }
+        /* SVS $ */
       }
       else if(CheckDialogMode(DMODE_OLDSTYLE))
       {
@@ -1737,6 +1747,48 @@ int Dialog::ProcessKey(int Key)
         if (Item[FocusPos].Flags & DIF_EDITOR)
           switch(Key)
           {
+            /* $ 12.09.2000 SVS
+              Исправляем ситуацию с BackSpace в DIF_EDITOR
+            */
+            case KEY_BS:
+            {
+              int CurPos=edt->GetCurPos();
+              if(!edt->GetCurPos())
+              {
+                if(FocusPos > 0 &&
+                   (Item[FocusPos-1].Flags&DIF_EDITOR))
+                {
+                  Edit *edt_1=(Edit *)Item[FocusPos-1].ObjPtr;
+                  edt_1->GetString(Str,sizeof(Str));
+                  CurPos=strlen(Str);
+                  edt->GetString(Str+CurPos,sizeof(Str)-CurPos);
+                  edt_1->SetString(Str);
+                  for (I=FocusPos+1;I<ItemCount;I++)
+                    if (Item[I].Flags & DIF_EDITOR)
+                    {
+                      if (I>FocusPos)
+                      {
+                        ((Edit *)(Item[I].ObjPtr))->GetString(Str,sizeof(Str));
+                        ((Edit *)(Item[I-1].ObjPtr))->SetString(Str);
+                      }
+                      ((Edit *)(Item[I].ObjPtr))->SetString("");
+                    }
+                    else
+                      break;
+                   ProcessKey(KEY_UP);
+                   edt_1->SetCurPos(CurPos);
+                }
+              }
+              else
+              {
+                edt->ProcessKey(Key);
+              }
+              Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,FocusPos,0);
+              ShowDialog();
+              return(TRUE);
+            }
+            /* SVS $ */
+
             case KEY_CTRLY:
               for (I=FocusPos;I<ItemCount;I++)
                 if (Item[I].Flags & DIF_EDITOR)
@@ -1792,6 +1844,16 @@ int Dialog::ProcessKey(int Key)
                 else if (CurPos>=Length)
                 {
                   Edit *edt_1=(Edit *)Item[FocusPos+1].ObjPtr;
+                  /* $ 12.09.2000 SVS
+                     Решаем проблему, если Del нажали в позиции
+                     большей, чем длина строки
+                  */
+                  if (CurPos > Length)
+                  {
+                    LengthStr=CurPos;
+                    memset(Str+Length,' ',CurPos-Length);
+                  }
+                  /* SVS $*/
                   edt_1->GetString(Str+LengthStr,sizeof(Str)-LengthStr);
                   edt_1->SetString(Str);
                   ProcessKey(KEY_CTRLY);

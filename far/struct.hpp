@@ -7,10 +7,19 @@ struct.hpp
 
 */
 
-/* Revision: 1.15 11.09.2000 $ */
+/* Revision: 1.16 12.09.2000 $ */
 
 /*
 Modify:
+  12.09.2000 SVS
+   + Добавлена переменная Options.ViewerWrap
+   ! ViewerTypeWrap переименована в ViewerIsWrap
+       Разделение Wrap/WWrap/UnWrap на 2 составляющих -
+       Состояние (Wrap/UnWrap) и тип (Wrap/WWrap)
+        ViewerIsWrap  =  UnWrap=0  | Перенос=1
+        ViewerWrap    =  Wrap=0    | WordWarp=1
+   + Opt.PanelRightClickRule задает поведение правой клавиши мыши
+     (это по поводу Bug#17)
   11.09.2000 SVS
    + В Opt добавлена переменная DlgEULBsClear
      если = 1, то BS в диалогах для UnChanged строки удаляет такую
@@ -261,7 +270,13 @@ struct Options
   /* $ 31.08.2000 SVS
      Добавлена переменная Options.ViewerTypeWrap
   */
-  int ViewerTypeWrap;
+  /* $ 12.09.2000 SVS
+     Добавлена переменная Options.ViewerWrap
+     ViewerTypeWrap переименована в ViewerIsWrap
+  */
+  int ViewerIsWrap; // (Wrap|WordWarp)=1 | UnWrap=0
+  int ViewerWrap; // Wrap=0|WordWarp=1
+  /* SVS 12.09.2000 $*/
   /* SVS $*/
   /* $ 01.09.2000 tran
      seting by '/co' switch, not saved in registry. */
@@ -279,6 +294,12 @@ struct Options
      строку также, как и Del
   */
   int DlgEULBsClear;
+  /* SVS $*/
+  /* $ 12.09.2000 SVS
+   + Opt.PanelRightClickRule задает поведение правой клавиши мыши
+     (это по поводу Bug#17)
+  */
+  int PanelRightClickRule;
   /* SVS $*/
 };
 

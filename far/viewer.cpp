@@ -5,10 +5,13 @@ Internal viewer
 
 */
 
-/* Revision: 1.21 10.09.2000 $ */
+/* Revision: 1.22 12.09.2000 $ */
 
 /*
 Modify:
+  12.09.2000 SVS
+    ! Разделение Wrap/WWrap/UnWrap на 2 составляющих -
+      F2 Состояние (Wrap/UnWrap) и Shift-F2 тип (Wrap/WWrap)
   10.09.2000 SVS
     ! Постоянный скроллинг при нажатой клавише
       Обыкновенный захват мыши
@@ -122,7 +125,8 @@ Viewer::Viewer()
   /* $ 31.08.2000 SVS
     Вспомним тип врапа
   */
-  Wrap=Opt.ViewerTypeWrap;
+  Wrap=Opt.ViewerIsWrap;
+  TypeWrap=Opt.ViewerWrap;
   /* SVS $ */
   Hex=InitHex;
 
@@ -217,7 +221,8 @@ void Viewer::KeepInitParameters()
   InitUseDecodeTable=UseDecodeTable;
   InitTableNum=TableNum;
   InitAnsiText=AnsiText;
-  Opt.ViewerTypeWrap=Wrap;
+  Opt.ViewerIsWrap=Wrap;
+  Opt.ViewerWrap=TypeWrap;
   InitHex=Hex;
 }
 
@@ -489,7 +494,7 @@ void Viewer::DisplayObject()
         /* $ 12.07.2000 SVS
            ! Wrap - трех позиционный
         */
-        if (Wrap == VIEW_UNWRAP &&
+        if (!Wrap &&
         /* SVS $ */
            SelX1+SaveSelectSize-1>XX2 && LeftPos<MAX_VIEWLINE)
         {
@@ -810,7 +815,7 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
       /* $ 12.07.2000 SVS
         ! Wrap - трехпозиционный
       */
-      if (Wrap != VIEW_UNWRAP && OutPtr>XX2-X1)
+      if (Wrap && OutPtr>XX2-X1)
       {
         /* $ 11.07.2000 tran
            + warp are now WORD-WRAP */
@@ -818,7 +823,7 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
         if ((Ch=vgetc(ViewFile))!=CRSym && (Ch!=13 || vgetc(ViewFile)!=CRSym))
         {
           vseek(ViewFile,SavePos,SEEK_SET);
-          if (Wrap == VIEW_WORDWRAP && RegVer) // только для зарегестрированных
+          if (TypeWrap && RegVer) // только для зарегестрированных
           {
             if ( ! (Ch==' ' || Ch=='\t'  ) && !(Str[OutPtr]==' ' || Str[OutPtr]=='\t'))
             {
@@ -877,7 +882,7 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
         /* $ 12.07.2000 SVS
           Wrap - 3-x позиционный и если есть регистрация :-)
         */
-        if ((Wrap == VIEW_WRAP || (Wrap == VIEW_WORDWRAP && RegVer))
+        if ((Wrap || (TypeWrap && RegVer))
         /* SVS $ */
             && OutPtr>XX2-X1)
           Str[XX2-X1+1]=0;
@@ -1074,22 +1079,29 @@ int Viewer::ProcessKey(int Key)
         Help Hlp("Viewer");
       }
       return(TRUE);
+
+    case KEY_SHIFTF2:
+      if(RegVer)
+      {
+        TypeWrap=!TypeWrap;
+        ChangeViewKeyBar();
+        Show();
+        Opt.ViewerWrap=TypeWrap;
+        LastSelPos=FilePos;
+      }
+      return TRUE;
+
     case KEY_F2:
       /* $ 12.07.200 SVS
         ! Wrap имеет 3 положения и...
       */
-      Wrap=(++Wrap)%3;
-      /* ... третье положение - перенос по словам -
-         доступно только для зарегистрированных!!! */
-      if(Wrap == VIEW_WORDWRAP && !RegVer)
-        Wrap=VIEW_UNWRAP;
-      /* SVS $ */
+      Wrap=!Wrap;
       ChangeViewKeyBar();
       Show();
       /* $ 31.08.2000 SVS
         Сохраняем тип врапа
       */
-      Opt.ViewerTypeWrap=Wrap;
+      Opt.ViewerIsWrap=Wrap;
       /* SVS $ */
       LastSelPos=FilePos;
       return(TRUE);
@@ -1370,7 +1382,7 @@ void Viewer::Up()
   for (I=BufSize-1;I>=-1;I--)
   {
     if (Buf[I]==CRSym || I==-1)
-      if (Wrap == VIEW_UNWRAP)
+      if (!Wrap)
       {
         FilePos-=BufSize-(I+1)+Skipped;
         return;
@@ -1455,12 +1467,11 @@ void Viewer::ChangeViewKeyBar()
     /* $ 15.07.2000 SVS
        Wrap должен показываться следующий, а не текущий
     */
-    if (Wrap == VIEW_UNWRAP)
-      ViewKeyBar->Change(MSG(MViewF2),1);
-    else if (Wrap == VIEW_WRAP)
-      ViewKeyBar->Change(MSG(MViewF2WWrap),1);
-    else
-      ViewKeyBar->Change(MSG(MViewF2Unwrap),1);
+    ViewKeyBar->Change(
+       MSG(
+       (!Wrap)?((!TypeWrap)?MViewF2:MViewShiftF2)
+       :MViewF2Unwrap),1);
+    ViewKeyBar->Change(KBL_SHIFT,MSG((!TypeWrap)?MViewF2:MViewShiftF2),1);
     /* SVS $ */
     /* SVS $ */
 
@@ -1768,7 +1779,7 @@ void Viewer::Search(int Next,int FirstChar)
       if (SelectPos!=StartLinePos)
         Up();
       int Length=SelectPos-StartLinePos-1;
-      if (Wrap != VIEW_UNWRAP)
+      if (Wrap)
         Length%=ScrX+1;
       if (Length<=Width)
           LeftPos=0;

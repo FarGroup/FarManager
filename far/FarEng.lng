@@ -507,7 +507,6 @@
 // viewer functional keys, 12 keys, except F2 - 2 keys, and F8 - 2 keys
 "Help"
 "Wrap"
-"WWrap"
 // this is another text for F2
 "Unwrap"
 "Quit"
@@ -525,7 +524,7 @@
 
 // Viewer functional keys, Shift state, 12 keys
 ""
-""
+"WWrap"
 ""
 ""
 ""

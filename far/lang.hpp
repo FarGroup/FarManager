@@ -12,10 +12,12 @@ lang.hpp
            подряд.
 */
 
-/* Revision: 1.14 04.08.2000 $ */
+/* Revision: 1.15 12.09.2000 $ */
 
 /*
 Modify:
+  12.09.2000 SVS
+    ! MViewF2WWrap удалено и перемещено на MViewShiftF2
   04.08.2000 SVS
     + MCopyOnlyNewerFiles
     - MEditConfigWordDiv
@@ -560,7 +562,6 @@ enum
 
   MViewF1,
   MViewF2,
-  MViewF2WWrap,
   MViewF2Unwrap,
   MViewF3,
   MViewF4,
