@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.253 09.06.2002 $ */
+/* Revision: 1.254 10.06.2002 $ */
 
 /*
 Modify:
+  10.06.2002 SVS
+    + DIF_EDITPATH - соответственно длина поля ввода выставляется в NM-1
+      вместо 511
   09.06.2002 KM
     - Баг при конвертации DialogData в FarDialogItem, что
       явно проявилось в S&R в виде невозможности запустить поиск.
@@ -1513,7 +1516,7 @@ int Dialog::InitDialogObjects(int ID)
            (ItemFlags&DIF_VAREDIT))
           DialogEdit->SetMaxLength(CurItem->Ptr.PtrLength);
         else
-          DialogEdit->SetMaxLength(511);
+          DialogEdit->SetMaxLength((ItemFlags&DIF_EDITPATH)?NM-1:511);
       }
       /* tran $ */
       DialogEdit->SetPosition(X1+CurItem->X1,Y1+CurItem->Y1,

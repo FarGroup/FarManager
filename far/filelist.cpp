@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.160 31.05.2002 $ */
+/* Revision: 1.161 10.06.2002 $ */
 
 /*
 Modify:
+  10.06.2002 SVS
+    + FIB_EDITPATH
   31.05.2002 SVS
     - BugZ#541 - Не работает F7 при погашенных панелях
   29.05.2002 SVS
@@ -1460,7 +1462,7 @@ int FileList::ProcessKey(int Key)
                          LastFileName,
                          sizeof(LastFileName),
                          NULL,
-                         FIB_BUTTONS|FIB_EXPANDENV))
+                         FIB_BUTTONS|FIB_EXPANDENV|FIB_EDITPATH))
             return(FALSE);
           /* SVS $ */
           /* KM $ */

@@ -5,10 +5,12 @@ stddlg.cpp
 
 */
 
-/* Revision: 1.23 10.05.2002 $ */
+/* Revision: 1.24 10.06.2002 $ */
 
 /*
 Modify:
+  10.06.2002 SVS
+    + DIF_EDITPATH (FIB_EDITPATH)
   10.05.2002 SVS
     ! Загоним в блок вызов Dialog (щоб глюков избежать)
   29.04.2002 SVS
@@ -473,6 +475,10 @@ int WINAPI GetString(const char *Title,const char *Prompt,
   if(Flags&FIB_EXPANDENV)
   {
     StrDlg[2].Flags|=DIF_EDITEXPAND;
+  }
+  if(Flags&FIB_EDITPATH)
+  {
+    StrDlg[2].Flags|=DIF_EDITPATH;
   }
 
   if (HistoryName!=NULL)

@@ -5,10 +5,13 @@ copy.cpp
 
 */
 
-/* Revision: 1.89 30.05.2002 $ */
+/* Revision: 1.90 10.06.2002 $ */
 
 /*
 Modify:
+  10.06.2002 SVS
+    + DIF_EDITPATH (FIB_EDITPATH)
+    - BugZ#556 - Баг переноса файлов на NWFS
   30.05.2002 SVS
     - Ошибка при формировании имени для создания линка
   28.05.2002 SVS
@@ -463,7 +466,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   static struct DialogData CopyDlgData[]={
   /* 00 */  DI_DOUBLEBOX,3,1,72,10,0,0,0,0,(char *)MCopyDlgTitle,
   /* 01 */  DI_TEXT,5,2,0,2,0,0,0,0,(char *)MCMLTargetTO,
-  /* 02 */  DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY|DIF_EDITEXPAND|DIF_USELASTHISTORY,0,"",
+  /* 02 */  DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY|DIF_EDITEXPAND|DIF_USELASTHISTORY|DIF_EDITPATH,0,"",
   /* 03 */  DI_TEXT,3,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
   /* 04 */  DI_CHECKBOX,5,5,0,5,0,0,0,0,(char *)MCopySecurity,
   /* 05 */  DI_CHECKBOX,5,6,0,6,0,0,0,0,(char *)MCopyOnlyNewerFiles,
@@ -1904,7 +1907,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
     {
       int MoveCode=FALSE,AskDelete;
 
-      if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT && !Append &&
+      if ((WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT || !strcmp(DestFSName,"NWFS")) && !Append &&
           DestAttr!=(DWORD)-1 && !SameName &&
           !RenameToShortName) // !!!
       {

@@ -5,10 +5,12 @@ mkdir.cpp
 
 */
 
-/* Revision: 1.13 18.03.2002 $ */
+/* Revision: 1.14 10.06.2002 $ */
 
 /*
 Modify:
+  10.06.2002 SVS
+    + FIB_EDITPATH
   18.03.2002 SVS
     + Заюзаем горячие клавиши в промте (FIB_NOAMPERSAND)
   07.12.2001 IS
@@ -79,7 +81,7 @@ void ShellMakeDir(Panel *SrcPanel)
   {
     if (!GetString(MSG(MMakeFolderTitle),MSG(MCreateFolder),"NewFolder",
          DirName,DirName,sizeof(DirName),"MakeFolder",
-         FIB_NOAMPERSAND|FIB_BUTTONS|FIB_EXPANDENV|FIB_CHECKBOX,&MultiMakeDir,
+         FIB_NOAMPERSAND|FIB_BUTTONS|FIB_EXPANDENV|FIB_CHECKBOX|FIB_EDITPATH,&MultiMakeDir,
          MSG(MMultiMakeDir)))
       return;
 

@@ -5,10 +5,12 @@ iswind.cpp
 
 */
 
-/* Revision: 1.07 25.03.2002 $ */
+/* Revision: 1.08 10.06.2002 $ */
 
 /*
 Modify:
+  10.06.2002 SVS
+    - Заголовок окна пустой - hFarWnd равен NULL
   25.03.2002 SVS
     ! Вместо чисел - константы FAR_CONSOLE_*
   17.01.2002 SVS
@@ -78,7 +80,10 @@ void FindFarWndByTitle()
   char OldTitle[256];
   char NewTitle[256];
 
-  if (GetConsoleTitle(OldTitle, sizeof(OldTitle)))
+  OldTitle[0]=0;
+
+  GetConsoleTitle(OldTitle, sizeof(OldTitle));
+
   {
     sprintf(NewTitle,"%d - %s",clock(),OldTitle);
     SetConsoleTitle(NewTitle);

@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.178 24.05.2002 $ */
+/* Revision: 1.179 10.06.2002 $ */
 
 /*
 Modify:
+  10.06.2002 SVS
+    - некорректно поведение редактора для $Date & Ctrl-F
   24.05.2002 SVS
     + Дублирование Numpad-клавиш
     ! "FAR_VerticalBlock" -> FAR_VerticalBlock
@@ -3233,7 +3235,8 @@ int Editor::ProcessKey(int Key)
           Pasting++;
           //_SVS(SysLogDump(Fmt,0,TStr,strlen(TStr),NULL));
           TextChanged(1);
-          if (!EdOpt.PersistentBlocks && BlockStart!=NULL)
+          BOOL IsBlock=VBlockStart || BlockStart;
+          if (!EdOpt.PersistentBlocks && IsBlock)
           {
             Flags.Skip(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
             DeleteBlock();
@@ -3241,8 +3244,8 @@ int Editor::ProcessKey(int Key)
           //AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
           //              CurLine->EditLine.GetCurPos(),UNDO_EDIT);
           Paste(TStr);
-          if (!EdOpt.PersistentBlocks)
-            UnmarkBlock();
+          //if (!EdOpt.PersistentBlocks && IsBlock)
+          UnmarkBlock();
           Pasting--;
           Show();
         }
@@ -3259,7 +3262,8 @@ int Editor::ProcessKey(int Key)
       {
         Pasting++;
         TextChanged(1);
-        if (!EdOpt.PersistentBlocks && BlockStart!=NULL)
+        BOOL IsBlock=VBlockStart || BlockStart;
+        if (!EdOpt.PersistentBlocks && IsBlock)
         {
           Flags.Skip(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
           DeleteBlock();
@@ -3269,8 +3273,8 @@ int Editor::ProcessKey(int Key)
         char FileName0[NM];
         strncpy(FileName0,FileName,sizeof(FileName0)-1);
         Paste(FileName0);
-        if (!EdOpt.PersistentBlocks)
-          UnmarkBlock();
+        //if (!EdOpt.PersistentBlocks)
+        UnmarkBlock();
         Pasting--;
         Show();
       }

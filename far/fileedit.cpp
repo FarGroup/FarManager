@@ -5,10 +5,13 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.110 04.06.2002 $ */
+/* Revision: 1.111 10.06.2002 $ */
 
 /*
 Modify:
+  10.06.2002 SVS
+    - BugZ#554 - bug, overwrite local memory
+    ! Загоним в блок вызов Dialog (щоб глюков избежать)
   04.06.2002 SVS
     - BugZ#545 - Ctrl-F10 для удалённого файла
     - BugZ#546 - Editor валит фар
@@ -728,7 +731,7 @@ int FileEditor::ProcessKey(int Key)
           {
             /* 0 */ DI_DOUBLEBOX,3,1,72,12,0,0,0,0,(char *)MEditTitle,
             /* 1 */ DI_TEXT,5,2,0,0,0,0,0,0,(char *)MEditSaveAs,
-            /* 2 */ DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY,0,"",
+            /* 2 */ DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY|DIF_EDITPATH,0,"",
             /* 3 */ DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
             /* 4 */ DI_TEXT,5,5,0,0,0,0,0,0,(char *)MEditSaveAsFormatTitle,
             /* 5 */ DI_RADIOBUTTON,5,6,0,0,0,0,DIF_GROUP,0,(char *)MEditSaveOriginal,
@@ -743,12 +746,15 @@ int FileEditor::ProcessKey(int Key)
           strncpy(EditDlg[2].Data,(SaveToSaveAs?FullFileName:FileName),sizeof(EditDlg[2].Data)-1);
           EditDlg[5].Selected=EditDlg[6].Selected=EditDlg[7].Selected=EditDlg[8].Selected=0;
           EditDlg[5+TextFormat].Selected=TRUE;
-          Dialog Dlg(EditDlg,sizeof(EditDlg)/sizeof(EditDlg[0]));
-          Dlg.SetPosition(-1,-1,76,14);
-          Dlg.SetHelp("FileSaveAs");
-          Dlg.Process();
-          if (Dlg.GetExitCode()!=10 || *EditDlg[2].Data==0)
-            return(FALSE);
+
+          {
+            Dialog Dlg(EditDlg,sizeof(EditDlg)/sizeof(EditDlg[0]));
+            Dlg.SetPosition(-1,-1,76,14);
+            Dlg.SetHelp("FileSaveAs");
+            Dlg.Process();
+            if (Dlg.GetExitCode()!=10 || *EditDlg[2].Data==0)
+              return(FALSE);
+          }
           /* $ 07.06.2001 IS
              - Баг: нужно сначала убирать пробелы, а только потом кавычки
           */
@@ -777,6 +783,8 @@ int FileEditor::ProcessKey(int Key)
 
           if(!SetFileName(EditDlg[2].Data))
           {
+            SetLastError(ERROR_INVALID_NAME);
+            Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MEditTitle),EditDlg[2].Data,MSG(MOk));
             if(!NameChanged)
               FarChDir(OldCurDir);
             return FALSE;

@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.211 04.06.2002 $ */
+/* Revision: 1.212 10.06.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 ¬ этом файле писать все изменени€ только в в этом блоке!!!!
 
 Modify:
+  10.06.2002 SVS
+    + DIF_EDITPATH (FIB_EDITPATH) - дл€ внутренних целей
   04.06.2002 SVS
     + DIF_CENTERTEXT
     + DIF_NOTCVTUSERCONTROL
@@ -833,7 +835,7 @@ enum FarDialogItemFlags {
   DIF_CENTERTEXT        = 0x00040000UL,
 #ifdef FAR_USE_INTERNALS
 #if defined(USE_WFUNC)
-  DIF_NOTCVTUSERCONTROL= 0x00040000UL,
+  DIF_NOTCVTUSERCONTROL = 0x00040000UL,
 #endif
 #endif // END FAR_USE_INTERNALS
   DIF_EDITEXPAND        = 0x00080000UL,
@@ -842,6 +844,9 @@ enum FarDialogItemFlags {
   DIF_MASKEDIT          = 0x00400000UL,
   DIF_SELECTONENTRY     = 0x00800000UL,
   DIF_3STATE            = 0x00800000UL,
+#ifdef FAR_USE_INTERNALS
+  DIF_EDITPATH          = 0x01000000UL,
+#endif // END FAR_USE_INTERNALS
   DIF_LISTWRAPMODE      = 0x01000000UL,
   DIF_LISTAUTOHIGHLIGHT = 0x02000000UL,
 #ifdef FAR_USE_INTERNALS
@@ -1981,6 +1986,7 @@ enum INPUTBOXFLAGS{
   FIB_NOAMPERSAND      = 0x00000020,
 #ifdef FAR_USE_INTERNALS
   FIB_CHECKBOX         = 0x00010000,
+  FIB_EDITPATH         = 0x01000000,
 #endif // END FAR_USE_INTERNALS
 };
 
