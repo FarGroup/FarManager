@@ -5,7 +5,7 @@
 
   Copyrigth (c) 2004-2005 FAR group
 */
-/* Revision: 1.02 01.04.2005 $ */
+/* Revision: 1.03 09.04.2005 $ */
 
 #include <windows.h>
 #include <string.h>
@@ -27,6 +27,7 @@
   #endif
 #endif
 
+/*
 #ifdef _MSC_VER
 #if _MSC_VER < 1310
 #pragma comment(linker, "/ignore:4078")
@@ -36,7 +37,7 @@
 #pragma comment(linker, "/section:.,RWE")
 #endif
 #endif
-
+*/
 char *strncpy(char *dest, const char *source, size_t n);
 
 #define ARCMARK        0x1A    // special archive marker
@@ -190,12 +191,13 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
 {
   int I=0;
 
+/*
   if(Data[0] == 'M' && Data[1] == 'Z') // SFX
   {
     PIMAGE_DOS_HEADER pMZHeader=(PIMAGE_DOS_HEADER)Data;
     I=(pMZHeader->e_cp-1)*512+pMZHeader->e_cblp;
   }
-
+*/
   if(DataSize > sizeof(struct RecHeader)+sizeof(struct ARCHeader))
   {
     const struct ARCHeader *D=(const struct ARCHeader*)(Data+I);

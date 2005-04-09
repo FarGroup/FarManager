@@ -6,7 +6,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2005 FAR group
 */
-/* Revision: 1.17 01.04.2005 $ */
+/* Revision: 1.18 09.04.2005 $ */
 
 #include <windows.h>
 #include <limits.h>
@@ -29,6 +29,7 @@
   #endif
 #endif
 
+/*
 #ifdef _MSC_VER
 #if _MSC_VER < 1310
 #pragma comment(linker, "/ignore:4078")
@@ -38,6 +39,7 @@
 #pragma comment(linker, "/section:.,RWE")
 #endif
 #endif
+*/
 
 static HANDLE ArcHandle;
 static DWORD NextPosition,SFXSize,FileSize;

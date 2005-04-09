@@ -6,7 +6,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2005 FAR group
 */
-/* Revision: 1.29 01.04.2005 $ */
+/* Revision: 1.30 09.04.2005 $ */
 
 //#define USE_TAR_H
 
@@ -31,6 +31,7 @@
   #endif
 #endif
 
+/*
 #ifdef _MSC_VER
 #if _MSC_VER < 1310
 #pragma comment(linker, "/ignore:4078")
@@ -39,9 +40,12 @@
 
 #endif
 #endif
+*/
+
 unsigned __int64 __cdecl _strtoui64 (const char *nptr,char **endptr,int ibase);
 static unsigned __int64 __cdecl _strtoxq (const char *nptr,const char **endptr,int ibase,int flags);
 __int64 __cdecl _strtoi64(const char *nptr,char **endptr,int ibase);
+char *my_strrchr(const char *s, int c);
 
 
 
@@ -184,10 +188,10 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
   else
     return(FALSE);
 
-  const char *NamePtr=(const char *)strrchr((char*)Name,'\\');
+  const char *NamePtr=(const char *)my_strrchr((char*)Name,'\\');
   NamePtr=(NamePtr==NULL) ? Name:NamePtr+1;
   strcpy(ZipName,NamePtr);
-  const char *Dot=(const char *)strrchr((char*)NamePtr,'.');
+  const char *Dot=(const char *)my_strrchr((char*)NamePtr,'.');
 
   if (Dot!=NULL)
   {
@@ -350,7 +354,7 @@ int GetArcItemTAR(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
         np[sizeof(TAR_hdr.header.name)] = '\0';
         EndPos = AdjustTARFileName (namebuf);
       }
-      strncpy(Item->FindData.cFileName,EndPos,sizeof(Item->FindData.cFileName)-1);
+      lstrcpyn(Item->FindData.cFileName,EndPos,sizeof(Item->FindData.cFileName)-1);
       Item->FindData.cFileName[sizeof(Item->FindData.cFileName)-1]=0;
       Item->FindData.dwFileAttributes=((DWORD)GetOctal(TAR_hdr.header.mode) & 0x4000) || ((TAR_hdr.header.typeflag-'0') & 4) ? FILE_ATTRIBUTE_DIRECTORY:0;
       Item->FindData.nFileSizeHigh=0;
@@ -693,7 +697,7 @@ static unsigned __int64 __cdecl _strtoxq (const char *nptr,const char **endptr,i
     number = 0;            /* start with zero */
 
     c = *p++;            /* read char */
-    while ( isspace((int)(unsigned char)c) )
+    while (c == 0x09 || c == 0x0D || c == 0x20)
         c = *p++;        /* skip whitespace */
 
     if (c == '-') {
@@ -742,10 +746,12 @@ static unsigned __int64 __cdecl _strtoxq (const char *nptr,const char **endptr,i
 
     for (;;) {    /* exit in middle of loop */
         /* convert c to value */
-        if ( isdigit((int)(unsigned char)c) )
+        if ( (BYTE)c >= '0' && (BYTE)c <= '9' )
             digval = c - '0';
-        else if ( isalpha((int)(unsigned char)c) )
-            digval = toupper(c) - 'A' + 10;
+        else if ( (BYTE)c >= 'A' && (BYTE)c <= 'Z')
+            digval = c - 'A' + 10;
+        else if ((BYTE)c >= 'a' && (BYTE)c <= 'z')
+            digval = c - 'a' + 10;
         else
             break;
         if (digval >= (unsigned)ibase)
@@ -815,3 +821,16 @@ unsigned __int64 __cdecl _strtoui64 (const char *nptr,char **endptr,int ibase)
     return _strtoxq(nptr, (const char **)endptr, ibase, FL_UNSIGNED);
 }
 //#endif
+
+char *my_strrchr(const char *s, int c)
+{
+  register const char *ss;
+  register size_t i;
+
+  for (i = strlen(s) + 1, ss = s + i; i; --i)
+    {
+      if (*(--ss) == (char) c)
+        return ((char *) ss);
+    }
+  return NULL;
+}
