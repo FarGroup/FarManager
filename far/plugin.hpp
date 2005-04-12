@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.251 06.04.2005 $ */
+/* Revision: 1.252 12.04.2005 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  12.04.2005 AY
+    + ACTL_GETSHORTWINDOWINFO
   06.04.2005 SVS
     + ECF_TAB1
   01.03.2005 SVS
@@ -1707,6 +1709,7 @@ enum ADVANCED_CONTROL_COMMANDS{
   ACTL_GETWCHARMODE,
   ACTL_GETPLUGINMAXREADDATA,
   ACTL_GETDIALOGSETTINGS,
+  ACTL_GETSHORTWINDOWINFO,
 #ifdef FAR_USE_INTERNALS
   ACTL_GETPOLICIES,
 #endif // END FAR_USE_INTERNALS

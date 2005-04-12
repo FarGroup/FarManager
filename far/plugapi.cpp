@@ -5,10 +5,13 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.180 01.03.2005 $ */
+/* Revision: 1.181 12.04.2005 $ */
 
 /*
 Modify:
+  12.04.2005 AY
+    + ACTL_GETSHORTWINDOWINFO - тоже самое что ACTL_GETWINDOWINFO только не вызывает
+      GetTypeAndName() и поэтому его можно вызывать из любых тредов.
   01.03.2005 SVS
     ! Opt.AutoChangeFolder -> Opt.Tree.AutoChangeFolder
   25.10.2004 SVS
@@ -888,6 +891,9 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     /* $ 05.06.2001 tran
        новые ACTL_ для работы с фреймами */
     case ACTL_GETWINDOWINFO:
+    /* $ 12.04.2005 AY
+         thread safe window info */
+    case ACTL_GETSHORTWINDOWINFO:
     {
       if(FrameManager && Param && !IsBadWritePtr(Param,sizeof(WindowInfo)))
       {
@@ -902,7 +908,13 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
         /* VVM $ */
         if ( f==NULL )
           return FALSE;
-        f->GetTypeAndName(wi->TypeName,wi->Name);
+        if (Command==ACTL_GETWINDOWINFO)
+          f->GetTypeAndName(wi->TypeName,wi->Name);
+        else
+        {
+          wi->TypeName[0]=0;
+          wi->Name[0]=0;
+        }
         wi->Pos=FrameManager->IndexOf(f);
         wi->Type=f->GetType();
         wi->Modified=f->IsFileModified();
