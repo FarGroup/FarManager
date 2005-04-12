@@ -7,10 +7,13 @@ struct.hpp
 
 */
 
-/* Revision: 1.124 06.04.2005 $ */
+/* Revision: 1.125 12.04.2005 $ */
 
 /*
 Modify:
+  12.04.2005 KM
+    ! Дополнена структура FindFileOptions двумя параметрами:
+      Opt.FindOpt.SearchInFirst и Opt.FindOpt.SearchInFirstSize
   06.04.2005 SVS
     ! Opt.EdOpt.ExpandTabColor свое отслужил, выкидываем :-)
   05.04.2005 SVS
@@ -599,6 +602,8 @@ struct FindFileOptions{
   int FindFolders;
   int CollectFiles;
   int FileSearchMode;
+  int SearchInFirst;
+  char SearchInFirstSize[NM];
 };
 
 struct TreeOptions{

@@ -15,10 +15,14 @@ lang.hpp
 
 */
 
-/* Revision: 1.152 05.01.2005 $ */
+/* Revision: 1.153 12.04.2005 $ */
 
 /*
 Modify:
+  12.04.2005 KM
+    - MSearchFromRoot
+    + MFindFileSearchFirst, MSearchWhere, MSearchFromRootFolder
+    + MFindFileSearchInBytes, MFindFileSearchInKBytes, MFindFileSearchInMBytes, MFindFileSearchInGBytes
   05.01.2005 SVS
     + MMacroCommonReDefinedKey, MMacroCommonDeleteAssign, MMacroCommonDeleteKey, MMacroSequence,
   23.12.2004 WARP
@@ -1327,6 +1331,11 @@ enum
   MFindFileMasks,
   MFindFileText,
   MFindFileHex,
+  MFindFileSearchFirst,
+  MFindFileSearchInBytes,
+  MFindFileSearchInKBytes,
+  MFindFileSearchInMBytes,
+  MFindFileSearchInGBytes,
   MFindFileCodePage,
   MFindFileCase,
   MFindFileWholeWords,
@@ -1335,10 +1344,11 @@ enum
   MFindFolders,
   MFindSymLinks,
   MSearchForHex,
+  MSearchWhere,
   MSearchAllDisks,
   MSearchAllButNetwork,
-  MSearchFromRoot,
   MSearchFromRootOfDrive,
+  MSearchFromRootFolder,
   MSearchFromCurrent,
   MSearchInCurrent,
   MSearchInSelected,

@@ -5,10 +5,15 @@ config.cpp
 
 */
 
-/* Revision: 1.179 06.04.2005 $ */
+/* Revision: 1.180 12.04.2005 $ */
 
 /*
 Modify:
+  12.04.2005 KM
+    ! Opt.FindOpt.FindFolders перенесЄм из Interface в System, давно как-то ошибс€
+      теперь исправим расположение настройки
+    + Ќовые параметры, запоминающие тип единиц измерени€ и размер ограничени€
+      поиска в файле (FindFiles): Opt.FindOpt.SearchInFirst и Opt.FindOpt.SearchInFirstSize
   06.04.2005 SVS
     ! Opt.EdOpt.ExpandTabColor свое отслужил, выкидываем :-)
   05.04.2005 SVS
@@ -1568,11 +1573,6 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeyInterface, "ShiftsKeyRules",&Opt.ShiftsKeyRules,1, 0},
   {0, REG_DWORD,  NKeyInterface, "AltF9",&Opt.AltF9, -1, 0},
   {1, REG_DWORD,  NKeyInterface, "CtrlPgUp",&Opt.PgUpChangeDisk, 1, 0},
-  /* $ 24.10.2001 KM
-     «апомнить флаг разрешени€ поиска каталогов в Alt-F7
-  */
-  {1, REG_DWORD,  NKeyInterface, "FindFolders",&Opt.FindOpt.FindFolders, 1, 0},
-  /* KM $ */
   {0, REG_DWORD,  NKeyInterface, "ShowTimeoutDelFiles",&Opt.ShowTimeoutDelFiles, 50, 0},
 
   {1, REG_SZ,     NKeyViewer,"ExternalViewerName",Opt.ExternalViewer,sizeof(Opt.ExternalViewer),""},
@@ -1651,6 +1651,15 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeySystem,"AutoUpdateRemoteDrive",&Opt.AutoUpdateRemoteDrive,1, 0},
   {1, REG_DWORD,  NKeySystem,"FileSearchMode",&Opt.FindOpt.FileSearchMode,SEARCH_FROM_CURRENT, 0},
   {0, REG_DWORD,  NKeySystem,"CollectFiles",&Opt.FindOpt.CollectFiles, 1, 0},
+  /* $ 11.10.2005 KM */
+  {1, REG_DWORD,  NKeySystem,"SearchInFirst",&Opt.FindOpt.SearchInFirst,0,0},
+  {1, REG_SZ,     NKeySystem,"SearchInFirstSize",Opt.FindOpt.SearchInFirstSize,sizeof(Opt.FindOpt.SearchInFirstSize),""},
+  /* KM $ */
+  /* $ 24.10.2001 KM
+     «апомнить флаг разрешени€ поиска каталогов в Alt-F7
+  */
+  {1, REG_DWORD,  NKeySystem,"FindFolders",&Opt.FindOpt.FindFolders, 1, 0},
+  /* KM $ */
   /* $ 17.09.2003 KM */
   {1, REG_BINARY, NKeySystem,"FindCharTable",&Opt.CharTable, sizeof(Opt.CharTable), 0},
   /* KM $ */

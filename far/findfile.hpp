@@ -7,10 +7,13 @@ findfile.hpp
 
 */
 
-/* Revision: 1.14 19.01.2003 $ */
+/* Revision: 1.15 14.04.2005 $ */
 
 /*
 Modify:
+  12.04.2005 KM
+    + Новая функция для получения размера ограничения поиска в файлах
+      согласно выбранным единицам измерения
   19.01.2003 KM
     + RemovePseudoBackSlash
     ! Новый параметр UpdatePanels в функции SetPluginDirectory
@@ -110,7 +113,10 @@ class FindFiles
                              char *DestPath, char *ResultName);
     static char *PrepareDriveNameStr(char *SearchFromRoot,size_t sz);
     static char *RemovePseudoBackSlash(char *FileName);
+    static __int64 __fastcall GetSearchInFirst(char *DigitStr);
+
   public:
+
     FindFiles();
     ~FindFiles();
 
