@@ -1263,10 +1263,10 @@ may also be used with file systems emulated by ~plugins~@Plugins@.
 text. If the string is entered, the option #Case sensitive# selects case
 sensitive comparison.
 
-    The entered string of text can be searched not only in all file,
-and also in specified beginning range defined by #Make search in first#
-property. If the specified value is less than the file size, the rest of file
-will be ignored even if the required sequence will exist there.
+    The specified text string can be searched not only in the whole file,
+but also inside a specified beginning range defined by the #Make search in first#
+property. If the specified value is less than the file size, the rest of the
+file will be ignored even if the required sequence exists there.
 
     The option #Whole words# will let to find only the text that is separated
 from other text with spaces, tab characters, line breaks or standard

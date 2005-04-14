@@ -5,10 +5,12 @@ XLat - перекодировка
 
 */
 
-/* Revision: 1.05 01.03.2004 $ */
+/* Revision: 1.06 14.04.2005 $ */
 
 /*
 Modify:
+  14.04.2005 AY
+    ! Не доходили до последнего символа в Opt.XLat.Table
   01.03.2004 SVS
     ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
       (задел на будущее + править впоследствии только 1 файл)
@@ -95,7 +97,8 @@ char* WINAPI Xlat(
     // ChrOld - пред символ
     IsChange=0;
     // цикл по просмотру Chr в таблицах
-    for(I=1; I < MinLenTable; ++I)
+    // <=MinLenTable так как длина настоящая а начальный индекс 1
+    for(I=1; I <= MinLenTable; ++I)
     {
       // символ из латиницы?
       if(Chr == (BYTE)Opt.XLat.Table[1][I])
