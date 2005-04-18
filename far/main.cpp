@@ -5,10 +5,12 @@ main.cpp
 
 */
 
-/* Revision: 1.78 12.04.2005 $ */
+/* Revision: 1.80 18.04.2005 $ */
 
 /*
 Modify:
+  18.04.2005 SVS
+    - хренова OEM
   12.04.2005 SVS
     ! —нова "FARHOME", но теперь не в морг.
   06.08.2004 SKV
@@ -762,7 +764,11 @@ int _cdecl main(int Argc, char *Argv[])
      if(s && s<sizeof(tmpFarPath))
         strcpy(FarPath, tmpFarPath);
   }
-  SetEnvironmentVariable("FARHOME",FarPath);
+  {
+    FAR_OemToChar(FarPath, FarPath);
+    SetEnvironmentVariable("FARHOME",FarPath);
+    FAR_CharToOem(FarPath, FarPath);
+  }
   AddEndSlash(FarPath);
   /* IS $ */
   /* $ 03.08.2000 SVS
