@@ -5,10 +5,12 @@ print.cpp
 
 */
 
-/* Revision: 1.17 06.08.2004 $ */
+/* Revision: 1.18 12.04.2005 $ */
 
 /*
 Modify:
+  12.04.2005 SVS
+    ! »з печати исключаем DIRs.
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   01.03.2004 SVS
@@ -79,19 +81,43 @@ static void PR_PrintMsg(void)
 
 void PrintFiles(Panel *SrcPanel)
 {
+  _ALGO(CleverSysLog clv("Alt-F5 (PrintFiles)"));
   char PrinterName[200];
   DWORD Needed,Returned;
   int PrinterNumber;
+  int FileAttr;
+  char SelName[NM];
+
+  long DirsCount=0;
+  int SelCount=SrcPanel->GetSelCount();
+
+  if (SelCount==0)
+  {
+    _ALGO(SysLog("Error: SelCount==0"));
+    return;
+  }
+
+  // проверка каталогов
+  _ALGO(SysLog("Check for FA_DIREC"));
+  SrcPanel->GetSelName(NULL,FileAttr);
+  while (SrcPanel->GetSelName(SelName,FileAttr))
+  {
+    if (TestParentFolderName(SelName) || (FileAttr & FA_DIREC))
+      DirsCount++;
+  }
+
+  if (DirsCount==SelCount)
+  {
+    _ALGO(SysLog("Error: DirsCount==SelCount"));
+    return;
+  }
 
   DefaultPrinterFound=FALSE;
-
-  int SelCount=SrcPanel->GetSelCount();
-  if (SelCount==0)
-    return;
 
   const int pi_count=1024;
   PRINTER_INFO_2 *pi=new PRINTER_INFO_2[pi_count];
 
+  _ALGO(SysLog("EnumPrinters"));
   if (pi==NULL || !EnumPrinters(PRINTER_ENUM_LOCAL,NULL,2,(LPBYTE)pi,pi_count*sizeof(PRINTER_INFO_2),&Needed,&Returned))
   {
     /* $ 13.07.2000 SVS
@@ -99,15 +125,17 @@ void PrintFiles(Panel *SrcPanel)
     */
     delete[] pi;
     /* SVS $ */
+    _ALGO(SysLog("Error: Printer not found"));
     return;
   }
+
   {
+    _ALGO(CleverSysLog clv2("Show Menu"));
     char Title[200];
+    char Name[NM];
 
     if (SelCount==1)
     {
-      char Name[NM],SelName[NM];
-      int FileAttr;
       SrcPanel->GetSelName(NULL,FileAttr);
       SrcPanel->GetSelName(Name,FileAttr);
       TruncStr(Name,50);
@@ -115,7 +143,11 @@ void PrintFiles(Panel *SrcPanel)
       sprintf(Title,MSG(MPrintTo),SelName);
     }
     else
+    {
+      _ALGO(SysLog("Correct: SelCount-=DirsCount"));
+      SelCount-=DirsCount;
       sprintf(Title,MSG(MPrintFilesTo),SelCount);
+    }
 
     VMenu PrinterList(Title,NULL,0,ScrY-4);
     PrinterList.SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
@@ -137,11 +169,8 @@ void PrintFiles(Panel *SrcPanel)
     PrinterNumber=PrinterList.Modal::GetExitCode();
     if (PrinterNumber<0)
     {
-      /* $ 13.07.2000 SVS
-         использовалась new[]
-      */
       delete[] pi;
-      /* SVS $ */
+      _ALGO(SysLog("ESC"));
       return;
     }
     PrinterList.GetUserData(PrinterName,sizeof(PrinterName));
@@ -152,14 +181,13 @@ void PrintFiles(Panel *SrcPanel)
   {
     Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MPrintTitle),MSG(MCannotOpenPrinter),
             PrinterName,MSG(MOk));
-    /* $ 13.07.2000 SVS
-       использовалась new[]
-    */
     delete[] pi;
-    /* SVS $ */
+    _ALGO(SysLog("Error: Cannot Open Printer"));
     return;
   }
+
   {
+    _ALGO(CleverSysLog clv3("Print selected Files"));
     //SaveScreen SaveScr;
     SetCursorType(FALSE,0);
 
@@ -170,8 +198,6 @@ void PrintFiles(Panel *SrcPanel)
     int PluginMode=SrcPanel->GetMode()==PLUGIN_PANEL &&
         !CtrlObject->Plugins.UseFarCommand(hPlugin,PLUGIN_FARGETFILE);
 
-    char SelName[NM];
-    int FileAttr;
     SrcPanel->GetSelName(NULL,FileAttr);
     while (SrcPanel->GetSelName(SelName,FileAttr))
     {
@@ -243,11 +269,7 @@ void PrintFiles(Panel *SrcPanel)
     SetPreRedrawFunc(NULL);
   }
   SrcPanel->Redraw();
-  /* $ 13.07.2000 SVS
-     использовалась new[]
-  */
   delete[] pi;
-  /* SVS $ */
 }
 
 

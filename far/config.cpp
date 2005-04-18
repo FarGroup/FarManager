@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.180 12.04.2005 $ */
+/* Revision: 1.181 14.04.2005 $ */
 
 /*
 Modify:
+  14.04.2005 SVS
+    + Opt.UsePrintManager
   12.04.2005 KM
     ! Opt.FindOpt.FindFolders перенесём из Interface в System, давно как-то ошибся
       теперь исправим расположение настройки
@@ -1721,6 +1723,7 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeySystem,"CASRule",&Opt.CASRule,0xFFFFFFFFU, 0},
   {1, REG_DWORD,  NKeySystem,"ScanJunction",&Opt.ScanJunction,1, 0},
   {0, REG_DWORD,  NKeySystem,"IgnoreErrorBadPathName",&Opt.IgnoreErrorBadPathName,0, 0},
+  {0, REG_DWORD,  NKeySystem,"UsePrintManager",&Opt.UsePrintManager,1, 0},
 
   {0, REG_DWORD,  NKeySystemNowell,"MoveRO",&Opt.Nowell.MoveRO,1, 0},
 

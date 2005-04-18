@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.69 02.02.2005 $ */
+/* Revision: 1.70 14.04.2005 $ */
 
 /*
 Modify:
+  14.04.2005 SVS
+    ! Opt.UsePrintManager
   02.02.2005 SVS
     - BugZ#1242 - Ctrl-Tab заело
   06.08.2004 SKV
@@ -356,7 +358,7 @@ void FileViewer::InitKeyBar(void)
         // $ 17.12.2001 KM  - ≈сли !GetCanLoseFocus() тогда на Alt-F11 рисуем пустую строку.
         if(!GetCanLoseFocus())
           FViewKeys[11-1]="";
-        if(CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) == -1)
+        if(!Opt.UsePrintManager || CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) == -1)
           FViewKeys[5-1]="";
         break;
     }
@@ -527,7 +529,7 @@ int FileViewer::ProcessKey(int Key)
     */
     case KEY_ALTF5:
     {
-      if(CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) != -1)
+      if(Opt.UsePrintManager && CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) != -1)
         CtrlObject->Plugins.CallPlugin(SYSID_PRINTMANAGER,OPEN_VIEWER,0); // printman
       return TRUE;
     }

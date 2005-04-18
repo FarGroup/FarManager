@@ -5,10 +5,12 @@ main.cpp
 
 */
 
-/* Revision: 1.77 06.08.2004 $ */
+/* Revision: 1.78 12.04.2005 $ */
 
 /*
 Modify:
+  12.04.2005 SVS
+    ! —нова "FARHOME", но теперь не в морг.
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   07.07.2004 SVS
@@ -760,6 +762,7 @@ int _cdecl main(int Argc, char *Argv[])
      if(s && s<sizeof(tmpFarPath))
         strcpy(FarPath, tmpFarPath);
   }
+  SetEnvironmentVariable("FARHOME",FarPath);
   AddEndSlash(FarPath);
   /* IS $ */
   /* $ 03.08.2000 SVS

@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.222 03.04.2005 $ */
+/* Revision: 1.223 14.04.2005 $ */
 
 /*
 Modify:
+  14.04.2005 SVS
+    ! Opt.UsePrintManager
   03.04.2005 SVS
     ! в копире юзается больше NM
   01.04.2005 SVS
@@ -2054,14 +2056,12 @@ int FileList::ProcessKey(int Key)
     {
       _ALGO(CleverSysLog clv("Alt-F5"));
       _ALGO(SysLog("%s, FileCount=%d",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount));
-      /* $ 11.03.2001 VVM
-        ! Печать через pman только из файловых панелей. */
-      if ((PanelMode!=PLUGIN_PANEL) &&
-      /* VVM $ */
-         (CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) != -1))
+      // $ 11.03.2001 VVM - Печать через pman только из файловых панелей.
+      if ((PanelMode!=PLUGIN_PANEL) && (Opt.UsePrintManager && CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) != -1))
          CtrlObject->Plugins.CallPlugin(SYSID_PRINTMANAGER,OPEN_FILEPANEL,0); // printman
-      else if (FileCount>0 && SetCurPath())
-        PrintFiles(this);
+      else
+        if (FileCount>0 && SetCurPath())
+          PrintFiles(this);
       return(TRUE);
     }
 

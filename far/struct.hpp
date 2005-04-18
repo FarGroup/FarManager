@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.125 12.04.2005 $ */
+/* Revision: 1.126 14.04.2005 $ */
 
 /*
 Modify:
+  14.04.2005 SVS
+    + Opt.UsePrintManager
   12.04.2005 KM
     ! ƒополнена структура FindFileOptions двум€ параметрами:
       Opt.FindOpt.SearchInFirst и Opt.FindOpt.SearchInFirstSize
@@ -873,6 +875,8 @@ struct Options
   */
   int ConsoleDetachKey;
   /* SKV$*/
+
+  int UsePrintManager;
 
   char HelpLanguage[80];
   int FullScreenHelp;

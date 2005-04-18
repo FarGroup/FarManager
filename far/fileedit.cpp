@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.160 11.11.2004 $ */
+/* Revision: 1.161 14.04.2005 $ */
 
 /*
 Modify:
+  14.04.2005 SVS
+    ! Opt.UsePrintManager
   11.11.2004 SVS
     + Обработка MCODE_V_ITEMCOUNT и MCODE_V_CURPOS
   04.11.2004 SVS
@@ -894,7 +896,7 @@ void FileEditor::InitKeyBar(void)
         // $ 17.12.2001 KM  - Если !GetCanLoseFocus() тогда на Alt-F11 рисуем пустую строку.
         if(!GetCanLoseFocus())
           FEditKeys[11-1]="";
-        if(CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) == -1)
+        if(!Opt.UsePrintManager || CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) == -1)
           FEditKeys[5-1]="";
         break;
     }
@@ -1008,7 +1010,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
     */
     case KEY_ALTF5:
     {
-      if(CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) != -1)
+      if(Opt.UsePrintManager && CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) != -1)
       {
         CtrlObject->Plugins.CallPlugin(SYSID_PRINTMANAGER,OPEN_EDITOR,0); // printman
         return TRUE;

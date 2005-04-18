@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.332 22.03.2005 $ */
+/* Revision: 1.333 12.04.2005 $ */
 
 /*
 Modify:
+  12.04.2005 SVS
+    - AVB> - поля ввода: при удалении записи в истории (shift-del),
+      AVB>   маркер переводится в первую строку, а не на следующую в списке.
   22.03.2005 SVS
     - BugZ#1303 - Падение, вроде как из за DM_CLOSE в DN_INITDIALOG
   27.02.2005 SVS
@@ -5329,6 +5332,7 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItem *CurItem,
   struct MenuItem HistoryItem;
   int ItemsCount;
   int LastSelected = 0;
+  int IsDeleted=FALSE;
   int EditX1,EditY1,EditX2,EditY2;
   int CurFocusPos=FocusPos;
 
@@ -5380,8 +5384,22 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItem *CurItem,
         break;
 
       // выставим селекшин
-      Dest=Opt.Dialogs.SelectFromHistory?HistoryMenu.FindItem(0,IStr,LIFIND_EXACTMATCH):-1;
-      HistoryMenu.SetSelectPos(Dest!=-1?Dest:0, 1);
+      if(!IsDeleted)
+      {
+        Dest=Opt.Dialogs.SelectFromHistory?HistoryMenu.FindItem(0,IStr,LIFIND_EXACTMATCH):-1;
+        HistoryMenu.SetSelectPos(Dest!=-1?Dest:0, 1);
+      }
+      else
+      {
+        int D=1;
+        IsDeleted=FALSE;
+        if(LastSelected >= HistoryMenu.GetItemCount())
+        {
+          LastSelected=HistoryMenu.GetItemCount()-1;
+          D=-1;
+        }
+        HistoryMenu.SetSelectPos(LastSelected,D);
+      }
 
       //  Перед отрисовкой спросим об изменении цветовых атрибутов
       BYTE RealColors[VMENU_COLOR_COUNT];
@@ -5459,8 +5477,8 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItem *CurItem,
                }
                Dest++;
             }
-
             HistoryMenu.SetUpdateRequired(TRUE);
+            IsDeleted=TRUE;
             IsUpdate=TRUE;
             break;
           }

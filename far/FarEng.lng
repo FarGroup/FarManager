@@ -952,7 +952,7 @@
 "A file &mask or several file masks:"
 "Containing &text:"
 "Con&taining hex:"
-"Ma&ke search in first:"
+"Search only in the first:"
 "bytes"
 "kilobytes"
 "megabytes"

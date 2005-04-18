@@ -531,7 +531,9 @@ internal editor.
 
   Print files                                                 #Alt-F5#
 
-    To print the selected files "Print manager" plugin is used.
+    If the "Print Manager" plugin is installed then the printing of
+    the selected files will be carried out using that plugin,
+    otherwise by using internal facilities.
 
   Create ~file links~@HardSymLink@ (NTFS only)                               #Alt-F6#
 
@@ -693,32 +695,31 @@ executed. This behaviour can be configured in the ~settings~@InterfSettings@.
 $ #Mouse: wheel support#
     Under Windows 2000/XP, FAR Manager supports the mouse wheel:
 
-   #Panels#
-     Rotating the wheel scrolls the file list without changing the
-     cursor position on the screen. Pressing the #middle button# has
-     the same effect as pressing #Enter# (this can be configured in the
-     ~settings dialog~@InterfSettings@).
+   #Panels#    Rotating the wheel scrolls the file list without
+             changing the cursor position on the screen. Pressing
+             the #middle button# has the same effect as pressing
+             #Enter# (this can be configured in the ~settings dialog~@InterfSettings@).
 
-   #Editor#
-     Rotating the wheel scrolls the text without changing the cursor
-     position on the screen (similar to #Ctrl-Up#/#Ctrl-Down#).
+   #Editor#    Rotating the wheel scrolls the text without changing
+             the cursor position on the screen (similar to #Ctrl-Up#/
+             #Ctrl-Down#).
 
-   #Viewer, help#
-     Rotating the wheel scrolls the text.
+   #Viewer#    Rotating the wheel scrolls the text.
 
-   #Menus#
-     Wheel scrolling works as #Up#/#Down buttons#.
-     Pressing the #middle button# has the same effect as pressing
-     #Enter#. It is possible to choose items without moving the cursor.
+   #Help#      Rotating the wheel scrolls the text.
 
-   #Dialogs#
-     In dialogs, when the wheel is rotated at an edit line with a
-     history list or a combo box, the drop-down list is opened. In
-     the drop-down list scrolling works the same as in menus.
+   #Menus#     Wheel scrolling works as #Up#/#Down# keys.
+             Pressing the #middle button# has the same effect as
+             pressing #Enter#. It is possible to choose items without
+             moving the cursor.
+
+   #Dialogs#   In dialogs, when the wheel is rotated at an edit line
+             with a history list or a combo box, the drop-down list
+             is opened. In the drop-down list scrolling works the
+             same as in menus.
 
     You can specify the number of lines to scroll at a time in the panels,
 editor and viewer (see TechInfo##33).
-
 
 @Plugins
 $ #Plugins support#
@@ -1264,9 +1265,10 @@ text. If the string is entered, the option #Case sensitive# selects case
 sensitive comparison.
 
     The specified text string can be searched not only in the whole file,
-but also inside a specified beginning range defined by the #Make search in first#
-property. If the specified value is less than the file size, the rest of the
-file will be ignored even if the required sequence exists there.
+but also inside a specified range at the begining of the file, defined
+by the #Search only in the first# property. If the specified value is less
+than the file size, the rest of the file will be ignored even if the
+required sequence exists there.
 
     The option #Whole words# will let to find only the text that is separated
 from other text with spaces, tab characters, line breaks or standard
@@ -1424,7 +1426,7 @@ available:
     To go to the previous or next command directly from the command line, you
 can press #Ctrl-E# or #Ctrl-X# respectively.
 
-    For choosing a command, besides the cursor control keys and# Enter#, you can
+    For choosing a command, besides the cursor control keys and #Enter#, you can
 use the highlighted shortcut letters.
 
     If you want to save the commands history after exiting FAR, use the
@@ -1547,7 +1549,7 @@ may edit or create main or local user menu. There may only be one main user
 menu. The main user menu is called if no local menu for the current folder is
 available. The local menu may be placed in any folder. You may switch between
 the main menu and the user menu by pressing #Shift-F2#. Also you may call the
-user menu of the parent folder by pressing BkSpace.
+user menu of the parent folder by pressing #BS#.
 
     You may add command separators to the user menu. To do this, you should add
 a new menu command, define "#-#" as "hot key" and leave field "Label" empty. To
@@ -2401,7 +2403,7 @@ This function is available only in Windows NT/XP, for users either with
 administrative privileges or all local users, when it's stated explicitly in
 the Local Policy Editor (to do this, run a #secpol.msc# from the command prompt,
 and set the '#Local Policies/Security Options/Devices: Restrict CD-ROM#
-#access to locally logged-on user only#' setting to '#Enabled#')
+#access to locally logged-on user only#' setting to '#Enabled#').
 
 
 @DisconnectDrive
@@ -3304,6 +3306,8 @@ exist and the environment variable "variable" is defined.
 $ #Environment variables#
     On startup, FAR Manager sets the following environment variables available
 to child processes:
+
+    #FARHOME#            path to the folder from which FAR was started.
 
     #FARLANG#            the name of the current interface language.
 
