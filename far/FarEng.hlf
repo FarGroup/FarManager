@@ -2566,21 +2566,22 @@ $ #Settings dialog: editor#
                           Use ~special symbols~@MetaSymbols@ to specify the name
                           of the file to edit. If you do not wish
                           to switch panels off before executing
-                          the external editor, start command from
-                          '@@' character.
+                          the external editor, start the command with
+                          the '@@' character.
 
 
     Internal editor
 
-  #Do not expand tabs#      While editing the document, convert each
-                          newly entered #Tab# into the appropriate
-                          number of spaces.
-
-  #Expand tabs to spaces#   Do not convert tabs to spaces while
+  #Do not expand tabs#      Do not convert tabs to spaces while
                           editing the document.
 
-  #Convert all tabs#        Upon opening the document, all tabs in
-  #to spaces#               the document will be automatically
+  #Expand newly entered#    While editing the document, convert each
+  #tabs to spaces#          newly entered #Tab# into the appropriate
+                          number of spaces. Other tabs won't be
+                          converted.
+
+  #Expand all tabs to#      Upon opening the document, all tabs in
+  #spaces#                  the document will be automatically
                           converted to spaces.
 
   #Persistent blocks#       Do not remove block selection after

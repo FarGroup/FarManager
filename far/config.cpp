@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.181 14.04.2005 $ */
+/* Revision: 1.182 18.04.2005 $ */
 
 /*
 Modify:
+  18.04.2005 SVS
+    - в статическом массиве ничего не трогаем, только в динамическом!
   14.04.2005 SVS
     + Opt.UsePrintManager
   12.04.2005 KM
@@ -1381,15 +1383,11 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
 
 void EditorConfig(struct EditorOptions &EdOpt,int Local)
 {
-  char *Str = MSG(MEditConfigEditorF4);
-
-  int StrLen = strlen(Str)-(strchr(Str, '&')?1:0);
-
   static struct DialogData CfgDlgData[]={
   /*  0 */  DI_DOUBLEBOX,3,1,63,23,0,0,0,0,(char *)MEditConfigTitle,
   /*  1 */  DI_SINGLEBOX,5,2,61,6,0,0,DIF_LEFTTEXT,0,(char *)MEditConfigExternal,
   /*  2 */  DI_RADIOBUTTON,7,3,0,0,1,0,DIF_GROUP,0,(char *)MEditConfigEditorF4,
-  /*  3 */  DI_RADIOBUTTON,7+StrLen+5,3,0,0,0,0,0,0,(char *)MEditConfigEditorAltF4,
+  /*  3 */  DI_RADIOBUTTON,7,3,0,0,0,0,0,0,(char *)MEditConfigEditorAltF4,
   /*  4 */  DI_TEXT,7,4,0,0,0,0,0,0,(char *)MEditConfigEditorCommand,
   /*  5 */  DI_EDIT,7,5,59,5,0,0,0,0,"",
   /*  6 */  DI_SINGLEBOX,5,7,61,21,0,0,DIF_LEFTTEXT,0,(char *)MEditConfigInternal,
@@ -1411,6 +1409,11 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
   /* 22 */  DI_BUTTON,0,22,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel,
   };
   MakeDialogItems(CfgDlgData,CfgDlg);
+
+  {
+    char *Str = MSG(MEditConfigEditorF4);
+    CfgDlg[3].X1+=strlen(Str)-(strchr(Str, '&')?1:0)+5;
+  }
 
   CfgDlg[2].Selected=Opt.UseExternalEditor;
   CfgDlg[3].Selected=!Opt.UseExternalEditor;
