@@ -250,7 +250,7 @@ int PluginClass::GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int 
   {
     BOOL ReadArcOK=FALSE;
     DWORD size = Info.AdvControl(Info.ModuleNumber,ACTL_GETPLUGINMAXREADDATA,(void *)0);
-    HANDLE h=CreateFile(ArcName, FILE_READ_DATA, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
+    HANDLE h=CreateFile(ArcName, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
     if (h!=INVALID_HANDLE_VALUE)
     {
       unsigned char *Data=new unsigned char[size];
@@ -468,6 +468,13 @@ void PluginClass::GetOpenPluginInfo(struct OpenPluginInfo *Info)
     if (*InfoLines[2].Data)
       strcat(InfoLines[2].Data," ");
     strcat(InfoLines[2].Data,GetMsg(MInfoSFX));
+  }
+
+  if (CurArcInfo.Flags & AF_HDRENCRYPTED)
+  {
+    if (*InfoLines[2].Data)
+      strcat(InfoLines[2].Data," ");
+    strcat(InfoLines[2].Data,GetMsg(MInfoHdrEncrypted));
   }
 
   if (CurArcInfo.Volume)

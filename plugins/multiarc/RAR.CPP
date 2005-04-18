@@ -6,13 +6,17 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2005 FAR group
 */
-/* Revision: 1.23 09.04.2005 $ */
+/* Revision: 1.24 09.04.2005 $ */
+
+#define STRICT
 
 #include <windows.h>
 #include <string.h>
 #include <dos.h>
 #include "plugin.hpp"
 #include "fmt.hpp"
+#include "marclng.hpp"
+#include "unrar.h"
 
 #if defined(__BORLANDC__)
   #pragma option -a1
@@ -22,31 +26,68 @@
   #pragma pack(push,1)
 #endif
 
-/*
-#ifdef _MSC_VER
-#if _MSC_VER < 1310
-#pragma comment(linker, "/ignore:4078")
-#pragma comment(linker, "/merge:.data=.")
-#pragma comment(linker, "/merge:.rdata=.")
-#pragma comment(linker, "/merge:.text=.")
-#pragma comment(linker, "/section:.,RWE")
-#endif
-#endif
-*/
+typedef HANDLE (PASCAL *RAROPENARCHIVEEX)(struct RAROpenArchiveDataEx *ArchiveData);
+typedef int (PASCAL *RARCLOSEARCHIVE)(HANDLE hArcData);
+typedef void (PASCAL *RARSETCALLBACK)(HANDLE hArcData,UNRARCALLBACK Callback,LONG UserData);
+typedef int (PASCAL *RARREADHEADEREX)(HANDLE hArcData,struct RARHeaderDataEx *HeaderData);
+typedef int (PASCAL *RARPROCESSFILE)(HANDLE hArcData,int Operation,char *DestPath,char *DestName);
+
+const char UnRARName[]="UNRAR.DLL";
+static const char * const RarOS[]={"DOS","OS/2","Windows","Unix","MacOS","BeOS"};
 
 static HANDLE ArcHandle;
 static DWORD NextPosition,SFXSize,FileSize,FileSizeHigh,Flags;
 static long NextPositionHigh;
 static int OldFormat;
-static char *RarOS[]={"DOS","OS/2","Windows","Unix","MacOS","BeOS"};
 
+static BOOL UsedUnRAR_DLL=FALSE,NeedUsedUnRAR_DLL=FALSE;
+static HANDLE hArcData;
+static int RHCode,PFCode;
+static struct RAROpenArchiveDataEx OpenArchiveData;
+static struct RARHeaderDataEx HeaderData;
+
+static RAROPENARCHIVEEX pRAROpenArchiveEx=NULL;
+static RARCLOSEARCHIVE pRARCloseArchive=NULL;
+static RARSETCALLBACK pRARSetCallback=NULL;
+static RARREADHEADEREX pRARReadHeaderEx=NULL;
+static RARPROCESSFILE pRARProcessFile=NULL;
+
+static char Password[NM/2];
+
+static FARAPIINPUTBOX FarInputBox=NULL;
+static FARAPIGETMSG   FarGetMsg=NULL;
+static int MainModuleNumber=-1;
 
 void  WINAPI SetFarInfo(const struct PluginStartupInfo *Info)
 {
+   FarInputBox=Info->InputBox;
+   FarGetMsg=Info->GetMsg;
+   MainModuleNumber=Info->ModuleNumber;
 }
+
+int CALLBACK CallbackProc(UINT msg,LONG UserData,LONG P1,LONG P2)
+{
+  switch(msg)
+  {
+    case UCM_NEEDPASSWORD:
+    {
+      if(FarInputBox(FarGetMsg(MainModuleNumber,MGetPasswordTitle),
+                     FarGetMsg(MainModuleNumber,MGetPassword),NULL,
+                     Password,Password,sizeof(Password)-1,NULL,FIB_PASSWORD))
+      {
+        lstrcpyn((char *)P1,Password,P2);
+        return(0);
+      }
+      return 1;
+    }
+  }
+  return(0);
+}
+
 
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
+  NeedUsedUnRAR_DLL=FALSE;
   for (int I=0;I<DataSize-7;I++)
   {
     const unsigned char *D=Data+I;
@@ -65,6 +106,8 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
         D[4]==0x1a && D[5]==0x07 && D[6]==0 &&
         D[9]==0x73)                                             // next "archive header"? (Header type: 0x73)
     {
+      if(D[10]&0x80)
+        NeedUsedUnRAR_DLL=TRUE;
       OldFormat=FALSE;
       SFXSize=I;
       return(TRUE);
@@ -78,64 +121,178 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
 {
   DWORD ReadSize;
 
-  ArcHandle=CreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
-                       NULL,OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN,NULL);
-  if (ArcHandle==INVALID_HANDLE_VALUE)
-    return(FALSE);
-
-  *Type=0;
-
-  FileSize=GetFileSize(ArcHandle,&FileSizeHigh);
-
-  if (OldFormat)
+  UsedUnRAR_DLL=FALSE;
+  if(NeedUsedUnRAR_DLL)
   {
-    struct MainHeader
+    HINSTANCE hModule=LoadLibraryEx(UnRARName,NULL,LOAD_WITH_ALTERED_SEARCH_PATH);
+    if(hModule)
     {
-      BYTE Mark[4];
-      WORD HeadSize;
-      BYTE Flags;
-    } MainHeader;
+      pRAROpenArchiveEx=(RAROPENARCHIVEEX)GetProcAddress(hModule,"RAROpenArchiveEx");
+      pRARCloseArchive =(RARCLOSEARCHIVE )GetProcAddress(hModule,"RARCloseArchive");
+      pRARSetCallback  =(RARSETCALLBACK  )GetProcAddress(hModule,"RARSetCallback");
+      pRARReadHeaderEx =(RARREADHEADEREX )GetProcAddress(hModule,"RARReadHeaderEx");
+      pRARProcessFile  =(RARPROCESSFILE  )GetProcAddress(hModule,"RARProcessFile");
 
-    SetFilePointer(ArcHandle,SFXSize,NULL,FILE_BEGIN);
-    if (!ReadFile(ArcHandle,&MainHeader,sizeof(MainHeader),&ReadSize,NULL) ||
-        ReadSize!=sizeof(MainHeader))
-    {
-      CloseHandle(ArcHandle);
-      return(FALSE);
+
+      if(pRAROpenArchiveEx && pRARCloseArchive && pRARSetCallback && pRARReadHeaderEx && pRARProcessFile)
+        UsedUnRAR_DLL=TRUE;
+      else
+        FreeLibrary(hModule);
     }
-    Flags=MainHeader.Flags;
-    NextPosition=SFXSize+MainHeader.HeadSize;
+  }
+
+  if(UsedUnRAR_DLL)
+  {
+    memset(&OpenArchiveData,0,sizeof(OpenArchiveData));
+    OpenArchiveData.ArcName=(char*)Name;
+    OpenArchiveData.CmtBuf=NULL;
+    OpenArchiveData.CmtBufSize=0;
+    OpenArchiveData.OpenMode=RAR_OM_LIST;
+    hArcData=pRAROpenArchiveEx(&OpenArchiveData);
+    if (OpenArchiveData.OpenResult!=0)
+      return FALSE;
+
+    Flags=OpenArchiveData.Flags;
+    pRARSetCallback(hArcData,CallbackProc,0);
+    HeaderData.CmtBuf=NULL;
+    HeaderData.CmtBufSize=0;
+    /*
+    if(Flags&0x80)
+    {
+      if((RHCode=pRARReadHeaderEx(hArcData,&HeaderData)) != 0)
+        return FALSE;
+    }
+    */
   }
   else
   {
-    struct NewMainArchiveHeader
-    {
-      WORD HeadCRC;
-      BYTE HeadType;
-      WORD Flags;
-      WORD HeadSize;
-      WORD HighPosAV;
-      DWORD PosAV;
-    } MainHeader;
-    SetFilePointer(ArcHandle,SFXSize+7,NULL,FILE_BEGIN);
-    if (!ReadFile(ArcHandle,&MainHeader,sizeof(MainHeader),&ReadSize,NULL) ||
-        ReadSize!=sizeof(MainHeader))
-    {
-      CloseHandle(ArcHandle);
+    ArcHandle=CreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
+                         NULL,OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN,NULL);
+    if (ArcHandle==INVALID_HANDLE_VALUE)
       return(FALSE);
+
+    *Type=0;
+
+    FileSize=GetFileSize(ArcHandle,&FileSizeHigh);
+
+    if (OldFormat)
+    {
+      struct MainHeader
+      {
+        BYTE Mark[4];
+        WORD HeadSize;
+        BYTE Flags;
+      } MainHeader;
+
+      SetFilePointer(ArcHandle,SFXSize,NULL,FILE_BEGIN);
+      if (!ReadFile(ArcHandle,&MainHeader,sizeof(MainHeader),&ReadSize,NULL) ||
+          ReadSize!=sizeof(MainHeader))
+      {
+        CloseHandle(ArcHandle);
+        return(FALSE);
+      }
+      Flags=MainHeader.Flags;
+      NextPosition=SFXSize+MainHeader.HeadSize;
     }
-    Flags=MainHeader.Flags;
-    if (MainHeader.HighPosAV!=0 || MainHeader.PosAV!=0)
-      Flags|=0x20;
-    NextPosition=SFXSize+MainHeader.HeadSize+7;
+    else
+    {
+      struct NewMainArchiveHeader
+      {
+        WORD HeadCRC;
+        BYTE HeadType;
+        WORD Flags;
+        WORD HeadSize;
+        WORD HighPosAV;
+        DWORD PosAV;
+      } MainHeader;
+      SetFilePointer(ArcHandle,SFXSize+7,NULL,FILE_BEGIN);
+      if (!ReadFile(ArcHandle,&MainHeader,sizeof(MainHeader),&ReadSize,NULL) ||
+          ReadSize!=sizeof(MainHeader))
+      {
+        CloseHandle(ArcHandle);
+        return(FALSE);
+      }
+      Flags=MainHeader.Flags;
+      if (MainHeader.HighPosAV!=0 || MainHeader.PosAV!=0)
+        Flags|=0x20;
+      NextPosition=SFXSize+MainHeader.HeadSize+7;
+    }
+    NextPositionHigh=0;
   }
-  NextPositionHigh=0;
   return(TRUE);
 }
 
 
 int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
 {
+  if(UsedUnRAR_DLL)
+  {
+    RHCode=pRARReadHeaderEx(hArcData,&HeaderData);
+    if(!RHCode)
+    {
+      lstrcpyn(Item->FindData.cFileName,HeaderData.FileName,sizeof(Item->FindData.cFileName)-1);
+      Item->FindData.dwFileAttributes=HeaderData.FileAttr;
+      Item->FindData.nFileSizeLow=HeaderData.UnpSize;
+      Item->FindData.nFileSizeHigh=HeaderData.UnpSizeHigh;
+      Item->PackSizeHigh=HeaderData.PackSizeHigh;
+      Item->PackSize=HeaderData.PackSize;
+      Item->CRC32=(DWORD)HeaderData.FileCRC;
+      FILETIME lft;
+      DosDateTimeToFileTime(HIWORD(HeaderData.FileTime),LOWORD(HeaderData.FileTime),&lft);
+      LocalFileTimeToFileTime(&lft,&Item->FindData.ftLastWriteTime);
+
+      if (HeaderData.HostOS<sizeof(RarOS)/sizeof(RarOS[0]))
+        strcpy(Info->HostOS,RarOS[HeaderData.HostOS]);
+      Info->Solid=Flags & 8;
+      Info->Comment=HeaderData.Flags & 8;
+      Info->Encrypted=HeaderData.Flags & 4;
+      Info->DictSize=64<<((HeaderData.Flags & 0x00e0)>>5);
+      if (Info->DictSize > 4096)
+        Info->DictSize=64;
+      Info->UnpVer=(HeaderData.UnpVer/10)*256+(HeaderData.UnpVer%10);
+/*
+struct RARHeaderDataEx
+{
+  char         ArcName[1024];
+  wchar_t      ArcNameW[1024];
+  char         FileName[1024];
+  wchar_t      FileNameW[1024];
+  unsigned int Flags;
+  unsigned int PackSize;
+  unsigned int PackSizeHigh;
+  unsigned int UnpSize;
+  unsigned int UnpSizeHigh;
+  unsigned int HostOS;
+  unsigned int FileCRC;
+  unsigned int FileTime;
+  unsigned int UnpVer;
+  unsigned int Method;
+  unsigned int FileAttr;
+  char         *CmtBuf;
+  unsigned int CmtBufSize;
+  unsigned int CmtSize;
+  unsigned int CmtState;
+  unsigned int Reserved[1024];
+};
+*/
+
+      if ((PFCode=pRARProcessFile(hArcData,RAR_SKIP,NULL,NULL))!=0)
+      {
+        if(RHCode==ERAR_BAD_DATA)
+          return GETARC_BROKEN;
+        else
+          return(GETARC_READERROR);
+      }
+      return GETARC_SUCCESS;
+    }
+    else
+    {
+      if(RHCode==ERAR_BAD_DATA)
+         return GETARC_READERROR;//GETARC_BROKEN;
+      return GETARC_EOF;
+    }
+  }
+
   while (1)
   {
     DWORD ReadSize;
@@ -321,11 +478,20 @@ BOOL WINAPI _export CloseArchive(struct ArcInfo *Info)
   Info->SFXSize=SFXSize;
   Info->Volume=Flags & 1;
   Info->Comment=Flags & 2;
-  Info->Recovery=Flags & 64;
   Info->Lock=Flags & 4;
+  Info->Recovery=Flags & 64;
+
   if (Flags & 32)
     Info->Flags|=AF_AVPRESENT;
-  return(CloseHandle(ArcHandle));
+  if (Flags & 0x80)
+    Info->Flags|=AF_HDRENCRYPTED;
+
+  *Password=0;
+
+  if(UsedUnRAR_DLL)
+    return pRARCloseArchive(hArcData);
+
+  return CloseHandle(ArcHandle);
 }
 
 DWORD WINAPI _export GetSFXPos(void)

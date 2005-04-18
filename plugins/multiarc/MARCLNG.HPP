@@ -25,6 +25,7 @@ enum LanguageID
   MExtrAllVolumes,
 
   MGetPasswordTitle,
+  MGetPassword,
   MGetPasswordForFile,
 
   MDeleteTitle,
@@ -84,6 +85,7 @@ enum LanguageID
   MInfoSolid,
   MInfoSFX,
   MInfoVolume,
+  MInfoHdrEncrypted,
   MInfoNormal,
   MInfoArcComment,
   MInfoPresent,

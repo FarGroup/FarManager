@@ -22,6 +22,7 @@
 "&All files"
 
 "Get password"
+"Enter password:"
 "Enter password for %s"
 
 "Delete from archive"
@@ -81,6 +82,7 @@
 "solid"
 "SFX"
 "volume"
+"encrypted"
 "normal"
 "Archive comment"
 "present"
