@@ -5,10 +5,13 @@ findfile.cpp
 
 */
 
-/* Revision: 1.172 12.04.2005 $ */
+/* Revision: 1.173 18.04.2005 $ */
 
 /*
 Modify:
+  18.04.2005 WARP
+    ! Перед вызовом GetFiles, получаем информацию с панели (GetFindData) и находим
+      файл с таким же FindData (кроме ftLastAccessTime). Для него и вызываем GetFiles.
   12.04.2005 KM
     + Добавлена давно ожидаемая возможность задания размера для ограничения
       поиска в первых байтах (килобайтах, мегабайтах или гигабайтах) в файлах
@@ -1443,16 +1446,55 @@ int FindFiles::GetPluginFile(DWORD ArcIndex, struct PluginPanelItem *PanelItem,
   SetPluginDirectory(ArcList[ArcIndex].RootPath,hPlugin);
   SetPluginDirectory(PanelItem->FindData.cFileName,hPlugin);
 
-  PluginPanelItem NewItem = *PanelItem;
-  char *FileName = PointToName(RemovePseudoBackSlash(NewItem.FindData.cFileName));
-  if (FileName != NewItem.FindData.cFileName)
-    xstrncpy(NewItem.FindData.cFileName, FileName, sizeof(NewItem.FindData.cFileName));
-  int Result = CtrlObject->Plugins.GetFile(hPlugin,&NewItem,DestPath,ResultName,OPM_SILENT|OPM_FIND);
+  int nItemsNumber;
+  struct PluginPanelItem *pItems;
+  int nResult = 0;
+
+  if ( CtrlObject->Plugins.GetFindData (
+      hPlugin,
+      &pItems,
+      &nItemsNumber,
+      OPM_FIND
+      ) )
+  {
+    memset (&PanelItem->FindData.ftLastAccessTime, 0, sizeof (FILETIME));
+
+    for (int i = 0; i < nItemsNumber; i++)
+    {
+      FILETIME ftLastAccessTime;
+      struct PluginPanelItem *pItem = &pItems[i];
+
+      memcpy (&ftLastAccessTime, &pItem->FindData.ftLastAccessTime, sizeof (FILETIME));
+      memset (&pItems->FindData.ftLastAccessTime, 0, sizeof (FILETIME));
+
+      char *lpFileName = PointToName(RemovePseudoBackSlash(pItem->FindData.cFileName));
+
+      if ( lpFileName != pItem->FindData.cFileName )
+        xstrncpy(pItem->FindData.cFileName, lpFileName, sizeof (pItem->FindData.cFileName));
+
+      if ( !memcmp (&PanelItem->FindData, &pItem->FindData, sizeof (WIN32_FIND_DATA)) )
+      {
+        memcpy (&pItems->FindData.ftLastAccessTime, &ftLastAccessTime, sizeof (FILETIME));
+        nResult = CtrlObject->Plugins.GetFile (
+                            hPlugin,
+                            pItem,
+                            DestPath,
+                            ResultName,
+                            OPM_SILENT|OPM_FIND
+                          );
+
+        break;
+      }
+    }
+
+    CtrlObject->Plugins.FreeFindData (hPlugin, pItems, nItemsNumber);
+  }
 
   CtrlObject->Plugins.SetDirectory(hPlugin,"\\",OPM_SILENT|OPM_FIND);
 //  SetPluginDirectory(ArcList[ArcIndex].RootPath,hPlugin);
   SetPluginDirectory(SaveDir,hPlugin);
-  return(Result);
+
+  return nResult;
 }
 
 long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
