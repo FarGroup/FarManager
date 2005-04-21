@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.46 01.04.2005 $ */
+/* Revision: 1.47 21.04.2005 $ */
 
 /*
 Modify:
+  21.04.2005 SVS
+    ! ” FileList::ViewSettingsToText последний параметр может быть равен NULL
   01.04.2005 SVS
     + GetItem()
   10.03.2005 SVS
@@ -315,7 +317,7 @@ class FileList:public Panel
            unsigned int *ViewColumnTypes,int *ViewColumnWidths,int &ColumnCount);
     static void ViewSettingsToText(unsigned int *ViewColumnTypes,
            int *ViewColumnWidths,int ColumnCount,char *ColumnTitles,
-           char *ColumnWidths);
+           char *ColumnWidths=NULL);
 
   public:
     FileList();

@@ -5,10 +5,14 @@ filelist.cpp
 
 */
 
-/* Revision: 1.223 14.04.2005 $ */
+/* Revision: 1.224 21.04.2005 $ */
 
 /*
 Modify:
+  21.04.2005 SVS
+    ! У FileList::ViewSettingsToText последний параметр может быть равен NULL
+    ! При юзании FileList::ViewSettingsToText нужно учитывать, что ОНО думает,
+      что два последних параметра размером с NM
   14.04.2005 SVS
     ! Opt.UsePrintManager
   03.04.2005 SVS
@@ -3212,10 +3216,10 @@ void FileList::SetViewMode(int ViewMode)
 
   if (PanelMode==PLUGIN_PANEL)
   {
-    char ColumnTypes[80],ColumnWidths[80];
+    char ColumnTypes[NM];
 //    SetScreenPosition();
     ViewSettingsToText(ViewSettings.ColumnType,ViewSettings.ColumnWidth,
-        ViewSettings.ColumnCount,ColumnTypes,ColumnWidths);
+        ViewSettings.ColumnCount,ColumnTypes);
     ProcessPluginEvent(FE_CHANGEVIEWMODE,ColumnTypes);
   }
 

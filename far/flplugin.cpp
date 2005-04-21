@@ -5,10 +5,13 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.45 15.11.2004 $ */
+/* Revision: 1.46 21.04.2005 $ */
 
 /*
 Modify:
+  21.04.2005 SVS
+    ! При юзании FileList::ViewSettingsToText нужно учитывать, что ОНО думает,
+      что два последних параметра размером с NM
   16.11.2004 WARP
     - FCTL_GET[ANOTHER]PANELSHORTINFO нарушали принцип "непрекосновенности" и
       нагло херили данные, полученные предыдущим вызовом FCTL_GET[ANOTHER]PANELINFO.
@@ -1018,7 +1021,7 @@ void FileList::PluginGetPanelInfo(struct PanelInfo *Info,int FullInfo)
   Info->CurrentItem=CurFile;
   Info->TopPanelItem=CurTopFile;
 
-  char ColumnTypes[80],ColumnWidths[80];
+  char ColumnTypes[NM],ColumnWidths[NM];
   ViewSettingsToText(ViewSettings.ColumnType,ViewSettings.ColumnWidth,
                      ViewSettings.ColumnCount,ColumnTypes,ColumnWidths);
   xstrncpy(Info->ColumnTypes,ColumnTypes,sizeof(Info->ColumnTypes)-1);

@@ -5,10 +5,15 @@ flmodes.cpp
 
 */
 
-/* Revision: 1.19 02.04.2005 $ */
+/* Revision: 1.20 21.04.2005 $ */
 
 /*
 Modify:
+  21.04.2005 SVS
+    ! У FileList::ViewSettingsToText последний параметр может быть равен NULL
+    ! При юзании FileList::ViewSettingsToText нужно учитывать, что ОНО думает,
+      что два последних параметра размером с NM
+    ! В FileList::ViewSettingsToText вместо strcat, применяем strNcat.
   02.04.2005 AY
     + Поддержка типа колонки SE в TextToViewSettings() и ViewSettingsToText()
       С этим флагом не выводится пробел между размером и KMGT.
@@ -381,7 +386,10 @@ void FileList::ViewSettingsToText(unsigned int *ViewColumnTypes,
      int *ViewColumnWidths,int ColumnCount,char *ColumnTitles,
      char *ColumnWidths)
 {
-  *ColumnTitles=*ColumnWidths=0;
+  *ColumnTitles=0;
+  if(ColumnWidths)
+    *ColumnWidths=0;
+
   for (int I=0;I<ColumnCount;I++)
   {
     char Type[100];
@@ -390,36 +398,41 @@ void FileList::ViewSettingsToText(unsigned int *ViewColumnTypes,
     if (ColumnType==NAME_COLUMN)
     {
       if (ViewColumnTypes[I] & COLUMN_MARK)
-        strcat(Type,"M");
+        strncat(Type,"M",sizeof(Type)-1);
       if (ViewColumnTypes[I] & COLUMN_NAMEONLY)
-        strcat(Type,"O");
+        strncat(Type,"O",sizeof(Type)-1);
       if (ViewColumnTypes[I] & COLUMN_RIGHTALIGN)
-        strcat(Type,"R");
+        strncat(Type,"R",sizeof(Type)-1);
     }
     if (ColumnType==SIZE_COLUMN || ColumnType==PACKED_COLUMN)
     {
       if (ViewColumnTypes[I] & COLUMN_COMMAS)
-        strcat(Type,"C");
+        strncat(Type,"C",sizeof(Type)-1);
       if (ViewColumnTypes[I] & COLUMN_ECONOMIC)
-        strcat(Type,"E");
+        strncat(Type,"E",sizeof(Type)-1);
       if (ViewColumnTypes[I] & COLUMN_FLOATSIZE)
-        strcat(Type,"F");
+        strncat(Type,"F",sizeof(Type)-1);
       if (ViewColumnTypes[I] & COLUMN_THOUSAND)
-        strcat(Type,"T");
+        strncat(Type,"T",sizeof(Type)-1);
     }
     if (ColumnType==MDATE_COLUMN || ColumnType==ADATE_COLUMN || ColumnType==CDATE_COLUMN)
     {
       if (ViewColumnTypes[I] & COLUMN_BRIEF)
-        strcat(Type,"B");
+        strncat(Type,"B",sizeof(Type)-1);
       if (ViewColumnTypes[I] & COLUMN_MONTH)
-        strcat(Type,"M");
+        strncat(Type,"M",sizeof(Type)-1);
     }
-    strcat(ColumnTitles,Type);
-    sprintf(ColumnWidths+strlen(ColumnWidths),"%d",ViewColumnWidths[I]);
+    strncat(ColumnTitles,Type,NM-1);
+    if(ColumnWidths)
+    {
+      itoa(ViewColumnWidths[I],Type,10);
+      strncat(ColumnWidths,Type,NM-1);
+    }
     if (I<ColumnCount-1)
     {
-      strcat(ColumnTitles,",");
-      strcat(ColumnWidths,",");
+      strncat(ColumnTitles,",",NM-1);
+      if(ColumnWidths)
+        strncat(ColumnWidths,",",NM-1);
     }
   }
 }
