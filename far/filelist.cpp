@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.224 21.04.2005 $ */
+/* Revision: 1.225 23.04.2005 $ */
 
 /*
 Modify:
+  23.04.2005 KM
+    ! Использование фильтра в GetSelName
   21.04.2005 SVS
     ! У FileList::ViewSettingsToText последний параметр может быть равен NULL
     ! При юзании FileList::ViewSettingsToText нужно учитывать, что ОНО думает,
@@ -3361,7 +3363,7 @@ int FileList::GetRealSelCount()
 }
 
 
-int FileList::GetSelName(char *Name,int &FileAttr,char *ShortName)
+int FileList::GetSelName(char *Name,int &FileAttr,char *ShortName,WIN32_FIND_DATA *fd)
 {
   if (Name==NULL)
   {
@@ -3384,6 +3386,21 @@ int FileList::GetSelName(char *Name,int &FileAttr,char *ShortName)
       }
       FileAttr=ListData[CurFile].FileAttr;
       LastSelPosition=CurFile;
+
+      if (fd)
+      {
+        fd->dwFileAttributes=ListData[CurFile].FileAttr;
+        fd->ftCreationTime=ListData[CurFile].CreationTime;
+        fd->ftLastAccessTime=ListData[CurFile].AccessTime;
+        fd->ftLastWriteTime=ListData[CurFile].WriteTime;
+        fd->nFileSizeHigh=ListData[CurFile].UnpSizeHigh;
+        fd->nFileSizeLow=ListData[CurFile].UnpSize;
+        fd->dwReserved0=ListData[CurFile].PackSizeHigh;
+        fd->dwReserved1=ListData[CurFile].PackSize;
+        xstrncpy(fd->cFileName,ListData[CurFile].Name,MAX_PATH-1);
+        xstrncpy(fd->cAlternateFileName,ListData[CurFile].ShortName,sizeof(fd->cAlternateFileName)-1);
+      }
+
       return(TRUE);
     }
     else
@@ -3402,6 +3419,21 @@ int FileList::GetSelName(char *Name,int &FileAttr,char *ShortName)
       }
       FileAttr=ListData[GetSelPosition-1].FileAttr;
       LastSelPosition=GetSelPosition-1;
+
+      if (fd)
+      {
+        fd->dwFileAttributes=ListData[GetSelPosition-1].FileAttr;
+        fd->ftCreationTime=ListData[GetSelPosition-1].CreationTime;
+        fd->ftLastAccessTime=ListData[GetSelPosition-1].AccessTime;
+        fd->ftLastWriteTime=ListData[GetSelPosition-1].WriteTime;
+        fd->nFileSizeHigh=ListData[GetSelPosition-1].UnpSizeHigh;
+        fd->nFileSizeLow=ListData[GetSelPosition-1].UnpSize;
+        fd->dwReserved0=ListData[GetSelPosition-1].PackSizeHigh;
+        fd->dwReserved1=ListData[GetSelPosition-1].PackSize;
+        xstrncpy(fd->cFileName,ListData[GetSelPosition-1].Name,MAX_PATH-1);
+        xstrncpy(fd->cAlternateFileName,ListData[GetSelPosition-1].ShortName,sizeof(fd->cAlternateFileName)-1);
+      }
+
       return(TRUE);
     }
   return(FALSE);

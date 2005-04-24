@@ -7,10 +7,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.29 01.04.2005 $ */
+/* Revision: 1.30 23.04.2005 $ */
 
 /*
 Modify:
+  23.04.2005 KM
+    ! Использование фильтра в GetSelName
   01.04.2005 SVS
     + GetItem()
   10.03.2005 SVS
@@ -180,7 +182,7 @@ class Panel:public ScreenObject
     virtual void GetCurDir(char *CurDir);
     virtual int GetSelCount() {return(0);};
     virtual int GetRealSelCount() {return(0);};
-    virtual int GetSelName(char *Name,int &FileAttr,char *ShortName=NULL) {return(FALSE);};
+    virtual int GetSelName(char *Name,int &FileAttr,char *ShortName=NULL,WIN32_FIND_DATA *fd=NULL) {return(FALSE);};
     virtual void UngetSelName() {};
     virtual void ClearLastGetSelection() {};
     virtual long GetLastSelectedSize(int64 *Size) {return(-1);};

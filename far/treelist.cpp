@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.67 01.04.2005 $ */
+/* Revision: 1.68 23.04.2005 $ */
 
 /*
 Modify:
+  23.04.2005 KM
+    ! Использование фильтра в GetSelName
   01.04.2005 SVS
     + GetItem()
   10.03.2005 SVS
@@ -1532,7 +1534,7 @@ int TreeList::GetSelCount()
 }
 
 
-int TreeList::GetSelName(char *Name,int &FileAttr,char *ShortName)
+int TreeList::GetSelName(char *Name,int &FileAttr,char *ShortName,WIN32_FIND_DATA *fd)
 {
   if (Name==NULL)
   {

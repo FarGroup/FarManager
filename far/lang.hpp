@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.153 12.04.2005 $ */
+/* Revision: 1.154 23.04.2005 $ */
 
 /*
 Modify:
+  23.04.2005 KM
+    + MCopyUseFilter, MCopySetFilter,
   12.04.2005 KM
     - MSearchFromRoot
     + MFindFileSearchFirst, MSearchWhere, MSearchFromRootFolder
@@ -670,6 +672,8 @@ enum
   MCopyDlgLink,
   MCopyDlgTotal,
   MCopyScanning,
+  MCopyUseFilter,
+  MCopySetFilter,
 
   MCopyFile,
   MMoveFile,

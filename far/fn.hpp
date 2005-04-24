@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.221 05.04.2005 $ */
+/* Revision: 1.222 23.04.2005 $ */
 
 /*
 Modify:
+  23.04.2005 KM
+    ! Подсчёт файлов и каталогов в GetDirInfo с учётом фильтра операций
   05.04.2005 SVS
     + У GetText() появился доп параметр - скока читать.
   05.03.2005 SVS
@@ -963,7 +965,8 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
                unsigned long &FileCount,int64 &FileSize,
                int64 &CompressedFileSize,int64 &RealSize,
                unsigned long &ClusterSize,clock_t MsgWaitTime,
-               int EnhBreak,BOOL DontRedrawFrame=FALSE,int ScanSymLink=-1);
+               int EnhBreak,BOOL DontRedrawFrame=FALSE,
+               int ScanSymLink=-1,int UseFilter=FALSE);
 int GetPluginDirInfo(HANDLE hPlugin,char *DirName,unsigned long &DirCount,
                unsigned long &FileCount,int64 &FileSize,
                int64 &CompressedFileSize);

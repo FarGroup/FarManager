@@ -5,10 +5,12 @@ filefilter.cpp
 
 */
 
-/* Revision: 1.06 01.11.2004 $ */
+/* Revision: 1.07 23.04.2005 $ */
 
 /*
 Modify:
+  23.04.2005 KM
+    ! Модификация для запрета использования атрибута Directory из копирования
   01.11.2004 SVS
     - две дефолтовые кнопки
   25.10.2004 SVS
@@ -40,7 +42,10 @@ Modify:
 static DWORD CompEnabled,EncrEnabled;
 static DWORD SizeType,DateType;
 
-FileFilter::FileFilter():
+// Запрет на использование атрибута Directory при фильтровании
+static int DisableDir=FALSE;
+
+FileFilter::FileFilter(int DisableDirAttr):
   FmtMask1("99%c99%c9999"),
   FmtMask2("9999%c99%c99"),
   FmtMask3("99%c99%c99"),
@@ -48,6 +53,9 @@ FileFilter::FileFilter():
   FilterMasksHistoryName("FilterMasks")
 {
   int I;
+
+  // Запретим использование атрибута Directory при фильтровании
+  DisableDir=DisableDirAttr;
 
   // Определение параметров даты и времени в системе.
   DateSeparator=GetDateSeparator();
@@ -167,6 +175,11 @@ long WINAPI FileFilter::FilterDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2
             Dialog::SendDlgMessage(hDlg,DM_ENABLE,29,FALSE);
           else
             Dialog::SendDlgMessage(hDlg,DM_ENABLE,29,TRUE);
+        }
+
+        if (DisableDir)
+        {
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,30,FALSE);
         }
 
         Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
@@ -411,7 +424,11 @@ void FileFilter::Configure()
   Dlg.SetAutomation(23,27,DIF_DISABLE,0,0,DIF_DISABLE);
   Dlg.SetAutomation(23,28,DIF_DISABLE,0,0,DIF_DISABLE);
   Dlg.SetAutomation(23,29,DIF_DISABLE,0,0,DIF_DISABLE);
-  Dlg.SetAutomation(23,30,DIF_DISABLE,0,0,DIF_DISABLE);
+
+  if (DisableDir)
+    FilterDlg[30].Flags|=DIF_DISABLE;
+  else
+    Dlg.SetAutomation(23,30,DIF_DISABLE,0,0,DIF_DISABLE);
 
   for (;;)
   {
@@ -691,8 +708,12 @@ int FileFilter::FileInFilter(WIN32_FIND_DATA *fd)
       return FALSE;
     if ((AttrSet & FILE_ATTRIBUTE_ENCRYPTED) && (!(fd->dwFileAttributes & FILE_ATTRIBUTE_ENCRYPTED)))
       return FALSE;
-    if ((AttrSet & FILE_ATTRIBUTE_DIRECTORY) && (!(fd->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)))
-      return FALSE;
+
+    if (!DisableDir)
+    {
+      if ((AttrSet & FILE_ATTRIBUTE_DIRECTORY) && (!(fd->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)))
+        return FALSE;
+    }
 
     // Проверка попадания файла по отсутствующим атрибутам
     DWORD AttrClear=FF.FAttr.AttrClear;
@@ -708,8 +729,12 @@ int FileFilter::FileInFilter(WIN32_FIND_DATA *fd)
       return FALSE;
     if ((AttrClear & FILE_ATTRIBUTE_ENCRYPTED) && (fd->dwFileAttributes & FILE_ATTRIBUTE_ENCRYPTED))
       return FALSE;
-    if ((AttrClear & FILE_ATTRIBUTE_DIRECTORY) && (fd->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-      return FALSE;
+
+    if (!DisableDir)
+    {
+      if ((AttrClear & FILE_ATTRIBUTE_DIRECTORY) && (fd->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+        return FALSE;
+    }
   }
 
   // Да! Файл выдержал все испытания и будет допущен к использованию

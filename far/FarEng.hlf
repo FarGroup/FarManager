@@ -3079,6 +3079,12 @@ from the disk.
     The options "Copy access rights" and "Only newer files" affect only the
 current copy session and are not saved for later copy operations.
 
+    Check the #Use filter# checkbox to copy the files that meet the user
+defined conditions. Press the #Filter# button to open the conditions
+configuration ~dialog~@OpFilter@. Consider, that if you copy the folder
+with files and all of them does not meet the filter conditions, then the empty
+folder will not be copied to the destination.
+  
 
 @CopyRule
 $ #Copying: rules#

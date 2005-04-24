@@ -7,10 +7,12 @@ Tree panel
 
 */
 
-/* Revision: 1.20 01.04.2005 $ */
+/* Revision: 1.21 23.04.2005 $ */
 
 /*
 Modify:
+  23.04.2005 KM
+    ! Использование фильтра в GetSelName
   01.04.2005 SVS
     + GetItem()
   10.03.2005 SVS
@@ -106,7 +108,7 @@ class TreeList: public Panel
     void SaveTreeFile();
     int ReadTreeFile();
     int GetSelCount();
-    int GetSelName(char *Name,int &FileAttr,char *ShortName=NULL);
+    int GetSelName(char *Name,int &FileAttr,char *ShortName=NULL,WIN32_FIND_DATA *fd=NULL);
     void DynamicUpdateKeyBar();
     int GetNextNavPos();
     int GetPrevNavPos();

@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.145 03.04.2005 $ */
+/* Revision: 1.146 23.04.2005 $ */
 
 /*
 Modify:
+  23.04.2005 KM
+    + Добавлено использование фильтра операций
   03.04.2005 SVS
     - ну очень подозрительный кусок...
   01.04.2005 SVS
@@ -479,9 +481,14 @@ Modify:
 #include "manager.hpp"
 #include "constitle.hpp"
 #include "lockscrn.hpp"
+#include "filefilter.hpp"
 
 /* Интервал для прорисовки прогресс-бара. */
 #define COPY_TIMEOUT 200
+
+// Высота и ширина диалога
+#define DLG_HEIGHT 15
+#define DLG_WIDTH 76
 
 enum {COPY_BUFFER_SIZE  = 0x10000};
 
@@ -521,6 +528,13 @@ static int StaticMove;
 static char TotalCopySizeText[32];
 static ConsoleTitle *StaticCopyTitle=NULL;
 static BOOL NT5, NT;
+
+/* $ 15.04.2005 KM
+   Указатель на объект фильтра операций
+*/
+static FileFilter *Filter;
+static int UseFilter=FALSE;
+/* KM $*/
 
 struct CopyDlgParam {
   ShellCopy *thisClass;
@@ -564,6 +578,9 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   char SelNameShort[NM*2];
   int DestPlugin;
   int AddSlash=FALSE;
+
+  // Создадим объект фильтра
+  Filter=new FileFilter(TRUE);
 
   // ***********************************************************************
   // *** Предварительные проверки
@@ -654,7 +671,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   const char *HistoryName="Copy";
   /* $ 03.08.2001 IS добавим новую опцию: мультикопирование */
   static struct DialogData CopyDlgData[]={
-  /* 00 */  DI_DOUBLEBOX,3,1,72,11,0,0,0,0,(char *)MCopyDlgTitle,
+  /* 00 */  DI_DOUBLEBOX,3,1,DLG_WIDTH-4,DLG_HEIGHT-2,0,0,0,0,(char *)MCopyDlgTitle,
   /* 01 */  DI_TEXT,5,2,0,2,0,0,0,0,(char *)MCMLTargetTO,
   /* 02 */  DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY|DIF_EDITEXPAND|DIF_USELASTHISTORY/*|DIF_EDITPATH*/,0,"",
   /* 03 */  DI_TEXT,3,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
@@ -663,15 +680,21 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   /* 06 */  DI_CHECKBOX,5,7,0,7,0,0,0,0,(char *)MCopySymLinkContents,
   /* 07 */  DI_CHECKBOX,5,8,0,7,0,0,0,0,(char *)MCopyMultiActions,
   /* 08 */  DI_TEXT,3,9,0,9,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 09 */  DI_BUTTON,0,10,0,10,0,0,DIF_CENTERGROUP,1,(char *)MCopyDlgCopy,
-  /* 10 */  DI_BUTTON,0,10,0,10,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(char *)MCopyDlgTree,
-  /* 11 */  DI_BUTTON,0,10,0,10,0,0,DIF_CENTERGROUP,0,(char *)MCopyDlgCancel,
+  /* 09 */  DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MCopyUseFilter,
+  /* 10 */  DI_TEXT,3,11,0,11,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 09 */  DI_BUTTON,0,12,0,12,0,0,DIF_CENTERGROUP,1,(char *)MCopyDlgCopy,
+  /* 10 */  DI_BUTTON,0,12,0,12,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(char *)MCopyDlgTree,
+  /* 13 */  DI_BUTTON,0,12,0,12,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(char *)MCopySetFilter,
+  /* 11 */  DI_BUTTON,0,12,0,12,0,0,DIF_CENTERGROUP,0,(char *)MCopyDlgCancel,
   /* 12 */  DI_TEXT,5,2,0,2,0,0,DIF_SHOWAMPERSAND,0,"",
   };
   MakeDialogItems(CopyDlgData,CopyDlg);
 
   CopyDlg[7].Selected=Opt.MultiCopy;
   /* IS $ */
+
+  // Использовать фильтр. KM
+  CopyDlg[9].Selected=UseFilter;
 
   if(Link)
   {
@@ -707,6 +730,13 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     sprintf(CopyStr,
             MSG(Move?MMoveFile:(Link?MLinkFile:MCopyFile)),
             TruncPathStr(strcpy(SelNameShort,SelName),33));
+
+    // Если копируем одиночный файл, то запрещаем использовать фильтр
+    if (!(CDP.FileAttr&FILE_ATTRIBUTE_DIRECTORY))
+    {
+      CopyDlg[9].Selected=0;
+      CopyDlg[9].Flags|=DIF_DISABLE;
+    }
   }
   else // Объектов несколько!
   {
@@ -727,12 +757,12 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
       NItems=MCMLItems0;
     sprintf(CopyStr,MSG(NOper),CDP.SelCount,MSG(NItems));
   }
-  sprintf(CopyDlg[12].Data,"%.65s",CopyStr);
+  sprintf(CopyDlg[15].Data,"%.65s",CopyStr);
 
   // заголовки контролов
   strcpy(CopyDlg[5].Data,MSG(Link?MCopySymLink:MCopyOnlyNewerFiles));
   strcpy(CopyDlg[0].Data,MSG(Move?MMoveDlgTitle :(Link?MLinkDlgTitle:MCopyDlgTitle)));
-  strcpy(CopyDlg[9].Data,MSG(Move?MCopyDlgRename:(Link?MCopyDlgLink:MCopyDlgCopy)));
+  strcpy(CopyDlg[11].Data,MSG(Move?MCopyDlgRename:(Link?MCopyDlgLink:MCopyDlgCopy)));
 
   if (Link)
   {
@@ -813,9 +843,22 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     }
   strcpy(InitDestDir,CopyDlg[2].Data);
 
+  // Для фильтра
+  WIN32_FIND_DATA fd;
+
   SrcPanel->GetSelName(NULL,CDP.FileAttr);
-  while(SrcPanel->GetSelName(SelName,CDP.FileAttr))
+  while(SrcPanel->GetSelName(SelName,CDP.FileAttr,NULL,&fd))
   {
+    /* $ 23.04.2005 KM
+       Фильтр
+    */
+    if (UseFilter)
+    {
+      if (!Filter->FileInFilter(&fd))
+        continue;
+    }
+    /* KM $ */
+
     if(CDP.FileAttr & FILE_ATTRIBUTE_DIRECTORY)
     {
       CDP.FolderPresent=TRUE;
@@ -831,7 +874,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     int Selected5=CopyDlg[5].Selected;
     if(CDP.SelCount > 1 && !CDP.FilesPresent && CDP.FolderPresent)
       Selected5=1;
-    if(!LinkRules(&CopyDlg[9].Flags,
+    if(!LinkRules(&CopyDlg[11].Flags,
                   &CopyDlg[5].Flags,
                   &Selected5,
                   SrcDir,
@@ -845,7 +888,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   }
 
   // корректирем позицию " to"
-  CopyDlg[1].X1=CopyDlg[1].X2=CopyDlg[12].X1+strlen(RemoveTrailingSpaces(CopyDlg[12].Data));
+  CopyDlg[1].X1=CopyDlg[1].X2=CopyDlg[15].X1+strlen(RemoveTrailingSpaces(CopyDlg[15].Data));
 
   /* $ 15.06.2002 IS
      Обработка копирования мышкой - в этом случае диалог не показывается,
@@ -868,7 +911,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   {
     Dialog Dlg(CopyDlg,sizeof(CopyDlg)/sizeof(CopyDlg[0]),CopyDlgProc,(long)&CDP);
     Dlg.SetHelp(Link?"HardSymLink":"CopyFiles");
-    Dlg.SetPosition(-1,-1,76,13);
+    Dlg.SetPosition(-1,-1,DLG_WIDTH,DLG_HEIGHT);
 
 //    Dlg.Show();
     /* $ 02.06.2001 IS
@@ -880,7 +923,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
       Dlg.ClearDone();
       Dlg.Process();
       DlgExitCode=Dlg.GetExitCode();
-      if(DlgExitCode == 9)
+      if(DlgExitCode == 11)
       {
         /* $ 03.08.2001 IS
            Запомним строчку из диалога и начинаем ее мучить в зависимости от
@@ -902,7 +945,11 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
         }
         /* IS $ */
         if(DestList.Set(CopyDlgValue) && !strpbrk(CopyDlgValue,ReservedFilenameSymbols))
+        {
+          // Запомнить признак использования фильтра. KM
+          UseFilter=CopyDlg[9].Selected;
           break;
+        }
         else
           Message(MSG_DOWN|MSG_WARNING,1,MSG(MWarning),
                   MSG(MCopyIncorrectTargetList), MSG(MOk));
@@ -911,7 +958,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
         break;
     }
     /* IS $ */
-    if(DlgExitCode == 11 || DlgExitCode < 0 || (CopyDlg[9].Flags&DIF_DISABLE))
+    if(DlgExitCode == 14 || DlgExitCode < 0 || (CopyDlg[11].Flags&DIF_DISABLE))
     {
       if (DestPlugin)
         ToPlugin=-1;
@@ -1220,14 +1267,19 @@ long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
   {
     case DN_BTNCLICK:
     {
-      if(Param1 == 10)
+      if (Param1==9) // "Use filter"
+      {
+        UseFilter=Param2;
+        return TRUE;
+      }
+      if(Param1 == 12) // Tree
       {
         Dialog::SendDlgMessage(hDlg,DM_CALLTREE,0,0);
         return FALSE;
       }
-      else if(Param1 == 9)
+      else if(Param1 == 11)
       {
-        Dialog::SendDlgMessage(hDlg,DM_CLOSE,9,0);
+        Dialog::SendDlgMessage(hDlg,DM_CLOSE,11,0);
       }
       else if(Param1 == 5 && ((DlgParam->thisClass->Flags)&FCOPY_LINK))
       {
@@ -1235,6 +1287,11 @@ long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         struct FarDialogItem DItem2;
         Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,2,(long)&DItem2);
         Dialog::SendDlgMessage(hDlg,DN_EDITCHANGE,2,(long)&DItem2);
+      }
+      else if (Param1==13) // Filter
+      {
+        Filter->Configure();
+        return TRUE;
       }
       break;
     }
@@ -1258,7 +1315,7 @@ long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         DlgParam->thisClass->SrcPanel->GetCurDir(SrcDir);
         Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,4,(long)&DItem4);
         Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,5,(long)&DItem5);
-        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,9,(long)&DItem9);
+        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,11,(long)&DItem9);
 
         // Это создание линка?
         if((DlgParam->thisClass->Flags)&FCOPY_LINK)
@@ -1294,7 +1351,7 @@ long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
         Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,4,(long)&DItem4);
         Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,5,(long)&DItem5);
-        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,9,(long)&DItem9);
+        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,11,(long)&DItem9);
       }
       break;
 
@@ -1537,6 +1594,10 @@ ShellCopy::~ShellCopy()
   _tran(SysLog("call (*FrameManager)[0]->UnlockRefresh()"));
   (*FrameManager)[0]->UnlockRefresh();
   /* OT $ */
+
+  // Уничтожим объект фильтра
+  if(Filter)
+    delete Filter;
 }
 
 
@@ -1857,6 +1918,10 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
     {
       _LOGCOPYR(CleverSysLog Clev("if(SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)"));
 
+      // Признак, по которому в дальнейшем узнаем: было копирование одного пустого
+      // каталога при включенном фильтре или было копирование каталога с содержимым.
+      int TryToCopyTree=FALSE,FilesInDir=0;
+
       int SubCopyCode;
       char SubName[NM],FullName[NM];
       ScanTree ScTree(TRUE,TRUE,ShellCopy::Flags&FCOPY_COPYSYMLINKCONTENTS);
@@ -1872,6 +1937,19 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
       while (ScTree.GetNextName(&SrcData,FullName, sizeof (FullName)-1))
       {
         _LOGCOPYR(SysLog("FullName='%s', SameDisk=%d",FullName,SameDisk));
+
+        // Была попытка скопировать каталог с содержимым при включенном фильтре
+        TryToCopyTree=TRUE;
+
+        /* 23.04.2005 KM
+           Находясь в фильтре каталоги не копируем, ибо скопируешь его, а файл
+           из-за действия фильтра не скопируется и получится, что у нас останется
+           пустой и никому не нужный каталог. А создавать каталоги будем в ShellCopyOneFile,
+           вырезанием пути из имени попавшего в фильтр файла.
+        */
+        if (UseFilter && (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+          continue;
+        /* KM $ */
 
         int AttemptToMove=FALSE;
         if ((ShellCopy::Flags&FCOPY_MOVE) && SameDisk && (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0)
@@ -1893,7 +1971,10 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
             }
 
             case COPY_SUCCESS_MOVE:
+            {
+              FilesInDir++;
               continue;
+            }
 
             case COPY_SUCCESS:
               if(!NeedRename) // вариант при перемещении содержимого симлика с опцией "копировать содержимое сим..."
@@ -1901,6 +1982,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
                 int64 CurSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
                 TotalCopiedSize = TotalCopiedSize - CurCopiedSize + CurSize;
                 TotalSkippedSize = TotalSkippedSize + CurSize - CurCopiedSize;
+                FilesInDir++;
                 continue;     // ...  т.к. мы ЭТО не мувили, а скопировали, то все, на этом закончим бадаться с этим файлов
               }
           }
@@ -1960,6 +2042,8 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
               }
             }
           }
+
+          FilesInDir++;
         }
       }
 
@@ -1976,6 +2060,18 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
             SrcPanel->DeleteDiz(SelName,SelShortName);
         }
       }
+
+      /* $ 23.04.2005 KM
+         Была проведена попытка копирования каталога с содержимым при
+         включенном фильтре, но не было скопировано ни одного файла,
+         поэтому удалим SelName в каталоге-приёмнике.
+      */
+      if (UseFilter && TryToCopyTree && !FilesInDir)
+      {
+        strcat(DestPath,SelName);
+        FAR_RemoveDirectory(DestPath);
+      }
+      /* KM $ */
     }
     else if ((ShellCopy::Flags&FCOPY_MOVE) && CopyCode==COPY_SUCCESS)
     {
@@ -2036,6 +2132,17 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
       return(COPY_CANCEL);
     }
   }
+
+  /* 17.04.2005 KM
+     Отфильтруем файлы не попадающие в действующий фильтр,
+     каталоги же пропускаем всегда
+  */
+  if ((UseFilter) && ((SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0))
+  {
+    if (!Filter->FileInFilter((WIN32_FIND_DATA *) &SrcData))
+      return COPY_NEXT;
+  }
+  /* KM $ */
 
   strcpy(DestPath,Dest);
 
@@ -2120,6 +2227,96 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
 
       if (*PathPtr=='\\')
         PathPtr++;
+
+      /* $ 23.04.2005 KM
+          Поскольку находясь в фильтре приходится пропускать копирование каталогов,
+          чтобы не плодить пустые каталоги из-за непопавших в фильтр файлов,
+          то создание каталога будем производить при копировании файла, попавшего
+          в фильтр, а для этого возьмём атрибуты копируемого каталога и установим
+          их на создаваемый каталог.
+      */
+      if (UseFilter)
+      {
+        char OldPath[2*NM],NewPath[2*NM];
+        const char *path=PathPtr,*p1=NULL;
+
+        while (p1=strchr(path,'\\'))
+        {
+          DWORD FileAttr=(DWORD)-1;
+          WIN32_FIND_DATA FileData={0};
+
+          xstrncpy(OldPath,Src,p1-Src);
+
+          // Поищем старый каталог и возьмём его атрибуты
+          if ((FindHandle=FindFirstFile(OldPath,&FileData))==INVALID_HANDLE_VALUE)
+            // Однако это не нормально, не нашли каталог, который уже скопировали
+            // (этот код по хорошему и не должен срабатывать)
+            FileAttr=(DWORD)-1;
+          else
+          {
+            FindClose(FindHandle);
+            // Есть файл, а также его атрибуты
+            FileAttr=FileData.dwFileAttributes;
+          }
+
+          // Создадим имя каталога, который теперь нужно создать, если конечно его ещё нет
+          xstrncpy(NewPath,DestPath,sizeof(NewPath)-1);
+          xstrncpy(NewPath+strlen(DestPath),PathPtr,p1-PathPtr);
+
+          // Такого каталога ещё нет, создадим его
+          if ((FindHandle=FindFirstFile(NewPath,&FileData))==INVALID_HANDLE_VALUE)
+          {
+            int CopySecurity = ShellCopy::Flags&FCOPY_COPYSECURITY;
+            SECURITY_ATTRIBUTES sa;
+
+            if ((CopySecurity) && !GetSecurity(OldPath,sa))
+              CopySecurity = FALSE;
+
+            // Собственно создание каталога
+            if (CreateDirectory(NewPath,CopySecurity?&sa:NULL))
+            {
+              // Нормально, создали каталог
+              if (FileAttr!=(DWORD)-1)
+                // Теперь установим атрибуты. Взаимоисключающие атрибуты не проверяем
+                // ибо эти атрибуты "живые", то есть получены у реального каталога
+                ShellSetAttr(NewPath,FileAttr);
+            }
+            else
+            {
+              // Ай-ай-ай. Каталог не смогли создать! Значит будем ругаться!
+              int MsgCode;
+              CopyTime+= (clock() - CopyStartTime);
+              MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
+                              MSG(MCopyCannotCreateFolder),NewPath,MSG(MCopyRetry),
+                              MSG(MCopySkip),MSG(MCopyCancel));
+              CopyStartTime = clock();
+
+              if (MsgCode!=0)
+              {
+                // Ну что ж, раз дали отмену или пропуск создания каталога, выходим отсюда
+                _LOGCOPYR(SysLog("return %d -> %d",((MsgCode==-2 || MsgCode==2) ? COPY_CANCEL:COPY_NEXT),__LINE__));
+                return((MsgCode==-2 || MsgCode==2) ? COPY_CANCEL:COPY_NEXT);
+              }
+
+              // Сказали хотим продолжить попытку создания каталога. Ну тогда в добрый путь
+              continue;
+            }
+          }
+          else
+            // Тээкс. Каталог уже создали - нормально. Значит продолжаем копирование дальше.
+            FindClose(FindHandle);
+
+          // Мы стоим на обратном слэше
+          if (*p1=='\\')
+            p1++;
+
+          // Возьмём следующий адрес в имени каталога за обратным слэшем,
+          // для того чтобы проверить и, возможно, создать следующий каталог,
+          // находящийся в копируемом имени файла.
+          path=p1;
+        }
+      }
+      /* KM $ */
 
       strcat(DestPath,PathPtr);
 
@@ -2858,7 +3055,7 @@ void ShellCopy::ShellCopyMsg(const char *Src,const char *Dest,int Flags)
                        DestName,"","",BarStr,"");
   else
   {
-    bool Move = ShellCopy::Flags&FCOPY_MOVE;
+    int Move = ShellCopy::Flags&FCOPY_MOVE;
 
     if ( ShowTotalCopySize )
     {
@@ -3787,7 +3984,6 @@ int ShellCopy::ShellSystemCopy(const char *SrcName,const char *DestName,const WI
 {
   static COPYFILEEX pCopyFileEx=NULL;
   static int LoadAttempt=FALSE;
-  int Res;
 
   if (!LoadAttempt && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
   {
@@ -3929,13 +4125,16 @@ bool ShellCopy::CalcTotalSize()
   char SelName[NM],SelShortName[NM];
   int FileAttr;
 
+  // Для фильтра
+  WIN32_FIND_DATA fd;
+
   TotalCopySize=CurCopiedSize=0;
   TotalFilesToProcess = 0;
 
   ShellCopyMsg(NULL,"",MSG_LEFTALIGN);
 
   SrcPanel->GetSelName(NULL,FileAttr);
-  while (SrcPanel->GetSelName(SelName,FileAttr,SelShortName))
+  while (SrcPanel->GetSelName(SelName,FileAttr,SelShortName,&fd))
   {
     if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
     {
@@ -3945,7 +4144,7 @@ bool ShellCopy::CalcTotalSize()
         ShellCopyMsg(NULL,SelName,MSG_LEFTALIGN|MSG_KEEPBACKGROUND);
         if (!GetDirInfo("",SelName,DirCount,FileCount,FileSize,CompressedSize,
                         RealFileSize,ClusterSize,0xffffffff,FALSE,FALSE,
-                        ShellCopy::Flags&FCOPY_COPYSYMLINKCONTENTS))
+                        ShellCopy::Flags&FCOPY_COPYSYMLINKCONTENTS,UseFilter))
         {
           ShowTotalCopySize=false;
           return(false);
@@ -3956,6 +4155,16 @@ bool ShellCopy::CalcTotalSize()
     }
     else
     {
+      /* $ 23.04.2005 KM
+        Подсчитаем количество файлов
+      */
+      if (UseFilter)
+      {
+        if (!Filter->FileInFilter(&fd))
+          continue;
+      }
+      /* KM $ */
+
       int64 FileSize;
       if (SrcPanel->GetLastSelectedSize(&FileSize)!=-1)
       {

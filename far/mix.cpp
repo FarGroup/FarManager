@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.165 06.04.2005 $ */
+/* Revision: 1.166 23.04.2005 $ */
 
 /*
 Modify:
+  23.04.2005 KM
+    ! Подсчёт файлов и каталогов в GetDirInfo с учётом фильтра операций
   06.04.2005 AY
    ! PartCmdLine() - убираю вообще Remove*() после Unquote() так как это является
      лишней интеллигенцией, например файл "ааа .exe" могут запустить как "ааа ".
@@ -532,6 +534,7 @@ Modify:
 #include "lockscrn.hpp"
 #include "lasterror.hpp"
 #include "RefreshFrameManager.hpp"
+#include "filefilter.hpp"
 
 long filelen(FILE *FPtr)
 {
@@ -916,10 +919,11 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
                unsigned long &FileCount,int64 &FileSize,
                int64 &CompressedFileSize,int64 &RealSize,
                unsigned long &ClusterSize,clock_t MsgWaitTime,
-               int EnhBreak,BOOL DontRedrawFrame,int ScanSymLink)
+               int EnhBreak,BOOL DontRedrawFrame,
+               int ScanSymLink,int UseFilter)
 {
   char FullDirName[NM],DriveRoot[NM];
-  char FullName[NM];
+  char FullName[NM],CurDirName[NM],LastDirName[NM];
   if (ConvertNameToFull(DirName,FullDirName, sizeof(FullDirName)) >= sizeof(FullDirName))
     return -1;
 
@@ -958,6 +962,13 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
     if (GetDiskFreeSpace(DriveRoot,&SectorsPerCluster,&BytesPerSector,&FreeClusters,&Clusters))
       ClusterSize=SectorsPerCluster*BytesPerSector;
   }
+
+  // Временные хранилища имён каталогов
+  *LastDirName=0;
+  *CurDirName=0;
+
+  // Создадим объект фильтра
+  FileFilter Filter;
 
   DirCount=FileCount=0;
   FileSize=CompressedFileSize=RealSize=0;
@@ -1007,9 +1018,42 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
     }
 
     if (FindData.dwFileAttributes & FA_DIREC)
-      DirCount++;
+    {
+      // Счётчик каталогов наращиваем только если не включен фильтр,
+      // в противном случае это будем делать в подсчёте количества файлов
+      if (!UseFilter)
+        DirCount++;
+    }
     else
     {
+      /* $ 17.04.2005 KM
+         Проверка попадания файла в условия фильра
+      */
+      if (UseFilter)
+      {
+        if (!Filter.FileInFilter(&FindData))
+          continue;
+      }
+
+      // Наращиваем счётчик каталогов при включенном фильтре только тогда,
+      // когда в таком каталоге найден файл, удовлетворяющий условиям
+      // фильтра.
+      if (UseFilter)
+      {
+        char *p1=strrchr(FullName,'\\');
+        if (p1)
+          xstrncpy(CurDirName,FullName,p1-FullName);
+        else
+          xstrncpy(CurDirName,FullName,sizeof(CurDirName)-1);
+
+        if (LocalStricmp(CurDirName,LastDirName)!=0)
+        {
+          DirCount++;
+          xstrncpy(LastDirName,CurDirName,sizeof(LastDirName)-1);
+        }
+      }
+      /* KM $ */
+
       FileCount++;
       int64 CurSize(FindData.nFileSizeHigh,FindData.nFileSizeLow);
       FileSize+=CurSize;
@@ -1030,6 +1074,7 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
       }
     }
   }
+
   SetPreRedrawFunc(OldPreRedrawFunc);
   return(1);
 }

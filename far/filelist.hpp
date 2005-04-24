@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.47 21.04.2005 $ */
+/* Revision: 1.48 23.04.2005 $ */
 
 /*
 Modify:
+  23.04.2005 KM
+    ! Использование фильтра в GetSelName
   21.04.2005 SVS
     ! У FileList::ViewSettingsToText последний параметр может быть равен NULL
   01.04.2005 SVS
@@ -275,7 +277,7 @@ class FileList:public Panel
     void MoveSelection(struct FileListItem *FileList,long FileCount,
                        struct FileListItem *OldList,long OldFileCount);
     int GetSelCount();
-    int GetSelName(char *Name,int &FileAttr,char *ShortName=NULL);
+    int GetSelName(char *Name,int &FileAttr,char *ShortName=NULL,WIN32_FIND_DATA *fd=NULL);
     void UngetSelName();
     void ClearLastGetSelection();
     long GetLastSelectedSize(int64 *Size);

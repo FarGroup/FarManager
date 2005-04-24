@@ -7,10 +7,12 @@ filefilter.hpp
 
 */
 
-/* Revision: 1.02 07.12.2003 $ */
+/* Revision: 1.03 23.04.2005 $ */
 
 /*
 Modify:
+  23.04.2005 KM
+    ! Модификация для запрета использования атрибута Directory из копирования
   07.12.2003 SVS
     ! SIZE_COUNT удален - будет юзаться FSIZE_IN_LAST из farconst.hpp
   11.10.2003 KM
@@ -68,7 +70,7 @@ class FileFilter
 
   public:
 
-    FileFilter();
+    FileFilter(int DisableDirAttr=FALSE);
     ~FileFilter();
 
     // Получить текущие настройки фильтра.
