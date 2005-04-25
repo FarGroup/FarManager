@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.154 23.04.2005 $ */
+/* Revision: 1.155 24.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 KM
+    ! ћодификаци€ на тему диалога настроек дополнительных параметров поиска
   23.04.2005 KM
     + MCopyUseFilter, MCopySetFilter,
   12.04.2005 KM
@@ -1335,11 +1337,6 @@ enum
   MFindFileMasks,
   MFindFileText,
   MFindFileHex,
-  MFindFileSearchFirst,
-  MFindFileSearchInBytes,
-  MFindFileSearchInKBytes,
-  MFindFileSearchInMBytes,
-  MFindFileSearchInGBytes,
   MFindFileCodePage,
   MFindFileCase,
   MFindFileWholeWords,
@@ -1357,10 +1354,12 @@ enum
   MSearchInCurrent,
   MSearchInSelected,
   MFindUseFilter,
+  MFindAdvancedOptions,
   MFindUsingFilter,
   MFindFileFind,
   MFindFileDrive,
   MFindFileSetFilter,
+  MFindFileAdvanced,
   MFindFileTable,
   MFindSearchingIn,
   MFindNewSearch,
@@ -1375,6 +1374,13 @@ enum
   MFindFound,
 
   MFindFileFolder,
+
+  MFindFileAdvancedTitle,
+  MFindFileSearchFirst,
+  MFindFileSearchInBytes,
+  MFindFileSearchInKBytes,
+  MFindFileSearchInMBytes,
+  MFindFileSearchInGBytes,
 
   MFoldTreeSearch,
 

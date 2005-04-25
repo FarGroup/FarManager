@@ -7,10 +7,12 @@ findfile.hpp
 
 */
 
-/* Revision: 1.15 14.04.2005 $ */
+/* Revision: 1.16 24.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 KM
+    ! Изменения в связи с вводом диалога дополнительных параметров поиска.
   12.04.2005 KM
     + Новая функция для получения размера ограничения поиска в файлах
       согласно выбранным единицам измерения
@@ -93,10 +95,12 @@ class FindFiles
     static DWORD AddArcListItem(const char *ArcName, HANDLE hPlugin,
                                 DWORD dwFlags, const char *RootPath);
     static void ClearAllLists();
+    static void AdvancedDialog();
 
     int FindFilesProcess();
     static long WINAPI FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
     static long WINAPI MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
+    static long WINAPI AdvancedDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
 
     static void SetPluginDirectory(char *DirName,HANDLE hPlugin,int UpdatePanel=FALSE);
     static void _cdecl PrepareFilesList(void *Param);

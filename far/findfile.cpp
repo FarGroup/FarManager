@@ -5,10 +5,13 @@ findfile.cpp
 
 */
 
-/* Revision: 1.173 18.04.2005 $ */
+/* Revision: 1.174 24.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 KM
+    ! Переделан диалог поиска. Теперь задание поиска в первых байтых (Кб,Мб или Гб)
+      вынесено в отдельный диалог настройки дополнительных параметров поиска.
   18.04.2005 WARP
     ! Перед вызовом GetFiles, получаем информацию с панели (GetFindData) и находим
       файл с таким же FindData (кроме ftLastAccessTime). Для него и вызываем GetFiles.
@@ -605,7 +608,7 @@ Modify:
 #include "filefilter.hpp"
 #include "farexcpt.hpp"
 
-#define DLG_HEIGHT 24
+#define DLG_HEIGHT 22
 #define DLG_WIDTH 74
 #define PARTIAL_DLG_STR_LEN 30
 #define CHAR_TABLE_SIZE 5
@@ -654,7 +657,8 @@ static int PluginMode;
 
 static HANDLE hPluginMutex;
 
-static int UseAllTables=FALSE,UseDecodeTable=FALSE,UseANSI=FALSE,UseUnicode=FALSE,TableNum=0,UseFilter=0,SearchInFirstIndex=0;
+static int UseAllTables=FALSE,UseDecodeTable=FALSE,UseANSI=FALSE,UseUnicode=FALSE,TableNum=0,UseFilter=0;
+static int SearchInFirstIndex=0,EnableSearchInFirst=FALSE;
 static __int64 SearchInFirst=0i64;
 static struct CharTableSet TableSet;
 
@@ -698,59 +702,43 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     {
       /* $ 21.09.2003 KM
          Переключение видимости строки ввода искомого текста
-         в зависимости от Dlg->Item[16].Selected
+         в зависимости от Dlg->Item[13].Selected
       */
-      if (Dlg->Item[16].Selected) // [ ] Search for hexadecimal code
+      if (Dlg->Item[13].Selected) // [ ] Search for hexadecimal code
       {
         Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,5,FALSE);
         Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,6,TRUE);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,8,FALSE);
         Dialog::SendDlgMessage(hDlg,DM_ENABLE,11,FALSE);
-        Dialog::SendDlgMessage(hDlg,DM_ENABLE,14,FALSE);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,12,FALSE);
         Dialog::SendDlgMessage(hDlg,DM_ENABLE,15,FALSE);
-        Dialog::SendDlgMessage(hDlg,DM_ENABLE,18,FALSE);
       }
       else
       {
         Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,5,TRUE);
         Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,6,FALSE);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,8,TRUE);
         Dialog::SendDlgMessage(hDlg,DM_ENABLE,11,TRUE);
-        Dialog::SendDlgMessage(hDlg,DM_ENABLE,14,TRUE);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,12,TRUE);
         Dialog::SendDlgMessage(hDlg,DM_ENABLE,15,TRUE);
-        Dialog::SendDlgMessage(hDlg,DM_ENABLE,18,TRUE);
       }
 
       Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,5,1);
       Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,6,1);
       /* KM $ */
 
-      /* $ 12.05.2004 KM
-         Управление доступностью строками ограничения поиска в файлах
-      */
-      if (Dlg->Item[5].Data[0])
+      unsigned int W=Dlg->Item[7].X1-Dlg->Item[4].X1-5;
+      if (strlen((Dlg->Item[13].Selected?FindHex:FindText))>W)
       {
-        Dialog::SendDlgMessage(hDlg,DM_ENABLE,8,TRUE);
-        Dialog::SendDlgMessage(hDlg,DM_ENABLE,9,TRUE);
-      }
-        else
-      {
-        Dialog::SendDlgMessage(hDlg,DM_ENABLE,8,FALSE);
-        Dialog::SendDlgMessage(hDlg,DM_ENABLE,9,FALSE);
-      }
-      Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,8,1);
-      /* KM $ */
-
-      unsigned int W=Dlg->Item[10].X1-Dlg->Item[4].X1-5;
-      if (strlen((Dlg->Item[16].Selected?FindHex:FindText))>W)
-      {
-        xstrncpy(DataStr,(Dlg->Item[16].Selected?FindHex:FindText),W-3);
+        xstrncpy(DataStr,(Dlg->Item[13].Selected?FindHex:FindText),W-3);
         DataStr[W-4]=0;
         strcat(DataStr,"...");
       }
       else
-        xstrncpy(DataStr,(Dlg->Item[16].Selected?FindHex:FindText),sizeof(DataStr)-1);
+        xstrncpy(DataStr,(Dlg->Item[13].Selected?FindHex:FindText),sizeof(DataStr)-1);
       Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,4,(long)DataStr);
 
-      W=Dlg->Item[0].X2-Dlg->Item[10].X1-3;
+      W=Dlg->Item[0].X2-Dlg->Item[7].X1-3;
       if (strlen(FindCode)>W)
       {
         xstrncpy(DataStr,FindCode,W-3);
@@ -759,7 +747,7 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       }
       else
         xstrncpy(DataStr,FindCode,sizeof(DataStr)-1);
-      Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,10,(long)DataStr);
+      Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,7,(long)DataStr);
 
       /* Установка запомненных ранее параметров */
       UseAllTables=Opt.CharTable.AllTables;
@@ -790,29 +778,21 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       else
         PrepareTable(&TableSet,TableNum,TRUE);
       RemoveChar(TableSet.TableName,'&',TRUE);
-      Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,11,(long)TableSet.TableName);
+      Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,8,(long)TableSet.TableName);
 
       FindFoldersChanged = FALSE;
       SearchFromChanged=FALSE;
 
-      if (Dlg->Item[25].Selected==1)
-        Dialog::SendDlgMessage(hDlg,DM_ENABLE,33,TRUE);
+      if (Dlg->Item[22].Selected==1)
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,31,TRUE);
       else
-        Dialog::SendDlgMessage(hDlg,DM_ENABLE,33,FALSE);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,31,FALSE);
 
       return TRUE;
     }
     case DN_LISTCHANGE:
     {
-      /* $ 11.12.2005 KM
-        Запомним индекс типа размера
-      */
-      if (Param1==9)
-      {
-        SearchInFirstIndex=Param2;
-      }
-      else if (Param1==11)
-      /* KM $ */
+      if (Param1==8)
       {
         /* $ 20.09.2003 KM
            Добавим поддержку ANSI таблицы
@@ -857,9 +837,9 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
            контролами, только с кнопками немного по-другому, поэтому простое
            нажатие ENTER на кнопках Find или Cancel ни к чему не приводило.
       */
-      if (Param1==32 || Param1==35) // [ Find ] или [ Cancel ]
+      if (Param1==30 || Param1==34) // [ Find ] или [ Cancel ]
         return FALSE;
-      else if (Param1==33) // [ Drive ]
+      else if (Param1==31) // [ Drive ]
       {
         IsRedrawFramesInProcess++;
         ActivePanel->ChangeDisk();
@@ -872,22 +852,24 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         PrepareDriveNameStr(SearchFromRoot,Min((int)sizeof(SearchFromRoot),(int)PARTIAL_DLG_STR_LEN));
         ItemData.PtrLength=strlen(SearchFromRoot);
         ItemData.PtrData=SearchFromRoot;
-        Dialog::SendDlgMessage(hDlg,DM_SETTEXT,25,(long)&ItemData);
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXT,22,(long)&ItemData);
         PluginMode=CtrlObject->Cp()->ActivePanel->GetMode()==PLUGIN_PANEL;
-        Dialog::SendDlgMessage(hDlg,DM_ENABLE,18,PluginMode?FALSE:TRUE);
-        Dialog::SendDlgMessage(hDlg,DM_ENABLE,23,PluginMode?FALSE:TRUE);
-        Dialog::SendDlgMessage(hDlg,DM_ENABLE,24,PluginMode?FALSE:TRUE);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,15,PluginMode?FALSE:TRUE);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,20,PluginMode?FALSE:TRUE);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,21,PluginMode?FALSE:TRUE);
       }
-      else if (Param1==34) // Filter
+      else if (Param1==32) // Filter
         Filter->Configure();
-      else if (Param1>=23 && Param1<=28)
+      else if (Param1==33) // Advanced
+        AdvancedDialog();
+      else if (Param1>=20 && Param1<=25)
       {
-        Dialog::SendDlgMessage(hDlg,DM_ENABLE,33,Param1==25?TRUE:FALSE);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,31,Param1==22?TRUE:FALSE);
         SearchFromChanged=TRUE;
       }
-      else if (Param1==18) // [ ] Search for folders
+      else if (Param1==15) // [ ] Search for folders
         FindFoldersChanged = TRUE;
-      else if (Param1==16) // [ ] Search for hexadecimal code
+      else if (Param1==13) // [ ] Search for hexadecimal code
       {
         Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
 
@@ -903,10 +885,10 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
           Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,5,FALSE);
           Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,6,TRUE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,8,FALSE);
           Dialog::SendDlgMessage(hDlg,DM_ENABLE,11,FALSE);
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,14,FALSE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,12,FALSE);
           Dialog::SendDlgMessage(hDlg,DM_ENABLE,15,FALSE);
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,18,FALSE);
         }
         else
         {
@@ -915,14 +897,14 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
           Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,5,TRUE);
           Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,6,FALSE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,8,TRUE);
           Dialog::SendDlgMessage(hDlg,DM_ENABLE,11,TRUE);
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,14,TRUE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,12,TRUE);
           Dialog::SendDlgMessage(hDlg,DM_ENABLE,15,TRUE);
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,18,TRUE);
         }
         /* KM $ */
 
-        unsigned int W=Dlg->Item[10].X1-Dlg->Item[4].X1-5;
+        unsigned int W=Dlg->Item[7].X1-Dlg->Item[4].X1-5;
         if (strlen((Param2?FindHex:FindText))>W)
         {
           xstrncpy(DataStr,(Param2?FindHex:FindText),W-3);
@@ -941,6 +923,8 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
         Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
       }
+      else if (Param1==28) // [ ] Advanced options
+        EnableSearchInFirst=Param2;
       return TRUE;
       /* KM $ */
       /* KM $ */
@@ -949,42 +933,19 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     {
       FarDialogItem &Item=*reinterpret_cast<FarDialogItem*>(Param2);
 
-      /* $ 12.05.2004 KM
-         Управление доступностью строками ограничения поиска в файлах
-      */
-      if (Param1==5 || Param1==6)
+      if (Param1==5)
       {
-        if (Param1==5)
+        if(!FindFoldersChanged)
+        // Строка "Содержащих текст"
         {
-          if(!FindFoldersChanged)
-          // Строка "Содержащий текст"
-          {
-            xstrncpy(DataStr,Item.Data.Data,sizeof(DataStr)-1);
+          xstrncpy(DataStr,Item.Data.Data,sizeof(DataStr)-1);
 
-            BOOL Checked = (*DataStr)?FALSE:Opt.FindOpt.FindFolders;
-            if (Checked)
-              Dialog::SendDlgMessage(hDlg, DM_SETCHECK, 18, BSTATE_CHECKED);
-            else
-              Dialog::SendDlgMessage(hDlg, DM_SETCHECK, 18, BSTATE_UNCHECKED);
-          }
-        }
-        else if (Param1==6)
-        {
-          int LenDataStr=sizeof(DataStr);
-          Transform((unsigned char *)DataStr,LenDataStr,Item.Data.Data,'S');
-        }
-
-        if (*DataStr)
-        {
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,8,TRUE);
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,9,TRUE);
-        }
+          BOOL Checked = (*DataStr)?FALSE:Opt.FindOpt.FindFolders;
+          if (Checked)
+            Dialog::SendDlgMessage(hDlg, DM_SETCHECK, 15, BSTATE_CHECKED);
           else
-        {
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,8,FALSE);
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,9,FALSE);
+            Dialog::SendDlgMessage(hDlg, DM_SETCHECK, 15, BSTATE_UNCHECKED);
         }
-        /* KM $ */
       }
       return TRUE;
     }
@@ -996,7 +957,7 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     {
       if (Param1==4)
       {
-        if (Dlg->Item[16].Selected)
+        if (Dlg->Item[13].Selected)
           Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,6,0);
         else
           Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,5,0);
@@ -1050,8 +1011,11 @@ FindFiles::FindFiles()
   SearchInSymLink=LastSearchInSymLink;
   SearchMode=Opt.FindOpt.FileSearchMode;
 
-    // Индекс типа размера, в котором производить ограничение поиска в файле
+  // Индекс типа размера, в котором производить ограничение поиска в файле
   SearchInFirstIndex=Opt.FindOpt.SearchInFirst;
+
+  // По-умолчанию дополнительные параметры не используются
+  EnableSearchInFirst=FALSE;
 
   xstrncpy(FindMask,LastFindMask,sizeof(FindMask)-1);
   xstrncpy(FindStr,LastFindStr,sizeof(FindStr)-1);
@@ -1059,22 +1023,6 @@ FindFiles::FindFiles()
 
   xstrncpy(SearchFromRoot,MSG(MSearchFromRootFolder),sizeof(SearchFromRoot)-1);
   SearchFromRoot[sizeof(SearchFromRoot)-1]=0;
-
-  /* $ 10.04.2005 KM
-     Список единиц измерения, используя которые проводится поиск
-     в первых байтах (килобайтах, мегабайтах или гигабайтах) файлов
-  */
-  FarList SizeList;
-  FarListItem *SizeItem=(FarListItem *)xf_malloc(sizeof(FarListItem)*4);
-  SizeList.Items=SizeItem;
-  SizeList.ItemsNumber=4;
-
-  memset(SizeItem,0,sizeof(FarListItem)*4);
-  xstrncpy(SizeItem[0].Text,MSG(MFindFileSearchInBytes),sizeof(SizeItem[0].Text)-1);
-  xstrncpy(SizeItem[1].Text,MSG(MFindFileSearchInKBytes),sizeof(SizeItem[2].Text)-1);
-  xstrncpy(SizeItem[2].Text,MSG(MFindFileSearchInMBytes),sizeof(SizeItem[3].Text)-1);
-  xstrncpy(SizeItem[3].Text,MSG(MFindFileSearchInGBytes),sizeof(SizeItem[4].Text)-1);
-  /* KM $ */
 
   FarList TableList;
   FarListItem *TableItem=(FarListItem *)xf_malloc(sizeof(FarListItem)*CHAR_TABLE_SIZE);
@@ -1130,8 +1078,7 @@ FindFiles::FindFiles()
     PrepareDriveNameStr(SearchFromRoot,Min((int)sizeof(SearchFromRoot),(int)PARTIAL_DLG_STR_LEN));
 
     const char *MasksHistoryName="Masks",*TextHistoryName="SearchText";
-    const char *HexMask="HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH";
-    const char *DigitMask="99999999999999999999";
+    const char *HexMask="HH HH HH HH HH HH HH HH HH HH HH"; // HH HH HH HH HH HH HH HH HH HH HH HH";
 
 /*
     000000000011111111112222222222333333333344444444445555555555666666666677777777
@@ -1140,27 +1087,25 @@ FindFiles::FindFiles()
 01  "  +----------------------------- Find file ------------------------------+  "
 02  "  ¦ A file mask or several file masks:                                   ¦  "
 03  "  ¦ *.*#################################################################.¦  "
-04  "  ¦ Containing text:                                                     ¦  "
-05  "  ¦ ####################################################################.¦  "
-06  "  ¦----------------------------------+-----------------------------------¦  "
-07  "  ¦ Make search in first:            ¦ Using character table:            ¦  "
-08  "  ¦ #################### ###########.¦ Windows text#####################.¦  "
-09  "  ¦----------------------------------+-----------------------------------¦  "
-10  "  ¦ [ ] Case sensitive               ¦ [ ] Search in archives            ¦  "
-11  "  ¦ [ ] Whole words                  ¦ [x] Search for folders            ¦  "
-12  "  ¦ [ ] Search for hex               ¦ [x] Search in symbolic links      ¦  "
-13  "  ¦----------------------------------+-----------------------------------¦  "
-14  "  ¦ Select place to search                                               ¦  "
-15  "  ¦ ( ) All non-removable drives       (.) From the current folder       ¦  "
-16  "  ¦ ( ) All local drives               ( ) The current folder only       ¦  "
-17  "  ¦ ( ) From the root of C:            ( ) Selected folders              ¦  "
+04  "  ¦----------------------------------+-----------------------------------¦  "
+05  "  ¦ Containing text:                 ¦ Using character table:            ¦  "
+06  "  ¦ ################################.¦ Windows text#####################.¦  "
+07  "  ¦----------------------------------+-----------------------------------¦  "
+08  "  ¦ [ ] Case sensitive               ¦ [ ] Search in archives            ¦  "
+09  "  ¦ [ ] Whole words                  ¦ [x] Search for folders            ¦  "
+10  "  ¦ [ ] Search for hex               ¦ [x] Search in symbolic links      ¦  "
+11  "  ¦----------------------------------+-----------------------------------¦  "
+12  "  ¦ Select place to search                                               ¦  "
+13  "  ¦ ( ) In all non-removable drives    (.) From the current folder       ¦  "
+14  "  ¦ ( ) In all local drives            ( ) The current folder only       ¦  "
+15  "  ¦ ( ) From the root of C:            ( ) Selected folders              ¦  "
+16  "  ¦----------------------------------------------------------------------¦  "
+17  "  ¦ [ ] Use filter                     [ ] Advanced options              ¦  "
 18  "  ¦----------------------------------------------------------------------¦  "
-19  "  ¦ [ ] Use filter                                                       ¦  "
-20  "  ¦----------------------------------------------------------------------¦  "
-21  "  ¦             [ Find ]  [ Drive ]  [ Filter ]  [ Cancel ]              ¦  "
-22  "  +----------------------------------------------------------------------+  "
-23  "                                                                            "
-24  """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+19  "  ¦      [ Find ]  [ Drive ]  [ Filter ]  [ Advanced ]  [ Cancel ]       ¦  "
+20  "  +----------------------------------------------------------------------+  "
+21  "                                                                            "
+22  """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 */
 
     /* $ 30.07.2000 KM
@@ -1171,51 +1116,50 @@ FindFiles::FindFiles()
       /* 00 */DI_DOUBLEBOX,3,1,DLG_WIDTH,DLG_HEIGHT-2,0,0,0,0,(char *)MFindFileTitle,
       /* 01 */DI_TEXT,5,2,0,0,0,0,0,0,(char *)MFindFileMasks,
       /* 02 */DI_EDIT,5,3,72,3,1,(DWORD)MasksHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,0,"",
-      /* 03 */DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR2,0,"",
-      /* 04 */DI_TEXT,5,4,0,0,0,0,0,0,"",
-      /* 05 */DI_EDIT,5,5,72,5,0,(DWORD)TextHistoryName,DIF_HISTORY,0,"",
-      /* 06 */DI_FIXEDIT,5,5,72,5,0,(DWORD)HexMask,DIF_MASKEDIT,0,"",
-      /* 07 */DI_TEXT,5,7,0,0,0,0,0,0,(char *)MFindFileSearchFirst,
-      /* 08 */DI_FIXEDIT,5,8,24,8,0,(DWORD)DigitMask,DIF_MASKEDIT,0,"",
-      /* 09 */DI_COMBOBOX,26,8,36,18,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,"",
-      /* 10 */DI_TEXT,40,7,0,0,0,0,0,0,"",
-      /* 11 */DI_COMBOBOX,40,8,72,18,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,"",
-      /* 12 */DI_TEXT,3,9,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-      /* 13 */DI_VTEXT,38,6,0,0,0,0,DIF_BOXCOLOR,0,"\xD1\xB3\xB3\xC1",
-      /* 14 */DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MFindFileCase,
-      /* 15 */DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MFindFileWholeWords,
-      /* 16 */DI_CHECKBOX,5,12,0,0,0,0,0,0,(char *)MSearchForHex,
-      /* 17 */DI_CHECKBOX,40,10,0,0,0,0,0,0,(char *)MFindArchives,
-      /* 18 */DI_CHECKBOX,40,11,0,0,0,0,0,0,(char *)MFindFolders,
-      /* 19 */DI_CHECKBOX,40,12,0,0,0,0,0,0,(char *)MFindSymLinks,
-      /* 20 */DI_TEXT,3,13,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR2,0,"",
-      /* 21 */DI_VTEXT,38,9,0,0,0,0,DIF_BOXCOLOR,0,"\xC5\xB3\xB3\xB3\xCF",
-      /* 22 */DI_TEXT,5,14,0,0,0,0,0,0,(char *)MSearchWhere,
-      /* 23 */DI_RADIOBUTTON,5,15,0,0,0,0,DIF_GROUP,0,(char *)MSearchAllDisks,
-      /* 24 */DI_RADIOBUTTON,5,16,0,0,0,1,0,0,(char *)MSearchAllButNetwork,
-      /* 25 */DI_RADIOBUTTON,5,17,0,0,0,1,0,0,"",
-      /* 26 */DI_RADIOBUTTON,40,15,0,0,0,0,0,0,(char *)MSearchFromCurrent,
-      /* 27 */DI_RADIOBUTTON,40,16,0,0,0,0,0,0,(char *)MSearchInCurrent,
-      /* 28 */DI_RADIOBUTTON,40,17,0,0,0,0,0,0,(char *)MSearchInSelected,
+      /* 03 */DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR2,0,"",
+      /* 04 */DI_TEXT,5,5,0,0,0,0,0,0,"",
+      /* 05 */DI_EDIT,5,6,36,5,0,(DWORD)TextHistoryName,DIF_HISTORY,0,"",
+      /* 06 */DI_FIXEDIT,5,6,36,5,0,(DWORD)HexMask,DIF_MASKEDIT,0,"",
+      /* 07 */DI_TEXT,40,5,0,0,0,0,0,0,"",
+      /* 08 */DI_COMBOBOX,40,6,72,18,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,"",
+      /* 09 */DI_TEXT,3,7,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+      /* 10 */DI_VTEXT,38,4,0,0,0,0,DIF_BOXCOLOR,0,"\xD1\xB3\xB3\xC1",
+      /* 11 */DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MFindFileCase,
+      /* 12 */DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MFindFileWholeWords,
+      /* 13 */DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MSearchForHex,
+      /* 14 */DI_CHECKBOX,40,8,0,0,0,0,0,0,(char *)MFindArchives,
+      /* 15 */DI_CHECKBOX,40,9,0,0,0,0,0,0,(char *)MFindFolders,
+      /* 16 */DI_CHECKBOX,40,10,0,0,0,0,0,0,(char *)MFindSymLinks,
+      /* 17 */DI_TEXT,3,11,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR2,0,"",
+      /* 18 */DI_VTEXT,38,7,0,0,0,0,DIF_BOXCOLOR,0,"\xC5\xB3\xB3\xB3\xCF",
+      /* 19 */DI_TEXT,5,12,0,0,0,0,0,0,(char *)MSearchWhere,
+      /* 20 */DI_RADIOBUTTON,5,13,0,0,0,0,DIF_GROUP,0,(char *)MSearchAllDisks,
+      /* 21 */DI_RADIOBUTTON,5,14,0,0,0,1,0,0,(char *)MSearchAllButNetwork,
+      /* 22 */DI_RADIOBUTTON,5,15,0,0,0,1,0,0,"",
+      /* 23 */DI_RADIOBUTTON,40,13,0,0,0,0,0,0,(char *)MSearchFromCurrent,
+      /* 24 */DI_RADIOBUTTON,40,14,0,0,0,0,0,0,(char *)MSearchInCurrent,
+      /* 25 */DI_RADIOBUTTON,40,15,0,0,0,0,0,0,(char *)MSearchInSelected,
+      /* 26 */DI_TEXT,3,16,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+      /* 27 */DI_CHECKBOX,5,17,0,0,0,0,0,0,(char *)MFindUseFilter,
+      /* 28 */DI_CHECKBOX,40,17,0,0,0,0,0,0,(char *)MFindAdvancedOptions,
       /* 29 */DI_TEXT,3,18,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-      /* 30 */DI_CHECKBOX,5,19,0,0,0,0,0,0,(char *)MFindUseFilter,
-      /* 31 */DI_TEXT,3,20,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-      /* 32 */DI_BUTTON,0,21,0,0,0,0,DIF_CENTERGROUP,1,(char *)MFindFileFind,
-      /* 33 */DI_BUTTON,0,21,0,0,0,0,DIF_CENTERGROUP,0,(char *)MFindFileDrive,
-      /* 34 */DI_BUTTON,0,21,0,0,0,0,DIF_CENTERGROUP,0,(char *)MFindFileSetFilter,
-      /* 35 */DI_BUTTON,0,21,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel,
+      /* 30 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,1,(char *)MFindFileFind,
+      /* 31 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MFindFileDrive,
+      /* 32 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MFindFileSetFilter,
+      /* 33 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MFindFileAdvanced,
+      /* 34 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel,
     };
     /* KM $ */
-    FindAskDlgData[25].Data=SearchFromRoot;
+    FindAskDlgData[22].Data=SearchFromRoot;
 
     MakeDialogItems(FindAskDlgData,FindAskDlg);
 
 
     if (!*FindStr)
-      FindAskDlg[18].Selected=Opt.FindOpt.FindFolders;
-    for(I=23; I <= 28; ++I)
+      FindAskDlg[15].Selected=Opt.FindOpt.FindFolders;
+    for(I=20; I <= 25; ++I)
       FindAskDlg[I].Selected=0;
-    FindAskDlg[23+SearchMode].Selected=1;
+    FindAskDlg[20+SearchMode].Selected=1;
 
     {
       if (PluginMode)
@@ -1227,30 +1171,30 @@ FindFiles::FindFiles()
            дизейблим, а не прячем
         */
         if ((Info.Flags & OPIF_REALNAMES)==0)
-          FindAskDlg[17].Flags |= DIF_DISABLE;
+          FindAskDlg[14].Flags |= DIF_DISABLE;
         /* DJ $ */
-        if (FindAskDlg[23].Selected || FindAskDlg[24].Selected)
+        if (FindAskDlg[20].Selected || FindAskDlg[21].Selected)
         {
-          FindAskDlg[23].Selected=FindAskDlg[24].Selected=0;
-          FindAskDlg[25].Selected=1;
+          FindAskDlg[20].Selected=FindAskDlg[21].Selected=0;
+          FindAskDlg[22].Selected=1;
         }
-        FindAskDlg[23].Flags=FindAskDlg[24].Flags|=DIF_DISABLE;
+        FindAskDlg[20].Flags=FindAskDlg[21].Flags|=DIF_DISABLE;
       }
     }
 
     if (!RegVer || PluginMode)
     {
-      FindAskDlg[19].Selected=0;
-      FindAskDlg[19].Flags|=DIF_DISABLE;
+      FindAskDlg[16].Selected=0;
+      FindAskDlg[16].Flags|=DIF_DISABLE;
     }
     else
-      FindAskDlg[19].Selected=SearchInSymLink;
+      FindAskDlg[16].Selected=SearchInSymLink;
 
     /* $ 14.05.2001 DJ
        не селектим чекбокс, если нельзя искать в архивах
     */
-    if (!(FindAskDlg[17].Flags & DIF_DISABLE))
-      FindAskDlg[17].Selected=SearchInArchives;
+    if (!(FindAskDlg[14].Flags & DIF_DISABLE))
+      FindAskDlg[14].Selected=SearchInArchives;
     /* DJ $ */
 
     xstrncpy(FindAskDlg[2].Data,FindMask,sizeof(FindAskDlg[2].Data)-1);
@@ -1262,27 +1206,21 @@ FindFiles::FindFiles()
       xstrncpy(FindAskDlg[5].Data,FindStr,sizeof(FindAskDlg[5].Data)-1);
     /* KM $ */
 
-    FindAskDlg[14].Selected=CmpCase;
-    FindAskDlg[15].Selected=WholeWords;
-    FindAskDlg[16].Selected=SearchHex;
+    FindAskDlg[11].Selected=CmpCase;
+    FindAskDlg[12].Selected=WholeWords;
+    FindAskDlg[13].Selected=SearchHex;
 
     // Использовать фильтр. KM
-    FindAskDlg[30].Selected=UseFilter;
+    FindAskDlg[27].Selected=UseFilter;
 
-    // Установим размер, который будет использован для ограничения поиска
-    // строки в первых байтах (килобайтах, мегабайтах или гигабайтах) в файлах.
-    xstrncpy(FindAskDlg[8].Data,Opt.FindOpt.SearchInFirstSize,sizeof(FindAskDlg[8].Data)-1);
-
-    // Установим единицу измерения, в которых будет считаться размер ограничения поиска
-    // строки в первых байтах (килобайтах, мегабайтах или гигабайтах) в файлах.
-    xstrncpy(FindAskDlg[9].Data,SizeItem[SearchInFirstIndex].Text,sizeof(FindAskDlg[9].Data)-1);
+    // Включить дополнительные опции поиска. KM
+    FindAskDlg[28].Selected=EnableSearchInFirst;
 
     while (1)
     {
       int ExitCode;
       {
-        FindAskDlg[9].ListItems=&SizeList;
-        FindAskDlg[11].ListItems=&TableList;
+        FindAskDlg[8].ListItems=&TableList;
 
         Dialog Dlg(FindAskDlg,sizeof(FindAskDlg)/sizeof(FindAskDlg[0]),MainDlgProc);
 
@@ -1292,7 +1230,7 @@ FindFiles::FindFiles()
         ExitCode=Dlg.GetExitCode();
       }
 
-      if (ExitCode!=32)
+      if (ExitCode!=30)
       {
         xf_free(TableItem);
         CloseHandle(hPluginMutex);
@@ -1309,17 +1247,6 @@ FindFiles::FindFiles()
         Opt.CharTable.TableNum=0;
       /****************************************/
 
-      /* $ 11.04.2005 KM
-        Запомним параметры, относящиеся к поиску в первых
-        байтах (Кб,Мб или Гб) после поиска.
-      */
-      Opt.FindOpt.SearchInFirst=SearchInFirstIndex;
-      xstrncpy(Opt.FindOpt.SearchInFirstSize,FindAskDlg[8].Data,sizeof(Opt.FindOpt.SearchInFirstSize)-1);
-
-      // Получим максимальный размер чтения из файла при поиске
-      SearchInFirst=GetSearchInFirst(FindAskDlg[8].Data);
-      /* KM $ */
-
       /* $ 01.07.2001 IS
          Проверим маску на корректность
       */
@@ -1331,22 +1258,22 @@ FindFiles::FindFiles()
       /* IS $ */
     }
 
-    CmpCase=FindAskDlg[14].Selected;
+    CmpCase=FindAskDlg[11].Selected;
     /* $ 30.07.2000 KM
        Добавлена переменная
     */
-    WholeWords=FindAskDlg[15].Selected;
+    WholeWords=FindAskDlg[12].Selected;
     /* KM $ */
-    SearchHex=FindAskDlg[16].Selected;
-    SearchInArchives=FindAskDlg[17].Selected;
+    SearchHex=FindAskDlg[13].Selected;
+    SearchInArchives=FindAskDlg[14].Selected;
     if (FindFoldersChanged)
-      Opt.FindOpt.FindFolders=FindAskDlg[18].Selected;
+      Opt.FindOpt.FindFolders=FindAskDlg[15].Selected;
 
     if (RegVer && !PluginMode)
-      SearchInSymLink=FindAskDlg[19].Selected;
+      SearchInSymLink=FindAskDlg[16].Selected;
 
     // Запомнить признак использования фильтра. KM
-    UseFilter=FindAskDlg[30].Selected;
+    UseFilter=FindAskDlg[27].Selected;
 
     /* $ 14.12.2000 OT */
 
@@ -1381,17 +1308,17 @@ FindFiles::FindFiles()
       /* KM $ */
       GlobalSearchHex=SearchHex;
     }
-    if (FindAskDlg[23].Selected)
+    if (FindAskDlg[20].Selected)
       SearchMode=SEARCH_ALL;
-    if (FindAskDlg[24].Selected)
+    if (FindAskDlg[21].Selected)
       SearchMode=SEARCH_ALL_BUTNETWORK;
-    if (FindAskDlg[25].Selected)
+    if (FindAskDlg[22].Selected)
       SearchMode=SEARCH_ROOT;
-    if (FindAskDlg[26].Selected)
+    if (FindAskDlg[23].Selected)
       SearchMode=SEARCH_FROM_CURRENT;
-    if (FindAskDlg[27].Selected)
+    if (FindAskDlg[24].Selected)
       SearchMode=SEARCH_CURRENT_ONLY;
-    if (FindAskDlg[28].Selected)
+    if (FindAskDlg[25].Selected)
         SearchMode=SEARCH_SELECTED;
     if (SearchFromChanged)
     {
@@ -1429,6 +1356,96 @@ FindFiles::~FindFiles()
   // Уничтожим объект фильтра
   if(Filter)
     delete Filter;
+}
+
+long WINAPI FindFiles::AdvancedDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
+{
+  switch(Msg)
+  {
+    case DN_INITDIALOG:
+    {
+      Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,2,1);
+    }
+    case DN_LISTCHANGE:
+    {
+      /* $ 11.12.2005 KM
+        Запомним индекс типа размера
+      */
+      if (Param1==3)
+      {
+        SearchInFirstIndex=Param2;
+      }
+      return TRUE;
+    }
+  }
+  return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
+}
+
+void FindFiles::AdvancedDialog()
+{
+  /* $ 10.04.2005 KM
+     Список единиц измерения, используя которые проводится поиск
+     в первых байтах (килобайтах, мегабайтах или гигабайтах) файлов
+  */
+  FarList SizeList;
+  FarListItem *SizeItem=(FarListItem *)xf_malloc(sizeof(FarListItem)*4);
+  SizeList.Items=SizeItem;
+  SizeList.ItemsNumber=4;
+
+  memset(SizeItem,0,sizeof(FarListItem)*4);
+  xstrncpy(SizeItem[0].Text,MSG(MFindFileSearchInBytes),sizeof(SizeItem[0].Text)-1);
+  xstrncpy(SizeItem[1].Text,MSG(MFindFileSearchInKBytes),sizeof(SizeItem[2].Text)-1);
+  xstrncpy(SizeItem[2].Text,MSG(MFindFileSearchInMBytes),sizeof(SizeItem[3].Text)-1);
+  xstrncpy(SizeItem[3].Text,MSG(MFindFileSearchInGBytes),sizeof(SizeItem[4].Text)-1);
+  /* KM $ */
+
+  const char *DigitMask="99999999999999999999";
+
+  static struct DialogData AdvancedDlgData[]=
+  {
+    /* 00 */DI_DOUBLEBOX,3,1,38,6,0,0,0,0,(char *)MFindFileAdvancedTitle,
+    /* 01 */DI_TEXT,5,2,0,0,0,0,0,0,(char *)MFindFileSearchFirst,
+    /* 02 */DI_FIXEDIT,5,3,24,3,0,(DWORD)DigitMask,DIF_MASKEDIT,0,"",
+    /* 03 */DI_COMBOBOX,26,3,36,13,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,"",
+    /* 04 */DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+    /* 05 */DI_BUTTON,0,5,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+    /* 06 */DI_BUTTON,0,5,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel,
+  };
+
+  MakeDialogItems(AdvancedDlgData,AdvancedDlg);
+
+  // Установим размер, который будет использован для ограничения поиска
+  // строки в первых байтах (килобайтах, мегабайтах или гигабайтах) в файлах.
+  xstrncpy(AdvancedDlg[2].Data,Opt.FindOpt.SearchInFirstSize,sizeof(AdvancedDlg[2].Data)-1);
+
+  // Установим единицу измерения, в которых будет считаться размер ограничения поиска
+  // строки в первых байтах (килобайтах, мегабайтах или гигабайтах) в файлах.
+  xstrncpy(AdvancedDlg[3].Data,SizeItem[Opt.FindOpt.SearchInFirst].Text,sizeof(AdvancedDlg[3].Data)-1);
+
+  AdvancedDlg[3].ListItems=&SizeList;
+
+  Dialog Dlg(AdvancedDlg,sizeof(AdvancedDlg)/sizeof(AdvancedDlg[0]),AdvancedDlgProc);
+
+  Dlg.SetHelp("FindFileAdvanced");
+  Dlg.SetPosition(-1,-1,38+4,6+2);
+  Dlg.Process();
+  int ExitCode=Dlg.GetExitCode();
+
+  if (ExitCode==5) // OK
+  {
+    /* $ 11.04.2005 KM
+      Запомним параметры, относящиеся к поиску в первых
+      байтах (Кб,Мб или Гб) после поиска.
+    */
+    Opt.FindOpt.SearchInFirst=SearchInFirstIndex;
+    xstrncpy(Opt.FindOpt.SearchInFirstSize,AdvancedDlg[2].Data,sizeof(Opt.FindOpt.SearchInFirstSize)-1);
+
+    // Получим максимальный размер чтения из файла при поиске
+    SearchInFirst=GetSearchInFirst(AdvancedDlg[2].Data);
+    /* KM $ */
+  }
+
+  xf_free(SizeItem);
 }
 
 int FindFiles::GetPluginFile(DWORD ArcIndex, struct PluginPanelItem *PanelItem,
@@ -2886,7 +2903,7 @@ int FindFiles::LookForString(char *Name)
        Если используется ограничение по поиску на размер чтения из файла,
        проверим не перешли ли мы уже границу максимально допустимого размера
     */
-    if (SearchInFirst)
+    if (EnableSearchInFirst && SearchInFirst)
     {
       if (AlreadyRead+ReadSize>SearchInFirst)
       {

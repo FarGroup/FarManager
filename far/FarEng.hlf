@@ -1264,12 +1264,6 @@ may also be used with file systems emulated by ~plugins~@Plugins@.
 text. If the string is entered, the option #Case sensitive# selects case
 sensitive comparison.
 
-    The specified text string can be searched not only in the whole file,
-but also inside a specified range at the begining of the file, defined
-by the #Search only in the first# property. If the specified value is less
-than the file size, the rest of the file will be ignored even if the
-required sequence exists there.
-
     The option #Whole words# will let to find only the text that is separated
 from other text with spaces, tab characters, line breaks or standard
 separators, which by default are: #!%^&*()+|{}:"<>?`-=\\[];',./#.
@@ -1311,6 +1305,19 @@ dialog one can change disk drive of the search. This option is enabled when
     Check the #Use filter# checkbox to search for files according to user
 defined conditions. Press the #Filter# button to open the conditions
 configuration ~dialog~@OpFilter@.
+
+    The #Advanced# button invokes the ~find file advanced options~@FindFileAdvanced@
+dialog that can be used to specify extended set of search properties. To quickly
+enable or disable these options use the #Advanced options# checkbox.
+
+
+@FindFileAdvanced
+$ #Find file advanced options#
+    The text string that is entered in #Containing text# (or #Containing hex#)
+field can be searched not only in the whole file, but also inside a specified
+range at the begining of the file, defined by the #Search only in the first#
+property. If the specified value is less than the file size, the rest of the
+file will be ignored even if the required sequence exists there.
 
 
 @FindFileResult
@@ -3084,7 +3091,7 @@ defined conditions. Press the #Filter# button to open the conditions
 configuration ~dialog~@OpFilter@. Consider, that if you copy the folder
 with files and all of them does not meet the filter conditions, then the empty
 folder will not be copied to the destination.
-  
+
 
 @CopyRule
 $ #Copying: rules#
