@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.146 23.04.2005 $ */
+/* Revision: 1.147 24.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 SVS
+    ! выделяем стока (размер для строк), скока нужно.
   23.04.2005 KM
     + Добавлено использование фильтра операций
   03.04.2005 SVS
@@ -568,14 +570,10 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   DestList.SetParameters(0,0,ULF_UNIQUE);
   /* IS $ */
   struct CopyDlgParam CDP;
-  /* $ 03.08.2001 IS
-       CopyDlgValue - в этой переменной храним заветную строчку из диалога,
-       именно эту переменную всячески измененяем, а CopyDlg[2].Data не трогаем.
-  */
-  char CopyStr[100],SelName[NM*2],CopyDlgValue[NM*2];
-  char DestDir[NM*2],InitDestDir[NM*2],SrcDir[NM*2];
-  /* IS $ */
-  char SelNameShort[NM*2];
+
+  char CopyStr[100];
+  char SelNameShort[NM],SelName[NM];
+
   int DestPlugin;
   int AddSlash=FALSE;
 
@@ -665,6 +663,29 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   DestPanelMode=DestPlugin ? DestPanel->GetMode():NORMAL_PANEL;
   SrcPanelMode=SrcPanel->GetMode();
 
+  int SizeBuffer=2048;
+  if(DestPanelMode == PLUGIN_PANEL)
+  {
+    struct OpenPluginInfo Info;
+    DestPanel->GetOpenPluginInfo(&Info);
+    int LenCurDir=strlen(NullToEmpty(Info.CurDir));
+    if(SizeBuffer < LenCurDir)
+      SizeBuffer=LenCurDir;
+  }
+  SizeBuffer+=NM; // добавка :-)
+
+  /* $ 03.08.2001 IS
+       CopyDlgValue - в этой переменной храним заветную строчку из диалога,
+       именно эту переменную всячески измененяем, а CopyDlg[2].Data не трогаем.
+  */
+  char *CopyDlgValue=(char *)alloca(SizeBuffer);
+  char *Dlg2Value=(char *)alloca(SizeBuffer);
+  char *DestDir=(char *)alloca(SizeBuffer);
+  char *InitDestDir=(char *)alloca(SizeBuffer);
+  char *SrcDir=(char *)alloca(SizeBuffer);
+
+  *Dlg2Value=0;
+
   // ***********************************************************************
   // *** Prepare Dialog Controls
   // ***********************************************************************
@@ -673,7 +694,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   static struct DialogData CopyDlgData[]={
   /* 00 */  DI_DOUBLEBOX,3,1,DLG_WIDTH-4,DLG_HEIGHT-2,0,0,0,0,(char *)MCopyDlgTitle,
   /* 01 */  DI_TEXT,5,2,0,2,0,0,0,0,(char *)MCMLTargetTO,
-  /* 02 */  DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY|DIF_EDITEXPAND|DIF_USELASTHISTORY/*|DIF_EDITPATH*/,0,"",
+  /* 02 */  DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY|DIF_EDITEXPAND|DIF_EDITEXPAND|DIF_USELASTHISTORY/*|DIF_EDITPATH*/,0,"",
   /* 03 */  DI_TEXT,3,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
   /* 04 */  DI_CHECKBOX,5,5,0,5,0,0,0,0,(char *)MCopySecurity,
   /* 05 */  DI_CHECKBOX,5,6,0,6,0,0,0,0,(char *)MCopyOnlyNewerFiles,
@@ -691,10 +712,13 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   MakeDialogItems(CopyDlgData,CopyDlg);
 
   CopyDlg[7].Selected=Opt.MultiCopy;
-  /* IS $ */
 
   // Использовать фильтр. KM
   CopyDlg[9].Selected=UseFilter;
+
+  CopyDlg[2].Ptr.PtrData=Dlg2Value;
+  CopyDlg[2].Ptr.PtrLength=SizeBuffer;
+
 
   if(Link)
   {
@@ -794,11 +818,11 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
      если оно содержит разделители.
   */
   {
-    strcpy(CopyDlg[2].Data,SelName);
-    if(strpbrk(CopyDlg[2].Data,",;"))
+    strcpy((char *)CopyDlg[2].Ptr.PtrData,SelName);
+    if(strpbrk((char *)CopyDlg[2].Ptr.PtrData,",;"))
     {
-      Unquote(CopyDlg[2].Data);     // уберем все лишние кавычки
-      InsertQuote(CopyDlg[2].Data); // возьмем в кавычки, т.к. могут быть разделители
+      Unquote((char *)CopyDlg[2].Ptr.PtrData);     // уберем все лишние кавычки
+      InsertQuote((char *)CopyDlg[2].Ptr.PtrData); // возьмем в кавычки, т.к. могут быть разделители
     }
   }
   /* IS $ */
@@ -807,20 +831,20 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     {
       case NORMAL_PANEL:
         if ((*DestDir==0 || !DestPanel->IsVisible() || !stricmp(SrcDir,DestDir)) && CDP.SelCount==1)
-          strcpy(CopyDlg[2].Data,SelName);
+          strcpy((char *)CopyDlg[2].Ptr.PtrData,SelName);
         else
         {
-          AddEndSlash(strcpy(CopyDlg[2].Data,DestDir));
+          AddEndSlash(strcpy((char *)CopyDlg[2].Ptr.PtrData,DestDir));
         }
         CDP.PluginFormat[0]=0;
         /* $ 19.07.2003 IS
            Если цель содержит разделители, то возьмем ее в кавычки, дабы не получить
            ерунду при F5, Enter в панелях, когда пользователь включит MultiCopy
         */
-        if(strpbrk(CopyDlg[2].Data,",;"))
+        if(strpbrk((char *)CopyDlg[2].Ptr.PtrData,",;"))
         {
-          Unquote(CopyDlg[2].Data);     // уберем все лишние кавычки
-          InsertQuote(CopyDlg[2].Data); // возьмем в кавычки, т.к. могут быть разделители
+          Unquote((char *)CopyDlg[2].Ptr.PtrData);     // уберем все лишние кавычки
+          InsertQuote((char *)CopyDlg[2].Ptr.PtrData); // возьмем в кавычки, т.к. могут быть разделители
         }
         /* IS $ */
         break;
@@ -830,18 +854,18 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
           DestPanel->GetOpenPluginInfo(&Info);
           /* $ 14.08.2000 SVS
              Данные, усеченные до 40 символов... :-(
-             А потом используются (CopyDlg[2].Data) по полной программе...
+             А потом используются ((char *)CopyDlg[2].Ptr.PtrData) по полной программе...
              "%.40s:" -> "%s:"
           */
-          sprintf(CopyDlg[2].Data,"%s:",NullToEmpty(Info.Format));
+          sprintf((char *)CopyDlg[2].Ptr.PtrData,"%s:",NullToEmpty(Info.Format));
           /* SVS $ */
-          while (strlen(CopyDlg[2].Data)<2)
-            strcat(CopyDlg[2].Data,":");
-          strupr(xstrncpy(CDP.PluginFormat,CopyDlg[2].Data,sizeof(CDP.PluginFormat)-1));
+          while (strlen((char *)CopyDlg[2].Ptr.PtrData)<2)
+            strcat((char *)CopyDlg[2].Ptr.PtrData,":");
+          strupr(xstrncpy(CDP.PluginFormat,(char *)CopyDlg[2].Ptr.PtrData,sizeof(CDP.PluginFormat)-1));
         }
         break;
     }
-  strcpy(InitDestDir,CopyDlg[2].Data);
+  strcpy(InitDestDir,(char *)CopyDlg[2].Ptr.PtrData);
 
   // Для фильтра
   WIN32_FIND_DATA fd;
@@ -878,7 +902,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
                   &CopyDlg[5].Flags,
                   &Selected5,
                   SrcDir,
-                  CopyDlg[2].Data,
+                  (char *)CopyDlg[2].Ptr.PtrData,
                   &CDP))
     {
       _LOGCOPYR(SysLog("return -> %d LinkRules() == 0",__LINE__));
@@ -897,7 +921,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   */
   if(!Ask)
   {
-    strcpy(CopyDlgValue,CopyDlg[2].Data);
+    strcpy(CopyDlgValue,(char *)CopyDlg[2].Ptr.PtrData);
     Unquote(CopyDlgValue);
     InsertQuote(CopyDlgValue);
     if(!DestList.Set(CopyDlgValue))
@@ -929,13 +953,13 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
            Запомним строчку из диалога и начинаем ее мучить в зависимости от
            состояния опции мультикопирования
         */
-        strcpy(CopyDlgValue,CopyDlg[2].Data);
+        strcpy(CopyDlgValue,(char *)CopyDlg[2].Ptr.PtrData);
         Opt.MultiCopy=CopyDlg[7].Selected;
-        if(!Opt.MultiCopy || !strpbrk(CopyDlg[2].Data,",;")) // отключено multi*
+        if(!Opt.MultiCopy || !strpbrk((char *)CopyDlg[2].Ptr.PtrData,",;")) // отключено multi*
         {
            // уберем пробелы, лишние кавычки
-           RemoveTrailingSpaces(CopyDlg[2].Data);
-           Unquote(CopyDlg[2].Data);
+           RemoveTrailingSpaces((char *)CopyDlg[2].Ptr.PtrData);
+           Unquote((char *)CopyDlg[2].Ptr.PtrData);
            RemoveTrailingSpaces(CopyDlgValue);
            Unquote(CopyDlgValue);
 
@@ -951,8 +975,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
           break;
         }
         else
-          Message(MSG_DOWN|MSG_WARNING,1,MSG(MWarning),
-                  MSG(MCopyIncorrectTargetList), MSG(MOk));
+          Message(MSG_DOWN|MSG_WARNING,1,MSG(MWarning),MSG(MCopyIncorrectTargetList), MSG(MOk));
       }
       else
         break;
@@ -973,17 +996,17 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   ShellCopy::Flags|=CopyDlg[5].Selected?FCOPY_ONLYNEWERFILES:0;
   ShellCopy::Flags|=CopyDlg[6].Selected?FCOPY_COPYSYMLINKCONTENTS:0;
 
-  if (DestPlugin && !strcmp(CopyDlg[2].Data,InitDestDir))
+  if (DestPlugin && !strcmp((char *)CopyDlg[2].Ptr.PtrData,InitDestDir))
   {
-    ToPlugin=TRUE;
+    ToPlugin=1;
     _LOGCOPYR(SysLog("return -> %d",__LINE__));
     return;
   }
 
   int WorkMove=Move;
 
-  _LOGCOPYR(SysLog("CopyDlg[2].Data='%s'",CopyDlg[2].Data));
-  if(CheckNulOrCon(CopyDlg[2].Data))
+  _LOGCOPYR(SysLog("CopyDlg[2].Ptr.PtrData='%s'",(char *)CopyDlg[2].Ptr.PtrData));
+  if(CheckNulOrCon((char *)CopyDlg[2].Ptr.PtrData))
     ShellCopy::Flags|=FCOPY_COPYTONUL;
   if(ShellCopy::Flags&FCOPY_COPYTONUL)
   {
@@ -997,7 +1020,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   if (DestPlugin==2)
   {
     if (PluginDestPath)
-      strcpy(PluginDestPath,CopyDlg[2].Data);
+      strcpy(PluginDestPath,(char *)CopyDlg[2].Ptr.PtrData);
     _LOGCOPYR(SysLog("return -> %d",__LINE__));
     return;
   }
@@ -1047,7 +1070,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     if(DestList.Set(CopyDlgValue)) // если список успешно "скомпилировался"
     {
         const char *NamePtr;
-        char NameTmp[2048];
+        char *NameTmp=new char[SizeBuffer];
 
         // переинициализируем переменные в самом начале (BugZ#171)
 //        CopyBufSize = COPY_BUFFER_SIZE; // Начинаем с 1к
@@ -1078,7 +1101,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
           CurCopiedSize=0;
           CopyTitle->Set((ShellCopy::Flags&FCOPY_MOVE) ? MSG(MCopyMovingTitle):MSG(MCopyCopyingTitle));
 
-          strncpy(NameTmp, NamePtr,sizeof(NameTmp)-1);
+          strncpy(NameTmp, NamePtr,SizeBuffer-1);
           _LOGCOPYR(SysLog("NamePtr='%s', Move=%d",NamePtr,WorkMove));
 
           if(!strcmp(NameTmp,"..") && IsLocalRootPath(SrcDir))
@@ -1174,6 +1197,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
         }
         StaticCopyTitle=NULL;
         delete CopyTitle;
+
+        delete[] NameTmp;
     }
     _LOGCOPYR(else SysLog("Error: DestList.Set(CopyDlgValue) return FALSE"));
   }
@@ -1310,6 +1335,7 @@ long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     case DN_EDITCHANGE:
       if(Param1 == 2)
       {
+        // TODO: NM здесь не катит, т.к. на плагиновой панели могут быть пути...
         char SrcDir[NM];
         struct FarDialogItem DItem4,DItem5,DItem9;
         DlgParam->thisClass->SrcPanel->GetCurDir(SrcDir);
@@ -1324,13 +1350,13 @@ long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
                     &DItem5.Flags,
                     &DItem5.Param.Selected,
                     SrcDir,
-                    ((struct FarDialogItem *)Param2)->Data.Data,DlgParam);
+                    ((struct FarDialogItem *)Param2)->Data.Ptr.PtrData,DlgParam);
         }
         else // обычные Copy/Move
         {
-          char Buf[1024];
           struct FarDialogItem *DItem2=(struct FarDialogItem *)Param2;
-          strupr(xstrncpy(Buf,DItem2->Data.Data,sizeof(Buf)-1));
+          char *Buf=(char*)alloca(DItem2->Data.Ptr.PtrLength);
+          strupr(strcpy(Buf,DItem2->Data.Ptr.PtrData));
           if(*DlgParam->PluginFormat && strstr(Buf,DlgParam->PluginFormat))
           {
             DItem4.Flags|=DIF_DISABLE;
@@ -1370,9 +1396,13 @@ long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
            в списке.
       */
       BOOL MultiCopy=Dialog::SendDlgMessage(hDlg,DM_GETCHECK,7,0)==BSTATE_CHECKED;
-      char NewFolder[NM], OldFolder[NM];
+      struct FarDialogItem DItem2;
+      Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,2,(long)&DItem2);
+
+      char *NewFolder=(char*)alloca(DItem2.Data.Ptr.PtrLength);
+      char *OldFolder=(char*)DItem2.Data.Ptr.PtrData;
+
       *NewFolder = 0;
-      Dialog::SendDlgMessage(hDlg,DM_GETTEXTPTR,2,(long)OldFolder);
       if(DlgParam->AltF10 == 2)
       {
         strcpy(NewFolder, OldFolder);
@@ -1384,7 +1414,7 @@ long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
             DestList.Reset();
             const char *NamePtr=DestList.GetNext();
             if(NamePtr)
-              xstrncpy(NewFolder, NamePtr, sizeof(NewFolder)-1);
+              xstrncpy(NewFolder, NamePtr, DItem2.Data.Ptr.PtrLength-1);
           }
         }
         if(*NewFolder == 0)
@@ -1413,7 +1443,7 @@ long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
             int len=strlen(OldFolder), newlen=strlen(NewFolder), addSep=0;
             addSep=len>0;
-            if(len+newlen+addSep<sizeof(OldFolder))// контролируем длину строки
+            if(len+newlen+addSep < DItem2.Data.Ptr.PtrLength)// контролируем длину строки
             {
               if(addSep)
                 OldFolder[len++]=';'; // добавим разделитель к непустому списку
@@ -1583,20 +1613,15 @@ BOOL ShellCopy::LinkRules(DWORD *Flags9,DWORD* Flags5,int* Selected5,
 
 ShellCopy::~ShellCopy()
 {
-  /* $ 13.07.2000 SVS
-       раз уж вызвали new[], то в придачу и delete[] надо... */
   _tran(SysLog("[%p] ShellCopy::~ShellCopy(), CopyBufer=%p",this,CopyBuffer));
   if ( CopyBuffer )
       delete[] CopyBuffer;
-  /* SVS $ */
-  /* $ 26.05.2001 OT
-     Разрешить перерисовку панелей */
+
+  // $ 26.05.2001 OT Разрешить перерисовку панелей
   _tran(SysLog("call (*FrameManager)[0]->UnlockRefresh()"));
   (*FrameManager)[0]->UnlockRefresh();
-  /* OT $ */
 
-  // Уничтожим объект фильтра
-  if(Filter)
+  if(Filter) // Уничтожим объект фильтра
     delete Filter;
 }
 
