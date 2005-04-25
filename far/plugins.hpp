@@ -7,10 +7,12 @@ plugins.hpp
 
 */
 
-/* Revision: 1.31 06.10.2003 $ */
+/* Revision: 1.32 25.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 AY
+    ! GCC
   06.10.2003 SVS
     ! PluginsSet::ProcessEditorEvent() и PluginsSet::ProcessViewerEvent() возвращают значение типа int
   15.07.2003 SVS
@@ -306,7 +308,7 @@ class PluginsSet
     char* FarGetMsg(int PluginNumber,int MsgId);
     void Configure(int StartPos=0);
     void ConfigureCurrent(int PluginNumber,int INum);
-    int CommandsMenu(int ModalType,int StartPos,char *HistoryName=NULL);
+    int CommandsMenu(int ModalType,int StartPos,const char *HistoryName=NULL);
     /* $ 21.08.2002 IS
        + Параметр PluginTextSize, чтобы знать, сколько брать
     */

@@ -5,10 +5,12 @@ syntax.hpp
 
 */
 
-/* Revision: 1.02 05.03.2005 $ */
+/* Revision: 1.03 25.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 AY
+    ! GCC
   05.03.2005 SVS
     + varEnum()
   05.08.2004 SVS
@@ -119,7 +121,7 @@ class TVarSet : public TAbstractSet
       value() {}
 };
 
-const V_TABLE_SIZE = 23;
+const int V_TABLE_SIZE = 23;
 
 typedef TVarSet *(TVarTable)[V_TABLE_SIZE];
 extern int isVar(TVarTable, const char*);

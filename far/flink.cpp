@@ -5,10 +5,12 @@ flink.cpp
 
 */
 
-/* Revision: 1.46 04.11.2004 $ */
+/* Revision: 1.47 25.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 AY
+    ! GCC
   04.11.2004 SVS
     ! избавимся от варнинга под VC
   06.08.2004 SKV
@@ -158,6 +160,8 @@ Modify:
 // current thread's ANSI code page
 #define CP_THREAD_ACP             3
 
+#if !defined(__GNUC__)
+
 #define FILE_ANY_ACCESS                 0
 #define FILE_SPECIAL_ACCESS    (FILE_ANY_ACCESS)
 
@@ -186,6 +190,8 @@ Modify:
 #define FSCTL_SET_REPARSE_POINT         CTL_CODE(FILE_DEVICE_FILE_SYSTEM, 41, METHOD_BUFFERED, FILE_SPECIAL_ACCESS) // REPARSE_DATA_BUFFER,
 #define FSCTL_GET_REPARSE_POINT         CTL_CODE(FILE_DEVICE_FILE_SYSTEM, 42, METHOD_BUFFERED, FILE_ANY_ACCESS)
 #define FSCTL_DELETE_REPARSE_POINT      CTL_CODE(FILE_DEVICE_FILE_SYSTEM, 43, METHOD_BUFFERED, FILE_SPECIAL_ACCESS) // REPARSE_DATA_BUFFER,
+
+#endif //!defined(__GNUC__)
 
 //#ifndef _MSC_VER
 #ifndef REPARSE_GUID_DATA_BUFFER_HEADER_SIZE
@@ -839,7 +845,7 @@ BOOL GetSubstName(int DriveType,char *LocalName,char *SubstName,int SubstSize)
 /*$ 01.02.2001 skv
   Хоцца компилятся и под ВЦ++ однако.
 */
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__GNUC__)
     int SizeName=WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT?sizeof(Name):_MAX_PATH;
 #else
     int SizeName=WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT?sizeof(Name):MAXPATH;

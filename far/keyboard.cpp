@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.114 03.12.2004 $ */
+/* Revision: 1.115 25.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 AY
+    ! GCC
   03.12.2004 SVS
     - BugZ#1196 - Повторное Shift-Enter...
   09.11.2004 SVS
@@ -1564,7 +1566,7 @@ DWORD PeekInputRecord(INPUT_RECORD *rec)
   DWORD ReadCount;
   DWORD Key;
   ScrBuf.Flush();
-  if(KeyQueue && (Key=KeyQueue->Peek()) != NULL)
+  if(KeyQueue && (Key=KeyQueue->Peek()) != 0)
   {
     int VirtKey,ControlState;
     ReadCount=TranslateKeyToVK(Key,VirtKey,ControlState,rec)?1:0;

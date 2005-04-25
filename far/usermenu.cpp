@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.68 26.02.2005 $ */
+/* Revision: 1.69 25.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 AY
+    ! GCC
   26.02.2005 SVS
     ! Для перерисовки панелей воспользуемся существующей функцией
       ShellUpdatePanels() - она более корректно отрисовывает панели.
@@ -607,7 +609,7 @@ int FillUserMenu(VMenu& UserMenu,char *MenuKey,int MenuPos,int *FuncPos,char *Na
       }
       else
       {
-        char *Ptr=(strchr(Label, '&')==NULL?"":" ");
+        const char *Ptr=(strchr(Label, '&')==NULL?"":" ");
         sprintf(MenuText,"%-20.*s%s",ScrX-12,Label,Ptr);
       }
       /* VVM $ */
@@ -681,7 +683,7 @@ int FillUserMenu(VMenu& UserMenu,char *MenuKey,int MenuPos,int *FuncPos,char *Na
       }
       else
       {
-        char *Ptr=(strchr(Label, '&')==NULL?"":" ");
+        const char *Ptr=(strchr(Label, '&')==NULL?"":" ");
         sprintf(MenuText,"%-*.*s%s",MaxLen,MaxLen,Label,Ptr);
       }
       /* VVM $ */

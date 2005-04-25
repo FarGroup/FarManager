@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.58 18.12.2003 $ */
+/* Revision: 1.59 25.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 AY
+    ! GCC
   18.12.2003 SVS
     + RightAltPressed,RightCtrlPressed,RightShiftPressed
   11.11.2003 SVS
@@ -167,7 +169,7 @@ extern FarQueue<DWORD> *KeyQueue;
  extern clock_t StartExecTime;
 #endif
 
-#if defined(_INC_WINDOWS) || defined(_WINDOWS_)
+#if defined(_INC_WINDOWS) || defined(_WINDOWS_) || defined(_WINDOWS_H)
 extern DWORD InitialConsoleMode;
 extern OSVERSIONINFO WinVer;
 #endif

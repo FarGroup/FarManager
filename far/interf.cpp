@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.88 05.04.2005 $ */
+/* Revision: 1.89 25.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 AY
+    ! GCC
   05.04.2005 SVS
     + У GetText() появился доп параметр - скока читать.
     + У ScreenBuf::Read() появился доп параметр - скока читать.
@@ -648,7 +650,7 @@ void ChangeVideoMode(int NumLines,int NumColumns)
           LastError=%i",coordScreen.X,coordScreen.Y,le=GetLastError()));
       }
     }
-    if ((retSetConsole=SetConsoleWindowInfo(hConOut, TRUE, &srWindowRect)) == NULL)
+    if ((retSetConsole=SetConsoleWindowInfo(hConOut, TRUE, &srWindowRect)) == 0)
     {
         _OT(SysLog("LastError=%i, srWindowRect",le=GetLastError()));
       retSetConsole=SetConsoleScreenBufferSize(hConOut, coordScreen);

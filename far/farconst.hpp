@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.88 02.04.2005 $ */
+/* Revision: 1.89 25.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 AY
+    ! GCC
   02.04.2005 AY
     + COLUMN_ECONOMIC - новый флаг для колонки размера
   02.04.2005 AY
@@ -401,9 +403,17 @@ enum ReadDizFlags {
 #if defined(__BORLANDC__)
 #define TRY      try
 #else
-#define TRY   __try
+  #if defined(__GNUC__)
+  #define TRY
+  #else
+  #define TRY   __try
+  #endif
 #endif
+#if defined(__GNUC__)
+#define EXCEPT(a) if (0)
+#else
 #define EXCEPT __except
+#endif
 
 #define DRIVE_SUBSTITUTE            15
 #define DRIVE_REMOTE_NOT_CONNECTED  16
@@ -462,7 +472,9 @@ enum FlagsNameAndPassword{
 
 /* $ 13.04.2001 VVM
   + 2000 посылает консольному окну событие с dwEventFlags == MOUSE_WHEELED */
+#ifndef MOUSE_WHEELED
 #define MOUSE_WHEELED 0x0004
+#endif
 /* VVM $ */
 
 ///

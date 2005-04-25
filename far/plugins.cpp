@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.160 04.02.2005 $ */
+/* Revision: 1.161 25.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 AY
+    ! GCC
   04.02.2005 SVS
     - Если в меню плагинов/конфигурации отсутствовали хоткеи, то диалог создания хоткея показывал чепуху.
   31.01.2005 SVS
@@ -2677,7 +2679,7 @@ void PluginsSet::Configure(int StartPos)
         PluginList.Hide();
         if (StartPos<0)
           break;
-        Data=(DWORD)PluginList.GetUserData(NULL,NULL,StartPos);
+        Data=(DWORD)PluginList.GetUserData(NULL,0,StartPos);
         // ОЧЕРЕДНОЙ КОСТЫЛЬ, ИБО ВСЕ НЕПРАВИЛЬНО!
         //  Меню уже погашено, так зачем же его где опять высвечивать,
         //  если об это не просили?
@@ -2689,7 +2691,7 @@ void PluginsSet::Configure(int StartPos)
 /* IS $ */
 
 ///int PluginsSet::CommandsMenu(int Editor,int Viewer,int StartPos,char *HistoryName)
-int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
+int PluginsSet::CommandsMenu(int ModalType,int StartPos,const char *HistoryName)
 {
   int MenuItemNumber=0;
 /* $ 04.05.2001 OT */
@@ -2816,7 +2818,7 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
         int SelPos=PluginList.GetSelectPos();
         char RegKey[512];
 
-        Data=(DWORD)PluginList.GetUserData(NULL,NULL,SelPos);
+        Data=(DWORD)PluginList.GetUserData(NULL,0,SelPos);
         switch(PluginList.ReadInput())
         {
         /* $ 18.12.2000 SVS

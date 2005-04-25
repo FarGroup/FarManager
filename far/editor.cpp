@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.259 29.03.2005 $ */
+/* Revision: 1.260 25.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 AY
+    ! GCC
   29.03.2005 SVS
     - BugZ#1237 - некоректное значение EditorInfo.BlockStartLine
   06.01.2005 WARP
@@ -2366,7 +2368,7 @@ int Editor::ProcessKey(int Key)
 
     case KEY_SHIFTUP: case KEY_SHIFTNUMPAD8:
     {
-      if (CurLine->Prev==NULL)return NULL;
+      if (CurLine->Prev==NULL) return 0;
       if(SelAtBeginning || SelFirst) // расширяем выделение
       {
         CurLine->EditLine.Select(0,SelEnd);

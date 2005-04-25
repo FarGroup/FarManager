@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.137 06.04.2005 $ */
+/* Revision: 1.138 25.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 AY
+    ! GCC
   06.04.2005 SVS
     + ECF_TAB1
   05.04.2005 SVS
@@ -2191,6 +2193,14 @@ void Edit::SetBinaryString(const char *Str,int Length)
   /* KM $ */
 }
 
+
+void Edit::GetBinaryString(char *&Str,const char **EOL,int &Length)
+{
+  Str=Edit::Str;
+  if (EOL!=NULL)
+    *EOL=EOL_TYPE_CHARS[EndType];
+  Length=StrSize;
+}
 
 void Edit::GetBinaryString(const char *&Str,const char **EOL,int &Length)
 {

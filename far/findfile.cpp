@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.174 24.04.2005 $ */
+/* Revision: 1.175 25.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 AY
+    ! GCC
   24.04.2005 KM
     ! Переделан диалог поиска. Теперь задание поиска в первых байтых (Кб,Мб или Гб)
       вынесено в отдельный диалог настройки дополнительных параметров поиска.
@@ -659,7 +661,7 @@ static HANDLE hPluginMutex;
 
 static int UseAllTables=FALSE,UseDecodeTable=FALSE,UseANSI=FALSE,UseUnicode=FALSE,TableNum=0,UseFilter=0;
 static int SearchInFirstIndex=0,EnableSearchInFirst=FALSE;
-static __int64 SearchInFirst=0i64;
+static __int64 SearchInFirst=_i64(0);
 static struct CharTableSet TableSet;
 
 /* $ 01.07.2001 IS
@@ -2895,7 +2897,7 @@ int FindFiles::LookForString(char *Name)
 
     // Уже считано из файла. Используется для сравнения
   // с максимальным размером, в котором производится поиск
-  __int64 AlreadyRead=0i64;
+  __int64 AlreadyRead=_i64(0);
 
   while (!StopSearch && (ReadSize=fread(Buf,1,sizeof(Buf),SrcFile))>0)
   {
@@ -3541,7 +3543,7 @@ char *FindFiles::RemovePseudoBackSlash(char *FileName)
 */
 __int64 __fastcall FindFiles::GetSearchInFirst(char *DigitStr)
 {
-    __int64 LocalSize=0i64;
+    __int64 LocalSize=_i64(0);
 
   if (*DigitStr)
   {
@@ -3552,15 +3554,15 @@ __int64 __fastcall FindFiles::GetSearchInFirst(char *DigitStr)
         break;
       case FSIZE_INKBYTES:
         // Размер введён в килобайтах, переведём его в байты.
-        LocalSize=_atoi64(DigitStr)*1024i64;
+        LocalSize=_atoi64(DigitStr)*_i64(1024);
         break;
       case FSIZE_INMBYTES:
         // Размер введён в мегабайтах, переведём его в байты.
-        LocalSize=_atoi64(DigitStr)*1024i64*1024i64;
+        LocalSize=_atoi64(DigitStr)*_i64(1024)*_i64(1024);
         break;
       case FSIZE_INGBYTES:
         // Размер введён в гигабайтах, переведём его в байты.
-        LocalSize=_atoi64(DigitStr)*1024i64*1024i64*1024i64;
+        LocalSize=_atoi64(DigitStr)*_i64(1024)*_i64(1024)*_i64(1024);
         break;
       default:
         break;
@@ -3568,7 +3570,7 @@ __int64 __fastcall FindFiles::GetSearchInFirst(char *DigitStr)
   }
   else
   {
-    LocalSize=0i64;
+    LocalSize=_i64(0);
   }
 
   return LocalSize;

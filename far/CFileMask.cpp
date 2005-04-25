@@ -5,10 +5,12 @@ CFileMask.cpp
 
 */
 
-/* Revision: 1.02 10.07.2001 $ */
+/* Revision: 1.03 24.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 AY
+    ! GCC
   10.07.2001 SVS
     ! ֲ למנד הכÿ CPP-פאיכמג if/endif
   02.07.2001 IS
@@ -26,7 +28,7 @@ Modify:
 #include "fn.hpp"
 #include "lang.hpp"
 
-const EXCLUDEMASKSEPARATOR=0x7C; // '|'
+const int EXCLUDEMASKSEPARATOR=0x7C; // '|'
 
 CFileMask::CFileMask()
 {

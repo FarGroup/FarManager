@@ -5,10 +5,12 @@ print.cpp
 
 */
 
-/* Revision: 1.18 12.04.2005 $ */
+/* Revision: 1.19 25.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 AY
+    ! GCC
   12.04.2005 SVS
     ! Из печати исключаем DIRs.
   06.08.2004 SKV
@@ -298,6 +300,6 @@ static void AddToPrintersMenu(VMenu *PrinterList,PRINTER_INFO_2 *pi,
       ListItem.SetSelect(FALSE);
     IDItem=PrinterList->AddItem(&ListItem);
     // А вот теперь добавим данные для этого пункта (0 - передаем строку)
-    PrinterList->SetUserData(NullToEmpty(pi[I].pPrinterName),0,IDItem);
+    PrinterList->SetUserData((void *)NullToEmpty(pi[I].pPrinterName),0,IDItem);
   }
 }

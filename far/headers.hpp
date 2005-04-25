@@ -5,10 +5,12 @@ headers.cpp
 
 */
 
-/* Revision: 1.14 06.05.2003 $ */
+/* Revision: 1.15 25.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 AY
+    ! GCC
   06.05.2003 SVS
     - Проблемы с VC после 1645
   04.04.2002 SVS
@@ -54,13 +56,23 @@ Modify:
 #endif
 
 
-#if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
- #if defined(_MSC_VER)
+#if !defined(_INC_WINDOWS) && !defined(_WINDOWS_) && !defined(_WINDOWS_H)
+ #if defined(__GNUC__) || defined(_MSC_VER)
+  #define _WINCON_H
   #define _WINCON_ // to prevent including wincon.h
-  #pragma pack(push,2)
+  #if defined(_MSC_VER)
+    #pragma pack(push,2)
+  #else
+    #pragma pack(2)
+  #endif
   #include <windows.h>
+  #if defined(_MSC_VER)
+    #pragma pack(pop)
+  #else
+    #pragma pack()
+  #endif
   #undef _WINCON_
-  #pragma pack(pop)
+  #undef  _WINCON_H
   #include <wincon.h> //this file wants 8-byte alignment
  #else
   #include <windows.h>
@@ -88,17 +100,17 @@ Modify:
 #define FILE_SUPPORTS_REPARSE_POINTS    0x00000080
 #endif
 
-#ifndef __DOS_H
-#include <dos.h>	// FA_*
+#if !defined(__DOS_H) && !defined(_DOS_H_)
+#include <dos.h>  // FA_*
 #endif
-#ifndef __DIR_H
- #ifdef _MSC_VER
-  #include <direct.h>	// chdir
+#if !defined(__DIR_H) && !defined(_DIRECT_H_)
+ #if defined(_MSC_VER) || defined(__GNUC__)
+  #include <direct.h> // chdir
  #else
-  #include <dir.h>	// chdir
+  #include <dir.h>  // chdir
  #endif
 #endif //__DIR_H
-#if !defined(__NEW_H)
+#if !defined(__NEW_H) && !defined(_NEW)
  #if defined(__BORLANDC__)
   #pragma option -p-
  #endif
@@ -107,44 +119,50 @@ Modify:
   #pragma option -p.
  #endif
 #endif  //!defined(__NEW_H)
-#ifndef __MALLOC_H
+#if !defined(__MALLOC_H) && !defined(_MALLOC_H_)
 #include <malloc.h>
 #endif
-#ifndef __FCNTL_H
+#if !defined(__FCNTL_H) && !defined(_FCNTL_H_)
 #include <fcntl.h>
 #endif
-#ifndef __IO_H
+#if !defined(__IO_H) && !defined(_IO_H_)
 #include <io.h>
 #endif
-#ifndef __PROCESS_H
+#if !defined(__PROCESS_H) && !defined(_PROCESS_H_)
 #include <process.h>
 #endif
-#ifndef __STDIO_H
+#if !defined(__STDIO_H) && !defined(_STDIO_H_)
 #include <stdio.h>
 #endif
-#ifndef __STDLIB_H
+#if !defined(__STDLIB_H) && !defined(_STDLIB_H_)
 #include <stdlib.h>
 #endif
-#ifndef __STRING_H
+#if !defined(__STRING_H) && !defined(_STRING_H_)
 #include <string.h>
 #endif
-#ifndef __STAT_H
-#include <sys\stat.h>	// S_IREAD...
+#if !defined(__STAT_H) && !defined(_STAT_H_)
+#include <sys\stat.h> // S_IREAD...
 #endif
-#ifndef __TIME_H
+#if !defined(__TIME_H) && !defined(_TIME_H_)
 #include <time.h>
 #endif
-#ifndef __STDARG_H
+#if !defined(__STDARG_H) && !defined(_STDARG_H)
 #include <stdarg.h>
 #endif
-#ifndef __SHARE_H
+#if !defined(__SHARE_H) && !defined(_SHARE_H_)
 #include <share.h>
 #endif
-#ifndef __SEARCH_H
+#if !defined(__SEARCH_H) && !defined(_SEARCH_H_)
 #include <search.h>
 #endif
-#if _MSC_VER
-  #ifndef _INC_WCHAR
+#ifdef __GNUC__
+  #define ultoa _ultoa
+  #if !defined(_CTYPE_H_)
+    #include <ctype.h>
+  #endif
+#endif
+#if defined(_MSC_VER) || defined(__GNUC__)
+  #if !defined(_INC_WCHAR) && !defined(_WCHAR_H_)
     #include <wchar.h>
     #define _wmemset wmemset
   #endif
@@ -201,4 +219,10 @@ Modify:
 
 #if !defined(__USE_MCI)
 #include <mmsystem.h>
+#endif
+
+#ifdef __GNUC__
+#define _i64(num) num##ll
+#else
+#define _i64(num) num##i64
 #endif

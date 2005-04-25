@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.144 06.04.2005 $ */
+/* Revision: 1.145 25.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 AY
+    ! GCC
   06.04.2005 SVS
     + b=msave(var)
     + [A|P]Panel.LFN
@@ -1800,8 +1802,8 @@ static TVar panelitemFunc(TVar *param)
         return TVar((long)filelistItem.SortGroup);
       case 13:  // DizText
       {
-        char *LPtr=filelistItem.DizText?filelistItem.DizText:"";
-        return TVar((const char*)LPtr);
+        const char *LPtr=filelistItem.DizText?filelistItem.DizText:"";
+        return TVar(LPtr);
       }
       case 14:  // Owner
         return TVar((const char*)filelistItem.Owner);

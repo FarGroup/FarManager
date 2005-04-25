@@ -7,10 +7,12 @@ int64.hpp
 
 */
 
-/* Revision: 1.05 05.10.2002 $ */
+/* Revision: 1.06 25.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 AY
+    ! GCC
   05.10.2003 KM
     + Конструкторы int64(int n) и int64(__int64 n)
   22.02.2002 SVS
@@ -82,7 +84,7 @@ class int64
 #if defined(__NEW_CLASS_FAR_INT64__)
 inline int64::int64()
 {
-  Number.i64=0i64;
+  Number.i64=_i64(0);
 }
 
 inline int64::int64(DWORD n)

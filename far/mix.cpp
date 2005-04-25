@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.166 23.04.2005 $ */
+/* Revision: 1.167 25.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 AY
+    ! GCC
   23.04.2005 KM
     ! Подсчёт файлов и каталогов в GetDirInfo с учётом фильтра операций
   06.04.2005 AY
@@ -730,7 +732,7 @@ void ConvertDate(const FILETIME &ft,char *DateText,char *TimeText,int TimeLength
 
   if (TimeText!=NULL)
   {
-    char *Letter="";
+    const char *Letter="";
     if (TimeLength==6)
     {
       Letter=(st.wHour<12) ? "a":"p";
@@ -843,16 +845,16 @@ int ToPercent(unsigned long N1,unsigned long N2)
 
 int ToPercent64(__int64 N1,__int64 N2)
 {
-  if (N1 > 10000i64)
+  if (N1 > _i64(10000))
   {
-    N1/=100i64;
-    N2/=100i64;
+    N1/=_i64(100);
+    N2/=_i64(100);
   }
-  if (N2==0i64)
-    return(0i64);
+  if (N2==_i64(0))
+    return(_i64(0));
   if (N2<N1)
     return(100);
-  return((int)(N1*100i64/N2));
+  return((int)(N1*_i64(100)/N2));
 }
 
 
@@ -903,7 +905,7 @@ int GetFileTypeByName(const char *Name)
 }
 
 
-static void DrawGetDirInfoMsg(char *Title,char *Name)
+static void DrawGetDirInfoMsg(char *Title,const char *Name)
 {
   Message(0,0,Title,MSG(MScanningFolder),Name);
   PreRedrawParam.Param1=Title;
@@ -915,7 +917,7 @@ static void PR_DrawGetDirInfoMsg(void)
   DrawGetDirInfoMsg((char *)PreRedrawParam.Param1,(char *)PreRedrawParam.Param2);
 }
 
-int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
+int GetDirInfo(char *Title,const char *DirName,unsigned long &DirCount,
                unsigned long &FileCount,int64 &FileSize,
                int64 &CompressedFileSize,int64 &RealSize,
                unsigned long &ClusterSize,clock_t MsgWaitTime,
@@ -941,7 +943,7 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
   /* $ 20.03.2002 DJ
      для . - покажем имя родительского каталога
   */
-  char *ShowDirName = DirName;
+  const char *ShowDirName = DirName;
   if (DirName[0] == '.' && DirName[1] == 0)
   {
     char *p = strrchr (FullDirName, '\\');

@@ -5,10 +5,12 @@ syntax.cpp
 
 */
 
-/* Revision: 1.07 06.04.2005 $ */
+/* Revision: 1.08 25.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 AY
+    ! GCC
   06.04.2005 SVS
     + b=msave(var)
   01.04.2005 SVS
@@ -563,7 +565,7 @@ static char *oSrcString = NULL;
 static TToken currTok = tNo;
 static TVar currVar;
 
-void expr(void);
+static void expr(void);
 
 //-----------------------------------------------
 static char ErrMessage[3][256];
@@ -681,7 +683,7 @@ DWORD funcLook(const char *s, int& nParam)
   return (DWORD)MCODE_F_NOFUNC;
 }
 
-TToken getToken(void);
+static TToken getToken(void);
 
 static void calcFunc(void)
 {

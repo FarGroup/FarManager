@@ -10,10 +10,12 @@ dialog.hpp
 
 */
 
-/* Revision: 1.80 22.03.2005 $ */
+/* Revision: 1.81 25.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 AY
+    ! GCC
   22.03.2005 SVS
     + DMODE_BEGINLOOP
   29.01.2005 WARP
@@ -585,7 +587,7 @@ class Dialog: public Frame
     int CallDlgProc (int nMsg, int nParam1, int nParam2);
 
   public:
-    Dialog(struct DialogItem *Item,int ItemCount,FARWINDOWPROC DlgProc=NULL,long Param=NULL);
+    Dialog(struct DialogItem *Item,int ItemCount,FARWINDOWPROC DlgProc=NULL,long Param=0);
     ~Dialog();
 
   public:

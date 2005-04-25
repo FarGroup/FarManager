@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.138 05.03.2005 $ */
+/* Revision: 1.139 25.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 AY
+    ! GCC
   05.03.2005 SVS
     ! В меню выбора дисков сетевое имя усекаем.
   03.03.2005 SVS
@@ -532,7 +534,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
     DiskCount+=DiskMask & 1;
 
   int UserDataSize=0;
-  DWORD UserData=NULL;
+  DWORD UserData=0;
   {
     _tran(SysLog("create VMenu ChDisk"));
     VMenu ChDisk(MSG(MChangeDriveTitle),NULL,0,ScrY-Y1-3);
@@ -897,7 +899,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
         case KEY_SHIFTENTER:
           if (SelPos<DiskCount)
           {
-            if ((UserData=(DWORD)ChDisk.GetUserData(NULL,0)) != NULL)
+            if ((UserData=(DWORD)ChDisk.GetUserData(NULL,0)) != 0)
             {
               char DosDeviceName[16];
               sprintf(DosDeviceName,"%c:\\",LOBYTE(LOWORD(UserData)));
@@ -917,7 +919,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
           if (SelPos<DiskCount)// && WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
           {
 //            char MsgText[200], LocalName[50];
-            if ((UserData=(DWORD)ChDisk.GetUserData(NULL,0)) != NULL)
+            if ((UserData=(DWORD)ChDisk.GetUserData(NULL,0)) != 0)
             {
               DriveType=HIWORD(UserData);
               if(IsDriveTypeCDROM(DriveType) /* || DriveType == DRIVE_REMOVABLE*/)
@@ -936,7 +938,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
             /* $ 28.12.2001 DJ
                обработка Del вынесена в отдельную функцию
             */
-            if ((UserData=(DWORD)ChDisk.GetUserData(NULL,0)) != NULL)
+            if ((UserData=(DWORD)ChDisk.GetUserData(NULL,0)) != 0)
             {
               if(HIWORD(UserData) == DRIVE_REMOVABLE || IsDriveTypeCDROM(HIWORD(UserData)))
               {
@@ -1048,7 +1050,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
           if (SelPos>DiskCount)
           {
             // Вызываем нужный топик, который передали в CommandsMenu()
-            if ((UserData=(DWORD)ChDisk.GetUserData(NULL,0)) != NULL)
+            if ((UserData=(DWORD)ChDisk.GetUserData(NULL,0)) != 0)
               FarShowHelp(CtrlObject->Plugins.PluginsData[LOWORD(UserData)].ModuleName,
                     NULL,FHELP_SELFHELP|FHELP_NOSHOWERROR|FHELP_USECONTENTS);
           }
@@ -1113,7 +1115,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
     }
   }
 
-  if(Opt.CloseCDGate && UserData != NULL && IsDriveTypeCDROM(HIWORD(UserData)) && UserDataSize == 3)
+  if(Opt.CloseCDGate && UserData != 0 && IsDriveTypeCDROM(HIWORD(UserData)) && UserDataSize == 3)
   {
     sprintf(RootDir,"%c:",LOBYTE(LOWORD(UserData)));
     if(!IsDiskInDrive(RootDir))

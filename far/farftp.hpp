@@ -7,10 +7,12 @@ farftp.hpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 25.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 AY
+    ! GCC
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
@@ -133,4 +135,4 @@ INTERNETAPI void WINAPI FtpLastReply(char *Buffer1,int MaxSize1,
 #define ERROR_FTP_TRANSFER_IN_PROGRESS          (INTERNET_ERROR_BASE + 110)
 #define ERROR_FTP_DROPPED                       (INTERNET_ERROR_BASE + 111)
 
-#endif	// __FARFTP_HPP__
+#endif  // __FARFTP_HPP__

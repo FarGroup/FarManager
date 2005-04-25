@@ -4,10 +4,12 @@ farrtl.cpp
 Переопределение функций работы с памятью: new/delete/malloc/realloc/free
 */
 
-/* Revision: 1.21 09.10.2004 $ */
+/* Revision: 1.22 25.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 AY
+    ! GCC
   09.10.2004 SVS
     - BugZ#1170 - Strange viewer behaviour if filesize > 0xFFFFFFFF
   09.08.2004 SKV
@@ -245,7 +247,7 @@ __int64 ftell64(FILE *fp)
 #else
 
 #include <io.h>
-#ifndef FAR_MSVCRT
+#if !defined(FAR_MSVCRT) && defined(_MSC_VER)
 extern "C"{
 _CRTIMP __int64 __cdecl _ftelli64 (FILE *str);
 _CRTIMP int __cdecl _fseeki64 (FILE *stream, __int64 offset, int whence);
@@ -255,7 +257,11 @@ _CRTIMP int __cdecl _fseeki64 (FILE *stream, __int64 offset, int whence);
 __int64 ftell64(FILE *fp)
 {
 #ifndef FAR_MSVCRT
-  return _ftelli64(fp);
+  #ifdef __GNUC__
+    return ftello64(fp);
+  #else
+    return _ftelli64(fp);
+  #endif
 #else
   fpos_t pos;
   if(fgetpos(fp,&pos)!=0)return 0;
@@ -266,7 +272,11 @@ __int64 ftell64(FILE *fp)
 int fseek64 (FILE *fp, __int64 offset, int whence)
 {
 #ifndef FAR_MSVCRT
-  return _fseeki64(fp,offset,whence);
+  #ifdef __GNUC__
+    return fseeko64(fp,offset,whence);
+  #else
+    return _fseeki64(fp,offset,whence);
+  #endif
 #else
   switch(whence)
   {
@@ -323,7 +333,7 @@ __int64 WINAPI FarAtoi64(const char *s)
 {
   if(s)
     return _atoi64(s);
-  return 0i64;
+  return _i64(0);
 }
 
 void WINAPI FarQsort(void *base, size_t nelem, size_t width,

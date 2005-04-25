@@ -30,8 +30,8 @@ Modified by Joe Huffman (d.b.a Prototronics) June 11, 1987 from Ray Gardner's,
 #include "headers.hpp"
 #pragma hdrstop
 
-void iswap (int *a, int *b,unsigned int n_to_swap);      /* swap ints */
-void cswap (char *a, char *b,unsigned int n_to_swap);    /* swap chars */
+static void iswap (int *a, int *b,unsigned int n_to_swap);      /* swap ints */
+static void cswap (char *a, char *b,unsigned int n_to_swap);    /* swap chars */
 
 //static unsigned int n_to_swap;  /* nbr of chars or ints to swap */
 int _maxspan = 7;               /* subfiles of _maxspan or fewer elements */

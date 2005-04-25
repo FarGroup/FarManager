@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.333 12.04.2005 $ */
+/* Revision: 1.334 25.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 AY
+    ! GCC
   12.04.2005 SVS
     - AVB> - поля ввода: при удалении записи в истории (shift-del),
       AVB>   маркер переводится в первую строку, а не на следующую в списке.
@@ -2895,7 +2897,7 @@ void Dialog::ShowDialog(int ID)
         SetColor(Attr&0xFF);
 
         GotoXY(X1+CX1,Y1+CY1);
-        char *AddSpace=strlen(CurItem->Data) > 0?" ":"";
+        const char *AddSpace=strlen(CurItem->Data) > 0?" ":"";
 
         if (CurItem->Type==DI_CHECKBOX)
         {
@@ -3441,7 +3443,7 @@ int Dialog::ProcessKey(int Key)
       //   и если вернули что надо, то выводим подсказку
       if(Help::MkTopic(PluginNumber,
                  (char*)DlgProc((HANDLE)this,DN_HELP,FocusPos,
-                                (HelpTopic?(long)HelpTopic:NULL)),
+                                (HelpTopic?(long)HelpTopic:0)),
                  Str))
       {
         Help Hlp (Str);
@@ -5374,7 +5376,7 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItem *CurItem,
           continue;
 
         itoa(I,PHisLocked,10);
-        GetRegKey(RegKey,HisLocked,(int)Locked,0);
+        GetRegKey(RegKey,HisLocked,Locked,0);
         HistoryItem.SetCheck(Locked);
         xstrncpy(HistoryItem.Name,Str,sizeof(HistoryItem.Name)-1);
         HistoryMenu.SetUserData(Str,0,HistoryMenu.AddItem(&HistoryItem));
@@ -6820,7 +6822,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
             {
               if(Param2 < ListBox->GetItemCount())
                 return (long)ListBox->GetUserData(NULL,0,Param2);
-              return NULL;
+              return 0;
             }
 
             case DM_LISTGETDATASIZE: // Param1=ID Param2=Index

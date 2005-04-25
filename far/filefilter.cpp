@@ -5,10 +5,12 @@ filefilter.cpp
 
 */
 
-/* Revision: 1.07 23.04.2005 $ */
+/* Revision: 1.08 25.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 AY
+    ! GCC
   23.04.2005 KM
     ! Модификация для запрета использования атрибута Directory из копирования
   01.11.2004 SVS
@@ -346,8 +348,8 @@ void FileFilter::Configure()
   SizeType=FF.FSize.SizeType;
 
   xstrncpy(FilterDlg[6].Data,TableItemSize[SizeType].Text,sizeof(FilterDlg[6].Data));
-  if(FF.FSize.SizeAbove != -1i64) _ui64toa(FF.FSize.SizeAbove,FilterDlg[8].Data,10);
-  if(FF.FSize.SizeBelow != -1i64) _ui64toa(FF.FSize.SizeBelow,FilterDlg[10].Data,10);
+  if(FF.FSize.SizeAbove != _i64(-1)) _ui64toa(FF.FSize.SizeAbove,FilterDlg[8].Data,10);
+  if(FF.FSize.SizeBelow != _i64(-1)) _ui64toa(FF.FSize.SizeBelow,FilterDlg[10].Data,10);
   if (!FilterDlg[5].Selected)
     for(I=6; I <= 10; ++I)
       FilterDlg[I].Flags|=DIF_DISABLE;
@@ -451,12 +453,12 @@ void FileFilter::Configure()
       FF.FSize.Used=FilterDlg[5].Selected;
       FF.FSize.SizeType=(FSizeType) SizeType;
       if(!*RemoveExternalSpaces(FilterDlg[8].Data))
-        FF.FSize.SizeAbove=-1i64;
+        FF.FSize.SizeAbove=_i64(-1);
       else
         FF.FSize.SizeAbove=_atoi64(FilterDlg[8].Data);
 
       if(!*RemoveExternalSpaces(FilterDlg[10].Data))
-        FF.FSize.SizeBelow=-1i64;
+        FF.FSize.SizeBelow=_i64(-1);
       else
         FF.FSize.SizeBelow=_atoi64(FilterDlg[10].Data);
 
@@ -599,17 +601,17 @@ int FileFilter::FileInFilter(WIN32_FIND_DATA *fd)
         case FSIZE_INKBYTES:
           // Размер введён в килобайтах, переведём его в байты.
           // !!! Проверки на превышение максимального значения не делаются !!!
-          sizeabove=sizeabove*1024i64;
+          sizeabove=sizeabove*_i64(1024);
           break;
         case FSIZE_INMBYTES:
           // Задел // Размер введён в мегабайтах, переведём его в байты.
           // !!! Проверки на превышение максимального значения не делаются !!!
-          sizeabove=sizeabove*1024i64*1024i64;
+          sizeabove=sizeabove*_i64(1024)*_i64(1024);
           break;
         case FSIZE_INGBYTES:
           // Задел // Размер введён в гигабайтах, переведём его в байты.
           // !!! Проверки на превышение максимального значения не делаются !!!
-          sizeabove=sizeabove*1024i64*1024i64*1024i64;
+          sizeabove=sizeabove*_i64(1024)*_i64(1024)*_i64(1024);
           break;
         default:
           break;
@@ -630,17 +632,17 @@ int FileFilter::FileInFilter(WIN32_FIND_DATA *fd)
         case FSIZE_INKBYTES:
           // Размер введён в килобайтах, переведём его в байты.
           // !!! Проверки на превышение максимального значения не делаются !!!
-          sizebelow=sizebelow*1024i64;
+          sizebelow=sizebelow*_i64(1024);
           break;
         case FSIZE_INMBYTES:
           // Задел // Размер введён в мегабайтах, переведём его в байты.
           // !!! Проверки на превышение максимального значения не делаются !!!
-          sizebelow=sizebelow*1024i64*1024i64;
+          sizebelow=sizebelow*_i64(1024)*_i64(1024);
           break;
         case FSIZE_INGBYTES:
           // Задел // Размер введён в гигабайтах, переведём его в байты.
           // !!! Проверки на превышение максимального значения не делаются !!!
-          sizebelow=sizebelow*1024i64*1024i64*1024i64;
+          sizebelow=sizebelow*_i64(1024)*_i64(1024)*_i64(1024);
           break;
         default:
           break;

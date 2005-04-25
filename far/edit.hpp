@@ -7,10 +7,12 @@ edit.hpp
 
 */
 
-/* Revision: 1.28 23.12.2004 $ */
+/* Revision: 1.29 25.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 AY
+    ! GCC
   23.12.2004 WARP
     ! 3-х позиционный ExpandTab (стара€ функциональность возвращаетс€ компил€цией с USE_OLDEXPANDTABS)
   14.12.2003 SVS
@@ -256,6 +258,7 @@ class Edit:public ScreenObject
     const char* GetStringAddr();
     void  SetString(const char *Str);
     void  SetBinaryString(const char *Str,int Length);
+    void  GetBinaryString(char *&Str,const char **EOL,int &Length);
     void  GetBinaryString(const char *&Str,const char **EOL,int &Length);
     void  SetEOL(const char *EOL);
     int   GetSelString(char *Str,int MaxSize);

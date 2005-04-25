@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.147 24.04.2005 $ */
+/* Revision: 1.148 25.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 AY
+    ! GCC
   24.04.2005 SVS
     ! выделяем стока (размер для строк), скока нужно.
   23.04.2005 KM
@@ -502,7 +504,7 @@ enum {
   COPY_RULE_FILES  = 0x0002,
 };
 
-static TotalFilesToProcess;
+static int TotalFilesToProcess;
 
 static int ShowCopyTime;
 static clock_t CopyStartTime;
@@ -3986,7 +3988,7 @@ int ShellCopy::SetSecurity(const char *FileName,const SECURITY_ATTRIBUTES &sa)
   SECURITY_INFORMATION si=DACL_SECURITY_INFORMATION;
   SetFileApisTo(APIS2ANSI);
   FAR_OemToChar(FileName,AnsiName);
-  BOOL RetSec=SetFileSecurity(AnsiName,si,sa.lpSecurityDescriptor);
+  BOOL RetSec=SetFileSecurity(AnsiName,si,(PSECURITY_DESCRIPTOR)sa.lpSecurityDescriptor);
   SetFileApisTo(APIS2OEM);
   if (!RetSec)
   {
@@ -4030,7 +4032,7 @@ int ShellCopy::ShellSystemCopy(const char *SrcName,const char *DestName,const WI
   {
     BOOL Cancel=0;
     TotalCopiedSizeEx=TotalCopiedSize;
-    if (!pCopyFileEx(SrcName,DestName,CopyProgressRoutine,NULL,&Cancel,0))
+    if (!pCopyFileEx(SrcName,DestName,(void *)CopyProgressRoutine,NULL,&Cancel,0))
       return GetLastError()==ERROR_REQUEST_ABORTED ? COPY_CANCEL:COPY_FAILURE;
   }
   else

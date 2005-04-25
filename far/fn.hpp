@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.222 23.04.2005 $ */
+/* Revision: 1.223 25.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 AY
+    ! GCC
   23.04.2005 KM
     ! Подсчёт файлов и каталогов в GetDirInfo с учётом фильтра операций
   05.04.2005 SVS
@@ -891,7 +893,7 @@ int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
              int &UseUnicode);
 void DecodeString(char *Str,unsigned char *DecodeTable,int Length=-1);
 void EncodeString(char *Str,unsigned char *EncodeTable,int Length=-1);
-char *NullToEmpty(char *Str);
+//char *NullToEmpty(char *Str);
 const char *NullToEmpty(const char *Str);
 char* CenterStr(char *Src,char *Dest,int Length);
 const char *GetCommaWord(const char *Src,char *Word,char Separator=',');
@@ -945,7 +947,7 @@ void CloseSameRegKey();
 int CheckFolder(const char *Name);
 int CheckShortcutFolder(char *TestPath,int LengthPath,int IsHostFile, BOOL Silent=FALSE);
 
-#if defined(__FARCONST_HPP__) && (defined(_INC_WINDOWS) || defined(_WINDOWS_))
+#if defined(__FARCONST_HPP__) && (defined(_INC_WINDOWS) || defined(_WINDOWS_) || defined(_WINDOWS_H))
 UDWORD NTTimeToDos(FILETIME *ft);
 int Execute(const char *CmdStr,int AlwaysWaitFinish,int SeparateWindow=FALSE,
             int DirectRun=FALSE,int SetUpDirs=FALSE);
@@ -961,7 +963,7 @@ int  CheckUpdateAnotherPanel(Panel *SrcPanel,const char *SelName);
 
 #ifdef __FAR_INT64_HPP__
 BOOL GetDiskSize(char *Root,int64 *TotalSize,int64 *TotalFree,int64 *UserFree);
-int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
+int GetDirInfo(char *Title,const char *DirName,unsigned long &DirCount,
                unsigned long &FileCount,int64 &FileSize,
                int64 &CompressedFileSize,int64 &RealSize,
                unsigned long &ClusterSize,clock_t MsgWaitTime,

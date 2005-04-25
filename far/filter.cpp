@@ -5,10 +5,12 @@ filter.cpp
 
 */
 
-/* Revision: 1.29 11.09.2004 $ */
+/* Revision: 1.30 25.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 AY
+    ! GCC
   11.09.2004 VVM
     + Нажатие SHIFT-<GREY MINUS> сбрасывает все пометки фильтра.
   06.08.2004 SKV
@@ -115,7 +117,7 @@ struct FilterDataRecord
 };
 
 static struct FilterDataRecord *FilterData=NULL;
-static int FilterDataCount=NULL;
+static int FilterDataCount=0;
 
 static unsigned char VerticalLine=0x0B3;
 

@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.59 02.04.2005 $ */
+/* Revision: 1.60 25.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 AY
+    ! GCC
   02.04.2005 AY
     + Обработка COLUMN_ECONOMIC в FileSizeToStr()
       Т.е. вернём пробел, а кто его хочет убрать ставит SE.
@@ -779,10 +781,12 @@ BOOL WINAPI DeleteEndSlash(char *Path)
   return FALSE;
 }
 
+/*
 char *NullToEmpty(char *Str)
 {
   return (Str==NULL) ? "":Str;
 }
+*/
 
 const char *NullToEmpty(const char *Str)
 {
@@ -966,7 +970,7 @@ char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size, int Width, 
     {
       Sz = (OldSize=Sz) / Divider64F2;
       OldSize = (OldSize % Divider64F2) / (Divider64F2 / Divider64F2_mul);
-      DWORD Decimal = (double)OldSize.Number.Part.LowPart/(double)Divider*100.0;
+      DWORD Decimal = (DWORD)((double)OldSize.Number.Part.LowPart/(double)Divider*100.0);
       sprintf(Str,"%d.%02d",Sz.Number.Part.LowPart,Decimal);
       Width-=(Economic?1:2);
       if (Width<0)

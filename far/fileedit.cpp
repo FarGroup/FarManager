@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.161 14.04.2005 $ */
+/* Revision: 1.162 25.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 AY
+    ! GCC
   14.04.2005 SVS
     ! Opt.UsePrintManager
   11.11.2004 SVS
@@ -2059,7 +2061,7 @@ void FileEditor::ShowStatus()
     ! Используем уже готовую AttrStr, которая сформирована в
       GetFileAttributes
   */
-  char *TableName;
+  const char *TableName;
   char TmpTableName[32];
   if(FEdit->UseDecodeTable)
   {

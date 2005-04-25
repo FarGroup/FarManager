@@ -5,10 +5,12 @@ XLat - перекодировка
 
 */
 
-/* Revision: 1.06 14.04.2005 $ */
+/* Revision: 1.07 25.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 AY
+    ! GCC
   14.04.2005 AY
     ! Не доходили до последнего символа в Opt.XLat.Table
   01.03.2004 SVS
@@ -167,7 +169,7 @@ char* WINAPI Xlat(
             CurLang=1;
           if(J >= Opt.XLat.Rules[1][0])
             CurLang=0;
-          if(???)
+          if()//???
           {
             Chr=(BYTE)Opt.XLat.Rules[CurLang][J+1];
           }

@@ -13,10 +13,12 @@ array.hpp
  //  const Object& operator=(const Object &)
 */
 
-/* Revision: 1.03 06.08.2004 $ */
+/* Revision: 1.04 24.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 AY
+    ! GCC
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   25.02.2003 SVS
@@ -26,9 +28,9 @@ Modify:
   15.08.2002 IS
     + введено в строй (перетащено из исходников S&R)
 */
+#include "fn.hpp"
 
-
-#if defined(__BORLANDC__)
+#if defined(__BORLANDC__) || defined(__GNUC__)
 typedef int __cdecl (*TARRAYCMPFUNC)(const void *el1,const void *el2);
 #else
 typedef int (*TARRAYCMPFUNC)(const void *el1,const void *el2);

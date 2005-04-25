@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.92 22.03.2005 $ */
+/* Revision: 1.93 25.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 AY
+    ! GCC
   22.03.2005 SVS
     - откат предыдущего изменения, не туда копал :-(
   22.03.2005 SVS
@@ -1127,8 +1129,8 @@ void Manager::PluginsMenu()
     }
 
     // в редакторе или вьюере покажем свою помощь по Shift-F1
-    char *Topic=curType==MODALTYPE_EDITOR?"Editor":
-      curType==MODALTYPE_VIEWER?"Viewer":0;
+    const char *Topic=curType==MODALTYPE_EDITOR?"Editor":
+      curType==MODALTYPE_VIEWER?"Viewer":NULL;
     CtrlObject->Plugins.CommandsMenu(curType,0,Topic);
     /* IS $ */
   }

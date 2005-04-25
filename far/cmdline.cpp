@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.79 28.02.2005 $ */
+/* Revision: 1.80 24.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 AY
+    ! GCC
   28.02.2005 SVS
     ! В строках ввода (диалоги) и ком.строка - будет конвертироваться
       ближайшее слово или выделение.
@@ -588,7 +590,7 @@ void CommandLine::ExecString(char *Str,int AlwaysWaitFinish,int SeparateWindow,
 }
 
 
-void CommandLine::InsertString(char *Str)
+void CommandLine::InsertString(const char *Str)
 {
   LastCmdPartLength=-1;
   CmdStr.InsertString(Str);

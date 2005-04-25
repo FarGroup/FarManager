@@ -7,10 +7,12 @@ cmdline.hpp
 
 */
 
-/* Revision: 1.14 26.02.2005 $ */
+/* Revision: 1.15 25.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 AY
+    ! GCC
   26.02.2005 SVS
     + CommandLine::LockUpdatePanel() è FCMDOBJ_LOCKUPDATEPANEL
   09.03.2004 SVS
@@ -90,7 +92,7 @@ class CommandLine:public ScreenObject
     /* $ 10.05.2001 DJ */
     void ShowViewEditHistory();
     /* DJ $ */
-    void InsertString(char *Str);
+    void InsertString(const char *Str);
     void SetCurPos(int Pos);
     int GetCurPos();
     /* $ 11.05.2001 OT */

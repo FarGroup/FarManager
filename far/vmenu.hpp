@@ -11,10 +11,12 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.59 29.01.2005 $ */
+/* Revision: 1.60 25.04.2005 $ */
 
 /*
 Modify:
+  24.04.2005 AY
+    ! GCC
   29.01.2005 WARP
     ! Небольшой cleanup (см. 01920.vmenu_dialog_cleanup.txt)
   08.12.2004 WARP
@@ -328,7 +330,7 @@ class VMenu: virtual public Modal, virtual public Frame
 {
 #ifdef _MSC_VER
 #pragma warning(disable:4250)
-#endif _MSC_VER
+#endif //_MSC_VER
   private:
     char Title[100];
     char BottomTitle[100];
