@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.148 25.04.2005 $ */
+/* Revision: 1.149 25.04.2005 $ */
 
 /*
 Modify:
+  25.04.2005 SVS
+    - Copy/Paste, да не то :-(
   24.04.2005 AY
     ! GCC
   24.04.2005 SVS
@@ -696,7 +698,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   static struct DialogData CopyDlgData[]={
   /* 00 */  DI_DOUBLEBOX,3,1,DLG_WIDTH-4,DLG_HEIGHT-2,0,0,0,0,(char *)MCopyDlgTitle,
   /* 01 */  DI_TEXT,5,2,0,2,0,0,0,0,(char *)MCMLTargetTO,
-  /* 02 */  DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY|DIF_EDITEXPAND|DIF_EDITEXPAND|DIF_USELASTHISTORY/*|DIF_EDITPATH*/,0,"",
+  /* 02 */  DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY|DIF_VAREDIT|DIF_EDITEXPAND|DIF_USELASTHISTORY/*|DIF_EDITPATH*/,0,"",
   /* 03 */  DI_TEXT,3,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
   /* 04 */  DI_CHECKBOX,5,5,0,5,0,0,0,0,(char *)MCopySecurity,
   /* 05 */  DI_CHECKBOX,5,6,0,6,0,0,0,0,(char *)MCopyOnlyNewerFiles,
