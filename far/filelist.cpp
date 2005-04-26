@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.226 25.04.2005 $ */
+/* Revision: 1.227 26.04.2005 $ */
 
 /*
 Modify:
+  26.04.2005 SVS
+    ! Под переменную "Путь" отводим стока, скока нужно, а не NM.
   24.04.2005 AY
     ! GCC
   23.04.2005 KM
@@ -1170,7 +1172,8 @@ int FileList::ProcessKey(int Key)
   if (!InternalProcessKey && (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9 ||
       Key>=KEY_CTRLSHIFT0 && Key<=KEY_CTRLSHIFT9))
   {
-    char ShortcutFolder[NM],PluginModule[NM],PluginFile[NM],PluginData[MAXSIZE_SHORTCUTDATA];
+    char *ShortcutFolder=NULL;
+    char PluginModule[NM],PluginFile[NM],PluginData[MAXSIZE_SHORTCUTDATA];
     if (PanelMode==PLUGIN_PANEL)
     {
       int PluginNumber=((struct PluginHandle *)hPlugin)->PluginNumber;
@@ -1178,6 +1181,7 @@ int FileList::ProcessKey(int Key)
       struct OpenPluginInfo Info;
       CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
       strcpy(PluginFile,NullToEmpty(Info.HostFile));
+      ShortcutFolder=new char[strlen(NullToEmpty(Info.CurDir))+NM];
       strcpy(ShortcutFolder,NullToEmpty(Info.CurDir));
       xstrncpy(PluginData,NullToEmpty(Info.ShortcutData),sizeof(PluginData)-1);
       PluginData[sizeof(PluginData)-1]=0;
@@ -1185,98 +1189,117 @@ int FileList::ProcessKey(int Key)
     else
     {
       *PluginModule=*PluginFile=*PluginData=0;
+      ShortcutFolder=new char[strlen(CurDir)+NM];
       strcpy(ShortcutFolder,CurDir);
     }
     if (SaveFolderShortcut(Key,ShortcutFolder,PluginModule,PluginFile,PluginData))
-      return(TRUE);
-    if (GetShortcutFolder(Key,ShortcutFolder,PluginModule,PluginFile,PluginData))
     {
-      if(*PluginModule)
+      if(ShortcutFolder) delete[] ShortcutFolder;
+      return(TRUE);
+    }
+
+    if(ShortcutFolder)
+      delete[] ShortcutFolder;
+
+    int SizeFolderNameShortcut=GetShortcutFolderSize(Key);
+    ShortcutFolder=new char[SizeFolderNameShortcut+NM];
+    if(ShortcutFolder)
+    {
+      if (GetShortcutFolder(Key,ShortcutFolder,SizeFolderNameShortcut+NM,PluginModule,PluginFile,PluginData))
       {
-        if(*PluginFile)
+        if(*PluginModule)
         {
-          switch(CheckShortcutFolder(PluginFile,0,TRUE))
+          if(*PluginFile)
           {
-            case 0:
-//              return FALSE;
-            case -1:
-              return TRUE;
-          }
-          /* Своеобразное решение BugZ#50 */
-          char RealDir[2048], *Ptr;
-          Ptr=strrchr(strcpy(RealDir,PluginFile),'\\');
-          if(Ptr)
-          {
-            *++Ptr=0;
-            SetCurDir(RealDir,TRUE);
-            GoToFile(PointToName(PluginFile));
-            // удалим пред.значение.
-            if(PrevDataStackSize>0)
+            switch(CheckShortcutFolder(PluginFile,0,TRUE))
             {
-              for(--PrevDataStackSize;PrevDataStackSize > 0;PrevDataStackSize--)
-                DeleteListData(PrevDataStack[PrevDataStackSize].PrevListData,PrevDataStack[PrevDataStackSize].PrevFileCount);
+              case 0:
+  //              return FALSE;
+              case -1:
+                delete[] ShortcutFolder;
+                return TRUE;
             }
-          }
-          /**/
-          OpenFilePlugin(PluginFile,FALSE);
-          if (*ShortcutFolder)
-            SetCurDir(ShortcutFolder,FALSE);
-          Show();
-        }
-        else
-        {
-          switch(CheckShortcutFolder(NULL,0,TRUE))
-          {
-            case 0:
-//              return FALSE;
-            case -1:
-              return TRUE;
-          }
-          for (int I=0;I<CtrlObject->Plugins.PluginsCount;I++)
-          {
-            if (LocalStricmp(CtrlObject->Plugins.PluginsData[I].ModuleName,PluginModule)==0)
+            /* Своеобразное решение BugZ#50 */
+            char RealDir[2048], *Ptr;
+            Ptr=strrchr(strcpy(RealDir,PluginFile),'\\');
+            if(Ptr)
             {
-              if (CtrlObject->Plugins.PluginsData[I].pOpenPlugin)
+              *++Ptr=0;
+              SetCurDir(RealDir,TRUE);
+              GoToFile(PointToName(PluginFile));
+              // удалим пред.значение.
+              if(PrevDataStackSize>0)
               {
-                HANDLE hNewPlugin=CtrlObject->Plugins.OpenPlugin(I,OPEN_SHORTCUT,(int)PluginData);
-                if (hNewPlugin!=INVALID_HANDLE_VALUE)
-                {
-                  int CurFocus=GetFocus();
-                  Panel *NewPanel=CtrlObject->Cp()->ChangePanel(this,FILE_PANEL,TRUE,TRUE);
-                  NewPanel->SetPluginMode(hNewPlugin,"");
-                  if (*ShortcutFolder)
-                    CtrlObject->Plugins.SetDirectory(hNewPlugin,ShortcutFolder,0);
-                  NewPanel->Update(0);
-                  if (CurFocus || !CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible())
-                    NewPanel->SetFocus();
-                  NewPanel->Show();
-                }
+                for(--PrevDataStackSize;PrevDataStackSize > 0;PrevDataStackSize--)
+                  DeleteListData(PrevDataStack[PrevDataStackSize].PrevListData,PrevDataStack[PrevDataStackSize].PrevFileCount);
               }
-              break;
             }
+            /**/
+            OpenFilePlugin(PluginFile,FALSE);
+            if (*ShortcutFolder)
+              SetCurDir(ShortcutFolder,FALSE);
+            Show();
           }
-          /*
-          if(I == CtrlObject->Plugins.PluginsCount)
+          else
           {
-            char Target[NM*2];
-            xstrncpy(Target, PluginModule, sizeof(Target)-1);
-            TruncPathStr(Target, ScrX-16);
-            Message (MSG_WARNING | MSG_ERRORTYPE, 1, MSG(MError), Target, MSG (MNeedNearPath), MSG(MOk))
+            switch(CheckShortcutFolder(NULL,0,TRUE))
+            {
+              case 0:
+  //              return FALSE;
+              case -1:
+                delete[] ShortcutFolder;
+                return TRUE;
+            }
+            for (int I=0;I<CtrlObject->Plugins.PluginsCount;I++)
+            {
+              if (LocalStricmp(CtrlObject->Plugins.PluginsData[I].ModuleName,PluginModule)==0)
+              {
+                if (CtrlObject->Plugins.PluginsData[I].pOpenPlugin)
+                {
+                  HANDLE hNewPlugin=CtrlObject->Plugins.OpenPlugin(I,OPEN_SHORTCUT,(int)PluginData);
+                  if (hNewPlugin!=INVALID_HANDLE_VALUE)
+                  {
+                    int CurFocus=GetFocus();
+                    Panel *NewPanel=CtrlObject->Cp()->ChangePanel(this,FILE_PANEL,TRUE,TRUE);
+                    NewPanel->SetPluginMode(hNewPlugin,"");
+                    if (*ShortcutFolder)
+                      CtrlObject->Plugins.SetDirectory(hNewPlugin,ShortcutFolder,0);
+                    NewPanel->Update(0);
+                    if (CurFocus || !CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible())
+                      NewPanel->SetFocus();
+                    NewPanel->Show();
+                  }
+                }
+                break;
+              }
+            }
+            /*
+            if(I == CtrlObject->Plugins.PluginsCount)
+            {
+              char Target[NM*2];
+              xstrncpy(Target, PluginModule, sizeof(Target)-1);
+              TruncPathStr(Target, ScrX-16);
+              Message (MSG_WARNING | MSG_ERRORTYPE, 1, MSG(MError), Target, MSG (MNeedNearPath), MSG(MOk))
+            }
+            */
           }
-          */
+          delete[] ShortcutFolder;
+          return(TRUE);
         }
+        switch(CheckShortcutFolder(ShortcutFolder,sizeof(ShortcutFolder)-1,FALSE))
+        {
+          case 0:
+  //          return FALSE;
+          case -1:
+            delete[] ShortcutFolder;
+            return TRUE;
+        }
+        SetCurDir(ShortcutFolder,TRUE);
+        Show();
+        delete[] ShortcutFolder;
         return(TRUE);
       }
-      switch(CheckShortcutFolder(ShortcutFolder,sizeof(ShortcutFolder)-1,FALSE))
-      {
-        case 0:
-//          return FALSE;
-        case -1:
-          return TRUE;
-      }
-      SetCurDir(ShortcutFolder,TRUE);
-      Show();
-      return(TRUE);
+      delete[] ShortcutFolder;
     }
   }
 

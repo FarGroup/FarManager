@@ -5,10 +5,14 @@ Folder shortcuts
 
 */
 
-/* Revision: 1.13 04.11.2004 $ */
+/* Revision: 1.14 26.04.2005 $ */
 
 /*
 Modify:
+  26.04.2005 SVS
+    ! ” GetShortcutFolder добавлен параметр - скока брать на грудь дл€ пути.
+    + ‘ункци€ GetShortcutFolderSize() - возвращает размер дл€ ShortcutN
+    ! ProcessShortcutRecord() теперь возвращает значение.
   04.11.2004 SVS
     ! убираем *_EDITPATH
   07.10.2003 SVS
@@ -65,6 +69,7 @@ enum PSCR_CMD{
   PSCR_CMDGET,
   PSCR_CMDSET,
   PSCR_CMDDELALL,
+  PSCR_CMDGETFILDERSIZE,
 };
 
 enum PSCR_RECTYPE{
@@ -74,7 +79,7 @@ enum PSCR_RECTYPE{
   PSCR_RT_PLUGINDATA,
 };
 
-static void ProcessShortcutRecord(int Command,int ValType,int RecNumber,char *Value,int SizeValue)
+static int ProcessShortcutRecord(int Command,int ValType,int RecNumber,char *Value,int SizeValue)
 {
   static const char FolderShortcuts[]="FolderShortcuts";
   static const char *RecTypeName[]={
@@ -98,10 +103,23 @@ static void ProcessShortcutRecord(int Command,int ValType,int RecNumber,char *Va
       SetRegKey(FolderShortcuts,ValueName,"");
     }
   }
+  else if(Command == PSCR_CMDGETFILDERSIZE)
+    return GetRegKeySize(FolderShortcuts,ValueName);
+  return 0;
+}
+
+int GetShortcutFolderSize(int Key)
+{
+  if (Key<KEY_RCTRL0 || Key>KEY_RCTRL9)
+    return 0;
+  Key-=KEY_RCTRL0;
+
+  return ProcessShortcutRecord(PSCR_CMDGETFILDERSIZE,PSCR_RT_SHORTCUT,Key,NULL,0);
+  //ExpandEnvironmentStr(Folder,DestFolder,NM);
 }
 
 
-int GetShortcutFolder(int Key,char *DestFolder,
+int GetShortcutFolder(int Key,char *DestFolder,int DestSize,
                               char *PluginModule,
                               char *PluginFile,
                               char *PluginData)
@@ -109,11 +127,14 @@ int GetShortcutFolder(int Key,char *DestFolder,
   if (Key<KEY_RCTRL0 || Key>KEY_RCTRL9)
     return(FALSE);
 
-  char Folder[NM];
+  char *Folder=new char[DestSize];
+  if(!Folder)
+    return FALSE;
   Key-=KEY_RCTRL0;
 
-  ProcessShortcutRecord(PSCR_CMDGET,PSCR_RT_SHORTCUT,Key,Folder,sizeof(Folder));
-  ExpandEnvironmentStr(Folder,DestFolder,NM);
+  ProcessShortcutRecord(PSCR_CMDGET,PSCR_RT_SHORTCUT,Key,Folder,DestSize);
+  ExpandEnvironmentStr(Folder,DestFolder,DestSize);
+  delete[] Folder;
   if(PluginModule)
     ProcessShortcutRecord(PSCR_CMDGET,PSCR_RT_PLUGINMODULE,Key,PluginModule,NM);
   if(PluginFile)

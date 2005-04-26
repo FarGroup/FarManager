@@ -7,10 +7,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.30 23.04.2005 $ */
+/* Revision: 1.31 26.04.2005 $ */
 
 /*
 Modify:
+  26.04.2005 SVS
+    + ProcessShortcutFolder()
   23.04.2005 KM
     ! Использование фильтра в GetSelName
   01.04.2005 SVS
@@ -171,6 +173,7 @@ class Panel:public ScreenObject
     void DrawSeparator(int Y);
     void ShowScreensCount();
     int IsDragging();
+    int  ProcessShortcutFolder(int Key,BOOL ProcTreePanel=FALSE);
 
   public:
     Panel();

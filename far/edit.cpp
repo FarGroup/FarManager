@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.138 25.04.2005 $ */
+/* Revision: 1.139 26.04.2005 $ */
 
 /*
 Modify:
+  26.04.2005 SVS
+    ! Под переменную "Путь" отводим стока, скока нужно, а не NM.
   24.04.2005 AY
     ! GCC
   06.04.2005 SVS
@@ -877,16 +879,21 @@ int Edit::RecurseProcessKey(int Key)
 int Edit::ProcessInsPath(int Key,int PrevSelStart,int PrevSelEnd)
 {
   int RetCode=FALSE;
-  char PathName[4096];
+  char *PathName;
 
   if (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9) // шорткаты?
   {
     char PluginModule[NM],PluginFile[NM],PluginData[MAXSIZE_SHORTCUTDATA];
-    if (GetShortcutFolder(Key,PathName,PluginModule,PluginFile,PluginData))
+    int SizeFolderNameShortcut=GetShortcutFolderSize(Key);
+    PathName=new char[SizeFolderNameShortcut+NM];
+    if (GetShortcutFolder(Key,PathName,SizeFolderNameShortcut+NM,PluginModule,PluginFile,PluginData))
       RetCode=TRUE;
   }
   else // Пути/имена?
-    RetCode=_MakePath1(Key,PathName,sizeof(PathName)-1,"");
+  {
+    PathName=new char[4096];
+    RetCode=_MakePath1(Key,PathName,4096-1,"");
+  }
 
   // Если что-нить получилось, именно его и вставим (PathName)
   if(RetCode)
@@ -914,6 +921,7 @@ int Edit::ProcessInsPath(int Key,int PrevSelStart,int PrevSelEnd)
     Flags.Clear(FEDITLINE_CLEARFLAG);
   }
 
+  delete[] PathName;
   return RetCode;
 }
 

@@ -5,10 +5,12 @@ Quick view panel
 
 */
 
-/* Revision: 1.34 01.03.2004 $ */
+/* Revision: 1.35 26.04.2005 $ */
 
 /*
 Modify:
+  26.04.2005 SVS
+    ! Вместо кучи кода - вызов одной функции Panel::ProcessShortcutFolder()
   01.03.2004 SVS
     ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
       (задел на будущее + править впоследствии только 1 файл)
@@ -301,19 +303,10 @@ int QuickView::ProcessKey(int Key)
 {
   if (!IsVisible())
     return(FALSE);
-  {
-    char ShortcutFolder[NM],PluginModule[NM],PluginFile[NM],PluginData[MAXSIZE_SHORTCUTDATA];
-    if (GetShortcutFolder(Key,ShortcutFolder,PluginModule,PluginFile,PluginData))
-    {
-      Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
-      if (AnotherPanel->GetType()==FILE_PANEL && *PluginModule==0)
-      {
-        AnotherPanel->SetCurDir(ShortcutFolder,TRUE);
-        AnotherPanel->Redraw();
-      }
-      return(TRUE);
-    }
-  }
+
+  if(ProcessShortcutFolder(Key,FALSE))
+    return(TRUE);
+
   /* $ 30.04.2001 DJ
      показываем правильный help topic
   */

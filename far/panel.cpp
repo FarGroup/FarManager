@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.139 25.04.2005 $ */
+/* Revision: 1.140 26.04.2005 $ */
 
 /*
 Modify:
+  26.04.2005 SVS
+    + Panel::ProcessShortcutFolder()
   24.04.2005 AY
     ! GCC
   05.03.2005 SVS
@@ -2290,5 +2292,46 @@ BOOL Panel::NeedUpdatePanel(Panel *AnotherPanel)
   if ((!Opt.AutoUpdateLimit || GetFileCount() <= Opt.AutoUpdateLimit) &&
       LocalStricmp(AnotherPanel->CurDir,CurDir)==0)
     return TRUE;
+  return FALSE;
+}
+
+int Panel::ProcessShortcutFolder(int Key,BOOL ProcTreePanel)
+{
+  char *ShortcutFolder;
+  char PluginModule[NM],PluginFile[NM],PluginData[MAXSIZE_SHORTCUTDATA];
+  int SizeFolderNameShortcut=GetShortcutFolderSize(Key);
+  ShortcutFolder=new char[SizeFolderNameShortcut+NM];
+
+  if(ShortcutFolder)
+  {
+    if (GetShortcutFolder(Key,ShortcutFolder,SizeFolderNameShortcut+NM,PluginModule,PluginFile,PluginData))
+    {
+      Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+      if(ProcTreePanel)
+      {
+        if (AnotherPanel->GetType()==FILE_PANEL)
+        {
+          AnotherPanel->SetCurDir(ShortcutFolder,TRUE);
+          AnotherPanel->Redraw();
+        }
+        else
+        {
+          SetCurDir(ShortcutFolder,TRUE);
+          ProcessKey(KEY_ENTER);
+        }
+      }
+      else
+      {
+        if (AnotherPanel->GetType()==FILE_PANEL && *PluginModule==0)
+        {
+          AnotherPanel->SetCurDir(ShortcutFolder,TRUE);
+          AnotherPanel->Redraw();
+        }
+      }
+      delete[] ShortcutFolder;
+      return(TRUE);
+    }
+    delete[] ShortcutFolder;
+  }
   return FALSE;
 }

@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.223 25.04.2005 $ */
+/* Revision: 1.224 26.04.2005 $ */
 
 /*
 Modify:
+  26.04.2005 SVS
+    ! У GetShortcutFolder добавлен параметр - скока брать на грудь для пути.
+    + Функция GetShortcutFolderSize() - возвращает размер для ShortcutN
   24.04.2005 AY
     ! GCC
   23.04.2005 KM
@@ -878,10 +881,11 @@ int __cdecl LCStricmp(const char *s1,const char *s2);
 int __cdecl LCNumStricmp(const char *s1,const char *s2);
 
 int LocalKeyToKey(int Key);
-int GetShortcutFolder(int Key,char *DestFolder,char *PluginModule=NULL,
+int GetShortcutFolder(int Key,char *DestFolder,int DestSize,char *PluginModule=NULL,
                       char *PluginFile=NULL,char *PluginData=NULL);
 int SaveFolderShortcut(int Key,char *SrcFolder,char *PluginModule=NULL,
                        char *PluginFile=NULL,char *PluginData=NULL);
+int GetShortcutFolderSize(int Key);
 void ShowFolderShortcut();
 void ShowFilter();
 /* 15.09.2000 IS

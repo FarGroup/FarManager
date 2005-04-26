@@ -5,10 +5,12 @@ infolist.cpp
 
 */
 
-/* Revision: 1.43 06.08.2004 $ */
+/* Revision: 1.44 26.04.2005 $ */
 
 /*
 Modify:
+  26.04.2005 SVS
+    ! Вместо кучи кода - вызов одной функции Panel::ProcessShortcutFolder()
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   01.07.2004 SVS
@@ -373,19 +375,9 @@ int InfoList::ProcessKey(int Key)
   if (!IsVisible())
     return(FALSE);
 
-  {
-    char ShortcutFolder[NM],PluginModule[NM],PluginFile[NM],PluginData[MAXSIZE_SHORTCUTDATA];
-    if (GetShortcutFolder(Key,ShortcutFolder,PluginModule,PluginFile,PluginData))
-    {
-      Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
-      if (AnotherPanel->GetType()==FILE_PANEL && *PluginModule==0)
-      {
-        AnotherPanel->SetCurDir(ShortcutFolder,TRUE);
-        AnotherPanel->Redraw();
-      }
-      return(TRUE);
-    }
-  }
+  if(ProcessShortcutFolder(Key,FALSE))
+    return(TRUE);
+
   switch(Key)
   {
     /* $ 30.04.2001 DJ

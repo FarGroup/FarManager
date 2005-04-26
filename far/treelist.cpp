@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.68 23.04.2005 $ */
+/* Revision: 1.69 26.04.2005 $ */
 
 /*
 Modify:
+  26.04.2005 SVS
+    ! Вместо кучи кода - вызов одной функции Panel::ProcessShortcutFolder()
   23.04.2005 KM
     ! Использование фильтра в GetSelName
   01.04.2005 SVS
@@ -863,26 +865,10 @@ int TreeList::ProcessKey(int Key)
   if (TreeCount==0 && Key!=KEY_CTRLR)
     return(FALSE);
 
-  {
-    char ShortcutFolder[NM],PluginModule[NM],PluginFile[NM],PluginData[MAXSIZE_SHORTCUTDATA];
-    if (SaveFolderShortcut(Key,CurDir,"","",""))
-      return(TRUE);
-    if (GetShortcutFolder(Key,ShortcutFolder,PluginModule,PluginFile,PluginData))
-    {
-      Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
-      if (AnotherPanel->GetType()==FILE_PANEL)
-      {
-        AnotherPanel->SetCurDir(ShortcutFolder,TRUE);
-        AnotherPanel->Redraw();
-      }
-      else
-      {
-        SetCurDir(ShortcutFolder,TRUE);
-        ProcessKey(KEY_ENTER);
-      }
-      return(TRUE);
-    }
-  }
+  if (SaveFolderShortcut(Key,CurDir,"","",""))
+    return(TRUE);
+  if(ProcessShortcutFolder(Key,TRUE))
+    return(TRUE);
 
   switch(Key)
   {
