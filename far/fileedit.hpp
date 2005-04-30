@@ -7,10 +7,13 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.40 04.11.2004 $ */
+/* Revision: 1.41 28.04.2005 $ */
 
 /*
 Modify:
+  28.04.2005 AY
+    + ‘лаг FileEditor::bClosing который оповещ€ет что редактор закрываетьс€
+      (т.е. в деструкторе). Ќужен в EditorControl().
   04.11.2004 SVS
     ! расширение размеров имен файлов
   28.04.2004 SVS
@@ -195,6 +198,9 @@ class FileEditor:public Frame
     BOOL  FileAttributesModified;
     /* SKV $ */
     DWORD SysErrorCode;
+
+    //28.04.2005 AY: true когда редактор закрываетьс€ (т.е. в деструкторе)
+    bool bClosing;
 
   public:
     FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,

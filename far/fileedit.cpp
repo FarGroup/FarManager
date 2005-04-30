@@ -5,10 +5,16 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.162 25.04.2005 $ */
+/* Revision: 1.163 28.04.2005 $ */
 
 /*
 Modify:
+  28.04.2005 AY
+    ! В EditorControl(ECTL_GETINFO) не проверялась возможность FEdit->EditorControl()==FALSE
+    + ECTL_GETBOOKMARKS и ECTL_GETINFO можно вызывать в EE_CLOSE. Теперь FEdit
+      уничтожается только после EE_CLOSE но чтоб не было проблем я добавил флаг bClosing
+      который выставляется в деструкторе и проверяется в EditorControl() чтоб разрешать
+      только эти две команды при закрытии редактора.
   24.04.2005 AY
     ! GCC
   14.04.2005 SVS
@@ -516,6 +522,9 @@ FileEditor::~FileEditor()
 {
   _OT(SysLog("[%p] FileEditor::~FileEditor()",this));
 
+  //AY: флаг оповещающий закрытие редактора.
+  bClosing = true;
+
   if (FEdit->EdOpt.SavePos && CtrlObject!=NULL)
   {
     int ScreenLinePos=FEdit->CalcDistance(FEdit->TopScreen,FEdit->CurLine,-1);
@@ -560,10 +569,6 @@ FileEditor::~FileEditor()
   BitFlags FEditFlags=FEdit->Flags;
   int FEditEditorID=FEdit->EditorID;
 
-  if(FEdit)
-    delete FEdit;
-
-
   if (!FEditFlags.Check(FEDITOR_OPENFAILED))
   {
     FileEditor *save = CtrlObject->Plugins.CurEditor;
@@ -593,6 +598,10 @@ FileEditor::~FileEditor()
     CtrlObject->Plugins.CurEditor = save;
   }
 
+  if(FEdit)
+    delete FEdit;
+  FEdit=NULL;
+
   CurrentEditor=NULL;
   if (EditNamesList)
     delete EditNamesList;
@@ -610,6 +619,9 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
   _ECTLLOG(SysLog("(Name=%s, Title=%s)",Name,Title));
   SysErrorCode=0;
   int BlankFileName=!strcmp(Name,MSG(MNewFileName));
+
+  //AY: флаг оповещающий закрытие редактора.
+  bClosing = false;
 
   FEdit=new Editor;
 
@@ -2176,35 +2188,40 @@ int FileEditor::EditorControl(int Command,void *Param)
   _ECTLLOG(CleverSysLog SL("FileEditor::EditorControl()"));
   _ECTLLOG(SysLog("(Command=%s, Param=[%d/0x%08X])",_ECTL_ToName(Command),(int)Param,Param));
 #endif
+  if (bClosing && Command != ECTL_GETINFO && Command != ECTL_GETBOOKMARKS)
+    return FALSE;
   switch(Command)
   {
     case ECTL_GETINFO:
     {
-      FEdit->EditorControl(Command,Param);
-      struct EditorInfo *Info=(struct EditorInfo *)Param;
-      Info->FileName=FullFileName;
-      _ECTLLOG(SysLog("struct EditorInfo{"));
-      _ECTLLOG(SysLog("  EditorID       = %d",Info->EditorID));
-      _ECTLLOG(SysLog("  FileName       = '%s'",Info->FileName));
-      _ECTLLOG(SysLog("  WindowSizeX    = %d",Info->WindowSizeX));
-      _ECTLLOG(SysLog("  WindowSizeY    = %d",Info->WindowSizeY));
-      _ECTLLOG(SysLog("  TotalLines     = %d",Info->TotalLines));
-      _ECTLLOG(SysLog("  CurLine        = %d",Info->CurLine));
-      _ECTLLOG(SysLog("  CurPos         = %d",Info->CurPos));
-      _ECTLLOG(SysLog("  CurTabPos;     = %d",Info->CurTabPos));
-      _ECTLLOG(SysLog("  TopScreenLine  = %d",Info->TopScreenLine));
-      _ECTLLOG(SysLog("  LeftPos        = %d",Info->LeftPos));
-      _ECTLLOG(SysLog("  Overtype       = %d",Info->Overtype));
-      _ECTLLOG(SysLog("  BlockType      = %s (%d)",(Info->BlockType==BTYPE_NONE?"BTYPE_NONE":((Info->BlockType==BTYPE_STREAM?"BTYPE_STREAM":((Info->BlockType==BTYPE_COLUMN?"BTYPE_COLUMN":"BTYPE_?????"))))),Info->BlockType));
-      _ECTLLOG(SysLog("  BlockStartLine = %d",Info->BlockStartLine));
-      _ECTLLOG(SysLog("  AnsiMode       = %d",Info->AnsiMode));
-      _ECTLLOG(SysLog("  TableNum       = %d",Info->TableNum));
-      _ECTLLOG(SysLog("  Options        = 0x%08X",Info->Options));
-      _ECTLLOG(SysLog("  TabSize        = %d",Info->TabSize));
-      _ECTLLOG(SysLog("  BookMarkCount  = %d",Info->BookMarkCount));
-      _ECTLLOG(SysLog("  CurState       = 0x%08X",Info->CurState));
-      _ECTLLOG(SysLog("}"));
-      return TRUE;
+      if (FEdit->EditorControl(Command,Param))
+      {
+        struct EditorInfo *Info=(struct EditorInfo *)Param;
+        Info->FileName=FullFileName;
+        _ECTLLOG(SysLog("struct EditorInfo{"));
+        _ECTLLOG(SysLog("  EditorID       = %d",Info->EditorID));
+        _ECTLLOG(SysLog("  FileName       = '%s'",Info->FileName));
+        _ECTLLOG(SysLog("  WindowSizeX    = %d",Info->WindowSizeX));
+        _ECTLLOG(SysLog("  WindowSizeY    = %d",Info->WindowSizeY));
+        _ECTLLOG(SysLog("  TotalLines     = %d",Info->TotalLines));
+        _ECTLLOG(SysLog("  CurLine        = %d",Info->CurLine));
+        _ECTLLOG(SysLog("  CurPos         = %d",Info->CurPos));
+        _ECTLLOG(SysLog("  CurTabPos;     = %d",Info->CurTabPos));
+        _ECTLLOG(SysLog("  TopScreenLine  = %d",Info->TopScreenLine));
+        _ECTLLOG(SysLog("  LeftPos        = %d",Info->LeftPos));
+        _ECTLLOG(SysLog("  Overtype       = %d",Info->Overtype));
+        _ECTLLOG(SysLog("  BlockType      = %s (%d)",(Info->BlockType==BTYPE_NONE?"BTYPE_NONE":((Info->BlockType==BTYPE_STREAM?"BTYPE_STREAM":((Info->BlockType==BTYPE_COLUMN?"BTYPE_COLUMN":"BTYPE_?????"))))),Info->BlockType));
+        _ECTLLOG(SysLog("  BlockStartLine = %d",Info->BlockStartLine));
+        _ECTLLOG(SysLog("  AnsiMode       = %d",Info->AnsiMode));
+        _ECTLLOG(SysLog("  TableNum       = %d",Info->TableNum));
+        _ECTLLOG(SysLog("  Options        = 0x%08X",Info->Options));
+        _ECTLLOG(SysLog("  TabSize        = %d",Info->TabSize));
+        _ECTLLOG(SysLog("  BookMarkCount  = %d",Info->BookMarkCount));
+        _ECTLLOG(SysLog("  CurState       = 0x%08X",Info->CurState));
+        _ECTLLOG(SysLog("}"));
+        return TRUE;
+      }
+      return FALSE;
     }
 
     case ECTL_GETBOOKMARKS:
