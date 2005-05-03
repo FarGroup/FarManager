@@ -5,10 +5,12 @@ fileattr.cpp
 
 */
 
-/* Revision: 1.11 16.09.2004 $ */
+/* Revision: 1.12 03.05.2005 $ */
 
 /*
 Modify:
+  03.05.2005 AY
+    - в функции ESetFileTime() была испорчена логика проверки папки совместно с версией win.
   16.09.2004 SVS
     - в функции ESetFileTime() перед выставлением времени RO снимается, но назад не ставится
   01.03.2004 SVS
@@ -243,7 +245,7 @@ int ESetFileTime(const char *Name,FILETIME *LastWriteTime,FILETIME *CreationTime
                   FILETIME *LastAccessTime,int FileAttr)
 {
   if (LastWriteTime==NULL && CreationTime==NULL && LastAccessTime==NULL ||
-      (FileAttr & FA_DIREC) && WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
+      ((FileAttr & FA_DIREC) && WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT))
     return 1;
 
   while (1)

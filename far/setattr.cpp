@@ -5,10 +5,14 @@ setattr.cpp
 
 */
 
-/* Revision: 1.64 06.04.2005 $ */
+/* Revision: 1.65 03.05.2005 $ */
 
 /*
 Modify:
+  03.05.2005 AY
+    - В ShellSetFileAttributes() на папках посылались в IsFileWritable() атрибуты верхней
+      папки а не обрабатываемого файла (и ещё в одном месте).
+    - IsFileWritable() пытался CreateFile() на папках в win9x.
   06.04.2005 AY
     ! В ShellSetFileAttributes() когда "[x] Process subfolders" IsFileWritable()
       вызывалась всегда для начальной папки вместо обрабатываемого файла, что и приводило
@@ -1066,7 +1070,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
               break;
             }
 
-            RetCode=IsFileWritable(FullName,FileAttr,TRUE,MSetAttrCannotFor);
+            RetCode=IsFileWritable(FullName,FindData.dwFileAttributes,TRUE,MSetAttrCannotFor);
             if(!RetCode)
             {
               Cancel=1;
@@ -1078,7 +1082,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
             SetWriteTime=ReadFileTime(0,FullName,FindData.dwFileAttributes,&LastWriteTime,AttrDlg[16].Data,AttrDlg[17].Data);
             SetCreationTime=ReadFileTime(1,FullName,FindData.dwFileAttributes,&CreationTime,AttrDlg[19].Data,AttrDlg[20].Data);
             SetLastAccessTime=ReadFileTime(2,FullName,FindData.dwFileAttributes,&LastAccessTime,AttrDlg[22].Data,AttrDlg[23].Data);
-            if(!(FileAttr&FILE_ATTRIBUTE_REPARSE_POINT) && (SetWriteTime || SetCreationTime || SetLastAccessTime))
+            if(!(FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (SetWriteTime || SetCreationTime || SetLastAccessTime))
             {
               RetCode=ESetFileTime(FullName,SetWriteTime ? &LastWriteTime:NULL,
                            SetCreationTime ? &CreationTime:NULL,
@@ -1246,6 +1250,9 @@ static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
 // Возвращает 0 - ошибка, 1 - Ок, 2 - Skip
 static int IsFileWritable(const char *Name, DWORD FileAttr, BOOL IsShowErrMsg, int Msg)
 {
+  if ((FileAttr & FA_DIREC) && WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
+    return 1;
+
   while (1)
   {
     if (FileAttr & FA_RDONLY)
