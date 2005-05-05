@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.227 26.04.2005 $ */
+/* Revision: 1.228 05.05.2005 $ */
 
 /*
 Modify:
+  05.05.05 AY
+    - ProcessKey() - PgDn/PgUp/MouseScroll могли привести к падению из за не
+      корректного выставлени€ CurFile.
   26.04.2005 SVS
     ! ѕод переменную "ѕуть" отводим стока, скока нужно, а не NM.
   24.04.2005 AY
@@ -822,9 +825,11 @@ void FileList::Down(int Count)
 
 void FileList::Scroll(int Count)
 {
-  CurFile+=Count;
   CurTopFile+=Count;
-  ShowFileList(TRUE);
+  if (Count<0)
+    Up(-Count);
+  else
+    Down(Count);
 }
 
 void FileList::CorrectPosition()
@@ -2234,15 +2239,13 @@ int FileList::ProcessKey(int Key)
     case KEY_PGUP:         case KEY_NUMPAD9:
       N=Columns*Height-1;
       CurTopFile-=N;
-      CurFile-=N;
-      ShowFileList(TRUE);
+      Up(N);
       return(TRUE);
 
     case KEY_PGDN:         case KEY_NUMPAD3:
       N=Columns*Height-1;
       CurTopFile+=N;
-      CurFile+=N;
-      ShowFileList(TRUE);
+      Down(N);
       return(TRUE);
 
     case KEY_LEFT:         case KEY_NUMPAD4:
