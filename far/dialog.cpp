@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.334 25.04.2005 $ */
+/* Revision: 1.335 05.05.2005 $ */
 
 /*
 Modify:
+  05.05.2005 WARP
+    - Падал ACTL_GETWINDOWINFO при отсутствии в диалоге
+      элемента из которого можно было бы сформировать имя окна.
   24.04.2005 AY
     ! GCC
   12.04.2005 SVS
@@ -6078,8 +6081,19 @@ int Dialog::GetTypeAndName (char *Type, char *Name)
 {
   CriticalSectionLock Lock(CS);
 
-  strcpy (Type, MSG(MDialogType));
-  strcpy (Name, GetDialogTitle());
+  if ( Type )
+    strcpy (Type, MSG(MDialogType));
+
+  if ( Name )
+  {
+    *Name = 0;
+
+    const char *lpTitle = GetDialogTitle();
+
+    if ( lpTitle )
+      strcpy (Name, lpTitle);
+  }
+
   return MODALTYPE_DIALOG;
 }
 
