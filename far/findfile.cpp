@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.175 25.04.2005 $ */
+/* Revision: 1.176 05.05.2005 $ */
 
 /*
 Modify:
+  05.05.2005 WARP
+    - Несколько перестарались с проверкой элементов при поиске. Не работал ProcList.
   24.04.2005 AY
     ! GCC
   24.04.2005 KM
@@ -1476,24 +1478,18 @@ int FindFiles::GetPluginFile(DWORD ArcIndex, struct PluginPanelItem *PanelItem,
       OPM_FIND
       ) )
   {
-    memset (&PanelItem->FindData.ftLastAccessTime, 0, sizeof (FILETIME));
-
     for (int i = 0; i < nItemsNumber; i++)
     {
-      FILETIME ftLastAccessTime;
       struct PluginPanelItem *pItem = &pItems[i];
-
-      memcpy (&ftLastAccessTime, &pItem->FindData.ftLastAccessTime, sizeof (FILETIME));
-      memset (&pItems->FindData.ftLastAccessTime, 0, sizeof (FILETIME));
 
       char *lpFileName = PointToName(RemovePseudoBackSlash(pItem->FindData.cFileName));
 
       if ( lpFileName != pItem->FindData.cFileName )
         xstrncpy(pItem->FindData.cFileName, lpFileName, sizeof (pItem->FindData.cFileName));
 
-      if ( !memcmp (&PanelItem->FindData, &pItem->FindData, sizeof (WIN32_FIND_DATA)) )
+      if ( !strcmp (PanelItem->FindData.cFileName, pItem->FindData.cFileName) &&
+           !strcmp (PanelItem->FindData.cAlternateFileName, pItem->FindData.cAlternateFileName) )
       {
-        memcpy (&pItems->FindData.ftLastAccessTime, &ftLastAccessTime, sizeof (FILETIME));
         nResult = CtrlObject->Plugins.GetFile (
                             hPlugin,
                             pItem,
