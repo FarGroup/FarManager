@@ -5,10 +5,14 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.80 24.04.2005 $ */
+/* Revision: 1.81 06.05.2005 $ */
 
 /*
 Modify:
+  06.05.2005 SVS
+    ! ???::GetCurDir() теперь возвращает размер пути, при этом
+      его параметр может быть равен NULL. —делано дл€ того, чтобы
+      как то получить этот размер.
   24.04.2005 AY
     ! GCC
   28.02.2005 SVS
@@ -555,9 +559,11 @@ void CommandLine::SetCurDir(const char *CurDir)
 }
 
 
-void CommandLine::GetCurDir(char *CurDir)
+int CommandLine::GetCurDir(char *CurDir)
 {
-  strcpy(CurDir,CommandLine::CurDir);
+  if(CurDir)
+    strcpy(CurDir,CommandLine::CurDir); // TODO: ќѕј—Ќќ!!!
+  return strlen(CommandLine::CurDir);
 }
 
 void CommandLine::GetString(char *Str,int MaxSize)

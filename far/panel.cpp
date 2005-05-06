@@ -5,10 +5,17 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.140 26.04.2005 $ */
+/* Revision: 1.141 06.05.2005 $ */
 
 /*
 Modify:
+  06.05.2005 SVS
+    ! ???::GetCurDir() теперь возвращает размер пути, при этом
+      его параметр может быть равен NULL. Сделано для того, чтобы
+      как то получить этот размер.
+    + Добавлен конфирманс про удаление SUBST-девайсов (задолбася уже
+      промахиваться, а боевой диск - как раз SUBST)
+    + Eject USB-девайсов
   26.04.2005 SVS
     + Panel::ProcessShortcutFolder()
   24.04.2005 AY
@@ -580,6 +587,8 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
             {DRIVE_DVD_RW,MChangeDriveDVD_RW},
             {DRIVE_DVD_RAM,MChangeDriveDVD_RAM},
             {DRIVE_RAMDISK,MChangeDriveRAM},
+            {DRIVE_USBDRIVE,MChangeDriveUSB},
+            {DRIVE_SUBSTITUTE,MChangeDriveSUBST},
           };
           for(J=0; J < sizeof(DrTMsg)/sizeof(DrTMsg[1]); ++J)
             if(DrTMsg[J].DrvType == DriveType)
@@ -590,22 +599,8 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
             }
 
           if(J >= sizeof(DrTMsg)/sizeof(DrTMsg[1]))
-          {
             sprintf(DiskType,"%*s",strlen(MSG(MChangeDriveFixed)),"");
-          }
-          /* 05.01.2001 SVS
-             + Информация про Subst-тип диска
-          */
-          {
-            char LocalName[8],SubstName[NM];
-            sprintf(LocalName,"%c:",*RootDir);
-            if(GetSubstName(DriveType,LocalName,SubstName,sizeof(SubstName)))
-            {
-              strcpy(DiskType,MSG(MChangeDriveSUBST));
-              DriveType=DRIVE_SUBSTITUTE;
-            }
-          }
-          /* SVS $ */
+
           strcat(MenuText,DiskType);
         }
 
@@ -942,18 +937,49 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
             */
             if ((UserData=(DWORD)ChDisk.GetUserData(NULL,0)) != 0)
             {
-              if(HIWORD(UserData) == DRIVE_REMOVABLE || IsDriveTypeCDROM(HIWORD(UserData)))
+              if(HIWORD(UserData) == DRIVE_REMOVABLE || HIWORD(UserData) == DRIVE_USBDRIVE ||
+                   IsDriveTypeCDROM(HIWORD(UserData)))
               {
-                if(HIWORD(UserData) == DRIVE_REMOVABLE && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT && !IsEjectableMedia(LOBYTE(LOWORD(UserData))))
-                  break;
+                BOOL EjectCD=TRUE;
+                if(
+                   (
+                     HIWORD(UserData) == DRIVE_REMOVABLE && !IsEjectableMedia(LOBYTE(LOWORD(UserData))) ||
+                     HIWORD(UserData) == DRIVE_USBDRIVE
+                   )
+                   && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
+                {
+                  //if(IsDriveUsb(LOBYTE(LOWORD(UserData)),NULL))
+                    EjectCD=FALSE; // USB?
+                  //else
+                  //  break;
+                }
 
+                int ResEject=0;
+
+                if(EjectCD)
+                  ResEject=EjectVolume(LOBYTE(LOWORD(UserData)),EJECT_NO_MESSAGE);
+                else
+                {
+                  if(Opt.Confirm.RemoveUSB)
+                  {
+                    char MsgText[200];
+                    sprintf(MsgText,MSG(MChangeUSBDisconnectDriveQuestion),LOBYTE(LOWORD(UserData)));
+                    if(Message(MSG_WARNING,2,MSG(MChangeUSBDisconnectDriveTitle),MsgText,MSG(MYes),MSG(MNo))==0)
+                      ResEject=1;
+                  }
+                  else
+                    ResEject=1;
+                  if(!ResEject)
+                    continue;
+                  ResEject=RemoveUSBDrive(LOBYTE(LOWORD(UserData)),EJECT_NO_MESSAGE);
+                }
                 // первая попытка извлеч диск
-                if(!EjectVolume(LOBYTE(LOWORD(UserData)),EJECT_NO_MESSAGE))
+                if(!ResEject)
                 {
                   // запоминаем состояние панелей
                   int CMode=GetMode();
                   int AMode=CtrlObject->Cp()->GetAnotherPanel (this)->GetMode();
-                  char TmpCDir[NM], TmpADir[NM];
+                  char TmpCDir[NM], TmpADir[NM]; // TODO: ОПАСНО!!! Возможно переполнение буфера, особенно для... FTP плагина.
                   GetCurDir (TmpCDir);
                   CtrlObject->Cp()->GetAnotherPanel (this)->GetCurDir (TmpADir);
 
@@ -970,7 +996,14 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
                     // TODO: А если домашний каталог - CD? ;-)
                     IfGoHome(LOBYTE(LOWORD(UserData)));
                     // очередная попытка извлечения без вывода сообщения
-                    int ResEject=EjectVolume(LOBYTE(LOWORD(UserData)),EJECT_NO_MESSAGE);
+                    DWORD LastErrorForEject=0;
+                    if(EjectCD)
+                      ResEject=EjectVolume(LOBYTE(LOWORD(UserData)),EJECT_NO_MESSAGE);
+                    else
+                    {
+                      if(!(ResEject=RemoveUSBDrive(LOBYTE(LOWORD(UserData)),EJECT_NO_MESSAGE)))
+                        LastErrorForEject=GetLastError();
+                    }
                     if(!ResEject)
                     {
                       // восстановим пути - это избавит нас от левых данных в панели.
@@ -981,17 +1014,37 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
                       // ... и выведем месаг о...
                       char MsgText[200];
-                      sprintf(MsgText,MSG(MChangeCouldNotEjectMedia),LOBYTE(LOWORD(UserData)));
-                      SetLastError(ERROR_DRIVE_LOCKED); // ...о "The disk is in use or locked by another process."
+                      if(EjectCD)
+                      {
+                        sprintf(MsgText,MSG(MChangeCouldNotEjectMedia),LOBYTE(LOWORD(UserData)));
+                        LastErrorForEject=ERROR_DRIVE_LOCKED; // ...о "The disk is in use or locked by another process."
+                      }
+                      else
+                        sprintf(MsgText,MSG(MChangeCouldNotRemoveUSB));//,LOBYTE(LOWORD(UserData)));
+                      SetLastError(LastErrorForEject);
                       DoneEject=Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),MsgText,MSG(MRetry),MSG(MCancel))!=0;
                     }
                     else
+                    {
                       DoneEject=TRUE;
+                      if(!EjectCD)
+                      {
+                        if(Opt.Confirm.AfterRemoveUSB)
+                          Message(0,1,MSG(MChangeUSBDisconnectDriveTitle),MSG(MChangeUSBSafelyRemoved),MSG(MOk));
+                        return(SelPos);
+                      }
+                    }
                   }
 
                   // "отпустим" менюху выбора дисков
                   ChDisk.UnlockRefresh();
                   ChDisk.Show();
+                }
+                if(!EjectCD)
+                {
+                  if(Opt.Confirm.AfterRemoveUSB)
+                    Message(0,1,MSG(MChangeUSBDisconnectDriveTitle),MSG(MChangeUSBSafelyRemoved),MSG(MOk));
+                  return(SelPos);
                 }
               }
               else
@@ -1212,7 +1265,7 @@ int Panel::ProcessDelDisk (char Drive, int DriveType,VMenu *ChDiskMenu)
   int UpdateProfile=CONNECT_UPDATE_PROFILE;
   BOOL Processed=FALSE;
 
-  char DiskLetter [3];
+  char DiskLetter [4];
   DiskLetter[0] = Drive;
   DiskLetter[1] = ':';
   DiskLetter[2] = 0;
@@ -1238,6 +1291,14 @@ int Panel::ProcessDelDisk (char Drive, int DriveType,VMenu *ChDiskMenu)
   */
   if(DriveType == DRIVE_SUBSTITUTE)
   {
+    if(Opt.Confirm.RemoveSUBST)
+    {
+      char MsgText[200];
+      sprintf(MsgText,MSG(MChangeSUBSTDisconnectDriveQuestion),Drive);
+      if(Message(MSG_WARNING,2,MSG(MChangeSUBSTDisconnectDriveTitle),MsgText,MSG(MYes),MSG(MNo))!=0)
+        return DRIVE_DEL_FAIL;
+    }
+
     if(!DelSubstDrive(DiskLetter))
       return DRIVE_DEL_SUCCESS;
     else
@@ -1719,9 +1780,11 @@ void Panel::DragMessage(int X,int Y,int Move)
 }
 
 
-void Panel::GetCurDir(char *CurDir)
+int Panel::GetCurDir(char *CurDir)
 {
-  strcpy(CurDir,Panel::CurDir);
+  if(CurDir)
+    strcpy(CurDir,Panel::CurDir); // TODO: ОПАСНО!!!
+  return strlen(Panel::CurDir);
 }
 
 

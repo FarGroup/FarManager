@@ -5,10 +5,14 @@ Tree panel
 
 */
 
-/* Revision: 1.69 26.04.2005 $ */
+/* Revision: 1.70 06.05.2005 $ */
 
 /*
 Modify:
+  06.05.2005 SVS
+    ! ???::GetCurDir() теперь возвращает размер пути, при этом
+      его параметр может быть равен NULL. —делано дл€ того, чтобы
+      как то получить этот размер.
   26.04.2005 SVS
     ! ¬место кучи кода - вызов одной функции Panel::ProcessShortcutFolder()
   23.04.2005 KM
@@ -1287,17 +1291,21 @@ int TreeList::SetDirPosition(char *NewDir)
 }
 
 
-void TreeList::GetCurDir(char *CurDir)
+int TreeList::GetCurDir(char *CurDir)
 {
-  if (TreeCount==0)
+  if(CurDir)
   {
-    if (ModalMode==MODALTREE_FREE)
-      strcpy(CurDir,Root);
+    if (TreeCount==0)
+    {
+      if (ModalMode==MODALTREE_FREE)
+        strcpy(CurDir,Root); // TODO: ќѕј—Ќќ!!!
+      else
+        *CurDir=0;
+    }
     else
-      *CurDir=0;
+      strcpy(CurDir,ListData[CurFile].Name); // TODO: ќѕј—Ќќ!!!
   }
-  else
-    strcpy(CurDir,ListData[CurFile].Name);
+  return strlen(NullToEmpty(CurDir));
 }
 
 

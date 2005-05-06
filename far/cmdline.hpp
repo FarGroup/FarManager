@@ -7,10 +7,14 @@ cmdline.hpp
 
 */
 
-/* Revision: 1.15 25.04.2005 $ */
+/* Revision: 1.16 06.05.2005 $ */
 
 /*
 Modify:
+  06.05.2005 SVS
+    ! ???::GetCurDir() теперь возвращает размер пути, при этом
+      его параметр может быть равен NULL. Сделано для того, чтобы
+      как то получить этот размер.
   24.04.2005 AY
     ! GCC
   26.02.2005 SVS
@@ -82,7 +86,7 @@ class CommandLine:public ScreenObject
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 
-    void GetCurDir(char *CurDir);
+    int GetCurDir(char *CurDir);
     void SetCurDir(const char *CurDir);
     void GetString(char *Str,int MaxSize);
     const char *GetStringAddr();

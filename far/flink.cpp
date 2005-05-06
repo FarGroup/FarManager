@@ -5,10 +5,12 @@ flink.cpp
 
 */
 
-/* Revision: 1.47 25.04.2005 $ */
+/* Revision: 1.48 06.05.2005 $ */
 
 /*
 Modify:
+  06.05.2005 SVS
+    ! У GetSubstName() предпоследний параметр может быть равен NULL
   24.04.2005 AY
     ! GCC
   04.11.2004 SVS
@@ -861,7 +863,8 @@ BOOL GetSubstName(int DriveType,char *LocalName,char *SubstName,int SubstSize)
       {
         if (!strncmp(Name,"\\??\\",4))
         {
-          xstrncpy(SubstName,Name+4,SubstSize-1);
+          if(SubstName)
+            xstrncpy(SubstName,Name+4,SubstSize-1);
           return TRUE;
         }
       }
@@ -869,7 +872,8 @@ BOOL GetSubstName(int DriveType,char *LocalName,char *SubstName,int SubstSize)
       {
         if(Name[1] == ':' && Name[2] == '\\')
         {
-          xstrncpy(SubstName,Name,SubstSize-1);
+          if(SubstName)
+            xstrncpy(SubstName,Name,SubstSize-1);
           return TRUE;
         }
       }

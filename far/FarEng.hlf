@@ -956,6 +956,8 @@ explicitly in the Local Policy Editor (to do this, run a #secpol.msc# from the
 command prompt, and set the '#Local Policies/Security Options/Devices:#
 #Restrict CD-ROM access to locally logged-on user only#' setting to '#Enabled#')
 
+    Для виртуальных устройств (SUBST-дисков) указываются параметры
+основного диска.
 
 @QViewPanel
 $ #Panels: quick view panel#
@@ -1223,6 +1225,13 @@ following operations:
     - interrupt operation;
 
     - ~disconnect network drives~@DisconnectDrive@ from the Disks menu;
+
+    - отключение виртуальных устройств из меню дисков;
+
+    - отключение USB-устройств из меню дисков;
+
+    - вывод информации о безопасном извлечении USB-устройств
+      после отключения;
 
     - ~reloading~@EditorReload@ a file in the editor;
 
@@ -2372,6 +2381,8 @@ is not a ~file panel~@FilePanel@, it will be changed to the file panel.
      - to ~disconnect~@DisconnectDrive@ from network drives.
 
      - to delete a substituted (virtual) drive.
+
+     -
 
      - to eject disks from CD-ROM and removable drives.
        Under Windows 2000/NT/XP, ejecting a disk from a ZIP-drive

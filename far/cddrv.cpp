@@ -5,10 +5,12 @@ cddrv.cpp
 
 */
 
-/* Revision: 1.03 24.07.2004 $ */
+/* Revision: 1.04 06.05.2005 $ */
 
 /*
 Modify:
+  06.05.2005 SVS
+    ! FAR_GetDriveType() теперь сам определяет что это SUBST (и USB) (т.с. сокращание кода :-)
   24.07.2004 VVM
     - Портились диски во время записи при включенном определении типа привода.
       Вызов DeviceIoControl(IOCTL_SCSI_PASS_THROUGH) с параметром SCSIOP_INQUIRY
@@ -28,6 +30,7 @@ Modify:
 
 #include "farconst.hpp"
 #include "fn.hpp"
+#include "flink.hpp"
 
 #if defined(__BORLANDC__)
 //#pragma option push -b -a4 -pc -A- /*P_O_Push*/
@@ -652,6 +655,12 @@ BOOL IsDriveTypeCDROM(UINT DriveType)
 
 UINT FAR_GetDriveType(LPCTSTR RootDir,CDROM_DeviceCaps *Caps,int DetectCDDrive)
 {
+  if(RootDir && !*RootDir)
+    RootDir=NULL;
+
+  char LocalName[4]=" :";
+  LocalName[0]=RootDir?*RootDir:0;
+
   CDROM_DeviceCaps caps=CDDEV_CAPS_NONE;
   UINT DrvType = GetDriveType(RootDir);
 
@@ -674,6 +683,12 @@ UINT FAR_GetDriveType(LPCTSTR RootDir,CDROM_DeviceCaps *Caps,int DetectCDDrive)
     if(DrvType == DRIVE_UNKNOWN) // фигня могла кака-нить произойти, посему...
       DrvType=DRIVE_CDROM;       // ...вертаем в зад сидюк.
   }
+
+  if(/*DrvType == DRIVE_REMOVABLE && */ IsDriveUsb(*LocalName,NULL))
+    DrvType=DRIVE_USBDRIVE;
+
+  if(GetSubstName(DrvType,LocalName,NULL,0))
+    DrvType=DRIVE_SUBSTITUTE;
 
   if(Caps)
     *Caps=caps;

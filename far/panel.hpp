@@ -7,10 +7,14 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.31 26.04.2005 $ */
+/* Revision: 1.32 06.05.2005 $ */
 
 /*
 Modify:
+  06.05.2005 SVS
+    ! ???::GetCurDir() теперь возвращает размер пути, при этом
+      его параметр может быть равен NULL. Сделано для того, чтобы
+      как то получить этот размер.
   26.04.2005 SVS
     + ProcessShortcutFolder()
   23.04.2005 KM
@@ -182,7 +186,7 @@ class Panel:public ScreenObject
   public:
     virtual void SetCurDir(char *NewDir,int ClosePlugin);
     virtual void ChangeDirToCurrent();
-    virtual void GetCurDir(char *CurDir);
+    virtual int GetCurDir(char *CurDir);
     virtual int GetSelCount() {return(0);};
     virtual int GetRealSelCount() {return(0);};
     virtual int GetSelName(char *Name,int &FileAttr,char *ShortName=NULL,WIN32_FIND_DATA *fd=NULL) {return(FALSE);};

@@ -7,10 +7,14 @@ Tree panel
 
 */
 
-/* Revision: 1.21 23.04.2005 $ */
+/* Revision: 1.22 06.05.2005 $ */
 
 /*
 Modify:
+  06.05.2005 SVS
+    ! ???::GetCurDir() теперь возвращает размер пути, при этом
+      его параметр может быть равен NULL. —делано дл€ того, чтобы
+      как то получить этот размер.
   23.04.2005 KM
     ! »спользование фильтра в GetSelName
   01.04.2005 SVS
@@ -132,7 +136,7 @@ class TreeList: public Panel
     int  ReadTree();
     void SetCurDir(char *NewDir,int ClosePlugin);
     void SetRootDir(char *NewRootDir);
-    void GetCurDir(char *CurDir);
+    int GetCurDir(char *CurDir);
     virtual int GetCurName(char *Name,char *ShortName);
     void UpdateViewPanel();
     void MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent);

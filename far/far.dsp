@@ -524,6 +524,10 @@ SOURCE=.\udlist.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\usbeject.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\usermenu.cpp
 # End Source File
 # Begin Source File

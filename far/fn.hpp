@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.224 26.04.2005 $ */
+/* Revision: 1.225 06.05.2005 $ */
 
 /*
 Modify:
+  06.05.2005 SVS
+    + RemoveUSBDrive(), IsDriveUsb()
   26.04.2005 SVS
     ! У GetShortcutFolder добавлен параметр - скока брать на грудь для пути.
     + Функция GetShortcutFolderSize() - возвращает размер для ShortcutN
@@ -1461,7 +1463,10 @@ class CleverSysLog{ // ;-)
 
 
 BOOL EjectVolume(char Letter,DWORD Flags);
+BOOL RemoveUSBDrive(char Letter,DWORD Flags);
 BOOL IsEjectableMedia(char Letter);
+BOOL IsDriveUsb(char DriveName,void *pDevInst);
+
 
 /* $ 30.12.2000 SVS
    Функции работы с атрибутами файлов "опубликованы"

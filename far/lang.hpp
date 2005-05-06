@@ -15,10 +15,14 @@ lang.hpp
 
 */
 
-/* Revision: 1.155 24.04.2005 $ */
+/* Revision: 1.156 06.05.2005 $ */
 
 /*
 Modify:
+  06.05.2005 SVS
+    + MInfoUSB, MChangeDriveUSB, MChangeSUBSTDisconnectDriveTitle, MChangeSUBSTDisconnectDriveQuestion,
+      MChangeUSBDisconnectDriveTitle, MChangeUSBDisconnectDriveQuestion, MChangeCouldNotRemoveUSB,
+      MChangeUSBSafelyRemoved, MSetConfirmRemoveSUBST, MSetConfirmRemoveUSB, MSetConfirmAfterRemoveUSB,
   24.04.2005 KM
     ! ћодификаци€ на тему диалога настроек дополнительных параметров поиска
   23.04.2005 KM
@@ -1427,6 +1431,7 @@ enum
   MInfoDVD_RAM,
   MInfoRAM,
   MInfoSUBST,
+  MInfoUSB,
   MInfoDisk,
   MInfoDiskTotal,
   MInfoDiskFree,
@@ -1603,12 +1608,21 @@ enum
   MChangeDriveDVD_RAM,
   MChangeDriveRAM,
   MChangeDriveSUBST,
+  MChangeDriveUSB,
   MChangeDriveLabelAbsent,
   MChangeDriveMb,
   MChangeDriveCannotReadDisk,
   MChangeDriveCannotDisconnect,
   MChangeDriveCannotDelSubst,
   MChangeDriveOpenFiles,
+
+  MChangeSUBSTDisconnectDriveTitle,
+  MChangeSUBSTDisconnectDriveQuestion,
+
+  MChangeUSBDisconnectDriveTitle,
+  MChangeUSBDisconnectDriveQuestion,
+  MChangeCouldNotRemoveUSB,
+  MChangeUSBSafelyRemoved,
 
   MChangeDriveDisconnectTitle,
   MChangeDriveDisconnectQuestion,
@@ -1803,6 +1817,9 @@ enum
   MSetConfirmDeleteFolders,
   MSetConfirmEsc,
   MSetConfirmRemoveConnection,
+  MSetConfirmRemoveSUBST,
+  MSetConfirmRemoveUSB,
+  MSetConfirmAfterRemoveUSB,
   MSetConfirmAllowReedit,
   MSetConfirmHistoryClear,
   MSetConfirmExit,

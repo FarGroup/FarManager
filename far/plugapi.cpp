@@ -5,10 +5,13 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.181 12.04.2005 $ */
+/* Revision: 1.182 06.05.2005 $ */
 
 /*
 Modify:
+  06.05.2005 SVS
+    + ACTL_GETMEDIATYPE
+    ! ACTL_EJECTMEDIA "умеет" кроме CD еще и SUBST и USB
   12.04.2005 AY
     + ACTL_GETSHORTWINDOWINFO - тоже самое что ACTL_GETWINDOWINFO только не вызывает
       GetTypeAndName() и поэтому его можно вызывать из любых тредов.
@@ -510,6 +513,7 @@ Modify:
 #include "fileedit.hpp"
 #include "plugins.hpp"
 #include "savescr.hpp"
+#include "flink.hpp"
 #include "manager.hpp"
 #include "ctrlobj.hpp"
 #include "frame.hpp"
@@ -639,6 +643,7 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     case ACTL_GETDESCSETTINGS:
     case ACTL_GETPOLICIES:
     case ACTL_GETPLUGINMAXREADDATA:
+    case ACTL_GETMEDIATYPE:
       break;
     default:
      if (FrameManager && FrameManager->ManagerIsDown())
@@ -777,9 +782,32 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     */
     case ACTL_EJECTMEDIA:
     {
-      return Param?EjectVolume((char)((ActlEjectMedia*)Param)->Letter,
-                               ((ActlEjectMedia*)Param)->Flags):FALSE;
+      if(Param)
+      {
+        struct ActlEjectMedia *aem=(struct ActlEjectMedia *)Param;
+        char DiskLetter[4]=" :\\";
+        DiskLetter[0]=(char)aem->Letter;
+        int DriveType = FAR_GetDriveType(DiskLetter,NULL,FALSE); // здесь не определяем тип CD
+
+        if(DriveType == DRIVE_USBDRIVE && RemoveUSBDrive((char)aem->Letter,aem->Flags))
+          return TRUE;
+        if(DriveType == DRIVE_SUBSTITUTE && DelSubstDrive(DiskLetter))
+          return TRUE;
+        if(IsDriveTypeCDROM(DriveType) && EjectVolume((char)aem->Letter,aem->Flags))
+          return TRUE;
+
+      }
+      return FALSE;
     }
+
+    case ACTL_GETMEDIATYPE:
+    {
+      struct ActlMediaType *amt=(struct ActlMediaType *)Param;
+      char DiskLetter[4]=" :\\";
+      DiskLetter[0]=(amt)?(char)amt->Letter:0;
+      return FAR_GetDriveType(DiskLetter,NULL,(amt && !(amt->Flags&MEDIATYPE_NODETECTCDROM)?TRUE:FALSE));
+    }
+
     /* $ 21.12.2000 SVS
        Macro API
     */

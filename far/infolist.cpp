@@ -5,10 +5,13 @@ infolist.cpp
 
 */
 
-/* Revision: 1.44 26.04.2005 $ */
+/* Revision: 1.45 06.05.2005 $ */
 
 /*
 Modify:
+  06.05.2005 SVS
+    + DRIVE_USBDRIVE
+    ! изменена обработка DRIVE_SUBSTITUTE
   26.04.2005 SVS
     ! Вместо кучи кода - вызов одной функции Panel::ProcessShortcutFolder()
   06.08.2004 SKV
@@ -272,6 +275,12 @@ void InfoList::DisplayObject()
       case DRIVE_RAMDISK:
         IdxMsgID=MInfoRAM;
         break;
+      case DRIVE_USBDRIVE:
+        IdxMsgID=MInfoUSB;
+        break;
+      case DRIVE_SUBSTITUTE:
+        IdxMsgID=MInfoSUBST;
+        break;
       default:
         if(IsDriveTypeCDROM(DriveType))
           IdxMsgID=DriveType-DRIVE_CD_RW+MInfoCD_RW;
@@ -281,17 +290,9 @@ void InfoList::DisplayObject()
     }
     if(IdxMsgID != -1)
       strcpy(DiskType,MSG(IdxMsgID));
-    /* 05.01.2001 SVS
-       + Информация про Subst-тип диска
-    */
-    {
-      if(GetSubstName(DriveType,LocalName,RemoteName,sizeof(RemoteName)))
-      {
-        strcpy(DiskType,MSG(MInfoSUBST));
-        DriveType=DRIVE_SUBSTITUTE;
-      }
-    }
-    /* SVS $ */
+
+    if(DriveType==DRIVE_SUBSTITUTE)
+      GetSubstName(DriveType,LocalName,RemoteName,sizeof(RemoteName));
 
     sprintf(Title," %s %s %s (%s) ",DiskType,MSG(MInfoDisk),DiskName,FileSystemName);
 

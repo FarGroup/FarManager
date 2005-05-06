@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.89 25.04.2005 $ */
+/* Revision: 1.90 06.05.2005 $ */
 
 /*
 Modify:
+  06.05.2005 SVS
+    + DRIVE_USBDRIVE
   24.04.2005 AY
     ! GCC
   02.04.2005 AY
@@ -422,6 +424,7 @@ enum ReadDizFlags {
 #define DRIVE_DVD_ROM               20
 #define DRIVE_DVD_RW                21
 #define DRIVE_DVD_RAM               22
+#define DRIVE_USBDRIVE              40
 #define DRIVE_NOT_INIT             255
 
 enum CDROM_DeviceCaps
