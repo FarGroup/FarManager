@@ -1,0 +1,126 @@
+
+                    The FAR File and Archive Manager
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                     Archiver support configuration
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+1. Introduction
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+   Archiver support in FAR means that you can create, view and modify
+archives of different types. The most popular archive types are RAR, ZIP,
+ARJ, HA and CAB. A comprehensive description of various archivers,
+comparison tests and links to Web sites of companies that produce archives
+can be found at the following Web site (Russian): http://arctest.narod.ru
+
+   If all the capabilities described above work fine on your computer, you
+can read no further.
+
+   Just like many other features of FAR, archiver support is implemented
+with plugins. The most popular plugins providing archive support are
+MultiArc and 7-zip.
+
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+2. MultiArc.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+   This is a standard plugin supplied with FAR. It implements archiver
+support in the following way:
+
+   - Viewing archive contents is done by the plugin itself, through the
+respective plugin extension module (<ArchiveType>.fmt) or by calling
+(automatically and invisibly for the user) external utility programs.
+
+   - To create or modify archives, external archiver programs are used. In
+order to make it possible to use those programs, MultiArc must be able to
+locate them. This usually means that all archivers are stored in a single
+directory that is listed in the environment variable %PATH% (if you do not
+understand this, consult your system administrator or another computer
+specialist).
+
+The most commonly used archivers are:
+
+  - RAR. The file rar.exe from the WinRAR distribution is used
+    (http://rarlab.com/).
+    By default, rar.fmt is configured for RAR 2.5 or later.
+
+  - ARJ. The file arj32.exe from the archive distribution is used
+    (http://www.arjsoft.com/).
+    By default, ARJ.FMT is configured for 32-bit arj32 3.08 and higher.
+
+  - ZIP. Many ZIP archivers exist, but it is recommended to use the  32-bit
+    console PKZip archiver - "PKZip Command Line".
+    http://plugring.farmanager.com/downld/files/arc/utils/pkzipc_40.rar
+    By default, zip.fmt is configured for 32-bit pkzip 4 and higher.
+
+    Technical note:
+
+      PKZip version 4 or later stores additional information on the creation,
+      last modification and last access times for each file. The time is
+      stored as UTC (Universal Time Coordinated). If such information is
+      present in the archive, FAR uses it to display the times, after
+      converting from UTC to local time. If the archiver used to unpack
+      the files doesn't support this additional information, the timestamps
+      of the files extracted from the archive may differ from the timestamps
+      FAR shows for files in the archive.
+
+  - HA. It is recommended to use a 32-bit Windows version of this archiver,
+    that can be downloaded, for example, from this site:
+    http://www.moris.ru/~spinoza/download/ha_nt.zip.
+
+  - CAB. It is recommended to use the MsCab archiver (see
+    http://plugring.farmanager.com/cgi-bin/downld.cgi?Draw=List&Select=PlugIn&SelectPlugIn=310).
+    The default options of Cab.fmt are configured to use this archiver.
+
+  - GZIP. You should download a Windows 9x/NT binary from the official site
+    of the program - http://www.gzip.org/. Out of the entire distribution,
+    only the file gzip.exe is needed.
+    http://plugring.farmanager.com/downld/files/arc/utils/gzip32.zip
+
+  - TAR. The Win32 port of GNU TAR 1.12 should be used.
+    http://plugring.farmanager.com/downld/files/arc/utils/tar32.rar
+
+  - BZIP2. Version 1.0 or later should be used. It can be downloaded from
+    the official homepage of the program.
+    http://sources.redhat.com/bzip2/
+
+  - ACE. You should download the distribution from  http://winace.com.  The
+    file ace32.exe is used (Commandline Ace).
+
+  - JAR (.J). Version 1.02 (32 bit) or later should be used. It can be
+    downloaded from the official homepage: http://www.arjsoft.com
+
+  - LZH. It is recommended to use a 32-bit Windows version of this archiver,
+    that can be downloaded, for example, from this site:
+    http://plugring.farmanager.com/downld/files/arc/utils/lha32.rar
+
+  - many other archivers can be downloaded from the following Web site:
+    http://ftp.elf.stuba.sk/packages/pub/pc/pack/
+
+   Advantages: the MultiArc plugin supports dozens of archive types and
+other files with a structure defined by some rules. It is also extensible,
+meaning that support for almost any archiver can be added if necessary.
+
+   Disadvantages: the archivers supporting all archive types that you use
+must be installed on your computer.
+
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+3. 7-zip
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+   This plugin (it can be downloaded from http://www.7-zip.org) supports
+only the following archive types: 7z, arj, bzip2, cab, cpio, gzip, rar,
+rpm, tar and zip. Unlike MultiArc, 7-zip contains all the necessary code
+for supporting these archive types and does not require any additional
+archivers.
+
+   Advantages: it is not required to install the archivers separately, and
+consequently, the plugin can be used for creating and modifying archivers
+almost immediately after the installation. Can be used together with
+MultiArc.
+
+   Disadvantages: few supported archive types.
+
+
+                                     [FAR manager development group]

@@ -1,0 +1,135 @@
+
+                    The FAR File and Archive Manager
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                    How to install/uninstall plugins
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This document contains instructions for the following procedures:
+
+1. Installing a plugin
+
+2. Removing a plugin
+
+3. Updating a plugin
+
+
+INSTALLING A PLUGIN
+~~~~~~~~~~~~~~~~~~~
+1. Read the plugin documentation (file_id.diz, readme.txt, whatsnew.txt
+   doc\*.*, etc.) to find the installation instructions, the minimum version
+   of FAR required for correct plugin operation and so on.
+
+   Install the plugin as described there.
+
+2. If there are no installation instructions in the documentation, or
+   if it was impossible to install the plugin according to the
+   instructions given in the documentation, install the plugin
+   the following way:
+
+   a) Create a subfolder with an arbitrary name in the Plugins subfolder
+      of the folder where FAR is installed.
+
+   b) Copy the contents of the plugin distribution archive to that
+      folder (at the least *.dll, *.hlf, *.lng files should be copied)
+
+   c) Restart FAR manager.
+
+   If successful, the plugin will add a menu item to the plugins menu or
+   will perform the necessary functions as described in its documentation.
+
+   d) Press F1 then Shift-F2, select from the list the help topic that
+      corresponds to the installed plugin and carefully read it contents.
+
+   e) Open the configuration menu of the installed plugin (F9,
+      Options->Plugins configuration), if it exists, and configure it.
+
+3. Tip: so the hotkeys in the plugins menu (F11) will not change after
+   changes in the plugins set, set them by pressing F4 in that menu.
+
+REMOVING A PLUGIN
+~~~~~~~~~~~~~~~~~
+1. Read the plugin documentation (help, readme.txt, doc\*.*, etc.) to find
+   the instructions for removing the plugin. Remove the plugin as described
+   there.
+
+2. If there are no removal instructions in the documentation, or it was
+   impossible to remove the plugin according to the instructions given
+   in the documentation, remove the plugin in the following way:
+
+   a) If there are several running FAR Manager instances, close all but one.
+
+   b) Move (F6) the subfolder of the plugin from the plugins folder (by
+      default it is located at the Plugins subfolder at the folder where FAR
+      Manager is installed) to some other folder on the same drive (for
+      example one level up to the folder where FAR Manager is installed).
+
+   c) If the folder was successfully moved, restart FAR and skip to
+      instruction `e' below.
+
+   d) If the plugin has locked its working folder, and moving it is not
+      possible
+
+      - quit FAR Manager
+
+      - start a new FAR Manager instance with the "/p" command line
+        argument (FAR Manager will start with no plugins).
+
+   e) Delete the folder containing the plugin to be removed.
+
+   f) If after removing the plugin you notice strange behaviour from the
+      FAR Manager (incorrect plugins list in F11 plugins menu, crashes,
+      etc.) clear plugins cache, use the file ClearPluginsCache.bat to
+      complete this operation or manually delete the following registry
+      branch:
+      [HKEY_CURRENT_USER\Software\Far\PluginsCache]
+
+   g) You can try to find and delete all registry entries belonging
+      to that plugin.
+      Most often they will be at a sub-branch with the name of the plugin
+      at the following registry branch
+      [HKEY_CURRENT_USER\Software\Far\Plugins],
+      several entries might also be at the following registry branches:
+      [HKEY_CURRENT_USER\Software\Far\SavedDialogHistory]
+      [HKEY_CURRENT_USER\Software\Far\PluginHotkeys].
+      If you do not know how to do it, ask your system administrator.
+      However, this step is completely optional: there is no harm in not
+      deleting these registry entries.
+
+UPDATING A PLUGIN
+~~~~~~~~~~~~~~~~~
+
+Sometimes there will be a need to install new versions of existing plugins.
+The easiest way to do it is to remove the old version and then to install
+the new one (see previous sections). However this procedure may not always
+be satisfactory as it might lead to the lose of existing settings for that
+plugin. For this reason, updating a plugin is better done this way:
+
+1. Read the documentation of the new plugin version (file_id.diz,
+   readme.txt, whatsnew.txt, doc\*.*, etc.) for clarifications on how to
+   install the new version. Update the plugin in the way described there.
+
+2. If the documentation contains no instructions on how to update the
+   plugin, or if it was impossible to update the plugin according to the
+   instructions given in the documentation, then update the plugin in the
+   following way:
+
+   a) Complete instructions `a' to `d' of the "Removing a plugin" section
+      above.
+
+   b) If the old folder does not contain additional configuration, data
+      or any other important files, you can safely delete it, but it is
+      better to save it for a while at some other location to ease an
+      installation roll-back of the old version if the new version will
+      be unsatisfactory for some reason.
+
+   c) Create a folder with the same name as the one of the old version in
+      the Plugins subfolder of the folder where FAR is installed.
+
+   d) Copy the contents of the plugin distribution archive to that
+      folder (at the least *.dll, *.hlf, *.lng files should be copied)
+
+   e) If needed, copy there all additional configuration, data or any other
+      important files from the old version folder.
+
+   f) Complete instructions `c' to `e' of the "Installing a plugin" section
+      above.

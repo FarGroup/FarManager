@@ -1,0 +1,6 @@
+[DEFAULT]
+BASEURL=http://www.farmanager.com/enforum
+[InternetShortcut]
+URL=http://www.farmanager.com/enforum
+IconFile=http://www.farmanager.com/favicon.ico
+IconIndex=1
