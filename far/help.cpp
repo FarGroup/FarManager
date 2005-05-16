@@ -5,10 +5,12 @@ help.cpp
 
 */
 
-/* Revision: 1.88 03.03.2005 $ */
+/* Revision: 1.89 16.05.2005 $ */
 
 /*
 Modify:
+  16.05.2005 WARP & AY
+    ! Исправления в отрисовке файлов помщи
   03.03.2005 SVS
     - BugZ#1291 - Дельта для прокрутки в поиске нет: Opt.MsWheelDelta -> Opt.MsWheelDeltaHelp
   17.01.2005 WARP
@@ -651,11 +653,15 @@ m1:
            Определяет не прокручиваемую область помощи
            Если идут несколько подряд сразу после строки обозначения темы...
         */
-        if (*ReadStr=='$' && NearTopicFound && (PrevSymbol == '$' || PrevSymbol == '@'))
+        if ( NearTopicFound )
         {
           StartPos = -1;
           LastStartPos = -1;
+        }
 
+
+        if (*ReadStr=='$' && NearTopicFound && (PrevSymbol == '$' || PrevSymbol == '@'))
+        {
           AddLine(ReadStr+1);
           FixCount++;
         }
@@ -987,7 +993,7 @@ void Help::OutString(const char *Str)
       continue;
     }
 
-    if (*Str=='~' || *Str=='#' || *Str==HelpBeginLink || *Str==0 || *Str == *CtrlColorChar)
+    if (*Str=='~' || ((*Str=='#' || *Str == *CtrlColorChar) && !Topic) /*|| *Str==HelpBeginLink*/ || *Str==0)
     {
       OutStr[OutPos]=0;
       if (Topic)
