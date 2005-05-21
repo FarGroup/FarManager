@@ -2137,6 +2137,12 @@
 
 
 
+.\qsort.obj : \
+	".\qsort.c"\
+	".\headers.hpp"\
+
+
+
 .\qsortex.obj : \
 	".\qsortex.c"\
 	".\headers.hpp"\

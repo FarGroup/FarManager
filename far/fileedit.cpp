@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.163 28.04.2005 $ */
+/* Revision: 1.164 20.05.2005 $ */
 
 /*
 Modify:
+  20.05.2005 AY
+    ! Теперь в диалоге SaveAs делаем ExpandEnvironmentStr() для введенного пути.
   28.04.2005 AY
     ! В EditorControl(ECTL_GETINFO) не проверялась возможность FEdit->EditorControl()==FALSE
     + ECTL_GETBOOKMARKS и ECTL_GETINFO можно вызывать в EE_CLOSE. Теперь FEdit
@@ -1259,6 +1261,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
               if (Dlg.GetExitCode()!=10 || *EditDlg[2].Data==0)
                 return(FALSE);
             }
+            ExpandEnvironmentStr(EditDlg[2].Data,EditDlg[2].Data,sizeof(EditDlg[2].Data));
             /* $ 07.06.2001 IS
                - Баг: нужно сначала убирать пробелы, а только потом кавычки
             */
