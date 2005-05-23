@@ -286,6 +286,8 @@ Editor
 [-] A possible problem with disappearing selection in editor, caused by
     Microsoft Natural Multimedia keyboard, fixed.
 
+[*] It is now possible to use environment variables in the "Save As" dialog.
+
 
 Viewer
 ~~~~~~
