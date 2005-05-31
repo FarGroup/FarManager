@@ -1226,12 +1226,7 @@ following operations:
 
     - ~disconnect network drives~@DisconnectDrive@ from the Disks menu;
 
-    - отключение виртуальных устройств из меню дисков;
-
-    - отключение USB-устройств из меню дисков;
-
-    - вывод информации о безопасном извлечении USB-устройств
-      после отключения;
+    - отключение SUBST-диска из меню дисков;
 
     - ~reloading~@EditorReload@ a file in the editor;
 

@@ -5,10 +5,12 @@ Detect & Eject USB носителей
 
 */
 
-/* Revision: 1.0 05.05.2005 $ */
+/* Revision: 1.01 30.05.2005 $ */
 
 /*
 Modify:
+  30.05.2005 SVS
+    ! временно откатим проект про USB
   05.05.2005 SVS
     + Выделение в качестве самостоятельного модуля
       Сорцы про USB from Eugene Leskinen <karbazol@mail.ru>
@@ -205,6 +207,8 @@ typedef HDEVINFO (WINAPI *tSetupDiGetClassDevsA)(
 );
 
 
+#if 0
+
 static tSetupDiDestroyDeviceInfoList pSetupDiDestroyDeviceInfoList = NULL;
 static tCM_Get_DevNode_Status pCM_Get_DevNode_Status = NULL;
 static tCM_Get_DevNode_Registry_PropertyA pCM_Get_DevNode_Registry_PropertyA = NULL;
@@ -269,6 +273,8 @@ static BOOL GetVolumeName(const char* szDevice, char* szVolumeName, int cbVolume
 
 #define USBSTOR "USBSTOR"
 
+#endif
+
 BOOL IsDriveUsb(
                 char DriveName,                 // Имя диска
                 void *pDevInst  // Здесь может быть NULL, если не NULL
@@ -279,6 +285,8 @@ BOOL IsDriveUsb(
                                                 // в случае если, DriveName - USB
                 )
 {
+
+#if 0
 
 #if defined(__BORLANDC__) && (__BORLANDC__ <= 0x0520)
 const GUID GUID_DEVINTERFACE_VOLUME = { 0x53f5630dL, 0xb6bf, 0x11d0, { 0x94, 0xf2, 0x00, 0xa0, 0xc9, 0x1e, 0xfb, 0x8b } };
@@ -412,11 +420,15 @@ const GUID GUID_DEVINTERFACE_VOLUME = { 0x53f5630dL, 0xb6bf, 0x11d0, { 0x94, 0xf
       free(szInterfaceList);
 
   return res;
+#else
+  return FALSE;
+#endif
 }
 
 // TODO: здесь предусмотреть вывод месага, если соответствующий Flags выставлен.
 BOOL RemoveUSBDrive(char Letter,DWORD Flags)
 {
+#if 0
   DEVINST devToRemove;
 
   if(!Init_SETUPAPI())
@@ -462,5 +474,6 @@ BOOL RemoveUSBDrive(char Letter,DWORD Flags)
       }
     }
   }
+#endif
   return FALSE;
 }

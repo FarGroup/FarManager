@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.225 06.05.2005 $ */
+/* Revision: 1.226 30.05.2005 $ */
 
 /*
 Modify:
+  30.05.2005 SVS
+    ! изменены FAR_GetDriveType и IsEjectableMedia
   06.05.2005 SVS
     + RemoveUSBDrive(), IsDriveUsb()
   26.04.2005 SVS
@@ -1464,7 +1466,7 @@ class CleverSysLog{ // ;-)
 
 BOOL EjectVolume(char Letter,DWORD Flags);
 BOOL RemoveUSBDrive(char Letter,DWORD Flags);
-BOOL IsEjectableMedia(char Letter);
+BOOL IsEjectableMedia(char Letter,UINT DriveType=DRIVE_NOT_INIT,BOOL ForceCDROM=FALSE);
 BOOL IsDriveUsb(char DriveName,void *pDevInst);
 
 
@@ -1624,7 +1626,7 @@ BOOL IsDiskInDrive(const char *Drive);
 CDROM_DeviceCaps GetCDDeviceCaps(HANDLE hDevice);
 UINT GetCDDeviceTypeByCaps(CDROM_DeviceCaps caps);
 BOOL IsDriveTypeCDROM(UINT DriveType);
-UINT FAR_GetDriveType(LPCTSTR RootDir,CDROM_DeviceCaps *caps=NULL,int DetectCDDrive=FALSE);
+UINT FAR_GetDriveType(LPCTSTR RootDir,CDROM_DeviceCaps *caps=NULL,DWORD Detect=0);
 
 BOOL IsLocalPath(const char *Path);
 BOOL IsLocalRootPath(const char *Path);

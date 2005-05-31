@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.127 06.05.2005 $ */
+/* Revision: 1.128 30.05.2005 $ */
 
 /*
 Modify:
+  30.05.2005 SVS
+    ! временно откатим проект про USB
   06.05.2005 SVS
     + Confirmation.RemoveSUBST, Confirmation.RemoveUSB, Confirmation.AfterRemoveUSB
   14.04.2005 SVS
@@ -434,8 +436,6 @@ struct Confirmation
   int AllowReedit;
   int HistoryClear;
   int RemoveSUBST;
-  int RemoveUSB;
-  int AfterRemoveUSB;
 };
 
 

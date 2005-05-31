@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.69 26.02.2005 $ */
+/* Revision: 1.70 12.05.2005 $ */
 
 /*
 Modify:
+  12.05.2005 SVS
+    ! уберем лишний вызов FAR_GetDriveType
   26.02.2005 WARP
     - Запускатор отдавал удалятору имена в кавычках. Научил удалятор Unquote'у.
   06.08.2004 SKV
@@ -253,7 +255,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     ConvertNameToFull(SelName,Root, sizeof(Root));
     GetPathRoot(Root,Root);
 //_SVS(SysLog("Del: SelName='%s' Root='%s'",SelName,Root));
-    if(FAR_GetDriveType(Root) != DRIVE_FIXED)
+    if(Opt.DeleteToRecycleBin && FAR_GetDriveType(Root) != DRIVE_FIXED)
       Opt.DeleteToRecycleBin=0;
   }
 

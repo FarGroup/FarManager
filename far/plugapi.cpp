@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.182 06.05.2005 $ */
+/* Revision: 1.183 30.05.2005 $ */
 
 /*
 Modify:
+  30.05.2005 SVS
+    ! временно откатим проект про USB
   06.05.2005 SVS
     + ACTL_GETMEDIATYPE
     ! ACTL_EJECTMEDIA "умеет" кроме CD еще и SUBST и USB
@@ -782,6 +784,9 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     */
     case ACTL_EJECTMEDIA:
     {
+      return Param?EjectVolume((char)((ActlEjectMedia*)Param)->Letter,
+                               ((ActlEjectMedia*)Param)->Flags):FALSE;
+/*
       if(Param)
       {
         struct ActlEjectMedia *aem=(struct ActlEjectMedia *)Param;
@@ -798,8 +803,9 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
 
       }
       return FALSE;
+*/
     }
-
+/*
     case ACTL_GETMEDIATYPE:
     {
       struct ActlMediaType *amt=(struct ActlMediaType *)Param;
@@ -807,7 +813,7 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
       DiskLetter[0]=(amt)?(char)amt->Letter:0;
       return FAR_GetDriveType(DiskLetter,NULL,(amt && !(amt->Flags&MEDIATYPE_NODETECTCDROM)?TRUE:FALSE));
     }
-
+*/
     /* $ 21.12.2000 SVS
        Macro API
     */

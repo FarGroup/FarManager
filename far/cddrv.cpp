@@ -5,10 +5,12 @@ cddrv.cpp
 
 */
 
-/* Revision: 1.04 06.05.2005 $ */
+/* Revision: 1.05 30.05.2005 $ */
 
 /*
 Modify:
+  30.05.2005 SVS
+    ! временно откатим проект про USB
   06.05.2005 SVS
     ! FAR_GetDriveType() теперь сам определяет что это SUBST (и USB) (т.с. сокращание кода :-)
   24.07.2004 VVM
@@ -653,7 +655,7 @@ BOOL IsDriveTypeCDROM(UINT DriveType)
   return DriveType == DRIVE_CDROM || DriveType >= DRIVE_CD_RW && DriveType <= DRIVE_DVD_RAM;
 }
 
-UINT FAR_GetDriveType(LPCTSTR RootDir,CDROM_DeviceCaps *Caps,int DetectCDDrive)
+UINT FAR_GetDriveType(LPCTSTR RootDir,CDROM_DeviceCaps *Caps,DWORD Detect)
 {
   if(RootDir && !*RootDir)
     RootDir=NULL;
@@ -665,7 +667,7 @@ UINT FAR_GetDriveType(LPCTSTR RootDir,CDROM_DeviceCaps *Caps,int DetectCDDrive)
   UINT DrvType = GetDriveType(RootDir);
 
   // анализ CD-привода
-  if (DetectCDDrive && RootDir && IsLocalPath(RootDir) && DrvType == DRIVE_CDROM)// && WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+  if ((Detect&1) && RootDir && IsLocalPath(RootDir) && DrvType == DRIVE_CDROM)// && WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
   {
     char szVolumeName[20]="\\\\.\\ :";
     szVolumeName[4]=*RootDir;
@@ -684,11 +686,11 @@ UINT FAR_GetDriveType(LPCTSTR RootDir,CDROM_DeviceCaps *Caps,int DetectCDDrive)
       DrvType=DRIVE_CDROM;       // ...вертаем в зад сидюк.
   }
 
-  if(/*DrvType == DRIVE_REMOVABLE && */ IsDriveUsb(*LocalName,NULL))
-    DrvType=DRIVE_USBDRIVE;
+//  if((Detect&2) && IsDriveUsb(*LocalName,NULL)) //DrvType == DRIVE_REMOVABLE
+//    DrvType=DRIVE_USBDRIVE;
 
-  if(GetSubstName(DrvType,LocalName,NULL,0))
-    DrvType=DRIVE_SUBSTITUTE;
+//  if((Detect&4) && GetSubstName(DrvType,LocalName,NULL,0))
+//    DrvType=DRIVE_SUBSTITUTE;
 
   if(Caps)
     *Caps=caps;

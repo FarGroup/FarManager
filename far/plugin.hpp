@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.253 06.05.2005 $ */
+/* Revision: 1.254 30.05.2005 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 ¬ этом файле писать все изменени€ только в в этом блоке!!!!
 
 Modify:
+  30.05.2005 SVS
+    ! временно откатим проект про USB
   06.05.2005 SVS
     + ACTL_GETMEDIATYPE, FARMEDIATYPE, struct ActlMediaType, FARMEDIATYPEFLAGS
   12.04.2005 AY
@@ -1712,31 +1714,10 @@ enum ADVANCED_CONTROL_COMMANDS{
   ACTL_GETPLUGINMAXREADDATA,
   ACTL_GETDIALOGSETTINGS,
   ACTL_GETSHORTWINDOWINFO,
+#ifdef FAR_USE_INTERNALS
+  ACTL_REMOVEMEDIA,
   ACTL_GETMEDIATYPE,
-#ifdef FAR_USE_INTERNALS
   ACTL_GETPOLICIES,
-#endif // END FAR_USE_INTERNALS
-};
-
-enum FARMEDIATYPE{
-  FMT_DRIVE_ERROR                =  -1,
-  FMT_DRIVE_UNKNOWN              =  DRIVE_UNKNOWN,
-  FMT_DRIVE_NO_ROOT_DIR          =  DRIVE_NO_ROOT_DIR,
-  FMT_DRIVE_REMOVABLE            =  DRIVE_REMOVABLE,
-  FMT_DRIVE_FIXED                =  DRIVE_FIXED,
-  FMT_DRIVE_REMOTE               =  DRIVE_REMOTE,
-  FMT_DRIVE_CDROM                =  DRIVE_CDROM,
-  FMT_DRIVE_RAMDISK              =  DRIVE_RAMDISK,
-  FMT_DRIVE_SUBSTITUTE           =  15,
-  FMT_DRIVE_REMOTE_NOT_CONNECTED =  16,
-  FMT_DRIVE_CD_RW                =  18,
-  FMT_DRIVE_CD_RWDVD             =  19,
-  FMT_DRIVE_DVD_ROM              =  20,
-  FMT_DRIVE_DVD_RW               =  21,
-  FMT_DRIVE_DVD_RAM              =  22,
-  FMT_DRIVE_USBDRIVE             =  40,
-#ifdef FAR_USE_INTERNALS
-  FMT_DRIVE_NOT_INIT             = 255,
 #endif // END FAR_USE_INTERNALS
 };
 
@@ -1846,12 +1827,9 @@ enum FAREJECTMEDIAFLAGS{
  EJECT_NO_MESSAGE                    = 0x00000001,
  EJECT_LOAD_MEDIA                    = 0x00000002,
 #ifdef FAR_USE_INTERNALS
+ EJECT_NOTIFY_AFTERREMOVE            = 0x00000004,
  EJECT_READY                         = 0x80000000,
 #endif // END FAR_USE_INTERNALS
-};
-
-enum FARMEDIATYPEFLAGS{
- MEDIATYPE_NODETECTCDROM             = 0x80000000,
 };
 
 struct ActlEjectMedia {
@@ -1859,11 +1837,37 @@ struct ActlEjectMedia {
   DWORD Flags;
 };
 
+#ifdef FAR_USE_INTERNALS
+enum FARMEDIATYPE{
+  FMT_DRIVE_ERROR                =  -1,
+  FMT_DRIVE_UNKNOWN              =  DRIVE_UNKNOWN,
+  FMT_DRIVE_NO_ROOT_DIR          =  DRIVE_NO_ROOT_DIR,
+  FMT_DRIVE_REMOVABLE            =  DRIVE_REMOVABLE,
+  FMT_DRIVE_FIXED                =  DRIVE_FIXED,
+  FMT_DRIVE_REMOTE               =  DRIVE_REMOTE,
+  FMT_DRIVE_CDROM                =  DRIVE_CDROM,
+  FMT_DRIVE_RAMDISK              =  DRIVE_RAMDISK,
+  FMT_DRIVE_SUBSTITUTE           =  15,
+  FMT_DRIVE_REMOTE_NOT_CONNECTED =  16,
+  FMT_DRIVE_CD_RW                =  18,
+  FMT_DRIVE_CD_RWDVD             =  19,
+  FMT_DRIVE_DVD_ROM              =  20,
+  FMT_DRIVE_DVD_RW               =  21,
+  FMT_DRIVE_DVD_RAM              =  22,
+  FMT_DRIVE_USBDRIVE             =  40,
+  FMT_DRIVE_NOT_INIT             = 255,
+};
+
+enum FARMEDIATYPEFLAGS{
+ MEDIATYPE_NODETECTCDROM             = 0x80000000,
+};
+
 struct ActlMediaType {
   DWORD Letter;
   DWORD Flags;
   DWORD Reserved[2];
 };
+#endif // END FAR_USE_INTERNALS
 
 enum FARKEYSEQUENCEFLAGS {
   KSFLAGS_DISABLEOUTPUT       = 0x00000001,

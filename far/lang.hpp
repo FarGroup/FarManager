@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.156 06.05.2005 $ */
+/* Revision: 1.157 30.05.2005 $ */
 
 /*
 Modify:
+  30.05.2005 SVS
+    ! временно откатим проект про USB
   06.05.2005 SVS
     + MInfoUSB, MChangeDriveUSB, MChangeSUBSTDisconnectDriveTitle, MChangeSUBSTDisconnectDriveQuestion,
       MChangeUSBDisconnectDriveTitle, MChangeUSBDisconnectDriveQuestion, MChangeCouldNotRemoveUSB,
@@ -1431,7 +1433,6 @@ enum
   MInfoDVD_RAM,
   MInfoRAM,
   MInfoSUBST,
-  MInfoUSB,
   MInfoDisk,
   MInfoDiskTotal,
   MInfoDiskFree,
@@ -1608,7 +1609,6 @@ enum
   MChangeDriveDVD_RAM,
   MChangeDriveRAM,
   MChangeDriveSUBST,
-  MChangeDriveUSB,
   MChangeDriveLabelAbsent,
   MChangeDriveMb,
   MChangeDriveCannotReadDisk,
@@ -1618,11 +1618,6 @@ enum
 
   MChangeSUBSTDisconnectDriveTitle,
   MChangeSUBSTDisconnectDriveQuestion,
-
-  MChangeUSBDisconnectDriveTitle,
-  MChangeUSBDisconnectDriveQuestion,
-  MChangeCouldNotRemoveUSB,
-  MChangeUSBSafelyRemoved,
 
   MChangeDriveDisconnectTitle,
   MChangeDriveDisconnectQuestion,
@@ -1818,8 +1813,6 @@ enum
   MSetConfirmEsc,
   MSetConfirmRemoveConnection,
   MSetConfirmRemoveSUBST,
-  MSetConfirmRemoveUSB,
-  MSetConfirmAfterRemoveUSB,
   MSetConfirmAllowReedit,
   MSetConfirmHistoryClear,
   MSetConfirmExit,

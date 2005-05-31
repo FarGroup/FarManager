@@ -5,10 +5,14 @@ Eject съемных носителей
 
 */
 
-/* Revision: 1.15 08.06.2004 $ */
+/* Revision: 1.16 30.05.2005 $ */
 
 /*
 Modify:
+  30.05.2005 SVS
+    ! Изменена IsEjectableMedia() - подправлены мозги.
+    ! Изменена EjectVolume() - "умеет" плюгнутые девайсы (когда в
+      картридере 3 устройства и нам нужно высунуть один)
   08.06.2004 SVS
     ! Вместо GetDriveType теперь вызываем FAR_GetDriveType().
     ! Вместо "DriveType==DRIVE_CDROM" вызываем IsDriveTypeCDROM()
@@ -69,7 +73,7 @@ Modify:
 /*
    Program to programmatically eject removable media from a drive on
    Windows 95.
-   http://support.microsoft.com/support/kb/articles/q168/1/80.asp
+   http://support.microsoft.com/kb/q168180/
 */
 //-----------------------------------------------------------------------
 // DeviceIoControl infrastructure
@@ -403,6 +407,7 @@ BOOL EjectVolume95 (char Letter,DWORD Flags)
       {
          if(!(Flags&EJECT_NO_MESSAGE))
          {
+           // printf("volume %c is in use by another application; therefore, it cannot be ejected\n", 'A' + bDrive - 1);
            sprintf(MsgText,MSG(MChangeVolumeInUse),Letter);
            Message(MSG_WARNING,1,MSG(MError),MsgText,MSG(MChangeVolumeInUse2),MSG(MOk));
          }
@@ -414,6 +419,7 @@ BOOL EjectVolume95 (char Letter,DWORD Flags)
       {
          if(!(Flags&EJECT_NO_MESSAGE))
          {
+           // printf("could not unlock media from drive %c:\n", 'A' + bDrive - 1);
            sprintf(MsgText,MSG(MChangeCouldNotUnlockMedia),Letter);
            Message(MSG_WARNING,1,MSG(MError),MsgText,MSG(MOk));
          }
@@ -425,6 +431,7 @@ BOOL EjectVolume95 (char Letter,DWORD Flags)
       {
          if(!(Flags&EJECT_NO_MESSAGE))
          {
+           // printf("could not eject media from drive %c:\n", 'A' + bDrive - 1);
            sprintf(MsgText,MSG(MChangeCouldNotEjectMedia),Letter);
            Message(MSG_WARNING,1,MSG(MError),MsgText,MSG(MOk));
          }
@@ -460,6 +467,13 @@ CLEANUP_AND_EXIT_APP:
    return Ret;
 }
 
+
+static BOOL DismountVolume(HANDLE hVolume)
+{
+  DWORD dwBytesReturned;
+  return DeviceIoControl(hVolume,FSCTL_DISMOUNT_VOLUME,NULL, 0,NULL, 0,&dwBytesReturned,NULL);
+}
+
 /* Функция by Vadim Yegorov <zg@matrica.apollo.lv>
    Доработанная! Умеет под NT/2000 "вставлять" диск :-)
 */
@@ -477,10 +491,13 @@ BOOL EjectVolume(char Letter,DWORD Flags)
   BOOL ReadOnly=FALSE;
   UINT uDriveType;
   DWORD dwAccessFlags;
+  BOOL fRemoveSafely = FALSE;
+  BOOL foundError=FALSE;
   char szRootName[8]="\\\\.\\ :\\";
 
   szRootName[4]=Letter;
 
+  // OpenVolume
   uDriveType = FAR_GetDriveType(szRootName+4);
   szRootName[6]=0;
   switch(uDriveType)
@@ -507,41 +524,66 @@ BOOL EjectVolume(char Letter,DWORD Flags)
                           0,0);
     ReadOnly=FALSE;
   }
+
   if(DiskHandle!=INVALID_HANDLE_VALUE)
   {
     while(Retry)
+    {
       if(DeviceIoControl(DiskHandle,FSCTL_LOCK_VOLUME,NULL,0,NULL,0,&temp,NULL))
       {
+        foundError=FALSE;
         if(!ReadOnly)
           FlushFileBuffers(DiskHandle);
-        PREVENT_MEDIA_REMOVAL PreventMediaRemoval;
-        PreventMediaRemoval.PreventMediaRemoval=FALSE;
 
-        if(DeviceIoControl(DiskHandle,IOCTL_STORAGE_MEDIA_REMOVAL,&PreventMediaRemoval,sizeof(PreventMediaRemoval),NULL,0,&temp,NULL))
+#if 0
+// TODO: ЭТОТ КУСОК НУЖНО РАСКОММЕНТИТЬ ВМЕСТЕ С ПОДЪЕМОМ ПРОЕКТА ПО USB
+/*
+  ЭТО чудо нужно для того, чтобы, скажем, имея картридер на 3 карточки,
+  дисмоунтить только 1 карточку, а не отключать все устройство!
+*/
+        if(!(Flags&EJECT_LOAD_MEDIA))
         {
-#if 1
-          // чистой воды шаманство...
-          if(Flags&EJECT_READY)
-          {
-            fAutoEject=DeviceIoControl(DiskHandle,
-                         IOCTL_STORAGE_CHECK_VERIFY,
-                         NULL,0,0,0,&temp,NULL);
-            // ...если ошибка = "нет доступа", то это похоже на то,
-            // что диск вставлен
-            // Способ экспериментальный, потому афишировать не имеет смысла.
-            if(!fAutoEject && GetLastError() == 5)
-              fAutoEject=TRUE;
-            Retry=FALSE;
-          }
+          if(DismountVolume(DiskHandle))
+            fRemoveSafely = TRUE;
           else
-#endif
-          fAutoEject=DeviceIoControl(DiskHandle,
-              (Flags&EJECT_LOAD_MEDIA)?IOCTL_STORAGE_LOAD_MEDIA:IOCTL_STORAGE_EJECT_MEDIA,
-              NULL,0,NULL,0,&temp,NULL);
+            foundError=TRUE;
         }
-        Retry=FALSE;
+#endif
+        if(!foundError)
+        {
+          PREVENT_MEDIA_REMOVAL PreventMediaRemoval;
+          PreventMediaRemoval.PreventMediaRemoval=FALSE;
+
+          if(DeviceIoControl(DiskHandle,IOCTL_STORAGE_MEDIA_REMOVAL,&PreventMediaRemoval,sizeof(PreventMediaRemoval),NULL,0,&temp,NULL))
+          {
+            #if 1
+            // чистой воды шаманство...
+            if(Flags&EJECT_READY)
+            {
+              fAutoEject=DeviceIoControl(DiskHandle,
+                           IOCTL_STORAGE_CHECK_VERIFY,
+                           NULL,0,0,0,&temp,NULL);
+              // ...если ошибка = "нет доступа", то это похоже на то,
+              // что диск вставлен
+              // Способ экспериментальный, потому афишировать не имеет смысла.
+              if(!fAutoEject && GetLastError() == 5)
+                fAutoEject=TRUE;
+              Retry=FALSE;
+            }
+            else
+            #endif
+              fAutoEject=DeviceIoControl(DiskHandle,
+                                         (Flags&EJECT_LOAD_MEDIA)?IOCTL_STORAGE_LOAD_MEDIA:IOCTL_STORAGE_EJECT_MEDIA,
+                                         NULL,0,NULL,0,&temp,NULL
+                                        );
+          }
+          Retry=FALSE;
+        }
       }
       else
+        foundError=TRUE;
+
+      if(foundError)
       {
         if(!(Flags&EJECT_NO_MESSAGE))
         {
@@ -553,36 +595,95 @@ BOOL EjectVolume(char Letter,DWORD Flags)
         else
           Retry=FALSE;
       }
+      else if(!(Flags&EJECT_LOAD_MEDIA) && fRemoveSafely)
+      {
+        //printf("Media in Drive %c can be safely removed.\n",cDriveLetter);
+        if(Flags&EJECT_NOTIFY_AFTERREMOVE)
+          ; // Message(0,1,MSG(MChangeUSBDisconnectDriveTitle),MSG(MChangeUSBSafelyRemoved),MSG(MOk));
+      }
+    } // END: while(Retry)
+
+
     DeviceIoControl(DiskHandle,FSCTL_UNLOCK_VOLUME,NULL,0,NULL,0,&temp,NULL);
     CloseHandle(DiskHandle);
   }
-  return fAutoEject;
+  return fAutoEject||fRemoveSafely; //???
 }
 
-BOOL IsEjectableMedia(char Letter)
+BOOL IsEjectableMedia(char Letter,UINT DriveType,BOOL ForceCDROM)
 {
-  char win_name[]="\\\\.\\?:";
-  win_name[4]=Letter;
+  BOOL IsEjectable=FALSE;
 
-  HANDLE h=CreateFile(win_name, 0, FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0, 0);
+  if (ForceCDROM && IsDriveTypeCDROM(DriveType))
+  {
+    IsEjectable = TRUE;
+  }
+  else
+  {
+    char win_name[]="\\\\.\\?:";
+    win_name[4]=Letter;
 
-  if (h==INVALID_HANDLE_VALUE)
-   return FALSE;
+    HANDLE h=CreateFile(win_name, 0, FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0, 0);
 
-  DISK_GEOMETRY disk_g={0};
-  DWORD b_ret=0;
-  int ret=DeviceIoControl(h, IOCTL_DISK_GET_DRIVE_GEOMETRY,
-                             NULL,                          // lpInBuffer
-                             0,                             // nInBufferSize
-                             &disk_g,                       // output buffer
-                             sizeof(disk_g),                // size of output buffer
-                             &b_ret,                        // number of bytes returned
-                             0                              // OVERLAPPED structure
-                         );
-  CloseHandle(h);
+    if (h==INVALID_HANDLE_VALUE)
+     return FALSE;
 
-  if(!ret)
-    return FALSE;
+    if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
+    {
+      #pragma pack(1)
+      typedef struct {
+          TCHAR dmiAllocationLength;          // db   ?       ; length of the buffer provided by caller
+          TCHAR dmiInfoLength;                // db   ?       ; length of information returned
+          TCHAR dmiFlags;                     // db   ?       ; DRIVE_MAP_INFO flags
+          TCHAR dmiInt13Unit;                 // db   ?       ; int 13 drive number.  FFh if the drive
+                                              //              ; does not map to an int 13 drive
+          DWORD dmiAssociatedDriveMap;        // dd   ?       ; bit map of logical drive numbers that
+                                              //              ; are associated with the given drive
+                                              //              ; (i.e. parent/child volumes of compressed
+                                              //              ; volume files)
+          DWORD dmiPartitionStartRBA[2];      // dq   ?       ; starting RBA offset of the given
+                                              //              ; partition
+      } DRIVE_MAP_INFO;
+      #pragma pack()
 
-  return disk_g.MediaType == RemovableMedia;
+      #define PROT_MODE_EJECT         0x08    //      ; indicates a protect mode drive
+                                              //      ; supports electronic eject
+
+
+      BOOL fSuccess = FALSE;
+      DWORD dwRead;
+      DIOC_REGISTERS reg;
+      DRIVE_MAP_INFO dmi;
+      dmi.dmiAllocationLength = sizeof(dmi);
+
+      //  BUGBUG: this is a real hack (talking to VWIN32) on NT we can just
+      //  open the device, we dont have to go through VWIN32
+      reg.reg_EBX = (toupper (Letter) - 'A') + 1;   // make 1 based drive number
+      reg.reg_EDX = (DWORD)&dmi; // out buffer
+      reg.reg_ECX = 0x86F;              // device specific command code
+      reg.reg_EAX = 0x440D;           // generic read ioctl
+      reg.reg_Flags = 0x0001;     // flags, assume error (carry)
+
+      if(DeviceIoControl(h, VWIN32_DIOC_DOS_IOCTL, &reg, sizeof(reg), &reg, sizeof(reg), &dwRead, NULL))
+        IsEjectable = !(reg.reg_Flags & 0x0001) && (dmi.dmiFlags & PROT_MODE_EJECT);
+    }
+    else
+    {
+      DISK_GEOMETRY disk_g={0};
+      DWORD b_ret=0;
+      int ret=DeviceIoControl(h, IOCTL_DISK_GET_DRIVE_GEOMETRY,
+                                 NULL,                          // lpInBuffer
+                                 0,                             // nInBufferSize
+                                 &disk_g,                       // output buffer
+                                 sizeof(disk_g),                // size of output buffer
+                                 &b_ret,                        // number of bytes returned
+                                 0                              // OVERLAPPED structure
+                             );
+      if(ret)
+        IsEjectable=disk_g.MediaType == RemovableMedia;
+    }
+    CloseHandle(h);
+  }
+
+  return IsEjectable;
 }

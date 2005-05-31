@@ -5,10 +5,12 @@ infolist.cpp
 
 */
 
-/* Revision: 1.45 06.05.2005 $ */
+/* Revision: 1.46 30.05.2005 $ */
 
 /*
 Modify:
+  30.05.2005 SVS
+    ! временно откатим проект про USB
   06.05.2005 SVS
     + DRIVE_USBDRIVE
     ! изменена обработка DRIVE_SUBSTITUTE
@@ -275,12 +277,6 @@ void InfoList::DisplayObject()
       case DRIVE_RAMDISK:
         IdxMsgID=MInfoRAM;
         break;
-      case DRIVE_USBDRIVE:
-        IdxMsgID=MInfoUSB;
-        break;
-      case DRIVE_SUBSTITUTE:
-        IdxMsgID=MInfoSUBST;
-        break;
       default:
         if(IsDriveTypeCDROM(DriveType))
           IdxMsgID=DriveType-DRIVE_CD_RW+MInfoCD_RW;
@@ -291,8 +287,13 @@ void InfoList::DisplayObject()
     if(IdxMsgID != -1)
       strcpy(DiskType,MSG(IdxMsgID));
 
-    if(DriveType==DRIVE_SUBSTITUTE)
-      GetSubstName(DriveType,LocalName,RemoteName,sizeof(RemoteName));
+    {
+      if(GetSubstName(DriveType,LocalName,RemoteName,sizeof(RemoteName)))
+      {
+        strcpy(DiskType,MSG(MInfoSUBST));
+        DriveType=DRIVE_SUBSTITUTE;
+      }
+    }
 
     sprintf(Title," %s %s %s (%s) ",DiskType,MSG(MInfoDisk),DiskName,FileSystemName);
 
