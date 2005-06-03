@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.228 05.05.2005 $ */
+/* Revision: 1.229 03.06.2005 $ */
 
 /*
 Modify:
+  03.06.2005 SVS
+    ! Editor/Viewer - пытаемс€ открыть файл по короткому имени
   05.05.05 AY
     - ProcessKey() - PgDn/PgUp/MouseScroll могли привести к падению из за не
       корректного выставлени€ CurFile.
@@ -1916,7 +1918,8 @@ int FileList::ProcessKey(int Key)
               {
                 RefreshedPanel=FrameManager->GetCurrentFrame()->GetType()==MODALTYPE_EDITOR?FALSE:TRUE;
                 FileEditor ShellEditor (FileName,Key==KEY_SHIFTF4,FALSE,-1,-1,TRUE,PluginData);
-                //FileEditor ShellEditor (GetShowShortNamesMode()?ShortFileName:FileName,Key==KEY_SHIFTF4,FALSE,-1,-1,TRUE,PluginData);
+                //FileEditor ShellEditor ((GetFileAttributes(FileName) == (DWORD)-1 && GetFileAttributes(ShortFileName) != (DWORD)-1)?ShortFileName:FileName,
+                //                        Key==KEY_SHIFTF4,FALSE,-1,-1,TRUE,PluginData);
                 ShellEditor.SetDynamicallyBorn(false);
                 FrameManager->EnterModalEV();
                 FrameManager->ExecuteModal();//OT
@@ -1940,7 +1943,10 @@ int FileList::ProcessKey(int Key)
                   EditList.SetCurDir(CurDir);
                   EditList.SetCurName(FileName);
                 }
-                FileEditor *ShellEditor=new FileEditor(FileName,Key==KEY_SHIFTF4,TRUE);
+                //FileEditor *ShellEditor=new FileEditor(FileName,Key==KEY_SHIFTF4,TRUE);
+                FileEditor *ShellEditor=new FileEditor((GetFileAttributes(FileName) == (DWORD)-1 &&
+                                                        GetFileAttributes(ShortFileName) != (DWORD)-1)?ShortFileName:FileName,
+                                                        Key==KEY_SHIFTF4,TRUE);
                 //FileEditor *ShellEditor=new FileEditor(GetShowShortNamesMode()?ShortFileName:FileName,Key==KEY_SHIFTF4,TRUE);
                 ShellEditor->SetNamesList (&EditList);
                 FrameManager->ExecuteModal();//OT
@@ -2017,7 +2023,11 @@ int FileList::ProcessKey(int Key)
                   ViewList.SetCurName(FileName);
                 }
                 //FileViewer *ShellViewer=new FileViewer(FileName,TRUE,PluginMode,PluginMode,-1,PluginData,&ViewList);
-                FileViewer *ShellViewer=new FileViewer(GetShowShortNamesMode()?ShortFileName:FileName,TRUE,PluginMode,PluginMode,-1,PluginData,&ViewList);
+                //FileViewer *ShellViewer=new FileViewer(GetShowShortNamesMode()?ShortFileName:FileName,TRUE,PluginMode,PluginMode,-1,PluginData,&ViewList);
+                FileViewer *ShellViewer=new FileViewer((GetFileAttributes(FileName) == (DWORD)-1 &&
+                                                        GetFileAttributes(ShortFileName) != (DWORD)-1)?ShortFileName:FileName,
+                                                        TRUE,PluginMode,PluginMode,-1,PluginData,&ViewList);
+
                 /* $ 08.04.2002 IS
                    —бросим DeleteViewedFile, т.к. внутренний вьюер сам все
                    удалит
@@ -3707,7 +3717,7 @@ void FileList::UpdateViewPanel()
       if (TestParentFolderName(CurPtr->Name))
         ViewPanel->ShowFile(CurDir,FALSE,NULL);
       else
-        ViewPanel->ShowFile(CurPtr->Name,FALSE,NULL);
+        ViewPanel->ShowFile((GetFileAttributes(CurPtr->Name) == (DWORD)-1 && GetFileAttributes(CurPtr->ShortName) != (DWORD)-1)?CurPtr->ShortName:CurPtr->Name,FALSE,NULL);
     }
     else
       if ((CurPtr->FileAttr & FA_DIREC)==0)
