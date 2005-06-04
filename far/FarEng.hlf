@@ -956,8 +956,8 @@ explicitly in the Local Policy Editor (to do this, run a #secpol.msc# from the
 command prompt, and set the '#Local Policies/Security Options/Devices:#
 #Restrict CD-ROM access to locally logged-on user only#' setting to '#Enabled#')
 
-    Для виртуальных устройств (SUBST-дисков) указываются параметры
-основного диска.
+    For virtual devices (SUBST-disk) the parameters of the primary disk are
+shown.
 
 @QViewPanel
 $ #Panels: quick view panel#
@@ -1226,7 +1226,7 @@ following operations:
 
     - ~disconnect network drives~@DisconnectDrive@ from the Disks menu;
 
-    - отключение SUBST-диска из меню дисков;
+    - disconnect SUBST-disks from the Disks menu;
 
     - ~reloading~@EditorReload@ a file in the editor;
 
