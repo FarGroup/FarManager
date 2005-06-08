@@ -230,7 +230,7 @@ Copy/Move
     Now only the description of the last file is inserted into the
     descript.ion file.
 
-[+] Добавлен фильтр операций в диалоге копирования и перемещения файлов.
+[+] Operations Filter was added to the copy/move dialog.
 
 
 File attributes
