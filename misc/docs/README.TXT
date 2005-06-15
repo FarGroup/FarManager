@@ -66,9 +66,3 @@
 
       Author contact information for reports and  internet  distribution
       information is located in file Far.Site.txt.
-
-      FAR Manager requires msvcrt.dll. It is already present in Windows
-      95/98/ME/NT/2000/XP. If, due to some reason, it is not there in your
-      system, you can download it from Microsoft
-      (http://support.microsoft.com/default.aspx?scid=kb;en-us;259403)
-      or install Internet Explorer 4.0 or newer.

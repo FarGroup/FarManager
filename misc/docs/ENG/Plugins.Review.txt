@@ -46,6 +46,8 @@ be used to search for specific plugins, one can recommend:
 
   - PlugRinG site
     http://plugring.farmanager.com
+  - Online forum
+    http://enforum.farmanager.com
   - USENET echo conference
     news:fido7.far.support
     Google Groups: http://groups.google.ru/groups?hl=ru&lr=&ie=UTF-8&group=fido7.far.support
@@ -60,6 +62,6 @@ be used to search for specific plugins, one can recommend:
     http://groups.yahoo.com/group/plugring_announce
   - The PlugRinG viewer plugin allows you to view and download all the latest
     plugins directly from FAR.
-    http://plugring.farmanager.com/cgi-bin/downld.cgi?Draw=List&Select=PlugIn&SelectPlugIn=259
+    http://plugring.farmanager.com/cgi-bin/downld.cgi?Draw=List&Select=PlugIn&SelectPlugIn=259&Lang=Eng
 
                                      [ FAR manager development group ]

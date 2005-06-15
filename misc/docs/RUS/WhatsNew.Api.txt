@@ -173,6 +173,9 @@ FAR 1.70 beta 6 (build 1812) (08.07.2004)
 
 [-] Падение FAR, если в функции FSF.PointToName() параметр Path == NULL
 
+[+] Команда ACTL_GETSHORTWINDOWINFO - безопасный для использования в потоках
+    аналог команды ACTL_GETWINDOWINFO.
+
 
 Программа просмотра
 ~~~~~~~~~~~~~~~~~~~

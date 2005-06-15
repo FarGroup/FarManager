@@ -51,6 +51,8 @@
 
   - сайт PlugRinG
     http://plugring.farmanager.com
+  - Онлайн форум
+    http://forum.farmanager.com
   - конференции USENET
     news:fido7.far.support
     Google Groups: http://groups.google.ru/groups?hl=ru&lr=&ie=UTF-8&group=fido7.far.support

@@ -99,11 +99,8 @@ System
     for dialog input lines, visited folders, executed commands, viewed
     and edited files.
 
-[+] TechInfo#53, TechInfo#54 and TechInfo#55 rules to activate extended
-    functionality of FAR executor.
-
-[+] The rule TechInfo#56 allows to control the error message about
-    inability to execute an non existing program.
+[+] TechInfo#53 and TechInfo#54 rules to activate extended functionality
+    of FAR executor.
 
 [+] New option in Panel settings "Network drives autorefresh"
     This option enables panel autorefresh when state of filesystem on
@@ -159,8 +156,21 @@ System
 [-] When removing history entries from dialog text input fields
     (Shift-Del), the cursor was repositioned to the first element.
 
-[+] New rule - TechInfo#?? that allows to disable the automatic
+[+] New size column flag - F, file size is shown as a float number as in
+    Windows Explorer.
+
+[+] New size column flag - E, no space will be shown between the size and the
+    suffix.
+
+[+] New rule - TechInfo#62 that allows to disable the automatic
     invocation of the "Print Manager" plugin assigned to Alt-F5.
+
+[+] New rule - TechInfo#63 that allows to set the maximum size of the data
+    read from a file after an attempt to enter it from the panels (Enter or
+    Ctrl-PgDn) was made.
+
+[+] New rule - TechInfo#64 that allows to control the refresh timeout of the file
+    deletion process message box.
 
 
 Find File

@@ -120,6 +120,16 @@ the main help file, that is actual for the current FAR Manager version.
    commands, viewed and edited files.
    The default value is 64 positions.
 
+1.1.9 (TechInfo #64)
+~~~~~~~~~~~~~~~~~~~~
+   [HKEY_CURRENT_USER\Software\Far\Interface]
+   "ShowTimeoutDelFiles":REG_DWORD
+   The key "ShowTimeoutDelFiles" of DWORD type allows to control the
+   refresh timeout (in ms) of the file deletion process message box.
+   For bigger values of "ShowTimeoutDelFiles" the deletion process
+   information if updated less often which speeds up the deletion
+   process itself.
+   The default value is 50 ms.
 
 
 =====================
