@@ -24,7 +24,7 @@ General
     save setup setting set (or manually saving the setup - Shift-F9)
     will cause the deletion of the "new" macros (from the registry)
     because starting with build 1784 the logic of the macro engine has
-    beeen changed.
+    been changed.
 
 System
 ~~~~~~
@@ -207,7 +207,7 @@ Find File
     searching.
 
 [+] The specified text string can be searched not only in the whole file,
-    but also inside a specified range at the begining of the file, defined
+    but also inside a specified range at the beginning of the file, defined
     by the "Search only in the first" property. If the specified value is
     less than the file size, the rest of the file will be ignored even if
     the required sequence exists there.
@@ -234,13 +234,18 @@ Copy/Move
 
 [-] Folders were deleted when moved from the the root to the "..".
 
-[-] Descriptions in the descrptions file (descript.ion) where duplicated
+[-] Descriptions in the descriptions file (descript.ion) where duplicated
     if several files were copied to one (select all, F5, file name,
     Enter, append, append........append).
     Now only the description of the last file is inserted into the
     descript.ion file.
 
 [+] Operations Filter was added to the copy/move dialog.
+
+[!] "Copy access rights" option is checked by default for copy and move
+    operations. If this option is unchecked then after copying/moving the
+    inheritable access rights of the parent folder will be applied to the
+    copied/moved files and folders. Additionally see TechInfo#65.
 
 
 File attributes
@@ -335,9 +340,9 @@ Macros
     help file (not yet available in english).
 
 [*] FAR can execute macros in 2 modes:
-    1. Common mode: keypresses will be passed to plugins while recording
+    1. Common mode: keystrokes will be passed to plugins while recording
        and playing back macros (Ctrl-. to start recording).
-    2. Special mode: keypresses are not passed to plugins while recording
+    2. Special mode: keystrokes are not passed to plugins while recording
        and playing back (Ctrl-Shift-. to start recording).
     See the help and Macros.txt for details.
 

@@ -126,9 +126,19 @@ the main help file, that is actual for the current FAR Manager version.
    "ShowTimeoutDelFiles":REG_DWORD
    The key "ShowTimeoutDelFiles" of DWORD type allows to control the
    refresh timeout (in ms) of the file deletion process message box.
-   For bigger values of "ShowTimeoutDelFiles" the deletion process
-   information if updated less often which speeds up the deletion
-   process itself.
+   For bigger  values  of  "ShowTimeoutDelFiles" the process information
+   is updated less often which speeds up the deletion process itself.
+   The default value is 50 ms.
+
+1.1.10 (TechInfo #65)
+~~~~~~~~~~~~~~~~~~~~~
+   [HKEY_CURRENT_USER\Software\Far\Interface]
+   "ShowTimeoutDACLFiles":REG_DWORD
+   The key "ShowTimeoutDACLFiles" of DWORD type allows to control the
+   refresh timeout (in ms) of the access rights application process message
+   box that is done after a copy/move operation. For bigger values of
+   "ShowTimeoutDACLFiles" the process information is updated less often which
+   speeds up the access rights application process itself.
    The default value is 50 ms.
 
 
