@@ -5,10 +5,13 @@ Detect & Eject USB носителей
 
 */
 
-/* Revision: 1.01 30.05.2005 $ */
+/* Revision: 1.02 09.06.2005 $ */
 
 /*
 Modify:
+  09.06.2005 SVS
+    ! FAR_CreateFile - обертка для CreateFile, просьба использовать именно
+      ее вместо CreateFile
   30.05.2005 SVS
     ! временно откатим проект про USB
   05.05.2005 SVS
@@ -252,7 +255,7 @@ static BOOL GetVolumeName(const char* szDevice, char* szVolumeName, int cbVolume
 {
   HANDLE hDevice;
 
-  hDevice = CreateFile(szDevice,FILE_READ_ATTRIBUTES|SYNCHRONIZE,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
+  hDevice = FAR_CreateFile(szDevice,FILE_READ_ATTRIBUTES|SYNCHRONIZE,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
   if(hDevice == INVALID_HANDLE_VALUE)
     return FALSE;
   else

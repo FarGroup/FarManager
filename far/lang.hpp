@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.157 30.05.2005 $ */
+/* Revision: 1.158 14.06.2005 $ */
 
 /*
 Modify:
+  14.06.2005 SVS
+    + MCopyPrepareSecury, MMainMenuBottomTitle, MProcessListBottom
   30.05.2005 SVS
     ! временно откатим проект про USB
   06.05.2005 SVS
@@ -680,6 +682,7 @@ enum
   MCopyDlgLink,
   MCopyDlgTotal,
   MCopyScanning,
+  MCopyPrepareSecury,
   MCopyUseFilter,
   MCopySetFilter,
 
@@ -1642,6 +1645,7 @@ enum
   MDragCopy,
 
   MProcessListTitle,
+  MProcessListBottom,
   MKillProcessTitle,
   MAskKillProcess,
   MKillProcessWarning,
@@ -1830,6 +1834,7 @@ enum
   MMainMenuFAR,
   MMainMenuREG,
   MLocalMenuTitle,
+  MMainMenuBottomTitle,
   MAskDeleteMenuItem,
   MAskDeleteSubMenuItem,
   MUserMenuInvalidInputLabel,

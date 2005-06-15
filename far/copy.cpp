@@ -5,10 +5,16 @@ copy.cpp
 
 */
 
-/* Revision: 1.149 25.04.2005 $ */
+/* Revision: 1.150 14.06.2005 $ */
 
 /*
 Modify:
+  14.06.2005 SVS
+    ! ShellCopy::MoveFileThroughTemp() стала самостоятельной функцией
+    + SetRecursiveSecurity() - "отсюда и ниже"
+    + GetParentFolder() - получить имя родительского каталога
+    + CmpFullPath() - сравнить пути, в отличии от CmpFullNames сравнивает только родительские пути до Src и Dest.
+    ! sddata в динамику
   25.04.2005 SVS
     - Copy/Paste, да не то :-(
   24.04.2005 AY
@@ -496,6 +502,8 @@ Modify:
 #define DLG_HEIGHT 15
 #define DLG_WIDTH 76
 
+#define SDDATA_SIZE   64000
+
 enum {COPY_BUFFER_SIZE  = 0x10000};
 
 /* $ 30.01.2001 VVM
@@ -581,8 +589,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   int DestPlugin;
   int AddSlash=FALSE;
 
-  // Создадим объект фильтра
-  Filter=new FileFilter(TRUE);
+  Filter=NULL;
+  sddata=NULL;
 
   // ***********************************************************************
   // *** Предварительные проверки
@@ -628,6 +636,11 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
       return;
     }
   }
+
+  // Создадим объект фильтра
+  Filter=new FileFilter(TRUE);
+
+  sddata=new char[SDDATA_SIZE]; // Security 16000?
 
   /* $ 26.05.2001 OT Запретить перерисовку панелей во время копирования */
   _tran(SysLog("call (*FrameManager)[0]->LockRefresh()"));
@@ -730,6 +743,13 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     CopyDlg[6].Flags|=DIF_DISABLE;
   }
 
+  if(Move)
+  {
+    ShellCopy::Flags|=FCOPY_COPYSECURITY;
+    CDP.CopySecurity=1;
+    CopyDlg[4].Selected=1;
+  }
+
   if (CDP.SelCount==1)
   { // SelName & FileAttr уже заполнены (см. в самом начале функции)
 
@@ -806,7 +826,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   }
   else if(DestPanelMode == PLUGIN_PANEL)
   {
-    // Если противоположная панель - плагин, то дисаблим OnlyNewer
+    // Если противоположная панель - плагин, то дисаблим OnlyNewer //?????
     CDP.CopySecurity=CDP.OnlyNewerFiles=0;
     CopyDlg[4].Selected=CopyDlg[5].Selected=0;
     CopyDlg[5].Flags|=DIF_DISABLE;
@@ -996,7 +1016,10 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   // ***********************************************************************
   // *** Стадия подготовки данных после диалога
   // ***********************************************************************
-  ShellCopy::Flags|=CopyDlg[4].Selected?FCOPY_COPYSECURITY:0;
+  if(CopyDlg[4].Selected)
+    ShellCopy::Flags|=FCOPY_COPYSECURITY;
+  else
+    ShellCopy::Flags&=~FCOPY_COPYSECURITY;
   ShellCopy::Flags|=CopyDlg[5].Selected?FCOPY_ONLYNEWERFILES:0;
   ShellCopy::Flags|=CopyDlg[6].Selected?FCOPY_COPYSYMLINKCONTENTS:0;
 
@@ -1340,8 +1363,9 @@ long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       if(Param1 == 2)
       {
         // TODO: NM здесь не катит, т.к. на плагиновой панели могут быть пути...
-        char SrcDir[NM];
         struct FarDialogItem DItem4,DItem5,DItem9;
+        int LenCurDirName=DlgParam->thisClass->SrcPanel->GetCurDir(NULL);
+        char *SrcDir=(char *)alloca(LenCurDirName+16);
         DlgParam->thisClass->SrcPanel->GetCurDir(SrcDir);
         Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,4,(long)&DItem4);
         Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,5,(long)&DItem5);
@@ -1619,11 +1643,14 @@ ShellCopy::~ShellCopy()
 {
   _tran(SysLog("[%p] ShellCopy::~ShellCopy(), CopyBufer=%p",this,CopyBuffer));
   if ( CopyBuffer )
-      delete[] CopyBuffer;
+    delete[] CopyBuffer;
 
   // $ 26.05.2001 OT Разрешить перерисовку панелей
   _tran(SysLog("call (*FrameManager)[0]->UnlockRefresh()"));
   (*FrameManager)[0]->UnlockRefresh();
+
+  if(sddata)
+    delete[] sddata;
 
   if(Filter) // Уничтожим объект фильтра
     delete Filter;
@@ -2150,6 +2177,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
 
   CurCopiedSize = 0; // Сбросить текущий прогресс
 
+  int IsSetSecuty=FALSE;
+
   if (CheckForEscSilent())
   {
     CopyTime+= (clock() - CopyStartTime);
@@ -2201,11 +2230,16 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
 
   *DestData.cFileName=0;
 
-  if (DestAttr==(DWORD)-1 && (FindHandle=FindFirstFile(DestPath,&DestData))!=INVALID_HANDLE_VALUE)
+  if (DestAttr==(DWORD)-1)
   {
-    FindClose(FindHandle);
+    GetFileWin32FindData(DestPath,&DestData);
     DestAttr=DestData.dwFileAttributes;
   }
+  //if (DestAttr==(DWORD)-1 && (FindHandle=FindFirstFile(DestPath,&DestData))!=INVALID_HANDLE_VALUE)
+  //{
+  //  FindClose(FindHandle);
+  //  DestAttr=DestData.dwFileAttributes;
+  //}
   _LOGCOPYR(SysLog("%d DestAttr=0x%08X",__LINE__,DestAttr));
 
   if (DestAttr!=(DWORD)-1 && (DestAttr & FILE_ATTRIBUTE_DIRECTORY))
@@ -2276,6 +2310,9 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
 
           xstrncpy(OldPath,Src,p1-Src);
 
+          GetFileWin32FindData(OldPath,&FileData);
+          FileAttr=FileData.dwFileAttributes;
+          #if 0
           // Поищем старый каталог и возьмём его атрибуты
           if ((FindHandle=FindFirstFile(OldPath,&FileData))==INVALID_HANDLE_VALUE)
             // Однако это не нормально, не нашли каталог, который уже скопировали
@@ -2287,6 +2324,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
             // Есть файл, а также его атрибуты
             FileAttr=FileData.dwFileAttributes;
           }
+          #endif
 
           // Создадим имя каталога, который теперь нужно создать, если конечно его ещё нет
           xstrncpy(NewPath,DestPath,sizeof(NewPath)-1);
@@ -2426,7 +2464,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
 
       if (Rename)
       {
-        char SrcFullName[NM],DestFullName[NM];
+        _LOGCOPYR(SysLog("%d Rename",__LINE__));
+        char SrcFullName[NM*2],DestFullName[NM*2];
 
         if (ConvertNameToFull(Src,SrcFullName, sizeof(SrcFullName)) >= sizeof(SrcFullName))
         {
@@ -2434,17 +2473,45 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
           return(COPY_NEXT);
         }
 
+        SECURITY_ATTRIBUTES sa;
+        _LOGCOPYR(ConvertNameToFull(Dest,DestFullName, sizeof(DestFullName)) >= sizeof(DestFullName));
+        _LOGCOPYR(SysLog("%d call GetSecurity ('%s')",__LINE__,Dest));
+        _LOGCOPYR(SysLog("%d DestFullName='%s'",__LINE__,DestFullName));
+        _LOGCOPYR(SysLog("%d SrcFullName ='%s'",__LINE__,SrcFullName));
+        //_LOGCOPYR(SysLog("%d CmpFullPath => %d",__LINE__,CmpFullPath(SrcFullName,DestFullName)));
+        _LOGCOPYR(SysLog("%d CmpFullPath => %d",__LINE__,CmpFullPath(Src,Dest)));
+
+        // для Move нам необходимо узнать каталог родитель, чтобы получить его секьюрити
+        if (!(ShellCopy::Flags&FCOPY_COPYSECURITY))
+        {
+          IsSetSecuty=FALSE;
+          if(CmpFullPath(Src,Dest)) // в пределах одного каталога ничего не меняем
+            IsSetSecuty=FALSE;
+          else if(GetFileAttributes(Dest) == (DWORD)-1) // если каталога нет...
+          {
+            // ...получаем секьюрити родителя
+            if(GetSecurity(GetParentFolder(Dest,DestFullName,sizeof(DestFullName)-1),sa))
+              IsSetSecuty=TRUE;
+          }
+          else if(GetSecurity(Dest,sa)) // иначе получаем секьюрити Dest`а
+            IsSetSecuty=TRUE;
+        }
+
         /* $ 18.07.2001 VVM
           + Пытаемся переименовать, пока не отменят */
         while (1)
         {
-          /* $ 25.05.2002 IS
-             Отдельная обработка RenameToShortName для каталога.
-          */
-          BOOL SuccessMove=RenameToShortName?MoveFileThroughTemp(Src,DestPath):MoveFile(Src,DestPath);
+          // $ 25.05.2002 IS Отдельная обработка RenameToShortName для каталога.
+          _LOGCOPYR(SysLog("%d Move '%s' => '%s'",__LINE__,Src,DestPath));
+          BOOL SuccessMove=RenameToShortName?MoveFileThroughTemp(Src,DestPath):FAR_MoveFile(Src,DestPath);
+          _LOGCOPYR(SysLog("%d SuccessMove=%d",__LINE__,SuccessMove));
+
           if (SuccessMove)
-          /* IS $ */
           {
+            if(IsSetSecuty)// && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT && !strcmp(DestFSName,"NTFS"))
+              //if(!(ShellCopy::Flags&FCOPY_CURRENTONLY))
+                SetRecursiveSecurity(DestPath,sa);
+
             if (PointToName(DestPath)==DestPath)
               strcpy(RenamedName,DestPath);
             else
@@ -2783,6 +2850,26 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
         if (NWFS_Attr)
           SetFileAttributes(SrcFullName,SrcData.dwFileAttributes&(~FA_RDONLY));
 
+        SECURITY_ATTRIBUTES sa;
+        IsSetSecuty=FALSE;
+
+        // для Move нам необходимо узнать каталог родитель, чтобы получить его секьюрити
+        if (Rename && !(ShellCopy::Flags&FCOPY_COPYSECURITY))
+        {
+          if(CmpFullPath(Src,Dest)) // в пределах одного каталога ничего не меняем
+            IsSetSecuty=FALSE;
+          else if(GetFileAttributes(Dest) == (DWORD)-1) // если каталога нет...
+          {
+            char DestFullName[NM*2];
+            // ...получаем секьюрити родителя
+            if(GetSecurity(GetParentFolder(Dest,DestFullName,sizeof(DestFullName)-1),sa))
+              IsSetSecuty=TRUE;
+          }
+          else if(GetSecurity(Dest,sa)) // иначе получаем секьюрити Dest`а
+            IsSetSecuty=TRUE;
+        }
+
+
         /* $ 25.05.2002 IS
            Отдельная обработка RenameToShortName для каталога.
         */
@@ -2791,9 +2878,9 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
         else
         {
           if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT || !strcmp(DestFSName,"NWFS"))
-            MoveCode=MoveFile(SrcFullName,DestPath);
+            MoveCode=FAR_MoveFile(SrcFullName,DestPath);
           else
-            MoveCode=MoveFileEx(SrcFullName,DestPath,SameName ? MOVEFILE_COPY_ALLOWED:MOVEFILE_COPY_ALLOWED|MOVEFILE_REPLACE_EXISTING);
+            MoveCode=FAR_MoveFileEx(SrcFullName,DestPath,SameName ? MOVEFILE_COPY_ALLOWED:MOVEFILE_COPY_ALLOWED|MOVEFILE_REPLACE_EXISTING);
         }
 
         if (!MoveCode)
@@ -2809,6 +2896,11 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
           }
 
           SetLastError(MoveLastError);
+        }
+        else
+        {
+          if (IsSetSecuty)
+            SetSecurity(DestPath,sa);
         }
 
         if (NWFS_Attr)
@@ -2890,7 +2982,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
 
           if (DestAttr!=(DWORD)-1 && LocalStricmp(CopiedName,DestData.cFileName)==0 &&
               strcmp(CopiedName,DestData.cFileName)!=0)
-            MoveFile(DestPath,DestPath);
+            FAR_MoveFile(DestPath,DestPath);
         }
 
         TotalFiles++;
@@ -3959,18 +4051,21 @@ int ShellCopy::AskOverwrite(const WIN32_FIND_DATA &SrcData,
 
 int ShellCopy::GetSecurity(const char *FileName,SECURITY_ATTRIBUTES &sa)
 {
+  _LOGCOPYR(CleverSysLog Clev("ShellCopy::GetSecurity()"));
+  _LOGCOPYR(SysLog("Params: FileName='%s'",FileName));
   char AnsiName[NM];
   SECURITY_INFORMATION si=DACL_SECURITY_INFORMATION;
   SECURITY_DESCRIPTOR *sd=(SECURITY_DESCRIPTOR *)sddata;
   DWORD Needed;
   SetFileApisTo(APIS2ANSI);
   FAR_OemToChar(FileName,AnsiName);
-  BOOL RetSec=GetFileSecurity(AnsiName,si,sd,sizeof(sddata),&Needed);
+  BOOL RetSec=GetFileSecurity(AnsiName,si,sd,SDDATA_SIZE,&Needed);
+  int LastError=GetLastError();
+  _LOGCOPYR(SysLog("LastError=%u Attr=0x%08X",LastError,GetFileAttributes(AnsiName)));
   SetFileApisTo(APIS2OEM);
   if (!RetSec)
   {
     sd=NULL;
-    int LastError=GetLastError();
     if (LastError!=ERROR_SUCCESS && LastError!=ERROR_FILE_NOT_FOUND &&
         LastError!=ERROR_CALL_NOT_IMPLEMENTED &&
         Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
@@ -3986,15 +4081,18 @@ int ShellCopy::GetSecurity(const char *FileName,SECURITY_ATTRIBUTES &sa)
 
 int ShellCopy::SetSecurity(const char *FileName,const SECURITY_ATTRIBUTES &sa)
 {
+  _LOGCOPYR(CleverSysLog Clev("ShellCopy::SetSecurity()"));
+  _LOGCOPYR(SysLog("Params: FileName='%s'",FileName));
   char AnsiName[NM];
   SECURITY_INFORMATION si=DACL_SECURITY_INFORMATION;
   SetFileApisTo(APIS2ANSI);
   FAR_OemToChar(FileName,AnsiName);
   BOOL RetSec=SetFileSecurity(AnsiName,si,(PSECURITY_DESCRIPTOR)sa.lpSecurityDescriptor);
+  int LastError=GetLastError();
+  _LOGCOPYR(SysLog("LastError=%u",LastError));
   SetFileApisTo(APIS2OEM);
   if (!RetSec)
   {
-    int LastError=GetLastError();
     if (LastError!=ERROR_SUCCESS && LastError!=ERROR_FILE_NOT_FOUND &&
         LastError!=ERROR_CALL_NOT_IMPLEMENTED &&
         Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
@@ -4005,24 +4103,89 @@ int ShellCopy::SetSecurity(const char *FileName,const SECURITY_ATTRIBUTES &sa)
 }
 
 
-typedef BOOL (WINAPI *COPYFILEEX)(LPCTSTR lpExistingFileName,
-            LPCTSTR lpNewFileName,void *lpProgressRoutine,
-            LPVOID lpData,LPBOOL pbCancel,DWORD dwCopyFlags);
+BOOL ShellCopySecuryMsg(const char *Name)
+{
+  static clock_t PrepareSecuryStartTime;
+  static int Width=30;
+  int WidthTemp;
+  char OutFileName[NM];
+
+  if (Name == NULL || *Name == 0 || ((clock() - PrepareSecuryStartTime) > Opt.ShowTimeoutDACLFiles))
+  {
+    if(Name && *Name)
+    {
+      PrepareSecuryStartTime = clock();     // Первый файл рисуется всегда
+      WidthTemp=Max((int)strlen(Name),(int)30);
+    }
+    else
+      Width=WidthTemp=30;
+
+    if(WidthTemp > WidthNameForMessage)
+      WidthTemp=WidthNameForMessage; // ширина месага - 38%
+    if(WidthTemp >= sizeof(OutFileName)-4)
+      WidthTemp=sizeof(OutFileName)-5;
+    if(Width < WidthTemp)
+      Width=WidthTemp;
+
+    xstrncpy(OutFileName,Name,sizeof(OutFileName)-1);
+    TruncPathStr(OutFileName,Width);
+    CenterStr(OutFileName,OutFileName,Width+4);
+
+    Message(0,0,MSG(MMoveDlgTitle),MSG(MCopyPrepareSecury),OutFileName);
+
+    if(CheckForEscSilent())
+    {
+      if(ConfirmAbortOp())
+        return FALSE;
+    }
+  }
+  PreRedrawParam.Param1=static_cast<void*>(const_cast<char*>(Name));
+  return TRUE;
+}
+
+static void PR_ShellCopySecuryMsg(void)
+{
+  ShellCopySecuryMsg(static_cast<const char*>(PreRedrawParam.Param1));
+}
+
+int ShellCopy::SetRecursiveSecurity(const char *FileName,const SECURITY_ATTRIBUTES &sa)
+{
+  _LOGCOPYR(CleverSysLog Clev("ShellCopy::SetRecursiveSecurity()"));
+  _LOGCOPYR(SysLog("Params: FileName='%s'",FileName));
+  if(SetSecurity(FileName,sa))
+  {
+    if(::GetFileAttributes(FileName)&FILE_ATTRIBUTE_DIRECTORY)
+    {
+      PREREDRAWFUNC OldPreRedrawFunc=PreRedrawFunc;
+      //SetCursorType(FALSE,0);
+      SetPreRedrawFunc(PR_ShellCopySecuryMsg);
+      //ShellCopySecuryMsg("");
+
+      char FullName[NM*2];
+      WIN32_FIND_DATA SrcData;
+      ScanTree ScTree(TRUE,TRUE,ShellCopy::Flags&FCOPY_COPYSYMLINKCONTENTS);
+      ScTree.SetFindPath(FileName,"*.*",FSCANTREE_FILESFIRST);
+      while (ScTree.GetNextName(&SrcData,FullName, sizeof (FullName)-1))
+      {
+        if(!ShellCopySecuryMsg(FullName))
+          break;
+        if(!SetSecurity(FullName,sa))
+        {
+          SetPreRedrawFunc(OldPreRedrawFunc);
+          return FALSE;
+        }
+      }
+      SetPreRedrawFunc(OldPreRedrawFunc);
+    }
+    return TRUE;
+  }
+  _LOGCOPYR(else SysLog("[%d] SetSecurity failed",__LINE__));
+  return FALSE;
+}
+
 
 int ShellCopy::ShellSystemCopy(const char *SrcName,const char *DestName,const WIN32_FIND_DATA &SrcData)
 {
-  static COPYFILEEX pCopyFileEx=NULL;
-  static int LoadAttempt=FALSE;
-
-  if (!LoadAttempt && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
-  {
-    HMODULE hKernel=GetModuleHandle("KERNEL32.DLL");
-    if (hKernel)
-      pCopyFileEx=(COPYFILEEX)GetProcAddress(hKernel,"CopyFileExA");
-    LoadAttempt=TRUE;
-  }
-
-
   SECURITY_ATTRIBUTES sa;
   if ((ShellCopy::Flags&FCOPY_COPYSECURITY) && !GetSecurity(SrcName,sa))
     return(COPY_CANCEL);
@@ -4030,11 +4193,11 @@ int ShellCopy::ShellSystemCopy(const char *SrcName,const char *DestName,const WI
   //// // _LOGCOPYR(SysLog("[%p] ShellCopy::ShellSystemCopy('%s','%s',..)",this,SrcName,DestName));
   ShellCopyMsg(SrcName,DestName,MSG_LEFTALIGN|MSG_KEEPBACKGROUND);
 
-  if (pCopyFileEx)
+  if (IsFn_FAR_CopyFileEx)
   {
     BOOL Cancel=0;
     TotalCopiedSizeEx=TotalCopiedSize;
-    if (!pCopyFileEx(SrcName,DestName,(void *)CopyProgressRoutine,NULL,&Cancel,0))
+    if (!FAR_CopyFileEx(SrcName,DestName,(void *)CopyProgressRoutine,NULL,&Cancel,0))
       return GetLastError()==ERROR_REQUEST_ABORTED ? COPY_CANCEL:COPY_FAILURE;
   }
   else
@@ -4048,7 +4211,7 @@ int ShellCopy::ShellSystemCopy(const char *SrcName,const char *DestName,const WI
       ShowTitle(FALSE);
     }
     // Здесь ХЗ... могут быть траблы там, где по каким то причинам нету CopyFileExA
-    if (!CopyFile(SrcName,DestName,FALSE))
+    if (!FAR_CopyFile(SrcName,DestName,FALSE))
       return COPY_FAILURE;
   }
 
@@ -4286,6 +4449,64 @@ int ShellCopy::CmpFullNames(const char *Src,const char *Dest)
   return LocalStricmp(SrcFullName,DestFullName)==0;
 }
 /* IS $ */
+
+int ShellCopy::CmpFullPath(const char *Src,const char *Dest)
+{
+  _LOGCOPYR(CleverSysLog Clev("ShellCopy::CmpFullPath()"));
+  _LOGCOPYR(SysLog("Params: Src='%s', Dest='%s'",Src, Dest));
+  char SrcFullName[1024],DestFullName[1024];
+  int I;
+
+  GetParentFolder(Src,SrcFullName, sizeof(SrcFullName));
+  GetParentFolder(Dest,DestFullName, sizeof(DestFullName));
+
+  // уберем мусор из имен
+  for (I=strlen(SrcFullName)-1;I>0 && SrcFullName[I]=='.';I--)
+    SrcFullName[I]=0;
+  DeleteEndSlash(SrcFullName);
+  _LOGCOPYR(SysLog("SrcFullName='%s'",SrcFullName));
+  for (I=strlen(DestFullName)-1;I>0 && DestFullName[I]=='.';I--)
+    DestFullName[I]=0;
+  DeleteEndSlash(DestFullName);
+  _LOGCOPYR(SysLog("DestFullName='%s'",DestFullName));
+
+/*
+  if (LocalStricmp(SrcFullName,DestFullName)!=0)
+    return(0);
+
+  return(strcmp(PointToName(SrcFullName),PointToName(DestFullName))==0 ? 2:1);
+*/
+  // избавимся от коротких имен
+  if(IsLocalPath(SrcFullName))
+  {
+    I=RawConvertShortNameToLongName(SrcFullName,SrcFullName,sizeof(SrcFullName));
+    _LOGCOPYR(SysLog("RawConvertShortNameToLongName() -> SrcFullName='%s'",SrcFullName));
+    if(!I || I>=sizeof(SrcFullName))
+      return 2;
+  }
+  if(IsLocalPath(DestFullName))
+  {
+    I=RawConvertShortNameToLongName(DestFullName,DestFullName,sizeof(DestFullName));
+    _LOGCOPYR(SysLog("RawConvertShortNameToLongName() -> DestFullName='%s'",DestFullName));
+    if(!I || I>=sizeof(DestFullName))
+      return 2;
+  }
+
+  _LOGCOPYR(SysLog("return LocalStricmp(SrcFullName,DestFullName)='%d'",LocalStricmp(SrcFullName,DestFullName)));
+  return LocalStricmp(SrcFullName,DestFullName)==0;
+}
+
+char *ShellCopy::GetParentFolder(const char *Src, char *Dest, int LenDest)
+{
+  char DestFullName[2048];
+  if (ConvertNameToReal(Src,DestFullName, sizeof(DestFullName)) >= sizeof(DestFullName))
+    return NULL;
+  char *Ptr=strrchr(DestFullName,'\\');
+  if(Ptr)
+    *Ptr=0;
+  strncpy(Dest,DestFullName,LenDest);
+  return Dest;
+}
 
 // Кусок для создания SymLink для каталогов.
 int ShellCopy::MkSymLink(const char *SelName,const char *Dest,DWORD Flags)
@@ -4581,18 +4802,6 @@ int ShellCopy::ShellSetAttr(const char *Dest,DWORD Attr)
   _LOGCOPYR(SysLog("return 1 -> %d",__LINE__));
   return TRUE;
   /* VVM $ */
-}
-
-BOOL ShellCopy::MoveFileThroughTemp(const char *Src, const char *Dest)
-{
-  char Temp[NM];
-  BOOL rc = FALSE;
-  if(FarMkTempEx(Temp, NULL, FALSE))
-  {
-    if(MoveFile(Src, Temp))
-      rc = MoveFile(Temp, Dest);
-  }
-  return rc;
 }
 
 BOOL ShellCopy::CheckNulOrCon(const char *Src)

@@ -3062,7 +3062,10 @@ disks. This feature is available only when "Use system copy routine" option in
 the ~System settings~@SystemSettings@ dialog is switched off.
 
     Option "Copy access rights" is valid only for the NTFS file system and
-allows the copying of file access information.
+allows the copying of file access information. This option is checked by
+default for copy and move operations. If this option is unchecked then
+after copying/moving the inheritable access rights of the parent folder
+will be applied to the copied/moved files and folders.
 
     Parameter "Only newer file(s)" will allow to copy (move) the new and
 updated files without additional prompts. Updated files are those files for

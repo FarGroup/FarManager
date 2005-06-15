@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.128 30.05.2005 $ */
+/* Revision: 1.129 14.06.2005 $ */
 
 /*
 Modify:
+  14.06.2005 SVS
+    + Opt.ShowTimeoutDACLFiles
   30.05.2005 SVS
     ! временно откатим проект про USB
   06.05.2005 SVS
@@ -949,6 +951,7 @@ struct Options
   int OnlyEditorViewerUsed; // =1, если старт был /e или /v
 
   DWORD ShowTimeoutDelFiles; // тайаут в процессе удаления (в ms)
+  DWORD ShowTimeoutDACLFiles;
   int DelThreadPriority; // приоритет процесса удаления, по умолчанию = THREAD_PRIORITY_NORMAL
 
   //int CPAJHefuayor; // производное от "Close Plugin And Jump:

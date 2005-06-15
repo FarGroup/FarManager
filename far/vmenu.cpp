@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.145 29.01.2005 $ */
+/* Revision: 1.146 14.06.2005 $ */
 
 /*
 Modify:
+  14.06.2005 SVS
+    - неучтенка ширины - про боттомтайтл забыли
   29.01.2005 WARP
     ! Небольшой cleanup (см. 01920.vmenu_dialog_cleanup.txt)
   27.12.2004 WARP
@@ -1564,7 +1566,7 @@ void VMenu::DeleteItems()
   ItemCount=0;
   SelectPos=-1;
   TopPos=0;
-  MaxLength=strlen(VMenu::Title)+2;
+  MaxLength=Max((int)strlen(VMenu::Title),(int)strlen(VMenu::BottomTitle))+2;
   if(MaxLength > ScrX-8)
     MaxLength=ScrX-8;
   /* $ 23.02.2002 DJ

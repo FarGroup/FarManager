@@ -5,10 +5,12 @@ farwinapi.cpp
 
 */
 
-/* Revision: 1.07 21.06.2004 $ */
+/* Revision: 1.08 14.06.2005 $ */
 
 /*
 Modify:
+  14.06.2005 SVS
+    + GetFileWin32FindData(), FAR_CopyFile(), FAR_CopyFileEx(), FAR_MoveFile(), FAR_MoveFileEx(), MoveFileThroughTemp()
   21.06.2004 SVS
     ! FAR_GetDriveType и IsDriveTypeCDROM умчали в cddrv.cpp
   14.06.2004 SVS
@@ -188,4 +190,86 @@ BOOL WINAPI FAR_CharToOem(LPCSTR lpszSrc,LPTSTR lpszDst)
   }
 #endif
   return CharToOem(lpszSrc,lpszDst);
+}
+
+BOOL GetFileWin32FindData(const char *Name,WIN32_FIND_DATA *FInfo)
+{
+  WIN32_FIND_DATA WFD_Info;
+
+  HANDLE FindHandle=FindFirstFile(Name,&WFD_Info);
+  if(FindHandle!=INVALID_HANDLE_VALUE)
+  {
+    FindClose(FindHandle);
+    if(FInfo)
+      memmove(FInfo,&WFD_Info,sizeof(WIN32_FIND_DATA));
+    return TRUE;
+  }
+  else if(FInfo)
+  {
+    memset(FInfo,0,sizeof(WIN32_FIND_DATA));
+    FInfo->dwFileAttributes=(DWORD)-1;
+  }
+  return FALSE;
+}
+
+
+BOOL FAR_CopyFile(
+    LPCTSTR lpExistingFileName, // pointer to name of an existing file
+    LPCTSTR lpNewFileName,  // pointer to filename to copy to
+    BOOL bFailIfExists  // flag for operation if file exists
+   )
+{
+  return CopyFile(lpExistingFileName,lpNewFileName,bFailIfExists);
+}
+
+BOOL FAR_CopyFileEx(LPCTSTR lpExistingFileName,
+            LPCTSTR lpNewFileName,void *lpProgressRoutine,
+            LPVOID lpData,LPBOOL pbCancel,DWORD dwCopyFlags)
+{
+  typedef BOOL (WINAPI *COPYFILEEX)(LPCTSTR lpExistingFileName,
+            LPCTSTR lpNewFileName,void *lpProgressRoutine,
+            LPVOID lpData,LPBOOL pbCancel,DWORD dwCopyFlags);
+  static COPYFILEEX pCopyFileEx=NULL;
+  static int LoadAttempt=FALSE;
+
+  if (!LoadAttempt && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
+  {
+    HMODULE hKernel=GetModuleHandle("KERNEL32.DLL");
+    if (hKernel)
+      pCopyFileEx=(COPYFILEEX)GetProcAddress(hKernel,"CopyFileExA");
+    IsFn_FAR_CopyFileEx=pCopyFileEx != NULL;
+    LoadAttempt=TRUE;
+  }
+  if(pCopyFileEx)
+    return pCopyFileEx(lpExistingFileName,lpNewFileName,lpProgressRoutine,lpData,pbCancel,dwCopyFlags);
+  return FALSE;
+}
+
+BOOL FAR_MoveFile(
+    LPCTSTR lpExistingFileName, // address of name of the existing file
+    LPCTSTR lpNewFileName   // address of new name for the file
+   )
+{
+  return MoveFile(lpExistingFileName,lpNewFileName);
+}
+
+BOOL FAR_MoveFileEx(
+    LPCTSTR lpExistingFileName, // address of name of the existing file
+    LPCTSTR lpNewFileName,   // address of new name for the file
+    DWORD dwFlags   // flag to determine how to move file
+   )
+{
+  return MoveFileEx(lpExistingFileName,lpNewFileName,dwFlags);
+}
+
+BOOL MoveFileThroughTemp(const char *Src, const char *Dest)
+{
+  char Temp[NM];
+  BOOL rc = FALSE;
+  if(FarMkTempEx(Temp, NULL, FALSE))
+  {
+    if(MoveFile(Src, Temp))
+      rc = MoveFile(Temp, Dest);
+  }
+  return rc;
 }

@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.60 18.12.2003 $ */
+/* Revision: 1.61 14.06.2005 $ */
 
 /*
 Modify:
+  14.06.2005 SVS
+    + IsFn_FAR_CopyFileEx
   18.12.2003 SVS
     + RightAltPressed,RightCtrlPressed,RightShiftPressed
   11.11.2003 SVS
@@ -308,3 +310,5 @@ const char *ReservedFilenameSymbols="<>|";
 
 int KeepUserScreen;
 char DirToSet[NM];
+
+BOOL IsFn_FAR_CopyFileEx=FALSE;

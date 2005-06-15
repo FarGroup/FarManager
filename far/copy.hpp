@@ -7,10 +7,16 @@ class ShellCopy - Копирование файлов
 
 */
 
-/* Revision: 1.26 22.09.2003 $ */
+/* Revision: 1.27 14.06.2005 $ */
 
 /*
 Modify:
+  14.06.2005 SVS
+    ! ShellCopy::MoveFileThroughTemp() стала самостоятельной функцией
+    + SetRecursiveSecurity() - "отсюда и ниже"
+    + GetParentFolder() - получить имя родительского каталога
+    + CmpFullPath() - сравнить пути, в отличии от CmpFullNames сравнивает только родительские пути до Src и Dest.
+    ! sddata - в динамику
   22.09.2003 SVS
     + FCOPY_UPDATEPPANEL необходимо обновить пассивную панель
     + CheckUpdatePanel(); выставляет флаг FCOPY_UPDATEPPANEL
@@ -140,7 +146,7 @@ class ShellCopy
     char   DestFSName[16];
     DWORD  DestFSFlags;
 
-    char sddata[16000]; // Security
+    char   *sddata; // Security
 
     DizList DestDiz;
     char DestDizPath[2*NM];
@@ -183,7 +189,6 @@ class ShellCopy
     int  ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
                        const char *DestName, DWORD DestAttr,int Append);
     int  ShellSystemCopy(const char *SrcName,const char *DestName,const WIN32_FIND_DATA &SrcData);
-    void ShellCopyMsg(const char *Src,const char *Dest,int Flags);
     int  ShellCopyConvertWildcards(const char *Src,char *Dest);
     int  DeleteAfterMove(const char *Name,int Attr);
     void SetDestDizPath(const char *DestPath);
@@ -192,21 +197,19 @@ class ShellCopy
                       int &Append,int &RetCode);
     int  GetSecurity(const char *FileName,SECURITY_ATTRIBUTES &sa);
     int  SetSecurity(const char *FileName,const SECURITY_ATTRIBUTES &sa);
+    int  SetRecursiveSecurity(const char *FileName,const SECURITY_ATTRIBUTES &sa);
     int  IsSameDisk(const char *SrcPath,const char *DestPath);
     bool CalcTotalSize();
+    char *GetParentFolder(const char *Src, char *Dest, int LenDest);
     int  CmpFullNames(const char *Src,const char *Dest);
+    int  CmpFullPath(const char *Src,const char *Dest);
     BOOL LinkRules(DWORD *Flags7,DWORD* Flags5,int* Selected5,char *SrcDir,char *DstDir,struct CopyDlgParam *CDP);
     int  ShellSetAttr(const char *Dest,DWORD Attr);
-    /* $ 25.05.2002 IS
-       Функция переименования файла, которая сработает даже для случая, когда
-       переименовываем самого в себя (на основе предложенного SVS способа -
-       обертка вокруг MoveFile). Возвращает TRUE - успех, FALSE - неудача.
-    */
-    BOOL MoveFileThroughTemp(const char *Src, const char *Dest);
-    /* IS $ */
 
     BOOL CheckNulOrCon(const char *Src);
     void CheckUpdatePanel(); // выставляет флаг FCOPY_UPDATEPPANEL
+
+    void ShellCopyMsg(const char *Src,const char *Dest,int Flags);
 
   public:
     ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,

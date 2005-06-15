@@ -5,10 +5,12 @@ plist.cpp
 
 */
 
-/* Revision: 1.15 01.03.2004 $ */
+/* Revision: 1.16 14.06.2005 $ */
 
 /*
 Modify:
+  14.06.2005 SVS
+    + SetBottomTitle()
   01.03.2004 SVS
     ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
       (задел на будущее + править впоследствии только 1 файл)
@@ -76,6 +78,7 @@ void ShowProcessList()
   if (!EnumWindows(EnumWindowsProc,(LPARAM)&ProcList))
     return;
   ProcList.AssignHighlights(FALSE);
+  ProcList.SetBottomTitle(MSG(MProcessListBottom));
   ProcList.Show();
 
   while (!ProcList.Done())

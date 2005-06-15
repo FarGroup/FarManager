@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.226 30.05.2005 $ */
+/* Revision: 1.227 14.06.2005 $ */
 
 /*
 Modify:
+  14.06.2005 SVS
+    + GetFileWin32FindData(), FAR_CopyFile(), FAR_CopyFileEx(), FAR_MoveFile(), FAR_MoveFileEx(), MoveFileThroughTemp()
   30.05.2005 SVS
     ! изменены FAR_GetDriveType и IsEjectableMedia
   06.05.2005 SVS
@@ -744,6 +746,29 @@ HANDLE WINAPI FAR_CreateFile(
     HANDLE hTemplateFile          // handle to file with attributes to copy
    );
 /* IS $ */
+
+BOOL GetFileWin32FindData(const char *Name,WIN32_FIND_DATA *FInfo=NULL);
+
+BOOL FAR_CopyFile(
+    LPCTSTR lpExistingFileName, // pointer to name of an existing file
+    LPCTSTR lpNewFileName,  // pointer to filename to copy to
+    BOOL bFailIfExists  // flag for operation if file exists
+   );
+
+BOOL FAR_CopyFileEx(LPCTSTR lpExistingFileName,
+            LPCTSTR lpNewFileName,void *lpProgressRoutine,
+            LPVOID lpData,LPBOOL pbCancel,DWORD dwCopyFlags);
+BOOL FAR_MoveFile(
+    LPCTSTR lpExistingFileName, // address of name of the existing file
+    LPCTSTR lpNewFileName   // address of new name for the file
+   );
+BOOL FAR_MoveFileEx(
+    LPCTSTR lpExistingFileName, // address of name of the existing file
+    LPCTSTR lpNewFileName,   // address of new name for the file
+    DWORD dwFlags   // flag to determine how to move file
+   );
+BOOL MoveFileThroughTemp(const char *Src, const char *Dest);
+
 
 void WINAPI SetFileApisTo(int Type);
 BOOL WINAPI FAR_OemToCharBuff(LPCSTR lpszSrc,LPTSTR lpszDst,DWORD cchDstLength);

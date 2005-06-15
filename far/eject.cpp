@@ -5,10 +5,13 @@ Eject съемных носителей
 
 */
 
-/* Revision: 1.16 30.05.2005 $ */
+/* Revision: 1.17 09.06.2005 $ */
 
 /*
 Modify:
+  09.06.2005 SVS
+    ! FAR_CreateFile - обертка для CreateFile, просьба использовать именно
+      ее вместо CreateFile
   30.05.2005 SVS
     ! Изменена IsEjectableMedia() - подправлены мозги.
     ! Изменена EjectVolume() - "умеет" плюгнутые девайсы (когда в
@@ -623,7 +626,7 @@ BOOL IsEjectableMedia(char Letter,UINT DriveType,BOOL ForceCDROM)
     char win_name[]="\\\\.\\?:";
     win_name[4]=Letter;
 
-    HANDLE h=CreateFile(win_name, 0, FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0, 0);
+    HANDLE h=FAR_CreateFile(win_name, 0, FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0, 0);
 
     if (h==INVALID_HANDLE_VALUE)
      return FALSE;

@@ -7,10 +7,12 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.41 28.04.2005 $ */
+/* Revision: 1.42 14.06.2005 $ */
 
 /*
 Modify:
+  14.06.2005 SVS
+    ! FileEditor::GetLastInfo() стала самостоятельной GetFileWin32FindData()
   28.04.2005 AY
     + Флаг FileEditor::bClosing который оповещяет что редактор закрываеться
       (т.е. в деструкторе). Нужен в EditorControl().
@@ -226,7 +228,6 @@ class FileEditor:public Frame
   private:
     void DisplayObject();
     int  ProcessQuitKey(int FirstSave,BOOL NeedQuestion=TRUE);
-    BOOL GetLastInfo(const char *Name,WIN32_FIND_DATA *FInfo);
     BOOL UpdateFileList();
     /* $ 10.10.2001 IS установка DeleteOnClose */
     /* $ 14.06.2002 IS

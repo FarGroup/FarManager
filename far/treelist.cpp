@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.70 06.05.2005 $ */
+/* Revision: 1.71 14.06.2005 $ */
 
 /*
 Modify:
+  14.06.2005 SVS
+    ! вызов ShellCopy "обволокем" скобками...
   06.05.2005 SVS
     ! ???::GetCurDir() теперь возвращает размер пути, при этом
       его параметр может быть равен NULL. Сделано для того, чтобы
@@ -1007,7 +1009,10 @@ int TreeList::ProcessKey(int Key)
         if(Key==KEY_ALTF6 && !Link) // молча отвалим :-)
           return TRUE;
 
-        ShellCopy ShCopy(this,Move,Link,FALSE,Ask,ToPlugin,NULL);
+        {
+          ShellCopy ShCopy(this,Move,Link,FALSE,Ask,ToPlugin,NULL);
+        }
+
         if (ToPlugin==1)
         {
           struct PluginPanelItem *ItemList=new PluginPanelItem[1];

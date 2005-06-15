@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.164 20.05.2005 $ */
+/* Revision: 1.165 14.06.2005 $ */
 
 /*
 Modify:
+  14.06.2005 SVS
+    ! FileEditor::GetLastInfo() стала самосто€тельной GetFileWin32FindData()
   20.05.2005 AY
     ! “еперь в диалоге SaveAs делаем ExpandEnvironmentStr() дл€ введенного пути.
   28.04.2005 AY
@@ -1555,24 +1557,8 @@ int FileEditor::ReadFile(const char *Name,int &UserBreak)
 {
   int Ret=FEdit->ReadFile(Name,UserBreak);
   SysErrorCode=GetLastError();
-  GetLastInfo(Name,&FileInfo);
+  GetFileWin32FindData(Name,&FileInfo);
   return Ret;
-}
-
-BOOL FileEditor::GetLastInfo(const char *Name,WIN32_FIND_DATA *FInfo)
-{
-  if(FInfo)
-  {
-    HANDLE FindHandle;
-    if ((FindHandle=FindFirstFile(Name,FInfo))!=INVALID_HANDLE_VALUE)
-    {
-      FindClose(FindHandle);
-      return TRUE;
-    }
-    else
-      memset(FInfo,0,sizeof(WIN32_FIND_DATA));
-  }
-  return FALSE;
 }
 
 // сюды плавно переносить код из Editor::SaveFile()
@@ -1616,7 +1602,7 @@ int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
     if(!Flags.Check(FFILEEDIT_SAVEWQUESTIONS))
     {
       WIN32_FIND_DATA FInfo;
-      if(GetLastInfo(Name,&FInfo) && *FileInfo.cFileName)
+      if(GetFileWin32FindData(Name,&FInfo) && *FileInfo.cFileName)
       {
         __int64 RetCompare=*(__int64*)&FileInfo.ftLastWriteTime - *(__int64*)&FInfo.ftLastWriteTime;
         if(RetCompare || !(FInfo.nFileSizeHigh == FileInfo.nFileSizeHigh && FInfo.nFileSizeLow  == FInfo.nFileSizeLow))
@@ -1822,7 +1808,7 @@ end:
   {
     SetFileAttributes(Name,FileAttributes|FA_ARCH);
   }
-  GetLastInfo(FullFileName,&FileInfo);
+  GetFileWin32FindData(FullFileName,&FileInfo);
 
   if (FEdit->Flags.Check(FEDITOR_MODIFIED) || NewFile)
     FEdit->Flags.Set(FEDITOR_WASCHANGED);

@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.184 30.05.2005 $ */
+/* Revision: 1.185 14.06.2005 $ */
 
 /*
 Modify:
+  14.06.2005 SVS
+    + Opt.ShowTimeoutDACLFiles
   30.05.2005 SVS
     ! временно откатим проект про USB
   06.05.2005 SVS
@@ -1588,6 +1590,7 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeyInterface, "AltF9",&Opt.AltF9, -1, 0},
   {1, REG_DWORD,  NKeyInterface, "CtrlPgUp",&Opt.PgUpChangeDisk, 1, 0},
   {0, REG_DWORD,  NKeyInterface, "ShowTimeoutDelFiles",&Opt.ShowTimeoutDelFiles, 50, 0},
+  {0, REG_DWORD,  NKeyInterface, "ShowTimeoutDACLFiles",&Opt.ShowTimeoutDACLFiles, 50, 0},
 
   {1, REG_SZ,     NKeyViewer,"ExternalViewerName",Opt.ExternalViewer,sizeof(Opt.ExternalViewer),""},
   {1, REG_DWORD,  NKeyViewer,"UseExternalViewer",&Opt.UseExternalViewer,0, 0},

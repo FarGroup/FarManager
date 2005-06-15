@@ -5,10 +5,13 @@ cddrv.cpp
 
 */
 
-/* Revision: 1.05 30.05.2005 $ */
+/* Revision: 1.06 09.06.2005 $ */
 
 /*
 Modify:
+  09.06.2005 SVS
+    ! FAR_CreateFile - обертка для CreateFile, просьба использовать именно
+      ее вместо CreateFile
   30.05.2005 SVS
     ! временно откатим проект про USB
   06.05.2005 SVS
@@ -673,7 +676,7 @@ UINT FAR_GetDriveType(LPCTSTR RootDir,CDROM_DeviceCaps *Caps,DWORD Detect)
     szVolumeName[4]=*RootDir;
 
     //get a handle to the device
-    HANDLE hDevice = CreateFile(szVolumeName,GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
+    HANDLE hDevice = FAR_CreateFile(szVolumeName,GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
 
     if (hDevice != INVALID_HANDLE_VALUE)
     {

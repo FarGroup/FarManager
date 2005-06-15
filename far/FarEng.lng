@@ -253,6 +253,7 @@
 "&Link"
 "Total"
 "Scanning folders..."
+"Applying access rights..."
 "&Use filter"
 "Filt&er"
 
@@ -939,7 +940,7 @@
 "edit %s"
 
 "Filter"
-"Select: '+','-',Space. Edit: Ins,Del,F4"
+"Select: '+','-',Space. Edit: Del,Ins,F4"
 "<no custom filters defined>"
 "Panel file type"
 "Only custom filter can be edited"
@@ -1254,6 +1255,7 @@
 "Copy %s"
 
 "Task list"
+"Edit: Del,Ctrl-R"
 "Kill task"
 "Do you wish to kill selected task?"
 "You will lose any unsaved information in this program"
@@ -1443,6 +1445,7 @@
 // <...menu (Registry)>
 "Registry"
 "Local menu"
+"Edit: Del,Ins,F4"
 "Do you wish to delete the menu item"
 "Do you wish to delete the submenu"
 "Invalid format for UserMenu Label!"

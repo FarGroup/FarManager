@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.59 25.04.2005 $ */
+/* Revision: 1.60 14.06.2005 $ */
 
 /*
 Modify:
+  14.06.2005 SVS
+    + IsFn_FAR_CopyFileEx
   24.04.2005 AY
     ! GCC
   18.12.2003 SVS
@@ -311,5 +313,7 @@ extern const char *ReservedFilenameSymbols;
 
 extern int KeepUserScreen;
 extern char DirToSet[NM];
+
+extern BOOL IsFn_FAR_CopyFileEx;
 
 #endif  // __FARGLOBAL_HPP__

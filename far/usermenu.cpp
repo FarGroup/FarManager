@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.69 25.04.2005 $ */
+/* Revision: 1.70 14.06.2005 $ */
 
 /*
 Modify:
+  14.06.2005 SVS
+    + SetBottomTitle()
   24.04.2005 AY
     ! GCC
   26.02.2005 SVS
@@ -764,6 +766,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
       /* KM $ */
       UserMenu.SetHelp("UserMenu");
       UserMenu.SetPosition(-1,-1,0,0);
+      UserMenu.SetBottomTitle(MSG(MMainMenuBottomTitle));
 
 //      NumLine=FillUserMenu(UserMenu,MenuKey,MenuPos,FuncPos,Name,ShortName);
 
