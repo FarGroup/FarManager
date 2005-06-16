@@ -120,7 +120,7 @@ the main help file, that is actual for the current FAR Manager version.
    commands, viewed and edited files.
    The default value is 64 positions.
 
-1.1.9 (TechInfo #64)
+1.1.9.(TechInfo #64)
 ~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\Interface]
    "ShowTimeoutDelFiles":REG_DWORD
@@ -130,7 +130,7 @@ the main help file, that is actual for the current FAR Manager version.
    is updated less often which speeds up the deletion process itself.
    The default value is 50 ms.
 
-1.1.10 (TechInfo #65)
+1.1.10.(TechInfo #65)
 ~~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\Interface]
    "ShowTimeoutDACLFiles":REG_DWORD

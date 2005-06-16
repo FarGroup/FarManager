@@ -119,7 +119,7 @@ I. FAR Manager: дополнительные настройки.
    просмотренных и отредактированных файлов.
    ѕо умолчанию значение = 64 позиции.
 
-1.1.9 (TechInfo #64)
+1.1.9.(TechInfo #64)
 ~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\Interface]
    "ShowTimeoutDelFiles":REG_DWORD
@@ -129,7 +129,7 @@ I. FAR Manager: дополнительные настройки.
    и тем быстрее проходит этот самый процесс удалени€.
    ѕо умолчанию значение = 50 мс.
 
-1.1.10 (TechInfo #65)
+1.1.10.(TechInfo #65)
 ~~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\Interface]
    "ShowTimeoutDACLFiles":REG_DWORD
