@@ -1,0 +1,18 @@
+REGEDIT4
+
+[HKEY_LOCAL_MACHINE\Software\Far\Plugins\MultiArc\ZIP]
+"Extract"="unzip -o {-P %%P} %%A %%FMQS32768"
+"ExtractWithoutPath"="unzip -o -j {-P %%P} %%A %%FMQS32768"
+"Test"="unzip -t %%A"
+"Delete"="zip -d {-b %%W} %%A %%FMQS32768"
+"Comment"="zip -z {-b %%W} %%A"
+"CommentFiles"="zip -c -r {-b %%W} %%A %%FNMQS32768"
+"SFX"=""
+"Lock"=""
+"Protect"=""
+"Recover"="zip -FF %%A"
+"Add"="zip -S {-b %%W} {-P %%P} {%%S} %%A %%FQS32768"
+"Move"="zip -m -S {-b %%W} {-P %%P} {%%S} %%A %%FQS32768"
+"AddRecurse"="zip -r -S {-b %%W} {-P %%P} {%%S} %%A %%FNMQS32768"
+"MoveRecurse"="zip -m -r -S {-b %%W} {-P %%P} {%%S} %%A %%FNMQS32768"
+"AllFilesMask"="*"

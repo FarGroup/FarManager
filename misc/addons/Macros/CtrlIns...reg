@@ -1,0 +1,10 @@
+REGEDIT4
+
+;если нажали CtrlIns на .. и если ком строка не пуста то помещаем в буфер обмена
+;путь к папке в которой находимся
+
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlIns]
+"Sequence"="$If (APanel.Bof && !APanel.Selected && !APanel.Root) F7 CtrlShift[ CtrlIns Esc $Exit $Else CtrlIns $End"
+"DisableOutput"=dword:00000001
+"EmptyCommandLine"=dword:00000001
+"NoPluginPanels"=dword:00000001

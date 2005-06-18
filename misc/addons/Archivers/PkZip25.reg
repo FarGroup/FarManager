@@ -1,0 +1,18 @@
+REGEDIT4
+
+[HKEY_LOCAL_MACHINE\Software\Far\Plugins\MultiArc\ZIP]
+"Extract"="pkzip25 -ext -dir -over=all -nozip -mask=none -times=mod {-pass=%%P} %%A @%%LNMA"
+"ExtractWithoutPath"="pkzip25 -ext -over=all -nozip -mask=none -times=mod {-pass=%%P} %%A @%%LNMA"
+"Test"="pkzip25 -test=all -nozip {-pass=%%P} %%A"
+"Delete"="pkzip25 -delete -nozip {-temp=%%W} %%A @%%LNMA"
+"Comment"="pkzip25 -hea -nozip {-temp=%%W} %%A"
+"CommentFiles"="pkzip25 -com=all -nozip {-temp=%%W} %%A"
+"SFX"="pkzip25 -sfx -nozip %%A"
+"Lock"=""
+"Protect"=""
+"Recover"="%comspec% /c echo.|pkzip25 -fix -nozip %%A"
+"Add"="pkzip25 -add -attr=all -nozip {-pass=%%P} {-temp=%%W} %%A @%%LNMA"
+"Move"="pkzip25 -add -move -attr=all -nozip {-pass=%%P} {-temp=%%W} %%A @%%LNMA"
+"AddRecurse"="pkzip25 -add -attr=all -dir -nozip {-pass=%%P} {-temp=%%W} %%A @%%LNMA"
+"MoveRecurse"="pkzip25 -add -move -attr=all -dir -nozip {-pass=%%P} {-temp=%%W} %%A @%%LNMA"
+"AllFilesMask"="*.*"
