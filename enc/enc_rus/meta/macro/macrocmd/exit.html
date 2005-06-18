@@ -1,0 +1,63 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>$Exit - Макросы</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+</head>
+
+<body>
+
+<h1>$Exit</h1>
+<div class="navbar">
+<a href="../../index.html">главная</a> |
+<a href="../index.html">Макросы</a> |
+<a href="index.html">Макроязык</a> |
+<a href="cmds.html">Макрокоманды</a>
+</div>
+
+<p class="note"><img src="../../../images/note.gif" alt="ВНИМАНИЕ!" width="10" height="10"> ВНИМАНИЕ!</p>
+<ul class="note">
+  <li>Элементы макроязыка невозможно использовать во время <a href="../macrokey/record.html">записи
+    макроса</a> стандартным образом. Добавить элементы языка в макрос можно только путем ручной
+    правки реестра или путем применения специальных программ/плагинов.</li>
+</ul>
+
+<div class=shortdescr>
+Оператор <dfn>$Exit</dfn> прерывает выполнение макропоследовательности.
+</div>
+
+<pre class=syntax>
+<dfn>$Exit</dfn>
+</pre>
+
+<h3>Параметры</h3>
+<div class=descr>
+Нет.
+</div>
+
+
+<h3>Пример</h3>
+<div class=descr>
+<pre class=code>REGEDIT4
+
+;удаление выделенных символов в командной строке
+
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Common\ShiftDel]
+"Sequence"="$If (Qview || Shell)
+$If (!APanel.Visible) ShiftDel $Exit $End CtrlO ShiftDel CtrlO
+$Else ShiftDel $End"
+"DisableOutput"=dword:00000001
+"NotEmptyCommandLine"=dword:00000001
+</pre>
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="../examples.html">Примеры</a>
+</div>
+
+
+</body>
+
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>FarMenuItem</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+
+<body>
+
+<h1>FarMenuItem</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a  href="index.html">структуры</a><br>
+</div>
+
+<div class=shortdescr>
+Структура <dfn>FarMenuItem</dfn> описывает один пункт меню. Массив этих
+структур передается в функцию <a href="../service_functions/menu.html">Menu</a>.
+</div>
+
+<pre class=syntax>
+struct FarMenuItem
+{
+  char Text[128];
+  int Selected;
+  int Checked;
+  int Separator;
+};
+</pre>
+<h3>Элементы</h3>
+<div class=descr>
+    <div class=dfn>Text</div>
+    <div class=dfndescr>Текст пункта меню.</div>
+
+    <div class=dfn>Selected</div>
+    <div class=dfndescr>Флаг активности пункта меню. Только один пункт может быть активным.</div>
+
+    <div class=dfn>Checked</div>
+    <div class=dfndescr>Если не равно нулю, перед текстом отображается метка выбора.
+     Если <i>Checked</i> равно 1, то отображается стандартная метка,
+     если больше 1 - значение <i>Checked</i> используется как символ метки.</div>
+
+    <div class=dfn>Separator</div>
+    <div class=dfndescr>Если не равно нулю, то пункт меню
+     отображается как разделитель. Остальные компоненты структуры (например, <var>Text</var>)
+     игнорируется.
+    </div>
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+  <p>  Поскольку переменная <i>FarMenuItem.Text</i> имеет большой размер, прямая
+  инициализация массива <dfn>FarMenuItem</dfn>, может заметно увеличить
+  потребление памяти. Для сокращения потребления памяти можно воспользоваться
+  нестандартной структурой <a href="../addons/structures/initmenuitem.html">InitMenuItem</a>.</p>
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="index.html">структуры</a> |
+<a href="../addons/structures/initmenuitem.html">InitMenuItem</a> |
+<a href="../delphi/tfarmenuitem.html">TFarMenuItem</a> |
+<a href="farmenuitemex.html">FarMenuItemEx</a>
+</div>
+
+</body>
+</html>

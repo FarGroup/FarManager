@@ -1,0 +1,232 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>Функции - Макросы</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+</head>
+
+<body>
+
+<h1>Функции</h1>
+<div class="navbar">
+<a href="../../index.html">главная</a> |
+<a href="../index.html">Макросы</a> |
+<a href="index.html">Макроязык</a>
+</div>
+
+<p>В макроязыке используются специальные функции.
+
+<p class="note"><img src="../../../images/note.gif" alt="ВНИМАНИЕ!" width="10" height="10"> ВНИМАНИЕ!</p>
+<ul class="note">
+  <li>Элементы макроязыка невозможно использовать во время <a href="../macrokey/record.html">записи
+    макроса</a> стандартным образом. Добавить элементы языка в макрос можно только путем ручной
+    правки реестра или путем применения специальных программ/плагинов.</li>
+</ul>
+
+
+
+<h3>Функции</h3>
+<p>В макропоследовательности допускаются следующие функции:
+<table class="cont">
+  <tr class="cont">
+    <th class="cont" width="40%">Функция</th>
+    <th class="cont" width="60%">Описание</th>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%"><a name="abs">N=<dfn>abs</dfn>(N)</a></td>
+    <td class="cont" width="60%">Возвращает абсолютную величину числового аргумента <em>N</em>.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%"><a name="max">N=<dfn>max</dfn>(N1,N2)</a></td>
+    <td class="cont" width="60%">Возвращает максимальное значение между двумя числовыми аргументами <em>N1</em> и <em>N2</em>.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%"><a name="min">N=<dfn>min</dfn>(N1,N2)</a></td>
+    <td class="cont" width="60%">Возвращает минимальное значение между двумя числовыми аргументами <em>N1</em> и <em>N2</em>.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%"><a name="iif">V=<dfn>iif</dfn>(Cond,True,False)</a></td>
+    <td class="cont" width="60%">Условный оператор. Если условие <em>Cond</em> верно,
+      то возвращается <em>True</em>-выражение, иначе <em>False</em>-выражение.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%"><a name="index">N=<dfn>index</dfn>(S1,S2)</a></td>
+    <td class="cont" width="60%">Если подстрока <em>S2</em> содержится в строке <em>S1</em>,
+      то возвращается ее позиция, иначе -1.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%"><a name="rindex">N=<dfn>rindex</dfn>(S1,S2)</a></td>
+    <td class="cont" width="60%">Если подстрока <em>S2</em> содержится в строке <em>S1</em>,
+      то возвращается ее позиция, иначе -1. Поиск ведется от конца строки <em>S1</em>.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%"><a name="int">N=<dfn>int</dfn>(V)</a></td>
+    <td class="cont" width="60%">Приведение значения выражения <em>V</em> к числу.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%"><a name="itoa">S=<dfn>itoa</dfn>(N,Radix)</a></td>
+    <td class="cont" width="60%">Конвертирует целое число <em>N</em> в строку.
+    Значение <em>Radix</em> определяет базу, которая должна использоваться при
+    преобразовании числа <em>N</em>. Допустимые значения <em>Radix</em> от 2 до 36.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%"><a name="len">N=<dfn>len</dfn>(V)</a></td>
+    <td class="cont" width="60%">Возвращает длину выражения <em>V</em>. Числовое
+      значение выражения <em>V</em> приводится к строке, после чего
+      вычисляется длина строки).</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%"><a name="string">S=<dfn>string</dfn>(V)</a></td>
+    <td class="cont" width="60%">Перевод значения выражения <em>V</em> в строку.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%"><a name="substr">S=<dfn>substr</dfn>(V,N1,N2)</a></td>
+    <td class="cont" width="60%">Возвращает подстроку из выражения <em>V</em>
+      начиная с позиции <em>N1</em> длинной <em>N2</em>.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%"><a name="checkhotkey">N=<dfn>checkhotkey</dfn>(S)</a></td>
+    <td class="cont" width="60%">Возвращает 1, если в меню присутствует горячая
+      клавиша <em>S</em> и текущий &quot;объект&quot; - меню. В противном
+      случае возвращает 0.
+      <p>Например, в меню вызова плагинов (F11) плагину S&amp;R назначена
+      горячая клавиша '7'. Последовательность макрокоманды для
+      редактора:<br>
+      <code>F11 $if (checkhotkey(&quot;7&quot;)) 7 1 $else Esc AltF7 $end</code><br>
+      вызовет плагин, если хоткей назначен или стандартный диалог
+      поиска, если хоткей не назначен.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%"><a name="env">S=<dfn>env</dfn>(V)</a></td>
+    <td class="cont" width="60%">Возвращает значение переменной среды V,
+      например,<br>
+      <code>$if (Env(&quot;FARLANG&quot;) == &quot;English&quot;) <em>что-то делаем</em> $end</code></td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%"><a name="fsplit">S=<dfn>fsplit</dfn>(path,N)</a></td>
+    <td class="cont" width="60%">Разбивает путь <em>path</em> на компоненты и возвращает их комбинацию, в
+     зависимости от набора флагов <em>N</em>:
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="10%">Флаги</th><th class="cont" width="90%">Описание</th></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000001</td><td class="cont" width="90%">Текущий диск в формате "C:".<br>Для сетевых каталогов - "\\server\share"</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000002</td><td class="cont" width="90%">Путь в формате "\Program Files\Far\"</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000004</td><td class="cont" width="90%">Имя</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000008</td><td class="cont" width="90%">Расширение в формате ".EXT" или пусто, если расширения нет.</td></tr>
+       </table>
+    </td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%"><a name="fexist">N=<dfn>fexist</dfn>(S)</a></td>
+    <td class="cont" width="60%">Проверяет существование файла/каталога <em>S</em>
+      (возвращает 0 или 1).<br>
+      Для относительного пути <em>S</em> проверка ведется на активной панели.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%"><a name="fattr">N=<dfn>fattr</dfn>(S)</a></td>
+    <td class="cont" width="60%">Возвращает файловые атрибуты файла/каталога <em>S</em>
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="10%">Атрибут</th><th class="cont" width="90%">Описание</th></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000001</td><td class="cont" width="90%">FILE_ATTRIBUTE_READONLY. Файл только для чтения. Приложения могут читать такой файл, но не могут записывать или удалять его.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000002</td><td class="cont" width="90%">FILE_ATTRIBUTE_HIDDEN. Файл скрыт. Такой файл не включается в обычный листинг каталога.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000004</td><td class="cont" width="90%">FILE_ATTRIBUTE_SYSTEM. Этот файл - часть операционной системы.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000010</td><td class="cont" width="90%">FILE_ATTRIBUTE_DIRECTORY. Это каталог.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000020</td><td class="cont" width="90%">FILE_ATTRIBUTE_ARCHIVE. Это архивный файл. Приложения должны использовать этот флаг для копирования, архивирования или удаления.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000080</td><td class="cont" width="90%">FILE_ATTRIBUTE_NORMAL. У этого файла не установлены другие атрибуты. Это значение корректно только при использовании без остальных флагов.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000100</td><td class="cont" width="90%">FILE_ATTRIBUTE_TEMPORARY. Это временный файл. Приложения должны записывать в такой файл только в крайней необходимости. Большая часть данных файла находится в памяти и не сбрасывается на диск, так как файл будет удален.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000200</td><td class="cont" width="90%">FILE_ATTRIBUTE_SPARSE_FILE. Файл является т.н. "Sparse file".</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000400</td><td class="cont" width="90%">FILE_ATTRIBUTE_REPARSE_POINT. Каталог является символической связью.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000800</td><td class="cont" width="90%">FILE_ATTRIBUTE_COMPRESSED. Файл или каталог сжат. Для файла это означает, что все данные его сжаты, для каталога - что компрессия по умолчанию применяется ко всем его файлам и подкаталогам.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00001000</td><td class="cont" width="90%">FILE_ATTRIBUTE_OFFLINE. Данные файла не доступны непосредственно. Означает, что реальные данные файла были физически перемещены на устройства хранения.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00004000</td><td class="cont" width="90%">FILE_ATTRIBUTE_ENCRYPTED. Файл или каталог зашифрован. Для файла, это означает, что все данные в файле зашифрованы. Для директория, это означает, что шифрование является умолчанием для вновь созданных файлов и подкаталогов.</td></tr>
+       </table>
+       если файловый объект не существует, функция возвращает -1.<br>
+       Для относительного пути <em>S</em> проверка ведется на активной панели.
+    </td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%"><a name="date">S=<dfn>date</dfn>(format)</a></td>
+    <td class="cont" width="60%">Возвращает текущую дату/время по формату <em>format</em>
+      (описание <em>format</em> см. в $Date).<br>
+      Функция аналогична макрокоманде $Date, но используется в
+      выражениях. Строковый аргумент <em>format</em> в отличии от
+      макрокоманды $Date обязателен.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%"><a name="xlat">S=<dfn>xlat</dfn>(S)</a></td>
+    <td class="cont" width="60%">Возвращает транслитерируемую строку<br>
+      Функция аналогична макрокоманде $XLat, но используется в
+      выражениях. Строковый аргумент <em>S</em> обязателен.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%"><a name="msgbox">N=<dfn>msgbox</dfn>(Title,Text,Flags)</a></td>
+    <td class="cont" width="60%">
+      Показывает сообщение <em>Text</em> с заголовком <em>Title</em>.
+      В параметре <em>Text</em> строки разбиваются символом '\n'.<br>
+      <em>Flags</em> может быть набором следующих значений:
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="10%">Flags</th><th class="cont" width="90%">Описание</th></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000001</td><td class="cont" width="90%">Используются цвета "Предупреждения" (обычно белые буквы на красном фоне).</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000008</td><td class="cont" width="90%">Показать сообщение двумя строками ниже.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000010</td><td class="cont" width="90%">Использовать для строк сообщения выравнивание влево (по умолчанию строки выводятся по центру).</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00010000</td><td class="cont" width="90%">Выводится кнопка &lt;Ok&gt;</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00020000</td><td class="cont" width="90%">Выводятся кнопки &lt;Ok&gt; и &lt;Cancel&gt;</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00030000</td><td class="cont" width="90%">Выводятся кнопки &lt;Abort&gt;, &lt;Retry&gt; и &lt;Ignore&gt;</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00040000</td><td class="cont" width="90%">Выводятся кнопки &lt;Yes&gt; и &lt;No&gt;</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00050000</td><td class="cont" width="90%">Выводятся кнопки &lt;Yes&gt;, &lt;No&gt; и &lt;Cancel&gt;</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00060000</td><td class="cont" width="90%">Выводятся кнопки &lt;Retry&gt; и &lt;Cancel&gt;</td></tr>
+       </table>
+       Если параметр <em>Flags</em> равен 0, то выводится стандартный диалог с кнопкой &lt;Ok&gt;<br>
+       Функция возвращает -1, если пользователь отменил сообщение или выбранный номер кнопки
+       (для первой кнопки - 0, для второй - 1 и так далее).
+    </td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%"><a name="lcase">S=<dfn>lcase</dfn>(S)</a></td>
+    <td class="cont" width="60%">Преобразует строку <em>S</em> в нижний регистр.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%"><a name="ucase">S=<dfn>ucase</dfn>(S)</a></td>
+    <td class="cont" width="60%">Преобразует строку <em>S</em> в верхний регистр.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%"><a name="panelitem">V=<dfn>panelitem</dfn>(typePanel,Index,TypeInfo)</a></td>
+    <td class="cont" width="60%">Возвращает различную информацию для элемента панели <em>Index</em>
+      из активной (<em>typePanel</em>=0) или пассивной (<em>typePanel</em>=1) панели. <em>TypeInfo</em> может быть
+      одним из следующих значений:
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="10%">Значение</th><th class="cont" width="10%">Тип</th><th class="cont" width="80%">Описание</th></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Имя файла/каталога</td></tr>
+        <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Короткое имя</td></tr>
+        <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Файловые атрибуты</td></tr>
+        <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Дата/время создания</td></tr>
+        <tr class="cont"><td class="cont" width="10%">4</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Дата/время последнего доступа</td></tr>
+        <tr class="cont"><td class="cont" width="10%">5</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Дата/время модификации</td></tr>
+        <tr class="cont"><td class="cont" width="10%">6</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Размер (ст.слово)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Размер (мл.слово)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">8</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Упакованный размер (ст.слово)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">9</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Упакованный размер (мл.слово)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">10</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">"Выделен?"</td></tr>
+        <tr class="cont"><td class="cont" width="10%">11</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Количество линков</td></tr>
+        <tr class="cont"><td class="cont" width="10%">12</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">SortGroup</td></tr>
+        <tr class="cont"><td class="cont" width="10%">13</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Diz-текст</td></tr>
+        <tr class="cont"><td class="cont" width="10%">14</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Владелец</td></tr>
+        <tr class="cont"><td class="cont" width="10%">15</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">CRC32</td></tr>
+       </table>
+       Дата/время возвращается в формате DD.MM.YYYY HH:MM:SS. Разделители и порядок в дате зависят от региональных настроек.
+    </td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%"><a name="msave">B=<dfn>msave</dfn>(S)</a></td>
+    <td class="cont" width="60%">Сохраняет значение глобальной переменной с именем <em>S</em> в область <dfn>Vars</dfn>.
+     В случае неудачи возвращает 0.<br>
+     Например, <pre class=code>%%GlobalVars="Foo Bar"; %a=msave("%%GlobalVars");</pre>
+    </td>
+  </tr>
+</table>
+
+
+</body>
+
+</html>
