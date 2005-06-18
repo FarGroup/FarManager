@@ -1,0 +1,116 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>DlgProc</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+
+<body>
+
+<h1>DlgProc</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a href="index.html">Dialog API</a> |
+<a href="dmsg/index.html">Events and Messages</a><br>
+</div>
+
+<div class=shortdescr>
+In a plugin there must be a dialog callback function, which is responsible for processing events
+and messages sent to the dialog. The function has four parameters: dialog handle, message
+and two additional parameters.
+<p>Dialog handler function syntax is presented here, as it should appear in a plugin.
+</div>
+
+<pre class=syntax>
+long WINAPI DlgProc(
+  HANDLE hDlg,
+  int    Msg,
+  int    Param1,
+  long   Param2
+);
+</pre>
+
+<h3>Parameters</h3>
+<div class=descr>
+  <div class=dfn>hDlg</div>
+  <div class=dfndescr>Dialog handle</div>
+
+  <div class=dfn>Msg</div>
+  <div class=dfndescr>One of <a href="dmsg/index.html">events or messages</a>.</div>
+
+  <div class=dfn>Param1</div>
+  <div class=dfndescr>Parameter 1</div>
+
+  <div class=dfn>Param2</div>
+  <div class=dfndescr>Parameter 2</div>
+</div>
+
+<h3>Return value</h3>
+<div class=descr>
+  The <dfn>DlgProc</dfn> function return value depends on the <dfn>Msg</dfn> parameter.
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+<p>Sometimes information contained in <dfn>Param1</dfn> and <dfn>Param2</dfn>
+consists of two parts, which are placed in two 16-bit words, composing each parameter. There're two
+macros defined in Windows to provide access to each part of <dfn>Param1</dfn> and <dfn>Param2</dfn>
+- <a href="win32/LOWORD">LOWORD</a> and <a href="win32/HIWORD">HIWORD</a>.<br>
+They return high-order and low-order words respectively from long int 32-bit value.<br>
+</div>
+
+<h3>Example</h3>
+<div class=descr>
+Dialog handler code fragment for Reversi game:
+<pre class=code>long WINAPI ReversiDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2)
+{
+  struct FarDialogItem DialogItem;
+  struct FarListItem *ListItems;
+  int i;
+
+  switch(Msg)
+  {
+    case DN_INITDIALOG:
+      // Get information about the element
+      Info.SendDlgMessage(hDlg,DM_GETDLGITEM,75,(long)&amp;DialogItem);
+      ListItems=DialogItem.ListItems-&gt;Items;
+      ...
+      NewGame(hDlg);
+      return FALSE;
+
+    case DN_HELP:
+    {
+      // Show different help topics depending on game move
+      static char *Help[3]={"Contents","Rule","Recommendations"};
+      if(NumPl1==2 &amp;&amp; NumPl2 == 2)
+        i=0;
+      else if(NumPl1+NumPl2 &gt; 16)
+        i=2;
+      else
+        i=1;
+      return (long)(Help[i]);
+    }
+    ...
+
+    case DM_CLOSE:
+      // Check the element with which the user tries to close the dialog
+      if(Param1 != 10 &amp;&amp; Param1 &gt; 0)
+        return FALSE;  // one can't close the dialog
+      break;
+  }
+
+  // Let the Dialog Manager process other events and messages
+  return Info.DefDlgProc(hDlg,Msg,Param1,Param2);
+}</pre>
+</div>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="defdlgproc.html">DefDlgProc</a>,
+<a href="dialogex.html">DialogEx</a>,
+<a href="senddlgmessage.html">SendDlgMessage</a>
+</div>
+
+</body>
+</html>

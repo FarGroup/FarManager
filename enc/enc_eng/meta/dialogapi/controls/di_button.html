@@ -1,0 +1,159 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>DI_BUTTON</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>DI_BUTTON</h1>
+<div class=navbar>
+<a href="../../index.html">main</a> |
+<a href="../index.html">Dialog API</a> |
+<a href="index.html">Dialog items</a><br>
+</div>
+
+<div class=shortdescr>The <dfn>DI_BUTTON</dfn> dialog item describes a Push Button control.
+</div>
+
+<pre class=syntax>
+struct FarDialogItem
+{
+  int Type          = <b>DI_BUTTON</b>
+  int X1            = <b>X</b>
+  int Y1            = <b>Y</b>
+  int X2            = <b>0</b> (not used in Dialog API 1.0)
+  int Y2            = <b>0</b> (not used in Dialog API 1.0)
+  int Focus         = <b>Focus</b>
+  int Selected      = <b>Selected</b>
+  DWORD Flags       = <b>Flags</b>
+  int DefaultButton = <b>DefaultButton</b>
+  char Data[512]    = <b>Button caption</b>
+};
+</pre>
+
+<p class=note><img src="../../../images/note.gif" alt="Attention!" width="10" height="10"> Attention!</p>
+<UL class=note>
+  <LI>This is an exemplary structure; read full description <a href="../structures/fardialogitem.html">here</a>.</LI>
+</UL>
+
+<h3>Focus</h3>
+<div class=descr>
+Keyboard focus flag.</div>
+
+<h3>Selected</h3>
+<div class=descr>
+If the button had focus when the user pressed &lt;Enter&gt; this field is set to 1.
+</div>
+
+<h3>Flags</h3>
+<div class=descr>
+There are several flags applicable to the <dfn>DI_BUTTON</dfn> item:<br>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Flag</th><th class="cont" width="60%">Description</th></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_btnnoclose.html">DIF_BTNNOCLOSE</a></td>
+<td class="cont" width="60%">Disables dialog closing after pressing the button.</td>
+</tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_centergroup.html">DIF_CENTERGROUP</a></td>
+<td class="cont" width="60%"><p>Sequential items having this flag set and equal vertical
+  coordinates will be horizontally centered in the dialog. Their X1 and X2 coordinates are ignored.
+  Useful for centering button groups.</p>
+  </td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_nobrackets.html">DIF_NOBRACKETS</a></td>
+<td class="cont" width="60%">Display button titles without brackets.</td>
+</tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_setcolor.html">DIF_SETCOLOR</a></td>
+<td class="cont" width="60%">The low byte of Flags will be used as the item color.</td>
+</tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_disable.html">DIF_DISABLE</a></td>
+<td class="cont" width="60%">Disables user access to the control.</td>
+</tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a></td>
+<td class="cont" width="60%">The dialog item cannot receive keyboard focus, but can handle other user events.</td>
+</tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_showampersand.html">DIF_SHOWAMPERSAND</a></td>
+<td class="cont" width="60%">Show ampersand symbol in caption instead of using it for defining hotkeys.</td>
+</tr>
+</table>
+</div>
+
+<h3>Event</h3>
+<div class=descr>
+
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Event</th><th class="cont" width="60%">Description</th></tr>
+
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a></td>
+ <td class="cont" width="60%">This event is sent to the dialog callback function just before the button
+   control is drawn.</td>
+ </tr>
+
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_ctlcolordlgitem.html">DN_CTLCOLORDLGITEM</a></td>
+ <td class="cont" width="60%">The plugin should pass the color attributes of the button when this event
+   arrives.  Param2 argument (foreground+background):
+   <pre>LoWord LoByte - color of the caption
+                (<a href="../../defs/farcolors.html#COL_WARNDIALOGBUTTON">COL_WARNDIALOGBUTTON</a> or
+     <a href="../../defs/farcolors.html#COL_DIALOGBUTTON">COL_DIALOGBUTTON</a>)
+LoWord HiByte - color of highlighted text
+                (<a href="../../defs/farcolors.html#COL_WARNDIALOGHIGHLIGHTBUTTON">COL_WARNDIALOGHIGHLIGHTBUTTON</a> or
+     <a href="../../defs/farcolors.html#COL_DIALOGHIGHLIGHTBUTTON">COL_DIALOGHIGHLIGHTBUTTON</a>)
+
+Param2, when the button has focus:
+
+LoWord LoByte - color of the caption
+                (<a href="../../defs/farcolors.html#COL_WARNDIALOGSELECTEDBUTTON">COL_WARNDIALOGSELECTEDBUTTON</a> or
+     <a href="../../defs/farcolors.html#COL_DIALOGSELECTEDBUTTON">COL_DIALOGSELECTEDBUTTON</a>)
+LoWord HiByte - color of highlighted text
+                (<a href="../../defs/farcolors.html#COL_WARNDIALOGHIGHLIGHTSELECTEDBUTTON">COL_WARNDIALOGHIGHLIGHTSELECTEDBUTTON</a> or
+     <a href="../../defs/farcolors.html#COL_DIALOGHIGHLIGHTSELECTEDBUTTON">COL_DIALOGHIGHLIGHTSELECTEDBUTTON</a>)</pre>
+   <pre>HiWord LoByte - 0
+HiWord HiByte - 0</pre>
+If the special <a href="../flags/dif_setcolor.html">DIF_SETCOLOR</a> flag is used,
+then the button's caption (LoWord LoByte) will be drawn according to the above settings.</td>
+ </tr>
+
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_key.html">DN_KEY</a></td>
+ <td class="cont" width="60%">This event comes after the user has pressed a key in the dialog.</td>
+ </tr>
+
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_hotkey.html">DN_HOTKEY</a></td>
+ <td class="cont" width="60%">A hotkey was pressed (Alt-&lt;letter&gt;).</td>
+ </tr>
+
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_mouseclick.html">DN_MOUSECLICK</a></td>
+ <td class="cont" width="60%">This event comes after the user has clicked one of the dialog items or outside the dialog with a mouse button.</td>
+ </tr>
+
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_btnclick.html">DN_BTNCLICK</a></td>
+ <td class="cont" width="60%">The button was pressed.</td>
+ </tr>
+
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_killfocus.html">DN_KILLFOCUS</a></td>
+ <td class="cont" width="60%">This event is sent before the button loses the focus, if the flag <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a> was not used.</td>
+ </tr>
+
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_killfocus.html">DN_GOTFOCUS</a></td>
+ <td class="cont" width="60%">This event is sent after the button has received the keyboard focus, if the flag <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a> was not used.</td>
+ </tr>
+
+</table>
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>The <dfn>FarDialogItem</dfn> structure is described assuming the use of named
+  unions. For more information, see
+  <a href="../../defs/_far_no_nameless_unions.html">_FAR_NO_NAMELESS_UNIONS</a>.
+</div>
+
+
+<div class=see>See also:</div><div class=seecont>
+<a href="di_checkbox.html">DI_CHECKBOX</a>,
+<a href="di_radiobutton.html">DI_RADIOBUTTON</a>,
+<a href="../structures/fardialogitem.html">FarDialogItem</a>
+
+</div>
+
+</body>
+</html>

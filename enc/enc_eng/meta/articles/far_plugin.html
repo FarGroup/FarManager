@@ -1,0 +1,204 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>How to make a FAR plug-in using Visual C++</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<link REV="made" href="mailto:phoenixbird@hotmail.ru">
+<meta name="Author" content="2000 (C) Phoenix aka Ruslan Ilgasov ">
+<meta name="description" content="How to make a FAR plug-in using Visual C++ - step by step">
+<script type="JavaScript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<a name="top"></a>
+<h1>How to make a FAR plug-in using Visual C++ <BR><em>step by step</em></h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a href="index.html">articles</a>
+</div>
+
+<div align=right><code>
+Phoenix aka Ruslan Ilgasov <a href="mailto:Ruslan%20Ilgasov%20<phoenixbird@hotmail.ru>?subject=Articles">
+<img src="../../images/email.gif" border="0" alt="[phoenixbird@hotmail.ru]" width="16" height="16" align="middle">phoenixbird@hotmail.ru
+</a><br>
+</code></div>
+<hr color="#003399">
+
+<p class=plain>
+It's difficult to find a man who doesn't know about or who doesn't use FAR
+- IMHO the best NC clone for Windows. It is really very good file-manager,
+moreover, there are a lot of plug-in modules for it. Plug-in module is a DLL
+file that uses FAR functions instead of using standard Windows functions in
+order to work with monitor, keyboard, etc. FAR supports all functions necessary
+for working in the text mode. You can install the plug-in module easily - just
+copy DLL file and data files to the folder under Far\Plugins and restart FAR.</P>
+
+<p class=plain>
+FAR is distributed along with the full set of files required for writing
+a plug-in using any Windows-based C compiler. This article guides how
+to make a FAR plug-in using Visual C++ (I used Visual C++ 5.0).
+After FAR is installed, there's a PlugDoc.rar file in its folder that contains
+examples of plug-ins and header file (<em>note: beginning from FAR 1.70 beta 5
+examples are installed into the separate PlugDoc folder</em>). All the examples
+are used in FAR. Also, the <code>VCReadme.txt</code> is included there,
+in which the details of Visual C++ workflow are described. You'll investigate
+examples later.</P>
+
+<p class=plain>
+We'll write the plug-in that gets the list of open windows and can be used
+as a prototype for your own plug-ins. As a matter of fact, you have only to
+start, the things are not so complicated as you can think. So, let's go:</P>
+
+<ol>
+<li>Start VC, and make a new project named SimpleFP from the "Win32 Dynamic-Link
+Library" template. Create simplefp.cpp file - we'll actually write there.
+Copy plugin.hpp header file from the PlugDoc.rar archive to the SimpleFP folder.
+(<em>note: the samples are installed into the PlugDoc folder, beginning from
+FAR 1.70 beta 5</em>).</li>
+<li>We should make a .def file now - the file where the functions called from
+external modules are described. We should describe the FAR functions that we'll
+use in our module. So, make a simplefp.def text file, in which:
+<pre class=code>LIBRARY
+EXPORTS
+GetPluginInfo=_GetPluginInfo@4
+OpenPlugin=_OpenPlugin@8
+SetStartupInfo=_SetStartupInfo@4</pre>
+
+Here we describe the 3 functions we'll need later. Now add the simpledef.def
+to the project files (Project - Add to project - Files - simplefp.def).</li>
+
+<li>We're writing the plug-in now - working with simplefp.cpp file. I decided
+the source text to be commented, so you can copy it into C++ and
+begin to play with it. But let's begin from fundamentals.</li>
+</ol>
+
+<p class=plain>
+Far works using the same principles as Windows uses - in your program you
+call any functions you want if they are already exist in the system.
+Far provides functions for handling form views in the console application
+mode. When starting a plug-in, FAR starts OpenPlugin function, we'll treat
+it as similar to main() or WinMain(). But we still have to pass our plug-in
+data to FAR. The GetPluginInfo function does that.</p>
+
+<pre class=code>/*
+* SimpleFP - a simple FAR plug-in. (C) 2000 Phoenix, Moscow
+*/
+
+#include &lt;stdio.h&gt;    // for sprintf calling
+#include &lt;windows.h&gt;  // for Windows functions
+#include "plugin.hpp" // for FAR functions
+
+#define PLUGIN_NAME "Open windows"      // Plug-in name
+#define WINDOW_HEAD "Open windows list" // Our menu title
+
+//
+// Here the FAR functions we are working with are described.
+//
+
+extern "C"
+{
+void WINAPI _export SetStartupInfo(struct PluginStartupInfo *Info);
+HANDLE WINAPI _export OpenPlugin(int OpenFrom,int Item);
+void WINAPI _export GetPluginInfo(struct PluginInfo *Info);
+};
+
+static struct PluginStartupInfo Info; // Our plug-in info
+
+//
+// Module information is defined in the Info structure
+//
+
+void WINAPI _export SetStartupInfo(struct PluginStartupInfo *Info)
+{
+  ::Info=*Info;
+}
+
+// This function is called to get the plug-in information.
+// We must fill the Info structure fields.
+//
+
+void WINAPI _export GetPluginInfo(struct PluginInfo *Info)
+{
+  Info-&gt;StructSize=sizeof(*Info); // Info structure size
+  Info-&gt;Flags=0; // It's useless for us
+  Info-&gt;DiskMenuStringsNumber=0; // It's also useless for us
+
+  // Determine a string with module name
+  static char *PluginMenuStrings[1];
+  PluginMenuStrings[0]= PLUGIN_NAME;
+
+  // Determine a plug-in module name
+  Info-&gt;PluginMenuStrings=PluginMenuStrings;
+  Info-&gt;PluginMenuStringsNumber=
+    sizeof(PluginMenuStrings)/sizeof(PluginMenuStrings[0]);
+  Info-&gt;PluginConfigStringsNumber=0; // It's useless for us
+}
+
+// This function is called when starting the plug-in module.
+//
+
+HANDLE WINAPI _export OpenPlugin(int OpenFrom,int Item)
+{
+  HWND hwnd; // Use it to get the handle
+  char p[128], o[128]; // Use it to create a menu string
+  int i=0; // Counter
+
+  struct FarMenuItem MenuItems[64]; // Description of the menu that FAR creates for us
+  memset(MenuItems,0,sizeof(MenuItems)); // Initialize our menu
+  MenuItems[0].Selected=TRUE;
+
+  hwnd = GetDesktopWindow(); // Get desktop handle
+  hwnd = GetWindow(hwnd, GW_CHILD); // Get its handle
+  while (hwnd !=0) // While it is not last
+  {
+    hwnd = GetWindow(hwnd, GW_HWNDNEXT); // Get window handle
+    GetWindowText(hwnd,p,128); // and its caption
+    if (strlen(p)&gt;0) // if caption exists
+    {
+      sprintf(o,"%0.8xld %s", hwnd, p); // create a string
+      strcpy(MenuItems[i++].Text, o); // copy this string to the MenuItems array
+    }
+  }
+
+  // Call the menu we created just now, get the selected item number - MenuCode
+  //
+  int MenuCode=Info.Menu(Info.ModuleNumber,
+                  -1,-1,0,
+                  FMENU_AUTOHIGHLIGHT|FMENU_WRAPMODE,
+                  WINDOW_HEAD,
+                  NULL,
+                  "Menu content",
+                  NULL,
+                  NULL,
+                  MenuItems,
+                  i);
+
+  return(INVALID_HANDLE_VALUE);
+}</pre>
+
+
+<p class=plain>
+Then, compile the project, copy to Far\Plugins folder, and restart FAR. When
+in FAR, press F11 - this is the list of plug-in modules. "Open windows"
+string must be there. Look at the result. You can now develop it, for
+example, process the MenuCode data, and then pass the WM_CLOSE message
+to the selected window, or do something more peculiar. Plug-in modules
+creation for FAR is well-documented, so you can investigate that.</p>
+
+<p class=plain>
+<em>Encyclopedia includes <code>simplefp.zip</code> archive -
+a DLL file example (~20Kb)</em></P>
+
+
+<div align=right><code>
+Phoenix aka Ruslan Ilgasov, Moscow
+<BR>E-Mail:<A href="mailto:phoenixbird@hotmail.ru">phoenixbird@hotmail.ru</a>
+<BR>FIDO: 2:5020/2637.2
+<br>&nbsp;<br>
+13.05.2000
+</code></div>
+<div class=seecont><a href="#top">to the top</a></div>
+
+</body>
+</html>

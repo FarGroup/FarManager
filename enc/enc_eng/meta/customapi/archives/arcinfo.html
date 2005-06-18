@@ -1,0 +1,80 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>ArcInfo</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>ArcInfo</h1>
+<div class=navbar>
+<a href="../../index.html">main</a> |
+<a href="../index.html">Custom API</a> |
+<a href="index.html">archive support</a>
+</div>
+
+<div class=shortdescr>
+This structure is passed to the <a href="closearchive.html">CloseArchive</a> function.
+</div>
+
+<pre class=syntax>
+struct ArcInfo
+{
+  int SFXSize;
+  int Volume;
+  int Comment;
+  int Recovery;
+  int Lock;
+  DWORD Flags;
+  DWORD Reserved;
+  int Chapters;
+};
+</pre>
+<h3>Members</h3>
+<div class=descr>
+
+    <div class=dfn>SFXSize</div>
+    <div class=dfndescr>SFX module size</div>
+    <div class=dfn>Volume</div>
+    <div class=dfndescr>Volume flag</div>
+    <div class=dfn>Comment</div>
+    <div class=dfndescr>Archive comment is present</div>
+    <div class=dfn>Recovery</div>
+    <div class=dfndescr>Recovery record is present</div>
+    <div class=dfn>Lock</div>
+    <div class=dfndescr>Archive is locked</div>
+    <div class=dfn>Flags</div>
+    <div class=dfndescr>
+      Additional archive information flags. The <em>Flags</em> field can be a combination of the following values:
+      <table class="cont">
+      <tr class="cont"><th class="cont" width="40%">Structure</th><th class="cont" width="60%">Description</th></tr>
+      <tr class="cont"><td class="cont" width="40%"><a name="AF_AVPRESENT">AF_AVPRESENT</a></td>
+      <td class="cont" width="60%">There's a digital signature (archive authenticity information).</td></tr>
+      <tr class="cont"><td class="cont" width="40%"><a name="AF_IGNOREERRORS">AF_IGNOREERRORS</a></td>
+      <td class="cont" width="60%">Archive command exit codes are ignored for this archive.</td></tr>
+      <tr class="cont"><td class="cont" width="40%"><a name="AF_HDRENCRYPTED">AF_HDRENCRYPTED</a></td>
+      <td class="cont" width="60%">Archive header is encrypted.</td></tr>
+      </table>
+    </div>
+    <div class=dfn>Reserved</div>
+    <div class=dfndescr>reserved for future use.</div>
+    <div class=dfn>Chapters</div>
+    <div class=dfndescr>Number of chapters in an archive.</div>
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+<p>
+<dfn>ArcInfo</dfn> structure, initialized by 0's, is passed to the <a href="closearchive.html">CloseArchive</a> function.
+</p>
+</div>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="index.html">archive support</a>,
+<a href="../../index.html">structures</a>
+</div>
+
+</body>
+</html>

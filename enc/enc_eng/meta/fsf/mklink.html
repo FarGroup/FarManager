@@ -1,0 +1,136 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>FSF.MkLink</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>MkLink</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a href="index.html">FarStandardFunctions</a>
+</div>
+
+<div class=shortdescr>
+The <dfn>FSF.MkLink</dfn> function supports creating hard and symbolic links and
+mounting local drives to the file system.
+The function works only under Windows NT 4 or higher.
+</div>
+
+<pre class=syntax>
+int WINAPI MkLink(
+  const char *Src,
+  const char *Dest,
+  DWORD Flags
+);
+</pre>
+
+<h3>Parameters</h3>
+<div class=descr>
+  <div class=dfn>Src</div>
+  <div class=dfndescr>Name of the file object to which the link is created.
+  </div>
+
+  <div class=dfn>Dest</div>
+  <div class=dfndescr>Name of the created link.
+  </div>
+
+  <div class=dfn>Flags</div>
+  <div class=dfndescr>Operation mode. One of the following flags (<a name="MKLINKOP">MKLINKOP</a> enum):
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Operation</th><th class="cont" width="60%">Description</th></tr>
+  <tr class="cont"><td class="cont" width="40%"><a name="FLINK_HARDLINK">FLINK_HARDLINK</a></td>
+  <td class="cont" width="60%">Create a hard link.
+    </td></tr>
+
+  <tr class="cont"><td class="cont" width="40%"><a name="FLINK_SYMLINK">FLINK_SYMLINK</a></td>
+  <td class="cont" width="60%">Create a symbolic link (reparse point).
+    </td></tr>
+
+  <tr class="cont"><td class="cont" width="40%"><a name="FLINK_VOLMOUNT">FLINK_VOLMOUNT</a></td>
+  <td class="cont" width="60%">Mount a local drive to the file system.
+    </td></tr>
+</table>
+
+<p>You can combine operation mode with one of the following flags:</p>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Flag</th><th class="cont" width="60%">Description</th></tr>
+  <tr class="cont"><td class="cont" width="40%"><a name="FLINK_SHOWERRMSG">FLINK_SHOWERRMSG</a></td>
+  <td class="cont" width="60%">Show error messages.
+    </td></tr>
+
+  <tr class="cont"><td class="cont" width="40%"><a name="FLINK_DONOTUPDATEPANEL">FLINK_DONOTUPDATEPANEL</a></td>
+  <td class="cont" width="60%">Do not update the panel after the link has been created.
+    </td></tr>
+</table>
+  </div>
+</div>
+
+<h3>Return value</h3>
+<div class=descr>
+<p>1 - the link was created successfully.
+<p>0 - error creating link.
+
+<p>Possible error resons:
+<ul>
+<li>For hard links:
+  <ul>
+   <li>Src and Dest are on different partitions;
+   <li>the partition is not NTFS;
+   <li>the partition is not local;
+   <li>Src does not exist or is not a file;
+   <li>Dest already exists;
+  </ul>
+<li>For symbolic links:
+  <ul>
+   <li>Src or Dest is not on the local partition;
+   <li>the partition is not NTFS 5.0;
+   <li>Src does not exist or is not a directory;
+   <li>Dest exists, but is not an empty directory;
+  </ul>
+<li>For volume mounts:
+  <ul>
+   <li>Src or Dest is not on the local partition;
+   <li>the partition for Dest is not NTFS 5.0;
+   <li>Src does not exist or is not a local drive;
+   <li>Dest exists, but is not an empty directory;
+  </ul>
+</ul>
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+<ol>
+<li>The links are created according to the following rules:
+  <ul>
+  <li>hard links are created only for files within a single NTFS
+      partition (<b>NT4/Win2K/XP</b>);
+  <li>symbolic links are created only for directories within local
+      NTFS partitions (<b>Win2K/NTFS 5.0</b>);
+  <li>mounting local drives to the file system is possible only on
+      NTFS partitions (<b>Win2K/NTFS 5.0</b>).
+  </ul>
+<li>If the value of Src is, for example, "C:", a volume mount will be
+    created instead of a symbolic link.
+<li>If the destination directory for a volume mount operation is
+    terminated with a backslash, a subdirectory "disk_N" will be
+    created in Dest, where N is the letter of the drive being mounted.
+
+<li>You cannot create a symbolic link which points to a CD-ROM folder, but
+you can mount this CD-ROM disk as an NTFS folder (see <a href="../dict.html#mountpoints">Mount Points</a>)
+and then create the necessary symbolic link.
+</div>
+
+<h3>Example</h3>
+<div class=descr>
+</div>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="getnumberoflinks.html">GetNumberOfLinks</a>
+</div>
+
+</body>
+</html>

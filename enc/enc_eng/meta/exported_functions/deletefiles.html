@@ -1,0 +1,92 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>DeleteFiles</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>DeleteFiles</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a href="index.html">exported functions</a>
+</div>
+
+<div class=shortdescr>
+The <dfn>DeleteFiles</dfn> function is called to delete files in the
+file system emulated by the plugin.<br>
+(FAR to plugin: <em>"this file(s) from your panel need to be deleted"</em>).
+</div>
+
+<pre class=syntax>
+int WINAPI DeleteFiles(
+  HANDLE hPlugin,
+  struct PluginPanelItem *PanelItem,
+  int ItemsNumber,
+  int OpMode
+);
+</pre>
+
+<h3>Parameters</h3>
+<div class=descr>
+    <div class=dfn>hPlugin</div>
+    <div class=dfndescr>Plugin handle returned by <a href="openplugin.html">OpenPlugin</a>
+      or <a href="openfileplugin.html">OpenFilePlugin</a>.</div>
+    <div class=dfn>PanelItem</div>
+    <div class=dfndescr>Points to an array of <a href="../structures/pluginpanelitem.html">PluginPanelItem</a>
+      structures. Each structure describes a file to delete.</div>
+    <div class=dfn>ItemsNumber</div>
+    <div class=dfndescr>Number of elements in the <i>PanelItem</i> array.</div>
+    <div class=dfn>OpMode</div>
+    <div class=dfndescr>Combination of the <a href="../defs/operation_mode.html">operation mode</a>
+      flags. This function should process the flag <a href="../defs/operation_mode.html#OPM_SILENT">OPM_SILENT</a>.
+
+</div>
+
+<h3>Return value</h3>
+<div class=descr>
+If the function succeeds, the return value must be TRUE.
+If the function fails, FALSE should be returned.
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+<ol>
+<li>The plugin should process "its folders" by itself.
+<li>It is considered a good form of behaviour to inquire the user
+  about his/her intensions (see also <a href="../service_functions/advcontrol.html#ACTL_GETCONFIRMATIONS">ACTL_GETCONFIRMATIONS</a>,
+  flags <a href="../service_functions/advcontrol.html#FCS_DELETE">FCS_DELETE</a> and
+  <a href="../service_functions/advcontrol.html#FCS_DELETENONEMPTYFOLDERS">FCS_DELETENONEMPTYFOLDERS</a>)
+</ol>
+</div>
+
+
+<h3>Example</h3>
+<div class=descr>
+<pre class=code>int WINAPI DeleteFiles(HANDLE hPlugin, PluginPanelItem *PanelItem,
+           int ItemsNumber,int OpMode)
+{
+  struct PluginPanelItem * curPI=&amp;PanelItem[0];
+  for(int CurItem=0;
+      CurItem&lt;ItemsNumber;CurItem++,
+      curPI++)
+  {
+    char* aFile=curPI-&gt;FindData.cFileName;
+    if(!<dfn>RemoveFileFromFS</dfn>(aFile))
+    {
+      char *MsgItems[]={&quot;Delete failed&quot;,&quot;&quot;,&quot;OK&quot;};
+      MsgItems[1] = <dfn>GetErrorStringFS</dfn>();
+      Message(MyNumber,0,NULL,MsgItems,
+              sizeof(MsgItems)/sizeof(MsgItems[0]),1);
+      return(FALSE);
+    }
+  }
+  return(TRUE);
+}
+</pre>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>DN_CTLCOLORDLGLIST</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>DN_CTLCOLORDLGLIST</h1>
+<div class=navbar>
+<a  href="index_dn.html">Events</a> |
+<a href="../index.html">Dialog API</a><br>
+</div>
+
+<div class=shortdescr>
+The <dfn>DN_CTLCOLORDLGLIST</dfn> event is sent to the dialog callback function before each list
+item (<a href="../controls/di_combobox.html">DI_COMBOBOX</a>,
+<a href="../controls/di_listbox.html">DI_LISTBOX</a>,
+<a href="../flags/dif_history.html">DIF_HISTORY</a>) is drawn.
+</div>
+
+<h3>Param1</h3>
+<div class=descr>
+ID of the dialog item that is about to be drawn.
+</div>
+
+<h3>Param2</h3>
+<div class=descr>
+Pointer to a <a href="../structures/farlistcolors.html">FarListColors</a>,
+structure specifying the color scheme of the list.
+</div>
+
+<h3>Return</h3>
+<div class=descr>
+TRUE - to apply the changes<br>
+FALSE - to leave as is.
+</div>
+
+<h3>Controls</h3>
+<div class=descr>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../controls/di_listbox.html">DI_LISTBOX</a></td>
+<td class="cont" width="60%">List</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../controls/di_combobox.html">DI_COMBOBOX</a></td>
+<td class="cont" width="60%">Combined List</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../controls/di_edit.html">DI_EDIT</a></td>
+<td class="cont" width="60%">Text input line (with the
+<a href="../flags/dif_history.html">DIF_HISTORY</a> flag set)</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../controls/di_fixedit.html">DI_FIXEDIT</a></td>
+<td class="cont" width="60%">Fixed sized text input line (with the
+<a href="../flags/dif_history.html">DIF_HISTORY</a> flag set)</td></tr>
+</table>
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+The dialog callback function can use this event to change the colors used for drawing the list.
+</div>
+
+<h3>Example</h3>
+<div class=descr>
+
+</div>
+
+
+<div class=see>See also:</div><div class=seecont>
+<a href="../dialogex.html">DialogEx</a> |
+<a href="../structures/farlistcolors.html">FarListColors</a><br>
+</div>
+
+</body>
+</html>

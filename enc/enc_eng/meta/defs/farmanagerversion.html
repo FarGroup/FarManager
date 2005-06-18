@@ -1,0 +1,36 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>FARMANAGERVERSION</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+<h1>FARMANAGERVERSION</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a href="index.html">types and definitions</a>
+</div>
+
+
+<div class=shortdescr>
+The <dfn>FARMANAGERVERSION</dfn> constant defines the current FAR Manager version
+and has the following format - <code>0xBBBBXXYY</code>:<br><br>
+BBBB = build number (343 = 0x0157)<br>
+XX = major version (FAR 1.70 = 0x01)<br>
+YY = minor version (FAR 1.70 = 0x46)<br><br>
+
+<p>So for FAR Manager 1.70 beta 3 build 343 this constant will be:
+0x01570146
+
+<p>The <dfn>FARMANAGERVERSION</dfn> constant is formed using the
+<a href="makefarversion.html">MAKEFARVERSION</a> macro.
+</div>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="../exported_functions/getminfarversion.html">GetMinFarVersion</a>
+</div>
+
+</body>
+</html>

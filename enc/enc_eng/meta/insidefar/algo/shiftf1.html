@@ -1,0 +1,47 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>"Add to archive" (Shift-F1)</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+<body>
+<h1>"Add to archive" (Shift-F1)</h1>
+<div class=navbar>
+<a href="index.html">index</a>
+</div>
+
+<div class=shortdescr>
+<p>When the user presses Shift-F1 on a file (or on a group of selected files) then FAR carries out the
+following actions:
+</div>
+
+<h3>Regular panel</h3>
+<div class=descr>
+  <ul>
+   <li>goes though the list of plugins, calling in turn
+     <a href="../../exported_functions/openfileplugin.html">OpenFilePlugin</a>(NULL,NULL,0) until
+     one of the plugins returns a value that differs from <code>INVALID_HANDLE_VALUE</code> or -2;
+   <li>forms a temporary list of selected files and passes it to the plugin, by calling
+     <a href="../../exported_functions/putfiles.html">PutFiles</a>(hPlugin,PanelItems,ItemsCount,0,0);
+   <li>if the plugin processed the given files successfully (PutFiles returned 1 or 2) then FAR
+   clears the selection from those files, tries to renew file descriptions (if the plugin sets
+   <a href="../../structures/openplugininfo.html">OpenPluginInfo</a>.DescrFilesNumber &gt; 0 in a
+   call to the <a href="../../exported_functions/getopenplugininfo.html">GetOpenPluginInfo</a>
+   function), destroys the temporary file list, redraws the panel and positions as well as the
+   cursor on the file created/updated by the plugin (if PutFiles returned 1).
+  </ul>
+
+  <p>File position "computation" algorithm in this case is based on the assumption that the file
+  creation date is the most recent. If there are newer files in the folder then positioning will
+  not work correctly.
+</div>
+
+<h3>Plugin panel</h3>
+<div class=descr>
+Not processed by FAR.
+</div>
+
+</body>
+</html>

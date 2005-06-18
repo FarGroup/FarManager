@@ -1,0 +1,146 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>Editor</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>Editor</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a href="index.html">service functions</a><br>
+</div>
+
+<div class=shortdescr>
+The <dfn>Editor</dfn> function allows to invoke the FAR internal editor.
+</div>
+
+<pre class=syntax>
+int WINAPI Editor(
+  const char *FileName,
+  const char *Title,
+  int X1,
+  int Y1,
+  int X2,
+  int Y2,
+  DWORD Flags,
+  int StartLine,
+  int StartChar
+);
+</pre>
+<h3>Parameters</h3>
+<div class=descr>
+  <div class=dfn>FileName</div>
+  <div class=dfndescr>Name of the file to edit. Unless <dfn>EF_CREATENEW</dfn> is set in the
+    Flags parameter, must specify an existing file.
+  </div>
+  <div class=dfn>Title</div>
+  <div class=dfndescr>Null-terminated text string that will be shown in the top line of the editor
+  window. If this parameter is <code>NULL</code>, the file name will be used.</div>
+  <div class=dfn>X1, Y1, X2, Y2</div>
+  <div class=dfndescr>Editor window coordinates. If <var>X2</var> or <var>Y2</var> is -1, they will
+    be replaced with the screen width or height. If <var>X1</var> or <var>Y1</var> are less than
+    zero, then their are taken as zero.
+  </div>
+  <div class=dfn>Flags</div>
+  <div class=dfndescr>Editor flags. Can be a combination of the following values (<a name="EDITOR_FLAGS">EDITOR_FLAGS</a> enum):<br>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Flag</th><th class="cont" width="60%">Description</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EF_NONMODAL">EF_NONMODAL</a></td>
+    <td class="cont" width="60%">Creates a non-modal editor window. If this flag is present, the user will
+      be able to switch to other FAR windows.
+      <p>The plugin will regain control only after the editor is closed, or after the user switches
+      to a different window (e.g. by pressing <kbd>Ctrl+Tab</kbd>). If you need to regain control
+      immediately after the editor has been opened, use the <dfn>EF_IMMEDIATERETURN</dfn> flag.
+    </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="EF_IMMEDIATERETURN">EF_IMMEDIATERETURN</a></td>
+    <td class="cont" width="60%">If this flag is set, the Editor function returns immediately after the
+      editor has been opened. The newly opened editor becomes the active window. This flag can
+      be used <u>only</u> with <dfn>EF_NONMODAL</dfn>.
+    </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="EF_DELETEONCLOSE">EF_DELETEONCLOSE</a></td>
+    <td class="cont" width="60%">Instructs FAR to delete the file being edited after the editor is closed.
+      If the directory with the edited file contains no other files, it will also be deleted. If
+      only the file needs to be deleted use the <dfn>EF_DELETEONLYFILEONCLOSE</dfn> flag.<br>
+      The file will not be deleted:
+      <ol>
+        <li> if the user switched to the viewer by pressing <kbd>F6</kbd>, or if the file is open in
+          other viewer or editor windows.
+        <li> if the user has saved the file.
+      </ol>
+    </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="EF_DELETEONLYFILEONCLOSE">EF_DELETEONLYFILEONCLOSE</a></td>
+    <td class="cont" width="60%">Similar to <dfn>EF_DELETEONCLOSE</dfn>, but only the file will be deleted.
+      The directory will not be deleted even if it is empty. This flag has a lower priority than
+      <dfn>EF_DELETEONCLOSE</dfn>.
+    </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="EF_CREATENEW">EF_CREATENEW</a></td>
+    <td class="cont" width="60%">Opens a new (non-existing) file in the editor, similar to pressing
+    <kbd>Shift-F4</kbd> in FAR.
+    </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="EF_ENABLE_F6">EF_ENABLE_F6</a></td>
+    <td class="cont" width="60%">Enables switching from the editor to the viewer by pressing <kbd>F6</kbd>.
+    </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="EF_DISABLEHISTORY">EF_DISABLEHISTORY</a></td>
+    <td class="cont" width="60%">Disables adding the file name to the view/edit history (<kbd>Alt-F11</kbd>).
+      If this flag is not specified, the name is added to the history.
+    </td></tr>
+
+</table>
+  </div>
+
+  <div class=dfn>StartLine</div>
+  <div class=dfndescr>Number of the line to which the cursor is positioned (0-based).</div>
+  <div class=dfn>StartChar</div>
+  <div class=dfndescr>Initial cursor position in the line (1-based).</div>
+</div>
+
+<h3>Return value</h3>
+<div class=descr>
+  This function can return one of the following values (<a name="EDITOR_EXITCODE">EDITOR_EXITCODE</a> enum):
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Returned value</th><th class="cont" width="60%">Description</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EEC_OPEN_ERROR">EEC_OPEN_ERROR</a></td>
+    <td class="cont" width="60%">File open error, occurs in the following cases:
+      <ul>
+        <li>FAR could not allocate enough memory while creating the editor (as an object);
+        <li>if <em>FileName</em> is an empty line;
+        <li>if <em>FileName</em> is a path to an existing folder;
+        <li>if the file to be opend is read-only and the user refused to continue editing this
+          file in the corresponding dialog.
+      </ul>
+    </td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EEC_MODIFIED">EEC_MODIFIED</a></td>
+    <td class="cont" width="60%">Successful return. File was modified.
+      This value is also returned if the <dfn>EF_NONMODAL</dfn> flag was used.
+    </td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EEC_NOT_MODIFIED">EEC_NOT_MODIFIED</a></td>
+    <td class="cont" width="60%">Successful return. File was not modified.
+    </td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EEC_LOADING_INTERRUPTED">EEC_LOADING_INTERRUPTED</a></td>
+    <td class="cont" width="60%">File loading was stopped by user.
+    </td></tr>
+</table>
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+If StartLine and StartChar are both equal to -1 and the option "Save file position" is enabled,
+the previously saved file position will be restored.
+</div>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="viewer.html">Viewer</a>
+</div>
+
+</body>
+</html>

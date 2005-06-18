@@ -1,0 +1,503 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>FAR Plugins API History</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../styles/styles.css">
+<script language="javascript" src='links.js' type="text/javascript"></script>
+</head>
+
+<body>
+
+<h1>FAR Plugins API History</h1>
+<div class=navbar>
+<a href="index.html">main</a>
+</div>
+
+
+<div class=smalldescr>The key moments of FAR Manager Plugins API history are noted here.</div>
+
+<h3>FAR 1.70 beta 6 19.01.2005</h3>
+<div class=dfndescr>
+<pre>
++ ACTL_GETSHORTWINDOWINFO
++ ECF_TAB1
+! EOPT_EXPANDTABS -&gt; EOPT_EXPANDALLTABS
++ EOPT_EXPANDONLYNEWTABS, EXPAND_TABS
++ FARINT64
++ ViewerAPI: ViewerInfo, ViewerMode, ViewerSelect, ViewerSetPosition,
+             ViewerControl, ProcessViewerEvent,
+* All enumerations in plugin.hpp are now named.
++ FARMACRO_KEY_EVENT
++ DM_GETSELECTION, DM_SETSELECTION
++ DN_LISTHOTKEY
+! Now plugins receive keyboard events through ProcessEditorInput both
+  when recording and when playing back macros. Previously, keyboard
+  events were received only when recording macros.
+* Removed some of the limitations on the keys sent to plugins through
+  ProcessEditorInput.
+  Keys which are not sent to plugins: Ctrl-W, F11, Alt-F9, F12, Ctrl-Tab,
+  Ctrl-Shift-Tab, Alt-Ins, Ctrl-Alt-Shift.
+  The following key combinations are sent if:
+    Alt-F5 - the PrintMan plugin is not installed;
+    Alt-F11 - the editor is modal;
+    F6 - switching to the viewer is disabled
++ DN_DRAWDIALOGDONE
++ ACTL_GETPLUGINMAXREADDATA, ACTL_GETWCHARMODE
++ ACTL_GETDIALOGSETTINGS
+! FIS_PERSISTENTBLOCKSINEDITCONTROLS -&gt; FDIS_PERSISTENTBLOCKSINEDITCONTROLS
+! FIS_HISTORYINDIALOGEDITCONTROLS    -&gt; FDIS_HISTORYINDIALOGEDITCONTROLS
+! FIS_AUTOCOMPLETEININPUTLINES       -&gt; FDIS_AUTOCOMPLETEININPUTLINES
++ FRS_SCANSYMLINK
++ FSS_SCANSYMLINK
+! Now GetReparsePointInfo returns an error for remote folders, because
+  correct information about symbolic link contents can not be obtained in
+  such case.
+- Garbage had been returned in PanelInfo.SelectedItems[0] when no files were
+  selected and the cursor was positioned on the ".." element.
++ MCMD_POSTMACROSTRING
++ ActlKeyMacro.Param
++ KSFLAGS_NOSENDKEYSTOPLUGINS
++ ESPT_SETWORDDIV, ESPT_GETWORDDIV
++ FMENU_CHANGECONSOLETITLE
+! DM_LISTSETMOUSEREACTION (behaviour changed)
++ LMRT_*
++ FCTL_SETNUMERICSORT, FCTL_SETANOTHERNUMERICSORT, PFLAGS_NUMERICSORT
+</pre>
+</div>
+
+<h3>FAR 1.70 beta 5 09.04.2003</h3>
+<div class=dfndescr>
+<pre>
++ OPM_QUICKVIEW
++ FCTL_GETPANELSHORTINFO, FCTL_GETANOTHERPANELSHORTINFO
++ FIB_NOAMPERSAND
++ ESPT_LOCKMODE
++ ECTL_TURNOFFMARKINGBLOCK
+! CONSOLE_* -&gt; FAR_CONSOLE_*
++ MAXSIZE_SHORTCUTDATA
++ FCTL_CHECKPANELSEXIST
++ LIF_DELETEUSERDATA
++ EF_IMMEDIATERETURN, VF_IMMEDIATERETURN
++ FLINK_DONOTUPDATEPANEL
++ ECTL_DELETEBLOCK
++ FDLG_SMALLDIALOG, FDLG_SMALLDIALOG
++ ACTL_SETARRAYCOLOR, FarSetColors, FARCOLORFLAGS.FCLR_REDRAW
++ FarListColors
+
+MultiArc:
++ ArcInfo.Chapters
++ ArcItemInfo.Chapter
+</pre>
+</div>
+
+
+<h3>FAR 1.70 beta 4 13.03.2002</h3>
+<div class=dfndescr>
+<pre>
++ EJECT_LOAD_MEDIA
++ FDLG_WARNING, FDLG_SMALLDIALOG
++ PFLAGS_*
+! PanelInfo.Flags
++ KEY_MSWHEEL_UP, KEY_MSWHEEL_DOWN
++ DM_LIST*
++ VF_ENABLE_F6, VF_DISABLEHISTORY
++ EF_ENABLE_F6, EF_DISABLEHISTORY, EF_DELETEONCLOSE
++ FarList*
++ DIF_LISTWRAPMODE, DIF_LISTAUTOHIGHLIGHT, DIF_LISTNOBOX,
+  DIF_SEPARATOR2
++ DM_GETCHECK, DM_SETCHECK, DM_SET3STATE, DM_SETITEMPOSITION,
+  DM_GETITEMPOSITION, DM_GETDROPDOWNOPENED, DM_SETDROPDOWNOPENED,
+  DM_SETHISTORY, DM_SETMOUSEEVENTNOTIFY
++ DM_LISTSETMOUSEREACTION
++ LINFO_*
++ BSTATE_*
++ ACTL_GETWINDOWCOUNT, ACTL_SETCURRENTWINDOW, ACTL_COMMIT,
+  ACTL_GETFARHWND, ACTL_POSTKEYSEQUENCE
++ WTYPE_*
++ KeySequenceFlags.KSFLAGS_DISABLEOUTPUT
++ KeySequence
+! Unquote
+! ExpandEnvironmentStr
++ ECTL_GETBOOKMARKS
++ EditorBookMark
++ DN_LISTCHANGE, DN_MOUSECLICK, DN_DRAGGED, DN_RESIZECONSOLE,
+  DN_MOUSEEVENT
++ LIFIND_EXACTMATCH
++ FMENU_USEEXT
++ MIF_*
++ FarMenuItemEx
+! FarRecursiveSearch
+! DI_RADIOBUTTON
++ ESPT_CHARTABLE, ESPT_SAVEFILEPOSITION
+! FarCharTable
++ FCTL_GETCMDLINESELECTEDTEXT, FCTL_SETCMDLINESELECTION,
+  FCTL_GETCMDLINESELECTION
++ PluginPanelItem.CRC32
++ ConvertNameToReal
++ GetReparsePointInfo
+! AddEndSlash
+
+</pre>
+</div>
+
+<h3>FAR 1.70 beta 3 20.04.2001</h3>
+<div class=dfndescr>
+<pre>
+! In plugin.hpp, the "const" modifier has been added for the
+  unchangeable parameters of some exported and service functions.
+
++ DIF_VAREDIT - "breaking of the 512-byte barrier" - works for DI_EDIT
+  and DI_COMBOBOX controls.
+
+! Changed the FarListItem structure (possibility of working with "long
+  data").
+
++ Added flag LIF_PTRDATA - for working with "long data".
+
+! Changed the values of LISTITEMFLAGS (LIF_*) - the values for
+  LIF_SELECTED, LIF_CHECKED and LIF_SEPARATOR have been shifted to the
+  lower byte of the upper word, and LIF_DISABLE has been shifted "down".
+
+! Changed field names in the FarDialogItemData structure.
+
++ It is now possible to handle a double click event through the
+  DN_MOUSECLICK message (MouseEvent.dwEventFlags==DOUBLE_CLICK).
+
+! Significant revamping of the internal key codes (farkeys.hpp).
+
++ ACTL_EJECTMEDIA
+
++ DM_GETTEXTPTR, DM_SETTEXTPTR, DM_SHOWITEM, DM_ADDHISTORY
+
+! Ctrl-Break can now be controlled. Earlier the dialog was closed
+  unconditionally, regardless of what the callback function
+  returned on the DM_CLOSE message.
+
++ DIF_HIDDEN, DIF_MANUALADDHISTORY
+
++ The DIF_SHOWAMPERSAND flag can be used for DI_SINGLEBOX and
+  DI_DOUBLEBOX items.
+
++ ACTL_KEYMACRO:
+  struct ActlKeyMacro - the interface part for ACTL_KEYMACRO
+  MCMD_LOADALL     - load all macros from the registry into the FAR
+                     memory
+  MCMD_SAVEALL     - save all macros from the registry into the FAR
+                     memory
+
+! Extended the syntax of the Message function
+
++ FSF.qsortex
+
++ EF_CREATENEW
+
+! FSF.FarRecursiveSearch - added parameter void *param
+
++ FAR knows about 4 predefined help topics in HLF files:
+  Contents - the standard main topic;
+  Config   - the topic invoked by pressing Shift-F1 in the plugins
+             configuration menu;
+  Editor   - the topic invoked by pressing Shift-F1 in the plugins menu
+             of the editor;
+  Viewer   - the topic invoked by pressing Shift-F1 in the plugins menu
+             of the viewer.
+
++ FHELP_USECONTENTS
+
+* ACTL_GETFARVERSION returns the version number, and not TRUE/FALSE.
+
+* ACTL_WAITKEY waits for any key if NULL or -1 is passed in the parameter
+  Param.
+
++ ECTL_SETPARAM - allows to set editor parameters:
+   - Tab size (ESPT_TABSIZE)
+   - Expand tabs to spaces (ESPT_EXPANDTABS)
+   - Auto indent (ESPT_AUTOINDENT)
+   - Cursor beyond end of line (ESPT_CURSORBEYOUNDEOL)
+   - The format of the current character code (ESPT_CHARCODEBASE)
+</pre>
+</div>
+
+<h3>FAR 1.70 beta 2 16.12.2000</h3>
+<div class=dfndescr>
+<pre>
+! Changes in Param2 for messages DM_SETTEXT and DM_GETTEXT.
+  Now they use pointers to FarDialogItemData structure.
+
++ 6 new colors are added for DISABLED items (in dialogs and warning
+  messages). See Headers.c\farcolor.hpp (or Headers.pas\farcolor.pas).
+
++ DIF_3STATE
+
+! The DIF_EDITEXPAND flag is no longer processed by DI_PSWEDIT and
+  DI_FIXEDIT controls.
+
++ ACTL_GETCOLOR, ACTL_GETARRAYCOLOR
+
+! The AddEndSlash function works with both types of slashes and replaces
+  the existing trailing slash with the type of slashes that was used
+  more often.
+
+! The version format changed - the constant in plugin.hpp::FARMANAGERVERSION
+  has the following format:
+     HIWORD:         = NNN - # build
+     LOWORD:  HIBYTE =   1 - version Hi
+              LOBYTE =  70 - version Lo
+</pre>
+</div>
+
+<h3>FAR 1.70 beta 1 20.11.2000</h3>
+<div class=dfndescr>
+<pre>
++ Dialog API 1.0
+
+! New/changed header files:
+     farcolor.hpp  - Color attributes indexes.
+     farkeys.hpp   - FAR manager internal key codes.
+
++ "Standard functions" - for reducing plugins size -
+   the FarStandardFunctions structure.
+
++ GetMinFarVersion().
+
++ URL-activators and color attributes in HLF-files.
+
+struct PluginStartupInfo:
+  + AdvControl
+  + InputBox
+  + ShowHelp
+  + DialogEx
+  + SendDlgMessage
+  + DefDlgProc
+
++ PF_FULLCMDLINE
++ FCTL_*SORTMODE, FCTL_*SORTORDER
+
+struct KeyBarTitles:
+  + CtrlShiftTitles
+  + AltShiftTitles
+  + CtrlAltTitles
+
++ EF_NONMODAL
++ ECTL_SETKEYBAR
+
++ DI_COMBOBOX, DI_LISTBOX, DI_USERCONTROL
++ DIF_EDITEXPAND, DIF_DROPDOWNLIST, DIF_USELASTHISTORY, DIF_BTNNOCLOSE,
+  DIF_MASKEDIT, DIF_DISABLE
+
++ Input fields with fixed length can have an input mask.
+
++ Structures: FarListItem, FarList.
++ Header files for Pascal/Delphi
+</pre>
+</div>
+
+
+<h3>FAR 1.64 beta 24.05.2000</h3>
+<div class=dfndescr>
+<pre>
++ ECTL_SAVEFILE
++ ECTL_QUIT
+
++ struct EditorSaveFile
+</pre>
+</div>
+
+
+<h3>FAR 1.63 b 20.08.1999</h3>
+<div class=dfndescr>
+<pre>
++ VF_NONMODAL
++ VF_DELETEONCLOSE
+</pre>
+</div>
+
+<h3>FAR 1.62 23.05.1999</h3>
+<div class=dfndescr>
+<pre>
++ FCTL_GETCMDLINEPOS
+</pre>
+</div>
+
+<h3>FAR 1.62 b2 10.05.1999</h3>
+<div class=dfndescr>
+<pre>
++ EE_CLOSE
+</pre>
+</div>
+
+<h3>FAR 1.62 b 24.04.1999</h3>
+<div class=dfndescr>The "Colorer" plugin "introduced" highlighting in the editor:
+<pre>
++ EE_REDRAW
++ ECTL_ADDCOLOR
++ ECTL_GETCOLOR
+
++ struct EditorColor
+
++ FCTL_SETCMDLINEPOS
++ FE_COMMAND
+</pre>
+</div>
+
+<h3>FAR 1.61 24.02.1999</h3>
+<div class=dfndescr>
+<pre>
++ EE_READ
++ EE_SAVE
+</pre>
+</div>
+
+<h3>FAR 1.60 13.10.1998</h3>
+<div class=dfndescr>Rapid progress of the Editor API:
+<pre>
++ FCTL_SETPANELDIR
++ ECTL_*
++ EOPT_*
++ BTYPE_*
++ PF_DISABLEPANELS
++ PF_EDITOR
++ PF_VIEWER
++ OPEN_EDITOR
++ OPEN_VIEWER
+
++ struct EditorGetString
++ struct EditorSetString
++ struct EditorInfo
++ struct EditorSetPosition
++ struct EditorSelect
++ struct EditorConvertText
++ struct EditorConvertPos
+
+struct PluginStartupInfo:
+  + EditorControl
+</pre>
+</div>
+
+
+<h3>FAR 1.52 26.06.1998</h3>
+<div class=dfndescr>
+<pre>
++ FCTL_SETUSERSCREEN
++ FCT_DETECT
++ SM_COMPRESSEDSIZE
++ SM_NUMLINKS
++ FE_BREAK
++ OPM_DESCR
+
++ struct CharTableSet
+
+struct PanelInfo:
+  + ShortNames
+  + SortMode
+
+struct PluginStartupInfo:
+  + CharTable
+  + Text
+</pre>
+</div>
+
+
+<h3>FAR 1.50 (release version) 09.02.1998</h3>
+<div class=dfndescr>
+<pre>
++ PPIF_USERDATA
++ FCTL_SETVIEWMODE
++ FCTL_SETANOTHERVIEWMODE
++ FCTL_INSERTCMDLINE
++ OPIF_USEATTRHIGHLIGHTING
+
+struct PluginPanelItem:
+  + UserData
+</pre>
+</div>
+
+
+
+<h3>FAR 1.50 beta 03.10.1997</h3>
+<div class=dfndescr>
+<pre>
++ DIF_HISTORY
++ FCTL_GETCMDLINE
++ FCTL_SETANOTHERSELECTION
++ FCTL_SETCMDLINE
++ FCTL_SETSELECTION
++ FE_CLOSE
++ FMSG_LEFTALIGN
++ OPEN_COMMANDLINE
++ OPEN_SHORTCUT
++ OPIF_EXTERNALDELETE
++ OPIF_EXTERNALGET
++ OPIF_EXTERNALMKDIR
++ OPIF_EXTERNALPUT
++ OPM_TOPLEVEL
++ PPIF_SELECTED
+
+struct PluginStartupInfo:
+  + Viewer
+  + Editor
+  + CmpName
+
+struct PluginInfo:
+  +CommandPrefix
+
+struct PanelMode:
+  +StatusColumnTypes
+  +StatusColumnWidths
+
+struct KeyBarTitles:
+  +ShortcutData
+
+MultiArc:
+  Changed a member of the ArcInfo structure:
+    - int AuthVer
+    + DWORD Flags
+
+  Flags added...
+    enum ARCINFO_FLAGS
+    {
+      AF_AVPRESENT=1,
+      AF_IGNOREERRORS=2
+    };
+
+</pre>
+</div>
+
+
+<h3>FAR 1.40 beta 27.06.1997</h3>
+<div class=dfndescr>First time the FAR Plugins API was mentioned:<br>
+"<em>External DLL modules (plugins) can be used to implement new FAR commands and emulate file systems...</em>"<br>
+
+<blockquote>
+<pre>
+ER&gt; "As a matter of fact I started thinking about plugins after Lavrentiev
+ER&gt; asked me to create a version of FAR with Arvid support. He even invented
+ER&gt; (thank you very much) a good name for it - FARvid ;-) I didn't really
+ER&gt; want to develop such a version and so I decided to make available, to
+ER&gt; whomever was interested, the API that will be sufficient as to add such
+ER&gt; capability to FAR without my participation..."
+</pre>
+</blockquote>
+
+The following items are available in this version:
+<ul><li><dfn>Exported functions</dfn>:<br>
+ClosePlugin, Configure, DeleteFiles, ExitFAR, FreeFindData, FreeVirtualFindData,
+GetFiles, GetFindData, GetOpenPluginInfo, GetPluginInfo, GetVirtualFindData,
+MakeDirectory, OpenFilePlugin, OpenPlugin, ProcessEvent, ProcessHostFile,
+ProcessKey, PutFiles, SetDirectory, SetFindList, SetStartupInfo
+
+<li><dfn>Service functions</dfn>:<br>Control, Dialog, FreeDirList, GetDirList, GetMsg,
+GetPluginDirList, Menu, Message, RestoreScreen, SaveScreen
+
+<li><dfn>Structures</dfn><br>FarDialogItem, FarMenuItem, InfoPanelLine, KeyBarTitles,
+OpenPluginInfo, PanelInfo, PanelMode, PanelRedrawInfo, PluginInfo, PluginPanelItem,
+PluginStartupInfo
+
+<li><dfn>Language and help files</dfn>
+</ul>
+
+</div>
+
+</body>
+</html>

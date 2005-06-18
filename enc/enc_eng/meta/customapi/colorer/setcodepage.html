@@ -1,0 +1,65 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>CRegExp.SetCodePage</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>CRegExp.SetCodePage</h1>
+<div class=navbar>
+<a href="../../index.html">main</a> |
+<a href="../index.html">Custom API</a> |
+<a href="index.html">regexp</a>
+</div>
+
+
+<div class=alert>
+[ is missing in FreeCraze colorer ]
+</div>
+
+<div class=shortdescr>
+Sets codepage for working with texts in non-OEM codepage.
+</div>
+
+<h4>Class method:</h4>
+<pre class=syntax>
+void SetCodePage(char *Table);
+</pre>
+
+<h4>DLL interface:</h4>
+<pre class=syntax>
+void WINAPI reSetCodePage(PRegExp re, char *Table);
+</pre>
+
+<h3>Members</h3>
+<div class=descr>
+
+    <div class=dfn>re</div>
+    <div class=dfndescr>a pointer to an object</div>
+    <div class=dfn>Table</div>
+    <div class=dfndescr>Table for transliteration from the target code page to OEM</div>
+
+</div>
+
+<h3>Return value</h3>
+<div class=descr>
+None
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+For regexps to be full-fledged in another codepage it's necessary to set the regexp itself to the
+target codepage. You can recompile the class so that is uses non-OEM codepage by default. In
+this case setcodepage method will also work but the transliteration tables would have to be set
+relative to the codepage the cRegExp class has been compiled with.
+</div>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="cregexp.html">CRegExp</a>
+</div>
+
+</body>
+</html>

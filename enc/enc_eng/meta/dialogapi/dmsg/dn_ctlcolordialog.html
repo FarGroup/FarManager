@@ -1,0 +1,63 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>DN_CTLCOLORDIALOG</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>DN_CTLCOLORDIALOG</h1>
+<div class=navbar>
+<a  href="index_dn.html">Events</a> |
+<a href="../index.html">Dialog API</a><br>
+</div>
+
+<div class=shortdescr>
+The <dfn>DN_CTLCOLORDIALOG</dfn> event is sent to the dialog callback function before the dialog
+background is drawn.
+</div>
+
+<h3>Param1</h3>
+<div class=descr>
+0
+</div>
+
+<h3>Param2</h3>
+<div class=descr>
+Color attribute (foreground+background) that the callback function wants to use to draw the dialog
+background. By default, this attribute is equal to COL_DIALOGTEXT for standard dialogs and
+COL_WARNDIALOGTEXT for dialogs with the <a href="../dialogex.html#FDLG_WARNING">FDLG_WARNING</a>
+flag set.
+<!-- (also frame and title, with the
+<a href="../dialogex.html#FDLG_BORDER">FDLG_BORDER</a> flag set):
+HI(LO=Title,HI=HiText), LO(HI=frame,LO=background) --><br>
+</div>
+
+<h3>Return</h3>
+<div class=descr>
+Color attribute (foreground+background) that the callback function should use to draw the dialog
+background.
+<!-- (also frame and title, with the
+<a href="../dialogex.html#FDLG_BORDER">FDLG_BORDER</a> flag set) -->
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+This event is received immediately after <a href="dn_drawdialog.html">DN_DRAWDIALOG</a>.
+</div>
+
+<h3>Example</h3>
+<div class=descr>
+
+</div>
+
+
+<div class=see>See also:</div><div class=seecont>
+<a href="../dialogex.html">DialogEx</a><br>
+
+</div>
+
+</body>
+</html>

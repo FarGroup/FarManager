@@ -1,0 +1,43 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>Editor (Edit/F4)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+
+<body>
+
+<h1>"Editor" (Edit/F4)</h1>
+<div class="navbar"><a href="index.html">index</a></div>
+
+<div class="shortdescr">When the user presses F4 on a file, FAR carries out the following
+actions:</div>
+
+<h3>Plugin panel</h3>
+<div class="descr">
+  Carried out if the plugin filled the <dfn>HostFile</dfn> field of the
+  <a href="../../structures/openplugininfo.html">OpenPluginInfo</a> structure
+  in a call to the <a href="../../exported_functions/getopenplugininfo.html">GetOpenPluginInfo</a>
+  function:
+  <ul>
+    <li>FAR creates a temporary folder.
+    <li>The <a href="../../exported_functions/getfiles.html">GetFiles</a> is called with the
+    following parameters: one PanelItem element with the wanted file, ItemsNumber=1, DestPath=path
+    to the temporary folder (without the ending backslash), OpMode=OPM_SILENT|OPM_EDIT;
+    the plugin then "outputs" the wanted file and returns control to FAR.
+    The plugin must "output" the wanted file to the temporary folder without creating subfolders.
+    <li>The file is opened by FAR in the internal editor.
+    <li>After exiting the editor, if the file was modified, the
+    <a href="../../exported_functions/putfiles.html">PutFiles</a> function is called with following
+    parameters: one PanelItem element with the wanted file, ItemsNumber=1, Move=0, OpMode=OPM_EDIT.
+    The plugin then "takes" the file from the temporary folder to its own panel.
+    <li>FAR removes the temporary file and folder and refreshes the panels.
+  </ul>
+</div>
+
+</body>
+
+</html>

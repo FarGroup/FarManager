@@ -1,0 +1,78 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>DN_DRAWDLGITEM</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>DN_DRAWDLGITEM</h1>
+<div class=navbar>
+<a  href="index_dn.html">Events</a> |
+<a href="../index.html">Dialog API</a><br>
+</div>
+
+<div class=shortdescr>
+The <dfn>DN_DRAWDLGITEM</dfn> event is sent to the dialog callback function before a dialog item is
+drawn.
+</div>
+
+<h3>Param1</h3>
+<div class=descr>
+ID of the dialog item that is about to be drawn.
+</div>
+
+<h3>Param2</h3>
+<div class=descr>
+Pointer to the <a href="../structures/fardialogitem.html">FarDialogItem</a> structure for the item to be drawn.
+</div>
+
+<h3>Return</h3>
+<div class=descr>
+If the dialog callback function returns FALSE, the item will not be drawn.
+</div>
+
+<h3>Controls</h3>
+<div class=descr>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
+<tr class="cont"><td class="cont" width="40%">All</td>
+<td class="cont" width="60%">All dialog items</td></tr>
+</table>
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+A dialog item of the <a href="../controls/di_usercontrol.html">DI_USERCONTROL</a> type, but not any
+other dialog item, can be prepared in advance in a
+<a href="../controls/di_usercontrol.html#virtbuf">virtual buffer</a>.
+FAR Manager does not copy the contents of this buffer to its internal structures, so as a response
+to the <dfn>DN_DRAWDLGITEM</dfn> event it is sufficient to change only the state of the
+<a href="../controls/di_usercontrol.html#virtbuf">virtual buffer</a>:
+<pre class=code>
+case DN_DRAWDLGITEM:
+  CHAR_INFO *VBuf=((struct FarDialogItem*)Param2)-&gt;Param.VBuf;
+  for (I=0; I &lt; 256; I++)
+  {
+    VBuf[I].Char.AsciiChar = DecodeTable[I];
+    VBuf[I].Attributes = Color;
+  }
+  return TRUE;
+</pre>
+</div>
+
+<h3>Example</h3>
+<div class=descr>
+
+</div>
+
+
+<div class=see>See also:</div><div class=seecont>
+<a href="../dialogex.html">DialogEx</a><br>
+
+</div>
+
+</body>
+</html>

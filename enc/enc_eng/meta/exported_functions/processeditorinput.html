@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>ProcessEditorInput</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>ProcessEditorInput</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a href="index.html">exported functions</a>
+</div>
+
+<div class=shortdescr>
+The <dfn>ProcessEditorInput</dfn> function is called from the internal
+editor every time there is user input (mouse or keyboard) to process.
+</div>
+
+<pre class=syntax>
+int WINAPI ProcessEditorInput(
+  const INPUT_RECORD *Rec
+);
+</pre>
+<h3>Parameters</h3>
+<div class=descr>
+
+    <div class=dfn>Rec</div>
+    <div class=dfndescr>Points to the <a href="../winapi/input_record.html">INPUT_RECORD</a>
+      structure. This structure is defined in Win32 API and contains information about the last
+      input (keyboard or mouse) event.
+    </div>
+
+</div>
+
+<h3>Return value</h3>
+<div class=descr>
+If the plugin returns 0, the input event is processed by the FAR editor.
+The plugin should return 1 if it has completely processed the event or if the event should be
+discarded.
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+<ol>
+
+<li>A plugin should correctly process incoming events by analysing
+   <code>INPUT_RECORD.EventType</code> fields and in the case of an unhandled even to return
+   control back to FAR.
+  </li>
+
+<li>While in macro playback keyboard events (KEY_EVENT) have a new type - the
+    <code>INPUT_RECORD.EventType</code> field equals <code>0x8001</code>.
+  </li>
+
+<li><a href="../service_functions/editorcontrol.html">EditorControl</a> commands can be called from
+    this function, but be careful when calling
+    <a href="../service_functions/editorcontrol.html#ECTL_PROCESSINPUT">ECTL_PROCESSINPUT</a>
+    from here, because this command calls the <dfn>ProcessEditorInput</dfn> function again. So the
+    plugin should take steps to prevent recursion at this place.
+  </li>
+
+<li>A plugin does not receive the following key combinations: <kbd>Ctrl-W</kbd>, <kbd>F11</kbd>,
+    <kbd>Alt-F9</kbd>, <kbd>F12</kbd>, <kbd>Ctrl-Tab</kbd>, <kbd>Ctrl-Shift-Tab</kbd>,
+    <kbd>Alt-Ins</kbd> and <kbd>Ctrl-Alt-Shift</kbd>.
+  </li>
+
+<li>A plugin receives the following key combinations with the following restrictions:
+    <ul>
+    <li><kbd>Alt-F5</kbd>  - if the PrintMan plugin is not installed
+    <li><kbd>Alt-F11</kbd> - if the editor is modal
+    <li><kbd>F6</kbd> - if switching to viewer is disabled (when calling
+      <a href="../service_functions/editor.html">Editor</a>
+        with the <a href="../service_functions/editor.html#EF_ENABLE_F6">EF_ENABLE_F6</a> flag omitted).
+    </ul>
+  </li>
+
+</ol>
+</div>
+
+
+<div class=see>See also:</div><div class=seecont>
+<a href="../winapi/input_record.html">INPUT_RECORD</a>
+</div>
+
+</body>
+</html>

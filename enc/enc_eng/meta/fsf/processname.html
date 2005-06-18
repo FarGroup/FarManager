@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>FSF.ProcessName</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>ProcessName</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a href="index.html">FarStandardFunctions</a> |
+<a href="../service_functions/cmpname.html">CmpName</a>
+</div>
+
+<div class=shortdescr>
+The <dfn>FSF.ProcessName</dfn> function allows to perform various
+actions on a file name: compare with a mask, with a list of masks
+or to generate new file name using the mask.
+</div>
+
+<pre class=syntax>
+int WINAPI ProcessName(
+  const char *Param1,
+  char *Param2,
+  DWORD Flags
+);
+</pre>
+
+<h3>Parameters</h3>
+<div class=descr>
+  <div class=dfn>Param1</div>
+  <div class=dfndescr>Depends on the Flags value.</div>
+  <div class=dfn>Param2</div>
+  <div class=dfndescr>Depends on the Flags value.</div>
+  <div class=dfn>Flags</div>
+  <div class=dfndescr>Specifies a command that can be one of the following values (<a name="PROCESSNAME_FLAGS">PROCESSNAME_FLAGS</a> enum):
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Action</th><th class="cont" width="60%">Description</th></tr>
+  <tr class="cont"><td class="cont" width="40%"><a name="PN_CMPNAME">PN_CMPNAME</a></td>
+  <td class="cont" width="60%">
+     Compares a file name with the specified mask. This flag works like the
+     <a href="../service_functions/cmpname.html">CmpName</a> function - Param1
+     corresponds to Pattern, Param2 corresponds to String.
+     In case of success TRUE is returned.
+    </td></tr>
+
+  <tr class="cont"><td class="cont" width="40%"><a name="PN_CMPNAMELIST">PN_CMPNAMELIST</a></td>
+  <td class="cont" width="60%">
+     Compares a file name with a list of masks delimited by commas.
+     This flag works like PN_CMPNAME, but Param1 contains the list of masks.
+     Note that this function doesn't support exclude masks that were first
+     implemented in FAR 1.70 beta 4.
+    </td></tr>
+
+  <tr class="cont"><td class="cont" width="40%"><a name="PN_SKIPPATH">PN_SKIPPATH</a></td>
+  <td class="cont" width="60%">
+     This flag is a modifier for the PN_CMPNAME and PN_CMPNAMELIST flags.
+     It specifies that the path to the file name must be ignored when comparing.
+    </td></tr>
+
+  <tr class="cont"><td class="cont" width="40%"><a name="PN_GENERATENAME">PN_GENERATENAME</a></td>
+  <td class="cont" width="60%">
+     Generates a file name based on the name contained in Param1 and a
+     mask contained in Param2. The result is returned in Param2.
+     In case of success TRUE is returned, otherwise FALSE. If there is
+     a necessity to process only a part of Param1, there is a possibility
+     to specify a size of this part (up to 255) by combining it with PN_GENERATENAME,
+     for example: Param1 contains "dir1\\file1" but the user wants to change
+     only "dir1", then flags must contain PN_GENERATENAME|4.
+    </td></tr>
+</table>
+  </div>
+</div>
+
+<h3>Return value</h3>
+<div class=descr>
+The return value depends on the <dfn>Flags</dfn> parameter.
+</div>
+
+
+</body>
+</html>

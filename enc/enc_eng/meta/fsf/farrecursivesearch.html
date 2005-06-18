@@ -1,0 +1,104 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>FSF.FarRecursiveSearch</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>FarRecursiveSearch</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a href="index.html">FarStandardFunctions</a>
+</div>
+
+<div class=shortdescr>
+The <dfn>FSF.FarRecursiveSearch</dfn> function is used to find a file in a directory tree with a
+name matching the given mask.
+</div>
+
+<pre class=syntax>
+void WINAPI FarRecursiveSearch(
+  const char *InitDir,
+  const char *Mask,
+  <a href="../defs/frsuserfunc.html">FRSUSERFUNC</a> UserFunc,
+  DWORD Flags,
+  void *Param
+);
+</pre>
+
+<h3>Parameters</h3>
+<div class=descr>
+  <div class=dfn>InitDir</div>
+  <div class=dfndescr>Name of the directory where you want to start the search.
+  (<code>"c:\far\plugins"</code> for example).
+  </div>
+
+  <div class=dfn>Mask</div>
+  <div class=dfndescr>File mask to search for. Starting with FAR 1.70 beta 4, all
+  standard features of FAR masks (multiple masks, character ranges, exclude masks and so on)
+  are supported (see <a href="../filemasks.html">File masks</a>).</div>
+
+  <div class=dfn>UserFunc</div>
+  <div class=dfndescr>Pointer to a user-defined callback function of
+  <a href="../defs/frsuserfunc.html">FRSUSERFUNC</a> type that is
+  called for every found file. This function have to return <code>TRUE</code> to
+  continue the search or <code>FALSE</code> to stop it.
+  </div>
+
+  <div class=dfn>Flags</div>
+  <div class=dfndescr>Can be a combination of the following flags (<a name="FRSMODE">FRSMODE</a> enumeration):
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Flag</th><th class="cont" width="60%">Description</th></tr>
+  <tr class="cont"><td class="cont" width="40%"><a name="FRS_RETUPDIR">FRS_RETUPDIR</a></td>
+  <td class="cont" width="60%">
+     When the search is stopped, the <dfn>FullName</dfn> parameter of the
+     <a href="../defs/frsuserfunc.html">UserFunc</a> function will contain the directory
+     name where the file is found, instead of the name of the file.
+    </td></tr>
+
+  <tr class="cont"><td class="cont" width="40%"><a name="FRS_RECUR">FRS_RECUR</a></td>
+  <td class="cont" width="60%">Recurse the directory tree while searching for the specified file.</td></tr>
+
+  <tr class="cont"><td class="cont" width="40%"><a name="FRS_SCANSYMLINK">FRS_SCANSYMLINK</a></td>
+  <td class="cont" width="60%">
+  	The search will follow symbolic links just as if they were directories.<br>
+  	If one of the scanned symbolic links is a "recursive" one (for example, symbolic link
+  	points to one of it's root directories) the search will continue until the maximum
+  	allowed length of the full path string will be reached.
+  </td></tr>
+    </table>
+   </div>
+  <div class=dfn>Param</div>
+  <div class=dfndescr>
+    Application-defined value to be passed to the callback function specified
+    in the <var>UserFunc</var> parameter.
+   </div>
+</div>
+
+<h3>Return value</h3>
+<div class=descr>
+None.
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+<ol>
+<li>If you want to use the data passed in the parameters of the <dfn>UserFunc</dfn>
+    function after the search is complete, you must copy it to an internal variable.
+<li><u>In FAR versions up to and including 1.70 beta 3</u> the "*" <var>Mask</var> is to be
+    used if you want to find all files.
+<li><u>In FAR versions up to and including 1.70 beta 3</u>, when doing recursive
+    search, the file mask given in the <var>Mask</var> parameter is also used to determine
+    the directories searched. So, if you want to find a file recursively, in
+    most cases you should pass "*" in the <var>Mask</var> parameter and use the callback
+    function to stop the search when the needed file is found.
+<li>If the <dfn>FRS_SCANSYMLINK</dfn> flag is not set, symbolic links will not be parsed, in no dependence of FAR configuration.
+
+</ol>
+</div>
+
+</body>
+</html>

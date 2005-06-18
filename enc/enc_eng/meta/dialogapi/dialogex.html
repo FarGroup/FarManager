@@ -1,0 +1,129 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>DialogEx</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>DialogEx</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a href="index.html">Dialog API</a> |
+<a href="dmsg/index.html">Events and Messages</a><br>
+</div>
+
+<div class=shortdescr>
+The DialogEx function shows a dialog with the possibility to assign a callback function for it.
+</div>
+
+<pre class=syntax>
+int WINAPI DialogEx(
+  int PluginNumber,
+  int X1,
+  int Y1,
+  int X2,
+  int Y2,
+  const char *HelpTopic,
+  struct FarDialogItem *Item,
+  int ItemsNumber,
+  DWORD Reserved,
+  DWORD Flags,
+  FARWINDOWPROC DlgProc,
+  long Param
+);
+</pre>
+
+<h3>Parameters</h3>
+<div class=descr>
+  <div class=dfn>PluginNumber</div>
+  <div class=dfndescr>
+Plugin module number. It is passed to the plugin in the <a href="../exported_functions/setstartupinfo.html">SetStartupInfo</a> function
+</div>
+  <div class=dfn>X1, Y1, X2, Y2</div>
+  <div class=dfndescr>
+Dialog coordinates. You can specify them explicitly or use <code>"Width x Height"</code> formula - in this case both <var>X1</var> and <var>Y1</var> must be set to -1, while
+<var>X2</var> and <var>Y2</var> define dialog width and height respectively. In the latter case the dialog will be automatically centered on the screen.
+<var>X2</var> and <var>Y2</var> parameters can't be less than zero.</div>
+  <div class=dfn>HelpTopic</div>
+  <div class=dfndescr><a href="../language/helptopic.html">Help topic</a>
+    for the dialog. If help is not needed, set this parameter to NULL.<br>
+   </div>
+  <div class=dfn>Item</div>
+  <div class=dfndescr>Address of an array of
+    <a href="structures/fardialogitem.html">FarDialogItem</a> structures. Each structure describes one dialog item. </div>
+  <div class=dfn>ItemsNumber</div>
+  <div class=dfndescr>Number of <i>FarDialogItem</i> array elements.</div>
+  <div class=dfn>Reserved</div>
+  <div class=dfndescr>Reserved for future use. Must be 0.</div>
+  <div class=dfn>Flags</div>
+  <div class=dfndescr>Set of flags, specifying additional dialog parameters.
+    It can be a combination of the following values (<a name="FARDIALOGFLAGS">FARDIALOGFLAGS</a> enumeration):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Flag</th><th class="cont" width="60%">Description</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FDLG_WARNING">FDLG_WARNING</a></td>
+    <td class="cont" width="60%">
+      Sets "Warning" color scheme for the dialog.
+    </td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FDLG_SMALLDIALOG">FDLG_SMALLDIALOG</a></td>
+    <td class="cont" width="60%">
+      Allows to create dialogs with reduced border size. These dialogs don't cast shadow and when
+      drawing separators (DIF_SEPARATOR) it's assumed there's no space between dialog border and
+      dialog double-line frame.
+    </td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FDLG_NODRAWSHADOW">FDLG_NODRAWSHADOW</a></td>
+    <td class="cont" width="60%">Don't draw shadow under the dialog.
+    </td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FDLG_NODRAWPANEL">FDLG_NODRAWPANEL</a></td>
+    <td class="cont" width="60%">Don't draw dialog panel.
+    </td></tr>
+   </table>
+
+  </div>
+  <div class=dfn>DlgProc</div>
+  <div class=dfndescr>Pointer to the <a href="defs/farwindowproc.html">FARWINDOWPROC</a> dialog callback function.</div>
+  <div class=dfn>Param</div>
+  <div class=dfndescr>Data that will be sent to the dialog callback function with the
+       <a href="dmsg/dn_initdialog.html">DN_INITDIALOG</a> event.</div>
+</div>
+
+<h3>Return value</h3>
+<div class=descr>
+  The function returns either -1 when user cancels the dialog or the selected dialog item index (index
+  of <i>Item</i> array element, it's emphasized in the example below).
+</div>
+
+
+<h3>Remarks</h3>
+<div class=descr>
+<p>FAR transforms Item elements to its own internal structure before creating a dialog.
+After dialog processing is over, Item elements array is adjusted according to the changes made in
+the progress of user work with the dialog.</font></div>
+
+<h3>Example</h3>
+<div class=descr>
+<pre class=code>
+  int ExitCode=Info.DialogEx(Info.ModuleNumber,
+                  -1,-1,76,10,
+                  &quot;TempCfg&quot;,DialogItems,
+                  sizeof(DialogItems)/sizeof(DialogItems[0]),
+                  0,0,
+                  DlgProc,0);
+<dfn>  if (ExitCode != 7)</dfn>
+    return(FALSE);
+</pre>
+</div>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="dialog.html">Dialog</a>,
+<a href="defdlgproc.html">DefDlgProc</a>,
+<a href="senddlgmessage.html">SendDlgMessage</a>,
+<a href="../service_functions/index.html">Service functions</a>,
+<a href="../service_functions/message.html">Message</a>,
+<a href="../addons/initdialogitems.html">InitDialogItems</a>
+</div>
+
+</body>
+</html>

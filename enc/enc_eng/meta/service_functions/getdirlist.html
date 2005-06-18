@@ -1,0 +1,67 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>GetDirList</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>GetDirList</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a href="index.html">service functions</a><br>
+</div>
+
+<div class=shortdescr>
+The <dfn>GetDirList</dfn> function returns the list of files in the specified directory including
+subdirectories.
+</div>
+
+<pre class=syntax>
+int WINAPI GetDirList(
+  const char *Dir,
+  struct PluginPanelItem **pPanelItem,
+  int *pItemsNumber
+);
+</pre>
+
+<h3>Parameters</h3>
+<div class=descr>
+    <div class=dfn>Dir</div>
+    <div class=dfndescr>Name of the directory to scan. It can be a name only or a full pathname.</div>
+    <div class=dfn>pPanelItem</div>
+    <div class=dfndescr>Points to the variable that will receive the address of an array of
+      <a href="../structures/pluginpanelitem.html">PluginPanelItem</a> structures.<br>
+      When this array is no longer needed, it must be passed to the
+      <a href="freedirlist.html">FreeDirList</a> function.</div>
+    <div class=dfn>pItemsNumber</div>
+    <div class=dfndescr>Points to the variable that will receive the number of
+      PluginPanelItem <a href="../structures/pluginpanelitem.html">PluginPanelItem</a> structures.
+    </div>
+
+</div>
+
+<h3>Return value</h3>
+<div class=descr>
+  If the function succeeds, the return value is TRUE. If the function fails or directory scanning
+  is cancelled by the user, FALSE is returned.
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+<ol>
+<li>The function returns file names relative to the specified directory.
+  For example, if <dfn>Dir</dfn> is <code>D:\DIR1\DIR2</code>, file names will be in DIR2\file.ext format.
+<li>The user can interrupt the directory scanning process by pressing Esc. In this case the
+  function will return FALSE.
+</ol>
+</div>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="getplugindirlist.html">GetPluginDirList</a>
+</div>
+
+</body>
+</html>

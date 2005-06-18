@@ -1,0 +1,72 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>ViewerMode</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>ViewerMode</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a  href="index.html">structures</a><br>
+</div>
+
+<div class=shortdescr>
+The ViewerMode structure is used to recieve additional information about the state of the current
+viewer instance.
+</div>
+
+<pre class=syntax>
+struct ViewerMode
+{
+   int UseDecodeTable;
+   int TableNum;
+   int AnsiMode;
+   int Unicode;
+   int Wrap;
+   int TypeWrap;
+   int Hex;
+   DWORD Reserved[4];
+};
+</pre>
+
+<h3>Elements</h3>
+<div class=descr>
+  <div class=dfn>UseDecodeTable</div>
+  <div class=dfndescr>If TRUE, then a decoding table is used.</div>
+
+  <div class=dfn>TableNum</div>
+  <div class=dfndescr>The number of the user character table. Use only if
+  UseDecodeTable is TRUE.</div>
+
+  <div class=dfn>AnsiMode</div>
+  <div class=dfndescr>If TRUE, then the current charset is ANSI.</div>
+
+  <div class=dfn>Unicode</div>
+  <div class=dfndescr>If TRUE, then the current charset is Unicode.</div>
+
+  <div class=dfn>Wrap</div>
+  <div class=dfndescr>Text wrapping is on - TRUE, off - FALSE.</div>
+
+  <div class=dfn>TypeWrap</div>
+  <div class=dfndescr>Text wrapping mode.</div>
+
+  <div class=dfn>Hex</div>
+  <div class=dfndescr>If TRUE, then the viewer is in hex-mode.</div>
+
+  <div class=dfn>Reserved</div>
+  <div class=dfndescr>Reserved for future use.</div>
+
+</div>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="index.html">Structures</a>,
+<a href="../service_functions/viewercontrol.html">ViewerControl</a>,
+<a href="viewerinfo.html">ViewerInfo</a>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>FILETIME</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src="../links.js" type="text/javascript"></script>
+</head>
+
+<body>
+
+<h1>FILETIME</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a href="../structures/index.html">structures</a> |
+<a href="index.html">win32 structures</a>
+</div>
+
+<div class=shortdescr>
+The <dfn>FILETIME</dfn> data structure is a 64-bit value representing the number of 100-nanosecond
+intervals since January 1, 1601. It is the means by which Win32 determines the date and time.
+</div>
+
+<pre class=syntax>
+typedef struct _FILETIME {
+  DWORD dwLowDateTime;
+  DWORD dwHighDateTime;
+} FILETIME; </pre>
+
+<h3>Members</h3>
+<div class=descr>
+
+    <div class=dfn>dwLowDateTime</div>
+    <div class=dfndescr>Specifies the low-order 32 bits of the Win32 date/time value.</div>
+    <div class=dfn>dwHighDateTime</div>
+    <div class=dfndescr>Specifies the high-order 32 bits of the Win32 date/time value.</div>
+
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+  <p>It is not recommended that you add or substract values from this structure to obtain relative times.
+  Instead, you should do the following:
+  <ul>
+    <li>Copy this structure to a <a href="win32/ULARGE_INTEGER">ULARGE_INTEGER</a> structure.</li>
+    <li>Use standard 64-bit arithmetic on the <a href="win32/ULARGE_INTEGER">ULARGE_INTEGER</a>
+        value or cast a variable of <strong>FILETIME</strong> type to the <strong>__int64</strong> type:
+          <pre class=code>
+FILETIME WriteTime1, WriteTime2;
+
+if(*(__int64*) &amp; WriteTime1 == *(__int64*) &amp; WriteTime2)
+ ...
+</pre>
+    </li>
+  </ul>
+<a name="precise"></a>
+Not all file systems can record creation and last access time and not all file systems
+record them in the same manner. For example, on NT FAT, create time has a resolution
+of 10 milliseconds, write time has a resolution of 2 seconds, and access time has a
+resolution of 1 day (really, the access date). On NTFS, access time has a resolution of
+1 hour. Therefore, the GetFileTime function may not return the same file time
+information set using the SetFileTime function. Furthermore, FAT records times on disk
+in local time. However, NTFS records times on disk in UTC.
+</div>
+
+<div class=see>See also:</div>
+<div class=seecont>
+<a href="win32/CompareFileTime">CompareFileTime</a>,
+<a href="getfiletime.html">GetFileTime</a>,
+<a href="setfiletime.html">SetFileTime</a>,
+<a href="win32/ULARGE_INTEGER">ULARGE_INTEGER</a>
+</div>
+
+</body>
+</html>

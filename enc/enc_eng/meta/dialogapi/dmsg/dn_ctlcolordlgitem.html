@@ -1,0 +1,115 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>DN_CTLCOLORDLGITEM</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>DN_CTLCOLORDLGITEM</h1>
+<div class=navbar>
+<a  href="index_dn.html">Events</a> |
+<a href="../index.html">Dialog API</a><br>
+</div>
+
+<div class=shortdescr>
+The <dfn>DN_CTLCOLORDLGITEM</dfn> event is sent to the dialog callback function before each dialog
+item is drawn.
+</div>
+
+<h3>Param1</h3>
+<div class=descr>
+ID of the dialog item that is about to be drawn.
+</div>
+
+<h3>Param2</h3>
+<div class=descr>
+Color attribute (foreground+background) that the callback function wants to use to draw dialog
+item:
+
+<div class=dfn><a href="../controls/di_singlebox.html">DI_SINGLEBOX</a><br><a href="../controls/di_doublebox.html">DI_DOUBLEBOX</a></div>
+<div class=dfndescr>LO(LO=Title,HI=HiText), HI(LO=Frame,0)
+</div>
+
+<div class=dfn><a href="../controls/di_text.html">DI_TEXT</a></div>
+<div class=dfndescr>LO(LO=Title,HI=HiText), HI(LO=Frame,0)<br>
+The box color applies only to text items with the <a href="../flags/dif_separator.html">DIF_SEPARATOR</a>
+and <a href="../flags/dif_separator2.html">DIF_SEPARATOR2</a> flags set.
+</div>
+
+<div class=dfn><a href="../controls/di_vtext.html">DI_VTEXT</a></div>
+<div class=dfndescr>LO(LO=Title,HI=0), HI(0,0)
+</div>
+
+<div class=dfn><a href="../controls/di_edit.html">DI_EDIT</a><br>
+<a href="../controls/di_fixedit.html">DI_FIXEDIT</a><br>
+<a href="../controls/di_pswedit.html">DI_PSWEDIT</a><br>
+<a href="../controls/di_combobox.html">DI_COMBOBOX</a>
+</div>
+<div class=dfndescr>LO(LO=EditLine,HI=SelectText), HI(LO=UnchangedColor, HI=History&amp;ComboBox pointer)
+</div>
+
+<div class=dfn><a href="../controls/di_checkbox.html">DI_CHECKBOX</a><br>
+<a href="../controls/di_radiobutton.html">DI_RADIOBUTTON</a><br>
+</div>
+<div class=dfndescr>LO(LO=Title,HI=HiText), HI(0,0)
+</div>
+
+<div class=dfn><a href="../controls/di_button.html">DI_BUTTON</a></div>
+<div class=dfndescr>LO(LO=Title,HI=HiText), HI(0,0)
+</div>
+
+<div class=dfn><a href="../controls/di_listbox.html">DI_LISTBOX</a></div>
+<div class=dfndescr>For the <a href="../controls/di_listbox.html">DI_LISTBOX</a> item
+only the <a href="dn_ctlcolordlglist.html">DN_CTLCOLORDLGLIST</a> event is recieved.
+</div>
+
+</div>
+
+<h3>Return</h3>
+<div class=descr>
+Color attribute (foreground+background) that the callback function should use to draw the dialog
+item.
+</div>
+
+<h3>Controls</h3>
+<div class=descr>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
+<tr class="cont"><td class="cont" width="40%">All</td>
+<td class="cont" width="60%">Applies to all dialog items with the exception of
+<a href="../controls/di_listbox.html">DI_LISTBOX</a> and
+<a href="../controls/di_usercontrol.html">DI_USERCONTROL</a></td></tr>
+</table>
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+</div>
+
+<h3>Example</h3>
+<div class=descr>
+For example, this is how the macro assignment dialog in FAR Manager changes the color of input
+field:
+
+<pre class=code>
+/* 02 */ DI_EDIT,5,3,28,3,1,0,0,1,"",
+
+case DN_CTLCOLORDLGITEM:
+  // Unchanged resides in the Lo byte of the Hi word.
+  Param2&amp;=0xFF00FFFFU;
+  Param2|=(Param2&amp;0xFF)&lt;&lt;16;
+  return Param2;
+</pre>
+</div>
+
+
+<div class=see>See also:</div><div class=seecont>
+<a href="../dialogex.html">DialogEx</a><br>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>EditorColor</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>EditorColor</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a  href="index.html">structures</a><br>
+</div>
+
+<div class=shortdescr>
+The <dfn>EditorColor</dfn> structure is used in the <a href="../service_functions/editorcontrol.html">EditorControl</a>
+function to get or set information about color regions in FAR editor.
+</div>
+
+<pre class=syntax>
+struct EditorColor
+{
+  int StringNumber;
+  int ColorItem;
+  int StartPos;
+  int EndPos;
+  int Color;
+};
+</pre>
+
+<h3>Elements</h3>
+<div class=descr>
+
+    <div class=dfn>StringNumber</div>
+    <div class=dfndescr>Line number to process or <b>-1</b> for current string.</div>
+    <div class=dfn>ColorItem</div>
+    <div class=dfndescr>Ordinal number of the color region whose information is to be retrieved.
+      A line consists of a set of segments (regions) all of which can have a different color. Set
+      ColorItem to <strong>0</strong> to retrieve information about the first segment,
+      <strong>1</strong> for the second, and so on.<br>
+      This field isn't used with the <a href="../service_functions/editorcontrol.html#ECTL_ADDCOLOR">ECTL_ADDCOLOR</a> command.
+      The new color is applied to the whole region between positions StartPos and EndPos,
+      regardless of color regions which existed there before.</div>
+    <div class=dfn>StartPos, EndPos</div>
+    <div class=dfndescr>Line region bounds.<br>
+      Input parameters for the <a href="../service_functions/editorcontrol.html#ECTL_ADDCOLOR">ECTL_ADDCOLOR</a> command
+      and output parameters for the <a href="../service_functions/editorcontrol.html#ECTL_GETCOLOR">ECTL_GETCOLOR</a> command.</div>
+    <div class=dfn>Color</div>
+    <div class=dfndescr>Character color.<br>
+      Input parameter for the <a href="../service_functions/editorcontrol.html#ECTL_ADDCOLOR">ECTL_ADDCOLOR</a> command and
+      output parameter for the <a href="../service_functions/editorcontrol.html#ECTL_GETCOLOR">ECTL_GETCOLOR</a> command.<br>
+      For the <a href="../service_functions/editorcontrol.html#ECTL_ADDCOLOR">ECTL_ADDCOLOR</a> command, if <dfn>Color</dfn> is set to <strong>0</strong>,
+      <dfn>EndPos</dfn> is ignored and the command will remove all existing color regions starting at position
+      <dfn>StartPos</dfn>. In the latter case, if <dfn>StartPos</dfn> is <strong>-1</strong>,
+      all color regions for the line will be removed.
+      <p>Starting with build 1957 FAR highlights the tabulation character to its full length. If it
+      is needed to highlight the tab character as a character of width 1 then in addition to
+      specifying the color for the <em>Color</em> member set the <dfn>ECF_TAB1</dfn> flag
+      (<a name="EDITORCOLORFLAGS">EDITORCOLORFLAGS</a> enum):
+      <table class="cont">
+      <tr class="cont"><th class="cont" width="40%">Flag</th><th class="cont" width="60%">Description</th></tr>
+       <tr class="cont"><td class="cont" width="40%"><a name="ECF_TAB1">ECF_TAB1</a></td>
+       <td class="cont" width="60%">If a tab character is to be found inside a color region,
+       highlight it as a character of width 1.</td></tr>
+      </table>
+      </div>
+
+</div>
+
+
+<h3>Remarks</h3>
+<div class=descr>
+  Partial deletion of color regions is not very useful, as FAR does not renormalize the segments
+  as new ones are added, this is the programmer's responsibility. Normally, it is necessary to clear
+  all regions in line, and recreate them as normalized --- non-overlapping --- segments (otherwise
+  the regions will accumulate causing increased memory usage).
+
+  <p>Using the <em>Color</em> parameter, the background color can be set also. Furthermore,
+  regardless of line length, you can set a color region starting from the first visible position
+  and ending at the rightmost; this will change the editor background color.
+  Unfortunately this method won't work for files with a line count less than the editor screen height.
+</div>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="index.html">structures</a> |
+<a href="../delphi/teditorcolor.html">TEditorColor</a>
+</div>
+
+</body>
+</html>

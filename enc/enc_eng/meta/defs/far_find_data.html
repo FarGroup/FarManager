@@ -1,0 +1,178 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>FAR_FIND_DATA</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>FAR_FIND_DATA</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a href="../structures/index.html">structures</a> |
+<a href="../winapi/index.html">win32 structures</a>
+</div>
+
+
+
+<div class=shortdescr>
+The <strong>FAR_FIND_DATA</strong> structure describes
+a file object located in the FAR file panel.
+</div>
+
+<pre class=syntax>
+typedef struct _FAR_FIND_DATA {
+  DWORD dwFileAttributes;
+  FILETIME ftCreationTime;
+  FILETIME ftLastAccessTime;
+  FILETIME ftLastWriteTime;
+  DWORD nFileSizeHigh;
+  DWORD nFileSizeLow;
+  DWORD dwReserved0;
+  DWORD dwReserved1;
+  TCHAR cFileName[ MAX_PATH ];
+  TCHAR cAlternateFileName[ 14 ];
+} FAR_FIND_DATA;
+</pre>
+
+<h3>Members</h3>
+<div class=descr>
+
+    <div class=dfn>dwFileAttributes</div>
+    <div class=dfndescr>File attributes of the file found. This member can be one or more of the
+      following values:
+
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="40%">Attribute</th><th class="cont" width="60%">Description</th></tr>
+        <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_ARCHIVE">FILE_ATTRIBUTE_ARCHIVE</a></td>
+        <td class="cont" width="60%">The file or directory is an archive file or directory.
+          Applications use this attribute to mark files for backup or removal.</td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_COMPRESSED">FILE_ATTRIBUTE_COMPRESSED</a></td>
+        <td class="cont" width="60%">The file or directory is compressed. For a file, this means
+          that all of the data in the file is compressed. For a directory, this means that
+          compression is the default for newly created files and subdirectories.</td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_DIRECTORY">FILE_ATTRIBUTE_DIRECTORY</a></td>
+        <td class="cont" width="60%">Identifies a directory.</td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_ENCRYPTED">FILE_ATTRIBUTE_ENCRYPTED</a></td>
+        <td class="cont" width="60%">The file or directory is encrypted. For a file, this means
+          that all data in the file is encrypted. For a directory, this means that encryption is the
+          default for newly created files and subdirectories.</td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_HIDDEN">FILE_ATTRIBUTE_HIDDEN</a></td>
+        <td class="cont" width="60%">The file or directory is hidden. It is not included in an
+          ordinary directory listing.</td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_NORMAL">FILE_ATTRIBUTE_NORMAL</a></td>
+        <td class="cont" width="60%">The file or directory has no other attributes set. This
+          attribute is valid only if used alone.</td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_OFFLINE">FILE_ATTRIBUTE_OFFLINE</a></td>
+        <td class="cont" width="60%">The file data is not immediately available. This attribute
+          indicates that the file data has been physically moved to offline storage.</td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_READONLY">FILE_ATTRIBUTE_READONLY</a></td>
+        <td class="cont" width="60%">The file or directory is read-only. Applications can read the
+          file but cannot write to it or delete it. In the case of a directory, applications cannot delete it.</td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_REPARSE_POINT">FILE_ATTRIBUTE_REPARSE_POINT</a></td>
+        <td class="cont" width="60%">The file or directory has an associated reparse point.</td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_SPARSE_FILE">FILE_ATTRIBUTE_SPARSE_FILE</a></td>
+        <td class="cont" width="60%">The file is a sparse file.</td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_SYSTEM">FILE_ATTRIBUTE_SYSTEM</a></td>
+        <td class="cont" width="60%">The file or directory is part of the operating system or is
+          used exclusively by the operating system.</td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_TEMPORARY">FILE_ATTRIBUTE_TEMPORARY</a></td>
+        <td class="cont" width="60%">The file is being used for temporary storage. File systems
+          attempt to keep all of the data in memory for quicker access, rather than flushing it back
+          to mass storage. A temporary file should be deleted by the application as soon as it is no
+          longer needed.</td></tr>
+       </table>
+    </div>
+
+    <div class=dfn>ftCreationTime</div>
+    <div class=dfndescr>A <a href="../winapi/filetime.html">FILETIME</a> structure
+    that specifies when the file or directory was created.
+    The <a href="win32/FindFirstFile">FindFirstFile</a> and <a href="win32/FindNextFile">FindNextFile</a>
+    functions return file time in the UTC format.
+    Those functions set FILETIME to 0 if the underlying file system does not support creation time.
+    You can use the <a href="win32/FileTimeToLocalFileTime">FileTimeToLocalFileTime</a>
+    functions to transform the file time from UTC format to local time format. And then use the
+    <a href="win32/FileTimeToSystemTime">FileTimeToSystemTime</a>
+    function to transform the local time to a
+    <a href="../winapi/systemtime.html">SYSTEMTIME</a> structure which has different members for
+    month, day, year, etc.</div>
+
+    <div class=dfn>ftLastAccessTime</div>
+    <div class=dfndescr>A <a href="../winapi/filetime.html">FILETIME</a> structure. For a file, the
+      structure specifies when the file was last read from or written to. For a directory, the
+      structure specifies when the directory was created. For both files and directories, the
+      specified date will be correct, but the time of day will always be set to midnight. If the
+      underlying file system does not support last access time, this member is zero. File time is
+      returned in the UTC format.
+    </div>
+
+    <div class=dfn>ftLastWriteTime</div>
+    <div class=dfndescr>A <a href="../winapi/filetime.html">FILETIME</a> structure. For a file, the
+      structure specifies when the file was last written to. For a directory, the structure specifies when the
+      directory was created. If the underlying file system does not support last write time, this
+      member is zero. File time is returned in the UTC format.</div>
+
+    <div class=dfn>nFileSizeHigh</div>
+    <div class=dfndescr>High-order DWORD value of the file size, in bytes. This value is zero
+      unless the file size is greater than MAXDWORD. The size of the file is equal to
+      <code>(<var>nFileSizeHigh</var> * (MAXDWORD+1)) + <var>nFileSizeLow</var></code>.
+    </div>
+
+    <div class=dfn>nFileSizeLow</div>
+    <div class=dfndescr>Low-order DWORD value of the file size, in bytes.</div>
+
+    <div class=dfn>dwReserved0</div>
+    <div class=dfndescr>If the <var>dwFileAttributes</var> member includes the
+    <dfn>FILE_ATTRIBUTE_REPARSE_POINT</dfn> attribute, this member specifies the reparse tag.
+    Otherwise, this value is undefined and should not be used.</div>
+
+    <div class=dfn>dwReserved1</div>
+    <div class=dfndescr>Reserved for future use.</div>
+
+    <div class=dfn>cFileName</div>
+    <div class=dfndescr>A null-terminated string that specifies the name of the file.</div>
+
+    <div class=dfn>cAlternateFileName</div>
+    <div class=dfndescr>A null-terminated string that specifies an alternative name for the file.
+      This name is in the classic 8.3 (filename.ext) file name format.</div>
+
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+<ol>
+<li>If a file has a long file name, the complete name appears in the <var>cFileName</var> member,
+and the 8.3 format truncated version of the name appears in the <var>cAlternateFileName</var>
+member. Otherwise, <var>cAlternateFileName</var> is empty. As an alternative, you can use the
+<a href="win32/GetShortPathName">GetShortPathName</a> function to find the 8.3 format version of a
+file name.</p>
+<li>Not all file systems can record creation and last access time and not all file systems record
+them in the same manner. For example, on NT FAT, create time has a resolution of 10 milliseconds,
+write time has a resolution of 2 seconds, and access time has a resolution of 1 day (really, the
+access date). On NTFS, access time has a resolution of 1 hour.
+</ol>
+</div>
+<br>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="_far_use_farfinddata.html">_FAR_USE_FARFINDDATA</a> |
+<a href="../winapi/win32_find_data.html">WIN32_FIND_DATA</a> |
+<a href="../winapi/filetime.html">FILETIME</a> |
+<a href="../delphi/twin32finddata.html">TWin32FindData</a>
+</div>
+
+</body>
+</html>

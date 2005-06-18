@@ -1,0 +1,114 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>_FAR_NO_NAMELESS_UNIONS</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+
+<body>
+<h1>_FAR_NO_NAMELESS_UNIONS</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a href="index.html">types and definitions</a>
+</div>
+
+
+<div class=shortdescr>
+The macro _FAR_NO_NAMELESS_UNIONS controls whether the
+<a href="../dialogapi/structures/fardialogitem.html">FarDialogItem</a>
+structure uses anonymous unions. Anonymous unions are a language feature that is allowed by the C++
+standard but not supported in ANSI C.
+
+<p>
+If the macro <dfn>_FAR_NO_NAMELESS_UNIONS</dfn> is <b>not defined</b>, the
+<code>FarDialogItem</code> structure will be compatible with FAR Manager versions
+prior to FAR 1.70 beta 3 (inclusive). So the
+<a href="../dialogapi/structures/fardialogitem.html">FarDialogItem</a> structure will have the
+following form:
+
+<pre class="code">
+struct FarDialogItem
+{
+  ...
+  union {
+    int Selected;
+    char *History;
+    char *Mask;
+    struct FarList *ListItems;
+    CHAR_INFO *VBuf;
+  <span class="alert3">};</span>
+  ...
+  union {
+    char Data[512];
+
+    struct {
+      DWORD PtrFlags;
+      int   PtrLength;
+      char *PtrData;
+      char  PtrTail[1];
+    } Ptr;
+  <span class="alert3">};</span>
+};
+</pre>
+
+So to access the <code>Data</code> member of the
+<a href="../dialogapi/structures/fardialogitem.html">FarDialogItem</a> structure
+it will be suficient to write <code>Data</code>, and to access the <code>Selected</code> member
+- <code>Selected</code>.
+
+<p>If the macro <dfn>_FAR_NO_NAMELESS_UNIONS</dfn> is <b>defined</b>, the structure will use named unions.
+Then it will be compatible with ANSI C compilers, but will not be source-level compatible with
+plugins written for FAR 1.65. The structure will have the following form:
+
+<pre class="code">
+struct FarDialogItem
+{
+  ...
+  union {
+    int Selected;
+    char *History;
+    char *Mask;
+    struct FarList *ListItems;
+    CHAR_INFO *VBuf;
+  <span class="alert3">} Param;</span>
+  ...
+  union {
+    char Data[512];
+
+    struct {
+      DWORD PtrFlags;
+      int   PtrLength;
+      char *PtrData;
+      char  PtrTail[1];
+    } Ptr;
+  <span class="alert3">} Data;</span>
+};
+</pre>
+
+<p>In this case to access the <code>Data</code> member of the structure
+you will have to write <code>Data.Data</code>, and to access the <code>Selected</code> member
+- <code>Param.Selected</code>.
+
+<p>The macro must be defined before the
+<code>#include "plugin.hpp"</code> directive:
+<pre class="code">
+<b>#define _FAR_NO_NAMELESS_UNIONS</b>
+#include "plugin.hpp"
+</pre>
+
+<p class=note><img src="../../images/warning.gif" alt="Attention!" width="10" height="10"> Attention!</p>
+<UL class=note><LI>In FAR 1.70 beta 4, the default variant is compatible with old plugins
+(<dfn>_FAR_NO_NAMELESS_UNIONS</dfn> is not defined). However, in FAR 1.70 release the new default
+will be <dfn>_FAR_NO_NAMELESS_UNIONS</dfn>. So if you want your plugins to be source-level
+compatible with FAR 1.70 release, you can right now define the
+<dfn>_FAR_NO_NAMELESS_UNIONS</dfn> macro and modify the source code of your plugins accordingly.
+</LI></UL>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="../exported_functions/getminfarversion.html">GetMinFarVersion</a>
+</div>
+
+</body>
+</html>

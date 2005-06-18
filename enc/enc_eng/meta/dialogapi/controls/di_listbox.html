@@ -1,0 +1,111 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>DI_LISTBOX</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>DI_LISTBOX</h1>
+<div class=navbar>
+<a href="../../index.html">main</a> |
+<a href="../index.html">Dialog API</a> |
+<a href="index.html">Dialog items</a><br>
+</div>
+
+<div class=shortdescr>The <dfn>DI_LISTBOX</dfn> dialog item describes a list box.
+</div>
+
+<pre class=syntax>
+struct FarDialogItem
+{
+  int Type          = <b>DI_LISTBOX</b>
+  int X1            = <b>X1</b>
+  int Y1            = <b>Y1</b>
+  int X2            = <b>X2</b>
+  int Y2            = <b>Y2</b>
+  int Focus         = <b>Focus</b>
+  union {
+    FarList *ListItems= <b>ListItems</b>  [passed to]
+    int ListPos       = <b>ListPos</b>    [returned]
+  };
+  DWORD Flags       = <b>Flags</b>
+  int DefaultButton = <b>DefaultButton</b>
+  char Data[512];   = <b>Caption</b>
+};
+</pre>
+<p class=note><img src="../../../images/note.gif" alt="Attention!" width="10" height="10"> Attention!</p>
+<UL class=note>
+  <LI>This is an exemplary structure; read full description <a href="../structures/fardialogitem.html">here</a>.</LI>
+</UL>
+
+<h3>ListItems</h3>
+<div class=descr>
+<p>This is a pointer to the <a href="../structures/farlist.html">FarList</a> structure containing fields for the list box initialization.
+</div>
+
+<h3>ListPos</h3>
+<div class=descr>
+<p>Current position in the <a href="../structures/farlist.html">ListItems.Items</a> list. The index of the item selected by the user will be stored in this filed when the dialog is closed.</div>
+
+
+<h3>Flags</h3>
+<div class=descr>
+There are several flags applicable to the <dfn>DI_LISTBOX</dfn> (for the flags of the list box, see <a href="../structures/farlistitem.html">FarListItem</a>):<br>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Flag</th><th class="cont" width="60%">Description</th></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_listautohighlight.html">DIF_LISTAUTOHIGHLIGHT</a></td>
+ <td class="cont" width="60%">Assigns hotkeys for the list elements automatically, starting with the first item.</td>
+ </tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_listnoampersand.html">DIF_LISTNOAMPERSAND</a></td>
+ <td class="cont" width="60%">Shows a hotkey when a letter is preceded with an ampersand instead of showing the ampersand itself.</td>
+ </tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_listwrapmode.html">DIF_LISTWRAPMODE</a></td>
+ <td class="cont" width="60%">If this flag is set, trying to move the cursor up from the first element or down from the last element will move the cursor to the bottom or the top of the list, respectively.</td>
+ </tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_disable.html">DIF_DISABLE</a></td>
+ <td class="cont" width="60%">Disables user access to the list box.</td>
+ </tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a></td>
+ <td class="cont" width="60%">The dialog item cannot receive keyboard focus, but can handle other user events.</td>
+ </tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_listnobox.html">DIF_LISTNOBOX</a></td>
+ <td class="cont" width="60%">Disables the drawing of a frame around the list. The <b>Data</b> field is ignored in this case.</td>
+ </tr>
+</table>
+</div>
+
+<h3>Events</h3>
+<div class=descr>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Event</th><th class="cont" width="60%">Description</th></tr>
+
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a></td>
+ <td class="cont" width="60%">This event is sent to the dialog callback function just before the list box is drawn.</td>
+ </tr>
+
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_ctlcolordlglist.html">DN_CTLCOLORDLGLIST</a></td>
+ <td class="cont" width="60%">Plugin should pass the color attributes of the list box when this event comes.</td>
+ </tr>
+
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_listchange.html">DN_LISTCHANGE</a></td>
+ <td class="cont" width="60%">Position in the list was changed.</td>
+ </tr>
+
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_listhotkey.html">DN_LISTHOTKEY</a></td>
+ <td class="cont" width="60%">This event comes after the user has pressed a hotkey in the list.</td>
+ </tr>
+
+</table>
+</div>
+<br>
+<div class=see>See also:</div><div class=seecont>
+<a href="di_combobox.html">DI_COMBOBOX</a>,
+<a href="../structures/fardialogitem.html">FarDialogItem</a>
+
+</div>
+
+</body>
+</html>

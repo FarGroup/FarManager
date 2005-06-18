@@ -1,0 +1,126 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>MOUSE_EVENT_RECORD</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src="../links.js" type="text/javascript"></script>
+</head>
+<body>
+
+<h1>MOUSE_EVENT_RECORD</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a href="../structures/index.html">structures</a> |
+<a href="index.html">win32 structures</a> |
+<a href="input_record.html">input_record</a>
+</div>
+
+<div class=shortdescr>
+The <dfn>MOUSE_EVENT_RECORD</dfn> structure is used in a console <dfn>INPUT_RECORD</dfn>
+structure to report mouse input events.</div>
+
+<pre class=syntax>
+typedef struct _MOUSE_EVENT_RECORD {
+    COORD dwMousePosition;
+    DWORD dwButtonState;
+    DWORD dwControlKeyState;
+    DWORD dwEventFlags;
+} MOUSE_EVENT_RECORD;
+</pre>
+
+<h3>Members</h3>
+<div class=descr>
+    <div class=dfn>dwMousePosition</div>
+    <div class=dfndescr>Location of the cursor, in terms of the screen buffer's character-cell coordinates (see <a href="coord.html">COORD</a> structure).</div>
+    <div class=dfn>dwButtonState</div>
+    <div class=dfndescr>Indicates the status of the mouse buttons. The least significant
+bit corresponds to the leftmost mouse button. The next least significant bit corresponds
+to the rightmost mouse button. The next bit indicates the next-to-leftmost mouse button.
+The bits then correspond left to right to the mouse buttons. A bit is 1 if the button was pressed.
+<br>
+    The following constants are defined for the first five mouse buttons:<br>
+      FROM_LEFT_1ST_BUTTON_PRESSED<br>
+      RIGHTMOST_BUTTON_PRESSED<br>
+      FROM_LEFT_2ND_BUTTON_PRESSED<br>
+      FROM_LEFT_3RD_BUTTON_PRESSED<br>
+      FROM_LEFT_4TH_BUTTON_PRESSED</div>
+    <div class=dfn>dwControlKeyState</div>
+    <div class=dfndescr>Indicates the state of the control keys.
+This member can be one or more of the following values.
+
+     <table class="cont">
+     <tr class="cont">
+       <th class="cont" width="40%">Value</th>
+       <th class="cont" width="60%">Description</th></tr>
+        <tr class="cont"><td class="cont" width="40%">CAPSLOCK_ON</td>
+        <td class="cont" width="60%">The CAPS LOCK light is on.</td>
+        </tr>
+        <tr class="cont"><td class="cont" width="40%">ENHANCED_KEY</td>
+        <td class="cont" width="60%">The key is enhanced.</td></tr>
+        <tr class="cont"><td class="cont" width="40%">LEFT_ALT_PRESSED</td>
+        <td class="cont" width="60%">The left ALT key is pressed.</td>
+        </tr>
+        <tr class="cont"><td class="cont" width="40%">LEFT_CTRL_PRESSED</td>
+        <td class="cont" width="60%">The left CTRL key is pressed.</td>
+        </tr>
+        <tr class="cont"><td class="cont" width="40%">NUMLOCK_ON </td>
+        <td class="cont" width="60%">The NUM LOCK light is on.</td></tr>
+        <tr class="cont"><td class="cont" width="40%">RIGHT_ALT_PRESSED </td>
+        <td class="cont" width="60%">The right ALT key is pressed.</td>
+        </tr>
+        <tr class="cont"><td class="cont" width="40%">RIGHT_CTRL_PRESSED </td>
+        <td class="cont" width="60%">The right CTRL key is pressed.</td>
+        </tr>
+        <tr class="cont"><td class="cont" width="40%">SCROLLLOCK_ON </td>
+        <td class="cont" width="60%">The SCROLL LOCK light is on.</td></tr>
+        <tr class="cont"><td class="cont" width="40%">SHIFT_PRESSED </td>
+        <td class="cont" width="60%">The SHIFT key is pressed.</td></tr>
+     </table>
+
+    </div>
+    <div class=dfn>dwEventFlags</div>
+    <div class=dfndescr>
+      Indicates the type of mouse event. If this value is zero, it indicates a mouse button
+      being pressed or released. Otherwise, this member is one of the following values.
+       <table class="cont">
+       <tr class="cont">
+         <th class="cont" width="40%">Value</th>
+         <th class="cont" width="60%">Description</th></tr>
+       <tr class="cont"><td class="cont" width="40%">DOUBLE_CLICK</td>
+       <td class="cont" width="60%">The second click (button press) of a double-click occurred.
+         The first click is returned as a regular button-press event.</td>
+       </tr>
+       <tr class="cont"><td class="cont" width="40%">MOUSE_MOVED</td>
+       <td class="cont" width="60%">A change in mouse position occurred.</td>
+       </tr>
+       <tr class="cont"><td class="cont" width="40%">MOUSE_WHEELED</td>
+       <td class="cont" width="60%"><strong>Windows 2000/XP:</strong> The mouse wheel was rolled.
+           If this flag is set, high word of <strong>dwButtonState</strong> will
+           contain the value of multiple WHEEL_DELTA, depending on the mouse driver.       </td>
+       </tr>
+       </table>
+    </div>
+
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+  Mouse events are placed in the input buffer when the console is in mouse mode
+  (<strong>ENABLE_MOUSE_INPUT</strong>).<br>
+  Mouse events are generated whenever the user moves the mouse, or presses or
+  releases one of the mouse buttons. Mouse events are placed in a console's input
+  buffer only when the console group has the keyboard focus and the cursor is within
+  the borders of the console's window.  
+</div>
+
+<div class=see>See also:</div><div class=seecont>
+  <a href="coord.html">COORD</a>,
+  <a href="peekconsoleinput.html">PeekConsoleInput</a>,
+  <a href="readconsoleinput.html">ReadConsoleInput</a>,
+  <a href="writeconsoleinput.html">WriteConsoleInput</a>,
+  <a href="input_record.html">INPUT_RECORD</a>
+</div>
+
+</body>
+</html>

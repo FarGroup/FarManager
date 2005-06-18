@@ -1,0 +1,67 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>DN_DRAWDIALOGDONE</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>DN_DRAWDIALOGDONE</h1>
+<div class=navbar>
+<a  href="index_dn.html">Events</a> |
+<a href="../index.html">Dialog API</a><br>
+</div>
+
+<div class=shortdescr>
+The <dfn>DN_DRAWDIALOGDONE</dfn> event is sent to the dialog callback function after the whole
+dialog has been drawn.
+</div>
+
+<h3>Param1</h3>
+<div class=descr>
+0
+</div>
+
+<h3>Param2</h3>
+<div class=descr>
+0
+</div>
+
+<h3>Return</h3>
+<div class=descr>
+Ignored.
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+Although this event is sent at the end of the drawing process, the virtual screen buffer is not
+yet "flushed". Meaning that if a plugin wants to draw something ontop the dialog, the changes might
+be erased from the screen when returning from the dialog callback function.
+
+<p>To prevent this, you must force the virtual screen buffer to be flushed using the
+<nobr><code>Text(0,0,0,NULL)</code></nobr> function, and only the "draw" your changes.
+For example:
+<pre class=code>
+  case  DN_DRAWDIALOGDONE:
+    Info.Text(0,0,0,NULL);
+    // draw ours here
+    break;
+</pre>
+
+</div>
+
+<h3>Example</h3>
+<div class=descr>
+
+</div>
+
+
+<div class=see>See also:</div><div class=seecont>
+<a href="../dialogex.html">DialogEx</a>,
+<a href="dn_drawdialog.html">DN_DRAWDIALOG</a>
+</div>
+
+</body>
+</html>

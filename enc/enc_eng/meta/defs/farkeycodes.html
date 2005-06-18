@@ -1,0 +1,424 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>FAR Manager key codes</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<a name="KEY_"></a>
+<h1>FAR Manager key codes</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a href="index.html">types and definitions</a> |
+<a href="../winapi/virtualkeycodes.html">virtual key codes</a>
+</div>
+
+
+
+<div class="shortdescr">
+This table shows the hexadecimal key codes used in FAR manager
+(in <code>farkeys.hpp</code> the <a name="BaseDefKeyboard">BaseDefKeyboard</a> enum).
+</div>
+
+
+<h3>Basic set:</h3>
+<table border="0" cellspacing="1" cellpadding="3" width="100%">
+  <tr>
+    <th align="left" width="10%"><small>Key</small></th>
+    <th align="left" width="25%"><small>KEY_*</small></th>
+    <th align="left" width="10%"><small>Hex</small></th>
+    <th align="left" width="55%"><small>Remarks</small></th>
+  </tr>
+  <tr>
+    <td>Ctrl</td>
+    <td>KEY_CTRL</td>
+    <th class="white"><code>01000000</code></th>
+    <td>Left Ctrl</td>
+  </tr>
+  <tr>
+    <td class="gray">Alt</td>
+    <td class="gray">KEY_ALT</td>
+    <th class="gray"><code>02000000</code></th>
+    <td class="gray">Left Alt</td>
+  </tr>
+  <tr>
+    <td>Shift</td>
+    <td>KEY_SHIFT</td>
+    <th class="white"><code>04000000</code></th>
+    <td></td>
+  </tr>
+  <tr>
+    <td class="gray">Right Ctrl</td>
+    <td class="gray">KEY_RCTRL</td>
+    <th class="gray"><code>10000000</code></th>
+    <td class="gray">Right Ctrl</td>
+  </tr>
+  <tr>
+    <td>Right Alt</td>
+    <td>KEY_RALT</td>
+    <th class="white"><code>20000000</code></th>
+    <td>Right Alt</td>
+  </tr>
+  <tr>
+    <td class="gray">[</td>
+    <td class="gray">KEY_BRACKET</td>
+    <th class="gray"><code>0000005B</code></th>
+    <td class="gray"></td>
+  </tr>
+  <tr>
+    <td>]</td>
+    <td>KEY_BACKBRACKET</td>
+    <th class="white"><code>0000005D</code></th>
+    <td></td>
+  </tr>
+  <tr>
+    <td class="gray">,</td>
+    <td class="gray">KEY_COMMA</td>
+    <th class="gray"><code>0000002C</code></th>
+    <td class="gray"></td>
+  </tr>
+  <tr>
+    <td>"</td>
+    <td>KEY_QUOTE</td>
+    <th class="white"><code>00000022</code></th>
+    <td></td>
+  </tr>
+  <tr>
+    <td class="gray">.</td>
+    <td class="gray">KEY_DOT</td>
+    <th class="gray"><code>0000002E</code></th>
+    <td class="gray"></td>
+  </tr>
+  <tr>
+    <td>/</td>
+    <td>KEY_SLASH</td>
+    <th class="white"><code>0000002F</code></th>
+    <td></td>
+  </tr>
+  <tr>
+    <td class="gray">:</td>
+    <td class="gray">KEY_COLON</td>
+    <th class="gray"><code>0000003A</code></th>
+    <td class="gray"></td>
+  </tr>
+  <tr>
+    <td>\</td>
+    <td>KEY_BACKSLASH</td>
+    <th class="white"><code>0000005C</code></th>
+    <td></td>
+  </tr>
+  <tr>
+    <td class="gray">Backspace</td>
+    <td class="gray">KEY_BS</td>
+    <th class="gray"><code>00000008</code></th>
+    <td class="gray"></td>
+  </tr>
+  <tr>
+    <td>Tab</td>
+    <td>KEY_TAB</td>
+    <th class="white"><code>00000009</code></th>
+    <td></td>
+  </tr>
+  <tr>
+    <td class="gray">Enter</td>
+    <td class="gray">KEY_ENTER</td>
+    <th class="gray"><code>0000000D</code></th>
+    <td class="gray"></td>
+  </tr>
+  <tr>
+    <td>Esc</td>
+    <td>KEY_ESC</td>
+    <th class="white"><code>0000001B</code></th>
+    <td></td>
+  </tr>
+  <tr>
+    <td class="gray">Space</td>
+    <td class="gray">KEY_SPACE</td>
+    <th class="gray"><code>00000020</code></th>
+    <td class="gray"></td>
+  </tr>
+  <tr>
+    <td>Break</td>
+    <td>KEY_BREAK</td>
+    <th class="white"><code>00000103</code></th>
+    <td>Ctrl-Pause</td>
+  </tr>
+  <tr>
+    <td class="gray">Page Up</td>
+    <td class="gray">KEY_PGUP</td>
+    <th class="gray"><code>00000121</code></th>
+    <td class="gray"></td>
+  </tr>
+  <tr>
+    <td>Page Down</td>
+    <td>KEY_PGDN</td>
+    <th class="white"><code>00000122</code></th>
+    <td></td>
+  </tr>
+  <tr>
+    <td class="gray">End</td>
+    <td class="gray">KEY_END</td>
+    <th class="gray"><code>00000123</code></th>
+    <td class="gray"></td>
+  </tr>
+  <tr>
+    <td>Home</td>
+    <td>KEY_HOME</td>
+    <th class="white"><code>00000124</code></th>
+    <td></td>
+  </tr>
+  <tr>
+    <td class="gray">Left</td>
+    <td class="gray">KEY_LEFT</td>
+    <th class="gray"><code>00000125</code></th>
+    <td class="gray"></td>
+  </tr>
+  <tr>
+    <td>UP</td>
+    <td>KEY_UP</td>
+    <th class="white"><code>00000126</code></th>
+    <td></td>
+  </tr>
+  <tr>
+    <td class="gray">Right</td>
+    <td class="gray">KEY_RIGHT</td>
+    <th class="gray"><code>00000127</code></th>
+    <td class="gray"></td>
+  </tr>
+  <tr>
+    <td>Down</td>
+    <td>KEY_DOWN</td>
+    <th class="white"><code>00000128</code></th>
+    <td></td>
+  </tr>
+  <tr>
+    <td class="gray">Insert</td>
+    <td class="gray">KEY_INS</td>
+    <th class="gray"><code>0000012D</code></th>
+    <td class="gray"></td>
+  </tr>
+  <tr>
+    <td>Delete</td>
+    <td>KEY_DEL</td>
+    <th class="white"><code>0000012E</code></th>
+    <td></td>
+  </tr>
+  <tr>
+    <td class="gray">Left Win</td>
+    <td class="gray">KEY_LWIN</td>
+    <th class="gray"><code>0000015B</code></th>
+    <td class="gray"></td>
+  </tr>
+  <tr>
+    <td>Right Win</td>
+    <td>KEY_RWIN</td>
+    <th class="white"><code>0000015C</code></th>
+    <td></td>
+  </tr>
+  <tr>
+    <td class="gray">Apps</td>
+    <td class="gray">KEY_APPS</td>
+    <th class="gray"><code>0000015D</code></th>
+    <td class="gray"></td>
+  </tr>
+  <tr>
+    <td>Numpad 0</td>
+    <td>KEY_NUMPAD0</td>
+    <th class="white"><code>00000160</code></th>
+    <td>Numeric keypad (if "UseNumPad" option is on)</td>
+  </tr>
+  <tr>
+    <td class="gray">Numpad 1</td>
+    <td class="gray">KEY_NUMPAD1</td>
+    <th class="gray"><code>00000161</code></th>
+    <td class="gray">Numeric keypad (if "UseNumPad" option is on)</td>
+  </tr>
+  <tr>
+    <td>Numpad 2</td>
+    <td>KEY_NUMPAD2</td>
+    <th class="white"><code>00000162</code></th>
+    <td>Numeric keypad (if "UseNumPad" option is on)</td>
+  </tr>
+  <tr>
+    <td class="gray">Numpad 3</td>
+    <td class="gray">KEY_NUMPAD3</td>
+    <th class="gray"><code>00000163</code></th>
+    <td class="gray">Numeric keypad (if "UseNumPad" option is on)</td>
+  </tr>
+  <tr>
+    <td>Numpad 4</td>
+    <td>KEY_NUMPAD2</td>
+    <th class="white"><code>00000164</code></th>
+    <td>Numeric keypad (if "UseNumPad" option is on)</td>
+  </tr>
+  <tr>
+    <td class="gray">Numpad 5</td>
+    <td class="gray">KEY_NUMPAD5</td>
+    <th class="gray"><code>00000165</code></th>
+    <td class="gray">Numeric keypad</td>
+  </tr>
+  <tr>
+    <td>Numpad 6</td>
+    <td>KEY_NUMPAD6</td>
+    <th class="white"><code>00000166</code></th>
+    <td>Numeric keypad (if "UseNumPad" option is on)</td>
+  </tr>
+  <tr>
+    <td class="gray">Numpad 7</td>
+    <td class="gray">KEY_NUMPAD7</td>
+    <th class="gray"><code>00000167</code></th>
+    <td class="gray">Numeric keypad (if "UseNumPad" option is on)</td>
+  </tr>
+  <tr>
+    <td>Numpad 8</td>
+    <td>KEY_NUMPAD8</td>
+    <th class="white"><code>00000168</code></th>
+    <td>Numeric keypad (if "UseNumPad" option is on)</td>
+  </tr>
+  <tr>
+    <td class="gray">Numpad 9</td>
+    <td class="gray">KEY_NUMPAD9</td>
+    <th class="gray"><code>00000169</code></th>
+    <td class="gray">Numeric keypad (if "UseNumPad" option is on)</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>KEY_CLEAR</td>
+    <th class="white"><code>00000165</code></th>
+    <td>Same as KEY_NUMPAD5</td>
+  </tr>
+  <tr>
+    <td class="gray">Gray *</td>
+    <td class="gray">KEY_MULTIPLY</td>
+    <th class="gray"><code>0000016A</code></th>
+    <td class="gray">Numeric keypad</td>
+  </tr>
+  <tr>
+    <td>Gray +</td>
+    <td>KEY_ADD</td>
+    <th class="white"><code>0000016B</code></th>
+    <td>Numeric keypad</td>
+  </tr>
+  <tr>
+    <td class="gray">Gray -</td>
+    <td class="gray">KEY_SUBTRACT</td>
+    <th class="gray"><code>0000016D</code></th>
+    <td class="gray">Numeric keypad</td>
+  </tr>
+  <tr>
+    <td>Gray /</td>
+    <td>KEY_DIVIDE</td>
+    <th class="white"><code>0000016F</code></th>
+    <td>Numeric keypad</td>
+  </tr>
+  <tr>
+    <td class="gray">F1</td>
+    <td class="gray">KEY_F1</td>
+    <th class="gray"><code>00000170</code></th>
+    <td class="gray"></td>
+  </tr>
+  <tr>
+    <td>F2</td>
+    <td>KEY_F2</td>
+    <th class="white"><code>00000171</code></th>
+    <td></td>
+  </tr>
+  <tr>
+    <td class="gray">F3</td>
+    <td class="gray">KEY_F3</td>
+    <th class="gray"><code>00000172</code></th>
+    <td class="gray"></td>
+  </tr>
+  <tr>
+    <td>F4</td>
+    <td>KEY_F4</td>
+    <th class="white"><code>00000173</code></th>
+    <td></td>
+  </tr>
+  <tr>
+    <td class="gray">F5</td>
+    <td class="gray">KEY_F5</td>
+    <th class="gray"><code>00000174</code></th>
+    <td class="gray"></td>
+  </tr>
+  <tr>
+    <td>F6</td>
+    <td>KEY_F6</td>
+    <th class="white"><code>00000175</code></th>
+    <td></td>
+  </tr>
+  <tr>
+    <td class="gray">F7</td>
+    <td class="gray">KEY_F7</td>
+    <th class="gray"><code>00000176</code></th>
+    <td class="gray"></td>
+  </tr>
+  <tr>
+    <td>F8</td>
+    <td>KEY_F8</td>
+    <th class="white"><code>00000177</code></th>
+    <td></td>
+  </tr>
+  <tr>
+    <td class="gray">F9</td>
+    <td class="gray">KEY_F9</td>
+    <th class="gray"><code>00000178</code></th>
+    <td class="gray"></td>
+  </tr>
+  <tr>
+    <td>F10</td>
+    <td>KEY_F10</td>
+    <th class="white"><code>00000179</code></th>
+    <td></td>
+  </tr>
+  <tr>
+    <td class="gray">F11</td>
+    <td class="gray">KEY_F11</td>
+    <th class="gray"><code>0000017A</code></th>
+    <td class="gray"></td>
+  </tr>
+  <tr>
+    <td>F12</td>
+    <td>KEY_F12</td>
+    <th class="white"><code>0000017B</code></th>
+    <td></td>
+  </tr>
+  <tr>
+    <td class="gray"></td>
+    <td class="gray">KEY_CTRLALTSHIFTPRESS</td>
+    <th class="gray"><code>00000201</code></th>
+    <td class="gray">All three keys are pressed</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>KEY_CTRLALTSHIFTRELEASE</td>
+    <th class="white"><code>00000202</code></th>
+    <td>Any of the three keys is released</td>
+  </tr>
+  <tr>
+    <td class="gray"></td>
+    <td class="gray">KEY_MSWHEEL_UP</td>
+    <th class="gray"><code>00000203</code></th>
+    <td class="gray">The mouse wheel is rotated one notch up</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>KEY_MSWHEEL_DOWN</td>
+    <th class="white"><code>00000204</code></th>
+    <td>The mouse wheel is rotated one notch down</td>
+  </tr>
+  <tr>
+    <td class="gray"></td>
+    <td class="gray">KEY_END_SKEY</td>
+    <th class="gray"><code>00000FFFF</code></th>
+    <td class="gray">The end of basic set</td>
+  </tr>
+</table>
+
+</body>
+
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>DN_MOUSEEVENT</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>DN_MOUSEEVENT</h1>
+<div class=navbar>
+<a  href="index_dn.html">Events</a> |
+<a href="../index.html">Dialog API</a><br>
+</div>
+
+<div class=shortdescr>
+The <dfn>DN_MOUSEEVENT</dfn> event is sent to the dialog callback function before a mouse message
+is handled by the dialog kernel.
+</div>
+
+<h3>Param1</h3>
+<div class=descr>
+0
+</div>
+
+<h3>Param2</h3>
+<div class=descr>
+Pointer to a <a href="../../winapi/mouse_event_record.html">MOUSE_EVENT_RECORD</a> structure.
+</div>
+
+<h3>Return</h3>
+<div class=descr>
+<code>TRUE</code>  - enable further processing of the event by the dialog kernel.<br>
+<code>FALSE</code> - the event has been handled by the plugin.
+
+</div>
+
+<h3>Controls</h3>
+<div class=descr>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
+<tr class="cont"><td class="cont" width="40%">Dialog</td>
+<td class="cont" width="60%">the event applies only to the dialog</td></tr>
+</table>
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+<ol>
+<li>By default, the <dfn>DN_MOUSEEVENT</dfn> event is not sent to the dialog callback function. To
+    enable/disable sending of this event, use the
+    <a href="dm_setmouseeventnotify.html">DM_SETMOUSEEVENTNOTIFY</a> message.
+<li>Do not enable this event unless you really need it: mouse events are sent very frequently!
+<li>A plugin may modify the fields of the
+    <a href="../../winapi/mouse_event_record.html">MOUSE_EVENT_RECORD</a> structure passed to it.
+</ol>
+</div>
+
+<h3>Example</h3>
+<div class=descr>
+
+</div>
+
+
+<div class=see>See also:</div><div class=seecont>
+<a href="../dialogex.html">DialogEx</a><br>
+<a href="dm_setmouseeventnotify.html">DM_SETMOUSEEVENTNOTIFY</a><br>
+
+</div>
+
+</body>
+</html>

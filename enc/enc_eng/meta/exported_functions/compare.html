@@ -1,0 +1,62 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>Compare</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>Compare</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a href="index.html">exported functions</a>
+</div>
+
+<div class=shortdescr>
+A plugin can export the function <dfn>Compare</dfn> to override the default file panel sorting
+algorithm.
+</div>
+
+<pre class=syntax>
+int WINAPI Compare(
+  HANDLE hPlugin,
+  const struct PluginPanelItem *Item1,
+  const struct PluginPanelItem *Item2,
+  unsigned int Mode
+);
+</pre>
+
+<h3>Parameters</h3>
+<div class=descr>
+  <div class=dfn>hPlugin</div>
+  <div class=dfndescr>Plugin handle, returned by <a href="openplugin.html">OpenPlugin</a>
+    or <a href="openfileplugin.html">OpenFilePlugin</a>.</div>
+  <div class=dfn>Item1, Item2</div>
+  <div class=dfndescr>Pointers to <a href="../structures/pluginpanelitem.html">PluginPanelItem</a>
+    structures to compare.</div>
+  <div class=dfn>Mode</div>
+  <div class=dfndescr>See <a href="../defs/sortmetods.html">Sort modes</a></div>
+</div>
+
+<h3>Return value</h3>
+<div class=descr>
+  This function returns an <b>int</b> value that is:
+  <p><code>-1</code> if <i>Item1 </i><code>&lt; </code><i>Item2<br>
+  </i><code>&nbsp;0</code> if <i>Item1</i> <code>==</code> <i>Item2<br>
+  </i><code>&nbsp;1</code> if <i>Item1</i><code> &gt;</code> <i>Item2<br>
+  </i><code>-2</code> if the default FAR compare function should be used for this sort mode.
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+The standard RTL <dfn>qsort</dfn> function that implements and unstable sorting algorithm
+is used by FAR for sorting needs. In other words if array elements are equal to the compare
+function then on the panels they will be shown in random order, that changes upon each
+redrawing of the panel.
+</div>
+
+</body>
+</html>

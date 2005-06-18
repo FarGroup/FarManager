@@ -1,0 +1,148 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>DI_EDIT</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>DI_EDIT</h1>
+<div class=navbar>
+<a href="../../index.html">main</a> |
+<a href="../index.html">Dialog API</a> |
+<a href="index.html">Dialog items</a><br>
+</div>
+
+<div class=shortdescr>The <dfn>DI_EDIT</dfn> dialog item describes an edit box.</div>
+
+<pre class=syntax>
+struct FarDialogItem
+{
+  int Type             = <b>DI_EDIT</b>
+  int X1               = <b>X1</b>
+  int Y1               = <b>Y</b>
+  int X2               = <b>X2</b>
+  int Y2               = <b>0</b> (not used in Dialog API 1.0)
+  int Focus            = <b>Focus</b>
+  char *History        = <b>History</b>
+  DWORD Flags          = <b>Flags</b>
+  int DefaultButton    = <b>DefaultButton</b>
+  union {
+    char Data[512];    = <b>the text for editing (without <a href="../flags/dif_varedit.html">DIF_VAREDIT</a>)</b>
+    struct {
+      DWORD PtrFlags;  = <b>advanced flags (not used in Dialog API 1.0)</b>
+      int   PtrLength; = <b>size of the user buffer pointed by PtrData</b>
+      char *PtrData;   = <b>the pointer to the user buffer</b>
+      char  PtrTail[1];= <b>the remainder part of Data</b>
+    } Ptr;             = <b><b>the text for editing </b>(with <a href="../flags/dif_varedit.html">DIF_VAREDIT</a>)</b>
+  };
+};
+</pre>
+<p class=note><img src="../../../images/note.gif" alt="Attention!" width="10" height="10"> Attention!</p>
+<UL class=note>
+  <LI>This is an exemplary structure; read full description <a href="../structures/fardialogitem.html">here</a>.</LI>
+</UL>
+
+<h3>Focus</h3>
+<div class=descr>
+Keyboard focus flag.</div>
+
+<h3>History</h3>
+<div class=descr>
+  <p>Contains the address of a null-terminated text string that will be used as the internal
+  history name when an edit control has the <a href="../flags/dif_history.html">DIF_HISTORY</a>
+  flag. If several edit fields have the same history name, they will share the same history list.</p>
+  </div>
+
+<h3>Flags</h3>
+<div class=descr>
+There are several flags applicable to the <dfn>DI_EDIT</dfn> control:<br>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Flag</th><th class="cont" width="60%">Description</th></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_editor.html">DIF_EDITOR</a></td>
+ <td class="cont" width="60%">Sequential edit controls with this flag are grouped into a simple editor with the ability to insert and delete lines.</td>
+ </tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_history.html">DIF_HISTORY</a></td>
+ <td class="cont" width="60%">Adds a history list to an edit control. If this flag is set, the History field must contain the address of a text string that will be used as the internal name of the history.</td>
+ </tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_manualaddhistory.html">DIF_MANUALADDHISTORY</a></td>
+ <td class="cont" width="60%">Specifies that items will be added to the history list of an edit box only manually, not automatically. Must be used together with DIF_HISTORY.</td>
+ </tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_uselasthistory.html">DIF_USELASTHISTORY</a></td>
+ <td class="cont" width="60%">The initial value will be set to the last history element.</td>
+ </tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_editexpand.html">DIF_EDITEXPAND</a></td>
+ <td class="cont" width="60%">Expand environment variables.</td>
+ </tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_disable.html">DIF_DISABLE</a></td>
+ <td class="cont" width="60%">Disables user access to the edit control.</td>
+ </tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_readonly.html">DIF_READONLY</a></td>
+ <td class="cont" width="60%">Sets read-only state for the edit control.</td>
+ </tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_selectonentry.html">DIF_SELECTONENTRY</a></td>
+ <td class="cont" width="60%">Makes the edit control always select the text when it receives the focus.</td>
+ </tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a></td>
+ <td class="cont" width="60%">The dialog item cannot receive keyboard focus, but can handle other user events.</td>
+ </tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_varedit.html">DIF_VAREDIT</a></td>
+ <td class="cont" width="60%">If this flag is set, the dialog manager will use only the Ptr.*
+ members instead of Data in the FarDialogItem structure. The use of this flag allows to exceed the
+ 512-byte limit for the edit control.</td>
+ </tr>
+</table>
+</div>
+
+<h3>Events</h3>
+<div class=descr>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Event</th><th class="cont" width="60%">Description</th></tr>
+
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a></td>
+ <td class="cont" width="60%">This event is sent to the dialog callback function just before the
+ edit box is drawn.</td>
+ </tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_ctlcolordlgitem.html">DN_CTLCOLORDLGITEM</a></td>
+ <td class="cont" width="60%">The plugin should pass the color attributes of the edit control when this event comes. Param2 parameter:
+   <pre>LoWord LoByte - color of the text
+                (<a href="../../defs/farcolors.html#COL_WARNDIALOGEDIT">COL_WARNDIALOGEDIT</a> or
+                 <a href="../../defs/farcolors.html#COL_DIALOGEDIT">COL_DIALOGEDIT</a>)
+LoWord HiByte - color of selected text
+                (<a href="../../defs/farcolors.html#COL_DIALOGEDITSELECTED">COL_DIALOGEDITSELECTED</a>)
+HiWord LoByte - color of unchanged text
+                (<a href="../../defs/farcolors.html#COL_DIALOGEDITUNCHANGED">COL_DIALOGEDITUNCHANGED</a>)
+HiWord HiByte - color of the History drop-down arrow
+                (<a href="../../defs/farcolors.html#COL_DIALOGTEXT">COL_DIALOGTEXT</a>)</pre></td>
+ </tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_key.html">DN_KEY</a></td>
+ <td class="cont" width="60%">This event comes after the user has pressed a key in the dialog.</td>
+ </tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_mouseclick.html">DN_MOUSECLICK</a></td>
+ <td class="cont" width="60%">This event comes after the user has clicked one of the dialog items or outside the dialog with the mouse button.</td>
+ </tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_editchange.html">DN_EDITCHANGE</a></td>
+ <td class="cont" width="60%">The text in the edit field has been changed.</td>
+ </tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_killfocus.html">DN_KILLFOCUS</a></td>
+ <td class="cont" width="60%">This event is sent before the combo box loses the focus, if the flag <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a> was not used.</td>
+ </tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_killfocus.html">DN_GOTFOCUS</a></td>
+ <td class="cont" width="60%">This event is sent after the button has received the keyboard focus, if the flag <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a> was not used.</td>
+ </tr>
+
+</table>
+</div>
+
+<br>
+<div class=see>See also:</div><div class=seecont>
+<a href="di_pswedit.html">DI_PSWEDIT</a>,
+<a href="di_fixedit.html">DI_FIXEDIT</a>,
+<a href="../structures/fardialogitem.html">FarDialogItem</a>
+
+</div>
+
+</body>
+</html>

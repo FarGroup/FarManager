@@ -1,0 +1,98 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>GetMsg</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+
+<body>
+
+<h1>GetMsg</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a href="index.html">service functions</a><br>
+</div>
+
+<div class=shortdescr>
+  The <dfn>GetMsg</dfn> function returns a message from the
+  <a href="../language/language_files.html">language file</a>. It is strongly recommended to use
+  this function instead of hard-coding text constants directly in the program, because it allows to
+  localize your plugin and switch the language of FAR and plugins simultaneously.
+</div>
+
+<pre class=syntax>
+const char* WINAPI GetMsg(
+  int PluginNumber,
+  int MsgId
+);
+</pre>
+
+<h3>Parameters</h3>
+<div class=descr>
+    <div class=dfn>PluginNumber</div>
+    <div class=dfndescr>Number of the plugin module. It is passed to the plugin in the
+    <a href="../exported_functions/setstartupinfo.html">SetStartupInfo</a> function.</div>
+    <div class=dfn>MsgId</div>
+    <div class=dfndescr>Index of the message in the message file.<br>
+    </div>
+</div>
+
+<h3>Return value</h3>
+<div class=descr>
+  The function returns the address of the requested message.
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+  All <code>*.lng</code> files in plugin directory are considered as language files. FAR selects
+  the necessary <code>*.lng</code> file depending on the current language. Before using
+  <dfn>GetMsg</dfn> first time, all messages are loaded into the memory, so they can be accessed
+  later much faster and you don't need to store the messages in an additional buffers.
+</div>
+
+<h3>Example</h3>
+<div class=descr>
+  In all the <a href="../examples.html">examples</a>, as you can see, the following function is
+  used:
+
+<div class=dfn>C/C++:</div>
+<pre class=code>const char *GetMsg(int MsgId)
+{
+  return(Info.GetMsg(Info.ModuleNumber,MsgId));
+}
+</pre>
+
+<div class=dfn>Delphi:</div>
+<pre class=code>function GetMsg(MsgId: TMessageStrings): PChar;
+begin
+  result:= <dfn>Info</dfn>.GetMsg(<dfn>Info</dfn>.ModuleNumber,integer(MsgId));
+end;
+</pre>
+
+  <dfn>Info</dfn> is declared as a global variable:
+
+<pre class=code>struct PluginStartupInfo <dfn>Info</dfn>;
+</pre>
+
+  ...and initialized in the <a href="../exported_functions/setstartupinfo.html">SetStartupInfo</a> function:
+
+<pre class=code>void WINAPI _export SetStartupInfo(struct PluginStartupInfo *Info)
+{
+  ...
+  ::Info=*Info;
+  ...
+}
+</pre>
+
+</div>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="../language/index.html">Language and help files</a> |
+<a href="../addons/locmsg.html">LocMsg</a><br>
+<!--"<a href="../articles/localization.html">Localization of second level plugins</a>"-->
+</div>
+
+</body>
+</html>

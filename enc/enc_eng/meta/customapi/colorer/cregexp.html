@@ -1,0 +1,66 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>CRegExp</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>CRegExp</h1>
+<div class=navbar>
+<a href="../../index.html">main</a> |
+<a href="../index.html">Custom API</a> |
+<a href="index.html">regexp</a><br>
+</div>
+
+
+<div class=shortdescr>
+A regular expression object initialization and destruction.
+</div>
+
+<h4>Class methods:</h4>
+
+<pre class=syntax>
+CRegExp();
+CRegExp(char *Text);
+~CRegExp();
+</pre>
+
+<h4>DLL interface:</h4>
+<pre class=syntax>
+PRegExp WINAPI reCreate();
+PRegExp WINAPI reCreateCompile(char *text);
+BOOL WINAPI reDestroy(PRegExp re);
+</pre>
+
+<h3>Members</h3>
+<div class=descr>
+
+    <div class=dfn>re</div>
+    <div class=dfndescr>Pointer to an object to destroy.</div>
+    <div class=dfn>Text</div>
+    <div class=dfndescr>pointer to the string that contains the regular expression to compile.</div>
+
+</div>
+
+<h3>Return value</h3>
+<div class=descr>
+The reCreate and reCreateCompile functions return a pointer to the created object, which will be used
+in every function call, or NULL in case of failure. reDestroy returns the result of regular
+expression object destruction.
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+Constructor with an initialization parameter compiles the expression.
+Result is available through <a href="isok.html">isok</a> method or through <a href=geterror.html>geterror</a> method.
+</div>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="isok.html">isok</a><br>
+</div>
+
+</body>
+</html>

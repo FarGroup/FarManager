@@ -1,0 +1,130 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>Win32 structures, functions and definitions</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src="../links.js" type="text/javascript"></script>
+</head>
+
+<body>
+<h1>Win32 structures, functions and definitions</h1>
+<div class=navbar>
+<a href="../index.html">main</a>
+</div>
+
+
+<p class=plain>This chapter contains the articles on WinAPI structures and functions commonly used.</p>
+
+<h3>Win32 functions:</h3>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Function</th><th class="cont" width="60%">Description</th></tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="getfiletime.html">GetFileTime</a></td>
+<td class="cont" width="60%">retrieves the date and time that a file was created, last accessed, and last modified</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="peekconsoleinput.html">PeekConsoleInput</a></td>
+<td class="cont" width="60%">reads data from the specified console input buffer without removing it from the buffer</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="readconsoleinput.html">ReadConsoleInput</a></td>
+<td class="cont" width="60%">reads data from a console input buffer and removes it from the buffer</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="setfileapistoansi.html">SetFileApisToAnsi</a></td>
+<td class="cont" width="60%">causes the file I/O functions to use the ANSI character set code page</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="setfileapistooem.html">SetFileApisToOem</a></td>
+<td class="cont" width="60%">causes the file I/O functions to use the OEM character set code page</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="setfiletime.html">SetFileTime</a></td>
+<td class="cont" width="60%">sets the date and time that a file was created, last accessed, or last modified</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="writeconsoleinput.html">WriteConsoleInput</a></td>
+<td class="cont" width="60%">writes data directly to the console input buffer</td>
+</tr>
+</table>
+
+<h3>Win32 structures:</h3>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Structure</th><th class="cont" width="60%">Description</th></tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="char_info.html">CHAR_INFO</a></div>
+<td class="cont" width="60%">specifies the character and its attributes</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="console_cursor_info.html">CONSOLE_CURSOR_INFO</a></div>
+<td class="cont" width="60%">contains information about the console cursor</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="coord.html">COORD</a></div>
+<td class="cont" width="60%">defines the coordinates of a character cell in a console screen buffer</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="filetime.html">FILETIME</a></div>
+<td class="cont" width="60%">the 64-bit number of 100-nanosecond intervals since January 1, 1601 (UTC)</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="focus_event_record.html">FOCUS_EVENT_RECORD</a></div>
+<td class="cont" width="60%">reports focus events in a console <a href="input_record.html">INPUT_RECORD</a> structure</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="input_record.html">INPUT_RECORD</a></div>
+<td class="cont" width="60%">reports input events in the console input buffer</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="key_event_record.html">KEY_EVENT_RECORD</a></div>
+<td class="cont" width="60%">reports keyboard input events in a console <a href="input_record.html">INPUT_RECORD</a> structure</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="menu_event_record.html">MENU_EVENT_RECORD</a></div>
+<td class="cont" width="60%">reports menu events in a console <a href="input_record.html">INPUT_RECORD</a> structure</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="mouse_event_record.html">MOUSE_EVENT_RECORD</a></div>
+<td class="cont" width="60%">reports mouse input events in a console <a href="input_record.html">INPUT_RECORD</a> structure</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="rect.html">RECT</a></div>
+<td class="cont" width="60%">defines the coordinates of the upper-left and lower-right corners of a rectangle</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="small_rect.html">SMALL_RECT</a></div>
+<td class="cont" width="60%">defines the coordinates of the upper-left and lower-right corners of a rectangle</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="systemtime.html">SYSTEMTIME</a></div>
+<td class="cont" width="60%">represents a date and time using individual members for the month, day, year, weekday, hour, minute, second, and millisecond</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="win32_find_data.html">WIN32_FIND_DATA</a></td>
+<td class="cont" width="60%">describes a file found by the <strong>FindFirstFile</strong>, <strong>FindFirstFileEx</strong>, or <strong>FindNextFile</strong> function</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="window_buffer_size_record.html">WINDOW_BUFFER_SIZE_RECORD</a></div>
+<td class="cont" width="60%">reports changes in the size of the screen buffer in a console <a href="input_record.html">INPUT_RECORD</a> structure</td>
+</tr>
+</table>
+
+<h3>Win32 definitions:</h3>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Constant</th><th class="cont" width="60%">Description</th></tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="virtualkeycodes.html">Virtualkeycodes</a></td>
+<td class="cont" width="60%">virtual key codes</td>
+</tr>
+</table>
+
+<div class=see>See also:</div>
+<div class=seecont>
+<a href="../exported_functions/index.html">Exported functions</a><br>
+<a href="../service_functions/index.html">Service functions</a><br>
+<a href="../addons/index.html">Addons</a><br>
+</div>
+
+</body>
+</html>

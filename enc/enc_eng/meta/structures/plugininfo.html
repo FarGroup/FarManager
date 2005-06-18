@@ -1,0 +1,119 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>PluginInfo</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+
+<body>
+
+<h1>PluginInfo</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a  href="index.html">structures</a><br>
+</div>
+
+<div class=shortdescr>
+The <dfn>PluginInfo</dfn> structure describes a FAR Manager plugin.
+</div>
+
+<pre class=syntax>
+struct PluginInfo
+{
+  int StructSize;
+  DWORD Flags;
+  const char * const *DiskMenuStrings;
+  int *DiskMenuNumbers;
+  int DiskMenuStringsNumber;
+  const char * const *PluginMenuStrings;
+  int PluginMenuStringsNumber;
+  const char * const *PluginConfigStrings;
+  int PluginConfigStringsNumber;
+  const char *CommandPrefix;
+  DWORD Reserved;
+};
+</pre>
+<h3>Elements</h3>
+<div class=descr>
+
+    <div class=dfn>StructSize</div>
+    <div class=dfndescr>This field should contain the size of the <dfn>PluginInfo</dfn> structure.</div>
+    <div class=dfn>Flags</div>
+    <div class=dfndescr>A combination of the following values (the <a name="PLUGIN_FLAGS">PLUGIN_FLAGS</a> enumeration).
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Flag</th><th class="cont" width="60%">Description</th></tr>
+        <tr class="cont"><td class="cont" width="40%"><a name="PF_PRELOAD">PF_PRELOAD</a></td>
+        <td class="cont" width="60%">Disables plugin parameters caching and forces FAR to
+          always load the plugin at startup. Must be specified if
+          it is necessary to change items in "Disks", "Plugins" or "Plugins configuration"
+          menus dynamically. This flag decreases efficiency of memory usage.
+          </td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="PF_DISABLEPANELS">PF_DISABLEPANELS</a></td>
+        <td class="cont" width="60%">Do not show the plugin in the "Plugin commands" menu called from panels.</td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="PF_EDITOR">PF_EDITOR</a></td>
+        <td class="cont" width="60%">Show the plugin in the "Plugin commands" menu called from the FAR editor.</td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="PF_VIEWER">PF_VIEWER</a></td>
+        <td class="cont" width="60%">Show the plugin in the "Plugin commands" menu called from the FAR viewer.</td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="PF_FULLCMDLINE">PF_FULLCMDLINE</a></td>
+        <td class="cont" width="60%">
+        Forces FAR to pass the full command line (with the prefix <dfn>CommandPrefix</dfn>) to the plugin.
+        Use this flag when a plugin can handle multiple command line prefixes.
+        </td></tr>
+</table>
+    </div>
+
+    <div class=dfn>DiskMenuStrings</div>
+    <div class=dfndescr>If the plugin adds items to the <em>Disks menu</em>, this field is set to the address of an array
+    with pointers to menu items, otherwise set it to <code>NULL</code>.</div>
+    <div class=dfn>DiskMenuNumbers</div>
+    <div class=dfndescr>Preferred hotkey numbers for the items added to the <em>Disks menu</em>. To have
+    FAR autoassign them, either set <dfn>DiskMenuNumbers</dfn> to <code>NULL</code> or set preferred numbers to 0. </div>
+    <div class=dfndescr>If specified number is already in use by another plugin, FAR reassigns it itself.</div>
+    <div class=dfn>DiskMenuStringsNumber</div>
+    <div class=dfndescr>Number of items to be added to the <em>Disks menu</em>.</div>
+    <div class=dfn>PluginMenuStrings</div>
+    <div class=dfndescr>Similar to <em>DiskMenuStrings</em>, but items are added to the <b>"Plugin commands"</b> menu.</div>
+    <div class=dfn>PluginMenuStringsNumber</div>
+    <div class=dfndescr>Number of items to be added to the <b>"Plugin commands"</b> menu.</div>
+    <div class=dfn>PluginConfigStrings</div>
+    <div class=dfndescr>Similar to <em>DiskMenuStrings</em>, but items are added to the <b>"Plugins configuration"</b> menu.</div>
+    <div class=dfn>PluginConfigStringsNumber</div>
+    <div class=dfndescr>Numer of items to be added to the <b>"Plugins configuration"</b> menu.</div>
+    <div class=dfn>CommandPrefix</div>
+    <div class=dfndescr>This parameter can contain a string of command line prefixes that will be used to intercept FAR commands.
+      For example, if the string passed in this field is <b><code>ftp</code></b>
+      and the user enters anything beginning with <b><code>ftp:</code></b> in the command line,
+      <a href="../exported_functions/openplugin.html">OpenPlugin</a> with
+      <a href="../exported_functions/openplugin.html#OPEN_COMMANDLINE">OPEN_COMMANDLINE</a> will be called.<br>
+      To define more than one prefix, the plugin must separate the prefixes with a colon.
+      For example, if the plugin needs to process the <code>edit:</code>, <code>goto:</code> and <code>view:</code> prefixes,
+      the string passed in this field should be to: <pre class=code>CommandPrefix="edit:view:goto";</pre>
+      If the plugin does not process FAR commands, set this parameter to <code>NULL</code>.
+    <div class=dfn>Reserved</div>
+    <div class=dfndescr>Reserved for future use, should be set to <code>NULL</code>.</div>
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+ <ol>
+  <li>All data passed in this structure must be valid after returning from
+      <a href="../exported_functions/getplugininfo.html">GetPluginInfo</a>,
+      therfore pointers to the stack are illegal, use static or global variables instead.</li>
+  <li>The structure passed to the <a href="../exported_functions/getplugininfo.html">GetPluginInfo</a> function,
+      is preinitialized to zeros.</li>
+ </ol>
+</div>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="index.html">structures</a> |
+<a href="../delphi/tplugininfo.html">TPluginInfo</a>
+</div>
+
+</body>
+</html>

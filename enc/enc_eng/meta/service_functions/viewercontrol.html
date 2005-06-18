@@ -1,0 +1,95 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>ViewerControl</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>ViewerControl</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a href="index.html">service functions</a><br>
+</div>
+
+<div class=shortdescr>
+The <a name="ViewerControl">ViewerControl</a> function allows to query and control the state of the
+internal viewer.
+</div>
+
+<pre class=syntax>
+<b>int</b> WINAPI ViewerControl(
+  <b>int</b> Command,
+  <b>void</b> *Param
+);
+</pre>
+
+<h3>Parameters</h3>
+<div class=descr>
+  <div class=dfn>Command</div>
+  <div class=dfndescr>Control command type. Can be one of the following
+  (<a name="VIEWER_CONTROL_COMMANDS">VIEWER_CONTROL_COMMANDS</a> enum):
+
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Command</th><th class="cont" width="60%">Description</th></tr>
+
+<tr class="cont"><td class="cont" width="40%"><a name="VCTL_GETINFO">VCTL_GETINFO</a></td>
+<td class="cont" width="60%">Gets viewer information. Param points to an
+  <a href="../structures/viewerinfo.html">ViewerInfo</a> structure.
+  This command always returns <code>TRUE</code>.
+</td></tr>
+
+<tr class="cont"><td class="cont" width="40%"><a name="VCTL_QUIT">VCTL_QUIT</a></td>
+<td class="cont" width="60%">Close the viewer. <var>Param</var> must be <code>NULL</code>.
+  This command always returns <code>TRUE</code>.
+</td></tr>
+
+<tr class="cont"><td class="cont" width="40%"><a name="VCTL_REDRAW">VCTL_REDRAW</a></td>
+<td class="cont" width="60%">Redraws the viewer window. <var>Param</var> must be <code>NULL</code>.
+  This command always returns <code>TRUE</code>.
+</td></tr>
+
+<tr class="cont"><td class="cont" width="40%"><a name="VCTL_SETKEYBAR">VCTL_SETKEYBAR</a></td>
+<td class="cont" width="60%">Allows to control key bar titles in the viewer:<br>
+  <var>Param</var> = NULL - restores the previous value<br>
+  <var>Param</var> = -1 - redraws the key bar<br>
+  <var>Param</var> = pointer to a <a href="../structures/keybartitles.html">KeyBarTitles</a> structure.<br>
+  This command always returns <code>TRUE</code>.
+</td></tr>
+
+<tr class="cont"><td class="cont" width="40%"><a name="VCTL_SETPOSITION">VCTL_SETPOSITION</a></td>
+<td class="cont" width="60%">Sets position in file. <var>Param</var> points to an
+  <a href="../structures/viewersetposition.html">ViewerSetPosition</a> structure.
+  If the command succeeds <code>TRUE</code> is returned..
+</td></tr>
+
+<tr class="cont"><td class="cont" width="40%"><a name="VCTL_SELECT">VCTL_SELECT</a></td>
+<td class="cont" width="60%">Controls selection. <var>Param</var> points to an
+  <a href="../structures/viewerselect.html">ViewerSelect</a> structure.
+  If the command succeeds <code>TRUE</code> is returned..
+</td></tr>
+</table>
+
+  </div>
+  <div class=dfn>Param</div>
+  <div class=dfndescr>Read the description of the <dfn>Command</dfn> parameter for concrete information.</div>
+</div>
+
+<h3>Return Value</h3>
+<div class=descr>Read the description of the <dfn>Command</dfn> parameter for concrete information.</div>
+
+<h3>Remark</h3>
+<div class=descr>In FAR 1.70 build 1579 and newer VCTL_QUIT when send from an information or a qiuck
+view panel does not close the viewer.</div>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="index.html">Service functions</a>,
+<a href="../structures/viewerinfo.html">ViewerInfo</a>,
+<a href="../structures/viewersetposition.html">ViewerSetPosition</a>,
+<a href="../structures/viewerselect.html">ViewerSelect</a>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>DI_RADIOBUTTON</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>DI_RADIOBUTTON</h1>
+<div class=navbar>
+<a href="../../index.html">main</a> |
+<a href="../index.html">Dialog API</a> |
+<a href="index.html">Dialog items</a><br>
+</div>
+
+<div class=shortdescr>The <dfn>DI_RADIOBUTTON</dfn> dialog item describes a Radio Button control.
+It is also known as the &quot;button with dependent fixation&quot;. It acts like a Check Box,
+except that if several consequent radio button items have the
+<a href="../flags/dif_group.html">DIF_GROUP</a> flag set, they become mutually exclusive &mdash; if
+one of them has been switched on all others will be switched off.</div>
+
+<pre class=syntax>
+struct FarDialogItem
+{
+  int Type          = <b>DI_RADIOBUTTON</b>
+  int X1            = <b>X</b>
+  int Y1            = <b>Y</b>
+  int X2            = <b>0</b> (not used in Dialog API 1.0)
+  int Y2            = <b>0</b> (not used in Dialog API 1.0)
+  int Focus         = <b>Focus</b>
+  int Selected      = <b>Selected</b>
+  DWORD Flags       = <b>Flags</b>
+  int DefaultButton = <b>DefaultButton</b>
+  char Data[512]    = <b>Radio button caption</b>
+};
+</pre>
+<p class=note><img src="../../../images/note.gif" alt="Attention!" width="10" height="10"> Attention!</p>
+<UL class=note>
+  <LI>This is an exemplary structure; read full description <a href="../structures/fardialogitem.html">here</a>.</LI>
+</UL>
+
+<h3>Focus</h3>
+<div class=descr>
+  <div class=descr>Keyboard focus flag.</div>
+</div>
+
+<h3>Selected</h3>
+<div class=descr>
+  <div class=descr>The field reflects current state of the radio button control: is it switched on or off. </div>
+</div>
+
+<h3>Flags</h3>
+<div class=descr>
+There are several flags applicable to the <dfn>DI_RADIOBUTTON</dfn> control:<br>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Flag</th><th class="cont" width="60%">Description</th></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_setcolor.html">DIF_SETCOLOR</a></td>
+ <td class="cont" width="60%">
+ The low byte of Flags will be used as the item's color.</td>
+ </tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_group.html">DIF_GROUP</a></td>
+ <td class="cont" width="60%">This flag should be set for the first radio button item in a group.</td>
+ </tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_moveselect.html">DIF_MOVESELECT</a></td>
+ <td class="cont" width="60%">Change selection in a radio button group when focus is moved. Radio
+ buttons with this flag set are also drawn without parentheses around the selection mark (example:
+ FAR color selection dialog).</td>
+ </tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_centergroup.html">DIF_CENTERGROUP</a></td>
+ <td class="cont" width="60%">Sequential items with this flag set and equal vertical coordinates
+ will be horizontally centered in the dialog. Their X1 and X2 coordinates are ignored.</td>
+ </tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_disable.html">DIF_DISABLE</a></td>
+ <td class="cont" width="60%">Disables user access to the control.</td>
+ </tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a></td>
+ <td class="cont" width="60%">The dialog item cannot receive keyboard focus, but can handle other user events.</td>
+ </tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_showampersand.html">DIF_SHOWAMPERSAND</a></td>
+ <td class="cont" width="60%">Show ampersand symbol in caption instead of using it for defining hotkeys.
+ </td>
+ </tr>
+</table>
+</div>
+
+<h3>Events</h3>
+<div class=descr>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Event</th><th class="cont" width="60%">Description</th></tr>
+
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a></td>
+ <td class="cont" width="60%">This event is sent to the dialog callback function before the control is drawn.</td>
+ </tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_ctlcolordlgitem.html">DN_CTLCOLORDLGITEM</a></td>
+   <td class="cont" width="60%">Plugin should pass the color attributes of the control when this event comes. Param2 parameter (foreground+background):
+     <pre>LoWord LoByte - color of the caption
+                (<a href="../../defs/farcolors.html#COL_WARNDIALOGTEXT">COL_WARNDIALOGBUTTON</a> or
+                 <a href="../../defs/farcolors.html#COL_DIALOGTEXT">COL_DIALOGTEXT</a>)
+LoWord HiByte - color of highlighted text
+                (<a href="../../defs/farcolors.html#COL_WARNDIALOGHIGHLIGHTTEXT">COL_WARNDIALOGHIGHLIGHTTEXT</a> or
+                 <a href="../../defs/farcolors.html#COL_DIALOGHIGHLIGHTTEXT">COL_DIALOGHIGHLIGHTTEXT</a>)
+HiWord LoByte - 0
+HiWord HiByte - 0</pre>
+  If a special attribute is used (<a href="../flags/dif_setcolor.html">DIF_SETCOLOR</a> flag),
+  the caption (LoWord LoByte) will be drawn according to the parameters.</td>
+ </tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_hotkey.html">DN_HOTKEY</a></td>
+ <td class="cont" width="60%">Hotkey was pressed (Alt-&lt;letter&gt;).</td>
+ </tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_btnclick.html">DN_BTNCLICK</a></td>
+ <td class="cont" width="60%">State of the radiobutton was changed.</td>
+ </tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_key.html">DN_KEY</a></td>
+ <td class="cont" width="60%">This event comes after the user has pressed a key in the dialog.</td>
+ </tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_mouseclick.html">DN_MOUSECLICK</a></td>
+ <td class="cont" width="60%">This event comes after the user has clicked one of the dialog items or outside the dialog with the mouse button.</td>
+ </tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_killfocus.html">DN_KILLFOCUS</a></td>
+ <td class="cont" width="60%">This event is sent just before the button loses focus, if the flag <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a> was not used.</td>
+ </tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_killfocus.html">DN_GOTFOCUS</a></td>
+ <td class="cont" width="60%">This event is sent after the button has received keyboard focus, if the flag <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a> was not used.</td>
+ </tr>
+
+</table>
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+It is strongly recommended to set correct values for <var>X2</var> and <var>Y2</var> fields, although
+they aren't used in Dialog API 1.0.</div>
+
+
+<div class=see>See also:</div><div class=seecont>
+<a href="di_checkbox.html">DI_CHECKBOX</a>,
+<a href="di_button.html">DI_BUTTON</a>,
+<a href="../structures/fardialogitem.html">FarDialogItem</a>
+
+</div>
+
+</body>
+</html>

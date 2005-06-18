@@ -1,0 +1,172 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>PanelInfo</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>PanelInfo</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a  href="index.html">structures</a><br>
+</div>
+
+<div class=shortdescr>
+The <dfn>PanelInfo</dfn> structure contains information about a FAR panel.
+Use the <a href="../service_functions/control.html">Control</a> function to populate this structure.
+</div>
+
+<pre class=syntax>
+struct PanelInfo
+{
+  int PanelType;
+  int Plugin;
+  RECT PanelRect;
+  struct PluginPanelItem *PanelItems;
+  int ItemsNumber;
+  struct PluginPanelItem *SelectedItems;
+  int SelectedItemsNumber;
+  int CurrentItem;
+  int TopPanelItem;
+  int Visible;
+  int Focus;
+  int ViewMode;
+  char ColumnTypes[80];
+  char ColumnWidths[80];
+  char CurDir[NM];
+  int ShortNames;
+  int SortMode;
+  DWORD Flags;
+  DWORD Reserved;
+};
+</pre>
+<h3>Elements</h3>
+<div class=descr>
+
+    <div class=dfn>PanelType</div>
+    <div class=dfndescr>May be (the <a name="PANELINFOTYPE">PANELINFOTYPE</a> enumeration):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Type</th><th class="cont" width="60%">Description</th></tr>
+     <tr class="cont"><td class="cont" width="40%"><a name="PTYPE_FILEPANEL">PTYPE_FILEPANEL</a></td>
+     <td class="cont" width="60%">Regular file panel</td></tr>
+     <tr class="cont"><td class="cont" width="40%"><a name="PTYPE_TREEPANEL">PTYPE_TREEPANEL</a></td>
+     <td class="cont" width="60%">Tree panel</td></tr>
+     <tr class="cont"><td class="cont" width="40%"><a name="PTYPE_QVIEWPANEL">PTYPE_QVIEWPANEL</a></td>
+     <td class="cont" width="60%">Quick view panel</td></tr>
+     <tr class="cont"><td class="cont" width="40%"><a name="PTYPE_INFOPANEL">PTYPE_INFOPANEL</a></td>
+     <td class="cont" width="60%">Information panel</td></tr>
+    </table>
+    </div>
+
+    <div class=dfn>Plugin</div>
+    <div class=dfndescr>
+      TRUE if panel is supported by a plugin.
+    </div>
+
+    <div class=dfn>PanelRect</div>
+    <div class=dfndescr>Panel geometry, the <a href="../winapi/rect.html">RECT</a> structure.</div>
+
+    <div class=dfn>PanelItems</div>
+    <div class=dfndescr>Pointer to an array of all panel items (see
+      <a href="pluginpanelitem.html">PluginPanelItem</a>). Plugins shouldn't change items
+      (except those marked with <a href="pluginpanelitem.html#PPIF_SELECTED">PPIF_SELECTED</a>) 
+      or free memory  allocated for this array.
+      Data is valid until return from the plugin's exported function, which retrieved it
+      via a  call to the Control(FCTL_GET[ANOTHER]PANELINFO, ...) function, or until the
+      next call to the <a href="../service_functions/control.html">Control</a> function.
+      </div>
+
+    <div class=dfn>ItemsNumber</div>
+    <div class=dfndescr>Number of items in the <i>PanelItems</i> array.</div>
+
+    <div class=dfn>SelectedItems</div>
+    <div class=dfndescr>Pointer to the array of selected panel items.
+      (see <a href="pluginpanelitem.html">PluginPanelItem</a>).
+      Plugin shouldn't change elements
+      (except those marked with <a href="pluginpanelitem.html#PPIF_SELECTED">PPIF_SELECTED</a>) 
+      or free memory allocated for this array.
+      Data is valid until return from the plugin's exported function, which retrieved it
+      via a  call to the Control(FCTL_GET[ANOTHER]PANELINFO, ...) function, or until the
+      next call to the <a href="../service_functions/control.html">Control</a> function.
+      </div>
+    <div class=dfn>SelectedItemsNumber</div>
+    <div class=dfndescr>Number of items in the <i>SelectedItems</i> array. When there is no selection,
+     <dfn>SelectedItemsNumber</dfn> is equal to 1. When there is no selection and current element is
+     ".." then <dfn>SelectedItemsNumber</dfn> is equal to 0.</div>
+    <div class=dfn>CurrentItem</div>
+    <div class=dfndescr>Index of the current item in the <i>PanelItems</i> array.
+      Ensure that <i>ItemsNumber</i> &gt; 0 before using <dfn>CurrentItem</dfn>.</div>
+    <div class=dfn>TopPanelItem</div>
+    <div class=dfndescr>Panel item which is at the first visible position in the panel.</div>
+    <div class=dfn>Visible</div>
+    <div class=dfndescr>If non-zero, panel is visible.</div>
+    <div class=dfn>Focus</div>
+    <div class=dfndescr>If non-zero, panel is active.</div>
+    <div class=dfn>ViewMode</div>
+    <div class=dfndescr>Number of panel view mode.</div>
+    <div class=dfn>ColumnTypes</div>
+    <div class=dfndescr>Null-terminated string, which describes <a href="../exported_functions/panelcolumntype.html">column
+      types</a>. Column types are encoded with one or several letters, separated by commas, 
+      for example: <b><code>&quot;N,SC,D,T&quot;</code></b>.</div>
+    <div class=dfn>ColumnWidths</div>
+    <div class=dfndescr>
+      <p>Null-terminated string, which describes <a href="../defs/columnwidths.html">columns width</a>.
+    </div>
+    <div class=dfn>CurDir</div>
+    <div class=dfndescr>
+      Current directory for panel. If <em>Type</em> = <dfn>PTYPE_TREEPANEL</dfn>,
+      <em>CurDir</em> contains currently selected directory in panel.
+    </div>
+    <div class=dfn>ShortNames</div>
+    <div class=dfndescr>Non-zero, if short file names mode is on.</div>
+    <div class=dfn>SortMode</div>
+    <div class=dfndescr><a href="../defs/sortmetods.html">Panel sort mode</a>. Can be SM_DEFAULT, SM_UNSORTED, SM_NAME,
+      SM_EXT, SM_MTIME, SM_CTIME, SM_ATIME, SM_SIZE, SM_DESCR, SM_OWNER,
+      SM_COMPRESSEDSIZE, SM_NUMLINKS.</div>
+
+    <div class=dfn>Flags</div>
+    <div class=dfndescr>Additional flags. Can be a combination of the following values (the <a name="PANELINFOFLAGS">PANELINFOFLAGS</a> enumeration):
+
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Flag</th><th class="cont" width="60%">Description</th></tr>
+      <tr class="cont"><td class="cont" width="40%"><a name="PFLAGS_SHOWHIDDEN">PFLAGS_SHOWHIDDEN</a></td>
+      <td class="cont" width="60%">Hidden and system files are displayed.</td></tr>
+      <tr class="cont"><td class="cont" width="40%"><a name="PFLAGS_HIGHLIGHT">PFLAGS_HIGHLIGHT</a></td>
+      <td class="cont" width="60%">File highlighting is used.</td></tr>
+      <tr class="cont"><td class="cont" width="40%"><a name="PFLAGS_REVERSESORTORDER">PFLAGS_REVERSESORTORDER</a></td>
+      <td class="cont" width="60%">Descending sort is used.</td></tr>
+      <tr class="cont"><td class="cont" width="40%"><a name="PFLAGS_USESORTGROUPS">PFLAGS_USESORTGROUPS</a></td>
+      <td class="cont" width="60%">Sort groups are used.</td></tr>
+      <tr class="cont"><td class="cont" width="40%"><a name="PFLAGS_SELECTEDFIRST">PFLAGS_SELECTEDFIRST</a></td>
+      <td class="cont" width="60%">Show selected files first.</td></tr>
+      <tr class="cont"><td class="cont" width="40%"><a name="PFLAGS_REALNAMES">PFLAGS_REALNAMES</a></td>
+      <td class="cont" width="60%">Plugin panel items are shown with real file names
+          (see also <a href="openplugininfo.html#OPIF_REALNAMES">OPIF_REALNAMES</a>).</td></tr>
+      <tr class="cont"><td class="cont" width="40%"><a name="PFLAGS_NUMERICSORT">PFLAGS_NUMERICSORT</a></td>
+      <td class="cont" width="60%"><a href="../dict.html#numericsort">Numeric sort</a> is used.</td></tr>
+    </table>
+     </div>
+
+    <div class=dfn>Reserved</div>
+    <div class=dfndescr>Reserved for future use.</div>
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+Additional information about panel can be retrieved using the
+<a href="../service_functions/advcontrol.html">AdvControl</a> function (the
+<a href="../service_functions/advcontrol.html#ACTL_GETPANELSETTINGS">ACTL_GETPANELSETTINGS</a> command)
+
+</div>
+
+
+<div class=see>See also:</div><div class=seecont>
+<a href="index.html">structures</a> |
+<a href="../delphi/tpanelinfo.html">TPanelInfo</a>
+</div>
+
+</body>
+</html>

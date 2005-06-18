@@ -1,0 +1,78 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>GetFormatName</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+
+<body>
+
+<h1>GetFormatName</h1>
+<div class=navbar>
+<a href="../../index.html">main</a> |
+<a href="../index.html">Custom API</a> |
+<a href="index.html">archive support</a>
+</div>
+
+<div class=shortdescr>
+Get archive format name.
+</div>
+
+<pre class=syntax>
+BOOL WINAPI GetFormatName(
+  int Type,
+  char *FormatName,
+  char *DefaultExt
+);
+</pre>
+<h3>Parameters</h3>
+<div class=descr>
+
+    <div class=dfn>Type</div>
+    <div class=dfndescr>archive type</div>
+    <div class=dfn>FormatName</div>
+    <div class=dfndescr>
+format name; it's used for saving parameters in the registry and for selecting the desired archive
+format.
+    </div>
+    <div class=dfn>DefaultExt</div>
+    <div class=dfndescr>
+default file extension for the format (without '.'); used for accelerating format recognition.
+    </div>
+
+</div>
+
+<h3>Return value</h3>
+<div class=descr>
+  <p>
+TRUE in case of success. FALSE when the specified archive type is not supported.
+</p>
+</div>
+
+<h3>Example</h3>
+<div class=descr>
+  <p>
+An example getting ZIP-file format name (ZIP.CPP)
+</p>
+<pre class=code>BOOL WINAPI _export GetFormatName(int Type,char *FormatName,char *DefaultExt)
+{
+  if (Type==0)
+  {
+    strcpy(FormatName,"ZIP");
+    strcpy(DefaultExt,"zip");
+    return(TRUE);
+  }
+  return(FALSE);
+}
+</pre>
+</div>
+
+
+<div class=see>See also:</div><div class=seecont>
+<a href="index.html">archive support</a>
+</div>
+
+</body>
+</html>
