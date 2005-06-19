@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.150 14.06.2005 $ */
+/* Revision: 1.151 19.06.2005 $ */
 
 /*
 Modify:
+  19.06.2005 SVS
+    - BugZ#1348 - Не обновляется индикатор копирования при операциях с флешкой
   14.06.2005 SVS
     ! ShellCopy::MoveFileThroughTemp() стала самостоятельной функцией
     + SetRecursiveSecurity() - "отсюда и ниже"
@@ -4193,7 +4195,7 @@ int ShellCopy::ShellSystemCopy(const char *SrcName,const char *DestName,const WI
   //// // _LOGCOPYR(SysLog("[%p] ShellCopy::ShellSystemCopy('%s','%s',..)",this,SrcName,DestName));
   ShellCopyMsg(SrcName,DestName,MSG_LEFTALIGN|MSG_KEEPBACKGROUND);
 
-  if (IsFn_FAR_CopyFileEx)
+  if (Init_CopyFileEx())
   {
     BOOL Cancel=0;
     TotalCopiedSizeEx=TotalCopiedSize;

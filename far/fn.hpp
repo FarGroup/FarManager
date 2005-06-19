@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.227 14.06.2005 $ */
+/* Revision: 1.228 19.06.2005 $ */
 
 /*
 Modify:
+  19.06.2005 SVS
+    + Init_CopyFileEx()
   14.06.2005 SVS
     + GetFileWin32FindData(), FAR_CopyFile(), FAR_CopyFileEx(), FAR_MoveFile(), FAR_MoveFileEx(), MoveFileThroughTemp()
   30.05.2005 SVS
@@ -755,6 +757,7 @@ BOOL FAR_CopyFile(
     BOOL bFailIfExists  // flag for operation if file exists
    );
 
+BOOL Init_CopyFileEx(void);
 BOOL FAR_CopyFileEx(LPCTSTR lpExistingFileName,
             LPCTSTR lpNewFileName,void *lpProgressRoutine,
             LPVOID lpData,LPBOOL pbCancel,DWORD dwCopyFlags);

@@ -5,10 +5,12 @@ grpsort.cpp
 
 */
 
-/* Revision: 1.19 06.08.2004 $ */
+/* Revision: 1.20 19.06.2005 $ */
 
 /*
 Modify:
+  19.06.2005 SVS
+    + FIB_BUTTONS
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   21.01.2003 SVS
@@ -383,7 +385,7 @@ int GroupSort::EditGroupsMenu(int Pos)
             for(;;)
             {
                ExitCode=GetString(MSG(MSortGroupsTitle),MSG(MSortGroupsEnter),
-                         "Masks","",NewMasks,sizeof(NewMasks),HelpSortGroups);
+                         "Masks","",NewMasks,sizeof(NewMasks),HelpSortGroups,FIB_BUTTONS);
                if(!ExitCode)
                   break;
                if(FMasks.Set(NewMasks, 0))
@@ -426,7 +428,7 @@ int GroupSort::EditGroupsMenu(int Pos)
             {
                ExitCode=GetString(MSG(MSortGroupsTitle),MSG(MSortGroupsEnter),
                                   "Masks",NewMasks,NewMasks,sizeof(NewMasks),
-                                  HelpSortGroups);
+                                  HelpSortGroups,FIB_BUTTONS);
                if(!ExitCode)
                   break;
                if(FMasks.Set(NewMasks, 0))

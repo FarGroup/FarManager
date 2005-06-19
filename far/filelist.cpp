@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.229 03.06.2005 $ */
+/* Revision: 1.230 19.06.2005 $ */
 
 /*
 Modify:
+  19.06.2005 SVS
+    + FIB_BUTTONS
   03.06.2005 SVS
     ! Editor/Viewer - пытаемся открыть файл по короткому имени
   05.05.05 AY
@@ -4326,7 +4328,7 @@ void FileList::DescribeFiles()
     */
     if (!GetString(MSG(MDescribeFiles),TruncMsg,"DizText",
                    PrevText!=NULL ? PrevText:"",DizText,sizeof(DizText),
-                   "FileDiz",FIB_ENABLEEMPTY|(!DizCount?FIB_NOUSELASTHISTORY:0)))
+                   "FileDiz",FIB_ENABLEEMPTY|(!DizCount?FIB_NOUSELASTHISTORY:0)|FIB_BUTTONS))
       break;
     /* SVS $*/
     DizCount++;
@@ -4368,7 +4370,7 @@ void FileList::ApplyCommand()
   static char PrevCommand[512];
   char Command[512];
 
-  if (!GetString(MSG(MAskApplyCommandTitle),MSG(MAskApplyCommand),"ApplyCmd",PrevCommand,Command,sizeof(Command),"ApplyCmd"))
+  if (!GetString(MSG(MAskApplyCommandTitle),MSG(MAskApplyCommand),"ApplyCmd",PrevCommand,Command,sizeof(Command),"ApplyCmd",FIB_BUTTONS))
     return;
 
   strcpy(PrevCommand,Command);

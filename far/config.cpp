@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.185 14.06.2005 $ */
+/* Revision: 1.186 19.06.2005 $ */
 
 /*
 Modify:
+  19.06.2005 SVS
+    + FIB_BUTTONS
   14.06.2005 SVS
     + Opt.ShowTimeoutDACLFiles
   30.05.2005 SVS
@@ -1544,7 +1546,7 @@ void SetFolderInfoFiles()
   */
   char FolderInfoFiles[1024];
   if (GetString(MSG(MSetFolderInfoTitle),MSG(MSetFolderInfoNames),"FolderInfoFiles",
-      Opt.FolderInfoFiles,FolderInfoFiles,sizeof(FolderInfoFiles),"OptMenu",FIB_ENABLEEMPTY))
+      Opt.FolderInfoFiles,FolderInfoFiles,sizeof(FolderInfoFiles),"OptMenu",FIB_ENABLEEMPTY|FIB_BUTTONS))
   {
     xstrncpy(Opt.FolderInfoFiles,FolderInfoFiles,sizeof(Opt.FolderInfoFiles)-1);
     if (CtrlObject->Cp()->LeftPanel->GetType() == INFO_PANEL)

@@ -5,10 +5,12 @@ farwinapi.cpp
 
 */
 
-/* Revision: 1.08 14.06.2005 $ */
+/* Revision: 1.09 19.06.2005 $ */
 
 /*
 Modify:
+  19.06.2005 SVS
+    - BugZ#1348 - Не обновляется индикатор копирования при операциях с флешкой
   14.06.2005 SVS
     + GetFileWin32FindData(), FAR_CopyFile(), FAR_CopyFileEx(), FAR_MoveFile(), FAR_MoveFileEx(), MoveFileThroughTemp()
   21.06.2004 SVS
@@ -222,14 +224,13 @@ BOOL FAR_CopyFile(
   return CopyFile(lpExistingFileName,lpNewFileName,bFailIfExists);
 }
 
-BOOL FAR_CopyFileEx(LPCTSTR lpExistingFileName,
-            LPCTSTR lpNewFileName,void *lpProgressRoutine,
-            LPVOID lpData,LPBOOL pbCancel,DWORD dwCopyFlags)
-{
-  typedef BOOL (WINAPI *COPYFILEEX)(LPCTSTR lpExistingFileName,
+typedef BOOL (WINAPI *COPYFILEEX)(LPCTSTR lpExistingFileName,
             LPCTSTR lpNewFileName,void *lpProgressRoutine,
             LPVOID lpData,LPBOOL pbCancel,DWORD dwCopyFlags);
-  static COPYFILEEX pCopyFileEx=NULL;
+static COPYFILEEX pCopyFileEx=NULL;
+
+BOOL Init_CopyFileEx(void)
+{
   static int LoadAttempt=FALSE;
 
   if (!LoadAttempt && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
@@ -240,6 +241,13 @@ BOOL FAR_CopyFileEx(LPCTSTR lpExistingFileName,
     IsFn_FAR_CopyFileEx=pCopyFileEx != NULL;
     LoadAttempt=TRUE;
   }
+  return IsFn_FAR_CopyFileEx;
+}
+
+BOOL FAR_CopyFileEx(LPCTSTR lpExistingFileName,
+            LPCTSTR lpNewFileName,void *lpProgressRoutine,
+            LPVOID lpData,LPBOOL pbCancel,DWORD dwCopyFlags)
+{
   if(pCopyFileEx)
     return pCopyFileEx(lpExistingFileName,lpNewFileName,lpProgressRoutine,lpData,pbCancel,dwCopyFlags);
   return FALSE;

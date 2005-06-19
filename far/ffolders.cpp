@@ -5,10 +5,12 @@ Folder shortcuts
 
 */
 
-/* Revision: 1.14 26.04.2005 $ */
+/* Revision: 1.15 19.06.2005 $ */
 
 /*
 Modify:
+  19.06.2005 SVS
+    + FIB_BUTTONS
   26.04.2005 SVS
     ! У GetShortcutFolder добавлен параметр - скока брать на грудь для пути.
     + Функция GetShortcutFolderSize() - возвращает размер для ShortcutN
@@ -248,7 +250,7 @@ static int ShowFolderShortcutMenu(int Pos)
           strcpy(OldNewDir,NewDir);
 
           if (GetString(MSG(MFolderShortcutsTitle),MSG(MEnterShortcut),NULL,
-                        NewDir,NewDir,sizeof(NewDir),HelpFolderShortcuts,0/*|FIB_EDITPATH*/) &&
+                        NewDir,NewDir,sizeof(NewDir),HelpFolderShortcuts,FIB_BUTTONS/*|FIB_EDITPATH*/) &&
               strcmp(NewDir,OldNewDir) != 0)
           {
             Unquote(NewDir);
