@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.70 12.05.2005 $ */
+/* Revision: 1.71 20.06.2005 $ */
 
 /*
 Modify:
+  20.06.2005 SVS
+    - лишний вызов ScTree.SkipDir(), подробнее see 02002.Delete.txt
   12.05.2005 SVS
     ! уберем лишний вызов FAR_GetDriveType
   26.02.2005 WARP
@@ -555,7 +557,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
                 }
                 else if (MsgCode==DELETE_SKIP)
                 {
-                  ScTree.SkipDir();
+                  //ScTree.SkipDir();
                   continue;
                 }
                 TreeList::DelTreeName(FullName);
