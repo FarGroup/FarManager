@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.186 19.06.2005 $ */
+/* Revision: 1.187 23.06.2005 $ */
 
 /*
 Modify:
+  23.06.2005 WARP
+    ! Новый внешиний вид у диалогов настройки редактора и вьювера.
   19.06.2005 SVS
     + FIB_BUTTONS
   14.06.2005 SVS
@@ -1134,82 +1136,88 @@ void SetDizConfig()
  |            [ Ok ]  [ Cancel ]             |
  +-------------------------------------------+
 */
-#define DLG_VIEW_USE_F3      2
-#define DLG_VIEW_USE_ALTF3   3
-#define DLG_VIEW_EXTERNAL    5
-#define DLG_VIEW_SAVEFILEPOS 7
-#define DLG_VIEW_SAVESHORTPOS 8
-#define DLG_VIEW_AUTODETECT  9
-#define DLG_VIEW_TABSIZE    10
-#define DLG_VIEW_TABSIZE2   11
-#define DLG_VIEW_SCROLLBAR  12
-#define DLG_VIEW_ARROWS     13
-#define DLG_VIEW_PERSBLOCKS 14
-#define DLG_VIEW_OK         15
 
-/* $ 29.03.2001 IS
-  + По аналогии с редактором часть настроек переехала в ViewerOptions
-*/
-/* $ 27.11.2001 DJ
-   параметр Local
-*/
+enum enumViewerConfig {
+    ID_VC_TITLE,
+    ID_VC_EXTERNALCONFIGTITLE,
+    ID_VC_EXTERNALUSEF3,
+    ID_VC_EXTERNALUSEALTF3,
+    ID_VC_EXTENALCOMMAND,
+    ID_VC_EXTERALCOMMANDEDIT,
+    ID_VC_SEPARATOR1,
+    ID_VC_INTERNALCONFIGTITLE,
+    ID_VC_SAVEPOSITION,
+    ID_VC_SAVEBOOKMARKS,
+    ID_VC_AUTODETECTTABLE,
+    ID_VC_TABSIZEEDIT,
+    ID_VC_TABSIZE,
+    ID_VC_SHOWSCROLLBAR,
+    ID_VC_SHOWARROWS,
+    ID_VC_PERSISTENTSELECTION,
+    ID_VC_SEPARATOR2,
+    ID_VC_OK,
+    ID_VC_CANCEL
+    };
+
 void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
 {
   static struct DialogData CfgDlgData[]={
-  /*  0 */  DI_DOUBLEBOX , 3, 1,47,18,0,0,0,0,(char *)MViewConfigTitle,                  //   0
-  /*  1 */  DI_SINGLEBOX , 5, 2,45, 7,0,0,DIF_LEFTTEXT,0,(char *)MViewConfigExternal,    //   1
-  /*  2 */  DI_RADIOBUTTON,7, 3, 0, 0,1,0,DIF_GROUP,0,(char *)MViewConfigExternalF3,     //   2
-  /*  3 */  DI_RADIOBUTTON,7, 4, 0, 0,0,0,0,0,(char *)MViewConfigExternalAltF3,          //   3
-  /*  4 */  DI_TEXT      , 7, 5, 0, 0,0,0,0,0,(char *)MViewConfigExternalCommand,        //   4
-  /*  5 */  DI_EDIT      , 7, 6,43, 6,0,0,0,0,"",                                        //   5
-  /*  6 */  DI_SINGLEBOX , 5, 8,45,16,0,0,DIF_LEFTTEXT,0,(char *)MViewConfigInternal,    //   6
-  /*  7 */  DI_CHECKBOX  , 7, 9, 0, 0,0,0,0,0,(char *)MViewConfigSavePos,                //   7
-  /*  8 */  DI_CHECKBOX  , 7,10, 0, 0,0,0,0,0,(char *)MViewConfigSaveShortPos,           //   8
-  /*  9 */  DI_CHECKBOX  , 7,11, 0, 0,0,0,0,0,(char *)MViewAutoDetectTable,              //   9
-  /* 10 */  DI_FIXEDIT   , 7,12, 9,15,0,0,0,0,"",                                        //  10
-  /* 11 */  DI_TEXT      ,11,12, 0, 0,0,0,0,0,(char *)MViewConfigTabSize,                //  11
-  /* 12 */  DI_CHECKBOX  , 7,13, 0, 0,0,0,0,0,(char *)MViewConfigScrollbar,              //  12 *new
-  /* 13 */  DI_CHECKBOX  , 7,14, 0, 0,0,0,0,0,(char *)MViewConfigArrows,                 //  13 *new
-  /* 14 */  DI_CHECKBOX  , 7,15, 0, 0,0,0,0,0,(char *)MViewConfigPersistentSelection,    //  14
-  /* 15 */  DI_BUTTON    , 0,17, 0, 0,0,0,DIF_CENTERGROUP,1,(char *)MOk,                 //  15 , was 11
-  /* 16 */  DI_BUTTON    , 0,17, 0, 0,0,0,DIF_CENTERGROUP,0,(char *)MCancel              //  16 , was 12
+  /*  0 */  DI_DOUBLEBOX , 3, 1,47,18,0,0,0,0,(char *)MViewConfigTitle,
+  /*  1 */  DI_TEXT, 5, 2,45, 7,0,0,DIF_LEFTTEXT,0,(char *)MViewConfigExternal,
+  /*  2 */  DI_RADIOBUTTON,6, 3, 0, 0,1,0,DIF_GROUP,0,(char *)MViewConfigExternalF3,
+  /*  3 */  DI_RADIOBUTTON,6, 4, 0, 0,0,0,0,0,(char *)MViewConfigExternalAltF3,
+  /*  4 */  DI_TEXT      , 6, 5, 0, 0,0,0,0,0,(char *)MViewConfigExternalCommand,
+  /*  5 */  DI_EDIT      , 6, 6,45, 6,0,(DWORD)"ExternalViewer", DIF_HISTORY,0,"",
+  /*  6 */  DI_TEXT, 0, 7, 0, 0, 0, 0, DIF_SEPARATOR, 0, "",
+  /*  7 */  DI_TEXT, 5, 8,45,16,0,0,DIF_LEFTTEXT,0,(char *)MViewConfigInternal,
+  /*  8 */  DI_CHECKBOX  , 6, 9, 0, 0,0,0,0,0,(char *)MViewConfigSavePos,
+  /*  9 */  DI_CHECKBOX  , 6,10, 0, 0,0,0,0,0,(char *)MViewConfigSaveShortPos,
+  /* 10 */  DI_CHECKBOX  , 6,11, 0, 0,0,0,0,0,(char *)MViewAutoDetectTable,
+  /* 11 */  DI_FIXEDIT   , 6,12, 9,15,0,0,0,0,"",
+  /* 12 */  DI_TEXT      ,11,12, 0, 0,0,0,0,0,(char *)MViewConfigTabSize,
+  /* 13 */  DI_CHECKBOX  , 6,13, 0, 0,0,0,0,0,(char *)MViewConfigScrollbar,
+  /* 14 */  DI_CHECKBOX  , 6,14, 0, 0,0,0,0,0,(char *)MViewConfigArrows,
+  /* 15 */  DI_CHECKBOX  , 6,15, 0, 0,0,0,0,0,(char *)MViewConfigPersistentSelection,
+  /* 16 */  DI_TEXT, 0, 16, 0, 0, 0, 0, DIF_SEPARATOR, 0, "",
+  /* 17 */  DI_BUTTON    , 0,17, 0, 0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 18 */  DI_BUTTON    , 0,17, 0, 0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
+
   MakeDialogItems(CfgDlgData,CfgDlg);
 
-  CfgDlg[DLG_VIEW_USE_F3].Selected=Opt.UseExternalViewer;
-  CfgDlg[DLG_VIEW_USE_ALTF3].Selected=!Opt.UseExternalViewer;
-  strcpy(CfgDlg[DLG_VIEW_EXTERNAL].Data,Opt.ExternalViewer);
-  CfgDlg[DLG_VIEW_SAVEFILEPOS].Selected=Opt.SaveViewerPos;
-  CfgDlg[DLG_VIEW_SAVESHORTPOS].Selected=Opt.SaveViewerShortPos;
-  /* 15.09.2000 IS
-     Отключение автоопределения таблицы символов, если отсутствует таблица с
-     распределением частот символов
-  */
-  CfgDlg[DLG_VIEW_AUTODETECT].Selected=ViOpt.AutoDetectTable&&DistrTableExist();
-  /* IS $ */
-  CfgDlg[DLG_VIEW_SCROLLBAR].Selected=ViOpt.ShowScrollbar;
-  CfgDlg[DLG_VIEW_ARROWS].Selected=ViOpt.ShowArrows;
-  CfgDlg[DLG_VIEW_PERSBLOCKS].Selected=ViOpt.PersistentBlocks;
+  CfgDlg[ID_VC_EXTERNALUSEF3].Selected = Opt.UseExternalViewer;
+  CfgDlg[ID_VC_EXTERNALUSEALTF3].Selected = !Opt.UseExternalViewer;
+  CfgDlg[ID_VC_SAVEPOSITION].Selected = Opt.SaveViewerPos;
+  CfgDlg[ID_VC_SAVEBOOKMARKS].Selected = Opt.SaveViewerShortPos;
+  CfgDlg[ID_VC_AUTODETECTTABLE].Selected = ViOpt.AutoDetectTable && DistrTableExist();
+  CfgDlg[ID_VC_SHOWSCROLLBAR].Selected = ViOpt.ShowScrollbar;
+  CfgDlg[ID_VC_SHOWARROWS].Selected = ViOpt.ShowArrows;
+  CfgDlg[ID_VC_PERSISTENTSELECTION].Selected = ViOpt.PersistentBlocks;
 
-  if (!RegVer)
+  strcpy (CfgDlg[ID_VC_EXTERALCOMMANDEDIT].Data,Opt.ExternalViewer);
+
+  if ( !RegVer )
   {
-    CfgDlg[DLG_VIEW_TABSIZE].Flags|=DIF_DISABLE;
-    CfgDlg[DLG_VIEW_TABSIZE2].Flags|=DIF_DISABLE;
-    *CfgDlg[DLG_VIEW_TABSIZE].Data=0;
+    CfgDlg[ID_VC_TABSIZEEDIT].Flags |= DIF_DISABLE;
+    CfgDlg[ID_VC_TABSIZE].Flags |= DIF_DISABLE;
+    *CfgDlg[ID_VC_TABSIZEEDIT].Data = 0;
   }
   else
-    sprintf(CfgDlg[DLG_VIEW_TABSIZE].Data,"%d",ViOpt.TabSize);
+    sprintf(CfgDlg[ID_VC_TABSIZEEDIT].Data,"%d",ViOpt.TabSize);
 
-  int DialogHeight=20;
+  int DialogHeight = 20;
+
   if (Local)
   {
     int i;
-    for (i=1; i<=5; i++)
+
+    for (i=ID_VC_EXTERNALCONFIGTITLE; i<=ID_VC_SEPARATOR1; i++)
       CfgDlg[i].Flags |= DIF_HIDDEN;
-    for (i=6; i<=16; i++)
+
+    for (i = ID_VC_INTERNALCONFIGTITLE; i <= ID_VC_CANCEL; i++)
       CfgDlg[i].Y1 -= 6;
-    CfgDlg[0].Y2 -= 6;
-    CfgDlg[6].Y2 -= 6;
+
+    CfgDlg[ID_VC_TITLE].Y2 -= 6;
     DialogHeight -= 6;
   }
 
@@ -1218,21 +1226,21 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
     Dlg.SetHelp("ViewerSettings");
     Dlg.SetPosition(-1,-1,51,DialogHeight);
     Dlg.Process();
-    if (Dlg.GetExitCode()!=DLG_VIEW_OK)
+    if (Dlg.GetExitCode()!= ID_VC_OK)
       return;
   }
 
   if (!Local)
   {
-    Opt.UseExternalViewer=CfgDlg[DLG_VIEW_USE_F3].Selected;
-    xstrncpy(Opt.ExternalViewer,CfgDlg[DLG_VIEW_EXTERNAL].Data,sizeof(Opt.ExternalViewer)-1);
+    Opt.UseExternalViewer=CfgDlg[ID_VC_EXTERNALUSEF3].Selected;
+    xstrncpy(Opt.ExternalViewer,CfgDlg[ID_VC_EXTERALCOMMANDEDIT].Data,sizeof(Opt.ExternalViewer)-1);
   }
-  Opt.SaveViewerPos=CfgDlg[DLG_VIEW_SAVEFILEPOS].Selected;
-  Opt.SaveViewerShortPos=CfgDlg[DLG_VIEW_SAVESHORTPOS].Selected;
+  Opt.SaveViewerPos=CfgDlg[ID_VC_SAVEPOSITION].Selected;
+  Opt.SaveViewerShortPos=CfgDlg[ID_VC_SAVEBOOKMARKS].Selected;
   /* $ 16.12.2000 IS
     - баг: забыли считать опцию DLG_VIEW_AUTODETECT из диалога
   */
-  ViOpt.AutoDetectTable=CfgDlg[DLG_VIEW_AUTODETECT].Selected;
+  ViOpt.AutoDetectTable=CfgDlg[ID_VC_AUTODETECTTABLE].Selected;
   /* IS $ */
   /* 15.09.2000 IS
      Отключение автоопределения таблицы символов, если отсутствует таблица с
@@ -1246,238 +1254,125 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
               MSG(MOk));
   }
   /* IS $ */
-  ViOpt.TabSize=atoi(CfgDlg[DLG_VIEW_TABSIZE].Data);
-  ViOpt.ShowScrollbar=CfgDlg[DLG_VIEW_SCROLLBAR].Selected;
-  ViOpt.ShowArrows=CfgDlg[DLG_VIEW_ARROWS].Selected;
-  ViOpt.PersistentBlocks=CfgDlg[DLG_VIEW_PERSBLOCKS].Selected;
+  ViOpt.TabSize=atoi(CfgDlg[ID_VC_TABSIZEEDIT].Data);
+  ViOpt.ShowScrollbar=CfgDlg[ID_VC_SHOWSCROLLBAR].Selected;
+  ViOpt.ShowArrows=CfgDlg[ID_VC_SHOWARROWS].Selected;
+  ViOpt.PersistentBlocks=CfgDlg[ID_VC_PERSISTENTSELECTION].Selected;
   if (ViOpt.TabSize<1 || ViOpt.TabSize>512)
     ViOpt.TabSize=8;
 }
-/* DJ $ */
-/* IS $ */
-/* tran 18.07.2000 $ */
 
-/* $ 04.08.2000 SVS
-   ! WordDiv выкинул - будет описан в TechInfo.txt
-*/
-/* $ 03.08.2000 SVS
-  + WordDiv внесен в Options|Editor settings
-*/
-/* $ 21.02.2001 IS
-  + Работа идет со структурой EditorOptions
-*/
-/* $ 20.05.2001 IS
-  + Задаем поведение для файлов с атрибутом r/o:
-    лочить или нет
-    орать или нет
-*/
-/* $ 27.11.2001 DJ
-   параметр Local и соответствующие модификации в коде
-*/
-/* $ 03.01.2001 IS
-  ! Устранение "двойного отрицания".
-*/
-#ifdef USE_OLDEXPANDTABS
-void EditorConfig(struct EditorOptions &EdOpt,int Local)
-{
-  static struct DialogData CfgDlgData[]={
-  /*  0 */  DI_DOUBLEBOX,3,1,63,22,0,0,0,0,(char *)MEditConfigTitle,
-  /*  1 */  DI_SINGLEBOX,5,2,61,7,0,0,DIF_LEFTTEXT,0,(char *)MEditConfigExternal,
-  /*  2 */  DI_RADIOBUTTON,7,3,0,0,1,0,DIF_GROUP,0,(char *)MEditConfigEditorF4,
-  /*  3 */  DI_RADIOBUTTON,7,4,0,0,0,0,0,0,(char *)MEditConfigEditorAltF4,
-  /*  4 */  DI_TEXT,7,5,0,0,0,0,0,0,(char *)MEditConfigEditorCommand,
-  /*  5 */  DI_EDIT,7,6,59,6,0,0,0,0,"",
-  /*  6 */  DI_SINGLEBOX,5,8,61,20,0,0,DIF_LEFTTEXT,0,(char *)MEditConfigInternal,
-  /*  7 */  DI_CHECKBOX,7,9,0,0,0,0,0,0,(char *)MEditConfigTabsToSpaces,
-  /*  8 */  DI_CHECKBOX,7,10,0,0,0,0,0,0,(char *)MEditConfigPersistentBlocks,
-  /*  9 */  DI_CHECKBOX,7,11,0,0,0,0,0,0,(char *)MEditConfigDelRemovesBlocks,
-  /* 10 */  DI_CHECKBOX,7,12,0,0,0,0,0,0,(char *)MEditConfigAutoIndent,
-  /* 11 */  DI_CHECKBOX,7,13,0,0,0,0,0,0,(char *)MEditConfigSavePos,
-  /* 12 */  DI_CHECKBOX,7,14,0,0,0,0,0,0,(char *)MEditConfigSaveShortPos,
-  /* 13 */  DI_CHECKBOX,7,15,0,0,0,0,0,0,(char *)MEditAutoDetectTable,
-  /* 14 */  DI_CHECKBOX,7,16,0,0,0,0,0,0,(char *)MEditCursorBeyondEnd,
-  /* 15 */  DI_CHECKBOX,7,17,0,0,0,0,0,0,(char *)MEditLockROFileModification,
-  /* 16 */  DI_CHECKBOX,7,18,0,0,0,0,0,0,(char *)MEditWarningBeforeOpenROFile,
-  /* 17 */  DI_FIXEDIT,7,19,9,19,0,0,0,0,"",
-  /* 18 */  DI_TEXT,11,19,0,0,0,0,0,0,(char *)MEditConfigTabSize,
-  /* 19 */  DI_BUTTON,0,21,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-  /* 20 */  DI_BUTTON,0,21,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
-  };
-  MakeDialogItems(CfgDlgData,CfgDlg);
-
-  CfgDlg[2].Selected=Opt.UseExternalEditor;
-  CfgDlg[3].Selected=!Opt.UseExternalEditor;
-  strcpy(CfgDlg[5].Data,Opt.ExternalEditor);
-  CfgDlg[7].Selected=EdOpt.ExpandTabs;
-  CfgDlg[8].Selected=EdOpt.PersistentBlocks;
-  CfgDlg[9].Selected=EdOpt.DelRemovesBlocks;
-  CfgDlg[10].Selected=EdOpt.AutoIndent;
-  CfgDlg[11].Selected=EdOpt.SavePos;
-  CfgDlg[12].Selected=EdOpt.SaveShortPos;
-  /* 15.09.2000 IS
-     Отключение автоопределения таблицы символов, если отсутствует таблица с
-     распределением частот символов
-  */
-  CfgDlg[13].Selected=EdOpt.AutoDetectTable&&DistrTableExist();
-  /* IS $ */
-  CfgDlg[14].Selected=EdOpt.CursorBeyondEOL;
-  CfgDlg[15].Selected=Opt.EditorReadOnlyLock & 1;
-  CfgDlg[16].Selected=Opt.EditorReadOnlyLock & 2;
-
-  if (!RegVer)
-  {
-    CfgDlg[17].Flags|=DIF_DISABLE;
-    CfgDlg[18].Flags|=DIF_DISABLE;
-    *CfgDlg[18].Data=0;
-  }
-  else
-    sprintf(CfgDlg[17].Data,"%d",EdOpt.TabSize);
-
-  int DialogHeight=24;
-  if (Local)
-  {
-    int i;
-    for (i=1; i<=5; i++)
-      CfgDlg[i].Flags |= DIF_HIDDEN;
-    for (i=6; i<=20; i++)
-      CfgDlg[i].Y1 -= 6;
-    CfgDlg[0].Y2 -= 6;
-    CfgDlg[6].Y2 -= 6;
-    DialogHeight -= 6;
-  }
-
-  {
-    Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
-    Dlg.SetHelp("EditorSettings");
-    Dlg.SetPosition(-1,-1,67,DialogHeight);
-    Dlg.Process();
-    if (Dlg.GetExitCode()!=19)
-      return;
-  }
-
-  if (!Local)
-  {
-    Opt.UseExternalEditor=CfgDlg[2].Selected;
-    xstrncpy(Opt.ExternalEditor,CfgDlg[5].Data,sizeof(Opt.ExternalEditor)-1);
-  }
-  EdOpt.ExpandTabs=CfgDlg[7].Selected;
-  EdOpt.PersistentBlocks=CfgDlg[8].Selected;
-  EdOpt.DelRemovesBlocks=CfgDlg[9].Selected;
-  EdOpt.AutoIndent=CfgDlg[10].Selected;
-  EdOpt.SavePos=CfgDlg[11].Selected;
-  EdOpt.SaveShortPos=CfgDlg[12].Selected;
-  EdOpt.AutoDetectTable=CfgDlg[13].Selected;
-  /* 15.09.2000 IS
-     Отключение автоопределения таблицы символов, если отсутствует таблица с
-     распределением частот символов
-  */
-  if(!DistrTableExist() && EdOpt.AutoDetectTable)
-  {
-    EdOpt.AutoDetectTable=0;
-    Message(MSG_WARNING,1,MSG(MWarning),
-              MSG(MDistributionTableWasNotFound),MSG(MAutoDetectWillNotWork),
-              MSG(MOk));
-  }
-  /* IS $ */
-  EdOpt.TabSize=atoi(CfgDlg[17].Data);
-  if (EdOpt.TabSize<1 || EdOpt.TabSize>512)
-    EdOpt.TabSize=8;
-  EdOpt.CursorBeyondEOL=CfgDlg[14].Selected;
-  Opt.EditorReadOnlyLock&=~3;
-  if(CfgDlg[15].Selected) Opt.EditorReadOnlyLock|=1;
-  if(CfgDlg[16].Selected) Opt.EditorReadOnlyLock|=2;
-}
-/* IS 03.01.2002 $ */
-/* DJ $ */
-/* IS $ */
-/* IS $ */
-/* SVS $ */
-#else
+enum enumEditorConfig {
+    ID_EC_TITLE,
+    ID_EC_EXTERNALCONFIGTITLE,
+    ID_EC_EXTERNALUSEF4,
+    ID_EC_EXTERNALUSEALTF4,
+    ID_EC_EXTERNALCOMMAND,
+    ID_EC_EXTERNALCOMMANDEDIT,
+    ID_EC_SEPARATOR1,
+    ID_EC_INTERNALCONFIGTITLE,
+    ID_EC_DONTEXPANDTABS,
+    ID_EC_EXPANDTABS,
+    ID_EC_CONVERTTABSTOSPACES,
+    ID_EC_PERSISTENTBLOCKS,
+    ID_EC_DELREMOVESBLOCKS,
+    ID_EC_AUTOINDENT,
+    ID_EC_SAVEPOSITION,
+    ID_EC_SAVEBOOKMARKS,
+    ID_EC_AUTODETECTTABLE,
+    ID_EC_CURSORBEYONDEOL,
+    ID_EC_LOCKREADONLY,
+    ID_EC_READONLYWARNING,
+    ID_EC_TABSIZEEDIT,
+    ID_EC_TABSIZE,
+    ID_EC_SEPARATOR2,
+    ID_EC_OK,
+    ID_EC_CANCEL
+    };
 
 void EditorConfig(struct EditorOptions &EdOpt,int Local)
 {
   static struct DialogData CfgDlgData[]={
   /*  0 */  DI_DOUBLEBOX,3,1,63,23,0,0,0,0,(char *)MEditConfigTitle,
-  /*  1 */  DI_SINGLEBOX,5,2,61,6,0,0,DIF_LEFTTEXT,0,(char *)MEditConfigExternal,
-  /*  2 */  DI_RADIOBUTTON,7,3,0,0,1,0,DIF_GROUP,0,(char *)MEditConfigEditorF4,
-  /*  3 */  DI_RADIOBUTTON,7,3,0,0,0,0,0,0,(char *)MEditConfigEditorAltF4,
-  /*  4 */  DI_TEXT,7,4,0,0,0,0,0,0,(char *)MEditConfigEditorCommand,
-  /*  5 */  DI_EDIT,7,5,59,5,0,0,0,0,"",
-  /*  6 */  DI_SINGLEBOX,5,7,61,21,0,0,DIF_LEFTTEXT,0,(char *)MEditConfigInternal,
-  /*  7 */  DI_RADIOBUTTON, 7, 8, 0, 0, 1, 0, DIF_GROUP, 0, (char*)MEditConfigDoNotExpandTabs,
-  /*  8 */  DI_RADIOBUTTON, 7, 9, 0, 0, 0, 0, 0, 0, (char*)MEditConfigExpandTabs,
-  /*  9 */  DI_RADIOBUTTON, 7, 10, 0, 0, 0, 0, 0, 0, (char*)MEditConfigConvertAllTabsToSpaces,
-  /* 10 */  DI_CHECKBOX,7,11,0,0,0,0,0,0,(char *)MEditConfigPersistentBlocks,
-  /* 11 */  DI_CHECKBOX,7,12,0,0,0,0,0,0,(char *)MEditConfigDelRemovesBlocks,
-  /* 12 */  DI_CHECKBOX,7,13,0,0,0,0,0,0,(char *)MEditConfigAutoIndent,
-  /* 13 */  DI_CHECKBOX,7,14,0,0,0,0,0,0,(char *)MEditConfigSavePos,
-  /* 14 */  DI_CHECKBOX,7,15,0,0,0,0,0,0,(char *)MEditConfigSaveShortPos,
-  /* 15 */  DI_CHECKBOX,7,16,0,0,0,0,0,0,(char *)MEditAutoDetectTable,
-  /* 16 */  DI_CHECKBOX,7,17,0,0,0,0,0,0,(char *)MEditCursorBeyondEnd,
-  /* 17 */  DI_CHECKBOX,7,18,0,0,0,0,0,0,(char *)MEditLockROFileModification,
-  /* 18 */  DI_CHECKBOX,7,19,0,0,0,0,0,0,(char *)MEditWarningBeforeOpenROFile,
-  /* 19 */  DI_FIXEDIT,7,20,9,20,0,0,0,0,"",
-  /* 20 */  DI_TEXT,11,20,0,0,0,0,0,0,(char *)MEditConfigTabSize,
-  /* 21 */  DI_BUTTON,0,22,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-  /* 22 */  DI_BUTTON,0,22,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel,
+  /*  1 */  DI_TEXT,5,2,0,0,0,0,DIF_LEFTTEXT,0,(char *)MEditConfigExternal,
+  /*  2 */  DI_RADIOBUTTON,6,3,0,0,1,0,DIF_GROUP,0,(char *)MEditConfigEditorF4,
+  /*  3 */  DI_RADIOBUTTON,6,3,0,0,0,0,0,0,(char *)MEditConfigEditorAltF4,
+  /*  4 */  DI_TEXT,6,4,0,0,0,0,0,0,(char *)MEditConfigEditorCommand,
+  /*  5 */  DI_EDIT,6,5,61,5,0,(DWORD)"ExternalEditor",DIF_HISTORY,0,"",
+  /*  6 */  DI_TEXT, 0, 6, 0, 0, 0, 0, DIF_SEPARATOR, 0, "",
+  /*  7 */  DI_TEXT,5,7,0,0,0,0,DIF_LEFTTEXT,0,(char *)MEditConfigInternal,
+  /*  8 */  DI_RADIOBUTTON, 6, 8, 0, 0, 1, 0, DIF_GROUP, 0, (char*)MEditConfigDoNotExpandTabs,
+  /*  9 */  DI_RADIOBUTTON, 6, 9, 0, 0, 0, 0, 0, 0, (char*)MEditConfigExpandTabs,
+  /* 10 */  DI_RADIOBUTTON, 6, 10, 0, 0, 0, 0, 0, 0, (char*)MEditConfigConvertAllTabsToSpaces,
+  /* 11 */  DI_CHECKBOX,6,11,0,0,0,0,0,0,(char *)MEditConfigPersistentBlocks,
+  /* 12 */  DI_CHECKBOX,6,12,0,0,0,0,0,0,(char *)MEditConfigDelRemovesBlocks,
+  /* 13 */  DI_CHECKBOX,6,13,0,0,0,0,0,0,(char *)MEditConfigAutoIndent,
+  /* 14 */  DI_CHECKBOX,6,14,0,0,0,0,0,0,(char *)MEditConfigSavePos,
+  /* 15 */  DI_CHECKBOX,6,15,0,0,0,0,0,0,(char *)MEditConfigSaveShortPos,
+  /* 16 */  DI_CHECKBOX,6,16,0,0,0,0,0,0,(char *)MEditAutoDetectTable,
+  /* 17 */  DI_CHECKBOX,6,17,0,0,0,0,0,0,(char *)MEditCursorBeyondEnd,
+  /* 18 */  DI_CHECKBOX,6,18,0,0,0,0,0,0,(char *)MEditLockROFileModification,
+  /* 19 */  DI_CHECKBOX,6,19,0,0,0,0,0,0,(char *)MEditWarningBeforeOpenROFile,
+  /* 20 */  DI_FIXEDIT,6,20,9,20,0,0,0,0,"",
+  /* 21 */  DI_TEXT,11,20,0,0,0,0,0,0,(char *)MEditConfigTabSize,
+  /* 22 */  DI_TEXT, 0, 21, 0, 0, 0, 0, DIF_SEPARATOR, 0, "",
+  /* 23 */  DI_BUTTON,0,22,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 24 */  DI_BUTTON,0,22,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel,
   };
   MakeDialogItems(CfgDlgData,CfgDlg);
 
   {
     char *Str = MSG(MEditConfigEditorF4);
-    CfgDlg[3].X1+=strlen(Str)-(strchr(Str, '&')?1:0)+5;
+    CfgDlg[ID_EC_EXTERNALUSEALTF4].X1+=strlen(Str)-(strchr(Str, '&')?1:0)+5;
   }
 
-  CfgDlg[2].Selected=Opt.UseExternalEditor;
-  CfgDlg[3].Selected=!Opt.UseExternalEditor;
-  strcpy(CfgDlg[5].Data,Opt.ExternalEditor);
+  CfgDlg[ID_EC_EXTERNALUSEF4].Selected=Opt.UseExternalEditor;
+  CfgDlg[ID_EC_EXTERNALUSEALTF4].Selected=!Opt.UseExternalEditor;
+  strcpy(CfgDlg[ID_EC_EXTERNALCOMMANDEDIT].Data,Opt.ExternalEditor);
 
-  //немного ненормальная логика, чтобы сохранить по-возможности старое поведение
+  //немного ненормальная логика, чтобы сохранить (по возможности) старое поведение
 
   if ( EdOpt.ExpandTabs == EXPAND_NOTABS )
-    CfgDlg[7].Selected = TRUE;
+    CfgDlg[ID_EC_DONTEXPANDTABS].Selected = TRUE;
 
   if ( EdOpt.ExpandTabs == EXPAND_NEWTABS )
-    CfgDlg[8].Selected = TRUE;
+    CfgDlg[ID_EC_EXPANDTABS].Selected = TRUE;
 
   if ( EdOpt.ExpandTabs == EXPAND_ALLTABS )
-    CfgDlg[9].Selected = TRUE;
+    CfgDlg[ID_EC_CONVERTTABSTOSPACES].Selected = TRUE;
 
-//  CfgDlg[7].Selected=EdOpt.ExpandTabs;
-  CfgDlg[10].Selected=EdOpt.PersistentBlocks;
-  CfgDlg[11].Selected=EdOpt.DelRemovesBlocks;
-  CfgDlg[12].Selected=EdOpt.AutoIndent;
-  CfgDlg[13].Selected=EdOpt.SavePos;
-  CfgDlg[14].Selected=EdOpt.SaveShortPos;
-  /* 15.09.2000 IS
-     Отключение автоопределения таблицы символов, если отсутствует таблица с
-     распределением частот символов
-  */
-  CfgDlg[15].Selected=EdOpt.AutoDetectTable&&DistrTableExist();
-  /* IS $ */
-  CfgDlg[16].Selected=EdOpt.CursorBeyondEOL;
-  CfgDlg[17].Selected=Opt.EditorReadOnlyLock & 1;
-  CfgDlg[18].Selected=Opt.EditorReadOnlyLock & 2;
+  CfgDlg[ID_EC_PERSISTENTBLOCKS].Selected = EdOpt.PersistentBlocks;
+  CfgDlg[ID_EC_DELREMOVESBLOCKS].Selected = EdOpt.DelRemovesBlocks;
+  CfgDlg[ID_EC_AUTOINDENT].Selected = EdOpt.AutoIndent;
+  CfgDlg[ID_EC_SAVEPOSITION].Selected = EdOpt.SavePos;
+  CfgDlg[ID_EC_SAVEBOOKMARKS].Selected = EdOpt.SaveShortPos;
+  CfgDlg[ID_EC_AUTODETECTTABLE].Selected = EdOpt.AutoDetectTable&&DistrTableExist();
+  CfgDlg[ID_EC_CURSORBEYONDEOL].Selected = EdOpt.CursorBeyondEOL;
+  CfgDlg[ID_EC_LOCKREADONLY].Selected = Opt.EditorReadOnlyLock & 1;
+  CfgDlg[ID_EC_READONLYWARNING].Selected = Opt.EditorReadOnlyLock & 2;
 
-  if (!RegVer)
+  if ( !RegVer )
   {
-    CfgDlg[19].Flags|=DIF_DISABLE;
-    CfgDlg[20].Flags|=DIF_DISABLE;
-    *CfgDlg[20].Data=0;
+    CfgDlg[ID_EC_TABSIZEEDIT].Flags |= DIF_DISABLE;
+    CfgDlg[ID_EC_TABSIZE].Flags |= DIF_DISABLE;
+    *CfgDlg[ID_EC_TABSIZEEDIT].Data = 0;
   }
   else
-    sprintf(CfgDlg[19].Data,"%d",EdOpt.TabSize);
+    sprintf(CfgDlg[ID_EC_TABSIZEEDIT].Data,"%d",EdOpt.TabSize);
 
   int DialogHeight=25;
+
   if (Local)
   {
     int i;
-    for (i=1; i<=5; i++)
+
+    for (i = ID_EC_EXTERNALCONFIGTITLE; i <= ID_EC_SEPARATOR1; i++)
       CfgDlg[i].Flags |= DIF_HIDDEN;
-    for (i=6; i<=22; i++)
+
+    for (i = ID_EC_INTERNALCONFIGTITLE; i <= ID_EC_CANCEL; i++)
       CfgDlg[i].Y1 -= 5;
-    CfgDlg[0].Y2 -= 5;
-    CfgDlg[6].Y2 -= 5;
+
+    CfgDlg[ID_EC_TITLE].Y2 -= 5;
     DialogHeight -= 5;
   }
 
@@ -1486,35 +1381,32 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
     Dlg.SetHelp("EditorSettings");
     Dlg.SetPosition(-1,-1,67,DialogHeight);
     Dlg.Process();
-    if (Dlg.GetExitCode()!=21)
+    if (Dlg.GetExitCode()!=ID_EC_OK)
       return;
   }
 
   if (!Local)
   {
-    Opt.UseExternalEditor=CfgDlg[2].Selected;
-    xstrncpy(Opt.ExternalEditor,CfgDlg[5].Data,sizeof(Opt.ExternalEditor)-1);
+    Opt.UseExternalEditor=CfgDlg[ID_EC_EXTERNALUSEF4].Selected;
+    xstrncpy(Opt.ExternalEditor,CfgDlg[ID_EC_EXTERNALCOMMANDEDIT].Data,sizeof(Opt.ExternalEditor)-1);
   }
 
-  if ( CfgDlg[7].Selected )
+  if ( CfgDlg[ID_EC_DONTEXPANDTABS].Selected )
     EdOpt.ExpandTabs = EXPAND_NOTABS;
 
-  if ( CfgDlg[8].Selected )
+  if ( CfgDlg[ID_EC_EXPANDTABS].Selected )
     EdOpt.ExpandTabs = EXPAND_NEWTABS;
 
-  if ( CfgDlg[9].Selected )
+  if ( CfgDlg[ID_EC_CONVERTTABSTOSPACES].Selected )
     EdOpt.ExpandTabs = EXPAND_ALLTABS;
 
-  EdOpt.PersistentBlocks=CfgDlg[10].Selected;
-  EdOpt.DelRemovesBlocks=CfgDlg[11].Selected;
-  EdOpt.AutoIndent=CfgDlg[12].Selected;
-  EdOpt.SavePos=CfgDlg[13].Selected;
-  EdOpt.SaveShortPos=CfgDlg[14].Selected;
-  EdOpt.AutoDetectTable=CfgDlg[15].Selected;
-  /* 15.09.2000 IS
-     Отключение автоопределения таблицы символов, если отсутствует таблица с
-     распределением частот символов
-  */
+  EdOpt.PersistentBlocks = CfgDlg[ID_EC_PERSISTENTBLOCKS].Selected;
+  EdOpt.DelRemovesBlocks = CfgDlg[ID_EC_DELREMOVESBLOCKS].Selected;
+  EdOpt.AutoIndent = CfgDlg[ID_EC_AUTOINDENT].Selected;
+  EdOpt.SavePos = CfgDlg[ID_EC_SAVEPOSITION].Selected;
+  EdOpt.SaveShortPos = CfgDlg[ID_EC_SAVEBOOKMARKS].Selected;
+  EdOpt.AutoDetectTable = CfgDlg[ID_EC_AUTODETECTTABLE].Selected;
+
   if(!DistrTableExist() && EdOpt.AutoDetectTable)
   {
     EdOpt.AutoDetectTable=0;
@@ -1522,21 +1414,22 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
               MSG(MDistributionTableWasNotFound),MSG(MAutoDetectWillNotWork),
               MSG(MOk));
   }
-  /* IS $ */
-  EdOpt.TabSize=atoi(CfgDlg[19].Data);
+
+  EdOpt.TabSize=atoi(CfgDlg[ID_EC_TABSIZEEDIT].Data);
+
   if (EdOpt.TabSize<1 || EdOpt.TabSize>512)
     EdOpt.TabSize=8;
-  EdOpt.CursorBeyondEOL=CfgDlg[16].Selected;
+
+  EdOpt.CursorBeyondEOL=CfgDlg[ID_EC_CURSORBEYONDEOL].Selected;
+
   Opt.EditorReadOnlyLock&=~3;
-  if(CfgDlg[17].Selected) Opt.EditorReadOnlyLock|=1;
-  if(CfgDlg[18].Selected) Opt.EditorReadOnlyLock|=2;
+
+  if ( CfgDlg[ID_EC_LOCKREADONLY].Selected )
+    Opt.EditorReadOnlyLock|=1;
+
+  if( CfgDlg[ID_EC_READONLYWARNING].Selected )
+    Opt.EditorReadOnlyLock|=2;
 }
-/* IS 03.01.2002 $ */
-/* DJ $ */
-/* IS $ */
-/* IS $ */
-/* SVS $ */
-#endif
 
 
 void SetFolderInfoFiles()
