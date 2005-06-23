@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.151 19.06.2005 $ */
+/* Revision: 1.152 24.06.2005 $ */
 
 /*
 Modify:
+  24.06.2005 SVS
+    + немного логирования...
   19.06.2005 SVS
     - BugZ#1348 - Не обновляется индикатор копирования при операциях с флешкой
   14.06.2005 SVS
@@ -1364,7 +1366,6 @@ long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     case DN_EDITCHANGE:
       if(Param1 == 2)
       {
-        // TODO: NM здесь не катит, т.к. на плагиновой панели могут быть пути...
         struct FarDialogItem DItem4,DItem5,DItem9;
         int LenCurDirName=DlgParam->thisClass->SrcPanel->GetCurDir(NULL);
         char *SrcDir=(char *)alloca(LenCurDirName+16);
@@ -4188,6 +4189,33 @@ int ShellCopy::SetRecursiveSecurity(const char *FileName,const SECURITY_ATTRIBUT
 
 int ShellCopy::ShellSystemCopy(const char *SrcName,const char *DestName,const WIN32_FIND_DATA &SrcData)
 {
+  _LOGCOPYR(CleverSysLog Clev("ShellCopy::ShellSystemCopy()"));
+  _LOGCOPYR(SysLog("Params: SrcName='%s', DestName='%s'",SrcName, DestName));
+  _LOGCOPYR(WIN32_FIND_DATA_Dump("",SrcData));
+  {
+    _LOGCOPYR(static char Root[1024]);
+    _LOGCOPYR(char lpRootPathName[NM]="");
+    _LOGCOPYR(char lpVolumeNameBuffer[NM]="");
+    _LOGCOPYR(char lpFileSystemNameBuffer[NM]="");
+    _LOGCOPYR(DWORD lpVolumeSerialNumber=0);
+    _LOGCOPYR(DWORD lpMaximumComponentLength=0);
+    _LOGCOPYR(DWORD lpFileSystemFlags=0);
+    _LOGCOPYR(GetPathRoot(SrcName,Root));
+    _LOGCOPYR(GetVolumeInformation(Root,lpVolumeNameBuffer,sizeof(lpVolumeNameBuffer),
+                                             &lpVolumeSerialNumber,&lpMaximumComponentLength,&lpFileSystemFlags,
+                                             lpFileSystemNameBuffer,sizeof(lpFileSystemNameBuffer)));
+    _LOGCOPYR(GetVolumeInformation_Dump("Src",Root,lpVolumeNameBuffer,sizeof(lpVolumeNameBuffer),
+                                             lpVolumeSerialNumber,lpMaximumComponentLength,lpFileSystemFlags,
+                                             lpFileSystemNameBuffer,sizeof(lpFileSystemNameBuffer),NULL));
+    _LOGCOPYR(GetPathRoot(DestName,Root));
+    _LOGCOPYR(GetVolumeInformation(Root,lpVolumeNameBuffer,sizeof(lpVolumeNameBuffer),
+                                             &lpVolumeSerialNumber,&lpMaximumComponentLength,&lpFileSystemFlags,
+                                             lpFileSystemNameBuffer,sizeof(lpFileSystemNameBuffer)));
+    _LOGCOPYR(GetVolumeInformation_Dump("Dest",Root,lpVolumeNameBuffer,sizeof(lpVolumeNameBuffer),
+                                             lpVolumeSerialNumber,lpMaximumComponentLength,lpFileSystemFlags,
+                                             lpFileSystemNameBuffer,sizeof(lpFileSystemNameBuffer),NULL));
+  }
+
   SECURITY_ATTRIBUTES sa;
   if ((ShellCopy::Flags&FCOPY_COPYSECURITY) && !GetSecurity(SrcName,sa))
     return(COPY_CANCEL);

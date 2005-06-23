@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.228 19.06.2005 $ */
+/* Revision: 1.229 23.06.2005 $ */
 
 /*
 Modify:
+  23.06.2005 SVS
+    + WIN32_FIND_DATA_Dump()
+    + макрос для t-rex`а -> _TREX()
   19.06.2005 SVS
     + Init_CopyFileEx()
   14.06.2005 SVS
@@ -1320,6 +1323,8 @@ void GetVolumeInformation_Dump(char *Title,LPCTSTR lpRootPathName,LPTSTR lpVolum
                                            DWORD lpVolumeSerialNumber, DWORD lpMaximumComponentLength, DWORD lpFileSystemFlags,
                                            LPTSTR lpFileSystemNameBuffer, DWORD nFileSystemNameSize,FILE *fp=NULL);
 
+void WIN32_FIND_DATA_Dump(char *Title,const WIN32_FIND_DATA &fd,FILE *fp=NULL);
+
 #if defined(SYSLOG_FARSYSLOG)
 #ifdef __cplusplus
 extern "C" {
@@ -1458,6 +1463,13 @@ void WINAPI _export FarSysLog_INPUT_RECORD_Dump(char *ModuleName,INPUT_RECORD *r
 #else
 #define _LOGCOPYR(x)
 #endif
+
+#if defined(_DEBUG) && defined(SYSLOG_TREX)
+#define _TREX(x)  x
+#else
+#define _TREX(x)
+#endif
+
 
 void OpenSysLog();
 void CloseSysLog();

@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.230 19.06.2005 $ */
+/* Revision: 1.231 21.06.2005 $ */
 
 /*
 Modify:
+  21.06.2005 SVS
+    ! Для вьювера забыл NameList заполнить ShortName либо Name
   19.06.2005 SVS
     + FIB_BUTTONS
   03.06.2005 SVS
@@ -2020,7 +2022,10 @@ int FileList::ProcessKey(int Key)
                 {
                   for (int I=0;I<FileCount;I++)
                     if ((ListData[I].FileAttr & FA_DIREC)==0)
-                      ViewList.AddName(ListData[I].Name);
+                    {
+                      ViewList.AddName((GetFileAttributes(ListData[I].Name) == (DWORD)-1 &&
+                          GetFileAttributes(ListData[I].ShortName) != (DWORD)-1)?ListData[I].ShortName:ListData[I].Name);
+                    }
                   ViewList.SetCurDir(CurDir);
                   ViewList.SetCurName(FileName);
                 }

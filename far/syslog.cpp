@@ -5,10 +5,12 @@ syslog.cpp
 
 */
 
-/* Revision: 1.51 21.01.2005 $ */
+/* Revision: 1.52 23.06.2005 $ */
 
 /*
 Modify:
+  23.06.2005 SVS
+    + WIN32_FIND_DATA_Dump()
   21.01.2005 SVS
     + GetVolumeInformation_Dump
   09.11.2004 SVS
@@ -159,7 +161,7 @@ Modify:
 #endif
 
 #if !defined(SYSLOG)
- #if defined(SYSLOG_OT) || defined(SYSLOG_SVS) || defined(SYSLOG_DJ) || defined(SYSLOG_WARP) || defined(VVM) || defined(SYSLOG_AT) || defined(SYSLOG_IS) || defined(SYSLOG_tran) || defined(SYSLOG_SKV) || defined(SYSLOG_NWZ) || defined(SYSLOG_KM) || defined(SYSLOG_KEYMACRO) || defined(SYSLOG_ECTL) || defined(SYSLOG_COPYR) || defined(SYSLOG_EE_REDRAW)
+ #if defined(SYSLOG_OT) || defined(SYSLOG_SVS) || defined(SYSLOG_DJ) || defined(SYSLOG_WARP) || defined(VVM) || defined(SYSLOG_AT) || defined(SYSLOG_IS) || defined(SYSLOG_tran) || defined(SYSLOG_SKV) || defined(SYSLOG_NWZ) || defined(SYSLOG_KM) || defined(SYSLOG_KEYMACRO) || defined(SYSLOG_ECTL) || defined(SYSLOG_COPYR) || defined(SYSLOG_EE_REDRAW) || defined(SYSLOG_TREX)
   #define SYSLOG
  #endif
 #endif
@@ -172,6 +174,7 @@ static int   Indent=0;
 static char *PrintTime(char *timebuf);
 
 #endif
+
 
 #if defined(SYSLOG)
 static BOOL IsLogON(void)
@@ -318,6 +321,20 @@ static char *PrintTime(char *timebuf)
 }
 #endif
 
+#if defined(SYSLOG)
+static FILE* PrintBaner(FILE *fp,const char *Category,const char *Title)
+{
+  fp=LogStream;
+  if(fp)
+  {
+    static char timebuf[64];
+    fprintf(fp,"%s %s(%s) %s\n",PrintTime(timebuf),MakeSpace(),NullToEmpty(Title),NullToEmpty(Category));
+  }
+  return fp;
+}
+#endif
+
+
 void SysLog(char *fmt,...)
 {
 #if defined(SYSLOG)
@@ -435,12 +452,7 @@ void SysLogDump(char *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,FILE *fp)
   if(InternalLog)
   {
     OpenSysLog();
-    fp=LogStream;
-    if(fp)
-    {
-      char timebuf[64];
-      fprintf(fp,"%s %s(%s)\n",PrintTime(timebuf),MakeSpace(),NullToEmpty(Title));
-    }
+    fp=PrintBaner(fp,"",Title);
   }
 
   if (fp)
@@ -541,12 +553,7 @@ void PluginsStackItem_Dump(char *Title,const struct PluginsStackItem *StackItems
   if(InternalLog)
   {
     OpenSysLog();
-    fp=LogStream;
-    if(fp)
-    {
-      char timebuf[64];
-      fprintf(fp,"%s %s(%s)\n",PrintTime(timebuf),MakeSpace(),NullToEmpty(Title));
-    }
+    fp=PrintBaner(fp,"",Title);
   }
 
   if (fp)
@@ -605,12 +612,7 @@ void GetOpenPluginInfo_Dump(char *Title,const struct OpenPluginInfo *Info,FILE *
   if(InternalLog)
   {
     OpenSysLog();
-    fp=LogStream;
-    if(fp)
-    {
-      char timebuf[64];
-      fprintf(fp,"%s %s(%s) OpenPluginInfo\n",PrintTime(timebuf),MakeSpace(),NullToEmpty(Title));
-    }
+    fp=PrintBaner(fp,"OpenPluginInfo",Title);
   }
 
   if (fp)
@@ -677,12 +679,7 @@ void ManagerClass_Dump(char *Title,const Manager *m,FILE *fp)
   if(InternalLog)
   {
     OpenSysLog();
-    fp=LogStream;
-    if(fp)
-    {
-      char timebuf[64];
-      fprintf(fp,"%s %s(%s)\n",PrintTime(timebuf),MakeSpace(),NullToEmpty(Title));
-    }
+    fp=PrintBaner(fp,"",Title);
   }
 
   if (fp)
@@ -1553,49 +1550,133 @@ void GetVolumeInformation_Dump(char *Title,LPCTSTR lpRootPathName,LPTSTR lpVolum
     return;
 
   int InternalLog=fp==NULL?TRUE:FALSE;
+  char *space=MakeSpace();
 
   if(InternalLog)
   {
     OpenSysLog();
-    fp=LogStream;
-    if(fp)
-    {
-      char timebuf[64];
-      fprintf(fp,"%s %s(%s)\n",PrintTime(timebuf),MakeSpace(),NullToEmpty(Title));
-    }
+    fp=PrintBaner(fp,"",Title);
   }
 
   if (fp)
   {
-    fprintf(fp,"GetVolumeInformation{\n");
-    fprintf(fp,"  lpRootPathName            ='%s'\n",lpRootPathName);
-    fprintf(fp,"  lpVolumeNameBuffer        ='%s'\n",lpVolumeNameBuffer);
-    fprintf(fp,"  nVolumeNameSize           =%u\n",nVolumeNameSize);
-    fprintf(fp,"  lpVolumeSerialNumber      =%u\n",lpVolumeSerialNumber);
-    fprintf(fp,"  lpMaximumComponentLength  =%u\n",lpMaximumComponentLength);
-    fprintf(fp,"  lpFileSystemFlags         =%u\n",lpFileSystemFlags);
-    fprintf(fp,"       FS_CASE_IS_PRESERVED         =%08X\n",lpFileSystemFlags&FS_CASE_IS_PRESERVED);
-    fprintf(fp,"       FS_CASE_SENSITIVE            =%08X\n",lpFileSystemFlags&FS_CASE_SENSITIVE);
-    fprintf(fp,"       FS_UNICODE_STORED_ON_DISK    =%08X\n",lpFileSystemFlags&FS_UNICODE_STORED_ON_DISK);
-    fprintf(fp,"       FS_PERSISTENT_ACLS           =%08X\n",lpFileSystemFlags&FS_PERSISTENT_ACLS);
-    fprintf(fp,"       FS_FILE_COMPRESSION          =%08X\n",lpFileSystemFlags&FS_FILE_COMPRESSION);
-    fprintf(fp,"       FS_VOL_IS_COMPRESSED         =%08X\n",lpFileSystemFlags&FS_VOL_IS_COMPRESSED);
+    fprintf(fp,"%*s %s  GetVolumeInformation{\n",12,"",space);
+    fprintf(fp,"%*s %s    lpRootPathName            ='%s'\n",12,"",space,lpRootPathName);
+    fprintf(fp,"%*s %s    lpVolumeNameBuffer        ='%s'\n",12,"",space,lpVolumeNameBuffer);
+    fprintf(fp,"%*s %s    nVolumeNameSize           =%u\n",12,"",space,nVolumeNameSize);
+    fprintf(fp,"%*s %s    lpVolumeSerialNumber      =%04X-%04X\n",12,"",space,lpVolumeSerialNumber>>16,lpVolumeSerialNumber&0xffff);
+    fprintf(fp,"%*s %s    lpMaximumComponentLength  =%u\n",12,"",space,lpMaximumComponentLength);
+
+    fprintf(fp,"%*s %s    lpFileSystemFlags         =%u\n",12,"",space,lpFileSystemFlags);
+    if(lpFileSystemFlags&FS_CASE_IS_PRESERVED)
+      fprintf(fp,"%*s %s         FS_CASE_IS_PRESERVED\n",12,"",space);
+    if(lpFileSystemFlags&FS_CASE_SENSITIVE)
+      fprintf(fp,"%*s %s         FS_CASE_SENSITIVE\n",12,"",space);
+    if(lpFileSystemFlags&FS_UNICODE_STORED_ON_DISK)
+      fprintf(fp,"%*s %s         FS_UNICODE_STORED_ON_DISK\n",12,"",space);
+    if(lpFileSystemFlags&FS_PERSISTENT_ACLS)
+      fprintf(fp,"%*s %s         FS_PERSISTENT_ACLS\n",12,"",space);
+    if(lpFileSystemFlags&FS_FILE_COMPRESSION)
+      fprintf(fp,"%*s %s         FS_FILE_COMPRESSION\n",12,"",space);
+    if(lpFileSystemFlags&FS_VOL_IS_COMPRESSED)
+      fprintf(fp,"%*s %s         FS_VOL_IS_COMPRESSED\n",12,"",space);
 #define FILE_NAMED_STREAMS              0x00040000
-    fprintf(fp,"       FILE_NAMED_STREAMS           =%08X\n",lpFileSystemFlags&FILE_NAMED_STREAMS);
+    if(lpFileSystemFlags&FILE_NAMED_STREAMS)
+      fprintf(fp,"%*s %s         FILE_NAMED_STREAMS\n",12,"",space);
 #define FILE_READ_ONLY_VOLUME           0x00080000
-    fprintf(fp,"       FILE_READ_ONLY_VOLUME        =%08X\n",lpFileSystemFlags&FILE_READ_ONLY_VOLUME);
+    if(lpFileSystemFlags&FILE_READ_ONLY_VOLUME)
+      fprintf(fp,"%*s %s         FILE_READ_ONLY_VOLUME\n",12,"",space);
 #define FILE_SUPPORTS_ENCRYPTION        0x00020000
-    fprintf(fp,"       FILE_SUPPORTS_ENCRYPTION     =%08X\n",lpFileSystemFlags&FILE_SUPPORTS_ENCRYPTION);
+    if(lpFileSystemFlags&FILE_SUPPORTS_ENCRYPTION)
+      fprintf(fp,"%*s %s         FILE_SUPPORTS_ENCRYPTION\n",12,"",space);
 #define FILE_SUPPORTS_OBJECT_IDS        0x00010000
-    fprintf(fp,"       FILE_SUPPORTS_OBJECT_IDS     =%08X\n",lpFileSystemFlags&FILE_SUPPORTS_OBJECT_IDS);
+    if(lpFileSystemFlags&FILE_SUPPORTS_OBJECT_IDS)
+      fprintf(fp,"%*s %s         FILE_SUPPORTS_OBJECT_IDS\n",12,"",space);
 #define FILE_SUPPORTS_REPARSE_POINTS    0x00000080
-    fprintf(fp,"       FILE_SUPPORTS_REPARSE_POINTS =%08X\n",lpFileSystemFlags&FILE_SUPPORTS_REPARSE_POINTS);
+    if(lpFileSystemFlags&FILE_SUPPORTS_REPARSE_POINTS)
+      fprintf(fp,"%*s %s         FILE_SUPPORTS_REPARSE_POINTS\n",12,"",space);
 #define FILE_SUPPORTS_SPARSE_FILES      0x00000040
-    fprintf(fp,"       FILE_SUPPORTS_SPARSE_FILES   =%08X\n",lpFileSystemFlags&FILE_SUPPORTS_SPARSE_FILES);
+    if(lpFileSystemFlags&FILE_SUPPORTS_SPARSE_FILES)
+      fprintf(fp,"%*s %s         FILE_SUPPORTS_SPARSE_FILES\n",12,"",space);
 #define FILE_VOLUME_QUOTAS              0x00000020
-    fprintf(fp,"       FILE_VOLUME_QUOTAS           =%08X\n",lpFileSystemFlags&FILE_VOLUME_QUOTAS);
-    fprintf(fp,"  lpFileSystemNameBuffer    ='%s'\n",lpFileSystemNameBuffer);
-    fprintf(fp,"  nFileSystemNameSize       =%u\n",nFileSystemNameSize);
+    if(lpFileSystemFlags&FILE_VOLUME_QUOTAS)
+      fprintf(fp,"%*s %s         FILE_VOLUME_QUOTAS\n",12,"",space);
+
+    fprintf(fp,"%*s %s    lpFileSystemNameBuffer    ='%s'\n",12,"",space,lpFileSystemNameBuffer);
+    fprintf(fp,"%*s %s    nFileSystemNameSize       =%u\n",12,"",space,nFileSystemNameSize);
+    fprintf(fp,"%*s %s  }\n",12,"",space);
+    fflush(fp);
+  }
+
+  if(InternalLog)
+    CloseSysLog();
+#endif
+}
+
+
+void WIN32_FIND_DATA_Dump(char *Title,const WIN32_FIND_DATA &wfd,FILE *fp)
+{
+#if defined(SYSLOG)
+  if(!IsLogON())
+    return;
+
+  int InternalLog=fp==NULL?TRUE:FALSE;
+  char *space=MakeSpace();
+
+  if(InternalLog)
+  {
+    OpenSysLog();
+    fp=PrintBaner(fp,"WIN32_FIND_DATA",Title);
+  }
+
+  if (fp)
+  {
+    static char D[16]="",T[16]="";
+
+    fprintf(fp,"%*s %s  dwFileAttributes      =0x%08X\n",12,"",space,wfd.dwFileAttributes);
+    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_ARCHIVE)
+      fprintf(fp,"%*s %s     FILE_ATTRIBUTE_ARCHIVE\n",12,"",space);
+    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_COMPRESSED)
+      fprintf(fp,"%*s %s     FILE_ATTRIBUTE_COMPRESSED\n",12,"",space);
+    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
+      fprintf(fp,"%*s %s     FILE_ATTRIBUTE_DIRECTORY\n",12,"",space);
+    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_ENCRYPTED)
+      fprintf(fp,"%*s %s     FILE_ATTRIBUTE_ENCRYPTED\n",12,"",space);
+    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_HIDDEN)
+      fprintf(fp,"%*s %s     FILE_ATTRIBUTE_HIDDEN\n",12,"",space);
+    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_NORMAL)
+      fprintf(fp,"%*s %s     FILE_ATTRIBUTE_NORMAL\n",12,"",space);
+    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_OFFLINE)
+      fprintf(fp,"%*s %s     FILE_ATTRIBUTE_OFFLINE\n",12,"",space);
+    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_READONLY)
+      fprintf(fp,"%*s %s     FILE_ATTRIBUTE_READONLY\n",12,"",space);
+    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
+      fprintf(fp,"%*s %s     FILE_ATTRIBUTE_REPARSE_POINT\n",12,"",space);
+#define FILE_ATTRIBUTE_SPARSE_FILE          0x00000200
+    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_SPARSE_FILE)
+      fprintf(fp,"%*s %s     FILE_ATTRIBUTE_SPARSE_FILE\n",12,"",space);
+    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_SYSTEM)
+      fprintf(fp,"%*s %s     FILE_ATTRIBUTE_SYSTEM\n",12,"",space);
+    if(wfd.dwFileAttributes&FILE_ATTRIBUTE_TEMPORARY)
+      fprintf(fp,"%*s %s     FILE_ATTRIBUTE_TEMPORARY\n",12,"",space);
+
+    ConvertDate(wfd.ftCreationTime,D,T,8,FALSE,FALSE,TRUE);
+    fprintf(fp,"%*s %s  ftCreationTime        =0x%08X 0x%08X (%s %s)\n",12,"",space,wfd.ftCreationTime.dwHighDateTime,wfd.ftCreationTime.dwLowDateTime,D,T);
+    ConvertDate(wfd.ftLastAccessTime,D,T,8,FALSE,FALSE,TRUE);
+    fprintf(fp,"%*s %s  ftLastAccessTime      =0x%08X 0x%08X (%s %s)\n",12,"",space,wfd.ftLastAccessTime.dwHighDateTime,wfd.ftLastAccessTime.dwLowDateTime,D,T);
+    ConvertDate(wfd.ftLastWriteTime,D,T,8,FALSE,FALSE,TRUE);
+    fprintf(fp,"%*s %s  ftLastWriteTime       =0x%08X 0x%08X (%s %s)\n",12,"",space,wfd.ftLastWriteTime.dwHighDateTime,wfd.ftLastWriteTime.dwLowDateTime,D,T);
+
+    FAR_INT64 Number;
+    Number.Part.HighPart=wfd.nFileSizeHigh;
+    Number.Part.LowPart=wfd.nFileSizeLow;
+
+    fprintf(fp,"%*s %s  nFileSize             =0x%08X, 0x%08X (%I64u)\n",12,"",space,wfd.nFileSizeHigh,wfd.nFileSizeLow,Number.i64);
+    fprintf(fp,"%*s %s  dwReserved0           =0x%08X (%d)\n",12,"",space,wfd.dwReserved0,wfd.dwReserved0);
+    fprintf(fp,"%*s %s  dwReserved1           =0x%08X (%d)\n",12,"",space,wfd.dwReserved1,wfd.dwReserved1);
+    fprintf(fp,"%*s %s  cFileName             =\"%s\"\n",12,"",space,wfd.cFileName);
+    fprintf(fp,"%*s %s  cAlternateFileName    =\"%s\"\n",12,"",space,wfd.cAlternateFileName);
+
     fprintf(fp,"}\n");
     fflush(fp);
   }

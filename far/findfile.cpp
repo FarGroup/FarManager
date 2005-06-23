@@ -5,10 +5,13 @@ findfile.cpp
 
 */
 
-/* Revision: 1.176 05.05.2005 $ */
+/* Revision: 1.177 21.06.2005 $ */
 
 /*
 Modify:
+  21.06.2005 SVS
+    ! Пере вызовом вьювера проверим "кривизну" APIS2 и отдадим либо ShortName либо Name
+    ! NameList перед вызовом вьювера заполним как ShortName либо Name
   05.05.2005 WARP
     - Несколько перестарались с проверкой элементов при поиске. Не работал ProcList.
   24.04.2005 AY
@@ -1715,7 +1718,11 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
             RemoveTemp=TRUE;
           }
           else
+          {
             xstrncpy(SearchFileName,FindList[ItemIndex].FindData.cFileName,sizeof(SearchFileName)-1);
+            if(GetFileAttributes(SearchFileName) == (DWORD)-1 && GetFileAttributes(FindList[ItemIndex].FindData.cAlternateFileName) != (DWORD)-1)
+              xstrncpy(SearchFileName,FindList[ItemIndex].FindData.cAlternateFileName,sizeof(SearchFileName)-1);
+          }
 
           DWORD FileAttr;
           if ((FileAttr=GetFileAttributes(SearchFileName))!=(DWORD)-1)
@@ -1741,7 +1748,9 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
                   {
                     // Не учитывали файлы в архивах с OPIF_REALNAMES
                     if (*PtrFindList->FindData.cFileName && !(PtrFindList->FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
-                      ViewList.AddName(PtrFindList->FindData.cFileName);
+                      //ViewList.AddName(PtrFindList->FindData.cFileName);
+                      ViewList.AddName((GetFileAttributes(PtrFindList->FindData.cFileName) == (DWORD)-1 &&
+                          GetFileAttributes(PtrFindList->FindData.cAlternateFileName) != (DWORD)-1)?PtrFindList->FindData.cAlternateFileName:PtrFindList->FindData.cFileName);
                   } /* if */
                 } /* for */
                 ViewList.SetCurName(FindList[ItemIndex].FindData.cFileName);

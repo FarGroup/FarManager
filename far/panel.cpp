@@ -5,10 +5,12 @@ Parent class дл€ панелей
 
 */
 
-/* Revision: 1.142 30.05.2005 $ */
+/* Revision: 1.143 23.06.2005 $ */
 
 /*
 Modify:
+  23.06.2005 SVS
+    - BugZ#1349 - Ѕыстрый поиск: ¬ставка из буфера обмена не добавл€ет, а замен€ет строку
   30.05.2005 SVS
     ! временно откатим проект про USB
   06.05.2005 SVS
@@ -1311,13 +1313,15 @@ void Panel::FastFindProcessName(Edit *FindEdit,const char *Src,char *LastName,ch
 {
   if(strlen(Src) <= NM*2) // сделаем разумное ограничение на размер...
   {
-    char *Ptr=(char *)xf_malloc(strlen(Src)*2+32);
+    char *Ptr=(char *)xf_malloc(strlen(Src)+strlen(FindEdit->GetStringAddr())+32);
     if(Ptr)
     {
-      strcpy(Ptr,Src);
-      Unquote(Ptr);
-
+      strcpy(Ptr,FindEdit->GetStringAddr());
       char *EndPtr=Ptr+strlen(Ptr);
+      strcat(Ptr,Src);
+      Unquote(EndPtr);
+
+      EndPtr=Ptr+strlen(Ptr);
       DWORD Key;
       while(1)
       {
