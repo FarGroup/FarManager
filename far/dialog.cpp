@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.335 05.05.2005 $ */
+/* Revision: 1.336 23.06.2005 $ */
 
 /*
 Modify:
+  23.06.2005 WARP
+    - Неправильно отрисовывались сепараторы, если диалог не влезал в экран.
   05.05.2005 WARP
     - Падал ACTL_GETWINDOWINFO при отсутствии в диалоге
       элемента из которого можно было бы сформировать имя окна.
@@ -2844,10 +2846,8 @@ void Dialog::ShowDialog(int ID)
         {
           SetColor(LOBYTE(HIWORD(Attr)));
           GotoXY(X1+(!DialogMode.Check(DMODE_SMALLDIALOG)?3:0),Y1+Y); //????
-          if (DialogTooLong)
-            ShowSeparator(DialogTooLong-(!DialogMode.Check(DMODE_SMALLDIALOG)?5:0/* -1 */),(CurItem->Flags&DIF_SEPARATOR2?3:1));
-          else
-            ShowSeparator(X2-X1-(!DialogMode.Check(DMODE_SMALLDIALOG)?5:-1),(CurItem->Flags&DIF_SEPARATOR2?3:1));
+
+          ShowSeparator(RealWidth-1-(!DialogMode.Check(DMODE_SMALLDIALOG)?5:0/* -1 */),(CurItem->Flags&DIF_SEPARATOR2?3:1));
         }
 
         SetColor(Attr&0xFF);
