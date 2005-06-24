@@ -6,3 +6,7 @@ License.xUSSR.txt License for ex-USSR users
 README.TXT Brief FAR overview
 REGISTER.FRM Registration form
 REGISTER.TXT Registration instructions
+ClearPluginsCache.bat Clear Plugins Cache
+File_id.diz Short version description
+RestoreSettings.bat Restore FAR settings from FarSave1.reg and FarSave2.reg
+SaveSettings.bat Save FAR settings to FarSave1.reg and FarSave2.reg
