@@ -5,10 +5,12 @@ syslog.cpp
 
 */
 
-/* Revision: 1.52 23.06.2005 $ */
+/* Revision: 1.53 27.06.2005 $ */
 
 /*
 Modify:
+  27.06.2005 SVS
+    ! небольшая корректировка WIN32_FIND_DATA_Dump
   23.06.2005 SVS
     + WIN32_FIND_DATA_Dump()
   21.01.2005 SVS
@@ -1677,7 +1679,7 @@ void WIN32_FIND_DATA_Dump(char *Title,const WIN32_FIND_DATA &wfd,FILE *fp)
     fprintf(fp,"%*s %s  cFileName             =\"%s\"\n",12,"",space,wfd.cFileName);
     fprintf(fp,"%*s %s  cAlternateFileName    =\"%s\"\n",12,"",space,wfd.cAlternateFileName);
 
-    fprintf(fp,"}\n");
+    fprintf(fp,"%*s %s  }\n",12,"",space);
     fflush(fp);
   }
 

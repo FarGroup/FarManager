@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.231 21.06.2005 $ */
+/* Revision: 1.232 27.06.2005 $ */
 
 /*
 Modify:
+  27.06.2005 SVS
+    - отвалилися шорткаты на фолдеры...
   21.06.2005 SVS
     ! Для вьювера забыл NameList заполнить ShortName либо Name
   19.06.2005 SVS
@@ -1297,7 +1299,7 @@ int FileList::ProcessKey(int Key)
           delete[] ShortcutFolder;
           return(TRUE);
         }
-        switch(CheckShortcutFolder(ShortcutFolder,sizeof(ShortcutFolder)-1,FALSE))
+        switch(CheckShortcutFolder(ShortcutFolder,SizeFolderNameShortcut,FALSE))
         {
           case 0:
   //          return FALSE;
