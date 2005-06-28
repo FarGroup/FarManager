@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.177 21.06.2005 $ */
+/* Revision: 1.178 28.06.2005 $ */
 
 /*
 Modify:
+  28.06.2005 WARP
+    - Проблемы с открытием по F3/F4 результата поиска в архиве во вложенной папке.
   21.06.2005 SVS
     ! Пере вызовом вьювера проверим "кривизну" APIS2 и отдадим либо ShortName либо Name
     ! NameList перед вызовом вьювера заполним как ShortName либо Name
@@ -1474,6 +1476,12 @@ int FindFiles::GetPluginFile(DWORD ArcIndex, struct PluginPanelItem *PanelItem,
   struct PluginPanelItem *pItems;
   int nResult = 0;
 
+  char *lpFileNameToFind = xf_strdup (PanelItem->FindData.cFileName);
+  char *lpFileNameToFindShort = xf_strdup (PanelItem->FindData.cAlternateFileName);
+
+  lpFileNameToFind = PointToName(RemovePseudoBackSlash(lpFileNameToFind));
+  lpFileNameToFindShort = PointToName(RemovePseudoBackSlash(lpFileNameToFindShort));
+
   if ( CtrlObject->Plugins.GetFindData (
       hPlugin,
       &pItems,
@@ -1490,8 +1498,13 @@ int FindFiles::GetPluginFile(DWORD ArcIndex, struct PluginPanelItem *PanelItem,
       if ( lpFileName != pItem->FindData.cFileName )
         xstrncpy(pItem->FindData.cFileName, lpFileName, sizeof (pItem->FindData.cFileName));
 
-      if ( !strcmp (PanelItem->FindData.cFileName, pItem->FindData.cFileName) &&
-           !strcmp (PanelItem->FindData.cAlternateFileName, pItem->FindData.cAlternateFileName) )
+      lpFileName = PointToName(RemovePseudoBackSlash(pItem->FindData.cAlternateFileName));
+
+      if ( lpFileName != pItem->FindData.cAlternateFileName )
+        xstrncpy(pItem->FindData.cAlternateFileName, lpFileName, sizeof (pItem->FindData.cAlternateFileName));
+
+      if ( !strcmp (lpFileNameToFind, pItem->FindData.cFileName) &&
+           !strcmp (lpFileNameToFindShort, pItem->FindData.cAlternateFileName) )
       {
         nResult = CtrlObject->Plugins.GetFile (
                             hPlugin,
@@ -1499,7 +1512,7 @@ int FindFiles::GetPluginFile(DWORD ArcIndex, struct PluginPanelItem *PanelItem,
                             DestPath,
                             ResultName,
                             OPM_SILENT|OPM_FIND
-                          );
+                            );
 
         break;
       }
