@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.260 25.04.2005 $ */
+/* Revision: 1.261 21.06.2005 $ */
 
 /*
 Modify:
+  21.06.2005 SKV
+    + AllowEmptySpaceAfterEof
   24.04.2005 AY
     ! GCC
   29.03.2005 SVS
@@ -1608,15 +1610,19 @@ void Editor::ShowEditor(int CurLineOnly)
     перепозиционируем.
   */
 
-  while(CalcDistance(TopScreen,NULL,Y2-Y1-1)<Y2-Y1-1)
+  if(!Opt.AllowEmptySpaceAfterEof)
   {
-    if(TopScreen->Prev)
+
+    while(CalcDistance(TopScreen,NULL,Y2-Y1-1)<Y2-Y1-1)
     {
-      TopScreen=TopScreen->Prev;
-    }
-    else
-    {
-      break;
+      if(TopScreen->Prev)
+      {
+        TopScreen=TopScreen->Prev;
+      }
+      else
+      {
+        break;
+      }
     }
   }
   /*
@@ -4266,7 +4272,7 @@ void Editor::ScrollDown()
   int LeftPos,CurPos;
   if (CurLine->Next==NULL || TopScreen->Next==NULL)
     return;
-  if (CalcDistance(TopScreen,EndList,Y2-Y1)<Y2-Y1)
+  if (!Opt.AllowEmptySpaceAfterEof && CalcDistance(TopScreen,EndList,Y2-Y1)<Y2-Y1)
   {
     Down();
     return;

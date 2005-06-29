@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.129 14.06.2005 $ */
+/* Revision: 1.130 21.06.2005 $ */
 
 /*
 Modify:
+  21.06.2005 SKV
+    + Opt.AllowEmptySpaceAfterEof
   14.06.2005 SVS
     + Opt.ShowTimeoutDACLFiles
   30.05.2005 SVS
@@ -975,6 +977,13 @@ struct Options
   struct FilterParams OpFilter;
   /* KM $ */
   struct TreeOptions Tree;
+
+  /* $ 21.06.2005 SKV
+    разрешить показывать пустое пространство после последней
+    строки редактируемого файла.
+  */
+  int AllowEmptySpaceAfterEof;
+  /* SKV $ */
 };
 
 

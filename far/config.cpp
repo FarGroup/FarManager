@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.187 23.06.2005 $ */
+/* Revision: 1.188 29.06.2005 $ */
 
 /*
 Modify:
+  29.06.2005 SKV
+    + Opt.AllowEmptySpaceAfterEof
   23.06.2005 WARP
     ! Новый внешиний вид у диалогов настройки редактора и вьювера.
   19.06.2005 SVS
@@ -1753,6 +1755,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyFileFilter,"AttrClear",&Opt.OpFilter.FAttr.AttrClear,0,0},
   /* KM $ */
   {0, REG_DWORD,  NKeySystem,"ExcludeCmdHistory",&Opt.ExcludeCmdHistory,0, 0}, //AN
+  {0, REG_DWORD,  NKeyEditor, "AllowEmptySpaceAfterEof", &Opt.AllowEmptySpaceAfterEof,0,0},//skv
 };
 
 
