@@ -2377,8 +2377,6 @@ is not a ~file panel~@FilePanel@, it will be changed to the file panel.
 
      - to delete a substituted (virtual) drive.
 
-     -
-
      - to eject disks from CD-ROM and removable drives.
        Under Windows 2000/NT/XP, ejecting a disk from a ZIP-drive
        requires administrative privileges.

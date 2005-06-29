@@ -5,10 +5,12 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.46 21.04.2005 $ */
+/* Revision: 1.47 29.06.2005 $ */
 
 /*
 Modify:
+  29.06.2005 SVS
+    - BugZ#1253 - некорректная обработка PanelMode.FullScreen
   21.04.2005 SVS
     ! При юзании FileList::ViewSettingsToText нужно учитывать, что ОНО думает,
       что два последних параметра размером с NM
@@ -220,6 +222,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
   else
   {
     PanelMode=NORMAL_PANEL;
+    SetViewMode(PStack->PrevViewMode);
     /* <TODO>
        Нужно учесть тот факт, что кто-то или что-то может менять
        принудительно пареметры не своей панели.
