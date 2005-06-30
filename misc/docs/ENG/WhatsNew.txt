@@ -255,7 +255,11 @@ Find File
     but also inside a specified range at the beginning of the file, defined
     by the "Search only in the first" property. If the specified value is
     less than the file size, the rest of the file will be ignored even if
-    the required sequence exists there.
+    the required sequence exists there. Настройки диапазана поиска выводятся 
+    при нажатии кнопки "Дополнительно".
+
+[-] Исправлены проблемы с прорисовкой диалога результатов поиска на 
+    многопроцессорных компьютерах.
 
 
 Copy/Move
@@ -298,6 +302,7 @@ Copy/Move
 
 [-] Attributes were not set for copied folders.
 
+[+] В диалоге копирования/перемещение показываетс прогресс операции в процентах.
 
 File attributes
 ~~~~~~~~~~~~~~~
@@ -386,6 +391,10 @@ Viewer
 
 [*] In hexadecimal mode Ctrl-Left/Ctrl-Right shift left/right by 1 position.
 
+[-] Правильное выделение результатов поиска в 16-ричном режиме.
+
+[-] Правильное выделение многострочных результов поиска.
+
 [-] A single found character was hidden by the '>' sign.
 
 [+] Now the left border position is restored when traversing the files using
@@ -447,6 +456,9 @@ Help
 [+] New value "CtrlStartPosChar" for ".Options", that specifies the character
     that will be used to mark a block alignment position.
 
+[-] В файлах помощи нельзя было использовать несколько полей ".Options".
+
+[-] Исправлены ошибки при обработке тэгов.
 
 Addons
 ~~~~~~

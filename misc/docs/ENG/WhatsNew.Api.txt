@@ -119,6 +119,7 @@ Dialogs
     and after that a shorter line was outputted to the same DI_TEXT element
     then the end of the previous line remained visible.
 
+[-] Неправильно выводились слишком длинные разделительные линии.
 
 Miscellaneous
 ~~~~~~~~~~~~~
