@@ -26,6 +26,18 @@ General
     because starting with build 1784 the logic of the macro engine has
     been changed.
 
+     a. when macro sequences are read from the registry besides being
+        compiled the source text is also saved.
+     b. only simple macros are decompiled (upon encountering a special
+        macro command the decompilation is aborted and the source text
+        of the macro sequence is returned) and only in the moment of
+        saving an entered sequence (when macro-hotkey is assigned).
+     c. when saving the macro is not decompiled and the source text of
+        the macro is taken; only simple macros are decompiled, i.e. a
+        macro that contains ONLY "simple" keystrokes (without any
+        '$something'), such that where in FAR version 1.65 and lower.
+
+
 System
 ~~~~~~
 [-] The key bar labels for Alt-F7 in the internal viewer and editor
@@ -217,6 +229,8 @@ System
 [*] Editor and viewer configuration dialogs were rearranged to comply with the
     overall dialog style.
 
+[-] Dialog separator lines where incorrectly outputed if too long.
+
 
 Find File
 ~~~~~~~~~
@@ -255,11 +269,11 @@ Find File
     but also inside a specified range at the beginning of the file, defined
     by the "Search only in the first" property. If the specified value is
     less than the file size, the rest of the file will be ignored even if
-    the required sequence exists there. Настройки диапазана поиска выводятся 
-    при нажатии кнопки "Дополнительно".
+    the required sequence exists there. Configuration of the search range
+    is invoked by the "Advanced" button in the search dialog.
 
-[-] Исправлены проблемы с прорисовкой диалога результатов поиска на 
-    многопроцессорных компьютерах.
+[-] Fixed problems with drawing of the search result dialog on multiprocessor
+    computers.
 
 
 Copy/Move
@@ -302,7 +316,8 @@ Copy/Move
 
 [-] Attributes were not set for copied folders.
 
-[+] В диалоге копирования/перемещение показываетс прогресс операции в процентах.
+[+] The copy/move operation progress is shown in percents.
+
 
 File attributes
 ~~~~~~~~~~~~~~~
@@ -391,9 +406,9 @@ Viewer
 
 [*] In hexadecimal mode Ctrl-Left/Ctrl-Right shift left/right by 1 position.
 
-[-] Правильное выделение результатов поиска в 16-ричном режиме.
+[-] Correct selection of search results in hex mode.
 
-[-] Правильное выделение многострочных результов поиска.
+[-] Correct selection of search results that span on more that one line.
 
 [-] A single found character was hidden by the '>' sign.
 
@@ -456,9 +471,10 @@ Help
 [+] New value "CtrlStartPosChar" for ".Options", that specifies the character
     that will be used to mark a block alignment position.
 
-[-] В файлах помощи нельзя было использовать несколько полей ".Options".
+[-] Several ".Options" statements could not be used in a help file.
 
-[-] Исправлены ошибки при обработке тэгов.
+[-] Some bugs in control statements processing were fixed.
+
 
 Addons
 ~~~~~~
