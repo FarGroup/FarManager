@@ -212,9 +212,8 @@ ProcList
 
 [-] Crash fixed: Ctrl-F on "..".
 
-[*] Process info export: commnad line and current directory moved
+[*] Process info export: command line and current directory moved
     closer to top.
-
 
 
 FARCmds
@@ -225,7 +224,7 @@ FARCmds
 [-] The FARCmds plugin did not specify correct data for the "$Date"
     macro command.
 
-[-] It was immpossible to work with files/commands which names begun
+[-] It was impossible to work with files/commands which names begun
     with 1 or 2 (conflict with the Stream argument is eliminated)
 
 [+] For Windows NT and higher the ability to view the contents of a physical
@@ -234,6 +233,9 @@ FARCmds
 
 [-] Execution of the "Same Folder" plugins menu item inside a none file
     panel caused the plugin to crash.
+
+[-] Incorrect processing of the 'whereis:' command containing non-english
+    letters.
 
 
 DrawLine
