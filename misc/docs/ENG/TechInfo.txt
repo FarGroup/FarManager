@@ -141,6 +141,12 @@ the main help file, that is actual for the current FAR Manager version.
    speeds up the access rights application process itself.
    The default value is 50 ms.
 
+1.1.11.(TechInfo #66)
+~~~~~~~~~~~~~~~~~~~~
+   Значение реестра "Panel\AutoChangeFolder" перемещено в
+   "Panel\Tree\AutoChangeFolder". Это значит, что опцию "Auto change folder"
+   необходимо выставить заново.
+
 
 =====================
   1.2. System.

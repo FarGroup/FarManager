@@ -116,6 +116,11 @@ System
     selected. For example for a panel mode configured to show columns
     "S,N" the cursor appeared as if cut in half.
 
+[!] Введен новый способ разбивать колонки панели на глобальные. Теперь колонки
+    разбиваются по наибольшей повторяющейся последовательности. Это позволяет
+    использовать в одной глобальной колонке несколько колонок Name и создавать
+    колонки вида "S,N" (раньше признаком начала новой колонки было имя файла).
+
 [+] The CD drive type can be shown in the disks menu instead of the
     faceless "CD-ROM" type. FAR will attempt to determine the type of
     each of the CD drives available in the system. Known types are as
@@ -123,8 +128,8 @@ System
     function is available only for users with administrative privileges
     only in Windows NT/XP.
 
-[+] Gray+ and Gray- should move up and down the tree to the next branch
-    on the same level.
+[+] Folder tree. Gray+ and Gray- should move up and down the tree to the next
+    branch on the same level.
 
 [+] Ctrl-Shift-Enter in folders history (Alt-F12) allows to open the selected
     folder in the passive panel.
@@ -156,11 +161,21 @@ System
 [-] When removing history entries from dialog text input fields
     (Shift-Del), the cursor was repositioned to the first element.
 
-[+] New size column flag - F, file size is shown as a float number as in
+[+] New size column flag - SF, file size is shown as a float number as in
     Windows Explorer.
 
-[+] New size column flag - E, no space will be shown between the size and the
+[+] New size column flag - SE, no space will be shown between the size and the
     suffix.
+
+[+] Новое правило (TechInfo#60) - позволяет игнорировать ошибку
+    ERROR_BAD_PATHNAME под Windows 9x/Me, ошибочно возвращаемую операционной
+    системой (FindNextFile() из Windows API) в конце получения списка файлов
+    пустой директории на сетевом монтированном диске, предоставленном
+    сервером, использующим ОС Unix с некоторыми новыми версиями пакета Samba
+    (например, v3.0.4).
+
+[+] Новое правило (TechInfo#61) позволяет задает максимальную высоту
+    открываемого списка истории в диалогах.
 
 [+] New rule - TechInfo#62 that allows to disable the automatic
     invocation of the "Print Manager" plugin assigned to Alt-F5.
@@ -171,6 +186,35 @@ System
 
 [+] New rule - TechInfo#64 that allows to control the refresh timeout of the file
     deletion process message box.
+
+[-] Диалоги некорректно центрировались на экране.
+
+[+] В диалогах назначения горячей клавиши (меню выбора и конфигурирования
+    плагинов) добавлена информация об имени плагина.
+
+[-] Курсор на скрытой панели. Курсор на левой панели, обе отображены. Исполняем
+    Ctrl-F2 Ctrl-O Ctrl-F2 Ctrl-F2 Ctrl-O. Курсор на правой панели, а отображена
+    левая.
+
+[!] Значение реестра "Panel\AutoChangeFolder" перемещено в
+    "Panel\Tree\AutoChangeFolder". Это значит, что опцию "Auto change folder"
+    необходимо выставить заново (TechInfo#66)
+
+[*] В правиле TechInfo #33 добавлено значение смещения для прокрутки в
+    подсказке.
+
+[!] В команде 'cd' теперь можно использовать символы маски. Например, команда
+    'cd progra*' изменяет текущий каталог на Program Files. Т.е. происходит
+    переход в первый совпадающий с маской каталог.
+
+[-] Xlat: не обрабатывался символ, соответствующий последнему символу в
+    таблице.
+
+[+] Добавлена функция подтверждения размонтирования SUBST-дисков из меню
+    выбора дисков.
+
+[*] Диалоги настройки редактора и программы просмотра переделаны под общий
+    стиль диалоговых окон.
 
 
 Find File
@@ -185,7 +229,7 @@ Find File
 [+] The find file has powered with ability to search text using
     "Windows text" table in addition to "DOS text" and "Unicode".
 
-[+] Find files has powered with ability to search for hex codes
+[+] Find files has powered with ability to search for hex codes.
 
 [!] (File) size in the search results is now 64-bit aware.
 
@@ -247,6 +291,11 @@ Copy/Move
     inheritable access rights of the parent folder will be applied to the
     copied/moved files and folders. Additionally see TechInfo#65.
 
+[-] При создании ссылки на каталог удалялся одноименный файл (если имя ссылки
+    совпадало с существующим файлом).
+
+[-] Для копируемых каталогов не выставлялись файловые атрибуты.
+
 
 File attributes
 ~~~~~~~~~~~~~~~
@@ -303,6 +352,11 @@ Editor
 
 [*] It is now possible to use environment variables in the "Save As" dialog.
 
+[!] Операция преобразования табуляции теперь работает в трех режимах:
+    1. ничего не делать с символами табуляции
+    2. преобразовывать только вводимые символы табуляции в пробелы
+    3. преобразовывать все символы табуляции в файле в пробелы
+
 
 Viewer
 ~~~~~~
@@ -327,10 +381,21 @@ Viewer
 
 [*] In hexadecimal mode Ctrl-Left/Ctrl-Right shift left/right by 1 position.
 
+[-] Одиночный найденный символ скрывался значком '>'.
+
+[+] Теперь левая позиция восстанавливается при перемещении по файлам с помощью
+    Gray+ и Gray-.
+
+[-] Некорректно производилось выделение найденного фрагмента для файлов,
+    содержащих Unicode-текст.
+
 
 Quick View
 ~~~~~~~~~~
 [+] Added display of information on the folder compression ratio.
+
+[-] Зависание FAR Manager в момент вызова панели дерева папок из активной
+    панели быстрого просмотра.
 
 
 Macros
@@ -358,6 +423,13 @@ Macros
 [+] "FindFolder" macro area - macro commands from this area work in the
     Find Folders dialog (Alt-F10).
 
+[-] Невозможно назначить назначить макрос на Ctrl-(и сочетания Shift, Alt)
+    -MsWheelUp (MsWheelDown). Соответствующие комбинации добавлены в
+    в выпадающий список в диалоге назначения макроклавиши.
+
+[-] Макросы производящие манипулирование курсором не снимали выделение в
+    полях ввода.
+
 
 Help
 ~~~~
@@ -367,6 +439,10 @@ Help
 [-] Empty strings were not displayed with formatting turned off ('@-').
 
 [+] Added an index, containing all help topics.
+
+[+] Новое значение "CtrlStartPosChar" для ".Options", позволяющее задать
+    символ, с помощью которого будет указано с какой позиции начинать
+    последующие строки.
 
 
 Addons

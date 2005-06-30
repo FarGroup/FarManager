@@ -187,6 +187,9 @@ FAR 1.70 beta 6 (build 1812) (08.07.2004)
 [+]  оманда ACTL_GETSHORTWINDOWINFO - безопасный дл€ использовани€ в потоках
     аналог команды ACTL_GETWINDOWINFO.
 
+[-] FCTL_GET[ANOTHER]PANELSHORTINFO нарушали принцип "неприкосновенности" и
+    уничтожали данные, полученные предыдущим вызовом FCTL_GET[ANOTHER]PANELINFO
+
 [*] “еперь FE_CLOSE приходит на панель только в случае, если вызов функции
     OpenPlugin нового плагина вернул hPlugin != INVALID_HANDLE_VALUE.
     ≈сли предыдуща€ панель сообщит, что ее закрыть нельз€ - панель нового
