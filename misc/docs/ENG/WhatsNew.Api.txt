@@ -9,7 +9,7 @@
 [*] Changes
 
 ---------------------------------------------------------------------------
-FAR 1.70 beta 6 (build 1812) (08.07.2004)
+FAR 1.70 alpha 6 (build 2010) (30.06.2005)
 ---------------------------------------------------------------------------
 Editor
 ~~~~~~
@@ -51,11 +51,11 @@ Editor
 
 [!] ECTL_GETBOOKMARKS and ECTL_GETINFO can be called during an EE_CLOSE event.
 
-[-] Некоректное значение EditorInfo.BlockStartLine.
-    Например, есть две непустые строки с номерами N и N+1. Курсор стоит
-    песредине строки N+1. Выделения нет. Выполняем Shift-Left до тех пор, пока
-    курсор не окажется песредине строки N.
-    В этот момент EditorInfo.BlockStartLine равно N+1, а не N, как ожидалось.
+[-] Wrong value of EditorInfo.BlockStartLine.
+    For example, there are two non-empty lines - N and N+1. The cursur is
+    positioned in the middle of the N+1 line. No selection. Press Shift-Left
+    until the cursor is positioned in the middle of the N line. At this moment
+    EditorInfo.BlockStartLine equals N+1 and not N as was expected.
 
 
 Dialogs
@@ -115,9 +115,9 @@ Dialogs
 [-] The DN_EDITCHANGE event for combo-boxes was sent with an erroneous
     element ID.
 
-[-] Неправильно отрисовывался элемент DI_TEXT. Если вывести строку, а потом
-    в обработчике диалога вывести строку меньшего размера, то на экране
-    оставалась концовка предыдущего текста.
+[-] DI_TEXT element was not always drawn correctly. If a line was outputted
+    and after that a shorter line was outputted to the same DI_TEXT element
+    then the end of the previous line remained visible.
 
 
 Miscellaneous
@@ -187,14 +187,14 @@ Miscellaneous
 [+] New commad ACTL_GETSHORTWINDOWINFO - thread safe analogue of the
     ACTL_GETWINDOWINFO command.
 
-[-] FCTL_GET[ANOTHER]PANELSHORTINFO нарушали принцип "неприкосновенности" и
-    уничтожали данные, полученные предыдущим вызовом
+[-] FCTL_GET[ANOTHER]PANELSHORTINFO were breaking the "inviolability"
+    principle and destroyed data that was received by a previous call to
     FCTL_GET[ANOTHER]PANELINFO.
 
-[*] Теперь FE_CLOSE приходит на панель только в случае, если вызов функции
-    OpenPlugin нового плагина вернул hPlugin != INVALID_HANDLE_VALUE.
-    Если предыдущая панель сообщит, что ее закрыть нельзя - панель нового
-    плагина будет закрыть вызовом ClosePlugin.
+[*] Now FE_CLOSE is received by the panel only if the call to OpenPlugin
+    function of a new plugin returned hPlugin != INVALID_HANDLE_VALUE. If
+    the previous panel informs that it cannot be closed - the panel of the
+    new plugin will be closed by a call to the ClosePlugin function.
 
 
 Viewer

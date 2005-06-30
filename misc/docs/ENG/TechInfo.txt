@@ -142,10 +142,10 @@ the main help file, that is actual for the current FAR Manager version.
    The default value is 50 ms.
 
 1.1.11.(TechInfo #66)
-~~~~~~~~~~~~~~~~~~~~
-   Значение реестра "Panel\AutoChangeFolder" перемещено в
-   "Panel\Tree\AutoChangeFolder". Это значит, что опцию "Auto change folder"
-   необходимо выставить заново.
+~~~~~~~~~~~~~~~~~~~~~
+   The registry value "Panel\AutoChangeFolder" has moved to
+   "Panel\Tree\AutoChangeFolder". This means that the option
+   "Auto change folder" must be set anew.
 
 
 =====================
@@ -859,6 +859,24 @@ the main help file, that is actual for the current FAR Manager version.
    the range from 64 up to 2147483645. If the value falls out of that
    range, it is considered to equal 64.
    Default value is 2048.
+
+1.8.7.(TechInfo #67)
+~~~~~~~~~~~~~~~~~~~~
+   [HKEY_CURRENT_USER\Software\Far\Editor]
+   "AllowEmptySpaceAfterEof":REG_DWORD
+   The end of the file in the editor is always at the bottom of the
+   screen, if there are more lines in the file than in on the screen.
+   When scrolling down (e.g. using Ctrl-Down) the scrolling stops when
+   the last line is shown.
+   The value "Editor/AllowEmptySpaceAfterEof" of type DWORD allows to
+   change this behaviour.
+   Can have one of the followng valuew:
+   0 - stop scrolling if the last line is at the bottom of the screen.
+   1 - continue scrolling but:
+       a) it is still impossible to position the cursor beyond the end of
+          file
+       b) scrolling using Ctrl-Down will scroll the text up to the cursor
+   Default value is = 0.
 
 
 

@@ -9,7 +9,7 @@
 [*] Changes
 
 ---------------------------------------------------------------------------
-FAR 1.70 beta 6 (build 1812) (08.07.2004)
+FAR 1.70 alpha 6 (build 2010) (30.06.2005)
 ---------------------------------------------------------------------------
 General
 ~~~~~~~
@@ -116,10 +116,11 @@ System
     selected. For example for a panel mode configured to show columns
     "S,N" the cursor appeared as if cut in half.
 
-[!] Введен новый способ разбивать колонки панели на глобальные. Теперь колонки
-    разбиваются по наибольшей повторяющейся последовательности. Это позволяет
-    использовать в одной глобальной колонке несколько колонок Name и создавать
-    колонки вида "S,N" (раньше признаком начала новой колонки было имя файла).
+[!] Introduced a new method of dividing panel columns to global. Now the
+    columns are divided by the the most common sequence. This allows to use
+    several Name columns in one global column and to create columns of the
+    form "S,N" (previously the Name column marked the start of a new global
+    column).
 
 [+] The CD drive type can be shown in the disks menu instead of the
     faceless "CD-ROM" type. FAR will attempt to determine the type of
@@ -167,15 +168,15 @@ System
 [+] New size column flag - SE, no space will be shown between the size and the
     suffix.
 
-[+] Новое правило (TechInfo#60) - позволяет игнорировать ошибку
-    ERROR_BAD_PATHNAME под Windows 9x/Me, ошибочно возвращаемую операционной
-    системой (FindNextFile() из Windows API) в конце получения списка файлов
-    пустой директории на сетевом монтированном диске, предоставленном
-    сервером, использующим ОС Unix с некоторыми новыми версиями пакета Samba
-    (например, v3.0.4).
+[+] New rule - TechInfo#60 that makes it possible to ignore error code
+    ERROR_BAD_PATHNAME under Windows 9x/Me, that is erroneously returned by
+    operating system (FindNextFile() from Windows API) at the end of obtaining
+    file list of empty directory on a network mounted disk that is provided by
+    server, which uses OS Unix with some new versions of Samba software (e.g.,
+    v3.0.4).
 
-[+] Новое правило (TechInfo#61) позволяет задает максимальную высоту
-    открываемого списка истории в диалогах.
+[+] New rule - TechInfo#61 that specifies the maximal height for dialog history
+    lists.
 
 [+] New rule - TechInfo#62 that allows to disable the automatic
     invocation of the "Print Manager" plugin assigned to Alt-F5.
@@ -187,34 +188,34 @@ System
 [+] New rule - TechInfo#64 that allows to control the refresh timeout of the file
     deletion process message box.
 
-[-] Диалоги некорректно центрировались на экране.
+[-] Dialogs were not centered correctly.
 
-[+] В диалогах назначения горячей клавиши (меню выбора и конфигурирования
-    плагинов) добавлена информация об имени плагина.
+[+] Information about the plugin name was added to the "Assign plugin hot key"
+    dialog (Plugins and Plugins configuration menu).
 
-[-] Курсор на скрытой панели. Курсор на левой панели, обе отображены. Исполняем
-    Ctrl-F2 Ctrl-O Ctrl-F2 Ctrl-F2 Ctrl-O. Курсор на правой панели, а отображена
-    левая.
+[-] Cursor is on a hidden panel. Cursor is on the left panel, both panels are
+    visible. Press Ctrl-F2 Ctrl-O Ctrl-F2 Ctrl-F2 Ctrl-O. Cursor is on the
+    right panel but the left one is visible.
 
-[!] Значение реестра "Panel\AutoChangeFolder" перемещено в
-    "Panel\Tree\AutoChangeFolder". Это значит, что опцию "Auto change folder"
-    необходимо выставить заново (TechInfo#66)
+[!] The registry value "Panel\AutoChangeFolder" has moved to
+    "Panel\Tree\AutoChangeFolder". This means that the option
+    "Auto change folder" must be set anew (TechInfo#66).
 
-[*] В правиле TechInfo #33 добавлено значение смещения для прокрутки в
-    подсказке.
+[*] A value to set the mouse scrolling delta for help windows was added to
+    TechInfo#33.
 
-[!] В команде 'cd' теперь можно использовать символы маски. Например, команда
-    'cd progra*' изменяет текущий каталог на Program Files. Т.е. происходит
-    переход в первый совпадающий с маской каталог.
+[!] Mask symbols can be used now with the 'cd' command. For example, the
+    command 'cd progra*' will change the current folder to Program Files
+    (i.e. the folder is changed to the first one matched by the mask).
 
-[-] Xlat: не обрабатывался символ, соответствующий последнему символу в
-    таблице.
+[-] Xlat: the character corresponding to the last character in the table was
+    not processed.
 
-[+] Добавлена функция подтверждения размонтирования SUBST-дисков из меню
-    выбора дисков.
+[+] Added a confirmation dialog for dismounting SUBST-disks from the Drive
+    menu.
 
-[*] Диалоги настройки редактора и программы просмотра переделаны под общий
-    стиль диалоговых окон.
+[*] Editor and viewer configuration dialogs were rearranged to comply with the
+    overall dialog style.
 
 
 Find File
@@ -291,10 +292,11 @@ Copy/Move
     inheritable access rights of the parent folder will be applied to the
     copied/moved files and folders. Additionally see TechInfo#65.
 
-[-] При создании ссылки на каталог удалялся одноименный файл (если имя ссылки
-    совпадало с существующим файлом).
+[-] When creating a symbolic link to a folder a file of the same name was
+    deleted (if the name of the symbolic link collided with the name of an
+    existing file).
 
-[-] Для копируемых каталогов не выставлялись файловые атрибуты.
+[-] Attributes were not set for copied folders.
 
 
 File attributes
@@ -352,10 +354,13 @@ Editor
 
 [*] It is now possible to use environment variables in the "Save As" dialog.
 
-[!] Операция преобразования табуляции теперь работает в трех режимах:
-    1. ничего не делать с символами табуляции
-    2. преобразовывать только вводимые символы табуляции в пробелы
-    3. преобразовывать все символы табуляции в файле в пробелы
+[!] The tabulation expansion operation now works in three modes:
+    1. Do not expand tabs
+    2. Expand newly entered tabs to spaces
+    3. Expand all tabs to spaces
+
+[+] New rule - TechInfo#67, allows to change the behaviour of text scrolling
+    when the end of the file is reached.
 
 
 Viewer
@@ -381,21 +386,20 @@ Viewer
 
 [*] In hexadecimal mode Ctrl-Left/Ctrl-Right shift left/right by 1 position.
 
-[-] Одиночный найденный символ скрывался значком '>'.
+[-] A single found character was hidden by the '>' sign.
 
-[+] Теперь левая позиция восстанавливается при перемещении по файлам с помощью
-    Gray+ и Gray-.
+[+] Now the left border position is restored when traversing the files using
+    Gray+ and Gray-.
 
-[-] Некорректно производилось выделение найденного фрагмента для файлов,
-    содержащих Unicode-текст.
+[-] The found text was not selected correctly for Unicode text files.
 
 
 Quick View
 ~~~~~~~~~~
 [+] Added display of information on the folder compression ratio.
 
-[-] Зависание FAR Manager в момент вызова панели дерева папок из активной
-    панели быстрого просмотра.
+[-] FAR Manager could hang if the Folder tree panel was called from an active
+    Quick view panel.
 
 
 Macros
@@ -423,12 +427,12 @@ Macros
 [+] "FindFolder" macro area - macro commands from this area work in the
     Find Folders dialog (Alt-F10).
 
-[-] Невозможно назначить назначить макрос на Ctrl-(и сочетания Shift, Alt)
-    -MsWheelUp (MsWheelDown). Соответствующие комбинации добавлены в
-    в выпадающий список в диалоге назначения макроклавиши.
+[-] It is not possible to assign a macro to Ctrl-(combination of Shift, Alt)
+    -MsWheelUp (MsWheelDown). The corresponding combinations were added to the
+    drop down list in the macro assignment dialog.
 
-[-] Макросы производящие манипулирование курсором не снимали выделение в
-    полях ввода.
+[-] Macros that were manipulating the cursor did not clear selection in text
+    input lines.
 
 
 Help
@@ -440,9 +444,8 @@ Help
 
 [+] Added an index, containing all help topics.
 
-[+] Новое значение "CtrlStartPosChar" для ".Options", позволяющее задать
-    символ, с помощью которого будет указано с какой позиции начинать
-    последующие строки.
+[+] New value "CtrlStartPosChar" for ".Options", that specifies the character
+    that will be used to mark a block alignment position.
 
 
 Addons
