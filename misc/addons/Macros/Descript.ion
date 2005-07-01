@@ -34,3 +34,6 @@ F9DeactivateMenu.reg Use F9 to deactivate main menu
 CtrlShiftPgUpDn.reg Jump to the previous/next folder on the same level
 View.PgDn.reg PgDn at the end of file works as in Far Manager 1.70 beta 4 and earlier
 View.Space.reg Use Space for listing in the viewer (like in Outlook Express or The Bat!)
+CtrlQ.reg Toggle quick view panel
+CtrlShiftBackSlash.reg Activate the same folder in the passive panel as in the active panel
+CtrlIns...reg If CtrlIns was pressed while on .. and command line is not empty then copy to clipboard the path of the current folder

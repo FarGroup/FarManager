@@ -1,9 +1,7 @@
 REGEDIT4
 
-;если нажали CtrlIns на .. и если ком строка не пуста то помещаем в буфер обмена
-;путь к папке в которой находимся
-
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlIns]
+"Description"="If CtrlIns was pressed while on .. and command line is not empty then copy to clipboard the path of the current folder."
 "Sequence"="$If (APanel.Bof && !APanel.Selected && !APanel.Root) F7 CtrlShift[ CtrlIns Esc $Exit $Else CtrlIns $End"
 "DisableOutput"=dword:00000001
 "EmptyCommandLine"=dword:00000001
