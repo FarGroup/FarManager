@@ -1461,6 +1461,8 @@ shortcuts are available:
 
   Clear the history list                                          #Del#
 
+  Refresh list and remove unexisting entries                   #Ctrl-R#
+
   Copy the text of the current history item to the             #Ctrl-C#
   clipboard without closing the list                      or #Ctrl-Ins#
 
@@ -1484,6 +1486,9 @@ respective option in the ~system settings dialog~@SystemSettings@.
   1. Under Windows 9x/Me, long file paths are truncated to 511
      symbols before they are stored in the history.
 
+  2. List refresh operation (Ctrl-R) can take a considerable amount
+     of time if a file was located on a currently unavailable remote
+     resource.
 
 @HistoryFolders
 $ #History: folders#
@@ -1498,6 +1503,8 @@ available:
   Copy the folder name to the command line                 #Ctrl-Enter#
 
   Clear the history list                                          #Del#
+
+  Refresh list and remove unexisting entries                   #Ctrl-R#
 
   Copy the text of the current history item to the             #Ctrl-C#
   clipboard without closing the list                      or #Ctrl-Ins#
@@ -1517,6 +1524,9 @@ respective option in the ~system settings dialog~@SystemSettings@.
   1. Under Windows 9x/Me, long file paths are truncated to 511
      symbols before they are stored in the history.
 
+  2. List refresh operation (Ctrl-R) can take a considerable amount
+     of time if a folder was located on a currently unavailable
+     remote resource.
 
 @TaskList
 $ #Task list#

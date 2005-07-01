@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.165 14.06.2005 $ */
+/* Revision: 1.166 01.07.2005 $ */
 
 /*
 Modify:
+  01.07.2005 AY
+    - бага с прорисовкой (подробнее в .txt)
   14.06.2005 SVS
     ! FileEditor::GetLastInfo() стала самостоятельной GetFileWin32FindData()
   20.05.2005 AY
@@ -824,7 +826,10 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
         ExitCode=XC_LOADING_INTERRUPTED;
       }
       //FrameManager->DeleteFrame(this); // BugZ#546 - Editor валит фар!
-      CtrlObject->Cp()->Redraw();
+      //CtrlObject->Cp()->Redraw(); //AY: вроде как не надо, делает проблемы
+                                    //    с проресовкой если в редакторе из истории
+                                    //    попытаться выбрать несуществующий файл
+
       return;
     }
     CtrlObject->Plugins.CurEditor=this;//&FEdit;

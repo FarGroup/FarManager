@@ -5,10 +5,13 @@ history.cpp
 
 */
 
-/* Revision: 1.34 04.11.2004 $ */
+/* Revision: 1.35 01.07.2005 $ */
 
 /*
 Modify:
+  01.07.2005 SVS
+    - трабла с историей
+    + добавка в виде Ctrl-R для виьювера/фолдеров - Обновить список, удалив недоступные файлы/папки
   04.11.2004 SVS
     - Alt+F11 F3/F4: по ф3 ничего не происходит, по ф4 - просмотр
   25.10.2004 SVS
@@ -162,15 +165,15 @@ void History::ReloadTitle()
     if(PtrLastStr->Name && *PtrLastStr->Name)
       switch(PtrLastStr->Type)
       {
-        case 0:
+        case 0: // вьювер
           xstrncpy(PtrLastStr->Title,MSG(MHistoryView),HISTORY_TITLESIZE-1);
           break;
-        case 1:
-        case 4:
+        case 1: // обычное открытие в редакторе
+        case 4: // открытие с локом
           xstrncpy(PtrLastStr->Title,MSG(MHistoryEdit),HISTORY_TITLESIZE-1);
           break;
-        case 2:
-        case 3:
+        case 2: // external - без ожидания
+        case 3: // external - AlwaysWaitFinish
           xstrncpy(PtrLastStr->Title,MSG(MHistoryExt),HISTORY_TITLESIZE-1);
           break;
       }
@@ -548,6 +551,16 @@ BOOL History::ReadHistory()
   return TRUE;
 }
 
+/*
+ Return:
+   0 - Esc
+   1 - Enter
+   2 - Shift-Enter
+   3 - Ctrl-Enter
+   4 - F3
+   5 - F4
+   6 - Ctrl-Shift-Enter
+*/
 
 int History::Select(const char *Title,const char *HelpTopic,char *Str,int StrLength,int &Type,char *ItemTitle)
 {
@@ -572,6 +585,7 @@ int History::Select(const char *Title,const char *HelpTopic,char *Str,int StrLen
     HistoryMenu.SetPosition(-1,-1,0,0);
     HistoryMenu.AssignHighlights(TRUE);
     int Done=FALSE;
+    int SetUpMenuPos=FALSE;
 
     while(!Done)
     {
@@ -602,7 +616,8 @@ int History::Select(const char *Title,const char *HelpTopic,char *Str,int StrLen
           ReplaceStrings(Ptr,"&","&&",-1);
           memset(&HistoryItem,0,sizeof(HistoryItem));
           xstrncpy(HistoryItem.Name,Record,sizeof(HistoryItem.Name)-1);
-          HistoryItem.SetSelect(CurCmd==CurLastPtr);
+          if(CurCmd==CurLastPtr)
+              HistoryItem.SetSelect(TRUE);
           HistoryMenu.SetUserData((void*)CurCmd,sizeof(DWORD),
                                  HistoryMenu.AddItem(&HistoryItem));
         }
@@ -610,9 +625,15 @@ int History::Select(const char *Title,const char *HelpTopic,char *Str,int StrLen
 
       memset(&HistoryItem,0,sizeof(HistoryItem));
       memset(HistoryItem.Name,' ',20);HistoryItem.Name[20]=0;
-      HistoryItem.SetSelect(CurLastPtr==LastPtr);
+      if(!SetUpMenuPos)
+        HistoryItem.SetSelect(CurLastPtr==LastPtr);
       HistoryMenu.SetUserData((void*)-1,sizeof(DWORD),
            HistoryMenu.AddItem(&HistoryItem));
+      if(SetUpMenuPos)
+      {
+        HistoryMenu.SetSelectPos(StrPos,0);
+        SetUpMenuPos=FALSE;
+      }
 
       HistoryMenu.Show();
       while (!HistoryMenu.Done())
@@ -622,6 +643,39 @@ int History::Select(const char *Title,const char *HelpTopic,char *Str,int StrLen
 
         switch(Key)
         {
+          case KEY_CTRLR: // обновить с удалением недоступных
+          {
+            if(TypeHistory == HISTORYTYPE_FOLDER || TypeHistory == HISTORYTYPE_VIEW)
+            {
+              int ModifiedHistory=0;
+              for(I=0; I < HistoryCount; ++I)
+              {
+                // убить запись из истории
+                if(LastStr[I].Name && *LastStr[I].Name && GetFileAttributes(LastStr[I].Name) == (DWORD)-1)
+                {
+                  xf_free(LastStr[I].Name);
+                  LastStr[I].Name=NULL;
+                  ModifiedHistory++;
+                }
+              }
+              if(ModifiedHistory) // избавляемся от лишних телодвижений
+              {
+                SaveHistory(); // сохранить
+                FreeHistory(); // все очистить
+                ReadHistory(); // прочитать
+                /* TODO: Здесь вместо Save/Free/Read по уму нужно было бы иметь нечто вроде PackHistory
+                         т.е. тогда бы:
+                           PackHistory();
+                           SaveHistory();
+                */
+                HistoryMenu.Modal::SetExitCode(StrPos);
+                HistoryMenu.SetUpdateRequired(TRUE);
+                IsUpdate=TRUE; //??
+              }
+            }
+            break;
+          }
+
           case KEY_CTRLSHIFTENTER:
           case KEY_CTRLENTER:
           case KEY_SHIFTENTER:
@@ -691,7 +745,23 @@ int History::Select(const char *Title,const char *HelpTopic,char *Str,int StrLen
       if (Code<0)
         StrPos=-1;
       else
+      {
         StrPos=(int)HistoryMenu.GetUserData(NULL,sizeof(StrPos),Code);
+        if((TypeHistory == HISTORYTYPE_FOLDER || TypeHistory == HISTORYTYPE_VIEW) && GetFileAttributes(LastStr[StrPos].Name) == (DWORD)-1)
+        {
+          char *TruncFileName=xf_strdup(LastStr[StrPos].Name);
+          if(TruncFileName)
+            TruncPathStr(TruncFileName,ScrX-16);
+          SetLastError(ERROR_FILE_NOT_FOUND);
+          Message(MSG_WARNING|MSG_ERRORTYPE,1,Title,TruncFileName?TruncFileName:LastStr[StrPos].Name,MSG(MOk));
+          if(TruncFileName)
+            free(TruncFileName);
+          Done=FALSE;
+          SetUpMenuPos=TRUE;
+          HistoryMenu.Modal::SetExitCode(StrPos=Code);
+          continue;
+        }
+      }
     }
   }
 
