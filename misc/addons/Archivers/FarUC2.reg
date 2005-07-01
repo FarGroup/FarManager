@@ -8,9 +8,9 @@ REGEDIT4
 ;association of the FAR manager has Type0)...
 ;
 
-[HKEY_CURRENT_USER\Software\Far\Associations]
+[HKEY_LOCAL_MACHINE\Software\Far\Associations]
 
-[HKEY_CURRENT_USER\Software\Far\Associations\Type0]
+[HKEY_LOCAL_MACHINE\Software\Far\Associations\Type0]
 "Mask"="*.uc2"
 "Description"="UC2"
 "Execute"=""
