@@ -9,7 +9,7 @@
 [*] Changes
 
 ---------------------------------------------------------------------------
-FAR 1.70 alpha 6 (build 2010) (30.06.2005)
+FAR 1.70 alpha 6 (build 2011) (01.07.2005)
 ---------------------------------------------------------------------------
 General
 ~~~~~~~
@@ -115,10 +115,10 @@ System
     of FAR executor.
 
 [+] New option in Panel settings "Network drives autorefresh"
-    This option enables panel autorefresh when state of filesystem on
+    This option enables panel autorefresh when state of a file system on
     network drives is being changed. This option is switched on by
-    default. It can be useful to disable this
-    option on slow network connections
+    default. It can be useful to disable this option on slow network
+    connections.
 
 [+] Toggling of "Display hidden and system files" (Ctrl-H) now also works
     when panels are off.
@@ -229,7 +229,10 @@ System
 [*] Editor and viewer configuration dialogs were rearranged to comply with the
     overall dialog style.
 
-[-] Dialog separator lines where incorrectly outputed if too long.
+[-] Dialog separator lines where incorrectly outputted if too long.
+
+[+] New hotkey Ctrl-R in folder and file view history - refresh list and
+    remove non-existing entries.
 
 
 Find File

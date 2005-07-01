@@ -9,7 +9,7 @@
 [*] Changes
 
 ---------------------------------------------------------------------------
-FAR 1.70 alpha 6 (build 2010) (30.06.2005)
+FAR 1.70 alpha 6 (build 2011) (01.07.2005)
 ---------------------------------------------------------------------------
 Editor
 ~~~~~~
@@ -52,7 +52,7 @@ Editor
 [!] ECTL_GETBOOKMARKS and ECTL_GETINFO can be called during an EE_CLOSE event.
 
 [-] Wrong value of EditorInfo.BlockStartLine.
-    For example, there are two non-empty lines - N and N+1. The cursur is
+    For example, there are two non-empty lines - N and N+1. The cursor is
     positioned in the middle of the N+1 line. No selection. Press Shift-Left
     until the cursor is positioned in the middle of the N line. At this moment
     EditorInfo.BlockStartLine equals N+1 and not N as was expected.
@@ -84,7 +84,7 @@ Dialogs
 [-] Changing focus (pressing Tab or Shift-Tab) in a dialog with a single
     element hanged FAR Manager.
 
-[+] The FarDialogItem.Data item of a DI_LISTBOX elemnt is used as the
+[+] The FarDialogItem.Data item of a DI_LISTBOX element is used as the
     upper list title.
 
 [+] If a dialog contains no borders (DI_SINGLEBOX, DI_DOUBLEBOX) and the
@@ -102,7 +102,7 @@ Dialogs
     inside a list (DI_LISTBOX).
 
 [-] The DN_LISTCHANGE message was sent on every mouse movement even if
-    that movement was whithin one list element, that is even if nothing
+    that movement was within one list element, that is even if nothing
     was changed.
 
 [!] Added a limitation that the width and height of a dialog element

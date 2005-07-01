@@ -4,9 +4,9 @@
                      Overview of plugin capabilities
                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-   The FAR manager is so tightly integrated with its  plugins  that  it  is
-simply meaningless to talk about  FAR  and  not  to  mention  the  plugins.
-Plugins present an almost limitless expansion of the features of FAR.
+   FAR Manager is so tightly integrated with its plugins that it is  simply
+meaningless to talk about FAR and  not  to  mention  the  plugins.  Plugins
+present an almost limitless expansion of the features of FAR.
 
    Without going into details, some of the capabilities can be noted:
 
