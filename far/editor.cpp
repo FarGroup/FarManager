@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.261 21.06.2005 $ */
+/* Revision: 1.262 02.07.2005 $ */
 
 /*
 Modify:
+  02.07.2005 AY + WARP
+    ! Неверный leftpos после ECTL_INSERTTEXT+ECTL_SETPOSITION
   21.06.2005 SKV
     + AllowEmptySpaceAfterEof
   24.04.2005 AY
@@ -3694,6 +3696,9 @@ int Editor::ProcessKey(int Key)
         int PreSelStart,PreSelEnd;
         CurLine->EditLine.GetSelection(PreSelStart,PreSelEnd);
         // </comment>
+
+        //AY: Это что бы при FastShow LeftPos не становился в конец строки.
+        CurLine->EditLine.ObjWidth=X2-X1;
 
         if (CurLine->EditLine.ProcessKey(Key))
         {
