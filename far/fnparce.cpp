@@ -5,10 +5,13 @@ fnparce.cpp
 
 */
 
-/* Revision: 1.22 25.03.2005 $ */
+/* Revision: 1.23 02.07.2005 $ */
 
 /*
 Modify:
+  02.07.2005 AY
+    - в обработке !\ не проверялся PSubstData->PassivePanel во всех местах,
+      неприятно глючило с tmppanel.
   25.03.2005 WARP
     - Произвольное удаление файлов!
   06.08.2004 SKV
@@ -475,7 +478,7 @@ static char *_SubstFileName(char *CurStr,struct TSubstData *PSubstData,char *Tmp
     {
 //      strcpy(TmpName,PSubstData->Name);
 //      strcpy(TmpShortName,PSubstData->ShortName);
-      if (strpbrk(PSubstData->Name,"\\:")!=NULL)
+      if (strpbrk(PSubstData->PassivePanel?PSubstData->AnotherName:PSubstData->Name,"\\:")!=NULL)
         *CurDir=0;
     }
 //    if(!DirBegin) DirBegin=TmpStr+strlen(TmpStr);
