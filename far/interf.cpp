@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.89 25.04.2005 $ */
+/* Revision: 1.90 02.07.2005 $ */
 
 /*
 Modify:
+  02.07.2005 WARP
+    ! Отдадим 9x возможность распахивать консоль при AltF9 == 1.
   24.04.2005 AY
     ! GCC
   05.04.2005 SVS
@@ -510,7 +512,7 @@ _OT(void ViewConsoleInfo()\
 
 void SetVideoMode(int ScreenMode)
 {
-  if (!ScreenMode && Opt.AltF9 && WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+  if (!ScreenMode && Opt.AltF9 /*&& WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT*/)
   {
     ChangeVideoMode(InitScreenBufferInfo==CurScreenBufferInfo);
   }
@@ -556,7 +558,7 @@ void ChangeVideoMode(int NumLines,int NumColumns)
   }
 
 #if 1
-  if(WinVer.dwPlatformId != VER_PLATFORM_WIN32_NT)
+/*  if(WinVer.dwPlatformId != VER_PLATFORM_WIN32_NT)
   {
     if (NumColumns < csbi.dwSize.X || NumLines < csbi.dwSize.Y )
     {
@@ -578,7 +580,7 @@ void ChangeVideoMode(int NumLines,int NumColumns)
       csbi.srWindow.Bottom = csbi.srWindow.Top  + (NumLines-1);
       SetConsoleWindowInfo(hConOut,TRUE,&csbi.srWindow );
     }
-  }
+  }*/
 #else
   if(WinVer.dwPlatformId != VER_PLATFORM_WIN32_NT ||
       (NumColumns == 80 && (NumLines == 25 || NumLines == 50)) // обеспечим выполнение !Opt.AltF9
@@ -610,7 +612,7 @@ void ChangeVideoMode(int NumLines,int NumColumns)
 //    GetVideoMode();
   }
 #endif
-  else
+//  else
   {
     srWindowRect.Right = xSize-1;
     srWindowRect.Bottom = ySize-1;
