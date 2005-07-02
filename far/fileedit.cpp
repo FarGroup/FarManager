@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.166 01.07.2005 $ */
+/* Revision: 1.167 02.07.2005 $ */
 
 /*
 Modify:
+  02.07.2005 AY
+    - Если редактор открывался в WIN то в keybar в F8 тоже было WIN
   01.07.2005 AY
     - бага с прорисовкой (подробнее в .txt)
   14.06.2005 SVS
@@ -925,6 +927,11 @@ void FileEditor::InitKeyBar(void)
     }
     EditKeyBar.SetGroup(IKeyLabel[Opt.OnlyEditorViewerUsed][I][0],FEditKeys,sizeof(FEditKeys)/sizeof(FEditKeys[0]));
   }
+
+  if (FEdit->AnsiText)
+    EditKeyBar.Change(MSG(Opt.OnlyEditorViewerUsed?MSingleEditF8DOS:MEditF8DOS),7);
+  else
+    EditKeyBar.Change(MSG(Opt.OnlyEditorViewerUsed?MSingleEditF8:MEditF8),7);
 
   EditKeyBar.Show();
   SetKeyBar(&EditKeyBar);

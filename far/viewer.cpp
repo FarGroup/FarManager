@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.179 02.03.2005 $ */
+/* Revision: 1.180 02.07.2005 $ */
 
 /*
 Modify:
+  02.07.2005 AY
+    ! Открываем файлы в WIN по умолчанию.
   02.03.2005 WARP
     - Надпись о невозможности открыть файл во вьювере вылезала за рамки.
   12.02.2005 WARP
@@ -530,7 +532,8 @@ static void PR_ViewerSearchMsg(void);
 static void ViewerSearchMsg(char *Name);
 
 static struct CharTableSet InitTableSet;
-static int InitUseDecodeTable=FALSE,InitTableNum=0,InitAnsiText=FALSE;
+//AY: по дефолту будем открывать файлы в WIN
+static int InitUseDecodeTable=TRUE,InitTableNum=0,InitAnsiText=TRUE;
 
 static int InitHex=FALSE,SearchHex=FALSE;
 /* $ 27.09.2000 SVS

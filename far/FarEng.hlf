@@ -1461,7 +1461,7 @@ shortcuts are available:
 
   Clear the history list                                          #Del#
 
-  Refresh list and remove unexisting entries                   #Ctrl-R#
+  Refresh list and remove non-existing entries                 #Ctrl-R#
 
   Copy the text of the current history item to the             #Ctrl-C#
   clipboard without closing the list                      or #Ctrl-Ins#
@@ -1504,7 +1504,7 @@ available:
 
   Clear the history list                                          #Del#
 
-  Refresh list and remove unexisting entries                   #Ctrl-R#
+  Refresh list and remove non-existing entries                 #Ctrl-R#
 
   Copy the text of the current history item to the             #Ctrl-C#
   clipboard without closing the list                      or #Ctrl-Ins#

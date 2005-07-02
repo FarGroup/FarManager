@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.262 02.07.2005 $ */
+/* Revision: 1.263 02.07.2005 $ */
 
 /*
 Modify:
+  02.07.2005 AY
+    ! Открываем файлы в WIN по умолчанию.
   02.07.2005 AY + WARP
     ! Неверный leftpos после ECTL_INSERTTEXT+ECTL_SETPOSITION
   21.06.2005 SKV
@@ -771,7 +773,8 @@ Modify:
 #include "farexcpt.hpp"
 
 static struct CharTableSet InitTableSet;
-static int InitUseDecodeTable=FALSE,InitTableNum=0,InitAnsiText=FALSE;
+//AY: по дефолту будем открывать файлы в WIN
+static int InitUseDecodeTable=TRUE,InitTableNum=0,InitAnsiText=TRUE;
 
 static int ReplaceMode,ReplaceAll;
 
@@ -815,6 +818,13 @@ Editor::Editor()
   UseDecodeTable=InitUseDecodeTable;
   TableNum=InitTableNum;
   AnsiText=InitAnsiText;
+
+  if (AnsiText && TableNum==0)
+  {
+    int UseUnicode=FALSE;
+    GetTable(&TableSet,TRUE,TableNum,UseUnicode);
+    UseDecodeTable=TRUE;
+  }
 
   DisableOut=0;
   Pasting=0;
