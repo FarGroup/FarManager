@@ -1816,7 +1816,7 @@ System
     the same as command line one.
 [!] "[x] Copy files opened for writing" - is enabled by default.
 [+] Ctrl-Shift-X "translates" the selected text in the editor, dialogs and
-    command line on the QWERTY<->âñìäÖç principle. The tables are tuned up,
+    command line on the QWERTY<->…÷” ≈Õ principle. The tables are tuned up,
     Key combination is redefinable (in addition see TechInfo.txt,
     examples of key combination assignment - %FAR%\Addons\XLat\Russian\
     Apps.reg, AltR.reg, CtrlShiftX.reg).

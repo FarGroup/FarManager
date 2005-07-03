@@ -4,9 +4,9 @@
                      Archiver support configuration
                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+---------------------------------------------------------------------------
 1. Introduction
-ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+---------------------------------------------------------------------------
 
    Archiver support in FAR means that you can create, view and modify
 archives of different types. The most popular archive types are RAR, ZIP,
@@ -21,9 +21,9 @@ can read no further.
 with plugins. The most popular plugins providing archive support are
 MultiArc and 7-zip.
 
-ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+---------------------------------------------------------------------------
 2. MultiArc.
-ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+---------------------------------------------------------------------------
 
    This is a standard plugin supplied with FAR. It implements archiver
 support in the following way:
@@ -105,9 +105,9 @@ meaning that support for almost any archiver can be added if necessary.
    Disadvantages: the archivers supporting all archive types that you use
 must be installed on your computer.
 
-ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+---------------------------------------------------------------------------
 3. 7-zip
-ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+---------------------------------------------------------------------------
 
    This plugin (it can be downloaded from http://www.7-zip.org) supports
 only the following archive types: 7z, arj, bzip2, cab, cpio, gzip, rar,

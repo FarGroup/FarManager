@@ -352,7 +352,7 @@ FTP
 [-] On ftp file or directory rename plugin sends name for rename to using
     incorrect characters table
 
-[-] Plugin do not duplicate FF character (russian '๏') on output commands
+[-] Plugin do not duplicate FF character (russian 'ÿ') on output commands
 
 [+] Added new sub-plugin type: Notify, which called for every uploaded
     or downloaded file
@@ -779,7 +779,7 @@ FARFtp
       - Now plugin correctly move between FTP panels or to path you enter in
         move destination dialog.
     See Known.txt for specifics.
-[*] annoying "ออออ" line drawn at top left corner of screen removed
+[*] annoying "====" line drawn at top left corner of screen removed
 [!] shows assertion message then plugin activated on both panels
 [+] continue all operations after connection recovered
 [!] do not sets cursor to directory name after exit from it
