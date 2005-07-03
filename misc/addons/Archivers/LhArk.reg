@@ -1,4 +1,5 @@
 REGEDIT4
+
 ;Import this file into the Win32 Registry to integrate LHARK-A
 ;(LHARK of the A mode) into the FAR manager!
 ;If required, change the mode of LHARK with the command "lhark o"!

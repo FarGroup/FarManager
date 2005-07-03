@@ -1,4 +1,5 @@
 REGEDIT4
+
 ; Key macros for LYNX-style motion, i.e. when a command line is empty,
 ; left arrow will move one level up in directory hierarchy, while right
 ; arrow will move one level down.
@@ -14,5 +15,3 @@ REGEDIT4
 "DisableOutput"=dword:00000001
 "EmptyCommandLine"=dword:00000001
 "NotEmptyCommandLine"=dword:00000000
-
-

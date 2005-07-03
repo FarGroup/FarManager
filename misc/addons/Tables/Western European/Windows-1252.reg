@@ -1,4 +1,5 @@
 REGEDIT4
+
 [HKEY_CURRENT_USER\Software\Far\CodeTables\Win-1252]
 "TableName"="Western European - Windows-1252"
 "RFCCharset"="windows-1252"
