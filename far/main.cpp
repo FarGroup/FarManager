@@ -5,10 +5,12 @@ main.cpp
 
 */
 
-/* Revision: 1.80 18.04.2005 $ */
+/* Revision: 1.81 04.07.2005 $ */
 
 /*
 Modify:
+  04.07.2005 WARP
+    - Недетский баг с регистрацией
   18.04.2005 SVS
     - хренова OEM
   12.04.2005 SVS
@@ -322,11 +324,28 @@ printf(
 #endif
 }
 
+void QueryRegistration ()
+{
+  static struct RegInfo Reg;
+
+  if(_beginthread(CheckReg,0x10000,&Reg) == -1)
+  {
+    RegistrationBugs=TRUE;
+    CheckReg(&Reg);
+  }
+  else
+    RegistrationBugs=FALSE;
+
+  while (!Reg.Done)
+    Sleep(10);
+}
+
 static int MainProcess(char *EditName,char *ViewName,char *DestName1,char *DestName2,int StartLine,int StartChar,int RegOpt)
 {
   {
     ChangePriority ChPriority(WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS ? THREAD_PRIORITY_ABOVE_NORMAL:THREAD_PRIORITY_NORMAL);
     ControlObject CtrlObj;
+
     if (*EditName || *ViewName)
     {
       NotUseCAS=TRUE;
@@ -368,17 +387,10 @@ static int MainProcess(char *EditName,char *ViewName,char *DestName1,char *DestN
       {
 #endif
         if (RegOpt)
-          Register();
-        static struct RegInfo Reg;
-        if(_beginthread(CheckReg,0x10000,&Reg) == -1)
         {
-          RegistrationBugs=TRUE;
-          CheckReg(&Reg);
+          Register();
+          QueryRegistration ();
         }
-        else
-          RegistrationBugs=FALSE;
-        while (!Reg.Done)
-          Sleep(10);
 #ifdef _DEBUGEXC
       }
 #endif
@@ -507,6 +519,18 @@ int _cdecl main(int Argc, char *Argv[])
   float x=1.1f;
   char buf[15];
   sprintf(buf,"%f",x);
+#endif
+
+#ifdef _DEBUGEXC
+  if(CheckRegistration)
+  {
+#endif
+    RegVer=-1;
+    QueryRegistration ();
+#ifdef _DEBUGEXC
+  }
+  else
+    RegVer = 1;
 #endif
 
   // если под дебагером, то отключаем исключения однозначно,
@@ -806,7 +830,6 @@ int _cdecl main(int Argc, char *Argv[])
     DeleteEmptyKey(HKEY_CLASSES_ROOT,"Directory\\shellex\\CopyHookHandlers");
   }
   /* IS $ */
-
 
   initMacroVarTable(0);
   initMacroVarTable(1);

@@ -5,10 +5,12 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.54 06.08.2004 $ */
+/* Revision: 1.55 04.07.2005 $ */
 
 /*
 Modify:
+  04.07.2005 WARP
+    - Недетский баг с регистрацией
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   06.05.2004 SVS
@@ -196,12 +198,6 @@ ControlObject::ControlObject()
     FolderHistory->ReadHistory();
   if (Opt.SaveViewHistory)
     ViewHistory->ReadHistory();
-#ifdef _DEBUGEXC
-  if(!CheckRegistration)
-    RegVer=1;
-  else
-#endif
-  RegVer=-1;
 }
 
 
