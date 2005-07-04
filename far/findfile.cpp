@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.178 28.06.2005 $ */
+/* Revision: 1.179 04.07.2005 $ */
 
 /*
 Modify:
+  04.07.2005 WARP
+    - В диалоге поиска не полностью выводится опция ( ) From the root folder
   28.06.2005 WARP
     - Проблемы с открытием по F3/F4 результата поиска в архиве во вложенной папке.
   21.06.2005 SVS
@@ -3515,7 +3517,7 @@ char *FindFiles::PrepareDriveNameStr(char *SearchFromRoot,size_t sz)
 
     // Разница в длине строк с '&' и без. Нужно для дальнейшего
     // учёта точной длины строки, без учёта '&'
-    MsgLenDiff=strlen(MsgStr)-MsgLen;
+    MsgLenDiff=strlen(SearchFromRoot)-MsgLen;
   }
   else
   {
