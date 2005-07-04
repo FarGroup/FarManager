@@ -1,0 +1,3 @@
+LIBRARY
+EXPORTS
+	PluginEntry=PluginEntry@8

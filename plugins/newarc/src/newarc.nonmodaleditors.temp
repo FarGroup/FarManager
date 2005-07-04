@@ -1,0 +1,166 @@
+int __stdcall ProcessEditorEvent(
+		int nEvent,
+		void *Param
+		)
+{
+	if ( nEvent == EE_CLOSE )
+	{
+	//	__debug ("close");
+
+		ArchivePanel *pPanel;
+
+	//	__debug ("%d", Panels.Count);
+
+		for (int i = 0; i < Panels.GetCount(); i++)
+		{
+			pPanel = Panels[i];
+
+			for (int j = 0; j < pPanel->m_Editors.GetCount(); j++)
+			{
+				if ( pPanel->m_Editors[j]->nEditorID == *(int*)Param )
+				{
+					FILETIME ftTime;
+
+					InternalEditorInfo *pInfo = pPanel->m_Editors[j];
+
+	//				__debug ("close - %s", pInfo->lpFileName);
+
+					GetFileTime (pInfo->hFile, 0, 0, &ftTime);
+
+					if ( CompareFileTime (
+							&ftTime,
+							&pInfo->ftTime
+							) )
+					{
+						PluginPanelItem Item;
+
+						SetCurrentDirectory (pInfo->lpFolder);
+
+						strcpy ((char*)&Item.FindData.cFileName, FSF.PointToName (pInfo->lpFileName));
+
+						pPanel->pExecuteCommand (
+								COMMAND_ADD,
+								pInfo->lpPassword,
+								NULL,
+								&Item,
+								1
+								);
+
+//						pPanel->pPutFiles (&Item, 1, TRUE, OPM_SILENT);
+					}
+
+					CloseHandle (pInfo->hFile);
+
+					DeleteFile (pInfo->lpFileName);
+					RemoveDirectory (pInfo->lpFolder);
+
+					StrFree (pInfo->lpFileName);
+					StrFree (pInfo->lpFolder);
+					StrFree (pInfo->lpPassword);
+				}
+			}
+		}
+	}
+
+	return 0;
+}
+
+
+	if ( nKey == VK_F4 )
+	{
+		PanelInfo pnInfo;
+
+		Info.Control (this, FCTL_GETPANELINFO, &pnInfo);
+
+		if ( pnInfo.SelectedItemsNumber )
+		{
+			char *lpFolder = StrCreate (260);
+			char *lpTitle = StrCreate (260);
+			char *lpName = StrCreate (260);
+
+			FSF.MkTemp (lpFolder, "NATF");
+
+			if ( CreateDirectory(lpFolder, NULL) )
+			{
+                 if ( pGetFiles (
+                 		pnInfo.SelectedItems,
+						1,
+						0,
+						lpFolder,
+						OPM_EDIT|OPM_SILENT
+						) )
+				{
+					strcpy (lpName, lpFolder);
+
+					FSF.AddEndSlash (lpName);
+
+					strcat (lpName, pnInfo.SelectedItems->FindData.cFileName);
+
+					FSF.sprintf (
+							lpTitle,
+							"%s:%s\\%s",
+							m_pArchive->pGetArchiveFormatName (),
+							FSF.PointToName(m_pArchive->m_lpFileName),
+							pnInfo.SelectedItems->FindData.cFileName
+							);
+
+					int nResult = Info.Editor (
+							lpName,
+							lpTitle,
+							0,
+							0,
+							-1,
+							-1,
+							EF_IMMEDIATERETURN|EF_NONMODAL,
+							0,
+							1
+							);
+
+					if ( nResult == EEC_MODIFIED )
+					{
+						EditorInfo Editor;
+
+						Info.EditorControl (ECTL_GETINFO, &Editor);
+
+						InternalEditorInfo *pInfo = new InternalEditorInfo;
+
+						pInfo->hFile = CreateFile (
+								lpName,
+								GENERIC_READ,
+								FILE_SHARE_READ|FILE_SHARE_WRITE,
+								NULL,
+								OPEN_EXISTING,
+								0,
+								NULL
+								);
+
+						if ( pInfo->hFile != INVALID_HANDLE_VALUE )
+						{
+							pInfo->lpFileName = StrDuplicate (lpName);
+							pInfo->lpFolder = StrDuplicate (lpFolder);
+							pInfo->nEditorID = Editor.EditorID;
+							pInfo->lpPassword = StrDuplicate (m_pArchive->m_lpLastUsedPassword);
+
+							GetFileTime (pInfo->hFile, 0, 0, &pInfo->ftTime);
+
+							m_Editors.Add (pInfo);
+
+							bResult = true;
+						}
+						else
+							delete pInfo;
+					}
+				}
+			}
+
+			if ( !bResult )
+				RemoveDirectory (lpFolder);
+
+			StrFree (lpName);
+			StrFree (lpFolder);
+			StrFree (lpTitle);
+
+			return TRUE;
+		}
+	}
+
