@@ -99,6 +99,30 @@
       поиска, если хоткей не назначен.</td>
   </tr>
   <tr class="cont">
+    <td class="cont" width="40%"><a name="Editor.Set">V=<dfn>Editor.Set</dfn>(Idx,Var)</a></td>
+    <td class="cont" width="60%">Для текущей копии редактора изменить настройки.
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="10%">Index</th><th class="cont" width="10%">Тип Var</th><th class="cont" width="80%">Описание</th></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">TabSize</td></tr>
+        <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">ExpandTabs</td></tr>
+        <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">PersistentBlocks</td></tr>
+        <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">DelRemovesBlocks</td></tr>
+        <tr class="cont"><td class="cont" width="10%">4</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">AutoIndent</td></tr>
+        <tr class="cont"><td class="cont" width="10%">5</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">AutoDetectTable</td></tr>
+        <tr class="cont"><td class="cont" width="10%">6</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">AnsiTableForNewFile</td></tr>
+        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">CursorBeyondEOL</td></tr>
+        <tr class="cont"><td class="cont" width="10%">8</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">BSLikeDel</td></tr>
+        <tr class="cont"><td class="cont" width="10%">9</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">CharCodeBase</td></tr>
+        <tr class="cont"><td class="cont" width="10%">10</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">SavePos</td></tr>
+        <tr class="cont"><td class="cont" width="10%">11</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">SaveShortPos</td></tr>
+        <tr class="cont"><td class="cont" width="10%">12</td><td class="cont" width="10%">String</td><td class="cont" width="80%">WordDiv</td></tr>
+        <tr class="cont"><td class="cont" width="10%">13</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">F7Rules</td></tr>
+        <tr class="cont"><td class="cont" width="10%">14</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">AllowEmptySpaceAfterEof</td></tr>
+       </table>
+       Возвращает предыдущее значение опций.
+    </td>
+  </tr>
+  <tr class="cont">
     <td class="cont" width="40%"><a name="env">S=<dfn>env</dfn>(V)</a></td>
     <td class="cont" width="60%">Возвращает значение переменной среды V,
       например,<br>
@@ -192,7 +216,7 @@
   </tr>
   <tr class="cont">
     <td class="cont" width="40%"><a name="panelitem">V=<dfn>panelitem</dfn>(typePanel,Index,TypeInfo)</a></td>
-    <td class="cont" width="60%">Возвращает различную информацию для элемента панели <em>Index</em>
+    <td class="cont" width="60%">Возвращает различную информацию для элемента панели <em>Index</em> (начиная с 1)
       из активной (<em>typePanel</em>=0) или пассивной (<em>typePanel</em>=1) панели. <em>TypeInfo</em> может быть
       одним из следующих значений:
        <table class="cont">
@@ -214,7 +238,8 @@
         <tr class="cont"><td class="cont" width="10%">14</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Владелец</td></tr>
         <tr class="cont"><td class="cont" width="10%">15</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">CRC32</td></tr>
        </table>
-       Дата/время возвращается в формате DD.MM.YYYY HH:MM:SS. Разделители и порядок в дате зависят от региональных настроек.
+       Дата/время возвращается в формате DD.MM.YYYY HH:MM:SS. Разделители и порядок в дате зависят от региональных настроек.<br>
+       Для получения данных о текущем файле (под курсором) <em>Index</em> должен быть равен 0.
     </td>
   </tr>
   <tr class="cont">
