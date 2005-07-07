@@ -119,7 +119,10 @@
         <tr class="cont"><td class="cont" width="10%">13</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">EditorF7Rules (TechInfo #18)</td></tr>
         <tr class="cont"><td class="cont" width="10%">14</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">AllowEmptySpaceAfterEof (TechInfo #67)</td></tr>
        </table>
-       Возвращает предыдущее значение опций.
+       Значение <em>Var</em> может быть равно -1, в этом случае функция ничего не изменит, а вернет текущее значение настройки.<br>
+       Возвращает предыдущее значение опций или -1, если данные указаны некорректно.<br>
+       Например, макрос, перемещающий выделенный фрагмент на одну строку вниз:
+       <pre class=code>$IClip CtrlX %a=Editor.Set(2,1); Down CtrlV %a=Editor.Set(2,%a);</pre>
     </td>
   </tr>
   <tr class="cont">
