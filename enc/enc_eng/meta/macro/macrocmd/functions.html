@@ -99,6 +99,30 @@
       поиска, если хоткей не назначен.</td>
   </tr>
   <tr class="cont">
+    <td class="cont" width="40%"><a name="Editor.Set">V=<dfn>Editor.Set</dfn>(Idx,Var)</a></td>
+    <td class="cont" width="60%">Для текущей копии редактора изменить настройки.
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="10%">Index</th><th class="cont" width="10%">Тип Var</th><th class="cont" width="80%">Описание</th></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Размер табуляции</td></tr>
+        <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Преобразование табуляции</td></tr>
+        <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Постоянные блоки</td></tr>
+        <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Del удаляет блоки</td></tr>
+        <tr class="cont"><td class="cont" width="10%">4</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Автоотступ</td></tr>
+        <tr class="cont"><td class="cont" width="10%">5</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Автоопределение таблицы символов</td></tr>
+        <tr class="cont"><td class="cont" width="10%">6</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">AnsiTableForNewFile</td></tr>
+        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Курсор за пределами строки</td></tr>
+        <tr class="cont"><td class="cont" width="10%">8</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">поведением клавиши BackSpace (TechInfo #13)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">9</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Представление кода символа под курсором в статусной строке (TechInfo #32)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">10</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Сохранять позицию файла</td></tr>
+        <tr class="cont"><td class="cont" width="10%">11</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Сохранять закладки</td></tr>
+        <tr class="cont"><td class="cont" width="10%">12</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Символы разделители слов (TechInfo #1)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">13</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">EditorF7Rules (TechInfo #18)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">14</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">AllowEmptySpaceAfterEof (TechInfo #67)</td></tr>
+       </table>
+       Возвращает предыдущее значение опций.
+    </td>
+  </tr>
+  <tr class="cont">
     <td class="cont" width="40%"><a name="env">S=<dfn>env</dfn>(V)</a></td>
     <td class="cont" width="60%">Возвращает значение переменной среды V,
       например,<br>
