@@ -9,7 +9,7 @@
 [*] Changes
 
 ---------------------------------------------------------------------------
-FAR 1.70 beta 6 (build 2018) (04.07.2005)
+FAR 1.70 beta 6 (build 2020) (07.07.2005)
 ---------------------------------------------------------------------------
 General
 ~~~~~~~
@@ -233,6 +233,9 @@ System
 
 [+] New hotkey Ctrl-R in folder and file view history - refresh list and
     remove non-existing entries.
+
+[+] Новое правило (TechInfo#68), позволяющее различать левые правые комбинации
+    Ctrl-Alt-Shift.
 
 
 Find File
