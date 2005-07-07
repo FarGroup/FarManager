@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.71 14.06.2005 $ */
+/* Revision: 1.72 07.07.2005 $ */
 
 /*
 Modify:
+  07.07.2005 SVS
+    + GetCurrentPos
   14.06.2005 SVS
     ! вызов ShellCopy "обволокем" скобками...
   06.05.2005 SVS
@@ -2032,8 +2034,15 @@ char * TreeList::CreateTreeFileName(const char *Path,char *Dest,int DestSize)
 
 BOOL TreeList::GetItem(int Index,void *Dest)
 {
+  if(Index == -1 || Index == -2)
+    Index=GetCurrentPos();
   if((DWORD)Index >= TreeCount)
     return FALSE;
   memcpy(Dest,ListData+Index,sizeof(struct TreeItem));
   return TRUE;
+}
+
+int TreeList::GetCurrentPos()
+{
+  return CurFile;
 }

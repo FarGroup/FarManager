@@ -7,10 +7,12 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.42 14.06.2005 $ */
+/* Revision: 1.43 05.07.2005 $ */
 
 /*
 Modify:
+  05.07.2005 SVS
+    + GetEditorOptions()/SetEditorOptions()
   14.06.2005 SVS
     ! FileEditor::GetLastInfo() стала самостоятельной GetFileWin32FindData()
   28.04.2005 AY
@@ -305,6 +307,9 @@ class FileEditor:public Frame
 
     void SetPluginData(char *PluginData);
     char *GetPluginData(void){return PluginData;};
+
+    void GetEditorOptions(struct EditorOptions& EdOpt);
+    void SetEditorOptions(struct EditorOptions& EdOpt);
 };
 
 #endif  // __FILEEDITOR_HPP__

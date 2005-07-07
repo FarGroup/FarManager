@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.119 05.04.2005 $ */
+/* Revision: 1.120 05.07.2005 $ */
 
 /*
 Modify:
+  05.07.2005 SVS
+    - ошибка в обработчике "cd" (когда примен€лась маска)
   05.04.2005 AY
     - Ёто не правильно (предыдущий фикс), надо убирать только первый пробел,
       что теперь и делает PartCmdLine.
@@ -1831,20 +1833,24 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
     if(ExpandedDir[1] == ':' && isalpha(ExpandedDir[0]))
       ExpandedDir[0]=toupper(ExpandedDir[0]);
 
-#if 1
     if(ExpandedDir[0] == '~' && !ExpandedDir[1] && GetFileAttributes(ExpandedDir) == (DWORD)-1)
     {
       GetRegKey(strSystemExecutor,"~",(char*)ExpandedDir,FarPath,sizeof(ExpandedDir)-1);
       DeleteEndSlash(ExpandedDir);
     }
-#endif
+
     if(strpbrk(ExpandedDir,"?*")) // это маска?
     {
       WIN32_FIND_DATA wfd;
       HANDLE hFile=FindFirstFile(ExpandedDir, &wfd);
       if(hFile!=INVALID_HANDLE_VALUE)
       {
-        strncpy(ExpandedDir,wfd.cFileName,sizeof(ExpandedDir)-1);
+        char *Ptr=strrchr(ExpandedDir,'\\');
+        if(Ptr)
+          *++Ptr=0;
+        else
+          *ExpandedDir=0;
+        strncat(ExpandedDir,wfd.cFileName,sizeof(ExpandedDir)-1);
         FindClose(hFile);
       }
     }

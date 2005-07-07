@@ -5,10 +5,13 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.167 02.07.2005 $ */
+/* Revision: 1.168 05.07.2005 $ */
 
 /*
 Modify:
+  05.07.2005 SVS
+    ! ¬се настройки, относ€щиес€ к редактору внесены в структуру EditorOptions
+    + GetEditorOptions()/SetEditorOptions()
   02.07.2005 AY
     - ≈сли редактор открывалс€ в WIN то в keybar в F8 тоже было WIN
   01.07.2005 AY
@@ -772,7 +775,7 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
     return;
   }
   /* IS $ */
-  if((Opt.EditorReadOnlyLock&2) &&
+  if((FEdit->EdOpt.ReadOnlyLock&2) &&
      FAttr != -1 &&
      (FAttr &
         (FILE_ATTRIBUTE_READONLY|
@@ -780,7 +783,7 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
               поэтому примен€ем маску 0110.0000 и
               сдвигаем на свое место => 0000.0110 и получаем
               те самые нужные атрибуты  */
-           ((Opt.EditorReadOnlyLock&0x60)>>4)
+           ((FEdit->EdOpt.ReadOnlyLock&0x60)>>4)
         )
      )
   )
@@ -1463,17 +1466,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
              –абота с локальной копией EditorOptions
         */
         struct EditorOptions EdOpt;
-
-        EdOpt.TabSize=FEdit->GetTabSize();
-        EdOpt.ExpandTabs=FEdit->GetConvertTabs();
-        EdOpt.PersistentBlocks=FEdit->GetPersistentBlocks();
-        EdOpt.DelRemovesBlocks=FEdit->GetDelRemovesBlocks();
-        EdOpt.AutoIndent=FEdit->GetAutoIndent();
-        EdOpt.AutoDetectTable=FEdit->GetAutoDetectTable();
-        EdOpt.CursorBeyondEOL=FEdit->GetCursorBeyondEOL();
-        EdOpt.CharCodeBase=FEdit->GetCharCodeBase();
-        FEdit->GetSavePosMode(EdOpt.SavePos, EdOpt.SaveShortPos);
-        //EdOpt.BSLikeDel=FEdit->GetBSLikeDel();
+        GetEditorOptions(EdOpt);
 
         /* $ 27.11.2001 DJ
            Local в EditorConfig
@@ -1482,16 +1475,8 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
         /* DJ $ */
         EditKeyBar.Show(); //???? Ќужно ли????
 
-        FEdit->SetTabSize(EdOpt.TabSize);
-        FEdit->SetConvertTabs(EdOpt.ExpandTabs);
-        FEdit->SetPersistentBlocks(EdOpt.PersistentBlocks);
-        FEdit->SetDelRemovesBlocks(EdOpt.DelRemovesBlocks);
-        FEdit->SetAutoIndent(EdOpt.AutoIndent);
-        FEdit->SetAutoDetectTable(EdOpt.AutoDetectTable);
-        FEdit->SetCursorBeyondEOL(EdOpt.CursorBeyondEOL);
-        FEdit->SetCharCodeBase(EdOpt.CharCodeBase);
-        FEdit->SetSavePosMode(EdOpt.SavePos, EdOpt.SaveShortPos);
-        //FEdit->SetBSLikeDel(EdOpt.BSLikeDel);
+        SetEditorOptions(EdOpt);
+
         /* IS $ */
         FEdit->Show();
         return TRUE;
@@ -2176,6 +2161,26 @@ void FileEditor::SetDeleteOnClose(int NewMode)
     FEdit->Flags.Set(FEDITOR_DELETEONLYFILEONCLOSE);
 }
 /* IS $ */
+
+void FileEditor::GetEditorOptions(struct EditorOptions& EdOpt)
+{
+  memmove(&EdOpt,&FEdit->EdOpt,sizeof(struct EditorOptions));
+}
+
+void FileEditor::SetEditorOptions(struct EditorOptions& EdOpt)
+{
+  memmove(&FEdit->EdOpt,&EdOpt,sizeof(struct EditorOptions));
+  FEdit->SetTabSize(EdOpt.TabSize);
+  FEdit->SetConvertTabs(EdOpt.ExpandTabs);
+  FEdit->SetPersistentBlocks(EdOpt.PersistentBlocks);
+  FEdit->SetDelRemovesBlocks(EdOpt.DelRemovesBlocks);
+  FEdit->SetAutoIndent(EdOpt.AutoIndent);
+  FEdit->SetAutoDetectTable(EdOpt.AutoDetectTable);
+  FEdit->SetCursorBeyondEOL(EdOpt.CursorBeyondEOL);
+  FEdit->SetCharCodeBase(EdOpt.CharCodeBase);
+  FEdit->SetSavePosMode(EdOpt.SavePos, EdOpt.SaveShortPos);
+  //FEdit->SetBSLikeDel(EdOpt.BSLikeDel);
+}
 
 int FileEditor::EditorControl(int Command,void *Param)
 {

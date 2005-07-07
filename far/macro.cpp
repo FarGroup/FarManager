@@ -5,10 +5,14 @@ macro.cpp
 
 */
 
-/* Revision: 1.145 25.04.2005 $ */
+/* Revision: 1.146 05.07.2005 $ */
 
 /*
 Modify:
+  05.07.2005 SVS
+    + Добавка в макросы - OldVal=Editor.Set(Index,NewVal)
+    + Editor.FileName - имя редактируемого файла
+    + Viewer.FileName - имя просматриваемого файла
   24.04.2005 AY
     ! GCC
   06.04.2005 SVS
@@ -592,6 +596,7 @@ struct TMacroKeywords MKeywords[] ={
   {2,  "CmdLine.CurPos",     MCODE_V_CMDLINE_CURPOS,0},
   {2,  "CmdLine.Value",      MCODE_V_CMDLINE_VALUE,0},
 
+  {2,  "Editor.FileName",    MCODE_V_EDITORFILENAME,0},
   {2,  "Editor.CurLine",     MCODE_V_EDITORCURLINE,0},  // текущая линия в редакторе (в дополнении к Count)
   {2,  "Editor.Lines",       MCODE_V_EDITORLINES,0},
   {2,  "Editor.CurPos",      MCODE_V_EDITORCURPOS,0},
@@ -601,6 +606,7 @@ struct TMacroKeywords MKeywords[] ={
   {2,  "Dlg.ItemCount",      MCODE_V_DLGITEMCOUNT,0},
   {2,  "Dlg.CurPos",         MCODE_V_DLGCURPOS,0},
 
+  {2,  "Viewer.FileName",    MCODE_V_VIEWERFILENAME,0},
   {2,  "Viewer.State",       MCODE_V_VIEWERSTATE,0},
 
   {2,  "Windowed",           MCODE_C_WINDOWEDMODE,0},
@@ -1364,6 +1370,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
           if ( SelPanel != NULL )
           {
             SelPanel->GetCurDir(FileName);
+            DeleteEndSlash(FileName); // - чтобы у корня диска было C:, тогда можно писать так: APanel.Path + "\\file"
             Cond = FileName;
           }
           break;
@@ -1418,20 +1425,36 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
         case MCODE_V_EDITORSTATE:   // Editor.State
         case MCODE_V_EDITORLINES:   // Editor.Lines
         case MCODE_V_EDITORCURPOS:  // Editor.CurPos
+        case MCODE_V_EDITORFILENAME: // Editor.FileName
         {
           if(CtrlObject->Macro.GetMode()==MACRO_EDITOR &&
-             CtrlObject->Plugins.CurEditor &&
-             CtrlObject->Plugins.CurEditor->IsVisible())
-            Cond=(long)CtrlObject->Plugins.CurEditor->ProcessKey(CheckCode);
+             CtrlObject->Plugins.CurEditor && CtrlObject->Plugins.CurEditor->IsVisible())
+          {
+            if(CheckCode == MCODE_V_EDITORFILENAME)
+            {
+              CtrlObject->Plugins.CurEditor->GetTypeAndName(NULL,FileName);
+              Cond=FileName;
+            }
+            else
+              Cond=(long)CtrlObject->Plugins.CurEditor->ProcessKey(CheckCode);
+          }
           break;
         }
 
+        case MCODE_V_VIEWERFILENAME: // Viewer.FileName
         case MCODE_V_VIEWERSTATE: // Viewer.State
         {
           if((CtrlObject->Macro.GetMode()==MACRO_VIEWER || CtrlObject->Macro.GetMode()==MACRO_QVIEWPANEL) &&
-             CtrlObject->Plugins.CurViewer &&
-             CtrlObject->Plugins.CurViewer->IsVisible())
-            Cond=(long)CtrlObject->Plugins.CurViewer->ProcessKey(MCODE_V_VIEWERSTATE);
+             CtrlObject->Plugins.CurViewer && CtrlObject->Plugins.CurViewer->IsVisible())
+          {
+            if(CheckCode == MCODE_V_VIEWERFILENAME)
+            {
+              CtrlObject->Plugins.CurViewer->GetFileName(FileName);//GetTypeAndName(NULL,FileName);
+              Cond=FileName;
+            }
+            else
+              Cond=(long)CtrlObject->Plugins.CurViewer->ProcessKey(MCODE_V_VIEWERSTATE);
+          }
           break;
         }
 
@@ -1694,6 +1717,104 @@ static TVar fexistFunc(TVar *param)
   return TVar(attr.toInteger() != -1 ? 1L : 0L);
 }
 
+
+// OldVar=Editor.Set(Idx,Var)
+static TVar editorsetFunc(TVar *param)
+{
+  TVar Ret(-1L);
+
+  if(CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins.CurEditor && CtrlObject->Plugins.CurEditor->IsVisible())
+  {
+    long Index=param[0].toInteger();
+    long longState=-1L;
+
+    if(Index != 12)
+      longState=param[1].toInteger();
+
+    struct EditorOptions EdOpt;
+    CtrlObject->Plugins.CurEditor->GetEditorOptions(EdOpt);
+
+    switch(Index)
+    {
+      case 0:  // TabSize;
+        Ret=(long)EdOpt.TabSize; break;
+      case 1:  // ExpandTabs;
+        Ret=(long)EdOpt.ExpandTabs; break;
+      case 2:  // PersistentBlocks;
+        Ret=(long)EdOpt.PersistentBlocks; break;
+      case 3:  // DelRemovesBlocks;
+        Ret=(long)EdOpt.DelRemovesBlocks; break;
+      case 4:  // AutoIndent;
+        Ret=(long)EdOpt.AutoIndent; break;
+      case 5:  // AutoDetectTable;
+        Ret=(long)EdOpt.AutoDetectTable; break;
+      case 6:  // AnsiTableForNewFile;
+        Ret=(long)EdOpt.AnsiTableForNewFile; break;
+      case 7:  // CursorBeyondEOL;
+        Ret=(long)EdOpt.CursorBeyondEOL; break;
+      case 8:  // BSLikeDel;
+        Ret=(long)EdOpt.BSLikeDel; break;
+      case 9:  // CharCodeBase;
+        Ret=(long)EdOpt.CharCodeBase; break;
+      case 10: // SavePos;
+        Ret=(long)EdOpt.SavePos; break;
+      case 11: // SaveShortPos;
+        Ret=(long)EdOpt.SaveShortPos; break;
+      case 12: // char WordDiv[256];
+        Ret=TVar(EdOpt.WordDiv); break;
+      case 13: // F7Rules;
+        Ret=(long)EdOpt.F7Rules; break;
+      case 14: // AllowEmptySpaceAfterEof;
+        Ret=(long)EdOpt.AllowEmptySpaceAfterEof; break;
+      default:
+        Ret=-1L;
+    }
+
+    if(Index != 12 && longState != -1 || Index == 12 && param[1].i() == -1)
+    {
+      switch(Index)
+      {
+        case 0:  // TabSize;
+          EdOpt.TabSize=longState; break;
+        case 1:  // ExpandTabs;
+          EdOpt.ExpandTabs=longState; break;
+        case 2:  // PersistentBlocks;
+          EdOpt.PersistentBlocks=longState; break;
+        case 3:  // DelRemovesBlocks;
+          EdOpt.DelRemovesBlocks=longState; break;
+        case 4:  // AutoIndent;
+          EdOpt.AutoIndent=longState; break;
+        case 5:  // AutoDetectTable;
+          EdOpt.AutoDetectTable=longState; break;
+        case 6:  // AnsiTableForNewFile;
+          EdOpt.AnsiTableForNewFile=longState; break;
+        case 7:  // CursorBeyondEOL;
+          EdOpt.CursorBeyondEOL=longState; break;
+        case 8:  // BSLikeDel;
+          EdOpt.BSLikeDel=longState; break;
+        case 9:  // CharCodeBase;
+          EdOpt.CharCodeBase=longState; break;
+        case 10: // SavePos;
+          EdOpt.SavePos=longState; break;
+        case 11: // SaveShortPos;
+          EdOpt.SaveShortPos=longState; break;
+        case 12: // char WordDiv[256];
+          xstrncpy(EdOpt.WordDiv,param[1].toString(),sizeof(EdOpt.WordDiv)-1); break;
+        case 13: // F7Rules;
+          EdOpt.F7Rules=longState; break;
+        case 14: // AllowEmptySpaceAfterEof;
+          EdOpt.AllowEmptySpaceAfterEof=longState; break;
+        default:
+          Ret=-1L;
+          break;
+      }
+      CtrlObject->Plugins.CurEditor->SetEditorOptions(EdOpt);
+    }
+
+  }
+
+  return TVar(Ret);
+}
 
 // b=msave(var)
 static TVar msaveFunc(TVar *param)
@@ -2132,6 +2253,10 @@ done:
             break;
           case MCODE_F_MSAVE:
             eStack[ePos] = msaveFunc(eStack+ePos);
+            break;
+          case MCODE_F_EDITOR_SET: // N=Editor.Set(N,Var)
+            ePos--;
+            eStack[ePos] = editorsetFunc(eStack+ePos);
             break;
           case MCODE_F_STRING:
             eStack[ePos].toString();

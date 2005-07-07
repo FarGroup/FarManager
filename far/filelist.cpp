@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.232 27.06.2005 $ */
+/* Revision: 1.233 05.07.2005 $ */
 
 /*
 Modify:
+  05.07.2005 SVS
+    ! Все настройки, относящиеся к редактору внесены в структуру EditorOptions
   27.06.2005 SVS
     - отвалилися шорткаты на фолдеры...
   21.06.2005 SVS
@@ -1898,8 +1900,8 @@ int FileList::ProcessKey(int Key)
         if (*FileName)
           if (Edit)
           {
-            int EnableExternal=((Key==KEY_F4 || Key==KEY_SHIFTF4) && Opt.UseExternalEditor ||
-                Key==KEY_ALTF4 && !Opt.UseExternalEditor) && *Opt.ExternalEditor;
+            int EnableExternal=((Key==KEY_F4 || Key==KEY_SHIFTF4) && Opt.EdOpt.UseExternalEditor ||
+                Key==KEY_ALTF4 && !Opt.EdOpt.UseExternalEditor) && *Opt.ExternalEditor;
             /* $ 02.08.2001 IS обработаем ассоциации для alt-f4 */
             BOOL Processed=FALSE;
             if(Key==KEY_ALTF4 &&
@@ -4862,6 +4864,8 @@ void FileList::IfGoHome(char Drive)
 
 BOOL FileList::GetItem(int Index,void *Dest)
 {
+  if(Index == -1 || Index == -2)
+    Index=GetCurrentPos();
   if((DWORD)Index >= FileCount)
     return FALSE;
   memcpy(Dest,ListData+Index,sizeof(struct FileListItem));

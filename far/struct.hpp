@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.130 21.06.2005 $ */
+/* Revision: 1.131 05.07.2005 $ */
 
 /*
 Modify:
+  05.07.2005 SVS
+    ! ¬се настройки, относ€щиес€ к редактору внесены в структуру EditorOptions
   21.06.2005 SKV
     + Opt.AllowEmptySpaceAfterEof
   14.06.2005 SVS
@@ -512,7 +514,21 @@ struct EditorOptions
   int CharCodeBase;
   int SavePos;
   int SaveShortPos;
+  int F7Rules; // $ 28.11.2000 SVS - ѕравило на счет поиска в редакторе
+  int AllowEmptySpaceAfterEof; // $ 21.06.2005 SKV - разрешить показывать пустое пространство после последней строки редактируемого файла.
   char WordDiv[256];
+
+  int ReadOnlyLock; // $ 29.11.2000 SVS - лочить файл при открытии в редакторе, если он имеет атрибуты R|S|H
+  int UndoSize; // $ 03.12.2001 IS - размер буфера undo в редакторе
+  int UseExternalEditor;
+  /* $ 29.11.2000 SVS
+   + Opt.EditorFileSizeLimit - минимально допустимый размер файла, после
+     которого будет выдан диалог о целесообразности открыти€ подобного
+     файла на редактирование
+  */
+  DWORD FileSizeLimitLo;
+  DWORD FileSizeLimitHi;
+  /* SVS $ */
 };
 /* IS $ */
 
@@ -672,17 +688,13 @@ struct Options
   /* $ 07.12.2001 IS ќпци€ создани€ нескольких каталогов за один сеанс */
   int MultiMakeDir;
   /* IS $ */
-  /* $ 03.12.2001 IS
-       размер буфера undo в редакторе
-  */
-  int EditorUndoSize;
-  /* IS $ */
   int CreateUppercaseFolders;
   int UseRegisteredTypes;
+
+  char ExternalEditor[NM];
+
   int UseExternalViewer;
   char ExternalViewer[NM];
-  int UseExternalEditor;
-  char ExternalEditor[NM];
   int SaveViewerPos;
   int SaveViewerShortPos;
   /* $ 21.02.2001 IS
@@ -695,20 +707,6 @@ struct Options
   */
   struct ViewerOptions ViOpt;
   /* IS $ */
-  /* $ 29.11.2000 SVS
-   + Opt.EditorReadOnlyLock - лочить файл при открытии в редакторе, если
-     он имеет атрибуты R|S|H
-  */
-  int EditorReadOnlyLock;
-  /* SVS $ */
-  /* $ 29.11.2000 SVS
-   + Opt.EditorFileSizeLimit - минимально допустимый размер файла, после
-     которого будет выдан диалог о целесообразности открыти€ подобного
-     файла на редактирование
-  */
-  DWORD EditorFileSizeLimitLo;
-  DWORD EditorFileSizeLimitHi;
-  /* SVS $ */
   /* $ 03.08.2000 SVS
      –азграничитель слов из реестра
   */
@@ -839,10 +837,6 @@ struct Options
    + Opt.ExceptCallDebugger - вызывать дебаггер при исключении */
   int ExceptCallDebugger;
   /* VVM $ */
-  /* SVS $ */
-  /* $ 28.11.2000 SVS
-   + Opt.EditorF7Rules - ѕравило на счет поиска в редакторе */
-  int EditorF7Rules;
   /* SVS $ */
   /* $ 28.12.2000 SVS
    + Opt.HotkeyRules - ѕравило на счет выбора механизма хоткеев */
@@ -977,13 +971,6 @@ struct Options
   struct FilterParams OpFilter;
   /* KM $ */
   struct TreeOptions Tree;
-
-  /* $ 21.06.2005 SKV
-    разрешить показывать пустое пространство после последней
-    строки редактируемого файла.
-  */
-  int AllowEmptySpaceAfterEof;
-  /* SKV $ */
 };
 
 

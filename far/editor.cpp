@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.263 02.07.2005 $ */
+/* Revision: 1.264 05.07.2005 $ */
 
 /*
 Modify:
+  05.07.2005 SVS
+    ! ¬се настройки, относ€щиес€ к редактору внесены в структуру EditorOptions
   02.07.2005 AY
     ! ќткрываем файлы в WIN по умолчанию.
   02.07.2005 AY + WARP
@@ -852,9 +854,9 @@ Editor::Editor()
   strcpy(GlobalEOL,DOS_EOL_fmt);
   /* IS $ */
   /* $ 03.12.2001 IS размер буфера undo теперь может мен€тьс€ */
-  UndoData=static_cast<EditorUndoData*>(xf_malloc(Opt.EditorUndoSize*sizeof(EditorUndoData)));
+  UndoData=static_cast<EditorUndoData*>(xf_malloc(EdOpt.UndoSize*sizeof(EditorUndoData)));
   if(UndoData)
-    memset(UndoData,0,Opt.EditorUndoSize*sizeof(EditorUndoData));
+    memset(UndoData,0,EdOpt.UndoSize*sizeof(EditorUndoData));
   /* IS $ */
   UndoDataPos=0;
   StartLine=StartChar=-1;
@@ -905,7 +907,7 @@ void Editor::FreeAllocatedData()
   */
   if(UndoData)
   {
-    for (int I=0;I<Opt.EditorUndoSize;++I)
+    for (int I=0;I<EdOpt.UndoSize;++I)
       if (UndoData[I].Type!=UNDO_NONE && UndoData[I].Str!=NULL)
         delete UndoData[I].Str;
     xf_free(UndoData);
@@ -1013,7 +1015,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
      которого будет выдан диалог о целесообразности открыти€ подобного
      файла на редактирование
   */
-  if(Opt.EditorFileSizeLimitLo || Opt.EditorFileSizeLimitHi)
+  if(EdOpt.FileSizeLimitLo || EdOpt.FileSizeLimitHi)
   {
     int64 RealSizeFile;
     /* $ 07.01.2001 IS
@@ -1024,7 +1026,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
     RealSizeFile.PLow()=GetFileSize(hEdit,(DWORD*)&RealSizeFile.PHigh());
     if (GetLastError() == NO_ERROR)
     {
-      int64 NeedSizeFile(Opt.EditorFileSizeLimitHi,Opt.EditorFileSizeLimitLo);
+      int64 NeedSizeFile(EdOpt.FileSizeLimitHi,EdOpt.FileSizeLimitLo);
       if(RealSizeFile > NeedSizeFile)
       {
         char TempBuf[2][128];
@@ -1066,7 +1068,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
          «апомним атрибуты
     */
     DWORD FileAttributes=HostFileEditor?HostFileEditor->GetFileAttributes(Name):(DWORD)-1;
-    if((Opt.EditorReadOnlyLock&1) &&
+    if((EdOpt.ReadOnlyLock&1) &&
        FileAttributes != -1 &&
        (FileAttributes &
           (FILE_ATTRIBUTE_READONLY|
@@ -1074,7 +1076,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
                 поэтому примен€ем маску 0110.0000 и
                 сдвигаем на свое место => 0000.0110 и получаем
                 те самые нужные атрибуты  */
-             ((Opt.EditorReadOnlyLock&0x60)>>4)
+             ((EdOpt.ReadOnlyLock&0x60)>>4)
           )
        )
      )
@@ -1622,7 +1624,7 @@ void Editor::ShowEditor(int CurLineOnly)
     перепозиционируем.
   */
 
-  if(!Opt.AllowEmptySpaceAfterEof)
+  if(!EdOpt.AllowEmptySpaceAfterEof)
   {
 
     while(CalcDistance(TopScreen,NULL,Y2-Y1-1)<Y2-Y1-1)
@@ -4287,7 +4289,7 @@ void Editor::ScrollDown()
   int LeftPos,CurPos;
   if (CurLine->Next==NULL || TopScreen->Next==NULL)
     return;
-  if (!Opt.AllowEmptySpaceAfterEof && CalcDistance(TopScreen,EndList,Y2-Y1)<Y2-Y1)
+  if (!EdOpt.AllowEmptySpaceAfterEof && CalcDistance(TopScreen,EndList,Y2-Y1)<Y2-Y1)
   {
     Down();
     return;
@@ -4420,7 +4422,7 @@ BOOL Editor::Search(int Next)
          прокл€тое место, блин.
          оп€ть фиксим, т.к. не соответствует за€вленному
     */
-    if( !ReverseSearch && ( Next || (Opt.EditorF7Rules && !ReplaceMode) ) )
+    if( !ReverseSearch && ( Next || (EdOpt.F7Rules && !ReplaceMode) ) )
         CurPos++;
     /* IS $ */
     /* IS $ */
@@ -5239,7 +5241,7 @@ void Editor::AddUndoData(const char *Str,int StrNum,int StrPos,int Type)
   if (StrNum==-1)
     StrNum=NumLine;
   if ((PrevUndoDataPos=UndoDataPos-1)<0)
-    PrevUndoDataPos=Opt.EditorUndoSize-1;
+    PrevUndoDataPos=EdOpt.UndoSize-1;
   if (!Flags.Check(FEDITOR_NEWUNDO) && Type==UNDO_EDIT &&
       UndoData[PrevUndoDataPos].Type==UNDO_EDIT &&
       StrNum==UndoData[PrevUndoDataPos].StrNum &&
@@ -5264,7 +5266,7 @@ void Editor::AddUndoData(const char *Str,int StrNum,int StrPos,int Type)
   }
   else
     UndoData[UndoDataPos].Str=NULL;
-  if (++UndoDataPos==Opt.EditorUndoSize)
+  if (++UndoDataPos==EdOpt.UndoSize)
     UndoDataPos=0;
   if (UndoDataPos==UndoSavePos)
     Flags.Set(FEDITOR_UNDOOVERFLOW);
@@ -5280,7 +5282,7 @@ void Editor::Undo()
     return;
   int NewPos=UndoDataPos-1;
   if (NewPos<0)
-    NewPos=Opt.EditorUndoSize-1;
+    NewPos=EdOpt.UndoSize-1;
   if (UndoData[NewPos].Type==UNDO_NONE)
     return;
   UnmarkBlock();

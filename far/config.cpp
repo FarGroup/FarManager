@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.188 29.06.2005 $ */
+/* Revision: 1.189 05.07.2005 $ */
 
 /*
 Modify:
+  05.07.2005 SVS
+    ! Все настройки, относящиеся к редактору внесены в структуру EditorOptions
   29.06.2005 SKV
     + Opt.AllowEmptySpaceAfterEof
   23.06.2005 WARP
@@ -1328,8 +1330,8 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
     CfgDlg[ID_EC_EXTERNALUSEALTF4].X1+=strlen(Str)-(strchr(Str, '&')?1:0)+5;
   }
 
-  CfgDlg[ID_EC_EXTERNALUSEF4].Selected=Opt.UseExternalEditor;
-  CfgDlg[ID_EC_EXTERNALUSEALTF4].Selected=!Opt.UseExternalEditor;
+  CfgDlg[ID_EC_EXTERNALUSEF4].Selected=Opt.EdOpt.UseExternalEditor;
+  CfgDlg[ID_EC_EXTERNALUSEALTF4].Selected=!Opt.EdOpt.UseExternalEditor;
   strcpy(CfgDlg[ID_EC_EXTERNALCOMMANDEDIT].Data,Opt.ExternalEditor);
 
   //немного ненормальная логика, чтобы сохранить (по возможности) старое поведение
@@ -1350,8 +1352,8 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
   CfgDlg[ID_EC_SAVEBOOKMARKS].Selected = EdOpt.SaveShortPos;
   CfgDlg[ID_EC_AUTODETECTTABLE].Selected = EdOpt.AutoDetectTable&&DistrTableExist();
   CfgDlg[ID_EC_CURSORBEYONDEOL].Selected = EdOpt.CursorBeyondEOL;
-  CfgDlg[ID_EC_LOCKREADONLY].Selected = Opt.EditorReadOnlyLock & 1;
-  CfgDlg[ID_EC_READONLYWARNING].Selected = Opt.EditorReadOnlyLock & 2;
+  CfgDlg[ID_EC_LOCKREADONLY].Selected = EdOpt.ReadOnlyLock & 1;
+  CfgDlg[ID_EC_READONLYWARNING].Selected = EdOpt.ReadOnlyLock & 2;
 
   if ( !RegVer )
   {
@@ -1389,7 +1391,7 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
 
   if (!Local)
   {
-    Opt.UseExternalEditor=CfgDlg[ID_EC_EXTERNALUSEF4].Selected;
+    Opt.EdOpt.UseExternalEditor=CfgDlg[ID_EC_EXTERNALUSEF4].Selected;
     xstrncpy(Opt.ExternalEditor,CfgDlg[ID_EC_EXTERNALCOMMANDEDIT].Data,sizeof(Opt.ExternalEditor)-1);
   }
 
@@ -1424,13 +1426,13 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
 
   EdOpt.CursorBeyondEOL=CfgDlg[ID_EC_CURSORBEYONDEOL].Selected;
 
-  Opt.EditorReadOnlyLock&=~3;
+  EdOpt.ReadOnlyLock&=~3;
 
   if ( CfgDlg[ID_EC_LOCKREADONLY].Selected )
-    Opt.EditorReadOnlyLock|=1;
+    EdOpt.ReadOnlyLock|=1;
 
   if( CfgDlg[ID_EC_READONLYWARNING].Selected )
-    Opt.EditorReadOnlyLock|=2;
+    EdOpt.ReadOnlyLock|=2;
 }
 
 
@@ -1513,7 +1515,7 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeyDialog,"CBoxMaxHeight",&Opt.Dialogs.CBoxMaxHeight,8, 0},
 
   {1, REG_SZ,     NKeyEditor,"ExternalEditorName",Opt.ExternalEditor,sizeof(Opt.ExternalEditor),""},
-  {1, REG_DWORD,  NKeyEditor,"UseExternalEditor",&Opt.UseExternalEditor,0, 0},
+  {1, REG_DWORD,  NKeyEditor,"UseExternalEditor",&Opt.EdOpt.UseExternalEditor,0, 0},
   {1, REG_DWORD,  NKeyEditor,"ExpandTabs",&Opt.EdOpt.ExpandTabs,0, 0},
   {1, REG_DWORD,  NKeyEditor,"TabSize",&Opt.EdOpt.TabSize,8, 0},
   {1, REG_DWORD,  NKeyEditor,"PersistentBlocks",&Opt.EdOpt.PersistentBlocks,1, 0},
@@ -1523,16 +1525,16 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyEditor,"SaveEditorShortPos",&Opt.EdOpt.SaveShortPos,1, 0},
   {1, REG_DWORD,  NKeyEditor,"AutoDetectTable",&Opt.EdOpt.AutoDetectTable,0, 0},
   {1, REG_DWORD,  NKeyEditor,"EditorCursorBeyondEOL",&Opt.EdOpt.CursorBeyondEOL,1, 0},
-  {1, REG_DWORD,  NKeyEditor,"ReadOnlyLock",&Opt.EditorReadOnlyLock,0, 0}, // Вернём назад дефолт 1.65 - не предупреждать и не блокировать
-  /* $ 03.12.2001 IS размер буфера undo в редакторе */
-  {0, REG_DWORD,  NKeyEditor,"EditorUndoSize",&Opt.EditorUndoSize,2048,0},
-  /* IS $ */
+  {1, REG_DWORD,  NKeyEditor,"ReadOnlyLock",&Opt.EdOpt.ReadOnlyLock,0, 0}, // Вернём назад дефолт 1.65 - не предупреждать и не блокировать
+  {0, REG_DWORD,  NKeyEditor,"EditorUndoSize",&Opt.EdOpt.UndoSize,2048,0}, // $ 03.12.2001 IS размер буфера undo в редакторе
   {0, REG_SZ,     NKeyEditor,"WordDiv",Opt.WordDiv,sizeof(Opt.WordDiv),WordDiv0},
   {0, REG_DWORD,  NKeyEditor,"BSLikeDel",&Opt.EdOpt.BSLikeDel,1, 0},
-  {0, REG_DWORD,  NKeyEditor,"EditorF7Rules",&Opt.EditorF7Rules,1, 0},
-  {0, REG_DWORD,  NKeyEditor,"FileSizeLimit",&Opt.EditorFileSizeLimitLo,(DWORD)0, 0},
-  {0, REG_DWORD,  NKeyEditor,"FileSizeLimitHi",&Opt.EditorFileSizeLimitHi,(DWORD)0, 0},
+  {0, REG_DWORD,  NKeyEditor,"EditorF7Rules",&Opt.EdOpt.F7Rules,1, 0},
+  {0, REG_DWORD,  NKeyEditor,"FileSizeLimit",&Opt.EdOpt.FileSizeLimitLo,(DWORD)0, 0},
+  {0, REG_DWORD,  NKeyEditor,"FileSizeLimitHi",&Opt.EdOpt.FileSizeLimitHi,(DWORD)0, 0},
   {0, REG_DWORD,  NKeyEditor,"CharCodeBase",&Opt.EdOpt.CharCodeBase,1, 0},
+  {0, REG_DWORD,  NKeyEditor,"AllowEmptySpaceAfterEof", &Opt.EdOpt.AllowEmptySpaceAfterEof,0,0},//skv
+  {0, REG_DWORD,  NKeyEditor,"AnsiTableForNewFile",&Opt.EdOpt.AnsiTableForNewFile,1, 0},
 
   {0, REG_DWORD,  NKeyXLat,"Flags",&Opt.XLat.Flags,(DWORD)XLAT_SWITCHKEYBLAYOUT|XLAT_CONVERTALLCMDLINE, 0},
   {0, REG_BINARY, NKeyXLat,"Table1",(BYTE*)&Opt.XLat.Table[0][1],sizeof(Opt.XLat.Table[0])-1,NULL},
@@ -1677,9 +1679,7 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeyPanel,"CtrlAltShiftRule",&Opt.PanelCtrlAltShiftRule,0, 0},
   {0, REG_DWORD,  NKeyPanel,"RememberLogicalDrives",&Opt.RememberLogicalDrives, 0, 0},
   {1, REG_DWORD,  NKeyPanel,"AutoUpdateLimit",&Opt.AutoUpdateLimit, 0, 0},
-  /* $ 17.12.2001 IS поведение средней кнопки мыши в панелях */
-  {1, REG_DWORD,  NKeyPanel,"MiddleClickRule",&Opt.PanelMiddleClickRule,1, 0},
-  /* IS $ */
+  {1, REG_DWORD,  NKeyPanel,"MiddleClickRule",&Opt.PanelMiddleClickRule,1, 0}, // $ 17.12.2001 IS поведение средней кнопки мыши в панелях
 
   {1, REG_DWORD,  NKeyPanelLeft,"Type",&Opt.LeftPanel.Type,0, 0},
   {1, REG_DWORD,  NKeyPanelLeft,"Visible",&Opt.LeftPanel.Visible,1, 0},
@@ -1755,7 +1755,6 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyFileFilter,"AttrClear",&Opt.OpFilter.FAttr.AttrClear,0,0},
   /* KM $ */
   {0, REG_DWORD,  NKeySystem,"ExcludeCmdHistory",&Opt.ExcludeCmdHistory,0, 0}, //AN
-  {0, REG_DWORD,  NKeyEditor, "AllowEmptySpaceAfterEof", &Opt.AllowEmptySpaceAfterEof,0,0},//skv
 };
 
 
@@ -1842,8 +1841,8 @@ void ReadConfig()
       Если EditorUndoSize слишком маленькое или слишком большое,
       то сделаем размер undo такой же, как и в старых версиях
   */
-  if(Opt.EditorUndoSize<64 || Opt.EditorUndoSize>(0x7FFFFFFF-2))
-    Opt.EditorUndoSize=64;
+  if(Opt.EdOpt.UndoSize<64 || Opt.EdOpt.UndoSize>(0x7FFFFFFF-2))
+    Opt.EdOpt.UndoSize=64;
   /* IS $ */
 
   // Исключаем случайное стирание разделителей ;-)

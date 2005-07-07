@@ -7,10 +7,12 @@ Tree panel
 
 */
 
-/* Revision: 1.22 06.05.2005 $ */
+/* Revision: 1.23 07.07.2005 $ */
 
 /*
 Modify:
+  07.07.2005 SVS
+    + GetCurrentPos
   06.05.2005 SVS
     ! ???::GetCurDir() теперь возвращает размер пути, при этом
       его параметр может быть равен NULL. Сделано для того, чтобы
@@ -153,6 +155,7 @@ class TreeList: public Panel
     virtual void KillFocus();
     virtual BOOL UpdateKeyBar();
     virtual BOOL GetItem(int Index,void *Dest);
+    virtual int GetCurrentPos();
 
   public:
     static void AddTreeName(char *Name);

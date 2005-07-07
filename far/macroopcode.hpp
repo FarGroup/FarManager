@@ -5,10 +5,14 @@ OpCode для макросов
 
 */
 
-/* Revision: 1.13 06.04.2005 $ */
+/* Revision: 1.14 05.07.2005 $ */
 
 /*
 Modify:
+  05.07.2005 SVS
+    + Добавка в макросы - OldVal=Editor.Set(Index,NewVal)
+    + Editor.FileName - имя редактируемого файла
+    + Viewer.FileName - имя просматриваемого файла
   06.04.2005 SVS
     + MCODE_F_MSAVE       // b=msave(var)
     + MCODE_C_APANEL_LFN  // на активной панели длинные имена?
@@ -143,6 +147,7 @@ enum MACRO_OP_CODE {
   MCODE_F_ITOA,                     //
   MCODE_F_PANELITEM,                // V=PanelItem(Panel,Index,TypeInfo)
   MCODE_F_MSAVE,                    // b=msave(var)
+  MCODE_F_EDITOR_SET,               // N=Editor.Set(N,Var)
 
   /* ************************************************************************* */
   // булевые переменные - различные состояния
@@ -206,6 +211,7 @@ enum MACRO_OP_CODE {
   MCODE_V_FAR_WIDTH,                // Far.Width - ширина консольного окна
   MCODE_V_ITEMCOUNT,                // ItemCount - число элементов в текущем объекте
   MCODE_V_CURPOS,                   // CurPos - текущий индекс в текущем объекте
+  MCODE_V_EDITORFILENAME,           // Editor.FileName - имя редактируемого файла
   MCODE_V_EDITORLINES,              // Editor.Lines - количество строк в редакторе
   MCODE_V_EDITORCURLINE,            // Editor.CurLine - текущая линия в редакторе (в дополнении к Count)
   MCODE_V_EDITORCURPOS,             // Editor.CurPos - текущая поз. в редакторе
@@ -213,6 +219,7 @@ enum MACRO_OP_CODE {
   MCODE_V_DLGITEMTYPE,              // Dlg.ItemType
   MCODE_V_DLGITEMCOUNT,             // Dlg.ItemCount
   MCODE_V_DLGCURPOS,                // Dlg.CurPos
+  MCODE_V_VIEWERFILENAME,           // Viewer.FileName - имя просматриваемого файла
   MCODE_V_VIEWERSTATE,              // Viewer.State
 
   MCODE_V_CMDLINE_ITEMCOUNT,        // CmdLine.ItemCount
