@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.180 02.07.2005 $ */
+/* Revision: 1.181 07.07.2005 $ */
 
 /*
 Modify:
+  07.07.2005 SVS
+    ! Вьюверные настройки собраны в одно место
   02.07.2005 AY
     ! Открываем файлы в WIN по умолчанию.
   02.03.2005 WARP
@@ -589,8 +591,8 @@ Viewer::Viewer()
   /* $ 31.08.2000 SVS
     Вспомним тип врапа
   */
-  VM.Wrap=Opt.ViewerIsWrap;
-  VM.TypeWrap=Opt.ViewerWrap;
+  VM.Wrap=Opt.ViOpt.ViewerIsWrap;
+  VM.TypeWrap=Opt.ViOpt.ViewerWrap;
   /* SVS $ */
   VM.Hex=InitHex;
 
@@ -634,7 +636,7 @@ Viewer::~Viewer()
   if (ViewFile)
   {
     fclose(ViewFile);
-    if (Opt.SaveViewerPos)
+    if (Opt.ViOpt.SaveViewerPos)
     {
       char CacheName[NM*3];
       if (*PluginData)
@@ -661,7 +663,7 @@ Viewer::~Viewer()
         PosCache.Param[2]=VM.Hex;
         //=PosCache.Param[3];
         PosCache.Param[4]=Table;
-        if(Opt.SaveViewerShortPos)
+        if(Opt.ViOpt.SaveViewerShortPos)
         {
           PosCache.Position[0]=BMSavePos.SavePosAddr;
           PosCache.Position[1]=(__int64*)BMSavePos.SavePosLeft;
@@ -738,8 +740,8 @@ void Viewer::KeepInitParameters()
   InitUseDecodeTable=VM.UseDecodeTable;
   InitTableNum=VM.TableNum;
   InitAnsiText=VM.AnsiMode;
-  Opt.ViewerIsWrap=VM.Wrap;
-  Opt.ViewerWrap=VM.TypeWrap;
+  Opt.ViOpt.ViewerIsWrap=VM.Wrap;
+  Opt.ViOpt.ViewerWrap=VM.TypeWrap;
   InitHex=VM.Hex;
 }
 
@@ -868,7 +870,7 @@ int Viewer::OpenFile(const char *Name,int warning)
   }
   /* SVS $ */
 
-  if (Opt.SaveViewerPos && !ReadStdin)
+  if (Opt.ViOpt.SaveViewerPos && !ReadStdin)
   {
     __int64 NewLeftPos,NewFilePos;
     int Table;
@@ -880,7 +882,7 @@ int Viewer::OpenFile(const char *Name,int warning)
 
     {
       struct /*TPosCache32*/ TPosCache64 PosCache={0};
-      if(Opt.SaveViewerShortPos)
+      if(Opt.ViOpt.SaveViewerShortPos)
       {
         PosCache.Position[0]=BMSavePos.SavePosAddr;
         PosCache.Position[1]=(__int64*)BMSavePos.SavePosLeft;
@@ -1902,7 +1904,7 @@ int Viewer::ProcessKey(int Key)
 
         if (NextFileFound)
         {
-          if (Opt.SaveViewerPos)
+          if (Opt.ViOpt.SaveViewerPos)
           {
             char CacheName[NM*3];
             if (*PluginData)
@@ -1929,7 +1931,7 @@ int Viewer::ProcessKey(int Key)
               PosCache.Param[2]=VM.Hex;
               //=PosCache.Param[3];
               PosCache.Param[4]=Table;
-              if(Opt.SaveViewerShortPos)
+              if(Opt.ViOpt.SaveViewerShortPos)
               {
                 PosCache.Position[0]=BMSavePos.SavePosAddr;
                 PosCache.Position[1]=(__int64*)BMSavePos.SavePosLeft;
@@ -1975,7 +1977,7 @@ int Viewer::ProcessKey(int Key)
         }
         ChangeViewKeyBar();
         Show();
-        Opt.ViewerWrap=VM.TypeWrap;
+        Opt.ViOpt.ViewerWrap=VM.TypeWrap;
 //        LastSelPos=FilePos;
       }
       return TRUE;
@@ -1999,7 +2001,7 @@ int Viewer::ProcessKey(int Key)
       /* $ 31.08.2000 SVS
         Сохраняем тип врапа
       */
-      Opt.ViewerIsWrap=VM.Wrap;
+      Opt.ViOpt.ViewerIsWrap=VM.Wrap;
       /* SVS $ */
 //      LastSelPos=FilePos;
       return(TRUE);
@@ -3181,7 +3183,7 @@ void Viewer::Search(int Next,int FirstChar)
     SelectText(MatchPos,SearchLength,ReverseSearch?0x2:0);
 
     // Покажем найденное на расстоянии трети экрана от верха.
-    int FromTop=(ScrY-(Opt.ShowKeyBarViewer?2:1))/4;
+    int FromTop=(ScrY-(Opt.ViOpt.ShowKeyBarViewer?2:1))/4;
     if (FromTop<0 || FromTop>ScrY)
       FromTop=0;
 
@@ -3762,7 +3764,7 @@ int Viewer::ViewerControl(int Command,void *Param)
         memmove(&Info->CurMode,&VM,sizeof(struct ViewerMode));
         Info->CurMode.TableNum=VM.UseDecodeTable ? VM.TableNum-2:-1;
         Info->Options=0;
-        if (Opt.SaveViewerPos)         Info->Options|=VOPT_SAVEFILEPOSITION;
+        if (Opt.ViOpt.SaveViewerPos)   Info->Options|=VOPT_SAVEFILEPOSITION;
         if (ViOpt.AutoDetectTable)     Info->Options|=VOPT_AUTODETECTTABLE;
         Info->TabSize=ViOpt.TabSize;
 

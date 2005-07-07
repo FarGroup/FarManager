@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.70 14.04.2005 $ */
+/* Revision: 1.71 07.07.2005 $ */
 
 /*
 Modify:
+  07.07.2005 SVS
+    ! ¬ьюверные настройки собраны в одно место
   14.04.2005 SVS
     ! Opt.UsePrintManager
   02.02.2005 SVS
@@ -242,7 +244,7 @@ void FileViewer::Init(const char *name,int EnableSwitch,int disableHistory, ///
   ViewKeyBar.SetOwner(this);
   ViewKeyBar.SetPosition(X1,Y2,X2,Y2);
   /* $ 07.05.2001 DJ */
-  KeyBarVisible = Opt.ShowKeyBarViewer;
+  KeyBarVisible = Opt.ViOpt.ShowKeyBarViewer;
   /* DJ $ */
   /* $ 20.05.2001 DJ */
   MacroMode = MACRO_VIEWER;
@@ -292,7 +294,7 @@ void FileViewer::Init(const char *name,int EnableSwitch,int disableHistory, ///
   ViewKeyBar.Show();
   /* $ 15.07.2000 tran
      dirty trick :( */
-  if ( Opt.ShowKeyBarViewer==0 )
+  if ( Opt.ViOpt.ShowKeyBarViewer==0 )
     ViewKeyBar.Hide0();
   /* tran 15.07.2000 $ */
 
@@ -367,7 +369,7 @@ void FileViewer::InitKeyBar(void)
 
   SetKeyBar(&ViewKeyBar);
   // $ 15.07.2000 tran - ShowKeyBarViewer support
-  View.SetPosition(X1,Y1,X2,Y2-(Opt.ShowKeyBarViewer?1:0));
+  View.SetPosition(X1,Y1,X2,Y2-(Opt.ViOpt.ShowKeyBarViewer?1:0));
   View.SetViewKeyBar(&ViewKeyBar);
 }
 /* SVS $ */
@@ -378,13 +380,13 @@ void FileViewer::Show()
   {
     /* $ 15.07.2000 tran
        + keybar hide/show support */
-    if ( Opt.ShowKeyBarViewer )
+    if ( Opt.ViOpt.ShowKeyBarViewer )
     {
         ViewKeyBar.SetPosition(0,ScrY,ScrX,ScrY);
         ViewKeyBar.Redraw();
     }
-    SetPosition(0,0,ScrX,ScrY-(Opt.ShowKeyBarViewer?1:0));
-    View.SetPosition(0,0,ScrX,ScrY-(Opt.ShowKeyBarViewer?1:0));
+    SetPosition(0,0,ScrX,ScrY-(Opt.ViOpt.ShowKeyBarViewer?1:0));
+    View.SetPosition(0,0,ScrX,ScrY-(Opt.ViOpt.ShowKeyBarViewer?1:0));
     /* tran 15.07.2000 $ */
   }
   ScreenObject::Show();
@@ -441,14 +443,14 @@ int FileViewer::ProcessKey(int Key)
     /* $ 15.07.2000 tran
        + CtrlB switch KeyBar*/
     case KEY_CTRLB:
-      Opt.ShowKeyBarViewer=!Opt.ShowKeyBarViewer;
-      if ( Opt.ShowKeyBarViewer )
+      Opt.ViOpt.ShowKeyBarViewer=!Opt.ViOpt.ShowKeyBarViewer;
+      if ( Opt.ViOpt.ShowKeyBarViewer )
         ViewKeyBar.Show();
       else
         ViewKeyBar.Hide0(); // 0 mean - Don't purge saved screen
       Show();
       /* $ 07.05.2001 DJ */
-      KeyBarVisible = Opt.ShowKeyBarViewer;
+      KeyBarVisible = Opt.ViOpt.ShowKeyBarViewer;
       /* DJ $ */
       return (TRUE);
     /* tran 15.07.2000 $ */
@@ -562,7 +564,7 @@ int FileViewer::ProcessKey(int Key)
       View.SetShowArrows(ViOpt.ShowArrows);
       View.SetPersistentBlocks(ViOpt.PersistentBlocks);
       /* IS $ */
-      if ( Opt.ShowKeyBarViewer )
+      if ( Opt.ViOpt.ShowKeyBarViewer )
         ViewKeyBar.Show();
       View.Show();
       return TRUE;
@@ -585,7 +587,7 @@ int FileViewer::ProcessKey(int Key)
            Ёто помогло от залипани€ :-)
         */
         if (!CtrlObject->Macro.IsExecuting())
-          if ( Opt.ShowKeyBarViewer )
+          if ( Opt.ViOpt.ShowKeyBarViewer )
               ViewKeyBar.Show();
         /* SVS $ */
         if (!ViewKeyBar.ProcessKey(Key))

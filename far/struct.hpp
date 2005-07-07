@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.131 05.07.2005 $ */
+/* Revision: 1.132 07.07.2005 $ */
 
 /*
 Modify:
+  07.07.2005 SVS
+    ! Вьюверные настройки собраны в одно место
   05.07.2005 SVS
     ! Все настройки, относящиеся к редактору внесены в структуру EditorOptions
   21.06.2005 SKV
@@ -539,15 +541,15 @@ struct ViewerOptions
 {
   int TabSize;
   int AutoDetectTable;
-  /* $ 18.07.2000 tran
-    + пара настроек для viewer*/
-  int ShowScrollbar;
+  int ShowScrollbar;     // $ 18.07.2000 tran пара настроек для viewer
   int ShowArrows;
-  /* tran 18.07.2000 $ */
-  /* $ 14.05.2002 VVM
-    + Постоянные блоки во вьюере */
-  int PersistentBlocks;
-  /* VVM */
+  int PersistentBlocks; // $ 14.05.2002 VVM Постоянные блоки во вьюере
+  int ViewerIsWrap; // (Wrap|WordWarp)=1 | UnWrap=0
+  int ViewerWrap; // Wrap=0|WordWarp=1
+  int SaveViewerPos;
+  int SaveViewerShortPos;
+  int UseExternalViewer;
+  int ShowKeyBarViewer; // $ 15.07.2000 tran + ShowKeyBarViewer
 };
 /* IS $ */
 
@@ -645,7 +647,6 @@ struct TreeOptions{
 struct Options
 {
   int Clock;
-  int ViewerEditorClock;
   int Mouse;
   int ShowKeyBar;
   int ScreenSaver;
@@ -691,32 +692,23 @@ struct Options
   int CreateUppercaseFolders;
   int UseRegisteredTypes;
 
-  char ExternalEditor[NM];
 
-  int UseExternalViewer;
-  char ExternalViewer[NM];
-  int SaveViewerPos;
-  int SaveViewerShortPos;
-  /* $ 21.02.2001 IS
-       Переменные для редактора переехали в соответствующую структуру
-  */
+  int ViewerEditorClock;
+  int OnlyEditorViewerUsed; // =1, если старт был /e или /v
+  int SaveViewHistory;
+  int ViewHistoryCount;
+
+  char ExternalEditor[NM];
   struct EditorOptions EdOpt;
-  /* IS $ */
-  /* $ 29.03.2001 IS
-       Некоторые переменные для вьюера переехали в соответствующую структуру
-  */
+  char ExternalViewer[NM];
   struct ViewerOptions ViOpt;
-  /* IS $ */
-  /* $ 03.08.2000 SVS
-     Разграничитель слов из реестра
-  */
-  char WordDiv[256];
-  /* SVS $ */
+
+
+  char WordDiv[256]; // $ 03.08.2000 SVS Разграничитель слов из реестра
   char QuotedSymbols[32];
   DWORD QuotedName;
   int SaveHistory;
   int SaveFoldersHistory;
-  int SaveViewHistory;
   int AutoSaveSetup;
   int SetupArgv; // количество каталогов в комюстроке ФАРа
   int ChangeDriveMode;
@@ -724,7 +716,6 @@ struct Options
 
   int HistoryCount;
   int FoldersHistoryCount;
-  int ViewHistoryCount;
   int DialogsHistoryCount;
 
   struct FindFileOptions FindOpt;
@@ -738,42 +729,26 @@ struct Options
   int ShowPanelTotals;
   int ShowPanelFree;
   int ShowPanelScrollbar;
-  /* $ 29.06.2000 SVS
-    Добавлен атрибут показа Scroll Bar в меню.
-  */
-  int ShowMenuScrollbar;
-  /* SVS $*/
+  int ShowMenuScrollbar; // $ 29.06.2000 SVS Добавлен атрибут показа Scroll Bar в меню.
   int ShowScreensNumber;
   int ShowSortMode;
   int ShowMenuBar;
-  /* $ 15.07.2000 tran
-    + ShowKeyBarViewer*/
-  int ShowKeyBarViewer;
-  /* tran 15.07.2000 $ */
+
   int CleanAscii;
   int NoGraphics;
   char FolderInfoFiles[1024];
+
   struct Confirmation Confirm;
   struct DizOptions Diz;
   struct PanelOptions LeftPanel;
   struct PanelOptions RightPanel;
+
   DWORD  AutoUpdateLimit; // выше этого количество автоматически не обновлять панели.
   int AutoUpdateRemoteDrive;
 
   char Language[80];
   int SmallIcon;
   char RegRoot[NM];
-  /* $ 31.08.2000 SVS
-     Добавлена переменная Options.ViewerTypeWrap
-  */
-  /* $ 12.09.2000 SVS
-     Добавлена переменная Options.ViewerWrap
-     ViewerTypeWrap переименована в ViewerIsWrap
-  */
-  int ViewerIsWrap; // (Wrap|WordWarp)=1 | UnWrap=0
-  int ViewerWrap; // Wrap=0|WordWarp=1
-  /* SVS 12.09.2000 $*/
-  /* SVS $*/
   /* $ 12.09.2000 SVS
    + Opt.PanelRightClickRule задает поведение правой клавиши мыши
      (это по поводу Bug#17)
@@ -806,6 +781,7 @@ struct Options
   */
   int AllCtrlAltShiftRule;
   /* SVS $*/
+  int CASRule; // 18.12.2003 - Пробуем различать левый и правый CAS (попытка #1).
   /* $ 24.09.2000 SVS
    + Opt.CmdHistoryRule задает поведение Esc для командной строки:
       =1 - Не изменять положение в History, если после Ctrl-E/Ctrl/-X
@@ -940,11 +916,8 @@ struct Options
 #endif
   DWORD PluginMaxReadData;
   int UseNumPad;
-  int CASRule;
   int UseUnicodeConsole;
   int ScanJunction;
-
-  int OnlyEditorViewerUsed; // =1, если старт был /e или /v
 
   DWORD ShowTimeoutDelFiles; // тайаут в процессе удаления (в ms)
   DWORD ShowTimeoutDACLFiles;

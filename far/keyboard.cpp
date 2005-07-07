@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.115 25.04.2005 $ */
+/* Revision: 1.116 07.07.2005 $ */
 
 /*
 Modify:
+  07.07.2005 SVS
+    ! окончание темы, начатой в патче 1742 (01742.CAS.txt) - TechInfo #68
   24.04.2005 AY
     ! GCC
   03.12.2004 SVS
@@ -1408,10 +1410,13 @@ _SVS(if(rec->EventType==KEY_EVENT)SysLog("[%d] if(rec->EventType==KEY_EVENT) >>>
         case VK_CONTROL:
           if(!IsKeyCASPressed && CtrlPressed && AltPressed && ShiftPressed)
           {
-            if(!IsKeyRCASPressed && RightCtrlPressed && RightAltPressed && RightShiftPressed && (Opt.CASRule&2))
+            if(!IsKeyRCASPressed && RightCtrlPressed && RightAltPressed && RightShiftPressed)
             {
-              IsKeyRCASPressed=TRUE;
-              return (KEY_RCTRLALTSHIFTPRESS);
+              if(Opt.CASRule&2)
+              {
+                IsKeyRCASPressed=TRUE;
+                return (KEY_RCTRLALTSHIFTPRESS);
+              }
             }
             else if(Opt.CASRule&1)
             {
@@ -1423,10 +1428,13 @@ _SVS(if(rec->EventType==KEY_EVENT)SysLog("[%d] if(rec->EventType==KEY_EVENT) >>>
         case VK_LSHIFT:
         case VK_LMENU:
         case VK_LCONTROL:
-          if(!IsKeyRCASPressed && RightCtrlPressed && RightAltPressed && RightShiftPressed && (Opt.CASRule&2))
+          if(!IsKeyRCASPressed && RightCtrlPressed && RightAltPressed && RightShiftPressed)
           {
-            IsKeyRCASPressed=TRUE;
-            return (KEY_RCTRLALTSHIFTPRESS);
+            if((Opt.CASRule&2))
+            {
+              IsKeyRCASPressed=TRUE;
+              return (KEY_RCTRLALTSHIFTPRESS);
+            }
           }
           break;
       }
@@ -2246,8 +2254,11 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
       case VK_MENU:
       case VK_CONTROL:
       {
-        if(RightCtrlPressed && RightAltPressed && RightShiftPressed && (Opt.CASRule&2))
-          return (IsKeyRCASPressed?KEY_RCTRLALTSHIFTPRESS:KEY_RCTRLALTSHIFTRELEASE);
+        if(RightCtrlPressed && RightAltPressed && RightShiftPressed)
+        {
+          if((Opt.CASRule&2))
+            return (IsKeyRCASPressed?KEY_RCTRLALTSHIFTPRESS:KEY_RCTRLALTSHIFTRELEASE);
+        }
         else if(Opt.CASRule&1)
           return (IsKeyCASPressed?KEY_CTRLALTSHIFTPRESS:KEY_CTRLALTSHIFTRELEASE);
       }

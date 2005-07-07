@@ -5,10 +5,12 @@ Quick view panel
 
 */
 
-/* Revision: 1.35 26.04.2005 $ */
+/* Revision: 1.36 07.07.2005 $ */
 
 /*
 Modify:
+  07.07.2005 SVS
+    ! Вьюверные настройки собраны в одно место
   26.04.2005 SVS
     ! Вместо кучи кода - вызов одной функции Panel::ProcessShortcutFolder()
   01.03.2004 SVS
@@ -134,8 +136,8 @@ QuickView::QuickView()
   /* $ 20.02.2001 VVM
     + Проинициализируем режим врап-а */
   if (LastWrapMode < 0) {
-    LastWrapMode = Opt.ViewerIsWrap;
-    LastWrapType = Opt.ViewerWrap;
+    LastWrapMode = Opt.ViOpt.ViewerIsWrap;
+    LastWrapType = Opt.ViOpt.ViewerWrap;
   }
   /* VVM $ */
 }

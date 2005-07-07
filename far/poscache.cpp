@@ -5,10 +5,12 @@ poscache.cpp
 
 */
 
-/* Revision: 1.16 21.01.2003 $ */
+/* Revision: 1.17 07.07.2005 $ */
 
 /*
 Modify:
+  07.07.2005 SVS
+    ! Вьюверные настройки собраны в одно место
   21.01.2003 SVS
     + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
       Просьба блюсти порядок и прописывать именно xf_* вместо простых.
@@ -343,7 +345,7 @@ BOOL FilePositionCache::Save(const char *Key)
     // ????????
 
     SetRegKey(Key,SubKeyItem,DataStr);
-    if((Opt.SaveViewerShortPos && Opt.SaveViewerPos) ||
+    if((Opt.ViOpt.SaveViewerShortPos && Opt.ViOpt.SaveViewerPos) ||
        (Opt.EdOpt.SaveShortPos && Opt.EdOpt.SavePos))
     {
       // Если не запоминались позиции по RCtrl+<N>, то и не записываем их

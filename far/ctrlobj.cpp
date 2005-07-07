@@ -5,10 +5,12 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.55 04.07.2005 $ */
+/* Revision: 1.56 07.07.2005 $ */
 
 /*
 Modify:
+  07.07.2005 SVS
+    ! Вьюверные настройки собраны в одно место
   04.07.2005 WARP
     - Недетский баг с регистрацией
   06.08.2004 SKV
@@ -321,7 +323,7 @@ ControlObject::~ControlObject()
   delete HiFiles;
   delete GrpSort;
 
-  if (Opt.SaveViewerPos)
+  if (Opt.ViOpt.SaveViewerPos)
     ViewerPosCache->Save("Viewer\\LastPositions");
   delete ViewerPosCache;
 

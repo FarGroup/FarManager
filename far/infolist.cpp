@@ -5,10 +5,12 @@ infolist.cpp
 
 */
 
-/* Revision: 1.46 30.05.2005 $ */
+/* Revision: 1.47 07.07.2005 $ */
 
 /*
 Modify:
+  07.07.2005 SVS
+    ! ¬ьюверные настройки собраны в одно место
   30.05.2005 SVS
     ! временно откатим проект про USB
   06.05.2005 SVS
@@ -151,8 +153,8 @@ InfoList::InfoList()
   *DizFileName=0;
   if (LastDizWrapMode < 0)
   {
-    LastDizWrapMode = Opt.ViewerIsWrap;
-    LastDizWrapType = Opt.ViewerWrap;
+    LastDizWrapMode = Opt.ViOpt.ViewerIsWrap;
+    LastDizWrapType = Opt.ViOpt.ViewerWrap;
     /* $ 27.04.2001 DJ
        запоминаем, был ли включен скроллбар
     */

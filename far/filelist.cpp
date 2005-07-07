@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.233 05.07.2005 $ */
+/* Revision: 1.234 07.07.2005 $ */
 
 /*
 Modify:
+  07.07.2005 SVS
+    ! Вьюверные настройки собраны в одно место
   05.07.2005 SVS
     ! Все настройки, относящиеся к редактору внесены в структуру EditorOptions
   27.06.2005 SVS
@@ -2003,8 +2005,8 @@ int FileList::ProcessKey(int Key)
           }
           else
           {
-            int EnableExternal=(Key==KEY_F3 && Opt.UseExternalViewer ||
-                                Key==KEY_ALTF3 && !Opt.UseExternalViewer) &&
+            int EnableExternal=(Key==KEY_F3 && Opt.ViOpt.UseExternalViewer ||
+                                Key==KEY_ALTF3 && !Opt.ViOpt.UseExternalViewer) &&
                                 *Opt.ExternalViewer;
             /* $ 02.08.2001 IS обработаем ассоциации для alt-f3 */
             BOOL Processed=FALSE;

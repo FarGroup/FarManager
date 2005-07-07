@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.189 05.07.2005 $ */
+/* Revision: 1.190 07.07.2005 $ */
 
 /*
 Modify:
+  07.07.2005 SVS
+    ! Вьюверные настройки собраны в одно место
   05.07.2005 SVS
     ! Все настройки, относящиеся к редактору внесены в структуру EditorOptions
   29.06.2005 SKV
@@ -1189,10 +1191,10 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
 
   MakeDialogItems(CfgDlgData,CfgDlg);
 
-  CfgDlg[ID_VC_EXTERNALUSEF3].Selected = Opt.UseExternalViewer;
-  CfgDlg[ID_VC_EXTERNALUSEALTF3].Selected = !Opt.UseExternalViewer;
-  CfgDlg[ID_VC_SAVEPOSITION].Selected = Opt.SaveViewerPos;
-  CfgDlg[ID_VC_SAVEBOOKMARKS].Selected = Opt.SaveViewerShortPos;
+  CfgDlg[ID_VC_EXTERNALUSEF3].Selected = Opt.ViOpt.UseExternalViewer;
+  CfgDlg[ID_VC_EXTERNALUSEALTF3].Selected = !Opt.ViOpt.UseExternalViewer;
+  CfgDlg[ID_VC_SAVEPOSITION].Selected = Opt.ViOpt.SaveViewerPos;
+  CfgDlg[ID_VC_SAVEBOOKMARKS].Selected = Opt.ViOpt.SaveViewerShortPos;
   CfgDlg[ID_VC_AUTODETECTTABLE].Selected = ViOpt.AutoDetectTable && DistrTableExist();
   CfgDlg[ID_VC_SHOWSCROLLBAR].Selected = ViOpt.ShowScrollbar;
   CfgDlg[ID_VC_SHOWARROWS].Selected = ViOpt.ShowArrows;
@@ -1236,11 +1238,11 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
 
   if (!Local)
   {
-    Opt.UseExternalViewer=CfgDlg[ID_VC_EXTERNALUSEF3].Selected;
+    Opt.ViOpt.UseExternalViewer=CfgDlg[ID_VC_EXTERNALUSEF3].Selected;
     xstrncpy(Opt.ExternalViewer,CfgDlg[ID_VC_EXTERALCOMMANDEDIT].Data,sizeof(Opt.ExternalViewer)-1);
   }
-  Opt.SaveViewerPos=CfgDlg[ID_VC_SAVEPOSITION].Selected;
-  Opt.SaveViewerShortPos=CfgDlg[ID_VC_SAVEBOOKMARKS].Selected;
+  Opt.ViOpt.SaveViewerPos=CfgDlg[ID_VC_SAVEPOSITION].Selected;
+  Opt.ViOpt.SaveViewerShortPos=CfgDlg[ID_VC_SAVEBOOKMARKS].Selected;
   /* $ 16.12.2000 IS
     - баг: забыли считать опцию DLG_VIEW_AUTODETECT из диалога
   */
@@ -1492,16 +1494,16 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeyInterface, "ShowTimeoutDACLFiles",&Opt.ShowTimeoutDACLFiles, 50, 0},
 
   {1, REG_SZ,     NKeyViewer,"ExternalViewerName",Opt.ExternalViewer,sizeof(Opt.ExternalViewer),""},
-  {1, REG_DWORD,  NKeyViewer,"UseExternalViewer",&Opt.UseExternalViewer,0, 0},
-  {1, REG_DWORD,  NKeyViewer,"SaveViewerPos",&Opt.SaveViewerPos,1, 0},
-  {1, REG_DWORD,  NKeyViewer,"SaveViewerShortPos",&Opt.SaveViewerShortPos,1, 0},
+  {1, REG_DWORD,  NKeyViewer,"UseExternalViewer",&Opt.ViOpt.UseExternalViewer,0, 0},
+  {1, REG_DWORD,  NKeyViewer,"SaveViewerPos",&Opt.ViOpt.SaveViewerPos,1, 0},
+  {1, REG_DWORD,  NKeyViewer,"SaveViewerShortPos",&Opt.ViOpt.SaveViewerShortPos,1, 0},
   {1, REG_DWORD,  NKeyViewer,"AutoDetectTable",&Opt.ViOpt.AutoDetectTable,0, 0},
   {1, REG_DWORD,  NKeyViewer,"TabSize",&Opt.ViOpt.TabSize,8, 0},
-  {1, REG_DWORD,  NKeyViewer,"ShowKeyBar",&Opt.ShowKeyBarViewer,1, 0},
+  {1, REG_DWORD,  NKeyViewer,"ShowKeyBar",&Opt.ViOpt.ShowKeyBarViewer,1, 0},
   {1, REG_DWORD,  NKeyViewer,"ShowArrows",&Opt.ViOpt.ShowArrows,1, 0},
   {1, REG_DWORD,  NKeyViewer,"ShowScrollbar",&Opt.ViOpt.ShowScrollbar,0, 0},
-  {1, REG_DWORD,  NKeyViewer,"IsWrap",&Opt.ViewerIsWrap,1, 0},
-  {1, REG_DWORD,  NKeyViewer,"Wrap",&Opt.ViewerWrap,0, 0},
+  {1, REG_DWORD,  NKeyViewer,"IsWrap",&Opt.ViOpt.ViewerIsWrap,1, 0},
+  {1, REG_DWORD,  NKeyViewer,"Wrap",&Opt.ViOpt.ViewerWrap,0, 0},
   {1, REG_DWORD,  NKeyViewer,"PersistentBlocks",&Opt.ViOpt.PersistentBlocks,1, 0},
 
   {1, REG_DWORD,  NKeyInterface, "DialogsEditHistory",&Opt.Dialogs.EditHistory,1, 0},
@@ -1584,7 +1586,6 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeySystem,"CmdHistoryRule",&Opt.CmdHistoryRule,0, 0},
   {0, REG_DWORD,  NKeySystem,"SetAttrFolderRules",&Opt.SetAttrFolderRules,1, 0},
   {0, REG_DWORD,  NKeySystem,"MaxPositionCache",&Opt.MaxPositionCache,64, 0},
-  {0, REG_DWORD,  NKeySystem,"AllCtrlAltShiftRule",&Opt.AllCtrlAltShiftRule,0x0000FFFF, 0},
   {1, REG_DWORD,  NKeySystem,"CopyTimeRule",  &Opt.CopyTimeRule, 3, 0},
   {0, REG_SZ,     NKeySystem,"ConsoleDetachKey", KeyNameConsoleDetachKey, sizeof(KeyNameConsoleDetachKey),"CtrlAltTab"},
   {1, REG_SZ,     NKeySystem,"PersonalPluginsPath",Opt.LoadPlug.PersonalPluginsPath,sizeof(Opt.LoadPlug.PersonalPluginsPath),PersonalPluginsPath},
@@ -1635,6 +1636,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeySystem,"CloseCDGate",&Opt.CloseCDGate,-1, 0},
   {0, REG_DWORD,  NKeySystem,"UseNumPad",&Opt.UseNumPad,0, 0},
   {0, REG_DWORD,  NKeySystem,"CASRule",&Opt.CASRule,0xFFFFFFFFU, 0},
+  {0, REG_DWORD,  NKeySystem,"AllCtrlAltShiftRule",&Opt.AllCtrlAltShiftRule,0x0000FFFF, 0},
   {1, REG_DWORD,  NKeySystem,"ScanJunction",&Opt.ScanJunction,1, 0},
   {0, REG_DWORD,  NKeySystem,"IgnoreErrorBadPathName",&Opt.IgnoreErrorBadPathName,0, 0},
   {0, REG_DWORD,  NKeySystem,"UsePrintManager",&Opt.UsePrintManager,1, 0},
@@ -1834,8 +1836,8 @@ void ReadConfig()
   }
   /* SVS 13.12.2000 $ */
 
-  Opt.ViewerIsWrap&=1;
-  if(RegVer) Opt.ViewerWrap&=1; else Opt.ViewerWrap=0;
+  Opt.ViOpt.ViewerIsWrap&=1;
+  if(RegVer) Opt.ViOpt.ViewerWrap&=1; else Opt.ViOpt.ViewerWrap=0;
 
   /* $ 03.12.2001 IS
       Если EditorUndoSize слишком маленькое или слишком большое,
