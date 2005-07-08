@@ -15,13 +15,13 @@ the corresponding file name part.
 
  #Process subfolders#         If the selected file objects include
                             folders, the plugin will also process
-                            the files and subfolders in the selected 
+                            the files and subfolders in the selected
                             directories.
 
- #Process folder names#       If the cursor is positioned on a folder 
-                            and the option "#Process subfolders#" is 
-                            turned on, the plugin will also process 
-                            the name of that folder and all 
+ #Process folder names#       If the cursor is positioned on a folder
+                            and the option "#Process subfolders#" is
+                            turned on, the plugin will also process
+                            the name of that folder and all
                             subfolders.
 
  #Current run only#           Use the options specified in the dialog
@@ -29,6 +29,6 @@ the corresponding file name part.
 
  #Word delimiters#            Characters used to delimit words for the
                             title case conversion.
-                            Клавиша "#Сброс#" установит набор символов
-                            по умолчанию: "# _#" (пробел и символ 
-                            нижнего подчеркивания).
+                            The "#Reset#" button will reset the word
+                            delimiters to the default value: "# _#"
+                            (Space and underscore).
