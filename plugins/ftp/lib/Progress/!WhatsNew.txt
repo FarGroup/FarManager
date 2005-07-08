@@ -1,0 +1,8 @@
+FAR 1.70 beta 5 FTP plugin (Progress window sub-plugin)
+
+~~~~~~~~~~~~~~~~~~~~~~
+ [29.03.2005]
+  - bug: Sub-plugin does not use IdleShowPeriod to update progress message.
+
+ [05.03.2003]
+  - bug: Total remain time calculated using current CPS instead of average cps.

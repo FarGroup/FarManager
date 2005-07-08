@@ -1,0 +1,24 @@
+#define VERSIONINFO_1   1
+
+VERSIONINFO_1 VERSIONINFO
+FILEVERSION 1, 7, 0, 0
+PRODUCTVERSION 1, 7, 0, 0
+FILEOS 4
+FILETYPE 2 {
+ BLOCK "StringFileInfo" {
+  BLOCK "000004E4" {
+   VALUE "CompanyName",      "Eugene Roshal & FAR Group\000\000"
+   VALUE "FileDescription",  "FTP client for FAR Manager\000"
+   VALUE "InternalName",     "FarFtp\000"
+   VALUE "LegalCopyright",   "Copyright © Eugene Roshal 1996-2000, Copyright © FAR Group ] 2000\000\000"
+   VALUE "OriginalFilename", "FarFtp.dll\000"
+   VALUE "Comments",         "Current developer: JouriM<at>uran.ru\000\000"
+
+   VALUE "ProductVersion",   "1.80\000\000"
+   VALUE "FileVersion",      "build 02.06.2005\000\000"
+  }
+ }
+ BLOCK "VarFileInfo" {
+  VALUE "Translation", 0, 0x4e4
+ }
+}

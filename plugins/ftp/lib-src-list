@@ -1,0 +1,16 @@
+lib\*.reg
+lib\*.txt
+lib\*.diz
+lib\*.def
+lib\*.rc
+lib\*.h
+lib\*.cpp
+lib\*.inc
+lib\*.bcb
+lib\*.vc5
+lib\*.bat
+
+lib\DirList\!!todo
+lib\DirList\!WhatsNew
+
+lib\Progress\!!todo

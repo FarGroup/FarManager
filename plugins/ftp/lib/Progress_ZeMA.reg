@@ -1,0 +1,36 @@
+REGEDIT4
+
+;
+; Диалог копирования/перемещения для плагина FarFTP от ZeMA
+; Copy/Move progress dialog for FarFTP plugin by ZeMA
+;
+; E-Mail: zema2000@mtu-net.ru
+;    URL: http://spectr.msk.ru/zema/
+;
+
+[-HKEY_CURRENT_USER\Software\Far\Plugins\FTP\CopyDialog\English]
+[-HKEY_CURRENT_USER\Software\Far\Plugins\FTP\CopyDialog\Russian]
+
+[HKEY_CURRENT_USER\Software\Far\Plugins\FTP\CopyDialog\English]
+"Count"=dword:00000009
+"Line01"="%-64SrcPathname%"
+"Line02"=" "
+"Line03"=" Size: %+13CurSize% / %-13CurFSize%  Time: %+8CurTime% / %-8CurRTime%"
+"Line04"="%64Progress%"
+"Line05"="── Percent: %+4IPc% / %-4IFPc% ────────────────────────── CPS: %CurCPS4% %>─%"
+"Line06"="%-64DestPathname%"
+"Line07"=" "
+"Line08"=" Size: %+13TotSize% / %-13TotFSize%  Time: %+8TotTime% / %-8TotRTime%"
+"Line09"="%64FProgress%"
+
+[HKEY_CURRENT_USER\Software\Far\Plugins\FTP\CopyDialog\Russian]
+"Count"=dword:00000009
+"Line01"="%-64SrcPathname%"
+"Line02"=" "
+"Line03"="Размер: %+13CurSize% / %-13CurFSize% Время: %+8CurTime% / %-8CurRTime%"
+"Line04"="%64Progress%"
+"Line05"="── Процент: %+4IPc% / %-4IFPc% ────────────────────────── CPS: %CurCPS4% %>─%"
+"Line06"="%-64DestPathname%"
+"Line07"=" "
+"Line08"="Размер: %+13TotSize% / %-13TotFSize% Время: %+8TotTime% / %-8TotRTime%"
+"Line09"="%64FProgress%"

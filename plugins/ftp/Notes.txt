@@ -1,0 +1,317 @@
+             Notes on the features of the FAR FTP plugin
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+             and its operation with specific FTP servers
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This file contains information of two types:
+  - plugin features
+  - known problems and specifics with some FTP server software
+
+The file is divided into sections for different plugin actions:
+  1. "Speed"
+     Advice on configuring the plugin to achieve maximum/optimum file
+     transfer speed;
+
+  2. "Directory listings"
+     retrieving the list of files in the current directory from the server
+
+  3. "Command line"
+     notes on command line usage
+
+  4. "Copying"
+     features related to copying files
+
+  5. "Moving"
+     features related to moving files
+
+  6. "Deleting"
+     features related to deleting files from the plugin panel
+
+  7. "Various known problems and solutions / FAQ"
+     miscellaneous notes not related to a particular operation; Frequently
+     Asked Questions.
+
+1. Speed
+~~~~~~~~
+  The plugin CAN be configured so that it is at least as fast as other
+  FTP clients working on the same machine with the same server and similar
+  settings.
+
+  Data transmission speed between two machines that can be achieved by
+  different FTP clients depends on the following parameters:
+    - amount of data transferred to the operating system (socket API) in
+      a single batch;
+    - percentage of time that the program spends transferring data and that
+      it leaves to other programs.
+
+  Both of these parameters can be configured in the plugin.
+
+  The default amount of data transferred for new connections is specified in
+  the plugin configuration dialog. It can also be changed for specific servers
+  in the host panel.
+
+  The percentage of time the plugin gives back to the system is by default
+  configured for medium-speed connections (up to 10 Mbits). It may need to
+  be changed only if you have a faster connection (100 Mbits or more).
+  This parameter is configured by a registry setting according to the
+  instructions in TechInfo.reg.
+
+  Some advises:
+    a) Changing the amount of data transferred has the maximum effect on
+       performance. It can be changed in a very wide range - from tens of
+       bytes to tens of megabytes.
+
+    b) Most FTP servers working on Unix-like systems work best with small
+       buffers (on one site, top speed was achieved with a 50-byte buffer).
+       On the other hand, for Windows servers it is usually better to specify
+       large buffer size (transfer from an IIS working on the local machine
+       with a 8 megabyte buffer was only 30% slower than direct file copy).
+
+    c) CAREFULLY read the description of the parameters and remember that
+       the WaitXXX parameters establish a direct dependency between CPU load
+       and transfer speed. The better the speed, the higher is the CPU load,
+       and vice versa.
+
+    d) When configuring the WaitXXX parameters, keep in mind that after
+       finding an optimum speed with the current size of the copy buffer,
+       you may need to tune the copy buffer size again, because the behavior
+       of the socket API in high CPU load conditions can be significantly
+       different.
+
+    e) Remember that you are usually not the only user of the network. If the
+       transfer speed suddenly drops, don't immediately blame the plugin.
+       First, you should make sure that someone else did not start downloading
+       a movie or another big file from the same server and use up the network
+       bandwidth...
+
+
+2. Directory listings
+~~~~~~~~~~~~~~~~~~~~~
+  Different FTP servers generate different listings in response to the
+  same standard command.
+
+  1. Some servers generate directory listings with non-standard separator
+     characters. As a result, the plugin fails to parse the listing correctly.
+     To fix this error, you should change the listing command you use
+     ("LIST -la" instead of "LIST" or vice versa).
+
+  2. Some servers do not understand the parameters of the "LIST" command
+     at all and return only directory names in the listing.
+     One known host with this problem is "ftp.timus.ru".
+     To fix this, change the listing command you use to "LIST" or switch OFF
+     the "Custom LIST command" option.
+
+  3. Some servers return wrong file dates and times or do not returns them
+     at all.
+     Keep in mind that the actual file time and date may not match the time
+     and date returned by the server.
+
+  4. For files created as symbolic links on the server, a small size is shown
+     (several bytes). The value shown is not related to the actual size of the
+     file to which the link points.
+     If you start downloading such files, the progress indicator will
+     immediately reach 100% and show that value until the download is complete.
+
+  5. The plugin DOES NOT understand links.
+     Links to directories will be shown as files.
+     To enter such a directory, type "CD <name of directory>" in the command
+     line.
+
+
+3.1. Command line (common)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+  1. You can invoke the plugin from the command line by using the plugin
+     prefix "ftp". The details of the prefix syntax are given in the plugin
+     help file.
+
+  2. You can set a shortcut to an FTP directory (using the standard keyboard
+     shortcut Ctrl+Shift+<digit>) and use it for quick access to the
+     directory.
+     The plugin saves all connection properties in the shortcut data and
+     uses them to establish the FTP connection.
+
+  3. The plugin understands the "http://" URL prefix but DOES NOT support the
+     HTTP protocol. If you enter a host with the "http" prefix, the plugin
+     will still connect to it as an FTP server.
+
+
+3.2. Command line (FTP)
+~~~~~~~~~~~~~~~~~~~~~~~
+  The plugin can execute FTP commands you enter in command line.
+  1. The plugin DOES NOT translate or change the text you enter in the command
+     line. It sends the command directly to the server and then processes the
+     text reply of the server.
+     For example, you can type "HELP" and see the list and syntax of FTP
+     commands supported by the server. This command is supported by most
+     servers.
+
+  2. When a command is executed, the plugin sends its text to the server and
+     receives a reply. It DOES NOT create a data transfer connection,
+     therefore you cannot execute commands that require data transfer.
+
+  3. The plugin cannot execute passive mode (PASV) transfers by itself, but
+     it is not too hard to execute such transfers using command line
+     commands and two open plugin panels.
+
+4. Copying
+~~~~~~~~~~
+  1. For the reason of security for temporary files, try to NOT copy or move
+     files between two FTP servers by opening two plugin panels at the same
+     time.
+     If you wish to copy files between two FTP servers, first download the
+     files to a temporary directory, and then upload files to target server.
+
+  2. The copy progress dialog may be fully customized (see the plugin Help
+     for details).
+
+5. Moving
+~~~~~~~~~
+  Plugin can perform rename(move) operation inside currently connected server.
+  Plugin perform rename on next conditions:
+    1. Rename - If Move and option "Move inside server" in download dialog is set.
+    2. Rename - If Move and target name does not contains '/' and '\' characters.
+    3. Rename - If Move and target name does not contains '\' characters and ends
+                with '/' character.
+  In ALL OTHER cases plugin interpret destination name as name on local disk!
+
+  Notes:
+  1. Plugin perform Rename operation ONLY if move (F6) action executed.
+
+  2. The plugin can correctly move the current item or selection to:
+    - the parent directory ("..");
+    - the directory specified as an absolute path ("/DestDir");
+    - the directory specified as a relative path    ("../DestDir");
+    - between plugin panels if both are connected to the same server.
+
+  3. The move operation is successful ONLY if:
+    - the move source is a file (not a directory or a symbolic link);
+    - the target directory is accessible and the user has the right to create
+      files in that directory;
+    - the move target directory is located under the same mount point as
+      the directory containing the move source.
+    In other words, a move is possible when it can be performed by the system
+    utility "mv" (on Unix-like systems) or "move" (on Microsoft systems).
+
+  4. Target directories may start with the plugin prefix ("ftp:/DestDir").
+
+  Known problems
+  **************
+  Moving is a server-specific operation.
+  Not all servers understand all the ways to specify paths that you may use.
+  The following servers are known to have problems:
+    - WarFTP
+      Can not move files at all - creates an empty file in the target
+      directory and reports that a system error occured. After a rename or
+      move operation has failed, the server will fail all actions, until
+      you reconnect to the server.
+
+    - BlackMoon FTP server
+      Does not understand relative pathnames for move operations.
+      You may use an absolute pathname to specify the destination.
+
+    - BlackMoon FTP server
+      When a file is moved to the parent directory "..", reports a successful
+      operation, but does not actually create the file at the target location.
+      Thus, the file is lost.
+      The plugin handles direct moves to the parent directory ("..")
+      correctly, but if you specify a relative path containing ".."
+      ("/Tmp/.."), you may lose your files.
+
+6. Delete
+~~~~~~~~~
+  Known problems
+  **************
+    - BlackMoon FTP server
+      a) Sometimes does not delete files without reporting any errors.
+      b) Sometimes does not delete files immediately after performing
+         another operation on the same files, and reports the following
+         error:
+          "The process cannot access the file because it is being used by
+          other process"
+         You can retry the delete operation later, after the plugin
+         releases the files it was using, or keep retrying until the
+         operation succeeds.
+
+
+7. Various known problems and solutions / FAQ
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ BlackMoon FTP server
+    a) Often generates an error:
+         SIZE /HomeAlone3.avi
+         550 Requested action not taken
+       if you try to retry uploading a file after restoring a connection.
+       Looks like the error is caused by the same issue as the "file is
+       being used by other process" error when deleting files.
+
+    b) Looks like the server writes and reads data in a separate, slow
+       thread. As a result, if you upload a file or cancel uploading, you
+       cannot access the file until the server releases it completely.
+       For example, after canceling an upload, you cannot delete the file
+       you just uploaded for the next couple of seconds.
+
+ 1  Q: The plugin cannot be interrupted during "Resolving address"
+    A: The possibility to interrupt this operation correctly has not yet
+       been implemented. Previous versions used an illegal way to interrupt
+       address resolving, and thus it has been removed.
+
+ 2  Q: The plugin does not show the copy progress dialog when copying
+       a directory tree
+    A: The plugin uses the progress dialog to show the process of copying
+       FILES. Thus, if you copy an empty directory tree, there is no
+       progress to display.
+
+ 3  Q: The plugin does not show the copy progress dialog when copying files
+    A: To reduce the usage of slow console output functions, the plugin
+       updates the copy progress dialog no more often than once in a certain
+       time interval. Currently, the interval is set to 0.4 seconds.
+       In other words, the copy progress dialog is drawn no more often than
+       about 3 times per second.
+       Thus, if the time of copying a single file is less than this interval,
+       the dialog for that file can be shown only once, or not shown at all.
+
+ 4  Q: I try to enter a directory with a lot of files (several thousand).
+       The plugin shows that it is entering the directory, then waits for
+       something for a long time and aborts the operation by time-out.
+       FAR takes about 5 seconds to enter that directory. What is the
+       plugin waiting for? After all, I'm on a 100-Mbit LAN!
+    A: First of all, not all FTP servers are optimized for working with a
+       large number of files. If FAR takes 5 seconds to enter a directory,
+       other programs can require 10 times longer to do the same.
+       Second, some FTP servers (for example, WarFTPd) do not transmit the
+       list of files one by one while the directory is being scanned, but
+       rather send the entire list after the scan is complete.
+       If the plugin received some data, the time-out counter would be
+       reset. But the server does not send any data before the directory scan
+       is complete. Thus, all the time the server spends creating the list
+       is seen by the plugin as one long communication interruption.
+       If you are on a fast LAN and have a small timeout, the only way to
+       solve the problem is to increase the timeout so that the server has
+       enough time to generate the file list.
+
+ 5  Q: I can see a directory but I cannot enter it. All the permissions
+       are configured correctly. The FTP server is IIS running under
+       Windows.
+    A: If you are using Cyrillic characters in directory names, I don't
+       know of a solution for this. The plugin transmits the filename
+       in the same encoding as it has received it, and that should be
+       used for transmitting, but the server fails to understand that.
+
+ 6  Q: We have two Sun servers. Why does your plugin download files from
+       a Sun server much slower than a primitive client working on the
+       other Sun?
+    A: Did you also try running the plugin on a Sun, to compare the speed?
+       You should not compare the operation of the TCP/IP stack of different
+       operating systems. Two systems of the same type will always work
+       with each other differently from two systems of different types.
+       Not worse or better, but differently.
+       Parameters like file transfer speed depend on many factors, and you
+       should not compare these parameters under conditions that differ so
+       much and blame the plugin.
+       On the other hand, if you find a Windows FTP client that works
+       significantly faster than the FTP plugin, your bug report would be
+       most welcome.
+
+ 7  Q: How to receive list of unix "hidden" files with names starting with ".",
+       character, for instance ".bash_profile" ?
+    A: To use extended listing command.
+       The common used command for this operation is: "LIST -la"

@@ -1,0 +1,6 @@
+ -v -M -V4.0 -Tpd -aa -L..\..\..\;D:\CB5\lib;;;  +
+ c0d32.obj ..\p_All.obj p_Main.obj, +
+ ..\ftpDirList.fll, ..\ftpDirList.map, +
+ import32.lib cw32.lib, +
+ ..\def.def, +
+ res.res

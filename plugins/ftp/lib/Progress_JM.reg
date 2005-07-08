@@ -1,0 +1,36 @@
+REGEDIT4
+
+[-HKEY_CURRENT_USER\Software\Far\Plugins\FTP\CopyDialog\English]
+[-HKEY_CURRENT_USER\Software\Far\Plugins\FTP\CopyDialog\Russian]
+
+[HKEY_CURRENT_USER\Software\Far\Plugins\FTP\CopyDialog\English]
+"Count"  = dword:C
+"Line01" = "%*ú-61SrcPathname%"
+"Line02" = "%*ú-61DestPathname%"
+
+"Line03" = "ÄCurrent %Cn%(%CurPc%)%>Ä%"
+"Line04" = "   %+14CurSize%  %CurTime%        %+5CurCPS4%     %+5CPS4%"
+"Line05" = "   %+14CurFSize%  %CurRTime%         <%CurETime% %CurEDate%>"
+"Line06" = "%.Pc%-[%57Progress%]-"
+
+"Line07" = "ÄTotal %CnF%/%Cn%/%CnSkip%%>Ä%"
+"Line08" = "   %+14TotSize%  %TotTime%                  %+5TotCPS4%"
+"Line09" = "   %+14TotFSize%  %TotRTime%         <%TotETime% %TotEDate%>"
+"Line10" = "%.FPercent%-[%57FProgress%]-"
+"Line11" = "Ä[%27CurPg%]Ä[%27SkipPg%]Ä"
+
+[HKEY_CURRENT_USER\Software\Far\Plugins\FTP\CopyDialog\Russian]
+"Count"  = dword:C
+"Line01" = "%*ú-61SrcPathname%"
+"Line02" = "%*ú-61DestPathname%"
+
+"Line03" = "Ä’¥ªãé¨© %Cn%(%CurPc%)%>Ä%"
+"Line04" = "   %+14CurSize%  %CurTime%        %+5CurCPS4%    %+5CPS4%"
+"Line05" = "   %+14CurFSize%  %CurRTime%         <%CurETime% %CurEDate%>"
+"Line06" = "%.Pc%-[%57Progress%]-"
+
+"Line07" = "Ä‚á¥£® %CnF%/%Cn%/%CnSkip%%>Ä%"
+"Line08" = "   %+14TotSize%  %TotTime%                  %+5TotCPS4%"
+"Line09" = "   %+14TotFSize%  %TotRTime%         <%TotETime% %TotEDate%>"
+"Line10" = "%.FPercent%-[%57FProgress%]-"
+"Line11" = "Ä[%27CurPg%]Ä[%27SkipPg%]Ä"

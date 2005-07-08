@@ -1,0 +1,32 @@
+REGEDIT4
+
+[-HKEY_CURRENT_USER\Software\Far\Plugins\FTP\CopyDialog\English]
+[-HKEY_CURRENT_USER\Software\Far\Plugins\FTP\CopyDialog\Russian]
+
+[HKEY_CURRENT_USER\Software\Far\Plugins\FTP\CopyDialog\English]
+"Count"  = dword:00000009
+"Line01" = "Transferring the file"
+"Line02" = "%-40SrcPathname%"
+"Line03" = "to"
+"Line04" = "%-40DestPathname%"
+
+"Line05" = "%40Progress%"
+"Line06" = "ДДДДДДДДДДДД Total: %TotFSize% %>Д%"
+"Line07" = "%40FProgress%"
+
+"Line08" = "ДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДД"
+"Line09" = "Time: %+8TotTime% Left: %-8TotRTime% %+7CPS4%b/s"
+
+[HKEY_CURRENT_USER\Software\Far\Plugins\FTP\CopyDialog\Russian]
+"Count" = dword:00000009
+"Line01" = "ЏҐаҐ¤ з  д ©« "
+"Line02" = "%-40SrcPathname%"
+"Line03" = "ў"
+"Line04" = "%-40DestPathname%"
+
+"Line05" = "%40Progress%"
+"Line06" = "ДДДДДДДДДДДД ‚бҐЈ®: %TotFSize% %>Д%"
+"Line07" = "%40FProgress%"
+
+"Line08" = "ДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДДД"
+"Line09" = "‚аҐ¬: %+8TotTime%  Ћбв: %-8TotRTime% %+7CPS4%Ў/б"

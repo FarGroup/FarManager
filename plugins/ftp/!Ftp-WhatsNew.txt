@@ -1,0 +1,1173 @@
+  NOTE: New versions available at:
+     http://www.farmanager.com/updates.html (Official FAR site)
+     ftp://far:far@194.226.246.33           (Unofficial current developer ftp)
+
+FAR 1.70 beta 6
+~~~~~~~~~~~~~~~~~~~~~~
+ [16.06.2005]
+  - add: Added support for unix listings with cut lines (missed last
+         column). See "lst-x-onedig" test listing;
+
+ [02.06.2005]
+  - bug: unix parser wrong in detect previous year with partial
+         date-time listing entries;
+
+ [18.05.2005]
+  - bug: plugin does not upload files from plugin panels if panel items
+         contains full path name (f.i. TmpPanel);
+
+ [17.05.2005]
+  - bug: plugin do not restore screen on reconnect after connection lost;
+
+ [11.05.2005]
+  - bug: "Skip all" button in delete error message does not work;
+  - bug: request PWD from server several times;
+
+ [25.04.2005]
+  - bug: truncate paths on upload;
+  - bug: do not create directories in manual mode;
+  - bug: plugin asserts on heap corruption;
+
+ [25.04.2005]
+  - bug: does not quote urls;
+  - bug: copy to command line and clipboard wrong paths;
+  - bug: plugin traps if operation name (name of internal
+         command plus file or directory name) exceeds internal
+         buffer size (1024 char);
+  - chg: limitations of 261 char in "destination directory name"
+         in "upload\download" dialog and "directory name" in "create
+         directory" dialog are increased to 8000 characters;
+
+ [22.04.2005]
+  - bug: long names truncated on copy to clipboard;
+  - bug: long names truncated on copy to cmd-line;
+  - bug: plugin can not copy and delete files with long pathnames;
+
+ [21.04.2005]
+  - chg: release version compiled with static MS libraries because
+         old version of windows does not have proper msvcrt.dll;
+  - bug: create directory dialog have no history;
+  - bug: resume all do not used on upload;
+  - add: removed limitations to path and file name length (was 261
+         characters);
+
+ [18.04.2005]
+  - bug: plugin traps on several situation in manipulations with
+         files and directories longer then 261 symbol;
+
+ [15.04.2005]
+  - chg: added option "Move inside server" in copy dialog.
+         If user set option plugin perform rename operation
+         regardless of name contents.
+
+ [13.04.2005]
+  - bug: traps on file upload if length of path and filename
+         exceeds 261 character;
+  - bug: file rename on ftp server does not work;
+  - bug: plugin request resume support in ASCII mode, so resume
+         not work if server does not support resume for this mode;
+
+ [06.04.2005]
+  - bug: do not refresh QView panel contents open on another panel;
+
+ [28.01.2005]
+  - bug: In "extended options" plugin configuration dialog last two
+         options are on the same place on screen.
+
+ [01.12.04]
+  - add: plugin show "scanning directory" during delete operation;
+  - add: plugin set cursor position on panel to new file|directory
+         after rename operation;
+  - chg: plugin process Ctrl+\ operation by itself and always send
+         "CWD /" to ftp server.
+
+ [29.11.04]
+  - bug: do not update screen after execute server command from cmd line;
+
+ [21.11.04]
+  - bug: do not continue upload files if connection terminated by timeout;
+  - bug: add unnecessary slash after path in download to local disk;
+
+ [26.10.04]
+  - add: New extended global option: Quote names before clipboard.
+
+ [22.10.04]
+  - bug: Several bug-fixes in futures from 21.10;
+  - add: Host option "Send ALLO";
+  - add: added compiler type text in about string;
+
+ [21.10.04]
+  - bug: does not delete folders contains '\' character;
+  - bug: does not reconnect on lost connection and execute "CD .." operation;
+  - add: added "skip all" button to the file deletion and set attribute
+         operations;
+  - bug: plugin show additional error message with wrong (random) error
+         code then any operation was cancelled inside directory scan process
+         (before copy, delete and so on);
+  - bug: plugin decodes folder name on rename operation;
+  - bug: show directory names in non-OEM character table in "Requesting
+         folder" message;
+
+ [20.10.04]
+  - bug: option "remove FF" does not work properly;
+  - bug: plugin creates directories with wrong slashes on upload nested
+         local directories;
+  - bug: Ctrl+\ (go to root folder) does not work;
+  - bug: un upload|download small files caption redraws on each file
+         done (impossible to determine total process percentage);
+  - bug: plugin uses wrong char table on rename operation (incorrect
+         dest name if non OEM codepage used with server);
+  - add: added possibilities to execute hi-level ftp commands from
+         FAR command line (see connected-state command "CMD");
+
+ [17.10.04]
+  - add: added options "Remove FF duplicate from PWD";
+
+ [30.07.04]
+  - chg: changed buttons positions in Host properties dialog;
+  - bug: in uploading directories with files plugin sends to server file names
+         with local slashes (\) and server creates files <dir>\<file> instead create
+         directory <dir> and and put file <file> into it;
+  - add: option "Upload upper in lowercase" added to copy parameters dialog (used
+         only for current action);
+
+ [12.07.04]
+  - add: added option "Close connection on ..". Plugin will switch
+         to hosts mode after press ".." on highest level only if
+         option is set;
+  - bug: option "Show view/edit progress" not used on show
+         view/edit errors;
+  - bug: if directory name contains '"' symbol it doubles in
+         panel title;
+  - bug: memory lost in work with files queue;
+
+ [09.07.04]
+  - bug: under 9x plugin leave connections after close panel;
+  - chg: remove LINGER socket option;
+  - bug: blink screen while FAR searching files on FTP (Alt+F7);
+  - chg: removed skipping of lead spaces from directory name to make
+         possible enter names contains spaces at start;
+  - chg: removed automatic directory name  unqote to make possible
+         enter names contains quote characters;
+  - bug: plugin does not work with files|directories contains quote
+         character (");
+  - bug: on delete directory contains slash (/) character in the
+         name plugin can start delete of whole FTP site;
+
+ [06.07.04]
+  - chg: Removed skips of leading spaces from unix listing parser;
+  - add: Added button "Extended options" to host parameters for change
+         additional connection|server parameters;
+  - add: in ExtHost dialog added "FF dup" option;
+  - add: in ExtHost dialog added "Decode cmd line commands" option;
+  - bug: text in last string of CmdWindow displays in wrong char-table
+         even if "Decode cmd" turned ON;
+  - chg: all progress drawing uses idle placement option from
+         global plugin configuration; (f.e. silent download progress
+         draws at caption if option set to "Caption");
+  - add: Added button "Extended options" in global plugin cfg;
+  - add: Some options moved from techinfos to extended options dialog;
+  - add: Added idle messages while:
+           - files list receive from server;
+           - enumerating received files;
+           - transferring files to the FAR;
+         to indicate plugin work state;
+  - bug: after try to enter in directory (with access denied result)
+         error message show twice;
+  - bug: It`s hard to rename ftp file if other file plugin (f.i.
+         multiarc) is open on other panel;
+  - bug: plugin lost some memory on every start;
+  - bug: plugin sets incorrect (future) time if year not specified
+         in listing;
+
+ [19.06.04]
+  - chg: changed the way how plugin represents panel title;
+  - add: plugin opens hosts panel on call of "ftp:" command line;
+
+ [07.05.04]
+  - bug: sub-plugin ftpNotify.fll traps on any notification receive;
+
+ [27.11.03]
+  - bug: removed FF character duplicate;
+
+ [24.11.03]
+  - bug: after manually change directory using CWD plugin still use old
+         current directory;
+  - chg: Ctrl+R now reread files listing and reasks current directory from server;
+  - bug: on ftp file or directory rename plugin sends name for rename to using
+         incorrect characters table;
+  - bug: plugin do not duplicate FF character (russian 'я') on output commands;
+  - add: added new sub-plugin type: Notify, which called for every uploaded
+         or downloaded file;
+
+ [24.10.03]
+  - bug: Plugin does not allow to execute command line commands from
+         hosts panel;
+  - bug: Plugin does not unquote strings entered as name of directory;
+         Now plugin:
+           1. removes trailing spaces
+           2. unquote string (only in case FAR version is >= 1.7)
+           3. removes trailing spaces
+  - bug: Plugin does not recognize quoted urls or urls started from spaces
+         entered in host edit dialog;
+         Now plugin:
+           1. removes trailing spaces
+           2. unquote string (only in case FAR version is >= 1.7)
+           3. removes trailing spaces
+  - bug: Plugin fails to upload files from panel of "TEMP panel" plugin with:
+         Error uploading: /incoming/E:/directory/file.ext
+
+ [20.09.03]
+  - chg: Menu items in "Utilities menu" are grayed if item operation impossible;
+
+ [05.08.03]
+  - chg: date/time information moved to Utilities Menu (accessible by pressing
+         Shift+F1 on plugin panel);
+  - add: file "BugReport_rus.txt" changed and now contains all info need to
+         report usefull bug reports;
+
+ [17.06.03]
+  - bug: procedure used to wait server reply to ABOR command corrected.
+  - bug: APPE on upload still does not work. Sorry.
+  - bug: unix parser does not parse listing with C and B files
+         (in /dev directory) because of additional numeric column;
+
+ [16.06.03]
+  - chg: download files using full pathname because some servers (GuildFTPd)
+         does not supports names relative to current directory;
+  - bug: if upload file with zero size plugin yells "can not create" error
+         because reads zero bytes from source file :)
+  - chg: problem: plugin can not resume on upload on servers which does not
+                  support resuming but support APPE;
+           solve: plugin is now at first use APPE, if fail and resuming
+                  supported it use REST and PUT as usual;
+
+ [15.06.03]
+  - chg: Sub plugin developers: !!MK_ID macro changed, so you must use
+         new library to compile plugins.
+
+ [13.06.03]
+  - chg: plugin hosts panel attributes changed. Now all user highlight groups
+         applied to hosts; To set special color on host items use an "*.ftp"
+         file mask;
+
+ [11.06.03]
+  - bug: unix parser dos not know 'l' file attribute;
+
+ [09.06.03]
+  - add: special directory parsing in: "Komut", "PC/TCP";
+
+ [08.06.03]
+  - chg: remove \n, \r characters from end of PWD reply;
+  - add: added new callback to custom parsers which used to parse PWD reply to
+         get name of current directory;
+
+ [06.06.03]
+  - add: new parser type by Oleg Hohloff (PC/TCP v 2.11 ftpsrv.exe);
+
+ [25.05.03]
+  - bug: plugin does not correctly work with files and directories contains
+         symbols like: *, ?, \, /.
+
+ [22.05.03]
+  - add: new techinfo N16 to define characters replacement in name of
+         downloaded files;
+         Plugin uses default values, so you can use this techinfo only
+         if you wish to change replacement sets.
+
+ [21.05.03]
+  - bug: OS/2 parser parses size of files in right to left order;
+
+ [20.05.03]
+   - bug: on download file, if plugin can not send REST command plugin deletes
+          currently downloaded part;
+          Now checks size of part and delete only if it 0;
+
+ [07.05.03p]
+   - bug: unix parser does not parse times before 1970 year;
+   - add: unix parser can parse names with only space characters
+          (Note: there is no way to define how many spaces actually file
+                 contains so plugin allways set such files to the " " name);
+
+ [07.05.03]
+   - bug: bug in MS parser;
+
+ [05.05.03]
+   - add: added parser for VxWorks ftp server;
+
+ [21.04.03]
+  - bug: progress dialog draws all month names if several month strings
+         is set;
+
+ [17.04.03]
+  - bug: SIZE command send before file upload does not translate file
+         name from OEM and upload resume fail;
+
+ [16.04.03]
+  - chg: small reformat in "known*" files;
+  - bug: unix parser fail to parse time in format " X:XX" (not start
+         with 0). Sorry.
+
+ [15.04.03]
+  - bug: unix parser does not recognize listings with ACL permissions;
+
+ [14.04.03]
+   - add: Added techinfo N15 "UseBackups" to disable ftp sites list
+          manipulation;
+   - bug: techinfo parameter "UseBackups" is set to "disable" by default;
+   - bug: unix parser fail with links;
+
+ [12.04.03]
+   - bug: netware parser fail in some cases;
+   - bug: parser fail if system reports unix compatibility but send
+          non unix listing;
+   - bug: unix parser fail with file names looks like "02:15:40"
+   - add: possible to parse listings contains month names on many languages
+          (see changes in "TechInfo*.reg".N3, see TechInfo_rus.reg for
+          full sample);
+   - bug: VMS parser does not work;
+
+ [01.04.03]
+   - bug: plugin draw "no more files" on idle message as error while
+          scaning directories;
+   - add: russian and english help files translated and corrected;
+
+ [28.03.03]
+   - bug: plugin does not enter to hosts folders in russian language;
+   - bug: plugin wrongly switch to unix parser on DIR listings;
+
+ [21.03.03]
+   - bug: download to UNC shares not work;
+   - add: added basic support for Netware file listings;
+
+ [15.03.03]
+   - bug: files list saved without host name;
+   - add: clear queue;
+   - add: add panels selection to queue (menu on queue insertion);
+   - bug: plugin removes locel source if upload cancelled;
+
+ [14.03.03]
+   - bug: does not parse simple (LIST without parameters) unix listings
+          because of no "number of links" column.
+
+   - add: some servers do not return information on (LIST <filename>), so
+          plugin does not ask overwrite on this servers.
+          Now, if plugin can not find file using LIST command it try to
+          use SIZE and, if success, show overwrite dialog (but only size
+          valid where...).
+          NOTE: Some servers returns total bullshit on size command, so
+                you must be ready to receive size for directory and
+                reports of bigger sizes for single files...
+   - chg: some servers does not understand "LIST <params> <file>", so if
+          plugin filed to request using extended command it try to use LIST
+          without parameters.
+
+ [13.03.03]
+   - bug: screen update bugs;
+   - bug: plugin does not change directory if executed full
+          qualified url from command line;
+          (Now actions with full qualified url the same in all plugin modes)
+   - bug: copy|move to devices (NUL) does not work;
+   - add: if command line url contains filename plugin sets cursor on panel
+          to this file;
+   - add: plugin parse url string before show QueueItem dialog in first time,
+          so all fields filled correctly;
+   - add: plugin can download files lays in directories not allow listing;
+   - bug: plugin ask password on anonymous connection if connection lost;
+   - bug: unix parser fixed (for all types of listings i have);
+   - add: added russian help for all new futures;
+
+ [28.02.03]
+   - chg: Changes and corrections processing queue;
+   - add: release of FARFtp use ExcDump to rollout assertions;
+   - add: assertions stay in release version;
+   - add: if plugin called by prefix and urls is not ends with '/'
+          plugin try to download given file;
+   - add: commands to operate with queue from command line;
+
+ [27.02.03]
+   - bug: error creating data connection with some server;
+   - chg: plugin does not lock log file any more;
+   - bug: sometimes plugin does not truncate log file on init;
+   - add: F6 enabled in viewer opened with plugin log file;
+
+ [26.02.03]
+   - chg: utilities menu changed (number of menu items decreased);
+   - add: possible to change any host parameter without reconnect;
+   - add: possible to connect to different server without return to host mode
+          (change host, user name, or password in hosts connection parameters)
+   - add: possible to switch to hosts mode without reopen plugin using
+          utilities menu;
+   - bug: possible memory overrun in log functions;
+   - bug: some minor bugs fixed with files upload;
+   - bug: queue downloading sometimes not work with download files from server
+          other than currently connected;
+   - bug: queue processing: draw files from wrong ftp directory on return from
+          other server;
+   - bug: sometimes plugin does not allow to terminate connection until
+          timeout finish;
+   - add: plugin set CreationTime and AccessTime to same value as ModificationTime
+          so sorting by this dates works correctly;
+   - bug: plugin does not split unix listings with short date format ("F 10:12");
+   - add: plugin can execute special command line commands.
+          To see commands description type in FAR command line "ftp:HELP".
+
+ [25.02.03]
+   - add: queue processing options dialog instead of Yes\No warning;
+
+FAR 1.70 beta 5
+~~~~~~~~~~~~~~~~~~~~~~
+ [24.02.03]
+   - bug: "Add to site" starts work from second added ftp site;
+   - bug: total remain time sometimes may have negative values;
+   - add: download\upload queue;
+
+ [11.02.03]
+   - add: possibility to save selected files to file list if different formats
+          from "select file menu" using F2 key.
+
+ [09.02.03]
+   - add: plugin allow to create, change and delete directories with OS-specific
+          names like "com1" and "lpt2" and directories contains trailing spaces.
+          To do so plugin try to execute next operation until success:
+            - with given name;
+            - with given name appended with slash character;
+            - with full pathname;
+            - with full pathname appended with slash character;
+          Note:
+            1. not all servers support directories contains trailing spaces;
+            2. some servers ignores trailing spaces;
+
+ [07.02.03]
+   - bug: plugin send to sever MKD parameters with '\' character
+          instead of '/'.
+          Some servers can create directory with '\' in name.
+   - add: plugin process change directory request by itself, so if current
+          panel element is link plugin try to change directory to
+          link contents and pass default execution to FAR only if directory
+          change failed.
+
+ [23.01.03]
+   - bug: DirList plugin does not split date "1.1.1970" correctly.
+          Now set such dates to current time;
+   - bug: Russian language files contains wrong text lines at the
+          end of file;
+   - add: plugin draws error (if any) at the second line of
+          idle message if it drawn of console screen;
+   - chg: encoding using of code tables totally rewritten;
+
+ [20.01.03]
+   - add: plugin set "link" attribute for links, so you can use FAR
+          "Files highlighting" to specify special color for ftp links;
+   - bug: plugin does not correctly set columns titles if you change
+          default panel modes in LNG files;
+   - add: added additional string to LNG file - FullScreen mode switch;
+          So description for column mode contains three strings:
+            "N,C1" - columns. Any FAR columns plus C0, C1;
+            "0,0"  - widths;
+            "0"    - full screen indicator. Plugin set mode to full screen if
+                     string contains nonzero value;
+   - bug: message with number of bytes and files hidden by "Scanning folder"
+          message on scan directories before copy files;
+   - bug: plugin does not allow to terminate data-connection operations of
+          data not transferred (link lost or big transfer timeout);
+   - chg: old format message changed and asked on save host data;
+   - bug: plugin set "server type" to unix instead of autodetect by default;
+   - chg: a lot of corrections in English help and lng files;
+
+ [14.01.03]
+   - bug: in upload dialog plugin draws "download files..." text;
+
+ [11.01.03]
+   - bug: if enter to directory with decoded name (with Russian name)
+          plugin does not set cursor to it on return and draws wrong coded
+          name on panel title;
+
+ [10.01.03]
+   - bug: download to network shares (\\server\dir) not work;
+
+ [05.01.03]
+   - bug: unix parser does not splits sizes correctly (size is always 0);
+
+ [03.01.03]
+   - bug: plugin does not parse "Dec 26 2002 CD" (non formatted unix date)
+          correctly;
+   - add: command "DIRFILE" moved to both release and debug versions;
+          (See "dirlist_rus.txt" for details)
+   - chg: some changes in help files (corrections and text fixes);
+
+ [25.12.02]
+   - bug: plugin does not save digital separator and use locale default
+          after restart;
+   - bug: plugin traps processing command line looks like:
+            ftp://host
+   - bug: plugin help describes not exactly the same dialogs plugin use;
+
+ [21.12.02]
+   - bug: directory creation using relative directories (if creation using
+          full path fail) not work;
+
+ [17.12.02]
+   - bug: plugin leave locked file if it can create local file but failed to
+          download it from server;
+
+ [16.12.02] Full Release repack
+
+ [10.12.02]
+   - bug: sometimes plugin try to reget file even site not support resuming;
+   - bug: plugin does not process correctly replays on ABOR on several servers;
+
+ [09.12.02]pp
+   - bug: if resume not supported plugin allow to resume in AskOverwrite
+          dialog;
+   - bug: plugin retry operation if local error happen. Now show error
+          message.
+
+ [09.12.02]p
+   - bug: при создании на панели FTP папки с точкой в имени (например,
+          vas.ya) плагин папку создаёт, но показывает диалог с
+          предложением сконвертировать в новый формат.
+          После нажатия на кнопку Convert, диалог появляется снова.
+          После нажатия на кнопку Skip, диалог пропадает, но появляется
+          снова при обновлении каталога с этой папкой.
+   - bug: можно создавать папки '.' и '..'
+   - bug: при смене языка интерфейса без перезагрузки FAR, надписи на
+          кнопках диалога конвертации принимают самые разнообразные
+          значения (херятся).
+
+ [09.12.02]
+   - bug: if you lost connection to backup site, reconnect but cancel in user
+          name dialog plugin fall into strange, inaccessible state (instead
+          switch to hosts mode);
+
+ [07.12.02]
+   - bug: plugin hungs when include or exclude pattern contains more then
+          one file mask;
+   - add: new techinfo N14 for set default value in "Process command line"
+          host parameter for new hosts;
+   - bug: on return to background site plugin does not restore column mode;
+   - add: plugin refresh panels if configuration changed;
+
+ [06.12.02]
+   - chg: Multiply connections future moved to Utilities menu; techinfo removed;
+   - add: Updated help for utilities menu;
+   - bug: Plugin fall to uninterruptable state if server not respond during
+          file operations;
+
+ [05.12.02]
+   - add: new EXPERIMENTAL management for multiply connection.
+          See techinfo N14 for description.
+
+ [04.12.02]
+   - bug: от старых времен осталась линковка с noeh32.lib. Мне некогда
+          разбираться почему, но с этой библиотекой GetTLS валит хип процесса.
+   - bug: плагин пытался докачать файл даже если сервер не поддерживает
+          докачку. Теперь он пишет в CMD Window сообщение и начинает сначала.
+   - bug: "Глубока и широка река из д..а и высоки ее берега..." (с)
+          О чем это я?... А, о том, что велико и тоскливо разнообразие серверов
+          и их реакций на одни и те же команды.
+          Короче: на некоторых серверах плагин неправильно обрабатывал ответы
+          на прерывание передачи файла.
+
+ [03.12.02]p
+   - bug: nondebug plugin version sometimes failed to parse normal unix
+          directory listings (it was my error);
+
+ [03.12.02] Release
+   - bug: plugin show parser errors on every uploaded file not exist on
+          remote server;
+   - bug: Unix parser does not recognize "N" files;
+   - add: If symlink ends with '/' unix parser marks it as directory;
+
+ [30.11.02]
+   - bug: plugin does not restore files panel mode on exit from hosts panel;
+          Symptoms:
+            Alt+F1 2 Ctrl+PgUp <wrong panel mode>
+   - bug: if connection terminated by timeout during file uploading but file was
+          not created, after restore connection plugin failed to upload because
+          of SIZE command fail;
+   - bug: plugin redraw progress dialog each time single file transfer ends
+          (CMD window "blink"s on many small files);
+   - bug: plugin terminate whole connection if upload or download terminated
+          by user (or ignore user cancel);
+          Symptoms:
+            During transfer several files, cancel transfer - plugin switch to
+            hosts mode or continue operation;
+   - bug: plugin does not wait until server confirm ABORT command.
+          Symptoms:
+            During transfer several files, cancel transfer - plugin can not
+            read server directory listing (server panel empty);
+   - bug: command window stay blocked after transfer operation complete;
+          Symptoms:
+            After upload|download operation DeleteFiles draws progress on
+            screen instead of CMD window;
+   - add: CreateDirectory try to create directory by full path, if fail try
+          to use relative path;
+   - add: DeleteFiles and ScanFolders operations automatically switch CMD window
+          to small form (FAR-like);
+   - bug: Plugin does not refresh panels after rename\move operations;
+          Symptoms:
+            Shift+F6 <new name> <OK> - Old file name in panel.
+
+ [29.11.02]
+   - chg: All parsers moved to plugin.
+   - add: Because of many plugin versions plugin will add compilation date and
+          time into: disk string, plugins string, config string and into
+          log file;
+   - bug: OS/2 parser does not fill attributes correctly;
+   - bug: plugin send commands wrong.
+          Symptoms:
+            ->PORT X,X,X,X,6,151
+            <-403 Improperly formatted PORT command
+          on some strange firewalls and|or NATs.
+
+ [27.11.02]
+   - add: new parser type "Comutate" on ask of "Valentin Skirdin"
+   - chg: plugin now ignores zeroes if it exist in received directory
+          listing;
+   - bug: plugin does not parse unix listings in some cases (if string
+          to parse has been changed by detector);
+
+ [26.11.02]
+   - add: new host option "server type" to specify type of server
+          you connect (button "Server type");
+          Option used to determine method to parse directory
+          listings;
+   - add: new Utils menu items:
+            - "Change characters table..." to change currently used
+              character table;
+            - "Change server type..." to change currently used
+              server type;
+   - bug: try to fix all reported bugs from last releases;
+
+ [25.11.02] v.1.6
+   - add: Directory listing parser moved to plugin;
+          Additionally to standard parser ported parser from
+          Mozilla (c) ftp network system;
+   - bug: some little bugs fixed;
+   - chg: plugins may be compiled without usage of FTP_Info
+          functions (define "__USE_STD_FUNCIONS__" macro);
+   - add: new plugin column "C1" with link contents (if available);
+          New column used in panel mode 0;
+   - add: Column modes can be customized through LNG files (starting at
+          third string) and set by default to:
+            9 - "N,S,C0" (Name, Size, Rights) with sizes "0,0,10"
+            0 - "N,C1" (Name, Link ) with sizes ("0,0")
+   - bug: plugin do not parse DOS listings correctly;
+
+ [22.11.02]
+   - bug: если нажать F5 и долго ничего не делать а потом отменить
+          копирование, то плагин издает звук прекращения операции,
+          хотя никакой операции не производилось;
+
+ [21.11.02] rc1
+   - bug: плагин падает при выходе из ФАРа, если ФАР его загрузил,
+          но не вызвал ни одной плагиновой функции (после очистки
+          кеша, к примеру);
+   - bug: плагин неправильно обрабатывает некоторые ошибки сокетов
+          при закачке файлов в результате, иногда, пытался закрывать
+          соединение когда это не надо и не закрывал, когда это
+          было нужно;
+   - bug: плагин неправильно производит прерывание передачи данных
+          при некоторых ошибках (наследие) от чего наблюдаются
+          различные хаос эффекты. В частности ошибки предыдущего
+          пункта могло и не быть...
+
+ [12.11.02]
+   - bug: нет ".." в панели фтп, если сервер эти точки не
+          возвращает в листинге;
+   - bug: в попытках починить ошибки 42х ряда отпало соединение в
+          ситуации:
+            |->USER ххх
+            |<-331 Password required for ххх.
+            |->PASS *hidden*
+            |<-230 User ххх logged in.
+            |->REST 0
+            |<-502 REST command not implemented.
+          плагин считал что соединиться не удалось.
+
+ [11.11.02]
+   - bug: В ситуации:
+            Connect, Timeout -> Retry -> Connect, Timeout -> ESC
+          плагин часто падал.
+          Я не гарантирую то, что он не будет падать сейчас, но
+          что-то я починил...
+   - bug: в поле "IO Buff size" отрезается последняя цифра, если
+          не заданы "K" или "M" модификаторы.
+   - bug: плагин не узнает ошибку 421 (Too many users) и пытается
+          молча прочитать содержимое каталога.
+   - add: Авто конвертация хостов старого формата в новый имени
+          "Alexander Lishansky".
+   - chg: Суб-плагины имеют расширение FLL.
+   - chg: Значение "IO Buff size" по умолчанию установлено в 800К.
+
+ [08.11.02]
+   - del: Быстрый поиск на панели хостов работать не будет.
+          Для того, чтобы работало копирование хостов с одной панели
+          на другую ФАР требует, чтобы имя файла, которое ему сообщают,
+          совпадало с тем, которое получается в каталоге после
+          копирования.
+          В результате: либо работает поиск, либо можно создавать разные
+          файлы для одинаковых хостов. Второе мне кажется важнее.
+          Если кому надо - могу сделать течинфу.
+   - bug: Отпал выход из плагина по ".."
+   - bug: При редактировании каталога на панели хостов заголовок "Create
+          the folder", теперь "Change the folder".
+   - bug: Не сохраняется измененный цвет "Сообщения" и "Ожидания"
+   - bug: При отключенной опции "Log directory contents" с версии
+          [04.11.02] не работает перекодировка имен файлов.
+   - bug: Плагин ругается на неправильную версию при копировании
+          хоста из каталога на диске.
+   - add: Если имя пользователя задано, а пароль нет, по плагин
+          спрашивает пароль при соединении как если бы было
+          установлено "Ask password every time"
+
+ [07.11.02] Plugin changes a little so it a version 1.5 from now
+   -  !!: plugin is in beta testing mode:
+            - compiled using VC 6.0 with dynamic RTL turned ON;
+            - compiled as debug version to create more detailed
+              log files;
+   - add: plugin uses ExcDump library to log assertion messages;
+          Please go to:
+            http://194.226.246.49/Users/JouriM/html/ExcDump.html
+          and get last library if you want to give me reports.
+   - add: sub-plugin support:
+            - "copy progress dialog" code moved to sub-plugin;
+            - sub-plugins API fully functional but not documented yet;
+              Documentation will be created after any API users appear;
+   - add: plugin give host names to FAR, so you can use Alt+<char>
+          navigation on host panel;
+   - bug: plugin do not read hosts in old format correctly;
+            - fixed;
+            - added message to notify if such hosts found;
+
+ [06.11.02]
+   - bug: plugin does not use LastHostsMode if PluginColumnMode set to -1;
+   - bug: plugin traps in drawing progress information;
+   - bug: plugin silently converts host directory to host entry on move
+          operation;
+   - add: debug version of plugin uses ExcDump library to process assertions;
+
+ [04.11.02]
+   - bug: plugin traps on move operations;
+   - bug: plugin forget last hosts path used;
+   - bug: new correction for double `\` in registry keys.
+   - bug: new correction for generate wrong key names on copy hosts to panel
+          (starting or trailing slashes not understood by Win9x);
+   - add: Ctrl+Z on hosts panel opens host editor and set focus to description;
+   - bug: positioning to newly created host|directory does not work;
+
+ [03.11.02]
+   - bug: Ctrl+\ do not work
+   - bug: при копировании хоста на диск плагин создает в реестре ключ с именем,
+          равным пути куда копируют
+   - bug: неправильно передаются пустые пароли при копировании хоста с диска
+   - bug: пытается создавать в реестре ключи с именами вида
+            Software\Far\Plugins\FTP\Hosts\\Item0\
+          что приводит к созданию не читающихся в последующем ключей.
+   - bug: не убирает конечные пробелы при обработке командной строки
+   - bug: теперь имена папок на панели хостов сбрасывает в командную
+          строку без префикса "ftp://"
+   - add: если из соединения вышли по "..", то плагин позиционирует
+          курсор на панели хостов на тот сайт из которого вышли
+   - bug: теперь, при _возвращении_ в режим хостов, плагин всегда ставит курсор
+          на тот хост откуда вышли и возвращает правильный номер режима колонок
+
+ [13.09.02]
+   - add: you can use 'M' and 'K' chars to specify size multiplier in
+          buffer size IO
+   - add: new Utils menu "Process CMD line" to switch process cmd line
+          commands by plugin or by FAR.
+          This is not configurable option, but you can edit a "ftp" host file to
+          set this value named "ProcessCmd"
+   - add: on AskOverwrite dialog cursor keys navigates up and down on dialog
+          buttons
+   - bug: plugin do not quotes urls contains spaces
+   - add: new TechInfo N12 named "DoNotExpandErrors":
+            If this value set to TRUE (nonzero) plugin will not show error in
+            expanded CMD window.
+
+ [03.09.02]
+   - bug: отломал выполнение команд на фтп из командной строки
+   - bug: мерзкая бага при закачке:
+          льем два файла "1" и "2". Первый на фтп есть. Плагин спрашивает
+          про первый "перезаписать...". Если отвечаем "resume all", то
+          плагин начинает лить ВТОРОЙ с того места, где закончил заливать
+          ПЕРВЫЙ.
+          Т.е. если первый файл содержит "12", а второй "1234", то во втором
+          получим "0034". Всем сорри... :(
+   - add: "IPc" and "IFPc" to progress copy dialog;
+   - add: new copy progress dialog by ZeMA (CopyDlg_ZeMA.reg)
+
+ [26.08.02]
+   - bug: some IDLE messages drawn inspite of ShowIdle turned OFF;
+   - add: CPS4,CurCPS4,TotCPS4 to progress copy dialog;
+
+ [31.07.02]
+   - add: if "CD .." do not change directory on FTP plugin closes connection
+          and switches to hosts mode
+   - bug: Alt+F6 displays wrong host data
+   - bug: do not import hosts files from old plugin version
+   - add: FileMenu: ins moves down
+   - add: overwrite dialog has a message color (on FAR v >1.74)
+   - add: copy dialog and file list help
+
+ [31.07.02]
+   - chg: copy dialog changed;
+   - add: new functions in copy files:
+          select files from list of scanned files; set default overwrite action;
+          include and exclude copy patterns;
+   - chg: "overwrite" message converted to far-like dialog;
+
+ [29.07.02]
+   - add: fully automated auto-retry operation;
+          Using TechInfo N11 you can set the delay, in seconds, of operation
+          auto-retry or can disable it;
+   - add: plugin draws current action and errors in console caption;
+   - bug: every time, on resume after download error, adds already copied size
+          of file to total copied value;
+   - bug: inserts default login and password into URL on url creation
+          procedure. (Used on copy URL to clipboard and drop pathname to
+          command line);
+   - add: while receive directory contents draws number of bytes received
+          (with quite color);
+   - add: draws total size of files in directory while create a list of
+          files to be copied;
+
+ [02.07.02]
+   - bug: draw bug if drawing message size changes
+   - add: new techinfo: PwdSecurity
+   - bug: plugin traps on host entry delete
+   - add: new techinfo: WaitCounter
+   - chg: algorithm of free system slices changed, so you can reach a maximum
+          transfer speed at your network (100% CPU) or set plugin transfer
+          to do not use CPU (slow transfer).
+          See WaitCounter for description.
+          (This very useful only on local 100Mb+ networks)
+
+ [08.06.02]
+   - add: copy dialog changed. May be fully customized. See help for details.
+   - add: hosts mode: Ctrl+F inserts url and Ctrl+Enter host name into
+          command line
+   - bug: host name not fully visible in hosts mode
+   - bug: not understand urls with user name with '@'
+   - add: Utils menu in connected state.
+          Switches on the fly:
+           - extended list command
+           - ext CMD window
+           - passive mode, ASCII mode
+          Actions:
+           - Show directory listing
+           - Show CMD log
+           - Show log file
+   - add: new configuration dialog
+   - bug: copy dialog disappear if Ctrl+Break pressed
+   - add: writes version number into "ftp" files
+
+ [22.05.02]
+   - bug: screen shake while FAR Find File operation on FTP panel
+   - bug: do not copy between two hosts panel; delete exported host after
+          overwrite confirm
+   - bug: do not show error message if directory creation fail
+
+ [20.05.02]
+   - add: additional fields in configuration dialog.
+          Help for dialog will be updated later.
+
+ [24.04.02]
+   - add: set of changes:
+            1. size of IO buffer can be set for each site
+               separately
+            2. expanded CMD window can be turned OFF
+            3. Settings of CMD window can be configured for each
+               site in site edit dialog.
+   - add: new fields in "edit host" dialog:
+           - "Ext CMD window" check box which allow turn off new
+             expanded command window style.
+             The default value for this field gets from
+             techinfo N27.
+           - "Buffer size" edit which allow set different size of
+             IO buffer for every site.
+
+ [23.04.02]
+   - bug: plugin uses '\' instead '/' then delete files after move
+          operation
+   - add: if login fail plugin re ask name and password from user.
+          See techinfo N26 for disable this.
+   - bug: wrong error messages then errors occured in local disk IO.
+   - bug: possible assertion message then cancel restoring connection
+          while plugin receive list of files in current directory.
+   - chg: plugin now process F5, F6, Shift+F5, Shift+F6 keys itself.
+          - no more annoying additional dialogs.
+          - you enter real FTP paths.
+          - you can move files from one plugin panel to another in case
+            the both panels on the same FTP site.
+            !Warning: not all FTP server software correctly execute
+                      move operation. F.e. WarFTP does not move files but
+                      create a zero-length files with the same name on
+                      target directory.
+                      This is the server error, not plugin.
+          - rename of file work correctly.
+   - chg: once more try to increase upload speed.
+          Still need to check !!
+   - chg: plugin writes debug log inside CMD log, so you need to enable
+          log file (TechInfo N8 and N9) to create valid log to report
+          me an errors.
+
+ [19.04.02]
+   - bug: wrong filenames encoding then autodetect table selected in host
+          options.
+   - bug: wrong message then files IO errors occurred during up|download
+          operations (f.e. disk full).
+   - chg: plugin processed CD command itself.
+          So you can correctly change FTP directory using CD command-line
+          command to directories looking like MS-DOS paths (f.e. "C:").
+   - add: plugin send to server any command given from command line.
+          F.e. you can type "help" then plugin connected to server and
+          can see commands supported by server.
+          !! Warning: you can not successfully execute command need data
+          connections (such as "LIST").
+   - add: plugin remember last used hosts path and start there next time
+          hosts panel shown.
+   - bug: some "specific" old-style hosts files not understood by plugin
+          and will be invisible on hosts panel.
+   - chg: action "PluginColumnMode" techinfo rule changed to next logic:
+            1. plugin remember last used hosts panel mode.
+            2. then hosts panel open plugin looking for "PluginColumnMode"
+               value.
+            3. If value found and it inside bounds [0..9] plugin use it
+               as panel mode.
+            4. If value not found, or set outside possible mode bounds
+               plugin sets last used panel mode.
+   - bug: plugin exports hosts entries with plain password.
+          Now export crypted.
+          !! Warning: If you import "*.ftp" files created with old version
+          of plugin you lost password.
+          To solve this problem - do not delete old entries before update to
+          new version. Leave it as is.
+          Plugin correctly read it from registry.
+          After this re-export it if you need.
+
+ [28.03.02]
+   - bug: copy files instead rename if plugin opened on both panels
+   - bug: file rename fail silently
+   - bug: file rename sometimes not work
+   - bug: then switching to FTP plugin do not set panel mode was before plugin
+          start (use hosts panel mode instead)
+   - bug: try to fix termination on uploading
+          (I still CAN NOT repeat this bug. Help me!)
+   - fix: annoying "════" line removed
+   - bug: assertion message then plugin activated on both panels
+   - add: on silent operation (such as auto reconnect or keep alive) a notify
+          message shown in left-top corner of screen
+   - fix: many small changes
+
+ [27.03.02]
+   - add: continue copy and directory change operations after connection
+          restore after lost
+   - bug: do not set cursor to directory after exit from it
+   - bug: in some situations do not restore last directory after connection
+          lost and then restored
+   - fix: auto-resume mechanism changed. Must work more correctly
+   - add: new TechInfo N25 to customize all use FTP command.
+          See techinfo file for details and use "FtpCmds.reg" as sample mo
+          create your own commands sets.
+   - add: new techinfo N26 "ServerDateFormat" to set custom date-time format
+          for nonstandard FTP servers.
+
+ [26.03.02]
+   - bug: drops connection on upload
+   - bug: do not restore current FTP directory and file then connection
+          lost and restored after select "restore"
+   - add: techinfo N21: keep alive.
+          Send PWD every set period of time to prevent connection close by
+          server.
+          ! Because of FAR API limitation works only then plugin panel visible
+   - bug: Plugin show CMD window in such silent operation as F3/F4
+   - add: techinfo N22: customizable month names for use with localized FTP
+          server software
+   - bug: try to balance upload|download speed. upload speed must be the same
+          as download
+   - bug: regular forget selected plugin panel mode chose for hosts panel
+   - bug: plugin traps instead correct display assertion message
+
+FAR 1.70 beta 4
+~~~~~~~~~~~~~~~~~~~~~~
+ [04.03.02]
+   - bug: do not delete hosts directories with ".@^" symbols
+   * directory name field disabled on directory edit
+
+ [23.02.02]
+   - bug: sometimes continue to connect then connection terminated by user
+          after connection established, but before login start
+   - bug: display CMD window on find operation
+   - bug: [Alan Sargent]
+          do not connected if "services" file does not exist in "system"
+          directory
+   - bug: [Vadim Yegorov]
+          Do not download last files after first "skip" in overwrite
+          confirm dialog
+
+ [22.01.02]
+   - show correct error message then can not initialize socket library
+   - bug: copy dialog grows up by one symbol then CPS overflow 1Mb
+   - bug: wrong draw then copy dialog size change
+
+ [18.01.02]
+   - bug: plugin traps then download file by link
+   - save all settings (techinfo too) then confirm configuration changes
+   - save last used plugin panel mode and restore it on next panel activation
+
+ [05.01.02p]
+   - Show Idle on caption and on console depends of techinfo[19] setting
+
+ [05.01.02]
+   - Show Idle information on console caption (IdleColor is now absolete)
+   - bug: on console with size 80x25 or less, copy dialog wraps at end and
+          last two digits of progressing was not visible
+      (Now minimum size of copy dialog is about 75)
+   - CPS digit compressed to Kbytes and Mbytes
+   - added gauge progressing to copy dialog (can be OFF using `DrawProgress`
+     techinfo[18] )
+
+ [01.01.02]
+   - 3-rd column mode (old style) corrected
+
+ [29.12.01p]
+   - bug: wrong draw sizes above 5G in VC version of plugin
+   + old column mode is set to number 3
+   + new techinfo[13] for setting default hosts panel mode
+   - bug: panel modes do not not switch correctly between ftp/hosts modes
+   - bugs: some features in [29.12.01] version do not work
+
+ [29.12.01]
+   - added timestamp string to FTP log
+   - bug: "GPF on access address 0xFFFFFFFF" in some configuration dialogues
+   - bug: "copy host" operation from one plugin panel to another does not work
+   - bug: shortcut that was set to host panel, does not work
+   - bug: plugin traps on some situations (restore connection after
+          connection dropped by server because of timeout)
+   - 1. added current path in plugin (showed in copy/move FAR dialog when
+        plugin panel is destination)
+     2. ShowUploadDialog option OFF by default (because of p.1)
+   - bug: plugin continues to restore connection, if connect was terminated by
+          user before first login
+   - bug: sometimes plugin closes, if connection was terminated by user before
+          login
+   - add: VersionInfo will contain a build date and developer contact address
+
+ [14.12.01]
+   - bug: do not delete FTP directories with contents, if server does not
+          support DELETE in subdirectories
+   - bug: default password always set to 'Default &password' string
+   - bug: limit current directory path length to size of CMD window
+   * version info changed: FileVersion is set to plugin version,
+     ProductVersion is set to base FAR version,
+
+ [29.11.01]
+   - bug: memory overrun in URL create function
+   - bug: "Selecting one folder and one record. F8...But the folder is not
+          deleted"
+   - remove buggy FAR API functions GetDirList and GetPluginDirList, so:
+       1. no annoying "Scanning..." message, when calculate directory sizes
+          for up/download
+       2. copy to/from hosts panel now can operate with subdirectories
+       *. Scanning status is now shown at the bottom of CMD window
+       *. Message, which is drawn when you press F3 on directory, I can not
+          fix
+   - bug: total count gives wrong calculation on big numbers (more than 6Gb)
+   - copy indicator changed: auto calculate size to fit digits up to 2^64 bytes
+
+ [27.11.01]
+   - bug: connect from host edit dialog does not refresh plugin panel
+   - added ".." in hosts panel
+   - digit delimiter set to user locale value by default (no value in registry
+     or 0)
+   ! bug: try to delete base plugin registry key if no one of
+     host/directory/option exist
+   - bug: if column titles are wrong, then not all columns are shown
+   - sorting hosts by: host, user, description
+     (e.g., if host name is equal, then compare user name, etc.)
+   - draw a "Working..." string on "idle" position when data is being
+     transferred (for indication that prev idle done)
+
+ [27.11.01]
+   - digit delimiter can be set to 0 to use current user locale delimiter
+     ! Seems not working on my machine (returns delimiter with code A0h).
+   - host save mechanism totally changed:
+      - no more annoying situation, when entering host with the same title
+        silently overwrites the one that has already been set.
+      - no more stupid rule "one host with the same title"
+      - all existing hosts will be automatically converted to new store format
+        when you confirm to change it
+      - beautified and corrected host entries export mechanism
+      - ! FAR has a bug in one of API function, so export of directories with
+        contents is temporary unavailable
+      - ! exporting directory with description from plugin panel looses the
+        description
+   - two new panel columns for default panel mode: home path, user name
+   - new field in host edit dialog: user name (has higher priority than user
+     name entered in host title)
+   - description can be associated with plugin directory (new dialog in
+     directory creation dialog and possibility to edit description by pressing
+     F4)
+   - shortcut, cmd line, history processing fully corrected
+   - procedure of generation filename is corrected (names dropped by Ctrl+F to
+     command line and put to clipboard now contain FULL state of FTP name
+     including user name and password, if any)
+   - host edit dialog mechanism is changed: name and password has an additional
+     edit lines in dialog. These lines have a higher priority than data entered
+     directly in FTP title.
+     After you enter an FTP title, if additional fields have no data, they
+     will be automatically filled with data from host title.
+     After this you can safely remove password and/or username from host title,
+     because it is already filled in additional fields.
+     ! Warning: because additional fields have higher priority than host title
+     data, to change user name and/or password entered in host title you must
+     change host title data, clear additional fields, confirm dialog changes.
+
+ [26.11.01]
+   - bug: delete files even if "item delete" dialog is cancelled
+   - bug: do not restore screen under CMD log in some situations (final??)
+     ! The message "Scanning for <dir>" - is a FAR message. I can not remove
+     it from plugin.
+   - bug: wrong symbols encoding in Win code table
+   - techinfo[16] to write received data to CMD log (MUST be used when report
+     errors)
+   - bug: data lost when host name is left empty in host edit dialog
+   - new edit field "User"
+
+ [23.11.01]
+   - bug: "resume all" not work
+   - new techinfo-s: 12-15 (see "!TechInfo")
+     {auto retry, show idle state}
+   - text of password removed from screen/log.
+     Replaced by asterisk in title and by "*hidden*" string in log.
+   - sometimes incorrect CMD window draw - try to fix
+
+ [26.10.01]
+   - bug: resume file with equal (or zero) size
+   - new techinfo[10]: IOBuffSize
+   - "resume all" button
+   - bug: "password not remembered"
+   - working in passive mode is corrected
+   - resume button exists only if resume is supported by host
+   - new info string - resume possibility
+   - MessageBeep on long operation (techinfo[11])
+
+ [24.10.01]
+   - bug: do not download if prev download was terminated by user
+   - bug: wrong message decoding in Russian language
+
+ [19.10.01]
+   - bug: do not drop connection if up/download was cancelled by user
+   - any operation can be interrupted by ESC in any time
+   - bug: bug with "Advanced Compare" fixed
+   - extended messages with FTP commands used
+   - some extended config options (configured through registry)
+   - size of total indicator expanded to fit up to 99Tb
+   - bug: copy FTP name to clipboard
+   - Ctrl+Break termination removed (should use ESC instead)
+   - bug: can not login to some FTP sites (e.g., with Russian "hello")
+   - some of new text messages removed from plugin and placed to lng files
+   - a lot of features (see "!TechInfo" for details)

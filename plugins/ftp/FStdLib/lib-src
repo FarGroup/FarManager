@@ -1,0 +1,11 @@
+FARStdlib\*.h
+FARStdlib\*.cpp
+FARStdlib\*.hpp
+
+*.bcb
+defs.mak
+make_defs.vc6
+*.h
+mem.inc
+bmm_imp.def
+*.txt
