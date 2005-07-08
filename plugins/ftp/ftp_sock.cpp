@@ -3,6 +3,9 @@
 
 #include "ftp_Int.h"
 
+/*
+test
+*/
 void DECLSPEC scClose( SOCKET& sock,int how )
   {  DWORD err = GetLastError();
      int   serr = WSAGetLastError();
