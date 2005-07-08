@@ -1,7 +1,0 @@
-.Language=English,English
-.PluginContents=Text case conversion
-
-@Contents
-$ #Text case conversion#
-    This command allows to change the case of selected text in the
-internal editor.

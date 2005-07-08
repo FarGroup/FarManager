@@ -1,0 +1,10 @@
+LIBRARY        EditCase
+DESCRIPTION    'EditCase Far Plugin'
+IMPORTS
+    memcpy   = CRTDLL.memcpy
+    memset   = CRTDLL.memset
+    strcmp   = CRTDLL.strcmp
+    strlen   = CRTDLL.strlen
+    strcat   = CRTDLL.strcat
+    strcpy   = CRTDLL.strcpy
+    memchr   = CRTDLL.memchr

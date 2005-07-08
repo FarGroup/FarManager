@@ -1,0 +1,28 @@
+1 VERSIONINFO
+ FILEVERSION 1,0,2,16
+ PRODUCTVERSION 1, 70, 6, 0
+ FILEFLAGSMASK 0x3fL
+ FILEFLAGS 0x2L
+ FILEOS 0x4L
+ FILETYPE 0x2L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "000004E4"
+        BEGIN
+            VALUE "CompanyName", "Eugene Roshal & FAR Group\000\000"
+            VALUE "FileDescription", "FAR Commands Plugin for FAR Manager 1.7x.\0"
+            VALUE "FileVersion", "1.0.2.16\0"
+            VALUE "InternalName", "FARCmds\0"
+            VALUE "LegalCopyright", "Copyright © 2000-05 FAR Group\0"
+            VALUE "OriginalFilename", "FARCmds.dll\000"
+            VALUE "ProductName", "FAR manager\000"
+            VALUE "ProductVersion", "1.70 beta 6\000"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0, 0x4e4
+    END
+END

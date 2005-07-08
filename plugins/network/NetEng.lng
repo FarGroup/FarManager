@@ -1,0 +1,57 @@
+.Language=English,English
+
+"Ok"
+"Cancel"
+"Error"
+"Yes"
+
+"Network browser"
+
+"network"
+
+"Map"
+"MapTo"
+"TMap"
+"TMapTo"
+"Unmap"
+"ManCon"
+
+"Please wait"
+"Scanning the network..."
+
+"Cannot browse network"
+"Cannot connect \"%.40s\" to %s"
+"The disk name has a remembered connection"
+
+"If you do not close the open files, data may be lost."
+"Do you want to disconnect the device anyway?"
+"Cannot disconnect from %s"
+
+"No free disk letters available"
+
+"User name"
+"User password"
+
+"Permanent connection to"
+"Temporary connection to"
+"F6 - temporary"
+"F6 - permanent"
+
+"Network"
+"Network name"
+"*:"
+"Comment"
+
+"Network browser"
+"Add to &Disks menu"
+"Add to &Plugins menu"
+"Disks menu &hotkey ('1'-'9'). Leave empty to autoassign"
+"&Show local network"
+"Show h&idden shares"
+
+"Disconnect network drive"
+"Do you want to disconnect from the drive %s?"
+"The drive %s is mapped to"
+"&Reconnect at Logon"
+
+"Disconnect network drive\nThe drive %s is mapped to multiple drive letters\nWhich one do you want to disconnect?\n"

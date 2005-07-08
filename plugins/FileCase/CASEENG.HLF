@@ -1,7 +1,0 @@
-.Language=English,English
-.PluginContents=File names case conversion
-
-@Contents
-$ #File names case conversion#
-    This command allows the case of selected file names to be
-changed to any of several available formats.

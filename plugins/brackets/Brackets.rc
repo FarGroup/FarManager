@@ -1,0 +1,28 @@
+1 VERSIONINFO
+FILEVERSION 1, 0, 0, 3
+PRODUCTVERSION 1, 70, 5, 0
+FILEOS 4
+FILETYPE 2
+{
+ BLOCK "StringFileInfo"
+ {
+  BLOCK "000004E4"
+  {
+   VALUE "CompanyName", "Eugene Roshal & FAR Group\000\000"
+   VALUE "FileDescription", "Brackets matching for FAR Manager\000"
+   VALUE "FileVersion", "1.0.0.3\000\000"
+   VALUE "InternalName", "Brackets\000"
+   VALUE "LegalCopyright", "Copyright © Eugene Roshal 1996-2000, Copyright © 2000-2002 FAR Group\000\000"
+   VALUE "OriginalFilename", "Brackets.dll\000"
+   VALUE "ProductName", "FAR manager\000"
+   VALUE "ProductVersion", "1.70 beta 5\000"
+  }
+
+ }
+
+ BLOCK "VarFileInfo"
+ {
+   VALUE "Translation", 0, 0x4e4
+ }
+
+}

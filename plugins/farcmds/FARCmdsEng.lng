@@ -1,0 +1,22 @@
+.Language=English,English
+
+"FAR Commands"
+"Same Folder"
+
+"Add "Same Folder" to the &Plugins menu"
+"Add "Same Folder" to the &Disks menu"
+"Disks menu &hotkey ('1'-'9'). Set 0 to autoassign."
+"&Command/object separator"
+"&Hide external command output"
+"&Keep external command output"
+"&Duplicate Intercepted output to screen"
+"&Intercept both stdout and stderr"
+"Intercept std&out only (Standard output stream)"
+"Intercept std&err only (Standard errors stream)"
+"Intercept stdout &and stderr separately"
+"View/edit empty files"
+"<stdout>:"
+"<stderr>:"
+
+"&OK"
+"Cancel"

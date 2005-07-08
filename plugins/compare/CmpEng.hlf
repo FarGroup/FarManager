@@ -1,0 +1,39 @@
+.Language=English,English
+.PluginContents=Advanced compare
+
+@Contents
+$ #Advanced compare#
+    This command is similar to the internal FAR "Compare folders" command,
+but it also allows additional compare options:
+
+#Process...#
+
+  #subfolders#               Compare files in subfolders.
+                           Cannot be used for plugin panels.
+
+  #selected items only#      Compare selected files/folders only.
+                           This option is ignored for panels with
+                           no selected items (the whole panel
+                           contents will be compared in that case).
+
+#Compare...#
+
+  #time#                     Compare file modification time.
+                           Unlike the internal FAR command, this
+                           option will mark files on both panels,
+                           not the newer files only.
+
+  #two seconds precision#    Use FAT time format for comparing.
+                           Otherwise complete file time, including
+                           milliseconds, will be compared.
+
+  #size#                     Compare file size.
+
+  #contents#                 Compare file contents.
+                           Cannot be used for plugin panels.
+
+#Display message...#
+
+  #when no differences#      Display the message when all compared
+  #found#                    items seem to be identical.
+

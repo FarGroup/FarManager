@@ -1,0 +1,840 @@
+
+     ERRORS.TXT                                               October 2001
+
+
+     The following error messages may appear when using ARJ.  A brief
+     explanation of each message follows:
+
+
+     <filename> does not exist
+
+         The file <filename> could not be found on the disk.
+
+         This error may occur in a multiple volume extraction if ARJ is
+         trying to extract a split file.  If this split file is not the
+         beginning of the file, ARJ will look for the beginning of the
+         file on the disk. If this file is missing, ARJ will report this
+         error.  To correct this problem, you need to extract the previous
+         portion(s) of this file.
+
+         This error will also occur during an extraction to freshen
+         existing files.
+
+
+     <filename> exists
+
+         The file <filename> already exists on the disk.
+
+
+     <filename> is not an ARJ archive
+
+         The file <filename> does not have a valid ARJ archive header in
+         the initial portion of the file.  This file may not be an ARJ
+         archive or it may be damaged.
+
+
+     <filename> is not the same date/time
+
+         The file <filename> that is being appended to does not have the
+         correct file date-time stamp.  This message occurs during 
+         multiple volume extraction when the portion of the file on disk 
+         does not match the portion in the archive.  This can happen if a
+         multiple volume extraction was interrupted by a "quit" response.
+
+
+     <filename> is same or newer
+
+         The file <filename> has the same or newer file date-time stamp
+         than the matching file in the archive.
+
+
+     <filename> is same or older
+
+         The file <filename> has the same or older file date-time stamp
+         than the matching file in the archive.
+
+
+     Already a chapter archive
+
+         The archive being converted to a chapter archive is already a
+         chapter archive.
+
+
+     ANSI codepage archive
+
+         This is a notification message for the user indicating that the 
+         archive being created or processed is using the ANSI codepage
+         instead of the normal default OEM codepage.  ANSI codepage
+         archives created by ARJ32 may not be processed correctly by ARJ 
+         for DOS because of filename translation issues.
+
+
+     Archive codepage mismatch
+
+         The archive being processed was created using a conflicting
+         codepage (ANSI or OEM).
+
+         ARJ32 in ANSIPAGE mode (-hy) cannot add files to an archive
+         created using the OEM codepage.
+         
+         ARJ for DOS cannot add files to an archive created using the ANSI 
+         codepage.
+
+         Or ARJ attempted to join two archives that use different
+         codepages.
+
+
+     Archive name argument missing
+
+         The ARJ command is missing the name of the ARJ archive filename.
+
+
+     Arg table overflow
+
+         There are more than 64 arguments on the ARJ command line.
+
+
+     (ARJ9XRST.EXE) Error (2): File or directory not found.
+
+         For Windows 95/98, the ARJ support program, ARJ9XRST.EXE was not
+         installed in one of the PATH directories like C:\WINDOWS or
+         C:\WINDOWS\COMMAND.  Applies only to the 32 bit version of ARJ.
+
+
+     ARJ-PROTECT recovery data slightly damaged. ARJ-PROTECT again.
+
+         ARJ has detected some damage to the ARJ-PROTECT recovery data.
+         You should re-test the archive ("t" command) and then
+         re-ARJ-PROTECT the archive to generate fresh recovery data.
+
+         Example:  ARJ y archive -hk      remove ARJ-PROTECT
+                   ARJ t archive -hk      restore ARJ-PROTECT
+
+
+     AUTO ARJ-PROTECT disabled
+
+         ARJ-PROTECT will no longer be automatically done when an archive
+         is updated.
+
+
+     AUTO ARJ-PROTECT enabled
+
+         The archive has been set for AUTO ARJ-PROTECT.  This means that
+         the next time the archive is updated, ARJ will automatically
+         ARJ-PROTECT the archive.
+
+         This message does not indicate the presence of valid ARJ-PROTECT
+         data in the archive.  The ARJ "t" command can be used to test for
+         valid ARJ-PROTECT data.
+
+
+     Bad command syntax
+
+         The ARJ command line is not correct syntactically.  The chosen
+         command or option is not supported.
+
+
+     Bad file data
+
+         The file in the ARJ archive is damaged and has invalid data in 
+         it. It is not possible to recover this file in an undamaged 
+         format.
+
+
+     Bad file data or bad password
+
+         The file in the ARJ archive is damaged or you may have supplied
+         the wrong password to the "-g" option.  Check the password that
+         you specified.
+
+
+     Bad header
+
+         The ARJ archive file description information record is damaged.
+
+
+     Bad or missing SECURITY key
+
+         An invalid or missing security key was provided to ARJ.  Check to 
+         see if the security key is correct.
+
+
+     Break signaled
+
+         The user pressed Control C or Control BREAK.
+
+
+     Can't add a chapter label for size reasons
+
+         ARJ could not complete the conversion of a standard archive to a 
+         chapter archive because there was not enough space allocated or 
+         specified to add the chapter label.
+
+
+     Can't ARJ-PROTECT an existing unprotected removable volume archive
+
+         ARJ-PROTECTING an existing multiple volume archive on removable
+         media would cause volumes to overflow the volume size limit, so 
+         this is not allowed except for volumes on fixed media (hard disk 
+         drive).
+     
+
+     Can't filename comment a dual-name archive
+
+         A dual-name archive stores its long filenames in the filename
+         comment field; therefore, that field is not available for storing 
+         comments about the individual file.
+
+         To comment (main comment) a dual-name archive, you must use the
+         "-z" option as in:
+
+         ARJ c dual-name -z
+
+     
+     Can't combine mismatched archives (dual-name)
+
+         ARJ attempted to join a dual-name archive with one that is not a 
+         dual-name archive.
+
+
+     Can't convert an archive to a dual-name archive
+
+         A dual-name archive must be so designated at the initial archive
+         creation.  An already existing archive cannot be converted since
+         the alternate filenames have not been stored in the archive.
+
+
+     Can't copy temp <filename> to archive <filename>
+
+         This error usually means that there is not enough disk space to
+         copy the intermediate archive file to its destination drive. ARJ
+         does not purge the intermediate archive file in this situation so
+         that the file can be copied manually to a drive with enough disk
+         space.
+
+
+     Can't delete <filename>
+
+         ARJ cannot delete the file <filename>.  Most likely, the file is
+         in use or is set as readonly.
+
+
+     Can't find <filename>
+
+         The file <filename> does not exist.
+
+
+     Can't find damage in <filename>
+
+         Message changed to "No damage found in <filename>".
+
+
+     Can't find restart file: <filename>
+
+         The file <filename> does not exist.
+
+
+     Can't find restart information
+
+         During the scan of the specified index file, ARJ could not find a 
+         line of text similar to the following:
+
+         Next volume - 001 1      19931 C:\ARC\VGA640.DRV
+
+         This can happened if the index file is damaged or was created by
+         a version of ARJ prior to 2.39.
+
+
+     Can't get volume label
+
+         ARJ could not read the volume label of the drive specified.
+
+
+     Can't handle ARJ-SECURITY version <number>
+
+         This version of ARJ encountered an ARJ-SECURITY envelope version
+         of which it does not know how to verify the integrity.
+
+
+     Can't make directory <directoryname>
+
+         ARJ could not create the directory <directoryname>.  The name
+         <directoryname> may already exist or the name may be too long.
+
+
+     Can't open <filename>
+
+         ARJ cannot open the file <filename>.  The file may be set to
+         readonly or it may already be in use.  The "-hq" option may be
+         useful in some file-in-use situations.
+
+         In Windows 95, this error may be due to filenames that contain
+         symbols for which there is no MS-DOS equivalent.  These symbols
+         are converted to "_" underscores in MS-DOS.  DOS programs cannot
+         access these files.
+
+         This can also occur when accessing long filenames in Windows 95
+         where a storage media or network driver does not provide full
+         long filename functionality to the operating system.
+
+
+     Can't order a multiple volume archive
+
+         Re-ordering a multiple volume archive is NOT allowed.
+
+
+     Can't read file or unexpected end of file
+
+         This error message usually occurs if the end of the file has been
+         reached when ARJ is expecting more data.
+
+
+     Can't rename <filename> to <filename>
+
+         ARJ could not rename <filename>.  The target filename may already
+         exist.
+
+
+     Can't reset <filename>
+
+         ARJ could not reset the archive bit attribute of <filename>.  
+         This error is ignored by ARJ.
+
+
+     Can't seek to position <number> in file
+
+         ARJ could not seek to the position in the file.  This file may 
+         not be as large as the position specified.
+
+
+     Can't update an ARJ-SECURED archive!
+
+         Modification of an ARJ-SECURED archive is NOT allowed.
+
+
+     Can't use -jt1 or -jt2 with -e or -e1
+
+         ARJ always uses the filename stored in the archive to access the
+         file during the compare operation.  The -e and -e1 options strip
+         significant information from the filename.
+
+
+     Can't use -v with -je1
+
+         The small self-extraction module does not support multiple volume
+         archives.
+
+
+     Can't write file. Disk full?
+
+         Self-explanatory.
+
+
+     Chapter error (<number>)
+
+         This is an internal error in chapter processing and should not
+         happen.  This indicates a problem in the program logic.  Please
+         notify ARJ Software, Inc. of this problem.
+
+
+     CRC error
+
+         The file in the ARJ archive is damaged and has invalid data in 
+         it. It is not possible to recover this file in an undamaged 
+         format.
+
+         If this error is encountered when ARJ initially starts up, this
+         indicates that the ARJ runfile is probably damaged.
+
+
+     CRC INFO sections damaged
+
+         The ARJ data damage protection data is too damaged to use to
+         repair archive damage.
+
+
+     Critical device error
+
+         A DOS critical error has occurred.  ARJ has trapped this error
+         condition and returned a error.
+
+
+     *** Damaged ARJ-SECURED archive!
+
+         This ARJ archive has been damaged or corrupted.  The contents of
+         the archive are not in the same condition as when it was created.
+
+         You should not trust that the contents of this archive are as the
+         archive creator intended.
+
+
+     Delete argument missing
+
+         The ARJ delete command requires that a filename or wildspec be
+         specified on the command line.  It does not assume "*.*".
+
+
+     *** Detected an OBSOLETE ARJ-SECURITY envelope.  NOT verified!
+
+         ARJ has detected a version 1 ARJ-SECURITY envelope.  ARJ has not
+         verified the validity of the ARJ-SECURITY envelope because of the 
+         obsolescence of version 1 envelopes.
+
+
+     Encryption module damage
+
+         ARJ could not access the encryption module.  This error may be
+         the result of corruption of the encryption module.
+
+     
+     Error (2): File or directory not found.
+
+         This error message and others similar to the above message will
+         be displayed upon ARJ abnormally terminating.  ARJ will display
+         the most recent system error.  This error message may clarify the 
+         associated ARJ error message.
+
+
+     Exceeded chapter limit of <number>
+
+         ARJ only supports up to 250 chapters within a single archive.
+
+
+     Exceeded maximum path size of <number> at <filename>
+
+         The maximum pathname length is limited in size to <number>
+         characters.
+
+
+     Exceeded name limit of <number> at <filename>
+
+         The number of filenames encountered by ARJ has exceeded the
+         documented limited of <number> filenames.
+
+
+     File is password encrypted
+
+         ARJ is skipping the current file because it is password encrypted
+         (garbled) and no password has been specified on the command line
+         with the "-g" option.
+
+
+     File is too large
+
+         ARJ cannot build archives or compress files larger than 2.1 
+         gigabytes.  This is a DOS file size limit.  For archives, try 
+         building volumes using -v2000M.
+          
+     
+     Found <number> error(s)
+
+         ARJ has encountered <number> non-fatal errors.
+
+
+     Garbled files are not allowed for SFXJR
+
+         The small self-extractor module does not support the extraction 
+         of garbled files.
+
+
+     GCRYPT internal error
+
+         This error should not occur.  Please notify ARJ Software, Inc.
+
+
+     Header CRC error
+
+         The file description header record in the archive is damaged.
+         This cannot be fixed.  The use of the "-jr" option will allow the
+         recovery of files after the damaged section.
+
+
+     Invalid command: <command>
+
+         The specified <command> is not a valid ARJ command.
+
+
+     Invalid command or option for chapter archives
+
+         The command or switch option is not appropriate when processing
+         chapter archives.  For example, you cannot "j"oin a chapter
+         archive.
+
+
+     Invalid comment header
+
+         This error should never happen.
+
+
+     Invalid date string: <date>
+
+         The date <date> contains an invalid date.  It should be specified
+         in YYMMDDHHMMSS format where YY represents the two digit year, MM
+         represents the month, DD represents the day, HH represents the
+         hour, MM represents the minutes, and SS represents the seconds.
+
+
+     Invalid multiple volume file sequence
+
+         ARJ has detected a sequence error in a series of multiple volume
+         archives.  This error should never occur.
+
+
+     Invalid parameter string: <parameter>
+
+         The parameter string <parameter> is not correct syntactically.
+
+
+     Invalid switch: <option>
+
+         The switch option <option> is not a valid option.
+
+
+     Invalid use of self-extraction switch
+
+         The -je or -je1 switch was used with a non-modification command.
+
+
+     Invalid volume size
+
+         The specified volume size was too small or not specified.
+
+         For commands that modify ARJ multiple volumes, a volume size MUST
+         be specified with the "-v" option.
+
+         If you are using the "-hk" option, the error message means that
+         the volume size specified is too small for the ARJ-PROTECT data
+         to be generated.
+
+
+     Listing error: no free blocks at <pathname>
+
+         This is an ARJ internal error.  Please notify ARJ Software, Inc.
+
+
+     Listing XMS error: init
+
+         ARJ is unable to allocate XMS memory for its use.
+
+
+     Listing XMS error: read
+
+         ARJ cannot access a requested XMS memory block.
+
+
+     Listing XMS error: write
+
+         ARJ cannot store a requested XMS memory block.
+
+         Some Windows 3.x memory "enhancers" may interfere with access to
+         XMS memory blocks while in a Windows DOS box.
+
+
+     Long filenames and/or text mode (-t1) files are not allowed for SFXJR
+
+         The ARJ small self-extraction module (-je1) does not support
+         the use of Windows long filenames and the extraction of files 
+         compressed in text mode (-t1).  Use of the "-hf" option will
+         disable use of long filenames.
+
+
+     Missing filename argument for <command>
+
+         A filename must be specified for <command>.
+
+
+     Multiple volume update requires -v
+
+         Since updates to multiple volumes involve putting all changed
+         files at the end of the volumes, it is necessary to specify the
+         volume switch "-v", so that ARJ will process all the volumes.
+
+
+     Multiple volume updates are NOT supported (OBSOLETE)
+
+         The modification of ARJ multiple volume archives is not supported
+         or recommended.  You can use the "-hu" option to override this
+         prohibition.
+
+
+     Must specify only non-wildnames for order command
+
+         The ARJ order command does not accept wildcards.
+
+
+     No ARJ-PROTECT recovery data found
+
+         ARJ could not find the ARJ-PROTECT data damage protection 
+         information appended to the archive.  ARJ could not find the data
+         signature of this information.  Either the archive was never
+         actually protected or the ARJ-PROTECT data is too corrupted to 
+         process.
+     
+     
+     No available memory to store <filename>
+
+         ARJ has run out of memory and cannot store the name <filename>.
+         Specifying fewer filenames or using a listfile are two ways to
+         work around the lack of memory.
+
+         The new "-hm" option sets ARJ to use disk space to store this 
+         list of filenames thus avoiding this memory problem.
+
+
+     No damage found in <filename>
+
+         First, this message indicates that this archive is ARJ-PROTECTED.
+         
+         Second, using the ARJ-PROTECT damage protection data, ARJ could 
+         not find any damaged data areas in the ARJ archive <filename>.  
+         
+         There is a small probability (about 1 in 3 billion) that ARJ 
+         cannot detect a corrupted section of data.
+
+
+     No filename in comment
+
+         The dual-name archive is not properly set up with long and short
+         filenames being stored.
+
+
+     No strings were entered
+
+         At least one search string must be specified for the ARJ "w"
+         command.
+
+
+     Not a chapter archive
+
+         Self-explanatory.
+
+         You can convert a standard archive to a chapter archive with the 
+         "cc" command.
+
+
+     Not a valid method for SFX
+
+         The ARJ self-extraction modules do not support extraction of 
+         files compressed with the "-m4" option.
+
+
+     Not enough disk space
+
+         Self-explanatory.
+
+
+     Not enough disk space for extraction. Overflow by over <number> bytes.
+
+         Self-explanatory.
+
+
+     Not enough free disk space
+
+         Self-explanatory.
+
+
+     NOT found
+
+         This message is displayed when the filename in the archive is not
+         found on disk.
+
+
+     NOT matched
+
+         This message is displayed when the contents of the filename in 
+         the archive does not match the contents of the same filename on 
+         disk or that a directory in the archive does not exist on disk.
+
+
+     Nothing to do
+
+         This message is displayed if you try to restart a multiple volume
+         archival process that did not abort but actually completed.
+
+
+     Order command file count mismatch
+
+         This error should not happen.  Please report this problem.
+
+
+     Out of memory
+
+         There is not enough memory for ARJ to complete its operation.
+
+
+     Out of near memory
+
+         There is not enough 16 bit memory for ARJ to complete its
+         operation.  It can occur if there is a large amount of 
+         environment space allocated to environment variables.  The use of 
+         "COMMAND /C /E:200 ARJ <command> ... " may work around this 
+         problem.
+
+
+     Password option missing
+
+         The "-g" option requires the specification of a password.
+
+
+     Passwords did not match
+
+         The two passwords entered did not match exactly.
+
+
+     Protect internal overflow error
+
+         This error should not occur.  Please notify ARJ Software, Inc.
+
+
+     Read/Write error <message> on drive <letter>
+
+         Self-explanatory.
+
+     
+     Requires ARJ32 or -hy option
+
+         The archive being processed was created by ARJ32 using the ANSI 
+         codepage and may contain filenames that are not accessible via 
+         DOS.  ARJ32 can process this type of archive.  ARJ for DOS may
+         have problems.
+         
+         You can use the -hy option with ARJ for DOS to attempt extraction 
+         of this archive.  However, some files may be created with 
+         incorrect filenames.
+
+
+     Requires Windows 95/98/NT or -hf1 or -hf2 option,
+
+         An archive built under Windows 95 may not extract under a short 
+         filename environment (DOS 6, plain DOS 7, Win95 MS-DOS mode) 
+         UNLESS it was built with the -hf option or -hf1 option.
+
+         The -hf1 and -hf2 option can be used to force ARJ to extract a
+         Win95 ARJ archive.
+
+         ARJ does NOT support the use of long filenames under Windows NT.
+
+
+     Set label error
+
+         ARJ could not set the volume label to the volume label stored in
+         the archive.  This can happen if the volume label in the archive
+         is not a standard DOS volume label.
+
+
+     Signal failed
+
+         This error should not happen.  Please report this problem.
+
+
+     Skipping a possible ARJ-SECURED archive
+
+         This message is displayed when the option (-he1) has been 
+         specified and ARJ has just accessed an ARJ archive that has an 
+         ARJ-SECURITY envelope on it.  This does NOT indicate the validity 
+         or integrity of the ARJ-SECURITY envelope.
+
+
+     Stream: <number> both CRC sections damaged. Can't verify file.
+
+         The ARJ data damage protection data is damaged.  It is not
+         possible to determine what sections of the archive are damaged.
+
+
+     The ARJ-SECURITY envelope on this archive has been violated
+
+         This ARJ archive has been damaged or corrupted.  The contents of
+         the archive are not in the same condition as when it was created.
+
+
+     This archive HAS a valid ARJ-SECURITY envelope
+
+         This ARJ archive has been ARJ-SECURED and most probably is in the
+         same condition as when it was created.
+
+
+     Too much damage. Recovery aborted.
+
+         ARJ cannot fix the damage to this archive.  There are too many
+         errors to fix.
+
+
+     Unknown file type: <number>
+
+         ARJ has encountered an unknown file type in the archive.
+         You may need a newer version of ARJ to process this archive.
+
+
+     Unknown method: <number>
+
+         ARJ has encountered an unknown compression method in the archive.
+         You may need a newer version of ARJ to process this archive.
+
+
+     Unknown version: <number>
+
+         ARJ has encountered an unknown extraction version in the archive.
+         You may need a newer version of ARJ to process this archive.
+
+
+     User abort!
+
+         The user entered a response to an ARJ query which resulted in
+         termination of ARJ.
+
+
+     *** Valid ARJ-SECURITY envelope signature:
+
+         This message is displayed when ARJ has verified that the archive
+         has a valid ARJ-SECURITY envelope.  This indicates that the
+         archive contents are intact and unmodified as originally
+         distributed by the individual identified in the text that follows
+         this message.
+
+
+     *** Verifying ARJ SECURITY envelope ...
+
+         ARJ is testing the integrity of the ARJ-SECURITY envelope on the
+         archive.  If the envelope has been corrupted or damaged, ARJ will
+         display a message to that effect.
+
+
+     Volume labels are not allowed for SFX
+
+         The ARJ self-extraction modules, ARJSFXJR and ARJSFX, do not
+         support the extraction of volume labels.
+
+
+     Warning! Not a standard ARJ garble module: <filename>
+
+         Either a non-standard encryption module has been specified or the
+         standard ARJ encryption module has been damaged.
+
+         This message will appear when using the ARJCRYPT.COM version 2.1
+         module with ARJ 2.60.
+
+
+     Warning! Only <number> bytes of free disk space. Continue?
+
+         Self-explanatory.
+
+
+     Wrong encryption version: <number>
+
+         ARJ stores the encryption method in the ARJ main header.  It is
+         improper to mix encryption methods in a single archive.  Specify
+         the correct encryption method to use.  The old XOR version is
+         designated as "0" or "1".  The GOST versions are labeled "2",
+         "3", or "4".
+
+         This error message may occur if you specify the -hg option when
+         trying to garble ("g") an archive that uses a different
+         encryption method or when trying to create an ARJSFX module. Only
+         the ARJSFXV module supports the -hg encryption options.
+
+         This error message may occur if you are "j"oining two archives
+         that are using different encryption methods.
+
+
+     end of document
+

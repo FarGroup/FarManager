@@ -1,0 +1,32 @@
+.Language=English,English
+
+"Ok"
+"Cancel"
+
+"Advanced compare"
+
+"Advanced compare"
+"Process..."
+"sub&folders"
+"s&elected items only"
+"Compare..."
+"&time"
+"two seconds &precision"
+"&size"
+"&contents"
+"Display message..."
+"when &no differences found"
+
+"Two file panels are required to perform the compare"
+
+"  Comparing file/folder"
+"  with file/folder"
+
+"Comparing files..."
+
+"No difference"
+"The compared files seem to be identical"
+"Not enough memory"
+"Not enough memory to initialize plugin"
+"Wrong FAR version"
+"Advanced Compare plugin requires FAR 1.70 or later"

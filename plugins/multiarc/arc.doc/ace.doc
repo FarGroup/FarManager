@@ -1,0 +1,326 @@
+                                      Copyright by Marcel Lemke, May 1998,99
+
+
+    Technical information of the archiver ACE v1.2 / WinACE v1.0
+   --------------------------------------------------------------
+
+
+     1. Block format
+     2. Block types
+       2.1. Archive header
+       2.2. File block
+       2.3. Recovery record
+
+     3. Archive processing
+     4. Building CRCs
+       4.1. C source
+       4.2. Pascal source
+
+
+-------------------------------------------------------------------------------
+
+
+  1. Block format
+ -----------------
+
+    The whole archive consists of blocks which vary in size.
+
+    Structure:
+
+    bytes   meaning       discription
+
+     2      HEAD_CRC      CRC16 over block up from HEAD_TYPE
+     2      HEAD_SIZE     size of the block from HEAD_TYPE
+                            up to the beginning of the ADDSIZE block
+
+     1      HEAD_TYPE     indicates type of block (see chapter 2.)
+     2      HEAD_FLAGS    flags related to the block and its content
+                            for all blocks these flags are valid:
+
+                             bit  discription
+
+                              0   ADDSIZE field present
+                              1   Block includes a comment
+
+    [4]     ADDSIZE       an optional field which represents the size of
+                          an additional block without specified structure
+                           (no HEAD_CRC, HEAD_SIZE etc.)
+     ?      OTHER FIELDS
+
+
+  2. Block types
+ ----------------
+
+   2.1. Archive header
+  ---------------------
+      The archive header is the first block of each archive or volume.
+
+      Structure:
+
+      bytes   meaning       discription
+
+       2      HEAD_CRC      CRC16 over block up from HEAD_TYPE
+       2      HEAD_SIZE     size of the block from HEAD_TYPE
+                              up to the last byte of this block
+
+       1      HEAD_TYPE     archive header type is 0
+       2      HEAD_FLAGS    contains most important information about the
+                            archive
+
+                               bit  discription
+
+                                0   0  (no ADDSIZE field)
+                                1   presence of a main comment
+
+                                9   SFX-archive
+                                10  dictionary size limited to 256K
+                                    (because of a junior SFX)
+                                11  archive consists of multiple volumes
+                                12  main header contains AV-string
+                                13  recovery record present
+                                14  archive is locked
+                                15  archive is solid
+1001000000000000
+
+       7      ACESIGN       fixed string: '**ACE**' serves to find the
+                              archive header
+
+       1      VER_EXTRACT   version needed to extract archive
+       1      VER_CREATED   version used to create the archive
+       1      HOST_CREATED  HOST-OS for ACE used to create the archive
+
+                               value   host
+
+                                0      MS-DOS
+                                1      OS/2
+                                2      Win32
+                                3      Unix
+                                4      MAC-OS
+                                5      Win NT
+                                6      Primos
+                                7      APPLE GS
+                                8      ATARI
+                                9      VAX VMS
+                                10     AMIGA
+                                11     NEXT
+
+       1      VOLUME_NUM        which volume of a multi-volume-archive is it?
+       4      TIME_CREATED      date and time in MS-DOS format
+       8      RESERVED          8 bytes reserved for the future
+      [1]     AV_SIZE           size of the following AV string
+      [?]     AV                the AV string itself
+      [2]     COMMENT_SIZE      compressed size of the following comment
+      [?]     COMMENT           compressed data of comment
+       ?      RESERVED
+
+      Comments are compressed using simple LZP+Huffman.
+
+   2.2. File block
+  -----------------
+      Directories are stored in this type of block, too. There is no extra
+      block structure.
+
+      Structure:
+
+      bytes   meaning       discription
+
+       2      HEAD_CRC      CRC16 over block up from HEAD_TYPE
+       2      HEAD_SIZE     size of the block up from HEAD_TYPE
+                              up to the beginning of the compressed data
+
+       1      HEAD_TYPE     file header type is 1
+       2      HEAD_FLAGS
+                               bit  discription
+
+                                0   1 (ADDSIZE field present)
+                                1   presence of file comment
+
+                                12  file continued from previous volume
+                                13  file continues on the next volume
+                                14  file encrypted with password
+                                15  solid-flag: file compressed using data
+                                      of previous files of the archive
+
+       4      PACK_SIZE     this is the ADDSIZE field;
+                            the additional block contains compressed file data
+                              without exception
+       4      ORIG_SIZE     the original size of the file
+       4      FTIME         file date and file time in MS-DOS format
+       4      ATTR          attributes of the file
+       4      CRC32         checksum over the compressed file
+       4      TECH_INFO
+
+               bytes
+                1           type of compression
+                              0  store
+                              1  ACE_LZ77_1
+
+                1           quality of compression
+                              0  fastest
+                              1  fast
+                              2  normal
+                              3  good
+                              4  best
+
+                2           parameter for decompression
+32   - 5
+64   - 6
+128  - 7
+256  - 8
+512  - 9
+1024 - A
+2048 - B
+4096 - C
+
+       2      RESERVED
+       2      FNAME_SIZE    size of filename string in bytes
+       1      FNAME         filename string (OEM)
+      [2]     COMM_SIZE     compressed size of file comment
+      [?]     COMMENT       file comment
+       ?      RESERVED
+    -------------------------------------------
+      compressed file data (size is PACK_SIZE)
+
+
+   2.3. Recovery record
+  ----------------------
+      The protection by recovery records works this way:
+      See the whole archive as a sequence of blocks with a defined length.
+      Build checksums over these blocks to determine (later) whether a block
+      has been damaged or not. Xor all blocks to one.
+      Save this xor-block and the checksums. To restore a damaged block
+      all undamaged blocks have to be xor'd with the xor-block.
+
+
+      Structure:
+
+       2      HEAD_CRC      CRC16 over block up from HEAD_TYPE
+       2      HEAD_SIZE     size of the block up from HEAD_TYPE
+
+       1      HEAD_TYPE     header type of recovery records is 2
+       2      HEAD_FLAGS
+                               bit  discription
+
+                                0   1 (ADDSIZE field present)
+       4      REC_BLK_SIZE  ADDSIZE field; size of recovery data
+       7      ACESIGN       string: '**ACE**';
+                              allows search for this block with destroyed
+                              archive structure
+       4      REL_STRT      relative start (to this block) of the data this
+                              block is mode of
+       4      NUM_BLKS      number of blocks the data is splitten in
+       4      CL_SIZE       size of these blocks
+       2      REC_CRC       CRC16 over recovery data
+    ------------------------
+      recovery data:
+
+       2      1st CRC16     CRC over the first block of the archive
+       2      2nd CRC16     CRC over the second block of the archive
+       .      .
+       .      .
+       2  NUM_BLKSth CRC16  CRC over the last block (up to the recovery
+                              record) of the archive
+      CL_SIZE XOR-DATA      contains the xor'd data of all the blocks
+                              the archive has been splitten in for this
+                              process
+
+  3. Archive processing
+ -----------------------
+
+    For processing an archive you first need to get the start offset of it
+    in a certain file. The way to do so is:
+
+      1.) search for the acesign ('**ACE**')
+      2.) read a block from (acesign_position-7)
+            (because the acesign is at offset 7 in the archive header)
+      3.) build the checksum of this block and check it against HEAD_CRC;
+            if they do not match go to step 1.)
+
+    After you got the start you can read one block after another like this:
+      1.) read HEAD_CRC and HEAD_SIZE
+      2.) read HEAD_SIZE bytes;
+           build the CRC of them and check it against HEAD_CRC;
+           the archive is broken if the CRCs do not match
+      3.) interpret the contents of the block
+      4.) skip ADDSIZE bytes if ADDSIZE is present
+    Do so until the EOF of the archive.
+
+    See next chapter how to build CRCs.
+
+
+  4. Building CRCs
+ ------------------
+
+    This chapter contains sources how to build a "CRC32". The full 32 bits
+    are needed at the file checksums only. In the headers there are only
+    the lower 16 bits of a CRC32 value saved.
+
+    To initialize "getcrc" just call "make_crc_table". To get a CRC of a
+    block inititalize your CRC variable with CRC_MASK. Then use getcrc to
+    update this variable.
+
+    example how to check the CRC of an header:
+      make_crctable();                                // only once
+      ...
+      crc=CRC_MASK;                                   // initialize CRC
+      crc=getcrc(crc,&head.HEAD_TYPE,head.HEAD_SIZE); // update CRC
+
+                                                      // check lower 16 bits
+      if (UWORD(crc)!=UWORD(head.HEAD_CRC)) error_archive_broken();
+
+   4.1. C source
+  ---------------
+
+------cut------------  -------------   -------------   --------------
+        #define CRCPOLY 0xEDB88320
+        #define CRC_MASK 0xFFFFFFFF
+
+        make_crctable()
+        {
+        unsigned r,i,j;
+          for (i=0;i<=255;i++) {
+            for (r=i,j=8;j;j--)
+              r=(r&1)?(r>>1)^CRCPOLY:(r>>1);
+            crctable[i] = r;
+          }
+        }
+
+        unsigned long getcrc(unsigned long crc,unsigned char *addr,int len)
+        {
+          while (len--)
+            crc=crctable[(unsigned char)crc^(*addr++)]^(crc>>8);
+          return(crc);
+        }
+------cut------------  -------------   -------------   --------------
+
+   4.2. Pascal source
+  --------------------
+
+------cut------------  -------------   -------------   --------------
+        const CRCPOLY=$EDB88320;CRC_MASK=$FFFFFFFF;
+        type tbytear=array[0..60000] of byte;
+             tbptr=^tbytear;
+
+        procedure make_crctable;
+        var i,j:integer;
+            r:longint;
+        begin
+          for i:=0 to 255 do begin
+            r:=i;
+            for j:=8 downto 1 do
+              if (r and 1)>0 then r:=(r shr 1) xor CRCPOLY else r:=r shr 1;
+            crctable[i]:=r;
+          end;
+        end;
+
+        function getcrc(crc:longint;addr:tbptr;len:integer):longint;
+        var i:word;
+        begin
+          i:=0;
+          while (len>0) do begin
+            crc:=crctable[(byte(crc)) xor (addr^[i])] xor (longint(crc) shr 8);
+            dec(len);inc(i);
+          end;
+          getcrc:=crc;
+        end;
+------cut------------  -------------   -------------   --------------

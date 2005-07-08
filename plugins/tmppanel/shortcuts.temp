@@ -1,0 +1,9 @@
+|&D: Desktop|%HOMEDRIVE%%HOMEPATH%\Desktop
+|&M: My Documents|%HOMEDRIVE%%HOMEPATH%\My Documents
+|&F: Favorites|%USERPROFILE%\Favorites
+|&P: Program Files|%ProgramFiles%
+|-|
+|&N: NetHood|%HOMEDRIVE%%HOMEPATH%\NetHood
+|&S: Shared Documents|%ALLUSERSPROFILE%\Documents
+|-|
+|&T: %USERNAME%\Temp|%TEMP%

@@ -1,0 +1,519 @@
+<html>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- Created on February, 18  2002 by texi2html 1.64 -->
+<!--
+Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
+            Karl Berry  <karl@freefriends.org>
+            Olaf Bachmann <obachman@mathematik.uni-kl.de>
+            and many others.
+Maintained by: Olaf Bachmann <obachman@mathematik.uni-kl.de>
+Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
+
+-->
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1251">
+<meta http-equiv="Content-Language" content="ru">
+<meta name="description" content="GNU tar: ">
+<meta name="keywords" content="GNU tar: ">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<title>GNU tar:</title>
+</head>
+
+<body lang bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+
+  <h2>8.4 The Standard Format</h2>
+  <blockquote>
+    <em>(This message will disappear, once this node revised.)</em>
+  </blockquote>
+  <p>While an archive may contain many files, the archive itself is a single
+  ordinary file. Like any other file, an archive file can be written to a
+  storage device such as a tape or disk, sent through a pipe or over a network,
+  saved on the active file system, or even stored in another archive. An archive
+  file is not easy to read or manipulate without using the <code>tar</code>
+  utility or Tar mode in GNU Emacs.</p>
+  <p>Physically, an archive consists of a series of file entries terminated by
+  an end-of-archive entry, which consists of 512 zero bytes. A file entry
+  usually describes one of the files in the archive (an <em>archive member</em>),
+  and consists of a file header and the contents of the file. File headers
+  contain file names and statistics, checksum information which <code>tar</code>
+  uses to detect file corruption, and information about file types.</p>
+  <p>Archives are permitted to have more than one member with the same member
+  name. One way this situation can occur is if more than one version of a file
+  has been stored in the archive. For information about adding new versions of a
+  file to an archive, see <a href="tar.html#SEC55">4.2.4 Updating an Archive</a>,
+  and to learn more about having more than one archive member with the same name,
+  see -backup node, when it's written .</p>
+  <p>In addition to entries describing archive members, an archive may contain
+  entries which <code>tar</code> itself uses to store information. See section <a href="tar.html#SEC139">9.7
+  Including a Label in the Archive</a>, for an example of such an archive entry.</p>
+  <p>A <code>tar</code> archive file contains a series of blocks. Each block
+  contains <code>BLOCKSIZE</code> bytes. Although this format may be thought of
+  as being on magnetic tape, other media are often used.</p>
+  <p>Each file archived is represented by a header block which describes the
+  file, followed by zero or more blocks which give the contents of the file. At
+  the end of the archive file there may be a block filled with binary zeros as
+  an end-of-file marker. A reasonable system should write a block of zeros at
+  the end, but must not assume that such a block exists when reading an archive.</p>
+  <p>The blocks may be <em>blocked</em> for physical I/O operations. Each record
+  of <var>n</var> blocks (where <var>n</var> is set by the <kbd>--blocking-factor=<var>512-size</var></kbd>
+  (<kbd>-b <var>512-size</var></kbd>) option to <code>tar</code>) is written
+  with a single <samp>`write ()'</samp> operation. On magnetic tapes, the result
+  of such a write is a single record. When writing an archive, the last record
+  of blocks should be written at the full size, with blocks after the zero block
+  containing all zeros. When reading an archive, a reasonable system should
+  properly handle an archive whose last record is shorter than the rest, or
+  which contains garbage records after a zero block.</p>
+  <p>The header block is defined in C as follows. In the GNU <code>tar</code>
+  distribution, this is part of file <tt>`src/tar.h'</tt>:</p>
+  <pre>/* <i>GNU tar Archive Format description.</i>  */
+
+/* <i>If OLDGNU_COMPATIBILITY is not zero, tar produces archives which, by
+   default, are readable by older versions of GNU tar.  This can be
+   overriden by using --posix; in this case, POSIXLY_CORRECT in environment
+   may be set for enforcing stricter conformance.  If OLDGNU_COMPATIBILITY
+   is zero or undefined, tar will eventually produces archives which, by
+   default, POSIX compatible; then either using --posix or defining
+   POSIXLY_CORRECT enforces stricter conformance.
+
+   This #define will disappear in a few years.  FP, June 1995.</i>  */
+#define OLDGNU_COMPATIBILITY 1
+
+/*---------------------------------------------.
+| `tar' Header Block, from POSIX 1003.1-1990.  |
+`---------------------------------------------*/
+
+/* POSIX header.  */
+
+struct posix_header
+{                               /* byte offset */
+  char name[100];               /*   0 = 0x000 */
+  char mode[8];                 /* 100 = 0x064 */
+  char uid[8];                  /* 108 = 0x06C */
+  char gid[8];                  /* 116 = 0x074 */
+  char size[12];                /* 124 = 0x07C */
+  char mtime[12];               /* 136 = 0x088 */
+  char chksum[8];               /* 148 = 0x094 */
+  char typeflag;                /* 156 = 0x09C */
+  char linkname[100];           /* 157 = 0x09D */
+  char magic[6];                /* 257 = 0x101 */
+  char version[2];              /* 263 = 0x107 */
+  char uname[32];               /* 265 = 0x109 */
+  char gname[32];               /* 297 = 0x129 */
+  char devmajor[8];             /* 329 = 0x149 */
+  char devminor[8];             /* 337 = 0x151 */
+  char prefix[155];             /* 345 = 0x159 */
+                                /* 500 = 0x1F4 */
+};
+
+#define TMAGIC   &quot;ustar&quot;        /* ustar and a null */
+#define TMAGLEN  6
+#define TVERSION &quot;00&quot;           /* 00 and no null */
+#define TVERSLEN 2
+
+/* Values used in typeflag field.  */
+#define REGTYPE  '0'            /* regular file */
+#define AREGTYPE '\0'           /* regular file */
+#define LNKTYPE  '1'            /* link */
+#define SYMTYPE  '2'            /* reserved */
+#define CHRTYPE  '3'            /* character special */
+#define BLKTYPE  '4'            /* block special */
+#define DIRTYPE  '5'            /* directory */
+#define FIFOTYPE '6'            /* FIFO special */
+#define CONTTYPE '7'            /* reserved */
+
+/* Bits used in the mode field, values in octal.  */
+#define TSUID    04000          /* set UID on execution */
+#define TSGID    02000          /* set GID on execution */
+#define TSVTX    01000          /* reserved */
+                                /* file permissions */
+#define TUREAD   00400          /* read by owner */
+#define TUWRITE  00200          /* write by owner */
+#define TUEXEC   00100          /* execute/search by owner */
+#define TGREAD   00040          /* read by group */
+#define TGWRITE  00020          /* write by group */
+#define TGEXEC   00010          /* execute/search by group */
+#define TOREAD   00004          /* read by other */
+#define TOWRITE  00002          /* write by other */
+#define TOEXEC   00001          /* execute/search by other */
+
+/*-------------------------------------.
+| `tar' Header Block, GNU extensions.  |
+`-------------------------------------*/
+
+/* In GNU tar, SYMTYPE is for to symbolic links, and CONTTYPE is for
+   contiguous files, so maybe disobeying the `reserved' comment in POSIX
+   header description.  I suspect these were meant to be used this way, and
+   should not have really been `reserved' in the published standards.  */
+
+/* *BEWARE* *BEWARE* *BEWARE* that the following information is still
+   boiling, and may change.  Even if the OLDGNU format description should be
+   accurate, the so-called GNU format is not yet fully decided.  It is
+   surely meant to use only extensions allowed by POSIX, but the sketch
+   below repeats some ugliness from the OLDGNU format, which should rather
+   go away.  Sparse files should be saved in such a way that they do *not*
+   require two passes at archive creation time.  Huge files get some POSIX
+   fields to overflow, alternate solutions have to be sought for this.  */
+
+/* Descriptor for a single file hole.  */
+
+struct sparse
+{                               /* byte offset */
+  char offset[12];              /*   0 */
+  char numbytes[12];            /*  12 */
+                                /*  24 */
+};
+
+/* Sparse files are not supported in POSIX ustar format.  For sparse files
+   with a POSIX header, a GNU extra header is provided which holds overall
+   sparse information and a few sparse descriptors.  When an old GNU header
+   replaces both the POSIX header and the GNU extra header, it holds some
+   sparse descriptors too.  Whether POSIX or not, if more sparse descriptors
+   are still needed, they are put into as many successive sparse headers as
+   necessary.  The following constants tell how many sparse descriptors fit
+   in each kind of header able to hold them.  */
+
+#define SPARSES_IN_EXTRA_HEADER  16
+#define SPARSES_IN_OLDGNU_HEADER 4
+#define SPARSES_IN_SPARSE_HEADER 21
+
+/* The GNU extra header contains some information GNU tar needs, but not
+   foreseen in POSIX header format.  It is only used after a POSIX header
+   (and never with old GNU headers), and immediately follows this POSIX
+   header, when typeflag is a letter rather than a digit, so signaling a GNU
+   extension.  */
+
+struct extra_header
+{                               /* byte offset */
+  char atime[12];               /*   0 */
+  char ctime[12];               /*  12 */
+  char offset[12];              /*  24 */
+  char realsize[12];            /*  36 */
+  char longnames[4];            /*  48 */
+  char unused_pad1[68];         /*  52 */
+  struct sparse sp[SPARSES_IN_EXTRA_HEADER];
+                                /* 120 */
+  char isextended;              /* 504 */
+                                /* 505 */
+};
+
+/* Extension header for sparse files, used immediately after the GNU extra
+   header, and used only if all sparse information cannot fit into that
+   extra header.  There might even be many such extension headers, one after
+   the other, until all sparse information has been recorded.  */
+
+struct sparse_header
+{                               /* byte offset */
+  struct sparse sp[SPARSES_IN_SPARSE_HEADER];
+                                /*   0 */
+  char isextended;              /* 504 */
+                                /* 505 */
+};
+
+/* The old GNU format header conflicts with POSIX format in such a way that
+   POSIX archives may fool old GNU tar's, and POSIX tar's might well be
+   fooled by old GNU tar archives.  An old GNU format header uses the space
+   used by the prefix field in a POSIX header, and cumulates information
+   normally found in a GNU extra header.  With an old GNU tar header, we
+   never see any POSIX header nor GNU extra header.  Supplementary sparse
+   headers are allowed, however.  */
+
+struct oldgnu_header
+{                               /* byte offset */
+  char unused_pad1[345];        /*   0 */
+  char atime[12];               /* 345 */
+  char ctime[12];               /* 357 */
+  char offset[12];              /* 369 */
+  char longnames[4];            /* 381 */
+  char unused_pad2;             /* 385 */
+  struct sparse sp[SPARSES_IN_OLDGNU_HEADER];
+                                /* 386 */
+  char isextended;              /* 482 */
+  char realsize[12];            /* 483 */
+                                /* 495 */
+};
+
+/* OLDGNU_MAGIC uses both magic and version fields, which are contiguous.
+   Found in an archive, it indicates an old GNU header format, which will be
+   hopefully become obsolescent.  With OLDGNU_MAGIC, uname and gname are
+   valid, though the header is not truly POSIX conforming.
+*/
+
+#define OLDGNU_MAGIC &quot;ustar  &quot;  /* 7 chars and a null */
+
+/* The standards committee allows only capital A through capital Z for
+   user-defined expansion.  */
+
+/* This is a dir entry that contains the names of files that were in the
+   dir at the time the dump was made.  */
+#define GNUTYPE_DUMPDIR 'D'
+
+/* Identifies the *next* file on the tape as having a long linkname.  */
+#define GNUTYPE_LONGLINK 'K'
+
+/* Identifies the *next* file on the tape as having a long name.  */
+#define GNUTYPE_LONGNAME 'L'
+
+/* This is the continuation of a file that began on another volume.  */
+#define GNUTYPE_MULTIVOL 'M'
+
+/* For storing filenames that do not fit into the main header.  */
+#define GNUTYPE_NAMES 'N'
+
+/* This is for sparse files.  */
+#define GNUTYPE_SPARSE 'S'
+
+/* This file is a tape/volume header.  Ignore it on extraction.  */
+#define GNUTYPE_VOLHDR 'V'
+
+/*--------------------------------------.
+| tar Header Block, overall structure.  |
+`--------------------------------------*/
+
+/* tar files are made in basic blocks of this size.  */
+#define BLOCKSIZE 512
+
+enum archive_format
+{
+  DEFAULT_FORMAT,               /* format to be decided later */
+  V7_FORMAT,                    /* old V7 tar format */
+  OLDGNU_FORMAT,                /* GNU format as per before tar 1.12 */
+  POSIX_FORMAT,                 /* restricted, pure POSIX format */
+  GNU_FORMAT                    /* POSIX format with GNU extensions */
+};
+
+union block
+{
+  char buffer[BLOCKSIZE];
+  struct posix_header header;
+  struct extra_header extra_header;
+  struct oldgnu_header oldgnu_header;
+  struct sparse_header sparse_header;
+};
+
+/* End of Format description.  */
+</pre>
+
+  <p>All characters in header blocks are represented by using 8-bit characters
+  in the local variant of ASCII. Each field within the structure is contiguous;
+  that is, there is no padding used within the structure. Each character on the
+  archive medium is stored contiguously.</p>
+  <p>Bytes representing the contents of files (after the header block of each
+  file) are not translated in any way and are not constrained to represent
+  characters in any character set. The <code>tar</code> format does not
+  distinguish text files from binary files, and no translation of file contents
+  is performed.</p>
+  <p>The <code><b>name</b></code>, <code><b>linkname</b></code>,<b> <code>magic</code></b>,
+  <code><b>uname</b></code>, and <code><b>gname</b></code> are null-terminated
+  character strings. All other fileds are zero-filled octal numbers in ASCII.
+  Each numeric field of width <var>w</var> contains <var>w</var> minus 2 digits,
+  a space, and a null, except <code><b>size</b></code>, and <code><b>mtime</b></code>,
+  which do not contain the trailing null.</p>
+  <p>The <code><b>name</b></code> field is the file name of the file, with
+  directory names (if any) preceding the file name, separated by slashes.</p>
+  <p>The <code><b>mode</b></code> field provides nine bits specifying file
+  permissions and three bits to specify the Set UID, Set GID, and Save Text (<em>sticky</em>)
+  modes. Values for these bits are defined above. When special permissions are
+  required to create a file with a given mode, and the user restoring files from
+  the archive does not hold such permissions, the mode bit(s) specifying those
+  special permissions are ignored. Modes which are not supported by the
+  operating system restoring files from the archive will be ignored. Unsupported
+  modes should be faked up when creating or updating an archive; e.g. the group
+  permission could be copied from the <em>other</em> permission.</p>
+  <p>The <code><b>uid</b></code> and <code><b>gid</b></code> fields are the
+  numeric user and group ID of the file owners, respectively. If the operating
+  system does not support numeric user or group IDs, these fields should be
+  ignored.</p>
+  <p>The <code><b>size</b></code> field is the size of the file in bytes; linked
+  files are archived with this field specified as zero. Modifiers <strong>&lt;/&gt;</strong>
+  , in particular the <kbd>--incremental</kbd> (<kbd>-G</kbd>) option.</p>
+  <p>The <code><b>mtime</b></code> field is the modification time of the file at
+  the time it was archived. It is the ASCII representation of the octal value of
+  the last time the file was modified, represented as an integer number of
+  seconds since January 1, 1970, 00:00 Coordinated Universal Time.</p>
+  <p>The <code><b>chksum</b></code> field is the ASCII representation of the
+  octal value of the simple sum of all bytes in the header block. Each 8-bit
+  byte in the header is added to an unsigned integer, initialized to zero, the
+  precision of which shall be no less than seventeen bits. When calculating the
+  checksum, the <code>chksum</code> field is treated as if it were all blanks.</p>
+  <p>The <code><b>typeflag</b></code> field specifies the type of file archived.
+  If a particular implementation does not recognize or permit the specified type,
+  the file will be extracted as if it were a regular file. As this action occurs,
+  <code>tar</code> issues a warning to the standard error.</p>
+  <p>The <code><b>atime</b></code> and <code><b>ctime</b></code> fields are used
+  in making incremental backups; they store, respectively, the particular file's
+  access time and last inode-change time.</p>
+  <p>The <code><b>offset</b></code> is used by the <kbd>--multi-volume</kbd> (<kbd>-M</kbd>)
+  option, when making a multi-volume archive. The offset is number of bytes into
+  the file that we need to restart at to continue the file on the next tape, i.e.,
+  where we store the location that a continued file is continued at.</p>
+  <p>The following fields were added to deal with sparse files. A file is <em>sparse</em>
+  if it takes in unallocated blocks which end up being represented as zeros, i.e.,
+  no useful data. A test to see if a file is sparse is to look at the number
+  blocks allocated for it versus the number of characters in the file; if there
+  are fewer blocks allocated for the file than would normally be allocated for a
+  file of that size, then the file is sparse. This is the method <code>tar</code>
+  uses to detect a sparse file, and once such a file is detected, it is treated
+  differently from non-sparse files.</p>
+  <p>Sparse files are often <code>dbm</code> files, or other database-type files
+  which have data at some points and emptiness in the greater part of the file.
+  Such files can appear to be very large when an <samp>`ls -l'</samp> is done on
+  them, when in truth, there may be a very small amount of important data
+  contained in the file. It is thus undesirable to have <code>tar</code> think
+  that it must back up this entire file, as great quantities of room are wasted
+  on empty blocks, which can lead to running out of room on a tape far earlier
+  than is necessary. Thus, sparse files are dealt with so that these empty
+  blocks are not written to the tape. Instead, what is written to the tape is a
+  description, of sorts, of the sparse file: where the holes are, how big the
+  holes are, and how much data is found at the end of the hole. This way, the
+  file takes up potentially far less room on the tape, and when the file is
+  extracted later on, it will look exactly the way it looked beforehand. The
+  following is a description of the fields used to handle a sparse file:</p>
+  <p>The <code><b>sp</b></code> is an array of <code>struct sparse</code>. Each <code>struct
+  sparse</code> contains two 12-character strings which represent an offset into
+  the file and a number of bytes to be written at that offset. The offset is
+  absolute, and not relative to the offset in preceding array element.</p>
+  <p>The header can hold four of these <code>struct sparse</code> at the moment;
+  if more are needed, they are not stored in the header.</p>
+  <p>The <code><b>isextended</b></code> flag is set when an <code>extended_header</code>
+  is needed to deal with a file. Note that this means that this flag can only be
+  set when dealing with a sparse file, and it is only set in the event that the
+  description of the file will not fit in the alloted room for sparse structures
+  in the header. In other words, an extended_header is needed.</p>
+  <p>The <code><b>extended_header</b></code> structure is used for sparse files
+  which need more sparse structures than can fit in the header. The header can
+  fit 4 such structures; if more are needed, the flag <code>isextended</code>
+  gets set and the next block is an <code>extended_header</code>.</p>
+  <p>Each <code><b>extended_header</b></code> structure contains an array of 21 sparse
+  structures, along with a similar <code>isextended</code> flag that the header
+  had. There can be an indeterminate number of such <code>extended_header</code>s
+  to describe a sparse file.</p>
+  <p>&nbsp;
+  <dl compact>
+    <dt><code>REGTYPE</code>
+    <dd>&nbsp;
+    <dt><code>AREGTYPE</code>
+    <dd>These flags represent a regular file. In order to be compatible with
+      older versions of <code>tar</code>, a <code>typeflag</code> value of <code>AREGTYPE</code>
+      should be silently recognized as a regular file. New archives should be
+      created using <code>REGTYPE</code>. Also, for backward compatibility, <code>tar</code>
+      treats a regular file whose name ends with a slash as a directory.
+      <p>&nbsp;
+    <dt><code>LNKTYPE</code>
+    <dd>This flag represents a file linked to another file, of any type,
+      previously archived. Such files are identified in Unix by each file having
+      the same device and inode number. The linked-to name is specified in the <code>linkname</code>
+      field with a trailing null.
+      <p>&nbsp;
+    <dt><code>SYMTYPE</code>
+    <dd>This represents a symbolic link to another file. The linked-to name is
+      specified in the <code>linkname</code> field with a trailing null.
+      <p>&nbsp;
+    <dt><code>CHRTYPE</code>
+    <dd>&nbsp;
+    <dt><code>BLKTYPE</code>
+    <dd>These represent character special files and block special files
+      respectively. In this case the <code>devmajor</code> and <code>devminor</code>
+      fields will contain the major and minor device numbers respectively.
+      Operating systems may map the device specifications to their own local
+      specification, or may ignore the entry.
+      <p>&nbsp;
+    <dt><code>DIRTYPE</code>
+    <dd>This flag specifies a directory or sub-directory. The directory name in
+      the <code>name</code> field should end with a slash. On systems where disk
+      allocation is performed on a directory basis, the <code>size</code> field
+      will contain the maximum number of bytes (which may be rounded to the
+      nearest disk block allocation unit) which the directory may hold. A <code>size</code>
+      field of zero indicates no such limiting. Systems which do not support
+      limiting in this manner should ignore the <code>size</code> field.
+      <p>&nbsp;
+    <dt><code>FIFOTYPE</code>
+    <dd>This specifies a FIFO special file. Note that the archiving of a FIFO
+      file archives the existence of this file and not its contents.
+      <p>&nbsp;
+    <dt><code>CONTTYPE</code>
+    <dd>This specifies a contiguous file, which is the same as a normal file
+      except that, in operating systems which support it, all its space is
+      allocated contiguously on the disk. Operating systems which do not allow
+      contiguous allocation should silently treat this type as a normal file.
+      <p>&nbsp;
+    <dt><code>A</code> <small>...</small> <code>Z</code>
+    <dd>These are reserved for custom implementations. Some of these are used in
+      the GNU modified format, as described below.
+      <p>&nbsp;
+  </dl>
+  <p>Other values are reserved for specification in future revisions of the
+  P1003 standard, and should not be used by any <code>tar</code> program.</p>
+  <p>The <code>magic</code> field indicates that this archive was output in the
+  P1003 archive format. If this field contains <code>TMAGIC</code>, the <code>uname</code>
+  and <code>gname</code> fields will contain the ASCII representation of the
+  owner and group of the file respectively. If found, the user and group IDs are
+  used rather than the values in the <code>uid</code> and <code>gid</code>
+  fields.</p>
+  <p>For references, see ISO/IEC 9945-1:1990 or IEEE Std 1003.1-1990, pages
+  169-173 (section 10.1) for <cite>Archive/Interchange File Format</cite>; and
+  IEEE Std 1003.2-1992, pages 380-388 (section 4.48) and pages 936-940 (section
+  E.4.48) for <cite>pax - Portable archive interchange</cite>.</p>
+  <hr size="6">
+  <a name="SEC124"></a>
+  <h2>8.5 GNU Extensions to the Archive Format</h2>
+  <p>GNU-формат использует дополнительные файловые тип, описывающие новые типы файлов в архиве. Они указаны ниже.</p>
+  <dl compact>
+    <dt><code>GNUTYPE_DUMPDIR</code>
+    <dd>&nbsp;
+    <dt><code>'D'</code>
+    <dd>This represents a directory and a list of files created by the <kbd>--incremental</kbd>
+      (<kbd>-G</kbd>) option. The <code>size</code> field gives the total size
+      of the associated list of files. Each file name is preceded by either a <samp>`Y'</samp>
+      (the file should be in this archive) or an <samp>`N'</samp>. (The file is
+      a directory, or is not stored in the archive.) Each file name is
+      terminated by a null. There is an additional null after the last file name.
+      <p>&nbsp;
+    <dt><code>GNUTYPE_MULTIVOL</code>
+    <dd>&nbsp;
+    <dt><code>'M'</code>
+    <dd>This represents a file continued from another volume of a multi-volume
+      archive created with the <kbd>--multi-volume</kbd> (<kbd>-M</kbd>) option.
+      The original type of the file is not given here. The <code>size</code>
+      field gives the maximum size of this piece of the file (assuming the
+      volume does not end before the file is written out). The <code>offset</code>
+      field gives the offset from the beginning of the file where this part of
+      the file begins. Thus <code>size</code> plus <code>offset</code> should
+      equal the original size of the file.
+      <p>&nbsp;
+    <dt><code>GNUTYPE_SPARSE</code>
+    <dd>&nbsp;
+    <dt><code>'S'</code>
+    <dd>This flag indicates that we are dealing with a sparse file. Note that
+      archiving a sparse file requires special operations to find holes in the
+      file, which mark the positions of these holes, along with the number of
+      bytes of data to be found after the hole.
+      <p>&nbsp;
+    <dt><code>GNUTYPE_VOLHDR</code>
+    <dd>&nbsp;
+    <dt><code>'V'</code>
+    <dd>This file type is used to mark the volume header that was given with the
+      <kbd>--label=<var>archive-label</var></kbd> (<kbd>-V <var>archive-label</var></kbd>)
+      option when the archive was created. The <code>name</code> field contains
+      the <code>name</code> given after the <kbd>--label=<var>archive-label</var></kbd>
+      (<kbd>-V <var>archive-label</var></kbd>) option. The <code>size</code>
+      field is zero. Only the first file in each volume of an archive should
+      have this type.
+      <p>&nbsp;
+  </dl>
+  <p>You may have trouble reading a GNU format archive on a non-GNU system if
+  the options <kbd>--incremental</kbd> (<kbd>-G</kbd>), <kbd>--multi-volume</kbd>
+  (<kbd>-M</kbd>), <kbd>--sparse</kbd> (<kbd>-S</kbd>), or <kbd>--label=<var>archive-label</var></kbd>
+  (<kbd>-V <var>archive-label</var></kbd>) were used when writing the archive.
+  In general, if <code>tar</code> does not use the GNU-added fields of the
+  header, other versions of <code>tar</code> should be able to read the archive.
+  Otherwise, the <code>tar</code> program will give an error, the most likely
+  one being a checksum error.</p>
+
+</body>
+
+</html>

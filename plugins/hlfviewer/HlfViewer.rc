@@ -1,0 +1,30 @@
+#define VERSIONINFO_1   1
+VERSIONINFO_1 VERSIONINFO
+
+FILEVERSION    1,0,0,13
+PRODUCTVERSION 1,70,0,0
+FILEFLAGSMASK  0x0
+FILEFLAGS      0x0
+FILEOS         VOS__WINDOWS32
+FILETYPE       VFT_DLL
+FILESUBTYPE    0x0
+{
+  BLOCK "StringFileInfo"
+  {
+    BLOCK "000004E4"
+    {
+      VALUE "CompanyName",       "FAR Group\000\000"
+      VALUE "FileDescription",   "Hlf-file Viewer for FAR Manager 1.7x\0"
+      VALUE "FileVersion",       "1.0 build 13\0"
+      VALUE "InternalName",      "HlfViewer\0"
+      VALUE "LegalCopyright",    "Copyright © 2000-2002 FAR Group\0"
+      VALUE "OriginalFilename",  "HlfViewer.dll\0"
+      VALUE "ProductName",       "FAR Manager\0"
+      VALUE "ProductVersion",    "1.70\0"
+    }
+  }
+  BLOCK "VarFileInfo"
+  {
+     VALUE "Translation", 0, 0x4e4
+  }
+}

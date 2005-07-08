@@ -1,0 +1,327 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>LZH format</title>
+<meta content="text/html; charset=windows-1251" http-equiv="Content-Type">
+</head>
+
+<body>
+
+<h1>LZH format</h1>
+Byte Order: Little-endian<br>
+There are some types of LZH header, <b>level-0</b>, <b>level-1</b>, and <b>level-2</b>.
+<pre>
+<b>level-0</b>                   <b>level-1</b>, <b>level-2</b>
++------------+            +------------+
+| LZH header |            | LZH header |
++------------+            +------------+
+| compressed |            | extension  |
+| data       |            | header     |
++------------+            +------------+
+| LZH header |            | extension  |
++------------+            | header     |
+| compressed |            +------------+
+| data       |            | ...        |
++------------+            +------------+
+...                       | compressed |
+                          | data       |
+                          +------------+
+                          | LZH header |
+                          +------------+
+                          | extension  |
+                          | header     |
+                          +------------+
+                          | extension  |
+                          | header     |
+                          +------------+
+                          | ...        |
+                          +------------+
+                          | compressed |
+                          | data       |
+                          +------------+
+                          ...
+</pre>
+<pre><b>level-0</b>
+Offset   Length   Contents
+  0      1 byte   Size of archived file header (h)
+  1      1 byte   Header checksum
+  2      5 bytes  Method ID
+  7      4 bytes  Compressed size (n)
+ 11      4 bytes  Uncompressed size
+ 15      4 bytes  Original file date/time (Generic time stamp)
+ 19      1 byte   File attribute
+ 20      1 byte   Level (0x00)
+ 21      1 byte   Filename / path length in bytes (f)
+ 22     (f)bytes  Filename / path
+ 22+(f)  2 bytes  CRC-16 of original file
+ 24+(f) (n)bytes  Compressed data
+
+
+<b>level-1</b>
+Offset   Length   Contents
+  0      1 byte   Size of archived file header (h)
+  1      1 byte   Header checksum
+  2      5 bytes  Method ID
+  7      4 bytes  Compressed size (n)
+ 11      4 bytes  Uncompressed size
+ 15      4 bytes  Original file date/time (Generic time stamp)
+ 19      1 byte   0x20
+ 20      1 byte   Level (0x01)
+ 21      1 byte   Filename / path length in bytes (f)
+ 22     (f)bytes  Filename / path
+ 22+(f)  2 bytes  CRC-16 of original file
+ 24+(f)  1 byte   OS ID
+ 25+(f)  2 bytes  Next header size(x) (0 means no extension header)
+[ // Extension headers
+         1 byte   Extension type
+     (x)-3 bytes  Extension fields
+         2 bytes  Next header size(x) (0 means no next extension header)
+]*
+        (n)bytes  Compressed data
+
+
+<b>level-2</b>
+Offset   Length   Contents
+  0      2 byte   Total size of archived file header (h)
+  2      5 bytes  Method ID
+  7      4 bytes  Compressed size (n)
+ 11      4 bytes  Uncompressed size
+ 15      4 bytes  Original file time stamp(UNIX type, seconds since 1970)
+ 19      1 byte   Reserved
+ 20      1 byte   Level (0x02)
+ 21      2 bytes  CRC-16 of original file
+ 23      1 byte   OS ID
+ 24      2 bytes  Next header size(x) (0 means no extension header)
+[
+         1 byte   Extension type
+     (x)-3 bytes  Extension fields
+         2 bytes  Next header size(x) (0 means no next extension header)
+]*
+        (n)bytes  Compressed data
+</pre>
+
+<h3>Extension header</h3>
+<pre>
+<b>Common header:</b>
+         1 byte   Extension type (0x00)
+         2 bytes  CRC-16 of header
+        [1 bytes  Information] (Optional)
+         2 bytes  Next header size
+
+<b>File name header:</b>
+         1 byte   Extension type (0x01)
+         ? bytes  File name
+         2 bytes  Next header size
+
+<b>Directory name header:</b>
+         1 byte   Extension type (0x02)
+         ? bytes  Directory name
+         2 bytes  Next header size
+
+<b>Comment header:</b>
+         1 byte   Extension type (0x3f)
+         ? bytes  Comments
+         2 bytes  Next header size
+
+<b>MS-DOS attribute header:</b>
+         if (OS ID == EXTEND_MSDOS ||
+             OS ID == EXTEND_HUMAN ||
+             OS ID == EXTEND_GENERIC)
+
+         1 byte   Extension type (0x40)
+         2 bytes  Attr
+         2 bytes  Next header size
+
+<b>UNIX file permission:</b>
+         if (OS ID == EXTEND_UNIX)
+
+         1 byte   Extension type (0x50)
+         2 bytes  Permission value
+         2 bytes  Next header size
+
+<b>UNIX file group/user ID:</b>
+         if (OS ID == EXTEND_UNIX)
+
+         1 byte   Extension type (0x51)
+         2 bytes  Group ID
+         2 bytes  User ID
+         2 bytes  Next header size
+
+<b>UNIX file group name:</b>
+         1 byte   Extension type (0x52)
+         ? bytes  Group name
+         2 bytes  Next header size
+
+<b>UNIX file user name:</b>
+         1 byte   Extension type (0x53)
+         ? bytes  User name
+         2 bytes  Next header size
+
+<b>UNIX file last modified time:</b>
+         if (OS ID == EXTEND_UNIX)
+
+         1 byte   Extension type (0x54)
+         4 bytes  Last modified time in UNIX time
+         2 bytes  Next header size
+</pre>
+
+
+<h3>Method ID</h3>
+<table border="1">
+  <tbody>
+    <tr>
+      <td><code>&quot;-lh0-&quot;</code>
+      <td>No compression
+    <tr>
+      <td><code>&quot;-lh1-&quot;</code>
+      <td>4k sliding dictionary(max 60 bytes) + dynamic Huffman + fixed encoding of position
+    <tr>
+      <td><code>&quot;-lh2-&quot;</code>
+      <td>8k sliding dictionary(max 256 bytes) + dynamic Huffman (Obsoleted)
+    <tr>
+      <td><code>&quot;-lh3-&quot;</code>
+      <td>8k sliding dictionary(max 256 bytes) + static Huffman (Obsoleted)
+    </tr>
+    <tr>
+      <td><code>&quot;-lh4-&quot;</code>
+      <td>4k sliding dictionary(max 256 bytes) + static Huffman + improved encoding of position and trees
+    </tr>
+    <tr>
+      <td><code>&quot;-lh5-&quot;</code>
+      <td>8k sliding dictionary(max 256 bytes) + static Huffman + improved encoding of position and trees
+    </tr>
+    <tr>
+      <td><code>&quot;-lh6-&quot;</code>
+      <td>32k sliding dictionary(max 256 bytes) + static Huffman + improved encoding of position and trees
+    </tr>
+    <tr>
+      <td><code>&quot;-lh7-&quot;</code>
+      <td>64k sliding dictionary(max 256 bytes) + static Huffman + improved encoding of position and trees
+    </tr>
+    <tr>
+      <td><code>&quot;-lzs-&quot;</code>
+      <td>2k sliding dictionary(max 17 bytes)
+    </tr>
+    <tr>
+      <td><code>&quot;-lz4-&quot;</code>
+      <td>No compression
+    </tr>
+    <tr>
+      <td><code>&quot;-lz5-&quot;</code>
+      <td>4k sliding dictionary(max 17 bytes)
+    </tr>
+    <tr>
+      <td><code>&quot;-lhd-&quot;</code>
+      <td>Directory (no compressed data)
+    </tr>
+  </tbody>
+</table>
+
+
+<h3>Generic time stamp:</h3>
+<pre>
+ 31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16
+|&lt;-------- year -------&gt;|&lt;- month -&gt;|&lt;-- day --&gt;|
+
+ 15 14 13 12 11 10  9  8  7  6  5  4  3  2  1  0
+|&lt;--- hour ---&gt;|&lt;---- minute ---&gt;|&lt;- second/2 -&gt;|
+
+Offset   Length   Contents
+ 0       8 bits   year     years since 1980
+ 8       4 bits   month    [1..12]
+12       4 bits   day      [1..31]
+16       5 bits   hour     [0..23]
+21       6 bits   minite   [0..59]
+27       5 bits   second/2 [0..29]
+</pre>
+<b>NOTE:</b> If you don't have `gettimeofday(2)', or your gettimeofday(2) returns bogus timezone information, try FTIME, MKTIME, TIMELOCAL or TZSET.
+
+
+<h3>OS ID</h3>
+<table border="1">
+  <tbody>
+    <tr>
+      <td><code>'M'</code>
+      <td>MS-DOS
+    <tr>
+      <td><code>'2'</code>
+      <td>OS/2
+    <tr>
+      <td><code>'9'</code>
+      <td>OS9
+    <tr>
+      <td><code>'K'</code>
+      <td>OS/68K
+    <tr>
+      <td><code>'3'</code>
+      <td>OS/386
+    <tr>
+      <td><code>'H'</code>
+      <td>HUMAN
+    <tr>
+      <td><code>'U'</code>
+      <td>UNIX
+    <tr>
+      <td><code>'C'</code>
+      <td>CP/M
+    <tr>
+      <td><code>'F'</code>
+      <td>FLEX
+    <tr>
+      <td><code>'m'</code>
+      <td>Mac
+    <tr>
+      <td><code>'R'</code>
+      <td>Runser
+    </tr>
+  </tbody>
+</table>
+
+<h3>Calc CRC16</h3>
+<pre>
+#define CHAR_BIT   8
+#define UCHAR_MAX  ((1&lt;&lt;(sizeof(unsigned char)*8))-1)
+#define CRCPOLY    0xA001      /* CRC-16 */
+
+static WORD crctable[UCHAR_MAX + 1];
+
+void make_crctable(void)
+{
+  unsigned int    i, j, r;
+  for (i = 0; i &lt;= UCHAR_MAX; i++)
+  {
+    r = i;
+    for (j = 0; j &lt; CHAR_BIT; j++)
+     if (r &amp; 1)
+        r = (r &gt;&gt; 1) ^ CRCPOLY;
+     else
+        r &gt;&gt;= 1;
+    crctable[i] = r;
+  }
+}
+
+WORD calc_header_crc(BYTE *p, WORD n)
+{
+    crc = 0;
+    while (n-- &gt; 0)
+      crc = crctable[(crc ^ (*p++)) &amp; 0xFF] ^ (crc &gt;&gt; CHAR_BIT)
+    return crc;
+}
+
+WORD calccrc(BYTE *p,WORD n)
+{
+  reading_size += n;
+  while (n-- &gt; 0)
+    crc = crctable[(crc ^ (*p++)) &amp; 0xFF] ^ (crc &gt;&gt; CHAR_BIT)
+  return crc;
+}
+
+</pre>
+
+<p><small>Original: <a href="http://www.goice.co.jp/member/mo/formats/lzh.html">http://www.goice.co.jp/member/mo/formats/lzh.html</a><br>
+LHA: <a href="http://gnuwin32.sourceforge.net/packages/lha.htm">http://gnuwin32.sourceforge.net/packages/lha.htm</a></small></p>
+
+</body>
+
+</html>

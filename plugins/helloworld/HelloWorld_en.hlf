@@ -1,0 +1,24 @@
+.Language=English,English (English)
+.PluginContents=Hello, World!
+
+@Contents
+$ #Hello, World!#
+  This plugin for FAR Manager is intended for those programmers,
+who just do the first step in plugin programming.
+
+  There is a tradition - any of the programming environment is studied
+from program "Hello, World! That is this plugin does.
+
+  Plugin is written in C language (as majority asked).
+The compiler is Borland C/C++ 5.02 (and Delphi).
+
+  The initial conditions were:
+
+   "...It would be desired to see a source code, which when executed
+   shows on the screen the dialog box with the text and OK button.
+   Would be better in C. Whether I want too much? Well, I don't know
+   C++ and do not want to learn it. And, as far as I have understood,
+   plugins.hpp can be used with the C compiler..."
+
+
+  Here is such history :-)

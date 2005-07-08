@@ -1,0 +1,1618 @@
+// -- NetResourceList --------------------------------------------------------
+#ifdef NETWORK_LOGGING
+void NetBrowser::LogData(char * Data)
+{
+  fprintf(LogFile,"%s\n", Data);
+  char buffer[MAX_PATH];
+  FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(), 0, buffer, MAX_PATH, NULL);
+  fprintf(LogFile,"GetLastError returns: %s\n", buffer);
+}
+#endif
+
+NetResourceList::NetResourceList()
+  : ResList (NULL), ResCount (0)
+{
+}
+
+NetResourceList::~NetResourceList()
+{
+  Clear();
+}
+
+NetResourceList &NetResourceList::operator= (NetResourceList &other)
+{
+  Clear();
+  for (unsigned I=0; I<other.Count(); I++)
+    Push (other [I]);
+  return *this;
+}
+
+void NetResourceList::Clear()
+{
+  for (unsigned i=0; i < ResCount; i++)
+    DeleteNetResource (ResList [i]);
+  my_free (ResList);
+  ResList=NULL;
+  ResCount=0;
+}
+
+void NetResourceList::DeleteNetResource (NETRESOURCE &Res)
+{
+  my_free(Res.lpRemoteName);
+  my_free(Res.lpLocalName);
+  my_free(Res.lpComment);
+  my_free(Res.lpProvider);
+}
+
+char *NetResourceList::CopyText (const char *Text)
+{
+  if (!Text)
+    return NULL;
+  char *Buf=(char*)my_malloc(strlen(Text)+1);
+  strcpy(Buf,Text);
+  return(Buf);
+}
+
+void NetResourceList::InitNetResource (NETRESOURCE &Res)
+{
+  Res.lpRemoteName = NULL;
+  Res.lpLocalName  = NULL;
+  Res.lpComment    = NULL;
+  Res.lpProvider   = NULL;
+}
+
+void NetResourceList::CopyNetResource (NETRESOURCE &Dest, const NETRESOURCE &Src)
+{
+  my_free (Dest.lpRemoteName);
+  my_free (Dest.lpLocalName);
+  my_free (Dest.lpComment);
+  my_free (Dest.lpProvider);
+  memcpy (&Dest, &Src, sizeof (NETRESOURCE));
+  Dest.lpRemoteName = CopyText (Src.lpRemoteName);
+  Dest.lpLocalName  = CopyText (Src.lpLocalName);
+  Dest.lpComment    = CopyText (Src.lpComment);
+  Dest.lpProvider   = CopyText (Src.lpProvider);
+}
+
+void NetResourceList::Push (NETRESOURCE &Res)
+{
+  ResList=(NETRESOURCE *)my_realloc(ResList,(ResCount+1)*sizeof(*ResList));
+  CopyNetResource (ResList [ResCount], Res);
+  ResCount++;
+}
+
+NETRESOURCE *NetResourceList::Top()
+{
+  if (ResCount == 0)
+    return NULL;
+  return &ResList [ResCount-1];
+}
+
+void NetResourceList::Pop()
+{
+  DeleteNetResource (ResList [ResCount-1]);
+  ResList=(NETRESOURCE *)my_realloc(ResList,(ResCount-1)*sizeof(*ResList));
+  ResCount--;
+}
+
+BOOL NetResourceList::Enumerate (DWORD dwScope, DWORD dwType, DWORD dwUsage,
+                                 LPNETRESOURCE lpNetResource)
+{
+  Clear();
+
+  HANDLE hEnum;
+  if (WNetOpenEnum(dwScope, dwType, dwUsage, lpNetResource, &hEnum)!=NO_ERROR)
+    return FALSE;
+
+  BOOL EnumFailed = FALSE;
+  while (1)
+  {
+    NETRESOURCE nr[1024];
+    DWORD NetSize=sizeof(nr),NetCount=sizeof(nr)/sizeof(nr[0]);
+    DWORD EnumCode=WNetEnumResource(hEnum,&NetCount,nr,&NetSize);
+    if (EnumCode!=NO_ERROR)
+    {
+	  //In W9X the last item in the list may be signaled by ERROR_INVALID_PARAMETER
+	  if(WinVer.dwPlatformId != VER_PLATFORM_WIN32_NT
+          && EnumCode == ERROR_INVALID_PARAMETER 
+          && dwScope == RESOURCE_CONNECTED)
+		  break;
+
+      if (EnumCode!=ERROR_NO_MORE_ITEMS)
+      {
+        Clear();
+        EnumFailed = TRUE;
+      }
+      break;
+    }
+    if (NetCount>0)
+    {
+      ResList=(NETRESOURCE *)my_realloc(ResList,(ResCount+NetCount)*sizeof(*ResList));
+      for (unsigned I=0;I<NetCount;I++)
+        CopyNetResource (ResList [ResCount+I], nr [I]);
+      ResCount+=NetCount;
+    }
+  }
+
+  WNetCloseEnum(hEnum);
+  return !EnumFailed;
+}
+
+// -- NetBrowser -------------------------------------------------------------
+
+NetBrowser::NetBrowser()
+{
+  ChangeDirSuccess = TRUE;
+  OpenFromFilePanel = FALSE;
+  if (SavedCommonRootResources)
+  {
+     RootResources = CommonRootResources;
+     PCurResource = RootResources.Top();
+  }
+  else {
+    NetResourceList::CopyNetResource (CurResource, CommonCurResource);
+    if (PCommonCurResource)
+      PCurResource = &CurResource;
+    else
+      PCurResource = NULL;
+  }
+  NetListRemoteName [0] = '\0';
+  CmdLinePath [0] = '\0';
+
+#ifdef NETWORK_LOGGING
+  LogFile = fopen ("c:\\network.log", "a+t");
+  fprintf (LogFile, "Opening plugin\n");
+#endif
+}
+
+
+NetBrowser::~NetBrowser()
+{
+#ifdef NETWORK_LOGGING
+  fclose (LogFile);
+#endif
+}
+
+#ifdef NETWORK_LOGGING
+
+void NetBrowser::LogNetResource (NETRESOURCE &Res)
+{
+  fprintf (LogFile, "dwScope = %d\ndwType = %d\ndwDisplayType = %d\ndwUsage = %d\n",
+    Res.dwScope, Res.dwType, Res.dwDisplayType, Res.dwUsage);
+  fprintf (LogFile, "lpLocalName = %s\nlpRemoteName = %s\nlpComment = %s\nlpProvider = %s\n\n",
+    Res.lpLocalName, Res.lpRemoteName, Res.lpComment, Res.lpProvider);
+}
+
+#endif
+
+BOOL NetBrowser::EnumerateNetList()
+{
+  if (PCurResource && PCurResource->lpRemoteName)
+    strcpy (NetListRemoteName, PCurResource->lpRemoteName);
+  else
+    NetListRemoteName [0] = '\0';
+  if (!NetList.Enumerate (RESOURCE_GLOBALNET,RESOURCETYPE_ANY,0,PCurResource))
+  {
+    if (PCurResource == NULL)
+    {
+      const char *MsgItems[]={GetMsg(MError),GetMsg(MNetCannotBrowse),GetMsg(MOk)};
+      Info.Message(Info.ModuleNumber,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
+      return(FALSE);
+    }
+    else {
+      // try again with connection
+      AddConnection (PCurResource);	  
+      if (!NetList.Enumerate (RESOURCE_GLOBALNET,RESOURCETYPE_ANY,0,PCurResource))
+        NetList.Clear();
+    }
+  }
+  if(Opt.NTGetHideShare)
+  {
+    PanelInfo PInfo;
+    Info.Control (this, FCTL_GETPANELINFO, &PInfo);
+    if (!Opt.HiddenSharesAsHidden || (PInfo.Flags & PFLAGS_SHOWHIDDEN))
+    {
+      // Check whether we need to get the hidden shares.
+      if(NetList.Count() > 0)
+      {
+        if(PCurResource != NULL)
+        {
+          // If the parent of the current folder is not a server
+          if(PCurResource->dwDisplayType != RESOURCEDISPLAYTYPE_SERVER)
+            return TRUE;
+        }
+        // If there are elements, check the first element
+        if((NetList[NetList.Count()-1].dwDisplayType) != RESOURCEDISPLAYTYPE_SHARE)
+          return TRUE;
+      }
+
+      if (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+        GetHideShareNT();
+      else
+        GetHideShare95();
+    }
+  }
+
+  /*
+  if (NetCount==0 && CurResource!=NULL && AddConnection(CurResource))
+    if (WNetOpenEnum(RESOURCE_GLOBALNET,RESOURCETYPE_ANY,0,CurResource,&hEnum)==NO_ERROR)
+    {
+      GetNetList(hEnum,NetRes,NetCount);
+      WNetCloseEnum(hEnum);
+    }
+  */
+  return TRUE;
+}
+
+int NetBrowser::GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode)
+{
+  if(ReenterGetFindData)
+    return TRUE;
+
+  ReenterGetFindData++;
+
+  if(ChangeDirSuccess)
+  {
+    if (CmdLinePath [0])
+    {
+      // prevent recursion
+      char TmpCmdLinePath [NM];
+      strcpy (TmpCmdLinePath, CmdLinePath);
+      CmdLinePath [0] = 0;
+      GotoComputer (TmpCmdLinePath);
+    }
+
+    *pPanelItem=NULL;
+    *pItemsNumber=0;
+    TSaveScreen SS;
+
+    // get the list of connections, so that we can show mapped drive letters
+    if (!ConnectedList.Enumerate (RESOURCE_CONNECTED,RESOURCETYPE_DISK,0,NULL))
+    {
+      const char *MsgItems[]={GetMsg(MError),GetMsg(MNetCannotBrowse),GetMsg(MOk)};
+      Info.Message(Info.ModuleNumber,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
+      ReenterGetFindData--;
+      return FALSE;
+    }
+
+    if (!EnumerateNetList())
+    {
+      ReenterGetFindData--;
+      return FALSE;
+    }
+  }
+  ChangeDirSuccess = TRUE;
+
+  PluginPanelItem *NewPanelItem=(PluginPanelItem *)my_malloc(sizeof(PluginPanelItem)*NetList.Count());
+  *pPanelItem=NewPanelItem;
+  if (NewPanelItem==NULL)
+  {
+    ReenterGetFindData--;
+    return(FALSE);
+  }
+
+  int CurItemPos=0;
+  for (unsigned I=0;I<NetList.Count();I++)
+  {
+    if (NetList[I].dwType==RESOURCETYPE_PRINT)
+      continue;
+
+    char RemoteName[NM],LocalName[NM],Comment[300];
+
+    GetRemoteName(&NetList [I],RemoteName);
+    if (NetList[I].lpComment==NULL)
+      *Comment=0;
+    else
+      CharToOem(NetList[I].lpComment,Comment);
+    memset(&NewPanelItem[CurItemPos],0,sizeof(PluginPanelItem));
+
+    NewPanelItem[CurItemPos].CustomColumnData=(LPSTR*)my_malloc(sizeof(LPSTR)*2);
+
+    GetLocalName(RemoteName,LocalName);
+
+    NewPanelItem[CurItemPos].CustomColumnData[0]=(char*)my_malloc(strlen(LocalName)+1);
+    strcpy(NewPanelItem[CurItemPos].CustomColumnData[0],LocalName);
+
+    NewPanelItem[CurItemPos].CustomColumnData[1]=(char*)my_malloc(strlen(Comment)+1);
+    strcpy(NewPanelItem[CurItemPos].CustomColumnData[1],Comment);
+    NewPanelItem[CurItemPos].CustomColumnNumber=2;
+
+    CharToOem(RemoteName,NewPanelItem[CurItemPos].FindData.cFileName);
+
+    DWORD attr = FILE_ATTRIBUTE_DIRECTORY;
+    if (Opt.HiddenSharesAsHidden && RemoteName [strlen (RemoteName)-1] == '$')
+      attr |= FILE_ATTRIBUTE_HIDDEN;
+    NewPanelItem[CurItemPos].FindData.dwFileAttributes=attr;
+    CurItemPos++;
+  }
+  *pItemsNumber=CurItemPos;
+
+  ReenterGetFindData--;
+  return(TRUE);
+}
+
+void NetBrowser::FreeFindData(PluginPanelItem *PanelItem,int ItemsNumber)
+{
+  for (int I=0;I<ItemsNumber;I++)
+  {
+    my_free(PanelItem[I].CustomColumnData[0]);
+    my_free(PanelItem[I].CustomColumnData[1]);
+    my_free(PanelItem[I].CustomColumnData);
+  }
+  my_free(PanelItem);
+}
+
+
+int NetBrowser::ProcessEvent (int Event, void *Param)
+{
+  if (Event == FE_CLOSE)
+  {
+    if (PCurResource == NULL || IsMSNetResource (*PCurResource))
+    {
+      NetResourceList::CopyNetResource (CommonCurResource, CurResource);
+      PCommonCurResource = PCurResource ? &CommonCurResource : NULL;
+      SavedCommonRootResources = false;
+    }
+    else {
+      CommonRootResources = RootResources;
+      SavedCommonRootResources = true;
+    }
+  }
+  return FALSE;
+}
+
+
+int NetBrowser::DeleteFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
+                            int OpMode)
+{
+  for (int I=0;I<ItemsNumber;I++)
+    if (PanelItem[I].CustomColumnNumber==2 && PanelItem[I].CustomColumnData!=NULL)
+    {
+      if (*PanelItem[I].CustomColumnData[0])
+        if (!CancelConnection (PanelItem [I].FindData.cFileName)) break;
+    }
+  return(TRUE);
+}
+
+BOOL NetBrowser::CancelConnection (char *RemoteName)
+{
+  char LocalName [NM];
+  if (!GetDriveToDisconnect (RemoteName, LocalName))
+    return FALSE;
+
+  int UpdateProfile = 0;
+  if (!ConfirmCancelConnection (LocalName, RemoteName, UpdateProfile))
+    return FALSE;
+
+  DWORD status = WNetCancelConnection2(LocalName,UpdateProfile,FALSE);
+  // if we're on the drive we're disconnecting, set the directory to
+  // a different drive and try again
+  if (status != NO_ERROR && HandsOffDisconnectDrive (LocalName))
+    status = WNetCancelConnection2(LocalName,UpdateProfile,FALSE);
+  if(status!=NO_ERROR)
+  {
+    int Failed=FALSE;
+    char MsgText[200];
+    FSF.sprintf(MsgText,GetMsg(MNetCannotDisconnect),LocalName);
+    int LastError=GetLastError();
+    if (LastError==ERROR_OPEN_FILES || LastError==ERROR_DEVICE_IN_USE)
+    {
+      const char *MsgItems[]={GetMsg(MError),MsgText,"\x1",GetMsg(MOpenFiles),GetMsg(MAskDisconnect),GetMsg(MOk),GetMsg(MCancel)};
+      if (Info.Message(Info.ModuleNumber,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),2)==0)
+        // всегда рвать соединение
+        if (WNetCancelConnection2(LocalName,UpdateProfile,TRUE)!=NO_ERROR)
+          Failed=TRUE;
+    }
+    else
+      Failed=TRUE;
+    if (Failed)
+    {
+      const char *MsgItems[]={GetMsg(MError),MsgText,GetMsg(MOk)};
+      Info.Message(Info.ModuleNumber,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
+      return FALSE;
+    }
+  }
+  return TRUE;
+}
+
+BOOL NetBrowser::GetDriveToDisconnect (const char *RemoteName, char *LocalName)
+{
+  char LocalNames [NM][10];
+  DWORD LocalNameCount = 0;
+  DWORD i;
+
+  for (i = 0; i < ConnectedList.Count(); i++)
+  {
+    NETRESOURCE &connRes = ConnectedList [i];
+    if (connRes.lpRemoteName && connRes.lpLocalName &&
+      *connRes.lpLocalName && lstrcmpi (connRes.lpRemoteName, RemoteName) == 0)
+    {
+      if (connRes.dwScope == RESOURCE_CONNECTED ||
+        connRes.dwScope == RESOURCE_REMEMBERED)
+      {
+        CharToOem (connRes.lpLocalName, LocalNames [LocalNameCount++]);
+        if (LocalNameCount == 10) break;
+      }
+    }
+  }
+  if (!LocalNameCount) return FALSE;   // hmmm... strange
+
+  if (LocalNameCount == 1)
+    strcpy (LocalName, LocalNames [0]);
+  else
+  {
+    char MsgText [512];
+    FSF.sprintf (MsgText, GetMsg (MMultipleDisconnect), RemoteName);
+    for (i=0; i<LocalNameCount; i++)
+    {
+      strcat (MsgText, LocalNames [i]);
+      strcat (MsgText, "\n");
+    }
+    int index = Info.Message (Info.ModuleNumber, FMSG_ALLINONE, NULL,
+      (const char **) MsgText, 3+LocalNameCount, LocalNameCount);
+    if (index < 0)
+      return FALSE;
+
+    strcpy (LocalName, LocalNames [index]);
+  }
+  return TRUE;
+}
+
+BOOL NetBrowser::ConfirmCancelConnection (char *LocalName, char *RemoteName, int &UpdateProfile)
+{
+  char MsgText[NM];
+  struct InitDialogItem InitItems[]=
+  {
+    /* 0 */ { DI_DOUBLEBOX, 3, 1, 72, 9, 0, 0, 0,                0,"" },
+    /* 1 */ { DI_TEXT,      5, 2,  0, 0, 0, 0, DIF_SHOWAMPERSAND,0,"" },
+    /* 2 */ { DI_TEXT,      5, 3,  0, 0, 0, 0, DIF_SHOWAMPERSAND,0,"" },
+    /* 3 */ { DI_TEXT,      5, 4,  0, 0, 0, 0, DIF_SHOWAMPERSAND,0,"" },
+    /* 4 */ { DI_TEXT,      0, 5,  0, 6, 0, 0, DIF_SEPARATOR,    0,"" },
+    /* 5 */ { DI_CHECKBOX,  5, 6, 70, 5, 0, 0, 0,                0,"" },
+    /* 6 */ { DI_TEXT,      0, 7,  0, 6, 0, 0, DIF_SEPARATOR,    0,"" },
+    /* 7 */ { DI_BUTTON,    0, 8,  0, 0, 1, 0, DIF_CENTERGROUP,  1,"" },
+    /* 8 */ { DI_BUTTON,    0, 8,  0, 0, 0, 0, DIF_CENTERGROUP,  0,"" }
+  };
+  struct FarDialogItem DialogItems[sizeof(InitItems)/sizeof(InitItems[0])];
+  InitDialogItems(InitItems,DialogItems,sizeof(InitItems)/sizeof(InitItems[0]));
+
+  size_t Len1=strlen(strcpy(DialogItems[0].Data,GetMsg(MConfirmDisconnectTitle)));
+  FSF.sprintf(MsgText,GetMsg(MConfirmDisconnectQuestion),LocalName);
+  Len1=max (Len1, strlen(strcpy(DialogItems[1].Data,MsgText)));
+  FSF.sprintf(MsgText,GetMsg(MConfirmDisconnectMapped),LocalName);
+  Len1=max (Len1, strlen(strcpy(DialogItems[2].Data,MsgText)));
+  Len1=max (Len1, strlen(strcpy(DialogItems[5].Data,GetMsg(MConfirmDisconnectReconnect))));
+
+  strcpy(DialogItems[3].Data,FSF.TruncPathStr(RemoteName,Len1));
+
+  strcpy(DialogItems[7].Data,GetMsg(MYes));
+  strcpy(DialogItems[8].Data,GetMsg(MCancel));
+
+  BOOL IsPersistent = TRUE;
+  // Check if this was a permanent connection or not.
+  {
+    HKEY hKey;
+    FSF.sprintf(MsgText,"Network\\%c",toupper(LocalName [0]));
+    if(RegOpenKeyEx(HKEY_CURRENT_USER,MsgText,0,KEY_QUERY_VALUE,&hKey)!=ERROR_SUCCESS)
+    {
+      DialogItems[5].Flags|=DIF_DISABLE;
+      DialogItems[5].Selected=0;
+      IsPersistent=FALSE;
+    }
+    else
+      DialogItems[5].Selected=Opt.DisconnectMode;
+    RegCloseKey(hKey);
+  }
+
+  // adjust the dialog size
+  DialogItems[0].X2=DialogItems[0].X1+Len1+3;
+
+  int ExitCode;
+  if (!NeedConfirmCancelConnection())
+    ExitCode = 7;
+  else
+    ExitCode = Info.Dialog (Info.ModuleNumber, -1, -1, DialogItems [0].X2+4, 11,
+      "DisconnectDrive", DialogItems, sizeof (DialogItems)/sizeof (DialogItems [0]));
+
+  UpdateProfile=DialogItems[5].Selected?0:CONNECT_UPDATE_PROFILE;
+  if(ExitCode == 7 && IsPersistent)
+  {
+    Opt.DisconnectMode=DialogItems[5].Selected;
+    SetRegKey(HKEY_CURRENT_USER,"",StrDisconnectMode,Opt.DisconnectMode);
+  }
+  return ExitCode == 7;
+}
+
+
+BOOL NetBrowser::NeedConfirmCancelConnection()
+{
+  return (Info.AdvControl (Info.ModuleNumber, ACTL_GETCONFIRMATIONS, NULL) &
+    FCS_DISCONNECTNETWORKDRIVE) != 0;
+}
+
+
+BOOL NetBrowser::HandsOffDisconnectDrive (const char *LocalName)
+{
+  char DirBuf [NM];
+  GetCurrentDirectory (sizeof (DirBuf)-1, DirBuf);
+  if (toupper (DirBuf [0]) != toupper (LocalName [0]))
+    return FALSE;
+
+  // change to the root of the drive where network.dll resides
+  if (!GetModuleFileName (NULL, DirBuf, sizeof (DirBuf)-1))
+    return FALSE;
+
+  DirBuf [3] = '\0';   // truncate to "X:\\"
+  return SetCurrentDirectory (DirBuf);
+}
+
+
+void NetBrowser::GetOpenPluginInfo(struct OpenPluginInfo *Info)
+{
+  Info->StructSize=sizeof(*Info);
+  Info->Flags=OPIF_USEHIGHLIGHTING|OPIF_ADDDOTS|OPIF_RAWSELECTION|
+              OPIF_SHOWPRESERVECASE|OPIF_FINDFOLDERS;
+  Info->HostFile=NULL;
+  if (PCurResource == NULL)
+    Info->CurDir="";
+  else
+  {
+    static char CurDir[NM];
+    if (PCurResource->lpRemoteName==NULL)
+      CharToOem (PCurResource->lpProvider, CurDir);
+    else
+      CharToOem (PCurResource->lpRemoteName, CurDir);
+    Info->CurDir=CurDir;
+  }
+
+  Info->Format=(char *) GetMsg(MNetwork);
+
+  static char Title[NM];
+  FSF.sprintf(Title," %s: %s ",GetMsg(MNetwork), Info->CurDir);
+  Info->PanelTitle=Title;
+
+  Info->InfoLines=NULL;
+  Info->InfoLinesNumber=0;
+
+  Info->DescrFiles=NULL;
+  Info->DescrFilesNumber=0;
+
+  static struct PanelMode PanelModesArray[10];
+  static char *ColumnTitles[3];
+  ColumnTitles[0]=GetMsg(MColumnName);
+  ColumnTitles[1]=GetMsg(MColumnDisk);
+  ColumnTitles[2]=GetMsg(MColumnComment);
+
+  PanelModesArray[3].ColumnTypes="N,C0,C1";
+  PanelModesArray[3].ColumnWidths="0,2,0";
+  PanelModesArray[3].ColumnTitles=ColumnTitles;
+  PanelModesArray[3].FullScreen=FALSE;
+  PanelModesArray[4].ColumnTypes="N,C0";
+  PanelModesArray[4].ColumnWidths="0,2";
+  PanelModesArray[4].ColumnTitles=ColumnTitles;
+  PanelModesArray[4].FullScreen=FALSE;
+  PanelModesArray[5].ColumnTypes="N,C0,C1";
+  PanelModesArray[5].ColumnWidths="0,2,0";
+  PanelModesArray[5].ColumnTitles=ColumnTitles;
+  PanelModesArray[5].FullScreen=TRUE;
+
+  Info->PanelModesArray=PanelModesArray;
+  Info->PanelModesNumber=sizeof(PanelModesArray)/sizeof(PanelModesArray[0]);
+  Info->StartPanelMode='3';
+  static struct KeyBarTitles KeyBar={
+    {NULL,NULL,"","","","","","",NULL,NULL,NULL,NULL},
+    {NULL,NULL,NULL,NULL,"","",NULL,NULL,NULL,NULL,NULL,NULL},
+    {NULL,NULL,"","","","",NULL,NULL,NULL,NULL,NULL,NULL},
+    {"","","","","","","","",NULL,NULL,NULL,NULL}
+  };
+  if (PCurResource && PCurResource->dwDisplayType == RESOURCEDISPLAYTYPE_SERVER)
+  {
+	if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+	  KeyBar.Titles[4-1]=GetMsg(MF4);
+    KeyBar.Titles[5-1]=GetMsg(MF5);
+    KeyBar.Titles[6-1]=GetMsg(MF6);
+    KeyBar.ShiftTitles[5-1]=GetMsg(MSHIFTF5);
+    KeyBar.ShiftTitles[6-1]=GetMsg(MSHIFTF6);
+    KeyBar.Titles[8-1]=GetMsg(MF8);
+  }
+  else
+  {
+	if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && PCurResource && 
+	  PCurResource->dwDisplayType == RESOURCEDISPLAYTYPE_DOMAIN)
+	  KeyBar.Titles[4-1]=GetMsg(MF4);
+	else
+	  KeyBar.Titles[4-1]="";
+    KeyBar.Titles[5-1]="";
+    KeyBar.Titles[6-1]="";
+    KeyBar.ShiftTitles[5-1]="";
+    KeyBar.ShiftTitles[6-1]="";
+    KeyBar.Titles[8-1]="";
+  }
+  Info->KeyBar=&KeyBar;
+}
+
+
+int NetBrowser::SetDirectory(const char *Dir,int OpMode)
+{
+  ChangeDirSuccess = TRUE;
+
+  if (OpenFromFilePanel)
+    PCurResource = NULL;
+
+  BOOL TmpOpenFromFilePanel = OpenFromFilePanel;
+  OpenFromFilePanel = FALSE;
+
+  if (!Dir || strcmp(Dir,"\\")==0)
+  {
+    PCurResource = NULL;
+    RootResources.Clear();
+    return(TRUE);
+  }
+  if (strcmp(Dir,"..")==0)
+  {
+    if (PCurResource == NULL)
+      return FALSE;
+
+    if (IsMSNetResource (*PCurResource))
+    {
+      NETRESOURCE nrParent;
+      NetResourceList::InitNetResource (nrParent);
+      if (!GetResourceParent (*PCurResource, &nrParent))
+        PCurResource = NULL;
+      else
+      {
+		if(!IsResourceReadable(nrParent))
+		{
+		  //Perhaps, it means the current resource is DFS, 
+		  //so lets try to find it's parent
+		  if(NetList.Count() < 1 || !GetDfsParent(NetList[0], nrParent) || !IsResourceReadable(nrParent))
+		  {
+		    PCurResource = NULL;
+		    RootResources.Clear();
+		    return TRUE;
+		  }
+		}
+        CurResource = nrParent;
+        PCurResource = &CurResource;
+      }
+    }
+    else
+    {
+      RootResources.Pop();
+      PCurResource = RootResources.Top();
+    }
+    return TRUE;
+  }
+  else
+  {
+    ChangeDirSuccess = TRUE;
+    if (ChangeToDirectory (Dir, ((OpMode & OPM_FIND) != 0), 0))
+      return ChangeDirSuccess;
+
+    char AnsiDir[NM];
+    OemToChar(Dir,AnsiDir);
+    if (AnsiDir [0] == '/')
+      AnsiDir [0] = '\\';
+    if (AnsiDir [1] == '/')
+      AnsiDir [1] = '\\';
+
+    // if still haven't found and the name starts with \\, try to jump to a
+    // computer in a different domain
+    if (strncmp (AnsiDir, "\\\\", 2) == 0)
+    {
+      if (!TmpOpenFromFilePanel && strchr (AnsiDir+2, '\\'))
+      {
+        if (!IsReadable (AnsiDir))
+        {
+#ifdef NETWORK_LOGGING
+		  char szErrBuff[MAX_PATH*2];
+		  sprintf(szErrBuff, "GetLastError = %d at line %d, file %s", GetLastError(), __LINE__, __FILE__);
+		  LogData(szErrBuff);
+#endif
+          Info.Message (Info.ModuleNumber, FMSG_WARNING | FMSG_ERRORTYPE | FMSG_MB_OK | FMSG_ALLINONE,
+            NULL, (const char **) GetMsg (MError), 0, 0);
+          return FALSE;
+        }
+        Info.Control (this, FCTL_CLOSEPLUGIN, (void *) Dir);
+        return TRUE;
+      }
+      ChangeDirSuccess = GotoComputer (AnsiDir);
+      return ChangeDirSuccess;
+    }
+  }
+  return(FALSE);
+}
+
+
+BOOL NetBrowser::ChangeToDirectory (const char *Dir, int IsFind, int IsExplicit)
+{
+  // if we already have the resource list for the current directory,
+  // do not scan it again
+  if (!PCurResource || !PCurResource->lpRemoteName ||
+        strcmp (PCurResource->lpRemoteName, NetListRemoteName) != 0)
+    EnumerateNetList();
+
+  char AnsiDir[NM];
+  OemToChar(Dir,AnsiDir);
+  if (AnsiDir [0] == '/')
+    AnsiDir [0] = '\\';
+  if (AnsiDir [1] == '/')
+    AnsiDir [1] = '\\';
+
+  for (unsigned I=0;I<NetList.Count();I++)
+  {
+    char RemoteName[NM];
+    GetRemoteName(&NetList[I],RemoteName);
+    if (strcmpi(AnsiDir,RemoteName)==0)
+    {
+      if ((NetList[I].dwUsage & RESOURCEUSAGE_CONTAINER)==0 &&
+          (NetList[I].dwType & RESOURCETYPE_DISK) &&
+          NetList[I].lpRemoteName!=NULL)
+      {
+        if (IsFind)
+          return(FALSE);
+        char NewDir[NM],LocalName[NM];
+        GetLocalName(NetList[I].lpRemoteName,LocalName);
+        if (*LocalName)
+		  if(IsReadable(LocalName))
+            strcpy(NewDir,LocalName);
+		  else
+		  {
+			Info.Message (Info.ModuleNumber, FMSG_WARNING | FMSG_ERRORTYPE | FMSG_MB_OK | FMSG_ALLINONE,
+                  NULL, (const char **) GetMsg (MError), 0, 0);
+            return TRUE;
+		  }
+        else
+        {
+          BOOL ConnectError = FALSE;
+          strcpy(NewDir,NetList[I].lpRemoteName);
+          CharToOem(NewDir,NewDir);
+          if (IsExplicit)
+          {
+            if (!AddConnectionExplicit (&NetList [I]) || !IsReadable (NewDir))
+              ConnectError = TRUE;
+          }
+          else {
+            if (!IsReadable(NewDir))
+              if (!AddConnection(&NetList[I]) || !IsReadable (NewDir))
+                ConnectError = TRUE;
+          }
+          if (ConnectError)
+          {
+			DWORD res = GetLastError();
+			if(!IsExplicit)
+			  if (res == ERROR_INVALID_PASSWORD || res == ERROR_LOGON_FAILURE || res == ERROR_ACCESS_DENIED || res == ERROR_INVALID_HANDLE)
+			    ConnectError = !(AddConnectionExplicit(&NetList[I])&&IsReadable (NewDir));
+			if(ConnectError)
+			{
+			  ChangeDirSuccess = FALSE;
+              if (GetLastError() != ERROR_CANCELLED)
+                Info.Message (Info.ModuleNumber, FMSG_WARNING | FMSG_ERRORTYPE | FMSG_MB_OK | FMSG_ALLINONE,
+                  NULL, (const char **) GetMsg (MError), 0, 0);
+              return TRUE;
+			}
+          }
+        }
+        Info.Control(this,FCTL_CLOSEPLUGIN,NewDir);
+        return(TRUE);
+      }
+      if (IsExplicit?!AddConnectionExplicit(&NetList[I]):!IsResourceReadable (NetList [I]))
+      {
+		int res = GetLastError();
+		if (res == ERROR_INVALID_PASSWORD || res == ERROR_LOGON_FAILURE || res == ERROR_ACCESS_DENIED || res == ERROR_LOGON_TYPE_NOT_GRANTED)
+		  ChangeDirSuccess = IsExplicit?FALSE:AddConnectionExplicit(&NetList[I]);
+		else
+		  ChangeDirSuccess = FALSE;
+		if(!ChangeDirSuccess)
+		{
+          if (GetLastError() != ERROR_CANCELLED)
+            Info.Message (Info.ModuleNumber, FMSG_WARNING | FMSG_ERRORTYPE | FMSG_MB_OK | FMSG_ALLINONE,
+              NULL, (const char **) GetMsg (MError), 0, 0);
+          return TRUE;
+		}
+      }
+      NetResourceList::CopyNetResource (CurResource, NetList [I]);
+      PCurResource = &CurResource;
+      if (!IsMSNetResource (CurResource))
+        RootResources.Push (CurResource);
+      return(TRUE);
+    }
+  }
+  return FALSE;
+}
+
+
+BOOL NetBrowser::IsMSNetResource (const NETRESOURCE &Res)
+{
+  if (!Res.lpProvider)
+    return TRUE;
+  return strstr (Res.lpProvider, "Microsoft") != NULL;
+}
+
+
+BOOL NetBrowser::IsResourceReadable (NETRESOURCE &Res)
+{
+  HANDLE hEnum = INVALID_HANDLE_VALUE;
+  DWORD result = WNetOpenEnum (RESOURCE_GLOBALNET, RESOURCETYPE_ANY, 0, &Res, &hEnum);
+  if (result != NO_ERROR)
+  {
+    if (!AddConnection (&Res))
+      return FALSE;
+	result = WNetOpenEnum (RESOURCE_GLOBALNET, RESOURCETYPE_ANY, 0, &Res, &hEnum);
+    if (result != NO_ERROR)
+      return FALSE;
+  }
+  if (hEnum != INVALID_HANDLE_VALUE)
+    WNetCloseEnum (hEnum);
+  return TRUE;
+}
+
+BOOL NetBrowser::GetDfsParent(const NETRESOURCE &SrcRes, NETRESOURCE &Parent)
+{
+  if(!FNetDfsGetInfo)
+	return FALSE;
+  //we should allocate memory for Wide chars
+  int nSize = MultiByteToWideChar(CP_ACP, 0, SrcRes.lpRemoteName, -1, NULL, 0);
+  if(!nSize)
+	return FALSE;
+  WCHAR *szRes = new WCHAR[nSize++];
+
+  if(!szRes)
+	return FALSE;
+
+  int Res = FALSE;
+  if(MultiByteToWideChar(CP_ACP, 0, SrcRes.lpRemoteName, -1, szRes, nSize*sizeof(WCHAR)))
+  {
+	LPDFS_INFO_3 lpData;
+	if(ERROR_SUCCESS == FNetDfsGetInfo(szRes, NULL, NULL, 3, (LPBYTE *) &lpData))
+	{
+	  DWORD dwBuffSize = 32*sizeof(NETRESOURCE);
+	  NETRESOURCE *resResult = (NETRESOURCE *)my_malloc(dwBuffSize);
+	  CHAR *pszSys = NULL;
+	  for(DWORD i = 0; i < lpData->NumberOfStorages; i++)
+	  {
+		nSize = WideCharToMultiByte(CP_ACP, 0, lpData->Storage[i].ServerName,
+		  -1, NULL, 0, NULL, NULL);
+		if(!nSize)
+		  break;
+		nSize += 3;
+		CHAR *szServ =new CHAR[nSize];
+		szServ[0] = '\\';
+		szServ[1] = '\\';
+		
+		WideCharToMultiByte(CP_ACP, 0, lpData->Storage[i].ServerName,
+		  -1, &szServ[2], nSize - 2, NULL, NULL);
+		NETRESOURCE inRes = {0};
+		inRes.dwScope = RESOURCE_CONNECTED;
+		inRes.dwType = RESOURCETYPE_ANY;
+		inRes.lpRemoteName = szServ;
+		DWORD dwRes;
+		while((dwRes = FWNetGetResourceInformation(&inRes, resResult, 
+		  &dwBuffSize, &pszSys)) == ERROR_MORE_DATA)
+		{
+		  resResult = (NETRESOURCE *)my_realloc(resResult, dwBuffSize);
+		}
+		if(dwRes == ERROR_SUCCESS)
+		{
+		  if(IsResourceReadable(*resResult))
+		  {
+			NetResourceList::CopyNetResource(Parent, *resResult);
+			Res = TRUE;
+		  }
+		}
+
+		delete(szServ);
+		if(Res)
+		  break;
+	  }
+	  my_free(resResult);
+	}
+  }
+
+  delete (szRes);
+  return Res;
+}
+
+
+BOOL NetBrowser::GetResourceInfo(char *SrcName,LPNETRESOURCE DstNetResource)
+{
+  if(!FWNetGetResourceInformation || !FWNetGetResourceParent)
+    return FALSE;
+
+#ifdef NETWORK_LOGGING
+  fprintf (LogFile, "GetResourceInfo %s\n", SrcName);
+#endif
+
+  NETRESOURCE nr;
+  memset(&nr,0, sizeof(nr));
+
+  NETRESOURCE nrOut [32];   // provide buffer space
+  NETRESOURCE *lpnrOut = &nrOut [0];
+  DWORD cbBuffer = sizeof(nrOut);
+  LPTSTR pszSystem = NULL;          // pointer to variable-length strings
+
+  nr.dwDisplayType = RESOURCEDISPLAYTYPE_GENERIC;
+  nr.dwScope       = RESOURCE_GLOBALNET;
+  nr.dwType        = RESOURCETYPE_ANY;
+  nr.dwUsage       = RESOURCEUSAGE_ALL;
+  nr.lpRemoteName  = SrcName;
+  nr.lpLocalName   = "";
+  nr.lpComment     = "";
+  nr.lpProvider    = "";
+
+  DWORD dwError=FWNetGetResourceInformation(&nr,lpnrOut,&cbBuffer,&pszSystem);
+
+  // If the call fails because the buffer is too small,
+  //   call the LocalAlloc function to allocate a larger buffer.
+  if (dwError == ERROR_MORE_DATA)
+  {
+    if((lpnrOut = (LPNETRESOURCE)LocalAlloc(LMEM_FIXED, cbBuffer)) != NULL)
+      dwError = FWNetGetResourceInformation(&nr, lpnrOut, &cbBuffer, &pszSystem);
+  }
+  if (dwError == NO_ERROR)
+  {
+    if(DstNetResource)
+      NetResourceList::CopyNetResource (*DstNetResource, *lpnrOut);
+
+#ifdef NETWORK_LOGGING
+    fprintf (LogFile, "Result:\n");
+    LogNetResource (*DstNetResource);
+#endif
+
+    if (lpnrOut != &nrOut [0])
+      LocalFree(lpnrOut);
+    return TRUE;
+  }
+#ifdef NETWORK_LOGGING
+  else
+    fprintf (LogFile, "error %d\n");
+#endif
+  return FALSE;
+}
+
+
+BOOL NetBrowser::GetResourceParent (NETRESOURCE &SrcRes, LPNETRESOURCE DstNetResource)
+{
+  if(!FWNetGetResourceInformation || !FWNetGetResourceParent)
+    return FALSE;
+
+#ifdef NETWORK_LOGGING
+  fprintf (LogFile, "GetResourceParent() for:\n");
+  LogNetResource (SrcRes);
+#endif
+
+  TSaveScreen ss;
+
+  BOOL Ret=FALSE;
+  NETRESOURCE nrOut [32];           // provide buffer space
+  NETRESOURCE *lpnrOut = &nrOut [0];
+  DWORD cbBuffer = sizeof(nrOut);
+  LPTSTR pszSystem = NULL;          // pointer to variable-length strings
+
+  NETRESOURCE nrSrc = SrcRes;
+  nrSrc.dwDisplayType = RESOURCEDISPLAYTYPE_GENERIC;
+  nrSrc.dwScope       = RESOURCE_GLOBALNET;
+  nrSrc.dwUsage       = 0;
+  nrSrc.dwType        = RESOURCETYPE_ANY;
+  DWORD dwError=FWNetGetResourceInformation(&nrSrc,lpnrOut,&cbBuffer,&pszSystem);
+
+  // If the call fails because the buffer is too small,
+  //   call the LocalAlloc function to allocate a larger buffer.
+  if (dwError == ERROR_MORE_DATA)
+  {
+    if((lpnrOut = (LPNETRESOURCE)LocalAlloc(LMEM_FIXED, cbBuffer)) != NULL)
+      dwError = FWNetGetResourceInformation(&nrSrc, lpnrOut, &cbBuffer, &pszSystem);
+  }
+  if (dwError == NO_ERROR)
+  {
+#ifdef NETWORK_LOGGING
+    fprintf (LogFile, "WNetGetResourceInformation() returned:\n");
+    LogNetResource (*lpnrOut);
+#endif
+
+    nrSrc.lpProvider=lpnrOut->lpProvider;
+    if(FWNetGetResourceParent(&nrSrc,lpnrOut,&cbBuffer) == NO_ERROR)
+    {
+      if(DstNetResource)
+        NetResourceList::CopyNetResource (*DstNetResource, *lpnrOut);
+#ifdef NETWORK_LOGGING
+      fprintf (LogFile, "Result:\n");
+      LogNetResource (*DstNetResource);
+#endif
+      Ret=TRUE;
+    }
+    if (lpnrOut != &nrOut [0])
+      LocalFree(lpnrOut);
+  }
+
+  return Ret;
+}
+
+
+int NetBrowser::ProcessKey(int Key,unsigned int ControlState)
+{
+  if ((ControlState==0 || (ControlState&PKF_SHIFT)==PKF_SHIFT) &&
+     (Key==VK_F5 || Key==VK_F6))
+  {
+    if (PCurResource && PCurResource->dwDisplayType == RESOURCEDISPLAYTYPE_SERVER)
+    {
+      struct PanelInfo PInfo;
+      Info.Control(this,FCTL_GETPANELINFO,&PInfo);
+
+      for (int I=0;I<PInfo.SelectedItemsNumber;I++)
+      {
+        if (!MapNetworkDrive (PInfo.SelectedItems[I].FindData.cFileName,
+          (Key == VK_F6), ((ControlState&PKF_SHIFT)==0)))
+          break;
+      }
+      Info.Control(this,FCTL_UPDATEPANEL,NULL);
+      Info.Control(this,FCTL_REDRAWPANEL,NULL);
+    }
+    return(TRUE);
+  }
+  else if (Key == 'F' && (ControlState & PKF_CONTROL) == PKF_CONTROL)
+  {
+    PutCurrentFileName (TRUE);
+    return TRUE;
+  }
+  else if (Key == VK_INSERT && (ControlState & (PKF_CONTROL | PKF_ALT)) == (PKF_CONTROL | PKF_ALT))
+  {
+  PutCurrentFileName (FALSE);
+  return TRUE;
+  }
+  else if(Key == VK_F4 && !ControlState && WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+  {
+	  struct PanelInfo PInfo;
+      Info.Control(this,FCTL_GETPANELINFO,&PInfo);
+	  if(lstrcmp(PInfo.SelectedItems[0].FindData.cFileName, ".."))
+	    if(ChangeToDirectory(PInfo.SelectedItems[0].FindData.cFileName, FALSE, TRUE))
+		  if(Info.FSF->PointToName(PInfo.SelectedItems[0].FindData.cFileName) - 
+			  PInfo.SelectedItems[0].FindData.cFileName <= 2)
+		  {
+			Info.Control(this,FCTL_UPDATEPANEL,NULL);
+			Info.Control(this,FCTL_REDRAWPANEL,NULL);
+		  }
+	  return TRUE;
+  }
+  // disable processing of F3 - avoid unnecessary slowdown
+  else if ((Key == VK_F3 || Key == VK_CLEAR) &&
+        (ControlState == 0 || ((ControlState & PKF_ALT) == PKF_ALT)))
+    return TRUE;
+  return(FALSE);
+}
+
+
+BOOL NetBrowser::MapNetworkDrive (char *RemoteName, BOOL AskDrive, BOOL Permanent)
+{
+  char AnsiRemoteName[NM];
+  OemToChar(RemoteName,AnsiRemoteName);
+  DWORD DriveMask=GetLogicalDrives();
+  char NewLocalName[10];
+  *NewLocalName=0;
+
+  if (!AskDrive)
+    GetFreeLetter(DriveMask,NewLocalName);
+  else
+  {
+    if (!AskMapDrive (NewLocalName, Permanent))
+      return FALSE;
+  }
+  if (*NewLocalName)
+  {
+    NETRESOURCE newnr;
+    // char LocalName[10];
+    newnr.dwType=RESOURCETYPE_DISK;
+    newnr.lpLocalName=NewLocalName;
+    newnr.lpRemoteName=AnsiRemoteName;
+    newnr.lpProvider=NULL;
+
+    while (1)
+    {
+	  if(IsReadable(AnsiRemoteName))
+	  {
+        if (AddConnection(&newnr,Permanent))
+          break;
+	  }else
+		if(AddConnectionExplicit(&newnr, Permanent) && IsReadable(newnr.lpLocalName))
+		  break;
+		else if(ERROR_CANCELLED == GetLastError())
+		  break;
+
+      if (GetLastError()==ERROR_DEVICE_ALREADY_REMEMBERED)
+      {
+        if (!AskDrive)
+        {
+          GetFreeLetter(DriveMask,NewLocalName);
+          if (*NewLocalName==0)
+          {
+            const char *MsgItems[]={GetMsg(MError),GetMsg(MNoFreeLetters),GetMsg(MOk)};
+            Info.Message(Info.ModuleNumber,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
+            return FALSE;
+          }
+        }
+        else
+        {
+          const char *MsgItems[]={GetMsg(MError),GetMsg(MAlreadyRemembered),GetMsg(MOk)};
+          Info.Message(Info.ModuleNumber,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
+          return FALSE;
+        }
+      }
+      else
+      {
+        char MsgText[300];
+        FSF.sprintf(MsgText,GetMsg(MNetCannotConnect),RemoteName,NewLocalName);
+        const char *MsgItems[]={GetMsg(MError),MsgText,GetMsg(MOk)};
+        Info.Message(Info.ModuleNumber,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
+        return FALSE;
+      }
+    }
+  }
+  else
+  {
+    const char *MsgItems[]={GetMsg(MError),GetMsg(MNoFreeLetters),GetMsg(MOk)};
+    Info.Message(Info.ModuleNumber,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
+    return FALSE;
+  }
+  return TRUE;
+}
+
+
+BOOL NetBrowser::AskMapDrive (char *NewLocalName, BOOL &Permanent)
+{
+  int ExitCode = 0;
+  while (1)
+  {
+    struct FarMenuItem MenuItems['Z'-'A'+1];
+    int MenuItemsNumber=0;
+    memset(MenuItems,0,sizeof(MenuItems));
+    DWORD DriveMask=GetLogicalDrives();
+    for (int I=0;I<='Z'-'A';I++)
+      if ((DriveMask & (1<<I))==0)
+        FSF.sprintf(MenuItems[MenuItemsNumber++].Text,"&%c:",'A'+I);
+    MenuItems [ExitCode].Selected = TRUE;
+
+    if (!MenuItemsNumber)
+      return FALSE;
+
+    char *MenuTitle, *MenuBottom;
+    if (Permanent)
+    {
+      MenuTitle = GetMsg (MPermanentTo);
+      MenuBottom = GetMsg (MToggleTemporary);
+    }
+    else {
+      MenuTitle = GetMsg (MTemporaryTo);
+      MenuBottom = GetMsg (MTogglePermanent);
+    }
+    int BreakKeys[] = { VK_F6, 0};
+    int BreakCode;
+
+    ExitCode=Info.Menu(Info.ModuleNumber,-1,-1,0,0,
+                 MenuTitle,MenuBottom,StrHelpNetBrowse,
+                 BreakKeys,&BreakCode,MenuItems,MenuItemsNumber);
+    if (ExitCode<0)
+      return FALSE;
+    if (BreakCode == -1)
+    {
+      strcpy(NewLocalName,MenuItems[ExitCode].Text+1);
+      break;
+    }
+    Permanent = !Permanent;
+  }
+  return TRUE;
+}
+
+
+void NetBrowser::GetFreeLetter(DWORD &DriveMask,char *DiskName)
+{
+  *DiskName=0;
+  for (int I=2;I<='Z'-'A';I++)
+    if ((DriveMask & (1<<I))==0)
+    {
+      DriveMask |= 1<<I;
+      DiskName[0]='A'+I;
+      DiskName[1]=':';
+      DiskName[2]=0;
+      break;
+    }
+}
+
+
+int NetBrowser::AddConnection(NETRESOURCE *nr,int Remember)
+{
+  NETRESOURCE connectnr=*nr;
+  DWORD lastErrDebug = WNetAddConnection2(&connectnr,NULL,NULL,(Remember?CONNECT_UPDATE_PROFILE:0));
+  if (lastErrDebug==NO_ERROR)
+  {
+    lastErrDebug = GetLastError();
+    return(TRUE);
+  }
+    return(FALSE);
+}
+
+int NetBrowser::AddConnectionExplicit (NETRESOURCE *nr, int Remember)
+{
+  char Name[256],Password[256];
+  NETRESOURCE connectnr=*nr;
+  if (!GetNameAndPassword(connectnr.lpRemoteName,Name,Password))
+  {
+    SetLastError(ERROR_CANCELLED);
+    return(FALSE);
+  }
+  while(1)
+  {
+	if(NO_ERROR == WNetAddConnection2(&connectnr,Password,*Name ? Name:NULL,(Remember?CONNECT_UPDATE_PROFILE:0)))
+	  return TRUE;
+	else
+	{
+	  if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && ERROR_SESSION_CREDENTIAL_CONFLICT == GetLastError())
+	  {	  
+		//Trying to cancel existing connections
+		DisconnectFromServer(nr);
+		  
+		if(NO_ERROR == WNetAddConnection2(&connectnr,Password,*Name ? Name:NULL,(Remember?CONNECT_UPDATE_PROFILE:0)))
+		  return TRUE;
+	  }
+	}
+	if(ERROR_SUCCESS != GetLastError() && Name?(!strstr(Name, "\\")&&!strstr(Name, "@")):FALSE)
+	{
+	  //If the specified user name does not look like "ComputerName\UserName" nor "User@Domain"
+	  //and the plug-in failed to logon to the remote machine, the specified user name can be
+	  //interpreted as user name of the remote computer, so let's transform it to look like
+	  //"Computer\User"
+	  
+	  char szServer[MAX_PATH];
+	  char szNameCopy[MAX_PATH];
+	  
+	  //make copy of Name
+	  lstrcpy(szNameCopy, Name);
+	  char *p = connectnr.lpRemoteName;
+	  int n = Info.FSF->PointToName(p) - p;
+	  if(n <= 2)
+		lstrcpyn(szServer, p + n, sizeof(szServer));
+	  else
+	  {
+		while(*++p == '\\') n--;
+		if(n > MAX_PATH) n = MAX_PATH;
+		lstrcpyn(szServer, p, n-1);
+	  }
+	  wsprintf(Name, "%s\\%s", szServer, szNameCopy);
+
+	  //Try again to logon with the transformed user name.
+	  continue;
+	}
+	return FALSE;
+  }
+}
+
+void NetBrowser::DisconnectFromServer(NETRESOURCE *nr)
+{
+  //We cannot disconnect if we run on Win9X
+  if(WinVer.dwPlatformId != VER_PLATFORM_WIN32_NT)
+    return;
+  //First we should know a name of the server
+  int n = Info.FSF->PointToName(nr->lpRemoteName) - nr->lpRemoteName;
+  if(n <= 2)
+	n = lstrlen(nr->lpRemoteName) + 1;
+  char *szServer = (char*)my_malloc(n + 1);	
+  if(szServer)
+  {
+	char *szBuff = (char*)my_malloc(n + 1);
+	if(szBuff)
+	{
+	  lstrcpyn(szServer, nr->lpRemoteName, n);
+
+	  NETRESOURCE *lpBuff = 0;
+
+	  HANDLE hEnum;
+	  if(NO_ERROR == WNetOpenEnum(RESOURCE_CONNECTED, RESOURCETYPE_ANY, 0, NULL, &hEnum))
+	  {
+		DWORD cCount = (DWORD)-1;
+		DWORD nBuffSize = 0;
+		//Let's determine buffer's size we need to store all the connections
+		if(ERROR_MORE_DATA == WNetEnumResource(hEnum, &cCount, NULL, &nBuffSize))
+		{
+		  lpBuff = (NETRESOURCE*)my_malloc(nBuffSize);
+		  if(lpBuff)
+		  {
+			cCount = -1;
+			if(NO_ERROR != WNetEnumResource(hEnum, &cCount, lpBuff, &nBuffSize))
+			  my_free(lpBuff), lpBuff = NULL;
+		  }
+		}
+
+		WNetCloseEnum(hEnum);
+		if(lpBuff)
+		{
+		  for(DWORD i = 0; i < cCount; i++)
+		  {
+			  lstrcpyn(szBuff, lpBuff[i].lpRemoteName, n);
+			  if(0 == lstrcmpi(szServer, szBuff))
+				  WNetCancelConnection2(lpBuff[i].lpRemoteName, 0, TRUE);
+		  }
+		  my_free(lpBuff);
+		}
+	  }
+
+	  my_free(szBuff);
+	}
+	
+	my_free(szServer);
+  }
+  //Trying harder to disconnect from the server
+  WNetCancelConnection2(nr->lpRemoteName, 0, TRUE);
+
+  //Let's check the current dir and if it's remote try to change it to %TMP%
+  char lpszPath[MAX_PATH];
+  if(GetCurrentDirectory(MAX_PATH, lpszPath))
+  {
+	if(lpszPath[0] == '\\')
+	{
+	  ExpandEnvironmentStrings("%TMP%", lpszPath, MAX_PATH);
+	  SetCurrentDirectory(lpszPath);
+	}
+  }
+}
+
+
+void NetBrowser::GetLocalName(char *RemoteName,char *LocalName)
+{
+  *LocalName=0;
+  if (RemoteName!=NULL && *RemoteName)
+    for (int I=ConnectedList.Count()-1;I>=0;I--)
+      if (ConnectedList [I].lpRemoteName && ConnectedList [I].lpLocalName!=NULL &&
+          *ConnectedList [I].lpLocalName &&
+          lstrcmpi(ConnectedList [I].lpRemoteName,RemoteName)==0)
+        {
+          if (ConnectedList [I].dwScope==RESOURCE_CONNECTED ||
+              ConnectedList [I].dwScope==RESOURCE_REMEMBERED)
+            CharToOem(ConnectedList [I].lpLocalName,LocalName);
+          break;
+        }
+}
+
+
+int NetBrowser::GetNameAndPassword(char *Title,char *Name,char *Password)
+{
+  struct InitDialogItem InitItems[]={
+    {DI_DOUBLEBOX,3,1,72,8,0,0,0,0,""},
+    {DI_TEXT,5,2,0,0,0,0,0,0,(char *)MNetUserName},
+    {DI_EDIT,5,3,70,3,1,(DWORD)"NetworkUser",DIF_HISTORY|DIF_USELASTHISTORY,0,""},
+    {DI_TEXT,5,4,0,0,0,0,0,0,(char *)MNetUserPassword},
+    {DI_PSWEDIT,5,5,70,3,0,0,0,0,""},
+    {DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
+    {DI_BUTTON,0,7,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk},
+    {DI_BUTTON,0,7,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel}
+  };
+  struct FarDialogItem DialogItems[sizeof(InitItems)/sizeof(InitItems[0])];
+  InitDialogItems(InitItems,DialogItems,sizeof(InitItems)/sizeof(InitItems[0]));
+  static char LastName[256],LastPassword[256];
+  if (Title!=NULL)
+    CharToOem(Title,DialogItems[0].Data);
+  strcpy(DialogItems[2].Data,LastName);
+  strcpy(DialogItems[4].Data,LastPassword);
+  int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,10,
+           StrHelpNetBrowse,DialogItems,sizeof(DialogItems)/sizeof(DialogItems[0]));
+  if (ExitCode!=6)
+    return(FALSE);
+  strcpy(LastName,DialogItems[2].Data);
+  strcpy(LastPassword,DialogItems[4].Data);
+
+  // Convert Name and Password to Ansi
+  strcpy(Name,DialogItems[2].Data);
+  OemToChar(Name,Name);
+  strcpy(Password,DialogItems[4].Data);
+  OemToChar(Password,Password);
+
+  return(TRUE);
+}
+
+
+void NetBrowser::PutCurrentFileName (BOOL ToCommandLine)
+{
+  PanelInfo PInfo;
+  Info.Control (this, FCTL_GETPANELINFO, &PInfo);
+  if (PInfo.ItemsNumber > 0)
+  {
+    char CurFile [NM];
+    strcpy (CurFile, PInfo.PanelItems [PInfo.CurrentItem].FindData.cFileName);
+    if (!strcmp (CurFile, ".."))
+    {
+      if (PCurResource == NULL)
+        strcpy (CurFile, ".\\");
+      else
+        CharToOem(PCurResource->lpRemoteName,CurFile);
+    }
+    FSF.QuoteSpaceOnly (CurFile);
+  if (ToCommandLine)
+  {
+    strcat (CurFile, " ");
+    Info.Control (this, FCTL_INSERTCMDLINE, CurFile);
+  }
+  else
+    FSF.CopyToClipboard (CurFile);
+  }
+}
+
+
+void NetBrowser::ManualConnect()
+{
+  PanelInfo PInfo;
+  Info.Control (this, FCTL_GETPANELINFO, &PInfo);
+  if (PInfo.ItemsNumber == 0)
+    return;
+
+  ChangeToDirectory (PInfo.PanelItems [PInfo.CurrentItem].FindData.cFileName,
+    FALSE, TRUE);
+}
+
+
+void NetBrowser::GetRemoteName(NETRESOURCE *NetRes,char *RemoteName)
+{
+  if (NetRes->lpProvider!=NULL && (NetRes->lpRemoteName==NULL ||
+      NetRes->dwDisplayType==RESOURCEDISPLAYTYPE_NETWORK))
+    strcpy(RemoteName,NetRes->lpProvider);
+  else
+    if (NetRes->lpRemoteName==NULL)
+      *RemoteName=0;
+    else
+      strcpy(RemoteName,NetRes->lpRemoteName);
+}
+
+
+BOOL NetBrowser::IsReadable(const char *Remote)
+{
+  char Mask[NM];
+  FSF.sprintf(Mask,"%s\\*",Remote);
+  HANDLE FindHandle;
+  WIN32_FIND_DATA FindData;
+  FindHandle=FindFirstFile(Mask,&FindData);
+  DWORD err = GetLastError();
+  FindClose(FindHandle);
+  SetLastError(err);
+  if(err == ERROR_FILE_NOT_FOUND)
+  {
+	  SetLastError(0);
+	  return TRUE;
+  }
+  return(FindHandle!=INVALID_HANDLE_VALUE);
+}
+
+void NetBrowser::SetOpenFromCommandLine (char *ShareName)
+{
+  strcpy (CmdLinePath, ShareName);
+}
+
+BOOL NetBrowser::SetOpenFromFilePanel (char *ShareName)
+{
+  NETRESOURCE nr;
+  NetResourceList::InitNetResource (nr);
+
+  char ShareNameANSI [NM];
+  OemToChar (ShareName, ShareNameANSI);
+  if (!GetResourceInfo (ShareNameANSI, &nr))
+    return FALSE;
+  if (!IsMSNetResource (nr))
+    return FALSE;
+
+  OpenFromFilePanel = TRUE;
+  return TRUE;
+}
+
+int NetBrowser::GotoComputer (const char *Dir)
+{
+#ifdef NETWORK_LOGGING
+  LogData("Entering GotoComputer");
+#endif
+  // if there are backslashes in the name, truncate them
+  char ComputerName [NM];
+  strcpy (ComputerName, Dir);
+  BOOL IsShare = FALSE;
+
+  char *p = strchr (ComputerName + 2, '\\'); // skip past leading backslashes
+  if (p)
+  {
+    IsShare = TRUE;
+    *p = '\0';
+  }
+  else {
+    p = strchr (ComputerName + 2, '/');
+    if (p)
+    {
+      IsShare = TRUE;
+      *p = '\0';
+    }
+  }
+
+  NETRESOURCE res;
+  NetResourceList::InitNetResource (res);
+  if (!GetResourceInfo (ComputerName, &res))
+    return FALSE;
+  if (!IsMSNetResource (res))
+    return FALSE;
+  if (!IsResourceReadable(res))
+  {
+	int err = GetLastError();
+	if (err == ERROR_INVALID_PASSWORD || err == ERROR_LOGON_FAILURE || err == ERROR_ACCESS_DENIED || err == ERROR_INVALID_HANDLE || err == ERROR_LOGON_TYPE_NOT_GRANTED)
+	  if(!(AddConnectionExplicit(&res)&&IsResourceReadable (res)))
+	  {
+		if(GetLastError() != ERROR_CANCELLED)
+		  Info.Message (Info.ModuleNumber, FMSG_WARNING | FMSG_ERRORTYPE | FMSG_MB_OK | FMSG_ALLINONE,
+                  NULL, (const char **) GetMsg (MError), 0, 0);
+	    return FALSE;
+	  }
+  }
+
+  CurResource = res;
+  PCurResource = &CurResource;
+
+  int result = Info.Control (this, FCTL_UPDATEPANEL, NULL);
+
+  if (IsShare)
+  {
+    char ShareName [NM];
+    strcpy (ShareName, Dir);
+
+    // replace forward slashes with backslashes
+    for (p = ShareName; *p; p++)
+      if (*p == '/')
+        *p = '\\';
+
+    SetCursorToShare (ShareName);
+  }
+  else
+    Info.Control (this, FCTL_REDRAWPANEL, NULL);
+  return TRUE;
+}
+
+void NetBrowser::GotoLocalNetwork()
+{
+  TSaveScreen ss;
+  char ComputerName [NM];
+  strcpy (ComputerName, "\\\\");
+  DWORD ComputerNameLength = NM-3;
+  if (!GetComputerName (ComputerName+2, &ComputerNameLength))
+    return;
+
+  NETRESOURCE res;
+  NetResourceList::InitNetResource (res);
+
+  if (!GetResourceInfo (ComputerName, &res) || !IsMSNetResource (res))
+    return;
+
+  NETRESOURCE parent;
+  NetResourceList::InitNetResource (parent);
+  if (!GetResourceParent (res, &parent))
+    return;
+
+  NetResourceList::CopyNetResource (CurResource, parent);
+  PCurResource = &CurResource;
+
+  Info.Control (this, FCTL_UPDATEPANEL, NULL);
+  Info.Control (this, FCTL_REDRAWPANEL, NULL);
+}
+
+
+void NetBrowser::SetCursorToShare (char *Share)
+{
+  PanelInfo PInfo;
+  // this returns the items in sorted order, so we can position correctly
+  Info.Control (this, FCTL_GETPANELINFO, &PInfo);
+  if (!PInfo.ItemsNumber)
+    return;
+
+  // prevent recursion
+  for (int i=0; i<PInfo.ItemsNumber; i++)
+  {
+	char szAnsiName[MAX_PATH];
+	OemToChar(PInfo.PanelItems [i].FindData.cFileName, szAnsiName);
+    if (!strcmpi (szAnsiName, Share))
+    {
+      PanelRedrawInfo info;
+      info.CurrentItem = i;
+      info.TopPanelItem = 0;
+      Info.Control (this, FCTL_REDRAWPANEL, &info);
+      break;
+    }
+  }
+}

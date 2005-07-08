@@ -1,0 +1,18 @@
+.Language=English,English
+.PluginContents=Draw lines
+
+@Contents
+$ #Draw lines#
+    This plugin allows to draw single and double lines in the FAR internal
+editor with pseudo-graphic characters. The plugin handles line intersections
+correctly.
+
+    For drawing lines, key combinations #Shift-Left#, #Shift-Up#,
+#Shift-Right# and #Shift-Down# are used.
+
+    To change the line style (single or double), press the #F2# key.
+
+    The #F10# key terminates plugin operation and returns to normal
+editing mode.
+
+    The #F1# key shows this help window.

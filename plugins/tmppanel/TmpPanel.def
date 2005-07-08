@@ -1,0 +1,17 @@
+LIBRARY        TmpPanel
+EXPORTS
+               SetStartupInfo
+               OpenPlugin
+               OpenFilePlugin
+               ClosePlugin
+               ExitFAR
+               GetFindData
+               GetPluginInfo
+               GetOpenPluginInfo
+               SetDirectory
+               PutFiles
+               SetFindList
+               ProcessEvent
+               ProcessKey
+               Configure
+               GetMinFarVersion

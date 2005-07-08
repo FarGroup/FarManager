@@ -1,0 +1,8 @@
+[-] Processes launched from NTFS file streams (like name1.exe:name2.exe)
+    could not be viewed by F3.
+
+[-] Crash fixed: Ctrl-F on "..".
+
+[*] Process info export: commnad line and current directory moved
+    closer to top.
+

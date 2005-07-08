@@ -1,0 +1,39 @@
+All numbers are in LOHI byte order.
+
+HAFILE
+
+0000 	HA		/* HA = identifier fo ha archive */
+0002	cnt		/* cnt = number of files in archive */
+0004	HDR1		/* HDR = information for file */
+.	file1
+.	HDR2
+.	file2
+	.
+	.
+	.
+	
+Header :
+
+0000	ver<<4 | type	/* type 0-CPY, 1-ASC, 2-HSC, 0xe-DIR 0xf-SPECIAL */
+0001	length compressed	
+0005 	length original
+0009	CRC 32
+000D	filetime
+0011	path
++n	00h
++1	name
++n	00h
++1	Length of machine specific information
++1	Machine specific information
+
+
+Machine specific information :
+
+0000	type
+0001	Information
+.
+.
+.
+
+
+

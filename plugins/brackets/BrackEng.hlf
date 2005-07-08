@@ -1,0 +1,129 @@
+.Language=English,English
+.PluginContents=Brackets matching
+
+@Contents
+$ #Brackets matching#
+  This plugin allows you to:
+
+  - find a matching bracket;
+  - select the text between brackets.
+
+  The plugin can work in three cases:
+
+  #1. Common '()', '{}', '[]', '<>' and quotation marks#
+     This is a simple case - when the cursor is on a bracket, it is
+     positioned to the matching bracket. For quotation marks it is
+     also necessary to specify the scanning direction - forward or
+     backward.
+
+  #2. Uncommon '()', '{}', '[]' and '<>'#
+     This case is when the cursor stands on the next character after
+     the bracket. The plugin also positions the cursor to the
+     matching bracket. Handling of this case can be disabled in the
+     configuration dialog.
+
+  #3. Double brackets#
+     This case allows to handle, for example, block comments from
+     the C/C++ language: '/*' and '*/'. The cursor will be positioned
+     to the respective character of the matching bracket.
+
+
+  ~Configure~@Config@
+  ~Search/select~@Find@
+  ~Search for quotation marks~@Direct@
+
+
+@Find
+$ #Brackets matching - Search/select#
+
+  #Search#     - if the matching bracket is found successfully, the
+               cursor will be positioned to the bracket.
+
+  #Select#     - if the matching bracket is found successfully, the
+               cursor will be positioned to the bracket and the text
+               between the brackets (including the brackets
+               themselves) will be selected.
+
+  ~Contents~@Contents@
+  ~Configure~@Config@
+
+@Direct
+$ #Brackets matching - Search for quotation marks#
+  If the matching brackets or quotation marks are the same characters,
+the plugin needs to know the direction of file scanning:
+
+  #Forward#    - search for the matching character from the current
+               cursor position to the end of the text.
+
+  #Backward#   - search for the matching symbol from the current
+               cursor position to the beginning of the text.
+
+
+  ~Contents~@Contents@
+  ~Configure~@Config@
+
+@Config
+$ #Brackets matching - Configure#
+  If you don't like the default settings of the plugin, you can configure
+it.
+
+  #>Rules#
+  The rules control the behavior of the plugin in specific situations:
+
+   #Ignore brackets#      If this option is enabled, the plugin does
+   #in quotation marks#   not locate the brackets that are embraced
+                        in quotation marks: #'#{#'#.
+                        The quotation mark characters are also
+                        configurable.
+
+   #Do not jump when#     If this option is disabled, the plugin
+   #after a bracket#      searches for the matching bracket also
+                        when the cursor is on the next character
+                        after the bracket. If the option is
+                        enabled, the plugin performs the search
+                        only if the cursor is precisely at the
+                        bracket.
+
+   #Priority of single#   If this option is enabled, the plugin
+   #brackets#             first uses the rules for single brackets
+                        (for example, if the cursor is at the
+                        first character of '#<%#', the plugin
+                        tries to locate '#>#' as the matching
+                        bracket). When the option is disabled,
+                        the plugin tries to locate '#%>#' in
+                        this situation.
+
+   #Go to bracket#        When selecting a block between brackets,
+   #when selecting#       set cursor to the found bracket.
+
+   #Beep if matched#      Beep after successful search.
+
+
+  #>Definitions#
+  This section allows to change some basic constants of the plugin:
+
+   #Single brackets#      Definition of single brackets.
+                        Contains a sequence of two-character pairs.
+                        The first character is the opening bracket,
+                        the second - the closing bracket. There
+                        can be at most 10 pairs. The first and second
+                        characters can be the same (for example,
+                        #""# or #''#).
+
+   #Double brackets#      Definition of double brackets.
+                        Contains a sequence of four-character groups.
+                        The first two characters are the opening
+                        bracket, the second - the closing bracket.
+                        There can be at most 10 groups.
+
+   #Quotation marks#      Quotation mark characters for the rule
+                        "Ignore brackets in quotation marks".
+                        Contains a sequence of two-character pairs.
+                        The first character is the opening quotation
+                        mark, the second - the closing mark. There
+                        can be at most 10 pairs. Note: the quotation
+                        marks are not used directly for bracket
+                        matching.
+
+
+  ~Contents~@Contents@

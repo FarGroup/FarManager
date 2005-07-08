@@ -1,0 +1,49 @@
+deb-old - old style Debian binary package format
+
+The .deb format is the Debian binary package file format. This manual page
+describes the old format, used before Debian 0.93. Please see deb(5) for
+details of the new format.
+
+FORMAT
+
+The file is two lines of format information as ASCII text, followed by two
+concatenated gzipped ustar files.
+
+The first line is the format version number padded to 8 digits, and is
+0.939000 for all old-format archives.
+
+The second line is a decimal string (without leading zeroes) giving the
+length of the first gzipped tarfile.
+
+Each of these lines is terminated with a single newline character.
+
+The first tarfile contains the control information, as a series of ordinary
+files, described in Debian Packaging Manual, section 2.2. The file control
+must be present, as it contains the core control information.
+
+In some very old archives, the files in the control tarfile may optionally
+be in a DEBIAN subdirectory. In that case, the DEBIAN subdirectory will be
+in the control tarfile too, and the control tarfile will have only files in
+that directory. Optionally the control tarfile may contain an entry for
+`.', that is, the current directory.
+
+The second gzipped tarfile is the filesystem archive, containing pathnames
+relative to the root directory of the system to be installed on. The
+pathnames do not have leading slashes.
+
+SEE ALSO
+deb(5), dpkg-deb(1), deb-control(5), Debian Packaging Manual.
+
+
+--------------------------------------------------------------------------------
+
+Index
+NAME
+SYNOPSIS
+DESCRIPTION
+FORMAT
+SEE ALSO
+
+--------------------------------------------------------------------------------
+This document was created by man2html, using the manual pages.
+Time: 14:28:39 GMT, October 23, 2002
