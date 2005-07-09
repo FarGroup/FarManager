@@ -697,9 +697,9 @@ the main help file, that is actual for the current FAR Manager version.
          switching between 25/50 lines.
    This parameter has effect only in the windowed mode of FAR Manager.
    By default the rule is on (1) for the Windows NT family.
-   For Windows 9x, the rule is always off (0), and turning it on has
-   no effect.
-
+   Для Windows 9x - отключено (0) и не рекомендуется к включению, т.к.
+   работает со значительными визуальными искажениями и нет возможности
+   сохранить размер консоли между сессиями Far Manager. 
 
 
 =====================

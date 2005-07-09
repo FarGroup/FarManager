@@ -40,6 +40,11 @@ General
 
 System
 ~~~~~~
+[-] По умолчанию был выбран неверный режим показа имен файлов на панели.
+    ("Показывать имена файлов строчными буквами" вместо "Показывать имена
+    файлов из заглавных букв строчными буквами").
+
+
 [-] The key bar labels for Alt-F7 in the internal viewer and editor
     were mixed up.
 
@@ -352,6 +357,10 @@ File associations
 
 Editor
 ~~~~~~
+[-] Некоторые настройки, измененные в редакторе локально (Alt-Shift-F9) сохранялись
+    глобально для всех редакторов.
+
+
 [-] Some functional keys (for example, F1 - Help) stopped to work
     when plugins using ProcessEditorInput (for example, AutoWrap) were active.
 
@@ -391,6 +400,8 @@ Editor
 
 Viewer
 ~~~~~~
+[-] Не сохранялось состояние флага "Перенос по словам".
+
 [*] Now the found string is shown at one fourth of the screen height, not
     one third, and it is checked that the string is not covered by the
     replace dialog.
