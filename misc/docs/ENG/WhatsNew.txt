@@ -40,10 +40,9 @@ General
 
 System
 ~~~~~~
-[-] По умолчанию был выбран неверный режим показа имен файлов на панели.
-    ("Показывать имена файлов строчными буквами" вместо "Показывать имена
-    файлов из заглавных букв строчными буквами").
-
+[-] The wrong panel mode for displaying file names was checked by default
+    ("Show files in lowercase" instead of "Show uppercase file names in
+    lowercase").
 
 [-] The key bar labels for Alt-F7 in the internal viewer and editor
     were mixed up.
@@ -239,7 +238,7 @@ System
 [+] New hotkey Ctrl-R in folder and file view history - refresh list and
     remove non-existing entries.
 
-[+] Ќ®ў®Ґ Їа ўЁ«® (TechInfo#68), Ї®§ў®«пойҐҐ а §«Ёз вм «ҐўлҐ Їа ўлҐ Є®¬ЎЁ­ жЁЁ
+[+] New rule - TechInfo#68, that allows to distinguish between right and left
     Ctrl-Alt-Shift.
 
 
@@ -357,9 +356,8 @@ File associations
 
 Editor
 ~~~~~~
-[-] Некоторые настройки, измененные в редакторе локально (Alt-Shift-F9) сохранялись
-    глобально для всех редакторов.
-
+[-] Some editor settings set for the current editor instance (Alt-Shift-F9)
+    were saved globally for all editors.
 
 [-] Some functional keys (for example, F1 - Help) stopped to work
     when plugins using ProcessEditorInput (for example, AutoWrap) were active.
@@ -400,7 +398,7 @@ Editor
 
 Viewer
 ~~~~~~
-[-] Не сохранялось состояние флага "Перенос по словам".
+[-] Word wrap setting was not saved.
 
 [*] Now the found string is shown at one fourth of the screen height, not
     one third, and it is checked that the string is not covered by the
@@ -434,7 +432,7 @@ Viewer
 
 [-] The found text was not selected correctly for Unicode text files.
 
-[-] ЌҐ § Ї®¬Ё­ «®бм б®бв®п­ЁҐ ўЁ¤  ЇҐаҐ­®б  бва®Є (Ї® ЎгЄў ¬, Ї® б«®ў ¬)
+[-] The WordWrap state was not saved.
 
 
 Quick View

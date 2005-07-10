@@ -180,6 +180,7 @@ the main help file, that is actual for the current FAR Manager version.
      3 - Help window
      4 - Dialogs
    By default hiding of all objects is enabled.
+   See also TechInfo #68.
 
 1.2.2.(TechInfo #9)
 ~~~~~~~~~~~~~~~~~~~
@@ -465,18 +466,19 @@ the main help file, that is actual for the current FAR Manager version.
    The default value is 0x20000.
 
 1.2.24.(TechInfo #68)
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\System]
    "CASRule":REG_DWORD
-   Параметр "System/CASRule" с типом DWORD позволяет отключать комбинацию
-   Ctrl-Alt-Shift для временного гашения объектов интерфейса.
-   Различаются комбинации левого и правого Ctrl-Alt-Shift.
-    Номера битов:
-     0 - левая комбинация Ctrl-Alt-Shift.
-     1 - правая комбинация Ctrl-Alt-Shift.
-   Если бит установлен, срабатывает гашение экрана.
-   По умолчанию разрешены обе комбинации.
-   См.так же TechInfo #7
+   The key "System/CASRule" of type DWORD allows to disable the
+   Ctrl-Alt-Shift combination used for temporary hiding of the interface
+   objects.
+   Combinations of right and left Ctrl-Alt-Shift are distinguished.
+    Bit numbers:
+     0 - left Ctrl-Alt-Shift combination.
+     1 - right Ctrl-Alt-Shift combination.
+   If the bit is set, hiding of the interface works.
+   By default both combinations are enabled.
+   See also TechInfo #7.
 
 
 ======================
@@ -697,9 +699,11 @@ the main help file, that is actual for the current FAR Manager version.
          switching between 25/50 lines.
    This parameter has effect only in the windowed mode of FAR Manager.
    By default the rule is on (1) for the Windows NT family.
-   ─ы  Windows 9x - юЄъы■ўхэю (0) ш эх ЁхъюьхэфєхЄё  ъ тъы■ўхэш■, Є.ъ.
-   ЁрсюЄрхЄ ёю чэрўшЄхы№э√ьш тшчєры№э√ьш шёърцхэш ьш ш эхЄ тючьюцэюёЄш
-   ёюїЁрэшЄ№ ЁрчьхЁ ъюэёюыш ьхцфє ёхёёш ьш Far Manager. 
+   For Windows 9x family the rule is off (0) by default and it is not
+   recommended to turn it on as it causes considerable visual distortions
+   (while changing console size) and there it no possibility to save the size
+   of the console window between sessions of Far Manager.
+
 
 
 =====================
