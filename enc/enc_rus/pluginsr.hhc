@@ -2172,7 +2172,7 @@
                         </OBJECT>
                 <UL>
                         <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="Записать макросов">
+                                <param name="Name" value="Запись макросов">
                                 <param name="Local" value="html/macro/macrokey/record.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
@@ -2244,7 +2244,7 @@
                                 <param name="Local" value="html/macro/macrocmd/boolop.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="Булевые операторы">
+                                <param name="Name" value="Булевые состояния">
                                 <param name="Local" value="html/macro/macrocmd/boolstate.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
