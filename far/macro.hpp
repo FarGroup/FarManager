@@ -7,10 +7,12 @@ macro.hpp
 
 */
 
-/* Revision: 1.37 05.03.2005 $ */
+/* Revision: 1.38 11.07.2005 $ */
 
 /*
 Modify:
+  11.07.2005 SVS
+    - выход за пределы массива
   05.03.2005 SVS
     + KeyMacro::ReadVarsConst()
     + KeyMacro::WriteVarsConst()
@@ -231,7 +233,7 @@ class KeyMacro
     int  LoadMacros(BOOL InitedRAM=TRUE);
     void SaveMacros(BOOL AllSaved=TRUE);
 
-    int GetStartIndex(int Mode) {return IndexMode[Mode<MACRO_LAST?Mode:MACRO_LAST][0];}
+    int GetStartIndex(int Mode) {return IndexMode[Mode<MACRO_LAST-1?Mode:MACRO_LAST-1][0];}
     // Функция получения индекса нужного макроса в массиве
     int GetIndex(int Key, int Mode);
     // получение размера, занимаемого указанным макросом

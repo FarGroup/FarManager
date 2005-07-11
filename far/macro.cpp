@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.146 05.07.2005 $ */
+/* Revision: 1.147 11.07.2005 $ */
 
 /*
 Modify:
+  11.07.2005 SVS
+    - вызов функции... возвращаемое значение ненать.
   05.07.2005 SVS
     + Добавка в макросы - OldVal=Editor.Set(Index,NewVal)
     + Editor.FileName - имя редактируемого файла
@@ -3399,6 +3401,15 @@ static void printKeyValue(DWORD* k, int& i)
   else if ( k[i] == MCODE_OP_SAVE )            sprint(ii, "SAVE \"%%%s\"", printfStr(k, i));
   else if ( k[i] == MCODE_OP_SAVEREPCOUNT )    sprint(ii, "SAVE REP COUNT");
   else if ( k[i] == MCODE_OP_REP )             sprint(ii, "REP (*)", (char*)(i++));
+  else if ( k[i] == MCODE_OP_PUSHVAR )         sprint(ii, " PUSH VAR \"%%%s\"", printfStr(k, i));
+  else if ( k[i] == MCODE_OP_PUSHINT )         sprint(ii, " PUSH INT %d", (char*)k[++i]);
+  else if ( k[i] == MCODE_OP_PUSHSTR )         sprint(ii, " PUSH STR \"%s\"", printfStr(k, i));
+  else if ( k[i] == MCODE_OP_JMP )             sprint(ii, "JMP %4d", (char*)k[++i]);
+  else if ( k[i] == MCODE_OP_JZ  )             sprint(ii, "JZ %4d", (char*)k[++i]);
+
+  else if ( k[i] == MCODE_OP_DATE )            sprint(ii, "$date ''");
+  else if ( k[i] == MCODE_OP_PLAINTEXT )       sprint(ii, "$text ''");
+
   else if ( k[i] == MCODE_OP_NEGATE )          sprint(ii, " /-/");
   else if ( k[i] == MCODE_OP_ADD )             sprint(ii, " +");
   else if ( k[i] == MCODE_OP_SUB )             sprint(ii, " -");
@@ -3417,32 +3428,31 @@ static void printKeyValue(DWORD* k, int& i)
   else if ( k[i] == MCODE_OP_BITAND )          sprint(ii, " &");
   else if ( k[i] == MCODE_OP_BITOR )           sprint(ii, " |");
   else if ( k[i] == MCODE_OP_BITXOR )          sprint(ii, " ^");
-  else if ( k[i] == MCODE_F_XLAT )             sprint(ii, " xlat()");
-  else if ( k[i] == MCODE_F_ABS )              sprint(ii, " abs()");
-  else if ( k[i] == MCODE_F_MIN )              sprint(ii, " min()");
-  else if ( k[i] == MCODE_F_MAX )              sprint(ii, " max()");
-  else if ( k[i] == MCODE_F_IIF )              sprint(ii, " iif()");
-  else if ( k[i] == MCODE_F_SUBSTR )           sprint(ii, " substr()");
-  else if ( k[i] == MCODE_F_MENU_CHECKHOTKEY ) sprint(ii, " checkhotkey()");
-  else if ( k[i] == MCODE_F_INDEX )            sprint(ii, " index()");
-  else if ( k[i] == MCODE_F_RINDEX )           sprint(ii, " rindex()");
-  else if ( k[i] == MCODE_F_FEXIST )           sprint(ii, " fexist(s)");
-  else if ( k[i] == MCODE_F_FSPLIT )           sprint(ii, " fsplit()");
-  else if ( k[i] == MCODE_F_FATTR )            sprint(ii, " fattr(s)");
-  else if ( k[i] == MCODE_F_MSAVE )            sprint(ii, " msave(var)");
-  else if ( k[i] == MCODE_F_LEN )              sprint(ii, " len(s)");
-  else if ( k[i] == MCODE_F_STRING )           sprint(ii, " string()");
-  else if ( k[i] == MCODE_F_INT )              sprint(ii, " int()");
-  else if ( k[i] == MCODE_F_DATE )             sprint(ii, " date()");
-  else if ( k[i] == MCODE_F_ENVIRON )          sprint(ii, " env()");
-  else if ( k[i] == MCODE_OP_DATE )            sprint(ii, "$date ''");
-  else if ( k[i] == MCODE_OP_PLAINTEXT )       sprint(ii, "$text ''");
-  else if ( k[i] == MCODE_F_MSGBOX )           sprint(ii, " msgbox()");
-  else if ( k[i] == MCODE_OP_PUSHVAR )         sprint(ii, " PUSH VAR \"%%%s\"", printfStr(k, i));
-  else if ( k[i] == MCODE_OP_PUSHINT )         sprint(ii, " PUSH INT %d", (char*)k[++i]);
-  else if ( k[i] == MCODE_OP_PUSHSTR )         sprint(ii, " PUSH STR \"%s\"", printfStr(k, i));
-  else if ( k[i] == MCODE_OP_JMP )             sprint(ii, "JMP %4d", (char*)k[++i]);
-  else if ( k[i] == MCODE_OP_JZ  )             sprint(ii, "JZ %4d", (char*)k[++i]);
+
+  else if ( k[i] == MCODE_F_ABS )              sprint(ii, " N=abs(N)");
+  else if ( k[i] == MCODE_F_MENU_CHECKHOTKEY ) sprint(ii, " N=checkhotkey(S)");
+  else if ( k[i] == MCODE_F_DATE )             sprint(ii, " S=date(S)");
+  else if ( k[i] == MCODE_F_EDITOR_SET )       sprint(ii, " N=Editor.Set(N,Var)");
+  else if ( k[i] == MCODE_F_ENVIRON )          sprint(ii, " S=env(S)");
+  else if ( k[i] == MCODE_F_FATTR )            sprint(ii, " N=fattr(S)");
+  else if ( k[i] == MCODE_F_FEXIST )           sprint(ii, " S=fexist(S)");
+  else if ( k[i] == MCODE_F_FSPLIT )           sprint(ii, " S=fsplit(S,N)");
+  else if ( k[i] == MCODE_F_IIF )              sprint(ii, " V=iif(Condition,V1,V2)");
+  else if ( k[i] == MCODE_F_INDEX )            sprint(ii, " S=index(S1,S2)");
+  else if ( k[i] == MCODE_F_INT )              sprint(ii, " N=int(V)");
+  else if ( k[i] == MCODE_F_ITOA )             sprint(ii, " S=itoa(N,radix)");
+  else if ( k[i] == MCODE_F_LEN )              sprint(ii, " N=len(S)");
+  else if ( k[i] == MCODE_F_MAX )              sprint(ii, " N=max(N1,N2)");
+  else if ( k[i] == MCODE_F_MSAVE )            sprint(ii, " N=msave(S)");
+  else if ( k[i] == MCODE_F_MSGBOX )           sprint(ii, " N=msgbox(\"Title\",\"Text\",flags)");
+  else if ( k[i] == MCODE_F_MIN )              sprint(ii, " N=min(N1,N2)");
+  else if ( k[i] == MCODE_F_PANELITEM )        sprint(ii, " V=panelitem(Panel,Index,TypeInfo)");
+  else if ( k[i] == MCODE_F_RINDEX )           sprint(ii, " S=rindex(S1,S2)");
+  else if ( k[i] == MCODE_F_STRING )           sprint(ii, " S=string(V)");
+  else if ( k[i] == MCODE_F_SUBSTR )           sprint(ii, " S=substr(S1,S2,N)");
+  else if ( k[i] == MCODE_F_UCASE )            sprint(ii, " S=ucase(S1)");
+  else if ( k[i] == MCODE_F_LCASE )            sprint(ii, " S=lcase(S1)");
+  else if ( k[i] == MCODE_F_XLAT )             sprint(ii, " S=xlat(S)");
   else
   {
     int FARFunc = 0;
@@ -3545,8 +3555,17 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
         // например, вызвали MsgBox(), но результат неважен
         // тогда SizeVarName=1 и varName=""
         int __nParam;
+
+        char *Brack=strpbrk(CurrKeyText,"( "), Chr=0;
+        if(Brack)
+        {
+          Chr=*Brack;
+          *Brack=0;
+        }
+
         if(funcLook(CurrKeyText, __nParam) != MCODE_F_NOFUNC)
         {
+          if(Brack) *Brack=Chr;
           BufPtr = oldBufPtr;
           while ( *BufPtr && IsSpace(*BufPtr) )
             BufPtr++;
@@ -3562,7 +3581,10 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
           }
         }
         else
+        {
+          if(Brack) *Brack=Chr;
           ProcError++;
+        }
       }
 
       if(ProcError)
