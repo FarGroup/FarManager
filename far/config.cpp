@@ -5,10 +5,13 @@ config.cpp
 
 */
 
-/* Revision: 1.190 07.07.2005 $ */
+/* Revision: 1.191 12.07.2005 $ */
 
 /*
 Modify:
+  12.07.2005 SVS
+    ! опции, ответственные за копирование вынесены в отдельную структуру CopyMoveOptions
+    + Opt.CMOpt.CopySecurityOptions - что делать с опцией "Copy access rights"? (набор битов)
   07.07.2005 SVS
     ! Вьюверные настройки собраны в одно место
   05.07.2005 SVS
@@ -641,8 +644,8 @@ void SystemSettings()
 
   CfgDlg[1].Selected=Opt.ClearReadOnly;
   CfgDlg[2].Selected=Opt.DeleteToRecycleBin;
-  CfgDlg[3].Selected=Opt.UseSystemCopy;
-  CfgDlg[4].Selected=Opt.CopyOpened;
+  CfgDlg[3].Selected=Opt.CMOpt.UseSystemCopy;
+  CfgDlg[4].Selected=Opt.CMOpt.CopyOpened;
   if (!RegVer)
   {
     CfgDlg[5].Flags|=DIF_DISABLE;
@@ -687,8 +690,8 @@ void SystemSettings()
 
   Opt.ClearReadOnly=CfgDlg[1].Selected;
   Opt.DeleteToRecycleBin=CfgDlg[2].Selected;
-  Opt.UseSystemCopy=CfgDlg[3].Selected;
-  Opt.CopyOpened=CfgDlg[4].Selected;
+  Opt.CMOpt.UseSystemCopy=CfgDlg[3].Selected;
+  Opt.CMOpt.CopyOpened=CfgDlg[4].Selected;
   _SVS(SysLog("1. Cfg=Opt.ScanJunction=%d CfgDlg[5].Selected=%d",Opt.ScanJunction,CfgDlg[5].Selected));
   Opt.ScanJunction=CfgDlg[5].Selected;
   _SVS(SysLog("2. Cfg=Opt.ScanJunction=%d CfgDlg[5].Selected=%d",Opt.ScanJunction,CfgDlg[5].Selected));
@@ -909,9 +912,9 @@ void InterfaceSettings()
   if(!Opt.UsePromptFormat)
     CfgDlg[DLG_INTERF_PROMPTFORMAT].Flags|=DIF_DISABLE;
   CfgDlg[DLG_INTERF_ALTGR].Selected=Opt.AltGr;
-  CfgDlg[DLG_INTERF_COPYSHOWTOTAL].Selected=Opt.CopyShowTotal;
+  CfgDlg[DLG_INTERF_COPYSHOWTOTAL].Selected=Opt.CMOpt.CopyShowTotal;
 
-  CfgDlg[DLG_INTERF_COPYTIMERULE].Selected=Opt.CopyTimeRule!=0;
+  CfgDlg[DLG_INTERF_COPYTIMERULE].Selected=Opt.CMOpt.CopyTimeRule!=0;
 
   CfgDlg[DLG_INTERF_PGUPCHANGEDISK].Selected=Opt.PgUpChangeDisk;
 
@@ -940,11 +943,11 @@ void InterfaceSettings()
   Opt.UsePromptFormat=CfgDlg[DLG_INTERF_USEPROMPTFORMAT].Selected;
   xstrncpy(Opt.PromptFormat,CfgDlg[DLG_INTERF_PROMPTFORMAT].Data,sizeof(Opt.PromptFormat)-1);
   Opt.AltGr=CfgDlg[DLG_INTERF_ALTGR].Selected;
-  Opt.CopyShowTotal=CfgDlg[DLG_INTERF_COPYSHOWTOTAL].Selected;
+  Opt.CMOpt.CopyShowTotal=CfgDlg[DLG_INTERF_COPYSHOWTOTAL].Selected;
   Opt.PgUpChangeDisk=CfgDlg[DLG_INTERF_PGUPCHANGEDISK].Selected;
-  Opt.CopyTimeRule=0;
+  Opt.CMOpt.CopyTimeRule=0;
   if(CfgDlg[DLG_INTERF_COPYTIMERULE].Selected)
-    Opt.CopyTimeRule=3;
+    Opt.CMOpt.CopyTimeRule=3;
 
   SetFarConsoleMode();
   CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
@@ -1481,7 +1484,6 @@ static struct FARConfig{
 
   {1, REG_DWORD,  NKeyInterface, "Mouse",&Opt.Mouse,1, 0},
   {1, REG_DWORD,  NKeyInterface, "AltGr",&Opt.AltGr,1, 0},
-  {1, REG_DWORD,  NKeyInterface, "CopyShowTotal",&Opt.CopyShowTotal,0, 0},
   {1, REG_DWORD,  NKeyInterface, "ShowMenuBar",&Opt.ShowMenuBar,0, 0},
   {0, REG_DWORD,  NKeyInterface, "CursorSize1",&Opt.CursorSize[0],15, 0},
   {0, REG_DWORD,  NKeyInterface, "CursorSize2",&Opt.CursorSize[1],10, 0},
@@ -1559,8 +1561,14 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeySystem,"ClearReadOnly",&Opt.ClearReadOnly,0, 0},
   {1, REG_DWORD,  NKeySystem,"DeleteToRecycleBin",&Opt.DeleteToRecycleBin,1, 0},
   {0, REG_DWORD,  NKeySystem,"WipeSymbol",&Opt.WipeSymbol,0, 0},
-  {1, REG_DWORD,  NKeySystem,"UseSystemCopy",&Opt.UseSystemCopy,0, 0},
-  {1, REG_DWORD,  NKeySystem,"CopyOpened",&Opt.CopyOpened,1, 0},
+
+  {1, REG_DWORD,  NKeySystem,"UseSystemCopy",&Opt.CMOpt.UseSystemCopy,0, 0},
+  {0, REG_DWORD,  NKeySystem,"CopySecurityOptions",&Opt.CMOpt.CopySecurityOptions,0, 0},
+  {1, REG_DWORD,  NKeySystem,"CopyOpened",&Opt.CMOpt.CopyOpened,1, 0},
+  {1, REG_DWORD,  NKeyInterface, "CopyShowTotal",&Opt.CMOpt.CopyShowTotal,0, 0},
+  {1, REG_DWORD,  NKeySystem, "MultiCopy",&Opt.CMOpt.MultiCopy,0, 0},
+  {1, REG_DWORD,  NKeySystem,"CopyTimeRule",  &Opt.CMOpt.CopyTimeRule, 3, 0},
+
   {1, REG_DWORD,  NKeySystem,"CreateUppercaseFolders",&Opt.CreateUppercaseFolders,0, 0},
   {1, REG_DWORD,  NKeySystem,"InactivityExit",&Opt.InactivityExit,0, 0},
   {1, REG_DWORD,  NKeySystem,"InactivityExitTime",&Opt.InactivityExitTime,15, 0},
@@ -1586,7 +1594,6 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeySystem,"CmdHistoryRule",&Opt.CmdHistoryRule,0, 0},
   {0, REG_DWORD,  NKeySystem,"SetAttrFolderRules",&Opt.SetAttrFolderRules,1, 0},
   {0, REG_DWORD,  NKeySystem,"MaxPositionCache",&Opt.MaxPositionCache,64, 0},
-  {1, REG_DWORD,  NKeySystem,"CopyTimeRule",  &Opt.CopyTimeRule, 3, 0},
   {0, REG_SZ,     NKeySystem,"ConsoleDetachKey", KeyNameConsoleDetachKey, sizeof(KeyNameConsoleDetachKey),"CtrlAltTab"},
   {1, REG_SZ,     NKeySystem,"PersonalPluginsPath",Opt.LoadPlug.PersonalPluginsPath,sizeof(Opt.LoadPlug.PersonalPluginsPath),PersonalPluginsPath},
   {0, REG_DWORD,  NKeySystem,"SilentLoadPlugin",  &Opt.LoadPlug.SilentLoadPlugin, 0, 0},
@@ -1594,7 +1601,6 @@ static struct FARConfig{
      ! опция "разрешить мультикопирование/перемещение/создание связей"
      + опция "создание нескольких каталогов за один раз"
   */
-  {1, REG_DWORD,  NKeySystem, "MultiCopy",&Opt.MultiCopy,0, 0},
   {1, REG_DWORD,  NKeySystem, "MultiMakeDir",&Opt.MultiMakeDir,0, 0},
   /* IS $ */
   /* $ 02.04.2001 VVM

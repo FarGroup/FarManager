@@ -7,10 +7,12 @@ class ShellCopy -  опирование файлов
 
 */
 
-/* Revision: 1.27 14.06.2005 $ */
+/* Revision: 1.28 12.07.2005 $ */
 
 /*
 Modify:
+  12.07.2005 SVS
+    + FCOPY_COPYPARENTSECURITY
   14.06.2005 SVS
     ! ShellCopy::MoveFileThroughTemp() стала самосто€тельной функцией
     + SetRecursiveSecurity() - "отсюда и ниже"
@@ -121,6 +123,7 @@ enum COPY_FLAGS {
   FCOPY_STREAMALL               = 0x00001000, // потоки
   FCOPY_SKIPSETATTRFLD          = 0x00002000, // больше не пытатьс€ ставить атрибуты дл€ каталогов - когда нажали Skip All
   FCOPY_COPYSYMLINKCONTENTS     = 0x00004000, //  опировать содержимое симолических св€зей?
+  FCOPY_COPYPARENTSECURITY      = 0x00008000, // Ќакладывать родительские права, в случае если мы не копируем права доступа
   FCOPY_COPYLASTTIME            = 0x10000000, // ѕри копировании в несколько каталогов устанавливаетс€ дл€ последнего.
   FCOPY_UPDATEPPANEL            = 0x80000000, // необходимо обновить пассивную панель
 };

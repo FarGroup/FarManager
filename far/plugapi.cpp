@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.183 30.05.2005 $ */
+/* Revision: 1.184 12.07.2005 $ */
 
 /*
 Modify:
+  12.07.2005 SVS
+    ! опции, ответственные за копирование вынесены в отдельную структуру CopyMoveOptions
   30.05.2005 SVS
     ! временно откатим проект про USB
   06.05.2005 SVS
@@ -1020,8 +1022,8 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
       static struct Opt2Flags OSys[]={
         {&Opt.ClearReadOnly,FSS_CLEARROATTRIBUTE},
         {&Opt.DeleteToRecycleBin,FSS_DELETETORECYCLEBIN},
-        {&Opt.UseSystemCopy,FSS_USESYSTEMCOPYROUTINE},
-        {&Opt.CopyOpened,FSS_COPYFILESOPENEDFORWRITING},
+        {&Opt.CMOpt.UseSystemCopy,FSS_USESYSTEMCOPYROUTINE},
+        {&Opt.CMOpt.CopyOpened,FSS_COPYFILESOPENEDFORWRITING},
         {&Opt.ScanJunction,FSS_SCANSYMLINK},
         {&Opt.CreateUppercaseFolders,FSS_CREATEFOLDERSINUPPERCASE},
         {&Opt.SaveHistory,FSS_SAVECOMMANDSHISTORY},
@@ -1069,8 +1071,8 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
         {&Opt.ShowKeyBar,FIS_SHOWKEYBAR},
         {&Opt.ShowMenuBar,FIS_ALWAYSSHOWMENUBAR},
         {&Opt.AltGr,FIS_USERIGHTALTASALTGR},
-        {&Opt.CopyShowTotal,FIS_SHOWTOTALCOPYPROGRESSINDICATOR},
-        {&Opt.CopyTimeRule,FIS_SHOWCOPYINGTIMEINFO},
+        {&Opt.CMOpt.CopyShowTotal,FIS_SHOWTOTALCOPYPROGRESSINDICATOR},
+        {&Opt.CMOpt.CopyTimeRule,FIS_SHOWCOPYINGTIMEINFO},
         {&Opt.PgUpChangeDisk,FIS_USECTRLPGUPTOCHANGEDRIVE},
       };
       for(I=0; I < sizeof(OSys)/sizeof(OSys[0]); ++I)

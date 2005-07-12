@@ -7,10 +7,13 @@ struct.hpp
 
 */
 
-/* Revision: 1.132 07.07.2005 $ */
+/* Revision: 1.133 12.07.2005 $ */
 
 /*
 Modify:
+  12.07.2005 SVS
+    ! опции, ответственные за копирование вынесены в отдельную структуру CopyMoveOptions
+    + Opt.CMOpt.CopySecurityOptions - что делать с опцией "Copy access rights"? (набор битов)
   07.07.2005 SVS
     ! Вьюверные настройки собраны в одно место
   05.07.2005 SVS
@@ -644,6 +647,15 @@ struct TreeOptions{
   int AutoChangeFolder;  // автосмена папок при перемещении по дереву
 };
 
+struct CopyMoveOptions{
+  int UseSystemCopy;         // использовать системную функцию копирования
+  int CopyOpened;            // копировать открытые на запись файлы
+  int CopyShowTotal;         // показать общий индикатор копирования
+  int MultiCopy;             // "разрешить мультикопирование/перемещение/создание связей"
+  DWORD CopySecurityOptions; // для операции Move - что делать с опцией "Copy access rights"
+  int CopyTimeRule;          // $ 30.01.2001 VVM  Показывает время копирования,оставшееся время и среднюю скорость
+};
+
 struct Options
 {
   int Clock;
@@ -678,20 +690,15 @@ struct Options
   int SortFolderExt;
   int DeleteToRecycleBin;
   int WipeSymbol; // символ заполнитель для "ZAP-операции"
-  int UseSystemCopy;
-  int CopyOpened;
-  int CopyShowTotal;
-  /* $ 03.08.2001 IS
-       опция "разрешить мультикопирование/перемещение/создание связей"
-  */
-  int MultiCopy;
+
+  struct CopyMoveOptions CMOpt;
+
   /* IS $ */
   /* $ 07.12.2001 IS Опция создания нескольких каталогов за один сеанс */
   int MultiMakeDir;
   /* IS $ */
   int CreateUppercaseFolders;
   int UseRegisteredTypes;
-
 
   int ViewerEditorClock;
   int OnlyEditorViewerUsed; // =1, если старт был /e или /v
@@ -843,11 +850,6 @@ struct Options
   */
   struct CodeXLAT XLat;
   /* SVS $*/
-  /* $ 30.01.2001 VVM
-    + Показывает время копирования,оставшееся время и среднюю скорость.
-      Зависит от настроек в реестре CopyTimeRule */
-  int CopyTimeRule;
-  /* VVM $ */
   /*$ 08.02.2001 SKV
     Комбинация клавиш для детача Far'овской консоли
     от длятельного неинтерактивного процесса в ней запущенного.

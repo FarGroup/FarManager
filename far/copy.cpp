@@ -5,10 +5,13 @@ copy.cpp
 
 */
 
-/* Revision: 1.152 24.06.2005 $ */
+/* Revision: 1.153 12.07.2005 $ */
 
 /*
 Modify:
+  12.07.2005 SVS
+    ! опции, ответственные за копирование вынесены в отдельную структуру CopyMoveOptions
+    + Opt.CMOpt.CopySecurityOptions - что делать с опцией "Copy access rights"? (набор битов)
   24.06.2005 SVS
     + немного логирования...
   19.06.2005 SVS
@@ -540,7 +543,8 @@ static int64 CurCopiedSize;                  // Текущий индикатор копирования
 static int64 TotalSkippedSize;               // Общий размер пропущенных файлов
 static int64 TotalCopiedSizeEx;
 static int   CountTarget;                    // всего целей.
-
+static int CopySecurityCopy=-1;
+static int CopySecurityMove=-1;
 static bool ShowTotalCopySize;
 static int StaticMove;
 static char TotalCopySizeText[32];
@@ -668,7 +672,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   ShellCopy::Flags|=Link?FCOPY_LINK:0;
   ShellCopy::Flags|=CurrentOnly?FCOPY_CURRENTONLY:0;
 
-  ShowTotalCopySize=Opt.CopyShowTotal != 0;
+  ShowTotalCopySize=Opt.CMOpt.CopyShowTotal != 0;
 
   *TotalCopySizeText=0;
   SelectedFolderNameLength=0;
@@ -732,7 +736,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   };
   MakeDialogItems(CopyDlgData,CopyDlg);
 
-  CopyDlg[7].Selected=Opt.MultiCopy;
+  CopyDlg[7].Selected=Opt.CMOpt.MultiCopy;
 
   // Использовать фильтр. KM
   CopyDlg[9].Selected=UseFilter;
@@ -747,11 +751,49 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     CopyDlg[6].Flags|=DIF_DISABLE;
   }
 
-  if(Move)
+  if(Move)  // секция про перенос
+  {
+    if(Opt.CMOpt.CopySecurityOptions&CSO_MOVE_SETSECURITY) // ставить опцию "Copy access rights"?
+    {
+      if(CopySecurityMove == -1) // самоинициализация переменной
+        CopySecurityMove=1;
+
+      CDP.CopySecurity=CopySecurityMove; // все зависит от CopySecurityMove
+    }
+
+    if(CopySecurityMove == -1) // самоинициализация переменной
+      CopySecurityMove=0; // по умолчанию снята
+
+    if(Opt.CMOpt.CopySecurityOptions&CSO_MOVE_SESSIONSECURITY) // хотели сессионное запоминание?
+      CDP.CopySecurity=CopySecurityMove;
+  }
+  else // секция про копирование
+  {
+    if(Opt.CMOpt.CopySecurityOptions&CSO_COPY_SETSECURITY) // ставить опцию "Copy access rights"?
+    {
+      if(CopySecurityCopy == -1) // самоинициализация переменной
+        CopySecurityCopy=1;
+
+      CDP.CopySecurity=CopySecurityCopy; // все зависит от CopySecurityMove
+    }
+
+    if(CopySecurityCopy == -1) // самоинициализация переменной
+      CopySecurityCopy=0; // по умолчанию снята
+
+    if(Opt.CMOpt.CopySecurityOptions&CSO_COPY_SESSIONSECURITY) // хотели сессионное запоминание?
+      CDP.CopySecurity=CopySecurityCopy;
+  }
+
+  // вот теперь выставляем
+  if(CDP.CopySecurity)
   {
     ShellCopy::Flags|=FCOPY_COPYSECURITY;
-    CDP.CopySecurity=1;
     CopyDlg[4].Selected=1;
+  }
+  else
+  {
+    ShellCopy::Flags&=~FCOPY_COPYSECURITY;
+    CopyDlg[4].Selected=0;
   }
 
   if (CDP.SelCount==1)
@@ -826,6 +868,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     }
     // задисаблим опцию про копирование права.
     CopyDlg[4].Selected=1;
+    CDP.CopySecurity=1;
     CopyDlg[4].Flags|=DIF_DISABLE;
   }
   else if(DestPanelMode == PLUGIN_PANEL)
@@ -982,8 +1025,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
            состояния опции мультикопирования
         */
         strcpy(CopyDlgValue,(char *)CopyDlg[2].Ptr.PtrData);
-        Opt.MultiCopy=CopyDlg[7].Selected;
-        if(!Opt.MultiCopy || !strpbrk((char *)CopyDlg[2].Ptr.PtrData,",;")) // отключено multi*
+        Opt.CMOpt.MultiCopy=CopyDlg[7].Selected;
+        if(!Opt.CMOpt.MultiCopy || !strpbrk((char *)CopyDlg[2].Ptr.PtrData,",;")) // отключено multi*
         {
            // уберем пробелы, лишние кавычки
            RemoveTrailingSpaces((char *)CopyDlg[2].Ptr.PtrData);
@@ -1020,10 +1063,27 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   // ***********************************************************************
   // *** Стадия подготовки данных после диалога
   // ***********************************************************************
+  ShellCopy::Flags&=~FCOPY_COPYPARENTSECURITY;
   if(CopyDlg[4].Selected)
     ShellCopy::Flags|=FCOPY_COPYSECURITY;
   else
+  {
     ShellCopy::Flags&=~FCOPY_COPYSECURITY;
+    if(Opt.CMOpt.CopySecurityOptions&CSO_MOVE_SETPARENTSECURITY)
+      ShellCopy::Flags|=FCOPY_COPYPARENTSECURITY;
+  }
+
+  CDP.CopySecurity=ShellCopy::Flags&FCOPY_COPYSECURITY?1:0;
+
+  // в любом случае сохраняем сессионное запоминание (не для Link, т.к. для Link временное состояние - "ВСЕГДА!")
+  if(!Link)
+  {
+    if(Move)
+      CopySecurityMove=CDP.CopySecurity;
+    else
+      CopySecurityCopy=CDP.CopySecurity;
+  }
+
   ShellCopy::Flags|=CopyDlg[5].Selected?FCOPY_ONLYNEWERFILES:0;
   ShellCopy::Flags|=CopyDlg[6].Selected?FCOPY_COPYSYMLINKCONTENTS:0;
 
@@ -1074,7 +1134,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
       CopyDlgValue[I]='\\';
 
   // нужно ли показывать время копирования?
-  ShowCopyTime = Opt.CopyTimeRule & ((ShellCopy::Flags&FCOPY_COPYTONUL)?COPY_RULE_NUL:COPY_RULE_FILES);
+  ShowCopyTime = Opt.CMOpt.CopyTimeRule & ((ShellCopy::Flags&FCOPY_COPYTONUL)?COPY_RULE_NUL:COPY_RULE_FILES);
 
   // ***********************************************************************
   // **** Здесь все подготовительные операции закончены, можно приступать
@@ -3079,7 +3139,7 @@ COPY_CODES ShellCopy::CheckStreams(const char *Src,const char *DestPath)
 {
 #if 0
   int AscStreams=(ShellCopy::Flags&FCOPY_STREAMSKIP)?2:((ShellCopy::Flags&FCOPY_STREAMALL)?0:1);
-  if(!Opt.UseSystemCopy && NT && AscStreams)
+  if(!Opt.CMOpt.UseSystemCopy && NT && AscStreams)
   {
     int CountStreams=EnumNTFSStreams(Src,NULL,NULL);
     if(CountStreams > 1 ||
@@ -3364,9 +3424,9 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
     return(MkLink(SrcName,DestName) ? COPY_SUCCESS:COPY_FAILURE);
   }
 
-  if (!(ShellCopy::Flags&FCOPY_COPYTONUL) && Opt.UseSystemCopy && !Append)
+  if (!(ShellCopy::Flags&FCOPY_COPYTONUL) && Opt.CMOpt.UseSystemCopy && !Append)
   {
-    if (!Opt.CopyOpened)
+    if (!Opt.CMOpt.CopyOpened)
     {
       HANDLE SrcHandle=FAR_CreateFile(SrcName,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,0,NULL);
       if (SrcHandle==INVALID_HANDLE_VALUE)
@@ -3387,12 +3447,12 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
     return COPY_CANCEL;
   }
   int OpenMode=FILE_SHARE_READ;
-  if (Opt.CopyOpened)
+  if (Opt.CMOpt.CopyOpened)
     OpenMode|=FILE_SHARE_WRITE;
   HANDLE SrcHandle=FAR_CreateFile(SrcName,GENERIC_READ,OpenMode,NULL,OPEN_EXISTING,0,NULL);
   if (SrcHandle==INVALID_HANDLE_VALUE)
   {
-    if (Opt.CopyOpened)
+    if (Opt.CMOpt.CopyOpened)
     {
       if ( GetLastError() == ERROR_SHARING_VIOLATION )
       {
