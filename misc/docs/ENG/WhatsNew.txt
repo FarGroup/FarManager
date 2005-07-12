@@ -9,7 +9,7 @@
 [*] Changes
 
 ---------------------------------------------------------------------------
-FAR 1.70 beta 6 (build 2020) (07.07.2005)
+FAR 1.70 beta 6 (build 2022) (12.07.2005)
 ---------------------------------------------------------------------------
 General
 ~~~~~~~
@@ -319,6 +319,10 @@ Copy/Move
     operations. If this option is unchecked then after copying/moving the
     inheritable access rights of the parent folder will be applied to the
     copied/moved files and folders. Additionally see TechInfo#65.
+
+[+] Новое правило TechInfo#69, позволяет управлять поведением опции
+    "Копировать права доступа" ("Copy access rights") в диалоге
+    копирования/перемещения.
 
 [-] When creating a symbolic link to a folder a file of the same name was
     deleted (if the name of the symbolic link collided with the name of an
