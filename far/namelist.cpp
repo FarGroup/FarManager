@@ -5,10 +5,12 @@ namelist.cpp
 
 */
 
-/* Revision: 1.11 13.07.2005 $ */
+/* Revision: 1.12 13.07.2005 $ */
 
 /*
 Modify:
+  13.07.2005 SVS
+    - ну нафига ж юзать аж два раза Names.toNext() и Names.toPrev() :-(
   13.07.2005 SVS
     ! Изменен класс NamesList. Теперь он управляет двумя именами.
   06.08.2004 SKV
@@ -70,9 +72,10 @@ bool NamesList::GetNextName(char *Name, const size_t NameSize,char *ShortName, c
 {
   if(Names.isEnd())
     return(false);
-  xstrncpy(Name, Names.toNext()->Value.Name, NameSize-1);
+  const OneName *pName=Names.toNext();
+  xstrncpy(Name, pName->Value.Name, NameSize-1);
   if(ShortName)
-    xstrncpy(ShortName, Names.toNext()->Value.ShortName, ShortNameSize-1);
+    xstrncpy(ShortName, pName->Value.ShortName, ShortNameSize-1);
   return(true);
 }
 
@@ -81,9 +84,10 @@ bool NamesList::GetPrevName(char *Name, const size_t NameSize,char *ShortName, c
 {
   if (Names.isBegin())
     return(false);
-  xstrncpy(Name, Names.toPrev()->Value.Name, NameSize-1);
+  const OneName *pName=Names.toPrev();
+  xstrncpy(Name, pName->Value.Name, NameSize-1);
   if(ShortName)
-    xstrncpy(ShortName, Names.toPrev()->Value.ShortName, ShortNameSize-1);
+    xstrncpy(ShortName, pName->Value.ShortName, ShortNameSize-1);
   return(true);
 }
 
