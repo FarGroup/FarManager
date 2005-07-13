@@ -5,10 +5,12 @@ namelist.cpp
 
 */
 
-/* Revision: 1.10 06.08.2004 $ */
+/* Revision: 1.11 13.07.2005 $ */
 
 /*
 Modify:
+  13.07.2005 SVS
+    ! Изменен класс NamesList. Теперь он управляет двумя именами.
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   19.11.2003 IS
@@ -56,28 +58,32 @@ NamesList::~NamesList()
 {
 }
 
-
-void NamesList::AddName(const char *Name)
+void NamesList::AddName(const char *Name,const char *ShortName)
 {
-  CurName=Name;
+  xstrncpy(CurName.Value.Name,Name,sizeof(CurName.Value.Name)-1);
+  xstrncpy(CurName.Value.ShortName,NullToEmpty(ShortName),sizeof(CurName.Value.ShortName)-1);
   Names.push_back(CurName);
 }
 
 
-bool NamesList::GetNextName(char *Name, const size_t NameSize)
+bool NamesList::GetNextName(char *Name, const size_t NameSize,char *ShortName, const size_t ShortNameSize)
 {
   if(Names.isEnd())
     return(false);
-  xstrncpy(Name, Names.toNext()->Value, NameSize-1);
+  xstrncpy(Name, Names.toNext()->Value.Name, NameSize-1);
+  if(ShortName)
+    xstrncpy(ShortName, Names.toNext()->Value.ShortName, ShortNameSize-1);
   return(true);
 }
 
 
-bool NamesList::GetPrevName(char *Name, const size_t NameSize)
+bool NamesList::GetPrevName(char *Name, const size_t NameSize,char *ShortName, const size_t ShortNameSize)
 {
   if (Names.isBegin())
     return(false);
-  xstrncpy(Name, Names.toPrev()->Value, NameSize-1);
+  xstrncpy(Name, Names.toPrev()->Value.Name, NameSize-1);
+  if(ShortName)
+    xstrncpy(ShortName, Names.toPrev()->Value.ShortName, ShortNameSize-1);
   return(true);
 }
 
@@ -88,7 +94,7 @@ void NamesList::SetCurName(const char *Name)
   pCurName=Names.toBegin();
   while(pCurName)
   {
-    if(!strcmp(Name,pCurName->Value))
+    if(!strcmp(Name,pCurName->Value.Name))
       return;
     pCurName=Names.toNext();
   }
@@ -122,6 +128,7 @@ void NamesList::SetCurDir(const char *Dir)
 void NamesList::Init()
 {
   Names.clear();
-  CurName.Value[0]=0;
+  CurName.Value.Name[0]=0;
+  CurName.Value.ShortName[0]=0;
   *CurDir=0;
 }

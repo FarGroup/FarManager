@@ -5,10 +5,12 @@ syslog.cpp
 
 */
 
-/* Revision: 1.53 27.06.2005 $ */
+/* Revision: 1.54 13.07.2005 $ */
 
 /*
 Modify:
+  13.07.2005 SVS
+    + PanelViewSettings_Dump()
   27.06.2005 SVS
     ! небольшая корректировка WIN32_FIND_DATA_Dump
   23.06.2005 SVS
@@ -631,7 +633,7 @@ void GetOpenPluginInfo_Dump(char *Title,const struct OpenPluginInfo *Info,FILE *
     {
       for(int I=0;I<Info->InfoLinesNumber;++I)
       {
-        fprintf(fp,"\t\tText=[%s], Data=[%s], Separator=[%d]\n",
+        fprintf(fp,"\t\t%d) Text=[%s], Data=[%s], Separator=[%d]\n",I,
            NullToEmpty(Info->InfoLines[I].Text),NullToEmpty(Info->InfoLines[I].Data),Info->InfoLines[I].Separator);
       }
     }
@@ -643,6 +645,7 @@ void GetOpenPluginInfo_Dump(char *Title,const struct OpenPluginInfo *Info,FILE *
     {
       for(int I=0;I<Info->PanelModesNumber;++I)
       {
+        fprintf(fp,"\t%d) ------------------\n",I);
         fprintf(fp,"\t\tColumnTypes       ='%s'\n",NullToEmpty(Info->PanelModesArray[I].ColumnTypes));
         fprintf(fp,"\t\tColumnWidths      ='%s'\n",NullToEmpty(Info->PanelModesArray[I].ColumnWidths));
         fprintf(fp,"\t\tColumnTitles      =%p\n",Info->PanelModesArray[I].ColumnTitles);
@@ -1678,6 +1681,60 @@ void WIN32_FIND_DATA_Dump(char *Title,const WIN32_FIND_DATA &wfd,FILE *fp)
     fprintf(fp,"%*s %s  dwReserved1           =0x%08X (%d)\n",12,"",space,wfd.dwReserved1,wfd.dwReserved1);
     fprintf(fp,"%*s %s  cFileName             =\"%s\"\n",12,"",space,wfd.cFileName);
     fprintf(fp,"%*s %s  cAlternateFileName    =\"%s\"\n",12,"",space,wfd.cAlternateFileName);
+
+    fprintf(fp,"%*s %s  }\n",12,"",space);
+    fflush(fp);
+  }
+
+  if(InternalLog)
+    CloseSysLog();
+#endif
+}
+
+void PanelViewSettings_Dump(char *Title,const struct PanelViewSettings &ViewSettings,FILE *fp)
+{
+#if defined(SYSLOG)
+  if(!IsLogON())
+    return;
+
+  int InternalLog=fp==NULL?TRUE:FALSE;
+  char *space=MakeSpace();
+
+  if(InternalLog)
+  {
+    OpenSysLog();
+    fp=PrintBaner(fp,"PanelViewSettings",Title);
+  }
+
+  if (fp)
+  {
+    int I;
+    fprintf(fp,"%*s %s  PanelViewSettings{\n",12,"",space);
+    fprintf(fp,"%*s %s  ColumnType           = [",12,"",space);
+    for(I=0; I < sizeof(ViewSettings.ColumnType)/sizeof(ViewSettings.ColumnType[0])-1;++I)
+      fprintf(fp,"%d, ",ViewSettings.ColumnType[I]);
+    fprintf(fp,"%d]\n",ViewSettings.ColumnType[I]);
+    fprintf(fp,"%*s %s  ColumnWidth          = [",12,"",space);
+    for(I=0; I < sizeof(ViewSettings.ColumnWidth)/sizeof(ViewSettings.ColumnWidth[0])-1;++I)
+      fprintf(fp,"%d, ",ViewSettings.ColumnWidth[I]);
+    fprintf(fp,"%d]\n",ViewSettings.ColumnWidth[I]);
+    fprintf(fp,"%*s %s  ColumnCount          = %d\n",12,"",space,ViewSettings.ColumnCount);
+    fprintf(fp,"%*s %s  StatusColumnType     = [",12,"",space);
+    for(I=0; I < sizeof(ViewSettings.StatusColumnType)/sizeof(ViewSettings.StatusColumnType[0])-1;++I)
+      fprintf(fp,"%d, ",ViewSettings.StatusColumnType[I]);
+    fprintf(fp,"%d]\n",ViewSettings.StatusColumnType[I]);
+    fprintf(fp,"%*s %s  StatusColumnWidth    = [",12,"",space);
+    for(I=0; I < sizeof(ViewSettings.StatusColumnWidth)/sizeof(ViewSettings.StatusColumnWidth[0])-1;++I)
+      fprintf(fp,"%d, ",ViewSettings.StatusColumnWidth[I]);
+    fprintf(fp,"%d]\n",ViewSettings.StatusColumnWidth[I]);
+    fprintf(fp,"%*s %s  StatusColumnCount    = %d\n",12,"",space,ViewSettings.StatusColumnCount);
+    fprintf(fp,"%*s %s  FullScreen           = %d\n",12,"",space,ViewSettings.FullScreen);
+    fprintf(fp,"%*s %s  AlignExtensions      = %d\n",12,"",space,ViewSettings.AlignExtensions);
+    fprintf(fp,"%*s %s  FolderAlignExtensions= %d\n",12,"",space,ViewSettings.FolderAlignExtensions);
+    fprintf(fp,"%*s %s  FolderUpperCase      = %d\n",12,"",space,ViewSettings.FolderUpperCase);
+    fprintf(fp,"%*s %s  FileLowerCase        = %d\n",12,"",space,ViewSettings.FileLowerCase);
+    fprintf(fp,"%*s %s  FileUpperToLowerCase = %d\n",12,"",space,ViewSettings.FileUpperToLowerCase);
+    fprintf(fp,"%*s %s  CaseSensitiveSort    = %d\n",12,"",space,ViewSettings.CaseSensitiveSort);
 
     fprintf(fp,"%*s %s  }\n",12,"",space);
     fflush(fp);

@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.181 07.07.2005 $ */
+/* Revision: 1.182 13.07.2005 $ */
 
 /*
 Modify:
+  13.07.2005 SVS
+    ! Изменен класс NamesList. Теперь он управляет двумя именами.
   07.07.2005 SVS
     ! Вьюверные настройки собраны в одно место
   02.07.2005 AY
@@ -1895,12 +1897,13 @@ int Viewer::ProcessKey(int Key)
       if (*TempViewName==0)
       {
         char Name[NM];
+        char ShortName[NM];
         bool NextFileFound;
 
         if (Key==KEY_ADD)
-          NextFileFound=ViewNamesList.GetNextName(Name,sizeof(Name));
+          NextFileFound=ViewNamesList.GetNextName(Name,sizeof(Name),ShortName,sizeof(ShortName));
         else
-          NextFileFound=ViewNamesList.GetPrevName(Name,sizeof(Name));
+          NextFileFound=ViewNamesList.GetPrevName(Name,sizeof(Name),ShortName,sizeof(ShortName));
 
         if (NextFileFound)
         {
@@ -1951,8 +1954,7 @@ int Viewer::ProcessKey(int Key)
           /* $ 04.07.2000 tran
              + параметер 'warning' в OpenFile в данном месте он TRUE
           */
-          if (OpenFile(Name,TRUE))
-          /* tran $ */
+          if (OpenFile(((GetFileAttributes(Name) == (DWORD)-1 && GetFileAttributes(ShortName) != (DWORD)-1)?ShortName:Name),TRUE))
           {
 //            LeftPos=0;
             SecondPos=0;

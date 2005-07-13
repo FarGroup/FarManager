@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.179 04.07.2005 $ */
+/* Revision: 1.180 13.07.2005 $ */
 
 /*
 Modify:
+  13.07.2005 SVS
+    ! Изменен класс NamesList. Теперь он управляет двумя именами.
   04.07.2005 WARP
     - В диалоге поиска не полностью выводится опция ( ) From the root folder
   28.06.2005 WARP
@@ -1763,9 +1765,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
                   {
                     // Не учитывали файлы в архивах с OPIF_REALNAMES
                     if (*PtrFindList->FindData.cFileName && !(PtrFindList->FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
-                      //ViewList.AddName(PtrFindList->FindData.cFileName);
-                      ViewList.AddName((GetFileAttributes(PtrFindList->FindData.cFileName) == (DWORD)-1 &&
-                          GetFileAttributes(PtrFindList->FindData.cAlternateFileName) != (DWORD)-1)?PtrFindList->FindData.cAlternateFileName:PtrFindList->FindData.cFileName);
+                      ViewList.AddName(PtrFindList->FindData.cFileName,PtrFindList->FindData.cAlternateFileName);
                   } /* if */
                 } /* for */
                 ViewList.SetCurName(FindList[ItemIndex].FindData.cFileName);

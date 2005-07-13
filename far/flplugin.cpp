@@ -5,10 +5,13 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.47 29.06.2005 $ */
+/* Revision: 1.48 13.07.2005 $ */
 
 /*
 Modify:
+  13.07.2005 SVS
+    - Бага со стеком (см. 02023.Mix.txt)
+    ! При удалении панели из стека вернем режимы сортировки
   29.06.2005 SVS
     - BugZ#1253 - некорректная обработка PanelMode.FullScreen
   21.04.2005 SVS
@@ -149,11 +152,13 @@ Modify:
 void FileList::PushPlugin(HANDLE hPlugin,char *HostFile)
 {
   _ALGO(CleverSysLog("FileList::PushPlugin()"));
+  _ALGO(SysLog("hPlugin=%p, HostFile='%s'",hPlugin,HostFile?HostFile:"(NULL)"));
+  _ALGO(PanelViewSettings_Dump("Prev",ViewSettings));
   DeleteAllDataToDelete();
   PluginsStack=(struct PluginsStackItem *)xf_realloc(PluginsStack,(PluginsStackSize+1)*sizeof(*PluginsStack));
   struct PluginsStackItem *PStack=PluginsStack+PluginsStackSize;
   PStack->hPlugin=hPlugin;
-  strcpy(PStack->HostFile,HostFile);
+  strcpy(PStack->HostFile,HostFile); //??NULL??
   PStack->Modified=FALSE;
   PStack->PrevViewMode=ViewMode;
   PStack->PrevSortMode=SortMode;
@@ -163,41 +168,48 @@ void FileList::PushPlugin(HANDLE hPlugin,char *HostFile)
   _ALGO(PluginsStackItem_Dump("FileList::PushPlugin",PluginsStack,PluginsStackSize));
 }
 
-
 int FileList::PopPlugin(int EnableRestoreViewMode)
 {
   _ALGO(CleverSysLog("FileList::PopPlugin()"));
+  _ALGO(SysLog("EnableRestoreViewMode=%d",EnableRestoreViewMode));
   _ALGO(PluginsStackItem_Dump("FileList::PopPlugin",PluginsStack,PluginsStackSize));
+
+  struct OpenPluginInfo Info;
+
   DeleteAllDataToDelete();
   if (PluginsStackSize==0)
   {
     PanelMode=NORMAL_PANEL;
     return(FALSE);
   }
-  PluginsStackSize--;
-  struct PluginsStackItem *PStack=PluginsStack+PluginsStackSize;
-  if (EnableRestoreViewMode)
-  {
-    struct OpenPluginInfo Info;
-    CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
-    if (Info.StartPanelMode)
-      SetViewMode(PStack->PrevViewMode);
-    if (Info.StartSortMode)
-    {
-      SortMode=PStack->PrevSortMode;
-      NumericSort=PStack->PrevNumericSort;
-      SortOrder=PStack->PrevSortOrder;
-    }
-  }
+  _SVS(SysLog("[%d] hPlugin=%p",__LINE__,hPlugin));
   CtrlObject->Plugins.ClosePlugin(hPlugin);
+
+  PluginsStackSize--;
+  //CtrlObject->Plugins.ClosePlugin(hPlugin);
   // после ClosePlugin переменная SortOrder по каким-то волшебным причинам
   // становится = -1 (хотя допустимы 0 или 1)...
 //  if(SortOrder==-1) // ...восстановим.
 //  {
 //    SortOrder=1; // как в конструкторе заказывали ;-)
 //  }
+  struct PluginsStackItem *PStack=PluginsStack+PluginsStackSize;
   if (PluginsStackSize>0)
   {
+    if (EnableRestoreViewMode)
+    {
+      hPlugin=PluginsStack[PluginsStackSize-1].hPlugin;
+      _SVS(SysLog("[%d] hPlugin=%p",__LINE__,hPlugin));
+      CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
+      if (Info.StartPanelMode)
+        SetViewMode(PStack->PrevViewMode);
+      if (Info.StartSortMode)
+      {
+        SortMode=PStack->PrevSortMode;
+        NumericSort=PStack->PrevNumericSort;
+        SortOrder=PStack->PrevSortOrder;
+      }
+    }
     hPlugin=PluginsStack[PluginsStackSize-1].hPlugin;
     if (PStack->Modified)
     {
@@ -214,7 +226,6 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
       }
       FarChDir(SaveDir);
     }
-    struct OpenPluginInfo Info;
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
     if ((Info.Flags & OPIF_REALNAMES)==0)
       DeleteFileWithFolder(PStack->HostFile);
@@ -227,17 +238,16 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
        Нужно учесть тот факт, что кто-то или что-то может менять
        принудительно пареметры не своей панели.
     */
-    /*
-    ViewMode=PStack->PrevViewMode;
+    //ViewMode=PStack->PrevViewMode;
     SortMode=PStack->PrevSortMode;
     NumericSort=PStack->PrevNumericSort;
     SortOrder=PStack->PrevSortOrder;
-    */
     /* </TODO>*/
   }
   PluginsStack=(struct PluginsStackItem *)xf_realloc(PluginsStack,PluginsStackSize*sizeof(*PluginsStack));
   if (EnableRestoreViewMode)
     CtrlObject->Cp()->RedrawKeyBar();
+  _ALGO(PanelViewSettings_Dump("Current",ViewSettings));
   return(TRUE);
 }
 

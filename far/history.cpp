@@ -5,10 +5,12 @@ history.cpp
 
 */
 
-/* Revision: 1.35 01.07.2005 $ */
+/* Revision: 1.36 13.07.2005 $ */
 
 /*
 Modify:
+  13.07.2005 SVS
+    - BugZ#1352 - FAR crashes with empty Folders history
   01.07.2005 SVS
     - трабла с историей
     + добавка в виде Ctrl-R для виьювера/фолдеров - Обновить список, удалив недоступные файлы/папки
@@ -747,6 +749,8 @@ int History::Select(const char *Title,const char *HelpTopic,char *Str,int StrLen
       else
       {
         StrPos=(int)HistoryMenu.GetUserData(NULL,sizeof(StrPos),Code);
+        if(StrPos == -1)
+          return -1;
         if((TypeHistory == HISTORYTYPE_FOLDER || TypeHistory == HISTORYTYPE_VIEW) && GetFileAttributes(LastStr[StrPos].Name) == (DWORD)-1)
         {
           char *TruncFileName=xf_strdup(LastStr[StrPos].Name);

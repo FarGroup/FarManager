@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.229 23.06.2005 $ */
+/* Revision: 1.230 13.07.2005 $ */
 
 /*
 Modify:
+  13.07.2005 SVS
+    + PanelViewSettings_Dump()
   23.06.2005 SVS
     + WIN32_FIND_DATA_Dump()
     + макрос для t-rex`а -> _TREX()
@@ -1315,6 +1317,7 @@ const char *_INPUT_RECORD_Dump(INPUT_RECORD *Rec);
 const char *_SysLog_LinearDump(LPBYTE Buf,int SizeBuf);
 void GetOpenPluginInfo_Dump(char *Title,const struct OpenPluginInfo *Info,FILE *fp);
 void INPUT_RECORD_DumpBuffer(FILE *fp=NULL);
+void PanelViewSettings_Dump(char *Title,const struct PanelViewSettings &ViewSettings,FILE *fp=NULL);
 void PluginsStackItem_Dump(char *Title,const struct PluginsStackItem *StackItems,int ItemNumber,FILE *fp=NULL);
 void SaveScreenDumpBuffer(const char *Title,const CHAR_INFO *Buffer,int X1,int Y1,int X2,int Y2,int RealScreen,FILE *fp=NULL);
 class Manager;

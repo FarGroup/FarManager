@@ -5,10 +5,13 @@ flshow.cpp
 
 */
 
-/* Revision: 1.45 05.01.2005 $ */
+/* Revision: 1.46 13.07.2005 $ */
 
 /*
 Modify:
+  13.07.2005 SVS
+    - BugZ#1253 - некорректная обработка PanelMode.FullScreen
+      не учитывался факт того, что размеры могли измениться
   05.01.2005 WARP
     - Немного зажевало раскраску скобок { и } при длинном имени.
   18.12.2004 WARP
@@ -195,8 +198,15 @@ void FileList::ShowFileList(int Fast)
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
   }
 
+  int CurFullScreen=IsFullScreen();
   PrepareViewSettings(ViewMode,&Info);
   CorrectPosition();
+
+  if(CurFullScreen!=IsFullScreen())
+  {
+    CtrlObject->Cp()->SetScreenPosition();
+    CtrlObject->Cp()->GetAnotherPanel(this)->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
+  }
 
   SetScreen(X1+1,Y1+1,X2-1,Y2-1,' ',COL_PANELTEXT);
   Box(X1,Y1,X2,Y2,COL_PANELBOX,DOUBLE_BOX);

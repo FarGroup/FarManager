@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.234 07.07.2005 $ */
+/* Revision: 1.235 13.07.2005 $ */
 
 /*
 Modify:
+  13.07.2005 SVS
+    ! Изменен класс NamesList. Теперь он управляет двумя именами.
   07.07.2005 SVS
     ! Вьюверные настройки собраны в одно место
   05.07.2005 SVS
@@ -1949,7 +1951,7 @@ int FileList::ProcessKey(int Key)
                 {
                   for (int I=0;I<FileCount;I++)
                     if ((ListData[I].FileAttr & FA_DIREC)==0)
-                      EditList.AddName(ListData[I].Name);
+                      EditList.AddName(ListData[I].Name,ListData[I].ShortName);
                   EditList.SetCurDir(CurDir);
                   EditList.SetCurName(FileName);
                 }
@@ -2028,10 +2030,7 @@ int FileList::ProcessKey(int Key)
                 {
                   for (int I=0;I<FileCount;I++)
                     if ((ListData[I].FileAttr & FA_DIREC)==0)
-                    {
-                      ViewList.AddName((GetFileAttributes(ListData[I].Name) == (DWORD)-1 &&
-                          GetFileAttributes(ListData[I].ShortName) != (DWORD)-1)?ListData[I].ShortName:ListData[I].Name);
-                    }
+                      ViewList.AddName(ListData[I].Name,ListData[I].ShortName);
                   ViewList.SetCurDir(CurDir);
                   ViewList.SetCurName(FileName);
                 }
