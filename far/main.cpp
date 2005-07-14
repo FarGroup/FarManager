@@ -5,10 +5,12 @@ main.cpp
 
 */
 
-/* Revision: 1.81 04.07.2005 $ */
+/* Revision: 1.82 14.07.2005 $ */
 
 /*
 Modify:
+  14.07.2005 SVS
+    + добавлен класс TConsoleRestore, восстанавливающий консоль после завершени€ работы ‘ј–
   04.07.2005 WARP
     - Ќедетский баг с регистрацией
   18.04.2005 SVS
@@ -264,6 +266,31 @@ Modify:
 int DirectRT=0;
 #endif
 
+
+class TConsoleRestore{
+  private:
+    char OldTitle[512];
+    CONSOLE_SCREEN_BUFFER_INFO sbi;
+    HANDLE hOutput;
+    BOOL IsRectoreConsole;
+  public:
+    TConsoleRestore(BOOL RectoreConsole){
+      hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+      GetConsoleTitle(OldTitle,sizeof(OldTitle));
+      GetConsoleScreenBufferInfo(hOutput,&sbi);
+      IsRectoreConsole=RectoreConsole;
+    };
+    ~TConsoleRestore(){
+      if(IsRectoreConsole)
+      {
+        SetConsoleTitle(OldTitle);
+        //SetConsoleScreenBufferSize(hOutput,sbi.dwSize);
+        SetConsoleWindowInfo(hOutput,TRUE,&sbi.srWindow);
+        SetConsoleScreenBufferSize(hOutput,sbi.dwSize);
+      }
+    };
+};
+
 static void ConvertOldSettings();
 /* $ 07.07.2000 IS
   ¬ынес эту декларацию в fn.cpp, чтобы была доступна отовсюду...
@@ -299,6 +326,7 @@ printf(
 " /p[<path>]\n"
 "      Search for \"common\" plugins in the directory, specified by <path>.\n"
 " /co  Forces FAR to load plugins from the cache only.\n"
+" /rc  Restore console windows settings upon exiting FAR.\n"
 " /u <username>\n"
 "      Allows to have separate settings for different users.\n"
 " /v <filename>\n"
@@ -502,7 +530,7 @@ int _cdecl main(int Argc, char *Argv[])
   //char EditName[NM],ViewName[NM];
   char *EditName="",*ViewName="";
   char DestName[2][NM];
-  int StartLine=-1,StartChar=-1,RegOpt=FALSE;
+  int StartLine=-1,StartChar=-1,RegOpt=FALSE,RectoreConsole=FALSE;
   int CntDestName=0; // количество параметров-имен каталогов
 
   //*EditName=*ViewName=0;
@@ -630,7 +658,15 @@ int _cdecl main(int Argc, char *Argv[])
           }
           break;
         case 'R':
-          RegOpt=TRUE;
+          switch (toupper(Argv[I][2]))
+          {
+            case 0:
+              RegOpt=TRUE;
+              break;
+            case 'C':
+              RectoreConsole=TRUE;
+              break;
+          }
           break;
         case 'I':
           Opt.SmallIcon=TRUE;
@@ -748,8 +784,8 @@ int _cdecl main(int Argc, char *Argv[])
   /* IS $ */
 
   WaitForInputIdle(GetCurrentProcess(),0);
-  char OldTitle[512];
-  GetConsoleTitle(OldTitle,sizeof(OldTitle));
+
+  TConsoleRestore __ConsoleRestore(RectoreConsole);
 
 #if _MSC_VER>=1300
   _set_new_handler(0);
@@ -850,7 +886,6 @@ int _cdecl main(int Argc, char *Argv[])
   doneMacroVarTable(1);
   doneMacroVarTable(0);
 
-  SetConsoleTitle(OldTitle);
   _OT(SysLog("[[[[[Exit of FAR]]]]]]]]]"));
   return Result;
 }

@@ -166,6 +166,9 @@ $ # FAR: command line switches#
           be loaded from the main folder, and from the path
           given at the "~Path for personal plugins~@SystemSettings@" parameter.
 
+  #/rc#   Upon closing, allows to restore console window title
+        and size that were set before running FAR Manager.
+
   #/u <username>#
         Allows to have separate settings for different users.
 

@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.120 05.07.2005 $ */
+/* Revision: 1.121 14.07.2005 $ */
 
 /*
 Modify:
+  14.07.2005 SVS
+    - Грязный хак в исполняторе против CtrlEnter ShiftEnter (см. 02025.Mix.txt)
   05.07.2005 SVS
     - ошибка в обработчике "cd" (когда применялась маска)
   05.04.2005 AY
@@ -397,8 +399,9 @@ static int IsCommandPEExeGUI(const char *FileName,DWORD& ImageSubsystem)
 
     FileSizeLow=GetFileSize(hFile,&FileSizeHigh);
 
-    if(ReadFile(hFile,&dos_head,sizeof(IMAGE_DOS_HEADER),&ReadSize,NULL) &&
-       dos_head.e_magic == IMAGE_DOS_SIGNATURE)
+    BOOL RetReadFile=ReadFile(hFile,&dos_head,sizeof(IMAGE_DOS_HEADER),&ReadSize,NULL);
+
+    if(RetReadFile && dos_head.e_magic == IMAGE_DOS_SIGNATURE)
     {
       Ret=TRUE;
       ImageSubsystem = IMAGE_SUBSYSTEM_DOS_EXECUTABLE;
@@ -469,8 +472,11 @@ static int IsCommandPEExeGUI(const char *FileName,DWORD& ImageSubsystem)
     }
     else
     {
-      ; // это не исполняемый файл - у него нету заголовка MZ
-        // например, NLM-модуль или ошибка чтения :-)
+      if(!RetReadFile)
+        ; // ошибка чтения
+      else
+        ; // это не исполняемый файл - у него нету заголовка MZ, например, NLM-модуль
+        // TODO: здесь можно разбирать POSIX нотацию, например "/usr/bin/sh"
     }
     CloseHandle(hFile);
   }
@@ -1114,6 +1120,17 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
   HANDLE hProcess = NULL, hThread = NULL;
 
   PrepareExecuteModule(NewCmdStr,NewCmdStr,sizeof(NewCmdStr)-1,dwSubSystem);
+
+  if(/*!*NewCmdPar && */ dwSubSystem == IMAGE_SUBSYSTEM_UNKNOWN)
+  {
+    DWORD Error=0, dwSubSystem2=0;
+    char *ExtPtr=strrchr(NewCmdStr,'.');
+
+    if(ExtPtr && !(stricmp(ExtPtr,".exe")==0 || stricmp(ExtPtr,".com")==0 ||
+       stricmp(ExtPtr,".bat")==0 || stricmp(ExtPtr,".cmd")==0))
+      if(GetShellAction(NewCmdStr,dwSubSystem2,Error) && Error != ERROR_NO_ASSOCIATION)
+        dwSubSystem=dwSubSystem2;
+  }
 
   if ( dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_GUI )
     SeparateWindow = 2;
