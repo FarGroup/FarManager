@@ -5,10 +5,16 @@ execute.cpp
 
 */
 
-/* Revision: 1.121 14.07.2005 $ */
+/* Revision: 1.122 14.07.2005 $ */
 
 /*
 Modify:
+  14.07.2005 AY
+    - теперь в заголовке окна (по Enter и ShiftEnter) показываем всегда то что запускает фар
+      (путь к файлу и параметры без %comspec% /c).
+    - при запуске в отдельном окне NewCmd* перекодировался в Char но не перекодировался
+      назад в OEM после запуска, что приводило к неправильному показу имени файла в сообщении
+      об ошибке.
   14.07.2005 SVS
     - Грязный хак в исполняторе против CtrlEnter ShiftEnter (см. 02025.Mix.txt)
   05.07.2005 SVS
@@ -1139,47 +1145,51 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
 
   if ( SeparateWindow == 2 )
   {
-        FAR_OemToChar (NewCmdStr, NewCmdStr);
-        FAR_OemToChar (NewCmdPar, NewCmdPar);
+    FAR_OemToChar (NewCmdStr, NewCmdStr);
+    FAR_OemToChar (NewCmdPar, NewCmdPar);
 
-        seInfo.lpFile = NewCmdStr;
-        seInfo.lpParameters = NewCmdPar;
-        seInfo.nShow = SW_SHOWNORMAL;
+    seInfo.lpFile = NewCmdStr;
+    seInfo.lpParameters = NewCmdPar;
+    seInfo.nShow = SW_SHOWNORMAL;
 
-        seInfo.lpVerb = (dwAttr&FILE_ATTRIBUTE_DIRECTORY)?NULL:GetShellAction((char *)NewCmdStr, dwSubSystem, dwError);
-//      seInfo.lpVerb = "open";
-        seInfo.fMask = SEE_MASK_FLAG_NO_UI|SEE_MASK_FLAG_DDEWAIT|SEE_MASK_NOCLOSEPROCESS;
+    seInfo.lpVerb = (dwAttr&FILE_ATTRIBUTE_DIRECTORY)?NULL:GetShellAction((char *)NewCmdStr, dwSubSystem, dwError);
+    //seInfo.lpVerb = "open";
+    seInfo.fMask = SEE_MASK_FLAG_NO_UI|SEE_MASK_FLAG_DDEWAIT|SEE_MASK_NOCLOSEPROCESS;
 
-        if ( !dwError )
-        {
-            SetFileApisTo(APIS2ANSI);
+    if ( !dwError )
+    {
+      SetFileApisTo(APIS2ANSI);
 
-            if ( ShellExecuteEx (&seInfo) )
-            {
-                hProcess = seInfo.hProcess;
-                StartExecTime=clock();
-            }
-            else
-                dwError = GetLastError ();
+      if ( ShellExecuteEx (&seInfo) )
+      {
+        hProcess = seInfo.hProcess;
+        StartExecTime=clock();
+      }
+      else
+        dwError = GetLastError ();
 
-            SetFileApisTo(APIS2OEM);
-        }
+      SetFileApisTo(APIS2OEM);
+    }
+
+    FAR_CharToOem (NewCmdStr, NewCmdStr);
+    FAR_CharToOem (NewCmdPar, NewCmdPar);
   }
   else
   {
-    if ( !bIsNT )
+    char FarTitle[4096];
+    strcpy(FarTitle,NewCmdStr);
+    if (*NewCmdPar)
     {
-      char FarTitle[2*NM];
-
-      int size=Min((DWORD)strlen(CmdStr),(DWORD)sizeof(FarTitle)-1);
-
-      FAR_OemToCharBuff(CmdStr,FarTitle,size);
-      FarTitle[size]=0;
-
-      SetConsoleTitle(FarTitle);
+      strcat(FarTitle," ");
+      strcat(FarTitle,NewCmdPar);
     }
-    else
-      SetConsoleTitle(CmdStr);
+    if ( bIsNT )
+      SetConsoleTitle(FarTitle);
+    FAR_OemToChar(FarTitle,FarTitle);
+    if ( !bIsNT )
+      SetConsoleTitle(FarTitle);
+    if (SeparateWindow)
+      si.lpTitle=FarTitle;
 
     char TempStr[4096];
 
