@@ -5,15 +5,15 @@ HANDLE RtlCreateEvent (
 		)
 {
 	return CreateEvent (
-			NULL,
-			false,
-			false,
+			NULL, 
+			false, 
+			false, 
 			EventName
 			);
 }
 
 HANDLE RtlCreateThread (
-		PVOID ThreadProc,
+		PVOID ThreadProc, 
 		PVOID Param
 		)
 {
@@ -38,3 +38,5 @@ VOID RtlWaitAndCloseThread (
 	WaitForSingleObject (hThread, WaitInterval);
 	CloseHandle (hThread);
 }
+
+

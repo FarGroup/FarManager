@@ -7,6 +7,8 @@ PROC RtlHookImportTable(
 		HMODULE hModule
 		)
 {
+	PROC pfnResult = NULL;
+
 	dword dwBase = (dword)hModule;
 	dword dwOP;
 
@@ -14,19 +16,19 @@ PROC RtlHookImportTable(
 
 	pDosHeader = (PIMAGE_DOS_HEADER)dwBase;
 
-	if ( pDosHeader->e_magic != IMAGE_DOS_SIGNATURE )
+	if ( pDosHeader->e_magic != 'ZM' )
 		return NULL;
 
 	PIMAGE_NT_HEADERS pPEHeader  = (PIMAGE_NT_HEADERS)(dwBase+pDosHeader->e_lfanew);
 
-	if ( pPEHeader->Signature != 0x00004550 )
+	if ( pPEHeader->Signature != 0x00004550 ) 
 		return NULL;
 
 	PIMAGE_IMPORT_DESCRIPTOR pImportDesc = (PIMAGE_IMPORT_DESCRIPTOR)(dwBase+pPEHeader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress);
 
 	const char *lpImportTableFunctionName;
 
-	if ( !pImportDesc )
+	if ( !pPEHeader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress )
 		return NULL;
 
 	const char *lpImportTableModuleName;
@@ -35,7 +37,7 @@ PROC RtlHookImportTable(
 	{
 		lpImportTableModuleName = (const char*)(dwBase+(dword)pImportDesc->Name);
 
-		if ( !lstrcmpiA (lpImportTableModuleName, lpModuleName) )
+		if ( !lstrcmpiA (lpImportTableModuleName, lpModuleName) ) 
 			break;
 
 		pImportDesc++;
@@ -46,16 +48,15 @@ PROC RtlHookImportTable(
 
 	PIMAGE_THUNK_DATA pFirstThunk;
 	PIMAGE_THUNK_DATA pOriginalThunk;
-
-	pFirstThunk = (PIMAGE_THUNK_DATA)(dwBase+(dword)pImportDesc->FirstThunk);
-	pOriginalThunk = (PIMAGE_THUNK_DATA)(dwBase+(dword)pImportDesc->OriginalFirstThunk);
+	
+	pFirstThunk = (PIMAGE_THUNK_DATA)(dwBase+(dword)pImportDesc->FirstThunk);	
+	pOriginalThunk = (PIMAGE_THUNK_DATA)(dwBase+(dword)pImportDesc->OriginalFirstThunk);	
 
 	while ( pFirstThunk->u1.Function )
 	{
 		lpImportTableFunctionName = (const char*)(dwBase+(dword)((PIMAGE_IMPORT_BY_NAME)pOriginalThunk->u1.AddressOfData)->Name);
 
 		dword dwOldProtect;
-		PROC pfnResult;
 		PROC* ppfnOld;
 
 		if ( !lstrcmpiA (lpImportTableFunctionName, lpFunctionName) )
@@ -64,15 +65,16 @@ PROC RtlHookImportTable(
 			ppfnOld = (PROC*)&pFirstThunk->u1.Function;
 
 			VirtualProtect (ppfnOld, 4, PAGE_READWRITE, &dwOldProtect);
-			WriteProcessMemory(GetCurrentProcess(), ppfnOld, &pfnNew, sizeof (pfnNew), NULL);
+			WriteProcessMemory(GetCurrentProcess(), ppfnOld, &pfnNew, sizeof pfnNew, NULL);
 			VirtualProtect (ppfnOld, 4, dwOldProtect, &dwOldProtect);
 
 			return pfnResult;
 		}
-
-		pFirstThunk++;
+		
+        pFirstThunk++;
 		pOriginalThunk++;
 	}
 
 	return NULL; //error
 }
+

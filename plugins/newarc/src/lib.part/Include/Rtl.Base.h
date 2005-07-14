@@ -5,7 +5,7 @@
 #pragma warning(disable:4121) // alignment of a member was sensitive to packing (i don't care)
 
 #include <Rtl.Types.h>
-#include <Rtl.Memory.h>
+//#include <Rtl.Memory.h>
 #include <Rtl.Strings.h>
 #include <Rtl.Kernel.h>
 #include <Rtl.Hook.h>
