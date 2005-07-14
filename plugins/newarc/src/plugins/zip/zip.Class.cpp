@@ -23,23 +23,19 @@ ZipModule::ZipModule (
 			);
 	*/
 
-	if ( !m_hModule )
-	{
-		char *lpModuleName = StrDuplicate(Info.ModuleName, 260);
+	char *lpModuleName = StrDuplicate(Info.ModuleName, 260);
 
-		CutToSlash(lpModuleName);
+	CutToSlash(lpModuleName);
 
-		strcat (lpModuleName, "zlib.dll");
+	strcat (lpModuleName, "zlib.dll");
 
-		m_hModule = LoadLibraryEx (
-				lpModuleName,
-				NULL,
-				LOAD_WITH_ALTERED_SEARCH_PATH
-				);
+	m_hModule = LoadLibraryEx (
+			lpModuleName,
+			NULL,
+			LOAD_WITH_ALTERED_SEARCH_PATH
+			);
 
-		StrFree (lpModuleName);
-	}
-
+	StrFree (lpModuleName);
 
 	if ( m_hModule )
 	{

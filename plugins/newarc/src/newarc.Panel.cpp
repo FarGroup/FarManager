@@ -12,6 +12,7 @@ ArchivePanel::ArchivePanel (
 	m_lpCurrentFolder = StrCreate (260);
 
 	m_pArchiveFiles = NULL;
+	m_nArchiveFilesCount = 0;
 
 	m_lpPanelTitle = StrCreate (260);
 
@@ -1157,7 +1158,6 @@ void dlgModifyCreateArchive ()
 {
 	PanelInfo pnInfo;
 
-
 	LoadTemplates ();
 
 	Info.Control (INVALID_HANDLE_VALUE, FCTL_GETPANELINFO, &pnInfo);
@@ -1172,55 +1172,56 @@ void dlgModifyCreateArchive ()
 		CutTo (lpArchiveName, '.', true);
 	}
 
-	FarDialog *D = new FarDialog (-1, -1, 75, 18);
+	FarDialog *D = new FarDialog (-1, -1, 75, 19);
 
-	D->DoubleBox (3, 1, 71, 16, NULL); //0
+	D->DoubleBox (3, 1, 71, 17, NULL); //0
 
 	D->Text (5, 2, "&Добавить к архиву");//1
 	D->Edit (5, 3, 65, lpArchiveName, AUTO_LENGTH, "sdfas"); //2
 
 	D->Separator (4); //3
 
-	D->RadioButton (6, 6, true, "Шаблон:"); //4
-	D->RadioButton (6, 7, false, "Непосредственные настройки:"); //5
+	D->Text (5, 5, "Настройки архиватора:"); //4
 
-	D->Text (5, 5, "Настройки архиватора:"); //6
-	D->ComboBox (20, 6, 38, NULL, 0); //7
+	D->RadioButton (6, 6, true, "Шаблон:"); //5
+	D->RadioButton (6, 8, false, "Непосредственные настройки:"); //6
+
+	D->ComboBox (9, 7, 48, NULL, 0); //7
 	D->SetFlags (DIF_DROPDOWNLIST);
 
-	D->Button (59, 6, "[+]"); //8
+	D->Button (59, 7, "[+]"); //8
 	D->SetFlags(DIF_BTNNOCLOSE);
 
-	D->Button (63, 6, "[-]"); //9
-	D->Button (67, 6, "[*]"); //10
+	D->Button (63, 7, "[-]"); //9
+	D->Button (67, 7, "[*]"); //10
 
-	D->Text (8, 8, "Архиватор:");//11
-	D->ComboBox (19, 8, 15, NULL, 0, "123");//12
+	D->Text (9, 9, "Архиватор:");//11
+	D->ComboBox (19, 9, 15, NULL, 0, "123");//12
 ///	D->ListBox (50, 5, 65, 10, NULL);
 	D->SetFlags (DIF_DROPDOWNLIST);
 
-	D->Text (36, 8, "Д&оп. параметры:");//13
-	D->Edit (52, 8, 18, NULL, AUTO_LENGTH, "adsaf");//14
+	D->Text (37, 9, "Д&оп. параметры:");//13
+	D->Edit (52, 9, 18, NULL, AUTO_LENGTH, "adsaf");//14
 
-	D->Separator (9); //15
+	D->Separator (10); //15
 
-	D->Text (5, 10, "&Пароль"); //16
-	D->PswEdit (5, 11, 32); //17
+	D->Text (5, 11, "&Пароль"); //16
+	D->PswEdit (5, 12, 32); //17
 
-	D->Text (38, 10, "&Подтверждение пароля"); //18
-	D->PswEdit (38, 11, 32); //19
+	D->Text (38, 11, "&Подтверждение пароля"); //18
+	D->PswEdit (38, 12, 32); //19
 
-	D->Separator (12); //20
-	D->Text (48, 12); //21
+	D->Separator (13); //20
+	D->Text (48, 13); //21
 
-	D->CheckBox (5, 13, false, "Точное соответствие имени файла"); //22
+	D->CheckBox (5, 14, false, "Точное соответствие имени файла"); //22
 
-	D->Separator (14); //23
+	D->Separator (15); //23
 
-	D->Button (-1, 15, "Добавить"); //24
+	D->Button (-1, 16, "Добавить"); //24
 	D->DefaultButton ();
 
-	D->Button (-1, 15, "Отменить"); //25
+	D->Button (-1, 16, "Отменить"); //25
 
 	if ( D->ShowEx (
 			(PVOID)hndModifyCreateArchive
