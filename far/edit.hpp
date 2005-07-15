@@ -7,10 +7,12 @@ edit.hpp
 
 */
 
-/* Revision: 1.29 25.04.2005 $ */
+/* Revision: 1.30 15.07.2005 $ */
 
 /*
 Modify:
+  15.07.2005 AY
+    - Убрал всё связанное с USE_OLDEXPANDTABS
   24.04.2005 AY
     ! GCC
   23.12.2004 WARP
@@ -101,31 +103,6 @@ Modify:
 #include "colors.hpp"
 #include "bitflags.hpp"
 
-#ifdef USE_OLDEXPANDTABS
-
-// Младший байт (маска 0xFF) юзается классом ScreenObject!!!
-enum FLAGS_CLASS_EDITLINE{
-  FEDITLINE_MARKINGBLOCK         = 0x00000100,
-  FEDITLINE_DROPDOWNBOX          = 0x00000200,
-  FEDITLINE_CLEARFLAG            = 0x00000400,
-  FEDITLINE_PASSWORDMODE         = 0x00000800,
-  FEDITLINE_EDITBEYONDEND        = 0x00001000,
-  FEDITLINE_EDITORMODE           = 0x00002000,
-  FEDITLINE_OVERTYPE             = 0x00004000,
-  FEDITLINE_DELREMOVESBLOCKS     = 0x00008000,  // Del удаляет блоки (Opt.EditorDelRemovesBlocks)
-  FEDITLINE_PERSISTENTBLOCKS     = 0x00010000,  // Постоянные блоки (Opt.EditorPersistentBlocks)
-  FEDITLINE_CONVERTTABS          = 0x00020000,
-  FEDITLINE_READONLY             = 0x00040000,
-  FEDITLINE_CURSORVISIBLE        = 0x00080000,
-  // Если ни один из FEDITLINE_PARENT_ не указан (или указаны оба), то Edit
-  // явно не в диалоге юзается.
-  FEDITLINE_PARENT_SINGLELINE    = 0x00100000,  // обычная строка ввода в диалоге
-  FEDITLINE_PARENT_MULTILINE     = 0x00200000,  // для будущего Memo-Edit (DI_EDITOR или DIF_MULTILINE)
-  FEDITLINE_PARENT_EDITOR        = 0x00400000,  // "вверху" обычный редактор
-};
-
-#else
-
 //изменить флаги (подвинуть убрав FEDITLINE_CONVERTTABS)
 
 // Младший байт (маска 0xFF) юзается классом ScreenObject!!!
@@ -148,8 +125,6 @@ enum FLAGS_CLASS_EDITLINE{
   FEDITLINE_PARENT_MULTILINE     = 0x00200000,  // для будущего Memo-Edit (DI_EDITOR или DIF_MULTILINE)
   FEDITLINE_PARENT_EDITOR        = 0x00400000,  // "вверху" обычный редактор
 };
-
-#endif
 
 
 class Dialog;
@@ -181,9 +156,7 @@ class Edit:public ScreenObject
 
     int    TabSize;          // 14.02.2001 IS - Размер табуляции - по умолчанию равен Opt.TabSize;
 
-#ifndef USE_OLDEXPANDTABS
     int    TabExpandMode;
-#endif
 
     int    SelStart;
     int    SelEnd;
@@ -295,13 +268,8 @@ class Edit:public ScreenObject
     void  SetOvertypeMode(int Mode) {Flags.Change(FEDITLINE_OVERTYPE,Mode);};
     int   GetOvertypeMode() {return Flags.Check(FEDITLINE_OVERTYPE);};
 
-#ifdef USE_OLDEXPANDTABS
-    void  SetConvertTabs(int Mode) {Flags.Change(FEDITLINE_CONVERTTABS,Mode);};
-    int   GetConvertTabs() {return Flags.Check(FEDITLINE_CONVERTTABS);};
-#else
     void  SetConvertTabs(int Mode) { TabExpandMode = Mode;};
     int   GetConvertTabs() {return TabExpandMode;};
-#endif
 
     int   RealPosToTab(int Pos);
     int   TabPosToReal(int Pos);
@@ -314,9 +282,7 @@ class Edit:public ScreenObject
     void  SetEditorMode(int Mode) {Flags.Change(FEDITLINE_EDITORMODE,Mode);};
     void  ReplaceTabs();
 
-#ifndef USE_OLDEXPANDTABS
     void  InsertTab ();
-#endif
 
     void  AddColor(struct ColorItem *col);
     int   DeleteColor(int ColorPos);

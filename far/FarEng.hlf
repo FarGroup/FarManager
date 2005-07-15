@@ -2564,6 +2564,9 @@ $ #Settings dialog: viewer#
   #Persistent selection#    Do not remove block selection after
                           moving the cursor.
 
+  #Initially open files#    By default open files in WIN encoding
+  #in WIN encoding#         instead of in DOS.
+
     If the external viewer is assigned to #F3# key, it will be executed only if
 the ~associated~@FileAssoc@ viewer for the current file type is not defined.
 
@@ -2615,9 +2618,6 @@ $ #Settings dialog: editor#
                           not remove the character under cursor, but
                           this block.
 
-  #Auto indent#             Enables auto indent mode when entering
-                          text.
-
   #Save file position#      Save and restore positions in the recently
                           edited files. This option also forces
                           restoring of character table, if the table
@@ -2627,6 +2627,9 @@ $ #Settings dialog: editor#
                           positions) in recently edited files
                           (created with #RightCtrl-0..9# or
                           #Ctrl-Shift-0..9#)
+
+  #Auto indent#             Enables auto indent mode when entering
+                          text.
 
   #Auto detect#             If you use several character tables,
   #character table#         you can set this option on to ~auto detect~@DistTable@
@@ -2647,6 +2650,11 @@ $ #Settings dialog: editor#
   #read-only files#         is opened for editing, a warning message
                           will be shown.
 
+  #Initially open files#    By default open files in WIN encoding
+  #in WIN encoding#         instead of in DOS.
+
+  #Create new files in#     By default create new files in WIN
+  #WIN encoding#            encoding instead of in DOS.
 
     If the external editor is assigned to #F4# key, it will be executed only if
 ~associated~@FileAssoc@ editor for the current file type is not defined.

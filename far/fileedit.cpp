@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.168 05.07.2005 $ */
+/* Revision: 1.169 15.07.2005 $ */
 
 /*
 Modify:
+  15.07.2005 AY
+    + Открываем новые файлы в WIN/DOS в соответсвии с AnsiTableForNewFile
   05.07.2005 SVS
     ! Все настройки, относящиеся к редактору внесены в структуру EditorOptions
     + GetEditorOptions()/SetEditorOptions()
@@ -837,6 +839,22 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
 
       return;
     }
+
+    if (FEdit->EdOpt.AnsiTableForNewFile)
+    {
+      int UseUnicode=FALSE;
+      FEdit->AnsiText=TRUE;
+      FEdit->TableNum=0;
+      GetTable(&FEdit->TableSet,TRUE,FEdit->TableNum,UseUnicode);
+      FEdit->UseDecodeTable=TRUE;
+    }
+    else
+    {
+      FEdit->AnsiText=FALSE;
+      FEdit->TableNum=0;
+      FEdit->UseDecodeTable=FALSE;
+    }
+
     CtrlObject->Plugins.CurEditor=this;//&FEdit;
     _ECTLLOG(SysLog("call ProcessEditorEvent(EE_READ,NULL) {"));
     CtrlObject->Plugins.ProcessEditorEvent(EE_READ,NULL);

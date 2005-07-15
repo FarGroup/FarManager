@@ -5,10 +5,13 @@ global.cpp
 
 */
 
-/* Revision: 1.61 14.06.2005 $ */
+/* Revision: 1.62 15.07.2005 $ */
 
 /*
 Modify:
+  15.07.2005 AY
+    + EditorInitUseDecodeTable,EditorInitTableNum,EditorInitAnsiText
+    + ViewerInitUseDecodeTable,ViewerInitTableNum,ViewerInitAnsiText
   14.06.2005 SVS
     + IsFn_FAR_CopyFileEx
   18.12.2003 SVS
@@ -312,3 +315,6 @@ int KeepUserScreen;
 char DirToSet[NM];
 
 BOOL IsFn_FAR_CopyFileEx=FALSE;
+
+int ViewerInitUseDecodeTable=TRUE,ViewerInitTableNum=0,ViewerInitAnsiText=TRUE;
+int EditorInitUseDecodeTable=TRUE,EditorInitTableNum=0,EditorInitAnsiText=TRUE;

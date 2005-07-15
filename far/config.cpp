@@ -5,10 +5,14 @@ config.cpp
 
 */
 
-/* Revision: 1.191 12.07.2005 $ */
+/* Revision: 1.192 15.07.2005 $ */
 
 /*
 Modify:
+  15.07.2005 AY
+    - Убрал всё связанное с USE_OLDEXPANDTABS
+    ! ExpandTabs настраиваются в комбо и редезайн
+    + Настройки кодировок для редактора и вьювера
   12.07.2005 SVS
     ! опции, ответственные за копирование вынесены в отдельную структуру CopyMoveOptions
     + Opt.CMOpt.CopySecurityOptions - что делать с опцией "Copy access rights"? (набор битов)
@@ -1163,6 +1167,7 @@ enum enumViewerConfig {
     ID_VC_SHOWSCROLLBAR,
     ID_VC_SHOWARROWS,
     ID_VC_PERSISTENTSELECTION,
+    ID_VC_ANSIASDEFAULT,
     ID_VC_SEPARATOR2,
     ID_VC_OK,
     ID_VC_CANCEL
@@ -1171,14 +1176,14 @@ enum enumViewerConfig {
 void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
 {
   static struct DialogData CfgDlgData[]={
-  /*  0 */  DI_DOUBLEBOX , 3, 1,47,18,0,0,0,0,(char *)MViewConfigTitle,
-  /*  1 */  DI_TEXT, 5, 2,45, 7,0,0,DIF_LEFTTEXT,0,(char *)MViewConfigExternal,
+  /*  0 */  DI_DOUBLEBOX , 3, 1,70,19,0,0,0,0,(char *)MViewConfigTitle,
+  /*  1 */  DI_TEXT, 5, 2,68, 7,0,0,DIF_LEFTTEXT,0,(char *)MViewConfigExternal,
   /*  2 */  DI_RADIOBUTTON,6, 3, 0, 0,1,0,DIF_GROUP,0,(char *)MViewConfigExternalF3,
   /*  3 */  DI_RADIOBUTTON,6, 4, 0, 0,0,0,0,0,(char *)MViewConfigExternalAltF3,
   /*  4 */  DI_TEXT      , 6, 5, 0, 0,0,0,0,0,(char *)MViewConfigExternalCommand,
-  /*  5 */  DI_EDIT      , 6, 6,45, 6,0,(DWORD)"ExternalViewer", DIF_HISTORY,0,"",
+  /*  5 */  DI_EDIT      , 6, 6,68, 6,0,(DWORD)"ExternalViewer", DIF_HISTORY,0,"",
   /*  6 */  DI_TEXT, 0, 7, 0, 0, 0, 0, DIF_SEPARATOR, 0, "",
-  /*  7 */  DI_TEXT, 5, 8,45,16,0,0,DIF_LEFTTEXT,0,(char *)MViewConfigInternal,
+  /*  7 */  DI_TEXT, 5, 8,68,16,0,0,DIF_LEFTTEXT,0,(char *)MViewConfigInternal,
   /*  8 */  DI_CHECKBOX  , 6, 9, 0, 0,0,0,0,0,(char *)MViewConfigSavePos,
   /*  9 */  DI_CHECKBOX  , 6,10, 0, 0,0,0,0,0,(char *)MViewConfigSaveShortPos,
   /* 10 */  DI_CHECKBOX  , 6,11, 0, 0,0,0,0,0,(char *)MViewAutoDetectTable,
@@ -1187,9 +1192,10 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
   /* 13 */  DI_CHECKBOX  , 6,13, 0, 0,0,0,0,0,(char *)MViewConfigScrollbar,
   /* 14 */  DI_CHECKBOX  , 6,14, 0, 0,0,0,0,0,(char *)MViewConfigArrows,
   /* 15 */  DI_CHECKBOX  , 6,15, 0, 0,0,0,0,0,(char *)MViewConfigPersistentSelection,
-  /* 16 */  DI_TEXT, 0, 16, 0, 0, 0, 0, DIF_SEPARATOR, 0, "",
-  /* 17 */  DI_BUTTON    , 0,17, 0, 0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-  /* 18 */  DI_BUTTON    , 0,17, 0, 0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  /* 16 */  DI_CHECKBOX  , 6,16, 0, 0,0,0,0,0,(char *)MViewConfigAnsiTableAsDefault,
+  /* 17 */  DI_TEXT, 0, 17, 0, 0, 0, 0, DIF_SEPARATOR, 0, "",
+  /* 18 */  DI_BUTTON    , 0,18, 0, 0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 19 */  DI_BUTTON    , 0,18, 0, 0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
 
   MakeDialogItems(CfgDlgData,CfgDlg);
@@ -1202,6 +1208,7 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
   CfgDlg[ID_VC_SHOWSCROLLBAR].Selected = ViOpt.ShowScrollbar;
   CfgDlg[ID_VC_SHOWARROWS].Selected = ViOpt.ShowArrows;
   CfgDlg[ID_VC_PERSISTENTSELECTION].Selected = ViOpt.PersistentBlocks;
+  CfgDlg[ID_VC_ANSIASDEFAULT].Selected = ViOpt.AnsiTableAsDefault;
 
   strcpy (CfgDlg[ID_VC_EXTERALCOMMANDEDIT].Data,Opt.ExternalViewer);
 
@@ -1214,7 +1221,7 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
   else
     sprintf(CfgDlg[ID_VC_TABSIZEEDIT].Data,"%d",ViOpt.TabSize);
 
-  int DialogHeight = 20;
+  int DialogHeight = 21;
 
   if (Local)
   {
@@ -1233,7 +1240,7 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
   {
     Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
     Dlg.SetHelp("ViewerSettings");
-    Dlg.SetPosition(-1,-1,51,DialogHeight);
+    Dlg.SetPosition(-1,-1,74,DialogHeight);
     Dlg.Process();
     if (Dlg.GetExitCode()!= ID_VC_OK)
       return;
@@ -1267,6 +1274,7 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
   ViOpt.ShowScrollbar=CfgDlg[ID_VC_SHOWSCROLLBAR].Selected;
   ViOpt.ShowArrows=CfgDlg[ID_VC_SHOWARROWS].Selected;
   ViOpt.PersistentBlocks=CfgDlg[ID_VC_PERSISTENTSELECTION].Selected;
+  ViOpt.AnsiTableAsDefault=CfgDlg[ID_VC_ANSIASDEFAULT].Selected;
   if (ViOpt.TabSize<1 || ViOpt.TabSize>512)
     ViOpt.TabSize=8;
 }
@@ -1280,20 +1288,21 @@ enum enumEditorConfig {
     ID_EC_EXTERNALCOMMANDEDIT,
     ID_EC_SEPARATOR1,
     ID_EC_INTERNALCONFIGTITLE,
-    ID_EC_DONTEXPANDTABS,
+    ID_EC_EXPANDTABSTITLE,
     ID_EC_EXPANDTABS,
-    ID_EC_CONVERTTABSTOSPACES,
     ID_EC_PERSISTENTBLOCKS,
     ID_EC_DELREMOVESBLOCKS,
-    ID_EC_AUTOINDENT,
     ID_EC_SAVEPOSITION,
     ID_EC_SAVEBOOKMARKS,
+    ID_EC_AUTOINDENT,
     ID_EC_AUTODETECTTABLE,
     ID_EC_CURSORBEYONDEOL,
     ID_EC_LOCKREADONLY,
     ID_EC_READONLYWARNING,
     ID_EC_TABSIZEEDIT,
     ID_EC_TABSIZE,
+    ID_EC_ANSIASDEFAULT,
+    ID_EC_ANSIFORNEWFILE,
     ID_EC_SEPARATOR2,
     ID_EC_OK,
     ID_EC_CANCEL
@@ -1302,53 +1311,73 @@ enum enumEditorConfig {
 void EditorConfig(struct EditorOptions &EdOpt,int Local)
 {
   static struct DialogData CfgDlgData[]={
-  /*  0 */  DI_DOUBLEBOX,3,1,63,23,0,0,0,0,(char *)MEditConfigTitle,
+  /*  0 */  DI_DOUBLEBOX,3,1,70,22,0,0,0,0,(char *)MEditConfigTitle,
   /*  1 */  DI_TEXT,5,2,0,0,0,0,DIF_LEFTTEXT,0,(char *)MEditConfigExternal,
   /*  2 */  DI_RADIOBUTTON,6,3,0,0,1,0,DIF_GROUP,0,(char *)MEditConfigEditorF4,
   /*  3 */  DI_RADIOBUTTON,6,3,0,0,0,0,0,0,(char *)MEditConfigEditorAltF4,
   /*  4 */  DI_TEXT,6,4,0,0,0,0,0,0,(char *)MEditConfigEditorCommand,
-  /*  5 */  DI_EDIT,6,5,61,5,0,(DWORD)"ExternalEditor",DIF_HISTORY,0,"",
+  /*  5 */  DI_EDIT,6,5,68,5,0,(DWORD)"ExternalEditor",DIF_HISTORY,0,"",
   /*  6 */  DI_TEXT, 0, 6, 0, 0, 0, 0, DIF_SEPARATOR, 0, "",
   /*  7 */  DI_TEXT,5,7,0,0,0,0,DIF_LEFTTEXT,0,(char *)MEditConfigInternal,
-  /*  8 */  DI_RADIOBUTTON, 6, 8, 0, 0, 1, 0, DIF_GROUP, 0, (char*)MEditConfigDoNotExpandTabs,
-  /*  9 */  DI_RADIOBUTTON, 6, 9, 0, 0, 0, 0, 0, 0, (char*)MEditConfigExpandTabs,
-  /* 10 */  DI_RADIOBUTTON, 6, 10, 0, 0, 0, 0, 0, 0, (char*)MEditConfigConvertAllTabsToSpaces,
-  /* 11 */  DI_CHECKBOX,6,11,0,0,0,0,0,0,(char *)MEditConfigPersistentBlocks,
-  /* 12 */  DI_CHECKBOX,6,12,0,0,0,0,0,0,(char *)MEditConfigDelRemovesBlocks,
-  /* 13 */  DI_CHECKBOX,6,13,0,0,0,0,0,0,(char *)MEditConfigAutoIndent,
-  /* 14 */  DI_CHECKBOX,6,14,0,0,0,0,0,0,(char *)MEditConfigSavePos,
-  /* 15 */  DI_CHECKBOX,6,15,0,0,0,0,0,0,(char *)MEditConfigSaveShortPos,
-  /* 16 */  DI_CHECKBOX,6,16,0,0,0,0,0,0,(char *)MEditAutoDetectTable,
-  /* 17 */  DI_CHECKBOX,6,17,0,0,0,0,0,0,(char *)MEditCursorBeyondEnd,
-  /* 18 */  DI_CHECKBOX,6,18,0,0,0,0,0,0,(char *)MEditLockROFileModification,
-  /* 19 */  DI_CHECKBOX,6,19,0,0,0,0,0,0,(char *)MEditWarningBeforeOpenROFile,
-  /* 20 */  DI_FIXEDIT,6,20,9,20,0,0,0,0,"",
-  /* 21 */  DI_TEXT,11,20,0,0,0,0,0,0,(char *)MEditConfigTabSize,
-  /* 22 */  DI_TEXT, 0, 21, 0, 0, 0, 0, DIF_SEPARATOR, 0, "",
-  /* 23 */  DI_BUTTON,0,22,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-  /* 24 */  DI_BUTTON,0,22,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel,
+  /*  8 */  DI_TEXT,6,8,0,0,0,0,0,0,(char *)MEditConfigExpandTabsTitle,
+  /*  9 */  DI_COMBOBOX,6,9,68,0,1,0,DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE,0,"",
+  /* 10 */  DI_CHECKBOX,6,10,0,0,0,0,0,0,(char *)MEditConfigPersistentBlocks,
+  /* 11 */  DI_CHECKBOX,6,10,0,0,0,0,0,0,(char *)MEditConfigDelRemovesBlocks,
+  /* 12 */  DI_CHECKBOX,6,11,0,0,0,0,0,0,(char *)MEditConfigSavePos,
+  /* 13 */  DI_CHECKBOX,6,11,0,0,0,0,0,0,(char *)MEditConfigSaveShortPos,
+  /* 14 */  DI_CHECKBOX,6,12,0,0,0,0,0,0,(char *)MEditConfigAutoIndent,
+  /* 15 */  DI_CHECKBOX,6,13,0,0,0,0,0,0,(char *)MEditAutoDetectTable,
+  /* 16 */  DI_CHECKBOX,6,14,0,0,0,0,0,0,(char *)MEditCursorBeyondEnd,
+  /* 17 */  DI_CHECKBOX,6,15,0,0,0,0,0,0,(char *)MEditLockROFileModification,
+  /* 18 */  DI_CHECKBOX,6,16,0,0,0,0,0,0,(char *)MEditWarningBeforeOpenROFile,
+  /* 19 */  DI_FIXEDIT,6,17,9,20,0,0,0,0,"",
+  /* 20 */  DI_TEXT,11,17,0,0,0,0,0,0,(char *)MEditConfigTabSize,
+  /* 21 */  DI_CHECKBOX,6,18,0,0,0,0,0,0,(char *)MEditConfigAnsiTableAsDefault,
+  /* 22 */  DI_CHECKBOX,6,19,0,0,0,0,0,0,(char *)MEditConfigAnsiTableForNewFile,
+  /* 23 */  DI_TEXT, 0, 20, 0, 0, 0, 0, DIF_SEPARATOR, 0, "",
+  /* 24 */  DI_BUTTON,0,21,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 25 */  DI_BUTTON,0,21,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel,
   };
   MakeDialogItems(CfgDlgData,CfgDlg);
 
   {
     char *Str = MSG(MEditConfigEditorF4);
     CfgDlg[ID_EC_EXTERNALUSEALTF4].X1+=strlen(Str)-(strchr(Str, '&')?1:0)+5;
+    Str = MSG(MEditConfigPersistentBlocks);
+    CfgDlg[ID_EC_DELREMOVESBLOCKS].X1+=strlen(Str)-(strchr(Str, '&')?1:0)+5+3;
+    Str = MSG(MEditConfigSavePos);
+    CfgDlg[ID_EC_SAVEBOOKMARKS].X1+=strlen(Str)-(strchr(Str, '&')?1:0)+5+3;
+    if (CfgDlg[ID_EC_DELREMOVESBLOCKS].X1 > CfgDlg[ID_EC_SAVEBOOKMARKS].X1)
+      CfgDlg[ID_EC_SAVEBOOKMARKS].X1 = CfgDlg[ID_EC_DELREMOVESBLOCKS].X1;
+    else
+      CfgDlg[ID_EC_DELREMOVESBLOCKS].X1 = CfgDlg[ID_EC_SAVEBOOKMARKS].X1;
   }
 
   CfgDlg[ID_EC_EXTERNALUSEF4].Selected=Opt.EdOpt.UseExternalEditor;
   CfgDlg[ID_EC_EXTERNALUSEALTF4].Selected=!Opt.EdOpt.UseExternalEditor;
   strcpy(CfgDlg[ID_EC_EXTERNALCOMMANDEDIT].Data,Opt.ExternalEditor);
 
+  //подсчитаем размер ID_EC_EXPANDTABSTITLE чтоб правильно поставить комбо
+  //CfgDlg[ID_EC_EXPANDTABS].X1 = CfgDlg[ID_EC_EXPANDTABSTITLE].X1 + strlen(CfgDlg[ID_EC_EXPANDTABSTITLE].Data);
+
+  FarListItem ExpandTabListItems[3];
+  memset(ExpandTabListItems,0,sizeof(ExpandTabListItems));
+  FarList ExpandTabList = {3,ExpandTabListItems};
+  CfgDlg[ID_EC_EXPANDTABS].ListItems = &ExpandTabList;
+  strcpy(ExpandTabListItems[0].Text,MSG(MEditConfigDoNotExpandTabs));
+  strcpy(ExpandTabListItems[1].Text,MSG(MEditConfigExpandTabs));
+  strcpy(ExpandTabListItems[2].Text,MSG(MEditConfigConvertAllTabsToSpaces));
+
   //немного ненормальная логика, чтобы сохранить (по возможности) старое поведение
 
   if ( EdOpt.ExpandTabs == EXPAND_NOTABS )
-    CfgDlg[ID_EC_DONTEXPANDTABS].Selected = TRUE;
+    ExpandTabListItems[0].Flags = LIF_SELECTED;
 
   if ( EdOpt.ExpandTabs == EXPAND_NEWTABS )
-    CfgDlg[ID_EC_EXPANDTABS].Selected = TRUE;
+    ExpandTabListItems[1].Flags = LIF_SELECTED;
 
   if ( EdOpt.ExpandTabs == EXPAND_ALLTABS )
-    CfgDlg[ID_EC_CONVERTTABSTOSPACES].Selected = TRUE;
+    ExpandTabListItems[2].Flags = LIF_SELECTED;
 
   CfgDlg[ID_EC_PERSISTENTBLOCKS].Selected = EdOpt.PersistentBlocks;
   CfgDlg[ID_EC_DELREMOVESBLOCKS].Selected = EdOpt.DelRemovesBlocks;
@@ -1359,6 +1388,8 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
   CfgDlg[ID_EC_CURSORBEYONDEOL].Selected = EdOpt.CursorBeyondEOL;
   CfgDlg[ID_EC_LOCKREADONLY].Selected = EdOpt.ReadOnlyLock & 1;
   CfgDlg[ID_EC_READONLYWARNING].Selected = EdOpt.ReadOnlyLock & 2;
+  CfgDlg[ID_EC_ANSIASDEFAULT].Selected = EdOpt.AnsiTableAsDefault;
+  CfgDlg[ID_EC_ANSIFORNEWFILE].Selected = EdOpt.AnsiTableForNewFile;
 
   if ( !RegVer )
   {
@@ -1369,7 +1400,7 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
   else
     sprintf(CfgDlg[ID_EC_TABSIZEEDIT].Data,"%d",EdOpt.TabSize);
 
-  int DialogHeight=25;
+  int DialogHeight=24;
 
   if (Local)
   {
@@ -1388,7 +1419,7 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
   {
     Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
     Dlg.SetHelp("EditorSettings");
-    Dlg.SetPosition(-1,-1,67,DialogHeight);
+    Dlg.SetPosition(-1,-1,74,DialogHeight);
     Dlg.Process();
     if (Dlg.GetExitCode()!=ID_EC_OK)
       return;
@@ -1400,14 +1431,20 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
     xstrncpy(Opt.ExternalEditor,CfgDlg[ID_EC_EXTERNALCOMMANDEDIT].Data,sizeof(Opt.ExternalEditor)-1);
   }
 
-  if ( CfgDlg[ID_EC_DONTEXPANDTABS].Selected )
-    EdOpt.ExpandTabs = EXPAND_NOTABS;
+  switch (CfgDlg[ID_EC_EXPANDTABS].ListPos)
+  {
+    case 0:
+      EdOpt.ExpandTabs = EXPAND_NOTABS;
+      break;
 
-  if ( CfgDlg[ID_EC_EXPANDTABS].Selected )
-    EdOpt.ExpandTabs = EXPAND_NEWTABS;
+    case 1:
+      EdOpt.ExpandTabs = EXPAND_NEWTABS;
+      break;
 
-  if ( CfgDlg[ID_EC_CONVERTTABSTOSPACES].Selected )
-    EdOpt.ExpandTabs = EXPAND_ALLTABS;
+    case 2:
+      EdOpt.ExpandTabs = EXPAND_ALLTABS;
+      break;
+  }
 
   EdOpt.PersistentBlocks = CfgDlg[ID_EC_PERSISTENTBLOCKS].Selected;
   EdOpt.DelRemovesBlocks = CfgDlg[ID_EC_DELREMOVESBLOCKS].Selected;
@@ -1415,6 +1452,8 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
   EdOpt.SavePos = CfgDlg[ID_EC_SAVEPOSITION].Selected;
   EdOpt.SaveShortPos = CfgDlg[ID_EC_SAVEBOOKMARKS].Selected;
   EdOpt.AutoDetectTable = CfgDlg[ID_EC_AUTODETECTTABLE].Selected;
+  EdOpt.AnsiTableAsDefault = CfgDlg[ID_EC_ANSIASDEFAULT].Selected;
+  EdOpt.AnsiTableForNewFile = CfgDlg[ID_EC_ANSIFORNEWFILE].Selected;
 
   if(!DistrTableExist() && EdOpt.AutoDetectTable)
   {
@@ -1507,6 +1546,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyViewer,"IsWrap",&Opt.ViOpt.ViewerIsWrap,1, 0},
   {1, REG_DWORD,  NKeyViewer,"Wrap",&Opt.ViOpt.ViewerWrap,0, 0},
   {1, REG_DWORD,  NKeyViewer,"PersistentBlocks",&Opt.ViOpt.PersistentBlocks,1, 0},
+  {1, REG_DWORD,  NKeyViewer,"AnsiTableAsDefault",&Opt.ViOpt.AnsiTableAsDefault,1, 0},
 
   {1, REG_DWORD,  NKeyInterface, "DialogsEditHistory",&Opt.Dialogs.EditHistory,1, 0},
   {1, REG_DWORD,  NKeyInterface, "DialogsEditBlock",&Opt.Dialogs.EditBlock,0, 0},
@@ -1538,7 +1578,8 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeyEditor,"FileSizeLimitHi",&Opt.EdOpt.FileSizeLimitHi,(DWORD)0, 0},
   {0, REG_DWORD,  NKeyEditor,"CharCodeBase",&Opt.EdOpt.CharCodeBase,1, 0},
   {0, REG_DWORD,  NKeyEditor,"AllowEmptySpaceAfterEof", &Opt.EdOpt.AllowEmptySpaceAfterEof,0,0},//skv
-  {0, REG_DWORD,  NKeyEditor,"AnsiTableForNewFile",&Opt.EdOpt.AnsiTableForNewFile,1, 0},
+  {1, REG_DWORD,  NKeyEditor,"AnsiTableForNewFile",&Opt.EdOpt.AnsiTableForNewFile,1, 0},
+  {1, REG_DWORD,  NKeyEditor,"AnsiTableAsDefault",&Opt.EdOpt.AnsiTableAsDefault,1, 0},
 
   {0, REG_DWORD,  NKeyXLat,"Flags",&Opt.XLat.Flags,(DWORD)XLAT_SWITCHKEYBLAYOUT|XLAT_CONVERTALLCMDLINE, 0},
   {0, REG_BINARY, NKeyXLat,"Table1",(BYTE*)&Opt.XLat.Table[0][1],sizeof(Opt.XLat.Table[0])-1,NULL},
@@ -1845,6 +1886,13 @@ void ReadConfig()
   Opt.ViOpt.ViewerIsWrap&=1;
   if(RegVer) Opt.ViOpt.ViewerWrap&=1; else Opt.ViOpt.ViewerWrap=0;
 
+  if (!Opt.ViOpt.AnsiTableAsDefault)
+  {
+    ViewerInitUseDecodeTable=FALSE;
+    ViewerInitTableNum=0;
+    ViewerInitAnsiText=FALSE;
+  }
+
   /* $ 03.12.2001 IS
       Если EditorUndoSize слишком маленькое или слишком большое,
       то сделаем размер undo такой же, как и в старых версиях
@@ -1852,6 +1900,13 @@ void ReadConfig()
   if(Opt.EdOpt.UndoSize<64 || Opt.EdOpt.UndoSize>(0x7FFFFFFF-2))
     Opt.EdOpt.UndoSize=64;
   /* IS $ */
+
+  if (!Opt.EdOpt.AnsiTableAsDefault)
+  {
+    EditorInitUseDecodeTable=FALSE;
+    EditorInitTableNum=0;
+    EditorInitAnsiText=FALSE;
+  }
 
   // Исключаем случайное стирание разделителей ;-)
   if(!strlen(Opt.WordDiv))

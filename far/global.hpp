@@ -8,10 +8,13 @@ global.hpp
 
 */
 
-/* Revision: 1.60 14.06.2005 $ */
+/* Revision: 1.61 15.07.2005 $ */
 
 /*
 Modify:
+  15.07.2005 AY
+    + EditorInitUseDecodeTable,EditorInitTableNum,EditorInitAnsiText
+    + ViewerInitUseDecodeTable,ViewerInitTableNum,ViewerInitAnsiText
   14.06.2005 SVS
     + IsFn_FAR_CopyFileEx
   24.04.2005 AY
@@ -315,5 +318,8 @@ extern int KeepUserScreen;
 extern char DirToSet[NM];
 
 extern BOOL IsFn_FAR_CopyFileEx;
+
+extern int EditorInitUseDecodeTable,EditorInitTableNum,EditorInitAnsiText;
+extern int ViewerInitUseDecodeTable,ViewerInitTableNum,ViewerInitAnsiText;
 
 #endif  // __FARGLOBAL_HPP__

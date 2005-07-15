@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.133 12.07.2005 $ */
+/* Revision: 1.134 15.07.2005 $ */
 
 /*
 Modify:
+  15.07.2005 AY
+    + AnsiTableAsDefault для настроек редактора и вьювера.
   12.07.2005 SVS
     ! опции, ответственные за копирование вынесены в отдельную структуру CopyMoveOptions
     + Opt.CMOpt.CopySecurityOptions - что делать с опцией "Copy access rights"? (набор битов)
@@ -514,6 +516,7 @@ struct EditorOptions
   int AutoIndent;
   int AutoDetectTable;
   int AnsiTableForNewFile;
+  int AnsiTableAsDefault;
   int CursorBeyondEOL;
   int BSLikeDel;
   int CharCodeBase;
@@ -553,6 +556,7 @@ struct ViewerOptions
   int SaveViewerShortPos;
   int UseExternalViewer;
   int ShowKeyBarViewer; // $ 15.07.2000 tran + ShowKeyBarViewer
+  int AnsiTableAsDefault;
 };
 /* IS $ */
 

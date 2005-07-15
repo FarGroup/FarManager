@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.264 05.07.2005 $ */
+/* Revision: 1.265 15.07.2005 $ */
 
 /*
 Modify:
+  15.07.2005 AY
+    - Убрал всё связанное с USE_OLDEXPANDTABS
+    ! InitUseDecodeTable,InitTableNum,InitAnsiText переехали в global.cpp
   05.07.2005 SVS
     ! Все настройки, относящиеся к редактору внесены в структуру EditorOptions
   02.07.2005 AY
@@ -775,8 +778,6 @@ Modify:
 #include "farexcpt.hpp"
 
 static struct CharTableSet InitTableSet;
-//AY: по дефолту будем открывать файлы в WIN
-static int InitUseDecodeTable=TRUE,InitTableNum=0,InitAnsiText=TRUE;
 
 static int ReplaceMode,ReplaceAll;
 
@@ -817,9 +818,9 @@ Editor::Editor()
   /* KM $ */
   LastSearchReverse=GlobalSearchReverse;
   memcpy(&TableSet,&InitTableSet,sizeof(TableSet));
-  UseDecodeTable=InitUseDecodeTable;
-  TableNum=InitTableNum;
-  AnsiText=InitAnsiText;
+  UseDecodeTable=EditorInitUseDecodeTable;
+  TableNum=EditorInitTableNum;
+  AnsiText=EditorInitAnsiText;
 
   if (AnsiText && TableNum==0)
   {
@@ -952,9 +953,9 @@ void Editor::KeepInitParameters()
   /* KM $ */
   GlobalSearchReverse=LastSearchReverse;
   memcpy(&InitTableSet,&TableSet,sizeof(InitTableSet));
-  InitUseDecodeTable=UseDecodeTable;
-  InitTableNum=TableNum;
-  InitAnsiText=AnsiText;
+  EditorInitUseDecodeTable=UseDecodeTable;
+  EditorInitTableNum=TableNum;
+  EditorInitAnsiText=AnsiText;
 }
 
 
@@ -6835,9 +6836,7 @@ void Editor::SetConvertTabs(int NewMode)
     {
       CurPtr->EditLine.SetConvertTabs(NewMode);
 
-#ifndef USE_OLDEXPANDTABS
       if ( NewMode == EXPAND_ALLTABS )
-#endif
         CurPtr->EditLine.ReplaceTabs();
 
       CurPtr=CurPtr->Next;

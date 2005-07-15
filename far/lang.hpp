@@ -15,10 +15,14 @@ lang.hpp
 
 */
 
-/* Revision: 1.158 14.06.2005 $ */
+/* Revision: 1.159 15.07.2005 $ */
 
 /*
 Modify:
+  15.07.2005 AY
+    + MEditConfigExpandTabsTitle, MEditConfigAnsiTableAsDefault, MEditConfigAnsiTableForNewFile,
+      MViewConfigAnsiTableAsDefault
+    - Убрал всё связанное с USE_OLDEXPANDTABS
   14.06.2005 SVS
     + MCopyPrepareSecury, MMainMenuBottomTitle, MProcessListBottom
   30.05.2005 SVS
@@ -632,6 +636,7 @@ enum
   MViewConfigScrollbar,
   MViewConfigArrows,
   MViewConfigPersistentSelection,
+  MViewConfigAnsiTableAsDefault,
 
   MEditConfigTitle,
   MEditConfigExternal,
@@ -640,13 +645,10 @@ enum
   MEditConfigEditorCommand,
   MEditConfigInternal,
 
-#ifdef USE_OLDEXPANDTABS
-  MEditConfigTabsToSpaces,
-#else
+  MEditConfigExpandTabsTitle,
   MEditConfigDoNotExpandTabs,
   MEditConfigExpandTabs,
   MEditConfigConvertAllTabsToSpaces,
-#endif
 
   MEditConfigPersistentBlocks,
   MEditConfigDelRemovesBlocks,
@@ -658,6 +660,8 @@ enum
   MEditLockROFileModification,
   MEditWarningBeforeOpenROFile,
   MEditConfigTabSize,
+  MEditConfigAnsiTableAsDefault,
+  MEditConfigAnsiTableForNewFile,
 
   MDistributionTableWasNotFound,
   MAutoDetectWillNotWork,

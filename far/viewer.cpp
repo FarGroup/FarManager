@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.182 13.07.2005 $ */
+/* Revision: 1.183 15.07.2005 $ */
 
 /*
 Modify:
+  15.07.2005 AY
+    ! InitUseDecodeTable,InitTableNum,InitAnsiText переехали в global.cpp
   13.07.2005 SVS
     ! Изменен класс NamesList. Теперь он управляет двумя именами.
   07.07.2005 SVS
@@ -536,8 +538,6 @@ static void PR_ViewerSearchMsg(void);
 static void ViewerSearchMsg(char *Name);
 
 static struct CharTableSet InitTableSet;
-//AY: по дефолту будем открывать файлы в WIN
-static int InitUseDecodeTable=TRUE,InitTableNum=0,InitAnsiText=TRUE;
 
 static int InitHex=FALSE,SearchHex=FALSE;
 /* $ 27.09.2000 SVS
@@ -578,9 +578,9 @@ Viewer::Viewer()
   LastSearchHex=GlobalSearchHex;
   /* KM $ */
   memcpy(&TableSet,&InitTableSet,sizeof(TableSet));
-  VM.UseDecodeTable=InitUseDecodeTable;
-  VM.TableNum=InitTableNum;
-  VM.AnsiMode=InitAnsiText;
+  VM.UseDecodeTable=ViewerInitUseDecodeTable;
+  VM.TableNum=ViewerInitTableNum;
+  VM.AnsiMode=ViewerInitAnsiText;
 
   if (VM.AnsiMode && VM.TableNum==0)
   {
@@ -739,9 +739,9 @@ void Viewer::KeepInitParameters()
   GlobalSearchHex=LastSearchHex;
   /* KM $ */
   memcpy(&InitTableSet,&TableSet,sizeof(InitTableSet));
-  InitUseDecodeTable=VM.UseDecodeTable;
-  InitTableNum=VM.TableNum;
-  InitAnsiText=VM.AnsiMode;
+  ViewerInitUseDecodeTable=VM.UseDecodeTable;
+  ViewerInitTableNum=VM.TableNum;
+  ViewerInitAnsiText=VM.AnsiMode;
   Opt.ViOpt.ViewerIsWrap=VM.Wrap;
   Opt.ViOpt.ViewerWrap=VM.TypeWrap;
   InitHex=VM.Hex;

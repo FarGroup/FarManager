@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.139 26.04.2005 $ */
+/* Revision: 1.140 15.07.2005 $ */
 
 /*
 Modify:
+  15.07.2005 AY
+    - Убрал всё связанное с USE_OLDEXPANDTABS
   26.04.2005 SVS
     ! Под переменную "Путь" отводим стока, скока нужно, а не NM.
   24.04.2005 AY
@@ -459,10 +461,8 @@ Edit::Edit()
   TabSize=Opt.EdOpt.TabSize;
   /* IS $ */
 
-#ifndef USE_OLDEXPANDTABS
 //  TabExpandMode = Opt.EdOpt.ExpandTabs;
   TabExpandMode = EXPAND_NOTABS;
-#endif
 
   /* $ 21.02.2001 IS
        Инициализация внутренних переменных по умолчанию
@@ -651,12 +651,7 @@ void Edit::FastShow()
   ReplaceSpaces(0);
 #endif
 
-#ifdef USE_OLDEXPANDTABS
-  if (!Flags.Check(FEDITLINE_CONVERTTABS) && memchr(Str,'\t',StrSize)!=NULL)
-#else
   if ( (TabExpandMode != EXPAND_ALLTABS) && memchr(Str,'\t',StrSize)!=NULL)
-#endif
-
   {
     char *SaveStr;
     /* $ 04.07.2002 SKV
@@ -1818,24 +1813,15 @@ int Edit::ProcessKey(int Key)
         DeleteBlock();
       }
 
-#ifndef USE_OLDEXPANDTABS
       if ( Key==KEY_TAB && (TabExpandMode == EXPAND_NEWTABS) )
       {
          InsertTab ();
          Show ();
       }
-      else
-#endif
-
-      if (InsertKey(Key))
+      else if (InsertKey(Key))
       {
-#ifdef USE_OLDEXPANDTABS
-        if (Key==KEY_TAB && Flags.Check(FEDITLINE_CONVERTTABS))
-          ReplaceTabs();
-#else
         if (Key==KEY_TAB && (TabExpandMode == EXPAND_ALLTABS) )
            ReplaceTabs();
-#endif
         Show();
       }
       return(TRUE);
@@ -2188,13 +2174,8 @@ void Edit::SetBinaryString(const char *Str,int Length)
     memcpy(Edit::Str,Str,Length);
     Edit::Str[Length]=0;
 
-#ifdef USE_OLDEXPANDTABS
-    if (Flags.Check(FEDITLINE_CONVERTTABS))
-      ReplaceTabs();
-#else
     if ( TabExpandMode == EXPAND_ALLTABS )
       ReplaceTabs ();
-#endif
     PrevCurPos=CurPos;
     CurPos=StrSize;
   }
@@ -2360,13 +2341,8 @@ void Edit::InsertBinaryString(const char *Str,int Length)
       delete[] TmpStr;
       /* SVS $*/
 
-#ifdef USE_OLDEXPANDTABS
-      if (Flags.Check(FEDITLINE_CONVERTTABS))
-        ReplaceTabs();
-#else
       if ( TabExpandMode == EXPAND_ALLTABS )
         ReplaceTabs();
-#endif
     }
     else
       MessageBeep(MB_ICONHAND);
@@ -2527,8 +2503,6 @@ int Edit::Search(char *Str,int Position,int Case,int WholeWords,int Reverse)
 }
 /* KM $ */
 
-#ifndef USE_OLDEXPANDTABS
-
 void Edit::InsertTab()
 {
   char *TabPtr;
@@ -2569,8 +2543,6 @@ void Edit::InsertTab()
 
   Str[StrSize]=0;
 }
-
-#endif
 
 
 void Edit::ReplaceTabs()
@@ -2676,13 +2648,8 @@ int Edit::RealPosToTab(int Pos)
 {
   int TabPos,I;
 
-#ifdef USE_OLDEXPANDTABS
-  if (Flags.Check(FEDITLINE_CONVERTTABS) || memchr(Str,'\t',StrSize)==NULL)
-    return(Pos);
-#else
   if ( (TabExpandMode == EXPAND_ALLTABS) || memchr(Str,'\t',StrSize)==NULL)
     return(Pos);
-#endif
 
 
   /* $ 10.10.2004 KM
@@ -2711,13 +2678,8 @@ int Edit::TabPosToReal(int Pos)
 {
   int TabPos,I;
 
-#ifdef USE_OLDEXPANDTABS
-  if (Flags.Check(FEDITLINE_CONVERTTABS) || memchr(Str,'\t',StrSize)==NULL)
-    return(Pos);
-#else
   if ( (TabExpandMode == EXPAND_ALLTABS) || memchr(Str,'\t',StrSize)==NULL)
     return(Pos);
-#endif
 
 
   /* $ 10.10.2004 KM
