@@ -5,10 +5,12 @@ scrbuf.cpp
 
 */
 
-/* Revision: 1.26 05.04.2005 $ */
+/* Revision: 1.27 15.07.2005 $ */
 
 /*
 Modify:
+  15.07.2005 WARP
+    - ѕадало что-то в диалоге настроек редактора
   05.04.2005 SVS
     + ” ScreenBuf::Read() по€вилс€ доп параметр - скока читать.
   26.02.2005 SVS
@@ -262,6 +264,8 @@ void ScreenBuf::WriteA(int X,int Y,const CHAR_INFO *Text,int TextLength)
 */
 void ScreenBuf::Read(int X1,int Y1,int X2,int Y2,CHAR_INFO *Text,int MaxTextLength)
 {
+  CriticalSectionLock Lock(CS);
+
   int Width=X2-X1+1;
   int Height=Y2-Y1+1;
   int I, Idx;
