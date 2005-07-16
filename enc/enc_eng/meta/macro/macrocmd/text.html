@@ -19,54 +19,54 @@
 
 <p class="note"><img src="../../../images/note.gif" alt="ATTENTION!" width="10" height="10"> ATTENTION!</p>
 <ul class="note">
-  <li>Элементы макроязыка невозможно использовать во время <a href="../macrokey/record.html">записи
-    макроса</a> стандартным образом. Добавить элементы языка в макрос можно только путем ручной
-    правки реестра или путем применения специальных программ/плагинов.</li>
+  <li>It is impossible to use macro-language elements while <a href="../macrokey/record.html">recording</a>
+  a macro in a usual way. Macro-language elements can be added to the sequence only by editing
+  the registry manually or by using special applications or FAR plugins.</li>
 </ul>
 
 <div class=shortdescr>
-Оператор <dfn>$Text</dfn> предназначена для вставки произвольного текста.
+The <dfn>$Text</dfn> macro-command inserts the text into the current object editor.
 </div>
 
 <pre class=syntax>
 <dfn>$Text</dfn> <em>&quot;string&quot;</em>
 </pre>
 
-<h3>Элементы</h3>
+<h3>Elements</h3>
 <div class=descr>
 <div class=dfn>string</div>
 <div class=dfndescr>
 
-      Вставляемый текст 'string' должен быть только в OEM-кодировке.<br>
-      Допускается применение следующих escape-последовательностей:
+      The text to be inserted 'string' must be encoded using OEM codepage.<br>
+      The following escape-sequences can be used in this macro-command:
       <table class="cont">
         <tr class="cont">
-          <th class="cont" width="10%">Формат</th>
+          <th class="cont" width="10%">Format</th>
           <th class="cont" width="90%">Description</th>
         </tr>
         <tr class="cont">
           <td class="cont" width="10%">\&quot;</td>
-          <td class="cont" width="90%">Символ '&quot;'</td>
+          <td class="cont" width="90%">The '&quot;' character</td>
         </tr>
         <tr class="cont">
           <td class="cont" width="10%">\'</td>
-          <td class="cont" width="90%">Символ '''</td>
+          <td class="cont" width="90%">The ''' character</td>
         </tr>
         <tr class="cont">
           <td class="cont" width="10%">\\</td>
-          <td class="cont" width="90%">Символ '\'</td>
+          <td class="cont" width="90%">The '\' character</td>
         </tr>
         <tr class="cont">
           <td class="cont" width="10%">\n</td>
-          <td class="cont" width="90%">Переводу строки `\n'</td>
+          <td class="cont" width="90%">New line `\n'</td>
         </tr>
         <tr class="cont">
           <td class="cont" width="10%">\t</td>
-          <td class="cont" width="90%">Табуляции `\t'</td>
+          <td class="cont" width="90%">Tab `\t'</td>
         </tr>
         <tr class="cont">
           <td class="cont" width="10%">\a</td>
-          <td class="cont" width="90%">bell</td>
+          <td class="cont" width="90%">Bell</td>
         </tr>
         <tr class="cont">
           <td class="cont" width="10%">\b</td>
@@ -84,11 +84,11 @@
           <td class="cont" width="10%">\N<br>
             \NN<br>
             \NNN</td>
-          <td class="cont" width="90%">8-ричные символы из OEM кодировки</td>
+          <td class="cont" width="90%">Octal characters code for the OEM code page</td>
         </tr>
         <tr class="cont">
           <td class="cont" width="10%">\xNN</td>
-          <td class="cont" width="90%">16-ричные символы из OEM кодировки</td>
+          <td class="cont" width="90%">Hexadecimal characters code for the OEM code page</td>
         </tr>
       </table>
 </div>
@@ -96,12 +96,10 @@
 <h3>Remarks</h3>
 <div class=descr>
 <ol>
-<li>Макрокоманда '$Text' позволяет сократить расход памяти при
-хранении длинной макропоследовательности, вставляющей
-некоторый текст, и сделать её более наглядной.
-<li>Фразу &quot;$Text&quot; можно не указывать, т.е. произвольный текст в
-двойных кавычках макродвижок воспримет как $Text. Исключение составляет ситуация,
-когда после двойной кавычки идет пробел - в этом случае "$Text" указывать обязательно.
+<li>This macro command allows to minimize the usage of memory allocated for the macro command sequence
+and make the sequence more comprehensive.
+<li>Keyword &quot;$Text&quot; can be omitted i.e. FAR will automatically transform any quoted text to
+$Text &quot;text&quot; except the situation when the &quot; character is followed by the 'space' character.
 </ol>
 </div>
 
@@ -109,7 +107,7 @@
 <div class=descr>
 <pre class=code>REGEDIT
 
-;создание папки с именем = текущей дате
+;create the new folder named by the current date
 
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlShiftF7]
 "Sequence"="%Folder=date(\"%d.%m0.%Y\"); $If (!fexist(%Folder)) F7 $Text %Folder Enter $End"

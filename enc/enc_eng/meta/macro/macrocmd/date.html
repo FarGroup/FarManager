@@ -19,13 +19,13 @@
 
 <p class="note"><img src="../../../images/note.gif" alt="ATTENTION!" width="10" height="10"> ATTENTION!</p>
 <ul class="note">
-  <li>Элементы макроязыка невозможно использовать во время <a href="../macrokey/record.html">записи
-    макроса</a> стандартным образом. Добавить элементы языка в макрос можно только путем ручной
-    правки реестра или путем применения специальных программ/плагинов.</li>
+  <li>It is impossible to use macro-language elements while <a href="../macrokey/record.html">recording</a>
+  a macro in a usual way. Macro-language elements can be added to the sequence only by editing
+  the registry manually or by using special applications or FAR plugins.</li>
 </ul>
 
 <div class=shortdescr>
-The special macro command <dfn>$Date</dfn> is intended for insertion of current date/time.
+The <dfn>$Date</dfn> macro-command inserts the current date/time into the current object editor.
 </div>
 
 <pre class=syntax>
@@ -37,10 +37,10 @@ The special macro command <dfn>$Date</dfn> is intended for insertion of current 
 <div class=dfn>format</div>
 <div class=dfndescr>
 
-      The current time is converted to a string according to the format &quot;format&quot;.
-      This format is similar to the one used by the Unix 'date' utility.
-      $<dfn>Date</dfn> supports the following date format specification (similar
-      to the format used by the strftime function):
+      The current date/time is converted to a string according to the &quot;format&quot;
+      parameter. Its meaning is similar to the Unix 'date' function formatting parameter.
+      $<dfn>Date</dfn> supports the following format specification (similar to the format
+      used by the strftime function):
       <table class="cont">
         <tr class="cont">
           <th class="cont" width="10%">Format</th>
@@ -52,11 +52,11 @@ The special macro command <dfn>$Date</dfn> is intended for insertion of current 
         </tr>
         <tr class="cont">
           <td class="cont" width="10%">%a</td>
-          <td class="cont" width="90%">Abbreviated weekday name (Sun)</td>
+          <td class="cont" width="90%">Abbreviated day of week name (Sun)</td>
         </tr>
         <tr class="cont">
           <td class="cont" width="10%">%A</td>
-          <td class="cont" width="90%">Full weekday name (Sunday)</td>
+          <td class="cont" width="90%">Full day of week name (Sunday)</td>
         </tr>
         <tr class="cont">
           <td class="cont" width="10%">%b</td>
@@ -113,11 +113,11 @@ The special macro command <dfn>$Date</dfn> is intended for insertion of current 
         </tr>
         <tr class="cont">
           <td class="cont" width="10%">%L</td>
-          <td class="cont" width="90%">Trigger for switching the language of month and weekday
-            names - English/localized.<br>
-            FAR requests two sets of names from the system:<br>
+          <td class="cont" width="90%">
+          Use the localized set of names of months and days rather then English.<br>
+          FAR Manager requests two sets of names from the system during startup:<br>
             1) English names of months and weekdays<br>
-            2) names according to the settings of the current user (LOCALE_USER_DEFAULT).<br>
+            2) names according to the current user's localization settings (LOCALE_USER_DEFAULT).<br>
             By default the English names are used.</td>
         </tr>
         <tr class="cont">
@@ -139,7 +139,7 @@ The special macro command <dfn>$Date</dfn> is intended for insertion of current 
         <tr class="cont">
           <td class="cont" width="10%">%n</td>
           <td class="cont" width="90%">Line break `\\n'<br>
-            ATTENTION! When using this in editor macros, auto-indent will not work.</td>
+          ATTENTION! Using this specifier in the editor macros will switch the auto indentation off.</td>
         </tr>
         <tr class="cont">
           <td class="cont" width="10%">%p</td>
@@ -171,7 +171,7 @@ The special macro command <dfn>$Date</dfn> is intended for insertion of current 
         </tr>
         <tr class="cont">
           <td class="cont" width="10%">%v</td>
-          <td class="cont" width="90%">Date in the format dd-mmm-yyyy (mmm - the month name is uppercased)</td>
+          <td class="cont" width="90%">Date in the format dd-mmm-yyyy (mmm - the month name is in upper case)</td>
         </tr>
         <tr class="cont">
           <td class="cont" width="10%">%V</td>
@@ -182,7 +182,7 @@ The special macro command <dfn>$Date</dfn> is intended for insertion of current 
         </tr>
         <tr class="cont">
           <td class="cont" width="10%">%w</td>
-          <td class="cont" width="90%">Week day as decimal number (0 - 6, Sunday is 0)</td>
+          <td class="cont" width="90%">Day of week as decimal number (0 - 6, Sunday is 0)</td>
         </tr>
         <tr class="cont">
           <td class="cont" width="10%">%W</td>
@@ -191,13 +191,11 @@ The special macro command <dfn>$Date</dfn> is intended for insertion of current 
         <tr class="cont">
           <td class="cont" width="10%">%x</td>
           <td class="cont" width="90%">Date in the format dd&lt;sep&gt;mm&lt;sep&gt;yyyy
-          (the separator &lt;sep&gt; and the order of day, month and year are determined from the
-          regional settings)</td>
+          (the separator &lt;sep&gt; and the order of day, month and year are determined from the regional settings)</td>
         </tr>
         <tr class="cont">
           <td class="cont" width="10%">%X</td>
-          <td class="cont" width="90%">Time in the format HH&lt;sep&gt;MM&lt;sep&gt;SS
-          the separator &lt;sep&gt; is determined from the regional settings)</td>
+          <td class="cont" width="90%">Time in the format HH&lt;sep&gt;MM&lt;sep&gt;SS the separator &lt;sep&gt; is determined from the regional settings)</td>
         </tr>
         <tr class="cont">
           <td class="cont" width="10%">%y</td>
@@ -209,10 +207,10 @@ The special macro command <dfn>$Date</dfn> is intended for insertion of current 
         </tr>
         <tr class="cont">
           <td class="cont" width="10%">%Z</td>
-          <td class="cont" width="90%">Time-zone name or abbreviation; no characters if time zone is unknown</td>
+          <td class="cont" width="90%">Time-zone name or abbreviation, nothing if time zone is unknown</td>
         </tr>
       </table>
-      <p>Arbitrary text in the format string must be in the OEM codepage.<br>
+      <p>Format string must be encoded using the OEM codepage.<br>
       The following escape sequences are allowed:
       <table class="cont">
         <tr class="cont">
@@ -259,11 +257,11 @@ The special macro command <dfn>$Date</dfn> is intended for insertion of current 
           <td class="cont" width="10%">\N<br>
             \NN<br>
             \NNN</td>
-          <td class="cont" width="90%">Octal code of characters in the OEM code page</td>
+          <td class="cont" width="90%">Octal characters code for the OEM code page</td>
         </tr>
         <tr class="cont">
           <td class="cont" width="10%">\xNN</td>
-          <td class="cont" width="90%">Hex code of characters in the OEM code page</td>
+          <td class="cont" width="90%">Hexadecimal characters code for the OEM code page</td>
         </tr>
       </table>
 
@@ -271,7 +269,7 @@ The special macro command <dfn>$Date</dfn> is intended for insertion of current 
 
 <h3>Remarks</h3>
 <div class=descr>
-If the &quot;format&quot; argument is not specified, FAR will use the format string <code>&quot;%a %b %d %H:%M:%S %Z %Y&quot;</code>.
+If the &quot;format&quot; argument is not specified FAR uses the <code>&quot;%a %b %d %H:%M:%S %Z %Y&quot; format string</code>.
 </div>
 
 <h3>Example</h3>

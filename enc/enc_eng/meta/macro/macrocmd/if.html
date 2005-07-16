@@ -19,42 +19,42 @@
 
 <p class="note"><img src="../../../images/note.gif" alt="ATTENTION!" width="10" height="10"> ATTENTION!</p>
 <ul class="note">
-  <li>Ёлементы макро€зыка невозможно использовать во врем€ <a href="../macrokey/record.html">записи
-    макроса</a> стандартным образом. ƒобавить элементы €зыка в макрос можно только путем ручной
-    правки реестра или путем применени€ специальных программ/плагинов.</li>
+  <li>It is impossible to use macro-language elements while <a href="../macrokey/record.html">recording</a>
+  a macro in a usual way. Macro-language elements can be added to the sequence only by editing
+  the registry manually or by using special applications or FAR plugins.</li>
 </ul>
 
 <div class=shortdescr>
-”словный оператор <dfn>$If</dfn> позвол€ет организовать в макросах процесс ветвлени€ макропоследовательности.
+The <dfn>$If</dfn> macro-command implements conditional execution of the macro sequence fragments.
 </div>
 
 <pre class=syntax>
 <dfn>$If</dfn> <dfn>(</dfn><em>Expr</em><dfn>)</dfn> <em>TruePart</em> [<dfn>$Else</dfn> <em>FalsePart</em>] <dfn>$End</dfn>
 </pre>
 
-<h3>Ёлементы</h3>
+<h3>Elements</h3>
 <div class=descr>
 <div class=dfn>Expr</div>
-<div class=dfndescr>¬ыражение</div>
+<div class=dfndescr>Conditional expression.</div>
 
 <div class=dfn>TruePart</div>
-<div class=dfndescr>¬ыполн€етс€, если выражение <dfn>Expr</dfn> истинно.</div>
+<div class=dfndescr>Execute if <dfn>Expr</dfn> is true.</div>
 
 <div class=dfn>FalsePart</div>
-<div class=dfndescr>¬ыполн€етс€, если выражение <dfn>Expr</dfn> ложно.</div>
+<div class=dfndescr>Execute if <dfn>Expr</dfn> is false.</div>
 </div>
 
 
-<h3>Remarks</h3>
+<h3>Notes</h3>
 <div class=descr>
-<p>„асть <dfn>$Else</dfn> можно не указывать.
+<p>The <dfn>$Else</dfn> element can be omitted.
 </div>
 
 <h3>Example</h3>
 <div class=descr>
 <pre class=code>REGEDIT4
 
-;дл€ удобной навигации с нажатым Alt'oм
+;more convenient Alt-navigation
 
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Common\AltUp]
 "Sequence"="$If (Viewer || Qview) Up $Else AltUp $End"

@@ -2,7 +2,7 @@
 <html>
 
 <head>
-<title>Примеры - Макросы</title>
+<title>Examples - Macros</title>
 <meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 </head>
@@ -17,8 +17,8 @@
 
 <p><pre class=code>REGEDIT4
 
-; переход в меню выбора дисков на противоположной панели
-; включение видимости панели в которой будет происходить смена диска, если её не было
+;open the disks menu in the passive file panel
+;make the panel for which the menu is going to be open visible if it was hidden before.
 
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Disks\Tab]
 "Sequence"="Esc $If (!PPanel.Visible) $If (APanel.Left) CtrlF2 $Else CtrlF1 $End $End Tab F9 Enter End Enter"
@@ -26,7 +26,7 @@
 
 <pre class=code>REGEDIT4
 
-;выделить/(снять выделение) слово(а) под курсором
+;select/unselect a single word under the text cursor
 
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Editor\RAlt]
 "Sequence"="RCtrl9 CtrlRight CtrlLeft $If (!Selected) CtrlShiftRight $Else CtrlU $End Ctrl9"
@@ -34,7 +34,7 @@
 
 <pre class=code>REGEDIT4
 
-;создание папки с именем = текущей дате
+;create a new folder with name consisting of the current date
 
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlShiftF7]
 "Sequence"="%folder=date(\"%d.%m0.%Y\"); $If (!fexist(%folder)) F7 CtrlY $Text %folder Enter $End"
@@ -43,9 +43,10 @@
 
 <pre class=code>REGEDIT4
 
-;искать тот же файл на другой панели что и на активной
-;F5 ShiftEnter CtrlIns - применено чтобы получить имя файла вне зависимости
-;пусто/непусто в cmdline и сколько выделено на панели файлов
+;quick find the file in the passive panel with the same name as selected
+;in the active panel
+;sequence F5 ShiftEnter CtrlIns is used to get the file name independently
+;of the state of the command line and number of selected files in the panels
 
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlAltLeft]
 "Sequence"="$IClip $If (((Bof &amp;&amp; APanel.Root) || !Bof) &amp;&amp; PPanel.Visible)
@@ -62,7 +63,7 @@ Esc Tab Home Alt< ShiftIns Esc $End $End"
 
 <pre class=code>REGEDIT4
 
-;выделение следующих нижних/верхних 30 файлов
+;select 30 next/previous files or folders
 
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlDown]
 "Sequence"="$If (!Eof) $Rep (30) $If (Eof) Ins $Exit $Else Ins $End $End $End"
@@ -78,8 +79,8 @@ $If (!APanel.Root) Down $End $Exit $End $End Up"
 
 <pre class=code>REGEDIT4
 
-;сграбить весь экран в текстовый файл far-screen.out
-;работает в области Dialog
+;capture the whole screen to the text file far-screen.out
+;this macro works only in the Dialog area of execution
 
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Dialog\AltP]
 "Sequence"="$IClip AltIns CtrlHome ShiftEnd ShiftPgDn Enter Esc
@@ -90,9 +91,9 @@ $If (!Shell) Esc $End $If (Shell &amp;&amp; !APanel.Plugin) ShiftF4 CtrlY
 
 <pre class=code>REGEDIT4
 
-;удаление файла/папки по клавише Del
-;если стояли на элементе .. то пытаемся удалить вышестоящую папку
-;если не в конце ком строки то удаляем символы в ней
+;delete the file or folder using Del hotkey
+;if the cursor was on the .. element then try to delete the parent folder
+;if command line cursor is not in the end of the command line then delete current symbol
 
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\Del]
 "Sequence"="$If (!CmdLine.Eof) Del $Exit $Else
@@ -103,9 +104,8 @@ $If ((APanel.Bof &amp;&amp; !APanel.Selected) &amp;&amp;
 
 <pre class=code>REGEDIT4
 
-; перед вызовом быстрого просмотра сделать пассивную панель
-; максимально большего размера.
-; для обратной операции восстановить панели.
+;maximize the passive panel before showing the quickview panel
+;restore the panel size before closing the quickview panel
 
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlQ]
 "Sequence"="Tab $If (QView) Tab Ctrl2 Tab CtrlClear $Else Tab Ctrl6 Tab

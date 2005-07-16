@@ -19,24 +19,24 @@
 
 <p class="note"><img src="../../../images/note.gif" alt="ATTENTION!" width="10" height="10"> ATTENTION!</p>
 <ul class="note">
-  <li>Ёлементы макро€зыка невозможно использовать во врем€ <a href="../macrokey/record.html">записи
-    макроса</a> стандартным образом. ƒобавить элементы €зыка в макрос можно только путем ручной
-    правки реестра или путем применени€ специальных программ/плагинов.</li>
+  <li>It is impossible to use macro-language elements while <a href="../macrokey/record.html">recording</a>
+  a macro in a usual way. Macro-language elements can be added to the sequence only by editing
+  the registry manually or by using special applications or FAR plugins.</li>
 </ul>
 
 <div class=shortdescr>
-ќператор <dfn>$MMode</dfn> позвол€ет измен€ть режим перерисовки экрана во врем€ проигрывани€ макропоследовательности.<br>
-–аботает как триггер.
+The <dfn>$MMode</dfn> macro-command toggles the screen refreshing mode during the execution of a macro sequence.<br>
+Works as a trigger.
 </div>
 
 <pre class=syntax>
 <dfn>$MMode</dfn> <dfn>1</dfn>
 </pre>
 
-<h3>ѕараметры</h3>
+<h3>Arguments</h3>
 <div class=descr>
 <div class=dfn>1</div>
-<div class=dfndescr>≈динственный параметр. ¬сегда = 1.
+<div class=dfndescr>Should always be 1.
 </div>
 </div>
 
@@ -44,7 +44,7 @@
 <div class=descr>
 <pre class=code>REGEDIT4
 
-;вставка текущего времени
+;insert the current time
 
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Common\CtrlT]
 "Sequence"="$If (Editor || Dialog) $Date \"%H:%M:%S\" CtrlU Space

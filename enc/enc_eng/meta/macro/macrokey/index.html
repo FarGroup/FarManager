@@ -2,46 +2,44 @@
 <html>
 
 <head>
-<title>Работа с макросами - Макросы</title>
+<title>Using macros - Macros</title>
 <meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
 <link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
 </head>
 
 <body>
 
-<h1>Работа с макросами</h1>
+<h1>Using macros</h1>
 <div class="navbar">
 <a href="../../index.html">main</a> |
 <a href="../index.html">Macros</a>
 </div>
 
-<p>FAR может выполнять макросы в двух основных режимах:
+<p>FAR provides two modes for recording and execution of the macro commands:
 <ol>
-  <li>Общий режим: нажимаемые клавиши при записи и воспроизведении <b>будут</b>
-    передаваться плагинам.
-  <li>Специальный режим: нажимаемые клавиши при записи и
-    воспроизведении <b>не будут</b> передаваться плагинам,
-    перехватывающим события в редакторе.
+  <li>General mode: all keystrokes <b>will</b> be passed to the plugins during macro
+  recording and execution.
+  <li>Special mode: all keystrokes <b>won't</b> be passed to the plugins intercepting
+  the editor events during recording and execution.
 </ol>
-<p>Например, если какой-то плагин обрабатывает сочетание клавиш
-Ctrl+A, то при специальном режиме работы макросов этот плагин не
-получит управления и не выполнит действия, которые он обычно
-выполняет при реакции на это сочетание клавиш.
+<p>Let's imagine we have a plugin handling Ctrl+A key combination. Using special mode
+we can disable this plugin receiving this notification and thus prevent it from
+performing some action it should perform normally handling this keystroke.
 
-<p>Итак, что можно делать с макросами:<div class=descr>
-<a href="record.html">Записать</a><br>
-<a href="delete.html">Удалить</a><br>
+<p>So what can we do with the macros:<div class=descr>
+<a href="record.html">Record</a><br>
+<a href="delete.html">Delete</a><br>
 </div>
 
-<p>Вызов макроса осуществляется нажатием тех клавиш, которые ему были
-<a href="assign.html">назначены для запуска</a>.
-<a href="setting.html">Параметры запуска макроса</a> могут быть указаны только при его записи и
-изменить их в дальнейшем можно лишь перезаписав этот же самый макрос заново.
+<p>You can execute macro command by pressing the key combination
+<a href="assign.html">assigned</a> by the user.
+Execution <a href="setting.html">parameters</a> can be specified while recording the macro command and
+the only way to change them is to record certain macro over again.
 
 <div class=see>See also:</div><div class=seecont>
-<a href="../about/index.html">Общие сведения</a>,
-<a href="../macrocmd/index.html">Макроязык</a>,
-<a href="../techinfo.html">Технические подробности</a>,
+<a href="../about/index.html">General background</a>,
+<a href="../macrocmd/index.html">Macro-language</a>,
+<a href="../techinfo.html">Techniacl details</a>,
 <a href="../examples.html">Examples</a>
 </div>
 

@@ -19,27 +19,26 @@
 
 <p class="note"><img src="../../../images/note.gif" alt="ATTENTION!" width="10" height="10"> ATTENTION!</p>
 <ul class="note">
-  <li>Элементы макроязыка невозможно использовать во время <a href="../macrokey/record.html">записи
-    макроса</a> стандартным образом. Добавить элементы языка в макрос можно только путем ручной
-    правки реестра или путем применения специальных программ/плагинов.</li>
+  <li>It is impossible to use macro-language elements while <a href="../macrokey/record.html">recording</a>
+  a macro in a usual way. Macro-language elements can be added to the sequence only by editing
+  the registry manually or by using special applications or FAR plugins.</li>
 </ul>
 
 <div class=shortdescr>
-Оператор <dfn>$IClip</dfn> позволяет организовать работу с буфером обмена.
-<p>По умолчанию FAR, в операциях запоминания/вставки данных,
-работает с Буфером Обмена Windows. Макрокоманда '$IClip' позволяет в
-пределах одного макроса переключать внутренние механизмы FAR
-для работы с/без использования Буфера Обмена Windows.<br>
-Работает как триггер.
+The <dfn>$IClip</dfn> macro-command helps to organize the clipboard usage.
+<p>FAR Manager uses the standard Microsoft Windows clipboard to perform
+copy/paste operations by default. This macro-command can switch between the usage
+of the internal FAR clipboard or the standard Windows clipboard within a single macro.<br>
+Works as a trigger.
 </div>
 
 <pre class=syntax>
 <dfn>$IClip</dfn>
 </pre>
 
-<h3>Параметры</h3>
+<h3>Arguments</h3>
 <div class=descr>
-Нет.
+None.
 </div>
 
 
@@ -47,9 +46,9 @@
 <div class=descr>
 <pre class=code>REGEDIT4
 
-;искать тот же файл на другой панели что и на активной
-;F5 ShiftEnter CtrlIns - применено чтобы получить имя файла вне зависимости
-;пусто/непусто в cmdline и сколько выделено на панели файлов
+;quick find the file in the passive panel with the same name as selected in the active panel
+;sequence F5 ShiftEnter CtrlIns is used to get the file name independently
+;of the state of the command line and number of selected files in the panels
 
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlAltLeft]
 "Sequence"="$IClip $If (((Bof &amp;&amp; APanel.Root) || !Bof) &amp;&amp; PPanel.Visible)

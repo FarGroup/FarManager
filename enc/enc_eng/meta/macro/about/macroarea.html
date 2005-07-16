@@ -2,57 +2,55 @@
 <html>
 
 <head>
-<title>Области действия - Макросы</title>
+<title>Areas of Execution - Macros</title>
 <meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
 <link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
 </head>
 
 <body>
 
-<h1>Области действия</h1>
+<h1>Areas of execution</h1>
 <div class="navbar">
 <a href="../../index.html">main</a> |
 <a href="../index.html">Macros</a> |
-<a href="index.html">Общие сведения</a>
+<a href="index.html">General background</a>
 </div>
 
-<p>FAR позволяет создавать независимые макросы (макросы, у которых
-совпадает сочетание клавиш запуска) для различных областей.
+<p>FAR can create independent macro commands (macros with the same shortcut keystroke) for different areas of execution.
 <p class="note"><img src="../../../images/warning.gif" alt="ATTENTION!" width="10" height="10"> ATTENTION!</p>
-<ul class="note"><li>Область, к которой будет принадлежать макрос, определяется тем местом, где его <b>начали</b> записывать.</li>
+<ul class="note"><li>Area to which the new macro command will be assigned is defined by the place where its recording <b>had started</b>.</li>
 </ul>
 
-<p>В настоящий момент такими независимыми областями являются:
+<p>Current version supports the following independent areas of execution:
 <ul>
-<li>файловые панели;
-<li>внутренняя программа просмотра;
-<li>редактор;
-<li>диалоги;
-<li>быстрый поиск в панелях;
-<li>меню выбора дисков;
-<li>основное меню;
-<li>прочие меню;
-<li>система помощи;
-<li>информационная панель;
-<li>панель быстрого просмотра;
-<li>панель дерева папок;
-<li>панель поиска папок;
-<li>остальное: режим копирования текста с экрана.
+<li>file panels;
+<li>internal file viewer;
+<li>internal file editor;
+<li>dialog panels;
+<li>quick file search;
+<li>drive selection menu;
+<li>main menu;
+<li>other menus;
+<li>help system;
+<li>informational panel;
+<li>quick view panel;
+<li>folder tree panel;
+<li>folder search panel;
+<li>screen capturing mode.
 </ul>
 
-<p>Нельзя назначить на какое-либо сочетание клавиш в одной области
-несколько различных действий (это ограничение иногда можно обойти,
-воспользовавшись <a href="../macrocmd/index.html">примитивным макроязыком</a>). При попытке назначить для нового
-макроса уже используемое сочетание предыдущий макрос будет
-удален.
+<p>It is not allowed to create different macro commands with the same name
+(keyboard shortcut) in the same area of execution (there's some work-around though using the
+<a href="../macrocmd/index.html">primitive macro-language</a>). Existing macro command will be
+overwritten in attempt to create the macro command with the same keyboard shortcut.
 
-<p>Таким образом, вы можете иметь по одному макросу с одинаковым
-сочетанием клавиш запуска в каждой из перечисленных областей.
+<p>Thus each area of execution can contain only one macro command with the same keyboard shortcut.
 
-<p>Имеется так же область <dfn>Common</dfn>. Макрос из этой области
-будет работать везде. При этом приоритет отдается перечисленным
-выше областям. Макрос из этой области нельзя <a href="../macrokey/record.html">создать</a>
-интерактивно, но можно <a href="../macrokey/delete.html">удалить</a>.
+<p>There's also the <dfn>Common</dfn> area of execution. Macro command assigned to this area
+can be executed in every other area of execution but this area has the lower priority then native
+ones so if some area already contains macro with the same shortcut then common macro will be overridden.
+Macro commands cannot be <a href="../macrokey/record.html">created</a> interactively in the common area,
+but can be <a href="../macrokey/delete.html">deleted</a>.
 
 </body>
 

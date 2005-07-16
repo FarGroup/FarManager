@@ -19,27 +19,27 @@
 
 <p class="note"><img src="../../../images/note.gif" alt="ATTENTION!" width="10" height="10"> ATTENTION!</p>
 <ul class="note">
-  <li>Элементы макроязыка невозможно использовать во время <a href="../macrokey/record.html">записи
-    макроса</a> стандартным образом. Добавить элементы языка в макрос можно только путем ручной
-    правки реестра или путем применения специальных программ/плагинов.</li>
+  <li>It is impossible to use macro-language elements while <a href="../macrokey/record.html">recording</a>
+  a macro in a usual way. Macro-language elements can be added to the sequence only by editing
+  the registry manually or by using special applications or FAR plugins.</li>
 </ul>
 
 <div class=shortdescr>
-Оператор цикла <dfn>$Rep</dfn> позволяет организовать в макросах циклический процесс - &quot;Выполнить Expr раз последовательность Sequence&quot;.
+The <dfn>$Rep</dfn> loop macro-command executes the Sequence of the macro-commands Expr number of times.
 </div>
 
 <pre class=syntax>
 <dfn>$Rep</dfn> <dfn>(</dfn><em>Expr</em><dfn>)</dfn> <em>Sequence</em> <dfn>$End</dfn>
 </pre>
 
-<h3>Элементы</h3>
+<h3>Elements</h3>
 
 <div class=descr>
 <div class=dfn>Expr</div>
-<div class=dfndescr>Выражение</div>
+<div class=dfndescr>Loop conditional expression.</div>
 
 <div class=dfn>Sequence</div>
-<div class=dfndescr>Выполняется, пока выражение <dfn>Expr</dfn> не станет равно 0.</div>
+<div class=dfndescr>Sequence to be executed until <dfn>Expr</dfn> is 0.</div>
 </div>
 
 
@@ -47,7 +47,7 @@
 <div class=descr>
 <pre class=code>REGEDIT4
 
-;выход из FAR'a
+;exit FAR Manager
 
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Common\AltX]
 "Sequence"="$If (Editor && (Editor.State & 0x8)) F2 $End $Rep (2)
