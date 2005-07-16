@@ -15,8 +15,9 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_GETDROPDOWNOPENED</dfn> служит для программного определения:
-"<em>есть ли в диалоге раскрытый комбобокс или история</em>".
+The <dfn>DM_GETDROPDOWNOPENED</dfn> 
+message is sent to the dialog manager to determine:
+"<em>if there is an open combo box or history list in the dialog</em>".
 </div>
 
 <h3>Param1</h3>
@@ -31,16 +32,16 @@
 
 <h3>Return</h3>
 <div class=descr>
-FALSE - в диалоге нет открытого комбобокса или истории.<br>
-TRUE - в диалоге есть открытый комбобокс или история.
+FALSE - there is no open combo box or history list.<br>
+TRUE - there is an open combo box or history list.
 </div>
 
 <h3>Controls</h3>
 <div class=descr>
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
-<tr class="cont"><td class="cont" width="40%">Диалог</td>
-<td class="cont" width="60%">сообщение затрагивает только диалог</td></tr>
+<tr class="cont"><td class="cont" width="40%">Dialog</td>
+<td class="cont" width="60%">message concerning dialog only</td></tr>
 </table>
 </div>
 

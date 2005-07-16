@@ -15,43 +15,41 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_GETTEXTPTR</dfn> посылается Менеджеру диалогов для
-получения содержимого строк ввода или заголовков элементов диалога.
-В отличие от сообщения <a href="dm_gettext.html">DM_GETTEXT</a>, это сообщение
-работает с указателем на строку.
+The <dfn>DM_GETTEXTPTR</dfn> message is sent to the dialog manager to retrieve 
+the text of an edit string or the caption of a dialog item.
+Unlike the <a href="dm_gettext.html">DM_GETTEXT</a> message, this one works with a string pointer.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID требуемого элемента
+The ID of the dialog item for which you want to retrieve the text.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на строку приемник.<br>
-Если <dfn>Param2</dfn> = NULL - это еще один способ получить размер данных
-(см. <a href="dm_gettextlength.html">DM_GETTEXTLENGTH</a>)
+Pointer to destination string that receives the text.<br>
+If <dfn>Param2</dfn> is NULL this is yet another way to get the size of the text
+(see <a href="dm_gettextlength.html">DM_GETTEXTLENGTH</a>).
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-Размер данных без завершающего символа конца строки '\0'.
+Size of the specified dialog item string NOT including the terminating character '\0'.
 </div>
 
 <h3>Controls</h3>
 <div class=descr>
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
-<tr class="cont"><td class="cont" width="40%">Все</td>
-<td class="cont" width="60%">Для строк ввода - содержимое строки, для прочих элементов - заголовки.
-Все то, что содержится в FarDialogItem.Data или FarDialogItem.PtrData.</td></tr>
+<tr class="cont"><td class="cont" width="40%">All</td>
+<td class="cont" width="60%">String data is returned for edit lines, captions for any other items.
+Everything contained in FarDialogItem.Data or FarDialogItem.PtrData.</td></tr>
 </table>
 </div>
 
 <h3>Remarks</h3>
 <div class=descr>
-Сообщение <dfn>DM_GETTEXTPTR</dfn> в версиях FAR вплоть до 1.70 beta 3 возвращало
-размер данных с учетом символа конца строки.
+The <dfn>DM_GETTEXTPTR</dfn> message in FAR versions up to 1.70 beta 3 returned the string length INCLUDING the terminating character.
 </div>
 
 <h3>Example</h3>

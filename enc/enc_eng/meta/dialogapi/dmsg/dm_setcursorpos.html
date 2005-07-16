@@ -15,26 +15,24 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_SETCURSORPOS</dfn> посылается обработчику диалога для
-позиционирования курсора в строках редактирования диалога и элементах
-<a href="../controls/di_usercontrol.html">DI_USERCONTROL</a>.
+The <dfn>DM_SETCURSORPOS</dfn> message is sent to dialog manager to position the cursor in dialog edit lines and 
+<a href="../controls/di_usercontrol.html">DI_USERCONTROL</a> items.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID элемента
+The ID of the dialog item
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на структуру <a href="../../winapi/coord.html">COORD</a>, содержащей
-информацию о положении курсора (COORD.Y игнорируется для строкового редактора).
+Pointer to a <a href="../../winapi/coord.html">COORD</a> structure containing information about cursor position
+(COORD.Y is ignored for line editor).
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-FALSE - указанный ID элемента не является строковым редактором или элементом
-<a href="../controls/di_usercontrol.html">DI_USERCONTROL</a>.
+FALSE - the item is not a line editor or <a href="../controls/di_usercontrol.html">DI_USERCONTROL</a> item.
 </div>
 
 <h3>Controls</h3>
@@ -42,23 +40,23 @@ FALSE - указанный ID элемента не является строковым редактором или элементом
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_combobox.html">DI_COMBOBOX</a></td>
-<td class="cont" width="60%">комбинированный список</td></tr>
+<td class="cont" width="60%">combined list</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_edit.html">DI_EDIT</a></td>
-<td class="cont" width="60%">строка ввода</td></tr>
+<td class="cont" width="60%">edit line</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_fixedit.html">DI_FIXEDIT</a></td>
-<td class="cont" width="60%">поле ввода фиксированного размера</td></tr>
+<td class="cont" width="60%">fixed-size input field</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_pswedit.html">DI_PSWEDIT</a></td>
-<td class="cont" width="60%">поле ввода пароля</td></tr>
+<td class="cont" width="60%">password input field</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_usercontrol.html">DI_USERCONTROL</a></td>
-<td class="cont" width="60%">элемент управления, определяемый программистом</td></tr>
+<td class="cont" width="60%">custom (defined by programmer) control</td></tr>
 </table>
 </div>
 
 <h3>Remarks</h3>
 <div class=descr>
-Чтобы погасить курсор в элементе
-<a href="../controls/di_usercontrol.html">DI_USERCONTROL</a>, необходимо заполнить
-поля структуры <a href="../../winapi/coord.html">COORD</a> значениями -1.
+To switch off the cursor in 
+<a href="../controls/di_usercontrol.html">DI_USERCONTROL</a> item 
+set fields of <a href="../../winapi/coord.html">COORD</a> structure to -1.
 
 
 </div>

@@ -16,29 +16,27 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_GETCURSORPOS</dfn> посылается обработчику диалога для
-получения позиции курсора в строках редактирования диалога  и в элементе
-<a href="../controls/di_usercontrol.html">DI_USERCONTROL</a>.
+The <dfn>DM_GETCURSORPOS</dfn> message is sent to the dialog handler to retrieve 
+the cursor position in edit lines or <a href="../controls/di_usercontrol.html">DI_USERCONTROL</a> item.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID элемента
+The ID of the dialog item for which you want to retrieve the cursor position.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на структуру <a href="../../winapi/coord.html">COORD</a>, в которую
-Менеджер Диалогов поместит информацию о положении курсора (COORD.Y = 0 для
-строкового редактора).
+Pointer to a <a href="../../winapi/coord.html">COORD</a> structure 
+where dialog manager will place information about cursor position 
+(COORD.Y = 0 for line editor).
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-FALSE - указанный ID элемента не является строковым редактором или элементом
-<a href="../controls/di_usercontrol.html">DI_USERCONTROL</a>.<br>
-TRUE - структура <a href="../../winapi/coord.html">COORD</a> содержит координаты
-курсора.
+FALSE is returned if the given ID does not specify an edit control
+or <a href="../controls/di_usercontrol.html">DI_USERCONTROL</a> item.<br>
+TRUE is returned when <a href="../../winapi/coord.html">COORD</a> contains cursor position.
 </div>
 
 <h3>Controls</h3>
@@ -46,15 +44,15 @@ TRUE - структура <a href="../../winapi/coord.html">COORD</a> содержит координаты
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_combobox.html">DI_COMBOBOX</a></td>
-<td class="cont" width="60%">комбинированный список</td></tr>
+<td class="cont" width="60%">combined list</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_edit.html">DI_EDIT</a></td>
-<td class="cont" width="60%">строка ввода</td></tr>
+<td class="cont" width="60%">edit line</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_fixedit.html">DI_FIXEDIT</a></td>
-<td class="cont" width="60%">поле ввода фиксированного размера</td></tr>
+<td class="cont" width="60%">fixed-size input field</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_pswedit.html">DI_PSWEDIT</a></td>
-<td class="cont" width="60%">поле ввода пароля</td></tr>
+<td class="cont" width="60%">password input field</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_usercontrol.html">DI_USERCONTROL</a></td>
-<td class="cont" width="60%">элемент управления, определяемый программистом</td></tr>
+<td class="cont" width="60%">custom (defined by programmer) control</td></tr>
 </table>
 </div>
 

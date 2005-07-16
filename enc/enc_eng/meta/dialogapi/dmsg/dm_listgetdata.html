@@ -15,27 +15,25 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_LISTGETDATA</dfn> посылается Менеджеру диалогов для получения
-данных, ассоциированных с элементом списка <a href="../controls/di_combobox.html">DI_COMBOBOX</a>
-или <a href="../controls/di_listbox.html">DI_LISTBOX</a>.
+The <dfn>DM_LISTGETDATA</dfn> message is sent to the dialog manager to retrieve data associated with an item in a
+<a href="../controls/di_combobox.html">DI_COMBOBOX</a> or <a href="../controls/di_listbox.html">DI_LISTBOX</a> list.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID требуемого элемента диалога.
+The ID of the dialog item for which the item data is retrieved.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Индекс элемента списка.
+Index of the item for which the data is retrieved.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-Данные, которые плагин ассоциировал с элементом списка с помощью сообщения
-<a href="dm_listsetdata.html">DM_LISTSETDATA</a> или NULL, если нет данных,
-ассоциированных с указанным пунктом списка. Более подробно о логике хранения данных см. замечание для структуры <a
-href="../structures/farlistitemdata.html">FarListItemData</a>.
+Data value the plugin has associated with the list item using 
+<a href="dm_listsetdata.html">DM_LISTSETDATA</a> message or NULL if no data was associated.
+See notes for <a href="../structures/farlistitemdata.html">FarListItemData</a> structure for more details about data storing logic.
 </div>
 
 <h3>Controls</h3>
@@ -43,9 +41,9 @@ href="../structures/farlistitemdata.html">FarListItemData</a>.
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_listbox.html">DI_LISTBOX</a></td>
-<td class="cont" width="60%">список</td></tr>
+<td class="cont" width="60%">list</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_combobox.html">DI_COMBOBOX</a></td>
-<td class="cont" width="60%">комбинированный список</td></tr>
+<td class="cont" width="60%">combined list</td></tr>
 </table>
 </div>
 

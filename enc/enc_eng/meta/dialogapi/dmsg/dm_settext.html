@@ -15,43 +15,41 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_SETTEXT</dfn> посылается Менеджеру диалогов для
-установки содержимого строк ввода или заголовков элементов диалога
-в новое значение.
+The <dfn>DM_SETTEXT</dfn> message is sent to the dialog manager to set a new string value for an edit line or a new caption for an item.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID требуемого элемента диалога.
+The ID of the dialog item for which the text should be changed.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на структуру <a href="../structures/fardialogitemdata.html">FarDialogItemData</a>.
-Значение этого параметра равное NULL игнорируется.
+Pointer to the <a href="../structures/fardialogitemdata.html">FarDialogItemData</a> structure that is used to set the dialog item text.<br>
+If this parameter is equal to NULL, the message does nothing.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-Размер установленных данных без завершающего символа конца строки '\0'.
+Size of the new dialog item string NOT including the terminating character '\0'.
 </div>
 
 <h3>Controls</h3>
 <div class=descr>
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
-<tr class="cont"><td class="cont" width="40%">Все</td>
-<td class="cont" width="60%">Все элементы диалога</td></tr>
+<tr class="cont"><td class="cont" width="40%">All</td>
+<td class="cont" width="60%">All dialog items</td></tr>
 </table>
 </div>
 
 <h3>Remarks</h3>
 <div class=descr>
 <ol>
-<li>Для <a href="../controls/di_combobox.html">DI_COMBOBOX</a> влияет только на
-строку редактирования (не распространяется на <a href="../flags/dif_dropdownlist.html">DIF_DROPDOWNLIST</a>)
-<li>Сообщение <dfn>DM_SETTEXT</dfn> в версиях FAR вплоть до 1.70 beta 3 возвращало
-размер данных с учетом символа конца строки.
+<li>For <a href="../controls/di_combobox.html">DI_COMBOBOX</a> items affects only the edit line
+(has no effect for items with the <a href="../flags/dif_dropdownlist.html">DIF_DROPDOWNLIST</a> flag set).
+<li>The <dfn>DM_SETTEXT</dfn> message in FAR version prior to 1.70 beta 4 returned the string length
+INCLUDING the terminating NULL character.
 </ol>
 </div>
 

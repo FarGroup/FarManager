@@ -15,31 +15,30 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_SETDROPDOWNOPENED</dfn> используется для программного
-раскрытия или закрытия комбобокса или истории.
+The <dfn>DM_SETDROPDOWNOPENED</dfn> message is sent to the dialog manager
+to open or close a combo box or history list. 
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID элемента, чей список (<a href="../controls/di_combobox.html">DI_COMBOBOX</a>)
-или историю (<a href="../controls/di_edit.html">DI_EDIT</a> или
-<a href="../controls/di_fixedit.html">DI_FIXEDIT</a> с флагом
-<a href="../flags/dif_history.html">DIF_HISTORY</a>) мы хотим раскрыть.
+The ID of the element for which the combo box (<a href="../controls/di_combobox.html">DI_COMBOBOX</a>)
+or history list (<a href="../controls/di_edit.html">DI_EDIT</a> or
+<a href="../controls/di_fixedit.html">DI_FIXEDIT</a> with the 
+<a href="../flags/dif_history.html">DIF_HISTORY</a> flag) should be opened.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-TRUE - раскрыть список у элемента ID.<br>
-FALSE - закрыть открытый комбобокс или историю. В этом случае параметр
-<var>Param1</var> игнорируется.
+TRUE - open the list for the element with the given ID.<br>
+FALSE - close the open combo box or history list. In this case 
+<var>Param1</var> is ignored.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-Если <dfn>Param2</dfn>=FALSE, всегда возвращается TRUE.<br>
-Если <dfn>Param2</dfn>=TRUE,  возвращается TRUE в случае удачного открытия
-комбобокса или истории, FALSE - возвращается, если был указан ID не
-поддерживаемого типа.
+If <dfn>Param2</dfn>=FALSE the returned value is always TRUE.<br>
+If <dfn>Param2</dfn>=TRUE, the returned value is TRUE if the combo box 
+or history list has been opened successfully. FALSE is returned if ID of not suppored type was set.
 </div>
 
 <h3>Controls</h3>
@@ -47,20 +46,20 @@ FALSE - закрыть открытый комбобокс или историю. В этом случае параметр
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_combobox.html">DI_COMBOBOX</a></td>
-<td class="cont" width="60%">комбинированный список</td></tr>
+<td class="cont" width="60%">combined list</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_edit.html">DI_EDIT</a></td>
-<td class="cont" width="60%">строка ввода</td></tr>
+<td class="cont" width="60%">edit line</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_fixedit.html">DI_FIXEDIT</a></td>
-<td class="cont" width="60%">поле ввода фиксированного размера</td></tr>
+<td class="cont" width="60%">	fixed-size input field</td></tr>
 </table>
 </div>
 
 <h3>Remarks</h3>
 <div class=descr>
-В диалоге одновременно может быть открыт только один комбо-бокс или
-список истории. Поэтому посылка сообщения с <var>Param2</var>=<code>TRUE</code> закрывает
-уже открытый комбо-бокс, а при посылке сообщения с <var>Param2</var>=<code>FALSE</code>
-указывать <var>ID</var> элемента не требуется.
+Only one combo box or history list can be open in a dialog at the same time. 
+Therefore, sending this message with <var>Param2</var>=<code>TRUE</code> closes an already opened combo box
+before opening the specified one, and when sending the message with <var>Param2</var>=<code>FALSE</code>
+it is not needed to specify the item <var>ID</var>.
 </div>
 
 <h3>Example</h3>

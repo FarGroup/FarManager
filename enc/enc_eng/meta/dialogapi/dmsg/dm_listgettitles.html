@@ -15,26 +15,24 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_LISTGETTITLES</dfn> посылается Менеджеру диалогов для
-получения заголовков (верхнего и нижнего) у элемента
-<a href="../controls/di_listbox.html">DI_LISTBOX</a>.
+The <dfn>DM_LISTGETTITLES</dfn> message is sent to the dialog manager to retrieve the titles (header and footer) of a
+<a href="../controls/di_listbox.html">DI_LISTBOX</a> list.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID требуемого элемента диалога.
+he ID of the dialog item for which the titles are retrieved.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на структуру типа <a href="../structures/farlisttitles.html">FarListTitles</a>,
-в которую будут помещены заголовки.
+Pointer to a <a href="../structures/farlisttitles.html">FarListTitles</a> structure where the titles will be stored.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-TRUE - заголовки получены<br>
-FALSE -элемент не является списком<br>
+TRUE - titles have been retrieved successfully.<br>
+FALSE - the item is not a list.<br>
 </div>
 
 <h3>Controls</h3>
@@ -42,14 +40,14 @@ FALSE -элемент не является списком<br>
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_listbox.html">DI_LISTBOX</a></td>
-<td class="cont" width="60%">список</td></tr>
+<td class="cont" width="60%">list</td></tr>
 </table>
 </div>
 
 <h3>Remarks</h3>
 <div class=descr>
-Для получения заголовков необходимо предварительно заполнить структуру
-<a href="../structures/farlisttitles.html">FarListTitles</a>:
+You must initialize the
+<a href="../structures/farlisttitles.html">FarListTitles</a>structure before sending the message:
 <pre class=code>
 char Title[100];
 char Bottom[100];

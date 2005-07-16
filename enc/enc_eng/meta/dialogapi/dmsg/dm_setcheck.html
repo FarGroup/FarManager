@@ -15,46 +15,42 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_SETCHECK</dfn> посылается Менеджеру диалогов для
-изменения состояния элементов <a href="../controls/di_checkbox.html">DI_CHECKBOX</a>
-и <a href="../controls/di_radiobutton.html">DI_RADIOBUTTON</a>.
+The <dfn>DM_SETCHECK</dfn> message is sent to the dialog manager to change the state of <a href="../controls/di_checkbox.html">DI_CHECKBOX</a>
+and <a href="../controls/di_radiobutton.html">DI_RADIOBUTTON</a> items.
 </div>
 
 <h3>Param1</h3>
 <div class=dfndescr>
-ID требуемого элемента
+The ID of the dialog item that you want to change.
 </div>
 
 <h3>Param2</h3>
 <div class=dfndescr>
-<dfn>Param2</dfn> имеет эффект только для элемента <a href="../controls/di_checkbox.html">DI_CHECKBOX</a>
-и может принимать одно из следующих значений (перечисление <a name="FARCHECKEDSTATE">FARCHECKEDSTATE</a>):
+<dfn>Param2</dfn> applies only <a href="../controls/di_checkbox.html">DI_CHECKBOX</a>
+and can have one of the following values (listing of <a name="FARCHECKEDSTATE">FARCHECKEDSTATE</a>):
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Description</th></tr>
+<tr class="cont"><th class="cont" width="40%">Flag</th><th class="cont" width="60%">Description</th></tr>
   <tr class="cont"><td class="cont" width="40%"><a name="BSTATE_UNCHECKED">BSTATE_UNCHECKED</a></td>
-  <td class="cont" width="60%">Выключить - <code>[ ]</code> или <code>( )</code></td></tr>
+  <td class="cont" width="60%">Off - <code>[ ]</code> or <code>( )</code></td></tr>
   <tr class="cont"><td class="cont" width="40%"><a name="BSTATE_CHECKED">BSTATE_CHECKED</a></td>
-  <td class="cont" width="60%">Включить - <code>[x]</code> или <code>(*)</code></td></tr>
+  <td class="cont" width="60%">On - <code>[x]</code> or <code>(*)</code></td></tr>
   <tr class="cont"><td class="cont" width="40%"><a name="BSTATE_3STATE">BSTATE_3STATE</a></td>
-  <td class="cont" width="60%">Включить неопределенное состояние - <code>[?]</code>
-  (имеет эффект только для элемента с выставленным
-  флагом <a href="../flags/dif_3state.html">DIF_3STATE</a>).
+  <td class="cont" width="60%">Set to undefined state -  <code>[?]</code>
+  (applies only to the items with  <a href="../flags/dif_3state.html">DIF_3STATE</a> flag set).
   </td></tr>
   <tr class="cont"><td class="cont" width="40%"><a name="BSTATE_TOGGLE">BSTATE_TOGGLE</a></td>
-  <td class="cont" width="60%">Переключить состояние элемента.  (для элемента с
-  выставленным
-  флагом <a href="../flags/dif_3state.html">DIF_3STATE</a> состояние будет
-  меняться по кругу: "включено", "выключено", "неопределено").</td></tr>
+  <td class="cont" width="60%">Toggle the item state. For elements with
+  <a href="../flags/dif_3state.html">DIF_3STATE</a> flag set the state will be toggled sequentially
+  between "on", "off", "undefined").</td></tr>
 </table>
 
 </div>
 
 <h3>Return</h3>
 <div class=dfndescr>
-Предыдущее состояние элемента.
-Для <a href="../controls/di_radiobutton.html">DI_RADIOBUTTON</a> - ID
-предыдущего элемента в группе кнопок с зависимой фиксацией (см. описание
-<a href="../flags/dif_group.html">DIF_GROUP</a>).
+Previous state of the item.
+For <a href="../controls/di_radiobutton.html">DI_RADIOBUTTON</a> returns the ID of the dialog item
+in the radio button group that was previously checked. (see <a href="../flags/dif_group.html">DIF_GROUP</a>).
 </div>
 
 <h3>Controls</h3>
@@ -62,9 +58,9 @@ ID требуемого элемента
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_checkbox.html">DI_CHECKBOX</a></td>
-<td class="cont" width="60%">Контрольный переключатель (Check Box).</td></tr>
+<td class="cont" width="60%">Check Box</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_radiobutton.html">DI_RADIOBUTTON</a></td>
-<td class="cont" width="60%">Селекторная кнопка (Radio Button).</td></tr>
+<td class="cont" width="60%">Radio Button</td></tr>
 </table>
 </div>
 

@@ -15,23 +15,22 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_SETMAXTEXTLENGTH</dfn> посылается Менеджеру диалогов
-для установки максимального размера редактируемой строки.
+The <dfn>DM_SETMAXTEXTLENGTH</dfn> message is sent to the dialog manager to set the maximum length of an edit string.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID элемента диалога.
+The ID of a dialog item.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Требуемый размер
+New maximum length of the string.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-Предыдущее значение размера редактируемой строки или 0 в случае ошибки.
+The previous value of the length of the string or 0 in case of error.
 </div>
 
 <h3>Controls</h3>
@@ -39,22 +38,20 @@ ID элемента диалога.
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_combobox.html">DI_COMBOBOX</a></td>
-<td class="cont" width="60%">комбинированный список</td></tr>
+<td class="cont" width="60%">combined list</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_edit.html">DI_EDIT</a></td>
-<td class="cont" width="60%">строка ввода</td></tr>
+<td class="cont" width="60%">edit line</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_pswedit.html">DI_PSWEDIT</a></td>
-<td class="cont" width="60%">поле ввода пароля</td></tr>
+<td class="cont" width="60%">password input field</td></tr>
 </table>
 </div>
 
 <h3>Remarks</h3>
 <div class=descr>
 <ol>
-<li>Для <a href="../controls/di_combobox.html">DI_COMBOBOX</a> влияет только на
-строку редактирования (не распространяется на
-<a href="../flags/dif_dropdownlist.html">DIF_DROPDOWNLIST</a>)
-<li>В версиях FAR вплоть до 1.70 beta 3 сообщение <dfn>DM_SETMAXTEXTLENGTH</dfn>
-именовалось как DM_SETTEXTLENGTH.
+<li>For <a href="../controls/di_combobox.html">DI_COMBOBOX</a> items affects only the edit line 
+(has no effect for items with the <a href="../flags/dif_dropdownlist.html">DIF_DROPDOWNLIST</a> flag set)
+<li>In FAR versions before 1.70 beta 4, this message was called DM_SETTEXTLENGTH.
 </ol>
 </div>
 

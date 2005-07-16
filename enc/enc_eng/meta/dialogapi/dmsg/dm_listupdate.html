@@ -15,26 +15,25 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_LISTUPDATE</dfn> посылается Менеджеру диалогов для обновления
-элемента в списках <a href="../controls/di_combobox.html">DI_COMBOBOX</a> или
+The <dfn>DM_LISTUPDATE</dfn> message is sent to the dialog manager to update an element 
+of a <a href="../controls/di_combobox.html">DI_COMBOBOX</a> or
 <a href="../controls/di_listbox.html">DI_LISTBOX</a>.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID требуемого элемента диалога.
+The ID of the dialog item to be updated.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на обновляемый пункт списка (структуру типа
-<a href="../structures/farlistupdate.html">FarListUpdate</a>).
+Pointer to a <a href="../structures/farlistupdate.html">FarListUpdate</a>structure specifying the element to update.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-TRUE - пункт в списке успешно обновлен.<br>
-FALSE - ошибка при обновлении данных.
+TRUE - the list element has been successfully updated.<br>
+FALSE - error updating data.
 </div>
 
 <h3>Controls</h3>
@@ -42,17 +41,17 @@ FALSE - ошибка при обновлении данных.
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_listbox.html">DI_LISTBOX</a></td>
-<td class="cont" width="60%">список</td></tr>
+<td class="cont" width="60%">list</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_combobox.html">DI_COMBOBOX</a></td>
-<td class="cont" width="60%">комбинированный список</td></tr>
+<td class="cont" width="60%">combined list</td></tr>
 </table>
 </div>
 
 <h3>Remarks</h3>
 <div class=descr>
-Для обновления строки текущего элемента списка <a href="../controls/di_listbox.html">DI_LISTBOX</a> можно
-также использовать сообщение <a href="dm_settextptr.html">DM_SETTEXTPTR</a>
-(или <a href="dm_settext.html">DM_SETTEXT</a>).
+It is also possible to use the <a href="dm_settextptr.html">DM_SETTEXTPTR</a>
+(or <a href="dm_settext.html">DM_SETTEXT</a>) message to update the text of the current item 
+of the <a href="../controls/di_listbox.html">DI_LISTBOX</a> list.
 </div>
 
 <h3>Example</h3>

@@ -15,15 +15,13 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_GETITEMDATA</dfn> возвращает 32-битное значение,
-связанное с элементом диалога. Каждый элемент диалога имеет соответствующее
-32-битное значение, предназначенное для использования плагином, который
-создавал диалог.
+The <dfn>DM_GETITEMDATA</dfn> returns a 32-bit data value associated with a dialog item. 
+Every dialog item has a corresponding 32-bit data value designed for use by the plugin that created the dialog.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID элемента управления.
+The ID of the dialog item for which the data is retrieved.
 </div>
 
 <h3>Param2</h3>
@@ -33,8 +31,8 @@ ID элемента управления.
 
 <h3>Return</h3>
 <div class=descr>
-Менеджер Диалогов возвращает 32-битное значение, ранее переданное
-плагином (или 0, если плагин не ассоциировал данные с этим элементом диалога).
+The dialog manager returns 32-bit value that was previously passed by a plugin 
+(or 0, if the plugin didn't associate data with this dialog item).
 </div>
 
 <h3>Remarks</h3>

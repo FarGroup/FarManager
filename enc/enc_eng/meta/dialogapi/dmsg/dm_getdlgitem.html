@@ -15,30 +15,30 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_GETDLGITEM</dfn> посылается Менеджеру диалогов для получения полной информации о заданном элементе.
+The <dfn>DM_GETDLGITEM</dfn> message is sent to the dialog handler to retrieve complete information about a dialog item.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID элемента диалога
+Dialog item ID.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на структуру <a href="../structures/fardialogitem.html">FarDialogItem</a>.
+Pointer to a <a href="../structures/fardialogitem.html">FarDialogItem</a> structure.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-TRUE - данные скопированы или FALSE - для неверного ID элемента.
+TRUE is returned if the data was retrieved successfully. If Param1 contains an invalid item ID, FALSE is returned.
 </div>
 
 <h3>Controls</h3>
 <div class=descr>
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
-<tr class="cont"><td class="cont" width="40%">Все</td>
-<td class="cont" width="60%">Все элементы диалога</td></tr>
+<tr class="cont"><td class="cont" width="40%">All</td>
+<td class="cont" width="60%">All dialog items</td></tr>
 </table>
 </div>
 
@@ -50,7 +50,7 @@ TRUE - данные скопированы или FALSE - для неверного ID элемента.
 <h3>Example</h3>
 <div class=descr>
 <pre class=code>
-// получить параметры 12-го элемента
+// retrieve parameters of 12th item
 struct FarDialogItem DialogItem;
 
 Info.SendDlgMessage(hDlg,DM_GETDLGITEM,12,(long)&amp;DialogItem);

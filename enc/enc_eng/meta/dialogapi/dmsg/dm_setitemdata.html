@@ -15,25 +15,24 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_SETITEMDATA</dfn> устанавливает 32-битное значение,
-связанное с элементом диалога. Каждый элемент диалога имеет соответствующее
-32-битное значение, предназначенное для использования плагином в его
-собственных целях.
+The <dfn>DM_SETITEMDATA</dfn>message is sent to the dialog manager to set the 32-bit data value
+associated with a dialog item. Every dialog item has a corresponding 32-bit data value designed
+for use by the plugin that created the dialog.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID элемента управления.
+The ID of the dialog item for which the data is retrieved.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Новое 32-битное значение.
+The new 32-bit data value.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-Предыдущее значение.
+Previous data value.
 </div>
 
 <h3>Remarks</h3>

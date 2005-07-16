@@ -15,47 +15,46 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_MOVEDIALOG</dfn> посылается менеджеру диалогов для
-перемещения диалога.
+The <dfn>DM_MOVEDIALOG</dfn> message is sent to the dialog manager to move the dialog window.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-TRUE - <dfn>Param2</dfn> содержит абсолютные координаты.<br>
-FALSE - <dfn>Param2</dfn> содержит относительные координаты.
+TRUE - <dfn>Param2</dfn> contains absolute coordinates.<br>
+FALSE - <dfn>Param2</dfn> contains relative coordinates.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на структуру <a href="../../winapi/coord.html">COORD</a>, в которой
-указаны новые координаты левого верхнего угла диалогового окна.
+Pointer to a <a href="../../winapi/coord.html">COORD</a> structure containing the new coordinates 
+of the upper left corner of the dialog window.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-Структура <a href="../../winapi/coord.html">COORD</a>, содержащая реальные
-координаты левого верхнего угла диалогового окна.
+The <a href="../../winapi/coord.html">COORD</a>structure containing 
+the current coordinates of the upper left corner of the dialog window. 
 </div>
 
 <h3>Remarks</h3>
 <div class=descr>
-Для центрирования диалога на экране заполните структуру
-<a href="../../winapi/coord.html">COORD</a>
-значениями -1 и установите <dfn>Param1</dfn> = TRUE.
+In order to center the dialog window on the screen
+fill the <a href="../../winapi/coord.html">COORD</a> structure
+with -1 values and set <dfn>Param1</dfn> = TRUE.
 </div>
 
 <h3>Example</h3>
 <div class=descr>
 <pre class=code>
-// центрировать диалог
+// center the dialog
 COORD c={-1,-1};
 Info.SendDlgMessage(hDlg,DM_MOVEDIALOG,TRUE,(long)&amp;c);
 
-// переместить диалог в левый верхний угол экрана в координаты 1,1.
+// move the dialog to the top left corner of the screen with coordinates 1,1
 COORD c={1,1};
 Info.SendDlgMessage(hDlg,DM_MOVEDIALOG,TRUE,(long)&amp;c);
 
-// переместить диалог на 2 позиции вправо.
+// move the dialog by 2 positions to the right
 COORD c={2,0};
 Info.SendDlgMessage(hDlg,DM_MOVEDIALOG,FALSE,(long)&amp;c);</pre>
 </div>

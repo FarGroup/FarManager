@@ -15,27 +15,25 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_LISTSETDATA</dfn> посылается Менеджеру диалогов для
-ассоциации пользовательских данных с элементом списка
-<a href="../controls/di_combobox.html">DI_COMBOBOX</a> или
+The <dfn>DM_LISTSETDATA</dfn> message is sent to the dialog manager to associate 
+the user data with an element of a <a href="../controls/di_combobox.html">DI_COMBOBOX</a> or
 <a href="../controls/di_listbox.html">DI_LISTBOX</a>.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID требуемого элемента диалога.
+The ID of the dialog item for which the data is associated.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на структуру типа <a href="../structures/farlistitemdata.html">FarListItemData</a>,
-описывающую добавляемые данные.
+Pointer to a <a href="../structures/farlistitemdata.html">FarListItemData</a>,
+structure describing the data added.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-Размер добавленных данных или 0, если данные некорректны или не удалось
-выделить достаточно памяти для размещения данных.
+Size of the data added, or 0 if the data is incorrect or there is not enough memory.
 </div>
 
 <h3>Controls</h3>
@@ -43,9 +41,9 @@ ID требуемого элемента диалога.
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_listbox.html">DI_LISTBOX</a></td>
-<td class="cont" width="60%">список</td></tr>
+<td class="cont" width="60%">list</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_combobox.html">DI_COMBOBOX</a></td>
-<td class="cont" width="60%">комбинированный список</td></tr>
+<td class="cont" width="60%">combined list</td></tr>
 </table>
 </div>
 

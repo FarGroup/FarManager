@@ -15,26 +15,24 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_SETHISTORY</dfn> позволяет управлять наличием
-истории в строках ввода.
+The <dfn>DM_SETHISTORY</dfn> allows to manage availability of history in edit lines.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID элемента диалога.
+The ID of the dialog item for which the history is changed.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на строку, содержащую название истории ввода или <code>NULL</code>,
-если необходимо отключить историю в строке ввода.
+Pointer to a string containing the history list ID, or <code>NULL</code>,
+if the history should be disabled.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-<code>FALSE</code> - указанный элемент диалога <var>Param1</var> не
-поддерживает работу с историей.<br>
-<code>TRUE</code> - история успешно назначена элементу диалога <var>Param1</var>.
+<code>FALSE</code> - the dialog item specified in <var>Param1</var> does not support history lists.<br>
+<code>TRUE</code> - the history has been assigned successfully.
 </div>
 
 <h3>Controls</h3>
@@ -42,25 +40,26 @@ ID элемента диалога.
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_edit.html">DI_EDIT</a></td>
-<td class="cont" width="60%">строка ввода</td></tr>
+<td class="cont" width="60%">edit line</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_fixedit.html">DI_FIXEDIT</a></td>
-<td class="cont" width="60%">поле ввода фиксированного размера</td></tr>
+<td class="cont" width="60%">fixed-size input field</td></tr>
 </table>
 </div>
 
 <h3>Remarks</h3>
 <div class=descr>
-Если строка ввода пуста и у элемента <a href="../controls/di_edit.html">DI_EDIT</a>
-выставлен флаг <a href="../flags/dif_uselasthistory.html">DIF_USELASTHISTORY</a>,
-то FAR сам подставит первое значение из истории в строку ввода.
+If the edit line is empty and the flag <a href="../flags/dif_uselasthistory.html">DIF_USELASTHISTORY</a>
+for the <a href="../controls/di_edit.html">DI_EDIT</a> item is set, FAR will automatically subsitute 
+the first value from the history into an empty edit line.
 </div>
 
 
 <h3>Example</h3>
 <div class=descr>
-Применение данного сообщения можно увидеть в исходных текстах плагина MultiArc.
+Implementation of this message can be seen in MultiArc plugin sources.
 
-<p>Следующий пример выставляет историю и очищает строку ввода:
+<p>
+This example sets history and empties edit line:
 <pre class=code>
 ...
   else if(Msg == MAM_ARCSWITCHES)
@@ -73,8 +72,7 @@ ID элемента диалога.
 ...
 </pre>
 
-<p>Для того, чтобы FAR сам подставил первую строку из истории ключей, необходимо
-приведенный выше код переписать так:
+<p>In order to make FAR substitute the first line from keys histiry the code should be rewritten in the following way:
 <pre class=code>
 ...
   else if(Msg == MAM_ARCSWITCHES)
@@ -86,8 +84,7 @@ ID элемента диалога.
   }
 ...
 </pre>
-<p>Т.е. сначала строка ввода очищается, потом происходит назначение истории
-для элемента.
+<p>The edit line is being emptied and the item history is set after.
 </div>
 
 

@@ -15,25 +15,25 @@
 </div>
 
 <div class=shortdescr>
-—ообщение <dfn>DM_GETITEMPOSITION</dfn> позвол€ет получить
-позицию и размеры управл€ющего элемента.
+The <dfn>DM_GETITEMPOSITION</dfn> message is sent to the dialog manager 
+to retrieve the size and position of a dialog item.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID элемента диалога.
+The ID of the dialog item for which the position is retrieved.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-”казатель на структуру <a href="../../winapi/small_rect.html">SMALL_RECT</a>
-в которой менеджер диалогов вернет размеры элемента.
+Pointer to a <a href="../../winapi/small_rect.html">SMALL_RECT</a>
+structure that will contain the size and position of the item.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-TRUE - данные скопированы или FALSE, если в качестве <dfn>Param2</dfn>
-передано значение NULL или такого элемента нет.
+TRUE if the data has been copied or FALSE if <dfn>Param2</dfn>
+is NULL or the item does not exist.
 </div>
 
 <h3>Example</h3>

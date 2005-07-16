@@ -16,26 +16,25 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_GETSELECTION</dfn> посылается обработчику диалога для
-получения параметров выделения в строках редактирования диалога.
+The <dfn>DM_GETSELECTION</dfn> message is sent to the dialog handler 
+to retrieve selection parameters in dialog edit lines.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID элемента
+Dialog item ID.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на структуру <a href="../../structures/editorselect.html">EditorSelect</a>, в которую
-Менеджер Диалогов поместит информацию о выделении в сроке редактирования.
+Pointer to a <a href="../../structures/editorselect.html">EditorSelect</a> structure, 
+where dialog manager will put the information about selection in edit line.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-FALSE - указанный ID элемента не является строковым редактором.<br>
-TRUE - структура <a href="../../structures/editorselect.html">EditorSelect</a> содержит
-параметры выделения.
+FALSE is returned if the item ID is not a line editor.<br>
+TRUE is returned if the <a href="../../structures/editorselect.html">EditorSelect</a> structure contains selection parameters.
 </div>
 
 <h3>Controls</h3>
@@ -43,13 +42,13 @@ TRUE - структура <a href="../../structures/editorselect.html">EditorSelect</a> с
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_combobox.html">DI_COMBOBOX</a></td>
-<td class="cont" width="60%">комбинированный список</td></tr>
+<td class="cont" width="60%">combined list</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_edit.html">DI_EDIT</a></td>
-<td class="cont" width="60%">строка ввода</td></tr>
+<td class="cont" width="60%">edit line</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_fixedit.html">DI_FIXEDIT</a></td>
-<td class="cont" width="60%">поле ввода фиксированного размера</td></tr>
+<td class="cont" width="60%">fixed-size input field</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_pswedit.html">DI_PSWEDIT</a></td>
-<td class="cont" width="60%">поле ввода пароля</td></tr>
+<td class="cont" width="60%">password input field</td></tr>
 </table>
 </div>
 

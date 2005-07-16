@@ -15,26 +15,25 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_LISTGETITEM</dfn> посылается Менеджеру диалогов для получения
-одного элемента из списка <a href="../controls/di_combobox.html">DI_COMBOBOX</a> или
-<a href="../controls/di_listbox.html">DI_LISTBOX</a>.
+The <dfn>DM_LISTGETITEM</dfn>  message is sent to the dialog manager to retrieve a single item from a <a href="../controls/di_combobox.html">DI_COMBOBOX</a> or
+<a href="../controls/di_listbox.html">DI_LISTBOX</a> list.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID требуемого элемента диалога.
+The ID of the dialog item from which the elements should be retrieved.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на структуру типа <a href="../structures/farlistgetitem.html">FarListGetItem</a>,
-в которую будет помещен результат.
+Pointer to a <a href="../structures/farlistgetitem.html">FarListGetItem</a>,
+structure that will contain the retrieved data.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-TRUE - данные получены.<br>
-FALSE - ошибка при получении данных.
+TRUE - data has been retrieved.<br>
+FALSE - error retrieving data.
 </div>
 
 <h3>Controls</h3>
@@ -42,17 +41,17 @@ FALSE - ошибка при получении данных.
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_listbox.html">DI_LISTBOX</a></td>
-<td class="cont" width="60%">список</td></tr>
+<td class="cont" width="60%">list</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_combobox.html">DI_COMBOBOX</a></td>
-<td class="cont" width="60%">комбинированный список</td></tr>
+<td class="cont" width="60%">combined list</td></tr>
 </table>
 </div>
 
 <h3>Remarks</h3>
 <div class=descr>
-Перед получением элемента списка необходимо предварительно заполнить структуру
-<a href="../structures/farlistgetitem.html">FarListGetItem</a>, указав в качестве
-<dfn>FarListGetItem.ItemIndex</dfn> индекс нужного элемента.
+Before retrieving a list element, you should fill the
+<a href="../structures/farlistgetitem.html">FarListGetItem</a>structure. The
+<dfn>FarListGetItem.ItemIndex</dfn> field should contain the index of the element to be retrieved.
 <pre class=code>
 struct FarListGetItem List;
 List.ItemIndex=Index;

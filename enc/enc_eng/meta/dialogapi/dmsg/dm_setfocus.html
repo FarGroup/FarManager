@@ -15,13 +15,12 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_SETFOCUS</dfn> устанавливает клавиатурный фокус
-на заданный элемент диалога.
+The <dfn>DM_SETFOCUS</dfn> message sets the keyboard focus to the given dialog item.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID элемента, который должен получить фокус ввода.
+The ID of the dialog item that receives the input focus.
 </div>
 
 <h3>Param2</h3>
@@ -31,27 +30,26 @@ ID элемента, который должен получить фокус ввода.
 
 <h3>Return</h3>
 <div class=descr>
-FALSE - это элемент не может иметь фокус ввода<br>
-TRUE - фокус ввода успешно установлен
+FALSE - the given dialog item cannot receive the keyboard focus<br>
+TRUE - the focus has been set successfully.
 </div>
 
 <h3>Controls</h3>
 <div class=descr>
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
-<tr class="cont"><td class="cont" width="40%">Все</td>
-<td class="cont" width="60%">Все элементы, которые могут иметь <a href="../keybfocus.html">клавиатурный фокус ввода</a>.</td></tr>
+<tr class="cont"><td class="cont" width="40%">All</td>
+<td class="cont" width="60%">All items that can have <a href="../keybfocus.html">keyboard input focus</a>.</td></tr>
 </table>
 </div>
 
 <h3>Remarks</h3>
 <div class=descr>
-Сообщение <dfn>DM_SETFOCUS</dfn> порождает цепочку событий:
-<a href="dn_killfocus.html">DN_KILLFOCUS</a> для элемента, который
-теряет фокус ввода и <a href="dn_gotfocus.html">DN_GOTFOCUS</a> - для элемента,
-который получит фокус ввода. События DN_KILLFOCUS и DN_GOTFOCUS не генерятся
-в случае, если <var>Param1</var> совпадает с элементом, уже имеющим
-фокус ввода.
+The <dfn>DM_SETFOCUS</dfn> spawns the following events:
+<a href="dn_killfocus.html">DN_KILLFOCUS</a> for the element that loses focus and
+<a href="dn_gotfocus.html">DN_GOTFOCUS</a> for the element that gets focus.
+The DN_KILLFOCUS and DN_GOTFOCUS events are not generated when <var>Param1</var> 
+is equal to the item currently having focus.
 </div>
 
 

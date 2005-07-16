@@ -15,18 +15,18 @@
 </div>
 
 <div class=shortdescr>
-Используя сообщение <dfn>DM_KEY</dfn> плагин передает массив значений
-<a href="../../defs/farkeycodes.html">кодов клавиш</a> Менеджеру диалогов.
+Using the <dfn>DM_KEY</dfn> message a plugin sends a
+<a href="../../defs/farkeycodes.html">key codes</a> array to the dialog manager.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-Количество передаваемых клавиш.
+The number of passed keys.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на массив (типа DWORD) внутренних кодов клавиш.
+Pointer to an array (DWORD type) of internal FAR key codes.
 </div>
 
 <h3>Return</h3>
@@ -36,15 +36,14 @@
 
 <h3>Remarks</h3>
 <div class=descr>
-Обработчик диалога не получит события <a href="dn_key.html">DN_KEY</a> в
-ответ на посылку Менеджеру диалогов сообщения <dfn>DM_KEY</dfn>.
+The dialog manager will not receive the <a href="dn_key.html">DN_KEY</a> event in response to the <dfn>DM_KEY</dfn> message.
 </div>
 
 <h3>Example</h3>
 <div class=descr>
-<p>Пример передачи набора клавиш диалогу (фокусному элементу):
+<p>Example of sending the key input to the dialog (focus item):
 <pre class=code>
-// в конец строки редактирования добавить точку с запятой.
+// add semicolon to the end of edit string
 DWORD Keys[2]={KEY_END,';'};
 
 Info.SendDlgMessage(hDlg,DM_KEY,sizeof(Keys)/sizeof(Keys[0]),(long)Keys);

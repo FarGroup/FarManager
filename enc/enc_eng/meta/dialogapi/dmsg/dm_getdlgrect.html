@@ -15,8 +15,7 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_GETDLGRECT</dfn> позволяет получить экранные координаты
-диалогового окна.
+The <dfn>DM_GETDLGRECT</dfn> allows to retrieve the screen coordinates of the dialog window.
 </div>
 
 <h3>Param1</h3>
@@ -26,14 +25,14 @@
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на структуру <a href="../../winapi/small_rect.html">SMALL_RECT</a>
-в которой менеджер диалогов вернет экранные координаты диалога.
+Pointer to a <a href="../../winapi/small_rect.html">SMALL_RECT</a>
+structure that receives the dialog coordinates.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-TRUE - данные скопированы или FALSE, если в качестве <dfn>Param2</dfn>
-передано значение NULL.
+TRUE is returned if the data was retrieved successfully. If  <dfn>Param2</dfn>
+is NULL, FALSE is returned.
 </div>
 
 <h3>Example</h3>

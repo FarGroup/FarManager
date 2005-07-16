@@ -15,38 +15,37 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_SETDLGITEM</dfn> посылается Менеджеру диалогов для изменения информации о заданном элементе.
+The <dfn>DM_SETDLGITEM</dfn> message is sent to the dialog manager to change a specified dialog item.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID элемента диалога
+The ID of the dialog item that you want to change.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на структуру <a href="../structures/fardialogitem.html">FarDialogItem</a>
+Pointer to a <a href="../structures/fardialogitem.html">FarDialogItem</a> structure containing the new item data.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-TRUE - данные обработаны.
-FALSE - если такого ID элемента не существует или вы поменяли тип элемента.
+TRUE if the new dialog item data has been set successfully<br>
+FALSE if the item with such ID does not exist or the item type was changed.
 </div>
 
 <h3>Controls</h3>
 <div class=descr>
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
-<tr class="cont"><td class="cont" width="40%">Все</td>
-<td class="cont" width="60%">Все элементы диалога</td></tr>
+<tr class="cont"><td class="cont" width="40%">All</td>
+<td class="cont" width="60%">All dialog items</td></tr>
 </table>
 </div>
 
 <h3>Remarks</h3>
 <div class=descr>
-Вы не можете изменить тип элемента.
-</div>
+You can't change item type.</div>
 
 
 <div class=see>See also:</div><div class=seecont>

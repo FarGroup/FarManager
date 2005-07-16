@@ -15,33 +15,33 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_SETITEMPOSITION</dfn> посылается Менеджеру диалогов для
-изменения позиции элемента.
+The <dfn>DM_SETITEMPOSITION</dfn> message is sent to the dialog manager
+to change the position of a dialog item.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID элемента диалога
+The ID of the dialog item for which the position is changed.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на структуру <a href="../../winapi/small_rect.html">SMALL_RECT</a>
-с новыми координатами.
+Pointer to a  <a href="../../winapi/small_rect.html">SMALL_RECT</a> structure 
+containing the new item coordinates.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-TRUE - позиция элемента изменена.
-FALSE - если такого ID элемента не существует.
+TRUE - item position has been changed.<br>
+FALSE - item wiht such ID does not exist.
 </div>
 
 <h3>Controls</h3>
 <div class=descr>
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
-<tr class="cont"><td class="cont" width="40%">Все</td>
-<td class="cont" width="60%">Все элементы диалога</td></tr>
+<tr class="cont"><td class="cont" width="40%">All</td>
+<td class="cont" width="60%">All dialog items</td></tr>
 </table>
 </div>
 

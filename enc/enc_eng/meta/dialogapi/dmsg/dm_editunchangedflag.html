@@ -15,26 +15,26 @@
 </div>
 
 <div class=shortdescr>
-Команда <dfn>DM_EDITUNCHANGEDFLAG</dfn> предназначена для управления состоянием
-"неизмененный текст" строк редактирования.
+The <dfn>DM_EDITUNCHANGEDFLAG</dfn> message allows to control the state 
+of the "unchanged text" flag for edit boxes.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID элемента управления.
+The ID of the dialog item for which the operation is performed.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Одно из трех значений;<br>
--1 - получить текущее состояние строки редактирования;<br>
-0 - сбросить состояние "неизмененный текст";<br>
-1 - установить состояние "неизмененный текст".<br>
+One of the following values:<br>
+-1 - get the current value of the flag for an edit box;<br>
+0 - clear the "unchanged text" flag;<br>
+1 - set the "unchanged text" flag.<br>
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-Предыдущее состояние "неизмененный текст" строки редактирования.
+Previous state of the "unchanged text" flag.
 </div>
 
 <h3>Controls</h3>
@@ -42,13 +42,13 @@ ID элемента управления.
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_combobox.html">DI_COMBOBOX</a></td>
-<td class="cont" width="60%">комбинированный список (без флага <a href="../flags/dif_dropdownlist.html">DIF_DROPDOWNLIST</a>)</td></tr>
+<td class="cont" width="60%">combined list (without <a href="../flags/dif_dropdownlist.html">DIF_DROPDOWNLIST</a> flag set)</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_edit.html">DI_EDIT</a></td>
-<td class="cont" width="60%">строка ввода</td></tr>
+<td class="cont" width="60%">edit line</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_fixedit.html">DI_FIXEDIT</a></td>
-<td class="cont" width="60%">поле ввода фиксированного размера</td></tr>
+<td class="cont" width="60%">fixed-size input field</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_pswedit.html">DI_PSWEDIT</a></td>
-<td class="cont" width="60%">поле ввода пароля</td></tr>
+<td class="cont" width="60%">password input field</td></tr>
 </table>
 </div>
 
@@ -56,11 +56,11 @@ ID элемента управления.
 <h3>Remarks</h3>
 <div class=descr>
 <ol>
-<li>В начале работы диалога перечисленные элементы,  кроме
-    <a href="../controls/di_fixedit.html">DI_FIXEDIT</a>, уже имеют состояние
-    "неизмененный текст".
-<li>После установки состояния "неизмененный текст" выделение блока будет
-    сброшено.
+<li>When the dialog is initialized, the "unchanged text" flag is set
+    for all items mentioned above, except for 
+	<a href="../controls/di_fixedit.html">DI_FIXEDIT</a>.
+<li>This message also clears the selection for the edit box for 
+    which it is called.
 </div>
 
 

@@ -15,25 +15,25 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_LISTSORT</dfn> посылается Менеджеру диалогов для сортировки
-элементов списка <a href="../controls/di_combobox.html">DI_COMBOBOX</a> или
-<a href="../controls/di_listbox.html">DI_LISTBOX</a>.
+The <dfn>DM_LISTSORT</dfn>  message is sent to the dialog manager to sort the elements of a 
+<a href="../controls/di_combobox.html">DI_COMBOBOX</a> or
+<a href="../controls/di_listbox.html">DI_LISTBOX</a> list.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID требуемого элемента диалога.
+The ID of the dialog item to sort.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Направление сортировки: 0 - по возрастанию, 1 - по убыванию.
+Sort direction: 0 - ascending, 1 - descending.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-TRUE - список отсортирован.<br>
-FALSE - ошибка при сортировке списка.
+TRUE - the list has been sorted.<br>
+FALSE - error sorting list.
 </div>
 
 <h3>Controls</h3>
@@ -41,9 +41,9 @@ FALSE - ошибка при сортировке списка.
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_listbox.html">DI_LISTBOX</a></td>
-<td class="cont" width="60%">список</td></tr>
+<td class="cont" width="60%">list</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_combobox.html">DI_COMBOBOX</a></td>
-<td class="cont" width="60%">комбинированный список</td></tr>
+<td class="cont" width="60%">combined list</td></tr>
 </table>
 </div>
 
@@ -54,7 +54,7 @@ FALSE - ошибка при сортировке списка.
 <h3>Example</h3>
 <div class=descr>
 <pre class=code>
-// Сортировать список по убыванию (от 'Z' до 'A')
+// sort the list descending (from 'Z' to 'A')
 Info.SendDlgMessage(hDlg,DM_LISTSORT,ID,1);
 </pre>
 </div>

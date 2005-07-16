@@ -15,15 +15,15 @@
 </div>
 
 <div class=shortdescr>
-Команда <dfn>DM_ENABLEREDRAW</dfn> посылается Менеджеру диалогов для
-отключения/включения перерисовки всего диалога.
+The <dfn>DM_ENABLEREDRAW</dfn> message is sent to the dialog manager
+to enable or disable dialog redrawing.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-<code>TRUE</code> - Включить отрисовку диалога<br>
-<code>FALSE</code> - Отключить отрисовку диалога<br>
-<code>-1</code> - Получить текущее значение счетчика блокировки вывода.
+<code>TRUE</code> - enable dialog redrawing<br>
+<code>FALSE</code> - disable dialog redrawing<br>
+<code>-1</code> - get current state of counter of output locking.
 </div>
 
 <h3>Param2</h3>
@@ -33,22 +33,23 @@
 
 <h3>Return</h3>
 <div class=descr>
-Предыдущее значение счетчика блокировки вывода.
+Previous state of counter of output locking.
 </div>
 
 <h3>Remarks</h3>
 <div class=descr>
-Эта команда предназначена в основном для того, чтобы исключить
-перерисовку диалога при изменении нескольких элементов одновременно.
-Когда посылается это сообщение - счетчик блокировки при <dfn>Param1</dfn> = <code>TRUE</code>
-увеличивается, при <dfn>Param1</dfn> = <code>FALSE</code> - уменьшается.
-Диалог отрисовывается, когда значение счетчика равно 0.
-Это нормальное поведение для вложенных манипуляций.
-Типичное использование:
+This function is used to prevent excessive dialog redraws
+when modifying multiple dialog items. Calling this function with
+<dfn>Param1</dfn> = <code>TRUE</code> increments an internal counter,
+and calling with <dfn>Param1</dfn> = <code>FALSE</code> decrements the counter.
+The dialog is drawn when the value of the counter is zero.
+
+This is normal behavior for embedded manipulations.
+Typical usage:
 <pre class=code>
 Info.SendDlgMessage(hDlg,<dfn>DM_ENABLEREDRAW</dfn>,FALSE,0);
 
-// изменяем кучу заголовков
+// here we change lots of headers
 
 Info.SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
 </pre>

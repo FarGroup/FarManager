@@ -16,24 +16,23 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_SETSELECTION</dfn> посылается обработчику диалога для
-выделения блока в строках редактирования диалога.
+The <dfn>DM_SETSELECTION</dfn> is sent to dialog manager to select a block in dialog edit lines.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID элемента
+The ID of dialog item
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на структуру <a href="../../structures/editorselect.html">EditorSelect</a>.
+Pointer to an <a href="../../structures/editorselect.html">EditorSelect</a> structure.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-FALSE - указанный ID элемента не является строковым редактором.<br>
-TRUE - текст выделен.
+FALSE - the item is not an edit line.<br>
+TRUE - the text was selected.
 </div>
 
 <h3>Controls</h3>
@@ -41,13 +40,13 @@ TRUE - текст выделен.
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_combobox.html">DI_COMBOBOX</a></td>
-<td class="cont" width="60%">комбинированный список</td></tr>
+<td class="cont" width="60%">combined list</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_edit.html">DI_EDIT</a></td>
-<td class="cont" width="60%">строка ввода</td></tr>
+<td class="cont" width="60%">edit line</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_fixedit.html">DI_FIXEDIT</a></td>
-<td class="cont" width="60%">поле ввода фиксированного размера</td></tr>
+<td class="cont" width="60%">fixed-size input field</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_pswedit.html">DI_PSWEDIT</a></td>
-<td class="cont" width="60%">поле ввода пароля</td></tr>
+<td class="cont" width="60%">password input field</td></tr>
 </table>
 </div>
 

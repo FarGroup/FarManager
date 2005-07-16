@@ -15,36 +15,36 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_LISTSETMOUSEREACTION</dfn> позволяет управлять
-реакцией на движение мыши в списке <a href="../controls/di_listbox.html">DI_LISTBOX</a>.
+The <dfn>DM_LISTSETMOUSEREACTION</dfn>  message is sent to the dialog manager 
+to set the behavior for handling mouse movement in a <a href="../controls/di_listbox.html">DI_LISTBOX</a> list.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID требуемого элемента диалога.
+The ID of the dialog item for which the behaviour is set.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Может быть одним из следующих значений (перечисление <code><a name="FARLISTMOUSEREACTIONTYPE">FARLISTMOUSEREACTIONTYPE</a></code>):
+Can have one of the following values (listing of <code><a name="FARLISTMOUSEREACTIONTYPE">FARLISTMOUSEREACTIONTYPE</a></code>):
 
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Значение</th><th class="cont" width="60%">Description</th></tr>
+<tr class="cont"><th class="cont" width="40%">Value</th><th class="cont" width="60%">Description</th></tr>
 <tr class="cont"><td class="cont" width="40%"><a name="LMRT_ONLYFOCUS">LMRT_ONLYFOCUS</a></td>
-<td class="cont" width="60%">Список будет реагировать на движение мыши (перемещать
-курсор в списке) только если элемент в фокусе</td></tr>
+<td class="cont" width="60%">The list will react on mouse movement (change cursor position
+in the list) only when the item is in focus</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a name="LMRT_ALWAYS">LMRT_ALWAYS</a></td>
-<td class="cont" width="60%">Список будет всегда реагировать на движение мыши (перемещать
-курсор в списке). Пример такого поведения - список найденных файлов в результатах поиска (<kbd>Alt-F7</kbd>)</td></tr>
+<td class="cont" width="60%">The list will always react on mouse movement (change cursor position
+in the list). The example of such behavior is a list of found files in search results (<kbd>Alt-F7</kbd>)</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a name="LMRT_NEVER">LMRT_NEVER</a></td>
-<td class="cont" width="60%">Список не будет реагировать на движение мыши</td></tr>
+<td class="cont" width="60%">The list will not react on mouse movement</td></tr>
 </table>
 
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-Предыдущее значение.
+Previous value.
 </div>
 
 <h3>Controls</h3>
@@ -52,15 +52,15 @@ ID требуемого элемента диалога.
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_listbox.html">DI_LISTBOX</a></td>
-<td class="cont" width="60%">список</td></tr>
+<td class="cont" width="60%">list</td></tr>
 </table>
 </div>
 
 <h3>Remarks</h3>
 <div class=descr>
 <ol>
-<li>По умолчанию список <a href="../controls/di_listbox.html">DI_LISTBOX</a> всегда реагирует на движение курсора мыши.
-<li><u>Far Manager 1.70 beta 5 и ниже:</u> Param2 отличный от LMRT_ONLYFOCUS или LMRT_ALWAYS аналогичен значению LMRT_ALWAYS.
+<li>By default, a nonfocused <a href="../controls/di_listbox.html">DI_LISTBOX</a> item reacts to mouse movement.
+<li><u>Far Manager 1.70 beta 5 and earlier:</u> Param2 different of LMRT_ONLYFOCUS or LMRT_ALWAYS is similar to LMRT_ALWAYS value.
 
 </ol>
 </div>

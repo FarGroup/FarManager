@@ -15,15 +15,15 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_GETTEXTLENGTH</dfn> посылается Менеджеру Диалогов для
-получения размера данных, содержащихся в
-<a href="../structures/fardialogitem.html">FarDialogItem.Data</a> или
-значения поля FarDialogItem.Ptr.PtrLength.
+The <dfn>DM_GETTEXTLENGTH</dfn> 
+message is sent to the dialog manager to retrieve the size of data from
+<a href="../structures/fardialogitem.html">FarDialogItem.Data</a> or value of
+FarDialogItem.Ptr.PtrLength field.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID элемента диалога
+The ID of the dialog item for which you want to retrieve the text size.
 </div>
 
 <h3>Param2</h3>
@@ -33,22 +33,22 @@ ID элемента диалога
 
 <h3>Return</h3>
 <div class=descr>
-Размер данных без завершающего символа конца строки '\0'.
+Length of the specified dialog item string NOT including the terminating character '\0'.
 </div>
 
 <h3>Controls</h3>
 <div class=descr>
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
-<tr class="cont"><td class="cont" width="40%">Все</td>
-<td class="cont" width="60%">Все элементы диалога.</td></tr>
+<tr class="cont"><td class="cont" width="40%">All</td>
+<td class="cont" width="60%">All dialog items.</td></tr>
 </table>
 </div>
 
 <h3>Remarks</h3>
 <div class=descr>
-Сообщение <dfn>DM_GETTEXTLENGTH</dfn> в версиях FAR вплоть до 1.70 beta 3 возвращало
-размер данных с учетом символа конца строки.
+The <dfn>DM_GETTEXTLENGTH</dfn> message in FAR version up to 1.70 beta 3 
+returned the string length INCLUDING the terminating character.
 </div>
 
 <h3>Example</h3>

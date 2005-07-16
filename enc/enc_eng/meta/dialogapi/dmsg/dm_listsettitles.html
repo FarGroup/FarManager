@@ -15,26 +15,25 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_LISTSETTITLES</dfn> посылается Менеджеру диалогов для
-установки заголовков (верхнего и нижнего) у элемента
-<a href="../controls/di_listbox.html">DI_LISTBOX</a>.
+The <dfn>DM_LISTSETTITLES</dfn> message is sent to the dialog manager to set the titles 
+(header and footer) of a <a href="../controls/di_listbox.html">DI_LISTBOX</a> list.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID требуемого элемента диалога.
+The ID of the dialog item for which the titles are set.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на структуру типа <a href="../structures/farlisttitles.html">FarListTitles</a>,
-содержащую заголовки.
+Pointer to a <a href="../structures/farlisttitles.html">FarListTitles</a>,
+structure containing the titles to be set.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-TRUE - заголовки установлены<br>
-FALSE -элемент не является списком<br>
+TRUE - titles have been set.<br>
+FALSE - the item is not a list.
 </div>
 
 <h3>Controls</h3>
@@ -42,18 +41,18 @@ FALSE -элемент не является списком<br>
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_listbox.html">DI_LISTBOX</a></td>
-<td class="cont" width="60%">список</td></tr>
+<td class="cont" width="60%">list</td></tr>
 </table>
 </div>
 
 <h3>Remarks</h3>
 <div class=descr>
-Для установки заголовков необходимо предварительно заполнить структуру
-<a href="../structures/farlisttitles.html">FarListTitles</a>:
+You must fill the <a href="../structures/farlisttitles.html">FarListTitles</a> 
+structure before sending the message:
 <pre class=code>
 FarListTitles ListTitle;
 ListTitle.Title="Some title";
-ListTitle.Bottom=NULL; // сбросить нижний заголовок
+ListTitle.Bottom=NULL; // reset footer
 Info.SendDlgMessage(hDlg,DM_LISTSETTITLES,ID,(long)&amp;ListTitle);
 </code>
 </div>

@@ -16,14 +16,13 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_GETCURSORSIZE</dfn> посылается обработчику диалога для
-получения размера курсора в строках редактирования диалога  и в элементе
-<a href="../controls/di_usercontrol.html">DI_USERCONTROL</a>.
+The <dfn>DM_GETCURSORSIZE</dfn> message is sent to the dialog handler to retrieve
+the cursor size in edit lines or in <a href="../controls/di_usercontrol.html">DI_USERCONTROL</a> controls.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID элемента
+The ID of the dialog item for which you want to retrieve the cursor position.
 </div>
 
 <h3>Param2</h3>
@@ -33,9 +32,9 @@ ID элемента
 
 <h3>Return</h3>
 <div class=descr>
-Старшее слово - размер курсора (от 0 до 100, в терминах структуры
- <a href="../../winapi/console_cursor_info.html">CONSOLE_CURSOR_INFO</a>),
-младшее слово - признак видимости курсора (1 - курсор видим, 0 - курсор невидим).
+The high word is the cursor size  (from 0 to 100, as used in the
+<a href="../../winapi/console_cursor_info.html">CONSOLE_CURSOR_INFO</a> structure),
+the low word is the cursor visibility flag (1 - the cursor is visible, 0 - the cursor is hidden).
 </div>
 
 <h3>Controls</h3>
@@ -43,15 +42,15 @@ ID элемента
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_combobox.html">DI_COMBOBOX</a></td>
-<td class="cont" width="60%">комбинированный список (без флага <a href="../flags/dif_dropdownlist.html">DIF_DROPDOWNLIST</a>)</td></tr>
+<td class="cont" width="60%">combined list (without <a href="../flags/dif_dropdownlist.html">DIF_DROPDOWNLIST</a> flag)</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_edit.html">DI_EDIT</a></td>
-<td class="cont" width="60%">строка ввода</td></tr>
+<td class="cont" width="60%">edit line</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_fixedit.html">DI_FIXEDIT</a></td>
-<td class="cont" width="60%">поле ввода фиксированного размера</td></tr>
+<td class="cont" width="60%">fixed-size input field</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_pswedit.html">DI_PSWEDIT</a></td>
-<td class="cont" width="60%">поле ввода пароля</td></tr>
+<td class="cont" width="60%">password input field</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_usercontrol.html">DI_USERCONTROL</a></td>
-<td class="cont" width="60%">элемент управления, определяемый программистом</td></tr>
+<td class="cont" width="60%">custom (defined by programmer) control</td></tr>
 </table>
 </div>
 

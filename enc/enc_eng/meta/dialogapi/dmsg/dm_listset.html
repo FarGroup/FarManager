@@ -15,27 +15,26 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_LISTSET</dfn> посылается Менеджеру диалогов для добавления
-элементов в список <a href="../controls/di_combobox.html">DI_COMBOBOX</a> или
-<a href="../controls/di_listbox.html">DI_LISTBOX</a> с удалением
-уже существующих строк.
+The <dfn>DM_LISTSET</dfn> message is sent to the dialog manager 
+to replace the contents of a <a href="../controls/di_combobox.html">DI_COMBOBOX</a> or
+<a href="../controls/di_listbox.html">DI_LISTBOX</a> list with the given list of elements.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID требуемого элемента диалога.
+The ID of the dialog item in which the elements are replaced.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на добавляемые пункты списка (структуру типа
-<a href="../structures/farlist.html">FarList</a>).
+Pointer to a <a href="../structures/farlist.html">FarList</a> 
+structure specifying the new contents of the list.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-TRUE - данные добавлены в список.<br>
-FALSE - ошибка при добавлении данных.
+TRUE if the elements have been added successfully<br>
+FALSE in case of an error.
 </div>
 
 <h3>Controls</h3>
@@ -43,9 +42,9 @@ FALSE - ошибка при добавлении данных.
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_listbox.html">DI_LISTBOX</a></td>
-<td class="cont" width="60%">список</td></tr>
+<td class="cont" width="60%">list</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_combobox.html">DI_COMBOBOX</a></td>
-<td class="cont" width="60%">комбинированный список</td></tr>
+<td class="cont" width="60%">combined list</td></tr>
 </table>
 </div>
 

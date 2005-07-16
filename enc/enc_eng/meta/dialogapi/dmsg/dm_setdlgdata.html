@@ -15,10 +15,9 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_SETDLGDATA</dfn> устанавливает 32-битное значение
-связанное с диалогом. Каждый экземпляр диалога имеет соответствующее
-32-битное значение, предназначенное для использования плагином в его
-собственных целях.
+The <dfn>DM_SETDLGDATA</dfn> message is sent to the dialog manager to set
+the 32-bit data value associated with the dialog. 
+This value is designed for use by the plugin that created the dialog.
 </div>
 
 <h3>Param1</h3>
@@ -28,18 +27,17 @@
 
 <h3>Param2</h3>
 <div class=descr>
-Новое 32-битное значение.
+New 32-bit value.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-Предыдущее значение.
+Previous value.
 </div>
 
 <h3>Remarks</h3>
 <div class=descr>
-Первоначально здесь находится то, что передано в параметре Param
-функции <a href="../dialogex.html">DialogEx</a>.
+Initially the Param value of <a href="../dialogex.html">DialogEx</a> is here.
 </div>
 
 <h3>Example</h3>

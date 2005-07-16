@@ -15,45 +15,42 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_SETTEXTPTR</dfn> посылается Менеджеру диалогов для
-установки содержимого строк ввода или заголовков элементов диалога
-в новое значение.
-В отличии от сообщения <a href="dm_settext.html">DM_SETTEXT</a>, это сообщение
-работает с указателем на строку.
+The <dfn>DM_SETTEXTPTR</dfn> message is sent to the dialog manager
+to set a new string value for an edit line or a new caption for an item.
+Unlike the <a href="dm_settext.html">DM_SETTEXT</a> message, this message works with a string pointer.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID требуемого элемента диалога.
+The ID of the dialog item for which the text should be changed.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Адрес строки, содержащей текст. Значение этого параметра равное <code>NULL</code>
-игнорируется.
+Pointer to the string containing the new text. If this parameter is equal to <code>NULL</code> the message does nothing.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-Размер установленных данных без завершающего символа конца строки '\0'.
+Size of the new dialog item string NOT including terminating character '\0'.
 </div>
 
 <h3>Controls</h3>
 <div class=descr>
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
-<tr class="cont"><td class="cont" width="40%">Все</td>
-<td class="cont" width="60%">Все элементы диалога</td></tr>
+<tr class="cont"><td class="cont" width="40%">All</td>
+<td class="cont" width="60%">All dialog items</td></tr>
 </table>
 </div>
 
 <h3>Remarks</h3>
 <div class=descr>
 <ol>
-<li>Для <a href="../controls/di_combobox.html">DI_COMBOBOX</a> влияет только на
-строку редактирования (не распространяется на <a href="../flags/dif_dropdownlist.html">DIF_DROPDOWNLIST</a>)
-<li>Сообщение <dfn>DM_SETTEXTPTR</dfn> в версиях FAR вплоть до 1.70 beta 3 возвращало
-размер данных с учетом символа конца строки.
+<li>For <a href="../controls/di_combobox.html">DI_COMBOBOX</a> items affects only the edit line
+(has no effect for items with the <a href="../flags/dif_dropdownlist.html">DIF_DROPDOWNLIST</a> flag set).
+<li>The <dfn>DM_SETTEXTPTR</dfn> message in FAR versions prior to 1.70 beta 4 returned the string length
+INCLUDING the terminating NULL character.
 </ol>
 </div>
 

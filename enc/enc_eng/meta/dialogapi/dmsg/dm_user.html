@@ -15,30 +15,30 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_USER</dfn> предназначено для пользовательских сообщений.
+The <dfn>DM_USER</dfn> message is intended to specify the starting value for user-defined messages.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-На усмотрение программиста.
+User-defined value.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-На усмотрение программиста.
+User-defined value.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-На усмотрение программиста.
+User-defined value.
 </div>
 
 <h3>Controls</h3>
 <div class=descr>
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
-<tr class="cont"><td class="cont" width="40%">Все</td>
-<td class="cont" width="60%">Все элементы диалога</td></tr>
+<tr class="cont"><td class="cont" width="40%">All</td>
+<td class="cont" width="60%">All dialog items</td></tr>
 </table>
 </div>
 
@@ -49,14 +49,14 @@
 
 <h3>Example</h3>
 <div class=descr>
-<pre class=code>#define <b>DMREV_RESULT</b>	DM_USER+1
+<pre class=code>#define <b>DMREV_RESULT</b> DM_USER+1
 
 long WINAPI ReversiDialogProc(HANDLE hDlg, int Msg,int Param1,long Param2)
 {
 ...
     Info.SendDlgMessage(hDlg,<b>DMREV_RESULT</b>,0,0);
 ...
-    <b>case DMREV_RESULT</b>: // пользовательское определение
+    <b>case DMREV_RESULT</b>: // user's definition
       ...
       return 0;
 ...

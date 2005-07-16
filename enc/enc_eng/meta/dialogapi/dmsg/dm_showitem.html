@@ -15,44 +15,43 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_SHOWITEM</dfn> посылается Менеджеру диалогов для того,
-чтобы показать или спрятать элемент диалога.
+The <dfn>DM_SHOWITEM</dfn> message is sent to the dialog manager to show or hide a dialog item.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID требуемого элемента диалога.
+The ID of the dialog item to be shown or hidden.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Одно из трех значений:
+One of the following values:
 <ul>
-<li>-1 - получить состояние элемента
-<li>0 - погасить элемент
-<li>1 - показать элемент
+<li>-1 - get the state of the item
+<li>0 - hide the item
+<li>1 - show the item
 </ul>
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-Предыдущее состояние элемента диалога
+Previous state of the dialog item
 </div>
 
 <h3>Controls</h3>
 <div class=descr>
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
-<tr class="cont"><td class="cont" width="40%">Все</td>
-<td class="cont" width="60%">Все элементы диалога</td></tr>
+<tr class="cont"><td class="cont" width="40%">All</td>
+<td class="cont" width="60%">All dialog items</td></tr>
 </table>
 </div>
 
 <h3>Remarks</h3>
 <div class=descr>
 <ol>
-<li>Элемент диалога принудительно перерисовывается, если он видим и Param2=1.
-<li>Элемент диалога не перерисовывается для случая Param2=-1.
+<li>Dialog item is force redrawn if it is visible and Param2=1.
+<li>Dialog item is not redrawn if Param2=-1.
 </ol>
 </div>
 

@@ -15,16 +15,16 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_SETMOUSEEVENTNOTIFY</dfn> позволяет управлять механизмом
-посылки первичного необработанного сообщения от мыши
-(<a href="dn_mouseevent.html">DN_MOUSEEVENT</a>) в диалоговую процедуру.
+The <dfn>DM_SETMOUSEEVENTNOTIFY</dfn> message allows to control the mechanism for sending 
+initial non-altered mouse event (<a href="dn_mouseevent.html">DN_MOUSEEVENT</a>) 
+to a dialog manager before they are processed by the dialog kernel.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-0 - выключить<br>
-1 - включить<br>
--1 - получить состояние
+0 - off<br>
+1 - on<br>
+-1 - get state
 </div>
 
 <h3>Param2</h3>
@@ -34,15 +34,15 @@
 
 <h3>Return</h3>
 <div class=descr>
-Предыдущее состояние.
+Previous state.
 </div>
 
 <h3>Controls</h3>
 <div class=descr>
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
-<tr class="cont"><td class="cont" width="40%">Диалог</td>
-<td class="cont" width="60%">сообщение затрагивает только диалог</td></tr>
+<tr class="cont"><td class="cont" width="40%">Dialog</td>
+<td class="cont" width="60%">message applies to the dialog only</td></tr>
 </table>
 </div>
 

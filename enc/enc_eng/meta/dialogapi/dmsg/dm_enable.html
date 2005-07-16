@@ -15,28 +15,28 @@
 </div>
 
 <div class=shortdescr>
-Команда <dfn>DM_ENABLE</dfn> посылается ядру Dialog API для переключения
-или получения состояния Enable/Disable конкретного элемента диалога.
+The <dfn>DM_ENABLE</dfn> message is sent to the Dialog API kernel
+to enable or disable a dialog item or to determine if a dialog item is enabled.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID элемента диалога
+ID of the dialog item.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Состояние элемента:<br>
-TRUE - Enable<br>
-FALSE - Disable<br>
--1 - получить состояние
+Item state:<br>
+TRUE - enable item<br>
+FALSE - disable item<br>
+-1 - get current item state
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-Предыдущее состояние элемента:<br>
-TRUE - Enabled<br>
-FALSE - Disabled<br>
+Previous state of the item:<br>
+TRUE - enabled<br>
+FALSE - disabled<br>
 
 </div>
 
@@ -44,8 +44,8 @@ FALSE - Disabled<br>
 <div class=descr>
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
-<tr class="cont"><td class="cont" width="40%">Все</td>
-<td class="cont" width="60%">Все элементы диалога</td></tr>
+<tr class="cont"><td class="cont" width="40%">All</td>
+<td class="cont" width="60%">All dialog items</td></tr>
 </table>
 </div>
 

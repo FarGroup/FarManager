@@ -15,26 +15,24 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_LISTADD</dfn> посылается Менеджеру диалогов для добавления
-элементов в список <a href="../controls/di_combobox.html">DI_COMBOBOX</a> или
-<a href="../controls/di_listbox.html">DI_LISTBOX</a>.
+The <dfn>DM_LISTADD</dfn>  message is sent to the dialog manager to add items 
+to a <a href="../controls/di_combobox.html">DI_COMBOBOX</a> or <a href="../controls/di_listbox.html">DI_LISTBOX</a> list.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID требуемого элемента диалога.
+The ID of the dialog item to which items should be added.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на добавляемые пункты списка (структуру типа
-<a href="../structures/farlist.html">FarList</a>).
+Pointer to a <a href="../structures/farlist.html">FarList</a> structure describing the data to be added.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-TRUE - данные добавлены в список.<br>
-FALSE - ошибка при добавлении данных.
+TRUE if the items have been added to the list.<br>
+FALSE in case of error while adding the items.
 </div>
 
 <h3>Controls</h3>
@@ -42,9 +40,9 @@ FALSE - ошибка при добавлении данных.
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_listbox.html">DI_LISTBOX</a></td>
-<td class="cont" width="60%">список</td></tr>
+<td class="cont" width="60%">list</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_combobox.html">DI_COMBOBOX</a></td>
-<td class="cont" width="60%">комбинированный список</td></tr>
+<td class="cont" width="60%">combined list</td></tr>
 </table>
 </div>
 

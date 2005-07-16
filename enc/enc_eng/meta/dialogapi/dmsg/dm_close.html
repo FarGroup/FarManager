@@ -15,14 +15,15 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_CLOSE</dfn> посылается в обработчик диалога как сигнал,
-сообщающий, что диалог будет закрыт.
+The <dfn>DM_CLOSE</dfn> message is sent to the dialog manager when a plugin
+notifies the Dialog API kernel that it wants to close the dialog.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID элемента, который будет возвращен из функции <a href="../dialogex.html">DialogEx</a>
-(или -1 для элемента, имеющего фокус ввода).
+ID of the item that will be returned from the <a href="../dialogex.html">DialogEx</a>
+function. If Param1 is equal to -1, DialogEx will return the ID of the item that currently
+has the focus.
 </div>
 
 <h3>Param2</h3>
@@ -32,14 +33,13 @@ ID элемента, который будет возвращен из функции <a href="../dialogex.html">Dialo
 
 <h3>Return</h3>
 <div class=descr>
-Значение, которое обработчик диалога вернет в ответ на событие
-<a href="dn_close.html">DN_CLOSE</a>.
+Value which is returned by dialog handler as the answer to <a href="dn_close.html">DN_CLOSE</a>.
 </div>
 
 <h3>Remarks</h3>
 <div class=descr>
-Событие <a href="dn_close.html">DN_CLOSE</a> приходит сразу после посылки
-сообщения <dfn>DM_CLOSE</dfn>.
+The <a href="dn_close.html">DN_CLOSE</a> event is received immediately after the
+<dfn>DM_CLOSE</dfn> message is sent.
 </div>
 
 <h3>Example</h3>
