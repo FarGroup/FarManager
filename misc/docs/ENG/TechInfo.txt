@@ -481,7 +481,7 @@ the main help file, that is actual for the current FAR Manager version.
    See also TechInfo #7.
 
 1.2.25.(TechInfo #69)
-~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\System]
    "CopySecurityOptions":REG_DWORD
    ѕараметр "System/CopySecurityOptions" c типом DWORD позвол€ет управл€ть
@@ -524,6 +524,7 @@ the main help file, that is actual for the current FAR Manager version.
    2. ≈сли опци€ " опировать права доступа" в диалоге не установлена,
       то копируемые и перемещаемые файлы наследуют права доступа
       того каталога, в который копируютс€.
+
 
 
 ======================

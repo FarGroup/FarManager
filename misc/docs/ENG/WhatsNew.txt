@@ -455,7 +455,7 @@ Macros
 ~~~~~~
 [!] Macro commands were extended to a primitive scripting language.
     Description of the new macro language can be found in the FAR API
-    help file (not yet available in english).
+    help file.
 
 [*] FAR can execute macros in 2 modes:
     1. Common mode: keystrokes will be passed to plugins while recording

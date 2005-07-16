@@ -498,7 +498,7 @@ I. FAR Manager: дополнительные настройки.
 
 
 1.2.25.(TechInfo #69)
-~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\System]
    "CopySecurityOptions":REG_DWORD
    Параметр "System/CopySecurityOptions" c типом DWORD позволяет управлять
