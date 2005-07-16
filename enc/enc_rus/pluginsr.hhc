@@ -2014,6 +2014,44 @@
                 <param name="Local" value="html/customapi/index.html">
                 </OBJECT>
         <UL>
+								<LI> <OBJECT type="text/sitemap">
+												<param name="Name" value="Дополнительные структуры и функции">
+												<param name="Local" value="html/addons/index.html">
+												</OBJECT>
+								<UL>
+												<LI> <OBJECT type="text/sitemap">
+																<param name="Name" value="Функции общего назначения">
+																<param name="Local" value="html/addons/index_common.html">
+																</OBJECT>
+												<UL>
+																<LI> <OBJECT type="text/sitemap">
+																				<param name="Name" value="InitDialogItems">
+																				<param name="Local" value="html/addons/initdialogitems.html">
+																				</OBJECT>
+																<LI> <OBJECT type="text/sitemap">
+																				<param name="Name" value="InitMenuItems">
+																				<param name="Local" value="html/addons/initmenuitems.html">
+																				</OBJECT>
+																<LI> <OBJECT type="text/sitemap">
+																				<param name="Name" value="LocMsg">
+																				<param name="Local" value="html/addons/locmsg.html">
+																				</OBJECT>
+												</UL>
+												<LI> <OBJECT type="text/sitemap">
+																<param name="Name" value="Структуры">
+																<param name="Local" value="html/addons/index_struct.html">
+																</OBJECT>
+												<UL>
+																<LI> <OBJECT type="text/sitemap">
+																				<param name="Name" value="InitDialogItem">
+																				<param name="Local" value="html/addons/structures/initdialogitem.html">
+																				</OBJECT>
+																<LI> <OBJECT type="text/sitemap">
+																				<param name="Name" value="InitMenuItem">
+																				<param name="Local" value="html/addons/structures/initmenuitem.html">
+																				</OBJECT>
+												</UL>
+								</UL>
                 <LI> <OBJECT type="text/sitemap">
                         <param name="Name" value="Поддержка архивов">
                         <param name="Local" value="html/customapi/archives/index.html">
@@ -2414,44 +2452,6 @@
                 <param name="Local" value="html/index2.html">
                 </OBJECT>
         <UL>
-                <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Дополнительные структуры и функции">
-                        <param name="Local" value="html/addons/index.html">
-                        </OBJECT>
-                <UL>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="Функции общего назначения">
-                                <param name="Local" value="html/addons/index_common.html">
-                                </OBJECT>
-                        <UL>
-                                <LI> <OBJECT type="text/sitemap">
-                                        <param name="Name" value="InitDialogItems">
-                                        <param name="Local" value="html/addons/initdialogitems.html">
-                                        </OBJECT>
-                                <LI> <OBJECT type="text/sitemap">
-                                        <param name="Name" value="InitMenuItems">
-                                        <param name="Local" value="html/addons/initmenuitems.html">
-                                        </OBJECT>
-                                <LI> <OBJECT type="text/sitemap">
-                                        <param name="Name" value="LocMsg">
-                                        <param name="Local" value="html/addons/locmsg.html">
-                                        </OBJECT>
-                        </UL>
-                        <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="Структуры">
-                                <param name="Local" value="html/addons/index_struct.html">
-                                </OBJECT>
-                        <UL>
-                                <LI> <OBJECT type="text/sitemap">
-                                        <param name="Name" value="InitDialogItem">
-                                        <param name="Local" value="html/addons/structures/initdialogitem.html">
-                                        </OBJECT>
-                                <LI> <OBJECT type="text/sitemap">
-                                        <param name="Name" value="InitMenuItem">
-                                        <param name="Local" value="html/addons/structures/initmenuitem.html">
-                                        </OBJECT>
-                        </UL>
-                </UL>
                 <LI> <OBJECT type="text/sitemap">
                         <param name="Name" value="Как установить этот файл">
                         <param name="Local" value="html/setuphelp.html">
