@@ -5,10 +5,12 @@ cddrv.cpp
 
 */
 
-/* Revision: 1.06 09.06.2005 $ */
+/* Revision: 1.07 17.07.2005 $ */
 
 /*
 Modify:
+  17.07.2005 SVS
+    ! немного gcc
   09.06.2005 SVS
     ! FAR_CreateFile - обертка для CreateFile, просьба использовать именно
       ее вместо CreateFile
@@ -218,9 +220,9 @@ typedef struct _SCSI_PASS_THROUGH_WITH_BUFFERS {
 
 
 
-#if defined(__BORLANDC__)
+#if defined(__BORLANDC__) || defined(__GNUC__)
 
-#if (__BORLANDC__  <= 0x0520)
+#if (__BORLANDC__  <= 0x0520) || defined(__GNUC__)
 
 #define IOCTL_STORAGE_GET_MEDIA_TYPES_EX CTL_CODE(IOCTL_STORAGE_BASE, 0x0301, METHOD_BUFFERED, FILE_ANY_ACCESS)
 

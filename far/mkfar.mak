@@ -217,7 +217,7 @@ FAROBJ=\
 
 
 # ************************************************************************
-ALL : BccW32.cfg $(FINALPATH)\Far.exe $(FARINCLUDE)\farcolor.hpp $(FARINCLUDE)\farkeys.hpp $(FARINCLUDE)\plugin.hpp
+ALL : lang.hpp BccW32.cfg $(FINALPATH)\Far.exe $(FARINCLUDE)\farcolor.hpp $(FARINCLUDE)\farkeys.hpp $(FARINCLUDE)\plugin.hpp
 	@echo MakeNode
 
 # все эти зависимости не нужны
@@ -238,6 +238,10 @@ $(OBJPATH)\flink.obj: flink.cpp cc.bat
 $(OBJPATH)\copy.obj: copy.cpp cc.bat
 $(OBJPATH)\global.obj: global.cpp global.hpp farversion.inc copyright.inc
 
+lang.hpp : farlang.templ
+	@lng.generator.exe farlang.templ
+
+
 # ************************************************************************
 # Зависимости для публичных файлов
 # ************************************************************************
@@ -252,6 +256,7 @@ $(FARINCLUDE)\farkeys.hpp : keys.hpp
 $(FARINCLUDE)\plugin.hpp : plugin.hpp
 	@if not exist $(FARINCLUDE) mkdir $(FARINCLUDE)
 	-@awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2) plugin.hpp > $(FARINCLUDE)\plugin.hpp
+
 
 # ************************************************************************
 $(OBJPATH)\Far.res :  Far.rc
@@ -344,6 +349,9 @@ $(FARSYSLOG)
 # ************************************************************************
 CLEAN :
 	-@del /q /f $(OBJPATH)\*.*           > nul
+	-@del /q /f lang.hpp                 > nul
+	-@del /q /f FarEng.lng               > nul
+	-@del /q /f FarRus.lng               > nul
 	-@del /q /f $(FINALPATH)\Far.exe     > nul
 	-@del /q /f $(FINALPATH)\Far.map     > nul
 	-@del /q /f $(FINALPATH)\FarEng.hlf  > nul

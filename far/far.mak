@@ -209,7 +209,7 @@ LINK32_FLAGS=$(LINK32_LIBS) /nologo /subsystem:console /pdb:none /debug /debugty
 !ENDIF
 
 
-ALL : "$(OUTDIR)\Far.exe" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\farkeys.hpp" "$(FARINCLUDE)\plugin.hpp"
+ALL : "far.release.dep" "far.debug.dep" "lang.hpp" "$(OUTDIR)\Far.exe" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\farkeys.hpp" "$(FARINCLUDE)\plugin.hpp"
 
 
 "$(OUTDIR)\Far.exe" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
@@ -245,6 +245,18 @@ ALL : "$(OUTDIR)\Far.exe" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\farkeys.hp
 <<
 
 
+"far.release.dep": mkdep.list.txt
+	@awk -f mkdep.awk -v out=Release flist.txt > far.release.dep
+
+
+"far.debug.dep": mkdep.list.txt
+	@awk -f mkdep.awk -v out=Debug flist.txt > far.debug.dep
+
+
+"lang.hpp" : farlang.templ
+	@lng.generator.exe farlang.templ
+
+
 "$(OUTDIR)" :
 	@if not exist "$(OUTDIR)\$(NULL)" mkdir "$(OUTDIR)"
 	@if not exist "$(FARINCLUDE)\$(NULL)" mkdir "$(FARINCLUDE)"
@@ -270,10 +282,18 @@ ALL : "$(OUTDIR)\Far.exe" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\farkeys.hp
 
 
 !IF "$(NO_EXTERNAL_DEPS)" != "1"
-!IF EXISTS("far.dep")
-!INCLUDE "far.dep"
+!IF  "$(CFG)" == "far - Win32 Release"
+!IF EXISTS("far.release.dep")
+!INCLUDE "far.release.dep"
 !ELSE
-!MESSAGE Warning: cannot find "far.dep"
+!MESSAGE Warning: cannot find "far.release.dep", run mkdep.cmd
+!ENDIF
+!ELSE
+!IF EXISTS("far.debug.dep")
+!INCLUDE "far.debug.dep"
+!ELSE
+!MESSAGE Warning: cannot find "far.debug.dep", run mkdep.cmd
+!ENDIF
 !ENDIF
 !ENDIF
 
@@ -283,6 +303,9 @@ ALL : "$(OUTDIR)\Far.exe" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\farkeys.hp
 CLEAN :
 	-@del /q /f "$(INTDIR)\*.*"          > nul
 	-@del /q /f "$(CODDIR)\*.*"          > nul
+	-@del /q /f ".\lang.hpp"             > nul
+	-@del /q /f ".\FarEng.lng"           > nul
+	-@del /q /f ".\FarRus.lng"           > nul
 	-@del /q /f "$(OUTDIR)\Far.exe"      > nul
 	-@del /q /f "$(OUTDIR)\Far.exp"      > nul
 	-@del /q /f "$(OUTDIR)\Far.lib"      > nul

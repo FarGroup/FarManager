@@ -1,6 +1,3 @@
-#if defined(DHELP2)
-#include "help2.hpp"
-#else
 #ifndef __HELP_HPP__
 #define __HELP_HPP__
 /*
@@ -10,10 +7,12 @@ help.hpp
 
 */
 
-/* Revision: 1.29 18.12.2004 $ */
+/* Revision: 1.30 17.07.2005 $ */
 
 /*
 Modify:
+  17.07.2005 SVS
+    ! долой DHELP2
   18.12.2004 WARP
     ! Спецификатор переноса строки в .hlf файлах (BugZ#1084)
   13.10.2003 SVS
@@ -210,4 +209,3 @@ class Help:public Frame
 };
 
 #endif  // __HELP_HPP__
-#endif // defined(DHELP2)
