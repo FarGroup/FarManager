@@ -254,7 +254,7 @@ ALL : "far.release.dep" "far.debug.dep" "lang.hpp" "$(OUTDIR)\Far.exe" "$(FARINC
 
 
 "lang.hpp" : farlang.templ
-	@lng.generator.exe farlang.templ
+	@lng.generator.exe -nc -i lang.ini farlang.templ
 
 
 "$(OUTDIR)" :

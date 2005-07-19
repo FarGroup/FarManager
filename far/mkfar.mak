@@ -239,7 +239,7 @@ $(OBJPATH)\copy.obj: copy.cpp cc.bat
 $(OBJPATH)\global.obj: global.cpp global.hpp farversion.inc copyright.inc
 
 lang.hpp : farlang.templ
-	@lng.generator.exe farlang.templ
+	@lng.generator.exe -nc -i lang.ini farlang.templ
 
 
 # ************************************************************************
