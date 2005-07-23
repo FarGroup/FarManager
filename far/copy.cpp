@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.153 12.07.2005 $ */
+/* Revision: 1.154 22.07.2005 $ */
 
 /*
 Modify:
+  22.07.2005 SVS
+    - лажа с массивом в ShellCopy::ShowBar()
   12.07.2005 SVS
     ! опции, ответственные за копирование вынесены в отдельную структуру CopyMoveOptions
     + Opt.CMOpt.CopySecurityOptions - что делать с опцией "Copy access rights"? (набор битов)
@@ -3852,7 +3854,7 @@ int ShellCopy::ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar)
 
   GotoXY(BarX+BarLength,BarY+(TotalBar ? 2:0));
 
-  char Percents[5];
+  char Percents[6];
 
   sprintf (Percents, "%4d%%", ToPercent (WrittenSize.PLow(), TotalSize.PLow()));
 

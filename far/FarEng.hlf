@@ -1301,13 +1301,25 @@ folders.
              its parent folders), then the search will be conducted
              until the maximum allowed path length is reached.
 
-    Search may be performed in all non-removable drives, in all local drives,
-except removable and network, in all folders from the drive root, from the
-current folder, in the current folder only or in selected folders (the current
-version of FAR does not search in directories that are ~symbolic links~@HardSymLink@).
-The search parameters is saved in the configuration. Also while in the find
-dialog one can change disk drive of the search. This option is enabled when
-#From the root# is selected.
+    Search may be performed:
+
+    - in all non-removable drives;
+
+    - in all local drives, except removable and network;
+
+    - in all folders specified in the %PATH% environment variable
+      (not including subfolders).
+
+    - in all folders from the drive root, in the find
+      dialog one can change disk drive of the search. ;
+
+    - from the current folder;
+
+    - in the current folder only or in selected folders
+      (the current version of FAR does not search in
+      directories that are ~symbolic links~@HardSymLink@).
+
+    The search parameters is saved in the configuration.
 
     Check the #Use filter# checkbox to search for files according to user
 defined conditions. Press the #Filter# button to open the conditions

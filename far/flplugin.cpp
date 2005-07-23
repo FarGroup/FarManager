@@ -5,10 +5,13 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.48 13.07.2005 $ */
+/* Revision: 1.49 22.07.2005 $ */
 
 /*
 Modify:
+  22.07.2005 SVS
+    - нужно было уменьшать значение PluginsStackSize до вызова ClosePlugin()
+    + пока закомменчено про PluginsStackItem.PrevViewSettings
   13.07.2005 SVS
     - Бага со стеком (см. 02023.Mix.txt)
     ! При удалении панели из стека вернем режимы сортировки
@@ -164,6 +167,7 @@ void FileList::PushPlugin(HANDLE hPlugin,char *HostFile)
   PStack->PrevSortMode=SortMode;
   PStack->PrevSortOrder=SortOrder;
   PStack->PrevNumericSort=NumericSort;
+  //memmove(&PStack->PrevViewSettings,&ViewSettings,sizeof(struct PanelViewSettings));
   PluginsStackSize++;
   _ALGO(PluginsStackItem_Dump("FileList::PushPlugin",PluginsStack,PluginsStackSize));
 }
@@ -182,27 +186,23 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
     PanelMode=NORMAL_PANEL;
     return(FALSE);
   }
-  _SVS(SysLog("[%d] hPlugin=%p",__LINE__,hPlugin));
-  CtrlObject->Plugins.ClosePlugin(hPlugin);
+  _SVS(SysLog("[%d] hPlugin (for ClosePlugin)=%p",__LINE__,hPlugin));
 
   PluginsStackSize--;
-  //CtrlObject->Plugins.ClosePlugin(hPlugin);
-  // после ClosePlugin переменная SortOrder по каким-то волшебным причинам
-  // становится = -1 (хотя допустимы 0 или 1)...
-//  if(SortOrder==-1) // ...восстановим.
-//  {
-//    SortOrder=1; // как в конструкторе заказывали ;-)
-//  }
+  CtrlObject->Plugins.ClosePlugin(hPlugin);
+
   struct PluginsStackItem *PStack=PluginsStack+PluginsStackSize;
   if (PluginsStackSize>0)
   {
+    _SVS(SysLog("[%d] PLUGIN PANEL",__LINE__));
     if (EnableRestoreViewMode)
     {
       hPlugin=PluginsStack[PluginsStackSize-1].hPlugin;
-      _SVS(SysLog("[%d] hPlugin=%p",__LINE__,hPlugin));
+      _SVS(SysLog("[%d] hPlugin (after Pop)=%p",__LINE__,hPlugin));
       CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
-      if (Info.StartPanelMode)
-        SetViewMode(PStack->PrevViewMode);
+      //PreparePanelView(&PStack->PrevViewSettings);
+      //if (!Info.StartPanelMode)
+      SetViewMode(Info.StartPanelMode?Info.StartPanelMode:PStack->PrevViewMode);
       if (Info.StartSortMode)
       {
         SortMode=PStack->PrevSortMode;
@@ -232,7 +232,9 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
   }
   else
   {
+    _SVS(SysLog("[%d] NORMAL_PANEL",__LINE__));
     PanelMode=NORMAL_PANEL;
+    //PreparePanelView(&PStack->PrevViewSettings);
     SetViewMode(PStack->PrevViewMode);
     /* <TODO>
        Нужно учесть тот факт, что кто-то или что-то может менять

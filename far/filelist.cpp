@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.235 13.07.2005 $ */
+/* Revision: 1.236 23.07.2005 $ */
 
 /*
 Modify:
+  23.07.2005 SVS
+    - в Ctlr-\ не проверялся FullScreen
   13.07.2005 SVS
     ! Изменен класс NamesList. Теперь он управляет двумя именами.
   07.07.2005 SVS
@@ -1671,12 +1673,15 @@ int FileList::ProcessKey(int Key)
       BOOL NeedChangeDir=TRUE;
       if (PanelMode==PLUGIN_PANEL)// && *PluginsStack[PluginsStackSize-1].HostFile)
       {
+        int CheckFullScreen=IsFullScreen();
         struct OpenPluginInfo Info;
         CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
         if (!Info.CurDir || *Info.CurDir == 0)
         {
           ChangeDir("..");
           NeedChangeDir=FALSE;
+          if(CheckFullScreen)
+            CtrlObject->Cp()->GetAnotherPanel(this)->Show();
         }
       }
       if(NeedChangeDir)
@@ -4867,7 +4872,7 @@ BOOL FileList::GetItem(int Index,void *Dest)
 {
   if(Index == -1 || Index == -2)
     Index=GetCurrentPos();
-  if((DWORD)Index >= FileCount)
+  if((DWORD)Index >= (DWORD)FileCount)
     return FALSE;
   memcpy(Dest,ListData+Index,sizeof(struct FileListItem));
   return TRUE;

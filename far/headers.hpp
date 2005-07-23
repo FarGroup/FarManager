@@ -5,10 +5,12 @@ headers.cpp
 
 */
 
-/* Revision: 1.15 25.04.2005 $ */
+/* Revision: 1.16 23.07.2005 $ */
 
 /*
 Modify:
+  23.07.2005 SVS
+    + про vsnprintf()
   24.04.2005 AY
     ! GCC
   06.05.2003 SVS
@@ -219,6 +221,14 @@ Modify:
 
 #if !defined(__USE_MCI)
 #include <mmsystem.h>
+#endif
+
+#if defined(_MSC_VER) || defined(__GNUC__)
+#define vsnprintf _vsnprintf
+#else
+#if defined(__BORLANDC__) && (__BORLANDC__ < 0x0550)
+#define vsnprintf(a,b,c,d) vsprintf(a,c,d)
+#endif
 #endif
 
 #ifdef __GNUC__

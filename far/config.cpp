@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.192 15.07.2005 $ */
+/* Revision: 1.193 22.07.2005 $ */
 
 /*
 Modify:
+  22.07.2005 SVS
+    ! PersistentBlocks по умолчанию выключен. Достало.
   15.07.2005 AY
     - Убрал всё связанное с USE_OLDEXPANDTABS
     ! ExpandTabs настраиваются в комбо и редезайн
@@ -1545,7 +1547,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyViewer,"ShowScrollbar",&Opt.ViOpt.ShowScrollbar,0, 0},
   {1, REG_DWORD,  NKeyViewer,"IsWrap",&Opt.ViOpt.ViewerIsWrap,1, 0},
   {1, REG_DWORD,  NKeyViewer,"Wrap",&Opt.ViOpt.ViewerWrap,0, 0},
-  {1, REG_DWORD,  NKeyViewer,"PersistentBlocks",&Opt.ViOpt.PersistentBlocks,1, 0},
+  {1, REG_DWORD,  NKeyViewer,"PersistentBlocks",&Opt.ViOpt.PersistentBlocks,0, 0},
   {1, REG_DWORD,  NKeyViewer,"AnsiTableAsDefault",&Opt.ViOpt.AnsiTableAsDefault,1, 0},
 
   {1, REG_DWORD,  NKeyInterface, "DialogsEditHistory",&Opt.Dialogs.EditHistory,1, 0},
@@ -1838,7 +1840,7 @@ void ReadConfig()
        break;
       case REG_BINARY:
        int Size=GetRegKey(CFG[I].KeyName,CFG[I].ValName,(BYTE*)CFG[I].ValPtr,(BYTE*)CFG[I].DefStr,CFG[I].DefDWord);
-       if(Size < CFG[I].DefDWord && Size)
+       if(Size && Size < (int)CFG[I].DefDWord)
          memset(((BYTE*)CFG[I].ValPtr)+Size,0,CFG[I].DefDWord-Size);
        break;
     }

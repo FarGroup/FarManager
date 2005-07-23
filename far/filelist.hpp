@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.48 23.04.2005 $ */
+/* Revision: 1.49 22.07.2005 $ */
 
 /*
 Modify:
+  22.07.2005 SVS
+    + PluginsStackItem.PrevViewSettings
   23.04.2005 KM
     ! Использование фильтра в GetSelName
   21.04.2005 SVS
@@ -176,6 +178,7 @@ struct PluginsStackItem
   int PrevSortMode;
   int PrevSortOrder;
   int PrevNumericSort;
+  struct PanelViewSettings PrevViewSettings;
 };
 
 enum {NAME_COLUMN=0,SIZE_COLUMN,PACKED_COLUMN,DATE_COLUMN,TIME_COLUMN,

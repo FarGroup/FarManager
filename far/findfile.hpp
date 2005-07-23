@@ -7,10 +7,12 @@ findfile.hpp
 
 */
 
-/* Revision: 1.16 24.04.2005 $ */
+/* Revision: 1.17 22.07.2005 $ */
 
 /*
 Modify:
+  22.07.2005 SVS
+    + SEARCH_INPATH - искать по PATH`у
   24.04.2005 KM
     ! Изменения в связи с вводом диалога дополнительных параметров поиска.
   12.04.2005 KM
@@ -65,6 +67,7 @@ Modify:
 enum {
   SEARCH_ALL=0,
   SEARCH_ALL_BUTNETWORK,
+  SEARCH_INPATH,
   SEARCH_ROOT,
   SEARCH_FROM_CURRENT,
   SEARCH_CURRENT_ONLY,

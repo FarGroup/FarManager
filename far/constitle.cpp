@@ -5,10 +5,12 @@ constitle.cpp
 
 */
 
-/* Revision: 1.05 01.03.2004 $ */
+/* Revision: 1.06 23.07.2005 $ */
 
 /*
 Modify:
+  23.07.2005 SVS
+    ! vsprintf -> vsnprintf
   01.03.2004 SVS
     ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
       (задел на будущее + править впоследствии только 1 файл)
@@ -58,7 +60,7 @@ void ConsoleTitle::Set(char *fmt,...)
   va_list argptr;
   va_start( argptr, fmt );
 
-  vsprintf( msg, fmt, argptr );
+  vsnprintf( msg, sizeof(msg)-1, fmt, argptr );
   va_end(argptr);
   SetFarTitle(msg);
 }

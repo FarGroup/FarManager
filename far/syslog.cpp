@@ -5,10 +5,13 @@ syslog.cpp
 
 */
 
-/* Revision: 1.54 13.07.2005 $ */
+/* Revision: 1.55 23.07.2005 $ */
 
 /*
 Modify:
+  23.07.2005 SVS
+    ! vsprintf -> vsnprintf
+    ! уточнение PanelViewSettings_Dump()
   13.07.2005 SVS
     + PanelViewSettings_Dump()
   27.06.2005 SVS
@@ -350,7 +353,7 @@ void SysLog(char *fmt,...)
   va_list argptr;
   va_start( argptr, fmt );
 
-  vsprintf( msg, fmt, argptr );
+  vsnprintf( msg, sizeof(msg)-1,fmt, argptr );
   va_end(argptr);
 
   OpenSysLog();
@@ -417,7 +420,7 @@ void SysLog(int l,char *fmt,...)
   va_list argptr;
   va_start( argptr, fmt );
 
-  vsprintf( msg, fmt, argptr );
+  vsnprintf( msg, sizeof(msg)-1, fmt, argptr );
   va_end(argptr);
 
   OpenSysLog();
@@ -815,7 +818,7 @@ void WINAPIV _export FarSysLog(char *ModuleName,int l,char *fmt,...)
   va_list argptr;
   va_start( argptr, fmt );
 
-  vsprintf( msg, fmt, argptr );
+  vsnprintf( msg, sizeof(msg)-1, fmt, argptr );
   va_end(argptr);
 
   SysLog(l);
@@ -1721,8 +1724,8 @@ void PanelViewSettings_Dump(char *Title,const struct PanelViewSettings &ViewSett
     fprintf(fp,"%*s %s  ColumnCount          = %d\n",12,"",space,ViewSettings.ColumnCount);
     fprintf(fp,"%*s %s  StatusColumnType     = [",12,"",space);
     for(I=0; I < sizeof(ViewSettings.StatusColumnType)/sizeof(ViewSettings.StatusColumnType[0])-1;++I)
-      fprintf(fp,"%d, ",ViewSettings.StatusColumnType[I]);
-    fprintf(fp,"%d]\n",ViewSettings.StatusColumnType[I]);
+      fprintf(fp,"%08X, ",ViewSettings.StatusColumnType[I]);
+    fprintf(fp,"%08X]\n",ViewSettings.StatusColumnType[I]);
     fprintf(fp,"%*s %s  StatusColumnWidth    = [",12,"",space);
     for(I=0; I < sizeof(ViewSettings.StatusColumnWidth)/sizeof(ViewSettings.StatusColumnWidth[0])-1;++I)
       fprintf(fp,"%d, ",ViewSettings.StatusColumnWidth[I]);

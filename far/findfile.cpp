@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.180 13.07.2005 $ */
+/* Revision: 1.181 22.07.2005 $ */
 
 /*
 Modify:
+  22.07.2005 SVS
+    + Искать по PATH
   13.07.2005 SVS
     ! Изменен класс NamesList. Теперь он управляет двумя именами.
   04.07.2005 WARP
@@ -621,7 +623,7 @@ Modify:
 #include "filefilter.hpp"
 #include "farexcpt.hpp"
 
-#define DLG_HEIGHT 22
+#define DLG_HEIGHT 23
 #define DLG_WIDTH 74
 #define PARTIAL_DLG_STR_LEN 30
 #define CHAR_TABLE_SIZE 5
@@ -796,10 +798,10 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       FindFoldersChanged = FALSE;
       SearchFromChanged=FALSE;
 
-      if (Dlg->Item[22].Selected==1)
-        Dialog::SendDlgMessage(hDlg,DM_ENABLE,31,TRUE);
+      if (Dlg->Item[23].Selected==1)
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,32,TRUE);
       else
-        Dialog::SendDlgMessage(hDlg,DM_ENABLE,31,FALSE);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,32,FALSE);
 
       return TRUE;
     }
@@ -850,9 +852,9 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
            контролами, только с кнопками немного по-другому, поэтому простое
            нажатие ENTER на кнопках Find или Cancel ни к чему не приводило.
       */
-      if (Param1==30 || Param1==34) // [ Find ] или [ Cancel ]
+      if (Param1==31 || Param1==35) // [ Find ] или [ Cancel ]
         return FALSE;
-      else if (Param1==31) // [ Drive ]
+      else if (Param1==32) // [ Drive ]
       {
         IsRedrawFramesInProcess++;
         ActivePanel->ChangeDisk();
@@ -865,19 +867,19 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         PrepareDriveNameStr(SearchFromRoot,Min((int)sizeof(SearchFromRoot),(int)PARTIAL_DLG_STR_LEN));
         ItemData.PtrLength=strlen(SearchFromRoot);
         ItemData.PtrData=SearchFromRoot;
-        Dialog::SendDlgMessage(hDlg,DM_SETTEXT,22,(long)&ItemData);
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXT,23,(long)&ItemData);
         PluginMode=CtrlObject->Cp()->ActivePanel->GetMode()==PLUGIN_PANEL;
         Dialog::SendDlgMessage(hDlg,DM_ENABLE,15,PluginMode?FALSE:TRUE);
         Dialog::SendDlgMessage(hDlg,DM_ENABLE,20,PluginMode?FALSE:TRUE);
         Dialog::SendDlgMessage(hDlg,DM_ENABLE,21,PluginMode?FALSE:TRUE);
       }
-      else if (Param1==32) // Filter
+      else if (Param1==33) // Filter
         Filter->Configure();
-      else if (Param1==33) // Advanced
+      else if (Param1==34) // Advanced
         AdvancedDialog();
-      else if (Param1>=20 && Param1<=25)
+      else if (Param1>=20 && Param1<=26)
       {
-        Dialog::SendDlgMessage(hDlg,DM_ENABLE,31,Param1==22?TRUE:FALSE);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,32,Param1==23?TRUE:FALSE);
         SearchFromChanged=TRUE;
       }
       else if (Param1==15) // [ ] Search for folders
@@ -936,7 +938,7 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
         Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
       }
-      else if (Param1==28) // [ ] Advanced options
+      else if (Param1==29) // [ ] Advanced options
         EnableSearchInFirst=Param2;
       return TRUE;
       /* KM $ */
@@ -1111,7 +1113,8 @@ FindFiles::FindFiles()
 12  "  ¦ Select place to search                                               ¦  "
 13  "  ¦ ( ) In all non-removable drives    (.) From the current folder       ¦  "
 14  "  ¦ ( ) In all local drives            ( ) The current folder only       ¦  "
-15  "  ¦ ( ) From the root of C:            ( ) Selected folders              ¦  "
+15  "  ¦ ( ) In PATH folders                ( ) Selected folders              ¦  "
+    "  ¦ ( ) From the root of C:                                              ¦  "
 16  "  ¦----------------------------------------------------------------------¦  "
 17  "  ¦ [ ] Use filter                     [ ] Advanced options              ¦  "
 18  "  ¦----------------------------------------------------------------------¦  "
@@ -1148,29 +1151,30 @@ FindFiles::FindFiles()
       /* 19 */DI_TEXT,5,12,0,0,0,0,0,0,(char *)MSearchWhere,
       /* 20 */DI_RADIOBUTTON,5,13,0,0,0,0,DIF_GROUP,0,(char *)MSearchAllDisks,
       /* 21 */DI_RADIOBUTTON,5,14,0,0,0,1,0,0,(char *)MSearchAllButNetwork,
-      /* 22 */DI_RADIOBUTTON,5,15,0,0,0,1,0,0,"",
-      /* 23 */DI_RADIOBUTTON,40,13,0,0,0,0,0,0,(char *)MSearchFromCurrent,
-      /* 24 */DI_RADIOBUTTON,40,14,0,0,0,0,0,0,(char *)MSearchInCurrent,
-      /* 25 */DI_RADIOBUTTON,40,15,0,0,0,0,0,0,(char *)MSearchInSelected,
-      /* 26 */DI_TEXT,3,16,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-      /* 27 */DI_CHECKBOX,5,17,0,0,0,0,0,0,(char *)MFindUseFilter,
-      /* 28 */DI_CHECKBOX,40,17,0,0,0,0,0,0,(char *)MFindAdvancedOptions,
-      /* 29 */DI_TEXT,3,18,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-      /* 30 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,1,(char *)MFindFileFind,
-      /* 31 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MFindFileDrive,
-      /* 32 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MFindFileSetFilter,
-      /* 33 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MFindFileAdvanced,
-      /* 34 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel,
+      /* 22 */DI_RADIOBUTTON,5,15,0,0,0,1,0,0,(char *)MSearchInPATH,
+      /* 23 */DI_RADIOBUTTON,5,16,0,0,0,1,0,0,"",
+      /* 24 */DI_RADIOBUTTON,40,13,0,0,0,0,0,0,(char *)MSearchFromCurrent,
+      /* 25 */DI_RADIOBUTTON,40,14,0,0,0,0,0,0,(char *)MSearchInCurrent,
+      /* 26 */DI_RADIOBUTTON,40,15,0,0,0,0,0,0,(char *)MSearchInSelected,
+      /* 27 */DI_TEXT,3,17,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+      /* 28 */DI_CHECKBOX,5,18,0,0,0,0,0,0,(char *)MFindUseFilter,
+      /* 29 */DI_CHECKBOX,40,18,0,0,0,0,0,0,(char *)MFindAdvancedOptions,
+      /* 30 */DI_TEXT,3,19,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+      /* 31 */DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP,1,(char *)MFindFileFind,
+      /* 32 */DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP,0,(char *)MFindFileDrive,
+      /* 33 */DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP,0,(char *)MFindFileSetFilter,
+      /* 34 */DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP,0,(char *)MFindFileAdvanced,
+      /* 35 */DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel,
     };
     /* KM $ */
-    FindAskDlgData[22].Data=SearchFromRoot;
+    FindAskDlgData[23].Data=SearchFromRoot;
 
     MakeDialogItems(FindAskDlgData,FindAskDlg);
 
 
     if (!*FindStr)
       FindAskDlg[15].Selected=Opt.FindOpt.FindFolders;
-    for(I=20; I <= 25; ++I)
+    for(I=20; I <= 26; ++I)
       FindAskDlg[I].Selected=0;
     FindAskDlg[20+SearchMode].Selected=1;
 
@@ -1189,7 +1193,7 @@ FindFiles::FindFiles()
         if (FindAskDlg[20].Selected || FindAskDlg[21].Selected)
         {
           FindAskDlg[20].Selected=FindAskDlg[21].Selected=0;
-          FindAskDlg[22].Selected=1;
+          FindAskDlg[23].Selected=1;
         }
         FindAskDlg[20].Flags=FindAskDlg[21].Flags|=DIF_DISABLE;
       }
@@ -1224,10 +1228,10 @@ FindFiles::FindFiles()
     FindAskDlg[13].Selected=SearchHex;
 
     // Использовать фильтр. KM
-    FindAskDlg[27].Selected=UseFilter;
+    FindAskDlg[28].Selected=UseFilter;
 
     // Включить дополнительные опции поиска. KM
-    FindAskDlg[28].Selected=EnableSearchInFirst;
+    FindAskDlg[29].Selected=EnableSearchInFirst;
 
     while (1)
     {
@@ -1243,7 +1247,7 @@ FindFiles::FindFiles()
         ExitCode=Dlg.GetExitCode();
       }
 
-      if (ExitCode!=30)
+      if (ExitCode!=31)
       {
         xf_free(TableItem);
         CloseHandle(hPluginMutex);
@@ -1286,7 +1290,7 @@ FindFiles::FindFiles()
       SearchInSymLink=FindAskDlg[16].Selected;
 
     // Запомнить признак использования фильтра. KM
-    UseFilter=FindAskDlg[27].Selected;
+    UseFilter=FindAskDlg[28].Selected;
 
     /* $ 14.12.2000 OT */
 
@@ -1326,12 +1330,14 @@ FindFiles::FindFiles()
     if (FindAskDlg[21].Selected)
       SearchMode=SEARCH_ALL_BUTNETWORK;
     if (FindAskDlg[22].Selected)
-      SearchMode=SEARCH_ROOT;
+      SearchMode=SEARCH_INPATH;
     if (FindAskDlg[23].Selected)
-      SearchMode=SEARCH_FROM_CURRENT;
+      SearchMode=SEARCH_ROOT;
     if (FindAskDlg[24].Selected)
-      SearchMode=SEARCH_CURRENT_ONLY;
+      SearchMode=SEARCH_FROM_CURRENT;
     if (FindAskDlg[25].Selected)
+      SearchMode=SEARCH_CURRENT_ONLY;
+    if (FindAskDlg[26].Selected)
         SearchMode=SEARCH_SELECTED;
     if (SearchFromChanged)
     {
@@ -2267,7 +2273,8 @@ int FindFiles::FindFilesProcess()
           */
           if (SearchMode==SEARCH_ROOT ||
               SearchMode==SEARCH_ALL ||
-              SearchMode==SEARCH_ALL_BUTNETWORK)
+              SearchMode==SEARCH_ALL_BUTNETWORK ||
+              SearchMode==SEARCH_INPATH)
             CtrlObject->Plugins.SetDirectory(hPlugin,"\\",OPM_FIND);
           SetPluginDirectory(FileName,hPlugin,TRUE);
           /* KM $ */
@@ -2390,6 +2397,7 @@ void _cdecl FindFiles::PrepareFilesList(void *Param)
 {
   WIN32_FIND_DATA FindData;
   char FullName[NM],Root[NM*2];
+  char *PathEnv=NULL, *Ptr;
 
   TRY {
 
@@ -2397,11 +2405,32 @@ void _cdecl FindFiles::PrepareFilesList(void *Param)
     DWORD DiskMask=FarGetLogicalDrives();
     CtrlObject->CmdLine->GetCurDir(Root);
 
-    for (int CurrentDisk=0;DiskMask!=0;CurrentDisk++,DiskMask>>=1)
+    if(SearchMode==SEARCH_INPATH)
+    {
+      DWORD SizeStr=GetEnvironmentVariable("PATH",NULL,0);
+      if((PathEnv=(char *)alloca(SizeStr+2)) != NULL)
+      {
+        GetEnvironmentVariable("PATH",PathEnv,SizeStr+1);
+        PathEnv[strlen(PathEnv)]=0;
+        Ptr=PathEnv;
+        while(*Ptr)
+        {
+          if(*Ptr==';')
+            *Ptr=0;
+          ++Ptr;
+        }
+      }
+      Ptr=PathEnv;
+    }
+
+    for (int CurrentDisk=0;;CurrentDisk++,DiskMask>>=1)
     {
       if (SearchMode==SEARCH_ALL ||
           SearchMode==SEARCH_ALL_BUTNETWORK)
       {
+        if(DiskMask==0)
+          break;
+
         if ((DiskMask & 1)==0)
           continue;
         sprintf(Root,"%c:\\",'A'+CurrentDisk);
@@ -2415,9 +2444,17 @@ void _cdecl FindFiles::PrepareFilesList(void *Param)
       }
       else if (SearchMode==SEARCH_ROOT)
         GetPathRootOne(Root,Root);
+      else if(SearchMode==SEARCH_INPATH)
+      {
+        if(!*Ptr)
+          break;
+        xstrncpy(Root,Ptr,sizeof(Root)-1);
+        Ptr+=strlen(Ptr)+1;
+      }
+
 
       {
-        ScanTree ScTree(FALSE,SearchMode!=SEARCH_CURRENT_ONLY,SearchInSymLink);
+        ScanTree ScTree(FALSE,!(SearchMode==SEARCH_CURRENT_ONLY||SearchMode==SEARCH_INPATH),SearchInSymLink);
 
         char SelName[NM];
         int FileAttr;
@@ -2493,10 +2530,10 @@ void _cdecl FindFiles::PrepareFilesList(void *Param)
           if (SearchMode!=SEARCH_SELECTED)
             break;
         }
-        if (SearchMode!=SEARCH_ALL && SearchMode!=SEARCH_ALL_BUTNETWORK)
-          break;
       }
-    }
+      if (SearchMode!=SEARCH_ALL && SearchMode!=SEARCH_ALL_BUTNETWORK && SearchMode!=SEARCH_INPATH)
+        break;
+    } // END: for (...
 
     while (!StopSearch && FindMessageReady)
       Sleep(10);
@@ -3131,7 +3168,8 @@ void _cdecl FindFiles::PreparePluginList(void *Param)
     WaitForSingleObject(hPluginMutex,INFINITE);
     if (SearchMode==SEARCH_ROOT ||
         SearchMode==SEARCH_ALL ||
-        SearchMode==SEARCH_ALL_BUTNETWORK)
+        SearchMode==SEARCH_ALL_BUTNETWORK ||
+        SearchMode==SEARCH_INPATH)
       CtrlObject->Plugins.SetDirectory(hPlugin,"\\",OPM_FIND);
     ReleaseMutex(hPluginMutex);
     RecurseLevel=0;
@@ -3140,7 +3178,8 @@ void _cdecl FindFiles::PreparePluginList(void *Param)
     WaitForSingleObject(hPluginMutex,INFINITE);
     if (SearchMode==SEARCH_ROOT ||
         SearchMode==SEARCH_ALL ||
-        SearchMode==SEARCH_ALL_BUTNETWORK)
+        SearchMode==SEARCH_ALL_BUTNETWORK ||
+        SearchMode==SEARCH_INPATH)
       CtrlObject->Plugins.SetDirectory(hPlugin,SaveDir,OPM_FIND);
     ReleaseMutex(hPluginMutex);
     while (!StopSearch && FindMessageReady)

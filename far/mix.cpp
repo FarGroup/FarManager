@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.167 25.04.2005 $ */
+/* Revision: 1.168 23.07.2005 $ */
 
 /*
 Modify:
+  23.07.2005 SVS
+    - лажа в CreatePath
   24.04.2005 AY
     ! GCC
   23.04.2005 KM
@@ -609,7 +611,7 @@ BOOL FarChDir(const char *NewDir, BOOL ChangeDir)
     return FALSE;
 
   BOOL rc=FALSE;
-  int ChkFld;
+
   char CurDir[NM*2], Drive[4]="=A:";
   if(isalpha(*NewDir) && NewDir[1]==':' && NewDir[2]==0)// если указана только
   {                                                     // буква диска, то путь
@@ -1646,7 +1648,7 @@ void CreatePath (char *Path)
       if ( Opt.CreateUppercaseFolders && !IsCaseMixed(DirPart) && GetFileAttributes(Path) == (DWORD)-1)
         LocalStrupr(DirPart);
 
-      if ( CreateDirectory(Path, NULL) );
+      if ( CreateDirectory(Path, NULL) )
         TreeList::AddTreeName(Path);
 
       if ( bEnd )

@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.90 02.07.2005 $ */
+/* Revision: 1.91 23.07.2005 $ */
 
 /*
 Modify:
+  23.07.2005 SVS
+    ! vsprintf -> vsnprintf
   02.07.2005 WARP
     ! Отдадим 9x возможность распахивать консоль при AltF9 == 1.
   24.04.2005 AY
@@ -1311,7 +1313,7 @@ void mprintf(char *fmt,...)
   va_list argptr;
   va_start(argptr,fmt);
   char OutStr[2048];
-  vsprintf(OutStr,fmt,argptr);
+  vsnprintf(OutStr,sizeof(OutStr)-1,fmt,argptr);
   Text(OutStr);
   va_end(argptr);
 }
@@ -1321,7 +1323,7 @@ void vmprintf(char *fmt,...)
   va_list argptr;
   va_start(argptr,fmt);
   char OutStr[2048];
-  vsprintf(OutStr,fmt,argptr);
+  vsnprintf(OutStr,sizeof(OutStr)-1,fmt,argptr);
   VText(OutStr);
   va_end(argptr);
 }
@@ -1331,7 +1333,7 @@ void mprintf(int MsgId,...)
   va_list argptr;
   va_start(argptr,MsgId);
   char OutStr[2048];
-  vsprintf(OutStr,MSG(MsgId),argptr);
+  vsnprintf(OutStr,sizeof(OutStr)-1,MSG(MsgId),argptr);
   Text(OutStr);
   va_end(argptr);
 }
@@ -1343,7 +1345,7 @@ void mprintf(char *fmt,...)
   va_list argptr;
   va_start(argptr,fmt);
   char OutStr[2048];
-  vsprintf(OutStr,fmt,argptr);
+  vsnprintf(OutStr,sizeof(OutStr)-1,fmt,argptr);
   Text(OutStr);
   va_end(argptr);
 }
@@ -1353,7 +1355,7 @@ void mprintf(int MsgId,...)
   va_list argptr;
   va_start(argptr,MsgId);
   char OutStr[2048];
-  vsprintf(OutStr,MSG(MsgId),argptr);
+  vsnprintf(OutStr,sizeof(OutStr)-1,MSG(MsgId),argptr);
   Text(OutStr);
   va_end(argptr);
 }
@@ -1363,7 +1365,7 @@ void vmprintf(char *fmt,...)
   va_list argptr;
   va_start(argptr,fmt);
   char OutStr[2048];
-  vsprintf(OutStr,fmt,argptr);
+  vsnprintf(OutStr,sizeof(OutStr)-1,fmt,argptr);
   VText(OutStr);
   va_end(argptr);
 }
