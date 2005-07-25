@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.147 11.07.2005 $ */
+/* Revision: 1.148 25.07.2005 $ */
 
 /*
 Modify:
+  24.07.2005 WARP
+    ! see 02033.LockUnlock.txt
   11.07.2005 SVS
     - вызов функции... возвращаемое значение ненать.
   05.07.2005 SVS
@@ -854,10 +856,10 @@ int KeyMacro::ProcessKey(int Key)
 //_SVS(SysLog(1));
       /* $ 23.11.2001 VVM
         ! Залочить _текущий_ фрейм, а не _последний немодальный_ */
-      FrameManager->GetCurrentFrame()->LockRefresh(); // отменим прорисовку фрейма
+      FrameManager->GetCurrentFrame()->Lock(); // отменим прорисовку фрейма
       MacroKey=AssignMacroKey();
       FrameManager->ResetLastInputRecord();
-      FrameManager->GetCurrentFrame()->UnlockRefresh(); // теперь можно :-)
+      FrameManager->GetCurrentFrame()->Unlock(); // теперь можно :-)
       /* VVM $ */
 //_SVS(SysLog(-1));
 //_SVS(SysLog("StartMode=%d",StartMode));
@@ -3200,9 +3202,9 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
   Dialog Dlg(MacroSettingsDlg,sizeof(MacroSettingsDlg)/sizeof(MacroSettingsDlg[0]),ParamMacroDlgProc,(long)&Param);
   Dlg.SetPosition(-1,-1,73,16);
   Dlg.SetHelp("KeyMacroSetting");
-  FrameManager->GetBottomFrame()->LockRefresh(); // отменим прорисовку фрейма
+  FrameManager->GetBottomFrame()->Lock(); // отменим прорисовку фрейма
   Dlg.Process();
-  FrameManager->GetBottomFrame()->UnlockRefresh(); // теперь можно :-)
+  FrameManager->GetBottomFrame()->Unlock(); // теперь можно :-)
   if (Dlg.GetExitCode()!=16)
     return(FALSE);
 

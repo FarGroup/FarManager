@@ -7,10 +7,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.32 06.05.2005 $ */
+/* Revision: 1.33 25.07.2005 $ */
 
 /*
 Modify:
+  24.07.2005 WARP
+    ! see 02033.LockUnlock.txt
   06.05.2005 SVS
     ! ???::GetCurDir() теперь возвращает размер пути, при этом
       его параметр может быть равен NULL. Сделано для того, чтобы
@@ -152,7 +154,6 @@ class Panel:public ScreenObject
     long CurFile;
     int ShowShortNames;
     int NumericSort;
-    int DisableOut;
     int ModalMode;
     int PluginCommand;
     BYTE PluginParam[1024];

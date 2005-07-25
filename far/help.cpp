@@ -5,10 +5,12 @@ help.cpp
 
 */
 
-/* Revision: 1.89 16.05.2005 $ */
+/* Revision: 1.90 25.07.2005 $ */
 
 /*
 Modify:
+  24.07.2005 WARP
+    ! see 02033.LockUnlock.txt
   16.05.2005 WARP & AY
     ! Исправления в отрисовке файлов помщи
   03.03.2005 SVS
@@ -459,8 +461,6 @@ int Help::ReadHelp(const char *Mask)
   const int MaxLength=X2-X1-1;
   char TabSpace[32];
 
-  DisableOut=0;
-
   char Path[NM],*TopicPtr;
   if (*StackData.HelpTopic==HelpBeginLink)
   {
@@ -887,7 +887,7 @@ void Help::FastShow()
   /* $ 29.11.2001 DJ
      отрисовка рамки -> в отдельную функцию
   */
-  if (!DisableOut)
+  if (!Locked())
     DrawWindowFrame();
   /* DJ $ */
 
@@ -907,7 +907,7 @@ void Help::FastShow()
     else
       if (I==FixCount && FixCount>0)
       {
-        if (!DisableOut)
+        if (!Locked())
         {
           GotoXY(X1,Y1+I+1);
           SetColor(COL_HELPBOX);
@@ -936,7 +936,7 @@ void Help::FastShow()
   }
 
   const int ScrollLength=Y2-Y1-FixSize-1;
-  if (!DisableOut && StrCount-FixCount > ScrollLength)
+  if (!Locked() && StrCount-FixCount > ScrollLength)
   {
     int Scrolled=StrCount-FixCount-ScrollLength;
     SetColor(COL_HELPSCROLLBAR);
@@ -1040,7 +1040,7 @@ void Help::OutString(const char *Str)
       if ((strlen(OutStr) + WhereX()) > X2)
         OutStr[X2 - WhereX()] = 0;
       /* VVM $ */
-      if (DisableOut)
+      if (Locked())
         GotoXY(WhereX()+strlen(OutStr),WhereY());
       else
         Text(OutStr);
@@ -1109,7 +1109,7 @@ void Help::OutString(const char *Str)
 
     OutStr[OutPos++]=*(Str++);
   }
-  if (!DisableOut && WhereX()<X2)
+  if (!Locked() && WhereX()<X2)
   {
     SetColor(CurColor);
     mprintf("%*s",X2-WhereX(),"");
@@ -1848,7 +1848,7 @@ void Help::MoveToReference(int Forward,int CurScreen)
   BOOL ReferencePresent;
 
   *StackData.SelTopic=0;
-  DisableOut=TRUE;
+  Lock ();
 
   if(!ErrorHelp) while (*StackData.SelTopic==0)
   {
@@ -1896,7 +1896,7 @@ void Help::MoveToReference(int Forward,int CurScreen)
         *StackData.SelTopic=0;
     }
   }
-  DisableOut=FALSE;
+  Unlock ();
   if (*StackData.SelTopic==0)
   {
     StackData.CurX=SaveCurX;

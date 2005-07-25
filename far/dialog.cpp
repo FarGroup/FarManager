@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.336 23.06.2005 $ */
+/* Revision: 1.337 25.07.2005 $ */
 
 /*
 Modify:
+  24.07.2005 WARP
+    ! see 02033.LockUnlock.txt
   23.06.2005 WARP
     - Неправильно отрисовывались сепараторы, если диалог не влезал в экран.
   05.05.2005 WARP
@@ -1450,40 +1452,17 @@ void Dialog::Show()
   if(!DialogMode.Check(DMODE_INITOBJECTS))
     return;
 
-  if(PreRedrawFunc)
-  {
-  /*
-    static int InPreRedraw=FALSE;
-    //???  предполагаем, что внизу панели!  _УТОЧНИТЬ!_
-    if((PrevScrX != ScrX || PrevScrY != ScrY) && !InPreRedraw)
-    {
-      LockScreen LckScr;
-      InPreRedraw=TRUE;
-      FrameManager->ResizeAllFrame();
-      FrameManager->GetCurrentFrame()->Show();
-      PrevScrX=ScrX;
-      PrevScrY=ScrY;
-      InPreRedraw=FALSE;
-    }
-    //???
-   */
-    PreRedrawFunc();
-  }
 
-  /* $ 21.04.2002 KM
-      Мавр сделал своё дело - мавр может уходить!
-      Сбросим при показе диалога флаг ресайзинга консоли.
-  */
   DialogMode.Clear(DMODE_RESIZED);
-  /* KM $ */
-  /* $ 23.11.2001 VVM
-    ! Раз уж мы наследники фрейма, неплохо бы посмотреть на лок прорисовки */
-  if (!LockRefreshCount)
-  {
-    DialogMode.Set(DMODE_SHOW);
-    ScreenObject::Show();
-  }
-  /* VVM $ */
+
+  if ( Locked() )
+    return;
+
+  if(PreRedrawFunc)
+    PreRedrawFunc();
+
+  DialogMode.Set(DMODE_SHOW);
+  ScreenObject::Show();
 }
 
 /* $ 30.08.2000 SVS
@@ -2644,7 +2623,7 @@ void Dialog::ShowDialog(int ID)
 {
   CriticalSectionLock Lock(CS);
 
-  if ( LockRefreshCount )
+  if ( Locked () )
     return;
 
   char Str[1024];
@@ -6536,7 +6515,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
           */
           if(!Dlg->IsVisible())
           {
-            Dlg->UnlockRefresh();
+            Dlg->Unlock();
             Dlg->Show();
           }
         }
@@ -6545,7 +6524,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
           if(Dlg->IsVisible())
           {
             Dlg->Hide();
-            Dlg->LockRefresh();
+            Dlg->Lock();
           }
           /* KM $ */
         }

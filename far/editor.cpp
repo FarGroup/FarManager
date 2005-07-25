@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.265 15.07.2005 $ */
+/* Revision: 1.266 25.07.2005 $ */
 
 /*
 Modify:
+  24.07.2005 WARP
+    ! see 02033.LockUnlock.txt
   15.07.2005 AY
     - ”брал всЄ св€занное с USE_OLDEXPANDTABS
     ! InitUseDecodeTable,InitTableNum,InitAnsiText переехали в global.cpp
@@ -829,14 +831,13 @@ Editor::Editor()
     UseDecodeTable=TRUE;
   }
 
-  DisableOut=0;
   Pasting=0;
   NumLine=0;
   NumLastLine=1;
   LastChangeStrPos=0;
   BlockStart=NULL;
   BlockStartLine=0;
-  TopList=EndList=TopScreen=CurLine=new struct EditList;
+  TopList=EndList=TopScreen=CurLine=new struct EditList (this);
   TopList->EditLine.SetObjectColor(COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
   /* $ 14.02.2001 IS
        ”становим нужный размер табул€ции
@@ -1149,7 +1150,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
 
       if (NumLastLine!=0)
       {
-        EndList->Next=new struct EditList;
+        EndList->Next=new struct EditList (this);
         if (EndList->Next==NULL)
         {
           fclose(EditFile);
@@ -1182,7 +1183,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
     }
     SetPreRedrawFunc(NULL);
     if (LastLineCR)
-      if ((EndList->Next=new struct EditList)!=NULL)
+      if ((EndList->Next=new struct EditList(this))!=NULL)
       {
         PrevPtr=EndList;
         EndList=EndList->Next;
@@ -1293,11 +1294,11 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
       }
       if (NumLine==Line-ScreenLine)
       {
-        DisableOut++;
+        Lock ();
         for (int I=0;I<ScreenLine;I++)
           ProcessKey(KEY_DOWN);
         CurLine->EditLine.SetTabCurPos(LinePos);
-        DisableOut--;
+        Unlock ();
       }
       //_D(SysLog("Setleftpos to %i",LeftPos));
       CurLine->EditLine.SetLeftPos(LeftPos);
@@ -1382,7 +1383,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
         ScreenLine=ObjHeight;//ScrY;
       if (Line>=ScreenLine)
       {
-        DisableOut++;
+        Lock ();
         GoToLine(Line-ScreenLine);
         TopScreen=CurLine;
         for (int I=0;I<ScreenLine;I++)
@@ -1390,7 +1391,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
         CurLine->EditLine.SetTabCurPos(LinePos);
         //_D(SysLog("Setleftpos 2 to %i",LeftPos));
         CurLine->EditLine.SetLeftPos(LeftPos);
-        DisableOut--;
+        Unlock ();
       }
     }
   if (UseDecodeTable)
@@ -1452,7 +1453,7 @@ int Editor::ReadData(LPCSTR SrcBuf,int SizeSrcBuf)
 
       if (NumLastLine!=0)
       {
-        EndList->Next=new struct EditList;
+        EndList->Next=new struct EditList(this);
         if (EndList->Next==NULL)
         {
           return(FALSE);
@@ -1475,7 +1476,7 @@ int Editor::ReadData(LPCSTR SrcBuf,int SizeSrcBuf)
       NumLastLine++;
     }
 
-    if (LastLineCR && ((EndList->Next=new struct EditList)!=NULL))
+    if (LastLineCR && ((EndList->Next=new struct EditList(this))!=NULL))
     {
       PrevPtr=EndList;
       EndList=EndList->Next;
@@ -1597,16 +1598,13 @@ int Editor::SaveData(char **DestBuf,int& SizeDestBuf,int TextFormat)
 
 void Editor::DisplayObject()
 {
-  if (!DisableOut)
-  {
-    ShowEditor(FALSE);
-  }
+  ShowEditor(FALSE);
 }
 
 
 void Editor::ShowEditor(int CurLineOnly)
 {
-  if (DisableOut)
+  if ( Locked () )
     return;
 
   struct EditList *CurPtr;
@@ -1945,17 +1943,16 @@ int Editor::ProcessKey(int Key)
     case KEY_CTRLSHIFTPGUP:   case KEY_CTRLSHIFTNUMPAD9:
     case KEY_CTRLSHIFTHOME:   case KEY_CTRLSHIFTNUMPAD7:
     {
-      DisableOut++;
+      Lock ();
       Pasting++;
       while (CurLine!=TopList)
       {
-        Edit::DisableEditOut(TRUE);
         ProcessKey(KEY_SHIFTPGUP);
       }
       ProcessKey(KEY_SHIFTHOME);
       Pasting--;
-      DisableOut--;
-      Edit::DisableEditOut(FALSE);
+      Unlock ();
+
       Show();
       return(TRUE);
     }
@@ -1963,11 +1960,10 @@ int Editor::ProcessKey(int Key)
     case KEY_CTRLSHIFTPGDN:   case KEY_CTRLSHIFTNUMPAD3:
     case KEY_CTRLSHIFTEND:    case KEY_CTRLSHIFTNUMPAD1:
     {
-      DisableOut++;
+      Lock ();
       Pasting++;
       while (CurLine!=EndList)
       {
-        Edit::DisableEditOut(TRUE);
         ProcessKey(KEY_SHIFTPGDN);
       }
       /* $ 06.02.2002 IS
@@ -1983,9 +1979,9 @@ int Editor::ProcessKey(int Key)
       Flags.Clear(FEDITOR_CURPOSCHANGEDBYPLUGIN);
       /* IS $ */
       ProcessKey(KEY_SHIFTEND);
+      Unlock ();
       Pasting--;
-      DisableOut--;
-      Edit::DisableEditOut(FALSE);
+
       Show();
       return(TRUE);
     }
@@ -1993,8 +1989,7 @@ int Editor::ProcessKey(int Key)
     case KEY_SHIFTPGUP:       case KEY_SHIFTNUMPAD9:
     {
       Pasting++;
-      DisableOut++;
-      Edit::DisableEditOut(TRUE);
+      Lock ();
       for (I=Y1+1;I<Y2;I++)
       {
         ProcessKey(KEY_SHIFTUP);
@@ -2007,8 +2002,8 @@ int Editor::ProcessKey(int Key)
         }
       }
       Pasting--;
-      DisableOut--;
-      Edit::DisableEditOut(FALSE);
+      Unlock ();
+
       Show();
       return(TRUE);
     }
@@ -2016,8 +2011,7 @@ int Editor::ProcessKey(int Key)
     case KEY_SHIFTPGDN:       case KEY_SHIFTNUMPAD3:
     {
       Pasting++;
-      DisableOut++;
-      Edit::DisableEditOut(TRUE);
+      Lock ();
       for (I=Y1+1;I<Y2;I++)
       {
         ProcessKey(KEY_SHIFTDOWN);
@@ -2030,8 +2024,8 @@ int Editor::ProcessKey(int Key)
         }
       }
       Pasting--;
-      DisableOut--;
-      Edit::DisableEditOut(FALSE);
+      Unlock ();
+
       Show();
       return(TRUE);
     }
@@ -2039,8 +2033,7 @@ int Editor::ProcessKey(int Key)
     case KEY_SHIFTHOME:       case KEY_SHIFTNUMPAD7:
     {
       Pasting++;
-      DisableOut++;
-      Edit::DisableEditOut(TRUE);
+      Lock ();
       if(SelAtBeginning)
       {
         CurLine->EditLine.Select(0,SelEnd);
@@ -2056,8 +2049,8 @@ int Editor::ProcessKey(int Key)
       }
       ProcessKey(KEY_HOME);
       Pasting--;
-      DisableOut--;
-      Edit::DisableEditOut(FALSE);
+      Unlock ();
+
       Show();
       return(TRUE);
     }
@@ -2067,8 +2060,8 @@ int Editor::ProcessKey(int Key)
       {
         int LeftPos=CurLine->EditLine.GetLeftPos();
         Pasting++;
-        DisableOut++;
-        Edit::DisableEditOut(TRUE);
+        Lock ();
+
         int CurLength=CurLine->EditLine.GetLength();
 
         if(!SelAtBeginning || SelFirst)
@@ -2091,8 +2084,8 @@ int Editor::ProcessKey(int Key)
         ProcessKey(KEY_END);
 
         Pasting--;
-        DisableOut--;
-        Edit::DisableEditOut(FALSE);
+        Unlock ();
+
 
         /* $ 13.9.2001 SKV
           ќднако LeftPos апдейтитс€ только в FastShow :-\
@@ -2200,8 +2193,8 @@ int Editor::ProcessKey(int Key)
         int SkipSpace=TRUE;
         Pasting++;
         /* $ 23.12.2000 OT */
-        DisableOut++;
-        Edit::DisableEditOut(TRUE);
+        Lock ();
+
         /* OT $ */
 
         int CurPos;
@@ -2255,8 +2248,8 @@ int Editor::ProcessKey(int Key)
         }
         Pasting--;
         /* $ 23.12.2000 OT */
-        DisableOut--;
-        Edit::DisableEditOut(FALSE);
+        Unlock ();
+
         Show();
         /* OT $ */
       }
@@ -2270,8 +2263,8 @@ int Editor::ProcessKey(int Key)
       {
         int SkipSpace=TRUE;
         Pasting++;
-        DisableOut++;
-        Edit::DisableEditOut(TRUE);
+        Lock ();
+
 
         int CurPos;
         while (1)
@@ -2304,8 +2297,8 @@ int Editor::ProcessKey(int Key)
           ProcessKey(KEY_SHIFTRIGHT);
         }
         Pasting--;
-        DisableOut--;
-        Edit::DisableEditOut(FALSE);
+        Unlock ();
+
         Show();
       }
       return(TRUE);
@@ -3044,9 +3037,9 @@ int Editor::ProcessKey(int Key)
           Without this group undo, like undo of 'delete block' operation
           will be animated.
         */
-        DisableOut++;
+        Lock ();
         Undo();
-        DisableOut--;
+        Unlock ();
         /* skv$*/
         Show();
       }
@@ -3202,8 +3195,8 @@ int Editor::ProcessKey(int Key)
         int SkipSpace=TRUE;
         Pasting++;
         /* $ 23.12.2000 OT */
-        DisableOut++;
-        Edit::DisableEditOut(TRUE);
+        Lock ();
+
         /* OT $ */
         while (1)
         {
@@ -3241,8 +3234,8 @@ int Editor::ProcessKey(int Key)
         }
         Pasting--;
         /* $ 23.12.2000 OT */
-        DisableOut--;
-        Edit::DisableEditOut(FALSE);
+        Unlock ();
+
         Show();
         /* OT $ */
       }
@@ -3254,8 +3247,8 @@ int Editor::ProcessKey(int Key)
       {
         int SkipSpace=TRUE;
         Pasting++;
-        DisableOut++;
-        Edit::DisableEditOut(TRUE);
+        Lock ();
+
         while (1)
         {
           const char *Str;
@@ -3286,8 +3279,8 @@ int Editor::ProcessKey(int Key)
           ProcessKey(KEY_ALTSHIFTRIGHT);
         }
         Pasting--;
-        DisableOut--;
-        Edit::DisableEditOut(FALSE);
+        Unlock ();
+
         Show();
       }
       return(TRUE);
@@ -3365,10 +3358,10 @@ int Editor::ProcessKey(int Key)
     case KEY_ALTHOME:
     {
       Pasting++;
-      DisableOut++;
+      Lock ();
       while (CurLine->EditLine.GetCurPos()>0)
         ProcessKey(KEY_ALTSHIFTLEFT);
-      DisableOut--;
+      Unlock ();
       Pasting--;
       Show();
       return(TRUE);
@@ -3378,14 +3371,14 @@ int Editor::ProcessKey(int Key)
     case KEY_ALTEND:
     {
       Pasting++;
-      DisableOut++;
+      Lock ();
       if (CurLine->EditLine.GetCurPos()<CurLine->EditLine.GetLength())
         while (CurLine->EditLine.GetCurPos()<CurLine->EditLine.GetLength())
           ProcessKey(KEY_ALTSHIFTRIGHT);
       if (CurLine->EditLine.GetCurPos()>CurLine->EditLine.GetLength())
         while (CurLine->EditLine.GetCurPos()>CurLine->EditLine.GetLength())
           ProcessKey(KEY_ALTSHIFTLEFT);
-      DisableOut--;
+      Unlock ();
       Pasting--;
       Show();
       return(TRUE);
@@ -3395,10 +3388,10 @@ int Editor::ProcessKey(int Key)
     case KEY_ALTPGUP:
     {
       Pasting++;
-      DisableOut++;
+      Lock ();
       for (I=Y1+1;I<Y2;I++)
         ProcessKey(KEY_ALTSHIFTUP);
-      DisableOut--;
+      Unlock ();
       Pasting--;
       Show();
       return(TRUE);
@@ -3408,10 +3401,10 @@ int Editor::ProcessKey(int Key)
     case KEY_ALTPGDN:
     {
       Pasting++;
-      DisableOut++;
+      Lock ();
       for (I=Y1+1;I<Y2;I++)
         ProcessKey(KEY_ALTSHIFTDOWN);
-      DisableOut--;
+      Unlock ();
       Pasting--;
       Show();
       return(TRUE);
@@ -3420,16 +3413,16 @@ int Editor::ProcessKey(int Key)
     case KEY_CTRLALTPGUP: case KEY_CTRLALTNUMPAD9:
     case KEY_CTRLALTHOME: case KEY_CTRLALTNUMPAD7:
     {
-      DisableOut++;
+      Lock ();
       Pasting++;
       while (CurLine!=TopList)
       {
-        Edit::DisableEditOut(TRUE);
+
         ProcessKey(KEY_ALTUP);
       }
       Pasting--;
-      DisableOut--;
-      Edit::DisableEditOut(FALSE);
+      Unlock ();
+
       Show();
       return(TRUE);
     }
@@ -3437,16 +3430,16 @@ int Editor::ProcessKey(int Key)
     case KEY_CTRLALTPGDN:  case KEY_CTRLALTNUMPAD3:
     case KEY_CTRLALTEND:   case KEY_CTRLALTNUMPAD1:
     {
-      DisableOut++;
+      Lock ();
       Pasting++;
       while (CurLine!=EndList)
       {
-        Edit::DisableEditOut(TRUE);
+
         ProcessKey(KEY_ALTDOWN);
       }
       Pasting--;
-      DisableOut--;
-      Edit::DisableEditOut(FALSE);
+      Unlock ();
+
       Show();
       return(TRUE);
     }
@@ -3998,7 +3991,7 @@ void Editor::InsertString()
   int NewLineEmpty=TRUE;
   /* tran 17.07.2000 $ */
 
-  if ((NewString=new struct EditList)==NULL)
+  if ((NewString=new struct EditList(this))==NULL)
     return;
 
   NewString->EditLine.SetObjectColor(COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
@@ -4691,8 +4684,8 @@ void Editor::Paste(char *Src)
     int SaveOvertype=Flags.Check(FEDITOR_OVERTYPE);
     UnmarkBlock();
     Pasting++;
-    DisableOut++;
-    Edit::DisableEditOut(TRUE);
+    Lock ();
+
     if (Flags.Check(FEDITOR_OVERTYPE))
     {
       Flags.Clear(FEDITOR_OVERTYPE);
@@ -4762,9 +4755,9 @@ void Editor::Paste(char *Src)
       CurLine->EditLine.SetOvertypeMode(TRUE);
     }
 
-    Edit::DisableEditOut(FALSE);
+
     Pasting--;
-    DisableOut--;
+    Unlock ();
   }
   /* $ 07.05.2001 IS выдел€ли же в PasteFromClipboard как new [] */
   if(IsDeleteClipText)
@@ -5727,8 +5720,8 @@ void Editor::VPaste(char *ClipText)
     int SaveOvertype=Flags.Check(FEDITOR_OVERTYPE);
     UnmarkBlock();
     Pasting++;
-    DisableOut++;
-    Edit::DisableEditOut(TRUE);
+    Lock ();
+
     if (Flags.Check(FEDITOR_OVERTYPE))
     {
       Flags.Clear(FEDITOR_OVERTYPE);
@@ -5802,9 +5795,9 @@ void Editor::VPaste(char *ClipText)
     NumLine=BlockStartLine;
     CurLine->EditLine.SetTabCurPos(StartPos);
 
-    Edit::DisableEditOut(FALSE);
+
     Pasting--;
-    DisableOut--;
+    Unlock ();
   }
   delete ClipText;
   BlockUndo=FALSE;
@@ -5984,12 +5977,12 @@ int Editor::EditorControl(int Command,void *Param)
       {
         char *Str=(char *)Param;
         Pasting++;
-        DisableOut++;
-        Edit::DisableEditOut(TRUE);
+        Lock ();
+
         while (*Str)
           ProcessKey(*(Str++));
-        Edit::DisableEditOut(FALSE);
-        DisableOut--;
+
+        Unlock ();
         Pasting--;
       }
       return(TRUE);
@@ -6154,7 +6147,7 @@ int Editor::EditorControl(int Command,void *Param)
         _ECTLLOG(SysLog("  Overtype      = %d",Pos->Overtype));
         _ECTLLOG(SysLog("}"));
 
-        DisableOut++;
+        Lock ();
 
         int CurPos=CurLine->EditLine.GetCurPos();
 
@@ -6202,7 +6195,7 @@ int Editor::EditorControl(int Command,void *Param)
         }
         /* IS $ */
 
-        DisableOut--;
+        Unlock ();
         return TRUE;
       }
       _ECTLLOG(SysLog("Error: Param == NULL or IsBadReadPtr(Param,sizeof(struct EditorSetPosition))"));

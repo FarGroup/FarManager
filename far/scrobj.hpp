@@ -7,10 +7,12 @@ Parent class для всех screen objects
 
 */
 
-/* Revision: 1.11 22.10.2003 $ */
+/* Revision: 1.12 25.07.2005 $ */
 
 /*
 Modify:
+  24.07.2005 WARP
+    ! see 02033.LockUnlock.txt
   22.10.2003 SVS
     + виртуальная функция VMProcess() - для макросов. На будущее
   27.05.2003 SVS
@@ -62,7 +64,11 @@ class ScreenObject
     int X1,Y1,X2,Y2;
     int ObjWidth,ObjHeight;
 
+    int nLockCount;
+    ScreenObject *pOwner;
+
   public:
+
     SaveScreen *SaveScr;
     static ScreenObject *CaptureMouseObject;
 
@@ -85,6 +91,13 @@ class ScreenObject
     virtual void SetScreenPosition();
     virtual void ResizeConsole(){};
     virtual int  VMProcess(int OpCode,void *Param=NULL){return 0;};
+
+    void Lock ();
+    void Unlock ();
+    bool Locked ();
+
+    void SetOwner (ScreenObject *pOwner);
+    ScreenObject* GetOwner ();
 
     void SavePrevScreen();
     void Redraw();

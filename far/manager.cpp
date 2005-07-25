@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.93 25.04.2005 $ */
+/* Revision: 1.94 25.07.2005 $ */
 
 /*
 Modify:
+  24.07.2005 WARP
+    ! see 02033.LockUnlock.txt
   24.04.2005 AY
     ! GCC
   22.03.2005 SVS
@@ -1474,7 +1476,7 @@ void Manager::RefreshCommit()
   if(IndexOf(RefreshedFrame)==-1 && IndexOfStack(RefreshedFrame)==-1)
     return;
 
-  if (RefreshedFrame->Refreshable())
+  if ( !RefreshedFrame->Locked())
   {
     if (!IsRedrawFramesInProcess)
       RefreshedFrame->ShowConsoleTitle();
@@ -1545,9 +1547,9 @@ void Manager::ImmediateHide()
       IsRedrawFramesInProcess++;
       /* KM $ */
 
-      while (!(*this)[FramePos]->Refreshable())
+      while ( (*this)[FramePos]->Locked())
       {
-        (*this)[FramePos]->UnlockRefresh();
+        (*this)[FramePos]->Unlock();
         UnlockCount++;
       }
       RefreshFrame((*this)[FramePos]);
@@ -1555,7 +1557,7 @@ void Manager::ImmediateHide()
       Commit();
       for (int i=0;i<UnlockCount;i++)
       {
-        (*this)[FramePos]->LockRefresh();
+        (*this)[FramePos]->Lock();
       }
 
       if (ModalStackCount>1)

@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.46 13.07.2005 $ */
+/* Revision: 1.47 25.07.2005 $ */
 
 /*
 Modify:
+  24.07.2005 WARP
+    ! see 02033.LockUnlock.txt
   13.07.2005 SVS
     - BugZ#1253 - некорректная обработка PanelMode.FullScreen
       не учитывался факт того, что размеры могли измениться
@@ -182,11 +184,12 @@ void FileList::DisplayObject()
 
 void FileList::ShowFileList(int Fast)
 {
-  if (DisableOut)
+  if ( Locked () )
   {
     CorrectPosition();
     return;
   }
+
   char Title[NM];
   int Length;
   struct OpenPluginInfo Info;

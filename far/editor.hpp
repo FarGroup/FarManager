@@ -9,10 +9,12 @@ editor.hpp
 
 */
 
-/* Revision: 1.49 06.08.2004 $ */
+/* Revision: 1.50 25.07.2005 $ */
 
 /*
 Modify:
+  24.07.2005 WARP
+    ! see 02033.LockUnlock.txt
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   22.04.2004 SVS
@@ -249,7 +251,6 @@ class Editor:public ScreenObject
     */
     struct EditorOptions EdOpt;
     /* IS $ */
-    int DisableOut;
     int Pasting;
     char GlobalEOL[10];
 

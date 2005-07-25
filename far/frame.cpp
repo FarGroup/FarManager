@@ -5,10 +5,12 @@ Parent class для немодальных объектов
 
 */
 
-/* Revision: 1.21 21.01.2003 $ */
+/* Revision: 1.22 25.07.2005 $ */
 
 /*
 Modify:
+  24.07.2005 WARP
+    ! see 02033.LockUnlock.txt
   21.01.2003 SVS
     + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
       Просьба блюсти порядок и прописывать именно xf_* вместо простых.
@@ -77,7 +79,6 @@ Frame::Frame()
 //  ModalStack=NULL;
 //  ModalStackCount = ModalStackSize=0;
   DynamicallyBorn=TRUE;
-  LockRefreshCount=0;
   FrameToBack=NULL;
   NextModal=PrevModal=NULL;
 }
@@ -198,23 +199,6 @@ int Frame::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   return FALSE;
 }
 */
-
-void Frame::LockRefresh()
-{
-  LockRefreshCount++;
-}
-
-void Frame::UnlockRefresh()
-{
-  LockRefreshCount=(LockRefreshCount>0)?LockRefreshCount-1:0;
-}
-
-
-int Frame::Refreshable()
-{
-  return LockRefreshCount==0;
-}
-
 
 int Frame::FastHide()
 {

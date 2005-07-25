@@ -5,10 +5,12 @@ Screen grabber
 
 */
 
-/* Revision: 1.24 05.04.2005 $ */
+/* Revision: 1.25 25.07.2005 $ */
 
 /*
 Modify:
+  24.07.2005 WARP
+    ! see 02033.LockUnlock.txt
   05.04.2005 SVS
     + У GetText() появился доп параметр - скока читать.
   28.03.2005 SVS
@@ -105,7 +107,7 @@ Grabber::Grabber()
 {
   Frame *pFrame = FrameManager->GetCurrentFrame ();
 
-  pFrame->LockRefresh ();
+  pFrame->Lock();
 
   SaveScr=new SaveScreen;
 
@@ -140,7 +142,7 @@ Grabber::Grabber()
 
   delete SaveScr;
 
-  pFrame->UnlockRefresh ();
+  pFrame->Unlock();
   FrameManager->RefreshFrame ();
 }
 

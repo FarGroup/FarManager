@@ -5,10 +5,12 @@ Parent class для всех screen objects
 
 */
 
-/* Revision: 1.12 27.05.2003 $ */
+/* Revision: 1.13 25.07.2005 $ */
 
 /*
 Modify:
+  24.07.2005 WARP
+    ! see 02033.LockUnlock.txt
   27.05.2003 SVS
     ! Зачатки каптюризации мыши :-)
       Введен ScreenObject *ScreenObject::CaptureMouseObject, который
@@ -59,6 +61,8 @@ ScreenObject::ScreenObject()
 //  _OT(SysLog("[%p] ScreenObject::ScreenObject()", this));
   ObjWidth=ObjHeight=X1=Y1=X2=Y2=0;
   SaveScr=ShadowSaveScr=NULL;
+  nLockCount = 0;
+  pOwner = NULL;
 }
 
 
@@ -78,6 +82,33 @@ ScreenObject::~ScreenObject()
     delete SaveScr;
 }
 
+void ScreenObject::Lock ()
+{
+  nLockCount++;
+}
+
+void ScreenObject::Unlock ()
+{
+  if ( nLockCount > 0 )
+    nLockCount--;
+  else
+    nLockCount = 0;
+}
+
+bool ScreenObject::Locked ()
+{
+  return  (nLockCount > 0) || (pOwner?pOwner->Locked():false);
+}
+
+void ScreenObject::SetOwner (ScreenObject *pOwner)
+{
+  ScreenObject::pOwner = pOwner;
+}
+
+ScreenObject* ScreenObject::GetOwner()
+{
+  return pOwner;
+}
 
 void ScreenObject::SetPosition(int X1,int Y1,int X2,int Y2)
 {
@@ -148,6 +179,8 @@ void ScreenObject::Hide0()
 
 void ScreenObject::Show()
 {
+  if ( Locked () )
+    return;
 //  _tran(SysLog("[%p] ScreenObject::Show()",this));
   if (!Flags.Check(FSCROBJ_SETPOSITIONDONE))
     return;

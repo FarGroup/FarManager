@@ -8,10 +8,12 @@ frame.hpp
 
 */
 
-/* Revision: 1.21 30.06.2004 $ */
+/* Revision: 1.22 25.07.2005 $ */
 
 /*
 Modify:
+  24.07.2005 WARP
+    ! see 02033.LockUnlock.txt
   30.06.2004 SVS
     + GetTopModal() - ответ на вопрос "как добраться до верхнего модала?"
   15.05.2002 SVS
@@ -77,7 +79,7 @@ enum { MODALTYPE_VIRTUAL,
   MODALTYPE_USER,
 };
 
-class Frame: virtual public ScreenObject
+class Frame: public virtual ScreenObject
 {
   friend class Manager;
   private:
@@ -93,7 +95,6 @@ class Frame: virtual public ScreenObject
     int  KeyBarVisible;
     KeyBar *FrameKeyBar;
     int MacroMode;
-    int LockRefreshCount;
 
   public:
     Frame();
@@ -136,9 +137,6 @@ class Frame: virtual public ScreenObject
     void DestroyAllModal();
     void SetDynamicallyBorn(int Born) {DynamicallyBorn=Born;}
     int GetDynamicallyBorn(){return DynamicallyBorn;};
-    void LockRefresh();
-    void UnlockRefresh();
-    int Refreshable();
     virtual int FastHide();
 //    int IndexOf(Frame *aFrame);
     bool RemoveModal(Frame *aFrame);

@@ -7,10 +7,12 @@ filepanels.hpp
 
 */
 
-/* Revision: 1.14 03.06.2004 $ */
+/* Revision: 1.15 25.07.2005 $ */
 
 /*
 Modify:
+  24.07.2005 WARP
+    ! see 02033.LockUnlock.txt
   03.06.2004 SVS
     ! Часть кода вынесена в отдельные функции:
        a) Установить фокус на противоположную панель (Tab)
@@ -56,7 +58,7 @@ Modify:
 class Panel;
 class CommandLine;
 
-class FilePanels:public Frame
+class FilePanels:public virtual Frame
 {
   private:
     void DisplayObject();
@@ -93,10 +95,6 @@ class FilePanels:public Frame
 //    void   SetPanelPositions();
 
     void   SetupKeyBar();
-
-    virtual void Show();
-
-    void Redraw();
 
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);

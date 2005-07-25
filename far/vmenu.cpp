@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.146 14.06.2005 $ */
+/* Revision: 1.147 25.07.2005 $ */
 
 /*
 Modify:
+  24.07.2005 WARP
+    ! see 02033.LockUnlock.txt
   14.06.2005 SVS
     - неучтенка ширины - про боттомтайтл забыли
   29.01.2005 WARP
@@ -669,9 +671,6 @@ void VMenu::Show()
   CriticalSectionLock Lock(CS);
 
   int OldX1 = X1, OldY1 = Y1, OldX2 = X2, OldY2 = Y2;
-
-  if(LockRefreshCount)
-    return;
 
   /* $ 23.02.2002 DJ
      здесь тоже используем флаг LISTHASFOCUS

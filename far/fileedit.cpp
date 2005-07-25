@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.169 15.07.2005 $ */
+/* Revision: 1.170 25.07.2005 $ */
 
 /*
 Modify:
+  24.07.2005 WARP
+    ! see 02033.LockUnlock.txt
   15.07.2005 AY
     + Открываем новые файлы в WIN/DOS в соответсвии с AnsiTableForNewFile
   05.07.2005 SVS
@@ -637,6 +639,7 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
   bClosing = false;
 
   FEdit=new Editor;
+  FEdit->SetOwner (this);
 
   if(!FEdit)
   {
@@ -983,7 +986,7 @@ void FileEditor::Show()
 
 void FileEditor::DisplayObject()
 {
-  if (!FEdit->DisableOut)
+  if (!FEdit->Locked ())
   {
     if(FEdit->Flags.Check(FEDITOR_ISRESIZEDCONSOLE))
     {
@@ -2027,7 +2030,7 @@ void FileEditor::ChangeEditKeyBar()
 
 void FileEditor::ShowStatus()
 {
-  if (FEdit->DisableOut)
+  if (FEdit->Locked())
     return;
   SetColor(COL_EDITORSTATUS);
   GotoXY(X1,Y1); //??

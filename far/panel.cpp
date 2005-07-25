@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.143 23.06.2005 $ */
+/* Revision: 1.144 25.07.2005 $ */
 
 /*
 Modify:
+  24.07.2005 WARP
+    ! see 02033.LockUnlock.txt
   23.06.2005 SVS
     - BugZ#1349 - Быстрый поиск: Вставка из буфера обмена не добавляет, а заменяет строку
   30.05.2005 SVS
@@ -971,7 +973,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
                   // отключим меню, иначе бага с прорисовкой этой самой меню
                   // (если меню поболее высоты экрана)
                   ChDisk.Hide();
-                  ChDisk.LockRefresh(); // ... и запретим ее перерисовку.
+                  ChDisk.Lock(); // ... и запретим ее перерисовку.
 
                   // "цикл до умопомрачения"
                   int DoneEject=FALSE;
@@ -1001,7 +1003,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
                   }
 
                   // "отпустим" менюху выбора дисков
-                  ChDisk.UnlockRefresh();
+                  ChDisk.Unlock();
                   ChDisk.Show();
                 }
               }
@@ -1875,6 +1877,9 @@ void Panel::Hide()
 
 void Panel::Show()
 {
+  if ( Locked () )
+    return;
+
   /* $ 03.10.2001 IS перерисуем строчку меню */
   if (Opt.ShowMenuBar)
       CtrlObject->TopMenuBar->Show();
@@ -2180,7 +2185,7 @@ int Panel::SetPluginCommand(int Command,void *Param)
         // $ 12.05.2001 DJ перерисовываемся только в том случае, если мы - текущий фрейм
         if (FPanels->IsTopFrame())
         {
-          DestPanel->Redraw();
+          DestPanel->Redraw ();
           Result=TRUE;
         }
       }

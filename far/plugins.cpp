@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.161 25.04.2005 $ */
+/* Revision: 1.162 25.07.2005 $ */
 
 /*
 Modify:
+  24.07.2005 WARP
+    ! see 02033.LockUnlock.txt
   24.04.2005 AY
     ! GCC
   04.02.2005 SVS
@@ -1004,8 +1006,8 @@ void PluginsSet::UnloadPlugin(struct PluginItem &CurPlugin,DWORD Exception)
 
   CurPluginItem=NULL;
   Frame *frame;
-  if((frame=FrameManager->GetBottomFrame()) != NULL && !frame->Refreshable())
-    frame->UnlockRefresh();
+  if((frame=FrameManager->GetBottomFrame()) != NULL)
+    frame->Unlock();
 
   if(Flags.Check(PSIF_DIALOG)) // BugZ#52 exception handling for floating point incorrect
   {

@@ -7,10 +7,12 @@ edit.hpp
 
 */
 
-/* Revision: 1.30 15.07.2005 $ */
+/* Revision: 1.31 25.07.2005 $ */
 
 /*
 Modify:
+  24.07.2005 WARP
+    ! see 02033.LockUnlock.txt
   15.07.2005 AY
     - Убрал всё связанное с USE_OLDEXPANDTABS
   24.04.2005 AY
@@ -200,7 +202,6 @@ class Edit:public ScreenObject
     ~Edit();
 
   public:
-    void  Show() {DisplayObject();}
     void  FastShow();
     int   ProcessKey(int Key);
     int   ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
@@ -299,9 +300,6 @@ class Edit:public ScreenObject
     */
     void Xlat(BOOL All=FALSE);
     /* SVS $ */
-    /* SVS $ */
-
-    static void DisableEditOut(int Disable);
     static void DisableEncode(int Disable);
 
     void SetDialogParent(DWORD Sets);
@@ -320,6 +318,8 @@ struct EditList
   struct EditList *Prev;
   struct EditList *Next;
   Edit EditLine;
+
+  EditList (ScreenObject *pOwner) { EditLine.SetOwner (pOwner); }
 };
 
 #endif  // __EDIT_HPP__

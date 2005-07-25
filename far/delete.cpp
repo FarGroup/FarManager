@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.71 20.06.2005 $ */
+/* Revision: 1.72 25.07.2005 $ */
 
 /*
 Modify:
+  24.07.2005 WARP
+    ! see 02033.LockUnlock.txt
   20.06.2005 SVS
     - лишний вызов ScTree.SkipDir(), подробнее see 02002.Delete.txt
   12.05.2005 SVS
@@ -236,7 +238,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 
 /*& 31.05.2001 OT Запретить перерисовку текущего фрейма*/
   Frame *FrameFromLaunched=FrameManager->GetCurrentFrame();
-  FrameFromLaunched->LockRefresh();
+  FrameFromLaunched->Lock();
 /* OT &*/
 
   DeleteAllFolders=!Opt.Confirm.DeleteFolder;
@@ -649,7 +651,7 @@ done:
   SetPreRedrawFunc(NULL);
   Opt.DeleteToRecycleBin=Opt_DeleteToRecycleBin;
 /*& 31.05.2001 OT Разрешить перерисовку фрейма */
-  FrameFromLaunched->UnlockRefresh();
+  FrameFromLaunched->Unlock();
 /* OT &*/
   /* $ 01.10.2001 IS перерисуемся, чтобы не было артефактов */
   if(NeedUpdate)

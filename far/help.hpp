@@ -7,10 +7,12 @@ help.hpp
 
 */
 
-/* Revision: 1.30 17.07.2005 $ */
+/* Revision: 1.31 25.07.2005 $ */
 
 /*
 Modify:
+  24.07.2005 WARP
+    ! see 02033.LockUnlock.txt
   17.07.2005 SVS
     ! долой DHELP2
   18.12.2004 WARP
@@ -134,7 +136,6 @@ class Help:public Frame
     int   IsNewTopic;           // это новый топик?
     int   MouseDown;
 
-    int   DisableOut;           // TRUE - не выводить на экран
     char  CtrlColorChar[16];    // CtrlColorChar - опция! для спецсимвола-
                                 //   символа - для атрибутов
     int   CurColor;             // CurColor - текущий цвет отрисовки

@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.154 22.07.2005 $ */
+/* Revision: 1.155 25.07.2005 $ */
 
 /*
 Modify:
+  24.07.2005 WARP
+    ! see 02033.LockUnlock.txt
   22.07.2005 SVS
     - лажа с массивом в ShellCopy::ShowBar()
   12.07.2005 SVS
@@ -654,7 +656,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
 
   /* $ 26.05.2001 OT «апретить перерисовку панелей во врем€ копировани€ */
   _tran(SysLog("call (*FrameManager)[0]->LockRefresh()"));
-  (*FrameManager)[0]->LockRefresh();
+  (*FrameManager)[0]->Lock();
   /* OT $ */
 
   // –азмер буфера беретс€ из реестра
@@ -1712,7 +1714,8 @@ ShellCopy::~ShellCopy()
 
   // $ 26.05.2001 OT –азрешить перерисовку панелей
   _tran(SysLog("call (*FrameManager)[0]->UnlockRefresh()"));
-  (*FrameManager)[0]->UnlockRefresh();
+  (*FrameManager)[0]->Unlock();
+  (*FrameManager)[0]->Refresh();
 
   if(sddata)
     delete[] sddata;

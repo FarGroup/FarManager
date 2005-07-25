@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.70 14.06.2005 $ */
+/* Revision: 1.71 25.07.2005 $ */
 
 /*
 Modify:
+  24.07.2005 WARP
+    ! see 02033.LockUnlock.txt
   14.06.2005 SVS
     + SetBottomTitle()
   24.04.2005 AY
@@ -834,7 +836,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
             case KEY_ALTF4:
               if (RegVer)
               {
-                (*FrameManager)[0]->UnlockRefresh();
+                (*FrameManager)[0]->Unlock();
                 FILE *MenuFile;
                 char MenuFileName[NM];
                 if (!FarMkTempEx(MenuFileName) || (MenuFile=fopen(MenuFileName,"wb"))==NULL)

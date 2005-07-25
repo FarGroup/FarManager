@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.184 12.07.2005 $ */
+/* Revision: 1.185 25.07.2005 $ */
 
 /*
 Modify:
+  24.07.2005 WARP
+    ! see 02033.LockUnlock.txt
   12.07.2005 SVS
     ! опции, ответственные за копирование вынесены в отдельную структуру CopyMoveOptions
   30.05.2005 SVS
@@ -1374,7 +1376,7 @@ static int Except_FarDialogEx(struct DialogItem *InternalItem)
   if((frame=FrameManager->GetBottomFrame()) != NULL)
   {
     //while(!frame->Refreshable()) // А может все таки нужно???
-      frame->UnlockRefresh(); // теперь можно :-)
+      frame->Unlock(); // теперь можно :-)
   }
 //  CheckScreenLock();
   FrameManager->RefreshFrame(); //??
@@ -1422,7 +1424,7 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
 
   Frame *frame;
   if((frame=FrameManager->GetBottomFrame()) != NULL)
-    frame->LockRefresh(); // отменим прорисовку фрейма
+    frame->Lock(); // отменим прорисовку фрейма
 
   {
     Dialog FarDialog(InternalItem,ItemsNumber,DlgProc,Param);
@@ -1481,7 +1483,7 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
     Однако разлочивать нужно ровно то, что залочили.
   */
   if(frame != NULL)
-    frame->UnlockRefresh(); // теперь можно :-)
+    frame->Unlock(); // теперь можно :-)
  /* SKV $ */
 //  CheckScreenLock();
   FrameManager->RefreshFrame(); //??
@@ -1649,13 +1651,13 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
   // непосредственно... вывод
   Frame *frame;
   if((frame=FrameManager->GetBottomFrame()) != NULL)
-    frame->LockRefresh(); // отменим прорисовку фрейма
+    frame->Lock(); // отменим прорисовку фрейма
   int MsgCode=Message(Flags,ButtonsNumber,MsgItems[0],MsgItems+1,ItemsNumber-1,PluginNumber);
   /* $ 15.05.2002 SKV
     Однако разлочивать надо ровно то, что залочили.
   */
   if(frame != NULL)
-    frame->UnlockRefresh(); // теперь можно :-)
+    frame->Unlock(); // теперь можно :-)
   /* SKV $ */
   //CheckScreenLock();
 

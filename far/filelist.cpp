@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.236 23.07.2005 $ */
+/* Revision: 1.237 25.07.2005 $ */
 
 /*
 Modify:
+  24.07.2005 WARP
+    ! see 02033.LockUnlock.txt
   23.07.2005 SVS
     - в Ctlr-\ не проверялся FullScreen
   13.07.2005 SVS
@@ -740,7 +742,6 @@ FileList::FileList()
   PluginsStack=NULL;
   PluginsStackSize=0;
   ShiftSelection=-1;
-  DisableOut=0;
   hListChange=INVALID_HANDLE_VALUE;
   SelFileCount=0;
   SelFileSize=0;
@@ -2301,12 +2302,12 @@ int FileList::ProcessKey(int Key)
     case KEY_SHIFTHOME:    case KEY_SHIFTNUMPAD7:
     {
       InternalProcessKey++;
-      DisableOut++;
+      Lock ();
       while (CurFile>0)
         ProcessKey(KEY_SHIFTUP);
       ProcessKey(KEY_SHIFTUP);
       InternalProcessKey--;
-      DisableOut--;
+      Unlock ();
       if (SelectedFirst)
         SortFileList(TRUE);
       ShowFileList(TRUE);
@@ -2316,12 +2317,12 @@ int FileList::ProcessKey(int Key)
     case KEY_SHIFTEND:     case KEY_SHIFTNUMPAD1:
     {
       InternalProcessKey++;
-      DisableOut++;
+      Lock ();
       while (CurFile<FileCount-1)
         ProcessKey(KEY_SHIFTDOWN);
       ProcessKey(KEY_SHIFTDOWN);
       InternalProcessKey--;
-      DisableOut--;
+      Unlock ();
       if (SelectedFirst)
         SortFileList(TRUE);
       ShowFileList(TRUE);
@@ -2333,11 +2334,11 @@ int FileList::ProcessKey(int Key)
     {
       N=Columns*Height-1;
       InternalProcessKey++;
-      DisableOut++;
+      Lock ();
       while (N--)
         ProcessKey(Key==KEY_SHIFTPGUP||Key==KEY_SHIFTNUMPAD9? KEY_SHIFTUP:KEY_SHIFTDOWN);
       InternalProcessKey--;
-      DisableOut--;
+      Unlock ();
       if (SelectedFirst)
         SortFileList(TRUE);
       ShowFileList(TRUE);
@@ -2353,14 +2354,14 @@ int FileList::ProcessKey(int Key)
       {
         int N=Height;
         InternalProcessKey++;
-        DisableOut++;
+        Lock ();
         while (N--)
           ProcessKey(Key==KEY_SHIFTLEFT || Key==KEY_SHIFTNUMPAD4? KEY_SHIFTUP:KEY_SHIFTDOWN);
         Select(ListData+CurFile,ShiftSelection);
         if (SelectedFirst)
           SortFileList(TRUE);
         InternalProcessKey--;
-        DisableOut--;
+        Unlock ();
         if (SelectedFirst)
           SortFileList(TRUE);
         ShowFileList(TRUE);

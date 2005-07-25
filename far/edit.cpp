@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.140 15.07.2005 $ */
+/* Revision: 1.141 25.07.2005 $ */
 
 /*
 Modify:
+  24.07.2005 WARP
+    ! see 02033.LockUnlock.txt
   15.07.2005 AY
     - Убрал всё связанное с USE_OLDEXPANDTABS
   26.04.2005 SVS
@@ -403,7 +405,6 @@ Modify:
 #include "panel.hpp"
 #include "scrbuf.hpp"
 
-static int EditOutDisabled=0;
 static int EditEncodeDisabled=0;
 static int Recurse=0;
 
@@ -505,8 +506,8 @@ void Edit::DisplayObject()
   /* KM $ */
   FastShow();
 
-  if (EditOutDisabled)
-    return;
+  //if (EditOutDisabled)
+  //  return;
   /* $ 19.07.2001 KM
      - Под NT курсор мигал.
   */
@@ -668,7 +669,7 @@ void Edit::FastShow()
     CursorPos=CurPos;
     if (CurPos-LeftPos>EditLength-1)
       LeftPos=CurPos-EditLength+1;
-    if (!EditOutDisabled)
+    //if (!EditOutDisabled)
       ShowString(Str,TabSelStart,TabSelEnd);
     memcpy(Str,SaveStr,SaveStrSize);
     Str[SaveStrSize]=0;
@@ -689,7 +690,7 @@ void Edit::FastShow()
   }
   else
   {
-    if (!EditOutDisabled)
+    //if (!EditOutDisabled)
       ShowString(Str,TabSelStart,TabSelEnd);
     CursorPos=CurPos;
   }
@@ -1197,17 +1198,17 @@ int Edit::ProcessKey(int Key)
 
     case KEY_SHIFTHOME:  case KEY_SHIFTNUMPAD7:
     {
-      DisableEditOut(TRUE);
+      Lock ();
       while (CurPos>0)
         RecurseProcessKey(KEY_SHIFTLEFT);
-      DisableEditOut(FALSE);
+      Unlock ();
       Show();
       return(TRUE);
     }
 
     case KEY_SHIFTEND:  case KEY_SHIFTNUMPAD1:
     {
-      DisableEditOut(TRUE);
+      Lock ();
 
       /* $ 21.09.2003 KM
          Уточнения работы с маской
@@ -1235,7 +1236,7 @@ int Edit::ProcessKey(int Key)
       }
       /* KM $ */
 
-      DisableEditOut(FALSE);
+      Unlock ();
       Show();
       return(TRUE);
     }
@@ -1288,7 +1289,7 @@ int Edit::ProcessKey(int Key)
         CurPos=StrSize;
       }
       /* KM $ */
-      DisableEditOut(TRUE);
+      Lock ();
 //      while (CurPos>0 && IsSpace(Str[CurPos-1]))
 //        RecurseProcessKey(KEY_BS);
       while (1)
@@ -1307,18 +1308,18 @@ int Edit::ProcessKey(int Key)
         /* IS $ */
           break;
       }
-      DisableEditOut(FALSE);
+      Unlock ();
       Show();
       return(TRUE);
     }
 
     case KEY_CTRLQ:
     {
-      EditOutDisabled++;
+      Lock ();
       if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS) && (SelStart != -1 || Flags.Check(FEDITLINE_CLEARFLAG)))
         RecurseProcessKey(KEY_DEL);
       ProcessCtrlQ();
-      EditOutDisabled--;
+      Unlock ();
       Show();
       return(TRUE);
     }
@@ -1368,7 +1369,7 @@ int Edit::ProcessKey(int Key)
     {
       if (CurPos>=StrSize)
         return(FALSE);
-      DisableEditOut(TRUE);
+      Lock ();
 //      while (CurPos<StrSize && IsSpace(Str[CurPos]))
 //        RecurseProcessKey(KEY_DEL);
       /* $ 19.08.2000 KM
@@ -1419,7 +1420,7 @@ int Edit::ProcessKey(int Key)
             break;
         }
       }
-      DisableEditOut(FALSE);
+      Unlock ();
       Show();
       return(TRUE);
     }
@@ -1844,10 +1845,10 @@ int Edit::ProcessCtrlQ(void)
 
     if(Key==KEY_CONSOLE_BUFFER_RESIZE)
     {
-      int Dis=EditOutDisabled;
-      EditOutDisabled=0;
+      //int Dis=EditOutDisabled;
+      //EditOutDisabled=0;
       Show();
-      EditOutDisabled=Dis;
+      //EditOutDisabled=Dis;
     }
   }
 /*
@@ -2777,11 +2778,6 @@ void Edit::GetRealSelection(int &Start,int &End)
   End=SelEnd;
 }
 
-
-void Edit::DisableEditOut(int Disable)
-{
-  EditOutDisabled=Disable;
-}
 
 void Edit::DisableEncode(int Disable)
 {

@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.62 25.04.2005 $ */
+/* Revision: 1.63 25.07.2005 $ */
 
 /*
 Modify:
+  24.07.2005 WARP
+    ! see 02033.LockUnlock.txt
   24.04.2005 AY
     ! GCC
   22.03.2005 SVS
@@ -371,12 +373,6 @@ FilePanels::~FilePanels()
   RightPanel=NULL;
 }
 
-void FilePanels::DisplayObject()
-{
-  _OT(SysLog("[%p] FilePanels::DisplayObject()",this));
-  Redraw();
-}
-
 void FilePanels::SetPanelPositions(int LeftFullScreen,int RightFullScreen)
 {
   if (Opt.WidthDecrement < -(ScrX/2-10))
@@ -483,18 +479,31 @@ void FilePanels::RedrawKeyBar()
 
 Panel* FilePanels::CreatePanel(int Type)
 {
+  Panel *pResult = NULL;
+
   switch (Type)
   {
     case FILE_PANEL:
-      return(new FileList);
+      pResult = new FileList;
+      break;
+
     case TREE_PANEL:
-      return(new TreeList);
+      pResult = new TreeList;
+      break;
+
     case QVIEW_PANEL:
-      return(new QuickView);
+      pResult = new QuickView;
+      break;
+
     case INFO_PANEL:
-      return(new InfoList);
+      pResult = new InfoList;
+      break;
   }
-  return(NULL);
+
+  if ( pResult )
+    pResult->SetOwner (this);
+
+  return pResult;
 }
 
 
@@ -1120,7 +1129,7 @@ void FilePanels::OnChangeFocus(int f)
   /* $ 20.06.2001 tran
      баг с отрисовкой при копировании и удалении
      не учитывался LockRefreshCount */
-  if ( f && LockRefreshCount==0) {
+  if ( f ) {
     /*$ 22.06.2001 SKV
       + update панелей при получении фокуса
     */
@@ -1136,13 +1145,7 @@ void FilePanels::OnChangeFocus(int f)
   }
 }
 
-void FilePanels::Show()
-{
-    _OT(SysLog("[%p] FilePanels::Show() {%d, %d - %d, %d}", this,X1,Y1,X2,Y2));
-    Frame::Show();
-}
-
-void FilePanels::Redraw()
+void FilePanels::DisplayObject()
 {
 //  if ( Focus==0 )
 //      return;
