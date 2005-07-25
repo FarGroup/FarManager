@@ -5,10 +5,12 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.49 22.07.2005 $ */
+/* Revision: 1.50 25.07.2005 $ */
 
 /*
 Modify:
+  25.07.2005 SVS
+    - Забыл, что формат Info.StartPanelMode as '0'+номер режима.
   22.07.2005 SVS
     - нужно было уменьшать значение PluginsStackSize до вызова ClosePlugin()
     + пока закомменчено про PluginsStackItem.PrevViewSettings
@@ -202,7 +204,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
       CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
       //PreparePanelView(&PStack->PrevViewSettings);
       //if (!Info.StartPanelMode)
-      SetViewMode(Info.StartPanelMode?Info.StartPanelMode:PStack->PrevViewMode);
+      SetViewMode(Info.StartPanelMode?Info.StartPanelMode-'0':PStack->PrevViewMode);
       if (Info.StartSortMode)
       {
         SortMode=PStack->PrevSortMode;
