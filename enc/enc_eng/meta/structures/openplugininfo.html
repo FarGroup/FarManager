@@ -69,7 +69,7 @@ struct OpenPluginInfo
 
         <tr class="cont"><td class="cont" width="40%"><a name="OPIF_REALNAMES">OPIF_REALNAMES</a></td>
         <td class="cont" width="60%">Turns on the standard FAR file processing mechanism if requested
-        operation is not supported by the plugin. If this flag is set, the items on the plugin panel 
+        operation is not supported by the plugin. If this flag is set, the items on the plugin panel
         should be real file names.</td></tr>
 
         <tr class="cont"><td class="cont" width="40%"><a name="OPIF_SHOWNAMESONLY">OPIF_SHOWNAMESONLY</a></td>
@@ -101,11 +101,11 @@ struct OpenPluginInfo
 
         <tr class="cont"><td class="cont" width="40%"><a name="OPIF_USEATTRHIGHLIGHTING">OPIF_USEATTRHIGHLIGHTING</a></td>
         <td class="cont" width="60%">
-        <u>FAR Manager 1.70 build #963 and below</u>: use attribute-based file highlighting. 
+        <u>FAR Manager 1.70 build #963 and below</u>: use attribute-based file highlighting.
         All file highlighting templates, except <code>*</code> and <code>*.*</code> will be ignored.<br>
-        <u>FAR Manager 1.70 build #964 and above</u>: use attributes only for file highlighting. 
+        <u>FAR Manager 1.70 build #964 and above</u>: use attributes only for file highlighting.
         File names will be ignored. Color is chosen from file color groups, which have templates
-        excluded from analysis (i.e. option "<code>[ ] Match file mask(s)</code>" in file 
+        excluded from analysis (i.e. option "<code>[ ] Match file mask(s)</code>" in file
         highlighting setup dialog is off).
         </td></tr>
 </table>
@@ -122,7 +122,7 @@ struct OpenPluginInfo
     <div class=dfn>PanelTitle</div>
     <div class=dfndescr>Plugin panel header.</div>
     <div class=dfn>InfoLines</div>
-    <div class=dfndescr>Pointer to an array of &nbsp;<a href="infopanelline.html">InfoPanelLine</a> structures. 
+    <div class=dfndescr>Pointer to an array of &nbsp;<a href="infopanelline.html">InfoPanelLine</a> structures.
     Each structure describes one line in the information panel. If no plugin-dependent information needs to be shown in the
     information panel, set this field to <code>NULL</code>.</div>
     <div class=dfn>InfoLinesNumber</div>
@@ -130,16 +130,16 @@ struct OpenPluginInfo
     <div class=dfn>DescrFiles</div>
     <div class=dfndescr>Pointer to an array of pointers to strings with description file names.
       FAR tries to read these files (using the <a href="../exported_functions/getfiles.html">GetFiles</a> function)
-      when descriptions are shown and refresh them after file processing, if 
+      when descriptions are shown and refresh them after file processing, if
       the <dfn>PPIF_PROCESSDESCR</dfn> flag in the <a href="pluginpanelitem.html">PluginPanelItem</a> structure
       was set. Depending on the plugin type, description processing can take significant time.
       If you don't need this functionality, set the field to <code>NULL</code>.</div>
     <div class=dfn>DescrFilesNumber</div>
     <div class=dfndescr>Number of description file names.</div>
     <div class=dfn>PanelModesArray</div>
-    <div class=dfndescr>Pointer to an array of <a href="panelmode.html">PanelMode</a> structures. 
-    Panel display mode settings can be redefined using this field. 
-    The first structure describes display mode number 0, the second - number 1, etc. 
+    <div class=dfndescr>Pointer to an array of <a href="panelmode.html">PanelMode</a> structures.
+    Panel display mode settings can be redefined using this field.
+    The first structure describes display mode number 0, the second - number 1, etc.
     If new panel display modes are not required, set the field to <code>NULL</code>.</div>
     <div class=dfn>PanelModesNumber</div>
     <div class=dfndescr>Number of <a href="panelmode.html">PanelMode</a> structures.</div>
@@ -161,13 +161,13 @@ struct OpenPluginInfo
 
     <div class=dfn>KeyBar</div>
     <div class=dfndescr>Pointer to the <a href="keybartitles.html">KeyBarTitles</a> structure.
-    Function key labels are redefined using this field. 
+    Function key labels are redefined using this field.
     Set to <code>NULL</code> if not required.</div>
 
     <div class=dfn>ShortcutData</div>
-    <div class=dfndescr>Pointer to a null-terminated string, which describes the current state of the plugin. 
-    The length of string should be less than or equal to <a name="MAXSIZE_SHORTCUTDATA">MAXSIZE_SHORTCUTDATA</a>. 
-    This string is passed to the <a href="../exported_functions/openplugin.html">OpenPlugin</a> function, 
+    <div class=dfndescr>Pointer to a null-terminated string, which describes the current state of the plugin.
+    The length of string should be less than or equal to <dfn><a name="MAXSIZE_SHORTCUTDATA">MAXSIZE_SHORTCUTDATA</a></dfn>.
+    This string is passed to the <a href="../exported_functions/openplugin.html">OpenPlugin</a> function,
     when the plugin is activated by the link to folder command.
     For example, an FTP client can place the server host name, login and password here.
     The current directory is not required as FAR will restore this itself.<br>
@@ -182,9 +182,9 @@ struct OpenPluginInfo
 <ol>
   <li>All data, passed through this structure should be valid after return from
    the <a href="../exported_functions/getopenplugininfo.html">GetOpenPluginInfo</a> function.
-   This means, for example, that pointers to the stack are not allowed, 
+   This means, for example, that pointers to the stack are not allowed,
    use static or global variables instead.
-  <li>When this structure is passed to a plugin's 
+  <li>When this structure is passed to a plugin's
       <a href="../exported_functions/getopenplugininfo.html">GetOpenPluginInfo</a> function,
    it can be assumed to be cleared to zeros.
 </ol>
