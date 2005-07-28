@@ -43,9 +43,9 @@ BSC32=bscmake.exe
 FARINCLUDE=.\Include
 
 !IF  "$(CFG)" == "far - Win32 Release"
-OUTDIR=.\Release
+OUTDIR=.\Release.vc
 !ELSEIF  "$(CFG)" == "far - Win32 Debug"
-OUTDIR=.\Debug
+OUTDIR=.\Debug.vc
 !ENDIF
 
 INTDIR=$(OUTDIR)\obj

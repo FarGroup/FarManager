@@ -28,18 +28,20 @@ BCCPATH=$(FARBCC)
 # bccpath нужен для того, чтобы прямо использовать его в exe файлах
 # set bccpath=e:\bc5, просто в path может сидеть совсем другой борланд
 
+!ifdef DEBUG
+OUTPATH=Debug.bcc
+!else
+OUTPATH=Release.bcc
+!endif
+
 # путь для публичных HPP-файлов
 FARINCLUDE=Include
 
 # сюда будет помещен результат
-FINALPATH=Final
+FINALPATH=$(OUTPATH)
 
 # путь к каталогу с временными файлами - obj, etc
-!ifdef DEBUG
-OBJPATH=OBJD
-!else
-OBJPATH=OBJ
-!endif
+OBJPATH=$(OUTPATH)\OBJ
 
 .path.obj = $(OBJPATH)
 .path.cpp = .
@@ -269,6 +271,7 @@ $(OBJPATH)\Far.res :  Far.rc
 !ifdef ILINK
 $(FINALPATH)\Far.exe : BccW32.cfg Far.def $(OBJPATH)\Far.res $(FAROBJ)
 	-@settitle "Linking..."
+	@if not exist $(OUTPATH) mkdir $(OUTPATH)
 	@if not exist $(FINALPATH) mkdir $(FINALPATH)
 	@if not exist $(FARINCLUDE) mkdir $(FARINCLUDE)
 	@$(TLINK32)  $(LINKFLAGS) @&&|
@@ -281,8 +284,9 @@ $(OBJPATH)\Far.res
 !else
 $(FINALPATH)\Far.exe : BccW32.cfg Far.def $(OBJPATH)\Far.res $(FAROBJ)
 	-@settitle "Linking..."
+	@if not exist $(OUTPATH) mkdir $(OUTPATH)
 	@if not exist $(FINALPATH) mkdir $(FINALPATH)
-	@if not exist $(FINALPATH) mkdir $(FINALPATH)
+	@if not exist $(FARINCLUDE) mkdir $(FARINCLUDE)
 	@$(TLINK32)  $(LINKFLAGS) @&&|
 $(LIBPATH)\c0x32.obj $(FAROBJ) $(FAR_STDHDR_OBJ)
 $<,$*

@@ -345,6 +345,14 @@ int CommandLine::ProcessKey(int Key)
 
   switch(Key)
   {
+    case KEY_TAB: // autocomplete
+    {
+      //xstrncpy(Str,,sizeof(Str)-1);
+      //CmdStr.SetString(Str);
+      //Show();
+      return(TRUE);
+    }
+
     case KEY_CTRLE:
     case KEY_CTRLX:
       if(Key == KEY_CTRLE)

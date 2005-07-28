@@ -205,11 +205,17 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
       //PreparePanelView(&PStack->PrevViewSettings);
       //if (!Info.StartPanelMode)
       SetViewMode(Info.StartPanelMode?Info.StartPanelMode-'0':PStack->PrevViewMode);
-      if (Info.StartSortMode)
+      if (Info.StartSortMode == SM_DEFAULT)
       {
         SortMode=PStack->PrevSortMode;
         NumericSort=PStack->PrevNumericSort;
         SortOrder=PStack->PrevSortOrder;
+      }
+      else
+      {
+        SortMode=Info.StartSortMode;
+        NumericSort=PStack->PrevNumericSort;
+        SortOrder=Info.StartSortOrder;
       }
     }
     hPlugin=PluginsStack[PluginsStackSize-1].hPlugin;

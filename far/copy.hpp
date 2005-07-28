@@ -7,10 +7,12 @@ class ShellCopy - Копирование файлов
 
 */
 
-/* Revision: 1.28 12.07.2005 $ */
+/* Revision: 1.29 28.07.2005 $ */
 
 /*
 Modify:
+  27.07.2005 SVS
+    + ShellCopy.SkipEncMode, FCOPY_LEAVESECURITY, FCOPY_DECRYPTED_DESTINATION
   12.07.2005 SVS
     + FCOPY_COPYPARENTSECURITY
   14.06.2005 SVS
@@ -124,6 +126,8 @@ enum COPY_FLAGS {
   FCOPY_SKIPSETATTRFLD          = 0x00002000, // больше не пытаться ставить атрибуты для каталогов - когда нажали Skip All
   FCOPY_COPYSYMLINKCONTENTS     = 0x00004000, // Копировать содержимое симолических связей?
   FCOPY_COPYPARENTSECURITY      = 0x00008000, // Накладывать родительские права, в случае если мы не копируем права доступа
+  FCOPY_LEAVESECURITY           = 0x00010000, // Move: [?] Ничего не делать с правами доступа
+  FCOPY_DECRYPTED_DESTINATION   = 0x00020000, // для криптованных файлов - расшифровывать...
   FCOPY_COPYLASTTIME            = 0x10000000, // При копировании в несколько каталогов устанавливается для последнего.
   FCOPY_UPDATEPPANEL            = 0x80000000, // необходимо обновить пассивную панель
 };
@@ -174,6 +178,7 @@ class ShellCopy
     int ReadOnlyOvrMode;
     int ReadOnlyDelMode;
     int SkipMode;
+    int SkipEncMode;
     /* KM $ */
 
     long TotalFiles;

@@ -1,7 +1,7 @@
 BEGIN{
   FS=".";
   if(out == "")
-    out="Release";
+    out="Release.vc";
 }
 {
   if($2 == "cpp" || $2 == "c")

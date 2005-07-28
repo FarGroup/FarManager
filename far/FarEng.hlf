@@ -3092,11 +3092,13 @@ possible to either cancel the operation or replace the disk and select the
 disks. This feature is available only when "Use system copy routine" option in
 the ~System settings~@SystemSettings@ dialog is switched off.
 
-    Option "Copy access rights" is valid only for the NTFS file system and
+    Option "Inheriting of access rights" is valid only for the NTFS file system and
 allows the copying of file access information. This option is checked by
 default for copy and move operations. If this option is unchecked then
 after copying/moving the inheritable access rights of the parent folder
-will be applied to the copied/moved files and folders.
+will be applied to the copied/moved files and folders. Если опция
+имеет третье состояние, то никакие операции с правами доступа производится
+не будут.
 
     Parameter "Only newer file(s)" will allow to copy (move) the new and
 updated files without additional prompts. Updated files are those files for
@@ -3108,6 +3110,8 @@ dialog forces the Windows function CopyFileEx usage (or CopyFile if CopyFileEx
 is not available) instead of the internal copy implementation to copy files. It
 may be useful on NTFS, because CopyFileEx performs a more rational disk space
 allocation and copies file extended attributes.
+В Windows 2000 системная функция не используется для случая, когда
+файл шифрованный и производится копирование такого файла вне тома.
 
     The "Copy contents of symbolic links" option allows to control the
 ~logic~@CopyRule@ of FAR processing of ~symbolic links~@HardSymLink@ when
@@ -3123,8 +3127,8 @@ that is, the file is read from the disk but not written anywhere.
     When files are moved to #nul#, #\\\\.\\nul# or #con#, they are not deleted
 from the disk.
 
-    The options "Copy access rights" and "Only newer files" affect only the
-current copy session and are not saved for later copy operations.
+    The options "Inheriting of access rights" and "Only newer files" affect
+only the current copy session and are not saved for later copy operations.
 
     Check the #Use filter# checkbox to copy the files that meet the user
 defined conditions. Press the #Filter# button to open the conditions
@@ -3225,6 +3229,20 @@ $ #Error: copy/move onto itself.#
 
     This error can also happen under Windows 2000/XP, if there are two
 directories, one of which is a ~symbolic link~@HardSymLink@ to another.
+
+
+@WarnCopyEncrypt
+$ #Предупреждение: Потеря шифрования файла#
+    Исходный файл зашифрован. Копирование или перемещение его за пределы
+исходного диска возможно, если в месте назначения файл будет расшифрован.
+
+    Кнопки "Игнорировать" (или "Игнорировать все") игнорируют данное
+предупреждение и файл копируется в новое место нешифрованным.
+
+    В Windows 2000 для копирования шифрованного файла за пределы
+исходного диска будет использован внутренний механизм копирования,
+независимо от того, включен ли параметр "Использовать системную функцию
+копирования" или нет.
 
 
 @WarnCopyStream

@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.155 25.07.2005 $ */
+/* Revision: 1.156 28.07.2005 $ */
 
 /*
 Modify:
+  28.07.2005 SVS
+    ! see 02034.Mix.txt
   24.07.2005 WARP
     ! see 02033.LockUnlock.txt
   22.07.2005 SVS
@@ -757,6 +759,11 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
   if(Move)  // секция про перенос
   {
+    CopyDlg[4].Flags|=DIF_3STATE;
+    CDP.CopySecurity=2;
+    //   [x] Сохранять старые права доступа
+    //   [ ] Наследовать права доступа от новой родительской папки
+    //   [?] Ничего не делать с правами доступа
     if(Opt.CMOpt.CopySecurityOptions&CSO_MOVE_SETSECURITY) // ставить опцию "Copy access rights"?
     {
       if(CopySecurityMove == -1) // самоинициализация переменной
@@ -766,7 +773,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     }
 
     if(CopySecurityMove == -1) // самоинициализация переменной
-      CopySecurityMove=0; // по умолчанию снята
+      CopySecurityMove=2; // по умолчанию третье состояние
 
     if(Opt.CMOpt.CopySecurityOptions&CSO_MOVE_SESSIONSECURITY) // хотели сессионное запоминание?
       CDP.CopySecurity=CopySecurityMove;
@@ -782,7 +789,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     }
 
     if(CopySecurityCopy == -1) // самоинициализация переменной
-      CopySecurityCopy=0; // по умолчанию снята
+      CDP.CopySecurity=CopySecurityCopy=0; // по умолчанию снята
 
     if(Opt.CMOpt.CopySecurityOptions&CSO_COPY_SESSIONSECURITY) // хотели сессионное запоминание?
       CDP.CopySecurity=CopySecurityCopy;
@@ -791,12 +798,15 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   // вот теперь выставляем
   if(CDP.CopySecurity)
   {
-    ShellCopy::Flags|=FCOPY_COPYSECURITY;
-    CopyDlg[4].Selected=1;
+    if(CDP.CopySecurity == 1)
+      ShellCopy::Flags|=FCOPY_COPYSECURITY;
+    else
+      ShellCopy::Flags|=FCOPY_LEAVESECURITY;
+    CopyDlg[4].Selected=CDP.CopySecurity;
   }
   else
   {
-    ShellCopy::Flags&=~FCOPY_COPYSECURITY;
+    ShellCopy::Flags&=~(FCOPY_COPYSECURITY|FCOPY_LEAVESECURITY);
     CopyDlg[4].Selected=0;
   }
 
@@ -1069,15 +1079,21 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   // ***********************************************************************
   ShellCopy::Flags&=~FCOPY_COPYPARENTSECURITY;
   if(CopyDlg[4].Selected)
-    ShellCopy::Flags|=FCOPY_COPYSECURITY;
+  {
+    if(CopyDlg[4].Selected == 1)
+      ShellCopy::Flags|=FCOPY_COPYSECURITY;
+    else
+      ShellCopy::Flags|=FCOPY_LEAVESECURITY;
+  }
   else
   {
-    ShellCopy::Flags&=~FCOPY_COPYSECURITY;
-    if(Opt.CMOpt.CopySecurityOptions&CSO_MOVE_SETPARENTSECURITY)
-      ShellCopy::Flags|=FCOPY_COPYPARENTSECURITY;
+    ShellCopy::Flags&=~(FCOPY_COPYSECURITY|FCOPY_LEAVESECURITY);
   }
 
-  CDP.CopySecurity=ShellCopy::Flags&FCOPY_COPYSECURITY?1:0;
+  if(!(ShellCopy::Flags&(FCOPY_COPYSECURITY|FCOPY_LEAVESECURITY)))
+    ShellCopy::Flags|=FCOPY_COPYPARENTSECURITY;
+
+  CDP.CopySecurity=ShellCopy::Flags&FCOPY_COPYSECURITY?1:(ShellCopy::Flags&FCOPY_LEAVESECURITY?2:0);
 
   // в любом случае сохраняем сессионное запоминание (не для Link, т.к. для Link временное состояние - "ВСЕГДА!")
   if(!Link)
@@ -1170,7 +1186,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
         // переинициализируем переменные в самом начале (BugZ#171)
 //        CopyBufSize = COPY_BUFFER_SIZE; // Начинаем с 1к
         CopyBufSize = CopyBufferSize;
-        ReadOnlyDelMode=ReadOnlyOvrMode=OvrMode=SkipMode=-1;
+        ReadOnlyDelMode=ReadOnlyOvrMode=OvrMode=SkipEncMode=SkipMode=-1;
 
         // посчитаем количество целей.
         DestList.Reset();
@@ -2550,7 +2566,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
         _LOGCOPYR(SysLog("%d CmpFullPath => %d",__LINE__,CmpFullPath(Src,Dest)));
 
         // для Move нам необходимо узнать каталог родитель, чтобы получить его секьюрити
-        if (!(ShellCopy::Flags&FCOPY_COPYSECURITY))
+        if (!(ShellCopy::Flags&(FCOPY_COPYSECURITY|FCOPY_LEAVESECURITY)))
         {
           IsSetSecuty=FALSE;
           if(CmpFullPath(Src,Dest)) // в пределах одного каталога ничего не меняем
@@ -2922,7 +2938,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
         IsSetSecuty=FALSE;
 
         // для Move нам необходимо узнать каталог родитель, чтобы получить его секьюрити
-        if (Rename && !(ShellCopy::Flags&FCOPY_COPYSECURITY))
+        if (Rename && !(ShellCopy::Flags&(FCOPY_COPYSECURITY|FCOPY_LEAVESECURITY)))
         {
           if(CmpFullPath(Src,Dest)) // в пределах одного каталога ничего не меняем
             IsSetSecuty=FALSE;
@@ -3020,7 +3036,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
 
         if (IsDriveTypeCDROM(SrcDriveType) && Opt.ClearReadOnly &&
             (SrcData.dwFileAttributes & FA_RDONLY))
-          ShellSetAttr(DestPath,SrcData.dwFileAttributes & ~FA_RDONLY);
+          ShellSetAttr(DestPath,SrcData.dwFileAttributes & (~FA_RDONLY));
 
         TotalFiles++;
         if (AskDelete && DeleteAfterMove(Src,SrcData.dwFileAttributes)==COPY_CANCEL)
@@ -3086,10 +3102,6 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
 
     {
       int MsgCode;
-      /* $ 02.03.2002 KM
-        ! Пропуск залоченных файлов.
-          Реализация "Skip all".
-      */
       if (SkipMode!=-1)
         MsgCode=SkipMode;
       else
@@ -3120,7 +3132,6 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
           _LOGCOPYR(SysLog("return COPY_CANCEL -> %d",__LINE__));
           return COPY_CANCEL;
       }
-      /* KM $ */
     }
 
 //    CurCopiedSize=SaveCopiedSize;
@@ -3429,20 +3440,66 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
     return(MkLink(SrcName,DestName) ? COPY_SUCCESS:COPY_FAILURE);
   }
 
+  if(!IsSameDisk(SrcName,DestName) && (SrcData.dwFileAttributes&FILE_ATTRIBUTE_ENCRYPTED))
+  {
+    int MsgCode;
+    if (SkipEncMode!=-1)
+      MsgCode=SkipEncMode;
+    else
+    {
+      CopyTime+= (clock() - CopyStartTime);
+      char Msg1[2*NM];
+      SetMessageHelp("WarnCopyEncrypt");
+      InsertQuote(TruncPathStr(xstrncpy(Msg1,SrcName,sizeof(Msg1)-1),64));
+      MsgCode=Message(MSG_DOWN|MSG_WARNING,3,MSG(MWarning),
+                      MSG(MCopyEncryptWarn1),
+                      Msg1,
+                      MSG(MCopyEncryptWarn2),
+                      MSG(MCopyEncryptWarn3),
+                      MSG(MCopyIgnore),MSG(MCopyIgnoreAll),MSG(MCopyCancel));
+      CopyStartTime = clock();
+    }
+
+    switch(MsgCode)
+    {
+      case -1:
+      case  0:
+        _LOGCOPYR(SysLog("return COPY_NEXT -> %d",__LINE__));
+        ShellCopy::Flags|=FCOPY_DECRYPTED_DESTINATION;
+        break;//return COPY_NEXT;
+      case  1:
+        SkipEncMode=1;
+        ShellCopy::Flags|=FCOPY_DECRYPTED_DESTINATION;
+        _LOGCOPYR(SysLog("return COPY_NEXT -> %d",__LINE__));
+        break;//return COPY_NEXT;
+      case -2:
+      case  2:
+        _LOGCOPYR(SysLog("return COPY_CANCEL -> %d",__LINE__));
+        return COPY_CANCEL;
+    }
+  }
+
   if (!(ShellCopy::Flags&FCOPY_COPYTONUL) && Opt.CMOpt.UseSystemCopy && !Append)
   {
-    if (!Opt.CMOpt.CopyOpened)
+    //if(!(WinVer.dwMajorVersion >= 5 && WinVer.dwMinorVersion > 0) && (ShellCopy::Flags&FCOPY_DECRYPTED_DESTINATION))
+    if(!(SrcData.dwFileAttributes&FILE_ATTRIBUTE_ENCRYPTED) ||
+        (SrcData.dwFileAttributes&FILE_ATTRIBUTE_ENCRYPTED) &&
+          (WinVer.dwMajorVersion >= 5 && WinVer.dwMinorVersion > 0 || !(ShellCopy::Flags&FCOPY_DECRYPTED_DESTINATION))
+      )
     {
-      HANDLE SrcHandle=FAR_CreateFile(SrcName,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,0,NULL);
-      if (SrcHandle==INVALID_HANDLE_VALUE)
+      if (!Opt.CMOpt.CopyOpened)
       {
-        _LOGCOPYR(SysLog("return COPY_FAILURE -> %d if (SrcHandle==INVALID_HANDLE_VALUE)",__LINE__));
-        return COPY_FAILURE;
+        HANDLE SrcHandle=FAR_CreateFile(SrcName,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,0,NULL);
+        if (SrcHandle==INVALID_HANDLE_VALUE)
+        {
+          _LOGCOPYR(SysLog("return COPY_FAILURE -> %d if (SrcHandle==INVALID_HANDLE_VALUE)",__LINE__));
+          return COPY_FAILURE;
+        }
+        CloseHandle(SrcHandle);
       }
-      CloseHandle(SrcHandle);
+      _LOGCOPYR(SysLog("call ShellSystemCopy('%s','%s',%p)",SrcName,DestName,SrcData));
+      return(ShellSystemCopy(SrcName,DestName,SrcData));
     }
-    _LOGCOPYR(SysLog("call ShellSystemCopy('%s','%s',%p)",SrcName,DestName,SrcData));
-    return(ShellSystemCopy(SrcName,DestName,SrcData));
   }
 
   SECURITY_ATTRIBUTES sa;
@@ -3487,23 +3544,23 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
     DestHandle=FAR_CreateFile(DestName,GENERIC_WRITE,FILE_SHARE_READ,
                           (ShellCopy::Flags&FCOPY_COPYSECURITY) ? &sa:NULL,
                           Append ? OPEN_EXISTING:CREATE_ALWAYS,
-                          SrcData.dwFileAttributes,NULL);
+           SrcData.dwFileAttributes&(~((ShellCopy::Flags&FCOPY_DECRYPTED_DESTINATION)?FILE_ATTRIBUTE_ENCRYPTED:0)),NULL);
     if (DestHandle==INVALID_HANDLE_VALUE)
     {
-      DWORD LastError=GetLastError();
+      _localLastError=GetLastError();
       CloseHandle(SrcHandle);
-      SetLastError(LastError);
-      _LOGCOPYR(SysLog("return COPY_FAILURE -> %d CreateFile=-1, LastError=%d (0x%08X)",__LINE__,LastError,LastError));
+      SetLastError(_localLastError);
+      _LOGCOPYR(SysLog("return COPY_FAILURE -> %d CreateFile=-1, LastError=%d (0x%08X)",__LINE__,_localLastError,_localLastError));
       return COPY_FAILURE;
     }
 
     if (Append && (AppendPos=SetFilePointer(DestHandle,0,&AppendPosHigh,FILE_END))==0xFFFFFFFF)
     {
-      DWORD LastError=GetLastError();
+      _localLastError=GetLastError();
       CloseHandle(SrcHandle);
       CloseHandle(DestHandle);
-      SetLastError(LastError);
-      _LOGCOPYR(SysLog("return COPY_FAILURE -> %d SetFilePointer() == -1, LastError=%d (0x%08X)",__LINE__,LastError,LastError));
+      SetLastError(_localLastError);
+      _LOGCOPYR(SysLog("return COPY_FAILURE -> %d SetFilePointer() == -1, LastError=%d (0x%08X)",__LINE__,_localLastError,_localLastError));
       return COPY_FAILURE;
     }
   }
@@ -3589,7 +3646,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
       ShowBar(0,0,false);
       ShowTitle(FALSE);
       SetErrorMode(OldErrMode);
-      SetLastError(LastError);
+      SetLastError(_localLastError=LastError);
       // return COPY_FAILUREREAD;
       _LOGCOPYR(SysLog("return COPY_FAILURE -> %d",__LINE__));
       CurCopiedSize = 0; // Сбросить текущий прогресс
@@ -3636,7 +3693,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
                   FAR_DeleteFile(DestName);
                 }
                 _LOGCOPYR(SysLog("return COPY_FAILURE -> %d",__LINE__));
-                SetErrorMode(OldErrMode);
+                SetErrorMode(_localLastError=OldErrMode);
                 return COPY_FAILURE;
               }
               if (MsgCode==0)
@@ -3680,7 +3737,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
           if (!AskCode)
           {
             CloseHandle(SrcHandle);
-            SetErrorMode(OldErrMode);
+            SetErrorMode(_localLastError=OldErrMode);
             _LOGCOPYR(SysLog("return COPY_CANCEL -> %d",__LINE__));
             return(COPY_CANCEL);
           }
@@ -3702,7 +3759,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
             CloseHandle(SrcHandle);
             CloseHandle(DestHandle);
             SetErrorMode(OldErrMode);
-            SetLastError(LastError);
+            SetLastError(_localLastError=LastError);
             _LOGCOPYR(SysLog("return COPY_FAILURE -> %d",__LINE__));
             return COPY_FAILURE;
           }
@@ -3734,7 +3791,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
           ShowBar(0,0,false);
           ShowTitle(FALSE);
           SetErrorMode(OldErrMode);
-          SetLastError(LastError);
+          SetLastError(_localLastError=LastError);
           if (SplitSkipped)
           {
             _LOGCOPYR(SysLog("return COPY_NEXT -> %d",__LINE__));
@@ -3781,7 +3838,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
     }
     /* VVM $ */
   } /* while */
-  SetErrorMode(OldErrMode);
+  SetErrorMode(_localLastError=OldErrMode);
 
   if(!(ShellCopy::Flags&FCOPY_COPYTONUL))
   {
@@ -3792,7 +3849,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
     // TODO: ЗДЕСЯ СТАВИТЬ Compressed???
     if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS &&
         (SrcData.dwFileAttributes & (FA_HIDDEN|FA_SYSTEM|FA_RDONLY)))
-      ShellSetAttr(DestName,SrcData.dwFileAttributes);
+      ShellSetAttr(DestName,SrcData.dwFileAttributes&(~((ShellCopy::Flags&FCOPY_DECRYPTED_DESTINATION)?FILE_ATTRIBUTE_ENCRYPTED:0)));
   }
   else
     CloseHandle(SrcHandle);
@@ -4224,6 +4281,7 @@ int ShellCopy::SetRecursiveSecurity(const char *FileName,const SECURITY_ATTRIBUT
   {
     if(::GetFileAttributes(FileName)&FILE_ATTRIBUTE_DIRECTORY)
     {
+      SaveScreen SaveScr;
       PREREDRAWFUNC OldPreRedrawFunc=PreRedrawFunc;
       //SetCursorType(FALSE,0);
       SetPreRedrawFunc(PR_ShellCopySecuryMsg);
@@ -4292,8 +4350,14 @@ int ShellCopy::ShellSystemCopy(const char *SrcName,const char *DestName,const WI
   {
     BOOL Cancel=0;
     TotalCopiedSizeEx=TotalCopiedSize;
-    if (!FAR_CopyFileEx(SrcName,DestName,(void *)CopyProgressRoutine,NULL,&Cancel,0))
-      return GetLastError()==ERROR_REQUEST_ABORTED ? COPY_CANCEL:COPY_FAILURE;
+#ifndef COPY_FILE_ALLOW_DECRYPTED_DESTINATION
+#define COPY_FILE_ALLOW_DECRYPTED_DESTINATION 0x00000008
+#endif
+    // COPY_FILE_ALLOW_DECRYPTED_DESTINATION
+    if (!FAR_CopyFileEx(SrcName,DestName,(void *)CopyProgressRoutine,NULL,&Cancel,
+         ShellCopy::Flags&FCOPY_DECRYPTED_DESTINATION?COPY_FILE_ALLOW_DECRYPTED_DESTINATION:0))
+
+      return (_localLastError=GetLastError())==ERROR_REQUEST_ABORTED ? COPY_CANCEL:COPY_FAILURE;
   }
   else
   {
@@ -4382,7 +4446,7 @@ int ShellCopy::IsSameDisk(const char *SrcPath,const char *DestPath)
   if ((SrcRoot[0]=='\\' && SrcRoot[1]=='\\' || DestRoot[0]=='\\' && DestRoot[1]=='\\') &&
       LocalStricmp(SrcRoot,DestRoot)!=0)
     return(FALSE);
-  if (*SrcPath==0 || *DestPath==0 || SrcPath[1]!=':' || DestPath[1]!=':') //????
+  if (*SrcPath==0 || *DestPath==0 || (SrcPath[1]!=':' && DestPath[1]!=':')) //????
     return(TRUE);
   if (toupper(DestRoot[0])==toupper(SrcRoot[0]))
     return(TRUE);

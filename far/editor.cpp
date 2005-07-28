@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.266 25.07.2005 $ */
+/* Revision: 1.267 26.07.2005 $ */
 
 /*
 Modify:
+  26.07.2005 SVS
+    - Некомпиляция дебажной версии
   24.07.2005 WARP
     ! see 02033.LockUnlock.txt
   15.07.2005 AY
@@ -2188,7 +2190,7 @@ int Editor::ProcessKey(int Key)
     case KEY_CTRLSHIFTLEFT:  case KEY_CTRLSHIFTNUMPAD4:
     {
       _SVS(CleverSysLog SL("case KEY_CTRLSHIFTLEFT"));
-      _SVS(SysLog("[%d] Pasting=%d, SelEnd=%d",__LINE__,Pasting,DisableOut));
+      _SVS(SysLog("[%d] Pasting=%d, SelEnd=%d",__LINE__,Pasting,SelEnd));
       {
         int SkipSpace=TRUE;
         Pasting++;
@@ -2259,7 +2261,7 @@ int Editor::ProcessKey(int Key)
     case KEY_CTRLSHIFTRIGHT:  case KEY_CTRLSHIFTNUMPAD6:
     {
       _SVS(CleverSysLog SL("case KEY_CTRLSHIFTRIGHT"));
-      _SVS(SysLog("[%d] Pasting=%d, SelEnd=%d",__LINE__,Pasting,DisableOut));
+      _SVS(SysLog("[%d] Pasting=%d, SelEnd=%d",__LINE__,Pasting,SelEnd));
       {
         int SkipSpace=TRUE;
         Pasting++;

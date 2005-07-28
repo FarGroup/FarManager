@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.91 12.07.2005 $ */
+/* Revision: 1.92 27.07.2005 $ */
 
 /*
 Modify:
+  27.07.2005 SVS
+    ! удален CSO_MOVE_SETPARENTSECURITY - нафик ненать
   12.07.2005 SVS
     + COPYSECURITYOPTIONS - флаги для копира
   06.05.2005 SVS
@@ -581,7 +583,6 @@ enum COPYSECURITYOPTIONS{
   CSO_MOVE_SESSIONSECURITY       = 0x00000002,  // Move: сохранять состояние "Copy access rights" внутри сессии?
   CSO_COPY_SETSECURITY           = 0x00000004,  // Copy: по умолчанию выставлять опцию "Copy access rights"?
   CSO_COPY_SESSIONSECURITY       = 0x00000008,  // Copy: сохранять состояние "Copy access rights" внутри сессии?
-  CSO_MOVE_SETPARENTSECURITY     = 0x00000010,  // Move: если опция сброшена, наследовать права от родителя?
 };
 
 #endif // __FARCONST_HPP__
