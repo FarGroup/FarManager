@@ -5,10 +5,14 @@ copy.cpp
 
 */
 
-/* Revision: 1.156 28.07.2005 $ */
+/* Revision: 1.157 01.08.2005 $ */
 
 /*
 Modify:
+  01.08.2005 SVS
+    - чей-то не с SetErrorMode сделал :-)
+    ! вместо прямого Opt.CMOpt.UseSystemCopy заюзаем флаг FCOPY_USESYSTEMCOPY
+    ! для диалога про Encr... Esc должен прервать процесс (т.е. аналогично нажатию Cancel)
   28.07.2005 SVS
     ! see 02034.Mix.txt
   24.07.2005 WARP
@@ -1090,6 +1094,11 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     ShellCopy::Flags&=~(FCOPY_COPYSECURITY|FCOPY_LEAVESECURITY);
   }
 
+  if(Opt.CMOpt.MultiCopy)
+    ShellCopy::Flags|=FCOPY_USESYSTEMCOPY;
+  else
+    ShellCopy::Flags&=~FCOPY_USESYSTEMCOPY;
+
   if(!(ShellCopy::Flags&(FCOPY_COPYSECURITY|FCOPY_LEAVESECURITY)))
     ShellCopy::Flags|=FCOPY_COPYPARENTSECURITY;
 
@@ -1149,6 +1158,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   *DestDizPath=0;
   SrcPanel->SaveSelection();
 
+  // TODO: Posix - bugbug
   for (int I=0;CopyDlgValue[I]!=0;I++)
     if (CopyDlgValue[I]=='/')
       CopyDlgValue[I]='\\';
@@ -3155,7 +3165,7 @@ COPY_CODES ShellCopy::CheckStreams(const char *Src,const char *DestPath)
 {
 #if 0
   int AscStreams=(ShellCopy::Flags&FCOPY_STREAMSKIP)?2:((ShellCopy::Flags&FCOPY_STREAMALL)?0:1);
-  if(!Opt.CMOpt.UseSystemCopy && NT && AscStreams)
+  if(!(ShellCopy::Flags&FCOPY_USESYSTEMCOPY) && NT && AscStreams)
   {
     int CountStreams=EnumNTFSStreams(Src,NULL,NULL);
     if(CountStreams > 1 ||
@@ -3462,7 +3472,6 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
 
     switch(MsgCode)
     {
-      case -1:
       case  0:
         _LOGCOPYR(SysLog("return COPY_NEXT -> %d",__LINE__));
         ShellCopy::Flags|=FCOPY_DECRYPTED_DESTINATION;
@@ -3472,6 +3481,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
         ShellCopy::Flags|=FCOPY_DECRYPTED_DESTINATION;
         _LOGCOPYR(SysLog("return COPY_NEXT -> %d",__LINE__));
         break;//return COPY_NEXT;
+      case -1:
       case -2:
       case  2:
         _LOGCOPYR(SysLog("return COPY_CANCEL -> %d",__LINE__));
@@ -3479,7 +3489,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
     }
   }
 
-  if (!(ShellCopy::Flags&FCOPY_COPYTONUL) && Opt.CMOpt.UseSystemCopy && !Append)
+  if (!(ShellCopy::Flags&FCOPY_COPYTONUL) && (ShellCopy::Flags&FCOPY_USESYSTEMCOPY) && !Append)
   {
     //if(!(WinVer.dwMajorVersion >= 5 && WinVer.dwMinorVersion > 0) && (ShellCopy::Flags&FCOPY_DECRYPTED_DESTINATION))
     if(!(SrcData.dwFileAttributes&FILE_ATTRIBUTE_ENCRYPTED) ||
@@ -3693,7 +3703,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
                   FAR_DeleteFile(DestName);
                 }
                 _LOGCOPYR(SysLog("return COPY_FAILURE -> %d",__LINE__));
-                SetErrorMode(_localLastError=OldErrMode);
+                SetErrorMode(OldErrMode);
                 return COPY_FAILURE;
               }
               if (MsgCode==0)
@@ -3737,7 +3747,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
           if (!AskCode)
           {
             CloseHandle(SrcHandle);
-            SetErrorMode(_localLastError=OldErrMode);
+            SetErrorMode(OldErrMode);
             _LOGCOPYR(SysLog("return COPY_CANCEL -> %d",__LINE__));
             return(COPY_CANCEL);
           }
@@ -3838,7 +3848,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
     }
     /* VVM $ */
   } /* while */
-  SetErrorMode(_localLastError=OldErrMode);
+  SetErrorMode(OldErrMode);
 
   if(!(ShellCopy::Flags&FCOPY_COPYTONUL))
   {

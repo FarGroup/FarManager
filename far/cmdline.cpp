@@ -5,10 +5,14 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.81 06.05.2005 $ */
+/* Revision: 1.83 29.07.2005 $ */
 
 /*
 Modify:
+  29.07.2005 SVS
+    ¬ременно убрем
+  28.07.2005 SVS
+    ! застолбленное место дл€ autocomplete при скрытых панел€х
   06.05.2005 SVS
     ! ???::GetCurDir() теперь возвращает размер пути, при этом
       его параметр может быть равен NULL. —делано дл€ того, чтобы
@@ -345,13 +349,13 @@ int CommandLine::ProcessKey(int Key)
 
   switch(Key)
   {
-    case KEY_TAB: // autocomplete
-    {
+    //case KEY_TAB: // autocomplete
+    //{
       //xstrncpy(Str,,sizeof(Str)-1);
       //CmdStr.SetString(Str);
       //Show();
-      return(TRUE);
-    }
+    //  return(TRUE);
+    //}
 
     case KEY_CTRLE:
     case KEY_CTRLX:
