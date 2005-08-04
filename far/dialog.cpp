@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.337 25.07.2005 $ */
+/* Revision: 1.338 04.08.2005 $ */
 
 /*
 Modify:
+  04.08.2005 WARP
+    - GetItemRect возвращал для текста те же координаты, что были введены пользователем.
+      Если X2 был 0, то ткнуть в текст мышью было нельзя. Немного улучшил ситуацию.
   24.07.2005 WARP
     ! see 02033.LockUnlock.txt
   23.06.2005 WARP
@@ -2185,7 +2188,9 @@ BOOL Dialog::GetItemRect(int I,RECT& Rect)
         Rect.top=0;
 
       Rect.bottom=Rect.top;
-      //Rect.right=Rect.left+Len;
+
+      if ( Rect.right == 0 )
+        Rect.right=Rect.left+Len;
 
       if (ItemFlags & (DIF_SEPARATOR|DIF_SEPARATOR2))
       {

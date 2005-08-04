@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.185 25.07.2005 $ */
+/* Revision: 1.186 04.08.2005 $ */
 
 /*
 Modify:
+  04.08.2005 WARP
+    ! убрал из DialogEx лок. не совсем хорошее решение, но работает и дает жить MultiPanel.
   24.07.2005 WARP
     ! see 02033.LockUnlock.txt
   12.07.2005 SVS
@@ -1422,9 +1424,9 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
 
   Dialog::ConvertItem(CVTITEM_FROMPLUGIN,Item,InternalItem,ItemsNumber);
 
-  Frame *frame;
-  if((frame=FrameManager->GetBottomFrame()) != NULL)
-    frame->Lock(); // отменим прорисовку фрейма
+//  Frame *frame;
+//  if((frame=FrameManager->GetBottomFrame()) != NULL)
+//    frame->Lock(); // отменим прорисовку фрейма
 
   {
     Dialog FarDialog(InternalItem,ItemsNumber,DlgProc,Param);
@@ -1482,8 +1484,8 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
   /* $ 15.05.2002 SKV
     Однако разлочивать нужно ровно то, что залочили.
   */
-  if(frame != NULL)
-    frame->Unlock(); // теперь можно :-)
+//  if(frame != NULL)
+//    frame->Unlock(); // теперь можно :-)
  /* SKV $ */
 //  CheckScreenLock();
   FrameManager->RefreshFrame(); //??
