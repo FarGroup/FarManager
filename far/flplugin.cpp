@@ -5,10 +5,12 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.52 04.08.2005 $ */
+/* Revision: 1.53 11.08.2005 $ */
 
 /*
 Modify:
+  11.08.2005 WARP
+    ! see 02039.Mix.txt
   04.08.2005 SVS
     - косяки в стеке. Вроде разобрался КАК ЭТО РАБОТАЕТ!
   28.07.2005 SVS
@@ -186,66 +188,45 @@ void FileList::PushPlugin(HANDLE hPlugin,char *HostFile)
 
 int FileList::PopPlugin(int EnableRestoreViewMode)
 {
-  _ALGO(CleverSysLog("FileList::PopPlugin()"));
-  _ALGO(SysLog("EnableRestoreViewMode=%d",EnableRestoreViewMode));
-  _ALGO(PluginsStackItem_Dump("FileList::PopPlugin",PluginsStack,PluginsStackSize));
-
   struct OpenPluginInfo Info;
   Info.StructSize=0;
 
   DeleteAllDataToDelete();
+
   if (PluginsStackSize==0)
   {
     PanelMode=NORMAL_PANEL;
     return(FALSE);
   }
-  _SVS(SysLog("[%d] hPlugin (for ClosePlugin)=%p",__LINE__,hPlugin));
 
   PluginsStackSize--;
 
   // закрываем текущий плагин.
   CtrlObject->Plugins.ClosePlugin(hPlugin);
 
-  struct PluginsStackItem *PStack=PluginsStack+PluginsStackSize;
-  // PStack указывает на удаляемый плагин
+  struct PluginsStackItem *PStack=PluginsStack+PluginsStackSize; // указатель на плагин, с которого уходим
 
   if (PluginsStackSize>0)
   {
-    _SVS(SysLog("[%d] PLUGIN PANEL",__LINE__));
-
-    // hPlugin берем для следующего плагина
     hPlugin=PluginsStack[PluginsStackSize-1].hPlugin;
-    // PStackNext - следующий притендент
-    struct PluginsStackItem *PStackNext=PStack-1;
-    _SVS(SysLog("[%d] hPlugin (after Pop)=%p",__LINE__,hPlugin));
 
     if (EnableRestoreViewMode)
     {
-      // восстановление ведем для следующего в списке
-      CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
-      //PreparePanelView(&PStackNext->PrevViewSettings);
-      SetViewMode(Info.StartPanelMode?Info.StartPanelMode-'0':PStackNext->PrevViewMode);
-      //if (Info.StartSortMode == SM_DEFAULT)
-      if(1)
-      {
-        SortMode=PStackNext->PrevSortMode;
-        NumericSort=PStackNext->PrevNumericSort;
-        SortOrder=PStackNext->PrevSortOrder;
-      }
-      else
-      {
-        SortMode=Info.StartSortMode;
-        NumericSort=PStackNext->PrevNumericSort;
-        SortOrder=Info.StartSortOrder;
-      }
+      SetViewMode (PStack->PrevViewMode);
+
+      SortMode=PStack->PrevSortMode;
+      NumericSort=PStack->PrevNumericSort;
+      SortOrder=PStack->PrevSortOrder;
     }
 
-    // если файло было модифицировано, то на следующей панели с ним нужно что-то сделать...
     if (PStack->Modified)
     {
       struct PluginPanelItem PanelItem;
+
       char SaveDir[NM];
+
       FarGetCurDir(sizeof(SaveDir),SaveDir);
+
       if (FileNameToPluginItem(PStack->HostFile,&PanelItem))
         CtrlObject->Plugins.PutFiles(hPlugin,&PanelItem,1,FALSE,0);
       else
@@ -254,35 +235,35 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
         xstrncpy(PanelItem.FindData.cFileName,PointToName(PStack->HostFile),sizeof(PanelItem.FindData.cFileName)-1);
         CtrlObject->Plugins.DeleteFiles(hPlugin,&PanelItem,1,0);
       }
+
       FarChDir(SaveDir);
     }
+
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
+
     if ((Info.Flags & OPIF_REALNAMES)==0)
       DeleteFileWithFolder(PStack->HostFile); // удаление файла от предыдущего плагина
+
   }
   else
   {
-    _SVS(SysLog("[%d] NORMAL_PANEL",__LINE__));
     PanelMode=NORMAL_PANEL;
+
     if(EnableRestoreViewMode)
     {
-      //PreparePanelView(&PStack->PrevViewSettings);
-      struct PanelOptions *curPanel=CtrlObject->Cp()->ActivePanel == CtrlObject->Cp()->LeftPanel?&Opt.LeftPanel:&Opt.RightPanel;
-      SetViewMode(curPanel->ViewMode);
-      /* <TODO>
-         Нужно учесть тот факт, что кто-то или что-то может менять
-         принудительно пареметры не своей панели.
-      */
-      //ViewMode=PStack->PrevViewMode;
-      SortMode=curPanel->SortMode;
-      NumericSort=curPanel->NumericSort;
-      SortOrder=curPanel->SortOrder;
-      /* </TODO>*/
+      SetViewMode (PStack->PrevViewMode);
+
+      SortMode=PStack->PrevSortMode;
+      NumericSort=PStack->PrevNumericSort;
+      SortOrder=PStack->PrevSortOrder;
     }
   }
+
   PluginsStack=(struct PluginsStackItem *)xf_realloc(PluginsStack,PluginsStackSize*sizeof(*PluginsStack));
+
   if (EnableRestoreViewMode)
     CtrlObject->Cp()->RedrawKeyBar();
+
   return(TRUE);
 }
 
@@ -1002,8 +983,9 @@ void FileList::SetPluginMode(HANDLE hPlugin,char *PluginFile)
   if (PanelMode!=PLUGIN_PANEL)
     CtrlObject->FolderHistory->AddToHistory(CurDir,NULL,0);
 
+  PushPlugin(hPlugin,PluginFile);
+
   FileList::hPlugin=hPlugin;
-  //PushPlugin(hPlugin,PluginFile);
   PanelMode=PLUGIN_PANEL;
   struct OpenPluginInfo Info;
   CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
@@ -1015,7 +997,6 @@ void FileList::SetPluginMode(HANDLE hPlugin,char *PluginFile)
     SortMode=Info.StartSortMode-(SM_UNSORTED-UNSORTED);
     SortOrder=Info.StartSortOrder ? -1:1;
   }
-  PushPlugin(hPlugin,PluginFile); // - Push делать здесь, после установки режимов!
   Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
   if (AnotherPanel->GetType()!=FILE_PANEL)
   {
