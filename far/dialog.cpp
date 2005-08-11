@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.338 04.08.2005 $ */
+/* Revision: 1.339 11.08.2005 $ */
 
 /*
 Modify:
+  11.08.2005 WARP
+    - Ќельз€ было получить нижний заголовок листа в диалоге
   04.08.2005 WARP
     - GetItemRect возвращал дл€ текста те же координаты, что были введены пользователем.
       ≈сли X2 был 0, то ткнуть в текст мышью было нельз€. Ќемного улучшил ситуацию.
@@ -6889,7 +6891,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
                    должны выполн€тьс€, независимо от результата первого!
                 */
                 BOOL haveTitle = (ListBox->GetTitle(ListTitle->Title,ListTitle->TitleLen) != NULL);
-                BOOL haveBottom = (ListBox->GetTitle(ListTitle->Bottom,ListTitle->BottomLen) != NULL);
+                BOOL haveBottom = (ListBox->GetBottomTitle(ListTitle->Bottom,ListTitle->BottomLen) != NULL);
                 if (haveTitle || haveBottom)
                   return TRUE;
                 /* DJ $ */
