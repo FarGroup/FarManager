@@ -155,7 +155,8 @@ BOOL FTP::DoCommand( CONSTSTR str, int type, DWORD flags )
 
 /* FTP state */
 BOOL FTP::ExecCmdLineFTP( CONSTSTR str, BOOL Prefix )
-  {
+  {  PROC(( "FTP::ExecCmdLineFTP", "[%s],%d", str, Prefix ))
+
     if ( Prefix && *str == '/' ) {
       FTPHost tmp;
       tmp.Assign( &Host );
@@ -176,15 +177,8 @@ BOOL FTP::ExecCmdLineFTP( CONSTSTR str, BOOL Prefix )
     if ( StrCmpI(str,"TOHOSTS") == 0 ) {
       hConnect->disconnect();
       return TRUE;
-    } else
-//CD
-    if ( StrNCmpI(str,"CD ",3) == 0 ) {
-      str+=3;
-      if ( *str ) {
-        SetDirectory( str,0 );
-        return TRUE;
-      }
-    } else
+    }
+
 //DIRFILE
     if ( StrNCmpI(str,"DIRFILE ",8) == 0 ) {
       for( str+=7; *str && *str == ' '; str++ );
@@ -193,20 +187,34 @@ BOOL FTP::ExecCmdLineFTP( CONSTSTR str, BOOL Prefix )
        else
         hConnect->DirFile[0] = 0;
       return TRUE;
-    } else
+    }
+
 //CMD
     if ( StrNCmpI(str,"CMD ",4) == 0 ) {
       for( str+=4; *str && *str == ' '; str++ );
       if ( *str )
         DoCommand( str, FCMD_FULL_COMMAND, FCMD_SHOW_MSG|FCMD_SHOW_EMSG );
       return TRUE;
-    } else
+    }
+
+    Log(( "ProcessCmd=%d", Host.ProcessCmd ));
+    if ( !Host.ProcessCmd )
+      return FALSE;
+
+//CD
+    if ( StrNCmpI(str,"CD ",3) == 0 ) {
+      str+=3;
+      if ( *str ) {
+        SetDirectory( str,0 );
+        return TRUE;
+      }
+    }
+
 //Manual command line to server
-    if ( !Prefix && Host.ProcessCmd ) {
+    if ( !Prefix ) {
       DoCommand( str, FCMD_SINGLE_COMMAND, FCMD_SHOW_MSG|FCMD_SHOW_EMSG );
       return TRUE;
     }
-
 
  return FALSE;
 }

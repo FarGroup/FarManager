@@ -29,24 +29,28 @@ void SetupFileTimeNDescription( int OpMode,Connection *hConnect,CONSTSTR nm,FILE
      CloseHandle(SrcFile);
 }
 
-int FTP::_FtpGetFile( char *lpszRemoteFile,char *lpszNewFile,BOOL Reget,int AsciiMode )
+int FTP::_FtpGetFile( CONSTSTR lpszRemoteFile,CONSTSTR lpszNewFile,BOOL Reget,int AsciiMode )
   {
     /* Local file allways use '\' as separator.
        Regardles of remote settings.
     */
-    FixLocalSlash( lpszNewFile );
+    FixLocalSlash( (char*)lpszNewFile ); //Hack it to (char*).
 
     FtpSetRetryCount( hConnect,0 );
 
-    int rc;
+    int   rc;
+    DWORD dw;
     do{
       SetLastError( ERROR_SUCCESS );
 
       if ( !hConnect )
         return FALSE;
 
-      if ( (rc=FtpGetFile( hConnect,lpszRemoteFile,lpszNewFile,Reget,AsciiMode )) != FALSE )
+      OperateHidden( lpszNewFile, TRUE );
+      if ( (rc=FtpGetFile( hConnect,lpszRemoteFile,lpszNewFile,Reget,AsciiMode )) != FALSE ) {
+        OperateHidden( lpszNewFile, FALSE );
         return rc;
+      }
 
       if ( GetLastError() == ERROR_CANCELLED ) {
         Log(( "GetFileCancelled: op:%d",IS_SILENT(FP_LastOpMode) ));
@@ -307,15 +311,15 @@ int FTP::GetFilesInterface( struct PluginPanelItem *PanelItem,int ItemsNumber,in
                           continue;
         case    ocResume:
         case ocResumeAll: break;
-        
+
         case    ocCancel: return -1;
       }
     }
 
    //Reset local attrs
    if ( !ci.FTPRename && DestAttr != MAX_DWORD &&
-        (DestAttr & (FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_HIDDEN)) != 0 )
-     SetFileAttributes( DestName.c_str(),DestAttr & ~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_HIDDEN) );
+        (DestAttr & (FILE_ATTRIBUTE_READONLY|0/*FILE_ATTRIBUTE_HIDDEN*/)) != 0 )
+     SetFileAttributes( DestName.c_str(), DestAttr & ~(FILE_ATTRIBUTE_READONLY|0/*FILE_ATTRIBUTE_HIDDEN*/) );
 
    mTitle = MOk;
 

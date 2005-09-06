@@ -117,6 +117,7 @@ STRUCTBASE( Options, public OptionsPlugin )
   int     CmdLogLimit;                   //Limit of cmd log file (*1000 bytes)                          100 (100.000 bytes)
   BOOL    CloseDots;                     //Switch on ".." to hosts                                      TRUE
   BOOL    QuoteClipboardNames;           //Quote names placed to clipboard
+  BOOL    SetHiddenOnAbort;              //Set hidden attribute on uncomplete files
 
 //Techinfos
   DWORD   PwdSecurity;                   //Set of SEC_xxx
@@ -126,7 +127,7 @@ STRUCTBASE( Options, public OptionsPlugin )
   char    InvalidSymbols[ FAR_MAX_PATHSIZE ];
   char    CorrectedSymbols[ FAR_MAX_PATHSIZE ];
 
-  //Queque processing
+//Queque processing
   BOOL    RestoreState;
   BOOL    RemoveCompleted;
 

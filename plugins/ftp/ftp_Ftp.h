@@ -117,8 +117,8 @@ CLASS( FTP )
     BOOL      FTPCreateDirectory( CONSTSTR dir,int OpMode );
 
   private:
-    int       _FtpGetFile( char *lpszRemoteFile,char *lpszNewFile,BOOL Reget,int AsciiMode );
-    int       _FtpPutFile( char *lpszLocalFile,char *lpszNewRemoteFile,BOOL Reput,int AsciiMode );
+    int       _FtpGetFile( CONSTSTR lpszRemoteFile,CONSTSTR lpszNewFile,BOOL Reget,int AsciiMode );
+    int       _FtpPutFile( CONSTSTR lpszLocalFile,CONSTSTR lpszNewRemoteFile,BOOL Reput,int AsciiMode );
   public:
     FTP();
     ~FTP();

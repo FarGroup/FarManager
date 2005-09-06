@@ -40,8 +40,8 @@ PluginPanelItem *FP_ItemList::Add( const PluginPanelItem *pi,int icn )
     if ( !Realloc(ItemsCount+icn) )
       return NULL;
 
-    PluginPanelItem *p = List + ItemsCount;
-    Copy( p,pi,icn );
+    PluginPanelItem *p = List + ItemsCount; //!! Do not use Item(ItemsCount) because we need point after last element
+    Copy( p, pi, icn );
     ItemsCount += icn;
  return p;
 }
@@ -60,7 +60,7 @@ void FP_ItemList::Copy( PluginPanelItem *dest,const PluginPanelItem *src,int cn 
   {
     if (!cn) return;
 
-    MemMove( dest,src,sizeof(*dest)*cn );
+    MemMove( dest, src, sizeof(*dest)*cn );
 
     for( ; cn; cn--,src++,dest++ ) {
 

@@ -58,6 +58,7 @@ void DECLSPEC ReadCfg( void )
      Opt.AutoAnonymous      =       FP_GetRegKey("AutoAnonymous",      TRUE );
      Opt.CloseDots          =       FP_GetRegKey("CloseDots",          TRUE );
      Opt.QuoteClipboardNames=       FP_GetRegKey("QuoteClipboardNames",TRUE );
+     Opt.SetHiddenOnAbort   =       FP_GetRegKey("SetHiddenOnAbort",   FALSE );
      Opt.PwdSecurity        =       FP_GetRegKey("PwdSecurity",        0 );
      Opt.WaitCounter        =       FP_GetRegKey("WaitCounter",        0 );
      Opt.RetryTimeout       =       FP_GetRegKey("RetryTimeout",       10 );
@@ -226,6 +227,7 @@ BYTE CryptedPassword[FTP_PWD_LEN];
   FP_SetRegKey("AutoAnonymous",        Opt.AutoAnonymous      );
   FP_SetRegKey("CloseDots",            Opt.CloseDots          );
   FP_SetRegKey("QuoteClipboardNames",  Opt.QuoteClipboardNames);
+  FP_SetRegKey("SetHiddenOnAbort",     Opt.SetHiddenOnAbort );
   FP_SetRegKey("PwdSecurity",          Opt.PwdSecurity        );
   FP_SetRegKey("WaitCounter",          Opt.WaitCounter        );
   FP_SetRegKey("RetryTimeout",         Opt.RetryTimeout       );
@@ -267,11 +269,12 @@ static FP_DECL_DIALOG( InitItems )
    /*08*/      FDI_CHECK( 5, 9,    FMSG(MEAutoAn) )
    /*09*/      FDI_CHECK( 5,10,    FMSG(MECloseDots) )
    /*10*/      FDI_CHECK( 5,11,    FMSG(MQuoteClipboardNames) )
+   /*11*/      FDI_CHECK( 5,12,    FMSG(MSetHiddenOnAbort) )
 
-   /*11*/      FDI_HLINE( 3,15 )
+   /*12*/      FDI_HLINE( 3,15 )
 
-   /*12*/ FDI_GDEFBUTTON( 0,16,    FMSG(MOk) )
-   /*13*/    FDI_GBUTTON( 0,16,    FMSG(MCancel) )
+   /*13*/ FDI_GDEFBUTTON( 0,16,    FMSG(MOk) )
+   /*14*/    FDI_GBUTTON( 0,16,    FMSG(MCancel) )
 FP_END_DIALOG
 
 enum {
@@ -285,8 +288,9 @@ enum {
   dAutoAnn      = 8,
   dCloseDots    = 9,
   dQuoteCN      = 10,
+  dSetHiddenOnAbort = 11,
 
-  dOk           = 12
+  dOk           = 13
 };
 
   int           rc;
@@ -304,6 +308,7 @@ enum {
   DialogItems[dAutoAnn].Selected      = Opt.AutoAnonymous;
   DialogItems[dCloseDots].Selected    = Opt.CloseDots;
   DialogItems[dQuoteCN].Selected      = Opt.QuoteClipboardNames;
+  DialogItems[dSetHiddenOnAbort].Selected  = Opt.SetHiddenOnAbort;
 
   do{
     rc = FDialog( 76,19,"FTPExtGlobal",DialogItems,FP_DIALOG_SIZE(InitItems) );
@@ -326,6 +331,7 @@ enum {
   Opt.AutoAnonymous      = DialogItems[dAutoAnn].Selected;
   Opt.CloseDots          = DialogItems[dCloseDots].Selected;
   Opt.QuoteClipboardNames= DialogItems[dQuoteCN].Selected;
+  Opt.SetHiddenOnAbort   = DialogItems[dSetHiddenOnAbort].Selected;
 }
 
 //------------------------------------------------------------------------

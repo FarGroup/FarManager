@@ -198,7 +198,14 @@ BOOL FTP::FTP_GetFindData( PluginPanelItem **PanelItem,int *ItemsNumber,BOOL Fro
 
       Log(( "Found: [%s]%d", fd.cFileName, fd.dwFileAttributes ));
 
+      //Reset Reserved becouse it used by plugin but may cantain trash after API call
+      fd.dwReserved0 = 0;
+      fd.dwReserved1 = 0;
+
+      //Reset plugin structure
       MemSet( &p,0,sizeof(PluginPanelItem) );
+
+      //Copy win32 data
       MemMove( &p.FindData,&fd,sizeof(p.FindData) );
 
       if ( !il.Add(&p,1) )
@@ -267,7 +274,13 @@ int FTP::ExpandListINT( PluginPanelItem *pi,int icn,PFP_SizeItemList il,BOOL Fro
           il->TotalFullSize += ((__int64)pi[n].FindData.nFileSizeHigh) * ((__int64)MAX_DWORD) +
                                ((__int64)pi[n].FindData.nFileSizeLow);
           il->TotalFiles++;
-          il->Add( &pi[n] );
+
+          //Add
+          PluginPanelItem *tmp = il->Add( &pi[n] );
+
+          //Reset spesial plugin fields
+          tmp->FindData.dwReserved0 = 0;
+          tmp->FindData.dwReserved1 = 0;
         }
 
         continue;

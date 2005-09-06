@@ -424,6 +424,7 @@ enum {
   MEAutoAn,                        //"Auto anonymous"
   MECloseDots,                     //"C&lose connection on \"..\""
   MQuoteClipboardNames,            //"Quote file names placed to clipboard"
+  MSetHiddenOnAbort,               //"Set hidden on download aborted"
 
   MAskDir1,                        //"Can not change directory."
   MAskDir2,                        //"It seems full directory specified."

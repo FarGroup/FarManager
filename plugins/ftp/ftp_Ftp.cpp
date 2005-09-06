@@ -97,7 +97,6 @@ int FTP::GetFindData( PluginPanelItem **pPanelItem, int *pItemsNumber, int OpMod
     EnumHost        Enum(HostsPath);
     FP_SizeItemList il( FALSE );
     PluginPanelItem tmp;
-    FILETIME        LastWrite;
     FTPHost         h;
 
     if ( !IS_SILENT(OpMode) ) {
@@ -117,7 +116,7 @@ int FTP::GetFindData( PluginPanelItem **pPanelItem, int *pItemsNumber, int OpMod
     }
 
     while( 1 ) {
-      if ( !Enum.GetNextHost(&h,&LastWrite) )
+      if ( !Enum.GetNextHost(&h) )
         break;
       if ( !h.Read(NULL) )
         continue;
@@ -127,8 +126,8 @@ int FTP::GetFindData( PluginPanelItem **pPanelItem, int *pItemsNumber, int OpMod
          in case you want to copy between panels work.
       */
       h.MkINIFile( tmp.FindData.cFileName,NULL,"" );
-      tmp.FindData.ftLastWriteTime  = LastWrite;
-      tmp.FindData.dwFileAttributes = h.Folder?FILE_ATTRIBUTE_DIRECTORY:0;
+      tmp.FindData.ftLastWriteTime  = h.LastWrite;
+      tmp.FindData.dwFileAttributes = h.Folder ? FILE_ATTRIBUTE_DIRECTORY : 0;
       tmp.Flags                     = PPIF_USERDATA;
       tmp.PackSizeHigh              = FTP_HOSTID;
       tmp.UserData                  = (DWORD)&h;

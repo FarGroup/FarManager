@@ -38,21 +38,23 @@ BOOL EnumHost::Assign( char *HostsPath )
  return hEnum != NULL;
 }
 
-BOOL EnumHost::GetNextHost( PFTPHost p,FILETIME *LastWrite)
+BOOL EnumHost::GetNextHost( PFTPHost p )
   {  PROC(( "EnumHost::GetNextHost",NULL ))
      char     SubKey[FAR_MAX_REG];
      DWORD    Size = sizeof(SubKey)-1;
+     FILETIME lw;
 
      if ( !hEnum )
        return FALSE;
 
-     if ( RegEnumKeyEx(hEnum,HostPos,SubKey,&Size,NULL,NULL,NULL,LastWrite) != ERROR_SUCCESS ) {
+     if ( RegEnumKeyEx(hEnum,HostPos,SubKey,&Size,NULL,NULL,NULL,&lw) != ERROR_SUCCESS ) {
        Log(( "!enum keys" ));
        return FALSE;
      }
 
      p->Init();
      StrCpy( p->RegKey, p->MkHost( RootKey,SubKey ) );
+     p->LastWrite = lw;
      HostPos++;
      Log(( "SetKey %p to: %s", p, p->RegKey ));
 

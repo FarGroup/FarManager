@@ -290,16 +290,16 @@ BOOL DECLSPEC Ftrunc( HANDLE h,DWORD move )
  return SetEndOfFile(h);
 }
 
-HANDLE DECLSPEC Fopen( CONSTSTR nm,CONSTSTR mode /*R|W|A[+]*/)
+HANDLE DECLSPEC Fopen( CONSTSTR nm,CONSTSTR mode /*R|W|A[+]*/, DWORD attr )
   {  BOOL   rd  = toupper(mode[0]) == 'R';
      HANDLE h;
 
      if ( rd )
        h = CreateFile( nm, GENERIC_READ,
-                       FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
+                       FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING, attr, NULL );
       else
        h = CreateFile( nm, GENERIC_WRITE,
-                       FILE_SHARE_READ, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL,NULL );
+                       FILE_SHARE_READ, NULL, OPEN_ALWAYS, attr, NULL );
 
      if ( !h ||
           h == INVALID_HANDLE_VALUE )

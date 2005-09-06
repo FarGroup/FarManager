@@ -57,7 +57,7 @@ extern BOOL     DECLSPEC IsAbsolutePath( CONSTSTR nm );
 
 #define TAddEndSlash( s,sl  ) AddEndSlash( s,sl,sizeof(s) )
 
-extern HANDLE   DECLSPEC Fopen( CONSTSTR nm,CONSTSTR mode /*R|W|A[+]*/ );
+extern HANDLE   DECLSPEC Fopen( CONSTSTR nm,CONSTSTR mode /*R|W|A[+]*/, DWORD attr = FILE_ATTRIBUTE_NORMAL );
 extern __int64  DECLSPEC Fsize( CONSTSTR nm );
 extern __int64  DECLSPEC Fsize( HANDLE nm );
 extern BOOL     DECLSPEC Fmove( HANDLE file,__int64 restart_point );
@@ -97,6 +97,8 @@ extern BOOL     DECLSPEC IsCmdLogFile( void );
 extern CONSTSTR DECLSPEC GetCmdLogFile( void );
 extern char    *DECLSPEC FixFileNameChars( char *fnm,BOOL slashes = FALSE );
 extern char    *DECLSPEC FixFileNameChars( String& fnm,BOOL slashes = FALSE );
+
+extern void     DECLSPEC OperateHidden( CONSTSTR fnm, BOOL set );
 
 //[ftp_sock.cpp]
 extern void     DECLSPEC scClose( SOCKET& sock,int how = SD_BOTH );

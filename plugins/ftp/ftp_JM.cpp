@@ -848,3 +848,19 @@ int Connection::ConnectMessage( int Msg /*= MNone__*/,CONSTSTR HostName /*= NULL
      //If single button: return TRUE if button was selected
      return btn != MNone__ && res == 0;
 }
+
+void DECLSPEC OperateHidden( CONSTSTR fnm, BOOL set )
+  {
+     if ( !Opt.SetHiddenOnAbort ) return;
+     Log(( "%s hidden", set ? "Set" : "Clr" ));
+
+     DWORD dw = GetFileAttributes( fnm );
+     if ( dw == MAX_DWORD ) return;
+
+     if ( set )
+       SET_FLAG( dw, FILE_ATTRIBUTE_HIDDEN );
+      else
+       CLR_FLAG( dw, FILE_ATTRIBUTE_HIDDEN );
+
+     SetFileAttributes( fnm, dw );
+}

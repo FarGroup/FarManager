@@ -410,6 +410,9 @@ FAR_EXTERN int FAR_DECLSPEC ProcessEvent(HANDLE hPlugin,int Event,void *Param)
 
 FAR_EXTERN int FAR_DECLSPEC Compare( HANDLE hPlugin,const PluginPanelItem *i,const PluginPanelItem *i1,unsigned int Mode )
   {
+     if ( Mode == SM_UNSORTED )
+       return -2;
+
      PFTPHost p  = FTPHost::Convert(i),
               p1 = FTPHost::Convert(i1);
      int      n;
@@ -423,7 +426,14 @@ FAR_EXTERN int FAR_DECLSPEC Compare( HANDLE hPlugin,const PluginPanelItem *i,con
        case   SM_EXT: n = CMP( p->Home,p1->Home );           break;
        case SM_DESCR: n = CMP( p->HostDescr,p1->HostDescr ); break;
        case SM_OWNER: n = CMP( p->User,p1->User );           break;
-             default: n = CMP( p->Host,p1->Host );           break;
+
+       case SM_MTIME:
+       case SM_CTIME:
+       case SM_ATIME: n = (int)CompareFileTime( &p1->LastWrite, &p->LastWrite );
+                   break;
+
+             default: n = CMP( p->Host,p1->Host );
+                   break;
      }
 
     do{
@@ -438,6 +448,7 @@ FAR_EXTERN int FAR_DECLSPEC Compare( HANDLE hPlugin,const PluginPanelItem *i,con
      n = CMP( p->HostDescr,p1->HostDescr );
      if (n) break;
    }while( 0 );
+#undef CMP
 
    if (n)
      return (n>0)?1:(-1);

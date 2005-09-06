@@ -13,9 +13,6 @@ void Connection::recvrequest(char *cmd, char *local, char *remote, char *mode )
 
 void Connection::recvrequestINT(char *cmd, char *local, char *remote, char *mode )
 {
-  if (type==TYPE_A)
-    restart_point=0;
-
   int              oldtype = 0,
                    is_retr;
   FHandle          fout;
@@ -24,6 +21,9 @@ void Connection::recvrequestINT(char *cmd, char *local, char *remote, char *mode
   BOOL             oldBrk = FtpSetBreakable( this, -1 );
   FTPCurrentStates oState = CurrentState;
   FTNNotify        ni;
+
+  if ( type == TYPE_A )
+    restart_point = 0;
 
   ni.Upload       = FALSE;
   ni.Starting     = TRUE;
@@ -39,7 +39,7 @@ void Connection::recvrequestINT(char *cmd, char *local, char *remote, char *mode
   if ( local[0] == '-' && local[1] == 0 ) {
     ;
   } else {
-    fout.Handle = Fopen( local, mode );
+    fout.Handle = Fopen( local, mode, Opt.SetHiddenOnAbort ? FILE_ATTRIBUTE_HIDDEN : FILE_ATTRIBUTE_NORMAL );
     Log(("recv file [%d] \"%s\"=%p",Host.IOBuffSize,local,fout.Handle ));
     if ( !fout.Handle ) {
       ErrorCode = GetLastError();
@@ -224,16 +224,6 @@ NormExit:
 
 abort:
   FtpSetBreakable( this, oldBrk );
-/* ??
-  if (!cpend) {
-    code = RPL_ERROR;
-
-    if (oldtype)
-      SetType(oldtype);
-
-    return;
-  }
-*/
   if ( !cpend ) {
     Log(( "!!!cpend" ));
   }

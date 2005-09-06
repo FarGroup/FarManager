@@ -13,6 +13,8 @@ STRUCTBASE( FTPHost, public FTPHostPlugin )
            Password[FAR_MAX_NAME],
            HostDescr[FAR_MAX_NAME];
   char     HostTable[100];
+  FILETIME LastWrite;
+
 //Other
   char     Host[FAR_MAX_PATHSIZE];
   char     Home[FAR_MAX_PATHSIZE];
@@ -54,7 +56,7 @@ class EnumHost {
     ~EnumHost();
 
     BOOL Assign( char *HostsPath );
-    BOOL GetNextHost( PFTPHost p,FILETIME *LastWrite=NULL);
+    BOOL GetNextHost( PFTPHost p );
 };
 
 //------------------------------------------------------------------------

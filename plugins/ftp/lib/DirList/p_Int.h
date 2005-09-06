@@ -12,7 +12,7 @@
 #define NET_IS_DIGIT(x) ((((unsigned int) (x)) > 0x7f) ? 0 : isdigit(x))
 #define NET_IS_SPACE(x) ((((unsigned int) (x)) > 0x7f) ? 0 : isspace(x))
 
-#define NOT_TIME  ((TRINT)-1)
+#define NOT_TIME  ((__int64)-1)
 typedef const FILETIME *LPCFILETIME;
 
 #define CHECK( v, ret ) if v { Log(( "Parser failed: [" #v "] at " __FILE__ " in %d", __LINE__ )); return ret; }
@@ -20,11 +20,11 @@ typedef const FILETIME *LPCFILETIME;
 STRUCT( Time_t )
   union {
     FILETIME FileTime;
-    TRINT    Value;
+    __int64    Value;
   };
 
-  bool operator==( TRINT v )        { return Value == v; }
-  void operator=( TRINT v )         { Value = v; }
+  bool operator==( __int64 v )        { return Value == v; }
+  void operator=( __int64 v )         { Value = v; }
   void operator=( const Time_t& v ) { Value = v.Value; }
 
   operator LPCFILETIME()            { return &FileTime; }
@@ -35,7 +35,7 @@ STRUCTBASE( NET_FileEntryInfo, public FTPFileInfo )
     Time_t date;       //Last write time
     Time_t cr_date;    //Time of ceation
     Time_t acc_date;   //Time of last access
-    TRINT  size;
+    __int64  size;
 
     NET_FileEntryInfo( void ) { memset( this,0,sizeof(*this) ); }
 };

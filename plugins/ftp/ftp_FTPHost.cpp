@@ -106,12 +106,9 @@ void FTPHost::Init( void )
      Log(( "FTPHost::Init %p",this ));
 
      memset( this,0,sizeof(*this) );
-
      Size         = sizeof(*this);
-     AsciiMode    = FALSE;
-     AskLogin     = FALSE;
+
      ExtCmdView   = Opt.ExtCmdView;
-     ExtList      = FALSE;
      IOBuffSize   = Opt.IOBuffSize;
      PassiveMode  = Opt.PassiveMode;
      ProcessCmd   = Opt.ProcessCmd;
@@ -119,10 +116,9 @@ void FTPHost::Init( void )
      FFDup        = Opt.FFDup;
      UndupFF      = Opt.UndupFF;
      DecodeCmdLine= TRUE;
-     SendAllo     = FALSE;
      ServerType   = FTP_TYPE_DETECT;
 
-     StrCpy( ListCMD,  "LIST -la", sizeof(ListCMD) );
+     TStrCpy( ListCMD,  "LIST -la" );
 }
 
 void FTPHost::Assign( PFTPHost p )

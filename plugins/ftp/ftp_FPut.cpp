@@ -27,45 +27,45 @@ void SetupFileTimeNDescription( int OpMode,Connection *hConnect,CONSTSTR nm )
    PROCEDURES
      FTP::GetFiles
  ****************************************/
-int FTP::_FtpPutFile( char *lpszLocalFile,char *lpszNewRemoteFile,BOOL Reput,int AsciiMode )
-  {
-    FtpSetRetryCount( hConnect,0 );
+int FTP::_FtpPutFile( CONSTSTR lpszLocalFile,CONSTSTR lpszNewRemoteFile,BOOL Reput,int AsciiMode )
+  {  PROC(( "FTP::_FtpPutFile", "\"%s\",\"%s\",%d,%d", lpszLocalFile,lpszNewRemoteFile,Reput,AsciiMode ))
+     int rc;
 
-    int rc;
-    do{
-      SetLastError( ERROR_SUCCESS );
+     FtpSetRetryCount( hConnect,0 );
+     do{
+       SetLastError( ERROR_SUCCESS );
 
-      if ( !hConnect )
-        return FALSE;
+       if ( !hConnect )
+         return FALSE;
 
-      if ( (rc=FtpPutFile( hConnect,lpszLocalFile,lpszNewRemoteFile,Reput,AsciiMode )) != FALSE )
-        return rc;
+       if ( (rc=FtpPutFile( hConnect,lpszLocalFile,lpszNewRemoteFile,Reput,AsciiMode )) != FALSE )
+         return rc;
 
-      if ( GetLastError() == ERROR_CANCELLED ) {
-        Log(( "GetFileCancelled: op:%d",IS_SILENT(FP_LastOpMode) ));
-        return IS_SILENT(FP_LastOpMode) ? (-1) : FALSE;
-      }
+       if ( GetLastError() == ERROR_CANCELLED ) {
+         Log(( "GetFileCancelled: op:%d",IS_SILENT(FP_LastOpMode) ));
+         return IS_SILENT(FP_LastOpMode) ? (-1) : FALSE;
+       }
 
-      int num = FtpGetRetryCount(hConnect);
-      if ( Opt.RetryCount > 0 && num >= Opt.RetryCount )
-        return FALSE;
+       int num = FtpGetRetryCount(hConnect);
+       if ( Opt.RetryCount > 0 && num >= Opt.RetryCount )
+         return FALSE;
 
-      FtpSetRetryCount( hConnect,num+1 );
+       FtpSetRetryCount( hConnect,num+1 );
 
-      if ( !hConnect->ConnectMessageTimeout( MCannotUpload,lpszNewRemoteFile,-MRetry ) )
-        return FALSE;
+       if ( !hConnect->ConnectMessageTimeout( MCannotUpload,lpszNewRemoteFile,-MRetry ) )
+         return FALSE;
 
-      Reput = TRUE;
+       Reput = TRUE;
 
-      if ( FtpCmdLineAlive(hConnect) &&
-           FtpKeepAlive(hConnect) )
-        continue;
+       if ( FtpCmdLineAlive(hConnect) &&
+            FtpKeepAlive(hConnect) )
+         continue;
 
-      SaveUsedDirNFile();
-      if ( !Connect() )
-        return FALSE;
+       SaveUsedDirNFile();
+       if ( !Connect() )
+         return FALSE;
 
-    }while( 1 );
+     }while( 1 );
 }
 
 int FTP::PutFiles( struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,int OpMode )
@@ -145,8 +145,12 @@ int FTP::PutFilesINT( struct PluginPanelItem *PanelItem,int ItemsNumber, int Mov
 
     SrcAttr = il.List[I].FindData.dwFileAttributes;
     tmp     = FTP_FILENAME( &il.List[I] );
-
     CurName = tmp.c_str();
+
+    Log(( "PutFiles: list[%d], %d-th, att: %d, dw:%08X,%08X \"%s\"",
+          il.Count(), I,
+          SrcAttr, il.List[I].FindData.dwReserved0, il.List[I].FindData.dwReserved1,
+          CurName ));
 
     /* File name may contain relative paths.
        Local files use '\' as dir separator, so convert
@@ -157,8 +161,10 @@ int FTP::PutFilesINT( struct PluginPanelItem *PanelItem,int ItemsNumber, int Mov
     FixFTPSlash( tmp );
 
     //Skip deselected files
-    if ( il.List[I].FindData.dwReserved1 == MAX_DWORD )
+    if ( il.List[I].FindData.dwReserved1 == MAX_DWORD ) {
+      Log(( "PutFiles: skip delselected \"%s\"", CurName ));
       continue;
+    }
 
     if ( ci.UploadLowCase && !IS_FLAG(SrcAttr,FILE_ATTRIBUTE_DIRECTORY) ) {
       char *Name = PointToName(CurName);
