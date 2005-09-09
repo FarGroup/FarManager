@@ -588,7 +588,7 @@
     <th class="white"><code>000001XX</code></th>
     <td>Прочие специфические клавиши, имеющие <a href="../winapi/virtualkeycodes.html">виртуальный код</a>, отличный от 0xFF,
         формируются по формуле: <code>"KEY_FKEY_BEGIN" + "Виртуальный код"</code>.<br>
-        В <a href="../macro/index.html">макросах</a> такие клавиши хранятся как &quot;Oem000XX&quot; (здесь XX виртуальный код клавиши).
+        В <a href="../macro/index.html">макросах</a> такие клавиши хранятся как &quot;OemXXXXX&quot; (здесь XXXXX виртуальный код клавиши).
     </td>
   </tr>
   <tr>
@@ -622,50 +622,14 @@
     <td class="gray">Начало определения специфических клавиш, у которых <a href="../winapi/virtualkeycodes.html">виртуальный код</a>
       равен 0xFF (например, разнообразные мультимедийные клавиши, которые производители дополнительно
       встраивают в клавиатуру). Код формируется по формуле: <code>"KEY_VK_0xFF_BEGIN" + ScanCode</code>.<br>
-      В <a href="../macro/index.html">макросах</a> такие клавиши хранятся как &quot;Spec000XX&quot; (здесь XX сканкод клавиши).
+      В <a href="../macro/index.html">макросах</a> такие клавиши хранятся как &quot;SpecXXXXX&quot; (здесь XXXXX сканкод клавиши).
     </td>
   </tr>
 
   <tr>
+    <td>&nbsp;</td>
     <td></td>
-    <td>KEY_AC_SEARCH</td>
-    <th class="white"><code>00000321</code></th>
-    <td></td>
-  </tr>
-  <tr>
-    <td class="gray"></td>
-    <td class="gray">KEY_AC_HOME</td>
-    <th class="gray"><code>00000323</code></th>
-    <td class="gray"></td>
-  </tr>
-  <tr>
-    <td></td>
-    <td>KEY_AC_BACK</td>
-    <th class="white"><code>00000324</code></th>
-    <td></td>
-  </tr>
-  <tr>
-    <td class="gray"></td>
-    <td class="gray">KEY_AC_FORWARD</td>
-    <th class="gray"><code>00000325</code></th>
-    <td class="gray"></td>
-  </tr>
-  <tr>
-    <td></td>
-    <td>KEY_AC_STOP</td>
-    <th class="white"><code>00000326</code></th>
-    <td></td>
-  </tr>
-  <tr>
-    <td class="gray"></td>
-    <td class="gray">KEY_AC_REFRESH</td>
-    <th class="gray"><code>00000327</code></th>
-    <td class="gray"></td>
-  </tr>
-  <tr>
-    <td></td>
-    <td>KEY_AC_BOOKMARKS</td>
-    <th class="white"><code>0000032A</code></th>
+    <th class="white"><code></code></th>
     <td></td>
   </tr>
 
