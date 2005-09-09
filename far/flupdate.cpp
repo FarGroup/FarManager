@@ -5,10 +5,13 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.52 30.08.2004 $ */
+/* Revision: 1.53 09.09.2005 $ */
 
 /*
 Modify:
+  09.09.2005 SVS
+    ! Функционал получения имени компьютера по текущему пути вынесен в
+      отдельную функцию CurPath2ComputerName()
   30.08.2004 SVS
     + Opt.IgnoreErrorBadPathName - Игнорировать ошибку ERROR_BAD_PATHNAME под масдаем, по умолчанию = 0
   06.08.2004 SKV
@@ -348,38 +351,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
   *ComputerName=0;
   if (ReadOwners)
   {
-    char NetDir[NM];
-    *NetDir=0;
-    if (CurDir[0]=='\\' && CurDir[1]=='\\')
-      strcpy(NetDir,CurDir);
-    else
-    {
-      /* $ 28.03.2002 KM
-         - Падение VC на
-           char *LocalName="A:";
-           *LocalName=*CurDir;
-           Так как память в LocalName ReadOnly.
-      */
-      char LocalName[3];
-      DWORD RemoteNameSize=sizeof(NetDir);
-      xstrncpy(LocalName,CurDir,2);
-      LocalName[sizeof(LocalName)-1]=0;
-      /* KM $ */
-
-      SetFileApisTo(APIS2ANSI);
-      if (WNetGetConnection(LocalName,NetDir,&RemoteNameSize)==NO_ERROR)
-        FAR_CharToOem(NetDir,NetDir);
-      SetFileApisTo(APIS2OEM);
-    }
-    if (NetDir[0]=='\\' && NetDir[1]=='\\')
-    {
-      strcpy(ComputerName,NetDir+2);
-      char *EndSlash=strchr(ComputerName,'\\');
-      if (EndSlash==NULL)
-        *ComputerName=0;
-      else
-        *EndSlash=0;
-    }
+    CurPath2ComputerName(CurDir,ComputerName,sizeof(ComputerName)-1);
     // сбросим кэш SID`ов
     SIDCacheFlush();
   }

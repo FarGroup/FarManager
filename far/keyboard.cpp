@@ -5,10 +5,20 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.116 07.07.2005 $ */
+/* Revision: 1.117 09.09.2005 $ */
 
 /*
 Modify:
+  09.09.2005 SVS
+    + ƒобавлены (в т.ч. и имена) KEY_F13..KEY_F24 и несколько MM клавиш с
+      VK-кодами от A6 до B7.
+    + —пецифические клавиши, у которых виртуальный код отличен от 0xFF,
+      но имена которых FAR не знает, будут хранитс€ как "OemXXXXX"
+      (здесь XXXXX дес€тичное значение виртуального кода клавиши с
+      ведущими нул€ми).
+    + —пецифические клавиши, у которых виртуальный код равен 0xFF,
+      будут хранитс€ как "SpecXXXXX"
+      (здесь XXXXX дес€тичное значение сканкода клавиши с ведущими нул€ми).
   07.07.2005 SVS
     ! окончание темы, начатой в патче 1742 (01742.CAS.txt) - TechInfo #68
   24.04.2005 AY
@@ -54,8 +64,7 @@ Modify:
   04.10.2003 SVS
     ! RunStartMacro() - "всегда"
   26.09.2003 SVS
-    ! »зменени€ в названи€х макроклавиш
-  25.07.2003 SVS
+    ! »зменени€ в названи€х макроклавиш  25.07.2003 SVS
     ! учтем новые коды возврата дл€ KeyMacro::GetCurRecord()
     ! учтем новый FARMACRO_KEY_EVENT в CalcKeyCode(), иначе плагины получат KEY_NONE
   17.06.2003 SVS
@@ -360,6 +369,41 @@ Modify:
 #include "savescr.hpp"
 #include "lockscrn.hpp"
 
+
+//from WinUser.h
+#define VK_BROWSER_BACK                  0xA6
+#define VK_BROWSER_FORWARD               0xA7
+#define VK_BROWSER_REFRESH               0xA8
+#define VK_BROWSER_STOP                  0xA9
+#define VK_BROWSER_SEARCH                0xAA
+#define VK_BROWSER_FAVORITES             0xAB
+#define VK_BROWSER_HOME                  0xAC
+#define VK_VOLUME_MUTE                   0xAD
+#define VK_VOLUME_DOWN                   0xAE
+#define VK_VOLUME_UP                     0xAF
+#define VK_MEDIA_NEXT_TRACK              0xB0
+#define VK_MEDIA_PREV_TRACK              0xB1
+#define VK_MEDIA_STOP                    0xB2
+#define VK_MEDIA_PLAY_PAUSE              0xB3
+#define VK_LAUNCH_MAIL                   0xB4
+#define VK_LAUNCH_MEDIA_SELECT           0xB5
+#define VK_LAUNCH_APP1                   0xB6
+#define VK_LAUNCH_APP2                   0xB7
+#define VK_OEM_1                         0xBA   // ';:' for US
+#define VK_OEM_PLUS                      0xBB   // '+' any country
+#define VK_OEM_COMMA                     0xBC   // ',' any country
+#define VK_OEM_MINUS                     0xBD   // '-' any country
+#define VK_OEM_PERIOD                    0xBE   // '.' any country
+#define VK_OEM_2                         0xBF   // '/?' for US
+#define VK_OEM_3                         0xC0   // '`~' for US
+#define VK_OEM_4                         0xDB  //  '[{' for US
+#define VK_OEM_5                         0xDC  //  '\|' for US
+#define VK_OEM_6                         0xDD  //  ']}' for US
+#define VK_OEM_7                         0xDE  //  ''"' for US
+#define VK_OEM_8                         0xDF
+#define VK_OEM_AX                        0xE1  //  'AX' key on Japanese AX kbd
+#define VK_OEM_102                       0xE2  //  "<>" or "\|" on RT 102-key kbd.
+
 static unsigned int AltValue=0;
 static int KeyCodeForALT_LastPressed=0;
 
@@ -433,68 +477,111 @@ static struct TFKey3 FKeys1[]={
   { KEY_RCTRLALTSHIFTPRESS,  22, "RightCtrlAltShiftPress"},
   { KEY_CTRLALTSHIFTRELEASE, 19, "CtrlAltShiftRelease"},
   { KEY_CTRLALTSHIFTPRESS,   17, "CtrlAltShiftPress"},
+  { KEY_LAUNCH_MEDIA_SELECT, 17, "LaunchMediaSelect"},
+  { KEY_BROWSER_FAVORITES,   16, "BrowserFavorites"},
+  { KEY_MEDIA_PREV_TRACK,    14, "MediaPrevTrack"},
+  { KEY_MEDIA_PLAY_PAUSE,    14, "MediaPlayPause"},
+  { KEY_MEDIA_NEXT_TRACK,    14, "MediaNextTrack"},
+  { KEY_BROWSER_REFRESH,     14, "BrowserRefresh"},
+  { KEY_BROWSER_FORWARD,     14, "BrowserForward"},
+  //{ KEY_HP_COMMUNITIES,      13, "HPCommunities"},
+  { KEY_BROWSER_SEARCH,      13, "BrowserSearch"},
 #if defined(MOUSEKEY)
   { KEY_MSLDBLCLICK,         11, "MsLDblClick"},
   { KEY_MSRDBLCLICK,         11, "MsRDblClick"},
 #endif
+  //{ KEY_AC_BOOKMARKS,        11, "ACBookmarks"},
   { KEY_MSWHEEL_DOWN,        11, "MsWheelDown"},
+  { KEY_BROWSER_STOP,        11, "BrowserStop"},
+  { KEY_BROWSER_HOME,        11, "BrowserHome"},
+  { KEY_BROWSER_BACK,        11, "BrowserBack"},
+  { KEY_VOLUME_MUTE,         10, "VolumeMute"},
+  { KEY_VOLUME_DOWN,         10, "VolumeDown"},
+  { KEY_LAUNCH_MAIL,         10, "LaunchMail"},
+  { KEY_LAUNCH_APP2,         10, "LaunchApp2"},
+  { KEY_LAUNCH_APP1,         10, "LaunchApp1"},
+  //{ KEY_HP_INTERNET,         10, "HPInternet"},
+  //{ KEY_AC_FORWARD,           9, "ACForward"},
+  //{ KEY_AC_REFRESH,           9, "ACRefresh"},
   { KEY_MSWHEEL_UP,           9, "MsWheelUp"},
+  { KEY_MEDIA_STOP,           9, "MediaStop"},
   { KEY_BACKSLASH,            9, "BackSlash"},
+  //{ KEY_HP_MEETING,           9, "HPMeeting"},
+  //{ KEY_HP_MARKET,            8, "HPMarket"},
+  { KEY_VOLUME_UP,            8, "VolumeUp"},
   { KEY_SUBTRACT,             8, "Subtract"},
   { KEY_MULTIPLY,             8, "Multiply"},
+  //{ KEY_HP_SEARCH,            8, "HPSearch"},
+  //{ KEY_HP_HOME,              6, "HPHome"},
+  //{ KEY_HP_MAIL,              6, "HPMail"},
+  //{ KEY_HP_NEWS,              6, "HPNews"},
+  //{ KEY_AC_BACK,              6, "ACBack"},
+  //{ KEY_AC_STOP,              6, "ACStop"},
   { KEY_DIVIDE,               6, "Divide"},
-  { KEY_BREAK,                5, "Break"},
-  { KEY_CLEAR,                5, "Clear"},
-  //{ KEY_NUMPAD5,              5, "Clear"},
+  { KEY_SPACE,                5, "Space"},
   { KEY_RIGHT,                5, "Right"},
   { KEY_ENTER,                5, "Enter"},
-  { KEY_SPACE,                5, "Space"},
+  { KEY_CLEAR,                5, "Clear"},
+  { KEY_BREAK,                5, "Break"},
   { KEY_PGUP,                 4, "PgUp"},
-  { KEY_HOME,                 4, "Home"},
-  { KEY_LEFT,                 4, "Left"},
-  { KEY_DOWN,                 4, "Down"},
   { KEY_PGDN,                 4, "PgDn"},
+  { KEY_LEFT,                 4, "Left"},
+  { KEY_HOME,                 4, "Home"},
+  { KEY_DOWN,                 4, "Down"},
   { KEY_APPS,                 4, "Apps"},
-  { KEY_LWIN,                 4 ,"LWin"},
-  { KEY_NUMPAD0,              4 ,"Num0"},
-  { KEY_NUMPAD1,              4 ,"Num1"},
-  { KEY_NUMPAD2,              4 ,"Num2"},
-  { KEY_NUMPAD3,              4 ,"Num3"},
-  { KEY_NUMPAD4,              4 ,"Num4"},
-  { KEY_NUMPAD5,              4, "Num5"},
-  { KEY_NUMPAD6,              4 ,"Num6"},
-  { KEY_NUMPAD7,              4 ,"Num7"},
-  { KEY_NUMPAD8,              4 ,"Num8"},
-  { KEY_NUMPAD9,              4 ,"Num9"},
   { KEY_RWIN,                 4 ,"RWin"},
-  { KEY_END,                  3, "End"},
+  { KEY_NUMPAD9,              4 ,"Num9"},
+  { KEY_NUMPAD8,              4 ,"Num8"},
+  { KEY_NUMPAD7,              4 ,"Num7"},
+  { KEY_NUMPAD6,              4 ,"Num6"},
+  { KEY_NUMPAD5,              4, "Num5"},
+  { KEY_NUMPAD4,              4 ,"Num4"},
+  { KEY_NUMPAD3,              4 ,"Num3"},
+  { KEY_NUMPAD2,              4 ,"Num2"},
+  { KEY_NUMPAD1,              4 ,"Num1"},
+  { KEY_NUMPAD0,              4 ,"Num0"},
+  { KEY_LWIN,                 4 ,"LWin"},
+  { KEY_TAB,                  3, "Tab"},
   { KEY_INS,                  3, "Ins"},
-  { KEY_DEL,                  3, "Del"},
-  { KEY_ADD,                  3, "Add"},
   { KEY_F10,                  3, "F10"},
   { KEY_F11,                  3, "F11"},
   { KEY_F12,                  3, "F12"},
-  { KEY_TAB,                  3, "Tab"},
+  { KEY_F13,                  3, "F13"},
+  { KEY_F14,                  3, "F14"},
+  { KEY_F15,                  3, "F15"},
+  { KEY_F16,                  3, "F16"},
+  { KEY_F17,                  3, "F17"},
+  { KEY_F18,                  3, "F18"},
+  { KEY_F19,                  3, "F19"},
+  { KEY_F20,                  3, "F20"},
+  { KEY_F21,                  3, "F21"},
+  { KEY_F22,                  3, "F22"},
+  { KEY_F23,                  3, "F23"},
+  { KEY_F24,                  3, "F24"},
   { KEY_ESC,                  3, "Esc"},
-  { KEY_F1,                   2, "F1"},
-  { KEY_F2,                   2, "F2"},
-  { KEY_F3,                   2, "F3"},
-  { KEY_F4,                   2, "F4"},
-  { KEY_F5,                   2, "F5"},
-  { KEY_F6,                   2, "F6"},
-  { KEY_F7,                   2, "F7"},
-  { KEY_F8,                   2, "F8"},
-  { KEY_F9,                   2, "F9"},
+  { KEY_END,                  3, "End"},
+  { KEY_DEL,                  3, "Del"},
+  { KEY_ADD,                  3, "Add"},
   { KEY_UP,                   2, "Up"},
+  { KEY_F9,                   2, "F9"},
+  { KEY_F8,                   2, "F8"},
+  { KEY_F7,                   2, "F7"},
+  { KEY_F6,                   2, "F6"},
+  { KEY_F5,                   2, "F5"},
+  { KEY_F4,                   2, "F4"},
+  { KEY_F3,                   2, "F3"},
+  { KEY_F2,                   2, "F2"},
+  { KEY_F1,                   2, "F1"},
   { KEY_BS,                   2, "BS"},
-  { KEY_BRACKET,              1, "["},
   { KEY_BACKBRACKET,          1, "]"},
-  { KEY_COMMA,                1, ","},
   { KEY_QUOTE,                1, "\""},
+  { KEY_BRACKET,              1, "["},
   { KEY_COLON,                1, ":"},
-  { KEY_DOT,                  1, "."},
   { KEY_SLASH,                1, "/"},
+  { KEY_DOT,                  1, "."},
+  { KEY_COMMA,                1, ","},
 };
+
 
 static struct TFKey3 ModifKeyName[]={
   { KEY_RCTRL  ,5 ,"RCtrl"},
@@ -502,6 +589,8 @@ static struct TFKey3 ModifKeyName[]={
   { KEY_CTRL   ,4 ,"Ctrl"},
   { KEY_RALT   ,4 ,"RAlt"},
   { KEY_ALT    ,3 ,"Alt"},
+  { KEY_M_SPEC ,4 ,"Spec"},
+  { KEY_M_OEM  ,3 ,"Oem"},
 //  { KEY_LCTRL  ,5 ,"LCtrl"},
 //  { KEY_LALT   ,4 ,"LAlt"},
 //  { KEY_LSHIFT ,6 ,"LShift"},
@@ -664,11 +753,11 @@ _SVS(if(rec->EventType==KEY_EVENT)SysLog("[%d] if(rec->EventType==KEY_EVENT) >>>
       if(Opt.UseUnicodeConsole && rec->EventType==KEY_EVENT)
       {
         WCHAR UnicodeChar=rec->Event.KeyEvent.uChar.UnicodeChar;
-//_SVS(SysLog("UnicodeChar= %C, 0x%04X",UnicodeChar,UnicodeChar));
-//_SVS(SysLog(">GetInputRecord= %s",_INPUT_RECORD_Dump(rec)));
+_SVS(SysLog("UnicodeChar= %C, 0x%04X",UnicodeChar,UnicodeChar));
+_SVS(SysLog(">GetInputRecord= %s",_INPUT_RECORD_Dump(rec)));
         rec->Event.KeyEvent.uChar.UnicodeChar=0;
         UnicodeToOEM(&UnicodeChar,&rec->Event.KeyEvent.uChar.AsciiChar,sizeof(WCHAR));
-//_SVS(SysLog("<GetInputRecord= %s",_INPUT_RECORD_Dump(rec)));
+_SVS(SysLog("<GetInputRecord= %s",_INPUT_RECORD_Dump(rec)));
       }
 #endif
 
@@ -1005,7 +1094,7 @@ _SVS(if(rec->EventType==KEY_EVENT)SysLog("[%d] if(rec->EventType==KEY_EVENT) >>>
     if((rec->Event.KeyEvent.dwControlKeyState & SHIFT_PRESSED) == 0 && ShiftState)
       rec->Event.KeyEvent.dwControlKeyState|=SHIFT_PRESSED;
 */
-//_SVS(if(rec->EventType==KEY_EVENT)SysLog("%s",_INPUT_RECORD_Dump(rec)));
+_SVS(if(rec->EventType==KEY_EVENT)SysLog("%s",_INPUT_RECORD_Dump(rec)));
 
     DWORD CtrlState=rec->Event.KeyEvent.dwControlKeyState;
 
@@ -1013,7 +1102,7 @@ _SVS(if(rec->EventType==KEY_EVENT)SysLog("[%d] if(rec->EventType==KEY_EVENT) >>>
        ƒл€ Win9x при нажатом NumLock и юзании курсорных клавиш
        получаем в диалоге назначени€ ерундистику.
     */
-//_SVS(if(rec->EventType==KEY_EVENT)SysLog("[%d] if(rec->EventType==KEY_EVENT) >>> %s",__LINE__,_INPUT_RECORD_Dump(rec)));
+_SVS(if(rec->EventType==KEY_EVENT)SysLog("[%d] if(rec->EventType==KEY_EVENT) >>> %s",__LINE__,_INPUT_RECORD_Dump(rec)));
     if(CtrlObject && CtrlObject->Macro.IsRecording())
     {
       static WORD PrevVKKeyCode=0; // NumLock+Cursor
@@ -1090,7 +1179,7 @@ _SVS(if(rec->EventType==KEY_EVENT)SysLog("[%d] if(rec->EventType==KEY_EVENT) >>>
 /* SVS $ */
   }
 
-//_SVS(if(rec->EventType==KEY_EVENT)SysLog("[%d] if(rec->EventType==KEY_EVENT) >>> %s",__LINE__,_INPUT_RECORD_Dump(rec)));
+_SVS(if(rec->EventType==KEY_EVENT)SysLog("[%d] if(rec->EventType==KEY_EVENT) >>> %s",__LINE__,_INPUT_RECORD_Dump(rec)));
 
   ReturnAltValue=FALSE;
   CalcKey=CalcKeyCode(rec,TRUE,&NotMacros);
@@ -1106,7 +1195,7 @@ _SVS(if(rec->EventType==KEY_EVENT)SysLog("[%d] if(rec->EventType==KEY_EVENT) >>>
     return(CalcKey);
   }
 */
-//_SVS(SysLog("1) CalcKey=%s",_FARKEY_ToName(CalcKey)));
+_SVS(SysLog("1) CalcKey=%s",_FARKEY_ToName(CalcKey)));
   if (ReturnAltValue && !NotMacros)
   {
     _KEYMACRO(CleverSysLog Clev("CALL(2) CtrlObject->Macro.ProcessKey()"));
@@ -1208,9 +1297,9 @@ _SVS(if(rec->EventType==KEY_EVENT)SysLog("[%d] if(rec->EventType==KEY_EVENT) >>>
   if (rec->EventType==WINDOW_BUFFER_SIZE_EVENT)
   {
 #if defined(DETECT_ALT_ENTER)
-    //_SVS(CleverSysLog Clev(""));
-    //_SVS(SysLog("ScrX=%d (%d) ScrY=%d (%d), AltEnter=%d",ScrX,PrevScrX,ScrY,PrevScrY,AltEnter));
-    //_SVS(SysLog("FarAltEnter -> %d",FarAltEnter(FAR_CONSOLE_GET_MODE)));
+    _SVS(CleverSysLog Clev(""));
+    _SVS(SysLog("ScrX=%d (%d) ScrY=%d (%d), AltEnter=%d",ScrX,PrevScrX,ScrY,PrevScrY,AltEnter));
+    _SVS(SysLog("FarAltEnter -> %d",FarAltEnter(FAR_CONSOLE_GET_MODE)));
 #endif
     int PScrX=ScrX;
     int PScrY=ScrY;
@@ -1231,24 +1320,24 @@ _SVS(if(rec->EventType==KEY_EVENT)SysLog("[%d] if(rec->EventType==KEY_EVENT) >>>
 #endif
     {
 #if defined(DETECT_ALT_ENTER)
-      //_SVS(SysLog("return KEY_NONE"));
+      _SVS(SysLog("return KEY_NONE"));
 #endif
       return KEY_NONE;
     }
     else
     {
 #if defined(DETECT_ALT_ENTER)
-      //_SVS(SysLog("return KEY_CONSOLE_BUFFER_RESIZE ScrX=%d (%d) ScrY=%d (%d)",ScrX,PrevScrX,ScrY,PrevScrY));
+      _SVS(SysLog("return KEY_CONSOLE_BUFFER_RESIZE ScrX=%d (%d) ScrY=%d (%d)",ScrX,PrevScrX,ScrY,PrevScrY));
       if(FarAltEnter(FAR_CONSOLE_GET_MODE) == FAR_CONSOLE_FULLSCREEN)
       {
-        //_SVS(SysLog("call ChangeVideoMode"));
+        _SVS(SysLog("call ChangeVideoMode"));
         PrevFarAltEnterMode=FarAltEnter(FAR_CONSOLE_GET_MODE);
         ChangeVideoMode(PScrY==24?50:25,80);
         GetVideoMode(CurScreenBufferInfo);
       }
       else
       {
-        //_SVS(SysLog("PrevScrX=PScrX"));
+        _SVS(SysLog("PrevScrX=PScrX"));
         PrevScrX=PScrX;
         PrevScrY=PScrY;
       }
@@ -1261,7 +1350,7 @@ _SVS(if(rec->EventType==KEY_EVENT)SysLog("[%d] if(rec->EventType==KEY_EVENT) >>>
       if(FrameManager)
       {
 #if defined(DETECT_ALT_ENTER)
-        //_SVS(SysLog("if(FrameManager)"));
+        _SVS(SysLog("if(FrameManager)"));
 #endif
         // апдейтим панели (именно они сейчас!)
         LockScreen LckScr;
@@ -1775,6 +1864,8 @@ static char *GetShiftKeyName(char *Name, DWORD Key,int& Len)
   if(Key&KEY_SHIFT)                  strcat(Name,ModifKeyName[1].Name);
 //  else if(Key&KEY_LSHIFT)  strcat(Name,ModifKeyName[0].Name);
 //  else if(Key&KEY_RSHIFT)  strcat(Name,ModifKeyName[1].Name);
+  if(Key&KEY_M_SPEC)                 strcat(Name,ModifKeyName[5].Name);
+  else if(Key&KEY_M_OEM)             strcat(Name,ModifKeyName[6].Name);
 
   Len=strlen(Name);
   return Name;
@@ -1855,6 +1946,18 @@ int WINAPI KeyNameToKey(const char *Name)
            Pos=Len;
          }
        }
+       else if(Key & (KEY_M_SPEC|KEY_M_OEM))
+       {
+         int K=atoi(Ptr);
+         if(K != -1)
+         {
+           if(Key & KEY_M_SPEC)
+             Key=(Key|(K+KEY_VK_0xFF_BEGIN))&(~(KEY_M_SPEC|KEY_M_OEM));
+           else if(Key & KEY_M_OEM)
+             Key=(Key|(K+KEY_FKEY_BEGIN))&(~(KEY_M_SPEC|KEY_M_OEM));
+           Pos=Len;
+         }
+       }
      }
    }
 /*
@@ -1875,7 +1978,7 @@ BOOL WINAPI KeyToText(int Key0,char *KeyText0,int Size)
   if(!KeyText0)
      return FALSE;
 
-  char KeyText[128];
+  char KeyText[256];
   int I, Len;
   DWORD Key=(DWORD)Key0, FKey=(DWORD)Key0&0xFFFF;
 
@@ -1908,21 +2011,32 @@ BOOL WINAPI KeyToText(int Key0,char *KeyText0,int Size)
 
     if(I  == sizeof(FKeys1)/sizeof(FKeys1[0]))
     {
-  #if defined(SYSLOG)
-      for (I=0;I<sizeof(SpecKeyName)/sizeof(SpecKeyName[0]);I++)
-        if (FKey==SpecKeyName[I].Key)
-        {
-          strcat(KeyText,SpecKeyName[I].Name);
-          break;
-        }
-      if(I  == sizeof(SpecKeyName)/sizeof(SpecKeyName[0]))
-  #endif
+      if(FKey >= KEY_VK_0xFF_BEGIN && FKey <= KEY_VK_0xFF_END)
       {
-        FKey=(Key&0xFF)&(~0x20);
-        if (FKey >= 'A' && FKey <= 'Z')
-          KeyText[Len]=(char)(Key&0xFF)&((Key&(KEY_RCTRL|KEY_CTRL|KEY_ALT|KEY_RCTRL))?(~0x20):0xFF);
-        else if ((Key&0xFF) > 0 && (Key&0xFF) < 256)
-          KeyText[Len]=(char)Key&0xFF;
+        sprintf(KeyText+strlen(KeyText),"Spec%05d",FKey-KEY_VK_0xFF_BEGIN);
+      }
+      else if(FKey > KEY_LAUNCH_APP2 && FKey < KEY_CTRLALTSHIFTPRESS)
+      {
+        sprintf(KeyText+strlen(KeyText),"Oem%05d",FKey-KEY_FKEY_BEGIN);
+      }
+      else
+      {
+    #if defined(SYSLOG)
+        for (I=0;I<sizeof(SpecKeyName)/sizeof(SpecKeyName[0]);I++)
+          if (FKey==SpecKeyName[I].Key)
+          {
+            strcat(KeyText,SpecKeyName[I].Name);
+            break;
+          }
+        if(I  == sizeof(SpecKeyName)/sizeof(SpecKeyName[0]))
+    #endif
+        {
+          FKey=(Key&0xFF)&(~0x20);
+          if (FKey >= 'A' && FKey <= 'Z')
+            KeyText[Len]=(char)(Key&0xFF)&((Key&(KEY_RCTRL|KEY_CTRL|KEY_ALT|KEY_RCTRL))?(~0x20):0xFF);
+          else if ((Key&0xFF) > 0 && (Key&0xFF) < 256)
+            KeyText[Len]=(char)Key&0xFF;
+        }
       }
     }
     if(!KeyText[0])
@@ -2139,8 +2253,8 @@ char *FARGetKeybLayoutName(char *Dest,int DestSize)
 // GetAsyncKeyState(VK_RSHIFT)
 DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
 {
-//_SVS(CleverSysLog Clev("CalcKeyCode"));
-//_SVS(SysLog("CalcKeyCode -> %s| RealKey=%d  *NotMacros=%d",_INPUT_RECORD_Dump(rec),RealKey,(NotMacros?*NotMacros:0)));
+_SVS(CleverSysLog Clev("CalcKeyCode"));
+_SVS(SysLog("CalcKeyCode -> %s| RealKey=%d  *NotMacros=%d",_INPUT_RECORD_Dump(rec),RealKey,(NotMacros?*NotMacros:0)));
   CHAR_WCHAR Char;
 
   unsigned int ScanCode,KeyCode,CtrlState;
@@ -2154,8 +2268,22 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
     *NotMacros=CtrlState&0x80000000?TRUE:FALSE;
 //  CtrlState&=~0x80000000;
 
+  DWORD Modif=(CtrlPressed?KEY_CTRL:0)|(AltPressed?KEY_ALT:0)|(ShiftPressed?KEY_SHIFT:0);
+
   if(rec->Event.KeyEvent.wVirtualKeyCode >= 0xFF && RealKey)
+  {
+    //VK_?=0x00FF, Scan=0x0013 uChar=[U=' ' (0x0000): A=' ' (0x00)] Ctrl=0x00000120 (casac - EcNs)
+    //VK_?=0x00FF, Scan=0x0014 uChar=[U=' ' (0x0000): A=' ' (0x00)] Ctrl=0x00000120 (casac - EcNs)
+    //VK_?=0x00FF, Scan=0x0015 uChar=[U=' ' (0x0000): A=' ' (0x00)] Ctrl=0x00000120 (casac - EcNs)
+    //VK_?=0x00FF, Scan=0x001A uChar=[U=' ' (0x0000): A=' ' (0x00)] Ctrl=0x00000120 (casac - EcNs)
+    //VK_?=0x00FF, Scan=0x001B uChar=[U=' ' (0x0000): A=' ' (0x00)] Ctrl=0x00000120 (casac - EcNs)
+    //VK_?=0x00FF, Scan=0x001E uChar=[U=' ' (0x0000): A=' ' (0x00)] Ctrl=0x00000120 (casac - EcNs)
+    //VK_?=0x00FF, Scan=0x001F uChar=[U=' ' (0x0000): A=' ' (0x00)] Ctrl=0x00000120 (casac - EcNs)
+    //VK_?=0x00FF, Scan=0x0023 uChar=[U=' ' (0x0000): A=' ' (0x00)] Ctrl=0x00000120 (casac - EcNs)
+    if(!rec->Event.KeyEvent.bKeyDown && (CtrlState&(ENHANCED_KEY|NUMLOCK_ON)))
+      return KEY_VK_0xFF_BEGIN+ScanCode;
     return KEY_IDLE;
+  }
 
   if (!RealKey)
   {
@@ -2172,6 +2300,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
 
   if (!rec->Event.KeyEvent.bKeyDown)
   {
+_SVS(SysLog("[%d]",__LINE__));
     KeyCodeForALT_LastPressed=0;
     if (KeyCode==VK_MENU && AltValue!=0)
     {
@@ -2181,7 +2310,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
       ReadConsoleInput(hConInp,&TempRec,1,&ReadCount);
 
       ReturnAltValue=TRUE;
-      //_SVS(SysLog("0 AltNumPad -> AltValue=0x%0X CtrlState=%X",AltValue,CtrlState));
+      _SVS(SysLog("0 AltNumPad -> AltValue=0x%0X CtrlState=%X",AltValue,CtrlState));
 //#if defined(USE_WFUNC_IN)
 //      AltValue&=0xFFFF;
 //      rec->Event.KeyEvent.uChar.UnicodeChar=AltValue;
@@ -2190,30 +2319,40 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
       rec->Event.KeyEvent.uChar.AsciiChar=AltValue;
 //#endif
       //// // _SVS(SysLog("KeyCode==VK_MENU -> AltValue=%X (%c)",AltValue,AltValue));
+_SVS(SysLog("[%d] return AltValue=%d",__LINE__,AltValue));
       return(AltValue);
     }
     else
+    {
+_SVS(SysLog("[%d] return KEY_NONE",__LINE__));
       return(KEY_NONE);
+    }
   }
 
   if ((CtrlState & 9)==9)
     if (Char.AsciiChar!=0)
+    {
+_SVS(SysLog("[%d] return Char.AsciiChar",__LINE__));
       return(Char.AsciiChar);
+    }
     else
       CtrlPressed=0;
 
   if (Opt.AltGr && CtrlPressed && (rec->Event.KeyEvent.dwControlKeyState & RIGHT_ALT_PRESSED))
     if (Char.AsciiChar=='\\')
+    {
+_SVS(SysLog("[%d] return KEY_CTRLBACKSLASH",__LINE__));
       return(KEY_CTRLBACKSLASH);
+    }
 
   if (KeyCode==VK_MENU)
     AltValue=0;
 
   if (Char.AsciiChar==0 && !CtrlPressed && !AltPressed)
   {
-    if (KeyCode==0xc0)
+    if (KeyCode==VK_OEM_3)
       return(ShiftPressed ? '~':'`');
-    if (KeyCode==0xde)
+    if (KeyCode==VK_OEM_7)
       return(ShiftPressed ? '"':'\'');
   }
 
@@ -2221,23 +2360,23 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   {
     switch(KeyCode)
     {
-      case 0xbc:
+      case VK_OEM_COMMA:
         Char.AsciiChar=',';
         break;
-      case 0xbe:
+      case VK_OEM_PERIOD:
         Char.AsciiChar='.';
         break;
-      case 0xdb:
+      case VK_OEM_4:
         Char.AsciiChar='[';
         break;
-      case 0xdc:
+      case VK_OEM_5:
         //Char.AsciiChar=ScanCode==0x29?0x15:'\\'; //???
         Char.AsciiChar='\\';
         break;
-      case 0xdd:
+      case VK_OEM_6:
         Char.AsciiChar=']';
         break;
-      case 0xde:
+      case VK_OEM_7:
         Char.AsciiChar='\"';
         break;
     }
@@ -2277,9 +2416,8 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
     }
   }
   /* SVS $*/
-  DWORD Modif=(CtrlPressed?KEY_CTRL:0)|(AltPressed?KEY_ALT:0)|(ShiftPressed?KEY_SHIFT:0);
 
-  if (KeyCode>=VK_F1 && KeyCode<=VK_F12)
+  if (KeyCode>=VK_F1 && KeyCode<=VK_F24)
 //    return(Modif+KEY_F1+((KeyCode-VK_F1)<<8));
     return(Modif+KEY_F1+((KeyCode-VK_F1)));
 
@@ -2337,11 +2475,13 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
 #else
     if (AltValue==0)
     {
+_SVS(SysLog("[%d] if (AltValue==0)",__LINE__));
       if(KeyCode==VK_INSERT || KeyCode==VK_NUMPAD0)
       {
         if(CtrlObject && CtrlObject->Macro.IsRecording())
           CtrlObject->Macro.ProcessKey(KEY_INS|KEY_ALT);
         RunGraber();
+_SVS(SysLog("[%d] return KEY_NONE",__LINE__));
         return(KEY_NONE);
       }
     }
@@ -2364,7 +2504,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
             AltValue=AltValue*10+I;
             KeyCodeForALT_LastPressed=KeyCode;
           }
-//          _SVS(SysLog("AltNumPad -> AltValue=0x%0X CtrlState=%X",AltValue,CtrlState));
+_SVS(SysLog("[%d] AltNumPad -> AltValue=0x%0X CtrlState=%X",__LINE__,AltValue,CtrlState));
           if(AltValue!=0)
             return(KEY_NONE);
         }
@@ -2511,6 +2651,43 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
 
   switch(KeyCode)
   {
+    case VK_BROWSER_BACK:
+      return Modif|KEY_BROWSER_BACK;
+    case VK_BROWSER_FORWARD:
+      return Modif|KEY_BROWSER_FORWARD;
+    case VK_BROWSER_REFRESH:
+      return Modif|KEY_BROWSER_REFRESH;
+    case VK_BROWSER_STOP:
+      return Modif|KEY_BROWSER_STOP;
+    case VK_BROWSER_SEARCH:
+      return Modif|KEY_BROWSER_SEARCH;
+    case VK_BROWSER_FAVORITES:
+      return Modif|KEY_BROWSER_FAVORITES;
+    case VK_BROWSER_HOME:
+      return Modif|KEY_BROWSER_HOME;
+    case VK_VOLUME_MUTE:
+      return Modif|KEY_VOLUME_MUTE;
+    case VK_VOLUME_DOWN:
+      return Modif|KEY_VOLUME_DOWN;
+    case VK_VOLUME_UP:
+      return Modif|KEY_VOLUME_UP;
+    case VK_MEDIA_NEXT_TRACK:
+      return Modif|KEY_MEDIA_NEXT_TRACK;
+    case VK_MEDIA_PREV_TRACK:
+      return Modif|KEY_MEDIA_PREV_TRACK;
+    case VK_MEDIA_STOP:
+      return Modif|KEY_MEDIA_STOP;
+    case VK_MEDIA_PLAY_PAUSE:
+      return Modif|KEY_MEDIA_PLAY_PAUSE;
+    case VK_LAUNCH_MAIL:
+      return Modif|KEY_LAUNCH_MAIL;
+    case VK_LAUNCH_MEDIA_SELECT:
+      return Modif|KEY_LAUNCH_MEDIA_SELECT;
+    case VK_LAUNCH_APP1:
+      return Modif|KEY_LAUNCH_APP1;
+    case VK_LAUNCH_APP2:
+      return Modif|KEY_LAUNCH_APP2;
+
     case VK_APPS:
       return(Modif|KEY_APPS);
     case VK_LWIN:
@@ -2520,7 +2697,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
     case VK_RETURN:
       //  !!!!!!!!!!!!! - ≈сли "!ShiftPressed", то Shift-F4 Shift-Enter, не
       //                  отпуска€ Shift...
-//_SVS(SysLog("ShiftPressed=%d RealKey=%d !ShiftPressedLast=%d !CtrlPressed=%d !AltPressed=%d (%d)",ShiftPressed,RealKey,ShiftPressedLast,CtrlPressed,AltPressed,(ShiftPressed && RealKey && !ShiftPressedLast && !CtrlPressed && !AltPressed)));
+_SVS(SysLog("ShiftPressed=%d RealKey=%d !ShiftPressedLast=%d !CtrlPressed=%d !AltPressed=%d (%d)",ShiftPressed,RealKey,ShiftPressedLast,CtrlPressed,AltPressed,(ShiftPressed && RealKey && !ShiftPressedLast && !CtrlPressed && !AltPressed)));
       if (ShiftPressed && RealKey && !ShiftPressedLast && !CtrlPressed && !AltPressed && !LastShiftEnterPressed)
         return(KEY_ENTER);
       LastShiftEnterPressed=Modif&KEY_SHIFT?TRUE:FALSE;
@@ -2548,27 +2725,27 @@ _SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog("CtrlAltShift -> |%s|%s|
     if(Opt.ShiftsKeyRules) //???
       switch(KeyCode)
       {
-        case 0xc0:
+        case VK_OEM_3:
           return(KEY_SHIFT+KEY_CTRL+KEY_ALT+'~');
-        case 0xbd:
+        case VK_OEM_MINUS:
           return(KEY_SHIFT+KEY_CTRL+KEY_ALT+'-');
-        case 0xbb:
+        case VK_OEM_PLUS:
           return(KEY_SHIFT+KEY_CTRL+KEY_ALT+'=');
-        case 0xdc:
+        case VK_OEM_5:
           return(KEY_SHIFT+KEY_CTRL+KEY_ALT+KEY_BACKSLASH);
-        case 0xdd:
+        case VK_OEM_6:
           return(KEY_SHIFT+KEY_CTRL+KEY_ALT+KEY_BACKBRACKET);
-        case 0xdb:
+        case VK_OEM_4:
           return(KEY_SHIFT+KEY_CTRL+KEY_ALT+KEY_BRACKET);
-        case 0xde:
+        case VK_OEM_7:
           return(KEY_SHIFT+KEY_CTRL+KEY_ALT+KEY_QUOTE);
-        case 0xba:
+        case VK_OEM_1:
           return(KEY_SHIFT+KEY_CTRL+KEY_ALT+KEY_COLON);
-        case 0xbf:
+        case VK_OEM_2:
           return(KEY_SHIFT+KEY_CTRL+KEY_ALT+KEY_SLASH);
-        case 0xbe:
+        case VK_OEM_PERIOD:
           return(KEY_SHIFT+KEY_CTRL+KEY_ALT+KEY_DOT);
-        case 0xbc:
+        case VK_OEM_COMMA:
           return(KEY_SHIFT+KEY_CTRL+KEY_ALT+KEY_COMMA);
       }
     switch(KeyCode)
@@ -2597,27 +2774,27 @@ _SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog("CtrlAlt -> |%s|%s|",_VK
     if(Opt.ShiftsKeyRules) //???
       switch(KeyCode)
       {
-        case 0xc0:
+        case VK_OEM_3:
           return(KEY_CTRL+KEY_ALT+'~');
-        case 0xbd:
+        case VK_OEM_MINUS:
           return(KEY_CTRL+KEY_ALT+'-');
-        case 0xbb:
+        case VK_OEM_PLUS:
           return(KEY_CTRL+KEY_ALT+'=');
-        case 0xdc:
+        case VK_OEM_5:
           return(KEY_CTRL+KEY_ALT+KEY_BACKSLASH);
-        case 0xdd:
+        case VK_OEM_6:
           return(KEY_CTRL+KEY_ALT+KEY_BACKBRACKET);
-        case 0xdb:
+        case VK_OEM_4:
           return(KEY_CTRL+KEY_ALT+KEY_BRACKET);
-        case 0xde:
+        case VK_OEM_7:
           return(KEY_CTRL+KEY_ALT+KEY_QUOTE);
-        case 0xba:
+        case VK_OEM_1:
           return(KEY_CTRL+KEY_ALT+KEY_COLON);
-        case 0xbf:
+        case VK_OEM_2:
           return(KEY_CTRL+KEY_ALT+KEY_SLASH);
-        case 0xbe:
+        case VK_OEM_PERIOD:
           return(KEY_CTRL+KEY_ALT+KEY_DOT);
-        case 0xbc:
+        case VK_OEM_COMMA:
           return(KEY_CTRL+KEY_ALT+KEY_COMMA);
       }
     switch(KeyCode)
@@ -2658,30 +2835,30 @@ _SVS(if(KeyCode!=VK_MENU && KeyCode!=VK_SHIFT) SysLog("AltShift -> |%s|%s|",_VK_
     if(Opt.ShiftsKeyRules) //???
       switch(KeyCode)
       {
-        case 0xc0:
+        case VK_OEM_3:
           return(KEY_ALT+KEY_SHIFT+'~');
-        case 0xbd:
+        case VK_OEM_MINUS:
           return(KEY_ALT+KEY_SHIFT+'_');
-        case 0xbb:
+        case VK_OEM_PLUS:
           return(KEY_ALT+KEY_SHIFT+'=');
-        case 0xdc:
+        case VK_OEM_5:
           return(KEY_ALT+KEY_SHIFT+KEY_BACKSLASH);
-        case 0xdd:
+        case VK_OEM_6:
           return(KEY_ALT+KEY_SHIFT+KEY_BACKBRACKET);
-        case 0xdb:
+        case VK_OEM_4:
           return(KEY_ALT+KEY_SHIFT+KEY_BRACKET);
-        case 0xde:
+        case VK_OEM_7:
           return(KEY_ALT+KEY_SHIFT+KEY_QUOTE);
-        case 0xba:
+        case VK_OEM_1:
           return(KEY_ALT+KEY_SHIFT+KEY_COLON);
-        case 0xbf:
+        case VK_OEM_2:
           if(WaitInFastFind)
             return(KEY_ALT+KEY_SHIFT+'?');
           else
             return(KEY_ALT+KEY_SHIFT+KEY_SLASH);
-        case 0xbe:
+        case VK_OEM_PERIOD:
           return(KEY_ALT+KEY_SHIFT+KEY_DOT);
-        case 0xbc:
+        case VK_OEM_COMMA:
           return(KEY_ALT+KEY_SHIFT+KEY_COMMA);
       }
     switch(KeyCode)
@@ -2727,15 +2904,15 @@ _SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_SHIFT) SysLog("CtrlShift -> |%s|%s|",
       return(KEY_CTRLSHIFTA+KeyCode-'A');
     switch(KeyCode)
     {
-      case 0xbe:
+      case VK_OEM_PERIOD:
         return(KEY_CTRLSHIFTDOT);
-      case 0xdb:
+      case VK_OEM_4:
         return(KEY_CTRLSHIFTBRACKET);
-      case 0xdd:
+      case VK_OEM_6:
         return(KEY_CTRLSHIFTBACKBRACKET);
-      case 0xbf:
+      case VK_OEM_2:
         return(KEY_CTRLSHIFTSLASH);
-      case 0xdc:
+      case VK_OEM_5:
         return(KEY_CTRLSHIFTBACKSLASH);
       case VK_DIVIDE:
         return(KEY_CTRLSHIFT|KEY_DIVIDE);
@@ -2745,17 +2922,17 @@ _SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_SHIFT) SysLog("CtrlShift -> |%s|%s|",
     if(Opt.ShiftsKeyRules) //???
       switch(KeyCode)
       {
-        case 0xc0:
+        case VK_OEM_3:
           return(KEY_CTRL+KEY_SHIFT+'~');
-        case 0xbd:
+        case VK_OEM_MINUS:
           return(KEY_CTRL+KEY_SHIFT+'-');
-        case 0xbb:
+        case VK_OEM_PLUS:
           return(KEY_CTRL+KEY_SHIFT+'=');
-        case 0xde:
+        case VK_OEM_7:
           return(KEY_CTRL+KEY_SHIFT+KEY_QUOTE);
-        case 0xba:
+        case VK_OEM_1:
           return(KEY_CTRL+KEY_SHIFT+KEY_COLON);
-        case 0xbc:
+        case VK_OEM_COMMA:
           return(KEY_CTRL+KEY_SHIFT+KEY_COMMA);
       }
     if (Char.AsciiChar)
@@ -2799,19 +2976,19 @@ _SVS(if(KeyCode!=VK_CONTROL) SysLog("Ctrl -> |%s|%s|",_VK_KEY_ToName(KeyCode),_I
       return(KEY_CTRL+KeyCode);
     switch(KeyCode)
     {
-      case 0xbc:
+      case VK_OEM_COMMA:
         return(KEY_CTRLCOMMA);
-      case 0xbe:
+      case VK_OEM_PERIOD:
         return(KEY_CTRLDOT);
-      case 0xbf:
+      case VK_OEM_2:
         return(KEY_CTRLSLASH);
-      case 0xdb:
+      case VK_OEM_4:
         return(KEY_CTRLBRACKET);
-      case 0xdc:
+      case VK_OEM_5:
         return(KEY_CTRLBACKSLASH);
-      case 0xdd:
+      case VK_OEM_6:
         return(KEY_CTRLBACKBRACKET);
-      case 0xde:
+      case VK_OEM_7:
         return(KEY_CTRLQUOTE);
       case VK_MULTIPLY:
         return(KEY_CTRL|KEY_MULTIPLY);
@@ -2822,13 +2999,13 @@ _SVS(if(KeyCode!=VK_CONTROL) SysLog("Ctrl -> |%s|%s|",_VK_KEY_ToName(KeyCode),_I
     if(Opt.ShiftsKeyRules) //???
       switch(KeyCode)
       {
-        case 0xc0:
+        case VK_OEM_3:
           return(KEY_CTRL+'~');
-        case 0xbd:
+        case VK_OEM_MINUS:
           return(KEY_CTRL+'-');
-        case 0xbb:
+        case VK_OEM_PLUS:
           return(KEY_CTRL+'=');
-        case 0xba:
+        case VK_OEM_1:
           return(KEY_CTRL+KEY_COLON);
       }
 
@@ -2847,33 +3024,33 @@ _SVS(if(KeyCode!=VK_MENU) SysLog("Alt -> |%s|%s|",_VK_KEY_ToName(KeyCode),_INPUT
     if(Opt.ShiftsKeyRules) //???
       switch(KeyCode)
       {
-        case 0xc0:
+        case VK_OEM_3:
           return(KEY_ALT+'~');
-        case 0xbd:
+        case VK_OEM_MINUS:
           if(WaitInFastFind)
             return(KEY_ALT+KEY_SHIFT+'_');
           else
             return(KEY_ALT+'-');
-        case 0xbb:
+        case VK_OEM_PLUS:
           return(KEY_ALT+'=');
-        case 0xdc:
+        case VK_OEM_5:
           return(KEY_ALT+KEY_BACKSLASH);
-        case 0xdd:
+        case VK_OEM_6:
           return(KEY_ALT+KEY_BACKBRACKET);
-        case 0xdb:
+        case VK_OEM_4:
           return(KEY_ALT+KEY_BRACKET);
-        case 0xde:
+        case VK_OEM_7:
           return(KEY_ALT+KEY_QUOTE);
-        case 0xba:
+        case VK_OEM_1:
           return(KEY_ALT+KEY_COLON);
-        case 0xbf:
+        case VK_OEM_2:
           return(KEY_ALT+KEY_SLASH);
       }
     switch(KeyCode)
     {
-      case 0xbc:
+      case VK_OEM_COMMA:
         return(KEY_ALTCOMMA);
-      case 0xbe:
+      case VK_OEM_PERIOD:
         return(KEY_ALTDOT);
       case VK_DIVIDE:
         if(WaitInFastFind)
@@ -2914,5 +3091,6 @@ _SVS(if(KeyCode!=VK_MENU) SysLog("Alt -> |%s|%s|",_VK_KEY_ToName(KeyCode),_INPUT
 
   if (Char.AsciiChar)
     return(Char.AsciiChar);
+_SVS(SysLog("[%d] Last return KEY_NONE",__LINE__));
   return(KEY_NONE);
 }

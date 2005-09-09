@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.168 23.07.2005 $ */
+/* Revision: 1.169 09.09.2005 $ */
 
 /*
 Modify:
+  09.09.2005 SVS
+    ! Функционал получения имени компьютера по текущему пути вынесен в
+      отдельную функцию CurPath2ComputerName()
   23.07.2005 SVS
     - лажа в CreatePath
   24.04.2005 AY
@@ -2146,4 +2149,39 @@ int _MakePath1(DWORD Key,char *PathName,int PathNameSize, const char *Param2)
     break;
   }
   return RetCode;
+}
+
+const char *CurPath2ComputerName(const char *CurDir, char *ComputerName,int SizeName)
+{
+  char NetDir[NM*3];
+
+  *ComputerName=0;
+  *NetDir=0;
+
+  if (CurDir[0]=='\\' && CurDir[1]=='\\')
+    strcpy(NetDir,CurDir);
+  else
+  {
+    char LocalName[3];
+    DWORD RemoteNameSize=sizeof(NetDir);
+    xstrncpy(LocalName,CurDir,2);
+    LocalName[sizeof(LocalName)-1]=0;
+
+    SetFileApisTo(APIS2ANSI);
+    if (WNetGetConnection(LocalName,NetDir,&RemoteNameSize)==NO_ERROR)
+      FAR_CharToOem(NetDir,NetDir);
+    SetFileApisTo(APIS2OEM);
+  }
+
+  if (NetDir[0]=='\\' && NetDir[1]=='\\')
+  {
+    strncpy(ComputerName,NetDir+2,SizeName);
+    char *EndSlash=strchr(ComputerName,'\\');
+    if (EndSlash==NULL)
+      *ComputerName=0;
+    else
+      *EndSlash=0;
+  }
+
+  return ComputerName;
 }

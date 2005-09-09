@@ -24,11 +24,14 @@ keys.hpp
 */
 #endif // END FAR_USE_INTERNALS
 
-/* Revision: 1.32 07.07.2004 $ */
+/* Revision: 1.33 09.09.2005 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
 Modify:
+  09.09.2005 SVS
+    + Добавлены (в т.ч. и имена) KEY_F13..KEY_F24 и несколько MM клавиш с
+      VK-кодами от A6 до B7.
   07.07.2004 SVS
     ! Macro II
   06.07.2004 SVS
@@ -146,6 +149,8 @@ enum BaseDefKeyboard
 #ifdef FAR_USE_INTERNALS
   KEY_ALTDIGIT             =0x40000000,
   KEY_RSHIFT               =0x80000000,
+  KEY_M_OEM                =0x00100000,
+  KEY_M_SPEC               =0x00200000,
 #endif  // END FAR_USE_INTERNALS
   KEY_CTRLMASK             =0xFF000000,
 
@@ -165,6 +170,8 @@ enum BaseDefKeyboard
   KEY_SPACE                =0x00000020,
 
   KEY_MASKF                =0x00000FFF,
+
+  KEY_FKEY_BEGIN           =0x00000100,
 
   KEY_BREAK                =0x00000103,
 
@@ -213,6 +220,38 @@ enum BaseDefKeyboard
   KEY_F11                  =0x0000017A,
   KEY_F12                  =0x0000017B,
 
+  KEY_F13                  =0x0000017C,
+  KEY_F14                  =0x0000017D,
+  KEY_F15                  =0x0000017E,
+  KEY_F16                  =0x0000017F,
+  KEY_F17                  =0x00000180,
+  KEY_F18                  =0x00000181,
+  KEY_F19                  =0x00000182,
+  KEY_F20                  =0x00000183,
+  KEY_F21                  =0x00000184,
+  KEY_F22                  =0x00000185,
+  KEY_F23                  =0x00000186,
+  KEY_F24                  =0x00000187,
+
+  KEY_BROWSER_BACK         =0x000001A6,
+  KEY_BROWSER_FORWARD      =0x000001A7,
+  KEY_BROWSER_REFRESH      =0x000001A8,
+  KEY_BROWSER_STOP         =0x000001A9,
+  KEY_BROWSER_SEARCH       =0x000001AA,
+  KEY_BROWSER_FAVORITES    =0x000001AB,
+  KEY_BROWSER_HOME         =0x000001AC,
+  KEY_VOLUME_MUTE          =0x000001AD,
+  KEY_VOLUME_DOWN          =0x000001AE,
+  KEY_VOLUME_UP            =0x000001AF,
+  KEY_MEDIA_NEXT_TRACK     =0x000001B0,
+  KEY_MEDIA_PREV_TRACK     =0x000001B1,
+  KEY_MEDIA_STOP           =0x000001B2,
+  KEY_MEDIA_PLAY_PAUSE     =0x000001B3,
+  KEY_LAUNCH_MAIL          =0x000001B4,
+  KEY_LAUNCH_MEDIA_SELECT  =0x000001B5,
+  KEY_LAUNCH_APP1          =0x000001B6,
+  KEY_LAUNCH_APP2          =0x000001B7,
+
   KEY_CTRLALTSHIFTPRESS    =0x00000201,
   KEY_CTRLALTSHIFTRELEASE  =0x00000202,
 
@@ -227,6 +266,26 @@ enum BaseDefKeyboard
   KEY_RCTRLALTSHIFTRELEASE =0x00000208,
 #endif // END FAR_USE_INTERNALS
 
+  KEY_VK_0xFF_BEGIN        =0x00000300,
+#ifdef FAR_USE_INTERNALS
+//  KEY_HP_INTERNET          =0x00000323,
+//  KEY_HP_HOME              =0x0000031F,
+//  KEY_HP_SEARCH            =0x0000031A,
+//  KEY_HP_MAIL              =0x0000031E,
+//  KEY_HP_COMMUNITIES       =0x00000313,
+//  KEY_HP_MARKET            =0x00000314,
+//  KEY_HP_MEETING           =0x00000315,
+//  KEY_HP_NEWS              =0x0000031B,
+//
+//  KEY_AC_HOME              =0x00000323,
+//  KEY_AC_BACK              =0x00000324,
+//  KEY_AC_FORWARD           =0x00000325,
+//  KEY_AC_STOP              =0x00000326,
+//  KEY_AC_REFRESH           =0x00000327,
+//  KEY_AC_BOOKMARKS         =0x0000032A,
+#endif // END FAR_USE_INTERNALS
+  KEY_VK_0xFF_END          =0x000003FF,
+
   KEY_END_FKEY             =0x00000FFF,
 
   KEY_NONE                 =0x00001001,
@@ -239,6 +298,7 @@ enum BaseDefKeyboard
   KEY_KILLFOCUS            =0x00001006,
   KEY_GOTFOCUS             =0x00001007,
   KEY_CONSOLE_BUFFER_RESIZE=0x00001008,
+
 #endif // END FAR_USE_INTERNALS
   KEY_END_SKEY             =0x0000FFFF,
   KEY_LAST_BASE            =KEY_END_SKEY,

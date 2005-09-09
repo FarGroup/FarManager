@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.230 13.07.2005 $ */
+/* Revision: 1.231 09.09.2005 $ */
 
 /*
 Modify:
+  09.09.2005 SVS
+    ! Функционал получения имени компьютера по текущему пути вынесен в
+      отдельную функцию CurPath2ComputerName()
   13.07.2005 SVS
     + PanelViewSettings_Dump()
   23.06.2005 SVS
@@ -1687,5 +1690,6 @@ BOOL GetMacroParseError(char *ErrMessage1,char *ErrMessage2,char *ErrMessage3);
 
 int _MakePath1(DWORD Key,char *PathName,int PathNameSize, const char *Param2);
 
+const char *CurPath2ComputerName(const char *CurDir, char *ComputerName,int SizeName);
 
 #endif  // __FARFUNC_HPP__
