@@ -5,10 +5,13 @@ findfile.cpp
 
 */
 
-/* Revision: 1.181 22.07.2005 $ */
+/* Revision: 1.182 11.09.2005 $ */
 
 /*
 Modify:
+  11.09.2005 KM
+    - Bug #1377 - при отсутствии кодовых таблиц не работал поиск по
+      "All character tables": не находил текст в кодировке "Windows text"
   22.07.2005 SVS
     + Искать по PATH
   13.07.2005 SVS
@@ -2911,7 +2914,7 @@ int FindFiles::LookForString(char *Name)
 {
   FILE *SrcFile;
   char Buf[32768],SaveBuf[32768],CmpStr[sizeof(FindStr)];
-  int Length,ReadSize;
+  int Length,ReadSize,SaveReadSize;
   if ((Length=strlen(FindStr))==0)
     return(TRUE);
   HANDLE FileHandle=FAR_CreateFile(Name,GENERIC_READ|GENERIC_WRITE,
@@ -2952,7 +2955,7 @@ int FindFiles::LookForString(char *Name)
   int ReverseBOM=FALSE;
   int IsFirst=FALSE;
 
-    // Уже считано из файла. Используется для сравнения
+  // Уже считано из файла. Используется для сравнения
   // с максимальным размером, в котором производится поиск
   __int64 AlreadyRead=_i64(0);
 
@@ -2976,9 +2979,16 @@ int FindFiles::LookForString(char *Name)
     }
     /* KM $ */
 
+    /* $ 11.09.2005 KM
+       - Bug #1377
+    */
     int DecodeTableNum=0;
+    int ANSISearch=UseANSI;
     int UnicodeSearch=UseUnicode;
     int RealReadSize=ReadSize;
+
+    // Сначала в поиске используем внутренние кодировки: OEM, ANSI и Unicode
+    int UseInnerTables=true;
 
     /* $ 22.09.2003 KM
        Поиск по hex-кодам
@@ -2987,7 +2997,12 @@ int FindFiles::LookForString(char *Name)
     {
       if (UseAllTables || UseUnicode)
       {
-        memcpy(SaveBuf,Buf,ReadSize);
+        // Раз поиск идёт по всем кодировкам или в юникоде,
+        // запомним считанный размер буфера
+        SaveReadSize=ReadSize;
+
+        // А также запомним считанный буфер.
+        memmove(SaveBuf,Buf,ReadSize);
 
         /* $ 21.10.2000 SVS
            Хреново получилось, в лоб так сказать, но ищет в FFFE-файлах
@@ -3022,21 +3037,35 @@ int FindFiles::LookForString(char *Name)
       */
       if (!SearchHex)
       {
-        if (DecodeTableNum>0 && !UnicodeSearch)
-          memcpy(Buf,SaveBuf,ReadSize);
         if (UnicodeSearch)
         {
           WideCharToMultiByte(CP_OEMCP,0,(LPCWSTR)SaveBuf,ReadSize/2,Buf,ReadSize,NULL,NULL);
           ReadSize/=2;
         }
         else
+        {
+          // Если поиск идёт по всем кодировкам, восстановим запомненный буфер
+          // и его размер для поиска в оригинальных считанных данных в другой кодировке
+          if (UseAllTables)
+          {
+            ReadSize=SaveReadSize;
+            memmove(Buf,SaveBuf,ReadSize);
+          }
+
           /* $ 20.09.2003 KM
              Добавим поддержку ANSI таблицы
           */
-          if (UseDecodeTable || UseANSI || DecodeTableNum>0)
+          if (UseDecodeTable || DecodeTableNum>0 || ANSISearch)
+          {
+            // Раз добрались до поиска в ANSI кодировке, подготовим таблицу перекодировки
+            if (ANSISearch)
+              GetTable(&TableSet,TRUE,TableNum,UseUnicode);
+
             for (int I=0;I<ReadSize;I++)
               Buf[I]=TableSet.DecodeTable[Buf[I]];
-        /* KM $ */
+          }
+          /* KM $ */
+        }
         if (!CmpCase)
           LocalUpperBuf(Buf,ReadSize);
       }
@@ -3101,27 +3130,52 @@ int FindFiles::LookForString(char *Name)
       }
       /* KM $ */
       /* KM $ */
+
       /* $ 22.09.2003 KM
          Поиск по hex-кодам
       */
       if (UseAllTables && !SearchHex)
       {
-        if (PrepareTable(&TableSet,DecodeTableNum++,TRUE))
+        if (!ANSISearch && !UnicodeSearch && UseInnerTables)
         {
-          xstrncpy(CmpStr,FindStr,sizeof(CmpStr)-1);
-          if (!CmpCase)
-            LocalStrupr(CmpStr);
+          // Раз не нашли в OEM кодировке, поищем теперь в ANSI.
+          ANSISearch=true;
         }
         else
-          if (!UnicodeSearch)
+        {
+          if (!UnicodeSearch && UseInnerTables)
+          {
+            // Не нашли в ANSI кодировке, поищем теперь в Unicode.
             UnicodeSearch=true;
+            ANSISearch=false;
+          }
           else
-            break;
+          {
+            // Внутренние таблицы все прошли, теперь примемся искать в пользовательских
+            UseInnerTables=false;
+
+            UnicodeSearch=false;
+            ANSISearch=false;
+
+            // Не нашли ни в OEM, ни в ANSI, ни в Unicode, значит будем искать
+            // в установленных пользовательских кодировках.
+            if (PrepareTable(&TableSet,DecodeTableNum,TRUE))
+            {
+              DecodeTableNum++;
+              xstrncpy(CmpStr,FindStr,sizeof(CmpStr)-1);
+              if (!CmpCase)
+                LocalStrupr(CmpStr);
+            }
+            else
+              break;
+          }
+        }
       }
       else
         break;
       /* KM $ */
     }
+    /* KM $ */
 
     if (RealReadSize==sizeof(Buf))
     {
