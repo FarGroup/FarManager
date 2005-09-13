@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.117 09.09.2005 $ */
+/* Revision: 1.118 13.09.2005 $ */
 
 /*
 Modify:
+  13.09.2005 SVS
+    + модификаторы дл€ Spec-клавиш
   09.09.2005 SVS
     + ƒобавлены (в т.ч. и имена) KEY_F13..KEY_F24 и несколько MM клавиш с
       VK-кодами от A6 до B7.
@@ -2281,7 +2283,7 @@ _SVS(SysLog("CalcKeyCode -> %s| RealKey=%d  *NotMacros=%d",_INPUT_RECORD_Dump(re
     //VK_?=0x00FF, Scan=0x001F uChar=[U=' ' (0x0000): A=' ' (0x00)] Ctrl=0x00000120 (casac - EcNs)
     //VK_?=0x00FF, Scan=0x0023 uChar=[U=' ' (0x0000): A=' ' (0x00)] Ctrl=0x00000120 (casac - EcNs)
     if(!rec->Event.KeyEvent.bKeyDown && (CtrlState&(ENHANCED_KEY|NUMLOCK_ON)))
-      return KEY_VK_0xFF_BEGIN+ScanCode;
+      return Modif|(KEY_VK_0xFF_BEGIN+ScanCode);
     return KEY_IDLE;
   }
 
