@@ -5,10 +5,12 @@ OpCode для макросов
 
 */
 
-/* Revision: 1.14 05.07.2005 $ */
+/* Revision: 1.15 19.09.2005 $ */
 
 /*
 Modify:
+  19.09.2005 SVS
+    + MCODE_V_PPANEL_DRIVETYPE, MCODE_V_APANEL_DRIVETYPE
   05.07.2005 SVS
     + Добавка в макросы - OldVal=Editor.Set(Index,NewVal)
     + Editor.FileName - имя редактируемого файла
@@ -208,6 +210,8 @@ enum MACRO_OP_CODE {
   MCODE_V_PPANEL_CURPOS,            // PPanel.CurPos - пассивная панель: текущий индекс
   MCODE_V_APANEL_OPIFLAGS,          // APanel.OPIFlags - активная панель: флаги открытого плагина
   MCODE_V_PPANEL_OPIFLAGS,          // PPanel.OPIFlags - пассивная панель: флаги открытого плагина
+  MCODE_V_APANEL_DRIVETYPE,         // APanel.DriveType - активная панель: тип привода
+  MCODE_V_PPANEL_DRIVETYPE,         // PPanel.DriveType - пассивная панель: тип привода
   MCODE_V_FAR_WIDTH,                // Far.Width - ширина консольного окна
   MCODE_V_ITEMCOUNT,                // ItemCount - число элементов в текущем объекте
   MCODE_V_CURPOS,                   // CurPos - текущий индекс в текущем объекте

@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.148 25.07.2005 $ */
+/* Revision: 1.149 19.09.2005 $ */
 
 /*
 Modify:
+  19.09.2005 SVS
+    + MCODE_V_PPANEL_DRIVETYPE, MCODE_V_APANEL_DRIVETYPE
   24.07.2005 WARP
     ! see 02033.LockUnlock.txt
   11.07.2005 SVS
@@ -507,6 +509,7 @@ Modify:
 #include "udlist.hpp"
 #include "filelist.hpp"
 #include "treelist.hpp"
+#include "flink.hpp"
 
 // для диалога назначения клавиши
 struct DlgParam{
@@ -591,6 +594,9 @@ struct TMacroKeywords MKeywords[] ={
   {2,  "PPanel.Width",       MCODE_V_PPANEL_WIDTH,0},
   {2,  "APanel.OPIFlags",    MCODE_V_APANEL_OPIFLAGS,0},
   {2,  "PPanel.OPIFlags",    MCODE_V_PPANEL_OPIFLAGS,0},
+  {2,  "APanel.DriveType",   MCODE_V_APANEL_DRIVETYPE,0}, // APanel.DriveType - активная панель: тип привода
+  {2,  "PPanel.DriveType",   MCODE_V_PPANEL_DRIVETYPE,0}, // PPanel.DriveType - пассивная панель: тип привода
+
 
   {2,  "CmdLine.Bof",        MCODE_C_CMDLINE_BOF,0}, // курсор в начале cmd-строки редактирования?
   {2,  "CmdLine.Eof",        MCODE_C_CMDLINE_EOF,0}, // курсор в конеце cmd-строки редактирования?
@@ -1395,6 +1401,28 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
           Panel *SelPanel = CheckCode == MCODE_V_APANEL_TYPE ? ActivePanel : PassivePanel;
           if ( SelPanel != NULL )
             Cond=SelPanel->GetType();
+          break;
+        }
+
+        case MCODE_V_APANEL_DRIVETYPE: // APanel.DriveType - активная панель: тип привода
+        case MCODE_V_PPANEL_DRIVETYPE: // PPanel.DriveType - пассивная панель: тип привода
+        {
+          Panel *SelPanel = CheckCode == MCODE_V_APANEL_DRIVETYPE ? ActivePanel : PassivePanel;
+          Cond=-1L;
+          if ( SelPanel != NULL && SelPanel->GetMode() != PLUGIN_PANEL)
+          {
+            SelPanel->GetCurDir(FileName);
+            GetPathRoot(FileName,FileName);
+            UINT DriveType=FAR_GetDriveType(FileName,NULL,0);
+            if(IsLocalPath(FileName))
+            {
+              FileName[2]=0;
+              if(GetSubstName(DriveType,FileName,NULL,0))
+                DriveType=DRIVE_SUBSTITUTE;
+            }
+            Cond=TVar(DriveType);
+          }
+
           break;
         }
 
