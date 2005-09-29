@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.237 25.07.2005 $ */
+/* Revision: 1.238 29.09.2005 $ */
 
 /*
 Modify:
+  29.09.2005 SVS
+    ! если выставлен Opt.FolderDeepScan и
+      GetFileAttributes вернул ошибку по длинному имени... работаем с коротким (для каталогов)
   24.07.2005 WARP
     ! see 02033.LockUnlock.txt
   23.07.2005 SVS
@@ -4494,8 +4497,10 @@ void FileList::CountDirSize(DWORD PluginFlags)
           GetPluginDirInfo(hPlugin,CurPtr->Name,DirCount,DirFileCount,FileSize,CompressedFileSize)
         ||
           (PanelMode!=PLUGIN_PANEL || (PluginFlags & OPIF_REALNAMES)) &&
-          GetDirInfo(MSG(MDirInfoViewTitle),CurPtr->Name,DirCount,DirFileCount,FileSize,
-                     CompressedFileSize,RealFileSize, ClusterSize,0,FALSE,TRUE)==1)
+          GetDirInfo(MSG(MDirInfoViewTitle),
+                     (Opt.FolderDeepScan && GetFileAttributes(CurPtr->Name)==(DWORD)-1 && *CurPtr->ShortName?CurPtr->ShortName:CurPtr->Name),
+                     DirCount,DirFileCount,FileSize,
+                     CompressedFileSize,RealFileSize, ClusterSize,0,GETDIRINFO_DONTREDRAWFRAME|GETDIRINFO_USEDALTFOLDERNAME)==1)
       {
         SelFileSize-=int64(CurPtr->UnpSizeHigh,CurPtr->UnpSize);
         SelFileSize+=FileSize;
@@ -4518,8 +4523,11 @@ void FileList::CountDirSize(DWORD PluginFlags)
         GetPluginDirInfo(hPlugin,CurPtr->Name,DirCount,DirFileCount,FileSize,CompressedFileSize)
       ||
         (PanelMode!=PLUGIN_PANEL || (PluginFlags & OPIF_REALNAMES)) &&
-        GetDirInfo(MSG(MDirInfoViewTitle),TestParentFolderName(CurPtr->Name) ? ".":CurPtr->Name,DirCount,
-                   DirFileCount,FileSize,CompressedFileSize,RealFileSize,ClusterSize,0,FALSE,TRUE)==1)
+        GetDirInfo(MSG(MDirInfoViewTitle),
+                   TestParentFolderName(CurPtr->Name) ? ".":
+                     (Opt.FolderDeepScan && GetFileAttributes(CurPtr->Name)==(DWORD)-1 && *CurPtr->ShortName?CurPtr->ShortName:CurPtr->Name),
+                   DirCount,
+                   DirFileCount,FileSize,CompressedFileSize,RealFileSize,ClusterSize,0,GETDIRINFO_DONTREDRAWFRAME|GETDIRINFO_USEDALTFOLDERNAME)==1)
     {
       CurPtr->UnpSize=FileSize.PLow();
       CurPtr->UnpSizeHigh=FileSize.PHigh();

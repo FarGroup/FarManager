@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.169 09.09.2005 $ */
+/* Revision: 1.170 29.09.2005 $ */
 
 /*
 Modify:
+  29.09.2005 SVS
+    ! последние параметры GetDirInfo() => флаг
   09.09.2005 SVS
     ! Функционал получения имени компьютера по текущему пути вынесен в
       отдельную функцию CurPath2ComputerName()
@@ -922,12 +924,20 @@ static void PR_DrawGetDirInfoMsg(void)
   DrawGetDirInfoMsg((char *)PreRedrawParam.Param1,(char *)PreRedrawParam.Param2);
 }
 
-int GetDirInfo(char *Title,const char *DirName,unsigned long &DirCount,
-               unsigned long &FileCount,int64 &FileSize,
-               int64 &CompressedFileSize,int64 &RealSize,
-               unsigned long &ClusterSize,clock_t MsgWaitTime,
-               int EnhBreak,BOOL DontRedrawFrame,
-               int ScanSymLink,int UseFilter)
+int GetDirInfo(char *Title,
+               const char *DirName,
+               unsigned long &DirCount,
+               unsigned long &FileCount,
+               int64 &FileSize,
+               int64 &CompressedFileSize,
+               int64 &RealSize,
+               unsigned long &ClusterSize,
+               clock_t MsgWaitTime,
+               DWORD Flags)
+               //int EnhBreak,
+               //BOOL DontRedrawFrame,
+               //int ScanSymLink,
+               //int UseFilter)
 {
   char FullDirName[NM],DriveRoot[NM];
   char FullName[NM],CurDirName[NM],LastDirName[NM];
@@ -937,7 +947,9 @@ int GetDirInfo(char *Title,const char *DirName,unsigned long &DirCount,
   SaveScreen SaveScr;
   UndoGlobalSaveScrPtr UndSaveScr(&SaveScr);
 
-  ScanTree ScTree(FALSE,TRUE,ScanSymLink);
+  ScanTree ScTree(FALSE,TRUE,
+                  (Flags&GETDIRINFO_SCANSYMLINKDEF?-1:(Flags&GETDIRINFO_SCANSYMLINK)),
+                  Flags&GETDIRINFO_USEDALTFOLDERNAME);
   WIN32_FIND_DATA FindData;
   int MsgOut=0;
   clock_t StartTime=clock();
@@ -958,7 +970,7 @@ int GetDirInfo(char *Title,const char *DirName,unsigned long &DirCount,
   /* DJ */
 
   ConsoleTitle OldTitle;
-  RefreshFrameManager frref(ScrX,ScrY,MsgWaitTime,DontRedrawFrame);
+  RefreshFrameManager frref(ScrX,ScrY,MsgWaitTime,Flags&GETDIRINFO_DONTREDRAWFRAME);
 
   PREREDRAWFUNC OldPreRedrawFunc=PreRedrawFunc;
 
@@ -1005,7 +1017,7 @@ int GetDirInfo(char *Title,const char *DirName,unsigned long &DirCount,
           SetPreRedrawFunc(OldPreRedrawFunc);
           return(0);
         default:
-          if (EnhBreak)
+          if (Flags&GETDIRINFO_ENHBREAK)
           {
             SetPreRedrawFunc(OldPreRedrawFunc);
             return(-1);
@@ -1028,7 +1040,7 @@ int GetDirInfo(char *Title,const char *DirName,unsigned long &DirCount,
     {
       // Счётчик каталогов наращиваем только если не включен фильтр,
       // в противном случае это будем делать в подсчёте количества файлов
-      if (!UseFilter)
+      if (!(Flags&GETDIRINFO_USEFILTER))
         DirCount++;
     }
     else
@@ -1036,7 +1048,7 @@ int GetDirInfo(char *Title,const char *DirName,unsigned long &DirCount,
       /* $ 17.04.2005 KM
          Проверка попадания файла в условия фильра
       */
-      if (UseFilter)
+      if ((Flags&GETDIRINFO_USEFILTER))
       {
         if (!Filter.FileInFilter(&FindData))
           continue;
@@ -1045,7 +1057,7 @@ int GetDirInfo(char *Title,const char *DirName,unsigned long &DirCount,
       // Наращиваем счётчик каталогов при включенном фильтре только тогда,
       // когда в таком каталоге найден файл, удовлетворяющий условиям
       // фильтра.
-      if (UseFilter)
+      if ((Flags&GETDIRINFO_USEFILTER))
       {
         char *p1=strrchr(FullName,'\\');
         if (p1)

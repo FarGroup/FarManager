@@ -5,10 +5,13 @@ Quick view panel
 
 */
 
-/* Revision: 1.36 07.07.2005 $ */
+/* Revision: 1.37 29.09.2005 $ */
 
 /*
 Modify:
+  29.09.2005 SVS
+    ! ScanTree должен уметь и короткие имена каталогов при рекурсивном спуске
+      ƒл€ этого дл€ GetDirInfo выставим флаг GETDIRINFO_USEDALTFOLDERNAME
   07.07.2005 SVS
     ! ¬ьюверные настройки собраны в одно место
   26.04.2005 SVS
@@ -454,7 +457,7 @@ void QuickView::ShowFile(char *FileName,int TempFile,HANDLE hDirPlugin)
     {
       int ExitCode=GetDirInfo(MSG(MQuickViewTitle),CurFileName,DirCount,
                    FileCount,FileSize,CompressedFileSize,RealFileSize,
-                   ClusterSize,500,TRUE);
+                   ClusterSize,500,GETDIRINFO_ENHBREAK|GETDIRINFO_USEDALTFOLDERNAME);
       if (ExitCode==1)
         Directory=1;
       else

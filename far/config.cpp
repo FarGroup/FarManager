@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.193 22.07.2005 $ */
+/* Revision: 1.194 29.09.2005 $ */
 
 /*
 Modify:
+  29.09.2005 SVS
+    + Opt.FolderDeepScan
   22.07.2005 SVS
     ! PersistentBlocks по умолчанию выключен. Достало.
   15.07.2005 AY
@@ -1689,6 +1691,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeySystem,"ScanJunction",&Opt.ScanJunction,1, 0},
   {0, REG_DWORD,  NKeySystem,"IgnoreErrorBadPathName",&Opt.IgnoreErrorBadPathName,0, 0},
   {0, REG_DWORD,  NKeySystem,"UsePrintManager",&Opt.UsePrintManager,1, 0},
+  {0, REG_DWORD,  NKeySystem,"FolderDeepScan",&Opt.FolderDeepScan,0, 0},
 
   {0, REG_DWORD,  NKeySystemNowell,"MoveRO",&Opt.Nowell.MoveRO,1, 0},
 

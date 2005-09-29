@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.134 15.07.2005 $ */
+/* Revision: 1.135 29.09.2005 $ */
 
 /*
 Modify:
+  29.09.2005 SVS
+    + Opt.FolderDeepScan
   15.07.2005 AY
     + AnsiTableAsDefault для настроек редактора и вьювера.
   12.07.2005 SVS
@@ -744,7 +746,7 @@ struct Options
   int ShowScreensNumber;
   int ShowSortMode;
   int ShowMenuBar;
-
+  int FolderDeepScan;
   int CleanAscii;
   int NoGraphics;
   char FolderInfoFiles[1024];

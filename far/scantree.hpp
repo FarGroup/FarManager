@@ -8,10 +8,13 @@ scantree.hpp
 
 */
 
-/* Revision: 1.07 14.06.2003 $ */
+/* Revision: 1.08 29.09.2005 $ */
 
 /*
 Modify:
+  29.09.2005 SVS
+    + FSCANTREE_USEDALTFOLDERNAME
+    + доп.параметр у конструктора ScanTree()
   14.06.2003 SVS
     ! Внедрение новых флагов
     ! Вместо SecondPass[] и FindHandle[] вводим структуру ScanTreeData
@@ -44,6 +47,7 @@ enum{
   FSCANTREE_SCANSYMLINK      = 0x00000004, // = FRS_SCANSYMLINK
 
   // в младшем слове старшие 8 бита служебные!
+  FSCANTREE_USEDALTFOLDERNAME= 0x00001000, //
   FSCANTREE_SECONDPASS       = 0x00002000, // то, что раньше было было SecondPass[]
   FSCANTREE_SECONDDIRNAME    = 0x00004000,
   FSCANTREE_INSIDEJUNCTION   = 0x00008000, // - мы внутри симлинка?
@@ -70,7 +74,7 @@ class ScanTree
     void Init();
 
   public:
-    ScanTree(int RetUpDir,int Recurse=1,int ScanJunction=-1);
+    ScanTree(int RetUpDir,int Recurse=1,int ScanJunction=-1,int UsedAltFolderName=0);
     ~ScanTree();
 
   public:
@@ -82,4 +86,4 @@ class ScanTree
     int InsideJunction()   {return Flags.Check(FSCANTREE_INSIDEJUNCTION);};
 };
 
-#endif	// __SCANTREE_HPP__
+#endif  // __SCANTREE_HPP__

@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.72 25.07.2005 $ */
+/* Revision: 1.73 29.09.2005 $ */
 
 /*
 Modify:
+  29.09.2005 SVS
+    ! ScanTree должен уметь и короткие имена каталогов при рекурсивном спуске
   24.07.2005 WARP
     ! see 02033.LockUnlock.txt
   20.06.2005 SVS
@@ -467,7 +469,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
         if (!SymLink && (!Opt.DeleteToRecycleBin || Wipe))
         {
           char FullName[NM];
-          ScanTree ScTree(TRUE,TRUE);
+          ScanTree ScTree(TRUE,TRUE,-1,TRUE);
           ScTree.SetFindPath(SelName,"*.*", 0);
           while (ScTree.GetNextName(&FindData,FullName, sizeof (FullName)-1))
           {
@@ -1068,7 +1070,7 @@ void DeleteDirTree(const char *Dir)
     return;
   char FullName[NM];
   WIN32_FIND_DATA FindData;
-  ScanTree ScTree(TRUE,TRUE);
+  ScanTree ScTree(TRUE,TRUE,-1,TRUE);
 
   ScTree.SetFindPath(Dir,"*.*",0);
   while (ScTree.GetNextName(&FindData,FullName, sizeof (FullName)-1))

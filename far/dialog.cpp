@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.339 11.08.2005 $ */
+/* Revision: 1.340 28.09.2005 $ */
 
 /*
 Modify:
+  28.09.2005 SVS
+    ! плевать на OLDSTYLE. ≈сли флаг DIF_BTNNOCLOSE есть - не закрываем диалог по любому
   11.08.2005 WARP
     - Ќельз€ было получить нижний заголовок листа в диалоге
   04.08.2005 WARP
@@ -3534,19 +3536,11 @@ int Dialog::ProcessKey(int Key)
         if(Dialog::SendDlgMessage((HANDLE)this,DN_BTNCLICK,FocusPos,0))
           return TRUE;
 
-        /* $ 06.12.2000 SVS
-           ≈сли не старый стиль и кнопка "не дл€ закрыти€" (DIF_BTNNOCLOSE), то
-           вываливаемс€, иначе - предлагаем закрыть диалог.
-        */
-        if(!DialogMode.Check(DMODE_OLDSTYLE) && (Item[FocusPos].Flags&DIF_BTNNOCLOSE))
+        if(Item[FocusPos].Flags&DIF_BTNNOCLOSE)
           return(TRUE);
 
         ExitCode=FocusPos;
-        /* $ 18.05.2001 DJ */
         CloseDialog();
-        /* DJ $ */
-        /* SVS $ */
-        /* SVS $ */
         return TRUE;
       }
       else

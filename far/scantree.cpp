@@ -6,10 +6,15 @@ scantree.cpp
 
 */
 
-/* Revision: 1.10 06.08.2004 $ */
+/* Revision: 1.11 29.09.2005 $ */
 
 /*
 Modify:
+  29.09.2005 SVS
+    + FSCANTREE_USEDALTFOLDERNAME
+    + доп.параметр у конструктора ScanTree()
+    ! если выставлен Opt.FolderDeepScan и есть флаг FSCANTREE_USEDALTFOLDERNAME и
+      GetFileAttributes вернул ошибку по длинному имени... работаем с коротким (для каталогов)
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   14.06.2003 SVS
@@ -48,11 +53,12 @@ Modify:
 #include "scantree.hpp"
 #include "fn.hpp"
 
-ScanTree::ScanTree(int RetUpDir,int Recurse, int ScanJunction)
+ScanTree::ScanTree(int RetUpDir,int Recurse, int ScanJunction,int UsedAltFolderName)
 {
   Flags.Change(FSCANTREE_RETUPDIR,RetUpDir);
   Flags.Change(FSCANTREE_RECUR,Recurse);
   Flags.Change(FSCANTREE_SCANSYMLINK,(ScanJunction==-1?Opt.ScanJunction:ScanJunction));
+  Flags.Change(FSCANTREE_USEDALTFOLDERNAME,UsedAltFolderName);
   Init();
 }
 
@@ -177,7 +183,10 @@ int ScanTree::GetNextName(WIN32_FIND_DATA *fdata,char *FullName, size_t BufSize)
     {
       if ((ChPtr=strrchr(FindPath,'\\'))!=NULL)
         *(ChPtr+1)=0;
-      strcat(FindPath,fdata->cFileName);
+      if(Opt.FolderDeepScan && Flags.Check(FSCANTREE_USEDALTFOLDERNAME))
+        strcat(FindPath,GetFileAttributes(fdata->cFileName)==(DWORD)-1 && *fdata->cAlternateFileName?fdata->cAlternateFileName:fdata->cFileName);
+      else
+        strcat(FindPath,fdata->cFileName);
       strcpy(FullName,FindPath);
       strcat(FindPath,"\\");
       strcat(FindPath,FindMask);

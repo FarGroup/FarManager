@@ -5,10 +5,12 @@ setattr.cpp
 
 */
 
-/* Revision: 1.65 03.05.2005 $ */
+/* Revision: 1.66 29.09.2005 $ */
 
 /*
 Modify:
+  29.09.2005 SVS
+    ! ScanTree должен уметь и короткие имена каталогов при рекурсивном спуске
   03.05.2005 AY
     - В ShellSetFileAttributes() на папках посылались в IsFileWritable() атрибуты верхней
       папки а не обрабатываемого файла (и ещё в одном месте).
@@ -1057,7 +1059,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         if ((FileAttr & FA_DIREC) && AttrDlg[11].Selected)
         {
           char FullName[NM];
-          ScanTree ScTree(FALSE);
+          ScanTree ScTree(FALSE,TRUE,-1,TRUE);
           WIN32_FIND_DATA FindData;
 
           ScTree.SetFindPath(SelName,"*.*");

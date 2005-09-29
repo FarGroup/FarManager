@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.92 27.07.2005 $ */
+/* Revision: 1.93 29.09.2005 $ */
 
 /*
 Modify:
+  29.09.2005 SVS
+    + GETDIRINFOFLAGS - флаги для GetDirInfo()
   27.07.2005 SVS
     ! удален CSO_MOVE_SETPARENTSECURITY - нафик ненать
   12.07.2005 SVS
@@ -583,6 +585,15 @@ enum COPYSECURITYOPTIONS{
   CSO_MOVE_SESSIONSECURITY       = 0x00000002,  // Move: сохранять состояние "Copy access rights" внутри сессии?
   CSO_COPY_SETSECURITY           = 0x00000004,  // Copy: по умолчанию выставлять опцию "Copy access rights"?
   CSO_COPY_SESSIONSECURITY       = 0x00000008,  // Copy: сохранять состояние "Copy access rights" внутри сессии?
+};
+
+enum GETDIRINFOFLAGS{
+  GETDIRINFO_ENHBREAK           =0x00000001,
+  GETDIRINFO_DONTREDRAWFRAME    =0x00000002,
+  GETDIRINFO_SCANSYMLINK        =0x00000004,
+  GETDIRINFO_SCANSYMLINKDEF     =0x00000008,
+  GETDIRINFO_USEFILTER          =0x00000010,
+  GETDIRINFO_USEDALTFOLDERNAME  =0x00000020,
 };
 
 #endif // __FARCONST_HPP__

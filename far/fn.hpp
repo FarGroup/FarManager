@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.231 09.09.2005 $ */
+/* Revision: 1.232 29.09.2005 $ */
 
 /*
 Modify:
+  29.09.2005 SVS
+    ! последние параметры GetDirInfo() => флаг
   09.09.2005 SVS
     ! Функционал получения имени компьютера по текущему пути вынесен в
       отдельную функцию CurPath2ComputerName()
@@ -1011,8 +1013,7 @@ int GetDirInfo(char *Title,const char *DirName,unsigned long &DirCount,
                unsigned long &FileCount,int64 &FileSize,
                int64 &CompressedFileSize,int64 &RealSize,
                unsigned long &ClusterSize,clock_t MsgWaitTime,
-               int EnhBreak,BOOL DontRedrawFrame=FALSE,
-               int ScanSymLink=-1,int UseFilter=FALSE);
+               DWORD Flags=GETDIRINFO_SCANSYMLINKDEF);
 int GetPluginDirInfo(HANDLE hPlugin,char *DirName,unsigned long &DirCount,
                unsigned long &FileCount,int64 &FileSize,
                int64 &CompressedFileSize);

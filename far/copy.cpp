@@ -5,10 +5,13 @@ copy.cpp
 
 */
 
-/* Revision: 1.157 01.08.2005 $ */
+/* Revision: 1.158 29.09.2005 $ */
 
 /*
 Modify:
+  29.09.2005 SVS
+    ! ScanTree НЕ должен уметь короткие имена каталогов при рекурсивном спуске, иначе в Dest получим лажу
+    ! проверка результата работы SetFilePointer() с параметром про High отличным от NULL делается по другому
   01.08.2005 SVS
     - чей-то не с SetErrorMode сделал :-)
     ! вместо прямого Opt.CMOpt.UseSystemCopy заюзаем флаг FCOPY_USESYSTEMCOPY
@@ -3564,14 +3567,19 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
       return COPY_FAILURE;
     }
 
-    if (Append && (AppendPos=SetFilePointer(DestHandle,0,&AppendPosHigh,FILE_END))==0xFFFFFFFF)
+    if (Append)
     {
+      AppendPos=SetFilePointer(DestHandle,0,&AppendPosHigh,FILE_END);
       _localLastError=GetLastError();
-      CloseHandle(SrcHandle);
-      CloseHandle(DestHandle);
+      if(AppendPos == (DWORD)0xFFFFFFFF && _localLastError != NO_ERROR)
+      {
+        CloseHandle(SrcHandle);
+        CloseHandle(DestHandle);
+        SetLastError(_localLastError);
+        _LOGCOPYR(SysLog("return COPY_FAILURE -> %d SetFilePointer() == -1, LastError=%d (0x%08X)",__LINE__,_localLastError,_localLastError));
+        return COPY_FAILURE;
+      }
       SetLastError(_localLastError);
-      _LOGCOPYR(SysLog("return COPY_FAILURE -> %d SetFilePointer() == -1, LastError=%d (0x%08X)",__LINE__,_localLastError,_localLastError));
-      return COPY_FAILURE;
     }
   }
 
@@ -4504,8 +4512,9 @@ bool ShellCopy::CalcTotalSize()
         int64 FileSize,CompressedSize,RealFileSize;
         ShellCopyMsg(NULL,SelName,MSG_LEFTALIGN|MSG_KEEPBACKGROUND);
         if (!GetDirInfo("",SelName,DirCount,FileCount,FileSize,CompressedSize,
-                        RealFileSize,ClusterSize,0xffffffff,FALSE,FALSE,
-                        ShellCopy::Flags&FCOPY_COPYSYMLINKCONTENTS,UseFilter))
+                        RealFileSize,ClusterSize,0xffffffff,
+                        (ShellCopy::Flags&FCOPY_COPYSYMLINKCONTENTS?GETDIRINFO_SCANSYMLINK:0)|
+                        (UseFilter?GETDIRINFO_USEFILTER:0)))
         {
           ShowTotalCopySize=false;
           return(false);
