@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.158 29.09.2005 $ */
+/* Revision: 1.159 30.09.2005 $ */
 
 /*
 Modify:
+  30.09.2005 SVS
+    ! IsSameDisk -> CheckDisksProps (решает проблему с энкриптед файлами между локальными дисками)
   29.09.2005 SVS
     ! ScanTree НЕ должен уметь короткие имена каталогов при рекурсивном спуске, иначе в Dest получим лажу
     ! проверка результата работы SetFilePointer() с параметром про High отличным от NULL делается по другому
@@ -3453,7 +3455,8 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
     return(MkLink(SrcName,DestName) ? COPY_SUCCESS:COPY_FAILURE);
   }
 
-  if(!IsSameDisk(SrcName,DestName) && (SrcData.dwFileAttributes&FILE_ATTRIBUTE_ENCRYPTED))
+  if(!CheckDisksProps(SrcName,DestName,CHECKEDPROPS_DRIVEFIXED|CHECKEDPROPS_NTFS|CHECKEDPROPS_FILE_SUPPORTS_ENCRYPTION|CHECKEDPROPS_DRIVESUBSTITUTE) &&
+      (SrcData.dwFileAttributes&FILE_ATTRIBUTE_ENCRYPTED))
   {
     int MsgCode;
     if (SkipEncMode!=-1)
@@ -4456,36 +4459,7 @@ DWORD WINAPI CopyProgressRoutine(LARGE_INTEGER TotalFileSize,
 
 int ShellCopy::IsSameDisk(const char *SrcPath,const char *DestPath)
 {
-  char SrcRoot[NM],DestRoot[NM];
-  GetPathRoot(SrcPath,SrcRoot);
-  GetPathRoot(DestPath,DestRoot);
-  if (strpbrk(DestPath,"\\:")==NULL)
-    return(TRUE);
-  if ((SrcRoot[0]=='\\' && SrcRoot[1]=='\\' || DestRoot[0]=='\\' && DestRoot[1]=='\\') &&
-      LocalStricmp(SrcRoot,DestRoot)!=0)
-    return(FALSE);
-  if (*SrcPath==0 || *DestPath==0 || (SrcPath[1]!=':' && DestPath[1]!=':')) //????
-    return(TRUE);
-  if (toupper(DestRoot[0])==toupper(SrcRoot[0]))
-    return(TRUE);
-  DWORD SrcVolumeNumber=0,DestVolumeNumber=0;
-  char SrcVolumeName[NM],DestVolumeName[NM];
-  int64 SrcTotalSize,SrcTotalFree,SrcUserFree;
-  int64 DestTotalSize,DestTotalFree,DestUserFree;
-
-  if (!GetDiskSize(SrcRoot,&SrcTotalSize,&SrcTotalFree,&SrcUserFree))
-    return(FALSE);
-  if (!GetDiskSize(DestRoot,&DestTotalSize,&DestTotalFree,&DestUserFree))
-    return(FALSE);
-  if (!GetVolumeInformation(SrcRoot,SrcVolumeName,sizeof(SrcVolumeName),&SrcVolumeNumber,NULL,NULL,NULL,0))
-    return(FALSE);
-  if (!GetVolumeInformation(DestRoot,DestVolumeName,sizeof(DestVolumeName),&DestVolumeNumber,NULL,NULL,NULL,0))
-    return(FALSE);
-  if (SrcVolumeNumber!=0 && SrcVolumeNumber==DestVolumeNumber &&
-      strcmp(SrcVolumeName,DestVolumeName)==0 &&
-      SrcTotalSize==DestTotalSize)
-    return(TRUE);
-  return(FALSE);
+  return CheckDisksProps(SrcPath,DestPath,CHECKEDPROPS_ISSAMEDISK);
 }
 
 

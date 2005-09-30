@@ -5,10 +5,12 @@ headers.cpp
 
 */
 
-/* Revision: 1.16 23.07.2005 $ */
+/* Revision: 1.17 30.09.2005 $ */
 
 /*
 Modify:
+  30.09.2005 SVS
+    + несколько констант из SDK для совместимости с ранними версиями компиляторов
   23.07.2005 SVS
     + про vsnprintf()
   24.04.2005 AY
@@ -86,6 +88,12 @@ Modify:
 #undef FILE_ATTRIBUTE_ENCRYPTED
 #define FILE_ATTRIBUTE_ENCRYPTED     0x00004000
 //#define FILE_ATTRIBUTE_ENCRYPTED     0x00000040
+
+#define FILE_NAMED_STREAMS              0x00040000
+#define FILE_READ_ONLY_VOLUME           0x00080000
+#define FILE_SUPPORTS_OBJECT_IDS        0x00010000
+#define FILE_SUPPORTS_SPARSE_FILES      0x00000040
+#define FILE_VOLUME_QUOTAS              0x00000020
 
 #if !defined(FILE_SUPPORTS_ENCRYPTION)
 #define FILE_SUPPORTS_ENCRYPTION     0x00020000

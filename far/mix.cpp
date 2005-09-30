@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.170 29.09.2005 $ */
+/* Revision: 1.171 30.09.2005 $ */
 
 /*
 Modify:
+  30.09.2005 SVS
+    + CheckDisksProps() - функция проверки 2-х файловых систем
   29.09.2005 SVS
     ! последние параметры GetDirInfo() => флаг
   09.09.2005 SVS
@@ -2196,4 +2198,140 @@ const char *CurPath2ComputerName(const char *CurDir, char *ComputerName,int Size
   }
 
   return ComputerName;
+}
+
+int CheckDisksProps(const char *SrcPath,const char *DestPath,DWORD CheckedFlags)
+{
+  char SrcRoot[NM],DestRoot[NM];
+  int SrcDriveType, DestDriveType;
+
+  DWORD SrcVolumeNumber=0, DestVolumeNumber=0;
+  char SrcVolumeName[NM], DestVolumeName[NM];
+  char  SrcFileSystemName[NM], DestFileSystemName[NM];
+  DWORD SrcFileSystemFlags, DestFileSystemFlags;
+  DWORD SrcMaximumComponentLength, DestMaximumComponentLength;
+
+
+  GetPathRoot(SrcPath,SrcRoot);
+  GetPathRoot(DestPath,DestRoot);
+
+  SrcDriveType=FAR_GetDriveType(SrcRoot,NULL,TRUE);
+  DestDriveType=FAR_GetDriveType(DestRoot,NULL,TRUE);
+
+  if((CheckedFlags&CHECKEDPROPS_DRIVETYPE) && SrcDriveType!=DestDriveType)
+    return FALSE;
+
+  if((CheckedFlags&CHECKEDPROPS_DRIVEFIXED))
+    if(SrcDriveType!=DRIVE_FIXED || DestDriveType!=DRIVE_FIXED)
+      return FALSE;
+
+  //if((CheckedFlags&CHECKEDPROPS_DRIVESUBSTITUTE))
+  //  if(SrcDriveType!=DRIVE_SUBSTITUTE || DestDriveType!=DRIVE_SUBSTITUTE)
+  //    return FALSE;
+
+  if (!GetVolumeInformation(SrcRoot,SrcVolumeName,sizeof(SrcVolumeName),&SrcVolumeNumber,&SrcMaximumComponentLength,&SrcFileSystemFlags,SrcFileSystemName,sizeof(SrcFileSystemName)))
+    return(FALSE);
+
+  if (!GetVolumeInformation(DestRoot,DestVolumeName,sizeof(DestVolumeName),&DestVolumeNumber,&DestMaximumComponentLength,&DestFileSystemFlags,DestFileSystemName,sizeof(DestFileSystemName)))
+    return(FALSE);
+
+  if((CheckedFlags&CHECKEDPROPS_FS_NAMED) && strcmp(SrcFileSystemName,DestFileSystemName))
+    return FALSE;
+
+  if((CheckedFlags&CHECKEDPROPS_NTFS))
+    if(strcmp(SrcFileSystemName,"NTFS") || strcmp(DestFileSystemName,"NTFS"))
+      return FALSE;
+
+  if(CheckedFlags&CHECKEDPROPS_ISSAMEDISK)
+  {
+    if (strpbrk(DestPath,"\\:")==NULL)
+    {
+      if(CheckedFlags == CHECKEDPROPS_ISSAMEDISK)
+        return TRUE;
+    }
+
+    if ((SrcRoot[0]=='\\' && SrcRoot[1]=='\\' || DestRoot[0]=='\\' && DestRoot[1]=='\\') &&
+        LocalStricmp(SrcRoot,DestRoot)!=0)
+      return FALSE;
+
+    if (*SrcPath==0 || *DestPath==0 || (SrcPath[1]!=':' && DestPath[1]!=':')) //????
+    {
+      if(CheckedFlags == CHECKEDPROPS_ISSAMEDISK)
+        return TRUE;
+    }
+
+    if (toupper(DestRoot[0])==toupper(SrcRoot[0]))
+    {
+      if(CheckedFlags == CHECKEDPROPS_ISSAMEDISK)
+        return TRUE;
+    }
+
+    int64 SrcTotalSize,SrcTotalFree,SrcUserFree;
+    int64 DestTotalSize,DestTotalFree,DestUserFree;
+
+    if (!GetDiskSize(SrcRoot,&SrcTotalSize,&SrcTotalFree,&SrcUserFree))
+      return FALSE;
+    if (!GetDiskSize(DestRoot,&DestTotalSize,&DestTotalFree,&DestUserFree))
+      return FALSE;
+
+    if (!(SrcVolumeNumber!=0 &&
+        SrcVolumeNumber==DestVolumeNumber &&
+        strcmp(SrcVolumeName,DestVolumeName)==0 &&
+        SrcTotalSize==DestTotalSize))
+      return FALSE;
+  }
+
+  if((CheckedFlags&CHECKEDPROPS_FS_CASE_IS_PRESERVED))
+    if((SrcFileSystemFlags&FS_CASE_IS_PRESERVED) != (DestFileSystemFlags&FS_CASE_IS_PRESERVED))
+      return FALSE;
+
+  if((CheckedFlags&CHECKEDPROPS_FS_CASE_SENSITIVE))
+    if((SrcFileSystemFlags&FS_CASE_SENSITIVE) != (DestFileSystemFlags&FS_CASE_SENSITIVE))
+      return FALSE;
+
+  if((CheckedFlags&CHECKEDPROPS_FS_UNICODE_STORED_ON_DISK))
+    if((SrcFileSystemFlags&FS_UNICODE_STORED_ON_DISK) != (DestFileSystemFlags&FS_UNICODE_STORED_ON_DISK))
+      return FALSE;
+
+  if((CheckedFlags&CHECKEDPROPS_FS_PERSISTENT_ACLS))
+    if((SrcFileSystemFlags&FS_PERSISTENT_ACLS) != (DestFileSystemFlags&FS_PERSISTENT_ACLS))
+      return FALSE;
+
+  if((CheckedFlags&CHECKEDPROPS_FS_FILE_COMPRESSION))
+    if((SrcFileSystemFlags&FS_FILE_COMPRESSION) != (DestFileSystemFlags&FS_FILE_COMPRESSION))
+      return FALSE;
+
+  if((CheckedFlags&CHECKEDPROPS_FS_VOL_IS_COMPRESSED))
+    if((SrcFileSystemFlags&FS_VOL_IS_COMPRESSED) != (DestFileSystemFlags&FS_VOL_IS_COMPRESSED))
+      return FALSE;
+
+  if((CheckedFlags&CHECKEDPROPS_FILE_NAMED_STREAMS))
+    if((SrcFileSystemFlags&FILE_NAMED_STREAMS) != (DestFileSystemFlags&FILE_NAMED_STREAMS))
+      return FALSE;
+
+  if((CheckedFlags&CHECKEDPROPS_FILE_READ_ONLY_VOLUME))
+    if((SrcFileSystemFlags&FILE_READ_ONLY_VOLUME) != (DestFileSystemFlags&FILE_READ_ONLY_VOLUME))
+      return FALSE;
+
+  if((CheckedFlags&CHECKEDPROPS_FILE_SUPPORTS_ENCRYPTION))
+    if((SrcFileSystemFlags&FILE_SUPPORTS_ENCRYPTION) != (DestFileSystemFlags&FILE_SUPPORTS_ENCRYPTION))
+      return FALSE;
+
+  if((CheckedFlags&CHECKEDPROPS_FILE_SUPPORTS_OBJECT_IDS))
+    if((SrcFileSystemFlags&FILE_SUPPORTS_OBJECT_IDS) != (DestFileSystemFlags&FILE_SUPPORTS_OBJECT_IDS))
+      return FALSE;
+
+  if((CheckedFlags&CHECKEDPROPS_FILE_SUPPORTS_REPARSE_POINTS))
+    if((SrcFileSystemFlags&FILE_SUPPORTS_REPARSE_POINTS) != (DestFileSystemFlags&FILE_SUPPORTS_REPARSE_POINTS))
+      return FALSE;
+
+  if((CheckedFlags&CHECKEDPROPS_FILE_SUPPORTS_SPARSE_FILES))
+    if((SrcFileSystemFlags&FILE_SUPPORTS_SPARSE_FILES) != (DestFileSystemFlags&FILE_SUPPORTS_SPARSE_FILES))
+      return FALSE;
+
+  if((CheckedFlags&CHECKEDPROPS_FILE_VOLUME_QUOTAS))
+    if((SrcFileSystemFlags&FILE_VOLUME_QUOTAS) != (DestFileSystemFlags&FILE_VOLUME_QUOTAS))
+      return FALSE;
+
+  return TRUE;
 }

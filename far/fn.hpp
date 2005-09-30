@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.232 29.09.2005 $ */
+/* Revision: 1.233 30.09.2005 $ */
 
 /*
 Modify:
+  30.09.2005 SVS
+    + CheckDisksProps() - функция проверки 2-х файловых систем
   29.09.2005 SVS
     ! последние параметры GetDirInfo() => флаг
   09.09.2005 SVS
@@ -1692,5 +1694,7 @@ BOOL GetMacroParseError(char *ErrMessage1,char *ErrMessage2,char *ErrMessage3);
 int _MakePath1(DWORD Key,char *PathName,int PathNameSize, const char *Param2);
 
 const char *CurPath2ComputerName(const char *CurDir, char *ComputerName,int SizeName);
+
+int CheckDisksProps(const char *SrcPath,const char *DestPath,DWORD CheckedFlags);
 
 #endif  // __FARFUNC_HPP__
