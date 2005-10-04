@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.135 29.09.2005 $ */
+/* Revision: 1.136 04.10.2005 $ */
 
 /*
 Modify:
+  04.10.2005 SVS
+    + Opt.NetSupportEncryption
   29.09.2005 SVS
     + Opt.FolderDeepScan
   15.07.2005 AY
@@ -926,6 +928,7 @@ struct Options
   int UseNumPad;
   int UseUnicodeConsole;
   int ScanJunction;
+  int NetSupportEncryption;
 
   DWORD ShowTimeoutDelFiles; // тайаут в процессе удаления (в ms)
   DWORD ShowTimeoutDACLFiles;

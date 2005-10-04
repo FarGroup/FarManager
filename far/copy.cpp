@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.159 30.09.2005 $ */
+/* Revision: 1.160 04.10.2005 $ */
 
 /*
 Modify:
+  04.10.2005 SVS
+    ! Изменения в CheckDisksProps()
   30.09.2005 SVS
     ! IsSameDisk -> CheckDisksProps (решает проблему с энкриптед файлами между локальными дисками)
   29.09.2005 SVS
@@ -3455,8 +3457,9 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
     return(MkLink(SrcName,DestName) ? COPY_SUCCESS:COPY_FAILURE);
   }
 
-  if(!CheckDisksProps(SrcName,DestName,CHECKEDPROPS_DRIVEFIXED|CHECKEDPROPS_NTFS|CHECKEDPROPS_FILE_SUPPORTS_ENCRYPTION|CHECKEDPROPS_DRIVESUBSTITUTE) &&
-      (SrcData.dwFileAttributes&FILE_ATTRIBUTE_ENCRYPTED))
+  if((SrcData.dwFileAttributes&FILE_ATTRIBUTE_ENCRYPTED) &&
+     !CheckDisksProps(SrcName,DestName,CHECKEDPROPS_ISDST_ENCRYPTION)
+    )
   {
     int MsgCode;
     if (SkipEncMode!=-1)

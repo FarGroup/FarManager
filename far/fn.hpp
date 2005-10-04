@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.233 30.09.2005 $ */
+/* Revision: 1.234 04.10.2005 $ */
 
 /*
 Modify:
+  04.10.2005 SVS
+    ! Изменения в CheckDisksProps()
   30.09.2005 SVS
     + CheckDisksProps() - функция проверки 2-х файловых систем
   29.09.2005 SVS
@@ -1695,6 +1697,6 @@ int _MakePath1(DWORD Key,char *PathName,int PathNameSize, const char *Param2);
 
 const char *CurPath2ComputerName(const char *CurDir, char *ComputerName,int SizeName);
 
-int CheckDisksProps(const char *SrcPath,const char *DestPath,DWORD CheckedFlags);
+int CheckDisksProps(const char *SrcPath,const char *DestPath,int CheckedType);
 
 #endif  // __FARFUNC_HPP__
