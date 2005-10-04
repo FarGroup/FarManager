@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.195 04.10.2005 $ */
+/* Revision: 1.196 05.10.2005 $ */
 
 /*
 Modify:
+  05.10.2005 SVS
+    ! Убираем Opt.NetSupportEncryption. С учетом последних изменений в копире - не нужна
   04.10.2005 SVS
     + Opt.NetSupportEncryption
   29.09.2005 SVS
@@ -1694,7 +1696,6 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeySystem,"IgnoreErrorBadPathName",&Opt.IgnoreErrorBadPathName,0, 0},
   {0, REG_DWORD,  NKeySystem,"UsePrintManager",&Opt.UsePrintManager,1, 0},
   {0, REG_DWORD,  NKeySystem,"FolderDeepScan",&Opt.FolderDeepScan,0, 0},
-  {0, REG_DWORD,  NKeySystem,"NetSupportEncryption",&Opt.NetSupportEncryption,0, 0},
 
   {0, REG_DWORD,  NKeySystemNowell,"MoveRO",&Opt.Nowell.MoveRO,1, 0},
 

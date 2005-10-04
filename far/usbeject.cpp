@@ -5,10 +5,13 @@ Detect & Eject USB носителей
 
 */
 
-/* Revision: 1.02 09.06.2005 $ */
+/* Revision: 1.03 05.10.2005 $ */
 
 /*
 Modify:
+  05.10.2005 SVS
+    ! закомментим ненужный код, чтобы сейчас ФАР компилился в "среде".
+      Потом нужно будет просто расскоментить "#define USED_USB_DETECT_AND_EJECT"
   09.06.2005 SVS
     ! FAR_CreateFile - обертка для CreateFile, просьба использовать именно
       ее вместо CreateFile
@@ -29,6 +32,10 @@ Modify:
 #endif
 #endif
 #endif
+
+//#define USED_USB_DETECT_AND_EJECT
+
+#if defined(USED_USB_DETECT_AND_EJECT)
 
 #if defined(__BORLANDC__)
 #if (__BORLANDC__ <= 0x0520)
@@ -75,10 +82,14 @@ typedef LPCSTR PCTSTR, LPCTSTR, PCUTSTR, LPCUTSTR;
 
 #include <setupapi.h> // Это находится в SDK
 #include <cfgmgr32.h> // Это находится в SDK. Правда ему требуется еще cfg.h, которого в моем sdk
+
+#endif
                       // почему-то не оказалось, зато нашлось в DDK, поэтому я его скопировал оттуда.
 
 #include "fn.hpp"
 
+
+#if defined(USED_USB_DETECT_AND_EJECT)
 
 #ifndef __DDKDEFS_FOR_USB_REMOVE_H__
 #define __DDKDEFS_FOR_USB_REMOVE_H__
@@ -209,6 +220,7 @@ typedef HDEVINFO (WINAPI *tSetupDiGetClassDevsA)(
   DWORD Flags
 );
 
+#endif
 
 #if 0
 
@@ -289,7 +301,7 @@ BOOL IsDriveUsb(
                 )
 {
 
-#if 0
+#if defined(USED_USB_DETECT_AND_EJECT)
 
 #if defined(__BORLANDC__) && (__BORLANDC__ <= 0x0520)
 const GUID GUID_DEVINTERFACE_VOLUME = { 0x53f5630dL, 0xb6bf, 0x11d0, { 0x94, 0xf2, 0x00, 0xa0, 0xc9, 0x1e, 0xfb, 0x8b } };
@@ -431,7 +443,7 @@ const GUID GUID_DEVINTERFACE_VOLUME = { 0x53f5630dL, 0xb6bf, 0x11d0, { 0x94, 0xf
 // TODO: здесь предусмотреть вывод месага, если соответствующий Flags выставлен.
 BOOL RemoveUSBDrive(char Letter,DWORD Flags)
 {
-#if 0
+#if defined(USED_USB_DETECT_AND_EJECT)
   DEVINST devToRemove;
 
   if(!Init_SETUPAPI())

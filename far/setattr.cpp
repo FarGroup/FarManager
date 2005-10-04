@@ -5,10 +5,12 @@ setattr.cpp
 
 */
 
-/* Revision: 1.66 29.09.2005 $ */
+/* Revision: 1.67 05.10.2005 $ */
 
 /*
 Modify:
+  05.10.2005 SVS
+    ! за каким то миллисекунды не обнулялись
   29.09.2005 SVS
     ! ScanTree должен уметь и короткие имена каталогов при рекурсивном спуске
   03.05.2005 AY
@@ -1205,8 +1207,6 @@ static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
     // конвертнем в локальное время.
     FileTimeToLocalFileTime(OriginalFileTime,&oft);
     FileTimeToSystemTime(&oft,&ost);
-    st.wDayOfWeek=ost.wDayOfWeek;
-    st.wMilliseconds=ost.wMilliseconds;
     DigitCount=TRUE;
   }
   else
@@ -1240,6 +1240,14 @@ static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
       st.wYear+=2000;
     else
       st.wYear+=1900;
+
+  if(TimeN[0]==(unsigned)-1 && TimeN[1]==(unsigned)-1 && TimeN[2]==(unsigned)-1)
+  {
+    st.wMilliseconds=ost.wMilliseconds;
+    // для правильности выставления wDayOfWeek
+    //SystemTimeToFileTime(&st,&ft);
+    //FileTimeToSystemTime(&ft,&st);
+  }
 
   // преобразование в "удобоваримый" формат
   SystemTimeToFileTime(&st,&ft);

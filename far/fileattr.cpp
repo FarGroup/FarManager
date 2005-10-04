@@ -5,10 +5,12 @@ fileattr.cpp
 
 */
 
-/* Revision: 1.12 03.05.2005 $ */
+/* Revision: 1.13 05.10.2005 $ */
 
 /*
 Modify:
+  05.10.2005 SVS
+    ! сохраним значение GetLastError() в _localLastError
   03.05.2005 AY
     - в функции ESetFileTime() была испорчена логика проверки папки совместно с версией win.
   16.09.2004 SVS
@@ -215,7 +217,7 @@ int ESetFileEncryption(const char *Name,int State,int FileAttr)
 
   while (!SetFileEncryption(Name,State))
   {
-    if (GetLastError()==ERROR_INVALID_FUNCTION)
+    if ((_localLastError=GetLastError())==ERROR_INVALID_FUNCTION)
       break;
     int Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
                 MSG(MSetAttrEncryptedCannotFor),(char *)Name,MSG(MHRetry),

@@ -5,10 +5,13 @@ macro.cpp
 
 */
 
-/* Revision: 1.149 19.09.2005 $ */
+/* Revision: 1.150 05.10.2005 $ */
 
 /*
 Modify:
+  05.10.2005 SVS
+    - После Editor.Set(9,2) не обновляется статусная строка редактора
+    + Editor.CurStr - содержимое текущей строки
   19.09.2005 SVS
     + MCODE_V_PPANEL_DRIVETYPE, MCODE_V_APANEL_DRIVETYPE
   24.07.2005 WARP
@@ -611,6 +614,7 @@ struct TMacroKeywords MKeywords[] ={
   {2,  "Editor.Lines",       MCODE_V_EDITORLINES,0},
   {2,  "Editor.CurPos",      MCODE_V_EDITORCURPOS,0},
   {2,  "Editor.State",       MCODE_V_EDITORSTATE,0},
+  {2,  "Editor.CurStr",      MCODE_V_EDITORCURSTR,0},
 
   {2,  "Dlg.ItemType",       MCODE_V_DLGITEMTYPE,0},
   {2,  "Dlg.ItemCount",      MCODE_V_DLGITEMCOUNT,0},
@@ -1458,6 +1462,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
         case MCODE_V_EDITORLINES:   // Editor.Lines
         case MCODE_V_EDITORCURPOS:  // Editor.CurPos
         case MCODE_V_EDITORFILENAME: // Editor.FileName
+        case MCODE_V_EDITORCURSTR:   // Editor.CurStr
         {
           if(CtrlObject->Macro.GetMode()==MACRO_EDITOR &&
              CtrlObject->Plugins.CurEditor && CtrlObject->Plugins.CurEditor->IsVisible())
@@ -1466,6 +1471,13 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
             {
               CtrlObject->Plugins.CurEditor->GetTypeAndName(NULL,FileName);
               Cond=FileName;
+            }
+            if(CheckCode == MCODE_V_EDITORCURSTR)
+            {
+              struct EditorGetString egs;
+              egs.StringNumber=-1;
+              CtrlObject->Plugins.CurEditor->EditorControl(ECTL_GETSTRING,&egs);
+              Cond=egs.StringText;
             }
             else
               Cond=(long)CtrlObject->Plugins.CurEditor->ProcessKey(CheckCode);
@@ -1841,6 +1853,7 @@ static TVar editorsetFunc(TVar *param)
           break;
       }
       CtrlObject->Plugins.CurEditor->SetEditorOptions(EdOpt);
+      CtrlObject->Plugins.CurEditor->ShowStatus();
     }
 
   }

@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.136 04.10.2005 $ */
+/* Revision: 1.137 05.10.2005 $ */
 
 /*
 Modify:
+  05.10.2005 SVS
+    ! Убираем Opt.NetSupportEncryption. С учетом последних изменений в копире - не нужна
   04.10.2005 SVS
     + Opt.NetSupportEncryption
   29.09.2005 SVS
@@ -928,7 +930,6 @@ struct Options
   int UseNumPad;
   int UseUnicodeConsole;
   int ScanJunction;
-  int NetSupportEncryption;
 
   DWORD ShowTimeoutDelFiles; // тайаут в процессе удаления (в ms)
   DWORD ShowTimeoutDACLFiles;

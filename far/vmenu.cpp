@@ -8,10 +8,13 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.147 25.07.2005 $ */
+/* Revision: 1.148 05.10.2005 $ */
 
 /*
 Modify:
+  05.10.2005 SVS
+    + обработка KEY_ALTLEFT и KEY_ALTRIGHT - дл€ скроллинга хистори.
+      –еализаци€ только дл€ текущего пункта истории
   24.07.2005 WARP
     ! see 02033.LockUnlock.txt
   14.06.2005 SVS
@@ -1022,15 +1025,32 @@ void VMenu::ShowMenu(int IsParent)
           GotoXY(X2,Y);
           BoxText((WORD)(Opt.UseUnicodeConsole?BoxSymbols[*BoxChar-0x0B0]:*BoxChar)); //Text((char*)BoxChar);
         }
+
+        char *Item_I_PtrName=Item[I].PtrName();
+        char *_MItemPtr=Item_I_PtrName+Item[I].ShowPos;
+
+//        if ((Item[I].Flags&LIF_SELECTED) && !(Item[I].Flags&LIF_DISABLE))
+//          SetColor(VMenu::Colors[VMenuColorSelected]);
+//        else
+//          SetColor(VMenu::Colors[(Item[I].Flags&LIF_DISABLE?9:3)]);
+
+        if (BoxType!=NO_BOX)
+        {
+          if(Item[I].ShowPos > 0)
+          {
+            Text(X1,Y,VMenu::Colors[Item[I].Flags&LIF_SELECTED?VMenuColorHSelect:VMenuColorHilite],"{");
+          }
+          GotoXY(X1+1,Y);
+        }
+        else
+          GotoXY(X1,Y);
+//
         if ((Item[I].Flags&LIF_SELECTED) && !(Item[I].Flags&LIF_DISABLE))
           SetColor(VMenu::Colors[VMenuColorSelected]);
         else
           SetColor(VMenu::Colors[(Item[I].Flags&LIF_DISABLE?9:3)]);
-        if (BoxType!=NO_BOX)
-          GotoXY(X1+1,Y);
-        else
-          GotoXY(X1,Y);
-        /* KM $ */
+
+
         char Check=' ';
         if (Item[I].Flags&LIF_CHECKED)
           if (!(Item[I].Flags&0x0000FFFF))
@@ -1038,10 +1058,11 @@ void VMenu::ShowMenu(int IsParent)
           else
             Check=(char)Item[I].Flags&0x0000FFFF;
 
-        if(HiStrlen(Item[I].PtrName(),TRUE) > X2-X1-3)
-          sprintf(TmpStr,"%c %.*s",Check,X2-X1-3,Item[I].PtrName());
+        if(HiStrlen(_MItemPtr) > X2-X1-3)
+          sprintf(TmpStr,"%c %.*s",Check,X2-X1-3,_MItemPtr);
         else
-          sprintf(TmpStr,"%c %s",Check,Item[I].PtrName());
+          sprintf(TmpStr,"%c %s",Check,_MItemPtr);
+
         { // табул€ции мен€ем только при показе!!!
           // дл€ сохранение оригинальной строки!!!
           char *TabPtr;
@@ -1073,6 +1094,7 @@ void VMenu::ShowMenu(int IsParent)
 //_SVS(SysLog("<<< AmpPos=%d TmpStr='%s'",AmpPos,TmpStr));
           HiText(TmpStr,Col);
         }
+
         // сделаем добавочку дл€ NO_BOX
         mprintf("%*s",X2-WhereX()+(BoxType==NO_BOX?1:0),"");
       }
@@ -1297,11 +1319,36 @@ int VMenu::ProcessKey(int Key)
       break;
     }
 
-      /* KM $ */
-    /* $ 27.04.2001 VVM
-      + ќбработка KEY_MSWHEEL_XXXX */
-    case KEY_MSWHEEL_UP:
-    /* VVM $ */
+    case KEY_ALTLEFT:
+    case KEY_ALTRIGHT:
+    {
+      int ItemShowPos=Item[SelectPos].ShowPos;
+
+      int _len;
+      int _OWidth=X2-X1-3;
+
+      if(VMFlags.Check(VMENU_SHOWAMPERSAND))
+        _len=HiStrlen(Item[SelectPos].PtrName(),TRUE);
+      else
+        _len=strlen(Item[SelectPos].PtrName());
+
+      if(Key == KEY_ALTLEFT && ItemShowPos==0 || Key == KEY_ALTRIGHT && ItemShowPos > _len || _len < _OWidth)
+        break;
+
+      if(Key == KEY_ALTLEFT) ItemShowPos--; else ItemShowPos++;
+      if(ItemShowPos < 0) ItemShowPos=0;
+      if(ItemShowPos > _len-_OWidth)
+        ItemShowPos=_len-_OWidth;
+
+      if(ItemShowPos != Item[SelectPos].ShowPos)
+      {
+        Item[SelectPos].ShowPos=ItemShowPos;
+        ShowMenu(TRUE);
+      }
+      break;
+    }
+
+    case KEY_MSWHEEL_UP: // $ 27.04.2001 VVM - ќбработка KEY_MSWHEEL_XXXX
     case KEY_LEFT:         case KEY_NUMPAD4:
     case KEY_UP:           case KEY_NUMPAD8:
     {
@@ -1310,10 +1357,7 @@ int VMenu::ProcessKey(int Key)
       break;
     }
 
-    /* $ 27.04.2001 VVM
-      + ќбработка KEY_MSWHEEL_XXXX */
-    case KEY_MSWHEEL_DOWN:
-    /* VVM $ */
+    case KEY_MSWHEEL_DOWN: // $ 27.04.2001 VVM + ќбработка KEY_MSWHEEL_XXXX
     case KEY_RIGHT:        case KEY_NUMPAD6:
     case KEY_DOWN:         case KEY_NUMPAD2:
     {
@@ -1699,6 +1743,7 @@ int VMenu::AddItem(const struct MenuItem *NewItem,int PosAdd)
     memmove(Item+PosAdd+1,Item+PosAdd,sizeof(struct MenuItem)*(ItemCount-PosAdd)); //??
 
   Item[PosAdd]=*NewItem;
+  Item[PosAdd].ShowPos=0;
 
   if(VMFlags.Check(VMENU_SHOWAMPERSAND))
     Length=strlen(Item[PosAdd].PtrName());

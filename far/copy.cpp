@@ -5,10 +5,13 @@ copy.cpp
 
 */
 
-/* Revision: 1.160 04.10.2005 $ */
+/* Revision: 1.161 05.10.2005 $ */
 
 /*
 Modify:
+  05.10.2005 SVS
+    - Проблемы с копированием шифрованных файлов. Полечим путем вывода доп.диалога.
+      Возможно строка "SetLastError(_localLastError=ERROR_EFS_SERVER_NOT_TRUSTED);" - лишняя... но все же ;-)
   04.10.2005 SVS
     ! Изменения в CheckDisksProps()
   30.09.2005 SVS
@@ -3119,35 +3122,96 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
 
     {
       int MsgCode;
-      if (SkipMode!=-1)
-        MsgCode=SkipMode;
+      if((SrcData.dwFileAttributes&FILE_ATTRIBUTE_ENCRYPTED))
+      {
+//        if (SkipMode!=-1)
+//          MsgCode=SkipMode;
+        if (SkipEncMode!=-1)// && SkipMode!=-1)
+        {
+          MsgCode=SkipEncMode;
+          if(SkipEncMode == 1)
+            ShellCopy::Flags|=FCOPY_DECRYPTED_DESTINATION;
+        }
+        else
+        {
+          CopyTime+= (clock() - CopyStartTime);
+          if(_localLastError == 5)
+          {
+            #define ERROR_EFS_SERVER_NOT_TRUSTED     6011L
+            ;//SetLastError(_localLastError=(DWORD)0x80090345L);//SEC_E_DELEGATION_REQUIRED);
+            SetLastError(_localLastError=ERROR_EFS_SERVER_NOT_TRUSTED);
+          }
+
+          MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,5,MSG(MError),
+                          MSG(MsgMCannot),
+                          Msg1,
+                          MSG(MCannotCopyTo),
+                          Msg2,
+                          MSG(MCopyDecrypt),
+                          MSG(MCopyDecryptAll),
+                          MSG(MCopySkip),
+                          MSG(MCopySkipAll),
+                          MSG(MCopyCancel));
+
+          switch(MsgCode)
+          {
+            case  0:
+              _LOGCOPYR(SysLog("return COPY_NEXT -> %d",__LINE__));
+              ShellCopy::Flags|=FCOPY_DECRYPTED_DESTINATION;
+              break;//return COPY_NEXT;
+            case  1:
+              SkipEncMode=1;
+              ShellCopy::Flags|=FCOPY_DECRYPTED_DESTINATION;
+              _LOGCOPYR(SysLog("return COPY_NEXT -> %d",__LINE__));
+              break;//return COPY_NEXT;
+            case  2:
+              _LOGCOPYR(SysLog("return COPY_NEXT -> %d",__LINE__));
+              return COPY_NEXT;
+            case  3:
+              SkipMode=1;
+              _LOGCOPYR(SysLog("return COPY_NEXT -> %d",__LINE__));
+              return COPY_NEXT;
+            case -1:
+            case -2:
+            case  4:
+              _LOGCOPYR(SysLog("return COPY_CANCEL -> %d",__LINE__));
+              return COPY_CANCEL;
+          }
+        }
+      }
       else
       {
-        CopyTime+= (clock() - CopyStartTime);
-        MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
-                        MSG(MsgMCannot),
-                        Msg1,
-                        MSG(MCannotCopyTo),
-                        Msg2,
-                        MSG(MCopyRetry),MSG(MCopySkip),
-                        MSG(MCopySkipAll),MSG(MCopyCancel));
-        CopyStartTime = clock();
-      }
+        if (SkipMode!=-1)
+          MsgCode=SkipMode;
+        else
+        {
+          MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
+                          MSG(MsgMCannot),
+                          Msg1,
+                          MSG(MCannotCopyTo),
+                          Msg2,
+                          MSG(MCopyRetry),
+                          MSG(MCopySkip),
+                          MSG(MCopySkipAll),
+                          MSG(MCopyCancel));
+          CopyStartTime = clock();
+        }
 
-      switch(MsgCode)
-      {
-        case -1:
-        case  1:
-          _LOGCOPYR(SysLog("return COPY_NEXT -> %d",__LINE__));
-          return COPY_NEXT;
-        case  2:
-          SkipMode=1;
-          _LOGCOPYR(SysLog("return COPY_NEXT -> %d",__LINE__));
-          return COPY_NEXT;
-        case -2:
-        case  3:
-          _LOGCOPYR(SysLog("return COPY_CANCEL -> %d",__LINE__));
-          return COPY_CANCEL;
+        switch(MsgCode)
+        {
+          case -1:
+          case  1:
+            _LOGCOPYR(SysLog("return COPY_NEXT -> %d",__LINE__));
+            return COPY_NEXT;
+          case  2:
+            SkipMode=1;
+            _LOGCOPYR(SysLog("return COPY_NEXT -> %d",__LINE__));
+            return COPY_NEXT;
+          case -2:
+          case  3:
+            _LOGCOPYR(SysLog("return COPY_CANCEL -> %d",__LINE__));
+            return COPY_CANCEL;
+        }
       }
     }
 
@@ -3463,7 +3527,11 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
   {
     int MsgCode;
     if (SkipEncMode!=-1)
+    {
       MsgCode=SkipEncMode;
+      if(SkipEncMode == 1)
+        ShellCopy::Flags|=FCOPY_DECRYPTED_DESTINATION;
+    }
     else
     {
       CopyTime+= (clock() - CopyStartTime);
@@ -3503,7 +3571,8 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
     //if(!(WinVer.dwMajorVersion >= 5 && WinVer.dwMinorVersion > 0) && (ShellCopy::Flags&FCOPY_DECRYPTED_DESTINATION))
     if(!(SrcData.dwFileAttributes&FILE_ATTRIBUTE_ENCRYPTED) ||
         (SrcData.dwFileAttributes&FILE_ATTRIBUTE_ENCRYPTED) &&
-          (WinVer.dwMajorVersion >= 5 && WinVer.dwMinorVersion > 0 || !(ShellCopy::Flags&FCOPY_DECRYPTED_DESTINATION))
+          (WinVer.dwMajorVersion >= 5 && WinVer.dwMinorVersion > 0 ||
+          !(ShellCopy::Flags&(FCOPY_DECRYPTED_DESTINATION)))
       )
     {
       if (!Opt.CMOpt.CopyOpened)
@@ -3535,11 +3604,15 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
   {
     if (Opt.CMOpt.CopyOpened)
     {
-      if ( GetLastError() == ERROR_SHARING_VIOLATION )
+      _localLastError=GetLastError();
+      SetLastError(_localLastError);
+      if ( _localLastError == ERROR_SHARING_VIOLATION )
       {
         SrcHandle = FAR_CreateFile( SrcName,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,NULL,OPEN_EXISTING, 0, NULL );
         if (SrcHandle == INVALID_HANDLE_VALUE )
         {
+           _localLastError=GetLastError();
+           SetLastError(_localLastError);
           _LOGCOPYR(SysLog("return COPY_FAILURE -> %d if (SrcHandle==INVALID_HANDLE_VALUE)",__LINE__));
           return COPY_FAILURE;
         }
@@ -3547,6 +3620,8 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
     }
     else
     {
+      _localLastError=GetLastError();
+      SetLastError(_localLastError);
       _LOGCOPYR(SysLog("return COPY_FAILURE -> %d if (SrcHandle==INVALID_HANDLE_VALUE)",__LINE__));
       return COPY_FAILURE;
     }
@@ -3562,8 +3637,9 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
       remove(DestName);
     DestHandle=FAR_CreateFile(DestName,GENERIC_WRITE,FILE_SHARE_READ,
                           (ShellCopy::Flags&FCOPY_COPYSECURITY) ? &sa:NULL,
-                          Append ? OPEN_EXISTING:CREATE_ALWAYS,
-           SrcData.dwFileAttributes&(~((ShellCopy::Flags&FCOPY_DECRYPTED_DESTINATION)?FILE_ATTRIBUTE_ENCRYPTED:0)),NULL);
+                          (Append ? OPEN_EXISTING:CREATE_ALWAYS),
+           SrcData.dwFileAttributes&(~((ShellCopy::Flags&(FCOPY_DECRYPTED_DESTINATION))?FILE_ATTRIBUTE_ENCRYPTED:0)),NULL);
+    ShellCopy::Flags&=~FCOPY_DECRYPTED_DESTINATION;
     if (DestHandle==INVALID_HANDLE_VALUE)
     {
       _localLastError=GetLastError();
@@ -3773,7 +3849,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
             CreatePath(DestDir);
           }
           DestHandle=FAR_CreateFile(DestName,GENERIC_WRITE,FILE_SHARE_READ,NULL,
-                                Append ? OPEN_EXISTING:CREATE_ALWAYS,
+                                (Append ? OPEN_EXISTING:CREATE_ALWAYS),
                                 SrcData.dwFileAttributes,NULL);
 
           if (DestHandle==INVALID_HANDLE_VALUE ||
@@ -3873,7 +3949,8 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
     // TODO: ЗДЕСЯ СТАВИТЬ Compressed???
     if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS &&
         (SrcData.dwFileAttributes & (FA_HIDDEN|FA_SYSTEM|FA_RDONLY)))
-      ShellSetAttr(DestName,SrcData.dwFileAttributes&(~((ShellCopy::Flags&FCOPY_DECRYPTED_DESTINATION)?FILE_ATTRIBUTE_ENCRYPTED:0)));
+      ShellSetAttr(DestName,SrcData.dwFileAttributes&(~((ShellCopy::Flags&(FCOPY_DECRYPTED_DESTINATION))?FILE_ATTRIBUTE_ENCRYPTED:0)));
+    ShellCopy::Flags&=~FCOPY_DECRYPTED_DESTINATION;
   }
   else
     CloseHandle(SrcHandle);
@@ -4379,9 +4456,12 @@ int ShellCopy::ShellSystemCopy(const char *SrcName,const char *DestName,const WI
 #endif
     // COPY_FILE_ALLOW_DECRYPTED_DESTINATION
     if (!FAR_CopyFileEx(SrcName,DestName,(void *)CopyProgressRoutine,NULL,&Cancel,
-         ShellCopy::Flags&FCOPY_DECRYPTED_DESTINATION?COPY_FILE_ALLOW_DECRYPTED_DESTINATION:0))
-
+         ShellCopy::Flags&(FCOPY_DECRYPTED_DESTINATION)?COPY_FILE_ALLOW_DECRYPTED_DESTINATION:0))
+    {
+      ShellCopy::Flags&=~FCOPY_DECRYPTED_DESTINATION;
       return (_localLastError=GetLastError())==ERROR_REQUEST_ABORTED ? COPY_CANCEL:COPY_FAILURE;
+    }
+    ShellCopy::Flags&=~FCOPY_DECRYPTED_DESTINATION;
   }
   else
   {

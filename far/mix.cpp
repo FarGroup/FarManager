@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.172 04.10.2005 $ */
+/* Revision: 1.173 05.10.2005 $ */
 
 /*
 Modify:
+  05.10.2005 SVS
+    ! Убираем Opt.NetSupportEncryption. С учетом последних изменений в копире - не нужна
   04.10.2005 SVS
     ! Изменения в CheckDisksProps()
   30.09.2005 SVS
@@ -2260,8 +2262,7 @@ int CheckDisksProps(const char *SrcPath,const char *DestPath,int CheckedType)
   {
     if(!(DestFileSystemFlags&FILE_SUPPORTS_ENCRYPTION))
       return FALSE;
-    if(!((DestDriveType==DRIVE_REMOVABLE || DestDriveType==DRIVE_FIXED) ||
-         (Opt.NetSupportEncryption && DestDriveType==DRIVE_REMOTE)))
+    if(!(DestDriveType==DRIVE_REMOVABLE || DestDriveType==DRIVE_FIXED || DestDriveType==DRIVE_REMOTE))
       return FALSE;
   }
 

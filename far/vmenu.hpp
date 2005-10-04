@@ -11,10 +11,12 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.60 25.04.2005 $ */
+/* Revision: 1.61 05.10.2005 $ */
 
 /*
 Modify:
+  05.10.2005 SVS
+    + MenuItem.ShowPos
   24.04.2005 AY
     ! GCC
   29.01.2005 WARP
@@ -273,6 +275,8 @@ struct MenuItem
   short AmpPos;                  // ѕозици€ автоназначенной подсветки
   short Len[2];                  // размеры 2-х частей
   short Idx2;                    // начало 2-й части
+
+  int   ShowPos;
 
   /* $ 01.12.2001 DJ
      исправим баг, заодно нормально отформатируем код
