@@ -44,7 +44,13 @@ providing some service functions and operators including conditional and iterati
     You can use these pseudo keys with Ctrl, Shift and Alt modifier keys.
   <li>If you trying to enter a character using Alt-number combination FAR saves
   the combination, not the resulting character.<br>
-  For instance, Alt-151 will be saved by FAR as &quot;Alt00151&quot;.
+  For instance, Alt-151 will be saved by FAR as &quot;<b>Alt00151</b>&quot;.
+  <li>Специфические клавиши, у которых <a href="../../winapi/virtualkeycodes.html">виртуальный код</a> отличен от 0xFF,
+    но имена которых FAR не знает, будут хранится как &quot;<b>OemXXXXX</b>&quot;
+     (здесь XXXXX десятичное значение виртуального кода клавиши с ведущими нулями).
+  <li>Специфические клавиши, у которых виртуальный код равен 0xFF,
+    будут хранится как &quot;<b>SpecXXXXX</b>&quot;
+     (здесь XXXXX десятичное значение сканкода клавиши с ведущими нулями).
   <li>We recommend using special plugin &quot;Macro Browser&quot; by Konstantin
   Melnikov to edit and organize macro commands. This FAR module provides the
   functionality for viewing, editing, copying and moving macro commands between
