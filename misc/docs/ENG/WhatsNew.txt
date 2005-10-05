@@ -154,9 +154,6 @@ System
 [+] Added the "Wipe" command to the "Files" menu. Alt-Del within a
     terminal session was intercepted by the terminal.
 
-[+] Added display of plugin name in the hotkey assignment dialog
-    (Plugin commands and Plugins configuration menus).
-
 [+] New rule - TechInfo#58, allows to set the maximal height for dialog
     history lists.
 
