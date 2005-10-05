@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.187 11.08.2005 $ */
+/* Revision: 1.188 05.10.2005 $ */
 
 /*
 Modify:
+  05.10.2005 AY
+    - Не обновлялись панели после выхода из диалога.
   11.08.2005 WARP
     ! see 02039.Mix.txt
   04.08.2005 WARP
@@ -1490,7 +1492,7 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
     frame->Unlock(); // теперь можно :-)
  /* SKV $ */
 //  CheckScreenLock();
-//  FrameManager->RefreshFrame(); //??
+  FrameManager->RefreshFrame(); //?? - //AY - это нужно чтоб обновлять панели после выхода из диалога
   return(ExitCode);
 }
 #ifndef _MSC_VER
