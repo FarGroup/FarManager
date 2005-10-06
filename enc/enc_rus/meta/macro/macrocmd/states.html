@@ -23,12 +23,10 @@
     можно только путем ручной правки реестра или путем применения
     специальных программ/плагинов.</li>
 </ul>
+
 <table class="cont">
-  <tr class="cont">
-    <th class="cont" width="20%">Оператор</th>
-    <th class="cont" width="20%">Тип</th>
-    <th class="cont" width="60%">Описание</th>
-  </tr>
+  <tr class="cont"><th class="cont" colspan=3>Панели</th></tr>
+  <tr class="cont"><th class="cont" width="20%">Оператор</th><th class="cont" width="20%">Тип</th><th class="cont" width="60%">Описание</th></tr>
   <tr class="cont">
     <td class="cont" width="20%"><a name="APanel.ItemCount">APanel.ItemCount</a><br>
     <a name="PPanel.ItemCount">PPanel.ItemCount</a></td>
@@ -117,7 +115,7 @@
         </tr>
         <tr class="cont">
           <td class="cont" width="10%">0</td>
-          <td class="cont" width="90%">Не удалось опредилить тип привода</td>
+          <td class="cont" width="90%">Не удалось определить тип привода</td>
         </tr>
         <tr class="cont">
           <td class="cont" width="10%">2</td>
@@ -178,21 +176,12 @@
 
         <tr class="cont"><td class="cont" width="10%">0x00000100</td>
         <td class="cont" width="90%">имена файлов показаны в оригинальном регистре (независимо от настроек FAR)</td></tr>
-
-</table>
+      </table>
     </td>
   </tr>
 
-  <tr class="cont">
-    <td class="cont" width="20%"><a name="ItemCount">ItemCount</a></td>
-    <td class="cont" width="20%">Number</td>
-    <td class="cont" width="60%">число элементов в текущем объекте; в меню разделительная черта тоже учитывается</td>
-  </tr>
-  <tr class="cont">
-    <td class="cont" width="20%"><a name="CurPos">CurPos</a></td>
-    <td class="cont" width="20%">Number</td>
-    <td class="cont" width="60%">позиция в текущем объекте</td>
-  </tr>
+
+  <tr class="cont"><th class="cont" colspan=3>Диалоги</th></tr>
   <tr class="cont">
     <td class="cont" width="20%"><a name="Dlg.ItemCount">Dlg.ItemCount</a></td>
     <td class="cont" width="20%">Number</td>
@@ -263,6 +252,8 @@
       </table>
     </td>
   </tr>
+
+  <tr class="cont"><th class="cont" colspan=3>Командная строка</th></tr>
   <tr class="cont">
     <td class="cont" width="20%"><a name="CmdLine.ItemCount">CmdLine.ItemCount</a></td>
     <td class="cont" width="20%">Number</td>
@@ -278,6 +269,8 @@
     <td class="cont" width="20%">String</td>
     <td class="cont" width="60%">содержимое командной строки</td>
   </tr>
+
+  <tr class="cont"><th class="cont" colspan=3>Редактор</th></tr>
   <tr class="cont">
     <td class="cont" width="20%"><a name="Editor.FileName">Editor.FileName</a></td>
     <td class="cont" width="20%">String</td>
@@ -286,12 +279,22 @@
   <tr class="cont">
     <td class="cont" width="20%"><a name="Editor.CurLine">Editor.CurLine</a></td>
     <td class="cont" width="20%">Number</td>
-    <td class="cont" width="60%">номер текущей линии в редакторе</td>
+    <td class="cont" width="60%">номер текущей линии в редакторе (первая строка равна 1)</td>
   </tr>
   <tr class="cont">
     <td class="cont" width="20%"><a name="Editor.CurPos">Editor.CurPos</a></td>
     <td class="cont" width="20%">Number</td>
-    <td class="cont" width="60%">текущая позиция курсора в строке в редакторе</td>
+    <td class="cont" width="60%">текущая позиция курсора в строке в редакторе (начало строки равно 1)</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="Editor.CurStr">Editor.CurStr</a></td>
+    <td class="cont" width="20%">String</td>
+    <td class="cont" width="60%">содержимое текущей строки в редакторе под курсором.<br>
+      Например, показать текущий символ под курсором
+      <pre class="code">
+MsgBox(substr(Editor.CurStr,Editor.CurPos-1,1),Editor.FileName,0)
+</pre>
+    </td>
   </tr>
   <tr class="cont">
     <td class="cont" width="20%"><a name="Editor.Lines">Editor.Lines</a></td>
@@ -358,6 +361,9 @@
 $If (Editor.State &amp; 0x8) <em>выполнить действия, если файл модифицирован</em> $End
 </pre>
     </td>
+  </tr>
+
+  <tr class="cont"><th class="cont" colspan=3>Программа просмотра</th></tr>
   <tr class="cont">
     <td class="cont" width="20%"><a name="Viewer.FileName">Viewer.FileName</a></td>
     <td class="cont" width="20%">String</td>
@@ -406,12 +412,23 @@ $If (Viewer.State &amp; 0x20) <em>выполнить действия, если выставлен 16-ричный р
 </pre>
     </td>
   </tr>
+
+  <tr class="cont"><th class="cont" colspan=3>Прочее</th></tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="ItemCount">ItemCount</a></td>
+    <td class="cont" width="20%">Number</td>
+    <td class="cont" width="60%">число элементов в текущем объекте; в меню разделительная черта тоже учитывается</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="CurPos">CurPos</a></td>
+    <td class="cont" width="20%">Number</td>
+    <td class="cont" width="60%">позиция в текущем объекте</td>
+  </tr>
   <tr class="cont">
     <td class="cont" width="20%"><a name="Far.Width">Far.Width</a></td>
     <td class="cont" width="20%">Number</td>
     <td class="cont" width="60%">ширина консоли, в которой работает FAR Mnager</td>
   </tr>
-
 </table>
 
 </body>

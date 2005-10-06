@@ -93,8 +93,8 @@
       случае возвращает 0.
       <p>Например, в меню вызова плагинов (F11) плагину S&amp;R назначена
       горячая клавиша '7'. Последовательность макрокоманды для
-      редактора:<br>
-      <code>F11 $if (checkhotkey(&quot;7&quot;)) 7 1 $else Esc AltF7 $end</code><br>
+      редактора:
+      <pre class=code>F11 $if (checkhotkey(&quot;7&quot;)) 7 1 $else Esc AltF7 $end</pre>
       вызовет плагин, если хоткей назначен или стандартный диалог
       поиска, если хоткей не назначен.</td>
   </tr>
@@ -129,7 +129,7 @@
     <td class="cont" width="40%">S=<dfn><a name="env">env</a></dfn>(V)</td>
     <td class="cont" width="60%">Возвращает значение переменной среды V,
       например,<br>
-      <code>$if (Env(&quot;FARLANG&quot;) == &quot;English&quot;) <em>что-то делаем</em> $end</code></td>
+      <pre class=code>$if (Env(&quot;FARLANG&quot;) == &quot;English&quot;) <em>что-то делаем</em> $end</pre></td>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">S=<dfn><a name="fsplit">fsplit</a></dfn>(path,N)</td>
