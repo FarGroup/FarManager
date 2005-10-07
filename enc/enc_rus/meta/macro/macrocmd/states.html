@@ -287,12 +287,12 @@
     <td class="cont" width="60%">текущая позиция курсора в строке в редакторе (начало строки равно 1)</td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="20%"><a name="Editor.CurStr">Editor.CurStr</a></td>
-    <td class="cont" width="20%">String</td>
+    <td class="cont" width="20%"><a name="Editor.Value">Editor.Value</a></td>
+    <td class="cont" width="20%">Value</td>
     <td class="cont" width="60%">содержимое текущей строки в редакторе под курсором.<br>
       Например, показать текущий символ под курсором
       <pre class="code">
-MsgBox(substr(Editor.CurStr,Editor.CurPos-1,1),Editor.FileName,0)
+MsgBox(substr(Editor.Value,Editor.CurPos-1,1),Editor.FileName,0)
 </pre>
     </td>
   </tr>
