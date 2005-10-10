@@ -84,7 +84,9 @@ displayed. In such case #cursor keys# can be used to scroll text.
 
     Press #Shift-F2# for ~plugins~@Plugins@ help.
 
-    #F5# switches help between window and fullscreen modes.
+    По умолчанию "#Помощь#" показывается в свернутом окне, развернуть его можно
+при помощи клавиши #F5# "#Размер#", повторное нажатие #F5# вернет размер окна в
+первоначальное состояние.
 
 
 @About
@@ -2422,7 +2424,7 @@ is not a ~file panel~@FilePanel@, it will be changed to the file panel.
 
     #Change drive# menu settings are saved in the FAR configuration.
 
-    If the option "~Use Ctrl-PgUp to change drive"~@InterfSettigs@" is enabled,
+    If the option "~Use Ctrl-PgUp to change drive~@InterfSettings@" is enabled,
 pressing #Ctrl-PgUp# works the same as pressing #Esc# - cancels drive selection
 and closes the menu.
 

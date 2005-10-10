@@ -5,10 +5,12 @@ syntax.cpp
 
 */
 
-/* Revision: 1.09 05.07.2005 $ */
+/* Revision: 1.10 07.10.2005 $ */
 
 /*
 Modify:
+  07.10.2005 SVS
+    + Macro: Функция V=Dlg.GetValue(ID,N)
   05.07.2005 SVS
     + Добавка в макросы - OldVal=Editor.Set(Index,NewVal)
   24.04.2005 AY
@@ -649,6 +651,7 @@ static TMacroFunction macroFunction[]={
   {"ABS",            1,    MCODE_F_ABS},                 // N=abs(N)
   {"CHECKHOTKEY",    1,    MCODE_F_MENU_CHECKHOTKEY},    // N=checkhotkey(S)
   {"DATE",           1,    MCODE_F_DATE},                // S=date(S)
+  {"DLG.GETVALUE",   2,    MCODE_F_DLG_GETVALUE},        // V=Dlg.GetValue(ID,N)
   {"EDITOR.SET",     2,    MCODE_F_EDITOR_SET},          // N=Editor.Set(N,Var)
   {"ENV",            1,    MCODE_F_ENVIRON},             // S=env(S)
   {"FATTR",          1,    MCODE_F_FATTR},               // N=fattr(S)

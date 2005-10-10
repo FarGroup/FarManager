@@ -5,10 +5,13 @@ OpCode для макросов
 
 */
 
-/* Revision: 1.16 05.10.2005 $ */
+/* Revision: 1.17 07.10.2005 $ */
 
 /*
 Modify:
+  07.10.2005 SVS
+    ! Editor.CurStr -> Editor.Value. так точнее будет
+    + Dlg.GetValue()
   05.10.2005 SVS
     + Editor.CurStr - содержимое текущей строки
   19.09.2005 SVS
@@ -152,6 +155,7 @@ enum MACRO_OP_CODE {
   MCODE_F_PANELITEM,                // V=PanelItem(Panel,Index,TypeInfo)
   MCODE_F_MSAVE,                    // b=msave(var)
   MCODE_F_EDITOR_SET,               // N=Editor.Set(N,Var)
+  MCODE_F_DLG_GETVALUE,             // V=Dlg.GetValue(ID,N)
 
   /* ************************************************************************* */
   // булевые переменные - различные состояния
@@ -222,7 +226,7 @@ enum MACRO_OP_CODE {
   MCODE_V_EDITORCURLINE,            // Editor.CurLine - текущая линия в редакторе (в дополнении к Count)
   MCODE_V_EDITORCURPOS,             // Editor.CurPos - текущая поз. в редакторе
   MCODE_V_EDITORSTATE,              // Editor.State
-  MCODE_V_EDITORCURSTR,             // Editor.CurStr - содержимое текущей строки
+  MCODE_V_EDITORVALUE,              // Editor.Value - содержимое текущей строки
   MCODE_V_DLGITEMTYPE,              // Dlg.ItemType
   MCODE_V_DLGITEMCOUNT,             // Dlg.ItemCount
   MCODE_V_DLGCURPOS,                // Dlg.CurPos

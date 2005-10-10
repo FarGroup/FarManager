@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.267 26.07.2005 $ */
+/* Revision: 1.268 06.10.2005 $ */
 
 /*
 Modify:
+  06.10.2005 SVS
+    - Bugz#1169 - сломали в районе 2012.
   26.07.2005 SVS
     - Некомпиляция дебажной версии
   24.07.2005 WARP
@@ -3706,7 +3708,7 @@ int Editor::ProcessKey(int Key)
         // </comment>
 
         //AY: Это что бы при FastShow LeftPos не становился в конец строки.
-        CurLine->EditLine.ObjWidth=X2-X1;
+        CurLine->EditLine.ObjWidth=X2-X1+1;
 
         if (CurLine->EditLine.ProcessKey(Key))
         {

@@ -5,10 +5,13 @@ macro.cpp
 
 */
 
-/* Revision: 1.150 05.10.2005 $ */
+/* Revision: 1.151 07.10.2005 $ */
 
 /*
 Modify:
+  07.10.2005 SVS
+    ! Editor.CurStr -> Editor.Value. так точнее будет
+    + Dlg.GetValue()
   05.10.2005 SVS
     - После Editor.Set(9,2) не обновляется статусная строка редактора
     + Editor.CurStr - содержимое текущей строки
@@ -614,7 +617,7 @@ struct TMacroKeywords MKeywords[] ={
   {2,  "Editor.Lines",       MCODE_V_EDITORLINES,0},
   {2,  "Editor.CurPos",      MCODE_V_EDITORCURPOS,0},
   {2,  "Editor.State",       MCODE_V_EDITORSTATE,0},
-  {2,  "Editor.CurStr",      MCODE_V_EDITORCURSTR,0},
+  {2,  "Editor.Value",       MCODE_V_EDITORVALUE,0},
 
   {2,  "Dlg.ItemType",       MCODE_V_DLGITEMTYPE,0},
   {2,  "Dlg.ItemCount",      MCODE_V_DLGITEMCOUNT,0},
@@ -1462,7 +1465,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
         case MCODE_V_EDITORLINES:   // Editor.Lines
         case MCODE_V_EDITORCURPOS:  // Editor.CurPos
         case MCODE_V_EDITORFILENAME: // Editor.FileName
-        case MCODE_V_EDITORCURSTR:   // Editor.CurStr
+        case MCODE_V_EDITORVALUE:   // Editor.Value
         {
           if(CtrlObject->Macro.GetMode()==MACRO_EDITOR &&
              CtrlObject->Plugins.CurEditor && CtrlObject->Plugins.CurEditor->IsVisible())
@@ -1472,7 +1475,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
               CtrlObject->Plugins.CurEditor->GetTypeAndName(NULL,FileName);
               Cond=FileName;
             }
-            if(CheckCode == MCODE_V_EDITORCURSTR)
+            if(CheckCode == MCODE_V_EDITORVALUE)
             {
               struct EditorGetString egs;
               egs.StringNumber=-1;
@@ -1761,6 +1764,115 @@ static TVar fexistFunc(TVar *param)
   return TVar(attr.toInteger() != -1 ? 1L : 0L);
 }
 
+
+// V=Dlg.GetValue(ID,N)
+static TVar dlggetvalueFunc(TVar *param)
+{
+  TVar Ret(-1L);
+
+  Frame* CurFrame=FrameManager->GetCurrentFrame();
+  if(CtrlObject->Macro.GetMode()==MACRO_DIALOG && CurFrame && CurFrame->GetType()==MODALTYPE_DIALOG)
+  {
+    long Index=param[0].toInteger()-1;
+    long TypeInf=param[1].toInteger();
+    int DlgItemCount=((Dialog*)CurFrame)->GetAllItemCount();
+    const struct DialogItem *DlgItem=((Dialog*)CurFrame)->GetAllItem();
+    if(Index == -1)
+    {
+      SMALL_RECT Rect;
+      if(((Dialog*)CurFrame)->SendDlgMessage((HANDLE)CurFrame,DM_GETDLGRECT,0,(long)&Rect))
+      {
+        switch(TypeInf)
+        {
+          case 0: Ret=(long)DlgItemCount; break;
+          case 2: Ret=(long)Rect.Left; break;
+          case 3: Ret=(long)Rect.Top; break;
+          case 4: Ret=(long)Rect.Right; break;
+          case 5: Ret=(long)Rect.Bottom; break;
+          case 6: Ret=(long)((Dialog*)CurFrame)->GetDlgFocusPos()+1; break;
+        }
+      }
+    }
+    else if((DWORD)Index < DlgItemCount && DlgItem)
+    {
+      const struct DialogItem *Item=DlgItem+Index;
+      int ItemType=Item->Type;
+      DWORD ItemFlags=Item->Flags;
+
+      if(TypeInf == 0)
+      {
+        if(ItemType == DI_CHECKBOX || ItemType == DI_RADIOBUTTON)
+          TypeInf=7;
+        else if(ItemType == DI_COMBOBOX || ItemType == DI_LISTBOX)
+        {
+          struct FarListGetItem ListItem;
+          ListItem.ItemIndex=Item->ListPtr->GetSelectPos();
+          if(((Dialog*)CurFrame)->SendDlgMessage((HANDLE)CurFrame,DM_LISTGETITEM,0,(long)&ListItem))
+          {
+            Ret=(char *)ListItem.Item.Text;
+          }
+          else
+            Ret="";
+          TypeInf=-1;
+        }
+        else
+          TypeInf=10;
+      }
+
+      switch(TypeInf)
+      {
+        case 1: Ret=(long)ItemType;    break;
+        case 2: Ret=(long)Item->X1;    break;
+        case 3: Ret=(long)Item->Y1;    break;
+        case 4: Ret=(long)Item->X2;    break;
+        case 5: Ret=(long)Item->Y2;    break;
+        case 6: Ret=(long)Item->Focus; break;
+        case 7:
+        {
+          if(ItemType == DI_CHECKBOX || ItemType == DI_RADIOBUTTON)
+            Ret=(long)Item->Selected;
+          else if(ItemType == DI_COMBOBOX || ItemType == DI_LISTBOX)
+          {
+            Ret=(long)Item->ListPtr->GetSelectPos()+1;
+          }
+          else
+          {
+            Ret=0L;
+/*
+    int Item->Selected;
+    const char *Item->History;
+    const char *Item->Mask;
+    struct FarList *Item->ListItems;
+    int  Item->ListPos;
+    CHAR_INFO *Item->VBuf;
+*/
+          }
+          break;
+        }
+        case 8: Ret=(long)ItemFlags; break;
+        case 9: Ret=(long)Item->DefaultButton; break;
+        case 10:
+        {
+          if((ItemType == DI_COMBOBOX || ItemType == DI_EDIT) && (ItemFlags|DIF_VAREDIT))
+          {
+/*
+      DWORD Item->Ptr.PtrFlags;
+      int   Item->Ptr.PtrLength;
+      char *Item->Ptr.PtrData;
+      char  Item->Ptr.PtrTail[1];
+*/
+            Ret=(char *)Item->Ptr.PtrData;
+          }
+          else
+            Ret=(char *)Item->Data;
+          break;
+        }
+      }
+    }
+  }
+
+  return TVar(Ret);
+}
 
 // OldVar=Editor.Set(Idx,Var)
 static TVar editorsetFunc(TVar *param)
@@ -2298,6 +2410,10 @@ done:
             break;
           case MCODE_F_MSAVE:
             eStack[ePos] = msaveFunc(eStack+ePos);
+            break;
+          case MCODE_F_DLG_GETVALUE:        // V=Dlg.GetValue(ID,N)
+            ePos--;
+            eStack[ePos] = dlggetvalueFunc(eStack+ePos);
             break;
           case MCODE_F_EDITOR_SET: // N=Editor.Set(N,Var)
             ePos--;

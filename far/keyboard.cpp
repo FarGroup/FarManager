@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.118 13.09.2005 $ */
+/* Revision: 1.119 10.10.2005 $ */
 
 /*
 Modify:
+  10.10.2005 SVS
+    - Неправльно кубики сложил - Modif в CalcKeyCode() не там стояло и вычислялось по предыдущим значениям.
   13.09.2005 SVS
     + модификаторы для Spec-клавиш
   09.09.2005 SVS
@@ -2270,6 +2272,19 @@ _SVS(SysLog("CalcKeyCode -> %s| RealKey=%d  *NotMacros=%d",_INPUT_RECORD_Dump(re
     *NotMacros=CtrlState&0x80000000?TRUE:FALSE;
 //  CtrlState&=~0x80000000;
 
+  if (!(rec->EventType==KEY_EVENT || rec->EventType == FARMACRO_KEY_EVENT))
+    return(KEY_NONE);
+
+  if (!RealKey)
+  {
+    CtrlPressed=(CtrlState & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED));
+    AltPressed=(CtrlState & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED));
+    ShiftPressed=(CtrlState & SHIFT_PRESSED);
+    RightCtrlPressed=(CtrlState & RIGHT_CTRL_PRESSED);
+    RightAltPressed=(CtrlState & RIGHT_ALT_PRESSED);
+    RightShiftPressed=(CtrlState & SHIFT_PRESSED);
+  }
+
   DWORD Modif=(CtrlPressed?KEY_CTRL:0)|(AltPressed?KEY_ALT:0)|(ShiftPressed?KEY_SHIFT:0);
 
   if(rec->Event.KeyEvent.wVirtualKeyCode >= 0xFF && RealKey)
@@ -2286,19 +2301,6 @@ _SVS(SysLog("CalcKeyCode -> %s| RealKey=%d  *NotMacros=%d",_INPUT_RECORD_Dump(re
       return Modif|(KEY_VK_0xFF_BEGIN+ScanCode);
     return KEY_IDLE;
   }
-
-  if (!RealKey)
-  {
-    CtrlPressed=(CtrlState & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED));
-    AltPressed=(CtrlState & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED));
-    ShiftPressed=(CtrlState & SHIFT_PRESSED);
-    RightCtrlPressed=(CtrlState & RIGHT_CTRL_PRESSED);
-    RightAltPressed=(CtrlState & RIGHT_ALT_PRESSED);
-    RightShiftPressed=(CtrlState & SHIFT_PRESSED);
-  }
-
-  if (!(rec->EventType==KEY_EVENT || rec->EventType == FARMACRO_KEY_EVENT))
-    return(KEY_NONE);
 
   if (!rec->Event.KeyEvent.bKeyDown)
   {

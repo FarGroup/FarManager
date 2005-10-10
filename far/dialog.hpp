@@ -10,10 +10,15 @@ dialog.hpp
 
 */
 
-/* Revision: 1.81 25.04.2005 $ */
+/* Revision: 1.82 07.10.2005 $ */
 
 /*
 Modify:
+  07.10.2005 SVS
+    + Для MACRO (для "короткого" доступа к элементам класса):
+        GetAllItem()
+        GetAllItemCount()
+        GetDlgFocusPos()
   24.04.2005 AY
     ! GCC
   22.03.2005 SVS
@@ -681,6 +686,12 @@ class Dialog: public Frame
     int FastHide();
     void ResizeConsole();
 //    void OnDestroy();
+
+    // For MACRO
+    const struct DialogItem *GetAllItem(){return Item;};
+    int GetAllItemCount(){return ItemCount;};              // количество элементов диалога
+    int GetDlgFocusPos(){return FocusPos;};
+
 
     int SetAutomation(WORD IDParent,WORD id,
                         DWORD UncheckedSet,DWORD UncheckedSkip,
