@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.151 07.10.2005 $ */
+/* Revision: 1.152 11.10.2005 $ */
 
 /*
 Modify:
+  11.10.2005 SVS
+    - Траблы с Editor.FileName
   07.10.2005 SVS
     ! Editor.CurStr -> Editor.Value. так точнее будет
     + Dlg.GetValue()
@@ -1475,12 +1477,12 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
               CtrlObject->Plugins.CurEditor->GetTypeAndName(NULL,FileName);
               Cond=FileName;
             }
-            if(CheckCode == MCODE_V_EDITORVALUE)
+            else if(CheckCode == MCODE_V_EDITORVALUE)
             {
               struct EditorGetString egs;
               egs.StringNumber=-1;
               CtrlObject->Plugins.CurEditor->EditorControl(ECTL_GETSTRING,&egs);
-              Cond=egs.StringText;
+              Cond=(char *)egs.StringText;
             }
             else
               Cond=(long)CtrlObject->Plugins.CurEditor->ProcessKey(CheckCode);
