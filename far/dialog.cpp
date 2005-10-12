@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.340 28.09.2005 $ */
+/* Revision: 1.341 12.10.2005 $ */
 
 /*
 Modify:
+  12.10.2005 AY
+    - Клик мыши не работал на DI_TEXT с X2==0
   28.09.2005 SVS
     ! плевать на OLDSTYLE. Если флаг DIF_BTNNOCLOSE есть - не закрываем диалог по любому
   11.08.2005 WARP
@@ -2193,8 +2195,8 @@ BOOL Dialog::GetItemRect(int I,RECT& Rect)
 
       Rect.bottom=Rect.top;
 
-      if ( Rect.right == 0 )
-        Rect.right=Rect.left+Len;
+      if ( Rect.right == 0 || Rect.right == Rect.left)
+        Rect.right=Rect.left+Len-(Len==0?0:1);
 
       if (ItemFlags & (DIF_SEPARATOR|DIF_SEPARATOR2))
       {
