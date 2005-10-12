@@ -89,9 +89,55 @@
     and the current 'object' is a menu, otherwise returns 0.
     <p>For example there's a hotkey '7' assigned to 'S&amp;R' plugin in the plugins menu (F11).
     The following macro command sequence for the internal file editor should call 'S&amp;R'
-    plugin if there is a hot key assigned and the standard search dialog if not:<br>
-    <code>F11 $if (checkhotkey(&quot;7&quot;)) 7 1 $else Esc AltF7 $end</code>
+    plugin if there is a hot key assigned and the standard search dialog if not:
+    <pre class=code>F11 $if (checkhotkey(&quot;7&quot;)) 7 1 $else Esc AltF7 $end</pre>
   </tr>
+
+  <tr class="cont">
+    <td class="cont" width="40%">V=<dfn><a name="Dlg.GetValue">Dlg.GetValue</a></dfn>(ID,Type)</td>
+    <td class="cont" width="60%">Получить различные значения текущего диалога.<br>
+      <em>ID</em> - номер элемента диалога (элементы нумеруются с 1; 0 - само диалоговое окно).<br>
+      <em>Type</em> - тип получаемой информации, зависит от типа элемента. Для самого диалога (ID=0) допустимы следующие значения:
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="10%">Type</th><th class="cont" width="10%">Тип Var</th><th class="cont" width="80%">Описание</th></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Количество элементов диалога</td></tr>
+        <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">X1</td></tr>
+        <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Y1</td></tr>
+        <tr class="cont"><td class="cont" width="10%">4</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">X2</td></tr>
+        <tr class="cont"><td class="cont" width="10%">5</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Y2</td></tr>
+        <tr class="cont"><td class="cont" width="10%">6</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">ID текущего элемента, имеющего <a href="../../dialogapi/keybfocus.html">клавиатурный фокус ввода</a></td></tr>
+       </table>
+
+       Для элементов диалога допустимы:
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="10%">Type</th><th class="cont" width="10%">Тип Var</th><th class="cont" width="10%">Элемент</th><th class="cont" width="70%">Описание</th></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">CheckBox</td><td class="cont" width="70%">Состояние переключателя</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">RadioButtons</td><td class="cont" width="70%">Состояние переключателя</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">String</td><td class="cont" width="10%">ListBox</td><td class="cont" width="70%">Значение текущего элемента списка</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">String</td><td class="cont" width="10%">ComboBox</td><td class="cont" width="70%">Значение текущего элемента списка</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">String</td><td class="cont" width="10%">Остальные</td><td class="cont" width="70%">Текстовое значение (поле <a href="../../dialogapi/structures/fardialogitem.html">FarDialogItem.Data</a>)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Все</td><td class="cont" width="70%"><a href="../../dialogapi/controls/index.html">Тип элемента</a></td></tr>
+        <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Все</td><td class="cont" width="70%">X1 относительно диалога</td></tr>
+        <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Все</td><td class="cont" width="70%">Y1 относительно диалога</td></tr>
+        <tr class="cont"><td class="cont" width="10%">4</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Все</td><td class="cont" width="70%">X2 относительно диалога</td></tr>
+        <tr class="cont"><td class="cont" width="10%">5</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Все</td><td class="cont" width="70%">Y2 относительно диалога</td></tr>
+        <tr class="cont"><td class="cont" width="10%">6</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Все</td><td class="cont" width="70%">элемент в фокусе?</td></tr>
+
+        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">CheckBox</td><td class="cont" width="70%">Состояние переключателя</td></tr>
+        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">RadioButtons</td><td class="cont" width="70%">Состояние переключателя</td></tr>
+        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">String</td><td class="cont" width="10%">ListBox</td><td class="cont" width="70%">Текущая позиция в списке (первый пункт списка = 1)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">String</td><td class="cont" width="10%">ComboBox</td><td class="cont" width="70%">Текущая позиция в списке (первый пункт списка = 1)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Остальные</td><td class="cont" width="70%">0</td></tr>
+
+        <tr class="cont"><td class="cont" width="10%">8</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Все</td><td class="cont" width="70%"><a href="../../dialogapi/flags/index.html">Флаги элемента</a></td></tr>
+        <tr class="cont"><td class="cont" width="10%">9</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Все</td><td class="cont" width="70%">Флаг, означающий, что данный элемент диалога является "элементом по умолчанию".</td></tr>
+
+        <tr class="cont"><td class="cont" width="10%">10</td><td class="cont" width="10%">String</td><td class="cont" width="10%">Остальные</td><td class="cont" width="70%">Текстовое значение (поле <a href="../../dialogapi/structures/fardialogitem.html">FarDialogItem.Data</a>)</td></tr>
+       </table>
+       Возвращает -1, если <em>ID</em> больше количества элементов диалога или значение <em>Type</em> не поддерживается.<br>
+    </td>
+  </tr>
+
   <tr class="cont">
     <td class="cont" width="40%">V=<dfn><a name="Editor.Set">Editor.Set</a></dfn>(Idx,Var)</td>
     <td class="cont" width="60%">Change settings of the current editor instance.
@@ -123,7 +169,7 @@
   <tr class="cont">
     <td class="cont" width="40%">S=<dfn><a name="env">env</a></dfn>(V)</td>
     <td class="cont" width="60%">Returns the value of an environment variable V, for instance:<br>
-    <code>$if (Env(&quot;FARLANG&quot;) == &quot;English&quot;) <em>...do something...</em> $end</code></td>
+    <pre class=code>$if (Env(&quot;FARLANG&quot;) == &quot;English&quot;) <em>...do something...</em> $end</pre></td>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">S=<dfn><a name="fsplit">fsplit</a></dfn>(path,N)</td>

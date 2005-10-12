@@ -22,12 +22,10 @@
   a macro in a usual way. Macro-language elements can be added to the sequence only by editing
   the registry manually or by using special applications or FAR plugins.</li>
 </ul>
+
 <table class="cont">
-  <tr class="cont">
-    <th class="cont" width="20%">Operator</th>
-    <th class="cont" width="20%">Type</th>
-    <th class="cont" width="60%">Description</th>
-  </tr>
+  <tr class="cont"><th class="cont" colspan=3>Panels</th></tr>
+  <tr class="cont"><th class="cont" width="20%">Operator</th><th class="cont" width="20%">Type</th><th class="cont" width="60%">Description</th></tr>
   <tr class="cont">
     <td class="cont" width="20%"><a name="APanel.ItemCount">APanel.ItemCount</a><br>
     <a name="PPanel.ItemCount">PPanel.ItemCount</a></td>
@@ -151,8 +149,8 @@
     <a name="PPanel.OPIFlags">PPanel.OPIFlags</a></td>
     <td class="cont" width="20%">Number</td>
     <td class="cont" width="60%">plugin panel flags, can be a combination of the following values (if the panel is not a plugin panel then this value is 0):
-<table class="cont">
-<tr class="cont"><th class="cont" width="10%">Value</th><th class="cont" width="90%">Description</th></tr>
+      <table class="cont">
+        <tr class="cont"><th class="cont" width="10%">Value</th><th class="cont" width="90%">Description</th></tr>
 
         <tr class="cont"><td class="cont" width="10%">0x00000001</td>
         <td class="cont" width="90%">there's a filter applied to the panel</td></tr>
@@ -178,10 +176,11 @@
         <tr class="cont"><td class="cont" width="10%">0x00000100</td>
         <td class="cont" width="90%">the original case is used to display the file names (despite of FAR Manager settings)</td></tr>
 
-</table>
+      </table>
     </td>
   </tr>
 
+  <tr class="cont"><th class="cont" colspan=3>Dialogs</th></tr>
   <tr class="cont">
     <td class="cont" width="20%"><a name="ItemCount">ItemCount</a></td>
     <td class="cont" width="20%">Number</td>
@@ -262,6 +261,8 @@
       </table>
     </td>
   </tr>
+
+  <tr class="cont"><th class="cont" colspan=3>Command Line</th></tr>
   <tr class="cont">
     <td class="cont" width="20%"><a name="CmdLine.ItemCount">CmdLine.ItemCount</a></td>
     <td class="cont" width="20%">Number</td>
@@ -277,6 +278,8 @@
     <td class="cont" width="20%">String</td>
     <td class="cont" width="60%">command line content</td>
   </tr>
+
+  <tr class="cont"><th class="cont" colspan=3>Editor</th></tr>
   <tr class="cont">
     <td class="cont" width="20%"><a name="Editor.FileName">Editor.FileName</a></td>
     <td class="cont" width="20%">String</td>
@@ -285,12 +288,22 @@
   <tr class="cont">
     <td class="cont" width="20%"><a name="Editor.CurLine">Editor.CurLine</a></td>
     <td class="cont" width="20%">Number</td>
-    <td class="cont" width="60%">current line in the editor</td>
+    <td class="cont" width="60%">current line in the editor (first line is 1)</td>
   </tr>
   <tr class="cont">
     <td class="cont" width="20%"><a name="Editor.CurPos">Editor.CurPos</a></td>
     <td class="cont" width="20%">Number</td>
-    <td class="cont" width="60%">current cursor position on the current line in the editor</td>
+    <td class="cont" width="60%">current cursor position on the current line in the editor (first column is 1)</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="Editor.Value">Editor.Value</a></td>
+    <td class="cont" width="20%">Value</td>
+    <td class="cont" width="60%">contents of the current line in the editor (under the cursor).<br>
+      For example, to show the character under the cursor:
+      <pre class="code">
+MsgBox(substr(Editor.Value,Editor.CurPos-1,1),Editor.FileName,0)
+</pre>
+    </td>
   </tr>
   <tr class="cont">
     <td class="cont" width="20%"><a name="Editor.Lines">Editor.Lines</a></td>
@@ -355,6 +368,9 @@
       <pre class="code">$If (Editor.State &amp; 0x8) <em>...do something if file was modified...</em> $End
 </pre>
     </td>
+  </tr>
+
+  <tr class="cont"><th class="cont" colspan=3>Viewer</th></tr>
   <tr class="cont">
     <td class="cont" width="20%"><a name="Viewer.FileName">Viewer.FileName</a></td>
     <td class="cont" width="20%">String</td>
@@ -399,12 +415,24 @@
 </pre>
     </td>
   </tr>
+
+  <tr class="cont"><th class="cont" colspan=3>Other</th></tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="ItemCount">ItemCount</a></td>
+    <td class="cont" width="20%">Number</td>
+    <td class="cont" width="60%">number of elements in the current object; delimiters are also
+      counted in the menu</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="CurPos">CurPos</a></td>
+    <td class="cont" width="20%">Number</td>
+    <td class="cont" width="60%">position in the current object</td>
+  </tr>
   <tr class="cont">
     <td class="cont" width="20%"><a name="Far.Width">Far.Width</a></td>
     <td class="cont" width="20%">Number</td>
     <td class="cont" width="60%">FAR Manager console width</td>
   </tr>
-
 </table>
 
 </body>
