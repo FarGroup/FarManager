@@ -1,19 +1,29 @@
-
 print " -- preparing inet project --\n";
 
 mkdir "../inet/", 0;
-system "cp -R -f ../meta/* ../inet";
 
-system "cp -f ./inet/index.html ../inet/index.html";
-system "cp -f ./inet/index_e.html ../inet/index_e.html";
-system "cp -f ./inet/notfound.html ../inet/notfound.html";
+print " -- preparing RU --\n";
+system "svn export ../enc_rus ../inet/meta.ru";
+mkdir "../inet/ru/", 0;
+system "cp -R -f ../inet/meta.ru/meta/* ../inet/ru";
 
-print " -- deleting win-charset tags --\n";
+system "rm -f -r ../inet/meta.ru";
 
 $lev = -1;
-fix("../inet");
+fix("../inet/ru");
 
-print " -- now convert manually all files in ../inet/ to koi8 \n";
+
+print " -- preparing EN --\n";
+system "svn export ../enc_eng ../inet/meta.en";
+mkdir "../inet/en/", 0;
+system "cp -R -f ../inet/meta.en/meta/* ../inet/en";
+
+system "rm -f -r ../inet/meta.en";
+
+$lev = -1;
+fix("../inet/en");
+
+#print " -- now convert manually all files in ../inet/ to koi8 \n";
 
 
 sub fix
@@ -24,7 +34,7 @@ sub fix
  local($dr)=$dr1."/";
  printf "$dr\n";
 
- foreach(`ls --ignore=CVS -1 $dr1`){
+ foreach(`ls -1 $dr1`){
    chomp;
    if (-d $dr.$_) {
      fix("$dr$_");
