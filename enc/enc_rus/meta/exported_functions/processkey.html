@@ -68,8 +68,15 @@ int WINAPI ProcessKey(
 <h3>Замечания</h3>
 <div class=descr>
 Из-за особенностей реализации ядра FAR в эту функции
-приходят не все клавиши, нажимаемые пользователем.
+приходят не все клавиши, нажимаемые пользователем
 (верно для FAR до версии 1.70 beta 5 включительно).
+Не доходят следующие клавиши:
+<kbd>Tab</kbd>, <kbd>Ctrl-F1</kbd>, <kbd>Ctrl-F2</kbd>, <kbd>Ctrl-B</kbd>, <kbd>Cltr-L</kbd>, <kbd>Ctrl-Q</kbd>,
+<kbd>Ctrl-T</kbd>, <kbd>Ctrl-O</kbd>, <kbd>Ctrl-P</kbd>, <kbd>Ctrl-I</kbd>, <kbd>Ctrl-U</kbd>,
+<kbd>Alt-F1</kbd>, <kbd>Alt-F2</kbd>, <kbd>Alt-F7</kbd>, <kbd>Ctrl-Down</kbd>, <kbd>Ctrl-Up</kbd>, <kbd>Ctrl-Left</kbd>,
+<kbd>Ctrl-Right</kbd>, <kbd>Ctrl-Num5</kbd>, <kbd>F9</kbd>, <kbd>Shift-F10</kbd>, <kbd>Ctrl-0..9</kbd>,
+<kbd>Alt-Ins</kbd>, <kbd>Ctrl-W</kbd>, <kbd>F11</kbd>, <kbd>Alt-F9</kbd>, <kbd>F12</kbd>, <kbd>Ctrl-Tab</kbd> и
+<kbd>Ctrl-Shift-Tab</kbd>
 </div>
 
 </body>
