@@ -540,6 +540,9 @@ Addons
     Settings for TechInfo#53/54 to enable extended functionality of the
     FAR executor (correspondingly for 4NT.EXE, CMD.EXE and COMMAND.COM)
 
+[+] Addons\Macros\Notepad.reg
+    Клавиатурные сочетания редактора в стиле Notepad
+
 
 Plugins
 ~~~~~~~
