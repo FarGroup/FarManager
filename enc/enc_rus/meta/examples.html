@@ -30,7 +30,8 @@
 
   <div class=dfn>Auto wrap</div>
   <div class=dfndescr>Auto wrap в редакторе - пример установки "хука" для
-  внутреннего редактора FAR Manager. Во включенном состоянии плагин
+  внутреннего редактора FAR Manager.<br>
+  Во включенном состоянии плагин
   пропускает через себя все события от клавиатуры и мыши.
   Используется функция <a href="exported_functions/processeditorinput.html">ProcessEditorInput</a>:
 <pre class=code>int WINAPI _export ProcessEditorInput(const INPUT_RECORD *Rec)
@@ -42,6 +43,7 @@
 
   <div class=dfn>Brackets</div>
   <div class=dfndescr>Поиск и выделение парных скобок в редакторе.<br>
+  Плагин из разряда "Вызвали, отработал, завершился".<br>
   Поиск ведется с помощью <a href="service_functions/editorcontrol.html#ECTL_GETSTRING">ECTL_GETSTRING</a>,
   установка курсора на найденную парную скобку - <a href="service_functions/editorcontrol.html#ECTL_SETPOSITION">ECTL_SETPOSITION</a>,
   выделение блока - <a href="service_functions/editorcontrol.html#ECTL_SELECT">ECTL_SELECT</a>.
@@ -49,7 +51,7 @@
 
   <div class=dfn>DrawLine</div>
   <div class=dfndescr>Рисование линий.<br>
-  Вариант "хука" из разряда "Вызвали, работает, пользователь сам останавливает работу плагина".
+  Вариант "хука" из разряда "Вызвали, работает, пользователь сам останавливает работу плагина".<br>
   Используется "бесконечный цикл" с вызовом команд
   <a href="service_functions/editorcontrol.html#ECTL_READINPUT">ECTL_READINPUT</a> и
   <a href="service_functions/editorcontrol.html#ECTL_PROCESSINPUT">ECTL_PROCESSINPUT</a>:
@@ -69,6 +71,7 @@
 
   <div class=dfn>EditCase</div>
   <div class=dfndescr>Изменение начертания символов (верхний/нижний регистр).<br>
+  Плагин из разряда "Вызвали, отработал, завершился".<br>
   Строка берется с помощью команды <a href="service_functions/editorcontrol.html#ECTL_GETSTRING">ECTL_GETSTRING</a>,
   преобразуется и заменяется в редакторе с помощью
   команды <a href="service_functions/editorcontrol.html#ECTL_SETSTRING">ECTL_SETSTRING</a>.
