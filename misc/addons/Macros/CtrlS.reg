@@ -4,4 +4,3 @@ REGEDIT4
 "Description"="Editor: Save File"
 "Sequence"="F2"
 "DisableOutput"=dword:00000001
-"Description"="Save File"
