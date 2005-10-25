@@ -24,14 +24,15 @@ Description of FAR plugins examples delivered with FAR Manager. Source files are
 
   <div class=dfn>Align</div>
   <div class=dfndescr>Performs block align in FAR editor.<br>
-  A simple plug-in related to "Activated - working - done" category.
+  A simple plug-in related to "Activated - working - done" category.<br>
   It gives an example of using <a href="service_functions/editorcontrol.html">EditorControl</a>
   service function.
   </div>
 
   <div class=dfn>Auto Wrap</div>
   <div class=dfndescr>Enables auto wrap in FAR editor.<br>
-  This is an example of "hooking" the input stream in FAR Manager internal editor. When enabled
+  This is an example of "hooking" the input stream in FAR Manager internal editor.<br>
+  When enabled
   plugin monitors all keyboard and mouse events using <a href="exported_functions/processeditorinput.html">ProcessEditorInput</a> function:
 <pre class=code>int WINAPI _export ProcessEditorInput(const INPUT_RECORD *Rec)
 {
@@ -41,6 +42,7 @@ Description of FAR plugins examples delivered with FAR Manager. Source files are
 
   <div class=dfn>Brackets</div>
   <div class=dfndescr>Searches and highlights the paired brackets in FAR editor.<br>
+  Плагин из разряда "Вызвали, отработал, завершился".<br>
   Plugin uses <a href="service_functions/editorcontrol.html#ECTL_GETSTRING">ECTL_GETSTRING</a> command to search brackets,
   <a href="service_functions/editorcontrol.html#ECTL_SETPOSITION">ECTL_SETPOSITION</a> command to place cursor on the paired bracket found and
   <a href="service_functions/editorcontrol.html#ECTL_SELECT">ECTL_SELECT</a> command to highlight block.
@@ -68,6 +70,7 @@ Description of FAR plugins examples delivered with FAR Manager. Source files are
 
   <div class=dfn>EditCase</div>
   <div class=dfndescr>Enables FAR editor to change the case of the selected block or a word under cursor.<br>
+  Плагин из разряда "Вызвали, отработал, завершился".<br>
   This plugin gets a string using
   <a href="service_functions/editorcontrol.html#ECTL_GETSTRING">ECTL_GETSTRING</a> command
   then transforms it and puts it back into the document being edited using
