@@ -37,4 +37,4 @@ View.Space.reg Use Space for listing in the viewer (like in Outlook Express or T
 CtrlQ.reg Toggle quick view panel
 CtrlShiftBackSlash.reg Activate the same folder in the passive panel as in the active panel
 CtrlIns...reg If CtrlIns was pressed while on .. and command line is not empty then copy to clipboard the path of the current folder
-Notepad.reg Editor: Save File
+Notepad.reg Editor: like Notepad
