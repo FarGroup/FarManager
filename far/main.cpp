@@ -5,10 +5,12 @@ main.cpp
 
 */
 
-/* Revision: 1.82 14.07.2005 $ */
+/* Revision: 1.83 25.10.2005 $ */
 
 /*
 Modify:
+  25.10.2005 SVS
+    ! проверку регистрации перенесем после разбора комстроки и некоторых инициализаций, иначе получим Mantis#31
   14.07.2005 SVS
     + добавлен класс TConsoleRestore, восстанавливающий консоль после завершени€ работы ‘ј–
   04.07.2005 WARP
@@ -549,18 +551,6 @@ int _cdecl main(int Argc, char *Argv[])
   sprintf(buf,"%f",x);
 #endif
 
-#ifdef _DEBUGEXC
-  if(CheckRegistration)
-  {
-#endif
-    RegVer=-1;
-    QueryRegistration ();
-#ifdef _DEBUGEXC
-  }
-  else
-    RegVer = 1;
-#endif
-
   // если под дебагером, то отключаем исключени€ однозначно,
   //  иначе - смотр€ что указал юзвер.
 #if defined(_DEBUGEXC)
@@ -585,6 +575,7 @@ int _cdecl main(int Argc, char *Argv[])
   GetEncryptFunctions();
   /* SVS $ */
 
+  SetRegRootKey(HKEY_CURRENT_USER);
   strcpy(Opt.RegRoot,"Software\\Far");
   /* $ 03.08.2000 SVS
      ѕо умолчанию - брать плагины из основного каталога
@@ -837,6 +828,7 @@ int _cdecl main(int Argc, char *Argv[])
 //  if(Opt.LoadPlug.MainPluginDir)
 //    sprintf(Opt.LoadPlug.CustomPluginsPath,"%s%s",FarPath,PluginsFolderName);
   /* SVS $*/
+
   InitDetectWindowedMode();
   InitConsole();
   GetRegKey("Language","Main",Opt.Language,"English",sizeof(Opt.Language));
@@ -869,6 +861,18 @@ int _cdecl main(int Argc, char *Argv[])
 
   initMacroVarTable(0);
   initMacroVarTable(1);
+
+#ifdef _DEBUGEXC
+  if(CheckRegistration)
+  {
+#endif
+    RegVer=-1;
+    QueryRegistration ();
+#ifdef _DEBUGEXC
+  }
+  else
+    RegVer = 1;
+#endif
 
   int Result=0;
   if(Opt.ExceptRules)

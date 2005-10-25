@@ -5,10 +5,12 @@ checkver.cpp
 
 */
 
-/* Revision: 1.15 10.11.2004 $ */
+/* Revision: 1.16 24.10.2005 $ */
 
 /*
 Modify:
+  24.10.2005 SVS
+    ! дл€ нерегистринной версии выставим так же табы дл€ вьювера.
   10.11.2004 SVS
     - некомпил€ци€ checkver.cpp под бормандом.
   09.11.2004 SVS
@@ -122,7 +124,7 @@ void __cdecl CheckVersion(void *Param)
 
   if (!RegVer)
   {
-    Opt.EdOpt.TabSize=8;
+    Opt.ViOpt.TabSize=Opt.EdOpt.TabSize=8;
     Opt.ViewerEditorClock=0;
   }
   if(!RegistrationBugs)
@@ -215,6 +217,7 @@ void __cdecl CheckReg(void *Param)
   char RegName[256],RegCode[256],RegData[256];
   DWORD Size=sizeof(RegData);
 
+  SetRegRootKey(HKEY_CURRENT_USER);
   // в первую очередь читаем из HKCU
   if(!CheckRegKey(KeyRegistration))
   {

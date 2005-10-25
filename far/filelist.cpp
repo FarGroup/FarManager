@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.238 29.09.2005 $ */
+/* Revision: 1.239 23.10.2005 $ */
 
 /*
 Modify:
+  23.10.2005 SVS
+    ! посылка клавиши плагину вынесена в отдельную функцию SendKeyToPlugin() - ”“ќ„Ќ»“№! (нужн ли вызов и здесь!!!)
   29.09.2005 SVS
     ! если выставлен Opt.FolderDeepScan и
       GetFileAttributes вернул ошибку по длинному имени... работаем с коротким (дл€ каталогов)
@@ -1088,6 +1090,23 @@ void FileList::SetFocus()
   /* KM $ */
 }
 
+int FileList::SendKeyToPlugin(DWORD Key)
+{
+  if (PanelMode==PLUGIN_PANEL &&
+      (CtrlObject->Macro.IsRecording() == MACROMODE_RECORDING_COMMON || CtrlObject->Macro.IsExecuting() == MACROMODE_EXECUTING_COMMON || CtrlObject->Macro.GetCurRecord(NULL,NULL) == MACROMODE_NOMACRO)
+     )
+  {
+    int VirtKey,ControlState;
+    if (TranslateKeyToVK(Key,VirtKey,ControlState))
+    {
+      int ProcessCode=CtrlObject->Plugins.ProcessKey(hPlugin,VirtKey,ControlState);
+      ProcessPluginCommand();
+      if (ProcessCode)
+        return(TRUE);
+    }
+  }
+  return FALSE;
+}
 
 int FileList::ProcessKey(int Key)
 {
@@ -1130,18 +1149,10 @@ int FileList::ProcessKey(int Key)
 
   if (IsVisible())
   {
-    if (PanelMode==PLUGIN_PANEL && !InternalProcessKey)
+    if(!InternalProcessKey)
       if ((Key!=KEY_ENTER && Key!=KEY_SHIFTENTER) || CmdLength==0)
-      {
-        int VirtKey,ControlState;
-        if (TranslateKeyToVK(Key,VirtKey,ControlState))
-        {
-          int ProcessCode=CtrlObject->Plugins.ProcessKey(hPlugin,VirtKey,ControlState);
-          ProcessPluginCommand();
-          if (ProcessCode)
-            return(TRUE);
-        }
-      }
+        if(SendKeyToPlugin(Key))
+          return TRUE;
   }
   else
   {

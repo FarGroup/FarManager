@@ -7,10 +7,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.33 25.07.2005 $ */
+/* Revision: 1.34 23.10.2005 $ */
 
 /*
 Modify:
+  23.10.2005 SVS
+    + virtual SendKeyToPlugin()
   24.07.2005 WARP
     ! see 02033.LockUnlock.txt
   06.05.2005 SVS
@@ -185,6 +187,7 @@ class Panel:public ScreenObject
     virtual ~Panel();
 
   public:
+    virtual int SendKeyToPlugin(DWORD Key){return FALSE;};
     virtual void SetCurDir(char *NewDir,int ClosePlugin);
     virtual void ChangeDirToCurrent();
     virtual int GetCurDir(char *CurDir);

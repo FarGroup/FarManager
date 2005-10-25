@@ -5,10 +5,13 @@ manager.cpp
 
 */
 
-/* Revision: 1.94 25.07.2005 $ */
+/* Revision: 1.95 25.10.2005 $ */
 
 /*
 Modify:
+  25.10.2005 SVS
+    ! Часть I. Разрешим плагинам "ВСЕ" кеи (кроме макрокодов) - для ProcessKey()
+    ! параметр у ProcessKey не int, а DWORD
   24.07.2005 WARP
     ! see 02033.LockUnlock.txt
   24.04.2005 AY
@@ -867,7 +870,7 @@ static void Test_EXCEPTION_STACK_OVERFLOW(char* target)
 #endif
 
 
-int  Manager::ProcessKey(int Key)
+int  Manager::ProcessKey(DWORD Key)
 {
   int ret=FALSE;
   _OT(char kn[32]);
@@ -878,9 +881,35 @@ int  Manager::ProcessKey(int Key)
   {
     //      _D(SysLog("Manager::ProcessKey(), to CurrentFrame 0x%p, '%s'",CurrentFrame, CurrentFrame->GetTypeName()));
     int i=0;
-
+    if((Key&(~KEY_CTRLMASK)) < KEY_MACRO_BASE) // пропустим макро-коды
+    {
+      switch(CurrentFrame->GetType())
+      {
+        case MODALTYPE_PANELS:
+          if(CtrlObject->Cp()->ActivePanel->SendKeyToPlugin(Key))
+            return TRUE;
+          break;
+        case MODALTYPE_VIEWER:
+          //if(((FileViewer*)CurrentFrame)->ProcessViewerInput(FrameManager->GetLastInputRecord()))
+          //  return TRUE;
+          break;
+        case MODALTYPE_EDITOR:
+          //if(((FileEditor*)CurrentFrame)->ProcessEditorInput(FrameManager->GetLastInputRecord()))
+          //  return TRUE;
+          break;
+        case MODALTYPE_DIALOG:
+          //((Dialog*)CurrentFrame)->CallDlgProc(DN_KEY,((Dialog*)CurrentFrame)->GetDlgFocusPos(),Key);
+          break;
+        case MODALTYPE_VMENU:
+        case MODALTYPE_HELP:
+        case MODALTYPE_COMBOBOX:
+        case MODALTYPE_USER:
+        default:
+          break;
+      }
+    }
 #if defined(FAR_ALPHA_VERSION)
-// сей код для проверки исключатор, просьба не трогать :-)
+// сей код для проверки исключатора, просьба не трогать :-)
     if(Key == (KEY_APPS|KEY_CTRL|KEY_ALT) && GetRegKey("System\\Exception","Used",0))
     {
       struct __ECODE {

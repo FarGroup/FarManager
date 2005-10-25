@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.49 22.07.2005 $ */
+/* Revision: 1.50 23.10.2005 $ */
 
 /*
 Modify:
+  23.10.2005 SVS
+    + virtual SendKeyToPlugin()
   22.07.2005 SVS
     + PluginsStackItem.PrevViewSettings
   23.04.2005 KM
@@ -348,6 +350,7 @@ class FileList:public Panel
     virtual void UpdateIfRequired();
     /* DJ $ */
 
+    virtual int SendKeyToPlugin(DWORD Key);
     void CreateChangeNotification(int CheckTree);
     void CloseChangeNotification();
     void SortFileList(int KeepPosition);

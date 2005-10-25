@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.196 05.10.2005 $ */
+/* Revision: 1.197 24.10.2005 $ */
 
 /*
 Modify:
+  24.10.2005 SVS
+    - «начение Tab все же отобразим, но дл€ неригистринной версии задисаблим
   05.10.2005 SVS
     ! ”бираем Opt.NetSupportEncryption. — учетом последних изменений в копире - не нужна
   04.10.2005 SVS
@@ -1220,14 +1222,12 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
 
   strcpy (CfgDlg[ID_VC_EXTERALCOMMANDEDIT].Data,Opt.ExternalViewer);
 
+  sprintf(CfgDlg[ID_VC_TABSIZEEDIT].Data,"%d",ViOpt.TabSize);
   if ( !RegVer )
   {
     CfgDlg[ID_VC_TABSIZEEDIT].Flags |= DIF_DISABLE;
     CfgDlg[ID_VC_TABSIZE].Flags |= DIF_DISABLE;
-    *CfgDlg[ID_VC_TABSIZEEDIT].Data = 0;
   }
-  else
-    sprintf(CfgDlg[ID_VC_TABSIZEEDIT].Data,"%d",ViOpt.TabSize);
 
   int DialogHeight = 21;
 
@@ -1399,14 +1399,12 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
   CfgDlg[ID_EC_ANSIASDEFAULT].Selected = EdOpt.AnsiTableAsDefault;
   CfgDlg[ID_EC_ANSIFORNEWFILE].Selected = EdOpt.AnsiTableForNewFile;
 
+  sprintf(CfgDlg[ID_EC_TABSIZEEDIT].Data,"%d",EdOpt.TabSize);
   if ( !RegVer )
   {
     CfgDlg[ID_EC_TABSIZEEDIT].Flags |= DIF_DISABLE;
     CfgDlg[ID_EC_TABSIZE].Flags |= DIF_DISABLE;
-    *CfgDlg[ID_EC_TABSIZEEDIT].Data = 0;
   }
-  else
-    sprintf(CfgDlg[ID_EC_TABSIZEEDIT].Data,"%d",EdOpt.TabSize);
 
   int DialogHeight=24;
 

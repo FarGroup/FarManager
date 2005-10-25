@@ -5,10 +5,13 @@ Quick view panel
 
 */
 
-/* Revision: 1.37 29.09.2005 $ */
+/* Revision: 1.38 23.10.2005 $ */
 
 /*
 Modify:
+  23.10.2005 SVS
+    - Ctrl+Q по каталогу не идёт вниз по символическим связям.
+      (Параметры -> Системные параметры -> Сканировать символические связи - установлен чекбокс)
   29.09.2005 SVS
     ! ScanTree должен уметь и короткие имена каталогов при рекурсивном спуске
       Для этого для GetDirInfo выставим флаг GETDIRINFO_USEDALTFOLDERNAME
@@ -457,7 +460,7 @@ void QuickView::ShowFile(char *FileName,int TempFile,HANDLE hDirPlugin)
     {
       int ExitCode=GetDirInfo(MSG(MQuickViewTitle),CurFileName,DirCount,
                    FileCount,FileSize,CompressedFileSize,RealFileSize,
-                   ClusterSize,500,GETDIRINFO_ENHBREAK|GETDIRINFO_USEDALTFOLDERNAME);
+                   ClusterSize,500,GETDIRINFO_ENHBREAK|GETDIRINFO_USEDALTFOLDERNAME|GETDIRINFO_SCANSYMLINKDEF);
       if (ExitCode==1)
         Directory=1;
       else

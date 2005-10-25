@@ -7,10 +7,12 @@ manager.hpp
 
 */
 
-/* Revision: 1.36 02.02.2005 $ */
+/* Revision: 1.37 25.10.2005 $ */
 
 /*
 Modify:
+  25.10.2005 SVS
+    ! параметр у ProcessKey не int, а DWORD
   02.02.2005 SVS
     ! ShowBackground() теперь возвращает TRUE/FALSE
   11.11.2004 SVS
@@ -245,7 +247,7 @@ class Manager
     void EnterMainLoop();
     void ProcessMainLoop();
     void ExitMainLoop(int Ask);
-    int ProcessKey(int key);
+    int ProcessKey(DWORD key);
     int ProcessMouse(MOUSE_EVENT_RECORD *me);
 
     void PluginsMenu(); // вызываем меню по F11
