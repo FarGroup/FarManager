@@ -5,10 +5,12 @@ Screen grabber
 
 */
 
-/* Revision: 1.25 25.07.2005 $ */
+/* Revision: 1.26 26.10.2005 $ */
 
 /*
 Modify:
+  26.10.2005 SVS
+    - Mantis#40 - Выделение по Alt-Ins
   24.07.2005 WARP
     ! see 02033.LockUnlock.txt
   05.04.2005 SVS
@@ -155,7 +157,7 @@ Grabber::~Grabber()
 
 void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
 {
-  if (GArea.X1==-1)
+  if (GArea.X1 < 0)
     return;
   int X1,Y1,X2,Y2;
   X1=Min(GArea.X1,GArea.X2);
@@ -297,6 +299,11 @@ void Grabber::DisplayObject()
 
       delete[] CharBuf;
     }
+    if (GArea.X1==-2)
+    {
+      SaveScr->RestoreArea(FALSE);
+      GArea.X1=GArea.X2;
+    }
     PrevArea=GArea;
   }
 }
@@ -332,7 +339,7 @@ int Grabber::ProcessKey(int Key)
   {
     case KEY_CTRLU:
       Reset();
-      GArea.X1=-1;
+      GArea.X1=-2;
       break;
     case KEY_ESC:
       SetExitCode(0);

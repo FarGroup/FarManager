@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.170 25.07.2005 $ */
+/* Revision: 1.171 27.10.2005 $ */
 
 /*
 Modify:
+  27.10.2005 SVS
+    - Mantis#46 - Редактор, ^O, unregistered user
   24.07.2005 WARP
     ! see 02033.LockUnlock.txt
   15.07.2005 AY
@@ -1221,9 +1223,11 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
           */
           FEdit->Hide();
           /* skv$*/
-          FrameManager->ShowBackground();
-          SetCursorType(FALSE,0);
-          WaitKey();
+          if(FrameManager->ShowBackground())
+          {
+            SetCursorType(FALSE,0);
+            WaitKey();
+          }
           Show();
         }
         return(TRUE);

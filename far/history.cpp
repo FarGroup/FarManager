@@ -5,10 +5,13 @@ history.cpp
 
 */
 
-/* Revision: 1.36 13.07.2005 $ */
+/* Revision: 1.37 26.10.2005 $ */
 
 /*
 Modify:
+  26.10.2005 SVS
+    - Mantis#35: ѕроблемы с History
+    ! “ак же, если очистили историю, то соответствующа€ ветка из реестра удал€етс€.
   13.07.2005 SVS
     - BugZ#1352 - FAR crashes with empty Folders history
   01.07.2005 SVS
@@ -379,8 +382,11 @@ BOOL History::SaveHistory()
       {
         for (I=0; I < HistoryCount; I++)
         {
-          strcpy(BufferTitles+SizeTitles,LastStr[I].Title);
-          SizeTitles+=strlen(LastStr[I].Title)+1;
+          if(LastStr[I].Name)
+          {
+            strcpy(BufferTitles+SizeTitles,LastStr[I].Title);
+            SizeTitles+=strlen(LastStr[I].Title)+1;
+          }
         }
         BufferTitles[SizeTitles++]=0;
       }
@@ -389,8 +395,11 @@ BOOL History::SaveHistory()
     if (SaveType)
     {
       memset(TypesBuffer,0,HistoryCount+1);
-      for (SizeTypes=0; SizeTypes < HistoryCount; SizeTypes++)
-        TypesBuffer[SizeTypes]=LastStr[SizeTypes].Type+'0';
+      for (I=0; I < HistoryCount; I++)
+      {
+        if(LastStr[I].Name)
+          TypesBuffer[SizeTypes++]=LastStr[I].Type+'0';
+      }
       TypesBuffer[SizeTypes++]=0;
     }
   }
@@ -398,19 +407,30 @@ BOOL History::SaveHistory()
 
 
   HKEY hKey;
-  if ((hKey=CreateRegKey(RegKey))!=NULL)
+  if ((hKey=CreateRegKey(RegKey))!=NULL && BufferLines && *BufferLines)
   {
     if(!BufferLines)
       SizeLines=1;
-    RegSetValueEx(hKey,"Lines",0,REG_BINARY,(unsigned char *)(BufferLines?BufferLines:""),SizeLines);
+    RegSetValueEx(hKey,"Lines",0,REG_BINARY,(unsigned char *)BufferLines,SizeLines);
 
-    if (SaveTitle && BufferTitles)
-      RegSetValueEx(hKey,"Titles",0,REG_BINARY,(unsigned char *)BufferTitles,SizeTitles);
+    if (SaveTitle)
+    {
+      if(BufferTitles && *BufferTitles)
+        RegSetValueEx(hKey,"Titles",0,REG_BINARY,(unsigned char *)BufferTitles,SizeTitles);
+      else
+        RegDeleteValue(hKey,"Titles");
+    }
 
     if (SaveType)
-      RegSetValueEx(hKey,"Types",0,REG_SZ,TypesBuffer,SizeTypes);
+    {
+      if(TypesBuffer && *TypesBuffer)
+        RegSetValueEx(hKey,"Types",0,REG_SZ,TypesBuffer,SizeTypes);
+      else
+        RegDeleteValue(hKey,"Types");
+    }
 
     RegSetValueEx(hKey,"Position",0,REG_DWORD,(BYTE *)&CurLastPtr,sizeof(CurLastPtr));
+
     RegCloseKey(hKey);
 
     if (SaveTitle && BufferTitles)
@@ -419,6 +439,8 @@ BOOL History::SaveHistory()
 
     return TRUE;
   }
+  else
+    DeleteRegKey(RegKey);
 
   if(BufferLines)
     xf_free(BufferLines);
@@ -657,6 +679,7 @@ int History::Select(const char *Title,const char *HelpTopic,char *Str,int StrLen
                 {
                   xf_free(LastStr[I].Name);
                   LastStr[I].Name=NULL;
+                  LastStr[I].Title[0]=0;
                   ModifiedHistory++;
                 }
               }
