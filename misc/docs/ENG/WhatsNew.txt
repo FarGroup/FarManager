@@ -9,7 +9,7 @@
 [*] Changes
 
 ---------------------------------------------------------------------------
-FAR 1.70 beta 6 (build 2051) (12.10.2005)
+FAR 1.70 beta 6 (build 2054) (03.11.2005)
 ---------------------------------------------------------------------------
 General
 ~~~~~~~
@@ -242,8 +242,9 @@ System
     позволяет восстановить значения заголовка и размеров консольного
     окна, выставленные до запуска FAR Manager.
 
-[+] Added an option to search in all folders specified in the %PATH%
-    environment variable (not including subfolders).
+[-] Параметры можно было сохранить с помощью Shift-F9, при выставленном
+    бите 17 в полиси (TechInfo#4)
+
 
 
 Find File
@@ -288,6 +289,9 @@ Find File
 
 [-] Fixed problems with drawing of the search result dialog on multiprocessor
     computers.
+
+[+] Added an option to search in all folders specified in the %PATH%
+    environment variable (not including subfolders).
 
 
 Copy/Move
@@ -359,6 +363,14 @@ File attributes
 [-] Error when changing the Encrypted attribute to Compressed for
     a read-only encrypted file.
 
+[+] В диалоге установки атрибутов добавлена возможность управления
+    атрибутом индексирования файла или папки соответствующим сервисом.
+    В 5-м режиме панели в колонке атрибутов символ 'I' означает, что
+    файл будет индексироваться.
+
+[+] Диалог установки атрибутов теперь вызывается на плагиновых панелях
+    в режиме ReadOnly.
+
 
 File associations
 ~~~~~~~~~~~~~~~~~
@@ -419,6 +431,8 @@ Editor
 
 [+] New rule - TechInfo#67, allows to change the behaviour of text scrolling
     when the end of the file is reached.
+
+[+] Спрятать/Показать линейку функциональных клавиш
 
 
 Viewer
