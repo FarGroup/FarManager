@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.171 27.10.2005 $ */
+/* Revision: 1.172 28.10.2005 $ */
 
 /*
 Modify:
+  28.10.2005 SVS
+    + Ctrl-B - показать/спрятать кейбар в редакторе
   27.10.2005 SVS
     - Mantis#46 - Редактор, ^O, unregistered user
   24.07.2005 WARP
@@ -661,7 +663,7 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
   SetTitle(Title);
   /* $ 07.05.2001 DJ */
   EditNamesList = NULL;
-  KeyBarVisible = TRUE;
+  KeyBarVisible = Opt.EdOpt.ShowKeyBar;
   /* DJ $ */
   /* $ 10.05.2001 DJ */
   Flags.Change(FFILEEDIT_DISABLEHISTORY,DisableHistory);
@@ -875,6 +877,9 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
   InitKeyBar();
   /* SVS $*/
 
+  if ( Opt.EdOpt.ShowKeyBar==0 )
+    EditKeyBar.Hide0();
+
   MacroMode=MACRO_EDITOR;
 /*& OT */
   if (EnableSwitch)
@@ -960,6 +965,7 @@ void FileEditor::InitKeyBar(void)
     EditKeyBar.Change(MSG(Opt.OnlyEditorViewerUsed?MSingleEditF8:MEditF8),7);
 
   EditKeyBar.Show();
+  FEdit->SetPosition(X1,Y1,X2,Y2-(Opt.EdOpt.ShowKeyBar?1:0));
   SetKeyBar(&EditKeyBar);
 }
 /* SVS $ */
@@ -977,10 +983,13 @@ void FileEditor::Show()
 {
   if (Flags.Check(FFILEEDIT_FULLSCREEN))
   {
-    EditKeyBar.SetPosition(0,ScrY,ScrX,ScrY);
-    EditKeyBar.Redraw();
-    ScreenObject::SetPosition(0,0,ScrX,ScrY-1);
-    FEdit->SetPosition(0,0,ScrX,ScrY-1);
+    if ( Opt.EdOpt.ShowKeyBar )
+    {
+       EditKeyBar.SetPosition(0,ScrY,ScrX,ScrY);
+       EditKeyBar.Redraw();
+    }
+    ScreenObject::SetPosition(0,0,ScrX,ScrY-(Opt.EdOpt.ShowKeyBar?1:0));
+    FEdit->SetPosition(0,0,ScrX,ScrY-(Opt.EdOpt.ShowKeyBar?1:0));
   }
   ScreenObject::Show();
 }
@@ -1428,6 +1437,20 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
       }
       /* SKV $*/
 
+      case KEY_CTRLB:
+      {
+        Opt.EdOpt.ShowKeyBar=!Opt.EdOpt.ShowKeyBar;
+        if ( Opt.EdOpt.ShowKeyBar )
+          EditKeyBar.Show();
+        else
+          EditKeyBar.Hide0(); // 0 mean - Don't purge saved screen
+        Show();
+        /* $ 07.05.2001 DJ */
+        KeyBarVisible = Opt.EdOpt.ShowKeyBar;
+        /* DJ $ */
+        return (TRUE);
+      }
+
       case KEY_SHIFTF10:
         if(!ProcessKey(KEY_F2)) // учтем факт того, что могли отказаться от сохранения
           return FALSE;
@@ -1503,6 +1526,8 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
         SetEditorOptions(EdOpt);
 
         /* IS $ */
+        if ( Opt.EdOpt.ShowKeyBar )
+          EditKeyBar.Show();
         FEdit->Show();
         return TRUE;
       }
@@ -1515,7 +1540,8 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
            Это помогло от залипания :-)
         */
         if (Flags.Check(FFILEEDIT_FULLSCREEN) && CtrlObject->Macro.IsExecuting() == MACROMODE_NOMACRO)
-          EditKeyBar.Show();
+          if ( Opt.EdOpt.ShowKeyBar )
+            EditKeyBar.Show();
         /* SVS $ */
         if (!EditKeyBar.ProcessKey(Key))
           return(FEdit->ProcessKey(Key));

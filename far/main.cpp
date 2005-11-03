@@ -5,10 +5,12 @@ main.cpp
 
 */
 
-/* Revision: 1.83 25.10.2005 $ */
+/* Revision: 1.84 02.11.2005 $ */
 
 /*
 Modify:
+  02.11.2005 SVS
+    + освободим память местного клипборда (на всякий случай)
   25.10.2005 SVS
     ! проверку регистрации перенесем после разбора комстроки и некоторых инициализаций, иначе получим Mantis#31
   14.07.2005 SVS
@@ -886,6 +888,9 @@ int _cdecl main(int Argc, char *Argv[])
   }
   else
     Result=MainProcess(EditName,ViewName,DestName[0],DestName[1],StartLine,StartChar,RegOpt);
+
+  UsedInternalClipboard=TRUE;
+  FAR_EmptyClipboard();
 
   doneMacroVarTable(1);
   doneMacroVarTable(0);

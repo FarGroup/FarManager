@@ -5,10 +5,14 @@ config.cpp
 
 */
 
-/* Revision: 1.197 24.10.2005 $ */
+/* Revision: 1.198 28.10.2005 $ */
 
 /*
 Modify:
+  28.10.2005 SVS
+    - Mantis#48 - Policies. Бит 17
+    ! Opt.ViOpt.ShowKeyBarViewer -> Opt.ViOpt.ShowKeyBar
+    + Opt.EdOpt.ShowKeyBar - Ctrl-B - показать/спрятать кейбар в редакторе
   24.10.2005 SVS
     - Значение Tab все же отобразим, но для неригистринной версии задисаблим
   05.10.2005 SVS
@@ -706,9 +710,9 @@ void SystemSettings()
   Opt.DeleteToRecycleBin=CfgDlg[2].Selected;
   Opt.CMOpt.UseSystemCopy=CfgDlg[3].Selected;
   Opt.CMOpt.CopyOpened=CfgDlg[4].Selected;
-  _SVS(SysLog("1. Cfg=Opt.ScanJunction=%d CfgDlg[5].Selected=%d",Opt.ScanJunction,CfgDlg[5].Selected));
+  //_SVS(SysLog("1. Cfg=Opt.ScanJunction=%d CfgDlg[5].Selected=%d",Opt.ScanJunction,CfgDlg[5].Selected));
   Opt.ScanJunction=CfgDlg[5].Selected;
-  _SVS(SysLog("2. Cfg=Opt.ScanJunction=%d CfgDlg[5].Selected=%d",Opt.ScanJunction,CfgDlg[5].Selected));
+  //_SVS(SysLog("2. Cfg=Opt.ScanJunction=%d CfgDlg[5].Selected=%d",Opt.ScanJunction,CfgDlg[5].Selected));
   Opt.CreateUppercaseFolders=CfgDlg[6].Selected;
   Opt.InactivityExit=CfgDlg[7].Selected;
   if ((Opt.InactivityExitTime=atoi(CfgDlg[8].Data))<=0)
@@ -1138,6 +1142,8 @@ void SetDizConfig()
   Opt.Diz.StartPos=atoi(DizDlg[6].Data);
 }
 
+void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
+{
 /* $ 18.07.2000 tran
    настройка двух новых параметров для вьювера */
 /*
@@ -1160,31 +1166,29 @@ void SetDizConfig()
  +-------------------------------------------+
 */
 
-enum enumViewerConfig {
-    ID_VC_TITLE,
-    ID_VC_EXTERNALCONFIGTITLE,
-    ID_VC_EXTERNALUSEF3,
-    ID_VC_EXTERNALUSEALTF3,
-    ID_VC_EXTENALCOMMAND,
-    ID_VC_EXTERALCOMMANDEDIT,
-    ID_VC_SEPARATOR1,
-    ID_VC_INTERNALCONFIGTITLE,
-    ID_VC_SAVEPOSITION,
-    ID_VC_SAVEBOOKMARKS,
-    ID_VC_AUTODETECTTABLE,
-    ID_VC_TABSIZEEDIT,
-    ID_VC_TABSIZE,
-    ID_VC_SHOWSCROLLBAR,
-    ID_VC_SHOWARROWS,
-    ID_VC_PERSISTENTSELECTION,
-    ID_VC_ANSIASDEFAULT,
-    ID_VC_SEPARATOR2,
-    ID_VC_OK,
-    ID_VC_CANCEL
-    };
+  enum enumViewerConfig {
+      ID_VC_TITLE,
+      ID_VC_EXTERNALCONFIGTITLE,
+      ID_VC_EXTERNALUSEF3,
+      ID_VC_EXTERNALUSEALTF3,
+      ID_VC_EXTENALCOMMAND,
+      ID_VC_EXTERALCOMMANDEDIT,
+      ID_VC_SEPARATOR1,
+      ID_VC_INTERNALCONFIGTITLE,
+      ID_VC_SAVEPOSITION,
+      ID_VC_SAVEBOOKMARKS,
+      ID_VC_AUTODETECTTABLE,
+      ID_VC_TABSIZEEDIT,
+      ID_VC_TABSIZE,
+      ID_VC_SHOWSCROLLBAR,
+      ID_VC_SHOWARROWS,
+      ID_VC_PERSISTENTSELECTION,
+      ID_VC_ANSIASDEFAULT,
+      ID_VC_SEPARATOR2,
+      ID_VC_OK,
+      ID_VC_CANCEL
+  };
 
-void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
-{
   static struct DialogData CfgDlgData[]={
   /*  0 */  DI_DOUBLEBOX , 3, 1,70,19,0,0,0,0,(char *)MViewConfigTitle,
   /*  1 */  DI_TEXT, 5, 2,68, 7,0,0,DIF_LEFTTEXT,0,(char *)MViewConfigExternal,
@@ -1287,7 +1291,10 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
     ViOpt.TabSize=8;
 }
 
-enum enumEditorConfig {
+
+void EditorConfig(struct EditorOptions &EdOpt,int Local)
+{
+  enum enumEditorConfig {
     ID_EC_TITLE,
     ID_EC_EXTERNALCONFIGTITLE,
     ID_EC_EXTERNALUSEF4,
@@ -1314,10 +1321,8 @@ enum enumEditorConfig {
     ID_EC_SEPARATOR2,
     ID_EC_OK,
     ID_EC_CANCEL
-    };
+  };
 
-void EditorConfig(struct EditorOptions &EdOpt,int Local)
-{
   static struct DialogData CfgDlgData[]={
   /*  0 */  DI_DOUBLEBOX,3,1,70,22,0,0,0,0,(char *)MEditConfigTitle,
   /*  1 */  DI_TEXT,5,2,0,0,0,0,DIF_LEFTTEXT,0,(char *)MEditConfigExternal,
@@ -1546,7 +1551,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyViewer,"SaveViewerShortPos",&Opt.ViOpt.SaveViewerShortPos,1, 0},
   {1, REG_DWORD,  NKeyViewer,"AutoDetectTable",&Opt.ViOpt.AutoDetectTable,0, 0},
   {1, REG_DWORD,  NKeyViewer,"TabSize",&Opt.ViOpt.TabSize,8, 0},
-  {1, REG_DWORD,  NKeyViewer,"ShowKeyBar",&Opt.ViOpt.ShowKeyBarViewer,1, 0},
+  {1, REG_DWORD,  NKeyViewer,"ShowKeyBar",&Opt.ViOpt.ShowKeyBar,1, 0},
   {1, REG_DWORD,  NKeyViewer,"ShowArrows",&Opt.ViOpt.ShowArrows,1, 0},
   {1, REG_DWORD,  NKeyViewer,"ShowScrollbar",&Opt.ViOpt.ShowScrollbar,0, 0},
   {1, REG_DWORD,  NKeyViewer,"IsWrap",&Opt.ViOpt.ViewerIsWrap,1, 0},
@@ -1586,6 +1591,7 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeyEditor,"AllowEmptySpaceAfterEof", &Opt.EdOpt.AllowEmptySpaceAfterEof,0,0},//skv
   {1, REG_DWORD,  NKeyEditor,"AnsiTableForNewFile",&Opt.EdOpt.AnsiTableForNewFile,1, 0},
   {1, REG_DWORD,  NKeyEditor,"AnsiTableAsDefault",&Opt.EdOpt.AnsiTableAsDefault,1, 0},
+  {1, REG_DWORD,  NKeyEditor,"ShowKeyBar",&Opt.EdOpt.ShowKeyBar,1, 0},
 
   {0, REG_DWORD,  NKeyXLat,"Flags",&Opt.XLat.Flags,(DWORD)XLAT_SWITCHKEYBLAYOUT|XLAT_CONVERTALLCMDLINE, 0},
   {0, REG_BINARY, NKeyXLat,"Table1",(BYTE*)&Opt.XLat.Table[0][1],sizeof(Opt.XLat.Table[0])-1,NULL},
@@ -2011,11 +2017,14 @@ void ReadConfig()
 
 void SaveConfig(int Ask)
 {
-  char OutText2[NM];
-  int I;
+  if(Opt.Policies.DisabledOptions&0x20000) // Bit 17 - Сохранить параметры
+    return;
 
   if (Ask && Message(0,2,MSG(MSaveSetupTitle),MSG(MSaveSetupAsk1),MSG(MSaveSetupAsk2),MSG(MSaveSetup),MSG(MCancel))!=0)
     return;
+
+  char OutText2[NM];
+  int I;
 
   /* <ПРЕПРОЦЕССЫ> *************************************************** */
   Panel *LeftPanel=CtrlObject->Cp()->LeftPanel;

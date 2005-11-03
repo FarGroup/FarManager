@@ -2279,6 +2279,8 @@ $ #Editor: control keys#
                            the passive panel at the cursor position.
    #Ctrl-F#                  Insert the full name of the file being
                            edited at the cursor position.
+   #Ctrl-B#                  Show/Hide functional key bar at the bottom
+                           line.
 
     Notes:
 
@@ -2905,6 +2907,7 @@ the file panel will be displayed in multicolumn form.
        #S#         - System
        #C# or #E#    - Compressed or Encrypted
        #L#         - Symbolic links (reparse point)
+       #I#         - Индексируется
 
   - #Column widths# - used to change width of panel columns.
 If the width is equal to 0, the default value will be used. If the width of

@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.183 15.07.2005 $ */
+/* Revision: 1.184 28.10.2005 $ */
 
 /*
 Modify:
+  28.10.2005 SVS
+    ! Opt.ViOpt.ShowKeyBarViewer -> Opt.ViOpt.ShowKeyBar
   15.07.2005 AY
     ! InitUseDecodeTable,InitTableNum,InitAnsiText переехали в global.cpp
   13.07.2005 SVS
@@ -3185,7 +3187,7 @@ void Viewer::Search(int Next,int FirstChar)
     SelectText(MatchPos,SearchLength,ReverseSearch?0x2:0);
 
     // Покажем найденное на расстоянии трети экрана от верха.
-    int FromTop=(ScrY-(Opt.ViOpt.ShowKeyBarViewer?2:1))/4;
+    int FromTop=(ScrY-(Opt.ViOpt.ShowKeyBar?2:1))/4;
     if (FromTop<0 || FromTop>ScrY)
       FromTop=0;
 

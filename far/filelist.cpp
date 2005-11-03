@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.239 23.10.2005 $ */
+/* Revision: 1.240 31.10.2005 $ */
 
 /*
 Modify:
+  31.10.2005 SVS
+    ! Mantis#49 - В плагиновых панелях вызывать диалог установки аттрибутов в RO-режиме
   23.10.2005 SVS
     ! посылка клавиши плагину вынесена в отдельную функцию SendKeyToPlugin() - УТОЧНИТЬ! (нужн ли вызов и здесь!!!)
   29.09.2005 SVS
@@ -1591,13 +1593,11 @@ int FileList::ProcessKey(int Key)
     case KEY_CTRLA:
     {
       _ALGO(CleverSysLog clv("Ctrl-A"));
-      if (PanelMode!=PLUGIN_PANEL ||
-          CtrlObject->Plugins.UseFarCommand(hPlugin,PLUGIN_FAROTHER))
-        if (FileCount>0 && SetCurPath())
-        {
-          ShellSetFileAttributes(this);
-          Show();
-        }
+      if (FileCount>0 && SetCurPath())
+      {
+        ShellSetFileAttributes(this);
+        Show();
+      }
       return(TRUE);
     }
 

@@ -5,10 +5,12 @@ headers.cpp
 
 */
 
-/* Revision: 1.17 30.09.2005 $ */
+/* Revision: 1.18 27.10.2005 $ */
 
 /*
 Modify:
+  27.10.2005 SVS
+    + FILE_ATTRIBUTE_NOT_CONTENT_INDEXED
   30.09.2005 SVS
     + несколько констант из SDK для совместимости с ранними версиями компиляторов
   23.07.2005 SVS
@@ -88,6 +90,8 @@ Modify:
 #undef FILE_ATTRIBUTE_ENCRYPTED
 #define FILE_ATTRIBUTE_ENCRYPTED     0x00004000
 //#define FILE_ATTRIBUTE_ENCRYPTED     0x00000040
+
+#define FILE_ATTRIBUTE_NOT_CONTENT_INDEXED 0x00002000
 
 #define FILE_NAMED_STREAMS              0x00040000
 #define FILE_READ_ONLY_VOLUME           0x00080000

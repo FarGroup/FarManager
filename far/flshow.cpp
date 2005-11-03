@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.47 25.07.2005 $ */
+/* Revision: 1.48 27.10.2005 $ */
 
 /*
 Modify:
+  27.10.2005 SVS
+    + покажем атрибут индексирования 'I'.
   24.07.2005 WARP
     ! see 02033.LockUnlock.txt
   13.07.2005 SVS
@@ -1138,10 +1140,11 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 OutStr[3]=(FileAttr & FILE_ATTRIBUTE_SYSTEM) ? 'S':' ';
                 OutStr[4]=(FileAttr & FILE_ATTRIBUTE_HIDDEN) ? 'H':' ';
                 OutStr[5]=(FileAttr & FILE_ATTRIBUTE_READONLY) ? 'R':' ';
-                OutStr[6]=0;
+                OutStr[6]=(!(FileAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)) ? 'I':' ';
+                OutStr[7]=0;
                 char *OutPtr=OutStr;
-                if (ColumnWidth<6)
-                  OutPtr=OutStr+6-ColumnWidth;
+                if (ColumnWidth<7)
+                  OutPtr=OutStr+7-ColumnWidth;
                 mprintf("%*s",ColumnWidth,OutPtr);
               }
               break;

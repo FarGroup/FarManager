@@ -7,10 +7,13 @@ struct.hpp
 
 */
 
-/* Revision: 1.137 05.10.2005 $ */
+/* Revision: 1.138 28.10.2005 $ */
 
 /*
 Modify:
+  28.10.2005 SVS
+    ! Opt.ViOpt.ShowKeyBarViewer -> Opt.ViOpt.ShowKeyBar
+    + Opt.EdOpt.ShowKeyBar - Ctrl-B - показать/спрятать кейбар в редакторе
   05.10.2005 SVS
     ! Убираем Opt.NetSupportEncryption. С учетом последних изменений в копире - не нужна
   04.10.2005 SVS
@@ -543,6 +546,7 @@ struct EditorOptions
   DWORD FileSizeLimitLo;
   DWORD FileSizeLimitHi;
   /* SVS $ */
+  int ShowKeyBar;
 };
 /* IS $ */
 
@@ -561,7 +565,7 @@ struct ViewerOptions
   int SaveViewerPos;
   int SaveViewerShortPos;
   int UseExternalViewer;
-  int ShowKeyBarViewer; // $ 15.07.2000 tran + ShowKeyBarViewer
+  int ShowKeyBar; // $ 15.07.2000 tran + ShowKeyBar
   int AnsiTableAsDefault;
 };
 /* IS $ */
