@@ -5,10 +5,13 @@ strmix.cpp
 
 */
 
-/* Revision: 1.60 25.04.2005 $ */
+/* Revision: 1.61 05.12.2005 $ */
 
 /*
 Modify:
+  05.12.2005 AY
+    + PointToName понимает UNC пути (\\computer\share)
+    + PointToFolderNameIfFolder понимает UNC пути (\\computer\share)
   24.04.2005 AY
     ! GCC
   02.04.2005 AY
@@ -214,6 +217,18 @@ char* WINAPI PointToName(char *Path)
   if(!Path)
     return NULL;
 
+  if ((Path[0]=='/' || Path[0]=='\\') && (Path[1]=='/' || Path[1]=='\\'))
+  {
+    Path+=2;
+    for (int i=0; i<2; i++)
+    {
+      while (*Path && *Path!='/' && *Path!='\\')
+        Path++;
+      if (*Path)
+        Path++;
+    }
+  }
+
   char *NamePtr=Path;
   while (*Path)
   {
@@ -228,6 +243,18 @@ const char *WINAPI PointToName(const char *Path)
 {
   if(!Path)
     return NULL;
+
+  if ((Path[0]=='/' || Path[0]=='\\') && (Path[1]=='/' || Path[1]=='\\'))
+  {
+    Path+=2;
+    for (int i=0; i<2; i++)
+    {
+      while (*Path && *Path!='/' && *Path!='\\')
+        Path++;
+      if (*Path)
+        Path++;
+    }
+  }
 
   const char *NamePtr=Path;
   while (*Path)
@@ -248,6 +275,18 @@ char* WINAPI PointToFolderNameIfFolder(const char *Path)
 {
   if(!Path)
     return NULL;
+
+  if ((Path[0]=='/' || Path[0]=='\\') && (Path[1]=='/' || Path[1]=='\\'))
+  {
+    Path+=2;
+    for (int i=0; i<2; i++)
+    {
+      while (*Path && *Path!='/' && *Path!='\\')
+        Path++;
+      if (*Path)
+        Path++;
+    }
+  }
 
   const char *NamePtr=Path, *prevNamePtr=Path;
   while (*Path)

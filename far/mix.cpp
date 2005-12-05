@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.173 05.10.2005 $ */
+/* Revision: 1.174 05.12.2005 $ */
 
 /*
 Modify:
+  05.12.2005 AY
+    ! FarChDir - косметическа€ корректировка пути при переходе по относительным пут€м
+    + PrepareDiskPath понимает UNC пути (\\computer\share)
   05.10.2005 SVS
     ! ”бираем Opt.NetSupportEncryption. — учетом последних изменений в копире - не нужна
   04.10.2005 SVS
@@ -659,8 +662,13 @@ BOOL FarChDir(const char *NewDir, BOOL ChangeDir)
     }
     if(ChangeDir)
     {
-      if(CheckFolder(NewDir) > CHKFLD_NOTACCESS)
-        rc=SetCurrentDirectory(NewDir);
+      char *ptr;
+      GetFullPathName(NewDir,sizeof(CurDir),CurDir,&ptr);
+      if(CheckFolder(CurDir) > CHKFLD_NOTACCESS)
+      {
+        PrepareDiskPath(CurDir,sizeof(CurDir)-1);
+        rc=SetCurrentDirectory(CurDir);
+      }
     }
   }
 
@@ -1719,7 +1727,7 @@ char* PrepareDiskPath(char *Path,int MaxSize,BOOL CheckFullPath)
 {
   if(Path)
   {
-    if(isalpha(Path[0]) && Path[1]==':')
+    if((isalpha(Path[0]) && Path[1]==':') || (Path[0]=='\\' && Path[1]=='\\'))
     {
       if(CheckFullPath)
       {
@@ -1733,7 +1741,14 @@ char* PrepareDiskPath(char *Path,int MaxSize,BOOL CheckFullPath)
          RawConvertShortNameToLongName() не апперкейсит первую букву Path
          => уберем else
       */
-      Path[0]=toupper(Path[0]);
+      if (Path[0]=='\\' && Path[1]=='\\')
+      {
+        char *ptr=&Path[2];
+        while (*ptr && *ptr!='\\')
+          *(ptr++)=toupper(*ptr);
+      }
+      else
+        Path[0]=toupper(Path[0]);
       /* DJ $ */
     }
   }

@@ -5,10 +5,12 @@ cvtname.cpp
 
 */
 
-/* Revision: 1.13 25.03.2005 $ */
+/* Revision: 1.14 05.12.2005 $ */
 
 /*
 Modify:
+  05.12.2005 AY
+    + RawConvertShortNameToLongName понимает UNC пути (\\computer\share)
   25.03.2005 SVS
     - BugZ#1304 - Падения с длинными путями.
   06.08.2004 SKV
@@ -144,6 +146,44 @@ DWORD RawConvertShortNameToLongName(const char *src, char *dest, DWORD maxsize)
 
        *Dots=tmp;
        Src=Dots; // +1 ??? зачем ???
+     }
+     else if (Src[0]=='\\' && Src[1]=='\\')
+     {
+       Dots=Src+2;
+       while(*Dots && '\\'!=*Dots) ++Dots;
+       if('\\'==*Dots)
+         ++Dots;
+       else
+       {
+          SrcSize=Min((DWORD)SrcSize,(DWORD)maxsize);
+          memmove(dest,src,SrcSize);
+          dest[SrcSize]=0;
+          if(SrcBuf) xf_free(SrcBuf);
+          return SrcSize;
+       }
+       while(*Dots && '\\'!=*Dots) ++Dots;
+       if('\\'==*Dots) ++Dots;
+       char tmp=*Dots;
+       *Dots=0;
+       AddSize=strlen(Src);
+       FinalSize=AddSize;
+       DestBuf=(char *)xf_malloc(AddSize+64);
+       if(DestBuf)
+       {
+         DestSize=AddSize+64;
+         Dest=DestBuf;
+       }
+       else
+       {
+         Error=TRUE;
+         FinalSize=0;
+         break;
+       }
+       strcpy(Dest, Src);
+       Dest+=AddSize;
+
+       *Dots=tmp;
+       Src=Dots;
      }
 
      /* $ 03.12.2001 DJ

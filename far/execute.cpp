@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.122 14.07.2005 $ */
+/* Revision: 1.123 05.12.2005 $ */
 
 /*
 Modify:
+  05.12.2005 AY
+    ! Не совсем правильная обработка кавычек в CommandLine::ProcessOSCommands для CD/CHDIR
   14.07.2005 AY
     - теперь в заголовке окна (по Enter и ShiftEnter) показываем всегда то что запускает фар
       (путь к файлу и параметры без %comspec% /c).
@@ -1850,11 +1852,10 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
     while (IsSpace(CmdLine[Length]))
       Length++;
 
-    if (CmdLine[Length]=='\"')
-      Length++;
-
     char ExpandedDir[8192];
     xstrncpy(ExpandedDir,&CmdLine[Length],sizeof(ExpandedDir)-1);
+
+    Unquote(ExpandedDir);
 
     // скорректируем букву диска на "подступах"
     if(ExpandedDir[1] == ':' && isalpha(ExpandedDir[0]))
@@ -1911,10 +1912,6 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
     }
     */
     /* SKV $ */
-
-    char *ChPtr=strrchr(ExpandedDir,'\"');
-    if (ChPtr!=NULL)
-      *ChPtr=0;
 
     if (SetPanel->GetType()==FILE_PANEL && SetPanel->GetMode()==PLUGIN_PANEL)
     {
