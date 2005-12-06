@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.234 04.10.2005 $ */
+/* Revision: 1.235 06.12.2005 $ */
 
 /*
 Modify:
+  06.12.2005 AY
+    + PointToNameUNC()
   04.10.2005 SVS
     ! Изменения в CheckDisksProps()
   30.09.2005 SVS
@@ -1163,6 +1165,7 @@ char* WINAPI TruncStrFromEnd(char *Str, int MaxLength);
 char* WINAPI TruncPathStr(char *Str,int MaxLength);
 char* WINAPI QuoteSpaceOnly(char *Str);
 char* WINAPI PointToName(char *Path);
+char* WINAPI PointToNameUNC(char *Path);
 /* $ 12.01.2004 IS
    + Функция для сверки символа с разделителями слова с учетом текущей
      кодировки

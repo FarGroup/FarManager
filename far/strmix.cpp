@@ -5,10 +5,15 @@ strmix.cpp
 
 */
 
-/* Revision: 1.61 05.12.2005 $ */
+/* Revision: 1.62 06.12.2005 $ */
 
 /*
 Modify:
+  06.12.2005 AY
+    - Мда, Network не подружидся с новыми PointToName, вернём назад.
+    + PointToNameUNC - аналог PointToName только считает \\computer\share
+      как имя диска по типу a:\ и соответственно не показывает на него
+      как на имя.
   05.12.2005 AY
     + PointToName понимает UNC пути (\\computer\share)
     + PointToFolderNameIfFolder понимает UNC пути (\\computer\share)
@@ -217,6 +222,67 @@ char* WINAPI PointToName(char *Path)
   if(!Path)
     return NULL;
 
+  char *NamePtr=Path;
+  while (*Path)
+  {
+    if (*Path=='\\' || *Path=='/' || *Path==':' && Path==NamePtr+1)
+      NamePtr=Path+1;
+    Path++;
+  }
+  return(NamePtr);
+}
+
+const char *WINAPI PointToName(const char *Path)
+{
+  if(!Path)
+    return NULL;
+
+  const char *NamePtr=Path;
+  while (*Path)
+  {
+    if (*Path=='\\' || *Path=='/' || *Path==':' && Path==NamePtr+1)
+      NamePtr=Path+1;
+    Path++;
+  }
+  return(NamePtr);
+}
+
+/* $ 20.03.2002 IS
+   Аналог PointToName, только для строк типа
+   "name\" (оканчивается на слеш) возвращает указатель на name, а не на пустую
+   строку
+*/
+char* WINAPI PointToFolderNameIfFolder(const char *Path)
+{
+  if(!Path)
+    return NULL;
+
+  const char *NamePtr=Path, *prevNamePtr=Path;
+  while (*Path)
+  {
+    if (*Path=='\\' || *Path=='/' ||
+        *Path==':' && Path==NamePtr+1)
+    {
+      prevNamePtr=NamePtr;
+      NamePtr=Path+1;
+    }
+    ++Path;
+  }
+  return const_cast<char*>((*NamePtr)?NamePtr:prevNamePtr);
+}
+/* IS $ */
+
+
+/* 06.12.2005 AY
+   Аналог PointToName только считает \\computer\share
+   как имя диска по типу a:\ и соответственно не показывает на него
+   как на имя.
+*/
+char* WINAPI PointToNameUNC(char *Path)
+{
+  if(!Path)
+    return NULL;
+
   if ((Path[0]=='/' || Path[0]=='\\') && (Path[1]=='/' || Path[1]=='\\'))
   {
     Path+=2;
@@ -239,69 +305,6 @@ char* WINAPI PointToName(char *Path)
   return(NamePtr);
 }
 
-const char *WINAPI PointToName(const char *Path)
-{
-  if(!Path)
-    return NULL;
-
-  if ((Path[0]=='/' || Path[0]=='\\') && (Path[1]=='/' || Path[1]=='\\'))
-  {
-    Path+=2;
-    for (int i=0; i<2; i++)
-    {
-      while (*Path && *Path!='/' && *Path!='\\')
-        Path++;
-      if (*Path)
-        Path++;
-    }
-  }
-
-  const char *NamePtr=Path;
-  while (*Path)
-  {
-    if (*Path=='\\' || *Path=='/' || *Path==':' && Path==NamePtr+1)
-      NamePtr=Path+1;
-    Path++;
-  }
-  return(NamePtr);
-}
-
-/* $ 20.03.2002 IS
-   Аналог PointToName, только для строк типа
-   "name\" (оканчивается на слеш) возвращает указатель на name, а не на пустую
-   строку
-*/
-char* WINAPI PointToFolderNameIfFolder(const char *Path)
-{
-  if(!Path)
-    return NULL;
-
-  if ((Path[0]=='/' || Path[0]=='\\') && (Path[1]=='/' || Path[1]=='\\'))
-  {
-    Path+=2;
-    for (int i=0; i<2; i++)
-    {
-      while (*Path && *Path!='/' && *Path!='\\')
-        Path++;
-      if (*Path)
-        Path++;
-    }
-  }
-
-  const char *NamePtr=Path, *prevNamePtr=Path;
-  while (*Path)
-  {
-    if (*Path=='\\' || *Path=='/' ||
-        *Path==':' && Path==NamePtr+1)
-    {
-      prevNamePtr=NamePtr;
-      NamePtr=Path+1;
-    }
-    ++Path;
-  }
-  return const_cast<char*>((*NamePtr)?NamePtr:prevNamePtr);
-}
-/* IS $ */
 
 /* $ 10.05.2003 IS
    + Облегчим CmpName за счет выноса проверки skippath наружу

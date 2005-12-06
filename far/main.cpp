@@ -5,10 +5,12 @@ main.cpp
 
 */
 
-/* Revision: 1.84 02.11.2005 $ */
+/* Revision: 1.85 06.12.2005 $ */
 
 /*
 Modify:
+  06.12.2005 AY
+    ! Mantis#66 - "Far.exe \\computer\share" не пашет.
   02.11.2005 SVS
     + освободим память местного клипборда (на всякий случай)
   25.10.2005 SVS
@@ -435,7 +437,7 @@ static int MainProcess(char *EditName,char *ViewName,char *DestName1,char *DestN
       {
         Opt.SetupArgv++;
         strcpy(Path,DestName1);
-        *PointToName(Path)=0;
+        *PointToNameUNC(Path)=0;
         DeleteEndSlash(Path); // если конечный слешь не убрать - получаем забавный эффект - отсутствует ".."
         if(Path[1]==':' && !Path[2])
           AddEndSlash(Path);
@@ -458,7 +460,7 @@ static int MainProcess(char *EditName,char *ViewName,char *DestName1,char *DestN
         {
           Opt.SetupArgv++;
           strcpy(Path,DestName2);
-          *PointToName(Path)=0;
+          *PointToNameUNC(Path)=0;
           DeleteEndSlash(Path);
           if(Path[1]==':' && !Path[2])
             AddEndSlash(Path);
@@ -489,7 +491,7 @@ static int MainProcess(char *EditName,char *ViewName,char *DestName1,char *DestN
         Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
         Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
 
-        strcpy(Path,PointToName(DestName1));
+        strcpy(Path,PointToNameUNC(DestName1));
         if (*Path)
         {
           if (ActivePanel->GoToFile(Path))
@@ -498,7 +500,7 @@ static int MainProcess(char *EditName,char *ViewName,char *DestName1,char *DestN
 
         if(*DestName2) // пассивная панель
         {
-          strcpy(Path,PointToName(DestName2));
+          strcpy(Path,PointToNameUNC(DestName2));
           if (*Path)
           {
             if (AnotherPanel->GoToFile(Path))
