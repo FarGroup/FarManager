@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.241 07.12.2005 $ */
+/* Revision: 1.242 08.12.2005 $ */
 
 /*
 Modify:
+  08.12.2005 SVS
+    - траблы со слешами для Alt-Shift-Ins
   07.12.2005 SVS
     + инициализация Is_FS_NTFS
   31.10.2005 SVS
@@ -3983,7 +3985,7 @@ void FileList::CopyNames(int FillPathName,int UNC)
           LocalStrupr(FullName);
 
         if (*FullName)
-          AddEndSlash(FullName,'\\');
+          AddEndSlash(FullName);
 
         if(Opt.PanelCtrlFRule)
         {
