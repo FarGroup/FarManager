@@ -5,10 +5,13 @@ copy.cpp
 
 */
 
-/* Revision: 1.161 05.10.2005 $ */
+/* Revision: 1.162 08.12.2005 $ */
 
 /*
 Modify:
+  08.12.2005 SVS
+    - Mantis#44 - Потеря данных при копировании ссылок на папки
+    - Mantis#45 - Необходимо привсти копирование ссылок на папки с NTFS на FAT к более логичному виду
   05.10.2005 SVS
     - Проблемы с копированием шифрованных файлов. Полечим путем вывода доп.диалога.
       Возможно строка "SetLastError(_localLastError=ERROR_EFS_SERVER_NOT_TRUSTED);" - лишняя... но все же ;-)
@@ -1295,6 +1298,17 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
           int OldCopySymlinkContents=ShellCopy::Flags&FCOPY_COPYSYMLINKCONTENTS;
           // собственно - один проход копирования
           SetPreRedrawFunc(ShellCopy::PR_ShellCopyMsg);
+
+          // Mantis#45: Необходимо привсти копирование ссылок на папки с NTFS на FAT к более логичному виду
+          {
+            char FileSysName[NM],RootDir[NM*2];
+            ConvertNameToFull(NameTmp,RootDir, sizeof(RootDir));
+            GetPathRoot(RootDir,RootDir);
+            if (GetVolumeInformation(RootDir,NULL,0,NULL,NULL,NULL,FileSysName,sizeof(FileSysName)))
+              if(strcmp(FileSysName,"NTFS"))
+                ShellCopy::Flags|=FCOPY_COPYSYMLINKCONTENTS;
+          }
+
           int I=CopyFileTree(NameTmp);
           SetPreRedrawFunc(NULL);
 
@@ -2073,8 +2087,14 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
     }
 #endif
 
-    // если каталог - придется рекурсивно спускаться...
-    if (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+    // Mantis#44 - Потеря данных при копировании ссылок на папки
+    // если каталог (или нужно копировать симлинк) - придется рекурсивно спускаться...
+    if ((SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
+        (
+          !(SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) ||
+          (SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (ShellCopy::Flags&FCOPY_COPYSYMLINKCONTENTS)
+        )
+       )
     {
       _LOGCOPYR(CleverSysLog Clev("if(SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)"));
 

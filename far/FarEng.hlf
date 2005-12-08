@@ -3454,6 +3454,7 @@ identical hotkeys) for different areas of execution.
     - info panel;
     - quick view panel;
     - tree panel;
+    - user menu;
     - screen grabber, vertical menus.
 
     It is impossible to assign a macro command to an already used hotkey. When
