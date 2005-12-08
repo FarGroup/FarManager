@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.240 31.10.2005 $ */
+/* Revision: 1.241 07.12.2005 $ */
 
 /*
 Modify:
+  07.12.2005 SVS
+    + инициализация Is_FS_NTFS
   31.10.2005 SVS
     ! Mantis#49 - В плагиновых панелях вызывать диалог установки аттрибутов в RO-режиме
   23.10.2005 SVS
@@ -768,6 +770,8 @@ FileList::FileList()
   DizRead=FALSE;
   InternalProcessKey=FALSE;
   GetSelPosition = 0;
+
+  Is_FS_NTFS=FALSE;
 }
 
 
@@ -2846,6 +2850,7 @@ BOOL FileList::ChangeDir(char *NewDir,BOOL IsUpdated)
       TempDir[NM-1]=0;
       AddEndSlash(TempDir);
       GetPathRoot(TempDir,RootDir);
+
       if((CurDir[0] == '\\' && CurDir[1] == '\\' && strcmp(TempDir,RootDir)==0) ||
          (CurDir[1] == ':'  && CurDir[2] == '\\' && CurDir[3]==0))
       {

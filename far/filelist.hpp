@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.50 23.10.2005 $ */
+/* Revision: 1.51 07.12.2005 $ */
 
 /*
 Modify:
+  07.12.2005 SVS
+    + Is_FS_NTFS
   23.10.2005 SVS
     + virtual SendKeyToPlugin()
   22.07.2005 SVS
@@ -241,6 +243,8 @@ class FileList:public Panel
     int UpdateRequired,UpdateRequiredMode;
     int SortGroupsRead;
     int InternalProcessKey;
+
+    BOOL Is_FS_NTFS;
 
   private:
     /* $ 09.02.2001 IS

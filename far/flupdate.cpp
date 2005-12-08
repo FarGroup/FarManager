@@ -5,10 +5,12 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.53 09.09.2005 $ */
+/* Revision: 1.54 07.12.2005 $ */
 
 /*
 Modify:
+  07.12.2005 SVS
+    + инициализация Is_FS_NTFS
   09.09.2005 SVS
     ! Функционал получения имени компьютера по текущему пути вынесен в
       отдельную функцию CurPath2ComputerName()
@@ -251,8 +253,10 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
     UpdateRequiredMode=KeepSelection;
     return;
   }
+  Is_FS_NTFS=FALSE;
   AccessTimeUpdateRequired=FALSE;
   DizRead=FALSE;
+
   HANDLE FindHandle;
   WIN32_FIND_DATA fdata;
   struct FileListItem *CurPtr=0,*OldData=0;
@@ -295,6 +299,14 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
   if (GetFocus())
     CtrlObject->CmdLine->SetCurDir(CurDir);
+
+  {
+    char FileSysName[NM],RootDir[NM*2];
+    ConvertNameToFull(CurDir,RootDir, sizeof(RootDir));
+    GetPathRoot(RootDir,RootDir);
+    if (GetVolumeInformation(RootDir,NULL,0,NULL,NULL,NULL,FileSysName,sizeof(FileSysName)))
+      Is_FS_NTFS=!strcmp(FileSysName,"NTFS")?TRUE:FALSE;
+  }
 
   LastCurFile=-1;
 

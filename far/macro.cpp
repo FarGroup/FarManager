@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.152 11.10.2005 $ */
+/* Revision: 1.153 07.12.2005 $ */
 
 /*
 Modify:
+  07.12.2005 SVS
+    + MACRO_USERMENU
   11.10.2005 SVS
     - Траблы с Editor.FileName
   07.10.2005 SVS
@@ -546,6 +548,7 @@ struct TMacroKeywords MKeywords[] ={
   {0,  "QView",              MACRO_QVIEWPANEL,0},
   {0,  "Tree",               MACRO_TREEPANEL,0},
   {0,  "FindFolder",         MACRO_FINDFOLDER,0},
+  {0,  "UserMenu",           MACRO_USERMENU,0},
   {0,  "Common",             MACRO_COMMON,0},
 
 

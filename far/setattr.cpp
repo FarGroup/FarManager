@@ -5,10 +5,12 @@ setattr.cpp
 
 */
 
-/* Revision: 1.68 27.10.2005 $ */
+/* Revision: 1.69 07.12.2005 $ */
 
 /*
 Modify:
+  07.12.2005 SVS
+    ! небольшие недочеты от пред.патча :-)
   27.10.2005 SVS
     + Mantis#24 - FILE_ATTRIBUTE_NOT_CONTENT_INDEXED
     + Mantis#49 - ¬ плагиновых панел€х вызывать диалог установки аттрибутов в RO-режиме
@@ -633,7 +635,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
   /* 07 */DI_CHECKBOX,5, 8,0,0,0,0,DIF_3STATE,0,(char *)MSetAttrSystem,
   /* 08 */DI_CHECKBOX,5, 9,0,0,0,0,DIF_3STATE,0,(char *)MSetAttrCompressed,
   /* 09 */DI_CHECKBOX,5,10,0,0,0,0,DIF_3STATE,0,(char *)MSetAttrEncrypted,
-  /* 10 */DI_CHECKBOX,5,11,0,0,0,0,DIF_3STATE,0,(char *)MSetAttrIndexed,
+  /* 10 */DI_CHECKBOX,5,11,0,0,0,0,DIF_3STATE|DIF_DISABLE,0,(char *)MSetAttrIndexed,
   /* 11 */DI_TEXT,3,12,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
   /* 12 */DI_CHECKBOX,5,13,0,0,0,0,DIF_DISABLE,0,(char *)MSetAttrSubfolders,
   /* 13 */DI_TEXT,3,14,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
@@ -705,14 +707,23 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     AttrDlg[SETATTR_ENCRYPTED].Flags|=DIF_DISABLE;
   }
   else
-    if (GetVolumeInformation(NULL,NULL,0,NULL,NULL,&DlgParam.FileSystemFlags,NULL,0))
+  {
+    //char lpRootPathName[NM];
+    //GetCurrentDirectory(sizeof(lpRootPathName),lpRootPathName);
+    //GetPathRoot(lpRootPathName,lpRootPathName);
+    char FSysName[NM];
+    if (GetVolumeInformation(NULL,NULL,0,NULL,NULL,&DlgParam.FileSystemFlags,FSysName,sizeof(FSysName)))
     {
       if (!(DlgParam.FileSystemFlags & FS_FILE_COMPRESSION))
         AttrDlg[SETATTR_COMPRESSED].Flags|=DIF_DISABLE;
 
       if (!IsCryptFileASupport || !(DlgParam.FileSystemFlags & FS_FILE_ENCRYPTION))
         AttrDlg[SETATTR_ENCRYPTED].Flags|=DIF_DISABLE;
+
+      if(!strcmp(FSysName,"NTFS"))
+        AttrDlg[SETATTR_INDEXED].Flags&=~DIF_DISABLE;
     }
+  }
 
   {
     char SelName[NM];
@@ -798,6 +809,8 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           AttrDlg[SETATTR_SYSTEM].Selected=(FileAttr & FA_SYSTEM)!=0;
           AttrDlg[SETATTR_COMPRESSED].Selected=(FileAttr & FILE_ATTRIBUTE_COMPRESSED)!=0;
           AttrDlg[SETATTR_ENCRYPTED].Selected=(FileAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0;
+          if(!(AttrDlg[SETATTR_INDEXED].Flags&DIF_DISABLE))
+            AttrDlg[SETATTR_INDEXED].Selected=(FileAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)==0;
 
           // убираем 3-State
           for(I=SETATTR_RO; I <= SETATTR_INDEXED; ++I)
@@ -876,7 +889,8 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       AttrDlg[SETATTR_SYSTEM].Selected=(FileAttr & FA_SYSTEM)!=0;
       AttrDlg[SETATTR_COMPRESSED].Selected=(FileAttr & FILE_ATTRIBUTE_COMPRESSED)!=0;
       AttrDlg[SETATTR_ENCRYPTED].Selected=(FileAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0;
-      AttrDlg[SETATTR_INDEXED].Selected=(FileAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)==0;
+      if(!(AttrDlg[SETATTR_INDEXED].Flags&DIF_DISABLE))
+        AttrDlg[SETATTR_INDEXED].Selected=(FileAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)==0;
 
       if(DlgParam.Plugin)
       {
@@ -899,7 +913,9 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     else
     {
       AttrDlg[SETATTR_RO].Selected=AttrDlg[SETATTR_ARCHIVE].Selected=AttrDlg[SETATTR_HIDDEN].Selected=
-      AttrDlg[SETATTR_SYSTEM].Selected=AttrDlg[SETATTR_COMPRESSED].Selected=AttrDlg[SETATTR_ENCRYPTED].Selected=AttrDlg[SETATTR_INDEXED].Selected=2;
+      AttrDlg[SETATTR_SYSTEM].Selected=AttrDlg[SETATTR_COMPRESSED].Selected=AttrDlg[SETATTR_ENCRYPTED].Selected=2;
+      if(!(AttrDlg[SETATTR_INDEXED].Flags&DIF_DISABLE))
+        AttrDlg[SETATTR_INDEXED].Selected=2;
       AttrDlg[SETATTR_MDATE].Data[0]=AttrDlg[SETATTR_MTIME].Data[0]=AttrDlg[SETATTR_CDATE].Data[0]=
       AttrDlg[SETATTR_CTIME].Data[0]=AttrDlg[SETATTR_ADATE].Data[0]=AttrDlg[SETATTR_ATIME].Data[0]='\0';
 
@@ -928,10 +944,11 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         AttrDlg[SETATTR_SYSTEM].Selected+=(FileAttr & FA_SYSTEM)?1:0;
         AttrDlg[SETATTR_COMPRESSED].Selected+=(FileAttr & FILE_ATTRIBUTE_COMPRESSED)?1:0;
         AttrDlg[SETATTR_ENCRYPTED].Selected+=(FileAttr & FILE_ATTRIBUTE_ENCRYPTED)?1:0;
-        AttrDlg[SETATTR_INDEXED].Selected+=(FileAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)?0:1;
+        if(!(AttrDlg[SETATTR_INDEXED].Flags&DIF_DISABLE))
+          AttrDlg[SETATTR_INDEXED].Selected+=(FileAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)?0:1;
       }
       SrcPanel->GetSelName(NULL,FileAttr);
-      SrcPanel->GetSelName(SelName,FileAttr);
+      SrcPanel->GetSelName(SelName,FileAttr,NULL,&FindData);
       // выставим "неопределенку" или то, что нужно
       for(I=SETATTR_RO; I <= SETATTR_INDEXED; ++I)
       {
@@ -942,6 +959,8 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           AttrDlg[I].Flags&=~DIF_3STATE;
 
         AttrDlg[I].Selected=(J >= SelCount)?1:(!J?0:2);
+        if(I == SETATTR_INDEXED && !(AttrDlg[SETATTR_INDEXED].Flags&DIF_DISABLE))
+          AttrDlg[I].Selected=0;
       }
     }
 
@@ -955,6 +974,8 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       {
         AttrDlg[I].Selected=2;
         AttrDlg[I].Flags|=DIF_3STATE;
+        if(I == SETATTR_INDEXED && !(AttrDlg[SETATTR_INDEXED].Flags&DIF_DISABLE))
+          AttrDlg[I].Selected=0;
       }
     }
 
@@ -992,13 +1013,15 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       {
         int NewAttr;
         NewAttr=FileAttr & FA_DIREC;
-        if (AttrDlg[SETATTR_RO].Selected)        NewAttr|=FA_RDONLY;
-        if (AttrDlg[SETATTR_ARCHIVE].Selected)        NewAttr|=FA_ARCH;
-        if (AttrDlg[SETATTR_HIDDEN].Selected)        NewAttr|=FA_HIDDEN;
-        if (AttrDlg[SETATTR_SYSTEM].Selected)        NewAttr|=FA_SYSTEM;
-        if (AttrDlg[SETATTR_COMPRESSED].Selected)        NewAttr|=FILE_ATTRIBUTE_COMPRESSED;
-        if (AttrDlg[SETATTR_ENCRYPTED].Selected)        NewAttr|=FILE_ATTRIBUTE_ENCRYPTED;
-        if (!AttrDlg[SETATTR_INDEXED].Selected)      NewAttr|=FILE_ATTRIBUTE_NOT_CONTENT_INDEXED;
+        if (AttrDlg[SETATTR_RO].Selected)              NewAttr|=FA_RDONLY;
+        if (AttrDlg[SETATTR_ARCHIVE].Selected)         NewAttr|=FA_ARCH;
+        if (AttrDlg[SETATTR_HIDDEN].Selected)          NewAttr|=FA_HIDDEN;
+        if (AttrDlg[SETATTR_SYSTEM].Selected)          NewAttr|=FA_SYSTEM;
+        if (AttrDlg[SETATTR_COMPRESSED].Selected)      NewAttr|=FILE_ATTRIBUTE_COMPRESSED;
+        if (AttrDlg[SETATTR_ENCRYPTED].Selected)       NewAttr|=FILE_ATTRIBUTE_ENCRYPTED;
+        if(!(AttrDlg[SETATTR_INDEXED].Flags&DIF_DISABLE))
+          if (!AttrDlg[SETATTR_INDEXED].Selected)
+            NewAttr|=FILE_ATTRIBUTE_NOT_CONTENT_INDEXED;
 
         SetWriteTime=ReadFileTime(0,SelName,FileAttr,&LastWriteTime,AttrDlg[SETATTR_MDATE].Data,AttrDlg[SETATTR_MTIME].Data);
         SetCreationTime=ReadFileTime(1,SelName,FileAttr,&CreationTime,AttrDlg[SETATTR_CDATE].Data,AttrDlg[SETATTR_CTIME].Data);
@@ -1066,12 +1089,15 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       else if (!AttrDlg[SETATTR_ENCRYPTED].Selected)
         ClearAttr|=FILE_ATTRIBUTE_ENCRYPTED;
 
-      if (AttrDlg[SETATTR_INDEXED].Selected == 0)        SetAttr|=FILE_ATTRIBUTE_NOT_CONTENT_INDEXED;
-      else if (AttrDlg[SETATTR_INDEXED].Selected==1)     ClearAttr|=FILE_ATTRIBUTE_NOT_CONTENT_INDEXED;
+      if(!(AttrDlg[SETATTR_INDEXED].Flags&DIF_DISABLE))
+      {
+        if (AttrDlg[SETATTR_INDEXED].Selected == 0)        SetAttr|=FILE_ATTRIBUTE_NOT_CONTENT_INDEXED;
+        else if (AttrDlg[SETATTR_INDEXED].Selected==1)     ClearAttr|=FILE_ATTRIBUTE_NOT_CONTENT_INDEXED;
+      }
 
       SrcPanel->GetSelName(NULL,FileAttr);
 
-      while (SrcPanel->GetSelName(SelName,FileAttr) && !Cancel)
+      while (SrcPanel->GetSelName(SelName,FileAttr,NULL,&FindData) && !Cancel)
       {
 //_SVS(SysLog("SelName='%s'\n\tFileAttr =0x%08X\n\tSetAttr  =0x%08X\n\tClearAttr=0x%08X\n\tResult   =0x%08X",
 //    SelName,FileAttr,SetAttr,ClearAttr,((FileAttr|SetAttr)&(~ClearAttr))));

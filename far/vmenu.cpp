@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.148 05.10.2005 $ */
+/* Revision: 1.149 07.12.2005 $ */
 
 /*
 Modify:
+  07.12.2005 SVS
+    + MACRO_USERMENU
   05.10.2005 SVS
     + обработка KEY_ALTLEFT и KEY_ALTRIGHT - дл€ скроллинга хистори.
       –еализаци€ только дл€ текущего пункта истории
@@ -620,7 +622,8 @@ VMenu::VMenu(const char *Title,       // заголовок меню
   {
     PrevMacroMode=CtrlObject->Macro.GetMode();
     if (PrevMacroMode!=MACRO_MAINMENU &&
-        PrevMacroMode!=MACRO_DIALOG)
+        PrevMacroMode!=MACRO_DIALOG &&
+        PrevMacroMode!=MACRO_USERMENU)
       CtrlObject->Macro.SetMode(MACRO_MENU);
   }
 

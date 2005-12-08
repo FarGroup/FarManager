@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.48 27.10.2005 $ */
+/* Revision: 1.49 07.12.2005 $ */
 
 /*
 Modify:
+  07.12.2005 SVS
+    ! добавлен показ FILE_ATTRIBUTE_SPARSE_FILE ('$' на месте 'L') и уточнение FILE_ATTRIBUTE_NOT_CONTENT_INDEXED
   27.10.2005 SVS
     + покажем атрибут индексировани€ 'I'.
   24.07.2005 WARP
@@ -1131,16 +1133,17 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
               break;
             case ATTR_COLUMN:
               {
-                char OutStr[8];
+                char OutStr[16];
                 DWORD FileAttr=CurPtr->FileAttr;
-                OutStr[0]=(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT) ? 'L' : ' ';
+                //
+                OutStr[0]=(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT) ? 'L' : ((FileAttr & FILE_ATTRIBUTE_SPARSE_FILE) ? '$':' ');
                 // $ 20.10.2000 SVS - Encrypted NTFS/Win2K - ѕоток может быть либо COMPRESSED (—) либо ENCRYPTED (E)
                 OutStr[1]=(FileAttr & FILE_ATTRIBUTE_COMPRESSED) ? 'C':((FileAttr & FILE_ATTRIBUTE_ENCRYPTED)?'E':' ');
                 OutStr[2]=(FileAttr & FILE_ATTRIBUTE_ARCHIVE) ? 'A':' ';
                 OutStr[3]=(FileAttr & FILE_ATTRIBUTE_SYSTEM) ? 'S':' ';
                 OutStr[4]=(FileAttr & FILE_ATTRIBUTE_HIDDEN) ? 'H':' ';
                 OutStr[5]=(FileAttr & FILE_ATTRIBUTE_READONLY) ? 'R':' ';
-                OutStr[6]=(!(FileAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)) ? 'I':' ';
+                OutStr[6]=(!(FileAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)) ? (Is_FS_NTFS?'I':' '):' ';
                 OutStr[7]=0;
                 char *OutPtr=OutStr;
                 if (ColumnWidth<7)

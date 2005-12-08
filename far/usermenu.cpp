@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.71 25.07.2005 $ */
+/* Revision: 1.72 07.12.2005 $ */
 
 /*
 Modify:
+  07.12.2005 SVS
+    + MACRO_USERMENU
   24.07.2005 WARP
     ! see 02033.LockUnlock.txt
   14.06.2005 SVS
@@ -367,7 +369,12 @@ void ProcessUserMenu(int EditMenu)
 
 
     strcpy(MenuRootKey,(MenuMode==MM_MAIN) ? "UserMenu\\MainMenu":LocalMenuKey);
+
+    int PrevMacroMode=CtrlObject->Macro.GetMode();
+    CtrlObject->Macro.SetMode(MACRO_USERMENU);
     ExitCode=ProcessSingleMenu(MenuRootKey, 0);
+    CtrlObject->Macro.SetMode(PrevMacroMode);
+
 
     // Фаровский кусок по записи файла
     if ((MenuMode!=MM_MAIN) && (MenuModified))
@@ -888,7 +895,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
    + Показать главное меню
 */
             case KEY_SHIFTF2:
-                return(EC_MAIN_MENU);
+              return(EC_MAIN_MENU);
 /* $ 17.07.2000 VVM
    + Показать меню из родительского каталога только в MM_LOCAL режиме
 */

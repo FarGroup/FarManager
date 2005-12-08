@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.95 04.10.2005 $ */
+/* Revision: 1.96 07.12.2005 $ */
 
 /*
 Modify:
+  07.12.2005 SVS
+    + MACRO_USERMENU
   04.10.2005 SVS
     ! CHECKEDPROPS_FLAGS -> CHECKEDPROPS_TYPE
     ! Изменения в CHECKEDPROPS_TYPE
@@ -304,6 +306,7 @@ enum MACROMODEAREA {
   MACRO_QVIEWPANEL   =  11, // Панель быстрого просмотра
   MACRO_TREEPANEL    =  12, // Панель дерева папок
   MACRO_FINDFOLDER   =  13, // Поиск папок
+  MACRO_USERMENU     =  14, // Меню пользователя
 
   MACRO_COMMON,             // ВЕЗДЕ! - должен быть предпоследним, т.к. приоритет самый низший !!!
   MACRO_LAST                // Должен быть всегда последним! Используется в циклах
