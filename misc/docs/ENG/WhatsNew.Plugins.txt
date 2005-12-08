@@ -10,7 +10,7 @@
 [*] Changes
 
 ---------------------------------------------------------------------------
-FAR 1.70 beta 6 (build 2054) (03.11.2005)
+FAR 1.70 beta 6 (build 2058) (08.12.2005)
 ---------------------------------------------------------------------------
    All the plugins supplied with the FAR Manager are designed only for the
 version of FAR with which they are supplied. It is not guaranteed that
