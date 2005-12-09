@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.162 08.12.2005 $ */
+/* Revision: 1.163 09.12.2005 $ */
 
 /*
 Modify:
+  09.12.2005 SVS
+    - облажался, блин... вместо Opt.CMOpt.UseSystemCopy залудил Opt.CMOpt.MultiCopy
   08.12.2005 SVS
     - Mantis#44 - Потеря данных при копировании ссылок на папки
     - Mantis#45 - Необходимо привсти копирование ссылок на папки с NTFS на FAT к более логичному виду
@@ -1107,7 +1109,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     ShellCopy::Flags&=~(FCOPY_COPYSECURITY|FCOPY_LEAVESECURITY);
   }
 
-  if(Opt.CMOpt.MultiCopy)
+  if(Opt.CMOpt.UseSystemCopy)
     ShellCopy::Flags|=FCOPY_USESYSTEMCOPY;
   else
     ShellCopy::Flags&=~FCOPY_USESYSTEMCOPY;

@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.341 12.10.2005 $ */
+/* Revision: 1.342 09.12.2005 $ */
 
 /*
 Modify:
+  09.12.2005 SVS
+    - Mantis#58 - символ-маска с кодом 0х0А - пропадает
   12.10.2005 AY
     - Клик мыши не работал на DI_TEXT с X2==0
   28.09.2005 SVS
@@ -1800,8 +1802,9 @@ int Dialog::InitDialogObjects(int ID)
       }
 
       DlgEdit *DialogEdit=(DlgEdit *)CurItem->ObjPtr;
-      DialogEdit->SetDialogParent((Type != DI_COMBOBOX && (ItemFlags & DIF_EDITOR))?
-                                  FEDITLINE_PARENT_SINGLELINE:FEDITLINE_PARENT_MULTILINE);
+      //DialogEdit->SetDialogParent((Type != DI_COMBOBOX && (ItemFlags & DIF_EDITOR) || (CurItem->Type==DI_PSWEDIT || CurItem->Type==DI_FIXEDIT))?
+      //                            FEDITLINE_PARENT_SINGLELINE:FEDITLINE_PARENT_MULTILINE);
+      DialogEdit->SetDialogParent(Type == DI_MEMOEDIT?FEDITLINE_PARENT_MULTILINE:FEDITLINE_PARENT_SINGLELINE);
       DialogEdit->SetReadOnly(0);
       /* $ 26.07.2000 SVS
          Ну наконец-то - долгожданный нередактируемый ComboBox

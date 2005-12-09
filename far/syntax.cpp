@@ -5,10 +5,12 @@ syntax.cpp
 
 */
 
-/* Revision: 1.10 07.10.2005 $ */
+/* Revision: 1.11 09.12.2005 $ */
 
 /*
 Modify:
+  09.12.2005 SVS
+    + "тестовая зона"...
   07.10.2005 SVS
     + Macro: Функция V=Dlg.GetValue(ID,N)
   05.07.2005 SVS
@@ -960,7 +962,11 @@ static TToken getToken(void)
             }
           if(KeyNameToKey(nameString) == -1)
           {
+#if !defined(TEST000)
             keyMacroParseError(err_Var_Expected,oSrcString,pSrcString,nameString);
+#else
+            keyMacroParseError(err_Unrecognised_keyword,nameString);
+#endif
           }
         }
       }
@@ -1101,6 +1107,7 @@ int parseExpr(const char*& BufPtr, unsigned long *eBuff, char bound1, char bound
     pSrcString = oSrcString = sSrcString = (char*)BufPtr;
   exprBuff = eBuff;
   put(MCODE_OP_EXPR);
+#if !defined(TEST000)
   getToken();
   if ( bound2 )
     expr();
@@ -1121,5 +1128,31 @@ int parseExpr(const char*& BufPtr, unsigned long *eBuff, char bound1, char bound
     }
     BufPtr++;
   }
+#else
+  if ( getToken() == tEnd )
+    keyMacroParseError(err_Expr_Expected);
+  else
+  {
+    if ( bound2 )
+      expr();
+    else
+      prim();
+    put(MCODE_OP_DOIT);
+    BufPtr = oSrcString;
+    while ( *BufPtr && isspace(*BufPtr) )
+      BufPtr++;
+    if ( bound2 )
+    {
+      if ( ( *BufPtr != bound2 ) || !( !BufPtr[1] || isspace(BufPtr[1]) ) )
+      {
+        tmp[0] = bound2;
+        tmp[1] = 0;
+        keyMacroParseError(err_Expected, tmp);
+        return 0;
+      }
+      BufPtr++;
+    }
+  }
+#endif
   return Size;
 }
