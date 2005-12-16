@@ -238,18 +238,17 @@ System
 [+] New rule - TechInfo#68, that allows to distinguish between right and left
     Ctrl-Alt-Shift.
 
-[+] Добавлена опция командной строки "/rc" - после завершения работы
-    позволяет восстановить значения заголовка и размеров консольного
-    окна, выставленные до запуска FAR Manager.
+[+] New command line option "/rc" - allows to restore console window size and
+    title after closing FAR Manager to the values set before staring FAR.
 
-[-] Параметры можно было сохранить с помощью Shift-F9, при выставленном
-    бите 17 в полиси (TechInfo#4)
+[-] Setting could be saved using Shift-F9 even if the 17-th bit of policy
+    rules was set (TechInfo#4).
 
-[+] В 5-м режиме панели в колонке атрибутов символ 'I' означает, что
-    файл будет индексироваться.
+[+] In 5-th panel mode in the attributes column the 'I' character states that
+    the file is indexed.
 
-[+] В 5-м режиме панели в колонке атрибутов символ '$' означает, что
-    это т.н. разреженный файл (sparse file).
+[+] In 5-th panel mode in the attributes column the '$' character states that
+    the file is a sparse file.
 
 
 Find File
@@ -333,9 +332,8 @@ Copy/Move
     inheritable access rights of the parent folder will be applied to the
     copied/moved files and folders. Additionally see TechInfo#65.
 
-[+] Новое правило TechInfo#69, позволяет управлять поведением опции
-    "Копировать права доступа" ("Copy access rights") в диалоге
-    копирования/перемещения.
+[+] New rule - TechInfo#69. Allows to control the "Copy access rights" option
+    in the copy/move dialog.
 
 [-] When creating a symbolic link to a folder a file of the same name was
     deleted (if the name of the symbolic link collided with the name of an
@@ -345,22 +343,20 @@ Copy/Move
 
 [+] The copy/move operation progress is shown in percents.
 
-[+] Добавлен функционал, позволяющий копировать шифрованные файлы
-    за пределы текущего диска. При этом выдается сообщение о
-    том, что конечные файлы будут расшифрованы.
-    В Windows 2000 для копирования шифрованного файла за пределы
-    исходного диска будет использован внутренний механизм копирования,
-    независимо от того, включен ли параметр "Использовать системную
-    функцию копирования" или нет.
+[+] New functionality that allows to copy encrypted files outside of the
+    current disk. Herewith you will see a message that the resulting files will
+    be decrypted.
+    In Windows 2000 the internal coping mechanism will be used for copying
+    encrypted files outside of the current disk with no regard to the "Using
+    system coping function" option.
 
-[*] Опция "Копировать права доступа" переименована в
-    "Наследование прав доступа" ("Inheriting of access rights").
-    Для операции перемещения опция трехпозиционная:
-       [x] Сохранять старые права доступа
-       [ ] Наследовать права доступа от новой родительской папки
-       [?] Оставить права доступа по умолчанию
-    Последнее состояние актуально для перемещения за пределы текущего
-    тома.
+[*] Option "Copy access rights" has being renamed to "Inheriting of access
+    rights".
+    This option has 3 states when moving:
+       [x] Save old access rights
+       [ ]  Inherit access rights from new parental folder
+       [?] Leave default access rights
+    The last state is used for moving outside of the current disk
 
 
 File attributes
@@ -368,13 +364,13 @@ File attributes
 [-] Error when changing the Encrypted attribute to Compressed for
     a read-only encrypted file.
 
-[+] В диалоге установки атрибутов добавлена возможность управления
-    атрибутом индексирования файла или папки соответствующим сервисом.
-    В 5-м режиме панели в колонке атрибутов символ 'I' означает, что
-    файл будет индексироваться.
+[+] The indexing attribute for files and folders can now be controlled
+    from the "Attributes" dialog.
+    In 5-th panel mode in the attributes column the 'I' character states that
+    the file is indexed.
 
-[+] Диалог установки атрибутов теперь вызывается на плагиновых панелях
-    в режиме ReadOnly.
+[+] The "Attributes" dialog can now be called in read-only mode from plugin
+    panels.
 
 
 File associations
@@ -437,7 +433,7 @@ Editor
 [+] New rule - TechInfo#67, allows to change the behaviour of text scrolling
     when the end of the file is reached.
 
-[+] Спрятать/Показать линейку функциональных клавиш
+[+] Show/Hide the key bar.
 
 
 Viewer
@@ -519,7 +515,8 @@ Macros
 [-] Macros that were manipulating the cursor did not clear selection in text
     input lines.
 
-[+] Макрообласть "UserMenu" - пользовательское меню
+[+] "UserMenu" macro area - macro commands from this area work in the User
+    Menu.
 
 
 Help
@@ -562,7 +559,7 @@ Addons
     FAR executor (correspondingly for 4NT.EXE, CMD.EXE and COMMAND.COM)
 
 [+] Addons\Macros\Notepad.reg
-    Клавиатурные сочетания редактора в стиле Notepad
+    Editor hotkeys in the Notepad style.
 
 
 Plugins
