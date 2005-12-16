@@ -95,46 +95,46 @@
 
   <tr class="cont">
     <td class="cont" width="40%">V=<dfn><a name="Dlg.GetValue">Dlg.GetValue</a></dfn>(ID,Type)</td>
-    <td class="cont" width="60%">Получить различные значения текущего диалога.<br>
-      <em>ID</em> - номер элемента диалога (элементы нумеруются с 1; 0 - само диалоговое окно).<br>
-      <em>Type</em> - тип получаемой информации, зависит от типа элемента. Для самого диалога (ID=0) допустимы следующие значения:
+    <td class="cont" width="60%">Get misc. values of the current dialog.<br>
+      <em>ID</em> - dialog element number (elements are numbered starting with 1; 0 - is the dialog windows itself).<br>
+      <em>Type</em> - type of the value to get, depending on the type of the element. For the dialog windows itself (ID=0) the following values are allowed:
        <table class="cont">
-       <tr class="cont"><th class="cont" width="10%">Type</th><th class="cont" width="10%">Тип Var</th><th class="cont" width="80%">Описание</th></tr>
-        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Количество элементов диалога</td></tr>
+       <tr class="cont"><th class="cont" width="10%">Type</th><th class="cont" width="10%">Var type</th><th class="cont" width="80%">Description</th></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Number of elements in the dialog</td></tr>
         <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">X1</td></tr>
         <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Y1</td></tr>
         <tr class="cont"><td class="cont" width="10%">4</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">X2</td></tr>
         <tr class="cont"><td class="cont" width="10%">5</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Y2</td></tr>
-        <tr class="cont"><td class="cont" width="10%">6</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">ID текущего элемента, имеющего <a href="../../dialogapi/keybfocus.html">клавиатурный фокус ввода</a></td></tr>
+        <tr class="cont"><td class="cont" width="10%">6</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">ID of the current element that has the <a href="../../dialogapi/keybfocus.html">keyboard focus</a></td></tr>
        </table>
 
-       Для элементов диалога допустимы:
+       For dialog elements the following values are allowed:
        <table class="cont">
-       <tr class="cont"><th class="cont" width="10%">Type</th><th class="cont" width="10%">Тип Var</th><th class="cont" width="10%">Элемент</th><th class="cont" width="70%">Описание</th></tr>
-        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">CheckBox</td><td class="cont" width="70%">Состояние переключателя</td></tr>
-        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">RadioButtons</td><td class="cont" width="70%">Состояние переключателя</td></tr>
-        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">String</td><td class="cont" width="10%">ListBox</td><td class="cont" width="70%">Значение текущего элемента списка</td></tr>
-        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">String</td><td class="cont" width="10%">ComboBox</td><td class="cont" width="70%">Значение текущего элемента списка</td></tr>
-        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">String</td><td class="cont" width="10%">Остальные</td><td class="cont" width="70%">Текстовое значение (поле <a href="../../dialogapi/structures/fardialogitem.html">FarDialogItem.Data</a>)</td></tr>
-        <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Все</td><td class="cont" width="70%"><a href="../../dialogapi/controls/index.html">Тип элемента</a></td></tr>
-        <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Все</td><td class="cont" width="70%">X1 относительно диалога</td></tr>
-        <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Все</td><td class="cont" width="70%">Y1 относительно диалога</td></tr>
-        <tr class="cont"><td class="cont" width="10%">4</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Все</td><td class="cont" width="70%">X2 относительно диалога</td></tr>
-        <tr class="cont"><td class="cont" width="10%">5</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Все</td><td class="cont" width="70%">Y2 относительно диалога</td></tr>
-        <tr class="cont"><td class="cont" width="10%">6</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Все</td><td class="cont" width="70%">элемент в фокусе?</td></tr>
+       <tr class="cont"><th class="cont" width="10%">Type</th><th class="cont" width="10%">Var type</th><th class="cont" width="10%">Element</th><th class="cont" width="70%">Description</th></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">CheckBox</td><td class="cont" width="70%">State of the checkbox</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">RadioButtons</td><td class="cont" width="70%">State of the radio button</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">String</td><td class="cont" width="10%">ListBox</td><td class="cont" width="70%">Value of the current list item</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">String</td><td class="cont" width="10%">ComboBox</td><td class="cont" width="70%">Value of the current list item</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">String</td><td class="cont" width="10%">Other</td><td class="cont" width="70%">Textual value (the <a href="../../dialogapi/structures/fardialogitem.html">FarDialogItem.Data</a> field)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">All</td><td class="cont" width="70%"><a href="../../dialogapi/controls/index.html">Element type</a></td></tr>
+        <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">All</td><td class="cont" width="70%">X1 relative to the dialog window</td></tr>
+        <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">All</td><td class="cont" width="70%">Y1 relative to the dialog window</td></tr>
+        <tr class="cont"><td class="cont" width="10%">4</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">All</td><td class="cont" width="70%">X2 relative to the dialog window</td></tr>
+        <tr class="cont"><td class="cont" width="10%">5</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">All</td><td class="cont" width="70%">Y2 relative to the dialog window</td></tr>
+        <tr class="cont"><td class="cont" width="10%">6</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">All</td><td class="cont" width="70%">does the element has focus?</td></tr>
 
-        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">CheckBox</td><td class="cont" width="70%">Состояние переключателя</td></tr>
-        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">RadioButtons</td><td class="cont" width="70%">Состояние переключателя</td></tr>
-        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">String</td><td class="cont" width="10%">ListBox</td><td class="cont" width="70%">Текущая позиция в списке (первый пункт списка = 1)</td></tr>
-        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">String</td><td class="cont" width="10%">ComboBox</td><td class="cont" width="70%">Текущая позиция в списке (первый пункт списка = 1)</td></tr>
-        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Остальные</td><td class="cont" width="70%">0</td></tr>
+        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">CheckBox</td><td class="cont" width="70%">State of the checkbox</td></tr>
+        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">RadioButtons</td><td class="cont" width="70%">State of the radio button</td></tr>
+        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">String</td><td class="cont" width="10%">ListBox</td><td class="cont" width="70%">Current position in the list (first list item = 1)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">String</td><td class="cont" width="10%">ComboBox</td><td class="cont" width="70%">Current position in the list (first list item = 1)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Other</td><td class="cont" width="70%">0</td></tr>
 
-        <tr class="cont"><td class="cont" width="10%">8</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Все</td><td class="cont" width="70%"><a href="../../dialogapi/flags/index.html">Флаги элемента</a></td></tr>
-        <tr class="cont"><td class="cont" width="10%">9</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Все</td><td class="cont" width="70%">Флаг, означающий, что данный элемент диалога является "элементом по умолчанию".</td></tr>
+        <tr class="cont"><td class="cont" width="10%">8</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">All</td><td class="cont" width="70%"><a href="../../dialogapi/flags/index.html">Element flags</a></td></tr>
+        <tr class="cont"><td class="cont" width="10%">9</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">All</td><td class="cont" width="70%">A flag that specifies that the given dialog element is the "default element".</td></tr>
 
-        <tr class="cont"><td class="cont" width="10%">10</td><td class="cont" width="10%">String</td><td class="cont" width="10%">Остальные</td><td class="cont" width="70%">Текстовое значение (поле <a href="../../dialogapi/structures/fardialogitem.html">FarDialogItem.Data</a>)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">10</td><td class="cont" width="10%">String</td><td class="cont" width="10%">Other</td><td class="cont" width="70%">Textual value (the  <a href="../../dialogapi/structures/fardialogitem.html">FarDialogItem.Data</a> field)</td></tr>
        </table>
-       Возвращает -1, если <em>ID</em> больше количества элементов диалога или значение <em>Type</em> не поддерживается.<br>
+       Returns -1 if <em>ID</em> is bigger than the number of elements in the dialog or the value of <em>Type</em> is not supported.<br>
     </td>
   </tr>
 

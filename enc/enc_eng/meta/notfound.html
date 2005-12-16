@@ -2,7 +2,7 @@
 <html>
 
 <head>
-<title>Внешняя ссылка</title>
+<title>Extrnal link</title>
 <meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
 <link rel="stylesheet" type="text/css" href="../styles/styles.css">
 <script language="javascript" type="text/javascript"><!--
@@ -14,7 +14,7 @@ function DrawNotFound(){
    f=document.location.href.indexOf("?");
    if(f > 0){
     qu=document.location.href.substring(f+1);
-    inf.innerHTML=" по <a href='http://search.microsoft.com/default.asp?boolean=ALL&nq=NEW&so=RECCNT&p=1&ig=01&i=00&i=01&i=02&i=03&i=04&i=05&i=06&i=07&i=08&i=09&i=10&i=11&i=12&i=13&i=14&i=15&i=16&i=17&i=18&i=19&i=20&i=21&i=22&i=23&i=24&i=25&i=26&i=27&i=28&i=29&i=30&i=31&i=32&i=33&i=34&i=35&i=36&i=37&i=38&i=39&i=40&i=41&siteid=us/dev&qu=" + qu + "' target='_blank' style='font-weight:bold;'>" +qu+ "</a> ";
+    inf.innerHTML=" in <a href='http://search.microsoft.com/default.asp?boolean=ALL&nq=NEW&so=RECCNT&p=1&ig=01&i=00&i=01&i=02&i=03&i=04&i=05&i=06&i=07&i=08&i=09&i=10&i=11&i=12&i=13&i=14&i=15&i=16&i=17&i=18&i=19&i=20&i=21&i=22&i=23&i=24&i=25&i=26&i=27&i=28&i=29&i=30&i=31&i=32&i=33&i=34&i=35&i=36&i=37&i=38&i=39&i=40&i=41&siteid=us/dev&qu=" + qu + "' target='_blank' style='font-weight:bold;'>" +qu+ "</a> ";
    }
   }
  }
@@ -24,13 +24,13 @@ function DrawNotFound(){
 
 <body onload="DrawNotFound()">
 
-<h1>404 - Информация недоступна</h1>
+<h1>404 - Information is unavailable</h1>
 <div class="navbar">
-  <a href="index.html">главная</a>
+  <a href="index.html">main</a>
 </div>
 
 <div class="descr">
-Запрашиваемая информация <span id="inf"></span> находится где-то в дебрях
+Requested information <span id="inf"></span> is available somewhere in the
 <b><a href="http://msdn.microsoft.com/library/" target="_blank">MSDN Library</a></b>.
 
 </body>

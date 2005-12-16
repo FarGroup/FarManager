@@ -585,7 +585,7 @@ This table shows the hexadecimal key codes used in FAR manager
     <td>&nbsp;</td>
     <td>&nbsp;</td>
     <th class="white"><code>000001XX</code></th>
-    <td>Other specific keys that have a <a href="../winapi/virtualkeycodes.html">virtual code</a> other than 0xFF,
+    <td>Other special keys that have a <a href="../winapi/virtualkeycodes.html">virtual code</a> other than 0xFF,
         are formed by the following formula: <code>"KEY_FKEY_BEGIN" + "Virtual code"</code>.<br>
         In <a href="../macro/index.html">macros</a> such keys are stored as &quot;OemXXXXX&quot; (here XXXXX is the virtual key code).
     </td>
@@ -620,10 +620,10 @@ This table shows the hexadecimal key codes used in FAR manager
     <td class="gray"></td>
     <td class="gray">KEY_VK_0xFF_BEGIN</td>
     <th class="gray"><code>00000300</code></th>
-    <td class="gray">Ќачало определени€ специфических клавиш, у которых <a href="../winapi/virtualkeycodes.html">virtual code</a>
-      равен 0xFF (например, разнообразные мультимедийные клавиши, которые производители дополнительно
-      встраивают в клавиатуру).  од формируетс€ по формуле: <code>"KEY_VK_0xFF_BEGIN" + ScanCode</code>.<br>
-      ¬ <a href="../macro/index.html">макросах</a> такие клавиши хран€тс€ как &quot;SpecXXXXX&quot; (здесь XXXXX сканкод клавиши).
+    <td class="gray">Beginning of special keys definitions that have a <a href="../winapi/virtualkeycodes.html">virtual code</a>
+      of 0xFF (i.e. misc. multimedia keys which are added by keyboard manufacturers).
+      Key code is formed using the following formula: <code>"KEY_VK_0xFF_BEGIN" + ScanCode</code>.<br>
+      In <a href="../macro/index.html">macros</a> those keys are saved as &quot;SpecXXXXX&quot; (here XXXXX is the scan code of the key).
     </td>
   </tr>
 
@@ -638,7 +638,7 @@ This table shows the hexadecimal key codes used in FAR manager
     <td class="gray"></td>
     <td class="gray">KEY_VK_0xFF_END</td>
     <th class="gray"><code>000003FF</code></th>
-    <td class="gray"> онец определени€ специфических клавиш.</td>
+    <td class="gray">Ending of special keys definitions.</td>
   </tr>
 
   <tr>
