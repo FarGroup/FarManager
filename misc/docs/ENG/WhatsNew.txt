@@ -346,9 +346,9 @@ Copy/Move
 [+] New functionality that allows to copy encrypted files outside of the
     current disk. Herewith you will see a message that the resulting files will
     be decrypted.
-    In Windows 2000 the internal coping mechanism will be used for copying
-    encrypted files outside of the current disk with no regard to the "Using
-    system coping function" option.
+    In Windows 2000 the internal copying mechanism will be used for copying
+    encrypted files outside of the current disk with no regard to the "Use
+    system copy routine" option.
 
 [*] Option "Copy access rights" has being renamed to "Inheriting of access
     rights".
