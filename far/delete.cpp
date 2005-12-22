@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.73 29.09.2005 $ */
+/* Revision: 1.74 22.12.2005 $ */
 
 /*
 Modify:
+  22.12.2005 SVS
+    + вызов хелпа для диалога удаления
   29.09.2005 SVS
     ! ScanTree должен уметь и короткие имена каталогов при рекурсивном спуске
   24.07.2005 WARP
@@ -313,8 +315,8 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     {
       TruncPathStr(JuncName+4,sizeof(JuncName)-4);
 
-      //SetMessageHelp("?????");
-      Ret=Message(0,3,MSG(MDeleteTitle),
+      //SetMessageHelp("DeleteLink");
+      Ret=Message(0,3,MSG(MDeleteLinkTitle),
                 DeleteFilesMsg,
                 MSG(MAskDeleteLink),
                 JuncName+4,
@@ -343,6 +345,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   if (Ret && (Opt.Confirm.Delete || SelCount>1 || (FileAttr & FA_DIREC)))
   {
     char *DelMsg;
+    char *TitleMsg=MSG(MDeleteTitle);
     /* $ 05.01.2001 IS
        ! Косметика в сообщениях - разные сообщения в зависимости от того,
          какие и сколько элементов выделено.
@@ -352,7 +355,10 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     if (SelCount==1)
     {
       if (Wipe && !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
+      {
         DelMsg=MSG(folder?MAskWipeFolder:MAskWipeFile);
+        TitleMsg=MSG(MDeleteWipeTitle);
+      }
       else
       {
         if (Opt.DeleteToRecycleBin && !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
@@ -372,7 +378,8 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
           DelMsg=MSG(MAskDelete);
     }
     /* IS $ */
-    if (Message(0,2,MSG(MDeleteTitle),DelMsg,DeleteFilesMsg,MSG(MDelete),MSG(MCancel))!=0)
+    SetMessageHelp("DeleteFile");
+    if (Message(0,2,TitleMsg,DelMsg,DeleteFilesMsg,MSG(MDelete),MSG(MCancel))!=0)
     {
       NeedUpdate=FALSE;
       goto done;
@@ -383,6 +390,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   {
     //SaveScreen SaveScr;
     SetCursorType(FALSE,0);
+    SetMessageHelp("DeleteFile");
     if (Message(MSG_WARNING,2,MSG(MDeleteFilesTitle),MSG(MAskDelete),
                 DeleteFilesMsg,MSG(MDeleteFileAll),MSG(MDeleteFileCancel))!=0)
     {
@@ -448,10 +456,13 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
             TruncPathStr(MsgFullName, ScrX-16);
             // для symlink`а не нужно подтверждение
             if(!(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
-               MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(MDeleteFolderTitle),
+            {
+              //SetMessageHelp("DeleteFile");
+              MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(MDeleteFolderTitle),
                   MSG(MDeleteFolderConfirm),MsgFullName,
                     MSG(MDeleteFileDelete),MSG(MDeleteFileAll),
                     MSG(MDeleteFileSkip),MSG(MDeleteFileCancel));
+            }
             /* IS $ */
             if (MsgCode<0 || MsgCode==3)
             {
@@ -527,6 +538,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
                 char MsgFullName[NM];
                 xstrncpy(MsgFullName, FullName,sizeof(MsgFullName)-1);
                 TruncPathStr(MsgFullName, ScrX-16);
+                //SetMessageHelp("DeleteFile");
                 int MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(MDeleteFolderTitle),
                       MSG(MDeleteFolderConfirm),MsgFullName,
                       MSG(MDeleteFileDelete),MSG(MDeleteFileAll),
@@ -613,8 +625,11 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
           {
             DeleteCode=RemoveToRecycleBin(SelName);
             if (!DeleteCode)// && WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS)
+            {
+              //SetMessageHelp("DeleteFile");
               Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
                       MSG(MCannotDeleteFolder),SelName,MSG(MOk));
+            }
             else
             {
               TreeList::DelTreeName(SelName);
@@ -714,6 +729,7 @@ int AskDeleteReadOnly(const char *Name,DWORD Attr)
     char MsgName[NM];
     xstrncpy(MsgName, Name,sizeof(MsgName)-1);
     TruncPathStr(MsgName, ScrX-16);
+    //SetMessageHelp("DeleteFile");
     MsgCode=Message(MSG_DOWN|MSG_WARNING,5,MSG(MWarning),MSG(MDeleteRO),MsgName,
             MSG(MAskDeleteRO),MSG(MDeleteFileDelete),MSG(MDeleteFileAll),
             MSG(MDeleteFileSkip),MSG(MDeleteFileSkipAll),
@@ -769,6 +785,7 @@ int ShellRemoveFile(const char *Name,const char *ShortName,int Wipe)
   Уничтожение файла приведет к обнулению всех ссылающихся на него файлов.
                         Уничтожать файл?
           */
+          // SetMessageHelp("DeleteFile");
           MsgCode=Message(MSG_DOWN|MSG_WARNING,5,MSG(MError),
                           MSG(MDeleteHardLink1),MSG(MDeleteHardLink2),MSG(MDeleteHardLink3),
                           MSG(MDeleteFileWipe),MSG(MDeleteFileAll),MSG(MDeleteFileSkip),MSG(MDeleteFileSkipAll),MSG(MDeleteCancel));
@@ -820,6 +837,7 @@ int ShellRemoveFile(const char *Name,const char *ShortName,int Wipe)
       char MsgName[NM];
       xstrncpy(MsgName, Name,sizeof(MsgName)-1);
       TruncPathStr(MsgName, ScrX-16);
+      //SetMessageHelp("DeleteFile");
       if(strlen(FullName) > NM-1)
       {
         MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(MError),MSG(MErrorFullPathNameLong),
@@ -878,6 +896,7 @@ int ERemoveDirectory(const char *Name,const char *ShortName,int Wipe)
       char MsgName[NM];
       xstrncpy(MsgName, Name,sizeof(MsgName)-1);
       TruncPathStr(MsgName, ScrX-16);
+      //SetMessageHelp("DeleteFile");
       if(strlen(FullName) > NM-1)
       {
         MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(MError),MSG(MErrorFullPathNameLong),

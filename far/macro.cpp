@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.153 07.12.2005 $ */
+/* Revision: 1.154 22.12.2005 $ */
 
 /*
 Modify:
+  22.12.2005 SVS
+    - Mantis#70 - FAR молча схлопывается при выполнении команды macro:post Add Dlg.GetValue(2,10)
   07.12.2005 SVS
     + MACRO_USERMENU
   11.10.2005 SVS
@@ -1858,7 +1860,7 @@ static TVar dlggetvalueFunc(TVar *param)
         case 9: Ret=(long)Item->DefaultButton; break;
         case 10:
         {
-          if((ItemType == DI_COMBOBOX || ItemType == DI_EDIT) && (ItemFlags|DIF_VAREDIT))
+          if((ItemType == DI_COMBOBOX || ItemType == DI_EDIT) && (ItemFlags&DIF_VAREDIT))
           {
 /*
       DWORD Item->Ptr.PtrFlags;
@@ -2031,6 +2033,16 @@ static TVar panelitemFunc(TVar *param)
     return TVar(0L);
 
   int Index=param[1].toInteger()-1;
+/*
+  if(Index == -2)
+  {
+    const char *strTypeInfo=param[2].s();
+    int Ret=SelPanel->GoToFile(strTypeInfo);
+    if(Ret)
+      SelPanel->Show();
+    return TVar(Ret);
+  }
+*/
   int TypeInfo=param[2].toInteger();
 
   struct FileListItem filelistItem;
@@ -2044,6 +2056,7 @@ static TVar panelitemFunc(TVar *param)
   else
   {
     char Date[128], Time[64];
+
     if(!SelPanel->GetItem(Index,&filelistItem))
       TypeInfo=-1;
     switch(TypeInfo)

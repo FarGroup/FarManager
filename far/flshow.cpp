@@ -5,10 +5,15 @@ flshow.cpp
 
 */
 
-/* Revision: 1.49 07.12.2005 $ */
+/* Revision: 1.50 22.12.2005 $ */
 
 /*
 Modify:
+  22.12.2005 SVS
+    + добавка индикации "выделенные вперед" - символ '^'
+    !  олонка атрибутов изменена. “еперь пор€док такой: ARSHLC, так же отображаем по ширине только то, что в начале.
+      т.е. дл€ масда€, выставив ширину колонки A = 4 получим "ARSH"
+    + отображение FILE_ATTRIBUTE_TEMPORARY
   07.12.2005 SVS
     ! добавлен показ FILE_ATTRIBUTE_SPARSE_FILE ('$' на месте 'L') и уточнение FILE_ATTRIBUTE_NOT_CONTENT_INDEXED
   27.10.2005 SVS
@@ -343,7 +348,13 @@ void FileList::ShowFileList(int Fast)
       }
     }
   }
-
+#if 0
+  if(SelectedFirst)
+  {
+    OutCharacter[0]='^';
+    Text(OutCharacter);
+  }
+#endif
   if (!Fast && GetFocus())
   {
     CtrlObject->CmdLine->SetCurDir(PanelMode==PLUGIN_PANEL ? Info.CurDir:CurDir);
@@ -1136,19 +1147,20 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 char OutStr[16];
                 DWORD FileAttr=CurPtr->FileAttr;
                 //
-                OutStr[0]=(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT) ? 'L' : ((FileAttr & FILE_ATTRIBUTE_SPARSE_FILE) ? '$':' ');
+                OutStr[0]=(FileAttr & FILE_ATTRIBUTE_ARCHIVE) ? 'A':' ';
+                OutStr[1]=(FileAttr & FILE_ATTRIBUTE_READONLY) ? 'R':' ';
+                OutStr[2]=(FileAttr & FILE_ATTRIBUTE_SYSTEM) ? 'S':' ';
+                OutStr[3]=(FileAttr & FILE_ATTRIBUTE_HIDDEN) ? 'H':' ';
+                OutStr[4]=(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT) ? 'L' : ((FileAttr & FILE_ATTRIBUTE_SPARSE_FILE) ? '$':' ');
                 // $ 20.10.2000 SVS - Encrypted NTFS/Win2K - ѕоток может быть либо COMPRESSED (—) либо ENCRYPTED (E)
-                OutStr[1]=(FileAttr & FILE_ATTRIBUTE_COMPRESSED) ? 'C':((FileAttr & FILE_ATTRIBUTE_ENCRYPTED)?'E':' ');
-                OutStr[2]=(FileAttr & FILE_ATTRIBUTE_ARCHIVE) ? 'A':' ';
-                OutStr[3]=(FileAttr & FILE_ATTRIBUTE_SYSTEM) ? 'S':' ';
-                OutStr[4]=(FileAttr & FILE_ATTRIBUTE_HIDDEN) ? 'H':' ';
-                OutStr[5]=(FileAttr & FILE_ATTRIBUTE_READONLY) ? 'R':' ';
+                OutStr[5]=(FileAttr & FILE_ATTRIBUTE_COMPRESSED) ? 'C':((FileAttr & FILE_ATTRIBUTE_ENCRYPTED)?'E':' ');
                 OutStr[6]=(!(FileAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)) ? (Is_FS_NTFS?'I':' '):' ';
-                OutStr[7]=0;
+                OutStr[7]=(FileAttr & FILE_ATTRIBUTE_TEMPORARY) ? (Is_FS_NTFS?'T':' '):' ';
+                OutStr[8]=0;
                 char *OutPtr=OutStr;
-                if (ColumnWidth<7)
-                  OutPtr=OutStr+7-ColumnWidth;
-                mprintf("%*s",ColumnWidth,OutPtr);
+                //if (ColumnWidth<7)
+                //  OutPtr=OutStr+7-ColumnWidth;
+                mprintf("%*.*s",ColumnWidth,ColumnWidth,OutPtr);
               }
               break;
             case DIZ_COLUMN:

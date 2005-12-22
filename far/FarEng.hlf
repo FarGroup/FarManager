@@ -497,18 +497,9 @@ folder before moving, terminate the name with a backslash.
 
   ~Create new folder~@MakeFolder@                                               #F7#
 
-  Delete                                     #Shift-Del, Shift-F8, F8#
+  ~Delete~@DeleteFile@                                     #Shift-Del, Shift-F8, F8#
 
-    Delete files and folders. #F8# and #Shift-Del# process all selected files,
-#Shift-F8# - only the file under the cursor. #Shift-Del# deletes files
-immediately, not to Recycle Bin as opposed to #F8# and #Shift-F8# if they are
-~configured~@SystemSettings@ to utilize the Recycle Bin method (only for local
-hard disks).
-
-  Wipe                                                       #Alt-Del#
-
-    Wipe files and folders. Before file deletion its data are overwritten with
-zeroes, after which the file is truncated and renamed to a temporary name.
+  ~Wipe~@DeleteFile@                                                       #Alt-Del#
 
   Show ~menus~@Menus@ bar                                                  #F9#
 
@@ -584,7 +575,7 @@ moved into #d:\folder2\folder1\#;
     - otherwise contents of #c:\folder1\# is moved into the
 newly created #d:\folder2\#.
 
-  Delete file under cursor                                  #Shift-F8#
+  ~Delete file~@DeleteFile@ under cursor                                  #Shift-F8#
   Save configuration                                        #Shift-F9#
   Selects last executed menu item                          #Shift-F10#
 
@@ -617,6 +608,35 @@ shows the ~drive selection menu~@DriveDlg@.
   Set ~file attributes~@FileAttrDlg@                                         #Ctrl-A#
   ~Apply command~@ApplyCmd@ to selected files                             #Ctrl-G#
   ~Describe~@FileDiz@ selected files                                     #Ctrl-Z#
+
+
+@DeleteFile
+$ #Удаление и уничтожение файлов и папок#
+    Для удаления или уничтожения файлов и папок применяются следующие сочетания
+клавиш:
+
+    #F8#         - если на панели выбраны какие-либо файлы или
+                 каталоги, то удаляется выбранная группа, иначе
+                 удаляется текущий объект под курсором.
+
+    #Shift-F8#   - удаление файла или папки только под курсором
+                 (независимо от выбранных объектов на панели);
+
+    #Shift-Del#  - удаление выбранных объектов минуя Корзину
+
+    #Alt-Del#    - уничтожение файлов и папок.
+
+
+    Примечания:
+
+    1. В зависимости от настроек в меню ~Системные параметры~@SystemSettings@
+комбинации клавиш #F8# и #Shift-F8# перемещают или нет удаляемые файлы в
+Корзину (Recycle Bin). Комбинация клавиш #Shift-Del# всегда удаляет файлы,
+не используя Корзину.
+
+    2. В процессе уничтожения, файл перезаписывается нулями (можно задать
+другой символ-заполнитель, см. TechInfo##29), усекается до нулевой длины,
+переименовывается во временное имя и удаляется.
 
 
 @ErrCannotExecute
@@ -2185,7 +2205,30 @@ available:
 
 
 @Editor
-$ #Editor: control keys#
+$ #Editor#
+    Для редактирования выделенного курсором файла следует нажать #F4#. Может
+использоваться как встроенный редактор, так и любой иной указанный
+пользователем, выбор редактора осуществляется в меню
+~Настройки редактора~@EditorSettings@.
+
+    #Создание файлов с помощью редактора#
+
+    Если после нажатия комбинации клавиш #Shift-F4# ввести имя файла, не
+имеющегося на диске, то при этом будет создан новый файл.
+
+    Примечания:
+
+    1. Если при открытии нового файла вы указали имя несуществующей папки, то
+появится предупреждение: "~Путь к редактируемому файлу не существует~@WarnEditorPath@".
+
+    2. При попытке повторного открытия на редактирование файла, FAR выдаст
+предупреждение: "~Повторное открытие файла~@EditorReload@".
+
+    3. При создании нового файла используется WIN кодировка, изменить поведение
+можно в меню ~Настройки редактора~@EditorSettings@.
+
+  #Control keys#
+
   Cursor movement
 
    #Left#                    Character left

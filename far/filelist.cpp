@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.242 08.12.2005 $ */
+/* Revision: 1.243 22.12.2005 $ */
 
 /*
 Modify:
+  22.12.2005 SVS
+    + Äכÿ Shift-F4 סהוכאול גûחמג ץוכןא ("Editor")
   08.12.2005 SVS
     - ענאבכû סמ סכוראלט הכÿ Alt-Shift-Ins
   07.12.2005 SVS
@@ -1816,7 +1818,7 @@ int FileList::ProcessKey(int Key)
                          LastFileName,
                          LastFileName,
                          sizeof(LastFileName),
-                         NULL,
+                         "Editor",
                          FIB_BUTTONS|FIB_EXPANDENV/*|FIB_EDITPATH*/|FIB_ENABLEEMPTY))
             return(FALSE);
           /* SVS $ */
