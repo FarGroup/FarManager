@@ -6,3 +6,7 @@
 [*] Process info export: commnad line and current directory moved
     closer to top.
 
+
+1.70.0.124.
+[-] Command line was ignored on Enter in newer FAR versions.
+[-] Displaying owner info and other WMI stuff sometimes failed.

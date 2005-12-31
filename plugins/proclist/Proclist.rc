@@ -9,7 +9,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 #pragma code_page(1252)
 
 VERSIONINFO_1 VERSIONINFO
-FILEVERSION 1, 7, 0, 122
+FILEVERSION 1, 70, 0, 124
 PRODUCTVERSION 1, 70, 6, 0
 FILEOS 4
 FILETYPE 2
@@ -20,9 +20,9 @@ FILETYPE 2
   {
    VALUE "CompanyName", "Eugene Roshal & FAR Group\000\000"
    VALUE "FileDescription", "Process List for FAR Manager\000"
-   VALUE "FileVersion", "1.70 build 122\000\000"
+   VALUE "FileVersion", "1.70 build 124\000\000"
    VALUE "InternalName", "ProcList\000"
-   VALUE "LegalCopyright", "Copyright © 1996-2000 Eugene Roshal, Copyright © 2000-03 FAR Group\000\000"
+   VALUE "LegalCopyright", "Copyright © 1996-2000 Eugene Roshal, Copyright © 2000-05 FAR Group\000\000"
    VALUE "OriginalFilename", "ProcList.dll\000"
    VALUE "ProductName", "FAR manager\000"
    VALUE "ProductVersion", "1.70 beta 6\000"

@@ -967,9 +967,16 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
     }
     if (ControlState==0 && Key==VK_RETURN)
     {
+	//check for the command line; if it's not empty, don't process Enter
+	char CmdLine[1024];
+
+	Control(FCTL_GETCMDLINE, CmdLine);
+	if(*CmdLine)
+	    return FALSE;
+
         PanelInfo PInfo;
         Control(FCTL_GETPANELINFO,&PInfo);
-        if (PInfo.CurrentItem<PInfo.ItemsNumber)
+        if (PInfo.CurrentItem < PInfo.ItemsNumber)
         {
             PluginPanelItem& CurItem = PInfo.PanelItems[PInfo.CurrentItem];
             if (!CurItem.UserData)

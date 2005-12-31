@@ -216,15 +216,9 @@ bool WMIConnection::Connect(LPCSTR pMachineName, LPCSTR pUser, LPCSTR pPassword)
     hrLast = WBEM_S_NO_ERROR;
     CoInitialize(0);
     
-    static bool bInitSecCalled;
-
-    if(!bInitSecCalled) {
-	hrLast = CoInitializeSecurity( 0, -1, 0, 0, RPC_C_AUTHN_LEVEL_DEFAULT, 
-    		    RPC_C_IMP_LEVEL_IMPERSONATE, 0, EOAC_NONE, 0);
-	bInitSecCalled = true;
-	/*if(hrLast!=S_OK)
-	    return false;*/
-    }
+    // It must called per thread, otherwise returns
+    CoInitializeSecurity( 0, -1, 0, 0, RPC_C_AUTHN_LEVEL_DEFAULT, 
+    		RPC_C_IMP_LEVEL_IMPERSONATE, 0, EOAC_NONE, 0);
     
     if(!pMachineName || !*pMachineName)
 	pMachineName = ".";
