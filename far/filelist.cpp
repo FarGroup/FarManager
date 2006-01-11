@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.243 22.12.2005 $ */
+/* Revision: 1.244 11.01.2006 $ */
 
 /*
 Modify:
+  11.01.2006 SVS
+    - F3 на каталогах не пашет для вложенных симлинков, даже если опция включена
   22.12.2005 SVS
     + Для Shift-F4 сделаем вызов хелпа ("Editor")
   08.12.2005 SVS
@@ -4547,7 +4549,8 @@ void FileList::CountDirSize(DWORD PluginFlags)
                    TestParentFolderName(CurPtr->Name) ? ".":
                      (Opt.FolderDeepScan && GetFileAttributes(CurPtr->Name)==(DWORD)-1 && *CurPtr->ShortName?CurPtr->ShortName:CurPtr->Name),
                    DirCount,
-                   DirFileCount,FileSize,CompressedFileSize,RealFileSize,ClusterSize,0,GETDIRINFO_DONTREDRAWFRAME|GETDIRINFO_USEDALTFOLDERNAME)==1)
+                   DirFileCount,FileSize,CompressedFileSize,RealFileSize,ClusterSize,0,
+                   GETDIRINFO_DONTREDRAWFRAME|GETDIRINFO_USEDALTFOLDERNAME|GETDIRINFO_SCANSYMLINKDEF)==1)
     {
       CurPtr->UnpSize=FileSize.PLow();
       CurPtr->UnpSizeHigh=FileSize.PHigh();

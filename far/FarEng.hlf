@@ -2100,7 +2100,7 @@ $ #Viewer: control keys#
     #Numpad5,F3,F10,Esc# Quit
     #Ctrl-F10#           Position to the current file.
     #F11#                Call "~Plugin commands~@Plugins@" menu
-
+    #Alt-F11#            Display ~view history~@HistoryViews@
     #+#                  Go to next file
     #-#                  Go to previous file
     #Ctrl-O#             Show user screen
@@ -2304,6 +2304,7 @@ $ #Editor#
    #Shift-F10#               Save and quit
    #Ctrl-F10#                Position to the current file
    #F11#                     Call "~Plugin commands~@Plugins@" menu
+   #Alt-F11#                 Display ~edit history~@HistoryViews@
    #Alt-BS, Ctrl-Z#          Undo
    #Ctrl-L#                  Disable edited text modification
    #Ctrl-O#                  Show user screen
