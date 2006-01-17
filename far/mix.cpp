@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.174 05.12.2005 $ */
+/* Revision: 1.175 17.01.2006 $ */
 
 /*
 Modify:
+  17.01.2006 SVS
+    - Mantis#69 - Падение при нестандартных настройках безапастности для сетевых папок
   05.12.2005 AY
     ! FarChDir - косметическая корректировка пути при переходе по относительным путям
     + PrepareDiskPath понимает UNC пути (\\computer\share)
@@ -1191,7 +1193,11 @@ int CheckFolder(const char *Path)
     {
       // проверка атрибутов гарантировано скажет - это бага BugZ#743 или пустой корень диска.
       if(GetFileAttributes(FindPath)!=0xFFFFFFFF)
+      {
+        if(lstError.Get() == ERROR_ACCESS_DENIED)
+          return CHKFLD_NOTACCESS;
         return CHKFLD_EMPTY;
+      }
     }
     strcpy(FindPath,Path);
     if(CheckShortcutFolder(FindPath,LenFindPath,FALSE,TRUE))
