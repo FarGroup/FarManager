@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.154 22.12.2005 $ */
+/* Revision: 1.155 17.01.2006 $ */
 
 /*
 Modify:
+  17.01.2006 SVS
+    + Panel.SetPos
   22.12.2005 SVS
     - Mantis#70 - FAR молча схлопываетс€ при выполнении команды macro:post Add Dlg.GetValue(2,10)
   07.12.2005 SVS
@@ -2014,6 +2016,34 @@ static TVar msaveFunc(TVar *param)
   return TVar(Ret==ERROR_SUCCESS?1L:0L);
 }
 
+// N=Panel.SetPos(panelType,fileName)
+static TVar panelsetposFunc(TVar *param)
+{
+  long typePanel=param[0].toInteger();
+  Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+  Panel *PassivePanel=NULL;
+  if(ActivePanel!=NULL)
+    PassivePanel=CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
+  //Frame* CurFrame=FrameManager->GetCurrentFrame();
+
+  Panel *SelPanel = typePanel == 0 ? ActivePanel : (typePanel == 1?PassivePanel:NULL);
+  if(!SelPanel)
+    return TVar(0L);
+
+  long Ret=0;
+  int TypePanel=SelPanel->GetType(); //FILE_PANEL,TREE_PANEL,QVIEW_PANEL,INFO_PANEL
+  if(TypePanel == FILE_PANEL || TypePanel ==TREE_PANEL)
+  {
+    const char *fileName=param[1].s();
+    if(SelPanel->GoToFile(fileName))
+    {
+      SelPanel->Show();
+      Ret=SelPanel->GetCurrentPos()+1;
+    }
+  }
+  return TVar(Ret);
+}
+
 // V=PanelItem(typePanel,Index,TypeInfo)
 static TVar panelitemFunc(TVar *param)
 {
@@ -2033,16 +2063,6 @@ static TVar panelitemFunc(TVar *param)
     return TVar(0L);
 
   int Index=param[1].toInteger()-1;
-/*
-  if(Index == -2)
-  {
-    const char *strTypeInfo=param[2].s();
-    int Ret=SelPanel->GoToFile(strTypeInfo);
-    if(Ret)
-      SelPanel->Show();
-    return TVar(Ret);
-  }
-*/
   int TypeInfo=param[2].toInteger();
 
   struct FileListItem filelistItem;
@@ -2224,8 +2244,7 @@ done:
     if(TitleModified) SetFarTitle(NULL); // выставим нужный заголовок по завершению макроса
     //FrameManager->RefreshFrame();
     //FrameManager->PluginCommit();
-    _KEYMACRO(SysLog(-1));
-    _KEYMACRO(SysLog("**** End Of Execute Macro ****"));
+    _KEYMACRO(SysLog(-1); SysLog("**** End Of Execute Macro ****"));
     if(CurPCStack >= 0)
     {
       PopState();
@@ -2238,9 +2257,8 @@ done:
     Work.Executing=Work.MacroWORK->Flags&MFLAGS_NOSENDKEYSTOPLUGINS?MACROMODE_EXECUTING:MACROMODE_EXECUTING_COMMON;
 
   DWORD Key=GetOpCode(MR,Work.ExecLIBPos++);
-  _SVS(char KeyText[50]);
-  _SVS(::KeyToText(Key,KeyText));
-  _SVS(SysLog("%s",KeyText));
+
+  _SVS(char KeyText[50]; ::KeyToText(Key,KeyText); SysLog("%s",KeyText));
 
   if(Key&KEY_ALTDIGIT) // "подтасовка" фактов ;-)
   {
@@ -2276,6 +2294,7 @@ done:
       goto begin;
     }
 
+    // переходы
     case MCODE_OP_JMP:
       Work.ExecLIBPos=GetOpCode(MR,Work.ExecLIBPos);
       goto begin;
@@ -2315,6 +2334,8 @@ done:
       else
         Work.ExecLIBPos++;
       goto begin;
+
+    // вычислить выражение
     case MCODE_OP_EXPR:
       _KEYMACRO(SysLog("  --- expr %d", Work.ExecLIBPos));
       ePos = 0;
@@ -2322,25 +2343,23 @@ done:
       {
         switch ( Key )
         {
-          case MCODE_OP_PUSHINT:
-            // ѕоложить целое значение на стек.
+          case MCODE_OP_PUSHINT:  // ѕоложить целое значение на стек.
             eStack[++ePos] = (long)GetOpCode(MR,Work.ExecLIBPos++);
             break;
-          case MCODE_OP_PUSHVAR:
+          case MCODE_OP_PUSHVAR:  // ѕоложить на стек переменную.
           {
-            // ѕоложить на стек переменную.
             GetPlainText(value);
             TVarTable *t = ( *value == '%' ) ? &glbVarTable : &locVarTable;
             // %%name - глобальна€ переменна€
             eStack[++ePos] = varLook(*t, value, errVar)->value;
             break;
           }
-          case MCODE_OP_PUSHSTR:
-            // ѕоложить на стек строку-константу.
+          case MCODE_OP_PUSHSTR: // ѕоложить на стек строку-константу.
             GetPlainText(value);
             eStack[++ePos] = TVar(value);
             break;
 
+          // операции
           case MCODE_OP_NEGATE: eStack[ePos] = -eStack[ePos]; break;
           case MCODE_OP_NOT:    eStack[ePos] = !eStack[ePos]; break;
 
@@ -2366,67 +2385,72 @@ done:
           case MCODE_OP_BITAND: ePos--; eStack[ePos] = eStack[ePos] &  eStack[ePos+1]; break;
           case MCODE_OP_BITOR:  ePos--; eStack[ePos] = eStack[ePos] |  eStack[ePos+1]; break;
           case MCODE_OP_BITXOR: ePos--; eStack[ePos] = eStack[ePos] ^  eStack[ePos+1]; break;
-          case MCODE_F_ABS:
+
+
+          // Function
+          case MCODE_F_ABS: // N=abs(N)
             if ( eStack[ePos].isInteger() )
               eStack[ePos] = labs(eStack[ePos].i());
             break;
-
-          case MCODE_F_ITOA:
+          case MCODE_F_ITOA: // S=itoa(N,radix)
             ePos--;
             eStack[ePos] = itoaFunc(eStack+ePos);
             break;
-
-          case MCODE_F_MIN:
+          case MCODE_F_MIN:  // N=min(N1,N2)
             ePos--;
             eStack[ePos] = ( eStack[ePos+1] < eStack[ePos] ) ? eStack[ePos+1] : eStack[ePos];
             break;
-          case MCODE_F_MAX:
+          case MCODE_F_MAX:  // N=max(N1,N2)
             ePos--;
             eStack[ePos] = ( eStack[ePos+1] > eStack[ePos] ) ? eStack[ePos+1] : eStack[ePos];
             break;
-          case MCODE_F_IIF:
+          case MCODE_F_IIF:  // V=iif(Condition,V1,V2)
             ePos -= 2;
             eStack[ePos] = eStack[ePos].toInteger() ? eStack[ePos+1] : eStack[ePos+2];
             break;
-          case MCODE_F_SUBSTR:
+          case MCODE_F_SUBSTR: // S=substr(S1,S2,N)
             ePos -= 2;
             eStack[ePos] = substrFunc(eStack+ePos);
             break;
-          case MCODE_F_RINDEX:
+          case MCODE_F_RINDEX: // S=rindex(S1,S2)
             ePos--;
             eStack[ePos] = rindexFunc(eStack+ePos);
             break;
-          case MCODE_F_INDEX:
+          case MCODE_F_INDEX: // S=index(S1,S2)
             ePos--;
             eStack[ePos] = indexFunc(eStack+ePos);
             break;
-          case MCODE_F_PANELITEM:
+          case MCODE_F_PANELITEM:  // V=panelitem(Panel,Index,TypeInfo)
             ePos-=2;
             eStack[ePos] = panelitemFunc(eStack+ePos);
             break;
-          case MCODE_F_ENVIRON:
+          case MCODE_F_PANEL_SETPOS: // N=Panel.SetPos(panelType,fileName)
+            ePos-=1;
+            eStack[ePos] = panelsetposFunc(eStack+ePos);
+            break;
+          case MCODE_F_ENVIRON: // S=env(S)
             eStack[ePos] = environFunc(eStack+ePos);
             break;
-          case MCODE_F_LEN:
+          case MCODE_F_LEN:  // N=len(S)
             eStack[ePos] = strlen(eStack[ePos].toString());
             break;
-          case MCODE_F_UCASE:
+          case MCODE_F_UCASE: // S=ucase(S1)
             LocalStrupr((char *)eStack[ePos].toString()); //??? strupr
             break;
-          case MCODE_F_LCASE:
+          case MCODE_F_LCASE: // S=lcase(S1)
             LocalStrlwr((char *)eStack[ePos].toString()); //??? strlwr
             break;
-          case MCODE_F_FEXIST:
+          case MCODE_F_FEXIST:  // S=fexist(S)
             eStack[ePos] = fexistFunc(eStack+ePos);
             break;
-          case MCODE_F_FSPLIT:
+          case MCODE_F_FSPLIT:  // S=fsplit(S,N)
             ePos--;
             eStack[ePos] = fsplitFunc(eStack+ePos);
             break;
-          case MCODE_F_FATTR:
+          case MCODE_F_FATTR:   // N=fattr(S)
             eStack[ePos] = fattrFunc(eStack+ePos);
             break;
-          case MCODE_F_MSAVE:
+          case MCODE_F_MSAVE:   // N=msave(S)
             eStack[ePos] = msaveFunc(eStack+ePos);
             break;
           case MCODE_F_DLG_GETVALUE:        // V=Dlg.GetValue(ID,N)
@@ -2437,14 +2461,13 @@ done:
             ePos--;
             eStack[ePos] = editorsetFunc(eStack+ePos);
             break;
-          case MCODE_F_STRING:
+          case MCODE_F_STRING:  // S=string(V)
             eStack[ePos].toString();
             break;
-          case MCODE_F_INT:
+          case MCODE_F_INT: // N=int(V)
             eStack[ePos].toInteger();
             break;
-
-          case MCODE_F_MENU_CHECKHOTKEY:
+          case MCODE_F_MENU_CHECKHOTKEY: // N=checkhotkey(S)
           {
              long Result=0L;
              int CurMMode=CtrlObject->Macro.GetMode();
@@ -2466,14 +2489,13 @@ done:
              eStack[ePos]=Result;
              break;
           }
-
-          case MCODE_F_DATE:  // вызывать date: Param=1
+          case MCODE_F_DATE:  // // S=date(S)
             eStack[ePos] = dateFunc(eStack + ePos);
             break;
-          case MCODE_F_XLAT:                  // вызывать XLat: Param=1
+          case MCODE_F_XLAT: // S=xlat(S)
             eStack[ePos] = xlatFunc(eStack + ePos);
             break;
-          case MCODE_F_MSGBOX:  // MsgBox("Title","Text",flags)
+          case MCODE_F_MSGBOX:  // N=msgbox("Title","Text",flags)
           {
               DWORD Flags=MR->Flags;
               if(Flags&MFLAGS_DISABLEOUTPUT) // если был - удалим
@@ -2492,6 +2514,8 @@ done:
               }
               break;
           }
+
+          //
           default:
             eStack[++ePos] = FARPseudoVariable(MR->Flags, Key);
             break;
@@ -2503,6 +2527,7 @@ done:
       _KEYMACRO(SysLog("      eStack->i()=%d", eStack->i()));
       _KEYMACRO(SysLog("      eStack->s()='%s'", eStack->s()));
       goto begin;
+
 // $Rep (expr) ... $End
 // -------------------------------------
 //            <expr>
@@ -3624,6 +3649,7 @@ static void printKeyValue(DWORD* k, int& i)
   else if ( k[i] == MCODE_F_MSGBOX )           sprint(ii, " N=msgbox(\"Title\",\"Text\",flags)");
   else if ( k[i] == MCODE_F_MIN )              sprint(ii, " N=min(N1,N2)");
   else if ( k[i] == MCODE_F_PANELITEM )        sprint(ii, " V=panelitem(Panel,Index,TypeInfo)");
+  else if ( k[i] == MCODE_F_PANEL_SETPOS )     sprint(ii, " N=panel.SetPos(panelType,fileName)");
   else if ( k[i] == MCODE_F_RINDEX )           sprint(ii, " S=rindex(S1,S2)");
   else if ( k[i] == MCODE_F_STRING )           sprint(ii, " S=string(V)");
   else if ( k[i] == MCODE_F_SUBSTR )           sprint(ii, " S=substr(S1,S2,N)");

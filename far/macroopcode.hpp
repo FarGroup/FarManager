@@ -5,10 +5,12 @@ OpCode для макросов
 
 */
 
-/* Revision: 1.17 07.10.2005 $ */
+/* Revision: 1.18 17.01.2006 $ */
 
 /*
 Modify:
+  17.01.2006 SVS
+    + Panel.SetPos
   07.10.2005 SVS
     ! Editor.CurStr -> Editor.Value. так точнее будет
     + Dlg.GetValue()
@@ -153,7 +155,8 @@ enum MACRO_OP_CODE {
   MCODE_F_LCASE,                    // LowerCase
   MCODE_F_ITOA,                     //
   MCODE_F_PANELITEM,                // V=PanelItem(Panel,Index,TypeInfo)
-  MCODE_F_MSAVE,                    // b=msave(var)
+  MCODE_F_PANEL_SETPOS,             // N=Panel.SetPos(panelType,fileName)
+  MCODE_F_MSAVE,                    // B=msave(var)
   MCODE_F_EDITOR_SET,               // N=Editor.Set(N,Var)
   MCODE_F_DLG_GETVALUE,             // V=Dlg.GetValue(ID,N)
 
