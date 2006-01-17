@@ -264,9 +264,9 @@
     <td class="cont" width="60%">Преобразует строку <em>S</em> в верхний регистр.</td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">V=<dfn><a name="panelitem">panelitem</a></dfn>(typePanel,Index,TypeInfo)</td>
-    <td class="cont" width="60%">Возвращает различную информацию для элемента панели <em>Index</em> (начиная с 1)
-      из активной (<em>typePanel</em>=0) или пассивной (<em>typePanel</em>=1) панели. <em>TypeInfo</em> может быть
+    <td class="cont" width="40%">V=<dfn><a name="panelitem">panelitem</a></dfn>(panelType,itemIndex,propIndex)</td>
+    <td class="cont" width="60%">Возвращает различную информацию для элемента панели <em>itemIndex</em> (начиная с 1)
+      из активной (<em>panelType</em>=0) или пассивной (<em>panelType</em>=1) панели. <em>propIndex</em> может быть
       одним из следующих значений:
        <table class="cont">
        <tr class="cont"><th class="cont" width="10%">Значение</th><th class="cont" width="10%">Тип</th><th class="cont" width="80%">Описание</th></tr>
@@ -286,9 +286,24 @@
         <tr class="cont"><td class="cont" width="10%">13</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Diz-текст</td></tr>
         <tr class="cont"><td class="cont" width="10%">14</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Владелец</td></tr>
         <tr class="cont"><td class="cont" width="10%">15</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">CRC32</td></tr>
+        <tr class="cont"><td class="cont" width="10%">16</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Позиция элемента</td></tr>
        </table>
+       Для панели "Дерево папок" возвращается только имя файла (<em>propIndex</em>=0), остальные значения <em>propIndex</em> игнорируются.<br>
        Дата/время возвращается в формате DD.MM.YYYY HH:MM:SS. Разделители и порядок в дате зависят от региональных настроек.<br>
-       Для получения данных о текущем файле (под курсором) <em>Index</em> должен быть равен 0.
+       Для получения данных о текущем файле (под курсором) <em>itemIndex</em> должен быть равен 0.
+    </td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="panel.setpos">panel.setpos</a></dfn>(panelType,fileName)</td>
+    <td class="cont" width="60%">Позиционирует курсор на элемент с именем <em>fileName</em> на активной (<em>panelType</em>=0) или пассивной (<em>panelType</em>=1) панели.<br>
+      Возвращает позицию элемента или 0, если такого элемента на панели нет.<br>
+      Например, создать каталог с именем, соответствующим текущей дате в формате YYYYMMDD, если каталог существует - позиционировать на него курсор:
+      <pre class=code>%dt=date("%Y%m0%d");
+$If (fexist(%dt))
+  panel.SetPos(0,%dt)
+$Else
+  F7 $Text %dt Enter
+$End</pre>
     </td>
   </tr>
   <tr class="cont">
