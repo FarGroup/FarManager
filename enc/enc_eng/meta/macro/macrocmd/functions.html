@@ -286,6 +286,19 @@
     </td>
   </tr>
   <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="panel.setpos">panel.setpos</a></dfn>(panelType,fileName)</td>
+    <td class="cont" width="60%">ѕозиционирует курсор на элемент с именем <em>fileName</em> на активной (<em>panelType</em>=0) или пассивной (<em>panelType</em>=1) панели.<br>
+      ¬озвращает позицию элемента или 0, если такого элемента на панели нет.<br>
+      Ќапример, создать каталог с именем, соответствующим текущей дате в формате YYYYMMDD, если каталог существует - позиционировать на него курсор:
+      <pre class=code>%dt=date("%Y%m0%d");
+$If (fexist(%dt))
+  panel.SetPos(0,%dt)
+$Else
+  F7 $Text %dt Enter
+$End</pre>
+    </td>
+  </tr>
+  <tr class="cont">
     <td class="cont" width="40%">B=<dfn><a name="msave">msave</a></dfn>(S)</td>
     <td class="cont" width="60%">Stores the value of a global variable with the name <em>S</em>
     to the <dfn>Vars</dfn> area.
