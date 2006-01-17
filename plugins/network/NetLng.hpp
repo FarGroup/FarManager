@@ -14,6 +14,7 @@ enum
   MSHIFTF5,
   MSHIFTF6,
   MF8,
+  MF8Fav,
   MF4,
 
   MWaitForNetworkBrowse1,
@@ -48,6 +49,10 @@ enum
   MConfigDisksMenuDigit,
   MConfigLocalNetwork,
   MNTGetHideShare,
+  MFullPathShares,
+  MNoRootDoublePoint,
+  MUpbrowseToFavorites,
+  MCheckResource,
 
   MConfirmDisconnectTitle,
   MConfirmDisconnectQuestion,
@@ -55,4 +60,13 @@ enum
   MConfirmDisconnectReconnect,
 
   MMultipleDisconnect,
+
+  MFavorites,
+  MFavoritesFolder,
+
+  MRememberPass,
+
+  MRemoveFavCaption,
+  MRemoveFavItem,
+  MRemoveFavItems,
 };

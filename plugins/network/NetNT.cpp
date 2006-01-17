@@ -1,3 +1,7 @@
+#include "NetClass.hpp"
+#include "Memory.hpp"
+#include "NetCommon.hpp"
+
 void NetBrowser::GetHideShareNT()
 {
 #ifdef NETWORK_LOGGING
@@ -81,7 +85,7 @@ void NetBrowser::GetHideShareNT()
 void NetBrowser::GetHideShare95()
 {
 #ifdef NETWORK_LOGGING
-  fprintf (LogFile, "GetHideShare95()\n");
+  LogData("GetHideShare95()\n");
 #endif
   if(UsedNetFunctions)
   {

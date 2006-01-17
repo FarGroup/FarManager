@@ -1,3 +1,6 @@
+#include "NetReg.hpp"
+#include "NetCommon.hpp"
+
 HKEY CreateRegKey(HKEY hRoot,const char *Key);
 HKEY OpenRegKey(HKEY hRoot,const char *Key);
 
@@ -94,14 +97,17 @@ HKEY CreateRegKey(HKEY hRoot,const char *Key)
   return(hKey);
 }
 
-
-HKEY OpenRegKey(HKEY hRoot,const char *Key)
+HKEY OpenRegKey(HKEY hRoot, const char *Key, REGSAM samDesired)
 {
   HKEY hKey;
   char FullKeyName[512];
   FSF.sprintf(FullKeyName,FmtSSS,PluginRootKey,*Key ? "\\":"",Key);
-  if (RegOpenKeyEx(hRoot,FullKeyName,0,KEY_QUERY_VALUE,&hKey)!=ERROR_SUCCESS)
+  if (RegOpenKeyEx(hRoot,FullKeyName,0,samDesired,&hKey)!=ERROR_SUCCESS)
     return(NULL);
   return(hKey);
 }
 
+HKEY OpenRegKey(HKEY hRoot,const char *Key)
+{
+	return OpenRegKey(hRoot, Key, KEY_QUERY_VALUE);
+}

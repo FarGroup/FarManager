@@ -1,7 +1,7 @@
 #define VERSIONINFO_1   1
 
 VERSIONINFO_1 VERSIONINFO
-FILEVERSION 1, 7, 0, 21
+FILEVERSION 1, 7, 0, 32
 PRODUCTVERSION 1, 70, 6, 0
 FILEOS 4
 FILETYPE 2
@@ -12,7 +12,7 @@ FILETYPE 2
   {
    VALUE "CompanyName", "Eugene Roshal & FAR Group\000"
    VALUE "FileDescription", "Network Plugin for FAR Manager\000"
-   VALUE "FileVersion", "1.70 build 021\000"
+   VALUE "FileVersion", "1.70 build 032\000"
    VALUE "InternalName", "Network\000"
    VALUE "LegalCopyright", "Copyright © Eugene Roshal 1996-2000, Copyright © 2000 - 2003 FAR Group\000"
    VALUE "OriginalFilename", "Network.dll\000"

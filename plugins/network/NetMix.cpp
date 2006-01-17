@@ -1,3 +1,5 @@
+#include "NetCommon.hpp"
+
 char *GetMsg(int MsgId)
 {
   return(char *) (Info.GetMsg(Info.ModuleNumber,MsgId));
