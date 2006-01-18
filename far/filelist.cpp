@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.244 11.01.2006 $ */
+/* Revision: 1.245 18.01.2006 $ */
 
 /*
 Modify:
+  18.01.2006 SVS
+    - F3 на каталогах не пашет... теперь, если выделено несколько каталогов
   11.01.2006 SVS
     - F3 на каталогах не пашет для вложенных симлинков, даже если опция включена
   22.12.2005 SVS
@@ -4522,7 +4524,7 @@ void FileList::CountDirSize(DWORD PluginFlags)
           GetDirInfo(MSG(MDirInfoViewTitle),
                      (Opt.FolderDeepScan && GetFileAttributes(CurPtr->Name)==(DWORD)-1 && *CurPtr->ShortName?CurPtr->ShortName:CurPtr->Name),
                      DirCount,DirFileCount,FileSize,
-                     CompressedFileSize,RealFileSize, ClusterSize,0,GETDIRINFO_DONTREDRAWFRAME|GETDIRINFO_USEDALTFOLDERNAME)==1)
+                     CompressedFileSize,RealFileSize, ClusterSize,0,GETDIRINFO_DONTREDRAWFRAME|GETDIRINFO_USEDALTFOLDERNAME|GETDIRINFO_SCANSYMLINKDEF)==1)
       {
         SelFileSize-=int64(CurPtr->UnpSizeHigh,CurPtr->UnpSize);
         SelFileSize+=FileSize;
