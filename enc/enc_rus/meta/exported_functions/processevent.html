@@ -6,15 +6,7 @@
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
-<!-- History of modification:
- Date: Oct 30 1999
-   Author: Valentin Skirdin
-   E-mail: vskirdin@mail.ru
 
- Date: Nov 20 1999
-   Author: Ivan Sintyurin
-   E-mail: spinoza@mail.ru
--->
 <body>
 
 <h1>ProcessEvent</h1>
@@ -43,29 +35,29 @@ int WINAPI ProcessEvent(
     <div class=dfndescr>Тип события. Одно из следующих значений (перечисление <a name="FAR_EVENTS">FAR_EVENTS</a>):
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Событие</th><th class="cont" width="60%">Описание</th></tr>
-        <tr class="cont"><td class="cont" width="40%"><a name="FE_CHANGEVIEWMODE">FE_CHANGEVIEWMODE</a></td>
+        <tr class="cont"><td class="cont" width="40%"><a name="FE_CHANGEVIEWMODE" title="0">FE_CHANGEVIEWMODE</a></td>
         <td class="cont" width="60%">Сменился режим просмотра панели.<br>
           <i>Param</i> указывает на строку <a href="panelcolumntype.html">типов
           колонок</a>, оканчивающуюся нулем, например <b>N,S,D,T</b>.
           Возвращаемое значение должно быть FALSE.
         </td></tr>
 
-        <tr class="cont"><td class="cont" width="40%"><a name="FE_REDRAW">FE_REDRAW</a></td>
+        <tr class="cont"><td class="cont" width="40%"><a name="FE_REDRAW" title="1">FE_REDRAW</a></td>
         <td class="cont" width="60%">Панель должна перерисоваться.<br>
           <i>Param</i> равен NULL.<br>
           Верните FALSE, чтобы использовать функцию перерисовки FAR'a, или TRUE, чтобы отключить ее. В последнем случае плагин должен перерисовать панель сам.</td></tr>
 
-        <tr class="cont"><td class="cont" width="40%"><a name="FE_IDLE">FE_IDLE</a></td>
+        <tr class="cont"><td class="cont" width="40%"><a name="FE_IDLE" title="2">FE_IDLE</a></td>
         <td class="cont" width="60%">Посылается с интервалом в несколько секунд. Плагин может использовать это событие, чтобы вызвать обновление панели и ее перерисовку, если это необходимо.<br>
           <i>Param</i> равен NULL.<br>
           Возвращаемое значение должно быть FALSE.</td></tr>
 
-        <tr class="cont"><td class="cont" width="40%"><a name="FE_CLOSE">FE_CLOSE</a></td>
+        <tr class="cont"><td class="cont" width="40%"><a name="FE_CLOSE" title="3">FE_CLOSE</a></td>
         <td class="cont" width="60%">Панель закрывается.<br>
           <i>Param</i> равен NULL.<br>
           Верните FALSE для закрытия панели или TRUE для отмены этого.</td></tr>
 
-        <tr class="cont"><td class="cont" width="40%"><a name="FE_BREAK">FE_BREAK</a></td>
+        <tr class="cont"><td class="cont" width="40%"><a name="FE_BREAK" title="4">FE_BREAK</a></td>
         <td class="cont" width="60%">Нажатие Ctrl-Break.<br>
           <i>Param</i> может быть только <code>(int)CTRL_BREAK_EVENT</code><br>
           Возвращаемое значение должно быть FALSE.<br>
@@ -73,7 +65,7 @@ int WINAPI ProcessEvent(
           должен быть осторожным при выполнении операций ввода-вывода и не
           должен использовать сервисные функции FAR'a.</td></tr>
 
-        <tr class="cont"><td class="cont" width="40%"><a name="FE_COMMAND">FE_COMMAND</a></td>
+        <tr class="cont"><td class="cont" width="40%"><a name="FE_COMMAND" title="5">FE_COMMAND</a></td>
         <td class="cont" width="60%">Перед запуском команды в командной строке FAR'a.<br>
           <i>Param</i> указывает на текст команды.<br>
           Для разрешения стандартной обработки команды плагин должен вернуть FALSE.<br>

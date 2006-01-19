@@ -32,7 +32,7 @@ int WINAPI ProcessViewerEvent(
       Может быть одной из следующих величин (перечисление <a name="VIEWER_EVENTS">VIEWER_EVENTS</a>):
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Событие</th><th class="cont" width="60%">Описание</th></tr>
-<tr class="cont"><td class="cont" width="40%"><a name="VE_CLOSE">VE_CLOSE</a></td>
+<tr class="cont"><td class="cont" width="40%"><a name="VE_CLOSE" title="1">VE_CLOSE</a></td>
 <td class="cont" width="60%">Одно из окон программы просмотра закрывается.
   Плагин может использовать это сообщение для освобождения внутренних
   структур данных. Заметьте, что несколько окон программы просмотра
@@ -46,7 +46,7 @@ int WINAPI ProcessViewerEvent(
   Функция должна вернуть 0.
 </td></tr>
 
-<tr class="cont"><td class="cont" width="40%"><a name="VE_READ">VE_READ</a></td>
+<tr class="cont"><td class="cont" width="40%"><a name="VE_READ" title="0">VE_READ</a></td>
 <td class="cont" width="60%">Новый файл загружен в программу просмотра.<br>
   <i>Param</i> = NULL.<br>
   Функция должна вернуть 0.
