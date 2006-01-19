@@ -32,7 +32,7 @@ int WINAPI ProcessViewerEvent(
       Can be one of the following values (<a name="VIEWER_EVENTS">VIEWER_EVENTS</a> enum):
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Event</th><th class="cont" width="60%">Description</th></tr>
-<tr class="cont"><td class="cont" width="40%"><a name="VE_CLOSE">VE_CLOSE</a></td>
+<tr class="cont"><td class="cont" width="40%"><a name="VE_CLOSE" title="1">VE_CLOSE</a></td>
 <td class="cont" width="60%">One of the internal viewers is closing. Plugins can use this event to
 free internal data structures. Note that several viewers can be active at the same time.
 <dfn>Param</dfn> points to an integer variable containing the ViewerID parameter of the viewer
@@ -44,7 +44,7 @@ already closed.<br>
 Return value must be 0.
 </td></tr>
 
-<tr class="cont"><td class="cont" width="40%"><a name="VE_READ">VE_READ</a></td>
+<tr class="cont"><td class="cont" width="40%"><a name="VE_READ" title="1">VE_READ</a></td>
 <td class="cont" width="60%">A new file has just been loaded.<br>
   <i>Param</i> = NULL.<br>
   Return value must be 0.
