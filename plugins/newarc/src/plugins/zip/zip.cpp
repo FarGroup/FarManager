@@ -104,22 +104,6 @@ int OnGetArchiveFormat (GetArchiveFormatStruct *pGAF)
 
 int OnExtract (ExtractStruct *pES)
 {
-	const char *pMsgs[3];
-
-	pMsgs[0] = _M(0);
-	pMsgs[1] = _M(1);
-	pMsgs[2] = _M(2);
-
-	Info.Message (
-			Info.ModuleNumber,
-			FMSG_WARNING,
-			NULL,
-			(const char * const *)pMsgs,
-			3,
-			1
-			);
-
-
 	ZipArchive *pArchive = (ZipArchive*)pES->hArchive;
 
 	pES->bResult = pArchive->pExtract (

@@ -137,8 +137,8 @@ void doIndicator (
 {
 	char *lpTemp = StrCreate (100);
 
-	memset (lpTemp, 219, 44);
-	memset (lpTemp, 177, dwPercent);
+	memset (lpTemp, 177, 44);
+	memset (lpTemp, 219, dwPercent);
 
 	Info.Text (x, y, FarGetColor (COL_DIALOGTEXT), lpTemp);
 
@@ -324,13 +324,21 @@ int __stdcall Archive::ArchiveCallback (
 		m_nTotalSize += nParam2;
 		m_nTotalSize2 += nParam2;
 
-		double div = (double)m_nTotalSize/(double)m_pCurrentItem->FindData.nFileSizeLow;
+		double div;
+
+		if (m_pCurrentItem->FindData.nFileSizeLow>0)
+			div = (double)m_nTotalSize/(double)m_pCurrentItem->FindData.nFileSizeLow;
+		else
+			div = 1;
 		dword dwPercent = (int)(div*44);
 
 		if ( !OptionIsOn (m_nMode, OPM_SILENT) )
 			doIndicator (c.X+5, c.Y+6, dwPercent);
 
-		div = (double)m_nTotalSize2/(double)m_nFullSize;
+		if (m_nFullSize>0)
+        	div = (double)m_nTotalSize2/(double)m_nFullSize;
+        else
+        	div = 1;
 		dwPercent = (int)(div*44);
 
 		if ( !OptionIsOn (m_nMode, OPM_SILENT) )
