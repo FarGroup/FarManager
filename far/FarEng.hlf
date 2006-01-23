@@ -2955,6 +2955,14 @@ the file panel will be displayed in multicolumn form.
        #$#         - Sparse
        #T#         - Temporary
 
+    The attributes are displayed in the following order - ARSHLCTI. The
+"Sparse" attribute applies only to files and is shown instead of 'L'. The
+"Encrypted" attribute is shown instead of 'C' as a file/folder can not
+have both attributes ("Compressed" and "Encrypted") set at the same time.
+By default the size of the attributes column is 6 characters. To display
+the additional 'T' and 'I' attributes it is necessary to manually set
+the size of the column to 8 characters.
+
   - #Column widths# - used to change width of panel columns.
 If the width is equal to 0, the default value will be used. If the width of
 the Name, Description or Owner column is 0, it will be calculated
