@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.175 17.01.2006 $ */
+/* Revision: 1.176 21.01.2006 $ */
 
 /*
 Modify:
+  21.01.2006 AY
+    ! ¬ прошлый раз поломал переход по коротким пут€м.
   17.01.2006 SVS
     - Mantis#69 - ѕадение при нестандартных настройках безапастности дл€ сетевых папок
   05.12.2005 AY
@@ -664,12 +666,20 @@ BOOL FarChDir(const char *NewDir, BOOL ChangeDir)
     }
     if(ChangeDir)
     {
-      char *ptr;
-      GetFullPathName(NewDir,sizeof(CurDir),CurDir,&ptr);
-      if(CheckFolder(CurDir) > CHKFLD_NOTACCESS)
+      if(CheckFolder(NewDir) > CHKFLD_NOTACCESS)
       {
-        PrepareDiskPath(CurDir,sizeof(CurDir)-1);
-        rc=SetCurrentDirectory(CurDir);
+        char *ptr;
+        char FullDir[sizeof(CurDir)];
+        GetFullPathName(NewDir,sizeof(FullDir),FullDir,&ptr);
+        PrepareDiskPath(FullDir,sizeof(FullDir)-1);
+
+        DWORD att1 = GetFileAttributes(NewDir);
+        DWORD att2 = GetFileAttributes(FullDir);
+
+        if (att1 != att2)
+          rc=SetCurrentDirectory(NewDir);
+        else
+          rc=SetCurrentDirectory(FullDir);
       }
     }
   }

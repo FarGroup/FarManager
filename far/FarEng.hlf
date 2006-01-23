@@ -84,9 +84,9 @@ displayed. In such case #cursor keys# can be used to scroll text.
 
     Press #Shift-F2# for ~plugins~@Plugins@ help.
 
-    По умолчанию "#Помощь#" показывается в свернутом окне, развернуть его можно
-при помощи клавиши #F5# "#Размер#", повторное нажатие #F5# вернет размер окна в
-первоначальное состояние.
+    #Help# is shown by default in a reduced windows, you can maximize it by
+pressing #F5# "#Zoom#", pressing #F5# again will restore the window to the
+previous size.
 
 
 @About
@@ -611,32 +611,31 @@ shows the ~drive selection menu~@DriveDlg@.
 
 
 @DeleteFile
-$ #Удаление и уничтожение файлов и папок#
-    Для удаления или уничтожения файлов и папок применяются следующие сочетания
-клавиш:
+$ #Deleting and wiping files and folders#
+    The following hotkeys are used to delete or wipe out files and folders:
 
-    #F8#         - если на панели выбраны какие-либо файлы или
-                 каталоги, то удаляется выбранная группа, иначе
-                 удаляется текущий объект под курсором.
+    #F8#         - if any files or folders are selected in the panel
+                 then the selected group will be deleted, otherwise
+                 the object currently under cursor will be deleted;
 
-    #Shift-F8#   - удаление файла или папки только под курсором
-                 (независимо от выбранных объектов на панели);
+    #Shift-F8#   - delete only the file under cursor
+                 (with no regard to selection in the panel);
 
-    #Shift-Del#  - удаление выбранных объектов минуя Корзину
+    #Shift-Del#  - delete selected objects, skipping the Recycle Bin;
 
-    #Alt-Del#    - уничтожение файлов и папок.
+    #Alt-Del#    - Wipe out files and folders.
 
 
-    Примечания:
+    Remarks:
 
-    1. В зависимости от настроек в меню ~Системные параметры~@SystemSettings@
-комбинации клавиш #F8# и #Shift-F8# перемещают или нет удаляемые файлы в
-Корзину (Recycle Bin). Комбинация клавиш #Shift-Del# всегда удаляет файлы,
-не используя Корзину.
+    1. In accordance to ~System Settings~@SystemSettings@ the hotkeys #F8# and
+#Shift-F8# do or do not move the deleted files to the Recycle Bin. The
+#Shift-Del# hotkey always deletes, skipping the Recycle Bin.
 
-    2. В процессе уничтожения, файл перезаписывается нулями (можно задать
-другой символ-заполнитель, см. TechInfo##29), усекается до нулевой длины,
-переименовывается во временное имя и удаляется.
+    2. Before file deletion its data is overwritten with zeroes (you can
+specify other overwrite characters - see TechInfo##29), after which the file
+is truncated to a zero sized file, renamed to a temporary name and then
+deleted.
 
 
 @ErrCannotExecute
@@ -1774,7 +1773,8 @@ $ #Special symbols#
 corresponding to the special character. No additional characters (for example,
 quotes) are added, and you should add them yourself if it is needed. For
 example, if a program used in the associations requires a file name to be
-enclosed in quotes, you should specify #program.exe "!.!"# and not #program.exe !.!#.
+enclosed in quotes, you should specify #program.exe "!.!"# and not
+#program.exe !.!#.
 
     2. The following modifiers may be used with the associations !@@! and !$! :
 
@@ -2206,26 +2206,26 @@ available:
 
 @Editor
 $ #Editor#
-    Для редактирования выделенного курсором файла следует нажать #F4#. Может
-использоваться как встроенный редактор, так и любой иной указанный
-пользователем, выбор редактора осуществляется в меню
-~Настройки редактора~@EditorSettings@.
+    To edit the file currently under the cursor you should press #F4#. This
+can be used to open the internal editor or any of the user defined external
+editors which are defined in the ~Editor settings~@EditorSettings@ dialog.
 
-    #Создание файлов с помощью редактора#
+    #Creating files using the editor#
 
-    Если после нажатия комбинации клавиш #Shift-F4# ввести имя файла, не
-имеющегося на диске, то при этом будет создан новый файл.
+    If a nonexistent file name is entered after pressing the #Shift-F4# hotkey
+then a new file will be created.
 
-    Примечания:
+    Remarks:
 
-    1. Если при открытии нового файла вы указали имя несуществующей папки, то
-появится предупреждение: "~Путь к редактируемому файлу не существует~@WarnEditorPath@".
+    1. If a name of a nonexistent folder is entered when creating a new file
+then a "~Path to the file to edit does not exist~@WarnEditorPath@" warning
+will be shown.
 
-    2. При попытке повторного открытия на редактирование файла, FAR выдаст
-предупреждение: "~Повторное открытие файла~@EditorReload@".
+    2. When trying to reload a file already opened in the editor the
+"~reloading a file~@EditorReload@" warning message will be shown.
 
-    3. При создании нового файла используется WIN кодировка, изменить поведение
-можно в меню ~Настройки редактора~@EditorSettings@.
+    3. The WIN encoding is used by default when creating new files, this
+behavior can be changed in the ~Editor settings~@EditorSettings@ dialog.
 
   #Control keys#
 
@@ -2951,7 +2951,9 @@ the file panel will be displayed in multicolumn form.
        #S#         - System
        #C# or #E#    - Compressed or Encrypted
        #L#         - Symbolic links (reparse point)
-       #I#         - Индексируется
+       #I#         - Indexed
+       #$#         - Sparse
+       #T#         - Temporary
 
   - #Column widths# - used to change width of panel columns.
 If the width is equal to 0, the default value will be used. If the width of
@@ -3141,13 +3143,12 @@ possible to either cancel the operation or replace the disk and select the
 disks. This feature is available only when "Use system copy routine" option in
 the ~System settings~@SystemSettings@ dialog is switched off.
 
-    Option "Inheriting of access rights" is valid only for the NTFS file system and
-allows the copying of file access information. This option is checked by
-default for copy and move operations. If this option is unchecked then
-after copying/moving the inheritable access rights of the parent folder
-will be applied to the copied/moved files and folders. Если опция
-имеет третье состояние, то никакие операции с правами доступа производится
-не будут.
+    The "Access rights" option is valid only for the NTFS file system and
+allows the copying of file access information. The "Copy" action is selected
+by default for copy and move operations. If the "Inherit" action is selected
+then after copying/moving the inheritable access rights of the parent folder
+will be applied to the copied/moved files and folders. If the "Leace as is"
+action is selected then no actions will be applied to the access rights.
 
     Parameter "Only newer file(s)" will allow to copy (move) the new and
 updated files without additional prompts. Updated files are those files for
@@ -3159,8 +3160,8 @@ dialog forces the Windows function CopyFileEx usage (or CopyFile if CopyFileEx
 is not available) instead of the internal copy implementation to copy files. It
 may be useful on NTFS, because CopyFileEx performs a more rational disk space
 allocation and copies file extended attributes.
-В Windows 2000 системная функция не используется для случая, когда
-файл шифрованный и производится копирование такого файла вне тома.
+In Windows 2000 the system copy routine is not used when the file is encrypted
+and you are copying it outside of the current disk.
 
     The "Copy contents of symbolic links" option allows to control the
 ~logic~@CopyRule@ of FAR processing of ~symbolic links~@HardSymLink@ when
@@ -3170,14 +3171,15 @@ copying/moving.
 as a copy with subsequent deletion or as a direct move (within one physical
 drive), FAR takes into account Windows 2000/XP ~symbolic links~@HardSymLink@.
 
-    FAR handles copying to #con# in the same way as copying to #nul# or #\\\\.\\nul# -
-that is, the file is read from the disk but not written anywhere.
+    FAR handles copying to #con# in the same way as copying to #nul# or
+#\\\\.\\nul# - that is, the file is read from the disk but not written
+anywhere.
 
     When files are moved to #nul#, #\\\\.\\nul# or #con#, they are not deleted
 from the disk.
 
-    The options "Inheriting of access rights" and "Only newer files" affect
-only the current copy session and are not saved for later copy operations.
+    The options "Access rights" and "Only newer files" affect only the current
+copy session and are not saved for later copy operations.
 
     Check the #Use filter# checkbox to copy the files that meet the user
 defined conditions. Press the #Filter# button to open the conditions
@@ -3281,17 +3283,16 @@ directories, one of which is a ~symbolic link~@HardSymLink@ to another.
 
 
 @WarnCopyEncrypt
-$ #Предупреждение: Потеря шифрования файла#
-    Исходный файл зашифрован. Копирование или перемещение его за пределы
-исходного диска возможно, если в месте назначения файл будет расшифрован.
+$ #Warning: Losing file encryption#
+    The source file is encrypted. Copying or moving it outside of the current
+disk is possible if in the destination the file will be decrypted.
 
-    Кнопки "Игнорировать" (или "Игнорировать все") игнорируют данное
-предупреждение и файл копируется в новое место нешифрованным.
+    The "Ignore" (or "Ignore all") buttons ignore the given warning and copy
+the file unencrypted to the destination.
 
-    В Windows 2000 для копирования шифрованного файла за пределы
-исходного диска будет использован внутренний механизм копирования,
-независимо от того, включен ли параметр "Использовать системную функцию
-копирования" или нет.
+    In Windows 2000 the internal copying mechanism will be used for copying
+encrypted files outside of the current disk with no regard to the "Use system
+copy routine" option.
 
 
 @WarnCopyStream

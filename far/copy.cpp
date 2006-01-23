@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.163 09.12.2005 $ */
+/* Revision: 1.164 21.01.2006 $ */
 
 /*
 Modify:
+  21.01.2006 AY
+    - Косметика: переделал чекбокс access rights в радио кнопки.
   09.12.2005 SVS
     - облажался, блин... вместо Opt.CMOpt.UseSystemCopy залудил Opt.CMOpt.MultiCopy
   08.12.2005 SVS
@@ -746,39 +748,45 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   /* 01 */  DI_TEXT,5,2,0,2,0,0,0,0,(char *)MCMLTargetTO,
   /* 02 */  DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY|DIF_VAREDIT|DIF_EDITEXPAND|DIF_USELASTHISTORY/*|DIF_EDITPATH*/,0,"",
   /* 03 */  DI_TEXT,3,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 04 */  DI_CHECKBOX,5,5,0,5,0,0,0,0,(char *)MCopySecurity,
-  /* 05 */  DI_CHECKBOX,5,6,0,6,0,0,0,0,(char *)MCopyOnlyNewerFiles,
-  /* 06 */  DI_CHECKBOX,5,7,0,7,0,0,0,0,(char *)MCopySymLinkContents,
-  /* 07 */  DI_CHECKBOX,5,8,0,7,0,0,0,0,(char *)MCopyMultiActions,
-  /* 08 */  DI_TEXT,3,9,0,9,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 09 */  DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MCopyUseFilter,
-  /* 10 */  DI_TEXT,3,11,0,11,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 09 */  DI_BUTTON,0,12,0,12,0,0,DIF_CENTERGROUP,1,(char *)MCopyDlgCopy,
-  /* 10 */  DI_BUTTON,0,12,0,12,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(char *)MCopyDlgTree,
-  /* 13 */  DI_BUTTON,0,12,0,12,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(char *)MCopySetFilter,
-  /* 11 */  DI_BUTTON,0,12,0,12,0,0,DIF_CENTERGROUP,0,(char *)MCopyDlgCancel,
-  /* 12 */  DI_TEXT,5,2,0,2,0,0,DIF_SHOWAMPERSAND,0,"",
+  /* 04 */  DI_TEXT,5,5,0,5,0,0,0,0,(char *)MCopySecurity,
+  /* 05 */  DI_RADIOBUTTON,5,5,0,5,0,0,DIF_GROUP,0,(char *)MCopySecurityCopy,
+  /* 06 */  DI_RADIOBUTTON,5,5,0,5,0,0,0,0,(char *)MCopySecurityInherit,
+  /* 07 */  DI_RADIOBUTTON,5,5,0,5,0,0,DIF_DISABLE,0,(char *)MCopySecurityLeave,
+  /* 08 */  DI_CHECKBOX,5,6,0,6,0,0,0,0,(char *)MCopyOnlyNewerFiles,
+  /* 09 */  DI_CHECKBOX,5,7,0,7,0,0,0,0,(char *)MCopySymLinkContents,
+  /* 10 */  DI_CHECKBOX,5,8,0,7,0,0,0,0,(char *)MCopyMultiActions,
+  /* 11 */  DI_TEXT,3,9,0,9,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 12 */  DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MCopyUseFilter,
+  /* 13 */  DI_TEXT,3,11,0,11,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 14 */  DI_BUTTON,0,12,0,12,0,0,DIF_CENTERGROUP,1,(char *)MCopyDlgCopy,
+  /* 15 */  DI_BUTTON,0,12,0,12,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(char *)MCopyDlgTree,
+  /* 16 */  DI_BUTTON,0,12,0,12,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(char *)MCopySetFilter,
+  /* 17 */  DI_BUTTON,0,12,0,12,0,0,DIF_CENTERGROUP,0,(char *)MCopyDlgCancel,
+  /* 18 */  DI_TEXT,5,2,0,2,0,0,DIF_SHOWAMPERSAND,0,"",
   };
   MakeDialogItems(CopyDlgData,CopyDlg);
 
-  CopyDlg[7].Selected=Opt.CMOpt.MultiCopy;
+  CopyDlg[10].Selected=Opt.CMOpt.MultiCopy;
 
   // Использовать фильтр. KM
-  CopyDlg[9].Selected=UseFilter;
+  CopyDlg[12].Selected=UseFilter;
 
   CopyDlg[2].Ptr.PtrData=Dlg2Value;
   CopyDlg[2].Ptr.PtrLength=SizeBuffer;
 
+  CopyDlg[5].X1 = CopyDlg[4].X1 + strlen(CopyDlg[4].Data) - (strchr(CopyDlg[4].Data, '&')?1:0) + 1;
+  CopyDlg[6].X1 = CopyDlg[5].X1 + strlen(CopyDlg[5].Data) - (strchr(CopyDlg[5].Data, '&')?1:0) + 5;
+  CopyDlg[7].X1 = CopyDlg[6].X1 + strlen(CopyDlg[6].Data) - (strchr(CopyDlg[6].Data, '&')?1:0) + 5;
 
   if(Link)
   {
-    CopyDlg[6].Selected=0;
-    CopyDlg[6].Flags|=DIF_DISABLE;
+    CopyDlg[9].Selected=0;
+    CopyDlg[9].Flags|=DIF_DISABLE;
   }
 
   if(Move)  // секция про перенос
   {
-    CopyDlg[4].Flags|=DIF_3STATE;
+    CopyDlg[7].Flags&=~DIF_DISABLE;
     CDP.CopySecurity=2;
     //   [x] Сохранять старые права доступа
     //   [ ] Наследовать права доступа от новой родительской папки
@@ -818,15 +826,20 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   if(CDP.CopySecurity)
   {
     if(CDP.CopySecurity == 1)
+    {
       ShellCopy::Flags|=FCOPY_COPYSECURITY;
+      CopyDlg[5].Selected=1;
+    }
     else
+    {
       ShellCopy::Flags|=FCOPY_LEAVESECURITY;
-    CopyDlg[4].Selected=CDP.CopySecurity;
+      CopyDlg[7].Selected=1;
+    }
   }
   else
   {
     ShellCopy::Flags&=~(FCOPY_COPYSECURITY|FCOPY_LEAVESECURITY);
-    CopyDlg[4].Selected=0;
+    CopyDlg[6].Selected=1;
   }
 
   if (CDP.SelCount==1)
@@ -835,11 +848,11 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     // Если каталог и он один, то предполагаем, что хотим создать симлинк
     if(Link && NT5 && (CDP.FileAttr&FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY && DestPanelMode == NORMAL_PANEL)
     {
-      CDP.OnlyNewerFiles=CopyDlg[5].Selected=1;
+      CDP.OnlyNewerFiles=CopyDlg[8].Selected=1;
       CDP.FolderPresent=TRUE;
     }
     else
-      CDP.OnlyNewerFiles=CopyDlg[5].Selected=0;
+      CDP.OnlyNewerFiles=CopyDlg[8].Selected=0;
 
     if (SrcPanel->GetType()==TREE_PANEL)
     {
@@ -861,8 +874,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     // Если копируем одиночный файл, то запрещаем использовать фильтр
     if (!(CDP.FileAttr&FILE_ATTRIBUTE_DIRECTORY))
     {
-      CopyDlg[9].Selected=0;
-      CopyDlg[9].Flags|=DIF_DISABLE;
+      CopyDlg[12].Selected=0;
+      CopyDlg[12].Flags|=DIF_DISABLE;
     }
   }
   else // Объектов несколько!
@@ -884,33 +897,42 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
       NItems=MCMLItems0;
     sprintf(CopyStr,MSG(NOper),CDP.SelCount,MSG(NItems));
   }
-  sprintf(CopyDlg[15].Data,"%.65s",CopyStr);
+  sprintf(CopyDlg[18].Data,"%.65s",CopyStr);
 
   // заголовки контролов
-  strcpy(CopyDlg[5].Data,MSG(Link?MCopySymLink:MCopyOnlyNewerFiles));
+  strcpy(CopyDlg[8].Data,MSG(Link?MCopySymLink:MCopyOnlyNewerFiles));
   strcpy(CopyDlg[0].Data,MSG(Move?MMoveDlgTitle :(Link?MLinkDlgTitle:MCopyDlgTitle)));
-  strcpy(CopyDlg[11].Data,MSG(Move?MCopyDlgRename:(Link?MCopyDlgLink:MCopyDlgCopy)));
+  strcpy(CopyDlg[14].Data,MSG(Move?MCopyDlgRename:(Link?MCopyDlgLink:MCopyDlgCopy)));
 
   if (Link)
   {
     // задисаблим опцию про симлинк, если OS < NT2000.
     if(!NT5 || ((CurrentOnly || CDP.SelCount==1) && !(CDP.FileAttr&FILE_ATTRIBUTE_DIRECTORY)))
     {
-      CopyDlg[5].Flags|=DIF_DISABLE;
-      CDP.OnlyNewerFiles=CopyDlg[5].Selected=0;
+      CopyDlg[8].Flags|=DIF_DISABLE;
+      CDP.OnlyNewerFiles=CopyDlg[8].Selected=0;
     }
     // задисаблим опцию про копирование права.
-    CopyDlg[4].Selected=1;
+    CopyDlg[5].Selected=1;
+    CopyDlg[6].Selected=0;
+    CopyDlg[7].Selected=0;
     CDP.CopySecurity=1;
-    CopyDlg[4].Flags|=DIF_DISABLE;
+    CopyDlg[5].Flags|=DIF_DISABLE;
+    CopyDlg[6].Flags|=DIF_DISABLE;
+    CopyDlg[7].Flags|=DIF_DISABLE;
   }
   else if(DestPanelMode == PLUGIN_PANEL)
   {
     // Если противоположная панель - плагин, то дисаблим OnlyNewer //?????
     CDP.CopySecurity=CDP.OnlyNewerFiles=0;
-    CopyDlg[4].Selected=CopyDlg[5].Selected=0;
+    CopyDlg[8].Selected=0;
+    CopyDlg[5].Selected=0;
+    CopyDlg[6].Selected=1;
+    CopyDlg[7].Selected=0;
+    CopyDlg[8].Flags|=DIF_DISABLE;
     CopyDlg[5].Flags|=DIF_DISABLE;
-    CopyDlg[4].Flags|=DIF_DISABLE;
+    CopyDlg[6].Flags|=DIF_DISABLE;
+    CopyDlg[7].Flags|=DIF_DISABLE;
   }
 
   DestPanel->GetCurDir(DestDir);
@@ -999,12 +1021,12 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
   if(Link) // рулесы по поводу линков (предварительные!)
   {
-    int Selected5=CopyDlg[5].Selected;
+    int Selected8=CopyDlg[8].Selected;
     if(CDP.SelCount > 1 && !CDP.FilesPresent && CDP.FolderPresent)
-      Selected5=1;
-    if(!LinkRules(&CopyDlg[11].Flags,
-                  &CopyDlg[5].Flags,
-                  &Selected5,
+      Selected8=1;
+    if(!LinkRules(&CopyDlg[14].Flags,
+                  &CopyDlg[8].Flags,
+                  &Selected8,
                   SrcDir,
                   (char *)CopyDlg[2].Ptr.PtrData,
                   &CDP))
@@ -1012,11 +1034,11 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
       _LOGCOPYR(SysLog("return -> %d LinkRules() == 0",__LINE__));
       return;
     }
-    CopyDlg[5].Selected=Selected5;
+    CopyDlg[8].Selected=Selected8;
   }
 
   // корректирем позицию " to"
-  CopyDlg[1].X1=CopyDlg[1].X2=CopyDlg[15].X1+strlen(RemoveTrailingSpaces(CopyDlg[15].Data));
+  CopyDlg[1].X1=CopyDlg[1].X2=CopyDlg[18].X1+strlen(RemoveTrailingSpaces(CopyDlg[18].Data));
 
   /* $ 15.06.2002 IS
      Обработка копирования мышкой - в этом случае диалог не показывается,
@@ -1051,14 +1073,14 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
       Dlg.ClearDone();
       Dlg.Process();
       DlgExitCode=Dlg.GetExitCode();
-      if(DlgExitCode == 11)
+      if(DlgExitCode == 14)
       {
         /* $ 03.08.2001 IS
            Запомним строчку из диалога и начинаем ее мучить в зависимости от
            состояния опции мультикопирования
         */
         strcpy(CopyDlgValue,(char *)CopyDlg[2].Ptr.PtrData);
-        Opt.CMOpt.MultiCopy=CopyDlg[7].Selected;
+        Opt.CMOpt.MultiCopy=CopyDlg[10].Selected;
         if(!Opt.CMOpt.MultiCopy || !strpbrk((char *)CopyDlg[2].Ptr.PtrData,",;")) // отключено multi*
         {
            // уберем пробелы, лишние кавычки
@@ -1075,7 +1097,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
         if(DestList.Set(CopyDlgValue) && !strpbrk(CopyDlgValue,ReservedFilenameSymbols))
         {
           // Запомнить признак использования фильтра. KM
-          UseFilter=CopyDlg[9].Selected;
+          UseFilter=CopyDlg[12].Selected;
           break;
         }
         else
@@ -1085,7 +1107,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
         break;
     }
     /* IS $ */
-    if(DlgExitCode == 14 || DlgExitCode < 0 || (CopyDlg[11].Flags&DIF_DISABLE))
+    if(DlgExitCode == 17 || DlgExitCode < 0 || (CopyDlg[14].Flags&DIF_DISABLE))
     {
       if (DestPlugin)
         ToPlugin=-1;
@@ -1097,16 +1119,17 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   // *** Стадия подготовки данных после диалога
   // ***********************************************************************
   ShellCopy::Flags&=~FCOPY_COPYPARENTSECURITY;
-  if(CopyDlg[4].Selected)
+  if(CopyDlg[5].Selected)
   {
-    if(CopyDlg[4].Selected == 1)
-      ShellCopy::Flags|=FCOPY_COPYSECURITY;
-    else
-      ShellCopy::Flags|=FCOPY_LEAVESECURITY;
+    ShellCopy::Flags|=FCOPY_COPYSECURITY;
+  }
+  else if(CopyDlg[6].Selected)
+  {
+    ShellCopy::Flags&=~(FCOPY_COPYSECURITY|FCOPY_LEAVESECURITY);
   }
   else
   {
-    ShellCopy::Flags&=~(FCOPY_COPYSECURITY|FCOPY_LEAVESECURITY);
+    ShellCopy::Flags|=FCOPY_LEAVESECURITY;
   }
 
   if(Opt.CMOpt.UseSystemCopy)
@@ -1128,8 +1151,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
       CopySecurityCopy=CDP.CopySecurity;
   }
 
-  ShellCopy::Flags|=CopyDlg[5].Selected?FCOPY_ONLYNEWERFILES:0;
-  ShellCopy::Flags|=CopyDlg[6].Selected?FCOPY_COPYSYMLINKCONTENTS:0;
+  ShellCopy::Flags|=CopyDlg[8].Selected?FCOPY_ONLYNEWERFILES:0;
+  ShellCopy::Flags|=CopyDlg[9].Selected?FCOPY_COPYSYMLINKCONTENTS:0;
 
   if (DestPlugin && !strcmp((char *)CopyDlg[2].Ptr.PtrData,InitDestDir))
   {
@@ -1178,7 +1201,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     if (CopyDlgValue[I]=='/')
       CopyDlgValue[I]='\\';
 
-  // нужно ли показывать время копирования?
+ // нужно ли показывать время копирования?
   ShowCopyTime = Opt.CMOpt.CopyTimeRule & ((ShellCopy::Flags&FCOPY_COPYTONUL)?COPY_RULE_NUL:COPY_RULE_FILES);
 
   // ***********************************************************************
@@ -1310,7 +1333,6 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
               if(strcmp(FileSysName,"NTFS"))
                 ShellCopy::Flags|=FCOPY_COPYSYMLINKCONTENTS;
           }
-
           int I=CopyFileTree(NameTmp);
           SetPreRedrawFunc(NULL);
 
@@ -1439,28 +1461,28 @@ long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
   {
     case DN_BTNCLICK:
     {
-      if (Param1==9) // "Use filter"
+      if (Param1==12) // "Use filter"
       {
         UseFilter=Param2;
         return TRUE;
       }
-      if(Param1 == 12) // Tree
+      if(Param1 == 15) // Tree
       {
         Dialog::SendDlgMessage(hDlg,DM_CALLTREE,0,0);
         return FALSE;
       }
-      else if(Param1 == 11)
+      else if(Param1 == 14)
       {
-        Dialog::SendDlgMessage(hDlg,DM_CLOSE,11,0);
+        Dialog::SendDlgMessage(hDlg,DM_CLOSE,14,0);
       }
-      else if(Param1 == 5 && ((DlgParam->thisClass->Flags)&FCOPY_LINK))
+      else if(Param1 == 8 && ((DlgParam->thisClass->Flags)&FCOPY_LINK))
       {
         // подсократим код путем эмуляции телодвижений в строке ввода :-))
         struct FarDialogItem DItem2;
         Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,2,(long)&DItem2);
         Dialog::SendDlgMessage(hDlg,DN_EDITCHANGE,2,(long)&DItem2);
       }
-      else if (Param1==13) // Filter
+      else if (Param1==16) // Filter
       {
         Filter->Configure();
         return TRUE;
@@ -1482,20 +1504,22 @@ long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     case DN_EDITCHANGE:
       if(Param1 == 2)
       {
-        struct FarDialogItem DItem4,DItem5,DItem9;
+        struct FarDialogItem DItem5,DItem6,DItem7,DItem8,DItem14;
         int LenCurDirName=DlgParam->thisClass->SrcPanel->GetCurDir(NULL);
         char *SrcDir=(char *)alloca(LenCurDirName+16);
         DlgParam->thisClass->SrcPanel->GetCurDir(SrcDir);
-        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,4,(long)&DItem4);
         Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,5,(long)&DItem5);
-        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,11,(long)&DItem9);
+        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,6,(long)&DItem6);
+        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,7,(long)&DItem7);
+        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,8,(long)&DItem8);
+        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,14,(long)&DItem14);
 
         // Это создание линка?
         if((DlgParam->thisClass->Flags)&FCOPY_LINK)
         {
-          DlgParam->thisClass->LinkRules(&DItem9.Flags,
-                    &DItem5.Flags,
-                    &DItem5.Param.Selected,
+          DlgParam->thisClass->LinkRules(&DItem14.Flags,
+                    &DItem8.Flags,
+                    &DItem8.Param.Selected,
                     SrcDir,
                     ((struct FarDialogItem *)Param2)->Data.Ptr.PtrData,DlgParam);
         }
@@ -1506,25 +1530,50 @@ long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
           strupr(strcpy(Buf,DItem2->Data.Ptr.PtrData));
           if(*DlgParam->PluginFormat && strstr(Buf,DlgParam->PluginFormat))
           {
-            DItem4.Flags|=DIF_DISABLE;
             DItem5.Flags|=DIF_DISABLE;
-            DlgParam->OnlyNewerFiles=DItem5.Param.Selected;
-            DlgParam->CopySecurity=DItem4.Param.Selected;
-            DItem4.Param.Selected=0;
+            DItem6.Flags|=DIF_DISABLE;
+            DItem7.Flags|=DIF_DISABLE;
+            DItem8.Flags|=DIF_DISABLE;
+            DlgParam->OnlyNewerFiles=DItem8.Param.Selected;
+            DlgParam->CopySecurity=0;
+            if (DItem5.Param.Selected)
+              DlgParam->CopySecurity=1;
+            else if (DItem7.Param.Selected)
+              DlgParam->CopySecurity=2;
             DItem5.Param.Selected=0;
+            DItem6.Param.Selected=1;
+            DItem7.Param.Selected=0;
+            DItem8.Param.Selected=0;
           }
           else
           {
-            DItem4.Flags&=~DIF_DISABLE;
             DItem5.Flags&=~DIF_DISABLE;
-            DItem5.Param.Selected=DlgParam->OnlyNewerFiles;
-            DItem4.Param.Selected=DlgParam->CopySecurity;
+            DItem6.Flags&=~DIF_DISABLE;
+            if ((DlgParam->thisClass->Flags)&FCOPY_MOVE)
+              DItem7.Flags&=~DIF_DISABLE;
+            DItem8.Flags&=~DIF_DISABLE;
+            DItem8.Param.Selected=DlgParam->OnlyNewerFiles;
+            DItem5.Param.Selected=0;
+            DItem6.Param.Selected=0;
+            DItem7.Param.Selected=0;
+            if (DlgParam->CopySecurity == 1)
+            {
+              DItem5.Param.Selected=1;
+            }
+            else if (DlgParam->CopySecurity == 2)
+            {
+              DItem7.Param.Selected=1;
+            }
+            else
+              DItem6.Param.Selected=1;
           }
         }
 
-        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,4,(long)&DItem4);
         Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,5,(long)&DItem5);
-        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,11,(long)&DItem9);
+        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,6,(long)&DItem6);
+        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,7,(long)&DItem7);
+        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,8,(long)&DItem8);
+        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,14,(long)&DItem14);
       }
       break;
 
@@ -1542,7 +1591,7 @@ long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
            показывался корневой каталог, теперь показывается самый первый каталог
            в списке.
       */
-      BOOL MultiCopy=Dialog::SendDlgMessage(hDlg,DM_GETCHECK,7,0)==BSTATE_CHECKED;
+      BOOL MultiCopy=Dialog::SendDlgMessage(hDlg,DM_GETCHECK,10,0)==BSTATE_CHECKED;
       struct FarDialogItem DItem2;
       Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,2,(long)&DItem2);
 
