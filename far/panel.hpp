@@ -7,10 +7,14 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.34 23.10.2005 $ */
+/* Revision: 1.35 23.01.2006 $ */
 
 /*
 Modify:
+  23.01.2006 SVS
+    ! Добавлен второй параметр у SendKeyToPlugin, признак того, что ЭТО
+      клавиша Pred и нужно выставить у VirtualKey (передаваемого в плагин)
+      флаг PKF_PREPROCESS.
   23.10.2005 SVS
     + virtual SendKeyToPlugin()
   24.07.2005 WARP
@@ -187,7 +191,7 @@ class Panel:public ScreenObject
     virtual ~Panel();
 
   public:
-    virtual int SendKeyToPlugin(DWORD Key){return FALSE;};
+    virtual int SendKeyToPlugin(DWORD Key,BOOL Pred=FALSE){return FALSE;};
     virtual void SetCurDir(char *NewDir,int ClosePlugin);
     virtual void ChangeDirToCurrent();
     virtual int GetCurDir(char *CurDir);

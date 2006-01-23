@@ -7,10 +7,14 @@ filelist.hpp
 
 */
 
-/* Revision: 1.51 07.12.2005 $ */
+/* Revision: 1.52 23.01.2006 $ */
 
 /*
 Modify:
+  23.01.2006 SVS
+    ! Добавлен второй параметр у SendKeyToPlugin, признак того, что ЭТО
+      клавиша Pred и нужно выставить у VirtualKey (передаваемого в плагин)
+      флаг PKF_PREPROCESS.
   07.12.2005 SVS
     + Is_FS_NTFS
   23.10.2005 SVS
@@ -354,7 +358,7 @@ class FileList:public Panel
     virtual void UpdateIfRequired();
     /* DJ $ */
 
-    virtual int SendKeyToPlugin(DWORD Key);
+    virtual int SendKeyToPlugin(DWORD Key,BOOL Pred=FALSE);
     void CreateChangeNotification(int CheckTree);
     void CloseChangeNotification();
     void SortFileList(int KeepPosition);

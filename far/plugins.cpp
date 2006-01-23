@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.162 25.07.2005 $ */
+/* Revision: 1.163 23.01.2006 $ */
 
 /*
 Modify:
+  23.01.2006 SVS
+    + _ALGO
   24.07.2005 WARP
     ! see 02033.LockUnlock.txt
   24.04.2005 AY
@@ -2374,6 +2376,8 @@ void PluginsSet::GetOpenPluginInfo(HANDLE hPlugin,struct OpenPluginInfo *Info)
 
 int PluginsSet::ProcessKey(HANDLE hPlugin,int Key,unsigned int ControlState)
 {
+  _ALGO(CleverSysLog clv("PluginsSet::ProcessKey()"));
+  _ALGO(SysLog("hPlugin=%p, Key=%u (0x%08X) ControlState=%u (0x%08X) ",hPlugin,Key,Key,ControlState,ControlState));
   struct PluginHandle *ph=(struct PluginHandle *)hPlugin;
   struct PluginItem *PData=PluginsData+ph->PluginNumber;
   if (PData->pProcessKey && !ProcessException)

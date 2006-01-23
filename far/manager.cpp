@@ -5,10 +5,14 @@ manager.cpp
 
 */
 
-/* Revision: 1.95 25.10.2005 $ */
+/* Revision: 1.96 23.01.2006 $ */
 
 /*
 Modify:
+  23.01.2006 SVS
+    ! Добавлен второй параметр у SendKeyToPlugin, признак того, что ЭТО
+      клавиша Pred и нужно выставить у VirtualKey (передаваемого в плагин)
+      флаг PKF_PREPROCESS.
   25.10.2005 SVS
     ! Часть I. Разрешим плагинам "ВСЕ" кеи (кроме макрокодов) - для ProcessKey()
     ! параметр у ProcessKey не int, а DWORD
@@ -886,9 +890,13 @@ int  Manager::ProcessKey(DWORD Key)
       switch(CurrentFrame->GetType())
       {
         case MODALTYPE_PANELS:
-          if(CtrlObject->Cp()->ActivePanel->SendKeyToPlugin(Key))
+        {
+          _ALGO(CleverSysLog clv("Manager::ProcessKey()"));
+          _ALGO(SysLog("Key=%u (0x%08X)",Key,Key));
+          if(CtrlObject->Cp()->ActivePanel->SendKeyToPlugin(Key,TRUE))
             return TRUE;
           break;
+        }
         case MODALTYPE_VIEWER:
           //if(((FileViewer*)CurrentFrame)->ProcessViewerInput(FrameManager->GetLastInputRecord()))
           //  return TRUE;

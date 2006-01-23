@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.254 30.05.2005 $ */
+/* Revision: 1.255 23.01.2006 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  23.01.2006 SVS
+    + PKF_PREPROCESS - выставляется у VK (второй параметр ProcessKey), говорит о том, что это предобработка
   30.05.2005 SVS
     ! временно откатим проект про USB
   06.05.2005 SVS
@@ -2637,18 +2639,19 @@ enum OPENPLUGIN_OPENFROM{
 };
 
 enum FAR_PKF_FLAGS {
-  PKF_CONTROL = 0x0001,
-  PKF_ALT     = 0x0002,
-  PKF_SHIFT   = 0x0004,
+  PKF_CONTROL     = 0x00000001,
+  PKF_ALT         = 0x00000002,
+  PKF_SHIFT       = 0x00000004,
+  PKF_PREPROCESS  = 0x00080000, // for "Key", function ProcessKey()
 };
 
 enum FAR_EVENTS {
-  FE_CHANGEVIEWMODE,
-  FE_REDRAW,
-  FE_IDLE,
-  FE_CLOSE,
-  FE_BREAK,
-  FE_COMMAND
+  FE_CHANGEVIEWMODE =0,
+  FE_REDRAW         =1,
+  FE_IDLE           =2,
+  FE_CLOSE          =3,
+  FE_BREAK          =4,
+  FE_COMMAND        =5,
 };
 
 

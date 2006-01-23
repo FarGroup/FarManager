@@ -5,10 +5,14 @@ filelist.cpp
 
 */
 
-/* Revision: 1.245 18.01.2006 $ */
+/* Revision: 1.246 23.01.2006 $ */
 
 /*
 Modify:
+  23.01.2006 SVS
+    ! Добавлен второй параметр у SendKeyToPlugin, признак того, что ЭТО
+      клавиша Pred и нужно выставить у VirtualKey (передаваемого в плагин)
+      флаг PKF_PREPROCESS.
   18.01.2006 SVS
     - F3 на каталогах не пашет... теперь, если выделено несколько каталогов
   11.01.2006 SVS
@@ -1104,8 +1108,10 @@ void FileList::SetFocus()
   /* KM $ */
 }
 
-int FileList::SendKeyToPlugin(DWORD Key)
+int FileList::SendKeyToPlugin(DWORD Key,BOOL Pred)
 {
+  _ALGO(CleverSysLog clv("FileList::SendKeyToPlugin()"));
+  _ALGO(SysLog("Key=%u (0x%08X) Pred=%d",Key,Key,Pred));
   if (PanelMode==PLUGIN_PANEL &&
       (CtrlObject->Macro.IsRecording() == MACROMODE_RECORDING_COMMON || CtrlObject->Macro.IsExecuting() == MACROMODE_EXECUTING_COMMON || CtrlObject->Macro.GetCurRecord(NULL,NULL) == MACROMODE_NOMACRO)
      )
@@ -1113,7 +1119,9 @@ int FileList::SendKeyToPlugin(DWORD Key)
     int VirtKey,ControlState;
     if (TranslateKeyToVK(Key,VirtKey,ControlState))
     {
-      int ProcessCode=CtrlObject->Plugins.ProcessKey(hPlugin,VirtKey,ControlState);
+      _ALGO(SysLog("call Plugins.ProcessKey() {"));
+      int ProcessCode=CtrlObject->Plugins.ProcessKey(hPlugin,VirtKey|(Pred?PKF_PREPROCESS:0),ControlState);
+      _ALGO(SysLog("} ProcessCode=%d",ProcessCode));
       ProcessPluginCommand();
       if (ProcessCode)
         return(TRUE);
