@@ -5,10 +5,14 @@ findfile.cpp
 
 */
 
-/* Revision: 1.182 11.09.2005 $ */
+/* Revision: 1.183 21.01.2006 $ */
 
 /*
 Modify:
+  21.01.2006 AY
+    ! Поиск в Юникоде при поиске по всем таблицам пропускал куски от файла.
+    ! Поиск по всем таблицам мог работать совершенно неправильно если файл был
+      определён как Reverse BOM Юникод.
   11.09.2005 KM
     - Bug #1377 - при отсутствии кодовых таблиц не работал поиск по
       "All character tables": не находил текст в кодировке "Windows text"
@@ -3002,7 +3006,7 @@ int FindFiles::LookForString(char *Name)
         SaveReadSize=ReadSize;
 
         // А также запомним считанный буфер.
-        memmove(SaveBuf,Buf,ReadSize);
+        memcpy(SaveBuf,Buf,ReadSize);
 
         /* $ 21.10.2000 SVS
            Хреново получилось, в лоб так сказать, но ищет в FFFE-файлах
@@ -3013,17 +3017,6 @@ int FindFiles::LookForString(char *Name)
           if(*(WORD*)Buf == 0xFFFE) // The text contains the Unicode
              ReverseBOM=TRUE;       // byte-reversed byte-order mark
                                     // (Reverse BOM) 0xFFFE as its first character.
-        }
-
-        if(ReverseBOM)
-        {
-          BYTE Chr;
-          for(int I=0; I < ReadSize; I+=2)
-          {
-            Chr=SaveBuf[I];
-            SaveBuf[I]=SaveBuf[I+1];
-            SaveBuf[I+1]=Chr;
-          }
         }
         /* SVS $ */
       }
@@ -3039,8 +3032,22 @@ int FindFiles::LookForString(char *Name)
       {
         if (UnicodeSearch)
         {
-          WideCharToMultiByte(CP_OEMCP,0,(LPCWSTR)SaveBuf,ReadSize/2,Buf,ReadSize,NULL,NULL);
-          ReadSize/=2;
+          char BOMBuf[sizeof(SaveBuf)];
+          char *BufPtr=SaveBuf;
+
+          if(ReverseBOM)
+          {
+            BufPtr=BOMBuf;
+
+            for(int I=0; I < SaveReadSize; I+=2)
+            {
+              BOMBuf[I]=SaveBuf[I+1];
+              BOMBuf[I+1]=SaveBuf[I];
+            }
+          }
+
+          WideCharToMultiByte(CP_OEMCP,0,(LPCWSTR)BufPtr,SaveReadSize/2,Buf,sizeof(Buf),NULL,NULL);
+          ReadSize=SaveReadSize/2;
         }
         else
         {
@@ -3049,7 +3056,7 @@ int FindFiles::LookForString(char *Name)
           if (UseAllTables)
           {
             ReadSize=SaveReadSize;
-            memmove(Buf,SaveBuf,ReadSize);
+            memcpy(Buf,SaveBuf,ReadSize);
           }
 
           /* $ 20.09.2003 KM
@@ -3186,7 +3193,11 @@ int FindFiles::LookForString(char *Name)
          Изменение offset при чтении нового блока с учётом WordDiv
       */
       int NewPos;
-      if (UnicodeSearch && !SearchHex)
+      //При поиске по всем таблицам из за того что поиск происходит также и в Юникоде
+      //поиск по примерно FileSize/sizeof(Buf)*(Length+1) байт будет повторён
+      //но если так не делать то при поиске по всем таблицам в Юникоде не будут
+      //находится тоже количество кусков.
+      if ((UseAllTables || UnicodeSearch)&& !SearchHex)
         NewPos=ftell(SrcFile)-2*(Length+1);
       else
         NewPos=ftell(SrcFile)-(Length+1);
