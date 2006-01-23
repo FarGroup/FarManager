@@ -36,20 +36,13 @@ int WINAPI ProcessKey(
 
   <div class=dfn>Key</div>
   <div class=dfndescr><a href="../winapi/virtualkeycodes.html">Виртуальный код клавиши</a>.
+    <br>К параметру <em>Key</em> может применяться флаг <a href="../defs/far_pkf_flags.html#PKF_PREPROCESS">PKF_PREPROCESS</a>.
   </div>
 
   <div class=dfn>ControlState</div>
-  <div class=dfndescr>Состояние Shift-клавиш. Комбинация флагов (перечисление <a name="FAR_PKF_FLAGS">FAR_PKF_FLAGS</a>):
-<table class="cont">
-<tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
-  <tr class="cont"><td class="cont" width="40%"><a name="PKF_CONTROL" title="0x00000001">PKF_CONTROL</a></td>
-  <td class="cont" width="60%">Клавиша Ctrl нажата</td></tr>
-  <tr class="cont"><td class="cont" width="40%"><a name="PKF_ALT" title="0x00000002">PKF_ALT</a></td>
-  <td class="cont" width="60%">Клавиша Alt нажата</td></tr>
-  <tr class="cont"><td class="cont" width="40%"><a name="PKF_SHIFT" title="0x00000004">PKF_SHIFT</a></td>
-  <td class="cont" width="60%">Клавиша Shift нажата</td></tr>
-</table>
-
+  <div class=dfndescr>Состояние Shift-клавиш. Комбинация флагов из перечисления
+    <a href="../defs/far_pkf_flags.html">FAR_PKF_FLAGS</a>
+    (за исключением <a href="../defs/far_pkf_flags.html#PKF_PREPROCESS">PKF_PREPROCESS</a>)<br>
     Например, при нажатии <kbd>Shift-F7</kbd>, <em>Key</em>= VK_F7 и <em>ControlState</em> = PKF_SHIFT.
   </div>
 </div>
@@ -72,7 +65,8 @@ int WINAPI ProcessKey(
 <kbd>Ctrl-Right</kbd>, <kbd>Ctrl-Num5</kbd>, <kbd>F9</kbd>, <kbd>Shift-F10</kbd>, <kbd>Ctrl-0..9</kbd>,
 <kbd>Alt-Ins</kbd>, <kbd>Ctrl-W</kbd>, <kbd>F11</kbd>, <kbd>Alt-F9</kbd>, <kbd>F12</kbd>, <kbd>Ctrl-Tab</kbd> и
 <kbd>Ctrl-Shift-Tab</kbd>.<br>
-Начиная с 1.70 build 2052 эти ограничения сняты.</li>
+Начиная с 1.70 build 2052 эти ограничения сняты (см.
+замечание для флага <a href="../defs/far_pkf_flags.html">PKF_PREPROCESS</a>).</li>
 </ul>
 </div>
 
