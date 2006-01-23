@@ -518,7 +518,7 @@ the main help file, that is actual for the current FAR Manager version.
    Remarks:
    1. The "System/CopySecurityOptions" key does not affect the creation of
       links (Alt-F6). In this case the access right are always copied.
-   2. If the "Copy access rights" option is off the the copied/moved files
+   2. If the "Copy access rights" option is off then the copied/moved files
       inherit access rights from the folder to which they are copied/moved.
 
 
