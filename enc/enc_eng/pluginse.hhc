@@ -918,6 +918,10 @@
                         <param name="Local" value="html/defs/sortmetods.html">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="PKF_* - состояние Shift-клавиш">
+                        <param name="Local" value="html/defs/far_pkf_flags.html">
+                        </OBJECT>
+                <LI> <OBJECT type="text/sitemap">
                         <param name="Name" value="_FAR_NO_NAMELESS_UNIONS - using ANSI C">
                         <param name="Local" value="html/defs/_far_no_nameless_unions.html">
                         </OBJECT>
