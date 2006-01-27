@@ -1,30 +1,52 @@
-print " -- preparing inet project --\n";
+#$src_dir            =
+$dest_dr            = "../../enc";
 
-mkdir "../inet/", 0;
+$dest_dr_inet       = $dest_dr."/inet";
+$dest_dr_inet_ru    = $dest_dr_inet."/ru";
+$dest_dr_inet_en    = $dest_dr_inet."/en";
+$dest_dr_chm        = $dest_dr."/chm";
+$dest_dr_chm_ru     = $dest_dr_chm."/ru";
+$dest_dr_chm_en     = $dest_dr_chm."/en";
 
-print " -- preparing RU --\n";
-system "svn export ../enc_rus ../inet/meta.ru";
-mkdir "../inet/ru/", 0;
-system "cp -R -f ../inet/meta.ru/meta/* ../inet/ru";
+$meta_ru            = $dest_dr_chm_ru."/meta";
+$meta_en            = $dest_dr_chm_en."/meta";
 
-system "rm -f -r ../inet/meta.ru";
+print "PREPARING INET PROJECT\n";
 
-$lev = -1;
-fix("../inet/ru");
+print "\n  -- clear INET\n";
 
+system "rm -f -r ".$dest_dr_inet;
 
-print " -- preparing EN --\n";
-system "svn export ../enc_eng ../inet/meta.en";
-mkdir "../inet/en/", 0;
-system "cp -R -f ../inet/meta.en/meta/* ../inet/en";
+print "\n  -- making directories tree\n";
 
-system "rm -f -r ../inet/meta.en";
+mkdir $dest_dr, 0;
+mkdir $dest_dr_inet, 0;
+mkdir $dest_dr_inet."/images", 0;
+mkdir $dest_dr_inet."/styles", 0;
 
-$lev = -1;
-fix("../inet/en");
+system "cp -f inet/index.html ".$dest_dr_inet."/index.html";
+system "cp -f inet/farenclogo.gif ".$dest_dr_inet."/images/farenclogo.gif";
+system "cp -f inet/styles.css ".$dest_dr_inet."/styles/styles.css";
+
+mk_inet_lng("ru","rus");
+mk_inet_lng("en","eng");
 
 #print " -- now convert manually all files in ../inet/ to koi8 \n";
 
+sub mk_inet_lng
+{
+  local($dr1) = @_[0];
+  local($dr2) = @_[1];
+
+  print " -- preparing ".$dr1." --\n";
+  system "svn export ../enc_".$dr2." ".$dest_dr_inet."/meta.".$dr1;
+  mkdir $dest_dr_inet."/".$dr1."/", 0;
+  system "cp -R -f ".$dest_dr_inet."/meta.".$dr1."/meta/* ".$dest_dr_inet."/".$dr1;
+  system "cp -R -f ".$dest_dr_inet."/meta.".$dr1."/images/* ".$dest_dr_inet."/images";
+  system "rm -f -r ".$dest_dr_inet."/meta.".$dr1;
+  $lev = -1;
+  fix($dest_dr_inet."/".$dr1);
+};
 
 sub fix
 {
