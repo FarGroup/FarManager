@@ -1,6 +1,6 @@
 [OPTIONS]
 Compatibility=1.1 or later
-Compiled file=distr_chm_pluginsr\pluginse.chm
+Compiled file=distr_chm_pluginse\pluginse.chm
 Contents file=pluginse.hhc
 Default Font=,8,204
 Default Window=far
