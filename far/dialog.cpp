@@ -5,10 +5,14 @@ dialog.cpp
 
 */
 
-/* Revision: 1.342 09.12.2005 $ */
+/* Revision: 1.343 28.01.2006 $ */
 
 /*
 Modify:
+  28.01.2006 WARP
+    - В InitDialogObjects флаги для DI_LISTBOX и DI_COMBOBOX всегда только выставлялись,
+      но никогда не менялись. Поэтому DM_SETDLGITEM работал некорректно. Смена флагов не влияла
+      на элемент диалога.
   09.12.2005 SVS
     - Mantis#58 - символ-маска с кодом 0х0А - пропадает
   12.10.2005 AY
@@ -1748,16 +1752,15 @@ int Dialog::InitDialogObjects(int ID)
         */
         CurItem->IFlags.Set(DLGIIF_LISTREACTIONFOCUS|DLGIIF_LISTREACTIONNOFOCUS); // всегда!
 
-        if(ItemFlags&DIF_DISABLE)
-          ListPtr->SetFlags(VMENU_DISABLED);
-        if(!(ItemFlags&DIF_LISTNOAMPERSAND))
-          ListPtr->SetFlags(VMENU_SHOWAMPERSAND);
-        if(ItemFlags&DIF_LISTNOBOX)
-          ListPtr->SetFlags(VMENU_SHOWNOBOX);
-        if(ItemFlags&DIF_LISTWRAPMODE)
-          ListPtr->SetFlags(VMENU_WRAPMODE);
+        ListPtr->ChangeFlags(VMENU_DISABLED, ItemFlags&DIF_DISABLE);
+        ListPtr->ChangeFlags(VMENU_SHOWAMPERSAND, !(ItemFlags&DIF_LISTNOAMPERSAND));
+        ListPtr->ChangeFlags(VMENU_SHOWNOBOX, ItemFlags&DIF_LISTNOBOX);
+        ListPtr->ChangeFlags(VMENU_WRAPMODE, ItemFlags&DIF_LISTWRAPMODE);
+        ListPtr->ChangeFlags(VMENU_AUTOHIGHLIGHT, ItemFlags&DIF_LISTAUTOHIGHLIGHT);
+
         if(ItemFlags&DIF_LISTAUTOHIGHLIGHT)
           ListPtr->AssignHighlights(FALSE);
+
         ListPtr->SetDialogStyle(DialogMode.Check(DMODE_WARNINGSTYLE));
         ListPtr->SetPosition(X1+CurItem->X1,Y1+CurItem->Y1,
                              X1+CurItem->X2,Y1+CurItem->Y2);
@@ -1771,13 +1774,8 @@ int Dialog::InitDialogObjects(int ID)
         {
           ListPtr->AddItem(CurItem->ListItems);
         }
-        /* KM $ */
-        /* KM $ */
-        /* $ 21.02.2002 DJ
-           и еще про фокус сообщить надо!
-        */
-        if (CurItem->Focus)
-          ListPtr->SetFlags (VMENU_LISTHASFOCUS);
+
+        ListPtr->ChangeFlags (VMENU_LISTHASFOCUS, CurItem->Focus);
     /* DJ $ */
       }
     }
@@ -1806,9 +1804,6 @@ int Dialog::InitDialogObjects(int ID)
       //                            FEDITLINE_PARENT_SINGLELINE:FEDITLINE_PARENT_MULTILINE);
       DialogEdit->SetDialogParent(Type == DI_MEMOEDIT?FEDITLINE_PARENT_MULTILINE:FEDITLINE_PARENT_SINGLELINE);
       DialogEdit->SetReadOnly(0);
-      /* $ 26.07.2000 SVS
-         Ну наконец-то - долгожданный нередактируемый ComboBox
-      */
       /* $ 30.11.200? SVS
          Уточним на что влияет флаг DIF_DROPDOWNLIST
       */
@@ -1817,38 +1812,23 @@ int Dialog::InitDialogObjects(int ID)
         if(CurItem->ListPtr)
         {
           VMenu *ListPtr=CurItem->ListPtr;
+
           ListPtr->SetBoxType(SHORT_SINGLE_BOX);
-          if(ItemFlags & DIF_DROPDOWNLIST)
-             DialogEdit->SetDropDownBox(TRUE);
-          if(ItemFlags&DIF_LISTWRAPMODE)
-            ListPtr->SetFlags(VMENU_WRAPMODE);
-          if(ItemFlags&DIF_DISABLE)
-            ListPtr->SetFlags(VMENU_DISABLED);
-          /* $ 15.05.2001 KM
-             Добавим подсветку в DI_COMBOBOX
-          */
-          /* $ 03.06.2001 KM
-             ! Исправлена подсветка в DI_COMBOBOX, теперь на самом деле :)
-               для чего используется флаг DIF_LISTAUTOHIGHLIGHT.
-          */
-          if(!(ItemFlags&DIF_LISTNOAMPERSAND))
-            ListPtr->SetFlags(VMENU_SHOWAMPERSAND);
+          DialogEdit->SetDropDownBox(ItemFlags & DIF_DROPDOWNLIST);
+          ListPtr->ChangeFlags(VMENU_WRAPMODE, ItemFlags&DIF_LISTWRAPMODE);
+          ListPtr->ChangeFlags(VMENU_DISABLED, ItemFlags&DIF_DISABLE);
+          ListPtr->ChangeFlags(VMENU_SHOWAMPERSAND, !(ItemFlags&DIF_LISTNOAMPERSAND));
+          ListPtr->ChangeFlags(VMENU_AUTOHIGHLIGHT, ItemFlags&DIF_LISTAUTOHIGHLIGHT);
+
           if(ItemFlags&DIF_LISTAUTOHIGHLIGHT)
             ListPtr->AssignHighlights(FALSE);
-          /* $ 12.06.2001 KM
-             ! Зачем-то была убрана инициализация DI_COMBOBOX через FarDialogItem
-                Восстановлено!!!
-          */
+
           if(CurItem->ListItems && !DialogMode.Check(DMODE_CREATEOBJECTS))
             ListPtr->AddItem(CurItem->ListItems);
-          /* KM $ */
-          /* KM $ */
-          /* KM $ */
           /* $ 28.04.2002 KM
               Установим флаг, определяющий объект как комбобокс.
           */
           ListPtr->SetFlags(VMENU_COMBOBOX);
-          /* KM $ */
           ListPtr->SetDialogStyle(DialogMode.Check(DMODE_WARNINGSTYLE));
         }
       }
