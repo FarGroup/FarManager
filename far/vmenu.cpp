@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.149 07.12.2005 $ */
+/* Revision: 1.150 30.01.2006 $ */
 
 /*
 Modify:
+  30.01.2006 SVS
+    - Memory Ыхръ.
   07.12.2005 SVS
     + MACRO_USERMENU
   05.10.2005 SVS
@@ -668,7 +670,10 @@ void VMenu::Hide()
 
   VMFlags.Set(VMENU_UPDATEREQUIRED);
   if(OldTitle)
+  {
     delete OldTitle;
+    OldTitle=NULL;
+  }
 }
 
 
