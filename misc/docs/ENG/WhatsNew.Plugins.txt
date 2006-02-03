@@ -215,6 +215,8 @@ ProcList
 [*] Process info export: command line and current directory moved
     closer to top.
 
+[-] Displaying owner info and other WMI stuff sometimes failed.
+
 
 FARCmds
 ~~~~~~~
