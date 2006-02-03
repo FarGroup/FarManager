@@ -9,7 +9,7 @@
 [*] Changes
 
 ---------------------------------------------------------------------------
-FAR 1.70 beta 6 (build 2058) (08.12.2005)
+FAR 1.70 beta 6 (build 2071) (03.02.2006)
 ---------------------------------------------------------------------------
 Editor
 ~~~~~~
@@ -196,7 +196,7 @@ Miscellaneous
     the previous panel informs that it cannot be closed - the panel of the
     new plugin will be closed by a call to the ClosePlugin function.
 
-[-] Падение FAR при использовании FMENU_CHANGECONSOLETITLE.
+[-] Far could crash if the FMENU_CHANGECONSOLETITLE flag was used.
 
 
 Viewer

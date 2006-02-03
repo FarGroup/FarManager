@@ -9,7 +9,7 @@
 [*] Changes
 
 ---------------------------------------------------------------------------
-FAR 1.70 beta 6 (build 2058) (08.12.2005)
+FAR 1.70 beta 6 (build 2071) (03.02.2006)
 ---------------------------------------------------------------------------
 General
 ~~~~~~~
@@ -245,10 +245,13 @@ System
     rules was set (TechInfo#4).
 
 [+] In 5-th panel mode in the attributes column the 'I' character states that
-    the file is indexed.
+    the file is NOT content indexed.
 
 [+] In 5-th panel mode in the attributes column the '$' character states that
     the file is a sparse file.
+
+[+] In 5-th panel mode in the attributes column the 'T' character states that
+    the file is a temporary file.
 
 
 Find File
