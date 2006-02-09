@@ -5,10 +5,13 @@ filefilter.cpp
 
 */
 
-/* Revision: 1.09 24.06.2005 $ */
+/* Revision: 1.10 09.02.2006 $ */
 
 /*
 Modify:
+  09.02.2006 AY
+    - Добавил новые атрибутты I, T, $ в диалог фильтра.
+    ! Баг с автомацией чекбоксов атрибутов - открывались атрибуты которые не должны.
   24.06.2005 WARP
     ! Новый дизайн диалога фильтра.
   24.04.2005 AY
@@ -43,7 +46,7 @@ Modify:
 #include "dialog.hpp"
 #include "global.hpp"
 
-static DWORD CompEnabled,EncrEnabled;
+static DWORD CompEnabled,EncrEnabled,IsNTFS;
 static DWORD SizeType,DateType;
 
 // Запрет на использование атрибута Directory при фильтровании
@@ -99,19 +102,20 @@ FileFilter::FileFilter(int DisableDirAttr):
   xstrncpy(TableItemDate[1].Text,MSG(MFileFilterCreated),sizeof(TableItemDate[1].Text)-1);
   xstrncpy(TableItemDate[2].Text,MSG(MFileFilterOpened),sizeof(TableItemDate[2].Text)-1);
 
+  CompEnabled=EncrEnabled=IsNTFS=FALSE;
   // Том поддерживает компрессию и шифрацию?
   unsigned long FSFlags=0;
-  if (GetVolumeInformation(NULL,NULL,0,NULL,NULL,&FSFlags,NULL,0))
+  char FSysName[NM];
+  if (GetVolumeInformation(NULL,NULL,0,NULL,NULL,&FSFlags,FSysName,sizeof(FSysName)))
   {
     if (FSFlags & FS_FILE_COMPRESSION)
       CompEnabled=TRUE;
-    else
-      CompEnabled=FALSE;
 
     if ((IsCryptFileASupport) && (FSFlags & FS_FILE_ENCRYPTION))
       EncrEnabled=TRUE;
-    else
-      EncrEnabled=FALSE;
+
+    if (!strcmp(FSysName,"NTFS"))
+      IsNTFS=TRUE;
   }
 
   // Скопируем текущее состояние фильтра во временное значение,
@@ -185,9 +189,12 @@ enum enumFileFilterConfigure {
     ID_FF_ARCHIVE,
     ID_FF_HIDDEN,
     ID_FF_SYSTEM,
+    ID_FF_DIRECTORY,
     ID_FF_COMPRESSED,
     ID_FF_ENCRYPTED,
-    ID_FF_DIRECTORY,
+    ID_FF_NOTINDEXED,
+    ID_FF_SPARSE,
+    ID_FF_TEMP,
 
     ID_FF_SEPARATOR4,
 
@@ -212,30 +219,6 @@ long WINAPI FileFilter::FilterDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2
 
     case DN_BTNCLICK:
     {
-      if (Param1==ID_FF_MATCHATTRIBUTES) // Attributes
-      {
-        Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
-
-        if (Param2)
-        {
-          if (CompEnabled==FALSE)
-            Dialog::SendDlgMessage(hDlg,DM_ENABLE,ID_FF_COMPRESSED,FALSE);
-          else
-            Dialog::SendDlgMessage(hDlg,DM_ENABLE,ID_FF_COMPRESSED,TRUE);
-
-          if (EncrEnabled==FALSE)
-            Dialog::SendDlgMessage(hDlg,DM_ENABLE,ID_FF_ENCRYPTED,FALSE);
-          else
-            Dialog::SendDlgMessage(hDlg,DM_ENABLE,ID_FF_ENCRYPTED,TRUE);
-        }
-
-        if (DisableDir)
-        {
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,ID_FF_DIRECTORY,FALSE);
-        }
-
-        Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
-      }
       if (Param1==ID_FF_CURRENT || Param1==ID_FF_BLANK) //Current и Blank
       {
         FILETIME ft;
@@ -283,7 +266,7 @@ long WINAPI FileFilter::FilterDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2
            Заменим BSTATE_UNCHECKED на BSTATE_3STATE, в данном
            случае это будет логичнее, т.с. дефолтное значение
         */
-        for(int I=ID_FF_READONLY; I <= ID_FF_DIRECTORY; ++I)
+        for(int I=ID_FF_READONLY; I <= ID_FF_TEMP; ++I)
           Dialog::SendDlgMessage(hDlg,DM_SETCHECK,I,BSTATE_3STATE);
 
         // 6, 13 - позиции в списке
@@ -299,7 +282,7 @@ long WINAPI FileFilter::FilterDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2
         Dialog::SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_MATCHATTRIBUTES,BSTATE_UNCHECKED);
 
         Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
-        break;;
+        break;
       }
       return TRUE;
     }
@@ -311,33 +294,34 @@ long WINAPI FileFilter::FilterDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2
 void FileFilter::Configure()
 {
 /*
-    0000000000111111111122222222223333333333444444444455555555556666666
-    0123456789012345678901234567890123456789012345678901234567890123456
+    0000000000111111111122222222223333333333444444444455555555556666666666777
+    0123456789012345678901234567890123456789012345678901234567890123456789012
 00  """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-01  "  +-------------------- Operations filter --------------------+  "
-02  "  | +-[ ] Match file mask(s) -------------------------------+ |  "
-03  "  | | *.*################################################## | |  "
-04  "  | +-------------------------------------------------------+ |  "
-05  "  | +-[ ] File size-----------------------------------------+ |  "
-06  "  | | In bytes#################                             | |  "
-07  "  | | Greater than or equal to:        #################### | |  "
-08  "  | | Less than or equal to:           #################### | |  "
-09  "  | +-------------------------------------------------------+ |  "
-10  "  | +-[ ] File date-----------------------------------------+ |  "
-11  "  | | Last modified time#######                             | |  "
-12  "  | | After:                            ##.##.#### ##:##:## | |  "
-13  "  | | Before:                           ##.##.#### ##:##:## | |  "
-14  "  | | [ Current ] [ Blank ]                                 | |  "
-15  "  | +-------------------------------------------------------+ |  "
-16  "  | +-[ ] Attributes----------------------------------------+ |  "
-17  "  | | [x] Только чтение [x] Скрытый       [x] Сжатый        | |  "
-18  "  | | [x] Архивный      [x] Системный     [x] Зашифрованный | |  "
-19  "  | | [x] Directory                                         | |  "
-20  "  | +-------------------------------------------------------+ |  "
-21  "  |                [ Ok ]  [ Reset]  [ Cancel ]               |  "
-22  "  +-----------------------------------------------------------+  "
-23  "                                                                 "
-24  """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+01  "  +-------------------- Operations filter -----------------      ---+  "
+02  "  | +-[ ] Match file mask(s) -----------------------------      --+ |  "
+03  "  | | *.*##################################################       | |  "
+04  "  | +-----------------------------------------------------      --+ |  "
+05  "  | +-[ ] File size---------------------------------------      --+ |  "
+06  "  | | In bytes#################                                   | |  "
+07  "  | | Greater than or equal to:        ####################       | |  "
+08  "  | | Less than or equal to:           ####################       | |  "
+09  "  | +------------------------------------------------------      -+ |  "
+10  "  | +-[ ] File date---------------------------------------      --+ |  "
+11  "  | | Last modified time#######                                   | |  "
+12  "  | | After:                            ##.##.#### ##:##:##       | |  "
+13  "  | | Before:                           ##.##.#### ##:##:##       | |  "
+14  "  | | [ Current ] [ Blank ]                                       | |  "
+15  "  | +-----------------------------------------------------      --+ |  "
+16  "  | +-[ ] Attributes-------------------------------------      ---+ |  "
+17  "  | | [x] Только чтение   [x] Системный       [x] Разреженный     | |  "
+18  "  | | [x] Архивный        [x] Сжатый          [x] Временный       | |  "
+19  "  | | [x] Directory       [x] Зашифрованный                       | |  "
+20  "  | | [x] Скрытый         [x] Неиндексируемый                     | |  "
+21  "  | +--------------------------------------------------------  ---+ |  "
+22  "  |                [ Ok ]  [ Reset]  [ Cancel ]                     |  "
+23  "  +----------------------------------------------------------  -  --+  "
+24  "                                                                       "
+25  """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 */
 
   // Временная маска.
@@ -345,52 +329,60 @@ void FileFilter::Configure()
   int I;
 
   struct DialogData FilterDlgData[]={
-  /* 00 */DI_DOUBLEBOX,3,1,61,22,0,0,DIF_SHOWAMPERSAND,0,(char *)MFileFilterTitle,
+  /* 00 */DI_DOUBLEBOX,3,1,67,21,0,0,DIF_SHOWAMPERSAND,0,(char *)MFileFilterTitle,
 
   /* 01 */DI_CHECKBOX,5,2,0,0,1,0,DIF_AUTOMATION,0,(char *)MFileFilterMatchMask,
-  /* 02 */DI_EDIT,7,3,59,3,0,(DWORD)FilterMasksHistoryName,DIF_HISTORY,0,"",
+  /* 02 */DI_EDIT,7,3,65,3,0,(DWORD)FilterMasksHistoryName,DIF_HISTORY,0,"",
 
   /* 03 */DI_TEXT,0,4,0,0,0,0,DIF_SEPARATOR,0,"",
 
   /* 04 */DI_CHECKBOX,5,5,0,0,0,0,DIF_AUTOMATION,0,(char *)MFileFilterSize,
-  /* 05 */DI_COMBOBOX,7,6,31,6,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,"",
-  /* 06 */DI_TEXT,7,7,38,7,0,0,0,0,(char *)MFileFilterSizeFrom,
-  /* 07 */DI_FIXEDIT,40,7,59,7,0,(DWORD)DigitMask,DIF_MASKEDIT,0,"",
-  /* 08 */DI_TEXT,7,8,38,8,0,0,0,0,(char *)MFileFilterSizeTo,
-  /* 09 */DI_FIXEDIT,40,8,59,8,0,(DWORD)DigitMask,DIF_MASKEDIT,0,"",
+  /* 05 */DI_COMBOBOX,46,5,65,5,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,"",
+  /* 06 */DI_TEXT,7,6,38,6,0,0,0,0,(char *)MFileFilterSizeFrom,
+  /* 07 */DI_FIXEDIT,46,6,65,6,0,(DWORD)DigitMask,DIF_MASKEDIT,0,"",
+  /* 08 */DI_TEXT,7,7,38,7,0,0,0,0,(char *)MFileFilterSizeTo,
+  /* 09 */DI_FIXEDIT,46,7,65,7,0,(DWORD)DigitMask,DIF_MASKEDIT,0,"",
 
-  /* 10 */DI_TEXT,0,9,0,0,0,0,DIF_SEPARATOR,0,"",
+  /* 10 */DI_TEXT,0,8,0,0,0,0,DIF_SEPARATOR,0,"",
 
-  /* 11 */DI_CHECKBOX,5,10,0,0,0,0,DIF_AUTOMATION,0,(char *)MFileFilterDate,
-  /* 12 */DI_COMBOBOX,7,11,31,11,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,"",
-  /* 13 */DI_TEXT,7,12,38,12,0,0,0,0,(char *)MFileFilterAfter,
-  /* 14 */DI_FIXEDIT,41,12,50,12,0,(DWORD)DateMask,DIF_MASKEDIT,0,"",
-  /* 15 */DI_FIXEDIT,52,12,59,12,0,(DWORD)TimeMask,DIF_MASKEDIT,0,"",
-  /* 16 */DI_TEXT,7,13,40,13,0,0,0,0,(char *)MFileFilterBefore,
-  /* 17 */DI_FIXEDIT,41,13,50,13,0,(DWORD)DateMask,DIF_MASKEDIT,0,"",
-  /* 18 */DI_FIXEDIT,52,13,59,13,0,(DWORD)TimeMask,DIF_MASKEDIT,0,"",
-  /* 19 */DI_BUTTON,7,14,0,14,0,0,DIF_BTNNOCLOSE,0,(char *)MFileFilterCurrent,
-  /* 20 */DI_BUTTON,19,14,0,14,0,0,DIF_BTNNOCLOSE,0,(char *)MFileFilterBlank,
+  /* 11 */DI_CHECKBOX,5,9,0,0,0,0,DIF_AUTOMATION,0,(char *)MFileFilterDate,
+  /* 12 */DI_COMBOBOX,47,9,65,9,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,"",
+  /* 13 */DI_TEXT,7,10,38,10,0,0,0,0,(char *)MFileFilterAfter,
+  /* 14 */DI_FIXEDIT,47,10,56,10,0,(DWORD)DateMask,DIF_MASKEDIT,0,"",
+  /* 15 */DI_FIXEDIT,58,10,65,10,0,(DWORD)TimeMask,DIF_MASKEDIT,0,"",
+  /* 16 */DI_TEXT,7,11,40,11,0,0,0,0,(char *)MFileFilterBefore,
+  /* 17 */DI_FIXEDIT,47,11,56,11,0,(DWORD)DateMask,DIF_MASKEDIT,0,"",
+  /* 18 */DI_FIXEDIT,58,11,65,11,0,(DWORD)TimeMask,DIF_MASKEDIT,0,"",
+  /* 19 */DI_BUTTON,7,12,0,12,0,0,DIF_BTNNOCLOSE,0,(char *)MFileFilterCurrent,
+  /* 20 */DI_BUTTON,19,12,0,12,0,0,DIF_BTNNOCLOSE,0,(char *)MFileFilterBlank,
 
-  /* 21 */DI_TEXT,0,15,0,0,0,0,DIF_SEPARATOR,0,"",
+  /* 21 */DI_TEXT,0,13,0,0,0,0,DIF_SEPARATOR,0,"",
 
-  /* 22 */DI_CHECKBOX, 5,16,0,0,0,0,DIF_AUTOMATION,0,(char *)MFileFilterAttr,
-  /* 23 */DI_CHECKBOX, 7,17,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrR,
-  /* 24 */DI_CHECKBOX, 7,18,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrA,
-  /* 25 */DI_CHECKBOX,25,17,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrH,
-  /* 26 */DI_CHECKBOX,25,18,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrS,
-  /* 27 */DI_CHECKBOX,43,17,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrC,
-  /* 28 */DI_CHECKBOX,43,18,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrE,
-  /* 29 */DI_CHECKBOX, 7,19,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrD,
+  /* 22 */DI_CHECKBOX, 5,14,0,0,0,0,DIF_AUTOMATION,0,(char *)MFileFilterAttr,
+  /* 23 */DI_CHECKBOX, 7,15,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrR,
+  /* 24 */DI_CHECKBOX, 7,16,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrA,
+  /* 25 */DI_CHECKBOX, 7,17,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrH,
+  /* 26 */DI_CHECKBOX, 7,18,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrS,
+  /* 29 */DI_CHECKBOX,27,15,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrD,
+  /* 27 */DI_CHECKBOX,27,16,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrC,
+  /* 28 */DI_CHECKBOX,27,17,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrE,
+  /* 29 */DI_CHECKBOX,27,18,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrNI,
+  /* 30 */DI_CHECKBOX,47,15,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrSparse,
+  /* 31 */DI_CHECKBOX,47,16,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrT,
 
-  /* 30 */DI_TEXT, 0, 20, 0, 0, 0, 0, DIF_SEPARATOR, 0, "",
+  /* 32 */DI_TEXT, 0, 19, 0, 0, 0, 0, DIF_SEPARATOR, 0, "",
 
-  /* 31 */DI_BUTTON,0,21,0,21,0,0,DIF_CENTERGROUP,1,(char *)MFileFilterOk,
-  /* 32 */DI_BUTTON,0,21,0,21,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(char *)MFileFilterReset,
-  /* 33 */DI_BUTTON,0,21,0,21,0,0,DIF_CENTERGROUP,0,(char *)MFileFilterCancel,
+  /* 33 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP,1,(char *)MFileFilterOk,
+  /* 34 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(char *)MFileFilterReset,
+  /* 35 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP,0,(char *)MFileFilterCancel,
   };
 
   MakeDialogItems(FilterDlgData,FilterDlg);
+
+  //FilterDlg[ID_FF_SIZEDIVIDER].X1=FilterDlg[ID_FF_MATCHSIZE].X1+strlen(FilterDlg[ID_FF_MATCHSIZE].Data)-(strchr(FilterDlg[ID_FF_MATCHSIZE].Data,'&')?1:0)+5;
+  //FilterDlg[ID_FF_SIZEDIVIDER].X2+=FilterDlg[ID_FF_SIZEDIVIDER].X1;
+  //FilterDlg[ID_FF_DATETYPE].X1=FilterDlg[ID_FF_MATCHDATE].X1+strlen(FilterDlg[ID_FF_MATCHDATE].Data)-(strchr(FilterDlg[ID_FF_MATCHDATE].Data,'&')?1:0)+5;
+  //FilterDlg[ID_FF_DATETYPE].X2+=FilterDlg[ID_FF_DATETYPE].X1;
 
   FilterDlg[ID_FF_MATCHMASK].Selected=FF.FMask.Used;
   xstrncpy(FilterDlg[ID_FF_MASKEDIT].Data,FF.FMask.Mask,sizeof(FilterDlg[3].Data));
@@ -439,30 +431,44 @@ void FileFilter::Configure()
   FilterDlg[ID_FF_COMPRESSED].Selected=(AttrSet & FILE_ATTRIBUTE_COMPRESSED?1:AttrClear & FILE_ATTRIBUTE_COMPRESSED?0:2);
   FilterDlg[ID_FF_ENCRYPTED].Selected=(AttrSet & FILE_ATTRIBUTE_ENCRYPTED?1:AttrClear & FILE_ATTRIBUTE_ENCRYPTED?0:2);
   FilterDlg[ID_FF_DIRECTORY].Selected=(AttrSet & FILE_ATTRIBUTE_DIRECTORY?1:AttrClear & FILE_ATTRIBUTE_DIRECTORY?0:2);
+  FilterDlg[ID_FF_NOTINDEXED].Selected=(AttrSet & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED?1:AttrClear & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED?0:2);
+  FilterDlg[ID_FF_SPARSE].Selected=(AttrSet & FILE_ATTRIBUTE_SPARSE_FILE?1:AttrClear & FILE_ATTRIBUTE_SPARSE_FILE?0:2);
+  FilterDlg[ID_FF_TEMP].Selected=(AttrSet & FILE_ATTRIBUTE_TEMPORARY?1:AttrClear & FILE_ATTRIBUTE_TEMPORARY?0:2);
 
   if (!FilterDlg[ID_FF_MATCHATTRIBUTES].Selected)
   {
-    for(I=ID_FF_READONLY; I <= ID_FF_DIRECTORY; ++I)
+    for(I=ID_FF_READONLY; I <= ID_FF_TEMP; ++I)
       FilterDlg[I].Flags|=DIF_DISABLE;
   }
-  else
+  if (!CompEnabled)
   {
-    if (CompEnabled==FALSE)
-    {
-      FilterDlg[ID_FF_COMPRESSED].Flags|=DIF_DISABLE;
-      FilterDlg[ID_FF_COMPRESSED].Selected=0;
-    }
-    if (EncrEnabled==FALSE)
-    {
-      FilterDlg[ID_FF_ENCRYPTED].Flags|=DIF_DISABLE;
-      FilterDlg[ID_FF_ENCRYPTED].Selected=0;
-    }
+    FilterDlg[ID_FF_COMPRESSED].Flags|=DIF_DISABLE;
+    FilterDlg[ID_FF_COMPRESSED].Selected=2;
+  }
+  if (!EncrEnabled)
+  {
+    FilterDlg[ID_FF_ENCRYPTED].Flags|=DIF_DISABLE;
+    FilterDlg[ID_FF_ENCRYPTED].Selected=2;
+  }
+  if (!IsNTFS)
+  {
+    FilterDlg[ID_FF_NOTINDEXED].Flags|=DIF_DISABLE;
+    FilterDlg[ID_FF_NOTINDEXED].Selected=2;
+    FilterDlg[ID_FF_SPARSE].Flags|=DIF_DISABLE;
+    FilterDlg[ID_FF_SPARSE].Selected=2;
+    FilterDlg[ID_FF_TEMP].Flags|=DIF_DISABLE;
+    FilterDlg[ID_FF_TEMP].Selected=2;
+  }
+  if (DisableDir)
+  {
+    FilterDlg[ID_FF_DIRECTORY].Flags|=DIF_DISABLE;
+    FilterDlg[ID_FF_DIRECTORY].Selected=2;
   }
 
   Dialog Dlg(FilterDlg,sizeof(FilterDlg)/sizeof(FilterDlg[0]),FilterDlgProc);
 
   Dlg.SetHelp("OpFilter");
-  Dlg.SetPosition(-1,-1,65,24);
+  Dlg.SetPosition(-1,-1,71,23);
 
   Dlg.SetAutomation(ID_FF_MATCHMASK,ID_FF_MASKEDIT,DIF_DISABLE,0,0,DIF_DISABLE);
 
@@ -486,12 +492,17 @@ void FileFilter::Configure()
   Dlg.SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_ARCHIVE,DIF_DISABLE,0,0,DIF_DISABLE);
   Dlg.SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_HIDDEN,DIF_DISABLE,0,0,DIF_DISABLE);
   Dlg.SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_SYSTEM,DIF_DISABLE,0,0,DIF_DISABLE);
-  Dlg.SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_COMPRESSED,DIF_DISABLE,0,0,DIF_DISABLE);
-  Dlg.SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_ENCRYPTED,DIF_DISABLE,0,0,DIF_DISABLE);
-
-  if (DisableDir)
-    FilterDlg[ID_FF_DIRECTORY].Flags|=DIF_DISABLE;
-  else
+  if (CompEnabled)
+    Dlg.SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_COMPRESSED,DIF_DISABLE,0,0,DIF_DISABLE);
+  if (EncrEnabled)
+    Dlg.SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_ENCRYPTED,DIF_DISABLE,0,0,DIF_DISABLE);
+  if (IsNTFS)
+  {
+    Dlg.SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_NOTINDEXED,DIF_DISABLE,0,0,DIF_DISABLE);
+    Dlg.SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_SPARSE,DIF_DISABLE,0,0,DIF_DISABLE);
+    Dlg.SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_TEMP,DIF_DISABLE,0,0,DIF_DISABLE);
+  }
+  if (!DisableDir)
     Dlg.SetAutomation(ID_FF_MATCHATTRIBUTES,ID_FF_DIRECTORY,DIF_DISABLE,0,0,DIF_DISABLE);
 
   for (;;)
@@ -541,6 +552,9 @@ void FileFilter::Configure()
       AttrSet|=(FilterDlg[ID_FF_COMPRESSED].Selected==1?FILE_ATTRIBUTE_COMPRESSED:0);
       AttrSet|=(FilterDlg[ID_FF_ENCRYPTED].Selected==1?FILE_ATTRIBUTE_ENCRYPTED:0);
       AttrSet|=(FilterDlg[ID_FF_DIRECTORY].Selected==1?FILE_ATTRIBUTE_DIRECTORY:0);
+      AttrSet|=(FilterDlg[ID_FF_NOTINDEXED].Selected==1?FILE_ATTRIBUTE_NOT_CONTENT_INDEXED:0);
+      AttrSet|=(FilterDlg[ID_FF_SPARSE].Selected==1?FILE_ATTRIBUTE_SPARSE_FILE:0);
+      AttrSet|=(FilterDlg[ID_FF_TEMP].Selected==1?FILE_ATTRIBUTE_TEMPORARY:0);
       AttrClear|=(FilterDlg[ID_FF_READONLY].Selected==0?FILE_ATTRIBUTE_READONLY:0);
       AttrClear|=(FilterDlg[ID_FF_ARCHIVE].Selected==0?FILE_ATTRIBUTE_ARCHIVE:0);
       AttrClear|=(FilterDlg[ID_FF_HIDDEN].Selected==0?FILE_ATTRIBUTE_HIDDEN:0);
@@ -548,6 +562,9 @@ void FileFilter::Configure()
       AttrClear|=(FilterDlg[ID_FF_COMPRESSED].Selected==0?FILE_ATTRIBUTE_COMPRESSED:0);
       AttrClear|=(FilterDlg[ID_FF_ENCRYPTED].Selected==0?FILE_ATTRIBUTE_ENCRYPTED:0);
       AttrClear|=(FilterDlg[ID_FF_DIRECTORY].Selected==0?FILE_ATTRIBUTE_DIRECTORY:0);
+      AttrClear|=(FilterDlg[ID_FF_NOTINDEXED].Selected==0?FILE_ATTRIBUTE_NOT_CONTENT_INDEXED:0);
+      AttrClear|=(FilterDlg[ID_FF_SPARSE].Selected==0?FILE_ATTRIBUTE_SPARSE_FILE:0);
+      AttrClear|=(FilterDlg[ID_FF_TEMP].Selected==0?FILE_ATTRIBUTE_TEMPORARY:0);
       FF.FAttr.AttrSet=AttrSet;
       FF.FAttr.AttrClear=AttrClear;
 
@@ -760,47 +777,22 @@ int FileFilter::FileInFilter(WIN32_FIND_DATA *fd)
   // Режим проверки атрибутов файла включен?
   if (FF.FAttr.Used)
   {
-    // Проверка попадания файла по установленным атрибутам
     DWORD AttrSet=FF.FAttr.AttrSet;
-    if ((AttrSet & FILE_ATTRIBUTE_READONLY) && (!(fd->dwFileAttributes & FILE_ATTRIBUTE_READONLY)))
-      return FALSE;
-    if ((AttrSet & FILE_ATTRIBUTE_ARCHIVE) && (!(fd->dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE)))
-      return FALSE;
-    if ((AttrSet & FILE_ATTRIBUTE_HIDDEN) && (!(fd->dwFileAttributes & FILE_ATTRIBUTE_HIDDEN)))
-      return FALSE;
-    if ((AttrSet & FILE_ATTRIBUTE_SYSTEM) && (!(fd->dwFileAttributes & FILE_ATTRIBUTE_SYSTEM)))
-      return FALSE;
-    if ((AttrSet & FILE_ATTRIBUTE_COMPRESSED) && (!(fd->dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED)))
-      return FALSE;
-    if ((AttrSet & FILE_ATTRIBUTE_ENCRYPTED) && (!(fd->dwFileAttributes & FILE_ATTRIBUTE_ENCRYPTED)))
-      return FALSE;
+    DWORD AttrClear=FF.FAttr.AttrClear;
 
-    if (!DisableDir)
+    if (DisableDir)
     {
-      if ((AttrSet & FILE_ATTRIBUTE_DIRECTORY) && (!(fd->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)))
-        return FALSE;
+      AttrClear&=~FILE_ATTRIBUTE_DIRECTORY;
+      AttrSet&=~FILE_ATTRIBUTE_DIRECTORY;
     }
+
+    // Проверка попадания файла по установленным атрибутам
+    if ((fd->dwFileAttributes & AttrSet) != AttrSet)
+      return FALSE;
 
     // Проверка попадания файла по отсутствующим атрибутам
-    DWORD AttrClear=FF.FAttr.AttrClear;
-    if ((AttrClear & FILE_ATTRIBUTE_READONLY) && (fd->dwFileAttributes & FILE_ATTRIBUTE_READONLY))
+    if (fd->dwFileAttributes & AttrClear)
       return FALSE;
-    if ((AttrClear & FILE_ATTRIBUTE_ARCHIVE) && (fd->dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE))
-      return FALSE;
-    if ((AttrClear & FILE_ATTRIBUTE_HIDDEN) && (fd->dwFileAttributes & FILE_ATTRIBUTE_HIDDEN))
-      return FALSE;
-    if ((AttrClear & FILE_ATTRIBUTE_SYSTEM) && (fd->dwFileAttributes & FILE_ATTRIBUTE_SYSTEM))
-      return FALSE;
-    if ((AttrClear & FILE_ATTRIBUTE_COMPRESSED) && (fd->dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED))
-      return FALSE;
-    if ((AttrClear & FILE_ATTRIBUTE_ENCRYPTED) && (fd->dwFileAttributes & FILE_ATTRIBUTE_ENCRYPTED))
-      return FALSE;
-
-    if (!DisableDir)
-    {
-      if ((AttrClear & FILE_ATTRIBUTE_DIRECTORY) && (fd->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-        return FALSE;
-    }
   }
 
   // Да! Файл выдержал все испытания и будет допущен к использованию

@@ -5,10 +5,14 @@ Files highlighting
 
 */
 
-/* Revision: 1.46 06.08.2004 $ */
+/* Revision: 1.47 09.02.2006 $ */
 
 /*
 Modify:
+  09.02.2006 AY
+    - Добавил атрибуты I, T, $ в диалог и меню раскраски.
+    - Диалог настроек раскраски немного переделан.
+    - Внутренняя переделка диалога раскраски чтоб было легко обновлять в будущем.
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   22.09.2003 SVS
@@ -394,6 +398,7 @@ void HighlightFiles::GetHiColor(struct FileListItem *FileItem,int FileCount)
   for(FCnt=0; FCnt < FileCount; ++FCnt,++FileItem)
   {
     DWORD Attr=FileItem->FileAttr;
+
     char *Path=FileItem->Name;
     if(!*Path) Path=NULL;
     memcpy(&FileItem->Colors,&Colors,sizeof(struct HighlightDataColor));
@@ -457,7 +462,7 @@ void HighlightFiles::FillMenu(VMenu *HiMenu,int MenuPos)
   {
     struct HighlightData *CurHiData=&HiData[I];
     MarkChar[1]=CurHiData->Colors.MarkChar;
-    sprintf(HiMenuItem.Name,"%s %c %c%c%c%c%c%c%c %c %c%c%c%c%c%c%c %c %.60s",
+    sprintf(HiMenuItem.Name,"%s %c %c%c%c%c%c%c%c%c%c%c %c %c%c%c%c%c%c%c%c%c%c %c %.54s",
       // добавим показ символа в кавычках
       (CurHiData->Colors.MarkChar?MarkChar:emptyMarkChar),
   /* IS $ */
@@ -471,6 +476,9 @@ void HighlightFiles::FillMenu(VMenu *HiMenu,int MenuPos)
         ((CurHiData->IncludeAttr & FILE_ATTRIBUTE_ENCRYPTED)?'E':'.'),
       (CurHiData->IncludeAttr & FILE_ATTRIBUTE_DIRECTORY) ? 'F':'.',
       (CurHiData->IncludeAttr & FILE_ATTRIBUTE_REPARSE_POINT) ? 'L':'.',
+      (CurHiData->IncludeAttr & FILE_ATTRIBUTE_SPARSE_FILE) ? '$':'.',
+      (CurHiData->IncludeAttr & FILE_ATTRIBUTE_TEMPORARY) ? 'T':'.',
+      (CurHiData->IncludeAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED) ? 'I':'.',
 
       VerticalLine,
 
@@ -482,6 +490,9 @@ void HighlightFiles::FillMenu(VMenu *HiMenu,int MenuPos)
         ((CurHiData->ExcludeAttr & FILE_ATTRIBUTE_ENCRYPTED)?'E':'.'),
       (CurHiData->ExcludeAttr & FILE_ATTRIBUTE_DIRECTORY) ? 'F':'.',
       (CurHiData->ExcludeAttr & FILE_ATTRIBUTE_REPARSE_POINT) ? 'L':'.',
+      (CurHiData->ExcludeAttr & FILE_ATTRIBUTE_SPARSE_FILE) ? '$':'.',
+      (CurHiData->ExcludeAttr & FILE_ATTRIBUTE_TEMPORARY) ? 'T':'.',
+      (CurHiData->ExcludeAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED) ? 'I':'.',
 
       VerticalLine,
 
@@ -656,6 +667,83 @@ void HighlightFiles::SaveHiData()
   }
 }
 
+enum enumHighlightEditRecords
+{
+  ID_HER_TITLE = 0,
+  ID_HER_MATCHMASK,
+  ID_HER_MASKEDIT,
+  ID_HER_SEPARATOR1,
+  ID_HER_ATTRBR,
+  ID_HER_ATTRBH,
+  ID_HER_ATTRBS,
+  ID_HER_ATTRBA,
+  ID_HER_ATTRBC,
+  ID_HER_ATTRBE,
+  ID_HER_ATTRBF,
+  ID_HER_ATTRBL,
+  ID_HER_ATTRBSP,
+  ID_HER_ATTRBT,
+  ID_HER_ATTRBNI,
+  ID_HER_SEPARATOR2,
+  ID_HER_MARK_TITLE,
+  ID_HER_MARKEDIT,
+  ID_HER_SEPARATOR3,
+  ID_HER_NORMAL,
+  ID_HER_SELECTED,
+  ID_HER_CURSOR,
+  ID_HER_SELECTEDCURSOR,
+  ID_HER_COLOREXAMPLE,
+  ID_HER_SEPARATOR4,
+  ID_HER_OK,
+  ID_HER_CANCEL
+};
+
+void HighlightDlgUpdateUserControl(CHAR_INFO *VBufColorExample, struct HighlightDataColor &Colors)
+{
+  const char *ptr;
+  DWORD Color;
+  DWORD Default=F_BLACK|B_BLACK;
+  for (int j=0; j<4; j++)
+  {
+    switch (j)
+    {
+      case 0:
+        Color=(DWORD)Colors.Color;
+        if (Color==Default)
+          Color=(DWORD)Palette[COL_PANELTEXT-COL_FIRSTPALETTECOLOR];
+        break;
+      case 1:
+        Color=(DWORD)Colors.SelColor;
+        if (Color==Default)
+          Color=(DWORD)Palette[COL_PANELSELECTEDTEXT-COL_FIRSTPALETTECOLOR];
+        break;
+      case 2:
+        Color=(DWORD)Colors.CursorColor;
+        if (Color==Default)
+          Color=(DWORD)Palette[COL_PANELCURSOR-COL_FIRSTPALETTECOLOR];
+        break;
+      case 3:
+        Color=(DWORD)Colors.CursorSelColor;
+        if (Color==Default)
+          Color=(DWORD)Palette[COL_PANELSELECTEDCURSOR-COL_FIRSTPALETTECOLOR];
+        break;
+    }
+    if (Colors.MarkChar)
+      ptr=MSG(MHighlightExample2);
+    else
+      ptr=MSG(MHighlightExample1);
+    for (int k=0; k<15; k++)
+    {
+      VBufColorExample[15*j+k].Char.AsciiChar=ptr[k];
+      VBufColorExample[15*j+k].Attributes=Color;
+    }
+    if (Colors.MarkChar)
+      VBufColorExample[15*j+1].Char.AsciiChar=Colors.MarkChar;
+    VBufColorExample[15*j].Attributes=(DWORD)Palette[COL_PANELBOX-COL_FIRSTPALETTECOLOR];
+    VBufColorExample[15*j+14].Attributes=(DWORD)Palette[COL_PANELBOX-COL_FIRSTPALETTECOLOR];
+  }
+}
+
 /* $ 17.05.2001 DJ
    обработка взаимоисключений (вместо обработки в явном цикле диалога)
 */
@@ -665,52 +753,67 @@ static long WINAPI HighlightDlgProc(HANDLE hDlg, int Msg, int Param1, long Param
   switch (Msg)
   {
     case DN_BTNCLICK:
-      if (Param1 >= 5 && Param1 <= 21 && Param2)
-      {
-        // обработаем взаимоисключения
-        int Delta=(Param1<14?9:-9);
-        if(Dialog::SendDlgMessage(hDlg,DM_GETCHECK,Param1+Delta,0) == BSTATE_CHECKED)
-          Dialog::SendDlgMessage(hDlg,DM_SETCHECK,Param1+Delta,BSTATE_UNCHECKED);
-      }
-      else if(Param1 >= 23 && Param1 <= 26)
+    case DN_MOUSECLICK:
+      if((Msg==DN_BTNCLICK && Param1 >= ID_HER_NORMAL && Param1 <= ID_HER_SELECTEDCURSOR)
+         || (Msg==DN_MOUSECLICK && Param1==ID_HER_COLOREXAMPLE && ((MOUSE_EVENT_RECORD *)Param2)->dwButtonState==FROM_LEFT_1ST_BUTTON_PRESSED))
       {
         HighlightData *EditData = (HighlightData *) Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
         unsigned int Color;
+        if (Msg==DN_MOUSECLICK)
+          Param1 = ID_HER_NORMAL + ((MOUSE_EVENT_RECORD *)Param2)->dwMousePosition.Y;
         switch (Param1)
         {
-          case 23:
+          case ID_HER_NORMAL:
             Color=(DWORD)EditData->Colors.Color;
             break;
-          case 24:
+          case ID_HER_SELECTED:
             Color=(DWORD)EditData->Colors.SelColor;
             break;
-          case 25:
+          case ID_HER_CURSOR:
             Color=(DWORD)EditData->Colors.CursorColor;
             break;
-          case 26:
+          case ID_HER_SELECTEDCURSOR:
             Color=(DWORD)EditData->Colors.CursorSelColor;
             break;
         }
-        GetColorDialog(Color);
+        GetColorDialog(Color,true);
         switch (Param1)
         {
-          case 23:
+          case ID_HER_NORMAL:
             EditData->Colors.Color=(BYTE)Color;
             break;
-          case 24:
+          case ID_HER_SELECTED:
             EditData->Colors.SelColor=(BYTE)Color;
             break;
-          case 25:
+          case ID_HER_CURSOR:
             EditData->Colors.CursorColor=(BYTE)Color;
             break;
-          case 26:
+          case ID_HER_SELECTEDCURSOR:
             EditData->Colors.CursorSelColor=(BYTE)Color;
             break;
         }
+        FarDialogItem MarkChar, ColorExample;
+        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_MARKEDIT,(long)&MarkChar);
+        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,(long)&ColorExample);
+        EditData->Colors.MarkChar=*MarkChar.Data.Data;
+        HighlightDlgUpdateUserControl(ColorExample.Param.VBuf,EditData->Colors);
+        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_HER_COLOREXAMPLE,(long)&ColorExample);
+        return TRUE;
       }
-      else if(Param1 >= 31 && Param1 <= 32)
-        return FALSE;
-      return TRUE;
+      break;
+
+    case DN_EDITCHANGE:
+      if (Param1 == ID_HER_MARKEDIT)
+      {
+        HighlightData *EditData = (HighlightData *) Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
+        FarDialogItem *MarkChar, ColorExample;
+        MarkChar=(FarDialogItem *)Param2;
+        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,(long)&ColorExample);
+        EditData->Colors.MarkChar=*(MarkChar->Data.Data);
+        HighlightDlgUpdateUserControl(ColorExample.Param.VBuf,EditData->Colors);
+        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,ID_HER_COLOREXAMPLE,(long)&ColorExample);
+        return TRUE;
+      }
   }
   return Dialog::DefDlgProc (hDlg, Msg, Param1, Param2);
 }
@@ -724,43 +827,38 @@ int HighlightFiles::EditRecord(int RecPos,int New)
 {
   const char *HistoryName="Masks";
   static struct DialogData HiEditDlgData[]={
-  /* 00 */DI_DOUBLEBOX,3,1,72,21,0,0,0,0,(char *)MHighlightEditTitle,
+  /* 00 */DI_DOUBLEBOX,3,1,65,20,0,0,0,0,(char *)MHighlightEditTitle,
   /* 01 */DI_CHECKBOX,5,2,0,0,0,0,DIF_AUTOMATION,0,(char *)MHighlightMasks,
-  /* 02 */DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY|DIF_VAREDIT,0,"",
-  /* 03 */DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 04 */DI_TEXT,5,5,0,0,0,0,DIF_BOXCOLOR,0,(char *)MHighlightIncludeAttr,
-  /* 05 */DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MHighlightRO,
-  /* 06 */DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MHighlightHidden,
-  /* 07 */DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MHighlightSystem,
-  /* 08 */DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MHighlightArchive,
-  /* 09 */DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MHighlightCompressed,
-  /* 10 */DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MHighlightEncrypted,
-  /* 11 */DI_CHECKBOX,5,12,0,0,0,0,0,0,(char *)MHighlightFolder,
-  /* 12 */DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MHighlightJunction,
-  /* 13 */DI_TEXT,37,5,0,0,0,0,DIF_BOXCOLOR,0,(char *)MHighlightExcludeAttr,
-  /* 14 */DI_CHECKBOX,37,6,0,0,0,0,0,0,(char *)MHighlightRO,
-  /* 15 */DI_CHECKBOX,37,7,0,0,0,0,0,0,(char *)MHighlightHidden,
-  /* 16 */DI_CHECKBOX,37,8,0,0,0,0,0,0,(char *)MHighlightSystem,
-  /* 17 */DI_CHECKBOX,37,9,0,0,0,0,0,0,(char *)MHighlightArchive,
-  /* 18 */DI_CHECKBOX,37,10,0,0,0,0,0,0,(char *)MHighlightCompressed,
-  /* 19 */DI_CHECKBOX,37,11,0,0,0,0,0,0,(char *)MHighlightEncrypted,
-  /* 20 */DI_CHECKBOX,37,12,0,0,0,0,0,0,(char *)MHighlightFolder,
-  /* 21 */DI_CHECKBOX,37,13,0,0,0,0,0,0,(char *)MHighlightJunction,
-  /* 22 */DI_TEXT,-1,14,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,(char *)MHighlightColors,
-  /* 23 */DI_BUTTON,5,15,0,0,0,0,DIF_BTNNOCLOSE,0,(char *)MHighlightNormal,
-  /* 24 */DI_BUTTON,5,16,0,0,0,0,DIF_BTNNOCLOSE,0,(char *)MHighlightSelected,
-  /* 25 */DI_BUTTON,37,15,0,0,0,0,DIF_BTNNOCLOSE,0,(char *)MHighlightCursor,
-  /* 26 */DI_BUTTON,37,16,0,0,0,0,DIF_BTNNOCLOSE,0,(char *)MHighlightSelectedCursor,
-  /* 27 */DI_TEXT,3,17,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 28 */DI_TEXT,7,18,0,0,0,0,0,0,(char *)MHighlightMarkChar,
-  /* 29 */DI_FIXEDIT,5,18,5,18,0,0,0,0,"",
-  /* 30 */DI_TEXT,3,19,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 31 */DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-  /* 32 */DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  /* 02 */DI_EDIT,5,3,63,3,1,(DWORD)HistoryName,DIF_HISTORY|DIF_VAREDIT,0,"",
+  /* 03 */DI_TEXT,-1,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,(char *)MHighlightIncExcTitle,
+  /* 04 */DI_CHECKBOX,5,5,0,0,0,0,DIF_3STATE,0,(char *)MHighlightRO,
+  /* 05 */DI_CHECKBOX,5,6,0,0,0,0,DIF_3STATE,0,(char *)MHighlightHidden,
+  /* 06 */DI_CHECKBOX,5,7,0,0,0,0,DIF_3STATE,0,(char *)MHighlightSystem,
+  /* 07 */DI_CHECKBOX,5,8,0,0,0,0,DIF_3STATE,0,(char *)MHighlightArchive,
+  /* 08 */DI_CHECKBOX,5,9,0,0,0,0,DIF_3STATE,0,(char *)MHighlightCompressed,
+  /* 09 */DI_CHECKBOX,5,10,0,0,0,0,DIF_3STATE,0,(char *)MHighlightEncrypted,
+  /* 10 */DI_CHECKBOX,35,5,0,0,0,0,DIF_3STATE,0,(char *)MHighlightFolder,
+  /* 11 */DI_CHECKBOX,35,6,0,0,0,0,DIF_3STATE,0,(char *)MHighlightJunction,
+  /* 12 */DI_CHECKBOX,35,7,0,0,0,0,DIF_3STATE,0,(char *)MHighlightSparse,
+  /* 13 */DI_CHECKBOX,35,8,0,0,0,0,DIF_3STATE,0,(char *)MHighlightTemporary,
+  /* 14 */DI_CHECKBOX,35,9,0,0,0,0,DIF_3STATE,0,(char *)MHighlightNotIndexed,
+  /* 15 */DI_TEXT,3,11,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 16 */DI_TEXT,7,12,0,0,0,0,0,0,(char *)MHighlightMarkChar,
+  /* 17 */DI_FIXEDIT,5,12,5,11,0,0,0,0,"",
+  /* 18 */DI_TEXT,-1,13,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,(char *)MHighlightColors,
+  /* 19 */DI_BUTTON,5,14,0,0,0,0,DIF_BTNNOCLOSE,0,(char *)MHighlightNormal,
+  /* 20 */DI_BUTTON,5,15,0,0,0,0,DIF_BTNNOCLOSE,0,(char *)MHighlightSelected,
+  /* 21 */DI_BUTTON,5,16,0,0,0,0,DIF_BTNNOCLOSE,0,(char *)MHighlightCursor,
+  /* 22 */DI_BUTTON,5,17,0,0,0,0,DIF_BTNNOCLOSE,0,(char *)MHighlightSelectedCursor,
+  /* 23 */DI_USERCONTROL,65-15-1,14,65-2,17,0,0,DIF_NOFOCUS,0,"",
+  /* 24 */DI_TEXT,3,18,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 25 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 26 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
   MakeDialogItems(HiEditDlgData,HiEditDlg);
   struct HighlightData EditData;
   char Mask[HIGHLIGHT_MASK_SIZE], *Ptr;
+  CHAR_INFO VBufColorExample[15*4];
 
   *Mask=0;
 
@@ -773,31 +871,72 @@ int HighlightFiles::EditRecord(int RecPos,int New)
   else
     memset(&EditData,0,sizeof(EditData));
 
-  if(FALSE==(HiEditDlg[1].Selected=!EditData.IgnoreMask))
-     HiEditDlg[2].Flags|=DIF_DISABLE;
+  memset(VBufColorExample,0,sizeof(VBufColorExample));
+  HighlightDlgUpdateUserControl(VBufColorExample,EditData.Colors);
+  HiEditDlg[ID_HER_COLOREXAMPLE].VBuf=VBufColorExample;
 
-  HiEditDlg[2].Ptr.PtrData=Mask;
-  HiEditDlg[2].Ptr.PtrLength=sizeof(Mask);
+  if(FALSE==(HiEditDlg[ID_HER_MATCHMASK].Selected=!EditData.IgnoreMask))
+     HiEditDlg[ID_HER_MASKEDIT].Flags|=DIF_DISABLE;
 
-  HiEditDlg[5].Selected=(EditData.IncludeAttr & FILE_ATTRIBUTE_READONLY)!=0;
-  HiEditDlg[6].Selected=(EditData.IncludeAttr & FILE_ATTRIBUTE_HIDDEN)!=0;
-  HiEditDlg[7].Selected=(EditData.IncludeAttr & FILE_ATTRIBUTE_SYSTEM)!=0;
-  HiEditDlg[8].Selected=(EditData.IncludeAttr & FILE_ATTRIBUTE_ARCHIVE)!=0;
-  HiEditDlg[9].Selected=(EditData.IncludeAttr & FILE_ATTRIBUTE_COMPRESSED)!=0;
-  HiEditDlg[10].Selected=(EditData.IncludeAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0;
-  HiEditDlg[11].Selected=(EditData.IncludeAttr & FILE_ATTRIBUTE_DIRECTORY)!=0;
-  HiEditDlg[12].Selected=(EditData.IncludeAttr & FILE_ATTRIBUTE_REPARSE_POINT)!=0;
+  HiEditDlg[ID_HER_MASKEDIT].Ptr.PtrData=Mask;
+  HiEditDlg[ID_HER_MASKEDIT].Ptr.PtrLength=sizeof(Mask);
 
-  HiEditDlg[14].Selected=(EditData.ExcludeAttr & FILE_ATTRIBUTE_READONLY)!=0;
-  HiEditDlg[15].Selected=(EditData.ExcludeAttr & FILE_ATTRIBUTE_HIDDEN)!=0;
-  HiEditDlg[16].Selected=(EditData.ExcludeAttr & FILE_ATTRIBUTE_SYSTEM)!=0;
-  HiEditDlg[17].Selected=(EditData.ExcludeAttr & FILE_ATTRIBUTE_ARCHIVE)!=0;
-  HiEditDlg[18].Selected=(EditData.ExcludeAttr & FILE_ATTRIBUTE_COMPRESSED)!=0;
-  HiEditDlg[19].Selected=(EditData.ExcludeAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0;
-  HiEditDlg[20].Selected=(EditData.ExcludeAttr & FILE_ATTRIBUTE_DIRECTORY)!=0;
-  HiEditDlg[21].Selected=(EditData.ExcludeAttr & FILE_ATTRIBUTE_REPARSE_POINT)!=0;
+  if ((EditData.IncludeAttr & FILE_ATTRIBUTE_READONLY)!=0)
+    HiEditDlg[ID_HER_ATTRBR].Selected=1;
+  else if ((EditData.ExcludeAttr & FILE_ATTRIBUTE_READONLY)==0)
+    HiEditDlg[ID_HER_ATTRBR].Selected=2;
 
-  *HiEditDlg[29].Data=EditData.Colors.MarkChar;
+  if ((EditData.IncludeAttr & FILE_ATTRIBUTE_HIDDEN)!=0)
+    HiEditDlg[ID_HER_ATTRBH].Selected=1;
+  else if ((EditData.ExcludeAttr & FILE_ATTRIBUTE_HIDDEN)==0)
+    HiEditDlg[ID_HER_ATTRBH].Selected=2;
+
+  if ((EditData.IncludeAttr & FILE_ATTRIBUTE_SYSTEM)!=0)
+    HiEditDlg[ID_HER_ATTRBS].Selected=1;
+  else if ((EditData.ExcludeAttr & FILE_ATTRIBUTE_SYSTEM)==0)
+    HiEditDlg[ID_HER_ATTRBS].Selected=2;
+
+  if ((EditData.IncludeAttr & FILE_ATTRIBUTE_ARCHIVE)!=0)
+    HiEditDlg[ID_HER_ATTRBA].Selected=1;
+  else if ((EditData.ExcludeAttr & FILE_ATTRIBUTE_ARCHIVE)==0)
+    HiEditDlg[ID_HER_ATTRBA].Selected=2;
+
+  if ((EditData.IncludeAttr & FILE_ATTRIBUTE_COMPRESSED)!=0)
+    HiEditDlg[ID_HER_ATTRBC].Selected=1;
+  else if ((EditData.ExcludeAttr & FILE_ATTRIBUTE_COMPRESSED)==0)
+    HiEditDlg[ID_HER_ATTRBC].Selected=2;
+
+  if ((EditData.IncludeAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0)
+    HiEditDlg[ID_HER_ATTRBE].Selected=1;
+  else if ((EditData.ExcludeAttr & FILE_ATTRIBUTE_ENCRYPTED)==0)
+    HiEditDlg[ID_HER_ATTRBE].Selected=2;
+
+  if ((EditData.IncludeAttr & FILE_ATTRIBUTE_DIRECTORY)!=0)
+    HiEditDlg[ID_HER_ATTRBF].Selected=1;
+  else if ((EditData.ExcludeAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
+    HiEditDlg[ID_HER_ATTRBF].Selected=2;
+
+  if ((EditData.IncludeAttr & FILE_ATTRIBUTE_REPARSE_POINT)!=0)
+    HiEditDlg[ID_HER_ATTRBL].Selected=1;
+  else if ((EditData.ExcludeAttr & FILE_ATTRIBUTE_REPARSE_POINT)==0)
+    HiEditDlg[ID_HER_ATTRBL].Selected=2;
+
+  if ((EditData.IncludeAttr & FILE_ATTRIBUTE_SPARSE_FILE)!=0)
+    HiEditDlg[ID_HER_ATTRBSP].Selected=1;
+  else if ((EditData.ExcludeAttr & FILE_ATTRIBUTE_SPARSE_FILE)==0)
+    HiEditDlg[ID_HER_ATTRBSP].Selected=2;
+
+  if ((EditData.IncludeAttr & FILE_ATTRIBUTE_TEMPORARY)!=0)
+    HiEditDlg[ID_HER_ATTRBT].Selected=1;
+  else if ((EditData.ExcludeAttr & FILE_ATTRIBUTE_TEMPORARY)==0)
+    HiEditDlg[ID_HER_ATTRBT].Selected=2;
+
+  if ((EditData.IncludeAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)!=0)
+    HiEditDlg[ID_HER_ATTRBNI].Selected=1;
+  else if ((EditData.ExcludeAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)==0)
+    HiEditDlg[ID_HER_ATTRBNI].Selected=2;
+
+  *HiEditDlg[ID_HER_MARKEDIT].Data=EditData.Colors.MarkChar;
 
   /* $ 18.05.2001 DJ
      обработка взаимоисключений и кнопок перенесена в обработчик диалога
@@ -805,7 +944,7 @@ int HighlightFiles::EditRecord(int RecPos,int New)
   {
     Dialog Dlg(HiEditDlg,sizeof(HiEditDlg)/sizeof(HiEditDlg[0]),HighlightDlgProc,(long) &EditData);
     Dlg.SetHelp(HLS.HighlightEdit);
-    Dlg.SetPosition(-1,-1,76,23);
+    Dlg.SetPosition(-1,-1,69,22);
     Dlg.SetAutomation(1,2,DIF_DISABLE,0,0,DIF_DISABLE);
 
 
@@ -817,70 +956,86 @@ int HighlightFiles::EditRecord(int RecPos,int New)
     {
       Dlg.ClearDone();
       Dlg.Process();
-      if (Dlg.GetExitCode() != 31)
+      if (Dlg.GetExitCode() != ID_HER_OK)
         return(FALSE);
-      if((FALSE!=(EditData.IgnoreMask=!HiEditDlg[1].Selected)))
+      if((FALSE!=(EditData.IgnoreMask=!HiEditDlg[ID_HER_MATCHMASK].Selected)))
       {
         if (!*Mask)
           strcpy(Mask, "*"); // для красоты и во избежание неприятностей
         break; // не проверяем маску лишний раз
       }
-      if (*(char *)HiEditDlg[2].Ptr.PtrData==0)
+      if (*(char *)HiEditDlg[ID_HER_MASKEDIT].Ptr.PtrData==0)
         return(FALSE);
-      if(FMask.Set(static_cast<char *>(HiEditDlg[2].Ptr.PtrData), 0))
+      if(FMask.Set(static_cast<char *>(HiEditDlg[ID_HER_MASKEDIT].Ptr.PtrData), 0))
         break;
     }
     /* IS $ */
   }
   /* DJ $ */
   EditData.IncludeAttr=EditData.ExcludeAttr=0;
-  if (HiEditDlg[5].Selected)
+
+  if (HiEditDlg[ID_HER_ATTRBR].Selected==1)
     EditData.IncludeAttr|=FILE_ATTRIBUTE_READONLY;
-  if (HiEditDlg[6].Selected)
+  else if (HiEditDlg[ID_HER_ATTRBR].Selected==0)
+    EditData.ExcludeAttr|=FILE_ATTRIBUTE_READONLY;
+
+  if (HiEditDlg[ID_HER_ATTRBH].Selected==1)
     EditData.IncludeAttr|=FILE_ATTRIBUTE_HIDDEN;
-  if (HiEditDlg[7].Selected)
+  else if (HiEditDlg[ID_HER_ATTRBH].Selected==0)
+    EditData.ExcludeAttr|=FILE_ATTRIBUTE_HIDDEN;
+
+  if (HiEditDlg[ID_HER_ATTRBS].Selected==1)
     EditData.IncludeAttr|=FILE_ATTRIBUTE_SYSTEM;
-  if (HiEditDlg[8].Selected)
+  else if (HiEditDlg[ID_HER_ATTRBS].Selected==0)
+    EditData.ExcludeAttr|=FILE_ATTRIBUTE_SYSTEM;
+
+  if (HiEditDlg[ID_HER_ATTRBA].Selected==1)
     EditData.IncludeAttr|=FILE_ATTRIBUTE_ARCHIVE;
-  if (HiEditDlg[9].Selected)
+  else if (HiEditDlg[ID_HER_ATTRBA].Selected==0)
+    EditData.ExcludeAttr|=FILE_ATTRIBUTE_ARCHIVE;
+
+
+  if (HiEditDlg[ID_HER_ATTRBE].Selected==1)
+    EditData.IncludeAttr|=FILE_ATTRIBUTE_ENCRYPTED;
+  else if (HiEditDlg[ID_HER_ATTRBE].Selected==0)
+    EditData.ExcludeAttr|=FILE_ATTRIBUTE_ENCRYPTED;
+  if (HiEditDlg[ID_HER_ATTRBC].Selected==1)
   {
     EditData.IncludeAttr|=FILE_ATTRIBUTE_COMPRESSED;
     EditData.IncludeAttr&=~FILE_ATTRIBUTE_ENCRYPTED;
   }
-  else if (HiEditDlg[10].Selected)
-  {
-    EditData.IncludeAttr&=~FILE_ATTRIBUTE_COMPRESSED;
-    EditData.IncludeAttr|=FILE_ATTRIBUTE_ENCRYPTED;
-  }
-  if (HiEditDlg[11].Selected)
-    EditData.IncludeAttr|=FILE_ATTRIBUTE_DIRECTORY;
-  if (HiEditDlg[12].Selected)
-    EditData.IncludeAttr|=FILE_ATTRIBUTE_REPARSE_POINT;
-
-  if (HiEditDlg[14].Selected)
-    EditData.ExcludeAttr|=FILE_ATTRIBUTE_READONLY;
-  if (HiEditDlg[15].Selected)
-    EditData.ExcludeAttr|=FILE_ATTRIBUTE_HIDDEN;
-  if (HiEditDlg[16].Selected)
-    EditData.ExcludeAttr|=FILE_ATTRIBUTE_SYSTEM;
-  if (HiEditDlg[17].Selected)
-    EditData.ExcludeAttr|=FILE_ATTRIBUTE_ARCHIVE;
-  if (HiEditDlg[18].Selected)
+  else if (HiEditDlg[ID_HER_ATTRBC].Selected==0)
   {
     EditData.ExcludeAttr|=FILE_ATTRIBUTE_COMPRESSED;
-    EditData.ExcludeAttr&=~FILE_ATTRIBUTE_ENCRYPTED;
-  }
-  else if (HiEditDlg[19].Selected)
-  {
     EditData.ExcludeAttr&=~FILE_ATTRIBUTE_COMPRESSED;
-    EditData.ExcludeAttr|=FILE_ATTRIBUTE_ENCRYPTED;
   }
-  if (HiEditDlg[20].Selected)
+
+  if (HiEditDlg[ID_HER_ATTRBF].Selected==1)
+    EditData.IncludeAttr|=FILE_ATTRIBUTE_DIRECTORY;
+  else if (HiEditDlg[ID_HER_ATTRBF].Selected==0)
     EditData.ExcludeAttr|=FILE_ATTRIBUTE_DIRECTORY;
-  if (HiEditDlg[21].Selected)
+
+  if (HiEditDlg[ID_HER_ATTRBL].Selected==1)
+    EditData.IncludeAttr|=FILE_ATTRIBUTE_REPARSE_POINT;
+  else if (HiEditDlg[ID_HER_ATTRBL].Selected==0)
     EditData.ExcludeAttr|=FILE_ATTRIBUTE_REPARSE_POINT;
 
-  EditData.Colors.MarkChar=*HiEditDlg[29].Data;
+  if (HiEditDlg[ID_HER_ATTRBSP].Selected==1)
+    EditData.IncludeAttr|=FILE_ATTRIBUTE_SPARSE_FILE;
+  else if (HiEditDlg[ID_HER_ATTRBSP].Selected==0)
+    EditData.ExcludeAttr|=FILE_ATTRIBUTE_SPARSE_FILE;
+
+  if (HiEditDlg[ID_HER_ATTRBT].Selected==1)
+    EditData.IncludeAttr|=FILE_ATTRIBUTE_TEMPORARY;
+  else if (HiEditDlg[ID_HER_ATTRBT].Selected==0)
+    EditData.ExcludeAttr|=FILE_ATTRIBUTE_TEMPORARY;
+
+  if (HiEditDlg[ID_HER_ATTRBNI].Selected==1)
+    EditData.IncludeAttr|=FILE_ATTRIBUTE_NOT_CONTENT_INDEXED;
+  else if (HiEditDlg[ID_HER_ATTRBNI].Selected==0)
+    EditData.ExcludeAttr|=FILE_ATTRIBUTE_NOT_CONTENT_INDEXED;
+
+  EditData.Colors.MarkChar=*HiEditDlg[ID_HER_MARKEDIT].Data;
 
   if (!New && RecPos<HiDataCount)
   {

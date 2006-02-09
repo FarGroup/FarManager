@@ -934,11 +934,11 @@ MCopySecurity
 "&Access rights:"
 
 MCopySecurityCopy
-"Ко&пировать"
+"Копироват&ь"
 "Co&py"
 
 MCopySecurityInherit
-"На&следовать"
+"Нас&ледовать"
 "&Inherit"
 
 MCopySecurityLeave
@@ -3693,9 +3693,9 @@ MHighlightMasks
 "Совпадение с &маской (масками):"
 "&Match file mask(s)"
 
-MHighlightIncludeAttr
-"Атрибуты &включения"
-"&Include attributes"
+MHighlightIncExcTitle
+" Атрибуты включения/исключения "
+" Include/Exclude attributes "
 
 MHighlightRO
 "Только для чтения"
@@ -3727,11 +3727,23 @@ MHighlightFolder
 
 MHighlightJunction
 "Символическая связь"
-"Symbolic links"
+"Symbolic link"
 
-MHighlightExcludeAttr
-"Атрибуты &исключения"
-"&Exclude attributes"
+MHighlightSparse
+"Разреженный"
+"Sparse"
+
+MHighlightTemporary
+"Временный"
+"Temporary"
+
+MHighlightNotIndexed
+"Неиндексируемый"
+"Not indexed"
+
+MHighlightMarkChar
+"Опциональный &символ для пометки указанных файлов"
+"Optional cha&racter to mark specified files"
 
 MHighlightColors
 " Цвета файлов (\"черный на черном\" - цвет по умолчанию) "
@@ -3739,11 +3751,11 @@ MHighlightColors
 
 MHighlightNormal
 "&Обычный                "
-"&Normal  "
+"&Normal               "
 
 MHighlightSelected
 "&Помеченный             "
-"&Selected"
+"&Selected             "
 
 MHighlightCursor
 "Под &курсором           "
@@ -3753,9 +3765,13 @@ MHighlightSelectedCursor
 "Поме&ченный под курсором"
 "Se&lected under cursor"
 
-MHighlightMarkChar
-"Опциональный &символ для пометки указанных файлов"
-"Optional cha&racter to mark specified files"
+MHighlightExample1
+"║filename.ext │"
+"║filename.ext │"
+
+MHighlightExample2
+"║ filename.ext│"
+"║ filename.ext│"
 
 MInfoTitle
 l:
@@ -4724,29 +4740,33 @@ MSetAttrEncrypted
 "За&шифрованный"
 "&Encrypted"
 
-MSetAttrIndexed
-"Индексируется"
-"&Indexed"
+MSetAttrNotIndexed
+"Н&еиндексируемый"
+"Not &indexed"
+
+MSetAttrSparse
+"Разреженный"
+"Sparse"
+
+MSetAttrTemp
+"Временный"
+"Temporary"
 
 MSetAttrSubfolders
 "Обрабатывать &вложенные папки"
 "Process sub&folders"
 
-MSetAttrFileTime
-"Время файла"
-"File time"
-
 MSetAttrModification
-"&Модификации"
-"&Modification"
+"Время &модификации файла:"
+"File &modification time:"
 
 MSetAttrCreation
-"Со&здания"
-"Crea&tion"
+"Время со&здания файла:"
+"File crea&tion time:"
 
 MSetAttrLastAccess
-"&Доступа"
-"&Last access"
+"Время последнего &доступа к файлу:"
+"&Last file access time:"
 
 MSetAttrOriginal
 "Исход&ное"
@@ -7118,6 +7138,18 @@ MFileFilterAttrE
 MFileFilterAttrD
 "Катало&г"
 "D&irectory"
+
+MFileFilterAttrNI
+"Неиндексир&уемый"
+"Not inde&xed"
+
+MFileFilterAttrSparse
+"Разре&женный"
+"S&parse"
+
+MFileFilterAttrT
+"&Временный"
+"Temporar&y"
 
 MFileFilterOk
 "&Ок"

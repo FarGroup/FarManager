@@ -5,10 +5,12 @@ setcolor.cpp
 
 */
 
-/* Revision: 1.25 05.03.2003 $ */
+/* Revision: 1.26 09.02.2006 $ */
 
 /*
 Modify:
+  09.02.2006 AY
+    - Диалогу настройки цвета можно задавать центрирование.
   05.03.2003 SVS
     - Правим цвета для меню... а меню то и не прорисовалось!
       Сделать Hide/Show мало. Нужно еще и апдейтить локальные копии палитр меню.
@@ -570,7 +572,7 @@ static long WINAPI GetColorDlgProc(HANDLE hDlg, int Msg, int Param1, long Param2
 
 /* DJ $ */
 
-int GetColorDialog(unsigned int &Color)
+int GetColorDialog(unsigned int &Color,bool bCentered)
 {
   static struct DialogData ColorDlgData[]={
     /*   0 */ DI_DOUBLEBOX,3,1,35,13,0,0,0,0,(char *)MSetColorTitle,
@@ -641,7 +643,10 @@ int GetColorDialog(unsigned int &Color)
     */
     //SaveScreen SaveScr;
     Dialog Dlg(ColorDlg,sizeof(ColorDlg)/sizeof(ColorDlg[0]), GetColorDlgProc, (long) &CurColor);
-    Dlg.SetPosition(37,2,75,16);
+    if (bCentered)
+      Dlg.SetPosition(-1,-1,39,15);
+    else
+      Dlg.SetPosition(37,2,75,16);
     Dlg.Process();
     /* DJ $ */
     ExitCode=Dlg.GetExitCode();

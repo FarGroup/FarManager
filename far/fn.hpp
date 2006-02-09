@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.235 06.12.2005 $ */
+/* Revision: 1.236 09.02.2006 $ */
 
 /*
 Modify:
+  09.02.2006 AY
+    ! Изменения в GetColorDialog()
   06.12.2005 AY
     + PointToNameUNC()
   04.10.2005 SVS
@@ -881,7 +883,7 @@ void SetFolderInfoFiles();
 void ReadConfig();
 void SaveConfig(int Ask);
 void SetColors();
-int GetColorDialog(unsigned int &Color);
+int GetColorDialog(unsigned int &Color,bool bCentered=false);
 int HiStrlen(const char *Str,BOOL Dup=TRUE);
 /* $ 27.01.2001 VVM
    + Дополнительный параметр у GetErrorString - резмер буфера */

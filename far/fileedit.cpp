@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.172 28.10.2005 $ */
+/* Revision: 1.173 09.02.2006 $ */
 
 /*
 Modify:
+  09.02.2006 AY
+    ! Не выставлялись многие настройки текущего редактора.
   28.10.2005 SVS
     + Ctrl-B - показать/спрятать кейбар в редакторе
   27.10.2005 SVS
@@ -2220,7 +2222,6 @@ void FileEditor::GetEditorOptions(struct EditorOptions& EdOpt)
 
 void FileEditor::SetEditorOptions(struct EditorOptions& EdOpt)
 {
-  memmove(&FEdit->EdOpt,&EdOpt,sizeof(struct EditorOptions));
   FEdit->SetTabSize(EdOpt.TabSize);
   FEdit->SetConvertTabs(EdOpt.ExpandTabs);
   FEdit->SetPersistentBlocks(EdOpt.PersistentBlocks);

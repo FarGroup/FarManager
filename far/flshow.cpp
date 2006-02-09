@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.50 22.12.2005 $ */
+/* Revision: 1.51 09.02.2006 $ */
 
 /*
 Modify:
+  09.02.2006 AY
+    - Порядок атрибутов RSHALCTI.
   22.12.2005 SVS
     + добавка индикации "выделенные вперед" - символ '^'
     ! Колонка атрибутов изменена. Теперь порядок такой: ARSHLC, так же отображаем по ширине только то, что в начале.
@@ -1147,15 +1149,15 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 char OutStr[16];
                 DWORD FileAttr=CurPtr->FileAttr;
                 //
-                OutStr[0]=(FileAttr & FILE_ATTRIBUTE_ARCHIVE) ? 'A':' ';
-                OutStr[1]=(FileAttr & FILE_ATTRIBUTE_READONLY) ? 'R':' ';
-                OutStr[2]=(FileAttr & FILE_ATTRIBUTE_SYSTEM) ? 'S':' ';
-                OutStr[3]=(FileAttr & FILE_ATTRIBUTE_HIDDEN) ? 'H':' ';
+                OutStr[0]=(FileAttr & FILE_ATTRIBUTE_READONLY) ? 'R':' ';
+                OutStr[1]=(FileAttr & FILE_ATTRIBUTE_SYSTEM) ? 'S':' ';
+                OutStr[2]=(FileAttr & FILE_ATTRIBUTE_HIDDEN) ? 'H':' ';
+                OutStr[3]=(FileAttr & FILE_ATTRIBUTE_ARCHIVE) ? 'A':' ';
                 OutStr[4]=(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT) ? 'L' : ((FileAttr & FILE_ATTRIBUTE_SPARSE_FILE) ? '$':' ');
                 // $ 20.10.2000 SVS - Encrypted NTFS/Win2K - Поток может быть либо COMPRESSED (С) либо ENCRYPTED (E)
                 OutStr[5]=(FileAttr & FILE_ATTRIBUTE_COMPRESSED) ? 'C':((FileAttr & FILE_ATTRIBUTE_ENCRYPTED)?'E':' ');
-                OutStr[6]=(!(FileAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)) ? (Is_FS_NTFS?'I':' '):' ';
-                OutStr[7]=(FileAttr & FILE_ATTRIBUTE_TEMPORARY) ? (Is_FS_NTFS?'T':' '):' ';
+                OutStr[6]=(FileAttr & FILE_ATTRIBUTE_TEMPORARY) ? 'T':' ';
+                OutStr[7]=(FileAttr & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED) ? 'I':' ';
                 OutStr[8]=0;
                 char *OutPtr=OutStr;
                 //if (ColumnWidth<7)
