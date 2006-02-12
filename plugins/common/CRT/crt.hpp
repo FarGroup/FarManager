@@ -12,5 +12,12 @@
 #include "strrchr.hpp"
 #include "strstr.hpp"
 #include "strtok.hpp"
+#include "delete.hpp"
+#include "delete_array.hpp"
+#include "free.hpp"
+#include "malloc.hpp"
+#include "new.hpp"
+#include "new_array.hpp"
+#include "realloc.hpp"
 
 #endif

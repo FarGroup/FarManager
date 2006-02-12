@@ -1,6 +1,6 @@
-OBJDIR = ./obj
-REOBJDIR = \.\/obj\/
-DLLDIR = ./obj
+OBJDIR = ./GCC
+REOBJDIR = \.\/GCC\/
+DLLDIR = ..
 DLLNAME = libCRT.a
 DLLFULLNAME = $(DLLDIR)/$(DLLNAME)
 SRCS = memchr.cpp \
@@ -13,7 +13,14 @@ strstr.cpp \
 strchr.cpp \
 strrchr.cpp \
 strtok.cpp \
-ctype.cpp
+ctype.cpp \
+delete.cpp \
+delete_array.cpp \
+free.cpp \
+malloc.cpp \
+new.cpp \
+new_array.cpp \
+realloc.cpp
 
 CXX = g++
 DLLTOOL = dlltool
