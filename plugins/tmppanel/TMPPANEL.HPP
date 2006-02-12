@@ -5,17 +5,6 @@ Temporary panel header file
 
 */
 
-/* $Revision: 1.01 23.12.2001 */
-
-/*
-Modify:
-  23.12.2001 DJ
-    ! REGStr перенесена в tmpcfg.cpp (чтоб не забывали обновлять)
-    ! больше не передаем PInfo в ProcessRemoveKey - пусть само берет
-  05.12.2001 DJ
-    started version numbering
-*/
-
 #define REMOVE_FLAG 1
 
 class TmpPanel

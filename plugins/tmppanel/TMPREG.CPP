@@ -4,7 +4,7 @@ HKEY OpenRegKey(HKEY hRoot,const char *Key);
 void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData)
 {
   HKEY hKey=CreateRegKey(hRoot,Key);
-  RegSetValueEx(hKey,ValueName,0,REG_SZ,(BYTE*)ValueData,strlen(ValueData)+1);
+  RegSetValueEx(hKey,ValueName,0,REG_SZ,(BYTE*)ValueData,lstrlen(ValueData)+1);
   RegCloseKey(hKey);
 }
 

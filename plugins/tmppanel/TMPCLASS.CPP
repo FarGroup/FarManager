@@ -5,17 +5,6 @@ Temporary panel plugin class implementation
 
 */
 
-/* $Revision: 1.01 23.12.2001 */
-
-/*
-Modify:
-  23.12.2001 DJ
-    - исправлена бага с обработкой каталогов в UpdateItems()
-    - оптимизация ProcessKey()
-  05.12.2001 DJ
-    started version numbering
-*/
-
 static int _cdecl SortListCmp(const void *el1,const void *el2);
 
 TmpPanel::TmpPanel()
@@ -346,7 +335,7 @@ void TmpPanel::UpdateItems(int ShowOwners,int ShowLinks)
        этот каталог не найдет. Поэтому для каталогов оптимизацию с
        SameFolderItems пропускаем.
     */
-    if(Length>0 && Length > (int)strlen (FullName))   /* DJ $ */
+    if(Length>0 && Length > (int)lstrlen (FullName))   /* DJ $ */
       for(int j=1;i+j<TmpItemsNumber;j++)
         if(memcmp(FullName,CurItem[j].FindData.cFileName,Length)==0 &&
           strchr((const char*)CurItem[j].FindData.cFileName+Length,(int)'\\')==0)

@@ -5,14 +5,6 @@ Temporary panel miscellaneous utility functions
 
 */
 
-/* $Revision: 1.00 05.12.2001 */
-
-/*
-Modify:
-  05.12.2001 DJ
-    started version numbering
-*/
-
 const char *GetMsg(int MsgId)
 {
   return(Info.GetMsg(Info.ModuleNumber,MsgId));

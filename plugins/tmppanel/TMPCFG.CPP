@@ -5,16 +5,6 @@ Temporary panel configuration
 
 */
 
-/* $Revision: 1.01 23.12.2001 */
-
-/*
-Modify:
-  23.12.2001 DJ
-    ! REGStr перенесена сюда из tmppanel.hpp (чтоб не забывали обновлять)
-  05.12.2001 DJ
-    started version numbering
-*/
-
 enum
 {
   AddToDisksMenu,

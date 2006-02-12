@@ -5,14 +5,6 @@ Temporary panel main plugin code
 
 */
 
-/* $Revision: 1.00 05.12.2001 */
-
-/*
-Modify:
-  05.12.2001 DJ
-    started version numbering
-*/
-
 #define WIN32_LEAN_AND_MEAN
 #define STRICT
 #define __STD_STRING
@@ -24,13 +16,11 @@ Modify:
 #include "tmplng.hpp"
 #include "plugin.hpp"
 #include "tmppanel.hpp"
-#include "memory.hpp"
+#include "crt.hpp"
 
 char TMPPanelDir[NM*5];
 
 #if defined(__GNUC__)
-
-#include "crt.hpp"
 
 #ifdef __cplusplus
 extern "C"{
