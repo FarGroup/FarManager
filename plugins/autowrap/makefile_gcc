@@ -4,7 +4,7 @@ DLLDIR = ./final
 NAME = AutoWrap
 DLLNAME = $(NAME).dll
 DLLFULLNAME = $(DLLDIR)/$(DLLNAME)
-SRCS = AutoWrap.cpp crt.cpp
+SRCS = AutoWrap.cpp
 DEF = $(NAME).gcc.def
 
 CXX = g++
@@ -15,8 +15,8 @@ M4 = m4 -P
 MV = mv -f
 MKDIR = mkdir -p
 WINDRES=windres
-CXXFLAGS = -Wall -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-rtti -fno-exceptions
-LNKFLAGS = -mdll -s -nostartfiles
+CXXFLAGS = -I ../common -I ../common/GCC -Wall -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-rtti -fno-exceptions
+LNKFLAGS = -mdll -s -nostartfiles -L ../common/GCC/obj -lCRT
 
 OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS))) $(OBJDIR)/$(NAME).res.o
 DEPS = $(patsubst %.cpp,$(OBJDIR)/%.d,$(filter %.cpp,$(SRCS)))

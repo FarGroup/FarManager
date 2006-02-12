@@ -1,6 +1,7 @@
+#include "../common/farversion.hpp"
 1 VERSIONINFO
 FILEVERSION 1, 70, 0, 2
-PRODUCTVERSION 1, 70, 0, 0
+PRODUCTVERSION FAR_MAJOR_VER, FAR_MINOR_VER, 0, FAR_BUILD
 FILEOS 4
 FILETYPE 2
 {
@@ -8,14 +9,14 @@ FILETYPE 2
  {
   BLOCK "000004E4"
   {
-   VALUE "CompanyName", "Eugene Roshal & FAR Group\000\000"
+   VALUE "CompanyName", FARCOMPANYNAME
    VALUE "FileDescription", "Auto wrap for FAR Manager\000"
    VALUE "FileVersion", "1.70 build 2\000\000"
    VALUE "InternalName", "AutoWrap\000"
-   VALUE "LegalCopyright", "Copyright © Eugene Roshal 1996-2000, Copyright © 2000-2006 FAR Group\000\000"
+   VALUE "LegalCopyright", FARCOPYRIGHT
    VALUE "OriginalFilename", "AutoWrap.dll\000"
-   VALUE "ProductName", "FAR manager\000"
-   VALUE "ProductVersion", "1.70\000"
+   VALUE "ProductName", FARPRODUCTNAME
+   VALUE "ProductVersion", FARPRODUCTVERSION
   }
 
  }
