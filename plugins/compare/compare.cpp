@@ -112,7 +112,7 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info) {
     free(PluginRootKey);
     PluginRootKey = NULL;
     }
-  if (PluginRootKey = (char *)malloc(strlen(Info->RootKey) + strlen(cpPlugRegKey) + 1)) {
+  if (PluginRootKey = (char *)malloc(lstrlen(Info->RootKey) + lstrlen(cpPlugRegKey) + 1)) {
     lstrcpy(PluginRootKey, Info->RootKey);
     lstrcat(PluginRootKey, cpPlugRegKey);
     }
@@ -149,7 +149,7 @@ void WINAPI _export GetPluginInfo(struct PluginInfo *Info) {
 static int iTruncLen;
 
 static void TrunCopy(char *cpDest, const char *cpSrc) {
-  int iLen = strlen(FSF.TruncStr(lstrcpy(cpDest, cpSrc), iTruncLen));
+  int iLen = lstrlen(FSF.TruncStr(lstrcpy(cpDest, cpSrc), iTruncLen));
   if (iLen < iTruncLen) {
     memset(&cpDest[iLen], ' ', iTruncLen - iLen);
     cpDest[iTruncLen] = 0;
