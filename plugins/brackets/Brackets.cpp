@@ -141,7 +141,7 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom,int Item)
   if(!Opt.QuotesType[0])
     Opt.IgnoreQuotes=1;
   else {
-    i=strlen(Opt.QuotesType);
+    i=lstrlen(Opt.QuotesType);
     if((i&1) == 1)
     {
       if(--i > 0)
@@ -164,14 +164,14 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom,int Item)
 
   Bracket=(CurPos == egs.StringLength)?'\0':egs.StringText[CurPos];
 
-  if(((lenBrackets1=strlen(Opt.Brackets1)) & 1) != 0)
+  if(((lenBrackets1=lstrlen(Opt.Brackets1)) & 1) != 0)
   {
     lenBrackets1-=(lenBrackets1&1);
     Opt.Brackets1[lenBrackets1]=0;
   }
   lenBrackets1>>=1;
 
-  if(((lenBrackets2=strlen(Opt.Brackets2)) & 3) != 0)
+  if(((lenBrackets2=lstrlen(Opt.Brackets2)) & 3) != 0)
   {
     lenBrackets2-=(lenBrackets2&3);
     Opt.Brackets2[lenBrackets2]=0;
