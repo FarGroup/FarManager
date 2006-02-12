@@ -1,7 +1,26 @@
 #include "plugin.hpp"
-
 #include "drawlng.hpp"
 #include "drawline.hpp"
+#include "crt.hpp"
+
+#if defined(__GNUC__)
+
+#ifdef __cplusplus
+extern "C"{
+#endif
+  BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
+#ifdef __cplusplus
+};
+#endif
+
+BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
+{
+  (void) lpReserved;
+  (void) dwReason;
+  (void) hDll;
+  return TRUE;
+}
+#endif
 
 static char  BoxChar[]  = {'³','´','µ','¶','·','¸','¹','º','»','¼','½','¾','¿','À','Á','Â','Ã','Ä','Å','Æ','Ç','È','É','Ê','Ë','Ì','Í','Î','Ï','Ð','Ñ','Ò','Ó','Ô','Õ','Ö','×','Ø','Ù','Ú'};
 static short BoxLeft[]  = { 0 , 1 , 2 , 1 , 1 , 2 , 2 , 0 , 2 , 2 , 1 , 2 , 1 , 0 , 1 , 1 , 0 , 1 , 1 , 0 , 0 , 0 , 0 , 2 , 2 , 0 , 2 , 2 , 2 , 1 , 2 , 1 , 0 , 0 , 0 , 0 , 1 , 2 , 1 , 0 };
@@ -217,7 +236,7 @@ void ProcessShiftKey(int KeyCode,int LineWidth)
   Info.EditorControl(ECTL_GETSTRING,&egs);
 
   int StringLength=egs.StringLength>ei.CurPos ? egs.StringLength:ei.CurPos+1;
-  char *NewString=(char *)GlobalAlloc(GMEM_FIXED,StringLength);
+  char *NewString=(char *)malloc(StringLength);
   if (StringLength>egs.StringLength)
     memset(NewString+egs.StringLength,' ',StringLength-egs.StringLength);
   memcpy(NewString,egs.StringText,egs.StringLength);
@@ -287,7 +306,7 @@ void ProcessShiftKey(int KeyCode,int LineWidth)
       Info.EditorControl(ECTL_REDRAW,NULL);
       break;
     }
-  GlobalFree((HGLOBAL)NewString);
+  free(NewString);
 }
 
 
