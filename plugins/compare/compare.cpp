@@ -1,7 +1,30 @@
 #define _FAR_NO_NAMELESS_UNIONS
 #include "plugin.hpp"
+#include "memory.hpp"
 
-//#define STATIC_BUFFER_SIZE	(32768)
+#if defined(__GNUC__)
+
+#include "crt.hpp"
+
+#ifdef __cplusplus
+extern "C"{
+#endif
+  BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
+#ifdef __cplusplus
+};
+#endif
+
+BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
+{
+  (void) lpReserved;
+  (void) dwReason;
+  (void) hDll;
+  return TRUE;
+}
+#endif
+
+
+#define STATIC_BUFFER_SIZE  (32768)
 
 #ifndef STATIC_BUFFER_SIZE
   DWORD bufSize;
@@ -92,8 +115,8 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info) {
     PluginRootKey = NULL;
     }
   if (PluginRootKey = (char *)malloc(strlen(Info->RootKey) + strlen(cpPlugRegKey) + 1)) {
-    strcpy(PluginRootKey, Info->RootKey);
-    strcat(PluginRootKey, cpPlugRegKey);
+    lstrcpy(PluginRootKey, Info->RootKey);
+    lstrcat(PluginRootKey, cpPlugRegKey);
     }
   else {
     const char *MsgItems[] = { GetMsg(MNoMemTitle), GetMsg(MNoMemBody), GetMsg(MOK) };
@@ -128,7 +151,7 @@ void WINAPI _export GetPluginInfo(struct PluginInfo *Info) {
 static int iTruncLen;
 
 static void TrunCopy(char *cpDest, const char *cpSrc) {
-  int iLen = strlen(FSF.TruncStr(strcpy(cpDest, cpSrc), iTruncLen));
+  int iLen = strlen(FSF.TruncStr(lstrcpy(cpDest, cpSrc), iTruncLen));
   if (iLen < iTruncLen) {
     memset(&cpDest[iLen], ' ', iTruncLen - iLen);
     cpDest[iTruncLen] = 0;
@@ -215,7 +238,7 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent) {
         break;
       }
     DialogItems[i].DefaultButton = (InitItems[i].Data == MOK);
-    strcpy(DialogItems[i].Data.Data, (InitItems[i].Data == MNoLngStringDefined)? "": GetMsg(InitItems[i].Data));
+    lstrcpy(DialogItems[i].Data.Data, (InitItems[i].Data == MNoLngStringDefined)? "": GetMsg(InitItems[i].Data));
     }
   for (i = 0; i < sizeof(InitItems) / sizeof(InitItems[0]); i++)
     if (InitItems[i].Type == DI_CHECKBOX && !(DialogItems[i].Flags & DIF_DISABLE)) {
@@ -275,8 +298,8 @@ static bool CheckForEsc(void) {
  ****************************************************************************/
 static char *BuildFullFilename(const char *cpDir, const char *cpFileName) {
   static char cName[NM];
-  FSF.AddEndSlash(strcpy(cName, cpDir));
-  return strcat(cName, cpFileName);
+  FSF.AddEndSlash(lstrcpy(cName, cpDir));
+  return lstrcat(cName, cpFileName);
   }
 
 struct FileIndex {
@@ -314,7 +337,7 @@ static bool BuildPanelIndex(const struct PanelInfo *pInfo, struct FileIndex *pIn
     return false;
   int j = 0;
   for (int i = pInfo->ItemsNumber - 1; i >= 0 && j < pIndex->iCount; i--)
-    if ((Opt.ProcessSubfolders || !(pInfo->PanelItems[i].FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) && (!bProcessSelected || (pInfo->PanelItems[i].Flags & PPIF_SELECTED)) && strcmp(pInfo->PanelItems[i].FindData.cFileName, "..") && strcmp(pInfo->PanelItems[i].FindData.cFileName, "."))
+    if ((Opt.ProcessSubfolders || !(pInfo->PanelItems[i].FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) && (!bProcessSelected || (pInfo->PanelItems[i].Flags & PPIF_SELECTED)) && lstrcmp(pInfo->PanelItems[i].FindData.cFileName, "..") && lstrcmp(pInfo->PanelItems[i].FindData.cFileName, "."))
       pIndex->ppi[j++] = &pInfo->PanelItems[i];
   if (pIndex->iCount = j)
     FSF.qsort(pIndex->ppi, j, sizeof(pIndex->ppi[0]), PICompare);
@@ -345,11 +368,11 @@ static int GetDirList(const char *Dir, struct PluginPanelItem **pPanelItem, int 
   char cPathMask[MAX_PATH];
   WIN32_FIND_DATA wfdFindData;
   HANDLE hFind;
-  if ((hFind = FindFirstFile(strcat(strcpy(cPathMask, Dir), "\\*"), &wfdFindData)) == INVALID_HANDLE_VALUE)
+  if ((hFind = FindFirstFile(lstrcat(lstrcpy(cPathMask, Dir), "\\*"), &wfdFindData)) == INVALID_HANDLE_VALUE)
     return TRUE;
   int iRet = TRUE;
   do {
-    if (!strcmp(wfdFindData.cFileName, ".") || !strcmp(wfdFindData.cFileName, ".."))
+    if (!lstrcmp(wfdFindData.cFileName, ".") || !lstrcmp(wfdFindData.cFileName, ".."))
       continue;
     if ((wfdFindData.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) && !Opt.ProcessHidden)
       continue;
@@ -374,7 +397,7 @@ static void FreeDirList(struct PluginPanelItem *PanelItem) {
     free(PanelItem);
   }
 
-bool CompareDirs(const struct PanelInfo *AInfo, const struct PanelInfo *PInfo, bool bCompareAll);
+static bool CompareDirs(const struct PanelInfo *AInfo, const struct PanelInfo *PInfo, bool bCompareAll);
 
 /****************************************************************************
  * Сравнение атрибутов и прочего для двух одноимённых элементов (файлов или
@@ -389,8 +412,8 @@ static bool CompareFiles(const WIN32_FIND_DATA *AData, const WIN32_FIND_DATA *PD
       memset(&AInfo, 0, sizeof(AInfo));
       memset(&PInfo, 0, sizeof(PInfo));
       bool bEqual;
-      if (!GetDirList(strcpy(AInfo.CurDir, BuildFullFilename(ACurDir, AData->cFileName)), &AInfo.PanelItems, &AInfo.ItemsNumber)
-        || !GetDirList(strcpy(PInfo.CurDir, BuildFullFilename(PCurDir, PData->cFileName)), &PInfo.PanelItems, &PInfo.ItemsNumber)) {
+      if (!GetDirList(lstrcpy(AInfo.CurDir, BuildFullFilename(ACurDir, AData->cFileName)), &AInfo.PanelItems, &AInfo.ItemsNumber)
+        || !GetDirList(lstrcpy(PInfo.CurDir, BuildFullFilename(PCurDir, PData->cFileName)), &PInfo.PanelItems, &PInfo.ItemsNumber)) {
         bBrokenByEsc = true; // То ли юзер прервал, то ли ошибка чтения
         bEqual = false; // Остановим сравнение
         }
@@ -423,7 +446,7 @@ static bool CompareFiles(const WIN32_FIND_DATA *AData, const WIN32_FIND_DATA *PD
     if (Opt.CompareContents) {
       HANDLE hFileA, hFileP;
       char cpFileA[MAX_PATH], cpFileP[MAX_PATH];
-      ShowMessage(strcpy(cpFileA, BuildFullFilename(ACurDir, AData->cFileName)), strcpy(cpFileP, BuildFullFilename(PCurDir, PData->cFileName)));
+      ShowMessage(lstrcpy(cpFileA, BuildFullFilename(ACurDir, AData->cFileName)), lstrcpy(cpFileP, BuildFullFilename(PCurDir, PData->cFileName)));
       if ((hFileA = CreateFile(cpFileA, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, NULL)) == INVALID_HANDLE_VALUE)
         return false;
       if ((hFileP = CreateFile(cpFileP, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, NULL)) == INVALID_HANDLE_VALUE) {
@@ -470,7 +493,7 @@ static bool CompareDirs(const struct PanelInfo *AInfo, const struct PanelInfo *P
   // Строим индексы файлов для быстрого сравнения
   struct FileIndex sfiA, sfiP;
   char DirA[MAX_PATH], DirP[MAX_PATH];
-  ShowMessage(strcpy(DirA, BuildFullFilename(AInfo->CurDir, "*")), strcpy(DirP, BuildFullFilename(PInfo->CurDir, "*")));
+  ShowMessage(lstrcpy(DirA, BuildFullFilename(AInfo->CurDir, "*")), lstrcpy(DirP, BuildFullFilename(PInfo->CurDir, "*")));
   if (!BuildPanelIndex(AInfo, &sfiA) || !BuildPanelIndex(PInfo, &sfiP)) {
     const char *MsgItems[] = { GetMsg(MNoMemTitle), GetMsg(MNoMemBody), GetMsg(MOK) };
     ::Info.Message(::Info.ModuleNumber, FMSG_WARNING, NULL, MsgItems, sizeof(MsgItems) / sizeof(MsgItems[0]), 1);
@@ -577,7 +600,7 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom, int Item) {
   if (GetVersionEx(&ovi) && ovi.dwPlatformId != VER_PLATFORM_WIN32_NT)
     OemToChar(GetMsg(MComparingFiles), cBuffer);
   else
-    strcpy(cBuffer, GetMsg(MComparingFiles));
+    lstrcpy(cBuffer, GetMsg(MComparingFiles));
   SetConsoleTitle(cBuffer);
 
 #ifdef STATIC_BUFFER_SIZE
