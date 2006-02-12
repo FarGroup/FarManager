@@ -48,7 +48,7 @@ int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData,c
   RegCloseKey(hKey);
   if (hKey==NULL || ExitCode!=ERROR_SUCCESS)
   {
-    strcpy(ValueData,Default);
+    lstrcpy(ValueData,Default);
     return(FALSE);
   }
   return(TRUE);
@@ -60,11 +60,11 @@ HKEY CreateRegKey(HKEY hRoot,const char *Key)
   HKEY hKey;
   DWORD Disposition;
   char FullKeyName[512];
-  strcpy(FullKeyName,PluginRootKey);
+  lstrcpy(FullKeyName,PluginRootKey);
   if (*Key)
   {
-    strcat(FullKeyName,"\\");
-    strcat(FullKeyName,Key);
+    lstrcat(FullKeyName,"\\");
+    lstrcat(FullKeyName,Key);
   }
   RegCreateKeyEx(hRoot,FullKeyName,0,NULL,0,KEY_WRITE,NULL,
                  &hKey,&Disposition);
@@ -76,11 +76,11 @@ HKEY OpenRegKey(HKEY hRoot,const char *Key)
 {
   HKEY hKey;
   char FullKeyName[512];
-  strcpy(FullKeyName,PluginRootKey);
+  lstrcpy(FullKeyName,PluginRootKey);
   if (*Key)
   {
-    strcat(FullKeyName,"\\");
-    strcat(FullKeyName,Key);
+    lstrcat(FullKeyName,"\\");
+    lstrcat(FullKeyName,Key);
   }
   if (RegOpenKeyEx(hRoot,FullKeyName,0,KEY_QUERY_VALUE,&hKey)!=ERROR_SUCCESS)
     return(NULL);

@@ -20,7 +20,7 @@ void InitDialogItems(const struct InitDialogItem *Init,struct FarDialogItem *Ite
     PItem->Selected=PInit->Selected;
     PItem->Flags=PInit->Flags;
     PItem->DefaultButton=PInit->DefaultButton;
-    strcpy(PItem->Data,((unsigned int)PInit->Data<2000)?GetMsg((unsigned int)PInit->Data):PInit->Data);
+    lstrcpy(PItem->Data,((unsigned int)PInit->Data<2000)?GetMsg((unsigned int)PInit->Data):PInit->Data);
   }
 }
 

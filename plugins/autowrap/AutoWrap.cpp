@@ -1,15 +1,38 @@
 #include "plugin.hpp"
-
 #include "WrapLng.hpp"
 #include "AutoWrap.hpp"
+
+#if defined(__GNUC__)
+
+#include "crt.hpp"
+
+#ifdef __cplusplus
+extern "C"{
+#endif
+  BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
+#ifdef __cplusplus
+};
+#endif
+
+BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
+{
+  (void) lpReserved;
+  (void) dwReason;
+  (void) hDll;
+  return TRUE;
+}
+#endif
+
 #include "wrapreg.cpp"
 #include "wrapmix.cpp"
 
 void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
 {
   ::Info=*Info;
-  strcpy(PluginRootKey,Info->RootKey);
-  strcat(PluginRootKey,"\\AutoWrap");
+  FSF=*Info->FSF;
+  ::Info.FSF=&FSF;
+  lstrcpy(PluginRootKey,Info->RootKey);
+  lstrcat(PluginRootKey,"\\AutoWrap");
   Opt.Wrap=GetRegKey(HKEY_CURRENT_USER,"","Wrap",0);
   Opt.RightMargin=GetRegKey(HKEY_CURRENT_USER,"","RightMargin",75);
   GetRegKey(HKEY_CURRENT_USER,"","FileMasks",Opt.FileMasks,"*.*",sizeof(Opt.FileMasks));
@@ -37,16 +60,16 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom,int Item)
   struct FarDialogItem DialogItems[sizeof(InitItems)/sizeof(InitItems[0])];
   InitDialogItems(InitItems,DialogItems,sizeof(InitItems)/sizeof(InitItems[0]));
   DialogItems[1].Selected=Opt.Wrap;
-  strcpy(DialogItems[6].Data,Opt.FileMasks);
-  strcpy(DialogItems[8].Data,Opt.ExcludeFileMasks);
+  lstrcpy(DialogItems[6].Data,Opt.FileMasks);
+  lstrcpy(DialogItems[8].Data,Opt.ExcludeFileMasks);
   wsprintf(DialogItems[2].Data,"%d",Opt.RightMargin);
   int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,13,NULL,DialogItems,sizeof(DialogItems)/sizeof(DialogItems[0]));
   if (ExitCode==10)
   {
     Opt.Wrap=DialogItems[1].Selected;
-    Opt.RightMargin=atoi(DialogItems[2].Data);
-    strcpy(Opt.FileMasks,DialogItems[6].Data);
-    strcpy(Opt.ExcludeFileMasks,DialogItems[8].Data);
+    Opt.RightMargin=FSF.atoi(DialogItems[2].Data);
+    lstrcpy(Opt.FileMasks,DialogItems[6].Data);
+    lstrcpy(Opt.ExcludeFileMasks,DialogItems[8].Data);
     SetRegKey(HKEY_CURRENT_USER,"","Wrap",Opt.Wrap);
     SetRegKey(HKEY_CURRENT_USER,"","RightMargin",Opt.RightMargin);
     SetRegKey(HKEY_CURRENT_USER,"","FileMasks",Opt.FileMasks);

@@ -29,4 +29,5 @@ char *GetCommaWord(const char *Src,char *Word);
 
 
 static struct PluginStartupInfo Info;
+static FARSTANDARDFUNCTIONS FSF;
 char PluginRootKey[80];
