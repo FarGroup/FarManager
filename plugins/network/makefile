@@ -1,9 +1,9 @@
 #make file to make Network.dll
 #Note: plugins.hpp should be in $(INCLUDE) dir
-INCLUDE = $(INCLUDE);.\FarInc
+INCLUDE = $(INCLUDE);..\common
 
 CC = CL
-CCOPTS = /nologo /Zp1 /MD /W3 /GX- /Ox /Op /c /Gs10000
+CCOPTS = /nologo /Zp1 /MT /W3 /GX- /Ox /Op /c /Gs10000
 
 RCC = RC
 
@@ -31,7 +31,7 @@ TARGETS = \
   $(CC) $(CCOPTS) $<
 
 Network.dll: $(TARGETS) Network.def
-  $(LNK) $(LIBS) $(LNK_OPTS) $(TARGETS) 
+  $(LNK) $(LIBS) $(LNK_OPTS) $(TARGETS)
 
 Network.res: Network.rc
- $(RCC) Network.rc 
+ $(RCC) Network.rc
