@@ -1,5 +1,6 @@
 REGEDIT4
 
+[-HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\Multiply]
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\Multiply]
 "Description"="Use numpad keys in command line"
 "Sequence"="*"
@@ -7,6 +8,7 @@ REGEDIT4
 "EmptyCommandLine"=dword:00000000
 "NotEmptyCommandLine"=dword:00000001
 
+[-HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\Add]
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\Add]
 "Description"="Use numpad keys in command line"
 "Sequence"="+"
@@ -14,6 +16,7 @@ REGEDIT4
 "EmptyCommandLine"=dword:00000000
 "NotEmptyCommandLine"=dword:00000001
 
+[-HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\Subtract]
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\Subtract]
 "Description"="Use numpad keys in command line"
 "Sequence"="-"
@@ -21,6 +24,7 @@ REGEDIT4
 "EmptyCommandLine"=dword:00000000
 "NotEmptyCommandLine"=dword:00000001
 
+[-HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\Divide]
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\Divide]
 "Description"="Use numpad keys in command line"
 "Sequence"="/"

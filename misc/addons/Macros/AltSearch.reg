@@ -1,5 +1,6 @@
 REGEDIT4
 
+[-HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\Alt]
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\Alt]
 "Description"="Use Alt for search by name (activate)"
 "Sequence"="Alt<"
@@ -8,6 +9,7 @@ REGEDIT4
 "EmptyCommandLine"=dword:00000000
 "NotEmptyCommandLine"=dword:00000000
 
+[-HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\RAlt]
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\RAlt]
 "Description"="Use Right Alt for search by name (activate)"
 "Sequence"="Alt<"
@@ -16,6 +18,7 @@ REGEDIT4
 "EmptyCommandLine"=dword:00000000
 "NotEmptyCommandLine"=dword:00000000
 
+[-HKEY_CURRENT_USER\Software\Far\KeyMacros\Search\Alt]
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Search\Alt]
 "Description"="Use Alt for search by name (deactivate)"
 "Sequence"="Esc"
@@ -24,6 +27,7 @@ REGEDIT4
 "EmptyCommandLine"=dword:00000000
 "NotEmptyCommandLine"=dword:00000000
 
+[-HKEY_CURRENT_USER\Software\Far\KeyMacros\Search\RAlt]
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Search\RAlt]
 "Description"="Use Right Alt for search by name (deactivate)"
 "Sequence"="Esc"

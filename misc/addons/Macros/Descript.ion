@@ -36,5 +36,5 @@ View.PgDn.reg PgDn at the end of file works as in Far Manager 1.70 beta 4 and ea
 View.Space.reg Use Space for listing in the viewer (like in Outlook Express or The Bat!)
 CtrlQ.reg Toggle quick view panel
 CtrlShiftBackSlash.reg Activate the same folder in the passive panel as in the active panel
-CtrlIns...reg If CtrlIns was pressed while on .. and command line is not empty then copy to clipboard the path of the current folder
+CtrlIns...reg If CtrlIns was pressed while on .. and command line is empty then copy to clipboard the path of the current folder
 Notepad.reg Editor: like Notepad
