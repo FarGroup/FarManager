@@ -1,5 +1,0 @@
-LIBRARY
-EXPORTS
-	SetStartupInfo
-	OpenPlugin
-	GetPluginInfo
