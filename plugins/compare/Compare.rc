@@ -1,8 +1,8 @@
 #define VERSIONINFO_1   1
 
 VERSIONINFO_1 VERSIONINFO
-FILEVERSION 1, 7, 0, 3
-PRODUCTVERSION 1, 7, 0, 3
+FILEVERSION 1, 7, 0, 8
+PRODUCTVERSION 1, 7, 0, 8
 FILEOS 4
 FILETYPE 2
 {
@@ -12,12 +12,12 @@ FILETYPE 2
   {
    VALUE "CompanyName", "Eugene Roshal & FAR Group\000"
    VALUE "FileDescription", "Advanced File Compare for FAR Manager\000"
-   VALUE "FileVersion", "1.70 build 005 (25-02-2002)\000"
+   VALUE "FileVersion", "1.70 build 008\000"
    VALUE "InternalName", "Compare\000"
    VALUE "LegalCopyright", "Copyright © Eugene Roshal 1996-2000, Copyrigth © 2000 FAR Group\000"
    VALUE "OriginalFilename", "Compare.dll\000"
    VALUE "ProductName", "FAR manager\000"
-   VALUE "ProductVersion", "1.70 beta 4\000"
+   VALUE "ProductVersion", "1.70 beta 6\000"
   }
 
  }
