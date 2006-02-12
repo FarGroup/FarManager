@@ -1,10 +1,8 @@
 #define _FAR_NO_NAMELESS_UNIONS
 #include "plugin.hpp"
-#include "memory.hpp"
+#include "crt.hpp"
 
 #if defined(__GNUC__)
-
-#include "crt.hpp"
 
 #ifdef __cplusplus
 extern "C"{
