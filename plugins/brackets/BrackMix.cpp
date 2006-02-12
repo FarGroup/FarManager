@@ -23,9 +23,9 @@ void InitDialogItems(const struct InitDialogItem *Init,
     PItem->Flags=PInit->Flags;
     PItem->DefaultButton=PInit->DefaultButton;
     if ((unsigned int)PInit->Data<2000)
-      strcpy(PItem->Data.Data,GetMsg((unsigned int)PInit->Data));
+      lstrcpy(PItem->Data.Data,GetMsg((unsigned int)PInit->Data));
     else
-      strcpy(PItem->Data.Data,PInit->Data);
+      lstrcpy(PItem->Data.Data,PInit->Data);
   }
 }
 

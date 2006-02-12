@@ -31,9 +31,9 @@ int Config()
   DialogItems[4].Param.Selected=Opt.BracketPrior;
   DialogItems[5].Param.Selected=Opt.JumpToPair;
   DialogItems[6].Param.Selected=Opt.Beep;
-  strcpy(DialogItems[9].Data.Data,Opt.QuotesType);
-  strcpy(DialogItems[11].Data.Data,Opt.Brackets1);
-  strcpy(DialogItems[13].Data.Data,Opt.Brackets2);
+  lstrcpy(DialogItems[9].Data.Data,Opt.QuotesType);
+  lstrcpy(DialogItems[11].Data.Data,Opt.Brackets1);
+  lstrcpy(DialogItems[13].Data.Data,Opt.Brackets2);
 
   if (Info.Dialog(Info.ModuleNumber,-1,-1,61,21,"Config",
                   DialogItems,sizeof(DialogItems)/sizeof(DialogItems[0])) != 15)
@@ -44,9 +44,9 @@ int Config()
   Opt.BracketPrior=DialogItems[4].Param.Selected;
   Opt.JumpToPair=DialogItems[5].Param.Selected;
   Opt.Beep=DialogItems[6].Param.Selected;
-  strcpy(Opt.QuotesType,DialogItems[9].Data.Data);
-  strcpy(Opt.Brackets1,DialogItems[11].Data.Data);
-  strcpy(Opt.Brackets2,DialogItems[13].Data.Data);
+  lstrcpy(Opt.QuotesType,DialogItems[9].Data.Data);
+  lstrcpy(Opt.Brackets1,DialogItems[11].Data.Data);
+  lstrcpy(Opt.Brackets2,DialogItems[13].Data.Data);
 
   HKEY hKey;
   DWORD Disposition;

@@ -5,14 +5,35 @@
 #include "Brackets.hpp"
 #include "BrackLng.hpp"
 
+#if defined(__GNUC__)
+
+#include "crt.hpp"
+
+#ifdef __cplusplus
+extern "C"{
+#endif
+  BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
+#ifdef __cplusplus
+};
+#endif
+
+BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
+{
+  (void) lpReserved;
+  (void) dwReason;
+  (void) hDll;
+  return TRUE;
+}
+#endif
+
 #include "BrackMix.cpp"
 #include "BrackCfg.cpp"
 
 void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
 {
   ::Info=*Info;
-  strcpy(PluginRootKey,Info->RootKey);
-  strcat(PluginRootKey,"\\Brackets");
+  lstrcpy(PluginRootKey,Info->RootKey);
+  lstrcat(PluginRootKey,"\\Brackets");
 
   HKEY hKey;
   DWORD Type;
@@ -32,9 +53,9 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
     Opt.BracketPrior=1;
     Opt.JumpToPair=1;
     Opt.Beep=0;
-    strcpy(Opt.QuotesType,"''\"\"`'``");
-    strcpy(Opt.Brackets1,"<>{}[]()\"\"''%%");
-    strcpy(Opt.Brackets2,"/**/<??><%%>");
+    lstrcpy(Opt.QuotesType,"''\"\"`'``");
+    lstrcpy(Opt.Brackets1,"<>{}[]()\"\"''%%");
+    lstrcpy(Opt.Brackets2,"/**/<\?\?><%%>");
   }
 }
 
@@ -72,14 +93,14 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom,int Item)
 
   char Bracket,Bracket1,Bracket_1;
   char Ch,Ch1,Ch_1;
-  char B21,B22,B23,B24;
+  char B21=0,B22=0,B23=0,B24=0;
 
-  int nQuotes;
+  int nQuotes=0;
   int isSelect=-1;
 
   int CurPos,i=3,j,k;
 
-  int Direction,DirectQuotes;
+  int Direction=0,DirectQuotes;
   int types=BrZERO;
 
   BOOL found=FALSE;
