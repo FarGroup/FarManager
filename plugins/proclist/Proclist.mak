@@ -4,6 +4,8 @@ NULL=
 NULL=nul
 !ENDIF
 
+INCLUDE = $(INCLUDE);..\common
+
 OUTDIR=.\Final
 INTDIR=.\OBJ
 CODDIR=.\OBJ\cod
