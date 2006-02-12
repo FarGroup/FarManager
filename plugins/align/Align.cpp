@@ -3,6 +3,28 @@
 #define __STD_STRING
 #include "plugin.hpp"
 
+#if defined(__GNUC__)
+
+#include "crt.hpp"
+
+#ifdef __cplusplus
+extern "C"{
+#endif
+  BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
+#ifdef __cplusplus
+};
+#endif
+
+BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
+{
+  (void) lpReserved;
+  (void) dwReason;
+  (void) hDll;
+  return TRUE;
+}
+#endif
+
+
 #include "AlignLng.hpp"
 #include "Align.hpp"
 #include "AlignReg.cpp"
@@ -17,8 +39,8 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
   ::Info=*Info;
   ::FSF=*Info->FSF;
   ::Info.FSF=&::FSF;
-  strcpy(PluginRootKey,Info->RootKey);
-  strcat(PluginRootKey,"\\Align");
+  lstrcpy(PluginRootKey,Info->RootKey);
+  lstrcat(PluginRootKey,"\\Align");
 }
 
 
