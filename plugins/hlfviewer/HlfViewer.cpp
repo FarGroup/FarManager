@@ -5,6 +5,27 @@
 #include "HlfViewer.hpp"
 #include "lang.hpp"
 
+#if defined(__GNUC__)
+
+#include "crt.hpp"
+
+#ifdef __cplusplus
+extern "C"{
+#endif
+  BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
+#ifdef __cplusplus
+};
+#endif
+
+BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
+{
+  (void) lpReserved;
+  (void) dwReason;
+  (void) hDll;
+  return TRUE;
+}
+#endif
+
 #include "reg.cpp"
 #include "mix.cpp"
 #include "FarEditor.cpp"
@@ -13,8 +34,8 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
 {
   ::Info=*Info;
   IsOldFar=TRUE;
-  strcpy(PluginRootKey,Info->RootKey);
-  strcat(PluginRootKey,"\\HlfViewer");
+  lstrcpy(PluginRootKey,Info->RootKey);
+  lstrcat(PluginRootKey,"\\HlfViewer");
   if(Info->StructSize >= sizeof(struct PluginStartupInfo))
   {
     ::FSF=*Info->FSF;
@@ -166,7 +187,7 @@ void ShowHelpFromTempFile()
   struct EditorSaveFile esf;
   if(FSF.MkTemp(esf.FileName, "HLF"))
   {
-    strcat(esf.FileName,".hlf");
+    lstrcat(esf.FileName,".hlf");
   /*
     esf.FileEOL=NULL;
     Info.EditorControl(ECTL_SAVEFILE, &esf);
@@ -211,7 +232,7 @@ int WINAPI _export ProcessEditorEvent(int Event, void * /*Param*/)
 }
 #endif
 
-int WINAPI Configure(int /*ItemNumber*/)
+int WINAPI Configure(int ItemNumber)
 {
   if(IsOldFar)
     return FALSE;
@@ -238,7 +259,7 @@ int WINAPI Configure(int /*ItemNumber*/)
   Opt.Style=GetRegKey(HKEY_CURRENT_USER,"",REGStr.Style,0);
   DialogItems[5].Selected=DialogItems[6].Selected=DialogItems[7].Selected=0;
   DialogItems[5+(Opt.Style>2?0:Opt.Style)].Selected=1;
-  strcpy(DialogItems[2].Data, KeyNameFromReg);
+  lstrcpy(DialogItems[2].Data, KeyNameFromReg);
 
   if(9==Info.Dialog(Info.ModuleNumber,-1,-1,74,12, HlfId.Config,DialogItems,sizeof(InitItems)/sizeof(InitItems[0])))
   {
