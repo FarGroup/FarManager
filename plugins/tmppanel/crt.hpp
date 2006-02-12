@@ -8,8 +8,6 @@ extern "C"
 #endif
   void *memcpy(void * dst, const void * src, size_t count);
   void *memset(void *dst, int val, size_t count);
-  void *memchr(const void * buf, int chr, size_t cnt);
-  //char *strstr(const char * str1, const char * str2);
   int memcmp(const void * buf1, const void * buf2, size_t count);
 #ifdef __cplusplus
 };
