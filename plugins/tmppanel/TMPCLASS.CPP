@@ -583,7 +583,7 @@ void TmpPanel::ProcessSaveListKey()
     FSF.itoa (PanelIndex, ListPath + lstrlen (ListPath), 10);
 
   static char ExtBuf [NM];
-  strcpy (ExtBuf, Opt.Mask);
+  lstrcpy (ExtBuf, Opt.Mask);
   char *comma = strchr (ExtBuf, ',');
   if (comma)
     *comma = '\0';

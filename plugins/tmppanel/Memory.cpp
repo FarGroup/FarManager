@@ -1,19 +1,14 @@
-/*
-Eugene Kotlyarov <ek@oris.ru>
-*/
+#include "memory.hpp"
+#include <windows.h>
 
-//#define heapNEW GetProcessHeap()
+#define heapNEW GetProcessHeap()
 
-//extern "C" void *          __cdecl _alloca(size_t);
-//#define alloca  _alloca
-//#pragma intrinsic(_alloca)
-
-void * __cdecl malloc(size_t size)
+void *malloc(size_t size)
 {
   return HeapAlloc(heapNEW, HEAP_ZERO_MEMORY, size);
 }
 
-void * __cdecl realloc(void *block, size_t size)
+void *realloc(void *block, size_t size)
 {
   if (block)
     return HeapReAlloc(heapNEW,HEAP_ZERO_MEMORY,block,size);
@@ -21,11 +16,11 @@ void * __cdecl realloc(void *block, size_t size)
     return HeapAlloc(heapNEW,HEAP_ZERO_MEMORY, size);
 }
 
-void __cdecl free(void *block)
+void free(void *block)
 {
-  HeapFree(heapNEW,0,block);
+  if (block)
+    HeapFree(heapNEW,0,block);
 }
-
 
 #ifdef __cplusplus
 void * __cdecl operator new(size_t size)
@@ -37,7 +32,14 @@ void __cdecl operator delete(void *block)
 {
   free(block);
 }
+
+void *__cdecl operator new[] (size_t size)
+{
+  return ::operator new(size);
+}
+
+void __cdecl operator delete[] (void *ptr)
+{
+  ::operator delete(ptr);
+}
 #endif
-
-
-void _pure_error_ () {};

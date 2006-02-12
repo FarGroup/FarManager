@@ -21,21 +21,66 @@ Modify:
 #include <windows.h>
 #pragma pack()
 #include <shellapi.h>
-
-HANDLE heapNEW;
-
-#include "memory.cpp"
-
 #include "tmplng.hpp"
 #include "plugin.hpp"
 #include "tmppanel.hpp"
+#include "memory.hpp"
+
+char TMPPanelDir[NM*5];
+
+#if defined(__GNUC__)
+
+#include "crt.hpp"
+
+#ifdef __cplusplus
+extern "C"{
+#endif
+  BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
+#ifdef __cplusplus
+};
+#endif
+
+BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
+{
+  (void) lpReserved;
+  if (DLL_PROCESS_ATTACH == dwReason && hDll)
+  {
+    char *pf;
+    GetModuleFileName((HINSTANCE)hDll, TMPPanelDir, sizeof(TMPPanelDir));
+    if (GetFullPathName(TMPPanelDir, sizeof(TMPPanelDir), TMPPanelDir, &pf))
+      *pf = '\0';
+  }
+  return TRUE;
+}
+
+#else
+
+#ifdef __cplusplus
+extern "C"{
+#endif
+  BOOL WINAPI _DllMainCRTStartup(HINSTANCE hinstDLL,DWORD fdwReason,LPVOID lpvReserved);
+#ifdef __cplusplus
+};
+#endif
+
+BOOL WINAPI _DllMainCRTStartup(HINSTANCE hinstDLL,DWORD fdwReason,LPVOID lpvReserved)
+{
+  if (DLL_PROCESS_ATTACH == fdwReason && hinstDLL) {
+    char *pf;
+    GetModuleFileName(hinstDLL, TMPPanelDir, sizeof(TMPPanelDir));
+    if (GetFullPathName(TMPPanelDir, sizeof(TMPPanelDir), TMPPanelDir, &pf))
+      *pf = '\0';
+  }
+  return TRUE;
+}
+
+#endif
 
 #include "tmpclass.cpp"
 #include "tmpmix.cpp"
 #include "tmpcfg.cpp"
 
 BOOL IsOldFAR;
-char TMPPanelDir[NM*5];
 
 void ProcessList(HANDLE hPlugin, char *Name, int Mode, int ANSI);
 void ShowMenuFromList(char *Name);
@@ -43,7 +88,6 @@ HANDLE OpenPanelFromOutput (char *argv, int ANSI);
 
 void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
 {
-  heapNEW=GetProcessHeap();
   ::Info=*Info;
   IsOldFAR=TRUE;
   if(Info->StructSize>=sizeof(struct PluginStartupInfo))
@@ -486,23 +530,4 @@ int WINAPI _export Configure(int ItemNumber)
 int WINAPI _export GetMinFarVersion(void)
 {
   return(MAKEFARVERSION(1,70,1024));
-}
-
-#ifdef __cplusplus
-extern "C"{
-#endif
-  BOOL WINAPI _DllMainCRTStartup(HINSTANCE hinstDLL,DWORD fdwReason,LPVOID lpvReserved);
-#ifdef __cplusplus
-};
-#endif
-
-BOOL WINAPI _DllMainCRTStartup(HINSTANCE hinstDLL,DWORD fdwReason,LPVOID lpvReserved)
-{
-  if (DLL_PROCESS_ATTACH == fdwReason && hinstDLL) {
-    char *pf;
-    GetModuleFileName(hinstDLL, TMPPanelDir, sizeof(TMPPanelDir));
-    if (GetFullPathName(TMPPanelDir, sizeof(TMPPanelDir), TMPPanelDir, &pf))
-      *pf = '\0';
-  }
-  return TRUE;
 }

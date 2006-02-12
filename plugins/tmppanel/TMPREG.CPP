@@ -33,7 +33,7 @@ int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData,c
   RegCloseKey(hKey);
   if (hKey==NULL || ExitCode!=ERROR_SUCCESS)
   {
-    strcpy(ValueData,Default);
+    lstrcpy(ValueData,Default);
     return(FALSE);
   }
   return(TRUE);
