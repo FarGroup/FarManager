@@ -1,11 +1,26 @@
 #include "plugin.hpp"
-
-#ifndef _MSC_VER
-#include "memory.cpp"
-#endif
-
 #include "farcmds.hpp"
 #include "lang.hpp"
+#include "crt.hpp"
+
+#if defined(__GNUC__)
+
+#ifdef __cplusplus
+extern "C"{
+#endif
+  BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
+#ifdef __cplusplus
+};
+#endif
+
+BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
+{
+  (void) lpReserved;
+  (void) dwReason;
+  (void) hDll;
+  return TRUE;
+}
+#endif
 
 FARSTDCOPYTOCLIPBOARD CopyToClipboard;
 FARSTDATOI FarAtoi;
@@ -50,10 +65,6 @@ int WINAPI _export GetMinFarVersion(void)
 
 void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *psInfo)
 {
-#ifndef _MSC_VER
-  heap=GetProcessHeap();
-#endif
-
   Info=*psInfo;
 
   FarItoa=Info.FSF->itoa;
@@ -77,8 +88,8 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *psInfo)
   FarRecursiveSearch=Info.FSF->FarRecursiveSearch;
   FarIsAlpha=Info.FSF->LIsAlpha;
 
-  strcpy(PluginRootKey,Info.RootKey);
-  strcat(PluginRootKey,"\\FARCmds");
+  lstrcpy(PluginRootKey,Info.RootKey);
+  lstrcat(PluginRootKey,"\\FARCmds");
   GetRegKey(HKEY_CURRENT_USER,"",REGStr.Separator,Opt.Separator," ",3);
   Opt.Add2PlugMenu=GetRegKey(HKEY_CURRENT_USER,"",REGStr.Add2PlugMenu,0);
   Opt.Add2DisksMenu=GetRegKey(HKEY_CURRENT_USER,"",REGStr.Add2DisksMenu,0);
@@ -108,12 +119,12 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom,int Item)
     return INVALID_HANDLE_VALUE;
   else
   {
-    strcpy(selectItem,PInfo.CurDir);
+    lstrcpy(selectItem,PInfo.CurDir);
 
-    if(strlen(selectItem))
+    if(lstrlen(selectItem))
       AddEndSlash(selectItem);
 
-    strcat(selectItem, PInfo.PanelItems[PInfo.CurrentItem].FindData.cFileName);
+    lstrcat(selectItem, PInfo.PanelItems[PInfo.CurrentItem].FindData.cFileName);
 
     _GETPANELINFO=FCTL_GETANOTHERPANELINFO,
     _SETPANELDIR=FCTL_SETANOTHERPANELDIR,
@@ -121,13 +132,13 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom,int Item)
   }
 
   /*установить курсор на объект*/
-  if(strlen(selectItem))
+  if(lstrlen(selectItem))
   {
     static struct PanelRedrawInfo PRI;
     static char Name[NM], Dir[NM*5];
     int pathlen;
 
-    strcpy(Name,PointToName(selectItem));
+    lstrcpy(Name,PointToName(selectItem));
     pathlen=PointToName(selectItem)-selectItem;
 
     if(pathlen)

@@ -31,7 +31,7 @@ static void killTemp(char *TempFileName)
 
 inline bool isDevice(const char* FileName, const char* dev_begin)
 {
-    const int len=strlen(dev_begin);
+    const int len=lstrlen(dev_begin);
     if(LStrnicmp(FileName, dev_begin, len)) return false;
     FileName+=len;
     if(!*FileName) return false;
@@ -272,7 +272,7 @@ int OpenFromCommandLine(char *_farcmd)
   FarRTrim(farcmdbuf);
 
   BOOL showhelp=TRUE;
-  if(strlen(farcmd) > 3)
+  if(lstrlen(farcmd) > 3)
   {
     HANDLE FileHandleOut, FileHandleErr;
     int StartLine=-1, StartChar=-1;
@@ -330,7 +330,7 @@ int OpenFromCommandLine(char *_farcmd)
 
     if(View||Edit||Goto||Clip||WhereIs||Macro||Link||Run)
     {
-      int SeparatorLen=strlen(Opt.Separator);
+      int SeparatorLen=lstrlen(Opt.Separator);
       char *cBracket=NULL, runFile[NM]="";
       BOOL BracketsOk=TRUE;
 
@@ -491,12 +491,12 @@ int OpenFromCommandLine(char *_farcmd)
           else if(Macro)
           {
             ActlKeyMacro command;
-            if(!LStrnicmp(pCmd,"LOAD",strlen(pCmd)))
+            if(!LStrnicmp(pCmd,"LOAD",lstrlen(pCmd)))
             {
               command.Command=MCMD_LOADALL;
               Info.AdvControl(Info.ModuleNumber,ACTL_KEYMACRO,&command);
             }
-            else if(!LStrnicmp(pCmd,"SAVE",strlen(pCmd)))
+            else if(!LStrnicmp(pCmd,"SAVE",lstrlen(pCmd)))
             {
               command.Command=MCMD_SAVEALL;
               Info.AdvControl(Info.ModuleNumber,ACTL_KEYMACRO,&command);
@@ -509,11 +509,11 @@ int OpenFromCommandLine(char *_farcmd)
 
               command.Command=MCMD_POSTMACROSTRING;
 
-              command.Param.PlainText.SequenceText=(char *)malloc(strlen(pCmd)+1);
+              command.Param.PlainText.SequenceText=(char *)malloc(lstrlen(pCmd)+1);
               if(command.Param.PlainText.SequenceText)
               {
                 command.Param.PlainText.Flags=KSFLAGS_DISABLEOUTPUT;
-                strcpy(command.Param.PlainText.SequenceText,pCmd);
+                lstrcpy(command.Param.PlainText.SequenceText,pCmd);
                 Info.AdvControl(Info.ModuleNumber,ACTL_KEYMACRO,&command);
                 free(command.Param.PlainText.SequenceText);
               }
@@ -582,7 +582,7 @@ int OpenFromCommandLine(char *_farcmd)
                 if(pCmd[2] == 0)
                 {
                   lstrcpy(Disk,pCmd);
-                  strcat(Disk,"\\");
+                  lstrcat(Disk,"\\");
                   pCmd=Disk;
                 }
                 LinkFlags|=FLINK_VOLMOUNT;
@@ -945,7 +945,7 @@ int OpenFromCommandLine(char *_farcmd)
         } // </if(*pCmd && BracketsOk)>
       } // </if(pCmd)>
     } // </if(View||Edit||Goto)>
-  } // </if(strlen(farcmd) > 3)>
+  } // </if(lstrlen(farcmd) > 3)>
 
   if(showhelp)
   {
