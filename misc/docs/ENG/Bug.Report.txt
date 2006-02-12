@@ -37,7 +37,7 @@ in the MultiArc plugin, see Step 4. If the problem is in the FTP plugin,
 see Step 5.
 
 3. You should inform the FAR Group about the problem (the contacts are in
-the Contacts.txt file).
+the File_id.diz file).
 
 3.1. Follow the usual rules when reporting a problem:
    - Isolate the conditions under which the problem appears as narrow as
