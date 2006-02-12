@@ -4,20 +4,36 @@
 // Besides, it has ability of cyclic case change like MS Word by ShiftF3
 #include "plugin.hpp"
 
+#ifdef __GNUC__
+#include <limits.h>
+#define MAXINT INT_MAX
+#else
 #include <values.h> //MAXINT
-
-extern "C"
-{
-    BOOL WINAPI __declspec(dllexport) LibMain(HINSTANCE hDLLInst, DWORD fdwReason, LPVOID lpvReserved)
-    {
-        return TRUE;
-    }
-};
+#endif
+#include "crt.hpp"
 
 #include "EditLng.hpp"
 #include "EditCase.hpp"
 // Registry operations
 #include "WrapReg.cpp"
+
+#if defined(__GNUC__)
+#ifdef __cplusplus
+extern "C"{
+#endif
+  BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
+#ifdef __cplusplus
+};
+#endif
+
+BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
+{
+  (void) lpReserved;
+  (void) dwReason;
+  (void) hDll;
+  return TRUE;
+}
+#endif
 
 void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
 {
@@ -34,9 +50,9 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
     char AddWordDiv[sizeof(WordDiv)];
     GetRegKey(HKEY_CURRENT_USER,"","AddWordDiv",AddWordDiv,"#",sizeof(AddWordDiv));
     WordDivLen += strlen(AddWordDiv);
-    strcat(WordDiv, AddWordDiv);
+    lstrcat(WordDiv, AddWordDiv);
     WordDivLen += sizeof(" \n\r\t");
-    strcat(WordDiv, " \n\r\t");
+    lstrcat(WordDiv, " \n\r\t");
   };
 }
 
@@ -118,7 +134,7 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom,int Item)
          }
 
          // Memory allocation
-         NewString=(char *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, egs.StringLength+1);
+         NewString=(char *)malloc(egs.StringLength+1);
          // If memory couldn't be allocated
          if(!NewString)
             break;
@@ -188,7 +204,7 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom,int Item)
          }
          #endif
          // Free memory
-         HeapFree(GetProcessHeap(), 0, NewString);
+         free(NewString);
 
          // Exit if nothing was selected (single word was converted)
          if(!IsBlock)
@@ -392,11 +408,11 @@ int GetNextCCType(char *Str, int StrLen, int Start, int End)
 
     SignalWordLen=SignalWordEnd-SignalWordStart;
 
-    char *SignalWord=(char *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, SignalWordLen+1);
+    char *SignalWord=(char *)malloc(SignalWordLen+1);
 
     if( SignalWord != NULL )
     {
-        char *WrappedWord=(char *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, SignalWordLen+1);
+        char *WrappedWord=(char *)malloc(SignalWordLen+1);
 
         if( WrappedWord != NULL )
         {
@@ -407,7 +423,7 @@ int GetNextCCType(char *Str, int StrLen, int Start, int End)
             // if UPPER then Title
             FSF.LUpperBuf(WrappedWord, SignalWordLen);
 
-            if (SignalWordLen == 1 && strcmp(SignalWord, WrappedWord)==0)
+            if (SignalWordLen == 1 && lstrcmp(SignalWord, WrappedWord)==0)
               CCType=CCLower;
             else
             {
@@ -415,19 +431,19 @@ int GetNextCCType(char *Str, int StrLen, int Start, int End)
                 CCType=CCUpper;
               else
               {
-                if(strcmp(SignalWord, WrappedWord)==0)
+                if(lstrcmp(SignalWord, WrappedWord)==0)
                     CCType=CCTitle;
                 else
                 {
                     // if lower then UPPER
                     FSF.LLowerBuf(WrappedWord, SignalWordLen);
-                    if(strcmp(SignalWord,WrappedWord)==0)
+                    if(lstrcmp(SignalWord,WrappedWord)==0)
                         CCType=CCUpper;
                     else
                     {
                         // if Title then lower
                         WrappedWord[0]=FSF.LUpper(WrappedWord[0]);
-                        if(strcmp(SignalWord,WrappedWord)==0)
+                        if(lstrcmp(SignalWord,WrappedWord)==0)
                             CCType=CCLower;
                         else
                         {
@@ -445,9 +461,9 @@ int GetNextCCType(char *Str, int StrLen, int Start, int End)
                 };
               }
             }
-            HeapFree(GetProcessHeap(), 0, WrappedWord);
+            free(WrappedWord);
         };
-        HeapFree(GetProcessHeap(), 0, SignalWord);
+        free(SignalWord);
     };
 
     return CCType;
