@@ -49,7 +49,7 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
     WordDivLen=::Info.AdvControl(::Info.ModuleNumber, ACTL_GETSYSWORDDIV, WordDiv);
     char AddWordDiv[sizeof(WordDiv)];
     GetRegKey(HKEY_CURRENT_USER,"","AddWordDiv",AddWordDiv,"#",sizeof(AddWordDiv));
-    WordDivLen += strlen(AddWordDiv);
+    WordDivLen += lstrlen(AddWordDiv);
     lstrcat(WordDiv, AddWordDiv);
     WordDivLen += sizeof(" \n\r\t");
     lstrcat(WordDiv, " \n\r\t");
