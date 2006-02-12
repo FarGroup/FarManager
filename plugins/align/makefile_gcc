@@ -16,7 +16,7 @@ MV = mv -f
 MKDIR = mkdir -p
 WINDRES=windres
 CXXFLAGS = -I ../common -Wall -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-rtti -fno-exceptions
-LNKFLAGS = -mdll -s -nostartfiles -L ../common/ -lCRT
+LNKFLAGS = -mdll -s -nostartfiles -L ../common -lCRT
 
 OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS))) $(OBJDIR)/$(NAME).res.o
 DEPS = $(patsubst %.cpp,$(OBJDIR)/%.d,$(filter %.cpp,$(SRCS)))
