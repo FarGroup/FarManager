@@ -1,7 +1,0 @@
-LIBRARY        Compare
-DESCRIPTION    'Advanced Compare Far Plugin'
-EXPORTS
-	SetStartupInfo
-	GetPluginInfo
-	ExitFAR
-	OpenPlugin
