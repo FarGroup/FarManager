@@ -32,7 +32,7 @@ OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS))) $(OBJDIR)/$(NAME)
 DEPS = $(patsubst %.cpp,$(OBJDIR)/%.d,$(filter %.cpp,$(SRCS)))
 MAP = $(patsubst %.dll,%.map,$(DLLFULLNAME))
 
-all: $(DLLFULLNAME) $(DEPS) fmt
+all: $(DLLFULLNAME) $(DEPS) fmt docs
 
 $(OBJS) $(DEPS): $(OBJDIR)
 $(DLLFULLNAME): $(DLLDIR)
@@ -66,14 +66,21 @@ $(DLLDIR):
 	@if !(test -d $@) then $(MKDIR) $@; fi
 
 fmt:
+	$(MAKE) -C ./libpcre -f makefile_lib_gcc
+	$(MAKE) -f makefile_fmt_gcc FMT=Custom
 	$(MAKE) -f makefile_fmt_gcc FMT=Ace
 	$(MAKE) -f makefile_fmt_gcc FMT=Arc
 	$(MAKE) -f makefile_fmt_gcc FMT=Arj
 	$(MAKE) -f makefile_fmt_gcc FMT=Cab
-	$(MAKE) -C ./libpcre -f makefile_lib_gcc
-	$(MAKE) -f makefile_fmt_gcc FMT=Custom
 	$(MAKE) -f makefile_fmt_gcc FMT=Ha
 	$(MAKE) -f makefile_fmt_gcc FMT=Lzh
 	$(MAKE) -f makefile_fmt_gcc FMT=Rar
 	$(MAKE) -f makefile_fmt_gcc FMT=TarGz
 	$(MAKE) -f makefile_fmt_gcc FMT=Zip
+	$(CP) custom.ini $(DLLDIR)/Formats
+
+docs:
+	$(CP) arceng.hlf $(DLLDIR)
+	$(CP) arcrus.hlf $(DLLDIR)
+	$(CP) arceng.lng $(DLLDIR)
+	$(CP) arcrus.lng $(DLLDIR)
