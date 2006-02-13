@@ -2,6 +2,27 @@
 #include <string.h>
 #include "plugin.hpp"
 
+#if defined(__GNUC__)
+
+#include "crt.hpp"
+
+#ifdef __cplusplus
+extern "C"{
+#endif
+  BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
+#ifdef __cplusplus
+};
+#endif
+
+BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
+{
+  (void) lpReserved;
+  (void) dwReason;
+  (void) hDll;
+  return TRUE;
+}
+#endif
+
 enum {
   MTitle,
   MMessage1,
@@ -17,7 +38,7 @@ static struct PluginStartupInfo Info;
  Функция GetMsg возвращает строку сообщения из языкового файла.
  А это надстройка над Info.GetMsg для сокращения кода :-)
 */
-char *GetMsg(int MsgId)
+const char *GetMsg(int MsgId)
 {
   return(Info.GetMsg(Info.ModuleNumber,MsgId));
 }
@@ -38,7 +59,7 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *psi)
 */
 void WINAPI _export GetPluginInfo(struct PluginInfo *pi)
 {
-  static char *PluginMenuStrings[1];
+  static const char *PluginMenuStrings[1];
 
   pi->StructSize=sizeof(struct PluginInfo);
   pi->Flags=PF_EDITOR;

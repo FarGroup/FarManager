@@ -1,0 +1,27 @@
+NAME = HelloWorld
+DLLNAME = $(NAME).dll
+SRCS = HelloWorld.c
+DEF = $(NAME).gcc.def
+
+CC = gcc
+DLLTOOL = dlltool
+RM = rm -f
+CCFLAGS = -I ../common -Wall -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-exceptions
+LNKFLAGS = -mdll -s -nostartfiles -L ../common -lCRT
+
+OBJS = $(patsubst %.c,%.o,$(filter %.c,$(SRCS)))
+MAP = $(patsubst %.dll,%.map,$(DLLNAME))
+
+all: $(DLLNAME)
+
+%.o: %.c
+	@echo compiling $<
+	@$(CC) $(CCFLAGS) -c -o $@ $<
+
+$(DLLNAME): $(OBJS) $(DEF)
+	@echo linking $@
+	@$(CC) -mdll -o $(DLLNAME) -Xlinker --base-file -Xlinker $(DLLNAME).base $(OBJS) $(LNKFLAGS)
+	@$(DLLTOOL) --dllname $(DLLNAME) --base-file $(DLLNAME).base --output-exp $(DLLNAME).exp --def $(DEF)
+	@$(CC) -mdll  -o $(DLLNAME) $(OBJS) $(DLLNAME).exp $(LNKFLAGS) -Xlinker -Map -Xlinker $(MAP)
+	@$(RM) $(DLLNAME).base
+	@$(RM) $(DLLNAME).exp
