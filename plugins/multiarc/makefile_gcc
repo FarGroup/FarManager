@@ -80,7 +80,7 @@ fmt:
 	$(CP) custom.ini $(DLLDIR)/Formats
 
 docs:
-	$(CP) arceng.hlf $(DLLDIR)
-	$(CP) arcrus.hlf $(DLLDIR)
-	$(CP) arceng.lng $(DLLDIR)
-	$(CP) arcrus.lng $(DLLDIR)
+	$(CP) ArcEng.hlf $(DLLDIR)
+	$(CP) ArcRus.hlf $(DLLDIR)
+	$(CP) ArcEng.lng $(DLLDIR)
+	$(CP) ArcRus.lng $(DLLDIR)
