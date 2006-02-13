@@ -11,6 +11,7 @@ memmove.cpp \
 strpbrk.cpp \
 strstr.cpp \
 strchr.cpp \
+strncmp.cpp \
 strrchr.cpp \
 strtok.cpp \
 ctype.cpp \
