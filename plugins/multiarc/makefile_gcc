@@ -77,7 +77,7 @@ fmt:
 	$(MAKE) -f makefile_fmt_gcc FMT=Rar
 	$(MAKE) -f makefile_fmt_gcc FMT=TarGz
 	$(MAKE) -f makefile_fmt_gcc FMT=Zip
-	$(CP) custom.ini $(DLLDIR)/Formats
+	$(CP) Custom.ini $(DLLDIR)/Formats
 
 docs:
 	$(CP) ArcEng.hlf $(DLLDIR)
