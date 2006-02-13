@@ -22,7 +22,7 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 #endif
 
 
-#define STATIC_BUFFER_SIZE  (32768)
+//#define STATIC_BUFFER_SIZE  (32768)
 
 #ifndef STATIC_BUFFER_SIZE
   DWORD bufSize;
