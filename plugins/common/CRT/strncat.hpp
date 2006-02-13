@@ -6,7 +6,7 @@
 extern "C"
 {
 #endif
-  int strncat(const char *first, const char *last, size_t count);
+  char *strncat(char *first, const char *last, size_t count);
 #ifdef __cplusplus
 };
 #endif
