@@ -18,6 +18,7 @@
 #include "./CRT/memmove.hpp"
 #include "./CRT/memset.hpp"
 #include "./CRT/strchr.hpp"
+#include "./CRT/strncat.hpp"
 #include "./CRT/strncmp.hpp"
 #include "./CRT/strpbrk.hpp"
 #include "./CRT/strrchr.hpp"
