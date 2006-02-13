@@ -6,6 +6,6 @@
 |&M: Desktop|%HOMEDRIVE%%HOMEPATH%\Desktop
 |-|
 |&1: временная|tmp:
-|&2: Far Navigator|ftp:
+|&2: FTP|ftp:
 |&3: сеть|net:
 |&8: реестр|reg:

@@ -1,0 +1,9 @@
+|&D: Рабочий стол|%HOMEDRIVE%%HOMEPATH%\Рабочий стол
+|&M: Мои документы|%HOMEDRIVE%%HOMEPATH%\Мои документы
+|&F: Избранное|%USERPROFILE%\Избранное
+|&P: Program Files|%ProgramFiles%
+|-|
+|&N: Сетевое окружение|%HOMEDRIVE%%HOMEPATH%\NetHood
+|&S: Общие документы|%ALLUSERSPROFILE%\Документы
+|-|
+|&T: %USERNAME%\Temp|%TEMP%

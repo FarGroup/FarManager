@@ -5,6 +5,5 @@ REGEDIT4
 "Prefix"="tmp"
 
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlApps]
-"Sequence"="t m p : + m e n u Space s h o r t c u t s . t e m p Enter"
+"Sequence"="t m p : + m e n u Space s h o r t c u t s . r u s . t e m p Enter"
 "DisableOutput"=dword:00000001
-
