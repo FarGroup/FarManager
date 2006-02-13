@@ -12,7 +12,10 @@ LNKFLAGS = -mdll -s -nostartfiles -L ../common -lCRT
 OBJS = $(patsubst %.c,%.o,$(filter %.c,$(SRCS)))
 MAP = $(patsubst %.dll,%.map,$(DLLNAME))
 
-all: $(DLLNAME)
+all: crt $(DLLNAME)
+
+crt:
+	$(MAKE) -C ../common/CRT -f makefile_lib_gcc
 
 %.o: %.c
 	@echo compiling $<
