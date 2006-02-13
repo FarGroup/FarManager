@@ -16,7 +16,7 @@ LINK=link.exe
 #CFLAGS=/nologo /Gr /Zp2 /ML /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_USRDLL" /D "MULTIARC_EXPORTS"
 CFLAGS  =/nologo /Gs /Ox /Zp1 /GR- /c /FD /opt:nowin98 /Fa"$(CODDIR)\\" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /D "WIN32" /D "NDEBUG"
 RSC_PROJ=/l 0x409 /fo$(INTDIR)\MULTIARC.res /d "NDEBUG"
-LINK_FLAGS=/DLL $(MSVCRT) kernel32.lib user32.lib advapi32.lib /nologo /incremental:no /pdb:none /map:$(FINALPATH)\multiarc.map /machine:I386 /def:MultiArc.def /out:"$(FINALPATH)\MULTIARC.DLL"  /opt:nowin98 /stub:minstub.exe /noentry /release
+LINK_FLAGS=/DLL $(MSVCRT) kernel32.lib user32.lib advapi32.lib /nologo /incremental:no /pdb:none /map:$(FINALPATH)\multiarc.map /machine:I386 /def:MultiArc.def /out:"$(FINALPATH)\MULTIARC.DLL"  /opt:nowin98 /stub:..\common\minstub.exe /noentry /release
 #
 #"/ENTRY:DllEntryPoint"
 

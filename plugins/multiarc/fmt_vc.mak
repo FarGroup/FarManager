@@ -44,7 +44,7 @@ CPPFLAGS =/nologo /Gs /Ox /Zp1 /GR- /GX- /c /MD /opt:nowin98 /Fa"$(CODDIR)\\" /F
 LINK=link.exe
 RSC=rc.exe
 RSC_PROJ=/l 0x409 /fo$(RES_FILE) /d "NDEBUG"
-LINK_FLAGS=/opt:nowin98 /noentry /DLL /map:$(MAP_FILE) /nologo /def:"$(DEF_FILE)" /stub:minstub.exe kernel32.LIB user32.LIB pcre.lib /out:$(FMT_FILE) /implib:$(LIB_FILE) /machine:I386 /release
+LINK_FLAGS=/opt:nowin98 /noentry /DLL /map:$(MAP_FILE) /nologo /def:"$(DEF_FILE)" /stub:..\common\minstub.exe kernel32.LIB user32.LIB pcre.lib /out:$(FMT_FILE) /implib:$(LIB_FILE) /machine:I386 /release
 !else
 CC=bcc32.exe
 CPPFLAGS=-4 -I$(FARINC) -c -a1 -R- -x- -RT- -K -M- -v- -u -G -o$(INTDIR)\$(FMT)
