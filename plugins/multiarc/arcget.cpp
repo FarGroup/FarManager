@@ -99,7 +99,7 @@ int PluginClass::GetFiles(PluginPanelItem *PanelItem, int ItemsNumber,
                 DialogItems,COUNT(DialogItems));
     if (AskCode!=11)
       return -1;
-    strcpy(DestPath,DialogItems[2].Data);
+    lstrcpy(DestPath,DialogItems[2].Data);
     FSF.Unquote(DestPath);
     Opt.UserBackground=DialogItems[8].Selected;
     Opt.OldUserBackground=Opt.UserBackground; // $ 02.07.2002 AY: запомним и не будем не где сбрасывать
@@ -132,7 +132,7 @@ int PluginClass::GetFiles(PluginPanelItem *PanelItem, int ItemsNumber,
   CreateDirectory(DestPath); //$ 16.05.2002 AA
 
 
-  if (*DestPath && DestPath[strlen(DestPath)-1]!=':')
+  if (*DestPath && DestPath[lstrlen(DestPath)-1]!=':')
     FSF.AddEndSlash(DestPath);
   GetCommandFormat(CMD_ALLFILESMASK,AllFilesMask,sizeof(AllFilesMask));
 
@@ -153,7 +153,7 @@ int PluginClass::GetFiles(PluginPanelItem *PanelItem, int ItemsNumber,
     else        */
     {
       char NameMsg[NM];
-      FSF.TruncPathStr(strncpy(NameMsg,FSF.PointToName(ArcName),sizeof(NameMsg)-1),MAX_WIDTH_MESSAGE);
+      FSF.TruncPathStr(lstrcpyn(NameMsg,FSF.PointToName(ArcName),sizeof(NameMsg)),MAX_WIDTH_MESSAGE);
       FSF.sprintf(VolMsg,GetMsg(MExtrVolume),FSF.PointToName(NameMsg));
       const char *MsgItems[]={GetMsg(MExtractTitle),VolMsg,GetMsg(MExtrVolumeAsk1),
                         GetMsg(MExtrVolumeAsk2),GetMsg(MExtrVolumeSelFiles),
@@ -165,8 +165,8 @@ int PluginClass::GetFiles(PluginPanelItem *PanelItem, int ItemsNumber,
     if (MsgCode==1)
     {
       memset(&MaskPanelItem,0,sizeof(MaskPanelItem));
-      strcpy(MaskPanelItem.FindData.cFileName,AllFilesMask);
-      strcpy(MaskPanelItem.FindData.cAlternateFileName,AllFilesMask);
+      lstrcpy(MaskPanelItem.FindData.cFileName,AllFilesMask);
+      lstrcpy(MaskPanelItem.FindData.cAlternateFileName,AllFilesMask);
       if (ItemsInfo.Encrypted)
         MaskPanelItem.Flags=F_ENCRYPTED;
       PanelItem=&MaskPanelItem;

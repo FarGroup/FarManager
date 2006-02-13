@@ -9,6 +9,7 @@ NULL=
 NULL=nul
 !endif
 
+
 #COMP=BC
 
 !if "$(COMP)" == ""
@@ -22,6 +23,10 @@ INTDIR=obj
 OUTDIR=Final\Formats
 CODDIR=obj\cod
 SRCDIR=.
+
+INCLUDE = $(INCLUDE);..\common;.\libpcre
+LIB = $(LIB);$(INTDIR)
+
 
 FMT_FILE=$(OUTDIR)\$(FMT).fmt
 MAP_FILE=$(INTDIR)\$(FMT).map
@@ -86,7 +91,7 @@ $(CODDIR) :
 <<
 
 
-$(RES_FILE) : $(RC_FILE) "$(INTDIR)"
+$(RES_FILE) : $(RC_FILE) "$(INTDIR)" ../common/farversion.hpp multiarcversion.hpp
 	$(RSC) $(RSC_PROJ) $(RC_FILE)
 
 

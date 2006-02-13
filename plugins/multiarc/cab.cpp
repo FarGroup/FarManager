@@ -28,6 +28,25 @@
   #endif
 #endif
 
+#if defined(__GNUC__)
+#include "crt.hpp"
+#ifdef __cplusplus
+extern "C"{
+#endif
+  BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
+#ifdef __cplusplus
+};
+#endif
+
+BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
+{
+  (void) lpReserved;
+  (void) dwReason;
+  (void) hDll;
+  return TRUE;
+}
+#endif
+
 typedef BYTE u1;
 typedef WORD u2;
 typedef DWORD u4;

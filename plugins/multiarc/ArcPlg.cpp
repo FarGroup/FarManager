@@ -18,11 +18,11 @@ ArcPlugins::ArcPlugins(const char *ModuleName)
   PluginsData=NULL;
   PluginsCount=0;
 
-  strcpy(PluginsFolder,ModuleName);
+  lstrcpy(PluginsFolder,ModuleName);
   if ((NamePtr=strrchr(PluginsFolder,'\\'))==NULL)
     return;
 
-  strcpy(NamePtr,"\\Formats\\");
+  lstrcpy(NamePtr,"\\Formats\\");
   FSF.FarRecursiveSearch(PluginsFolder,"*.fmt",
                     (FRSUSERFUNC)LoadFmtModules,FRS_RECUR,this);
 
@@ -56,7 +56,7 @@ int WINAPI ArcPlugins::LoadFmtModules(const WIN32_FIND_DATA *fdata,
 
   if (hModule!=NULL)
   {
-    strcpy(CurPlugin.ModuleName,fdata->cFileName);
+    lstrcpy(CurPlugin.ModuleName,fdata->cFileName);
     CurPlugin.hModule=hModule;
     CurPlugin.Flags=0;
     CurPlugin.TryIfNoOther=GetRegKey(HKEY_CURRENT_USER,"TryIfNoOther",CurPlugin.ModuleName,0);

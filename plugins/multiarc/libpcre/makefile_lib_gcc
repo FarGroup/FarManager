@@ -1,0 +1,40 @@
+OBJDIR = ../obj
+REOBJDIR = \.\.\/obj\/
+DLLDIR = ../obj
+DLLNAME = libPCRE.a
+DLLFULLNAME = $(DLLDIR)/$(DLLNAME)
+SRCS = chartables.c get.c pcre.c study.c
+
+CXX = g++
+RM = rm -f
+CP = cp -f
+M4 = m4 -P
+MV = mv -f
+MKDIR = mkdir -p
+AR = ar
+RANLIB = ranlib
+CXXFLAGS = -I ../../common -Wall -DWIN32 -DPCRE_STATIC -D_WIN32 -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-exceptions
+
+
+OBJS = $(patsubst %.c,$(OBJDIR)/%.o,$(filter %.c,$(SRCS)))
+DEPS = $(patsubst %.c,$(OBJDIR)/%.d,$(filter %.c,$(SRCS)))
+
+all: $(DLLFULLNAME)
+
+
+$(OBJDIR)/%.d: %.c
+	@echo making depends for $<
+	@$(SHELL) -ec '$(CXX) -c -MM $(CXXFLAGS) $< \
+                | sed '\''s/\($*\)\.o[ :]*/$(REOBJDIR)\1.o $(REOBJDIR)\1.d: /g'\'' > $@; [ -s $@ ] || $(RM) $@'
+
+$(OBJDIR)/%.o: %.c
+	@echo compiling $<
+	@$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+$(DLLFULLNAME): $(OBJS)
+	@echo linking $@
+	@$(AR) rc $(DLLNAME) $(OBJS)
+	@$(RANLIB) $(DLLNAME)
+	@$(MV) $(DLLNAME) $(DLLDIR)
+
+-include $(DEPS)

@@ -47,7 +47,7 @@ int ConfigGeneral()
 //  DialogItems[7].Param.Selected=Opt.DeleteExtFile;
 //  DialogItems[8].Param.Selected=Opt.AddExtArchive;
   DialogItems[8].Selected=Opt.AdvFlags.AutoResetExactArcName;
-  strcpy(DialogItems[12].Data,Opt.DescriptionNames);
+  lstrcpy(DialogItems[12].Data,Opt.DescriptionNames);
   DialogItems[13].Selected=Opt.ReadDescriptions;
   DialogItems[14].Selected=Opt.UpdateDescriptions;
   int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,19,"ArcSettings1",DialogItems,
@@ -66,7 +66,7 @@ int ConfigGeneral()
   //Opt.AddExtArchive=DialogItems[8].Param.Selected;
   Opt.AdvFlags.AutoResetExactArcName=DialogItems[8].Selected;
 
-  strcpy(Opt.DescriptionNames,DialogItems[12].Data);
+  lstrcpy(Opt.DescriptionNames,DialogItems[12].Data);
   Opt.ReadDescriptions=DialogItems[13].Selected;
   Opt.UpdateDescriptions=DialogItems[14].Selected;
 
@@ -196,7 +196,7 @@ int ConfigCommands(char *ArcFormat,int IDFocus,BOOL FastAccess,int PluginNumber,
   DialogItems[IDFocus].Focus=1;
 
   for (I=1;I<=31;I+=2)
-    if ((Length=strlen(DialogItems[I].Data))>MaxLength)
+    if ((Length=lstrlen(DialogItems[I].Data))>MaxLength)
       MaxLength=Length;
 
   for (I=2,J=0;I<=32;I+=2,J++)

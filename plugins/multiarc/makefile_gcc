@@ -1,0 +1,79 @@
+OBJDIR = ./obj
+REOBJDIR = \.\/obj\/
+DLLDIR = ./final
+NAME = MultiArc
+DLLNAME = $(NAME).dll
+DLLFULLNAME = $(DLLDIR)/$(DLLNAME)
+SRCS = MultiArc.cpp \
+arccfg.cpp \
+arccmd.cpp \
+arcget.cpp \
+ArcMix.cpp \
+ArcPlg.cpp \
+ArcProc.cpp \
+arcput.cpp \
+arcread.cpp \
+arcreg.cpp \
+global.cpp
+DEF = $(NAME).gcc.def
+
+CXX = g++
+DLLTOOL = dlltool
+RM = rm -f
+CP = cp -f
+M4 = m4 -P
+MV = mv -f
+MKDIR = mkdir -p
+WINDRES=windres
+CXXFLAGS = -I ../common -Wall -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-rtti -fno-exceptions
+LNKFLAGS = -mdll -s -nostartfiles -L ../common -lCRT
+
+OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS))) $(OBJDIR)/$(NAME).res.o
+DEPS = $(patsubst %.cpp,$(OBJDIR)/%.d,$(filter %.cpp,$(SRCS)))
+MAP = $(patsubst %.dll,%.map,$(DLLFULLNAME))
+
+all: $(DLLFULLNAME) $(DEPS) fmt
+
+$(OBJS) $(DEPS): $(OBJDIR)
+$(DLLFULLNAME): $(DLLDIR)
+
+$(OBJDIR)/%.d: %.cpp
+	@echo making depends for $<
+	@$(SHELL) -ec '$(CXX) -c -MM $(CXXFLAGS) $< \
+                | sed '\''s/\($*\)\.o[ :]*/$(REOBJDIR)\1.o $(REOBJDIR)\1.d: /g'\'' > $@; [ -s $@ ] || $(RM) $@'
+
+$(OBJDIR)/%.o: %.cpp
+	@echo compiling $<
+	@$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+$(OBJDIR)/$(NAME).res.o: $(NAME).rc ../common/farversion.hpp multiarcversion.hpp
+	$(WINDRES) -i $< -o $@
+
+$(DLLFULLNAME): $(OBJS) $(DEF)
+	@echo linking $@
+	@$(CXX) -mdll -o $(DLLNAME) -Xlinker --base-file -Xlinker $(DLLNAME).base $(OBJS) $(LNKFLAGS)
+	@$(DLLTOOL) --dllname $(DLLNAME) --base-file $(DLLNAME).base --output-exp $(DLLNAME).exp --def $(DEF)
+	@$(CXX) -mdll  -o $(DLLNAME) $(OBJS) $(DLLNAME).exp $(LNKFLAGS) -Xlinker -Map -Xlinker $(MAP)
+	@$(MV) $(DLLNAME) $(DLLDIR)
+	@$(RM) $(DLLNAME).base
+	@$(RM) $(DLLNAME).exp
+
+-include $(DEPS)
+
+$(OBJDIR):
+	@if !(test -d $@) then $(MKDIR) $@; fi
+$(DLLDIR):
+	@if !(test -d $@) then $(MKDIR) $@; fi
+
+fmt:
+	$(MAKE) -f makefile_fmt_gcc FMT=Ace
+	$(MAKE) -f makefile_fmt_gcc FMT=Arc
+	$(MAKE) -f makefile_fmt_gcc FMT=Arj
+	$(MAKE) -f makefile_fmt_gcc FMT=Cab
+	$(MAKE) -C ./libpcre -f makefile_lib_gcc
+	$(MAKE) -f makefile_fmt_gcc FMT=Custom
+	$(MAKE) -f makefile_fmt_gcc FMT=Ha
+	$(MAKE) -f makefile_fmt_gcc FMT=Lzh
+	$(MAKE) -f makefile_fmt_gcc FMT=Rar
+	$(MAKE) -f makefile_fmt_gcc FMT=TarGz
+	$(MAKE) -f makefile_fmt_gcc FMT=Zip

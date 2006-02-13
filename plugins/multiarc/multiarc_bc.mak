@@ -95,7 +95,7 @@ ALL : BccW32.cfg $(FINALPATH)\MULTIARC.DLL $(FINALPATH)\Formats\Custom.fmt $(FIN
 #$(OBJPATH)\syslog.obj: syslog.cpp cc.bat
 
 # ************************************************************************
-$(OBJPATH)\MultiArc.res :  MultiArc.rc
+$(OBJPATH)\MultiArc.res :  MultiArc.rc ../common/farversion.hpp multiarcversion.hpp
   @if not exist $(OBJPATH) mkdir $(OBJPATH)
   -@settitle "Compiling resource..."
   $(BRC32) -R @&&|
@@ -105,14 +105,14 @@ $(OBJPATH)\MultiArc.res :  MultiArc.rc
 
 #$(LIBPATH)\c0d32.obj $(MAOBJ) $(MA_STDHDR_OBJ)
 
-$(FINALPATH)\MULTIARC.DLL : BccW32.cfg plugin.def $(OBJPATH)\MultiArc.res $(MAOBJ)
+$(FINALPATH)\MULTIARC.DLL : BccW32.cfg MultiArc.def $(OBJPATH)\MultiArc.res $(MAOBJ)
   -@settitle "Linking..."
   @if not exist $(FINALPATH) mkdir $(FINALPATH)
   @$(TLINK32)  $(LINKFLAGS) @&&|
 $(MAOBJ) $(MA_STDHDR_OBJ)
 $<,$*
 $(LIBPATH)\import32.lib $(LIBPATH)\cw32.lib
-plugin.def
+MultiArc.def
 |
    @copy MultiArc.map $(FINALPATH)\MultiArc.map
    @$(BRC32) $(OBJPATH)\MultiArc.res $(OBJPATH)\MultiArc.res $<
@@ -120,8 +120,8 @@ plugin.def
 # обязательно! Что бы в ручную не делать...
    @copy  ArcEng.lng   $(FINALPATH)\ArcEng.lng > nul
    @copy  ArcRus.lng   $(FINALPATH)\ArcRus.lng > nul
-   -@awk -f mkhlf.awk -v FV1=$(FV1) -v FV2=$(FV2) -v FV3=$(FV3) ArcEng.hlf > $(FINALPATH)\ArcEng.hlf
-   -@awk -f mkhlf.awk -v FV1=$(FV1) -v FV2=$(FV2) -v FV3=$(FV3) ArcRus.hlf > $(FINALPATH)\ArcRus.hlf
+   @copy  ArcEng.hlf   $(FINALPATH)\ArcEng.hlf > nul
+   @copy  ArcRus.hlf   $(FINALPATH)\ArcRus.hlf > nul
 
 
 $(FINALPATH)\Formats\Ace.fmt :  Ace.cpp fmt.hpp Ace.def Ace.rc

@@ -109,7 +109,7 @@ void StartThreadForKillListFile(PROCESS_INFORMATION *pi,char *list)
 
     ks->hThread=pi->hThread;
     ks->hProcess=pi->hProcess;
-    strcpy(ks->ListFileName,list);
+    lstrcpy(ks->ListFileName,list);
 
     CreateThread(NULL,0xf000,ThreadWhatWaitingForKillListFile,ks,0 /* no flags */,&dummy);
 }
@@ -228,8 +228,7 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,
   {
     char Msg[100];
     char ExecuteName[NM];
-    strncpy(ExecuteName,ExpandedCmd+(*ExpandedCmd=='"'), NM-1);
-    ExecuteName[NM-1]=0;
+    lstrcpyn(ExecuteName,ExpandedCmd+(*ExpandedCmd=='"'), NM);
     char *Ptr;
     Ptr=strchr(ExecuteName,(*ExpandedCmd=='"')?'"':' ');
     if(Ptr)
@@ -237,7 +236,7 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,
     FindExecuteFile(ExecuteName,NULL,0);
 
     char NameMsg[NM];
-    FSF.TruncPathStr(strncpy(NameMsg,ExecuteName,sizeof(NameMsg)-1),MAX_WIDTH_MESSAGE);
+    FSF.TruncPathStr(lstrcpyn(NameMsg,ExecuteName,sizeof(NameMsg)),MAX_WIDTH_MESSAGE);
     FSF.sprintf(Msg,GetMsg(MCannotFindArchivator),NameMsg);
     const char *MsgItems[]={GetMsg(MError),Msg, GetMsg(MOk)};
     Info.Message(Info.ModuleNumber,FMSG_WARNING|FMSG_ERRORTYPE,
@@ -302,7 +301,7 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,
 
 char* QuoteText(char *Str)
 {
-  int LastPos=strlen(Str);
+  int LastPos=lstrlen(Str);
   memmove(Str+1,Str,LastPos+1);
   Str[LastPos+1]=*Str='"';
   Str[LastPos+2]=0;
@@ -318,7 +317,7 @@ void ConvertNameToShort(const char *Src,char *Dest)
   if (GetShortPathName(AnsiName,ShortName,sizeof(ShortName)))
     CharToOem(ShortName,Dest);
   else
-    strcpy(Dest,Src);
+    lstrcpy(Dest,Src);
   SetFileApisToOEM();
 }
 
@@ -340,7 +339,7 @@ void InitDialogItems(const struct InitDialogItem *Init,struct FarDialogItem *Ite
     PItem->Selected=PInit->Selected;
     PItem->Flags=PInit->Flags;
     PItem->DefaultButton=PInit->DefaultButton;
-    strcpy(PItem->Data,((DWORD)PInit->Data<2000)?GetMsg((unsigned int)PInit->Data):PInit->Data);
+    lstrcpy(PItem->Data,((DWORD)PInit->Data<2000)?GetMsg((unsigned int)PInit->Data):PInit->Data);
   }
 }
 
@@ -348,10 +347,10 @@ void InitDialogItems(const struct InitDialogItem *Init,struct FarDialogItem *Ite
 static void __InsertCommas(char *Dest)
 {
   int I;
-  for (I=strlen(Dest)-4;I>=0;I-=3)
+  for (I=lstrlen(Dest)-4;I>=0;I-=3)
     if (Dest[I])
     {
-      memmove(Dest+I+2,Dest+I+1,strlen(Dest+I));
+      memmove(Dest+I+2,Dest+I+1,lstrlen(Dest+I));
       Dest[I+1]=',';
     }
 }
@@ -436,7 +435,7 @@ int LocalStrnicmp(const char *Str1,const char *Str2,int Length)
   AnsiStr1[Length]=AnsiStr2[Length]=0;
   CharLower(AnsiStr1);
   CharLower(AnsiStr2);
-  return strcmp(AnsiStr1,AnsiStr2);
+  return lstrcmp(AnsiStr1,AnsiStr2);
 }
 
 char *GetCommaWord(char *Src,char *Word,char Separator)
@@ -475,7 +474,7 @@ int FindExecuteFile(char *OriginalName,char *DestName,int SizeDest)
   if((PtrExt=strrchr(OriginalName,'.')) == NULL)
   {
     if(!GetEnvironmentVariable("PATHEXT",Env,sizeof(Env)))
-      strcpy(Env,".exe;.com;.bat;.cmd");
+      lstrcpy(Env,".exe;.com;.bat;.cmd");
 
     PtrExt=Env;
     while(1)
@@ -488,7 +487,7 @@ int FindExecuteFile(char *OriginalName,char *DestName,int SizeDest)
                &FilePart))  // address of pointer to file component
       {
         if(DestName)
-          strncpy(DestName,TempDestName,SizeDest);
+          lstrcpyn(DestName,TempDestName,SizeDest);
         return TRUE;
       }
     }
@@ -499,7 +498,7 @@ int FindExecuteFile(char *OriginalName,char *DestName,int SizeDest)
                &FilePart))  // address of pointer to file component
   {
     if(DestName)
-      strncpy(DestName,TempDestName,SizeDest);
+      lstrcpyn(DestName,TempDestName,SizeDest);
     return TRUE;
   }
   return FALSE;
@@ -515,7 +514,7 @@ char *SeekDefExtPoint(char *Name, char *DefExt/*=NULL*/, char **Ext/*=NULL*/)
     return TempExt;
   if(Ext)
     *Ext=TempExt;
-  return (TempExt!=NULL)?(stricmp(TempExt+1, DefExt)?NULL:TempExt):NULL;
+  return (TempExt!=NULL)?(FSF.LStricmp(TempExt+1, DefExt)?NULL:TempExt):NULL;
 }
 
 BOOL AddExt(char *Name, char *Ext)
@@ -526,7 +525,7 @@ BOOL AddExt(char *Name, char *Ext)
   {
     // transform Ext
     char NewExt[NM], *Ptr;
-    strncpy(NewExt,Ext,sizeof(NewExt)-1);
+    lstrcpyn(NewExt,Ext,sizeof(NewExt));
 
     int Up=0, Lw=0;
     Ptr=Name;
@@ -546,9 +545,9 @@ BOOL AddExt(char *Name, char *Ext)
       FSF.LStrupr (NewExt);
 
     if(ExtPnt && !*(ExtPnt+1))
-      strcpy(ExtPnt+1, NewExt);
+      lstrcpy(ExtPnt+1, NewExt);
     else
-      FSF.sprintf(Name+strlen(Name), ".%s", NewExt);
+      FSF.sprintf(Name+lstrlen(Name), ".%s", NewExt);
     return TRUE;
   }
   return FALSE;
@@ -572,7 +571,7 @@ int WINAPI GetPassword(char *Password,const char *FileName)
                   (const char*)Prompt,NULL,NULL,
                   InPass,sizeof(InPass),NULL,FIB_PASSWORD|FIB_ENABLEEMPTY))
   {
-    strcpy(Password,InPass);
+    lstrcpy(Password,InPass);
     return TRUE;
   }
   return FALSE;

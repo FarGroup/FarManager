@@ -17,6 +17,15 @@
 #include "plugin.hpp"
 #include "fmt.hpp"
 
+#ifdef __GNUC__
+#define _i64(num) num##ll
+#define _ui64(num) num##ull
+#else
+#define _i64(num) num##i64
+#define _ui64(num) num##ui64
+#endif
+
+
 #if defined(__BORLANDC__)
   #pragma option -a1
 #elif defined(__GNUC__) || (defined(__WATCOMC__) && (__WATCOMC__ < 1100)) || defined(__LCC__)
@@ -29,6 +38,25 @@
   #if _MSC_VER
     #define _export
   #endif
+#endif
+
+#if defined(__GNUC__)
+#include "crt.hpp"
+#ifdef __cplusplus
+extern "C"{
+#endif
+  BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
+#ifdef __cplusplus
+};
+#endif
+
+BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
+{
+  (void) lpReserved;
+  (void) dwReason;
+  (void) hDll;
+  return TRUE;
+}
 #endif
 
 /*
@@ -45,9 +73,6 @@
 unsigned __int64 __cdecl _strtoui64 (const char *nptr,char **endptr,int ibase);
 static unsigned __int64 __cdecl _strtoxq (const char *nptr,const char **endptr,int ibase,int flags);
 __int64 __cdecl _strtoi64(const char *nptr,char **endptr,int ibase);
-char *my_strrchr(const char *s, int c);
-
-
 
 #if defined(USE_TAR_H)
 #include "tar.h"
@@ -158,11 +183,11 @@ void  WINAPI _export SetFarInfo(const struct PluginStartupInfo *Info)
 }
 
 // Number of 100 nanosecond units from 01.01.1601 to 01.01.1970
-#define EPOCH_BIAS    116444736000000000i64
+#define EPOCH_BIAS    _i64(116444736000000000)
 
 void WINAPI UnixTimeToFileTime( DWORD time, FILETIME * ft )
 {
-  *(__int64*)ft = EPOCH_BIAS + (__int64)time * 10000000i64;
+  *(__int64*)ft = EPOCH_BIAS + (__int64)time * _i64(10000000);
 }
 
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
@@ -188,16 +213,16 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
   else
     return(FALSE);
 
-  const char *NamePtr=(const char *)my_strrchr((char*)Name,'\\');
+  const char *NamePtr=(const char *)strrchr((char*)Name,'\\');
   NamePtr=(NamePtr==NULL) ? Name:NamePtr+1;
-  strcpy(ZipName,NamePtr);
-  const char *Dot=(const char *)my_strrchr((char*)NamePtr,'.');
+  lstrcpy(ZipName,NamePtr);
+  const char *Dot=(const char *)strrchr((char*)NamePtr,'.');
 
   if (Dot!=NULL)
   {
     Dot++;
     if (LStricmp(Dot,"tgz")==0 || LStricmp(Dot,"taz")==0)
-      strcpy(&ZipName[Dot-NamePtr],"tar");
+      lstrcpy(&ZipName[Dot-NamePtr],"tar");
     else
       ZipName[Dot-NamePtr-1]=0;
   }
@@ -235,7 +260,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
       {
         Item->PackSize=Item->FindData.nFileSizeLow=FileSize.Part.LowPart;
         Item->PackSizeHigh=Item->FindData.nFileSizeHigh=FileSize.Part.HighPart;
-        strcpy(Item->FindData.cFileName,ZipName);
+        lstrcpy(Item->FindData.cFileName,ZipName);
         *ZipName=0;
         return(GETARC_SUCCESS);
       }
@@ -269,7 +294,7 @@ int GetArcItemGZIP(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
 
   if (ArcType==Z_FORMAT)
   {
-    strcpy(Item->FindData.cFileName,ZipName);
+    lstrcpy(Item->FindData.cFileName,ZipName);
     *ZipName=0;
     Item->FindData.nFileSizeLow=FileSize.Part.LowPart;
     Item->FindData.nFileSizeHigh=FileSize.Part.HighPart;
@@ -292,7 +317,7 @@ int GetArcItemGZIP(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
       return(GETARC_READERROR);
 
   if (*Item->FindData.cFileName==0)
-    strcpy(Item->FindData.cFileName,ZipName);
+    lstrcpy(Item->FindData.cFileName,ZipName);
 
   *ZipName=0;
 
@@ -354,8 +379,7 @@ int GetArcItemTAR(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
         np[sizeof(TAR_hdr.header.name)] = '\0';
         EndPos = AdjustTARFileName (namebuf);
       }
-      lstrcpyn(Item->FindData.cFileName,EndPos,sizeof(Item->FindData.cFileName)-1);
-      Item->FindData.cFileName[sizeof(Item->FindData.cFileName)-1]=0;
+      lstrcpyn(Item->FindData.cFileName,EndPos,sizeof(Item->FindData.cFileName));
       Item->FindData.dwFileAttributes=((DWORD)GetOctal(TAR_hdr.header.mode) & 0x4000) || ((TAR_hdr.header.typeflag-'0') & 4) ? FILE_ATTRIBUTE_DIRECTORY:0;
       Item->FindData.nFileSizeHigh=0;
 
@@ -366,15 +390,15 @@ int GetArcItemTAR(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
     Item->PackSize=Item->FindData.nFileSizeLow=TarItemSize.Part.LowPart;
     Item->PackSizeHigh=Item->FindData.nFileSizeHigh=TarItemSize.Part.HighPart;
 
-    strcpy(Info->HostOS,TarArchiveFormat==POSIX_FORMAT?"POSIX":(TarArchiveFormat==V7_FORMAT?"V7":""));
+    lstrcpy(Info->HostOS,TarArchiveFormat==POSIX_FORMAT?"POSIX":(TarArchiveFormat==V7_FORMAT?"V7":""));
     Info->UnpVer=256+11+(TarArchiveFormat >= POSIX_FORMAT?1:0); //!!!
 
     FAR_INT64 PrevPosition=NextPosition;
     // for LNKTYPE - only sizeof(TAR_hdr)
-    NextPosition.i64+=(__int64)sizeof(TAR_hdr)+(TAR_hdr.header.typeflag == LNKTYPE?0i64:TarItemSize.i64);
+    NextPosition.i64+=(__int64)sizeof(TAR_hdr)+(TAR_hdr.header.typeflag == LNKTYPE?_i64(0):TarItemSize.i64);
 
-    if (NextPosition.i64 & 511i64)
-      NextPosition.i64+=512i64-(NextPosition.i64 & 511i64);
+    if (NextPosition.i64 & _i64(511))
+      NextPosition.i64+=_i64(512)-(NextPosition.i64 & _i64(511));
 
     if (PrevPosition.i64 >= NextPosition.i64)
       return(GETARC_BROKEN);
@@ -423,8 +447,8 @@ BOOL WINAPI _export GetFormatName(int Type,char *FormatName,char *DefaultExt)
     case GZ_FORMAT:
     case Z_FORMAT:
     case BZ_FORMAT:
-      strcpy(FormatName,FmtAndExt[Type][0]);
-      strcpy(DefaultExt,FmtAndExt[Type][1]);
+      lstrcpy(FormatName,FmtAndExt[Type][0]);
+      lstrcpy(DefaultExt,FmtAndExt[Type][1]);
       return(TRUE);
   }
   return(FALSE);
@@ -509,7 +533,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
    };
    if (Type >= TAR_FORMAT && Type <= BZ_FORMAT && Command < sizeof(Commands[Type])/sizeof(Commands[Type][0]))
    {
-     strcpy(Dest,Commands[Type][Command]);
+     lstrcpy(Dest,Commands[Type][Command]);
      return(TRUE);
    }
   return(FALSE);
@@ -525,9 +549,9 @@ int IsTarHeader(const BYTE *Data,int DataSize)
 
   Header=(struct posix_header *)Data;
 
-  if(!strcmp (Header->magic, TMAGIC))
+  if(!lstrcmp (Header->magic, TMAGIC))
     TarArchiveFormat = POSIX_FORMAT;
-  else if(!strcmp (Header->magic, OLDGNU_MAGIC))
+  else if(!lstrcmp (Header->magic, OLDGNU_MAGIC))
     TarArchiveFormat = OLDGNU_FORMAT;
   else
     TarArchiveFormat = V7_FORMAT;
@@ -557,7 +581,7 @@ int IsTarHeader(const BYTE *Data,int DataSize)
 
   return(Sum==GetOctal(Header->chksum));
 /*
-  if(strcmp(Header->name,"././@LongLink"))
+  if(lstrcmp(Header->name,"././@LongLink"))
   {
     __int64 Seconds=GetOctal(Header->mtime);
     if (Seconds < 300000000i64 || Seconds > 1500000000i64)
@@ -682,10 +706,10 @@ static unsigned __int64 __cdecl _strtoxq (const char *nptr,const char **endptr,i
 #define FL_NEG        2       /* negative sign found */
 #define FL_OVERFLOW   4       /* overflow occured */
 #define FL_READDIGIT  8       /* we've read at least one correct digit */
-#define _UI64_MAX     0xFFFFFFFFFFFFFFFFui64
-#define _UI64_MAXDIV8 0x1FFFFFFFFFFFFFFFui64
-#define _I64_MIN    (-9223372036854775807i64 - 1)
-#define _I64_MAX      9223372036854775807i64
+#define _UI64_MAX     _ui64(0xFFFFFFFFFFFFFFFF)
+#define _UI64_MAXDIV8 _ui64(0x1FFFFFFFFFFFFFFF)
+#define _I64_MIN    (_i64(-9223372036854775807) - 1)
+#define _I64_MAX      _i64(9223372036854775807)
 
     const char *p;
     char c;
@@ -785,7 +809,7 @@ static unsigned __int64 __cdecl _strtoxq (const char *nptr,const char **endptr,i
         if (endptr)
             /* store beginning of string in endptr later on */
             p = nptr;
-        number = 0i64;        /* return 0 */
+        number = _i64(0);        /* return 0 */
     }
     else if ( (flags & FL_OVERFLOW) ||
               ( !(flags & FL_UNSIGNED) &&
@@ -821,16 +845,3 @@ unsigned __int64 __cdecl _strtoui64 (const char *nptr,char **endptr,int ibase)
     return _strtoxq(nptr, (const char **)endptr, ibase, FL_UNSIGNED);
 }
 //#endif
-
-char *my_strrchr(const char *s, int c)
-{
-  register const char *ss;
-  register size_t i;
-
-  for (i = strlen(s) + 1, ss = s + i; i; --i)
-    {
-      if (*(--ss) == (char) c)
-        return ((char *) ss);
-    }
-  return NULL;
-}

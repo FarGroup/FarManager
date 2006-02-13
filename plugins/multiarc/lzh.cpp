@@ -14,6 +14,13 @@
 #include "plugin.hpp"
 #include "fmt.hpp"
 
+#ifdef __GNUC__
+#define _i64(num) num##ll
+#else
+#define _i64(num) num##i64
+#endif
+
+
 #if defined(__BORLANDC__)
   #pragma option -a1
 #elif defined(__GNUC__) || (defined(__WATCOMC__) && (__WATCOMC__ < 1100)) || defined(__LCC__)
@@ -26,6 +33,25 @@
   #if _MSC_VER
     #define _export
   #endif
+#endif
+
+#if defined(__GNUC__)
+#include "crt.hpp"
+#ifdef __cplusplus
+extern "C"{
+#endif
+  BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
+#ifdef __cplusplus
+};
+#endif
+
+BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
+{
+  (void) lpReserved;
+  (void) dwReason;
+  (void) hDll;
+  return TRUE;
+}
 #endif
 
 /*
@@ -55,11 +81,11 @@ static HANDLE ArcHandle;
 static DWORD NextPosition,SFXSize,FileSize;
 
 // Number of 100 nanosecond units from 01.01.1601 to 01.01.1970
-#define EPOCH_BIAS    116444736000000000i64
+#define EPOCH_BIAS    _i64(116444736000000000)
 
 void WINAPI UnixTimeToFileTime( DWORD time, FILETIME * ft )
 {
-  *(__int64*)ft = EPOCH_BIAS + time * 10000000i64;
+  *(__int64*)ft = EPOCH_BIAS + time * _i64(10000000);
 }
 
 void  WINAPI _export SetFarInfo(const struct PluginStartupInfo *Info)
@@ -320,8 +346,8 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
             if (PathName[I]=='\xff')
               PathName[I]='\\';
 
-          if(PathName[strlen(PathName)-1] != '\\')
-            strcat(PathName,"\\");
+          if(PathName[lstrlen(PathName)-1] != '\\')
+            lstrcat(PathName,"\\");
 
           if(!FileName[0])
             Attr=FILE_ATTRIBUTE_DIRECTORY;
@@ -382,7 +408,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
   if (PrevPosition>=NextPosition || PathSize>NM)
     return(GETARC_BROKEN);
 
-  strcat(Item->FindData.cFileName,FileName);
+  lstrcat(Item->FindData.cFileName,FileName);
 
   Item->FindData.dwFileAttributes=Attr;
 
@@ -410,7 +436,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
   {
     if(OSID[I].Type == OsId)
     {
-      strcpy(Info->HostOS,OSID[I].Name);
+      lstrcpy(Info->HostOS,OSID[I].Name);
       break;
     }
   }
@@ -458,8 +484,8 @@ BOOL WINAPI _export GetFormatName(int Type,char *FormatName,char *DefaultExt)
 {
   if (Type==0)
   {
-    strcpy(FormatName,"LZH");
-    strcpy(DefaultExt,"lzh");
+    lstrcpy(FormatName,"LZH");
+    lstrcpy(DefaultExt,"lzh");
     return(TRUE);
   }
   return(FALSE);
@@ -490,7 +516,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     };
     if (Command < sizeof(Commands)/sizeof(Commands[0]))
     {
-      strcpy(Dest,Commands[Command]);
+      lstrcpy(Dest,Commands[Command]);
       return(TRUE);
     }
   }

@@ -14,6 +14,13 @@
 #include "plugin.hpp"
 #include "fmt.hpp"
 
+#ifdef __GNUC__
+#define _i64(num) num##ll
+#else
+#define _i64(num) num##i64
+#endif
+
+
 #if defined(__BORLANDC__)
   #pragma option -a1
 #elif defined(__GNUC__) || (defined(__WATCOMC__) && (__WATCOMC__ < 1100)) || defined(__LCC__)
@@ -28,6 +35,25 @@
   #endif
 #endif
 
+#if defined(__GNUC__)
+#include "crt.hpp"
+#ifdef __cplusplus
+extern "C"{
+#endif
+  BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
+#ifdef __cplusplus
+};
+#endif
+
+BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
+{
+  (void) lpReserved;
+  (void) dwReason;
+  (void) hDll;
+  return TRUE;
+}
+#endif
+
 /*
 #ifdef _MSC_VER
 #if _MSC_VER < 1310
@@ -40,19 +66,16 @@
 #endif
 */
 
-char *strrchr(char *s, int c);
-char *strncpy(char *dest, const char *source, size_t n);
-
 static HANDLE ArcHandle;
 static DWORD NextPosition,FileSize;
 
 
 // Number of 100 nanosecond units from 01.01.1601 to 01.01.1970
-#define EPOCH_BIAS    116444736000000000i64
+#define EPOCH_BIAS    _i64(116444736000000000)
 
 void WINAPI UnixTimeToFileTime( DWORD time, FILETIME * ft )
 {
-  *(__int64*)ft = EPOCH_BIAS + time * 10000000i64;
+  *(__int64*)ft = EPOCH_BIAS + time * _i64(10000000);
 }
 
 void  WINAPI _export SetFarInfo(const struct PluginStartupInfo *Info)
@@ -111,10 +134,9 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
   if (!ReadFile(ArcHandle,Path,sizeof(Path),&ReadSize,NULL) || ReadSize==0)
     return(GETARC_READERROR);
   Path[NM-1]=0;
-  int PathLength=strlen(Path)+1;
-  strncpy(Name,Path+PathLength,sizeof(Name)-1);
-  Name[sizeof(Name)-1]=0;
-  int Length=PathLength+strlen(Name)+1;
+  int PathLength=lstrlen(Path)+1;
+  lstrcpyn(Name,Path+PathLength,sizeof(Name));
+  int Length=PathLength+lstrlen(Name)+1;
   DWORD PrevPosition=NextPosition;
   NextPosition+=sizeof(Header)+Length+Path[Length]+1+Header.PackSize;
   if (PrevPosition>=NextPosition)
@@ -123,13 +145,12 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
   if (EndSym!=NULL)
     *EndSym=0;
   if (*Path)
-    strcat(Path,"\\");
-  strcat(Path,Name);
+    lstrcat(Path,"\\");
+  lstrcat(Path,Name);
   for (int I=0;Path[I]!=0;I++)
     if ((unsigned char)Path[I]==0xff)
       Path[I]='\\';
-  strncpy(Item->FindData.cFileName,Path,sizeof(Item->FindData.cFileName)-1);
-  Item->FindData.cFileName[sizeof(Item->FindData.cFileName)-1]=0;
+  lstrcpyn(Item->FindData.cFileName,Path,sizeof(Item->FindData.cFileName));
   Item->FindData.dwFileAttributes=(Header.Type & 0xf)==0xe ? FILE_ATTRIBUTE_DIRECTORY:0;
   Item->CRC32=Header.CRC;
   UnixTimeToFileTime(Header.FileTime,&Item->FindData.ftLastWriteTime);
@@ -149,8 +170,8 @@ BOOL WINAPI _export GetFormatName(int Type,char *FormatName,char *DefaultExt)
 {
   if (Type==0)
   {
-    strcpy(FormatName,"HA");
-    strcpy(DefaultExt,"ha");
+    lstrcpy(FormatName,"HA");
+    lstrcpy(DefaultExt,"ha");
     return(TRUE);
   }
   return(FALSE);
@@ -180,32 +201,9 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     };
     if (Command<sizeof(Commands)/sizeof(Commands[0]))
     {
-      strcpy(Dest,Commands[Command]);
+      lstrcpy(Dest,Commands[Command]);
       return(TRUE);
     }
   }
   return(FALSE);
-}
-
-
-char *strncpy(char *dest, const char *source, size_t n)
-{
-  char *src = dest;
-
-  while (n && 0 != (*dest++ = *source++))
-    --n;
-  *dest = 0;
-  return (src);
-}
-char *strrchr(char *s, int c)
-{
-  register const char *ss;
-  register size_t i;
-
-  for (i = strlen(s) + 1, ss = s + i; i; --i)
-    {
-      if (*(--ss) == (char) c)
-        return ((char *) ss);
-    }
-  return NULL;
 }

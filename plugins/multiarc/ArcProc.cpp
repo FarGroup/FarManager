@@ -45,7 +45,7 @@ int PluginClass::DeleteFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,i
     if (ItemsNumber==1)
     {
       char NameMsg[NM];
-      FSF.TruncPathStr(strncpy(NameMsg,PanelItem[0].FindData.cFileName,sizeof(NameMsg)-1),MAX_WIDTH_MESSAGE);
+      FSF.TruncPathStr(lstrcpyn(NameMsg,PanelItem[0].FindData.cFileName,sizeof(NameMsg)),MAX_WIDTH_MESSAGE);
       FSF.sprintf(Msg,GetMsg(MDeleteFile),NameMsg);
       MsgItems[1]=Msg;
     }
@@ -155,7 +155,7 @@ int PluginClass::ProcessHostFile(struct PluginPanelItem *PanelItem,int ItemsNumb
   {
     char VolMsg[300];
     char NameMsg[NM];
-    FSF.TruncPathStr(strncpy(NameMsg,FSF.PointToName(ArcName),sizeof(NameMsg)-1),MAX_WIDTH_MESSAGE);
+    FSF.TruncPathStr(lstrcpyn(NameMsg,FSF.PointToName(ArcName),sizeof(NameMsg)),MAX_WIDTH_MESSAGE);
     FSF.sprintf(VolMsg,GetMsg(MExtrVolume),NameMsg);
     const char *MsgItems[]={"",VolMsg,GetMsg(MExtrVolumeAsk1),
                       GetMsg(MExtrVolumeAsk2),GetMsg(MExtrVolumeSelFiles),
@@ -166,8 +166,8 @@ int PluginClass::ProcessHostFile(struct PluginPanelItem *PanelItem,int ItemsNumb
     if (MsgCode==1)
     {
       memset(&MaskPanelItem,0,sizeof(MaskPanelItem));
-      strcpy(MaskPanelItem.FindData.cFileName,AllFilesMask);
-      strcpy(MaskPanelItem.FindData.cAlternateFileName,AllFilesMask);
+      lstrcpy(MaskPanelItem.FindData.cFileName,AllFilesMask);
+      lstrcpy(MaskPanelItem.FindData.cAlternateFileName,AllFilesMask);
       if (ItemsInfo.Encrypted)
         MaskPanelItem.Flags=F_ENCRYPTED;
       PanelItem=&MaskPanelItem;
@@ -251,10 +251,10 @@ int PluginClass::SelectFormat(char *ArcFormat,int AddOnly)
         MenuItems=NewMenuItems;
         memset(MenuItems+MenuItemsNumber,0,sizeof(struct FarMenuItemEx));
         MenuItems[MenuItemsNumber].UserData = MAKEWPARAM((WORD)i,(WORD)j);
-        strncpy(MenuItems[MenuItemsNumber].Text.Text,Format,sizeof(MenuItems[MenuItemsNumber].Text.Text)-1);
+        lstrcpyn(MenuItems[MenuItemsNumber].Text.Text,Format,sizeof(MenuItems[MenuItemsNumber].Text.Text));
         MenuItems[MenuItemsNumber].Flags=(MenuItemsNumber==0 &&
                                           *ArcFormat==0 ||
-                                          !stricmp(ArcFormat,Format))?
+                                          !FSF.LStricmp(ArcFormat,Format))?
                                           MIF_SELECTED:0;
         #ifdef _NEW_ARC_SORT_
         if(SortMode)
@@ -287,7 +287,7 @@ int PluginClass::SelectFormat(char *ArcFormat,int AddOnly)
                        (struct FarMenuItem*)MenuItems,MenuItemsNumber);
     if (ExitCode>=0)
     {
-      strcpy(ArcFormat,MenuItems[ExitCode].Text.Text);
+      lstrcpy(ArcFormat,MenuItems[ExitCode].Text.Text);
       if(BreakCode >=0 && BreakCode <= 1 || !AddOnly)  // F4 or Enter pressed
         ConfigCommands(ArcFormat,2,TRUE,LOWORD(MenuItems[ExitCode].UserData),HIWORD(MenuItems[ExitCode].UserData));
       else
@@ -314,7 +314,7 @@ int PluginClass::FormatToPlugin(char *Format, int &PluginNumber, int &PluginType
     {
       if(!ArcPlugin->GetFormatName(i, j, PluginFormat, DefExt))
         break;
-      if(!stricmp(PluginFormat,Format))
+      if(!FSF.LStricmp(PluginFormat,Format))
       {
         PluginNumber=i;
         PluginType=j;
@@ -334,7 +334,7 @@ int PluginClass::ProcessKey(int Key,unsigned int ControlState)
     if(strstr(ArcName,/*"FarTmp"*/"FTMP")==NULL)//$AA какая-то бяка баловалась
     {
       char CurDir[NM];
-      strcpy(CurDir,ArcName);
+      lstrcpy(CurDir,ArcName);
       char *Slash=strrchr(CurDir,'\\');
       if (Slash!=NULL)
       {

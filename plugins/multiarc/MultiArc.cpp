@@ -3,6 +3,27 @@
 #include "multiarc.hpp"
 #include "marclng.hpp"
 
+#if defined(__GNUC__)
+
+#include "crt.hpp"
+
+#ifdef __cplusplus
+extern "C"{
+#endif
+  BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
+#ifdef __cplusplus
+};
+#endif
+
+BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
+{
+  (void) lpReserved;
+  (void) dwReason;
+  (void) hDll;
+  return TRUE;
+}
+#endif
+
 int WINAPI _export GetMinFarVersion(void)
 {
   return MAKEFARVERSION(1,70,1812);
@@ -46,8 +67,8 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
   GetRegKey(HKEY_CURRENT_USER,"","Prefix1",Opt.CommandPrefix1,"ma",sizeof(Opt.CommandPrefix1));
 
   #ifdef _NEW_ARC_SORT_
-  strcpy(IniFile, Info->ModuleName);
-  *((int *)(IniFile+strlen(IniFile)-3))=0x696E69; // :)
+  lstrcpy(IniFile, Info->ModuleName);
+  *((int *)(IniFile+lstrlen(IniFile)-3))=0x696E69; // :)
   #endif
   Opt.PriorityClass=2; // default: NORMAL
 
@@ -91,14 +112,13 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom, int Item)
     return INVALID_HANDLE_VALUE;
   if (OpenFrom==OPEN_COMMANDLINE)
   {
-    if (FSF.LStrnicmp(Opt.CommandPrefix1,(char *)Item,strlen(Opt.CommandPrefix1))==0 &&
-        (((char *)Item)[strlen(Opt.CommandPrefix1)]==':'))
+    if (FSF.LStrnicmp(Opt.CommandPrefix1,(char *)Item,lstrlen(Opt.CommandPrefix1))==0 &&
+        (((char *)Item)[lstrlen(Opt.CommandPrefix1)]==':'))
     {
-      if (((char *)Item)[strlen(Opt.CommandPrefix1)+1]==0)
+      if (((char *)Item)[lstrlen(Opt.CommandPrefix1)+1]==0)
         return INVALID_HANDLE_VALUE;
       char oldfilename[NM+2];
-      strncpy(oldfilename,&((char *)Item)[strlen(Opt.CommandPrefix1)+1],sizeof(oldfilename)-1);
-      oldfilename[sizeof(oldfilename)-1]=0;
+      lstrcpyn(oldfilename,&((char *)Item)[lstrlen(Opt.CommandPrefix1)+1],sizeof(oldfilename));
       FSF.Unquote(oldfilename);
       FSF.ExpandEnvironmentStr(oldfilename,oldfilename,NM);
       char filename[NM];
@@ -197,7 +217,7 @@ void WINAPI _export GetPluginInfo(struct PluginInfo *Info)
   Info->PluginConfigStrings=PluginCfgStrings;
   Info->PluginConfigStringsNumber=sizeof(PluginCfgStrings)/sizeof(PluginCfgStrings[0]);
   static char CommandPrefix[sizeof(Opt.CommandPrefix1)];
-  strcpy(CommandPrefix,Opt.CommandPrefix1);
+  lstrcpy(CommandPrefix,Opt.CommandPrefix1);
   Info->CommandPrefix=CommandPrefix;
 }
 
@@ -227,8 +247,8 @@ int WINAPI _export Configure(int ItemNumber)
 {
   struct FarMenuItem MenuItems[2];
   memset(MenuItems,0,sizeof(MenuItems));
-  strcpy(MenuItems[0].Text,GetMsg(MCfgLine1));
-  strcpy(MenuItems[1].Text,GetMsg(MCfgLine2));
+  lstrcpy(MenuItems[0].Text,GetMsg(MCfgLine1));
+  lstrcpy(MenuItems[1].Text,GetMsg(MCfgLine2));
   MenuItems[0].Selected=TRUE;
 
   do{

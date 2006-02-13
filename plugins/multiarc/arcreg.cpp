@@ -8,7 +8,7 @@ HKEY OpenRegKey(HKEY hRoot,const char *Key);
 void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData)
 {
   HKEY hKey=CreateRegKey(hRoot,Key);
-  RegSetValueEx(hKey,ValueName,0,REG_SZ,(BYTE*)ValueData,strlen(ValueData)+1);
+  RegSetValueEx(hKey,ValueName,0,REG_SZ,(BYTE*)ValueData,lstrlen(ValueData)+1);
   RegCloseKey(hKey);
 }
 
@@ -38,7 +38,7 @@ int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData,c
   RegCloseKey(hKey);
   if (hKey==NULL || ExitCode!=ERROR_SUCCESS)
   {
-    strcpy(ValueData,Default);
+    lstrcpy(ValueData,Default);
     return FALSE;
   }
   return TRUE;

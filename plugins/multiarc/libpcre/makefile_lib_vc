@@ -1,0 +1,18 @@
+OUTPUTS=..\obj\pcre.lib
+OBJS=..\obj\chartables.obj ..\obj\get.obj ..\obj\pcre.obj ..\obj\study.obj
+GARBAGE=*.pch *.ilk *.pdb
+
+CC=@cl.exe
+CFLAGS=/nologo /Fo"..\\obj\\" /Fd"..\\obj\\" /c /MD /Zi /D WIN32 /D PCRE_STATIC /D _WIN32 /Ox
+#CFLAGS=/nologo /c /MD /Zi /D WIN32 /D PCRE_STATIC /D _WIN32 /Od
+
+all: $(OUTPUTS)
+
+.c{..\obj}.obj::
+   $(CC) @<<
+   $(CFLAGS) $<
+<<
+	
+$(OUTPUTS): $(OBJS)
+	@lib /nologo /OUT:$(OUTPUTS) $(OBJS)
+

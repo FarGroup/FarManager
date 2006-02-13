@@ -29,6 +29,25 @@
   #endif
 #endif
 
+#if defined(__GNUC__)
+#include "crt.hpp"
+#ifdef __cplusplus
+extern "C"{
+#endif
+  BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
+#ifdef __cplusplus
+};
+#endif
+
+BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
+{
+  (void) lpReserved;
+  (void) dwReason;
+  (void) hDll;
+  return TRUE;
+}
+#endif
+
 /*
 #ifdef _MSC_VER
 #if _MSC_VER < 1310
@@ -308,9 +327,9 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
   if (!ReadFile(ArcHandle,Name,sizeof(Name),&ReadSize,NULL) || ReadSize==0)
     return(GETARC_READERROR);
   Name[sizeof(Name)-1]=0;
-  if (Name[strlen(Name)+1]!=0)
+  if (Name[lstrlen(Name)+1]!=0)
     Info->Comment=TRUE;
-  strcpy(Item->FindData.cFileName,Name);
+  lstrcpy(Item->FindData.cFileName,Name);
 
   DWORD PrevPosition=NextPosition;
   NextPosition+=8+ArjHeader.HeadSize;
@@ -351,7 +370,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
 
   Info->UnpVer=(ArjHeader.ARJExtrVer/10)*256+(ArjHeader.ARJExtrVer%10);
   if (ArjHeader.HostOS<sizeof(ArjOS)/sizeof(ArjOS[0]))
-    strcpy(Info->HostOS,ArjOS[ArjHeader.HostOS]);
+    lstrcpy(Info->HostOS,ArjOS[ArjHeader.HostOS]);
 
   return(GETARC_SUCCESS);
 }
@@ -376,8 +395,8 @@ BOOL WINAPI _export GetFormatName(int Type,char *FormatName,char *DefaultExt)
 {
   if (Type==0)
   {
-    strcpy(FormatName,"ARJ");
-    strcpy(DefaultExt,"arj");
+    lstrcpy(FormatName,"ARJ");
+    lstrcpy(DefaultExt,"arj");
     return(TRUE);
   }
   return(FALSE);
@@ -408,7 +427,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     };
     if (Command<sizeof(Commands)/sizeof(Commands[0]))
     {
-      strcpy(Dest,Commands[Command]);
+      lstrcpy(Dest,Commands[Command]);
       return(TRUE);
     }
   }

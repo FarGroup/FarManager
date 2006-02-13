@@ -13,7 +13,6 @@
 #include <windows.h>
 #include <string.h>
 #include <dos.h>
-#include <ctype.h>
 #include "plugin.hpp"
 #include "fmt.hpp"
 
@@ -33,6 +32,25 @@ using namespace PCRE;
     #if _MSC_VER
         #define _export
     #endif
+#endif
+
+#if defined(__GNUC__)
+#include "crt.hpp"
+#ifdef __cplusplus
+extern "C"{
+#endif
+  BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
+#ifdef __cplusplus
+};
+#endif
+
+BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
+{
+  (void) lpReserved;
+  (void) dwReason;
+  (void) hDll;
+  return TRUE;
+}
 #endif
 
 #undef isspace
@@ -232,7 +250,7 @@ class MetaReplacer
         if(GetShortPathName(AnsiName, ShortName, sizeof(ShortName)) && *ShortName)
             CharToOem(ShortName, Dest);
         else
-            strcpy(Dest, Src);
+            lstrcpy(Dest, Src);
 
         if(!AnsiApis)
             SetFileApisToOEM();
@@ -242,7 +260,7 @@ class MetaReplacer
     MetaReplacer(const char *command, const char *arcName)
         :   m_command(strdup(command))
     {
-        strncpy(m_fileName, arcName, sizeof(m_fileName) - 1);
+        lstrcpyn(m_fileName, arcName, sizeof(m_fileName));
         convertNameToShort(m_fileName, m_shortName);
     }
 
@@ -290,12 +308,12 @@ class MetaReplacer
                 || ((m.getFlags() & Meta::quoteWithSpaces) && strchr(var, ' '));
 
             if(bQuote)
-                strcat(dest, "\"");
+                lstrcat(dest, "\"");
 
-            strcat(dest, var);
+            lstrcat(dest, var);
 
             if(bQuote)
-                strcat(dest, "\"");
+                lstrcat(dest, "\"");
 
             if(m.getFlags() & Meta::useForwardSlashes)
             {
@@ -315,8 +333,8 @@ class MetaReplacer
 
         if(!bReplacedSomething) // there were no meta-symbols, should use old-style method
         {
-            strcat(buffer, " ");
-            strcat(buffer, m_shortName);
+            lstrcat(buffer, " ");
+            lstrcat(buffer, m_shortName);
         }
 
     }
@@ -350,6 +368,7 @@ FARSTDLOCALSTRICMP  LStricmp;
 FARSTDLOCALSTRNICMP LStrnicmp;
 FARSTDSPRINTF       SPrintf;
 FARSTDMKTEMP        MkTemp;
+FARSTDLOCALUPPER    LUpper;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -361,12 +380,13 @@ void WINAPI _export SetFarInfo(const struct PluginStartupInfo *Info)
     LStrnicmp = Info->FSF->LStrnicmp;
     SPrintf = Info->FSF->sprintf;
     MkTemp = Info->FSF->MkTemp;
+    LUpper = Info->FSF->LUpper;
 }
 
 DWORD WINAPI _export LoadFormatModule(const char *ModuleName)
 {
-    strcpy(FormatFileName, ModuleName);
-    strcpy(strrchr(FormatFileName, '\\') + 1, "custom.ini");
+    lstrcpy(FormatFileName, ModuleName);
+    lstrcpy(strrchr(FormatFileName, '\\') + 1, "custom.ini");
     return (0);
 }
 
@@ -573,7 +593,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item, struct ArcItemInfo *
             }
             else
             {
-                if(*StartText == '^' && strncmp(Str, StartText + 1, strlen(StartText + 1)) == 0 ||
+                if(*StartText == '^' && strncmp(Str, StartText + 1, lstrlen(StartText + 1)) == 0 ||
                    *StartText != '^' && strstr(Str, StartText) != NULL)
                 {
                     *StartText = 0;
@@ -591,7 +611,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item, struct ArcItemInfo *
             }
             else if(*EndText == '^')
             {
-                if(strncmp(Str, EndText + 1, strlen(EndText + 1)) == 0)
+                if(strncmp(Str, EndText + 1, lstrlen(EndText + 1)) == 0)
                     break;
             }
             else if(strstr(Str, EndText) != NULL)
@@ -609,7 +629,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item, struct ArcItemInfo *
             }
             else if(*CurIgnoreString->Str() == '^')
             {
-                if(strncmp(Str, CurIgnoreString->Str() + 1, strlen(CurIgnoreString->Str() + 1)) == 0)
+                if(strncmp(Str, CurIgnoreString->Str() + 1, lstrlen(CurIgnoreString->Str() + 1)) == 0)
                     bFoundIgnoreString = true;
             }
             else if(strstr(Str, CurIgnoreString->Str()) != NULL)
@@ -634,7 +654,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item, struct ArcItemInfo *
             MakeFiletime(stCreation, syst, &Item->FindData.ftCreationTime);
             MakeFiletime(stAccess, syst, &Item->FindData.ftLastAccessTime);
 
-            for(int I = strlen(Item->FindData.cFileName) - 1; I >= 0; I--)
+            for(int I = lstrlen(Item->FindData.cFileName) - 1; I >= 0; I--)
             {
                 int Ch = Item->FindData.cFileName[I];
 
@@ -716,7 +736,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type, int Command, char *Dest)
 
 int HexCharToNum(int HexChar)
 {
-    HexChar = toupper(HexChar);
+    HexChar = LUpper(HexChar);
     if(HexChar >= '0' && HexChar <= '9')
         return (HexChar - '0');
     else if(HexChar >= 'A' && HexChar <= 'F')
@@ -736,12 +756,12 @@ int GetSectionName(int Num, char *Name, int MaxSize)
         {
             if(!Num)
             {
-                strncpy(Name, Section, MaxSize - 1);
+                lstrcpyn(Name, Section, MaxSize);
                 return TRUE;
             }
             Num--;
         }
-        Section += strlen(Section) + 1;
+        Section += lstrlen(Section) + 1;
     }
     return FALSE;
 }
@@ -801,8 +821,7 @@ int GetString(char *Str, int MaxSize)
     int Length = OutDataPos - StartPos;
     int DestLength = Length >= MaxSize ? MaxSize - 1 : Length;
 
-    strncpy(Str, OutData + StartPos, DestLength);
-    Str[DestLength] = 0;
+    lstrcpyn(Str, OutData + StartPos, DestLength + 1);
 
     while(OutDataPos < OutDataSize)
     {
@@ -963,16 +982,16 @@ void ParseListingItemRegExp(Match match,
 {
 
     if(const char *p = match["name"])
-        strcat(Item->FindData.cFileName, p);
+        lstrcat(Item->FindData.cFileName, p);
     if(const char *p = match["description"])
-        strcat(Info->Description, p);
+        lstrcat(Info->Description, p);
 
     Item->FindData.nFileSizeLow = StringToInt(match["size"]);
     Item->PackSize              = StringToInt(match["packedSize"]);
 
     for(const char *p = match["attr"]; p && *p; ++p)
     {
-        switch(toupper(*p))
+        switch(LUpper(*p))
         {
             case 'D': Item->FindData.dwFileAttributes |= FILE_ATTRIBUTE_DIRECTORY;  break;
             case 'H': Item->FindData.dwFileAttributes |= FILE_ATTRIBUTE_HIDDEN;     break;
@@ -1005,7 +1024,7 @@ void ParseListingItemRegExp(Match match,
 
     if(const char *p = match["mAMPM"])
     {
-        switch(toupper(*p))
+        switch(LUpper(*p))
         {
         case 'A':
             if(stModification.wHour == 12)
@@ -1077,11 +1096,11 @@ void ParseListingItemPlain(const char *CurFormat, const char *CurStr,
             break;
         case '.':
             {
-                for(int I = strlen(Item->FindData.cFileName); I >= 0; I--)
+                for(int I = lstrlen(Item->FindData.cFileName); I >= 0; I--)
                     if(isspace(Item->FindData.cFileName[I]))
                         Item->FindData.cFileName[I] = 0;
                 if(*Item->FindData.cFileName)
-                    strcat(Item->FindData.cFileName, ".");
+                    lstrcat(Item->FindData.cFileName, ".");
             }
             break;
         case 'z':
@@ -1104,7 +1123,7 @@ void ParseListingItemPlain(const char *CurFormat, const char *CurStr,
             }
             break;
         case 'a':
-            switch (toupper(*CurStr))
+            switch (LUpper(*CurStr))
             {
                 case 'D': Item->FindData.dwFileAttributes |= FILE_ATTRIBUTE_DIRECTORY;  break;
                 case 'H': Item->FindData.dwFileAttributes |= FILE_ATTRIBUTE_HIDDEN;     break;
@@ -1171,7 +1190,7 @@ void ParseListingItemPlain(const char *CurFormat, const char *CurStr,
             }
             break;
         case 'H':
-            switch (toupper(*CurStr))
+            switch (LUpper(*CurStr))
             {
                 case 'A':
                     if(stModification.wHour == 12)
@@ -1312,7 +1331,7 @@ void ParseListingItemPlain(const char *CurFormat, const char *CurStr,
             }
             break;
         case 'r':
-            if(isxdigit(toupper(*CurStr)))
+            if(isxdigit(LUpper(*CurStr)))
             {
                 char dig_sub = (*CurStr >= 'a' ? 'a' : (*CurStr >= 'A' ? 'A' : '0'));
 

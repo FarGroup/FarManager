@@ -39,11 +39,11 @@ ArcCommand::ArcCommand(struct PluginPanelItem *PanelItem,int ItemsNumber,
   char Command[MAX_COMMAND_LENGTH];
   ArcCommand::PanelItem=PanelItem;
   ArcCommand::ItemsNumber=ItemsNumber;
-  strcpy(ArcCommand::ArcName,ArcName);
-  strcpy(ArcCommand::ArcDir,ArcDir);
-  strcpy(ArcCommand::RealArcDir,RealArcDir ? RealArcDir:"");
-  FSF.QuoteSpaceOnly(strcpy(ArcCommand::Password,Password));
-  strcpy(ArcCommand::AllFilesMask,AllFilesMask);
+  lstrcpy(ArcCommand::ArcName,ArcName);
+  lstrcpy(ArcCommand::ArcDir,ArcDir);
+  lstrcpy(ArcCommand::RealArcDir,RealArcDir ? RealArcDir:"");
+  FSF.QuoteSpaceOnly(lstrcpy(ArcCommand::Password,Password));
+  lstrcpy(ArcCommand::AllFilesMask,AllFilesMask);
   GetTempPath(sizeof(TempPath),TempPath);
   *PrefixFileName=0;
   *ListFileName=0;
@@ -52,7 +52,7 @@ ArcCommand::ArcCommand(struct PluginPanelItem *PanelItem,int ItemsNumber,
   do
   {
     PrevFileNameNumber=-1;
-    strcpy(Command,FormatString);
+    lstrcpy(Command,FormatString);
     if (!ProcessCommand(Command,CommandType,IgnoreErrors,ListFileName))
       NameNumber=-1;
     if (*ListFileName)
@@ -73,7 +73,7 @@ int ArcCommand::ProcessCommand(char *Command,int CommandType,int IgnoreErrors,
 
   for (char *CurPtr=Command;*CurPtr;)
   {
-    int Length=strlen(Command);
+    int Length=lstrlen(Command);
     switch(ReplaceVar(CurPtr,Length))
     {
       case 1:
@@ -107,7 +107,7 @@ int ArcCommand::ProcessCommand(char *Command,int CommandType,int IgnoreErrors,
         char NameMsg[NM];
         FSF.sprintf(ErrMsg,(char *)GetMsg(MArcNonZero),ExecCode);
         const char *MsgItems[]={GetMsg(MError),NameMsg,ErrMsg,GetMsg(MOk)};
-        FSF.TruncPathStr(strncpy(NameMsg,ArcName,sizeof(NameMsg)-1),MAX_WIDTH_MESSAGE);
+        FSF.TruncPathStr(lstrcpyn(NameMsg,ArcName,sizeof(NameMsg)),MAX_WIDTH_MESSAGE);
         Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
       }
       return FALSE;
@@ -139,8 +139,7 @@ void ArcCommand::DeleteBraces(char *Command)
     for (NonEmptyVar=0,CurPtr=Command+1;CurPtr<EndPtr-2;CurPtr++)
     {
       int Length;
-      strncpy(CheckStr,CurPtr,3);
-      CheckStr[3]=0;
+      lstrcpyn(CheckStr,CurPtr,4);
       if (CheckStr[0]=='%' && CheckStr[1]=='%' && strchr("FfLl",CheckStr[2])!=NULL)
       {
         NonEmptyVar=(ItemsNumber>0);
@@ -163,8 +162,8 @@ void ArcCommand::DeleteBraces(char *Command)
     else
     {
       char TmpStr[MAX_COMMAND_LENGTH];
-      strcpy(TmpStr,EndPtr+1);
-      strcpy(Command,TmpStr);
+      lstrcpy(TmpStr,EndPtr+1);
+      lstrcpy(Command,TmpStr);
     }
   }
 }
@@ -182,7 +181,7 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
 
   int VarLength=3;
 
-  strcpy(LocalAllFilesMask,AllFilesMask);
+  lstrcpy(LocalAllFilesMask,AllFilesMask);
 
   while (1)
   {
@@ -229,7 +228,7 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
         PathOnly=TRUE;
         break;
       case '*':
-        strcpy(LocalAllFilesMask,"*");
+        lstrcpy(LocalAllFilesMask,"*");
         break;
       default:
         BreakScan=TRUE;
@@ -245,11 +244,11 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
     MaxNamesLength=MAX_COMMAND_LENGTH-512;
   if (FolderMask==FALSE && FolderName==FALSE)
     FolderName=TRUE;
-  strcpy(SaveStr,Command+VarLength);
+  lstrcpy(SaveStr,Command+VarLength);
   switch(Command[2])
   {
     case 'A':
-      strcpy(Command,ArcName);
+      lstrcpy(Command,ArcName);
       if (AnsiCode)
         OemToChar(Command,Command);
       if (PathOnly)
@@ -258,7 +257,7 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
         if (NamePtr!=Command)
           *(NamePtr-1)=0;
         else
-          strcpy(Command," ");
+          lstrcpy(Command," ");
       }
       FSF.QuoteSpaceOnly(Command);
       break;
@@ -270,13 +269,13 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
         if (GetFileAttributes(ArcName)==0xFFFFFFFF && Slash!=NULL && Slash!=ArcName)
         {
           char Path[NM];
-          strcpy(Path,ArcName);
+          lstrcpy(Path,ArcName);
           Path[Slash-ArcName]=0;
           ConvertNameToShort(Path,Command);
-          strcat(Command,Slash);
+          lstrcat(Command,Slash);
         }
         if (Dot && strchr(FSF.PointToName(Command),'.')==NULL)
-          strcat(Command,".");
+          lstrcat(Command,".");
         if (AnsiCode)
           OemToChar(Command,Command);
         if (PathOnly)
@@ -285,7 +284,7 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
           if (NamePtr!=Command)
             *(NamePtr-1)=0;
           else
-            strcpy(Command," ");
+            lstrcpy(Command," ");
         }
       }
       FSF.QuoteSpaceOnly(Command);
@@ -303,11 +302,11 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
                         LocalAllFilesMask,AnsiCode))
         return -1;
       char QListName[NM+2];
-      FSF.QuoteSpaceOnly(strcpy(QListName,ListFileName));
-      strcpy(Command,QListName);
+      FSF.QuoteSpaceOnly(lstrcpy(QListName,ListFileName));
+      lstrcpy(Command,QListName);
       break;
     case 'P':
-      strcpy(Command,Password);
+      lstrcpy(Command,Password);
       break;
     case 'C':
       if(*CommentFileName) //второй раз сюда не лезем
@@ -335,8 +334,8 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
           //??тут можно и заполнить строку комментарием, но надо знать, файловый
           //?? он или архивный. да и имя файла в архиве тоже надо знать...
           {
-            WriteFile(CommentFile, Buf, strlen(Buf), &Count, NULL);
-            strcpy(Command, CommentFileName);
+            WriteFile(CommentFile, Buf, lstrlen(Buf), &Count, NULL);
+            lstrcpy(Command, CommentFileName);
             CloseHandle(CommentFile);
           }
           FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
@@ -344,7 +343,7 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
       }
       break;
     case 'R':
-      strcpy(Command,RealArcDir);
+      lstrcpy(Command,RealArcDir);
       if (UseSlash)
       {
         for (int I=0;Command[I];I++)
@@ -358,17 +357,17 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
       FSF.QuoteSpaceOnly(Command);
       break;
     case 'W':
-      strcpy(Command,TempPath);
+      lstrcpy(Command,TempPath);
       break;
     case 'f':
     case 'F':
       if (PanelItem!=NULL)
       {
         char CurArcDir[NM];
-        strcpy(CurArcDir,ArcDir);
-        int Length=strlen(CurArcDir);
+        lstrcpy(CurArcDir,ArcDir);
+        int Length=lstrlen(CurArcDir);
         if (Length>0 && CurArcDir[Length-1]!='\\')
-          strcat(CurArcDir,"\\");
+          lstrcat(CurArcDir,"\\");
 
         char Names[MAX_COMMAND_LENGTH];
         *Names=0;
@@ -401,8 +400,7 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
 
             *PrefixFileName=0;
             if(PanelItem[N].UserData)
-              strncpy(PrefixFileName,(char *)PanelItem[N].UserData,sizeof(PrefixFileName)-1);
-            PrefixFileName[sizeof(PrefixFileName)-1]=0;
+              lstrcpyn(PrefixFileName,(char *)PanelItem[N].UserData,sizeof(PrefixFileName));
             FSF.sprintf(Name,"%s%s%s",PrefixFileName,CurArcDir,PanelItem[N].FindData.cFileName);
             FileAttr=PanelItem[N].FindData.dwFileAttributes;
             PrevFileNameNumber=N;
@@ -412,8 +410,8 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
           if (NameOnly)
           {
             char NewName[NM];
-            strcpy(NewName,FSF.PointToName(Name));
-            strcpy(Name,NewName);
+            lstrcpy(NewName,FSF.PointToName(Name));
+            lstrcpy(Name,NewName);
           }
           if (PathOnly)
           {
@@ -421,32 +419,32 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
             if (NamePtr!=Name)
               *(NamePtr-1)=0;
             else
-              strcpy(Name," ");
+              lstrcpy(Name," ");
           }
           if (*Names==0 ||
-              strlen(Names)+strlen(Name)<static_cast<size_t>(MaxNamesLength) &&
+              lstrlen(Names)+lstrlen(Name)<static_cast<size_t>(MaxNamesLength) &&
               Command[2]!='f')
           {
             NameNumber+=IncreaseNumber;
             if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
             {
               char FolderMaskName[NM];
-              //strcpy(LocalAllFilesMask,PrefixFileName);
+              //lstrcpy(LocalAllFilesMask,PrefixFileName);
               FSF.sprintf(FolderMaskName,"%s\\%s",Name,LocalAllFilesMask);
               if (PathOnly)
               {
-                strcpy(FolderMaskName,Name);
+                lstrcpy(FolderMaskName,Name);
                 char *NamePtr=(char *)FSF.PointToName(FolderMaskName);
                 if (NamePtr!=FolderMaskName)
                   *(NamePtr-1)=0;
                 else
-                  strcpy(FolderMaskName," ");
+                  lstrcpy(FolderMaskName," ");
               }
               if (FolderMask)
                 if (FolderName)
-                  strcpy(NextFileName,FolderMaskName);
+                  lstrcpy(NextFileName,FolderMaskName);
                 else
-                  strcpy(Name,FolderMaskName);
+                  lstrcpy(Name,FolderMaskName);
             }
 
             if (QuoteName==1)
@@ -465,13 +463,13 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
 
 
             if (*Names)
-              strcat(Names," ");
-            strcat(Names,Name);
+              lstrcat(Names," ");
+            lstrcat(Names,Name);
           }
           else
             break;
         }
-        strcpy(Command,Names);
+        lstrcpy(Command,Names);
       }
       else
         *Command=0;
@@ -479,8 +477,8 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
     default:
       return FALSE;
   }
-  Length=strlen(Command);
-  strcat(Command,SaveStr);
+  Length=lstrlen(Command);
+  lstrcat(Command,SaveStr);
   return TRUE;
 }
 
@@ -509,7 +507,7 @@ int ArcCommand::MakeListFile(char *ListFileName,int ShortNames,int QuoteName,
     {
       char NameMsg[NM];
       const char *MsgItems[]={GetMsg(MError),GetMsg(MCannotCreateListFile),NameMsg,GetMsg(MOk)};
-      FSF.TruncPathStr(strncpy(NameMsg,ListFileName,sizeof(NameMsg)-1),MAX_WIDTH_MESSAGE);
+      FSF.TruncPathStr(lstrcpyn(NameMsg,ListFileName,sizeof(NameMsg)),MAX_WIDTH_MESSAGE);
       Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
     }
 /* $ 25.07.2001 AA
@@ -526,12 +524,12 @@ int ArcCommand::MakeListFile(char *ListFileName,int ShortNames,int QuoteName,
   if(NameOnly)
     *CurArcDir=0;
   else
-    strcpy( CurArcDir, ArcDir );
+    lstrcpy( CurArcDir, ArcDir );
 /* 23.10.2001 AA $ */
 
-  int Length=strlen(CurArcDir);
+  int Length=lstrlen(CurArcDir);
   if (Length>0 && CurArcDir[Length-1]!='\\')
-    strcat(CurArcDir,"\\");
+    lstrcat(CurArcDir,"\\");
 
   if (UseSlash)
     for (int I=0;CurArcDir[I];I++)
@@ -546,14 +544,14 @@ int ArcCommand::MakeListFile(char *ListFileName,int ShortNames,int QuoteName,
   {
     char FileName[NM];
     if (ShortNames && *PanelItem[I].FindData.cAlternateFileName)
-      strcpy(FileName,PanelItem[I].FindData.cAlternateFileName);
+      lstrcpy(FileName,PanelItem[I].FindData.cAlternateFileName);
     else
-      strcpy(FileName,PanelItem[I].FindData.cFileName);
+      lstrcpy(FileName,PanelItem[I].FindData.cFileName);
     if (NameOnly)
     {
       char NewName[NM];
-      strcpy(NewName,FSF.PointToName(FileName));
-      strcpy(FileName,NewName);
+      lstrcpy(NewName,FSF.PointToName(FileName));
+      lstrcpy(FileName,NewName);
     }
     if (PathOnly)
     {
@@ -563,8 +561,7 @@ int ArcCommand::MakeListFile(char *ListFileName,int ShortNames,int QuoteName,
     int FileAttr=PanelItem[I].FindData.dwFileAttributes;
     *PrefixFileName=0;
     if(PanelItem[I].UserData)
-      strncpy(PrefixFileName,(char *)PanelItem[I].UserData,sizeof(PrefixFileName)-1);
-    PrefixFileName[sizeof(PrefixFileName)-1]=0;
+      lstrcpyn(PrefixFileName,(char *)PanelItem[I].UserData,sizeof(PrefixFileName));
 
     int Error=FALSE;
     if (((FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0 || FolderName))
@@ -579,9 +576,9 @@ int ArcCommand::MakeListFile(char *ListFileName,int ShortNames,int QuoteName,
       if (AnsiCode)
         OemToChar(OutName,OutName);
 
-      strcpy(Buf,OutName);strcat(Buf,"\r\n");
-      Error=WriteFile(ListFile,Buf,strlen(Buf),&WriteSize,NULL) == FALSE;
-      //Error=fwrite(Buf,1,strlen(Buf),ListFile) != strlen(Buf);
+      lstrcpy(Buf,OutName);lstrcat(Buf,"\r\n");
+      Error=WriteFile(ListFile,Buf,lstrlen(Buf),&WriteSize,NULL) == FALSE;
+      //Error=fwrite(Buf,1,lstrlen(Buf),ListFile) != lstrlen(Buf);
     }
     if (!Error && (FileAttr & FILE_ATTRIBUTE_DIRECTORY) && FolderMask)
     {
@@ -594,9 +591,9 @@ int ArcCommand::MakeListFile(char *ListFileName,int ShortNames,int QuoteName,
           QuoteText(OutName);
       if (AnsiCode)
         OemToChar(OutName,OutName);
-      strcpy(Buf,OutName);strcat(Buf,"\r\n");
-      Error=WriteFile(ListFile,Buf,strlen(Buf),&WriteSize,NULL) == FALSE;
-      //Error=fwrite(Buf,1,strlen(Buf),ListFile) != strlen(Buf);
+      lstrcpy(Buf,OutName);lstrcat(Buf,"\r\n");
+      Error=WriteFile(ListFile,Buf,lstrlen(Buf),&WriteSize,NULL) == FALSE;
+      //Error=fwrite(Buf,1,lstrlen(Buf),ListFile) != lstrlen(Buf);
     }
     if (Error)
     {

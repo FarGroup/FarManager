@@ -4,6 +4,8 @@ NULL=
 NULL=nul
 !ENDIF
 
+INCLUDE = $(INCLUDE);..\common;.\libpcre
+
 FINALPATH=FINAL
 INTDIR=obj\VC
 CODDIR=obj\VC\cod
@@ -14,7 +16,7 @@ LINK=link.exe
 #CFLAGS=/nologo /Gr /Zp2 /ML /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_USRDLL" /D "MULTIARC_EXPORTS"
 CFLAGS  =/nologo /Gs /Ox /Zp1 /GR- /c /FD /opt:nowin98 /Fa"$(CODDIR)\\" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /D "WIN32" /D "NDEBUG"
 RSC_PROJ=/l 0x409 /fo$(INTDIR)\MULTIARC.res /d "NDEBUG"
-LINK_FLAGS=/DLL $(MSVCRT) kernel32.lib user32.lib advapi32.lib /nologo /incremental:no /pdb:none /map:$(FINALPATH)\multiarc.map /machine:I386 /def:plugin.def /out:"$(FINALPATH)\MULTIARC.DLL"  /opt:nowin98 /stub:minstub.exe /noentry /release
+LINK_FLAGS=/DLL $(MSVCRT) kernel32.lib user32.lib advapi32.lib /nologo /incremental:no /pdb:none /map:$(FINALPATH)\multiarc.map /machine:I386 /def:MultiArc.def /out:"$(FINALPATH)\MULTIARC.DLL"  /opt:nowin98 /stub:minstub.exe /noentry /release
 #
 #"/ENTRY:DllEntryPoint"
 
@@ -77,18 +79,18 @@ $(CODDIR) :
 
 
 
-$(FINALPATH)\MULTIARC.DLL : "$(FINALPATH)" plugin.def $(OBJ_FILE)
+$(FINALPATH)\MULTIARC.DLL : "$(FINALPATH)" MultiArc.def $(OBJ_FILE)
     @$(LINK) @<<
   $(LINK_FLAGS) $(OBJ_FILE)
 <<
    @copy  ArcEng.lng   $(FINALPATH)\ArcEng.lng > nul
    @copy  ArcRus.lng   $(FINALPATH)\ArcRus.lng > nul
-   -@awk -f mkhlf.awk -v FV1=$(FV1) -v FV2=$(FV2) -v FV3=$(FV3) ArcEng.hlf > $(FINALPATH)\ArcEng.hlf
-   -@awk -f mkhlf.awk -v FV1=$(FV1) -v FV2=$(FV2) -v FV3=$(FV3) ArcRus.hlf > $(FINALPATH)\ArcRus.hlf
+   @copy  ArcEng.hlf   $(FINALPATH)\ArcEng.hlf > nul
+   @copy  ArcRus.hlf   $(FINALPATH)\ArcRus.hlf > nul
 
 
 
-$(INTDIR)\MULTIARC.res : multiarc.rc "$(INTDIR)"
+$(INTDIR)\MULTIARC.res : multiarc.rc "$(INTDIR)" ../common/farversion.hpp multiarcversion.hpp
 	$(RSC) $(RSC_PROJ) multiarc.rc
 
 
@@ -133,6 +135,9 @@ $(FINALPATH)\Formats\Cab.fmt : $(INTDIR)\Cab.obj Cab.cpp fmt.hpp Cab.def Cab.rc
 
 
 $(FINALPATH)\Formats\Custom.fmt : $(INTDIR)\Custom.obj Custom.cpp fmt.hpp Custom.def Custom.rc
+	cd libpcre
+	nmake /c makefile_lib_vc
+	cd ..
 	nmake /c fmt_vc.mak FMT=Custom
 
 

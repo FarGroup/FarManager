@@ -1,7 +1,7 @@
 LIBRARY
 EXPORTS
-	IsArchive
-	OpenArchive
+    IsArchive
+    OpenArchive
     GetArcItem
     CloseArchive
     GetFormatName

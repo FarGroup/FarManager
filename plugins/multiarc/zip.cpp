@@ -28,6 +28,25 @@
   #endif
 #endif
 
+#if defined(__GNUC__)
+#include "crt.hpp"
+#ifdef __cplusplus
+extern "C"{
+#endif
+  BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
+#ifdef __cplusplus
+};
+#endif
+
+BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
+{
+  (void) lpReserved;
+  (void) dwReason;
+  (void) hDll;
+  return TRUE;
+}
+#endif
+
 /*
 #ifdef _MSC_VER
 #if _MSC_VER < 1310
@@ -278,7 +297,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
                         "Win32","SMS/QDOS","Acorn RISC OS","Win32 VFAT","MVS",
                         "BeOS","Tandem"};
   if (ZipHeader.PackOS<sizeof(ZipOS)/sizeof(ZipOS[0]))
-    strcpy(Info->HostOS,ZipOS[ZipHeader.PackOS]);
+    lstrcpy(Info->HostOS,ZipOS[ZipHeader.PackOS]);
 
   if (ZipHeader.PackOS==11 && ZipHeader.PackVer>20 && ZipHeader.PackVer<25)
     CharToOem(Item->FindData.cFileName,Item->FindData.cFileName);
@@ -405,8 +424,8 @@ BOOL WINAPI _export GetFormatName(int Type,char *FormatName,char *DefaultExt)
 {
   if (Type==0)
   {
-    strcpy(FormatName,"ZIP");
-    strcpy(DefaultExt,"zip");
+    lstrcpy(FormatName,"ZIP");
+    lstrcpy(DefaultExt,"zip");
     return(TRUE);
   }
   return(FALSE);
@@ -437,7 +456,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     };
     if (Command<sizeof(Commands)/sizeof(Commands[0]))
     {
-      strcpy(Dest,Commands[Command]);
+      lstrcpy(Dest,Commands[Command]);
       return(TRUE);
     }
   }

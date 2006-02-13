@@ -31,6 +31,25 @@
   #endif
 #endif
 
+#if defined(__GNUC__)
+#include "crt.hpp"
+#ifdef __cplusplus
+extern "C"{
+#endif
+  BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
+#ifdef __cplusplus
+};
+#endif
+
+BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
+{
+  (void) lpReserved;
+  (void) dwReason;
+  (void) hDll;
+  return TRUE;
+}
+#endif
+
 /*
 #ifdef _MSC_VER
 #if _MSC_VER < 1310
@@ -272,7 +291,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
         //?????
         Info->DictSize=1<<FileHeader->DictSize;
         //?????
-        strcpy(Info->HostOS,OSID[HostOS].Name);
+        lstrcpy(Info->HostOS,OSID[HostOS].Name);
         Item->CRC32=FileHeader->CRC32;
 
         NextPosition+=FileHeader->PackSize;
@@ -319,8 +338,8 @@ BOOL WINAPI _export GetFormatName(int Type,char *FormatName,char *DefaultExt)
 {
   if (Type==0)
   {
-    strcpy(FormatName,"ACE");
-    strcpy(DefaultExt,"ace");
+    lstrcpy(FormatName,"ACE");
+    lstrcpy(DefaultExt,"ace");
     return(TRUE);
   }
   return(FALSE);
@@ -350,7 +369,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     };
     if (Command<sizeof(Commands)/sizeof(Commands[0]))
     {
-      strcpy(Dest,Commands[Command]);
+      lstrcpy(Dest,Commands[Command]);
       return(TRUE);
     }
   }

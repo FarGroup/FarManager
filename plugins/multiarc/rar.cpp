@@ -26,6 +26,25 @@
   #pragma pack(push,1)
 #endif
 
+#if defined(__GNUC__)
+#include "crt.hpp"
+#ifdef __cplusplus
+extern "C"{
+#endif
+  BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
+#ifdef __cplusplus
+};
+#endif
+
+BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
+{
+  (void) lpReserved;
+  (void) dwReason;
+  (void) hDll;
+  return TRUE;
+}
+#endif
+
 typedef HANDLE (PASCAL *RAROPENARCHIVEEX)(struct RAROpenArchiveDataEx *ArchiveData);
 typedef int (PASCAL *RARCLOSEARCHIVE)(HANDLE hArcData);
 typedef void (PASCAL *RARSETCALLBACK)(HANDLE hArcData,UNRARCALLBACK Callback,LONG UserData);
@@ -242,7 +261,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
       LocalFileTimeToFileTime(&lft,&Item->FindData.ftLastWriteTime);
 
       if (HeaderData.HostOS<sizeof(RarOS)/sizeof(RarOS[0]))
-        strcpy(Info->HostOS,RarOS[HeaderData.HostOS]);
+        lstrcpy(Info->HostOS,RarOS[HeaderData.HostOS]);
       Info->Solid=Flags & 8;
       Info->Comment=HeaderData.Flags & 8;
       Info->Encrypted=HeaderData.Flags & 4;
@@ -335,7 +354,7 @@ struct RARHeaderDataEx
       FILETIME lft;
       DosDateTimeToFileTime(HIWORD(RarHeader.FileTime),LOWORD(RarHeader.FileTime),&lft);
       LocalFileTimeToFileTime(&lft,&Item->FindData.ftLastWriteTime);
-      strcpy(Info->HostOS,RarOS[0]);
+      lstrcpy(Info->HostOS,RarOS[0]);
       Info->Solid=Flags & 8;
       Info->Comment=RarHeader.Flags & 8;
       Info->Encrypted=RarHeader.Flags & 4;
@@ -458,7 +477,7 @@ arctime
       }
 
       if (RarHeader.HostOS<sizeof(RarOS)/sizeof(RarOS[0]))
-        strcpy(Info->HostOS,RarOS[RarHeader.HostOS]);
+        lstrcpy(Info->HostOS,RarOS[RarHeader.HostOS]);
       Info->Solid=Flags & 8;
       Info->Comment=RarHeader.Flags & 8;
       Info->Encrypted=RarHeader.Flags & 4;
@@ -504,8 +523,8 @@ BOOL WINAPI _export GetFormatName(int Type,char *FormatName,char *DefaultExt)
 {
   if (Type==0)
   {
-    strcpy(FormatName,"RAR");
-    strcpy(DefaultExt,"rar");
+    lstrcpy(FormatName,"RAR");
+    lstrcpy(DefaultExt,"rar");
     return(TRUE);
   }
   return(FALSE);
@@ -537,7 +556,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     };
     if (Command<sizeof(Commands)/sizeof(Commands[0]))
     {
-      strcpy(Dest,Commands[Command]);
+      lstrcpy(Dest,Commands[Command]);
       return(TRUE);
     }
   }

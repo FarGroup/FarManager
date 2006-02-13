@@ -27,6 +27,25 @@
   #endif
 #endif
 
+#if defined(__GNUC__)
+#include "crt.hpp"
+#ifdef __cplusplus
+extern "C"{
+#endif
+  BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
+#ifdef __cplusplus
+};
+#endif
+
+BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
+{
+  (void) lpReserved;
+  (void) dwReason;
+  (void) hDll;
+  return TRUE;
+}
+#endif
+
 /*
 #ifdef _MSC_VER
 #if _MSC_VER < 1310
@@ -38,7 +57,6 @@
 #endif
 #endif
 */
-char *strncpy(char *dest, const char *source, size_t n);
 
 #define ARCMARK        0x1A    // special archive marker
 #define FNLEN          13      // file name length
@@ -288,11 +306,9 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
     Info->Comment=1;
   }
 
-  strncpy(Item->FindData.cFileName,Header.Name,sizeof(Item->FindData.cFileName)-1);
-  Item->FindData.cFileName[sizeof(Item->FindData.cFileName)-1]=0;
+  lstrcpyn(Item->FindData.cFileName,Header.Name,sizeof(Item->FindData.cFileName));
 
-  strncpy(Item->FindData.cAlternateFileName,Header.Name,sizeof(Item->FindData.cAlternateFileName)-1);
-  Item->FindData.cAlternateFileName[sizeof(Item->FindData.cAlternateFileName)-1]=0;
+  lstrcpyn(Item->FindData.cAlternateFileName,Header.Name,sizeof(Item->FindData.cAlternateFileName));
 
   Item->FindData.nFileSizeLow=Header.OrigSize;
   Item->FindData.nFileSizeHigh=0;
@@ -335,8 +351,8 @@ BOOL WINAPI _export GetFormatName(int Type,char *FormatName,char *DefaultExt)
 {
   if (Type==ARC_FORMAT)
   {
-    strcpy(FormatName,"ARC");
-    strcpy(DefaultExt,"arc");
+    lstrcpy(FormatName,"ARC");
+    lstrcpy(DefaultExt,"arc");
     return(TRUE);
   }
   return(FALSE);
@@ -366,19 +382,9 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     };
     if (Command<sizeof(Commands)/sizeof(Commands[0]))
     {
-      strcpy(Dest,Commands[Command]);
+      lstrcpy(Dest,Commands[Command]);
       return(TRUE);
     }
   }
   return(FALSE);
-}
-
-char *strncpy(char *dest, const char *source, size_t n)
-{
-  char *src = dest;
-
-  while (n && 0 != (*dest++ = *source++))
-    --n;
-  *dest = 0;
-  return (src);
 }

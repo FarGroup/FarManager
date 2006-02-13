@@ -109,9 +109,9 @@ SelectFormatComboBox::SelectFormatComboBox(FarDialogItem *DialogItem, char *ArcF
         return;
       }
       Items=NewItems;
-      strncpy(Items[Count].Text, Format, sizeof(Items[Count].Text)-1);
+      lstrcpyn(Items[Count].Text, Format, sizeof(Items[Count].Text));
       Items[Count].Flags=(Count==0 && *ArcFormat==0 ||
-                          !stricmp(ArcFormat, Format))?MIF_SELECTED:0;
+                          !FSF.LStricmp(ArcFormat, Format))?MIF_SELECTED:0;
       Count++;
     }
   }
@@ -189,7 +189,7 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     }
     else if(Param1 == PDI_SELARCCOMB)
     {
-      strcpy(pdd->ArcFormat, ((FarDialogItem *)Param2)->Data);
+      lstrcpy(pdd->ArcFormat, ((FarDialogItem *)Param2)->Data);
       Info.SendDlgMessage(hDlg, MAM_SELARC, 0, 0);
     }
     else if(Param1 == PDI_SWITCHESEDT)
@@ -223,7 +223,7 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         char Password1[256],Password2[256];
         Info.SendDlgMessage(hDlg, DM_GETTEXTPTR, PDI_PASS0WEDT, (long)Password1);
         Info.SendDlgMessage(hDlg, DM_GETTEXTPTR, PDI_PASS1WEDT, (long)Password2);
-        if (strcmp(Password1,Password2))
+        if (lstrcmp(Password1,Password2))
         {
           const char *MsgItems[]={GetMsg(MError),GetMsg(MAddPswNotMatch),GetMsg(MOk)};
           Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,COUNT(MsgItems),1);
@@ -281,7 +281,7 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       char Password1[256],Password2[256];
       Info.SendDlgMessage(hDlg, DM_GETTEXTPTR, PDI_PASS0WEDT, (long)Password1);
       Info.SendDlgMessage(hDlg, DM_GETTEXTPTR, PDI_PASS1WEDT, (long)Password2);
-      if(strcmp(Password1,Password2))
+      if(lstrcmp(Password1,Password2))
       {
         const char *MsgItems[]={GetMsg(MError),GetMsg(MAddPswNotMatch),GetMsg(MOk)};
         Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,COUNT(MsgItems),1);
@@ -331,7 +331,7 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     if(!Ret)
       pdd->DefExt[0]=0;
     else
-      strncpy(pdd->DefExt,Buffer,sizeof(pdd->DefExt)-1);
+      lstrcpyn(pdd->DefExt,Buffer,sizeof(pdd->DefExt));
 
     if(IsDelOldDefExt)
       Info.SendDlgMessage(hDlg, MAM_ADDDEFEXT, 0, 0);
@@ -422,7 +422,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
     }
     else
     {
-      strcpy(pdd.ArcFormat,DefaultFormat);
+      lstrcpy(pdd.ArcFormat,DefaultFormat);
       pdd.DefaultPluginNotFound=FALSE;
     }
   }
@@ -513,7 +513,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
     for(I=0; I < sizeof(ListPriorItem)/sizeof(ListPriorItem[0]); ++I)
     {
       ListPriorItem[I].Flags=0;
-      strcpy(ListPriorItem[I].Text,GetMsg(MIdle_Priority_Class+I));
+      lstrcpy(ListPriorItem[I].Text,GetMsg(MIdle_Priority_Class+I));
     }
     ListPriorItem[Opt.PriorityClass].Flags=LIF_SELECTED;
     if(!(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5))
@@ -535,7 +535,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       pdd.NoChangeArcName=TRUE;
       pdd.OldExactState=TRUE;
       RestoreExactState=TRUE;
-      strcpy(DialogItems[PDI_ARCNAMEEDT].Data, ArcName);
+      lstrcpy(DialogItems[PDI_ARCNAMEEDT].Data, ArcName);
     }
     else
     {
@@ -556,7 +556,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
 #else //_GROUP_NAME_
         if(ItemsNumber==1)
         {
-          strcpy(DialogItems[PDI_ARCNAMEEDT].Data.Data, PanelItem->FindData.cFileName);
+          lstrcpy(DialogItems[PDI_ARCNAMEEDT].Data.Data, PanelItem->FindData.cFileName);
           char *Dot=strrchr(DialogItems[PDI_ARCNAMEEDT].Data.Data,'.');
           if(Dot!=NULL)
             *Dot=0;
@@ -565,7 +565,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
         {
           char CurDir[NM];
           GetCurrentDirectory(sizeof(CurDir),CurDir);
-          strcpy(DialogItems[PDI_ARCNAMEEDT].Data.Data, FSF.PointToName(CurDir));
+          lstrcpy(DialogItems[PDI_ARCNAMEEDT].Data.Data, FSF.PointToName(CurDir));
         }
 #endif //else _GROUP_NAME_
         if(pdd.OldExactState && !*ArcName)
@@ -590,7 +590,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
     */
     DialogItems[PDI_BGROUNDCHECK].Selected=Opt.UserBackground;
     /* DJ $ */
-    //strcpy(pdd.OriginalName,DialogItems[PDI_ARCNAMEEDT].Data);
+    //lstrcpy(pdd.OriginalName,DialogItems[PDI_ARCNAMEEDT].Data);
 
 
     if ((OpMode & OPM_SILENT)==0)
@@ -599,8 +599,8 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
                   DialogItems,COUNT(DialogItems),
                   0,0,PluginClass::PutDlgProc,(long)&pdd);
 
-      strcpy(pdd.Password1,DialogItems[PDI_PASS0WEDT].Data);
-      //strcpy(pdd.Password2,DialogItems[PDI_PASS1WEDT].Data); //$ AA 28.11.2001
+      lstrcpy(pdd.Password1,DialogItems[PDI_PASS0WEDT].Data);
+      //lstrcpy(pdd.Password2,DialogItems[PDI_PASS1WEDT].Data); //$ AA 28.11.2001
       Opt.UserBackground=DialogItems[PDI_BGROUNDCHECK].Selected;
       Opt.PriorityClass=DialogItems[PDI_PRIORCBOX].ListPos;
 
@@ -625,7 +625,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
     if(DialogItems[PDI_EXACTNAMECHECK].Selected)
     {
       if(Ext==NULL)
-        strcat(DialogItems[PDI_ARCNAMEEDT].Data, ".");
+        lstrcat(DialogItems[PDI_ARCNAMEEDT].Data, ".");
     }
     else
       AddExt(DialogItems[PDI_ARCNAMEEDT].Data, pdd.DefExt);
@@ -669,16 +669,16 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
     if (SwPos!=NULL)
     {
       char CmdRest[512];
-      strcpy(CmdRest,SwPos[3]=='}' ? SwPos+4:SwPos+3);
+      lstrcpy(CmdRest,SwPos[3]=='}' ? SwPos+4:SwPos+3);
       if (SwPos!=Command && *(SwPos-1)=='{')
         SwPos--;
-      strcpy(SwPos,DialogItems[PDI_SWITCHESEDT].Data);
-      strcat(Command,CmdRest);
+      lstrcpy(SwPos,DialogItems[PDI_SWITCHESEDT].Data);
+      lstrcat(Command,CmdRest);
     }
     else if (*DialogItems[PDI_SWITCHESEDT].Data)
     {
-      strcat(Command," ");
-      strcat(Command,DialogItems[PDI_SWITCHESEDT].Data);
+      lstrcat(Command," ");
+      lstrcat(Command,DialogItems[PDI_SWITCHESEDT].Data);
     }
 
     int IgnoreErrors=(CurArcInfo.Flags & AF_IGNOREERRORS);
@@ -702,7 +702,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       continue;
 
     if (GetFullPathName(DialogItems[PDI_ARCNAMEEDT].Data,sizeof(FullName),FullName,&NamePtr))
-      strcpy(ArcName,FullName);
+      lstrcpy(ArcName,FullName);
     break;
   }
 
@@ -742,7 +742,7 @@ BOOL PluginClass::GetCursorName(char *ArcName, char *ArcFormat, char *ArcExt)
 
   //курсор должен быть вне выделения
   for(i=0; i<pi.SelectedItemsNumber; i++)
-    if(!stricmp(CurItem->FindData.cFileName, SelItems[i].FindData.cFileName))
+    if(!FSF.LStricmp(CurItem->FindData.cFileName, SelItems[i].FindData.cFileName))
       return FALSE;
 
   //под курсором должен быть файл с расширением архива
@@ -755,18 +755,17 @@ BOOL PluginClass::GetCursorName(char *ArcName, char *ArcFormat, char *ArcExt)
       //хитрый хинт, чтение ключа с дефолтом из DefExt
       GetRegKey(Format, "DefExt", DefExt, DefExt, sizeof(DefExt));
 
-      if(!stricmp(Dot, DefExt))
+      if(!FSF.LStricmp(Dot, DefExt))
       {
-        strcpy(ArcName, CurItem->FindData.cFileName);
+        lstrcpy(ArcName, CurItem->FindData.cFileName);
         //int Len=Dot-CurItem->FindData.cFileName-1;
-        //strncpy(ArcName, CurItem->FindData.cFileName, Len);
-        //ArcName[Len]=0;
+        //lstrcpyn(ArcName, CurItem->FindData.cFileName, Len+1);
 
         //выбрать соответствующий архиватор
         ArcPluginNumber=i;
         ArcPluginType=j;
-        strcpy(ArcFormat, Format);
-        strcpy(ArcExt, DefExt);
+        lstrcpy(ArcFormat, Format);
+        lstrcpy(ArcExt, DefExt);
         return TRUE;
       }
     }
@@ -782,18 +781,17 @@ void PluginClass::GetGroopName(PluginPanelItem *Items, int Count, char *ArcName)
   char *Name=Items->FindData.cFileName;
   char *Dot=strrchr(Name, '.');
   int Len=(Dot && !(Items->FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
-          ?(Dot-Name):strlen(Name);
+          ?(Dot-Name):lstrlen(Name);
   for(int i=1; i<Count; i++)
     if(NoGroop || FSF.LStrnicmp(Name, Items[i].FindData.cFileName, Len))
-//    if(strncmpi(Name, Items[i].FindData.cFileName, Len))
+//    if(FSF.LStrnicmp(Name, Items[i].FindData.cFileName, Len))
     {
       //взять имя папки
       char CurDir[NM];
       GetCurrentDirectory(sizeof(CurDir), CurDir);
-      strcpy(ArcName, FSF.PointToName(CurDir));
+      lstrcpy(ArcName, FSF.PointToName(CurDir));
       return;
     }
-  strncpy(ArcName, Name, Len);
-  ArcName[Len]=0;
+  lstrcpyn(ArcName, Name, Len+1);
 }
 #endif //_GROUP_NAME_
