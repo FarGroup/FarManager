@@ -8,6 +8,7 @@
 #include "./CRT/new.hpp"
 #include "./CRT/new_array.hpp"
 #include "./CRT/realloc.hpp"
+#include "./CRT/strdup.hpp"
 
 #if defined(__GNUC__)
 
