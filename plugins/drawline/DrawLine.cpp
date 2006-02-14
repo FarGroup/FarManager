@@ -1,3 +1,4 @@
+#define _FAR_USE_FARFINDDATA
 #include "plugin.hpp"
 #include "drawlng.hpp"
 #include "drawline.hpp"
@@ -42,10 +43,10 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom,int Item)
     return(INVALID_HANDLE_VALUE);
   Reenter=TRUE;
 
-  int LineWidth=1, KeyCode, I;
+  int LineWidth=1, KeyCode, /*I*/;
   BOOL Done=FALSE;
   INPUT_RECORD rec;
-  COORD MousePos={-1,-1};
+  /*COORD MousePos={-1,-1};*/
 
   SetTitle(LineWidth,(LineWidth==1)?MTitleSingle:MTitleDouble);
 
@@ -284,7 +285,7 @@ void ProcessShiftKey(int KeyCode,int LineWidth)
   if (UpLine!=0 && DownLine!=0 && UpLine!=DownLine)
     UpLine=DownLine=LineWidth;
 
-  for (int I=0;I<sizeof(BoxChar);I++)
+  for (size_t I=0;I<sizeof(BoxChar);I++)
     if (LeftLine==BoxLeft[I] && UpLine==BoxUp[I] &&
         RightLine==BoxRight[I] && DownLine==BoxDown[I])
     {
@@ -354,7 +355,7 @@ void GetEnvType(char *NewString,int StringLength,struct EditorInfo *ei,
     Info.EditorControl(ECTL_EDITORTOOEM,&ect);
   }
   LeftLine=UpLine=RightLine=DownLine=0;
-  for (int I=0;I<sizeof(BoxChar);I++)
+  for (size_t I=0;I<sizeof(BoxChar);I++)
   {
     if (LeftChar==BoxChar[I])
       LeftLine=BoxRight[I];
