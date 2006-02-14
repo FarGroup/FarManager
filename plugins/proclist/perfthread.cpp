@@ -53,7 +53,7 @@ static int getcounter(char*p)
 {
     char* p2;
     for( p2=p-2; isdigit(*p2); p2--) ;
-    return atoi(p2+1);
+    return FSF.atoi(p2+1);
 }
 
 PerfThread::PerfThread(Plist& plist, const char* hostname, const char* pUser, const char* pPasw) : PlistPlugin(plist)
@@ -86,7 +86,7 @@ PerfThread::PerfThread(Plist& plist, const char* hostname, const char* pUser, co
 
     LANGID lid = MAKELANGID( LANG_ENGLISH, SUBLANG_NEUTRAL );
 
-    wsprintf(pf.szSubKey, "Software\\Microsoft\\Windows NT\\CurrentVersion\\Perflib\\%03X", lid );
+    FSF.sprintf(pf.szSubKey, "Software\\Microsoft\\Windows NT\\CurrentVersion\\Perflib\\%03X", lid );
 
     RegKey hKeyNames( hHKLM, pf.szSubKey, KEY_READ);
     if(!hKeyNames)
@@ -117,23 +117,23 @@ PerfThread::PerfThread(Plist& plist, const char* hostname, const char* pUser, co
     // finally null terminated at the end.  the strings are in pairs of
     // counter number and counter name.
 
-    for(char* p = buf; *p; p += strlen(p)+1 ) {
+    for(char* p = buf; *p; p += lstrlen(p)+1 ) {
 
-      if (stricmp(p, "Process")==0)
-        itoa(getcounter(p), pf.szSubKey, 10);
-      else if (!pf.dwProcessIdTitle && stricmp(p, "ID Process")==0)
+      if (FSF.LStricmp(p, "Process")==0)
+        FSF.itoa(getcounter(p), pf.szSubKey, 10);
+      else if (!pf.dwProcessIdTitle && FSF.LStricmp(p, "ID Process")==0)
         pf.dwProcessIdTitle = getcounter(p);
-      else if (!pf.dwPriorityTitle && stricmp(p, "Priority Base")== 0)
+      else if (!pf.dwPriorityTitle && FSF.LStricmp(p, "Priority Base")== 0)
         pf.dwPriorityTitle = getcounter(p);
-      else if (!pf.dwThreadTitle && stricmp(p, "Thread Count") == 0)
+      else if (!pf.dwThreadTitle && FSF.LStricmp(p, "Thread Count") == 0)
         pf.dwThreadTitle = getcounter(p);
-      else if (!pf.dwCreatingPIDTitle && stricmp(p, "Creating Process ID") == 0)
+      else if (!pf.dwCreatingPIDTitle && FSF.LStricmp(p, "Creating Process ID") == 0)
         pf.dwCreatingPIDTitle = getcounter(p);
-      else if (!pf.dwElapsedTitle && stricmp(p, "Elapsed Time") == 0)
+      else if (!pf.dwElapsedTitle && FSF.LStricmp(p, "Elapsed Time") == 0)
         pf.dwElapsedTitle = getcounter(p);
       else
         for(int i=0; i<NCOUNTERS; i++)
-          if(!pf.dwCounterTitles[i] && stricmp(p,Counters[i].Name)==0)
+          if(!pf.dwCounterTitles[i] && FSF.LStricmp(p,Counters[i].Name)==0)
             pf.dwCounterTitles[i] = getcounter(p);
     }
     delete buf;
@@ -322,13 +322,12 @@ void PerfThread::Refresh()
 
         if(pOldTask) { // copy process' data from pOldTask to Task
         /*
-            strcpy(Task.ProcessName, pOldTask->ProcessName);
-            strcpy(Task.FullPath, pOldTask->FullPath);
-            strcpy(Task.CommandLine, pOldTask->CommandLine);
+            lstrcpy(Task.ProcessName, pOldTask->ProcessName);
+            lstrcpy(Task.FullPath, pOldTask->FullPath);
+            lstrcpy(Task.CommandLine, pOldTask->CommandLine);
             Task.ftCreation = pOldTask->ftCreation;
             */
-            memcpy(Task.ProcessName, pOldTask->ProcessName,
-                sizeof(Task) - offsetof(ProcessPerfData, ProcessName));
+            memcpy(Task.ProcessName, pOldTask->ProcessName, sizeof(Task) - offsetof(ProcessPerfData, ProcessName));
         }
         else {
           HANDLE hProcess = *HostName || Task.dwProcessId<=8 ? 0 :
@@ -351,10 +350,10 @@ void PerfThread::Refresh()
             // convert it to ascii
             if (WideCharToMultiByte( CP_OEMCP, 0, (LPCWSTR)((DWORD)pInst + pInst->NameOffset),
                     -1, Task.ProcessName, sizeof(Task.ProcessName) - 5, 0, 0) == 0)
-                strcpy( Task.ProcessName, "unknown" );
+                lstrcpy( Task.ProcessName, "unknown" );
             else
                 if(Task.dwProcessId>8)
-                    strcat( Task.ProcessName, ".exe" );
+                    lstrcat( Task.ProcessName, ".exe" );
         }
         pInst = (PPERF_INSTANCE_DEFINITION) ((DWORD)pCounter + pCounter->ByteLength);
     }
@@ -385,9 +384,9 @@ void PerfThread::RefreshWMIData()
             WMI.GetProcessOwner((*pData)[i].dwProcessId, (*pData)[i].Owner);
             int iSessionId = WMI.GetProcessSessionId((*pData)[i].dwProcessId);
             if(iSessionId > 0) {
-                char* p = (*pData)[i].Owner + strlen((*pData)[i].Owner);
+                char* p = (*pData)[i].Owner + lstrlen((*pData)[i].Owner);
                 *p++ = ':';
-                itoa(iSessionId, p, 10);
+                FSF.itoa(iSessionId, p, 10);
             }
             LASTBYTE((*pData)[i].Owner) = '*';
         }

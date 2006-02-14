@@ -64,7 +64,7 @@ inline int Message(unsigned Flags, char *HelpTopic, PCSTR*Items, int nItems, int
 class Plist
 {
   private:
-    void PrintVersionInfo(FILE* InfoFile, char* FullPath);
+    void PrintVersionInfo(HANDLE InfoFile, char* FullPath);
     void Reread();
     void FileTimeToText(FILETIME *CurFileTime,FILETIME *SrcTime,char *TimeText);
     void PutToCmdLine(char* tmp);
@@ -85,7 +85,7 @@ class Plist
         return (*Info.Menu)(Info.ModuleNumber, -1, -1, 0, Flags, Title, Bottom, HelpTopic, BreakKeys,0, Item, ItemsNumber);
     }
     static bool TranslateMode(char* src, char* dest);
-    void PrintOwnerInfo(FILE* InfoFile, DWORD dwPid);
+    void PrintOwnerInfo(HANDLE InfoFile, DWORD dwPid);
 
     bool ConnectWMI();
     void DisconnectWMI();
@@ -160,9 +160,8 @@ BOOL KillProcess(DWORD pid);
 BOOL KillProcessNT(DWORD pid,HWND hwnd);
 
 char *GetMsg(int MsgId);
-void InitDialogItems(InitDialogItem *Init,FarDialogItem *Item,
-                     int ItemsNumber);
-int LocalStricmp(char *Str1,char *Str2);
+void InitDialogItems(InitDialogItem *Init,FarDialogItem *Item, int ItemsNumber);
+//int LocalStricmp(char *Str1,char *Str2);
 void ConvertDate(const FILETIME &ft,char *DateText,char *TimeText);
 int Config();
 
@@ -203,11 +202,11 @@ BOOL GetList95(PluginPanelItem*& pPanelItem,int &ItemsNumber);
 DWORD GetHeapSize(DWORD dwPID);
 char* PrintNTUptime(void*p);
 char* PrintTime(ULONGLONG ul100ns, bool bDays=true);
-void DumpNTCounters(FILE* InfoFile, PerfThread& PThread, DWORD dwPid, DWORD dwThreads);
-void PrintNTCurDirAndEnv(FILE* InfoFile, HANDLE hProcess, BOOL bExportEnvironment);
-void PrintModules95(FILE* InfoFile, DWORD dwPID, _Opt& opt);
-void PrintModulesNT(FILE* InfoFile, DWORD dwPID, _Opt& opt);
-bool PrintHandleInfo(DWORD dwPID, FILE* file, bool bIncludeUnnamed, PerfThread* pThread=0);
+void DumpNTCounters(HANDLE InfoFile, PerfThread& PThread, DWORD dwPid, DWORD dwThreads);
+void PrintNTCurDirAndEnv(HANDLE InfoFile, HANDLE hProcess, BOOL bExportEnvironment);
+void PrintModules95(HANDLE InfoFile, DWORD dwPID, _Opt& opt);
+void PrintModulesNT(HANDLE InfoFile, DWORD dwPID, _Opt& opt);
+bool PrintHandleInfo(DWORD dwPID, HANDLE file, bool bIncludeUnnamed, PerfThread* pThread=0);
 extern bool GetPData95(ProcessData& pdata);
 struct ProcessPerfData;
 extern bool GetPDataNT(ProcessDataNT& pdata, ProcessPerfData& pd);
@@ -221,3 +220,6 @@ void GetViewOptions(FarDialogItem* Items, _Opt& Opt);
     static P##_name p##_name;   \
     if(!p##_name)               \
        p##_name = (P##_name)GetProcAddress((_module), #_name);
+
+int fprintf(HANDLE stream, const char *format, ...);
+int fputc(int c, HANDLE stream);

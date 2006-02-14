@@ -73,14 +73,14 @@ int Config()
   DialogItems[1].Selected = Opt.AddToDisksMenu;
   DialogItems[4].Selected = Opt.AddToPluginsMenu;
   if (Opt.DisksMenuDigit)
-    itoa(Opt.DisksMenuDigit,DialogItems[2].Data,10);
+    FSF.itoa(Opt.DisksMenuDigit,DialogItems[2].Data,10);
 
   int ExitCode = Info.Dialog(Info.ModuleNumber,-1,-1,76,16,"Config",DialogItems,sizeof(DialogItems)/sizeof(*DialogItems));
   if (ExitCode != sizeof(DialogItems)/sizeof(*DialogItems) - 2)
     return FALSE;
 
   Opt.AddToDisksMenu = DialogItems[1].Selected;
-  Opt.DisksMenuDigit = atoi(DialogItems[2].Data);
+  Opt.DisksMenuDigit = FSF.atoi(DialogItems[2].Data);
   Opt.AddToPluginsMenu = DialogItems[4].Selected;
   GetViewOptions(DialogItems+NITEMS-NVIEWITEMS-2, ::Opt);
 

@@ -7,7 +7,7 @@ HKEY OpenRegKey(const char *Key);
 void SetRegKey(const char *Key,const char *ValueName,char *ValueData)
 {
   HKEY hKey=CreateRegKey(Key);
-  RegSetValueEx(hKey,ValueName,0,REG_SZ,(BYTE*)ValueData,strlen(ValueData)+1);
+  RegSetValueEx(hKey,ValueName,0,REG_SZ,(BYTE*)ValueData,lstrlen(ValueData)+1);
   RegCloseKey(hKey);
 }
 
@@ -36,7 +36,7 @@ int GetRegKey(const char *Key,const char *ValueName,char *ValueData,char *Defaul
   RegCloseKey(hKey);
   if (hKey==NULL || ExitCode!=ERROR_SUCCESS)
   {
-    strcpy(ValueData,Default);
+    lstrcpy(ValueData,Default);
     return FALSE;
   }
   return TRUE;
@@ -87,7 +87,7 @@ int GetRegKey(const char *Key,const char *ValueName,BYTE *ValueData,BYTE *Defaul
 void DeleteRegKey(char *Key)
 {
   char FullKeyName[80];
-  wsprintf(FullKeyName,"%s%s%s",PluginRootKey,*Key ? "\\":"",Key);
+  FSF.sprintf(FullKeyName,"%s%s%s",PluginRootKey,*Key ? "\\":"",Key);
   RegDeleteKey(HKEY_CURRENT_USER,FullKeyName);
 }
 
@@ -97,9 +97,9 @@ HKEY CreateRegKey(const char *Key)
   HKEY hKey;
   char FullKeyName[MAX_PATH];
   if(Key && *Key)
-    wsprintf(FullKeyName,"%s\\%s",PluginRootKey,Key);
+    FSF.sprintf(FullKeyName,"%s\\%s",PluginRootKey,Key);
   else
-    strcpy(FullKeyName, PluginRootKey);
+    lstrcpy(FullKeyName, PluginRootKey);
   RegCreateKeyEx(HKEY_CURRENT_USER,FullKeyName,0,0,0,KEY_WRITE,0,&hKey,0);
   return hKey;
 }
@@ -110,9 +110,9 @@ HKEY OpenRegKey(const char *Key)
   HKEY hKey;
   char FullKeyName[MAX_PATH];
   if(Key && *Key)
-    wsprintf(FullKeyName,"%s\\%s",PluginRootKey,Key);
+    FSF.sprintf(FullKeyName,"%s\\%s",PluginRootKey,Key);
   else
-    strcpy(FullKeyName, PluginRootKey);
+    lstrcpy(FullKeyName, PluginRootKey);
   if (RegOpenKeyEx(HKEY_CURRENT_USER,FullKeyName,0,KEY_QUERY_VALUE,&hKey)!=ERROR_SUCCESS)
     return NULL;
   return hKey;

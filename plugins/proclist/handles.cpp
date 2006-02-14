@@ -119,7 +119,7 @@ DWORD WINAPI GetFileNameThread(PVOID Param)
     return 0;
 }
 
-bool PrintFileName(HANDLE handle, FILE* file)
+bool PrintFileName(HANDLE handle, HANDLE file)
 {
     bool ret = false;
     DYNAMIC_ENTRY(NtQueryObject,GetModuleHandle("ntdll"))
@@ -192,7 +192,7 @@ char* constStrTypes[] = {
 WORD GetTypeFromTypeToken( LPCSTR typeToken)
 {
     for ( WORD i = 1; i < sizeof(constStrTypes)/sizeof(*constStrTypes); i++ )
-        if ( !stricmp(constStrTypes[i], typeToken) )
+        if ( !FSF.LStricmp(constStrTypes[i], typeToken) )
             return i;
     return OB_TYPE_UNKNOWN;
 }
@@ -203,7 +203,7 @@ WORD GetType( HANDLE h)
     return GetTypeToken( h, strType, sizeof(strType)) ? GetTypeFromTypeToken(strType) : OB_TYPE_UNKNOWN;
 }
 
-bool PrintNameByType(HANDLE handle, WORD type, FILE* file, PerfThread* pThread=0)
+bool PrintNameByType(HANDLE handle, WORD type, HANDLE file, PerfThread* pThread=0)
 {
     bool ret = false;
     DYNAMIC_ENTRY(NtQueryObject,GetModuleHandle("ntdll"))
@@ -256,7 +256,7 @@ bool PrintNameByType(HANDLE handle, WORD type, FILE* file, PerfThread* pThread=0
                     char *s0 = 0;
                     if(!memicmp(ws1, USER, sizeof(USER)-2)) {
                             ws1 += sizeof(USER) / 2 - 1;
-                            size_t l  = wcslen(pUserAccountID);
+                            size_t l  = lstrlenW(pUserAccountID);
                             if(l>0 && !memicmp(ws1,pUserAccountID,l*2)) {
                                 s0 = "HKCU";
                                 ws1 += l;
@@ -285,7 +285,7 @@ bool PrintNameByType(HANDLE handle, WORD type, FILE* file, PerfThread* pThread=0
     return ret;
 }
 
-bool PrintNameAndType(HANDLE h, DWORD dwPID, FILE* file, PerfThread* pThread=0)
+bool PrintNameAndType(HANDLE h, DWORD dwPID, HANDLE file, PerfThread* pThread=0)
 {
     HANDLE handle, hRemoteProcess=NULL;
     bool remote = dwPID != GetCurrentProcessId();
@@ -330,7 +330,7 @@ inline bool IsSupportedHandle( SYSTEM_HANDLE& handle )
 
         return true;
 }
-bool PrintHandleInfo(DWORD dwPID, FILE* file, bool bIncludeUnnamed, PerfThread* pThread)
+bool PrintHandleInfo(DWORD dwPID, HANDLE file, bool bIncludeUnnamed, PerfThread* pThread)
 {
     bool ret = true;
     DWORD i;
@@ -400,7 +400,7 @@ cleanup:
 void main(int ac, char** av)
 {
     if(ac<2) return;
-    PrintHandleInfo(atoi(av[1]),stdout);
+    PrintHandleInfo(FSF.atoi(av[1]),stdout);
 }
 */
 

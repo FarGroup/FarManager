@@ -27,7 +27,7 @@ void GetPData95(ProcessData& pdata, PROCESSENTRY32& pe32)
     pdata.Size = sizeof(pdata);
     pdata.dwPID = pe32.th32ProcessID;
     pdata.dwParentPID = pe32.th32ParentProcessID;
-    strcpy(pdata.FullPath, pe32.szExeFile);
+    lstrcpy(pdata.FullPath, pe32.szExeFile);
     pdata.dwPrBase = pe32.pcPriClassBase;
     pdata.dwPID = pe32.th32ProcessID;
 }
@@ -91,19 +91,19 @@ BOOL GetList95(PluginPanelItem*& pPanelItem,int &ItemsNumber)
         CurItem.FindData.nFileSizeLow = dwTotalSize;// + GetHeapSize(pe32.th32ProcessID);
         CurItem.NumberOfLinks = pe32.cntThreads;
 
-        if (!LocalStricmp(pe32.szExeFile,me32.szExePath))
+        if (!FSF.LStricmp(pe32.szExeFile,me32.szExePath))
         {
-          strcpy(CurItem.FindData.cFileName,me32.szModule);
+          lstrcpy(CurItem.FindData.cFileName,me32.szModule);
           pdata.uAppType=32;
         }
         else
         {
           if (!GetModuleNameFromExe(pe32.szExeFile,CurItem.FindData.cFileName,sizeof(CurItem.FindData.cFileName)))
-            strcpy(CurItem.FindData.cFileName,me32.szModule);
+            lstrcpy(CurItem.FindData.cFileName,me32.szModule);
           pdata.uAppType=16;
         }
         CharToOem(CurItem.FindData.cFileName, CurItem.FindData.cFileName);
-        wsprintf(CurItem.FindData.cAlternateFileName, "%08X", pe32.th32ProcessID);
+        FSF.sprintf(CurItem.FindData.cAlternateFileName, "%08X", pe32.th32ProcessID);
         GetPData95(pdata, pe32);
 
         ItemsNumber++;
@@ -246,11 +246,9 @@ BOOL GetModuleNameFromExe(LPCSTR szFileName,LPSTR szModuleName,WORD cbLen)
   }
 
   pNEHdr=(PIMAGE_OS2_HEADER)((LPSTR)pDosExeHdr + pDosExeHdr -> e_lfanew);
-  if (pDosExeHdr -> e_magic == IMAGE_DOS_SIGNATURE
-      && pNEHdr -> ne_magic == IMAGE_OS2_SIGNATURE)
+  if (pDosExeHdr -> e_magic == IMAGE_DOS_SIGNATURE && pNEHdr -> ne_magic == IMAGE_OS2_SIGNATURE)
   {
-    strncpy(szModuleName, (LPSTR)pNEHdr + pNEHdr->ne_restab +1,
-            Min((BYTE)*((LPSTR)pNEHdr + pNEHdr -> ne_restab) + 1,cbLen));
+    lstrcpyn(szModuleName, (LPSTR)pNEHdr + pNEHdr->ne_restab +1,Min((BYTE)*((LPSTR)pNEHdr + pNEHdr -> ne_restab) + 1,cbLen)+1);
     bResult=TRUE;
   }
   else
@@ -263,9 +261,9 @@ BOOL GetModuleNameFromExe(LPCSTR szFileName,LPSTR szModuleName,WORD cbLen)
   return bResult;
 }
 
-void PrintModuleVersion(FILE* InfoFile, char* pVersion, char* pDesc, int len);
+void PrintModuleVersion(HANDLE InfoFile, char* pVersion, char* pDesc, int len);
 
-void PrintModules95(FILE* InfoFile, DWORD dwPID, _Opt& Opt)
+void PrintModules95(HANDLE InfoFile, DWORD dwPID, _Opt& Opt)
 {
     if (pModule32First==NULL && !InitToolhelp32())
         return;

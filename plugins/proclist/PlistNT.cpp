@@ -150,8 +150,8 @@ BOOL GetListNT(PluginPanelItem* &pPanelItem,int &ItemsNumber,PerfThread& Thread)
       CurItem.Flags|=PPIF_USERDATA;
       lstrcpyn(CurItem.FindData.cFileName,pd.ProcessName,sizeof(CurItem.FindData.cFileName));
       if(*pd.Owner) {
-        CurItem.Owner = new char[strlen(pd.Owner)+1];
-        strcpy(CurItem.Owner, pd.Owner);
+        CurItem.Owner = new char[lstrlen(pd.Owner)+1];
+        lstrcpy(CurItem.Owner, pd.Owner);
       }
       CharToOem(CurItem.FindData.cFileName, CurItem.FindData.cFileName);
 
@@ -169,7 +169,7 @@ BOOL GetListNT(PluginPanelItem* &pPanelItem,int &ItemsNumber,PerfThread& Thread)
 
       CurItem.PackSize = pd.dwProcessId;
       if(pd.dwProcessId)
-        itoa(pd.dwProcessId, CurItem.FindData.cAlternateFileName, 10);
+        FSF.itoa(pd.dwProcessId, CurItem.FindData.cAlternateFileName, 10);
       CurItem.NumberOfLinks = pd.dwThreads;
 
       GetPDataNT( *(ProcessDataNT*)CurItem.UserData, pd);
@@ -336,16 +336,16 @@ char* PrintTime(ULONG s, bool bDays=true)
     m %= 60;
     static char buf[32];
     if(!bDays || h<24)
-    wsprintf(buf, "%02d:%02d:%02d", h, m, s);
+      FSF.sprintf(buf, "%02d:%02d:%02d", h, m, s);
     else
-    wsprintf(buf, "%d %02d:%02d:%02d", h/24, h%24, m, s);
+      FSF.sprintf(buf, "%d %02d:%02d:%02d", h/24, h%24, m, s);
     return buf;
 }
 
 char* PrintTime(ULONGLONG ul100ns, bool bDays)
 {
     char* buf = PrintTime((ULONG)(ul100ns/10000000), bDays);
-    wsprintf(buf+strlen(buf), ".%03d", (ul100ns/1000000)%1000 );
+    FSF.sprintf(buf+lstrlen(buf), ".%03d", (ul100ns/1000000)%1000 );
     return buf;
 }
 
@@ -354,40 +354,44 @@ char* PrintNTUptime(void*p)
     return PrintTime((ULONG)((ProcessDataNT*)p)->dwElapsedTime);
 }
 
-void DumpNTCounters(FILE* InfoFile, PerfThread& Thread, DWORD dwPid, DWORD dwThreads)
+void DumpNTCounters(HANDLE InfoFile, PerfThread& Thread, DWORD dwPid, DWORD dwThreads)
 {
+    char tmp[100];
     fputc('\n',InfoFile);
 
     Lock l(&Thread);
     ProcessPerfData* pdata = Thread.GetProcessData(dwPid, dwThreads);
     if(!pdata)
-    return;
+      return;
     const PerfLib* pf = Thread.GetPerfLib();
 
     for(size_t i=0; i<sizeof(Counters)/sizeof(*Counters); i++)
     {
       if(!pf->dwCounterTitles[i]) // counter is absent
           continue;
-      char buf[28]; buf[sizeof(buf)-2]=0;
-      strncpy(buf,GetMsg(Counters[i].idName),sizeof(buf)-2);
+      char buf[28];
+      lstrcpyn(buf,GetMsg(Counters[i].idName),sizeof(buf)-2);
       /*if(Opt.AnsiOutput)
           OemToChar(buf,buf);*/
-      strcat(buf,":");
+      lstrcat(buf,":");
       fprintf(InfoFile, "%-24s ", buf);
 
       switch(pf->CounterTypes[i]) {
           case PERF_COUNTER_RAWCOUNT:
           // Display as is.  No Display Suffix.
-              fprintf(InfoFile, "%10d\n", *(DWORD*)&pdata->qwResults[i]);
+              FSF.sprintf(tmp, "%10d\n", *(DWORD*)&pdata->qwResults[i]);
+              fprintf(InfoFile, "%s", tmp);
           break;
           case PERF_COUNTER_LARGE_RAWCOUNT: //  same, large int
-              fprintf(InfoFile, "%10.0f\n", (FLOAT)pdata->qwResults[i]);
+              FSF.sprintf(tmp, "%10.0f\n", (FLOAT)pdata->qwResults[i]);
+              fprintf(InfoFile, "%s", tmp);
           break;
           case PERF_100NSEC_TIMER:
           // 64-bit Timer in 100 nsec units. Display delta divided by
           // delta time.  Display suffix: "%"
               //fprintf(InfoFile, "%10.0f%%\n", (FLOAT)pdata->qwResults[i]);
-              fprintf(InfoFile, "%s %7.0f%%\n", PrintTime((ULONGLONG)pdata->qwCounters[i]), (FLOAT)pdata->qwResults[i]);
+              FSF.sprintf(tmp, "%s %7.0f%%\n", PrintTime((ULONGLONG)pdata->qwCounters[i]), (FLOAT)pdata->qwResults[i]);
+              fprintf(InfoFile, "%s", tmp);
           break;
           case PERF_COUNTER_COUNTER:
           // 32-bit Counter.  Divide delta by delta time.  Display suffix: "/sec"
@@ -395,7 +399,8 @@ void DumpNTCounters(FILE* InfoFile, PerfThread& Thread, DWORD dwPid, DWORD dwThr
           break;
           case PERF_COUNTER_BULK_COUNT: //PERF_COUNTER_BULK_COUNT
           // 64-bit Counter.  Divide delta by delta time. Display Suffix: "/sec"
-              fprintf(InfoFile, "%10.0f  %5.0f%s\n", (FLOAT)pdata->qwCounters[i], (FLOAT)pdata->qwResults[i], GetMsg(MperSec));//Opt.AnsiOutput
+              FSF.sprintf(tmp, "%10.0f  %5.0f%s\n", (FLOAT)pdata->qwCounters[i], (FLOAT)pdata->qwResults[i], GetMsg(MperSec));//Opt.AnsiOutput
+              fprintf(InfoFile, "%s", tmp);
           break;
           default:
               fputc('\n',InfoFile);
@@ -403,7 +408,7 @@ void DumpNTCounters(FILE* InfoFile, PerfThread& Thread, DWORD dwPid, DWORD dwThr
     }
 }
 
-void PrintNTCurDirAndEnv(FILE* InfoFile, HANDLE hProcess, BOOL bExportEnvironment)
+void PrintNTCurDirAndEnv(HANDLE InfoFile, HANDLE hProcess, BOOL bExportEnvironment)
 {
     OemString* sCurDir=0;
     char *pEnvStrings = 0;
@@ -418,7 +423,7 @@ void PrintNTCurDirAndEnv(FILE* InfoFile, HANDLE hProcess, BOOL bExportEnvironmen
     if(pEnvStrings)
     {
         fprintf(InfoFile, "%s\n\n", GetMsg(MEnvironment));//Opt.AnsiOutput
-        for(char* p = pEnvStrings; *p; p+=strlen(p)+1)
+        for(char* p = pEnvStrings; *p; p+=lstrlen(p)+1)
         {
         //if(!Opt.AnsiOutput)
             CharToOem(p,p);
@@ -429,7 +434,7 @@ void PrintNTCurDirAndEnv(FILE* InfoFile, HANDLE hProcess, BOOL bExportEnvironmen
     }
 }
 
-void PrintModuleVersion(FILE* InfoFile, char* pVersion, char* pDesc, int len)
+void PrintModuleVersion(HANDLE InfoFile, char* pVersion, char* pDesc, int len)
 {
     //Changes pVersion and pDesc contents!
 
@@ -450,7 +455,7 @@ void PrintModuleVersion(FILE* InfoFile, char* pVersion, char* pDesc, int len)
     }
 }
 
-void PrintModulesNT(FILE* InfoFile, DWORD dwPID, _Opt& Opt)
+void PrintModulesNT(HANDLE InfoFile, DWORD dwPID, _Opt& Opt)
 {
     ModuleData Data;
     HANDLE hProcess =

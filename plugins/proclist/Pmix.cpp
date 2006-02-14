@@ -21,13 +21,13 @@ void InitDialogItems(struct InitDialogItem *Init,struct FarDialogItem *Item,
     Item[i].Flags=Init[i].Flags;
     Item[i].DefaultButton=Init[i].DefaultButton;
     if ((unsigned int)Init[i].Data<2000)
-      strcpy(Item[i].Data,GetMsg((unsigned int)Init[i].Data));
+      lstrcpy(Item[i].Data,GetMsg((unsigned int)Init[i].Data));
     else
-      strcpy(Item[i].Data,Init[i].Data);
+      lstrcpy(Item[i].Data,Init[i].Data);
   }
 }
 
-
+/*
 int LocalStricmp(char *Str1,char *Str2)
 {
   char AnsiStr1[8192],AnsiStr2[8192];
@@ -37,13 +37,14 @@ int LocalStricmp(char *Str1,char *Str2)
   CharLower(AnsiStr2);
   return(stricmp(AnsiStr1,AnsiStr2));
 }
+*/
 
 /*
 void AddEndSlash(char *Path)
 {
-  int Length=strlen(Path);
+  int Length=lstrlen(Path);
   if (Length==0 || Path[Length-1]!='\\' && Path[Length-1]!='/')
-    strcat(Path,"\\");
+    lstrcat(Path,"\\");
 }
 */
 
@@ -88,13 +89,13 @@ void ConvertDate(const FILETIME& ft,char *DateText,char *TimeText)
         st.wHour=12;
     }
     if (TimeLength<7)
-      wsprintf(TimeText,"%02d%c%02d%s",st.wHour,TimeSeparator,st.wMinute,Letter);
+      FSF.sprintf(TimeText,"%02d%c%02d%s",st.wHour,TimeSeparator,st.wMinute,Letter);
     else
     {
       char FullTime[100];
-      wsprintf(FullTime,"%02d%c%02d%c%02d.%03d",st.wHour,TimeSeparator,
+      FSF.sprintf(FullTime,"%02d%c%02d%c%02d.%03d",st.wHour,TimeSeparator,
               st.wMinute,TimeSeparator,st.wSecond,st.wMilliseconds);
-      wsprintf(TimeText,"%.*s",TimeLength,FullTime);
+      FSF.sprintf(TimeText,"%.*s",TimeLength,FullTime);
     }*/
   }
 
@@ -106,13 +107,13 @@ void ConvertDate(const FILETIME& ft,char *DateText,char *TimeText)
     switch(DateFormat)
     {
       case 0:
-        wsprintf(DateText,"%02d%c%02d%c%02d",st.wMonth,DateSeparator,st.wDay,DateSeparator,st.wYear);
+        FSF.sprintf(DateText,"%02d%c%02d%c%02d",st.wMonth,DateSeparator,st.wDay,DateSeparator,st.wYear);
         break;
       case 1:
-        wsprintf(DateText,"%02d%c%02d%c%02d",st.wDay,DateSeparator,st.wMonth,DateSeparator,st.wYear);
+        FSF.sprintf(DateText,"%02d%c%02d%c%02d",st.wDay,DateSeparator,st.wMonth,DateSeparator,st.wYear);
         break;
       default:
-        wsprintf(DateText,"%02d%c%02d%c%02d",st.wYear,DateSeparator,st.wMonth,DateSeparator,st.wDay);
+        FSF.sprintf(DateText,"%02d%c%02d%c%02d",st.wYear,DateSeparator,st.wMonth,DateSeparator,st.wDay);
         break;
     }*/
   }
@@ -123,7 +124,7 @@ int GetDateFormat()
 {
   char Info[100];
   GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_IDATE,Info, sizeof(Info));
-  return(atoi(Info));
+  return(FSF.atoi(Info));
 }
 
 int GetDateSeparator()
@@ -155,7 +156,7 @@ int WinError(char* pSourceModule, BOOL bDown)
   if(lpMsgBuf)
     bAllocated = TRUE;
   else {
-      wsprintf(ErrBuf, "Error 0x%x", dwLastErr);
+      FSF.sprintf(ErrBuf, "Error 0x%x", dwLastErr);
       lpMsgBuf = ErrBuf;
   }
   CharToOem(lpMsgBuf, lpMsgBuf);
@@ -163,8 +164,8 @@ int WinError(char* pSourceModule, BOOL bDown)
   static const char* items[]={0,0,0,0};
   items[0] = GetMsg(MError); items[3] = GetMsg(MOk);
 
-  if(strlen(lpMsgBuf) > 64)
-      for(size_t i=strlen(lpMsgBuf)/2; i<strlen(lpMsgBuf); i++)
+  if(lstrlen(lpMsgBuf) > 64)
+      for(int i=lstrlen(lpMsgBuf)/2; i<lstrlen(lpMsgBuf); i++)
           if(lpMsgBuf[i]==' ') { lpMsgBuf[i] = '\n'; break; }
   items[1] = strtok(lpMsgBuf,"\r\n");
   items[2] = strtok(NULL,"\r\n"); if(!items[2]) items[2] = items[3];
@@ -176,14 +177,14 @@ int WinError(char* pSourceModule, BOOL bDown)
 
 OemString::OemString(LPCSTR pAnsi)
 {
-    pStr = new char[strlen(pAnsi)+1];
+    pStr = new char[lstrlen(pAnsi)+1];
     //if(!Opt.AnsiOutput)
     CharToOem(pAnsi, pStr);
 }
 
 OemString::OemString(LPCWSTR pWide)
 {
-    int nBytes = wcslen(pWide)+1;
+    int nBytes = lstrlenW(pWide)+1;
     pStr = new char[nBytes];
     //if(!Opt.AnsiOutput)
     WideCharToMultiByte(CP_OEMCP, 0, pWide, -1, pStr, nBytes, 0, 0);

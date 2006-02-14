@@ -5,6 +5,7 @@ NAME = Proclist
 DLLNAME = $(NAME).dll
 DLLFULLNAME = $(DLLDIR)/$(DLLNAME)
 SRCS = Proclist.cpp \
+fileio.cpp \
 handles.cpp \
 Pcfg.cpp \
 Pclass.cpp \

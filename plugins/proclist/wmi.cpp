@@ -17,7 +17,7 @@ BStr::BStr(LPCSTR str)
         bstr = 0;
         return;
     }
-    int nConvertedLen = strlen(str);
+    int nConvertedLen = lstrlen(str);
     bstr = ::SysAllocStringLen(NULL, nConvertedLen);
     MultiByteToWideChar(CP_OEMCP, 0, str, -1, bstr, nConvertedLen);
 }

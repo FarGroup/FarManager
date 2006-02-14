@@ -9,8 +9,8 @@ class StrTok {
     char* buf;
 public:
     StrTok(char* str, char* token) : tok (token) {
-        buf = new char[strlen(str)+1];
-        strcpy(buf, str);
+        buf = new char[lstrlen(str)+1];
+        lstrcpy(buf, str);
         ptr = strtok(buf,token);
     }
     operator char* () { return ptr; }
@@ -97,7 +97,7 @@ void Plist::InitializePanelModes()
             PanelModesRemote[iMode].StatusColumnTypes = PanelModeBuffer + iMode*MAX_MODE_STR*8 + MAX_MODE_STR*6;
             PanelModesRemote[iMode].StatusColumnWidths = PanelModeBuffer + iMode*MAX_MODE_STR*8 + MAX_MODE_STR*7;
 
-            wsprintf(name, "Mode%d", iMode);
+            FSF.sprintf(name, "Mode%d", iMode);
 
             GetRegKey(name, "ColumnsLocal", ProcPanelModesLocal[iMode], NT ? DefaultModesNT[iMode].Cols : DefaultModes9x[iMode].Cols, sizeof(ProcPanelModesLocal[iMode]));
             GetRegKey(name, "ColumnsRemote", ProcPanelModesRemote[iMode], DefaultModesRemoteNT[iMode].Cols, sizeof(ProcPanelModesRemote[iMode]));
@@ -109,8 +109,8 @@ void Plist::InitializePanelModes()
             //Status line is the same for all modes currently and cannot be changed.
             TranslateMode(StatusCols, PanelModesLocal[iMode].StatusColumnTypes);
             TranslateMode(StatusCols, PanelModesRemote[iMode].StatusColumnTypes);
-            strcpy(PanelModesLocal[iMode].StatusColumnWidths, NT ? StatusWidthNT : StatusWidth9x);
-            strcpy(PanelModesRemote[iMode].StatusColumnWidths, StatusWidthNT);
+            lstrcpy(PanelModesLocal[iMode].StatusColumnWidths, NT ? StatusWidthNT : StatusWidth9x);
+            lstrcpy(PanelModesRemote[iMode].StatusColumnWidths, StatusWidthNT);
         }
 }
 
@@ -124,7 +124,7 @@ void Plist::SavePanelModes()
 {
     char name[20];
     for(int iMode=0; iMode<NPANELMODES; iMode++) {
-        wsprintf(name, "Mode%d", iMode);
+        FSF.sprintf(name, "Mode%d", iMode);
         SetRegKey(name, "ColumnsLocal", ProcPanelModesLocal[iMode]);
         SetRegKey(name, "ColumnsRemote", ProcPanelModesRemote[iMode]);
         SetRegKey(name, "WidthsLocal", PanelModesLocal[iMode].ColumnWidths);
@@ -233,7 +233,7 @@ case 'B': id = MColumnBits; break;
 case 'G': id = MColumnGDI; break;
 case 'U': id = MColumnUSER; break;
 default:
-    int n = atoi(&tok[1]);
+    int n = FSF.atoi(&tok[1]);
     if(n>=0 && n<NCOUNTERS) {
         id = Counters[n].idCol;
         if(strpbrk(&tok[1], "Ss") && CANBE_PERSEC(n))
@@ -284,9 +284,9 @@ void Plist::GetOpenPluginInfo(OpenPluginInfo *Info)
 
     static char Title[100];
     if(*HostName)
-        wsprintf(Title,"%s: %s ", HostName, GetMsg(MPlistPanel));
+        FSF.sprintf(Title,"%s: %s ", HostName, GetMsg(MPlistPanel));
     else
-        wsprintf(Title," %s ",GetMsg(MPlistPanel));
+        FSF.sprintf(Title," %s ",GetMsg(MPlistPanel));
     Info->PanelTitle=Title;
 
     Info->PanelModesArray = PanelModes(Info->PanelModesNumber);
@@ -346,7 +346,7 @@ void ui64toa_width(unsigned __int64 value, char* buf, unsigned width, bool bThou
     if(width < 1)
         return;
 
-    char* pSuffix = "";
+    const char* pSuffix = "";
     unsigned uDivider = bThousands ? 1000 : 1024;
     if(width<=20) {
         if(value >= ui64Table::tenpow(width)) {
@@ -359,7 +359,7 @@ void ui64toa_width(unsigned __int64 value, char* buf, unsigned width, bool bThou
         }
     }
     _ui64toa(value, buf, 10);
-    strcat(buf,pSuffix);
+    lstrcat(buf,pSuffix);
 }
 
 int Plist::GetFindData(PluginPanelItem*& pPanelItem,int &ItemsNumber,int OpMode)
@@ -416,8 +416,8 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,int &ItemsNumber,int OpMode)
             }
             if(cDescMode)
             {
-                CurItem.Description = new char[strlen(pDesc)+1];
-                strcpy(CurItem.Description, pDesc);
+                CurItem.Description = new char[lstrlen(pDesc)+1];
+                lstrcpy(CurItem.Description, pDesc);
                 CharToOem(CurItem.Description, CurItem.Description);
             }
             delete pBuf;
@@ -432,7 +432,7 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,int &ItemsNumber,int OpMode)
 
         int nCols=0;
         for(StrTok tokn(pi.ColumnWidths, ", "); (bool)tokn && nCols<MAX_CUSTOM_COLS; ++tokn) {
-            uCustomColSize += (Widths[nCols++] = atoi(tokn)) + 1;
+            uCustomColSize += (Widths[nCols++] = FSF.atoi(tokn)) + 1;
         }
 
         if(nCols) {
@@ -469,7 +469,7 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,int &ItemsNumber,int OpMode)
                             if(c<'0' || c>'9')
                                 bCol = false;
                             else {
-                                iCounter = atoi(&tok[1]);
+                                iCounter = FSF.atoi(&tok[1]);
                                 if(strpbrk(&tok[1], "Ss") && CANBE_PERSEC(iCounter))
                                     bPerSec = true;
                                 if(strpbrk(&tok[1], "Tt"))
@@ -484,22 +484,21 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,int &ItemsNumber,int OpMode)
                     int nBufSize = max( nColWidth+1, 16); // to provide space for itoa
                     Array<char> buf(nBufSize);
                     if(c>='A') // Not a performance counter
-                        itoa(dwData, buf, nBase);
+                        FSF.itoa(dwData, buf, nBase);
                     else if(pd && iCounter>=0) {    // Format performance counters
                         if(iCounter<3 && !bPerSec)  // first 3 are date/time
-                            strncpy(buf, PrintTime(pd->qwCounters[iCounter], false), nBufSize-1);
+                            lstrcpyn(buf, PrintTime(pd->qwCounters[iCounter], false), nBufSize);
                         else
                             ui64toa_width(bPerSec ? pd->qwResults[iCounter] : pd->qwCounters[iCounter],
                             buf, nColWidth, bThousands);
                     }
                     else
                         *buf=0;
-                    int nVisibleDigits = strlen(buf);
+                    int nVisibleDigits = lstrlen(buf);
                     if(nVisibleDigits > nColWidth) nVisibleDigits = nColWidth;
                     memset(pData,' ',nColWidth - nVisibleDigits);
                     pData += nColWidth-nVisibleDigits;
-                    strncpy(pData,buf,nVisibleDigits);
-                    pData[nVisibleDigits] = 0;
+                    lstrcpyn(pData,buf,nVisibleDigits+1);
                     pData += nVisibleDigits+1;
 
                     if(++nCustomCols >= MAX_CUSTOM_COLS/* || ...>=MAX_CUSTOM_COL_SIZE*/)
@@ -526,9 +525,9 @@ void Plist::FreeFindData(PluginPanelItem *PanelItem,int ItemsNumber)
     delete PanelItem;
 }
 
-int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber,
-                    int Move,char *DestPath,int OpMode, _Opt& Opt)
+int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,char *DestPath,int OpMode, _Opt& Opt)
 {
+    static char invalid_chars[] = ":*?\\/\"<>;|";
     if (ItemsNumber==0)
         return 0;
 
@@ -545,7 +544,7 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber,
                     pdata = &PData;
             }
             else {
-                PData.dwPID = atoi(CurItem.FindData.cAlternateFileName);
+                PData.dwPID = FSF.atoi(CurItem.FindData.cAlternateFileName);
                 ProcessPerfData* ppd = pPerfThread->GetProcessData(PData.dwPID, CurItem.NumberOfLinks);
                 if(ppd && GetPDataNT(PData, *ppd))
                     pdata = &PData;
@@ -554,28 +553,27 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber,
                 return 0;
         }
         // may be 0 if called from FindFile
-        char FileName[MAX_PATH]; FileName[sizeof(FileName)-1] = 0;
-        strncpy(FileName, DestPath, sizeof(FileName)-1);
+        char FileName[MAX_PATH];
+        lstrcpyn(FileName, DestPath, sizeof(FileName));
         if(!(OpMode&0x10000)) {
             FSF.AddEndSlash(FileName);
-            strncat(FileName,CurItem.FindData.cFileName, sizeof(FileName)-1);
-            strncat(FileName,".txt", sizeof(FileName)-1);
+            strncat(FileName,CurItem.FindData.cFileName,sizeof(FileName)-lstrlen(FileName)-1);
+            strncat(FileName,".txt",sizeof(FileName)-lstrlen(FileName)-1);
         }
         // Replace "invalid" chars by underscores
         char* pname = strrchr(FileName, '\\');
         if(!pname) pname = FileName; else pname++;
-        static char invalid_chars[] = ":*?\\/\"<>;|";
         for(; *pname; pname++) {
             if(strchr(invalid_chars, *pname) || *pname<' ')
                 *pname = '_';
         }
 
-        FILE *InfoFile=fopen(FileName,"wt");
-        if (InfoFile==NULL)
+        HANDLE InfoFile = CreateFile(FileName,GENERIC_WRITE,FILE_SHARE_READ,NULL,CREATE_ALWAYS,0,NULL);
+        if (InfoFile==INVALID_HANDLE_VALUE)
             return 0;
         char AppType[100];
         if (!pPerfThread && pdata->uAppType)
-            wsprintf(AppType,", %d%s",pdata->uAppType,GetMsg(MBits));
+            FSF.sprintf(AppType,", %d%s",pdata->uAppType,GetMsg(MBits));
         else
             *AppType=0;
 
@@ -583,7 +581,7 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber,
         //if(Opt.AnsiOutput)
         //      OemToChar(CurItem.FindData.cFileName, ModuleName);
         //else
-        strcpy(ModuleName, CurItem.FindData.cFileName);
+        lstrcpy(ModuleName, CurItem.FindData.cFileName);
         fprintf(InfoFile,"%s %s%s\n",PrintTitle(MTitleModule),ModuleName,AppType);
         if (pdata && pdata->FullPath && *pdata->FullPath) {
             fprintf(InfoFile,"%s %s\n",PrintTitle(MTitleFullPath),(char*)OemString(pdata->FullPath));
@@ -720,14 +718,14 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber,
             for (i=0; i<sizeof(Styles)/sizeof(*Styles); i++)
                 if (Style & Styles[i])
                 {
-                    strncat(StyleStr, " ", sizeof(StyleStr) - 1);
-                    strncat(StyleStr, StrStyles[i], sizeof(StyleStr) - 1);
+                    lstrcat(StyleStr, " ");
+                    lstrcat(StyleStr, StrStyles[i]);
                 }
             for (i=0; i<sizeof(ExtStyles)/sizeof(*ExtStyles); i++)
                 if (Style & ExtStyles[i])
                 {
-                    strncat(ExtStyleStr, " ", sizeof(ExtStyleStr)-1);
-                    strncat(ExtStyleStr, StrExtStyles[i], sizeof(ExtStyleStr)-1);
+                    lstrcat(ExtStyleStr, " ");
+                    lstrcat(ExtStyleStr, StrExtStyles[i]);
                 }
 
             fprintf(InfoFile,"%-22s %08X %s\n",PrintTitle(MTitleStyle),Style,StyleStr);
@@ -744,7 +742,7 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber,
         }
         if(NT && !*HostName && Opt.ExportHandles && pdata->dwPID /*&& pdata->dwPID!=8*/)
             PrintHandleInfo(pdata->dwPID, InfoFile, (Opt.ExportHandles&2)!=0, pPerfThread);
-        fclose(InfoFile);
+        CloseHandle(InfoFile);
     }
     return 1;
 }
@@ -773,7 +771,7 @@ int Plist::DeleteFiles(PluginPanelItem *PanelItem,int ItemsNumber,
 
     if (ItemsNumber==1)
     {
-        wsprintf(Msg,GetMsg(MDeleteProcess),PanelItem[0].FindData.cFileName);
+        FSF.sprintf(Msg,GetMsg(MDeleteProcess),PanelItem[0].FindData.cFileName);
         MsgItems[1]=Msg;
     }
     if (Message(0,NULL,MsgItems,sizeof(MsgItems)/sizeof(*MsgItems),2)!=0)
@@ -781,7 +779,7 @@ int Plist::DeleteFiles(PluginPanelItem *PanelItem,int ItemsNumber,
     if (ItemsNumber>1)
     {
         char Msg[512];
-        wsprintf(Msg,GetMsg(MDeleteNumberOfProcesses),ItemsNumber);
+        FSF.sprintf(Msg,GetMsg(MDeleteNumberOfProcesses),ItemsNumber);
         MsgItems[1]=Msg;
         if (Message(FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(*MsgItems),2)!=0)
             return FALSE;
@@ -817,7 +815,7 @@ int Plist::DeleteFiles(PluginPanelItem *PanelItem,int ItemsNumber,
         if (!Success)
         {
             char Msg[512];
-            wsprintf(Msg,GetMsg(MCannotDelete),CurItem.FindData.cFileName);
+            FSF.sprintf(Msg,GetMsg(MCannotDelete),CurItem.FindData.cFileName);
             const char *MsgItems[]={GetMsg(MDeleteTitle),Msg, 0, GetMsg(MOk)};
             int nItems = sizeof(MsgItems)/sizeof(*MsgItems);
             if(MsgId)
@@ -870,7 +868,7 @@ void Plist::Reread()
 
 void Plist::PutToCmdLine(char* tmp)
 {
-    unsigned l = strlen(tmp);
+    unsigned l = lstrlen(tmp);
     char* tmp1 = 0;
     if(strcspn(tmp," &^")!=l) {
         tmp1 = new char[l+3];
@@ -887,8 +885,7 @@ void Plist::PutToCmdLine(char* tmp)
 bool Plist::Connect(LPCSTR pMachine, LPCSTR pUser, LPCSTR pPasw)
 {
     char Machine[sizeof(HostName)];
-    strncpy(Machine, pMachine, sizeof(Machine)-1);
-    Machine[sizeof(Machine)-1] = 0;
+    lstrcpyn(Machine, pMachine, sizeof(Machine));
 
     //Convert "//" to "\\"
     if(*(short*)Machine == 0x2f2f)
@@ -896,7 +893,7 @@ bool Plist::Connect(LPCSTR pMachine, LPCSTR pUser, LPCSTR pPasw)
     // Add "\\" if missing
     if(*(short*)Machine != 0x5c5c)
     {
-        memmove(Machine+2, Machine, strlen(Machine)+1);
+        memmove(Machine+2, Machine, lstrlen(Machine)+1);
         *(short*)Machine = 0x5c5c;
     }
     /*
@@ -905,7 +902,7 @@ bool Plist::Connect(LPCSTR pMachine, LPCSTR pUser, LPCSTR pPasw)
     if(p=strchr(Machine, '@')) {
     char* user = strtok(Machine+2,"@");
     char* host = strtok(user,":");
-    memmove(p, host, strlen(host));
+    memmove(p, host, lstrlen(host));
     }
     */
 
@@ -941,7 +938,7 @@ bool Plist::Connect(LPCSTR pMachine, LPCSTR pUser, LPCSTR pPasw)
         delete pPerfThread;
         DisconnectWMI();
         pPerfThread = pNewPerfThread;
-        strcpy(HostName, Machine);
+        lstrcpy(HostName, Machine);
         return true;
     }
     return false;
@@ -1004,7 +1001,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
         PanelInfo pi;
         Control(FCTL_GETPANELINFO,&pi);
         if (pi.CurrentItem >= pi.ItemsNumber ||
-            !strcmp(pi.PanelItems[pi.CurrentItem].FindData.cFileName, ".."))
+            !lstrcmp(pi.PanelItems[pi.CurrentItem].FindData.cFileName, ".."))
             return TRUE;
 
         InitDialogItem InitItems[]={ DI_DOUBLEBOX,3,1,72,8,0,0,0,0,(char *)MViewWithOptions, };
@@ -1046,7 +1043,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
         while(Info.Dialog(Info.ModuleNumber, -1,-1, 48, 11, "Contents",
             FarItems, sizeof(Items) / sizeof(*Items))!=-1)
         {
-            if(*FarItems[2].Data==0 || !strcmp(FarItems[2].Data,"\\\\"))
+            if(*FarItems[2].Data==0 || !lstrcmp(FarItems[2].Data,"\\\\"))
             {
                 //go to local computer
                 delete pPerfThread;
@@ -1080,7 +1077,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
         PanelInfo pi;
         Control(FCTL_GETPANELINFO,&pi);
         PluginPanelItem& item = pi.PanelItems[pi.CurrentItem];
-        if(!strcmp(item.FindData.cFileName, ".."))
+        if(!lstrcmp(item.FindData.cFileName, ".."))
             return TRUE;
         int i;
         if(ConnectWMI() && pWMI && item.UserData)
@@ -1251,7 +1248,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
             if(StaticItems[i].id==0)
                 Items[i].Separator = 1;
             else {
-                strncpy(Items[i].Text, GetMsg(StaticItems[i].id), sizeof(Items[0].Text));
+                lstrcpyn(Items[i].Text, GetMsg(StaticItems[i].id), sizeof(Items[0].Text));
                 LASTBYTE(Items[i].Text) = StaticItems[i].mode;
                 int sm = pi.SortMode;
                 if(sm==SM_CTIME)
@@ -1265,16 +1262,16 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
                 const PerfLib* pl = pPerfThread->GetPerfLib();
                 for(i=0; i<sizeof(Counters)/sizeof(*Counters); i++)
                     if(pl->dwCounterTitles[i]) {
-                        strncpy(Items[nItems].Text, GetMsg(Counters[i].idName), sizeof(Items[0].Text));
+                        lstrcpyn(Items[nItems].Text, GetMsg(Counters[i].idName), sizeof(Items[0].Text));
                         LASTBYTE(Items[nItems].Text) = SM_PERFCOUNTER+i;
                         if(SM_PERFCOUNTER+i==SortMode)
                             Items[nItems].Checked = cIndicator;
                         nItems++;
                         if(CANBE_PERSEC(i)) {
                             if(i<3)
-                                wsprintf(Items[nItems].Text, "%% %s", GetMsg(Counters[i].idName));
+                                FSF.sprintf(Items[nItems].Text, "%% %s", GetMsg(Counters[i].idName));
                             else
-                                wsprintf(Items[nItems].Text, "%s %s", GetMsg(Counters[i].idName), GetMsg(MperSec));
+                                FSF.sprintf(Items[nItems].Text, "%s %s", GetMsg(Counters[i].idName), GetMsg(MperSec));
                             LASTBYTE(Items[nItems].Text) = (SM_PERFCOUNTER+i) | SM_PERSEC;
                             if(((SM_PERFCOUNTER+i) | SM_PERSEC) == SortMode)
                                 Items[nItems].Checked = cIndicator;
@@ -1306,8 +1303,8 @@ char *Plist::PrintTitle(int MsgId)
 {
     static char FullStr[256];
     char Str[256];
-    wsprintf(Str,"%s:",GetMsg(MsgId));
-    wsprintf(FullStr,"%-22s",Str);
+    FSF.sprintf(Str,"%s:",GetMsg(MsgId));
+    FSF.sprintf(FullStr,"%-22s",Str);
     return FullStr;
 }
 
@@ -1336,11 +1333,11 @@ void Plist::FileTimeToText(FILETIME *CurFileTime,FILETIME *SrcTime,char *TimeTex
             Days+=MonthDays[I-1];
         }
         if (Days>0)
-            wsprintf(TimeText,"%d %02d:%02d:%02d",Days,st.wHour,st.wMinute,st.wSecond);
+            FSF.sprintf(TimeText,"%d %02d:%02d:%02d",Days,st.wHour,st.wMinute,st.wSecond);
         else
-            wsprintf(TimeText,"%02d:%02d:%02d",st.wHour,st.wMinute,st.wSecond);
+            FSF.sprintf(TimeText,"%02d:%02d:%02d",st.wHour,st.wMinute,st.wSecond);
     } else // failed
-        strcpy(TimeText, "???");
+        lstrcpy(TimeText, "???");
 }
 
 bool Plist::GetVersionInfo(char* pFullPath, char* &pBuffer, char* &pVersion, char* &pDesc)
@@ -1365,7 +1362,7 @@ bool Plist::GetVersionInfo(char* pFullPath, char* &pBuffer, char* &pVersion, cha
     //Find StringFileInfo
     DWORD ofs;
     for(ofs = NT ? 92 : 70; ofs < size; ofs += *(WORD*)(pBuffer+ofs) )
-        if( !NT && !stricmp(pBuffer+ofs+6, SFI) || NT && !wcsicmp((wchar_t*)(pBuffer+ofs+6), WSFI))
+        if( !NT && !FSF.LStricmp(pBuffer+ofs+6, SFI) || NT && !lstrcmpiW((wchar_t*)(pBuffer+ofs+6), WSFI))
             break;
     if(ofs >= size) {
         delete pBuffer;
@@ -1382,17 +1379,17 @@ bool Plist::GetVersionInfo(char* pFullPath, char* &pBuffer, char* &pVersion, cha
     char blockname[48];
     unsigned dsize;
 
-    wsprintf(blockname, "\\%s\\%s\\FileVersion", SFI, langcode);
+    FSF.sprintf(blockname, "\\%s\\%s\\FileVersion", SFI, langcode);
     if(!VerQueryValue(pBuffer, blockname, (void**)&pVersion, &dsize))
         pVersion = 0;
 
-    wsprintf(blockname, "\\%s\\%s\\FileDescription", SFI, langcode);
+    FSF.sprintf(blockname, "\\%s\\%s\\FileDescription", SFI, langcode);
     if(!VerQueryValue(pBuffer, blockname, (void**)&pDesc, &dsize))
         pDesc = 0;
     return true;
 }
 
-void Plist::PrintVersionInfo(FILE* InfoFile, char* pFullPath)
+void Plist::PrintVersionInfo(HANDLE InfoFile, char* pFullPath)
 {
     char *pBuf, *pVersion, *pDesc;
     if(!GetVersionInfo(pFullPath, pBuf, pVersion, pDesc))
@@ -1427,7 +1424,7 @@ void Plist::DisconnectWMI()
     if(pWMI) { delete pWMI; pWMI = 0; }
 }
 
-void Plist::PrintOwnerInfo(FILE* InfoFile, DWORD dwPid)
+void Plist::PrintOwnerInfo(HANDLE InfoFile, DWORD dwPid)
 {
     char User[MAX_USERNAME_LENGTH];
     char UserSid[MAX_USERNAME_LENGTH];
