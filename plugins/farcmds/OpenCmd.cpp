@@ -470,7 +470,7 @@ int OpenFromCommandLine(char *_farcmd)
              {
                HKEY RootFindKey[2]={HKEY_CURRENT_USER,HKEY_LOCAL_MACHINE},hKey;
                char FullKeyName[512];
-               int I;
+               size_t I;
                for(I=0; I < sizeof(RootFindKey)/sizeof(RootFindKey[0]); ++I)
                {
                  wsprintf(FullKeyName,

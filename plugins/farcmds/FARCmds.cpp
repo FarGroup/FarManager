@@ -1,3 +1,4 @@
+#define _FAR_USE_FARFINDDATA
 #include "plugin.hpp"
 #include "farcmds.hpp"
 #include "lang.hpp"
