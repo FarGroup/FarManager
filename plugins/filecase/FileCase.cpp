@@ -1,5 +1,6 @@
 #include <windows.h>
 #define _FAR_NO_NAMELESS_UNIONS
+#define _FAR_USE_FARFINDDATA
 #include "plugin.hpp"
 #include "filelng.hpp"
 #include "filecase.hpp"
@@ -54,7 +55,7 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
 }
 
 
-HANDLE WINAPI _export OpenPlugin(int /*OpenFrom*/,int /*Item*/)
+HANDLE WINAPI _export OpenPlugin(int OpenFrom,int Item)
 {
   if(!IsOldFar)
     CaseConvertion();
