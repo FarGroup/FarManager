@@ -23,19 +23,14 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 #endif
 
 
-//#define STATIC_BUFFER_SIZE  (32768)
-
-#ifndef STATIC_BUFFER_SIZE
   DWORD bufSize;
   char *ABuf, *PBuf;
-#endif
 
 /****************************************************************************
  * Константы для извлечения строк из .lng файла
  ****************************************************************************/
 enum CompareLng {
-  MNoLngStringDefined = -1,
-  MOK,
+  MOK=0,
   MCancel,
 
   MCompare,
@@ -66,7 +61,9 @@ enum CompareLng {
   MOldFARTitle,
   MOldFARBody,
 
-  MMaxLngStringNumber
+  MMaxLngStringNumber,
+
+  MNoLngStringDefined = -1,
   };
 
 /****************************************************************************
@@ -88,7 +85,7 @@ struct Options {
  ****************************************************************************/
 static struct PluginStartupInfo Info;
 static struct FarStandardFunctions FSF;
-static char *PluginRootKey;
+static char *PluginRootKey=NULL;
 
 void WFD2FFD(WIN32_FIND_DATA &wfd, FAR_FIND_DATA &ffd)
 {
@@ -119,7 +116,7 @@ static bool bOldFAR = false;
 void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info) {
   const char *cpPlugRegKey = "\\AdvCompare";
   ::Info = *Info;
-  if (Info->StructSize >= sizeof(struct PluginStartupInfo))
+  if (Info->StructSize >= (int)sizeof(struct PluginStartupInfo))
     FSF = *Info->FSF;
   else
     bOldFAR = true;
@@ -224,7 +221,7 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent) {
   if (!PluginRootKey || RegOpenKeyEx(HKEY_CURRENT_USER, PluginRootKey, 0, KEY_QUERY_VALUE, &hKey) != ERROR_SUCCESS)
     hKey = 0;
   size_t i;
-  for (i = sizeof(InitItems) / sizeof(InitItems[0]) - 1; i >= 0; i--) {
+  for (i = 0; i < sizeof(InitItems) / sizeof(InitItems[0]); i++) {
     DWORD dwSelected, dwSize = sizeof(DWORD);
     DialogItems[i].Type  = InitItems[i].Type;
     DialogItems[i].X1    = InitItems[i].X1;
@@ -262,12 +259,12 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent) {
   int ExitCode = Info.Dialog(Info.ModuleNumber, -1, -1, 52, 18, "Contents", DialogItems, sizeof(DialogItems) / sizeof(DialogItems[0]));
   if (ExitCode == (sizeof(InitItems) / sizeof(InitItems[0]) - 1) || ExitCode == -1)
     return false;
-  for (i = sizeof(InitItems) / sizeof(InitItems[0]) - 1; i >= 0; i--)
+  for (i = 0; i < sizeof(InitItems) / sizeof(InitItems[0]); i++)
     if (InitItems[i].StoreTo)
       *InitItems[i].StoreTo = DialogItems[i].Param.Selected;
   DWORD dwDisposition;
   if (PluginRootKey && RegCreateKeyEx(HKEY_CURRENT_USER, PluginRootKey, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKey, &dwDisposition) == ERROR_SUCCESS) {
-    for (int i = sizeof(InitItems) / sizeof(InitItems[0]) - 1; i >= 0; i--)
+    for (i = 0; i < sizeof(InitItems) / sizeof(InitItems[0]); i++)
       if (!(DialogItems[i].Flags & DIF_DISABLE) && InitItems[i].SelectedRegValue) {
         DWORD dwValue = (DWORD)DialogItems[i].Param.Selected;
         RegSetValueEx(hKey, InitItems[i].SelectedRegValue, 0, REG_DWORD, (BYTE *)&dwValue, sizeof(dwValue));
@@ -396,7 +393,8 @@ static int GetDirList(const char *Dir, struct PluginPanelItem **pPanelItem, int 
       iRet = FALSE;
       break;
       }
-    WFD2FFD(wfdFindData,(*pPanelItem = pPPI)[(*pItemsNumber)++].FindData);
+    *pPanelItem = pPPI;
+    WFD2FFD(wfdFindData,(*pPanelItem)[(*pItemsNumber)++].FindData);
     } while (FindNextFile(hFind, &wfdFindData));
   FindClose(hFind);
   return iRet;
@@ -466,11 +464,6 @@ static bool CompareFiles(const FAR_FIND_DATA *AData, const FAR_FIND_DATA *PData,
         CloseHandle(hFileA);
         return false;
         }
-
-#ifdef STATIC_BUFFER_SIZE
-      static char ABuf[STATIC_BUFFER_SIZE], PBuf[STATIC_BUFFER_SIZE];
-      const DWORD bufSize = STATIC_BUFFER_SIZE;
-#endif
 
       bool bEqual = true;
       DWORD ReadSizeA, ReadSizeP;
@@ -616,9 +609,6 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom, int Item) {
     lstrcpy(cBuffer, GetMsg(MComparingFiles));
   SetConsoleTitle(cBuffer);
 
-#ifdef STATIC_BUFFER_SIZE
-  bool bDifferenceNotFound = CompareDirs(&AInfo, &PInfo, true);
-#else
   bool bDifferenceNotFound = false;
   HKEY hKey;
   if (!PluginRootKey || RegOpenKeyEx(HKEY_CURRENT_USER, PluginRootKey, 0, KEY_QUERY_VALUE, &hKey) != ERROR_SUCCESS)
@@ -634,7 +624,6 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom, int Item) {
     }
   free (ABuf);
   free (PBuf);
-#endif
 
   CloseHandle(hConInp);
   Info.RestoreScreen(hScreen);
