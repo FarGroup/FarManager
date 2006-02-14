@@ -56,11 +56,11 @@ void Plist::InitializePanelModes()
     static struct { char *Cols, *Width; }
     DefaultModesNT[NPANELMODES] = {
         /*0*/ {"N,X15T,X16T,X17T,X18S", "12,0,0,0,4"}, // I/O
-        /*1*/ {"N,XI,XP,X0S,X6", "0,4,2,3,9"}, // General info	
+        /*1*/ {"N,XI,XP,X0S,X6", "0,4,2,3,9"}, // General info
         /*2*/ {"N,N","0,0"},// Names only
         /*3*/ {"N,XI,XC,D,T","0,4,4,0,0"},    // Startup: PID/Date/Time
-        /*4*/ {"N,XI,X4,X6","0,4,9,9"},	// Memory (basic)
-        /*5*/ {"N,XI,X4,X6,X10,X12,X0,X1,X2","12,4,0,0,0,0,8,8,8"},	// Extended Memory/Time
+        /*4*/ {"N,XI,X4,X6","0,4,9,9"}, // Memory (basic)
+        /*5*/ {"N,XI,X4,X6,X10,X12,X0,X1,X2","12,4,0,0,0,0,8,8,8"},     // Extended Memory/Time
         /*6*/ {"N,ZD","12,0"}, // Descriptions
         /*7*/ {"N,XP,X0S,X1S,X2S,X11S,X14S,X18S","0,2,3,2,2,3,4,3"}, // Dynamic Performance
         /*8*/ {"N,XI,O","0,5,15"}, // Owners (not implemented)
@@ -68,7 +68,7 @@ void Plist::InitializePanelModes()
     },
         DefaultModes9x[NPANELMODES] = {
             /*0*/ {"N,N","0,0"},// Names only
-            /*1*/ {"N,XP,XB,XI", "0,2,2,8"},// General info	
+            /*1*/ {"N,XP,XB,XI", "0,2,2,8"},// General info
             /*2*/ {"N,N","0,0"},// Names only
             /*3*/ {"N,XP,XI,XC,XT","0,2,8,8,3"},
             /*4*/ {"N,S","0,8"},
@@ -80,11 +80,11 @@ void Plist::InitializePanelModes()
         },
             DefaultModesRemoteNT[NPANELMODES] = {
                 /*0*/ {"N,X15T,X16T,X17T,X18S", "12,0,0,0,4"}, // I/O
-                /*1*/ {"N,XI,XP,X0S,X6", "0,4,2,3,9"}, // General info	
+                /*1*/ {"N,XI,XP,X0S,X6", "0,4,2,3,9"}, // General info
                 /*2*/ {"N,N","0,0"},// Names only
                 /*3*/ {"N,XI,XC,D,T","0,4,4,0,0"},    // Startup: PID/Date/Time
-                /*4*/ {"N,XI,X4,X6","0,4,9,9"},	// Memory (basic)
-                /*5*/ {"N,XI,X4,X6,X10,X12,X0,X1,X2","12,4,0,0,0,0,8,8,8"},	// Extended Memory/Time
+                /*4*/ {"N,XI,X4,X6","0,4,9,9"}, // Memory (basic)
+                /*5*/ {"N,XI,X4,X6,X10,X12,X0,X1,X2","12,4,0,0,0,0,8,8,8"},     // Extended Memory/Time
                 /*6*/ {"N,ZD","12,0"}, // Descriptions
                 /*7*/ {"N,XP,X0S,X1S,X2S,X11S,X14S,X18S","0,2,3,2,2,3,4,3"}, // Dynamic Performance
                 /*8*/ {"N,XI,O","0,5,15"}, // Owners (not implemented)
@@ -200,7 +200,7 @@ default:
 void Plist::GeneratePanelModes()
 {
     for(int iMode=0; iMode<NPANELMODES; iMode++) {
-        TranslateMode(ProcPanelModesLocal[iMode], PanelModesLocal[iMode].ColumnTypes);	
+        TranslateMode(ProcPanelModesLocal[iMode], PanelModesLocal[iMode].ColumnTypes);
         TranslateMode(ProcPanelModesRemote[iMode], PanelModesRemote[iMode].ColumnTypes);
         /*TranslateMode(ProcPanelStModesNT[iMode], PanelModesNT[iMode].StatusColumnTypes);
         if(!NT) TranslateMode(ProcPanelStModes9x[iMode], PanelModes9x[iMode].StatusColumnTypes);*/
@@ -326,7 +326,7 @@ BOOL CALLBACK EnumWndProc(HWND hWnd,LPARAM lParam)
     if (dwProcID==((EnumWndData*)lParam)->dwPID && GetParent(hWnd)==NULL )
     {
         BOOL bVisible = IsWindowVisible(hWnd) ||
-            IsIconic(hWnd) && (GetWindowLong(hWnd,GWL_STYLE) & WS_DISABLED)==0 ;	  
+            IsIconic(hWnd) && (GetWindowLong(hWnd,GWL_STYLE) & WS_DISABLED)==0 ;
         if(!((EnumWndData*)lParam)->hWnd || bVisible)
             ((EnumWndData*)lParam)->hWnd = hWnd;
         return !bVisible;
@@ -452,7 +452,7 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,int &ItemsNumber,int OpMode)
             int nCustomCols;
             nCustomCols = nCols = 0;
             for(StrTok tok(ProcPanelModes[pi.ViewMode], ", "); tok; ++tok, ++nCols) {
-                if((*tok&~0x20)=='X') {	// Custom column
+                if((*tok&~0x20)=='X') { // Custom column
                     bool bCol = true;
                     DWORD dwData = 0;
                     int nBase = 10;
@@ -485,7 +485,7 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,int &ItemsNumber,int OpMode)
                                 if(strpbrk(&tok[1], "Tt"))
                                     bThousands = true;
                             }
-                    }	    
+                    }
                     if(!bCol)
                         continue;
 
@@ -591,7 +591,7 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber,
 
         char ModuleName[MAX_PATH];
         //if(Opt.AnsiOutput)
-        //	OemToChar(CurItem.FindData.cFileName, ModuleName);
+        //      OemToChar(CurItem.FindData.cFileName, ModuleName);
         //else
         strcpy(ModuleName, CurItem.FindData.cFileName);
         fprintf(InfoFile,"%s %s%s\n",PrintTitle(MTitleModule),ModuleName,AppType);
@@ -813,7 +813,7 @@ int Plist::DeleteFiles(PluginPanelItem *PanelItem,int ItemsNumber,
             switch(pWMI->TerminateProcess(pdata->dwPID)) {
                 case -1:
                     WmiError();
-                    continue;		 
+                    continue;
                 case 0: Success = TRUE; break;
                 case 2: MsgId = MTAccessDenied; break;
                 case 3: MsgId = MTInsufficientPrivilege; break;
@@ -967,12 +967,12 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
     }
     if (ControlState==0 && Key==VK_RETURN)
     {
-	//check for the command line; if it's not empty, don't process Enter
-	char CmdLine[1024];
+        //check for the command line; if it's not empty, don't process Enter
+        char CmdLine[1024];
 
-	Control(FCTL_GETCMDLINE, CmdLine);
-	if(*CmdLine)
-	    return FALSE;
+        Control(FCTL_GETCMDLINE, CmdLine);
+        if(*CmdLine)
+            return FALSE;
 
         PanelInfo PInfo;
         Control(FCTL_GETPANELINFO,&PInfo);
@@ -1053,7 +1053,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
         InitDialogItems(Items, FarItems, sizeof Items / sizeof *Items);
 
         //Loop until successful connect or user cancel in dialog
-        while(Info.Dialog(Info.ModuleNumber, -1,-1, 48, 11, "Contents", 
+        while(Info.Dialog(Info.ModuleNumber, -1,-1, 48, 11, "Contents",
             FarItems, sizeof Items / sizeof *Items)!=-1)
         {
             if(*FarItems[2].Data==0 || !strcmp(FarItems[2].Data,"\\\\"))
@@ -1103,10 +1103,10 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
                     sprintf(buf,"Return code: %d", i);
                     const char *MsgItems[]={/*GetMsg(MAttachDebugger)*/"Attach Debugger",buf,GetMsg(MOk)};
                     Message(FMSG_WARNING,0,MsgItems,sizeof MsgItems/sizeof *MsgItems);
-                    /*3 The user does not have sufficient privilege. 
-                    8 Unknown failure. 
-                    9 The path specified does not exist. 
-                    21 The specified parameter is invalid. 
+                    /*3 The user does not have sufficient privilege.
+                    8 Unknown failure.
+                    9 The path specified does not exist.
+                    21 The specified parameter is invalid.
                     */
                     break;
             }
@@ -1166,8 +1166,8 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
                                         if(bChange && !SetPriorityClass(hProcess,
                                             bNewPri ? PrClasses2k[i] : PrClasses[i]) )
                                             WinError();
-                                        //		    else
-                                        //			Item.Flags &= ~PPIF_SELECTED;
+                                        //                  else
+                                        //                      Item.Flags &= ~PPIF_SELECTED;
                                         break;
                                     }
                         }
@@ -1234,13 +1234,13 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
                 MSortBySize,SM_SIZE, MSortByUnsorted,SM_UNSORTED,
                 MSortByDescriptions,SM_DESCR,
                 MSortByOwner,SM_OWNER,
-                //	MPageFileBytes,SM_COMPRESSEDSIZE,
+                //      MPageFileBytes,SM_COMPRESSEDSIZE,
                 MTitlePID,SM_PID,
                 MTitleParentPID,SM_PARENTPID,
                 MTitleThreads,SM_NUMLINKS,
                 MTitlePriority,SM_PRIOR,
-                //	0,-1,
-                //	MUseSortGroups,0, MShowSelectedFirst,-1
+                //      0,-1,
+                //      MUseSortGroups,0, MShowSelectedFirst,-1
         };
 
 #define NSTATICITEMS (sizeof StaticItems/sizeof *StaticItems)
@@ -1376,13 +1376,13 @@ bool Plist::GetVersionInfo(char* pFullPath, char* &pBuffer, char* &pVersion, cha
     if(ofs >= size) {
         delete pBuffer;
         return false;
-    }	
+    }
     char* langcode, lcode[10];
     if(NT) {
         WideCharToMultiByte(CP_ACP, 0, (LPCWSTR)(pBuffer+ofs+42), -1, lcode, sizeof lcode, 0,0);
         langcode = lcode;
     }
-    else 
+    else
         langcode = pBuffer + ofs + 26;
 
     char blockname[48];

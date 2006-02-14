@@ -146,7 +146,7 @@ int WinError(char* pSourceModule, BOOL bDown)
 {
   char* lpMsgBuf; BOOL bAllocated = FALSE;
   DWORD dwLastErr = GetLastError();
-  FormatMessage( pSourceModule ? 
+  FormatMessage( pSourceModule ?
       FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_HMODULE :
       FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
       pSourceModule ? GetModuleHandle(pSourceModule): NULL, dwLastErr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
@@ -165,11 +165,11 @@ int WinError(char* pSourceModule, BOOL bDown)
 
   if(strlen(lpMsgBuf) > 64)
       for(size_t i=strlen(lpMsgBuf)/2; i<strlen(lpMsgBuf); i++)
-	  if(lpMsgBuf[i]==' ') { lpMsgBuf[i] = '\n'; break; }
+          if(lpMsgBuf[i]==' ') { lpMsgBuf[i] = '\n'; break; }
   items[1] = strtok(lpMsgBuf,"\r\n");
   items[2] = strtok(NULL,"\r\n"); if(!items[2]) items[2] = items[3];
   int rc = Message(bDown ? FMSG_WARNING|FMSG_DOWN : FMSG_WARNING,
-  	0,items,sizeof items/sizeof *items - (items[2]==items[3]));
+        0,items,sizeof items/sizeof *items - (items[2]==items[3]));
   if(bAllocated) LocalFree( lpMsgBuf );
   return rc;
 }

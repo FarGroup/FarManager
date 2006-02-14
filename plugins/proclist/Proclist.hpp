@@ -31,11 +31,11 @@ typedef unsigned long ULONG_PTR, *PULONG_PTR;
 #define  Min(x,y) (((x)<(y)) ? (x):(y))
 #define  Max(x,y) (((x)>(y)) ? (x):(y))
 
-#define MAX_CMDLINE	512	// Max length of displayed process's cmd line
-#define NPANELMODES	10	// Number of panel modes
-#define MAX_MODE_STR	80	// Max length of panel mode string and width string
-#define MAX_CUSTOM_COLS 20	// Max number of custom cols in any panel mode
-#define MAX_DATETIME	50
+#define MAX_CMDLINE     512     // Max length of displayed process's cmd line
+#define NPANELMODES     10      // Number of panel modes
+#define MAX_MODE_STR    80      // Max length of panel mode string and width string
+#define MAX_CUSTOM_COLS 20      // Max number of custom cols in any panel mode
+#define MAX_DATETIME    50
 
 extern PluginStartupInfo Info;
 extern FarStandardFunctions FSF;
@@ -104,7 +104,7 @@ class Plist
     void GetOpenPluginInfo(OpenPluginInfo *Info);
     int SetDirectory(char *Dir,int OpMode);
     int GetFiles(PluginPanelItem *PanelItem,int ItemsNumber,
-	int Move,char *DestPath,int OpMode, _Opt& opt=::Opt);
+        int Move,char *DestPath,int OpMode, _Opt& opt=::Opt);
     int DeleteFiles(PluginPanelItem *PanelItem,int ItemsNumber,
                     int OpMode);
     int ProcessEvent(int Event,void *Param);
@@ -183,18 +183,18 @@ int WinError(char* pSourceModule=0, BOOL bDown=FALSE);
 BOOL ChangePrivileges(BOOL bAdd, BOOL bAsk);
 
 class OemString {
-	char* pStr;
+        char* pStr;
     public:
-	OemString(LPCSTR  pAnsi);
-	OemString(LPCWSTR pWide);
-	~OemString() { delete pStr; }
-	operator char*() { return pStr; }
-	operator unsigned char*() { return (unsigned char*)pStr; }
+        OemString(LPCSTR  pAnsi);
+        OemString(LPCWSTR pWide);
+        ~OemString() { delete pStr; }
+        operator char*() { return pStr; }
+        operator unsigned char*() { return (unsigned char*)pStr; }
 };
 
 void GetOpenProcessDataNT(HANDLE hProcess, char* pProcessName=0, DWORD cbProcessName=0,
-	char* pFullPath=0, DWORD cbFullPath=0, char* pCommandLine=0, DWORD cbCommandLine=0,
-	char** ppEnvStrings=0, OemString** pCurDir=0);
+        char* pFullPath=0, DWORD cbFullPath=0, char* pCommandLine=0, DWORD cbCommandLine=0,
+        char** ppEnvStrings=0, OemString** pCurDir=0);
 
 HANDLE OpenProcessForced(DWORD dwFlags, DWORD dwProcessId, BOOL bInh = FALSE);
 
@@ -222,6 +222,6 @@ void GetViewOptions(FarDialogItem* Items, _Opt& Opt);
 
 
 #define DYNAMIC_ENTRY(_name, _module)  \
-    static P##_name p##_name;	\
-    if(!p##_name)		\
+    static P##_name p##_name;   \
+    if(!p##_name)               \
        p##_name = (P##_name)GetProcAddress((_module), #_name);

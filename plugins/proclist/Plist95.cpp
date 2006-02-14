@@ -46,12 +46,12 @@ bool GetPData95(ProcessData& pdata)
 
   if (pProcess32First(hProcessSnap, &pe32))
     do {
-	if(pdata.dwPID==pe32.th32ProcessID)
-	{
-	    GetPData95(pdata, pe32);
-	    CloseHandle (hProcessSnap);
-	    return true;
-	}
+        if(pdata.dwPID==pe32.th32ProcessID)
+        {
+            GetPData95(pdata, pe32);
+            CloseHandle (hProcessSnap);
+            return true;
+        }
     } while (pProcess32Next(hProcessSnap,&pe32));
   CloseHandle (hProcessSnap);
   return false;
@@ -103,9 +103,9 @@ BOOL GetList95(PluginPanelItem*& pPanelItem,int &ItemsNumber)
             strcpy(CurItem.FindData.cFileName,me32.szModule);
           pdata.uAppType=16;
         }
-	CharToOem(CurItem.FindData.cFileName, CurItem.FindData.cFileName);
-	wsprintf(CurItem.FindData.cAlternateFileName, "%08X", pe32.th32ProcessID);
-	GetPData95(pdata, pe32);
+        CharToOem(CurItem.FindData.cFileName, CurItem.FindData.cFileName);
+        wsprintf(CurItem.FindData.cAlternateFileName, "%08X", pe32.th32ProcessID);
+        GetPData95(pdata, pe32);
 
         ItemsNumber++;
       }
@@ -194,8 +194,8 @@ DWORD GetHeapSize(DWORD dwPID)
 
     for(BOOL bRes = pHeap32ListFirst(hSnapshot, &hl32); bRes; bRes=pHeap32ListNext(hSnapshot, &hl32)) {
         for(BOOL bRes1 = pHeap32First(&he32, hl32.th32ProcessID, hl32.th32HeapID);
-        	bRes1; bRes1 = pHeap32Next(&he32))
-        		dwSize += he32.dwBlockSize;
+                bRes1; bRes1 = pHeap32Next(&he32))
+                        dwSize += he32.dwBlockSize;
     }
     CloseHandle(hSnapshot);
     return dwSize;
@@ -269,25 +269,25 @@ void PrintModuleVersion(FILE* InfoFile, char* pVersion, char* pDesc, int len);
 void PrintModules95(FILE* InfoFile, DWORD dwPID, _Opt& Opt)
 {
     if (pModule32First==NULL && !InitToolhelp32())
-	return;
+        return;
 
     MODULEENTRY32 me32;
     HANDLE hModuleSnap;
 
     hModuleSnap=pCreateToolhelp32Snapshot(TH32CS_SNAPMODULE, dwPID);
     if (hModuleSnap==INVALID_HANDLE_VALUE)
-	return;
+        return;
     me32.dwSize = sizeof me32;
     for(BOOL bRet = pModule32First(hModuleSnap, &me32); bRet;
-    	     bRet = pModule32Next (hModuleSnap, &me32)) {
-	int len = fprintf(InfoFile, " %08X  %6X  %s", me32.modBaseAddr, me32.modBaseSize, 
-		OemString(me32.szExePath));
-	char *pBuf, *pVersion, *pDesc;
+             bRet = pModule32Next (hModuleSnap, &me32)) {
+        int len = fprintf(InfoFile, " %08X  %6X  %s", me32.modBaseAddr, me32.modBaseSize,
+                OemString(me32.szExePath));
+        char *pBuf, *pVersion, *pDesc;
         if(Opt.ExportModuleVersion && Plist::GetVersionInfo(me32.szExePath, pBuf, pVersion, pDesc)) {
-	    PrintModuleVersion(InfoFile, pVersion, pDesc, len);
+            PrintModuleVersion(InfoFile, pVersion, pDesc, len);
             delete pBuf;
-	}
-	fputc('\n',InfoFile);
+        }
+        fputc('\n',InfoFile);
     }
     CloseHandle (hModuleSnap);
 }

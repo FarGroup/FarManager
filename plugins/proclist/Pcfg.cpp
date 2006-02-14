@@ -16,11 +16,11 @@ void MakeViewOptions(FarDialogItem* Items, _Opt& Opt, int offset)
 {
     InitDialogItems(ViewItems,Items,NVIEWITEMS);
     for(int i=0; i<NVIEWITEMS; i++)
-	Items[i].Y1 += offset;
+        Items[i].Y1 += offset;
     if(!NT) {
-	Items[1].Flags |= DIF_DISABLE;
-	Items[5].Flags |= DIF_DISABLE;
-	Items[6].Flags |= DIF_DISABLE;
+        Items[1].Flags |= DIF_DISABLE;
+        Items[5].Flags |= DIF_DISABLE;
+        Items[6].Flags |= DIF_DISABLE;
     }
     Items[1].Selected = Opt.ExportEnvironment;
     Items[2].Selected = Opt.ExportModuleInfo;
@@ -29,7 +29,7 @@ void MakeViewOptions(FarDialogItem* Items, _Opt& Opt, int offset)
     Items[5].Selected = Opt.ExportHandles&1;
     Items[6].Selected = (Opt.ExportHandles&2)!=0;
     if(!NT)
-	Items[1].Selected = 0;
+        Items[1].Selected = 0;
 }
 
 void GetViewOptions(FarDialogItem* Items, _Opt& Opt)
@@ -55,8 +55,8 @@ int Config()
           DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel,
   };
 /*  if(!NT) {
-  	InitItems[ 7].Flags |= DIF_DISABLE;
-  	InitItems[11].Flags |= DIF_DISABLE;
+        InitItems[ 7].Flags |= DIF_DISABLE;
+        InitItems[11].Flags |= DIF_DISABLE;
   }
 */
   if(!Plist::PanelModesInitialized())
@@ -66,8 +66,8 @@ int Config()
 
   FarDialogItem DialogItems[NITEMS];
   InitDialogItems(InitItems,DialogItems,sizeof InitItems/sizeof *InitItems);
-  memcpy(DialogItems+NITEMS-2, DialogItems+NITEMS-NVIEWITEMS-2, 
-	sizeof *DialogItems * 2);
+  memcpy(DialogItems+NITEMS-2, DialogItems+NITEMS-NVIEWITEMS-2,
+        sizeof *DialogItems * 2);
 
   MakeViewOptions(DialogItems+NITEMS-NVIEWITEMS-2, ::Opt, NITEMS-NVIEWITEMS-3);
 

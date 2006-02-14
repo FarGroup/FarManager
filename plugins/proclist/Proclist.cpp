@@ -26,8 +26,8 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom,int Item)
 
   if(OpenFrom==OPEN_COMMANDLINE && (*(short*)Item==0x5c5c||*(short*)Item==0x2f2f)) {
       if(!hPlugin->Connect((char*)Item)) {
-	  delete hPlugin;
-	  hPlugin = (Plist*)INVALID_HANDLE_VALUE;
+          delete hPlugin;
+          hPlugin = (Plist*)INVALID_HANDLE_VALUE;
       }
   }
   return hPlugin;
@@ -119,7 +119,7 @@ int WINAPI _export Configure(int ItemNumber)
   return Config();
 }
 int WINAPI _export Compare (HANDLE hPlugin, const PluginPanelItem *Item1,
-  	const PluginPanelItem *Item2, unsigned int Mode)
+        const PluginPanelItem *Item2, unsigned int Mode)
 {
    return ((Plist *)hPlugin)->Compare(Item1, Item2, Mode);
 }

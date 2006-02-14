@@ -22,28 +22,28 @@ Counter names searching simplified.
 #define EXTEND_SIZE         25600
 
 _Counters Counters[] = {
-	"% Processor Time",        MProcessorTime     , MColProcessorTime     ,
-	"% Privileged Time",       MPrivilegedTime    , MColPrivilegedTime    ,
-	"% User Time",             MUserTime          , MColUserTime          ,
-	"Handle Count",            MHandleCount       , MColHandleCount       ,
-	"Page File Bytes",         MPageFileBytes     , MColPageFileBytes     ,
-	"Page File Bytes Peak",    MPageFileBytesPeak , MColPageFileBytesPeak ,
-	"Working Set",             MWorkingSet        , MColWorkingSet        ,
-	"Working Set Peak",        MWorkingSetPeak    , MColWorkingSetPeak    ,
-	"Pool Nonpaged Bytes",     MPoolNonpagedBytes , MColPoolNonpagedBytes ,
-	"Pool Paged Bytes",        MPoolPagedBytes    , MColPoolPagedBytes    ,
-	"Private Bytes",           MPrivateBytes      , MColPrivateBytes      ,
-	"Page Faults/sec",         MPageFaults        , MColPageFaults        ,
-	"Virtual Bytes",           MVirtualBytes      , MColVirtualBytes      ,
-	"Virtual Bytes Peak",      MVirtualBytesPeak  , MColVirtualBytesPeak  ,
-	"IO Data Bytes/sec",       MIODataBytes       , MColIODataBytes       ,
-	"IO Read Bytes/sec",       MIOReadBytes       , MColIOReadBytes       ,
-	"IO Write Bytes/sec",      MIOWriteBytes      , MColIOWriteBytes      ,
-	"IO Other Bytes/sec",      MIOOtherBytes      , MColIOOtherBytes      ,
-	"IO Data Operations/sec",  MIODataOperations  , MColIODataOperations  ,
-	"IO Read Operations/sec",  MIOReadOperations  , MColIOReadOperations  ,
-	"IO Write Operations/sec", MIOWriteOperations , MColIOWriteOperations ,
-	"IO Other Operations/sec", MIOOtherOperations , MColIOOtherOperations ,
+        "% Processor Time",        MProcessorTime     , MColProcessorTime     ,
+        "% Privileged Time",       MPrivilegedTime    , MColPrivilegedTime    ,
+        "% User Time",             MUserTime          , MColUserTime          ,
+        "Handle Count",            MHandleCount       , MColHandleCount       ,
+        "Page File Bytes",         MPageFileBytes     , MColPageFileBytes     ,
+        "Page File Bytes Peak",    MPageFileBytesPeak , MColPageFileBytesPeak ,
+        "Working Set",             MWorkingSet        , MColWorkingSet        ,
+        "Working Set Peak",        MWorkingSetPeak    , MColWorkingSetPeak    ,
+        "Pool Nonpaged Bytes",     MPoolNonpagedBytes , MColPoolNonpagedBytes ,
+        "Pool Paged Bytes",        MPoolPagedBytes    , MColPoolPagedBytes    ,
+        "Private Bytes",           MPrivateBytes      , MColPrivateBytes      ,
+        "Page Faults/sec",         MPageFaults        , MColPageFaults        ,
+        "Virtual Bytes",           MVirtualBytes      , MColVirtualBytes      ,
+        "Virtual Bytes Peak",      MVirtualBytesPeak  , MColVirtualBytesPeak  ,
+        "IO Data Bytes/sec",       MIODataBytes       , MColIODataBytes       ,
+        "IO Read Bytes/sec",       MIOReadBytes       , MColIOReadBytes       ,
+        "IO Write Bytes/sec",      MIOWriteBytes      , MColIOWriteBytes      ,
+        "IO Other Bytes/sec",      MIOOtherBytes      , MColIOOtherBytes      ,
+        "IO Data Operations/sec",  MIODataOperations  , MColIODataOperations  ,
+        "IO Read Operations/sec",  MIOReadOperations  , MColIOReadOperations  ,
+        "IO Write Operations/sec", MIOWriteOperations , MColIOWriteOperations ,
+        "IO Other Operations/sec", MIOOtherOperations , MColIOOtherOperations ,
 };
 
 // A wrapper class to provide auto-closing of registry key
@@ -51,11 +51,11 @@ class RegKey {
     HKEY hKey;
   public:
     RegKey(HKEY hParent, char* pKey, DWORD flags=KEY_QUERY_VALUE|KEY_ENUMERATE_SUB_KEYS) {
-    	DWORD rc;
-	if((rc=RegOpenKeyEx(hParent, pKey, 0, flags, &hKey))!=ERROR_SUCCESS) {
+        DWORD rc;
+        if((rc=RegOpenKeyEx(hParent, pKey, 0, flags, &hKey))!=ERROR_SUCCESS) {
             SetLastError(rc);
-	    hKey = 0;
-	}
+            hKey = 0;
+        }
     }
     ~RegKey() { if(hKey) RegCloseKey(hKey); }
     operator HKEY() { return hKey; }
@@ -74,36 +74,36 @@ PerfThread::PerfThread(Plist& plist, const char* hostname, const char* pUser, co
     memset(this, 0, sizeof *this);
     dwRefreshMsec = 500;
     if(pUser && *pUser) {
-	strncpy(UserName, pUser, sizeof UserName-1);
-	if(pPasw)
-	    strncpy(Password, pPasw, sizeof Password-1);
+        strncpy(UserName, pUser, sizeof UserName-1);
+        if(pPasw)
+            strncpy(Password, pPasw, sizeof Password-1);
     }
 
     hMutex = CreateMutex(0, FALSE, 0);
     Lock l(this);
-    
+
     DWORD rc;
     if( hostname ) {
-	strncpy(HostName, hostname, sizeof HostName-1);
-	if((rc=RegConnectRegistry(hostname, HKEY_LOCAL_MACHINE, &hHKLM))!=ERROR_SUCCESS ||
+        strncpy(HostName, hostname, sizeof HostName-1);
+        if((rc=RegConnectRegistry(hostname, HKEY_LOCAL_MACHINE, &hHKLM))!=ERROR_SUCCESS ||
            (rc=RegConnectRegistry(hostname, HKEY_PERFORMANCE_DATA, &hPerf))!=ERROR_SUCCESS)
            {
             SetLastError(rc);
-	    return;
-	   }
+            return;
+           }
     }
     else {
-	hHKLM = HKEY_LOCAL_MACHINE;
+        hHKLM = HKEY_LOCAL_MACHINE;
         hPerf = HKEY_PERFORMANCE_DATA;
     }
-    
+
     LANGID lid = MAKELANGID( LANG_ENGLISH, SUBLANG_NEUTRAL );
-    
+
     wsprintf(pf.szSubKey, "Software\\Microsoft\\Windows NT\\CurrentVersion\\Perflib\\%03X", lid );
 
     RegKey hKeyNames( hHKLM, pf.szSubKey, KEY_READ);
     if(!hKeyNames)
-	return;
+        return;
 
     // Get the buffer size for the counter names
     DWORD dwType, dwSize;
@@ -120,8 +120,8 @@ PerfThread::PerfThread(Plist& plist, const char* hostname, const char* pUser, co
     if ((rc=RegQueryValueEx(hKeyNames, "Counters", 0, &dwType,
                   (BYTE*)buf, &dwSize ))) {
         SetLastError(rc);
-	return;
-    }	
+        return;
+    }
 
     // now loop thru the counter names looking for the following counters:
     //      1.  "Process"           process name
@@ -151,7 +151,7 @@ PerfThread::PerfThread(Plist& plist, const char* hostname, const char* pUser, co
     }
     delete buf;
 
-    Refresh();   	
+    Refresh();
 
     hEvtBreak = CreateEvent(0, 0, 0, 0);
     hEvtRefresh = CreateEvent(0, 0, 0, 0);
@@ -178,10 +178,10 @@ ProcessPerfData* PerfThread::GetProcessData(DWORD dwPid, DWORD dwThreads) const
 {
     for(DWORD i=0; i< pData->length(); i++)
         if((*pData)[i].dwProcessId==dwPid &&
-	   (dwPid ||(dwThreads >5 && (*pData)[i].dwThreads >5 ||
-          	     dwThreads<=5 && (*pData)[i].dwThreads<=5) )
-	  )
-	  return &(*pData)[i];
+           (dwPid ||(dwThreads >5 && (*pData)[i].dwThreads >5 ||
+                     dwThreads<=5 && (*pData)[i].dwThreads<=5) )
+          )
+          return &(*pData)[i];
     return 0;
 }
 
@@ -196,16 +196,16 @@ void PerfThread::Refresh()
     DWORD dwDeltaTickCount;
     while (1) {
         DWORD dwSize = buf.length(), dwType;
-	dwDeltaTickCount = GetTickCount() - dwLastTickCount;
-    	DWORD rc;
-	while( (rc = RegQueryValueEx( hPerf, pf.szSubKey, 0, &dwType, buf, &dwSize))
-		==ERROR_LOCK_FAILED)  ; //Just retry
+        dwDeltaTickCount = GetTickCount() - dwLastTickCount;
+        DWORD rc;
+        while( (rc = RegQueryValueEx( hPerf, pf.szSubKey, 0, &dwType, buf, &dwSize))
+                ==ERROR_LOCK_FAILED)  ; //Just retry
 
         pPerf = (PPERF_DATA_BLOCK)(BYTE*) buf;
 
         // check for success and valid perf data block signature
         if (rc==ERROR_SUCCESS &&
-	    !memcmp(pPerf->Signature, L"PERF", 8) ) {
+            !memcmp(pPerf->Signature, L"PERF", 8) ) {
             break;
         }
         if (rc==ERROR_MORE_DATA)
@@ -219,30 +219,30 @@ void PerfThread::Refresh()
 
     // set the perf_object_type pointer
     PPERF_OBJECT_TYPE pObj =
-    	(PPERF_OBJECT_TYPE)((DWORD)pPerf + pPerf->HeaderLength);
+        (PPERF_OBJECT_TYPE)((DWORD)pPerf + pPerf->HeaderLength);
 
     // loop thru the performance counter definition records looking
     // for the process id counter and then save its offset
     PPERF_COUNTER_DEFINITION pCounterDef =
-    	(PPERF_COUNTER_DEFINITION) ((DWORD)pObj + pObj->HeaderLength);
+        (PPERF_COUNTER_DEFINITION) ((DWORD)pObj + pObj->HeaderLength);
 
     if(!pf.CounterTypes[0] && !pf.CounterTypes[1])
     {
-	for (DWORD i=0; i<(DWORD)pObj->NumCounters; i++)
-	    for(DWORD ii=0; ii<NCOUNTERS; ii++)
-		if (pf.dwCounterTitles[ii] && pCounterDef[i].CounterNameTitleIndex==pf.dwCounterTitles[ii])
-		    pf.CounterTypes[ii] = pCounterDef[i].CounterType;
+        for (DWORD i=0; i<(DWORD)pObj->NumCounters; i++)
+            for(DWORD ii=0; ii<NCOUNTERS; ii++)
+                if (pf.dwCounterTitles[ii] && pCounterDef[i].CounterNameTitleIndex==pf.dwCounterTitles[ii])
+                    pf.CounterTypes[ii] = pCounterDef[i].CounterType;
     }
 
     DWORD dwProcessIdCounter, dwPriorityCounter, dwThreadCounter=0, dwElapsedCounter,
-    	dwCreatingPIDCounter=0, dwCounterOffsets[NCOUNTERS];
-    
+        dwCreatingPIDCounter=0, dwCounterOffsets[NCOUNTERS];
+
     memset(dwCounterOffsets,0,sizeof dwCounterOffsets);
     DWORD i;
     for (i=0; i<(DWORD)pObj->NumCounters; i++)
     {
       if (pCounterDef->CounterNameTitleIndex == pf.dwProcessIdTitle)
-	dwProcessIdCounter = pCounterDef->CounterOffset;
+        dwProcessIdCounter = pCounterDef->CounterOffset;
       else if (pCounterDef->CounterNameTitleIndex == pf.dwPriorityTitle)
         dwPriorityCounter = pCounterDef->CounterOffset;
       else if (pCounterDef->CounterNameTitleIndex == pf.dwThreadTitle)
@@ -252,26 +252,26 @@ void PerfThread::Refresh()
       else if (pCounterDef->CounterNameTitleIndex == pf.dwElapsedTitle)
         dwElapsedCounter = pCounterDef->CounterOffset;
       else
-	for(int ii=0; ii<NCOUNTERS; ii++)
-	    if (pf.dwCounterTitles[ii] && pCounterDef->CounterNameTitleIndex==pf.dwCounterTitles[ii])
-		dwCounterOffsets[ii] = pCounterDef->CounterOffset;
+        for(int ii=0; ii<NCOUNTERS; ii++)
+            if (pf.dwCounterTitles[ii] && pCounterDef->CounterNameTitleIndex==pf.dwCounterTitles[ii])
+                dwCounterOffsets[ii] = pCounterDef->CounterOffset;
       pCounterDef++;
     }
 
     Array<ProcessPerfData> *pNewPData = new Array<ProcessPerfData>((DWORD)pObj->NumInstances);
 
     PPERF_INSTANCE_DEFINITION pInst =
-    	(PPERF_INSTANCE_DEFINITION) ((DWORD)pObj + pObj->DefinitionLength);
+        (PPERF_INSTANCE_DEFINITION) ((DWORD)pObj + pObj->DefinitionLength);
 
     // loop thru the performance instance data extracting each process name
     // and process id
     //
     typedef DWORD (WINAPI *PGetGuiResources)(IN HANDLE hProcess, IN DWORD uiFlags);
     DYNAMIC_ENTRY(GetGuiResources, GetModuleHandle("user32"))
-    
+
     for (i=0; i<(DWORD)pObj->NumInstances; i++) {
 
-    	ProcessPerfData& Task = (*pNewPData)[i];
+        ProcessPerfData& Task = (*pNewPData)[i];
         // get the process id
         PPERF_COUNTER_BLOCK pCounter = (PPERF_COUNTER_BLOCK) ((DWORD)pInst + pInst->ByteLength);
         Task.dwProcessId = *((LPDWORD) ((DWORD)pCounter + dwProcessIdCounter));
@@ -279,95 +279,95 @@ void PerfThread::Refresh()
         Task.dwThreads = dwThreadCounter ? *((LPDWORD) ((DWORD)pCounter + dwThreadCounter)) : 0;
         Task.dwCreatingPID = dwCreatingPIDCounter ? *((LPDWORD) ((DWORD)pCounter + dwCreatingPIDCounter)) : 0;
         if(pObj->PerfFreq.QuadPart && *((LONGLONG*) ((DWORD)pCounter + dwElapsedCounter)) )
-	    Task.dwElapsedTime = (DWORD)((pObj->PerfTime.QuadPart - *((LONGLONG*) ((DWORD)pCounter + dwElapsedCounter))
-	          ) / pObj->PerfFreq.QuadPart);
-	else
+            Task.dwElapsedTime = (DWORD)((pObj->PerfTime.QuadPart - *((LONGLONG*) ((DWORD)pCounter + dwElapsedCounter))
+                  ) / pObj->PerfFreq.QuadPart);
+        else
             Task.dwElapsedTime = 0;
 
 // Store new qwCounters
- 	for(int ii=0; ii<NCOUNTERS; ii++)
-	    if(dwCounterOffsets[ii])
- 	    {
-		if((pf.CounterTypes[ii]&0x300)==PERF_SIZE_LARGE)
-	    	    Task.qwCounters[ii] = *((LONGLONG*) ((DWORD)pCounter + dwCounterOffsets[ii]));
-		else // PERF_SIZE_DWORD
-	    	    Task.qwCounters[ii] = *((DWORD*) ((DWORD)pCounter + dwCounterOffsets[ii]));
-	    }
-	//memcpy(Task.qwResults, Task.qwCounters, sizeof Task.qwResults);
-	memset(Task.qwResults, 0, sizeof Task.qwResults);
+        for(int ii=0; ii<NCOUNTERS; ii++)
+            if(dwCounterOffsets[ii])
+            {
+                if((pf.CounterTypes[ii]&0x300)==PERF_SIZE_LARGE)
+                    Task.qwCounters[ii] = *((LONGLONG*) ((DWORD)pCounter + dwCounterOffsets[ii]));
+                else // PERF_SIZE_DWORD
+                    Task.qwCounters[ii] = *((DWORD*) ((DWORD)pCounter + dwCounterOffsets[ii]));
+            }
+        //memcpy(Task.qwResults, Task.qwCounters, sizeof Task.qwResults);
+        memset(Task.qwResults, 0, sizeof Task.qwResults);
 
         ProcessPerfData* pOldTask = 0;
 
-	if(pData) { // Use prev data if any
+        if(pData) { // Use prev data if any
 
-         //Get the pointer to the previous instance of this process         	
-     	  pOldTask = GetProcessData(Task.dwProcessId, Task.dwThreads);
+         //Get the pointer to the previous instance of this process
+          pOldTask = GetProcessData(Task.dwProcessId, Task.dwThreads);
 
- 	//get the rest of the counters
+        //get the rest of the counters
 
- 	  for(int ii=0; ii<NCOUNTERS; ii++)
- 	  {
- 	     if(!pf.dwCounterTitles[ii])
- 		continue;
+          for(int ii=0; ii<NCOUNTERS; ii++)
+          {
+             if(!pf.dwCounterTitles[ii])
+                continue;
 
  // Fill qwResults
              if(bDeltaValid)
- 	      switch(pf.CounterTypes[ii]) {
-		case PERF_COUNTER_RAWCOUNT:
-		case PERF_COUNTER_LARGE_RAWCOUNT:
-		    Task.qwResults[ii] = Task.qwCounters[ii];
-		    break;
+              switch(pf.CounterTypes[ii]) {
+                case PERF_COUNTER_RAWCOUNT:
+                case PERF_COUNTER_LARGE_RAWCOUNT:
+                    Task.qwResults[ii] = Task.qwCounters[ii];
+                    break;
                 case PERF_100NSEC_TIMER:
-            	// 64-bit Timer in 100 nsec units. Display suffix: "%"
+                // 64-bit Timer in 100 nsec units. Display suffix: "%"
                     Task.qwResults[ii] = !pOldTask ? 0 :
-                    	(*(LONGLONG*)((DWORD)pCounter + dwCounterOffsets[ii]) - pOldTask->qwCounters[ii])
-                    	 / (dwDeltaTickCount*100);
+                        (*(LONGLONG*)((DWORD)pCounter + dwCounterOffsets[ii]) - pOldTask->qwCounters[ii])
+                         / (dwDeltaTickCount*100);
                     break;
                 case PERF_COUNTER_COUNTER:
                 case PERF_COUNTER_BULK_COUNT:
                    Task.qwResults[ii] = !pOldTask ? 0 :
-			(Task.qwCounters[ii] - pOldTask->qwCounters[ii])
-			  * 1000 / dwDeltaTickCount;
+                        (Task.qwCounters[ii] - pOldTask->qwCounters[ii])
+                          * 1000 / dwDeltaTickCount;
                    break;
-	      }
-	  }
-	}//if pData
+              }
+          }
+        }//if pData
 
-	if(pOldTask) { // copy process' data from pOldTask to Task
+        if(pOldTask) { // copy process' data from pOldTask to Task
         /*
-	    strcpy(Task.ProcessName, pOldTask->ProcessName);
+            strcpy(Task.ProcessName, pOldTask->ProcessName);
             strcpy(Task.FullPath, pOldTask->FullPath);
             strcpy(Task.CommandLine, pOldTask->CommandLine);
             Task.ftCreation = pOldTask->ftCreation;
             */
             memcpy(Task.ProcessName, pOldTask->ProcessName,
-            	sizeof Task - offsetof(ProcessPerfData, ProcessName));
-	}                 
-	else {
-	  HANDLE hProcess = *HostName || Task.dwProcessId<=8 ? 0 :
-	    	OpenProcessForced(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ|READ_CONTROL, Task.dwProcessId);
-	  if(hProcess) {
-	    GetOpenProcessDataNT(hProcess, Task.ProcessName, sizeof Task.ProcessName,
-		Task.FullPath, sizeof Task.FullPath, Task.CommandLine, sizeof Task.CommandLine);
-	    FILETIME ftExit,ftKernel,ftUser;
-	    GetProcessTimes(hProcess,&Task.ftCreation,&ftExit,&ftKernel,&ftUser);
+                sizeof Task - offsetof(ProcessPerfData, ProcessName));
+        }
+        else {
+          HANDLE hProcess = *HostName || Task.dwProcessId<=8 ? 0 :
+                OpenProcessForced(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ|READ_CONTROL, Task.dwProcessId);
+          if(hProcess) {
+            GetOpenProcessDataNT(hProcess, Task.ProcessName, sizeof Task.ProcessName,
+                Task.FullPath, sizeof Task.FullPath, Task.CommandLine, sizeof Task.CommandLine);
+            FILETIME ftExit,ftKernel,ftUser;
+            GetProcessTimes(hProcess,&Task.ftCreation,&ftExit,&ftKernel,&ftUser);
 
-	    SetLastError(0);
-	    Task.dwGDIObjects = pGetGuiResources ? pGetGuiResources(hProcess, 0/*GR_GDIOBJECTS*/) : 0;
-	    Task.dwUSERObjects = pGetGuiResources ? pGetGuiResources(hProcess, 1/*GR_USEROBJECTS*/) : 0;
+            SetLastError(0);
+            Task.dwGDIObjects = pGetGuiResources ? pGetGuiResources(hProcess, 0/*GR_GDIOBJECTS*/) : 0;
+            Task.dwUSERObjects = pGetGuiResources ? pGetGuiResources(hProcess, 1/*GR_USEROBJECTS*/) : 0;
 
-	    CloseHandle(hProcess);	
-	  }
-    	}
+            CloseHandle(hProcess);
+          }
+        }
         if(!*Task.ProcessName) { // if after all this it's still unfilled...
             // pointer to the process name
             // convert it to ascii
             if (WideCharToMultiByte( CP_OEMCP, 0, (LPCWSTR)((DWORD)pInst + pInst->NameOffset),
-            	    -1, Task.ProcessName, sizeof Task.ProcessName - 5, 0, 0) == 0)
-    		strcpy( Task.ProcessName, "unknown" );
-	    else 
-        	if(Task.dwProcessId>8)
-		    strcat( Task.ProcessName, ".exe" );
+                    -1, Task.ProcessName, sizeof Task.ProcessName - 5, 0, 0) == 0)
+                strcpy( Task.ProcessName, "unknown" );
+            else
+                if(Task.dwProcessId>8)
+                    strcat( Task.ProcessName, ".exe" );
         }
         pInst = (PPERF_INSTANCE_DEFINITION) ((DWORD)pCounter + pCounter->ByteLength);
     }
@@ -390,20 +390,20 @@ void PerfThread::Refresh()
 void PerfThread::RefreshWMIData()
 {
     for(unsigned i=0; i<pData->length(); i++) {
-	if(*HostName && LASTBYTE((*pData)[i].FullPath)!='*' ) {
-	    WMI.GetProcessExecutablePath((*pData)[i].dwProcessId, (*pData)[i].FullPath);
-	    LASTBYTE((*pData)[i].FullPath) = '*';
-	}
-	if(LASTBYTE((*pData)[i].Owner)!='*') {
-	    WMI.GetProcessOwner((*pData)[i].dwProcessId, (*pData)[i].Owner);
-	    int iSessionId = WMI.GetProcessSessionId((*pData)[i].dwProcessId);
-	    if(iSessionId > 0) {
-		char* p = (*pData)[i].Owner + strlen((*pData)[i].Owner);
-		*p++ = ':';
-		itoa(iSessionId, p, 10);
-	    }
-	    LASTBYTE((*pData)[i].Owner) = '*';
-	}
+        if(*HostName && LASTBYTE((*pData)[i].FullPath)!='*' ) {
+            WMI.GetProcessExecutablePath((*pData)[i].dwProcessId, (*pData)[i].FullPath);
+            LASTBYTE((*pData)[i].FullPath) = '*';
+        }
+        if(LASTBYTE((*pData)[i].Owner)!='*') {
+            WMI.GetProcessOwner((*pData)[i].dwProcessId, (*pData)[i].Owner);
+            int iSessionId = WMI.GetProcessSessionId((*pData)[i].dwProcessId);
+            if(iSessionId > 0) {
+                char* p = (*pData)[i].Owner + strlen((*pData)[i].Owner);
+                *p++ = ':';
+                itoa(iSessionId, p, 10);
+            }
+            LASTBYTE((*pData)[i].Owner) = '*';
+        }
     }
 }
 
@@ -411,15 +411,15 @@ DWORD WINAPI PerfThread::ThreadProc()
 {
     HANDLE handles[2] = {hEvtBreak, hEvtRefresh};
     while(1) {
-	Refresh();
-	if(!bConnectAttempted && Opt.EnableWMI) {
-	    WMI.Connect(HostName, *UserName?UserName:0, *UserName?Password:0);
-	    bConnectAttempted = true;
-	}
-	if(WMI)
-	    RefreshWMIData();
-	if(WaitForMultipleObjects(sizeof handles/sizeof *handles, handles, 0, dwRefreshMsec)==WAIT_OBJECT_0)
-   	    break;
+        Refresh();
+        if(!bConnectAttempted && Opt.EnableWMI) {
+            WMI.Connect(HostName, *UserName?UserName:0, *UserName?Password:0);
+            bConnectAttempted = true;
+        }
+        if(WMI)
+            RefreshWMIData();
+        if(WaitForMultipleObjects(sizeof handles/sizeof *handles, handles, 0, dwRefreshMsec)==WAIT_OBJECT_0)
+            break;
     }
     WMI.Disconnect();
     return 1;
