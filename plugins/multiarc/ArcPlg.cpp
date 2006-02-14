@@ -122,7 +122,7 @@ int ArcPlugins::IsArchive(char *Name,const unsigned char *Data,int DataSize)
   DWORD MinSFXSize=0xFFFFFFFF;
   DWORD CurSFXSize;
   int TrueArc=-1;
-  int I, J;
+  int I;
 
   for (I=0; I < PluginsCount; I++)
   {

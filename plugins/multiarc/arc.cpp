@@ -201,8 +201,8 @@ enum {ARC_FORMAT};
 static HANDLE ArcHandle;
 static DWORD NextPosition,FileSize,SFXSize;
 static int ArcType;
-static DWORD OffsetComment, OffsetComment0;
-static int CommentSize=-1;
+static DWORD OffsetComment;//, OffsetComment0;
+//static int CommentSize=-1;
 static int ArcComment;
 
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)

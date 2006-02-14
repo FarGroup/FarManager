@@ -160,7 +160,7 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
 BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
 {
   DWORD ReadSize;
-  int I;
+  size_t I;
 
   ArcHandle=CreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
                        NULL,OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN,NULL);

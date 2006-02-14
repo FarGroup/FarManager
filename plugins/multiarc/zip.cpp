@@ -86,7 +86,7 @@ const size_t MIN_HEADER_LEN=sizeof(ZipHeader);
 inline BOOL IsValidHeader(const unsigned char *Data, const unsigned char *DataEnd)
 {
   ZipHeader* pHdr=(ZipHeader*)Data;
-  const WORD Zip64=45;
+  //const WORD Zip64=45;
   return (0x04034b50==pHdr->Signature
     && pHdr->Method<15
     && pHdr->VerToExtract < 0xFF

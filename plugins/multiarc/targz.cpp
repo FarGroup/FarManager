@@ -541,7 +541,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
 
 int IsTarHeader(const BYTE *Data,int DataSize)
 {
-  int I;
+  size_t I;
   struct posix_header *Header;
 
   if (DataSize<sizeof(struct posix_header))

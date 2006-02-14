@@ -99,7 +99,7 @@ int PluginClass::ProcessHostFile(struct PluginPanelItem *PanelItem,int ItemsNumb
     MenuItems[ExitCode].Flags=MIF_SELECTED;
 
     int Count=0;
-    for(int i=0; i<COUNT(MenuData); i++)
+    for(size_t i=0; i<COUNT(MenuData); i++)
     {
       GetCommandFormat(MenuData[i].Cmd, Command, sizeof(Command));
       if(*Command)

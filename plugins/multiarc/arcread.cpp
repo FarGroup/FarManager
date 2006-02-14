@@ -288,10 +288,7 @@ int PluginClass::GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int 
     if (Name[0]=='.' && (Name[1]=='\\' || Name[1]=='.' && Name[2]=='\\'))
       Append=TRUE;
 
-    if (!Append &&
-         lstrlen(Name)>static_cast<size_t>(CurDirLength) &&
-         FSF.LStrnicmp(Name,CurDir,CurDirLength)==0 &&
-         (CurDirLength==0 || Name[CurDirLength]=='\\'))
+    if (!Append && lstrlen(Name)>CurDirLength && FSF.LStrnicmp(Name,CurDir,CurDirLength)==0 && (CurDirLength==0 || Name[CurDirLength]=='\\'))
     {
       char *StartName,*EndName;
       StartName=Name+CurDirLength+(CurDirLength!=0);
@@ -379,8 +376,7 @@ int PluginClass::SetDirectory(const char *Dir,int OpMode)
     {
       char *CurName=ArcData[I].FindData.cFileName;
 
-      if (lstrlen(CurName)>=static_cast<size_t>(CurDirLength+NewDirLength) &&
-          LocalStrnicmp(CurName+CurDirLength,Dir,NewDirLength)==0)
+      if (lstrlen(CurName)>=CurDirLength+NewDirLength && LocalStrnicmp(CurName+CurDirLength,Dir,NewDirLength)==0)
       {
         char Ch=CurName[CurDirLength+NewDirLength];
         if (Ch=='\\' || Ch=='/' || Ch==0)
@@ -527,7 +523,7 @@ void PluginClass::GetOpenPluginInfo(struct OpenPluginInfo *Info)
 
   static char *DescrFiles[32],DescrFilesString[256];
   lstrcpy(DescrFilesString,Opt.DescriptionNames);
-  int DescrFilesNumber=0;
+  size_t DescrFilesNumber=0;
   char *NamePtr=DescrFilesString;
 
   while (DescrFilesNumber<sizeof(DescrFiles)/sizeof(DescrFiles[0]))

@@ -421,9 +421,7 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
             else
               lstrcpy(Name," ");
           }
-          if (*Names==0 ||
-              lstrlen(Names)+lstrlen(Name)<static_cast<size_t>(MaxNamesLength) &&
-              Command[2]!='f')
+          if (*Names==0 || lstrlen(Names)+lstrlen(Name)<MaxNamesLength && Command[2]!='f')
           {
             NameNumber+=IncreaseNumber;
             if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)

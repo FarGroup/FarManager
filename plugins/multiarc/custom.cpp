@@ -187,7 +187,7 @@ class MetaReplacer
             char typeChars[] = { 'A', 'a' };
             char flagChars[] = { 'Q', 'q', 'S', 'W', 'P', 'A' };
 
-            for(int i = 0; i < sizeof(typeChars); ++i)
+            for(size_t i = 0; i < sizeof(typeChars); ++i)
                 if(start[2] == typeChars[i])
                     m_type = (Type) i;
 
@@ -199,7 +199,7 @@ class MetaReplacer
             for(; *p; ++p)
             {
                 bool isFlagChar = false;
-                for(int i = 0; i < sizeof(flagChars); ++i)
+                for(size_t i = 0; i < sizeof(flagChars); ++i)
                     if(*p == flagChars[i])
                     {
                         m_flags |= 1 << i;
@@ -1012,7 +1012,7 @@ void ParseListingItemRegExp(Match match,
             "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
         };
 
-        for(int I = 0; I < sizeof(Months) / sizeof(Months[0]); I++)
+        for(size_t I = 0; I < sizeof(Months) / sizeof(Months[0]); I++)
             if(LStrnicmp(p, Months[I], 3) == 0)
             {
                 stModification.wMonth = I + 1;
@@ -1167,7 +1167,7 @@ void ParseListingItemPlain(const char *CurFormat, const char *CurStr,
                     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
                 };
 
-                for(int I = 0; I < sizeof(Months) / sizeof(Months[0]); I++)
+                for(size_t I = 0; I < sizeof(Months) / sizeof(Months[0]); I++)
                     if(LStrnicmp(CurStr, Months[I], 3) == 0)
                     {
                         stModification.wMonth = I + 1;

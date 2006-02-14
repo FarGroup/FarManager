@@ -179,8 +179,7 @@ BOOL CheckLZHHeader(struct LZH_Level0 *lzh)
 {
   return lzh->HeadID[0]=='-' && lzh->HeadID[1]=='l' && (lzh->HeadID[2]=='h' || lzh->HeadID[2]=='z') &&
         (lzh->Method>='0' && lzh->Method<='9' || lzh->Method=='d' || lzh->Method=='s' || lzh->Method=='d') &&
-        lzh->free1 == '-' &&
-        lzh->FLevel >= 0 && lzh->FLevel <= 2;
+        lzh->free1 == '-' && lzh->FLevel >= 0 && lzh->FLevel <= 2;
 }
 
 
@@ -226,7 +225,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
 {
   LZH_Header LzhHeader;
 
-  int I;
+  size_t I;
   DWORD ReadSize;
 
   WORD PathSize=0;
@@ -294,7 +293,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
   if(LzhHeader.l0.FLevel >= 1)
   {
     WORD NextHeaderSize;
-    BYTE ExtType, FileNameSize;
+    BYTE ExtType;//, FileNameSize;
 
     do {
       ReadFile(ArcHandle,&NextHeaderSize,2,&ReadSize,NULL); // Next Header Size
@@ -376,7 +375,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
              2 bytes  Next header size
           */
           DWORD NeedSeek=0;
-          int NeedRead=NextHeaderSize-3;
+          DWORD NeedRead=NextHeaderSize-3;
           if(NeedRead >= sizeof(Info->Description))
           {
             NeedRead=sizeof(Info->Description)-1;
