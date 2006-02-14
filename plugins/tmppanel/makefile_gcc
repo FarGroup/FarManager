@@ -4,7 +4,7 @@ DLLDIR = ./final
 NAME = TmpPanel
 DLLNAME = $(NAME).dll
 DLLFULLNAME = $(DLLDIR)/$(DLLNAME)
-SRCS = TMPPANEL.cpp
+SRCS = TmpPanel.cpp
 DEF = $(NAME).gcc.def
 
 CXX = g++
