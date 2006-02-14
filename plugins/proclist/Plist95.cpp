@@ -18,14 +18,13 @@ static HEAPLISTWALK pHeap32ListFirst, pHeap32ListNext;
 static HEAPFIRST pHeap32First;
 static HEAPNEXT pHeap32Next;
 
-BOOL GetProcessModule (DWORD dwPID, DWORD dwModuleID, LPMODULEENTRY32 lpMe32,
-                       DWORD& dwTotalSize);
+BOOL GetProcessModule (DWORD dwPID, DWORD dwModuleID, LPMODULEENTRY32 lpMe32, DWORD& dwTotalSize);
 BOOL GetModuleNameFromExe (LPCSTR szFileName, LPSTR szModuleName, WORD cbLen);
 DWORD GetHeapSize(DWORD dwPID);
 
 void GetPData95(ProcessData& pdata, PROCESSENTRY32& pe32)
 {
-    pdata.Size = sizeof pdata;
+    pdata.Size = sizeof(pdata);
     pdata.dwPID = pe32.th32ProcessID;
     pdata.dwParentPID = pe32.th32ParentProcessID;
     strcpy(pdata.FullPath, pe32.szExeFile);
@@ -38,7 +37,7 @@ bool GetPData95(ProcessData& pdata)
   if (pModule32First==NULL && !InitToolhelp32())
     return false;
 
-  PROCESSENTRY32 pe32 = {sizeof pe32};
+  PROCESSENTRY32 pe32 = {sizeof(pe32)};
 
   HANDLE hProcessSnap = pCreateToolhelp32Snapshot(TH32CS_SNAPPROCESS,0);
   if (hProcessSnap==INVALID_HANDLE_VALUE)
@@ -62,7 +61,7 @@ BOOL GetList95(PluginPanelItem*& pPanelItem,int &ItemsNumber)
   if (pModule32First==NULL && !InitToolhelp32())
     return FALSE;
 
-  PROCESSENTRY32 pe32 = {sizeof pe32};
+  PROCESSENTRY32 pe32 = {sizeof(pe32)};
   BOOL bRet = FALSE;
   ItemsNumber = 0;
 
@@ -84,7 +83,7 @@ BOOL GetList95(PluginPanelItem*& pPanelItem,int &ItemsNumber)
           break;
         pPanelItem = pNewPanelItem;
         PluginPanelItem &CurItem = pNewPanelItem[CurItemPos];
-        memset(&CurItem,0,sizeof CurItem);
+        memset(&CurItem,0,sizeof(CurItem));
         CurItem.Flags |= PPIF_USERDATA;
         CurItem.UserData = (DWORD)(new ProcessData);
         ProcessData& pdata = *(ProcessData*)CurItem.UserData;
@@ -99,7 +98,7 @@ BOOL GetList95(PluginPanelItem*& pPanelItem,int &ItemsNumber)
         }
         else
         {
-          if (!GetModuleNameFromExe(pe32.szExeFile,CurItem.FindData.cFileName,sizeof CurItem.FindData.cFileName))
+          if (!GetModuleNameFromExe(pe32.szExeFile,CurItem.FindData.cFileName,sizeof(CurItem.FindData.cFileName)))
             strcpy(CurItem.FindData.cFileName,me32.szModule);
           pdata.uAppType=16;
         }
@@ -154,7 +153,7 @@ BOOL InitToolhelp32()
 BOOL GetProcessModule(DWORD dwPID,DWORD dwModuleID,LPMODULEENTRY32 lpMe32,
                       DWORD& dwTotalSize)
 {
-  MODULEENTRY32 me32={sizeof me32};
+  MODULEENTRY32 me32={sizeof(me32)};
   HANDLE hModuleSnap;
   BOOL bRet,bFound=FALSE;
   dwTotalSize = 0;
@@ -183,8 +182,8 @@ BOOL GetProcessModule(DWORD dwPID,DWORD dwModuleID,LPMODULEENTRY32 lpMe32,
 
 DWORD GetHeapSize(DWORD dwPID)
 {
-    HEAPLIST32 hl32 = { sizeof hl32 };
-    HEAPENTRY32 he32 = { sizeof he32 };
+    HEAPLIST32 hl32 = { sizeof(hl32) };
+    HEAPENTRY32 he32 = { sizeof(he32) };
 
     HANDLE hSnapshot = pCreateToolhelp32Snapshot(TH32CS_SNAPHEAPLIST, dwPID);
     if (hSnapshot==INVALID_HANDLE_VALUE)
@@ -277,11 +276,10 @@ void PrintModules95(FILE* InfoFile, DWORD dwPID, _Opt& Opt)
     hModuleSnap=pCreateToolhelp32Snapshot(TH32CS_SNAPMODULE, dwPID);
     if (hModuleSnap==INVALID_HANDLE_VALUE)
         return;
-    me32.dwSize = sizeof me32;
+    me32.dwSize = sizeof(me32);
     for(BOOL bRet = pModule32First(hModuleSnap, &me32); bRet;
              bRet = pModule32Next (hModuleSnap, &me32)) {
-        int len = fprintf(InfoFile, " %08X  %6X  %s", me32.modBaseAddr, me32.modBaseSize,
-                OemString(me32.szExePath));
+        int len = fprintf(InfoFile, " %08X  %6X  %s", me32.modBaseAddr, me32.modBaseSize,(const char *)OemString(me32.szExePath));
         char *pBuf, *pVersion, *pDesc;
         if(Opt.ExportModuleVersion && Plist::GetVersionInfo(me32.szExePath, pBuf, pVersion, pDesc)) {
             PrintModuleVersion(InfoFile, pVersion, pDesc, len);

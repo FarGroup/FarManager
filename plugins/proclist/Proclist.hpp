@@ -1,19 +1,15 @@
-/*
-$Id: Proclist.hpp,v 1.2 2003/04/18 11:02:52 yutsis Exp $
-$Log: Proclist.hpp,v $
-Revision 1.2  2003/04/18 11:02:52  yutsis
-dwPluginThread member added to Plist.
-
-*/
-
 #define STRICT
 
 #include <windows.h>
 #include <stdio.h>
+#define _FAR_USE_FARFINDDATA
 #include "plugin.hpp"
-#pragma hdrstop
+#ifdef __GNUC__
+#include "crt.hpp"
+#endif
 
 #ifdef _MSC_VER
+#pragma hdrstop
 #  pragma comment( lib, "version.lib" )
 #endif
 

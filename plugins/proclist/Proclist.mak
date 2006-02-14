@@ -19,9 +19,9 @@ CPP_PROJ=-Gs -O2 -Zp1 /MT /GR- /GX -c /opt:nowin98 /Fa"$(CODDIR)\\" /Fo"$(INTDIR
          #-Gs -Ox -Zp1 /GR- /GX -c /opt:nowin98 /Fa"Cod\\"
 RSC_PROJ=/l 0x409 /fo"$(INTDIR)\ProcList.res" /d "NDEBUG"
 
-LINK32_FLAGS=/STUB:..\common\minstub.exe /opt:nowin98 kernel32.lib user32.lib advapi32.lib WbemUuid.Lib Ole32.Lib OleAut32.Lib shell32.lib MPR.LIB /nologo /dll /incremental:no /pdb:none /machine:I386 /def:".\Plugin.def" /out:"$(OUTDIR)\Proclist.dll" /implib:"$(INTDIR)\Proclist.lib" /MAP
+LINK32_FLAGS=/STUB:..\common\minstub.exe /opt:nowin98 kernel32.lib user32.lib advapi32.lib WbemUuid.Lib Ole32.Lib OleAut32.Lib shell32.lib MPR.LIB /nologo /dll /incremental:no /pdb:none /machine:I386 /def:".\Proclist.def" /out:"$(OUTDIR)\ProcList.dll" /implib:"$(INTDIR)\Proclist.lib" /MAP
 
-DEF_FILE=".\Plugin.def"
+DEF_FILE=".\Proclist.def"
 
 LINK32_OBJS= \
 	"$(INTDIR)\handles.obj" \
@@ -38,7 +38,7 @@ LINK32_OBJS= \
 
 
 
-ALL : "$(OUTDIR)\PROCLIST.DLL"
+ALL : "$(OUTDIR)\ProcList.dll"
 
 
 CLEAN :
@@ -46,7 +46,7 @@ CLEAN :
 	-@erase "$(INTDIR)\*.res"
 	-@erase "$(INTDIR)\*.exp"
 	-@erase "$(INTDIR)\*.lib"
-	-@erase "$(OUTDIR)\PROCLIST.DLL"
+	-@erase "$(OUTDIR)\ProcList.dll"
 
 
 $(OUTDIR) :
@@ -77,7 +77,7 @@ $(CODDIR) :
 
 
 
-"$(OUTDIR)\PROCLIST.DLL" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
+"$(OUTDIR)\ProcList.dll" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
     $(LINK32) @<<
   $(LINK32_FLAGS) $(LINK32_OBJS)
 <<

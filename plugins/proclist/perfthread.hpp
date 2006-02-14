@@ -6,7 +6,7 @@ template <class T> class Array {
     T *data;
     DWORD size;
     void Assign(T* src, DWORD cb) {
-        Clear();
+        //Clear();
         data = new T[size=cb];
         memcpy(data, src, cb*sizeof(T));
     }
@@ -55,8 +55,8 @@ struct PerfLib {
     DWORD dwThreadTitle;
     DWORD dwCreatingPIDTitle;
     DWORD dwElapsedTitle;
-    DWORD dwCounterTitles[sizeof Counters/sizeof *Counters];
-    DWORD CounterTypes[sizeof Counters/sizeof *Counters];
+    DWORD dwCounterTitles[sizeof(Counters)/sizeof(*Counters)];
+    DWORD CounterTypes[sizeof(Counters)/sizeof(*Counters)];
 };
 
 struct IWbemServices;

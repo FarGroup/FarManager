@@ -1,16 +1,3 @@
-/*
-$Id: perfthread.cpp,v 1.3 2003/04/18 17:40:01 yutsis Exp $
-
-$Log: perfthread.cpp,v $
-Revision 1.3  2003/04/18 17:40:01  yutsis
-SyncReread() is fixed to wait for PerfThread update.
-
-Revision 1.2  2003/04/18 11:27:23  yutsis
-WMI data refreshing fixed.
-Counter names searching simplified.
-
-*/
-
 #include "proclist.hpp"
 #include "proclng.hpp"
 #include "perfthread.hpp"
@@ -22,28 +9,28 @@ Counter names searching simplified.
 #define EXTEND_SIZE         25600
 
 _Counters Counters[] = {
-        "% Processor Time",        MProcessorTime     , MColProcessorTime     ,
-        "% Privileged Time",       MPrivilegedTime    , MColPrivilegedTime    ,
-        "% User Time",             MUserTime          , MColUserTime          ,
-        "Handle Count",            MHandleCount       , MColHandleCount       ,
-        "Page File Bytes",         MPageFileBytes     , MColPageFileBytes     ,
-        "Page File Bytes Peak",    MPageFileBytesPeak , MColPageFileBytesPeak ,
-        "Working Set",             MWorkingSet        , MColWorkingSet        ,
-        "Working Set Peak",        MWorkingSetPeak    , MColWorkingSetPeak    ,
-        "Pool Nonpaged Bytes",     MPoolNonpagedBytes , MColPoolNonpagedBytes ,
-        "Pool Paged Bytes",        MPoolPagedBytes    , MColPoolPagedBytes    ,
-        "Private Bytes",           MPrivateBytes      , MColPrivateBytes      ,
-        "Page Faults/sec",         MPageFaults        , MColPageFaults        ,
-        "Virtual Bytes",           MVirtualBytes      , MColVirtualBytes      ,
-        "Virtual Bytes Peak",      MVirtualBytesPeak  , MColVirtualBytesPeak  ,
-        "IO Data Bytes/sec",       MIODataBytes       , MColIODataBytes       ,
-        "IO Read Bytes/sec",       MIOReadBytes       , MColIOReadBytes       ,
-        "IO Write Bytes/sec",      MIOWriteBytes      , MColIOWriteBytes      ,
-        "IO Other Bytes/sec",      MIOOtherBytes      , MColIOOtherBytes      ,
-        "IO Data Operations/sec",  MIODataOperations  , MColIODataOperations  ,
-        "IO Read Operations/sec",  MIOReadOperations  , MColIOReadOperations  ,
-        "IO Write Operations/sec", MIOWriteOperations , MColIOWriteOperations ,
-        "IO Other Operations/sec", MIOOtherOperations , MColIOOtherOperations ,
+        {"% Processor Time",        MProcessorTime     , MColProcessorTime     },
+        {"% Privileged Time",       MPrivilegedTime    , MColPrivilegedTime    },
+        {"% User Time",             MUserTime          , MColUserTime          },
+        {"Handle Count",            MHandleCount       , MColHandleCount       },
+        {"Page File Bytes",         MPageFileBytes     , MColPageFileBytes     },
+        {"Page File Bytes Peak",    MPageFileBytesPeak , MColPageFileBytesPeak },
+        {"Working Set",             MWorkingSet        , MColWorkingSet        },
+        {"Working Set Peak",        MWorkingSetPeak    , MColWorkingSetPeak    },
+        {"Pool Nonpaged Bytes",     MPoolNonpagedBytes , MColPoolNonpagedBytes },
+        {"Pool Paged Bytes",        MPoolPagedBytes    , MColPoolPagedBytes    },
+        {"Private Bytes",           MPrivateBytes      , MColPrivateBytes      },
+        {"Page Faults/sec",         MPageFaults        , MColPageFaults        },
+        {"Virtual Bytes",           MVirtualBytes      , MColVirtualBytes      },
+        {"Virtual Bytes Peak",      MVirtualBytesPeak  , MColVirtualBytesPeak  },
+        {"IO Data Bytes/sec",       MIODataBytes       , MColIODataBytes       },
+        {"IO Read Bytes/sec",       MIOReadBytes       , MColIOReadBytes       },
+        {"IO Write Bytes/sec",      MIOWriteBytes      , MColIOWriteBytes      },
+        {"IO Other Bytes/sec",      MIOOtherBytes      , MColIOOtherBytes      },
+        {"IO Data Operations/sec",  MIODataOperations  , MColIODataOperations  },
+        {"IO Read Operations/sec",  MIOReadOperations  , MColIOReadOperations  },
+        {"IO Write Operations/sec", MIOWriteOperations , MColIOWriteOperations },
+        {"IO Other Operations/sec", MIOOtherOperations , MColIOOtherOperations },
 };
 
 // A wrapper class to provide auto-closing of registry key
@@ -71,12 +58,12 @@ static int getcounter(char*p)
 
 PerfThread::PerfThread(Plist& plist, const char* hostname, const char* pUser, const char* pPasw) : PlistPlugin(plist)
 {
-    memset(this, 0, sizeof *this);
+    memset(this, 0, sizeof(*this));
     dwRefreshMsec = 500;
     if(pUser && *pUser) {
-        strncpy(UserName, pUser, sizeof UserName-1);
+        lstrcpyn(UserName, pUser, sizeof(UserName));
         if(pPasw)
-            strncpy(Password, pPasw, sizeof Password-1);
+            lstrcpyn(Password, pPasw, sizeof(Password));
     }
 
     hMutex = CreateMutex(0, FALSE, 0);
@@ -84,7 +71,7 @@ PerfThread::PerfThread(Plist& plist, const char* hostname, const char* pUser, co
 
     DWORD rc;
     if( hostname ) {
-        strncpy(HostName, hostname, sizeof HostName-1);
+        lstrcpyn(HostName, hostname, sizeof(HostName));
         if((rc=RegConnectRegistry(hostname, HKEY_LOCAL_MACHINE, &hHKLM))!=ERROR_SUCCESS ||
            (rc=RegConnectRegistry(hostname, HKEY_PERFORMANCE_DATA, &hPerf))!=ERROR_SUCCESS)
            {
@@ -234,10 +221,10 @@ void PerfThread::Refresh()
                     pf.CounterTypes[ii] = pCounterDef[i].CounterType;
     }
 
-    DWORD dwProcessIdCounter, dwPriorityCounter, dwThreadCounter=0, dwElapsedCounter,
+    DWORD dwProcessIdCounter=0, dwPriorityCounter=0, dwThreadCounter=0, dwElapsedCounter=0,
         dwCreatingPIDCounter=0, dwCounterOffsets[NCOUNTERS];
 
-    memset(dwCounterOffsets,0,sizeof dwCounterOffsets);
+    memset(dwCounterOffsets,0,sizeof(dwCounterOffsets));
     DWORD i;
     for (i=0; i<(DWORD)pObj->NumCounters; i++)
     {
@@ -293,8 +280,8 @@ void PerfThread::Refresh()
                 else // PERF_SIZE_DWORD
                     Task.qwCounters[ii] = *((DWORD*) ((DWORD)pCounter + dwCounterOffsets[ii]));
             }
-        //memcpy(Task.qwResults, Task.qwCounters, sizeof Task.qwResults);
-        memset(Task.qwResults, 0, sizeof Task.qwResults);
+        //memcpy(Task.qwResults, Task.qwCounters, sizeof(Task.qwResults));
+        memset(Task.qwResults, 0, sizeof(Task.qwResults));
 
         ProcessPerfData* pOldTask = 0;
 
@@ -341,14 +328,14 @@ void PerfThread::Refresh()
             Task.ftCreation = pOldTask->ftCreation;
             */
             memcpy(Task.ProcessName, pOldTask->ProcessName,
-                sizeof Task - offsetof(ProcessPerfData, ProcessName));
+                sizeof(Task) - offsetof(ProcessPerfData, ProcessName));
         }
         else {
           HANDLE hProcess = *HostName || Task.dwProcessId<=8 ? 0 :
                 OpenProcessForced(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ|READ_CONTROL, Task.dwProcessId);
           if(hProcess) {
-            GetOpenProcessDataNT(hProcess, Task.ProcessName, sizeof Task.ProcessName,
-                Task.FullPath, sizeof Task.FullPath, Task.CommandLine, sizeof Task.CommandLine);
+            GetOpenProcessDataNT(hProcess, Task.ProcessName, sizeof(Task.ProcessName),
+                Task.FullPath, sizeof(Task.FullPath), Task.CommandLine, sizeof(Task.CommandLine));
             FILETIME ftExit,ftKernel,ftUser;
             GetProcessTimes(hProcess,&Task.ftCreation,&ftExit,&ftKernel,&ftUser);
 
@@ -363,7 +350,7 @@ void PerfThread::Refresh()
             // pointer to the process name
             // convert it to ascii
             if (WideCharToMultiByte( CP_OEMCP, 0, (LPCWSTR)((DWORD)pInst + pInst->NameOffset),
-                    -1, Task.ProcessName, sizeof Task.ProcessName - 5, 0, 0) == 0)
+                    -1, Task.ProcessName, sizeof(Task.ProcessName) - 5, 0, 0) == 0)
                 strcpy( Task.ProcessName, "unknown" );
             else
                 if(Task.dwProcessId>8)
@@ -418,7 +405,7 @@ DWORD WINAPI PerfThread::ThreadProc()
         }
         if(WMI)
             RefreshWMIData();
-        if(WaitForMultipleObjects(sizeof handles/sizeof *handles, handles, 0, dwRefreshMsec)==WAIT_OBJECT_0)
+        if(WaitForMultipleObjects(sizeof(handles)/sizeof(*handles), handles, 0, dwRefreshMsec)==WAIT_OBJECT_0)
             break;
     }
     WMI.Disconnect();

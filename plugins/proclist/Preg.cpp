@@ -15,7 +15,7 @@ void SetRegKey(const char *Key,const char *ValueName,char *ValueData)
 void SetRegKey(const char *Key,const char *ValueName,DWORD ValueData)
 {
   HKEY hKey=CreateRegKey(Key);
-  RegSetValueEx(hKey,ValueName,0,REG_DWORD,(BYTE *)&ValueData,sizeof ValueData);
+  RegSetValueEx(hKey,ValueName,0,REG_DWORD,(BYTE *)&ValueData,sizeof(ValueData));
   RegCloseKey(hKey);
 }
 

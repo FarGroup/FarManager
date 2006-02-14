@@ -5,7 +5,32 @@
 #include <stdio.h>
 #include <time.h>
 
-void WINAPI _export SetStartupInfo(PluginStartupInfo *Info)
+_Opt Opt;
+
+PluginStartupInfo Info;
+FarStandardFunctions FSF;
+int NT, W2K;
+char PluginRootKey[80];
+
+#if defined(__GNUC__)
+#ifdef __cplusplus
+extern "C"{
+#endif
+  BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
+#ifdef __cplusplus
+};
+#endif
+
+BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
+{
+  (void) hDll;
+  (void) dwReason;
+  (void) lpReserved;
+  return TRUE;
+}
+#endif
+
+void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
 {
   OSVERSIONINFO WinVer;
   WinVer.dwOSVersionInfoSize=sizeof(WinVer);
@@ -13,8 +38,9 @@ void WINAPI _export SetStartupInfo(PluginStartupInfo *Info)
   NT = (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT);
   W2K = NT && (WinVer.dwMajorVersion > 4);
   ::Info = *Info;
-  ::FSF = *Info->FSF;
-  wsprintf(PluginRootKey,"%s\\Plist",Info->RootKey);
+  FSF = *Info->FSF;
+  ::Info.FSF = &FSF;
+  FSF.sprintf(PluginRootKey,"%s\\Plist",Info->RootKey);
   Opt.Read();
 }
 
@@ -40,21 +66,21 @@ void WINAPI _export ClosePlugin(HANDLE hPlugin)
 }
 
 
-int WINAPI _export GetFindData(HANDLE hPlugin,PluginPanelItem **ppPanelItem,int *pItemsNumber,int OpMode)
+int WINAPI _export GetFindData(HANDLE hPlugin,struct PluginPanelItem **ppPanelItem,int *pItemsNumber,int OpMode)
 {
   Plist *Panel=(Plist *)hPlugin;
   return Panel->GetFindData(*ppPanelItem,*pItemsNumber,OpMode);
 }
 
 
-void WINAPI _export FreeFindData(HANDLE hPlugin,PluginPanelItem *PanelItem,int ItemsNumber)
+void WINAPI _export FreeFindData(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber)
 {
   Plist *Panel=(Plist *)hPlugin;
   Panel->FreeFindData(PanelItem,ItemsNumber);
 }
 
 
-void WINAPI _export GetPluginInfo(PluginInfo *Info)
+void WINAPI _export GetPluginInfo(struct PluginInfo *Info)
 {
   Info->StructSize=sizeof(*Info);
   Info->Flags=0;
@@ -82,7 +108,7 @@ void WINAPI _export GetPluginInfo(PluginInfo *Info)
 }
 
 
-void WINAPI _export GetOpenPluginInfo(HANDLE hPlugin,OpenPluginInfo *Info)
+void WINAPI _export GetOpenPluginInfo(HANDLE hPlugin,struct OpenPluginInfo *Info)
 {
   Plist *Panel=(Plist *)hPlugin;
   Panel->GetOpenPluginInfo(Info);
@@ -118,15 +144,7 @@ int WINAPI _export Configure(int ItemNumber)
 {
   return Config();
 }
-int WINAPI _export Compare (HANDLE hPlugin, const PluginPanelItem *Item1,
-        const PluginPanelItem *Item2, unsigned int Mode)
+int WINAPI _export Compare (HANDLE hPlugin, const struct PluginPanelItem *Item1, const struct PluginPanelItem *Item2, unsigned int Mode)
 {
    return ((Plist *)hPlugin)->Compare(Item1, Item2, Mode);
 }
-
-_Opt Opt;
-
-PluginStartupInfo Info;
-FarStandardFunctions FSF;
-int NT, W2K;
-char PluginRootKey[80];

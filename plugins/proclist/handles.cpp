@@ -1,9 +1,4 @@
 // Based on Zoltan Csizmadia's TaskManagerEx source, zoltan_csizmadia@yahoo.com
-/*
-$Id$
-
-$Log$
-*/
 
 #include "proclist.hpp"
 #include "perfthread.hpp" // fot GetProcessData
@@ -65,7 +60,7 @@ static wchar_t* pUserAccountID;
 BOOL GetProcessId( HANDLE handle, DWORD& dwPID)
 {
     BOOL ret = FALSE;
-    bool remote = false;
+    //bool remote = false;
     PROCESS_BASIC_INFORMATION pi;
 
     ZeroMemory( &pi, sizeof(pi) );
@@ -95,7 +90,7 @@ BOOL GetThreadId( HANDLE h, DWORD& threadID)
     typedef DWORD (WINAPI *PNtQueryInformationThread)(HANDLE, ULONG, PVOID, DWORD, DWORD* );
     DYNAMIC_ENTRY(NtQueryInformationThread, GetModuleHandle("ntdll"))
     // Get the thread information
-    if ( pNtQueryInformationThread( handle, 0, &ti, sizeof ti, NULL ) == 0 )
+    if ( pNtQueryInformationThread( handle, 0, &ti, sizeof(ti), NULL ) == 0 )
     {
         threadID = ti.ThreadId;
         ret = TRUE;
@@ -112,8 +107,6 @@ BOOL GetThreadId( HANDLE h, DWORD& threadID)
 inline bool GOODSTATUS(DWORD st) { return !(st) || (st)==0xC0000004L; }
 
 typedef DWORD (WINAPI *PNtQueryObject)( HANDLE, DWORD, VOID*, DWORD, VOID* );
-PNtQueryObject NtQueryObject = (PNtQueryObject)GetProcAddress(GetModuleHandle("ntdll"),
-            "NtQueryObject");
 
 DWORD WINAPI GetFileNameThread(PVOID Param)
 {
@@ -122,13 +115,14 @@ DWORD WINAPI GetFileNameThread(PVOID Param)
 
     DWORD iob[2];
     char info[256];
-    pNtQueryInformationFile((HANDLE)Param, &iob, &info,sizeof info, 22);
+    pNtQueryInformationFile((HANDLE)Param, &iob, &info,sizeof(info), 22);
     return 0;
 }
 
 bool PrintFileName(HANDLE handle, FILE* file)
 {
     bool ret = false;
+    DYNAMIC_ENTRY(NtQueryObject,GetModuleHandle("ntdll"))
 
     // Check if it's possible to get the file name info
     DWORD dwThreadId;
@@ -144,13 +138,13 @@ bool PrintFileName(HANDLE handle, FILE* file)
     else {
         // it is safe to call NtQueryObject
         ULONG size = 0x2000;
-        if(GOODSTATUS(NtQueryObject ( handle, 1, NULL, 0, &size ))) {
+        if(GOODSTATUS(pNtQueryObject ( handle, 1, NULL, 0, &size ))) {
         // let's try to use the default
             if ( size == 0 )
                 size = 0x2000;
 
             UCHAR* lpBuffer = new UCHAR[size];
-            if ( NtQueryObject( handle, 1, lpBuffer, size, 0 ) == 0 &&
+            if ( pNtQueryObject( handle, 1, lpBuffer, size, 0 ) == 0 &&
                  ((UNICODE_STRING*)lpBuffer)->Length)
                     fprintf(file, "%S", ((UNICODE_STRING*)lpBuffer)->Buffer);
             else
@@ -167,14 +161,15 @@ bool GetTypeToken(HANDLE handle, char* str, DWORD dwSize)
 {
     ULONG size = 0x2000;
     bool ret = false;
+    DYNAMIC_ENTRY(NtQueryObject,GetModuleHandle("ntdll"))
 
     // Query the info size
-    if(GOODSTATUS(NtQueryObject( handle, 2, NULL, 0, &size ))) {
+    if(GOODSTATUS(pNtQueryObject( handle, 2, NULL, 0, &size ))) {
 
         UCHAR* lpBuffer = new UCHAR[size];
 
         // Query the info size ( type )
-        if ( NtQueryObject( handle, 2, lpBuffer, size, NULL ) == 0 )
+        if ( pNtQueryObject( handle, 2, lpBuffer, size, NULL ) == 0 )
         {
             WideCharToMultiByte( CP_ACP, 0, (LPCWSTR)(lpBuffer+0x60), -1,
                     str, dwSize, NULL, NULL);
@@ -196,7 +191,7 @@ char* constStrTypes[] = {
 
 WORD GetTypeFromTypeToken( LPCSTR typeToken)
 {
-    for ( WORD i = 1; i < sizeof constStrTypes/sizeof *constStrTypes; i++ )
+    for ( WORD i = 1; i < sizeof(constStrTypes)/sizeof(*constStrTypes); i++ )
         if ( !stricmp(constStrTypes[i], typeToken) )
             return i;
     return OB_TYPE_UNKNOWN;
@@ -205,13 +200,13 @@ WORD GetTypeFromTypeToken( LPCSTR typeToken)
 WORD GetType( HANDLE h)
 {
     char strType[256];
-    return GetTypeToken( h, strType, sizeof strType) ?
-        GetTypeFromTypeToken(strType) : OB_TYPE_UNKNOWN;
+    return GetTypeToken( h, strType, sizeof(strType)) ? GetTypeFromTypeToken(strType) : OB_TYPE_UNKNOWN;
 }
 
 bool PrintNameByType(HANDLE handle, WORD type, FILE* file, PerfThread* pThread=0)
 {
     bool ret = false;
+    DYNAMIC_ENTRY(NtQueryObject,GetModuleHandle("ntdll"))
 
     // let's be happy, handle is in our process space, so query the infos :)
     DWORD dwId = 0;
@@ -222,7 +217,7 @@ bool PrintNameByType(HANDLE handle, WORD type, FILE* file, PerfThread* pThread=0
             {
                 Lock l(pThread);
                 ProcessPerfData* pd = pThread ? pThread->GetProcessData(dwId, 0) : 0;
-                char* pName = pd ? pd->ProcessName : "<unknown>";
+                const char* pName = pd ? pd->ProcessName : "<unknown>";
                 fprintf(file, "%s (%d)", pName, dwId );
             }
             return true;
@@ -238,7 +233,7 @@ bool PrintNameByType(HANDLE handle, WORD type, FILE* file, PerfThread* pThread=0
 
     ULONG size = 0x2000;
 
-    if(GOODSTATUS(NtQueryObject ( handle, 1, NULL, 0, &size ))) {
+    if(GOODSTATUS(pNtQueryObject ( handle, 1, NULL, 0, &size ))) {
 
         // let's try to use the default
         if ( size == 0 )
@@ -246,7 +241,7 @@ bool PrintNameByType(HANDLE handle, WORD type, FILE* file, PerfThread* pThread=0
 
         UCHAR* lpBuffer = new UCHAR[size];
 
-        if ( NtQueryObject( handle, 1, lpBuffer, size, 0 ) == 0 )
+        if ( pNtQueryObject( handle, 1, lpBuffer, size, 0 ) == 0 )
         {
 #define REGISTRY L"\\REGISTRY\\"
 #define USER L"USER"
@@ -256,25 +251,25 @@ bool PrintNameByType(HANDLE handle, WORD type, FILE* file, PerfThread* pThread=0
 
             if(((UNICODE_STRING*)lpBuffer)->Length) {
                 wchar_t *ws = ((UNICODE_STRING*)lpBuffer)->Buffer;
-                if(type==OB_TYPE_KEY && !memicmp(ws, REGISTRY, sizeof REGISTRY-2) ) {
-                    wchar_t *ws1 = ws + sizeof REGISTRY / 2 - 1;
+                if(type==OB_TYPE_KEY && !memicmp(ws, REGISTRY, sizeof(REGISTRY)-2) ) {
+                    wchar_t *ws1 = ws + sizeof(REGISTRY) / 2 - 1;
                     char *s0 = 0;
-                    if(!memicmp(ws1, USER, sizeof USER-2)) {
-                            ws1 += sizeof USER / 2 - 1;
+                    if(!memicmp(ws1, USER, sizeof(USER)-2)) {
+                            ws1 += sizeof(USER) / 2 - 1;
                             size_t l  = wcslen(pUserAccountID);
                             if(l>0 && !memicmp(ws1,pUserAccountID,l*2)) {
                                 s0 = "HKCU";
                                 ws1 += l;
-                                if(!memicmp(ws1,_CLASSES,sizeof _CLASSES-2)) {
+                                if(!memicmp(ws1,_CLASSES,sizeof(_CLASSES)-2)) {
                                     s0 = "HKCU\\Classes";
-                                    ws1 += sizeof _CLASSES / 2 - 1;
+                                    ws1 += sizeof(_CLASSES) / 2 - 1;
                                 }
                             }
                             else
                                 s0 = "HKU";
                     }
-                    else if(!memicmp(ws1, CLASSES, sizeof CLASSES-2)) { s0 = "HKCR"; ws1+=(sizeof CLASSES)/2 - 1;}
-                    else if(!memicmp(ws1, MACHINE, sizeof MACHINE-2)) { s0 = "HKLM"; ws1+=(sizeof MACHINE)/2 - 1;}
+                    else if(!memicmp(ws1, CLASSES, sizeof(CLASSES)-2)) { s0 = "HKCR"; ws1+=(sizeof(CLASSES))/2 - 1;}
+                    else if(!memicmp(ws1, MACHINE, sizeof(MACHINE)-2)) { s0 = "HKLM"; ws1+=(sizeof(MACHINE))/2 - 1;}
                     if(s0) {
                         fprintf(file, "%s", s0);
                         ws = ws1;
@@ -306,7 +301,7 @@ bool PrintNameAndType(HANDLE h, DWORD dwPID, FILE* file, PerfThread* pThread=0)
         handle = h;
 
     WORD type = GetType(handle);
-    if(type<sizeof constStrTypes/sizeof *constStrTypes)
+    if(type<sizeof(constStrTypes)/sizeof(*constStrTypes))
         fprintf(file, "%-13s ", constStrTypes[type]);
     bool ret = type!=OB_TYPE_UNKNOWN &&
             PrintNameByType( handle, type, file, pThread);
@@ -385,12 +380,11 @@ bool PrintHandleInfo(DWORD dwPID, FILE* file, bool bIncludeUnnamed, PerfThread* 
             pSysHandleInformation->Handles[i].HandleType = (WORD)(pSysHandleInformation->Handles[i].HandleType & 0xff);
             fprintf(file, "%5X  %08X ",
                 pSysHandleInformation->Handles[i].HandleNumber,
-                /*dwType< sizeof constStrTypes/sizeof *constStrTypes ?
+                /*dwType< sizeof(constStrTypes)/sizeof(*constStrTypes) ?
                     constStrTypes[dwType] : "(Unknown)",*/
 //              pSysHandleInformation->Handles[i].KernelAddress,
                 pSysHandleInformation->Handles[i].Flags);
-            PrintNameAndType((HANDLE)pSysHandleInformation->Handles[i].HandleNumber,
-                dwPID, file, pThread);
+            PrintNameAndType((HANDLE)pSysHandleInformation->Handles[i].HandleNumber, dwPID, file, pThread);
             fputc('\n', file);
         }
     }
@@ -486,7 +480,7 @@ BOOL ConvertSid(PSID pSid, LPWSTR pszSidText, LPDWORD dwBufferLen)
 wchar_t* GetUserAccountID()
 {
 static char UserAccountID[256];
-   DWORD size = sizeof UserAccountID;
+   DWORD size = sizeof(UserAccountID);
    SID_NAME_USE eUse;
    DWORD cbSid=0,cbDomainName=0;
 
@@ -501,9 +495,9 @@ static char UserAccountID[256];
    PSID pSid = (PSID)new char[cbSid];
    char* pDomainName = new char[cbDomainName+1];
    pLookupAccountNameA(0,UserAccountID,pSid,&cbSid, pDomainName,&cbDomainName, &eUse);
-   size = sizeof UserAccountID;
+   size = sizeof(UserAccountID);
    if(!ConvertSid(pSid, (wchar_t*)UserAccountID, &size)) *UserAccountID = 0;
-   delete pSid;
+   delete (char *)pSid;
    delete pDomainName;
    return (wchar_t*)UserAccountID;
 }

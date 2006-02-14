@@ -1,12 +1,3 @@
-/*
-$Id: Pclass.cpp,v 1.2 2003/04/18 11:05:35 yutsis Exp $
-
-$Log: Pclass.cpp,v $
-Revision 1.2  2003/04/18 11:05:35  yutsis
-Plist::ConnectWMI() works only in the plugin's main thread.
-
-*/
-
 #include "proclist.hpp"
 #include <farkeys.hpp>
 #include "perfthread.hpp"
@@ -108,8 +99,8 @@ void Plist::InitializePanelModes()
 
             wsprintf(name, "Mode%d", iMode);
 
-            GetRegKey(name, "ColumnsLocal", ProcPanelModesLocal[iMode], NT ? DefaultModesNT[iMode].Cols : DefaultModes9x[iMode].Cols, sizeof ProcPanelModesLocal[iMode]);
-            GetRegKey(name, "ColumnsRemote", ProcPanelModesRemote[iMode], DefaultModesRemoteNT[iMode].Cols, sizeof ProcPanelModesRemote[iMode]);
+            GetRegKey(name, "ColumnsLocal", ProcPanelModesLocal[iMode], NT ? DefaultModesNT[iMode].Cols : DefaultModes9x[iMode].Cols, sizeof(ProcPanelModesLocal[iMode]));
+            GetRegKey(name, "ColumnsRemote", ProcPanelModesRemote[iMode], DefaultModesRemoteNT[iMode].Cols, sizeof(ProcPanelModesRemote[iMode]));
             GetRegKey(name, "WidthsLocal", PanelModesLocal[iMode].ColumnWidths, NT ? DefaultModesNT[iMode].Width : DefaultModes9x[iMode].Width, MAX_MODE_STR-1);
             GetRegKey(name, "WidthsRemote", PanelModesRemote[iMode].ColumnWidths, DefaultModesRemoteNT[iMode].Width, MAX_MODE_STR-1);
             GetRegKey(name, "FullScreenLocal", PanelModesLocal[iMode].FullScreen, iMode==5 && NT ? 1 : 0);
@@ -217,8 +208,7 @@ void GenerateTitles(char ProcPanelModes[][MAX_MODE_STR], PanelMode* PanelModes, 
     char buf[80];
     for(int i=0; i<NPANELMODES; i++) {
         if(*ProcPanelModes[i]) {
-            strncpy(buf, ProcPanelModes[i], sizeof buf-1);
-            buf[sizeof buf-1]=0;
+            lstrcpyn(buf, ProcPanelModes[i], sizeof(buf));
             int ii=0;
             for(StrTok tok(buf,","); tok; ++tok) {
                 int id=0;
@@ -287,7 +277,7 @@ PanelMode* Plist::PanelModes(int& nModes)
 
 void Plist::GetOpenPluginInfo(OpenPluginInfo *Info)
 {
-    Info->StructSize = sizeof *Info;
+    Info->StructSize = sizeof(*Info);
     Info->Flags = OPIF_ADDDOTS|OPIF_SHOWNAMESONLY;
 
     Info->CurDir = "";
@@ -335,23 +325,23 @@ BOOL CALLBACK EnumWndProc(HWND hWnd,LPARAM lParam)
 }
 
 class ui64Table {
-    static unsigned _int64 Table[21];
+    static unsigned __int64 Table[21];
 public:
     ui64Table()
     {
-        unsigned _int64 n = 1;
-        for(int i=0; i<sizeof Table/sizeof *Table; i++,n*=10)
+        unsigned __int64 n = 1;
+        for(size_t i=0; i<sizeof(Table)/sizeof(*Table); i++,n*=10)
             Table[i] = n;
     }
-    static unsigned _int64 tenpow(unsigned n) {
-        if(n>=sizeof Table/sizeof *Table)
-            n = sizeof Table/sizeof *Table - 1;
+    static unsigned __int64 tenpow(unsigned n) {
+        if(n>=sizeof(Table)/sizeof(*Table))
+            n = sizeof(Table)/sizeof(*Table) - 1;
         return Table[n];
     }
 } _ui64Table;
-unsigned _int64 ui64Table::Table[];
+unsigned __int64 ui64Table::Table[];
 
-void ui64toa_width(unsigned _int64 value, char* buf, unsigned width, bool bThousands)
+void ui64toa_width(unsigned __int64 value, char* buf, unsigned width, bool bThousands)
 {
     if(width < 1)
         return;
@@ -409,7 +399,7 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,int &ItemsNumber,int OpMode)
                 break;
             case 'W':
                 if(ewdata.hWnd)
-                    GetWindowText(ewdata.hWnd, Title, sizeof Title);
+                    GetWindowText(ewdata.hWnd, Title, sizeof(Title));
                 pDesc = Title;
                 break;
             case 'D':
@@ -436,7 +426,7 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,int &ItemsNumber,int OpMode)
         if(pPerfThread)
             pd = pPerfThread->GetProcessData(pdata.dwPID, CurItem.NumberOfLinks);
         int DataOffset = sizeof(char*) * MAX_CUSTOM_COLS;
-        int Widths[MAX_CUSTOM_COLS]; memset(Widths, 0, sizeof Widths);
+        int Widths[MAX_CUSTOM_COLS]; memset(Widths, 0, sizeof(Widths));
 
         unsigned uCustomColSize = 0;
 
@@ -549,7 +539,7 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber,
         ProcessDataNT PData;
         if(!pdata) {
             if(!pPerfThread) {
-                memset(&PData, 0, sizeof PData);
+                memset(&PData, 0, sizeof(PData));
                 PData.dwPID = strtoul(CurItem.FindData.cAlternateFileName, 0, 16);
                 if(GetPData95(PData))
                     pdata = &PData;
@@ -564,12 +554,12 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber,
                 return 0;
         }
         // may be 0 if called from FindFile
-        char FileName[MAX_PATH]; FileName[sizeof FileName-1] = 0;
-        strncpy(FileName, DestPath, sizeof FileName-1);
+        char FileName[MAX_PATH]; FileName[sizeof(FileName)-1] = 0;
+        strncpy(FileName, DestPath, sizeof(FileName)-1);
         if(!(OpMode&0x10000)) {
             FSF.AddEndSlash(FileName);
-            strncat(FileName,CurItem.FindData.cFileName, sizeof FileName-1);
-            strncat(FileName,".txt", sizeof FileName-1);
+            strncat(FileName,CurItem.FindData.cFileName, sizeof(FileName)-1);
+            strncat(FileName,".txt", sizeof(FileName)-1);
         }
         // Replace "invalid" chars by underscores
         char* pname = strrchr(FileName, '\\');
@@ -678,7 +668,7 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber,
         if(!*HostName && pdata->hwnd)
         {
             char Title[NM]; *Title=0;
-            GetWindowText(pdata->hwnd, Title, sizeof Title);
+            GetWindowText(pdata->hwnd, Title, sizeof(Title));
             //if(!Opt.AnsiOutput)
             CharToOem(Title,Title);
             fprintf(InfoFile,"\n%s %s\n",PrintTitle(MTitleWindow), Title);
@@ -726,22 +716,22 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber,
 
             char StyleStr[1024], ExtStyleStr[1024];
             *StyleStr = *ExtStyleStr=0;
-            int i;
-            for (i=0; i<sizeof Styles/sizeof *Styles; i++)
+            size_t i;
+            for (i=0; i<sizeof(Styles)/sizeof(*Styles); i++)
                 if (Style & Styles[i])
                 {
-                    strncat(StyleStr, " ", sizeof StyleStr - 1);
-                    strncat(StyleStr, StrStyles[i], sizeof StyleStr - 1);
+                    strncat(StyleStr, " ", sizeof(StyleStr) - 1);
+                    strncat(StyleStr, StrStyles[i], sizeof(StyleStr) - 1);
                 }
-                for (i=0; i<sizeof ExtStyles/sizeof *ExtStyles; i++)
-                    if (Style & ExtStyles[i])
-                    {
-                        strncat(ExtStyleStr, " ", sizeof ExtStyleStr-1);
-                        strncat(ExtStyleStr, StrExtStyles[i], sizeof ExtStyleStr-1);
-                    }
+            for (i=0; i<sizeof(ExtStyles)/sizeof(*ExtStyles); i++)
+                if (Style & ExtStyles[i])
+                {
+                    strncat(ExtStyleStr, " ", sizeof(ExtStyleStr)-1);
+                    strncat(ExtStyleStr, StrExtStyles[i], sizeof(ExtStyleStr)-1);
+                }
 
-                    fprintf(InfoFile,"%-22s %08X %s\n",PrintTitle(MTitleStyle),Style,StyleStr);
-                    fprintf(InfoFile,"%-22s %08X %s\n",PrintTitle(MTitleExtStyle),ExtStyle,ExtStyleStr);
+            fprintf(InfoFile,"%-22s %08X %s\n",PrintTitle(MTitleStyle),Style,StyleStr);
+            fprintf(InfoFile,"%-22s %08X %s\n",PrintTitle(MTitleExtStyle),ExtStyle,ExtStyleStr);
         }
 
         if(!*HostName && Opt.ExportModuleInfo && pdata->dwPID!=8) {
@@ -773,7 +763,7 @@ int Plist::DeleteFiles(PluginPanelItem *PanelItem,int ItemsNumber,
     {
         //cannot kill remote process
         const char *MsgItems[]={GetMsg(MCannotDeleteProc),GetMsg(MCannotKillRemote),GetMsg(MOk)};
-        Message(FMSG_WARNING,NULL,MsgItems,sizeof MsgItems/sizeof *MsgItems);
+        Message(FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(*MsgItems));
         return FALSE;
     }
 
@@ -786,14 +776,14 @@ int Plist::DeleteFiles(PluginPanelItem *PanelItem,int ItemsNumber,
         wsprintf(Msg,GetMsg(MDeleteProcess),PanelItem[0].FindData.cFileName);
         MsgItems[1]=Msg;
     }
-    if (Message(0,NULL,MsgItems,sizeof MsgItems/sizeof *MsgItems,2)!=0)
+    if (Message(0,NULL,MsgItems,sizeof(MsgItems)/sizeof(*MsgItems),2)!=0)
         return FALSE;
     if (ItemsNumber>1)
     {
         char Msg[512];
         wsprintf(Msg,GetMsg(MDeleteNumberOfProcesses),ItemsNumber);
         MsgItems[1]=Msg;
-        if (Message(FMSG_WARNING,NULL,MsgItems,sizeof MsgItems/sizeof *MsgItems,2)!=0)
+        if (Message(FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(*MsgItems),2)!=0)
             return FALSE;
     }
     for (int I=0;I<ItemsNumber;I++)
@@ -829,7 +819,7 @@ int Plist::DeleteFiles(PluginPanelItem *PanelItem,int ItemsNumber,
             char Msg[512];
             wsprintf(Msg,GetMsg(MCannotDelete),CurItem.FindData.cFileName);
             const char *MsgItems[]={GetMsg(MDeleteTitle),Msg, 0, GetMsg(MOk)};
-            int nItems = sizeof MsgItems/sizeof *MsgItems;
+            int nItems = sizeof(MsgItems)/sizeof(*MsgItems);
             if(MsgId)
                 MsgItems[2] = GetMsg(MsgId);
             else {
@@ -890,15 +880,15 @@ void Plist::PutToCmdLine(char* tmp)
         tmp = tmp1;
     }
     Info.Control(this,FCTL_INSERTCMDLINE, tmp);
-    Info.Control(this,FCTL_INSERTCMDLINE, " ");
+    Info.Control(this,FCTL_INSERTCMDLINE, (void *)" ");
     delete tmp1;
 }
 
 bool Plist::Connect(LPCSTR pMachine, LPCSTR pUser, LPCSTR pPasw)
 {
-    char Machine[sizeof HostName];
-    strncpy(Machine, pMachine, sizeof Machine-1);
-    Machine[sizeof Machine-1] = 0;
+    char Machine[sizeof(HostName)];
+    strncpy(Machine, pMachine, sizeof(Machine)-1);
+    Machine[sizeof(Machine)-1] = 0;
 
     //Convert "//" to "\\"
     if(*(short*)Machine == 0x2f2f)
@@ -1002,7 +992,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
                     SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, (PVOID)dwMs, 0);
 
                 WINDOWPLACEMENT wp;
-                wp.length = sizeof wp;
+                wp.length = sizeof(wp);
                 if (!GetWindowPlacement(hWnd,&wp) || wp.showCmd!=SW_SHOWMAXIMIZED)
                     ShowWindowAsync(hWnd,SW_RESTORE);
             }
@@ -1019,10 +1009,10 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
 
         InitDialogItem InitItems[]={ DI_DOUBLEBOX,3,1,72,8,0,0,0,0,(char *)MViewWithOptions, };
         FarDialogItem DialogItems[NVIEWITEMS + 1];
-        InitDialogItems(InitItems,DialogItems,sizeof InitItems/sizeof *InitItems);
+        InitDialogItems(InitItems,DialogItems,sizeof(InitItems)/sizeof(*InitItems));
         _Opt LocalOpt = Opt;
         MakeViewOptions(DialogItems+1, LocalOpt, 2);
-        int ExitCode = Info.Dialog(Info.ModuleNumber,-1,-1,76,NVIEWITEMS+3,"Config",DialogItems,sizeof DialogItems/sizeof *DialogItems);
+        int ExitCode = Info.Dialog(Info.ModuleNumber,-1,-1,76,NVIEWITEMS+3,"Config",DialogItems,sizeof(DialogItems)/sizeof(*DialogItems));
         if(ExitCode==-1)
             return TRUE;
         GetViewOptions(DialogItems+1, LocalOpt);
@@ -1049,12 +1039,12 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
             { DI_PSWEDIT,26,7,42,0, 0,0, 0, 0, ""},
             { DI_TEXT, 5,8, 0,0, 0,0,0,0, GetMsg(MEmptyForCurrent)},
         };
-        FarDialogItem FarItems[sizeof Items / sizeof *Items];
-        InitDialogItems(Items, FarItems, sizeof Items / sizeof *Items);
+        FarDialogItem FarItems[sizeof(Items) / sizeof(*Items)];
+        InitDialogItems(Items, FarItems, sizeof(Items) / sizeof(*Items));
 
         //Loop until successful connect or user cancel in dialog
         while(Info.Dialog(Info.ModuleNumber, -1,-1, 48, 11, "Contents",
-            FarItems, sizeof Items / sizeof *Items)!=-1)
+            FarItems, sizeof(Items) / sizeof(*Items))!=-1)
         {
             if(*FarItems[2].Data==0 || !strcmp(FarItems[2].Data,"\\\\"))
             {
@@ -1085,7 +1075,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
         if(!Opt.EnableWMI)
             return TRUE;
         const char *MsgItems[]={/*GetMsg(MAttachDebugger)*/"Attach Debugger",/*GetMsg(MConfirmAttachDebugger)*/"Do you want to attach debugger to this process?",GetMsg(MYes),GetMsg(MNo)};
-        if(Message(0,NULL,MsgItems,sizeof MsgItems/sizeof *MsgItems,2)!=0)
+        if(Message(0,NULL,MsgItems,sizeof(MsgItems)/sizeof(*MsgItems),2)!=0)
             return TRUE;
         PanelInfo pi;
         Control(FCTL_GETPANELINFO,&pi);
@@ -1102,7 +1092,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
                     char buf[80];
                     sprintf(buf,"Return code: %d", i);
                     const char *MsgItems[]={/*GetMsg(MAttachDebugger)*/"Attach Debugger",buf,GetMsg(MOk)};
-                    Message(FMSG_WARNING,0,MsgItems,sizeof MsgItems/sizeof *MsgItems);
+                    Message(FMSG_WARNING,0,MsgItems,sizeof(MsgItems)/sizeof(*MsgItems));
                     /*3 The user does not have sufficient privilege.
                     8 Unknown failure.
                     9 The path specified does not exist.
@@ -1121,7 +1111,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
         if(PInfo.SelectedItemsNumber>1)
         {
             const char *MsgItems[]={GetMsg(MChangePriority),GetMsg(MConfirmChangePriority),GetMsg(MYes),GetMsg(MNo)};
-            if(Message(0,NULL,MsgItems,sizeof MsgItems/sizeof *MsgItems,2)!=0)
+            if(Message(0,NULL,MsgItems,sizeof(MsgItems)/sizeof(*MsgItems),2)!=0)
                 return TRUE;
         }
 
@@ -1136,7 +1126,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
             HIGH_PRIORITY_CLASS, REALTIME_PRIORITY_CLASS};
         static USHORT PrClasses2k[] = { IDLE_PRIORITY_CLASS, BELOW_NORMAL_PRIORITY_CLASS,
             NORMAL_PRIORITY_CLASS, ABOVE_NORMAL_PRIORITY_CLASS, HIGH_PRIORITY_CLASS, REALTIME_PRIORITY_CLASS};
-        const int N = bNewPri ? sizeof PrClasses2k/sizeof *PrClasses2k : sizeof PrClasses/sizeof *PrClasses;
+        const int N = bNewPri ? sizeof(PrClasses2k)/sizeof(*PrClasses2k) : sizeof(PrClasses)/sizeof(*PrClasses);
 
         for(int i=0; i<PInfo.SelectedItemsNumber; i++)
         {
@@ -1182,7 +1172,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
                         WmiError();
                         continue;
                     }
-                    static BYTE Pr2K[sizeof PrClasses2k/sizeof *PrClasses2k] = {4,6,8,10,13,24};
+                    static BYTE Pr2K[sizeof(PrClasses2k)/sizeof(*PrClasses2k)] = {4,6,8,10,13,24};
                     for(int i=0; i<N; i++)
                         if( dwPriorityClass==Pr2K[i] ) {
                             bool bChange = false;
@@ -1230,35 +1220,38 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
     } else if(ControlState==PKF_CONTROL && Key==VK_F12) {
 
         struct {int id, mode;} StaticItems[] = {
-            MSortByName,SM_NAME, MSortByExt,SM_EXT,  MSortByTime,SM_MTIME,
-                MSortBySize,SM_SIZE, MSortByUnsorted,SM_UNSORTED,
-                MSortByDescriptions,SM_DESCR,
-                MSortByOwner,SM_OWNER,
-                //      MPageFileBytes,SM_COMPRESSEDSIZE,
-                MTitlePID,SM_PID,
-                MTitleParentPID,SM_PARENTPID,
-                MTitleThreads,SM_NUMLINKS,
-                MTitlePriority,SM_PRIOR,
-                //      0,-1,
-                //      MUseSortGroups,0, MShowSelectedFirst,-1
+                {MSortByName,SM_NAME},
+                {MSortByExt,SM_EXT},
+                {MSortByTime,SM_MTIME},
+                {MSortBySize,SM_SIZE},
+                {MSortByUnsorted,SM_UNSORTED},
+                {MSortByDescriptions,SM_DESCR},
+                {MSortByOwner,SM_OWNER},
+                //      {MPageFileBytes,SM_COMPRESSEDSIZE},
+                {MTitlePID,SM_PID},
+                {MTitleParentPID,SM_PARENTPID},
+                {MTitleThreads,SM_NUMLINKS},
+                {MTitlePriority,SM_PRIOR},
+                //      {0,-1},
+                //      {MUseSortGroups,0}, {MShowSelectedFirst,-1}
         };
 
-#define NSTATICITEMS (sizeof StaticItems/sizeof *StaticItems)
+#define NSTATICITEMS (sizeof(StaticItems)/sizeof(*StaticItems))
 #define LASTBYTE(_array) ((_array)[sizeof(_array) - 1])
 
-        int nMoreData = pPerfThread ? sizeof Counters/sizeof *Counters + 1 : 0;
+        int nMoreData = pPerfThread ? sizeof(Counters)/sizeof(*Counters) + 1 : 0;
 
         PanelInfo pi;
         Control(FCTL_GETPANELINFO, &pi);
         char cIndicator = pi.Flags&PFLAGS_REVERSESORTORDER ? '-' : '+';
 
         Array<FarMenuItem> Items(NSTATICITEMS + nMoreData*2);
-        int i;
+        DWORD i;
         for(i=0; i<NSTATICITEMS; i++)
             if(StaticItems[i].id==0)
                 Items[i].Separator = 1;
             else {
-                strncpy(Items[i].Text, GetMsg(StaticItems[i].id), sizeof Items[0].Text);
+                strncpy(Items[i].Text, GetMsg(StaticItems[i].id), sizeof(Items[0].Text));
                 LASTBYTE(Items[i].Text) = StaticItems[i].mode;
                 int sm = pi.SortMode;
                 if(sm==SM_CTIME)
@@ -1270,11 +1263,11 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
             if(pPerfThread) {
                 Items[nItems++].Separator = 1;
                 const PerfLib* pl = pPerfThread->GetPerfLib();
-                for(i=0; i<sizeof Counters/sizeof *Counters; i++)
+                for(i=0; i<sizeof(Counters)/sizeof(*Counters); i++)
                     if(pl->dwCounterTitles[i]) {
-                        strncpy(Items[nItems].Text, GetMsg(Counters[i].idName), sizeof Items[0].Text);
+                        strncpy(Items[nItems].Text, GetMsg(Counters[i].idName), sizeof(Items[0].Text));
                         LASTBYTE(Items[nItems].Text) = SM_PERFCOUNTER+i;
-                        if(SM_PERFCOUNTER+i==(int)SortMode)
+                        if(SM_PERFCOUNTER+i==SortMode)
                             Items[nItems].Checked = cIndicator;
                         nItems++;
                         if(CANBE_PERSEC(i)) {
@@ -1283,7 +1276,7 @@ int Plist::ProcessKey(int Key,unsigned int ControlState)
                             else
                                 wsprintf(Items[nItems].Text, "%s %s", GetMsg(Counters[i].idName), GetMsg(MperSec));
                             LASTBYTE(Items[nItems].Text) = (SM_PERFCOUNTER+i) | SM_PERSEC;
-                            if(((SM_PERFCOUNTER+i) | SM_PERSEC) == (int)SortMode)
+                            if(((SM_PERFCOUNTER+i) | SM_PERSEC) == SortMode)
                                 Items[nItems].Checked = cIndicator;
                             nItems++;
                         }
@@ -1357,7 +1350,8 @@ bool Plist::GetVersionInfo(char* pFullPath, char* &pBuffer, char* &pVersion, cha
 
     if(*(DWORD*)pFullPath==0x5C3F3F5C) /* \??\ */
         pFullPath += 4;
-    if(*(LONGLONG*)pFullPath==0x005C003F003F005C) /* \??\ */
+    //if(*(LONGLONG*)pFullPath==0x005C003F003F005C) /* \??\ */
+    if(!memcmp(pFullPath,L"\\??\\",8))
         pFullPath += 8;
     DWORD size = pFullPath[1] ? GetFileVersionInfoSize(pFullPath, &size) :
     GetFileVersionInfoSizeW((wchar_t*)pFullPath, &size);
@@ -1379,7 +1373,7 @@ bool Plist::GetVersionInfo(char* pFullPath, char* &pBuffer, char* &pVersion, cha
     }
     char* langcode, lcode[10];
     if(NT) {
-        WideCharToMultiByte(CP_ACP, 0, (LPCWSTR)(pBuffer+ofs+42), -1, lcode, sizeof lcode, 0,0);
+        WideCharToMultiByte(CP_ACP, 0, (LPCWSTR)(pBuffer+ofs+42), -1, lcode, sizeof(lcode), 0,0);
         langcode = lcode;
     }
     else
@@ -1527,6 +1521,6 @@ void Plist::WmiError()
     if(pWMI) {
         HRESULT hr = pWMI->GetLastHResult();
         SetLastError(hr);
-        WinError(hr<0x80040000 ? 0 : "wbemcomn");
+        WinError(hr<(HRESULT)0x80040000 ? 0 : (char *)"wbemcomn");
     }
 }

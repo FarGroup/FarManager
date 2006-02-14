@@ -3,13 +3,13 @@
 #include <stdlib.h>
 
 InitDialogItem ViewItems[NVIEWITEMS]={
-    /* 0 */DI_TEXT,5,0,0,0,0,0,0,0,(char *)MIncludeAdditionalInfo,
-    /* 1 */DI_CHECKBOX,5,1,0,0,0,0,0,0,(char *)MInclEnvironment,
-    /* 2 */DI_CHECKBOX,5,2,0,0,0,0,0,0,(char *)MInclModuleInfo,
-    /* 3 */DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MInclModuleVersion,
-    /* 4 */DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MInclPerformance,
-    /* 5 */DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MInclHandles,
-    /* 6 */DI_CHECKBOX,35,5,0,0,0,0,DIF_HIDDEN,0,(char *)MInclHandlesUnnamed,
+    /* 0 */{DI_TEXT,5,0,0,0,0,0,0,0,(char *)MIncludeAdditionalInfo},
+    /* 1 */{DI_CHECKBOX,5,1,0,0,0,0,0,0,(char *)MInclEnvironment},
+    /* 2 */{DI_CHECKBOX,5,2,0,0,0,0,0,0,(char *)MInclModuleInfo},
+    /* 3 */{DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MInclModuleVersion},
+    /* 4 */{DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MInclPerformance},
+    /* 5 */{DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MInclHandles},
+    /* 6 */{DI_CHECKBOX,35,5,0,0,0,0,DIF_HIDDEN,0,(char *)MInclHandlesUnnamed},
 };
 
 void MakeViewOptions(FarDialogItem* Items, _Opt& Opt, int offset)
@@ -44,15 +44,15 @@ void GetViewOptions(FarDialogItem* Items, _Opt& Opt)
 int Config()
 {
   InitDialogItem InitItems[]={
-  /*  0 */DI_DOUBLEBOX,3,1,72,14,0,0,0,0,(char *)MConfigPlistPanel,
-  /*  1 */DI_CHECKBOX,5,2,0,0,0,0,0,0,(char *)MConfigAddToDisksMenu,
-  /*  2 */DI_FIXEDIT,7,3,7,3,1,0,0,0,"",
-  /*  3 */DI_TEXT,9,3,0,0,0,0,0,0,(char *)MConfigDisksMenuDigit,
-  /*  4 */DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MConfigAddToPluginMenu,
-  /*  5 */DI_TEXT,5,5,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-          DI_TEXT,5,12,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-          DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-          DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel,
+  /*  0 */{DI_DOUBLEBOX,3,1,72,14,0,0,0,0,(char *)MConfigPlistPanel},
+  /*  1 */{DI_CHECKBOX,5,2,0,0,0,0,0,0,(char *)MConfigAddToDisksMenu},
+  /*  2 */{DI_FIXEDIT,7,3,7,3,1,0,0,0,""},
+  /*  3 */{DI_TEXT,9,3,0,0,0,0,0,0,(char *)MConfigDisksMenuDigit},
+  /*  4 */{DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MConfigAddToPluginMenu},
+  /*  5 */{DI_TEXT,5,5,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
+          {DI_TEXT,5,12,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
+          {DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk},
+          {DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel},
   };
 /*  if(!NT) {
         InitItems[ 7].Flags |= DIF_DISABLE;
@@ -62,12 +62,11 @@ int Config()
   if(!Plist::PanelModesInitialized())
       Plist::InitializePanelModes();
 
-#define NITEMS (sizeof InitItems /sizeof *InitItems + NVIEWITEMS)
+#define NITEMS (sizeof(InitItems) /sizeof(*InitItems) + NVIEWITEMS)
 
   FarDialogItem DialogItems[NITEMS];
-  InitDialogItems(InitItems,DialogItems,sizeof InitItems/sizeof *InitItems);
-  memcpy(DialogItems+NITEMS-2, DialogItems+NITEMS-NVIEWITEMS-2,
-        sizeof *DialogItems * 2);
+  InitDialogItems(InitItems,DialogItems,sizeof(InitItems)/sizeof(*InitItems));
+  memcpy(DialogItems+NITEMS-2, DialogItems+NITEMS-NVIEWITEMS-2, sizeof(*DialogItems) * 2);
 
   MakeViewOptions(DialogItems+NITEMS-NVIEWITEMS-2, ::Opt, NITEMS-NVIEWITEMS-3);
 
@@ -76,8 +75,8 @@ int Config()
   if (Opt.DisksMenuDigit)
     itoa(Opt.DisksMenuDigit,DialogItems[2].Data,10);
 
-  int ExitCode = Info.Dialog(Info.ModuleNumber,-1,-1,76,16,"Config",DialogItems,sizeof DialogItems/sizeof *DialogItems);
-  if (ExitCode != sizeof DialogItems/sizeof *DialogItems - 2)
+  int ExitCode = Info.Dialog(Info.ModuleNumber,-1,-1,76,16,"Config",DialogItems,sizeof(DialogItems)/sizeof(*DialogItems));
+  if (ExitCode != sizeof(DialogItems)/sizeof(*DialogItems) - 2)
     return FALSE;
 
   Opt.AddToDisksMenu = DialogItems[1].Selected;

@@ -10,3 +10,6 @@
 1.70.0.124.
 [-] Command line was ignored on Enter in newer FAR versions.
 [-] Displaying owner info and other WMI stuff sometimes failed.
+
+1.70.0.125
+Can be built with GCC
