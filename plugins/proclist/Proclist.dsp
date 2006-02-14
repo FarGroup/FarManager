@@ -94,11 +94,15 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\fileio.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\handles.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\PCFG.CPP
+SOURCE=.\Pcfg.cpp
 # End Source File
 # Begin Source File
 
@@ -110,7 +114,7 @@ SOURCE=.\perfthread.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\PLIST95.CPP
+SOURCE=.\Plist95.Cpp
 # End Source File
 # Begin Source File
 
@@ -138,7 +142,7 @@ SOURCE=.\ProcList.rc
 # End Source File
 # Begin Source File
 
-SOURCE=.\WMI.cpp
+SOURCE=.\wmi.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -150,11 +154,11 @@ SOURCE=.\perfthread.hpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\PROCLIST.HPP
+SOURCE=.\Proclist.hpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\PROCLNG.HPP
+SOURCE=.\Proclng.hpp
 # End Source File
 # End Group
 # Begin Group "Resource Files"

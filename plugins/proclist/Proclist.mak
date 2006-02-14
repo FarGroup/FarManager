@@ -24,6 +24,7 @@ LINK32_FLAGS=/STUB:..\common\minstub.exe /opt:nowin98 kernel32.lib user32.lib ad
 DEF_FILE=".\Proclist.def"
 
 LINK32_OBJS= \
+	"$(INTDIR)\fileio.obj" \
 	"$(INTDIR)\handles.obj" \
 	"$(INTDIR)\PCFG.OBJ" \
 	"$(INTDIR)\Pclass.obj" \
@@ -90,7 +91,9 @@ $(CODDIR) :
 "$(INTDIR)\ProcList.res" : ProcList.rc "$(INTDIR)"
 	$(RSC) $(RSC_PROJ) ProcList.rc
 
-HANDLES.CPP: PERFTHREAD.HPP PROCLIST.HPP PROCLNG.HPP {$(INCLUDE)}plugin.hpp $(CODDIR)
+fileio.cpp: PERFTHREAD.HPP PROCLIST.HPP PROCLNG.HPP {$(INCLUDE)}plugin.hpp $(CODDIR)
+
+handles.cpp: PERFTHREAD.HPP PROCLIST.HPP PROCLNG.HPP {$(INCLUDE)}plugin.hpp $(CODDIR)
 
 Pcfg.cpp: PERFTHREAD.HPP PROCLIST.HPP PROCLNG.HPP {$(INCLUDE)}plugin.hpp $(CODDIR)
 
@@ -108,4 +111,4 @@ Preg.cpp: PERFTHREAD.HPP PROCLIST.HPP PROCLNG.HPP {$(INCLUDE)}plugin.hpp $(CODDI
 
 Proclist.cpp: PERFTHREAD.HPP PROCLIST.HPP PROCLNG.HPP {$(INCLUDE)}plugin.hpp $(CODDIR)
 
-WMI.obj: PERFTHREAD.HPP PROCLIST.HPP PROCLNG.HPP {$(INCLUDE)}plugin.hpp $(CODDIR)
+wmi.obj: PERFTHREAD.HPP PROCLIST.HPP PROCLNG.HPP {$(INCLUDE)}plugin.hpp $(CODDIR)
