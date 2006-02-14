@@ -1,4 +1,5 @@
 #define _FAR_NO_NAMELESS_UNIONS
+#define _FAR_USE_FARFINDDATA
 #include "plugin.hpp"
 #include "crt.hpp"
 
@@ -88,6 +89,20 @@ struct Options {
 static struct PluginStartupInfo Info;
 static struct FarStandardFunctions FSF;
 static char *PluginRootKey;
+
+void WFD2FFD(WIN32_FIND_DATA &wfd, FAR_FIND_DATA &ffd)
+{
+  ffd.dwFileAttributes=wfd.dwFileAttributes;
+  ffd.ftCreationTime=wfd.ftCreationTime;
+  ffd.ftLastAccessTime=wfd.ftLastAccessTime;
+  ffd.ftLastWriteTime=wfd.ftLastWriteTime;
+  ffd.nFileSizeHigh=wfd.nFileSizeHigh;
+  ffd.nFileSizeLow=wfd.nFileSizeLow;
+  ffd.dwReserved0=wfd.dwReserved0;
+  ffd.dwReserved1=wfd.dwReserved1;
+  lstrcpy(ffd.cFileName,wfd.cFileName);
+  lstrcpy(ffd.cAlternateFileName,wfd.cAlternateFileName);
+}
 
 /****************************************************************************
  * Обёртка сервисной функции FAR: получение строки из .lng-файла
@@ -208,7 +223,7 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent) {
   HKEY hKey;
   if (!PluginRootKey || RegOpenKeyEx(HKEY_CURRENT_USER, PluginRootKey, 0, KEY_QUERY_VALUE, &hKey) != ERROR_SUCCESS)
     hKey = 0;
-  int i;
+  size_t i;
   for (i = sizeof(InitItems) / sizeof(InitItems[0]) - 1; i >= 0; i--) {
     DWORD dwSelected, dwSize = sizeof(DWORD);
     DialogItems[i].Type  = InitItems[i].Type;
@@ -381,7 +396,7 @@ static int GetDirList(const char *Dir, struct PluginPanelItem **pPanelItem, int 
       iRet = FALSE;
       break;
       }
-    (*pPanelItem = pPPI)[(*pItemsNumber)++].FindData = wfdFindData;
+    WFD2FFD(wfdFindData,(*pPanelItem = pPPI)[(*pItemsNumber)++].FindData);
     } while (FindNextFile(hFind, &wfdFindData));
   FindClose(hFind);
   return iRet;
@@ -402,7 +417,7 @@ static bool CompareDirs(const struct PanelInfo *AInfo, const struct PanelInfo *P
  * подкаталогов).
  * Возвращает true, если они совпадают.
  ****************************************************************************/
-static bool CompareFiles(const WIN32_FIND_DATA *AData, const WIN32_FIND_DATA *PData, const char *ACurDir, const char *PCurDir) {
+static bool CompareFiles(const FAR_FIND_DATA *AData, const FAR_FIND_DATA *PData, const char *ACurDir, const char *PCurDir) {
   if (AData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) { // Здесь сравниваем два подкаталога
     if (Opt.ProcessSubfolders) {
       // Составим списки файлов в подкаталогах
