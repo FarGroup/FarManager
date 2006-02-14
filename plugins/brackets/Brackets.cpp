@@ -1,5 +1,6 @@
 #include <string.h>
 #define _FAR_NO_NAMELESS_UNIONS
+#define _FAR_USE_FARFINDDATA
 #include "plugin.hpp"
 
 #include "Brackets.hpp"
