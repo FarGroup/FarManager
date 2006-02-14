@@ -3,7 +3,7 @@
 #include <stddef.h>
 
 #ifdef __cplusplus
-void __cdecl operator delete[] (void *ptr);
+  void __cdecl operator delete[] (void *ptr);
 #endif
 
 #endif

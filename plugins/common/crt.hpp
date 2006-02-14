@@ -25,6 +25,10 @@
 #include "./CRT/strrchr.hpp"
 #include "./CRT/strstr.hpp"
 #include "./CRT/strtok.hpp"
+#include "./CRT/i64toa.hpp"
+#include "./CRT/memicmp.hpp"
+#include "./CRT/strcspn.hpp"
+#include "./CRT/strtol.hpp"
 
 #endif
 

@@ -5,9 +5,9 @@
 extern "C"
 {
 #endif
-int isdigit(int c);
-int isspace(int c);
-int isxdigit(int c);
+  int isdigit(int c);
+  int isspace(int c);
+  int isxdigit(int c);
 #ifdef __cplusplus
 };
 #endif

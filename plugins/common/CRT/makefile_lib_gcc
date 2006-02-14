@@ -6,16 +6,20 @@ DLLFULLNAME = $(DLLDIR)/$(DLLNAME)
 SRCS = memchr.cpp \
 memcmp.cpp \
 memcpy.cpp \
+memicmp.cpp \
 memset.cpp \
 memmove.cpp \
 strpbrk.cpp \
 strstr.cpp \
 strchr.cpp \
+strcspn.cpp \
 strdup.cpp \
 strncat.cpp \
 strncmp.cpp \
 strrchr.cpp \
 strtok.cpp \
+strtol.cpp \
+i64toa.cpp \
 ctype.cpp \
 delete.cpp \
 delete_array.cpp \
