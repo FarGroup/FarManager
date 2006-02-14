@@ -47,15 +47,15 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
 HANDLE WINAPI _export OpenPlugin(int OpenFrom,int Item)
 {
   struct InitDialogItem InitItems[]={
-    DI_DOUBLEBOX,3,1,72,8,0,0,0,0,(char *)MAlign,
-    DI_FIXEDIT,5,2,7,3,1,0,0,0,"",
-    DI_TEXT,9,2,0,0,0,0,0,0,(char *)MRightMargin,
-    DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MReformat,
-    DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MSmartMode,
-    DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MJustify,
-    DI_TEXT,5,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    DI_BUTTON,0,7,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-    DI_BUTTON,0,7,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+    {DI_DOUBLEBOX,3,1,72,8,0,0,0,0,(char *)MAlign},
+    {DI_FIXEDIT,5,2,7,3,1,0,0,0,""},
+    {DI_TEXT,9,2,0,0,0,0,0,0,(char *)MRightMargin},
+    {DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MReformat},
+    {DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MSmartMode},
+    {DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MJustify},
+    {DI_TEXT,5,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
+    {DI_BUTTON,0,7,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk},
+    {DI_BUTTON,0,7,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel}
   };
 
   struct FarDialogItem DialogItems[sizeof(InitItems)/sizeof(InitItems[0])];
