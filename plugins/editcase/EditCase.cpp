@@ -2,6 +2,7 @@
 // or current (nearest) word in the internal editor.
 // This plugin can change case to: lower case, Title Case, UPPER CASE and tOGGLE cASE
 // Besides, it has ability of cyclic case change like MS Word by ShiftF3
+#define _FAR_USE_FARFINDDATA
 #include "plugin.hpp"
 
 #ifdef __GNUC__
@@ -58,7 +59,7 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
 
 HANDLE WINAPI _export OpenPlugin(int OpenFrom,int Item)
 {
-  int i;
+  size_t i;
   struct FarMenuItem MenuItems[5], *MenuItem;
   memset(MenuItems,0,sizeof(MenuItems));
   int Msgs[]={MCaseLower, MCaseTitle, MCaseUpper, MCaseToggle, MCaseCyclic};
