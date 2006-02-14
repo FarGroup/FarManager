@@ -43,18 +43,18 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
 HANDLE WINAPI _export OpenPlugin(int OpenFrom,int Item)
 {
   struct InitDialogItem InitItems[]={
-    DI_DOUBLEBOX,3,1,72,11,0,0,0,0,(char *)MAutoWrap,
-    DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MEnableWrap,
-    DI_EDIT,5,3,7,3,0,0,0,0,"",
-    DI_TEXT,9,3,0,0,0,0,0,0,(char *)MRightMargin,
-    DI_TEXT,5,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    DI_TEXT,5,5,0,0,0,0,0,0,(char *)MFileMasks,
-    DI_EDIT,5,6,70,6,0,0,0,0,"",
-    DI_TEXT,5,7,0,0,0,0,0,0,(char *)MExcludeFileMasks,
-    DI_EDIT,5,8,70,6,0,0,0,0,"",
-    DI_TEXT,5,9,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    DI_BUTTON,0,10,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-    DI_BUTTON,0,10,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+    {DI_DOUBLEBOX,3,1,72,11,0,0,0,0,(char *)MAutoWrap},
+    {DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MEnableWrap},
+    {DI_EDIT,5,3,7,3,0,0,0,0,""},
+    {DI_TEXT,9,3,0,0,0,0,0,0,(char *)MRightMargin},
+    {DI_TEXT,5,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
+    {DI_TEXT,5,5,0,0,0,0,0,0,(char *)MFileMasks},
+    {DI_EDIT,5,6,70,6,0,0,0,0,""},
+    {DI_TEXT,5,7,0,0,0,0,0,0,(char *)MExcludeFileMasks},
+    {DI_EDIT,5,8,70,6,0,0,0,0,""},
+    {DI_TEXT,5,9,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
+    {DI_BUTTON,0,10,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk},
+    {DI_BUTTON,0,10,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel}
   };
 
   struct FarDialogItem DialogItems[sizeof(InitItems)/sizeof(InitItems[0])];
