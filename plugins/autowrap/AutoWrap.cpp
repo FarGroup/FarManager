@@ -1,3 +1,4 @@
+#define _FAR_USE_FARFINDDATA
 #include "plugin.hpp"
 #include "WrapLng.hpp"
 #include "AutoWrap.hpp"
