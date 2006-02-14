@@ -1,4 +1,5 @@
 #define STRICT
+#define _FAR_USE_FARFINDDATA
 #include "plugin.hpp"
 #include "farkeys.hpp"
 
