@@ -3,7 +3,7 @@
 INCLUDE = $(INCLUDE);..\common
 
 CC = CL
-CCOPTS = /nologo /Zp1 /MT /W3 /GX- /Ox /Op /c /Gs10000
+CCOPTS = /nologo /Zp1 /MD /W3 /GX- /Ox /Op /c /Gs10000
 
 RCC = RC
 
