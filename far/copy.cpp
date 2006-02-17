@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.165 09.02.2006 $ */
+/* Revision: 1.166 17.02.2006 $ */
 
 /*
 Modify:
+  17.02.2006 WARP
+    ! Вернул флаг FILE_FLAG_SEQUENTIAL_SCAN в копир.
   09.02.2006 AY
     - Косметика: разделитель вокруг access rights.
     - Внутренняя переделка диалога копира чтоб было легче обновлять в будущем.
@@ -3674,7 +3676,16 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
     {
       if (!Opt.CMOpt.CopyOpened)
       {
-        HANDLE SrcHandle=FAR_CreateFile(SrcName,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,0,NULL);
+        HANDLE SrcHandle=FAR_CreateFile (
+            SrcName,
+            GENERIC_READ,
+            FILE_SHARE_READ,
+            NULL,
+            OPEN_EXISTING,
+            FILE_FLAG_SEQUENTIAL_SCAN,
+            NULL
+            );
+
         if (SrcHandle==INVALID_HANDLE_VALUE)
         {
           _LOGCOPYR(SysLog("return COPY_FAILURE -> %d if (SrcHandle==INVALID_HANDLE_VALUE)",__LINE__));
@@ -3696,7 +3707,15 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
   int OpenMode=FILE_SHARE_READ;
   if (Opt.CMOpt.CopyOpened)
     OpenMode|=FILE_SHARE_WRITE;
-  HANDLE SrcHandle=FAR_CreateFile(SrcName,GENERIC_READ,OpenMode,NULL,OPEN_EXISTING,0,NULL);
+  HANDLE SrcHandle= FAR_CreateFile (
+      SrcName,
+      GENERIC_READ,
+      OpenMode,
+      NULL,
+      OPEN_EXISTING,
+      FILE_FLAG_SEQUENTIAL_SCAN,
+      NULL
+      );
   if (SrcHandle==INVALID_HANDLE_VALUE)
   {
     if (Opt.CMOpt.CopyOpened)
@@ -3705,7 +3724,15 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
       SetLastError(_localLastError);
       if ( _localLastError == ERROR_SHARING_VIOLATION )
       {
-        SrcHandle = FAR_CreateFile( SrcName,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,NULL,OPEN_EXISTING, 0, NULL );
+        SrcHandle = FAR_CreateFile (
+            SrcName,
+            GENERIC_READ,
+            FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,
+            NULL,
+            OPEN_EXISTING,
+            FILE_FLAG_SEQUENTIAL_SCAN,
+            NULL
+            );
         if (SrcHandle == INVALID_HANDLE_VALUE )
         {
            _localLastError=GetLastError();
@@ -3732,10 +3759,16 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
   {
     if (DestAttr!=(DWORD)-1 && !Append)
       remove(DestName);
-    DestHandle=FAR_CreateFile(DestName,GENERIC_WRITE,FILE_SHARE_READ,
-                          (ShellCopy::Flags&FCOPY_COPYSECURITY) ? &sa:NULL,
-                          (Append ? OPEN_EXISTING:CREATE_ALWAYS),
-           SrcData.dwFileAttributes&(~((ShellCopy::Flags&(FCOPY_DECRYPTED_DESTINATION))?FILE_ATTRIBUTE_ENCRYPTED:0)),NULL);
+    DestHandle=FAR_CreateFile (
+        DestName,
+        GENERIC_WRITE,
+        FILE_SHARE_READ,
+        (ShellCopy::Flags&FCOPY_COPYSECURITY) ? &sa:NULL,
+        (Append ? OPEN_EXISTING:CREATE_ALWAYS),
+        SrcData.dwFileAttributes&(~((ShellCopy::Flags&(FCOPY_DECRYPTED_DESTINATION))?FILE_ATTRIBUTE_ENCRYPTED|FILE_FLAG_SEQUENTIAL_SCAN:FILE_FLAG_SEQUENTIAL_SCAN)),
+        NULL
+        );
+
     ShellCopy::Flags&=~FCOPY_DECRYPTED_DESTINATION;
     if (DestHandle==INVALID_HANDLE_VALUE)
     {
@@ -3945,9 +3978,15 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
             *ChPtr=0;
             CreatePath(DestDir);
           }
-          DestHandle=FAR_CreateFile(DestName,GENERIC_WRITE,FILE_SHARE_READ,NULL,
-                                (Append ? OPEN_EXISTING:CREATE_ALWAYS),
-                                SrcData.dwFileAttributes,NULL);
+          DestHandle=FAR_CreateFile (
+              DestName,
+              GENERIC_WRITE,
+              FILE_SHARE_READ,
+              NULL,
+              (Append ? OPEN_EXISTING:CREATE_ALWAYS),
+              SrcData.dwFileAttributes|FILE_FLAG_SEQUENTIAL_SCAN,
+              NULL
+              );
 
           if (DestHandle==INVALID_HANDLE_VALUE ||
               Append && SetFilePointer(DestHandle,0,NULL,FILE_END)==0xFFFFFFFF)
