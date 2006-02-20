@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.51 09.02.2006 $ */
+/* Revision: 1.52 20.02.2006 $ */
 
 /*
 Modify:
+  20.02.2006 SVS
+    ! У ConvertNameToShort новый параметр - размер для Dest
   09.02.2006 AY
     - Порядок атрибутов RSHALCTI.
   22.12.2005 SVS
@@ -379,7 +381,7 @@ void FileList::ShowFileList(int Fast)
   {
     char TitleDir[NM];
     if (ShowShortNames)
-      ConvertNameToShort(CurDir,TitleDir);
+      ConvertNameToShort(CurDir,TitleDir,sizeof(TitleDir)-1);
     else
       xstrncpy(TitleDir,CurDir,sizeof(TitleDir)-1);
     TruncPathStr(TitleDir,TruncSize-2);

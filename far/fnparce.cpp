@@ -5,10 +5,12 @@ fnparce.cpp
 
 */
 
-/* Revision: 1.23 02.07.2005 $ */
+/* Revision: 1.24 20.02.2006 $ */
 
 /*
 Modify:
+  20.02.2006 SVS
+    ! У ConvertNameToShort новый параметр - размер для Dest
   02.07.2005 AY
     - в обработке !\ не проверялся PSubstData->PassivePanel во всех местах,
       неприятно глючило с tmppanel.
@@ -319,7 +321,7 @@ static char *_SubstFileName(char *CurStr,struct TSubstData *PSubstData,char *Tmp
               /* $ 01.11.2000 IS
                  Имя файла в данном случае должно быть коротким
               */
-              ConvertNameToShort(ListName+NM,ListName+NM);
+              ConvertNameToShort(ListName+NM,ListName+NM,NM-1); // BUG! NM-1
               /* IS $ */
             }
             //<Skeleton>
@@ -333,7 +335,7 @@ static char *_SubstFileName(char *CurStr,struct TSubstData *PSubstData,char *Tmp
               /* $ 01.11.2000 IS
                  Имя файла в данном случае должно быть коротким
               */
-              ConvertNameToShort(ListName,ListName);
+              ConvertNameToShort(ListName,ListName,NM-1); // BUG! NM-1
               /* IS $ */
             }
             //<Skeleton>
@@ -373,7 +375,7 @@ static char *_SubstFileName(char *CurStr,struct TSubstData *PSubstData,char *Tmp
             /* $ 01.11.2000 IS
                Имя файла в данном случае должно быть коротким
             */
-            ConvertNameToShort(PSubstData->ShortListName+NM,PSubstData->ShortListName+NM);
+            ConvertNameToShort(PSubstData->ShortListName+NM,PSubstData->ShortListName+NM,NM-1); // BUG! NM-1
             /* IS $ */
             strncat(TmpStr,PSubstData->ShortListName+NM, MaxTempStrSize-1);
           }
@@ -382,7 +384,7 @@ static char *_SubstFileName(char *CurStr,struct TSubstData *PSubstData,char *Tmp
             /* $ 01.11.2000 IS
                Имя файла в данном случае должно быть коротким
             */
-            ConvertNameToShort(PSubstData->ShortListName,PSubstData->ShortListName);
+            ConvertNameToShort(PSubstData->ShortListName,PSubstData->ShortListName,NM-1); // BUG! NM-1
             /* IS $ */
             strncat(TmpStr,PSubstData->ShortListName, MaxTempStrSize-1);
           }
@@ -471,7 +473,7 @@ static char *_SubstFileName(char *CurStr,struct TSubstData *PSubstData,char *Tmp
       strcpy(CurDir,PSubstData->CmdDir);
 
     if (ShortN0)
-        ConvertNameToShort(CurDir,CurDir);
+        ConvertNameToShort(CurDir,CurDir,sizeof(CurDir)-1);
     AddEndSlash(CurDir);
     CurStr+=2;
     if (*CurStr=='!')
@@ -495,7 +497,7 @@ static char *_SubstFileName(char *CurStr,struct TSubstData *PSubstData,char *Tmp
       PSubstData->AnotherPanel->GetCurDir(CurDir);
     else
       strcpy(CurDir,PSubstData->CmdDir);
-    ConvertNameToShort(CurDir,CurDir);
+    ConvertNameToShort(CurDir,CurDir,sizeof(CurDir)-1);
     AddEndSlash(CurDir);
     CurStr+=2;
     if (*CurStr=='!')
@@ -1038,11 +1040,11 @@ int Panel::MakeListFile(char *ListFileName,int ShortNames,char *Modifers)
       if(strchr(Modifers,'F') && PointToName(FileName) == FileName) // 'F' - использовать полный путь;
       {
         char TempFileName[NM*2];
-        strcpy(TempFileName,CurDir);
+        //strcpy(TempFileName,CurDir);
         sprintf(TempFileName,"%s%s%s",CurDir,(CurDir[strlen(CurDir)-1] != '\\'?"\\":""),FileName);
         if (ShortNames)
-          ConvertNameToShort(TempFileName,TempFileName);
-        strcpy(FileName,TempFileName);
+          ConvertNameToShort(TempFileName,TempFileName,sizeof(TempFileName)-1);
+        xstrncpy(FileName,TempFileName,sizeof(FileName)-1);
       }
       if(strchr(Modifers,'Q')) // 'Q' - заключать имена с пробелами в кавычки;
         QuoteSpaceOnly(FileName);

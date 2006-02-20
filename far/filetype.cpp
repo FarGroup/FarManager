@@ -5,10 +5,12 @@ filetype.cpp
 
 */
 
-/* Revision: 1.44 06.08.2004 $ */
+/* Revision: 1.45 20.02.2006 $ */
 
 /*
 Modify:
+  20.02.2006 SVS
+    ! ” ConvertNameToShort новый параметр - размер дл€ Dest
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   09.01.2004 SVS
@@ -534,7 +536,7 @@ void ProcessExternal(char *Command,char *Name,char *ShortName,int AlwaysWaitFini
     if (ConvertNameToFull(Name,FullName, sizeof(FullName)) >= sizeof(FullName)){
       return;
     }
-    ConvertNameToShort(FullName,FullShortName);
+    ConvertNameToShort(FullName,FullShortName,sizeof(FullShortName)-1);
     SubstFileName(FullExecStr,sizeof (FullExecStr), FullName,FullShortName,ListName,ShortListName);
     // —нова все "подставлено", теперь проверим услови€ "if exist"
     /* $ 25.04.2001 DJ

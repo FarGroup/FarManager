@@ -5,10 +5,12 @@ infolist.cpp
 
 */
 
-/* Revision: 1.47 07.07.2005 $ */
+/* Revision: 1.48 20.02.2006 $ */
 
 /*
 Modify:
+  20.02.2006 SVS
+    ! У ConvertNameToShort новый параметр - размер для Dest
   07.07.2005 SVS
     ! Вьюверные настройки собраны в одно место
   30.05.2005 SVS
@@ -766,7 +768,7 @@ int InfoList::GetCurName(char *Name,char *ShortName)
   if (Name && ShortName)
   {
     strcpy(Name, DizFileName);
-    ConvertNameToShort(DizFileName,ShortName);
+    ConvertNameToShort(DizFileName,ShortName,NM-1); // BUG!
     return (TRUE);
   }
   return (FALSE);

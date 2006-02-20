@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.176 21.01.2006 $ */
+/* Revision: 1.177 20.02.2006 $ */
 
 /*
 Modify:
+  20.02.2006 SVS
+    ! ” ConvertNameToShort новый параметр - размер дл€ Dest
   21.01.2006 AY
     ! ¬ прошлый раз поломал переход по коротким пут€м.
   17.01.2006 SVS
@@ -2174,7 +2176,7 @@ int _MakePath1(DWORD Key,char *PathName,int PathNameSize, const char *Param2)
             if(NeedRealName)
               SrcFilePanel->CreateFullPathName(PathName,PathName,FA_DIREC,PathName,PathNameSize,TRUE);
             if (SrcFilePanel->GetShowShortNamesMode())
-              ConvertNameToShort(PathName,PathName);
+              ConvertNameToShort(PathName,PathName,PathNameSize-1);
           }
           else
           {

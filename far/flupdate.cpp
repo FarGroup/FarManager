@@ -5,10 +5,12 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.54 07.12.2005 $ */
+/* Revision: 1.55 20.02.2006 $ */
 
 /*
 Modify:
+  20.02.2006 SVS
+    ! ” ConvertNameToShort новый параметр - размер дл€ Dest
   07.12.2005 SVS
     + инициализаци€ Is_FS_NTFS
   09.09.2005 SVS
@@ -839,7 +841,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
     PluginToFileListItem(CurPanelData,CurListData);
     if(Info.Flags & OPIF_REALNAMES)
     {
-      ConvertNameToShort(CurListData->Name,CurListData->ShortName);
+      ConvertNameToShort(CurListData->Name,CurListData->ShortName,sizeof(CurListData->ShortName)-1);
     }
     CurListData->Position=I;
     if ((Info.Flags & OPIF_USEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))

@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.246 23.01.2006 $ */
+/* Revision: 1.247 20.02.2006 $ */
 
 /*
 Modify:
+  20.02.2006 SVS
+    ! У ConvertNameToShort новый параметр - размер для Dest
   23.01.2006 SVS
     ! Добавлен второй параметр у SendKeyToPlugin, признак того, что ЭТО
       клавиша Pred и нужно выставить у VirtualKey (передаваемого в плагин)
@@ -1837,14 +1839,14 @@ int FileList::ProcessKey(int Key)
           /* KM $ */
           if(*LastFileName)
           {
-            strcpy(FileName,LastFileName);
+            xstrncpy(FileName,LastFileName,sizeof(FileName)-1);
             /* $ 07.06.2001 IS
                - Баг: нужно сначала убирать пробелы, а только потом кавычки
             */
             RemoveTrailingSpaces(FileName);
             Unquote(FileName);
             /* IS $ */
-            ConvertNameToShort(FileName,ShortFileName);
+            ConvertNameToShort(FileName,ShortFileName,sizeof(ShortFileName)-1);
             /* $ 24.11.2001 IS применим функцию от ОТ ;-) */
             if (PathMayBeAbsolute(FileName))
             {
@@ -1900,7 +1902,7 @@ int FileList::ProcessKey(int Key)
           strcpy(ShortFileName,*CurPtr->ShortName ? CurPtr->ShortName:CurPtr->Name);
         }
 
-        char TempDir[NM],TempName[NM];
+        char TempDir[NM],TempName[NM*3];
 
         int UploadFailed=FALSE, NewFile=FALSE;
 
@@ -1918,7 +1920,7 @@ int FileList::ProcessKey(int Key)
             else
             {
               NewFile=TRUE;
-              strcpy(FileName,TempName);
+              xstrncpy(FileName,TempName,sizeof(FileName)-1);
             }
           }
           if (!NewFile)
@@ -1931,7 +1933,7 @@ int FileList::ProcessKey(int Key)
               return(TRUE);
             }
           }
-          ConvertNameToShort(FileName,ShortFileName);
+          ConvertNameToShort(FileName,ShortFileName,sizeof(ShortFileName)-1);
         }
 
         /* $ 08.04.2002 IS
@@ -2014,7 +2016,7 @@ int FileList::ProcessKey(int Key)
 
               if (GetFileAttributes(TempName)==0xffffffff)
               {
-                char FindName[NM];
+                char FindName[NM*2];
                 strcpy(FindName,TempName);
                 strcpy(PointToName(FindName),"*");
                 HANDLE FindHandle;
@@ -2653,7 +2655,7 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
         FAR_RemoveDirectory(TempDir);
         return;
       }
-      ConvertNameToShort(FileName,ShortFileName);
+      ConvertNameToShort(FileName,ShortFileName,sizeof(ShortFileName)-1);
     }
     if (EnableExec && SetCurPath() && !SeparateWindow &&
         ProcessLocalFileTypes(FileName,ShortFileName,FILETYPE_EXEC,PluginMode))
@@ -4095,7 +4097,7 @@ char *FileList::CreateFullPathName(char *Name, char *ShortName,DWORD FileAttr,
   }
   /* IS $ */
   if (ShowShortNames)
-    ConvertNameToShort(FileName,FileName);
+    ConvertNameToShort(FileName,FileName,sizeof(FileName)-1);
 
   /* $ 29.01.2001 VVM
     + По CTRL+ALT+F в командную строку сбрасывается UNC-имя текущего файла. */

@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.236 09.02.2006 $ */
+/* Revision: 1.237 20.02.2006 $ */
 
 /*
 Modify:
+  20.02.2006 SVS
+    ! У ConvertNameToShort новый параметр - размер для Dest
   09.02.2006 AY
     ! Изменения в GetColorDialog()
   06.12.2005 AY
@@ -863,7 +865,7 @@ void ProcessUserMenu(int EditMenu);
 DWORD RawConvertShortNameToLongName(const char *src, char *dest, DWORD maxsize);
 int ConvertNameToFull(const char *Src,char *Dest, int DestSize);
 int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize);
-void ConvertNameToShort(const char *Src,char *Dest);
+void ConvertNameToShort(const char *Src,char *Dest,int DestSize);
 void ChangeConsoleMode(int Mode);
 void FlushInputBuffer();
 void SystemSettings();

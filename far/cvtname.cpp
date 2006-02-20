@@ -5,10 +5,12 @@ cvtname.cpp
 
 */
 
-/* Revision: 1.14 05.12.2005 $ */
+/* Revision: 1.15 20.02.2006 $ */
 
 /*
 Modify:
+  20.02.2006 SVS
+    ! ” ConvertNameToShort новый параметр - размер дл€ Dest
   05.12.2005 AY
     + RawConvertShortNameToLongName понимает UNC пути (\\computer\share)
   25.03.2005 SVS
@@ -447,21 +449,21 @@ int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize)
   return Ret;
 }
 
-void ConvertNameToShort(const char *Src,char *Dest)
+void ConvertNameToShort(const char *Src,char *Dest,int DestSize)
 {
-  char ShortName[NM];
   char *AnsiName=(char*)alloca(strlen(Src)+8);
   if(!AnsiName)
   {
-    strcpy(Dest,Src);
+    xstrncpy(Dest,Src,DestSize);
     return;
   }
   SetFileApisTo(APIS2ANSI);
   FAR_OemToChar(Src,AnsiName);
+  char ShortName[NM];
   if (GetShortPathName(AnsiName,ShortName,sizeof(ShortName)))
-    FAR_CharToOem(ShortName,Dest);
+    FAR_CharToOemBuff(ShortName,Dest,DestSize);
   else
-    strcpy(Dest,Src);
+    xstrncpy(Dest,Src,DestSize);
   SetFileApisTo(APIS2OEM);
   LocalUpperBuf(Dest,strlen(Dest));
 }
