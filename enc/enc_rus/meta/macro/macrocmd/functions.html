@@ -212,7 +212,9 @@
         <tr class="cont"><td class="cont" width="10%">0x00000400</td><td class="cont" width="90%">FILE_ATTRIBUTE_REPARSE_POINT. Каталог является символической связью.</td></tr>
         <tr class="cont"><td class="cont" width="10%">0x00000800</td><td class="cont" width="90%">FILE_ATTRIBUTE_COMPRESSED. Файл или каталог сжат. Для файла это означает, что все данные его сжаты, для каталога - что компрессия по умолчанию применяется ко всем его файлам и подкаталогам.</td></tr>
         <tr class="cont"><td class="cont" width="10%">0x00001000</td><td class="cont" width="90%">FILE_ATTRIBUTE_OFFLINE. Данные файла не доступны непосредственно. Означает, что реальные данные файла были физически перемещены на устройства хранения.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00002000</td><td class="cont" width="90%">FILE_ATTRIBUTE_NOT_CONTENT_INDEXED. Этот файл или каталог не будут индексироваться службой индексирования.</td></tr>
         <tr class="cont"><td class="cont" width="10%">0x00004000</td><td class="cont" width="90%">FILE_ATTRIBUTE_ENCRYPTED. Файл или каталог зашифрован. Для файла, это означает, что все данные в файле зашифрованы. Для директория, это означает, что шифрование является умолчанием для вновь созданных файлов и подкаталогов.</td></tr>
+
        </table>
        если файловый объект не существует, функция возвращает -1.<br>
        Для относительного пути <em>S</em> проверка ведется на активной панели.
