@@ -5,10 +5,12 @@ Files highlighting
 
 */
 
-/* Revision: 1.47 09.02.2006 $ */
+/* Revision: 1.48 24.02.2006 $ */
 
 /*
 Modify:
+  24.02.2006 AY
+    - Опечатка
   09.02.2006 AY
     - Добавил атрибуты I, T, $ в диалог и меню раскраски.
     - Диалог настроек раскраски немного переделан.
@@ -844,7 +846,7 @@ int HighlightFiles::EditRecord(int RecPos,int New)
   /* 14 */DI_CHECKBOX,35,9,0,0,0,0,DIF_3STATE,0,(char *)MHighlightNotIndexed,
   /* 15 */DI_TEXT,3,11,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
   /* 16 */DI_TEXT,7,12,0,0,0,0,0,0,(char *)MHighlightMarkChar,
-  /* 17 */DI_FIXEDIT,5,12,5,11,0,0,0,0,"",
+  /* 17 */DI_FIXEDIT,5,12,5,12,0,0,0,0,"",
   /* 18 */DI_TEXT,-1,13,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,(char *)MHighlightColors,
   /* 19 */DI_BUTTON,5,14,0,0,0,0,DIF_BTNNOCLOSE,0,(char *)MHighlightNormal,
   /* 20 */DI_BUTTON,5,15,0,0,0,0,DIF_BTNNOCLOSE,0,(char *)MHighlightSelected,

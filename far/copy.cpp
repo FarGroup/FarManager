@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.166 17.02.2006 $ */
+/* Revision: 1.167 24.02.2006 $ */
 
 /*
 Modify:
+  24.02.2006 AY
+    ! (*) Default ( ) Copy ( ) Inherit.
   17.02.2006 WARP
     ! Вернул флаг FILE_FLAG_SEQUENTIAL_SCAN в копир.
   09.02.2006 AY
@@ -612,9 +614,9 @@ enum enumShellCopy {
   ID_SC_TARGETEDIT,
   ID_SC_SEPARATOR1,
   ID_SC_ACTITLE,
+  ID_SC_ACLEAVE,
   ID_SC_ACCOPY,
   ID_SC_ACINHERIT,
-  ID_SC_ACLEAVE,
   ID_SC_SEPARATOR2,
   ID_SC_ONLYNEWER,
   ID_SC_COPYSYMLINK,
@@ -776,9 +778,9 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   /* 02 */  DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY|DIF_VAREDIT|DIF_EDITEXPAND|DIF_USELASTHISTORY/*|DIF_EDITPATH*/,0,"",
   /* 03 */  DI_TEXT,3,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
   /* 04 */  DI_TEXT,5,5,0,5,0,0,0,0,(char *)MCopySecurity,
-  /* 05 */  DI_RADIOBUTTON,5,5,0,5,0,0,DIF_GROUP,0,(char *)MCopySecurityCopy,
-  /* 06 */  DI_RADIOBUTTON,5,5,0,5,0,0,0,0,(char *)MCopySecurityInherit,
-  /* 07 */  DI_RADIOBUTTON,5,5,0,5,0,0,DIF_DISABLE,0,(char *)MCopySecurityLeave,
+  /* 05 */  DI_RADIOBUTTON,5,5,0,5,0,0,DIF_GROUP,0,(char *)MCopySecurityLeave,
+  /* 06 */  DI_RADIOBUTTON,5,5,0,5,0,0,0,0,(char *)MCopySecurityCopy,
+  /* 07 */  DI_RADIOBUTTON,5,5,0,5,0,0,0,0,(char *)MCopySecurityInherit,
   /* 08 */  DI_TEXT,3,6,0,6,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
   /* 09 */  DI_CHECKBOX,5,7,0,7,0,0,0,0,(char *)MCopyOnlyNewerFiles,
   /* 10 */  DI_CHECKBOX,5,8,0,8,0,0,0,0,(char *)MCopySymLinkContents,
@@ -802,9 +804,9 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   CopyDlg[ID_SC_TARGETEDIT].Ptr.PtrData=Dlg2Value;
   CopyDlg[ID_SC_TARGETEDIT].Ptr.PtrLength=SizeBuffer;
 
-  CopyDlg[ID_SC_ACCOPY].X1 = CopyDlg[ID_SC_ACTITLE].X1 + strlen(CopyDlg[ID_SC_ACTITLE].Data) - (strchr(CopyDlg[ID_SC_ACTITLE].Data, '&')?1:0) + 1;
+  CopyDlg[ID_SC_ACLEAVE].X1 = CopyDlg[ID_SC_ACTITLE].X1 + strlen(CopyDlg[ID_SC_ACTITLE].Data) - (strchr(CopyDlg[ID_SC_ACTITLE].Data, '&')?1:0) + 1;
+  CopyDlg[ID_SC_ACCOPY].X1 = CopyDlg[ID_SC_ACLEAVE].X1 + strlen(CopyDlg[ID_SC_ACLEAVE].Data) - (strchr(CopyDlg[ID_SC_ACLEAVE].Data, '&')?1:0) + 5;
   CopyDlg[ID_SC_ACINHERIT].X1 = CopyDlg[ID_SC_ACCOPY].X1 + strlen(CopyDlg[ID_SC_ACCOPY].Data) - (strchr(CopyDlg[ID_SC_ACCOPY].Data, '&')?1:0) + 5;
-  CopyDlg[ID_SC_ACLEAVE].X1 = CopyDlg[ID_SC_ACINHERIT].X1 + strlen(CopyDlg[ID_SC_ACINHERIT].Data) - (strchr(CopyDlg[ID_SC_ACINHERIT].Data, '&')?1:0) + 5;
 
   if(Link)
   {
@@ -814,7 +816,6 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
   if(Move)  // секция про перенос
   {
-    CopyDlg[ID_SC_ACLEAVE].Flags&=~DIF_DISABLE;
     CDP.CopySecurity=2;
     //   [x] Сохранять старые права доступа
     //   [ ] Наследовать права доступа от новой родительской папки
@@ -835,6 +836,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   }
   else // секция про копирование
   {
+    CDP.CopySecurity=2;
     if(Opt.CMOpt.CopySecurityOptions&CSO_COPY_SETSECURITY) // ставить опцию "Copy access rights"?
     {
       if(CopySecurityCopy == -1) // самоинициализация переменной
@@ -844,7 +846,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     }
 
     if(CopySecurityCopy == -1) // самоинициализация переменной
-      CDP.CopySecurity=CopySecurityCopy=0; // по умолчанию снята
+      CopySecurityCopy=2; // по умолчанию снята
 
     if(Opt.CMOpt.CopySecurityOptions&CSO_COPY_SESSIONSECURITY) // хотели сессионное запоминание?
       CDP.CopySecurity=CopySecurityCopy;
@@ -952,11 +954,12 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   else if(DestPanelMode == PLUGIN_PANEL)
   {
     // Если противоположная панель - плагин, то дисаблим OnlyNewer //?????
-    CDP.CopySecurity=CDP.OnlyNewerFiles=0;
+    CDP.CopySecurity=2;
+    CDP.OnlyNewerFiles=0;
     CopyDlg[ID_SC_ONLYNEWER].Selected=0;
     CopyDlg[ID_SC_ACCOPY].Selected=0;
-    CopyDlg[ID_SC_ACINHERIT].Selected=1;
-    CopyDlg[ID_SC_ACLEAVE].Selected=0;
+    CopyDlg[ID_SC_ACINHERIT].Selected=0;
+    CopyDlg[ID_SC_ACLEAVE].Selected=1;
     CopyDlg[ID_SC_ONLYNEWER].Flags|=DIF_DISABLE;
     CopyDlg[ID_SC_ACCOPY].Flags|=DIF_DISABLE;
     CopyDlg[ID_SC_ACINHERIT].Flags|=DIF_DISABLE;
@@ -1569,16 +1572,15 @@ long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
             else if (DItemACLeave.Param.Selected)
               DlgParam->CopySecurity=2;
             DItemACCopy.Param.Selected=0;
-            DItemACInherit.Param.Selected=1;
-            DItemACLeave.Param.Selected=0;
+            DItemACInherit.Param.Selected=0;
+            DItemACLeave.Param.Selected=1;
             DItemOnlyNewer.Param.Selected=0;
           }
           else
           {
             DItemACCopy.Flags&=~DIF_DISABLE;
             DItemACInherit.Flags&=~DIF_DISABLE;
-            if ((DlgParam->thisClass->Flags)&FCOPY_MOVE)
-              DItemACLeave.Flags&=~DIF_DISABLE;
+            DItemACLeave.Flags&=~DIF_DISABLE;
             DItemOnlyNewer.Flags&=~DIF_DISABLE;
             DItemOnlyNewer.Param.Selected=DlgParam->OnlyNewerFiles;
             DItemACCopy.Param.Selected=0;

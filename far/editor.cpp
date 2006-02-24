@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.268 06.10.2005 $ */
+/* Revision: 1.269 24.02.2006 $ */
 
 /*
 Modify:
+  24.02.2006 AY
+    - Ќеправильно рисовались вертикальные блоки и раскраска в редакторах с X1!=0.
   06.10.2005 SVS
     - Bugz#1169 - сломали в районе 2012.
   26.07.2005 SVS
@@ -1744,8 +1746,8 @@ void Editor::ShowEditor(int CurLineOnly)
       {
         if (CurScreenLine>=VBlockY && CurScreenLine<VBlockY+VBlockSizeY)
         {
-          int BlockX1=VBlockX-LeftPos;
-          int BlockX2=VBlockX+VBlockSizeX-1-LeftPos;
+          int BlockX1=VBlockX-LeftPos+X1;
+          int BlockX2=VBlockX+VBlockSizeX-1-LeftPos+X1;
           if (BlockX1<X1)
             BlockX1=X1;
           if (BlockX2>X2)
@@ -6357,8 +6359,8 @@ int Editor::EditorControl(int Command,void *Param)
         _ECTLLOG(SysLog("}"));
 
         struct ColorItem newcol;
-        newcol.StartPos=col->StartPos;
-        newcol.EndPos=col->EndPos;
+        newcol.StartPos=col->StartPos+X1;
+        newcol.EndPos=col->EndPos+X1;
         newcol.Color=col->Color;
         struct EditList *CurPtr=GetStringByNumber(col->StringNumber);
         if (CurPtr==NULL)
@@ -6394,8 +6396,8 @@ int Editor::EditorControl(int Command,void *Param)
           _ECTLLOG(SysLog("GetColor() return NULL"));
           return FALSE;
         }
-        col->StartPos=curcol.StartPos;
-        col->EndPos=curcol.EndPos;
+        col->StartPos=curcol.StartPos-X1;
+        col->EndPos=curcol.EndPos-X1;
         col->Color=curcol.Color;
         _ECTLLOG(SysLog("struct EditorColor{"));
         _ECTLLOG(SysLog("  StringNumber=%d",col->StringNumber));

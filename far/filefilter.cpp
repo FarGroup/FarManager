@@ -5,10 +5,12 @@ filefilter.cpp
 
 */
 
-/* Revision: 1.10 09.02.2006 $ */
+/* Revision: 1.11 24.02.2006 $ */
 
 /*
 Modify:
+  24.02.2006 AY
+    ! Центрирование кнопок сброса.
   09.02.2006 AY
     - Добавил новые атрибутты I, T, $ в диалог фильтра.
     ! Баг с автомацией чекбоксов атрибутов - открывались атрибуты которые не должны.
@@ -353,8 +355,8 @@ void FileFilter::Configure()
   /* 16 */DI_TEXT,7,11,40,11,0,0,0,0,(char *)MFileFilterBefore,
   /* 17 */DI_FIXEDIT,47,11,56,11,0,(DWORD)DateMask,DIF_MASKEDIT,0,"",
   /* 18 */DI_FIXEDIT,58,11,65,11,0,(DWORD)TimeMask,DIF_MASKEDIT,0,"",
-  /* 19 */DI_BUTTON,7,12,0,12,0,0,DIF_BTNNOCLOSE,0,(char *)MFileFilterCurrent,
-  /* 20 */DI_BUTTON,19,12,0,12,0,0,DIF_BTNNOCLOSE,0,(char *)MFileFilterBlank,
+  /* 19 */DI_BUTTON,0,12,0,12,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(char *)MFileFilterCurrent,
+  /* 20 */DI_BUTTON,0,12,0,12,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(char *)MFileFilterBlank,
 
   /* 21 */DI_TEXT,0,13,0,0,0,0,DIF_SEPARATOR,0,"",
 
@@ -363,18 +365,18 @@ void FileFilter::Configure()
   /* 24 */DI_CHECKBOX, 7,16,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrA,
   /* 25 */DI_CHECKBOX, 7,17,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrH,
   /* 26 */DI_CHECKBOX, 7,18,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrS,
-  /* 29 */DI_CHECKBOX,27,15,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrD,
-  /* 27 */DI_CHECKBOX,27,16,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrC,
-  /* 28 */DI_CHECKBOX,27,17,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrE,
-  /* 29 */DI_CHECKBOX,27,18,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrNI,
-  /* 30 */DI_CHECKBOX,47,15,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrSparse,
-  /* 31 */DI_CHECKBOX,47,16,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrT,
+  /* 27 */DI_CHECKBOX,27,15,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrD,
+  /* 28 */DI_CHECKBOX,27,16,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrC,
+  /* 29 */DI_CHECKBOX,27,17,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrE,
+  /* 30 */DI_CHECKBOX,27,18,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrNI,
+  /* 31 */DI_CHECKBOX,47,15,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrSparse,
+  /* 32 */DI_CHECKBOX,47,16,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrT,
 
-  /* 32 */DI_TEXT, 0, 19, 0, 0, 0, 0, DIF_SEPARATOR, 0, "",
+  /* 33 */DI_TEXT, 0, 19, 0, 0, 0, 0, DIF_SEPARATOR, 0, "",
 
-  /* 33 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP,1,(char *)MFileFilterOk,
-  /* 34 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(char *)MFileFilterReset,
-  /* 35 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP,0,(char *)MFileFilterCancel,
+  /* 34 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP,1,(char *)MFileFilterOk,
+  /* 35 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(char *)MFileFilterReset,
+  /* 36 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP,0,(char *)MFileFilterCancel,
   };
 
   MakeDialogItems(FilterDlgData,FilterDlg);
