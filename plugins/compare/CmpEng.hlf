@@ -23,7 +23,7 @@ but it also allows additional compare options:
                            option will mark files on both panels,
                            not the newer files only.
 
-  #two seconds precision#    Use FAT time format for comparing.
+  #two seconds precision#    Compare with two seconds precision.
                            Otherwise complete file time, including
                            milliseconds, will be compared.
 
@@ -36,4 +36,3 @@ but it also allows additional compare options:
 
   #when no differences#      Display the message when all compared
   #found#                    items seem to be identical.
-
