@@ -5,10 +5,14 @@ setattr.cpp
 
 */
 
-/* Revision: 1.70 09.02.2006 $ */
+/* Revision: 1.71 28.02.2006 $ */
 
 /*
 Modify:
+  28.02.2006 SVS
+    - Неверная работа...
+      1) пометить "encrypted", пометить "process subfolders" - работает
+      2) пометить "process subfolders", пометить "encrypted" - НЕ работает
   09.02.2006 AY
     - Атрибуты T и $ - только чтоб показывать, выставлять их нельзя.
     ! Баг с определением состояния чекбокса I при обработке нескольких файлов.
@@ -1235,7 +1239,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
                 if(RetCode == 2)
                   continue;
               }
-              else if (AttrDlg[SETATTR_ENCRYPTED].Selected != 2) // +E -C
+              if (AttrDlg[SETATTR_ENCRYPTED].Selected != 2) // +E -C
               {
                 if(AttrDlg[SETATTR_COMPRESSED].Selected != 1)
                 {
