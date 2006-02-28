@@ -6,16 +6,19 @@
 "Advanced compare"
 
 "Advanced compare"
-"Process..."
+"Process:"
 "sub&folders"
+"&maximum folder depth:"
 "s&elected items only"
-"Compare..."
+"Compare:"
 "&time"
 "two seconds &precision"
+"&ignore possible time zone differences"
 "&size"
 "&contents"
-"Display message..."
-"when &no differences found"
+"ignore differences in new &line characters"
+"ignore &whitespace"
+"Display a message if &no differences were found"
 
 "Two file panels are required to perform the compare"
 
@@ -26,7 +29,12 @@
 
 "No difference"
 "The compared files seem to be identical"
+
 "Not enough memory"
 "Not enough memory to initialize plugin"
+
 "Wrong FAR version"
 "Advanced Compare plugin requires FAR 1.70 or later"
+
+"Operation was interrupted"
+"Do you really want to cancel it?"
