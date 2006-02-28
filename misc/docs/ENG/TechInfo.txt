@@ -18,7 +18,7 @@ I. FAR Manager: advanced settings.
   1.9. XLat.
 II. Windows: settings that apply to FAR Manager.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 
@@ -37,11 +37,12 @@ the main help file, that is actual for the current FAR Manager version.
 1.1.0.(TechInfo #0)
 ~~~~~~~~~~~~~~~~~~~
    Key "/u <username>"
-   The data from [HKCU\Software\Far] is copied into [HKCU\Software\Far\Users]
-   only if the following registry branch doesn't exist:
+   The     data     from     [HKCU\Software\Far]     is     copied     into
+   [HKCU\Software\Far\Users] only if the following registry branch  doesn't
+   exist:
    [HKCU\Software\Far\Users\<username>].
-   That means that changing  parameters  described  below  will  not  affect
-   existing user  profiles.  Setting  for  "<username>"  should  be  changed
+   That means that changing parameters  described  below  will  not  affect
+   existing user profiles.  Setting  for  "<username>"  should  be  changed
    relative to the branch [HKCU\Software\Far\Users\<username>].
 
 1.1.1.(TechInfo #3)
@@ -79,7 +80,7 @@ the main help file, that is actual for the current FAR Manager version.
 ~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\Plugins\Network]
    "HiddenSharesAsHidden":REG_DWORD
-   The key "Plugins/Network/HiddenSharesAsHidden" of DWORD type enables
+   The key "Plugins/Network/HiddenSharesAsHidden"  of  DWORD  type  enables
    showing hidden shares in the Network plugin with the Hidden attribute.
    The default value is 1 - set the Hidden attribute for hidden shares.
 
@@ -97,16 +98,13 @@ the main help file, that is actual for the current FAR Manager version.
 ~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\Confirmations]
    "EscTwiceToInterrupt":REG_DWORD
-   The key "Confirmations/EscTwiceToInterrupt" of DWORD type
-   allows to control the handling of the Esc key in the interrupt
-   confirmation message box.
+   The key "Confirmations/EscTwiceToInterrupt"  of  DWORD  type  allows  to
+   control the handling of  the  Esc  key  in  the  interrupt  confirmation
+   message box.
    Can have one of the following values:
-     0 - Pressing ESC closes the message box and continues the
-         operation
-     1 - Pressing ESC closes the message box and interrupts the
-         operation
-   The default value is 0 (close the message and continue the
-   operation).
+     0 - Pressing ESC closes the message box and continues the operation
+     1 - Pressing ESC closes the message box and interrupts the operation
+   The default value is 0 (close the message and continue the operation).
 
 1.1.8.(TechInfo #52)
 ~~~~~~~~~~~~~~~~~~~~
@@ -115,37 +113,26 @@ the main help file, that is actual for the current FAR Manager version.
    [HKEY_CURRENT_USER\Software\Far\SavedHistory]
    [HKEY_CURRENT_USER\Software\Far\SavedViewHistory]
    "HistoryCount":REG_DWORD
-   The key "Saved???/HistoryCount" of DWORD type specifies history size
-   (in positions) for dialog input lines, visited folders, executed
-   commands, viewed and edited files.
+   The key "Saved???/HistoryCount" of DWORD type specifies history size (in
+   positions) for dialog input lines, visited folders,  executed  commands,
+   viewed and edited files.
    The default value is 64 positions.
 
-1.1.9.(TechInfo #64)
+1.1.9.(TechInfo #66)
+~~~~~~~~~~~~~~~~~~~~~
+   The   registry   value    "Panel\AutoChangeFolder"    has    moved    to
+   "Panel\Tree\AutoChangeFolder". This means that the option  "Auto  change
+   folder" must be set anew.
+
+1.1.10.(TechInfo #70)
 ~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far\Interface]
-   "ShowTimeoutDelFiles":REG_DWORD
-   The key "ShowTimeoutDelFiles" of DWORD type allows to control the
-   refresh timeout (in ms) of the file deletion process message box.
-   For bigger  values  of  "ShowTimeoutDelFiles" the process information
-   is updated less often which speeds up the deletion process itself.
-   The default value is 50 ms.
-
-1.1.10.(TechInfo #65)
-~~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far\Interface]
-   "ShowTimeoutDACLFiles":REG_DWORD
-   The key "ShowTimeoutDACLFiles" of DWORD type allows to control the
-   refresh timeout (in ms) of the access rights application process message
-   box that is done after a copy/move operation. For bigger values of
-   "ShowTimeoutDACLFiles" the process information is updated less often which
-   speeds up the access rights application process itself.
-   The default value is 50 ms.
-
-1.1.11.(TechInfo #66)
-~~~~~~~~~~~~~~~~~~~~~
-   The registry value "Panel\AutoChangeFolder" has moved to
-   "Panel\Tree\AutoChangeFolder". This means that the option
-   "Auto change folder" must be set anew.
+   [HKEY_CURRENT_USER\Software\Far\Plugins\AdvCompare]
+   "CompareBufferSize":REG_DWORD
+   The key "Plugins/AdvCompare/CompareBufferSize"  of  REG_SZ  type  allows
+   change size of the buffer of the comparison (in bytes)  plugin  Advanced
+   Compare, for speedup of the process  to account of minimization  of  the
+   moving the heads disk.
+   The default value is 32768 bytes.
 
 
 =====================
@@ -161,7 +148,7 @@ the main help file, that is actual for the current FAR Manager version.
    Environment variables can be used here.
    Example:
     "%SystemRoot%\Profiles\%USERNAME%\FAR\Plugins"
-   This path will be used for newly created users (/u command  line  switch)
+   This path will be used for newly created users (/u command line  switch)
    as the default value for:
     "Options|System settings|Path for personal plugins"
 
@@ -206,7 +193,7 @@ the main help file, that is actual for the current FAR Manager version.
 ~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\System]
    "SetAttrFolderRules":REG_DWORD
-   The "System\SetAttrFolderRules" key of DWORD type specifies the behavior
+   The "System/SetAttrFolderRules" key of DWORD type specifies the behavior
    of the attribute settings dialog when changing attributes for  a  single
    directory. If this option is set to 1,  then  the  "Process  subfolders"
    checkbox will be unset for a single directory. Setting this option to  0
@@ -218,7 +205,7 @@ the main help file, that is actual for the current FAR Manager version.
 ~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\System]
    "ExceptRules":REG_DWORD
-   The key "System\ExceptRules" of DWORD type allows to  disable  exception
+   The key "System/ExceptRules" of DWORD type allows to  disable  exception
    handling  during  FAR  operation  and  is  designed  mainly  for  plugin
    developers. It is also possible to disable exception handling by running
    FAR with the "/x" command line parameter.
@@ -321,7 +308,7 @@ the main help file, that is actual for the current FAR Manager version.
 ~~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\System]
    "ShowCheckingFile":REG_DWORD
-   The key"System/ShowCheckingFile" of DWORD type allows to display the
+   The key"System/ShowCheckingFile" of DWORD type  allows  to  display  the
    name of the plugin being checked in the title of the FAR Manager window,
    while FAR checks plugins after Enter or Ctrl-PgDn is pressed on a file.
    The default value is 0 - do not display the information.
@@ -358,9 +345,9 @@ the main help file, that is actual for the current FAR Manager version.
 ~~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\System]
    "CloseConsoleRule":REG_DWORD
-   The key "CloseConsoleRule" of DWORD type  allows  to  control  automatic
-   settings saving when the user clicks the close button ([x]) of  the  FAR
-   Manager console window.
+   The key  "System/CloseConsoleRule"  of  DWORD  type  allows  to  control
+   automatic settings saving when the user clicks the close button ([x]) of
+   the FAR Manager console window.
    This rule has effect only if the option "System  settings  |  Auto  save
    setup" is enabled.
    The rule does not work under Windows 9x.
@@ -377,18 +364,17 @@ the main help file, that is actual for the current FAR Manager version.
 ~~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\System]
    "UseNumPad":REG_DWORD
-   The key "System/UseNumPad" of DWORD type enables the mechanism for
-   distinguishing the keys on the numerical keypad from the corresponding
-   keys on the main keyboard. If the mechanism is enabled, for example,
-   Ctrl-Numpad7 is treated as CtrlNum7. If it is disabled, this key
-   is treated as CtrlHome.
+   The key "System/UseNumPad" of  DWORD  type  enables  the  mechanism  for
+   distinguishing the keys on the numerical keypad from  the  corresponding
+   keys on the main keyboard. If the mechanism  is  enabled,  for  example,
+   Ctrl-Numpad7 is treated as CtrlNum7. If it  is  disabled,  this  key  is
+   treated as CtrlHome.
    Known problems:
       There may be some problems with assigning macros to Shift-NumpadN
       combinations when NumLock is off. The problems can happen with
       any state of the UseNumPad option.
    Can have one of the following values:
-     0 - do not distinguish keys on the main keyboard and numerical
-         keypad
+     0 - do not distinguish keys on the main keyboard and numerical keypad
      1 - distinguish keys on the main keyboard and numerical keypad
    Default value = 0 (do not distinguish).
 
@@ -396,10 +382,9 @@ the main help file, that is actual for the current FAR Manager version.
 ~~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\System]
    "QuotedName":REG_DWORD
-   File or folder names, containing characters specified in rule 34, will
-   be quoted when inserted into the editor/command line or the
-   clipboard.
-   The key "System/QuotedName" of REG_DWORD type controls this behaviour.
+   File or folder names, containing characters specified in rule  34,  will
+   be quoted when inserted into the editor/command line or the clipboard.
+   The key "System/QuotedName" of DWORD type controls this behaviour.
    Bits:
      0 - if set then file or folder names will be quoted inserted into
          the editor/command line.
@@ -411,7 +396,7 @@ the main help file, that is actual for the current FAR Manager version.
 ~~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\System]
    "SilentLoadPlugin":REG_DWORD
-   If FAR couldn't load a plugin DLL it showed an error message. This
+   If FAR couldn't load a plugin DLL  it  showed  an  error  message.  This
    option allows to suppress those messages.
    Possible values:
      0 - show messages about errors occured while loading plugin
@@ -446,10 +431,10 @@ the main help file, that is actual for the current FAR Manager version.
 ~~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\System]
    "UsePrintManager":REG_DWORD
-   The key "System/UsePrintManager" of DWORD type allows to disable the
-   automatic invocation of the "Print Manager" plugin assigned to the Alt-F5
-   combination in the panels, editor and viewer. It gives you the option
-   to call this plugin using macro commands.
+   The key "System/UsePrintManager" of DWORD type  allows  to  disable  the
+   automatic invocation of the  "Print  Manager"  plugin  assigned  to  the
+   Alt-F5 combination in the panels, editor and viewer. It  gives  you  the
+   option to call this plugin using macro commands.
    The default value is 1 (use automatic invocation of the plugin).
 
 
@@ -457,20 +442,19 @@ the main help file, that is actual for the current FAR Manager version.
 ~~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\System]
    "PluginMaxReadData":REG_DWORD
-   The key "System/PluginMaxReadData" of DWORD type allows to set the
-   maximum size of the data read from a file after an attempt to enter
-   it from the panels (Enter or Ctrl-PgDn) was made. The data read will
-   be passed to plugins to determine which plugin supports a file of this
-   type.
-   Can be any value in the range of 0x1000 to 0x80000.
+   The key "System/PluginMaxReadData" of  DWORD  type  allows  to  set  the
+   maximum size of the data read from a file after an attempt to  enter  it
+   from the panels (Enter or Ctrl-PgDn) was made. The  data  read  will  be
+   passed to plugins to determine which plugin  supports  a  file  of  this
+   type. Can be any value in the range of 0x1000 to 0x80000.
    The default value is 0x20000.
 
 1.2.24.(TechInfo #68)
 ~~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\System]
    "CASRule":REG_DWORD
-   The key "System/CASRule" of type DWORD allows to disable the
-   Ctrl-Alt-Shift combination used for temporary hiding of the interface
+   The  key  "System/CASRule"  of  type  DWORD  allows   to   disable   the
+   Ctrl-Alt-Shift combination used for temporary hiding  of  the  interface
    objects.
    Combinations of right and left Ctrl-Alt-Shift are distinguished.
     Bit numbers:
@@ -494,29 +478,29 @@ the main help file, that is actual for the current FAR Manager version.
      3 - "Copy" dialog: remember option state for the current FAR session
    The effect of bit 0 depends on the state of bit 1:
    1. If bit 1 is set to 1 then the "Copy access rights" option will be set
-      according to bit 0 only in the first time the "Move" dialog is called.
-      If you change this option manually in the dialog then the next time the
-      dialog is called this option will have the value previously set by you.
-      The state of this option is saved only untill the end of the current
-      FAR session. Next time you start FAR this option will once again be set
-      according to bit 0.
-   2. If bit 1 is set to 0, then the "Copy access rights" option will be set
-      according to bit 0 every time the "Move" dialog is displayed. You can
-      change the option but it will apply only to the current "Move"
+      according to bit 0 only in  the  first  time  the  "Move"  dialog  is
+      called. If you change this option manually in  the  dialog  then  the
+      next time the dialog is  called  this  option  will  have  the  value
+      previously set by you. The state of this option is saved only  untill
+      the end of the current FAR session. Next  time  you  start  FAR  this
+      option will once again be set according to bit 0.
+   2. If bit 1 is set to 0, then the "Copy access rights"  option  will  be
+      set according to bit 0 every time the "Move" dialog is displayed. You
+      can change the option but it will apply only to  the  current  "Move"
       operation.
-   The same rules apply to the effect of bit 2 depending on the state of bit 3
-   for the "Copy" dialog.
+   The same rules apply to the effect of bit 2 depending on  the  state  of
+   bit 3 for the "Copy" dialog.
    Examples:
-     0x09 - always set the option "Copy access rights" on in the "Move" dialog
-            and let it be off by default for the "Copy" dialog where user
-            setting will be remembered until FAR is closed.
-     0x06 - always set the option "Copy access rights" on in the "Copy" dialog
-            and let it be off by default for the "Move" dialog where user
-            setting will be remembered until FAR is closed.
-   The default value is 0 (turn off the option each time the dialog is opened;
-   access rights are inherited from the destionation folder).
+     0x09 - always set the option "Copy access rights"  on  in  the  "Move"
+            dialog and let it be off by default for the "Copy" dialog where
+            user setting will be remembered until FAR is closed.
+     0x06 - always set the option "Copy access rights"  on  in  the  "Copy"
+            dialog and let it be off by default for the "Move" dialog where
+            user setting will be remembered until FAR is closed.
+   The default value is 0 (turn off the option  each  time  the  dialog  is
+   opened; access rights are inherited from the destionation folder).
    Remarks:
-   1. The "System/CopySecurityOptions" key does not affect the creation of
+   1. The "System/CopySecurityOptions" key does not affect the creation  of
       links (Alt-F6). In this case the access right are always copied.
    2. If the "Copy access rights" option is off then the copied/moved files
       inherit access rights from the folder to which they are copied/moved.
@@ -546,25 +530,24 @@ the main help file, that is actual for the current FAR Manager version.
 ~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\System\Executor]
    "UseAppPath":REG_DWORD
-   When executing the contents of the command line, FAR searches for
-   the executable in the following sequence (sequentially
-   substituting all extensions listed in the environment variable
-   %PATHEXT%, starting with the extensions ".BAT;.CMD;.EXE;.COM;"):
+   When executing the contents of the command line, FAR  searches  for  the
+   executable in the  following  sequence  (sequentially  substituting  all
+   extensions listed in the environment variable %PATHEXT%,  starting  with
+   the extensions ".BAT;.CMD;.EXE;.COM;"):
    1. The current directory
    2. The directories that are listed in the PATH environment variable
    3. Windows 95/98/Me: The Windows system directory.
       Windows NT/2000 or later: The 32-bit Windows system directory.
    4. Windows NT/2000 or later: The 16-bit Windows system directory.
    5. The Windows directory.
-   If the key "Executor\UseAppPath" of DWORD type is set to 1, FAR
-   performs an additional search for the executables through the
-   registry:
+   If the key "Executor\UseAppPath" of DWORD type is set to 1, FAR performs
+   an additional search for the executables through the registry:
    6. Contents of the registry branch:
       [HKCU\Software\Microsoft\Windows\CurrentVersion\App Paths]
    7. Contents of the registry branch:
       [HKLM\Software\Microsoft\Windows\CurrentVersion\App Paths]
-   For any setting of the "Executor\UseAppPath", the executable listed
-   in "App Paths" will be started by the Explorer if the Shift-Enter key
+   For any setting of the "Executor\UseAppPath", the executable  listed  in
+   "App Paths" will be started by  the  Explorer  if  the  Shift-Enter  key
    combination is used.
    The default value is 1 (check the registry branches).
 
@@ -741,11 +724,31 @@ the main help file, that is actual for the current FAR Manager version.
          switching between 25/50 lines.
    This parameter has effect only in the windowed mode of FAR Manager.
    By default the rule is on (1) for the Windows NT family.
-   For Windows 9x family the rule is off (0) by default and it is not
-   recommended to turn it on as it causes considerable visual distortions
-   (while changing console size) and there it no possibility to save the size
-   of the console window between sessions of Far Manager.
+   For Windows 9x family the rule is off (0)  by  default  and  it  is  not
+   recommended to turn it on as it causes considerable  visual  distortions
+   (while changing console size) and there it no possibility  to  save  the
+   size of the console window between sessions of Far Manager.
 
+1.5.4.(TechInfo #64)
+~~~~~~~~~~~~~~~~~~~~
+   [HKEY_CURRENT_USER\Software\Far\Interface]
+   "ShowTimeoutDelFiles":REG_DWORD
+   The key "Interface/ShowTimeoutDelFiles" of DWORD type allows to  control
+   the refresh timeout (in ms) of the file deletion  process  message  box.
+   For bigger values of "ShowTimeoutDelFiles" the  process  information  is
+   updated less often which speeds up the deletion process itself.
+   The default value is 50 ms.
+
+1.5.5.(TechInfo #65)
+~~~~~~~~~~~~~~~~~~~~~
+   [HKEY_CURRENT_USER\Software\Far\Interface]
+   "ShowTimeoutDACLFiles":REG_DWORD
+   The key "Interface/ShowTimeoutDACLFiles" of DWORD type allows to control
+   the refresh timeout (in ms) of the  access  rights  application  process
+   message box that is done after a copy/move operation. For bigger  values
+   of "ShowTimeoutDACLFiles" the process information is updated less  often
+   which speeds up the access rights application process itself.
+   The default value is 50 ms.
 
 
 =====================
@@ -782,11 +785,10 @@ the main help file, that is actual for the current FAR Manager version.
 ~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\Panel]
    "CtrlFRule":REG_DWORD
-   The  "Panel/CtrlFRule"  parameter  (DWORD  type)  specifies  the  Ctrl-F
-   behavior. When it is 0, the pathname of the file is put into the command
-   line as is, otherwise - as it is  shown  on  the  panel  (that  is,  the
-   filename may be converted to lowercase or the short  file  name  may  be
-   used).
+   The key "Panel/CtrlFRule" of DWORD type specifies the  Ctrl-F  behavior.
+   When it is 0, the pathname of the file is put into the command  line  as
+   is, otherwise - as it is shown on the panel (that is, the  filename  may
+   be converted to lowercase or the short file name may be used).
    The default is 1 (as it is shown on the panel).
 
 1.6.3.(TechInfo #43)
@@ -828,8 +830,8 @@ the main help file, that is actual for the current FAR Manager version.
 ~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\Dialog]
    "CBoxMaxHeight":REG_DWORD
-   The key "Dialog/CBoxMaxHeight" of DWORD type specifies the maximal height
-   for dialog history lists.
+   The key "Dialog/CBoxMaxHeight"  of  DWORD  type  specifies  the  maximum
+   height for dialog history lists.
    The default value is 8.
 
 
@@ -901,8 +903,8 @@ the main help file, that is actual for the current FAR Manager version.
 ~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\Editor]
    "CharCodeBase":REG_DWORD
-   The key "Editor/CharCodeBase" of DWORD type  allows  to  change  the
-   representation of the current character code in the editor status  line.
+   The key  "Editor/CharCodeBase"  of  DWORD  type  allows  to  change  the
+   representation of the current character code in the editor status line.
    Can have one of the following values:
      0 - octal value (3 characters with leading zeros)
      1 - decimal value (3 characters with leading spaces)
@@ -913,22 +915,22 @@ the main help file, that is actual for the current FAR Manager version.
 ~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\Editor]
    "EditorUndoSize":REG_DWORD
-   The value "Editor/EditorUndoSize" of type DWORD allows to change
-   the size of undo buffer in the editor. It indicates the number of
-   stored operations (not the bytesize of the buffer) and can be in
-   the range from 64 up to 2147483645. If the value falls out of that
-   range, it is considered to equal 64.
+   The value "Editor/EditorUndoSize" of type DWORD  allows  to  change  the
+   size of undo buffer in the editor. It indicates  the  number  of  stored
+   operations (not the bytesize of the buffer) and can be in the range from
+   64 up to 2147483645. If the  value  falls  out  of  that  range,  it  is
+   considered to equal 64.
    Default value is 2048.
 
 1.8.7.(TechInfo #67)
 ~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\Editor]
    "AllowEmptySpaceAfterEof":REG_DWORD
-   The end of the file in the editor is always at the bottom of the
-   screen, if there are more lines in the file than in on the screen.
-   When scrolling down (e.g. using Ctrl-Down) the scrolling stops when
-   the last line is shown.
-   The value "Editor/AllowEmptySpaceAfterEof" of type DWORD allows to
+   The end of the file in the editor is always at the bottom of the screen,
+   if there are more lines  in  the  file  than  in  on  the  screen.  When
+   scrolling down (e.g. using Ctrl-Down) the scrolling stops when the  last
+   line is shown.
+   The value  "Editor/AllowEmptySpaceAfterEof"  of  type  DWORD  allows  to
    change this behaviour.
    Can have one of the followng valuew:
    0 - stop scrolling if the last line is at the bottom of the screen.
@@ -966,8 +968,7 @@ the main help file, that is actual for the current FAR Manager version.
       "AltFastFindKey", "FastFindKey" - for fast find in panels.
    Parameters "Alt*Key" allow to set alternative keys.
    The default keys are CtrlShiftX.
-   The parameter "Flags" determines the behaviour of the XLat
-   function.
+   The parameter "Flags" determines the behaviour of the XLat function.
      Bits:
        0 - under Windows NT/2000, switch to the next available
            keyboard layout after performing the translation.
@@ -993,17 +994,17 @@ appliance to FAR Manager.
 
 2.0.(TechInfo #57)
 ~~~~~~~~~~~~~~~~~~~~~
-   If the [HKEY_CLASSES_ROOT\Directory\shellex\CopyHookHandlers]  registry  key
-   is empty FAR removes it when started.
-   If this key is empty then FAR will crash when deleting files to the  recycle
-   bin.
+   If the  [HKEY_CLASSES_ROOT\Directory\shellex\CopyHookHandlers]  registry
+   key is empty FAR removes it when started.
+   If this key is empty then FAR will crash  when  deleting  files  to  the
+   recycle bin.
 
 2.1.(TechInfo #58)
 ~~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Control Panel\Desktop]
    "AutoEndTasks":REG_DWORD
-   System: Automatically Close Hung Applications
-   This option is used to force Windows  to  automatically  close  without  any
+   System: Automatically Close Hung Applications.
+   This option is used to force Windows to automatically close without  any
    warning applications that have hung.
 
    Can be one of the following values:
@@ -1011,8 +1012,8 @@ appliance to FAR Manager.
      1 - allow to automatically close hung applications.
    Default value is 0 (off).
 
-   Setting the key to "1" allows  to  eliminate  the  problem  of  closing  the
-   internal modal editor (e.g. editing a file  inside  an  archive)  using  the
+   Setting the key to "1" allows to eliminate the problem  of  closing  the
+   internal modal editor (e.g. editing a file inside an archive) using  the
    standard "Close" button of the console window.
    For details see: http://www.winguides.com/registry/display.php/199/
 
@@ -1022,10 +1023,10 @@ appliance to FAR Manager.
    [HKEY_CURRENT_USER\Software\Microsoft\Command Processor]
    "DisableUNCCheck":REG_DWORD
    (applies only to NT4/W2k/XP/2003 and cmd.exe)
-   The CMD.EXE normally disallows  UNC  names  from  being
-   used for the current directory. When FAR tries to execute a command  of  the
-   command process and the current path is UNC then the following error message
-   will be written to the console:
+   The CMD.EXE normally disallows UNC names from being used for the current
+   directory. When FAR tries to execute a command of  the  command  process
+   and the current path is UNC then the following  error  message  will  be
+   written to the console:
 
      "CMD.EXE was started with the above path as the current directory.
      UNC paths are not supported.  Defaulting to Windows directory."
@@ -1034,8 +1035,8 @@ appliance to FAR Manager.
 
    The key "DisableUNCCheck" allows to resolve this problem.
    The following values can be used:
-     0 - output a warning message and set the current path  to  Windows  system
-         folder.
+     0 - output a warning message and set the  current  path  to  Windows
+         system folder.
      1 - output no warning and try to set the current path to the UNC path.
 
    The default value is 0.
