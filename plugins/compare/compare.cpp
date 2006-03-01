@@ -55,6 +55,7 @@ enum CompareLng {
   MCompareIgnoreTimeZone,
   MCompareSize,
   MCompareContents,
+  MCompareContentsIgnore,
   MCompareIgnoreNewLines,
   MCompareIgnoreWhitespace,
   MMessageWhenNoDiff,
@@ -93,6 +94,7 @@ struct Options {
       IgnorePossibleTimeZoneDifferences,
       CompareSize,
       CompareContents,
+      CompareContentsIgnore,
       IgnoreWhitespace,
       IgnoreNewLines,
       MessageWhenNoDiff;
@@ -185,42 +187,39 @@ static void ShowMessage(const char *Name1, const char *Name2)
  ****************************************************************************/
 long WINAPI ShowDialogProc(HANDLE hDlg, int Msg, int Param1, long Param2)
 {
-  static int CompareContents;
-  static int ProcessSubfolders;
-  static int CompareTime;
+  static int CompareContents,
+             CompareContentsIgnore,
+             ProcessSubfolders,
+             CompareTime;
 
   switch (Msg)
   {
     case DN_INITDIALOG:
       CompareContents = ((DWORD)Info.SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0)) & 0x000000FF;
+      CompareContentsIgnore = CompareContents + 1;
       ProcessSubfolders = (((DWORD)Info.SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0)) >> 8) & 0x000000FF;
       CompareTime = ((DWORD)Info.SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0)) >> 16;
       break;
 
     case DN_BTNCLICK:
-      if (Param1 == CompareTime || Param1==ProcessSubfolders || Param1 == CompareContents)
+      if (Param1 == CompareTime || Param1 == ProcessSubfolders || Param1 == CompareContents || Param1 == CompareContentsIgnore)
       {
         if (Param2)
         {
           Info.SendDlgMessage(hDlg, DM_ENABLE, Param1+1, TRUE);
-          Info.SendDlgMessage(hDlg, DM_ENABLE, Param1+2, (Param1 == CompareContents) ?
-                              Info.SendDlgMessage(hDlg, DM_GETCHECK, Param1+1, 0) : TRUE);
+          if (!(Param1 == CompareContents && !Info.SendDlgMessage(hDlg, DM_GETCHECK, CompareContentsIgnore, 0)))
+          {
+            Info.SendDlgMessage(hDlg, DM_ENABLE, Param1+2, TRUE);
+            if (Param1 == CompareContents)
+              Info.SendDlgMessage(hDlg, DM_ENABLE, Param1+3, TRUE);
+          }
         }
         else
         {
           Info.SendDlgMessage(hDlg, DM_ENABLE, Param1+1, FALSE);
           Info.SendDlgMessage(hDlg, DM_ENABLE, Param1+2, FALSE);
-        }
-      }
-      else if (Param1 == CompareContents+1)
-      {
-        if (Param2)
-        {
-          Info.SendDlgMessage(hDlg, DM_ENABLE, Param1+1, TRUE);
-        }
-        else
-        {
-          Info.SendDlgMessage(hDlg, DM_ENABLE, Param1+1, FALSE);
+          if (Param1 == CompareContents)
+            Info.SendDlgMessage(hDlg, DM_ENABLE, Param1+3, FALSE);
         }
       }
       break;
@@ -245,26 +244,27 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
     unsigned int  Flags;
     int          *StoreTo;
   } InitItems[] = {
-    /* 0*/ { DI_DOUBLEBOX, 3,  1, 62, 19, MCmpTitle,                0, NULL,                                   0, NULL },
-    /* 1*/ { DI_TEXT,      5,  2,  0,  0, MProcessBox,              0, NULL,                                   0, NULL },
-    /* 2*/ { DI_CHECKBOX,  5,  3,  0,  0, MProcessSubfolders,       0, "ProcessSubfolders",                    0, &Opt.ProcessSubfolders },
-    /* 3*/ { DI_CHECKBOX,  9,  4,  0,  0, MUseMaxScanDepth,         0, "UseMaxScanDepth",                      0, &Opt.UseMaxScanDepth },
-    /* 4*/ { DI_FIXEDIT,   0,  4,  5,  0, MNoLngStringDefined,     99, "MaxScanDepth",                         0, &Opt.MaxScanDepth },
-    /* 5*/ { DI_CHECKBOX,  5,  5,  0,  0, MProcessSelected,         0, "ProcessSelected",                      0, &Opt.ProcessSelected },
-    /* 6*/ { DI_TEXT,      0,  6,  0,  0, MNoLngStringDefined,      0, NULL,                       DIF_SEPARATOR, NULL },
-    /* 7*/ { DI_TEXT,      5,  7,  0,  0, MCompareBox,              0, NULL,                                   0, NULL },
-    /* 8*/ { DI_CHECKBOX,  5,  8,  0,  0, MCompareTime,             1, "CompareTime",                          0, &Opt.CompareTime },
-    /* 9*/ { DI_CHECKBOX,  9,  9,  0,  0, MCompareLowPrecision,     1, "LowPrecisionTime",                     0, &Opt.LowPrecisionTime },
-    /*10*/ { DI_CHECKBOX,  9, 10,  0,  0, MCompareIgnoreTimeZone,   1, "IgnorePossibleTimeZoneDifferences",    0, &Opt.IgnorePossibleTimeZoneDifferences },
-    /*11*/ { DI_CHECKBOX,  5, 11,  0,  0, MCompareSize,             1, "CompareSize",                          0, &Opt.CompareSize },
-    /*12*/ { DI_CHECKBOX,  5, 12,  0,  0, MCompareContents,         0, "CompareContents",                      0, &Opt.CompareContents },
-    /*13*/ { DI_CHECKBOX,  9, 13,  0,  0, MCompareIgnoreNewLines,   0, "IgnoreNewLines",                       0, &Opt.IgnoreNewLines },
-    /*14*/ { DI_CHECKBOX, 13, 14,  0,  0, MCompareIgnoreWhitespace, 0, "IgnoreWhitespace",                     0, &Opt.IgnoreWhitespace },
-    /*15*/ { DI_TEXT,      0, 15,  0,  0, MNoLngStringDefined,      0, NULL,                       DIF_SEPARATOR, NULL },
-    /*16*/ { DI_CHECKBOX,  5, 16,  0,  0, MMessageWhenNoDiff,       0, "MessageWhenNoDiff",                    0, &Opt.MessageWhenNoDiff },
-    /*17*/ { DI_TEXT,      0, 17,  0,  0, MNoLngStringDefined,      0, NULL,                       DIF_SEPARATOR, NULL },
-    /*18*/ { DI_BUTTON,    0, 18,  0,  0, MOK,                      0, NULL,                     DIF_CENTERGROUP, NULL },
-    /*19*/ { DI_BUTTON,    0, 18,  0,  0, MCancel,                  0, NULL,                     DIF_CENTERGROUP, NULL }
+    /* 0*/ { DI_DOUBLEBOX,    3,  1, 62, 20, MCmpTitle,                0, NULL,                                   0, NULL },
+    /* 1*/ { DI_TEXT,         5,  2,  0,  0, MProcessBox,              0, NULL,                                   0, NULL },
+    /* 2*/ { DI_CHECKBOX,     5,  3,  0,  0, MProcessSubfolders,       0, "ProcessSubfolders",                    0, &Opt.ProcessSubfolders },
+    /* 3*/ { DI_CHECKBOX,     9,  4,  0,  0, MUseMaxScanDepth,         0, "UseMaxScanDepth",                      0, &Opt.UseMaxScanDepth },
+    /* 4*/ { DI_FIXEDIT,      0,  4,  5,  0, MNoLngStringDefined,     99, "MaxScanDepth",                         0, &Opt.MaxScanDepth },
+    /* 5*/ { DI_CHECKBOX,     5,  5,  0,  0, MProcessSelected,         0, "ProcessSelected",                      0, &Opt.ProcessSelected },
+    /* 6*/ { DI_TEXT,         0,  6,  0,  0, MNoLngStringDefined,      0, NULL,                       DIF_SEPARATOR, NULL },
+    /* 7*/ { DI_TEXT,         5,  7,  0,  0, MCompareBox,              0, NULL,                                   0, NULL },
+    /* 8*/ { DI_CHECKBOX,     5,  8,  0,  0, MCompareTime,             1, "CompareTime",                          0, &Opt.CompareTime },
+    /* 9*/ { DI_CHECKBOX,     9,  9,  0,  0, MCompareLowPrecision,     1, "LowPrecisionTime",                     0, &Opt.LowPrecisionTime },
+    /*10*/ { DI_CHECKBOX,     9, 10,  0,  0, MCompareIgnoreTimeZone,   1, "IgnorePossibleTimeZoneDifferences",    0, &Opt.IgnorePossibleTimeZoneDifferences },
+    /*11*/ { DI_CHECKBOX,     5, 11,  0,  0, MCompareSize,             1, "CompareSize",                          0, &Opt.CompareSize },
+    /*12*/ { DI_CHECKBOX,     5, 12,  0,  0, MCompareContents,         0, "CompareContents",                      0, &Opt.CompareContents },
+    /*13*/ { DI_CHECKBOX,     9, 13,  0,  0, MCompareContentsIgnore,   0, "CompareContentsIgnore",                0, &Opt.CompareContentsIgnore },
+    /*14*/ { DI_RADIOBUTTON, 13, 14,  0,  0, MCompareIgnoreNewLines,   1, "IgnoreNewLines",               DIF_GROUP, &Opt.IgnoreNewLines },
+    /*15*/ { DI_RADIOBUTTON, 13, 15,  0,  0, MCompareIgnoreWhitespace, 0, "IgnoreWhitespace",                     0, &Opt.IgnoreWhitespace },
+    /*16*/ { DI_TEXT,         0, 16,  0,  0, MNoLngStringDefined,      0, NULL,                       DIF_SEPARATOR, NULL },
+    /*17*/ { DI_CHECKBOX,     5, 17,  0,  0, MMessageWhenNoDiff,       0, "MessageWhenNoDiff",                    0, &Opt.MessageWhenNoDiff },
+    /*18*/ { DI_TEXT,         0, 18,  0,  0, MNoLngStringDefined,      0, NULL,                       DIF_SEPARATOR, NULL },
+    /*19*/ { DI_BUTTON,       0, 19,  0,  0, MOK,                      0, NULL,                     DIF_CENTERGROUP, NULL },
+    /*20*/ { DI_BUTTON,       0, 19,  0,  0, MCancel,                  0, NULL,                     DIF_CENTERGROUP, NULL }
   };
   struct FarDialogItem DialogItems[sizeof(InitItems) / sizeof(InitItems[0])];
   char Mask[] = "99999";
@@ -297,7 +297,7 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
                   RegQueryValueEx(hKey, InitItems[i].SelectedRegValue, NULL,
                   NULL, (unsigned char *)&dwRegValue, &dwSize)
                   == ERROR_SUCCESS ) ? dwRegValue : InitItems[i].DefaultRegValue;
-    if (DialogItems[i].Type == DI_CHECKBOX)
+    if (DialogItems[i].Type == DI_CHECKBOX || DialogItems[i].Type == DI_RADIOBUTTON)
       DialogItems[i].Param.Selected = dwRegValue;
     else if (DialogItems[i].Type == DI_FIXEDIT)
     {
@@ -321,6 +321,20 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
         {
           InitItems[i+1].Flags |= DIF_DISABLE;
           InitItems[i+2].Flags |= DIF_DISABLE;
+          InitItems[i+3].Flags |= DIF_DISABLE;
+        }
+        else
+        {
+          InitItems[i+1].Flags &= ~DIF_DISABLE;
+          InitItems[i+2].Flags &= ~DIF_DISABLE;
+          InitItems[i+3].Flags &= ~DIF_DISABLE;
+        }
+        break;
+      case MCompareContentsIgnore:
+        if (!DialogItems[i].Param.Selected || DialogItems[i].Flags & DIF_DISABLE)
+        {
+          InitItems[i+1].Flags |= DIF_DISABLE;
+          InitItems[i+2].Flags |= DIF_DISABLE;
         }
         else
         {
@@ -328,14 +342,11 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
           InitItems[i+2].Flags &= ~DIF_DISABLE;
         }
         break;
-      case MCompareIgnoreNewLines:
-        if (!DialogItems[i].Param.Selected || DialogItems[i].Flags&DIF_DISABLE)
+      case MCompareIgnoreWhitespace:
+        if (DialogItems[i].Param.Selected == DialogItems[i-1].Param.Selected)
         {
-          InitItems[i+1].Flags |= DIF_DISABLE;
-        }
-        else
-        {
-          InitItems[i+1].Flags &= ~DIF_DISABLE;
+          DialogItems[i-1].Param.Selected = 1;
+          DialogItems[i].Param.Selected = 0;
         }
         break;
       case MProcessSubfolders:
@@ -391,7 +402,7 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
   if (hKey)
     RegCloseKey(hKey);
 
-  int ExitCode = Info.DialogEx(Info.ModuleNumber, -1, -1, 66, 21, "Contents",
+  int ExitCode = Info.DialogEx(Info.ModuleNumber, -1, -1, 66, 22, "Contents",
                                DialogItems, sizeof(DialogItems) / sizeof(DialogItems[0]),
                                0, 0, ShowDialogProc, DlgData);
   if (ExitCode == (sizeof(InitItems) / sizeof(InitItems[0]) - 1) || ExitCode == -1)
@@ -399,7 +410,7 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
 
   for (i = 0; i < sizeof(InitItems) / sizeof(InitItems[0]); i++)
     if (InitItems[i].StoreTo)
-      if (InitItems[i].Type == DI_CHECKBOX)
+      if (InitItems[i].Type == DI_CHECKBOX || InitItems[i].Type == DI_RADIOBUTTON)
         *InitItems[i].StoreTo = (DWORD)DialogItems[i].Param.Selected;
       else if (InitItems[i].Type == DI_FIXEDIT)
         *InitItems[i].StoreTo = FSF.atoi(DialogItems[i].Data.Data);
@@ -672,7 +683,7 @@ static bool CompareFiles( const FAR_FIND_DATA *AData, const FAR_FIND_DATA *PData
 
         Precision.hilo.hi = 0;
         Precision.hilo.lo = Opt.LowPrecisionTime ? 20000000 : 0; //2s or 0s
-        Difference.num = _i64(18000000000); //30m
+        Difference.num = _i64(9000000000); //15m
 
         if (AData->ftLastWriteTime.dwHighDateTime > PData->ftLastWriteTime.dwHighDateTime)
         {
@@ -698,10 +709,11 @@ static bool CompareFiles( const FAR_FIND_DATA *AData, const FAR_FIND_DATA *PData
           }
         }
 
+        //игнорировать различия не больше чем 26 часов.
         if (Opt.IgnorePossibleTimeZoneDifferences)
         {
           int counter=0;
-          while (TimeDelta.hilo.hi > Difference.hilo.hi && counter<=26*2)
+          while (TimeDelta.hilo.hi > Difference.hilo.hi && counter<=26*4)
           {
             temp.hilo.lo = TimeDelta.hilo.lo - Difference.hilo.lo;
             temp.hilo.hi = TimeDelta.hilo.hi - Difference.hilo.hi;
@@ -711,7 +723,7 @@ static bool CompareFiles( const FAR_FIND_DATA *AData, const FAR_FIND_DATA *PData
             TimeDelta.hilo.hi = temp.hilo.hi;
             ++counter;
           }
-          if (counter<=26*2 && TimeDelta.hilo.hi == Difference.hilo.hi)
+          if (counter<=26*4 && TimeDelta.hilo.hi == Difference.hilo.hi)
           {
             TimeDelta.hilo.hi = 0;
             TimeDelta.hilo.lo = max(TimeDelta.hilo.lo,Difference.hilo.lo) - min(TimeDelta.hilo.lo,Difference.hilo.lo);
@@ -744,7 +756,7 @@ static bool CompareFiles( const FAR_FIND_DATA *AData, const FAR_FIND_DATA *PData
 
       bool bEqual = true;
       DWORD ReadSizeA, ReadSizeP;
-      if (!Opt.IgnoreWhitespace && !Opt.IgnoreNewLines)
+      if (!Opt.CompareContentsIgnore)
       {
         do
         {

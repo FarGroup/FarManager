@@ -16,8 +16,9 @@
 "&ignore possible time zone differences"
 "&size"
 "&contents"
-"ignore differences in new &line characters"
-"ignore &whitespace"
+"i&gnore:"
+"differences in new &line characters"
+"&whitespace"
 "Display a message if &no differences were found"
 
 "Two file panels are required to perform the compare"

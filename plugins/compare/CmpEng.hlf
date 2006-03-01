@@ -31,20 +31,22 @@ but it also provides additional compare options:
                            milliseconds, will be compared.
 
   #ignore possible time#     Ignore file time difference that is an
-  #zone differences#         exact multiple of 30 minutes (i.e. half
-                           an hour, 2.5 hours, 12 hours). Maximum
-                           ignored difference is 26 hours.
+  #zone differences#         exact multiple of 15 minutes (i.e. half
+                           an hour, 2 hours and 15 minutes, 12 hours).
+                           Maximum ignored difference is 26 hours.
 
   #size#                     Compare file size.
 
   #contents#                 Compare file contents.
                            Cannot be used for plugin panels.
+
   #ignore differences in#    Ignore differences in new line
   #new line characters#      characters (i.e. when comparing Unix and
                            Windows files).
 
   #ignore whitespace#        Ignore whitespace when comparing file
-                           contents.
+                           contents (ignores spaces, tabs and new line
+                           characters).
 
 
   #Display a message if no#  Display a message if all compared
