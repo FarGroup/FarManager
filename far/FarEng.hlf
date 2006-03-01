@@ -3156,11 +3156,13 @@ disks. This feature is available only when "Use system copy routine" option in
 the ~System settings~@SystemSettings@ dialog is switched off.
 
     The "Access rights" option is valid only for the NTFS file system and
-allows the copying of file access information. The "Copy" action is selected
-by default for copy and move operations. If the "Inherit" action is selected
-then after copying/moving the inheritable access rights of the parent folder
-will be applied to the copied/moved files and folders. If the "Leace as is"
-action is selected then no actions will be applied to the access rights.
+allows the copying of file access information. The "Default" action which
+leaves the access rights processing to the underlying system is selected by
+default for copy and move operations. If the "Copy" action is selected then
+the original access rights will be applied to the copied/moved files and
+folders. If the "Inherit" action is selected then after copying/moving the
+inheritable access rights of the destination parent folder will be applied to
+the copied/moved files and folders.
 
     Parameter "Only newer file(s)" will allow to copy (move) the new and
 updated files without additional prompts. Updated files are those files for

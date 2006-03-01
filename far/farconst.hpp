@@ -7,10 +7,15 @@ farconst.hpp
 
 */
 
-/* Revision: 1.96 07.12.2005 $ */
+/* Revision: 1.97 02.03.2006 $ */
 
 /*
 Modify:
+  01.03.2006 AY
+    ! CSO_MOVE_SETSECURITY -> CSO_MOVE_SETCOPYSECURITY
+    ! CSO_COPY_SETSECURITY -> CSO_COPY_SETCOPYSECURITY
+    + CSO_MOVE_SETINHERITSECURITY - двухбитный флаг
+    + CSO_COPY_SETINHERITSECURITY - двухбитный флаг
   07.12.2005 SVS
     + MACRO_USERMENU
   04.10.2005 SVS
@@ -589,10 +594,12 @@ enum ExcludeCmdHistoryType{
 };
 
 enum COPYSECURITYOPTIONS{
-  CSO_MOVE_SETSECURITY           = 0x00000001,  // Move: по умолчанию выставлять опцию "Copy access rights"?
-  CSO_MOVE_SESSIONSECURITY       = 0x00000002,  // Move: сохранять состояние "Copy access rights" внутри сессии?
-  CSO_COPY_SETSECURITY           = 0x00000004,  // Copy: по умолчанию выставлять опцию "Copy access rights"?
-  CSO_COPY_SESSIONSECURITY       = 0x00000008,  // Copy: сохранять состояние "Copy access rights" внутри сессии?
+  CSO_MOVE_SETCOPYSECURITY       = 0x00000001,  // Move: по умолчанию выставлять опцию "Copy access rights"?
+  CSO_MOVE_SETINHERITSECURITY    = 0x00000003,  // Move: по умолчанию выставлять опцию "Inherit access rights"?
+  CSO_MOVE_SESSIONSECURITY       = 0x00000004,  // Move: сохранять состояние "access rights" внутри сессии?
+  CSO_COPY_SETCOPYSECURITY       = 0x00000008,  // Copy: по умолчанию выставлять опцию "Copy access rights"?
+  CSO_COPY_SETINHERITSECURITY    = 0x00000018,  // Copy: по умолчанию выставлять опцию "Inherit access rights"?
+  CSO_COPY_SESSIONSECURITY       = 0x00000020,  // Copy: сохранять состояние "access rights" внутри сессии?
 };
 
 enum GETDIRINFOFLAGS{

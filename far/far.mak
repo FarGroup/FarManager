@@ -209,8 +209,10 @@ LINK32_FLAGS=$(LINK32_LIBS) /nologo /subsystem:console /pdb:none /debug /debugty
 !ENDIF
 
 
-ALL : "far.release.dep" "far.debug.dep" "lang.hpp" "$(OUTDIR)\Far.exe" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\farkeys.hpp" "$(FARINCLUDE)\plugin.hpp"
+ALL : lng "far.release.dep" "far.debug.dep" "lang.hpp" "$(OUTDIR)\Far.exe" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\farkeys.hpp" "$(FARINCLUDE)\plugin.hpp"
 
+lng:
+	@lng.generator.exe -nc -i lang.ini farlang.templ
 
 "$(OUTDIR)\Far.exe" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
 	$(LINK32) @<<
@@ -251,10 +253,6 @@ ALL : "far.release.dep" "far.debug.dep" "lang.hpp" "$(OUTDIR)\Far.exe" "$(FARINC
 
 "far.debug.dep": mkdep.list.txt
 	@awk -f mkdep.awk -v out=Debug flist.txt > far.debug.dep
-
-
-"lang.hpp" : farlang.templ
-	@lng.generator.exe -nc -i lang.ini farlang.templ
 
 
 "$(OUTDIR)" :

@@ -5,10 +5,13 @@ copy.cpp
 
 */
 
-/* Revision: 1.167 24.02.2006 $ */
+/* Revision: 1.168 02.03.2006 $ */
 
 /*
 Modify:
+  01.03.2006 AY
+    ! ѕеределана работа TI#69 - теперь можно выставл€ть Copy или Inherit.
+    - CopySecurityCopy выставл€лс€ при Link
   24.02.2006 AY
     ! (*) Default ( ) Copy ( ) Inherit.
   17.02.2006 WARP
@@ -812,44 +815,47 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
   {
     CopyDlg[ID_SC_COPYSYMLINK].Selected=0;
     CopyDlg[ID_SC_COPYSYMLINK].Flags|=DIF_DISABLE;
+    CDP.CopySecurity=1;
   }
-
-  if(Move)  // секци€ про перенос
+  else if(Move)  // секци€ про перенос
   {
+    //   2 - Default
+    //   1 - Copy access rights
+    //   0 - Inherit access rights
     CDP.CopySecurity=2;
-    //   [x] —охран€ть старые права доступа
-    //   [ ] Ќаследовать права доступа от новой родительской папки
-    //   [?] Ќичего не делать с правами доступа
-    if(Opt.CMOpt.CopySecurityOptions&CSO_MOVE_SETSECURITY) // ставить опцию "Copy access rights"?
-    {
-      if(CopySecurityMove == -1) // самоинициализаци€ переменной
-        CopySecurityMove=1;
 
-      CDP.CopySecurity=CopySecurityMove; // все зависит от CopySecurityMove
-    }
+    // ставить опцию "Inherit access rights"?
+    // CSO_MOVE_SETINHERITSECURITY - двухбитный флаг
+    if(Opt.CMOpt.CopySecurityOptions&CSO_MOVE_SETINHERITSECURITY == CSO_MOVE_SETINHERITSECURITY)
+      CDP.CopySecurity=0;
+    else if (Opt.CMOpt.CopySecurityOptions&CSO_MOVE_SETCOPYSECURITY)
+      CDP.CopySecurity=1;
 
-    if(CopySecurityMove == -1) // самоинициализаци€ переменной
-      CopySecurityMove=2; // по умолчанию третье состо€ние
-
-    if(Opt.CMOpt.CopySecurityOptions&CSO_MOVE_SESSIONSECURITY) // хотели сессионное запоминание?
+    // хотели сессионное запоминание?
+    if(CopySecurityMove != -1 && Opt.CMOpt.CopySecurityOptions&CSO_MOVE_SESSIONSECURITY)
       CDP.CopySecurity=CopySecurityMove;
+    else
+      CopySecurityMove=CDP.CopySecurity;
   }
   else // секци€ про копирование
   {
+    //   2 - Default
+    //   1 - Copy access rights
+    //   0 - Inherit access rights
     CDP.CopySecurity=2;
-    if(Opt.CMOpt.CopySecurityOptions&CSO_COPY_SETSECURITY) // ставить опцию "Copy access rights"?
-    {
-      if(CopySecurityCopy == -1) // самоинициализаци€ переменной
-        CopySecurityCopy=1;
 
-      CDP.CopySecurity=CopySecurityCopy; // все зависит от CopySecurityMove
-    }
+    // ставить опцию "Inherit access rights"?
+    // CSO_COPY_SETINHERITSECURITY - двухбитный флаг
+    if(Opt.CMOpt.CopySecurityOptions&CSO_COPY_SETINHERITSECURITY == CSO_COPY_SETINHERITSECURITY)
+      CDP.CopySecurity=0;
+    else if (Opt.CMOpt.CopySecurityOptions&CSO_COPY_SETCOPYSECURITY)
+      CDP.CopySecurity=1;
 
-    if(CopySecurityCopy == -1) // самоинициализаци€ переменной
-      CopySecurityCopy=2; // по умолчанию сн€та
-
-    if(Opt.CMOpt.CopySecurityOptions&CSO_COPY_SESSIONSECURITY) // хотели сессионное запоминание?
+    // хотели сессионное запоминание?
+    if(CopySecurityCopy != -1 && Opt.CMOpt.CopySecurityOptions&CSO_COPY_SESSIONSECURITY)
       CDP.CopySecurity=CopySecurityCopy;
+    else
+      CopySecurityCopy=CDP.CopySecurity;
   }
 
   // вот теперь выставл€ем
@@ -943,10 +949,6 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
       CDP.OnlyNewerFiles=CopyDlg[ID_SC_ONLYNEWER].Selected=0;
     }
     // задисаблим опцию про копирование права.
-    CopyDlg[ID_SC_ACCOPY].Selected=1;
-    CopyDlg[ID_SC_ACINHERIT].Selected=0;
-    CopyDlg[ID_SC_ACLEAVE].Selected=0;
-    CDP.CopySecurity=1;
     CopyDlg[ID_SC_ACCOPY].Flags|=DIF_DISABLE;
     CopyDlg[ID_SC_ACINHERIT].Flags|=DIF_DISABLE;
     CopyDlg[ID_SC_ACLEAVE].Flags|=DIF_DISABLE;
