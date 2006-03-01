@@ -933,7 +933,7 @@ the main help file, that is actual for the current FAR Manager version.
    line is shown.
    The value  "Editor/AllowEmptySpaceAfterEof"  of  type  DWORD  allows  to
    change this behaviour.
-   Can have one of the following value:
+   Can have one of the following values:
    0 - stop scrolling if the last line is at the bottom of the screen.
    1 - continue scrolling but:
        a) it is still impossible to position the cursor beyond the end of
