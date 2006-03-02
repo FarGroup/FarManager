@@ -5,10 +5,12 @@ options.cpp
 
 */
 
-/* Revision: 1.23 14.12.2004 $ */
+/* Revision: 1.24 02.03.2006 $ */
 
 /*
 Modify:
+  02.03.2006 SVS
+    ! Отображаем ком.строку, только если ЭТО не редактор и вьювер!
   14.12.2004 SVS
     ! Alt-Del в терминальном сеансе Win2K AS перехватывается самим терминалом.
       Добавим в меню "Файлы" команду "Уничтожение".
@@ -624,7 +626,11 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
     }
   }
 
-  CtrlObject->CmdLine->Show();
+  int _CurrentFrame=FrameManager->GetCurrentFrame()->GetType();
+  // TODO:Здесь как то нужно изменить, чтобы учесть будущие новые типы полноэкранных фреймов
+  //      или то, что, скажем редактор/вьювер может быть не полноэкранным
+  if(!(_CurrentFrame == MODALTYPE_VIEWER || _CurrentFrame == MODALTYPE_EDITOR))
+    CtrlObject->CmdLine->Show();
 
   if (HItem!=-1 && VItem!=-1)
   {

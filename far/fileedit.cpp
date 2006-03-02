@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.173 09.02.2006 $ */
+/* Revision: 1.174 02.03.2006 $ */
 
 /*
 Modify:
+  02.03.2006 SVS
+    ! явно зададит область действи€ макроса
   09.02.2006 AY
     ! Ќе выставл€лись многие настройки текущего редактора.
   28.10.2005 SVS
@@ -883,6 +885,7 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
     EditKeyBar.Hide0();
 
   MacroMode=MACRO_EDITOR;
+  CtrlObject->Macro.SetMode(MACRO_EDITOR);
 /*& OT */
   if (EnableSwitch)
   {

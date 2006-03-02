@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.72 07.12.2005 $ */
+/* Revision: 1.73 02.03.2006 $ */
 
 /*
 Modify:
+  02.03.2006 SVS
+    ! Область действия макроса вернем только в том случае, если фрем, после отработки меню, остался тем же.
   07.12.2005 SVS
     + MACRO_USERMENU
   24.07.2005 WARP
@@ -371,9 +373,11 @@ void ProcessUserMenu(int EditMenu)
     strcpy(MenuRootKey,(MenuMode==MM_MAIN) ? "UserMenu\\MainMenu":LocalMenuKey);
 
     int PrevMacroMode=CtrlObject->Macro.GetMode();
+    int _CurrentFrame=FrameManager->GetCurrentFrame()->GetType();
     CtrlObject->Macro.SetMode(MACRO_USERMENU);
     ExitCode=ProcessSingleMenu(MenuRootKey, 0);
-    CtrlObject->Macro.SetMode(PrevMacroMode);
+    if(_CurrentFrame == FrameManager->GetCurrentFrame()->GetType()) //???
+      CtrlObject->Macro.SetMode(PrevMacroMode);
 
 
     // Фаровский кусок по записи файла

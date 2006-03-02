@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.72 28.10.2005 $ */
+/* Revision: 1.73 02.03.2006 $ */
 
 /*
 Modify:
+  02.03.2006 SVS
+    ! явно зададит область действи€ макроса
   28.10.2005 SVS
     ! Opt.ViOpt.ShowKeyBarViewer -> Opt.ViOpt.ShowKeyBar
   07.07.2005 SVS
@@ -250,6 +252,7 @@ void FileViewer::Init(const char *name,int EnableSwitch,int disableHistory, ///
   /* DJ $ */
   /* $ 20.05.2001 DJ */
   MacroMode = MACRO_VIEWER;
+  CtrlObject->Macro.SetMode(MACRO_VIEWER);
   /* DJ $ */
   View.SetPluginData(PluginData);
   /* $ 07.08.2000 SVS
