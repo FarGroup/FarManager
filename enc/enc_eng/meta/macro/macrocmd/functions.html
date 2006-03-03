@@ -258,9 +258,9 @@
     <td class="cont" width="60%">Transforms the string <em>S</em> to upper-case .</td>
   </tr>
   <tr class="cont">
-    <td class="cont" width="40%">V=<dfn><a name="panelitem">panelitem</a></dfn>(typePanel,Index,TypeInfo)</td>
-    <td class="cont" width="60%">Queries the information for the panel element <em>Index</em> from the
-    active (<em>typePanel</em>=0) or passive (<em>typePanel</em>=1) panel. <em>TypeInfo</em> can be one
+    <td class="cont" width="40%">V=<dfn><a name="panelitem">panelitem</a></dfn>(panelType,itemIndex,propIndex)</td>
+    <td class="cont" width="60%">Queries the information for the panel element <em>itemIndex</em> from the
+    active (<em>panelType</em>=0) or passive (<em>panelType</em>=1) panel. <em>propIndex</em> can be one
     of the following values:
        <table class="cont">
        <tr class="cont"><th class="cont" width="10%">Value</th><th class="cont" width="10%">Type</th><th class="cont" width="80%">Description</th></tr>
@@ -270,20 +270,19 @@
         <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Creation date/time</td></tr>
         <tr class="cont"><td class="cont" width="10%">4</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Last access date/time</td></tr>
         <tr class="cont"><td class="cont" width="10%">5</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Last modification date/time</td></tr>
-        <tr class="cont"><td class="cont" width="10%">6</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Size (high word)</td></tr>
-        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Size (low word)</td></tr>
-        <tr class="cont"><td class="cont" width="10%">8</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Packed size (high word)</td></tr>
-        <tr class="cont"><td class="cont" width="10%">9</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Packed size (low word)</td></tr>
-        <tr class="cont"><td class="cont" width="10%">10</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">"Is selected?"</td></tr>
-        <tr class="cont"><td class="cont" width="10%">11</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Number of the hardlinks</td></tr>
-        <tr class="cont"><td class="cont" width="10%">12</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">SortGroup</td></tr>
-        <tr class="cont"><td class="cont" width="10%">13</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Diz-text</td></tr>
-        <tr class="cont"><td class="cont" width="10%">14</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Owner</td></tr>
-        <tr class="cont"><td class="cont" width="10%">15</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">CRC32</td></tr>
+        <tr class="cont"><td class="cont" width="10%">6</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Size</td></tr>
+        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Packed size</td></tr>
+        <tr class="cont"><td class="cont" width="10%">8</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">"Is selected?"</td></tr>
+        <tr class="cont"><td class="cont" width="10%">9</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Number of the hardlinks</td></tr>
+        <tr class="cont"><td class="cont" width="10%">10</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">SortGroup</td></tr>
+        <tr class="cont"><td class="cont" width="10%">11</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Diz-text</td></tr>
+        <tr class="cont"><td class="cont" width="10%">12</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Owner</td></tr>
+        <tr class="cont"><td class="cont" width="10%">13</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">CRC32</td></tr>
+        <tr class="cont"><td class="cont" width="10%">14</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Позиция элемента в процессе чтения файловой системы</td></tr>
        </table>
     Date/time is returned in the DD.MM.YYYY HH:MM:SS format.
     The values order and the delimiters are determined according to the regional settings.
-    To receive information on the current file (under cursor) Index should be set to 0.
+    To receive information on the current file (under cursor) itemIndex should be set to 0.
     </td>
   </tr>
   <tr class="cont">
