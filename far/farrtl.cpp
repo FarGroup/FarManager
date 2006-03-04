@@ -4,10 +4,12 @@ farrtl.cpp
 Переопределение функций работы с памятью: new/delete/malloc/realloc/free
 */
 
-/* Revision: 1.22 25.04.2005 $ */
+/* Revision: 1.23 02.03.2006 $ */
 
 /*
 Modify:
+  02.03.2006 SVS
+    + кусок кода из RTL strtoq.c для борманда (_strtoi64)
   24.04.2005 AY
     ! GCC
   09.10.2004 SVS
@@ -453,3 +455,145 @@ void *__cdecl xf_realloc(void *__block, size_t __size)
 #endif
   return Ptr;
 }
+
+#if defined(__BORLANDC__)
+
+#define _UI64_MAX     0xffffffffffffffffui64
+#define _I64_MIN      (-9223372036854775807i64 - 1)
+#define _I64_MAX      9223372036854775807i64
+#define ERANGE        34
+
+#define FL_UNSIGNED   1       /* strtouq called */
+#define FL_NEG        2       /* negative sign found */
+#define FL_OVERFLOW   4       /* overflow occured */
+#define FL_READDIGIT  8       /* we've read at least one correct digit */
+
+static unsigned __int64 strtoxq (
+    const char *nptr,
+    const char **endptr,
+    int ibase,
+    int flags
+    )
+{
+    const char *p;
+    char c;
+    unsigned __int64 number;
+    unsigned digval;
+    unsigned __int64 maxval;
+
+    p = nptr;            /* p is our scanning pointer */
+    number = 0;            /* start with zero */
+
+    c = *p++;            /* read char */
+    while ( isspace((int)(unsigned char)c) )
+        c = *p++;        /* skip whitespace */
+
+    if (c == '-') {
+        flags |= FL_NEG;    /* remember minus sign */
+        c = *p++;
+    }
+    else if (c == '+')
+        c = *p++;        /* skip sign */
+
+    if (ibase < 0 || ibase == 1 || ibase > 36) {
+        /* bad base! */
+        if (endptr)
+            /* store beginning of string in endptr */
+            *endptr = nptr;
+        return 0L;        /* return 0 */
+    }
+    else if (ibase == 0) {
+        /* determine base free-lance, based on first two chars of
+           string */
+        if (c != '0')
+            ibase = 10;
+        else if (*p == 'x' || *p == 'X')
+            ibase = 16;
+        else
+            ibase = 8;
+    }
+
+    if (ibase == 16) {
+        /* we might have 0x in front of number; remove if there */
+        if (c == '0' && (*p == 'x' || *p == 'X')) {
+            ++p;
+            c = *p++;    /* advance past prefix */
+        }
+    }
+
+    /* if our number exceeds this, we will overflow on multiply */
+    maxval = _UI64_MAX / ibase;
+
+
+    for (;;) {    /* exit in middle of loop */
+        /* convert c to value */
+        if ( isdigit((int)(unsigned char)c) )
+            digval = c - '0';
+        else if ( isalpha((int)(unsigned char)c) )
+            digval = toupper(c) - 'A' + 10;
+        else
+            break;
+        if (digval >= (unsigned)ibase)
+            break;        /* exit loop if bad digit found */
+
+        /* record the fact we have read one digit */
+        flags |= FL_READDIGIT;
+
+        /* we now need to compute number = number * base + digval,
+           but we need to know if overflow occured.  This requires
+           a tricky pre-check. */
+
+        if (number < maxval || (number == maxval &&
+        (unsigned __int64)digval <= _UI64_MAX % ibase)) {
+            /* we won't overflow, go ahead and multiply */
+            number = number * ibase + digval;
+        }
+        else {
+            /* we would have overflowed -- set the overflow flag */
+            flags |= FL_OVERFLOW;
+        }
+
+        c = *p++;        /* read next digit */
+    }
+
+    --p;                /* point to place that stopped scan */
+
+    if (!(flags & FL_READDIGIT)) {
+        /* no number there; return 0 and point to beginning of
+           string */
+        if (endptr)
+            /* store beginning of string in endptr later on */
+            p = nptr;
+        number = 0L;        /* return 0 */
+    }
+    else if ( (flags & FL_OVERFLOW) ||
+              ( !(flags & FL_UNSIGNED) &&
+                ( ( (flags & FL_NEG) && (number > -_I64_MIN) ) ||
+                  ( !(flags & FL_NEG) && (number > _I64_MAX) ) ) ) )
+    {
+        /* overflow or signed overflow occurred */
+        errno = ERANGE;
+        if ( flags & FL_UNSIGNED )
+            number = _UI64_MAX;
+        else if ( flags & FL_NEG )
+            number = _I64_MIN;
+        else
+            number = _I64_MAX;
+    }
+    if (endptr != NULL)
+        /* store pointer to char that stopped the scan */
+        *endptr = p;
+
+    if (flags & FL_NEG)
+        /* negate result if there was a neg sign */
+        number = (unsigned __int64)(-(__int64)number);
+
+    return number;            /* done. */
+}
+
+__int64 _cdecl _strtoi64(const char *nptr,char **endptr,int ibase)
+{
+    return (__int64) strtoxq(nptr, (const char **)endptr, ibase, 0);
+}
+
+#endif

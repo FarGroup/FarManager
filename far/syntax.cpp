@@ -5,10 +5,13 @@ syntax.cpp
 
 */
 
-/* Revision: 1.12 17.01.2006 $ */
+/* Revision: 1.13 04.03.2006 $ */
 
 /*
 Modify:
+  04.03.2006 SVS
+    + MCODE_F_CLIP (V=clip(N,S))
+    ! Числа в макросах имеют суть __int64
   17.01.2006 SVS
     + Panel.SetPos
   09.12.2005 SVS
@@ -48,6 +51,7 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
+#include "plugin.hpp"
 #include "macroopcode.hpp"
 #include "lang.hpp"
 #include "fn.hpp"
@@ -60,10 +64,10 @@ Modify:
 // и строковое значение)
 //---------------------------------------------------------------
 
-static const char *toString(long num)
+static const char *toString(__int64 num)
 {
-  static char str[16];
-  ltoa(num, str, 10);
+  static char str[128];
+  _i64toa(num, str, 10);
   return str;
 };
 
@@ -73,7 +77,7 @@ TVar::~TVar()
     delete [] str;
 };
 
-TVar::TVar(long v) :
+TVar::TVar(__int64 v) :
   vType(vtInteger),
   inum(v)
 {
@@ -119,9 +123,9 @@ TVar& TVar::operator=(const TVar& v)
   return *this;
 }
 
-long TVar::i() const
+__int64 TVar::i() const
 {
-  return isInteger() ? inum : ( str ? atoi(str) : 0 );
+  return isInteger() ? inum : ( str ? _atoi64(str) : 0 );
 }
 
 const char *TVar::s() const
@@ -134,11 +138,11 @@ const char *TVar::s() const
 
 const char *TVar::toString()
 {
-  char s[64];
+  char s[128];
   switch ( vType )
   {
     case vtInteger:
-      strcpy(s, ::toString(inum));
+      strncpy(s, ::toString(inum),sizeof(s)-1);
       break;
     default:
       return str;
@@ -152,12 +156,12 @@ const char *TVar::toString()
   return str;
 };
 
-long TVar::toInteger()
+__int64 TVar::toInteger()
 {
   switch ( vType )
   {
     case vtString:
-      inum = str ? atol(str) : 0;
+      inum = str ? _atoi64(str) : 0;
       break;
   }
   vType = vtInteger;
@@ -312,7 +316,7 @@ TVar operator/(const TVar& a, const TVar& b)
       switch ( b.vType )
       {
         case vtInteger:
-          r = b.inum ? ( a.inum / b.inum ) : 0l;
+          r = b.inum ? ( a.inum / b.inum ) : 0i64;
           break;
         case vtString:
           r = a;
@@ -548,6 +552,14 @@ static void put(unsigned long code)
   exprBuff[Size++] = code;
 }
 
+static void put64(unsigned __int64 code)
+{
+  FARINT64 i64;
+  i64.i64=code;
+  exprBuff[Size++] = i64.Part.HighPart;   //???
+  exprBuff[Size++] = i64.Part.LowPart;    //???
+}
+
 static void putstr(const char *s)
 {
   int Length = strlen(s)+1;
@@ -574,6 +586,7 @@ static TToken currTok = tNo;
 static TVar currVar;
 
 static void expr(void);
+static __int64 _cdecl getInt64();
 
 //-----------------------------------------------
 static char ErrMessage[3][256];
@@ -654,12 +667,13 @@ typedef struct __TMacroFunction{
 static TMacroFunction macroFunction[]={
   {"ABS",            1,    MCODE_F_ABS},                 // N=abs(N)
   {"CHECKHOTKEY",    1,    MCODE_F_MENU_CHECKHOTKEY},    // N=checkhotkey(S)
+  {"CLIP",           2,    MCODE_F_CLIP},                // V=clip(N,S)
   {"DATE",           1,    MCODE_F_DATE},                // S=date(S)
   {"DLG.GETVALUE",   2,    MCODE_F_DLG_GETVALUE},        // V=Dlg.GetValue(ID,N)
   {"EDITOR.SET",     2,    MCODE_F_EDITOR_SET},          // N=Editor.Set(N,Var)
   {"ENV",            1,    MCODE_F_ENVIRON},             // S=env(S)
   {"FATTR",          1,    MCODE_F_FATTR},               // N=fattr(S)
-  {"FEXIST",         1,    MCODE_F_FEXIST},              // S=fexist(S)
+  {"FEXIST",         1,    MCODE_F_FEXIST},              // N=fexist(S)
   {"FSPLIT",         2,    MCODE_F_FSPLIT},              // S=fsplit(S,N)
   {"IIF",            3,    MCODE_F_IIF},                 // V=iif(Condition,V1,V2)
   {"INDEX",          2,    MCODE_F_INDEX},               // S=index(S1,S2)
@@ -675,7 +689,7 @@ static TMacroFunction macroFunction[]={
   {"PANELITEM",      3,    MCODE_F_PANELITEM},           // V=panelitem(Panel,Index,TypeInfo)
   {"RINDEX",         2,    MCODE_F_RINDEX},              // S=rindex(S1,S2)
   {"STRING",         1,    MCODE_F_STRING},              // S=string(V)
-  {"SUBSTR",         3,    MCODE_F_SUBSTR},              // S=substr(S1,S2,N)
+  {"SUBSTR",         3,    MCODE_F_SUBSTR},              // S=substr(S,N1,N2)
   {"UCASE",          1,    MCODE_F_UCASE},               // S=ucase(S1)
   {"XLAT",           1,    MCODE_F_XLAT},                // S=xlat(S)
 };
@@ -774,6 +788,20 @@ static long getLong()
   putBack(ch);
   char *endptr;
   return strtol(buffer,&endptr,0);
+}
+
+static __int64 _cdecl getInt64()
+{
+  static char buffer[128];
+  char *p = buffer;
+  int ch;
+  while ( ( ( ch = getChar() ) != EOFCH ) && (isxdigit(ch) || ch == 'x') && ( (p-buffer) < 32 ))
+    *p++ = (char)ch;
+  *p = 0;
+  putBack(ch);
+  char *endptr;
+  __int64 __val=_strtoi64(buffer,&endptr,0);
+  return __val;
 }
 
 
@@ -929,9 +957,11 @@ static TToken getToken(void)
       return currTok = tStr;
     case '0': case '1': case '2': case '3': case '4':
     case '5': case '6': case '7': case '8': case '9':
+    {
       putBack(ch);
-      currVar = getLong();
+      currVar = getInt64();
       return currTok = tInt;
+    }
     case '%':
       ch = getChar();
       if ( isalpha(ch) || ( ch == '%' ) && isalpha(*sSrcString) )
@@ -995,7 +1025,7 @@ static void prim(void)
       break;
     case tInt:
       put(MCODE_OP_PUSHINT);
-      put(currVar.i());
+      put64(currVar.i());
       getToken();
       break;
     case tFARVar:

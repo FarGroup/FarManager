@@ -5,10 +5,13 @@ registry.cpp
 
 */
 
-/* Revision: 1.22 05.03.2005 $ */
+/* Revision: 1.23 02.03.2006 $ */
 
 /*
 Modify:
+  02.03.2006 SVS
+    ! EnumRegValue - доп параметр, для переменной типа REG_QWORD.
+    + Добавлены фунцкии по работе с реестром с типом REG_QWORD: SetRegKey64, GetRegKey64 (в двух видах)
   05.03.2005 SVS
     ! Изменена функция EnumRegValue()
        - добавлен параметр LPDWORD (для полечения REG_DWORD)
@@ -128,6 +131,16 @@ LONG SetRegKey(const char *Key,const char *ValueName,DWORD ValueData)
   return Ret;
 }
 
+LONG SetRegKey64(const char *Key,const char *ValueName,unsigned __int64 ValueData)
+{
+  HKEY hKey;
+  LONG Ret=ERROR_SUCCESS;
+  if((hKey=CreateRegKey(Key)) != NULL)
+    Ret=RegSetValueEx(hKey,ValueName,0,REG_QWORD,(BYTE *)&ValueData,sizeof(ValueData));
+  CloseRegKey(hKey);
+  return Ret;
+}
+
 
 LONG SetRegKey(const char *Key,const char *ValueName,const BYTE *ValueData,DWORD ValueSize)
 {
@@ -218,6 +231,32 @@ int GetRegKey(const char *Key,const char *ValueName,DWORD Default)
 {
   int ValueData;
   GetRegKey(Key,ValueName,ValueData,Default);
+  return(ValueData);
+}
+
+int GetRegKey64(const char *Key,const char *ValueName,__int64 &ValueData,unsigned __int64 Default)
+{
+  int ExitCode;
+  HKEY hKey=OpenRegKey(Key);
+  if(hKey)
+  {
+    DWORD Type,Size=sizeof(ValueData);
+    ExitCode=RegQueryValueEx(hKey,ValueName,0,&Type,(BYTE *)&ValueData,&Size);
+    CloseRegKey(hKey);
+  }
+  if (hKey==NULL || ExitCode!=ERROR_SUCCESS)
+  {
+    ValueData=Default;
+    return(FALSE);
+  }
+  return(TRUE);
+}
+
+
+__int64 GetRegKey64(const char *Key,const char *ValueName,unsigned __int64 Default)
+{
+  __int64 ValueData;
+  GetRegKey64(Key,ValueName,ValueData,Default);
   return(ValueData);
 }
 
@@ -633,7 +672,7 @@ int EnumRegKey(const char *Key,DWORD Index,char *DestName,DWORD DestSize)
   return(FALSE);
 }
 
-int EnumRegValue(const char *Key,DWORD Index,char *DestName,DWORD DestSize,LPBYTE SData,DWORD SDataSize,LPDWORD IData)
+int EnumRegValue(const char *Key,DWORD Index,char *DestName,DWORD DestSize,LPBYTE SData,DWORD SDataSize,LPDWORD IData,__int64* IData64)
 {
   HKEY hKey=OpenRegKey(Key);
   int RetCode=REG_NONE;
@@ -660,6 +699,12 @@ int EnumRegValue(const char *Key,DWORD Index,char *DestName,DWORD DestSize,LPBYT
       {
         if(IData)
           *IData=*(DWORD*)SData;
+        break;
+      }
+      else if(Type == REG_QWORD)
+      {
+        if(IData64)
+          *IData64=*(__int64*)SData;
         break;
       }
     }

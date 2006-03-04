@@ -5,10 +5,12 @@ syntax.hpp
 
 */
 
-/* Revision: 1.03 25.04.2005 $ */
+/* Revision: 1.04 02.03.2006 $ */
 
 /*
 Modify:
+  02.03.2006 SVS
+    ! Числа в макросах имеют суть __int64
   24.04.2005 AY
     ! GCC
   05.03.2005 SVS
@@ -37,10 +39,10 @@ class TVar
 {
 private:
   TVarType vType;
-  long inum;
+  __int64 inum;
   char *str;
 public:
-  TVar(long = 0);
+  TVar(__int64 = 0);
   TVar(const char*);
   TVar(const TVar&);
   ~TVar();
@@ -79,11 +81,11 @@ public:
   int isString()   const { return vType == vtString;  }
   int isInteger()  const { return vType == vtInteger; }
 
-  long i()         const;// { return isInteger() ? inum : 0; };
+  __int64 i()      const;// { return isInteger() ? inum : 0; };
   const char *s()  const;// { return isString() ? ( str ? str : "" ) : ""; };
 
   const char *toString();
-  long toInteger();
+  __int64 toInteger();
 };
 
 //---------------------------------------------------------------

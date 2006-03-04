@@ -5,10 +5,12 @@ OpCode для макросов
 
 */
 
-/* Revision: 1.18 17.01.2006 $ */
+/* Revision: 1.19 04.03.2006 $ */
 
 /*
 Modify:
+  04.03.2006 SVS
+    + MCODE_F_CLIP (V=clip(N,S))
   17.01.2006 SVS
     + Panel.SetPos
   07.10.2005 SVS
@@ -159,6 +161,7 @@ enum MACRO_OP_CODE {
   MCODE_F_MSAVE,                    // B=msave(var)
   MCODE_F_EDITOR_SET,               // N=Editor.Set(N,Var)
   MCODE_F_DLG_GETVALUE,             // V=Dlg.GetValue(ID,N)
+  MCODE_F_CLIP,                     // V=clip(N,S)
 
   /* ************************************************************************* */
   // булевые переменные - различные состояния

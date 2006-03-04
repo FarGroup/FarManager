@@ -5,10 +5,12 @@ headers.cpp
 
 */
 
-/* Revision: 1.20 22.12.2005 $ */
+/* Revision: 1.21 02.03.2006 $ */
 
 /*
 Modify:
+  02.03.2006 SVS
+    + инфа для борманда про _strtoi64 и REG_QWORD
   22.12.2005 SVS
     + FILE_ATTRIBUTE_TEMPORARY
   07.12.2005 SVS
@@ -253,4 +255,18 @@ Modify:
 #define _i64(num) num##ll
 #else
 #define _i64(num) num##i64
+#endif
+
+#ifndef REG_QWORD
+#define REG_QWORD                   ( 11 )  // 64-bit number
+#endif
+
+#if defined(__BORLANDC__)
+  #ifdef  __cplusplus
+  extern "C" {
+  #endif
+  __int64 _cdecl _strtoi64(const char *nptr,char **endptr,int ibase);
+  #ifdef  __cplusplus
+  }
+  #endif
 #endif

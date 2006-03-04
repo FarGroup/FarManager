@@ -5,10 +5,14 @@ macro.cpp
 
 */
 
-/* Revision: 1.155 17.01.2006 $ */
+/* Revision: 1.156 04.03.2006 $ */
 
 /*
 Modify:
+  04.03.2006 SVS
+    + MCODE_F_CLIP (V=clip(N,S))
+    ! Числа в макросах имеют суть __int64
+    ! В PanelItem переделаны индексы
   17.01.2006 SVS
     + Panel.SetPos
   22.12.2005 SVS
@@ -1086,7 +1090,7 @@ int KeyMacro::GetPlainTextSize()
 TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
 {
   int I;
-  TVar Cond(0l);
+  TVar Cond(0i64);
   char FileName[NM*2];
   int FileAttr=-1;
 
@@ -1122,7 +1126,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
       switch(CheckCode)
       {
         case MCODE_V_FAR_WIDTH:
-          Cond=(long)ScrX+1;
+          Cond=(__int64)(ScrX+1);
           break;
 
         case MCODE_C_DISABLEOUTPUT: // DisableOutput?
@@ -1134,7 +1138,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
           break;
 
         case MCODE_C_ICLIP:
-          Cond=UsedInternalClipboard;
+          Cond=(__int64)UsedInternalClipboard;
           break;
 
         case MCODE_C_BOF:
@@ -1154,7 +1158,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
             if(!f)
               f=fo;
             if(f)
-              Cond=f->ProcessKey(CheckCode);
+              Cond=(__int64)f->ProcessKey(CheckCode);
           }
           else
             if(CurFrame)
@@ -1162,7 +1166,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
 #else
           Frame *f=FrameManager->GetTopModal();
           if(f)
-            Cond=f->ProcessKey(CheckCode);
+            Cond=(__int64)f->ProcessKey(CheckCode);
 #endif
           break;
         }
@@ -1174,7 +1178,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
         case MCODE_V_CMDLINE_ITEMCOUNT:        // CmdLine.ItemCount
         case MCODE_V_CMDLINE_CURPOS:           // CmdLine.CurPos
         {
-          Cond=CtrlObject->CmdLine->ProcessKey(CheckCode);
+          Cond=(__int64)CtrlObject->CmdLine->ProcessKey(CheckCode);
           break;
         }
 
@@ -1221,7 +1225,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
 #else
           Frame *f=FrameManager->GetTopModal();
           if(f)
-            Cond=f->ProcessKey(CheckCode);
+            Cond=(__int64)f->ProcessKey(CheckCode);
 #endif
           break;
         }
@@ -1232,22 +1236,22 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
         {
           if (CurFrame && CurFrame->GetType()==MODALTYPE_DIALOG) // ?? Mode == MACRO_DIALOG ??
           {
-            Cond=CurFrame->ProcessKey(CheckCode);
+            Cond=(__int64)CurFrame->ProcessKey(CheckCode);
           }
           break;
         }
 
         case MCODE_C_EMPTY:   // Empty
           if(CurFrame->GetType() == MACRO_SHELL)
-            Cond=CtrlObject->CmdLine->GetLength()==0;
+            Cond=CtrlObject->CmdLine->GetLength()==0?1:0;
           else
           {
 #if 0
-            Cond=CurFrame->ProcessKey(MCODE_C_EMPTY);
+            Cond=(__int64)CurFrame->ProcessKey(MCODE_C_EMPTY);
 #else
             Frame *f=FrameManager->GetTopModal();
             if(f)
-              Cond=f->ProcessKey(CheckCode);
+              Cond=(__int64)f->ProcessKey(CheckCode);
 #endif
           }
           break;
@@ -1281,7 +1285,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
         {
           Panel *SelPanel = CheckCode == MCODE_C_APANEL_LFN ? ActivePanel : PassivePanel;
           if ( SelPanel != NULL )
-            Cond = SelPanel->GetShowShortNamesMode()?0L:1L;
+            Cond = SelPanel->GetShowShortNamesMode()?0:1;
           break;
         }
 
@@ -1290,7 +1294,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
         {
           Panel *SelPanel = CheckCode == MCODE_C_APANEL_LEFT ? ActivePanel : PassivePanel;
           if ( SelPanel != NULL )
-            Cond = SelPanel == CtrlObject->Cp()->LeftPanel ? 1l : 0l;
+            Cond = SelPanel == CtrlObject->Cp()->LeftPanel?1:0;
           break;
         }
 
@@ -1299,7 +1303,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
         {
           Panel *SelPanel = CheckCode == MCODE_C_APANEL_FILEPANEL ? ActivePanel : PassivePanel;
           if ( SelPanel != NULL )
-            Cond=SelPanel->GetType() == FILE_PANEL;
+            Cond=SelPanel->GetType() == FILE_PANEL?1:0;
           break;
         }
 
@@ -1308,7 +1312,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
         {
           Panel *SelPanel=CheckCode==MCODE_C_APANEL_PLUGIN?ActivePanel:PassivePanel;
           if(SelPanel!=NULL)
-            Cond=SelPanel->GetMode() == PLUGIN_PANEL;
+            Cond=SelPanel->GetMode() == PLUGIN_PANEL?1:0;
           break;
         }
 
@@ -1332,7 +1336,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
           if(SelPanel!=NULL)
           {
             int SelCount=SelPanel->GetRealSelCount();
-            Cond=SelCount >= 1; //??
+            Cond=SelCount >= 1?1:0; //??
           }
           break;
         }
@@ -1358,7 +1362,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
         {
           Panel *SelPanel = CheckCode == MCODE_V_APANEL_SELCOUNT ? ActivePanel : PassivePanel;
           if ( SelPanel != NULL )
-            Cond = (long)SelPanel->GetRealSelCount();
+            Cond = (__int64)SelPanel->GetRealSelCount();
           break;
         }
 
@@ -1370,7 +1374,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
           {
             int X1, Y1, X2, Y2;
             SelPanel->GetPosition(X1,Y1,X2,Y2);
-            Cond = (long)(X2-X1+1);
+            Cond = (__int64)(X2-X1+1);
           }
           break;
         }
@@ -1383,7 +1387,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
           {
             struct OpenPluginInfo Info;
             SelPanel->GetOpenPluginInfo(&Info);
-            Cond = (long)Info.Flags;
+            Cond = (__int64)Info.Flags;
           }
           break;
         }
@@ -1416,7 +1420,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
         {
           Panel *SelPanel = CheckCode == MCODE_V_APANEL_TYPE ? ActivePanel : PassivePanel;
           if ( SelPanel != NULL )
-            Cond=SelPanel->GetType();
+            Cond=(__int64)SelPanel->GetType();
           break;
         }
 
@@ -1424,7 +1428,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
         case MCODE_V_PPANEL_DRIVETYPE: // PPanel.DriveType - пассивная панель: тип привода
         {
           Panel *SelPanel = CheckCode == MCODE_V_APANEL_DRIVETYPE ? ActivePanel : PassivePanel;
-          Cond=-1L;
+          Cond=-1i64;
           if ( SelPanel != NULL && SelPanel->GetMode() != PLUGIN_PANEL)
           {
             SelPanel->GetCurDir(FileName);
@@ -1436,7 +1440,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
               if(GetSubstName(DriveType,FileName,NULL,0))
                 DriveType=DRIVE_SUBSTITUTE;
             }
-            Cond=TVar(DriveType);
+            Cond=TVar((__int64)DriveType);
           }
 
           break;
@@ -1447,7 +1451,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
         {
           Panel *SelPanel = CheckCode == MCODE_V_APANEL_ITEMCOUNT ? ActivePanel : PassivePanel;
           if ( SelPanel != NULL )
-            Cond=SelPanel->GetFileCount();
+            Cond=(__int64)SelPanel->GetFileCount();
           break;
         }
 
@@ -1465,7 +1469,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
         {
           Frame *f=FrameManager->GetTopModal();
           if(f)
-            Cond=f->ProcessKey(CheckCode);
+            Cond=(__int64)f->ProcessKey(CheckCode);
         }
         // *****************
 
@@ -1492,7 +1496,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
               Cond=(char *)egs.StringText;
             }
             else
-              Cond=(long)CtrlObject->Plugins.CurEditor->ProcessKey(CheckCode);
+              Cond=(__int64)CtrlObject->Plugins.CurEditor->ProcessKey(CheckCode);
           }
           break;
         }
@@ -1509,7 +1513,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
               Cond=FileName;
             }
             else
-              Cond=(long)CtrlObject->Plugins.CurViewer->ProcessKey(MCODE_V_VIEWERSTATE);
+              Cond=(__int64)CtrlObject->Plugins.CurViewer->ProcessKey(MCODE_V_VIEWERSTATE);
           }
           break;
         }
@@ -1521,7 +1525,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
   return Cond;
 }
 
-// Получить очередной код клавиши из макроса
+// S=substr(S,N1,N2)
 static TVar substrFunc(TVar *param)
 {
   char *p = (char*)(param[0].toString());
@@ -1640,11 +1644,12 @@ static BOOL SplitFileName (const char *lpFullName,char *lpDest,int nFlags)
 }
 
 
+// S=fsplit(S,N)
 static TVar fsplitFunc(TVar *param)
 {
   char path[NM*2];
   const char *s = param[0].toString();
-  long        m = param[1].toInteger();
+  int         m = (int)param[1].toInteger();
   *path=0;
   if(!SplitFileName(s,path,m))
     *path=0;
@@ -1670,31 +1675,35 @@ static TVar metaFunc(TVar *param)
 #endif
 
 
+// N=index(S1,S2)
 static TVar indexFunc(TVar *param)
 {
   const char *s = param[0].toString();
   const char *p = param[1].toString();
   //const char *i = strstr(s, p);
   const char *i = LocalStrstri(s,p);
-  return TVar(i ? i-s : -1l);
+  return TVar((__int64)(i ? i-s : -1));
 }
 
+// S=itoa(N,radix)
 static TVar itoaFunc(TVar *param)
 {
   char value[NM];
   if(param[0].isInteger())
-    return TVar(ltoa(param[0].toInteger(),value,param[1].toInteger()));
+    return TVar(_i64toa((int)param[0].toInteger(),value,(int)param[1].toInteger()));
   return param[0];
 }
 
+// S=rindex(S1,S2)
 static TVar rindexFunc(TVar *param)
 {
   const char *s = param[0].toString();
   const char *p = param[1].toString();
   const char *i = LocalRevStrstri(s,p);
-  return TVar(i ? i-s : -1l);
+  return TVar((__int64)(i ? i-s : -1));
 }
 
+// S=date(S)
 static TVar dateFunc(TVar *param)
 {
   const char *s = param[0].toString();
@@ -1706,13 +1715,14 @@ static TVar dateFunc(TVar *param)
   return TVar("");
 }
 
+// S=xlat(S)
 static TVar xlatFunc(TVar *param)
 {
   char *Str = (char *)param[0].toString();
   return TVar(::Xlat(Str,0,strlen(Str),NULL,Opt.XLat.Flags));
 }
 
-// MsgBox("Title","Text",flags)
+// N=msgbox("Title","Text",flags)
 static TVar msgBoxFunc(TVar *param)
 {
   DWORD Flags = (DWORD)param[2].toInteger();
@@ -1724,7 +1734,7 @@ static TVar msgBoxFunc(TVar *param)
   const char *title=NullToEmpty(param[0].toString());
   const char *text=NullToEmpty(param[1].toString());
   char *TempBuf=(char *)alloca(strlen(title)+strlen(text)+16);
-  long Result=0;
+  int Result=0;
   if(TempBuf)
   {
     strcpy(TempBuf,title);
@@ -1732,13 +1742,14 @@ static TVar msgBoxFunc(TVar *param)
     strcat(TempBuf,text);
     Result=FarMessageFn(-1,Flags,NULL,(const char * const *)TempBuf,0,0)+1;
   }
-  return TVar(Result);
+  return TVar((__int64)Result);
 }
 
 
+// S=env(S)
 static TVar environFunc(TVar *param)
 {
-  char Env[1024];
+  char Env[2048];
   if(GetEnvironmentVariable(param->toString(),Env,sizeof(Env)))
   {
     FAR_CharToOem(Env,Env);
@@ -1747,11 +1758,12 @@ static TVar environFunc(TVar *param)
   return TVar("");
 }
 
+// N=fattr(S)
 static TVar fattrFunc(TVar *param)
 {
   char *Str = (char *)param[0].toString();
   if(PathMayBeAbsolute(Str))
-    return TVar(GetFileAttributes(Str));
+    return TVar((__int64)(long)GetFileAttributes(Str));
   else
   {
     Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
@@ -1761,29 +1773,30 @@ static TVar fattrFunc(TVar *param)
       int FileAttr;
       char FileName[NM*2];
       ActivePanel->GetFileName(NULL,Pos,FileAttr);
-      return TVar(FileAttr);
+      return TVar((__int64)FileAttr);
     }
   }
-  return TVar(-1L);
+  return TVar(-1);
 }
 
+// N=fexist(S)
 static TVar fexistFunc(TVar *param)
 {
   TVar attr=fattrFunc(param);
-  return TVar(attr.toInteger() != -1 ? 1L : 0L);
+  return TVar(attr.toInteger() != -1 ? 1 : 0);
 }
 
 
 // V=Dlg.GetValue(ID,N)
 static TVar dlggetvalueFunc(TVar *param)
 {
-  TVar Ret(-1L);
+  TVar Ret(-1);
 
   Frame* CurFrame=FrameManager->GetCurrentFrame();
   if(CtrlObject->Macro.GetMode()==MACRO_DIALOG && CurFrame && CurFrame->GetType()==MODALTYPE_DIALOG)
   {
-    long Index=param[0].toInteger()-1;
-    long TypeInf=param[1].toInteger();
+    int Index=(int)param[0].toInteger()-1;
+    int TypeInf=(int)param[1].toInteger();
     int DlgItemCount=((Dialog*)CurFrame)->GetAllItemCount();
     const struct DialogItem *DlgItem=((Dialog*)CurFrame)->GetAllItem();
     if(Index == -1)
@@ -1793,12 +1806,12 @@ static TVar dlggetvalueFunc(TVar *param)
       {
         switch(TypeInf)
         {
-          case 0: Ret=(long)DlgItemCount; break;
-          case 2: Ret=(long)Rect.Left; break;
-          case 3: Ret=(long)Rect.Top; break;
-          case 4: Ret=(long)Rect.Right; break;
-          case 5: Ret=(long)Rect.Bottom; break;
-          case 6: Ret=(long)((Dialog*)CurFrame)->GetDlgFocusPos()+1; break;
+          case 0: Ret=(__int64)DlgItemCount; break;
+          case 2: Ret=(__int64)Rect.Left; break;
+          case 3: Ret=(__int64)Rect.Top; break;
+          case 4: Ret=(__int64)Rect.Right; break;
+          case 5: Ret=(__int64)Rect.Bottom; break;
+          case 6: Ret=(__int64)((Dialog*)CurFrame)->GetDlgFocusPos()+1; break;
         }
       }
     }
@@ -1830,23 +1843,23 @@ static TVar dlggetvalueFunc(TVar *param)
 
       switch(TypeInf)
       {
-        case 1: Ret=(long)ItemType;    break;
-        case 2: Ret=(long)Item->X1;    break;
-        case 3: Ret=(long)Item->Y1;    break;
-        case 4: Ret=(long)Item->X2;    break;
-        case 5: Ret=(long)Item->Y2;    break;
-        case 6: Ret=(long)Item->Focus; break;
+        case 1: Ret=(__int64)ItemType;    break;
+        case 2: Ret=(__int64)Item->X1;    break;
+        case 3: Ret=(__int64)Item->Y1;    break;
+        case 4: Ret=(__int64)Item->X2;    break;
+        case 5: Ret=(__int64)Item->Y2;    break;
+        case 6: Ret=(__int64)Item->Focus; break;
         case 7:
         {
           if(ItemType == DI_CHECKBOX || ItemType == DI_RADIOBUTTON)
-            Ret=(long)Item->Selected;
+            Ret=(__int64)Item->Selected;
           else if(ItemType == DI_COMBOBOX || ItemType == DI_LISTBOX)
           {
-            Ret=(long)Item->ListPtr->GetSelectPos()+1;
+            Ret=(__int64)(Item->ListPtr->GetSelectPos()+1);
           }
           else
           {
-            Ret=0L;
+            Ret=0i64;
 /*
     int Item->Selected;
     const char *Item->History;
@@ -1858,8 +1871,8 @@ static TVar dlggetvalueFunc(TVar *param)
           }
           break;
         }
-        case 8: Ret=(long)ItemFlags; break;
-        case 9: Ret=(long)Item->DefaultButton; break;
+        case 8: Ret=(__int64)ItemFlags; break;
+        case 9: Ret=(__int64)Item->DefaultButton; break;
         case 10:
         {
           if((ItemType == DI_COMBOBOX || ItemType == DI_EDIT) && (ItemFlags&DIF_VAREDIT))
@@ -1886,15 +1899,15 @@ static TVar dlggetvalueFunc(TVar *param)
 // OldVar=Editor.Set(Idx,Var)
 static TVar editorsetFunc(TVar *param)
 {
-  TVar Ret(-1L);
+  TVar Ret(-1);
 
   if(CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins.CurEditor && CtrlObject->Plugins.CurEditor->IsVisible())
   {
-    long Index=param[0].toInteger();
+    int Index=(int)param[0].toInteger();
     long longState=-1L;
 
     if(Index != 12)
-      longState=param[1].toInteger();
+      longState=(long)param[1].toInteger();
 
     struct EditorOptions EdOpt;
     CtrlObject->Plugins.CurEditor->GetEditorOptions(EdOpt);
@@ -1902,37 +1915,37 @@ static TVar editorsetFunc(TVar *param)
     switch(Index)
     {
       case 0:  // TabSize;
-        Ret=(long)EdOpt.TabSize; break;
+        Ret=(__int64)EdOpt.TabSize; break;
       case 1:  // ExpandTabs;
-        Ret=(long)EdOpt.ExpandTabs; break;
+        Ret=(__int64)EdOpt.ExpandTabs; break;
       case 2:  // PersistentBlocks;
-        Ret=(long)EdOpt.PersistentBlocks; break;
+        Ret=(__int64)EdOpt.PersistentBlocks; break;
       case 3:  // DelRemovesBlocks;
-        Ret=(long)EdOpt.DelRemovesBlocks; break;
+        Ret=(__int64)EdOpt.DelRemovesBlocks; break;
       case 4:  // AutoIndent;
-        Ret=(long)EdOpt.AutoIndent; break;
+        Ret=(__int64)EdOpt.AutoIndent; break;
       case 5:  // AutoDetectTable;
-        Ret=(long)EdOpt.AutoDetectTable; break;
+        Ret=(__int64)EdOpt.AutoDetectTable; break;
       case 6:  // AnsiTableForNewFile;
-        Ret=(long)EdOpt.AnsiTableForNewFile; break;
+        Ret=(__int64)EdOpt.AnsiTableForNewFile; break;
       case 7:  // CursorBeyondEOL;
-        Ret=(long)EdOpt.CursorBeyondEOL; break;
+        Ret=(__int64)EdOpt.CursorBeyondEOL; break;
       case 8:  // BSLikeDel;
-        Ret=(long)EdOpt.BSLikeDel; break;
+        Ret=(__int64)EdOpt.BSLikeDel; break;
       case 9:  // CharCodeBase;
-        Ret=(long)EdOpt.CharCodeBase; break;
+        Ret=(__int64)EdOpt.CharCodeBase; break;
       case 10: // SavePos;
-        Ret=(long)EdOpt.SavePos; break;
+        Ret=(__int64)EdOpt.SavePos; break;
       case 11: // SaveShortPos;
-        Ret=(long)EdOpt.SaveShortPos; break;
+        Ret=(__int64)EdOpt.SaveShortPos; break;
       case 12: // char WordDiv[256];
         Ret=TVar(EdOpt.WordDiv); break;
       case 13: // F7Rules;
-        Ret=(long)EdOpt.F7Rules; break;
+        Ret=(__int64)EdOpt.F7Rules; break;
       case 14: // AllowEmptySpaceAfterEof;
-        Ret=(long)EdOpt.AllowEmptySpaceAfterEof; break;
+        Ret=(__int64)EdOpt.AllowEmptySpaceAfterEof; break;
       default:
-        Ret=-1L;
+        Ret=-1;
     }
 
     if(Index != 12 && longState != -1 || Index == 12 && param[1].i() == -1)
@@ -1990,11 +2003,11 @@ static TVar msaveFunc(TVar *param)
   TVarTable *t = &glbVarTable;
   const char *Name=param[0].s();
   if(!Name || *Name!= '%')
-    return TVar(0L);
+    return TVar(0i64);
 
   TVar Result=varLook(*t, Name+1, errVar)->value;
   if(errVar)
-    return TVar(0L);
+    return TVar(0i64);
 
   DWORD Ret=(DWORD)-1;
   char ValueName[129];
@@ -2013,13 +2026,68 @@ static TVar msaveFunc(TVar *param)
       break;
     }
   }
-  return TVar(Ret==ERROR_SUCCESS?1L:0L);
+  return TVar(Ret==ERROR_SUCCESS?1:0);
+}
+
+// V=Clip(N,S)
+static TVar clipFunc(TVar *param)
+{
+  int cmdType=(int)param[0].toInteger();
+
+  switch(cmdType)
+  {
+    case 0: // Get from Clipboard, "S" - ignore
+    {
+      char *ClipText=InternalPasteFromClipboard(0); // 0!  ???
+      if(ClipText)
+      {
+        TVar varClip(ClipText);
+        delete [] ClipText;
+        return varClip;
+      }
+      break;
+    }
+    case 1: // Put "S" into Clipboard
+      return TVar((__int64)InternalCopyToClipboard(param[1].s(),0)); // 0!  ???
+    case 2: // Add "S" into Clipboard
+    {
+      TVar varClip(param[1].s());
+      char *CopyData=InternalPasteFromClipboard(0); // 0!  ???
+      if(CopyData)
+      {
+        int DataSize=strlen(CopyData);
+        char *NewPtr=(char *)xf_realloc(CopyData,DataSize+strlen(param[1].s())+2);
+        if (NewPtr)
+        {
+          CopyData=NewPtr;
+          strcpy(CopyData+DataSize,param[1].s());
+          varClip=CopyData;
+          delete CopyData;
+        }
+        else
+          delete CopyData;
+      }
+      return TVar((__int64)InternalCopyToClipboard(varClip.s(),0)); // 0!  ???
+    }
+    case 3: // Copy internal to Win, "S" - ignore
+    {
+      //int _UsedInternalClipboard=UsedInternalClipboard;
+      //UsedInternalClipboard=0;
+      //InternalPasteFromClipboard(0)
+      //
+      //UsedInternalClipboard=_UsedInternalClipboard;
+      break;
+    }
+    case 4: // Copy Win to internal, "S" - ignore
+      break;
+  }
+  return TVar(0i64);
 }
 
 // N=Panel.SetPos(panelType,fileName)
 static TVar panelsetposFunc(TVar *param)
 {
-  long typePanel=param[0].toInteger();
+  int typePanel=(int)param[0].toInteger();
   Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
   Panel *PassivePanel=NULL;
   if(ActivePanel!=NULL)
@@ -2028,7 +2096,7 @@ static TVar panelsetposFunc(TVar *param)
 
   Panel *SelPanel = typePanel == 0 ? ActivePanel : (typePanel == 1?PassivePanel:NULL);
   if(!SelPanel)
-    return TVar(0L);
+    return TVar(0i64);
 
   long Ret=0;
   int TypePanel=SelPanel->GetType(); //FILE_PANEL,TREE_PANEL,QVIEW_PANEL,INFO_PANEL
@@ -2038,7 +2106,7 @@ static TVar panelsetposFunc(TVar *param)
     if(SelPanel->GoToFile(fileName))
     {
       SelPanel->Show();
-      Ret=SelPanel->GetCurrentPos()+1;
+      Ret=(__int64)(SelPanel->GetCurrentPos()+1);
     }
   }
   return TVar(Ret);
@@ -2047,7 +2115,7 @@ static TVar panelsetposFunc(TVar *param)
 // V=PanelItem(typePanel,Index,TypeInfo)
 static TVar panelitemFunc(TVar *param)
 {
-  long typePanel=param[0].toInteger();
+  int typePanel=(int)param[0].toInteger();
   Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
   Panel *PassivePanel=NULL;
   if(ActivePanel!=NULL)
@@ -2056,14 +2124,14 @@ static TVar panelitemFunc(TVar *param)
 
   Panel *SelPanel = typePanel == 0 ? ActivePanel : (typePanel == 1?PassivePanel:NULL);
   if(!SelPanel)
-    return TVar(0L);
+    return TVar(0i64);
 
   int TypePanel=SelPanel->GetType(); //FILE_PANEL,TREE_PANEL,QVIEW_PANEL,INFO_PANEL
   if(!(TypePanel == FILE_PANEL || TypePanel ==TREE_PANEL))
-    return TVar(0L);
+    return TVar(0i64);
 
-  int Index=param[1].toInteger()-1;
-  int TypeInfo=param[2].toInteger();
+  int Index=(int)(param[1].toInteger())-1;
+  int TypeInfo=(int)param[2].toInteger();
 
   struct FileListItem filelistItem;
   if(TypePanel == TREE_PANEL)
@@ -2071,7 +2139,7 @@ static TVar panelitemFunc(TVar *param)
     struct TreeItem treeItem;
     if(SelPanel->GetItem(Index,&treeItem) && !TypeInfo)
       return TVar(treeItem.Name);
-    return TVar(0L);
+    return TVar(0i64);
   }
   else
   {
@@ -2086,7 +2154,7 @@ static TVar panelitemFunc(TVar *param)
       case 1:  // ShortName
         return TVar((const char*)filelistItem.ShortName);
       case 2:  // FileAttr
-        return TVar((long)filelistItem.FileAttr);
+        return TVar((__int64)filelistItem.FileAttr);
       case 3:  // CreationTime
         ConvertDate(filelistItem.CreationTime,Date,Time,8,FALSE,FALSE,TRUE,TRUE);
         strcat(Date," ");
@@ -2102,36 +2170,38 @@ static TVar panelitemFunc(TVar *param)
         strcat(Date," ");
         strcat(Date,Time);
         return TVar((const char*)Date);
-      case 6:  // UnpSizeHigh
-        return TVar((long)filelistItem.UnpSizeHigh);
-      case 7:  // UnpSize
-        return TVar((long)filelistItem.UnpSize);
-      case 8:  // PackSizeHigh
-        return TVar((long)filelistItem.PackSizeHigh);
-      case 9:  // PackSize
-        return TVar((long)filelistItem.PackSize);
-      case 10:  // Selected
-        return TVar((long)((DWORD)filelistItem.Selected));
-      case 11:  // NumberOfLinks
-        return TVar((long)filelistItem.NumberOfLinks);
-      case 12:  // SortGroup
-        return TVar((long)filelistItem.SortGroup);
-      case 13:  // DizText
+      case 6:  // UnpSize
+      {
+        int64 UnpSize(filelistItem.UnpSizeHigh,filelistItem.UnpSize);
+        return TVar(UnpSize.Number.i64);
+      }
+      case 7:  // PackSize
+      {
+        int64 PackSize(filelistItem.PackSizeHigh,filelistItem.PackSize);
+        return TVar(PackSize.Number.i64);
+      }
+      case 8:  // Selected
+        return TVar((__int64)((DWORD)filelistItem.Selected));
+      case 9:  // NumberOfLinks
+        return TVar((__int64)filelistItem.NumberOfLinks);
+      case 10:  // SortGroup
+        return TVar((__int64)filelistItem.SortGroup);
+      case 11:  // DizText
       {
         const char *LPtr=filelistItem.DizText?filelistItem.DizText:"";
         return TVar(LPtr);
       }
-      case 14:  // Owner
+      case 12:  // Owner
         return TVar((const char*)filelistItem.Owner);
-      case 15:  // CRC32
-        return TVar((long)filelistItem.CRC32);
-      case 16:  // Position
-        return TVar((long)filelistItem.Position);
+      case 13:  // CRC32
+        return TVar((__int64)filelistItem.CRC32);
+      case 14:  // Position
+        return TVar((__int64)filelistItem.Position);
 
     }
   }
 
-  return TVar(0L);
+  return TVar(0i64);
 }
 
 const char *eStackAsString(int Pos)
@@ -2344,8 +2414,13 @@ done:
         switch ( Key )
         {
           case MCODE_OP_PUSHINT:  // Положить целое значение на стек.
-            eStack[++ePos] = (long)GetOpCode(MR,Work.ExecLIBPos++);
+          {
+            FARINT64 i64;
+            i64.Part.HighPart=GetOpCode(MR,Work.ExecLIBPos++);   //???
+            i64.Part.LowPart=GetOpCode(MR,Work.ExecLIBPos++);    //???
+            eStack[++ePos] = i64.i64;
             break;
+          }
           case MCODE_OP_PUSHVAR:  // Положить на стек переменную.
           {
             GetPlainText(value);
@@ -2375,7 +2450,7 @@ done:
           case MCODE_OP_MUL:    ePos--; eStack[ePos] = eStack[ePos] *  eStack[ePos+1]; break;
           case MCODE_OP_DIV:
             ePos--;
-            if(eStack[ePos+1] == 0L)
+            if(eStack[ePos+1] == 0i64) //???
               goto done;
             eStack[ePos] = eStack[ePos] /  eStack[ePos+1];
             break;
@@ -2390,7 +2465,12 @@ done:
           // Function
           case MCODE_F_ABS: // N=abs(N)
             if ( eStack[ePos].isInteger() )
-              eStack[ePos] = labs(eStack[ePos].i());
+            {
+              __int64 v=eStack[ePos].i();
+              if(v < 0)
+                v=-v;
+              eStack[ePos] = v;
+            }
             break;
           case MCODE_F_ITOA: // S=itoa(N,radix)
             ePos--;
@@ -2408,7 +2488,7 @@ done:
             ePos -= 2;
             eStack[ePos] = eStack[ePos].toInteger() ? eStack[ePos+1] : eStack[ePos+2];
             break;
-          case MCODE_F_SUBSTR: // S=substr(S1,S2,N)
+          case MCODE_F_SUBSTR: // S=substr(S,N1,N2)
             ePos -= 2;
             eStack[ePos] = substrFunc(eStack+ePos);
             break;
@@ -2464,12 +2544,16 @@ done:
           case MCODE_F_STRING:  // S=string(V)
             eStack[ePos].toString();
             break;
+          case MCODE_F_CLIP: // V=Clip(N,S)
+            ePos--;
+            eStack[ePos] = clipFunc(eStack+ePos);
+            break;
           case MCODE_F_INT: // N=int(V)
             eStack[ePos].toInteger();
             break;
           case MCODE_F_MENU_CHECKHOTKEY: // N=checkhotkey(S)
           {
-             long Result=0L;
+             long Result=0;
              int CurMMode=CtrlObject->Macro.GetMode();
              if(CurMMode == MACRO_MAINMENU || CurMMode == MACRO_MENU || CurMMode == MACRO_DISKS)
              {
@@ -2486,7 +2570,7 @@ done:
                if(f)
                  Result=f->ProcessKey(MCODE_F_MENU_CHECKHOTKEY);
              }
-             eStack[ePos]=Result;
+             eStack[ePos]=(__int64)Result;
              break;
           }
           case MCODE_F_DATE:  // // S=date(S)
@@ -2526,15 +2610,17 @@ done:
       _KEYMACRO(SysLog("      ePos       =%d", ePos));
       _KEYMACRO(SysLog("      eStack->i()=%d", eStack->i()));
       _KEYMACRO(SysLog("      eStack->s()='%s'", eStack->s()));
+      _KEYMACRO(SysLog(" Work.ExecLIBPos =%d (%0X)",Work.ExecLIBPos,Work.ExecLIBPos));
       goto begin;
 
 // $Rep (expr) ... $End
 // -------------------------------------
 //            <expr>
 //            MCODE_OP_SAVEREPCOUNT       1
-// +--------> MCODE_OP_REP                    p1=*
+// +--------> MCODE_OP_REP                2   p1=*
 // |          <counter>                   3
-// |          MCODE_OP_JZ  ------------+  4   p2=*+2
+// |          <counter>                   4
+// |          MCODE_OP_JZ  ------------+  5   p2=*+2
 // |          ...                      |
 // +--------- MCODE_OP_JMP             |
 //            MCODE_OP_END <-----------+
@@ -2542,19 +2628,26 @@ done:
     {
       // получим оригинальное значение счетчика
       // со стека и запишем его в рабочее место
-      long Counter = eStack->toInteger();
-      SetOpCode(MR,Work.ExecLIBPos+1,Counter>0?Counter:0);
+      FARINT64 Counter;
+      if((Counter.i64=eStack->toInteger()) < 0)
+        Counter.i64=0;
+      SetOpCode(MR,Work.ExecLIBPos+1,Counter.Part.HighPart); //???
+      SetOpCode(MR,Work.ExecLIBPos+2,Counter.Part.LowPart); //???
       goto begin;
     }
 
     case MCODE_OP_REP:
     {
       // получим текущее значение счетчика
+      FARINT64 Counter;
+      Counter.Part.HighPart=GetOpCode(MR,Work.ExecLIBPos); //???
+      Counter.Part.LowPart=GetOpCode(MR,Work.ExecLIBPos+1); //???
       // и положим его на вершину стека
-      long Counter;
-      *eStack = Counter = GetOpCode(MR,Work.ExecLIBPos);
+      *eStack = Counter.i64;
       // уменьшим его и пойдем на MCODE_OP_JZ
-      SetOpCode(MR,Work.ExecLIBPos++,Counter-1);
+      Counter.i64--;
+      SetOpCode(MR,Work.ExecLIBPos++,Counter.Part.HighPart); //???
+      SetOpCode(MR,Work.ExecLIBPos++,Counter.Part.LowPart); //???
       goto begin;
     }
 
@@ -2766,7 +2859,7 @@ int KeyMacro::WriteVarsConst(int ReadMode)
       switch(var->value.type())
       {
         case vtInteger:
-          SetRegKey(UpKeyName,ValueName,(DWORD)var->value.i());
+          SetRegKey64(UpKeyName,ValueName,var->value.i());
           break;
         case vtString:
           SetRegKey(UpKeyName,ValueName,var->value.s());
@@ -2792,6 +2885,7 @@ int KeyMacro::ReadVarsConst(int ReadMode, char *SData, int SDataSize)
   char UpKeyName[100];
   char ValueName[129];
   long IData;
+  __int64 IData64;
 
   sprintf(UpKeyName,"KeyMacros\\%s",(ReadMode==MACRO_VARS?"Vars":""));
 
@@ -2801,7 +2895,7 @@ int KeyMacro::ReadVarsConst(int ReadMode, char *SData, int SDataSize)
     *ValueName=0;
     *SData=0;
 
-    int Type=EnumRegValue(UpKeyName,I,ValueName,sizeof(ValueName),(LPBYTE)SData,SDataSize,(LPDWORD)&IData);
+    int Type=EnumRegValue(UpKeyName,I,ValueName,sizeof(ValueName),(LPBYTE)SData,SDataSize,(LPDWORD)&IData,(__int64*)&IData64);
 
     if (Type == REG_NONE)
       break;
@@ -2814,7 +2908,9 @@ int KeyMacro::ReadVarsConst(int ReadMode, char *SData, int SDataSize)
     if (Type == REG_SZ)
       varInsert(*t, ValueName+1)->value = SData;
     else if (Type == REG_DWORD)
-      varInsert(*t, ValueName+1)->value = IData;
+      varInsert(*t, ValueName+1)->value = (__int64)IData;
+    else if (Type == REG_QWORD)
+      varInsert(*t, ValueName+1)->value = IData64;
   }
   return TRUE;
 }
@@ -3588,8 +3684,8 @@ static char *printfStr(DWORD* k, int& i)
 
 static void sprint(int i, char *fmt, char *data = NULL)
 {
-  static char tmp[128];
-  strcat(strcpy(tmp, "%4d: "), fmt);
+  static char tmp[256];
+  strcat(strcpy(tmp, "%08X: "), fmt);
   SysLog(tmp, i, data);
 }
 
@@ -3604,10 +3700,16 @@ static void printKeyValue(DWORD* k, int& i)
   else if ( k[i] == MCODE_OP_SAVEREPCOUNT )    sprint(ii, "SAVE REP COUNT");
   else if ( k[i] == MCODE_OP_REP )             sprint(ii, "REP (*)", (char*)(i++));
   else if ( k[i] == MCODE_OP_PUSHVAR )         sprint(ii, " PUSH VAR \"%%%s\"", printfStr(k, i));
-  else if ( k[i] == MCODE_OP_PUSHINT )         sprint(ii, " PUSH INT %d", (char*)k[++i]);
+  else if ( k[i] == MCODE_OP_PUSHINT )
+  {
+    FARINT64 i64;
+    i64.Part.HighPart=k[++i]; //???
+    i64.Part.LowPart=k[++i]; //???
+    SysLog("%08X:  PUSH INT %I64d", ii, i64.i64);
+  }
   else if ( k[i] == MCODE_OP_PUSHSTR )         sprint(ii, " PUSH STR \"%s\"", printfStr(k, i));
-  else if ( k[i] == MCODE_OP_JMP )             sprint(ii, "JMP %4d", (char*)k[++i]);
-  else if ( k[i] == MCODE_OP_JZ  )             sprint(ii, "JZ %4d", (char*)k[++i]);
+  else if ( k[i] == MCODE_OP_JMP )             sprint(ii, "JMP %08X", (char*)k[++i]);
+  else if ( k[i] == MCODE_OP_JZ  )             sprint(ii, "JZ %08X", (char*)k[++i]);
 
   else if ( k[i] == MCODE_OP_DATE )            sprint(ii, "$date ''");
   else if ( k[i] == MCODE_OP_PLAINTEXT )       sprint(ii, "$text ''");
@@ -3651,6 +3753,7 @@ static void printKeyValue(DWORD* k, int& i)
   else if ( k[i] == MCODE_F_PANELITEM )        sprint(ii, " V=panelitem(Panel,Index,TypeInfo)");
   else if ( k[i] == MCODE_F_PANEL_SETPOS )     sprint(ii, " N=panel.SetPos(panelType,fileName)");
   else if ( k[i] == MCODE_F_RINDEX )           sprint(ii, " S=rindex(S1,S2)");
+  else if ( k[i] == MCODE_F_DLG_GETVALUE )     sprint(ii, " V=Dlg.GetValue(ID,N)");
   else if ( k[i] == MCODE_F_STRING )           sprint(ii, " S=string(V)");
   else if ( k[i] == MCODE_F_SUBSTR )           sprint(ii, " S=substr(S1,S2,N)");
   else if ( k[i] == MCODE_F_UCASE )            sprint(ii, " S=ucase(S1)");
@@ -3837,14 +3940,15 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
 //            MCODE_OP_SAVEREPCOUNT       1
 // +--------> MCODE_OP_REP                    p1=*
 // |          <counter>                   3
-// |          MCODE_OP_JZ  ------------+  4   p2=*+2
+// |          <counter>                   4
+// |          MCODE_OP_JZ  ------------+  5   p2=*+2
 // |          ...                      |
 // +--------- MCODE_OP_JMP             |
 //            MCODE_OP_END <-----------+
 
       case MCODE_OP_REP:
         Size += parseExpr(BufPtr, exprBuff, '(', ')');
-        if ( !exec.add(emmRep, CurMacroBufferSize+Size, CurMacroBufferSize+Size+3) )
+        if ( !exec.add(emmRep, CurMacroBufferSize+Size, CurMacroBufferSize+Size+4) ) //??? 3
         {
           if ( CurMacro_Buffer != NULL )
           {
@@ -3856,7 +3960,7 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
           xf_free(exprBuff);
           return FALSE;
         }
-        Size += 4;  // естественно, размер будет больше
+        Size += 5;  // естественно, размер будет больше = 4
         break;
 
 // $If (expr) ... $End
@@ -3973,8 +4077,8 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
         break;
       case MCODE_OP_REP:
         memcpy(CurMacro_Buffer+CurMacroBufferSize, exprBuff, Size*sizeof(DWORD));
-        CurMacro_Buffer[CurMacroBufferSize+Size-5] = MCODE_OP_SAVEREPCOUNT;
-        CurMacro_Buffer[CurMacroBufferSize+Size-4] = KeyCode;
+        CurMacro_Buffer[CurMacroBufferSize+Size-6] = MCODE_OP_SAVEREPCOUNT; // 5 ???
+        CurMacro_Buffer[CurMacroBufferSize+Size-5] = KeyCode;               // 4 ???
         CurMacro_Buffer[CurMacroBufferSize+Size-2] = MCODE_OP_JZ;
         break;
       case MCODE_OP_WHILE:
@@ -4029,7 +4133,7 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
             CurMacro_Buffer[CurMacroBufferSize+Size-1] = KeyCode;
             break;
           case emmRep:
-            CurMacro_Buffer[exec().pos2] = CurMacroBufferSize+Size-1;
+            CurMacro_Buffer[exec().pos2] = CurMacroBufferSize+Size-1;   //??????
             CurMacro_Buffer[CurMacroBufferSize+Size-3] = MCODE_OP_JMP;
             CurMacro_Buffer[CurMacroBufferSize+Size-2] = exec().pos1;
             CurMacro_Buffer[CurMacroBufferSize+Size-1] = KeyCode;
@@ -4069,6 +4173,7 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
     for ( ii = 0 ; ii < CurMacroBufferSize ; ii++ )
       SysLog("%08X: %08X",ii,CurMacro_Buffer[ii]);
 
+    SysLog("------------------------");
     for ( ii = 0 ; ii < CurMacroBufferSize ; ii++ )
       printKeyValue(CurMacro_Buffer, ii);
   }

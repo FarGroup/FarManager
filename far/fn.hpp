@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.237 20.02.2006 $ */
+/* Revision: 1.238 02.03.2006 $ */
 
 /*
 Modify:
+  02.03.2006 SVS
+    ! EnumRegValue - доп параметр, для переменной типа REG_QWORD.
+    + Добавлены фунцкии по работе с реестром с типом REG_QWORD: SetRegKey64, GetRegKey64 (в двух видах)
   20.02.2006 SVS
     ! У ConvertNameToShort новый параметр - размер для Dest
   09.02.2006 AY
@@ -975,16 +978,19 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent);
 void SetRegRootKey(HKEY hRootKey);
 LONG SetRegKey(const char *Key,const char *ValueName,const char * const ValueData);
 LONG SetRegKey(const char *Key,const char *ValueName,DWORD ValueData);
+LONG SetRegKey64(const char *Key,const char *ValueName,unsigned __int64 ValueData);
 LONG SetRegKey(const char *Key,const char *ValueName,const BYTE *ValueData,DWORD ValueSize);
 int GetRegKey(const char *Key,const char *ValueName,char *ValueData,const char *Default,DWORD DataSize);
 int GetRegKey(const char *Key,const char *ValueName,int &ValueData,DWORD Default);
+int GetRegKey64(const char *Key,const char *ValueName,__int64 &ValueData,unsigned __int64 Default);
 int GetRegKey(const char *Key,const char *ValueName,DWORD Default);
+__int64 GetRegKey64(const char *Key,const char *ValueName,unsigned __int64 Default);
 int GetRegKey(const char *Key,const char *ValueName,BYTE *ValueData,const BYTE *Default,DWORD DataSize);
 HKEY CreateRegKey(const char *Key);
 HKEY OpenRegKey(const char *Key);
 int GetRegKeySize(const char *Key,const char *ValueName);
 int GetRegKeySize(HKEY hKey,const char *ValueName);
-int EnumRegValue(const char *Key,DWORD Index,char *DestName,DWORD DestSize,LPBYTE SData,DWORD SDataSize,LPDWORD IData=NULL);
+int EnumRegValue(const char *Key,DWORD Index,char *DestName,DWORD DestSize,LPBYTE SData,DWORD SDataSize,LPDWORD IData=NULL,__int64* IData64=NULL);
 void DeleteRegKey(const char *Key);
 void DeleteRegValue(const char *Key,const char *Value);
 void DeleteKeyRecord(const char *KeyMask,int Position);
