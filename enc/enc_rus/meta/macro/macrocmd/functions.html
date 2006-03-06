@@ -313,6 +313,27 @@ $End</pre>
      Например, <pre class=code>%%GlobalVars="Foo Bar"; %a=msave("%%GlobalVars");</pre>
     </td>
   </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">V=<dfn><a name="clip">clip</a></dfn>(Cmd,S)</td>
+    <td class="cont" width="60%">Позволяет производить разнообразные манипуляции с Clipboard в
+         зависимости от команды <em>Cmd</em>:
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="10%">Cmd</th><th class="cont" width="90%">Описание</th></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="90%">Возвращает данные из Clipboard; параметр <em>S</em> игнорируется; в случае ошибки возвращает 0</td></tr>
+        <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">Поместить строку <em>S</em> в Clipboard; в случае ошибки возвращает 0</td></tr>
+        <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="90%">Добавить строку <em>S</em> к Clipboard; в случае ошибки возвращает 0</td></tr>
+       </table>
+       Например, поместить в Clipboard список отмеченных файлов в формате CSV (имя и размер):
+       <pre class=code>Clip(1,"Name;Size\r\n")
+Home
+$While(!APanel.Eof)
+  $If(!APanel.Folder &amp;&amp; PanelItem(0,0,8))
+     Clip(2,PanelItem(0,0,0)+";"+PanelItem(0,0,6)+"\r\n")
+  $End
+  Down
+$End</pre>
+    </td>
+  </tr>
 </table>
 
 
