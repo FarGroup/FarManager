@@ -479,39 +479,208 @@ BOOL ValidatePath(const char *szPath)
   return TRUE;
 }
 
-BOOL CreateSubFolder(char *szRoot, char *szSubFolder)
+class Unknown
 {
-  if(!szSubFolder)
-    return FALSE;
-  
-  FSF.Unquote(szSubFolder);
-  char szKeyRoot[MAX_PATH*2];
-  char *p;
-  if(!szRoot)
+private:
+  LONG m_refCount;
+protected:
+  virtual ~Unknown(){}
+public:
+  Unknown():m_refCount(1){}
+  virtual LONG AddRef()
   {
-    lstrcpyn(szKeyRoot, SZ_FAVORITES, sizeof(szKeyRoot));
-    p = szKeyRoot + lstrlen(szKeyRoot);
+    return InterlockedIncrement(&m_refCount);
   }
-  else
+  virtual LONG Release()
   {
-    p = strchr(szRoot, '\\');
-    if(p)
+    LONG res;
+    if (0 >= (res = InterlockedDecrement(&m_refCount)))
+      delete this;
+    return res;
+  }
+};
+
+class RegParser : public Unknown
+{
+private:
+  HKEY m_hKey;
+  RegParser* m_parent;
+protected:
+  ~RegParser()
+  {
+    if (m_parent)
+      m_parent->Release();
+    if(m_hKey)
+      RegCloseKey(m_hKey);
+  }
+public:
+  RegParser(): Unknown(), m_hKey(0), m_parent(0){}
+  /**
+   * @brief Function initialize the parser.
+   * 
+   * It sets up the parser's internal m_hKey allowing to perform operations on it.
+   */
+  bool init(RegParser* parentItem, const char* subKey, bool createSubKey=false)
+  {
+    if (m_parent)
     {
-      while(*++p == '\\');
+        m_parent->Release();
+        m_parent = NULL;
+    }
+    if (m_hKey)
+    {
+      RegCloseKey(m_hKey);
+      m_hKey = 0;
+    }
+    if(createSubKey)
+    {
+      if(parentItem && parentItem->m_hKey)
+      {
+        DWORD dwDispositon;
+        if (ERROR_SUCCESS == RegCreateKeyEx(parentItem->m_hKey, subKey, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &m_hKey, &dwDispositon))
+        {
+          if (dwDispositon == REG_CREATED_NEW_KEY)
+          {
+            RegSetValue(m_hKey, NULL, REG_SZ, "1", 2);
+          }
+        }
+      }
+      else
+        m_hKey = CreateRegKey(HKEY_CURRENT_USER, subKey);
     }
     else
-      p = szRoot;
-    p = szKeyRoot + FSF.sprintf(szKeyRoot, SZ_FAVORITES_SUBKEY, p);
+    {
+      if (parentItem && parentItem->m_hKey)
+        RegOpenKeyEx(parentItem->m_hKey, subKey,0, KEY_ALL_ACCESS, &m_hKey);
+      else
+        m_hKey = OpenRegKey(HKEY_CURRENT_USER, subKey, KEY_ALL_ACCESS);
+    }
+    if (m_hKey)
+    {
+      m_parent = parentItem;
+      if (m_parent)
+        m_parent->AddRef();
+      return true;
+    }
+    return false;
   }
-  // Now we have to deal with relative paths like "..\Foo1\..\Foo2"  
-  if(p[-1] != '\\')
-    *p++ = '\\', *p=0;
-  lstrcpy(p, szSubFolder);
-  
-  HKEY hKey = OpenRegKey(HKEY_CURRENT_USER, "");
-  if(!hKey)
+
+
+  bool parsePath(char* path, bool createFolders, RegParser** ppResult)
+  {
+    RegParser* childItem;
+    char* pRestOfPath;
+
+    if (!path)
+    {
+      if (ppResult)
+      {
+        *ppResult = this;
+        AddRef();
+      }
+      return true;
+    }
+
+    pRestOfPath = strchr(path, '\\');
+    if (pRestOfPath)
+      *pRestOfPath++ = '\0';
+
+    bool res = true;
+    if (!strcmp(path, ".."))
+    {
+      childItem = m_parent;
+      if (childItem)
+        childItem->AddRef();
+      else
+        res = false;
+    }
+    else if (!strcmp(path, "."))
+    {
+      childItem = this;
+      childItem->AddRef();
+    }
+    else
+    {
+      childItem = new RegParser;
+      res = childItem->init(this, path, createFolders);
+    }
+
+    if (pRestOfPath)
+      pRestOfPath[-1] = '\\';
+    if (!childItem)
+      return false;
+
+    if (!res)
+    {
+      childItem->Release();
+      return false;
+    }
+
+    if (!pRestOfPath)
+    {
+      if (ppResult)
+        *ppResult = childItem;
+      else
+        childItem->Release();
+      return true;
+    }
+
+    res = childItem->parsePath(pRestOfPath, createFolders, ppResult);
+    childItem->Release();
+
+    return res;
+  }
+};
+
+bool GetFavoriteRoot(RegParser** favoritesRoot)
+{
+  if (!favoritesRoot)
+    return false;
+
+  RegParser* root = new RegParser;
+
+  if (!root->init(NULL, SZ_FAVORITES))
+  {
+    root->Release();
+    return false;
+  }
+
+  *favoritesRoot = root;
+  return true;
+}
+
+BOOL CreateSubFolder(char *szRoot, char *szSubFolder)
+{
+  char szFavorites[] = SZ_FAVORITES;
+
+  if (szRoot && !_strnicmp(szRoot, szFavorites, strlen(szFavorites)))
+  {
+    szRoot = strchr(szRoot, '\\');
+    if (szRoot)
+      szRoot++;
+  }
+
+  if(!szSubFolder)
     return FALSE;
-  BOOL res = RecursiveSetValue(hKey, szKeyRoot);
-  RegCloseKey(hKey);
-  return res;
+
+  RegParser* root;
+  if (!GetFavoriteRoot(&root))
+    return FALSE;
+
+  bool res;
+  RegParser* currFolder;
+
+  res = root->parsePath(szRoot, false, &currFolder);
+  root->Release();
+
+  if (!res)
+    return FALSE;
+
+  
+  FSF.Unquote(szSubFolder);
+
+  res = currFolder->parsePath(szSubFolder, true, NULL);
+  currFolder->Release();
+
+  return res?TRUE:FALSE;
 }
