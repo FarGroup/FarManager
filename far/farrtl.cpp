@@ -4,10 +4,15 @@ farrtl.cpp
 Переопределение функций работы с памятью: new/delete/malloc/realloc/free
 */
 
-/* Revision: 1.23 02.03.2006 $ */
+/* Revision: 1.24 12.03.2006 $ */
 
 /*
 Modify:
+  12.03.2006 SVS
+    ! _strtoi64 кроме борманда так же компилим в дебажной MSVC.
+    ! Борьба с Debug.
+      - Борьба с месагом дебажной линковкой про __ftol2 по материалам
+        http://q12.org/pipermail/ode/2004-January/010811.html
   02.03.2006 SVS
     + кусок кода из RTL strtoq.c для борманда (_strtoi64)
   24.04.2005 AY
@@ -456,7 +461,8 @@ void *__cdecl xf_realloc(void *__block, size_t __size)
   return Ptr;
 }
 
-#if defined(__BORLANDC__)
+#if defined(__BORLANDC__) || defined(_DEBUG)
+// || (defined(_MSC_VER) && _MSC_VER < 1300)
 
 #define _UI64_MAX     0xffffffffffffffffui64
 #define _I64_MIN      (-9223372036854775807i64 - 1)
@@ -596,4 +602,14 @@ __int64 _cdecl _strtoi64(const char *nptr,char **endptr,int ibase)
     return (__int64) strtoxq(nptr, (const char **)endptr, ibase, 0);
 }
 
+#endif
+
+#if defined(_DEBUG) && defined(_MSC_VER) && (_MSC_VER >= 1300)
+// && (WINVER < 0x0500)
+// Борьба с месагом дебажной линковки:
+// strmix.obj : error LNK2019: unresolved external symbol __ftol2 referenced in function "char * __stdcall FileSizeToStr (char *,unsigned long,unsigned long,int,int)" (?FileSizeToStr@@YGPADPADKKHH@Z)
+// Источник: http://q12.org/pipermail/ode/2004-January/010811.html
+//VC7 or later, building with pre-VC7 runtime libraries
+extern "C" long _ftol( double ); //defined by VC6 C libs
+extern "C" long _ftol2( double dblSource ) { return _ftol( dblSource ); }
 #endif

@@ -5,10 +5,13 @@ macro.cpp
 
 */
 
-/* Revision: 1.156 04.03.2006 $ */
+/* Revision: 1.157 12.03.2006 $ */
 
 /*
 Modify:
+  12.03.2006 SVS
+    ! Добил Clip (функции 3 и 4)
+    - ошибка при проверке условия (подробнее см. 02080.Mix.txt)
   04.03.2006 SVS
     + MCODE_F_CLIP (V=clip(N,S))
     ! Числа в макросах имеют суть __int64
@@ -2016,8 +2019,8 @@ static TVar msaveFunc(TVar *param)
   {
     case vtInteger:
     {
-      long rrr=Result.toInteger();
-      Ret=SetRegKey("KeyMacros\\Vars",ValueName,(DWORD)rrr);
+      __int64 rrr=Result.toInteger();
+      Ret=SetRegKey64("KeyMacros\\Vars",ValueName,rrr);
       break;
     }
     case vtString:
@@ -2069,16 +2072,28 @@ static TVar clipFunc(TVar *param)
       }
       return TVar((__int64)InternalCopyToClipboard(varClip.s(),0)); // 0!  ???
     }
-    case 3: // Copy internal to Win, "S" - ignore
+    case 3: // Copy Win to internal, "S" - ignore
+    case 4: // Copy internal to Win, "S" - ignore
     {
-      //int _UsedInternalClipboard=UsedInternalClipboard;
-      //UsedInternalClipboard=0;
-      //InternalPasteFromClipboard(0)
-      //
-      //UsedInternalClipboard=_UsedInternalClipboard;
-      break;
+      int _UsedInternalClipboard=UsedInternalClipboard;
+      int Ret=0;
+
+      {
+        TVar varClip("");
+        UsedInternalClipboard=cmdType-3;
+        char *ClipText=InternalPasteFromClipboard(0); // 0!  ???
+        if(ClipText)
+        {
+          varClip=ClipText;
+          delete [] ClipText;
+        }
+        UsedInternalClipboard=UsedInternalClipboard==0?1:0;
+        Ret=InternalCopyToClipboard(varClip.s(),0); // 0!  ???
+      }
+
+      UsedInternalClipboard=_UsedInternalClipboard;
+      return TVar((__int64)Ret);
     }
-    case 4: // Copy Win to internal, "S" - ignore
       break;
   }
   return TVar(0i64);
@@ -2204,9 +2219,11 @@ static TVar panelitemFunc(TVar *param)
   return TVar(0i64);
 }
 
+static int ePos;
+
 const char *eStackAsString(int Pos)
 {
-  const char *s=eStack[Pos].toString();
+  const char *s=eStack[Pos?ePos:0].toString();
   return !s?"":s;
 }
 
@@ -2336,7 +2353,7 @@ done:
     ReturnAltValue=1;
   }
 
-  static int ePos, errVar;
+  static int errVar;
   char value[2048];
 
   switch(Key)
@@ -2418,7 +2435,8 @@ done:
             FARINT64 i64;
             i64.Part.HighPart=GetOpCode(MR,Work.ExecLIBPos++);   //???
             i64.Part.LowPart=GetOpCode(MR,Work.ExecLIBPos++);    //???
-            eStack[++ePos] = i64.i64;
+            ++ePos;
+            eStack[ePos] = i64.i64;
             break;
           }
           case MCODE_OP_PUSHVAR:  // Положить на стек переменную.
@@ -2426,12 +2444,14 @@ done:
             GetPlainText(value);
             TVarTable *t = ( *value == '%' ) ? &glbVarTable : &locVarTable;
             // %%name - глобальная переменная
-            eStack[++ePos] = varLook(*t, value, errVar)->value;
+            ++ePos;
+            eStack[ePos] = varLook(*t, value, errVar)->value;
             break;
           }
           case MCODE_OP_PUSHSTR: // Положить на стек строку-константу.
             GetPlainText(value);
-            eStack[++ePos] = TVar(value);
+            ++ePos;
+            eStack[ePos] = TVar(value);
             break;
 
           // операции
@@ -2455,7 +2475,10 @@ done:
             eStack[ePos] = eStack[ePos] /  eStack[ePos+1];
             break;
 
-          case MCODE_OP_AND:    ePos--; eStack[ePos] = eStack[ePos] && eStack[ePos+1]; break;
+          case MCODE_OP_AND:
+            ePos--;
+            eStack[ePos] = eStack[ePos] && eStack[ePos+1];
+            break;
           case MCODE_OP_OR:     ePos--; eStack[ePos] = eStack[ePos] || eStack[ePos+1]; break;
           case MCODE_OP_BITAND: ePos--; eStack[ePos] = eStack[ePos] &  eStack[ePos+1]; break;
           case MCODE_OP_BITOR:  ePos--; eStack[ePos] = eStack[ePos] |  eStack[ePos+1]; break;

@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.62 06.12.2005 $ */
+/* Revision: 1.63 12.03.2006 $ */
 
 /*
 Modify:
+  12.03.2006 SVS
+    ! варнинги под MSVC
   06.12.2005 AY
     - ћда, Network не подружидс€ с новыми PointToName, вернЄм назад.
     + PointToNameUNC - аналог PointToName только считает \\computer\share
@@ -963,7 +965,6 @@ void __PrepareKMGTbStr(void)
 
 char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size, int Width, int ViewFlags)
 {
-  char OutStr[64];
   char Str[100];
   DWORD Divider;
   int IndexDiv, IndexB;

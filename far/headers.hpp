@@ -5,10 +5,12 @@ headers.cpp
 
 */
 
-/* Revision: 1.21 02.03.2006 $ */
+/* Revision: 1.22 12.03.2006 $ */
 
 /*
 Modify:
+  12.03.2006 SVS
+    ! _strtoi64 кроме борманда так же компилим в дебажной MSVC.
   02.03.2006 SVS
     + инфа для борманда про _strtoi64 и REG_QWORD
   22.12.2005 SVS
@@ -261,7 +263,8 @@ Modify:
 #define REG_QWORD                   ( 11 )  // 64-bit number
 #endif
 
-#if defined(__BORLANDC__)
+#if defined(__BORLANDC__) || defined(_DEBUG)
+// (defined(_MSC_VER) && _MSC_VER < 1300)
   #ifdef  __cplusplus
   extern "C" {
   #endif

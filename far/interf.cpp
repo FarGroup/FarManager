@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.91 23.07.2005 $ */
+/* Revision: 1.92 12.03.2006 $ */
 
 /*
 Modify:
+  12.03.2006 SVS
+    ! варнинги под MSVC
   23.07.2005 SVS
     ! vsprintf -> vsnprintf
   02.07.2005 WARP
@@ -1413,7 +1415,7 @@ void GetText(int X1,int Y1,int X2,int Y2,void *Dest,int DestSize)
 void PutTextA(int X1,int Y1,int X2,int Y2,const void *Src)
 {
   int Width=X2-X1+1;
-  int I,Y;
+  int Y;
   CHAR_INFO *SrcPtr=(CHAR_INFO*)Src;
   for (Y=Y1;Y<=Y2;++Y,SrcPtr+=Width)
     ScrBuf.WriteA(X1,Y,SrcPtr,Width);
@@ -1423,7 +1425,7 @@ void PutTextA(int X1,int Y1,int X2,int Y2,const void *Src)
 void PutText(int X1,int Y1,int X2,int Y2,const void *Src)
 {
   int Width=X2-X1+1;
-  int I,Y;
+  int Y;
 
   CHAR_INFO *SrcPtr=(CHAR_INFO*)Src;
   for (Y=Y1;Y<=Y2;++Y,SrcPtr+=Width)
@@ -1445,7 +1447,7 @@ void BoxText(WORD Chr)
 #endif
   {
     char Str[2];
-    Str[0]=Chr;
+    Str[0]=(char)Chr;
     Str[1]=0;
     BoxText(Str);
   }
@@ -1537,7 +1539,7 @@ void Box(int x1,int y1,int x2,int y2,int Color,int Type)
 #if defined(USE_WFUNC)
   if(Opt.UseUnicodeConsole)
   {
-    WCHAR OutStr[4096], Chr;
+    WCHAR OutStr[4096];
     _wmemset(OutStr,BoxSymbols[ChrBox[Type][0]-0x0B0],sizeof(OutStr)/sizeof(*OutStr));
     OutStr[_width+1]=0;
 
@@ -1566,7 +1568,7 @@ void Box(int x1,int y1,int x2,int y2,int Color,int Type)
   else
 #endif
   {
-    char OutStr[4096], Chr;
+    char OutStr[4096];
     memset(OutStr,ChrBox[Type][0],sizeof(OutStr));
     OutStr[_width+1]=0;
 
