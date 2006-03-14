@@ -1930,24 +1930,10 @@ void NetBrowser::CreateFavSubFolder()
   char buff[MAX_PATH];
   if(DlgCreateFolder(buff, sizeof(buff)))
   {
-    char *p = buff;
-    while(p && *p)
+    if(!CreateSubFolder(PCurResource->lpRemoteName, buff))
     {
-      char szFolder[MAX_PATH];
-      p = NextToken(p, szFolder, sizeof(szFolder)-1);
-      if(*szFolder)
-      {
-        if(!ValidatePath(szFolder))
-        {
-          ShowMessage("Invalid path");
-          return;
-        }
-        if(!CreateSubFolder(PCurResource->lpRemoteName, buff))
-        {
-          ShowMessage("Failed to create folder");
-          return;
-        }
-      }
+      ShowMessage("Failed to create folder");
+      return;
     }
     Info.Control(this,FCTL_UPDATEPANEL,NULL);
     Info.Control(this,FCTL_REDRAWPANEL,NULL);
