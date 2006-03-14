@@ -11,7 +11,7 @@ extern const char *StrDisconnectMode;
 extern const char *StrRemoveConnection;
 extern const char *StrHiddenSharesAsHidden;
 extern const char *StrFullPathShares;
-extern const char *StrFavoritesFlags; 
+extern const char *StrFavoritesFlags;
 extern const char *StrNoRootDoublePoint;
 extern const char *StrPanelMode;
 

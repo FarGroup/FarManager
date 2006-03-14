@@ -5,12 +5,12 @@
 #include "NetClass.hpp"
 
 typedef struct _FAVORITEITEM {
-	char *lpRemoteName;
-	int ccRemoteName;
-	char *lpUserName;
-	int ccUserName;
-	char *lpPassword;
-	int ccPassword;
+  char *lpRemoteName;
+  int ccRemoteName;
+  char *lpUserName;
+  int ccUserName;
+  char *lpPassword;
+  int ccPassword;
 } FAVORITEITEM, *LPFAVORITEITEM;
 
 #define FAVORITES_UPBROWSE_TO_FAVORITES 0x01L

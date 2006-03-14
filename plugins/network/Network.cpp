@@ -1,5 +1,24 @@
 #include "Network.hpp"
 
+#if defined(__GNUC__)
+#ifdef __cplusplus
+extern "C"{
+#endif
+  BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
+#ifdef __cplusplus
+};
+#endif
+
+BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
+{
+  (void) hDll;
+  (void) dwReason;
+  (void) lpReserved;
+  return TRUE;
+}
+#endif
+
+
 HANDLE WINAPI OpenPlugin(int OpenFrom,int Item)
 {
   if(!IsOldFAR)
@@ -16,7 +35,7 @@ HANDLE WINAPI OpenPlugin(int OpenFrom,int Item)
       char Path[NM]="\\\\";
       int I=0;
       char *cmd=(char *)Item;
-      if(strlen(FSF.Trim(cmd)))
+      if(lstrlen(FSF.Trim(cmd)))
       {
         if (cmd [0] == '/')
           cmd [0] = '\\';

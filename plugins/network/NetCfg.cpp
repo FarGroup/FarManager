@@ -13,7 +13,7 @@ const char *StrDisconnectMode="DisconnectMode";
 const char *StrRemoveConnection="RemoveConnection";
 const char *StrHiddenSharesAsHidden="HiddenSharesAsHidden";
 const char *StrFullPathShares="FullPathShares";
-const char *StrFavoritesFlags="FavoritesFlags"; 
+const char *StrFavoritesFlags="FavoritesFlags";
 const char *StrNoRootDoublePoint="NoRootDoublePoint";
 const char *StrPanelMode="PanelMode";
 
@@ -65,14 +65,14 @@ int Config()
   Opt.FullPathShares=DialogItems[10].Selected;
 
   if(DialogItems[12].Selected)
-	  Opt.FavoritesFlags |= FAVORITES_UPBROWSE_TO_FAVORITES;
+    Opt.FavoritesFlags |= FAVORITES_UPBROWSE_TO_FAVORITES;
   else
-	  Opt.FavoritesFlags &= ~FAVORITES_UPBROWSE_TO_FAVORITES;
+    Opt.FavoritesFlags &= ~FAVORITES_UPBROWSE_TO_FAVORITES;
 
   if(DialogItems[13].Selected)
-	  Opt.FavoritesFlags |= FAVORITES_CHECK_RESOURCES;
+    Opt.FavoritesFlags |= FAVORITES_CHECK_RESOURCES;
   else
-	  Opt.FavoritesFlags &= ~FAVORITES_CHECK_RESOURCES;
+    Opt.FavoritesFlags &= ~FAVORITES_CHECK_RESOURCES;
 
   SetRegKey(HKEY_CURRENT_USER,"",StrAddToDisksMenu,Opt.AddToDisksMenu);
   SetRegKey(HKEY_CURRENT_USER,"",StrAddToPluginsMenu,Opt.AddToPluginsMenu);

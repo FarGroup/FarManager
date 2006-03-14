@@ -1,23 +1,22 @@
 #include "NetClass.hpp"
-#include "Memory.hpp"
 #include "NetCommon.hpp"
 
 void NetBrowser::GetHideShareNT()
 {
 #ifdef NETWORK_LOGGING
-	LogData("Entering NetBrowser::GetHideShareNT()");
+  LogData("Entering NetBrowser::GetHideShareNT()");
 #endif
   if(UsedNetFunctions)
   {
 #ifdef NETWORK_LOGGING
-	LogData("UsedNetFunctions = TRUE");
+  LogData("UsedNetFunctions = TRUE");
 #endif
     char lpwsNetPath[NM];
     PSHARE_INFO_1 BufPtr, p;
     NET_API_STATUS res;
     if(PCurResource == NULL) return;
 
-    LPTSTR    lpszServer = PCurResource->lpRemoteName;
+    LPTSTR lpszServer = PCurResource->lpRemoteName;
     char szResPath [NM];
     LPTSTR pszSystem;
     NETRESOURCE pri;
@@ -37,12 +36,12 @@ void NetBrowser::GetHideShareNT()
           pri.dwScope = RESOURCE_GLOBALNET;
           pri.dwType = RESOURCETYPE_DISK;
           pri.lpLocalName = NULL;
-          strcpy(szResPath,lpszServer);
-          strcat(szResPath,"\\");
-          WideCharToMultiByte(CP_ACP,0,(LPWSTR)p->shi1_netname,-1,&szResPath[strlen(szResPath)],NM,NULL,NULL);
+          lstrcpy(szResPath,lpszServer);
+          lstrcat(szResPath,"\\");
+          WideCharToMultiByte(CP_ACP,0,(LPWSTR)p->shi1_netname,-1,&szResPath[lstrlen(szResPath)],NM,NULL,NULL);
 
-          if(szResPath[strlen(szResPath)-1] == '$' &&
-           strcmp(&szResPath[strlen(szResPath)-4],"IPC$"))
+          if(szResPath[lstrlen(szResPath)-1] == '$' &&
+           lstrcmp(&szResPath[lstrlen(szResPath)-4],"IPC$"))
           {
             pri.lpRemoteName = szResPath;
             pri.dwUsage = RESOURCEUSAGE_CONTAINER;
@@ -77,8 +76,8 @@ void NetBrowser::GetHideShareNT()
   }
 #ifdef NETWORK_LOGGING
   else
-	  LogData("UsedNetFunctions = FALSE");
-	LogData("Leaving NetBrowser::GetHideShareNT()");
+    LogData("UsedNetFunctions = FALSE");
+  LogData("Leaving NetBrowser::GetHideShareNT()");
 #endif
 }
 
@@ -90,29 +89,29 @@ void NetBrowser::GetHideShare95()
   if(UsedNetFunctions)
   {
     if(PCurResource == NULL) return;
-    
+
     const int MAX_ENTRIES = 64;
     char szResPath [NM];
     LPTSTR pszSystem;
     NETRESOURCE nr [256];
     USHORT nEntriesRead, nTotalEntries;
-    
+
     int cbBuffer = MAX_ENTRIES * sizeof (share_info_1);
-    share_info_1 *pBuf = (share_info_1 *) my_malloc (cbBuffer);
-    NET_API_STATUS nStatus = FNetShareEnum95 (PCurResource->lpRemoteName, 1, 
+    share_info_1 *pBuf = (share_info_1 *) malloc (cbBuffer);
+    NET_API_STATUS nStatus = FNetShareEnum95 (PCurResource->lpRemoteName, 1,
       (char *) pBuf, cbBuffer, &nEntriesRead, &nTotalEntries);
 
     if (nStatus == ERROR_MORE_DATA && nEntriesRead < nTotalEntries)
     {
       cbBuffer = nTotalEntries * sizeof (share_info_1);
-      pBuf = (share_info_1 *) my_realloc (pBuf, cbBuffer);
+      pBuf = (share_info_1 *) realloc (pBuf, cbBuffer);
       nStatus = FNetShareEnum95 (PCurResource->lpRemoteName, 1, (char *) pBuf,
         cbBuffer, &nEntriesRead, &nTotalEntries);
     }
 
     if (nStatus != NERR_Success && nStatus != ERROR_MORE_DATA)
     {
-      my_free (pBuf);
+      free (pBuf);
 #ifdef NETWORK_LOGGING
       fprintf (LogFile, "nStatus=%d\n", nStatus);
 #endif
@@ -130,18 +129,18 @@ void NetBrowser::GetHideShare95()
       pri.dwScope = RESOURCE_GLOBALNET;
       pri.dwType = RESOURCETYPE_DISK;
       pri.lpLocalName = NULL;
-      strcpy (szResPath, PCurResource->lpRemoteName);
-      strcat (szResPath, "\\");
-      strcat (szResPath, p->shi1_netname);
-      
-      if(szResPath[strlen(szResPath)-1] == '$' &&
-        strcmp(&szResPath[strlen(szResPath)-4],"IPC$"))
+      lstrcpy (szResPath, PCurResource->lpRemoteName);
+      lstrcat (szResPath, "\\");
+      lstrcat (szResPath, p->shi1_netname);
+
+      if(szResPath[lstrlen(szResPath)-1] == '$' &&
+        lstrcmp(&szResPath[lstrlen(szResPath)-4],"IPC$"))
       {
         pri.lpRemoteName = szResPath;
         pri.dwUsage = RESOURCEUSAGE_CONTAINER;
         pri.lpProvider = NULL;
         DWORD rrsiz = sizeof(nr);
-        
+
         // we need to provide buffer space for WNetGetResourceInformation
         int rc = FWNetGetResourceInformation(&pri,(void *)&nr [0],&rrsiz,&pszSystem);
         if (rc!=NO_ERROR)
@@ -150,20 +149,20 @@ void NetBrowser::GetHideShare95()
           continue;
           //break; //?????
         }
-        
+
         if (p->shi1_type == STYPE_DISKTREE)
           nr [0].dwType=RESOURCETYPE_DISK;
         if (p->shi1_type == STYPE_PRINTQ)
           nr [0].dwType=RESOURCETYPE_PRINT;
         if (p->shi1_type == STYPE_SPECIAL)
           nr [0].dwType=RESOURCETYPE_DISK;
-        
+
         NetList.Push (nr [0]);
       }
       p++;
     }
 
-    my_free (pBuf);
+    free (pBuf);
   }
 #ifdef NETWORK_LOGGING
   else

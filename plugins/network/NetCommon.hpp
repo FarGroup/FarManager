@@ -3,7 +3,8 @@
 
 #include <windows.h>
 #include <lm.h>
-#include "Plugin.hpp"
+#define _FAR_USE_FARFINDDATA
+#include "plugin.hpp"
 #include "netlng.hpp"
 #include "NetMacros.hpp"
 
@@ -116,10 +117,10 @@ typedef struct _DFS_INFO_3 {
 } DFS_INFO_3, *PDFS_INFO_3, *LPDFS_INFO_3;
 
 struct share_info_1 {
-  char		shi1_netname[LM20_NNLEN+1];
-  char		shi1_pad1;
-  unsigned short	shi1_type;
-  char FAR *		shi1_remark;
+  char    shi1_netname[LM20_NNLEN+1];
+  char    shi1_pad1;
+  unsigned short  shi1_type;
+  char FAR *    shi1_remark;
 };  /* share_info_1 */
 
 extern PWNetGetResourceInformation FWNetGetResourceInformation;

@@ -2,7 +2,7 @@
 .PluginContents=Network browser plugin
 
 @Contents
-$ #Network browser plugin. Version 1.70 beta 6#
+$ #Network browser plugin.#
     Using the network browser you can navigate through a network,
 go to mapped and unmapped network disks, map and unmap them.
 Press #F5# to map selected disks to the next available letters

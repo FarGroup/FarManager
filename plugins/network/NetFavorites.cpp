@@ -31,18 +31,18 @@ BOOL GetFavorites(LPNETRESOURCE pNR, NetResourceList *pList)
         p = pNR->lpRemoteName;
       FSF.sprintf(szKey, SZ_FAVORITES_SUBKEY, p);
     }else
-      strcpy(szKey, SZ_FAVORITES);
+      lstrcpy(szKey, SZ_FAVORITES);
     HKEY hKey = OpenRegKey(HKEY_CURRENT_USER, szKey, KEY_QUERY_VALUE|KEY_ENUMERATE_SUB_KEYS);
     if(hKey)
     {
       char szSubKey[NM] = {0};
-      for(DWORD dwIndex = 0; ERROR_SUCCESS == RegEnumKey(hKey, dwIndex, szSubKey, 
+      for(DWORD dwIndex = 0; ERROR_SUCCESS == RegEnumKey(hKey, dwIndex, szSubKey,
         sizeof(szSubKey)); dwIndex++)
       {
         int bTmp; LONG cData = sizeof(bTmp);
         bTmp = 0;
         char szSrc[NM] = {0};
-        
+
         if(ERROR_SUCCESS == RegQueryValue(hKey, szSubKey, (char*)&bTmp, &cData) && bTmp == (int)'1')
         {
           tmp.lpProvider = szFavProv;
@@ -57,11 +57,11 @@ BOOL GetFavorites(LPNETRESOURCE pNR, NetResourceList *pList)
           pList->Push(tmp);
         }
         else
-        {					
+        {
           szSrc[0] = '\\';
           szSrc[1] = '\\';
           szSrc[2] = 0;
-          strcat(szSrc, szSubKey);
+          lstrcat(szSrc, szSubKey);
           if(Opt.FavoritesFlags & FAVORITES_CHECK_RESOURCES)
           {
             tmp.lpProvider = NULL;
@@ -72,12 +72,12 @@ BOOL GetFavorites(LPNETRESOURCE pNR, NetResourceList *pList)
           else if(NetBrowser::GetResourceInfo(szSrc, &tmp))
           {
             pList->Push(tmp);
-            NetResourceList::DeleteNetResource(tmp);						
+            NetResourceList::DeleteNetResource(tmp);
           }
           ZeroMemory(&tmp, sizeof(tmp));
         }
       }
-      
+
       RegCloseKey(hKey);
     }
     return TRUE;
@@ -98,7 +98,7 @@ BOOL GetResourceKey(char* lpRemoteName, char* rootKey, char* lpResourceKey, int 
   SetRegKey(HKEY_CURRENT_USER, SZ_FAVORITES, NULL, "1");
   if(!lpResourceKey || !cSize || !*cSize)
     return FALSE;
-  
+
   char *p = NULL;
   char szKey[NM];
   if(lpRemoteName)
@@ -113,7 +113,7 @@ BOOL GetResourceKey(char* lpRemoteName, char* rootKey, char* lpResourceKey, int 
       if(p)
         FSF.sprintf(szKey, SZ_FAVORITES_SUBKEY, p);
       else
-        lstrcpy(szKey, SZ_FAVORITES);			
+        lstrcpy(szKey, SZ_FAVORITES);
       HKEY hKey = OpenRegKey(HKEY_CURRENT_USER, szKey);
       if(hKey)
       {
@@ -124,7 +124,7 @@ BOOL GetResourceKey(char* lpRemoteName, char* rootKey, char* lpResourceKey, int 
     }
     else
       if(p) *p = '\\';
-      
+
   }
   if(!lpRemoteName)
   {
@@ -141,13 +141,13 @@ BOOL GetResourceKey(char* lpRemoteName, char* rootKey, char* lpResourceKey, int 
   }
   int buffLen = lstrlen(lpRemoteName) + lstrlen(SZ_FAVORITES) + NM;
   char* buff = new(char[buffLen]);
-  
+
   p = strchr(lpRemoteName, '\\');
   if(p)
     *p = 0;
-  
+
   FSF.sprintf(buff, "%s\\%s", rootKey, lpRemoteName);
-  
+
   if(p)
     *p = '\\';
   BOOL res = TRUE;
@@ -156,14 +156,14 @@ BOOL GetResourceKey(char* lpRemoteName, char* rootKey, char* lpResourceKey, int 
   {
     RegCloseKey(hKey);
     FSF.sprintf(lpResourceKey, "%s\\%s", rootKey, lpRemoteName);
-    
+
     *cSize = lstrlen(lpResourceKey);
   }
   else
   {
     res = FALSE;
     if(hKey = OpenRegKey(HKEY_CURRENT_USER, rootKey, KEY_QUERY_VALUE|KEY_ENUMERATE_SUB_KEYS))
-    {			
+    {
       for(DWORD dwIndex = 0; ERROR_SUCCESS == RegEnumKey(hKey, dwIndex,
         szKey, sizeof(szKey)); dwIndex++)
       {
@@ -179,16 +179,16 @@ BOOL GetResourceKey(char* lpRemoteName, char* rootKey, char* lpResourceKey, int 
           }
         }
       }
-      
+
       RegCloseKey(hKey);
     }
   }
-  
+
   if(!res)
   {
     FSF.sprintf(lpResourceKey, "%s\\%s", rootKey, lpRemoteName);
   }
-  
+
   delete(buff), buff = NULL;
   return res;
 }
@@ -207,8 +207,8 @@ BOOL ReadFavoriteItem(LPFAVORITEITEM lpFavItem)
   char resKey[MAX_PATH];
   int cData = sizeof(resKey);
   if(lpFavItem && GetResourceKey(lpFavItem->lpRemoteName, SZ_FAVORITES, resKey, &cData))
-  {		
-    GetRegKey(HKEY_CURRENT_USER, resKey, SZ_USERNAME, lpFavItem->lpUserName, 
+  {
+    GetRegKey(HKEY_CURRENT_USER, resKey, SZ_USERNAME, lpFavItem->lpUserName,
       "", lpFavItem->ccUserName);
     GetRegKey(HKEY_CURRENT_USER, resKey, SZ_USERPASS, lpFavItem->lpPassword,
       "", lpFavItem->ccPassword);
@@ -224,8 +224,8 @@ BOOL GetFavoritesParent(NETRESOURCE& SrcRes, LPNETRESOURCE lpParent)
   nr.lpProvider = szFavProv;
   nr.dwDisplayType = RESOURCEDISPLAYTYPE_DOMAIN;
   if(!lstrcmp(SrcRes.lpProvider, szFavProv))
-  {		
-    p = PointToName(SrcRes.lpRemoteName);		
+  {
+    p = PointToName(SrcRes.lpRemoteName);
     if(p && p != SrcRes.lpRemoteName)
     {
       p--;
@@ -234,31 +234,31 @@ BOOL GetFavoritesParent(NETRESOURCE& SrcRes, LPNETRESOURCE lpParent)
     else
       return FALSE;
     if(lpParent)
-    {			
+    {
       if(strchr(SrcRes.lpRemoteName, '\\'))
         nr.lpRemoteName = SrcRes.lpRemoteName;
       NetResourceList::CopyNetResource(*lpParent, nr);
     }
-    
+
     if(p)
       *p = '\\';
     return TRUE;
   }
   if(SrcRes.dwDisplayType == RESOURCEDISPLAYTYPE_SHARE)
     return FALSE;
-  
-  
+
+
   char szResourceKey[NM];
   int cSize = sizeof(szResourceKey);
   if(GetResourceKey(SrcRes.lpRemoteName, SZ_FAVORITES, szResourceKey, &cSize))
-  {			
+  {
     p = PointToName(szResourceKey);
     if(!p || !*p)
     {
       return FALSE;
     }
     if(lpParent)
-    {			
+    {
       *--p = 0;
       char res[NM] = {0};
       p = strchr(szResourceKey, '\\');
@@ -267,13 +267,13 @@ BOOL GetFavoritesParent(NETRESOURCE& SrcRes, LPNETRESOURCE lpParent)
         OemToChar(GetMsg(MFavorites), res);
         lstrcat(res, p);
         p = res;
-      }		
+      }
       nr.lpRemoteName = p;
       NetResourceList::CopyNetResource(*lpParent, nr);
     }
     return TRUE;
   }
-  
+
   return FALSE;
 }
 
@@ -296,7 +296,7 @@ BOOL GetFavoriteResource(char *SrcName, LPNETRESOURCE DstNetResource)
       {
         nr.lpProvider = szFavProv;
         nr.dwDisplayType = RESOURCEDISPLAYTYPE_DOMAIN;
-        NetResourceList::CopyNetResource(*DstNetResource, nr);			  
+        NetResourceList::CopyNetResource(*DstNetResource, nr);
       }
       return TRUE;
     }
@@ -315,7 +315,7 @@ BOOL GetFavoriteResource(char *SrcName, LPNETRESOURCE DstNetResource)
           nr.lpRemoteName = szOutName;
           NetResourceList::CopyNetResource(*DstNetResource, nr);
         }
-        
+
         return TRUE;
       }
     }
@@ -364,18 +364,18 @@ BOOL RemoveFromFavorites(char *SrcName, LPREMOVEFROMFAVCB pUserCallBack, LPVOID 
     while(*++p == '\\');
     else
       p = SrcName;
-    
-    
+
+
     char szKey[MAX_PATH];
-    
+
     FSF.sprintf(szKey, SZ_FAVORITES_SUBKEY, p);
-    
+
     HKEY hKey = OpenRegKey(HKEY_CURRENT_USER, "", MAXIMUM_ALLOWED);
     if(!hKey)
       return FALSE;
-    
+
     BOOL res = SUCCEEDED(EliminateSubKey( hKey, szKey ));
-    
+
     RegCloseKey(hKey);
     return res;
 }
@@ -398,24 +398,24 @@ EliminateSubKey( HKEY hkey, LPTSTR strSubKey )
     // defensive approach
     return E_FAIL;
   }
-  
+
   LONG lreturn = RegOpenKeyEx( hkey
     , strSubKey
     , 0
     , MAXIMUM_ALLOWED
     , &hk );
-  
+
   if( ERROR_SUCCESS == lreturn )
   {
     // Keep on enumerating the first (zero-th)
     // key and deleting that
-    
+
     for( ; ; )
     {
       CHAR Buffer[MAX_PATH];
       DWORD dw = MAX_PATH;
       FILETIME ft;
-      
+
       lreturn = RegEnumKeyEx( hk
         , 0
         , Buffer
@@ -424,7 +424,7 @@ EliminateSubKey( HKEY hkey, LPTSTR strSubKey )
         , NULL
         , NULL
         , &ft);
-      
+
       if( ERROR_SUCCESS == lreturn )
       {
         EliminateSubKey(hk, Buffer);
@@ -434,11 +434,11 @@ EliminateSubKey( HKEY hkey, LPTSTR strSubKey )
         break;
       }
     }
-    
+
     RegCloseKey(hk);
     RegDeleteKey(hkey, strSubKey);
   }
-  
+
   return NOERROR;
 }
 
@@ -517,7 +517,7 @@ public:
   RegParser(): Unknown(), m_hKey(0), m_parent(0){}
   /**
    * @brief Function initialize the parser.
-   * 
+   *
    * It sets up the parser's internal m_hKey allowing to perform operations on it.
    */
   bool init(RegParser* parentItem, const char* subKey, bool createSubKey=false)
@@ -586,7 +586,7 @@ public:
       *pRestOfPath++ = '\0';
 
     bool res = true;
-    if (!strcmp(path, ".."))
+    if (!lstrcmp(path, ".."))
     {
       childItem = m_parent;
       if (childItem)
@@ -594,7 +594,7 @@ public:
       else
         res = false;
     }
-    else if (!strcmp(path, "."))
+    else if (!lstrcmp(path, "."))
     {
       childItem = this;
       childItem->AddRef();
@@ -653,7 +653,7 @@ BOOL CreateSubFolder(char *szRoot, char *szSubFolder)
 {
   char szFavorites[] = SZ_FAVORITES;
 
-  if (szRoot && !_strnicmp(szRoot, szFavorites, strlen(szFavorites)))
+  if (szRoot && !FSF.LStrnicmp(szRoot, szFavorites, lstrlen(szFavorites)))
   {
     szRoot = strchr(szRoot, '\\');
     if (szRoot)
@@ -676,7 +676,7 @@ BOOL CreateSubFolder(char *szRoot, char *szSubFolder)
   if (!res)
     return FALSE;
 
-  
+
   FSF.Unquote(szSubFolder);
 
   res = currFolder->parsePath(szSubFolder, true, NULL);

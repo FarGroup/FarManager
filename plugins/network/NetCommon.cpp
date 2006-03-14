@@ -56,8 +56,8 @@ void InitializeNetFunction(void)
     if(!FNetShareEnum)
       FNetShareEnum=(PNetShareEnum)GetProcAddress(hNetApi,"NetShareEnum");
 
-	if(!FNetDfsGetInfo)
-	  FNetDfsGetInfo=(PNetDfsGetInfo)GetProcAddress(hNetApi, "NetDfsGetInfo");
+  if(!FNetDfsGetInfo)
+    FNetDfsGetInfo=(PNetDfsGetInfo)GetProcAddress(hNetApi, "NetDfsGetInfo");
 
     UsedNetFunctions=FWNetGetResourceInformation &&
       FNetShareEnum &&
@@ -93,7 +93,7 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
     ::FSF=*Info->FSF;
     ::Info.FSF=&::FSF;
 
-    strcpy (FarRootKey, Info->RootKey);
+    lstrcpy (FarRootKey, Info->RootKey);
     char *pBkSlash = strrchr (FarRootKey, '\\');
     if (pBkSlash)
        *pBkSlash = '\0';
@@ -106,20 +106,20 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
     Opt.LocalNetwork=GetRegKey (HKEY_CURRENT_USER, "", StrLocalNetwork, TRUE);
     Opt.DisconnectMode=GetRegKey (HKEY_CURRENT_USER, "", StrDisconnectMode, FALSE);
     Opt.HiddenSharesAsHidden=GetRegKey (HKEY_CURRENT_USER, "", StrHiddenSharesAsHidden, TRUE);
-	Opt.FullPathShares=GetRegKey (HKEY_CURRENT_USER, "", StrFullPathShares, TRUE);
-	Opt.FavoritesFlags=GetRegKey (HKEY_CURRENT_USER, "", StrFavoritesFlags, FAVORITES_DEFAULTS);
-	Opt.NoRootDoublePoint=GetRegKey (HKEY_CURRENT_USER, "", StrNoRootDoublePoint, FALSE);
+    Opt.FullPathShares=GetRegKey (HKEY_CURRENT_USER, "", StrFullPathShares, TRUE);
+    Opt.FavoritesFlags=GetRegKey (HKEY_CURRENT_USER, "", StrFavoritesFlags, FAVORITES_DEFAULTS);
+    Opt.NoRootDoublePoint=GetRegKey (HKEY_CURRENT_USER, "", StrNoRootDoublePoint, FALSE);
 
     NetResourceList::InitNetResource (CommonCurResource);
   }
 }
 
-static void DeinitializeNetFunctions(void)
+void DeinitializeNetFunctions(void)
 {
-	if(hMpr32)
-		FreeLibrary(hMpr32);
-	if(hNetApi)
-		FreeLibrary(hNetApi);
+  if(hMpr32)
+    FreeLibrary(hMpr32);
+  if(hNetApi)
+    FreeLibrary(hNetApi);
 }
 
 int WINAPI Configure(int ItemNumber)

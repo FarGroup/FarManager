@@ -1,6 +1,7 @@
 #ifndef __NETCLASS_HPP__
 #define __NETCLASS_HPP__
 
+#define _FAR_USE_FARFINDDATA
 #include "plugin.hpp"
 #ifdef NETWORK_LOGGING
 #include <stdio.h>
@@ -39,11 +40,11 @@ public:
 class NetBrowser
 {
   private:
-	  void RemoveItems();
+    void RemoveItems();
 #ifdef NETWORK_LOGGING
-	void LogData(char * Data);
+  void LogData(char * Data);
 #endif
-	static void DisconnectFromServer(NETRESOURCE *nr);
+  static void DisconnectFromServer(NETRESOURCE *nr);
     BOOL ChangeToDirectory (const char *Dir, int IsFind, int IsExplicit);
     void ManualConnect();
     BOOL CancelConnection (char *RemoteName);
@@ -80,14 +81,14 @@ class NetBrowser
 
 #ifdef NETWORK_LOGGING
     static FILE *LogFile;
-	static int LogFileRef;
+  static int LogFileRef;
     static void LogNetResource (NETRESOURCE &Res);
-	static void OpenLogFile(char *lpFileName);
-	static void CloseLogfile();
+  static void OpenLogFile(char *lpFileName);
+  static void CloseLogfile();
 #endif
 
   public:
-	  void CreateFavSubFolder();
+    void CreateFavSubFolder();
     NetBrowser();
     ~NetBrowser();
     int GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode);
@@ -101,19 +102,19 @@ class NetBrowser
     BOOL SetOpenFromFilePanel (char *ShareName);
     void GotoLocalNetwork();
 
-	BOOL GotoFavorite(char *lpPath);
-	BOOL EditFavorites();
+  BOOL GotoFavorite(char *lpPath);
+  BOOL EditFavorites();
 
-	static int AddConnection(NETRESOURCE *nr,int Remember=TRUE);
+  static int AddConnection(NETRESOURCE *nr,int Remember=TRUE);
     static int AddConnectionExplicit(NETRESOURCE *nr,int Remember=TRUE);
-	static int AddConnectionWithLogon(NETRESOURCE *nr, char *Name, char *Password, int Remember=TRUE);
-	static int AddConnectionFromFavorites(NETRESOURCE *nr,int Remember=TRUE);
+  static int AddConnectionWithLogon(NETRESOURCE *nr, char *Name, char *Password, int Remember=TRUE);
+  static int AddConnectionFromFavorites(NETRESOURCE *nr,int Remember=TRUE);
 
-	static BOOL GetResourceInfo (char *SrcName,LPNETRESOURCE DstNetResource);
+  static BOOL GetResourceInfo (char *SrcName,LPNETRESOURCE DstNetResource);
     static BOOL GetResourceParent (NETRESOURCE &SrcRes, LPNETRESOURCE DstNetResource);
     static BOOL IsMSNetResource (const NETRESOURCE &Res);
     static BOOL IsResourceReadable (NETRESOURCE &Res);
-	//static BOOL GetDfsParent(const NETRESOURCE &SrcRes, NETRESOURCE &Parent);
+  //static BOOL GetDfsParent(const NETRESOURCE &SrcRes, NETRESOURCE &Parent);
 };
 
 extern NetResourceList CommonRootResources;

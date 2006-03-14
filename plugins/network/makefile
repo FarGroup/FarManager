@@ -17,7 +17,6 @@ default: \
 
 TARGETS = \
   Network.obj \
-  Memory.obj \
   NetCfg.obj \
   NetClass.obj \
   NetCommon.obj \
