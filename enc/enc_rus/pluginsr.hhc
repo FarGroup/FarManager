@@ -2513,6 +2513,11 @@
                         <param name="ImageNumber" value="15">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="FAR Manager official forum">
+                        <param name="Local" value="http://forum.farmanager.com/">
+                        <param name="ImageNumber" value="15">
+                        </OBJECT>
+                <LI> <OBJECT type="text/sitemap">
                         <param name="Name" value="FAR plugins collection">
                         <param name="Local" value="http://plugring.farmanager.com/">
                         <param name="ImageNumber" value="15">
