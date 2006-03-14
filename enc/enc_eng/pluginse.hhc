@@ -918,7 +918,7 @@
                         <param name="Local" value="html/defs/sortmetods.html">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="PKF_* - состояние Shift-клавиш">
+                        <param name="Name" value="PKF_* - state of the shift keys">
                         <param name="Local" value="html/defs/far_pkf_flags.html">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
@@ -2390,6 +2390,11 @@
                 <LI> <OBJECT type="text/sitemap">
                         <param name="Name" value="FAR Manager official site">
                         <param name="Local" value="http://www.farmanager.com/">
+                        <param name="ImageNumber" value="15">
+                        </OBJECT>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="FAR Manager official forum">
+                        <param name="Local" value="http://enforum.farmanager.com/">
                         <param name="ImageNumber" value="15">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">

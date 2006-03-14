@@ -11,13 +11,14 @@
 
 <h1>FAR_PKF_FLAGS</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">типы и определения</a>
+<a href="../index.html">main</a> |
+<a href="index.html">types and definitions</a>
 </div>
 
 <div class=shortdescr>
-Перечисление <a name="FAR_PKF_FLAGS">FAR_PKF_FLAGS</a> описывает состояние Shift-клавиш, передаваемых в
-функцию <a href="../exported_functions/processkey.html">ProcessKey</a>.
+The members of the <a name="FAR_PKF_FLAGS">FAR_PKF_FLAGS</a> enumeration describe
+the state of the shift keys of an event sent to the
+<a href="../exported_functions/processkey.html">ProcessKey</a> function.
 
 <table class="cont">
   <tr class="cont"><th class="cont" width="40%">Flag</th><th class="cont" width="60%">Description</th></tr>
@@ -28,33 +29,34 @@
   <tr class="cont"><td class="cont" width="40%"><a name="PKF_SHIFT" title="0x00000004">PKF_SHIFT</a></td>
   <td class="cont" width="60%">Shift is pressed</td></tr>
   <tr class="cont"><td class="cont" width="40%"><a name="PKF_PREPROCESS" title="0x00080000">PKF_PREPROCESS</a></td>
-  <td class="cont" width="60%">Идет препроцесс - FAR передает "сырую" клавишу.<br>
-   Этот флаг применяется <u>только</u> к <a href="../winapi/virtualkeycodes.html">виртуальному коду клавиши</a>
-   (второй параметр функции <a href="../exported_functions/processkey.html">ProcessKey</a>)
+  <td class="cont" width="60%">Preprocessing: - FAR passes a "raw" keystroke.<br>
+   This flag is applicable <u>only</u> to the <a href="../winapi/virtualkeycodes.html">virtual key code</a>
+   (second parameter of the <a href="../exported_functions/processkey.html">ProcessKey</a> function).
   </td></tr>
 </table>
 
-<h3>Замечания</h3>
+<h3>Remarks</h3>
 <div class=descr>
-<ul><li>Начиная с FAR Manager 1.70 build 2052 сняты ограничения на передаваемые плагину клавиши (см. замечание к
-функции <a href="../exported_functions/processkey.html">ProcessKey</a>).
-Если флаг <dfn>PKF_PREPROCESS</dfn> выставлен, то плагин может игнорировать вызов функции
-<a href="../exported_functions/processkey.html">ProcessKey</a>. В этом случае FAR, по
-окончании ввода сформирует нужную команду и передаст плагину.<br>
-Например, если пользователь в командной строке вводит "<code>cd ..Enter</code>", то плагин получит
-последовательность "<nobr><code>80043h 80044h 80020h 800BEh 800BEh 8000Dh</code></nobr>" (к каждому
-виртуальному коду добавляется флаг <dfn>PKF_PREPROCESS</dfn>).<br>
-В этом случае Здесь 2 варианта развития событий:
+<ul><li>Since FAR Manager 1.70 build 2052 keyboard events are sent to the plugins with no exclusions
+(refer to the remarks on the <a href="../exported_functions/processkey.html">ProcessKey</a> function).
+If the <dfn>PKF_PREPROCESS</dfn> flag is set, plugin may ignore calls to
+the <a href="../exported_functions/processkey.html">ProcessKey</a> function. In this case after the input is complete
+FAR will form the needed command and pass it to the plugin.<br>
+For example, if a user enters "<code>cd ..Enter</code>" in the command line the plugin receives
+the sequence "<nobr><code>80043h 80044h 80020h 800BEh 800BEh 8000Dh</code></nobr>" (every
+virtual code has the <dfn>PKF_PREPROCESS</dfn> flag set).<br>
+The plugin may behave in two ways:
 <ol>
-<li>плагин сам обрабатывает эту последовательность;
-<li>плагин игнорирует вызовы функции <a href="../exported_functions/processkey.html">ProcessKey</a> с выставленным
-флагом <dfn>PKF_PREPROCESS</dfn> и ждет, когда FAR передаст плагину готовый результат.
+<li>process the sequence by itself;
+<li>ignore the calls to <a href="../exported_functions/processkey.html">ProcessKey</a> with
+<dfn>PKF_PREPROCESS</dfn> set and wait for FAR to call
+<a href="../exported_functions/setdirectory.html">SetDirectory</a> with Dir = "..".
 </ol>
 </li></ul>
 </div>
 
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>See also:</div><div class=seecont>
 <a href="../exported_functions/processkey.html">ProcessKey</a>
 </div>
 

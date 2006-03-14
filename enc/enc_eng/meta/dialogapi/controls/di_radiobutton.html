@@ -17,7 +17,7 @@
 
 <div class=shortdescr>The <dfn>DI_RADIOBUTTON</dfn> dialog item describes a Radio Button control.
 It is also known as the &quot;button with dependent fixation&quot;. It acts like a Check Box,
-except that if several consequent radio button items have the
+except that if the first radio button item in a group of several consequent radio button items have the
 <a href="../flags/dif_group.html">DIF_GROUP</a> flag set, they become mutually exclusive &mdash; if
 one of them has been switched on all others will be switched off.</div>
 
@@ -61,8 +61,8 @@ There are several flags applicable to the <dfn>DI_RADIOBUTTON</dfn> control:<br>
  The low byte of Flags will be used as the item's color.</td>
  </tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_group.html">DIF_GROUP</a></td>
- <td class="cont" width="60%">This flag should be set for the first radio button item in a group
- (подробнее см. <a href="../flags/dif_group.html">здесь</a>).</td>
+ <td class="cont" width="60%">This flag should be set for the first radio button item in a group.
+ </td>
  </tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_moveselect.html">DIF_MOVESELECT</a></td>
  <td class="cont" width="60%">Change selection in a radio button group when focus is moved. Radio

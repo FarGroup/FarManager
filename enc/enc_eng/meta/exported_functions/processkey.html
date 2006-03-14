@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+  <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>ProcessKey</title>
@@ -34,13 +34,13 @@ int WINAPI ProcessKey(
 
   <div class=dfn>Key</div>
   <div class=dfndescr><a href="../winapi/virtualkeycodes.html">Virtual key code</a>.
-    <br>К параметру <em>Key</em> может применяться флаг <a href="../defs/far_pkf_flags.html#PKF_PREPROCESS">PKF_PREPROCESS</a>.
+    <br><em>Key</em> may have the <a href="../defs/far_pkf_flags.html#PKF_PREPROCESS">PKF_PREPROCESS</a> flag set.
   </div>
 
   <div class=dfn>ControlState</div>
   <div class=dfndescr>Indicates control keys state.
-    Комбинация флагов из перечисления <a href="../defs/far_pkf_flags.html">FAR_PKF_FLAGS</a>
-    (за исключением <a href="../defs/far_pkf_flags.html#PKF_PREPROCESS">PKF_PREPROCESS</a>)<br>
+    One or more flags from the <a href="../defs/far_pkf_flags.html">FAR_PKF_FLAGS</a> enum
+    (except <a href="../defs/far_pkf_flags.html#PKF_PREPROCESS">PKF_PREPROCESS</a>).<br>
     For example, when <kbd>Shift-F7</kbd> is pressed, <em>Key</em> is equal to VK_F7 and
     <em>ControlState</em> is equal to PKF_SHIFT.
   </div>
@@ -55,7 +55,7 @@ If the plugin processes the key combination by itself, it should return TRUE
 <h3>Remarks</h3>
 <div class=descr>
 <ul>
-<li><b>Up to FAR 1.70 build 2051 and including:</b><br>
+<li><b>FAR 1.70 build 2051 and earlier versions:</b><br>
 Because of FAR kernel implementation specifics this function does not receive the following keys:
 <kbd>Tab</kbd>, <kbd>Ctrl-F1</kbd>, <kbd>Ctrl-F2</kbd>, <kbd>Ctrl-B</kbd>, <kbd>Cltr-L</kbd>, <kbd>Ctrl-Q</kbd>,
 <kbd>Ctrl-T</kbd>, <kbd>Ctrl-O</kbd>, <kbd>Ctrl-P</kbd>, <kbd>Ctrl-I</kbd>, <kbd>Ctrl-U</kbd>,
@@ -64,8 +64,8 @@ Because of FAR kernel implementation specifics this function does not receive th
 <kbd>Alt-Ins</kbd>, <kbd>Ctrl-W</kbd>, <kbd>F11</kbd>, <kbd>Alt-F9</kbd>, <kbd>F12</kbd>,
 <kbd>Ctrl-Tab</kbd> and
 <kbd>Ctrl-Shift-Tab</kbd>.<br>
-Starting with 1.70 build 2052 those restrictions no longer apply (см.
-замечание для флага <a href="../defs/far_pkf_flags.html">PKF_PREPROCESS</a>)</li>
+Since 1.70 build 2052 those restrictions no longer apply (refer to the remarks on
+the <a href="../defs/far_pkf_flags.html">PKF_PREPROCESS</a> flag)</li>
 </ul>
 </div>
 

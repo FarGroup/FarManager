@@ -270,18 +270,20 @@
         <tr class="cont"><td class="cont" width="10%">11</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Diz-text</td></tr>
         <tr class="cont"><td class="cont" width="10%">12</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Owner</td></tr>
         <tr class="cont"><td class="cont" width="10%">13</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">CRC32</td></tr>
-        <tr class="cont"><td class="cont" width="10%">14</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Позиция элемента в процессе чтения файловой системы</td></tr>
+        <tr class="cont"><td class="cont" width="10%">14</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Position of the element while reading from the file system</td></tr>
        </table>
     Date/time is returned in the DD.MM.YYYY HH:MM:SS format.
     The values order and the delimiters are determined according to the regional settings.
-    To receive information on the current file (under cursor) itemIndex should be set to 0.
+    To receive information on the current file (under cursor) <em>itemIndex</em> should be set to 0.
     </td>
   </tr>
   <tr class="cont">
     <td class="cont" width="40%">N=<dfn><a name="panel.setpos">panel.setpos</a></dfn>(panelType,fileName)</td>
-    <td class="cont" width="60%">Позиционирует курсор на элемент с именем <em>fileName</em> на активной (<em>panelType</em>=0) или пассивной (<em>panelType</em>=1) панели.<br>
-      Возвращает позицию элемента или 0, если такого элемента на панели нет.<br>
-      Например, создать каталог с именем, соответствующим текущей дате в формате YYYYMMDD, если каталог существует - позиционировать на него курсор:
+    <td class="cont" width="60%">Positions the cursor on the element with name <em>fileName</em> on the active
+      (<em>panelType</em>=0) or passive (<em>panelType</em>=1) panel.<br>
+      Returns the position of the element or 0 if there is no such element.<br>
+      For example, the following macro creates a directory named after the current date in
+      YYYYMMDD format or positions the cursor on this directory if it already exists.
       <pre class=code>%dt=date("%Y%m0%d");
 $If (fexist(%dt))
   panel.SetPos(0,%dt)
@@ -300,17 +302,17 @@ $End</pre>
   </tr>
 <tr class="cont">
     <td class="cont" width="40%">V=<dfn><a name="clip">clip</a></dfn>(Cmd,S)</td>
-    <td class="cont" width="60%">Позволяет производить разнообразные манипуляции с Clipboard в
-         зависимости от команды <em>Cmd</em>:
+    <td class="cont" width="60%">Allows to perform miscellaneous manipulations on the Clipboard in accordance with the
+         <em>Cmd</em> command:
        <table class="cont">
-       <tr class="cont"><th class="cont" width="10%">Cmd</th><th class="cont" width="90%">Описание</th></tr>
-        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="90%">Возвращает данные из Clipboard; параметр <em>S</em> игнорируется; в случае ошибки возвращает 0</td></tr>
-        <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">Поместить строку <em>S</em> в Clipboard; в случае ошибки возвращает 0</td></tr>
-        <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="90%">Добавить строку <em>S</em> к Clipboard; в случае ошибки возвращает 0</td></tr>
-        <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="90%">Копировать Windows Clipboard во внутренний буфер обмена; параметр <em>S</em> игнорируется; в случае ошибки возвращает 0</td></tr>
-        <tr class="cont"><td class="cont" width="10%">4</td><td class="cont" width="90%">Копировать внутренний буфер обмена в Windows Clipboard; параметр <em>S</em> игнорируется; в случае ошибки возвращает 0</td></tr>
+       <tr class="cont"><th class="cont" width="10%">Cmd</th><th class="cont" width="90%">Description</th></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="90%">Returns data from the Clipboard; the <em>S</em> parameter is ignored; in case of error returns 0</td></tr>
+        <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">Put the string <em>S</em> to the Clipboard; in case of error returns 0</td></tr>
+        <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="90%">Add the string <em>S</em> to the Clipboard; in case of error returns 0</td></tr>
+        <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="90%">Copy the Windows Clipboard to the internal clipboard buffer; the <em>S</em> parameter is ignored; in case of error returns 0</td></tr>
+        <tr class="cont"><td class="cont" width="10%">4</td><td class="cont" width="90%">Copy the internal clipboard buffer to the Windows Clipboard; the <em>S</em> parameter is ignored; in case of error returns 0</td></tr>
        </table>
-       Например, поместить в Clipboard список отмеченных файлов в формате CSV (имя и размер):
+       For example, put to the Clipboard a list of selected files in the CSV format (name and size):
        <pre class=code>Clip(1,"Name;Size\r\n")
 Home
 $While(!APanel.Eof)
