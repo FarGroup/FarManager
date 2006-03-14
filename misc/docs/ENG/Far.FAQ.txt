@@ -228,5 +228,5 @@
 
 [25] Why does the ProcList plugin panel show up empty?
 
-   Perfomance Counters are missing. Also some features will be unavailable
+   Performance Counters are missing. Also some features will be unavailable
    if the WMI service is missing.
