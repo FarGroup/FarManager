@@ -298,8 +298,6 @@ foreach my $project (@project_settings_list)
             last;
           }
       }
-
-    next;
   }
 
 if ($match == 0)
@@ -321,7 +319,6 @@ system "rm -Rf ".$dest_dr."/*";
 
 print "\n  -- making directories tree\n";
 
-#mkdir $dest_dr, 775;
 mkdir $dest_dr_inet, 0775;
 mkdir $dest_dr."/images", 0775;
 mkdir $dest_dr."/styles", 0775;
