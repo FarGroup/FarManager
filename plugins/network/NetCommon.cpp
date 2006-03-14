@@ -93,7 +93,7 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
     ::FSF=*Info->FSF;
     ::Info.FSF=&::FSF;
 
-    strcpy (FarRootKey, Info->RootKey);
+    lstrcpy (FarRootKey, Info->RootKey);
     char *pBkSlash = strrchr (FarRootKey, '\\');
     if (pBkSlash)
        *pBkSlash = '\0';
