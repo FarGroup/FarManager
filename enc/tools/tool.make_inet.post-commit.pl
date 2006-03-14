@@ -333,7 +333,8 @@ system "cp -f ".$dest_dr_inet."/inet/styles.css ".$dest_dr."/styles/styles.css";
 
 system "rm -Rf ".$dest_dr_inet;
 
-system "chown -R :webadmins ".$dest_dr."/*";
+system "chown -R yaros:webadmins ".$dest_dr."/*";
+system "chmod -R g+w ".$dest_dr."/*";
 
 exit 0;
 
