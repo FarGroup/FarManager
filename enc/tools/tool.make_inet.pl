@@ -24,12 +24,12 @@ mkdir $dest_dr_inet, 0;
 mkdir $dest_dr_inet."/images", 0;
 mkdir $dest_dr_inet."/styles", 0;
 
+mk_inet_lng("ru","rus");
+mk_inet_lng("en","eng");
+
 system "cp -f inet/index.html ".$dest_dr_inet."/index.html";
 system "cp -f inet/farenclogo.gif ".$dest_dr_inet."/images/farenclogo.gif";
 system "cp -f inet/styles.css ".$dest_dr_inet."/styles/styles.css";
-
-mk_inet_lng("ru","rus");
-mk_inet_lng("en","eng");
 
 #print " -- now convert manually all files in ../inet/ to koi8 \n";
 
