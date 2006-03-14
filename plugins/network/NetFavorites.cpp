@@ -104,7 +104,7 @@ BOOL GetResourceKey(char* lpRemoteName, char* rootKey, char* lpResourceKey, int 
   if(lpRemoteName)
   {
     while (*lpRemoteName=='\\') lpRemoteName++;
-    if(p = strchr(lpRemoteName, '\\'))
+    if(0 != (p = strchr(lpRemoteName, '\\')))
       *p = 0;
     char szFavoritesName[NM]; OemToChar(GetMsg(MFavorites), szFavoritesName);
     if(!lstrcmpi(lpRemoteName, szFavoritesName))
@@ -162,7 +162,8 @@ BOOL GetResourceKey(char* lpRemoteName, char* rootKey, char* lpResourceKey, int 
   else
   {
     res = FALSE;
-    if(hKey = OpenRegKey(HKEY_CURRENT_USER, rootKey, KEY_QUERY_VALUE|KEY_ENUMERATE_SUB_KEYS))
+    if(0 != (hKey = OpenRegKey(HKEY_CURRENT_USER, rootKey,
+      KEY_QUERY_VALUE|KEY_ENUMERATE_SUB_KEYS)))
     {
       for(DWORD dwIndex = 0; ERROR_SUCCESS == RegEnumKey(hKey, dwIndex,
         szKey, sizeof(szKey)); dwIndex++)

@@ -56,8 +56,8 @@ void InitializeNetFunction(void)
     if(!FNetShareEnum)
       FNetShareEnum=(PNetShareEnum)GetProcAddress(hNetApi,"NetShareEnum");
 
-  if(!FNetDfsGetInfo)
-    FNetDfsGetInfo=(PNetDfsGetInfo)GetProcAddress(hNetApi, "NetDfsGetInfo");
+    if(!FNetDfsGetInfo)
+      FNetDfsGetInfo=(PNetDfsGetInfo)GetProcAddress(hNetApi, "NetDfsGetInfo");
 
     UsedNetFunctions=FWNetGetResourceInformation &&
       FNetShareEnum &&
@@ -87,13 +87,13 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
   ::Info=*Info;
   IsOldFAR=TRUE;
 
-  if(Info->StructSize >= sizeof(struct PluginStartupInfo))
+  if((size_t)Info->StructSize >= sizeof(struct PluginStartupInfo))
   {
     IsOldFAR=FALSE;
     ::FSF=*Info->FSF;
     ::Info.FSF=&::FSF;
 
-    lstrcpy (FarRootKey, Info->RootKey);
+    strcpy (FarRootKey, Info->RootKey);
     char *pBkSlash = strrchr (FarRootKey, '\\');
     if (pBkSlash)
        *pBkSlash = '\0';
@@ -116,10 +116,10 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
 
 void DeinitializeNetFunctions(void)
 {
-  if(hMpr32)
-    FreeLibrary(hMpr32);
-  if(hNetApi)
-    FreeLibrary(hNetApi);
+    if(hMpr32)
+        FreeLibrary(hMpr32);
+    if(hNetApi)
+        FreeLibrary(hNetApi);
 }
 
 int WINAPI Configure(int ItemNumber)

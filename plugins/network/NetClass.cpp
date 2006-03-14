@@ -559,7 +559,7 @@ BOOL NetBrowser::ConfirmCancelConnection (char *LocalName, char *RemoteName, int
   struct FarDialogItem DialogItems[sizeof(InitItems)/sizeof(InitItems[0])];
   InitDialogItems(InitItems,DialogItems,sizeof(InitItems)/sizeof(InitItems[0]));
 
-  size_t Len1=lstrlen(lstrcpy(DialogItems[0].Data,GetMsg(MConfirmDisconnectTitle)));
+  int Len1=lstrlen(lstrcpy(DialogItems[0].Data,GetMsg(MConfirmDisconnectTitle)));
   FSF.sprintf(MsgText,GetMsg(MConfirmDisconnectQuestion),LocalName);
   Len1=max (Len1, lstrlen(lstrcpy(DialogItems[1].Data,MsgText)));
   FSF.sprintf(MsgText,GetMsg(MConfirmDisconnectMapped),LocalName);
@@ -1535,7 +1535,7 @@ void NetBrowser::DisconnectFromServer(NETRESOURCE *nr)
           lpBuff = (NETRESOURCE*)malloc(nBuffSize);
           if(lpBuff)
           {
-            cCount = -1;
+            cCount = (DWORD)-1;
             if(NO_ERROR != WNetEnumResource(hEnum, &cCount, lpBuff, &nBuffSize))
               free(lpBuff), lpBuff = NULL;
           }
@@ -1804,7 +1804,7 @@ int NetBrowser::GotoComputer (const char *Dir)
   CurResource = res;
   PCurResource = &CurResource;
 
-  int result = Info.Control (this, FCTL_UPDATEPANEL, NULL);
+  /*int result = */Info.Control (this, FCTL_UPDATEPANEL, NULL);
 
   if (IsShare)
   {
