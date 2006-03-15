@@ -17,6 +17,7 @@ use Carp;
 # Svnlook path.
 my $svnlook = "/usr/local/bin/svnlook";
 my $svn = "/usr/local/bin/svn";
+my $sendmail = "/usr/sbin/sendmail";
 
 # End of Configuration section.
 ######################################################################
@@ -26,7 +27,7 @@ my $svn = "/usr/local/bin/svn";
 # the administrator has set up the script properly.
 {
   my $ok = 1;
-  foreach my $program ($svnlook)
+  foreach my $program ($svnlook,$svn,$sendmail)
     {
       if (-e $program)
         {
@@ -50,19 +51,14 @@ my $svn = "/usr/local/bin/svn";
 ######################################################################
 # Initial setup/command-line handling.
 
-# Each value in this array holds a hash reference which contains the
-# associated email information for one project.  Start with an
-# implicit rule that matches all paths.
-my @project_settings_list = (&new_project);
+my @project_settings_list;
+my $current_project;
 
 # Process the command line arguments till there are none left.  The
 # first two arguments that are not used by a command line option are
 # the repository path and the revision number.
 my $repos;
 my $rev;
-
-# Use the reference to the first project to populate.
-my $current_project = $project_settings_list[0];
 
 # This hash matches the command line option to the hash key in the
 # project.  If a key exists but has a false value (''), then the
@@ -283,26 +279,23 @@ my $dirlist = join(' ', @dirschanged);
 
 ######################################################################
 # Assembly of log message.
-
 # Go through each project and see if there are any matches for this
 # project.  If so, send the log out.
-my $match    = 0;
-foreach my $project (@project_settings_list)
+{
+  my $match = 0;
+  foreach my $project (@project_settings_list)
   {
     my $match_re = $project->{match_re};
     foreach my $path (@dirschanged_orig, @adds, @dels, @mods)
+    {
+      if ($path =~ $match_re)
       {
-        if ($path =~ $match_re)
-          {
-            $match = 1;
-            last;
-          }
+        $match = 1;
+        last;
       }
+    }
   }
-
-if ($match == 0)
-{
-  exit 0;
+  exit 0 unless $match;
 }
 
 my $lev;
@@ -335,6 +328,32 @@ system "rm -Rf ".$dest_dr_inet;
 
 system "chown -R yaros:webadmins ".$dest_dr."/*";
 system "chmod -R g+w ".$dest_dr."/*";
+
+#notify by mail of site update
+my $userlist = "trexinc\@gmail.com vskirdin\@mail.ru";
+my @head;
+push(@head, "To: trexinc\@gmail.com\n, vskirdin\@mail.ru");
+push(@head, "From: svn\@farmanager.com\n");
+push(@head, "Subject: FAR-SVN: api.farmanager.com was updated!\n");
+push(@head, "Content-Type: text/plain; charset=windows-1251\n");
+push(@head, "Content-Transfer-Encoding: 8bit\n");
+push(@head, "\n");
+
+my @body;
+push(@body, "api.farmanager.com was updated!\n");
+
+# Open a pipe to sendmail.
+my $command = "$sendmail $userlist";
+if (open(SENDMAIL, "| $command"))
+{
+  print SENDMAIL @head, @body;
+  close SENDMAIL
+  or warn "$0: error in closing `$command' for writing: $!\n";
+}
+else
+{
+  warn "$0: cannot open `| $command' for writing: $!\n";
+}
 
 exit 0;
 
