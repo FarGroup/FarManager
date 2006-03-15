@@ -15,24 +15,25 @@ AR = ar
 RANLIB = ranlib
 CXXFLAGS = -I ../../common -Wall -DWIN32 -DPCRE_STATIC -D_WIN32 -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-exceptions
 
-
 OBJS = $(patsubst %.c,$(OBJDIR)/%.o,$(filter %.c,$(SRCS)))
 DEPS = $(patsubst %.c,$(OBJDIR)/%.d,$(filter %.c,$(SRCS)))
 
 all: $(DLLFULLNAME)
 
-
 $(OBJDIR)/%.d: %.c
 	@echo making depends for $<
+	@$(MKDIR) -p $(@D)
 	@$(SHELL) -ec '$(CXX) -c -MM $(CXXFLAGS) $< \
                 | sed '\''s/\($*\)\.o[ :]*/$(REOBJDIR)\1.o $(REOBJDIR)\1.d: /g'\'' > $@; [ -s $@ ] || $(RM) $@'
 
 $(OBJDIR)/%.o: %.c
 	@echo compiling $<
+	@$(MKDIR) -p $(@D)
 	@$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 $(DLLFULLNAME): $(OBJS)
 	@echo linking $@
+	@$(MKDIR) -p $(@D)
 	@$(AR) rc $(DLLNAME) $(OBJS)
 	@$(RANLIB) $(DLLNAME)
 	@$(MV) $(DLLNAME) $(DLLDIR)

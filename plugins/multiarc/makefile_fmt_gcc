@@ -22,25 +22,26 @@ OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS))) $(OBJDIR)/$(NAME)
 DEPS = $(patsubst %.cpp,$(OBJDIR)/%.d,$(filter %.cpp,$(SRCS)))
 MAP = $(patsubst %.fmt,%.map,$(DLLFULLNAME))
 
-all: $(DLLFULLNAME) $(DEPS)
-
-$(OBJS) $(DEPS): $(OBJDIR)
-$(DLLFULLNAME): $(DLLDIR)
+all: $(DLLFULLNAME)
 
 $(OBJDIR)/%.d: %.cpp
 	@echo making depends for $<
+	@$(MKDIR) -p $(@D)
 	@$(SHELL) -ec '$(CXX) -c -MM $(CXXFLAGS) $< \
                 | sed '\''s/\($*\)\.o[ :]*/$(REOBJDIR)\1.o $(REOBJDIR)\1.d: /g'\'' > $@; [ -s $@ ] || $(RM) $@'
 
 $(OBJDIR)/%.o: %.cpp
 	@echo compiling $<
+	@$(MKDIR) -p $(@D)
 	@$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 $(OBJDIR)/$(NAME).res.o: $(NAME).rc ../common/farversion.hpp multiarcversion.hpp
+	@$(MKDIR) -p $(@D)
 	$(WINDRES) -i $< -o $@
 
 $(DLLFULLNAME): $(OBJS) $(DEF)
 	@echo linking $@
+	@$(MKDIR) -p $(@D)
 	@$(CXX) -mdll -o $(DLLNAME) -Xlinker --base-file -Xlinker $(DLLNAME).base $(OBJS) $(LNKFLAGS)
 	@$(DLLTOOL) --dllname $(DLLNAME) --base-file $(DLLNAME).base --output-exp $(DLLNAME).exp --def $(DEF)
 	@$(CXX) -mdll  -o $(DLLNAME) $(OBJS) $(DLLNAME).exp $(LNKFLAGS) -Xlinker -Map -Xlinker $(MAP)
@@ -49,8 +50,3 @@ $(DLLFULLNAME): $(OBJS) $(DEF)
 	@$(RM) $(DLLNAME).exp
 
 -include $(DEPS)
-
-$(OBJDIR):
-	@if !(test -d $@) then $(MKDIR) $@; fi
-$(DLLDIR):
-	@if !(test -d $@) then $(MKDIR) $@; fi
