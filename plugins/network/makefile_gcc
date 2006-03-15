@@ -29,7 +29,7 @@ OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS))) $(OBJDIR)/$(NAME)
 DEPS = $(patsubst %.cpp,$(OBJDIR)/%.d,$(filter %.cpp,$(SRCS)))
 MAP = $(patsubst %.dll,%.map,$(DLLFULLNAME))
 
-all: $(DLLFULLNAME) $(DEPS)
+all: $(DLLFULLNAME)
 
 $(OBJDIR)/%.d: %.cpp
 	@echo making depends for $<
