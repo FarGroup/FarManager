@@ -45,24 +45,22 @@ DEPS = $(patsubst %.cpp,$(OBJDIR)/%.d,$(filter %.cpp,$(SRCS)))
 
 all: $(DLLFULLNAME)
 
-$(OBJS) $(DEPS): $(OBJDIR)
-
 $(OBJDIR)/%.d: %.cpp
 	@echo making depends for $<
+	@$(MKDIR) -p $(@D)
 	@$(SHELL) -ec '$(CXX) -c -MM $(CXXFLAGS) $< \
                 | sed '\''s/\($*\)\.o[ :]*/$(REOBJDIR)\1.o $(REOBJDIR)\1.d: /g'\'' > $@; [ -s $@ ] || $(RM) $@'
 
 $(OBJDIR)/%.o: %.cpp
 	@echo compiling $<
+	@$(MKDIR) -p $(@D)
 	@$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 $(DLLFULLNAME): $(OBJS)
 	@echo linking $@
+	@$(MKDIR) -p $(@D)
 	@$(AR) rc $(DLLNAME) $(OBJS)
 	@$(RANLIB) $(DLLNAME)
 	@$(MV) $(DLLNAME) $(DLLDIR)
 
 -include $(DEPS)
-
-$(OBJDIR):
-	@if !(test -d $@) then $(MKDIR) $@; fi
