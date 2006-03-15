@@ -38,7 +38,7 @@ $(OBJDIR)/%.o: %.cpp
 	@$(MKDIR) -p $(@D)
 	@$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-$(OBJDIR)/$(NAME).res.o: $(NAME).rc
+$(OBJDIR)/$(NAME).res.o: $(NAME).rc ../common/farversion.hpp
 	@$(MKDIR) -p $(@D)
 	$(WINDRES) -i $< -o $@
 
