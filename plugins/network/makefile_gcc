@@ -29,7 +29,10 @@ OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS))) $(OBJDIR)/$(NAME)
 DEPS = $(patsubst %.cpp,$(OBJDIR)/%.d,$(filter %.cpp,$(SRCS)))
 MAP = $(patsubst %.dll,%.map,$(DLLFULLNAME))
 
-all: $(DLLFULLNAME)
+all: crt $(DLLFULLNAME)
+
+crt:
+	$(MAKE) -C ../common/CRT -f makefile_lib_gcc
 
 $(OBJDIR)/%.d: %.cpp
 	@echo making depends for $<
