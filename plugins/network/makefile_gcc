@@ -43,6 +43,7 @@ $(OBJDIR)/%.o: %.cpp
 	@$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 $(OBJDIR)/$(NAME).res.o: $(NAME).rc ../common/farversion.hpp
+	@$(MKDIR) -p $(@D)
 	$(WINDRES) -i $< -o $@
 
 $(DLLFULLNAME): $(OBJS) $(DEF)
