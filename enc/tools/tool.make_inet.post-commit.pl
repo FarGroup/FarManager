@@ -332,7 +332,7 @@ system "chmod -R g+w ".$dest_dr."/*";
 #notify by mail of site update
 my $userlist = "trexinc\@gmail.com vskirdin\@mail.ru";
 my @head;
-push(@head, "To: trexinc\@gmail.com\n, vskirdin\@mail.ru");
+push(@head, "To: trexinc\@gmail.com\n, vskirdin\@mail.ru\n");
 push(@head, "From: svn\@farmanager.com\n");
 push(@head, "Subject: FAR-SVN: api.farmanager.com was updated!\n");
 push(@head, "Content-Type: text/plain; charset=windows-1251\n");
