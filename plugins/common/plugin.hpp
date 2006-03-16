@@ -9,12 +9,12 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-2006 FAR group
 */
-/* Revision: 1.255 23.01.2006 $ */
+/* Revision: 1.255 16.03.2006 $ */
 
 
 #define MAKEFARVERSION(major,minor,build) ( ((major)<<8) | (minor) | ((build)<<16))
 
-#define FARMANAGERVERSION MAKEFARVERSION(1,70,2072)
+#define FARMANAGERVERSION MAKEFARVERSION(1,70,2080)
 
 
 #if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)

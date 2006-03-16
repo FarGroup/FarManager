@@ -7,10 +7,10 @@
   HKCU\Software\Far\Colors\CurrentPalette
 
   Copyright (c) 1996-2000 Eugene Roshal
-  Copyrigth (c) 2000-2005 FAR group
+  Copyrigth (c) 2000-2006 FAR group
 */
 
-/* Revision: 1.12 02.04.2005 $ */
+/* Revision: 1.12 16.03.2006 $ */
 
 
 enum PaletteColors
