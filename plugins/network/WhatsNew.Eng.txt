@@ -1,0 +1,12 @@
+---------------------------------------------------------------------------
+Netwrok Plugin 1.70 beta 6 (build 032) (16.03.2006)
+---------------------------------------------------------------------------
+
+[+] Now you can create folders inside the Favorites.
+
+---------------------------------------------------------------------------
+Netwrok Plugin 1.70 beta 6 (build 031) (30.07.2004)
+---------------------------------------------------------------------------
+
+[*] When called from the command line, the plug-in transforms a  specified
+    computer's name into upper case.
