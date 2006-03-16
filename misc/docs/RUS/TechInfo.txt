@@ -122,18 +122,17 @@ I. FAR Manager: дополнительные настройки.
    ѕо умолчанию значение = 64 позиции.
 
 1.1.9.(TechInfo #66)
-~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
    «начение     реестра     "Panel\AutoChangeFolder"      перемещено      в
    "Panel\Tree\AutoChangeFolder".  Ёто  значит,  что  опцию  "Auto   change
    folder" необходимо выставить заново.
 
 1.1.10.(TechInfo #70)
-~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\Plugins\AdvCompare]
    "CompareBufferSize":REG_DWORD
    ѕараметр "Plugins/AdvCompare/CompareBufferSize" с типом DWORD  позвол€ет
-   изменить размер буфера сравнени€ (в байтах)  плагина  Advanced  Compare,
-   дл€ ускорени€ процесса, за счет минимизации перемещений головок дисков.
+   изменить размер буфера сравнени€ (в байтах)  плагина  Advanced  Compare.
    ѕо умолчанию размер равен 32768 байтов.
 
 

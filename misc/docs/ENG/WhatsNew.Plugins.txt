@@ -10,7 +10,7 @@
 [*] Changes
 
 ---------------------------------------------------------------------------
-FAR 1.70 (build 2080) (14.03.2006)
+FAR 1.70 RC (build 2080) (16.03.2006)
 ---------------------------------------------------------------------------
    All the plugins supplied with the FAR Manager are designed only for the
 version of FAR with which they are supplied. It is not guaranteed that
@@ -33,7 +33,8 @@ MultiArc
 [!] The default settings of CAB.FMT are now designed to work with
     MsCab.exe version 0.63 or later. The latest versions of the
     archiver can be downloaded here:
-    http://plugring.farmanager.com/cgi-bin/downld.cgi?Draw=List&Select=PlugIn&SelectPlugIn=310
+    http://plugring.farmanager.com/cgi-bin/downld.cgi?Draw=List&
+    Select=PlugIn&SelectPlugIn=310
 
 [-] MultiArc sub plugins were incorrectly initialized when adding files
     to archive if the "Read archive descriptions" option was on.
@@ -171,6 +172,11 @@ Network
 [+] Added "Show ".." in the providers" option to plugin's configuration
     dialog, by default the option is on.
 
+[*] When called from the command line, the plug-in transforms a specified
+    computer's name into upper case.
+
+[+] Now you can create folders inside the Favorites.
+
 
 TmpPanel
 ~~~~~~~~
@@ -277,6 +283,12 @@ Advanced Compare
     the Advanced Compare plugin: if the hidden files aren't displayed, all
     files and folders with the Hidden attribute being compared are skipped.
 
+[+] TechInfo#70.
+
+[-] Two seconds precision option was fixed.
+
+[*] The plugin was partially rearranged, functionality was expanded.
+
 
 FTP
 ~~~
@@ -382,7 +394,8 @@ FTP
     resuming but support APPE
 
 [*] Plugin hosts panel attributes changed. Now all user highlight groups
-    applied to hosts; To set special color on host items use an "*.ftp" file mask
+    applied to hosts; To set special color on host items use an "*.ftp" file
+    mask
 
 [+] Special directory parsing in: "Komut", "PC/TCP"
 
@@ -396,7 +409,8 @@ FTP
 [-] Plugin does not correctly work with files and directories contains
     symbols like: *, ?, \, /.
 
-[+] New techinfo N16 to define characters replacement in name of downloaded files
+[+] New techinfo N16 to define characters replacement in name of downloaded
+    files
 
 [-] OS/2 parser parses size of files in right to left order
 
@@ -419,9 +433,8 @@ FTP
 [-] Parser fail if system reports unix compatibility but send
     non unix listing
 
-[+] Possible to parse listings contains month names on many languages
-    (see changes in "TechInfo*.reg".N3, see TechInfo_rus.reg for
-    full sample)
+[+] Possible to parse listings contains month names on many languages (see
+    changes in "TechInfo*.reg".N3, see TechInfo_rus.reg for full sample)
 
 [-] VMS parser does not work
 
@@ -434,12 +447,11 @@ FTP
 
 [-] Plugin removes local sources if upload cancelled
 
-[*] Some servers does not understand "LIST <params> <file>", so if
-    plugin filed to request using extended command it try to use LIST
-    without parameters.
+[*] Some servers does not understand "LIST <params> <file>", so if plugin filed
+    to request using extended command it try to use LIST without parameters.
 
-[*] Some servers do not return information on (LIST <filename>), so
-    plugin does not ask overwrite on this servers.
+[*] Some servers do not return information on (LIST <filename>), so plugin does
+    not ask overwrite on this servers.
 
 [-] Copy|move to devices (NUL) does not work
 
@@ -471,8 +483,8 @@ FTP
 [-] Sometimes plugin does not allow to terminate connection until
     timeout finish
 
-[*] Plugin set CreationTime and AccessTime to same value as ModificationTime
-    so sorting by this dates works correctly
+[*] Plugin set CreationTime and AccessTime to same value as ModificationTime so
+    sorting by this dates works correctly
 
 [-] Plugin does not split unix listings correctly
 

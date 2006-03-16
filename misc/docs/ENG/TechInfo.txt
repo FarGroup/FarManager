@@ -119,20 +119,20 @@ the main help file, that is actual for the current FAR Manager version.
    The default value is 64 positions.
 
 1.1.9.(TechInfo #66)
-~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
    The   registry   value    "Panel\AutoChangeFolder"    has    moved    to
    "Panel\Tree\AutoChangeFolder". This means that the option  "Auto  change
    folder" must be set anew.
 
 1.1.10.(TechInfo #70)
-~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\Plugins\AdvCompare]
    "CompareBufferSize":REG_DWORD
-   The key "Plugins/AdvCompare/CompareBufferSize"  of  REG_SZ  type  allows
-   change size of the buffer of the comparison (in bytes)  plugin  Advanced
-   Compare, for speedup of the process  to account of minimization  of  the
-   moving the heads disk.
+   The key "Plugins/AdvCompare/CompareBufferSize" of DWORD type  allows  to
+   change the size of the compare buffer (in bytes) of the Advanced Compare
+   plugin.
    The default value is 32768 bytes.
+
 
 
 =====================

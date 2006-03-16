@@ -9,7 +9,7 @@
 [*] Changes
 
 ---------------------------------------------------------------------------
-FAR 1.70 (build 2080) (14.03.2006)
+FAR 1.70 RC (build 2080) (16.03.2006)
 ---------------------------------------------------------------------------
 General
 ~~~~~~~
@@ -198,8 +198,8 @@ System
     read from a file after an attempt to enter it from the panels (Enter or
     Ctrl-PgDn) was made.
 
-[+] New rule - TechInfo#64 that allows to control the refresh timeout of the file
-    deletion process message box.
+[+] New rule - TechInfo#64 that allows to control the refresh timeout of the
+    file deletion process message box.
 
 [-] Dialogs were not centered correctly.
 
