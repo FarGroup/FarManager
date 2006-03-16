@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.157 12.03.2006 $ */
+/* Revision: 1.158 16.03.2006 $ */
 
 /*
 Modify:
+  16.03.2006 SVS
+    ! Уточнение диагностики парсера
   12.03.2006 SVS
     ! Добил Clip (функции 3 и 4)
     - ошибка при проверке условия (подробнее см. 02080.Mix.txt)
@@ -4118,7 +4120,7 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
         }
         else // тут $else и не предвиделось :-/
         {
-          keyMacroParseError(err_Not_expected_ELSE, CurrKeyText, CurrKeyText);
+          keyMacroParseError(err_Not_expected_ELSE, oldBufPtr+1, oldBufPtr); // CurrKeyText
           if ( CurMacro_Buffer != NULL )
           {
             xf_free(CurMacro_Buffer);
@@ -4135,7 +4137,7 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
         {
           case emmMain:
             // тут $end и не предвиделось :-/
-            keyMacroParseError(err_Not_expected_END, CurrKeyText, CurrKeyText);
+            keyMacroParseError(err_Not_expected_END, oldBufPtr+1, oldBufPtr); // CurrKeyText
             if ( CurMacro_Buffer != NULL )
             {
               xf_free(CurMacro_Buffer);

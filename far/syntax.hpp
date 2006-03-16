@@ -5,10 +5,12 @@ syntax.hpp
 
 */
 
-/* Revision: 1.04 02.03.2006 $ */
+/* Revision: 1.05 16.03.2006 $ */
 
 /*
 Modify:
+  16.03.2006 SVS
+    + err_Unexpected_function
   02.03.2006 SVS
     ! Числа в макросах имеют суть __int64
   24.04.2005 AY
@@ -165,6 +167,7 @@ struct TMacroKeywords {
 enum errParseCode
 {
   err_Unrecognised_keyword,
+  err_Unexpected_function,
   err_Not_expected_ELSE,
   err_Not_expected_END,
   err_Unexpected_EOS,

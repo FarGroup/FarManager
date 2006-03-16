@@ -5,10 +5,12 @@ syntax.cpp
 
 */
 
-/* Revision: 1.13 04.03.2006 $ */
+/* Revision: 1.14 16.03.2006 $ */
 
 /*
 Modify:
+  16.03.2006 SVS
+    ! Уточнение диагностики парсера
   04.03.2006 SVS
     + MCODE_F_CLIP (V=clip(N,S))
     ! Числа в макросах имеют суть __int64
@@ -546,6 +548,7 @@ void deleteVTable(TVarTable table)
 
 static int Size = 0;
 static unsigned long FARVar, *exprBuff = NULL;
+static int IsProcessFunc=0;
 
 static void put(unsigned long code)
 {
@@ -611,9 +614,15 @@ void keyMacroParseError(int err, const char *s, const char *p, const char *c)
 {
   if ( !_macro_nErr++ )
   {
-    ErrMessage[0][0]=ErrMessage[1][0]=ErrMessage[2][0]=0;
-    sprintf(ErrMessage[0],MSG(MMacroPErrUnrecognised_keyword+err),c);
     int oPos = 0, ePos = (int)(s-p);
+    ErrMessage[0][0]=ErrMessage[1][0]=ErrMessage[2][0]=0;
+    if ( ePos < 0 )
+    {
+      xstrncpy(ErrMessage[0],MSG(MMacroPErrExpr_Expected),sizeof(ErrMessage[0])-1); // TODO!!!
+      return;
+    }
+
+    sprintf(ErrMessage[0],MSG(MMacroPErrUnrecognised_keyword+err),c);
     if ( ePos > 61 )
     {
       oPos = ePos-50;
@@ -633,7 +642,10 @@ void keyMacroParseError(int err, const char *s, const char *p, const char *c)
   }
 }
 
-void keyMacroParseError(int err, const char *c = NULL) { keyMacroParseError(err, sSrcString, pSrcString, c); }
+void keyMacroParseError(int err, const char *c = NULL) {
+  keyMacroParseError(err, oSrcString, pSrcString, c);
+  //                      ^ s?
+}
 //-----------------------------------------------
 
 static int getNextChar()
@@ -716,6 +728,7 @@ static void calcFunc(void)
   TFunction nFunc = (TFunction)funcLook(nameString, nParam);
   if ( nFunc != MCODE_F_NOFUNC )
   {
+    IsProcessFunc++;
     if ( nParam )
     {
       for ( int i = 0 ; i < nParam ; i++ )
@@ -742,6 +755,11 @@ static void calcFunc(void)
       }
     }
     put(nFunc);
+    IsProcessFunc--;
+  }
+  else if(currTok == tFunc)
+  {
+    keyMacroParseError(err_Unexpected_function, nameString);
   }
 }
 
@@ -971,7 +989,7 @@ static TToken getToken(void)
         return currTok = tVar;
       }
       else
-        keyMacroParseError(err_Var_Expected,nameString);
+        keyMacroParseError(err_Var_Expected,"");//nameString); // BUG nameString
       break;
     default:
       if ( isalpha(ch) )
@@ -993,14 +1011,10 @@ static TToken getToken(void)
               FARVar = MKeywords[i].Value;
               return currTok = tFARVar;
             }
-          if(KeyNameToKey(nameString) == -1)
-          {
-#if !defined(TEST000)
+          if(IsProcessFunc || currTok == tFunc || currTok == tLt) // TODO: уточнить
             keyMacroParseError(err_Var_Expected,oSrcString,pSrcString,nameString);
-#else
+          else if(KeyNameToKey(nameString) == -1)
             keyMacroParseError(err_Unrecognised_keyword,nameString);
-#endif
-          }
         }
       }
       break;
@@ -1122,6 +1136,7 @@ static void expr(void)
 int parseExpr(const char*& BufPtr, unsigned long *eBuff, char bound1, char bound2)
 {
   char tmp[4];
+  IsProcessFunc=0;
   Size = _macro_nErr = 0;
   while ( *BufPtr && isspace(*BufPtr) )
     BufPtr++;
