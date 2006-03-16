@@ -14,7 +14,7 @@
 
 #define MAKEFARVERSION(major,minor,build) ( ((major)<<8) | (minor) | ((build)<<16))
 
-#define FARMANAGERVERSION MAKEFARVERSION(1,70,2080)
+#define FARMANAGERVERSION MAKEFARVERSION(1,70,2082)
 
 
 #if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
@@ -64,6 +64,9 @@
 #else
   #pragma pack(push,2)
   #if _MSC_VER
+    #ifdef _export
+      #undef _export
+    #endif
     #define _export
   #endif
 #endif
