@@ -330,13 +330,8 @@ Copy/Move
 
 [+] Operations Filter was added to the copy/move dialog.
 
-[!] "Copy access rights" option is checked by default for copy and move
-    operations. If this option is unchecked then after copying/moving the
-    inheritable access rights of the parent folder will be applied to the
-    copied/moved files and folders. Additionally see TechInfo#65.
-
-[+] New rule - TechInfo#69. Allows to control the "Copy access rights" option
-    in the copy/move dialog.
+[!] "Copy access rights" option was redesigned. Additionally see TechInfo#65
+    and TechInfo#69.
 
 [-] When creating a symbolic link to a folder a file of the same name was
     deleted (if the name of the symbolic link collided with the name of an
@@ -352,14 +347,6 @@ Copy/Move
     In Windows 2000 the internal copying mechanism will be used for copying
     encrypted files outside of the current disk with no regard to the "Use
     system copy routine" option.
-
-[*] Option "Copy access rights" has being renamed to "Inheriting of access
-    rights".
-    This option has 3 states when moving:
-       [x] Save old access rights
-       [ ]  Inherit access rights from new parental folder
-       [?] Leave default access rights
-    The last state is used for moving outside of the current disk
 
 
 File attributes
