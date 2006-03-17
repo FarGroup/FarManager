@@ -36,7 +36,7 @@ void InitializeNetFunction(void)
   static BOOL Init=FALSE;
   if(Init) return;
 
-  if(!hMpr32 && !(hMpr32 = GetModuleHandle("Mpr")))
+  if(!hMpr32 && 0==(hMpr32 = GetModuleHandle("Mpr")))
     hMpr32 = LoadLibrary("Mpr");
 
   if(!FWNetGetResourceInformation)
@@ -47,7 +47,7 @@ void InitializeNetFunction(void)
 
   if (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
   {
-    if(!hNetApi && !(hNetApi = GetModuleHandle("netapi32")))
+    if(!hNetApi && 0==(hNetApi = GetModuleHandle("netapi32")))
       hNetApi = LoadLibrary("netapi32");
 
     if(!FNetApiBufferFree)
@@ -65,7 +65,7 @@ void InitializeNetFunction(void)
       FWNetGetResourceParent;
   }
   else {
-    if (!hSvrApi && !(hSvrApi = GetModuleHandle ("svrapi")))
+    if (!hSvrApi && 0!=(hSvrApi = GetModuleHandle ("svrapi")))
       hSvrApi = LoadLibrary ("svrapi");
 
     if (!FNetShareEnum95)
@@ -172,6 +172,7 @@ BOOL DlgCreateFolder(char* lpBuffer, int nBufferSize)
   return res;
 }
 
+/* NO NEED THIS
 char* NextToken(char *szSource, char *szToken, int nBuff)
 {
   if(!szSource||!szToken)
@@ -179,3 +180,4 @@ char* NextToken(char *szSource, char *szToken, int nBuff)
   lstrcpyn(szToken, szSource, nBuff);
   return szSource + lstrlen(szSource);
 }
+*/

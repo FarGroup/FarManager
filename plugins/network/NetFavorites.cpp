@@ -358,7 +358,7 @@ BOOL GetFavoriteResource(char *SrcName, LPNETRESOURCE DstNetResource)
   return FALSE;
 }
 
-BOOL RemoveFromFavorites(char *SrcName, LPREMOVEFROMFAVCB pUserCallBack, LPVOID pUserData)
+BOOL RemoveFromFavorites(char *SrcName, LPREMOVEFROMFAVCB /*pUserCallBack*/, LPVOID /*pUserData*/)
 {
   char *p = strchr(SrcName, '\\');
   if(p)

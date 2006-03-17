@@ -1,6 +1,17 @@
 #ifndef __NETREG_HPP__
 #define __NETREG_HPP__
+
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4121)
+#endif
+
 #include <windows.h>
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+
 
 HKEY CreateRegKey(HKEY hRoot,const char *Key);
 HKEY OpenRegKey(HKEY hRoot,const char *Key);

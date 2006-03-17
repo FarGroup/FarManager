@@ -133,7 +133,7 @@ BOOL NetResourceList::Enumerate (DWORD dwScope, DWORD dwType, DWORD dwUsage,
     return FALSE;
 
   BOOL EnumFailed = FALSE;
-  while (1)
+  for(;;)
   {
     NETRESOURCE nr[1024];
     DWORD NetSize=sizeof(nr),NetCount=sizeof(nr)/sizeof(nr[0]);
@@ -407,7 +407,7 @@ void NetBrowser::FreeFindData(PluginPanelItem *PanelItem,int ItemsNumber)
 }
 
 
-int NetBrowser::ProcessEvent (int Event, void *Param)
+int NetBrowser::ProcessEvent (int Event, void* /*Param*/)
 {
   if (Event == FE_CLOSE)
   {
@@ -431,7 +431,7 @@ int NetBrowser::ProcessEvent (int Event, void *Param)
 
 
 int NetBrowser::DeleteFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
-                            int OpMode)
+                            int /*OpMode*/)
 {
   if (CheckFavoriteItem(PCurResource))
   {
@@ -1279,7 +1279,7 @@ BOOL NetBrowser::MapNetworkDrive (char *RemoteName, BOOL AskDrive, BOOL Permanen
     newnr.lpRemoteName=AnsiRemoteName;
     newnr.lpProvider=NULL;
 
-    while (1)
+    for(;;)
     {
       if(IsReadable(AnsiRemoteName))
       {
@@ -1333,7 +1333,7 @@ BOOL NetBrowser::MapNetworkDrive (char *RemoteName, BOOL AskDrive, BOOL Permanen
 BOOL NetBrowser::AskMapDrive (char *NewLocalName, BOOL &Permanent)
 {
   int ExitCode = 0;
-  while (1)
+  for(;;)
   {
     struct FarMenuItem MenuItems['Z'-'A'+1];
     int MenuItemsNumber=0;
@@ -1379,7 +1379,7 @@ BOOL NetBrowser::AskMapDrive (char *NewLocalName, BOOL &Permanent)
 void NetBrowser::GetFreeLetter(DWORD &DriveMask,char *DiskName)
 {
   *DiskName=0;
-  for (int I=2;I<='Z'-'A';I++)
+  for (char I=2;I<='Z'-'A';I++)
     if ((DriveMask & (1<<I))==0)
     {
       DriveMask |= 1<<I;
@@ -1430,7 +1430,7 @@ int NetBrowser::AddConnectionExplicit (NETRESOURCE *nr, int Remember)
 
 int NetBrowser::AddConnectionWithLogon(NETRESOURCE *nr, char *Name, char *Password, int Remember)
 {
-  while(1)
+  for(;;)
   {
     if(NO_ERROR == WNetAddConnection2(nr,Password,*Name ? Name:NULL,(Remember?CONNECT_UPDATE_PROFILE:0)))
     {
@@ -1601,7 +1601,7 @@ int NetBrowser::GetNameAndPassword(char *Title,char *Name,char *Password,BOOL *p
     {DI_TEXT,5,4,0,0,0,0,0,0,(char *)MNetUserPassword},
     {DI_PSWEDIT,5,5,70,3,0,0,0,0,""},
     {DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
-    {DI_CHECKBOX,5,7,0,0,0,0,DIF_DISABLE,0,(char *)MRememberPass},
+    {DI_CHECKBOX,5,7,0,0,0,0,(DWORD)DIF_DISABLE,0,(char *)MRememberPass},
     {DI_BUTTON,0,8,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk},
     {DI_BUTTON,0,8,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel}
   };

@@ -96,7 +96,7 @@ void NetBrowser::GetHideShare95()
     NETRESOURCE nr [256];
     USHORT nEntriesRead, nTotalEntries;
 
-    int cbBuffer = MAX_ENTRIES * sizeof (share_info_1);
+    USHORT cbBuffer = MAX_ENTRIES * sizeof (share_info_1);
     share_info_1 *pBuf = (share_info_1 *) malloc (cbBuffer);
     NET_API_STATUS nStatus = FNetShareEnum95 (PCurResource->lpRemoteName, 1,
       (char *) pBuf, cbBuffer, &nEntriesRead, &nTotalEntries);

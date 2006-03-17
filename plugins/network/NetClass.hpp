@@ -1,10 +1,19 @@
 #ifndef __NETCLASS_HPP__
 #define __NETCLASS_HPP__
 
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4121)
+#endif // _MSC_VER
+
 #define _FAR_USE_FARFINDDATA
 #include "plugin.hpp"
 #ifdef NETWORK_LOGGING
 #include <stdio.h>
+#endif
+
+#ifdef _MSC_VER
+#pragma warning(pop)
 #endif
 
 class NetResourceList
