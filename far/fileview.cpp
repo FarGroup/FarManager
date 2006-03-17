@@ -5,10 +5,13 @@ fileview.cpp
 
 */
 
-/* Revision: 1.73 02.03.2006 $ */
+/* Revision: 1.74 17.03.2006 $ */
 
 /*
 Modify:
+  17.03.2006 SVS
+    - Если файл не удалось открыть (например C:\WINNT\system32\config\system),
+      то область макроса оставалась той же (т.е. Вьювер).
   02.03.2006 SVS
     ! Явно зададит область действия макроса
   28.10.2005 SVS
@@ -247,18 +250,14 @@ void FileViewer::Init(const char *name,int EnableSwitch,int disableHistory, ///
   RedrawTitle = FALSE;
   ViewKeyBar.SetOwner(this);
   ViewKeyBar.SetPosition(X1,Y2,X2,Y2);
-  /* $ 07.05.2001 DJ */
   KeyBarVisible = Opt.ViOpt.ShowKeyBar;
-  /* DJ $ */
-  /* $ 20.05.2001 DJ */
+
+  int OldMacroMode=CtrlObject->Macro.GetMode();
   MacroMode = MACRO_VIEWER;
   CtrlObject->Macro.SetMode(MACRO_VIEWER);
-  /* DJ $ */
+
   View.SetPluginData(PluginData);
-  /* $ 07.08.2000 SVS
-  */
   View.SetHostFileViewer(this);
-  /* SVS $ */
 
   DisableHistory=disableHistory; ///
   xstrncpy(Name,name,sizeof(Name)-1); ///
@@ -271,23 +270,14 @@ void FileViewer::Init(const char *name,int EnableSwitch,int disableHistory, ///
   SaveToSaveAs=ToSaveAs;
   /* KM $ */
 
-  /* $ 07.08.2000 SVS
-    ! Код, касаемый KeyBar вынесен в отдельную функцию */
   InitKeyBar();
-  /* SVS $*/
 
-  /* $ 04.07.2000 tran
-     + add TRUE as 'warning' parameter */
-  if (!View.OpenFile(Name,TRUE))
-  /* tran 04.07.2000 $ */
+  if (!View.OpenFile(Name,TRUE)) // $ 04.07.2000 tran + add TRUE as 'warning' parameter
   {
-    /* $ 26.03.2002 DJ
-       при неудаче открытия - не пишем мусор в историю
-    */
-    DisableHistory = TRUE;
-    /* DJ $ */
+    DisableHistory = TRUE; // $ 26.03.2002 DJ - при неудаче открытия - не пишем мусор в историю
     // FrameManager->DeleteFrame(this); // ЗАЧЕМ? Вьювер то еще не помещен в очередь манагера!
     ExitCode=FALSE;
+    CtrlObject->Macro.SetMode(OldMacroMode);
     return;
   }
 
@@ -297,12 +287,8 @@ void FileViewer::Init(const char *name,int EnableSwitch,int disableHistory, ///
     View.SetNamesList(ViewNamesList);
   ExitCode=TRUE;
   ViewKeyBar.Show();
-  /* $ 15.07.2000 tran
-     dirty trick :( */
   if ( Opt.ViOpt.ShowKeyBar==0 )
     ViewKeyBar.Hide0();
-  /* tran 15.07.2000 $ */
-
 
   sprintf(NewTitle,MSG(MInViewer),PointToName(Name));
   SetFarTitle(NewTitle);
