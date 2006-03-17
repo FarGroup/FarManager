@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.158 16.03.2006 $ */
+/* Revision: 1.159 17.03.2006 $ */
 
 /*
 Modify:
+  17.03.2006 SVS
+    ! UnrecogniSed (s -> z)
   16.03.2006 SVS
     ! Уточнение диагностики парсера
   12.03.2006 SVS
@@ -3921,7 +3923,7 @@ static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, con
       if(ProcError)
       {
         if(!_macro_nErr)
-          keyMacroParseError(err_Unrecognised_keyword, CurrKeyText, CurrKeyText,CurrKeyText);
+          keyMacroParseError(err_Unrecognized_keyword, CurrKeyText, CurrKeyText,CurrKeyText);
 
         if ( CurMacro_Buffer != NULL )
         {

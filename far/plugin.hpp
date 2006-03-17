@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.255 23.01.2006 $ */
+/* Revision: 1.256 17.03.2006 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  17.03.2006 AY
+    + #undef _export для _MSC_VER
   23.01.2006 SVS
     + PKF_PREPROCESS - выставляется у VK (второй параметр ProcessKey), говорит о том, что это предобработка
   30.05.2005 SVS
@@ -858,6 +860,9 @@ Modify:
 #else
   #pragma pack(push,2)
   #if _MSC_VER
+    #ifdef _export
+      #undef _export
+    #endif
     #define _export
   #endif
 #endif

@@ -5,10 +5,13 @@ syntax.cpp
 
 */
 
-/* Revision: 1.14 16.03.2006 $ */
+/* Revision: 1.15 17.03.2006 $ */
 
 /*
 Modify:
+  17.03.2006 AY & SVS
+    ! UnrecogniSed (s -> z)
+    ! err_Unexpected_function -> err_Unrecognized_function
   16.03.2006 SVS
     ! Уточнение диагностики парсера
   04.03.2006 SVS
@@ -622,7 +625,7 @@ void keyMacroParseError(int err, const char *s, const char *p, const char *c)
       return;
     }
 
-    sprintf(ErrMessage[0],MSG(MMacroPErrUnrecognised_keyword+err),c);
+    sprintf(ErrMessage[0],MSG(MMacroPErrUnrecognized_keyword+err),c);
     if ( ePos > 61 )
     {
       oPos = ePos-50;
@@ -759,7 +762,7 @@ static void calcFunc(void)
   }
   else if(currTok == tFunc)
   {
-    keyMacroParseError(err_Unexpected_function, nameString);
+    keyMacroParseError(err_Unrecognized_function, nameString);
   }
 }
 
@@ -1014,7 +1017,7 @@ static TToken getToken(void)
           if(IsProcessFunc || currTok == tFunc || currTok == tLt) // TODO: уточнить
             keyMacroParseError(err_Var_Expected,oSrcString,pSrcString,nameString);
           else if(KeyNameToKey(nameString) == -1)
-            keyMacroParseError(err_Unrecognised_keyword,nameString);
+            keyMacroParseError(err_Unrecognized_keyword,nameString);
         }
       }
       break;

@@ -5,10 +5,13 @@ syntax.hpp
 
 */
 
-/* Revision: 1.05 16.03.2006 $ */
+/* Revision: 1.06 17.03.2006 $ */
 
 /*
 Modify:
+  17.03.2006 SVS
+    ! UnrecogniSed (s -> z)
+    ! err_Unexpected_function -> err_Unrecognized_function
   16.03.2006 SVS
     + err_Unexpected_function
   02.03.2006 SVS
@@ -166,8 +169,8 @@ struct TMacroKeywords {
 
 enum errParseCode
 {
-  err_Unrecognised_keyword,
-  err_Unexpected_function,
+  err_Unrecognized_keyword,
+  err_Unrecognized_function,
   err_Not_expected_ELSE,
   err_Not_expected_END,
   err_Unexpected_EOS,
