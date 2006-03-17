@@ -9,7 +9,7 @@
   Copyrigth (c) 2000-<%YEAR%> FAR group
 */
 
-/* Revision: 1.10 06.05.2003 $ */
+/* Revision: 1.11 17.03.2006 $ */
 
 #if defined(__BORLANDC__)
   #pragma option -a2
@@ -21,6 +21,9 @@
 #else
   #pragma pack(push,2)
   #if _MSC_VER
+    #ifdef _export
+      #undef _export
+    #endif
     #define _export
   #endif
 #endif
