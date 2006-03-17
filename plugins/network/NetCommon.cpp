@@ -65,7 +65,7 @@ void InitializeNetFunction(void)
       FWNetGetResourceParent;
   }
   else {
-    if (!hSvrApi && 0!=(hSvrApi = GetModuleHandle ("svrapi")))
+    if (!hSvrApi && 0==(hSvrApi = GetModuleHandle ("svrapi")))
       hSvrApi = LoadLibrary ("svrapi");
 
     if (!FNetShareEnum95)
