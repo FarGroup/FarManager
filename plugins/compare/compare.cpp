@@ -248,7 +248,7 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
     /* 1*/ { DI_TEXT,         5,  2,  0,  0, MProcessBox,              0, NULL,                                   0, NULL },
     /* 2*/ { DI_CHECKBOX,     5,  3,  0,  0, MProcessSubfolders,       0, "ProcessSubfolders",                    0, &Opt.ProcessSubfolders },
     /* 3*/ { DI_CHECKBOX,     9,  4,  0,  0, MUseMaxScanDepth,         0, "UseMaxScanDepth",                      0, &Opt.UseMaxScanDepth },
-    /* 4*/ { DI_FIXEDIT,      0,  4,  5,  0, MNoLngStringDefined,     99, "MaxScanDepth",                         0, &Opt.MaxScanDepth },
+    /* 4*/ { DI_FIXEDIT,      0,  4,  5,  0, MNoLngStringDefined,     99, "MaxScanDepth",              DIF_MASKEDIT, &Opt.MaxScanDepth },
     /* 5*/ { DI_CHECKBOX,     5,  5,  0,  0, MProcessSelected,         0, "ProcessSelected",                      0, &Opt.ProcessSelected },
     /* 6*/ { DI_TEXT,         0,  6,  0,  0, MNoLngStringDefined,      0, NULL,                       DIF_SEPARATOR, NULL },
     /* 7*/ { DI_TEXT,         5,  7,  0,  0, MCompareBox,              0, NULL,                                   0, NULL },
