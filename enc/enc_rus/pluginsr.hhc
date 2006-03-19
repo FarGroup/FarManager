@@ -2321,6 +2321,11 @@
                 </OBJECT>
         <UL>
                 <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="Как компилировать с помощью Borland C++ 5.5 без startup code">
+                        <param name="Local" value="html/articles/essay.html">
+                        <param name="ImageNumber" value="11">
+                        </OBJECT>
+                <LI> <OBJECT type="text/sitemap">
                         <param name="Name" value="Собственные типы колонок на панели плагина">
                         <param name="Local" value="html/articles/column_types.html">
                         <param name="ImageNumber" value="11">
@@ -2333,6 +2338,11 @@
                 <LI> <OBJECT type="text/sitemap">
                         <param name="Name" value="Плагин для разных версий FAR Manager">
                         <param name="Local" value="html/articles/good_version.html">
+                        <param name="ImageNumber" value="11">
+                        </OBJECT>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="Как настроить Alignment (extended)">
+                        <param name="Local" value="html/articles/alignment2.html">
                         <param name="ImageNumber" value="11">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
