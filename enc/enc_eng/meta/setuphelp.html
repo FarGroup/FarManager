@@ -67,9 +67,7 @@ topic about its setup.
     Separate .chm and .chi are good only if you keep the text on removable media
 while having index (.chi) set up. But it's meaningless for Encyclopedia taking
 into account its small size. A "monolithic" .chm also contains an index, so it's
-easy to link it (<em>this information is relevant for build 1282 and earlier, since
-the Encyclopedia is distributed now as a two-file set: pluginsr.chm
-is the Encyclopedia itself, and pluginsr.chi is the index</em>)
+easy to link it.
 
     To incorporate it into the MSDN collection you must consider that *.col describes
 the collection definition (logical structure) on the sections (Folders) level, while
@@ -84,7 +82,6 @@ Windows 2000 English, Visual Studio 6 SP3, MSDN Jan 2000, HTML Help Control 4.74
 Encyclopedia:
 D:\Program Files\Far\PlugDoc\
   pluginsr.chm
-(<em>and pluginsr.chi also for two-file set</em>)
 
 Collection (this path you can find in the MSDN desktop link):
 D:\Program Files\mvs\MSDN\2000JAN\1033\
@@ -161,7 +158,6 @@ section), and add the file information to the &lt;DocCompilations&gt; section:
 &gt;    &lt;ColNum value=10003/&gt;
 &gt;    &lt;TitleLocation value="D:\Program Files\Far\PlugDoc\pluginsr.chm"/&gt;
 &gt;    &lt;IndexLocation value="D:\Program Files\Far\PlugDoc\pluginsr.chm"/&gt;
-</b>(<em>pluginsr.chi must be in the IndexLocation value as for now</em>)<b>
 &gt;    &lt;QueryLocation value=""/&gt;
 &gt;    &lt;LocationRef value=""/&gt;
 &gt;    &lt;Version value=0/&gt;
@@ -244,4 +240,3 @@ path in plug-in settings and it will use MSDN collection!</p>
 
 </body>
 </html>
-
