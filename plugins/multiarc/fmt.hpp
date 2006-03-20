@@ -6,7 +6,7 @@
   Archive Support API for FAR Manager 1.70 and MultiArc plugin
 
   Copyright (c) 1996-2000 Eugene Roshal
-  Copyrigth (c) 2000-<%YEAR%> FAR group
+  Copyrigth (c) 2000-2006 FAR group
 */
 
 /* Revision: 1.11 17.03.2006 $ */

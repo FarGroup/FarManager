@@ -1,62 +1,63 @@
-(********************************************************
+(**************************************************************
 * FMT.PAS
 * Archive Support API for FAR Manager 1.70 and MultiArc plugin
-* Revision: 1.10 06.05.2003 $
+* Revision: 1.11 21.03.2006 $
 *
 * Copyright (c) 1996-2000 Eugene Roshal
-* Copyrigth (c) 2000-<%YEAR%> FAR group
-* Translated by Vasily V. Moshninov
-*********************************************************)
+* Copyrigth (c) 2000-2006 FAR group
+* Translated by WARP ItSelf
+**************************************************************)
 
-{$ALIGN OFF}
-{$MINENUMSIZE 4}
+{$IFNDEF VIRTUALPASCAL}
+   {$ALIGN OFF}
+   {$MINENUMSIZE 4}
+{$ENDIF}
 
-unit fmt;
+unit Fmt;
 
 interface
-uses windows;
+
+uses Windows;
 
 const
-  GETARC_EOF       = 0;
-  GETARC_SUCCESS   = 1;
-  GETARC_BROKEN    = 2;
-  GETARC_UNEXPEOF  = 3;
-  GETARC_READERROR = 4;
+   GETARC_EOF       = 0;
+   GETARC_SUCCESS   = 1;
+   GETARC_BROKEN    = 2;
+   GETARC_UNEXPEOF  = 3;
+   GETARC_READERROR = 4;
+
 
 type
-
-  TArcItemInfo = packed record
-    HostOS: packed array[0..31] of char;
-    Description: packed array[0..255] of char;
-    Solid: integer;
-    Comment: integer;
-    Encrypted: integer;
-    DictSize: integer;
-    UnpVer: integer;
-    Chapter: integer;
-  end; { TArcItemInfo record }
-  PArcItemInfo = ^TArcItemInfo;
-
+   PArcItemInfo = ^TArcItemInfo;
+   TArcItemInfo = packed record
+      HostOS : array [0..31] of Char;
+      Description : array [0..255] of Char;
+      Solid : Integer;
+      Comment : Integer;
+      Encrypted : Integer;
+      DictSize : Integer;
+      UnpVer : Integer;
+      Chapter : Integer;
+   end;
 
 const
-// ARCINFO_FLAGS
-  AF_AVPRESENT    = 1;
-  AF_IGNOREERRORS = 2;
+   AF_AVPRESENT    = $00000001;
+   AF_IGNOREERRORS = $00000002;
+   AF_HDRENCRYPTED = $00000080;
 
 type
+   PArcInfo = ^TArcInfo;
+   TArcInfo = packed record
+      SFXSize : Integer;
+      Volume : Integer;
+      Comment : Integer;
+      Recovery : Integer;
+      Lock : Integer;
+      Flags : Cardinal;
+      Reserved : Cardinal;
+      Chapters : Integer;
+   end;
 
-  TArcInfo = packed record
-    SFXSize: integer;
-    Volume: integer;
-    Comment: integer;
-    Recovery: integer;
-    Lock: integer;
-    Flags: DWORD;
-    Reserved: DWORD;
-    Chapters: integer;
-  end; { TArcInfo record }
-  PArcInfo = ^TArcInfo;
 
 implementation
-
 end.
