@@ -287,7 +287,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
   Item->CRC32=ZipHeader.CRC;
   FILETIME lft;
   DosDateTimeToFileTime(HIWORD(ZipHeader.ftime),LOWORD(ZipHeader.ftime),&lft);
-  //LocalFileTimeToFileTime(&lft,&Item->FindData.ftLastWriteTime);
+  LocalFileTimeToFileTime(&lft,&Item->FindData.ftLastWriteTime);
   if (ZipHeader.Flags & 1)
     Info->Encrypted=TRUE;
   if (ZipHeader.CommLen > 0)
