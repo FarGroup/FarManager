@@ -10,7 +10,7 @@
   Copyrigth (c) 2000-2006 FAR group
 */
 
-/* Revision: 1.12 17.03.2006 $ */
+/* Revision: 1.12 21.03.2006 $ */
 
 
 enum PaletteColors
