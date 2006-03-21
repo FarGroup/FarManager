@@ -341,8 +341,8 @@ int OpenFromCommandLine(char *_farcmd)
         //      ^---farcmd
         char *oBracket;
         BracketsOk=FALSE;
-//      if((oBracket=strchr(farcmd,'[')) != 0)
-        if(*(oBracket=farcmd) == '[')
+        oBracket=strchr(farcmd,'[');
+        if(oBracket && oBracket<strstr(farcmd,Opt.Separator))
         {
           if((cBracket=strchr(oBracket,']')) != 0 && oBracket < cBracket)
           {
