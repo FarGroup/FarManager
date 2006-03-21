@@ -133,6 +133,25 @@ the main help file, that is actual for the current FAR Manager version.
    plugin.
    The default value is 32768 bytes.
 
+1.1.11.(TechInfo #71)
+~~~~~~~~~~~~~~~~~~~~~
+   [HKEY_CURRENT_USER\Software\Far\Plugins\MultiArc\TryIfNoOther]
+   "fmt-module-name":REG_DWORD
+   This parameter of DWORD type decreases the priority of the corresponding
+   fmt-module in the  process  of  selecting  the  appropriate  module  for
+   handling the archive.
+   Usually it should be applied to custom.fmt, wcx.fmt and upx.fmt.
+   Possible values:
+     0  - normal priority (default);
+     1  - lower priority.
+   The search order is  all  normal-priority  modules,  then  the  rest  if
+   needed.
+   Example:
+   Headers of some SFX rar-archives are compressed with UPX. If the upx.fmt
+   is present the archive is first opened as a compressed exe-file and then
+   as rar-sfx. If "upx.fmt"=dword:1 such an archive will be treated  as  an
+   usual rar-sfx. Compressed exe-files that are not rar SFX will  still  be
+   handled by upx.fmt.
 
 
 =====================
