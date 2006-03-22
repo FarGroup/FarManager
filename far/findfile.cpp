@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.183 21.01.2006 $ */
+/* Revision: 1.184 22.03.2006 $ */
 
 /*
 Modify:
+  22.03.2006 AY
+    - Хекс поиск файлов не переводил найденные файлы в темп панель.
   21.01.2006 AY
     ! Поиск в Юникоде при поиске по всем таблицам пропускал куски от файла.
     ! Поиск по всем таблицам мог работать совершенно неправильно если файл был
@@ -2196,17 +2198,9 @@ int FindFiles::FindFilesProcess()
           // панель сама уберет лишние дубли.
           int IsArchive = ((FindList[i].ArcIndex != LIST_INDEX_NONE) &&
                           !(ArcList[FindList[i].ArcIndex].Flags&OPIF_REALNAMES));
-          // Добавляем только файлы или имена архивов
-          /* $ 24.09.2003 KM
-             Если включен режим поиска hex-кодов, тогда папки в поиск не включаем
-          */
-          /* $ 13.11.2001 VVM
-            ! Хм. Добавим папки, если их искали... */
-          if (IsArchive || Opt.FindOpt.FindFolders ||
-              !(FindList[i].FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) &&
-              !SearchHex)
-          /* VVM $ */
-          /* KM $ */
+          // Добавляем только файлы или имена архивов или папки когда просили
+          if (IsArchive || (Opt.FindOpt.FindFolders && !SearchHex) ||
+              !(FindList[i].FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
           {
             if (IsArchive)
               xstrncpy(FindList[i].FindData.cFileName, ArcList[FindList[i].ArcIndex].ArcName,
