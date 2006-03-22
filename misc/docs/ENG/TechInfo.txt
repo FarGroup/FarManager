@@ -66,14 +66,15 @@ the main help file, that is actual for the current FAR Manager version.
 1.1.3.(TechInfo #22)
 ~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\KeyMacros]
-   The documentation on macros has been moved into Macros.txt.
+   The documentation on macros has been  moved  to  the  "Encyclopedia  for
+   Developers".
 
 1.1.4.(TechInfo #28)
 ~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\Colors]
    The registry branch describing file highlighting
    [HKEY_CURRENT_USER\Software\Far\Highlight]
-   has been moved as a subbranch into
+   has been moved as a sub-branch into
    [HKEY_CURRENT_USER\Software\Far\Colors\Highlight].
 
 1.1.5.(TechInfo #35)
@@ -760,7 +761,7 @@ the main help file, that is actual for the current FAR Manager version.
    The default value is 50 ms.
 
 1.5.5.(TechInfo #65)
-~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\Interface]
    "ShowTimeoutDACLFiles":REG_DWORD
    The key "Interface/ShowTimeoutDACLFiles" of DWORD type allows to control
@@ -1013,14 +1014,14 @@ appliance to FAR Manager.
 
 
 2.0.(TechInfo #57)
-~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
    If the  [HKEY_CLASSES_ROOT\Directory\shellex\CopyHookHandlers]  registry
    key is empty FAR removes it when started.
    If this key is empty then FAR will crash  when  deleting  files  to  the
    recycle bin.
 
 2.1.(TechInfo #58)
-~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Control Panel\Desktop]
    "AutoEndTasks":REG_DWORD
    System: Automatically Close Hung Applications.
@@ -1039,7 +1040,7 @@ appliance to FAR Manager.
 
 
 2.2.(TechInfo #59)
-~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Microsoft\Command Processor]
    "DisableUNCCheck":REG_DWORD
    (applies only to NT4/W2k/XP/2003 and cmd.exe)

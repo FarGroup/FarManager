@@ -18,7 +18,7 @@ General
     mode, the command line parameter /8 can be used.
 
 [!] For more details on the Plugin API changes, read the documentation
-    in PlugDoc\WhatsNew.txt.
+    in WhatsNew.Api.txt.
 
 [!] Running "old" FAR versions (older than 1.70 build 1784) with the auto
     save setup setting set (or manually saving the setup - Shift-F9)
@@ -154,8 +154,7 @@ System
 [+] Added the "Wipe" command to the "Files" menu. Alt-Del within a
     terminal session was intercepted by the terminal.
 
-[+] New rule - TechInfo#58, allows to set the maximal height for dialog
-    history lists.
+[+] New rule - TechInfo#58 - System: Automatically close hung applications.
 
 [-] The Gray-* combination was used to check regular 2-state checkboxes
     in dialogs. Now it only affects 3-state checkboxes.
@@ -484,7 +483,7 @@ Macros
        and playing back macros (Ctrl-. to start recording).
     2. Special mode: keystrokes are not passed to plugins while recording
        and playing back (Ctrl-Shift-. to start recording).
-    See the help and Macros.txt for details.
+    See help for details.
 
 
 [-] Statement '$Date' was working incorrectly. '$Date "%c"' was returning
@@ -555,7 +554,7 @@ Addons
 Plugins
 ~~~~~~~
 [!] Changes and additions to standard plugins (for more information see
-    Plugins\WhatsNew[.Rus].txt).
+    WhatsNew.Plugins.txt).
 
 
 ---------------------------------------------------------------------------

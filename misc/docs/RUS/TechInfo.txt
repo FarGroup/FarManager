@@ -65,7 +65,7 @@ I. FAR Manager: дополнительные настройки.
 1.1.3.(TechInfo #22)
 ~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\KeyMacros]
-   Информация о макросах перенесена в документ Macros[.Rus].txt
+   Информация о макросах перенесена в "Encyclopedia for Developers".
 
 1.1.4.(TechInfo #28)
 ~~~~~~~~~~~~~~~~~~~~
@@ -796,7 +796,7 @@ I. FAR Manager: дополнительные настройки.
    По умолчанию значение = 50 мс.
 
 1.5.5.(TechInfo #65)
-~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\Interface]
    "ShowTimeoutDACLFiles":REG_DWORD
    Параметр  "Interface/ShowTimeoutDACLFiles"  с  типом   DWORD   позволяет
@@ -1057,7 +1057,6 @@ II. Windows: настройки влияющие на работу FAR Manager.
 ~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Control Panel\Desktop]
    "AutoEndTasks":REG_DWORD
-
    System: Automatically Close Hung Applications
    Эта  опция  используется  для  автоматического  закрытия   без   всякого
    предупреждения всех зависших программ.
