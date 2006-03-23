@@ -4,7 +4,7 @@ REGEDIT4
 ; http://MureninKA.chat.ru
 [-HKEY_CURRENT_USER\Software\Far\CodeTables\Mac (Apple Standard Cyrillic)]
 [HKEY_CURRENT_USER\Software\Far\CodeTables\Mac Cyr]
-"TableName"="Cyrillic - Macintosh Standard"
+"TableName"="Cyrillic - &Macintosh Standard"
 "RFCCharset"="x-mac-cyrillic"
 "Mapping"=hex:\
     00,01,02,03,04,05,06,07,08,09,0A,0B,0C,0D,0E,0F,\
