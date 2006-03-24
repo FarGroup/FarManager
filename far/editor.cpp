@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.269 24.02.2006 $ */
+/* Revision: 1.270 24.03.2006 $ */
 
 /*
 Modify:
+  24.03.2006 AY
+    - Не правильное позиционирование курсора при ReverseReplace.
   24.02.2006 AY
     - Неправильно рисовались вертикальные блоки и раскраска в редакторах с X1!=0.
   06.10.2005 SVS
@@ -4618,8 +4620,11 @@ BOOL Editor::Search(int Next)
             }
             /* skv$*/
 
-            if (ReverseSearch)
-              CurLine->EditLine.SetCurPos(CurPos);
+            //AY: В этом нет никакой надобности и оно приводит к не правильному
+            //позиционированию при Replace
+            //if (ReverseSearch)
+              //CurLine->EditLine.SetCurPos(CurPos);
+
             Pasting--;
           }
         }
