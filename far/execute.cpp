@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.123 05.12.2005 $ */
+/* Revision: 1.124 25.03.2006 $ */
 
 /*
 Modify:
+  25.03.2006 AY
+    - %var% не обрабатывались вообще в параметрах ком строки
   05.12.2005 AY
     ! Ќе совсем правильна€ обработка кавычек в CommandLine::ProcessOSCommands дл€ CD/CHDIR
   14.07.2005 AY
@@ -769,10 +771,7 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
   if(!*Command) // вот же, надо же... пустышку передали :-(
     return 0;
 
-  FAR_OemToChar(Command,FullName);
-
-  /* $ 07.09.2001 VVM ќбработать переменные окружени€ */
-  ExpandEnvironmentStrings(FullName,FileName,sizeof(FullName));
+  FAR_OemToChar(Command,FileName);
 
   // нулевой проход - смотрим исключени€
   {
@@ -875,8 +874,8 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
             RegCloseKey(hKey);
             /* $ 03.10.2001 VVM ќбработать переменные окружени€ */
             strcpy(FileName, FullName);
-            Unquote(FileName);
             ExpandEnvironmentStrings(FileName,FullName,sizeof(FullName));
+            Unquote(FullName);
             Ret=TRUE;
             break;
           }
@@ -899,8 +898,8 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
                 RegCloseKey(hKey);
                 /* $ 03.10.2001 VVM ќбработать переменные окружени€ */
                 strcpy(FileName, FullName);
-                Unquote(FileName);
                 ExpandEnvironmentStrings(FileName,FullName,sizeof(FullName));
+                Unquote(FullName);
                 Ret=TRUE;
                 break;
               }
@@ -1192,11 +1191,6 @@ int Execute(const char *CmdStr,    //  ом.строка дл€ исполнени€
       SetConsoleTitle(FarTitle);
     if (SeparateWindow)
       si.lpTitle=FarTitle;
-
-    char TempStr[4096];
-
-    ExpandEnvironmentStrings (NewCmdStr, TempStr, sizeof (TempStr)-1);
-    strcpy (NewCmdStr, TempStr);
 
     QuoteSpace (NewCmdStr);
 

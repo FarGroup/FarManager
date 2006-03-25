@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.177 20.02.2006 $ */
+/* Revision: 1.178 25.03.2006 $ */
 
 /*
 Modify:
+  25.03.2006 AY
+    - %var% не обрабатывались вообще в параметрах ком строки
   20.02.2006 SVS
     ! У ConvertNameToShort новый параметр - размер для Dest
   21.01.2006 AY
@@ -2000,7 +2002,7 @@ int PartCmdLine(const char *CmdStr,char *NewCmdStr,int SizeNewCmdStr,char *NewCm
   int PipeFound = FALSE;
   int QuoteFound = FALSE;
 
-  xstrncpy(NewCmdStr,CmdStr,SizeNewCmdStr-1);
+  ExpandEnvironmentStr(CmdStr, NewCmdStr, SizeNewCmdStr);
   RemoveExternalSpaces(NewCmdStr);
 
   char *CmdPtr = NewCmdStr;

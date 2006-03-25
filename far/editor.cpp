@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.270 24.03.2006 $ */
+/* Revision: 1.271 24.03.2006 $ */
 
 /*
 Modify:
+  24.03.2006 AY
+    - Добил глюк с раскраской в неполноэкраных редакторах.
   24.03.2006 AY
     - Не правильное позиционирование курсора при ReverseReplace.
   24.02.2006 AY
@@ -6364,7 +6366,7 @@ int Editor::EditorControl(int Command,void *Param)
         _ECTLLOG(SysLog("}"));
 
         struct ColorItem newcol;
-        newcol.StartPos=col->StartPos+X1;
+        newcol.StartPos=col->StartPos+(col->StartPos!=-1?X1:0);
         newcol.EndPos=col->EndPos+X1;
         newcol.Color=col->Color;
         struct EditList *CurPtr=GetStringByNumber(col->StringNumber);
