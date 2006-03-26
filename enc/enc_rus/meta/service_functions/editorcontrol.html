@@ -95,6 +95,7 @@ int WINAPI EditorControl(
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_GETSTRING">ECTL_GETSTRING</a></td>
     <td class="cont" width="60%">ѕолучить информацию о строке. <em>Param</em>
     указывает на структуру <a href="../structures/editorgetstring.html">EditorGetString</a>.
+    ѕолученна€ строка будет в кодировке редактора.
     <pre class=code>// получить первую строку редактируемого файла
 struct EditorGetString egs;
 egs.StringNumber=0;
@@ -226,7 +227,8 @@ Info.EditorControl(ECTL_PROCESSKEY,(void*)KEY_CTRLEND);
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_SETSTRING">ECTL_SETSTRING</a></td>
     <td class="cont" width="60%">ѕоместить текст в строку. <em>Param</em> указывает на
-    структуру <a href="../structures/editorsetstring.html">EditorSetString</a>.</td></tr>
+    структуру <a href="../structures/editorsetstring.html">EditorSetString</a>.
+    ѕомещаема€ строка должна быть в кодировке редактора.</td></tr>
 
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_SETTITLE">ECTL_SETTITLE</a></td>
