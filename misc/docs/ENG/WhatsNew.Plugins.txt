@@ -10,7 +10,7 @@
 [*] Changes
 
 ---------------------------------------------------------------------------
-FAR 1.70 RC (build 2084) (21.03.2006)
+FAR 1.70 RC (build 2086) (26.03.2006)
 ---------------------------------------------------------------------------
    All the plugins supplied with the FAR Manager are designed only for the
 version of FAR with which they are supplied. It is not guaranteed that
@@ -496,11 +496,6 @@ FTP
     To see commands description type in FAR command line "ftp:HELP".
 
 [+] Queue processing options dialog instead of Yes\No warning
-
-
-PrintMan
-~~~~~~~~
-[*] Release version.
 
 
 
