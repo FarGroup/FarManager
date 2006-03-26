@@ -96,6 +96,7 @@ int WINAPI EditorControl(
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_GETSTRING">ECTL_GETSTRING</a></td>
     <td class="cont" width="60%">Gets information about a line. <em>Param</em> points to an
       <a href="../structures/editorgetstring.html">EditorGetString</a> structure.
+      The received string will be in the editor codepage.
     <pre class=code>// get the first line of the edited file
 struct EditorGetString egs;
 egs.StringNumber=0;
@@ -227,6 +228,7 @@ Info.EditorControl(ECTL_PROCESSKEY,(void*)KEY_CTRLEND);
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_SETSTRING">ECTL_SETSTRING</a></td>
     <td class="cont" width="60%">Sets the text of a line. <em>Param</em> points to an
       <a href="../structures/editorsetstring.html">EditorSetString</a> structure.
+      The new string should be in the editor codepage.
     </td></tr>
 
 
