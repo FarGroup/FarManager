@@ -6,6 +6,7 @@
 #include <time.h>
 
 _Opt Opt;
+ui64Table *_ui64Table;
 
 PluginStartupInfo Info;
 FarStandardFunctions FSF;
@@ -41,7 +42,14 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
   FSF = *Info->FSF;
   ::Info.FSF = &FSF;
   FSF.sprintf(PluginRootKey,"%s\\Plist",Info->RootKey);
+  _ui64Table = new ui64Table;
   Opt.Read();
+}
+
+
+void WINAPI _export ExitFAR()
+{
+  delete _ui64Table;
 }
 
 

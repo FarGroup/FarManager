@@ -60,6 +60,12 @@ inline int Message(unsigned Flags, char *HelpTopic, PCSTR*Items, int nItems, int
     return Info.Message(Info.ModuleNumber, Flags, HelpTopic, Items, nItems, nButtons);
 }
 
+extern class ui64Table {
+    unsigned __int64 Table[21];
+public:
+    ui64Table();
+    unsigned __int64 tenpow(unsigned n);
+} *_ui64Table;
 
 class Plist
 {

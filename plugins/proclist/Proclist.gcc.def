@@ -12,3 +12,4 @@ EXPORTS
    GetFiles=GetFiles@24
    ProcessEvent=ProcessEvent@12
    Compare=Compare@16
+   ExitFAR=ExitFAR@0

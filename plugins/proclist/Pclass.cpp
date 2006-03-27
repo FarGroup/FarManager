@@ -19,6 +19,41 @@ public:
     ~StrTok() { delete buf; }
 };
 
+ui64Table::ui64Table()
+{
+    unsigned __int64 n = 1;
+    for(size_t i=0; i<sizeof(Table)/sizeof(*Table); i++,n*=10)
+        Table[i] = n;
+}
+
+unsigned __int64 ui64Table::tenpow(unsigned n)
+{
+    if(n>=sizeof(Table)/sizeof(*Table))
+        n = sizeof(Table)/sizeof(*Table) - 1;
+    return Table[n];
+}
+
+void ui64toa_width(unsigned __int64 value, char* buf, unsigned width, bool bThousands)
+{
+    if(width < 1)
+        return;
+
+    const char* pSuffix = "";
+    unsigned uDivider = bThousands ? 1000 : 1024;
+    if(width<=20) {
+        if(value >= _ui64Table->tenpow(width)) {
+            value /= uDivider;
+            pSuffix = "K";
+        }
+        if(value >= _ui64Table->tenpow(width)) {
+            value /= uDivider;
+            pSuffix = "M";
+        }
+    }
+    _ui64toa(value, buf, 10);
+    lstrcat(buf,pSuffix);
+}
+
 Plist::Plist()
 {
     pWMI = 0;
@@ -322,44 +357,6 @@ BOOL CALLBACK EnumWndProc(HWND hWnd,LPARAM lParam)
         return !bVisible;
     }
     return TRUE;
-}
-
-class ui64Table {
-    static unsigned __int64 Table[21];
-public:
-    ui64Table()
-    {
-        unsigned __int64 n = 1;
-        for(size_t i=0; i<sizeof(Table)/sizeof(*Table); i++,n*=10)
-            Table[i] = n;
-    }
-    static unsigned __int64 tenpow(unsigned n) {
-        if(n>=sizeof(Table)/sizeof(*Table))
-            n = sizeof(Table)/sizeof(*Table) - 1;
-        return Table[n];
-    }
-} _ui64Table;
-unsigned __int64 ui64Table::Table[];
-
-void ui64toa_width(unsigned __int64 value, char* buf, unsigned width, bool bThousands)
-{
-    if(width < 1)
-        return;
-
-    const char* pSuffix = "";
-    unsigned uDivider = bThousands ? 1000 : 1024;
-    if(width<=20) {
-        if(value >= ui64Table::tenpow(width)) {
-            value /= uDivider;
-            pSuffix = "K";
-        }
-        if(value >= ui64Table::tenpow(width)) {
-            value /= uDivider;
-            pSuffix = "M";
-        }
-    }
-    _ui64toa(value, buf, 10);
-    lstrcat(buf,pSuffix);
 }
 
 int Plist::GetFindData(PluginPanelItem*& pPanelItem,int &ItemsNumber,int OpMode)

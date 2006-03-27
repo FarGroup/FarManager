@@ -13,3 +13,6 @@
 
 1.70.0.125
 Can be built with GCC
+
+1.70.0.126
+Some GCC related bugs fixed
