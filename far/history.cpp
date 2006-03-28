@@ -5,10 +5,12 @@ history.cpp
 
 */
 
-/* Revision: 1.37 26.10.2005 $ */
+/* Revision: 1.38 28.03.2006 $ */
 
 /*
 Modify:
+  28.03.2006 WARP
+    - Некоррекнтно обрезались строки в истории просмотра.
   26.10.2005 SVS
     - Mantis#35: Проблемы с History
     ! Так же, если очистили историю, то соответствующая ветка из реестра удаляется.
@@ -625,12 +627,14 @@ int History::Select(const char *Title,const char *HelpTopic,char *Str,int StrLen
 
         if (LastStr[CurCmd].Name && *LastStr[CurCmd].Name)
         {
-          int SizeTrunc=Min(ScrX-12,(int)sizeof(HistoryItem.Name)-1)-2;
+          int SizeTrunc=Min(ScrX-12,(int)sizeof(HistoryItem.Name)-1);
           char Record[2048], *Ptr=Record;
           if (*LastStr[CurCmd].Title)
           {
             sprintf(Record,"%s:%c",LastStr[CurCmd].Title,(LastStr[CurCmd].Type==4?'-':' '));
             Ptr=Record+strlen(Record);
+            SizeTrunc -= strlen (Record);
+
             strcat(Record,LastStr[CurCmd].Name);
           }
           else
