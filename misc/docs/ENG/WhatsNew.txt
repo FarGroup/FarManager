@@ -9,7 +9,7 @@
 [*] Changes
 
 ---------------------------------------------------------------------------
-FAR 1.70 RC (build 2086) (26.03.2006)
+FAR 1.70 (build 2087) (29.03.2006)
 ---------------------------------------------------------------------------
 General
 ~~~~~~~
@@ -219,9 +219,6 @@ System
 [!] Mask symbols can be used now with the 'cd' command. For example, the
     command 'cd progra*' will change the current folder to Program Files
     (i.e. the folder is changed to the first one matched by the mask).
-
-[-] Xlat: the character corresponding to the last character in the table was
-    not processed.
 
 [+] Added a confirmation dialog for dismounting SUBST-disks from the Drive
     menu.
@@ -460,8 +457,6 @@ Viewer
     Gray+ and Gray-.
 
 [-] The found text was not selected correctly for Unicode text files.
-
-[-] The WordWrap state was not saved.
 
 
 Quick View
