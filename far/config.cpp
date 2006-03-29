@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.198 28.10.2005 $ */
+/* Revision: 1.199 29.03.2006 $ */
 
 /*
 Modify:
+  29.03.2006 SVS
+    ! Editor: PersistentBlocks по умолчанию выключен. (забыл. во вьювере сделал.... а здесь забыл)
   28.10.2005 SVS
     - Mantis#48 - Policies. Бит 17
     ! Opt.ViOpt.ShowKeyBarViewer -> Opt.ViOpt.ShowKeyBar
@@ -1573,7 +1575,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyEditor,"UseExternalEditor",&Opt.EdOpt.UseExternalEditor,0, 0},
   {1, REG_DWORD,  NKeyEditor,"ExpandTabs",&Opt.EdOpt.ExpandTabs,0, 0},
   {1, REG_DWORD,  NKeyEditor,"TabSize",&Opt.EdOpt.TabSize,8, 0},
-  {1, REG_DWORD,  NKeyEditor,"PersistentBlocks",&Opt.EdOpt.PersistentBlocks,1, 0},
+  {1, REG_DWORD,  NKeyEditor,"PersistentBlocks",&Opt.EdOpt.PersistentBlocks,0, 0},
   {1, REG_DWORD,  NKeyEditor,"DelRemovesBlocks",&Opt.EdOpt.DelRemovesBlocks,0, 0},
   {1, REG_DWORD,  NKeyEditor,"AutoIndent",&Opt.EdOpt.AutoIndent,0, 0},
   {1, REG_DWORD,  NKeyEditor,"SaveEditorPos",&Opt.EdOpt.SavePos,1, 0},
