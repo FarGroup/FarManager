@@ -46,6 +46,15 @@ public:
     { return ResList [index]; }
 };
 
+typedef struct __NameAndPassInfo
+{
+    char* Title;
+    char* Name;
+    char* Password;
+    LPBOOL pRemember;
+    char* szFavoritePath;
+} NameAndPassInfo;
+
 class NetBrowser
 {
   private:
@@ -62,7 +71,7 @@ class NetBrowser
     BOOL NeedConfirmCancelConnection();
     BOOL HandsOffDisconnectDrive (const char *LocalName);
     void GetLocalName(char *RemoteName,char *LocalName);
-    static int GetNameAndPassword(char *Title,char *Name,char *Password,BOOL *pRemember=NULL);
+    static int GetNameAndPassword(NameAndPassInfo* passInfo);
     void GetRemoteName(NETRESOURCE *NetRes,char *RemoteName);
     BOOL EnumerateNetList();
     void GetHideShareNT();

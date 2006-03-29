@@ -12,6 +12,7 @@ char* szFavProv = "Far Favorites Provider";
 BOOL GetFavorites(LPNETRESOURCE pNR, NetResourceList *pList)
 {
   NETRESOURCE tmp = {0};
+
   tmp.dwDisplayType = RESOURCEDISPLAYTYPE_DOMAIN;
   if(!pNR)
   {
@@ -194,7 +195,7 @@ BOOL GetResourceKey(char* lpRemoteName, char* rootKey, char* lpResourceKey, int 
   return res;
 }
 
-void WriteFavoriteItem(LPFAVORITEITEM lpFavItem)
+void WriteFavoriteItem(LPFAVORITEITEM lpFavItem, char* /*szFolder*/)
 {
   char szResourceKey[NM];
   int cSize = sizeof(szResourceKey);

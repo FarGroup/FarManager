@@ -1,4 +1,14 @@
 ---------------------------------------------------------------------------
+Netwrok Plugin 1.70 beta 6 (build 033) (30.03.2006)
+---------------------------------------------------------------------------
+
+[*] Fixed the following wrong behaviour: when the plug-in has been  opened
+    from a network directory and  the  user  presses  Ctrl+PgUp  from  the
+    Network providers list or tryes to go up one level by  any  other way,
+    they will be confused because the current directory will be a  network
+    one.
+
+---------------------------------------------------------------------------
 Netwrok Plugin 1.70 beta 6 (build 032) (16.03.2006)
 ---------------------------------------------------------------------------
 

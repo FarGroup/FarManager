@@ -30,7 +30,7 @@ typedef struct _FAVORITEITEM {
 
 BOOL GetFavorites(LPNETRESOURCE pNR, NetResourceList *pList);
 BOOL CheckFavoriteItem(const LPNETRESOURCE pNR);
-void WriteFavoriteItem(LPFAVORITEITEM lpFavItem);
+void WriteFavoriteItem(LPFAVORITEITEM lpFavItem, char* szFolderName=NULL);
 BOOL ReadFavoriteItem(LPFAVORITEITEM lpFavItem);
 BOOL GetFavoritesParent(NETRESOURCE& SrcRes, LPNETRESOURCE lpParent);
 BOOL GetFavoriteResource(char *SrcName, LPNETRESOURCE DstNetResource);

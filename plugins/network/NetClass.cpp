@@ -115,9 +115,12 @@ NETRESOURCE *NetResourceList::Top()
 
 void NetResourceList::Pop()
 {
-  DeleteNetResource (ResList [ResCount-1]);
-  ResList=(NETRESOURCE *)realloc(ResList,(ResCount-1)*sizeof(*ResList));
-  ResCount--;
+  if (ResCount > 0)
+  {
+    DeleteNetResource (ResList [ResCount-1]);
+    ResList=(NETRESOURCE *)realloc(ResList,(ResCount-1)*sizeof(*ResList));
+    ResCount--;
+  }
 }
 
 BOOL NetResourceList::Enumerate (DWORD dwScope, DWORD dwType, DWORD dwUsage,
@@ -911,7 +914,20 @@ BOOL NetBrowser::ChangeToDirectory (const char *Dir, int IsFind, int IsExplicit)
       NetResourceList::CopyNetResource (CurResource, NetList [I]);
       PCurResource = &CurResource;
       if (!IsMSNetResource (CurResource))
+      {
+#ifdef NETWORK_LOGGING
+        LogData("Resource is not MSN");
+        LogNetResource(CurResource);
+#endif
         RootResources.Push (CurResource);
+      }
+#ifdef NETWORK_LOGGING
+      else
+      {
+        LogData("Resource is MSN");
+        LogNetResource(CurResource);
+      }
+#endif
       return(TRUE);
     }
   }
@@ -1066,7 +1082,7 @@ BOOL NetBrowser::GetResourceInfo(char *SrcName,LPNETRESOURCE DstNetResource)
   }
 #ifdef NETWORK_LOGGING
   else
-    fprintf (LogFile, "error %d\n");
+    fprintf (LogFile, "error %d\n", GetLastError());
 #endif
   return FALSE;
 }
@@ -1408,7 +1424,8 @@ int NetBrowser::AddConnectionExplicit (NETRESOURCE *nr, int Remember)
   char Name[256],Password[256];
   NETRESOURCE connectnr=*nr;
   /*static*/ BOOL bSelected = FALSE;
-  if (!GetNameAndPassword(connectnr.lpRemoteName,Name,Password,&bSelected))
+  NameAndPassInfo passInfo={connectnr.lpRemoteName,Name,Password,&bSelected};
+  if (!GetNameAndPassword(&passInfo))
   {
     SetLastError(ERROR_CANCELLED);
     return(FALSE);
@@ -1421,7 +1438,7 @@ int NetBrowser::AddConnectionExplicit (NETRESOURCE *nr, int Remember)
       Item.lpRemoteName = connectnr.lpRemoteName;
       Item.lpUserName = Name;
       Item.lpPassword = Password;
-      WriteFavoriteItem(&Item);
+      WriteFavoriteItem(&Item, passInfo.szFavoritePath);
     }
     return TRUE;
   }
@@ -1592,10 +1609,10 @@ void NetBrowser::GetLocalName(char *RemoteName,char *LocalName)
 }
 
 
-int NetBrowser::GetNameAndPassword(char *Title,char *Name,char *Password,BOOL *pRemember)
+int NetBrowser::GetNameAndPassword(NameAndPassInfo* passInfo)
 {
   struct InitDialogItem InitItems[]={
-    {DI_DOUBLEBOX,3,1,72,8,0,0,0,0,""},
+    {DI_DOUBLEBOX,3,1,72,9,0,0,0,0,""},
     {DI_TEXT,5,2,0,0,0,0,0,0,(char *)MNetUserName},
     {DI_EDIT,5,3,70,3,1,(DWORD)"NetworkUser",DIF_HISTORY|DIF_USELASTHISTORY,0,""},
     {DI_TEXT,5,4,0,0,0,0,0,0,(char *)MNetUserPassword},
@@ -1605,32 +1622,33 @@ int NetBrowser::GetNameAndPassword(char *Title,char *Name,char *Password,BOOL *p
     {DI_BUTTON,0,8,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk},
     {DI_BUTTON,0,8,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel}
   };
-  if(pRemember)
+  if(passInfo->pRemember)
   {
     InitItems[6].Flags &= ~DIF_DISABLE;
-    InitItems[6].Selected = *pRemember;
+    InitItems[6].Selected = *passInfo->pRemember;//*pRemember;
   }
   struct FarDialogItem DialogItems[sizeof(InitItems)/sizeof(InitItems[0])];
   InitDialogItems(InitItems,DialogItems,sizeof(InitItems)/sizeof(InitItems[0]));
   static char LastName[256],LastPassword[256];
-  if (Title!=NULL)
-    CharToOem(Title,DialogItems[0].Data);
+  if (passInfo->Title!=NULL)
+    CharToOem(passInfo->Title,DialogItems[0].Data);
   lstrcpy(DialogItems[2].Data,LastName);
   lstrcpy(DialogItems[4].Data,LastPassword);
-  int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,10,
+  int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,11,
     StrHelpNetBrowse,DialogItems,sizeof(DialogItems)/sizeof(DialogItems[0]));
-  if (ExitCode!=7)
+  //if (ExitCode!=7)
+  if (ExitCode!=(ARRAYLEN(DialogItems)-2))
     return(FALSE);
-  if (pRemember)
-    *pRemember = DialogItems[6].Selected;
+  if (passInfo->pRemember)
+    *passInfo->pRemember = DialogItems[6].Selected;
   lstrcpy(LastName,DialogItems[2].Data);
   lstrcpy(LastPassword,DialogItems[4].Data);
 
   // Convert Name and Password to Ansi
-  lstrcpy(Name,DialogItems[2].Data);
-  OemToChar(Name,Name);
-  lstrcpy(Password,DialogItems[4].Data);
-  OemToChar(Password,Password);
+  lstrcpy(passInfo->Name,DialogItems[2].Data);
+  OemToChar(passInfo->Name,passInfo->Name);
+  lstrcpy(passInfo->Password,DialogItems[4].Data);
+  OemToChar(passInfo->Password,passInfo->Password);
 
   return(TRUE);
 }

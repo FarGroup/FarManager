@@ -70,6 +70,15 @@ HANDLE WINAPI OpenPlugin(int OpenFrom,int Item)
     }
     IsFirstRun = FALSE;
 
+    char szCurrDir[MAX_PATH];
+    if (GetCurrentDirectory(sizeof(szCurrDir), szCurrDir))
+    {
+      if (*szCurrDir == '\\' && GetSystemDirectory(szCurrDir, sizeof(szCurrDir)))
+      {
+        szCurrDir[2] = '\0';
+        SetCurrentDirectory(szCurrDir);
+      }
+    }
     return(hPlugin);
   }
   return(INVALID_HANDLE_VALUE);
