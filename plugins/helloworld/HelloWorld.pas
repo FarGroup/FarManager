@@ -1,11 +1,14 @@
 (*
   "Hello, World!" - демонстрационный плагин.
-  Copyright (c) 2000, [ FAR group ]
+  Copyright (c) 2000-2006, [ FAR group ]
   Delphi version copyright (c) 2000, Vasily V. Moshninov
 *)
 
-{$APPTYPE CONSOLE}
-{$MINENUMSIZE 4}
+{$IFNDEF VIRTUALPASCAL}
+  {$APPTYPE CONSOLE}
+  {$MINENUMSIZE 4}
+{$ENDIF}
+
 library HelloWorld;
 
 uses windows, plugin;
@@ -82,4 +85,5 @@ exports
   GetPluginInfo,
   OpenPlugin;
 
+begin
 end.
