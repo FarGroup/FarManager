@@ -18,7 +18,11 @@ print "  -- making directories tree.\n\n";
 mkdir $dest_dr, 0;
 mkdir $dest_dr_chm, 0;
 
+%hrefs = ();
+%hrefs2 = ();
 mk_chm_lng("ru","rus","r");
+%hrefs = ();
+%hrefs2 = ();
 mk_chm_lng("en","eng","e");
 
 
@@ -63,12 +67,31 @@ foreach(sort keys %hrefs){
   print OUT <<xx;
   <LI> <OBJECT type="text/sitemap">
     <param name="Name" value="$_">
-    <param name="Name" value="$_">
     <param name="Local" value="$hrefs{$_}">
     </OBJECT>
 xx
-  };
-  #<param name="DefaultTopic" VALUE="../notopic.htm">
+};
+
+foreach(sort keys %hrefs2){
+  if ($hrefs{$_})
+  {
+    print OUT <<xx;
+  <LI> <OBJECT type="text/sitemap">
+    <param name="Name" value="$_ (Macros)">
+    <param name="Local" value="$hrefs2{$_}">
+    </OBJECT>
+xx
+  }
+  else
+  {
+    print OUT <<xx;
+  <LI> <OBJECT type="text/sitemap">
+    <param name="Name" value="$_">
+    <param name="Local" value="$hrefs2{$_}">
+    </OBJECT>
+xx
+  }
+};
 
   print OUT <<xx;
 </UL>
@@ -90,7 +113,12 @@ sub srch
    if (-d $dr.$file){
      srch("$dr$file");
    }
-   if ($file =~ /\.html$/ && $file !~ /faq\.html/){
+   $macro = 0;
+   if ($dr =~ /\/macro\//)
+   {
+     $macro = 1;
+   }
+   if ($file =~ /\.html$/ && $file !~ /faq\.html/ && $file !~ /notfound\.html/){
      $fn = $dr.$file;
      open F, $fn;
      @FData = <F>;
@@ -103,25 +131,39 @@ sub srch
        if (/<h1>(.+?)<\/h1>/i){
          $x1 = $1;
          $x1 =~ s/(&quot;)|[\/\'\"<>]//g;
-         $x1 =~ /(.{1,50})/;
-         $x1 = $1;
-         if (length($x1)==50){
-           $x1 =~ /^(.*)\s([a-zA-ZР-пр-џ]+)$/;
-           $x1 = $1."...";
-         };
-         $hrefs{$x1} = $fn;
+#         $x1 =~ /(.{1,50})/;
+#         $x1 = $1;
+#         if (length($x1)==50){
+#           $x1 =~ /^(.*)\s([a-zA-ZР-пр-џ]+)$/;
+#           $x1 = $1."...";
+#         };
+         if ($macro==0)
+         {
+           $hrefs{$x1} = $fn;
+         }
+         else
+         {
+           $hrefs2{$x1} = $fn;
+         }
        };
        if (/<a.+?name=[\"\'](.+?)[\"\'].*?>(.+?)<\/a>/i){
          $x2 = $1;
          $x1 = $2;
          $x1 =~ s/(&quot;)|[\/\'\"<>]//g;
-         $x1 =~ /(.{1,50})/;
-         $x1 = $1;
-         if (length($x1)==50){
-           $x1 =~ /^(.*)\s([a-zA-ZР-пр-џ]+)$/;
-           $x1 = $1."...";
-         };
-         $hrefs{$x1} = $fn."#$x2";
+#         $x1 =~ /(.{1,50})/;
+#         $x1 = $1;
+#         if (length($x1)==50){
+#           $x1 =~ /^(.*)\s([a-zA-ZР-пр-џ]+)$/;
+#           $x1 = $1."...";
+#         };
+         if ($macro==0)
+         {
+           $hrefs{$x1} = $fn."#$x2";
+         }
+         else
+         {
+           $hrefs2{$x1} = $fn."#$x2";
+         }
        };
      };
    };
