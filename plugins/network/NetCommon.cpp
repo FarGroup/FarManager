@@ -109,6 +109,7 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
     Opt.FullPathShares=GetRegKey (HKEY_CURRENT_USER, "", StrFullPathShares, TRUE);
     Opt.FavoritesFlags=GetRegKey (HKEY_CURRENT_USER, "", StrFavoritesFlags, FAVORITES_DEFAULTS);
     Opt.NoRootDoublePoint=GetRegKey (HKEY_CURRENT_USER, "", StrNoRootDoublePoint, FALSE);
+    Opt.NavigateToDomains=GetRegKey (HKEY_CURRENT_USER, "", StrNavigateToDomains, FALSE);
 
     NetResourceList::InitNetResource (CommonCurResource);
   }

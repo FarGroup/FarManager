@@ -1,3 +1,15 @@
+
+[+] Added new DWORD 'NavigateToDomains' value to the plug-in registry key.
+    Exceptable values:
+    - 0 (Default) When  the   plug-in   is  open  from  command  line,  it
+        navigates only to computers and  their  shares.  It  is  classical
+        behaviour.
+    - 1 When the plug-in is open from command line its  behaviour  depends
+        on the contents of command line. If the command line  starts  with
+        two backslahes (net:\\MY-SERVER) the plug-in looks for  a  server,
+        if command line does not have leading  backslashes  the  specified
+        network name is treated as workgroup or domain name.
+
 ---------------------------------------------------------------------------
 Netwrok Plugin 1.70 beta 6 (build 033) (30.03.2006)
 ---------------------------------------------------------------------------

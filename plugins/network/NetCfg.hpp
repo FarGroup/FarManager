@@ -13,6 +13,7 @@ extern const char *StrHiddenSharesAsHidden;
 extern const char *StrFullPathShares;
 extern const char *StrFavoritesFlags;
 extern const char *StrNoRootDoublePoint;
+extern const char *StrNavigateToDomains;
 extern const char *StrPanelMode;
 
 int Config(void);

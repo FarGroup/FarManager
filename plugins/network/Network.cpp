@@ -32,7 +32,8 @@ HANDLE WINAPI OpenPlugin(int OpenFrom,int Item)
 
     if(OpenFrom==OPEN_COMMANDLINE)
     {
-      char Path[NM]="\\\\";
+      char Path[NM] = "\\\\";
+
       int I=0;
       char *cmd=(char *)Item;
       if(lstrlen(FSF.Trim(cmd)))
@@ -41,10 +42,13 @@ HANDLE WINAPI OpenPlugin(int OpenFrom,int Item)
           cmd [0] = '\\';
         if (cmd [1] == '/')
           cmd [1] = '\\';
-        if(cmd[0] == '\\' && cmd[1] != '\\')
-          I=1;
-        else if(cmd[0] != '\\' && cmd[1] != '\\')
-          I=2;
+        if (!Opt.NavigateToDomains)
+        {
+          if(cmd[0] == '\\' && cmd[1] != '\\')
+            I=1;
+          else if(cmd[0] != '\\' && cmd[1] != '\\')
+            I=2;
+        }
         OemToChar (cmd, Path+I);
 
         FSF.Unquote(Path);

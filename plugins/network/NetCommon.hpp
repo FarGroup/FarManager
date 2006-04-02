@@ -37,6 +37,7 @@ extern struct Options
   BOOL FullPathShares;
   int FavoritesFlags;
   BOOL NoRootDoublePoint;
+  BOOL NavigateToDomains;
 } Opt;
 
 extern BOOL IsOldFAR;

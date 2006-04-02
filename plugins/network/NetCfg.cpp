@@ -15,6 +15,7 @@ const char *StrHiddenSharesAsHidden="HiddenSharesAsHidden";
 const char *StrFullPathShares="FullPathShares";
 const char *StrFavoritesFlags="FavoritesFlags";
 const char *StrNoRootDoublePoint="NoRootDoublePoint";
+const char *StrNavigateToDomains="NavigateToDomains";
 const char *StrPanelMode="PanelMode";
 
 int Config()
