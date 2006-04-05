@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.144 25.07.2005 $ */
+/* Revision: 1.145 04.04.2006 $ */
 
 /*
 Modify:
+  04.04.2006 SVS
+    ! сохраняем для потомком Macro_DskShowPosType (локальный класс Guard_Macro_DskShowPosType :-))
   24.07.2005 WARP
     ! see 02033.LockUnlock.txt
   23.06.2005 SVS
@@ -533,6 +535,14 @@ void Panel::ChangeDisk()
 
 int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 {
+  class Guard_Macro_DskShowPosType{
+    public:
+      Guard_Macro_DskShowPosType(Panel *curPanel){Macro_DskShowPosType=(curPanel==CtrlObject->Cp()->LeftPanel)?1:2;};
+     ~Guard_Macro_DskShowPosType(){Macro_DskShowPosType=0;};
+  };
+
+  Guard_Macro_DskShowPosType _guard_Macro_DskShowPosType(this);
+
   struct MenuItem ChDiskItem;
   char DiskType[100],RootDir[10],DiskLetter[50];
   DWORD Mask,DiskMask;

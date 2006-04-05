@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.61 15.07.2005 $ */
+/* Revision: 1.62 04.04.2006 $ */
 
 /*
 Modify:
+  04.04.2006 SVS
+    + Macro_DskShowPosType - для какой панели вызывали меню
   15.07.2005 AY
     + EditorInitUseDecodeTable,EditorInitTableNum,EditorInitAnsiText
     + ViewerInitUseDecodeTable,ViewerInitTableNum,ViewerInitAnsiText
@@ -321,5 +323,7 @@ extern BOOL IsFn_FAR_CopyFileEx;
 
 extern int EditorInitUseDecodeTable,EditorInitTableNum,EditorInitAnsiText;
 extern int ViewerInitUseDecodeTable,ViewerInitTableNum,ViewerInitAnsiText;
+
+extern int Macro_DskShowPosType; // для какой панели вызывали меню выбора дисков (0 - ничерта не вызывали, 1 - левая (AltF1), 2 - правая (AltF2))
 
 #endif  // __FARGLOBAL_HPP__

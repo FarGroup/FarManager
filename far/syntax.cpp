@@ -5,10 +5,12 @@ syntax.cpp
 
 */
 
-/* Revision: 1.15 17.03.2006 $ */
+/* Revision: 1.16 04.04.2006 $ */
 
 /*
 Modify:
+  04.04.2006 SVS
+    + N=sleep(N)
   17.03.2006 AY & SVS
     ! UnrecogniSed (s -> z)
     ! err_Unexpected_function -> err_Unrecognized_function
@@ -703,6 +705,7 @@ static TMacroFunction macroFunction[]={
   {"PANEL.SETPOS",   2,    MCODE_F_PANEL_SETPOS},        // N=panel.SetPos(panelType,fileName)
   {"PANELITEM",      3,    MCODE_F_PANELITEM},           // V=panelitem(Panel,Index,TypeInfo)
   {"RINDEX",         2,    MCODE_F_RINDEX},              // S=rindex(S1,S2)
+  {"SLEEP",          1,    MCODE_F_SLEEP},               // N=sleep(N)
   {"STRING",         1,    MCODE_F_STRING},              // S=string(V)
   {"SUBSTR",         3,    MCODE_F_SUBSTR},              // S=substr(S,N1,N2)
   {"UCASE",          1,    MCODE_F_UCASE},               // S=ucase(S1)

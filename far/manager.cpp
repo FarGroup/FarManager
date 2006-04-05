@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.96 23.01.2006 $ */
+/* Revision: 1.97 31.03.2006 $ */
 
 /*
 Modify:
+  31.03.2006 SVS
+    - после переноса функционала CAS из filepanels.cpp сюда перестало работать правило TechInfo#8
   23.01.2006 SVS
     ! Добавлен второй параметр у SendKeyToPlugin, признак того, что ЭТО
       клавиша Pred и нужно выставить у VirtualKey (передаваемого в плагин)
@@ -1098,8 +1100,40 @@ int  Manager::ProcessKey(DWORD Key)
             {
               if (CurrentFrame->FastHide())
               {
-                ImmediateHide();
-                WaitKey(Key==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:KEY_RCTRLALTSHIFTRELEASE);
+                int isPanelFocus=CurrentFrame->GetType() == MODALTYPE_PANELS;
+                if(isPanelFocus)
+                {
+                  int LeftVisible=CtrlObject->Cp()->LeftPanel->IsVisible();
+                  int RightVisible=CtrlObject->Cp()->RightPanel->IsVisible();
+                  int CmdLineVisible=CtrlObject->CmdLine->IsVisible();
+                  int KeyBarVisible=CtrlObject->Cp()->MainKeyBar.IsVisible();
+                  CtrlObject->CmdLine->ShowBackground();
+
+                  CtrlObject->Cp()->LeftPanel->Hide();
+                  CtrlObject->Cp()->RightPanel->Hide();
+                  switch(Opt.PanelCtrlAltShiftRule)
+                  {
+                    case 0:
+                      CtrlObject->CmdLine->Show();
+                      CtrlObject->Cp()->MainKeyBar.Show();
+                      break;
+                    case 1:
+                      CtrlObject->Cp()->MainKeyBar.Show();
+                      break;
+                  }
+
+                  WaitKey(Key==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:KEY_RCTRLALTSHIFTRELEASE);
+
+                  if (LeftVisible)      CtrlObject->Cp()->LeftPanel->Show();
+                  if (RightVisible)     CtrlObject->Cp()->RightPanel->Show();
+                  if (CmdLineVisible)   CtrlObject->CmdLine->Show();
+                  if (KeyBarVisible)    CtrlObject->Cp()->MainKeyBar.Show();
+                }
+                else
+                {
+                  ImmediateHide();
+                  WaitKey(Key==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:KEY_RCTRLALTSHIFTRELEASE);
+                }
                 FrameManager->RefreshFrame();
               }
               return TRUE;

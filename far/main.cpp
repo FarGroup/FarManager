@@ -5,10 +5,13 @@ main.cpp
 
 */
 
-/* Revision: 1.85 06.12.2005 $ */
+/* Revision: 1.86 04.04.2006 $ */
 
 /*
 Modify:
+  04.04.2006 SVS
+    + Уточнение подсказки командной строки (для far /?)
+    - некорретная работа "far ." и "far .\"
   06.12.2005 AY
     ! Mantis#66 - "Far.exe \\computer\share" не пашет.
   02.11.2005 SVS
@@ -308,6 +311,10 @@ static void CopyGlobalSettings();
 static void show_help(void)
 {
 printf(
+"Usage: far [switches] [apath [ppath]]\n\n"
+"wheren\n"
+"  apath - path to a folder (or a file or an archive) for the active panel\n"
+"  ppath - path to a folder (or a file or an archive) for the passive panel\n\n"
 "The following switches may be used in the command line:\n\n"
 " /?   This help.\n"
 " /a   Disable display of characters with codes 0 - 31 and 255.\n"
@@ -595,6 +602,29 @@ int _cdecl main(int Argc, char *Argv[])
   LocalUpperInit();
   /* IS $ */
 
+  SetFileApisTo(APIS2OEM);
+  GetModuleFileName(NULL,FarPath,sizeof(FarPath));
+#if defined(USE_WFUNC)
+//  if(Opt.CleanAscii || Opt.NoGraphics)
+//    Opt.UseUnicodeConsole=FALSE;
+#endif
+  // $ 02.07.2001 IS - Учтем то, что GetModuleFileName иногда возвращает короткое имя, которое нам нафиг не нужно.
+  *(PointToName(FarPath)-1)=0;
+  {
+     char tmpFarPath[sizeof(FarPath)];
+     DWORD s=RawConvertShortNameToLongName(FarPath, tmpFarPath,
+                                           sizeof(tmpFarPath));
+     if(s && s<sizeof(tmpFarPath))
+        strcpy(FarPath, tmpFarPath);
+  }
+
+  {
+    FAR_OemToChar(FarPath, FarPath);
+    SetEnvironmentVariable("FARHOME",FarPath);
+    FAR_CharToOem(FarPath, FarPath);
+  }
+  AddEndSlash(FarPath);
+
   for (int I=1;I<Argc;I++)
   {
     if ((Argv[I][0]=='/' || Argv[I][0]=='-') && Argv[I][1])
@@ -699,7 +729,11 @@ int _cdecl main(int Argc, char *Argv[])
           */
           if (Argv[I][2])
           {
-            if(Argv[I][2]=='.' && (Argv[I][3]==0 || Argv[I][3]=='\\' || Argv[I][3]=='.'))
+            ExpandEnvironmentStr(&Argv[I][2], Opt.LoadPlug.CustomPluginsPath, sizeof(Opt.LoadPlug.CustomPluginsPath));
+            ConvertNameToFull(Opt.LoadPlug.CustomPluginsPath,Opt.LoadPlug.CustomPluginsPath,sizeof(Opt.LoadPlug.CustomPluginsPath));
+              printf("\n\n%s\n%s\n",Argv[I],Opt.LoadPlug.CustomPluginsPath);
+/*
+            if(Argv[I][2]=='.' && (Argv[I][3]==0 || Argv[I][3]=='\\' || Argv[I][3]=='/' || Argv[I][3]=='.'))
             {
               GetCurrentDirectory(sizeof(Opt.LoadPlug.CustomPluginsPath),Opt.LoadPlug.CustomPluginsPath);
               AddEndSlash(Opt.LoadPlug.CustomPluginsPath);
@@ -709,6 +743,7 @@ int _cdecl main(int Argc, char *Argv[])
             }
             else
               xstrncpy(Opt.LoadPlug.CustomPluginsPath,&Argv[I][2],sizeof(Opt.LoadPlug.CustomPluginsPath));
+*/
             /* 18.01.2003 IS
                - Не правильно обрабатывалась команда /p[<path>], если в пути
                  были буквы национального алфавита.
@@ -760,8 +795,13 @@ int _cdecl main(int Argc, char *Argv[])
     {
       if(CntDestName < 2)
       {
-        if(GetFileAttributes(Argv[I]) != -1)
-          FAR_CharToOem(Argv[I],DestName[CntDestName++]);
+        ExpandEnvironmentStr(Argv[I], DestName[CntDestName],sizeof(DestName[CntDestName]));
+        ConvertNameToFull(Argv[I],DestName[CntDestName],sizeof(DestName[CntDestName]));
+        if(GetFileAttributes(DestName[CntDestName]) != -1)
+        {
+          FAR_CharToOem(DestName[CntDestName],DestName[CntDestName]);
+          CntDestName++;
+        }
       }
     }
   }
@@ -801,16 +841,14 @@ int _cdecl main(int Argc, char *Argv[])
     Opt.LoadPlug.PluginsPersonal=FALSE;
   }
 
+#if 0
   SetFileApisTo(APIS2OEM);
   GetModuleFileName(NULL,FarPath,sizeof(FarPath));
 #if defined(USE_WFUNC)
 //  if(Opt.CleanAscii || Opt.NoGraphics)
 //    Opt.UseUnicodeConsole=FALSE;
 #endif
-  /* $ 02.07.2001 IS
-     Учтем то, что GetModuleFileName иногда возвращает короткое имя, которое
-     нам нафиг не нужно.
-  */
+  // $ 02.07.2001 IS - Учтем то, что GetModuleFileName иногда возвращает короткое имя, которое нам нафиг не нужно.
   *(PointToName(FarPath)-1)=0;
   {
      char tmpFarPath[sizeof(FarPath)];
@@ -825,7 +863,7 @@ int _cdecl main(int Argc, char *Argv[])
     FAR_CharToOem(FarPath, FarPath);
   }
   AddEndSlash(FarPath);
-  /* IS $ */
+#endif
   /* $ 03.08.2000 SVS
      Если не указан параметр -P
   */

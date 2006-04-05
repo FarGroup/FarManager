@@ -5,10 +5,14 @@ macro.cpp
 
 */
 
-/* Revision: 1.159 17.03.2006 $ */
+/* Revision: 1.160 04.04.2006 $ */
 
 /*
 Modify:
+  04.04.2006 SVS
+    + MCODE_F_SLEEP (N=Sleep(N)), MCODE_V_FAR_HEIGHT (Far.Height), MCODE_V_DRVSHOWPOS (Drv.ShowPos)
+    + MCODE_V_DRVSHOWMODE - Drv.ShowMode - режимы отображения меню выбора дисков
+    + MCODE_V_TITLE - Title - заголовок текущего объекта
   17.03.2006 SVS
     ! UnrecogniSed (s -> z)
   16.03.2006 SVS
@@ -566,7 +570,6 @@ struct TMacroKeywords MKeywords[] ={
   {0,  "UserMenu",           MACRO_USERMENU,0},
   {0,  "Common",             MACRO_COMMON,0},
 
-
   // ПРОЧЕЕ
   {2,  "Bof",                MCODE_C_BOF,0},
   {2,  "Eof",                MCODE_C_EOF,0},
@@ -576,8 +579,12 @@ struct TMacroKeywords MKeywords[] ={
   {2,  "IClip",              MCODE_C_ICLIP,0},
 
   {2,  "Far.Width",          MCODE_V_FAR_WIDTH,0},
+  {2,  "Far.Height",         MCODE_V_FAR_HEIGHT,0},
+  {2,  "Far.Title",          MCODE_V_FAR_TITLE,0},
+
   {2,  "ItemCount",          MCODE_V_ITEMCOUNT,0},  // ItemCount - число элементов в текущем объекте
   {2,  "CurPos",             MCODE_V_CURPOS,0},    // CurPos - текущий индекс в текущем объекте
+  {2,  "Title",              MCODE_V_TITLE,0},
 
   {2,  "APanel.Empty",       MCODE_C_APANEL_ISEMPTY,0},
   {2,  "PPanel.Empty",       MCODE_C_PPANEL_ISEMPTY,0},
@@ -642,6 +649,9 @@ struct TMacroKeywords MKeywords[] ={
   {2,  "Dlg.ItemType",       MCODE_V_DLGITEMTYPE,0},
   {2,  "Dlg.ItemCount",      MCODE_V_DLGITEMCOUNT,0},
   {2,  "Dlg.CurPos",         MCODE_V_DLGCURPOS,0},
+
+  {2,  "Drv.ShowPos",        MCODE_V_DRVSHOWPOS,0},
+  {2,  "Drv.ShowMode",       MCODE_V_DRVSHOWMODE,0},
 
   {2,  "Viewer.FileName",    MCODE_V_VIEWERFILENAME,0},
   {2,  "Viewer.State",       MCODE_V_VIEWERSTATE,0},
@@ -1136,6 +1146,14 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
           Cond=(__int64)(ScrX+1);
           break;
 
+        case MCODE_V_FAR_HEIGHT:
+          Cond=(__int64)(ScrY+1);
+          break;
+
+        case MCODE_V_FAR_TITLE:
+          Cond=LastFarTitle;
+          break;
+
         case MCODE_C_DISABLEOUTPUT: // DisableOutput?
           Cond=Flags&CheckCode?1:0;
           break;
@@ -1146,6 +1164,14 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
 
         case MCODE_C_ICLIP:
           Cond=(__int64)UsedInternalClipboard;
+          break;
+
+        case MCODE_V_DRVSHOWPOS: // Drv.ShowPos
+          Cond=(__int64)Macro_DskShowPosType;
+          break;
+
+        case MCODE_V_DRVSHOWMODE: // Drv.ShowMode
+          Cond=(__int64)Opt.ChangeDriveMode;
           break;
 
         case MCODE_C_BOF:
@@ -1471,6 +1497,16 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
           break;
         }
 
+        case MCODE_V_TITLE: // Title
+        {
+          FileName[0]=0;
+          Frame *f=FrameManager->GetTopModal();
+          if(f)
+            f->GetTypeAndName(NULL,FileName);
+          Cond=FileName;
+          break;
+        }
+
         case MCODE_V_ITEMCOUNT: // ItemCount - число элементов в текущем объекте
         case MCODE_V_CURPOS: // CurPos - текущий индекс в текущем объекте
         {
@@ -1699,6 +1735,18 @@ static TVar itoaFunc(TVar *param)
   if(param[0].isInteger())
     return TVar(_i64toa((int)param[0].toInteger(),value,(int)param[1].toInteger()));
   return param[0];
+}
+
+// N=sleep(N)
+static TVar sleepFunc(TVar *param)
+{
+  long Period=(long)param[0].toInteger();
+  if(Period > 0)
+  {
+    Sleep((DWORD)Period);
+    return TVar(1i64);
+  }
+  return TVar(0i64);
 }
 
 // S=rindex(S1,S2)
@@ -2534,6 +2582,9 @@ done:
           case MCODE_F_PANEL_SETPOS: // N=Panel.SetPos(panelType,fileName)
             ePos-=1;
             eStack[ePos] = panelsetposFunc(eStack+ePos);
+            break;
+          case MCODE_F_SLEEP: // N=Sleep(N)
+            eStack[ePos] = sleepFunc(eStack+ePos);
             break;
           case MCODE_F_ENVIRON: // S=env(S)
             eStack[ePos] = environFunc(eStack+ePos);
@@ -3772,6 +3823,7 @@ static void printKeyValue(DWORD* k, int& i)
   else if ( k[i] == MCODE_F_INDEX )            sprint(ii, " S=index(S1,S2)");
   else if ( k[i] == MCODE_F_INT )              sprint(ii, " N=int(V)");
   else if ( k[i] == MCODE_F_ITOA )             sprint(ii, " S=itoa(N,radix)");
+  else if ( k[i] == MCODE_F_SLEEP )            sprint(ii, " N=Sleep(N)");
   else if ( k[i] == MCODE_F_LEN )              sprint(ii, " N=len(S)");
   else if ( k[i] == MCODE_F_MAX )              sprint(ii, " N=max(N1,N2)");
   else if ( k[i] == MCODE_F_MSAVE )            sprint(ii, " N=msave(S)");

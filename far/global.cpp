@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.62 15.07.2005 $ */
+/* Revision: 1.63 04.04.2006 $ */
 
 /*
 Modify:
+  04.04.2006 SVS
+    + Macro_DskShowPosType - для какой панели вызывали меню
   15.07.2005 AY
     + EditorInitUseDecodeTable,EditorInitTableNum,EditorInitAnsiText
     + ViewerInitUseDecodeTable,ViewerInitTableNum,ViewerInitAnsiText
@@ -318,3 +320,5 @@ BOOL IsFn_FAR_CopyFileEx=FALSE;
 
 int ViewerInitUseDecodeTable=TRUE,ViewerInitTableNum=0,ViewerInitAnsiText=TRUE;
 int EditorInitUseDecodeTable=TRUE,EditorInitTableNum=0,EditorInitAnsiText=TRUE;
+
+int Macro_DskShowPosType=0; // для какой панели вызывали меню выбора дисков (0 - ничерта не вызывали, 1 - левая (AltF1), 2 - правая (AltF2))

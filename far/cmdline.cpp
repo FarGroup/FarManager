@@ -5,10 +5,13 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.83 29.07.2005 $ */
+/* Revision: 1.84 05.04.2006 $ */
 
 /*
 Modify:
+  05.04.2006 SVS
+    ! Расширен набор символов в Формате командной строки.
+    ! после выбора из истории всегда создавать файл - оно проверено на в хистори!
   29.07.2005 SVS
     Временно убрем
   28.07.2005 SVS
@@ -624,7 +627,7 @@ int CommandLine::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 void CommandLine::GetPrompt(char *DestStr)
 {
-#if 1
+#if 0
   char FormatStr[512],ExpandedFormatStr[512];
   xstrncpy(FormatStr,Opt.UsePromptFormat ? Opt.PromptFormat:"$p$g",sizeof(FormatStr)-1);
   char *Format=FormatStr;
@@ -782,7 +785,8 @@ void CommandLine::ShowViewEditHistory()
       case 1: // обычное открытие в редакторе
       case 4: // открытие с локом
       {
-        FileEditor *FEdit=new FileEditor(Str,FALSE,TRUE);
+        // пусть файл создается
+        FileEditor *FEdit=new FileEditor(Str,TRUE,TRUE);
         if(Type == 4)
            FEdit->SetLockEditor(TRUE);
         break;

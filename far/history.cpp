@@ -5,10 +5,16 @@ history.cpp
 
 */
 
-/* Revision: 1.38 28.03.2006 $ */
+/* Revision: 1.39 04.04.2006 $ */
 
 /*
 Modify:
+  04.04.2006 SVS
+    - TI#52. ≈сли значение "HistoryCount" меньше... в общем не то что надо сто€ло :-(
+    - CtrlEnter на несуществующем файле неправильно работал
+    + ѕри выборе файла (клавишей Enter) из истории просмотра дл€ отсутствующего
+      файл предлагаетс€ создать этот файл. –аботает только, если файл открывалс€
+      в режиме редактировани€.
   28.03.2006 WARP
     - Ќекоррекнтно обрезались строки в истории просмотра.
   26.10.2005 SVS
@@ -543,9 +549,9 @@ BOOL History::ReadHistory()
   if (NeedReadType)
   {
     unsigned char *TypesBuffer;
-    TypesBuffer=(unsigned char *)alloca(HistoryCount+1);
+    TypesBuffer=(unsigned char *)alloca(HistoryCount+2);
     if(TypesBuffer)
-      memset(TypesBuffer,0,Size);
+      memset(TypesBuffer,0,HistoryCount+1);
     Size=HistoryCount+1;
     if(TypesBuffer && RegQueryValueEx(hKey,"Types",0,&Type,(unsigned char *)TypesBuffer,&Size)==ERROR_SUCCESS)
     {
@@ -778,13 +784,23 @@ int History::Select(const char *Title,const char *HelpTopic,char *Str,int StrLen
         StrPos=(int)HistoryMenu.GetUserData(NULL,sizeof(StrPos),Code);
         if(StrPos == -1)
           return -1;
-        if((TypeHistory == HISTORYTYPE_FOLDER || TypeHistory == HISTORYTYPE_VIEW) && GetFileAttributes(LastStr[StrPos].Name) == (DWORD)-1)
+        if(RetCode != 3 && (TypeHistory == HISTORYTYPE_FOLDER || TypeHistory == HISTORYTYPE_VIEW) && GetFileAttributes(LastStr[StrPos].Name) == (DWORD)-1)
         {
           char *TruncFileName=xf_strdup(LastStr[StrPos].Name);
           if(TruncFileName)
             TruncPathStr(TruncFileName,ScrX-16);
           SetLastError(ERROR_FILE_NOT_FOUND);
-          Message(MSG_WARNING|MSG_ERRORTYPE,1,Title,TruncFileName?TruncFileName:LastStr[StrPos].Name,MSG(MOk));
+          if(LastStr[StrPos].Type == 1 && TypeHistory == HISTORYTYPE_VIEW) // Edit? тогда спросим и если надо создадим
+          {
+            if(Message(MSG_WARNING|MSG_ERRORTYPE,2,Title,TruncFileName?TruncFileName:LastStr[StrPos].Name,MSG(MViewHistoryIsCreate),MSG(MYes),MSG(MNo)) == 0)
+            {
+              if(TruncFileName)
+                free(TruncFileName);
+              break;
+            }
+          }
+          else
+            Message(MSG_WARNING|MSG_ERRORTYPE,1,Title,TruncFileName?TruncFileName:LastStr[StrPos].Name,MSG(MOk));
           if(TruncFileName)
             free(TruncFileName);
           Done=FALSE;

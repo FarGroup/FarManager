@@ -5,10 +5,14 @@ OpCode для макросов
 
 */
 
-/* Revision: 1.19 04.03.2006 $ */
+/* Revision: 1.20 04.04.2006 $ */
 
 /*
 Modify:
+  04.04.2006 SVS
+    + MCODE_F_SLEEP (N=Sleep(N)), MCODE_V_FAR_HEIGHT (Far.Height), MCODE_V_DRVSHOWPOS (Drv.ShowPos)
+    + MCODE_V_DRVSHOWMODE - Drv.ShowMode - режимы отображения меню выбора дисков
+    + MCODE_V_TITLE - Title - заголовок текущего объекта
   04.03.2006 SVS
     + MCODE_F_CLIP (V=clip(N,S))
   17.01.2006 SVS
@@ -162,6 +166,7 @@ enum MACRO_OP_CODE {
   MCODE_F_EDITOR_SET,               // N=Editor.Set(N,Var)
   MCODE_F_DLG_GETVALUE,             // V=Dlg.GetValue(ID,N)
   MCODE_F_CLIP,                     // V=clip(N,S)
+  MCODE_F_SLEEP,                    // Sleep(N)
 
   /* ************************************************************************* */
   // булевые переменные - различные состояния
@@ -202,9 +207,13 @@ enum MACRO_OP_CODE {
   MCODE_C_CMDLINE_EMPTY,            // ком.строка пуста?
   MCODE_C_CMDLINE_SELECTED,         // в ком.строке есть выделение блока?
 
-  /* ************************************************************************* */
+    /* ************************************************************************* */
   // не булевые переменные
-  MCODE_V_APANEL_CURRENT=KEY_MACRO_V_BASE,// APanel.Current - имя файла на активной панели
+  MCODE_V_FAR_WIDTH=KEY_MACRO_V_BASE,// Far.Width - ширина консольного окна
+  MCODE_V_FAR_HEIGHT,               // Far.Height - ширина консольного окна
+  MCODE_V_FAR_TITLE,                // Far.Title - текущий заголовок консольного окна
+
+  MCODE_V_APANEL_CURRENT,           // APanel.Current - имя файла на активной панели
   MCODE_V_PPANEL_CURRENT,           // PPanel.Current - имя файла на пассивной панели
   MCODE_V_APANEL_SELCOUNT,          // APanel.SelCount - активная панель:  число выделенных элементов
   MCODE_V_PPANEL_SELCOUNT,          // PPanel.SelCount - пассивная панель: число выделенных элементов
@@ -224,24 +233,32 @@ enum MACRO_OP_CODE {
   MCODE_V_PPANEL_OPIFLAGS,          // PPanel.OPIFlags - пассивная панель: флаги открытого плагина
   MCODE_V_APANEL_DRIVETYPE,         // APanel.DriveType - активная панель: тип привода
   MCODE_V_PPANEL_DRIVETYPE,         // PPanel.DriveType - пассивная панель: тип привода
-  MCODE_V_FAR_WIDTH,                // Far.Width - ширина консольного окна
+
+
   MCODE_V_ITEMCOUNT,                // ItemCount - число элементов в текущем объекте
   MCODE_V_CURPOS,                   // CurPos - текущий индекс в текущем объекте
+  MCODE_V_TITLE,                    // Title - заголовок текущего объекта
+
   MCODE_V_EDITORFILENAME,           // Editor.FileName - имя редактируемого файла
   MCODE_V_EDITORLINES,              // Editor.Lines - количество строк в редакторе
   MCODE_V_EDITORCURLINE,            // Editor.CurLine - текущая линия в редакторе (в дополнении к Count)
   MCODE_V_EDITORCURPOS,             // Editor.CurPos - текущая поз. в редакторе
   MCODE_V_EDITORSTATE,              // Editor.State
   MCODE_V_EDITORVALUE,              // Editor.Value - содержимое текущей строки
+
   MCODE_V_DLGITEMTYPE,              // Dlg.ItemType
   MCODE_V_DLGITEMCOUNT,             // Dlg.ItemCount
   MCODE_V_DLGCURPOS,                // Dlg.CurPos
+
   MCODE_V_VIEWERFILENAME,           // Viewer.FileName - имя просматриваемого файла
   MCODE_V_VIEWERSTATE,              // Viewer.State
 
   MCODE_V_CMDLINE_ITEMCOUNT,        // CmdLine.ItemCount
   MCODE_V_CMDLINE_CURPOS,           // CmdLine.CurPos
   MCODE_V_CMDLINE_VALUE,            // CmdLine.Value
+
+  MCODE_V_DRVSHOWPOS,               // Drv.ShowPos - меню выбора дисков отображено: 1=слева (Alt-F1), 2=справа (Alt-F2), 0="нету его"
+  MCODE_V_DRVSHOWMODE,              // Drv.ShowMode - режимы отображения меню выбора дисков
 };
 
 typedef enum MACRO_OP_CODE TFunction;

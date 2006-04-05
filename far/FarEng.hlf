@@ -1992,13 +1992,7 @@ $ #Settings dialog: interface#
                           to the upper right corner of FAR window.
 
   #Set command line#        This option allows to set the default
-  #prompt format#           FAR command line prompt. You may use
-                          the following format variables:
-
-                          #$p# - current path;
-                          #$n# - current drive letter;
-                          #$g# - the > character;
-                          #$$# - the $ character.
+  #prompt format#           FAR command ~line prompt~@CommandPrompt@.
 
   #Use right Alt#           Enable this option if you experience
   #as AltGr#                problems with using #right Alt# combinations
@@ -2031,7 +2025,6 @@ $ #Settings dialog: interface#
                             or the drive selection menu (if the
                             Network plugin is not available).
 
-
 @DialogSettings
 $ #Settings dialog: settings#
   #History in dialog#       Keep history in edit controls of some
@@ -2063,6 +2056,44 @@ $ #Settings dialog: settings#
                           This option allows to switch off this
                           functionality.
 
+
+@CommandPrompt
+$ #Формат командной строки#
+   FAR позволяет изменить формат приглашения командной строки.
+Для этого в поле ввода #Установить формат командной строки# диалога
+~Настроек интерфейса~@InterfSettings@ необходимо ввести нужную
+последовательность переменных и специальных кодов, которая позволит
+показать дополнительную информацию в приглашении.
+
+   Допускается использовать переменные окружения и следующие
+специальные коды:
+
+     $a - символ &
+     $b - символ |
+     $c - символ (
+     $d - текущая дата (зависит от системных настроек)
+     $f - символ )
+     $g - символ >
+     $h - удалить предыдущий символ
+     $l - символ <
+     $n - буква текущего диска
+     $p - текущий диск и путь
+     $q - символ =
+     $s - пробел
+     $t - текущее время в формате HH:MM:SS
+     $$ - символ $
+
+   По умолчанию используется последовательность #$p$g# - текущий дисковод
+и путь ("C:\>").
+
+   Примеры.
+
+   1. Приглашение формата #[%COMPUTERNAME%]$S$P$G# будет
+      содержать имя компьютера, текущий диск и путь
+      (переменная окружения %COMPUTERNAME% должна быть определена)
+
+   2. Приглашение формата #[$T$H$H$H]$S$P$G# перед текущем путем
+      выведет время в формате HH:MM
 
 @Viewer
 $ #Viewer: control keys#

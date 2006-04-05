@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.124 25.03.2006 $ */
+/* Revision: 1.125 31.03.2006 $ */
 
 /*
 Modify:
+  31.03.2006 SVS
+    - Ќекорректна€ работа команд CD и CHDIR с переменными среды.
   25.03.2006 AY
     - %var% не обрабатывались вообще в параметрах ком строки
   05.12.2005 AY
@@ -1850,12 +1852,13 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
     xstrncpy(ExpandedDir,&CmdLine[Length],sizeof(ExpandedDir)-1);
 
     Unquote(ExpandedDir);
+    ExpandEnvironmentStr(ExpandedDir,ExpandedDir,sizeof(ExpandedDir));
 
     // скорректируем букву диска на "подступах"
     if(ExpandedDir[1] == ':' && isalpha(ExpandedDir[0]))
       ExpandedDir[0]=toupper(ExpandedDir[0]);
 
-    if(ExpandedDir[0] == '~' && !ExpandedDir[1] && GetFileAttributes(ExpandedDir) == (DWORD)-1)
+    if(SetPanel->GetMode()!=PLUGIN_PANEL && ExpandedDir[0] == '~' && !ExpandedDir[1] && GetFileAttributes(ExpandedDir) == (DWORD)-1)
     {
       GetRegKey(strSystemExecutor,"~",(char*)ExpandedDir,FarPath,sizeof(ExpandedDir)-1);
       DeleteEndSlash(ExpandedDir);
@@ -1913,7 +1916,7 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
       return(TRUE);
     }
 
-    if (ExpandEnvironmentStr(ExpandedDir,ExpandedDir,sizeof(ExpandedDir))!=0)
+    //if (ExpandEnvironmentStr(ExpandedDir,ExpandedDir,sizeof(ExpandedDir))!=0)
     {
       if(CheckFolder(ExpandedDir) <= CHKFLD_NOTACCESS)
         return -1;
