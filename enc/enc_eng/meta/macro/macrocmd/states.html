@@ -409,6 +409,57 @@ MsgBox(substr(Editor.Value,Editor.CurPos-1,1),Editor.FileName,0)
     </td>
   </tr>
 
+  <tr class="cont"><th class="cont" colspan=3>Меню выбора дисков</th></tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="Drv.ShowPos">Drv.ShowPos</a></td>
+    <td class="cont" width="20%">Number</td>
+    <td class="cont" width="60%">для левой (AltF1, значение 1) или правой (AltF2, значение 2) панели вызвано меню выбора дисков.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="Drv.ShowMode">Drv.ShowMode</a></td>
+    <td class="cont" width="20%">Number</td>
+    <td class="cont" width="60%">флаги отображения меню выбора дисков; набор битовых флагов:
+      <table class="cont">
+        <tr class="cont">
+          <th class="cont" width="10%">Значение</th>
+          <th class="cont" width="90%">Описание</th>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x00000001</td>
+          <td class="cont" width="90%">включен показ типа дисков</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x00000002</td>
+          <td class="cont" width="90%">включен показ сетевого имени (и путь, ассоциированный с SUBST-диском под NT)</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x00000004</td>
+          <td class="cont" width="90%">включен показ метки диска</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x00000008</td>
+          <td class="cont" width="90%">включен показ типа файловой системы</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x00000010</td>
+          <td class="cont" width="90%">включен показ общего и свободного место на диске</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x00000020</td>
+          <td class="cont" width="90%">включен показ параметров сменных дисков</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x00000040</td>
+          <td class="cont" width="90%">включен показ имен подключаемых модулей</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x00000080</td>
+          <td class="cont" width="90%">включен показ параметров компакт-дисков</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
   <tr class="cont"><th class="cont" colspan=3>Other</th></tr>
   <tr class="cont">
     <td class="cont" width="20%"><a name="ItemCount">ItemCount</a></td>
@@ -422,9 +473,24 @@ MsgBox(substr(Editor.Value,Editor.CurPos-1,1),Editor.FileName,0)
     <td class="cont" width="60%">position in the current object</td>
   </tr>
   <tr class="cont">
+    <td class="cont" width="20%"><a name="Title">Title</a></td>
+    <td class="cont" width="20%">String</td>
+    <td class="cont" width="60%">заголовок текущего объекта</td>
+  </tr>
+  <tr class="cont">
     <td class="cont" width="20%"><a name="Far.Width">Far.Width</a></td>
     <td class="cont" width="20%">Number</td>
     <td class="cont" width="60%">FAR Manager console width</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="Far.Height">Far.Height</a></td>
+    <td class="cont" width="20%">Number</td>
+    <td class="cont" width="60%">высота консоли, в которой работает FAR Mаnager</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="Far.Title">Far.Title</a></td>
+    <td class="cont" width="20%">String</td>
+    <td class="cont" width="60%">текущий заголовок консольного окна FAR (без суффикса " - Far")</td>
   </tr>
 </table>
 
