@@ -24,6 +24,220 @@
 <p>"<i>Давным-давно, в далекой-далекой...</i>", а может и не совсем далекой,
 в любом случае это уже история... Наслаждайтесь :-)</p>
 
+
+<h3>29 марта 2006 г.</h3>
+<ul>
+<li>Вернулись обратно к варианту без .CHI-индекса. Если Энциклопедия включена в
+    коллекцию, то не забудьте заменить pluginsr.chi на pluginsr.chm.
+
+<li>Изменен дизайн статей Энциклопедии в стиле MSDN (не точная копия, но похоже :-)
+
+<li>Bug: Для несколько идущих подряд вызовов <a href="service_functions/advcontrol.html#ACTL_POSTKEYSEQUENCE">ACTL_POSTKEYSEQUENCE</a> срабатывал только первый.
+
+<li>Уточнение в <a href="service_functions/inputbox.html">InputBox</a> для параметра HelpTopic.
+
+<li>MultiArc API: добавлено поле <a href="customapi/archives/arcinfo.html">ArcInfo.Chapters</a> - количество глав (chapters) в архиве.
+
+<li>MultiArc API: добавлено поле <a href="customapi/archives/arciteminfo.html">ArcItemInfo.Chapter</a> - глава (chapter) в архиве, которой принадлежит файл.
+
+<li>MultiArc API: добавлено описание формата файла <a href="customapi/archives/custom_ini.html">custom.ini</a>.
+
+<li>Документированы <a href="dialogapi/defs/index.html">макросы Dlg*</a>.
+
+<li>Во время исполнения макросов в <a href="exported_functions/processeditorinput.html">ProcessEditorInput</a>
+    передается событие типа <a href="defs/farmacro_key_event.html">FARMACRO_KEY_EVENT</a>.
+
+<li>Сообщение <a href="dialogapi/dmsg/dm_listsettitles.html">DM_LISTSETTITLES</a> не работает,
+    если в листе ни одного элемента.
+
+<li>Дублирование курсоров после удаления пунктов списка <a href="dialogapi/controls/di_listbox.html">DI_LISTBOX</a>
+    в случае, если курсор стоит не на удаляемом элементе.
+
+<li>Пара новых сообщений <a href="dialogapi/dmsg/dm_getselection.html">DM_GETSELECTION</a> и
+    <a href="dialogapi/dmsg/dm_setselection.html">DM_SETSELECTION</a>, позволяющих управлять
+    выделением блоков в строках редактирования диалога.
+
+<li>Новые команды функции <a href="service_functions/advcontrol.html">AdvControl</a>:
+    ACTL_GETPLUGINMAXREADDATA и ACTL_GETWCHARMODE.
+
+<li>Флаг FRS_SCANSYMLINK позволяет функции <a href="fsf/farrecursivesearch.html#FRS_SCANSYMLINK">FSF.FarRecursiveSearch</a>
+    "заходить" в символические связи во время обхода дерева каталогов.
+
+<li>Некорректное центрирование элементов <a href="dialogapi/controls/di_radiobutton.html">DI_RADIOBUTTON</a> и <a href="dialogapi/controls/di_checkbox.html">DI_CHECKBOX</a>
+    с выставленным флагом DIF_CENTERGROUP.
+
+
+<li>Теперь <a href="fsf/getreparsepointinfo.html">FSF.GetReparsePointInfo</a> для сетевых
+    каталогов возвращает ошибку, т.к. корректную информацию о содержимом символической связи в этом
+    случае получить невозможно.
+
+
+<li>В связи с выносом диалоговых настроек отдельным пунктом добавлена команда
+    <a href="service_functions/advcontrol.html#ACTL_GETDIALOGSETTINGS">ACTL_GETDIALOGSETTINGS</a>.
+    Соответственно изменены значения и названия следующих констант:
+
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="50%">Было</th><th class="cont" width="50%">Стало</th></tr>
+      <tr class="cont">
+        <td class="cont" width="50%">FIS_PERSISTENTBLOCKSINEDITCONTROLS</td>
+        <td class="cont" width="50%"><a href="service_functions/advcontrol.html#FDIS_PERSISTENTBLOCKSINEDITCONTROLS">FDIS_PERSISTENTBLOCKSINEDITCONTROLS</a></td>
+      </tr>
+      <tr class="cont">
+        <td class="cont" width="50%">FIS_HISTORYINDIALOGEDITCONTROLS</td>
+        <td class="cont" width="50%"><a href="service_functions/advcontrol.html#FDIS_HISTORYINDIALOGEDITCONTROLS">FDIS_HISTORYINDIALOGEDITCONTROLS</a></td>
+      </tr>
+      <tr class="cont">
+        <td class="cont" width="50%">FIS_AUTOCOMPLETEININPUTLINES</td>
+        <td class="cont" width="50%"><a href="service_functions/advcontrol.html#FDIS_AUTOCOMPLETEININPUTLINES">FDIS_AUTOCOMPLETEININPUTLINES</a></td>
+      </tr>
+    </table>
+
+
+<li>FAR возвращал мусор в <a href="structures/panelinfo.html">PanelInfo</a>.SelectedItems[0] для случая, когда
+    на панели нет выделенных файлов и курсор стоит на элементе <code>".."</code>
+
+
+<li>Все перечисления в <code>plugin.hpp</code> сделаны именованными
+
+
+<li>Новая команда <a href="structures/actlkeymacro.html#MCMD_POSTMACROSTRING">MCMD_POSTMACROSTRING</a> - передать в FAR макрос в текстовом
+    виде (в том виде, как их хранит FAR Manager в реестре)
+
+
+<li>Уточнение структуры <a href="structures/actlkeymacro.html">ActlKeyMacro</a>: добавлен член <code>Param.PlainText</code> -
+    указатель на строку, содержащую макропоследовательность.
+
+
+<li>Новый флаг <a href="structures/keysequence.html#KSFLAGS_NOSENDKEYSTOPLUGINS">KSFLAGS_NOSENDKEYSTOPLUGINS</a> - не передавать клавиши редакторным плагинам (плагинам, экспортирующим
+    функцию <a href="exported_functions/processeditorinput.html">ProcessEditorInput</a>)
+
+
+<li>Новая команда <a href="structures/editorsetparameter.html#ESPT_SETWORDDIV">ESPT_SETWORDDIV</a> - позволяет изменить строку
+    символов-разделителей слов (параметр cParam) для текущей копии редактора.
+
+
+<li>Новая команда <a href="structures/editorsetparameter.html#ESPT_GETWORDDIV">ESPT_GETWORDDIV</a> - позволяет получить строку
+    символов-разделителей слов (параметр cParam) для текущей копии редактора.
+
+
+<li>Bug: Если заголовок диалога начинается с числа, то это число отрезается в
+    заголовке окна Фара.
+
+<li>Bug: Смена фокуса (нажатие клавиши Tab или Shift-Tab) в диалоге с единственным
+    элементом приводила к зависанию FAR.
+
+<li>Поле FarDialogItem.Data для <a href="dialogapi/controls/di_listbox.html">DI_LISTBOX</a> используется как верхний
+    заголовок списка (если не выставлен флаг <a href="dialogapi/flags/dif_listnobox.html">DIF_LISTNOBOX</a>).
+
+
+<li>В качестве заголовка консоли принимается заголовок списка (<a href="dialogapi/controls/di_listbox.html">DI_LISTBOX</a>),
+    если в диалоге нет рамок и список (DI_LISTBOX) первый элемент.
+
+
+<li>Bug: Преобразование 'Key = <a href="fsf/farkeytoname.html">FarNameToKey</a> ("AltCtrlБуква") -&gt; <a href="fsf/farnametokey.html">FarKeyToName</a> (Key)'
+    работало некорректно (возвращается Alt00000, вместо AltCtrlБуква)
+
+
+<li>Bug: В <a href="language/control_statements.html">.lng файле</a> нельзя было ставить пробелы после идентификатора ".Language",
+    например ".Language = foo".
+
+
+<li>Bug: <a href="fsf/farrecursivesearch.html#FRS_SCANSYMLINK">FSF.FarRecursiveSearch</a>, не может найти файл если в качестве маски задано его короткое имя.
+
+
+<li>Новый флаг <a href="service_functions/menu.html#FMENU_CHANGECONSOLETITLE">FMENU_CHANGECONSOLETITLE</a> функции Menu.
+    Если указан, то FAR изменит заголовок консоли в значение, указанное в параметре <dfn>Title</dfn> (если Title не пуст).
+
+
+<li>Новый флаг <a href="dialogapi/flags/dif_listnoclose.html">DIF_LISTNOCLOSE</a> - при выборе элемента из списка не закрывать диалог.
+
+
+<li>Сообщение <a href="dialogapi/dmsg/dm_listsetmousereaction.html">DM_LISTSETMOUSEREACTION</a> теперь позволяет более гибко
+    управлять слежением списка за передвижением курсора мыши (перемещение курсора в списке). С помощью этого сообщения
+    можно задавать одно из трех состояний:
+    <ol>
+    <li>список будет реагировать на движение мыши  только если элемент в фокусе,
+    <li>список будет всегда реагировать на движение мыши
+    <li>список не будет реагировать на движение мыши
+    </ol>
+
+
+<li>При вызове команды <a href="service_functions/editorcontrol.html#ECTL_SAVEFILE">ECTL_SAVEFILE</a> FAR не запоминал новое имя файла.
+
+
+<li>Пара новых статей от Eugene Yavorsky: <a href="articles/good_version.html">Плагин для разных версий FAR Manager</a> и
+    <a href="articles/rsp_microsoftvc42.html">Как уменьшить размер плагина: Microsoft VC++ 4.2 (замечания к статье Олега Данилова)</a>
+
+
+<li>Новое сообщение <a href="dialogapi/dmsg/dn_listhotkey.html">DN_LISTHOTKEY</a>. Сообщает обработчику диалога, что пользователь
+    для смены пункта в списке (<a href="dialogapi/controls/di_listbox.html">DI_LISTBOX</a>) воспользовался горячими клавишами.
+
+
+<li>Bug: При движении мышью по листу сообщение <a href="dialogapi/dmsg/dn_listchange.html">DN_LISTCHANGE</a> посылалось даже, если
+    элемент списка не менялся. т.е. если двигать мышью в пределах одного
+    элемента, будут посылаться много DN_LISTCHANGE с номером этого элемента.
+
+
+<li>Логическое дополнение к числовой сортировке:
+    команды <a href="service_functions/control.html#FCTL_SETNUMERICSORT">FCTL_SETNUMERICSORT</a> и <a href="service_functions/control.html#FCTL_SETANOTHERNUMERICSORT">FCTL_SETANOTHERNUMERICSORT</a>
+    флаг <a href="structures/panelinfo.html#PFLAGS_NUMERICSORT">PFLAGS_NUMERICSORT</a>
+    (включен NumericSort на панели) к <a href="structures/panelinfo.html">PanelInfo</a>.Flags
+
+
+<li>Bug: Падение FAR, если в функции <a href="fsf/pointtoname.html">FSF.PointToName</a>() параметр Path == NULL.
+
+
+<li>Bug: При сохранении файла в редакторе, вызванного из плагина портился
+    пользовательский заголовок, переданный в параметре Title функции
+    <a href="service_functions/editor.html">Editor</a>.
+
+
+<li>Опубликован <a href="viewerapi/index.html">Viewer API</a>.
+
+
+<li>Добавлен раздел <a href="panelapi/index.html">Panel API</a>.
+
+
+<li>Флаг EOPT_EXPANDTABS переименован в <a href="structures/editorinfo.html#EOPT_EXPANDALLTABS">EOPT_EXPANDALLTABS</a>.
+
+
+<li>Добавлен раздел, описывающий <a href="macro/index.html">макросы</a>.
+
+
+<li>Статья Алексея Ярославского: <a href="articles/essay.html">Как компилировать с помощью Borland C++ 5.5 без startup code</a>
+
+
+<li>Новый флаг <a href="structures/editorcolor.html#ECF_TAB1">ECF_TAB1</a>.
+      Начиная с build 1957 FAR раскрашивает символ табуляции на всю длину, на которую расширяется табуляция.
+      Если необходимо, чтобы символ табуляции для цветовой области занимал 1 знакоместо, то
+      для элемента <em>EditorColor.Color</em>, в дополнении к цвету, необходимо выставить флаг <dfn>ECF_TAB1</dfn>.
+
+
+<li><a href="service_functions/editorcontrol.html#ECTL_GETBOOKMARKS">ECTL_GETBOOKMARKS</a> и
+    <a href="service_functions/editorcontrol.html#ECTL_GETINFO">ECTL_GETINFO</a> можно вызывать в
+    <a href="exported_functions/processeditorevent.html#EE_CLOSE">EE_CLOSE</a>.
+
+
+<li>В <a href="customapi/archives/index.html">API поддержки архивов</a> добавился флаг
+   <a href="customapi/archives/arcinfo.html#AF_HDRENCRYPTED">AF_HDRENCRYPTED</a>,
+    показывающий, что у архива шифрованный каталог.
+
+
+<li>Замечания к статье "<a href="articles/good_version.html">Плагин для разных версий FAR Manager</a>", по поводу
+    сравнения версий.
+
+
+<li>Начиная с 1.70 build 2052 для панельных плагинов, использующих функцию "<a href="exported_functions/processkey.html">ProcessKey</a>",
+    снято ограничение на приходящие в функцию клавиши.
+
+
+<li>Добавлена макрообласть "UserMenu"
+
+
+<li>Новый флаг <a href="exported_functions/processkey.html#PKF_PREPROCESS">PKF_PREPROCESS</a>.
+
+</ul>
+
 <h3>09 апреля 2003 г.</h3>
 <ul>
 <li>Теперь Энциклопедия распространяется в виде двух файлов pluginsr.chi
