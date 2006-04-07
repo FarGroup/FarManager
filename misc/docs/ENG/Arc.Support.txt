@@ -45,6 +45,13 @@ The most commonly used archivers are:
     (http://rarlab.com/).
     By default, rar.fmt is configured for RAR 2.5 or later.
 
+    Technical note:
+
+       To get a listing from RAR archives with an encrypted header the
+       UnRAR.dll is used (if the library is found in the path). Because of
+       limitations of the UnRAR library the last access and modification
+       dates will be empty.
+
   - ARJ. The file arj32.exe from the archive distribution is used
     (http://www.arjsoft.com/).
     By default, ARJ.FMT is configured for 32-bit arj32 3.08 and higher.
