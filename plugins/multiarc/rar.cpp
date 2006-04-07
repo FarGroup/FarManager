@@ -6,7 +6,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2005 FAR group
 */
-/* Revision: 1.24 09.04.2005 $ */
+/* Revision: 1.25 07.04.2006 $ */
 
 #define STRICT
 
@@ -94,6 +94,7 @@ int CALLBACK CallbackProc(UINT msg,LONG UserData,LONG P1,LONG P2)
                      FarGetMsg(MainModuleNumber,MGetPassword),NULL,
                      Password,Password,sizeof(Password)-1,NULL,FIB_PASSWORD))
       {
+        OemToChar(Password, Password);
         lstrcpyn((char *)P1,Password,P2);
         return(0);
       }
