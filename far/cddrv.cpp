@@ -5,10 +5,12 @@ cddrv.cpp
 
 */
 
-/* Revision: 1.07 17.07.2005 $ */
+/* Revision: 1.08 07.04.2006 $ */
 
 /*
 Modify:
+  07.04.2006 AY
+    ! GCC
   17.07.2005 SVS
     ! немного gcc
   09.06.2005 SVS
@@ -226,7 +228,9 @@ typedef struct _SCSI_PASS_THROUGH_WITH_BUFFERS {
 
 #define IOCTL_STORAGE_GET_MEDIA_TYPES_EX CTL_CODE(IOCTL_STORAGE_BASE, 0x0301, METHOD_BUFFERED, FILE_ANY_ACCESS)
 
+#ifndef FILE_DEVICE_DVD
 #define FILE_DEVICE_DVD                 0x00000033
+#endif
 
 //
 // IOCTL_STORAGE_GET_MEDIA_TYPES_EX will return an array of DEVICE_MEDIA_INFO

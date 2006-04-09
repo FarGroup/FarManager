@@ -5,10 +5,12 @@ headers.cpp
 
 */
 
-/* Revision: 1.22 12.03.2006 $ */
+/* Revision: 1.23 09.04.2006 $ */
 
 /*
 Modify:
+  06.04.2006 AY
+    ! GCC
   12.03.2006 SVS
     ! _strtoi64 кроме борманда так же компилим в дебажной MSVC.
   02.03.2006 SVS
@@ -247,6 +249,9 @@ Modify:
 
 #if defined(_MSC_VER) || defined(__GNUC__)
 #define vsnprintf _vsnprintf
+  #if defined(__GNUC__)
+    #define _strtoi64 strtoll
+  #endif
 #else
 #if defined(__BORLANDC__) && (__BORLANDC__ < 0x0550)
 #define vsnprintf(a,b,c,d) vsprintf(a,c,d)

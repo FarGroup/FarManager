@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.160 04.04.2006 $ */
+/* Revision: 1.161 09.04.2006 $ */
 
 /*
 Modify:
+  06.04.2006 AY
+    ! GCC
   04.04.2006 SVS
     + MCODE_F_SLEEP (N=Sleep(N)), MCODE_V_FAR_HEIGHT (Far.Height), MCODE_V_DRVSHOWPOS (Drv.ShowPos)
     + MCODE_V_DRVSHOWMODE - Drv.ShowMode - режимы отображения меню выбора дисков
@@ -1107,7 +1109,7 @@ int KeyMacro::GetPlainTextSize()
 TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
 {
   int I;
-  TVar Cond(0i64);
+  TVar Cond(_i64(0));
   char FileName[NM*2];
   int FileAttr=-1;
 
@@ -1461,7 +1463,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
         case MCODE_V_PPANEL_DRIVETYPE: // PPanel.DriveType - пассивная панель: тип привода
         {
           Panel *SelPanel = CheckCode == MCODE_V_APANEL_DRIVETYPE ? ActivePanel : PassivePanel;
-          Cond=-1i64;
+          Cond=_i64(-1);
           if ( SelPanel != NULL && SelPanel->GetMode() != PLUGIN_PANEL)
           {
             SelPanel->GetCurDir(FileName);
@@ -1744,9 +1746,9 @@ static TVar sleepFunc(TVar *param)
   if(Period > 0)
   {
     Sleep((DWORD)Period);
-    return TVar(1i64);
+    return TVar(_i64(1));
   }
-  return TVar(0i64);
+  return TVar(_i64(0));
 }
 
 // S=rindex(S1,S2)
@@ -1914,7 +1916,7 @@ static TVar dlggetvalueFunc(TVar *param)
           }
           else
           {
-            Ret=0i64;
+            Ret=_i64(0);
 /*
     int Item->Selected;
     const char *Item->History;
@@ -2058,11 +2060,11 @@ static TVar msaveFunc(TVar *param)
   TVarTable *t = &glbVarTable;
   const char *Name=param[0].s();
   if(!Name || *Name!= '%')
-    return TVar(0i64);
+    return TVar(_i64(0));
 
   TVar Result=varLook(*t, Name+1, errVar)->value;
   if(errVar)
-    return TVar(0i64);
+    return TVar(_i64(0));
 
   DWORD Ret=(DWORD)-1;
   char ValueName[129];
@@ -2148,7 +2150,7 @@ static TVar clipFunc(TVar *param)
     }
       break;
   }
-  return TVar(0i64);
+  return TVar(_i64(0));
 }
 
 // N=Panel.SetPos(panelType,fileName)
@@ -2163,7 +2165,7 @@ static TVar panelsetposFunc(TVar *param)
 
   Panel *SelPanel = typePanel == 0 ? ActivePanel : (typePanel == 1?PassivePanel:NULL);
   if(!SelPanel)
-    return TVar(0i64);
+    return TVar(_i64(0));
 
   long Ret=0;
   int TypePanel=SelPanel->GetType(); //FILE_PANEL,TREE_PANEL,QVIEW_PANEL,INFO_PANEL
@@ -2191,11 +2193,11 @@ static TVar panelitemFunc(TVar *param)
 
   Panel *SelPanel = typePanel == 0 ? ActivePanel : (typePanel == 1?PassivePanel:NULL);
   if(!SelPanel)
-    return TVar(0i64);
+    return TVar(_i64(0));
 
   int TypePanel=SelPanel->GetType(); //FILE_PANEL,TREE_PANEL,QVIEW_PANEL,INFO_PANEL
   if(!(TypePanel == FILE_PANEL || TypePanel ==TREE_PANEL))
-    return TVar(0i64);
+    return TVar(_i64(0));
 
   int Index=(int)(param[1].toInteger())-1;
   int TypeInfo=(int)param[2].toInteger();
@@ -2206,7 +2208,7 @@ static TVar panelitemFunc(TVar *param)
     struct TreeItem treeItem;
     if(SelPanel->GetItem(Index,&treeItem) && !TypeInfo)
       return TVar(treeItem.Name);
-    return TVar(0i64);
+    return TVar(_i64(0));
   }
   else
   {
@@ -2268,7 +2270,7 @@ static TVar panelitemFunc(TVar *param)
     }
   }
 
-  return TVar(0i64);
+  return TVar(_i64(0));
 }
 
 static int ePos;
@@ -2522,7 +2524,7 @@ done:
           case MCODE_OP_MUL:    ePos--; eStack[ePos] = eStack[ePos] *  eStack[ePos+1]; break;
           case MCODE_OP_DIV:
             ePos--;
-            if(eStack[ePos+1] == 0i64) //???
+            if(eStack[ePos+1] == _i64(0)) //???
               goto done;
             eStack[ePos] = eStack[ePos] /  eStack[ePos+1];
             break;

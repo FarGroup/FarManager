@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.63 12.03.2006 $ */
+/* Revision: 1.64 09.04.2006 $ */
 
 /*
 Modify:
+  06.04.2006 AY
+    + Обработка новых флагов в FileSizeToStr() - COLUMN_MINSIZEINDEX, COLUMN_MINSIZEINDEX_MASK и COLUMN_SHOWBYTESINDEX
   12.03.2006 SVS
     ! варнинги под MSVC
   06.12.2005 AY
@@ -950,13 +952,13 @@ void UnquoteExternal(char *Str)
    Форматирование размера файла в удобочитаемый вид.
 */
 #define MAX_KMGTBSTR_SIZE 16
-static char KMGTbStr[4][2][MAX_KMGTBSTR_SIZE]={0};
+static char KMGTbStr[5][2][MAX_KMGTBSTR_SIZE]={0};
 
 void __PrepareKMGTbStr(void)
 {
-  for(int I=0; I < 4; ++I)
+  for(int I=0; I < 5; ++I)
   {
-    xstrncpy(KMGTbStr[I][0],MSG(MListKb+I),MAX_KMGTBSTR_SIZE-1);
+    xstrncpy(KMGTbStr[I][0],MSG(MListBytes+I),MAX_KMGTBSTR_SIZE-1);
     strcpy(KMGTbStr[I][1],KMGTbStr[I][0]);
     LocalStrlwr(KMGTbStr[I][0]);
     LocalStrupr(KMGTbStr[I][1]);
@@ -978,6 +980,9 @@ char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size, int Width, 
   int Commas=(ViewFlags & COLUMN_COMMAS);
   int FloatSize=(ViewFlags & COLUMN_FLOATSIZE);
   int Economic=(ViewFlags & COLUMN_ECONOMIC);
+  int UseMinSizeIndex=(ViewFlags & COLUMN_MINSIZEINDEX);
+  int MinSizeIndex=(ViewFlags & COLUMN_MINSIZEINDEX_MASK)+1;
+  int ShowBytesIndex=(ViewFlags & COLUMN_SHOWBYTESINDEX);
 
   if (ViewFlags & COLUMN_THOUSAND)
   {
@@ -997,17 +1002,16 @@ char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size, int Width, 
     int64 Divider64F(0,1), Divider64F_mul(0,1000), Divider64F2(0,1), Divider64F2_mul(0,Divider);
     //выравнивание идёт по 1000 но само деление происходит на Divider
     //например 999 bytes покажутся как 999 а вот 1000 bytes уже покажутся как 0.97 K
-    for (IndexB=-1; IndexB<3; IndexB++)
+    for (IndexB=0; IndexB<4; IndexB++)
     {
       if (Sz < Divider64F*Divider64F_mul)
         break;
       Divider64F = Divider64F*Divider64F_mul;
       Divider64F2  = Divider64F2*Divider64F2_mul;
     }
-    if (IndexB==-1)
+    if (IndexB==0)
     {
       sprintf(Str,"%d",Sz.Number.Part.LowPart);
-      sprintf(DestStr,"%*.*s",Width,Width,Str);
     }
     else
     {
@@ -1015,6 +1019,9 @@ char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size, int Width, 
       OldSize = (OldSize % Divider64F2) / (Divider64F2 / Divider64F2_mul);
       DWORD Decimal = (DWORD)((double)OldSize.Number.Part.LowPart/(double)Divider*100.0);
       sprintf(Str,"%d.%02d",Sz.Number.Part.LowPart,Decimal);
+    }
+    if (IndexB>0 || ShowBytesIndex)
+    {
       Width-=(Economic?1:2);
       if (Width<0)
         Width=0;
@@ -1023,6 +1030,9 @@ char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size, int Width, 
       else
         sprintf(DestStr,"%*.*s %1.1s",Width,Width,Str,KMGTbStr[IndexB][IndexDiv]);
     }
+    else
+      sprintf(DestStr,"%*.*s",Width,Width,Str);
+
     return DestStr;
   }
 
@@ -1031,12 +1041,25 @@ char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size, int Width, 
   else
     sprintf(Str,"%I64d",Sz.Number.i64);
 
-  if (strlen(Str)<=Width || Width<5)
-    sprintf(DestStr,"%*.*s",Width,Width,Str);
+  if ((!UseMinSizeIndex && strlen(Str)<=Width) || Width<5)
+  {
+    if (ShowBytesIndex)
+    {
+      Width-=(Economic?1:2);
+      if (Width<0)
+        Width=0;
+      if (Economic)
+        sprintf(DestStr,"%*.*s%1.1s",Width,Width,Str,KMGTbStr[0][IndexDiv]);
+      else
+        sprintf(DestStr,"%*.*s %1.1s",Width,Width,Str,KMGTbStr[0][IndexDiv]);
+    }
+    else
+      sprintf(DestStr,"%*.*s",Width,Width,Str);
+  }
   else
   {
     Width-=(Economic?1:2);
-    IndexB=-1;
+    IndexB=0;
     do{
       //Sz=(Sz+Divider2)/Divider64;
       Sz = (OldSize=Sz) / Divider64;
@@ -1049,7 +1072,7 @@ char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size, int Width, 
         InsertCommas(Sz,Str);
       else
         sprintf(Str,"%I64d",Sz.Number.i64);
-    } while(strlen(Str) > Width);
+    } while((UseMinSizeIndex && IndexB<MinSizeIndex) || (strlen(Str) > Width));
 
     if (Economic)
       sprintf(DestStr,"%*.*s%1.1s",Width,Width,Str,KMGTbStr[IndexB][IndexDiv]);

@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.199 29.03.2006 $ */
+/* Revision: 1.200 09.04.2006 $ */
 
 /*
 Modify:
+  09.04.2006 AY
+    ! DriveMenu: показываем размер дисков с точкой по дефолту.
   29.03.2006 SVS
     ! Editor: PersistentBlocks по умолчанию выключен. (забыл. во вьювере сделал.... а здесь забыл)
   28.10.2005 SVS
@@ -1627,7 +1629,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeySystem,"CreateUppercaseFolders",&Opt.CreateUppercaseFolders,0, 0},
   {1, REG_DWORD,  NKeySystem,"InactivityExit",&Opt.InactivityExit,0, 0},
   {1, REG_DWORD,  NKeySystem,"InactivityExitTime",&Opt.InactivityExitTime,15, 0},
-  {1, REG_DWORD,  NKeySystem,"DriveMenuMode",&Opt.ChangeDriveMode,DRIVE_SHOW_TYPE|DRIVE_SHOW_PLUGINS, 0},
+  {1, REG_DWORD,  NKeySystem,"DriveMenuMode",&Opt.ChangeDriveMode,DRIVE_SHOW_TYPE|DRIVE_SHOW_PLUGINS|DRIVE_SHOW_SIZE_FLOAT, 0},
   {1, REG_DWORD,  NKeySystem,"DriveDisconnetMode",&Opt.ChangeDriveDisconnetMode,1, 0},
   {1, REG_DWORD,  NKeySystem,"AutoUpdateRemoteDrive",&Opt.AutoUpdateRemoteDrive,1, 0},
   {1, REG_DWORD,  NKeySystem,"FileSearchMode",&Opt.FindOpt.FileSearchMode,SEARCH_FROM_CURRENT, 0},

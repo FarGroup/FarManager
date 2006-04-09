@@ -2058,42 +2058,43 @@ $ #Settings dialog: settings#
 
 
 @CommandPrompt
-$ #Формат командной строки#
-   FAR позволяет изменить формат приглашения командной строки.
-Для этого в поле ввода #Установить формат командной строки# диалога
-~Настроек интерфейса~@InterfSettings@ необходимо ввести нужную
-последовательность переменных и специальных кодов, которая позволит
-показать дополнительную информацию в приглашении.
+$ #Command line prompt format#
+   FAR allows to change the command line prompt format.
+To change it you have to enter the needed sequence of variables and
+special code words in the #Set command line prompt format# input field
+of the ~Interface settings~@InterfSettings@ dialog, this will allow showing
+additional information in the command prompt.
 
-   Допускается использовать переменные окружения и следующие
-специальные коды:
+   It is allow to use environment variables and the following special
+code words:
 
-     $a - символ &
-     $b - символ |
-     $c - символ (
-     $d - текущая дата (зависит от системных настроек)
-     $f - символ )
-     $g - символ >
-     $h - удалить предыдущий символ
-     $l - символ <
-     $n - буква текущего диска
-     $p - текущий диск и путь
-     $q - символ =
-     $s - пробел
-     $t - текущее время в формате HH:MM:SS
-     $$ - символ $
+     $a - the & character
+     $b - the | character
+     $c - the ( character
+     $d - current date (depends on system settings)
+     $f - the ) character
+     $g - the > character
+     $h - delete the previous character
+     $l - the < character
+     $n - drive letter of the current drive
+     $p - current drive and path
+     $q - the = character
+     $s - space
+     $t - current time in HH:MM:SS format
+     $$ - the $ character
 
-   По умолчанию используется последовательность #$p$g# - текущий дисковод
-и путь ("C:\>").
+   By default the #$p$g# sequence is used - current drive and
+path ("C:\>").
 
-   Примеры.
+   Examples.
 
-   1. Приглашение формата #[%COMPUTERNAME%]$S$P$G# будет
-      содержать имя компьютера, текущий диск и путь
-      (переменная окружения %COMPUTERNAME% должна быть определена)
+   1. A prompt of the following format #[%COMPUTERNAME%]$S$P$G#
+      will contain the computer name, current drive and path
+      (the %COMPUTERNAME% environment variable must be defined)
 
-   2. Приглашение формата #[$T$H$H$H]$S$P$G# перед текущем путем
-      выведет время в формате HH:MM
+   2. A prompt of the following format #[$T$H$H$H]$S$P$G# will
+      display the current time in HH:MM format before the current
+      drive and path
 
 @Viewer
 $ #Viewer: control keys#
@@ -2489,17 +2490,19 @@ is not a ~file panel~@FilePanel@, it will be changed to the file panel.
        A CD-ROM can be closed by pressing #Ins#.
 
 
-    #Ctrl-1# - #Ctrl-8# switch the display of different information:
+    #Ctrl-1# - #Ctrl-9# switch the display of different information:
 
     Ctrl-1 - disk type;
     Ctrl-2 - network name
              (and the path associated with a SUBST drive under NT);
     Ctrl-3 - disk label;
     Ctrl-4 - file system;
-    Ctrl-5 - total and free disk size;
+    Ctrl-5 - total and free disk size
+             (this option has two display modes, press twice to see);
     Ctrl-6 - display of removable disk parameters;
     Ctrl-7 - display of plugin items;
-    Ctrl-8 - display of CD parameters.
+    Ctrl-8 - display of CD parameters;
+    Ctrl-9 - display of network parameters.
 
     #Change drive# menu settings are saved in the FAR configuration.
 

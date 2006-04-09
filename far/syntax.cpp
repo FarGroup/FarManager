@@ -5,10 +5,12 @@ syntax.cpp
 
 */
 
-/* Revision: 1.16 04.04.2006 $ */
+/* Revision: 1.17 09.04.2006 $ */
 
 /*
 Modify:
+  06.04.2006 AY
+    ! GCC
   04.04.2006 SVS
     + N=sleep(N)
   17.03.2006 AY & SVS
@@ -323,7 +325,7 @@ TVar operator/(const TVar& a, const TVar& b)
       switch ( b.vType )
       {
         case vtInteger:
-          r = b.inum ? ( a.inum / b.inum ) : 0i64;
+          r = b.inum ? ( a.inum / b.inum ) : _i64(0);
           break;
         case vtString:
           r = a;

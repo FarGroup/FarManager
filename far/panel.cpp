@@ -5,10 +5,13 @@ Parent class дл€ панелей
 
 */
 
-/* Revision: 1.145 04.04.2006 $ */
+/* Revision: 1.146 09.04.2006 $ */
 
 /*
 Modify:
+  06.04.2006 AY
+    ! –азмер дисков больше терабайта показывалс€ не правильно
+    + Ќовые режимы меню дисков - показ размера с точкой и отмена показа инфы дл€ сетевых дисков
   04.04.2006 SVS
     ! сохран€ем дл€ потомком Macro_DskShowPosType (локальный класс Guard_Macro_DskShowPosType :-))
   24.07.2005 WARP
@@ -633,7 +636,8 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
         }
 
         int ShowDisk = (DriveType!=DRIVE_REMOVABLE || (Opt.ChangeDriveMode & DRIVE_SHOW_REMOVABLE)) &&
-                       (!IsDriveTypeCDROM(DriveType) || (Opt.ChangeDriveMode & DRIVE_SHOW_CDROM));
+                       (!IsDriveTypeCDROM(DriveType) || (Opt.ChangeDriveMode & DRIVE_SHOW_CDROM)) &&
+                       (DriveType!=DRIVE_REMOTE || (Opt.ChangeDriveMode & DRIVE_SHOW_REMOTE));
         if (Opt.ChangeDriveMode & (DRIVE_SHOW_LABEL|DRIVE_SHOW_FILESYSTEM))
         {
           char VolumeName[NM],FileSystemName[NM];
@@ -654,21 +658,25 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
             sprintf(MenuText+strlen(MenuText),"%c%-8.8s",VerticalLine,FileSystemName);
         }
 
-        if (Opt.ChangeDriveMode & DRIVE_SHOW_SIZE)
+        if (Opt.ChangeDriveMode & (DRIVE_SHOW_SIZE|DRIVE_SHOW_SIZE_FLOAT))
         {
           char TotalText[NM],FreeText[NM];
           *TotalText=*FreeText=0;
           int64 TotalSize,TotalFree,UserFree;
           if (ShowDisk && GetDiskSize(RootDir,&TotalSize,&TotalFree,&UserFree))
           {
-            /* $ 10.05.2001 SVS
-                ривое форматировани€ вывода при охрененных размерах диска :-(
-            */
-            sprintf(TotalText,"%6d %1.1s",(TotalSize/(1024*1024)).PLow(),MSG(MChangeDriveMb));
-//            FileSizeToStr(TotalText,TotalSize.PHigh(),TotalSize.PLow(),8,0,1);
-            sprintf(FreeText,"%6d %1.1s",(UserFree/(1024*1024)).PLow(),MSG(MChangeDriveMb));
-//            FileSizeToStr(FreeText,UserFree.PHigh(),UserFree.PLow(),8,0,1);
-            /* SVS $ */
+            if (Opt.ChangeDriveMode & DRIVE_SHOW_SIZE)
+            {
+              //размер как минимум в мегабайтах
+              FileSizeToStr(TotalText,TotalSize.PHigh(),TotalSize.PLow(),8,COLUMN_MINSIZEINDEX|1);
+              FileSizeToStr(FreeText,UserFree.PHigh(),UserFree.PLow(),8,COLUMN_MINSIZEINDEX|1);
+            }
+            else
+            {
+              //размер с точкой и дл€ 0 добавл€ем букву размера (B)
+              FileSizeToStr(TotalText,TotalSize.PHigh(),TotalSize.PLow(),8,COLUMN_FLOATSIZE|COLUMN_SHOWBYTESINDEX);
+              FileSizeToStr(FreeText,UserFree.PHigh(),UserFree.PLow(),8,COLUMN_FLOATSIZE|COLUMN_SHOWBYTESINDEX);
+            }
           }
           sprintf(MenuText+strlen(MenuText),"%c%-8s%c%-8s",VerticalLine,TotalText,VerticalLine,FreeText);
         }
@@ -1054,7 +1062,17 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
           return(SelPos);
         case KEY_CTRL5:
         case KEY_RCTRL5:
-          Opt.ChangeDriveMode^=DRIVE_SHOW_SIZE;
+          if (Opt.ChangeDriveMode&DRIVE_SHOW_SIZE)
+          {
+            Opt.ChangeDriveMode^=DRIVE_SHOW_SIZE;
+            Opt.ChangeDriveMode|=DRIVE_SHOW_SIZE_FLOAT;
+          }
+          else if (Opt.ChangeDriveMode&DRIVE_SHOW_SIZE_FLOAT)
+          {
+            Opt.ChangeDriveMode^=DRIVE_SHOW_SIZE_FLOAT;
+          }
+          else
+            Opt.ChangeDriveMode^=DRIVE_SHOW_SIZE;
           return(SelPos);
         case KEY_CTRL6:
         case KEY_RCTRL6:
@@ -1067,6 +1085,10 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
         case KEY_CTRL8:
         case KEY_RCTRL8:
           Opt.ChangeDriveMode^=DRIVE_SHOW_CDROM;
+          return(SelPos);
+        case KEY_CTRL9:
+        case KEY_RCTRL9:
+          Opt.ChangeDriveMode^=DRIVE_SHOW_REMOTE;
           return(SelPos);
         /* $ 27.03.2001 SVS
           Shift-F1 на пункте плагина в меню выбора дисков тоже покажет хелп...

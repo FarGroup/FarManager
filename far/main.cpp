@@ -5,10 +5,12 @@ main.cpp
 
 */
 
-/* Revision: 1.86 04.04.2006 $ */
+/* Revision: 1.87 09.04.2006 $ */
 
 /*
 Modify:
+  09.04.2006 AY
+    ! Кто то :) забыл printf.
   04.04.2006 SVS
     + Уточнение подсказки командной строки (для far /?)
     - некорретная работа "far ." и "far .\"
@@ -731,7 +733,6 @@ int _cdecl main(int Argc, char *Argv[])
           {
             ExpandEnvironmentStr(&Argv[I][2], Opt.LoadPlug.CustomPluginsPath, sizeof(Opt.LoadPlug.CustomPluginsPath));
             ConvertNameToFull(Opt.LoadPlug.CustomPluginsPath,Opt.LoadPlug.CustomPluginsPath,sizeof(Opt.LoadPlug.CustomPluginsPath));
-              printf("\n\n%s\n%s\n",Argv[I],Opt.LoadPlug.CustomPluginsPath);
 /*
             if(Argv[I][2]=='.' && (Argv[I][3]==0 || Argv[I][3]=='\\' || Argv[I][3]=='/' || Argv[I][3]=='.'))
             {
