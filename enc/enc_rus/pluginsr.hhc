@@ -2460,6 +2460,11 @@
                         <param name="Local" value="html/articles/rsp_borlandc.html">
                         <param name="ImageNumber" value="11">
                         </OBJECT>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="Написание плагина на Delphi (ID3 Viewer)">
+                        <param name="Local" value="html/articles/delphisimple.html">
+                        <param name="ImageNumber" value="11">
+                        </OBJECT>
         </UL>
         <LI> <OBJECT type="text/sitemap">
                 <param name="Name" value="Дополнительные разделы">
