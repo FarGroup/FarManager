@@ -1,14 +1,18 @@
+#ifndef __HEADERS_HPP__
+#define __HEADERS_HPP__
 /*
-headers.cpp
+headers.hpp
 
 Стандартные заголовки
 
 */
 
-/* Revision: 1.23 09.04.2006 $ */
+/* Revision: 1.24 10.04.2006 $ */
 
 /*
 Modify:
+  10.04.2006 SVS
+    + MEMORYSTATUSEX для Borland < 5.5
   06.04.2006 AY
     ! GCC
   12.03.2006 SVS
@@ -259,9 +263,11 @@ Modify:
 #endif
 
 #ifdef __GNUC__
-#define _i64(num) num##ll
+#define _i64(num)   num##ll
+#define _ui64(num)  num##ull
 #else
-#define _i64(num) num##i64
+#define _i64(num)   num##i64
+#define _ui64(num)  num##ui64
 #endif
 
 #ifndef REG_QWORD
@@ -278,3 +284,25 @@ Modify:
   }
   #endif
 #endif
+
+#if defined(__BORLANDC__) && (__BORLANDC__ < 0x0550)
+
+#ifndef _DWORDLONG_
+typedef unsigned __int64 DWORDLONG;
+typedef DWORDLONG *PDWORDLONG;
+#endif // !_DWORDLONG_
+
+typedef struct _MEMORYSTATUSEX {
+    DWORD dwLength;
+    DWORD dwMemoryLoad;
+    DWORDLONG ullTotalPhys;
+    DWORDLONG ullAvailPhys;
+    DWORDLONG ullTotalPageFile;
+    DWORDLONG ullAvailPageFile;
+    DWORDLONG ullTotalVirtual;
+    DWORDLONG ullAvailVirtual;
+    DWORDLONG ullAvailExtendedVirtual;
+} MEMORYSTATUSEX, *LPMEMORYSTATUSEX;
+#endif
+
+#endif // __HEADERS_HPP__

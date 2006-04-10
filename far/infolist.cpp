@@ -5,10 +5,12 @@ infolist.cpp
 
 */
 
-/* Revision: 1.48 20.02.2006 $ */
+/* Revision: 1.49 10.04.2006 $ */
 
 /*
 Modify:
+  10.04.2006 SVS
+    - Mantis#117 - неверное отображение информации о памяти, если этой памяти поболее 2Г
   20.02.2006 SVS
     ! У ConvertNameToShort новый параметр - размер для Dest
   07.07.2005 SVS
@@ -153,6 +155,7 @@ InfoList::InfoList()
   PrevMacroMode=-1;
   DizPresent=FALSE;
   *DizFileName=0;
+
   if (LastDizWrapMode < 0)
   {
     LastDizWrapMode = Opt.ViOpt.ViewerIsWrap;
@@ -343,33 +346,32 @@ void InfoList::DisplayObject()
     PrintInfo(OutStr);
   }
 
-  MEMORYSTATUS ms;
   strcpy(Title,MSG(MInfoMemory));
   GotoXY(X1+(X2-X1-strlen(Title))/2,Y1+8);
   PrintText(Title);
-  ms.dwLength=sizeof(ms);
-  GlobalMemoryStatus(&ms);
+  MEMORYSTATUSEX ms;
+  FAR_GlobalMemoryStatusEx(&ms);
   if (ms.dwMemoryLoad==0)
-    ms.dwMemoryLoad=100-ToPercent(ms.dwAvailPhys+ms.dwAvailPageFile,ms.dwTotalPhys+ms.dwTotalPageFile);
+    ms.dwMemoryLoad=100-ToPercent(ms.ullAvailPhys+ms.ullAvailPageFile,ms.ullTotalPhys+ms.ullTotalPageFile);
   GotoXY(X1+2,Y1+9);
   PrintText(MInfoMemoryLoad);
   sprintf(OutStr,"%d%%",ms.dwMemoryLoad);
   PrintInfo(OutStr);
   GotoXY(X1+2,Y1+10);
   PrintText(MInfoMemoryTotal);
-  InsertCommas(ms.dwTotalPhys,OutStr);
+  InsertCommas((__int64)ms.ullTotalPhys,OutStr);
   PrintInfo(OutStr);
   GotoXY(X1+2,Y1+11);
   PrintText(MInfoMemoryFree);
-  InsertCommas(ms.dwAvailPhys,OutStr);
+  InsertCommas((__int64)ms.ullAvailPhys,OutStr);
   PrintInfo(OutStr);
   GotoXY(X1+2,Y1+12);
   PrintText(MInfoVirtualTotal);
-  InsertCommas(ms.dwTotalPageFile,OutStr);
+  InsertCommas((__int64)ms.ullTotalPageFile,OutStr);
   PrintInfo(OutStr);
   GotoXY(X1+2,Y1+13);
   PrintText(MInfoVirtualFree);
-  InsertCommas(ms.dwAvailPageFile,OutStr);
+  InsertCommas((__int64)ms.ullAvailPageFile,OutStr);
   PrintInfo(OutStr);
   ShowDirDescription();
   ShowPluginDescription();

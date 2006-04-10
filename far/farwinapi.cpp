@@ -5,10 +5,12 @@ farwinapi.cpp
 
 */
 
-/* Revision: 1.09 19.06.2005 $ */
+/* Revision: 1.10 10.04.2006 $ */
 
 /*
 Modify:
+  10.04.2006 SVS
+    + BOOL WINAPI FAR_GlobalMemoryStatusEx(LPMEMORYSTATUSEX lpBuffer)
   19.06.2005 SVS
     - BugZ#1348 - Не обновляется индикатор копирования при операциях с флешкой
   14.06.2005 SVS
@@ -280,4 +282,40 @@ BOOL MoveFileThroughTemp(const char *Src, const char *Dest)
       rc = MoveFile(Temp, Dest);
   }
   return rc;
+}
+
+BOOL WINAPI FAR_GlobalMemoryStatusEx(LPMEMORYSTATUSEX lpBuffer)
+{
+  typedef BOOL (WINAPI *PGlobalMemoryStatusEx)(LPMEMORYSTATUSEX lpBuffer);
+  static PGlobalMemoryStatusEx pGlobalMemoryStatusEx=NULL;
+  BOOL Ret=FALSE;
+
+  if(!pGlobalMemoryStatusEx)
+    pGlobalMemoryStatusEx = (PGlobalMemoryStatusEx)GetProcAddress(GetModuleHandle("KERNEL32"),"GlobalMemoryStatusEx");
+
+  if(pGlobalMemoryStatusEx)
+  {
+    MEMORYSTATUSEX ms;
+    ms.dwLength=sizeof(ms);
+    Ret=pGlobalMemoryStatusEx(&ms);
+    if(Ret)
+      memcpy(lpBuffer,&ms,sizeof(ms));
+  }
+  else
+  {
+    MEMORYSTATUS ms;
+    ms.dwLength=sizeof(ms);
+    GlobalMemoryStatus(&ms);
+    lpBuffer->dwLength=sizeof(MEMORYSTATUSEX);
+    lpBuffer->dwMemoryLoad=ms.dwMemoryLoad;
+    lpBuffer->ullTotalPhys           =(DWORDLONG)ms.dwTotalPhys;
+    lpBuffer->ullAvailPhys           =(DWORDLONG)ms.dwAvailPhys;
+    lpBuffer->ullTotalPageFile       =(DWORDLONG)ms.dwTotalPageFile;
+    lpBuffer->ullAvailPageFile       =(DWORDLONG)ms.dwAvailPageFile;
+    lpBuffer->ullTotalVirtual        =(DWORDLONG)ms.dwTotalVirtual;
+    lpBuffer->ullAvailVirtual        =(DWORDLONG)ms.dwAvailVirtual;
+    lpBuffer->ullAvailExtendedVirtual=0;
+    Ret=TRUE;
+  }
+  return Ret;
 }

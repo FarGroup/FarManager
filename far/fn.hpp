@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.238 02.03.2006 $ */
+/* Revision: 1.239 10.04.2006 $ */
 
 /*
 Modify:
+  10.04.2006 SVS
+    + BOOL WINAPI FAR_GlobalMemoryStatusEx(LPMEMORYSTATUSEX lpBuffer)
   02.03.2006 SVS
     ! EnumRegValue - доп параметр, для переменной типа REG_QWORD.
     + Добавлены фунцкии по работе с реестром с типом REG_QWORD: SetRegKey64, GetRegKey64 (в двух видах)
@@ -801,6 +803,8 @@ BOOL WINAPI FAR_OemToCharBuff(LPCSTR lpszSrc,LPTSTR lpszDst,DWORD cchDstLength);
 BOOL WINAPI FAR_CharToOemBuff(LPCSTR lpszSrc,LPTSTR lpszDst,DWORD cchDstLength);
 BOOL WINAPI FAR_OemToChar(LPCSTR lpszSrc,LPTSTR lpszDst);
 BOOL WINAPI FAR_CharToOem(LPCSTR lpszSrc,LPTSTR lpszDst);
+
+BOOL WINAPI FAR_GlobalMemoryStatusEx(LPMEMORYSTATUSEX lpBuffer);
 
 
 char* FarMSG(int MsgID);
