@@ -12,67 +12,67 @@
 FAR 1.71 (build 2090) (09.04.2006)
 ---------------------------------------------------------------------------
 
-[!] Расширен набор символов в Формате командной строки.
+[!] Command line prompt format has been extended with new commands.
 
-[+] При выборе несуществующего файла (клавишей Enter) из истории редактирования
-    предлагается создать этот файл.
+[+] Selecting (by Enter) a non-existing file from the edit history, a prompt to
+    create this file is shown.
 
-[+] Макро-функция "N=sleep(N)".
+[+] Macro-function "N=sleep(N)".
 
-[+] Макро-константа "Far.Height".
+[+] Macro-constant "Far.Height".
 
-[+] Макро-константа "Far.Title".
+[+] Macro-constant "Far.Title".
 
-[+] Макро-константа "Title".
+[+] Macro-constant "Title".
 
-[+] Макро-константа "Drv.ShowPos".
+[+] Macro-constant "Drv.ShowPos".
 
-[+] Макро-константа "Drv.ShowMode".
+[+] Macro-constant "Drv.ShowMode".
 
-[+] Дополнительный режим показа размера дисков (Ctrl-5) в меню дисков -
-    в стиле Windows Explorer. По умолчанию включен.
+[+] Additional mode for displaying disk size (Ctrl-5) in disks menu -
+    a Windows Explorer like mode. On by default.
 
-[+] Режим показа параметром для сетевых дисков (Ctrl-9) в меню дисков.
-    По умолчанию выключен.
+[+] A mode for displaying parameters of network drives (Ctrl-9) in disks menu.
+    Off by default.
 
-[*] Уточнение подсказки командной строки (для far /?).
+[*] Some updates to the command line help (for far /?).
 
-[-] Некорректная работа команд CD и CHDIR с переменными среды.
+[-] Incorrect handling of environment variables in CD and CHDIR commands.
 
-[-] Не работало правило TechInfo #8.
+[-] TechInfo#8 did not work.
 
-[-] Некорректная обработка параметров командной строки FAR, содержащих
-    переменные среды и относительные пути.
+[-] Incorrect handling of environment variables and relative paths in FAR
+    command line.
 
-[-] Падение FAR при запуске, если значение "HistoryCount" (TechInfo#52)
-    меньше реального значения пунктов истории.
+[-] FAR crashed when started if the the value of "HistoryCount" (TechInfo#52)
+    was smaller than the number of items in the history.
 
-[-] Исправлено поведение Ctrl-Enter на несуществующих пунктах истории
-    просмотра.
+[-] Fixed the behaviour of Ctrl-Enter on non-existing items of edit/view
+    history.
 
 MultiArc - build 181
 ~~~~~~~~~~~~~~~~~~~~
 
-[-] Неправильно работало сохранение и восстановление параметров командной
-    строки архиваторов в диалоге архивации.
+[-] Saving and restoring of user defined command line switches in the archiving
+    dialog did not work correctly.
 
-[-] RAR.FMT: при использовании unrar.dll, ему передавался пароль в неверной
-    кодировке.
+[-] RAR.FMT: when using unrar.dll the archive password was passed to it in the
+    wrong encoding.
 
 Network - build 34
 ~~~~~~~~~~~~~~~~~~
 
-[*] Fixed the following wrong behaviour: when the plug-in has been  opened
-    from a network directory and  the  user  presses  Ctrl+PgUp  from  the
-    Network providers list or tryes to go up one level by  any  other way,
-    they will be confused because the current directory will be a  network
+[*] Fixed the following wrong behaviour: when the plug-in has been opened
+    from a network directory and the user pressed Ctrl+PgUp from the
+    Network providers list or tried to go up one level by any other way,
+    they would have been confused because the current directory was a network
     one.
 
 TempPanel - build 28
 ~~~~~~~~~~~~~~~~~~~~
 
-[*] Плагин загружается в память при запуске FAR, чтобы можно
-    было использовать его функции из других плагинов.
+[*] The plugin is now preloaded to memory when FAR is started so its functions
+    may be used in other plugins.
 
 
                                      [FAR manager development group]
