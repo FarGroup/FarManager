@@ -461,6 +461,17 @@ int TmpPanel::IsCurrentFileCorrect (char *pCurFileName)
 
 int TmpPanel::ProcessKey (int Key,unsigned int ControlState)
 {
+  if(!ControlState && Key==VK_F1)
+  {
+     Info.ShowHelp(Info.ModuleName, NULL, FHELP_USECONTENTS|FHELP_NOSHOWERROR);
+     return TRUE;
+  }
+
+  if(ControlState==(PKF_SHIFT|PKF_ALT) && Key==VK_F9)
+  {
+     return Configure(0);
+  }
+
   if(ControlState==(PKF_SHIFT|PKF_ALT) && Key==VK_F3)
   {
     char CurFileName [NM];

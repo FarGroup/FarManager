@@ -447,7 +447,7 @@ int WINAPI _export GetFindData(HANDLE hPlugin,struct PluginPanelItem **pPanelIte
 void WINAPI _export GetPluginInfo(struct PluginInfo *Info)
 {
   Info->StructSize=sizeof(*Info);
-  Info->Flags=0;
+  Info->Flags=PF_PRELOAD;
   static const char *DiskMenuStrings[1];
   DiskMenuStrings[0]=GetMsg(MDiskMenuString);
   Info->DiskMenuStrings=DiskMenuStrings;
