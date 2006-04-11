@@ -68,5 +68,11 @@ Network - build 34
     they will be confused because the current directory will be a  network
     one.
 
+TempPanel - build 28
+~~~~~~~~~~~~~~~~~~~~
+
+[*] Плагин загружается в память при запуске FAR, чтобы можно
+    было использовать его функции из других плагинов.
+
 
                                      [FAR manager development group]
