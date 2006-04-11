@@ -14,8 +14,8 @@ FAR 1.71 (build 2090) (09.04.2006)
 
 [!] Command line prompt format has been extended with new commands.
 
-[+] Selecting (by Enter) a non-existing file from the edit history, a prompt to
-    create this file is shown.
+[+] When a non-existing file from the edit history is selected (by Enter),
+    a prompt to create this file is shown.
 
 [+] Macro-function "N=sleep(N)".
 
@@ -42,7 +42,7 @@ FAR 1.71 (build 2090) (09.04.2006)
 [-] TechInfo#8 did not work.
 
 [-] Incorrect handling of environment variables and relative paths in FAR
-    command line.
+    command line switches.
 
 [-] FAR crashed when started if the the value of "HistoryCount" (TechInfo#52)
     was smaller than the number of items in the history.
