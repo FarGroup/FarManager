@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.139 13.04.2006 $ */
+/* Revision: 1.140 13.04.2006 $ */
 
 /*
 Modify:
+  13.04.2006 SVS
+    + PreRedrawParamStruct.Param5 - пусть будет int64
   13.04.2006 SVS
     + Opt.SavePluginFoldersHistory - сохранять или нет в истории папок так же плагиновые папки
   28.10.2005 SVS
@@ -1000,6 +1002,7 @@ struct PreRedrawParamStruct
   const void *Param2;
   const void *Param3;
   void *Param4;
+  __int64 Param5;
 };
 
 #endif // __FARSTRUCT_HPP__

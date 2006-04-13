@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.74 22.12.2005 $ */
+/* Revision: 1.75 13.04.2006 $ */
 
 /*
 Modify:
+  13.04.2006 SVS
+    ! Изменен текст текст диалогов для уничтожения файлов (Alt-Del)
   22.12.2005 SVS
     + вызов хелпа для диалога удаления
   29.09.2005 SVS
@@ -212,8 +214,8 @@ Modify:
 #include "constitle.hpp"
 #include "fn.hpp"
 
-static void ShellDeleteMsg(const char *Name);
-static int AskDeleteReadOnly(const char *Name,DWORD Attr);
+static void ShellDeleteMsg(const char *Name,int Wipe);
+static int AskDeleteReadOnly(const char *Name,DWORD Attr,int Wipe);
 static int ShellRemoveFile(const char *Name,const char *ShortName,int Wipe);
 static int ERemoveDirectory(const char *Name,const char *ShortName,int Wipe);
 static int RemoveToRecycleBin(const char *Name);
@@ -345,7 +347,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   if (Ret && (Opt.Confirm.Delete || SelCount>1 || (FileAttr & FA_DIREC)))
   {
     char *DelMsg;
-    char *TitleMsg=MSG(MDeleteTitle);
+    char *TitleMsg=MSG(Wipe?MDeleteWipeTitle:MDeleteTitle);
     /* $ 05.01.2001 IS
        ! Косметика в сообщениях - разные сообщения в зависимости от того,
          какие и сколько элементов выделено.
@@ -379,7 +381,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     }
     /* IS $ */
     SetMessageHelp("DeleteFile");
-    if (Message(0,2,TitleMsg,DelMsg,DeleteFilesMsg,MSG(MDelete),MSG(MCancel))!=0)
+    if (Message(0,2,TitleMsg,DelMsg,DeleteFilesMsg,MSG(Wipe?MDeleteWipe:MDelete),MSG(MCancel))!=0)
     {
       NeedUpdate=FALSE;
       goto done;
@@ -391,14 +393,14 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     //SaveScreen SaveScr;
     SetCursorType(FALSE,0);
     SetMessageHelp("DeleteFile");
-    if (Message(MSG_WARNING,2,MSG(MDeleteFilesTitle),MSG(MAskDelete),
+    if (Message(MSG_WARNING,2,MSG(Wipe?MWipeFilesTitle:MDeleteFilesTitle),MSG(Wipe?MAskWipe:MAskDelete),
                 DeleteFilesMsg,MSG(MDeleteFileAll),MSG(MDeleteFileCancel))!=0)
     {
       NeedUpdate=FALSE;
       goto done;
     }
     SetPreRedrawFunc(PR_ShellDeleteMsg);
-    ShellDeleteMsg("");
+    ShellDeleteMsg("",Wipe);
   }
 
   if (UpdateDiz)
@@ -420,7 +422,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     //SaveScreen SaveScr;
     SetCursorType(FALSE,0);
     SetPreRedrawFunc(PR_ShellDeleteMsg);
-    ShellDeleteMsg("");
+    ShellDeleteMsg("",Wipe);
 
     ReadOnlyDeleteMode=-1;
     SkipMode=-1;
@@ -458,9 +460,9 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
             if(!(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
             {
               //SetMessageHelp("DeleteFile");
-              MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(MDeleteFolderTitle),
-                  MSG(MDeleteFolderConfirm),MsgFullName,
-                    MSG(MDeleteFileDelete),MSG(MDeleteFileAll),
+              MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(Wipe?MWipeFolderTitle:MDeleteFolderTitle),
+                  MSG(Wipe?MWipeFolderConfirm:MDeleteFolderConfirm),MsgFullName,
+                    MSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),MSG(MDeleteFileAll),
                     MSG(MDeleteFileSkip),MSG(MDeleteFileCancel));
             }
             /* IS $ */
@@ -493,7 +495,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
                 break;
               }
             }
-            ShellDeleteMsg(FullName);
+            ShellDeleteMsg(FullName,Wipe);
             char ShortName[NM];
             xstrncpy(ShortName,FullName,sizeof(ShortName)-1);
             if (*FindData.cAlternateFileName)
@@ -539,9 +541,9 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
                 xstrncpy(MsgFullName, FullName,sizeof(MsgFullName)-1);
                 TruncPathStr(MsgFullName, ScrX-16);
                 //SetMessageHelp("DeleteFile");
-                int MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(MDeleteFolderTitle),
-                      MSG(MDeleteFolderConfirm),MsgFullName,
-                      MSG(MDeleteFileDelete),MSG(MDeleteFileAll),
+                int MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(Wipe?MWipeFolderTitle:MDeleteFolderTitle),
+                      MSG(Wipe?MWipeFolderConfirm:MDeleteFolderConfirm),MsgFullName,
+                      MSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),MSG(MDeleteFileAll),
                       MSG(MDeleteFileSkip),MSG(MDeleteFileCancel));
                 /* IS $ */
                 if (MsgCode<0 || MsgCode==3)
@@ -582,7 +584,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
             }
             else
             {
-              int AskCode=AskDeleteReadOnly(FullName,FindData.dwFileAttributes);
+              int AskCode=AskDeleteReadOnly(FullName,FindData.dwFileAttributes,Wipe);
               if (AskCode==DELETE_CANCEL)
               {
                 Cancel=1;
@@ -600,7 +602,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 
         if (!Cancel)
         {
-          ShellDeleteMsg(SelName);
+          ShellDeleteMsg(SelName,Wipe);
           if (FileAttr & FA_RDONLY)
             SetFileAttributes(SelName,FILE_ATTRIBUTE_NORMAL);
           int DeleteCode;
@@ -642,8 +644,8 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
       }
       else
       {
-        ShellDeleteMsg(SelName);
-        int AskCode=AskDeleteReadOnly(SelName,FileAttr);
+        ShellDeleteMsg(SelName,Wipe);
+        int AskCode=AskDeleteReadOnly(SelName,FileAttr,Wipe);
         if (AskCode==DELETE_CANCEL)
           break;
         if (AskCode==DELETE_YES)
@@ -680,10 +682,10 @@ done:
 
 static void PR_ShellDeleteMsg(void)
 {
-  ShellDeleteMsg(static_cast<const char*>(PreRedrawParam.Param1));
+  ShellDeleteMsg(static_cast<const char*>(PreRedrawParam.Param1),(int)PreRedrawParam.Param5);
 }
 
-void ShellDeleteMsg(const char *Name)
+void ShellDeleteMsg(const char *Name,int Wipe)
 {
   static int Width=30;
   int WidthTemp;
@@ -710,13 +712,14 @@ void ShellDeleteMsg(const char *Name)
     TruncPathStr(OutFileName,Width);
     CenterStr(OutFileName,OutFileName,Width+4);
 
-    Message(0,0,MSG(MDeleteTitle),MSG(MDeleting),OutFileName);
+    Message(0,0,MSG(Wipe?MDeleteWipeTitle:MDeleteTitle),MSG(Wipe?MDeletingWiping:MDeleting),OutFileName);
   }
   PreRedrawParam.Param1=static_cast<void*>(const_cast<char*>(Name));
+  PreRedrawParam.Param5=(__int64)Wipe;
 }
 
 
-int AskDeleteReadOnly(const char *Name,DWORD Attr)
+int AskDeleteReadOnly(const char *Name,DWORD Attr,int Wipe)
 {
   int MsgCode;
   if ((Attr & FA_RDONLY)==0)
@@ -731,7 +734,7 @@ int AskDeleteReadOnly(const char *Name,DWORD Attr)
     TruncPathStr(MsgName, ScrX-16);
     //SetMessageHelp("DeleteFile");
     MsgCode=Message(MSG_DOWN|MSG_WARNING,5,MSG(MWarning),MSG(MDeleteRO),MsgName,
-            MSG(MAskDeleteRO),MSG(MDeleteFileDelete),MSG(MDeleteFileAll),
+            MSG(Wipe?MAskWipeRO:MAskDeleteRO),MSG(Wipe?MDeleteFileWipe:MDeleteFileDelete),MSG(MDeleteFileAll),
             MSG(MDeleteFileSkip),MSG(MDeleteFileSkipAll),
             MSG(MDeleteFileCancel));
     /* IS $ */
@@ -965,7 +968,6 @@ int RemoveToRecycleBin(const char *Name)
   if (Opt.DeleteToRecycleBin)
     fop.fFlags|=FOF_ALLOWUNDO;
   SetFileApisTo(APIS2ANSI);
-  DWORD ErrCode=0;
   DWORD RetCode=SHFileOperation(&fop);
   DWORD RetCode2=RetCode;
   /* $ 26.01.2003 IS
