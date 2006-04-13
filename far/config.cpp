@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.200 09.04.2006 $ */
+/* Revision: 1.201 13.04.2006 $ */
 
 /*
 Modify:
+  13.04.2006 SVS
+    + System\SavePluginFoldersHistory - сохранять или нет в истории папок так же плагиновые папки
   09.04.2006 AY
     ! DriveMenu: показываем размер дисков с точкой по дефолту.
   29.03.2006 SVS
@@ -1612,6 +1614,7 @@ static struct FARConfig{
 
   {1, REG_DWORD,  NKeySystem,"SaveHistory",&Opt.SaveHistory,1, 0},
   {1, REG_DWORD,  NKeySystem,"SaveFoldersHistory",&Opt.SaveFoldersHistory,1, 0},
+  {0, REG_DWORD,  NKeySystem,"SavePluginFoldersHistory",&Opt.SavePluginFoldersHistory,0, 0},
   {1, REG_DWORD,  NKeySystem,"SaveViewHistory",&Opt.SaveViewHistory,1, 0},
   {1, REG_DWORD,  NKeySystem,"UseRegisteredTypes",&Opt.UseRegisteredTypes,1, 0},
   {1, REG_DWORD,  NKeySystem,"AutoSaveSetup",&Opt.AutoSaveSetup,0, 0},

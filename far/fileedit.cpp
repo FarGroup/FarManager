@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.174 02.03.2006 $ */
+/* Revision: 1.175 13.04.2006 $ */
 
 /*
 Modify:
+  13.04.2006 SVS
+    - Shift-F4 Del Enter Esc - в истории им€ файла как "?NewFile?"
   02.03.2006 SVS
     ! явно зададит область действи€ макроса
   09.02.2006 AY
@@ -1943,7 +1945,7 @@ void FileEditor::SetScreenPosition()
 void FileEditor::OnDestroy()
 {
   _OT(SysLog("[%p] FileEditor::OnDestroy()",this));
-  if (!Flags.Check(FFILEEDIT_DISABLEHISTORY))
+  if (!Flags.Check(FFILEEDIT_DISABLEHISTORY) && stricmp(FileName,MSG(MNewFileName)))
     CtrlObject->ViewHistory->AddToHistory(FullFileName,MSG(MHistoryEdit),
                   (FEdit->Flags.Check(FEDITOR_LOCKMODE)?4:1));
   /* $ 19.10.2001 OT

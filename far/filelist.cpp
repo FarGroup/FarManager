@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.247 20.02.2006 $ */
+/* Revision: 1.248 13.04.2006 $ */
 
 /*
 Modify:
+  13.04.2006 SVS
+    + System\SavePluginFoldersHistory - сохран€ть или нет в истории папок так же плагиновые папки
   20.02.2006 SVS
     ! ” ConvertNameToShort новый параметр - размер дл€ Dest
   23.01.2006 SVS
@@ -2763,7 +2765,7 @@ BOOL FileList::ChangeDir(char *NewDir,BOOL IsUpdated)
     /* $ 16.01.2002 VVM
       + ≈сли у плагина нет OPIF_REALNAMES, то истори€ папок не пишетс€ в реестр */
     CtrlObject->FolderHistory->AddToHistory(NullToEmpty(Info.CurDir),Info.Format,1,
-                               (Info.Flags & OPIF_REALNAMES)?0:1);
+                               (Info.Flags & OPIF_REALNAMES)?0:(Opt.SavePluginFoldersHistory?0:1));
     /* VVM $ */
 
     /* $ 25.04.01 DJ

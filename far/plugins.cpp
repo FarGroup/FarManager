@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.163 23.01.2006 $ */
+/* Revision: 1.164 13.04.2006 $ */
 
 /*
 Modify:
+  13.04.2006 SVS
+    + У функции PluginsSet::ProcessCommandLine доп параметр - указатель на панель.
   23.01.2006 SVS
     + _ALGO
   24.07.2005 WARP
@@ -3084,7 +3086,7 @@ void PluginsSet::LoadIfCacheAbsent()
 }
 
 
-int PluginsSet::ProcessCommandLine(const char *CommandParam)
+int PluginsSet::ProcessCommandLine(const char *CommandParam,Panel *Target)
 {
   int PrefixLength=0;
   char *Command=(char *)alloca(strlen(CommandParam)+1);
@@ -3191,7 +3193,8 @@ int PluginsSet::ProcessCommandLine(const char *CommandParam)
   if (!PreparePlugin(PluginPos) || PluginsData[PluginPos].pOpenPlugin==NULL)
     return(FALSE);
   Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
-  if (ActivePanel->ProcessPluginEvent(FE_CLOSE,NULL))
+  Panel *CurPanel=(Target)?Target:ActivePanel;
+  if (CurPanel->ProcessPluginEvent(FE_CLOSE,NULL))
     return(FALSE);
   CtrlObject->CmdLine->SetString("");
 
@@ -3209,11 +3212,12 @@ int PluginsSet::ProcessCommandLine(const char *CommandParam)
   HANDLE hPlugin=OpenPlugin(PluginPos,OPEN_COMMANDLINE,(int)PluginCommand);
   if (hPlugin!=INVALID_HANDLE_VALUE)
   {
-    Panel *NewPanel=CtrlObject->Cp()->ChangePanel(ActivePanel,FILE_PANEL,TRUE,TRUE);
+    Panel *NewPanel=CtrlObject->Cp()->ChangePanel(CurPanel,FILE_PANEL,TRUE,TRUE);
     NewPanel->SetPluginMode(hPlugin,"");
     NewPanel->Update(0);
     NewPanel->Show();
-    NewPanel->SetFocus();
+    if(!Target || Target == ActivePanel)
+      NewPanel->SetFocus();
   }
   return(TRUE);
 }

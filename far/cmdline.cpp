@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.84 05.04.2006 $ */
+/* Revision: 1.85 13.04.2006 $ */
 
 /*
 Modify:
+  13.04.2006 SVS
+    ! Для Alt-F12 сначала предоставим слово плагинам на предмет проврки и исполнения префиксов
   05.04.2006 SVS
     ! Расширен набор символов в Формате командной строки.
     ! после выбора из истории всегда создавать файл - оно проверено на в хистори!
@@ -453,12 +455,15 @@ int CommandLine::ProcessKey(int Key)
           if(SelectType == 6)
             Panel=CtrlObject->Cp()->GetAnotherPanel(Panel);
 
-          if(Panel->GetMode() == PLUGIN_PANEL ||
-             CheckShortcutFolder(Str,sizeof(Str)-1,FALSE))
+          if(!CtrlObject->Plugins.ProcessCommandLine(Str,Panel))
           {
-            Panel->SetCurDir(Str,Type==0 ? TRUE:FALSE);
-            Panel->Redraw();
-            CtrlObject->FolderHistory->SetAddMode(TRUE,2,TRUE);
+            if(Panel->GetMode() == PLUGIN_PANEL ||
+               CheckShortcutFolder(Str,sizeof(Str)-1,FALSE))
+            {
+              Panel->SetCurDir(Str,Type==0 ? TRUE:FALSE);
+              Panel->Redraw();
+              CtrlObject->FolderHistory->SetAddMode(TRUE,2,TRUE);
+            }
           }
         }
         else

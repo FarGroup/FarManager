@@ -7,10 +7,12 @@ plugins.hpp
 
 */
 
-/* Revision: 1.32 25.04.2005 $ */
+/* Revision: 1.33 13.04.2006 $ */
 
 /*
 Modify:
+  13.04.2006 SVS
+    + У функции PluginsSet::ProcessCommandLine доп параметр - указатель на панель.
   24.04.2005 AY
     ! GCC
   06.10.2003 SVS
@@ -96,6 +98,7 @@ class SaveScreen;
 class FileEditor;
 class Viewer;
 class Frame;
+class Panel;
 
 typedef void (WINAPI *PLUGINCLOSEPLUGIN)(HANDLE hPlugin);
 typedef int (WINAPI *PLUGINCOMPARE)(HANDLE hPlugin,const struct PluginPanelItem *Item1,const struct PluginPanelItem *Item2,unsigned int Mode);
@@ -318,7 +321,7 @@ class PluginsSet
     int UseFarCommand(HANDLE hPlugin,int CommandType);
     void ReloadLanguage();
     void DiscardCache();
-    int ProcessCommandLine(const char *Command);
+    int ProcessCommandLine(const char *Command,Panel *Target=NULL);
 
     void UnloadPlugin(struct PluginItem &CurPlg,DWORD Exception);
 

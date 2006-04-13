@@ -5,10 +5,14 @@ history.cpp
 
 */
 
-/* Revision: 1.39 04.04.2006 $ */
+/* Revision: 1.40 13.04.2006 $ */
 
 /*
 Modify:
+  13.04.2006 SVS
+    ! ≈сли в истории файл редактировалс€, но мы его не нашли, предложим создать
+    ! ѕроверку каталога делаем только в том случае, если ќЌ реальный (LastStr[StrPos].Type == 0, дл€ плагинов это = 1)
+    + ѕри добавлении в историю каталогов префиксы гоним не как заголовок, а... как префиксы.
   04.04.2006 SVS
     - TI#52. ≈сли значение "HistoryCount" меньше... в общем не то что надо сто€ло :-(
     - CtrlEnter на несуществующем файле неправильно работал
@@ -229,20 +233,30 @@ void History::AddToHistory(const char *Str,const char *Title,int Type,int SaveFo
     // т.к. мы все запомнили, то, перед прочтением освободим пам€ть
     FreeHistory();
 
+    // читаем из реестра
     ReadHistory();
+
+    // сохран€ем указатели на прочтенное
     LastPtr0=LastPtr=SaveLastPtr;
     CurLastPtr0=CurLastPtr=SaveCurLastPtr;
     LastSimilar=SaveLastSimilar;
-    AddToHistoryLocal(Str,Title,Type);
-    SaveHistory();
-    FreeHistory(); // Ќеобходимо, т.к. ReadHistory берет пам€ть!
 
-    // восстановим
+    // добавл€ем новый пункт
+    AddToHistoryLocal(Str,Title,Type);
+
+    // сохран€ем
+    SaveHistory();
+
+    // освобождаем (необходимо, т.к. ReadHistory берет пам€ть!)
+    FreeHistory();
+
+    // восстановим запомненное
     LastPtr0=LastPtr=SaveLastPtr;
     CurLastPtr0=CurLastPtr=SaveCurLastPtr;
     LastSimilar=SaveLastSimilar;
     memcpy(LastStr,SaveLastStr,sizeof(struct HistoryRecord) * HistoryCount);
   }
+
   AddToHistoryLocal(Str,Title,Type);
 }
 
@@ -257,20 +271,41 @@ void History::AddToHistoryLocal(const char *Str,const char *Title,int Type)
 
   struct HistoryRecord AddRecord;
 
-  AddRecord.Name=xf_strdup(Str);
+  if(TypeHistory == HISTORYTYPE_FOLDER)
+    AddRecord.Name=(char *)xf_malloc(strlen(Str)+strlen(NullToEmpty(Title))+2);
+  else
+    AddRecord.Name=xf_strdup(Str);
+
   if(!AddRecord.Name)
     return;
 
+  // ѕри добавлении в историю каталогов префиксы гоним не как заголовок, а... как префиксы.
+  if(TypeHistory == HISTORYTYPE_FOLDER)
+  {
+    AddRecord.Name[0]=0;
+    if(Title && *Title)
+    {
+      strcat(AddRecord.Name,Title);
+      strcat(AddRecord.Name,":");
+    }
+    strcat(AddRecord.Name,Str);
+    RemoveTrailingSpaces(AddRecord.Name);
+    AddRecord.Title[0]=0;
+  }
+  else
+  {
+    xstrncpy(AddRecord.Title,NullToEmpty(Title),sizeof(AddRecord.Title)-1);
+    RemoveTrailingSpaces(AddRecord.Title);
+  }
+
   RemoveTrailingSpaces(AddRecord.Name);
-  xstrncpy(AddRecord.Title,NullToEmpty(Title),sizeof(AddRecord.Title)-1);
-  RemoveTrailingSpaces(AddRecord.Title);
   AddRecord.Type=Type;
 
   int OldLastPtr=LastPtr-1;
   if (OldLastPtr < 0)
     OldLastPtr=HistoryCount-1;
 
-  if (RemoveDups)
+  if (RemoveDups) // удал€ть дубликаты?
   {
     struct HistoryRecord *PtrLastStr;
     int I, J;
@@ -411,7 +446,6 @@ BOOL History::SaveHistory()
       TypesBuffer[SizeTypes++]=0;
     }
   }
-
 
 
   HKEY hKey;
@@ -784,7 +818,7 @@ int History::Select(const char *Title,const char *HelpTopic,char *Str,int StrLen
         StrPos=(int)HistoryMenu.GetUserData(NULL,sizeof(StrPos),Code);
         if(StrPos == -1)
           return -1;
-        if(RetCode != 3 && (TypeHistory == HISTORYTYPE_FOLDER || TypeHistory == HISTORYTYPE_VIEW) && GetFileAttributes(LastStr[StrPos].Name) == (DWORD)-1)
+        if(RetCode != 3 && ((TypeHistory == HISTORYTYPE_FOLDER && !LastStr[StrPos].Type) || TypeHistory == HISTORYTYPE_VIEW) && GetFileAttributes(LastStr[StrPos].Name) == (DWORD)-1)
         {
           char *TruncFileName=xf_strdup(LastStr[StrPos].Name);
           if(TruncFileName)
@@ -792,7 +826,7 @@ int History::Select(const char *Title,const char *HelpTopic,char *Str,int StrLen
           SetLastError(ERROR_FILE_NOT_FOUND);
           if(LastStr[StrPos].Type == 1 && TypeHistory == HISTORYTYPE_VIEW) // Edit? тогда спросим и если надо создадим
           {
-            if(Message(MSG_WARNING|MSG_ERRORTYPE,2,Title,TruncFileName?TruncFileName:LastStr[StrPos].Name,MSG(MViewHistoryIsCreate),MSG(MYes),MSG(MNo)) == 0)
+            if(Message(MSG_WARNING|MSG_ERRORTYPE,2,Title,TruncFileName?TruncFileName:LastStr[StrPos].Name,MSG(MViewHistoryIsCreate),MSG(MHYes),MSG(MHNo)) == 0)
             {
               if(TruncFileName)
                 free(TruncFileName);

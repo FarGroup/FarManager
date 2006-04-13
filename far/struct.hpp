@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.138 28.10.2005 $ */
+/* Revision: 1.139 13.04.2006 $ */
 
 /*
 Modify:
+  13.04.2006 SVS
+    + Opt.SavePluginFoldersHistory - сохранять или нет в истории папок так же плагиновые папки
   28.10.2005 SVS
     ! Opt.ViOpt.ShowKeyBarViewer -> Opt.ViOpt.ShowKeyBar
     + Opt.EdOpt.ShowKeyBar - Ctrl-B - показать/спрятать кейбар в редакторе
@@ -728,14 +730,15 @@ struct Options
   char WordDiv[256]; // $ 03.08.2000 SVS Разграничитель слов из реестра
   char QuotedSymbols[32];
   DWORD QuotedName;
-  int SaveHistory;
-  int SaveFoldersHistory;
   int AutoSaveSetup;
   int SetupArgv; // количество каталогов в комюстроке ФАРа
   int ChangeDriveMode;
   int ChangeDriveDisconnetMode;
 
+  int SaveHistory;
   int HistoryCount;
+  int SaveFoldersHistory;
+  int SavePluginFoldersHistory;
   int FoldersHistoryCount;
   int DialogsHistoryCount;
 
