@@ -16,16 +16,13 @@ General
 [!] Removed the /aw command line parameter. Under Windows NT 4 and higher,
     FAR runs in the Unicode console mode by default. To switch to ANSI
     mode, the command line parameter /8 can be used.
-
 [!] For more details on the Plugin API changes, read the documentation
     in WhatsNew.Api.txt.
-
 [!] Running "old" FAR versions (older than 1.70 build 1784) with the auto
     save setup setting set (or manually saving the setup - Shift-F9)
     will cause the deletion of the "new" macros (from the registry)
     because starting with build 1784 the logic of the macro engine has
     been changed.
-
      a. when macro sequences are read from the registry besides being
         compiled the source text is also saved.
      b. only simple macros are decompiled (upon encountering a special
@@ -37,24 +34,18 @@ General
         macro that contains ONLY "simple" keystrokes (without any
         '$something'), such that where in FAR version 1.65 and lower.
 
-
 System
 ~~~~~~
 [-] The wrong panel mode for displaying file names was checked by default
     ("Show files in lowercase" instead of "Show uppercase file names in
     lowercase").
-
 [-] The key bar labels for Alt-F7 in the internal viewer and editor
     were mixed up.
-
 [-] When the "UseNumPad" parameter was on, the key combination Shift+Ins
     on the numeric keypad was not handled correctly.
-
 [+] Command-line parameter /p accepts several paths delimited with ';'
-
 [+] In the "Path for personal plugins" parameter it is now possible to
     specify several paths delimited with ';'
-
 [!] The order of loading plugins and command-line parameters priorities
     have changed:
       - /p alone disables plugins loading
@@ -64,191 +55,136 @@ System
       - if neither /p nor /co are present then the plugins are loaded from
         the main FAR directory and the directory(ies) from the parameters
         "Path for personal plugins".
-
 [+] Option "Scan symbolic links" was added to the dialog "System
     settings". It allows processing of symbolic links along with usual
     subfolders when building folders tree and calculating summary size of
     files in subfolders. Default value: enabled.
-
 [-] Attempt to show original folder for a symbolic link in a network
     folder (e.g. in "File Attributes" dialog) resulted in wrong
     information.
-
 [+] Added "numeric" XP-style sort mode (Ctrl-F12, "Use numeric sort").
-
 [-] When editing descriptions for several files, panels were refreshed
     only after the last description was entered.
-
 [-] Repeated changing of the console window size (Alt-F9) could lock up
     Windows 9x/Me.
-
 [+] Filenames containing characters listed in TechInfo#34 are quoted when
     inserted in the command line or editor. The new rule TechInfo#50
     controls this behavior.
-
 [+] In the screen grabber mode (Alt-Ins) Ctrl-U unselects.
-
 [-] Pressing Ctrl-Up on the first item in the "Files highlighting" menu
     moved it to the second position.
-
 [-] Crash if console window is resized by an external command.
-
 [-] False error message when using environment variables
     in "Folder Shortcuts".
-
 [*] Insertion of text, pasted from clipboard (Ctrl-V or Shift-Ins), to
     the fast find dialog will continue as long as there is a match found.
-
 [+] Fast find in panels. It is possible to use the transliteration
     function while entering text in the search field. If used the
     entered text will be transliterated and a new match corresponding
     to the new text will be searched.
-
 [*] "AltFastFindKey" and "FastFindKey" were added to TechInfo#10 -
     transliteration in fast find in panels.
-
 [+] New option "Mouse click outside a dialog closes it".
     Right/left mouse click outside a dialog closes the dialog.
     This option allows to switch off this functionality.
-
 [+] New rule - TechInfo#52, allows to set the history size (in positions)
     for dialog input lines, visited folders, executed commands, viewed
     and edited files.
-
 [+] TechInfo#53 and TechInfo#54 rules to activate extended functionality
     of FAR executor.
-
 [+] New option in Panel settings "Network drives autorefresh"
     This option enables panel autorefresh when state of a file system on
     network drives is being changed. This option is switched on by
     default. It can be useful to disable this option on slow network
     connections.
-
 [+] Toggling of "Display hidden and system files" (Ctrl-H) now also works
     when panels are off.
-
 [-] The vertical column border in panels was not highlighted when a
     panel mode having the name column not as the first column was
     selected. For example for a panel mode configured to show columns
     "S,N" the cursor appeared as if cut in half.
-
 [!] Introduced a new method of dividing panel columns to global. Now the
     columns are divided by the the most common sequence. This allows to use
     several Name columns in one global column and to create columns of the
     form "S,N" (previously the Name column marked the start of a new global
     column).
-
 [+] The CD drive type can be shown in the disks menu instead of the
     faceless "CD-ROM" type. FAR will attempt to determine the type of
     each of the CD drives available in the system. Known types are as
     follows: CD-ROM, CD-RW, CD-RW/DVD, DVD-ROM, DVD-RW and DVD-RAM. This
     function is available only for users with administrative privileges
     only in Windows NT/XP.
-
 [+] Folder tree. Gray+ and Gray- should move up and down the tree to the next
     branch on the same level.
-
 [+] Ctrl-Shift-Enter in folders history (Alt-F12) allows to open the selected
     folder in the passive panel.
-
 [+] Added the "Wipe" command to the "Files" menu. Alt-Del within a
     terminal session was intercepted by the terminal.
-
 [+] New rule - TechInfo#58 - System: Automatically close hung applications.
-
 [-] The Gray-* combination was used to check regular 2-state checkboxes
     in dialogs. Now it only affects 3-state checkboxes.
-
 [*] The Tab key selects the current item in combo-boxes (as in the history
     list of a text input field).
-
 [+] In Fast Find in panels and in the Find Folder dialog it is now
     possible to search backwards using the Ctrl-Shift-Enter combination.
-
 [+] Upon loading of FAR Manager the %FARHOME% environment variable is
     set to point to the folder from which FAR was started.
-
 [-] The transliteration function did not process the last character of
     the re-encoding tables.
-
 [-] When removing history entries from dialog text input fields
     (Shift-Del), the cursor was repositioned to the first element.
-
 [+] New size column flag - SF, file size is shown as a float number as in
     Windows Explorer.
-
 [+] New size column flag - SE, no space will be shown between the size and the
     suffix.
-
 [+] New rule - TechInfo#60 that makes it possible to ignore error code
     ERROR_BAD_PATHNAME under Windows 9x/Me, that is erroneously returned by
     operating system (FindNextFile() from Windows API) at the end of obtaining
     file list of empty directory on a network mounted disk that is provided by
     server, which uses OS Unix with some new versions of Samba software (e.g.,
     v3.0.4).
-
 [+] New rule - TechInfo#61 that specifies the maximal height for dialog history
     lists.
-
 [+] New rule - TechInfo#62 that allows to disable the automatic
     invocation of the "Print Manager" plugin assigned to Alt-F5.
-
 [+] New rule - TechInfo#63 that allows to set the maximum size of the data
     read from a file after an attempt to enter it from the panels (Enter or
     Ctrl-PgDn) was made.
-
 [+] New rule - TechInfo#64 that allows to control the refresh timeout of the
     file deletion process message box.
-
 [-] Dialogs were not centered correctly.
-
 [+] Information about the plugin name was added to the "Assign plugin hot key"
     dialog (Plugins and Plugins configuration menu).
-
 [-] Cursor is on a hidden panel. Cursor is on the left panel, both panels are
     visible. Press Ctrl-F2 Ctrl-O Ctrl-F2 Ctrl-F2 Ctrl-O. Cursor is on the
     right panel but the left one is visible.
-
 [!] The registry value "Panel\AutoChangeFolder" has moved to
     "Panel\Tree\AutoChangeFolder". This means that the option
     "Auto change folder" must be set anew (TechInfo#66).
-
 [*] A value to set the mouse scrolling delta for help windows was added to
     TechInfo#33.
-
 [!] Mask symbols can be used now with the 'cd' command. For example, the
     command 'cd progra*' will change the current folder to Program Files
     (i.e. the folder is changed to the first one matched by the mask).
-
 [+] Added a confirmation dialog for dismounting SUBST-disks from the Drive
     menu.
-
 [*] Editor and viewer configuration dialogs were rearranged to comply with the
     overall dialog style.
-
 [-] Dialog separator lines where incorrectly outputted if too long.
-
 [+] New hotkey Ctrl-R in folder and file view history - refresh list and
     remove non-existing entries.
-
 [+] New rule - TechInfo#68, that allows to distinguish between right and left
     Ctrl-Alt-Shift.
-
 [+] New command line option "/rc" - allows to restore console window size and
     title after closing FAR Manager to the values set before staring FAR.
-
 [-] Setting could be saved using Shift-F9 even if the 17-th bit of policy
     rules was set (TechInfo#4).
-
 [+] In 5-th panel mode in the attributes column the 'I' character states that
     the file is NOT content indexed.
-
 [+] In 5-th panel mode in the attributes column the '$' character states that
     the file is a sparse file.
-
 [+] In 5-th panel mode in the attributes column the 'T' character states that
     the file is a temporary file.
-
 
 Find File
 ~~~~~~~~~
@@ -256,87 +192,60 @@ Find File
     It allows searching in symbolic links along with usual subfolders.
     Default value (after the start of FAR) is the same as "Scan symbolic
     links" in "System Settings" dialog.
-
 [+] The character table now remember in find file.
-
 [+] The find file has powered with ability to search text using
     "Windows text" table in addition to "DOS text" and "Unicode".
-
 [+] Find files has powered with ability to search for hex codes.
-
 [!] (File) size in the search results is now 64-bit aware.
-
 [+] Files and folders attributes are shown in the search results.
-
 [+] New option "Use filter" allows to filter searching by different
     options.
-
 [+] "Filter" button allows to change filtering options in the the Find
     Files dialog.
-
 [!] When using filtering, date and time for the found files is
     displayed according to the selection in the filter dialog:
     Last modification, Creation, Last access.
-
 [+] Notification in the file search if filtering is on.
-
 [-] Wrong positioning inside archive after viewing/editing a file while
     searching.
-
 [+] The specified text string can be searched not only in the whole file,
     but also inside a specified range at the beginning of the file, defined
     by the "Search only in the first" property. If the specified value is
     less than the file size, the rest of the file will be ignored even if
     the required sequence exists there. Configuration of the search range
     is invoked by the "Advanced" button in the search dialog.
-
 [-] Fixed problems with drawing of the search result dialog on multiprocessor
     computers.
-
 [+] Added an option to search in all folders specified in the %PATH%
     environment variable (not including subfolders).
-
 
 Copy/Move
 ~~~~~~~~~
 [*] The copy progress indicator is now updated 4 times per second.
-
 [-] It's no longer possible to make a symbolic link to a local folder on
     the network drive.
-
 [-] FAR was moving/copying folders containing symbolic links incorrectly.
     Option "Copy contents of symbolic links" was added to the Copy/Move
     dialog. For details see the help.
-
 [-] Errors when copying/moving if the targets list included "con" or "nul".
-
 [-] FAR couldn't move a folder if it was open on the passive panel.
-
 [-] When renaming a file (Shift-F6) on the hard drive (and the passive panel
     was pointing to an ejected CD), the change drive menu were shown
     interrupting the moving process.
-
 [-] Folders were deleted when moved from the the root to the "..".
-
 [-] Descriptions in the descriptions file (descript.ion) where duplicated
     if several files were copied to one (select all, F5, file name,
     Enter, append, append........append).
     Now only the description of the last file is inserted into the
     descript.ion file.
-
 [+] Operations Filter was added to the copy/move dialog.
-
 [!] "Copy access rights" option was redesigned. Additionally see TechInfo#65
     and TechInfo#69.
-
 [-] When creating a symbolic link to a folder a file of the same name was
     deleted (if the name of the symbolic link collided with the name of an
     existing file).
-
 [-] Attributes were not set for copied folders.
-
 [+] The copy/move operation progress is shown in percents.
-
 [+] New functionality that allows to copy encrypted files outside of the
     current disk. Herewith you will see a message that the resulting files will
     be decrypted.
@@ -344,207 +253,148 @@ Copy/Move
     encrypted files outside of the current disk with no regard to the "Use
     system copy routine" option.
 
-
 File attributes
 ~~~~~~~~~~~~~~~
 [-] Error when changing the Encrypted attribute to Compressed for
     a read-only encrypted file.
-
 [+] The indexing attribute for files and folders can now be controlled
     from the "Attributes" dialog.
     In 5-th panel mode in the attributes column the 'I' character states that
     the file is indexed.
-
 [+] The "Attributes" dialog can now be called in read-only mode from plugin
     panels.
-
 
 File associations
 ~~~~~~~~~~~~~~~~~
 [-] Filelist of full filenames (special symbol "!@F!") for the TempPanel
     plugin panel was generated incorrectly. Each filename was appended
     with the path of the parent panel.
-
 [+] It is now possible to specify a history name for the "!?<title>?<init>!"
     special symbol. The following format is used:
     "!?$<history>$<title>?<init>!"
-
 [+] Added the ability to use the other meta-symbols inside the
     "!?<title>?<init>!" meta-command by enclosing them in brackets.
-
 [*] The special symbol "!:" now works correctly for network paths.
     Substitution now works as follows:
       * local/mapped drive:  "C:"
       * network path:        "\\server\share"
 
-
 Editor
 ~~~~~~
 [-] Some editor settings set for the current editor instance (Alt-Shift-F9)
     were saved globally for all editors.
-
 [-] Some functional keys (for example, F1 - Help) stopped to work
     when plugins using ProcessEditorInput (for example, AutoWrap) were active.
-
 [*] Now the found string is shown at one fourth of the screen height, not
     one third, and it is checked that the string is not covered by the
     replace dialog.
-
 [-] The XLat function marked the text as modified even if it didn't
     actually change any characters.
-
 [-] Pressing BackSpace in the first file position or Del in the last one
     resulted in setting the modified flag.
-
 [+] If creating an unnamed file using Shift-F4 then the editor will open
     an unnamed file titled "?New File?". Upon saving the file you will
     be asked for the name of the newly created file.
-
 [-] Going over words (e.g. by Ctrl-Left/Right) was done incorrectly if
     amid the delimiters were characters with value of 0x7F or greater.
-
 [!] Copying/moving of persistent blocks (Ctrl-P/Ctrl-M) now doesn't use
     the system clipboard.
-
 [-] A possible problem with disappearing selection in editor, caused by
     Microsoft Natural Multimedia keyboard, fixed.
-
 [*] It is now possible to use environment variables in the "Save As" dialog.
-
 [!] The tabulation expansion operation now works in three modes:
     1. Do not expand tabs
     2. Expand newly entered tabs to spaces
     3. Expand all tabs to spaces
-
 [+] New rule - TechInfo#67, allows to change the behaviour of text scrolling
     when the end of the file is reached.
-
 [+] Show/Hide the key bar.
-
 
 Viewer
 ~~~~~~
 [-] Word wrap setting was not saved.
-
 [*] Now the found string is shown at one fourth of the screen height, not
     one third, and it is checked that the string is not covered by the
     replace dialog.
-
 [*] Do not suggest to continue searching from the beginning of the file
     if the search was started at the beginning of the file.
-
 [-] By pressing and holding the mouse button on the top line of the
     viewer scrollbar, it was possible to scroll the viewed text beyond
     the beginning of the file.
-
 [-] Text selection in the viewer did not work properly after searching
     when a word wrap and scrollbar is checked.
-
 [+] New viewer option "Persistent selection". When the parameter is on,
     the selection in the viewer remains when moving through the file.
-
 [-] Scrolling down did not work in the hex view mode.
-
 [*] In hexadecimal mode Ctrl-Left/Ctrl-Right shift left/right by 1 position.
-
 [-] Correct selection of search results in hex mode.
-
 [-] Correct selection of search results that span on more that one line.
-
 [-] A single found character was hidden by the '>' sign.
-
 [+] Now the left border position is restored when traversing the files using
     Gray+ and Gray-.
-
 [-] The found text was not selected correctly for Unicode text files.
-
 
 Quick View
 ~~~~~~~~~~
 [+] Added display of information on the folder compression ratio.
-
 [-] FAR Manager could hang if the Folder tree panel was called from an active
     Quick view panel.
-
 
 Macros
 ~~~~~~
 [!] Macro commands were extended to a primitive scripting language.
     Description of the new macro language can be found in the FAR API
     help file.
-
 [*] FAR can execute macros in 2 modes:
     1. Common mode: keystrokes will be passed to plugins while recording
        and playing back macros (Ctrl-. to start recording).
     2. Special mode: keystrokes are not passed to plugins while recording
        and playing back (Ctrl-Shift-. to start recording).
     See help for details.
-
-
 [-] Statement '$Date' was working incorrectly. '$Date "%c"' was returning
     wrong week day.
-
 [-] Errors in handling escape sequences ('\"' and '\\') in the statement
     '$Date'.
-
 [+] "Common" macro area - macro commands from this area work everywhere.
-
 [+] "FindFolder" macro area - macro commands from this area work in the
     Find Folders dialog (Alt-F10).
-
 [-] It is not possible to assign a macro to Ctrl-(combination of Shift, Alt)
     -MsWheelUp (MsWheelDown). The corresponding combinations were added to the
     drop down list in the macro assignment dialog.
-
 [-] Macros that were manipulating the cursor did not clear selection in text
     input lines.
-
 [+] "UserMenu" macro area - macro commands from this area work in the User
     Menu.
-
 
 Help
 ~~~~
 [-] Clicking the mouse on the status bar of the help window caused
     the window to be closed.
-
 [-] Empty strings were not displayed with formatting turned off ('@-').
-
 [+] Added an index, containing all help topics.
-
 [+] New value "CtrlStartPosChar" for ".Options", that specifies the character
     that will be used to mark a block alignment position.
-
 [-] Several ".Options" statements could not be used in a help file.
-
 [-] Some bugs in control statements processing were fixed.
-
 
 Addons
 ~~~~~~
 [+] Addons\Macros\F9DeactivateMenu.reg
     Use F9 to hide the main menu.
-
 [+] Addons\Macros\View.Space.reg
     Use Space for listing in the viewer (like in Outlook Express or The Bat!)
-
 [+] Addons\Macros\View.PgDn.reg
     PgDn at the end of file works as in Far Manager 1.70 beta 4 and earlier
-
 [*] Deleted Addons\Macros\CtrlShiftBackSlash.reg.
-
 [*] Addons\Macros\CtrlShiftPgUpDn.reg
     Modified using new operator '$If-$Else'
-
 [+] Addons\SetUp\Executor.4NT.reg
     Addons\SetUp\Executor.CMD.reg
     Addons\SetUp\Executor.COMMAND.reg
     Settings for TechInfo#53/54 to enable extended functionality of the
     FAR executor (correspondingly for 4NT.EXE, CMD.EXE and COMMAND.COM)
-
 [+] Addons\Macros\Notepad.reg
     Editor hotkeys in the Notepad style.
-
 
 Plugins
 ~~~~~~~

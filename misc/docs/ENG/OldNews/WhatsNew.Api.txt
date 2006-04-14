@@ -16,12 +16,10 @@ Editor
 [*] Now plugins receive keyboard events through ProcessEditorInput both
     when recording and when playing back macros. Previously, keyboard
     events were received only when recording macros.
-
 [+] The constant FARMACRO_KEY_EVENT defines the input message type of
     the INPUT_RECORD structure which is passed to ProcessEditorInput
     when a macro is played back. The Event field contains a KEY_EVENT_RECORD
     structure describing the keyboard message.
-
 [*] Removed some of the limitations on the keys sent to plugins through
     ProcessEditorInput.
     Keys which are not sent to plugins: Ctrl-W, F11, Alt-F9, F12, Ctrl-Tab,
@@ -30,172 +28,125 @@ Editor
       Alt-F5 - the PrintMan plugin is not installed;
       Alt-F11 - the editor is modal;
       F6 - switching to the viewer is disabled
-
 [+] The command ESPT_SETWORDDIV allows to change the word delimiter list for
     the current editor window.
-
 [+] The ESPT_GETWORDDIV command - allows to get the word dividing
     characters for the current editor instance.
-
 [-] FAR didn't remember new filename after ECTL_SAVEFILE command call.
-
 [-] Custom editor title (See Title variable in the Editor function)
     was corrupted upon saving the file in editor invoked from a
     plugin.
-
 [!] New flag - ECF_TAB1. Starting with build 1957 FAR highlights Tab
     characters by their full width. If you need the Tab character to
     take the width of only one character in the color region then it is
     necessary to add the ECF_TAB1 flag to the EditorColor.Color member
     in addition to specifying the color.
-
 [!] ECTL_GETBOOKMARKS and ECTL_GETINFO can be called during an EE_CLOSE event.
-
 [-] Wrong value of EditorInfo.BlockStartLine.
     For example, there are two non-empty lines - N and N+1. The cursor is
     positioned in the middle of the N+1 line. No selection. Press Shift-Left
     until the cursor is positioned in the middle of the N line. At this moment
     EditorInfo.BlockStartLine equals N+1 and not N as was expected.
 
-
 Dialogs
 ~~~~~~~
 [-] For an empty DI_LISTBOX, the DM_LISTSETTITLES message did not show
     the list header and footer.
-
 [-] Duplicate cursor after deleting items from a DI_LISTBOX if the
     cursor is not positioned on the item being deleted.
-
 [+] Messages DM_GETSELECTION and DM_SETSELECTION allowing to control
     the block selection in dialog edit lines.
-
 [-] Wrong centering of elements DI_RADIOBUTTON and DI_CHECKBOX with the
     DIF_CENTERGROUP flag set.
-
 [+] The message DN_DRAWDIALOGDONE - arrives when the drawing of the
     dialog is done.
-
 [-] The cursor is turned off when dialog doesn't have elements accepting
     focus (edit fields/buttons etc.).
-
 [-] If the dialog title starts with a number then this number is removed
     when the console title is set.
-
 [-] Changing focus (pressing Tab or Shift-Tab) in a dialog with a single
     element hanged FAR Manager.
-
 [+] The FarDialogItem.Data item of a DI_LISTBOX element is used as the
     upper list title.
-
 [+] If a dialog contains no borders (DI_SINGLEBOX, DI_DOUBLEBOX) and the
     DI_LISTBOX element is the first element, then the console title is set
     to the title of the list (DI_LISTBOX).
-
 [*] The message DM_LISTSETMOUSEREACTION now allows for more flexible
     behavior of the list in response to mouse movements. You can set three
     states:
      1 - the list selection will follow mouse movement only when it has focus
      2 - the list selection will always follow mouse movement
      3 - the list selection will not follow mouse movement
-
 [+] The DN_LISTHOTKEY message - arrives when the user used a hotkey to move
     inside a list (DI_LISTBOX).
-
 [-] The DN_LISTCHANGE message was sent on every mouse movement even if
     that movement was within one list element, that is even if nothing
     was changed.
-
 [!] Added a limitation that the width and height of a dialog element
     cannot exceed the width and height of the dialog itself.
-
 [-] Sending the DM_SETCURSORPOS message for edit controls while
     processing the DN_INITDIALOG event caused the edit control to be
     drawn before the dialog itself was drawn.
-
 [-] The DN_EDITCHANGE event for combo-boxes was sent with an erroneous
     element ID.
-
 [-] DI_TEXT element was not always drawn correctly. If a line was outputted
     and after that a shorter line was outputted to the same DI_TEXT element
     then the end of the previous line remained visible.
-
 
 Miscellaneous
 ~~~~~~~~~~~~~
 [-] For several sequential ACTL_POSTKEYSEQUENCE calls, only the first
     one was actually effective.
-
 [-] Fixed a bug in FSF.TruncStr causing a corruption of the memory
     beyond the end of the buffer.
-
 [+] New flag FRS_SCANSYMLINK for the FarRecursiveSearch function enables
     entering symbolic links when scanning the directory tree.
-
 [+] New command ACTL_GETPLUGINMAXREADDATA. Returns the maximum size of
     the data that FAR can read from a file before passing control to
     the OpenFilePlugin function.
-
 [+] New command ACTL_GETWCHARMODE. Returns TRUE if FAR is working with
     the console in Unicode mode and FALSE if the 8-bit mode is used.
-
 [!] Now GetReparsePointInfo returns an error for remote folders, because
     correct information about symbolic link contents can not be obtained in
     such case.
-
 [*] Because some settings had been moved to the "Dialog settings" dialog, a
     new command ACTL_GETDIALOGSETTINGS was added and the values and names of
     the following constants were changed accordingly:
-
     FIS_PERSISTENTBLOCKSINEDITCONTROLS -> FDIS_PERSISTENTBLOCKSINEDITCONTROLS
     FIS_HISTORYINDIALOGEDITCONTROLS    -> FDIS_HISTORYINDIALOGEDITCONTROLS
     FIS_AUTOCOMPLETEININPUTLINES       -> FDIS_AUTOCOMPLETEININPUTLINES
-
 [-] Garbage had been returned in PanelInfo.SelectedItems[0] when no files were
     selected and the cursor was positioned on the ".." element.
-
 [*] All enumerations in plugin.hpp are now named.
-
 [+] New command MCMD_POSTMACROSTRING - pass a macro sequence to FAR in
     text form (in the same form it is stored in the registry).
-
 [*] Updated the ActlKeyMacro structure: added the Param.PlainText
     member - pointer to a string containing a macro sequence.
-
 [+] New flag KSFLAGS_NOSENDKEYSTOPLUGINS - do not send keystrokes to
     editor plugins (i.e. plugins that export /ProcessEditorInput/)
-
 [-] The 'Key = FarNameToKey ("AltCtrl<None English Letter>") ->
     FarKeyToName (Key)' transformation was incorrect (Alt00000 was
     returned instead of AltCtrl<None English Letter>)
-
 [-] It was not allowed to add spaces after the ".Language" directive
     in the .lng file (e.g. ".Language = foo").
-
 [-] The FSF.FarRecursiveSearch function couldn't find a file if its short
     name was given as the file mask.
-
 [+] New flag FMENU_CHANGECONSOLETITLE for the Menu function.
     If set, FAR Manager will set the console title to the value
     given in the Title argument (if Title is not empty).
-
 [+] Obvious additions to the numeric sort:
     the commands FCTL_SETNUMERICSORT and FCTL_SETANOTHERNUMERICSORT
     the flag PFLAGS_NUMERICSORT (Numeric Sort is on) in PanelInfo.Flags
-
 [-] FAR could crash if Path was set to NULL in the FSF.PointToName() function.
-
 [+] New commad ACTL_GETSHORTWINDOWINFO - thread safe analogue of the
     ACTL_GETWINDOWINFO command.
-
 [-] FCTL_GET[ANOTHER]PANELSHORTINFO were breaking the "inviolability"
     principle and destroyed data that was received by a previous call to
     FCTL_GET[ANOTHER]PANELINFO.
-
 [*] Now FE_CLOSE is received by the panel only if the call to OpenPlugin
     function of a new plugin returned hPlugin != INVALID_HANDLE_VALUE. If
     the previous panel informs that it cannot be closed - the panel of the
     new plugin will be closed by a call to the ClosePlugin function.
-
 [-] Far could crash if the FMENU_CHANGECONSOLETITLE flag was used.
 
 

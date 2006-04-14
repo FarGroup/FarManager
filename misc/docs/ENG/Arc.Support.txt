@@ -90,7 +90,7 @@ The most commonly used archivers are:
 
   - BZIP2. Version 1.0 or later should be used. It can be downloaded from
     the official homepage of the program.
-    http://sources.redhat.com/bzip2/
+    http://www.bzip.org/
 
   - ACE. You should download the distribution from  http://winace.com.  The
     file ace32.exe is used (Commandline Ace).
