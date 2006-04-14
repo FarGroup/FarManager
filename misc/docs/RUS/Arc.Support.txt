@@ -89,7 +89,7 @@ MultiArc и 7-zip.
 
   - BZIP2. Используется версия 1.0 или новее, которую можно скачать с
     официального сайта программы.
-    http://sources.redhat.com/bzip2/
+    http://www.bzip.org/
 
   - ACE. Используется файл ace32.exe из дистрибутива, который можно
     взять с http://winace.com/ (Commandline Ace).
