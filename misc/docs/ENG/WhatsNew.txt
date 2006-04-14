@@ -35,11 +35,11 @@ FAR 1.71 (build 2093) (14.04.2006)
 [+] A mode for displaying parameters of network drives (Ctrl-9) in disks menu.
     Off by default.
 
-[+] TechInfo#72 - позволяет сохранять в истории плагиновые папки.
+[+] TechInfo#72 - allow to save plugin paths in the history.
 
 [*] Some updates to the command line help (for far /?).
 
-[*] Изменен текст диалогов для уничтожения файлов (Alt-Del).
+[*] Text of the wipe (Alt-Del) dialogs has changed.
 
 [-] Incorrect handling of environment variables in CD and CHDIR commands.
 
@@ -54,10 +54,10 @@ FAR 1.71 (build 2093) (14.04.2006)
 [-] Fixed the behaviour of Ctrl-Enter on non-existing items of edit/view
     history.
 
-[-] В историю попадало имя "нового" файла ("?New File?")
-    (Shift-F4 Del Enter Esc).
+[-] The name of the "new" file ("?New File?") was sometimes added to the
+    history. (Shift-F4 Del Enter Esc).
 
-[-] Некорректная обработка плагиновых путей в истории папок.
+[-] Incorrect processing of plugin paths in folders history.
 
 MultiArc - build 181
 ~~~~~~~~~~~~~~~~~~~~
@@ -71,7 +71,10 @@ MultiArc - build 181
 Network - build 34
 ~~~~~~~~~~~~~~~~~~
 
-[*] Fixed the following wrong behaviour: when the plug-in has been opened
+[+] Plug-in accepts environment variables specified in the form of
+    %VARIABLENAME% in the command line.
+
+[-] Fixed the following wrong behaviour: when the plug-in has been opened
     from a network directory and the user pressed Ctrl+PgUp from the
     Network providers list or tried to go up one level by any other way,
     they would have been confused because the current directory was a network
