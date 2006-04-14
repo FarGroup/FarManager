@@ -36,13 +36,31 @@ HANDLE WINAPI OpenPlugin(int OpenFrom,int Item)
 
       int I=0;
       char *cmd=(char *)Item;
+      char *p=strchr(cmd, ':');
+      if (!p || !*p)
+      {
+        delete Browser;
+        return INVALID_HANDLE_VALUE;
+      }
+      *p++ = '\0';
+      bool netg;
+      if (!lstrcmpi(cmd,"netg"))
+        netg = true;
+      else if (!lstrcmpi(cmd, "net"))
+        netg = false;
+      else
+      {
+        delete Browser;
+        return INVALID_HANDLE_VALUE;
+      }
+      cmd = p;
       if(lstrlen(FSF.Trim(cmd)))
       {
         if (cmd [0] == '/')
           cmd [0] = '\\';
         if (cmd [1] == '/')
           cmd [1] = '\\';
-        if (!Opt.NavigateToDomains)
+        if (!netg && !Opt.NavigateToDomains)
         {
           if(cmd[0] == '\\' && cmd[1] != '\\')
             I=1;
@@ -52,6 +70,12 @@ HANDLE WINAPI OpenPlugin(int OpenFrom,int Item)
         OemToChar (cmd, Path+I);
 
         FSF.Unquote(Path);
+        // Expanding environment variables.
+        {
+            char PathCopy[NM];
+            lstrcpy(PathCopy, Path);
+            ExpandEnvironmentStrings(PathCopy, Path, sizeof(Path));
+        }
         Browser->SetOpenFromCommandLine (Path);
       }
     }

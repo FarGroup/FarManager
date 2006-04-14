@@ -89,7 +89,9 @@ int Config()
 void WINAPI GetPluginInfo(struct PluginInfo *Info)
 {
   Info->StructSize=sizeof(*Info);
-  Info->Flags=0;
+  Info->Flags=0|
+    PF_FULLCMDLINE|
+  0;
   static char *DiskMenuStrings[1];
   DiskMenuStrings[0]=GetMsg(MDiskMenuString);
   static int DiskMenuNumbers[1];
@@ -108,7 +110,7 @@ void WINAPI GetPluginInfo(struct PluginInfo *Info)
   PluginCfgStrings[0]=GetMsg(MNetMenu);
   Info->PluginConfigStrings=PluginCfgStrings;
   Info->PluginConfigStringsNumber=sizeof(PluginCfgStrings)/sizeof(PluginCfgStrings[0]);
-  Info->CommandPrefix="net";
+  Info->CommandPrefix="net:netg";
   /* The line below is an UNDOCUMENTED and UNSUPPORTED EXPERIMENTAL
      mechanism supported ONLY in FAR 1.70 beta 6. It will NOT be supported
      in later versions. Please DON'T use it in your plugins. */

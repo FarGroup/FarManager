@@ -1,6 +1,12 @@
+---------------------------------------------------------------------------
+Netwrok Plugin 1.70 beta 6 (build 034) (14.04.2006)
+---------------------------------------------------------------------------
+
+[+] Plug-in accepts a command line with environment variables specified in
+    form of %VARIABLENAME%.
 
 [+] Added new DWORD 'NavigateToDomains' value to the plug-in registry key.
-    Exceptable values:
+    Acceptable values:
     - 0 (Default) When  the   plug-in   is  open  from  command  line,  it
         navigates only to computers and  their  shares.  It  is  classical
         behaviour.

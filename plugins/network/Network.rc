@@ -2,7 +2,7 @@
 #define VERSIONINFO_1   1
 
 VERSIONINFO_1 VERSIONINFO
-FILEVERSION 1, 70, 0, 33
+FILEVERSION 1, 70, 0, 34
 PRODUCTVERSION FAR_MAJOR_VER, FAR_MINOR_VER, 0, FAR_BUILD
 FILEOS 4
 FILETYPE 2
@@ -13,7 +13,7 @@ FILETYPE 2
   {
    VALUE "CompanyName", FARCOMPANYNAME
    VALUE "FileDescription", "Network Plugin for FAR Manager\000"
-   VALUE "FileVersion", "1.70 build 33\000"
+   VALUE "FileVersion", "1.70 build 34\000"
    VALUE "InternalName", "Network\000"
    VALUE "LegalCopyright", FARCOPYRIGHT
    VALUE "OriginalFilename", "Network.dll\000"
