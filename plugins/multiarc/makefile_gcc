@@ -25,7 +25,7 @@ M4 = m4 -P
 MV = mv -f
 MKDIR = mkdir
 WINDRES=windres
-CXXFLAGS = -D_FAR_USE_FARFINDDATA -I ../common -Wall -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-rtti -fno-exceptions
+CXXFLAGS = -D_FAR_USE_FARFINDDATA -I ../common -Wall -Os -funsigned-char -fomit-frame-pointer -fno-rtti -fno-exceptions
 LNKFLAGS = -mdll -s -nostartfiles -L ../common -lCRT
 
 OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS))) $(OBJDIR)/$(NAME).res.o
