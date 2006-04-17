@@ -1,5 +1,5 @@
 ---------------------------------------------------------------------------
-Netwrok Plugin 1.70 beta 6 (build 034) (14.04.2006)
+Netwrok Plugin 1.71 aplha 1 (build 035) (17.04.2006)
 ---------------------------------------------------------------------------
 
 [+] Plug-in accepts a command line with environment variables specified in
@@ -15,6 +15,8 @@ Netwrok Plugin 1.70 beta 6 (build 034) (14.04.2006)
         two backslahes (net:\\MY-SERVER) the plug-in looks for  a  server,
         if command line does not have leading  backslashes  the  specified
         network name is treated as workgroup or domain name.
+
+[*] Косметика в диалоге ввода пароля к сетевому ресурсу.
 
 ---------------------------------------------------------------------------
 Netwrok Plugin 1.70 beta 6 (build 033) (30.03.2006)

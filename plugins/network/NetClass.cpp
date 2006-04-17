@@ -1612,15 +1612,16 @@ void NetBrowser::GetLocalName(char *RemoteName,char *LocalName)
 int NetBrowser::GetNameAndPassword(NameAndPassInfo* passInfo)
 {
   struct InitDialogItem InitItems[]={
-    {DI_DOUBLEBOX,3,1,72,9,0,0,0,0,""},
+    {DI_DOUBLEBOX,3,1,72,10,0,0,0,0,""},
     {DI_TEXT,5,2,0,0,0,0,0,0,(char *)MNetUserName},
     {DI_EDIT,5,3,70,3,1,(DWORD)"NetworkUser",DIF_HISTORY|DIF_USELASTHISTORY,0,""},
     {DI_TEXT,5,4,0,0,0,0,0,0,(char *)MNetUserPassword},
     {DI_PSWEDIT,5,5,70,3,0,0,0,0,""},
     {DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
     {DI_CHECKBOX,5,7,0,0,0,0,(DWORD)DIF_DISABLE,0,(char *)MRememberPass},
-    {DI_BUTTON,0,8,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk},
-    {DI_BUTTON,0,8,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel}
+    {DI_TEXT,3,8,0,8,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
+    {DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk},
+    {DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel}
   };
   if(passInfo->pRemember)
   {
@@ -1634,7 +1635,7 @@ int NetBrowser::GetNameAndPassword(NameAndPassInfo* passInfo)
     CharToOem(passInfo->Title,DialogItems[0].Data);
   lstrcpy(DialogItems[2].Data,LastName);
   lstrcpy(DialogItems[4].Data,LastPassword);
-  int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,11,
+  int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,12,
     StrHelpNetBrowse,DialogItems,sizeof(DialogItems)/sizeof(DialogItems[0]));
   //if (ExitCode!=7)
   if (ExitCode!=(ARRAYLEN(DialogItems)-2))
