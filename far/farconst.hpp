@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.98 09.04.2006 $ */
+/* Revision: 1.99 17.04.2006 $ */
 
 /*
 Modify:
+  17.04.2006 SVS
+    ! define -> enum (для отладчика ;-))
   06.04.2006 AY
     + Новые флаги для FileSizeToStr() - COLUMN_MINSIZEINDEX, COLUMN_MINSIZEINDEX_MASK и COLUMN_SHOWBYTESINDEX
   01.03.2006 AY
@@ -263,7 +265,13 @@ inline int IsEol(int x)  { return x=='\r' || x=='\n'; }
 #define  SEARCHSTRINGBUFSIZE 512
 
 // типы рамок
-enum {NO_BOX,SINGLE_BOX,SHORT_SINGLE_BOX,DOUBLE_BOX,SHORT_DOUBLE_BOX};
+enum {
+  NO_BOX,
+  SINGLE_BOX,
+  SHORT_SINGLE_BOX,
+  DOUBLE_BOX,
+  SHORT_DOUBLE_BOX
+};
 
 enum {
   MSG_WARNING        =0x00000001,
@@ -320,36 +328,37 @@ enum MACROMODEAREA {
 };
 
 // Флаги для макросов
-#define MFLAGS_MODEMASK            0x000000FF // маска для выделения области действия (области начала исполнения) макроса
+enum MACROFLAGS_MFLAGS{
+  MFLAGS_MODEMASK            =0x000000FF, // маска для выделения области действия (области начала исполнения) макроса
 
-#define MFLAGS_DISABLEOUTPUT       0x00000100 // подавить обновление экрана во время выполнения макроса
-#define MFLAGS_NOSENDKEYSTOPLUGINS 0x00000200 // НЕ передавать клавиши во время записи/воспроизведения макроса
-#define MFLAGS_RUNAFTERFARSTARTED  0x00000400 // этот макрос уже запускался при старте ФАРа
-#define MFLAGS_RUNAFTERFARSTART    0x00000800 // этот макрос запускается при старте ФАРа
+  MFLAGS_DISABLEOUTPUT       =0x00000100, // подавить обновление экрана во время выполнения макроса
+  MFLAGS_NOSENDKEYSTOPLUGINS =0x00000200, // НЕ передавать клавиши во время записи/воспроизведения макроса
+  MFLAGS_RUNAFTERFARSTARTED  =0x00000400, // этот макрос уже запускался при старте ФАРа
+  MFLAGS_RUNAFTERFARSTART    =0x00000800, // этот макрос запускается при старте ФАРа
 
-#define MFLAGS_EMPTYCOMMANDLINE    0x00001000 // запускать, если командная линия пуста
-#define MFLAGS_NOTEMPTYCOMMANDLINE 0x00002000 // запускать, если командная линия не пуста
+  MFLAGS_EMPTYCOMMANDLINE    =0x00001000, // запускать, если командная линия пуста
+  MFLAGS_NOTEMPTYCOMMANDLINE =0x00002000, // запускать, если командная линия не пуста
 
-#define MFLAGS_SELECTION           0x00004000 // активная:  запускать, если есть выделение
-#define MFLAGS_NOSELECTION         0x00008000 // активная:  запускать, если есть нет выделения
-#define MFLAGS_PSELECTION          0x00010000 // пассивная: запускать, если есть выделение
-#define MFLAGS_PNOSELECTION        0x00020000 // пассивная: запускать, если есть нет выделения
-#define MFLAGS_EDITSELECTION       0x00040000 // запускать, если есть выделение в редакторе
-#define MFLAGS_EDITNOSELECTION     0x00080000 // запускать, если есть нет выделения в редакторе
-#define MFLAGS_NOFILEPANELS        0x00100000 // активная:  запускать, если это плагиновая панель
-#define MFLAGS_NOPLUGINPANELS      0x00200000 // активная:  запускать, если это файловая панель
-#define MFLAGS_PNOFILEPANELS       0x00400000 // пассивная: запускать, если это плагиновая панель
-#define MFLAGS_PNOPLUGINPANELS     0x00800000 // пассивная: запускать, если это файловая панель
-#define MFLAGS_NOFOLDERS           0x01000000 // активная:  запускать, если текущий объект "файл"
-#define MFLAGS_PNOFOLDERS          0x02000000 // пассивная: запускать, если текущий объект "файл"
-#define MFLAGS_PNOFILES            0x04000000 // пассивная: запускать, если текущий объект "папка"
-#define MFLAGS_NOFILES             0x08000000 // активная:  запускать, если текущий объект "папка"
+  MFLAGS_SELECTION           =0x00004000, // активная:  запускать, если есть выделение
+  MFLAGS_NOSELECTION         =0x00008000, // активная:  запускать, если есть нет выделения
+  MFLAGS_PSELECTION          =0x00010000, // пассивная: запускать, если есть выделение
+  MFLAGS_PNOSELECTION        =0x00020000, // пассивная: запускать, если есть нет выделения
+  MFLAGS_EDITSELECTION       =0x00040000, // запускать, если есть выделение в редакторе
+  MFLAGS_EDITNOSELECTION     =0x00080000, // запускать, если есть нет выделения в редакторе
+  MFLAGS_NOFILEPANELS        =0x00100000, // активная:  запускать, если это плагиновая панель
+  MFLAGS_NOPLUGINPANELS      =0x00200000, // активная:  запускать, если это файловая панель
+  MFLAGS_PNOFILEPANELS       =0x00400000, // пассивная: запускать, если это плагиновая панель
+  MFLAGS_PNOPLUGINPANELS     =0x00800000, // пассивная: запускать, если это файловая панель
+  MFLAGS_NOFOLDERS           =0x01000000, // активная:  запускать, если текущий объект "файл"
+  MFLAGS_PNOFOLDERS          =0x02000000, // пассивная: запускать, если текущий объект "файл"
+  MFLAGS_PNOFILES            =0x04000000, // пассивная: запускать, если текущий объект "папка"
+  MFLAGS_NOFILES             =0x08000000, // активная:  запускать, если текущий объект "папка"
 
-#define MFLAGS_LABELPRESENT        0x10000000 // есть "метка" для F? клавиш
-#define MFLAGS_REUSEMACRO          0x20000000 // повторное использование макросов (вызов макроса из макроса)
-#define MFLAGS_NEEDSAVEMACRO       0x40000000 // необходимо этот макрос запомнить
-#define MFLAGS_DISABLEMACRO        0x80000000 // этот макрос отключен
-
+  MFLAGS_LABELPRESENT        =0x10000000, // есть "метка" для F? клавиш
+  MFLAGS_REUSEMACRO          =0x20000000, // повторное использование макросов (вызов макроса из макроса)
+  MFLAGS_NEEDSAVEMACRO       =0x40000000, // необходимо этот макрос запомнить
+  MFLAGS_DISABLEMACRO        =0x80000000, // этот макрос отключен
+};
 
 
 // коды возврата для KeyMacro::GetCurRecord()
@@ -414,9 +423,10 @@ enum {
 };
 /* SVS $ */
 
-#define SYSID_PRINTMANAGER      0x6E614D50
-#define SYSID_NETWORK           0x5774654E
-
+enum {
+  SYSID_PRINTMANAGER      =0x6E614D50,
+  SYSID_NETWORK           =0x5774654E,
+};
 
 /* $ 25.02.2001 VVM
   + Флаги для ReadDiz() */
@@ -443,15 +453,18 @@ enum ReadDizFlags {
 #define EXCEPT __except
 #endif
 
-#define DRIVE_SUBSTITUTE            15
-#define DRIVE_REMOTE_NOT_CONNECTED  16
-#define DRIVE_CD_RW                 18
-#define DRIVE_CD_RWDVD              19
-#define DRIVE_DVD_ROM               20
-#define DRIVE_DVD_RW                21
-#define DRIVE_DVD_RAM               22
-#define DRIVE_USBDRIVE              40
-#define DRIVE_NOT_INIT             255
+enum {
+  DRIVE_SUBSTITUTE            =15,
+  DRIVE_REMOTE_NOT_CONNECTED  =16,
+  DRIVE_CD_RW                 =18,
+  DRIVE_CD_RWDVD              =19,
+  DRIVE_DVD_ROM               =20,
+  DRIVE_DVD_RW                =21,
+  DRIVE_DVD_RAM               =22,
+  DRIVE_USBDRIVE              =40,
+  DRIVE_NOT_INIT              =255,
+};
+
 
 enum CDROM_DeviceCaps
 {

@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.161 09.04.2006 $ */
+/* Revision: 1.162 17.04.2006 $ */
 
 /*
 Modify:
+  17.04.2006 SVS
+    + только логирование
   06.04.2006 AY
     ! GCC
   04.04.2006 SVS
@@ -753,7 +755,7 @@ BOOL WINAPI KeyMacroToText(int Key,char *KeyText0,int Size)
 
 KeyMacro::KeyMacro()
 {
-  _OT(SysLog("[%p] KeyMacro::KeyMacro()", this));
+  _KEYMACRO(SysLog("[%p] KeyMacro::KeyMacro()", this));
   MacroVersion=GetRegKey("KeyMacros","MacroVersion",0);
   CurPCStack=-1;
   Work.MacroWORKCount=0;
@@ -767,7 +769,7 @@ KeyMacro::KeyMacro()
 
 KeyMacro::~KeyMacro()
 {
-  _OT(SysLog("[%p] KeyMacro::~KeyMacro()", this));
+  _KEYMACRO(SysLog("[%p] KeyMacro::~KeyMacro()", this));
   InitInternalVars();
 }
 
@@ -849,6 +851,7 @@ void KeyMacro::ReleaseWORKBuffer(BOOL All)
 // загрузка ВСЕХ макросов из реестра
 int KeyMacro::LoadMacros(BOOL InitedRAM)
 {
+  _KEYMACRO(CleverSysLog Clev("KeyMacro::LoadMacros()"));
   int Ret=FALSE;
   InitInternalVars(InitedRAM);
 
@@ -886,19 +889,20 @@ int WINAPI KeyNameMacroToKey(const char *Name)
 
 int KeyMacro::ProcessKey(int Key)
 {
+  _KEYMACRO(CleverSysLog Clev("KeyMacro::ProcessKey()"));
+  _KEYMACRO(SysLog("Param: Key=%s",_FARKEY_ToName(Key)));
   if (InternalInput || Key==KEY_IDLE || Key==KEY_NONE || !FrameManager->GetCurrentFrame())
     return(FALSE);
 
   if (Recording) // Идет запись?
   {
+    _KEYMACRO(SysLog("Recording..."));
     if (Key==Opt.KeyMacroCtrlDot || Key==Opt.KeyMacroCtrlShiftDot) // признак конца записи?
     {
       DWORD MacroKey;
       int WaitInMainLoop0=WaitInMainLoop;
       InternalInput=TRUE;
       WaitInMainLoop=FALSE;
-//_SVS(SysLog("StartMode=%d",StartMode));
-//_SVS(SysLog(1));
       /* $ 23.11.2001 VVM
         ! Залочить _текущий_ фрейм, а не _последний немодальный_ */
       FrameManager->GetCurrentFrame()->Lock(); // отменим прорисовку фрейма
@@ -906,8 +910,6 @@ int KeyMacro::ProcessKey(int Key)
       FrameManager->ResetLastInputRecord();
       FrameManager->GetCurrentFrame()->Unlock(); // теперь можно :-)
       /* VVM $ */
-//_SVS(SysLog(-1));
-//_SVS(SysLog("StartMode=%d",StartMode));
 
       // выставляем флаги по умолчанию.
       DWORD Flags=MFLAGS_DISABLEOUTPUT; // ???
@@ -1001,6 +1003,7 @@ int KeyMacro::ProcessKey(int Key)
   }
   else if (Key==Opt.KeyMacroCtrlDot || Key==Opt.KeyMacroCtrlShiftDot) // Начало записи?
   {
+    _KEYMACRO(SysLog("Begin Record..."));
     // Полиция 18
     if(Opt.Policies.DisabledOptions&FFPOL_CREATEMACRO)
       return FALSE;
@@ -1031,8 +1034,9 @@ int KeyMacro::ProcessKey(int Key)
   {
     if (Work.Executing == MACROMODE_NOMACRO) // Это еще не режим исполнения?
     {
+      _KEYMACRO(SysLog("Executing? Find Record..."));
       DWORD CurFlags;
-//_SVS(SysLog(">Key=%s",_FARKEY_ToName(Key)));
+      _KEYMACRO(SysLog("Start modify Key=%s",_FARKEY_ToName(Key)));
       if((Key&0x00FFFFFF) > 0x01 && (Key&0x00FFFFFF) < 0xFF)
       {
 //        Key=LocalKeyToKey(Key&0x000000FF)|(Key&(~0x000000FF));
@@ -1040,14 +1044,16 @@ int KeyMacro::ProcessKey(int Key)
         if((Key&0x00FFFFFF) > 0x7F)
           Key=LocalKeyToKey(Key&0x000000FF)|(Key&(~0x000000FF));
       }
-
-//_SVS(SysLog("<Key=%s",_FARKEY_ToName(Key)));
+      _KEYMACRO(SysLog("Start GetIndex(Key=%s)",_FARKEY_ToName(Key)));
       int I=GetIndex(Key,(Mode==MACRO_SHELL && !WaitInMainLoop) ? MACRO_OTHER:Mode);
       if(I != -1 && !((CurFlags=MacroLIB[I].Flags)&MFLAGS_DISABLEMACRO) && CtrlObject)
       {
-//_SVS(SysLog("KeyMacro: %d (I=%d Key=%s,%s)",__LINE__,I,_FARKEY_ToName(Key),_FARKEY_ToName(MacroLIB[I].Key)));
+        _KEYMACRO(SysLog("KeyMacro: %d (I=%d Key=%s,%s)",__LINE__,I,_FARKEY_ToName(Key),_FARKEY_ToName(MacroLIB[I].Key)));
         if(!CheckAll(Mode,CurFlags))
+        {
+          _KEYMACRO(SysLog("!CheckAll(Mode=%d,CurFlags=%08X); return FALSE",Mode,CurFlags));
           return FALSE;
+        }
 
         // Скопируем текущее исполнение в MacroWORK
         //PostNewMacro(MacroLIB+I);
@@ -1071,6 +1077,7 @@ int KeyMacro::ProcessKey(int Key)
         initMacroVarTable(0);
         return(TRUE);
       }
+      _KEYMACRO(SysLog("Macro not found"));
     }
     return(FALSE);
   }
@@ -2283,8 +2290,9 @@ const char *eStackAsString(int Pos)
 
 int KeyMacro::GetKey()
 {
+  _KEYMACRO(CleverSysLog Clev("KeyMacro::GetKey()"));
+  _KEYMACRO(SysLog("InternalInput=%d Executing=%d (CurrentFrame=%p)",InternalInput,Work.Executing,FrameManager->GetCurrentFrame()));
   struct MacroRecord *MR;
-//_SVS(SysLog(">KeyMacro::GetKey() InternalInput=%d Executing=%d (%p)",InternalInput,Work.Executing,FrameManager->GetCurrentFrame()));
   if (InternalInput || !FrameManager->GetCurrentFrame())
     return(FALSE);
 
@@ -2337,7 +2345,7 @@ int KeyMacro::GetKey()
 initial:
   if((MR=Work.MacroWORK) == NULL)
     return FALSE;
-//_SVS(SysLog("KeyMacro::GetKey() initial: Work.ExecLIBPos=%d (%d) %p",Work.ExecLIBPos,MR->BufferSize,Work.MacroWORK));
+_KEYMACRO(SysLog("KeyMacro::GetKey() initial: Work.ExecLIBPos=%d (%d) %p",Work.ExecLIBPos,MR->BufferSize,Work.MacroWORK));
 
   // ВНИМАНИЕ! Возможны глюки!
   if(!Work.ExecLIBPos && !LockScr && (MR->Flags&MFLAGS_DISABLEOUTPUT))
@@ -2399,7 +2407,7 @@ done:
 
   DWORD Key=GetOpCode(MR,Work.ExecLIBPos++);
 
-  _SVS(char KeyText[50]; ::KeyToText(Key,KeyText); SysLog("%s",KeyText));
+  _KEYMACRO(char KeyText[50]; ::KeyToText(Key,KeyText); SysLog("%s",KeyText));
 
   if(Key&KEY_ALTDIGIT) // "подтасовка" фактов ;-)
   {
@@ -2877,6 +2885,7 @@ char *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize,const char *Src)
 // Сохранение ВСЕХ макросов
 void KeyMacro::SaveMacros(BOOL AllSaved)
 {
+  _KEYMACRO(CleverSysLog Clev("KeyMacro::SaveMacros()"));
   char *TextBuffer;
   char RegKeyName[150];
 
@@ -3001,6 +3010,7 @@ int KeyMacro::ReadVarsConst(int ReadMode, char *SData, int SDataSize)
 */
 int KeyMacro::ReadMacros(int ReadMode,char *Buffer,int BufferSize)
 {
+  _KEYMACRO(CleverSysLog Clev("KeyMacro::ReadMacros()"));
   int I, J;
   struct MacroRecord CurMacro;
   /* $ 20.12.2003 IS
@@ -3090,6 +3100,7 @@ int KeyMacro::ReadMacros(int ReadMode,char *Buffer,int BufferSize)
 // эта функция будет вызываться из тех классов, которым нужен перезапуск макросов
 void KeyMacro::RestartAutoMacro(int /*Mode*/)
 {
+  _KEYMACRO(CleverSysLog Clev("KeyMacro::RestartAutoMacro()"));
 #if 0
 /*
 Область      Рестарт
@@ -3117,6 +3128,7 @@ Common        0
 // подобных макросов, то именно сюды!
 void KeyMacro::RunStartMacro()
 {
+  _KEYMACRO(CleverSysLog Clev("KeyMacro::RunStartMacro()"));
 // временно отсавим старый вариант
 #if 1
   if (!(CtrlObject->Cp() && CtrlObject->Cp()->ActivePanel && !CmdMode && CtrlObject->Plugins.IsPluginsLoaded()))
@@ -3388,6 +3400,7 @@ M1:
 
 DWORD KeyMacro::AssignMacroKey()
 {
+  _KEYMACRO(CleverSysLog Clev("KeyMacro::AssignMacroKey()"));
 /*
   +------ Define macro ------+
   | Press the desired key    |
@@ -3513,6 +3526,8 @@ long WINAPI KeyMacro::ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Para
 */
 int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
 {
+  _KEYMACRO(CleverSysLog Clev("KeyMacro::GetMacroSettings()"));
+  _KEYMACRO(SysLog("Param: Key=%s",_FARKEY_ToName(Key)));
 /*
            1         2         3         4         5         6
     3456789012345678901234567890123456789012345678901234567890123456789
@@ -3615,6 +3630,8 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
 
 int KeyMacro::PostNewMacro(char *PlainText,DWORD Flags)
 {
+  _KEYMACRO(CleverSysLog Clev("KeyMacro::PostNewMacro(char *PlainText,DWORD Flags)"));
+  _KEYMACRO(SysLog("Param: PlainText=\"%s\"",PlainText));
   struct MacroRecord NewMacroWORK2={0};
 
   // сначала смотрим на парсер
@@ -3649,6 +3666,8 @@ int KeyMacro::PostNewMacro(char *PlainText,DWORD Flags)
 
 int KeyMacro::PostNewMacro(struct MacroRecord *MRec,BOOL /*NeedAddSendFlag*/)
 {
+  _KEYMACRO(CleverSysLog Clev("KeyMacro::PostNewMacro(struct MacroRecord *MRec)"));
+  _KEYMACRO(SysLog("Param: MRec=%p",MRec));
   if(!MRec)
     return FALSE;
 
@@ -3868,10 +3887,11 @@ static void printKeyValue(DWORD* k, int& i)
 //- AN ----------------------------------------------
 static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const char *BufPtr)
 {
+  _KEYMACRO(CleverSysLog Clev("parseMacroString"));
+  _KEYMACRO(SysLog("BufPtr='%s'", BufPtr));
   _macro_nErr = 0;
   if ( BufPtr == NULL || !*BufPtr)
     return FALSE;
-  _KEYMACRO(SysLog("--- macro parse '%s'", BufPtr));
   int SizeCurKeyText = strlen(BufPtr)*2;
   char *CurrKeyText = (char*)xf_malloc(SizeCurKeyText);
   if ( CurrKeyText == NULL )
