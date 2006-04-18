@@ -9,10 +9,14 @@
 [*] Changes
 
 ---------------------------------------------------------------------------
-FAR 1.71 (build 2093) (14.04.2006)
+FAR 1.71 (build 2094) (18.04.2006)
 ---------------------------------------------------------------------------
 
 [!] Command line prompt format has been extended with new commands.
+
+[!] Клавиши на цифровой клавиатуре '*' и '/' теперь называются "Multiply"
+    и "Divide". В макросах, в сочетании с модификаторами, вместо символов
+    будут присутствовать именно эти названия.
 
 [+] When a non-existing file from the edit history is selected (by Enter),
     a prompt to create this file is shown.
@@ -55,7 +59,7 @@ FAR 1.71 (build 2093) (14.04.2006)
     history.
 
 [-] The name of the "new" file ("?New File?") was sometimes added to the
-    history. (Shift-F4 Del Enter Esc).
+    history (Shift-F4 Del Enter Esc).
 
 [-] Incorrect processing of plugin paths in folders history.
 
@@ -68,11 +72,13 @@ MultiArc - build 181
 [-] RAR.FMT: when using unrar.dll the archive password was passed to it in the
     wrong encoding.
 
-Network - build 34
+Network - build 35
 ~~~~~~~~~~~~~~~~~~
 
 [+] Plug-in accepts environment variables specified in the form of
     %VARIABLENAME% in the command line.
+
+[*] Косметика в диалоге ввода пароля к сетевому ресурсу.
 
 [-] Fixed the following wrong behaviour: when the plug-in has been opened
     from a network directory and the user pressed Ctrl+PgUp from the
