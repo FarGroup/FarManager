@@ -2465,6 +2465,11 @@
                         <param name="Local" value="html/articles/delphisimple.html">
                         <param name="ImageNumber" value="11">
                         </OBJECT>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="Работа с временной панелью в своем плагине">
+                        <param name="Local" value="html/articles/temppanel.html">
+                        <param name="ImageNumber" value="11">
+                        </OBJECT>
         </UL>
         <LI> <OBJECT type="text/sitemap">
                 <param name="Name" value="Дополнительные разделы">
