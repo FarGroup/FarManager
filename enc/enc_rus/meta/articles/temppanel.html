@@ -32,8 +32,10 @@
   (S&amp;R)</a>&quot; файлов на стандартную &quot;временную панель&quot;
   FAR, которым я и хочу поделиться с вами.</p>
 
-  <blockquote><p class=plain><dfn>Немного истории (можно абзац пропустить и не читать,
-  тут выстраданное мною, поэтому не могу не написать :-)</dfn>. С временной
+<p class=note><img src="../../images/note.gif" alt="Немного истории" width="10" height="10"> Немного истории
+<em>(можно абзац пропустить и не читать, тут выстраданное мною, поэтому не могу не написать :-)</em>.</p>
+<UL class=note><LI>
+<p>С временной
   панелью S&amp;R научился работать пять лет назад (в 2001 г.),
   функционально решение было оформлено достаточно &quot;топорно&quot; - в
   виде написания своей собственной &quot;временной панели&quot;. Почему я
@@ -41,7 +43,7 @@
   copy-and-paste исходного кода стандартной &quot;временной панели&quot;,
   т.е. один и тот же одинаково работающий код загружается в память дважды.
   Да что там &quot;одинаково работающий&quot;... Со временем приходится
-  перидиочески тратить время на синхронизацию своего кода с кодом
+  периодически тратить время на синхронизацию своего кода с кодом
   стандартного плагина, чтобы не путать пользователя фактом существования
   двух &quot;временных панелей&quot; (если код синхронизировать, то
   пользователь как бы не замечает, что панелей две). В конце концов мне это
@@ -50,7 +52,10 @@
   пришло мне в голову - делать LoadLibrary(стандартный плагин), а потом
   дергать его функции. Казалось бы, простое решение моментально обнаружило
   ряд трудностей: мне в своем плагине пришлось бы эмулировать ряд сервисных
-  функций FAR (GetMsg, Message, Dialog, Menu), потому что они требуют в
+  функций FAR (<a href="../service_functions/getmsg.html">GetMsg</a>,
+  <a href="../service_functions/message.html">Message</a>,
+  <a href="../dialogapi/dialog.html">Dialog</a>,
+  <a href="../service_functions/menu.html">Menu</a>), потому что они требуют в
   качестве параметра ModuleNumber, который в общем случае мне не известен.
   Таким образом, избавившись от одного дублирования кода, я автоматически
   получал другое, еще более сложное в реализации. Кроме того, из-за того,
@@ -58,20 +63,21 @@
   память по мере необходимости, а не тогда, когда нужно моему плагину, мы
   получали потенциальный глюкодром - в какой-то момент времени функции
   инициализации/деинициализации стандартной &quot;временной панели&quot;
-  (SetStartupInfo, ExitFAR) могли быть вызваны дважды - моим плагином и
+  (<a href="../exported_functions/setstartupinfo.html">SetStartupInfo</a>,
+  <a href="../exported_functions/exitfar.html">ExitFAR</a>) могли быть вызваны дважды - моим плагином и
   FAR'ом, причем в заранее неизвестном порядке. В подобной ситуации в
   лучшем случае происходило бы &quot;падение&quot; FAR'а или того или иного
   плагина (проверять я не стал :-). В связи с изложенным, мне пришло в
   голову решение, излагаемое в следующем абзаце. Причем оно такое простое,
-  что даже обидно, что я не догадался об этом пять лет назад.</p>
-  </blockquote>
+  что даже обидно, что я не догадался об этом пять лет назад.
+</LI></UL>
 
-  <p class=plain>Итак, не нужно загружать при помощи LoadLibrary
+  <p class=plain>Итак, не нужно загружать при помощи <a href="win32/loadlibrary.html">LoadLibrary</a>
   стандартный плагин tmppanel.dll в память самому из своего плагина, нужно
   попросить сделать это FAR, тогда точно будет известно, что к моменту
   необходимости работы с &quot;временной панелью&quot; из своего плагина,
   она будет уже загружена в память и нужным образом проинициализирована.
-  Для этого нужно, чтобы в tmppanel.dll выставлялся флаг PF_PRELOAD. В
+  Для этого нужно, чтобы в tmppanel.dll выставлялся флаг <a href="../structures/plugininfo.html#PF_PRELOAD">PF_PRELOAD</a>. В
   tmppanel.dll версии 1.70 build 27 (входит в релиз FAR 1.70) этот флаг не
   выставляется, поэтому я произвел все необходимые изменения в стандартном
   плагине и его версия 1.71 build 28 (ищите на <a
@@ -89,15 +95,27 @@ HMODULE hPluginDll=GetModuleHandle(&quot;TmpPanel.dll&quot;);
   нужно.</p>
 
   <p class=plain>Модуль tmppanel.dll экспортирует следующие функции:
-  <dfn>ClosePlugin, Configure, ExitFAR, GetFindData, GetMinFarVersion,
-  GetOpenPluginInfo, GetPluginInfo, OpenFilePlugin, OpenPlugin,
-  ProcessEvent, ProcessKey, PutFiles, SetDirectory, SetFindList,
-  SetStartupInfo</dfn>.</p>
+  <dfn><a href="../exported_functions/closeplugin.html">ClosePlugin</a>,
+  <a href="../exported_functions/configure.html">Configure</a>,
+  <a href="../exported_functions/exitfar.html">ExitFAR</a>,
+  <a href="../exported_functions/getfinddata.html">GetFindData</a>,
+  <a href="../exported_functions/getminfarversion.html">GetMinFarVersion</a>,
+  <a href="../exported_functions/getopenplugininfo.html">GetOpenPluginInfo</a>,
+  <a href="../exported_functions/getplugininfo.html">GetPluginInfo</a>,
+  <a href="../exported_functions/openfileplugin.html">OpenFilePlugin</a>,
+  <a href="../exported_functions/openplugin.html">OpenPlugin</a>,
+  <a href="../exported_functions/processevent.html">ProcessEvent</a>,
+  <a href="../exported_functions/processkey.html">ProcessKey</a>,
+  <a href="../exported_functions/putfiles.html">PutFiles</a>,
+  <a href="../exported_functions/setdirectory.html">SetDirectory</a>,
+  <a href="../exported_functions/setfindlist.html">SetFindList</a>,
+  <a href="../exported_functions/setstartupinfo.html">SetStartupInfo</a>
+  </dfn>.</p>
 
   <p class=plain>Нам потребуется задействовать все из них, за исключением
   <dfn>SetStartupInfo, ExitFAR, GetPluginInfo, GetMinFarVersion, Configure,
   OpenFilePlugin</dfn>, т.к. они представляют интерес только для самого FAR'а.
-  Для получения адресов указанных функций используется GetProcAddress. У
+  Для получения адресов указанных функций используется <a href="win32/getprocaddress.html">GetProcAddress</a>. У
   меня это выглядит приблизительно вот так:</p>
 
 <pre class=code>
