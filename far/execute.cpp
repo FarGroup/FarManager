@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.125 31.03.2006 $ */
+/* Revision: 1.126 23.04.2006 $ */
 
 /*
 Modify:
+  23.04.2006 AY
+    - Execute() не выставлял путь пассивной панели для правильной работы driveletter: путей в win9x.
   31.03.2006 SVS
     - Некорректная работа команд CD и CHDIR с переменными среды.
   25.03.2006 AY
@@ -1011,14 +1013,45 @@ DWORD IsCommandExeGUI(const char *Command)
 #endif
 /* VVM $ */
 
+/* Функция для выставления пути для пассивной панели
+   чтоб путь на пассивной панели был доступен по DriveLetter:
+   для запущенных из фара программ в Win9x
+*/
+void SetCurrentDirectoryForPassivePanel(const char *Comspec,const char *CmdStr)
+{
+  Panel *PassivePanel=CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel);
+
+  if (PassivePanel->GetType()==FILE_PANEL)
+  {
+    for (int I=0;CmdStr[I]!=0;I++)
+    {
+      if (isalpha(CmdStr[I]) && CmdStr[I+1]==':' && CmdStr[I+2]!='\\')
+      {
+        char SavePath[NM],PanelPath[NM],SetPathCmd[NM*2];
+        FarGetCurDir(sizeof(SavePath),SavePath);
+        PassivePanel->GetCurDir(PanelPath);
+        sprintf(SetPathCmd,"%s /C chdir %s",Comspec,QuoteSpace(PanelPath));
+        STARTUPINFO si;
+        PROCESS_INFORMATION pi;
+        memset (&si, 0, sizeof (STARTUPINFO));
+        si.cb = sizeof (si);
+        CreateProcess(NULL,SetPathCmd,NULL,NULL,FALSE,CREATE_DEFAULT_ERROR_MODE,NULL,NULL,&si,&pi);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+        FarChDir(SavePath);
+        break;
+      }
+    }
+  }
+}
+
 /* Функция-пускатель внешних процессов
    Возвращает -1 в случае ошибки или...
 */
 int Execute(const char *CmdStr,    // Ком.строка для исполнения
             int AlwaysWaitFinish,  // Ждать завершение процесса?
             int SeparateWindow,    // Выполнить в отдельном окне? =2 для вызова ShellExecuteEx()
-            int DirectRun,         // Выполнять директом? (без CMD)
-            int SetUpDirs)         // Нужно устанавливать каталоги?
+            int DirectRun)         // Выполнять директом? (без CMD)
 {
   int nResult = -1;
 
@@ -1072,7 +1105,7 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
   char Comspec[NM] = {0};
   GetEnvironmentVariable("COMSPEC", Comspec, sizeof(Comspec));
 
-  if ( !*Comspec && (SetUpDirs || (SeparateWindow != 2)) )
+  if ( !*Comspec && (SeparateWindow != 2) )
   {
     Message(MSG_WARNING, 1, MSG(MWarning), MSG(MComspecNotFound), MSG(MErrorCancelled), MSG(MOk));
     return -1;
@@ -1100,28 +1133,8 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
   char OldTitle[512];
   GetConsoleTitle (OldTitle, sizeof(OldTitle));
 
-  if ( SetUpDirs )
-  {
-    Panel *PassivePanel=CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel);
-
-    if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS && PassivePanel->GetType()==FILE_PANEL)
-    {
-      for (int I=0;CmdStr[I]!=0;I++)
-      {
-        if (isalpha(CmdStr[I]) && CmdStr[I+1]==':' && CmdStr[I+2]!='\\')
-        {
-          char SavePath[NM],PanelPath[NM],SetPathCmd[NM];
-          FarGetCurDir(sizeof(SavePath),SavePath);
-          PassivePanel->GetCurDir(PanelPath);
-          sprintf(SetPathCmd,"%s /C chdir %s",Comspec,QuoteSpace(PanelPath));
-          CreateProcess(NULL,SetPathCmd,NULL,NULL,FALSE,CREATE_DEFAULT_ERROR_MODE,NULL,NULL,&si,&pi);
-          CloseHandle(pi.hThread);
-          CloseHandle(pi.hProcess);
-          FarChDir(SavePath);
-        }
-      }
-    }
-  }
+  if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS && *Comspec)
+    SetCurrentDirectoryForPassivePanel(Comspec,CmdStr);
 
   DWORD dwSubSystem;
   DWORD dwError = 0;
@@ -1307,7 +1320,7 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
 
                   bAlt = (dwControlKeyState & LEFT_ALT_PRESSED) || (dwControlKeyState & RIGHT_ALT_PRESSED);
                   bCtrl = (dwControlKeyState & LEFT_CTRL_PRESSED) || (dwControlKeyState & RIGHT_CTRL_PRESSED);
-                  bShift = (dwControlKeyState & SHIFT_PRESSED);
+                  bShift = (dwControlKeyState & SHIFT_PRESSED) != 0;
 
                   if ( vkey==pir->Event.KeyEvent.wVirtualKeyCode &&
                      (alt ?bAlt:!bAlt) &&

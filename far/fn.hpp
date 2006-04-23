@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.239 10.04.2006 $ */
+/* Revision: 1.240 23.04.2006 $ */
 
 /*
 Modify:
+  23.04.2006 AY
+    ! Убираем SetUpDirs из Execute().
   10.04.2006 SVS
     + BOOL WINAPI FAR_GlobalMemoryStatusEx(LPMEMORYSTATUSEX lpBuffer)
   02.03.2006 SVS
@@ -1016,7 +1018,7 @@ int CheckShortcutFolder(char *TestPath,int LengthPath,int IsHostFile, BOOL Silen
 #if defined(__FARCONST_HPP__) && (defined(_INC_WINDOWS) || defined(_WINDOWS_) || defined(_WINDOWS_H))
 UDWORD NTTimeToDos(FILETIME *ft);
 int Execute(const char *CmdStr,int AlwaysWaitFinish,int SeparateWindow=FALSE,
-            int DirectRun=FALSE,int SetUpDirs=FALSE);
+            int DirectRun=FALSE);
 #endif
 
 class Panel;

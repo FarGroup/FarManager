@@ -7,10 +7,12 @@ headers.hpp
 
 */
 
-/* Revision: 1.25 13.04.2006 $ */
+/* Revision: 1.26 23.04.2006 $ */
 
 /*
 Modify:
+  23.04.2006 AY
+    - MEMORYSTATUSEX нету в VC6.
   13.04.2006 SVS
     - MEMORYSTATUSEX нету в gcc. Добавим.
   10.04.2006 SVS
@@ -287,7 +289,7 @@ Modify:
   #endif
 #endif
 
-#if defined(__GNUC__) || defined(__BORLANDC__) && (__BORLANDC__ < 0x0550)
+#if defined(__GNUC__) || (defined(__BORLANDC__) && (__BORLANDC__ < 0x0550)) || defined(_DEBUG)
 
 #ifndef _DWORDLONG_
 typedef unsigned __int64 DWORDLONG;

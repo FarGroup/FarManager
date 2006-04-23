@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.178 25.03.2006 $ */
+/* Revision: 1.179 23.04.2006 $ */
 
 /*
 Modify:
+  23.04.2006 AY
+    - FarChDir - не всегда выставлялись переменные типа =DriveLetter:
   25.03.2006 AY
     - %var% не обрабатывались вообще в параметрах ком строки
   20.02.2006 SVS
@@ -688,7 +690,7 @@ BOOL FarChDir(const char *NewDir, BOOL ChangeDir)
     }
   }
 
-  if(rc)
+  if(rc || !ChangeDir)
   {
     if ((!ChangeDir || GetCurrentDirectory(sizeof(CurDir),CurDir)) &&
         isalpha(*CurDir) && CurDir[1]==':')
