@@ -9,14 +9,13 @@
 [*] Changes
 
 ---------------------------------------------------------------------------
-FAR 1.71 (build 2094) (18.04.2006)
+FAR 1.71 (build 2095) (24.04.2006)
 ---------------------------------------------------------------------------
 
 [!] Command line prompt format has been extended with new commands.
 
-[!] Клавиши на цифровой клавиатуре '*' и '/' теперь называются "Multiply"
-    и "Divide". В макросах, в сочетании с модификаторами, вместо символов
-    будут присутствовать именно эти названия.
+[!] The '*' and '/' keys from the numpad are now called "Multiply" and
+    "Divide". Those names will be used in macros instead of the symbols.
 
 [+] When a non-existing file from the edit history is selected (by Enter),
     a prompt to create this file is shown.
@@ -39,7 +38,7 @@ FAR 1.71 (build 2094) (18.04.2006)
 [+] A mode for displaying parameters of network drives (Ctrl-9) in disks menu.
     Off by default.
 
-[+] TechInfo#72 - allow to save plugin paths in the history.
+[+] TechInfo#72 - allows to save plugin paths to the folders history.
 
 [*] Some updates to the command line help (for far /?).
 
@@ -63,6 +62,9 @@ FAR 1.71 (build 2094) (18.04.2006)
 
 [-] Incorrect processing of plugin paths in folders history.
 
+[-] Paths of DriveLetter: type did not work for the passive panel when
+    executing programs in Windows9x.
+
 MultiArc - build 181
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -78,7 +80,7 @@ Network - build 35
 [+] Plug-in accepts environment variables specified in the form of
     %VARIABLENAME% in the command line.
 
-[*] Косметика в диалоге ввода пароля к сетевому ресурсу.
+[*] Cosmetic changes to the password input dialog.
 
 [-] Fixed the following wrong behaviour: when the plug-in has been opened
     from a network directory and the user pressed Ctrl+PgUp from the

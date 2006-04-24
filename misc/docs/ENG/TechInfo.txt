@@ -158,12 +158,12 @@ the main help file, that is actual for the current FAR Manager version.
 ~~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far\System]
    "SavePluginFoldersHistory":REG_DWORD
-   Параметр "System/SavePluginFoldersHistory" с типом DWORD позволяет
-   сохранять в реестре в истории папок плагиновые пути.
-   Может принимать следующие значения:
-   0 - плагиновые пути в истории видны, но в реестр не сохраняются.
-   1 - плагиновые пути в истории видны, в реестр сохраняются.
-   По умолчанию значение = 0 (не сохранять плагиновые пути).
+   The key "System/SavePluginFoldersHistory" of DWORD type allows  to  save
+   plugin paths to the folders history (in the registry).
+   Can have one of the following values:
+   0 - plugin paths are shown in the history but not saved to the registry.
+   1 - plugin paths are shown in the history and saved to the registry.
+   The default value is 0 (do not save plugin paths to the registry).
 
 
 =====================
