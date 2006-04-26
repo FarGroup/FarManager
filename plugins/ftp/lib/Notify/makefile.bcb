@@ -1,4 +1,5 @@
-LIBROOT    = D:\MYWIN\Far\PLUGINS\StdPlugins
+FARROOT    = ..\..\FStdLib
+LIBROOT    = ..\..\FStdLib
 PNAME      = ftpNotify
 PROJECT    = ..\$(PNAME).fll
 PDEF       = ..\def.def

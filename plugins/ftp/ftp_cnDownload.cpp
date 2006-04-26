@@ -50,14 +50,14 @@ void Connection::recvrequestINT(char *cmd, char *local, char *remote, char *mode
       return;
     }
 
-    if ( restart_point != -1 )
-      if ( restart_point )
-        if ( !Fmove( fout.Handle,restart_point ) ) {
-          ErrorCode = GetLastError();
-          if ( !ConnectMessage( MErrorPosition,local,-MRetry ) )
-            ErrorCode = ERROR_CANCELLED;
-          return;
-        }
+    if ( restart_point != -1 ) {
+      if ( !Fmove( fout.Handle,restart_point ) ) {
+        ErrorCode = GetLastError();
+        if ( !ConnectMessage( MErrorPosition,local,-MRetry ) )
+          ErrorCode = ERROR_CANCELLED;
+        return;
+      }
+    }
     TrafficInfo->Resume( restart_point == -1 ? 0 : restart_point );
   }
 
@@ -280,6 +280,11 @@ abort:
   GuildFTP (have no ABOR notify at all)
   -> <ABORT>
   <- 226 Transfer complete. 11200000 bytes in 2 sec. (5600.00 Kb/s).
+
+  ??
+  ->ÚABOR
+  <-450 Transfer aborted. Link to file server lost.
+  <-500 ˇÙˇÚABOR not understood
 */
 BOOL Connection::SendAbort( SOCKET din )
   {

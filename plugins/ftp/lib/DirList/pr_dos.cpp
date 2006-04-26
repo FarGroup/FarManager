@@ -4,8 +4,14 @@
 #include "p_Int.h"
 
 /* a dos date/time string looks like this
+
+ 12-hours style
  * 04-06-95  02:03PM
  * 07-13-95  11:39AM
+
+ 24-hours style
+ * 04-06-95  02:03
+ * 07-13-95  11:39
  */
 BOOL net_parse_dos_date_time( CONSTSTR datestr, Time_t& decoded )
   {
@@ -13,9 +19,11 @@ BOOL net_parse_dos_date_time( CONSTSTR datestr, Time_t& decoded )
     GetSystemTime(&st);
     st.wMilliseconds = 0;
 
+    //Check format
     CHECK( (datestr[2] != '-' || datestr[5] != '-' || datestr[8] != ' '), FALSE )
     CHECK( (datestr[12] != ':'), FALSE )
 
+    //Date
     if ( datestr[0] == ' ' )
       st.wMonth = (datestr[1]-'0');
      else
@@ -28,6 +36,7 @@ BOOL net_parse_dos_date_time( CONSTSTR datestr, Time_t& decoded )
       st.wYear += 100;
     st.wYear += 1900;
 
+    //Time
     st.wHour   = ((datestr[10]-'0')*10) + (datestr[11]-'0');
     st.wMinute = ((datestr[13]-'0')*10) + (datestr[14]-'0');
 
@@ -59,25 +68,27 @@ BOOL net_parse_dos_date_time( CONSTSTR datestr, Time_t& decoded )
  */
 BOOL DECLSPEC idPRParceDos( const PFTPServerInfo Server, PFTPFileInfo p, char *entry, int entry_len )
   {  NET_FileEntryInfo  entry_info;
-     char              *e;
+     char              *e, *m;
 
      CHECK( (entry_len < 39 || entry[17] != ' '), FALSE )
 
-     entry[17] = 0;
      CHECK( (!net_parse_dos_date_time(entry, entry_info.date )), FALSE )
 
      // <DIR> | digits
-     e = SkipSpace(entry+18);
+     e = SkipSpace( SkipNSpace( entry+15 ) );
 
-     if( StrCmp(e, "<DIR> ",5,FALSE) == 0 )
+     if( StrCmp(e, "<DIR> ",5,FALSE) == 0 ) {
        entry_info.FileType = NET_DIRECTORY;
-      else {
-       SkipNSpace(e)[0] = 0;
+       m = SkipSpace( e+5 );
+     } else {
+       m = SkipNSpace(e);
+       *m = 0;
        entry_info.size = AtoI( e,(__int64)-1 );
+       m = SkipSpace(m+1);
        CHECK( (entry_info.size == -1), FALSE )
      }
 
-     StrCpy( entry_info.FindData.cFileName, entry+39, sizeof(entry_info.FindData.cFileName)  );
+     StrCpy( entry_info.FindData.cFileName, m, sizeof(entry_info.FindData.cFileName)  );
 
  return ConvertEntry( &entry_info,p );
 }

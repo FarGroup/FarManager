@@ -10,12 +10,12 @@ FILETYPE 2 {
    VALUE "CompanyName",      "Eugene Roshal & FAR Group\000\000"
    VALUE "FileDescription",  "FTP client for FAR Manager\000"
    VALUE "InternalName",     "FarFtp\000"
-   VALUE "LegalCopyright",   "Copyright © Eugene Roshal 1996-2000, Copyright © FAR Group ] 2000\000\000"
+   VALUE "LegalCopyright",   "Copyright © Eugene Roshal 1996-2000, Copyright © FAR Group 2000\000\000"
    VALUE "OriginalFilename", "FarFtp.dll\000"
    VALUE "Comments",         "Current developer: JouriM<at>uran.ru\000\000"
 
-   VALUE "ProductVersion",   "1.80\000\000"
-   VALUE "FileVersion",      "build 02.06.2005\000\000"
+   VALUE "ProductVersion",   "1.9\000\000"
+   VALUE "FileVersion",      "build 27.12.2005\000\000"
   }
  }
  BLOCK "VarFileInfo" {

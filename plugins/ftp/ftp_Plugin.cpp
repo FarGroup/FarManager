@@ -31,11 +31,26 @@ HANDLE DECLSPEC idProcStart( CONSTSTR FunctionName,CONSTSTR Format,... )
  return new FARINProc( FunctionName,str.c_str() );
 }
 
-void           DECLSPEC idProcEnd( HANDLE proc )              { delete ((FARINProc*)proc); }
-int            DECLSPEC idFtpCmdBlock( HANDLE hConnect,int block /*TRUE,FALSE,-1*/ ) { return FtpCmdBlock( (Connection *)hConnect,block ); }
-int            DECLSPEC idFtpGetRetryCount( HANDLE hConnect ) { Assert(hConnect); return FtpGetRetryCount( (Connection*)hConnect ); }
-POptionsPlugin DECLSPEC idGetOpt( void )                      { return &Opt; }
-PFTPHostPlugin DECLSPEC idGetHostOpt( HANDLE hConnect )       { Assert(hConnect); return &((Connection*)hConnect)->Host; }
+void           DECLSPEC idProcEnd( HANDLE proc )    { delete ((FARINProc*)proc); }
+POptionsPlugin DECLSPEC idGetOpt( void )            { return &Opt; }
+
+int DECLSPEC idFtpCmdBlock( int block /*TRUE,FALSE,-1*/ )
+  {  FTP *ftp = LastUsedPlugin;
+     if ( !ftp || !ftp->hConnect ) return -1;
+  return FtpCmdBlock( ftp->hConnect,block );
+}
+
+int DECLSPEC idFtpGetRetryCount( void )
+  {  FTP *ftp = LastUsedPlugin;
+     if ( !ftp || !ftp->hConnect ) return 0;
+ return FtpGetRetryCount( ftp->hConnect );
+}
+
+PFTPHostPlugin DECLSPEC idGetHostOpt( void )
+  {  FTP *ftp = LastUsedPlugin;
+     if ( !ftp || !ftp->hConnect ) return NULL;
+     return &ftp->hConnect->Host;
+}
 
 //------------------------------------------------------------------------
 void CreateFTPInterface( void )

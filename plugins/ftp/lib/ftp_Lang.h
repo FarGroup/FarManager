@@ -414,6 +414,7 @@ enum {
   MUndupFF,                        //"UnDup FF in PWD"
   MEHDecodeCmd,                    //"Decode &cmd line commands"
   MSendAllo,                       //"Send ALLO command before upload"
+  MUseStartSpaces,              //"Ignore spaces at file name start"
 
   METitle,                         //"Extended options"
   MEShowProgress,                  //"Show view/edit progress"

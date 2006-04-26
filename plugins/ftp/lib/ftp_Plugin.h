@@ -117,6 +117,7 @@ STRUCT( FTPHostPlugin )
   BOOL    UndupFF;                       // Remove FF duplicate from PWD
   BOOL    DecodeCmdLine;                 // Decode OEM cmd line chars to hosts code page
   BOOL    SendAllo;                      // Send allo before upload
+  BOOL    UseStartSpaces;             // Ignore spaces from start of file name
 };
 
 //------------------------------------------------------------------------
@@ -180,12 +181,12 @@ STRUCT( FTPInterface )
    void     (DECLSPEC    *IdleMessage)( CONSTSTR str,int color );
 
 //FTP related
-   int      (DECLSPEC    *FtpGetRetryCount)( HANDLE hConnect );
-   int      (DECLSPEC    *FtpCmdBlock)( HANDLE hConnect,int block /*TRUE,FALSE,-1*/ );
+   int      (DECLSPEC    *FtpGetRetryCount)( void );
+   int      (DECLSPEC    *FtpCmdBlock)( int block /*TRUE,FALSE,-1*/ );
 
 //info
    POptionsPlugin (DECLSPEC *GetOpt)( void );
-   PFTPHostPlugin (DECLSPEC *GetHostOpt)( HANDLE hConnect );
+   PFTPHostPlugin (DECLSPEC *GetHostOpt)( void );
 };
 
 #if !defined(__FAR_PLUGIN_FTP)

@@ -7,15 +7,18 @@
 !if !$d(LIBROOT)
   LIBROOT = .
 !endif
+!if !$d(FARROOT)
+  FARROOT = .
+!endif
 !if !$d(PROJECT)
   PROJECT = _dummy
 !endif
 
 # FStd lib
-FARROOT     = ..\..\..
 OUTDIR      = $(FARROOT)\OUTPUT
-
+!if !$d(CROOT)
 CROOT       = D:\CB5
+!endif
 CC          = $(CROOT)\bin\bcc32.exe
 LIB         = $(CROOT)\bin\tlib.exe
 LINKER      = $(CROOT)\bin\ilink32.exe

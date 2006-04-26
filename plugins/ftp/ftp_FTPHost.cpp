@@ -444,6 +444,7 @@ BOOL FTPHost::Read( CONSTSTR nm )
     UndupFF       = FP_GetRegKey(RegKey,"UndupFF",           Opt.UndupFF );
     DecodeCmdLine = FP_GetRegKey(RegKey,"DecodeCmdLine",     TRUE );
     SendAllo      = FP_GetRegKey(RegKey,"SendAllo",          FALSE );
+    UseStartSpaces = FP_GetRegKey(RegKey,"UseStartSpaces", TRUE );
 
     IOBuffSize = Max(FTR_MINBUFFSIZE,IOBuffSize);
 
@@ -479,22 +480,23 @@ BOOL FTPHost::Write( CONSTSTR nm )
       rc = FP_SetRegKey(RegKey,"HostName",      HostName ) &&
            FP_SetRegKey(RegKey,"User",          User ) &&
            FP_SetRegKey(RegKey,"Password",      psw,sizeof(psw) ) &&
-           FP_SetRegKey(RegKey,"Table",         HostTable  ) &&
-           FP_SetRegKey(RegKey,"AskLogin",      AskLogin   ) &&
-           FP_SetRegKey(RegKey,"PassiveMode",   PassiveMode) &&
-           FP_SetRegKey(RegKey,"UseFirewall",   UseFirewall) &&
-           FP_SetRegKey(RegKey,"AsciiMode",     AsciiMode  ) &&
-           FP_SetRegKey(RegKey,"ExtCmdView",    ExtCmdView ) &&
-           FP_SetRegKey(RegKey,"ExtList",       ExtList ) &&
-           FP_SetRegKey(RegKey,"ServerType",    ServerType ) &&
-           FP_SetRegKey(RegKey,"ListCMD",       ListCMD ) &&
-           FP_SetRegKey(RegKey,"ProcessCmd",    ProcessCmd ) &&
-           FP_SetRegKey(RegKey,"CodeCmd",       CodeCmd ) &&
-           FP_SetRegKey(RegKey,"IOBuffSize",    IOBuffSize ) &&
-           FP_SetRegKey(RegKey,"FFDup",         FFDup )      &&
-           FP_SetRegKey(RegKey,"UndupFF",       UndupFF )      &&
-           FP_SetRegKey(RegKey,"DecodeCmdLine", DecodeCmdLine )&&
-           FP_SetRegKey(RegKey,"SendAllo",      SendAllo );
+           FP_SetRegKey(RegKey,"Table",         HostTable  )      &&
+           FP_SetRegKey(RegKey,"AskLogin",      AskLogin   )      &&
+           FP_SetRegKey(RegKey,"PassiveMode",   PassiveMode)      &&
+           FP_SetRegKey(RegKey,"UseFirewall",   UseFirewall)      &&
+           FP_SetRegKey(RegKey,"AsciiMode",     AsciiMode  )      &&
+           FP_SetRegKey(RegKey,"ExtCmdView",    ExtCmdView )      &&
+           FP_SetRegKey(RegKey,"ExtList",       ExtList )         &&
+           FP_SetRegKey(RegKey,"ServerType",    ServerType )      &&
+           FP_SetRegKey(RegKey,"ListCMD",       ListCMD )         &&
+           FP_SetRegKey(RegKey,"ProcessCmd",    ProcessCmd )      &&
+           FP_SetRegKey(RegKey,"CodeCmd",       CodeCmd )         &&
+           FP_SetRegKey(RegKey,"IOBuffSize",    IOBuffSize )      &&
+           FP_SetRegKey(RegKey,"FFDup",         FFDup )           &&
+           FP_SetRegKey(RegKey,"UndupFF",       UndupFF )         &&
+           FP_SetRegKey(RegKey,"DecodeCmdLine", DecodeCmdLine )   &&
+           FP_SetRegKey(RegKey,"SendAllo",      SendAllo )        &&
+           FP_SetRegKey(RegKey,"UseStartSpaces", UseStartSpaces );
     }
 
     rc = rc &&
@@ -569,6 +571,7 @@ BOOL FTPHost::ReadINI( CONSTSTR nm )
     UndupFF     = GetPrivateProfileInt("FarFTP","UndupFF",     Opt.UndupFF,      nm );
     DecodeCmdLine = GetPrivateProfileInt("FarFTP","DecodeCmdLine", TRUE,         nm );
     SendAllo    = GetPrivateProfileInt("FarFTP","SendAllo",    FALSE,            nm );
+    UseStartSpaces = GetPrivateProfileInt("FarFTP","UseStartSpaces",    TRUE,            nm );
     GetPrivateProfileString("FarFTP","CharTable","",HostTable,sizeof(HostTable), nm);
 
     IOBuffSize = Max(FTR_MINBUFFSIZE,IOBuffSize);
@@ -594,27 +597,28 @@ BOOL FTPHost::WriteINI( CONSTSTR nm )
      WritePrivateProfileString(NULL,NULL,NULL,nm);
      PasswordToHex( Password,HexStr );
 
-     res = WritePrivateProfileString( "FarFTP","Version",       FTPHOST_VERSION,nm   )           &&
-           WritePrivateProfileString( "FarFTP","Url",           HostName,nm   )                  &&
-           WritePrivateProfileString( "FarFTP","User",          User,nm       )                  &&
-           WritePrivateProfileString( "FarFTP","Password",      HexStr,nm     )                  &&
-           WritePrivateProfileString( "FarFTP","Description",   HostDescr,nm  )                  &&
-           WritePrivateProfileString( "FarFTP","AskLogin",      Message("%d",AskLogin),nm   )    &&
-           WritePrivateProfileString( "FarFTP","AsciiMode",     Message("%d",AsciiMode),nm  )    &&
-           WritePrivateProfileString( "FarFTP","PassiveMode",   Message("%d",PassiveMode),nm)    &&
-           WritePrivateProfileString( "FarFTP","UseFirewall",   Message("%d",UseFirewall),nm)    &&
-           WritePrivateProfileString( "FarFTP","ExtCmdView",    Message("%d",ExtCmdView),nm)     &&
-           WritePrivateProfileString( "FarFTP","ExtList",       Message("%d",ExtList),nm)        &&
-           WritePrivateProfileString( "FarFTP","ServerType",    Message("%d",ServerType),nm)     &&
-           WritePrivateProfileString( "FarFTP","CodeCmd",       Message("%d",CodeCmd),nm)        &&
-           WritePrivateProfileString( "FarFTP","ListCMD",       "LIST -la",nm )                  &&
-           WritePrivateProfileString( "FarFTP","IOBuffSize",    Message("%d",IOBuffSize),nm)     &&
-           WritePrivateProfileString( "FarFTP","FFDup",         Message("%d",FFDup),nm)          &&
-           WritePrivateProfileString( "FarFTP","UndupFF",       Message("%d",UndupFF),nm)        &&
-           WritePrivateProfileString( "FarFTP","DecodeCmdLine", Message("%d",DecodeCmdLine),nm)  &&
-           WritePrivateProfileString( "FarFTP","SendAllo",      Message("%d",SendAllo),nm)       &&
-           WritePrivateProfileString( "FarFTP","ProcessCmd",    Message("%d",ProcessCmd),nm)     &&
-           WritePrivateProfileString( "FarFTP","CharTable",     HostTable,nm  );
+     res = WritePrivateProfileString( "FarFTP","Version",            FTPHOST_VERSION,nm   )           &&
+           WritePrivateProfileString( "FarFTP","Url",                HostName,nm   )                  &&
+           WritePrivateProfileString( "FarFTP","User",               User,nm       )                  &&
+           WritePrivateProfileString( "FarFTP","Password",           HexStr,nm     )                  &&
+           WritePrivateProfileString( "FarFTP","Description",        HostDescr,nm  )                  &&
+           WritePrivateProfileString( "FarFTP","AskLogin",           Message("%d",AskLogin),nm   )    &&
+           WritePrivateProfileString( "FarFTP","AsciiMode",          Message("%d",AsciiMode),nm  )    &&
+           WritePrivateProfileString( "FarFTP","PassiveMode",        Message("%d",PassiveMode),nm)    &&
+           WritePrivateProfileString( "FarFTP","UseFirewall",        Message("%d",UseFirewall),nm)    &&
+           WritePrivateProfileString( "FarFTP","ExtCmdView",         Message("%d",ExtCmdView),nm)     &&
+           WritePrivateProfileString( "FarFTP","ExtList",            Message("%d",ExtList),nm)        &&
+           WritePrivateProfileString( "FarFTP","ServerType",         Message("%d",ServerType),nm)     &&
+           WritePrivateProfileString( "FarFTP","CodeCmd",            Message("%d",CodeCmd),nm)        &&
+           WritePrivateProfileString( "FarFTP","ListCMD",            "LIST -la",nm )                  &&
+           WritePrivateProfileString( "FarFTP","IOBuffSize",         Message("%d",IOBuffSize),nm)     &&
+           WritePrivateProfileString( "FarFTP","FFDup",              Message("%d",FFDup),nm)          &&
+           WritePrivateProfileString( "FarFTP","UndupFF",            Message("%d",UndupFF),nm)        &&
+           WritePrivateProfileString( "FarFTP","DecodeCmdLine",      Message("%d",DecodeCmdLine),nm)  &&
+           WritePrivateProfileString( "FarFTP","SendAllo",           Message("%d",SendAllo),nm)       &&
+           WritePrivateProfileString( "FarFTP","UseStartSpaces",  Message("%d",UseStartSpaces),nm) &&
+           WritePrivateProfileString( "FarFTP","ProcessCmd",         Message("%d",ProcessCmd),nm)        &&
+           WritePrivateProfileString( "FarFTP","CharTable", HostTable,nm  );
      if (res)
        WritePrivateProfileString(NULL,NULL,NULL,nm);
  return res;

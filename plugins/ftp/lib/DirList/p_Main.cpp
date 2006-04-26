@@ -210,6 +210,7 @@ static WORD ParseSystemInfo( CONSTSTR str )
 
      if ( StrNCmp(str,  "MACOS Peter's Server", 20) == 0)                     return FTP_TYPE_UNIX; else
      if ( StrNCmp(str,  "MACOS WebSTAR FTP", 17) == 0)                        return FTP_TYPE_UNIX; else
+     if ( strstr(str,   "Windows_CE") != NULL)                                return FTP_TYPE_NT;   else
      if ( StrNCmp(str,  "UNIX Type: L8 MAC-OS MachTen", 28) == 0 )            return FTP_TYPE_UNIX; else
      if ( strstr(str,   "UNIX") != NULL)                                      return FTP_TYPE_UNIX; else
      if ( strstr(str,   "Windows_NT") != NULL)                                return FTP_TYPE_NT;   else

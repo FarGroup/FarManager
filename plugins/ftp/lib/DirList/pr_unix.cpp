@@ -5,11 +5,11 @@
 
 #define MIN_DATETIME_STRING (3+4) //The minimal date-time string is "F  2000"
 
-/*          1         2         3         4         5         6         7
+/*
+ *--Full format
+
+            1         2         3         4         5         6         7
   01234567890123456789012345678901234567890123456789012345678901234567890123456789
-
- * Full format
-
   Sep  1  1990   - start with ' '
   Sep 11 11:59
   Sep 11 01:59   - start with 0
@@ -17,28 +17,56 @@
   Dec 12 1989
   FCv 23 1990
 
- *  Short format:
+ *--Short format:
 
+            1         2         3         4         5         6         7
+  01234567890123456789012345678901234567890123456789012345678901234567890123456789
   f 01:07   - time
   f 01:7    - minutes with one digit
   F 15:43
   f  2002   - only year
 
- *  Converts a date string to a time
- */
+ *--Expanded format:
+
+            1         2         3         4         5         6         7
+  01234567890123456789012345678901234567890123456789012345678901234567890123456789
+ *2005-06-20 14:22
+ *2005-07-08 19:21
+ *2004-10-14 14:14
+ *2004-10-14 14:14
+*/
 BOOL net_convert_unix_date( pchar& datestr, Time_t& decoded )
 {
     SYSTEMTIME st;
     GetSystemTime(&st);
     st.wMilliseconds = 0;
     st.wSecond       = 0;
+    st.wDayOfWeek    = 0;
 
     char *bcol = datestr;         /* Column begin */
-    char *ecol;                          /* Column end */
+    char *ecol;                   /* Column end */
+
+  //Expanded format (DDDD-)
+    if ( NET_IS_DIGIT(bcol[0]) && NET_IS_DIGIT(bcol[1]) && NET_IS_DIGIT(bcol[2]) && NET_IS_DIGIT(bcol[3]) &&
+         bcol[4] == '-' ) {
+
+#define CVT( nm, start, end )              bcol[end] = 0;                       \
+                                           st.nm = AtoI(bcol+start,MAX_WORD);   \
+                                           CHECK( (st.nm == MAX_WORD), FALSE )
+
+      CVT( wYear,   0,  4 )
+      CVT( wMonth,  5,  7 )
+      CVT( wDay,    8, 10 )
+      CVT( wHour,  11, 13 )
+      CVT( wMinute,14, 16 )
+#undef CVT
+
+      datestr = bcol + 17;
+      return SystemTimeToFileTime( &st, decoded );
+    }
 
   //Month+day or short format
   // (ecol must be set to char after decoded part)
-
     if ( NET_TO_UPPER(bcol[0]) == 'F' &&
          NET_IS_SPACE(bcol[1]) ) {
     //Short format - ignore month and day
@@ -61,8 +89,6 @@ BOOL net_convert_unix_date( pchar& datestr, Time_t& decoded )
     }
 
   //Year or time
-    st.wDayOfWeek = 0;
-
     ecol = SkipSpace(ecol);
     bcol = ecol;
 
@@ -190,9 +216,13 @@ BOOL net_parse_ls_line( char *line, PNET_FileEntryInfo entry_info, BOOL nLinks )
     CHECK( (!net_convert_unix_date( line,entry_info->date )), FALSE )
 
 //File name
-    if ( *line )
+    if ( *line ) {
+      PFTPHostPlugin host = FTP_Info->GetHostOpt();
+      if ( !host || !host->UseStartSpaces )
+        line = SkipSpace( line );
+
       StrCpy( entry_info->FindData.cFileName, line, sizeof(entry_info->FindData.cFileName) );
-     else {
+    } else {
       entry_info->FindData.cFileName[0] = ' ';
       entry_info->FindData.cFileName[1] = 0;
      }
@@ -212,6 +242,13 @@ BOOL net_parse_ls_line( char *line, PNET_FileEntryInfo entry_info, BOOL nLinks )
  * 69792668804186112 drwxrw-rw- 1 root  root    0 Nov 15 14:01 .
  * 69792668804186112 drwxrw-rw- 1 root  root    0 Nov 15 14:01 ..
  * 69792668804186113 dr-x-w---- 1 root  root  512 Dec  1 02:16 Archives
+ *
+ * Full dates:
+ *
+ * -rw-r--r--  1 panfilov users 139264 2005-06-20 14:22 AddTransToStacks.doc
+ * -rw-------  1 panfilov users    535 2005-07-08 19:21 .bash_history
+ * -rw-r--r--  1 panfilov users    703 2004-10-14 14:14 .bash_profile
+ * -rw-r--r--  1 panfilov users   1290 2004-10-14 14:14 .bashrc
 */
 BOOL DECLSPEC idPRParceUnix( const PFTPServerInfo Server, PFTPFileInfo p, char *entry, int entry_len )
   {  NET_FileEntryInfo entry_info;
@@ -221,14 +258,18 @@ BOOL DECLSPEC idPRParceUnix( const PFTPServerInfo Server, PFTPFileInfo p, char *
 
     CHECK( (!is_unix_start(entry, entry_len,&off)), FALSE )
     entry += off;
+    entry_len -= off;
     first = NET_TO_UPPER(*entry);
 
     StrCpy( entry_info.UnixMode, entry, sizeof(entry_info.UnixMode) );
     entry += 10;
+    entry_len-=10;
 
 //Skip ACL
-    if ( *entry == '+' )
+    if ( *entry == '+' ) {
       entry++;
+      entry_len--;
+    }
 
 //D Dir
     if ( first == 'D') {

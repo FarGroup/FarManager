@@ -7,6 +7,9 @@
 !if !$d(LIBROOT)
   LIBROOT = .
 !endif
+!if !$d(FARROOT)
+  FARROOT = .
+!endif
 !if !$d(PROJECT)
   PROJECT = _dummy
 !endif
@@ -15,8 +18,6 @@
 
 !if $d(USE_ALL_LIB)
 DEF_DEFINES = $(DEF_DEFINES) /D__NOVCL__=1 /DUSE_ALL_LIB=1
-S_INCLUDE   = d:\mywin\libs
-S_LIBS      = d:\mywin\libs
 LIBOBJS     = $(FARROOT)\FARStdlib\fstd_Editor.obj  $(FARROOT)\FARStdlib\fstd_cDialog.obj \
               $(FARROOT)\FARStdlib\fstd_ClpS.obj    \
               $(FARROOT)\FARStdlib\fstd_Dbg.obj     $(FARROOT)\FARStdlib\fstd_Dialog.obj \
@@ -30,8 +31,7 @@ LIBOBJS     = $(FARROOT)\FARStdlib\fstd_Editor.obj  $(FARROOT)\FARStdlib\fstd_cD
               $(FARROOT)\FARStdlib\fstd_RegOp.obj   $(FARROOT)\FARStdlib\fstd_RegRn.obj \
               $(FARROOT)\FARStdlib\fstd_RegSB.obj   $(FARROOT)\FARStdlib\fstd_RegSC.obj \
               $(FARROOT)\FARStdlib\fstd_RegSI.obj   $(FARROOT)\FARStdlib\fstd_scr.obj \
-              $(FARROOT)\FARStdlib\fstd_Msg.obj     $(FARROOT)\FARStdlib\fstd_String.obj \
-              $(FARROOT)\sFARLib\fpanel.obj       $(FARROOT)\sFARLib\fextmode.obj
+              $(FARROOT)\FARStdlib\fstd_Msg.obj     $(FARROOT)\FARStdlib\fstd_String.obj
 !endif
 
 !if $d(USE_ALL_LIB)
@@ -41,7 +41,9 @@ CLIBS       = $(CLIBS) std_novcl.lib
 FARSTDLIB   = $(FARROOT)\FARStdLib_BCB.lib
 !endif
 
+!if !$d(CROOT)
 CROOT       = D:\CB5
+!endif
 CC          = $(CROOT)\bin\bcc32.exe
 LIB         = $(CROOT)\bin\tlib.exe
 LINKER      = $(CROOT)\bin\ilink32.exe
@@ -56,7 +58,7 @@ STDINCLUDE  = $(CROOT)\include
 #
 # Full headers directory list, inlude FAR specified
 #
-INCLUDE     = $(S_INCLUDE);$(FARROOT)\;;$(STDINCLUDE);
+INCLUDE     = $(FARROOT)\;;$(STDINCLUDE);
 
 #--  LIB ----------------------------------
 # Standart C\CPP library directory
@@ -65,7 +67,7 @@ STDLIBS     = $(CROOT)\lib
 #
 # Full libraries directory list, inlude FAR specified
 #
-LIBS        = $(S_LIBS);$(FARROOT)\;$(STDLIBS);
+LIBS        = $(FARROOT)\;$(STDLIBS);
 
 #-- COMPILLER FLAGS ----------------------
 # Command line compiller flags

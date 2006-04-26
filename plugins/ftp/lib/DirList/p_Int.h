@@ -23,8 +23,8 @@ STRUCT( Time_t )
     __int64    Value;
   };
 
-  bool operator==( __int64 v )        { return Value == v; }
-  void operator=( __int64 v )         { Value = v; }
+  bool operator==( __int64 v )      { return Value == v; }
+  void operator=( __int64 v )       { Value = v; }
   void operator=( const Time_t& v ) { Value = v.Value; }
 
   operator LPCFILETIME()            { return &FileTime; }

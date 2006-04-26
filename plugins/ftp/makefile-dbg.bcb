@@ -8,7 +8,7 @@ MAPFILE    = $(PNAME).map
 PRESFILES  =
 CFLAG_ADD  =
 LFLAG_ADD  = -Tpd
-#DEBUG      =
+DEBUG      = y
 CFLAG_ADD  = $(CFLAG_ADD) /D__NOMEM__=1 /D__HEAP_MEMORY__=1 /D__USE_TRAPLOGER__=1 /D__USEASSERT__=1
 
 POBJS      = ftp_AskOver.obj ftp_Cfg.obj ftp_CmdLine.obj ftp_cnDownload.obj ftp_cnInit.obj \

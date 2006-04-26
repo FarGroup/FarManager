@@ -1,6 +1,19 @@
 FAR 1.70 beta 5 FTP plugin (Directory listing subplugin)
 
 ~~~~~~~~~~~~~~~~~~~~~~
+ [05.12.2005]
+  - added support for WinCE generated listings to DIR parcer;
+
+ [28.10.2005]
+  - unix parser uses new host option to use or ignore start file name spaces;
+
+ [15.09.2005]
+  - unix parser traps on some listings. Fixed by "Vasily Titsky"
+
+ [09.09.2005]
+  - does not parce lines contains expanded dates like this:
+       -rw-r--r--  1 panfilov users 139264 2005-06-20 14:22 AddTransToStacks.doc
+
  [02.10.04]
   - bug: DOS parser incorrectly parses filenames contains spaces only;
 

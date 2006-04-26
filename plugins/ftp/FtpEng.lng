@@ -406,6 +406,7 @@
 "&UnDup FF from PWD"
 "Decode &cmd line commands"
 "Send &ALLO before upload"
+"Use spaces at file name start"
 
 "Extended options"
 "Show &view/edit progress"
@@ -416,6 +417,7 @@
 "Auto anon&ymous"
 "C&lose connection on \"..\""
 "&Quote file names placed to clipboard"
+"Set &hidden on download aborted"
 
 "Can not change directory."
 "It seems full directory specified."

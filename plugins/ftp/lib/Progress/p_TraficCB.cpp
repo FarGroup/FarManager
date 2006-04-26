@@ -198,7 +198,6 @@ void TrafficInformation::Init( HANDLE h,int tMsg,int OpMode,PFP_SizeItemList il 
     memset( Lines,' ',MAX_TRAF_LINES*MAX_TRAF_WIDTH );
 
     TitleMsg       = tMsg;
-    hConnect       = h;
     TotalStartTime = time(NULL);
     FullFileSize   = -1;
 
@@ -347,9 +346,9 @@ BOOL TrafficInformation::Callback( int Size )
     }
 
 //Window caption
-    if ( FTP_Info->FtpGetRetryCount(hConnect) )
+    if ( FTP_Info->FtpGetRetryCount() )
       SNprintf( str,sizeof(str),"%d: {%2.1lf%%} %s - Far",
-                         FTP_Info->FtpGetRetryCount(hConnect), TotalPercent,
+                         FTP_Info->FtpGetRetryCount(), TotalPercent,
                          FTP_Info->GetMsg(TitleMsg) );
      else
       SNprintf( str,sizeof(str),"{%2.1lf%%} %s - Far",
@@ -363,15 +362,15 @@ BOOL TrafficInformation::Callback( int Size )
      }
 
 //Mark CMD window invisible
-    FTP_Info->FtpCmdBlock(hConnect,TRUE);
+    FTP_Info->FtpCmdBlock(TRUE);
 
 //Show message
     CONSTSTR MsgItems[MAX_TRAF_LINES+1];
 
     DrawInfos( tmt );
 
-    if ( FTP_Info->FtpGetRetryCount(hConnect) )
-      SNprintf( str,sizeof(str),"%d: %s",FTP_Info->FtpGetRetryCount(hConnect),FTP_Info->GetMsg(TitleMsg) );
+    if ( FTP_Info->FtpGetRetryCount() )
+      SNprintf( str,sizeof(str),"%d: %s",FTP_Info->FtpGetRetryCount(),FTP_Info->GetMsg(TitleMsg) );
      else
       StrCpy( str,FTP_Info->GetMsg(TitleMsg),sizeof(str) );
     MsgItems[0] = str;

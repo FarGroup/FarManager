@@ -964,7 +964,10 @@ enum FARMACROCOMMAND{
 struct ActlKeyMacro{
   int Command;
   union{
-    char *PlainText;
+    struct {
+      char *SequenceText;
+      DWORD Flags;
+    } PlainText;
     DWORD Reserved[3];
   } Param;
 };

@@ -16,7 +16,6 @@
 
 #-- PATHS --------------------------------
 # Path to root of FAR samples
-FARROOT     = ..
 FAREXEROOT  = ..\..\..\far.exe
 FARUSER     = PLGTest
 

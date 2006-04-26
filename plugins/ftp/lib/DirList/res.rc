@@ -15,7 +15,7 @@ FILETYPE 2 {
    VALUE "Comments",         "Current developer: JouriM<at>uran.ru\000\000"
 
    VALUE "ProductVersion",   "FTP client for FAR Manager v1.7\000\000"
-   VALUE "FileVersion",      "v1.0 build 01.06.2005\000\000"
+   VALUE "FileVersion",      "v1.2 build 05.12.2005\000\000"
   }
  }
  BLOCK "VarFileInfo" {

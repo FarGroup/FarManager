@@ -256,11 +256,12 @@ static FP_DECL_DIALOG( InitItems )
    /*02*/      FDI_CHECK( 5, 3,    FMSG(MUndupFF) )
    /*03*/      FDI_CHECK( 5, 4,    FMSG(MEHDecodeCmd) )
    /*04*/      FDI_CHECK( 5, 5,    FMSG(MSendAllo) )
+   /*05*/      FDI_CHECK( 5, 6,    FMSG(MUseStartSpaces) )
 
-   /*05*/      FDI_HLINE( 3,15 )
+   /*06*/      FDI_HLINE( 3,15 )
 
-   /*06*/ FDI_GDEFBUTTON( 0,16,    FMSG(MOk) )
-   /*07*/    FDI_GBUTTON( 0,16,    FMSG(MCancel) )
+   /*07*/ FDI_GDEFBUTTON( 0,16,    FMSG(MOk) )
+   /*08*/    FDI_GBUTTON( 0,16,    FMSG(MCancel) )
 FP_END_DIALOG
 
 enum {
@@ -268,8 +269,9 @@ enum {
   dUndupFF  = 2,
   dCmdLine  = 3,
   dSendAllo = 4,
+  dUseStartSpaces = 5,
 
-  dOk       = 6
+  dOk       = 7
 };
 
   int           rc;
@@ -277,10 +279,11 @@ enum {
 
   FP_InitDialogItems( InitItems,di );
 
-  di[dDupFF].Selected    = p->FFDup;
-  di[dUndupFF].Selected  = p->UndupFF;
-  di[dCmdLine].Selected  = p->DecodeCmdLine;
-  di[dSendAllo].Selected = p->SendAllo;
+  di[dDupFF].Selected               = p->FFDup;
+  di[dUndupFF].Selected             = p->UndupFF;
+  di[dCmdLine].Selected             = p->DecodeCmdLine;
+  di[dSendAllo].Selected            = p->SendAllo;
+  di[dUseStartSpaces].Selected   = p->UseStartSpaces;
 
   do{
     rc = FDialog( 76,19,"FTPExtHost",di,FP_DIALOG_SIZE(InitItems) );
@@ -296,10 +299,11 @@ enum {
     break;
   }while( 1 );
 
-  p->FFDup         = di[dDupFF].Selected;
-  p->UndupFF       = di[dUndupFF].Selected;
-  p->DecodeCmdLine = di[dCmdLine].Selected;
-  p->SendAllo      = di[dSendAllo].Selected;
+  p->FFDup              = di[dDupFF].Selected;
+  p->UndupFF            = di[dUndupFF].Selected;
+  p->DecodeCmdLine      = di[dCmdLine].Selected;
+  p->SendAllo           = di[dSendAllo].Selected;
+  p->UseStartSpaces  = di[dUseStartSpaces].Selected;
 }
 
 BOOL FTP::GetHost( int title,PFTPHost p,BOOL ToDescription )

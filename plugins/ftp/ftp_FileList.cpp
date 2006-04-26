@@ -82,7 +82,7 @@ void FTP::SaveList( PFP_SizeItemList il )
                Opt.sli.AddPrefix ? "ftp://" : "",
                Opt.sli.AddPasswordAndUser ? Message( "%s:%s@",hConnect->UserName,hConnect->UserPassword ) : "",
                hConnect->hostname,
-               hConnect->CurDir );
+               hConnect->CurDir.c_str() );
      TAddEndSlash( BasePath,'/' );
 
      if ( Opt.sli.ListType == sltTree )
