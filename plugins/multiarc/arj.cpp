@@ -4,9 +4,9 @@
   Second-level plugin module for FAR Manager 1.70 and MultiArc plugin
 
   Copyright (c) 1996-2000 Eugene Roshal
-  Copyrigth (c) 2000-2005 FAR group
+  Copyrigth (c) 2000-2006 FAR group
 */
-/* Revision: 1.18 09.04.2005 $ */
+/* Revision: 1.19 27.04.2006 $ */
 
 #include <windows.h>
 #include <limits.h>
@@ -339,7 +339,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
   ReadFile(ArcHandle,&ExtHdSize,sizeof(ExtHdSize),&ReadSize,NULL); //??
   NextPosition+=2+ArjHeader.PackSize;
   if (ExtHdSize>0)
-    NextPosition+=ExtHdSize+4;
+    NextPosition+=ExtHdSize+6;
 
   if (PrevPosition>=NextPosition)
     return(GETARC_BROKEN);
