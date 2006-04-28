@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.179 23.04.2006 $ */
+/* Revision: 1.180 28.04.2006 $ */
 
 /*
 Modify:
+  28.04.2006 AY
+    - ExpandEnvironmentStr - ёптыть с этими OEM2ANSI и обратно.
+      Теперь эта функция перекодирует тока реальные %var% и не трогает остальной текст.
   23.04.2006 AY
     - FarChDir - не всегда выставлялись переменные типа =DriveLetter:
   25.03.2006 AY
@@ -1373,41 +1376,74 @@ int GetClusterSize(char *Root)
    Расширение переменных среды
    Вынесена в качестве самостоятельной вместо прямого вызова
      ExpandEnvironmentStrings.
+   src и dest могут быть одинаковыми
 */
 DWORD WINAPI ExpandEnvironmentStr(const char *src, char *dest, size_t size)
 {
   DWORD ret=0;
-  if(size)
+  if(size && src && dest)
   {
-   /* $ 17.06.2001 IS
-        Учтем то, что ExpandEnvironmentStrings возвращает значения переменных
-        окружения в ANSI
-   */
-   char *tmpDest=(char *)alloca(size),
-        *tmpSrc=(char *)alloca(strlen(src)+1);
-   if(tmpDest && tmpSrc)
-   {
-     FAR_OemToChar(src, tmpSrc);
-     /* $ 15.02.2002 VVM
-       ! Если строка не помещалась в буфер, то ExpandEnvironmetStr портила ее. */
-//     if(ExpandEnvironmentStrings(tmpSrc,tmpDest,size))
-     DWORD Len = ExpandEnvironmentStrings(tmpSrc,tmpDest,size);
-     if (Len <= size)
-     /* VVM $ */
-       xstrncpy(dest, tmpDest, size-1);
-     else
-     {
-       xstrncpy(tmpDest, tmpSrc, size-1);
-       strcpy(dest, tmpDest);
-     }
-     FAR_CharToOem(dest, dest);
-     ret=strlen(dest);
-   }
-   /* IS $ */
+    char *tmpDest=(char *)alloca(size),
+          *tmpSrc=(char *)alloca(strlen(src)+1);
+    if(tmpDest && tmpSrc)
+    {
+      FAR_OemToChar(src, tmpSrc);
+      DWORD Len = ExpandEnvironmentStrings(tmpSrc,tmpDest,size);
+      if (Len && Len <= size)
+      {
+        const char *ptrsrc=src;
+        char *ptrdest=tmpDest;
+
+        //AY: Обрабатываем каждый %var% отдельно дабы не делать лишних OEM2ANSI
+        //    и назад перекодировок.
+        //    Проверки на size не нужны так как за нас это уже
+        //    проверил ExpandEnvironmentStrings().
+        while (1)
+        {
+          while (*ptrsrc && *ptrsrc!='%')
+            *(ptrdest++) = *(ptrsrc++);
+
+          if (*ptrsrc == '%')
+          {
+            const char *ptrnext=strchr(ptrsrc+1,'%');
+            if (ptrnext)
+            {
+              Len = ptrnext-ptrsrc+1;
+              FAR_OemToCharBuff(ptrsrc,tmpSrc,Len)
+              tmpSrc[Len]=0;
+              Len = ExpandEnvironmentStrings(tmpSrc,ptrdest,size-(ptrdest-tmpDest));
+
+              //AY: Был ли это реальный %var%?
+              if (Len && strcmp(tmpSrc,ptrdest))
+              {
+                FAR_CharToOem(ptrdest, ptrdest);
+                ptrdest += strlen(ptrdest);
+                ptrsrc = ptrnext+1;
+              }
+              else
+                *(ptrdest++) = *(ptrsrc++);
+            }
+            else
+              *(ptrdest++) = *(ptrsrc++);
+          }
+
+          if (!*ptrsrc)
+          {
+            *ptrdest = 0;
+            break;
+          }
+        }
+        xstrncpy(dest, tmpDest, size-1);
+      }
+      else
+      {
+        xstrncpy(dest, src, size-1);
+      }
+      ret=strlen(dest);
+    }
   }
   return ret;
 }
-/* IS $ */
 
 #if 0
 /*
