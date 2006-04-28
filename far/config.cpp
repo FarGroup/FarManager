@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.201 13.04.2006 $ */
+/* Revision: 1.202 20.04.2006 $ */
 
 /*
 Modify:
+  20.04.2006 SVS
+    + Opt.UseVk_oem_x
   13.04.2006 SVS
     + System\SavePluginFoldersHistory - сохранять или нет в истории папок так же плагиновые папки
   09.04.2006 AY
@@ -1540,6 +1542,7 @@ static struct FARConfig{
 
   {1, REG_DWORD,  NKeyInterface, "Mouse",&Opt.Mouse,1, 0},
   {1, REG_DWORD,  NKeyInterface, "AltGr",&Opt.AltGr,1, 0},
+  {0, REG_DWORD,  NKeyInterface, "UseVk_oem_x",&Opt.UseVk_oem_x,1, 0},
   {1, REG_DWORD,  NKeyInterface, "ShowMenuBar",&Opt.ShowMenuBar,0, 0},
   {0, REG_DWORD,  NKeyInterface, "CursorSize1",&Opt.CursorSize[0],15, 0},
   {0, REG_DWORD,  NKeyInterface, "CursorSize2",&Opt.CursorSize[1],10, 0},

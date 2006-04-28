@@ -5,10 +5,15 @@ macro.cpp
 
 */
 
-/* Revision: 1.162 17.04.2006 $ */
+/* Revision: 1.163 28.04.2006 $ */
 
 /*
 Modify:
+  28.04.2006 SVS
+    - Mantis#151 - APanel.UNCPath и PPanel.UNCPath возвращают в конце символ "\"
+    - Mantis#142 - Ошибка в fsplit
+      Описание  Функция fsplit в макросах возвращает неправильное имя файла в корне плагиновой панели (добавляет префикс плагина).
+      $IClip CtrlAltIns $Text fsplit(clip(0,""),4)
   17.04.2006 SVS
     + только логирование
   06.04.2006 AY
@@ -1452,7 +1457,10 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
         case MCODE_V_PPANEL_UNCPATH: // PPanel.UNCPath
         {
           if(_MakePath1(CheckCode == MCODE_V_APANEL_UNCPATH?KEY_ALTSHIFTBRACKET:KEY_ALTSHIFTBACKBRACKET,FileName,sizeof(FileName)-1,""))
+          {
+            DeleteEndSlash(FileName);
             Cond = FileName;
+          }
           break;
         }
 
@@ -1687,7 +1695,12 @@ static BOOL SplitFileName (const char *lpFullName,char *lpDest,int nFlags)
       strcat (lpDest, "\\");
 
   if ( nFlags & FLAG_NAME )
-      strncat (lpDest, s, e-s);
+  {
+    char *ptr=strpbrk(s,":");
+    if(ptr)
+      s=ptr+1;
+    strncat (lpDest, s, e-s);
+  }
 
   if ( nFlags & FLAG_EXT )
       strcat (lpDest, e);

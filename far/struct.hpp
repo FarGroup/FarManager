@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.140 13.04.2006 $ */
+/* Revision: 1.141 20.04.2006 $ */
 
 /*
 Modify:
+  20.04.2006 SVS
+    + Opt.UseVk_oem_x
   13.04.2006 SVS
     + PreRedrawParamStruct.Param5 - пусть будет int64
   13.04.2006 SVS
@@ -684,6 +686,7 @@ struct Options
   int UsePromptFormat;
   char PromptFormat[80];
   int AltGr;
+  int UseVk_oem_x;
   int InactivityExit;
   int InactivityExitTime;
   int ShowHidden;

@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.180 28.04.2006 $ */
+/* Revision: 1.181 28.04.2006 $ */
 
 /*
 Modify:
+  28.04.2006 SVS
+    - облажался, блин.
   28.04.2006 AY
     - ExpandEnvironmentStr - ёптыть с этими OEM2ANSI и обратно.
       Теперь эта функция перекодирует тока реальные %var% и не трогает остальной текст.
@@ -1409,7 +1411,7 @@ DWORD WINAPI ExpandEnvironmentStr(const char *src, char *dest, size_t size)
             if (ptrnext)
             {
               Len = ptrnext-ptrsrc+1;
-              FAR_OemToCharBuff(ptrsrc,tmpSrc,Len)
+              FAR_OemToCharBuff(ptrsrc,tmpSrc,Len);
               tmpSrc[Len]=0;
               Len = ExpandEnvironmentStrings(tmpSrc,ptrdest,size-(ptrdest-tmpDest));
 
