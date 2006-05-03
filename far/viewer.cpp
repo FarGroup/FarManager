@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.184 28.10.2005 $ */
+/* Revision: 1.185 03.05.2006 $ */
 
 /*
 Modify:
+  03.05.2006 SVS
+    - Падение FAR при изменении размера размера табуляции в процессе просмотра файла.
   28.10.2005 SVS
     ! Opt.ViOpt.ShowKeyBarViewer -> Opt.ViOpt.ShowKeyBar
   15.07.2005 AY
@@ -1611,17 +1613,10 @@ void Viewer::ReadString (ViewerString *pString, int MaxSize, int StrSize)
         do
         {
           pString->lpData[(int)OutPtr++]=' ';
-        } while ((OutPtr % ViOpt.TabSize)!=0);
-        /* $ 12.07.2000 SVS
-          Wrap - 3-x позиционный и если есть регистрация :-)
-        */
-        /* $ 22.01.2002 IS
-           Не забудем и про простую свертку не по словам
-        */
-        if ((VM.Wrap && (!VM.TypeWrap || (VM.TypeWrap && RegVer)))
-        /* IS $ */
-        /* SVS $ */
-            && OutPtr>XX2-X1)
+        } while ((OutPtr % ViOpt.TabSize)!=0 && ((int)OutPtr < (MAX_VIEWLINEB-1)));
+        // 12.07.2000 SVS  - Wrap - 3-x позиционный и если есть регистрация :-)
+        // 22.01.2002 IS   - Не забудем и про простую свертку не по словам
+        if ((VM.Wrap && (!VM.TypeWrap || (VM.TypeWrap && RegVer))) && OutPtr>XX2-X1)
           pString->lpData[XX2-X1+1]=0;
         continue;
       }
@@ -3741,9 +3736,7 @@ void Viewer::SelectText(__int64 MatchPos,int SearchLength, DWORD Flags)
 /* SVS $ */
 
 
-/* $ 27.09.2000 SVS
-   "Ядро" будущего Viewer API :-)
-*/
+// 27.09.2000 SVS - "Ядро" будущего Viewer API :-)
 int Viewer::ViewerControl(int Command,void *Param)
 {
   int I;
@@ -3907,7 +3900,6 @@ int Viewer::ViewerControl(int Command,void *Param)
   }
   return(FALSE);
 }
-/* SVS $ */
 
 BOOL Viewer::isTemporary() const
 {

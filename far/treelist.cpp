@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.72 07.07.2005 $ */
+/* Revision: 1.73 03.05.2006 $ */
 
 /*
 Modify:
+  03.05.2006 SVS
+    + В "панельные" классы добавлена виртуальная функция GetTitle(), которая формирует заголовок панели.
   07.07.2005 SVS
     + GetCurrentPos
   14.06.2005 SVS
@@ -362,6 +364,14 @@ void TreeList::DisplayObject()
 }
 
 
+void TreeList::GetTitle(char *lTitle,int LenTitle)
+{
+  char Title[512];
+  sprintf(Title," %s ",ModalMode ? MSG(MFindFolderTitle):MSG(MTreeTitle));
+  TruncStr(Title,X2-X1-3);
+  xstrncpy(lTitle,Title,LenTitle);
+}
+
 void TreeList::DisplayTree(int Fast)
 {
   int I,J,K;
@@ -379,11 +389,10 @@ void TreeList::DisplayTree(int Fast)
   {
     Box(X1,Y1,X2,Y2,COL_PANELBOX,DOUBLE_BOX);
     DrawSeparator(Y2-2-(ModalMode!=0));
-    SetColor((Focus || ModalMode) ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
-    sprintf(Title," %s ",ModalMode ? MSG(MFindFolderTitle):MSG(MTreeTitle));
-    TruncStr(Title,X2-X1-3);
+    GetTitle(Title,sizeof(Title)-1);
     if (*Title)
     {
+      SetColor((Focus || ModalMode) ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
       GotoXY(X1+(X2-X1+1-strlen(Title))/2,Y1);
       Text(Title);
     }

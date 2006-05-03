@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.52 23.01.2006 $ */
+/* Revision: 1.53 03.05.2006 $ */
 
 /*
 Modify:
+  03.05.2006 SVS
+    + В "панельные" классы добавлена виртуальная функция GetTitle(), которая формирует заголовок панели.
   23.01.2006 SVS
     ! Добавлен второй параметр у SendKeyToPlugin, признак того, что ЭТО
       клавиша Pred и нужно выставить у VirtualKey (передаваемого в плагин)
@@ -403,6 +405,7 @@ class FileList:public Panel
     void SetPluginModified();
     int ProcessPluginEvent(int Event,void *Param);
     void SetTitle();
+    //virtual void GetTitle(char *Title,int LenTitle);
     int PluginPanelHelp(HANDLE hPlugin);
     long GetFileCount() {return FileCount;}
     char *CreateFullPathName(char *Name,char *ShortName,DWORD FileAttr,

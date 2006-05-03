@@ -7,10 +7,12 @@ infolist.hpp
 
 */
 
-/* Revision: 1.08 25.04.2002 $ */
+/* Revision: 1.09 03.05.2006 $ */
 
 /*
 Modify:
+  03.05.2006 SVS
+    + В "панельные" классы добавлена виртуальная функция GetTitle(), которая формирует заголовок панели.
   25.04.2002 IS
     ! внедрение const
   26.03.2002 DJ
@@ -96,6 +98,7 @@ class InfoList:public Panel
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     void Update(int Mode);
     virtual void SetFocus();
+    virtual void GetTitle(char *Title,int LenTitle);
     virtual void KillFocus();
     /* $ 30.04.2001 DJ */
     virtual BOOL UpdateKeyBar();

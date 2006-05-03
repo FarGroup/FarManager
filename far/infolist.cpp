@@ -5,10 +5,12 @@ infolist.cpp
 
 */
 
-/* Revision: 1.49 10.04.2006 $ */
+/* Revision: 1.50 03.05.2006 $ */
 
 /*
 Modify:
+  03.05.2006 SVS
+    + В "панельные" классы добавлена виртуальная функция GetTitle(), которая формирует заголовок панели.
   10.04.2006 SVS
     - Mantis#117 - неверное отображение информации о памяти, если этой памяти поболее 2Г
   20.02.2006 SVS
@@ -190,6 +192,14 @@ void InfoList::Update (int Mode)
 }
 /* DJ $ */
 
+void InfoList::GetTitle(char *lTitle,int LenTitle)
+{
+  char Title[512];
+  sprintf(Title," %s ",MSG(MInfoTitle));
+  TruncStr(Title,X2-X1-3);
+  xstrncpy(lTitle,Title,LenTitle);
+}
+
 void InfoList::DisplayObject()
 {
   char Title[NM],OutStr[200];
@@ -204,8 +214,7 @@ void InfoList::DisplayObject()
   Box(X1,Y1,X2,Y2,COL_PANELBOX,DOUBLE_BOX);
   SetScreen(X1+1,Y1+1,X2-1,Y2-1,' ',COL_PANELTEXT);
   SetColor(Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
-  sprintf(Title," %s ",MSG(MInfoTitle));
-  TruncStr(Title,X2-X1-3);
+  GetTitle(Title,sizeof(Title)-1);
   if (*Title)
   {
     GotoXY(X1+(X2-X1+1-strlen(Title))/2,Y1);

@@ -5,10 +5,12 @@ Quick view panel
 
 */
 
-/* Revision: 1.38 23.10.2005 $ */
+/* Revision: 1.39 03.05.2006 $ */
 
 /*
 Modify:
+  03.05.2006 SVS
+    + В "панельные" классы добавлена виртуальная функция GetTitle(), которая формирует заголовок панели.
   23.10.2005 SVS
     - Ctrl+Q по каталогу не идёт вниз по символическим связям.
       (Параметры -> Системные параметры -> Сканировать символические связи - установлен чекбокс)
@@ -156,6 +158,14 @@ QuickView::~QuickView()
 }
 
 
+void QuickView::GetTitle(char *lTitle,int LenTitle)
+{
+  char Title[512];
+  sprintf(Title," %s ",MSG(MQuickViewTitle));
+  TruncStr(Title,X2-X1-3);
+  xstrncpy(lTitle,Title,LenTitle);
+}
+
 void QuickView::DisplayObject()
 {
   if (Flags.Check(FSCROBJ_ISREDRAWING))
@@ -170,8 +180,7 @@ void QuickView::DisplayObject()
   Box(X1,Y1,X2,Y2,COL_PANELBOX,DOUBLE_BOX);
   SetScreen(X1+1,Y1+1,X2-1,Y2-1,' ',COL_PANELTEXT);
   SetColor(Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
-  sprintf(Title," %s ",MSG(MQuickViewTitle));
-  TruncStr(Title,X2-X1-3);
+  GetTitle(Title,sizeof(Title)-1);
   if (*Title)
   {
     GotoXY(X1+(X2-X1+1-strlen(Title))/2,Y1);

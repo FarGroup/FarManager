@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.52 20.02.2006 $ */
+/* Revision: 1.53 03.05.2006 $ */
 
 /*
 Modify:
+  03.05.2006 SVS
+    + В "панельные" классы добавлена виртуальная функция GetTitle(), которая формирует заголовок панели.
   20.02.2006 SVS
     ! У ConvertNameToShort новый параметр - размер для Dest
   09.02.2006 AY
@@ -368,25 +370,9 @@ void FileList::ShowFileList(int Fast)
   int TruncSize=TitleX2-X1-3;
   if (!Opt.ShowColumnTitles && Opt.ShowSortMode && Filter!=NULL && Filter->IsEnabled())
     TruncSize-=2;
-  if (PanelMode==PLUGIN_PANEL)
-  {
-    /* $ 21.03.2002 DJ
-       не портим стек
-    */
-    xstrncpy(Title,NullToEmpty(Info.PanelTitle),sizeof (Title)-1);
-    /* DJ $ */
-    TruncStr(Title,TruncSize);
-  }
-  else
-  {
-    char TitleDir[NM];
-    if (ShowShortNames)
-      ConvertNameToShort(CurDir,TitleDir,sizeof(TitleDir)-1);
-    else
-      xstrncpy(TitleDir,CurDir,sizeof(TitleDir)-1);
-    TruncPathStr(TitleDir,TruncSize-2);
-    sprintf(Title," %s ",TitleDir);
-  }
+
+  GetTitle(Title,TruncSize-(PanelMode==PLUGIN_PANEL?0:2));
+
   Length=strlen(Title);
   int ClockCorrection=FALSE;
   if ((Opt.Clock && !Opt.ShowMenuBar) && TitleX2==ScrX-4)

@@ -7,10 +7,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.36 09.04.2006 $ */
+/* Revision: 1.37 03.05.2006 $ */
 
 /*
 Modify:
+  03.05.2006 SVS
+    + В "панельные" классы добавлена виртуальная функция GetTitle(), которая формирует заголовок панели.
   06.04.2006 AY
     + Новые флаги для меню дисков DRIVE_SHOW_REMOTE и DRIVE_SHOW_SIZE_FLOAT
   23.01.2006 SVS
@@ -297,6 +299,7 @@ class Panel:public ScreenObject
     virtual int ProcessPluginEvent(int Event,void *Param) {return(FALSE);};
     virtual HANDLE GetPluginHandle() {return(INVALID_HANDLE_VALUE);};
     virtual void SetTitle();
+    virtual void GetTitle(char *Title,int LenTitle);
 
     virtual void IfGoHome(char Drive){};
 

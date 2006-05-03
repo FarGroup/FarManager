@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.146 09.04.2006 $ */
+/* Revision: 1.147 03.05.2006 $ */
 
 /*
 Modify:
+  03.05.2006 SVS
+    + В "панельные" классы добавлена виртуальная функция GetTitle(), которая формирует заголовок панели.
   06.04.2006 AY
     ! Размер дисков больше терабайта показывался не правильно
     + Новые режимы меню дисков - показ размера с точкой и отмена показа инфы для сетевых дисков
@@ -2005,6 +2007,28 @@ void Panel::SetTitle()
   }
 }
 
+void Panel::GetTitle(char *lTitle,int LenTitle)
+{
+  char Title[512];
+  struct OpenPluginInfo PInfo;
+  GetOpenPluginInfo(&PInfo);
+  if (PanelMode==PLUGIN_PANEL)
+  {
+    xstrncpy(Title,NullToEmpty(PInfo.PanelTitle),sizeof (Title)-1);
+    TruncStr(Title,LenTitle);
+  }
+  else
+  {
+    char TitleDir[NM];
+    if (ShowShortNames)
+      ConvertNameToShort(CurDir,TitleDir,sizeof(TitleDir)-1);
+    else
+      xstrncpy(TitleDir,CurDir,sizeof(TitleDir)-1);
+    TruncPathStr(TitleDir,LenTitle);
+    sprintf(Title," %s ",TitleDir);
+  }
+  xstrncpy(lTitle,Title,LenTitle);
+}
 
 int Panel::SetPluginCommand(int Command,void *Param)
 {

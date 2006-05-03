@@ -7,10 +7,12 @@ Quick view panel
 
 */
 
-/* Revision: 1.07 14.02.2002 $ */
+/* Revision: 1.08 03.05.2006 $ */
 
 /*
 Modify:
+  03.05.2006 SVS
+    + В "панельные" классы добавлена виртуальная функция GetTitle(), которая формирует заголовок панели.
   14.02.2002 VVM
     ! UpdateIfChanged принимает не булевый Force, а варианты из UIC_*
   24.12.2001
@@ -66,6 +68,7 @@ class QuickView:public Panel
     /* $ 20.07.2000 tran
        add two new virtual methos - for correct title showing*/
     virtual void SetTitle();
+    virtual void GetTitle(char *Title,int LenTitle);
     virtual void SetFocus();
     /* tran 20.07.2000 $ */
     virtual void KillFocus();

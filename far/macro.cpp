@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.163 28.04.2006 $ */
+/* Revision: 1.164 03.05.2006 $ */
 
 /*
 Modify:
+  03.05.2006 SVS
+    - пусть в панелях "Title" вернет именно то, что написано в заголовке панели
   28.04.2006 SVS
     - Mantis#151 - APanel.UNCPath и PPanel.UNCPath возвращают в конце символ "\"
     - Mantis#142 - Ошибка в fsplit
@@ -1519,7 +1521,15 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
           FileName[0]=0;
           Frame *f=FrameManager->GetTopModal();
           if(f)
-            f->GetTypeAndName(NULL,FileName);
+          {
+            if(CtrlObject->Cp() == f)
+            {
+              ActivePanel->GetTitle(FileName,sizeof(FileName)-1);
+              RemoveExternalSpaces(FileName);
+            }
+            else
+              f->GetTypeAndName(NULL,FileName);
+          }
           Cond=FileName;
           break;
         }
