@@ -5,10 +5,13 @@ plugins.cpp
 
 */
 
-/* Revision: 1.164 13.04.2006 $ */
+/* Revision: 1.165 06.05.2006 $ */
 
 /*
 Modify:
+  06.05.2006 SVS
+    - В PluginsSet::ReadUserBackgound убран потенциальный баг.
+    - Mantis#0000171: Вызов Viewer с флагом VF_IMMEDIATERETURN из GetFiles
   13.04.2006 SVS
     + У функции PluginsSet::ProcessCommandLine доп параметр - указатель на панель.
   23.01.2006 SVS
@@ -474,6 +477,7 @@ Modify:
 #include "udlist.hpp"
 #include "farexcpt.hpp"
 #include "fileedit.hpp"
+#include "RefreshFrameManager.hpp"
 #include "BlockExtKey.hpp"
 
 #ifdef _MSC_VER
@@ -2038,15 +2042,17 @@ int PluginsSet::GetFile(HANDLE hPlugin,struct PluginPanelItem *PanelItem,
   _ALGO(SysLog("hPlugin=%p, PanelItem=%p, DestPath='%s', ResultName='%s', OpMode=%d",hPlugin,PanelItem,(DestPath?DestPath:"(NULL)"),(ResultName?ResultName:"(NULL)"),OpMode));
   //EXCEPTION_POINTERS *xp;
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
-  SaveScreen *SaveScr=NULL;
-  if ((OpMode & OPM_FIND)==0)
-    SaveScr=new SaveScreen;
   struct PluginHandle *ph=(struct PluginHandle *)hPlugin;
   struct PluginItem *PData=PluginsData+ph->PluginNumber;
+  SaveScreen *SaveScr=NULL;
   int Found=FALSE;
   KeepUserScreen=FALSE;
   if (PData->pGetFiles && !ProcessException)
   {
+    if ((OpMode & OPM_FIND)==0)
+      SaveScr=new SaveScreen;
+    UndoGlobalSaveScrPtr UndSaveScr(SaveScr);
+
     int GetCode;
     //CurPluginItem=PData;
     PData->FuncFlags.Set(PICFF_GETFILES);
@@ -2102,11 +2108,12 @@ int PluginsSet::GetFile(HANDLE hPlugin,struct PluginPanelItem *PanelItem,
           Found=TRUE;
       }
     }
+    ReadUserBackgound(SaveScr);
+
+    if(SaveScr)
+      delete SaveScr;
   }
 
-  ReadUserBackgound(SaveScr);
-
-  delete SaveScr;
   return(Found);
 }
 
@@ -3230,7 +3237,8 @@ void PluginsSet::ReadUserBackgound(SaveScreen *SaveScr)
   FPanel->RightPanel->ProcessingPluginCommand++;
   if (KeepUserScreen)
   {
-    SaveScr->Discard();
+    if(SaveScr)
+      SaveScr->Discard();
     RedrawDesktop Redraw;
   }
   FPanel->LeftPanel->ProcessingPluginCommand--;

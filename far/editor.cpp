@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.271 24.03.2006 $ */
+/* Revision: 1.272 06.05.2006 $ */
 
 /*
 Modify:
+  06.05.2006 SVS
+    ! ProcessEditorEvent(EE_READ) вызывается в FileEditor`е
   24.03.2006 AY
     - Добил глюк с раскраской в неполноэкраных редакторах.
   24.03.2006 AY
@@ -1417,7 +1419,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
 
   CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
 //_D(SysLog("%08d EE_READ",__LINE__));
-  CtrlObject->Plugins.ProcessEditorEvent(EE_READ,NULL);
+  //CtrlObject->Plugins.ProcessEditorEvent(EE_READ,NULL);
   //_SVS(SysLog("Editor::ReadFile _heapchk() = %d",_heapchk()));
   return(TRUE);
 }

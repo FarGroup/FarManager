@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.188 05.10.2005 $ */
+/* Revision: 1.189 06.05.2006 $ */
 
 /*
 Modify:
+  06.05.2006 SVS
+    - mantis#0000171: Вызов Viewer с флагом VF_IMMEDIATERETURN из GetFiles
   05.10.2005 AY
     - Не обновлялись панели после выхода из диалога.
   11.08.2005 WARP
@@ -2290,7 +2292,11 @@ int WINAPI FarViewer(const char *FileName,const char *Title,
       FrameManager->ExecuteNonModal();
     }
     else
+    {
+      if(GlobalSaveScrPtr)
+        GlobalSaveScrPtr->Discard();
       FrameManager->PluginCommit();
+    }
     /* SKV $ */
   }
   else
@@ -2398,7 +2404,11 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
         FrameManager->ExecuteNonModal();
       }
       else
+      {
+        if(GlobalSaveScrPtr)
+          GlobalSaveScrPtr->Discard();
         FrameManager->PluginCommit();
+      }
       /* SKV $ */
       ExitCode=XC_MODIFIED;
     }

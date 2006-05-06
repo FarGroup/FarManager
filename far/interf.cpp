@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.92 12.03.2006 $ */
+/* Revision: 1.93 06.05.2006 $ */
 
 /*
 Modify:
+  06.05.2006 SVS
+    - mantis#0000146: Глючит EditorControl, если запускаем "far /e filename.txt" и обрабатываем EE_READ
   12.03.2006 SVS
     ! варнинги под MSVC
   23.07.2005 SVS
@@ -766,11 +768,15 @@ void ShowTime(int ShowAlways)
   sprintf(ClockText,"%02d:%02d",tm.wHour,tm.wMinute);
   GotoXY(ScrX-4,0);
   // Здесь хрень какая-то получается с ModType - все время не верное значение!
-  int ModType=FrameManager->GetCurrentFrame()->GetType();
-  SetColor(ModType==MODALTYPE_VIEWER?COL_VIEWERCLOCK:
-           (ModType==MODALTYPE_EDITOR?COL_EDITORCLOCK:COL_CLOCK));
-  Text(ClockText);
-//  ScrBuf.Flush();
+  Frame *CurFrame=FrameManager->GetCurrentFrame();
+  if(CurFrame)
+  {
+    int ModType=CurFrame->GetType();
+    SetColor(ModType==MODALTYPE_VIEWER?COL_VIEWERCLOCK:
+             (ModType==MODALTYPE_EDITOR?COL_EDITORCLOCK:COL_CLOCK));
+    Text(ClockText);
+    //ScrBuf.Flush();
+  }
   static int RegChecked=FALSE;
 
 #ifdef _DEBUGEXC
