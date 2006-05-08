@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.175 13.04.2006 $ */
+/* Revision: 1.176 09.05.2006 $ */
 
 /*
 Modify:
+  08.05.2006 AY
+    ! Вызываем EE_READ тока в одном месте и в нужный момент. (mantis#147)
   13.04.2006 SVS
     - Shift-F4 Del Enter Esc - в истории имя файла как "?NewFile?"
   02.03.2006 SVS
@@ -867,12 +869,13 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
       FEdit->TableNum=0;
       FEdit->UseDecodeTable=FALSE;
     }
-
-    CtrlObject->Plugins.CurEditor=this;//&FEdit;
-    _ECTLLOG(SysLog("call ProcessEditorEvent(EE_READ,NULL) {"));
-    CtrlObject->Plugins.ProcessEditorEvent(EE_READ,NULL);
-    _ECTLLOG(SysLog("} return From ProcessEditorEvent(EE_READ,NULL)"));
   }
+
+  CtrlObject->Plugins.CurEditor=this;//&FEdit;
+  _ECTLLOG(SysLog("call ProcessEditorEvent(EE_READ,NULL) {"));
+  CtrlObject->Plugins.ProcessEditorEvent(EE_READ,NULL);
+  _ECTLLOG(SysLog("} return From ProcessEditorEvent(EE_READ,NULL)"));
+
   /* IS $ */
   ShowConsoleTitle();
   EditKeyBar.SetOwner(this);

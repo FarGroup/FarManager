@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.272 06.05.2006 $ */
+/* Revision: 1.273 09.05.2006 $ */
 
 /*
 Modify:
+  08.05.2006 AY
+    ! Вызываем EE_READ тока в одном месте и в нужный момент. (mantis#147)
   06.05.2006 SVS
     ! ProcessEditorEvent(EE_READ) вызывается в FileEditor`е
   24.03.2006 AY
@@ -1417,8 +1419,8 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
     TableNum=0;
   /* IS $ */
 
-  CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
-//_D(SysLog("%08d EE_READ",__LINE__));
+  //CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
+  //_D(SysLog("%08d EE_READ",__LINE__));
   //CtrlObject->Plugins.ProcessEditorEvent(EE_READ,NULL);
   //_SVS(SysLog("Editor::ReadFile _heapchk() = %d",_heapchk()));
   return(TRUE);
