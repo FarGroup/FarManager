@@ -7,10 +7,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.37 03.05.2006 $ */
+/* Revision: 1.38 09.05.2006 $ */
 
 /*
 Modify:
+  09.05.2006 SVS
+    + GetTitle + доп параметр, на сколько усеч
   03.05.2006 SVS
     + В "панельные" классы добавлена виртуальная функция GetTitle(), которая формирует заголовок панели.
   06.04.2006 AY
@@ -299,7 +301,7 @@ class Panel:public ScreenObject
     virtual int ProcessPluginEvent(int Event,void *Param) {return(FALSE);};
     virtual HANDLE GetPluginHandle() {return(INVALID_HANDLE_VALUE);};
     virtual void SetTitle();
-    virtual void GetTitle(char *Title,int LenTitle);
+    virtual void GetTitle(char *Title,int LenTitle,int TruncSize=0);
 
     virtual void IfGoHome(char Drive){};
 

@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.147 03.05.2006 $ */
+/* Revision: 1.148 09.05.2006 $ */
 
 /*
 Modify:
+  09.05.2006 SVS
+    + GetTitle + доп параметр, на сколько усеч
   03.05.2006 SVS
     + В "панельные" классы добавлена виртуальная функция GetTitle(), которая формирует заголовок панели.
   06.04.2006 AY
@@ -2007,7 +2009,7 @@ void Panel::SetTitle()
   }
 }
 
-void Panel::GetTitle(char *lTitle,int LenTitle)
+void Panel::GetTitle(char *lTitle,int LenTitle,int TruncSize)
 {
   char Title[512];
   struct OpenPluginInfo PInfo;
@@ -2024,7 +2026,7 @@ void Panel::GetTitle(char *lTitle,int LenTitle)
       ConvertNameToShort(CurDir,TitleDir,sizeof(TitleDir)-1);
     else
       xstrncpy(TitleDir,CurDir,sizeof(TitleDir)-1);
-    TruncPathStr(TitleDir,LenTitle);
+    TruncPathStr(TitleDir,LenTitle-TruncSize);
     sprintf(Title," %s ",TitleDir);
   }
   xstrncpy(lTitle,Title,LenTitle);

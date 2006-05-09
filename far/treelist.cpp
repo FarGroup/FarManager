@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.73 03.05.2006 $ */
+/* Revision: 1.74 09.05.2006 $ */
 
 /*
 Modify:
+  09.05.2006 SVS
+    + GetTitle + доп параметр, на сколько усеч
   03.05.2006 SVS
     + В "панельные" классы добавлена виртуальная функция GetTitle(), которая формирует заголовок панели.
   07.07.2005 SVS
@@ -364,7 +366,7 @@ void TreeList::DisplayObject()
 }
 
 
-void TreeList::GetTitle(char *lTitle,int LenTitle)
+void TreeList::GetTitle(char *lTitle,int LenTitle,int TruncSize)
 {
   char Title[512];
   sprintf(Title," %s ",ModalMode ? MSG(MFindFolderTitle):MSG(MTreeTitle));

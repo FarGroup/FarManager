@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.53 03.05.2006 $ */
+/* Revision: 1.54 09.05.2006 $ */
 
 /*
 Modify:
+  09.05.2006 SVS
+    + GetTitle + доп параметр, на сколько усеч
   03.05.2006 SVS
     + В "панельные" классы добавлена виртуальная функция GetTitle(), которая формирует заголовок панели.
   20.02.2006 SVS
@@ -371,7 +373,7 @@ void FileList::ShowFileList(int Fast)
   if (!Opt.ShowColumnTitles && Opt.ShowSortMode && Filter!=NULL && Filter->IsEnabled())
     TruncSize-=2;
 
-  GetTitle(Title,TruncSize-(PanelMode==PLUGIN_PANEL?0:2));
+  GetTitle(Title,TruncSize,(PanelMode==PLUGIN_PANEL?0:2));
 
   Length=strlen(Title);
   int ClockCorrection=FALSE;

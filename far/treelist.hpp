@@ -7,10 +7,12 @@ Tree panel
 
 */
 
-/* Revision: 1.24 03.05.2006 $ */
+/* Revision: 1.25 09.05.2006 $ */
 
 /*
 Modify:
+  09.05.2006 SVS
+    + GetTitle + доп параметр, на сколько усеч
   03.05.2006 SVS
     + В "панельные" классы добавлена виртуальная функция GetTitle(), которая формирует заголовок панели.
   07.07.2005 SVS
@@ -153,7 +155,7 @@ class TreeList: public Panel
     virtual int GetFileName(char *Name,int Pos,int &FileAttr);
 
     virtual void SetTitle();
-    virtual void GetTitle(char *Title,int LenTitle);
+    virtual void GetTitle(char *Title,int LenTitle,int TruncSize=0);
     virtual void SetFocus();
     virtual void KillFocus();
     virtual BOOL UpdateKeyBar();

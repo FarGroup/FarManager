@@ -7,10 +7,12 @@ Quick view panel
 
 */
 
-/* Revision: 1.08 03.05.2006 $ */
+/* Revision: 1.09 09.05.2006 $ */
 
 /*
 Modify:
+  09.05.2006 SVS
+    + GetTitle + доп параметр, на сколько усеч
   03.05.2006 SVS
     + В "панельные" классы добавлена виртуальная функция GetTitle(), которая формирует заголовок панели.
   14.02.2002 VVM
@@ -68,7 +70,7 @@ class QuickView:public Panel
     /* $ 20.07.2000 tran
        add two new virtual methos - for correct title showing*/
     virtual void SetTitle();
-    virtual void GetTitle(char *Title,int LenTitle);
+    virtual void GetTitle(char *Title,int LenTitle,int TruncSize=0);
     virtual void SetFocus();
     /* tran 20.07.2000 $ */
     virtual void KillFocus();

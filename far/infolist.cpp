@@ -5,10 +5,12 @@ infolist.cpp
 
 */
 
-/* Revision: 1.50 03.05.2006 $ */
+/* Revision: 1.51 09.05.2006 $ */
 
 /*
 Modify:
+  09.05.2006 SVS
+    + GetTitle + доп параметр, на сколько усеч
   03.05.2006 SVS
     + В "панельные" классы добавлена виртуальная функция GetTitle(), которая формирует заголовок панели.
   10.04.2006 SVS
@@ -192,7 +194,7 @@ void InfoList::Update (int Mode)
 }
 /* DJ $ */
 
-void InfoList::GetTitle(char *lTitle,int LenTitle)
+void InfoList::GetTitle(char *lTitle,int LenTitle,int TruncSize)
 {
   char Title[512];
   sprintf(Title," %s ",MSG(MInfoTitle));
