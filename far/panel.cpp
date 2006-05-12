@@ -5,10 +5,12 @@ Parent class дл€ панелей
 
 */
 
-/* Revision: 1.148 09.05.2006 $ */
+/* Revision: 1.149 22.05.2006 $ */
 
 /*
 Modify:
+  22.05.2006 SVS
+    ! ”точнение GetTitle.
   09.05.2006 SVS
     + GetTitle + доп параметр, на сколько усеч
   03.05.2006 SVS
@@ -2012,23 +2014,26 @@ void Panel::SetTitle()
 void Panel::GetTitle(char *lTitle,int LenTitle,int TruncSize)
 {
   char Title[512];
-  struct OpenPluginInfo PInfo;
-  GetOpenPluginInfo(&PInfo);
+  char TitleDir[512];
+  *Title=0;
   if (PanelMode==PLUGIN_PANEL)
   {
-    xstrncpy(Title,NullToEmpty(PInfo.PanelTitle),sizeof (Title)-1);
-    TruncStr(Title,LenTitle);
+    struct OpenPluginInfo PInfo;
+    GetOpenPluginInfo(&PInfo);
+    RemoveExternalSpaces(xstrncpy(TitleDir,NullToEmpty(PInfo.PanelTitle),sizeof (TitleDir)-1));
+    //RemoveExternalSpaces(TitleDir);
+    TruncStr(TitleDir,LenTitle);
   }
   else
   {
-    char TitleDir[NM];
     if (ShowShortNames)
       ConvertNameToShort(CurDir,TitleDir,sizeof(TitleDir)-1);
     else
       xstrncpy(TitleDir,CurDir,sizeof(TitleDir)-1);
     TruncPathStr(TitleDir,LenTitle-TruncSize);
-    sprintf(Title," %s ",TitleDir);
   }
+  if(*TitleDir)
+    sprintf(Title," %s ",TitleDir);
   xstrncpy(lTitle,Title,LenTitle);
 }
 

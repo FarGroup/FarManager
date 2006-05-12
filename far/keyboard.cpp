@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.121 20.04.2006 $ */
+/* Revision: 1.122 11.05.2006 $ */
 
 /*
 Modify:
+  11.05.2006 SVS
+    - Modif+Space давал на выходе 0. “.с. недолеченный вариант про Dead Keys
   20.04.2006 SVS
     + Opt.UseVk_oem_x - часть I
   17.04.2006 SVS
@@ -1207,7 +1209,7 @@ _SVS(if(rec->EventType==KEY_EVENT)SysLog("[%d] if(rec->EventType==KEY_EVENT) >>>
     return(CalcKey);
   }
 */
-  _SVS(SysLog("1) CalcKey=%s",_FARKEY_ToName(CalcKey)));
+  _SVS(SysLog("[%d] 1) CalcKey=%s",__LINE__,_FARKEY_ToName(CalcKey)));
   if (ReturnAltValue && !NotMacros)
   {
     _KEYMACRO(CleverSysLog Clev("CALL(2) CtrlObject->Macro.ProcessKey()"));
@@ -2749,8 +2751,13 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
     case VK_BACK:
       return(Modif|KEY_BS);
     case VK_SPACE:
-      if(Char.AsciiChar == ' ')
+      _SVS(SysLog("[%d] case VK_SPACE:",__LINE__));
+      if(Char.AsciiChar == ' ' || !Char.UnicodeChar)
+      {
+        _SVS(SysLog("[%d]   Char.AsciiChar=0x%04X, return Modif|KEY_SPACE=0x%08X",__LINE__,Char.AsciiChar,(Modif|KEY_SPACE)));
         return(Modif|KEY_SPACE);
+      }
+      _SVS(SysLog("[%d]   return Char.AsciiChar=0x%04X",__LINE__,Modif,Char.AsciiChar));
       return Char.AsciiChar;
     case VK_TAB:
       return(Modif|KEY_TAB);
