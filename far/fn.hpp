@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.240 23.04.2006 $ */
+/* Revision: 1.241 24.05.2006 $ */
 
 /*
 Modify:
+  24.05.2006 SVS
+    + ProcessRemoveHotplugDevice()
   23.04.2006 AY
     ! Убираем SetUpDirs из Execute().
   10.04.2006 SVS
@@ -1538,6 +1540,7 @@ BOOL EjectVolume(char Letter,DWORD Flags);
 BOOL RemoveUSBDrive(char Letter,DWORD Flags);
 BOOL IsEjectableMedia(char Letter,UINT DriveType=DRIVE_NOT_INIT,BOOL ForceCDROM=FALSE);
 BOOL IsDriveUsb(char DriveName,void *pDevInst);
+int  ProcessRemoveHotplugDevice (char Drive, DWORD Flags);
 
 
 /* $ 30.12.2000 SVS

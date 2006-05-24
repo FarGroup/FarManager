@@ -152,7 +152,7 @@ FAROBJ=\
    $(OBJPATH)\hilight.obj\
    $(OBJPATH)\history.obj\
    $(OBJPATH)\hmenu.obj\
-   $(OBJPATH)\usbeject.obj\
+   $(OBJPATH)\hotplug.obj\
    $(OBJPATH)\infolist.obj\
    $(OBJPATH)\int64.obj\
    $(OBJPATH)\interf.obj\

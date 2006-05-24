@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.97 31.03.2006 $ */
+/* Revision: 1.98 23.05.2006 $ */
 
 /*
 Modify:
+  23.05.2006 SVS
+    - При ширине экрана поболее и имени файла > 128 - в окне Screen видны ошметки в конце строки + иногда ФАР вываливается
   31.03.2006 SVS
     - после переноса функционала CAS из filepanels.cpp сюда перестало работать правило TechInfo#8
   23.01.2006 SVS
@@ -611,7 +613,7 @@ Frame *Manager::FrameMenu()
       /* IS $ */
       /* $ 28.07.2000 tran
          файл усекает по ширине экрана */
-      TruncPathStr(Name,ScrX-24);
+      TruncPathStr(Name,Min((int)ScrX,(int)(sizeof(ModalMenuItem.Name)-1))-24);
       ReplaceStrings(Name,"&","&&",-1);
       /*  добавляется "*" если файл изменен */
       sprintf(ModalMenuItem.Name,"%s%-10.10s %c %s",NumText,Type,(FrameList[I]->IsFileModified()?'*':' '),Name);

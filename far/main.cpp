@@ -5,10 +5,15 @@ main.cpp
 
 */
 
-/* Revision: 1.87 09.04.2006 $ */
+/* Revision: 1.88 23.05.2006 $ */
 
 /*
 Modify:
+  23.05.2006 SVS
+    - Ќеправильное позиционирование на каталоге с национальными символами
+      в имени при исполнении команды "FAR . Shift-Enter"
+    - far "foo bar\" из меню "ѕуск|¬ыполнить" приводит к по€влению строки аргумента "foo bar"" -
+      т.е. имеем заключительную кавычку, на что GetFileAttributes говорит "неа".
   09.04.2006 AY
     !  то то :) забыл printf.
   04.04.2006 SVS
@@ -627,6 +632,7 @@ int _cdecl main(int Argc, char *Argv[])
   }
   AddEndSlash(FarPath);
 
+  _SVS(for (int I0=1;I0<Argc;I0++)SysLog("I=%d Argv[I]=\"%s\"",I0,Argv[I0]));
   for (int I=1;I<Argc;I++)
   {
     if ((Argv[I][0]=='/' || Argv[I][0]=='-') && Argv[I][1])
@@ -732,7 +738,9 @@ int _cdecl main(int Argc, char *Argv[])
           if (Argv[I][2])
           {
             ExpandEnvironmentStr(&Argv[I][2], Opt.LoadPlug.CustomPluginsPath, sizeof(Opt.LoadPlug.CustomPluginsPath));
+            Unquote(Opt.LoadPlug.CustomPluginsPath);
             ConvertNameToFull(Opt.LoadPlug.CustomPluginsPath,Opt.LoadPlug.CustomPluginsPath,sizeof(Opt.LoadPlug.CustomPluginsPath));
+            _SVS(SysLog("Opt.LoadPlug.CustomPluginsPath=\"%s\" (0x%08X)",Opt.LoadPlug.CustomPluginsPath,GetFileAttributes(Opt.LoadPlug.CustomPluginsPath)));
 /*
             if(Argv[I][2]=='.' && (Argv[I][3]==0 || Argv[I][3]=='\\' || Argv[I][3]=='/' || Argv[I][3]=='.'))
             {
@@ -749,7 +757,9 @@ int _cdecl main(int Argc, char *Argv[])
                - Ќе правильно обрабатывалась команда /p[<path>], если в пути
                  были буквы национального алфавита.
             */
-            FAR_CharToOem(Opt.LoadPlug.CustomPluginsPath,Opt.LoadPlug.CustomPluginsPath);
+            if(GetFileAttributes(Opt.LoadPlug.CustomPluginsPath) == -1)
+              FAR_CharToOem(Opt.LoadPlug.CustomPluginsPath,Opt.LoadPlug.CustomPluginsPath);
+            _SVS(SysLog("Opt.LoadPlug.CustomPluginsPath=\"%s\" (0x%08X)",Opt.LoadPlug.CustomPluginsPath,GetFileAttributes(Opt.LoadPlug.CustomPluginsPath)));
             /* IS $ */
           }
           else
@@ -796,13 +806,16 @@ int _cdecl main(int Argc, char *Argv[])
     {
       if(CntDestName < 2)
       {
+        _SVS(int tempCntDestName=CntDestName);
         ExpandEnvironmentStr(Argv[I], DestName[CntDestName],sizeof(DestName[CntDestName]));
-        ConvertNameToFull(Argv[I],DestName[CntDestName],sizeof(DestName[CntDestName]));
-        if(GetFileAttributes(DestName[CntDestName]) != -1)
-        {
+        Unquote(DestName[CntDestName]);
+        ConvertNameToFull(DestName[CntDestName],DestName[CntDestName],sizeof(DestName[CntDestName]));
+        _SVS(SysLog("CntDestName=%d DestName[CntDestName]=\"%s\" (0x%08X)",CntDestName,DestName[CntDestName],GetFileAttributes(DestName[CntDestName])));
+        if(GetFileAttributes(DestName[CntDestName]) == -1)
           FAR_CharToOem(DestName[CntDestName],DestName[CntDestName]);
+        if(GetFileAttributes(DestName[CntDestName]) != -1)
           CntDestName++;
-        }
+        _SVS(SysLog("CntDestName=%d DestName[CntDestName]=\"%s\" (0x%08X)",tempCntDestName,DestName[tempCntDestName],GetFileAttributes(DestName[tempCntDestName])));
       }
     }
   }

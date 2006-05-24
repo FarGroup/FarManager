@@ -84,7 +84,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\edit.obj" \
 	"$(INTDIR)\editor.obj" \
 	"$(INTDIR)\eject.obj" \
-	"$(INTDIR)\usbeject.obj" \
+	"$(INTDIR)\hotplug.obj" \
 	"$(INTDIR)\execute.obj" \
 	"$(INTDIR)\farexcpt.obj" \
 	"$(INTDIR)\farqueue.obj" \

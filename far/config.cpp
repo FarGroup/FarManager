@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.202 20.04.2006 $ */
+/* Revision: 1.203 24.05.2006 $ */
 
 /*
 Modify:
+  24.05.2006 SVS
+    + Opt.Confirm.RemoveHotPlug
   20.04.2006 SVS
     + Opt.UseVk_oem_x
   13.04.2006 SVS
@@ -1044,7 +1046,7 @@ void DialogSettings()
 void SetConfirmations()
 {
   static struct DialogData ConfDlgData[]={
-  /* 00 */DI_DOUBLEBOX,3,1,46,15,0,0,0,0,(char *)MSetConfirmTitle,
+  /* 00 */DI_DOUBLEBOX,3,1,46,16,0,0,0,0,(char *)MSetConfirmTitle,
   /* 01 */DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MSetConfirmCopy,
   /* 02 */DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MSetConfirmMove,
   /* 03 */DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MSetConfirmDrag,
@@ -1053,12 +1055,13 @@ void SetConfirmations()
   /* 06 */DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MSetConfirmEsc,
   /* 07 */DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MSetConfirmRemoveConnection,
   /* 08 */DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MSetConfirmRemoveSUBST,
-  /* 09 */DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MSetConfirmAllowReedit,
-  /* 10 */DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MSetConfirmHistoryClear,
-  /* 11 */DI_CHECKBOX,5,12,0,0,0,0,0,0,(char *)MSetConfirmExit,
-  /* 12 */DI_TEXT,3,13,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 13 */DI_BUTTON,0,14,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-  /* 14 */DI_BUTTON,0,14,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  /* 09 */DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MSetConfirmRemoveHotPlug,
+  /* 10 */DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MSetConfirmAllowReedit,
+  /* 11 */DI_CHECKBOX,5,12,0,0,0,0,0,0,(char *)MSetConfirmHistoryClear,
+  /* 12 */DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MSetConfirmExit,
+  /* 13 */DI_TEXT,3,14,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 14 */DI_BUTTON,0,15,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 15 */DI_BUTTON,0,15,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
 
   };
   MakeDialogItems(ConfDlgData,ConfDlg);
@@ -1070,15 +1073,16 @@ void SetConfirmations()
   ConfDlg[6].Selected=Opt.Confirm.Esc;
   ConfDlg[7].Selected=Opt.Confirm.RemoveConnection;
   ConfDlg[8].Selected=Opt.Confirm.RemoveSUBST;
-  ConfDlg[9].Selected=Opt.Confirm.AllowReedit;
-  ConfDlg[10].Selected=Opt.Confirm.HistoryClear;
-  ConfDlg[11].Selected=Opt.Confirm.Exit;
+  ConfDlg[9].Selected=Opt.Confirm.RemoveHotPlug;
+  ConfDlg[10].Selected=Opt.Confirm.AllowReedit;
+  ConfDlg[11].Selected=Opt.Confirm.HistoryClear;
+  ConfDlg[12].Selected=Opt.Confirm.Exit;
 
   Dialog Dlg(ConfDlg,sizeof(ConfDlg)/sizeof(ConfDlg[0]));
   Dlg.SetHelp("ConfirmDlg");
-  Dlg.SetPosition(-1,-1,50,17);
+  Dlg.SetPosition(-1,-1,50,18);
   Dlg.Process();
-  if (Dlg.GetExitCode()!=13)
+  if (Dlg.GetExitCode()!=14)
     return;
   Opt.Confirm.Copy=ConfDlg[1].Selected;
   Opt.Confirm.Move=ConfDlg[2].Selected;
@@ -1088,9 +1092,10 @@ void SetConfirmations()
   Opt.Confirm.Esc=ConfDlg[6].Selected;
   Opt.Confirm.RemoveConnection=ConfDlg[7].Selected;
   Opt.Confirm.RemoveSUBST=ConfDlg[8].Selected;
-  Opt.Confirm.AllowReedit=ConfDlg[9].Selected;
-  Opt.Confirm.HistoryClear=ConfDlg[10].Selected;
-  Opt.Confirm.Exit=ConfDlg[11].Selected;
+  Opt.Confirm.RemoveHotPlug=ConfDlg[9].Selected;
+  Opt.Confirm.AllowReedit=ConfDlg[10].Selected;
+  Opt.Confirm.HistoryClear=ConfDlg[11].Selected;
+  Opt.Confirm.Exit=ConfDlg[12].Selected;
 }
 /* SVS $ */
 /* IS $ */
@@ -1737,6 +1742,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyConfirmations,"Esc",&Opt.Confirm.Esc,1, 0},
   {1, REG_DWORD,  NKeyConfirmations,"RemoveConnection",&Opt.Confirm.RemoveConnection,1, 0},
   {1, REG_DWORD,  NKeyConfirmations,"RemoveSUBST",&Opt.Confirm.RemoveSUBST,1, 0},
+  {1, REG_DWORD,  NKeyConfirmations,"RemoveHotPlug",&Opt.Confirm.RemoveHotPlug,1, 0},
   {1, REG_DWORD,  NKeyConfirmations,"AllowReedit",&Opt.Confirm.AllowReedit,1, 0},
   {1, REG_DWORD,  NKeyConfirmations,"HistoryClear",&Opt.Confirm.HistoryClear,1, 0},
   {1, REG_DWORD,  NKeyConfirmations,"Exit",&Opt.Confirm.Exit,1, 0},

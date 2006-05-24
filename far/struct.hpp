@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.141 20.04.2006 $ */
+/* Revision: 1.142 24.05.2006 $ */
 
 /*
 Modify:
+  24.05.2006 SVS
+    + Opt.Confirm.RemoveHotPlug
   20.04.2006 SVS
     + Opt.UseVk_oem_x
   13.04.2006 SVS
@@ -464,6 +466,7 @@ struct Confirmation
   int AllowReedit;
   int HistoryClear;
   int RemoveSUBST;
+  int RemoveHotPlug;
 };
 
 

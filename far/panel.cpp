@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.149 22.05.2006 $ */
+/* Revision: 1.151 24.05.2006 $ */
 
 /*
 Modify:
+  24.05.2006 SVS
+    + Shift-Del - извлечение HotPlu`ов
   22.05.2006 SVS
     ! Уточнение GetTitle.
   09.05.2006 SVS
@@ -1048,6 +1050,63 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
               }
             }
             /* DJ $ */
+          }
+          break;
+        case KEY_SHIFTDEL:
+          if (SelPos<DiskCount)
+          {
+            if ((UserData=(DWORD)ChDisk.GetUserData(NULL,0)) != 0 && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
+            {
+              // первая попытка удалить устройство
+              int Code=ProcessRemoveHotplugDevice(LOBYTE(LOWORD(UserData)),0);
+              if(Code == 0)
+              {
+                // запоминаем состояние панелей
+                int CMode=GetMode();
+                int AMode=CtrlObject->Cp()->GetAnotherPanel (this)->GetMode();
+                char TmpCDir[NM], TmpADir[NM];
+                GetCurDir (TmpCDir);
+                CtrlObject->Cp()->GetAnotherPanel (this)->GetCurDir (TmpADir);
+
+                // отключим меню, иначе бага с прорисовкой этой самой меню
+                // (если меню поболее высоты экрана)
+                ChDisk.Hide();
+                ChDisk.Lock(); // ... и запретим ее перерисовку.
+
+                // "цикл до умопомрачения"
+                int DoneEject=FALSE;
+                while(!DoneEject)
+                {
+                  // "освободим диск" - перейдем при необходимости в домашний каталог
+                  // TODO: А если домашний каталог - USB? ;-)
+                  IfGoHome(LOBYTE(LOWORD(UserData)));
+                  // очередная попытка извлечения без вывода сообщения
+                  Code=ProcessRemoveHotplugDevice(LOBYTE(LOWORD(UserData)),EJECT_NO_MESSAGE);
+                  if(Code == 0)
+                  {
+                    // восстановим пути - это избавит нас от левых данных в панели.
+                    if (AMode != PLUGIN_PANEL)
+                      CtrlObject->Cp()->GetAnotherPanel (this)->SetCurDir (TmpADir, FALSE);
+                    if (CMode != PLUGIN_PANEL)
+                      SetCurDir (TmpCDir, FALSE);
+
+                    // ... и выведем месаг о...
+                    char MsgText[200];
+                    sprintf(MsgText,MSG(MChangeCouldNotEjectHotPlugMedia),LOBYTE(LOWORD(UserData)));
+                    SetLastError(ERROR_DRIVE_LOCKED); // ...о "The disk is in use or locked by another process."
+                    DoneEject=Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),MsgText,MSG(MHRetry),MSG(MHCancel))!=0;
+                  }
+                  else
+                    DoneEject=TRUE;
+                }
+
+                // "отпустим" менюху выбора дисков
+                ChDisk.Unlock();
+                ChDisk.Show();
+              }
+
+              return(SelPos);
+            }
           }
           break;
         case KEY_CTRL1:

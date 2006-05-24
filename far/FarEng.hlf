@@ -1254,6 +1254,8 @@ following operations:
 
     - disconnect SUBST-disks from the Disks menu;
 
+    - отключение запоминающих устройство для USB из меню дисков;
+
     - ~reloading~@EditorReload@ a file in the editor;
 
     - clearing the view/edit, folder and command history lists;
@@ -2489,6 +2491,11 @@ is not a ~file panel~@FilePanel@, it will be changed to the file panel.
        requires administrative privileges.
        A CD-ROM can be closed by pressing #Ins#.
 
+    Комбинация #Shift-Del# используется для подготовки к безопасному
+извлечению запоминающих устройство для USB. Если диск, для которого
+применяется функция извлечения, является одной из flash-карт, вставленных
+в картридер с поддержкой нескольких flash-карт, то будет отключен сам
+картридер.
 
     #Ctrl-1# - #Ctrl-9# switch the display of different information:
 
