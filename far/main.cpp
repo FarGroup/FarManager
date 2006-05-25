@@ -5,10 +5,12 @@ main.cpp
 
 */
 
-/* Revision: 1.88 23.05.2006 $ */
+/* Revision: 1.89 25.05.2006 $ */
 
 /*
 Modify:
+  25.05.2006 SVS
+    ! HotPlug: инициализацию сделаем здесь
   23.05.2006 SVS
     - Ќеправильное позиционирование на каталоге с национальными символами
       в имени при исполнении команды "FAR . Shift-Enter"
@@ -820,6 +822,7 @@ int _cdecl main(int Argc, char *Argv[])
     }
   }
 
+  InitializeSetupAPI ();
   /* $ 26.03.2002 IS
      Ќастройка сортировки.
      ƒолжна быть после CopyGlobalSettings и перед InitKeysArray!
@@ -945,6 +948,8 @@ int _cdecl main(int Argc, char *Argv[])
 
   UsedInternalClipboard=TRUE;
   FAR_EmptyClipboard();
+
+  FinalizeSetupAPI ();
 
   doneMacroVarTable(1);
   doneMacroVarTable(0);

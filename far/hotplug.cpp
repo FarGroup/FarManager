@@ -5,7 +5,7 @@ hotplug.cpp
 
 */
 
-/* Revision: 1.00 22.05.2006 $ */
+/* Revision: 1.01 25.05.2006 $ */
 
 #pragma once
 
@@ -76,6 +76,10 @@ const GUID GUID_DEVINTERFACE_VOLUME = { 0x53f5630dL, 0xb6bf, 0x11d0, { 0x94, 0xf
 #include "lang.hpp"
 #include "fn.hpp"
 #include "plugin.hpp"
+#include "keys.hpp"
+#include "help.hpp"
+#include "vmenu.hpp"
+#include "BlockExtKey.hpp"
 
 struct DeviceInfo {
   DEVINST hDevInst; // device instance
@@ -83,13 +87,12 @@ struct DeviceInfo {
 };
 
 
-static bool InitializeSetupAPI ();
-static void FinalizeSetupAPI ();
-
 static int  GetHotplugDevicesInfo (DeviceInfo **pInfo);
 static void FreeHotplugDevicesInfo (DeviceInfo *pInfo);
 static bool GetDeviceProperty (DEVINST hDevInst, int nProperty, char *lpBuffer, DWORD dwMaxSize, bool bSearchChild);
-static int RemoveHotplugDevice (DEVINST hDevInst, char Drive, DWORD Flags);
+static int __RemoveHotplugDevice (DEVINST hDevInst);
+static int RemoveHotplugDevice(DEVINST hDevInst,DWORD DevMasks,DWORD Flags);
+static DeviceInfo *EnumHotPlugDevice(LPARAM lParam);
 
 
 HMODULE g_hSetupAPI = NULL;
@@ -192,16 +195,137 @@ CMGETSIBLING pfnGetSibling;
 CMREQUESTDEVICEEJECT pfnRequestDeviceEject;
 GETVOLUMENAMEFORVOLUMEMOUNTPOINT pfnGetVolumeNameForVolumeMountPoint;
 
+DeviceInfo *EnumHotPlugDevice(LPARAM lParam)
+{
+  VMenu *HotPlugList=(VMenu *)lParam;
+
+  char szFriendlyName[MAX_PATH];
+  char szDescription[MAX_PATH];
+
+  DeviceInfo *pInfo=NULL;
+  int nCount = GetHotplugDevicesInfo (&pInfo);
+  if ( nCount )
+  {
+    for (int I = 0; I < nCount; I++)
+    {
+      DEVINST hDevInst=pInfo[I].hDevInst;
+
+      memset (szFriendlyName, 0, sizeof (szFriendlyName));
+      memset (szDescription, 0, sizeof (szDescription));
+
+      GetDeviceProperty (hDevInst,CM_DRP_FRIENDLYNAME,szFriendlyName,MAX_PATH,true);
+      RemoveExternalSpaces(szFriendlyName);
+      GetDeviceProperty (hDevInst,CM_DRP_DEVICEDESC,szDescription,MAX_PATH,true);
+      RemoveExternalSpaces(szDescription);
+
+      struct MenuItem ListItem;
+      memset(&ListItem,0,sizeof(ListItem));
+
+      if(stricmp(szDescription,szFriendlyName) && *szFriendlyName)
+      {
+        TruncStr(szDescription,sizeof(ListItem.Name)-1);
+        sprintf(ListItem.Name,"%s \"%s\"",szDescription,szFriendlyName);
+      }
+      else
+      {
+        if(*szFriendlyName)
+          sprintf(ListItem.Name,"%s",szFriendlyName);
+      }
+
+      RemoveExternalSpaces(ListItem.Name);
+      if(ListItem.Name[0])
+        HotPlugList->SetUserData((void*)I,sizeof(I),HotPlugList->AddItem(&ListItem));
+
+    }
+  }
+
+  return pInfo;
+}
+
+void ShowHotplugDevice ()
+{
+  if( !g_hSetupAPI )
+  {
+    SetLastError(ERROR_INVALID_FUNCTION);
+    return;
+  }
+
+  DeviceInfo *pInfo=NULL;
+  int I;
+
+  VMenu HotPlugList(MSG(MHotPlugListTitle),NULL,0,ScrY-4);
+  HotPlugList.SetFlags(VMENU_WRAPMODE);
+  HotPlugList.SetPosition(-1,-1,0,0);
+
+  pInfo=EnumHotPlugDevice((LPARAM)&HotPlugList);
+
+  //HotPlugList.AssignHighlights(FALSE);
+  HotPlugList.SetBottomTitle(MSG(MHotPlugListBottom));
+  HotPlugList.Show();
+
+  while (!HotPlugList.Done())
+  {
+    int Key=HotPlugList.ReadInput();
+    switch(Key)
+    {
+      case KEY_F1:
+      {
+        BlockExtKey blockExtKey;
+        {
+          Help Hlp ("HotPlugList");
+        }
+        break;
+      }
+
+      case KEY_CTRLR:
+      {
+
+        if(pInfo)
+          FreeHotplugDevicesInfo (pInfo);
+        pInfo=NULL;
+
+        HotPlugList.Hide();
+        HotPlugList.DeleteItems();
+        HotPlugList.SetPosition(-1,-1,0,0);
+        pInfo=EnumHotPlugDevice((LPARAM)&HotPlugList);
+        HotPlugList.Show();
+
+        break;
+      }
+
+      case KEY_DEL:
+      {
+        BlockExtKey blockExtKey;
+
+        I=(int)HotPlugList.GetUserData(NULL,0);
+        if(RemoveHotplugDevice(pInfo[I].hDevInst,pInfo[I].dwDriveMask,EJECT_NOTIFY_AFTERREMOVE) == 1)
+        {
+          HotPlugList.Hide();
+          if(pInfo)
+            FreeHotplugDevicesInfo (pInfo);
+          ShowHotplugDevice();
+          return;
+        }
+        break;
+      }
+
+      default:
+        HotPlugList.ProcessInput();
+        break;
+    }
+  }
+
+  if(pInfo)
+    FreeHotplugDevicesInfo (pInfo);
+}
 
 int ProcessRemoveHotplugDevice (char Drive, DWORD Flags)
 {
-  int bResult = 0;
+  int bResult = -1; // сразу выставим -1, иначе, на обычном HDD операция Shift-Del ругается, что мол деайс залочен
   DeviceInfo *pInfo;
   DWORD dwDriveMask = (1 << (toupper(Drive)-'A'));
 
-  DWORD SavedLastError=ERROR_SUCCESS;
-
-  if(!InitializeSetupAPI())
+  if( !g_hSetupAPI )
   {
     SetLastError(ERROR_INVALID_FUNCTION);
     return -1; //???
@@ -215,41 +339,13 @@ int ProcessRemoveHotplugDevice (char Drive, DWORD Flags)
     {
       if ( pInfo[i].dwDriveMask & dwDriveMask )
       {
-        char szFriendlyName[MAX_PATH];
-        char szDescription[MAX_PATH];
-
-        memset (szFriendlyName, 0, sizeof (szFriendlyName));
-        memset (szDescription, 0, sizeof (szDescription));
-
-        GetDeviceProperty (pInfo[i].hDevInst,CM_DRP_FRIENDLYNAME,szFriendlyName,MAX_PATH,true);
-
-        GetDeviceProperty (pInfo[i].hDevInst,CM_DRP_DEVICEDESC,szDescription,MAX_PATH,true);
-
-        int DoneEject=0;
-        if(!(Flags&EJECT_NO_MESSAGE) && Opt.Confirm.RemoveHotPlug)
-          DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),szDescription,szFriendlyName,MSG(MHRemove),MSG(MHCancel));
-
-        if(!DoneEject)
-        {
-          bResult = RemoveHotplugDevice (pInfo[i].hDevInst,Drive,Flags);
-          SavedLastError=GetLastError();
-        }
-        else
-          bResult = -1;
-
-        if(bResult == 1 && Opt.Confirm.RemoveHotPlug) // ??? Opt.Confirm.RemoveHotPlug ???
-           Message(0,1,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugNotify1),szDescription,szFriendlyName,MSG(MChangeHotPlugNotify2),MSG(MOk));
-
+        bResult=RemoveHotplugDevice (pInfo[i].hDevInst,pInfo[i].dwDriveMask,Flags);
         // ??? break; ???
       }
     }
 
     FreeHotplugDevicesInfo (pInfo);
   }
-
-  FinalizeSetupAPI();
-
-  SetLastError(SavedLastError);
 
   return bResult;
 }
@@ -707,7 +803,7 @@ bool GetDeviceProperty (
 }
 
 
-int RemoveHotplugDevice (DEVINST hDevInst, char Drive, DWORD Flags)
+int __RemoveHotplugDevice (DEVINST hDevInst)
 {
   PNP_VETO_TYPE pvtVeto = PNP_VetoTypeUnknown;
   CONFIGRET crResult;
@@ -725,18 +821,66 @@ int RemoveHotplugDevice (DEVINST hDevInst, char Drive, DWORD Flags)
 
   if ( (crResult != CR_SUCCESS) || (pvtVeto != PNP_VetoTypeUnknown) ) //M$ баг, если есть szDecsription, то даже при ошибке возвращается CR_SUCCESS
   {
-    //if(!(Flags&EJECT_NO_MESSAGE))
-    {
-    //   char MsgText[200];
-    //   DWORD ErrCode=GetLastError();
-    //   sprintf(MsgText,MSG(MChangeCouldNotEjectHotPlugMedia),Drive);
-       SetLastError((pvtVeto != PNP_VetoTypeUnknown)?ERROR_DRIVE_LOCKED:ERROR_UNABLE_TO_UNLOAD_MEDIA); // ...о "The disk is in use or locked by another process."
-    //   if(Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),MsgText,MSG(MRetry),MSG(MCancel)) != 0)
-    //     return -1;
-    }
+     SetLastError((pvtVeto != PNP_VetoTypeUnknown)?ERROR_DRIVE_LOCKED:ERROR_UNABLE_TO_UNLOAD_MEDIA); // ...о "The disk is in use or locked by another process."
     return 0;
   }
 
   SetLastError(ERROR_SUCCESS);
   return 1;
+}
+
+int RemoveHotplugDevice(DEVINST hDevInst,DWORD dwDriveMask,DWORD Flags)
+{
+  int bResult = -1; // сразу выставим -1, иначе, на обычном HDD операция Shift-Del ругается, что мол деайс залочен
+  char szFriendlyName[MAX_PATH];
+  char szDescription[MAX_PATH];
+
+  memset (szFriendlyName, 0, sizeof (szFriendlyName));
+  memset (szDescription, 0, sizeof (szDescription));
+
+  GetDeviceProperty (hDevInst,CM_DRP_FRIENDLYNAME,szFriendlyName,MAX_PATH,true);
+  RemoveExternalSpaces(szFriendlyName);
+  GetDeviceProperty (hDevInst,CM_DRP_DEVICEDESC,szDescription,MAX_PATH,true);
+  RemoveExternalSpaces(szDescription);
+
+  int DoneEject=0;
+  if(!(Flags&EJECT_NO_MESSAGE) && Opt.Confirm.RemoveHotPlug)
+  {
+    char szDiskMsg[256];
+    char Disks[256], *pDisk=Disks;
+    *szDiskMsg=*pDisk=0;
+
+    for(int Drive='A'; Drive <= 'Z'; ++Drive)
+    {
+      if(dwDriveMask & (1 << (Drive-'A')))
+      {
+        *pDisk++=(char)Drive;
+        *pDisk++=':';
+        *pDisk++=',';
+      }
+    }
+
+    *pDisk=0;
+    if(pDisk != Disks)
+      *--pDisk=0;
+
+    if(*Disks)
+      sprintf(szDiskMsg,MSG(MHotPlugDisks),Disks);
+
+    if(stricmp(szDescription,szFriendlyName) && *szFriendlyName)
+      DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),szDescription,InsertQuote(szFriendlyName),(*szDiskMsg?szDiskMsg:NULL),MSG(MHRemove),MSG(MHCancel));
+    else
+      DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),szFriendlyName,(*szDiskMsg?szDiskMsg:NULL),MSG(MHRemove),MSG(MHCancel));
+  }
+
+  if(!DoneEject)
+    bResult = __RemoveHotplugDevice (hDevInst);
+  else
+    bResult = -1;
+  if(bResult == 1 && (Flags&EJECT_NOTIFY_AFTERREMOVE))
+  {
+    Message(0,1,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugNotify1),szDescription,szFriendlyName,MSG(MChangeHotPlugNotify2),MSG(MOk));
+  }
+
+  return bResult;
 }

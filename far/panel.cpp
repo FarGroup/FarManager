@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.151 24.05.2006 $ */
+/* Revision: 1.152 25.05.2006 $ */
 
 /*
 Modify:
+  25.05.2006 SVS
+    + EJECT_NOTIFY_AFTERREMOVE
   24.05.2006 SVS
     + Shift-Del - извлечение HotPlu`ов
   22.05.2006 SVS
@@ -1058,7 +1060,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
             if ((UserData=(DWORD)ChDisk.GetUserData(NULL,0)) != 0 && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
             {
               // первая попытка удалить устройство
-              int Code=ProcessRemoveHotplugDevice(LOBYTE(LOWORD(UserData)),0);
+              int Code=ProcessRemoveHotplugDevice(LOBYTE(LOWORD(UserData)),EJECT_NOTIFY_AFTERREMOVE);
               if(Code == 0)
               {
                 // запоминаем состояние панелей
@@ -1081,7 +1083,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
                   // TODO: А если домашний каталог - USB? ;-)
                   IfGoHome(LOBYTE(LOWORD(UserData)));
                   // очередная попытка извлечения без вывода сообщения
-                  Code=ProcessRemoveHotplugDevice(LOBYTE(LOWORD(UserData)),EJECT_NO_MESSAGE);
+                  Code=ProcessRemoveHotplugDevice(LOBYTE(LOWORD(UserData)),EJECT_NO_MESSAGE|EJECT_NOTIFY_AFTERREMOVE);
                   if(Code == 0)
                   {
                     // восстановим пути - это избавит нас от левых данных в панели.

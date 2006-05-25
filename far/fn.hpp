@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.241 24.05.2006 $ */
+/* Revision: 1.242 25.05.2006 $ */
 
 /*
 Modify:
+  25.05.2006 SVS
+    + InitializeSetupAPI (), FinalizeSetupAPI ();
   24.05.2006 SVS
     + ProcessRemoveHotplugDevice()
   23.04.2006 AY
@@ -1541,6 +1543,10 @@ BOOL RemoveUSBDrive(char Letter,DWORD Flags);
 BOOL IsEjectableMedia(char Letter,UINT DriveType=DRIVE_NOT_INIT,BOOL ForceCDROM=FALSE);
 BOOL IsDriveUsb(char DriveName,void *pDevInst);
 int  ProcessRemoveHotplugDevice (char Drive, DWORD Flags);
+
+bool InitializeSetupAPI ();
+void FinalizeSetupAPI ();
+void ShowHotplugDevice ();
 
 
 /* $ 30.12.2000 SVS

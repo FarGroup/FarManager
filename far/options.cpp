@@ -5,10 +5,12 @@ options.cpp
 
 */
 
-/* Revision: 1.24 02.03.2006 $ */
+/* Revision: 1.25 25.05.2006 $ */
 
 /*
 Modify:
+  25.05.2006 SVS
+    + новый пункт в командах "HotPlug list"
   02.03.2006 SVS
     ! ќтображаем ком.строку, только если Ё“ќ не редактор и вьювер!
   14.12.2004 SVS
@@ -163,6 +165,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
     (char *)MMenuPluginCommands,0,KEY_F11,
     (char *)MMenuWindowsList,0,KEY_F12,
     (char *)MMenuProcessList,0,KEY_CTRLW,
+    (char *)MMenuHotPlugList,0,0,
   };
 
 
@@ -503,6 +506,9 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
           break;
         case 19: // Task list
           ShowProcessList();
+          break;
+        case 20: // HotPlug list
+          ShowHotplugDevice();
           break;
       }
       break;
