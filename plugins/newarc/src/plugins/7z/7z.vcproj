@@ -90,10 +90,9 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="rtllib.core.lib libc.lib"
 				OutputFile="&quot;G:\System Independent Files\Manager\Far\Plugins\NEWARC\plugins\7z.module&quot; "
 				LinkIncremental="1"
-				IgnoreAllDefaultLibraries="TRUE"
+				IgnoreAllDefaultLibraries="FALSE"
 				ModuleDefinitionFile="7z.def"
 				GenerateDebugInformation="FALSE"
 				SubSystem="2"

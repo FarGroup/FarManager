@@ -178,6 +178,8 @@ int __stdcall SevenZipArchive::pGetArchiveItem (
 			pItem->pi.FindData.nFileSizeHigh = (DWORD)(size >> 32);
 		}
 
+		pItem->pi.UserData = m_nItemsNumber; 
+
 		nResult = E_SUCCESS;
 	}
 
@@ -195,6 +197,7 @@ bool __stdcall SevenZipArchive::pTest (
 	return true;
 }
 
+/*
 int GetIndex (IInArchive *pArchive, const char *lpFileName)
 {
 	unsigned int dwIndex = 0;
@@ -230,6 +233,7 @@ int GetIndex (IInArchive *pArchive, const char *lpFileName)
 
 	return -1;
 }
+*/
 
 int __cdecl compare(const void *p1, const void *p2)
 {
@@ -260,7 +264,7 @@ bool __stdcall SevenZipArchive::pExtract (
 
 	for (int i = 0; i < nItemsNumber; i++)
 	{
-		indices[i] = GetIndex (m_pArchive, pItems[i].FindData.cFileName);
+		indices[i] = pItems[i].UserData; //GetIndex (m_pArchive, pItems[i].FindData.cFileName);
 
 		items[i].nIndex = indices[i];
 		items[i].pItem = &pItems[i];
