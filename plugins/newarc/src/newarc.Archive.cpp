@@ -330,6 +330,8 @@ int __stdcall Archive::ArchiveCallback (
 			div = (double)m_nTotalSize/(double)m_pCurrentItem->FindData.nFileSizeLow;
 		else
 			div = 1;
+		if (div > 1)
+			div = 1;
 		dword dwPercent = (int)(div*44);
 
 		if ( !OptionIsOn (m_nMode, OPM_SILENT) )
@@ -339,6 +341,8 @@ int __stdcall Archive::ArchiveCallback (
         	div = (double)m_nTotalSize2/(double)m_nFullSize;
         else
         	div = 1;
+		if (div > 1)
+			div = 1;
 		dwPercent = (int)(div*44);
 
 		if ( !OptionIsOn (m_nMode, OPM_SILENT) )
