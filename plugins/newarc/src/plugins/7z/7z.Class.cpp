@@ -80,6 +80,8 @@ bool __stdcall SevenZipArchive::pOpenArchive (
 
 			m_pArchive->Release ();
 		}
+
+		m_pInFile->Release ();
 	}
 
 	return false;
