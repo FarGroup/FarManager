@@ -111,7 +111,7 @@ void FreePanelItems(PluginPanelItem *Items, DWORD Total);
 #if defined(__BORLANDC__)
 char* __cdecl strchr(char * string,int ch);
 char* __cdecl strrchr(char * string,int ch);
-#else
+#elif !defined(_MSC_VER)
 char* __cdecl strchr(const char * string,int ch);
 char* __cdecl strrchr(const char * string,int ch);
 #endif

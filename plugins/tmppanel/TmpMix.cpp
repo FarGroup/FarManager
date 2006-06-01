@@ -48,7 +48,7 @@ void FreePanelItems(PluginPanelItem *Items, DWORD Total)
     free (Items);
   }
 }
-
+#if !defined(_MSC_VER)
 #if defined(__BORLANDC__)
 char * __cdecl strchr (char * string,int ch)
 #else
@@ -61,7 +61,9 @@ char * __cdecl strchr (const char * string,int ch)
     return((char *)string);
   return(NULL);
 }
+#endif
 
+#if !defined(_MSC_VER)
 #if defined(__BORLANDC__)
 char * __cdecl strrchr(char * string,int ch)
 #else
@@ -75,6 +77,7 @@ char * __cdecl strrchr(const char * string,int ch)
     return( (char *)string );
   return(NULL);
 }
+#endif
 
 char *ParseParam(char *& str)
 {

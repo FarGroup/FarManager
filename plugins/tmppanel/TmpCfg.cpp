@@ -40,20 +40,20 @@ struct COptionsList
 {
   void *Option;
   char *pStr;
-  unsigned char DialogItem;
+  unsigned int DialogItem;
 };
 
 static const struct COptionsList OptionsList[]={
   {&Opt.AddToDisksMenu    , ""         ,  1},
   {&Opt.AddToPluginsMenu  , ""         ,  4},
 
-  {&Opt.CommonPanel       , ""         ,  6},
-  {&Opt.SafeModePanel     , NULL       ,  7},
-  {&Opt.AnyInPanel        , NULL       ,  8},
-  {&Opt.CopyContents      , NULL       ,  9},
-  {&Opt.Mode              , ""         , 10},
-  {&Opt.MenuForFilelist   , NULL       , 11},
-  {&Opt.NewPanelForSearchResults, NULL , 12},
+  {&Opt.CommonPanel       , ""         ,  5},
+  {&Opt.SafeModePanel     , NULL       ,  6},
+  {&Opt.AnyInPanel        , NULL       ,  7},
+  {&Opt.CopyContents      , NULL       ,  8},
+  {&Opt.Mode              , ""         ,  9},
+  {&Opt.MenuForFilelist   , NULL       , 10},
+  {&Opt.NewPanelForSearchResults, NULL , 11},
 
   {&Opt.FullScreenPanel   , NULL       , 22},
 
@@ -93,6 +93,9 @@ void GetOptions(void)
     }
     RegCloseKey(hKey);
   }
+
+  OutputDebugString("AnyInPanel is");
+  OutputDebugString(Opt.AnyInPanel?"true":"false");
 }
 
 const int DIALOG_WIDTH = 78;

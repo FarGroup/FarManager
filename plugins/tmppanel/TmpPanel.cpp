@@ -9,15 +9,21 @@ Temporary panel main plugin code
 #define STRICT
 #define __STD_STRING
 #define mb MessageBox(0,"","",0)
-#pragma pack(2)
+//#pragma pack(push,4)
 #include <windows.h>
-#pragma pack()
+//#pragma pack()
 #include <shellapi.h>
 #include "tmplng.hpp"
 #define _FAR_USE_FARFINDDATA
+#pragma pack(push,2)
 #include "plugin.hpp"
+#pragma pack(pop)
 #include "tmppanel.hpp"
+#ifndef _MSC_VER
 #include "crt.hpp"
+#else
+#include <stdlib.h>
+#endif
 
 char TMPPanelDir[NM*5];
 
@@ -81,7 +87,7 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
 {
   ::Info=*Info;
   IsOldFAR=TRUE;
-  if(Info->StructSize>=sizeof(struct PluginStartupInfo))
+  if((size_t)Info->StructSize>=sizeof(struct PluginStartupInfo))
   {
     ::FSF=*Info->FSF;
     ::Info.FSF=&::FSF;
@@ -104,6 +110,8 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom,int Item)
   if(IsOldFAR) return(INVALID_HANDLE_VALUE);
 
   HANDLE hPlugin=INVALID_HANDLE_VALUE;
+
+  GetOptions();
 
   StartupOpenFrom=OpenFrom;
   if(OpenFrom==OPEN_COMMANDLINE)

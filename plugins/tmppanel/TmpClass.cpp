@@ -160,7 +160,7 @@ int TmpPanel::PutOneFile (PluginPanelItem &PanelItem)
   CurPanelItem->Description=NULL;
 
   char *CurName=PanelItem.FindData.cFileName;
-  if(CheckForCorrect(CurName,&CurPanelItem->FindData,FALSE))
+  if(CheckForCorrect(CurName,&CurPanelItem->FindData,Opt.AnyInPanel))
   {
     int NameOnly=(FSF.PointToName(CurName)==CurName);
     if(NameOnly)
@@ -716,6 +716,11 @@ int TmpPanel::CheckForCorrect(const char *Dir,FAR_FIND_DATA *FindData,int Any)
 
   char *p=TempDir;
   ParseParam(p);
+  OutputDebugString("CheckForCorrect. Any ==");
+  OutputDebugString(Any?"true":"false");
+  OutputDebugString(Dir);
+  OutputDebugString(TempDir);
+  OutputDebugString(p);
   lstrcpy(SavedDir, p);
   if(lstrlen(p) && lstrcmp(p,"\\")!=0 && lstrcmp(p,"..")!=0)
   {
@@ -750,6 +755,7 @@ int TmpPanel::CheckForCorrect(const char *Dir,FAR_FIND_DATA *FindData,int Any)
       return(TRUE);
     }
   }
+  OutputDebugString("Returns false");
   return(FALSE);
 }
 
