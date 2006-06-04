@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.152 25.05.2006 $ */
+/* Revision: 1.153 29.05.2006 $ */
 
 /*
 Modify:
+  29.05.2006 SVS
+    - В плагиновых панелях в заголовке обрезается 2 символа
   25.05.2006 SVS
     + EJECT_NOTIFY_AFTERREMOVE
   24.05.2006 SVS
@@ -2083,7 +2085,7 @@ void Panel::GetTitle(char *lTitle,int LenTitle,int TruncSize)
     GetOpenPluginInfo(&PInfo);
     RemoveExternalSpaces(xstrncpy(TitleDir,NullToEmpty(PInfo.PanelTitle),sizeof (TitleDir)-1));
     //RemoveExternalSpaces(TitleDir);
-    TruncStr(TitleDir,LenTitle);
+    TruncStr(TitleDir,LenTitle-TruncSize);
   }
   else
   {

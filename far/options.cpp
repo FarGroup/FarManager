@@ -5,10 +5,12 @@ options.cpp
 
 */
 
-/* Revision: 1.25 25.05.2006 $ */
+/* Revision: 1.26 29.05.2006 $ */
 
 /*
 Modify:
+  29.05.2006 SVS
+    ! Меню про хотплюг задисаблим, если CheckInitSetupAPI() вернул "неа".
   25.05.2006 SVS
     + новый пункт в командах "HotPlug list"
   02.03.2006 SVS
@@ -145,27 +147,27 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 
   struct MenuData CmdMenu[]=
   {
-    (char *)MMenuFindFile,LIF_SELECTED,KEY_ALTF7,
-    (char *)MMenuHistory,0,KEY_ALTF8,
-    (char *)MMenuVideoMode,0,KEY_ALTF9,
-    (char *)MMenuFindFolder,0,KEY_ALTF10,
-    (char *)MMenuViewHistory,0,KEY_ALTF11,
-    (char *)MMenuFoldersHistory,0,KEY_ALTF12,
-    "",LIF_SEPARATOR,0,
-    (char *)MMenuSwapPanels,0,KEY_CTRLU,
-    (char *)MMenuTogglePanels,0,KEY_CTRLO,
-    (char *)MMenuCompareFolders,0,0,
-    "",LIF_SEPARATOR,0,
-    (char *)MMenuUserMenu,0,0,
-    (char *)MMenuFileAssociations,0,0,
-    (char *)MMenuFolderShortcuts,0,0,
-    (char *)MMenuEditSortGroups,0,0,
-    (char *)MMenuFilter,0,KEY_CTRLI,
-    "",LIF_SEPARATOR,0,
-    (char *)MMenuPluginCommands,0,KEY_F11,
-    (char *)MMenuWindowsList,0,KEY_F12,
-    (char *)MMenuProcessList,0,KEY_CTRLW,
-    (char *)MMenuHotPlugList,0,0,
+  /* 00 */(char *)MMenuFindFile,LIF_SELECTED,KEY_ALTF7,
+  /* 01 */(char *)MMenuHistory,0,KEY_ALTF8,
+  /* 02 */(char *)MMenuVideoMode,0,KEY_ALTF9,
+  /* 03 */(char *)MMenuFindFolder,0,KEY_ALTF10,
+  /* 04 */(char *)MMenuViewHistory,0,KEY_ALTF11,
+  /* 05 */(char *)MMenuFoldersHistory,0,KEY_ALTF12,
+  /* 06 */"",LIF_SEPARATOR,0,
+  /* 07 */(char *)MMenuSwapPanels,0,KEY_CTRLU,
+  /* 08 */(char *)MMenuTogglePanels,0,KEY_CTRLO,
+  /* 09 */(char *)MMenuCompareFolders,0,0,
+  /* 10 */"",LIF_SEPARATOR,0,
+  /* 11 */(char *)MMenuUserMenu,0,0,
+  /* 12 */(char *)MMenuFileAssociations,0,0,
+  /* 13 */(char *)MMenuFolderShortcuts,0,0,
+  /* 14 */(char *)MMenuEditSortGroups,0,0,
+  /* 15 */(char *)MMenuFilter,0,KEY_CTRLI,
+  /* 16 */"",LIF_SEPARATOR,0,
+  /* 17 */(char *)MMenuPluginCommands,0,KEY_F11,
+  /* 18 */(char *)MMenuWindowsList,0,KEY_F12,
+  /* 19 */(char *)MMenuProcessList,0,KEY_CTRLW,
+  /* 20 */(char *)MMenuHotPlugList,0,0,
   };
 
 
@@ -231,6 +233,8 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
   int HItem,VItem;
 
   // дисаблим
+  CmdMenu[20].SetDisable(!CheckInitSetupAPI());
+
   if (Opt.Policies.DisabledOptions)
     for(I=0; I < sizeof(OptionsMenu)/sizeof(OptionsMenu[0]); ++I)
     {

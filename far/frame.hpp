@@ -8,10 +8,12 @@ frame.hpp
 
 */
 
-/* Revision: 1.22 25.07.2005 $ */
+/* Revision: 1.23 29.05.2006 $ */
 
 /*
 Modify:
+  29.05.2006 SVS
+    + GetTitle()
   24.07.2005 WARP
     ! see 02033.LockUnlock.txt
   30.06.2004 SVS
@@ -143,6 +145,7 @@ class Frame: public virtual ScreenObject
     void ResizeConsole();
     bool HasSaveScreen();
 //    bool ifFullConsole();
+    virtual void GetTitle(char *Title,int LenTitle,int TruncSize=0){};
 
 };
 

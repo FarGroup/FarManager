@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.164 03.05.2006 $ */
+/* Revision: 1.165 29.05.2006 $ */
 
 /*
 Modify:
+  29.05.2006 SVS
+    ! немного уточнения в работате Title
   03.05.2006 SVS
     - пусть в панелях "Title" вернет именно то, что написано в заголовке панели
   28.04.2006 SVS
@@ -1167,7 +1169,8 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
           break;
 
         case MCODE_V_FAR_TITLE:
-          Cond=LastFarTitle;
+          GetConsoleTitle(FileName,sizeof(FileName));
+          Cond=FileName;
           break;
 
         case MCODE_C_DISABLEOUTPUT: // DisableOutput?
@@ -1525,11 +1528,19 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
             if(CtrlObject->Cp() == f)
             {
               ActivePanel->GetTitle(FileName,sizeof(FileName)-1);
-              RemoveExternalSpaces(FileName);
             }
             else
-              f->GetTypeAndName(NULL,FileName);
+            {
+              switch(f->GetTypeAndName(NULL,FileName))
+              {
+                case MODALTYPE_EDITOR:
+                case MODALTYPE_VIEWER:
+                  f->GetTitle(FileName,sizeof(FileName)-1,0);
+                  break;
+              }
+            }
           }
+          RemoveExternalSpaces(FileName);
           Cond=FileName;
           break;
         }

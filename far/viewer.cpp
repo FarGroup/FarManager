@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.185 03.05.2006 $ */
+/* Revision: 1.186 29.05.2006 $ */
 
 /*
 Modify:
+  29.05.2006 SVS
+    + GetTitle()
   03.05.2006 SVS
     - Падение FAR при изменении размера размера табуляции в процессе просмотра файла.
   28.10.2005 SVS
@@ -1425,6 +1427,24 @@ void Viewer::DrawScrollbar()
 /* DJ $ */
 
 
+void Viewer::GetTitle(char *lTitle,int LenTitle,int TruncSize)
+{
+  if(*Title)
+    strcpy(lTitle,Title);
+  else
+  {
+    if (!(FileName[1]==':' && FileName[2]=='\\'))
+    {
+      ViewNamesList.GetCurDir(lTitle,LenTitle);
+      if(*lTitle)
+        AddEndSlash(lTitle);
+      strcat(lTitle,FileName);
+    }
+    else
+      strcpy(lTitle,FileName);
+  }
+}
+
 void Viewer::ShowStatus()
 {
   char Status[4096],Name[4096];
@@ -1434,23 +1454,7 @@ void Viewer::ShowStatus()
     Показывать полное имя файла во вьюере
     Was: strcpy(Name,*Title ? Title:FileName);
   */
-  if(*Title)
-    strcpy(Name,Title);
-  else
-  {
-    /* $ 30.06.2000 tran
-       - double path when show file from temp panel */
-    if (!(FileName[1]==':' && FileName[2]=='\\'))
-    {
-      ViewNamesList.GetCurDir(Name,sizeof(Name)-1);
-      if(*Name)
-        AddEndSlash(Name);
-      strcat(Name,FileName);
-    }
-    else
-      strcpy(Name,FileName);
-    /* tran $ */
-  }
+  GetTitle(Name,sizeof(Name)-1,0);
   /* IS $  */
   int NameLength=ScrX-43; //???41
   if (Opt.ViewerEditorClock && HostFileViewer!=NULL && HostFileViewer->IsFullScreen())

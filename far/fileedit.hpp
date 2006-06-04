@@ -7,10 +7,12 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.43 05.07.2005 $ */
+/* Revision: 1.44 29.05.2006 $ */
 
 /*
 Modify:
+  29.05.2006 SVS
+    + GetTitle()
   05.07.2005 SVS
     + GetEditorOptions()/SetEditorOptions()
   14.06.2005 SVS
@@ -296,6 +298,7 @@ class FileEditor:public Frame
     int EditorControl(int Command,void *Param);
     void SetPluginTitle(const char *PluginTitle);
     void SetTitle(const char *Title);
+    virtual void GetTitle(char *Title,int LenTitle,int TruncSize=0);
     BOOL SetFileName(const char *NewFileName);
     int ProcessEditorInput(INPUT_RECORD *Rec);
     void SetLockEditor(BOOL LockMode);

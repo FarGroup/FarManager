@@ -5,10 +5,12 @@ fileattr.cpp
 
 */
 
-/* Revision: 1.13 05.10.2005 $ */
+/* Revision: 1.14 04.06.2006 $ */
 
 /*
 Modify:
+  04.06.2006 SVS
+    ! ESetFileEncryption - доп.параметр ("исполнить тихо")
   05.10.2005 SVS
     ! сохраним значение GetLastError() в _localLastError
   03.05.2005 AY
@@ -195,7 +197,7 @@ static int SetFileEncryption(const char *Name,int State)
   необходимо в качестве параметра FileAttr передать значение 0
 */
 // Возвращает 0 - ошибка, 1 - Ок, 2 - Skip
-int ESetFileEncryption(const char *Name,int State,int FileAttr)
+int ESetFileEncryption(const char *Name,int State,int FileAttr,int Silent)
 {
   if (((FileAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0) == State)
     return 1;
@@ -217,6 +219,12 @@ int ESetFileEncryption(const char *Name,int State,int FileAttr)
 
   while (!SetFileEncryption(Name,State))
   {
+    if(Silent)
+    {
+      Ret=0;
+      break;
+    }
+
     if ((_localLastError=GetLastError())==ERROR_INVALID_FUNCTION)
       break;
     int Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
@@ -240,7 +248,6 @@ int ESetFileEncryption(const char *Name,int State,int FileAttr)
 
   return(Ret);
 }
-
 
 // Возвращает 0 - ошибка, 1 - Ок, 2 - Skip
 int ESetFileTime(const char *Name,FILETIME *LastWriteTime,FILETIME *CreationTime,

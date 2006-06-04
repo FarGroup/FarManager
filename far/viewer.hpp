@@ -7,10 +7,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.30 04.02.2005 $ */
+/* Revision: 1.31 29.05.2006 $ */
 
 /*
 Modify:
+  29.05.2006 SVS
+    + GetTitle()
   04.02.2005 WARP
     ! ָ ושו נאח גü‏גונ (סל. 01924.viewer.show2.txt)
   03.02.2005 WARP
@@ -307,6 +309,7 @@ class Viewer:public ScreenObject
     void SetTempViewName(const char *Name, BOOL DeleteFolder);
     /* IS $ */
     void SetTitle(const char *Title);
+    void GetTitle(char *Title,int LenTitle,int TruncSize=0);
     __int64 GetFilePos();
     /* $ 18.07.2000 tran - change 'long' to 'unsigned long' */
     void SetFilePos(__int64 Pos);

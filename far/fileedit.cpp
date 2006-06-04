@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.176 09.05.2006 $ */
+/* Revision: 1.177 29.05.2006 $ */
 
 /*
 Modify:
+  29.05.2006 SVS
+    + GetTitle()
   08.05.2006 AY
     ! ¬ызываем EE_READ тока в одном месте и в нужный момент. (mantis#147)
   13.04.2006 SVS
@@ -2068,18 +2070,23 @@ void FileEditor::ChangeEditKeyBar()
   EditKeyBar.Redraw();
 }
 
+void FileEditor::GetTitle(char *lTitle,int LenTitle,int TruncSize)
+{
+  xstrncpy(lTitle,*PluginTitle ? PluginTitle:(*Title? Title:FullFileName),LenTitle);
+}
+
 void FileEditor::ShowStatus()
 {
   if (FEdit->Locked())
     return;
   SetColor(COL_EDITORSTATUS);
   GotoXY(X1,Y1); //??
-  char TruncFileName[NM],StatusStr[NM],LineStr[50];
+  char TruncFileName[2048],StatusStr[NM],LineStr[50];
   /* $ 08.06.2001 IS
      - Ѕаг: затиралс€ стек, потому что, например, размер Title больше,
        чем размер TruncFileName
   */
-  xstrncpy(TruncFileName,*PluginTitle ? PluginTitle:(*Title? Title:FullFileName),sizeof(TruncFileName)-1);
+  GetTitle(TruncFileName,sizeof(TruncFileName)-1);
   /* IS $ */
   int NameLength=Opt.ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN) ? 19:25;
   /* $ 11.07.2000 tran

@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.242 25.05.2006 $ */
+/* Revision: 1.243 29.05.2006 $ */
 
 /*
 Modify:
+  29.05.2006 SVS
+    + CheckInitSetupAPI()
   25.05.2006 SVS
     + InitializeSetupAPI (), FinalizeSetupAPI ();
   24.05.2006 SVS
@@ -1545,6 +1547,7 @@ BOOL IsDriveUsb(char DriveName,void *pDevInst);
 int  ProcessRemoveHotplugDevice (char Drive, DWORD Flags);
 
 bool InitializeSetupAPI ();
+bool CheckInitSetupAPI ();
 void FinalizeSetupAPI ();
 void ShowHotplugDevice ();
 
@@ -1555,7 +1558,8 @@ void ShowHotplugDevice ();
 int GetEncryptFunctions(void);
 int ESetFileAttributes(const char *Name,int Attr);
 int ESetFileCompression(const char *Name,int State,int FileAttr);
-int ESetFileEncryption(const char *Name,int State,int FileAttr);
+int ESetFileEncryption(const char *Name,int State,int FileAttr,int Silent=0);
+#define ESetFileEncryptionSilent(Name,State,FileAttr) ESetFileEncryption(Name,State,FileAttr,1)
 int ESetFileTime(const char *Name,FILETIME *LastWriteTime,
                   FILETIME *CreationTime,FILETIME *LastAccessTime,
                   int FileAttr);

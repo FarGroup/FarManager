@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.74 17.03.2006 $ */
+/* Revision: 1.75 29.05.2006 $ */
 
 /*
 Modify:
+  29.05.2006 SVS
+    + GetTitle()
   17.03.2006 SVS
     - Если файл не удалось открыть (например C:\WINNT\system32\config\system),
       то область макроса оставалась той же (т.е. Вьювер).
@@ -646,4 +648,9 @@ int FileViewer::ViewerControl(int Command,void *Param)
   _VCTLLOG(CleverSysLog SL("FileViewer::ViewerControl()"));
   _VCTLLOG(SysLog("(Command=%s, Param=[%d/0x%08X])",_VCTL_ToName(Command),(int)Param,Param));
   return View.ViewerControl(Command,Param);
+}
+
+void FileViewer::GetTitle(char *Title,int LenTitle,int TruncSize)
+{
+  View.GetTitle(Title,LenTitle,TruncSize);
 }

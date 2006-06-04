@@ -7,10 +7,12 @@ fileview.hpp
 
 */
 
-/* Revision: 1.20 25.06.2002 $ */
+/* Revision: 1.21 29.05.2006 $ */
 
 /*
 Modify:
+  29.05.2006 SVS
+    + GetTitle()
   25.06.2002 SVS
     + IsFullScreen()
   14.06.2002 IS
@@ -137,6 +139,7 @@ class FileViewer:public Frame
     /* KM $ */
     int  ViewerControl(int Command,void *Param);
     BOOL IsFullScreen(){return FullScreen;}
+    void GetTitle(char *Title,int LenTitle,int TruncSize=0);
 };
 
 #endif  // __FILEVIEWER_HPP__

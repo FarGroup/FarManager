@@ -5,7 +5,7 @@ hotplug.cpp
 
 */
 
-/* Revision: 1.01 25.05.2006 $ */
+/* Revision: 1.02 26.05.2006 $ */
 
 #pragma once
 
@@ -295,16 +295,19 @@ void ShowHotplugDevice ()
 
       case KEY_DEL:
       {
-        BlockExtKey blockExtKey;
-
-        I=(int)HotPlugList.GetUserData(NULL,0);
-        if(RemoveHotplugDevice(pInfo[I].hDevInst,pInfo[I].dwDriveMask,EJECT_NOTIFY_AFTERREMOVE) == 1)
+        if(HotPlugList.GetItemCount() > 0)
         {
-          HotPlugList.Hide();
-          if(pInfo)
-            FreeHotplugDevicesInfo (pInfo);
-          ShowHotplugDevice();
-          return;
+          BlockExtKey blockExtKey;
+
+          I=(int)HotPlugList.GetUserData(NULL,0);
+          if(RemoveHotplugDevice(pInfo[I].hDevInst,pInfo[I].dwDriveMask,EJECT_NOTIFY_AFTERREMOVE) == 1)
+          {
+            HotPlugList.Hide();
+            if(pInfo)
+              FreeHotplugDevicesInfo (pInfo);
+            ShowHotplugDevice();
+            return;
+          }
         }
         break;
       }
@@ -349,6 +352,12 @@ int ProcessRemoveHotplugDevice (char Drive, DWORD Flags)
 
   return bResult;
 }
+
+bool CheckInitSetupAPI ()
+{
+  return g_hSetupAPI != NULL;
+}
+
 
 bool InitializeSetupAPI ()
 {
@@ -868,9 +877,19 @@ int RemoveHotplugDevice(DEVINST hDevInst,DWORD dwDriveMask,DWORD Flags)
       sprintf(szDiskMsg,MSG(MHotPlugDisks),Disks);
 
     if(stricmp(szDescription,szFriendlyName) && *szFriendlyName)
-      DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),szDescription,InsertQuote(szFriendlyName),(*szDiskMsg?szDiskMsg:NULL),MSG(MHRemove),MSG(MHCancel));
+    {
+      if(*szDiskMsg)
+        DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),szDescription,InsertQuote(szFriendlyName),szDiskMsg,MSG(MHRemove),MSG(MHCancel));
+      else
+        DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),szDescription,InsertQuote(szFriendlyName),MSG(MHRemove),MSG(MHCancel));
+    }
     else
-      DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),szFriendlyName,(*szDiskMsg?szDiskMsg:NULL),MSG(MHRemove),MSG(MHCancel));
+    {
+      if(*szDiskMsg)
+        DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),szFriendlyName,szDiskMsg,MSG(MHRemove),MSG(MHCancel));
+      else
+        DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),szFriendlyName,MSG(MHRemove),MSG(MHCancel));
+    }
   }
 
   if(!DoneEject)
