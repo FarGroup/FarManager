@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.203 24.05.2006 $ */
+/* Revision: 1.204 06.06.2006 $ */
 
 /*
 Modify:
+  06.06.2006 WARP
+    + Настройка "Del removes blocks" для диалогов не вынесена в пользовательский интерфейс.
   24.05.2006 SVS
     + Opt.Confirm.RemoveHotPlug
   20.04.2006 SVS
@@ -990,30 +992,33 @@ void InterfaceSettings()
 }
 /* IS 17.12.2001 $ */
 
-#define DLG_DIALOGS_DIALOGSEDITHISTORY  1
-#define DLG_DIALOGS_DIALOGSEDITBLOCK    2
-#define DLG_DIALOGS_AUTOCOMPLETE        3
-#define DLG_DIALOGS_EULBSCLEAR          4
-#define DLG_DIALOGS_MOUSEBUTTON         5
-#define DLG_DIALOGS_OK                  7
-
 void DialogSettings()
 {
+  #define DLG_DIALOGS_DIALOGSEDITHISTORY    1
+  #define DLG_DIALOGS_DIALOGSEDITBLOCK      2
+  #define DLG_DIALOGS_DIALOGDELREMOVESBLOCKS    3
+  #define DLG_DIALOGS_AUTOCOMPLETE          4
+  #define DLG_DIALOGS_EULBSCLEAR            5
+  #define DLG_DIALOGS_MOUSEBUTTON           6
+  #define DLG_DIALOGS_OK                    8
+
   static struct DialogData CfgDlgData[]={
-  /* 00 */DI_DOUBLEBOX,3,1,54,9,0,0,0,0,(char *)MConfigDlgSetsTitle,
+  /* 00 */DI_DOUBLEBOX,3,1,54,10,0,0,0,0,(char *)MConfigDlgSetsTitle,
   /* 01 */DI_CHECKBOX,5,2,0,0,0,0,0,0,(char *)MConfigDialogsEditHistory,
   /* 02 */DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MConfigDialogsEditBlock,
-  /* 03 */DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MConfigDialogsAutoComplete,
-  /* 04 */DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MConfigDialogsEULBsClear,
-  /* 04 */DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MConfigDialogsMouseButton,
-  /* 05 */DI_TEXT,3,7,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 06 */DI_BUTTON,0,8,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-  /* 07 */DI_BUTTON,0,8,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  /* 03 */DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MConfigDialogsDelRemovesBlocks,
+  /* 04 */DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MConfigDialogsAutoComplete,
+  /* 05 */DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MConfigDialogsEULBsClear,
+  /* 06 */DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MConfigDialogsMouseButton,
+  /* 07 */DI_TEXT,3,8,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 08 */DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 09 */DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
   MakeDialogItems(CfgDlgData,CfgDlg);
 
   CfgDlg[DLG_DIALOGS_DIALOGSEDITHISTORY].Selected=Opt.Dialogs.EditHistory;
   CfgDlg[DLG_DIALOGS_DIALOGSEDITBLOCK].Selected=Opt.Dialogs.EditBlock;
+  CfgDlg[DLG_DIALOGS_DIALOGDELREMOVESBLOCKS].Selected=Opt.Dialogs.DelRemovesBlocks;
   CfgDlg[DLG_DIALOGS_AUTOCOMPLETE].Selected=Opt.Dialogs.AutoComplete;
   CfgDlg[DLG_DIALOGS_EULBSCLEAR].Selected=Opt.Dialogs.EULBsClear;
   CfgDlg[DLG_DIALOGS_MOUSEBUTTON].Selected=Opt.Dialogs.MouseButton;
@@ -1021,7 +1026,7 @@ void DialogSettings()
   {
     Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
     Dlg.SetHelp("DialogSettings");
-    Dlg.SetPosition(-1,-1,58,11);
+    Dlg.SetPosition(-1,-1,58,12);
     Dlg.Process();
     if (Dlg.GetExitCode() != DLG_DIALOGS_OK)
       return;
@@ -1029,6 +1034,7 @@ void DialogSettings()
 
   Opt.Dialogs.EditHistory=CfgDlg[DLG_DIALOGS_DIALOGSEDITHISTORY].Selected;
   Opt.Dialogs.EditBlock=CfgDlg[DLG_DIALOGS_DIALOGSEDITBLOCK].Selected;
+  Opt.Dialogs.DelRemovesBlocks=CfgDlg[DLG_DIALOGS_DIALOGDELREMOVESBLOCKS].Selected;
   Opt.Dialogs.AutoComplete=CfgDlg[DLG_DIALOGS_AUTOCOMPLETE].Selected;
   Opt.Dialogs.EULBsClear=CfgDlg[DLG_DIALOGS_EULBSCLEAR].Selected;
   if((Opt.Dialogs.MouseButton=CfgDlg[DLG_DIALOGS_MOUSEBUTTON].Selected) != 0)

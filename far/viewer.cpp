@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.186 29.05.2006 $ */
+/* Revision: 1.187 06.06.2006 $ */
 
 /*
 Modify:
+  06.06.2006 WARP
+    - Неверное выделение найденного во вьюере.
   29.05.2006 SVS
     + GetTitle()
   03.05.2006 SVS
@@ -1596,7 +1598,7 @@ void Viewer::ReadString (ViewerString *pString, int MaxSize, int StrSize)
 
       if (SelectSize > 0 && SelectPos==vtell(ViewFile))
       {
-         pString->nSelStart = OutPtr;
+         pString->nSelStart = OutPtr+(CRSkipped?1:0);
          bSelStartFound = true;
       }
 
