@@ -5,10 +5,12 @@ local.cpp
 
 */
 
-/* Revision: 1.22 06.08.2004 $ */
+/* Revision: 1.23 19.06.2006 $ */
 
 /*
 Modify:
+  19.06.2006 WARP
+    - Ќеверна€ сортировка строк, различающихс€ только длиной при выборе режима "числова€ сортировка".
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   07.07.2004 SVS
@@ -479,7 +481,7 @@ int __cdecl LCNumStricmp(const char *s1,const char *s2)
   }
   int Ret=LCOrder[*s1] - LCOrder[*s2];
   if(!Ret)
-    return strlen(ts2)-strlen(ts1);
+    return strlen(ts1)-strlen(ts2);
   return (Ret < 0) ? -1 : 1;
 }
 

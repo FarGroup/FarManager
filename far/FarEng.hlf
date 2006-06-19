@@ -2055,6 +2055,9 @@ $ #Settings dialog: settings#
   #in edit controls#        the cursor in dialog edit controls and
                           command line.
 
+  #Del removes blocks#      Клавиша Del удаляет выделенный блок
+  #in edit controls#        в строках ввода.
+
   #AutoComplete#            Allows to use the AutoComplete function
   #in edit controls#        in edit controls that have a history list
                           or in combo boxes. When the option is
