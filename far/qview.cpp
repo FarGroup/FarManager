@@ -5,10 +5,12 @@ Quick view panel
 
 */
 
-/* Revision: 1.40 09.05.2006 $ */
+/* Revision: 1.41 22.06.2006 $ */
 
 /*
 Modify:
+  22.06.2006 thims
+    - Исправление бага QuickView (MantisID: 0000197)
   09.05.2006 SVS
     + GetTitle + доп параметр, на сколько усеч
   03.05.2006 SVS
@@ -366,13 +368,15 @@ int QuickView::ProcessKey(int Key)
     }
     if (Key == KEY_F7 || Key == KEY_SHIFTF7)
     {
+      /*
       __int64 Pos;
       int Length;
       DWORD Flags;
       QView->GetSelectedParam(Pos,Length,Flags);
+      */
       Redraw();
       CtrlObject->Cp()->GetAnotherPanel(this)->Redraw();
-      QView->SelectText(Pos,Length,Flags|1);
+      //QView->SelectText(Pos,Length,Flags|1);
     }
     return ret;
   }

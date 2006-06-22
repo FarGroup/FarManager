@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.187 06.06.2006 $ */
+/* Revision: 1.188 22.06.2006 $ */
 
 /*
 Modify:
+  22.06.2006 thims
+    - Исправление бага QuickView (MantisID: 0000197)
   06.06.2006 WARP
     - Неверное выделение найденного во вьюере.
   29.05.2006 SVS
@@ -3202,7 +3204,6 @@ void Viewer::Search(int Next,int FirstChar)
   }
   else
   {
-    Show();
     /* $ 27.01.2003 VVM
        + После окончания поиска спросим о переходе поиска в начало/конец */
     if (SearchFlags.Check(SEARCH_MODE2))
