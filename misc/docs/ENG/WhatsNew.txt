@@ -24,6 +24,16 @@ FAR 1.71 alpha 2 (build 2107) (20.06.2006)
 [-] Incorrect sorting of strings differing only in length when "numeric sort"
     is on.
 
+TempPanel - build 29
+~~~~~~~~~~~~~~~~~~~~
+
+[-] The "any elements in panel" mode did not work correctly.
+
+MultiArc's ARJ.FMT 1.20
+~~~~~~~~~~~~~~~~~~~~~~~
+
+[-] Incorrect handling of rare ARJ archives.
+
 ---------------------------------------------------------------------------
 FAR 1.71 alpha 1 (build 2104) (25.05.2006)
 ---------------------------------------------------------------------------
