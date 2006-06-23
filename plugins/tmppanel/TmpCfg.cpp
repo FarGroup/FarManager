@@ -93,9 +93,6 @@ void GetOptions(void)
     }
     RegCloseKey(hKey);
   }
-
-  OutputDebugString("AnyInPanel is");
-  OutputDebugString(Opt.AnyInPanel?"true":"false");
 }
 
 const int DIALOG_WIDTH = 78;
