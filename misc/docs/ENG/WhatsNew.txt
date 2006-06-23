@@ -12,17 +12,17 @@
 FAR 1.71 alpha 2 (build 2107) (20.06.2006)
 ---------------------------------------------------------------------------
 
-[!] Теперь Far.Title возвращает полный заголовок консоли.
+[!] Far.Title now returns the full console title.
 
-[+] В настройки диалогов добавлена опция "Del удаляет блоки в строках ввода".
+[+] Added "Del removes blocks in edit controls" to dialog settings.
 
-[*] Title в редакторе и программе просмотра возвращает ту информацию о
-    заголовке, что написана в статусной строке.
+[*] Macro command Title in the viewer and editor returns the title that is
+    specified in the status bar.
 
-[-] Неверное выделение найденного в программе просмотра.
+[-] Wrong selection of found text in the viewer.
 
-[-] Неверная сортировка строк, различающихся только длиной при выборе режима
-    "числовая сортировка".
+[-] Incorrect sorting of strings differing only in length when "numeric sort"
+    is on.
 
 ---------------------------------------------------------------------------
 FAR 1.71 alpha 1 (build 2104) (25.05.2006)
@@ -56,11 +56,11 @@ FAR 1.71 alpha 1 (build 2104) (25.05.2006)
 
 [+] TechInfo#72 - allows to save plugin paths to the folders history.
 
-[+] В меню выбора дисков комбинация клавиш Shift-Del на USB-диске позволяет
-    подготовить устройство для безопасного извлечения.
+[+] The Shift-Del hotkey in the disks menu allows to prepare a USB-disk
+    for safe removal.
 
-[+] В меню "Commands" (F9) добавлена команда "Hotplug devices list",
-    которая позволяет удалять подключаемые устройства.
+[+] Added a new command "Hotplug devices list" to the "Commands" (F9) menu
+    that allows to remove hotplug devices.
 
 [*] Some updates to the command line help (for far /?).
 
@@ -90,7 +90,7 @@ FAR 1.71 alpha 1 (build 2104) (25.05.2006)
 [-] Некорректная обработка команд командной строки содержащих символы в не OEM
     кодировке.
 
-[-] [A|P]Panel.UNCPath возвращали в конце символ '\'.
+[-] [A|P]Panel.UNCPath returned '\' at the end.
 
 [-] Функция fsplit в макросах для имени файла в корне плагиновой панели
     добавляла префикс плагина.
