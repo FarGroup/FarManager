@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.168 02.03.2006 $ */
+/* Revision: 1.169 23.06.2006 $ */
 
 /*
 Modify:
+  23.06.2006 thims
+    - Неправильный заголовок консоли при Move (Mantis#0000178)
   01.03.2006 AY
     ! Переделана работа TI#69 - теперь можно выставлять Copy или Inherit.
     - CopySecurityCopy выставлялся при Link
@@ -1291,7 +1293,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
         while(NULL!=(NamePtr=DestList.GetNext()))
         {
           CurCopiedSize=0;
-          CopyTitle->Set((ShellCopy::Flags&FCOPY_MOVE) ? MSG(MCopyMovingTitle):MSG(MCopyCopyingTitle));
+          CopyTitle->Set(Move ? MSG(MCopyMovingTitle):MSG(MCopyCopyingTitle));
 
           strncpy(NameTmp, NamePtr,SizeBuffer-1);
           _LOGCOPYR(SysLog("NamePtr='%s', Move=%d",NamePtr,WorkMove));
