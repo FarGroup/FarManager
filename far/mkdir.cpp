@@ -5,10 +5,14 @@ mkdir.cpp
 
 */
 
-/* Revision: 1.20 04.11.2004 $ */
+/* Revision: 1.21 26.06.2006 $ */
 
 /*
 Modify:
+  21.06.2006 AY
+    - ѕадали в очень определенных случа€х из за попытки добавить в
+      TreeList::AddTreeName() несуществующий путь. » заодно добавил
+      возможность Skip когда MultiMakeDir.
   04.11.2004 SVS
     ! убираем *_EDITPATH
   06.08.2004 SKV
@@ -78,10 +82,6 @@ Modify:
 */
 void ShellMakeDir(Panel *SrcPanel)
 {
-  /* $ 02.06.2001 KM
-     + ћаленька€ модификаци€: добавлены кнопки [ OK ] и [ Cancel ]
-       в диалог создани€ каталога
-  */
   char DirName[NM*2], OriginalDirName[NM*2];
   *DirName=0;
   /* $ 15.08.2002 IS запретить дубли */
@@ -121,7 +121,6 @@ void ShellMakeDir(Panel *SrcPanel)
                  MSG(MIncorrectDirList), MSG(MOk));
   }
   /* IS $ */
-  /* KM $ */
 
   *DirName=0;
   const char *OneDir;
@@ -138,15 +137,11 @@ void ShellMakeDir(Panel *SrcPanel)
 
     int Length=strlen(DirName);
 
-    /* $ 25.07.2000 IG
-       Bug 24 (не перечитывалась панель, после неудачного вложенного
-       создани€ директорий)
-    */
     while (Length>0 && DirName[Length-1]==' ')
       Length--;
     DirName[Length]=0;
 
-    char bSuccess = 0;
+    bool bSuccess = false;
     int Error=FALSE;
 
     if (Length>0 && (DirName[Length-1]=='/' || DirName[Length-1]=='\\'))
@@ -156,31 +151,53 @@ void ShellMakeDir(Panel *SrcPanel)
       if (*ChPtr=='\\' || *ChPtr=='/')
       {
         *ChPtr=0;
-        if (CreateDirectory(DirName,NULL))
+        if (*DirName && CreateDirectory(DirName,NULL))
         {
           TreeList::AddTreeName(DirName);
-          bSuccess = 1;
+          bSuccess = true;
         }
         *ChPtr='\\';
       }
 
-    while (!CreateDirectory(DirName,NULL))
+
+    BOOL bSuccess2;
+    bool bSkip=false;
+    while (!(bSuccess2=CreateDirectory(DirName,NULL)))
     {
       int LastError=GetLastError();
       if (LastError==ERROR_ALREADY_EXISTS || LastError==ERROR_BAD_PATHNAME ||
           LastError==ERROR_INVALID_NAME)
       {
-        Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotCreateFolder),OriginalDirName,MSG(MOk));
-        if (bSuccess) break;
-          else return;
+        int ret;
+        if (DirList.IsEmpty())
+          ret=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotCreateFolder),OriginalDirName,MSG(MCancel));
+        else
+          ret=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),MSG(MCannotCreateFolder),OriginalDirName,MSG(MCancel),MSG(MSkip));
+        bSkip = ret==1;
+        if (bSuccess || bSkip) break;
+        else return;
       }
       else
-        if (Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),MSG(MCannotCreateFolder),OriginalDirName,MSG(MRetry),MSG(MCancel))!=0)
-          if (bSuccess) break;
-            else return;
+      {
+        int ret;
+        if (DirList.IsEmpty())
+          ret=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),MSG(MCannotCreateFolder),OriginalDirName,MSG(MRetry),MSG(MCancel));
+        else
+        {
+          ret=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),MSG(MCannotCreateFolder),OriginalDirName,MSG(MRetry),MSG(MSkip),MSG(MCancel));
+          bSkip = ret==1;
+        }
+        if (ret!=0)
+        {
+          if (bSuccess || bSkip) break;
+          else return;
+        }
+      }
     }
-    /* IG $ */
-    TreeList::AddTreeName(DirName);
+    if (bSuccess2)
+      TreeList::AddTreeName(DirName);
+    else if (!bSkip)
+      break;
   }
 
   SrcPanel->Update(UPDATE_KEEP_SELECTION);
