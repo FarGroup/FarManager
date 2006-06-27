@@ -1,0 +1,23 @@
+EXPORTS
+   ClosePlugin=ClosePlugin@4
+;   Compare=Compare@16
+   Configure=Configure@4
+   DeleteFiles=DeleteFiles@16
+   ExitFAR=ExitFAR@0
+   FreeFindData=FreeFindData@12
+   GetFiles=GetFiles@24
+   GetFindData=GetFindData@16
+   GetOpenPluginInfo=GetOpenPluginInfo@8
+   GetPluginInfo=GetPluginInfo@4
+;   GetVirtualFindData=GetVirtualFindData@16
+;   MakeDirectory=MakeDirectory@12
+   OpenFilePlugin=OpenFilePlugin@12
+;   OpenPlugin=OpenPlugin@8
+;   ProcessEditorEvent=ProcessEditorEvent@8
+;   ProcessEvent=ProcessEvent@12
+   ProcessHostFile=ProcessHostFile@16
+   ProcessKey=ProcessKey@12
+   PutFiles=PutFiles@20
+   SetDirectory=SetDirectory@12
+;   SetFindList=SetFindList@12
+   SetStartupInfo=SetStartupInfo@4

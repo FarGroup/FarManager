@@ -1,0 +1,72 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>Column types</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+<h1>Column types</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a href="index.html">exported functions</a>
+</div>
+
+<div class=shortdescr>
+  The following column types are allowed:
+</div>
+
+<div class=descr>
+    <div class=dfn>N - file name, allowed modifiers (e.g. <b>&quot;NMR&quot;</b>):</div>
+    <div class=dfndescr>M - show selection marks;<br>
+    O - show names without paths (intended mainly for plugins);<br>
+    R - right aligned names.<br>
+    </div>
+
+    <div class=dfn>S - file size;</div>
+    <div class=dfndescr>Allowed modifiers for file sizes:<br>
+    C - format file size with commas;<br>
+    T - use 1000 instead of 1024 as divider, if column width is too small to show full size.<br>
+    F - file size if shown as a float number as in Windows Explorer (i.e. 999 bytes are shown as 999, however 1000 bytes are shown as 0.97 KB);<br>
+    E - economic mode, no space is shown between the size and the suffix<br>
+    </div>
+
+    <div class=dfn>P - packed file size.</div>
+    <div class=dfndescr>Allowed modifiers for file sizes:<br>
+    C - format file size with commas;<br>
+    T - use 1000 instead of 1024 as divider, if column width is too small to show full size.<br>
+    F - file size if shown as a float number as in Windows Explorer (i.e. 999 bytes are shown as 999, however 1000 bytes are shown as 0.97 KB);<br>
+    E - economic mode, no space is shown between the size and the suffix<br>
+    </div>
+
+    <div class=dfn>D - file modification date</div>
+    <div class=dfn>T - file modification time<br>&nbsp;</div>
+    <div class=dfn>DM - file modification date and time</div>
+    <div class=dfndescr>Allowed modifiers:<br>
+    B - brief (Unix style) file time format;<br>
+    M - use text month names;</div>
+    <div class=dfn>DC - file creation date and time</div>
+    <div class=dfndescr>Allowed modifiers:<br>
+    B - brief (Unix style) file time format;<br>
+    M - use text month names;</div>
+    <div class=dfn>DA - file last access date and time</div>
+    <div class=dfndescr>Allowed modifiers:<br>
+    B - brief (Unix style) file time format;<br>
+    M - use text month names;</div>
+    <div class=dfn>A - file attributes</div>
+    <div class=dfn>Z - file description</div>
+    <div class=dfn>O - file owner</div>
+    <div class=dfn>LN - hard links number</div>
+    <div class=dfn>C0..C9 - user defined column types.</div>
+</div>
+
+<div class=shortdescr>
+    If the column types description contains more than one file name
+column, the file panel will be displayed in multicolumn form.</div>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="../structures/panelmode.html">PanelMode</a>
+</div>
+</body>
+</html>

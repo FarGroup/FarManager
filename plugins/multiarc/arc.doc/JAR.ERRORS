@@ -1,0 +1,619 @@
+JAR errorlevels:
+----------------
+
+0 ->  success
+1 ->  warning
+2 ->  fatal error
+3 ->  CRC error
+5 ->  disk full or write error
+6 ->  cannot open archive
+7 ->  simple user error (bad parameters)
+8 ->  not enough memory
+9 ->  not a JAR archive
+10 -> internal error
+11 -> Ctrl+C pressed
+
+This JAR help information is not intended as a replacement for the JAR user
+documentation.  See the files JAR.DOC, INTRO.DOC, ERRORS.DOC, ... for detailed
+information about using JAR.
+
+
+
+    ERRORS.DOC                                                 August 1997
+
+
+    JAR ERROR MESSAGES WITH BRIEF EXPLANATION:
+
+
+    #100  Can't open file <filename> for reading
+
+        This error message usually occurs if JAR is trying to compress a
+        file which is locked by another application.
+
+
+    #101  Can't create file <filename>
+
+        JAR can't create a file with the specified name. Filename may
+        contain unsupported characters.
+
+
+    #102  Unknown, no description available
+
+        JAR detected an error situation but a description is not
+        available.  This is an internal JAR error.
+
+
+    #104  Wrong program flow detected at (<module>,<line>)
+          Possibly conflict with used software or hardware
+
+        One of the internal JAR checks failed.  This may be an internal JAR
+        error or a conflict with installed software or hardware.
+
+
+    #105  Internal at (<module>,<line>)
+          Possibly conflict with hardware
+
+        Another type of internal JAR check failed.
+
+
+    #107  EMS call failed
+          Extended error code <code>
+
+        EMS memory manager returned error code.  Check that your memory
+        manager is installed properly and does not conflict with other
+        software or hardware.
+
+
+    #108  XMS call failed
+          Extended error code <code>
+
+        XMS memory manager returned error code. Check that your memory
+        manager is installed properly and does not conflict with other
+        software or hardware.
+
+
+    #109  Internal table overflow
+
+        Near memory heap exhausted. You need to specify a simpler command
+        or fewer arguments.
+
+
+    #110  Not enough memory
+
+        Not enough conventional memory to run program.  The JAR DOS version
+        usually uses less memory if EMS memory is available.  Detailed
+        information about memory usage available in JAR.DOC.
+
+
+    #111  DOS version 3.30 required
+
+        JAR requires DOS version 3.30 or higher.
+
+
+    #112  Can't read file <filename>
+
+        File read operation failed.
+
+
+    #113  Can't write file <filename>
+
+        File write operation failed.  Usually this means that disk space is
+        exhausted.
+
+
+    #114  Can't seek file <filename>
+
+        Seek operation on file failed.
+
+
+    #115  Unexpected end of file while reading <filename>
+
+        JAR expected that more data would be available. Possibly the
+        archive is damaged.
+
+
+    #116  Requested command exhausted all virtual memory.
+          Please specify simpler operation
+
+        JAR uses built-in virtual memory (VM) to process many files using a
+        limited amount of physical memory. On update operations JAR can use
+        up to 25Mbytes of virtual memory. Reported error means that all VM
+        is exhausted. You need to decrease the number of files to be
+        processed.
+
+
+    #117  Bad data to decompress
+
+        JAR engine detected data which cannot be decompressed. This means
+        that your archive is damaged. You can try the "-jr" and "-hx"
+        options to extract files.
+
+
+    #118  Can't read directory <path>
+
+        Directory scan operation failed.
+
+
+    #119  Error while reading directory <path>
+
+        Directory scanning can't be completed.
+
+
+    #120  Scanned filename <filename> can't be stored into archive
+
+        JAR scanned filename which contains unsupported characters or
+        detected two equal filenames in same directory. Probably filename
+        has no representation in current OEM code page.
+
+
+    #121  File <filename> size changed since scanning
+
+        JAR uses the scanned file size to choose the proper compression
+        method. So the file size should not change until after the file is
+        compressed.
+
+
+    #122  Test with compressed file contents failed.
+          Probably file was modified
+
+        The file comparison test with option "-ht1" failed. One possibility
+        is that the file has been modified since the time of compression.
+        Another possibility is faulty hardware or software.
+
+
+    #123  CRC check failed
+
+        File failed CRC check. The archive is damaged. You can try the
+        "-jr" and "-hx" options to extract files.
+
+
+    #124  Path <filename> is too long to be processed
+
+        JAR supports paths up to about 380 characters length.
+
+
+    #125  Path within archive <path> is not valid
+
+        You specified an incorrect path to be stored within an archive.
+        Note that JAR does not support the storing of drive letters within
+        an archive. Use the "-ho" option instead.
+
+
+    #126  Can't store two files into same location <path>
+
+        JAR does not support the storing of two filenames with the same
+        path in an archive. Use the "-ho" or "-jf" options as a possible
+        workaround.
+
+
+    #127  File <filename> is greater than 1G so can't be handled
+
+        The current JAR engine does not support compression of files larger
+        than 1Gbyte.
+
+
+    #128  Unsupported header format. Probably it is damaged
+
+        JAR detected unsupported header format. Archive is damaged.
+
+
+    #129  Necessary program version <version> or higher
+
+        Newer compressor version required. Note that the JAR archive
+        records the necessary compressor version for three types of
+        operations: update, extract and list.
+
+
+    #134  Error reading standard input
+
+        Read from standard input failed.
+
+
+    #135  Argument <argument> is too long
+
+        Command line or response file argument is too long.
+
+
+    #136  Binary character parsed <character>
+
+        Command line or response file contains binary characters.
+
+
+    #137  No trailing quote
+
+        Incorrectly specified quoted argument.
+
+
+    #138  Response file is nested too deep
+
+        Self-explanatory.
+
+
+    #139  No command
+
+        No command specified.
+
+
+    #140  Unknown switch <switch>
+
+        Command line or response file contains incorrect switch.
+
+
+    #141  Wrong parameter <switch argument>
+
+        Self-explanatory.
+
+
+    #142  Unknown command <command>
+
+        Self-explanatory.
+
+
+    #143  Option <option> can't be used with command <command>
+
+        Switch option is incompatible with command or reserved for future
+        usage.
+
+
+    #144  Archive <filename> not found
+
+        Self-explanatory.
+
+
+    #145  No archive specified
+
+        Self-explanatory.
+
+
+    #148  Can't close file <filename>
+
+        JAR failed to close file after reading or writing.
+
+
+    #149  Can't delete directory <directory name>
+
+        JAR failed to delete directory. Probably it is not empty.
+
+
+    #150  Can't delete file <filename>
+
+        JAR failed to delete file. Probably it is read-only. Use the "-ha"
+        option to delete read-only files.
+
+
+    #151  Can't update locked archive
+
+        Locked archive (created with "-jl" option) can't be updated.
+
+
+    #152  Configuration file contains incorrect additional
+          options for command <command>
+
+        Incorrect switch parsed from CFG file.
+
+
+    #153  Can't update locked CHAPTER <no>
+
+        Self-explanatory.
+
+
+    #154  Chapter limit reached
+
+        JAR supports up to about 16,000,000 chapters.
+
+
+    #155  Chapter <no> is out of range
+
+        Archive does not contain specified chapter.
+
+
+    #156  Can't rename file <old filename>
+          to <new filename>
+
+        File rename operation failed.
+
+
+    #157  Volume limit (max 990) exceeded
+
+        Self-explanatory.
+
+
+    #158  Archive became too large
+
+        Currently JAR does not support archives larger than 1.5Gbytes.
+
+
+    #159  Archive header damaged
+
+        JAR detected a damaged archive header. Try the "-hx" option or in
+        the worse case the "rh" command for repairing the archive.
+
+
+    #160  Last volume required (default extension *.j)
+          Volume (<no>) has been specified instead
+
+        Unlike ARJ, JAR processes a volume archive starting with the last
+        volume.
+
+
+    #161  File <filename> is not archive
+
+        Self-explanatory.
+
+
+    #162  Selected command can't split existing archive
+
+        You can change archive volume size using "y" command together with
+        "-o" option.
+
+
+    #163  Source and destination archive must differ
+
+        When updating a multi-volume archive using the "y" command, the
+        destination archive name must differ from the source name.
+
+
+    #164  Copy command may update multi-volume archive
+          only if -o option specified
+
+        Self-explanatory.
+
+
+    #165  Failed to load <path>
+
+        JAR overlay or DLL missed.
+
+
+    #166  Cipher returned error code <code>
+          Probably archive is damaged
+
+        JAR archive protection algorithm detected a damaged archive.
+
+
+    #167  Method <method> not available (current is <current method>)
+
+        Incorrect method specified in "-hg" option.
+
+
+    #168  Incorrect password
+
+        Self-explanatory. Be sure you entered password in the correct
+        case.
+
+
+    #169  Passwords did not match
+
+        Self-explanatory.
+
+
+    #170  Password is too short (at least <nbr> characters)
+
+        Short and trivial passwords allow brute-force attacks against
+        protected archives.  We recommend the use of passwords longer than
+        16 characters.  Special characters and digits in password are also
+        recommended.
+
+
+    #171  Password must not contain character <char code>
+
+        Passwords must not contain binary or international characters.
+
+
+    #172  Password is too long (max <no> characters)
+
+        Self-explanatory.
+
+
+    #173  Password can't be changed. Archive uses unsupported
+          compression method. Newer archiver version required.
+
+        Self-explanatory.
+
+
+    #174  Archive requires password ("-g" option)
+
+        Attempt to access protected archive without password.
+
+
+    #175  No recoverable data or incorrect archive password
+
+        The "rh" command cannot locate any repairable data. Probably
+        incorrect archive password or protection method has been specified.
+
+
+    #176  Error during file copy operation
+
+        File copy failed.
+
+
+    #178  Executable fails CRC check
+
+        JAR executable has been modified. One possibility is a virus
+        attack.
+
+
+    #179  Can't get file <filename> date/time
+
+        Cannot obtain file date/time when using "-u" and "-f" options.
+
+
+    #180  Failed to execute command interpreter
+
+        Self-explanatory.
+
+
+    #181  Too many arguments for command
+
+        There are extra arguments for command.
+
+
+    #182  Command does not support -x option
+
+        Self-explanatory.
+
+
+    #183  Invalid date string: <date>
+
+        Invalid parameter for "-hm" option
+
+
+    #184  Can't modify file <filename>
+
+        Can't open file for modification.
+
+
+    #185  Can't locate JAR32.EXE
+          It must be in the same directory as JAR16.EXE
+
+        This note for "reg" command.
+
+
+    #186  File does not contain registration key
+
+        Specified file for "reg" command does not contain JAR
+        registration key.
+
+
+    #187  Invalid registration key
+
+        Specified file for "reg" command contains invalid JAR
+        registration key.
+
+
+    #188  Program already registered
+
+        You cannot register an already registered program.
+
+
+    #189  Registered program version required
+
+        "-hy" option requires registered program version.
+
+
+    #190  Cannot select protection method for an already protected archive
+
+        You must first unprotect archive and then change protection method.
+
+
+    #191  JAR no longer supports creation of archives
+          protected using obsolete "Authentication" method.
+          Use "Authenticate" method instead.
+          Please read documentation for problem details.
+
+        WHATSNEW.DOC contains more details about the problem.
+
+
+    #210  Selected command can't update multi-volume archive
+
+        One possibility is to concatenate archive back into a single volume
+        (using "y" command) before running the specified command.
+
+
+    #211  Specified archive extension is the same as a volume extension.
+          To prevent accidental volume overwrite, this is not allowed
+
+        When compressing to volumes, JAR does not allow archive names
+        with J00...J99 and 100...999 extensions.
+
+        For example, the following command would generate this error
+        message:
+
+        JAR32 a archive.j02 -v100k
+
+        This command would result in the last JAR volume being named the
+        same as the second JAR volume.  See "IMPORTANT DIFFERENCES
+        BETWEEN JAR AND ARJ" in JAR.DOC for more details.
+
+
+  JAR WARNING MESSAGES WITH EXPLANATION:
+
+
+    #300  No files scanned
+
+        No files to add to archive.
+
+
+    #301  Configuration file not found.
+          Use
+          JAR16 CFG <file name>
+          command to extract default configuration file
+
+        JAR configuration file must reside in the same directory as the JAR
+        executables unless the environment variable JAR_CFG_FILE specifies
+        another filename.
+
+
+    #302  Bad configuration file <filename>
+
+        Self-explanatory.
+
+
+    #303  Archive does not require password
+
+        Command line contains password for not protected archive.
+
+
+    #305  "-m4" compression method is not recommended for
+          archives that may be modified in future.
+          Please read documentation for details.
+
+        Self-explanatory.
+
+
+    #306  Failed to execute command interpreter
+
+        Self-explanatory.
+
+
+    #307  Wildcards do not match any files:
+
+        Lists wildcards which do not match files (directories ignored).
+        Warning available with "-hl" option only.
+
+
+  OTHER JAR MESSAGES WITH EXPLANATION:
+
+
+    <filename> is not requested volume
+
+        Supplied file is not an archive
+
+
+    Break signaled!
+
+        The user pressed Control C or Control BREAK.
+
+
+    Can't make directory <directoryname>
+
+        JAR cannot create directory. Probably a file with same name exists.
+
+
+    Can't open <filename>
+
+        JAR cannot open the file <filename>. The file may be set to
+        readonly or it may already be in use.
+
+
+    Copying failed. Temporary archive <filename> left
+
+        This error usually means that there is not enough disk space to
+        copy the intermediate archive file to its destination drive. JAR
+        does not purge the intermediate archive file in this situation so
+        that the file can be copied manually to a drive with enough disk
+        space.
+
+
+    Damaged archive data encountered. Trying to skip damaged file(s)
+
+        With the "-jr" option JAR32 does not abort on a damaged archive
+        and tries to continue extraction of remaining files.
+
+
+    Extracted file <filename> is damaged
+
+        With the "-jr" option JAR32 extracted file but it failed the CRC32
+        test.
+
+
+    end of document

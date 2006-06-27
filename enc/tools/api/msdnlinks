@@ -1,0 +1,33 @@
+<object id=alink_11 type="application/x-oleobject"
+		classid="clsid:adb880a6-d8ff-11cf-9377-00aa003b7a11"
+		width=0 height=0>
+<PARAM name="Command" value="ALink">
+<PARAM name="DefaultTopic" value="_topic_not_found.htm">
+<PARAM name="Item1" value="">
+<PARAM name="Item2" value="vcstartpage">
+</object>
+<a href=JavaScript:alink_11.Click()>Visual C++</A>
+
+
+
+
+<object id=alink_12 type="application/x-oleobject"
+		classid="clsid:adb880a6-d8ff-11cf-9377-00aa003b7a11"
+		width=0 height=0>
+<PARAM name="Command" value="KLink">
+<PARAM name="DefaultTopic" value="">
+<PARAM name="Item1" value="">
+<PARAM name="Item2" value="Menu">
+</object>
+<a href=JavaScript:alink_12.Click()//CreateFile>cf</A>
+
+
+
+<OBJECT id=hhctrl type="application/x-oleobject"
+        classid="clsid:adb880a6-d8ff-11cf-9377-00aa003b7a11"
+        codebase="hhctrl.ocx#Version=4,74,8702,0">
+    <PARAM name="Command" value="WinHelp">
+    <PARAM name="Item1" value="win32.hlp">
+    <PARAM name="Item2" value="XN35YD">
+</OBJECT>
+<a href=JavaScript:hhctrl.Click()//CreateFile>cf</A>

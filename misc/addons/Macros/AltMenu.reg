@@ -1,0 +1,37 @@
+REGEDIT4
+
+[-HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\Alt]
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\Alt]
+"Description"="Use Alt to activate menu"
+"Sequence"="F9"
+"DisableOutput"=dword:00000001
+"RunAfterFARStart"=dword:00000000
+"EmptyCommandLine"=dword:00000000
+"NotEmptyCommandLine"=dword:00000000
+
+[-HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\RAlt]
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\RAlt]
+"Description"="Use Right Alt to activate menu"
+"Sequence"="F9"
+"DisableOutput"=dword:00000001
+"RunAfterFARStart"=dword:00000000
+"EmptyCommandLine"=dword:00000000
+"NotEmptyCommandLine"=dword:00000000
+
+[-HKEY_CURRENT_USER\Software\Far\KeyMacros\MainMenu\Alt]
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\MainMenu\Alt]
+"Description"="Use Alt to deactivate menu"
+"Sequence"="Esc"
+"DisableOutput"=dword:00000001
+"RunAfterFARStart"=dword:00000000
+"EmptyCommandLine"=dword:00000000
+"NotEmptyCommandLine"=dword:00000000
+
+[-HKEY_CURRENT_USER\Software\Far\KeyMacros\MainMenu\RAlt]
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\MainMenu\RAlt]
+"Description"="Use Right Alt to deactivate menu"
+"Sequence"="Esc"
+"DisableOutput"=dword:00000001
+"RunAfterFARStart"=dword:00000000
+"EmptyCommandLine"=dword:00000000
+"NotEmptyCommandLine"=dword:00000000

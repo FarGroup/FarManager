@@ -1,0 +1,1 @@
+wrar a -r FarFtp_xxxx_src @src-list

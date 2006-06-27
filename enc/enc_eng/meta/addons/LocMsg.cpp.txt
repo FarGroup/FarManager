@@ -1,0 +1,87 @@
+/*
+LocMsg - Say "Yes!" to localization.
+Author - Ivan Sintyurin. Copyright (c) 2000. All Rights Reserved.
+
+  I'll be glad if this function helps you to  write  localization
+enabled programs. I'll ask of you only one  thing  -  mention  my
+copyright notice somewhere in your program (in  the  readme  file
+for example).
+
+  The LocMsg function returns a pointer to a string in accordance
+with FAR's language settings (taking into account current  user's
+settings - feature of FAR 1.63 or newer).
+
+  In the same folder as the plugin there should be a  file  named
+"PluginName.msg" containing  the  messages.  This  file's  format
+description is available in the template.msg file.
+
+Function parameters:
+MsgName - the name of the needed message
+Var     - if not NULL then it will receive the wanted string
+Len     - if 0 then the whole string is copied to Var
+
+In addition the following global structure should be defined  and
+filled:
+PluginStartupInfo Info, the following data is taken from it:
+Info.RootKey - location of plugin data storage
+Info.ModuleName - full path to the plugin
+*/
+char *LocMsg(struct PluginStartupInfo *psi,char *MsgName, char *Var,int Len)
+{
+  HKEY hKey;
+  DWORD Type;
+  static char Msg[81];
+  char *ppMsg;
+  char *sLanguage="Language", *smsg=".msg", *sEnglish="English";
+  char msgfile[NM],       //the name of the data file
+       Lang[80],          //Name of the language section, defaults to English
+       LangKey[80]="";    //Far language settings
+
+  lstrcpy(msgfile,Info.ModuleName);//Get path to message file
+  lstrcpy(Lang,sEnglish);
+  char *ptr=strrchr(msgfile,'.');
+  if(ptr) lstrcpy(ptr,smsg);
+  else lstrcat(msgfile,smsg);
+
+  lstrcat(LangKey,Info.RootKey);//Determine:
+  ptr=strrchr(LangKey,'\\');    //from where do
+  lstrcpy(ptr+1,sLanguage);    //read language settings
+
+  //Read current user's language settings
+  if(RegOpenKeyEx(HKEY_CURRENT_USER,LangKey,0,KEY_READ,&hKey)==ERROR_SUCCESS)
+  {
+          DWORD DataSize=80;
+          RegQueryValueEx(hKey,"Main",NULL,&Type,(BYTE *)&Lang,&DataSize);
+          RegCloseKey(hKey);
+  }
+
+  if(!GetPrivateProfileSection(Lang,Msg,80,msgfile))
+  {
+          //if the needed section not present, read the default section
+          GetPrivateProfileString("Default",sLanguage,sEnglish,Lang,80,msgfile);
+          if(!GetPrivateProfileSection(Lang,Msg,80,msgfile))
+                  //if the needed section not found
+                  //we read the first found
+                  GetPrivateProfileSectionNames(Lang,80,msgfile);
+  }
+
+  if(!Var)
+    ppMsg=Msg;
+  else
+    ppMsg=Var;
+
+  if(!Len)
+    Len=80;
+  Len++;
+  //read the needed string
+  GetPrivateProfileString(Lang,MsgName,MsgName,ppMsg,Len,msgfile);
+
+  //If you uncomment the following line then missing sections
+  //will be automaticaly created
+  //if(lstrcmp(MsgName,Msg)==0)
+  //  WritePrivateProfileString(Lang,MsgName,Msg,msgfile);
+
+//  if(Var)
+//    lstrcpy(Var,Msg);//Copy the string to Var if needed
+  return(ppMsg);
+}

@@ -1,0 +1,157 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>PluginPanelItem</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+
+<body>
+
+<h1>PluginPanelItem</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a  href="index.html">structures</a><br>
+</div>
+
+<div class=shortdescr>
+The <dfn>PluginPanelItem</dfn> structure describes a single item in a file system emulated by a plugin.
+It is used both to return information about the plugin file system and to pass a list of files to process to the plugin.
+</div>
+
+<p class=note><img src="../../images/warning.gif" alt="Attention!" width="10" height="10"> Attention!</p>
+<UL class=note><LI>
+The size of the <dfn>PluginPanelItem</dfn> structure should be 366 bytes.
+<!-- See details in Igor Pavlov's article "<a href="../articles/alignment.html">How To Setup Alignment</a>" -->
+</LI></UL>
+
+
+<pre class=syntax>
+struct PluginPanelItem
+{
+#ifdef _FAR_USE_FARFINDDATA
+  struct FAR_FIND_DATA   FindData;
+#else
+  WIN32_FIND_DATA FindData;
+#endif
+  DWORD PackSizeHigh;
+  DWORD PackSize;
+  DWORD Flags;
+  DWORD NumberOfLinks;
+  char *Description;
+  char *Owner;
+  char **CustomColumnData;
+  int CustomColumnNumber;
+  DWORD UserData;
+  DWORD CRC32;
+  DWORD Reserved[2];
+};
+</pre>
+<h3>Elements</h3>
+<div class=descr>
+  <div class=dfn>FindData</div>
+  <div class=dfndescr>The <dfn>FindData</dfn> field contains many file parameters.
+  See the description of the <a href="../winapi/win32_find_data.html">WIN32_FIND_DATA</a> structure
+    for detailed information.</div>
+  <div class=dfn>PackSizeHigh</div>
+  <div class=dfndescr>Contains the high-order 4 bytes of the file's packed size (in bytes). Currently unused.</div>
+  <div class=dfn>PackSize</div>
+  <div class=dfndescr>Contains the low-order 4 bytes of the file's packed size (in bytes).</div>
+  <div class=dfn>Flags</div>
+  <div class=dfndescr>A combination of the following values (the <a name="PLUGINPANELITEMFLAGS">PLUGINPANELITEMFLAGS</a> enumeration):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Flag</th><th class="cont" width="60%">Description</th></tr>
+      <tr class="cont"><td class="cont" width="40%"><a name="PPIF_PROCESSDESCR">PPIF_PROCESSDESCR</a></td>
+      <td class="cont" width="60%">Use FAR's internal description processing.
+        This flag can be set for processed files in the
+        <a href="../exported_functions/deletefiles.html">DeleteFiles</a>,
+        <a href="../exported_functions/getfiles.html">GetFiles</a> and
+        <a href="../exported_functions/putfiles.html">PutFiles</a> functions.
+        If set, FAR will update the description file contents using file names returned from
+        the <a href="../exported_functions/getopenplugininfo.html">GetOpenPluginInfo</a> function.
+      </td></tr>
+
+      <tr class="cont"><td class="cont" width="40%"><a name="PPIF_SELECTED">PPIF_SELECTED</a></td>
+      <td class="cont" width="60%">In <a href="../service_functions/control.html">Control</a> functions FCTL_GETPANELINFO,
+        FCTL_GETANOTHERPANELINFO, FCTL_SETSELECTION and FCTL_SETANOTHERSELECTION this flag allows
+        to check and set item selection.<br>
+
+        In <a href="../exported_functions/putfiles.html">PutFiles</a>, <a href="../exported_functions/getfiles.html">GetFiles</a>
+        and <a href="../exported_functions/processhostfile.html">ProcessHostFile</a> functions, if an operation has failed,
+        but some of the files were successfully processed, the plugin can remove selection only from the processed files.
+        To perform this, the plugin should clear the <code>PPIF_SELECTED</code> flag in processed items in the
+        <em>PluginPanelItem</em> list passed to the function.
+      </td></tr>
+
+      <tr class="cont"><td class="cont" width="40%"><a name="PPIF_USERDATA">PPIF_USERDATA</a></td>
+      <td class="cont" width="60%">If this flag is set, FAR considers the <i>UserData</i> field a pointer to a user data structure.
+        Cf. the description of the <i>UserData</i> field.
+        <p>The low order word of the Flags parameter can be used by a plugin for its own flags.
+      </td></tr>
+      </table>
+  </div>
+
+  <div class=dfn>NumberOfLinks</div>
+  <div class=dfndescr>Number of hard links.</div>
+  <div class=dfn>Description</div>
+  <div class=dfndescr>
+  Points to a file description. Plugins can use this field to pass file descriptions to FAR.
+  If not required, set theis field to <code>NULL</code>. If a plugin uses
+  standard FAR description processing and has passed description file names to FAR in the
+  <a href="../exported_functions/getopenplugininfo.html">GetOpenPluginInfo</a> function,
+         this field also must be <code>NULL</code>.
+  </div>
+  <div class=dfn>Owner</div>
+  <div class=dfndescr>Points to a file owner name. Plugins can use this field to pass file owner names to FAR.
+  If not used, set this field to <code>NULL</code>.</div>
+  <div class=dfn>CustomColumnData</div>
+  <div class=dfndescr>Points to an array of string addresses for plugin defined column types. The first string
+    contains data for the <b><code>C0</code></b> column type, the second - for <b><code>C1</code></b> and so on.
+    Up to 10 additional column types from <b><code>C0</code></b> to <b><code>C9</code></b> can be defined.
+    If not used, set this field to <code>NULL</code>.</div>
+  <div class=dfn>CustomColumnNumber</div>
+  <div class=dfndescr>Number of data strings for additional column types.</div>
+  <div class=dfn>UserData</div>
+  <div class=dfndescr>
+  This field can be used by the plugin to store either a 32-bit value or a pointer to a
+  data structure. In the latter case, the first
+  field of this structure must be a 32-bit value containig the structure size and the
+  plugin must set <code>PPIF_USERDATA</code> in the <i>Flags</i> field. This allows FAR to copy the structure
+  correctly to FAR internal buffers and later pass it to the  plugin in <i>PluginPanelItem</i>
+  lists. In the <a href="../exported_functions/freefinddata.html">FreeFindData</a> function the plugin
+   must free the memory occupied by this  additional structure.
+  </div>
+  <div class=dfn>CRC32</div>
+  <div class=dfndescr>A 32-bit CRC (checksum) value. FAR does not use this field.</div>
+  <div class=dfn>Reserved</div>
+  <div class=dfndescr>Reserved for future use, should be set to 0.</div>
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+<ol>
+<li>
+  All the data allocated by the plugin for <var>Description</var>, <var>Owner</var> and <var>CustomColumnData</var>
+  members must be released by the plugin. FAR copies these data to its own structures,
+  so it can be released at any time after passing these to FAR in the
+   <a href="../exported_functions/getfinddata.html">GetFindData</a> function.
+<li>
+  If the plugin uses the <var>UserData</var> field to store information about a file,
+  the plugin writer should check the validity of that field. This is related to
+  the following issue: When FAR calls the <a href="../exported_functions/getfiles.html">GetFiles</a> function
+   from the list of found files, only the <var>FindData</var> member of the <dfn>PluginPanelItem</dfn> structure
+   is filled correctly. All other fields are equal to <code>NULL</code>.
+</ol>
+</div>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="index.html">structures</a> |
+<a href="../defs/_far_use_farfinddata.html">_FAR_USE_FARFINDDATA</a> |
+<a href="../defs/far_find_data.html">FAR_FIND_DATA</a> |
+<a href="../delphi/tpluginpanelitem.html">TPluginPanelItem</a>
+</div>
+
+
+</body>
+</html>

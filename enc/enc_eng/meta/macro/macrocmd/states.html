@@ -1,0 +1,506 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>Object states - Macros</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+</head>
+
+<body>
+
+<h1>Object states</h1>
+<div class="navbar">
+<a href="../../index.html">main</a> |
+<a href="../index.html">Macros</a> |
+<a href="index.html">Macro-language</a>
+</div>
+
+<table class="cont">
+  <tr class="cont"><th class="cont" colspan=3>Panels</th></tr>
+  <tr class="cont"><th class="cont" width="20%">Operator</th><th class="cont" width="20%">Type</th><th class="cont" width="60%">Description</th></tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="APanel.ItemCount">APanel.ItemCount</a><br>
+    <a name="PPanel.ItemCount">PPanel.ItemCount</a></td>
+    <td class="cont" width="20%">Number</td>
+    <td class="cont" width="60%">stores the number of the elements on the panel</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="APanel.SelCount">APanel.SelCount</a><br>
+    <a name="PPanel.SelCount">PPanel.SelCount</a></td>
+    <td class="cont" width="20%">Number</td>
+    <td class="cont" width="60%">stores the number of the selected files on the panel</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="APanel.CurPos">APanel.CurPos</a><br>
+    <a name="PPanel.CurPos">PPanel.CurPos</a></td>
+    <td class="cont" width="20%">Number</td>
+    <td class="cont" width="60%">stores the index of an element on the panel</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="APanel.Current">APanel.Current</a><br>
+    <a name="PPanel.Current">PPanel.Current</a></td>
+    <td class="cont" width="20%">String</td>
+    <td class="cont" width="60%">stores the name of an element under the cursor</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="APanel.Path">APanel.Path</a><br>
+    <a name="PPanel.Path">PPanel.Path</a></td>
+    <td class="cont" width="20%">String</td>
+    <td class="cont" width="60%">stores the path for the panel (without trailing '\')</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="APanel.UNCPath">APanel.UNCPath</a><br>
+    <a name="PPanel.UNCPath">PPanel.UNCPath</a></td>
+    <td class="cont" width="20%">String</td>
+    <td class="cont" width="60%">stores the UNC path for the panel (without trailing '\')</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="APanel.Width">APanel.Width</a><br>
+    <a name="PPanel.Width">PPanel.Width</a></td>
+    <td class="cont" width="20%">Number</td>
+    <td class="cont" width="60%">stores the width of the panel</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="APanel.Type">APanel.Type</a><br>
+    <a name="PPanel.Type">PPanel.Type</a></td>
+    <td class="cont" width="20%">Number</td>
+    <td class="cont" width="60%">stores the type of the panel:
+      <table class="cont">
+        <tr class="cont">
+          <th class="cont" width="10%">Value</th>
+          <th class="cont" width="90%">Description</th>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0</td>
+          <td class="cont" width="90%">File panel</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">1</td>
+          <td class="cont" width="90%">Tree panel</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">2</td>
+          <td class="cont" width="90%">Quick view panel</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">3</td>
+          <td class="cont" width="90%">Informational panel</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="APanel.DriveType">APanel.DriveType</a><br>
+    <a name="PPanel.DriveType">PPanel.DriveType</a></td>
+    <td class="cont" width="20%">Number</td>
+    <td class="cont" width="60%">specifies the drive type of the panel:
+      <table class="cont">
+        <tr class="cont">
+          <th class="cont" width="10%">Value</th>
+          <th class="cont" width="90%">Description</th>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">-1</td>
+          <td class="cont" width="90%">plugin panel</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0</td>
+          <td class="cont" width="90%">Drive type couldn't be detected</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">2</td>
+          <td class="cont" width="90%">Removable drive</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">3</td>
+          <td class="cont" width="90%">Hard disk</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">4</td>
+          <td class="cont" width="90%">Mapped network share</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">5</td>
+          <td class="cont" width="90%">CDROM</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">6</td>
+          <td class="cont" width="90%">Virtual drive</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">15</td>
+          <td class="cont" width="90%">SUBST-disk</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="APanel.OPIFlags">APanel.OPIFlags</a><br>
+    <a name="PPanel.OPIFlags">PPanel.OPIFlags</a></td>
+    <td class="cont" width="20%">Number</td>
+    <td class="cont" width="60%">plugin panel flags, can be a combination of the following values (if the panel is not a plugin panel then this value is 0):
+      <table class="cont">
+        <tr class="cont"><th class="cont" width="10%">Value</th><th class="cont" width="90%">Description</th></tr>
+
+        <tr class="cont"><td class="cont" width="10%">0x00000001</td>
+        <td class="cont" width="90%">there's a filter applied to the panel</td></tr>
+
+        <tr class="cont"><td class="cont" width="10%">0x00000002</td>
+        <td class="cont" width="90%">there're a sort groups used on the panel</td></tr>
+
+        <tr class="cont"><td class="cont" width="10%">0x00000004</td>
+        <td class="cont" width="90%">the highlighting is used on the panel</td></tr>
+
+        <tr class="cont"><td class="cont" width="10%">0x00000010</td>
+        <td class="cont" width="90%">folder selection mode does not depend on the FAR Manager settings</td></tr>
+
+        <tr class="cont"><td class="cont" width="10%">0x00000020</td>
+        <td class="cont" width="90%">the standard FAR file processing mode is used, if the requested operation is not supported by the plugin; if this flag is set then panel element names are the real file names</td></tr>
+
+        <tr class="cont"><td class="cont" width="10%">0x00000040</td>
+        <td class="cont" width="90%">file names without paths are shown</td></tr>
+
+        <tr class="cont"><td class="cont" width="10%">0x00000080</td>
+        <td class="cont" width="90%">file names are aligned to the right</td></tr>
+
+        <tr class="cont"><td class="cont" width="10%">0x00000100</td>
+        <td class="cont" width="90%">the original case is used to display the file names (despite of FAR Manager settings)</td></tr>
+
+      </table>
+    </td>
+  </tr>
+
+  <tr class="cont"><th class="cont" colspan=3>Dialogs</th></tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="Dlg.ItemCount">Dlg.ItemCount</a></td>
+    <td class="cont" width="20%">Number</td>
+    <td class="cont" width="60%">number of elements in a dialog box</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="Dlg.CurPos">Dlg.CurPos</a></td>
+    <td class="cont" width="20%">Number</td>
+    <td class="cont" width="60%">the number of the item of a dialog box currently in focus</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="Dlg.ItemType">Dlg.ItemType</a></td>
+    <td class="cont" width="20%">Number</td>
+    <td class="cont" width="60%">type of the element currently in focus
+      <table class="cont">
+        <tr class="cont">
+          <th class="cont" width="10%">Value</th>
+          <th class="cont" width="90%">Description</th>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0</td>
+          <td class="cont" width="90%">error, for example Dlg.ItemType was called outside of the dialog</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">1</td>
+          <td class="cont" width="90%">Text input box</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">2</td>
+          <td class="cont" width="90%">Password input box</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">3</td>
+          <td class="cont" width="90%">Fixed width input box</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">4</td>
+          <td class="cont" width="90%">Push button</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">5</td>
+          <td class="cont" width="90%">Check box</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">6</td>
+          <td class="cont" width="90%">Radio button</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">7</td>
+          <td class="cont" width="90%">Combo box</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">8</td>
+          <td class="cont" width="90%">List box</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">9</td>
+          <td class="cont" width="90%">Custom control</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x8001</td>
+          <td class="cont" width="90%">Text input box history</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x8007</td>
+          <td class="cont" width="90%">Combo box list</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <tr class="cont"><th class="cont" colspan=3>Command Line</th></tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="CmdLine.ItemCount">CmdLine.ItemCount</a></td>
+    <td class="cont" width="20%">Number</td>
+    <td class="cont" width="60%">number of characters in the command line</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="CmdLine.CurPos">CmdLine.CurPos</a></td>
+    <td class="cont" width="20%">Number</td>
+    <td class="cont" width="60%">current command line cursor position</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="CmdLine.Value">CmdLine.Value</a></td>
+    <td class="cont" width="20%">String</td>
+    <td class="cont" width="60%">command line content</td>
+  </tr>
+
+  <tr class="cont"><th class="cont" colspan=3>Editor</th></tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="Editor.FileName">Editor.FileName</a></td>
+    <td class="cont" width="20%">String</td>
+    <td class="cont" width="60%">full name of the file being edited</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="Editor.CurLine">Editor.CurLine</a></td>
+    <td class="cont" width="20%">Number</td>
+    <td class="cont" width="60%">current line in the editor (first line is 1)</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="Editor.CurPos">Editor.CurPos</a></td>
+    <td class="cont" width="20%">Number</td>
+    <td class="cont" width="60%">current cursor position on the current line in the editor (first column is 1)</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="Editor.Value">Editor.Value</a></td>
+    <td class="cont" width="20%">Value</td>
+    <td class="cont" width="60%">contents of the current line in the editor (under the cursor).<br>
+      For example, to show the character under the cursor:
+      <pre class="code">
+MsgBox(substr(Editor.Value,Editor.CurPos-1,1),Editor.FileName,0)
+</pre>
+    </td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="Editor.Lines">Editor.Lines</a></td>
+    <td class="cont" width="20%">Number</td>
+    <td class="cont" width="60%">number of lines in the editor</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="Editor.State">Editor.State</a></td>
+    <td class="cont" width="20%">Number</td>
+    <td class="cont" width="60%">state of the current internal file editor - bit flag set:
+      <table class="cont">
+        <tr class="cont">
+          <th class="cont" width="10%">Value</th>
+          <th class="cont" width="90%">Description</th>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x00000001</td>
+          <td class="cont" width="90%">file is new or already deleted</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x00000002</td>
+          <td class="cont" width="90%">can be switched to the viewer by F6</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x00000004</td>
+          <td class="cont" width="90%">remove the file after closing the editor</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x00000008</td>
+          <td class="cont" width="90%">file was modified in the editor (there is a '*' sign in the editor status line)</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x00000010</td>
+          <td class="cont" width="90%">there is a stream selection box</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x00000020</td>
+          <td class="cont" width="90%">there is a vertical selection block</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x00000040</td>
+          <td class="cont" width="90%">file was modified during the whole editing session</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x00000080</td>
+          <td class="cont" width="90%">the cursor is in replace mode</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x00000100</td>
+          <td class="cont" width="90%">cursor position was modified by the plugin</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x00000200</td>
+          <td class="cont" width="90%">the editor is locked (ReadOnly)</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x00000400</td>
+          <td class="cont" width="90%">permanent blocks are used</td>
+        </tr>
+      </table>
+      Example:
+      <pre class="code">$If (Editor.State &amp; 0x8) <em>...do something if file was modified...</em> $End
+</pre>
+    </td>
+  </tr>
+
+  <tr class="cont"><th class="cont" colspan=3>Viewer</th></tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="Viewer.FileName">Viewer.FileName</a></td>
+    <td class="cont" width="20%">String</td>
+    <td class="cont" width="60%">full name of the file being viewed</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="Viewer.State">Viewer.State</a></td>
+    <td class="cont" width="20%">Number</td>
+    <td class="cont" width="60%">state of the current internal file viewer - bit flag set:
+      <table class="cont">
+        <tr class="cont">
+          <th class="cont" width="10%">Value</th>
+          <th class="cont" width="90%">Description</th>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x00000001</td>
+          <td class="cont" width="90%">codepage autodetection is on</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x00000002</td>
+          <td class="cont" width="90%">text and codepage are not in ANSI encoding</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x00000004</td>
+          <td class="cont" width="90%">Unicode mode</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x00000008</td>
+          <td class="cont" width="90%">line wrapping is on</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x00000010</td>
+          <td class="cont" width="90%">wrap lines by words instead of by letters</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x00000020</td>
+          <td class="cont" width="90%">hexadecimal mode is used</td>
+        </tr>
+      </table>
+      Example,
+      <pre class="code">$If (Viewer.State &amp; 0x20) <em>...do something if hex mode is on...</em> $End
+</pre>
+    </td>
+  </tr>
+
+  <tr class="cont"><th class="cont" colspan=3>Drive menu</th></tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="Drv.ShowPos">Drv.ShowPos</a></td>
+    <td class="cont" width="20%">Number</td>
+    <td class="cont" width="60%">drive menu is shown for the left panel (AltF1, value 1) or the right panel (AltF2, value 2).</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="Drv.ShowMode">Drv.ShowMode</a></td>
+    <td class="cont" width="20%">Number</td>
+    <td class="cont" width="60%">drive menu representation flags; bitmask:
+      <table class="cont">
+        <tr class="cont">
+          <th class="cont" width="10%">Value</th>
+          <th class="cont" width="90%">Description</th>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x00000001</td>
+          <td class="cont" width="90%">disk type displaying is enabled</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x00000002</td>
+          <td class="cont" width="90%">network name (and the path associated with a SUBST drive under NT) displaying is enabled</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x00000004</td>
+          <td class="cont" width="90%">disk label displaying is enabled</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x00000008</td>
+          <td class="cont" width="90%">file system type displaying is enabled</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x00000010</td>
+          <td class="cont" width="90%">total and free disk size displaying is enabled</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x00000020</td>
+          <td class="cont" width="90%">removable disk parameters displaying is enabled</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x00000040</td>
+          <td class="cont" width="90%">plugin items displaying is enabled</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x00000080</td>
+          <td class="cont" width="90%">CD parameters displaying is enabled</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x00000100</td>
+          <td class="cont" width="90%">total and free disk size (Windows Explorer style) displaying is enabled</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">0x00000200</td>
+          <td class="cont" width="90%">network parameters displaying is enabled</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <tr class="cont"><th class="cont" colspan=3>Other</th></tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="ItemCount">ItemCount</a></td>
+    <td class="cont" width="20%">Number</td>
+    <td class="cont" width="60%">number of elements in the current object; delimiters are also
+      counted in the menu</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="CurPos">CurPos</a></td>
+    <td class="cont" width="20%">Number</td>
+    <td class="cont" width="60%">position in the current object</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="Title">Title</a></td>
+    <td class="cont" width="20%">String</td>
+    <td class="cont" width="60%">title of the current object</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="Far.Width">Far.Width</a></td>
+    <td class="cont" width="20%">Number</td>
+    <td class="cont" width="60%">FAR Manager console width</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="Far.Height">Far.Height</a></td>
+    <td class="cont" width="20%">Number</td>
+    <td class="cont" width="60%">FAR Manager console height</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="20%"><a name="Far.Title">Far.Title</a></td>
+    <td class="cont" width="20%">String</td>
+    <td class="cont" width="60%">current title of FAR console window</td>
+  </tr>
+</table>
+
+<h3>Notes</h3>
+<div class=descr>
+<ol>
+<li>It is impossible to use macro-language elements while <a href="../macrokey/record.html">recording</a>
+  a macro in a usual way. Macro-language elements can be added to the sequence only by editing
+  the registry manually or by using special applications or FAR plugins.</li>
+</ol>
+</div>
+
+</body>
+
+</html>

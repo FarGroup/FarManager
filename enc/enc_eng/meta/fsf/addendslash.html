@@ -1,0 +1,59 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>FSF.AddEndSlash</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>AddEndSlash</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a href="index.html">FarStandardFunctions</a>
+</div>
+
+<div class=shortdescr>
+The <dfn>FSF.AddEndSlash</dfn> function is used to add a trailing backslash or slash to a path. The
+symbol that will be added depends on those used in the path.
+</div>
+
+<pre class=syntax>
+int WINAPI AddEndSlash(
+  char *Path
+);
+</pre>
+
+<h3>Parameters</h3>
+<div class=descr>
+  <div class=dfn>Path</div>
+  <div class=dfndescr>
+	A string containing the path to which you want to add a trailing slash or backslash.<p>
+	Note that Path must have enough space for an additional character.
+  </div>
+</div>
+
+<h3>Return value</h3>
+<div class=descr>
+On success return value is TRUE, otherwise return value is FALSE.
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+<ol>
+<li>The string must be large enough to contain an additional character ('\' or '/').
+<li>This function works with both types of slashes - normal and backslashes.
+<li>If a string already has a trailing slash it will be converted to the slash
+    of such type which is more common in the <em>Path</em> string.
+<li>No slash will be added at the end of the string if the string already
+	contains a trailing slash.
+</ol>
+</div>
+
+<h3>Example</h3>
+<div class=descr>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>OpenPlugin</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="JavaScript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>OpenPlugin</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a href="index.html">exported functions</a>
+</div>
+
+<div class=shortdescr>
+The <dfn>OpenPlugin</dfn> is called to create a new plugin instance.</div>
+
+<pre class=syntax>
+HANDLE WINAPI OpenPlugin(
+  int OpenFrom,
+  int Item
+);
+</pre>
+<h3>Parameters</h3>
+<div class=descr>
+
+    <div class=dfn>OpenFrom</div>
+    <div class=dfndescr>Identifies how the plugin is invoked.
+      Can be one of the following values (<a name="OPENPLUGIN_OPENFROM">OPENPLUGIN_OPENFROM</a> enum):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Constant</th><th class="cont" width="60%">Description</th></tr>
+        <tr class="cont"><td class="cont" width="40%"><a name="OPEN_DISKMENU">OPEN_DISKMENU</a></td>
+        <td class="cont" width="60%">Opened from the disks menu</td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="OPEN_PLUGINSMENU">OPEN_PLUGINSMENU</a></td>
+        <td class="cont" width="60%">Opened from the plugins menu (<kbd>F11</kbd>)</td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="OPEN_FINDLIST">OPEN_FINDLIST</a></td>
+        <td class="cont" width="60%">Opened from the &quot;Find File&quot; dialog. The plugin will
+          be called with this identifier only if it exports the <a href="setfindlist.html">SetFindList</a>
+          function, and <a href="setfindlist.html">SetFindList</a> will be called only if
+          OpenPlugin returns a valid handle.
+        </td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="OPEN_SHORTCUT">OPEN_SHORTCUT</a></td>
+        <td class="cont" width="60%">Opened using a folder shortcut command.
+        </td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="OPEN_COMMANDLINE">OPEN_COMMANDLINE</a></td>
+        <td class="cont" width="60%">Opened from the command line.. This type is used if the plugin
+          has defined a command prefix in the <a href="getplugininfo.html">GetPluginInfo</a>
+          function, and this prefix, followed by a colon, is found in the command line.
+        </td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="OPEN_EDITOR">OPEN_EDITOR</a></td>
+        <td class="cont" width="60%">Opened from internal editor</td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="OPEN_VIEWER">OPEN_VIEWER</a></td>
+        <td class="cont" width="60%">Opened from internal viewer.</td></tr>
+</table>
+    </div>
+
+    <div class=dfn>Item</div>
+    <div class=dfndescr>Its meaning depends on the value of <dfn>OpenFrom</dfn>:
+      <ul>
+      <li>For OPEN_DISKMENU, OPEN_PLUGINSMENU, OPEN_EDITOR and OPEN_VIEWER
+      <em>Item </em> is a position of the activated plugin item in the exported items
+      list in disks or plugins menu. If a plugin exports only one item, this field is always zero.
+      <li>For OPEN_FINDLIST <em>Item</em> is always zero.
+      <li>For OPEN_SHORTCUT <em>Item</em> contains the address of a string that was passed in the
+      ShortcutData member of the <a href="../structures/openplugininfo.html">OpenPluginInfo</a>
+      structure, when saving the shortcut. The plugin can use it to store any additional
+      information about its current state. It is not necessary to save the information about the
+      current directory, because it is restored by FAR when using folder shortcuts.
+      <li>For OPEN_COMMANDLINE <em>Item</em> contains address of a string containing the command
+      line entered by the user. Plugin command prefix is not included in this string, unless the
+      <a href="../structures/plugininfo.html#PF_FULLCMDLINE">PF_FULLCMDLINE</a> flag is set.<br>
+
+      For example, if a plugin defined the prefix <em>ftp</em> and the user entered
+      <code>ftp://ftp.abc.com</code>, <em>Item</em> will point to <code>//ftp.abc.com</code>.
+      However, if PF_FULLCMDLINE is set, <em>Item</em> will point to
+      <code>ftp://ftp.abc.com</code>.<br>
+      </ul>
+    </div>
+
+</div>
+
+<h3>Return value</h3>
+<div class=descr>
+If the function succeeds, the return value is a plugin handle. This handle will be passed later to
+other plugin functions to allow them to distinguish different plugin instances. Handle format is
+not important for FAR, it can be the address of a new plugin class object, or the address of a
+structure with plugin data, or an array index, or any other value but zero.
+<p>If the function fails, the return value must be <code>INVALID_HANDLE_VALUE.</code></p>
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+<ol>
+  <li>Note that you can use this function to implement FAR commands that work without creating new
+      panels. Just perform all necessary actions here and return INVALID_HANDLE_VALUE.
+  <li>If this functions returns zero, the plugin will be unloaded.
+</ol>
+</div>
+
+</body>
+</html>

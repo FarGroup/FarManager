@@ -1,0 +1,75 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>SetDirectory</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>SetDirectory</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a href="index.html">exported functions</a>
+</div>
+
+<div class=shortdescr>
+The <dfn>SetDirectory</dfn> function is called to set the current directory
+in the file system emulated by the plugin.</div>
+
+<pre class=syntax>
+int WINAPI SetDirectory(
+  HANDLE hPlugin,
+  const char *Dir,
+  int OpMode
+);
+</pre>
+<h3>Parameters</h3>
+<div class=descr>
+
+    <div class=dfn>hPlugin</div>
+    <div class=dfndescr>Plugin handle returned by <a href="openplugin.html">OpenPlugin</a>
+      or <a href="openfileplugin.html">OpenFilePlugin</a>.</div>
+    <div class=dfn>Dir</div>
+    <div class=dfndescr>Directory name. Usually contains only the name, without full path. To
+      provide basic functionality the plugin should also process the names <code>'..'</code> and
+      <code>'\'</code>.<br>
+      For correct restoring of current directory after using <code>"Search from the root folder"</code>
+      mode in the Find file dialog, the plugin should be able to process full directory name
+      returned in the <a href="getopenplugininfo.html">GetOpenPluginInfo</a> function.
+      It is not necessary when <code>"Search from the current folder"</code> mode is set in the
+      Find file dialog.</div>
+    <div class=dfn>OpMode</div>
+    <div class=dfndescr>Combination of the <a href="../defs/operation_mode.html">operation mode</a>
+      flags. This function should be ready to process the <a href="../defs/operation_mode.html#OPM_FIND">OPM_FIND</a>
+      flag. If the <a href="../defs/operation_mode.html#OPM_FIND">OPM_FIND</a> flag is set, the
+      function is called from Find file or another directory scanning command, and the plugin must
+      not perform any actions except changing directory and returning TRUE if successful or FALSE
+      if it is impossible to change the directory. (The plugin should not try to close or update
+      the panels, ask the user for confirmations, show messages and so on.)</div>
+
+</div>
+
+<h3>Return value</h3>
+<div class=descr>
+If the function succeeds, the return value must be TRUE.
+If the function fails, FALSE should be returned.</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+If the <a href="../defs/operation_mode.html#OPM_FIND">OPM_FIND</a> flag
+is set in <var>OpMode</var> then:
+<ol>
+<li>It means that the <dfn>SetDirectory</dfn> function is called from the Find file dialog
+(<kbd>Alt-F7</kbd>) or any other command that scans directory listings.
+Because if that the plugin must not perform any other actions except changing directory
+and returning TRUE if successful or FALSE if it is impossible to change the directory.
+<li>The plugin should carefully process ".." and if changing to the parent directory
+is not possible it should return FALSE. Otherwise the search can enter an endless loop
+on panel of that plugin.
+</ol>
+</div>
+
+</body>
+</html>

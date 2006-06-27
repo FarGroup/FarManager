@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>ProcessEvent</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>ProcessEvent</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a href="index.html">exported functions</a>
+</div>
+
+<div class=shortdescr>
+The <dfn>ProcessEvent</dfn> function informs plugin about different FAR
+events and allows to process some of them.</div>
+
+<pre class=syntax>
+int WINAPI ProcessEvent(
+  HANDLE hPlugin,
+  int Event,
+  void *Param
+);
+</pre>
+<h3>Parameters</h3>
+<div class=descr>
+
+    <div class=dfn>hPlugin</div>
+    <div class=dfndescr>Plugin handle returned by <a href="openplugin.html">OpenPlugin</a>
+      or <a href="openfileplugin.html">OpenFilePlugin</a>.</div>
+    <div class=dfn>Event</div>
+    <div class=dfndescr>Event type. Can be one of the following values (<a name="FAR_EVENTS">FAR_EVENTS</a> enum):
+      <table class="cont">
+        <tr class="cont"><th class="cont" width="40%">Event</th><th class="cont" width="60%">Description</th></tr>
+        <tr class="cont"><td class="cont" width="40%"><a name="FE_CHANGEVIEWMODE" title="0">FE_CHANGEVIEWMODE</a></td>
+        <td class="cont" width="60%">Panel view mode is changed.<br>
+          <i>Param</i> points to a null-terminated string specifying <a href="panelcolumntype.html">column types</a>,
+          for example <b>N,S,D,T</b>.
+          Return value must be FALSE.
+        </td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="FE_REDRAW" title="1">FE_REDRAW</a></td>
+        <td class="cont" width="60%">The panel is about to redraw.<br>
+          <i>Param</i> is equal to NULL.<br>
+          Return FALSE to use the FAR redraw routine or TRUE to disable it. In the latter case the
+          plugin must redraw the panel itself.</td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="FE_IDLE" title="2">FE_IDLE</a></td>
+        <td class="cont" width="60%">Sent every few seconds. A plugin can use this event to request
+          panel updating and redrawing, if necessary.<br>
+          <i>Param</i> is equal to NULL.<br>
+          Return value must be FALSE.</td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="FE_CLOSE" title="3">FE_CLOSE</a></td>
+        <td class="cont" width="60%">The panel is about to close.<br>
+          <i>Param</i> is equal to NULL.<br>
+          Return FALSE to close the panel or TRUE to cancel it.</td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="FE_BREAK" title="4">FE_BREAK</a></td>
+        <td class="cont" width="60%">Ctrl-Break is pressed.<br>
+          <i>Param</i> currently can be only <code>(int)CTRL_BREAK_EVENT</code><br>
+          Return value must be FALSE.<br>
+          Processing of this event is performed in separate thread, so the plugin must be careful
+          when performing console input or output and must not use FAR service functions.</td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="FE_COMMAND" title="5">FE_COMMAND</a></td>
+        <td class="cont" width="60%">About to execute a command from the FAR command line.<br>
+          <i>Param</i> points to the command text.<br>
+          he plugin should return FALSE to allow standard command execution or TRUE
+          if it is going to process the command internally.</td></tr>
+      </table>
+    </div>
+
+    <div class=dfn>Param</div>
+    <div class=dfndescr>Points to data dependent on event type. Read events description for
+      concrete information.</div>
+
+</div>
+
+<h3>Return value</h3>
+<div class=descr>
+Return value depends on event type. Read events description for concrete information.<br>
+Return FALSE for unknown event types
+</div>
+
+</body>
+</html>

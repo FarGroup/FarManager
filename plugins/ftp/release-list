@@ -1,0 +1,12 @@
+lib/file_id.diz
+lib/*.fll
+lib/*.reg
+lib/*.txt
+lib/*.map
+FarFtp.dll
+FarFtp.map
+file_id.diz
+*.hlf
+*.lng
+*.reg
+*.txt

@@ -1,0 +1,206 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<link REV="made" href="mailto:rampitec@tu.spb.ru">
+<meta NAME="Author" content="Stanislav V. Mekhanoshin">
+<meta NAME="description" CONTENT="ECTL_GETSTRING works very slowly...">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="JavaScript" src='../links.js' type="text/javascript"></script>
+<title>ECTL_GETSTRING works very slowly...</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+</head>
+
+<body>
+<a name="top"></a>
+<h1>ECTL_GETSTRING works very slowly</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a href="index.html">articles</a>
+</div>
+<div align=right>
+<code>Stanislav V. Mekhanoshin <a
+href="mailto:Stanislav%20V%2E%20Mekhanoshin%20<rampitec@tu.spb.ru>?subject=Articles"><img
+src="../../images/email.gif" border="0" alt="[rampitec@tu.spb.ru]" width="16" height="16"
+align="middle">rampitec@tu.spb.ru</a>
+</code></div>
+<hr color="#003399">
+
+
+<p class=plain>
+Let's suppose a plugin is to scan a large number of strings in the editor in sequence. In my case, the <a target="_blank"
+href="http://plugring.farmanager.com/cgi-bin/downld.cgi?Draw=List&Select=PlugIn&SelectPlugIn=171">Incremental Search</a>
+plugin searched for a substring in the editor. The first idea was to perform a sequential search for strings in this way:</P>
+<PRE class=code>{
+    struct EditorGetString egs;
+    struct EditorSetPosition esp;
+    struct EditorInfo ei;
+
+    Info.EditorControl(ECTL_GETINFO,&ei);
+
+    for( egs.StringNumber=ei.CurLine;
+         egs.StringNumber &lt; ei.TotalLines;
+         egs.StringNumber++ )
+    {
+        Info.EditorControl(ECTL_GETSTRING,&egs);
+        if( process( egs.StringText, egs.StringLength ) ){
+            esp.CurLine=egs.StringNumber;
+            esp.CurPos=-1;
+            esp.CurTabPos=-1;
+            esp.TopScreenLine=-1;
+            esp.LeftPos=-1;
+            esp.OverType=-1;
+            Info.EditorControl(ECTL_SETPOSITION,&esp);
+            return TRUE; // Success, the string is set now.
+        }
+    }
+    return FALSE; // Fail, just return back. There are
+                  // no changes in the editor.
+}</PRE>
+<p class=plain>
+However, having code written in this way, I discovered that string processing code
+(essentially the <EM>process()</EM> function) worked considerably faster than the
+whole iteration. In other words, the procedure that returned the string by its number
+took ~99% of time.</P>
+
+<p class=plain>
+The code was rewritten according to the ER's advice (Andrew Tretyakov did the same in the
+<a target="_blank" href="http://plugring.farmanager.com/cgi-bin/downld.cgi?Draw=List&Select=PlugIn&SelectPlugIn=93">EditCompletion</a>
+plugin).
+Essentially, the advice is to obtain a current string (-1) always, without using its real number.
+In other words, to substitute <a href="../service_functions/editorcontrol.html#ECTL_GETSTRING">ECTL_GETSTRING</a> with the string number for
+twain <a href="../service_functions/editorcontrol.html#ECTL_SETPOSITION">ECTL_SETPOSITION</a> with the string number and ECTL_GETSTRING with -1.</P>
+
+<p class=plain>
+Need to mention that you must store the current cursor position in the editor and restore it
+when doing rollback in order to use this method. But the matter is worthy of it.
+So, you must rewrite the code mentioned above in this way:</P>
+
+<PRE class=code>{
+    struct EditorGetString egs;
+    struct EditorSetPosition esp;
+    struct EditorInfo ei;
+
+    Info.EditorControl(ECTL_GETINFO,&ei);
+    egs.StringNumber=-1;
+
+    for( esp.CurLine=ei.CurLine;
+         esp.CurLine&lt;ei.TotalLines;
+         esp.CurLine++ )
+    {
+        Info.EditorControl(ECTL_SETPOSITION,&esp);
+        Info.EditorControl(ECTL_GETSTRING,&egs);
+        if( process( egs.StringText, egs.StringLength ) )
+            return TRUE; // Success, the string is set now.
+    }
+
+    // Restore the old position:
+
+    esp.CurLine=ei.CurLine;
+    esp.CurPos=ei.CurPos;
+    esp.TopScreenLine=ei.TopScreenLine;
+    esp.LeftPos=ei.LeftPos;
+    esp.CurTabPos=-1;
+    esp.OverType=-1;
+    Info.EditorControl(ECTL_SETPOSITION,&esp);
+
+    return FALSE;
+}</PRE>
+
+<p class=plain>
+By the way, FAR doesn't redraw changes immediately, so the screen won't flicker.</p>
+
+<p class=plain>
+And the most pleasant: time metering performed on my computer showed that we get the string
+(only get, without processing - the raw time) 63 times faster in the second case than in the
+first case. The effect is stable for both relatively small files and files with size more than half
+of my RAM. Andrew Tretyakov has almost the same results - he has ratio of 1/65.
+In other words, the figures are rather close.</P>
+
+<div class=descr>
+For metering, I used the Watcom C 11.0 run-time profiler based on the
+<code>rdtsc</code> Pentium profiling instruction. IMHO it's the best profiler.
+But speed-up is <strong>highly</strong> noticeable even without any tools. All
+tests were performed using IP-240, 96Mb RAM, Windows NT 4.0 SP6.
+Andrew Tretyakov used 486-dx4-100 for metering.
+</div>
+
+
+<p class=plain>
+<b>Minor warning:</b> When setting the position, FAR may change the
+LeftPos, TopScreenLine, and CurPos values even if you set them to -1 already.
+For example, if the cursor can't move beyond the end of the line, but the line
+is shorter than CurPos you try to store by setting it to -1, then CurPos
+will change despite of that. Such behaviour is acceptable for most users.
+However, user doesn't see intermediate moves through the text when
+searching strings sequentially within the iteration mentioned above.
+He will be surprised seeing the position he doesn't expect (from his point of view)
+when moving from the 1st to the 10th string. Such problem can't appear
+in the first example since only one move is actually performed. But you should
+modify the second example in order not to face with problem like that.</P>
+
+<p class=plain>
+There are many ways to modify it. For example, this problem gets eliminated
+if your plugin doesn't change the current position at all (i.e. always restores it).
+If the plugin computes TopScreenLine, LeftPos, or CurPos values according to the
+its own concept (perhaps not related to their previous state), it just calls this code
+after the iteration is finished. In my case I always restore the stored position,
+and then use the <a href="../service_functions/editorcontrol.html#ECTL_SETPOSITION">ECTL_SETPOSITION</a>
+by passing the required string and -1 for other parameters there. Here's
+the example of the modified code:</P>
+<PRE class=code>{
+    struct EditorGetString egs;
+    struct EditorSetPosition esp;
+    struct EditorInfo ei;
+    int    nFound=-1; // number of the found string
+
+    Info.EditorControl(ECTL_GETINFO,&ei);
+    egs.StringNumber=-1;
+
+    for( esp.CurLine=ei.CurLine;
+         esp.CurLine &lt; ei.TotalLines;
+         esp.CurLine++ )
+    {
+        Info.EditorControl(ECTL_SETPOSITION,&esp);
+        Info.EditorControl(ECTL_GETSTRING,&egs);
+        if( process( egs.StringText, egs.StringLength ) ){
+            nFound=esp.CurLine; // Success
+            break;
+        }
+    }
+
+    // Restore the old position:
+
+    esp.CurLine=ei.CurLine;
+    esp.CurPos=ei.CurPos;
+    esp.TopScreenLine=ei.TopScreenLine;
+    esp.LeftPos=ei.LeftPos;
+    esp.CurTabPos=-1;
+    esp.OverType=-1;
+    Info.EditorControl(ECTL_SETPOSITION,&esp);
+
+    if( nFound &gt;= 0 )
+    {               // Now set again to the found position...
+        esp.CurLine=nFound;
+        esp.CurPos=-1;          // Despite these fields contain values
+        esp.TopScreenLine=-1;   // already, they must be set to -1.
+        esp.LeftPos=-1;         // It's not the same! Explicit number is
+        esp.CurTabPos=-1;       // unconditional. -1 only _tries_ to store
+        esp.OverType=-1;        // the old value, if possible!
+
+        Info.EditorControl(ECTL_SETPOSITION,&esp);
+    }
+
+    return nFound &gt;= 0;
+}</PRE>
+
+
+<div align=right><code>
+<br>&nbsp;<br>
+28.11.1999<br>
+Rev. 26.06.2000
+</code></div>
+<div class=seecont><a href="#top">to the top</a></div>
+
+</body>
+</html>

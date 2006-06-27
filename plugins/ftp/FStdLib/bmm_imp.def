@@ -1,0 +1,5 @@
+IMPORTS
+   _GetMemory=borlndmm.GetMemory
+   _ReallocMemory=borlndmm.ReallocMemory
+   _FreeMemory=borlndmm.FreeMemory
+   _GetHeapStatus=borlndmm.GetHeapStatus

@@ -1,0 +1,21 @@
+FARROOT    = ..\..\FStdLib
+LIBROOT    = ..\..\FStdLib
+PNAME      = ftpNotify
+PROJECT    = ..\$(PNAME).fll
+PDEF       = ..\def.def
+PRES       = res.res
+MAPFILE    = ..\$(PNAME).map
+PRESFILES  =
+NODYNDLL   = yes
+CFLAG_ADD  =
+LFLAG_ADD  =
+
+DEBUG      = 1
+CFLAG_ADD  = $(CFLAG_ADD)
+
+POBJS      = nt_Main.obj ..\p_All.obj
+
+# ---------------------------------------------------------------------------
+startup: _all
+!include "../make_defs.bcb"
+_all: $(PROJECT)

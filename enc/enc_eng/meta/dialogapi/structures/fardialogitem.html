@@ -1,0 +1,213 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>FarDialogItem</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>FarDialogItem</h1>
+<div class=navbar>
+<a href="../../index.html">main</a> |
+<a href="../index.html">Dialog API</a> |
+<a href="../controls/index.html">Dialog items</a><br>
+</div>
+
+<div class=shortdescr>
+  The <dfn>FarDialogItem</dfn> structure describes one dialog item.
+  An array of those structures is passed to the <a href="../dialog.html">Dialog</a> or
+  <a href="../dialogex.html">DialogEx</a> functions to show a dialog.
+</div>
+
+<pre class=syntax>
+struct FarDialogItem
+{
+  int Type;
+  int X1;
+  int Y1;
+  int X2;
+  int Y2;
+  int Focus;
+  union
+  {
+    int Selected;
+    const char *History;
+    const char *Mask;
+    struct FarList *ListItems;
+    int  ListPos;
+    CHAR_INFO *VBuf;
+  }
+#ifdef _FAR_NO_NAMELESS_UNIONS
+  Param
+#endif
+  ;
+  DWORD Flags;
+  int DefaultButton;
+  union
+  {
+    char Data[512];
+    struct
+    {
+      DWORD PtrFlags;
+      int   PtrLength;
+      char *PtrData;
+      char  PtrTail[1];
+    } Ptr;
+  }
+#ifdef _FAR_NO_NAMELESS_UNIONS
+  Data
+#endif
+  ;
+};
+</pre>
+<h3>Members</h3>
+<div class=descr>
+    <div class=dfn>Type</div>
+    <div class=dfndescr>Dialog item type. Can be one of the following values,
+      described in the "<a href="../controls/index.html">Dialog items</a>" topic.
+    </div>
+
+    <div class=dfn>X1,Y1,X2,Y2</div>
+    <div class=dfndescr>
+      Dialog item coordinates, calculated relative to the top left
+      dialog corner (coordinates start from 0,0).
+      For more information about coordinates see the description of a specific
+      <a href="../controls/index.html">dialog item</a>.
+    </div>
+
+    <div class=dfn>Focus</div>
+    <div class=dfndescr>
+      <a href="../keybfocus.html">Keyboard focus</a> flag. You must specify one item with <var>Focus</var>
+      equal to <code>TRUE</code>.
+    </div>
+
+    <div class=dfn>Param.Selected</div>
+    <div class=dfndescr>
+      Applicable for <a href="../controls/di_checkbox.html">DI_CHECKBOX</a> and
+      <a href="../controls/di_radiobutton.html">DI_RADIOBUTTON</a> controls. Allows to
+      set their initial state and get their state after closing the dialog.
+    </div>
+
+    <div class=dfn>Param.History</div>
+    <div class=dfndescr>Contains the address of a null-terminated text string that will be used as
+      the internal history name when an edit control has the
+      <a href="../flags/dif_history.html">DIF_HISTORY</a>
+      flag. If several edit controls have the same history name, they
+      will share the same history list.
+    </div>
+
+    <div class=dfn>Param.Mask</div>
+    <div class=dfndescr>Contains the address of a
+      null-terminated string that serves as a mask for a
+      <a href="../controls/di_fixedit.html">DI_FIXEDIT</a> control.
+    </div>
+
+    <div class=dfn>Param.ListItems</div>
+    <div class=dfndescr>
+      Pointer to a <a href="farlist.html">FarList</a>
+      structure that describes the list of items for a
+      <a href="../controls/di_combobox.html">DI_COMBOBOX</a>
+      or <a href="../controls/di_listbox.html">DI_LISTBOX</a> control.
+    </div>
+
+    <div class=dfn>Param.ListPos</div>
+    <div class=dfndescr>Current list position in a
+      <a href="../controls/di_listbox.html">DI_LISTBOX</a> or
+      <a href="../controls/di_combobox.html">DI_COMBOBOX</a> control.
+    </div>
+
+    <div class=dfn>Param.VBuf</div>
+    <div class=dfndescr>Pointer to an array of
+      <a href="../../winapi/char_info.html">CHAR_INFO</a>
+      structures describing a virtual buffer for the
+      <a href="../controls/di_usercontrol.html">DI_USERCONTROL</a> control.
+    </div>
+
+    <div class=dfn>Flags</div>
+    <div class=dfndescr>Combination of values described in the
+      "<a href="../flags/index.html">Dialog item flags</a>" topic.
+    </div>
+
+    <div class=dfn>DefaultButton</div>
+    <div class=dfndescr>
+      Define current item as the &quot;default control&quot;.
+      If while pressing <code>&lt;Enter&gt;</code> the focus is not set on a button,
+      the <a href="../dialog.html">Dialog</a> function
+      (or <a href="../dialogex.html">DialogEx</a>)
+      will return the number of the item with <var>DefaultButton</var> set to 1.
+      The <var>DefaultButton</var> flag can be set not only for a button,
+      but for any other dialog item.
+    </div>
+
+    <div class=dfn>Data.Data</div>
+    <div class=dfndescr>Buffer to exchange data with the dialog (without
+      <a href="../flags/dif_varedit.html">DIF_VAREDIT</a> flag).
+      See
+      <a href="../controls/index.html">dialog items</a> descriptions
+      for details.
+    </div>
+
+    <div class=dfn>Data.Ptr.PtrFlags</div>
+    <div class=dfndescr>Additional flags (not used in Dialog API 1.0).
+      <var>Ptr.PtrFlags</var> must be 0.
+    </div>
+
+    <div class=dfn>Data.Ptr.PtrLength</div>
+    <div class=dfndescr>Length of the data pointed to by <var>PtrData</var>.
+    </div>
+
+    <div class=dfn>Data.Ptr.PtrData</div>
+    <div class=dfndescr>Points to the user buffer for the edit data.
+    </div>
+
+    <div class=dfn>Data.Ptr.PtrTail</div>
+    <div class=dfndescr>"Tail" - provides access to the remaining part of the <var>Data</var> member.
+    </div>
+
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+<ol>
+<li>All information about the <dfn>FarDialogItem</dfn> structure
+is described with named unions taken into account.
+  See details in the
+  <a href="../../defs/_far_no_nameless_unions.html">_FAR_NO_NAMELESS_UNIONS</a>
+  macro description.
+
+<li>Because the <var>Data.Data</var> member size is large,
+  direct initialization of a <dfn>FarDialogItem</dfn> structures array can be
+  very memory consuming. To avoid it, you can, for example,
+  initialize a temporary structure type array with *<var>Data</var>
+  instead of <var>Data</var>[512] and then convert it to a
+  <dfn>FarDialogItem</dfn> array using a simple function.
+  </li>
+
+<li>The example function to do the abovementioned conversion can be found
+  in the sources of example plugins supplied with FAR Manager
+  (the <a href="../../addons/initdialogitems.html">InitDialogItems</a> function and the
+   <a href="../../addons/structures/initdialogitem.html">InitDialogItem</a>
+   structure).
+  </li>
+
+<li>The <dfn>Ptr.*</dfn> members are used only for
+   <a href="../controls/di_edit.html">DI_EDIT</a>
+  controls with the <a href="../flags/dif_varedit.html">DIF_VAREDIT</a> flag.
+  </li>
+
+</ol>
+</div>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="../../structures/index.html">Structures</a>,
+<a href="../../defs/_far_no_nameless_unions.html">_FAR_NO_NAMELESS_UNIONS</a>,
+<a href="../../addons/structures/initdialogitem.html">InitDialogItem</a>,
+<a href="../../delphi/tfardialogitem.html">TFarDialogItem</a>,
+<a href="../flags/index.html">Dialog item flags</a><br>
+<!--<a href="../../articles/static.html">"Cons and pros of using static variables in dialogs"</a><br>-->
+</div>
+
+</body>
+</html>

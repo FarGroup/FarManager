@@ -1,0 +1,18 @@
+EXPORTS
+   ClosePlugin
+   Configure
+   DeleteFiles
+   FreeFindData
+   GetFiles
+   GetFindData
+   GetOpenPluginInfo
+   GetPluginInfo
+   MakeDirectory
+   OpenPlugin
+   ProcessEvent
+   ProcessKey
+   PutFiles
+   SetDirectory
+   SetStartupInfo
+   Compare
+   ExitFAR

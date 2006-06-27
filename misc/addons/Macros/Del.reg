@@ -1,0 +1,26 @@
+REGEDIT4
+
+[-HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\Del]
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\Del]
+"Description"="Use Del to remove files"
+"Sequence"="F8"
+"DisableOutput"=dword:00000001
+"EmptyCommandLine"=dword:00000001
+"NotEmptyCommandLine"=dword:00000000
+
+[-HKEY_CURRENT_USER\Software\Far\KeyMacros\Search\Del]
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Search\Del]
+"Description"="Use Del to remove files"
+"Sequence"="F8"
+"DisableOutput"=dword:00000001
+"RunAfterFARStart"=dword:00000000
+"EmptyCommandLine"=dword:00000000
+"NotEmptyCommandLine"=dword:00000000
+
+[-HKEY_CURRENT_USER\Software\Far\KeyMacros\Tree\Del]
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Tree\Del]
+"Description"="Use Del to remove files"
+"Sequence"="F8"
+"DisableOutput"=dword:00000001
+"EmptyCommandLine"=dword:00000001
+"NotEmptyCommandLine"=dword:00000000

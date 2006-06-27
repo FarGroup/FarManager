@@ -1,0 +1,51 @@
+.Language=English,English
+
+"Ok"
+"Cancel"
+"Error"
+"Warning"
+
+"Temporary panel"
+" %sTemporary panel [%d] "
+
+"temporary"
+
+"Remove"
+"Switch"
+"SavLst"
+"Goto"
+
+"Updating temporary panel contents"
+"Sending files to temporary panel"
+
+"Total files:"
+"Available temporary panels"
+
+"Temporary panel"
+"Add to &Disks menu"
+"Disks menu &hotkey ('1'-'9'). Leave empty to autoassign"
+"Add to &Plugins menu"
+
+"Use &common panel"
+"&Safe panel mode"
+"&Any elements in panel"
+
+"&Replace files with file list"
+"&Menu from file list"
+"Copy folder c&ontents"
+
+"F&ull screen mode"
+
+"Column &types"
+"Column &widths"
+"Status line column t&ypes"
+"Status l&ine column widths"
+
+"File masks for the file &lists:"
+"Command line pre&fix:"
+
+"New settings will become active after FAR restart"
+"Ne&w panel for search results"
+"Save file list as"
+
+"Copy folder contents?"

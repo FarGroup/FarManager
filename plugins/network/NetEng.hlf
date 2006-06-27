@@ -1,0 +1,78 @@
+.Language=English,English
+.PluginContents=Network browser plugin
+
+@Contents
+$ #Network browser plugin.#
+    Using the network browser you can navigate through a network,
+go to mapped and unmapped network disks, map and unmap them.
+Press #F5# to map selected disks to the next available letters
+or #F6# to choose letters manually. #Shift-F5# and #Shift-F6#
+work the same as #F5# and #F6#, but create temporary connections.
+It is possible to toggle the connection type in the drive letter
+selection menu shown when #F6# or #Shift-F6# is pressed.
+Use #F8# to ~discard existing mapping~@DisconnectDrive@ for selected disks.
+
+    You can open the network browser from the disks menu,
+the plugins menu or by entering a command in the command line:
+
+    #net:#
+  or
+    #net:server_name#
+  or
+    #net:\\server_name#
+
+    If you specify the name of the server when opening the plugin
+from the command line, the list of shares of that server will be shown.
+This feature works only for Microsoft Windows networks.
+
+    Within the plugin, you can move between servers by entering a
+command in the command line:
+
+    #cd \\server_name#
+
+    This feature also works only for Microsoft Windows networks.
+
+    You can use different credentials to open remote shares. To open resource
+specifying login information explicitly use F4 key.
+
+    This feature may not work on Windows 95/98/Me systems.
+
+   ~Network browser configuration~@Config@
+
+@Config
+$ #Network browser configuration#
+    In this dialog you may change the following options:
+
+ #Add to disks menu#   Enables adding "Network" item to the disks
+                     menu.
+
+ #Disks menu hotkey#   Hotkey for the network browser item in disks
+                     menu. You may set it from 1 to 9 or leave this
+                     field empty to autoassign.
+
+ #Add to plugins menu# Enables adding "Network" item to the plugins
+                     menu.
+
+ #Show local network#  If this option is enabled, then, when the
+                     Network Browser is first opened, it will show
+                     the network neighborhood of the current
+                     computer (computers in the same domain or
+                     workgroup). The option works only for
+                     Microsoft Windows networks.
+
+ #Show hidden shares#  If this option is enabled, hidden
+                     (administrative) shares are shown in the
+                     plugin.
+
+@DisconnectDrive
+$ #Disconnect network drive#
+  You can disconnect a network drive by pressing #Del# or #F8# in the
+list of shares of a computer.
+
+  If the option #[x] Disconnect network drive# is enabled in the
+~Confirmations dialog~@:ConfirmDlg@ of the FAR configuration, a dialog
+will appear allowing you to confirm the disconnection and to choose
+whether you want to disconnect permanently or temporarily.
+
+  The option #[x] Reconnect at logon# is enabled only for permanently
+connected network drives.

@@ -1,0 +1,75 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>GetDefaultCommands</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+
+<body>
+
+<h1>GetDefaultCommands</h1>
+<div class=navbar>
+<a href="../../index.html">main</a> |
+<a href="../index.html">Custom API</a> |
+<a href="index.html">archive support</a>
+</div>
+
+<div class=shortdescr>
+Get archiver command strings used by default
+</div>
+
+<pre class=syntax>
+BOOL WINAPI GetDefaultCommands(
+  int Type,
+  int Command,
+  char *Dest
+);
+</pre>
+<h3>Parameters</h3>
+<div class=descr>
+
+    <div class=dfn>Type</div>
+    <div class=dfndescr>Archive type</div>
+    <div class=dfn>Command</div>
+    <div class=dfndescr><a href="arccommands.html">Archiver command</a> number:<br>
+    <table class="cont">
+     <tr class="cont"><th class="cont" width="40%">Number</th><th class="cont" width="60%">Description</th></tr>
+     <tr class="cont"><td class="cont" width="40%">0</td><td class="cont" width="60%">extract</td></tr>
+     <tr class="cont"><td class="cont" width="40%">1</td><td class="cont" width="60%">extract without path</td></tr>
+     <tr class="cont"><td class="cont" width="40%">2</td><td class="cont" width="60%">test</td></tr>
+     <tr class="cont"><td class="cont" width="40%">3</td><td class="cont" width="60%">delete</td></tr>
+     <tr class="cont"><td class="cont" width="40%">4</td><td class="cont" width="60%">comment archive</td></tr>
+     <tr class="cont"><td class="cont" width="40%">5</td><td class="cont" width="60%">comment files</td></tr>
+     <tr class="cont"><td class="cont" width="40%">6</td><td class="cont" width="60%">convert to SFX</td></tr>
+     <tr class="cont"><td class="cont" width="40%">7</td><td class="cont" width="60%">lock</td></tr>
+     <tr class="cont"><td class="cont" width="40%">8</td><td class="cont" width="60%">add recovery record</td></tr>
+     <tr class="cont"><td class="cont" width="40%">9</td><td class="cont" width="60%">recover</td></tr>
+     <tr class="cont"><td class="cont" width="40%">10</td><td class="cont" width="60%">add files</td></tr>
+     <tr class="cont"><td class="cont" width="40%">11</td><td class="cont" width="60%">move files</td></tr>
+     <tr class="cont"><td class="cont" width="40%">12</td><td class="cont" width="60%">add files and folders</td></tr>
+     <tr class="cont"><td class="cont" width="40%">13</td><td class="cont" width="60%">move files and folders</td></tr>
+     <tr class="cont"><td class="cont" width="40%">14</td><td class="cont" width="60%">mask to select all files</td></tr>
+    </table>
+    <br>This is how it looks like in MultiArc plugin settings:<br><br>
+    <img SRC="../../../images/help2.gif" ALT BORDER="0" width="604" height="262">
+    </div>
+
+    <div class=dfn>Dest</div>
+    <div class=dfndescr>
+Buffer for copying commands. MultiArc expects string of no more than 512 bytes.
+    </div>
+</div>
+
+<h3>Return value</h3>
+<div class=descr>
+  TRUE in case of success. FALSE if the specified archive type is unsupported. If the type is
+supported but the required command is missing return TRUE and set <dfn>Dest</dfn> to an empty string.
+</div>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="index.html">archive support</a>
+</div>
+</body>
+</html>

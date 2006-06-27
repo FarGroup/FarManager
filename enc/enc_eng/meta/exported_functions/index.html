@@ -1,0 +1,171 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>Exported functions</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="JavaScript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+<h1>Exported functions</h1>
+<div class=navbar>
+<a href="../index.html">main</a>
+</div>
+
+
+<div class=shortdescr>
+  <p>FAR Manager communicates with its plugins by a set of functions
+  exported by the plugins. A plugin does not need to export all functions listed below.
+  Implement only those that are required by the functionality of the plugin.
+  <br><br></p>
+
+  <p class=note><img src="../../images/note.gif" alt="Attention!" width="10" height="10"> Attention!</p>
+  <UL class=note><LI>All file names passed to FAR must be in OEM code page.
+  FAR also passes file names in OEM code page.
+
+  Before calling plugin functions FAR calls
+  <a href="../winapi/setfileapistooem.html">SetFileApisToOEM</a>.
+  If plugin uses anywhere
+  <a href="../winapi/setfileapistoansi.html">SetFileApisToANSI</a>,
+  it must call
+  <a href="../winapi/setfileapistooem.html">SetFileApisToOEM</a>
+  again before returning control to FAR.
+  </LI></UL>
+</div>
+
+<h3>Common functions</h3>
+
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Function</th><th class="cont" width="60%">Description</th></tr>
+
+<tr class="cont">
+<td class="cont" width="40%"><a href="closeplugin.html">ClosePlugin</a></td>
+<td class="cont" width="60%">before closing an open plugin instance.</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="configure.html">Configure</a></td>
+<td class="cont" width="60%">plugin configuration</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="exitfar.html">ExitFAR</a>
+<td class="cont" width="60%">before closing the FAR Manager</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="getminfarversion.html">GetMinFarVersion</a></td>
+<td class="cont" width="60%">get mininum FAR Manager version</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="getopenplugininfo.html">GetOpenPluginInfo</a></td>
+<td class="cont" width="60%">get information about an open plugin instance</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="getplugininfo.html">GetPluginInfo</a></td>
+<td class="cont" width="60%">get plugin information</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="setstartupinfo.html">SetStartupInfo</a></td>
+<td class="cont" width="60%">global settings</td>
+</tr>
+</table>
+
+<h3>File panel specific functions</h3>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Function</th><th class="cont" width="60%">Description</th></tr>
+
+<tr class="cont">
+<td class="cont" width="40%"><a href="compare.html">Compare</a></td>
+<td class="cont" width="60%">overrides sorting algorithm</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="deletefiles.html">DeleteFiles</a></td>
+<td class="cont" width="60%">delete files</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="freefinddata.html">FreeFindData</a></td>
+<td class="cont" width="60%">frees memory, allocated by GetFindData</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="freevirtualfinddata.html">FreeVirtualFindData</a></td>
+<td class="cont" width="60%">frees memory, allocated by GetVirtualFindData</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="getfiles.html">GetFiles</a></td>
+<td class="cont" width="60%">get files</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="getfinddata.html">GetFindData</a></td>
+<td class="cont" width="60%">get file list</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="getvirtualfinddata.html">GetVirtualFindData</a></td>
+<td class="cont" width="60%">get files</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="makedirectory.html">MakeDirectory</a></td>
+<td class="cont" width="60%">make a directory</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="openfileplugin.html">OpenFilePlugin</a></td>
+<td class="cont" width="60%">open a file</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="openplugin.html">OpenPlugin</a></td>
+<td class="cont" width="60%">create a new plugin instance</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="processevent.html">ProcessEvent</a></td>
+<td class="cont" width="60%">process events</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="processhostfile.html">ProcessHostFile</a></td>
+<td class="cont" width="60%">execute archive commands</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="processkey.html">ProcessKey</a></td>
+<td class="cont" width="60%">process keyboard events</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="putfiles.html">PutFiles</a></td>
+<td class="cont" width="60%">put files to the emulated file system</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="setdirectory.html">SetDirectory</a></td>
+<td class="cont" width="60%">set current directory in the emulated file system</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="setfindlist.html">SetFindList</a></td>
+<td class="cont" width="60%">transfers found files from the "Find file" dialog to the emulated file system</td>
+</tr>
+</table>
+
+<h3>Editor specific functions</h3>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Function</th><th class="cont" width="60%">Description</th></tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="processeditorinput.html">ProcessEditorInput</a></td>
+<td class="cont" width="60%">process keyboard events</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="processeditorevent.html">ProcessEditorEvent</a></td>
+<td class="cont" width="60%">process editor events</td>
+</tr>
+</table>
+
+<h3>Viewer specific functions</h3>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Function</th><th class="cont" width="60%">Description</th></tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="processviewerevent.html">ProcessViewerEvent</a></td>
+<td class="cont" width="60%">process viewer events</td>
+</tr>
+</table>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="../service_functions/index.html">Service functions</A>,
+<a href="../structures/index.html">Structures</A>,
+<a href="../customapi/index.html">Archive support</A>,
+<a href="../addons/index.html">Addons</a>
+</div>
+
+</body>
+</html>

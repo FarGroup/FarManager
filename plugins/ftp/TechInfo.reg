@@ -1,0 +1,240 @@
+REGEDIT4
+
+[HKEY_CURRENT_USER\Software\Far\plugins\FTP]
+
+;Current developer:
+;  JouriM<at>uran.ru, 2:5080/80.66
+;------------------------------------------------------------------------
+;   LogType: Logical type
+;   RegType: Registry data type
+;      Name: Name of the key
+;   Default: Default value (if registry key is not found)
+;   Meaning: Description
+;------------------------------------------------------------------------
+;
+; 1.LogType: int
+;   RegType: DWORD
+;      Name: WaitIdle
+;   Default: 0 (milliseconds)
+;   Meaning: Delay in socket wait function.
+;            The value is a number of milliseconds before appropriate calls of
+;            Windows API.
+;            Larger value will decrease usage of CPU by the plugin, giving
+;            more CPU time to other applications, but connection/transfer
+;            speed may become greatly slower.
+;            Zero value means not to wait at all.
+;            See WaitCounter for details of waiting.
+;
+; (uncomment next line to set value in registry)
+;"WaitIdle" = dword:0
+
+;------------------------------------------------------------------------
+; 2.LogType: int
+;   RegType: DWORD
+;      Name: WaitCounter
+;   Default: 30
+;   Meaning: Delay in socket wait function (counter).
+;            Used only if WaitIdle nonzero.
+;            This values determine the pause between free slices using WaitIdle.
+;            This value is one second divider.
+;            It means the real time amount determined by this value calculated
+;            as:
+;              TimeAmount = 1 second / WaitCounter
+;            Plugin will free system slice to decrease CPU usage using next
+;            algorithm:
+;               if WaitCounter <= 0 OR WaitIdle <= 0 then
+;                   <do not free slices>
+;               if TimeSpentSinceLastFreeSliceOperation > 1 / WaitCounter then
+;                   Free( WaitIdle milliseconds )
+;
+;"WaitCounter" = dword:0
+
+;------------------------------------------------------------------------
+; 3.LogType: set of strings
+;   RegType: strings
+;      Name: Names of months to customize.
+;            plugin search for next strings from registry:
+;              "Jan","Feb","Mar","Apr","May","Jun","Jul",
+;              "Aug","Sep","Oct","Nov","Dec"
+;   Default: -- (the same values as string names)
+;   Meaning: Some FTP servers use month names in regional language.
+;            U can customize this values to correct understood by plugin.
+;            You can use "months.reg" as a pattern to quickly create your own
+;            month names.
+;            You can set any numbers of month names delimited by ';' character.
+;            Note: if you use multiple names delimited with ';' character you
+;                  MUST end names list with ';' character too.
+;            F.i.: "Jan"="Jan;Ÿ­¢;"
+;
+; (uncomment next lines to set values in registry)
+;"Jan"="Jan"
+;"Feb"="Feb"
+;"Mar"="Mar"
+;"Apr"="Apr"
+;"May"="May"
+;"Jun"="Jun"
+;"Jul"="Jul"
+;"Aug"="Aug"
+;"Sep"="Sep"
+;"Oct"="Oct"
+;"Nov"="Nov"
+;"Dec"="Dec"
+
+;------------------------------------------------------------------------
+; 4.LogType: int
+;   RegType: DWORD
+;      Name: IdleShowPeriod
+;   Default: 700 (milliseconds)
+;   Meaning: Show period for "Waiting XX%" message in milliseconds.
+;            Use zero value to disable drawing of this message.
+;
+; (uncomment next line to set value in registry)
+;"IdleShowPeriod" = dword:2BC
+
+;------------------------------------------------------------------------
+; 5.LogType: int
+;   RegType: DWORD
+;      Name: IdleStartPeriod
+;   Default: 0 (milliseconds)
+;   Meaning: Delay to show first idle message.
+;            Affects only then value bigger then IdleShowPeriod.
+;            Used to filter unstable connection to prevent short-time idle
+;            messages appear on screen.
+;
+; (uncomment next line to set value in registry)
+;"IdleStartPeriod" = dword:0
+
+;------------------------------------------------------------------------
+; 6.LogType: set of strings
+;   RegType: strings
+;      Name: Names of FTP commands to execute (see FtpCmds.txt for details)
+;   Default: --
+;   Meaning: You can customize any FTP command used by plugin by change
+;            it string value.
+;            The length of command limited by 20 characters
+;
+; (uncomment next lines to set values in registry)
+;"xcmdPUT"="STOR"
+;"xcmdSTOR"="STOR"
+;"xcmdSTOU"="STOU"
+;"xcmdPASV"="PASV"
+;"xcmdPORT"="PORT"
+;"xcmdMDTM"="MDTM"
+;"xcmdRETR"="RETR"
+;"xcmdREST"="REST"
+;"xcmdCWD"="CWD"
+;"xcmdXCWD"="XCWD"
+;"xcmdDELE"="DELE"
+;"xcmdRNFR"="RNFR"
+;"xcmdRNTO"="RNTO"
+;"xcmdLIST"="LIST"
+;"xcmdNLIST"="NLIST"
+;"xcmdUSER"="USER"
+;"xcmdPASS"="PASS"
+;"xcmdACCT"="ACCT"
+;"xcmdPWD"="PWD"
+;"xcmdXPWD"="XPWD"
+;"xcmdMKD"="MKD"
+;"xcmdXMKD"="XMKD"
+;"xcmdRMD"="RMD"
+;"xcmdXRMD"="XRMD"
+;"xcmdSITE"="SITE"
+;"xcmdUMASK"="UMASK"
+;"xcmdIDLE"="IDLE"
+;"xcmdHELP"="HELP"
+;"xcmdQUIT"="QUIT"
+;"xcmdCDUP"="CDUP"
+;"xcmdXCUP"="XCUP"
+;"xcmdSYST"="SYST"
+;"xcmdSIZE"="SIZE"
+;"xcmdSTAT"="STAT"
+
+;------------------------------------------------------------------------
+; 7.[HKEY_CURRENT_USER\Software\Far\plugins\FTP\ServerDateFormat]
+;   LogType: STRING
+;   RegType: STRING
+;      Name: ServerDateFormat
+;   Default: "%*s %04d%02d%02d%02d%02d%02d"
+;            (without quotes)
+;   Meaning: Format of server reply string with date-time of single file (see
+;            MDTM command in "FtpCmds.txt").
+;            This string if the format for `scanf` C function.
+;            The format used as:
+;              scanf( ServerDateFormat, &year,&month,&day,&hour,&min,&sec );
+;            and must be designed to read size integer fields or plugin may
+;            crash.
+;
+; (uncomment next line to set value in registry)
+;ServerDateFormat = "%*s %04d%02d%02d%02d%02d%02d"
+
+;------------------------------------------------------------------------
+; 8.LogType: bit-field
+;   RegType: DWORD
+;      Name: PwdSecurity
+;   Default: 0
+;   Meaning: Value is a set of bits, each of them define one security option.
+;            Description determines type of hexadecimal number.
+;            The value is ON if number contains in registry key value and
+;            is OFF if registry value does not contain number.
+;            The numbers are:
+;              0x0001   - place passwords in url as plain text
+;
+; (uncomment next line to set value in registry)
+;"PwdSecurity" = dword:1
+
+;------------------------------------------------------------------------
+; 9.LogType: int
+;   RegType: DWORD
+;      Name: RetryTimeout
+;   Default: 10
+;   Meaning: Auto retry pause.
+;            Plugin will wait specified number of seconds for user cancel or
+;            confirm retry operation.
+;            If user cancel operation - it will be aborted, if user do nothing
+;            plugin resume error operation.
+;            This rule always used for the next operations:
+;              - upload a file;
+;              - download a file;
+;              - query directory structure before downloading a file;
+;              - creation of a directory;
+;            Set this value to zero for disable auto resume.
+;
+; (uncomment next line to set value in registry)
+;"RetryTimeout" = dword:A
+
+;------------------------------------------------------------------------
+;10.LogType: BOOL
+;   RegType: DWORD
+;      Name: TruncateLogFile
+;   Default: FALSE
+;   Meaning: If this value set to TRUE (nonzero) plugin will delete old log
+;            file on every start.
+;
+; (uncomment next line to set value in registry)
+;"TruncateLogFile" = dword:0
+
+;------------------------------------------------------------------------
+;11.LogType: STRING
+;   RegType: strings
+;      Name: InvalidSymbols and CorrectedSymbols
+;
+;   Default: "/<>|?*\"" and
+;            "!()!__\'"
+;
+;   Meaning: This strings define conversion rulles for characters in th names
+;            of downloading files.
+;
+;     Usage: You must define two strings. One contains symbols must be replaced and
+;            the second symbols to replace with.
+;
+;      Note: DO NOT define backslash ('\') character as symbol to replace.
+;            plugin uses this replacement for correct full pathnames and if you
+;            command to replace backslash characters plugin will create wrong directories
+;            and files.
+;
+;      Note: Strings length must be the same.
+;            On load plugin will truncate strings to the length of smalest one.
+;
+; (uncomment next line to set value in registry)
+;"InvalidSymbols"   = "/<>|?*\""
+;"CorrectedSymbols" = "!()!__\'"

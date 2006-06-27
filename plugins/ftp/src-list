@@ -1,0 +1,15 @@
+*.bcb
+*.vc6
+*.cpp
+*.c
+*.h
+*.rc
+*.diz
+*.def
+*.reg
+*.inc
+!!*
+*.txt
+*.desc
+*.lng
+*.hlf

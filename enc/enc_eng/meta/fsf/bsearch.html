@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>FSF.bsearch</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>bsearch</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a href="index.html">FarStandardFunctions</a>
+</div>
+
+<div class=shortdescr>
+The <dfn>FSF.bsearch</dfn> function allows to perform a binary search of a sorted array.
+</div>
+
+<pre class=syntax>
+void* WINAPI bsearch(
+  const void *key,
+  const void *base,
+  size_t nelem,
+  size_t width,
+  int (<b>__cdecl</b> *fcmp)(const void *, const void *)
+);
+</pre>
+
+<h3>Parameters</h3>
+<div class=descr>
+  <div class=dfn>key</div>
+  <div class=dfndescr>Points to a value that you want to search for.
+  </div>
+
+  <div class=dfn>base</div>
+  <div class=dfndescr>Points to an element from which you want the search to be started.
+  </div>
+
+  <div class=dfn>nelem</div>
+  <div class=dfndescr>The number of elements in the array you want to search.
+  </div>
+
+  <div class=dfn>width</div>
+  <div class=dfndescr>The size of each element in bytes.
+  </div>
+
+  <div class=dfn>fcmp</div>
+  <div class=dfndescr>
+  User-defined comparison function that must be declared with __cdecl - C-style
+  calling convention. This function must compare two accepted elements and return
+  an integer value:
+
+  <table border = 0>
+   <tr><td>*elem1 &lt; *elem2</td><td>- fcmp returns value < 0</td></tr>
+   <tr><td>*elem1 == *elem2</td><td>- fcmp returns value == 0</td></tr>
+   <tr><td>*elem1  &gt; *elem2</td><td>- fcmp returns value > 0</td></tr>
+  </table>
+  </div>
+</div>
+
+<h3>Return value</h3>
+<div class=descr>
+<dfn>bsearch</dfn> returns the address of the first occurrence of <em>key</em> value in the array
+<dfn>base</dfn> or NULL if no occurrence found.
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+See the C/C++ run-time library reference for more information.
+</div>
+
+<h3>Example</h3>
+<div class=descr>
+</div>
+
+
+<div class=see>See also:</div><div class=seecont>
+<a href="qsort.html">FSF.qsort</a>
+</div>
+
+</body>
+</html>

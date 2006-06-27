@@ -1,0 +1,277 @@
+.Language=English,English
+.PluginContents=Archive support plugin
+
+@Contents
+$^#Archive support plugin#
+    This FAR module performs transparent #archive# processing.
+Files in the archive are handled in the same manner as if they
+were in a folder: when you operate with the archive, FAR
+transforms your commands into the corresponding external
+archiver calls.
+
+   ~Adding files to archive~@AddToArc@
+
+   ~Extracting files from archive~@ExtrFromArc@
+
+   ~Archive commands~@ArcCmd@
+
+   ~Archive support configuration~@ArcSettings1@
+
+   ~Archiver command lines~@ArcSettings2@
+
+   ~Storage of plugin settings~@ArcSettings3@
+
+   E-mail all bugs and suggestions to ~multiarc@@farmanager.com~@mailto:multiarc@@farmanager.com@
+
+@AddToArc
+$ #Adding files to archive#
+    In this dialog you may choose the archiver, add or change
+command line switches (default switches may be defined using
+the ~Archiver settings~@ArcSettings2@ dialog), enter a password
+to encrypt files during archiving.
+
+    The option #Delete files after archiving# forces the archiver
+to move rather than copy files to the archive. This option is turned
+on automatically if the key #F6# is used to add files to an archive.
+
+    The option #Exact archive filename# allows to create archives with
+nonstandard extensions (if this is supported by the archiver). If the
+option is turned off, the extension defined in the
+~Archiver command lines~@ArcSettings2@ dialog is appended to the name
+entered in the dialog.
+
+    The option #Background# starts the archiving process in a separate window.
+
+    The #Priority of process# option allows to change the execution
+~priority~@ArcPrior@ of the archiving process.
+
+    Pressing the #Save settings# button saves the current archiver and
+switches for future usage.
+
+    Pressing the keys #Shift-F1# has the same effect as pushing the
+"Select archiver" button and allows to select the archiver type to use.
+
+    When a new archive is created, the cursor is automatically
+positioned to the new archive once the archiving operation is
+complete. (This is not done when the archiver is started in a
+separate window.)
+
+@ArcPrior
+$ #Priority of process#
+    MultiArc allows to control the execution priority
+of the archiving process. The following priorities are available:
+
+    #low#
+    Background priority, foreknown to be lower than the priority of any
+other process in the system. Archiving will be very slow if any other
+process is active.
+
+    #below normal#
+    Priority above #low#, but below #normal#. Sets the priority of the
+archiving process above the background tasks, but lower than the
+execution priority of normal tasks (only in Windows 2000 or newer).
+
+    #normal#
+    Archiving is executed along with other tasks on the computer.
+
+    #above normal#
+    Priority above "normal", but below "high". Archiving is given higher
+priority than all other normal processes, and can substantially slow
+down their execution (only in Windows 2000 or newer).
+
+    #high#
+    Specify this priority for time-critical archiving that must be
+executed without delay. ATTENTION: Use extreme care when using the high
+priority, because a high priority application can use nearly all
+available CPU time, while the gain from using this priority can only be
+achieved when other active processes are running in the system.
+
+    The "normal" priority is selected by default.
+
+@ExtrFromArc
+$ #Extracting files from archive#
+    In this dialog you may enter the path to extract files and set the
+password to decrypt archived files.
+
+    Option #Extract without pathnames# forces extraction of all files
+to the same folder.
+
+    If the option #Delete from archive after extracting# is turned on,
+the files will be deleted from the archive after they are extracted.
+This option is turned on automatically if the key #F6# is used to extract
+files from an archive.
+
+    To immediately extract selected archived files to the current folder
+you may also use #Alt-F6#.
+
+@ArcCmd
+$ #Archive commands#
+    From this menu you can test archive, add an archive comment,
+convert an archive to SelF-eXtracting (SFX), try to recover a
+broken archive, protect an archive from damage or disable
+archive modifications.
+
+    Notes:
+
+    1. To execute an archive management command you need to have
+the corresponding archiver tool. Archiver options may be changed
+in the ~Archiver settings~@ArcSettings2@ dialog.
+
+    For quick access to archiver options, you can press the key
+F4 in the "Archive commands" menu.
+
+    2. The whole set of archive management commands may only be
+used with RAR and ACE archives. Other archivers will support only
+a sub-set of these commands.
+
+@Config
+$ #Plugin configuration#
+
+    ~Archive support configuration~@ArcSettings1@
+
+    ~Archiver command lines~@ArcSettings2@
+
+    ~Storage of plugin settings~@ArcSettings3@
+
+@ArcSettings1
+$ #Archive support configuration#
+    In this dialog you may change following parameters:
+
+ #The way of archivers#   Do not hide archiver output,
+ #output displaying#      hide for view operation or hide always
+
+ #Process Shift-F1#       Add files to archives on Shift-F1.
+ #command#                You may wish to disable this option
+                        if you have another archive support plugin
+                        installed, which processes Shift-F1 command.
+
+ #Change folder when#     If a new archive is created not in the
+ #setting the cursor#     current folder, change the folder and
+ #on new archive#         position the cursor on the archive.
+                        If the option is off, the cursor will be
+                        positioned on the archive only if it is
+                        created in the current folder.
+
+ #Use last command#       When adding files to archives, the last
+ #from history#           used value of the archiver command line
+                        switches will be placed in the "Switches"
+                        edit line.
+
+ #Automatically reset#    The option "Exact archive filename"
+ #"Exact archive#         will be turned off every time the dialog
+ #filename"#              "Add to archive" is invoked
+
+ #Description list#       Names of files with ~descriptions~@:FileDiz@ of archived
+ #names delimited#        files.
+ #with commas#
+
+ #Read archive#           Read descriptions of archived files
+ #descriptions#           when entering to an archive. This enables
+                        the viewing of descriptions but slows down
+                        archive reading.
+
+ #Update archive#         Update descriptions of archived files
+ #descriptions#           after adding to or deleting from an archive.
+
+
+@ArcSettings2
+$ #Archiver command lines#
+    In this dialog you may change external archiver command lines
+for different archive processing operations, the ~mask~@:FileMasks@ that will
+be used to select all files and the archive extension (it must not begin
+with a dot).
+
+    To reset all the settings of an archiver to the default values,
+press the Reset button.
+
+    The following variables may be used:
+
+ #%%A# - Archive name.
+
+ #%%a# - Short archive name.
+
+ #%%W# - Temporary folder including the terminating slash.
+
+ #%%P# - Password.
+
+ #%%R# - Current archive folder.
+
+ #%%L# - Filelist name. Filelist is the file containing names of files
+       to be processed by the external archiver.
+
+ #%%l# - Filelist with short file names.
+
+ #%%F# - Names of one or more files to be processed. If all names
+       cannot be placed in a single string, the archiver will be
+       executed several times until all file names are exhausted.
+       By default maximum total command length is 127, but you can
+       specify it directly after %%F, for example %%F512.
+       Variable %%F should be used only if the destination archiver
+       does not support filelists.
+
+ #%%f# - The name of a single file to process. The archiver will be
+       executed several times until all file names are exhausted.
+       This variable should be used only if the destination archiver
+       does not support filelists or multiple file names on
+       the command line.
+
+ #%%E#<errorlevel> - maximum acceptable command errorlevel.
+       For example, %%E2 indicates that errorlevels 0, 1 and 2
+       are acceptable. This variable may be specified in any place
+       of command. If it is absent, only errorlevel 0 is considered
+       as successful.
+
+ #%%S# - Place in the command line to insert additional switches,
+       specified in the second string of "Add" dialog. If this
+       variable is absent, switches are added to end of command
+       line.
+
+    Variable modifiers Q, q, S, M, N, *, W, P can be used to change
+file names format details:
+
+    'Q' - quote names with spaces;
+    'q' - quote all names;
+    'S' - use '/' instead of '\' in pathnames;
+    'M' - transfer folder names to archiver as 'foldername\*.*';
+    'N' - transfer folder names to archiver as 'foldername';
+    '*' - use '*' mask to select all files. This modifier
+          overrides "All files mask" parameter for single
+          archiver command;
+    'W' - use name only, without path;
+    'P' - use path only, without name;
+    'A' - use ANSI encoding.
+
+    These modifiers may be specified immediately after %%F, %%f, %%L
+or %%l variables without spaces. 'P' and 'A' also may be used with
+%%A and %%a. Several modifiers are allowed, for example %%LMN or
+%%F*QSN128 are valid. If neither 'M' nor 'N' modifier is specified,
+'N' is assumed. If both 'M' and 'N' are specified, both 'foldername'
+and 'foldername\*.*' will be transferred to archiver.
+
+    If a part of the external archiver command string is enclosed
+in {  } braces, it will be added to the resulting string only
+if this part contains at least one non-empty variable
+from those described above.
+
+    If an external archiver does not support a particular command,
+leave the corresponding string blank.
+
+@ArcSettings3
+$ #Storage of plugin settings#
+    The plugin uses the following rules to load/save the settings of
+supported format modules:
+
+  1. #[HKEY_LOCAL_MACHINE\SOFTWARE\Far\Plugins\MultiArc\Type]#
+     contains the settings common for all users. These settings can
+     only be changed by editing the registry manually, for example,
+     using *.reg files.
+
+  2. Any changes to the archiver command line settings are stored to
+     #[HKEY_CURRENT_USER\SOFTWARE\Far\Plugins\MultiArc\Type]#.
+
+  3. The plugin reads the archiver command line settings in the
+     following sequence:
+
+     a) [HKEY_CURRENT_USER\SOFTWARE\Far\Plugins\MultiArc\Type]
+     b) [HKEY_LOCAL_MACHINE\SOFTWARE\Far\Plugins\MultiArc\Type]
+     c) settings provided by the FMT module.

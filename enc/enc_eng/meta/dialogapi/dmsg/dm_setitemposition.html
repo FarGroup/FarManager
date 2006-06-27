@@ -1,0 +1,57 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>DM_SETITEMPOSITION</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>DM_SETITEMPOSITION</h1>
+<div class=navbar>
+<a  href="index_dm.html">Messages</a> |
+<a href="../index.html">Dialog API</a><br>
+</div>
+
+<div class=shortdescr>
+The <dfn>DM_SETITEMPOSITION</dfn> message is sent to the dialog manager
+to change the position of a dialog item.
+</div>
+
+<h3>Param1</h3>
+<div class=descr>
+The ID of the dialog item for which the position is changed.
+</div>
+
+<h3>Param2</h3>
+<div class=descr>
+Pointer to a  <a href="../../winapi/small_rect.html">SMALL_RECT</a> structure
+containing the new item coordinates.
+</div>
+
+<h3>Return</h3>
+<div class=descr>
+TRUE - item position has been changed.<br>
+FALSE - item wiht such ID does not exist.
+</div>
+
+<h3>Controls</h3>
+<div class=descr>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
+<tr class="cont"><td class="cont" width="40%">All</td>
+<td class="cont" width="60%">All dialog items</td></tr>
+</table>
+</div>
+
+
+<div class=see>See also:</div><div class=seecont>
+<a href="../dialogex.html">DialogEx</a><br>
+<a href="dm_getitemposition.html">DM_GETITEMPOSITION</a><br>
+<a href="dm_resizedialog.html">DM_RESIZEDIALOG</a><br>
+
+</div>
+
+</body>
+</html>

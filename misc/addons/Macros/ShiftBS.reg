@@ -1,0 +1,20 @@
+REGEDIT4
+
+[-HKEY_CURRENT_USER\Software\Far\KeyMacros\Dialog\ShiftBS]
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Dialog\ShiftBS]
+"Description"="Converts the word before cursor using XLat function"
+"Sequence"="CtrlShiftLeft $XLat CtrlRight"
+"DisableOutput"=dword:00000001
+
+[-HKEY_CURRENT_USER\Software\Far\KeyMacros\Editor\ShiftBS]
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Editor\ShiftBS]
+"Description"="Converts the word before cursor using XLat function"
+"Sequence"="CtrlShiftLeft $XLat CtrlRight"
+"DisableOutput"=dword:00000001
+
+[-HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\ShiftBS]
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\ShiftBS]
+"Description"="Converts the word before cursor using XLat function"
+"Sequence"="CtrlShiftLeft $XLat CtrlRight"
+"DisableOutput"=dword:00000001
+"NotEmptyCommandLine"=dword:00000001

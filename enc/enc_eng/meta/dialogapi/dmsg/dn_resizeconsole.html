@@ -1,0 +1,109 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>DN_RESIZECONSOLE</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>DN_RESIZECONSOLE</h1>
+<div class=navbar>
+<a  href="index_dn.html">Events</a> |
+<a href="../index.html">Dialog API</a><br>
+</div>
+
+<div class=shortdescr>
+The <dfn>DN_RESIZECONSOLE</dfn> event is sent to the dialog callback function after the console
+window size has changed (for example, when the user presses <kbd>Alt-F9</kbd>).
+</div>
+
+<h3>Param1</h3>
+<div class=descr>
+0
+</div>
+
+<h3>Param2</h3>
+<div class=descr>
+Pointer to a <a href="../../winapi/coord.html">COORD</a> structure containing the current size of
+the console.
+</div>
+
+<h3>Return</h3>
+<div class=descr>
+<code>TRUE</code>.
+</div>
+
+<h3>Controls</h3>
+<div class=descr>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
+<tr class="cont"><td class="cont" width="40%">Dialog</td>
+<td class="cont" width="60%">This event apllies only to the dialog</td></tr>
+</table>
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+The <dfn>DN_RESIZECONSOLE</dfn> message is useful in the case when a dialog can adapt to the
+current size of the console. An example of such functionality is the Find files dialog (<kbd>Alt-F7</kbd>).
+</div>
+
+<h3>Example</h3>
+<div class=descr>
+Adaptation of Find File's (<kbd>Alt-F7</kbd>) dialog size when console size changes:
+<pre class=code>
+case DN_RESIZECONSOLE:
+{
+  COORD coord=(*(COORD*)Param2);
+  SMALL_RECT rect;
+  int IncY=coord.Y-DlgHeight-4;
+
+  ...
+
+  Info.SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
+
+  Info.SendDlgMessage(hDlg,DM_GETDLGRECT,0,(long)&amp;rect);
+  coord.X=rect.Right-rect.Left+1;
+  DlgHeight+=IncY;
+  coord.Y=DlgHeight;
+
+  if (IncY &gt; 0)
+    Info.SendDlgMessage(hDlg,DM_RESIZEDIALOG,0,(long)&amp;coord);
+
+  for (I=0; I &lt; 2; I++)
+  {
+    Info.SendDlgMessage(hDlg,DM_GETITEMPOSITION,I,(long)&amp;rect);
+    rect.Bottom+=(short)IncY;
+    Info.SendDlgMessage(hDlg,DM_SETITEMPOSITION,I,(long)&amp;rect);
+  }
+
+  for (I=2; I &lt; 10; I++)
+  {
+    Info.SendDlgMessage(hDlg,DM_GETITEMPOSITION,I,(long)&amp;rect);
+    if (I==2)
+      rect.Left=-1;
+    rect.Top+=(short)IncY;
+    Info.SendDlgMessage(hDlg,DM_SETITEMPOSITION,I,(long)&amp;rect);
+  }
+
+  if (IncY &lt;= 0)
+    Info.SendDlgMessage(hDlg,DM_RESIZEDIALOG,0,(long)&amp;coord);
+
+  Info.SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
+
+  ...
+
+  return TRUE;
+}</pre>
+
+</div>
+
+
+<div class=see>See also:</div><div class=seecont>
+<a href="../dialogex.html">DialogEx</a><br>
+</div>
+
+</body>
+</html>

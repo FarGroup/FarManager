@@ -1,0 +1,356 @@
+
+     ARJ TECHNICAL INFORMATION                              September 2001
+
+
+     ** IMPORTANT NEWS ****************************************************
+
+     Some archiver support programs have designed ARJ archive
+     identification schemes that are not reliable.  At ARJ 2.50, there
+     are now three versions of the ARJSFX self-extraction module.  The
+     18K byte ARJSFX module and the larger ARJSFXV/32 module support
+     ARJ-SECURITY.  For the first time, the ARJ-SECURITY fields in the
+     main ARJ header are publicly defined.
+
+     In addition, the main ARJ header in self-extracting archives MAY NOT
+     immediately follow the EXE module now.
+
+     ARJ has used the same ARJ archive identification scheme since ARJ
+     1.0.  The following is the algorithm:
+
+     (1) find the ARJ header id bytes 0x60, 0xEA,
+     (2) read the next two bytes as the header record size in bytes,
+     (3) if the record size is greater than 2600, go back to the header
+         id file position, increment the file position, and go back to
+         step (1),
+     (4) read the header record based upon the previous byte count,
+     (5) calculate the 32 bit CRC of the header record data,
+     (6) read the next four bytes as the actual header record CRC,
+     (7) if the actual CRC does not equal the calculated CRC, go back
+         to the header id file position, increment the file position,
+         and go back to step (1).
+
+     It is acceptable to start this identification algorithm at a point
+     just after the ARJ self-extraction EXE portion of an archive.  This
+     algorithm is fully demonstrated in the UNARJ C source code. A portion
+     of that source code is excerpted at the end of this document.
+
+     As of ARJ 2.10, the SFX executable modules are pre-compressed
+     using LZEXE.  This may cause false indications with EXE scanning
+     programs showing that an ARJ SFX archive is a LZEXE compressed
+     file.  Only the executable header module is LZEXE compressed.
+     The actual archive is ARJ compressed, of course.  The LZEXE
+     header is modified to avoid extraction by UNLZEXE type programs.
+     UNLZEXE may truncate an ARJ self-extractor of its archive.
+
+     All SFX modules have an identification string located in the
+     first 1000 characters of the executable.  The identification
+     string is "aRJsfX" without the quotes and in the exact case.
+
+     When using listfiles with ARJ, ARJ support programs should use the
+     "-p" option to ensure that ARJ will only extract the selected files
+     from an ARJ archive.  In addition, the listfiles should contain the
+     full pathname information as stored in the ARJ archive.  This avoids
+     the problem accessing files that have the same filename but different
+     paths.
+
+     There is an extended header bug in older versions of ARJ, AV.C and
+     UNARJ.C.  The extended header processing in read_header() should
+     skip 4 bytes for the extended header CRC and not 2.  This is NOT a
+     current problem as no versions of ARJ use the extended header.
+
+     **********************************************************************
+
+
+     Modification history:
+     Date      Description of modification:
+     --------  ------------------------------------------------------------
+     09/18/01  Added a second flag byte to main header.
+     09/13/01  Added original file size even for volumes.
+     08/28/01  Added WIN32 to Host OS names representing WinNT/Win2000.
+     08/07/99  Added new ARJPROTECT flag and protection factor.
+               Increased main archive header by four bytes.
+     01/01/99  Added new ANSIPAGE flag to replace old security flag.
+     11/24/98  Added new file header format.
+     07/16/98  Added new encryption scheme.
+     03/11/97  Added methods 8 and 9.
+     06/21/96  Added information about new encryption scheme.
+     04/11/96  Added information about chapters. Obsoleted backup files.
+     07/07/95  Added information about SFX id string.
+     11/03/94  Improved SFX identification information.
+     01/21/94  Added find_header() routine.
+     03/17/93  Added information about ARJSFX change.
+     02/17/93  Added description of ARJ security fields.
+               Added archive date-modified field.
+     12/03/91  Added BACKUP flag to header arj flags.
+     11/21/91  Described the two types of headers separately.
+     11/11/91  Added information about the change in text mode processing.
+     06/28/91  Added several new HOST OS numbers.
+     05/19/91  Improved the description of extended header processing.
+     05/11/91  Simplified this document.  Added volume label type.
+     03/11/91  Added directory file type.
+     02/23/91  Added more comments.
+     01/10/91  Corrected timestamp description and header order of file mode.
+     10/30/90  Corrected values of flags in ARJ flags.
+
+
+     ARJ archives contains three types of header blocks:
+
+        Archive main header - This is located at the head of the archive
+        Local file header   - This is located before each archived file
+        Chapter header      - This is usually located each series of
+                              chapter files.
+
+     Structure of main header (low order byte first):
+
+     Bytes Description
+     ----- -------------------------------------------------------------------
+00000  2   header id (main and local file) = 0x60 0xEA
+00002  2   basic header size (from 'first_hdr_size' thru 'comment' below)
+                 = first_hdr_size + strlen(filename) + 1 + strlen(comment) + 1
+                 = 0 if end of archive
+                 maximum header size is 2600
+
+00004  1   first_hdr_size (size up to and including 'extra data')
+00005  1   archiver version number
+00006  1   minimum archiver version to extract
+00007  1   host OS   (0 = MSDOS, 1 = PRIMOS, 2 = UNIX, 3 = AMIGA, 4 = MAC-OS)
+                     (5 = OS/2, 6 = APPLE GS, 7 = ATARI ST, 8 = NEXT)
+                     (9 = VAX VMS, 10 = WIN95, 11 = WIN32)
+00008  1   arj flags
+                     (0x01 = GARBLED_FLAG)
+                     (0x02 = OLD_SECURED_FLAG) obsolete
+                     (0x02 = ANSIPAGE_FLAG) indicates ANSI codepage used by
+                                            ARJ32
+                     (0x04 = VOLUME_FLAG)   indicates presence of succeeding
+                                            volume
+                     (0x08 = ARJPROT_FLAG)
+                     (0x10 = PATHSYM_FLAG)  indicates archive name translated
+                                            ("\" changed to "/")
+                     (0x20 = BACKUP_FLAG)   obsolete
+                     (0x40 = SECURED_FLAG)
+                     (0x80 = ALTNAME_FLAG)  indicates dual-name archive
+00009  1   security version (2 = current)
+0000A  1   file type        (must equal 2)
+0000B  1   reserved
+0000C  4   date time when original archive was created
+00010  4   date time when archive was last modified
+00014  4   archive size (currently used only for secured archives)
+00018  4   security envelope file position
+0001C  2   filespec position in filename
+0001E  2   length in bytes of security envelope data
+00020  1   encryption version (0 and 1 = old, 2 = new)
+                              (3 = reserved)
+                              (4 = 40 bit key GOST)
+00021  1   last chapter
+
+       ?   extra data
+           1   arj protection factor
+           1   arj flags (second series)
+                     (0x01 = ALTVOLNAME_FLAG) indicates special volume naming
+                                              option
+                     (0x02 = reserved bit)
+           2   spare bytes
+
+       ?   filename of archive when created (null-terminated string)
+       ?   archive comment  (null-terminated string)
+
+       4   basic header CRC
+
+       2   1st extended header size (0 if none)
+       ?   1st extended header (currently not used)
+       4   1st extended header's CRC (not present when 0 extended header size)
+
+
+     Structure of local file header (low order byte first):
+
+     Bytes Description
+     ----- -------------------------------------------------------------------
+00000  2   header id (main and local file) = 0x60 0xEA
+00002  2   basic header size (from 'first_hdr_size' thru 'comment' below)
+                 = first_hdr_size + strlen(filename) + 1 + strlen(comment) + 1
+                 = 0 if end of archive
+                 maximum header size is 2600
+
+00004  1   first_hdr_size (size up to and including 'extra data')
+00005  1   archiver version number
+00006  1   minimum archiver version to extract
+00007  1   host OS   (0 = MSDOS, 1 = PRIMOS, 2 = UNIX, 3 = AMIGA, 4 = MAC-OS)
+                     (5 = OS/2, 6 = APPLE GS, 7 = ATARI ST, 8 = NEXT)
+                     (9 = VAX VMS, 10 = WIN95, 11 = WIN32)
+00008  1   arj flags (0x01 = GARBLED_FLAG) indicates passworded file
+                     (0x02 = NOT USED)
+                     (0x04 = VOLUME_FLAG)  indicates continued file to next volume (file is split)
+                     (0x08 = EXTFILE_FLAG) indicates file starting position field (for split files)
+                     (0x10 = PATHSYM_FLAG) indicates filename translated ("\" changed to "/")
+                     (0x20 = BACKUP_FLAG)  obsolete
+00009  1   method    (0 = stored, 1 = compressed most ... 4 compressed fastest)
+                     (8 = no data, no CRC, 9= no data)
+0000A  1   file type (0 = binary,    1 = 7-bit text)
+                     (3 = directory, 4 = volume label)
+                (5 = chapter label)
+0000B  1   reserved
+0000C  4   date time modified
+00010  4   compressed size
+00014  4   original size (this will be different for text mode compression and for split files)
+00018  4   original file's CRC
+0001C  2   filespec position in filename
+0001E  2   file access mode
+00020  1   first chapter of file's lifespan
+00021  1   last chapter of file's lifespan
+       ?   extra data
+          4 bytes for extended file position
+
+          the following twelve bytes may be present in ARJ 2.62 and above
+          4 bytes for date-time accessed
+          4 bytes for date-time created
+          4 bytes for original file size even for volumes
+
+
+       ?   filename (null-terminated string)
+       ?   comment  (null-terminated string)
+
+       4   basic header CRC
+
+       2   1st extended header size (0 if none)
+       ?   1st extended header (currently not used)
+       4   1st extended header's CRC (not present when 0 extended header size)
+
+       ...
+
+       ?   compressed file
+
+
+     Structure of archive chapter header (low order byte first):
+
+     Bytes Description
+     ----- -------------------------------------------------------------------
+00000  2  header id (comment and local file) = 0xEA60 or 60000U
+00002  2  basic header size (from 'first_hdr_size' thru 'comment' below)
+                = first_hdr_size + strlen(filename) + 1 + strlen(comment) + 1
+                = 0 if end of archive
+
+00004  1  first_hdr_size (size up to 'extra data')
+00005  1  archiver version number
+00006  1  minimum archiver version to extract
+00007  1  host OS   (0 = MSDOS, 1 = PRIMOS, 2 = UNIX, 3 = AMIGA, 4 = MACDOS)
+                    (5 = OS/2, 6 = APPLE GS, 7 = ATARI ST, 8 = NEXT)
+                    (9 = VAX VMS, 10 = WIN95, 11 = WIN32)
+00008  1  arj flags (0x01 = GARBLED_FLAG, 0x02 = RESERVED)
+                    (0x04 = VOLUME_FLAG,  0x08 = EXTFILE_FLAG)
+                    (0x10 = PATHSYM_FLAG,
+                    (0x20 = BACKUP_FLAG)   OBSOLETE < 2.50a
+                    (0x40 = RESERVED)
+00009  1  method    (0 = stored, 1 = compressed most ... 4 compressed fastest)
+0000A  1  file type (0 = binary, 1 = text, 2 = comment header, 3 = directory)
+               (4 = label, 5 = chapter)
+0000B  1  ?
+0000C  4  date time stamp created
+00010  4  ?
+00014  4  ?
+00018  4  original file's CRC
+0001C  2  entryname position in filename
+0001E  2  file access mode
+00020  1  chapter range start
+00021  1  chapter range end
+       ?  extra data
+         4 bytes for extended file position
+
+         ?  filename (null-terminated)
+         ?  comment  (null-terminated)
+
+         4  basic header CRC
+
+         2  1st extended header size (0 if none)
+         ?  1st extended header
+         4  1st extended header's CRC
+
+         ...
+
+
+     Time stamp format:
+
+        31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16
+       |<---- year-1980 --->|<- month ->|<--- day ---->|
+
+        15 14 13 12 11 10  9  8  7  6  5  4  3  2  1  0
+       |<--- hour --->|<---- minute --->|<- second/2 ->|
+
+
+     Routine to find an ARJ Header record:
+
+       long find_header(FILE *fd)
+       {
+           long arcpos, lastpos;
+           int c;
+
+           arcpos = file_tell(fd);
+           file_seek(fd, 0L, SEEK_END);
+           lastpos = file_tell(fd) - 2;
+           for ( ; arcpos < lastpos; arcpos++)
+           {
+               file_seek(fd, arcpos, SEEK_SET);
+               c = fget_byte(fd);
+               while (arcpos < lastpos)
+               {
+                   if (c != HEADER_ID_LO)  /* low order first */
+                       c = fget_byte(fd);
+                   else if ((c = fget_byte(fd)) == HEADER_ID_HI)
+                       break;
+                   arcpos++;
+               }
+               if (arcpos >= lastpos)
+                   break;
+               if ((headersize = fget_word(fd)) <= HEADERSIZE_MAX)
+               {
+                   crc = CRC_MASK;
+                   fread_crc(header, (int) headersize, fd);
+                   if ((crc ^ CRC_MASK) == fget_crc(fd))
+                   {
+                       file_seek(fd, arcpos, SEEK_SET);
+                       return arcpos;
+                   }
+               }
+           }
+           return -1;          /* could not find a valid header */
+       }
+
+     An actual version of the above code can be found in the UNARJ source
+     code.
+
+     end of document
+
+foo (8 bytes): "TurboXXX"
+
+Arj32 a TEST.ARJ foo -m0
+
+000000: 60 EA 2C 00 22 66 01 0B  10 00 02 1B 1B A1 90 2E `.,."f..........
+000010: 1B A1 90 2E 00 00 00 00  00 00 00 00 00 00 00 00 ................
+000020: 00 00 00 00 00 00 74 65  73 74 2E 41 52 4A 00 00 ......test.ARJ..
+000030: DB CE 25 E7 00 00                                ..%...
+000036:                   60 EA  32 00 2E 66 01 0B 10 00       `.2..f....
+000040: 00 1B 18 A1 90 2E 08 00  00 00 08 00 00 00 F9 C3 ................
+000050: 3E B9 00 00 20 00 00 00  00 00 00 00 18 A1 90 2E >... ...........
+000060: 50 98 90 2E 08 00 00 00  61 61 00 00 75 4A 10 30 P.......aa..uJ.0
+000070: 00 00 54 75 72 62 6F 58  58 58                   ..TurboXXX
+00007A:                                60 EA 00 00                 `...
+
+
+
+copy /b TEST.ARJ TEST2.ARJ
+Arj32 cc TEST2.ARJ
+
+000000: 60 EA 2C 00 22 66 01 0B  10 00 02 1B 1B A1 90 2E `.,."f..........
+000010: 24 A1 90 2E 00 00 00 00  00 00 00 00 00 00 00 00 $...............
+000020: 00 01 00 00 00 00 74 65  73 74 2E 41 52 4A 00 00 ......test.ARJ..
+000030: C9 80 B4 22 00 00                                ..."..
+000036:                   60 EA  32 00 2E 66 01 0B 10 00       `.2..f....
+000040: 00 1B 18 A1 90 2E 08 00  00 00 08 00 00 00 F9 C3 ................
+000050: 3E B9 00 00 20 00 01 01  00 00 00 00 18 A1 90 2E >... ...........
+000060: 50 98 90 2E 08 00 00 00  61 61 00 00 2B AD E2 B8 P.......aa..+...
+000070: 00 00 54 75 72 62 6F 58  58 58                   ..TurboXXX
+00007A:                                60 EA 29 00 1E 66           `.)..f
+000080: 01 0B 00 00 05 24 24 A1  90 2E 00 00 00 00 00 00 .....$$.........
+000090: 00 00 00 00 00 00 00 00  00 00 01 01 3C 3C 3C 30 ............<<<0
+0000A0: 30 31 3E 3E 3E 00 00 31  AF 02 02 00 00          01>>>..1.....
+0000A0:                                         60 EA 00              `..
+0000B0: 00

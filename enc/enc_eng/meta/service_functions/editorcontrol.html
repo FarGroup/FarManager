@@ -1,0 +1,290 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>EditorControl</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+
+<body>
+
+<h1>EditorControl</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a href="index.html">service functions</a><br>
+</div>
+
+<div class=shortdescr>
+The <dfn>EditorControl</dfn> function provides access to the low level API of the internal editor.
+</div>
+
+<pre class=syntax>
+int WINAPI EditorControl(
+  int Command,
+  void* Param
+);
+</pre>
+
+<h3>Parameters</h3>
+<div class=descr>
+  <div class=dfn>Command</div>
+  <div class=dfndescr>Control command type. Can be one of the following
+    (<a name="EDITOR_CONTROL_COMMANDS">EDITOR_CONTROL_COMMANDS</a> enum):
+
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Command</th><th class="cont" width="60%">Description</th></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_ADDCOLOR">ECTL_ADDCOLOR</a></td>
+    <td class="cont" width="60%">Specifies color for a line area. This command can be applied
+      several times to the same line to specify several color areas. <em>Param</em> points to an
+      <a href="../structures/editorcolor.html">EditorColor</a> structure. If the specified line
+      does not exist, this command will return FALSE, otherwise TRUE.
+    </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_DELETEBLOCK">ECTL_DELETEBLOCK</a></td>
+    <td class="cont" width="60%">Deletes the block currently selected in the editor. Returns
+    <code>TRUE</code> if the block has been deleted successfully or <code>FALSE</code> in case the
+      editor is locked (the user pressed <kbd>Ctrl-L</kbd>) or no block is selected. <em>Param</em>
+      must be <code>NULL</code>.
+    </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_DELETECHAR">ECTL_DELETECHAR</a></td>
+    <td class="cont" width="60%">Deletes the character under cursor. <em>Param</em> must be NULL.
+    </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_DELETESTRING">ECTL_DELETESTRING</a></td>
+    <td class="cont" width="60%">Deletes the current line. <em>Param</em> must be NULL.
+    </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_EDITORTOOEM">ECTL_EDITORTOOEM</a></td>
+    <td class="cont" width="60%">Converts text from the editor codepage to the OEM codepage.
+      <em>Param</em> points to an <a href="../structures/editorconverttext.html">EditorConvertText</a>
+      structure.
+    </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_EXPANDTABS">ECTL_EXPANDTABS</a></td>
+    <td class="cont" width="60%">Expands all tabulation characters in a line to spaces.
+      <em>Param</em> points to an integer variable that contains the number of the line to expand
+      or -1 to process the current line.
+    </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_GETBOOKMARKS">ECTL_GETBOOKMARKS</a></td>
+    <td class="cont" width="60%">Returns information about bookmarks for the current editor.
+     <em>Param</em> points to an <a href="../structures/editorbookmarks.html">EditorBookMarks</a>
+     structure.
+     <br>This command returns FALSE in case:
+     <ol>
+       <li>the file is not yet open;
+       <li><var>Param</var> is <code>NULL</code>;
+     </ol>
+     If the command succeeds TRUE is returned.<br>
+    </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_GETCOLOR">ECTL_GETCOLOR</a></td>
+    <td class="cont" width="60%">Gets the color of a line area. <em>Param</em> points to an
+      <a href="../structures/editorcolor.html">EditorColor</a> structure. If the specified string
+      or the specified color area does not exist, this command will return FALSE, otherwise TRUE.
+    </td></tr>
+
+
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_GETINFO">ECTL_GETINFO</a></td>
+    <td class="cont" width="60%">Gets editor information. <em>Param</em> points to an
+      <a href="../structures/editorinfo.html">EditorInfo</a> structure.
+    </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_GETSTRING">ECTL_GETSTRING</a></td>
+    <td class="cont" width="60%">Gets information about a line. <em>Param</em> points to an
+      <a href="../structures/editorgetstring.html">EditorGetString</a> structure.
+      The received string will be in the editor codepage.
+    <pre class=code>// get the first line of the edited file
+struct EditorGetString egs;
+egs.StringNumber=0;
+Info.EditorControl(ECTL_GETSTRING,&amp;egs);</pre>
+    </td></tr>
+
+
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_INSERTSTRING">ECTL_INSERTSTRING</a></td>
+    <td class="cont" width="60%">Inserts a new line at the current cursor position and moves the
+      cursor to the first position in the new line or to the indented position.
+      If <em>Param</em> oints to an integer variable containing the value 1, indent will be used
+      when executing this command. To disable indent, set <em>Param</em> to <code>NULL</code>
+      or pass 0 in the variable pointed to by <em>Param</em>.
+      The indent behaviour is the same as if the user presses <code>&lt;Enter&gt;</code> in the
+      editor; for example, spaces and tabs are not inserted into the new line if it does not
+      contain any characters after the new cursor position.
+      <pre class=code>// insert an empty string without indentation
+Info.EditorControl(ECTL_INSERTSTRING,0);</pre>
+    </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_INSERTTEXT">ECTL_INSERTTEXT</a></td>
+    <td class="cont" width="60%">Inserts text at the current cursor position. <em>Param</em> points
+      to a null-terminated text string in the OEM codepage. The command correctly processes newline
+      characters (CR). The text is processed in the same way as it it had been entered from the
+      keyboard.
+      <pre class=code>// insert the string "Text" at the current cursor position
+Info.EditorControl(ECTL_INSERTTEXT,"Text");</pre>
+    </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_OEMTOEDITOR">ECTL_OEMTOEDITOR</a></td>
+    <td class="cont" width="60%">Converts text from the OEM codepage to the editor codepage.
+      <em>Param</em> points to an
+      <a href="../structures/editorconverttext.html">EditorConvertText</a> structure.
+    </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_PROCESSINPUT">ECTL_PROCESSINPUT</a></td>
+    <td class="cont" width="60%">Passes an <a href="../winapi/input_record.html">INPUT_RECORD</a>
+      structure to the internal editor for processing. <em>Param</em> points to an
+      <a href="../winapi/input_record.html">INPUT_RECORD</a> structure.
+      <br>
+      Note: if your plugin exports the
+      <a href="../exported_functions/processeditorinput.html">ProcessEditorInput</a> function,
+      the data in <em>Param</em> will be immediately passed to that function.
+      The scheme is simple:
+<pre class=code>case ECTL_PROCESSINPUT:
+  if (ProcessEditorInput(Param))
+    return(TRUE);
+  ...
+</pre>
+      So if you use <code>EditorControl(ECTL_PROCESSINPUT)</code> inside the
+      <a href="../exported_functions/processeditorinput.html">ProcessEditorInput</a> function, you
+      should take care to avoid infinite recursion.
+    </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_PROCESSKEY">ECTL_PROCESSKEY</a></td>
+    <td class="cont" width="60%">This command allows to send keystrokes to the internal editor. The
+      codes of the keystrokes are passed in <em>Param</em>.<br>
+     The <a href="../defs/farkeycodes.html">internal key codes</a> are used (see farkeys.hpp).
+     <br>This command always returns TRUE.
+<pre class=code>// go to the end of the file
+Info.EditorControl(ECTL_PROCESSKEY,(void*)KEY_CTRLEND);
+</pre>
+
+     </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_QUIT">ECTL_QUIT</a></td>
+    <td class="cont" width="60%">Closes the editor. Any unsaved information will be lost.
+      <em>Param</em> must be NULL.
+      This command always returns TRUE.
+    </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_READINPUT">ECTL_READINPUT</a></td>
+    <td class="cont" width="60%">Fills the <a href="../winapi/input_record.html">INPUT_RECORD</a>
+      structure with data recieved from the standard input device. <em>Param</em> points to an
+      INPUT_RECORD (<i>this structure is defined in Win32 API and used by the
+      <a href="../winapi/readconsoleinput.html">ReadConsoleInput</a> function</i>).
+    </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_REALTOTAB">ECTL_REALTOTAB</a></td>
+    <td class="cont" width="60%">Converts real string position to screen position. If string does
+      not contain tabulation characters, source and result positions will be equal.
+      <em>Param</em> points to an
+      <a href="../structures/editorconvertpos.html">EditorConvertPos</a> structure.
+    </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_REDRAW">ECTL_REDRAW</a></td>
+    <td class="cont" width="60%">Redraws the editor window. <em>Param</em> must be NULL.
+    </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_SAVEFILE">ECTL_SAVEFILE</a></td>
+    <td class="cont" width="60%">Saves the file currently being edited.
+      <em>Param</em> points to an<a href="../structures/editorsavefile.html">EditorSaveFile</a>
+      structure. If <em>Param</em> is NULL, the default file name and format (DOS-format - newline
+      is replaced by "\r\n", Unix-format - "\n").
+      If the file is saved successfully, this command returns TRUE, otherwise FALSE.
+    </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_SELECT">ECTL_SELECT</a></td>
+    <td class="cont" width="60%">Selects or deselects a block. <em>Param</em> points to an
+      <a href="../structures/editorselect.html">EditorSelect</a> structure.
+    </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_SETKEYBAR">ECTL_SETKEYBAR</a></td>
+    <td class="cont" width="60%">Allows to control key bar titles in the editor:<br>
+      <em>Param</em> = NULL - restores the previous value<br>
+      <em>Param</em> = -1   - redraws the key bar<br>
+      <em>Param</em> = pointer to a <a href="../structures/keybartitles.html">KeyBarTitles</a> structure.<p>
+      This command cannot be used in the code that processes the editor event
+      <a href="../exported_functions/processeditorevent.html#EE_READ">EE_READ</a>, because when this
+      event is processed, the key bar titles object does not yet exist.<br>
+      This command returns TRUE on success or FALSE if it wasn't possible to set the key bar titles
+      (if the key bar titles object does not yet exist).
+    </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_SETPARAM">ECTL_SETPARAM</a></td>
+    <td class="cont" width="60%">Changes the settings of the current editor.
+      <em>Param</em> points to an
+      <a href="../structures/editorsetparameter.html">EditorSetParameter</a> structure.
+      <br>This function returns TRUE if the settings have been successfully changed or FALSE
+      otherwise.
+    </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_SETPOSITION">ECTL_SETPOSITION</a></td>
+    <td class="cont" width="60%">Sets the cursor position. <em>Param</em> points to an
+      <a href="../structures/editorsetposition.html">EditorSetPosition</a> structure.
+    </td></tr>
+
+
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_SETSTRING">ECTL_SETSTRING</a></td>
+    <td class="cont" width="60%">Sets the text of a line. <em>Param</em> points to an
+      <a href="../structures/editorsetstring.html">EditorSetString</a> structure.
+      The new string should be in the editor codepage.
+    </td></tr>
+
+
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_SETTITLE">ECTL_SETTITLE</a></td>
+    <td class="cont" width="60%">
+      <img src="..\..\images\ectl_settitle.gif" width=213 height=53 align=right alt="DrawLine\DrawLine.cpp: The SetTitle() function is used">
+      Sets the editor window title (top status line). The standard title will be automatically
+      restored after the plugin has finished processing.
+      <em>Param</em> points to a null-terminated text string that will be used as the title.<br>
+<pre class=code>// DrawLine\DrawLine.cpp: SetTitle function
+Info.EditorControl(ECTL_SETTITLE,(char *)GetMsg(IDTitle));</pre>
+    </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_TABTOREAL">ECTL_TABTOREAL</a></td>
+    <td class="cont" width="60%">Converts screen cursor position to a real string position. If
+      string does not contain tabulation characters, source and result positions will be equal.
+      <em>Param</em> points to an
+      <a href="../structures/editorconvertpos.html">EditorConvertPos</a> structure.
+    </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_TURNOFFMARKINGBLOCK">ECTL_TURNOFFMARKINGBLOCK</a></td>
+    <td class="cont" width="60%">Resets the editor flag that is set while the user is marking a
+      block in the editor. This flag is internal to FAR Manager and is not used by plugins.
+      However, minor (mostly cosmetic) defects may appear if the user starts marking a block, then
+      launches your plugin (or it is lunched automatically) and the plugin modifies, for example,
+      the cursor position. Therefore, you should use this command before returning control to the
+      FAR editor if your plugin modifies the text in the editor, block selection or cursor
+      position.<br>
+      <em>Param</em> must be <code>NULL</code>.
+    </td></tr>
+
+
+</table>
+
+  </div>
+
+  <div class=dfn>Param</div>
+  <div class=dfndescr>Points to control command parameters. Read the description of the
+    <dfn>Command</dfn> parameter for concrete information.</div>
+</div>
+
+<h3>Return value</h3>
+<div class=descr>
+  If the function succeeds, the return value is TRUE. If the function fails, FALSE is returned.
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+The editor window contents is updated upon any active user operation. Call the
+<dfn>ECTL_REDRAW</dfn> command to force an update after any changes to the contents.
+</div>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="advcontrol.html">AdvControl</a>,
+<a href="control.html">Control</a>
+</div>
+
+</body>
+</html>

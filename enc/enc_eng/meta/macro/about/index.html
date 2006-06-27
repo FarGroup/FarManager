@@ -1,0 +1,75 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>General background - Macros</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+</head>
+
+<body>
+
+<h1>General background</h1>
+<div class="navbar">
+<a href="../../index.html">main</a> |
+<a href="../index.html">Macros</a>
+</div>
+
+<p>Every macro command has:
+<ul>
+  <li>keyboard shortcut used to execute the recorded sequence;
+  <li>additional <a href="../macrokey/setting.html">parameter set</a> affecting the way and
+  specifying the conditions under which the execution will take place.
+</ul>
+
+<p class="note"><img src="../../../images/warning.gif" alt="ATTENTION!" width="10" height="10"> ATTENTION!</p>
+<ul class="note"><li>Please, keep in mind that macro commands are divided by <a href="macroarea.html">areas of execution</a>,
+i.e. context of the FAR application from which the macro command is going to be executed.
+</ul>
+
+<p>Macros can contain the <a href="../macrocmd/index.html">special commands</a>,
+providing some service functions and operators including conditional and iterative sequence execution etc.
+
+<h3>Please note:</h3>
+<ul>
+  <li>FAR ignores macros that have error in the macro name or sequence parameter &quot;Sequence&quot;.
+  <li>Macro commands are not case sensitive.
+  <li>During startup FAR Manager loads all macro commands defined in the macro command
+  storage in the registry. Any macro sequence recorded is going to be put into the registry
+  immediately (if macro command autosave option is on).
+  <li>Macro command is considered to be inactive if its name begins with '~' character.
+  <li>FAR Manager translates mouse wheel events into the pseudo keystrokes:<br>
+    - scroll the wheel up - &quot;MsWheelUp&quot;<br>
+    - scroll thw wheel down - &quot;MsWheelDown&quot;<br>
+    You can use these pseudo keys with Ctrl, Shift and Alt modifier keys.
+  <li>If you trying to enter a character using Alt-number combination FAR saves
+  the combination, not the resulting character.<br>
+  For instance, Alt-151 will be saved by FAR as &quot;<b>Alt00151</b>&quot;.
+  <li>Special keys that have a <a href="../../winapi/virtualkeycodes.html">virtual code</a> other than 0xFF,
+    but names of which are not known to FAR, will be stored as &quot;<b>OemXXXXX</b>&quot;
+    (here XXXXX is the decimal virtual key code with leading zeroes).
+  <li>Special keys that have a virtual code of 0xFF,
+    will be stored as &quot;<b>SpecXXXXX</b>&quot;
+     (here XXXXX is the decimal scan code of the key with leading zeroes).
+  <li>We recommend using special plugin &quot;Macro Browser&quot; by Konstantin
+  Melnikov to edit and organize macro commands. This FAR module provides the
+  functionality for viewing, editing, copying and moving macro commands between
+  areas of execution, copying and moving macros between different FAR Manager
+  settings, exporting, creating and removing existing FAR Manager macro commands.
+  <li>The value of the &quot;NoSendKeysToPlugins&quot; macro command parameter
+  depends on the way the <a href="../macrokey/record.html">macro command recording</a> had started.
+</ul>
+
+<p>For more convenient and comfortable management of the macro commands you can use the special plugin
+<a href="http://plugring.farmanager.com/cgi-bin/downld.cgi?Draw=List&Select=PlugIn&SelectPlugIn=35">MacroView Manager</a>.
+
+<div class=see>See also:</div><div class=seecont>
+<a href="../macrokey/index.html">Using macros</a>,
+<a href="../macrocmd/index.html">Macro-language</a>,
+<a href="../techinfo.html">Technical details</a>,
+<a href="../examples.html">Examples</a>
+</div>
+
+</body>
+
+</html>

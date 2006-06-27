@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>Boolean operators - Macros</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+</head>
+
+<body>
+
+<h1>Boolean operators</h1>
+<div class="navbar">
+<a href="../../index.html">main</a> |
+<a href="../index.html">Macros</a> |
+<a href="index.html">Macro-language</a>
+</div>
+
+<p>You can use the following operators in a conditional expression <dfn>Expr</dfn> within the
+<a href="if.html">$If</a> and <a href="while.html">$While</a> macro-commands:
+<table class="cont">
+  <tr class="cont">
+    <th class="cont" width="40%">Operator</th>
+    <th class="cont" width="60%">Description</th>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">==</td>
+    <td class="cont" width="60%">equal</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">!=</td>
+    <td class="cont" width="60%">not equal</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">&lt;</td>
+    <td class="cont" width="60%">less</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">&gt;</td>
+    <td class="cont" width="60%">greater</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">&lt;=</td>
+    <td class="cont" width="60%">less or equal</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">&gt;=</td>
+    <td class="cont" width="60%">greater or equal</td>
+  </tr>
+</table>
+
+<p class="note"><img src="../../../images/warning.gif" alt="ATTENTION!" width="10" height="10"> ATTENTION!</p>
+<ul class="note"><li>Comparison operations for string arguments are case sensitive.</li></ul>
+
+<p>Boolean conditional expression <dfn>Expr</dfn> can be complex. You can use the following operators
+to combine the result of several simple expressions:
+<table class="cont">
+  <tr class="cont">
+    <th class="cont" width="40%">Operator</th>
+    <th class="cont" width="60%">Description</th>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">&amp;&amp;</td>
+    <td class="cont" width="60%">Logical AND</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">||</td>
+    <td class="cont" width="60%">Logical OR</td>
+  </tr>
+</table>
+
+<p>You can use the braces to change the condition evaluation precedence.
+
+<h3>Notes</h3>
+<div class=descr>
+<ol>
+<li>It is impossible to use macro-language elements while <a href="../macrokey/record.html">recording</a>
+  a macro in a usual way. Macro-language elements can be added to the sequence only by editing
+  the registry manually or by using special applications or FAR plugins.</li>
+</ol>
+</div>
+
+</body>
+
+</html>

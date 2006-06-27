@@ -1,0 +1,67 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>GetVirtualFindData</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+<h1>GetVirtualFindData</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a href="index.html">exported functions</a>
+</div>
+
+
+<div class=shortdescr>
+The <dfn>GetVirtualFindData</dfn> function can be used to return a list
+of files to show in another file panel in addition to the real files.</div>
+
+<pre class=syntax>
+int WINAPI GetVirtualFindData(
+  HANDLE hPlugin,
+  struct PluginPanelItem **pPanelItem,
+  int *pItemsNumber,
+  const char *Path
+);</pre>
+
+<h3>Parameters</h3>
+<div class=descr>
+
+    <div class=dfn>hPlugin</div>
+    <div class=dfndescr>Plugin handle returned by <a href="openplugin.html">OpenPlugin</a>
+      or <a href="openfileplugin.html">OpenFilePlugin</a>.</div>
+    <div class=dfn>pPanelItem</div>
+    <div class=dfndescr>Points to a variable that receives the address of an array of
+      <a href="../structures/pluginpanelitem.html">PluginPanelItem</a> structures.</div>
+    <div class=dfn>pItemsNumber</div>
+    <div class=dfndescr>Points to a variable that receives the number of
+      <strong>PluginPanelItem</strong> structures.</div>
+    <div class=dfn>Path</div>
+    <div class=dfndescr>Path for which the list of files is returned
+      (the current directory on another panel). The path is terminated with a backslash.</div>
+
+</div>
+
+<h3>Return value</h3>
+<div class=descr>
+If the function succeeds, the return value must be TRUE.
+If the function fails, FALSE should be returned.
+</div>
+
+
+<h3>Remarks</h3>
+<div class=descr>
+This function can be used to implement "delayed file copying". When delayed copying is used, the
+files copied from a plugin panel to a file panel are shown on the file panel immediately, but the
+physical copy operation is performed later, when the plugin is closed or a special command is
+executed. Delayed copying can be useful, for example, for plugins supporting Arvid.
+</div>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="freevirtualfinddata.html">FreeVirualFindData</a>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>$IClip - Macros</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+</head>
+
+<body>
+
+<h1>$IClip</h1>
+<div class="navbar">
+<a href="../../index.html">main</a> |
+<a href="../index.html">Macros</a> |
+<a href="index.html">Macro-language</a> |
+<a href="cmds.html">Macro-commands</a>
+</div>
+
+<div class=shortdescr>
+The <dfn>$IClip</dfn> macro-command helps to organize the clipboard usage.
+<p>FAR Manager uses the standard Microsoft Windows clipboard to perform
+copy/paste operations by default. This macro-command can switch between the usage
+of the internal FAR clipboard or the standard Windows clipboard within a single macro.<br>
+Works as a trigger.
+</div>
+
+<pre class=syntax>
+<dfn>$IClip</dfn>
+</pre>
+
+<h3>Arguments</h3>
+<div class=descr>
+None.
+</div>
+
+<h3>Notes</h3>
+<div class=descr>
+<ol>
+<li>It is impossible to use macro-language elements while <a href="../macrokey/record.html">recording</a>
+  a macro in a usual way. Macro-language elements can be added to the sequence only by editing
+  the registry manually or by using special applications or FAR plugins.</li>
+</ol>
+</div>
+
+<h3>Example</h3>
+<div class=descr>
+<pre class=code>REGEDIT4
+
+;quick find the file in the passive panel with the same name as selected in the active panel
+;sequence F5 ShiftEnter CtrlIns is used to get the file name independently
+;of the state of the command line and number of selected files in the panels
+
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlAltLeft]
+"Sequence"="$IClip $If (((Bof &amp;&amp; APanel.Root) || !Bof) &amp;&amp; PPanel.Visible)
+$If (fexist(PPanel.Path+\"\\\\\"+APanel.Current) == 1) F5 ShiftEnter
+CtrlIns Esc Tab Home Alt< ShiftIns Esc $End $End"
+"DisableOutput"=dword:00000001
+
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlAltRight]
+"Sequence"="$IClip $If (((Bof &amp;&amp; APanel.Root) || !Bof) &amp;&amp; PPanel.Visible)
+$If (fexist(PPanel.Path+\"\\\\\"+APanel.Current) == 1) F5 ShiftEnter CtrlIns
+Esc Tab Home Alt< ShiftIns Esc $End $End"
+"DisableOutput"=dword:00000001
+</pre>
+</div>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="../examples.html">Examples</a>,
+<a href="functions.html#clip">Clip</a>, <a href="boolstate.html#iclip">IClip</a>
+</div>
+
+
+</body>
+
+</html>

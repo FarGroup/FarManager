@@ -1,0 +1,102 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>Viewer</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>Viewer</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a href="index.html">service functions</a><br>
+</div>
+
+<div class=shortdescr>
+The <dfn>Viewer</dfn> function allows to invoke the FAR internal viewer.
+</div>
+
+<pre class=syntax>
+int WINAPI Viewer (
+  const char *FileName,
+  const char *Title,
+  int X1,
+  int Y1,
+  int X2,
+  int Y2,
+  DWORD Flags
+);
+</pre>
+
+<h3>Parameters</h3>
+<div class=descr>
+    <div class=dfn>FileName</div>
+    <div class=dfndescr>Name of the file to view.</div>
+    <div class=dfn>Title</div>
+    <div class=dfndescr>Text string that will be shown in the top line of the viewer window.
+      If set to <code>NULL</code>, the file name will be used as the title.</div>
+    <div class=dfn>X1, Y1, X2, Y2</div>
+    <div class=dfndescr>Viewer window coordinates. If <var>X2</var>
+      or <var>Y2</var> equals -1, they will be replaced with screen width or height.
+      If <var>X1</var> or <code>Y1</code> is less than zero it is considered as zero.
+    </div>
+    <div class=dfn>Flags</div>
+    <div class=dfndescr>Can be a combination of the following values (<a name="VIEWER_FLAGS">VIEWER_FLAGS</a> enum):
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Flag</th><th class="cont" width="60%">Desciption</th></tr>
+        <tr class="cont"><td class="cont" width="40%"><a name="VF_DELETEONCLOSE">VF_DELETEONCLOSE</a></td>
+        <td class="cont" width="60%">Instructs FAR to delete the viewed file after closing the
+          viewer. If the directory containing the viewed file contains no other files, it will also
+          be deleted. If only the file needs to be deleted use <dfn>VF_DELETEONLYFILEONCLOSE</dfn>.
+          The file will not be deleted if the user pressed <kbd>F6</kbd> to switch between viewing
+          and editing, or if the same file is open in a different editor or viewer instance.
+        </td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="VF_DELETEONLYFILEONCLOSE">VF_DELETEONLYFILEONCLOSE</a></td>
+        <td class="cont" width="60%">Similar to <dfn>VF_DELETEONCLOSE</dfn>, but only the file will
+          be deleted. This flag has a lower priority than <dfn>VF_DELETEONCLOSE</dfn>.
+        </td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="VF_DISABLEHISTORY">VF_DISABLEHISTORY</a></td>
+        <td class="cont" width="60%">Disables adding the file name to the viewer history
+          (<kbd>Alt-F11</kbd>). By default, the file name is added to the history.
+        </td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="VF_ENABLE_F6">VF_ENABLE_F6</a></td>
+        <td class="cont" width="60%">Enables switching from viewer to editor by pressing <kbd>F6</kbd>.
+        </td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="VF_IMMEDIATERETURN">VF_IMMEDIATERETURN</a></td>
+        <td class="cont" width="60%">Allows the plugin to receive control immediately after the
+          viewer is opened. The newly opened viewer becomes the active window. This flag makes
+          sense <u>only</u> if combined with the <dfn>VF_NONMODAL</dfn> flag.
+        </td></tr>
+
+        <tr class="cont"><td class="cont" width="40%"><a name="VF_NONMODAL">VF_NONMODAL</a></td>
+        <td class="cont" width="60%">Creates a non-modal viewer window. If this flag is present,
+          the user will be able to switch to other FAR windows.
+          <p>The plugin will regain control only after the viewer is closed, or after the user
+          switches to a different window (by pressing <kbd>Ctrl-Tab</kbd>). If you need to regain
+          control immediately after the viewer has been opened, use the
+          <dfn>VF_IMMEDIATERETURN</dfn> flag.
+        </td></tr>
+</table>
+
+    </div>
+</div>
+
+<h3>Return value</h3>
+<div class=dfndescr>
+ If the <dfn>VF_NONMODAL</dfn> flag is not specified, the function returns <code>TRUE</code> if
+ successful or <code>FALSE</code> if the file cannot be opened. If the flag is specified, the
+ function always returns <code>TRUE</code>.
+</div>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="editor.html">Editor</a>
+</div>
+
+</body>
+</html>

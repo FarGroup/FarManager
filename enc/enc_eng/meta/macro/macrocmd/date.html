@@ -1,0 +1,291 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>$Date - Macros</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+</head>
+
+<body>
+
+<h1>$Date</h1>
+<div class="navbar">
+<a href="../../index.html">main</a> |
+<a href="../index.html">Macros</a> |
+<a href="index.html">Macro-language</a> |
+<a href="cmds.html">Macro-commands</a>
+</div>
+
+<div class=shortdescr>
+The <dfn>$Date</dfn> macro-command inserts the current date/time into the current object editor.
+</div>
+
+<pre class=syntax>
+<dfn>$Date</dfn> [<em>&quot;format&quot;</em>]
+</pre>
+
+<h3>Arguments</h3>
+<div class=descr>
+<div class=dfn>format</div>
+<div class=dfndescr>
+
+      The current date/time is converted to a string according to the &quot;format&quot;
+      parameter. Its meaning is similar to the Unix 'date' function formatting parameter.
+      $<dfn>Date</dfn> supports the following format specification (similar to the format
+      used by the strftime function):
+      <table class="cont">
+        <tr class="cont">
+          <th class="cont" width="10%">Format</th>
+          <th class="cont" width="90%">Description</th>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">%%</td>
+          <td class="cont" width="90%">Percent sign (%)</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">%a</td>
+          <td class="cont" width="90%">Abbreviated day of week name (Sun)</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">%A</td>
+          <td class="cont" width="90%">Full day of week name (Sunday)</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">%b</td>
+          <td class="cont" width="90%">Abbreviated month name (Jan)</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">%B</td>
+          <td class="cont" width="90%">Full month name (January)</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">%c</td>
+          <td class="cont" width="90%">Date and time representation in the format: WDay Mnt Day HH:MM:SS yyyy (Mon Jan 10
+            04:11:54 2000)</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">%C</td>
+          <td class="cont" width="90%">Century as a decimal number (00 - 99). 1992 =&gt; 19</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">%d</td>
+          <td class="cont" width="90%">Day of the month as decimal number (01 - 31)</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">%D</td>
+          <td class="cont" width="90%">Same as %x</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">%e</td>
+          <td class="cont" width="90%">Similar to %d, but the leading zero is replaced with a space.</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">%h</td>
+          <td class="cont" width="90%">Same as %b</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">%H</td>
+          <td class="cont" width="90%">Hour in 24-hour format (00 - 23)</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">%I</td>
+          <td class="cont" width="90%">Hour in 12-hour format (01 - 12)</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">%j</td>
+          <td class="cont" width="90%">Day of year as decimal number (001 - 366)</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">%k</td>
+          <td class="cont" width="90%">Similar to %H, but the leading zero is replaced with a space.</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">%l</td>
+          <td class="cont" width="90%">Similar to %I, but the leading zero is replaced with a space</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">%L</td>
+          <td class="cont" width="90%">
+          Use the localized set of names of months and days rather then English.<br>
+          FAR Manager requests two sets of names from the system during startup:<br>
+            1) English names of months and weekdays<br>
+            2) names according to the current user's localization settings (LOCALE_USER_DEFAULT).<br>
+            By default the English names are used.</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">%m</td>
+          <td class="cont" width="90%">Month as decimal number (1 - 12)</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">%m0</td>
+          <td class="cont" width="90%">Similar to %m, but with a leading zero (01 - 12)</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">%mh</td>
+          <td class="cont" width="90%">Current month as hexadecimal number (1 - C)</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">%M</td>
+          <td class="cont" width="90%">Minute as decimal number (00 - 59)</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">%n</td>
+          <td class="cont" width="90%">Line break `\\n'<br>
+          ATTENTION! Using this specifier in the editor macros will switch the auto indentation off.</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">%p</td>
+          <td class="cont" width="90%">AM or PM</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">%r</td>
+          <td class="cont" width="90%">Same as %I:%M:%S %p</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">%R</td>
+          <td class="cont" width="90%">Same as %H:%M</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">%S</td>
+          <td class="cont" width="90%">Seconds as decimal number (00 - 59)</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">%t</td>
+          <td class="cont" width="90%">Tab character `\\t'</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">%T</td>
+          <td class="cont" width="90%">Same as %X</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">%U</td>
+          <td class="cont" width="90%">Week of year as decimal number, with Sunday as first day of week (00 - 53)</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">%v</td>
+          <td class="cont" width="90%">Date in the format dd-mmm-yyyy (mmm - the month name is in upper case)</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">%V</td>
+          <td class="cont" width="90%">Week of year according to ISO 8601:<br>
+            <em>&quot;If the week number containing January 1st has >= 4
+            days in the new year, then it is week 1; otherwise,
+            it is the last numbered week of the previous year (52 or 53)&quot;</em></td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">%w</td>
+          <td class="cont" width="90%">Day of week as decimal number (0 - 6, Sunday is 0)</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">%W</td>
+          <td class="cont" width="90%">Week of year as decimal number, with Monday as first day of week (00 - 53)</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">%x</td>
+          <td class="cont" width="90%">Date in the format dd&lt;sep&gt;mm&lt;sep&gt;yyyy
+          (the separator &lt;sep&gt; and the order of day, month and year are determined from the regional settings)</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">%X</td>
+          <td class="cont" width="90%">Time in the format HH&lt;sep&gt;MM&lt;sep&gt;SS the separator &lt;sep&gt; is determined from the regional settings)</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">%y</td>
+          <td class="cont" width="90%">Year without century, as decimal number (00 - 99)</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">%Y</td>
+          <td class="cont" width="90%">Year with century, as decimal number (19yy-20yy)</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">%Z</td>
+          <td class="cont" width="90%">Time-zone name or abbreviation, nothing if time zone is unknown</td>
+        </tr>
+      </table>
+      <p>Format string must be encoded using the OEM codepage.<br>
+      The following escape sequences are allowed:
+      <table class="cont">
+        <tr class="cont">
+          <th class="cont" width="10%">Format</th>
+          <th class="cont" width="90%">Description</th>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">\&quot;</td>
+          <td class="cont" width="90%">The '&quot;' character</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">\'</td>
+          <td class="cont" width="90%">The ''' character</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">\\</td>
+          <td class="cont" width="90%">The '\' character</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">\n</td>
+          <td class="cont" width="90%">New line `\n'</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">\t</td>
+          <td class="cont" width="90%">Tab `\t'</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">\a</td>
+          <td class="cont" width="90%">bell</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">\b</td>
+          <td class="cont" width="90%">`\b'</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">\f</td>
+          <td class="cont" width="90%">`\f'</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">\v</td>
+          <td class="cont" width="90%">`\v'</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">\N<br>
+            \NN<br>
+            \NNN</td>
+          <td class="cont" width="90%">Octal characters code for the OEM code page</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">\xNN</td>
+          <td class="cont" width="90%">Hexadecimal characters code for the OEM code page</td>
+        </tr>
+      </table>
+
+</div>
+
+<h3>Notes</h3>
+<div class=descr>
+<ol>
+<li>It is impossible to use macro-language elements while <a href="../macrokey/record.html">recording</a>
+  a macro in a usual way. Macro-language elements can be added to the sequence only by editing
+  the registry manually or by using special applications or FAR plugins.</li>
+<li>If the &quot;format&quot; argument is not specified FAR uses the <code>&quot;%a %b %d %H:%M:%S %Z %Y&quot; format string</code>.
+</ol>
+</div>
+
+<h3>Example</h3>
+<div class=descr>
+<pre class=code>REGEDIT
+
+;insertion of current date
+
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Common\CtrlD]
+"Sequence"="$If (Editor || Dialog || Search) $Date \"%d.%m0.%Y\" Space $Else CtrlD $End"
+"DisableOutput"=dword:00000001
+</pre>
+</div>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="../examples.html">Examples</a>, <a href="functions.html#date">date()</a>
+</div>
+
+</body>
+
+</html>

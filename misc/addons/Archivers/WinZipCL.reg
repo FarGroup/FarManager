@@ -1,0 +1,21 @@
+REGEDIT4
+
+;Import this file into the Win32 Registry to integrate
+;WinZip (R) Command Line Support Add-On into the FAR manager!
+
+[HKEY_LOCAL_MACHINE\Software\Far\Plugins\MultiArc\ZIP]
+"Extract"="wzunzip -d -o {-s%%P} %%A @%%LMA"
+"ExtractWithoutPath"="wzunzip -o {-s%%P} %%A @%%LMA"
+"Test"="wzunzip -t {-s%%P} %%A"
+"Delete"="wzzip -d %%A @%%LMA"
+"Comment"="wzzip -z %%A"
+"CommentFiles"="wzzip -c %%A"
+"SFX"=""
+"Lock"=""
+"Protect"=""
+"Recover"=""
+"Add"="wzzip -a -whs {-s%%P} {%%S} %%A @%%LMA"
+"Move"="wzzip -m -whs {-s%%P} {%%S} %%A @%%LMA"
+"AddRecurse"="wzzip -a -whs -r -P {-s%%P} {%%S} %%A @%%LMA"
+"MoveRecurse"="wzzip -m -whs -r -P {-s%%P} {%%S} %%A @%%LMA"
+"AllFilesMask"="*"

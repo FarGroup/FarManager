@@ -1,0 +1,179 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>Menu</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+
+<body>
+
+<h1>Menu</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a href="index.html">service functions</a><br>
+</div>
+
+<div class=shortdescr>
+The <dfn>Menu</dfn> function shows a menu.
+</div>
+
+<pre class=syntax>
+int WINAPI Menu(
+  int PluginNumber,
+  int X,
+  int Y,
+  int MaxHeight,
+  DWORD Flags,
+  const char *Title,
+  const char *Bottom,
+  const char *HelpTopic,
+  const int *BreakKeys,
+  int *BreakCode,
+  const struct FarMenuItem *Item,
+  int ItemsNumber
+);
+</pre>
+
+<h3>Parameters</h3>
+<div class=descr>
+  <div class=dfn>PluginNumber</div>
+  <div class=dfndescr>Number of the plugin module. It is passed to the plugin in the
+    <a href="../exported_functions/setstartupinfo.html">SetStartupInfo</a> function.</div>
+  <div class=dfn>X,Y</div>
+  <div class=dfndescr>Top left menu corner coordinates.<br>
+    To assign coordinates automatically set them to <code>-1</code></div>
+  <div class=dfn>MaxHeight</div>
+  <div class=dfndescr>Maximum count of visible menu items. If it is less than the items number,
+    items will be scrolled.<br>
+    To use maximum possible height set this parameter to <code>0</code>.</div>
+  <div class=dfn>Flags</div>
+  <div class=dfndescr>Can be a combination of the following values (<a name="FARMENUFLAGS">FARMENUFLAGS</a> enum):
+
+   <table class="cont"><tr class="cont"><th class="cont" width="40%">Constant</th><th class="cont" width="60%">Description</th></tr>
+      <tr class="cont"><td class="cont" width="40%"><a name="FMENU_AUTOHIGHLIGHT">FMENU_AUTOHIGHLIGHT</a></td>
+      <td class="cont" width="60%">If specified, item hot keys will be assigned automatically, beginning from the first item.</td></tr>
+      <tr class="cont"><td class="cont" width="40%"><a name="FMENU_CHANGECONSOLETITLE">FMENU_CHANGECONSOLETITLE</a></td>
+      <td class="cont" width="60%">If specified, the the title of the console window will be set to <dfn>Title</dfn> (if Title is not empty).</td></tr>
+      <tr class="cont"><td class="cont" width="40%"><a name="FMENU_SHOWAMPERSAND">FMENU_SHOWAMPERSAND</a></td>
+      <td class="cont" width="60%">Shows ampersands in menu item texts. Without this flags ampersands are used to specify item hot keys.</td></tr>
+      <tr class="cont"><td class="cont" width="40%"><a name="FMENU_REVERSEAUTOHIGHLIGHT">FMENU_REVERSEAUTOHIGHLIGHT</a></td>
+      <td class="cont" width="60%">If specified, item hot keys will be assigned automatically, beginning from the last item.</td></tr>
+      <tr class="cont"><td class="cont" width="40%"><a name="FMENU_USEEXT">FMENU_USEEXT</a></td>
+      <td class="cont" width="60%">Instead of <a href="../structures/farmenuitem.html">FarMenuItem</a>
+        the <a href="../structures/farmenuitemex.html">FarMenuItemEx</a> structure is used.</td></tr>
+      <tr class="cont"><td class="cont" width="40%"><a name="FMENU_WRAPMODE">FMENU_WRAPMODE</a></td>
+      <td class="cont" width="60%">If specified, attempts to move the cursor above the first item
+      or below the last will move the cursor to the last or the first item, respectively.
+      <p>It is recommended to always set this flag, unless you have specific reasons not to do so.</td></tr>
+     </table>
+     If the <dfn>FMENU_USEEXT</dfn> flag is set then it is necessary to perform a type cast:
+        <pre class=code>struct FarMenuItemEx FooEx[]={
+  ...
+};
+Info.Menu(...,FMENU_USEEXT|...,<b>(const struct FarMenuItem *)</b>FooEx,...)</pre>
+  </div>
+
+  <div class=dfn>Title</div>
+  <div class=dfndescr>Menu title. Set to <code>NULL</code> if menu title is not needed.</div>
+
+  <div class=dfn>Bottom</div>
+  <div class=dfndescr>Menu bottom title. Set to <code>NULL</code> if menu bottom title
+    is not needed.</div>
+
+  <div class=dfn>HelpTopic</div>
+  <div class=dfndescr>The <a href="../language/helptopic.html">help topic</a> associated with the menu.
+  Set to <code>NULL</code> if help is not needed.</div>
+
+  <div class=dfn>BreakKeys</div>
+  <div class=dfndescr>Address of an array with virtual key codes
+    (<a href="../winapi/virtualkeycodes.html">VK_*</a>), that will close the menu.
+    The last array item must be 0. If you do not need to define such keys in addition to the
+    standard keys (<kbd>&lt;Enter&gt;</kbd>, <kbd>&lt;Esc&gt;</kbd> and <kbd>&lt;F10&gt;</kbd>),
+    set this parameter to <code>NULL</code>. The high word of an array item can be either 0 or a
+    combination of <dfn>PKF_CONTROL</dfn>, <dfn>PKF_ALT</dfn> and <dfn>PKF_SHIFT</dfn> flags
+    to describe corresponding key combinations.
+    <p>For example in the MultiArc plugin in the "Archive commands" menu (<kbd>Shift-F3</kbd> on archive)
+    the <kbd>F4</kbd> keystroke is processed in the following way:
+        <pre class=code>
+<b>int BreakCode;</b>
+<b>int BreakKeys[2]={VK_F4,0};</b>
+ExitCode=Info.Menu(Info.ModuleNumber,-1,-1,0,FMENU_USEEXT|FMENU_WRAPMODE,
+     GetMsg(MArcCmdTitle),GetMsg(MSelectF4),"ArcCmd",<b>BreakKeys</b>,<b>&amp;BreakCode</b>,
+     (struct FarMenuItem *)MenuItems,Count);
+<b>if(ExitCode&gt;=0)</b>
+{
+  <b>if(BreakCode == 0)  // F4 pressed</b>
+  {
+    GetFormatName(MenuItems[0].Text.Text);
+    ConfigCommands(MenuItems[0].Text.Text,2+MenuData[ExitCode].Cmd*2);
+    continue;
+  }
+}
+else
+  return FALSE;
+</pre>
+   </div>
+
+  <div class=dfn>BreakCode</div>
+  <div class=dfndescr>Address of a variable that will receive the index in the <var>BreakKeys</var>
+  array of the key used to close the menu, or -1 if the menu was closed using one of the standard
+  keys. This parameter can be <code>NULL</code>.</div>
+  <div class=dfn>Item</div>
+  <div class=dfndescr>Address of an array of <a href="../structures/farmenuitem.html">FarMenuItem</a>
+    structures or if the <dfn>FMENU_USEEXT</dfn> flag is specified, address of an array of
+    <a href="../structures/farmenuitemex.html">FarMenuItemEx</a> structures.
+    Each structure describes one menu item.
+  </div>
+  <div class=dfn>ItemsNumber</div>
+  <div class=dfndescr>Number of <a href="../structures/farmenuitem.html">FarMenuItem</a> structures.</div>
+</div>
+
+<h3>Return value</h3>
+<div class=descr>
+  This function returns either -1, if the user cancelled the menu, or the selected menu item
+  number.
+</div>
+
+<h3>Example</h3>
+<div class=descr>
+  This example is taken from the EditCase plugin:
+<pre class=code>struct FarMenuItem MenuItems[2];
+memset(MenuItems,0,sizeof(MenuItems));
+strcpy(MenuItems[0].Text,GetMsg(MCaseLower));
+strcpy(MenuItems[1].Text,GetMsg(MCaseUpper));
+MenuItems[0].Selected=TRUE;
+int MenuCode=Info.<dfn>Menu</dfn>(Info.ModuleNumber,-1,-
+      1,0,FMENU_AUTOHIGHLIGHT|FMENU_WRAPMODE,
+      GetMsg(MCaseConversion),NULL,
+      &quot;Contents&quot;,NULL,NULL,
+      MenuItems,
+      sizeof(MenuItems)/sizeof(MenuItems[0]));
+if (MenuCode&lt;0)
+  return(INVALID_HANDLE_VALUE);
+. . .
+</pre>
+
+  <dfn>Info</dfn> is defined as a global variable:
+
+<pre class=code>struct PluginStartupInfo <dfn>Info</dfn>;</pre>
+
+  ...and is initialized in the  <a href="../exported_functions/setstartupinfo.html">SetStartupInfo</a> function:
+
+<pre class=code>void WINAPI _export SetStartupInfo(struct PluginStartupInfo *Info)
+{
+  ...
+  ::<dfn>Info</dfn>=*Info;
+  ...
+}</pre>
+
+</div>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="../structures/farmenuitem.html">FarMenuItem</a>
+</div>
+
+</body>
+</html>

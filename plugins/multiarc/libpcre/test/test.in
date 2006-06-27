@@ -1,0 +1,16 @@
+ Volume in drive D is work
+ Volume Serial Number is xxxx-xxxx
+
+ Directory of D:\works\pcre-4.4-cut\test
+
+27.11.2004  01:28    <DIR>          .
+27.11.2004  01:28    <DIR>          ..
+27.11.2004  01:27             3ÿ507 pcre++.h
+25.08.2003  22:30             6ÿ884 pcre.h
+27.11.2004  01:24            96ÿ364 pcre.lib
+27.11.2004  01:24               775 test.cpp
+27.11.2004  01:27            45ÿ056 test.exe
+27.11.2004  01:28                 0 test.in
+27.11.2004  01:27            52ÿ231 test.obj
+               7 File(s)        204ÿ817 bytes
+               2 Dir(s)  37ÿ907ÿ562ÿ496 bytes free

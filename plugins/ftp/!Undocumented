@@ -1,0 +1,8 @@
+ 1.[HKEY_CURRENT_USER\Software\Far\plugins\FTP\ShowPassword]
+   LogType: BOOL
+   RegType: DWORD
+      Name: ShowPassword
+   Default: FALSE
+   Meaning: Do not replace password text with "*HIDDEN*"
+
+-------------------------------------------------------------------------------------------------

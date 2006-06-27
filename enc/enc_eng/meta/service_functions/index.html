@@ -1,0 +1,157 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>Service functions</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+
+<body>
+<h1>Service functions</h1>
+<div class=navbar>
+<a href="../index.html">main</a>
+</div>
+
+
+
+<div class=shortdescr>
+  The following functions allow plugins to use FAR menu, dialogs, language support and some other
+  useful functionality. Pointers to these functions are passed to plugins in the
+  <a href="../exported_functions/setstartupinfo.html">SetStartupInfo</a> function.
+
+  <p class=note><img src="../../images/note.gif" alt="Attention!" width="10" height="10"> Attention!</p>
+  <UL class=note><LI>Some of the functions listed below are absent in the older FAR versions. Read
+  the remarks to the <a href="../structures/pluginstartupinfo.html">PluginStartupInfo</a> structure
+  and the <a href="../exported_functions/getminfarversion.html">GetMinFarVersion</a> function
+  for more information.</LI></UL>
+</div>
+
+<h3>Common functions</h3>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Function</th><th class="cont" width="60%">Description</th></tr>
+<tr>
+<td class="cont" width="40%"><a href="advcontrol.html">AdvControl</a></td>
+<td class="cont" width="60%">advanced control functions; can be called from anywhere: panels, viewer or editor.</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="chartable.html">CharTable</a></td>
+<td class="cont" width="60%">allows to get information about installed character tables.</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="cmpname.html">CmpName</a></td>
+<td class="cont" width="60%">function compares a text string (for example, a file name) with a pattern (mask).</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="getmsg.html">GetMsg</a></td>
+<td class="cont" width="60%">returns a message from the <a href="../language/language_files.html">language file</a>.</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="menu.html">Menu</a></td>
+<td class="cont" width="60%">shows a menu.</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="restorescreen.html">RestoreScreen</a></td>
+<td class="cont" width="60%">restores a screen area previously saved by SaveScreen.</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="savescreen.html">SaveScreen</a></td>
+<td class="cont" width="60%">saves a screen area.</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="showhelp.html">ShowHelp</a></td>
+<td class="cont" width="60%">shows the specified FAR help topic for the specified hlf file.</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="text.html">Text</a></td>
+<td class="cont" width="60%">writes a text string to the screen.</td>
+</tr>
+</table>
+
+
+<h3>Panel specific functions</h3>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Function</th><th class="cont" width="60%">Description</th></tr>
+<tr>
+<td class="cont" width="40%"><a href="control.html">Control</a></td>
+<td class="cont" width="60%">allows to request different information about the FAR panels and perform various control actions.</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="freedirlist.html">FreeDirList</a></td>
+<td class="cont" width="60%">releases the memory allocated for files list by GetDirList and GetPluginDirList functions.</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="getdirlist.html">GetDirList</a></td>
+<td class="cont" width="60%">returns the list of files in the specified directory.</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="getplugindirlist.html">GetPluginDirList</a></td>
+<td class="cont" width="60%">returns list of files in the specified directory in the file system emulated by a plugin.</td>
+</tr>
+</table>
+
+<h3>Editor specific functions</h3>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Function</th><th class="cont" width="60%">Description</th></tr>
+<tr>
+<td class="cont" width="40%"><a href="editor.html">Editor</a></td>
+<td class="cont" width="60%">allows to invoke the FAR internal editor.</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="editorcontrol.html">EditorControl</a></td>
+<td class="cont" width="60%">provides access to low level internal editor API.</td>
+</tr>
+</table>
+
+<h3>Dialog API specific functions</h3>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Function</th><th class="cont" width="60%">Description</th></tr>
+<tr>
+<td class="cont" width="40%"><a href="../dialogapi/defdlgproc.html">DefDlgProc</a></td>
+<td class="cont" width="60%">allows to call the internal dialog callback function.</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../dialogapi/dialog.html">Dialog</a></td>
+<td class="cont" width="60%">shows a dialog.</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../dialogapi/dialogex.html">DialogEx</a></td>
+<td class="cont" width="60%">shows a dialog that allows to assign for it a callback function.</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="inputbox.html">InputBox</a></td>
+<td class="cont" width="60%">a simple dialog box allowing to enter one line of text.</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="message.html">Message</a></td>
+<td class="cont" width="60%">shows a message.</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../dialogapi/senddlgmessage.html">SendDlgMessage</a></td>
+<td class="cont" width="60%">used to send a message to the dialog callback function.</td>
+</table>
+
+<h3>Viewer specific functions</h3>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Function</th><th class="cont" width="60%">Description</th></tr>
+<tr>
+<td class="cont" width="40%"><a href="viewer.html">Viewer</a></td>
+<td class="cont" width="60%">allows to invoke the internal viewer.</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="viewercontrol.html">ViewerControl</a></td>
+<td class="cont" width="60%">allows to query and control the state of the internal viewer</td>
+</tr>
+</table>
+
+
+<div class=see>See also:</div><div class=seecont>
+<a href="../exported_functions/index.html">Exported functions</a>,
+<a href="../structures/index.html">Structures</a>,
+<a href="../customapi/index.html">Archive support</A>,
+<a href="../addons/index.html">Addons</a>,
+<a href="../winapi/index.html">Win32 structures and function</a>
+</div>
+
+</body>
+</html>

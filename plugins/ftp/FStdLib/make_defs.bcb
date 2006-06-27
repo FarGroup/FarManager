@@ -1,0 +1,179 @@
+#
+# Designed for use Borland C++ compiller with version BCB >1.0
+#
+.autodepend
+.silent
+
+!if !$d(LIBROOT)
+  LIBROOT = .
+!endif
+!if !$d(FARROOT)
+  FARROOT = .
+!endif
+!if !$d(PROJECT)
+  PROJECT = _dummy
+!endif
+
+!include "$(LIBROOT)\defs.mak"
+
+!if $d(USE_ALL_LIB)
+DEF_DEFINES = $(DEF_DEFINES) /D__NOVCL__=1 /DUSE_ALL_LIB=1
+LIBOBJS     = $(FARROOT)\FARStdlib\fstd_Editor.obj  $(FARROOT)\FARStdlib\fstd_cDialog.obj \
+              $(FARROOT)\FARStdlib\fstd_ClpS.obj    \
+              $(FARROOT)\FARStdlib\fstd_Dbg.obj     $(FARROOT)\FARStdlib\fstd_Dialog.obj \
+              $(FARROOT)\FARStdlib\fstd_Dlg.obj     $(FARROOT)\FARStdlib\fstd_ilist.obj \
+              $(FARROOT)\FARStdlib\fstd_HotKey.obj  $(FARROOT)\FARStdlib\fstd_menu.obj \
+              $(FARROOT)\FARStdlib\fstd_plg.obj     $(FARROOT)\FARStdlib\fstd_Multiline.obj \
+              $(FARROOT)\FARStdlib\fstd_RegCh.obj   \
+              $(FARROOT)\FARStdlib\fstd_RegCp.obj   $(FARROOT)\FARStdlib\fstd_RegCr.obj \
+              $(FARROOT)\FARStdlib\fstd_RegDl.obj   $(FARROOT)\FARStdlib\fstd_RegDla.obj \
+              $(FARROOT)\FARStdlib\fstd_RegGB.obj   $(FARROOT)\FARStdlib\fstd_RegGI.obj \
+              $(FARROOT)\FARStdlib\fstd_RegOp.obj   $(FARROOT)\FARStdlib\fstd_RegRn.obj \
+              $(FARROOT)\FARStdlib\fstd_RegSB.obj   $(FARROOT)\FARStdlib\fstd_RegSC.obj \
+              $(FARROOT)\FARStdlib\fstd_RegSI.obj   $(FARROOT)\FARStdlib\fstd_scr.obj \
+              $(FARROOT)\FARStdlib\fstd_Msg.obj     $(FARROOT)\FARStdlib\fstd_String.obj
+!endif
+
+!if $d(USE_ALL_LIB)
+FARSTDLIB   = $(FARROOT)\FAR_S_BCB.lib
+CLIBS       = $(CLIBS) std_novcl.lib
+!else
+FARSTDLIB   = $(FARROOT)\FARStdLib_BCB.lib
+!endif
+
+!if !$d(CROOT)
+CROOT       = D:\CB5
+!endif
+CC          = $(CROOT)\bin\bcc32.exe
+LIB         = $(CROOT)\bin\tlib.exe
+LINKER      = $(CROOT)\bin\ilink32.exe
+IMPLIB      = $(CROOT)\bin\implib.exe
+RCC         = $(CROOT)\bin\brcc32.exe
+MAKERSP     = $(FARROOT)\FARStdlib\librsp.exe
+
+#--  INCLUDE  -----------------------------
+# Standart C\CPP headers directory
+#
+STDINCLUDE  = $(CROOT)\include
+#
+# Full headers directory list, inlude FAR specified
+#
+INCLUDE     = $(FARROOT)\;;$(STDINCLUDE);
+
+#--  LIB ----------------------------------
+# Standart C\CPP library directory
+#
+STDLIBS     = $(CROOT)\lib
+#
+# Full libraries directory list, inlude FAR specified
+#
+LIBS        = $(FARROOT)\;$(STDLIBS);
+
+#-- COMPILLER FLAGS ----------------------
+# Command line compiller flags
+#   -5  - use 586 instruction
+#   -C  - use nested comments
+#   -RT - generate RTTI
+#   -a2 - align to 2 byte boundaries
+#   -v  - geterate line number info
+#   -y  - produce debug info
+#   -I  - set include directories
+#   -c  - Compile single unit
+#   -Ox - optiomizations
+#   -Hc - cache precompilled
+#   -k  - std stack frame
+#
+#              -C -5 -RT- -v- -y- -a2 -c \
+#              -Od -Hc -w -k -r- -vi- -c -b- -w-par -w-inl -Vx -Ve -x \
+CFLAGS      =  -Hc -Vx -Ve -C -fp -ff -X- -r- -a2 -6 -b- -k -y- \
+               -v- -vi- -tWC -tWM- -c -w-par -w-inl \
+               -I$(INCLUDE) -H=$(OUTDIR)\plugin.csm $(DEF_DEFINES)
+
+#-- LINKER FLAGS ------------------------
+#   -Vx - set linker version
+#   -x  - do not generate mapfile
+#   -M  - demangle names in map
+#   -s  - detailed map
+#   -v  - generate debug info
+#   -L  - set library directories
+#   -Gi - generate import library
+#   -GD - generate DRC
+#
+LFLAGS   = -V4.0 -L$(LIBS);;
+
+!if $d(MAPFILE)
+LFLAGS   = -m $(LFLAGS)
+!else
+LFLAGS   = -x $(LFLAGS)
+!endif
+
+!if $d(DEBUG)
+CFLAGS   = -Od -y -v /D__FILELOG__=1 -D_DEBUG $(CFLAGS)
+LFLAGS   = -v $(LFLAGS)
+!else
+CFLAGS   = -O2 -N- -d $(CFLAGS)
+LFLAGS   = -Gn $(LFLAGS)
+!endif
+
+#-- RESOURCE FLAGS ------------------------
+#   -i  - set include directories
+RFLAGS   = -i$(INCLUDE)
+
+#-- C startup OBJECTS, LIBS ---------------
+COBJS    = c0d32.obj
+CCONOBJS = c0x32.obj
+CLIBS    = $(CLIBS) import32.lib cw32.lib
+#############################################################################
+# Implicit source rules.                                                    #
+#############################################################################
+.cpp.obj:
+    @echo Making "$*.cpp"
+    $(CC) @&&!
+      $(CFLAGS) $(CFLAG_ADD) -o$*.obj $**
+!
+
+.c.obj:
+    @echo Making $*.c
+    $(CC) $(CFLAGS) $(CFLAG_ADD) -o$*.obj $**
+
+.rc.res:
+    @echo Making $*.rc
+    $(RCC) $(RFLAGS) $<
+
+#############################################################################
+# FAR STD LIB                                                               #
+#############################################################################
+FARLIB: $(MAKERSP) $(FARSTDLIB)
+
+$(FARSTDLIB): $(LIBOBJS)
+    $(MAKERSP) 0 &&|
+            $?
+|   >> $(RSP)
+    $(LIB) /C /P512 $< @$(RSP),
+   if exist $&.bak del $&.bak  >nul
+   if exist $(RSP) del $(RSP)  >nul
+
+#############################################################################
+# RSP tool                                                                  #
+#############################################################################
+$(MAKERSP): $(FARROOT)\FARStdlib\librsp.obj
+    $(LINKER) -Tpe -ap @&&!
+    $(LFLAGS) +
+    $(CCONOBJS) $**, +
+    $(MAKERSP),, +
+    $(CLIBS), +
+    ,
+!
+
+#############################################################################
+# PLUGIN PROJECT                                                            #
+#############################################################################
+$(PROJECT): $(FARSTDLIB) $(POBJS) $(PDEF) $(PRES)
+    $(LINKER) @&&!
+    $(LFLAGS) $(LFLAG_ADD) +
+    $(COBJS) $(POBJS), +
+    $(PROJECT), $(MAPFILE), +
+    $(CLIBS) $(FARSTDLIB), +
+    $(PDEF), +
+    $(PRES)
+!

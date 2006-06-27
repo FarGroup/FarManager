@@ -1,0 +1,19 @@
+REGEDIT4
+
+;
+;Import this file into the Win32 Registry, and you will be
+;able to view (F3) and extract (F4) content of *.uc2 archives
+;with complex directory structure!
+;Properly replace Type0 of FARUC2.REG with Type1, Type2 etc,
+;if you've made some file associations before (the 1st file
+;association of the FAR manager has Type0)...
+;
+
+[HKEY_LOCAL_MACHINE\Software\Far\Associations]
+
+[HKEY_LOCAL_MACHINE\Software\Far\Associations\Type0]
+"Mask"="*.uc2"
+"Description"="UC2"
+"Execute"=""
+"View"="uc vs !/!-! | more"
+"Edit"="uc esf !/!-!"

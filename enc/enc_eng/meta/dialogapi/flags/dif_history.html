@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>DIF_HISTORY</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>DIF_HISTORY</h1>
+<div class=navbar>
+<a href="../../index.html">main</a> |
+<a href="../index.html">Dialog API</a> |
+<a href="index.html">Dialog item flags</a><br>
+</div>
+<div class=shortdescr>
+<p><dfn>DIF_HISTORY</dfn> flag allows to keep a history list for edit controls. When this flag is
+set, the <dfn>History</dfn> field must contain the address of a text string that will be used as the
+internal history name. If several edit controls have the same history name, they will share the same
+history list. For the following example (ARCPROC.CPP file from MultiArc):
+
+<pre class=code>const char *PathHistoryName="<dfn>ExtrDestPath</dfn>";
+struct InitDialogItem InitItems[]={
+ ...
+ DI_EDIT,5,3,70,3,1,(DWORD)PathHistoryName,DIF_HISTORY,0,DestPath,
+ ...
+};
+</pre>
+
+<p>the history will be stored in the registry (under
+<code>HKCU\Software\Far\SavedDialogHistory\<em>ExtrDestPath</em></code> key), one line  (key
+names look like "Line&lt;number&gt;", of REG_SZ type) for each value entered by the user.<br>
+Kyes with names looking like "Locked&lt;number&gt;" (REG_DWORD) are intended for marking
+lines that cannot be deleted (while in the list, this state can be changed with the &lt;Insert&gt;
+key).</p>
+</div>
+
+<h3>Controls</h3>
+<div class=descr>
+
+<p>The <dfn>DIF_HISTORY</dfn> flag is applicable to the following dialog items:<br>
+<table width="44%" class="cont">
+<tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../controls/di_edit.html">DI_EDIT</a></td>
+<td class="cont" width="60%">Edit box. </td>
+</tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../controls/di_fixedit.html">DI_FIXEDIT</a></td>
+<td class="cont" width="60%">Fixed size edit box.</td>
+</tr>
+</table>
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+<ol>
+<li>The <dfn>DIF_HISTORY</dfn> flag <b><u>DOES NOT WORK</u></b> with the
+  <a href="../controls/di_pswedit.html">DI_PSWEDIT</a> control!
+<li><dfn>DIF_HISTORY</dfn> has higher priority than the <a href="dif_maskedit.html">DIF_MASKEDIT</a>
+  flag.
+<li><b>FAR 1.70 beta 3</b>: If a plugin has an edit box with a history list, it is assumed that
+  the user will leave the dialog using the Esc key (Enter is reserved for other needs), then the
+  data will not be stored in the history because Esc means rejection of further dialog processing.
+  In such case, plugin can add necessary strings to the history list. It can be carried out by sending
+  the <a href="../dmsg/dm_addhistory.html">DM_ADDHISTORY</a> message to the Dialog Manager.
+<li>If an item has the <a href="dif_manualaddhistory.html">DIF_MANUALADDHISTORY</a> flag,
+    then the Dialog Manager will not add strings to the history list when the dialog closes.
+<li>Also, a plugin can keep united history lists using predefined names:
+    <table border=1>
+    <tr>
+      <th width="102">name</th>
+      <th width="363">purpose</th>
+    </tr>
+    <tr><td>"SearchText"</td>
+    <td>search edit box</td>
+    </tr>
+    <tr><td>"ReplaceText"</td>
+    <td>replace edit box</td>
+    </tr>
+    <tr><td>"PersPath"</td>
+    <td>personal plugins' paths</td>
+    </tr>
+    <tr><td>"Copy"</td>
+    <td>destination edit box in copy dialog</td>
+    </tr>
+    <tr><td>"LineNumber"</td>
+    <td>editor goto (Alt-F8)</td>
+    </tr>
+    <tr><td>"ViewerOffset"</td>
+    <td>viewer goto (Alt-F8)</td>
+    </tr>
+    <tr><td>"NewEdit"</td>
+    <td>edited files (Shift-F4/Shift-F2)</td>
+    </tr>
+    <tr><td>"Masks"</td>
+    <td>file masks (selection, associations, filters, file search)</td>
+    </tr>
+    <tr><td>"UserVarN"</td>
+    <td>user variables</td>
+    </tr>
+    <tr><td>"ApplyCmd"</td>
+    <td>"apply command" (Ctrl-G)</td>
+    </tr>
+    <tr><td>"DizText"</td>
+    <td>file description edit box</td>
+    </tr>
+    <tr><td>"NewFolder"</td>
+    <td>folder creation</td>
+    </tr>
+    </table>
+    </li>
+</ol>
+</div>
+
+
+<div class=see>See also:</div><div class=seecont>
+<a href="dif_uselasthistory.html">DIF_USELASTHISTORY</a>,
+<a href="../dmsg/dm_addhistory.html">DM_ADDHISTORY</a>,
+<a href="dif_manualaddhistory.html">DIF_MANUALADDHISTORY</a>.
+
+</div>
+
+</body>
+</html>

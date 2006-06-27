@@ -1,0 +1,347 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>Functions - Macros</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+</head>
+
+<body>
+
+<h1>Functions</h1>
+<div class="navbar">
+<a href="../../index.html">main</a> |
+<a href="../index.html">Macros</a> |
+<a href="index.html">Macro-language</a>
+</div>
+
+<h3>Function list</h3>
+<p>You can use the following functions in the macro sequence:</p>
+<table class="cont">
+  <tr class="cont">
+    <th class="cont" width="40%">Function</th>
+    <th class="cont" width="60%">Description</th>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="abs">abs</a></dfn>(N)</td>
+    <td class="cont" width="60%">Returns the absolute value of a numeric argument <em>N</em>.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="max">max</a></dfn>(N1,N2)</td>
+    <td class="cont" width="60%">Returns the maximal value of two numeric arguments <em>N1</em> and <em>N2</em>.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="min">min</a></dfn>(N1,N2)</td>
+    <td class="cont" width="60%">Returns the minimal value of two numeric arguments <em>N1</em> and <em>N2</em>.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">V=<dfn><a name="iif">iif</a></dfn>(Cond,True,False)</td>
+    <td class="cont" width="60%">Conditional function. If condition <em>Cond</em> is true
+    then <em>True</em>-expression is returned, <em>False</em>-expression otherwise.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="index">index</a></dfn>(S1,S2)</td>
+    <td class="cont" width="60%">Returns the position of the first occurence of the substring
+    <em>S2</em> within string <em>S1</em>, -1 otherwise.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="rindex">rindex</a></dfn>(S1,S2)</td>
+    <td class="cont" width="60%">Returns the position of the last occurence of the substring
+    <em>S2</em> within string <em>S1</em>, -1 otherwise.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="int">int</a></dfn>(V)</td>
+    <td class="cont" width="60%">Evaluates the <em>V</em> argument to a number.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">S=<dfn><a name="itoa">itoa</a></dfn>(N,Radix)</td>
+    <td class="cont" width="60%">Converts numeric value <em>N</em> to a string. Parameter
+    <em>Radix</em> defines the base of the numerical representation for the number
+    conversion. The <em>Radix</em> parameter can be from 2 to 36.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="len">len</a></dfn>(V)</td>
+    <td class="cont" width="60%">Returns the length of the expression <em>V</em>.
+    This function evaluates the value of <em>V</em> to a string and then returns
+    the length of the string.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">S=<dfn><a name="string">string</a></dfn>(V)</td>
+    <td class="cont" width="60%">Converts the value of the expression <em>V</em> to a string.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">S=<dfn><a name="substr">substr</a></dfn>(V,N1,N2)</td>
+    <td class="cont" width="60%">Returns the substring of the expression <em>V</em>
+    beginning from position <em>N1</em> with the length of <em>N2</em>.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="checkhotkey">checkhotkey</a></dfn>(S)</td>
+    <td class="cont" width="60%">Returns 1 if there is a hot key <em>S</em> in a menu
+    and the current 'object' is a menu, otherwise returns 0.
+    <p>For example there's a hotkey '7' assigned to 'S&amp;R' plugin in the plugins menu (F11).
+    The following macro command sequence for the internal file editor should call 'S&amp;R'
+    plugin if there is a hot key assigned and the standard search dialog if not:
+    <pre class=code>F11 $if (checkhotkey(&quot;7&quot;)) 7 1 $else Esc AltF7 $end</pre>
+  </tr>
+
+  <tr class="cont">
+    <td class="cont" width="40%">V=<dfn><a name="Dlg.GetValue">Dlg.GetValue</a></dfn>(ID,Type)</td>
+    <td class="cont" width="60%">Get misc. values of the current dialog.<br>
+      <em>ID</em> - dialog element number (elements are numbered starting with 1; 0 - is the dialog windows itself).<br>
+      <em>Type</em> - type of the value to get, depending on the type of the element. For the dialog windows itself (ID=0) the following values are allowed:
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="10%">Type</th><th class="cont" width="10%">Var type</th><th class="cont" width="80%">Description</th></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Number of elements in the dialog</td></tr>
+        <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">X1</td></tr>
+        <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Y1</td></tr>
+        <tr class="cont"><td class="cont" width="10%">4</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">X2</td></tr>
+        <tr class="cont"><td class="cont" width="10%">5</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Y2</td></tr>
+        <tr class="cont"><td class="cont" width="10%">6</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">ID of the current element that has the <a href="../../dialogapi/keybfocus.html">keyboard focus</a></td></tr>
+       </table>
+
+       For dialog elements the following values are allowed:
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="10%">Type</th><th class="cont" width="10%">Var type</th><th class="cont" width="10%">Element</th><th class="cont" width="70%">Description</th></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">CheckBox</td><td class="cont" width="70%">State of the checkbox</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">RadioButtons</td><td class="cont" width="70%">State of the radio button</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">String</td><td class="cont" width="10%">ListBox</td><td class="cont" width="70%">Value of the current list item</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">String</td><td class="cont" width="10%">ComboBox</td><td class="cont" width="70%">Value of the current list item</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">String</td><td class="cont" width="10%">Other</td><td class="cont" width="70%">Textual value (the <a href="../../dialogapi/structures/fardialogitem.html">FarDialogItem.Data</a> field)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">All</td><td class="cont" width="70%"><a href="../../dialogapi/controls/index.html">Element type</a></td></tr>
+        <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">All</td><td class="cont" width="70%">X1 relative to the dialog window</td></tr>
+        <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">All</td><td class="cont" width="70%">Y1 relative to the dialog window</td></tr>
+        <tr class="cont"><td class="cont" width="10%">4</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">All</td><td class="cont" width="70%">X2 relative to the dialog window</td></tr>
+        <tr class="cont"><td class="cont" width="10%">5</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">All</td><td class="cont" width="70%">Y2 relative to the dialog window</td></tr>
+        <tr class="cont"><td class="cont" width="10%">6</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">All</td><td class="cont" width="70%">does the element has focus?</td></tr>
+
+        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">CheckBox</td><td class="cont" width="70%">State of the checkbox</td></tr>
+        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">RadioButtons</td><td class="cont" width="70%">State of the radio button</td></tr>
+        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">String</td><td class="cont" width="10%">ListBox</td><td class="cont" width="70%">Current position in the list (first list item = 1)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">String</td><td class="cont" width="10%">ComboBox</td><td class="cont" width="70%">Current position in the list (first list item = 1)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">Other</td><td class="cont" width="70%">0</td></tr>
+
+        <tr class="cont"><td class="cont" width="10%">8</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">All</td><td class="cont" width="70%"><a href="../../dialogapi/flags/index.html">Element flags</a></td></tr>
+        <tr class="cont"><td class="cont" width="10%">9</td><td class="cont" width="10%">Number</td><td class="cont" width="10%">All</td><td class="cont" width="70%">A flag that specifies that the given dialog element is the "default element".</td></tr>
+
+        <tr class="cont"><td class="cont" width="10%">10</td><td class="cont" width="10%">String</td><td class="cont" width="10%">Other</td><td class="cont" width="70%">Textual value (the  <a href="../../dialogapi/structures/fardialogitem.html">FarDialogItem.Data</a> field)</td></tr>
+       </table>
+       Returns -1 if <em>ID</em> is bigger than the number of elements in the dialog or the value of <em>Type</em> is not supported.<br>
+    </td>
+  </tr>
+
+  <tr class="cont">
+    <td class="cont" width="40%">V=<dfn><a name="Editor.Set">Editor.Set</a></dfn>(Idx,Var)</td>
+    <td class="cont" width="60%">Change settings of the current editor instance.
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="10%">Index</th><th class="cont" width="10%">Var Type</th><th class="cont" width="80%">Description</th></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Tab size</td></tr>
+        <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Expand tabs</td></tr>
+        <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Persistent blocks</td></tr>
+        <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Del removes blocks</td></tr>
+        <tr class="cont"><td class="cont" width="10%">4</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Autoindent</td></tr>
+        <tr class="cont"><td class="cont" width="10%">5</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Autodetect character table</td></tr>
+        <tr class="cont"><td class="cont" width="10%">6</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Create new files in WIN encoding</td></tr>
+        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Cursor beyond end of line</td></tr>
+        <tr class="cont"><td class="cont" width="10%">8</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">BackSpace behaviour (TechInfo #13)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">9</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Representation of the character under cursor in the status line (TechInfo #32)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">10</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Save file position</td></tr>
+        <tr class="cont"><td class="cont" width="10%">11</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Save bookmarks</td></tr>
+        <tr class="cont"><td class="cont" width="10%">12</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Word delimiters (TechInfo #1)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">13</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">EditorF7Rules (TechInfo #18)</td></tr>
+        <tr class="cont"><td class="cont" width="10%">14</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">AllowEmptySpaceAfterEof (TechInfo #67)</td></tr>
+       </table>
+       The value of <em>Var</em> can be  -1, in this case the function will not change any settings
+       and will return the current state of the option.<br>
+       Returns the previous value of the option or -1 if wrong arguments are given.<br>
+       For example, a macro that moves the selected block one line down:
+       <pre class=code>$IClip CtrlX %a=Editor.Set(2,1); Down CtrlV %a=Editor.Set(2,%a);</pre>
+    </td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">S=<dfn><a name="env">env</a></dfn>(V)</td>
+    <td class="cont" width="60%">Returns the value of an environment variable V, for instance:<br>
+    <pre class=code>$if (Env(&quot;FARLANG&quot;) == &quot;English&quot;) <em>...do something...</em> $end</pre></td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">S=<dfn><a name="fsplit">fsplit</a></dfn>(path,N)</td>
+    <td class="cont" width="60%">Splits the path <em>path</em> into the components and
+    returns theirs combination depending on the flag combination <em>N</em>:
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="10%">Value</th><th class="cont" width="90%">Description</th></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000001</td><td class="cont" width="90%">Current drive in "C:" representation.<br>For network shares - "\\server\share"</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000002</td><td class="cont" width="90%">Rooted path in "\Program Files\Far\" representation</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000004</td><td class="cont" width="90%">Name</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000008</td><td class="cont" width="90%">Extension in ".EXT" represention or empty string, if there's no extension.</td></tr>
+       </table>
+    </td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="fexist">fexist</a></dfn>(S)</td>
+    <td class="cont" width="60%">Checks if the file or folder <em>S</em> exists and returns
+      1 if true or 0 otherwise.<br>
+      If the path <em>S</em> is relative then function checks it relative to the path on the active panel.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="fattr">fattr</a></dfn>(S)</td>
+    <td class="cont" width="60%">Returns the file system attributes of the file or folder <em>S</em>
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="10%">Attribute</th><th class="cont" width="90%">Description</th></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000001</td><td class="cont" width="90%">FILE_ATTRIBUTE_READONLY. The file or folder is read-only. Applications can read the file but cannot write to it
+        or delete it. In the case of a folder, applications cannot delete it.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000002</td><td class="cont" width="90%">FILE_ATTRIBUTE_HIDDEN. The file or folder is hidden. It is not included in an ordinary directory listing.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000004</td><td class="cont" width="90%">FILE_ATTRIBUTE_SYSTEM. The file or folder is part of the operating system or is used exclusively by the operating system.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000010</td><td class="cont" width="90%">FILE_ATTRIBUTE_DIRECTORY. This is a folder.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000020</td><td class="cont" width="90%">FILE_ATTRIBUTE_ARCHIVE. The file or folder is an archive file. Applications use this attribute to mark files for backup or removal.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000080</td><td class="cont" width="90%">FILE_ATTRIBUTE_NORMAL. The file or folder has no other attributes set. This attribute is valid only if used alone.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000100</td><td class="cont" width="90%">FILE_ATTRIBUTE_TEMPORARY. The file is being used for temporary storage. File systems avoid writing data back to mass storage if sufficient cache memory is available, because often the application deletes the temporary file shortly after the handle is closed. In that case, the system can entirely avoid writing the data. Otherwise, the data will be written after the handle is closed.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000200</td><td class="cont" width="90%">FILE_ATTRIBUTE_SPARSE_FILE. The file is a sparse file.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000400</td><td class="cont" width="90%">FILE_ATTRIBUTE_REPARSE_POINT. The file or folder has an associated reparse point.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000800</td><td class="cont" width="90%">FILE_ATTRIBUTE_COMPRESSED. The file or folder is compressed. For a file, this means that all of the data in the file is compressed. For a folder, this means that compression is the default for newly created files and subdirectories.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00001000</td><td class="cont" width="90%">FILE_ATTRIBUTE_OFFLINE. The data of the file is not immediately available. This attribute indicates that the file data has been physically moved to offline storage. This attribute is used by Remote Storage, the hierarchical storage management software. Applications should not arbitrarily change this attribute.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00002000</td><td class="cont" width="90%">FILE_ATTRIBUTE_NOT_CONTENT_INDEXED. The file or directory is not be indexed by the content indexing service.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00004000</td><td class="cont" width="90%">FILE_ATTRIBUTE_ENCRYPTED. The file or folder is encrypted. For a file, this means that all data in the file is encrypted. For a folder, this means that encryption is the default for newly created files and subdirectories.</td></tr>
+       </table>
+       if file system object does not exist this function returns -1.<br>
+      If the path <em>S</em> is relative then function checks it relative to the path on the active panel.
+    </td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">S=<dfn><a name="date">date</a></dfn>(format)</td>
+    <td class="cont" width="60%">Returns the current date/time according to the format <em>format</em>
+    (See the $Date for the <em>format</em> description).<br>
+    This function is similar to $Date macro-command but can also be used in expressions.
+  The <em>format</em> argument is mandatory.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">S=<dfn><a name="xlat">xlat</a></dfn>(S)</td>
+    <td class="cont" width="60%">Returns the transliterated string.<br>
+    This function is similar to $XLat macro command but can be used in expressions.
+    Argument <em>S</em> is mandatory.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="msgbox">msgbox</a></dfn>(Title,Text,Flags)</td>
+    <td class="cont" width="60%">Shows up the message box with the <em>Text</em> and the <em>Title</em>.
+    Lines in the <em>Text</em> argument should be delimited by '\n'.<br>
+      <em>Flags</em> can be a combination of the following values:
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="10%">Flags</th><th class="cont" width="90%">Description</th></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000001</td><td class="cont" width="90%">Use the 'Warning' color scheme (usually white text on red background).</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000008</td><td class="cont" width="90%">Show the message lower by two lines.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00000010</td><td class="cont" width="90%">Use the left alignment for the message strings (align to center of not specified).</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00010000</td><td class="cont" width="90%">Show the &lt;Ok&gt; button.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00020000</td><td class="cont" width="90%">Show the &lt;Ok&gt; and &lt;Cancel&gt; buttons.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00030000</td><td class="cont" width="90%">Show the &lt;Abort&gt;, &lt;Retry&gt; and &lt;Ignore&gt; buttons.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00040000</td><td class="cont" width="90%">Show the &lt;Yes&gt; and &lt;No&gt; buttons.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00050000</td><td class="cont" width="90%">Show the &lt;Yes&gt;, &lt;No&gt; and &lt;Cancel&gt; buttons.</td></tr>
+        <tr class="cont"><td class="cont" width="10%">0x00060000</td><td class="cont" width="90%">Show the &lt;Retry&gt; and &lt;Cancel&gt; buttons.</td></tr>
+       </table>
+    If the <em>Flags</em> argument is 0 then standard message box is displayed with the &lt;Ok&gt; button.<br>
+    The return value is the number of the button the user selected (1 for the first, 2 for the second, etc.),
+    if user canceled the message the result will be 0.
+    </td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">S=<dfn><a name="lcase">lcase</a></dfn>(S)</td>
+    <td class="cont" width="60%">Transforms the string <em>S</em> to lower-case.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">S=<dfn><a name="ucase">ucase</a></dfn>(S)</td>
+    <td class="cont" width="60%">Transforms the string <em>S</em> to upper-case .</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">V=<dfn><a name="panelitem">panelitem</a></dfn>(panelType,itemIndex,propIndex)</td>
+    <td class="cont" width="60%">Queries the information for the panel element <em>itemIndex</em> from the
+    active (<em>panelType</em>=0) or passive (<em>panelType</em>=1) panel. <em>propIndex</em> can be one
+    of the following values:
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="10%">Value</th><th class="cont" width="10%">Type</th><th class="cont" width="80%">Description</th></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="10%">String</td><td class="cont" width="80%">File or folder name</td></tr>
+        <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="10%">String</td><td class="cont" width="80%">File or folder short name</td></tr>
+        <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">File attributes</td></tr>
+        <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Creation date/time</td></tr>
+        <tr class="cont"><td class="cont" width="10%">4</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Last access date/time</td></tr>
+        <tr class="cont"><td class="cont" width="10%">5</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Last modification date/time</td></tr>
+        <tr class="cont"><td class="cont" width="10%">6</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Size</td></tr>
+        <tr class="cont"><td class="cont" width="10%">7</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Packed size</td></tr>
+        <tr class="cont"><td class="cont" width="10%">8</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">"Is selected?"</td></tr>
+        <tr class="cont"><td class="cont" width="10%">9</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Number of the hardlinks</td></tr>
+        <tr class="cont"><td class="cont" width="10%">10</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">SortGroup</td></tr>
+        <tr class="cont"><td class="cont" width="10%">11</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Diz-text</td></tr>
+        <tr class="cont"><td class="cont" width="10%">12</td><td class="cont" width="10%">String</td><td class="cont" width="80%">Owner</td></tr>
+        <tr class="cont"><td class="cont" width="10%">13</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">CRC32</td></tr>
+        <tr class="cont"><td class="cont" width="10%">14</td><td class="cont" width="10%">Number</td><td class="cont" width="80%">Position of the element while reading from the file system</td></tr>
+       </table>
+    Date/time is returned in the DD.MM.YYYY HH:MM:SS format.
+    The values order and the delimiters are determined according to the regional settings.
+    To receive information on the current file (under cursor) <em>itemIndex</em> should be set to 0.
+    </td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="panel.setpos">panel.setpos</a></dfn>(panelType,fileName)</td>
+    <td class="cont" width="60%">Positions the cursor on the element with name <em>fileName</em> on the active
+      (<em>panelType</em>=0) or passive (<em>panelType</em>=1) panel.<br>
+      Returns the position of the element or 0 if there is no such element.<br>
+      For example, the following macro creates a directory named after the current date in
+      YYYYMMDD format or positions the cursor on this directory if it already exists.
+      <pre class=code>%dt=date("%Y%m0%d");
+$If (fexist(%dt))
+  panel.SetPos(0,%dt)
+$Else
+  F7 $Text %dt Enter
+$End</pre>
+    </td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">B=<dfn><a name="msave">msave</a></dfn>(S)</td>
+    <td class="cont" width="60%">Stores the value of a global variable with the name <em>S</em>
+    to the <dfn>Vars</dfn> area.
+    Returns 0 in case of failure.<br>
+    Example: <pre class=code>%%GlobalVars="Foo Bar"; %a=msave("%%GlobalVars");</pre>
+    </td>
+  </tr>
+<tr class="cont">
+    <td class="cont" width="40%">V=<dfn><a name="clip">clip</a></dfn>(Cmd,S)</td>
+    <td class="cont" width="60%">Allows to perform miscellaneous manipulations on the Clipboard in accordance with the
+         <em>Cmd</em> command:
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="10%">Cmd</th><th class="cont" width="90%">Description</th></tr>
+        <tr class="cont"><td class="cont" width="10%">0</td><td class="cont" width="90%">Returns data from the Clipboard; the <em>S</em> parameter is ignored; in case of error returns 0</td></tr>
+        <tr class="cont"><td class="cont" width="10%">1</td><td class="cont" width="90%">Put the string <em>S</em> to the Clipboard; in case of error returns 0</td></tr>
+        <tr class="cont"><td class="cont" width="10%">2</td><td class="cont" width="90%">Add the string <em>S</em> to the Clipboard; in case of error returns 0</td></tr>
+        <tr class="cont"><td class="cont" width="10%">3</td><td class="cont" width="90%">Copy the Windows Clipboard to the internal clipboard buffer; the <em>S</em> parameter is ignored; in case of error returns 0</td></tr>
+        <tr class="cont"><td class="cont" width="10%">4</td><td class="cont" width="90%">Copy the internal clipboard buffer to the Windows Clipboard; the <em>S</em> parameter is ignored; in case of error returns 0</td></tr>
+       </table>
+       For example, put to the Clipboard a list of selected files in the CSV format (name and size):
+       <pre class=code>Clip(1,"Name;Size\r\n")
+Home
+$While(!APanel.Eof)
+  $If(!APanel.Folder &amp;&amp; PanelItem(0,0,8))
+     Clip(2,PanelItem(0,0,0)+";"+PanelItem(0,0,6)+"\r\n")
+  $End
+  Down
+$End</pre>
+       See <a href="iclip.html">$IClip</a>, <a href="boolstate.html#iclip">IClip</a>.
+    </td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="40%">N=<dfn><a name="sleep">sleep</a></dfn>(N)</td>
+    <td class="cont" width="60%">Pause macro execution for <em>N</em> milliseconds.
+     Negative sleep time is considered and error and the function returns 0.<br>
+    </td>
+  </tr>
+  </table>
+
+<h3>Notes</h3>
+<div class=descr>
+<ol>
+<li>It is impossible to use macro-language elements while <a href="../macrokey/record.html">recording</a>
+  a macro in a usual way. Macro-language elements can be added to the sequence only by editing
+  the registry manually or by using special applications or FAR plugins.</li>
+</ol>
+</div>
+
+
+</body>
+
+</html>

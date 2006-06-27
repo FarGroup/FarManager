@@ -1,0 +1,66 @@
+OBJDIR = ./GCC
+REOBJDIR = \.\/GCC\/
+DLLDIR = ..
+DLLNAME = libCRT.a
+DLLFULLNAME = $(DLLDIR)/$(DLLNAME)
+SRCS = memchr.cpp \
+memcmp.cpp \
+memcpy.cpp \
+memicmp.cpp \
+memset.cpp \
+memmove.cpp \
+strpbrk.cpp \
+strstr.cpp \
+strchr.cpp \
+strcspn.cpp \
+strdup.cpp \
+strncat.cpp \
+strncmp.cpp \
+strrchr.cpp \
+strtok.cpp \
+strtol.cpp \
+i64toa.cpp \
+ctype.cpp \
+delete.cpp \
+delete_array.cpp \
+free.cpp \
+malloc.cpp \
+new.cpp \
+new_array.cpp \
+realloc.cpp
+
+CXX = g++
+DLLTOOL = dlltool
+RM = rm -f
+CP = cp -f
+M4 = m4 -P
+MV = mv -f
+MKDIR = mkdir -p
+AR = ar
+RANLIB = ranlib
+CXXFLAGS = -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-rtti -fno-exceptions
+
+OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS)))
+DEPS = $(patsubst %.cpp,$(OBJDIR)/%.d,$(filter %.cpp,$(SRCS)))
+
+all: $(DLLFULLNAME)
+
+$(OBJDIR)/%.d: %.cpp
+	@echo making depends for $<
+	@$(MKDIR) -p $(@D)
+	@$(SHELL) -ec '$(CXX) -c -MM $(CXXFLAGS) $< \
+                | sed '\''s/\($*\)\.o[ :]*/$(REOBJDIR)\1.o $(REOBJDIR)\1.d: /g'\'' > $@; [ -s $@ ] || $(RM) $@'
+
+$(OBJDIR)/%.o: %.cpp
+	@echo compiling $<
+	@$(MKDIR) -p $(@D)
+	@$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+$(DLLFULLNAME): $(OBJS)
+	@echo linking $@
+	@$(MKDIR) -p $(@D)
+	@$(AR) rc $(DLLNAME) $(OBJS)
+	@$(RANLIB) $(DLLNAME)
+	@$(MV) $(DLLNAME) $(DLLDIR)
+
+-include $(DEPS)

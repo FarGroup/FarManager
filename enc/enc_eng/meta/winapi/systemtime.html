@@ -1,0 +1,105 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>SYSTEMTIME</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+
+<body>
+
+<h1>SYSTEMTIME</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a href="../structures/index.html">structures</a> |
+<a href="index.html">win32 structures</a>
+</div>
+
+
+<div class=shortdescr>
+The <strong>SYSTEMTIME</strong> structure represents a date and time using
+individual members for the month, day, year, weekday, hour, minute, second,
+and millisecond.
+</div>
+
+<pre class=syntax>
+typedef struct _SYSTEMTIME {
+  WORD wYear;
+  WORD wMonth;
+  WORD wDayOfWeek;
+  WORD wDay;
+  WORD wHour;
+  WORD wMinute;
+  WORD wSecond;
+  WORD wMilliseconds;
+} SYSTEMTIME;
+</pre>
+
+<h3>Members</h3>
+<div class=descr>
+
+    <div class=dfn>wYear</div>
+    <div class=dfndescr>Specifies the current year. The year must be greater than 1601.
+    <p class=note><img src="../../images/note.gif" alt="Windows XP, Windows Server" width="10" height="10"> Windows XP, Windows Server</p>
+    <UL class=note><LI>
+    The year cannot be greater than 30827.
+    </LI></UL>
+    </div>
+    <div class=dfn>wMonth</div>
+    <div class=dfndescr>Specifies the current month; January = 1, February = 2, and so on.</div>
+    <div class=dfn>wDayOfWeek</div>
+    <div class=dfndescr>Specifies the current day of the week; Sunday = 0, Monday = 1, and so on.</div>
+    <div class=dfn>wDay</div>
+    <div class=dfndescr>Specifies the current day of the month.</div>
+    <div class=dfn>wHour</div>
+    <div class=dfndescr>Specifies the current hour (0-23).</div>
+    <div class=dfn>wMinute</div>
+    <div class=dfndescr>Specifies the current minute (0-59).</div>
+    <div class=dfn>wSecond</div>
+    <div class=dfndescr>Specifies the current second (0-59).</div>
+    <div class=dfn>wMilliseconds</div>
+    <div class=dfndescr>Specifies the current millisecond (0-999).</div>
+
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+  <p>It is not recommended that you add or substract values from this structure to obtain relative times.
+  Instead, you should do the following:
+  <ul>
+    <li> Convert the <strong>SYSTEMTIME </strong> structure to a <a href="filetime.html">FILETIME</a>
+structure using the <a href="win32/SystemTimeToFileTime">SystemTimeToFileTime</a> function.</li>
+    <li>Copy 
+
+
+ the resulting <strong>FILETIME </strong> structure to a <a href="win32/ULARGE_INTEGER">ULARGE_INTEGER</a> structure.</li>
+    <li>Use standard 64-bit arithmetic on the <a href="win32/ULARGE_INTEGER">ULARGE_INTEGER</a>
+        value or cast a variable of <strong>FILETIME</strong> type to the <strong>__int64</strong> type:
+          <pre class=code>
+FILETIME WriteTime1, WriteTime2;
+
+if(*(__int64*) &amp; WriteTime1 == *(__int64*) &amp; WriteTime2)
+ ...
+</pre>
+    </li>
+  </ul>
+<!--
+
+   The system can periodically refresh the time by synchronizing with
+a time source. Because the system time can be adjusted either forward
+or backward, do not compare system time readings to determine elapsed
+time. Instead, use one of the methods described in Windows Time.
+
+-->
+</div>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="filetime.html">FILETIME</a>,
+<a href="win32/LARGE_INTEGER">LARGE_INTEGER</a>,
+<a href="win32/GetSystemTime">GetSystemTime</a>,
+<a href="win32/SetSystemTime">SetSystemTime</a>
+</div>
+
+</body>
+</html>

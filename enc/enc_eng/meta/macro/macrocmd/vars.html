@@ -1,0 +1,63 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>Variables - Macros</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+</head>
+
+<body>
+
+<h1>Variables</h1>
+<div class="navbar">
+<a href="../../index.html">main</a> |
+<a href="../index.html">Macros</a> |
+<a href="index.html">Macro-language</a>
+</div>
+
+<div class=shortdescr>
+You can use the variables to store some values associated with the names
+and use them later in the macro sequences. Both global and local variables
+can be used in the macro sequence.
+</div>
+
+<h3>Naming</h3>
+<div class=descr>
+<p>Local variable name begins with the '%' sign followed by the alpha characters, numbers or '_' characters.
+<p>Global variable name begins with the '%%' signs followed by the alpha characters, numbers or '_' characters.
+<p>Variable value assignment should be ended with ';'
+<p>Variable names are not case sensitive thus '%myStr' and '%MYstr' is the same variable.
+</div>
+
+<h3>Types</h3>
+<div class=descr>
+<p>Variables can be either string or integer.
+<p>Integer constants can be represented by: NNN - decimal constant, 0NNN - octal constant, 0xNNN - hexadecimal constant.
+<p>Integers are of 64 bit width.
+</div>
+
+<h3>Scope of action</h3>
+<div class=descr>
+<p>The scope for the local variables is the current macro sequence.
+<p>The scope for the global variables is a current FAR Manager session.
+Global variables can be stored in the <dfn>Vars</dfn> execution area. Every time FAR starts up it restores the global variables stored in this area.
+</div>
+
+
+<h3>Notes</h3>
+<div class=descr>
+<ol>
+<li>It is impossible to use macro-language elements while <a href="../macrokey/record.html">recording</a>
+  a macro in a usual way. Macro-language elements can be added to the sequence only by editing
+  the registry manually or by using special applications or FAR plugins.</li>
+</ol>
+</div>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="functions.html#msave">msave()</a>
+</div>
+
+</body>
+
+</html>

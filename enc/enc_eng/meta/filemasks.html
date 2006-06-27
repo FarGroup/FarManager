@@ -1,0 +1,67 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>File masks</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../styles/styles.css">
+<script language="javascript" src='links.js' type="text/javascript"></script>
+</head>
+
+<body>
+
+<h1>File masks</h1>
+<div class=navbar>
+<a href="index.html">main</a>
+</div>
+
+
+<div class=shortdescr>
+<p>File masks are frequently used in FAR commands to select a single file and/or
+folder or a group files and/or folders. Masks may contain common valid file name symbols,
+wildcards ('<code>*</code>' and '<code>?</code>') and special expressions:
+
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Expression</th><th class="cont" width="60%">Description</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><code>*</code></td>
+    <td class="cont" width="60%">Zero or more characters.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><code>?</code></td>
+    <td class="cont" width="60%">Any single character.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><code>[c,x-z]</code></td>
+    <td class="cont" width="60%">Any character enclosed in the brackets. Both lists and ranges of
+    characters are allowed.</td></tr>
+</table>
+
+<p>For example, files <code>ftp.exe</code>, <code>fc.exe</code> and <code>f.ext</code> may be
+selected using the mask <code>f*.ex?</code>, the mask <code>*co*</code> will select both
+<code>color.ini</code> and <code>edit.com</code>, the mask <code>[c-f,t]*.txt</code>
+will select <code>config.txt</code>, <code>demo.txt</code>, <code>faq.txt</code> and
+<code>tips.txt</code>.</p>
+
+<p>In many FAR commands you may enter several file masks separated by commas
+or semicolons. For example, to select all the documents, you can enter
+<code>*.doc,*.txt,*.wri</code> in the "Select" command.</p>
+
+<p>It is allowed to put any of the masks (in a list) in quotes (but not the whole list). For
+example, you have to do this when a mask contains any of the delimiting
+characters (a comma or a semicolon), so that the mask isn't confused with
+a list of masks.</p>
+
+<p>In some commands (find files, file selection, file associations, sort groups and file
+highlighting) you may use exclude masks. An <b>exclude mask<b>
+is one or multiple file masks that must not be matched by the needed files. The exclude mask is
+delimited from the main mask by the '<code>|</code>' character.</p>
+
+<p>Usage examples of exclude masks:
+<ol>
+<li><code><b>*.cpp</b></code><br>All files with the cpp extension.</li>
+<li><code><b>*.*|*.bak,*.tmp</b></code><br>All files except for the files with bak and tmp extensions.</li>
+<li><code><b>*.*|</b></code><br>This mask has an error - the character '<code><b>|</b></code>', is entered, but the
+    mask itself is not specified.</li>
+<li><code><b>*.*|*.bak|*.tmp</b></code><br>Also an error - the character '<code><b>|</b></code>' may not be specified in the mask
+    more than once.</li>
+<li><code><b>|*.bak</b></code><br>The same as '<code>*|*.bak</code>'</li>
+</ol>
+</div>
+
+</body>
+</html>

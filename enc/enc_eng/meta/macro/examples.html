@@ -1,0 +1,120 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>Examples - Macros</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+</head>
+
+<body>
+
+<h1>Examples</h1>
+<div class="navbar">
+<a href="../index.html">main</a> |
+<a href="index.html">Macros</a>
+</div>
+
+<p><pre class=code>REGEDIT4
+
+;open the disks menu in the passive file panel
+;make the panel for which the menu is going to be open visible if it was hidden before.
+
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Disks\Tab]
+"Sequence"="Esc $If (!PPanel.Visible) $If (APanel.Left) CtrlF2 $Else CtrlF1 $End $End Tab F9 Enter End Enter"
+"DisableOutput"=dword:00000001</pre>
+
+<pre class=code>REGEDIT4
+
+;select/unselect a single word under the text cursor
+
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Editor\RAlt]
+"Sequence"="RCtrl9 CtrlRight CtrlLeft $If (!Selected) CtrlShiftRight $Else CtrlU $End Ctrl9"
+"DisableOutput"=dword:00000001</pre>
+
+<pre class=code>REGEDIT4
+
+;create a new folder with name consisting of the current date
+
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlShiftF7]
+"Sequence"="%folder=date(\"%d.%m0.%Y\"); $If (!fexist(%folder)) F7 CtrlY $Text %folder Enter $End"
+"DisableOutput"=dword:00000001
+"NoPluginPanels"=dword:00000001</pre>
+
+<pre class=code>REGEDIT4
+
+;quick find the file in the passive panel with the same name as selected
+;in the active panel
+;sequence F5 ShiftEnter CtrlIns is used to get the file name independently
+;of the state of the command line and number of selected files in the panels
+
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlAltLeft]
+"Sequence"="$IClip $If (((Bof &amp;&amp; APanel.Root) || !Bof) &amp;&amp; PPanel.Visible)
+$If (fexist(PPanel.Path+\"\\\\\"+APanel.Current) == 1) F5 ShiftEnter
+CtrlIns Esc Tab Home Alt< ShiftIns Esc $End $End"
+"DisableOutput"=dword:00000001
+
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlAltRight]
+"Sequence"="$IClip $If (((Bof &amp;&amp; APanel.Root) || !Bof) &amp;&amp; PPanel.Visible)
+$If (fexist(PPanel.Path+\"\\\\\"+APanel.Current) == 1) F5 ShiftEnter CtrlIns
+Esc Tab Home Alt< ShiftIns Esc $End $End"
+"DisableOutput"=dword:00000001
+</pre>
+
+<pre class=code>REGEDIT4
+
+;select 30 next/previous files or folders
+
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlDown]
+"Sequence"="$If (!Eof) $Rep (30) $If (Eof) Ins $Exit $Else Ins $End $End $End"
+"DisableOutput"=dword:00000001
+
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlUp]
+"Sequence"="Up $If (Bof) $If (!APanel.Root) Down $End $Exit $Else Down $End
+$If (Eof) Ins $Else Ins Up $End $Rep (29) Up Ins Up $If (Bof)
+$If (!APanel.Root) Down $End $Exit $End $End Up"
+"DisableOutput"=dword:00000001
+</pre>
+
+
+<pre class=code>REGEDIT4
+
+;capture the whole screen to the text file far-screen.out
+;this macro works only in the Dialog area of execution
+
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Dialog\AltP]
+"Sequence"="$IClip AltIns CtrlHome ShiftEnd ShiftPgDn Enter Esc
+$If (!Shell) Esc $End $If (Shell &amp;&amp; !APanel.Plugin) ShiftF4 CtrlY
+\"far-screen.out\" Enter ShiftIns Enter Enter F2 Esc $End"
+"DisableOutput"=dword:00000001</pre>
+
+
+<pre class=code>REGEDIT4
+
+;delete the file or folder using Del hotkey
+;if the cursor was on the .. element then try to delete the parent folder
+;if command line cursor is not in the end of the command line then delete current symbol
+
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\Del]
+"Sequence"="$If (!CmdLine.Eof) Del $Exit $Else
+$If ((APanel.Bof &amp;&amp; !APanel.Selected) &amp;&amp;
+(!APanel.Root || APanel.Plugin)) CtrlPgUp $End F8 $End"
+"DisableOutput"=dword:00000001
+</pre>
+
+<pre class=code>REGEDIT4
+
+;maximize the passive panel before showing the quickview panel
+;restore the panel size before closing the quickview panel
+
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlQ]
+"Sequence"="Tab $If (QView) Tab Ctrl2 Tab CtrlClear $Else Tab Ctrl6 Tab
+$If (APanel.Left) $Rep (APanel.width) CtrlRight $End $Else
+$Rep (APanel.width) CtrlLeft $End $End $End Tab CtrlQ"
+"DisableOutput"=dword:00000001
+</pre>
+
+
+</body>
+
+</html>

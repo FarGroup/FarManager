@@ -1,0 +1,226 @@
+
+    JAR TECHNICAL INFORMATION                                 October 1996
+
+
+    JAR archive identification scheme:
+
+    A file is considered a JAR archive if it contains a predefined 64-byte
+    structure.
+
+    Structure description:
+
+       at byte offset 0 for 4 bytes:
+
+          Whole structure CRC32 XOR-ed with 0xffffffff and shifted
+          cyclically 11 bits to the right (to the lowest bit). When
+          counting CRC32 this field itself is assumed to be 0.
+
+       at byte offset 14 for 6 bytes:
+
+          signature: 0x1A 'J' 'a' 'r' 0x1B 0x00
+
+      other structure fields not defined.
+
+    This structure does NOT necessarily start at the head of the file.
+
+    For normal archives this structure resides at the head of the file.
+    However to support future JAR SFX-es you must search the first 128
+    kilobytes of the file for this structure (optional check for executable
+    'MZ' may also be done).
+
+    Following pseudo-code illustrates JAR header check:
+
+      int IsJARHeader ( FILE *f )
+      {
+        unsigned long dwStored,dwCounted ; /* unsigned 32-bit integer */
+        unsigned char b[0x40] ;
+
+        fread(b,sizeof(b),1,f) ; /* at current position */
+
+        /* checking signature */
+        if ( b[14]!='\x1a' || b[15]!='J' ||
+             b[16]!='a'    || b[17]!='r' ||
+             b[18]!='\x1b' || b[19]!='\x00' )
+          return 0 ;
+
+        /* checking header CRC */
+        dwStored=*(unsigned long *)b ; /* Intel byte order */
+        dwStored=~((dwStored<<11)|(dwStored>>(32-11))) ;
+        *(unsigned long *)b=0 ;
+        dwCounted=CountCRC32(b,sizeof(b)) ;
+        if ( dwCounted!=dwStored ) return 0 ;
+        return 1 ;
+      }
+
+
+    The remaining part of this document contains a description of the JAR
+    archive header information that is dumped to a text file using the "lt"
+    command.
+
+    The dump file should be treated as a text file. Each line has the same
+    syntax:
+
+    <Keyword>=<value>
+
+    These lines are assembled into a tree.  Subnodes are shifted with respect
+    to the parent node by using two ' ' (space) characters.  Example:
+
+    Chapter=1
+      Created=1996-09-01 17:55:05.9800000
+      Modified=1996-09-01 17:55:05.9800000
+      Comment="Some\r\ncomment"
+      Flags=0
+    File=FIRST.BAT
+      Created=1996-09-01 17:20:41.4400000
+      Modified=1996-09-01 16:37:00.0000000
+      LastAccess=1996-09-01 00:00:00.0000000
+      Size=2160
+      ChaptersRange=1-2
+      Attributes=1
+    File=SECOND.BAT
+      Created=1996-09-01 17:20:41.4400000
+      Modified=1996-09-01 16:37:00.0000000
+      LastAccess=1996-09-01 00:00:00.0000000
+      Size=2160
+      ChaptersRange=1-2
+      Attributes=1
+
+    Currently, the tree depth is two (only nodes and one-level subnodes) but
+    in future JAR versions, the depth may be increased.
+
+    You should not rely on the order in which keywords are listed.  For
+    compatibility with future versions all unknown keywords must be
+    skipped.  Binary keyword values (such as ANSI comments) are quoted and
+    encoded using escape character '\'.
+
+    This is a brief description of the currently used keywords:
+
+
+    Archive=
+
+          Archive keyword. Subnodes describe global archive related
+          information.
+
+      Created=1996-09-01 17:21:31.9100000
+
+          Archive creation time YYYY-MM-DD HH:MM:SS.SSSSSSS
+
+      Modified=1996-09-01 19:17:56.5100000
+
+          Last time archive has been modified.
+
+      VersionUsed=0101
+
+          JAR version used to update archive (1.01 in this example).
+
+      VersionToUpdate=0050
+
+          JAR version required to update archive (0.50 in this example).
+
+      VersionToExtract=0050
+
+          JAR version required to extract files from archive.
+
+      VersionToList=0050
+
+          JAR version required to list files in archive.
+
+      Flags=0
+
+          Currently, JAR archive flags is the sum of the following
+          constants:
+
+            1   LOCKED
+            2   AUTO_LOCK
+            4   RECOVERY RECORDS
+            8   SECURED
+           16   HIDDEN
+           32   ENCRYPTED/PROTECTED
+
+
+      Comment="Some\r\ncomment"
+
+          Optional archive comment. Escape characters:
+
+          \\     Backslash
+          \"     Double quotation mark
+          \b     Backspace
+          \n     Newline
+          \r     Carriage return
+          \t     Tab
+          \ddd   ASCII character in octal notation. 3 digits always used.
+
+      MaxChapter=3
+
+          Maximum chapter in archive.
+
+
+    Chapter=1
+
+          Chapter (#1 in this example). Subnodes supply information about
+          chapter.
+
+      Created=1996-09-01 17:21:31.9100000
+
+          Creation time
+
+      Modified=1996-09-01 17:21:31.9100000
+
+          Modification time
+
+      Flags=0
+
+          Chapter flags is sum of following constants:
+
+            1   LOCKED
+
+      Comment="Some\r\ncomment"
+
+          Optional chapter comment. Same format as in case of archive.
+
+
+    File=TESTJAR.BAT
+
+          Filename. Subnodes contain information about file.
+
+      Created=1996-09-01 17:20:41.4400000
+
+          File creation time
+
+      Modified=1996-09-01 16:37:00.0000000
+
+          File modification time
+
+      LastAccess=1996-09-01 00:00:00.0000000
+
+          File last accessed time
+
+      Size=2160
+
+          File size in bytes
+
+      ChaptersRange=1-2
+
+          Chapter range to which file belongs
+
+      Attributes=1
+
+          Sum of:
+
+            1   ARCHIVE
+            2   HIDDEN
+            4   SYSTEM
+            8   READONLY
+            16  DIRECTORY
+
+      Comment="Some\r\ncomment"
+
+          Optional file comment.
+
+
+    Actually, the JAR header contains more information than is currently
+    listed using the "lt" command.  In the future we will add additional
+    keywords.
+
+
+    end of document

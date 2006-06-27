@@ -1,0 +1,119 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>ActlKeyMacro</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>ActlKeyMacro</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a  href="index.html">structures</a><br>
+</div>
+
+<div class=shortdescr>
+The <dfn>ActlKeyMacro</dfn> structure is used in
+the <a href="../service_functions/advcontrol.html">AdvControl</a> function
+for operations with macro-commands.
+</div>
+
+<pre class=syntax>
+struct ActlKeyMacro {
+  int Command;
+  union{
+    struct {
+      char *SequenceText;
+      DWORD Flags;
+    } PlainText;
+    DWORD Reserved[3];
+  } Param;
+};
+</pre>
+<h3>Elements</h3>
+<div class=descr>
+
+    <div class=dfn>Command</div>
+    <div class=dfndescr>One of the following commands (<a name="FARMACROCOMMAND">FARMACROCOMMAND</a> enum):
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Command</th><th class="cont" width="60%">Description</th></tr>
+
+<tr class="cont"><td class="cont" width="40%"><a name="MCMD_LOADALL">MCMD_LOADALL</a></td>
+<td class="cont" width="60%">Read all macros from the registry into FAR memory. Previous values are erased.
+</td></tr>
+
+<tr class="cont"><td class="cont" width="40%"><a name="MCMD_POSTMACROSTRING">MCMD_POSTMACROSTRING</a></td>
+<td class="cont" width="60%">Pass a macro in text form to FAR (in the same format as macros are stored in the registry).<br>
+The <a href="../service_functions/advcontrol.html">AdvControl</a> function returns TRUE if the macro is analyzed and placed
+into the queue (the macro will start running when FAR gets control). FALSE is returned if the macro contains any error.
+</td></tr>
+
+<tr class="cont"><td class="cont" width="40%"><a name="MCMD_SAVEALL">MCMD_SAVEALL</a></td>
+<td class="cont" width="60%">Forces FAR to immediately save all macros from memory to the registry.</td></tr>
+
+</table>
+    </div>
+    <div class=dfn>Param.PlainText.SequenceText</div>
+    <div class=dfndescr>Pointer to a zero-terminated string containing a macro sequence in text form.
+     OEM-encoding should be used to store macros.
+     This member is used in the <dfn>MCMD_POSTMACROSTRING</dfn> command.
+    </div>
+
+    <div class=dfn>Param.PlainText.Flags</div>
+    <div class=dfndescr>Combination of the following macro execution flags (<a name="FARKEYSEQUENCEFLAGS">FARKEYSEQUENCEFLAGS</a> enum):
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Flag</th><th class="cont" width="60%">Description</th></tr>
+       <tr class="cont"><td class="cont" width="40%"><a name="KSFLAGS_DISABLEOUTPUT">KSFLAGS_DISABLEOUTPUT</a></td>
+       <td class="cont" width="60%">Disable screen output during macro playback.</td></tr>
+       <tr class="cont"><td class="cont" width="40%"><a name="KSFLAGS_NOSENDKEYSTOPLUGINS">KSFLAGS_NOSENDKEYSTOPLUGINS</a></td>
+       <td class="cont" width="60%">Don't send keystrokes to editor plugins (plugins, that export
+        <a href="../exported_functions/processeditorinput.html">ProcessEditorInput</a> function).</td></tr>
+</table>
+     This member is used in the <dfn>MCMD_POSTMACROSTRING</dfn> command.
+    </div>
+
+    <div class=dfn>Reserved</div>
+    <div class=dfndescr>Reserved for future use.</div>
+
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+  <p>The <dfn>MCMD_LOADALL</dfn> and <dfn>MCMD_SAVEALL</dfn> commands won't execute
+  during macro recording or playback.</p>
+</div>
+
+<h3>Example</h3>
+<div class=descr>
+<dfn>MCMD_POSTMACROSTRING</dfn> usage in FARCmds plugin:
+<pre class=code>command.Command=MCMD_POSTMACROSTRING;
+command.Param.PlainText.SequenceText=(char *)malloc(strlen(pCmd)+1);
+if(command.Param.PlainText.SequenceText)
+{
+  command.Param.PlainText.Flags=KSFLAGS_DISABLEOUTPUT;
+  strcpy(command.Param.PlainText.SequenceText,pCmd);
+  Info.AdvControl(Info.ModuleNumber,ACTL_KEYMACRO,&amp;command);
+  free(command.Param.PlainText.SequenceText);
+}
+</pre>
+<dfn>MCMD_LOADALL</dfn> usage in FARCmds plugin:
+<pre class=code>command.Command=MCMD_LOADALL;
+Info.AdvControl(Info.ModuleNumber,ACTL_KEYMACRO,&command);
+</pre>
+<dfn>MCMD_SAVEALL</dfn> usage in FARCmds plugin:
+<pre class=code>command.Command=MCMD_SAVEALL;
+Info.AdvControl(Info.ModuleNumber,ACTL_KEYMACRO,&command);
+</pre>
+
+</div>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="index.html">Structures</a> |
+<a href="keysequence.html">KeySequence</a> |
+<a href="../delphi/tactlkeymacro.html">TActlKeyMacro</a>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>$If - Macros</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+</head>
+
+<body>
+
+<h1>$If</h1>
+<div class="navbar">
+<a href="../../index.html">main</a> |
+<a href="../index.html">Macros</a> |
+<a href="index.html">Macro-language</a> |
+<a href="cmds.html">Macro-commands</a>
+</div>
+
+<div class=shortdescr>
+The <dfn>$If</dfn> macro-command implements conditional execution of the macro sequence fragments.
+</div>
+
+<pre class=syntax>
+<dfn>$If</dfn> <dfn>(</dfn><em>Expr</em><dfn>)</dfn> <em>TruePart</em> [<dfn>$Else</dfn> <em>FalsePart</em>] <dfn>$End</dfn>
+</pre>
+
+<h3>Elements</h3>
+<div class=descr>
+<div class=dfn>Expr</div>
+<div class=dfndescr>Conditional expression.</div>
+
+<div class=dfn>TruePart</div>
+<div class=dfndescr>Execute if <dfn>Expr</dfn> is true.</div>
+
+<div class=dfn>FalsePart</div>
+<div class=dfndescr>Execute if <dfn>Expr</dfn> is false.</div>
+</div>
+
+
+<h3>Notes</h3>
+<div class=descr>
+<ol>
+<li>It is impossible to use macro-language elements while <a href="../macrokey/record.html">recording</a>
+  a macro in a usual way. Macro-language elements can be added to the sequence only by editing
+  the registry manually or by using special applications or FAR plugins.</li>
+<li>The <dfn>$Else</dfn> element can be omitted.
+</ol>
+</div>
+
+<h3>Example</h3>
+<div class=descr>
+<pre class=code>REGEDIT4
+
+;more convenient Alt-navigation
+
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Common\AltUp]
+"Sequence"="$If (Viewer || Qview) Up $Else AltUp $End"
+"DisableOutput"=dword:00000001
+</pre>
+</div>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="../examples.html">Examples</a>
+</div>
+
+
+</body>
+
+</html>

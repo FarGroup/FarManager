@@ -1,0 +1,29 @@
+LIBROOT    = .\FStdLib
+FARROOT    = .\FStdLib
+PNAME      = FarFtp
+PROJECT    = $(PNAME).dll
+PDEF       = ftp.def
+PRES       = ftp_Res.res
+MAPFILE    = $(PNAME).map
+PRESFILES  =
+CFLAG_ADD  =
+LFLAG_ADD  = -Tpd
+DEBUG      = y
+CFLAG_ADD  = $(CFLAG_ADD) /D__NOMEM__=1 /D__HEAP_MEMORY__=1 /D__USE_TRAPLOGER__=1 /D__USEASSERT__=1
+
+POBJS      = ftp_AskOver.obj ftp_Cfg.obj ftp_CmdLine.obj ftp_cnDownload.obj ftp_cnInit.obj \
+             ftp_cnUpload.obj  ftp_Connect.obj ftp_ConnectCmds.obj ftp_ConnectIO.obj \
+             ftp_ConnectMain.obj ftp_ConnectNB.obj ftp_ConnectSock.obj ftp_DeleteFile.obj \
+             ftp_EnumHost.obj ftp_Event.obj ftp_FAR.obj ftp_FGet.obj ftp_FileList.obj \
+             ftp_FPut.obj ftp_Ftp.obj ftp_FtpAPI.obj ftp_FTPBlock.obj ftp_FTPConnect.obj \
+             ftp_FtpDlg.obj ftp_FTPHost.obj ftp_fUtils.obj ftp_GetOpenInfo.obj ftp_HGet.obj \
+             ftp_HPut.obj ftp_JM.obj ftp_Key.obj ftp_MakeDir.obj ftp_Mem.obj ftp_Mix.obj \
+             ftp_Plugin.obj ftp_SetDir.obj ftp_Shortcut.obj ftp_sock.obj ftp_Queque.obj ftp_Url.obj
+
+# ---------------------------------------------------------------------------
+startup: _all
+!include "$(LIBROOT)\make_defs.bcb"
+_all: VER FARLIB $(PROJECT)
+
+VER:
+  touch ftp_Key.cpp

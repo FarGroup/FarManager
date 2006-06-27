@@ -1,0 +1,21 @@
+REGEDIT4
+
+;Commands for DOS based PKZIP 2.50!
+;PKZIP 2.50 for DOS supports Win32 long filenames!
+
+[HKEY_LOCAL_MACHINE\Software\Far\Plugins\MultiArc\ZIP]
+"Extract"="pkunzip -d -o {-s%%P} %%A @%%LM"
+"ExtractWithoutPath"="pkunzip -o {-s%%P} %%A @%%LM"
+"Test"="pkunzip -t {-s%%P} %%A"
+"Delete"="pkzip -d {-b%%W} %%A @%%LM"
+"Comment"="pkzip -z {-b%%W} %%A"
+"CommentFiles"="pkzip -c {-b%%W} %%A"
+"SFX"="zip2exe %%A"
+"Lock"=""
+"Protect"=""
+"Recover"="pkzipfix %%A"
+"Add"="pkzip -a -whs {-s%%P} {-b%%W} %%A @%%LM"
+"Move"="pkzip -m -whs {-s%%P} {-b%%W} %%A @%%LM"
+"AddRecurse"="pkzip -a -whs -r -P {-s%%P} {-b%%W} %%A @%%LM"
+"MoveRecurse"="pkzip -m -whs -r -P {-s%%P} {-b%%W} %%A @%%LM"
+"AllFilesMask"="*.*"

@@ -1,0 +1,73 @@
+  <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>ProcessKey</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>ProcessKey</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a href="index.html">exported functions</a>
+</div>
+
+<div class=shortdescr>
+The <dfn>ProcessKey</dfn> function allows to override standard
+control keys processing in a plugin panel.</div>
+
+<pre class=syntax>
+int WINAPI ProcessKey(
+  HANDLE hPlugin,
+  int Key,
+  unsigned int ControlState
+);
+</pre>
+<h3>Parameters</h3>
+<div class=descr>
+  <div class=dfn>hPlugin</div>
+  <div class=dfndescr>Plugin handle returned by <a href="openplugin.html">OpenPlugin</a>
+    or <a href="openfileplugin.html">OpenFilePlugin</a>.
+  </div>
+
+  <div class=dfn>Key</div>
+  <div class=dfndescr><a href="../winapi/virtualkeycodes.html">Virtual key code</a>.
+    <br><em>Key</em> may have the <a href="../defs/far_pkf_flags.html#PKF_PREPROCESS">PKF_PREPROCESS</a> flag set.
+  </div>
+
+  <div class=dfn>ControlState</div>
+  <div class=dfndescr>Indicates control keys state.
+    One or more flags from the <a href="../defs/far_pkf_flags.html">FAR_PKF_FLAGS</a> enum
+    (except <a href="../defs/far_pkf_flags.html#PKF_PREPROCESS">PKF_PREPROCESS</a>).<br>
+    For example, when <kbd>Shift-F7</kbd> is pressed, <em>Key</em> is equal to VK_F7 and
+    <em>ControlState</em> is equal to PKF_SHIFT.
+  </div>
+</div>
+
+<h3>Return value</h3>
+<div class=descr>
+Return FALSE to use standard FAR key processing.
+If the plugin processes the key combination by itself, it should return TRUE
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+<ul>
+<li><b>FAR 1.70 build 2051 and earlier versions:</b><br>
+Because of FAR kernel implementation specifics this function does not receive the following keys:
+<kbd>Tab</kbd>, <kbd>Ctrl-F1</kbd>, <kbd>Ctrl-F2</kbd>, <kbd>Ctrl-B</kbd>, <kbd>Cltr-L</kbd>, <kbd>Ctrl-Q</kbd>,
+<kbd>Ctrl-T</kbd>, <kbd>Ctrl-O</kbd>, <kbd>Ctrl-P</kbd>, <kbd>Ctrl-I</kbd>, <kbd>Ctrl-U</kbd>,
+<kbd>Alt-F1</kbd>, <kbd>Alt-F2</kbd>, <kbd>Alt-F7</kbd>, <kbd>Ctrl-Down</kbd>, <kbd>Ctrl-Up</kbd>, <kbd>Ctrl-Left</kbd>,
+<kbd>Ctrl-Right</kbd>, <kbd>Ctrl-Num5</kbd>, <kbd>F9</kbd>, <kbd>Shift-F10</kbd>, <kbd>Ctrl-0..9</kbd>,
+<kbd>Alt-Ins</kbd>, <kbd>Ctrl-W</kbd>, <kbd>F11</kbd>, <kbd>Alt-F9</kbd>, <kbd>F12</kbd>,
+<kbd>Ctrl-Tab</kbd> and
+<kbd>Ctrl-Shift-Tab</kbd>.<br>
+Since 1.70 build 2052 those restrictions no longer apply (refer to the remarks on
+the <a href="../defs/far_pkf_flags.html">PKF_PREPROCESS</a> flag)</li>
+</ul>
+</div>
+
+</body>
+</html>

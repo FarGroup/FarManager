@@ -1,0 +1,92 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>Macro command parameters - Macros</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+</head>
+
+<body>
+
+<h1>Macro command parameters</h1>
+<div class="navbar">
+<a href="../../index.html">main</a> |
+<a href="../index.html">Macros</a> |
+<a href="index.html">Using macros</a>
+</div>
+
+<p>Macro command parameters define the conditions and the way the macro command is going to be executed.
+
+<p>To set up the additional parameters for the macro command created complete the recording using
+<kbd>Ctrl-Shift-.</kbd> instead of <kbd>Ctrl-.</kbd> and choose its parameter values using the
+dialog box:
+
+<div class="descr">
+  <div class="dfn">Allow screen output while executing the macro</div>
+  <div class="dfndescr">
+  Setting this parameter to 0 will disable screen refreshing operations
+  for the time necessary to complete the macro command execution. All
+  changes made to screen content will be complete after the command execution.
+  </div>
+  <div class="dfn">Execute after FAR Manager startup</div>
+  <div class="dfndescr">
+  Allows to execute the macro command immediately after FAR Manager startup.
+  </div>
+</div>
+
+<p>The following conditions are possible for the active and inactive panels activating the macro command:
+<div class="descr">
+  <div class="dfn">Panel type</div>
+  <div class="dfndescr">
+    <pre>[x] - execute if the panel is used by a plugin
+[ ] - execute if the panel is used by FAR file list
+[?] - ignore the panel type</pre>
+  </div>
+  <div class="dfn">Execute for the folders</div>
+  <div class="dfndescr">
+    <pre>[x] - execute if there's a folder under the cursor on the panel
+[ ] - execute if there's a file under the cursor on the panel
+[?] - disregard the type of an element under the cursor</pre>
+  </div>
+  <div class="dfn">Selection is present</div>
+  <div class="dfndescr">
+    <pre>[x] - execute if there are files or folders selected on the panel
+[ ] - execute if there are no files or folders selected on the panel
+[?] - ignore the file or folder selection state</pre>
+  </div>
+</div>
+
+<p>Miscellaneous activation conditions:
+<div class="descr">
+  <div class="dfn">Command line is empty</div>
+  <div class="dfndescr">
+    <pre>[x] - execute only if the command line is empty
+[ ] - execute only if the command line is not empty
+[?] - ignore the command line state</pre>
+  </div>
+  <div class="dfn">Text block is selected</div>
+  <div class="dfndescr">
+    <pre>[x] - execute only if there's a selected text block in the internal viewer/editor, command line or dialog input text box.
+[ ] - execute if there's no selected text block
+[?] - ignore the block selection state</pre>
+  </div>
+</div>
+<p class="note"><img src="../../../images/note.gif" alt="ATTENTION!" width="10" height="10"> Notes:</p>
+<ul class="note">
+  <li>* FAR Manager checks all above conditions before executing the macro command.</li>
+  <li>* There are several key combinations (particularly Enter, Esc, F1, Ctrl-F5, Ctrl-Down,
+MsWheelUp and MsWheelDown with all Ctrl, Shift and Alt combinations) that cannot be
+entered in shortcut assignment dialog box directly because these combinations perform
+some special functions in FAR. To <a href="assign.html">assign</a> one of these key
+comdinations select it from the drop-down selection box instead.</li>
+</ul>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="record.html">Record a macro</a>,
+<a href="delete.html">Delete a macro</a>
+</div>
+
+</body>
+
+</html>

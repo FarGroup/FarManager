@@ -1,0 +1,279 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>AdvControl</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>AdvControl</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a href="index.html">service functions</a><br>
+</div>
+
+<div class=shortdescr>
+The <dfn>AdvControl</dfn> function provides access to FAR services and allows to
+query information. It can be called from anywhere: panels, viewer or editor.
+</div>
+
+<pre class=syntax>
+int WINAPI AdvControl(
+  int ModuleNumber,
+  int Command,
+  void *Param
+);
+</pre>
+
+<h3>Parameters</h3>
+<div class=descr>
+  <div class=dfn>ModuleNumber</div>
+  <div class=dfndescr>Number of the plugin module. It is passed to the plugin in the
+  <a href="../exported_functions/setstartupinfo.html">SetStartupInfo</a> function.</div>
+  <div class=dfn>Command</div>
+  <div class=dfndescr>Control command type. Can be one of the following values (<code><a name="ADVANCED_CONTROL_COMMANDS">ADVANCED_CONTROL_COMMANDS</a></code> enum):
+   <table class="cont"><tr class="cont"><th class="cont" width="40%">Command</th><th class="cont" width="60%">Description</th></tr>
+
+      <tr class="cont"><td class="cont" width="40%"><a name="ACTL_COMMIT">ACTL_COMMIT</a></td>
+      <td class="cont" width="60%">"Commits" the results of the last operation with FAR windows
+        (for example, <dfn>ACTL_SETCURRENTWINDOW</dfn>).<br>
+        <var>Param</var> is ignored (set to zero).<br>
+        The function returns <code>TRUE</code> on success or <code>FALSE</code> in case of failure.
+      </td></tr>
+
+      <tr class="cont"><td class="cont" width="40%"><a name="ACTL_CONSOLEMODE">ACTL_CONSOLEMODE</a></td>
+      <td class="cont" width="60%">Retrieves or sets console mode (FullScreen &lt;-&gt; Windowed).<br>
+        <var>Param</var> can be one of the following constants:
+        <table class="cont"><tr class="cont"><th class="cont" width="40%">Constant</th><th class="cont" width="60%">Description</th></tr>
+            <tr class="cont"><td class="cont" width="40%"><a name="FAR_CONSOLE_GET_MODE">FAR_CONSOLE_GET_MODE</a></td>
+            <td class="cont" width="60%">returns current console mode</td></tr>
+            <tr class="cont"><td class="cont" width="40%"><a name="FAR_CONSOLE_SET_FULLSCREEN">FAR_CONSOLE_SET_FULLSCREEN</a></td>
+            <td class="cont" width="60%">sets the console to fullscreen mode</td></tr>
+            <tr class="cont"><td class="cont" width="40%"><a name="FAR_CONSOLE_SET_WINDOWED">FAR_CONSOLE_SET_WINDOWED</a></td>
+            <td class="cont" width="60%">sets the console to windowed mode</td></tr>
+            <tr class="cont"><td class="cont" width="40%"><a name="FAR_CONSOLE_TRIGGER">FAR_CONSOLE_TRIGGER</a></td>
+            <td class="cont" width="60%">toggles console mode</td></tr>
+        </table>
+        The returned value is the current console mode. Can be one of the following constants:
+        <table class="cont"><tr class="cont"><th class="cont" width="40%">Constant</th><th class="cont" width="60%">Description</th></tr>
+            <tr class="cont"><td class="cont" width="40%"><a name="FAR_CONSOLE_WINDOWED">FAR_CONSOLE_WINDOWED</a></td>
+            <td class="cont" width="60%">windowed mode</td></tr>
+            <tr class="cont"><td class="cont" width="40%"><a name="FAR_CONSOLE_FULLSCREEN">FAR_CONSOLE_FULLSCREEN</a></td>
+            <td class="cont" width="60%">fullscreen mode</td></tr>
+        </table>
+      </td></tr>
+
+      <tr class="cont"><td class="cont" width="40%"><a name="ACTL_EJECTMEDIA">ACTL_EJECTMEDIA</a></td>
+      <td class="cont" width="60%">Allows to programmatically eject media from removable drives (CD-ROM/USB/SUBST).<br>
+        <var>Param</var> points to an <a href="../structures/actlejectmedia.html">ActlEjectMedia</a>
+        structure.<br>
+        This command returns <code>TRUE</code> if the media was succesfully ejected, otherwise <code>FALSE</code> is returned.
+      </td></tr>
+
+      <tr class="cont"><td class="cont" width="40%"><a name="ACTL_KEYMACRO">ACTL_KEYMACRO</a></td>
+      <td class="cont" width="60%">Various actions with macro commands.<br>
+        <var>Param</var> points to an <a href="../structures/actlkeymacro.html">ActlKeyMacro</a>
+        structure.<br>
+        The return value is <code>TRUE</code> if the command was executed successfully or
+        <code>FALSE</code> if the execution failed (not enough memory, a macro command is
+        currently being executed or played).
+      </td></tr>
+
+      <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETARRAYCOLOR">ACTL_GETARRAYCOLOR</a></td>
+      <td class="cont" width="60%">Allows to get an array of all FAR colors.<br>
+        <var>Param</var> points to an array of bytes to receive the current FAR colors.
+        Each FAR color is stored in one byte - high 4 bits is the background color,
+        low 4 bits is the foreground color.<br>
+        If <var>Param</var> is equal to <code>NULL</code>, the size of the FAR color array
+        is returned. FAR color indexes defined in farcolor.hpp can be used for accessing
+        this array.<br>
+        This command always returns the size of the FAR color array.
+      </td></tr>
+
+      <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETCOLOR">ACTL_GETCOLOR</a></td>
+      <td class="cont" width="60%">Allows to get the FAR color with the specified index.<br>
+        <var>Param</var> must contain one of the <a href="../defs/farcolors.html">COL_*</a>
+        color indexes defined in <code>farcolor.hpp</code>.<br>
+        The return value is the color if a correct index was specified,
+      </td></tr>
+
+      <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETFARVERSION">ACTL_GETFARVERSION</a></td>
+      <td class="cont" width="60%">Gets the FAR version.<br>
+        <var>Param</var> either points to a variable of type DWORD, or it can be NULL.<br>
+        Version format:<pre>
+HIWORD:         = build number  (FAR 1.70.387 = 0x0183)
+LOWORD:  HIBYTE = major version (FAR 1.70.387 = 0x01)
+         LOBYTE = minor version (FAR 1.70.387 = 0x46)</pre>
+        <var>Param</var> can be set to <code>NULL</code>.<br>
+        This command returns the FAR version.
+      </td></tr>
+
+      <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETFARHWND">ACTL_GETFARHWND</a></td>
+      <td class="cont" width="60%">Returns the window handle (<code>HWND</code>) of the current FAR Manager
+        window.<br>
+        <var>Param</var> is ignored (set to 0).
+      </td></tr>
+
+      <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETCONFIRMATIONS">ACTL_GETCONFIRMATIONS</a></td>
+      <td class="cont" width="60%">Returns information about the confirmation settings.
+        Returns a <code>DWORD</code> with the
+        <code><a href="../defs/farconfirmationssettings.html">FarConfirmationsSettings</a></code>
+        flags set according to options in the "Confirmations" dialog.<br>
+      <var>Param</var> is ignored (set to 0).
+      </td></tr>
+
+      <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETDESCSETTINGS">ACTL_GETDESCSETTINGS</a></td>
+      <td class="cont" width="60%">Returns information about the file description settings.
+      Returns a <code>DWORD</code> with the
+      <code><a href="../defs/fardescriptionsettings.html">FarDescriptionSettings</a></code>
+      flags set according to options in the "File descriptions" dialog.<br>
+      <var>Param</var> is ignored (set to 0).
+      </td></tr>
+
+      <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETDIALOGSETTINGS">ACTL_GETDIALOGSETTINGS</a></td>
+      <td class="cont" width="60%">Returns information about the dialog settings.
+         Returns a <code>DWORD</code> with the
+         <code><a href="../defs/fardialogsettings.html">FarDialogSettings</a></code>
+         flags set according to options in the "Dialog Settings" dialog.<br>
+      <var>Param</var> is ignored (set to 0).
+      </td></tr>
+
+      <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETINTERFACESETTINGS">ACTL_GETINTERFACESETTINGS</a></td>
+      <td class="cont" width="60%">Returns information about the interface settings.
+        Returns a <code>DWORD</code> with the
+        <code><a href="../defs/farinterfacesettings.html">FarInterfaceSettings</a></code>
+        flags set according to options in the "Interface settings" dialog.<br>
+        <var>Param</var> is ingoner (set to 0).
+      </td></tr>
+
+      <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETPANELSETTINGS">ACTL_GETPANELSETTINGS</a></td>
+      <td class="cont" width="60%">Returns information about the panel settings.
+        Returns a <dfn>DWORD</dfn> with the
+        <code><a href="../defs/farpanelsettings.html">FarPanelSettings</a></code>
+        flags set according to options in the "Panel settings" dialog.<br>
+      <var>Param</var> is ignored (set to 0).
+      </td></tr>
+
+      <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETPLUGINMAXREADDATA">ACTL_GETPLUGINMAXREADDATA</a></td>
+      <td class="cont" width="60%">Returns the maximum data size that can be passed to
+        <a href="../exported_functions/openfileplugin.html">OpenFilePlugin</a>. Returns a DWORD of
+        any value from 0x1000 to 0x80000 (4KB to 512KB), but you should be ready to receive any
+        other value.
+       <var>Param</var> is ignored (set to 0)
+      </td></tr>
+
+      <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETSYSTEMSETTINGS">ACTL_GETSYSTEMSETTINGS</a></td>
+      <td class="cont" width="60%">Returns information about the system settings.
+        Returns a <code>DWORD</code> with the flags
+        <code><a href="../defs/farsystemsettings.html">FarSystemSettings</a></code>
+        set according to options in the "System settings" dialog.<br>
+        <var>Param</var> is ignored (set to 0).
+      </td></tr>
+
+      <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETSYSWORDDIV">ACTL_GETSYSWORDDIV</a></td>
+      <td class="cont" width="60%">Retrieves a string containing the word delimiter characters.<br>
+        <var>Param</var> points to a string buffer in which the word delimiters will be copied.<br>
+        Set <var>Param</var> to <code>NULL</code> to get string length (without the terminating
+        null character).<br>
+        The maximum length of the buffer is 260 characters, including the terminating null.
+      </td></tr>
+
+      <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETWCHARMODE">ACTL_GETWCHARMODE</a></td>
+      <td class="cont" width="60%">Returns the FAR console working mode<br>
+       <var>Param</var> is ingnored (set to 0).<br>
+        Returns TRUE, is the FAR console mode is set to Unicode.
+        Returns FALSE, if it set to 8-bit mode.
+      </td></tr>
+
+      <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETWINDOWCOUNT">ACTL_GETWINDOWCOUNT</a></td>
+      <td class="cont" width="60%">Returns the count of open windows in FAR Manager.<br>
+       <var>Param</var> is ignored (set to 0).<br>
+       There is always at least 1 open window (file panels, or an editor or a viewer
+       if FAR was started with a command line parameter <code>-e</code> or <code>-v</code>)
+      </td></tr>
+
+      <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETWINDOWINFO">ACTL_GETWINDOWINFO</a></td>
+      <td class="cont" width="60%">Retrieve information about a FAR Manager window.<br>
+       <var>Param</var> - Param points to a <a href="../structures/windowinfo.html">WindowInfo</a> structure.<br>
+       You must initialize the member WindowInfo.Pos before calling the function. If
+       <var>WindowInfo.Pos</var> is equal to -1, information about the current window is returned.
+       The return value is TRUE if the window with the index WindowInfo.Pos exists and FALSE if
+       there is no such window (in the latter case, the <a href="../structures/windowinfo.html">WindowInfo</a>
+       structure is not filled).
+      </td></tr>
+
+      <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETSHORTWINDOWINFO">ACTL_GETSHORTWINDOWINFO</a></td>
+      <td class="cont" width="60%">Retrieve information about a FAR Manager window.<br>
+       <var>Param</var> - Param points to a <a href="../structures/windowinfo.html">WindowInfo</a> structure.<br>
+       You must initialize the member WindowInfo.Pos before calling the function. If
+       <var>WindowInfo.Pos</var> is equal to -1, information about the current window is returned.
+       The return value is TRUE if the window with the index WindowInfo.Pos exists and FALSE if
+       there is no such window (in the latter case, the <a href="../structures/windowinfo.html">WindowInfo</a>
+       structure is not filled).<br>
+       In oppose to the ACTL_GETWINDOWINFO command the <var>WindowInfo.TypeName</var> and
+       <var>WindowInfo.Name</var> members are not filled and so this command can be called
+       from any thread.
+      </td></tr>
+
+      <tr class="cont"><td class="cont" width="40%"><a name="ACTL_POSTKEYSEQUENCE">ACTL_POSTKEYSEQUENCE</a></td>
+      <td class="cont" width="60%">Post a sequence of <a href="../defs/farkeycodes.html">internal</a>
+       key codes to the FAR keyboard queue.<br>
+       <var>Param</var> Param points to a <a href="../structures/keysequence.html">KeySequence</a>
+       structure.<br>
+       The return value is <code>TRUE</code> if the keys have been posted successfully and
+       <code>FALSE</code> in case of an error.<br>
+       The keys will be interpreted as soon as the plugin returns control to FAR.
+      </td></tr>
+
+      <tr class="cont"><td class="cont" width="40%"><a name="ACTL_SETARRAYCOLOR">ACTL_SETARRAYCOLOR</a></td>
+      <td class="cont" width="60%">Allows to change a specified range of the FAR color scheme.<br>
+        <var>Param</var> points to a <a href="../structures/farsetcolors.html">FarSetColors</a>
+        structure.<br>
+        The return value is <code>TRUE</code> if the range was successfully changed or
+        <code>FALSE</code> if the parameters in the <a href="../structures/farsetcolors.html">FarSetColors</a>
+        structure were specified incorrectly.
+      </td></tr>
+
+      <tr class="cont"><td class="cont" width="40%"><a name="ACTL_SETCURRENTWINDOW">ACTL_SETCURRENTWINDOW</a></td>
+      <td class="cont" width="60%">Allows to switch to a specific FAR Manager window.<br>
+       <var>Param</var> is an integer specifying the index of the window to switch to (the
+       numbering starts at 0).<br>
+       The function returns <code>TRUE</code> if the switch was successful or <code>FALSE</code> in
+       case of failure (the window to switch to does not exist).<br>
+
+       <p class=note><img src="../../images/note.gif" alt="Remarks for ACTL_COMMIT" width="10" height="10"> Attention!</p>
+       <UL class=note><LI>
+       The switching will not occur untill <dfn>ACTL_COMMIT</dfn> is called or
+       FAR Manager receives control.
+       </LI></UL>
+
+      </td></tr>
+
+      <tr class="cont"><td class="cont" width="40%"><a name="ACTL_WAITKEY">ACTL_WAITKEY</a></td>
+      <td class="cont" width="60%">Allows to wait for a keystroke.<br>
+        If <var>Param</var> is set to -1 or <code>NULL</code> - waits for any key<br>
+        If <var>Param</var> is set to the internal key code - waits for that key.<br>
+        Returns value is always zero.
+      </td></tr>
+
+   </table>
+  </div>
+  <div class=dfn>Param</div>
+  <div class=dfndescr>Points to data dependent on the command type. See the command
+    descriptions for specific information.
+  </div>
+</div>
+
+<h3>Return value</h3>
+<div class=descr>
+Return value depends on the command type. See the command descriptions for specific information.
+</div>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="control.html">Control</a>,
+<a href="editorcontrol.html">EditorControl</a>
+</div>
+</body>
+</html>

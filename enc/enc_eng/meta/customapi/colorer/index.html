@@ -1,0 +1,72 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>Colorer library regular expressions interface</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+<body>
+<h1>Colorer library regular expressions interface</h1>
+<div class=navbar>
+<a href="../../index.html">main</a> |
+<a href="../index.html">Custom API</a>
+</div>
+
+
+
+<div class=shortdescr>
+Regular expressions are funny things and if needed they can be quite easily used in your
+program/plugin. You can use colorer regexps in the most native way - they come in C++ sources - as
+a standalone class. But then, if you use different languages or there's some other reason, you can
+always use them in pre-compiled DLL binary form.
+<p>
+The sources themselves are found in the colorer distribution (beginning with the "freecraze"
+version), and the DLL can be compiled in <code>icolorer</code> directory, which is also found in
+the colorer distribution. In case you're using the sources you've got to work with the
+<code>CRegExp</code> class and its methods, and if you're using the DLL you simply export caller
+functions for these methods.
+<p>
+It's good to mention my regexps are slightly incorrect by formal approach - it means they don't
+follow perl standards when applied to some complex situations. Plus they are not fully compatible
+with the latter in ways of syntax of some complex operators. But, all was made with speed and
+colorer in mind - so it pays when it comes to simplicity.
+</div>
+
+<h3>Methods</h3>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Method</th><th class="cont" width="60%">Description</th></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="cregexp.html">CRegExp</a></td>
+<td class="cont" width="60%">Regexp object constructor and destructor.</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="isok.html">isok</a></td>
+<td class="cont" width="60%">Latest expression compilation result.</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="geterror.html">geterror</a></td>
+<td class="cont" width="60%">Extended error information.</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="setnomoves.html">SetNoMoves</a></td>
+<td class="cont" width="60%">Allow/dissallow moving inside the target string.</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="setbktrace.html">SetBkTrace</a></td>
+<td class="cont" width="60%">Set references for \yN operator.</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="setexpr.html">SetExpr</a></td>
+<td class="cont" width="60%">Expression compilation.</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="setcodepage.html">SetCodePage</a></td>
+<td class="cont" width="60%">Set transliteration table for texts in non-OEM codepage.</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="parse.html">Parse</a></td>
+<td class="cont" width="60%">Parse regexp against target string.</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="parse2.html">Parse</a></td>
+<td class="cont" width="60%">Parse regexp against target string, with extended settings.</td></tr>
+</table>
+
+<h3>Structures:</h3>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Structure</th><th class="cont" width="60%">Description</th></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="smatches.html">SMatches</a></td>
+<td class="cont" width="60%">array with finite bracket matches</td></tr>
+</table>
+
+<div class=see>See also:</div><div class=seecont>
+<!--<a href="../../articles/colorer_src.html">``Cristmas Tree'' syndrome or Freedom of Madness</a><br>-->
+<a href="../../addons/index.html">Addons</a><br>
+</div>
+
+</body>
+</html>

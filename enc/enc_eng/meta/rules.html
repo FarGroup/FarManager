@@ -1,0 +1,194 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>"Professional ethics"</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../styles/styles.css">
+<script language="javascript" src='links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>Plugin parameters...</h1>
+<div class=navbar>
+<a href="index.html">main</a>
+</div>
+
+<h4>...or "Professional ethics". Recommendations. Last revised on 30.04.2001</h4>
+
+<p class=just>This document is an attempt of creating the FAR manager plugins
+specification (or, rather, recommendations). All materials are in plain
+text for now (will be divided into topics later).</p>
+
+<p class=just>This document is for programmers who write plugins for FAR manager.</p>
+
+<p class=just>You are encouraged to add, adjust, recommend, etc.</p>
+
+<ol>
+<li>Plugin files MUST be packed into ZIP archive, since some servers treat
+RAR archives as text/plain, which results in the so-called "broken" archive.
+<p>&nbsp;<p></li>
+
+<li>The plugin archive MUST be supplied with a <code>file_id.diz</code> file, which
+  should contain the plugin name, version, release date, short description of features
+  (in English and Russian) and how to contact the developer. This file must
+  be <u>in the root of the archive</u>.<p>&nbsp;<p></li>
+
+<li>The plugin archive should be supplied with a <code>whatsnew.txt</code> file
+ (or <code>history.txt</code>), which should contain decription of changes (indicating
+ version and date).<p>&nbsp;<p></li>
+
+<li>The plugin name should be the same in Plugin commands menu and in Plugins
+  configuration menu:
+  <blockquote>
+    If plugin adds "Search and replace" string to the menu, then the string with
+    the same beginning must be in the Plugins configuration menu. Strings like
+    "This is Search and replace configuration" or "Settings" are not suitable.
+    In this case user will find the settings for your plugin much faster.
+  </blockquote>
+  <p>&nbsp;<p></li>
+
+<li>If you supply the plugin with REG-file macros, do not forget to fill the
+  <code>"Description"</code> value.
+  <p>&nbsp;<p></li>
+
+<li><a name="RulesMultiMenu"></a>The plugin should not add multiple strings
+  to the menu. It's better to show your own menu with all needed items instead:
+  <blockquote>
+    Do not add "Search", "Replace", "Search in highlighted" topics. Your plugin
+    is just one among others, there are many other strings in the menu already. You'd
+    better add a single "Search and replace" item, and then show a menu with
+    "Search", "Replace" strings, etc.
+  </blockquote>
+  <p>&nbsp;<p></li>
+
+<li>The plugin MUST delete all temporary files or folders upon completion of its job.<p>&nbsp;<p></li>
+
+<li>If the plugin supports processing groups of files (using wildcards),
+  the user should be able to specify these wildcards manually.<p>
+  Example.
+  <blockquote>
+    Trucer deletes trailing spaces from the file in the editor. It permits you to
+    specify the exclusion mask. It's good. It would be bad if it didn't.
+    Conclusion: if we don't want to handle all the files, we must provide the file
+    mask support; and it is desirable to permit the user to adjust this setting.
+  </blockquote>
+  <p>&nbsp;<p></li>
+
+<li>If the plugin supports several actions for each of these files, you should
+  provide the possibility to access all these actions from the commandline, user
+  menu, and file associations.<p>
+  Example.
+  <blockquote>
+    "Shell link..." plugin (it's about version 1.20!) permits editing the link
+    properties and calling the original file from the Plugins commands menu.
+    It's bad. It would be better if Oscar (the author) added the commandline
+    prefixes support. In that case it would be possible to make the *.LNK
+    associations. For example, F4 - edit properties, Enter - go to the link
+    target. This is more natural.
+  </blockquote>
+  <p>&nbsp;<p></li>
+
+<li>All messages the plugin shows on the screen (in dialogs or in menu),
+  must be in <a href="language/language_files.html">LNG-files</a>. Alternatively,
+  you can use the <a href="addons/locmsg.html">LocMsg.cpp</a> localization
+  module from the Encyclopaedia bonus (it is recommended to use the LocMsg.cpp
+  in the second-level plugins or in cases when it is necessary for your plugin to
+  respond to changes in the message file without restarting FAR.
+  It helps you to make the plugin language-independent.
+  <p>&nbsp;<p></li>
+
+<li>The user should have a possibility to interrupt the process during time-consuming operations.
+  <!--In other words, this is the same as in <a href="articles/escape.html">"ESC
+  press handling or "Dedicated to the sluggish plugin authors..."</a> topic.-->
+  Unambiguously, the plugin MUST have this feature. Even such as Colorer. FAR should not
+  crash because Colorer can't parse a 200KB string.
+  <p>&nbsp;<p></li>
+
+<li>For help files, it is recommended:<ul>
+  <li>to keep all the necessary information:
+  "Why should I keep any readmes on my hard disk? I have them, but they're
+  archived. Why should I search the archive when I need some additional
+  info? IMHO, all that I need to work with plugin can be in HLF, but common
+  information should be separated from advanced info, and links like "detailed",
+  "advanced" should be available... So I don't have to close the plugin inappropriately
+  and search for that separate text file. All that is "IMHO", of course."
+
+  <li>At the main page
+    <ol>
+     <li>show the plugin purpose and its version
+     <li>show links to other topics
+    </ol>
+
+  <li>It is desirable to have an "Alphabetical list" topic, where all other topics are listed.
+
+  <li>There should be a link to the main page in any help topic.
+
+  <li>It is necessary to check how any of the help pages appear in the
+    80x25 console window. Many people forget about that, and as a result
+    only the author can see the help as he wanted it to be; others see messed-up strings.
+    HlfViewer plugin can help in that case.
+  </ul>
+  <p>&nbsp;<p></li>
+
+<li>Plugin in any case should be visible while pressing F11 on any file.
+  Also, the user shoud have a possibility to disable the
+  <a href="exported_functions/openfileplugin.html">OpenFilePlugin</a>
+  functionality in the plugin settings.
+  <p>&nbsp;<p></li>
+
+<li>Some words about calling from commandline :-). It would be nice, if the
+  prefix can be adjusted from the plugin configuration in order not to interfere
+  with other plugins' prefixes.<p>&nbsp;<p></li>
+
+<li>Plugin may have no feature to change the menu items order, but if it has
+  such feature, it should make use of Ctrl-Up/Down key combinations.<p>&nbsp;<p></li>
+
+<li>Try to use the
+  <a href="service_functions/menu.html#FMENU_WRAPMODE">FMENU_WRAPMODE</a>
+  flag while showing menus, otherwise they will be inconvenient for users.
+<p>&nbsp;<p></li>
+
+<li>About menus.<ol>
+   <li>If a menu item has an ellipsis ("...") - a dialog box should appear
+   <li>If a menu item has a right-aligned "&gt;" sign - a submenu should appear
+   <li>In other cases, the selected command should be executed
+   </ol>
+  <p>Example:
+  <blockquote>
+     Just now I wanted to print a text file, so I decided for the first time to do
+     it from FAR using its Print Manager. I placed the cursor on the file, pressed
+     F11 / Print Manager. In the menu I saw the "Print selected files" item,
+     but I didn't know what would happen when I choose that item -
+     immediate printing or some more settings invoked. The same is in the printers
+     list. As a result it is extremely inconvenient.
+  </blockquote>
+  <p>&nbsp;<p></li>
+
+<li>If your plugin uses components (DLL, OCX, etc.), which are not a part of
+   Windows, specify that in the "Installation" topic of your readme.txt.
+   <p>It will be perfect if you test your plugin installation on plain, "clean" Windows 95
+   installed using minimal configuration.
+  <p>&nbsp;<p></li>
+
+<li>When handling keyboard events in the editor, do not forget that the cursor
+    movement keys (Left, Right, Up, Down, PgUp, PgDn, Home, End) are not
+    the only keys used to position the cursor - mind the <code>Ctrl-N</code>,
+    <code>Ctrl-E</code> and <code>Ctrl-S</code> key combinations.
+  <p>&nbsp;<p></li>
+
+<li>If you supplement your plugin (not being of multi-purpose type)
+  with macros to provide the fast and convenient operation, and these
+  macros are usable only when editing C++ sources or only with text
+  files, you shouldn't use the ordinary macros that are kept in the Windows Registry
+  since they affect all editors and occupy the keys at the expense of files
+  of other types. You may offer the macros for [ESC] plugin instead (here
+  in brackets should be the author's name, direct reference to the plugin
+  or to the author's home page, since the plugin and URL can change)
+  or similar plugin (there are no such plugins at the moment). They are
+  actually the same as FAR macros, but don't have their drawbacks (they affect
+  only user-specified file types and aren't kept in the Windows Registry).
+
+
+</ol>
+</body>
+</html>

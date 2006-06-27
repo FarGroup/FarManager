@@ -1,0 +1,67 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>ViewerSetPosition</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+
+<body>
+<h1>ViewerSetPosition</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a  href="index.html">structures</a><br>
+</div>
+
+<div class=shortdescr>
+The ViewerSetPosition structure is used to change the current position in the current viewer
+instance.</div>
+
+<pre class=syntax>
+struct ViewerSetPosition
+{
+   DWORD  Flags;
+   FARINT64 StartPos;
+   int  LeftPos;
+};
+</pre>
+
+<h3>Elements</h3>
+<div class=descr>
+  <div class=dfn>Flags</div>
+  <div class=dfndescr>Flags, defining the position change process.
+  Can be a confination of the following flags (<a name="VIEWER_SETPOS_FLAGS">VIEWER_SETPOS_FLAGS</a> enum):
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Flag</th><th class="cont" width="60%">Description</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="VSP_NOREDRAW">VSP_NOREDRAW</a></td>
+    <td class="cont" width="60%">Do not redraw the screen.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="VSP_PERCENT">VSP_PERCENT</a></td>
+    <td class="cont" width="60%">The offset is given in percents not bytes.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="VSP_RELATIVE">VSP_RELATIVE</a></td>
+    <td class="cont" width="60%">The offset is relative not absolute.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="VSP_NORETNEWPOS">VSP_NORETNEWPOS</a></td>
+    <td class="cont" width="60%">Do not return the real position (see <var>StartPos</var>).
+    </td></tr>
+</table>
+  </div>
+
+  <div class=dfn>StartPos</div>
+  <div class=dfndescr>New file positions (in bytes or percents - depends on the <b>VSP_PERCENT</b>
+  flag, can be negative if the <b>VSP_RELATIVE</b> flag is specified). Generaly it is not possible
+  to set the exact position in the viewer, so the new position may not coninside with the one in
+  <var>StartPos</var>. The new real position is then stored in <var>StartPos</var> (if the
+  <b>VSP_NORETNEWPOS</b> is not specified). Use this property if needed.</div>
+
+  <div class=dfn>LeftPos</div>
+  <div class=dfndescr>Position of the left border of the viewer window in the viewed text.</div>
+</div>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="index.html">Structures</a>,
+<a href="../service_functions/viewercontrol.html">ViewerControl</a>,
+<a href="farint64.html">FARINT64</a>
+</div>
+
+</body>
+</html>

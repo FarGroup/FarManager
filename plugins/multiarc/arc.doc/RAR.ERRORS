@@ -1,0 +1,26 @@
+ Exit values
+ ~~~~~~~~~~~
+
+    RAR exits with a zero code (0) in case of successful operation. The exit
+    code of non-zero means the operation is cancelled due to error:
+
+     255   USER BREAK       User stopped the process
+
+       8   MEMORY ERROR     Not enough memory for operation
+
+       7   USER ERROR       Command line option error
+
+       6   OPEN ERROR       Open file error
+
+       5   WRITE ERROR      Write to disk error
+
+       4   LOCKED ARCHIVE   Attempt to modify an archive previously locked
+                            by the 'k' command
+
+       3   CRC ERROR        A CRC error occurred when unpacking
+
+       2   FATAL ERROR      A fatal error occurred
+
+       1   WARNING          Non fatal error(s) occurred
+
+       0   SUCCESS          Successful operation (User exit)

@@ -1,0 +1,195 @@
+                    The FAR File and Archive Manager
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                    What's new in the latest version
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+[!] Important
+[+] New
+[-] Fixed error
+[*] Changes
+
+---------------------------------------------------------------------------
+FAR 1.71 (build 2120) (07.07.2006)
+---------------------------------------------------------------------------
+
+[+] Добавлены метасимволы "!=\" и "!=/" для текущего пути с учетом
+    символических связей.
+
+[+] Новое правило TechInfo#74 позволяющее задавать вид заголовка консоли при
+    запуске файла на исполнение.
+
+[*] "AltShift/" и "AltShift-" теперь вместо "AltShift?" (и "AltShift_",
+    соответственно) вводятся как есть.
+
+[-] CtrlAltShift не гасит панель в пятом режиме.
+
+[-] Переменные ItemCount и CurPos возвращали некорректные значение для
+    программы просмотра для файлов больше чем 4GB.
+
+[-] Некорректная обработка команды "CD" при наличие символа '/' в пути.
+
+[-] Не всегда выставлялся путь пассивной панели для запуска программ под Win9x.
+
+---------------------------------------------------------------------------
+FAR 1.71 alpha 2 (build 2112) (29.06.2006)
+---------------------------------------------------------------------------
+
+[!] Far.Title now returns the full console title.
+
+[+] Added "Del removes blocks in edit controls" to dialog settings.
+
+[+] Errors in the folder creation process (F7) can be skipped when the
+    "Process multiple names" option is set.
+
+[+] TechInfo#73 - allows to define file extensions for batch files.
+
+[*] Macro command Title in the viewer and editor returns the title that is
+    specified in the status bar.
+
+[-] Wrong selection of found text in the viewer.
+
+[-] Incorrect sorting of strings differing only in length when "numeric sort"
+    is on.
+
+[-] Wrong positioning in Quick view after canceling the search dialog.
+
+[-] The Quick view panel was overlapping the search progress bar when
+    searching.
+
+[-] Rare crash while creating folders (F7).
+
+[-] Wrong console window title for the files/folders move operation.
+
+[-] Instead of opening the folder in Explorer (using Shift-Enter)
+    an attempt was made to run an executable file of the same name.
+
+TempPanel - build 29
+~~~~~~~~~~~~~~~~~~~~
+
+[-] The "any elements in panel" mode did not work correctly.
+
+MultiArc's ARJ.FMT 1.20
+~~~~~~~~~~~~~~~~~~~~~~~
+
+[-] Incorrect handling of rare ARJ archives.
+
+---------------------------------------------------------------------------
+FAR 1.71 alpha 1 (build 2104) (25.05.2006)
+---------------------------------------------------------------------------
+
+[!] Command line prompt format has been extended with new commands.
+
+[!] The '*' and '/' keys from the numpad are now called "Multiply" and
+    "Divide". Those names will be used in macros instead of the symbols.
+
+[+] When a non-existing file from the edit history is selected (by Enter),
+    a prompt to create this file is shown.
+
+[+] Macro-function "N=sleep(N)".
+
+[+] Macro-constant "Far.Height".
+
+[+] Macro-constant "Far.Title".
+
+[+] Macro-constant "Title".
+
+[+] Macro-constant "Drv.ShowPos".
+
+[+] Macro-constant "Drv.ShowMode".
+
+[+] Additional mode for displaying disk size (Ctrl-5) in disks menu -
+    a Windows Explorer like mode. On by default.
+
+[+] A mode for displaying parameters of network drives (Ctrl-9) in disks menu.
+    Off by default.
+
+[+] TechInfo#72 - allows to save plugin paths to the folders history.
+
+[+] The Shift-Del hotkey in the disks menu allows to prepare a USB-disk
+    for safe removal.
+
+[+] Added a new command "Hotplug devices list" to the "Commands" (F9) menu
+    that allows to remove hotplug devices.
+
+[*] Some updates to the command line help (for far /?).
+
+[*] Text of the wipe (Alt-Del) dialogs has changed.
+
+[-] Incorrect handling of environment variables in CD and CHDIR commands.
+
+[-] TechInfo#8 did not work.
+
+[-] Incorrect handling of environment variables and relative paths in FAR
+    command line switches.
+
+[-] FAR crashed when started if the the value of "HistoryCount" (TechInfo#52)
+    was smaller than the number of items in the history.
+
+[-] Fixed the behaviour of Ctrl-Enter on non-existing items of edit/view
+    history.
+
+[-] The name of the "new" file ("?New File?") was sometimes added to the
+    history (Shift-F4 Del Enter Esc).
+
+[-] Incorrect processing of plugin paths in folders history.
+
+[-] Paths of DriveLetter: type did not work for the passive panel when
+    executing programs in Windows9x.
+
+[-] Incorrect processing of command line commands that contained non OEM
+    characters.
+
+[-] [A|P]Panel.UNCPath returned '\' at the end.
+
+[-] The fsplit macro functions was adding the plugin prefix to the file name
+    when called from plugin's root folder.
+
+[-] Incorrect processing of Dead-keys.
+
+[-] FAR could crash if the tab size was changed while viewing a file.
+
+[-] FAR could crash when opened as "far /e" with the clock set to visible.
+
+[-] The screen was not redrawn correctly after calling the Editor or the Viewer
+    functions with the ?F_IMMEDIATERETURN flag set.
+
+[-] Calling ECTL_SAVEFILE from EE_READ for an existing file caused a wrong
+    message of file being changed by an external application to be displayed.
+
+[-] The "Screens" menu (F12) could have been shown incorrectly in a very wide
+    console window.
+
+[-] Incorrect positioning on a folder with national characters in its name when
+    executing "FAR . Shift-Enter".
+
+MultiArc - build 181
+~~~~~~~~~~~~~~~~~~~~
+
+[-] Saving and restoring of user defined command line switches in the archiving
+    dialog did not work correctly.
+
+[-] RAR.FMT: when using unrar.dll the archive password was passed to it in the
+    wrong encoding.
+
+Network - build 35
+~~~~~~~~~~~~~~~~~~
+
+[+] Plug-in accepts environment variables specified in the form of
+    %VARIABLENAME% in the command line.
+
+[*] Cosmetic changes to the password input dialog.
+
+[-] Fixed the following wrong behaviour: when the plug-in has been opened
+    from a network directory and the user pressed Ctrl+PgUp from the
+    Network providers list or tried to go up one level by any other way,
+    they would have been confused because the current directory was a network
+    one.
+
+TempPanel - build 28
+~~~~~~~~~~~~~~~~~~~~
+
+[*] The plugin is now preloaded to memory when FAR is started so its functions
+    may be used in other plugins.
+
+
+                                     [FAR manager development group]

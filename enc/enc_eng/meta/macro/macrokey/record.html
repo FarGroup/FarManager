@@ -1,0 +1,53 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>Recording a macro - Macros</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+</head>
+
+<body>
+
+<h1>Recording a macro</h1>
+<div class="navbar">
+<a href="../../index.html">main</a> |
+<a href="../index.html">Macros</a> |
+<a href="index.html">Using macros</a>
+</div>
+
+<p>Macro command should be created using the following actions:
+<ol>
+  <li><dfn>Start recording a macro.</dfn><br>
+    Hotkey <kbd>Ctrl-&lt;.&gt;</kbd> (Ctrl and 'dot') to record a macro in general mode
+    and <kbd>Ctrl-Shift-&lt;.&gt;</kbd> (Ctrl, Shift and 'dot'), to record a macro in
+    special mode.<br> In the top left corner of the screen you should see
+    <span style="color:#FFFFFF;background:#ff0000;font-weight: bold;">R</span> symbol
+    indicating that FAR Manager has began to record a new macro.
+  <li><dfn>Macro command text.</dfn><br>
+    FAR records every key the user presses with the following exceptions:<br>
+    the only keystrokes will be stored that are processed by FAR Manager. I.e. if any
+    application is launched from FAR Manager console than FAR will save only the
+    keystrokes made before the launching and after closing this application.
+  <li><dfn>Stop recording a macro.</dfn><br>
+    Since the parameters of the macro command can be additionally adjusted there're two
+    different commands that the user can use to complete the recording of a macro:
+    <kbd>Ctrl-&lt;.&gt;</kbd> (Ctrl and 'dot' key) and <kbd>Ctrl-Shift-&lt;.&gt;</kbd>
+    (Ctrl, Shift and 'dot' key). First can be used to complete the macro with default
+    execution parameters, the second one brings up the <a href="setting.html">'execution parameters'</a> dialog box
+    upon completion the recording of the macro.<br>
+  <li><dfn>Assigning the shortcut key combination.</dfn><br>
+    Shortcut <a href="assign.html">assignment</a> dialog box will appear immediately
+    after completion of a recording of a macro. You can use it to assign a specific
+    shortcut key combination that can be used to call the macro execution.
+</ol>
+<p class="note"><img src="../../../images/note.gif" alt="ATTENTION!" width="10" height="10"> Notes:</p>
+<ul class="note">
+  <li>All existing macro commands will be deactivated while the user attempts to
+  record a new macro command. Thus it is impossible to create a 'nested' macro command
+  that could use existing macro commands in its command sequence.</li>
+</ul>
+
+</body>
+
+</html>

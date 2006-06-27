@@ -1,0 +1,11 @@
+|&C: fixed|C:
+|&D: fixed|D:
+|-|
+|&M: Music|D:\Music
+|&M: Tools|D:\Tools
+|&M: Desktop|%HOMEDRIVE%%HOMEPATH%\Desktop
+|-|
+|&1: Temporary|tmp:
+|&2: FTP|ftp:
+|&3: Network|net:
+|&8: Registry|reg:

@@ -1,0 +1,23 @@
+REGEDIT4
+
+;Import this file into the Win32 Registry to integrate
+;Lha32.exe 1.06 into the FAR manager!
+;Lha32.exe 1.06 requires UNLHA32.DLL!
+;International characters are not supported!
+;
+[HKEY_LOCAL_MACHINE\Software\Far\Plugins\MultiArc\LZH]
+"Extract"="lha32 x -a -c -d -m -n %%A %%FMQ"
+"ExtractWithoutPath"="lha32 e -a -c -m -n %%A %%FMQ"
+"Test"="lha32 t -r2 -a -m -n %%A"
+"Delete"="lha32 d -r2 -a -m {-w%%W} -n %%A %%FMQ"
+"Comment"=""
+"CommentFiles"=""
+"SFX"="lha32 s -x1 -a -m -n %%A"
+"Lock"=""
+"Protect"=""
+"Recover"=""
+"Add"="lha32 a -a -m -h1 -n {%%S} %%A %%FMQ"
+"Move"="lha32 m -a -m -h1 -n {%%S} %%A %%FMQ"
+"AddRecurse"="lha32 a -a -r -x -p -m -h1 -n {%%S} %%A %%FMQ"
+"MoveRecurse"="lha32 m -a -r -x -p -m -h1 -n {%%S} %%A %%FMQ"
+"AllFilesMask"="*.*"

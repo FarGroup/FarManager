@@ -1,0 +1,132 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>Examples</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../styles/styles.css">
+<script language="javascript" src='links.js' type="text/javascript"></script>
+</head>
+
+<body>
+<h1>Examples</h1>
+<div class=navbar>
+<a href="index.html">main</a>
+</div>
+
+
+<div class=smalldescr>
+Description of FAR plugins examples delivered with FAR Manager. Source files are located in
+<code>%FAR%\PlugDoc\Examples\</code>.
+</div>
+
+<h3>Editor Plugins:</h3>
+<div class=descr>
+
+  <div class=dfn>Align</div>
+  <div class=dfndescr>Performs block align in FAR editor.<br>
+  A simple plug-in related to "Activated - working - done" category.<br>
+  It gives an example of using <a href="service_functions/editorcontrol.html">EditorControl</a>
+  service function.
+  </div>
+
+  <div class=dfn>Auto Wrap</div>
+  <div class=dfndescr>Enables auto wrap in FAR editor.<br>
+  This is an example of "hooking" the input stream in FAR Manager internal editor.<br>
+  When enabled
+  plugin monitors all keyboard and mouse events using <a href="exported_functions/processeditorinput.html">ProcessEditorInput</a> function:
+<pre class=code>int WINAPI _export ProcessEditorInput(const INPUT_RECORD *Rec)
+{
+  // KEY_EVENT processing code
+}</pre>
+  </div>
+
+  <div class=dfn>Brackets</div>
+  <div class=dfndescr>Searches and highlights the paired brackets in FAR editor.<br>
+  This is an example of a "Opened, made something, finished" plugin.<br>
+  Plugin uses <a href="service_functions/editorcontrol.html#ECTL_GETSTRING">ECTL_GETSTRING</a> command to search brackets,
+  <a href="service_functions/editorcontrol.html#ECTL_SETPOSITION">ECTL_SETPOSITION</a> command to place cursor on the paired bracket found and
+  <a href="service_functions/editorcontrol.html#ECTL_SELECT">ECTL_SELECT</a> command to highlight block.
+  </div>
+
+  <div class=dfn>DrawLine</div>
+  <div class=dfndescr>Enables user to draw a pseudo graphics lines and tables in the FAR editor.<br>
+  The "hooking" version of plugin related to "Activated - working - done" category.
+  This plugin uses an infinite cycle to process data using
+  <a href="service_functions/editorcontrol.html#ECTL_READINPUT">ECTL_READINPUT</a> and
+  <a href="service_functions/editorcontrol.html#ECTL_PROCESSINPUT">ECTL_PROCESSINPUT</a> commands:
+<pre class=code>HANDLE WINAPI _export OpenPlugin(int OpenFrom,int Item)
+{
+  ...
+  while (!Done)
+  {
+    Info.EditorControl(ECTL_READINPUT,&amp;rec);
+    ...
+    Info.EditorControl(ECTL_PROCESSINPUT,&amp;rec);
+  }
+  ...
+}</pre>
+
+  </div>
+
+  <div class=dfn>EditCase</div>
+  <div class=dfndescr>Enables FAR editor to change the case of the selected block or a word under cursor.<br>
+  This is an example of a "Opened, made something, finished" plugin.<br>
+  This plugin gets a string using
+  <a href="service_functions/editorcontrol.html#ECTL_GETSTRING">ECTL_GETSTRING</a> command
+  then transforms it and puts it back into the document being edited using
+  <a href="service_functions/editorcontrol.html#ECTL_SETSTRING">ECTL_SETSTRING</a> command.
+  </div>
+
+  <div class=dfn>HlfViewer</div>
+  <div class=dfndescr>HlfViewer adds to the FAR editor an ability to view HLF help files. HlfViewer plugin is
+  supposed to be a useful tool for developers who create or modify HLF-files or for those who just want to
+  view an HLF help file (processes F1 key and shows up HLF-file being edited in a window, processes "hlf:" prefix).
+  </div>
+</div>
+
+<h3>Other Plug-ins:</h3>
+<div class=descr>
+  <div class=dfn>HelloWorld</div>
+  <div class=dfndescr>"Hello, World!" is a simple plugin helping beginners to understand
+  the common plugin structure and the way it interacts with FAR environment.
+  </div>
+
+  <div class=dfn>FAR Commands</div>
+  <div class=dfndescr>FAR Commands plug-in (FARCmd) brings additional functionality
+  to the user menu, file associations and command line usage. There are several samples
+  of prefixes handling.
+  </div>
+
+  <div class=dfn>FileCase</div>
+  <div class=dfndescr>This command enables user to change the file name case for selected files
+    according to one of case of the case change rules specified. This plugin is quite simple so
+    you can use it as a template to create new commands for FAR Manager.
+  </div>
+
+
+  <div class=dfn>MultiArc</div>
+  <div class=dfndescr>This plugin extends FAR Manager to be able to read the contents of
+  archives, compress, extract and process files using <a href="customapi/archives/index.html">archives</a>.
+  MultiArc represents archive and everything within as a directory structure transparent to user
+  with some limitations though. FAR passes your commands to external archivers to process your requests.
+  This plugin is quite complex. It supports second-level plugins so you can add support for new archive formats
+  by writing small modules and without having to recompile the MultiArc itself.
+  </div>
+
+  <div class=dfn>Network</div>
+  <div class=dfndescr>Using Network plugin you can browse the network and network shared resources,
+  mount and dismount them as local drives. You can press <code>F5</code> to map the chosen shared
+  resource to the next available letters or <code>F6</code> if you want to choose the letter yourself.
+  <code>F8</code> disconnects already mapped drive.
+  </div>
+
+  <div class=dfn>TmpPanel</div>
+  <div class=dfndescr>Temporary panel adds to FAR Manager the ability to maintain virtual file lists
+  similar to the file panels without directory structure. Temporary panels enable processing of multiple
+  files from different folders. Up to 10 temporary panels with different file lists can be used.
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,319 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>custom.ini file format</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>custom.ini file format</h1>
+<div class=navbar>
+<a href="../../index.html">main</a> |
+<a href="../index.html">Custom API</a> |
+<a href="index.html">archive support</a>
+</div>
+
+<div class=shortdescr>
+In the standard distribution of MultiArc there's a limited number of FMT-modules supporting most
+commonly used archivers. Among them there's the CUSTOM.FMT module which allows to define "missing"
+archivers by defining the archiver's output listing format. For these descriptions the CUSTOM.INI
+file is used.
+
+<p>
+Each new archive type is defined within individual <dfn>[Archive Name]</dfn> sections used for
+archive type name. The following parameters are used in this section:
+</div>
+
+<div class=descr>
+<div class=dfn><dfn>TypeName</dfn> (optional parameter)</div>
+<div class=dfndescr>
+overrides format name defined in the section name (left for compatibility reasons)
+</div>
+
+<div class=dfn><dfn>ID</dfn> (optional parameter)</div>
+<div class=dfndescr>
+archive identifier - a sequence of space delimited two-digit hex numbers (i.e. the "<code>ID=1a 4a 61 72 1b</code>" sequence defines JAR archive identifier)
+</div>
+
+<div class=dfn><dfn>IDOnly</dfn> (optional parameter)</div>
+<div class=dfndescr>
+"archive identifier only". If it's set to "1" file extension is ignored and archive type is
+determined by the ID field only. If it's "0" then both file extension and <var>ID</var> field (if it's
+defined in this section) are used to determine archive type.
+</div>
+
+<div class=dfn><dfn>IDPos</dfn> (optional parameter)</div>
+<div class=dfndescr>
+position from which CUSTOM.FMT begins to look for the archive identifier (<var>ID</var>). If the
+field is not defined then the ID is searched from the beginning of the file. By default FAR "gives" to
+the plugin the first 128K of data.
+</div>
+
+<div class=dfn><dfn>Extension</dfn></div>
+<div class=dfndescr>archive extension (without '.').
+</div>
+
+<div class=dfn><dfn>List</dfn></div>
+<div class=dfndescr>
+external archiver command for file listing. Archive name is added after this string. For example,
+for <code>List="jar32 v -y"</code> field the <code>jar32 v -y archive_name</code> command will be
+composed.
+</div>
+
+<div class=dfn><dfn>Errorlevel</dfn> (optional parameter)</div>
+<div class=dfndescr>
+listing analysis is performed only if archiver's exit code is less than the one defined in
+the <dfn>Errorlevel</dfn> parameter.
+</div>
+
+<div class=dfn><dfn>IgnoreErrors</dfn> (optional parameter)</div>
+<div class=dfndescr>
+if it's not 0 then archiver's exit code is ignored. Use with caution!
+</div>
+
+<div class=dfn><dfn>Start</dfn> (optional parameter)</div>
+<div class=dfndescr>
+substring which defines the beginning of the listing analysis.
+If the string begins with the '<code>^</code>' symbol then the search for substring is performed
+starting from the second symbol of the current line in the listing.
+</div>
+
+<div class=dfn><dfn>End</dfn> (optional parameter)</div>
+<div class=dfndescr>
+substring which defines the end of the listing analysis. If the string begins with the '<code>^</code>'
+symbol then search for substring is performed starting from the second symbol the
+current line in the listing.
+</div>
+
+<div class=dfn><dfn>Format0 ... FormatN</dfn></div>
+<div class=dfndescr>
+parameters describing the record for a single archive element. Each parameter describes an ordinary
+record string, allowing the following codes:
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Code</th><th class="cont" width="60%">Description</th></tr>
+<tr class="cont"><td class="cont" width="40%">n</td>
+<td class="cont" width="60%">file name</td></tr>
+<tr class="cont"><td class="cont" width="40%">.</td>
+<td class="cont" width="60%">remove trailing spaces from file name and append name with dot</td></tr>
+<tr class="cont"><td class="cont" width="40%">z</td>
+<td class="cont" width="60%">file size</td></tr>
+<tr class="cont"><td class="cont" width="40%">c</td>
+<td class="cont" width="60%">file description</td></tr>
+<tr class="cont"><td class="cont" width="40%">p</td>
+<td class="cont" width="60%">packed file size</td></tr>
+<tr class="cont"><td class="cont" width="40%">d</td>
+<td class="cont" width="60%">day</td></tr>
+<tr class="cont"><td class="cont" width="40%">t</td>
+<td class="cont" width="60%">month</td></tr>
+<tr class="cont"><td class="cont" width="40%">TTT</td>
+<td class="cont" width="60%">three letters of month name (Jan, Feb, Mar, ...)</td></tr>
+<tr class="cont"><td class="cont" width="40%">y</td>
+<td class="cont" width="60%">year</td></tr>
+<tr class="cont"><td class="cont" width="40%">h</td>
+<td class="cont" width="60%">hours</td></tr>
+<tr class="cont"><td class="cont" width="40%">H</td>
+<td class="cont" width="60%">hours modifier letter (a - a.m. time, p - p.m. time)</td></tr>
+<tr class="cont"><td class="cont" width="40%">m</td>
+<td class="cont" width="60%">minutes</td></tr>
+<tr class="cont"><td class="cont" width="40%">s</td>
+<td class="cont" width="60%">seconds</td></tr>
+<tr class="cont"><td class="cont" width="40%">a</td>
+<td class="cont" width="60%">file attributes</td></tr>
+<tr class="cont"><td class="cont" width="40%">*</td>
+<td class="cont" width="60%">skip until first space or end of line</td></tr>
+<tr class="cont"><td class="cont" width="40%">b</td>
+<td class="cont" width="60%">day of last access</td></tr>
+<tr class="cont"><td class="cont" width="40%">v</td>
+<td class="cont" width="60%">month of last access</td></tr>
+<tr class="cont"><td class="cont" width="40%">e</td>
+<td class="cont" width="60%">year of last access</td></tr>
+<tr class="cont"><td class="cont" width="40%">x</td>
+<td class="cont" width="60%">hours of last access</td></tr>
+<tr class="cont"><td class="cont" width="40%">l</td>
+<td class="cont" width="60%">minutes of last access</td></tr>
+<tr class="cont"><td class="cont" width="40%">k</td>
+<td class="cont" width="60%">seconds of last access</td></tr>
+<tr class="cont"><td class="cont" width="40%">j</td>
+<td class="cont" width="60%">day of creation</td></tr>
+<tr class="cont"><td class="cont" width="40%">g</td>
+<td class="cont" width="60%">month of creation</td></tr>
+<tr class="cont"><td class="cont" width="40%">f</td>
+<td class="cont" width="60%">year of creation</td></tr>
+<tr class="cont"><td class="cont" width="40%">o</td>
+<td class="cont" width="60%">hours of creation</td></tr>
+<tr class="cont"><td class="cont" width="40%">i</td>
+<td class="cont" width="60%">minutes of creation</td></tr>
+<tr class="cont"><td class="cont" width="40%">u</td>
+<td class="cont" width="60%">seconds of creation</td></tr>
+<tr class="cont"><td class="cont" width="40%">r</td>
+<td class="cont" width="60%">CRC (hex)</td></tr>
+<tr class="cont"><td class="cont" width="40%">C</td>
+<td class="cont" width="60%">Chapter descriptions field</td></tr>
+<tr class="cont"><td class="cont" width="40%">(&lt;number&gt;)</td>
+<td class="cont" width="60%">optional digits, some or all digits may be missing</td></tr>
+</table>
+If the string begins with the '<code>^</code>' symbol then search for substring is performed starting
+from the second symbol of the current line in the listing.
+</div>
+
+<div class=dfn><dfn>IgnoreString0 ... IgnoreStringN</dfn></div>
+<div class=dfndescr>
+parameters defining strings which are ignored by the module in the listing analysis.
+If the string begins with the '<code>^</code>' symbol then search for substring is performed starting
+from the second symbol of current line in the listing.
+</div>
+
+<div class=dfn><dfn>Extract ... MoveRecurse</dfn></div>
+<div class=dfndescr>
+parameters describing archiver commands.
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Command</th><th class="cont" width="60%">Description</th></tr>
+<tr class="cont"><td class="cont" width="40%">Extract</td>
+<td class="cont" width="60%">unpack</td></tr>
+<tr class="cont"><td class="cont" width="40%">ExtractWithoutPath</td>
+<td class="cont" width="60%">unpack without paths</td></tr>
+<tr class="cont"><td class="cont" width="40%">Test</td>
+<td class="cont" width="60%">test archive</td></tr>
+<tr class="cont"><td class="cont" width="40%">Delete</td>
+<td class="cont" width="60%">delete files from archive</td></tr>
+<tr class="cont"><td class="cont" width="40%">Comment</td>
+<td class="cont" width="60%">add archive comment</td></tr>
+<tr class="cont"><td class="cont" width="40%">CommentFiles</td>
+<td class="cont" width="60%">add files comment</td></tr>
+<tr class="cont"><td class="cont" width="40%">SFX</td>
+<td class="cont" width="60%">convert to SFX</td></tr>
+<tr class="cont"><td class="cont" width="40%">Lock</td>
+<td class="cont" width="60%">lock archive</td></tr>
+<tr class="cont"><td class="cont" width="40%">Protect</td>
+<td class="cont" width="60%">add recovery record</td></tr>
+<tr class="cont"><td class="cont" width="40%">Recover</td>
+<td class="cont" width="60%">recover damaged archive</td></tr>
+<tr class="cont"><td class="cont" width="40%">Add</td>
+<td class="cont" width="60%">add files</td></tr>
+<tr class="cont"><td class="cont" width="40%">Move</td>
+<td class="cont" width="60%">move files to archive</td></tr>
+<tr class="cont"><td class="cont" width="40%">AddRecurse</td>
+<td class="cont" width="60%">add files with recursive folder tree traversal</td></tr>
+<tr class="cont"><td class="cont" width="40%">MoveRecurse</td>
+<td class="cont" width="60%">move files with recursive folder tree traversal</td></tr>
+</table>
+Pseudo-variables described <a href="arccommands.html">here</a> can be used in external archivers'
+command lines for different archive processing purposes.
+</div>
+
+<div class=dfn><dfn>AllFilesMask</dfn></div>
+<div class=dfndescr>"All Files" mask
+</div>
+
+
+</div>
+
+<h2>Regular expressions</h2>
+<p>Regular expressions (Perl5 syntax) can be used in the following parameters: <em>FormatX</em>, <em>IgnoreStringX</em>,
+<em>Start</em>, <em>End</em>.
+To specify that a pattern should be matched as a regular expression, enclose it in slashes ('/').
+The following regexp flags can be used (if corresponding characters are placed after closing slash):
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Flag</th><th class="cont" width="60%">Description</th></tr>
+<tr class="cont"><td class="cont" width="40%"><code>i</code></td><td class="cont" width="60%">ignore case</td></tr>
+<tr class="cont"><td class="cont" width="40%"><code>x</code></td><td class="cont" width="60%">extended (use explaining spaces)</td></tr>
+</table>
+
+<p>The following open source library is used to process regular expressions:
+<a href="ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/" target"=_blank">PCRE</a>
+(by Philip Hazel, copyright by the University of Cambridge, England).
+
+<p>When using regexps in the <em>FormatX</em> parameter, named strings
+(of the form <code>(?P&lt;name&gt;\w+)</code>) are used to extract information
+from listing lines. The following field names are available:
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Field</th><th class="cont" width="60%">Description</th></tr>
+<tr class="cont"><td class="cont" width="40%">name</td><td class="cont" width="60%">file name with relative path (leading and trailing spaces are trimmed)</td></tr>
+<tr class="cont"><td class="cont" width="40%">description</td><td class="cont" width="60%">file description</td></tr>
+<tr class="cont"><td class="cont" width="40%">size</td><td class="cont" width="60%">unpacked file size in bytes (non-digit characters are ignored in this and all other numeric fields)</td></tr>
+<tr class="cont"><td class="cont" width="40%">packedSize</td><td class="cont" width="60%">packed file size in bytes</td></tr>
+<tr class="cont"><td class="cont" width="40%">attr</td><td class="cont" width="60%">file attributes (A - archive, R - readonly, S - system, C - compressed, H - hidden, D - directory)</td></tr>
+<tr class="cont"><td class="cont" width="40%">cYear, cDay, cMonth, cHour, cMin, cSec</td><td class="cont" width="60%">creation time</td></tr>
+<tr class="cont"><td class="cont" width="40%">mYear, mDay, mMonth, mHour, mMin, mSec</td><td class="cont" width="60%">modification time</td></tr>
+<tr class="cont"><td class="cont" width="40%">mAMPM, mMonthA</td><td class="cont" width="60%">extended time fields for modification time</td></tr>
+<tr class="cont"><td class="cont" width="40%">aYear, aDay, aMonth, aHour, aMin, aSec</td><td class="cont" width="60%">access time</td></tr>
+<tr class="cont"><td class="cont" width="40%">CRC</td><td class="cont" width="60%">32 bit file Cyclic Redundancy Checksum (CRC)</td></tr>
+</table>
+
+<p>For example to process the following listing:
+<pre class=code>
+ Volume in drive D is work
+ Volume Serial Number is xxxx-xxxx
+
+ Directory of D:\works\MultiArc\final\Formats
+
+15.11.2004  07:15    &lt;DIR&gt;          .
+15.11.2004  07:15    &lt;DIR&gt;          ..
+14.11.2004  00:46             5 632 Ace.fmt
+14.11.2004  00:46             4 608 Arc.fmt
+14.11.2004  00:46             6 656 Arj.fmt
+14.11.2004  00:46             6 144 Cab.fmt
+15.11.2004  06:07            56 832 Custom.fmt
+15.11.2004  07:14             1 551 custom.ini-re
+15.11.2004  07:11            54 344 Formats.jkr
+14.11.2004  00:46             4 608 Ha.fmt
+14.11.2004  00:46             6 144 Lzh.fmt
+15.11.2004  07:15                 0 out
+14.11.2004  00:46             6 144 Rar.fmt
+14.11.2004  00:46             9 216 TarGz.fmt
+14.11.2004  00:46             6 656 Zip.fmt
+              13 File(s)        168 535 bytes
+               2 Dir(s)  37 840 883 712 bytes free
+</pre>
+<p>the following settings are used:
+
+<pre class=code>
+Start="/^ Directory of/"
+End="/File\(s\)/"
+Format0="/^(?P&lt;cDay&gt;\d+).(?P&lt;cMonth&gt;\d+).(?P&lt;cYear&gt;\d+)\s+ (?P&lt;cHour&gt;\d+):(?P&lt;cMin&gt;\d+)\s+(?P&lt;packedSize&gt;[\d\xff]+)\s(?P&lt;name&gt;.*?)\s*$/"
+</pre>
+
+<p>The following settings:
+<pre class=code>
+Start="/^..reading directory/"
+End="/^..listing completed/"
+Format0="/^[^\|]*\|(?P&lt;size&gt;[^\|]+)\|(?P&lt;attr&gt;[^\|]+)\|\s+(?P&lt;name&gt;.*?)\s*$/"
+IgnoreString0="/^---- ---- ---- ----/"
+</pre>
+
+<p>can be used to process this listing:
+
+<pre class=code>
+jkRes utility version 002
+  pack/unpack tool to work with jkRes resource bundles
+
+..listing files from resource bundle
+..reading directory...12 items found
+---- ---- ---- ----
+    zlib |     5632 | A.... | Ace.fmt
+    zlib |     4608 | A.... | Arc.fmt
+    zlib |     6656 | A.... | Arj.fmt
+    zlib |     6144 | A.... | Cab.fmt
+    zlib |    56832 | A.... | Custom.fmt
+    zlib |     4608 | A.... | Ha.fmt
+    zlib |     6144 | A.... | Lzh.fmt
+    zlib |     6144 | A.... | Rar.fmt
+    zlib |     9216 | A.... | TarGz.fmt
+    zlib |     6656 | A.... | Zip.fmt
+    zlib |    13012 | A.... | Custom.ini
+    zlib |     1072 | A.... | custom.ini-re
+---- ---- ---- ----
+..listing completed
+..done
+</pre>
+
+
+<div class=see>See also:</div><div class=seecont>
+<a href="index.html">archive support</a>
+</div>
+
+
+</body>
+</html>

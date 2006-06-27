@@ -1,0 +1,98 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>Macro-commands - Macros</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+</head>
+
+<body>
+
+<h1>Macro-commands</h1>
+<div class="navbar">
+<a href="../../index.html">main</a> |
+<a href="../index.html">Macros</a> |
+<a href="index.html">Macro-language</a>
+</div>
+
+<h3>Macro-commands that can be used in the macro:</h3>
+<table class="cont">
+  <tr class="cont">
+    <th class="cont" width="30%">Macro-command</th>
+    <th class="cont" width="70%">Description</th>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="30%"><dfn>$Date [&quot;format&quot;]</dfn></td>
+    <td class="cont" width="70%">Insert the current date/time.<br>
+      See "<a href="date.html">$Date</a>" for details.</td>
+    </td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="30%"><dfn>$Text &quot;string&quot;</dfn></td>
+    <td class="cont" width="70%">Insert arbitrary text.<br>
+      See "<a href="text.html">$Text</a>" for details.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="30%"><dfn>$IClip</dfn></td>
+    <td class="cont" width="70%">Working with the clipboard.<br>
+      See "<a href="iclip.html">$IClip</a>" for details.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="30%"><dfn>$MMode 1</dfn></td>
+    <td class="cont" width="70%">Changes the screen refresh mode during the macro command execution.<br>
+      See "<a href="mmode.html">$MMode</a>" for details.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="30%"><dfn>$Exit</dfn></td>
+    <td class="cont" width="70%">Stops macro command execution.<br>
+      See "<a href="exit.html">$Exit</a>" for details.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="30%"><dfn>$XLat</dfn></td>
+    <td class="cont" width="70%">Invokes the text transliteration function.<br>
+      See "<a href="xlat.html">$XLat</a>" for details.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="30%"><dfn>$KbdSwitch</dfn></td>
+    <td class="cont" width="70%">Cyclic switching of the keyboard layouts.<br>
+      See "<a href="kbdswitch.html">$KbdSwitch</a>" for details.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="30%"><dfn>$If (Expr) TruePart [$Else FalsePart] $End</dfn></td>
+    <td class="cont" width="70%">Implements a conditional execution operator.<br>
+      See "<a href="if.html">$If</a>" for details.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="30%"><dfn>$While (Expr) Sequence $End</dfn></td>
+    <td class="cont" width="70%">Implements an iterative process - &quot;Execute the Sequence
+      while condition Expr is true&quot;.<br>
+      See "<a href="while.html">$While</a>" for details.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="30%"><dfn>$Rep (Expr) Sequence $End</dfn></td>
+    <td class="cont" width="70%">Implements the iterative process - &quot;Execute the Sequence
+      Expr number of times&quot;.<br>
+      See "<a href="rep.html">$Rep</a>" for details.</td>
+  </tr>
+  <tr class="cont">
+    <td class="cont" width="30%"><dfn>%var=value;</dfn><br>
+      <dfn>%%var=value;</dfn></td>
+    <td class="cont" width="70%">Using variables.<br>
+      See the "<a href="vars.html">variables</a>" for details.</td>
+  </tr>
+</table>
+
+
+<h3>Notes</h3>
+<div class=descr>
+<ol>
+<li>It is impossible to use macro-language elements while <a href="../macrokey/record.html">recording</a>
+  a macro in a usual way. Macro-language elements can be added to the sequence only by editing
+  the registry manually or by using special applications or FAR plugins.</li>
+</ol>
+</div>
+
+</body>
+
+</html>

@@ -1,0 +1,10 @@
+EXPORTS
+    IsArchive=IsArchive@12
+    OpenArchive=OpenArchive@8
+    GetArcItem=GetArcItem@8
+    CloseArchive=CloseArchive@4
+    GetFormatName=GetFormatName@12
+    GetDefaultCommands=GetDefaultCommands@12
+    GetSFXPos=GetSFXPos@0
+    SetFarInfo=SetFarInfo@4
+    LoadFormatModule=LoadFormatModule@4

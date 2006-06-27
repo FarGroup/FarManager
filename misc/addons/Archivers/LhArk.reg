@@ -1,0 +1,24 @@
+REGEDIT4
+
+;Import this file into the Win32 Registry to integrate LHARK-A
+;(LHARK of the A mode) into the FAR manager!
+;If required, change the mode of LHARK with the command "lhark o"!
+;To create LHA 2.55 compatible LZH archives, type the additional
+;switch "-c5" and don't use encryption!
+
+[HKEY_LOCAL_MACHINE\Software\Far\Plugins\MultiArc\LZH]
+"Extract"="lhark e -p -l -a -o -- %%A %%FMQ"
+"ExtractWithoutPath"="lhark e -l -a -o -- %%A %%FMQ"
+"Test"="lhark t -l %%A"
+"Delete"="lhark d -l -a -- %%A %%FMQ"
+"Comment"=""
+"CommentFiles"=""
+"SFX"="lhark s -l %%A"
+"Lock"=""
+"Protect"=""
+"Recover"=""
+"Add"="lhark a -l -a {%%S} -- %%A %%FMQ"
+"Move"="lhark a -m -l -a {%%S} -- %%A %%FMQ"
+"AddRecurse"="lhark a -r -p -l -a {%%S} -- %%A %%FMQ"
+"MoveRecurse"="lhark a -m -r -p -l -a {%%S} -- %%A %%FMQ"
+"AllFilesMask"="*.*"

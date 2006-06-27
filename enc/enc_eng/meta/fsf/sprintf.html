@@ -1,0 +1,65 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>FSF.sprintf</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>sprintf</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a href="index.html">FarStandardFunctions</a>
+</div>
+
+<div class=shortdescr>
+The <dfn>FSF.sprintf</dfn> function allows to write formatted output to a string.
+</div>
+
+<pre class=syntax>
+int WINAPI sprintf(
+  char *Buffer,
+  const char *Format,
+  ...
+);
+</pre>
+
+<h3>Parameters</h3>
+<div class=descr>
+  <div class=dfn>Buffer</div>
+  <div class=dfndescr>Buffer that receives the formatted string.
+  </div>
+
+  <div class=dfn>Format</div>
+  <div class=dfndescr>Format string.<br>
+  </div>
+
+  <div class=dfn>...</div>
+  <div class=dfndescr>Series of arguments, in accordance with the format string.
+  </div>
+</div>
+
+<h3>Return value</h3>
+<div class=descr>
+If the function succeeds the return value is the number of bytes put
+to <em>Buffer</em>, otherwise it returns -1.
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+See a C/C++ run-time library reference for more information.
+<div class=dfn>Delphi:</div>
+<div class=dfndescr>You can use format() function. <br>
+<small>Please read Object Pascal (Delphi) language reference for more information on
+that function.</small><br>
+</div>
+</div>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="snprintf.html">FSF.snprintf</a>
+</div>
+
+</body>
+</html>

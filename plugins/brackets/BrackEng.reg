@@ -1,0 +1,14 @@
+REGEDIT4
+
+[HKEY_CURRENT_USER\Software\Far\PluginHotkeys\Plugins/Editor/Brackets/Brackets.dll]
+"Hotkey"="m"
+
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Editor\CtrlM]
+"Sequence"="F11 m e"
+"Description"="Brackets matching - Find"
+"DisableOutput"=dword:00000001
+
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Editor\CtrlShiftM]
+"Sequence"="F11 m s"
+"Description"="Brackets matching - Find & Select"
+"DisableOutput"=dword:00000001

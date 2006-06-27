@@ -1,0 +1,169 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>SetFileApisToOEM</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+
+<body>
+
+<h1>SetFileApisToOEM</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a href="../structures/index.html">structures</a> |
+<a href="index.html">win32 structures</a>
+</div>
+
+<div class=smalldescr>
+The <strong>SetFileApisToOEM</strong>
+function causes the file I/O functions to use the OEM character set code page.
+This function is useful for 8-bit console input and output operations.
+</div>
+
+<pre class=syntax>
+VOID SetFileApisToOEM(VOID);</pre>
+
+<h3>Parameters</h3>
+<div class=descr>
+  This function has no parameters.
+</div>
+
+<h3>Return value</h3>
+<div class=descr>
+  This function has no return value.
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+<p>The <strong>SetFileApisToOEM</strong> function complements the <a href="setfileapistoansi.html">SetFileApisToANSI</a>
+function, which causes file I/O functions to use the ANSI character set code page.</p>
+<p>The 8-bit console functions use the OEM code page by default. All other functions
+use the ANSI code page by default. This means that strings returned by the console
+functions may not be processed correctly by other functions, and vice versa.
+For example, if the <strong>FindFirstFileA</strong> function returns a string that
+contains certain extended ANSI characters, and the 8-bit console functions are set to
+use the OEM code page, then the <strong>WriteConsoleA</strong> function does not
+display the string properly.</p>
+
+<p>Use the <strong>AreFileApisANSI</strong> function to determine which code page
+the set of file I/O functions is currently using. Use the <strong>SetConsoleCP</strong>
+and <strong>SetConsoleOutputCP</strong> functions to set the code page for the 8-bit console functions.</p>
+
+<p>To solve the problem of code page incompatibility, it is best to use Unicode for
+console applications. Console applications that use Unicode are much more versatile
+than those that use 8-bit console functions. Barring that solution, a console
+application can call the <strong>SetFileApisToOEM</strong> to cause the set of
+file I/O functions to use OEM character set strings rather than ANSI character set strings.
+Use the <strong>SetFileApisToANSI</strong> to set those functions back to the ANSI code page.</p>
+
+<p>The <strong>SetFileApisToANSI</strong> and <strong>SetFileApisToOEM</strong> functions
+affect the following set of Win32 file functions.</p>
+
+<table class="cont">
+<tr class="cont">
+  <th class="cont" width="40%">Function</th>
+  <th class="cont" width="60%">Description</th></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="win32/_lopen">_lopen</a></td>
+<td class="cont" width="60%">open existing file </td>
+</tr>
+<tr class="cont"><td class="cont" width="40%"><a href="win32/CopyFile">CopyFile</a></td>
+<td class="cont" width="60%">copy file</td>
+</tr>
+<tr class="cont"><td class="cont" width="40%"><a href="win32/CreateDirectory">CreateDirectory</a></td>
+<td class="cont" width="60%">create directory </td>
+</tr>
+<tr class="cont"><td class="cont" width="40%"><a href="win32/CreateFile">CreateFile</a></td>
+<td class="cont" width="60%">create/open an object (file, pipe, etc.)</td>
+</tr>
+<tr class="cont"><td class="cont" width="40%"><a href="win32/CreateProcess">CreateProcess</a></td>
+<td class="cont" width="60%">create process </td>
+</tr>
+<tr class="cont"><td class="cont" width="40%"><a href="win32/DeleteFile">DeleteFile</a></td>
+<td class="cont" width="60%">delete file</td>
+</tr>
+<tr class="cont"><td class="cont" width="40%"><a href="win32/FindFirstFile">FindFirstFile</a></td>
+<td class="cont" width="60%">start searching for a file object</td>
+</tr>
+<tr class="cont"><td class="cont" width="40%"><a href="win32/FindNextFile">FindNextFile</a></td>
+<td class="cont" width="60%">continue searching </td>
+</tr>
+<tr class="cont"><td class="cont" width="40%"><a href="win32/GetCurrentDirectory">GetCurrentDirectory</a></td>
+<td class="cont" width="60%">get the current directory </td>
+</tr>
+<tr class="cont"><td class="cont" width="40%"><a href="win32/GetDiskFreeSpace">GetDiskFreeSpace</a></td>
+<td class="cont" width="60%">get disk info</td>
+</tr>
+<tr class="cont"><td class="cont" width="40%"><a href="win32/GetDriveType">GetDriveType</a></td>
+<td class="cont" width="60%">get drive type </td>
+</tr>
+<tr class="cont"><td class="cont" width="40%"><a href="win32/GetFileAttributes">GetFileAttributes</a></td>
+<td class="cont" width="60%">get file attributes</td>
+</tr>
+<tr class="cont"><td class="cont" width="40%"><a href="win32/GetFullPathName">GetFullPathName</a></td>
+<td class="cont" width="60%">get path to a file</td>
+</tr>
+<tr class="cont"><td class="cont" width="40%"><a href="win32/GetModuleFileName">GetModuleFileName</a></td>
+<td class="cont" width="60%">get full name of the module</td>
+</tr>
+<tr class="cont"><td class="cont" width="40%"><a href="win32/GetModuleHandle">GetModuleHandle</a></td>
+<td class="cont" width="60%">get handle of the module</td>
+</tr>
+<tr class="cont"><td class="cont" width="40%"><a href="win32/GetSystemDirectory">GetSystemDirectory</a></td>
+<td class="cont" width="60%">get path to the system directory </td>
+</tr>
+<tr class="cont"><td class="cont" width="40%"><a href="win32/GetTempFileName">GetTempFileName</a></td>
+<td class="cont" width="60%">get name for a temporary file </td>
+</tr>
+<tr class="cont"><td class="cont" width="40%"><a href="win32/GetTempPath">GetTempPath</a></td>
+<td class="cont" width="60%">get path to the TEMP directory </td>
+</tr>
+<tr class="cont"><td class="cont" width="40%"><a href="win32/GetVolumeInformation">GetVolumeInformation</a></td>
+<td class="cont" width="60%">get file system information </td>
+</tr>
+<tr class="cont"><td class="cont" width="40%"><a href="win32/GetWindowsDirectory">GetWindowsDirectory</a></td>
+<td class="cont" width="60%">get path to the Windows directory </td>
+</tr>
+<tr class="cont"><td class="cont" width="40%"><a href="win32/LoadLibrary">LoadLibrary</a></td>
+<td class="cont" width="60%">load library (DLL) </td>
+</tr>
+<tr class="cont"><td class="cont" width="40%"><a href="win32/LoadLibraryEx">LoadLibraryEx</a></td>
+<td class="cont" width="60%">load library (DLL) </td>
+</tr>
+<tr class="cont"><td class="cont" width="40%"><a href="win32/MoveFile">MoveFile</a></td>
+<td class="cont" width="60%">move/rename file or directory</td>
+</tr>
+<tr class="cont"><td class="cont" width="40%"><a href="win32/MoveFileEx">MoveFileEx</a></td>
+<td class="cont" width="60%">move/rename file or directory</td>
+</tr>
+<tr class="cont"><td class="cont" width="40%"><a href="win32/OpenFile">OpenFile</a></td>
+<td class="cont" width="60%">create/open/delete file </td>
+</tr>
+<tr class="cont"><td class="cont" width="40%"><a href="win32/RemoveDirectory">RemoveDirectory</a></td>
+<td class="cont" width="60%">delete directory </td>
+</tr>
+<tr class="cont"><td class="cont" width="40%"><a href="win32/SearchPath">SearchPath</a></td>
+<td class="cont" width="60%">search for a file </td>
+</tr>
+<tr class="cont"><td class="cont" width="40%"><a href="win32/SetCurrentDirectory">SetCurrentDirectory</a></td>
+<td class="cont" width="60%">set current directory </td>
+</tr>
+<tr class="cont"><td class="cont" width="40%"><a href="win32/SetFileAttributes">SetFileAttributes</a></td>
+<td class="cont" width="60%">set file attributes </td>
+</tr>
+</table>
+
+<p>When dealing with command lines, a console application should obtain
+the command line in Unicode form and then convert it to OEM form using
+the relevant character-to-OEM functions. Note also that the array in
+the <strong>argv</strong> parameter contains ANSI character set strings in this case.</p>
+
+</div>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="setfileapistoansi.html">SetFileApisToANSI</a>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>DM_SHOWITEM</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>DM_SHOWITEM</h1>
+<div class=navbar>
+<a  href="index_dm.html">Messages</a> |
+<a href="../index.html">Dialog API</a><br>
+</div>
+
+<div class=shortdescr>
+The <dfn>DM_SHOWITEM</dfn> message is sent to the dialog manager to show or hide a dialog item.
+</div>
+
+<h3>Param1</h3>
+<div class=descr>
+The ID of the dialog item to be shown or hidden.
+</div>
+
+<h3>Param2</h3>
+<div class=descr>
+One of the following values:
+<ul>
+<li>-1 - get the state of the item
+<li>0 - hide the item
+<li>1 - show the item
+</ul>
+</div>
+
+<h3>Return</h3>
+<div class=descr>
+Previous state of the dialog item
+</div>
+
+<h3>Controls</h3>
+<div class=descr>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
+<tr class="cont"><td class="cont" width="40%">All</td>
+<td class="cont" width="60%">All dialog items</td></tr>
+</table>
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+<ol>
+<li>Dialog item is force redrawn if it is visible and Param2=1.
+<li>Dialog item is not redrawn if Param2=-1.
+</ol>
+</div>
+
+<h3>Example</h3>
+<div class=descr>
+
+</div>
+
+
+<div class=see>See also:</div><div class=seecont>
+<a href="dm_showdialog.html">DM_SHOWDIALOG</a><br>
+<a href="../dialogex.html">DialogEx</a><br>
+</div>
+
+</body>
+</html>

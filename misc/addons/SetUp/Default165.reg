@@ -1,0 +1,15 @@
+REGEDIT4
+
+[HKEY_CURRENT_USER\Software\Far\Screen]
+"ScreenSaver"=dword:00000001
+
+[HKEY_CURRENT_USER\Software\Far\System]
+"SaveHistory"=dword:00000000
+"SaveFoldersHistory"=dword:00000000
+"SaveViewHistory"=dword:00000000
+
+[HKEY_CURRENT_USER\Software\Far\Editor]
+"SaveEditorPos"=dword:00000000
+
+[HKEY_CURRENT_USER\Software\Far\Viewer]
+"SaveViewerPos"=dword:00000000

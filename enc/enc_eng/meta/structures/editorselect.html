@@ -1,0 +1,99 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>EditorSelect</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+
+<body>
+
+<h1>EditorSelect</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a  href="index.html">structures</a><br>
+</div>
+
+<div class=shortdescr>
+The <dfn>EditorSelect</dfn> is used in the
+<a href="../service_functions/editorcontrol.html">EditorControl</a> function
+to select or deselect text in the FAR editor.
+</div>
+
+<pre class=syntax>
+struct EditorSelect
+{
+  int BlockType;
+  int BlockStartLine;
+  int BlockStartPos;
+  int BlockWidth;
+  int BlockHeight;
+};
+</pre>
+<h3>Elements</h3>
+<div class=descr>
+
+    <div class=dfn>BlockType</div>
+    <div class=dfndescr>One of the following values (the <a name="EDITOR_BLOCK_TYPES">EDITOR_BLOCK_TYPES</a> enumeration):
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Block type</th><th class="cont" width="60%">Description</th></tr>
+        <tr class="cont"><td class="cont" width="40%"><a name="BTYPE_NONE">BTYPE_NONE</a></td>
+        <td class="cont" width="60%">deselect block, </td></tr>
+        <tr class="cont"><td class="cont" width="40%"><a name="BTYPE_STREAM">BTYPE_STREAM</a></td>
+        <td class="cont" width="60%">select stream block</td></tr>
+        <tr class="cont"><td class="cont" width="40%"><a name="BTYPE_COLUMN">BTYPE_COLUMN</a></td>
+        <td class="cont" width="60%">select column (rectangular) block.</td></tr>
+</table>
+
+        If <i>BlockType</i> is equal to BTYPE_NONE, other fields of the structure are ignored.
+    </div>
+    <div class=dfn>BlockStartLine</div>
+    <div class=dfndescr>First line of the selection.</div>
+    <div class=dfn>BlockStartPos</div>
+    <div class=dfndescr>Start position of the selection.
+       If <em>BlockStartPos</em> = -1, text is deselected.
+     </div>
+    <div class=dfn>BlockWidth</div>
+    <div class=dfndescr>Block width. Can be negative.</div>
+    <div class=dfn>BlockHeight</div>
+    <div class=dfndescr>Block height, should be &gt;= 1</div>
+
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+Stream block from (X1,Y1) to (X2,Y2) can be selected in this way:
+<pre class=code>es.BlockType=BTYPE_STREAM;
+es.BlockStartLine=min(Y2,Y1);
+es.BlockStartPos=(Y1 &lt; Y2?X1:X2);
+
+// small correction if positions are equal
+if(X1 == X2)
+  es.BlockStartPos+=(Y1 &lt; Y2?1:-1);
+
+es.BlockHeight=max(Y1,Y2)-min(Y1,Y2)+1;
+
+if(Y1 &lt; Y2)
+  es.BlockWidth=X2-X1+1;
+else
+  es.BlockWidth=X1-X2+1;
+
+if(X1 == X2)
+{
+  if(Y1 &lt; Y2)
+    es.BlockStartPos--;
+  else
+    es.BlockStartPos++;
+}
+
+Info.EditorControl(ECTL_SELECT,(void*)&amp;es);</pre>
+</div>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="index.html">structures</a> |
+<a href="../delphi/teditorselect.html">TEditorSelect</a>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,6 @@
+EXPORTS 
+   GetPluginInfo=GetPluginInfo@4
+   OpenPlugin=OpenPlugin@8
+   SetStartupInfo=SetStartupInfo@4
+   ProcessEditorInput=ProcessEditorInput@4
+   Configure=Configure@4

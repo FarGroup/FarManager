@@ -1,0 +1,63 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>CRegExp.SetBkTrace</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>CRegExp.SetBkTrace</h1>
+
+<div class=navbar>
+<a href="../../index.html">main</a> |
+<a href="../index.html">Custom API</a> |
+<a href="index.html">regexp</a><br>
+</div>
+
+
+<div class=shortdescr>
+Set references for \yN operator
+</div>
+
+<h4>Class method:</h4>
+<pre class=syntax>
+bool SetBkTrace(char *Str, PMatches Trace);
+</pre>
+
+<h4>DLL interface:</h4>
+<pre class=syntax>
+BOOL WINAPI reSetBkTrace(PRegExp re, char *str, PMatches trace);
+</pre>
+
+<h3>Members</h3>
+<div class=descr>
+
+    <div class=dfn>re</div>
+    <div class=dfndescr>a pointer to an object</div>
+    <div class=dfn>Str</div>
+    <div class=dfndescr>string for setting a relation</div>
+    <div class=dfn>trace</div>
+    <div class=dfndescr>set of bracket matches for the previous regexp</div>
+
+</div>
+
+<h3>Return value</h3>
+<div class=descr>
+Returns TRUE or FALSE depending of operation success/failure.
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+This function is used for setting a relation between different regexps (it's used in the colorer
+plugin, for example) - by means of \yN operator, where N - bracket number in the first regexp for
+reference.
+</div>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="cregexp.html">CRegExp</a>
+</div>
+
+</body>
+</html>

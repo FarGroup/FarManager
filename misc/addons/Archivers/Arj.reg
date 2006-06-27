@@ -1,0 +1,21 @@
+REGEDIT4
+
+; http://www.arjsoftware.com/
+
+;Commands for ARJ 2.7x!
+[HKEY_LOCAL_MACHINE\Software\Far\Plugins\MultiArc\ARJ]
+"Extract"="arj x -+ {-g%%P} -v -y -p1 {-w%%W} -- %%A !%%LM"
+"ExtractWithoutPath"="arj e -+ {-g%%P} -v -y -p1 {-w%%W} -- %%A !%%LM"
+"Test"="arj t -+ -y {-g%%P} -v -p1 {-w%%W} -- %%A"
+"Delete"="arj d -+ -y {-w%%W} -p1 {-w%%W} -- %%A !%%LNM"
+"Comment"="arj c -+ -y {-w%%W} -z {-w%%W} -- %%A"
+"CommentFiles"="arj c -+ -y {-w%%W} -p1 {-w%%W} -- %%A !%%LM"
+"SFX"="arj y -+ -je -y -p {-w%%W} %%A"
+"Lock"=""
+"Protect"="arj t -hk -y {-w%%W} %%A"
+"Recover"="arj q -y {-w%%W} %%A"
+"Add"="arj a -+ -y -a1 {-g%%P} {-w%%W} -p {%%S} -- %%A !%%LM"
+"Move"="arj m -+ -y -a1 {-g%%P} {-w%%W} -p {%%S} -- %%A !%%LM"
+"AddRecurse"="arj a -+ -r -y -a1 {-g%%P} {-w%%W} -p {%%S} -- %%A !%%LM"
+"MoveRecurse"="arj m -+ -r -y -a1 {-g%%P} {-w%%W} -p {%%S} -- %%A !%%LM"
+"AllFilesMask"="*.*"

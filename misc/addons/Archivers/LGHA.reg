@@ -1,0 +1,18 @@
+REGEDIT4
+
+[HKEY_LOCAL_MACHINE\Software\Far\Plugins\MultiArc\HA]
+"Extract"="lgha x /o /- %%a %%FM"
+"ExtractWithoutPath"="lgha e /o /- %%a %%FM"
+"Test"="lgha t /- %%a"
+"Delete"="lgha d /- %%a %%FM"
+"Comment"=""
+"CommentFiles"=""
+"SFX"="lgha s /- %%a"
+"Lock"=""
+"Protect"=""
+"Recover"=""
+"Add"="lgha a /a /- %%a @%%l"
+"Move"="lgha a /a /m /- %%a @%%l"
+"AddRecurse"="lgha a /a /r /- %%a @%%lM"
+"MoveRecurse"="lgha a /a /r /m /- %%a @%%lM"
+"AllFilesMask"="*.*"

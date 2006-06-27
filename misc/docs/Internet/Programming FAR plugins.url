@@ -1,0 +1,6 @@
+[DEFAULT]
+BASEURL=http://api.farmanager.com/
+[InternetShortcut]
+URL=http://api.farmanager.com/
+IconFile=http://api.farmanager.com/favicon.ico
+IconIndex=1

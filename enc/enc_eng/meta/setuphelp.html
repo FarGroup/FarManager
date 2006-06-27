@@ -1,0 +1,242 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>How to setup the Encyclopedia</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../styles/styles.css">
+<script language="JavaScript" src='links.js' type="text/javascript"></script>
+</head>
+
+<body>
+<!-- img src="../images/programs.png" align=left width=48 height=48 -->
+<h1>How to setup the Encyclopedia</h1>
+<div class=navbar>
+<a href="index.html">main</a>
+</div>
+
+<!--
+<h3>Borland C++</h3>
+<div class=descr>
+This is the procedure of integrating the <code>pluginsr.hlp</code> help file
+into the environment in order to invoke the required topic using <code>Ctrl-F1</code>:
+
+<p>First of all, copy the files <code>PLUGINSR.*</code>
+to the folder with the HLP files (it's <code>HELP\</code> for BC 5.02).
+<p>Add these lines to the <b>WIN32SDK.CFG</b> file:<br>
+<code>:INDEX FAR plugins programming = pluginsr.hlp<br>
+      :LINK pluginsr.hlp
+</code>
+
+<p>and to the <b>WIN32SDK.CNT</b> file:<br>
+<code>:INCLUDE PLUGINSR.MST</code>
+<br>
+As a matter of fact, that's all.
+</div>
+
+<h3>Visual C++</h3>
+<div class=descr>
+The things are more complicated in this case. There are no problems with
+pluginsr.hlp file. You need to repeat similar actions: add these lines to the
+<code>EXTHELP.CNT</code> file in the <code>Help</code> folder of MSDev:<br><br>
+<code>
+:Title Microsoft Developer Studio Extension Help<br>
+:Index Far Plugins Help=c:\path\to\pluginsr.hlp<br>
+:Include c:\path\to\pluginsr.cnt<br>
+</code><br>
+
+<p>Then you need to make changes in the registry:<br>
+<code>HKEY_CURRENT_USER/Software/Microsoft/DevStudio/6.0/Help</code><br>
+<p>In this key, set the Enable value to 1. After that, a new item (checkbox)
+will appear in the VC Help menu. When you check it, our file will bring up
+instead of MSDN or whatever. It's not correct exactly, but it works.
+</div>
+-->
+
+<a name=setupmsdn></a><h3>Microsoft Visual C++ - MSDN</h3>
+<div class=descr>
+
+<p>It is possible to incorporate the Encyclopedia into the MSDN library if you
+have one installed on your computer to be able to use Encyclopedia along with MSDN help.
+Serg Bormant (2:5027/12.80@fidonet) sent us a &laquo;GuideLine&raquo;; here it is
+(<em>with my remarks</em>, ruiv).
+
+<pre class=code>
+    While looking through the encyclopedia (pluginsr.chm), I've discovered a
+topic about its setup.
+..
+    Separate .chm and .chi are good only if you keep the text on removable media
+while having index (.chi) set up. But it's meaningless for Encyclopedia taking
+into account its small size. A "monolithic" .chm also contains an index, so it's
+easy to link it.
+
+    To incorporate it into the MSDN collection you must consider that *.col describes
+the collection definition (logical structure) on the sections (Folders) level, while
+the physical file locations are kept in the hhcolreg.dat file.
+
+    Here's the method of pluginsr.chm incorporation. I don't claim it to be exactly
+correct :), but it works well...
+
+    0. Input data...
+Windows 2000 English, Visual Studio 6 SP3, MSDN Jan 2000, HTML Help Control 4.74.8702
+
+Encyclopedia:
+D:\Program Files\Far\PlugDoc\
+  pluginsr.chm
+
+Collection (this path you can find in the MSDN desktop link):
+D:\Program Files\mvs\MSDN\2000JAN\1033\
+  MSDN000.COL
+
+Collection registration:
+D:\Documents and Settings\All Users\Application Data\Microsoft\HTML Help\
+  hhcolreg.dat
+
+    1. Do as following:
+    1.1. Unload MSDN Library...
+    1.2. Find all *.col in the MSDN folder (it's msdn000.col in my case), and back them up
+(same for every other file we change). Then before Folders closing tag &lt;/Folders&gt; add
+the following (added strings are marked with "&gt;"):
+
+ &lt;XML&gt;
+ &lt;HTMLHelpCollection&gt;
+ &lt;collectionnum value=10003/&gt;
+ ...
+ &lt;Folders&gt;
+ &lt;Folder&gt;
+   &lt;TitleString value="MSDN Library - January 2000"/&gt;
+   &lt;FolderOrder value=1/&gt;
+ ...
+ &lt;/Folder&gt;
+<b>&gt;
+&gt;&lt;Folder&gt;
+&gt;  &lt;TitleString value="Far PlugRinG Help Project"/&gt;
+&gt;&lt;FolderOrder value=2/&gt;
+&gt;  &lt;Folder&gt;
+&gt;    &lt;TitleString value="=pluginsr"/&gt;
+&gt;    &lt;FolderOrder value=1/&gt;
+&gt;    &lt;LangId value=1033/&gt;
+&gt;  &lt;/Folder&gt;
+&gt;&lt;/Folder&gt;
+&gt;</b>
+ &lt;/Folders&gt;
+ &lt;/HTMLHelpCollection&gt;
+ &lt;/XML&gt;
+
+    Pay attention to the tags &lt;collectionnum.../&gt; (collection number) and
+&lt;FolderOrder.../&gt; (number of folder within the level).
+    (<em>You will need collectionnum when changing next file because FolderOrder
+depends on the location where you've inserted the fragment. Its number must be
+greater than the one specified in the previous Folder section</em>)
+
+    1.3. Find collection registration file (there can be several files of that type,
+we need the one where Encyclopedia collection is defined in the &lt;Collections&gt;
+section), and add the file information to the &lt;DocCompilations&gt; section:
+(<em>This file (hhcolreg.dat) was in the d:\winnt\help\ directory on my computer</em>)
+
+ &lt;XML&gt;
+ &lt;HTMLHelpDocInfo&gt;
+ ...
+ &lt;Collections&gt;
+ ...
+ &lt;Collection&gt;
+   &lt;ColNum value=10003/&gt;
+   &lt;ColName value="D:\Program Files\MVS\MSDN\2000JAN\1033\MSDN000.COL"/&gt;
+ &lt;/Collection&gt;
+ &lt;/Collections&gt;
+ &lt;Locations&gt;
+ ...
+ &lt;/Locations&gt;
+ &lt;DocCompilations&gt;
+ &lt;DocCompilation&gt;
+ ...
+ &lt;/DocCompilation&gt;
+<b>&gt;
+&gt;&lt;DocCompilation&gt;
+&gt;&lt;DocCompId value="pluginsr"/&gt;
+&gt;  &lt;DocCompLanguage value=1033/&gt;
+&gt;  &lt;LocationHistory&gt;
+&gt;    &lt;ColNum value=10003/&gt;
+&gt;    &lt;TitleLocation value="D:\Program Files\Far\PlugDoc\pluginsr.chm"/&gt;
+&gt;    &lt;IndexLocation value="D:\Program Files\Far\PlugDoc\pluginsr.chm"/&gt;
+&gt;    &lt;QueryLocation value=""/&gt;
+&gt;    &lt;LocationRef value=""/&gt;
+&gt;    &lt;Version value=0/&gt;
+&gt;    &lt;LastPromptedVersion value=0/&gt;
+&gt;    &lt;TitleSampleLocation value=""/&gt;
+&gt;    &lt;TitleQueryLocation value=""/&gt;
+&gt;    &lt;SupportsMerge value=0/&gt;
+&gt;  &lt;/LocationHistory&gt;
+&gt;&lt;/DocCompilation&gt;
+&gt;
+
+</b>
+ &lt;/DocCompilations&gt;
+ &lt;/HTMLHelpDocInfo&gt;
+ &lt;/XML&gt;
+
+    The collection number here is &lt;ColNum.../&gt; (<em>This is the number that you
+noted while changing collection, see 1.2</em>)
+
+    1.4. Load MSDN. You should see a new topic under Contents. Click on the Index tab,
+wait until the new index is created (it's a long process), and check the operability
+by typing any keyword, e.g. AF_AVPRESENT.
+
+    2. If you didn't succeed, then you made a mistake somewhere :(, so try to return
+to the first step and repeat from the beginning :)
+
+Serg Bormant, 2:5027/12.80@fidonet, bormant@chat.ru, bormant@netcity.ru
+
+Yours faithfully, Serg Bormant                           June 29, 2000
+
+--- GoldED+/W32 1.1.4.5
+ * Origin: To be, to be, two beer: without questions... (2:5027/12.80)
+</pre>
+
+<p>The only drawback of this method is that MSDN indexes should be rebuilt every
+time the Encyclopedia is changed - i.e. after a new version has been installed
+(it takes 3-5 minutes). But now you have an integrated FAR Manager Plug-in API help
+along with MSDN help system.
+<p>Note that incorporated Encyclopedia supports cross-links to the MSDN topics,
+and the hlp-version of the Encyclopaedia supports links to the win32.hlp, correspondingly.
+So, we are in clover.
+
+
+<p>&nbsp;<br>
+The latest amendment:
+<pre class=code>
+Date: Wed, 26 Sep 2001 21:40:15 +0400
+From: <a href="mailto:dennis.trachuk&#x40;nm.ru">Dennis Trachuk &lt;dennis.trachuk@nm.ru&gt;</a>
+Subject: MSDN Integration
+
+Hello All!
+
+Article about HTML-help files integration into MSDN
+<a href="http://codeproject.com/winhelp/msdnintegrator.asp" target="_blank">http://codeproject.com/winhelp/msdnintegrator.asp</a>
+<em>(local copy of this article is available)</em>
+
+and the best thing, a utility for doing that is available:
+<a href="http://codeproject.com/winhelp/MSDNIntegrator/MSDNIntegrator.zip">http://codeproject.com/winhelp/MSDNIntegrator/MSDNIntegrator.zip</a>
+and the same, but with sources:
+<a href="http://codeproject.com/winhelp/MSDNIntegrator/MSDNIntegrator_src.zip">http://codeproject.com/winhelp/MSDNIntegrator/MSDNIntegrator_src.zip</a>
+</pre>
+
+<!--<p>&nbsp;<br>
+<p>If you have problems with MSDN, maybe the
+<a href="articles/bonus/repair_msdn.html">"MSDN repair"</a> article
+(by Sergey Creedence) will help you to hanle some problems.-->
+
+</div>
+
+
+
+<h3>FAR Manager</h3>
+<div class=descr>
+If you want to write your programs using FAR built-in editor, take advantage of the
+<a target="_blank" href="http://plugring.farmanager.com/cgi-bin/downld.cgi?Draw=List&Select=PlugIn&SelectPlugIn=430">
+"Active-Help"</a> plug-in. It extends the editor's capability to context-sensitive help invocation...
+<p>It works with HLP as well as with CHM files. Also, you can specify your MSDN collection (MSDNVS98.COL)
+path in plug-in settings and it will use MSDN collection!</p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>Dictionary</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../styles/styles.css">
+<script language="JavaScript" src='links.js' type="text/javascript"></script>
+</head>
+<body>
+<img src="../images/bookmarks.png" align=right width=48 height=48 alt="">
+<h1>Dictionary</h1>
+<div class=navbar>
+<a href="index.html">main</a>
+</div>
+
+<div class=shortdescr>
+Some materials about the file system properties have been taken from
+<a href="http://winfaq.com.ru/" target="_blank" title="Frequently asked questions about Windows 95/98/ME/NT/2000/XP">http://winfaq.com.ru/</a>
+</div>
+
+<div class=dfn><h3><a name="plugin">Plugin</a></h3></div>
+<div class=dfndescr>
+Software component-addon to the FAR Manager, which permits the implementation
+of additional functions. In fact, plugin is an ordinary library that runs in
+the console process environment, so it functions like an ordinary console
+Win32 application. The plugin concept itself allows you to tune the shell as
+you want by adding necessary and discarding unnecessary stuff.
+<br>
+<br>
+</div>
+
+
+<div class=dfn><h3><a name="reparsepoints">Reparse Points</a></h3></div>
+<div class=dfndescr>
+Most innovations in the Windows 2000 file system become possible due to the
+introduction of the Reparse Points concept, which allows attaching of the
+additional data storage subsystems without using the additional programs.
+<p>Reparse points are actually file system objects with special
+attributes that allow using the extended functionality of data storage
+subsystem. Any file or directory can contain a reparse point. It means that
+several kinds of extended functionality are available at once when accessing
+the resource at the same path.
+<br>
+See also:
+<a title="MSDN: Reparse Points" href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/fileio/base/reparse_points.asp" target="_blank">MSDN: Reparse Points</a>
+
+<br>
+<br>
+</div>
+
+
+<div class=dfn><h3><a name="directoryjunctions">Directory Junctions</a></h3></div>
+<div class=dfndescr>
+Directory Junctions allow you to map any local folder to any other local
+folder. For example, if you have three folders, C:\folder1, C:\folder2
+and C:\documents, you can create directory junctions in such a way that
+C:\documents will look like a subfolder of two other folders, i.e. folders
+C:\folder1\documents and C:\folder2\documents will exist.
+
+<p>It was supposed initially that a special utility called linkd.exe will
+be supplied for creation of directory junctions, but it isn't included in
+Win2000 and supplied as a part of the Resource Kit. Also, directory junctions
+can be created using API, but this requires writing own software.
+
+<p>At first sight, Directory Junctions and Distributed File System implement
+the same functions, since they both can make multiple distributed folders
+look like a single folder tree. But there are some essential differences
+between them:</p>
+<ul>
+  <li>DFS uses the Active Directory service for storing its data</li>
+  <li>Due to the Active Directory using, DFS can provide fault protection
+    and system load balancing, while directory junctions can't,
+    although it isn't necessary when using a local computer</li>
+  <li>DFS is intended mainly to the integration of the network
+    resources into the common namespace, while directory junctions
+    join the local resources only</li>
+  <li>DFS can operate on several file systems, while directory
+    junctions are based on NTFS 5.0 only</li>
+  <li>DFS requires a client application, while directory junctions don't</li>
+</ul>
+
+See also:
+<a title="MSDN: Inside Win2K NTFS, Part 1" href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnw2kmag00/html/NTFSPart1.asp" target="_blank">MSDN: Inside Win2K NTFS, Part 1</a>
+<br>
+<br>
+</div>
+
+
+<div class=dfn><h3><a name="mountpoints">Mount Points</a></h3></div>
+<div class=dfndescr>
+Mount Points are essentially the same as the Directory Junctions,
+but they only allow mapping of the root folder of one volume to a local
+folder of another volume. Mount points are created with the help
+of reparse points and therefore need NTFS 5.0.
+<p>Mount Points are useful for increasing the volume size without changing
+the actual structure of the volumes on the disk. For example, with a volume
+mount point set the user might see drive D as "C:\Documents" as well as
+"D:", and the size of drive C will seem to increase.
+<br>
+See also:
+<a title="MSDN: Volume Mount Points" href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/fileio/base/volume_mount_points.asp" target="_blank">MSDN: Volume Mount Points</a>
+
+<br>
+<br>
+</div>
+
+
+<div class=dfn><h3><a name="sparsefile">Sparse File</a></h3></div>
+<div class=dfndescr>
+NTFS 5 supports sparse files, in which much of the data is zeros. Such
+file can be marked as sparse file. The system does not allocate hard drive
+space to a sparse file except in regions where it contains nonzero data.
+It keeps the information about location of nonzero values only. This method
+allows optimal data allocation on NTFS volumes when storing sparse files
+and handling them by applications.
+<br>
+See also: <a title="NTFS possibilities (at osp.ru)" href="http://www.osp.ru/win2000/2001/08/031_print.htm" target="_blank">NTFS possibilities</a>,
+<a title="MSDN: Sparse Files" href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/fileio/base/sparse_files.asp" target="_blank">MSDN: Sparse Files</a>
+
+<br>
+<br>
+</div>
+
+
+<div class=dfn><h3><a name="hardlinks">Hard Links</a></h3></div>
+<div class=dfndescr>
+Hard Link is the term used when a file has more than one name. For example,
+a file has names 1.txt and 2.txt. If the user deletes 1.txt, 2.txt remains,
+and vice versa. In other words, once the file has a new name, the names are
+equivalent. A file actually is deleted when its last hard link is deleted.
+Hard links cannot be cross volume boundaries, this means you cannot hardlink,
+for example, D:\somefile.txt to C:\somefilelink.txt. Keep in mind, that having
+the same drive letter in the path, files may reside on different volumes
+(see <a href="#mountpoints">Mount Points</a>). You can create a hard link
+only if the underlying filesystem supports it.
+<br>
+See also: <a title="Q106166 - Windows NT Backup and Hard Links" href="http://support.microsoft.com/support/kb/articles/Q106/1/66.asp"
+target="_blank">Q106166 - Windows NT Backup and Hard Links</a>.
+<br>
+<br>
+</div>
+
+<div class=dfn><h3><a name="symboliclinks">Symbolic Links</a></h3></div>
+<div class=dfndescr>
+Much more efficient feature that allows virtual folders creating -
+just as virtual disks created using SUBST command in DOS.
+It has a wide range of uses - folder structure simplification, for example.
+If you don't like the name
+"<code>Documents and settings\Administrator\Documents</code>", you can link
+it to the root folder, so the system will still handle the real name of this
+folder while you are working with much more convenient, shorter name, fully equivalent
+to the real one.
+<br>
+See also: <a title="Inside Win2K NTFS, Part 1" href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnw2kmag00/html/NTFSPart1.asp"
+target="_blank">Windows 2000 Magazine: Inside Win2K NTFS, Part 1</a>.
+<br>
+<br>
+</div>
+
+
+<div class=dfn><h3><a name="numericsort">Numeric sort</a></h3></div>
+<div class=dfndescr>
+The sorting algorithm which is used by the operating system to sort file
+lists was changed in Windows XP. A numeric sort is used instead of string
+sort. FAR also allows using numeric sort as in Windows XP - in other words,
+leading zeros in a file name are ignored. The following example shows
+how the files are sorted:
+<table class="cont"><tr class="cont"><th class="cont" width="50%">Numeric sort is on (Windows XP)</th><th class="cont" width="50%">Numeric sort is off (Windows 2000)</th></tr>
+<tr class="cont"><td class="cont" width="50%">Ie4_01</td><td class="cont" width="50%">Ie4_01</td></tr>
+<tr class="cont"><td class="cont" width="50%">Ie4_128</td><td class="cont" width="50%">Ie4_128</td></tr>
+<tr class="cont"><td class="cont" width="50%">Ie5</td><td class="cont" width="50%">Ie401sp2</td></tr>
+<tr class="cont"><td class="cont" width="50%">Ie6</td><td class="cont" width="50%">Ie5</td></tr>
+<tr class="cont"><td class="cont" width="50%">Ie401sp2</td><td class="cont" width="50%">Ie501sp2</td></tr>
+<tr class="cont"><td class="cont" width="50%">Ie501sp2</td><td class="cont" width="50%">Ie6</td></tr>
+<tr class="cont"><td class="cont" width="50%">5.txt</td><td class="cont" width="50%">11.txt</td></tr>
+<tr class="cont"><td class="cont" width="50%">11.txt</td><td class="cont" width="50%">5.txt</td></tr>
+<tr class="cont"><td class="cont" width="50%">88.txt</td><td class="cont" width="50%">88.txt </td></tr>
+</table>
+<br>
+See also: <a title="Q319827: The Sort Order for Files and Folders Whose..." href="http://support.microsoft.com/default.aspx?kbid=319827"
+target="_blank">Q319827 - The Sort Order for Files and Folders Whose Names...</a>.
+<br>
+
+<br>
+</div>
+
+</body>
+</html>

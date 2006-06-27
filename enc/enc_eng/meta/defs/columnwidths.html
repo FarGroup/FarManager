@@ -1,0 +1,45 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>Column width</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+
+
+<body>
+
+<h1>Column width</h1>
+<div class=navbar>
+<a href="../index.html">main</a> |
+<a  href="../structures/index.html">structures</a><br>
+</div>
+
+
+<div class=shortdescr>
+<p>The <dfn>ColumnWidths</dfn> member of the <a href="../structures/panelinfo.html">PanelInfo</a>
+and <a href="../structures/panelmode.html">PanelMode</a> structures describes the width of the
+panel columns (e.g. &quot;<code><b>0,8,0,5&quot;</b></code>).
+
+<p>The format is simple - a string of numbers (representing the column width) delimited by commas.
+
+<p>If width is 0, the default value will be used.
+If the width of the name, description or owner column is 0, the it will be automatically calculated
+depending on panel width. At least one of the column widths should be set to 0 for correct
+representation in any panel width.</p>
+
+<p>If 12-hour format is used, the standard width of the file time or the file time and date column
+should be increased by one. Increasing by a bigger value will show seconds and milliseconds.</p>
+
+<p>To show the year in a 4-digit format you should increase the width of the date column by 2.</p>
+</div>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="../structures/index.html">structures</a> |
+<a href="../structures/panelinfo.html">PanelInfo</a> |
+<a href="../structures/panelmode.html">PanelMode</a>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>$Text - Macros</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+</head>
+
+<body>
+
+<h1>$Text</h1>
+<div class="navbar">
+<a href="../../index.html">main</a> |
+<a href="../index.html">Macros</a> |
+<a href="index.html">Macro-language</a> |
+<a href="cmds.html">Macro-commands</a>
+</div>
+
+<div class=shortdescr>
+The <dfn>$Text</dfn> macro-command inserts the text into the current object editor.
+</div>
+
+<pre class=syntax>
+<dfn>$Text</dfn> <em>&quot;string&quot;</em>
+</pre>
+
+<h3>Elements</h3>
+<div class=descr>
+<div class=dfn>string</div>
+<div class=dfndescr>
+
+      The text to be inserted 'string' must be encoded using OEM codepage.<br>
+      The following escape-sequences can be used in this macro-command:
+      <table class="cont">
+        <tr class="cont">
+          <th class="cont" width="10%">Format</th>
+          <th class="cont" width="90%">Description</th>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">\&quot;</td>
+          <td class="cont" width="90%">The '&quot;' character</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">\'</td>
+          <td class="cont" width="90%">The ''' character</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">\\</td>
+          <td class="cont" width="90%">The '\' character</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">\n</td>
+          <td class="cont" width="90%">New line `\n'</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">\t</td>
+          <td class="cont" width="90%">Tab `\t'</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">\a</td>
+          <td class="cont" width="90%">Bell</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">\b</td>
+          <td class="cont" width="90%">`\b'</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">\f</td>
+          <td class="cont" width="90%">`\f'</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">\v</td>
+          <td class="cont" width="90%">`\v'</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">\N<br>
+            \NN<br>
+            \NNN</td>
+          <td class="cont" width="90%">Octal characters code for the OEM code page</td>
+        </tr>
+        <tr class="cont">
+          <td class="cont" width="10%">\xNN</td>
+          <td class="cont" width="90%">Hexadecimal characters code for the OEM code page</td>
+        </tr>
+      </table>
+</div>
+
+<h3>Notes</h3>
+<div class=descr>
+<ol>
+<li>It is impossible to use macro-language elements while <a href="../macrokey/record.html">recording</a>
+  a macro in a usual way. Macro-language elements can be added to the sequence only by editing
+  the registry manually or by using special applications or FAR plugins.</li>
+<li>This macro command allows to minimize the usage of memory allocated for the macro command sequence
+and make the sequence more comprehensive.
+<li>Keyword &quot;$Text&quot; can be omitted i.e. FAR will automatically transform any quoted text to
+$Text &quot;text&quot; except the situation when the &quot; character is followed by the 'space' character.
+</ol>
+</div>
+
+<h3>Example</h3>
+<div class=descr>
+<pre class=code>REGEDIT
+
+;create the new folder named by the current date
+
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlShiftF7]
+"Sequence"="%Folder=date(\"%d.%m0.%Y\"); $If (!fexist(%Folder)) F7 $Text %Folder Enter $End"
+"DisableOutput"=dword:00000001
+"NoPluginPanels"=dword:00000001
+</pre>
+</div>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="../examples.html">Examples</a>
+</div>
+
+
+</body>
+
+</html>

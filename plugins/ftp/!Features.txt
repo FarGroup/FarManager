@@ -1,0 +1,810 @@
+====================================================================
+== Docs ============================================================
+====================================================================
+-- Новый файл (набросок) dirlist.txt.
+   Он в последующем либо вольется в хелп либо в "Notes.txt".
+
+-- HLF empty: FTPCommands, FTPQueueAddItem, FTPExtHost
+
+=============================================================================
+== TO FIX ===================================================================
+=============================================================================
+-- Очень не удобно, что нельзя сконфигурировать некоторые команды FTP для
+   отдельных сайтов.
+   В частности, FarFTP использует для аплоада команду STOR. у меня есть 2 сайта,
+   нуждающиеся в APPE для докачки. если я меняю, согласно techinfo докачку на APPE,
+   то это применяется ко всем сайтам и постоянно приходится reg-файлы запускать,
+   что неудобно. ИМХО надо иметь возможность per server конфигурировать команды,
+   а не только глобально для плагина.
+
+-- DiRTy GaRRy
+   Сразу выполз регрессион: при создании папки курсор не позиционируется
+   на неё.
+
+-- DiRTy GaRRy
+   Правда, вспомнил тут один старый баг с удаление (возможно и не только). Если мы удаляем папки с фтп и
+   не можем удалить папку/файл, то нормально высвечивается диалог в котором нам предлагается
+   Пропустит/Пропустить всё/Повторит, но если мы по каким-либо причинам не можем зайти в папку (допустим не
+   хватает прав), то высвечивается диалог в котором мы только можем либо выйти из операции удаления, либо
+   повторить попытку. Это не есть гуд. :) См папку 23.
+
+-- >a> и еще глюк, сидел на фтп, сравнивал вручную 200 каталогов потом
+   >a> выделил ненужные, сказал "удалить"
+   xxx/FStd_trap.log
+
+--  1. Почто при копировании можно задать "принудительный" ascii но нельзя
+    наоборот? Вот копирую я текстовые файлы, но нежелаю их преобразовывать
+    и как?
+
+-- create dialog for ESC on operation: skip, cancel op,
+
+-- когда фтп выдает "ту мэни юзерс, трай агаин" разве нельзя это отследить
+   и реконектится через какой то интервал
+
+-- добавить настройку режима сортировки
+
+-- borland-made release does not upload all files (try at 193.178.144.179)
+
+-- DG>>>   9. После просмотра размера каталогов по F3, при наличии на
+   DG> ftp нечитаемых каталогов и файлов (лидирующие пробелы, символы с
+   DG> которыми не рабоатет FAR итд) выскакивает окно с ошибкой в котором
+       только две кнопки Retry и Cancel, а хотелось бы нормальный диалог с
+       пропуском/повтором и этих операциях для всех.
+
+-- DG>   9. После просмотра размера каталогов по F3, при наличии на
+   DG> ftp нечитаемых каталогов и файлов (лидирующие пробелы, символы с
+   DG> которыми не рабоатет FAR итд), вместо имён фафлов иногда начинают
+   DG> показываться их атрибуты;
+
+-- DG>   12. Если плагин не может скопировать файлы с ftp сервера,
+   DG> то окно с ошибкой появляется на каждом файле, что очень не удобно.
+   DG> Хотелось бы иметь в этом окне стандартный набор кнопок по
+   DG> обработке ошибок копирования.
+
+-- parce IP urls and delete leading zeroes
+
+-- чтобы  FARFTP на панели мог юзать цифровую сортировку
+   удобно для хостов заданных по IP
+
+--  И еще хотелось бы, чтобы формат дат брался системный. А то я уже отвык начисто
+   от европейского формата и каждый раз испугано соображаю, что же это за месяц
+   такой - двадцать восьмой? :)
+
+-- Valentin Skirdin <svs@cell.vrn.ru>
+   Все таки команду "allo filesize" кидать перед заливкой на FTP надо.
+   Видимо придется ввести еще одну функцию для... посылки пред-команды, перед
+   заливкой файла. Я так думаю, она будет только в "моем" случае юзаться...
+   и... скорее всего хмм.. формат у нее "ALLO %ld"
+   Т.е. перед заливкой файла вызвать эту функцию, передав ей размер файла,
+   которая сформирует команду(ы), которые нужно послать перед заливкой файла
+   "туда"
+
+-- DiRTy GaRRy <garry@mail.novgorod.ru>
+   DG>   3. Ну и последнее... Хотелось бы, что бы плугин запоминал
+   DG> послдний режим простомтра не только в панели выбора хостов, но и
+   DG> уже непосредственно в режиме фтп (желательно что бы это было
+   DG> опционально, т.е. что то типа двух вариантов: брать режим из
+   DG> текущей панели, запоминать последний режим просмотра).
+
+-- add new option "Append all" In copy dialog
+
+-- on upload many small files it is not possible to cancel operation
+
+-- Add timeout config to each hosts entry
+
+-- Wesha the Leopard <wesha@mail.ru>
+   WtL> 1) Копируем с фтп на локальный диск, фтп панель оставляем висеть.
+   WtL> 2) Долго редактируем скопированный файл. За это время на фтп панели
+   WtL> происходит коннекшн таймаут.
+   WtL> 3) Пробуем залить файл обратно. При попытке заливки обнаруживается,
+   WtL> что коннекшн - ёк, и предлагается retry. После retry файл пытается
+   WtL> _до_залиться, в результате на хосте имеем старый файл с хвостом от
+   WtL> нового (если новый длиннее).
+
+=============================================================================
+== JUST FIXED (need to confirm/describe) ====================================
+=============================================================================
+-- Gennady Makovetsky <gena@m81.ipmce.ru>
+   Sun does not support SIZE, so uploading using APPE not possible
+   solve: use size only if LIST fail
+
+-- J>>>>   [ ] Close connection on ".."
+   ЮХ>>> Это я знаю. И он у меня был постоянно включен. Я говорю о той ситуации когда
+   ЮХ>>> он _выключен_ - тебе что сложно там по Enter спросить не надо ли
+   ЮХ>>> переконнектится?
+   J>> При выключенной этой галке переход на .. должен отрабатываться так же
+   J>> как и обычного каталога, т.е. с вопросом.
+   J>> Не так это разве?
+   ЮХ> В том-то и дело что нет. Потому я тебе и написал "баг", что он этой попытки
+   ЮХ> не делает а _мгновенно_ (практически) заканчивает запрос (при ошибке)
+
+-- Zeroes
+   C temp panel нельзя файл на FTP залить, FARFTP из B4 можно было
+
+-- Хотелось бы чтобы в настройках плагина появилась галочка включающая      *
+   интелект, который позволял бы переносить файлы из одной папки в
+   другую на самом ФТП сервере, без использования локального диска
+   пользователя (при работе с одним ФТП сервером одновременно на левой
+   и правой панелях фара)
+
+-- надо просто сделать галку "убирать двойные фф" из PWD                    *
+
+-- plugin traps on very long paths|names (see bug\ftp-longname.log)         * It`s FAR traps
+
+-- DG>   5. Ну и всё таки хотелось бы что бы диалог с прогрессом            *
+   DG> выскакивал деже при просмотре по F3, F4. Сорри, за такую
+   DG> назойливость, но мне уж больно не нравятся дуратские сообщения и
+   DG> процентики в верхней строке фара. Ещё раз сорри, это моё сугубое
+   DG> IMHO.
+
+-- DG> Да, кстати, в приложеных шотах и логе так же показано, что диалог    *
+   DG> ошибки почему-то проскакивает два раза (я об этом уже писал), хотя
+   DG> я нажимаю ESC.
+
+--  2. Неплохо было бы видеть какой-либо счётчик (ну допустим в байтах) при *
+    получении содержания каталогов с очень большим количеством файлов (или
+    при медленной связи), а то сейчас непонятно то-ли плагин работает,
+    то-ли висит;
+
+--  5. Ну и всё таки хотелось бы что бы диалог с прогрессом выскакивал деже *
+    при просмотре по F3, F4.
+
+--  4. В нижней части CMD окна имена папок содержащих русские буквы         *
+    показываются кракозяблами даже при включенном декодировании команд.
+
+-- 2. Хотелось бы что бы команды передаваемые из командной строки           *
+   перекодировались в кодировку сервера, а не передавалиь как есть
+
+-- DG>   1. Поддержку лидирующих пробелов. Я создал прямо в FAR-е           *
+
+-- DG>   6. FDup работает на ура! Единственное чего хотелось бы, это        *
+   DG> что бы FFDup указывался не глобально, а для каждого FTP серевера,
+   DG> так как сервера в которых надо дублировать 0xFF это скорее
+   DG> исключение, чем правило. Ну и совсем хорошо было бы, если ты
+   DG> выведешь эту настройку в интерфейс, но это не обязательно, хотя и
+   DG> желательно.
+
+-- add OPT split PWD reply to parser functions                              *
+
+-- open ftp panel using "ftp:"                                              *
+
+-- в листе года нет (это я тоьлко что посмотрел) а твой плуг смело ему      *
+   ставит 2004 год не посмотрев даже что там декабрь месяц
+
+-- DVall <V.Danilenko@nbrb.by>  (NBRB)
+   DT> наткнулся вот еще на проблему: не удается сделать аплоад с временной *
+   DT> панели.
+   Error uploading: /incoming/E:/directory/file.ext
+
+-- DVall <V.Danilenko@nbrb.by>  (NBRB)                                      *
+   Если создавать каталог на сервере введя - 111 222
+   То все ок.
+   Если же  - "111 222"
+   То создается только 111.
+   Т.е. если заключать имя в кавычки то оно обрезается по пробелу.
+
+-- DVall <V.Danilenko@nbrb.by>  (NBRB)                                      *
+   > " ftp://194.226.246.33"
+   это по шифт ф4 если создавать в плагине
+   трим говорю - не напряг бы никого
+
+=============================================================================
+== CLOSED ===================================================================
+=============================================================================
+-- ЮХ> Писал. Поскольку у "текущего года" года нету, а есть время, то эти моральные
+   ЮХ> уроды сравнивают время с текущим на своей машине (без учёта TZ понятно) и если
+   ЮХ> время получилось "ушедшим вперёд" то делают -1 из года. Ты хочешь сказать,
+   ЮХ> что '!Later-Futures' был прошлогодний? :)
+   ЮХ> А обходится это то же просто - если "разбегание" больше 11 часов
+   ЮХ> (максимальная TZ + допустимая рассинхронизация) то такую коррекцию делать
+   ЮХ> надо. Иначе - нет. Только так сложно - если "не делать коррекции", надо обязательно
+   ЮХ> править время на копировании (иначе появятся "файлы из будующего" и любой
+   ЮХ> проверщик дисков свихнётся). Это можно обойти проанализировав welcome, но,
+   ЮХ> как правило, достаточно существенно более простой вещи - игнорировать
+   ЮХ> "разбегания" в пределах часа.
+
+-- сегодня сапгрейдился :). Заходим на сервер. Выходим (простой сменой      * UNGANGED ftp-server specific
+   панели с ftp соединением куда-нить на другой диск). А коннект на сервере
+   остаётся, и висит до пока у него не кончится ildetime (которое меньше
+   минут 3-5 ставить обычно не надо). Заходим так раза два-три - и
+   привет, кончается максимум
+
+-- do not parce "lst-x-@"                                                   * ignore @ symbols (lst-x-@)
+
+-- plugin do not let pass command line commands in hosts mode
+
+-- parser fail if file name contains \n char                                * fixed for VMS servers
+
+-- 2.  В настройках хоста (или плагина) сделать возможность игнорирования   * IMPOSSIBLE
+   ошибок  парсера,  т.е.  такую  строку он просто пропустит, а остальные
+   нормально отпарсит и покажет.
+
+-- correct "dirlist_rus.txt"                                                * localized month names in isting
+   1. В меню утилит (Shift+F1) выбрать пункт "Change server type..."
+   такого   я   пункта   не   нашел,  перебрал  все  типы  через  "Hosts
+
+-- "lst-spacename" parser fail if filename contains only spaces             * lst-x-spacename
+   ftp://203.236.39.227/incoming
+
+-- "Lukб? Lipinskэ" <lipinl1@fel.cvut.cz>                                   * VMS parser fixed
+   VMS experiments
+
+-- Dennis Trachuk <den@sastasoft.ru>  (SastaSoft)                           *
+   DT>> получилось). может стоит при скачке как проверять на валидност имена
+   DT>> файлов и заменять неправильные (для виды) символы на правильные.
+   DT>> ":<>& и т.д." на "_()! и т.д.". можно ключиком в реестре.
+
+-- characters bug:                                                          *
+   -> LIST /F/Films/Ослеплённый желанием.avi
+   <- 150 Opening ASCII mode data connection for /bin/ls (73 bytes).
+   <- 226 Transfer complete. 73 bytes in 0.05 sec. (1.426 Kb/s)
+   -> TYPE I
+   <- 200 Type set to I.
+   -> SIZE /F/Films/_б<_Ї<с--лc │_< -Ё_┐.avi
+   <- 550 Access denied.
+
+-- autodetect DIR-like listings not work                                    *
+   ftp://211.46.146.195
+
+-- do not parse netware lists (waiting for netware descriptions)            *
+
+-- do not download to network shares                                        *
+
+-- does not parse listings without NLinks (lst-sQNX)                        *
+
+-- 1. lst-bug unix parser bug.                                              *
+   2. windows in unix style not parsed
+
+-- заходишь на фтп, забиваешь на 15 мин                                     *
+   не знаю что там происходит но оно судя по всему дисконектится само
+   потом пытаюсь перейти в другую дириктории на этом же фтп
+   вываливается окно что немогу проченжить диру, идет таймер до нуля, после
+   этого окно анонимус где мне приходится давить ентер
+
+-- does not ask retry on scan directory list before copy (--`--)            *
+
+-- get files without perm to list directories                               *
+   ftp://ftpd.borland.com/devsupport/cbuilder/cb6/bcb6_eng_ent_upd4.exe
+
+-- mun> ну например создаем директорию zzz, в ней создаем пустые файлы      *
+   mun> 0,1,2...9, выделяем файлы, копируем - все нормально, пытаемся
+   mun> скопировать директорию - файлы 2,3 не скопировались (на другом компе
+   mun> не скопировались файлы 2,3,5,6), повторяемость 100%
+   mun> пробовал на версиях от 6.03.2003 и 7.12.2002 - одинаково
+   mun> версия которая была с фаром копирует нормально
+
+-- vnr> Раз плагин определяет, что это файл, видит, какой путь в            *
+   vnr> пассивной панели, или при ее отсутствии в активной панели и
+   vnr> заполняет соответствующие поля.
+
+-- call with:                                                               *
+     ftp://ftp.icq.com/pub/ICQ_Win95_98_NT4/ICQLite/Localized/icqlite_russian.exe
+   do not set cursor to "icqlite_russian.exe"
+
+-- bad redraw                                                               *
+
+-- copy to NUL does not work                                                *
+
+-- set *.ftp color, connect and terminate connection, hosts will be colored * FAR bug
+
+-- do not ask overwrite on Films                                            * IMPOSSIBLE
+
+-- Кстати, сделай так, чтобы дефолтовый плагин от ФАРа 1.704 мог работать   * IMPOSSIBLE
+   вместе с твоим. Если я их обоих помещаю в Plugins и пытаюсь запустить
+   дефолтовый плагин - получаю Application error. Твой работает
+   нормально.
+
+-- does not parse unix listings without dates (lst_F_dir)                   *
+
+-- контролф8 not work (modify date is not set)                              *
+
+-- does not ask abort before login (competn.doom2.net)                      *
+
+-- IP>>> (r)etry in x sec" Так что в пунтке 1) всё-таки тоже хочется знать  *
+   IP>>> почему остановилось копирование...
+   J>> Понимаю что хочется.
+   J>> А я куда эту информацию выводить должен, интересно?
+   IP> может над диалогом копирования?
+
+-- sets Unix serve type by default instead of autodetect                    *
+
+-- Vadim Yegorov <zg@matrica.apollo.lv>                                     *
+   VY>> В углу горит waiting. Жму Esc. Пока не досчитает до 100% - никакой
+   VY>> реакции. Вроде это уже было и исправлялось ;-).
+
+-- hides "%d:%d" (number and size) info window on scan directory list       *
+   before copy
+
+-- Alexander Lishansky                                                      *
+   Кстати, вывод того предупредительного окна можно если не отменить,
+   то хотя бы перенести его из момента входа в панель плагина в тот
+   момент, когда старый хост пытаются отредактировать и сохранить изменения
+
+-- г============================== Upload ==                                *
+   │ Download selected files to
+   │ /pub/comp/os/os2
+   Обрати внимания - никакого Download, должен быть Upload ;-)
+
+-- DVall <V.Danilenko@nbrb.by>                                              * IMPOSSIBLE!
+   D> При копировании(перемещении) на сервер, дата файла становится
+   D> текущей, а хотелось бы иметь возможность оставлять оригинальную.
+
+-- закачка файла с фтп на сетку не работает                                 *
+   Вылетает диалог cannot download file
+
+-- Check abort sequence at "ftp://ftp5.ua.freebsd.org"                      *
+   |<-226-File successfully transferred
+   |<-226 0.000 seconds (measured here), 71.44 Kbytes per second
+   |<-500 ?
+
+-- Copy|move|rename folders on hosts panel                                  *
+
+-- И> И вот еще ... копировал себе на машину фильм чуть не влез ... так     *
+   И> выпало окошко об errore,  а про то что free space не хватило - ни
+   И> слова ... это можно подправить ?
+
+-- DVall <V.Danilenko@nbrb.by>                                              *
+   D>>> Заходим на фтп, видим архив нажимаем ввод(на нем)
+   D>>> Тут соображаем что он очень большой. ESC - и разрываем соединение.
+   D>>> Но после этого FAR кричит что нет конца архива и все равно в архив
+   D>>> заходит.
+   ...
+   D> Я думал что проще всего было сказать фару что в данном случае архив
+   D> плохой, и нечего его смотреть.(если у него есть такая возможность)
+
+-- sht@abgcard.ru                                                           *
+   sar>   2) Если докачка невозможна (а выбран "Дописать"), то у принятой
+             части файла указатель записи сдвинуть в начало файла.
+
+-- madlexa <madlexa@ukrpost.net>                                            *
+   m> а вот если попытаться скопировать файл и на диске уже есть
+   m> директория с таким же названием то сервер никогда на abort никак не
+      реагирует,
+
+-- Update plugin panels after configuration chaged                          *
+
+-- if backup in hosts mode does not set correct panel mode                  *
+
+-- DVall <V.Danilenko@nbrb.by>                                              *
+   В Total Commander подключение к фтп реализовано интересно.
+
+-- sht@abgcard.ru                                                           *
+   If server does not support resuming do not try to resume.
+
+-- Vadim Yegorov <zg@matrica.apollo.lv>                                     *
+     |->LIST
+     |<-425 Can't build data connection: No route to host.
+   VY> В реале это выглядело так: захожу в директорию spell и вижу ее пустую.
+   VY> Никаких предупреждений, что LIST обламался - не было.
+
+-- Wesha the Leopard <wesha@mail.ru>                                        *
+   2) Не перечитывает панель после shift-F6
+
+-- Alex-First <first@briggs.ru>  (Hacker's Stone)                           *
+   EServ'e v2.99b. проблема в том, что при ручном создании происходит
+   создание директории относительно текущего пути, а вот при создании
+   директории при аплоаде плугин пытается создать директорию
+   относительно корня; имхо, не многие сервера ftp'шные позволяют так
+   делать.
+
+-- madlexa <madlexa@ukrpost.net>                                            *
+   при размере файла от 1 до 31 байта вместо размера показывается его группа
+   если смотреть через "View directory contents" все показывается правильно
+   -rw-r-----    1 10253    10253          31 Oct 28 07:59 zlobniyfile
+
+-- REST instead STOR                                                        *
+   >>>Хроника событий:
+   1. зашли на фтп в 12-41, открыли папку.
+   2. в 12-48 закончили редактирование локального файла, попытались
+   скопировать его на ФТП (перезапись).
+   3. попытка не удалась, т.к. соединение было разорвано сервером по
+   таймауту.
+   4. плагин переконнектился и попытался повторить попытку, только послал
+   REST.
+   5. сервер выдал ошибку.
+   6. я вручную инициировал копирование файла на сервер.
+   7. плагин спросил, надо ли ПЕРЕ или ДОзаписать, я выбрал ПЕРЕ.
+   8. плагин записал файл.
+   >>>END Хроника событий
+   Но я все-таки продолжаю настаивать, что посылка REST на 4м шаге тоже
+   ошибочна.
+
+-- SD> + всего один лишь плагин FarFTP FarFtp_121102_full.zip               *
+   SD> FAR чистый, т.е. перез запуском было сделано.
+   SD> [-HKEY_CURRENT_USER\Software\Far]
+   ...
+   SD> запустили фар и сразу закрываем. При выходе - ошибка в модуле
+   SD> FarFtp.dll
+
+-- CPS values must be right aligned                                         *
+
+-- в настройках плагина задаю цвет ожидания,                                *
+   ...
+   так вот оно цвет не запоминает, сбрасывает опять на стандартныё
+   черный на синем фоне кажись...
+
+-- do not set cursor on newly create directory, new host                    *
+
+-- Ctrl+Z edit host, cursor position to description                         *
+
+-- "Морозов Сергей" <msv-sergey@yandex.ru>                                  *
+     1. Вошли на сервер.
+     2. Побродили по серверу и вернулись в корневую папку
+     3. Нажили Enter на ".." в корневой папки и оказались в панели хостов,
+        причем курсор стоит ".." в панели хостов.
+   Хотелось бы, чтобы курсор стоял на хосте того сервера, который мы
+   покинули.
+
+-- must yeld on CD errors (ftp.timus.ru/mp3/Music)                          *
+
+-- Alexander Lishansky <alexl@surfree.net.il>                               *
+   Выражается в том, что если обрыв (неважно от ошибки или от прерывания)
+   происходит _после_ того как установилось соединение с сервером и
+   прошла авторизация, но _до_ того, как прочиталось содержимое первого
+   каталога - плагин, при возврате, утанавливает неверный режим в панели
+   хостов.
+++ Так это бы еще ничего, если б он на другой хост вставал (хотя тоже не
+   самый лучший вариант). Проблема-то в том, что он, по-моему, отлично
+   помнит про хост, и на нем курсор стоит, но за пределами экрана.
+
+-- OPT do not expand LOG on errors                                          *
+
+--  PP>> Также когда url с пробелами то он не оборачивается                 *
+    PP>> кавычками при Ctrl+Ins. Это wget тоже не любит.
+
+-- switch "execute cmd line" in utils menu                                  *
+
+-- диалоговом окне запроса на перезапись                                    *
+   RI> Хорошо бы, чтобы по стрелкам влево-вправо фокус двигался на кнопки
+   RI> левее(выше, если начало строки)-правее(ниже, если конец строки), а
+       по кнопкам вверх-вниз - на строку выше-ниже.
+       Еще как вариант - поставить "переписать все" рядом с "переписать".
+
+-- separate listing formats                                                 *
+   (OPT for host)
+
+-- Игорь Балашов <balashov_in@mail.ru>                                      *
+   1. J>> [HKEY_CURRENT_USER\Software\Far\Plugins\FTP\C:\TEMP\FTMP0009.DC1]
+      ИБ> Этот мусор и сейчас генериться :((
+      ...
+      ИБ> Эти ссылки возникают всегда, когда я произвожу копирование из панели
+      ИБ> FTP-хостов в файловую. Причем ветка отражает именно тот путь где
+      ИБ> создается FTP-файл.
+   2. do not copy ftp files to hosts panel in subdirectories
+   3. Не отбрасываются завершающие пробелы командной строки. Набираю cd, далее
+      вставляю имя линка(Ctrl+Enter) и пытаюся выполнить(Enter) => "Путь не
+      найден". Если же забить(Backspace) пробел в конце, то все ок.
+   4. Почему-то перестало работать сочетание Ctrl+\ для перехода в корень :(((
+
+-- FTP commands from CMD line do not works
+
+-- 1. resuming not work
+   2. on overwrite switches to resume (must not)
+
+-- Sergei Antonov <project@quake.ru>                                        *
+   SAJ>>> Т.е. "CD .." из корня - осмысленная команда.
+   SA>> А может тогда сделать что если после CD .. из корня каталог не
+   SA>> изменился, то выходить из сервера?
+
+-- SaveURL wrong data in dialog                                             *
+
+-- D> 5) Не переносятся копированием фтп-записи из прежней версии фара.     *
+   D> Пароль ошибочный.
+
+-- on upload do not shows copy dialog but uses a files list                 *
+
+-- copy dialog help                                                         *
+
+-- on overwrite adds start size of file to indicator                        *
+
+-- auto retry copy operation if error occured once.                         *
+   If reconnect and repeat successfull return succ code.
+
+-- draw current action in console caption                                   *
+
+-- file menu: Ins moves down                                                *
+
+-- используй DialogEx с флагом FDLG_WARNING                                 *
+
+-- download slow                                                            *
+
+-- ConnectMessage must redraw background when size of drawed strings        *
+   changed
+
+-- Khanin Alex <alex@baikcom.ru>                                            *
+   Techinfo to hide password in Ctrl-Insert operations
+
+-- termination of calculate directory size not work                         *
+
+-- show files count and size while scaning directory                        *
+
+-- on copy create subdirs on directory entry only                           *
+
+-- do not hide CMD on password mitsmatch                                    *
+
+-- show ext CMD on error                                                    *
+
+-- 1. J>> Может какой-нить файл типа "известные фичи" создать, а ?          *
+      J>> Как думаешь, пригодится он кому-нить ?
+      WtL> Несомненно.
+   2. "%>symbol"
+   3. 70__ x 7___
+
+-- В последнем хелпе глюк:                                                  *
+   ------------- system clipboard -------->8----
+       Line0=""
+   ----8<---- end of system clipboard ----------
+
+-- traps if download aborted and connection lost                            *
+   VY> 1. Падает. Лог в атаче. Выглядит это так. F5 - Connection Lost
+
+-- if dialogs grow set FirstDraw                                            *
+
+-- WtL> -Total (2/6)----------------------------                            *
+   WtL> ------Total (    2/    6)---------------
+   Разбирать/рисовать на лету медленно будет - сам же писал.
+   Но я попробую.
+
+-- set FirstDraw after dialogs show                                         *
+
+-- add paths to src&dest                                                    *
+
+-- WtL> 1. Попробуй в диалоге "Download selected files to:" вместо c:\      *
+   WtL> ввести nul. Интересный эффект получается :)
+
+-- WtL> Неправильно отрисовываются числа с сепараторами.                    *
+   12345678 ->> 12_345_678 (OK)
+   1234567  ->>  1_234_567 (OK)
+   123456   ->>   _123_456 (!!!)
+
+-- copy file between FTP panels                                             *
+
+-- change progress indicator dialog                                         *
+
+-- Ctrl+F in hosts mode                                                     *
+
+-- host must allways fit in column                                          *
+
+-- must correctly split addresses with @                                    *
+    ftp://ftp:spm@writeme.com@ftp.convey.ru
+
+-- add "ext list command" ("LIST"|"LIST -la") to utils menu                 *
+
+-- Alexander Lishansky <alexl@surfree.net.il>                               *
+   Хорошо бы часть techinfo в диалоги настройки вынести.
+
+-- Yuri Vorobyev <vorob@yamalinfo.ru>                                       *
+   YV>>> -> RETR 1.mpg/1.mpg
+   YV>>> <- 550 1.mpg/1.mpg: No such file or directory
+   Check:
+     ftpe
+     mp3.ural.ru/music/.new2/Fatboy Slim - Right Here, Right Now.mp3
+
+-- copy progress dialog disapears by pressing CtrlBreak                     *
+   J>> Скажи "покнопочно" что давить надо.
+   VY> F5. Ждем, когда в левом верхнем углу появится Waiting. CtrlBreak. Иногда
+   VY> одного раза недостаточно. Но со второго третьего - точно пропадает...
+
+-- switch EXT CMD on the fly                                                *
+
+-- view directory listing by hotkey                                         *
+
+-- copy files between hosts panels                                          *
+
+-- -> MKD y                                                                 *
+   <- 550 y: Access is denied.
+   Do not tell that directory creation fail
+
+-- "Vasily V. Moshninov" <vmoshninov@narod.ru>                              *
+   VVM> Да. И еще - пишем хост в .ини файл. Затем пишем еще раз. Оно
+   VVM> спрашивает - "переписать" - говорю "да". И все - на диске .ини
+   VVM> исчез...
+
+-- И>  1.Если  пробывать  в  процессе  поиска  походить  курсором  вверх,   *
+   И> вниз или выбрать(стрелками в сторону) команды - откровенно колбасит.
+
+-- Alexander Lishansky <alexl@surfree.net.il>                               * need details
+   AL> При этом FarNav сам повторяет попытку (когда видит "Too
+   AL> many users"), а FarFtp - уныло и красно грустит
+      -> USER user
+      <- 331 User name okay, Need password.
+      -> PASS *hidden*
+      <- 421 Too many connections on this account. Goodbye
+    or
+     |<-220 sweb Microsoft FTP Service (Version 5.0)
+     |->USER anonymous
+     |<-530 Too many users in your class, please try again later.
+
+-- "Vasily Titsky" <winner@tsure.ru>                                        *
+   eats first key after cancel of connection restore
+
+-- Feodor Medvedev <ted@token.ur.ru>                                        *
+   FM> 1. В диалогах надо ставить на едиты фокус ввода. При открытии
+
+-- individual buffer size for each site (field in param dialog)             *
+
+-- clear CMD line before cmd execute                                        *
+
+-- move files inside one site                                               *
+
+-- "Alexander Lishansky" <alexl@zoran.co.il>                                *
+   Вот, нарвался на assertion.
+   Принимающий сайт имел ограничение на размер заливаемого  файла,  и
+   посреди файла отказался принимать дальше.
+
+-- ask password if login fail                                               *
+   <- 331 Password required for XXX.
+   -> PASS *hidden*
+   <- 530 Login incorrect.
+
+-- Wesha <wesha@members.limitless.org>                                      *
+   В DELE слеш не в ту сторону...
+
+-- do not ask overwrite in upload:                                          * impossible - server specific
+     "Borland C++ Builder 6.0 - ISO - CD 01.rar"
+   to ftpe
+
+-- Sergei Shumakov <sergei.shumakov@altavista.net>                          *
+   если принудительно выставить кодировку на windows-1251, то проблема
+   пропадает. а при включенном автодетекте, имена файлов отображаются
+   верно, но в RETR (не на экране) имя передается в OEM-кодировке.
+
+-- "Vasily Titsky" <winner@tsure.ru>                                        *
+   И еще -  сейчас  обнаружил.  На  диске  кончилось  место, фтп-плагином
+   пытаемся докачать файл. Вместо сообщения, что места не хватает (или
+   чего-нибудь на эту тему), плагин обрывает связь с сервером и выдает
+   малоинформативное сообщение. Не сразу понятно, что же происходит.
+
+-- pet@students.zcu.cz                                                      *
+   if I try to open mapped "C:" directory (e.g. cd c:) it changes the
+   directory/drive but on local machine. In version 1.65 it worked fine.
+
+-- Feodor Medvedev <ted@token.ur.ru>                                        *
+   FM> 1. Хоцца, чтобы оно фтп-шные команды понимало. Ну то есть чтобы
+   FM>  chmod, pwd, ls и тому подобное можно было бы прямо из фаровской
+   FM>  консоли делать. По крайней мере я не нашел, где это делается (а
+   FM>  было бы логично сделать это прямо из консоли - cd же в конце
+   FM>  концов понимает!).
+   FM> 2. Хотелось бы, чтобы текущий фолдер панели хостов запоминался, и при
+   FM>    следующем вызове плагина оно само заходило в этот фолдер.
+
+-- "Eugene Rukoleev" <rev@ngs.ru>                                           *
+   - не все старые записи хостов видны (к сожалению примеров не оставил,
+     но это были хосты с одним и тем же именем машины без доменного
+     (плагин не видит old_hosts_ex.zip)
+   - если импортировать записи хостов в корень - то добавляет. если в папку -
+   то перезаписывает
+
+-- Alexander Lishansky <alexl@surfree.net.il>                               *
+   AL> - Запоминать при переключении режима и при выходе (если это возможно)
+   AL> в ключе X.
+   AL> - Брать из ключа PluginColumnMode, только если он не 0 (или, скажем,
+         не -1). Иначе брать из X.
+
+-- Do not show "-> яф" in CMD                                               *
+
+-- Peter Hubinsky <hubak@elf.stuba.sk>                                      *
+   Beta-3: download cca 1,8 MB/s
+           upload cca 1,8 MB/s
+   Beta-4: download cca 3 MB/s
+           upload cca 100 KB/s  - for me unusable...
+
+-- "Eugene Rukoleev" <rev@ngs.ru>                                           *
+   не только - сейчас hex: у пароля не криптованный.
+
+-- exelenz:                                                                 *
+   Если в обоих панелях открыты ftp коннекции, то при попытке переименовать
+   файл на одной из них он вместо переименовывания файла записывает его в тот
+   каталог файловой системы, который был открыт в противоположной панели до
+   открытия там ftp адреса
+-- Peter Hubinsky <hubak@elf.stuba.sk>                                      *
+   PH> After copying these addresses (by
+   PH> F5) back to FAR FTP directory in the first 2 positions of PASSWORD
+   PH> window 2 stars are already inserted, but they could be empty, because
+-- after resume draws "rc=X"                                                *
+-- "Slava" <slava@hostco.ru>                                                *
+   2. Если на обеих панелях стоит FTP, то при выходе на любой панели в
+      хосты возникает сообщение
+   "!!More then two plugins in time at ... ftp_FAR.cpp:21"
+-- "DiMA" <dima@php.spb.ru>                                                 * CMD window visible, Message in quite mode
+   8. во время реконнекта вешать окошко "Подождите, реконнект"
+   (это будет актуально на медленных линиях)
+-- Do not remember panel mode of files before plugin start                  *
+-- Message on keep-alive                                                    *
+-- check&fix auto-resume with new CheckForEsc mechanizm                     *
+-- "DiMA" <dima@php.spb.ru>                                                 *
+   1. после пропадания коннекта и его восстановлении не восстанавливается
+   каталог + выделение файла
+   2. после пропадания коннекта при попытке выйти в ".." плугин ФТП
+   исчезает, появляется диск С:
+-- "Slava" <slava@hostco.ru>                                                *
+   Pause for idle message appear
+-- drop connection on upload                                                *
+-- "DiMA" <dima@php.spb.ru>
+   3. галочку "эмулировать акстивность". Если она стоит, то ФАР каждую      * only the panels visible
+      минуту шлет на FTP команду "pwd"
+   4. жму Enter/F3 на файл, пишут "соединение утеряно, ОК",                 *
+      вопроса "Восстановить?" нет.
+   5. без вопросов обновлять редактируемый на фтп файл                      * impossible
+-- "Witold Jarnicki" <wmj@gamma.im.uj.edu.pl>                               *
+   Customizable month names
+-- DVall <V.Danilenko@nbrb.by>                                              *
+   Customizable FTP commands
+-- do not download files to net paths                                       * WORK
+-- forget last used columns mode                                            *
+-- Vasily Titsky                                                            *
+   Итак: заходим клиентом на ftp, где много файлов и директорий выделяем
+   все, нажимаем F5. Пока он считает размер, называем Esc. Отвечаем "Да,
+   прервать операцию". Плагин падает.
+-- [Vadim Yegorov <zg@matrica.apollo.lv>]                                   * new TCHI
+   Change FAR_COLOR(fccBLACK,fccLIGHTGRAY) to TechInfo с дефолтом
+   COL_DIALOGTEXT.
+-- Denis Patrakov <gl00mie@msx.ru>                                          * FAR bug (fixed)
+   Тут у меня на одном сервачке случился сабж с переполнением стека.
+   В общем, я в ком.строке выполнил cd ../.., farftp пошел вроде оглавление
+   считывать - и кидык.
+
+-- [Vadim Yegorov <zg@matrica.apollo.lv>]                                                                     *
+   При копировании с ftp уже существующего файла отвечаю Skip.
+   Оставшиеся файлы не копируются...
+-- do not work if services file not exist or renamed                                                          *
+-- do not draw CMD window on SILENT operations                                                                *
+-- check`n`show error if WSAInit fail                                                                         *
+-- save all plugin config in regestry on confirm in config dialog                                             *
+-- save current panel mode to FTP\PluginColumnMode each time it change                                        *
+-- traps on download links                                                                                    *
+-- variable path size to fit copy dialog to screen                                                            * performated CPS to fit to screen
+-- check cps on slow connections with big copy buffer                                                         *
+-- "за долю секунды", а там написано 40%                                                                      * win timeout
+-- do not get files in subdirectories from UNIX servers (wrong slash types)                                   *
+-- on copy to A:\ copyes to A:                                                                                *
+-- upload to unix sites in passive mode not work                                                              *
+-- FUCKEN SIZE >5G !!                                                                                         *
+-- terminate connection from FTP do not switch panel mode then fall to hosts                                  *
+-- after break download fall into hosts !!                                                                    *
+-- Если нажать <Esc> в самом начале попытки FTP-плагина подсоединиться к серверу                              *
+   (когда окно "Ожидание ответа" уже есть, а окна лога протокола еще нет), то
+   плагин спрашивает подтверждение на прерывание, но при положительном ответе все
+   равно продолжает подсоединение.
+-- На одной панели хосты, на второй хосты. Не копируется и не перемещается.                                   *
+   Причем при перемещении оригинал убивается
+-- Change GetDirList to callback; operation by callback                                                       *
+-- check default password for correct ('Default &password' instead passwod)                                   *
+-- Check total indicator on big files                                                                         *
+-- limit current directory path to size of CMD window                                                         *
+-- emulate GetPluginDirList and GetDirList                                                                    *
+-- Выделяю одну папку и один каталог... Но папка не удаляется.                                                *
+-- export hosts                                                                                               *
+-- import hosts                                                                                               *
+-- cancel table selection must not close host edit dialog                                                     *
+-- directory edit                                                                                             *
+-- check shortcut                                                                                             *
+-- если отменить пассивную моду, чтобы в активной коннектился, то зависает вот на этом моменте:               *
+           <- 250 CWD command successful. "/" is current directory.
+           -> PWD
+           <- 257 "/" is current directory.
+           -> PORT XXX,XXX,XXX,XXX,9,168
+           <- 200 Port command successful.
+           -> LIST
+           <- 150 Opening data connection for directory list.
+          ---------------------------------------------------------
+           Requesting folder name
+           XXX.XXX.XXX.XXX 33333
+          что само по себе не удивительно, так как я за файрволлом. Но что плохо - зависает намертво. ESC его
+          из этого состояния не выводит, а Ctrl+Break уже не работает :(
+-- remove "reading XXX" message during directory measure (F3)                                                 * NO it is FAR message
+-- header: ═══ FTP "anonymous@ftp.psu.ru:Default &password@194.226.246.49" ═══                                * normal
+-- do not read descriptions                                                                                   * work
+-- Хотелось бы следующую фичу: автоматически возобновлять даунлоад при обрыве соединения.                     *
+-- resume all not work                                                                                        *
+        - beep\popup then done                                                                                *
+        - resume all                                                                                          *
+-- Не сложилось у него с пассивной модой.                                                                     *
+-- When I enter the password in "User Password" and save and then                                             *
+          edit the entry again no password is shown, no ******
+-- The is a problem when password is entered in "User Password"                                               *
+          but no user name exists. It seems as the password is not saved at all.
+        - cmd title "FTP: user:passw@host"                                                                    *
+        - FTP::Compare ??                                                                                     * removed
+        - convert strings using chanr table                                                                   *
+        - set dir ??                                                                                          *

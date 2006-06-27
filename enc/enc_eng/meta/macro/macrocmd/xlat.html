@@ -1,0 +1,64 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>$XLat - Macros</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+</head>
+
+<body>
+
+<h1>$XLat</h1>
+<div class="navbar">
+<a href="../../index.html">main</a> |
+<a href="../index.html">Macros</a> |
+<a href="index.html">Macro-language</a> |
+<a href="cmds.html">Macro-commands</a>
+</div>
+
+<div class=shortdescr>
+The <dfn>$XLat</dfn> macro-command transliterates the text selected in the current object.
+</div>
+
+<pre class=syntax>
+<dfn>$XLat</dfn>
+</pre>
+
+<h3>Arguments</h3>
+<div class=descr>
+None.
+</div>
+
+<h3>Notes</h3>
+<div class=descr>
+<ol>
+<li>It is impossible to use macro-language elements while <a href="../macrokey/record.html">recording</a>
+  a macro in a usual way. Macro-language elements can be added to the sequence only by editing
+  the registry manually or by using special applications or FAR plugins.</li>
+<li>This macro-command ignores the hotkeys assigned using the TechInfo#10.
+</ol>
+</div>
+
+
+<h3>Example</h3>
+<div class=descr>
+<pre class=code>REGEDIT4
+
+;transliterates the last word using XLAT
+
+[HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\ShiftBS]
+"Sequence"="CtrlShiftLeft $XLat CtrlRight"
+"DisableOutput"=dword:00000001
+"NotEmptyCommandLine"=dword:00000001
+</pre>
+</div>
+
+<div class=see>See also:</div><div class=seecont>
+<a href="../examples.html">Examples</a>
+</div>
+
+
+</body>
+
+</html>

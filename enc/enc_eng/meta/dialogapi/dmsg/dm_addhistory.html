@@ -1,0 +1,89 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>DM_ADDHISTORY</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>DM_ADDHISTORY</h1>
+<div class=navbar>
+<a href="index_dm.html">Messages</a> |
+<a href="../index.html">Dialog API</a><br>
+</div>
+
+<div class=shortdescr>
+The <dfn>DM_ADDHISTORY</dfn> message is sent to the dialog manager to add an item to the
+history of a text input string.
+</div>
+
+<h3>Param1</h3>
+<div class=descr>
+The ID of the dialog item for which the history item is added.
+</div>
+
+<h3>Param2</h3>
+<div class=descr>
+Pointer to a NULL-terminated string to be added to the history.
+</div>
+
+<h3>Return</h3>
+<div class=descr>
+<code>TRUE</code> - data was successfully added.<br>
+<code>FALSE</code> - the specified dialog item doesn't have a history.
+</div>
+
+<h3>Controls</h3>
+<div class=descr>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../controls/di_edit.html">DI_EDIT</a></td>
+<td class="cont" width="60%">Text input string</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../controls/di_fixedit.html">DI_FIXEDIT</a></td>
+<td class="cont" width="60%">Fixed width text input string</td></tr>
+</table>
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+The message applies only to the <a href="../controls/di_edit.html">DI_EDIT</a> and
+<a href="../controls/di_fixedit.html">DI_FIXEDIT</a> items with the
+<a href="../flags/dif_history.html">DIF_HISTORY</a> flag set.
+Also, if the <a href="../flags/dif_manualaddhistory.html">DIF_MANUALADDHISTORY</a> flag is not set,
+items will be added to the history automatically.
+</div>
+
+<h3>Example</h3>
+<div class=descr>
+For example, in a calculator pressing Enter computes an expression. To save the entered expression
+to history after Enter was pressed it is necessary to get that string and add it to history:
+<pre class=code>
+FarDialogItem dialog[] = {
+...
+  { DI_EDIT, 10, 3, 49, 0, 1, (int)"foo_history", DIF_HISTORY|DIF_MANUALADDHISTORY, 0, "" },
+...
+};
+
+long WINAPI FooDlgProc(HANDLE hDlg, int Msg, int Param1, long Param2)
+{
+...
+    if (Msg == DM_KEY &amp;&amp; Param2 == KEY_ENTER){
+      Info.SendDlgMessage(hDlg, DM_GETTEXTPTR, 2, (long)Text);
+      Info.SendDlgMessage(hDlg, DM_ADDHISTORY, 2, (long)Text);
+      Res = AData.Parse(Text);
+...
+}
+</pre>
+</div>
+
+
+<div class=see>See also:</div><div class=seecont>
+<a href="../dialogex.html">DialogEx</a>,
+<a href="../flags/dif_history.html">DIF_HISTORY</a>,
+<a href="../flags/dif_manualaddhistory.html">DIF_MANUALADDHISTORY</a>.
+</div>
+
+</body>
+</html>

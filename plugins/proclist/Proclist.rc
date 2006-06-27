@@ -1,0 +1,35 @@
+#include "../common/farversion.hpp"
+#define VERSIONINFO_1   1
+
+#include <windows.h>
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+
+VERSIONINFO_1 VERSIONINFO
+FILEVERSION 1, 70, 0, 126
+PRODUCTVERSION FAR_MAJOR_VER, FAR_MINOR_VER, 0, FAR_BUILD
+FILEOS 4
+FILETYPE 2
+{
+ BLOCK "StringFileInfo"
+ {
+  BLOCK "000004E4"
+  {
+   VALUE "CompanyName", FARCOMPANYNAME
+   VALUE "FileDescription", "Process List for FAR Manager\000"
+   VALUE "FileVersion", "1.70 build 126\000\000"
+   VALUE "InternalName", "ProcList\000"
+   VALUE "LegalCopyright", FARCOPYRIGHT
+   VALUE "OriginalFilename", "ProcList.dll\000"
+   VALUE "ProductName", FARPRODUCTNAME
+   VALUE "ProductVersion", FARPRODUCTVERSION
+  }
+
+ }
+
+ BLOCK "VarFileInfo"
+ {
+   VALUE "Translation", 0, 0x4e4
+ }
+
+}

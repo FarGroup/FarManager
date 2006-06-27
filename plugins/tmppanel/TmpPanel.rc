@@ -1,0 +1,31 @@
+#include "../common/farversion.hpp"
+#define VERSIONINFO_1   1
+
+VERSIONINFO_1 VERSIONINFO
+FILEVERSION 1, 71, 0, 29
+PRODUCTVERSION FAR_MAJOR_VER, FAR_MINOR_VER, 0, FAR_BUILD
+FILEOS 4
+FILETYPE 2
+{
+ BLOCK "StringFileInfo"
+ {
+  BLOCK "000004E4"
+  {
+   VALUE "CompanyName", FARCOMPANYNAME
+   VALUE "FileDescription", "Temp Panel for FAR Manager\000"
+   VALUE "FileVersion", "1.71 build 29\000\000"
+   VALUE "InternalName", "TmpPanel\000"
+   VALUE "LegalCopyright", FARCOPYRIGHT
+   VALUE "OriginalFilename", "TmpPanel.dll\000"
+   VALUE "ProductName", FARPRODUCTNAME
+   VALUE "ProductVersion", FARPRODUCTVERSION
+  }
+
+ }
+
+ BLOCK "VarFileInfo"
+ {
+   VALUE "Translation", 0, 0x4e4
+ }
+
+}

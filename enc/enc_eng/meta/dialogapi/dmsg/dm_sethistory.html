@@ -1,0 +1,98 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>DM_SETHISTORY</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>DM_SETHISTORY</h1>
+<div class=navbar>
+<a  href="index_dm.html">Messages</a> |
+<a href="../index.html">Dialog API</a><br>
+</div>
+
+<div class=shortdescr>
+The <dfn>DM_SETHISTORY</dfn> allows to manage availability of history in edit lines.
+</div>
+
+<h3>Param1</h3>
+<div class=descr>
+The ID of the dialog item for which the history is changed.
+</div>
+
+<h3>Param2</h3>
+<div class=descr>
+Pointer to a string containing the history list ID, or <code>NULL</code>,
+if the history should be disabled.
+</div>
+
+<h3>Return</h3>
+<div class=descr>
+<code>FALSE</code> - the dialog item specified in <var>Param1</var> does not support history lists.<br>
+<code>TRUE</code> - the history has been assigned successfully.
+</div>
+
+<h3>Controls</h3>
+<div class=descr>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Control</th><th class="cont" width="60%">Description</th></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../controls/di_edit.html">DI_EDIT</a></td>
+<td class="cont" width="60%">edit line</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../controls/di_fixedit.html">DI_FIXEDIT</a></td>
+<td class="cont" width="60%">fixed-size input field</td></tr>
+</table>
+</div>
+
+<h3>Remarks</h3>
+<div class=descr>
+If the edit line is empty and the flag <a href="../flags/dif_uselasthistory.html">DIF_USELASTHISTORY</a>
+for the <a href="../controls/di_edit.html">DI_EDIT</a> item is set, FAR will automatically subsitute 
+the first value from the history into an empty edit line.
+</div>
+
+
+<h3>Example</h3>
+<div class=descr>
+Implementation of this message can be seen in MultiArc plugin sources.
+
+<p>
+This example sets history and empties edit line:
+<pre class=code>
+...
+  else if(Msg == MAM_ARCSWITCHES)
+  {
+    static char SwHistoryName[NM];
+    FSF.sprintf(SwHistoryName,"ArcSwitches\\%s",pdd-&gt;ArcFormat);
+    Info.SendDlgMessage(hDlg,DM_SETHISTORY,4,(long)SwHistoryName);
+    Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,4,(long)"");
+  }
+...
+</pre>
+
+<p>In order to make FAR substitute the first line from keys histiry the code should be rewritten in the following way:
+<pre class=code>
+...
+  else if(Msg == MAM_ARCSWITCHES)
+  {
+    static char SwHistoryName[NM];
+    FSF.sprintf(SwHistoryName,"ArcSwitches\\%s",pdd-&gt;ArcFormat);
+    Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,4,(long)"");
+    Info.SendDlgMessage(hDlg,DM_SETHISTORY,4,(long)SwHistoryName);
+  }
+...
+</pre>
+<p>The edit line is being emptied and the item history is set after.
+</div>
+
+
+<div class=see>See also:</div><div class=seecont>
+<a href="../dialogex.html">DialogEx</a>,
+<a href="dm_addhistory.html">DM_ADDHISTORY</a>,
+<a href="../flags/dif_history.html">DIF_HISTORY</a>
+</div>
+
+</body>
+</html>

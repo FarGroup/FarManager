@@ -1,0 +1,23 @@
+FARROOT    = ..\..\FStdLib
+LIBROOT    = ..\..\FStdLib
+PNAME      = ftpDirList
+PROJECT    = ..\$(PNAME).fll
+PDEF       = ..\def.def
+PRES       = res.res
+MAPFILE    = ..\$(PNAME).map
+PRESFILES  =
+NODYNDLL   = yes
+CFLAG_ADD  =
+LFLAG_ADD  =
+
+DEBUG      =
+CFLAG_ADD  = $(CFLAG_ADD)
+
+POBJS      = ..\p_All.obj p_Main.obj \
+             pr_cms.obj pr_dos.obj pr_eplf.obj pr_netware.obj pr_os2.obj pr_pctcp.obj \
+             pr_skirdin.obj pr_tcpc.obj pr_unix.obj pr_vms.obj pr_vx.obj
+
+# ---------------------------------------------------------------------------
+startup: _all
+!include "../make_defs.bcb"
+_all: $(PROJECT)

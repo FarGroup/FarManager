@@ -1,0 +1,20 @@
+REGEDIT4
+
+; http://sac-ftp.gratex.sk/pack19.html
+
+[HKEY_LOCAL_MACHINE\Software\Far\Plugins\MultiArc\LZH]
+"Extract"="lha32 x -a -c -d -m {%%S} %%A @%%LM"
+"ExtractWithoutPath"="lha32 e -a -c -m {%%S} %%A @%%LM"
+"Test"="lha32 t -m -r2 {%%S} %%A"
+"Delete"="lha32 d -a -m {-w%%W} {%%S} %%A @%%LM"
+"Comment"=""
+"CommentFiles"=""
+"SFX"="lha32 s -m -x {%%S} %%A"
+"Lock"=""
+"Protect"=""
+"Recover"=""
+"Add"="lha32 a -a -m {%%S} %%A @%%LM"
+"Move"="lha32 m -a -m {%%S} %%A @%%LM"
+"AddRecurse"="lha32 a -a -r -x -p -m {%%S} %%A @%%LM"
+"MoveRecurse"="lha32 m -a -r -x -p -m {%%S} %%A @%%LM"
+"AllFilesMask"="*.*"

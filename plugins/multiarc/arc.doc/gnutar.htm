@@ -1,0 +1,1172 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0052)http://gnu.chg.ru/manual/tar/html_chapter/tar_8.html -->
+<HTML><HEAD><TITLE>GNU tar - Controlling the Archive Format</TITLE>
+<META content="text/html; charset=windows-1251" http-equiv=Content-Type><!-- This HTML file has been created by texi2html 1.52
+     from ../texi/tar.texi on 7 November 1998 -->
+<META content="MSHTML 5.00.2614.3401" name=GENERATOR></HEAD>
+<BODY>Go to the <A 
+href="http://gnu.chg.ru/manual/tar/html_chapter/tar_1.html">first</A>, <A 
+href="http://gnu.chg.ru/manual/tar/html_chapter/tar_7.html">previous</A>, <A 
+href="http://gnu.chg.ru/manual/tar/html_chapter/tar_9.html">next</A>, <A 
+href="http://gnu.chg.ru/manual/tar/html_chapter/tar_10.html">last</A> section, 
+<A href="http://gnu.chg.ru/manual/tar/html_chapter/tar_toc.html">table of 
+contents</A>. 
+<P>
+<HR>
+
+<P>
+<H1><A href="http://gnu.chg.ru/manual/tar/html_chapter/tar_toc.html#TOC107" 
+name=SEC107>Controlling the Archive Format</A></H1>
+<P>@FIXME{need an intro here} </P>
+<H2><A href="http://gnu.chg.ru/manual/tar/html_chapter/tar_toc.html#TOC108" 
+name=SEC108>Making <CODE>tar</CODE> Archives More Portable</A></H2>
+<P>Creating a <CODE>tar</CODE> archive on a particular system that is meant to 
+be useful later on many other machines and with other versions of 
+<CODE>tar</CODE> is more challenging than you might think. <CODE>tar</CODE> 
+archive formats have been evolving since the first versions of Unix. Many such 
+formats are around, and are not always comptible with each other. This section 
+discusses a few problems, and gives some advice about making <CODE>tar</CODE> 
+archives more portable. </P>
+<P>One golden rule is simplicity. For example, limit your <CODE>tar</CODE> 
+archives to contain only regular files and directories, avoiding other kind of 
+special files. Do not attempt to save sparse files or contiguous files as such. 
+Let's discuss a few more problems, in turn. </P>
+<H3><A href="http://gnu.chg.ru/manual/tar/html_chapter/tar_toc.html#TOC109" 
+name=SEC109>Portable Names</A></H3>
+<P>Use <EM>straight</EM> file and directory names, made up of printable ASCII 
+characters, avoiding colons, slashes, backslashes, spaces, and other 
+<EM>dangerous</EM> characters. Avoid deep directory nesting. Accounting for 
+oldish System V machines, limit your file and directory names to 14 characters 
+or less. </P>
+<P>If you intend to have your <CODE>tar</CODE> archives to be read under MSDOS, 
+you should not rely on case distinction for file names, and you might use the 
+GNU <CODE>doschk</CODE> program for helping you further diagnosing illegal MSDOS 
+names, which are even more limited than System V's. </P>
+<H3><A href="http://gnu.chg.ru/manual/tar/html_chapter/tar_toc.html#TOC110" 
+name=SEC110>Symbolic Links</A></H3>
+<P><A name=IDX210></A><A name=IDX211></A></P>
+<P>Normally, when <CODE>tar</CODE> archives a symbolic link, it writes a block 
+to the archive naming the target of the link. In that way, the <CODE>tar</CODE> 
+archive is a faithful record of the filesystem contents. 
+<KBD>--dereference</KBD> (<KBD>-h</KBD>) is used with <KBD>--create</KBD> 
+(<KBD>-c</KBD>), and causes <CODE>tar</CODE> to archive the files symbolic links 
+point to, instead of the links themselves. When this option is used, when 
+<CODE>tar</CODE> encounters a symbolic link, it will archive the linked-to file, 
+instead of simply recording the presence of a symbolic link. </P>
+<P>The name under which the file is stored in the file system is not recorded in 
+the archive. To record both the symbolic link name and the file name in the 
+system, archive the file under both names. If all links were recorded 
+automatically by <CODE>tar</CODE>, an extracted file might be linked to a file 
+name that no longer exists in the file system. </P>
+<P>If a linked-to file is encountered again by <CODE>tar</CODE> while creating 
+the same archive, an entire second copy of it will be stored. (This 
+<EM>might</EM> be considered a bug.) </P>
+<P>So, for portable archives, do not archive symbolic links as such, and use 
+<KBD>--dereference</KBD> (<KBD>-h</KBD>): many systems do not support symbolic 
+links, and moreover, your distribution might be unusable if it contains 
+unresolved symbolic links. </P>
+<H3><A href="http://gnu.chg.ru/manual/tar/html_chapter/tar_toc.html#TOC111" 
+name=SEC111>Old V7 Archives</A></H3>
+<P><A name=IDX212></A><A name=IDX213></A><A name=IDX214></A></P>
+<P>Certain old versions of <CODE>tar</CODE> cannot handle additional information 
+recorded by newer <CODE>tar</CODE> programs. To create an archive in V7 format 
+(not ANSI), which can be read by these old versions, specify the 
+<KBD>--old-archive</KBD> (<KBD>-o</KBD>) option in conjunction with the 
+<KBD>--create</KBD> (<KBD>-c</KBD>). <CODE>tar</CODE> also accepts 
+<SAMP>`--portability'</SAMP> for this option. When you specify it, 
+<CODE>tar</CODE> leaves out information about directories, pipes, fifos, 
+contiguous files, and device files, and specifies file ownership by group and 
+user IDs instead of group and user names. </P>
+<P>When updating an archive, do not use <KBD>--old-archive</KBD> (<KBD>-o</KBD>) 
+unless the archive was created with using this option. </P>
+<P>In most cases, a <EM>new</EM> format archive can be read by an <EM>old</EM> 
+<CODE>tar</CODE> program without serious trouble, so this option should seldom 
+be needed. On the other hand, most modern <CODE>tar</CODE>s are able to read old 
+format archives, so it might be safer for you to always use 
+<KBD>--old-archive</KBD> (<KBD>-o</KBD>) for your distributions. </P>
+<H3><A href="http://gnu.chg.ru/manual/tar/html_chapter/tar_toc.html#TOC112" 
+name=SEC112>GNU <CODE>tar</CODE> and POSIX <CODE>tar</CODE></A></H3>
+<P>GNU <CODE>tar</CODE> was based on an early draft of the POSIX 1003.1 
+<CODE>ustar</CODE> standard. GNU extensions to <CODE>tar</CODE>, such as the 
+support for file names longer than 100 characters, use portions of the 
+<CODE>tar</CODE> header record which were specified in that POSIX draft as 
+unused. Subsequent changes in POSIX have allocated the same parts of the header 
+record for other purposes. As a result, GNU <CODE>tar</CODE> is incompatible 
+with the current POSIX spec, and with <CODE>tar</CODE> programs that follow it. 
+</P>
+<P>We plan to reimplement these GNU extensions in a new way which is upward 
+compatible with the latest POSIX <CODE>tar</CODE> format, but we don't know when 
+this will be done. </P>
+<P>In the mean time, there is simply no telling what might happen if you read a 
+GNU <CODE>tar</CODE> archive, which uses the GNU extensions, using some other 
+<CODE>tar</CODE> program. So if you want to read the archive with another 
+<CODE>tar</CODE> program, be sure to write it using the 
+<SAMP>`--old-archive'</SAMP> option (<SAMP>`-o'</SAMP>). </P>
+<P>@FIXME{is there a way to tell which flavor of tar was used to write a 
+particular archive before you try to read it?} </P>
+<P>Traditionally, old <CODE>tar</CODE>s have a limit of 100 characters. GNU 
+<CODE>tar</CODE> attempted two different approaches to overcome this limit, 
+using and extending a format specified by a draft of some P1003.1. The first way 
+was not that successful, and involved <TT>`@MaNgLeD@'</TT> file names, or such; 
+while a second approach used <TT>`././@LongLink'</TT> and other tricks, yielding 
+better success. In theory, GNU <CODE>tar</CODE> should be able to handle file 
+names of practically unlimited length. So, if GNU <CODE>tar</CODE> fails to dump 
+and retrieve files having more than 100 characters, then there is a bug in GNU 
+<CODE>tar</CODE>, indeed. </P>
+<P>But, being strictly POSIX, the limit was still 100 characters. For various 
+other purposes, GNU <CODE>tar</CODE> used areas left unassigned in the POSIX 
+draft. POSIX later revised P1003.1 <CODE>ustar</CODE> format by assigning 
+previously unused header fields, in such a way that the upper limit for file 
+name length was raised to 256 characters. However, the actual POSIX limit 
+oscillates between 100 and 256, depending on the precise location of slashes in 
+full file name (this is rather ugly). Since GNU <CODE>tar</CODE> use the same 
+fields for quite other purposes, it became incompatible with the latest POSIX 
+standards. </P>
+<P>For longer or non-fitting file names, we plan to use yet another set of GNU 
+extensions, but this time, complying with the provisions POSIX offers for 
+extending the format, rather than conflicting with it. Whenever an archive uses 
+old GNU <CODE>tar</CODE> extension format or POSIX extensions, would it be for 
+very long file names or other specialities, this archive becomes non-portable to 
+other <CODE>tar</CODE> implementations. In fact, anything can happen. The most 
+forgiving <CODE>tar</CODE>s will merely unpack the file using a wrong name, and 
+maybe create another file named something like <TT>`@LongName'</TT>, with the 
+true file name in it. <CODE>tar</CODE>s not protecting themselves may segment 
+violate! </P>
+<P>Compatibility concerns make all this thing more difficult, as we will have to 
+support <EM>all</EM> these things together, for a while. GNU <CODE>tar</CODE> 
+should be able to produce and read true POSIX format files, while being able to 
+detect old GNU <CODE>tar</CODE> formats, besides old V7 format, and process them 
+conveniently. It would take years before this whole area stabilizes... </P>
+<P>There are plans to raise this 100 limit to 256, and yet produce POSIX 
+conformant archives. Past 256, I do not know yet if GNU <CODE>tar</CODE> will go 
+non-POSIX again, or merely refuse to archive the file. </P>
+<P>There are plans so GNU <CODE>tar</CODE> support more fully the latest POSIX 
+format, while being able to read old V7 format, GNU (semi-POSIX plus extension), 
+as well as full POSIX. One may ask if there is part of the POSIX format that we 
+still cannot support. This simple question has a complex answer. Maybe that, on 
+intimate look, some strong limitations will pop up, but until now, nothing 
+sounds too difficult (but see below). I only have these few pages of POSIX 
+telling about `Extended tar Format' (P1003.1-1990 -- section 10.1.1), and there 
+are references to other parts of the standard I do not have, which should 
+normally enforce limitations on stored file names (I suspect things like fixing 
+what <KBD>/</KBD> and <KBD><KBD>NUL</KBD></KBD> means). There are also some 
+points which the standard does not make clear, Existing practice will then drive 
+what I should do. </P>
+<P>POSIX mandates that, when a file name cannot fit within 100 to 256 characters 
+(the variance comes from the fact a <KBD>/</KBD> is ideally needed as the 156'th 
+character), or a link name cannot fit within 100 characters, a warning should be 
+issued and the file <EM>not</EM> be stored. Unless some <KBD>--posix</KBD> 
+option is given (or <CODE>POSIXLY_CORRECT</CODE> is set), I suspect that GNU 
+<CODE>tar</CODE> should disobey this specification, and automatically switch to 
+using GNU extensions to overcome file name or link name length limitations. </P>
+<P>There is a problem, however, which I did not intimately studied yet. Given a 
+truly POSIX archive with names having more than 100 characters, I guess that GNU 
+<CODE>tar</CODE> up to 1.11.8 will process it as if it were an old V7 archive, 
+and be fooled by some fields which are coded differently. So, the question is to 
+decide if the next generation of GNU <CODE>tar</CODE> should produce POSIX 
+format by default, whenever possible, producing archives older versions of GNU 
+<CODE>tar</CODE> might not be able to read correctly. I fear that we will have 
+to suffer such a choice one of these days, if we want GNU <CODE>tar</CODE> to go 
+closer to POSIX. We can rush it. Another possibility is to produce the current 
+GNU <CODE>tar</CODE> format by default for a few years, but have GNU 
+<CODE>tar</CODE> versions from some 1.<VAR>POSIX</VAR> and up able to recognize 
+all three formats, and let older GNU <CODE>tar</CODE> fade out slowly. Then, we 
+could switch to producing POSIX format by default, with not much harm to those 
+still having (very old at that time) GNU <CODE>tar</CODE> versions prior to 
+1.<VAR>POSIX</VAR>. </P>
+<P>POSIX format cannot represent very long names, volume headers, splitting of 
+files in multi-volumes, sparse files, and incremental dumps; these would be all 
+disallowed if <KBD>--posix</KBD> or <CODE>POSIXLY_CORRECT</CODE>. Otherwise, if 
+<CODE>tar</CODE> is given long names, or <SAMP>`-[VMSgG]'</SAMP>, then it should 
+automatically go non-POSIX. I think this is easily granted without much 
+discussion. </P>
+<P>Another point is that only <CODE>mtime</CODE> is stored in POSIX archives, 
+while GNU <CODE>tar</CODE> currently also store <CODE>atime</CODE> and 
+<CODE>ctime</CODE>. If we want GNU <CODE>tar</CODE> to go closer to POSIX, my 
+choice would be to drop <CODE>atime</CODE> and <CODE>ctime</CODE> support on 
+average. On the other hand, I perceive that full dumps or incremental dumps need 
+<CODE>atime</CODE> and <CODE>ctime</CODE> support, so for those special 
+applications, POSIX has to be avoided altogether. </P>
+<P>A few users requested that <KBD>--sparse</KBD> (<KBD>-S</KBD>) be always 
+active by default, I think that before replying to them, we have to decide if we 
+want GNU <CODE>tar</CODE> to go closer to POSIX on average, while producing 
+files. My choice would be to go closer to POSIX in the long run. Besides 
+possible double reading, I do not see any point of not trying to save files as 
+sparse when creating archives which are neither POSIX nor old-V7, so the actual 
+<KBD>--sparse</KBD> (<KBD>-S</KBD>) would become selected by default when 
+producing such archives, whatever the reason is. So, <KBD>--sparse</KBD> 
+(<KBD>-S</KBD>) alone might be redefined to force GNU-format archives, and 
+recover its previous meaning from this fact. </P>
+<P>GNU-format as it exists now can easily fool other POSIX <CODE>tar</CODE>, as 
+it uses fields which POSIX considers to be part of the file name prefix. I 
+wonder if it would not be a good idea, in the long run, to try changing 
+GNU-format so any added field (like <CODE>ctime</CODE>, <CODE>atime</CODE>, file 
+offset in subsequent volumes, or sparse file descriptions) be wholly and always 
+pushed into an extension block, instead of using space in the POSIX header 
+block. I could manage to do that portably between future GNU <CODE>tar</CODE>s. 
+So other POSIX <CODE>tar</CODE>s might be at least able to provide kind of 
+correct listings for the archives produced by GNU <CODE>tar</CODE>, if not able 
+to process them otherwise. </P>
+<P>Using these projected extensions might induce older <CODE>tar</CODE>s to 
+fail. We would use the same approach as for POSIX. I'll put out a 
+<CODE>tar</CODE> capable of reading POSIXier, yet extended archives, but will 
+not produce this format by default, in GNU mode. In a few years, when newer GNU 
+<CODE>tar</CODE>s will have flooded out <CODE>tar</CODE> 1.11.X and previous, we 
+could switch to producing POSIXier extended archives, with no real harm to 
+users, as almost all existing GNU <CODE>tar</CODE>s will be ready to read 
+POSIXier format. In fact, I'll do both changes at the same time, in a few years, 
+and just prepare <CODE>tar</CODE> for both changes, without effecting them, from 
+1.<VAR>POSIX</VAR>. (Both changes: 1--using POSIX convention for getting over 
+100 characters; 2--avoiding mangling POSIX headers for GNU extensions, using 
+only POSIX mandated extension techniques). </P>
+<P>So, a future <CODE>tar</CODE> will have a <KBD>--posix</KBD> flag forcing the 
+usage of truly POSIX headers, and so, producing archives previous GNU 
+<CODE>tar</CODE> will not be able to read. So, <EM>once</EM> pretest will 
+announce that feature, it would be particularly useful that users test how 
+exchangeable will be archives between GNU <CODE>tar</CODE> with 
+<KBD>--posix</KBD> and other POSIX <CODE>tar</CODE>. </P>
+<P>In a few years, when GNU <CODE>tar</CODE> will produce POSIX headers by 
+default, <KBD>--posix</KBD> will have a strong meaning and will disallow GNU 
+extensions. But in the meantime, for a long while, <KBD>--posix</KBD> in GNU tar 
+will not disallow GNU extensions like 
+<KBD>--label=<VAR>archive-label</VAR></KBD> (<KBD>-V 
+<VAR>archive-label</VAR></KBD>), <KBD>--multi-volume</KBD> (<KBD>-M</KBD>), 
+<KBD>--sparse</KBD> (<KBD>-S</KBD>), or very long file or link names. However, 
+<KBD>--posix</KBD> with GNU extensions will use POSIX headers with 
+reserved-for-users extensions to headers, and I will be curious to know how well 
+or bad POSIX <CODE>tar</CODE>s will react to these. </P>
+<P>GNU <CODE>tar</CODE> prior to 1.<VAR>POSIX</VAR>, and after 
+1.<VAR>POSIX</VAR> without <KBD>--posix</KBD>, generates and checks <SAMP>`ustar 
+'</SAMP>, with two suffixed spaces. This is sufficient for older GNU 
+<CODE>tar</CODE> not to recognize POSIX archives, and consequently, wrongly 
+decide those archives are in old V7 format. It is a useful bug for me, because 
+GNU <CODE>tar</CODE> has other POSIX incompatibilities, and I need to segregate 
+GNU <CODE>tar</CODE> semi-POSIX archives from truly POSIX archives, for GNU 
+<CODE>tar</CODE> should be somewhat compatible with itself, while migrating 
+closer to latest POSIX standards. So, I'll be very careful about how and when I 
+will do the correction. </P>
+<H3><A href="http://gnu.chg.ru/manual/tar/html_chapter/tar_toc.html#TOC113" 
+name=SEC113>Checksumming Problems</A></H3>
+<P>SunOS and HP-UX <CODE>tar</CODE> fail to accept archives created using GNU 
+<CODE>tar</CODE> and containing non-ASCII file names, that is, file names having 
+characters with the eight bit set, because they use signed checksums, while GNU 
+<CODE>tar</CODE> uses unsigned checksums while creating archives, as per POSIX 
+standards. On reading, GNU <CODE>tar</CODE> computes both checksums and accept 
+any. It is somewhat worrying that a lot of people may go around doing backup of 
+their files using faulty (or at least non-standard) software, not learning about 
+it until it's time to restore their missing files with an incompatible file 
+extractor, or vice versa. </P>
+<P>GNU <CODE>tar</CODE> compute checksums both ways, and accept any on read, so 
+GNU tar can read Sun tapes even with their wrong checksums. GNU <CODE>tar</CODE> 
+produces the standard checksum, however, raising incompatibilities with Sun. 
+That is to say, GNU <CODE>tar</CODE> has not been modified to <EM>produce</EM> 
+incorrect archives to be read by buggy <CODE>tar</CODE>'s. I've been told that 
+more recent Sun <CODE>tar</CODE> now read standard archives, so maybe Sun did a 
+similar patch, after all? </P>
+<P>The story seems to be that when Sun first imported <CODE>tar</CODE> sources 
+on their system, they recompiled it without realizing that the checksums were 
+computed differently, because of a change in the default signing of 
+<CODE>char</CODE>'s in their compiler. So they started computing checksums 
+wrongly. When they later realized their mistake, they merely decided to stay 
+compatible with it, and with themselves afterwards. Presumably, but I do not 
+really know, HP-UX has chosen that their <CODE>tar</CODE> archives to be 
+compatible with Sun's. The current standards do not favor Sun <CODE>tar</CODE> 
+format. In any case, it now falls on the shoulders of SunOS and HP-UX users to 
+get a <CODE>tar</CODE> able to read the good archives they receive. </P>
+<H2><A href="http://gnu.chg.ru/manual/tar/html_chapter/tar_toc.html#TOC114" 
+name=SEC114>Using Less Space through Compression</A></H2>
+<H3><A href="http://gnu.chg.ru/manual/tar/html_chapter/tar_toc.html#TOC115" 
+name=SEC115>Creating and Reading Compressed Archives</A></H3>
+<P><A name=IDX215></A><A name=IDX216></A>@UNREVISED </P>
+<DL compact>
+  <DT><KBD>-z</KBD> 
+  <DD>
+  <DT><KBD>--gzip</KBD> 
+  <DD>
+  <DT><KBD>--ungzip</KBD> 
+  <DD>Filter the archive through <CODE>gzip</CODE>. </DD></DL>
+<P>@FIXME{ach; these two bits orig from "compare" (?). where to put?} Some 
+format parameters must be taken into consideration when modifying an archive: 
+@FIXME{???}. Compressed archives cannot be modified. </P>
+<P>You can use <SAMP>`--gzip'</SAMP> and <SAMP>`--gunzip'</SAMP> on physical 
+devices (tape drives, etc.) and remote files as well as on normal files; data to 
+or from such devices or remote files is reblocked by another copy of the 
+<CODE>tar</CODE> program to enforce the specified (or default) record size. The 
+default compression parameters are used; if you need to override them, avoid the 
+<KBD>--gzip</KBD> (<KBD>--gunzip</KBD>, <KBD>--ungzip</KBD>, <KBD>-z</KBD>) 
+option and run <CODE>gzip</CODE> explicitly. (Or set the <SAMP>`GZIP'</SAMP> 
+environment variable.) </P>
+<P>The <KBD>--gzip</KBD> (<KBD>--gunzip</KBD>, <KBD>--ungzip</KBD>, 
+<KBD>-z</KBD>) option does not work with the <KBD>--multi-volume</KBD> 
+(<KBD>-M</KBD>) option, or with the <KBD>--update</KBD> (<KBD>-u</KBD>), 
+<KBD>--append</KBD> (<KBD>-r</KBD>), <KBD>--concatenate</KBD> 
+(<KBD>--catenate</KBD>, <KBD>-A</KBD>), or <KBD>--delete</KBD> operations. </P>
+<P>It is not exact to say that GNU <CODE>tar</CODE> is to work in concert with 
+<CODE>gzip</CODE> in a way similar to <CODE>zip</CODE>, say. Surely, it is 
+possible that <CODE>tar</CODE> and <CODE>gzip</CODE> be done with a single call, 
+like in: </P><PRE>$ <KBD>tar cfz archive.tar.gz subdir</KBD>
+</PRE>
+<P>to save all of <SAMP>`subdir'</SAMP> into a <CODE>gzip</CODE>'ed archive. 
+Later you can do: </P><PRE>$ <KBD>tar xfz archive.tar.gz</KBD>
+</PRE>
+<P>to explode and unpack. </P>
+<P>The difference is that the whole archive is compressed. With 
+<CODE>zip</CODE>, archive members are archived individually. <CODE>tar</CODE>'s 
+method yields better compression. On the other hand, one can view the contents 
+of a <CODE>zip</CODE> archive without having to decompress it. As for the 
+<CODE>tar</CODE> and <CODE>gzip</CODE> tandem, you need to decompress the 
+archive to see its contents. However, this may be done without needing disk 
+space, by using pipes internally: </P><PRE>$ <KBD>tar tfz archive.tar.gz</KBD>
+</PRE>
+<P><A name=IDX217></A>About corrupted compressed archives: <CODE>gzip</CODE>'ed 
+files have no redundancy, for maximum compression. The adaptive nature of the 
+compression scheme means that the compression tables are implicitly spread all 
+over the archive. If you lose a few blocks, the dynamic construction of the 
+compression tables becomes unsychronized, and there is little chance that you 
+could recover later in the archive. </P>
+<P>There are pending suggestions for having a per-volume or per-file compression 
+in GNU <CODE>tar</CODE>. This would allow for viewing the contents without 
+decompression, and for resynchronizing decompression at every volume or file, in 
+case of corrupted archives. Doing so, we might loose some compressibility. But 
+this would have make recovering easier. So, there are pros and cons. We'll see! 
+</P>
+<DL compact>
+  <DT><KBD>-Z</KBD> 
+  <DD>
+  <DT><KBD>--compress</KBD> 
+  <DD>
+  <DT><KBD>--uncompress</KBD> 
+  <DD>Filter the archive through <CODE>compress</CODE>. Otherwise like 
+  <KBD>--gzip</KBD> (<KBD>--gunzip</KBD>, <KBD>--ungzip</KBD>, <KBD>-z</KBD>). 
+  <DT><KBD>--use-compress-program=<VAR>prog</VAR></KBD> 
+  <DD>Filter through <VAR>prog</VAR> (must accept <SAMP>`-d'</SAMP>). </DD></DL>
+<P><KBD>--compress</KBD> (<KBD>--uncompress</KBD>, <KBD>-Z</KBD>) stores an 
+archive in compressed format. This option is useful in saving time over networks 
+and space in pipes, and when storage space is at a premium. 
+<KBD>--compress</KBD> (<KBD>--uncompress</KBD>, <KBD>-Z</KBD>) causes 
+<CODE>tar</CODE> to compress when writing the archive, or to uncompress when 
+reading the archive. </P>
+<P>To perform compression and uncompression on the archive, <CODE>tar</CODE> 
+runs the <CODE>compress</CODE> utility. <CODE>tar</CODE> uses the default 
+compression parameters; if you need to override them, avoid the 
+<KBD>--compress</KBD> (<KBD>--uncompress</KBD>, <KBD>-Z</KBD>) option and run 
+the <CODE>compress</CODE> utility explicitly. It is useful to be able to call 
+the <CODE>compress</CODE> utility from within <CODE>tar</CODE> because the 
+<CODE>compress</CODE> utility by itself cannot access remote tape drives. </P>
+<P>The <KBD>--compress</KBD> (<KBD>--uncompress</KBD>, <KBD>-Z</KBD>) option 
+will not work in conjunction with the <KBD>--multi-volume</KBD> (<KBD>-M</KBD>) 
+option or the <KBD>--append</KBD> (<KBD>-r</KBD>), <KBD>--update</KBD> 
+(<KBD>-u</KBD>), <KBD>--append</KBD> (<KBD>-r</KBD>) and <KBD>--delete</KBD> 
+operations. See section <A 
+href="http://gnu.chg.ru/manual/tar/html_chapter/tar_4.html#SEC47">The Five 
+Advanced <CODE>tar</CODE> Operations</A>, for more information on these 
+operations. </P>
+<P>If there is no compress utility available, <CODE>tar</CODE> will report an 
+error. <STRONG>Please note</STRONG> that the <CODE>compress</CODE> program may 
+be covered by a patent, and therefore we recommend you stop using it. </P>
+<DL compact>
+  <DT><KBD>--compress</KBD> 
+  <DD>
+  <DT><KBD>--uncompress</KBD> 
+  <DD>
+  <DT><KBD>-z</KBD> 
+  <DD>
+  <DT><KBD>-Z</KBD> 
+  <DD>When this option is specified, <CODE>tar</CODE> will compress (when 
+  writing an archive), or uncompress (when reading an archive). Used in 
+  conjunction with the <KBD>--create</KBD> (<KBD>-c</KBD>), <KBD>--extract</KBD> 
+  (<KBD>--get</KBD>, <KBD>-x</KBD>), <KBD>--list</KBD> (<KBD>-t</KBD>) and 
+  <KBD>--compare</KBD> (<KBD>--diff</KBD>, <KBD>-d</KBD>) operations. </DD></DL>
+<P>You can have archives be compressed by using the <KBD>--gzip</KBD> 
+(<KBD>--gunzip</KBD>, <KBD>--ungzip</KBD>, <KBD>-z</KBD>) option. This will 
+arrange for <CODE>tar</CODE> to use the <CODE>gzip</CODE> program to be used to 
+compress or uncompress the archive wren writing or reading it. </P>
+<P>To use the older, obsolete, <CODE>compress</CODE> program, use the 
+<KBD>--compress</KBD> (<KBD>--uncompress</KBD>, <KBD>-Z</KBD>) option. The GNU 
+Project recommends you not use <CODE>compress</CODE>, because there is a patent 
+covering the algorithm it uses. You could be sued for patent infringment merely 
+by running <CODE>compress</CODE>. </P>
+<P>I have one question, or maybe it's a suggestion if there isn't a way to do it 
+now. I would like to use <KBD>--gzip</KBD> (<KBD>--gunzip</KBD>, 
+<KBD>--ungzip</KBD>, <KBD>-z</KBD>), but I'd also like the output to be fed 
+through a program like GNU <CODE>ecc</CODE> (actually, right now that's 
+<SAMP>`exactly'</SAMP> what I'd like to use :-)), basically adding ECC 
+protection on top of compression. It seems as if this should be quite easy to 
+do, but I can't work out exactly how to go about it. Of course, I can pipe the 
+standard output of <CODE>tar</CODE> through <CODE>ecc</CODE>, but then I lose 
+(though I haven't started using it yet, I confess) the ability to have 
+<CODE>tar</CODE> use <CODE>rmt</CODE> for it's I/O (I think). </P>
+<P>I think the most straightforward thing would be to let me specify a general 
+set of filters outboard of compression (preferably ordered, so the order can be 
+automatically reversed on input operations, and with the options they require 
+specifiable), but beggars shouldn't be choosers and anything you decide on would 
+be fine with me. </P>
+<P>By the way, I like <CODE>ecc</CODE> but if (as the comments say) it can't 
+deal with loss of block sync, I'm tempted to throw some time at adding that 
+capability. Supposing I were to actually do such a thing and get it (apparantly) 
+working, do you accept contributed changes to utilities like that? (Leigh 
+Clayton <TT>`loc@soliton.com'</TT>, May 1995). </P>
+<P>Isn't that exactly the role of the 
+<KBD>--use-compress-prog=<VAR>program</VAR></KBD> option? I never tried it 
+myself, but I suspect you may want to write a <VAR>prog</VAR> script or program 
+able to filter stdin to stdout to way you want. It should recognize the 
+<SAMP>`-d'</SAMP> option, for when extraction is needed rather than creation. 
+</P>
+<P>It has been reported that if one writes compressed data (through the 
+<KBD>--gzip</KBD> (<KBD>--gunzip</KBD>, <KBD>--ungzip</KBD>, <KBD>-z</KBD>) or 
+<KBD>--compress</KBD> (<KBD>--uncompress</KBD>, <KBD>-Z</KBD>) options) to a DLT 
+and tries to use the DLT compression mode, the data will actually get bigger and 
+one will end up with less space on the tape. </P>
+<H3><A href="http://gnu.chg.ru/manual/tar/html_chapter/tar_toc.html#TOC116" 
+name=SEC116>Archiving Sparse Files</A></H3>
+<P><A name=IDX218></A>@UNREVISED </P>
+<DL compact>
+  <DT><KBD>-S</KBD> 
+  <DD>
+  <DT><KBD>--sparse</KBD> 
+  <DD>Handle sparse files efficiently. </DD></DL>
+<P>This option causes all files to be put in the archive to be tested for 
+sparseness, and handled specially if they are. The <KBD>--sparse</KBD> 
+(<KBD>-S</KBD>) option is useful when many <CODE>dbm</CODE> files, for example, 
+are being backed up. Using this option dramatically decreases the amount of 
+space needed to store such a file. </P>
+<P>In later versions, this option may be removed, and the testing and treatment 
+of sparse files may be done automatically with any special GNU options. For now, 
+it is an option needing to be specified on the command line with the creation or 
+updating of an archive. </P>
+<P>Files in the filesystem occasionally have "holes." A hole in a file is a 
+section of the file's contents which was never written. The contents of a hole 
+read as all zeros. On many operating systems, actual disk storage is not 
+allocated for holes, but they are counted in the length of the file. If you 
+archive such a file, <CODE>tar</CODE> could create an archive longer than the 
+original. To have <CODE>tar</CODE> attempt to recognize the holes in a file, use 
+<KBD>--sparse</KBD> (<KBD>-S</KBD>). When you use the <KBD>--sparse</KBD> 
+(<KBD>-S</KBD>) option, then, for any file using less disk space than would be 
+expected from its length, <CODE>tar</CODE> searches the file for consecutive 
+stretches of zeros. It then records in the archive for the file where the 
+consecutive stretches of zeros are, and only archives the "real contents" of the 
+file. On extraction (using <KBD>--sparse</KBD> (<KBD>-S</KBD>) is not needed on 
+extraction) any such files have hols created wherever the continuous stretches 
+of zeros were found. Thus, if you use <KBD>--sparse</KBD> (<KBD>-S</KBD>), 
+<CODE>tar</CODE> archives won't take more space than the original. </P>
+<P>A file is sparse if it contains blocks of zeros whose existence is recorded, 
+but that have no space allocated on disk. When you specify the 
+<KBD>--sparse</KBD> (<KBD>-S</KBD>) option in conjunction with the 
+<KBD>--create</KBD> (<KBD>-c</KBD>) operation, <CODE>tar</CODE> tests all files 
+for sparseness while archiving. If <CODE>tar</CODE> finds a file to be sparse, 
+it uses a sparse representation of the file in the archive. See section <A 
+href="http://gnu.chg.ru/manual/tar/html_chapter/tar_2.html#SEC15">How to Create 
+Archives</A>, for more information about creating archives. </P>
+<P><KBD>--sparse</KBD> (<KBD>-S</KBD>) is useful when archiving files, such as 
+dbm files, likely to contain many nulls. This option dramatically decreases the 
+amount of space needed to store such an archive. </P>
+<BLOCKQUOTE>
+  <P><STRONG>Please Note:</STRONG> Always use <KBD>--sparse</KBD> 
+  (<KBD>-S</KBD>) when performing file system backups, to avoid archiving the 
+  expanded forms of files stored sparsely in the system. </P>
+  <P>Even if your system has no sparse files currently, some may be created in 
+  the future. If you use <KBD>--sparse</KBD> (<KBD>-S</KBD>) while making file 
+  system backups as a matter of course, you can be assured the archive will 
+  never take more space on the media than the files take on disk (otherwise, 
+  archiving a disk filled with sparse files might take hundreds of tapes). 
+  @FIXME-xref{incremental when node name is set.} </P></BLOCKQUOTE>
+<P><CODE>tar</CODE> ignores the <KBD>--sparse</KBD> (<KBD>-S</KBD>) option when 
+reading an archive. </P>
+<DL compact>
+  <DT><KBD>--sparse</KBD> 
+  <DD>
+  <DT><KBD>-S</KBD> 
+  <DD>Files stored sparsely in the file system are represented sparsely in the 
+  archive. Use in conjunction with write operations. </DD></DL>
+<P>However, users should be well aware that at archive creation time, GNU 
+<CODE>tar</CODE> still has to read whole disk file to locate the <EM>holes</EM>, 
+and so, even if sparse files use little space on disk and in the archive, they 
+may sometimes require inordinate amount of time for reading and examining 
+all-zero blocks of a file. Although it works, it's painfully slow for a large 
+(sparse) file, even though the resulting tar archive may be small. (One user 
+reports that dumping a <TT>`core'</TT> file of over 400 megabytes, but with only 
+about 3 megabytes of actual data, took about 9 minutes on a Sun Sparstation ELC, 
+with full CPU utilisation.) </P>
+<P>This reading is required in all cases and is not related to the fact the 
+<KBD>--sparse</KBD> (<KBD>-S</KBD>) option is used or not, so by merely 
+<EM>not</EM> using the option, you are not saving time<A 
+href="http://gnu.chg.ru/manual/tar/html_chapter/tar_foot.html#FOOT6" 
+name=DOCF6>(6)</A>. </P>
+<P>Programs like <CODE>dump</CODE> do not have to read the entire file; by 
+examining the file system directly, they can determine in advance exactly where 
+the holes are and thus avoid reading through them. The only data it need read 
+are the actual allocated data blocks. GNU <CODE>tar</CODE> uses a more portable 
+and straightforward archiving approach, it would be fairly difficult that it 
+does otherwise. Elizabeth Zwicky writes to <TT>`comp.unix.internals'</TT>, on 
+1990-12-10: </P>
+<BLOCKQUOTE>
+  <P>What I did say is that you cannot tell the difference between a hole and an 
+  equivalent number of nulls without reading raw blocks. <CODE>st_blocks</CODE> 
+  at best tells you how many holes there are; it doesn't tell you 
+  <EM>where</EM>. Just as programs may, conceivably, care what 
+  <CODE>st_blocks</CODE> is (care to name one that does?), they may also care 
+  where the holes are (I have no examples of this one either, but it's equally 
+  imaginable). </P>
+  <P>I conclude from this that good archivers are not portable. One can arguably 
+  conclude that if you want a portable program, you can in good conscience 
+  restore files with as many holes as possible, since you can't get it right. 
+  </P></BLOCKQUOTE>
+<H2><A href="http://gnu.chg.ru/manual/tar/html_chapter/tar_toc.html#TOC117" 
+name=SEC117>Handling File Attributes</A></H2>
+<P>@UNREVISED </P>
+<P>When <CODE>tar</CODE> reads files, this causes them to have the access times 
+updated. To have <CODE>tar</CODE> attempt to set the access times back to what 
+they were before they were read, use the <KBD>--atime-preserve</KBD> option. 
+This doesn't work for files that you don't own, unless you're root, and it 
+doesn't interact with incremental dumps nicely (see section <A 
+href="http://gnu.chg.ru/manual/tar/html_chapter/tar_5.html#SEC76">Performing 
+Backups and Restoring Files</A>), but it is good enough for some purposes. </P>
+<P>Handling of file attributes </P>
+<DL compact>
+  <DT><KBD>--atime-preserve</KBD> 
+  <DD>Do not change access times on dumped files. 
+  <DT><KBD>-m</KBD> 
+  <DD>
+  <DT><KBD>--touch</KBD> 
+  <DD>Do not extract file modified time. When this option is used, 
+  <CODE>tar</CODE> leaves the modification times of the files it extracts as the 
+  time when the files were extracted, instead of setting it to the time recorded 
+  in the archive. This option is meaningless with <KBD>--list</KBD> 
+  (<KBD>-t</KBD>). 
+  <DT><KBD>--same-owner</KBD> 
+  <DD>Create extracted files with the same ownership they have in the archive. 
+  When using super-user at extraction time, ownership is always restored. So, 
+  this option is meaningful only for non-root users, when <CODE>tar</CODE> is 
+  executed on those systems able to give files away. This is considered as a 
+  security flaw by many people, at least because it makes quite difficult to 
+  correctly account users for the disk space they occupy. Also, the 
+  <CODE>suid</CODE> or <CODE>sgid</CODE> attributes of files are easily and 
+  silently lost when files are given away. When writing an archive, 
+  <CODE>tar</CODE> writes the user id and user name separately. If it can't find 
+  a user name (because the user id is not in <TT>`/etc/passwd'</TT>), then it 
+  does not write one. When restoring, and doing a <CODE>chmod</CODE> like when 
+  you use <KBD>--same-permissions</KBD> (<KBD>--preserve-permissions</KBD>, 
+  <KBD>-p</KBD>) (@FIXME{same-owner?}), it tries to look the name (if one was 
+  written) up in <TT>`/etc/passwd'</TT>. If it fails, then it uses the user id 
+  stored in the archive instead. 
+  <DT><KBD>--numeric-owner</KBD> 
+  <DD>The <KBD>--numeric-owner</KBD> option allows (ANSI) archives to be written 
+  without user/group name information or such information to be ignored when 
+  extracting. It effectively disables the generation and/or use of user/group 
+  name information. This option forces extraction using the numeric ids from the 
+  archive, ignoring the names. This is useful in certain circumstances, when 
+  restoring a backup from an emergency floppy with different passwd/group files 
+  for example. It is otherwise impossible to extract files with the right 
+  ownerships if the password file in use during the extraction does not match 
+  the one belonging to the filesystem(s) being extracted. This occurs, for 
+  example, if you are restoring your files after a major crash and had booted 
+  from an emergency floppy with no password file or put your disk into another 
+  machine to do the restore. The numeric ids are <EM>always</EM> saved into 
+  <CODE>tar</CODE> archives. The identifying names are added at create time when 
+  provided by the system, unless <KBD>--old-archive</KBD> (<KBD>-o</KBD>) is 
+  used. Numeric ids could be used when moving archives between a collection of 
+  machines using a centralized management for attribution of numeric ids to 
+  users and groups. This is often made through using the NIS capabilities. When 
+  making a <CODE>tar</CODE> file for distribution to other sites, it is 
+  sometimes cleaner to use a single owner for all files in the distribution, and 
+  nicer to specify the write permission bits of the files as stored in the 
+  archive independently of their actual value on the file system. The way to 
+  prepare a clean distribution is usually to have some Makefile rule creating a 
+  directory, copying all needed files in that directory, then setting ownership 
+  and permissions as wanted (there are a lot of possible schemes), and only then 
+  making a <CODE>tar</CODE> archive out of this directory, before cleaning 
+  everything out. Of course, we could add a lot of options to GNU 
+  <CODE>tar</CODE> for fine tuning permissions and ownership. This is not the 
+  good way, I think. GNU <CODE>tar</CODE> is already crowded with options and 
+  moreover, the approach just explained gives you a great deal of control 
+  already. 
+  <DT><KBD>-p</KBD> 
+  <DD>
+  <DT><KBD>--same-permissions</KBD> 
+  <DD>
+  <DT><KBD>--preserve-permissions</KBD> 
+  <DD>Extract all protection information. This option causes <CODE>tar</CODE> to 
+  set the modes (access permissions) of extracted files exactly as recorded in 
+  the archive. If this option is not used, the current <CODE>umask</CODE> 
+  setting limits the permissions on extracted files. This option is meaningless 
+  with <KBD>--list</KBD> (<KBD>-t</KBD>). 
+  <DT><KBD>--preserve</KBD> 
+  <DD>Same as both <KBD>--same-permissions</KBD> 
+  (<KBD>--preserve-permissions</KBD>, <KBD>-p</KBD>) and <KBD>--same-order</KBD> 
+  (<KBD>--preserve-order</KBD>, <KBD>-s</KBD>). The <KBD>--preserve</KBD> option 
+  has no equivalent short option name. It is equivalent to 
+  <KBD>--same-permissions</KBD> (<KBD>--preserve-permissions</KBD>, 
+  <KBD>-p</KBD>) plus <KBD>--same-order</KBD> (<KBD>--preserve-order</KBD>, 
+  <KBD>-s</KBD>). @FIXME{I do not see the purpose of such an option. (Neither I. 
+  FP.)} </DD></DL>
+<H2><A href="http://gnu.chg.ru/manual/tar/html_chapter/tar_toc.html#TOC118" 
+name=SEC118>The Standard Format</A></H2>
+<P>@UNREVISED </P>
+<P>While an archive may contain many files, the archive itself is a single 
+ordinary file. Like any other file, an archive file can be written to a storage 
+device such as a tape or disk, sent through a pipe or over a network, saved on 
+the active file system, or even stored in another archive. An archive file is 
+not easy to read or manipulate without using the <CODE>tar</CODE> utility or Tar 
+mode in GNU Emacs. </P>
+<P>Physically, an archive consists of a series of file entries terminated by an 
+end-of-archive entry, which consists of 512 zero bytes. A file entry usually 
+describes one of the files in the archive (an <EM>archive member</EM>), and 
+consists of a file header and the contents of the file. File headers contain 
+file names and statistics, checksum information which <CODE>tar</CODE> uses to 
+detect file corruption, and information about file types. </P>
+<P>Archives are permitted to have more than one member with the same member 
+name. One way this situation can occur is if more than one version of a file has 
+been stored in the archive. For information about adding new versions of a file 
+to an archive, see section <A 
+href="http://gnu.chg.ru/manual/tar/html_chapter/tar_4.html#SEC51">Updating an 
+Archive</A>, and to learn more about having more than one archive member with 
+the same name, see @FIXME-xref{-backup node, when it's written}. </P>
+<P>In addition to entries describing archive members, an archive may contain 
+entries which <CODE>tar</CODE> itself uses to store information. See section <A 
+href="http://gnu.chg.ru/manual/tar/html_chapter/tar_9.html#SEC134">Including a 
+Label in the Archive</A>, for an example of such an archive entry. </P>
+<P>A <CODE>tar</CODE> archive file contains a series of blocks. Each block 
+contains <CODE>BLOCKSIZE</CODE> bytes. Although this format may be thought of as 
+being on magnetic tape, other media are often used. </P>
+<P>Each file archived is represented by a header block which describes the file, 
+followed by zero or more blocks which give the contents of the file. At the end 
+of the archive file there may be a block filled with binary zeros as an 
+end-of-file marker. A reasonable system should write a block of zeros at the 
+end, but must not assume that such a block exists when reading an archive. </P>
+<P>The blocks may be <EM>blocked</EM> for physical I/O operations. Each record 
+of <VAR>n</VAR> blocks (where <VAR>n</VAR> is set by the 
+<KBD>--blocking-factor=<VAR>512-size</VAR></KBD> (<KBD>-b 
+<VAR>512-size</VAR></KBD>) option to <CODE>tar</CODE>) is written with a single 
+<SAMP>`write ()'</SAMP> operation. On magnetic tapes, the result of such a write 
+is a single record. When writing an archive, the last record of blocks should be 
+written at the full size, with blocks after the zero block containing all zeros. 
+When reading an archive, a reasonable system should properly handle an archive 
+whose last record is shorter than the rest, or which contains garbage records 
+after a zero block. </P>
+<P>The header block is defined in C as follows. In the GNU <CODE>tar</CODE> 
+distribution, this is part of file <TT>`src/tar.h'</TT>: </P><PRE>/* GNU tar Archive Format description.  */
+
+/* If OLDGNU_COMPATIBILITY is not zero, tar produces archives which, by
+   default, are readable by older versions of GNU tar.  This can be
+   overriden by using --posix; in this case, POSIXLY_CORRECT in environment
+   may be set for enforcing stricter conformance.  If OLDGNU_COMPATIBILITY
+   is zero or undefined, tar will eventually produces archives which, by
+   default, POSIX compatible; then either using --posix or defining
+   POSIXLY_CORRECT enforces stricter conformance.
+
+   This #define will disappear in a few years.  FP, June 1995.  */
+#define OLDGNU_COMPATIBILITY 1
+
+/*---------------------------------------------.
+| `tar' Header Block, from POSIX 1003.1-1990.  |
+`---------------------------------------------*/
+
+/* POSIX header.  */
+
+struct posix_header
+{                               /* byte offset */
+  char name[100];               /*   0 */
+  char mode[8];                 /* 100 */
+  char uid[8];                  /* 108 */
+  char gid[8];                  /* 116 */
+  char size[12];                /* 124 */
+  char mtime[12];               /* 136 */
+  char chksum[8];               /* 148 */
+  char typeflag;                /* 156 */
+  char linkname[100];           /* 157 */
+  char magic[6];                /* 257 */
+  char version[2];              /* 263 */
+  char uname[32];               /* 265 */
+  char gname[32];               /* 297 */
+  char devmajor[8];             /* 329 */
+  char devminor[8];             /* 337 */
+  char prefix[155];             /* 345 */
+                                /* 500 */
+};
+
+#define TMAGIC   "ustar"        /* ustar and a null */
+#define TMAGLEN  6
+#define TVERSION "00"           /* 00 and no null */
+#define TVERSLEN 2
+
+/* Values used in typeflag field.  */
+#define REGTYPE  '0'            /* regular file */
+#define AREGTYPE '\0'           /* regular file */
+#define LNKTYPE  '1'            /* link */
+#define SYMTYPE  '2'            /* reserved */
+#define CHRTYPE  '3'            /* character special */
+#define BLKTYPE  '4'            /* block special */
+#define DIRTYPE  '5'            /* directory */
+#define FIFOTYPE '6'            /* FIFO special */
+#define CONTTYPE '7'            /* reserved */
+
+/* Bits used in the mode field, values in octal.  */
+#define TSUID    04000          /* set UID on execution */
+#define TSGID    02000          /* set GID on execution */
+#define TSVTX    01000          /* reserved */
+                                /* file permissions */
+#define TUREAD   00400          /* read by owner */
+#define TUWRITE  00200          /* write by owner */
+#define TUEXEC   00100          /* execute/search by owner */
+#define TGREAD   00040          /* read by group */
+#define TGWRITE  00020          /* write by group */
+#define TGEXEC   00010          /* execute/search by group */
+#define TOREAD   00004          /* read by other */
+#define TOWRITE  00002          /* write by other */
+#define TOEXEC   00001          /* execute/search by other */
+
+/*-------------------------------------.
+| `tar' Header Block, GNU extensions.  |
+`-------------------------------------*/
+
+/* In GNU tar, SYMTYPE is for to symbolic links, and CONTTYPE is for
+   contiguous files, so maybe disobeying the `reserved' comment in POSIX
+   header description.  I suspect these were meant to be used this way, and
+   should not have really been `reserved' in the published standards.  */
+
+/* *BEWARE* *BEWARE* *BEWARE* that the following information is still
+   boiling, and may change.  Even if the OLDGNU format description should be
+   accurate, the so-called GNU format is not yet fully decided.  It is
+   surely meant to use only extensions allowed by POSIX, but the sketch
+   below repeats some ugliness from the OLDGNU format, which should rather
+   go away.  Sparse files should be saved in such a way that they do *not*
+   require two passes at archive creation time.  Huge files get some POSIX
+   fields to overflow, alternate solutions have to be sought for this.  */
+
+/* Descriptor for a single file hole.  */
+
+struct sparse
+{                               /* byte offset */
+  char offset[12];              /*   0 */
+  char numbytes[12];            /*  12 */
+                                /*  24 */
+};
+
+/* Sparse files are not supported in POSIX ustar format.  For sparse files
+   with a POSIX header, a GNU extra header is provided which holds overall
+   sparse information and a few sparse descriptors.  When an old GNU header
+   replaces both the POSIX header and the GNU extra header, it holds some
+   sparse descriptors too.  Whether POSIX or not, if more sparse descriptors
+   are still needed, they are put into as many successive sparse headers as
+   necessary.  The following constants tell how many sparse descriptors fit
+   in each kind of header able to hold them.  */
+
+#define SPARSES_IN_EXTRA_HEADER  16
+#define SPARSES_IN_OLDGNU_HEADER 4
+#define SPARSES_IN_SPARSE_HEADER 21
+
+/* The GNU extra header contains some information GNU tar needs, but not
+   foreseen in POSIX header format.  It is only used after a POSIX header
+   (and never with old GNU headers), and immediately follows this POSIX
+   header, when typeflag is a letter rather than a digit, so signaling a GNU
+   extension.  */
+
+struct extra_header
+{                               /* byte offset */
+  char atime[12];               /*   0 */
+  char ctime[12];               /*  12 */
+  char offset[12];              /*  24 */
+  char realsize[12];            /*  36 */
+  char longnames[4];            /*  48 */
+  char unused_pad1[68];         /*  52 */
+  struct sparse sp[SPARSES_IN_EXTRA_HEADER];
+                                /* 120 */
+  char isextended;              /* 504 */
+                                /* 505 */
+};
+
+/* Extension header for sparse files, used immediately after the GNU extra
+   header, and used only if all sparse information cannot fit into that
+   extra header.  There might even be many such extension headers, one after
+   the other, until all sparse information has been recorded.  */
+
+struct sparse_header
+{                               /* byte offset */
+  struct sparse sp[SPARSES_IN_SPARSE_HEADER];
+                                /*   0 */
+  char isextended;              /* 504 */
+                                /* 505 */
+};
+
+/* The old GNU format header conflicts with POSIX format in such a way that
+   POSIX archives may fool old GNU tar's, and POSIX tar's might well be
+   fooled by old GNU tar archives.  An old GNU format header uses the space
+   used by the prefix field in a POSIX header, and cumulates information
+   normally found in a GNU extra header.  With an old GNU tar header, we
+   never see any POSIX header nor GNU extra header.  Supplementary sparse
+   headers are allowed, however.  */
+
+struct oldgnu_header
+{                               /* byte offset */
+  char unused_pad1[345];        /*   0 */
+  char atime[12];               /* 345 */
+  char ctime[12];               /* 357 */
+  char offset[12];              /* 369 */
+  char longnames[4];            /* 381 */
+  char unused_pad2;             /* 385 */
+  struct sparse sp[SPARSES_IN_OLDGNU_HEADER];
+                                /* 386 */
+  char isextended;              /* 482 */
+  char realsize[12];            /* 483 */
+                                /* 495 */
+};
+
+/* OLDGNU_MAGIC uses both magic and version fields, which are contiguous.
+   Found in an archive, it indicates an old GNU header format, which will be
+   hopefully become obsolescent.  With OLDGNU_MAGIC, uname and gname are
+   valid, though the header is not truly POSIX conforming.  */
+#define OLDGNU_MAGIC "ustar  "  /* 7 chars and a null */
+
+/* The standards committee allows only capital A through capital Z for
+   user-defined expansion.  */
+
+/* This is a dir entry that contains the names of files that were in the
+   dir at the time the dump was made.  */
+#define GNUTYPE_DUMPDIR 'D'
+
+/* Identifies the *next* file on the tape as having a long linkname.  */
+#define GNUTYPE_LONGLINK 'K'
+
+/* Identifies the *next* file on the tape as having a long name.  */
+#define GNUTYPE_LONGNAME 'L'
+
+/* This is the continuation of a file that began on another volume.  */
+#define GNUTYPE_MULTIVOL 'M'
+
+/* For storing filenames that do not fit into the main header.  */
+#define GNUTYPE_NAMES 'N'
+
+/* This is for sparse files.  */
+#define GNUTYPE_SPARSE 'S'
+
+/* This file is a tape/volume header.  Ignore it on extraction.  */
+#define GNUTYPE_VOLHDR 'V'
+
+/*--------------------------------------.
+| tar Header Block, overall structure.  |
+`--------------------------------------*/
+
+/* tar files are made in basic blocks of this size.  */
+#define BLOCKSIZE 512
+
+enum archive_format
+{
+  DEFAULT_FORMAT,               /* format to be decided later */
+  V7_FORMAT,                    /* old V7 tar format */
+  OLDGNU_FORMAT,                /* GNU format as per before tar 1.12 */
+  POSIX_FORMAT,                 /* restricted, pure POSIX format */
+  GNU_FORMAT                    /* POSIX format with GNU extensions */
+};
+
+union block
+{
+  char buffer[BLOCKSIZE];
+  struct posix_header header;
+  struct extra_header extra_header;
+  struct oldgnu_header oldgnu_header;
+  struct sparse_header sparse_header;
+};
+
+/* End of Format description.  */
+</PRE>
+<P>All characters in header blocks are represented by using 8-bit characters in 
+the local variant of ASCII. Each field within the structure is contiguous; that 
+is, there is no padding used within the structure. Each character on the archive 
+medium is stored contiguously. </P>
+<P>Bytes representing the contents of files (after the header block of each 
+file) are not translated in any way and are not constrained to represent 
+characters in any character set. The <CODE>tar</CODE> format does not 
+distinguish text files from binary files, and no translation of file contents is 
+performed. </P>
+<P>The <CODE>name</CODE>, <CODE>linkname</CODE>, <CODE>magic</CODE>, 
+<CODE>uname</CODE>, and <CODE>gname</CODE> are null-terminated character 
+strings. All other fileds are zero-filled octal numbers in ASCII. Each numeric 
+field of width <VAR>w</VAR> contains <VAR>w</VAR> minus 2 digits, a space, and a 
+null, except <CODE>size</CODE>, and <CODE>mtime</CODE>, which do not contain the 
+trailing null. </P>
+<P>The <CODE>name</CODE> field is the file name of the file, with directory 
+names (if any) preceding the file name, separated by slashes. </P>
+<P>@FIXME{how big a name before field overflows?} </P>
+<P>The <CODE>mode</CODE> field provides nine bits specifying file permissions 
+and three bits to specify the Set UID, Set GID, and Save Text (<EM>sticky</EM>) 
+modes. Values for these bits are defined above. When special permissions are 
+required to create a file with a given mode, and the user restoring files from 
+the archive does not hold such permissions, the mode bit(s) specifying those 
+special permissions are ignored. Modes which are not supported by the operating 
+system restoring files from the archive will be ignored. Unsupported modes 
+should be faked up when creating or updating an archive; e.g. the group 
+permission could be copied from the <EM>other</EM> permission. </P>
+<P>The <CODE>uid</CODE> and <CODE>gid</CODE> fields are the numeric user and 
+group ID of the file owners, respectively. If the operating system does not 
+support numeric user or group IDs, these fields should be ignored. </P>
+<P>The <CODE>size</CODE> field is the size of the file in bytes; linked files 
+are archived with this field specified as zero. @FIXME-xref{Modifiers}, in 
+particular the <KBD>--incremental</KBD> (<KBD>-G</KBD>) option. </P>
+<P>The <CODE>mtime</CODE> field is the modification time of the file at the time 
+it was archived. It is the ASCII representation of the octal value of the last 
+time the file was modified, represented as an integer number of seconds since 
+January 1, 1970, 00:00 Coordinated Universal Time. </P>
+<P>The <CODE>chksum</CODE> field is the ASCII representation of the octal value 
+of the simple sum of all bytes in the header block. Each 8-bit byte in the 
+header is added to an unsigned integer, initialized to zero, the precision of 
+which shall be no less than seventeen bits. When calculating the checksum, the 
+<CODE>chksum</CODE> field is treated as if it were all blanks. </P>
+<P>The <CODE>typeflag</CODE> field specifies the type of file archived. If a 
+particular implementation does not recognize or permit the specified type, the 
+file will be extracted as if it were a regular file. As this action occurs, 
+<CODE>tar</CODE> issues a warning to the standard error. </P>
+<P>The <CODE>atime</CODE> and <CODE>ctime</CODE> fields are used in making 
+incremental backups; they store, respectively, the particular file's access time 
+and last inode-change time. </P>
+<P>The <CODE>offset</CODE> is used by the <KBD>--multi-volume</KBD> 
+(<KBD>-M</KBD>) option, when making a multi-volume archive. The offset is number 
+of bytes into the file that we need to restart at to continue the file on the 
+next tape, i.e., where we store the location that a continued file is continued 
+at. </P>
+<P>The following fields were added to deal with sparse files. A file is 
+<EM>sparse</EM> if it takes in unallocated blocks which end up being represented 
+as zeros, i.e., no useful data. A test to see if a file is sparse is to look at 
+the number blocks allocated for it versus the number of characters in the file; 
+if there are fewer blocks allocated for the file than would normally be 
+allocated for a file of that size, then the file is sparse. This is the method 
+<CODE>tar</CODE> uses to detect a sparse file, and once such a file is detected, 
+it is treated differently from non-sparse files. </P>
+<P>Sparse files are often <CODE>dbm</CODE> files, or other database-type files 
+which have data at some points and emptiness in the greater part of the file. 
+Such files can appear to be very large when an <SAMP>`ls -l'</SAMP> is done on 
+them, when in truth, there may be a very small amount of important data 
+contained in the file. It is thus undesirable to have <CODE>tar</CODE> think 
+that it must back up this entire file, as great quantities of room are wasted on 
+empty blocks, which can lead to running out of room on a tape far earlier than 
+is necessary. Thus, sparse files are dealt with so that these empty blocks are 
+not written to the tape. Instead, what is written to the tape is a description, 
+of sorts, of the sparse file: where the holes are, how big the holes are, and 
+how much data is found at the end of the hole. This way, the file takes up 
+potentially far less room on the tape, and when the file is extracted later on, 
+it will look exactly the way it looked beforehand. The following is a 
+description of the fields used to handle a sparse file: </P>
+<P>The <CODE>sp</CODE> is an array of <CODE>struct sparse</CODE>. Each 
+<CODE>struct sparse</CODE> contains two 12-character strings which represent an 
+offset into the file and a number of bytes to be written at that offset. The 
+offset is absolute, and not relative to the offset in preceding array element. 
+</P>
+<P>The header can hold four of these <CODE>struct sparse</CODE> at the moment; 
+if more are needed, they are not stored in the header. </P>
+<P>The <CODE>isextended</CODE> flag is set when an <CODE>extended_header</CODE> 
+is needed to deal with a file. Note that this means that this flag can only be 
+set when dealing with a sparse file, and it is only set in the event that the 
+description of the file will not fit in the alloted room for sparse structures 
+in the header. In other words, an extended_header is needed. </P>
+<P>The <CODE>extended_header</CODE> structure is used for sparse files which 
+need more sparse structures than can fit in the header. The header can fit 4 
+such structures; if more are needed, the flag <CODE>isextended</CODE> gets set 
+and the next block is an <CODE>extended_header</CODE>. </P>
+<P>Each <CODE>extended_header</CODE> structure contains an array of 21 sparse 
+structures, along with a similar <CODE>isextended</CODE> flag that the header 
+had. There can be an indeterminate number of such <CODE>extended_header</CODE>s 
+to describe a sparse file. </P>
+<DL compact>
+  <DT><CODE>REGTYPE</CODE> 
+  <DD>
+  <DT><CODE>AREGTYPE</CODE> 
+  <DD>These flags represent a regular file. In order to be compatible with older 
+  versions of <CODE>tar</CODE>, a <CODE>typeflag</CODE> value of 
+  <CODE>AREGTYPE</CODE> should be silently recognized as a regular file. New 
+  archives should be created using <CODE>REGTYPE</CODE>. Also, for backward 
+  compatibility, <CODE>tar</CODE> treats a regular file whose name ends with a 
+  slash as a directory. 
+  <DT><CODE>LNKTYPE</CODE> 
+  <DD>This flag represents a file linked to another file, of any type, 
+  previously archived. Such files are identified in Unix by each file having the 
+  same device and inode number. The linked-to name is specified in the 
+  <CODE>linkname</CODE> field with a trailing null. 
+  <DT><CODE>SYMTYPE</CODE> 
+  <DD>This represents a symbolic link to another file. The linked-to name is 
+  specified in the <CODE>linkname</CODE> field with a trailing null. 
+  <DT><CODE>CHRTYPE</CODE> 
+  <DD>
+  <DT><CODE>BLKTYPE</CODE> 
+  <DD>These represent character special files and block special files 
+  respectively. In this case the <CODE>devmajor</CODE> and <CODE>devminor</CODE> 
+  fields will contain the major and minor device numbers respectively. Operating 
+  systems may map the device specifications to their own local specification, or 
+  may ignore the entry. 
+  <DT><CODE>DIRTYPE</CODE> 
+  <DD>This flag specifies a directory or sub-directory. The directory name in 
+  the <CODE>name</CODE> field should end with a slash. On systems where disk 
+  allocation is performed on a directory basis, the <CODE>size</CODE> field will 
+  contain the maximum number of bytes (which may be rounded to the nearest disk 
+  block allocation unit) which the directory may hold. A <CODE>size</CODE> field 
+  of zero indicates no such limiting. Systems which do not support limiting in 
+  this manner should ignore the <CODE>size</CODE> field. 
+  <DT><CODE>FIFOTYPE</CODE> 
+  <DD>This specifies a FIFO special file. Note that the archiving of a FIFO file 
+  archives the existence of this file and not its contents. 
+  <DT><CODE>CONTTYPE</CODE> 
+  <DD>This specifies a contiguous file, which is the same as a normal file 
+  except that, in operating systems which support it, all its space is allocated 
+  contiguously on the disk. Operating systems which do not allow contiguous 
+  allocation should silently treat this type as a normal file. 
+  <DT><CODE>A</CODE> ... <CODE>Z</CODE> 
+  <DD>These are reserved for custom implementations. Some of these are used in 
+  the GNU modified format, as described below. </DD></DL>
+<P>Other values are reserved for specification in future revisions of the P1003 
+standard, and should not be used by any <CODE>tar</CODE> program. </P>
+<P>The <CODE>magic</CODE> field indicates that this archive was output in the 
+P1003 archive format. If this field contains <CODE>TMAGIC</CODE>, the 
+<CODE>uname</CODE> and <CODE>gname</CODE> fields will contain the ASCII 
+representation of the owner and group of the file respectively. If found, the 
+user and group IDs are used rather than the values in the <CODE>uid</CODE> and 
+<CODE>gid</CODE> fields. </P>
+<P>For references, see ISO/IEC 9945-1:1990 or IEEE Std 1003.1-1990, pages 
+169-173 (section 10.1) for <CITE>Archive/Interchange File Format</CITE>; and 
+IEEE Std 1003.2-1992, pages 380-388 (section 4.48) and pages 936-940 (section 
+E.4.48) for <CITE>pax - Portable archive interchange</CITE>. </P>
+<H2><A href="http://gnu.chg.ru/manual/tar/html_chapter/tar_toc.html#TOC119" 
+name=SEC119>GNU Extensions to the Archive Format</A></H2>
+<P>@UNREVISED </P>
+<P>The GNU format uses additional file types to describe new types of files in 
+an archive. These are listed below. </P>
+<DL compact>
+  <DT><CODE>GNUTYPE_DUMPDIR</CODE> 
+  <DD>
+  <DT><CODE>'D'</CODE> 
+  <DD>This represents a directory and a list of files created by the 
+  <KBD>--incremental</KBD> (<KBD>-G</KBD>) option. The <CODE>size</CODE> field 
+  gives the total size of the associated list of files. Each file name is 
+  preceded by either a <SAMP>`Y'</SAMP> (the file should be in this archive) or 
+  an <SAMP>`N'</SAMP>. (The file is a directory, or is not stored in the 
+  archive.) Each file name is terminated by a null. There is an additional null 
+  after the last file name. 
+  <DT><CODE>GNUTYPE_MULTIVOL</CODE> 
+  <DD>
+  <DT><CODE>'M'</CODE> 
+  <DD>This represents a file continued from another volume of a multi-volume 
+  archive created with the <KBD>--multi-volume</KBD> (<KBD>-M</KBD>) option. The 
+  original type of the file is not given here. The <CODE>size</CODE> field gives 
+  the maximum size of this piece of the file (assuming the volume does not end 
+  before the file is written out). The <CODE>offset</CODE> field gives the 
+  offset from the beginning of the file where this part of the file begins. Thus 
+  <CODE>size</CODE> plus <CODE>offset</CODE> should equal the original size of 
+  the file. 
+  <DT><CODE>GNUTYPE_SPARSE</CODE> 
+  <DD>
+  <DT><CODE>'S'</CODE> 
+  <DD>This flag indicates that we are dealing with a sparse file. Note that 
+  archiving a sparse file requires special operations to find holes in the file, 
+  which mark the positions of these holes, along with the number of bytes of 
+  data to be found after the hole. 
+  <DT><CODE>GNUTYPE_VOLHDR</CODE> 
+  <DD>
+  <DT><CODE>'V'</CODE> 
+  <DD>This file type is used to mark the volume header that was given with the 
+  <KBD>--label=<VAR>archive-label</VAR></KBD> (<KBD>-V 
+  <VAR>archive-label</VAR></KBD>) option when the archive was created. The 
+  <CODE>name</CODE> field contains the <CODE>name</CODE> given after the 
+  <KBD>--label=<VAR>archive-label</VAR></KBD> (<KBD>-V 
+  <VAR>archive-label</VAR></KBD>) option. The <CODE>size</CODE> field is zero. 
+  Only the first file in each volume of an archive should have this type. 
+</DD></DL>
+<P>You may have trouble reading a GNU format archive on a non-GNU system if the 
+options <KBD>--incremental</KBD> (<KBD>-G</KBD>), <KBD>--multi-volume</KBD> 
+(<KBD>-M</KBD>), <KBD>--sparse</KBD> (<KBD>-S</KBD>), or 
+<KBD>--label=<VAR>archive-label</VAR></KBD> (<KBD>-V 
+<VAR>archive-label</VAR></KBD>) were used when writing the archive. In general, 
+if <CODE>tar</CODE> does not use the GNU-added fields of the header, other 
+versions of <CODE>tar</CODE> should be able to read the archive. Otherwise, the 
+<CODE>tar</CODE> program will give an error, the most likely one being a 
+checksum error. </P>
+<H2><A href="http://gnu.chg.ru/manual/tar/html_chapter/tar_toc.html#TOC120" 
+name=SEC120>Comparison of <CODE>tar</CODE> and <CODE>cpio</CODE></A></H2>
+<P>@UNREVISED </P>
+<P>@FIXME{Reorganize the following material} </P>
+<P>The <CODE>cpio</CODE> archive formats, like <CODE>tar</CODE>, do have maximum 
+pathname lengths. The binary and old ASCII formats have a max path length of 
+256, and the new ASCII and CRC ASCII formats have a max path length of 1024. GNU 
+<CODE>cpio</CODE> can read and write archives with arbitrary pathname lengths, 
+but other <CODE>cpio</CODE> implementations may crash unexplainedly trying to 
+read them. </P>
+<P><CODE>tar</CODE> handles symbolic links in the form in which it comes in BSD; 
+<CODE>cpio</CODE> doesn't handle symbolic links in the form in which it comes in 
+System V prior to SVR4, and some vendors may have added symlinks to their system 
+without enhancing <CODE>cpio</CODE> to know about them. Others may have enhanced 
+it in a way other than the way I did it at Sun, and which was adopted by 
+AT&amp;T (and which is, I think, also present in the <CODE>cpio</CODE> that 
+Berkeley picked up from AT&amp;T and put into a later BSD release--I think I 
+gave them my changes). </P>
+<P>(SVR4 does some funny stuff with <CODE>tar</CODE>; basically, its 
+<CODE>cpio</CODE> can handle <CODE>tar</CODE> format input, and write it on 
+output, and it probably handles symbolic links. They may not have bothered doing 
+anything to enhance <CODE>tar</CODE> as a result.) </P>
+<P><CODE>cpio</CODE> handles special files; traditional <CODE>tar</CODE> 
+doesn't. </P>
+<P><CODE>tar</CODE> comes with V7, System III, System V, and BSD source; 
+<CODE>cpio</CODE> comes only with System III, System V, and later BSD (4.3-tahoe 
+and later). </P>
+<P><CODE>tar</CODE>'s way of handling multiple hard links to a file can handle 
+file systems that support 32-bit inumbers (e.g., the BSD file system); 
+<CODE>cpio</CODE>s way requires you to play some games (in its "binary" format, 
+i-numbers are only 16 bits, and in its "portable ASCII" format, they're 18 
+bits--it would have to play games with the "file system ID" field of the header 
+to make sure that the file system ID/i-number pairs of different files were 
+always different), and I don't know which <CODE>cpio</CODE>s, if any, play those 
+games. Those that don't might get confused and think two files are the same file 
+when they're not, and make hard links between them. </P>
+<P><CODE>tar</CODE>s way of handling multiple hard links to a file places only 
+one copy of the link on the tape, but the name attached to that copy is the 
+<EM>only</EM> one you can use to retrieve the file; <CODE>cpio</CODE>s way puts 
+one copy for every link, but you can retrieve it using any of the names. </P>
+<BLOCKQUOTE>
+  <P>What type of check sum (if any) is used, and how is this calculated. 
+</P></BLOCKQUOTE>
+<P>See the attached manual pages for <CODE>tar</CODE> and <CODE>cpio</CODE> 
+format. <CODE>tar</CODE> uses a checksum which is the sum of all the bytes in 
+the <CODE>tar</CODE> header for a file; <CODE>cpio</CODE> uses no checksum. </P>
+<BLOCKQUOTE>
+  <P>If anyone knows why <CODE>cpio</CODE> was made when <CODE>tar</CODE> was 
+  present at the unix scene, </P></BLOCKQUOTE>
+<P>It wasn't. <CODE>cpio</CODE> first showed up in PWB/UNIX 1.0; no 
+generally-available version of UNIX had <CODE>tar</CODE> at the time. I don't 
+know whether any version that was generally available <EM>within AT&amp;T</EM> 
+had <CODE>tar</CODE>, or, if so, whether the people within AT&amp;T who did 
+<CODE>cpio</CODE> knew about it. </P>
+<P>On restore, if there is a corruption on a tape <CODE>tar</CODE> will stop at 
+that point, while <CODE>cpio</CODE> will skip over it and try to restore the 
+rest of the files. </P>
+<P>The main difference is just in the command syntax and header format. </P>
+<P><CODE>tar</CODE> is a little more tape-oriented in that everything is blocked 
+to start on a record boundary. </P>
+<BLOCKQUOTE>
+  <P>Is there any differences between the ability to recover crashed archives 
+  between the two of them. (Is there any chance of recovering crashed archives 
+  at all.) </P></BLOCKQUOTE>
+<P>Theoretically it should be easier under <CODE>tar</CODE> since the blocking 
+lets you find a header with some variation of <SAMP>`dd 
+skip=<VAR>nn</VAR>'</SAMP>. However, modern <CODE>cpio</CODE>'s and variations 
+have an option to just search for the next file header after an error with a 
+reasonable chance of re-syncing. However, lots of tape driver software won't 
+allow you to continue past a media error which should be the only reason for 
+getting out of sync unless a file changed sizes while you were writing the 
+archive. </P>
+<BLOCKQUOTE>
+  <P>If anyone knows why <CODE>cpio</CODE> was made when <CODE>tar</CODE> was 
+  present at the unix scene, please tell me about this too. </P></BLOCKQUOTE>
+<P>Probably because it is more media efficient (by not blocking everything and 
+using only the space needed for the headers where <CODE>tar</CODE> always uses 
+512 bytes per file header) and it knows how to archive special files. </P>
+<P>You might want to look at the freely available alternatives. The major ones 
+are <CODE>afio</CODE>, GNU <CODE>tar</CODE>, and <CODE>pax</CODE>, each of which 
+have their own extensions with some backwards compatibility. </P>
+<P>Sparse files were <CODE>tar</CODE>red as sparse files (which you can easily 
+test, because the resulting archive gets smaller, and GNU <CODE>cpio</CODE> can 
+no longer read it). </P>
+<P>
+<HR>
+
+<P>Go to the <A 
+href="http://gnu.chg.ru/manual/tar/html_chapter/tar_1.html">first</A>, <A 
+href="http://gnu.chg.ru/manual/tar/html_chapter/tar_7.html">previous</A>, <A 
+href="http://gnu.chg.ru/manual/tar/html_chapter/tar_9.html">next</A>, <A 
+href="http://gnu.chg.ru/manual/tar/html_chapter/tar_10.html">last</A> section, 
+<A href="http://gnu.chg.ru/manual/tar/html_chapter/tar_toc.html">table of 
+contents</A>. </P></BODY></HTML>
