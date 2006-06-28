@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.204 06.06.2006 $ */
+/* Revision: 1.205 28.06.2006 $ */
 
 /*
 Modify:
+  28.06.2006 SVS
+    + Opt.ExecuteBathType
   06.06.2006 WARP
     + Настройка "Del removes blocks" для диалогов не вынесена в пользовательский интерфейс.
   24.05.2006 SVS
@@ -639,6 +641,8 @@ const char NKeySavedFolderHistory[]="SavedFolderHistory";
 const char NKeySavedDialogHistory[]="SavedDialogHistory";
 
 const char NParamHistoryCount[]="HistoryCount";
+
+const char constBathExt[]=".BAT;.CMD;";
 
 void SystemSettings()
 {
@@ -1727,6 +1731,7 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeySystemExecutor,"RestoreCP",&Opt.RestoreCPAfterExecute,1, 0},
   {0, REG_DWORD,  NKeySystemExecutor,"UseAppPath",&Opt.ExecuteUseAppPath,1, 0},
   {0, REG_DWORD,  NKeySystemExecutor,"ShowErrorMessage",&Opt.ExecuteShowErrorMessage,1, 0},
+  {0, REG_SZ,     NKeySystemExecutor,"BathType",Opt.ExecuteBathType,sizeof(Opt.ExecuteBathType)-2,constBathExt},
 
   {0, REG_DWORD,  NKeyPanelTree,"MinTreeCount",&Opt.Tree.MinTreeCount, 4, 0},
   {0, REG_DWORD,  NKeyPanelTree,"LocalDisk",&Opt.Tree.LocalDisk, 2, 0},
@@ -2032,6 +2037,15 @@ void ReadConfig()
   Opt.Policies.ShowHiddenDrives&=OptPolicies_ShowHiddenDrives;
   // для опций HKCU может только добавлять блокироку пунктов
   Opt.Policies.DisabledOptions|=OptPolicies_DisabledOptions;
+
+  char *PtrBathType=Opt.ExecuteBathType, *EndPtrBathType=PtrBathType+sizeof(Opt.ExecuteBathType)-1;
+  if(!*PtrBathType) // предохраняемся
+    strcpy(Opt.ExecuteBathType,constBathExt);
+  for(; *PtrBathType && PtrBathType < EndPtrBathType; ++PtrBathType)
+    if(*PtrBathType == ';')
+      *PtrBathType=0;
+  *PtrBathType++=0;
+  *PtrBathType++=0;
 
   /* *************************************************** </ПОСТПРОЦЕССЫ> */
 }

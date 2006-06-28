@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.248 13.04.2006 $ */
+/* Revision: 1.249 28.06.2006 $ */
 
 /*
 Modify:
+  28.06.2006 SVS
+    + IsBathExtType(), BathFileExist()
   13.04.2006 SVS
     + System\SavePluginFoldersHistory - сохранять или нет в истории папок так же плагиновые папки
   20.02.2006 SVS
@@ -2672,7 +2674,7 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
     if (ExtPtr!=NULL)
     {
       ExeType=stricmp(ExtPtr,".exe")==0 || stricmp(ExtPtr,".com")==0;
-      BatType=stricmp(ExtPtr,".bat")==0 || stricmp(ExtPtr,".cmd")==0;
+      BatType=IsBathExtType(ExtPtr);
     }
     if (EnableExec && (ExeType || BatType))
     {

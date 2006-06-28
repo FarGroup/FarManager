@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.126 23.04.2006 $ */
+/* Revision: 1.127 28.06.2006 $ */
 
 /*
 Modify:
+  28.06.2006 SVS
+    + IsBathExtType(), BathFileExist()
   23.04.2006 AY
     - Execute() не выставлял путь пассивной панели для правильной работы driveletter: путей в win9x.
   31.03.2006 SVS
@@ -983,10 +985,8 @@ DWORD IsCommandExeGUI(const char *Command)
   */
   for(;;)
   {
-    sprintf(FullName,"%s.bat",FileName);
-    if(GetFileAttributes(FullName)!=-1)break;
-    sprintf(FullName,"%s.cmd",FileName);
-    if(GetFileAttributes(FullName)!=-1)break;
+    if(BathFileExist(FileName,FullName,sizeof(FullName)-1))
+      break;
   /* skv$*/
 
     if (SearchPath(NULL,FileName,".exe",sizeof(FullName),FullName,&FilePart))
@@ -1148,8 +1148,10 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
     DWORD Error=0, dwSubSystem2=0;
     char *ExtPtr=strrchr(NewCmdStr,'.');
 
-    if(ExtPtr && !(stricmp(ExtPtr,".exe")==0 || stricmp(ExtPtr,".com")==0 ||
-       stricmp(ExtPtr,".bat")==0 || stricmp(ExtPtr,".cmd")==0))
+    if(ExtPtr &&
+      !(stricmp(ExtPtr,".exe")==0 || stricmp(ExtPtr,".com")==0 ||
+        IsBathExtType(ExtPtr))
+      )
       if(GetShellAction(NewCmdStr,dwSubSystem2,Error) && Error != ERROR_NO_ASSOCIATION)
         dwSubSystem=dwSubSystem2;
   }
@@ -1945,4 +1947,48 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
     return(TRUE);
   }
   return(FALSE);
+}
+
+// Проверить "Это батник?"
+BOOL IsBathExtType(const char *ExtPtr)
+{
+  char *PtrBathType=Opt.ExecuteBathType;
+  while(*PtrBathType)
+  {
+    if(stricmp(ExtPtr,PtrBathType)==0)
+      return TRUE;
+    PtrBathType+=strlen(PtrBathType)+1;
+  }
+
+  return FALSE;
+}
+
+// батник существует? (и вернем полное имя - добавляется расширение)
+BOOL BathFileExist(const char *FileName,char *DestName,int SizeDestName)
+{
+  char *PtrBathType=Opt.ExecuteBathType;
+  BOOL Result=FALSE;
+
+  char *FullName=(char*)alloca(strlen(FileName)+64);
+  if(FullName)
+  {
+    strcpy(FullName,FileName);
+    char *FullNameExt=FullName+strlen(FullName);
+
+    while(*PtrBathType)
+    {
+      strcat(FullNameExt,PtrBathType);
+
+      if(GetFileAttributes(FullName)!=-1)
+      {
+        strncpy(DestName,FullName,SizeDestName);
+        Result=TRUE;
+        break;
+      }
+
+      PtrBathType+=strlen(PtrBathType)+1;
+    }
+  }
+
+  return Result;
 }

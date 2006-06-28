@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.243 29.05.2006 $ */
+/* Revision: 1.244 28.06.2006 $ */
 
 /*
 Modify:
+  28.06.2006 SVS
+    + IsBathExtType(), BathFileExist()
   29.05.2006 SVS
     + CheckInitSetupAPI()
   25.05.2006 SVS
@@ -1567,6 +1569,8 @@ int ESetFileTime(const char *Name,FILETIME *LastWriteTime,
 int ConvertWildcards(const char *Src,char *Dest, int SelectedFolderNameLength);
 
 const char* WINAPI PrepareOSIfExist(const char *CmdLine);
+BOOL IsBathExtType(const char *ExtPtr);
+BOOL BathFileExist(const char *FileName,char *DestName,int SizeDestName);
 
 int WINAPI GetSearchReplaceString(
          int IsReplaceMode,
