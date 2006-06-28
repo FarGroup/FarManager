@@ -5,7 +5,7 @@ execute.cpp
 
 */
 
-/* Revision: 1.138 06.06.2006 $ */
+/* Revision: 1.139 28.06.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -641,10 +641,8 @@ DWORD IsCommandExeGUI(const char *Command)
   */
   for(;;)
   {
-    sprintf(FullName,"%s.bat",FileName);
-    if(GetFileAttributes(FullName)!=-1)break;
-    sprintf(FullName,"%s.cmd",FileName);
-    if(GetFileAttributes(FullName)!=-1)break;
+    if(BathFileExist(FileName,FullName,sizeof(FullName)-1))
+      break;
   /* skv$*/
 
     if (SearchPath(NULL,FileName,".exe",sizeof(FullName),FullName,&FilePart))
@@ -824,7 +822,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
     wchar_t *ExtPtr=wcsrchr(strNewCmdStr,L'.');
 
     if(ExtPtr && !(LocalStricmpW(ExtPtr,L".exe")==0 || LocalStricmpW(ExtPtr,L".com")==0 ||
-       LocalStricmpW(ExtPtr,L".bat")==0 || LocalStricmpW(ExtPtr,L".cmd")==0))
+       IsBathExtTypeW(ExtPtr)))
       if(GetShellAction(strNewCmdStr,dwSubSystem2,Error) && Error != ERROR_NO_ASSOCIATION)
         dwSubSystem=dwSubSystem2;
   }
@@ -1598,3 +1596,49 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
   }
   return(FALSE);
 }
+
+// Проверить "Это батник?"
+BOOL IsBathExtTypeW(const wchar_t *ExtPtr)
+{
+  const wchar_t *PtrBathType=Opt.strExecuteBathType;
+  while(*PtrBathType)
+  {
+    if(LocalStricmpW(ExtPtr,PtrBathType)==0)
+      return TRUE;
+    PtrBathType+=wcslen(PtrBathType)+1;
+  }
+
+  return FALSE;
+}
+
+#ifdef ADD_GUI_CHECK
+// батник существует? (и вернем полное имя - добавляется расширение)
+BOOL BathFileExist(const char *FileName,char *DestName,int SizeDestName)
+{
+  char *PtrBathType=Opt.ExecuteBathType;
+  BOOL Result=FALSE;
+
+  char *FullName=(char*)alloca(strlen(FileName)+64);
+  if(FullName)
+  {
+    strcpy(FullName,FileName);
+    char *FullNameExt=FullName+strlen(FullName);
+
+    while(*PtrBathType)
+    {
+      strcat(FullNameExt,PtrBathType);
+
+      if(GetFileAttributes(FullName)!=-1)
+      {
+        strncpy(DestName,FullName,SizeDestName);
+        Result=TRUE;
+        break;
+      }
+
+      PtrBathType+=strlen(PtrBathType)+1;
+    }
+  }
+
+  return Result;
+}
+#endif

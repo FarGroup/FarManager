@@ -7,7 +7,7 @@ fn.hpp
 
 */
 
-/* Revision: 1.276 06.06.2006 $ */
+/* Revision: 1.277 28.06.2006 $ */
 
 #include "farconst.hpp"
 #include "global.hpp"
@@ -1052,6 +1052,10 @@ int ESetFileTimeW(const wchar_t *Name,FILETIME *LastWriteTime,
 int ConvertWildcardsW (const wchar_t *SrcName,string &strDest, int SelectedFolderNameLength);
 
 const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine);
+BOOL IsBathExtTypeW(const wchar_t *ExtPtr);
+#ifdef ADD_GUI_CHECK
+BOOL BathFileExist(const char *FileName,char *DestName,int SizeDestName);
+#endif
 
 int WINAPI GetSearchReplaceStringW (
          int IsReplaceMode,

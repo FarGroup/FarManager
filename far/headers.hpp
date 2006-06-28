@@ -7,7 +7,7 @@ headers.hpp
 
 */
 
-/* Revision: 1.28 21.05.2006 $ */
+/* Revision: 1.29 28.06.2006 $ */
 
 #define STRICT
 
@@ -242,7 +242,7 @@ headers.hpp
   #endif
 #endif
 
-#if defined(__GNUC__) || (defined(__BORLANDC__) && (__BORLANDC__ < 0x0550))
+#if defined(__GNUC__) || (defined(__BORLANDC__) && (__BORLANDC__ < 0x0550)) || (defined(_MSC_VER) && _MSC_VER <= 1200) // defined(_DEBUG)
 
 #ifndef _DWORDLONG_
 typedef unsigned __int64 DWORDLONG;

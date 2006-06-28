@@ -5,7 +5,7 @@ config.cpp
 
 */
 
-/* Revision: 1.217 06.06.2006 $ */
+/* Revision: 1.218 28.06.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -74,6 +74,8 @@ const wchar_t NKeySavedViewHistoryW[]=L"SavedViewHistory";
 const wchar_t NKeySavedFolderHistoryW[]=L"SavedFolderHistory";
 const wchar_t NKeySavedDialogHistoryW[]=L"SavedDialogHistory";
 const wchar_t NParamHistoryCountW[]=L"HistoryCount";
+
+const wchar_t *constBathExtW=L".BAT;.CMD;";
 
 void SystemSettings()
 {
@@ -1139,6 +1141,7 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeySystemExecutorW,L"RestoreCP",&Opt.RestoreCPAfterExecute,1, 0},
   {0, REG_DWORD,  NKeySystemExecutorW,L"UseAppPath",&Opt.ExecuteUseAppPath,1, 0},
   {0, REG_DWORD,  NKeySystemExecutorW,L"ShowErrorMessage",&Opt.ExecuteShowErrorMessage,1, 0},
+  {0, REG_SZ,     NKeySystemExecutorW,L"BathType",&Opt.strExecuteBathType,0,constBathExtW},
 
   {0, REG_DWORD,  NKeyPanelTreeW,L"MinTreeCount",&Opt.Tree.MinTreeCount, 4, 0},
   {0, REG_DWORD,  NKeyPanelTreeW,L"LocalDisk",&Opt.Tree.LocalDisk, 2, 0},
@@ -1446,6 +1449,10 @@ void ReadConfig()
   // для опций HKCU может только добавлять блокироку пунктов
   Opt.Policies.DisabledOptions|=OptPolicies_DisabledOptions;
 
+  if(Opt.strExecuteBathType.IsEmpty()) // предохраняемся
+    Opt.strExecuteBathType=constBathExtW;
+  ReplaceStringsW(Opt.strExecuteBathType,L";",L"",-1);
+  Opt.strExecuteBathType+=L""; //???
   /* *************************************************** </ПОСТПРОЦЕССЫ> */
 }
 
