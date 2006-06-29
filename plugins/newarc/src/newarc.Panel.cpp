@@ -1,5 +1,7 @@
 #include "newarc.h"
 
+char *lpINIFileName;
+
 ArchivePanel::ArchivePanel (
 		Archive** pArchives,
 		int nArchivesCount
@@ -20,6 +22,10 @@ ArchivePanel::ArchivePanel (
 
 	m_bFirstTime = true;
 	m_nCurrentMode = 0;
+
+	lpINIFileName = StrDuplicate (Info.ModuleName, 260);
+	CutToSlash (lpINIFileName);
+	strcat (lpINIFileName, "templates.ini");
 }
 
 
@@ -36,6 +42,8 @@ ArchivePanel::~ArchivePanel ()
 	free (m_pArchives);
 
 	m_Editors.Free ();
+
+	StrFree (lpINIFileName);
 }
 
 bool ArchivePanel::ReadArchive ()
@@ -948,6 +956,7 @@ void ArchivePanel::pExecuteCommand (
 //	const char *lpAdditionalParams;
 //};
 
+
 void SetFormatTitle (FarDialogHandler *D)
 {
 	char *lpFormat = StrCreate (260);
@@ -963,6 +972,13 @@ void SetFormatTitle (FarDialogHandler *D)
 	StrFree (lpTitle);
 }
 
+struct ArchiveTemplate {
+	char *lpName;
+	int nArchiver;
+	char *lpParams;
+};
+
+Collection <ArchiveTemplate*> Templates;
 
 int __stdcall hndAddEditTemplate (
 		FarDialogHandler *D,
@@ -972,6 +988,10 @@ int __stdcall hndAddEditTemplate (
 		)
 {
 	FarListInfo lInfo;
+	
+	int iPos, *pPos = (int*) D->m_Owner->m_Items[5].Data;
+	 
+	iPos = *pPos; *pPos = 0;
 
 	if ( nMsg == DN_INITDIALOG )
 	{
@@ -980,32 +1000,31 @@ int __stdcall hndAddEditTemplate (
 			for (int j = 0; j < Plugins[i]->m_ArchivePluginInfo.nFormats; j++)
 				D->ListAddStr (5, Plugins[i]->m_ArchivePluginInfo.pFormatInfo[j].lpName);
 		}
+
+		if ( iPos != -1 )
+		{
+			FarListPos arcPos;
+
+			arcPos.SelectPos = Templates[iPos]->nArchiver;
+			arcPos.TopPos = -1;
+
+			D->ListSetCurrentPos (5, &arcPos);
+
+			D->SetTextPtr (2, Templates[iPos]->lpName);
+			D->SetTextPtr (7, Templates[iPos]->lpParams);
+		}
 	}
 
 	return D->DefDlgProc (nMsg, nParam1, nParam2);
 }
 
-struct ArchiveTemplate {
-	char *lpName;
-	int nArchiver;
-	char *lpParams;
-};
-
-Collection <ArchiveTemplate*> Templates;
-
 void LoadTemplates ()
 {
-	char *lpINIFileName = StrDuplicate (Info.ModuleName, 260);
-
-	CutToSlash (lpINIFileName);
-
-	strcat (lpINIFileName, "templates.ini");
-
-	char szNames[4096]; //я знаю, что это ламерство, но я вообще не собираюсь хранить шаблоны в ини.
+	char *szNames = StrCreate (4096); //я знаю, что это ламерство, но я вообще не собираюсь хранить шаблоны в ини. ???
 
 	Templates.Create (5);
 
-	if ( GetPrivateProfileSectionNames (szNames, 4096, lpINIFileName) )
+	if ( GetPrivateProfileSectionNames(szNames, 4096, lpINIFileName) )
 	{
 		const char *lpName = szNames;
 
@@ -1036,14 +1055,50 @@ void LoadTemplates ()
 
 		Templates[i]->nArchiver = GetPrivateProfileInt (Templates[i]->lpName, "Pos", -1, lpINIFileName);
 	}
+
+	StrFree (szNames);
 }
 
-
-void dlgAddEditTemplate ()
+void SaveTemplates ()
 {
+	int iCount = Templates.GetCount();
+
+	DeleteFile (lpINIFileName);
+	
+	if ( iCount > 0 )
+	{
+		char szArchiver[8];
+
+		for ( int i = 0; i < iCount; i++ )
+		{
+			WritePrivateProfileString (
+					Templates[i]->lpName,
+					"Params",
+					Templates[i]->lpParams,
+					lpINIFileName
+					);
+
+			itoa (Templates[i]->nArchiver, szArchiver, 10);
+
+			WritePrivateProfileString (
+					Templates[i]->lpName,
+					"Pos",
+					szArchiver,
+					lpINIFileName
+					);
+		}
+	}
+
+	Templates.Free ();
+}
+
+int dlgAddEditTemplate (FarDialogHandler *DD, bool blAdd)
+{
+	int iPos = ( blAdd ) ? Templates.GetCount() : DD->ListGetCurrentPos(7,NULL);
+
 	FarDialog *D = new FarDialog (-1, -1, 55, 11);
 
-	D->DoubleBox (3, 1, 51, 9, "Добавить шаблон"); //0
+	D->DoubleBox (3, 1, 51, 9, ( blAdd ) ? "Добавить шаблон" : "Изменить шаблон"); //0
 
 	D->Text (5, 2, "Имя шаблона"); //1
 	D->Edit (5, 3, 45); //2
@@ -1054,19 +1109,96 @@ void dlgAddEditTemplate ()
 	D->ComboBox (5, 6, 15, NULL, 0); //5
 	D->SetFlags (DIF_DROPDOWNLIST);
 
+	*(int*)D->m_Items[5].Data = ( blAdd ) ? -1 : iPos ;
+
 	D->Text (22, 5, "Дополнительные параметры"); //6
 	D->ComboBox (22, 6, 27, NULL, 0); //7
 
 	D->Separator(7); //8
 
-	D->Button(-1, 8, "Добавить"); //9
+	D->Button(-1, 8, ( blAdd ) ? "Добавить" : "Применить"); //9
+	D->DefaultButton ();
+
 	D->Button(-1, 8, "Отменить"); //10
 
+	if ( D->ShowEx ((void *)hndAddEditTemplate) == 9 )
+	{
+		if ( blAdd ) 
+		{
+			ArchiveTemplate *pTemplate = new ArchiveTemplate;
+			Templates.Add (pTemplate);
+		}
 
-
-	D->ShowEx((void *)hndAddEditTemplate);
+		Templates[iPos]->lpName = StrDuplicate (D->m_Items[2].Data);
+		Templates[iPos]->lpParams = StrDuplicate (D->m_Items[7].Data);
+		Templates[iPos]->nArchiver = D->m_Items[5].ListPos;
+	}
 
 	delete D;
+
+	return iPos;
+}
+
+void SetTemplate (FarDialogHandler *D)
+{
+	static bool blInit = false;
+
+	if (!blInit)
+	{
+		blInit = true;
+
+		FarListPos arcPos;	
+		FarListInfo li;
+		
+		int iCount = Templates.GetCount();
+		
+		D->ListInfo(7, &li);
+
+		if (li.SelectPos >= iCount || li.SelectPos == -1 ) 
+			li.SelectPos = iCount-1;
+
+		if ( li.ItemsNumber != iCount ) 
+		{
+			D->ListDelete (7, NULL);
+
+			for (int i = 0; i < iCount; i++)
+			{
+				D->ListAddStr (7, Templates[i]->lpName);
+			}
+
+			arcPos.TopPos = -1;
+			arcPos.SelectPos = li.SelectPos;
+			D->ListSetCurrentPos(7, &arcPos);
+		}
+
+		if ( li.SelectPos != -1 )
+		{
+			arcPos.SelectPos = Templates[li.SelectPos]->nArchiver;
+			D->SetTextPtr (14, Templates[li.SelectPos]->lpParams);
+		}
+		else 
+		{
+			arcPos.SelectPos = 0;
+			D->SetTextPtr(7,"");
+			D->SetTextPtr(14,"");
+		}
+
+		arcPos.TopPos = -1;
+		D->ListSetCurrentPos(12, &arcPos);
+
+		D->RedrawDialog();
+
+		blInit = false;
+	}
+
+	bool bEnable = (Templates.GetCount() > 0);
+	int nFocus = D->GetFocus ();
+
+	D->Enable (9, bEnable);
+	D->Enable (10, bEnable);
+
+	if ( !bEnable && ((nFocus == 9) || (nFocus == 10)) )
+		D->SetFocus (8);
 }
 
 int __stdcall hndModifyCreateArchive (
@@ -1087,16 +1219,44 @@ int __stdcall hndModifyCreateArchive (
 		}
 
 		for (int i = 0; i < Templates.GetCount(); i++)
-		{
 			D->ListAddStr (7, Templates[i]->lpName);
-		}
 
+		SetTemplate (D);
 	}
 
 	if ( nMsg == DN_BTNCLICK )
-		if ( nParam1 == 8 )
-			dlgAddEditTemplate ();
+	{
+		if ( (nParam1 == 5) && (nParam2 != 0) )
+			SetTemplate (D);
 
+		if ( nParam1 == 8 )
+		{
+			FarListPos arcPos;
+
+			arcPos.SelectPos = dlgAddEditTemplate (D, true);
+			arcPos.TopPos = -1;
+
+			D->ListSetCurrentPos (7, &arcPos);
+
+			SetTemplate (D);
+		}
+
+		if ( nParam1 == 9 )
+			if (Templates.GetCount ()>0)
+			{
+				int iPos = D->ListGetCurrentPos (7, NULL);
+
+				Templates.Remove(Templates[iPos]);
+				SetTemplate (D);
+			}
+						
+		if ( nParam1 == 10 )
+			if (Templates.GetCount ()>0)
+			{
+				dlgAddEditTemplate (D, false);
+				SetTemplate (D);
+			}
+	}
 
 	if ( nMsg == DN_DRAWDIALOG )
 		SetFormatTitle (D);
@@ -1104,27 +1264,33 @@ int __stdcall hndModifyCreateArchive (
 
 	if ( nMsg == DN_EDITCHANGE )
 	{
-		char *lpPassword1 = StrCreate (260);
-		char *lpPassword2 = StrCreate (260);
-
-		D->GetTextPtr (17, lpPassword1);
-		D->GetTextPtr (19, lpPassword2);
-
-		if ( !*lpPassword1 && !*lpPassword2 )
-			D->SetTextPtr (21, "");
-		else
+		if ((nParam1 == 17 ) || ( nParam1 == 19 ) )
 		{
-			if ( !strcmp (
-					lpPassword1,
-					lpPassword2
-					) )
-				D->SetTextPtr (21, "(пароли совпадают)");
+			char *lpPassword1 = StrCreate (260);
+			char *lpPassword2 = StrCreate (260);
+
+			D->GetTextPtr (17, lpPassword1);
+			D->GetTextPtr (19, lpPassword2);
+
+			if ( !*lpPassword1 && !*lpPassword2 )
+				D->SetTextPtr (21, "");
 			else
-				D->SetTextPtr (21, "(пароли НЕ совпадают)");
+			{
+				if ( !strcmp (
+						lpPassword1,
+						lpPassword2
+						) )
+					D->SetTextPtr (21, "(пароли совпадают)");
+				else
+					D->SetTextPtr (21, "(пароли НЕ совпадают)");
+			}
+
+			StrFree (lpPassword1);
+			StrFree (lpPassword2);
 		}
 
-		StrFree (lpPassword1);
-		StrFree (lpPassword2);
+		if (nParam1 == 7 ) 
+			SetTemplate (D);
 	}
 
 	if ( nMsg == DN_CLOSE )
@@ -1169,12 +1335,13 @@ void dlgModifyCreateArchive ()
 	else
 	{
 		strcpy (lpArchiveName, FSF.PointToName (pnInfo.SelectedItems->FindData.cFileName));
-		CutTo (lpArchiveName, '.', true);
+		if ( !(pnInfo.SelectedItems->FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) ) 
+			CutTo (lpArchiveName, '.', true);
 	}
 
-	FarDialog *D = new FarDialog (-1, -1, 75, 19);
+	FarDialog *D = new FarDialog (-1, -1, 75, 20);
 
-	D->DoubleBox (3, 1, 71, 17, NULL); //0
+	D->DoubleBox (3, 1, 71, 18, NULL); //0
 
 	D->Text (5, 2, "&Добавить к архиву");//1
 	D->Edit (5, 3, 65, lpArchiveName, AUTO_LENGTH, "sdfas"); //2
@@ -1193,7 +1360,10 @@ void dlgModifyCreateArchive ()
 	D->SetFlags(DIF_BTNNOCLOSE);
 
 	D->Button (63, 7, "[-]"); //9
+	D->SetFlags(DIF_BTNNOCLOSE);
+
 	D->Button (67, 7, "[*]"); //10
+	D->SetFlags(DIF_BTNNOCLOSE);
 
 	D->Text (9, 9, "Архиватор:");//11
 	D->ComboBox (19, 9, 15, NULL, 0, "123");//12
@@ -1215,17 +1385,18 @@ void dlgModifyCreateArchive ()
 	D->Text (48, 13); //21
 
 	D->CheckBox (5, 14, false, "Точное соответствие имени файла"); //22
+	D->CheckBox (5, 15, false, "Каждый элемент в отдельный архив"); //23
 
-	D->Separator (15); //23
+	D->Separator (16); //24
 
-	D->Button (-1, 16, "Добавить"); //24
+	D->Button (-1, 17, "Добавить"); //25
 	D->DefaultButton ();
 
-	D->Button (-1, 16, "Отменить"); //25
+	D->Button (-1, 17, "Отменить"); //26
 
 	if ( D->ShowEx (
 			(PVOID)hndModifyCreateArchive
-			) == 24 )
+			) == 25 )
 	{
 		char *lpCommand = StrCreate (260);
 		char *lpPassword = StrCreate (260);
@@ -1246,45 +1417,58 @@ void dlgModifyCreateArchive ()
 			{
 				if ( nIndex == nPos )
 				{
+				
 					pPlugin = Plugins[i];
 					nIndex = j;
+					
+					bool blSeparately = D->m_Items[23].Selected && (pnInfo.SelectedItemsNumber > 1);
+					int	iCount = ( blSeparately ) ? pnInfo.SelectedItemsNumber : 1;
 
-					strcat (lpArchiveName, ".");
+					for (int k = 0; k < iCount; k++)
+					{
+						if ( blSeparately )
+						{
+							strcpy (lpArchiveName, FSF.PointToName (pnInfo.SelectedItems[k].FindData.cFileName));
+							if ( !(pnInfo.SelectedItems[k].FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) ) 
+								CutTo (lpArchiveName, '.', true);
+						}
+						
+						strcat (lpArchiveName, ".");
 
-					if ( !D->m_Items[22].Selected )
-						strcat (lpArchiveName, Plugins[i]->m_ArchivePluginInfo.pFormatInfo[j].lpDefaultExtention);
+						if ( !D->m_Items[22].Selected )
+							strcat (lpArchiveName, Plugins[i]->m_ArchivePluginInfo.pFormatInfo[j].lpDefaultExtention);
+
+						if ( pPlugin )
+						{
+							GetDefaultCommandStruct GDC;
+
+							GDC.nFormat = nIndex;
+							GDC.nCommand = COMMAND_ADD;
+							GDC.lpCommand = lpCommand;
+
+							if ( pPlugin->m_pfnPluginEntry (FID_GETDEFAULTCOMMAND, (void*)&GDC) == NAERROR_SUCCESS )
+							{
+								ExecuteCommand (
+										nIndex,
+										lpCommand,
+										lpArchiveName,
+										lpPassword,
+										NULL,
+										lpAdditionalCommandLine,
+										pnInfo.SelectedItems+k,
+										( blSeparately ) ? 1 : pnInfo.SelectedItemsNumber
+										);
+							}
+						}
+					}
 
 					goto l_Found;
 				}
-
 				nIndex++;
 			}
 		}
 
 l_Found:
-
-		if ( pPlugin )
-		{
-			GetDefaultCommandStruct GDC;
-
-			GDC.nFormat = nIndex;
-			GDC.nCommand = COMMAND_ADD;
-			GDC.lpCommand = lpCommand;
-
-			if ( pPlugin->m_pfnPluginEntry (FID_GETDEFAULTCOMMAND, (void*)&GDC) == NAERROR_SUCCESS )
-			{
-				ExecuteCommand (
-						nIndex,
-						lpCommand,
-						lpArchiveName,
-						lpPassword,
-						NULL,
-						lpAdditionalCommandLine,
-						pnInfo.SelectedItems,
-						pnInfo.SelectedItemsNumber
-						);
-			}
-		}
 
 		StrFree (lpPassword);
 		StrFree (lpCommand);
@@ -1292,6 +1476,8 @@ l_Found:
 	}
 
 	StrFree (lpArchiveName);
+
+	SaveTemplates ();
 
 	delete D;
 }
