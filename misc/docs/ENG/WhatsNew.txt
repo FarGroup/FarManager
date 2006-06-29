@@ -9,12 +9,17 @@
 [*] Changes
 
 ---------------------------------------------------------------------------
-FAR 1.71 alpha 2 (build 2107) (20.06.2006)
+FAR 1.71 alpha 2 (build 2111) (28.06.2006)
 ---------------------------------------------------------------------------
 
 [!] Far.Title now returns the full console title.
 
 [+] Added "Del removes blocks in edit controls" to dialog settings.
+
+[+] Errors in the folder creation process (F7) can be skipped when the
+    "Process multiple names" option is set.
+
+[+] TechInfo#73 - allows to define file extensions for batch files.
 
 [*] Macro command Title in the viewer and editor returns the title that is
     specified in the status bar.
@@ -23,6 +28,15 @@ FAR 1.71 alpha 2 (build 2107) (20.06.2006)
 
 [-] Incorrect sorting of strings differing only in length when "numeric sort"
     is on.
+
+[-] Wrong positioning in Quick view after canceling the search dialog.
+
+[-] The Quick view panel was overlapping the search progress bar when
+    searching.
+
+[-] Rare crash while creating folders (F7).
+
+[-] Wrong console window title for the files/folders move operation.
 
 TempPanel - build 29
 ~~~~~~~~~~~~~~~~~~~~
@@ -97,32 +111,31 @@ FAR 1.71 alpha 1 (build 2104) (25.05.2006)
 [-] Paths of DriveLetter: type did not work for the passive panel when
     executing programs in Windows9x.
 
-[-] Некорректная обработка команд командной строки содержащих символы в не OEM
-    кодировке.
+[-] Incorrect processing of command line commands that contained non OEM
+    characters.
 
 [-] [A|P]Panel.UNCPath returned '\' at the end.
 
-[-] Функция fsplit в макросах для имени файла в корне плагиновой панели
-    добавляла префикс плагина.
+[-] The fsplit macro functions was adding the plugin prefix to the file name
+    when called from plugin's root folder.
 
-[-] Некорректно обрабатывались Dead-клавиши.
+[-] Incorrect processing of Dead-keys.
 
-[-] Падение FAR при изменении размера размера табуляции в процессе
-    просмотра файла.
+[-] FAR could crash if the tab size was changed while viewing a file.
 
-[-] Падение FAR для команды "far /e" с выставленной опцией показа часов.
+[-] FAR could crash when opened as "far /e" with the clock set to visible.
 
-[-] Некорректная прорисовка экрана после вызова функций Editor и Viewer
-    с выставленным флагом ?F_IMMEDIATERETURN.
+[-] The screen was not redrawn correctly after calling the Editor or the Viewer
+    functions with the ?F_IMMEDIATERETURN flag set.
 
-[-] ECTL_SAVEFILE в EE_READ для существующего файла приводило к не верному
-    сообщению об изменение файла извне.
+[-] Calling ECTL_SAVEFILE from EE_READ for an existing file caused a wrong
+    message of file being changed by an external application to be displayed.
 
-[-] При большой ширине консольного окна меню "Screens" (F12) могло быть
-    показано некорректно.
+[-] The "Screens" menu (F12) could have been shown incorrectly in a very wide
+    console window.
 
-[-] Неправильное позиционирование на каталоге с национальными символами
-    в имени при исполнении команды "FAR . Shift-Enter".
+[-] Incorrect positioning on a folder with national characters in its name when
+    executing "FAR . Shift-Enter".
 
 MultiArc - build 181
 ~~~~~~~~~~~~~~~~~~~~
