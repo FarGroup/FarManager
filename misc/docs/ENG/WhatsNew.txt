@@ -9,7 +9,7 @@
 [*] Changes
 
 ---------------------------------------------------------------------------
-FAR 1.71 alpha 2 (build 2111) (28.06.2006)
+FAR 1.71 alpha 2 (build 2112) (29.06.2006)
 ---------------------------------------------------------------------------
 
 [!] Far.Title now returns the full console title.
@@ -37,6 +37,9 @@ FAR 1.71 alpha 2 (build 2111) (28.06.2006)
 [-] Rare crash while creating folders (F7).
 
 [-] Wrong console window title for the files/folders move operation.
+
+[-] Instead of opening the folder in Explorer (using Shift-Enter)
+    an attempt was made to run an executable file of the same name.
 
 TempPanel - build 29
 ~~~~~~~~~~~~~~~~~~~~
