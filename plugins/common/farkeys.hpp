@@ -9,7 +9,7 @@
   Copyrigth (c) 2000-2006 FAR group
 */
 
-/* Revision: 1.33 17.04.2006 $ */
+/* Revision: 1.33 29.06.2006 $ */
 
 
 enum BaseDefKeyboard
