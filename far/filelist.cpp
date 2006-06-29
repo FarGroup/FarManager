@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.249 28.06.2006 $ */
+/* Revision: 1.250 29.06.2006 $ */
 
 /*
 Modify:
+  29.06.2006 SVS
+    ! Bath -> Batch
+    - Mantis#204
   28.06.2006 SVS
     + IsBathExtType(), BathFileExist()
   13.04.2006 SVS
@@ -2617,7 +2620,7 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
         strcpy(FullPath,CurPtr->Name);
       }
       QuoteSpace(FullPath);
-      Execute(FullPath,FALSE,SeparateWindow?2:0,TRUE);
+      Execute(FullPath,FALSE,SeparateWindow?2:0,TRUE,CurPtr->FileAttr&FA_DIREC);
     }
     else
     {
@@ -2674,7 +2677,7 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
     if (ExtPtr!=NULL)
     {
       ExeType=stricmp(ExtPtr,".exe")==0 || stricmp(ExtPtr,".com")==0;
-      BatType=IsBathExtType(ExtPtr);
+      BatType=IsBatchExtType(ExtPtr);
     }
     if (EnableExec && (ExeType || BatType))
     {

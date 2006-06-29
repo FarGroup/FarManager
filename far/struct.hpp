@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.143 28.06.2006 $ */
+/* Revision: 1.144 29.06.2006 $ */
 
 /*
 Modify:
+  29.06.2006 SVS
+    ! Bath -> Batch
   28.06.2006 SVS
     + Opt.ExecuteBathType
   24.05.2006 SVS
@@ -939,7 +941,7 @@ struct Options
   int RestoreCPAfterExecute;
   int ExecuteShowErrorMessage;
   int ExecuteUseAppPath;
-  char ExecuteBathType[256];
+  char ExecuteBatchType[256];
 
 #if defined(FAR_ANSI)
   int FarAnsi;

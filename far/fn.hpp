@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.244 28.06.2006 $ */
+/* Revision: 1.245 29.06.2006 $ */
 
 /*
 Modify:
+  29.06.2006 SVS
+    ! Bath -> Batch
+    ! Execute + доп параметр (Mantis#204)
   28.06.2006 SVS
     + IsBathExtType(), BathFileExist()
   29.05.2006 SVS
@@ -1025,8 +1028,7 @@ int CheckShortcutFolder(char *TestPath,int LengthPath,int IsHostFile, BOOL Silen
 
 #if defined(__FARCONST_HPP__) && (defined(_INC_WINDOWS) || defined(_WINDOWS_) || defined(_WINDOWS_H))
 UDWORD NTTimeToDos(FILETIME *ft);
-int Execute(const char *CmdStr,int AlwaysWaitFinish,int SeparateWindow=FALSE,
-            int DirectRun=FALSE);
+int Execute(const char *CmdStr,int AlwaysWaitFinish,int SeparateWindow=FALSE,int DirectRun=FALSE,int FolderRun=FALSE);
 #endif
 
 class Panel;
@@ -1569,8 +1571,8 @@ int ESetFileTime(const char *Name,FILETIME *LastWriteTime,
 int ConvertWildcards(const char *Src,char *Dest, int SelectedFolderNameLength);
 
 const char* WINAPI PrepareOSIfExist(const char *CmdLine);
-BOOL IsBathExtType(const char *ExtPtr);
-BOOL BathFileExist(const char *FileName,char *DestName,int SizeDestName);
+BOOL IsBatchExtType(const char *ExtPtr);
+BOOL BatchFileExist(const char *FileName,char *DestName,int SizeDestName);
 
 int WINAPI GetSearchReplaceString(
          int IsReplaceMode,

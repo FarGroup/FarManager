@@ -5,10 +5,13 @@ execute.cpp
 
 */
 
-/* Revision: 1.127 28.06.2006 $ */
+/* Revision: 1.128 29.06.2006 $ */
 
 /*
 Modify:
+  29.06.2006 SVS
+    ! Bath -> Batch
+    ! Execute + доп параметр (Mantis#204)
   28.06.2006 SVS
     + IsBathExtType(), BathFileExist()
   23.04.2006 AY
@@ -985,7 +988,7 @@ DWORD IsCommandExeGUI(const char *Command)
   */
   for(;;)
   {
-    if(BathFileExist(FileName,FullName,sizeof(FullName)-1))
+    if(BatchFileExist(FileName,FullName,sizeof(FullName)-1))
       break;
   /* skv$*/
 
@@ -1051,7 +1054,8 @@ void SetCurrentDirectoryForPassivePanel(const char *Comspec,const char *CmdStr)
 int Execute(const char *CmdStr,    // Ком.строка для исполнения
             int AlwaysWaitFinish,  // Ждать завершение процесса?
             int SeparateWindow,    // Выполнить в отдельном окне? =2 для вызова ShellExecuteEx()
-            int DirectRun)         // Выполнять директом? (без CMD)
+            int DirectRun,         // Выполнять директом? (без CMD)
+            int FolderRun)         // Это фолдер?
 {
   int nResult = -1;
 
@@ -1141,23 +1145,28 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
 
   HANDLE hProcess = NULL, hThread = NULL;
 
-  PrepareExecuteModule(NewCmdStr,NewCmdStr,sizeof(NewCmdStr)-1,dwSubSystem);
-
-  if(/*!*NewCmdPar && */ dwSubSystem == IMAGE_SUBSYSTEM_UNKNOWN)
+  if(FolderRun && SeparateWindow==2)
+    strcat(NewCmdStr,"\\"); // НАДА, иначе ShellExecuteEx "возьмет" BAT/CMD/пр.ересь, но не каталог
+  else
   {
-    DWORD Error=0, dwSubSystem2=0;
-    char *ExtPtr=strrchr(NewCmdStr,'.');
+    PrepareExecuteModule(NewCmdStr,NewCmdStr,sizeof(NewCmdStr)-1,dwSubSystem);
 
-    if(ExtPtr &&
-      !(stricmp(ExtPtr,".exe")==0 || stricmp(ExtPtr,".com")==0 ||
-        IsBathExtType(ExtPtr))
-      )
-      if(GetShellAction(NewCmdStr,dwSubSystem2,Error) && Error != ERROR_NO_ASSOCIATION)
-        dwSubSystem=dwSubSystem2;
+    if(/*!*NewCmdPar && */ dwSubSystem == IMAGE_SUBSYSTEM_UNKNOWN)
+    {
+      DWORD Error=0, dwSubSystem2=0;
+      char *ExtPtr=strrchr(NewCmdStr,'.');
+
+      if(ExtPtr &&
+        !(stricmp(ExtPtr,".exe")==0 || stricmp(ExtPtr,".com")==0 ||
+          IsBatchExtType(ExtPtr))
+        )
+        if(GetShellAction(NewCmdStr,dwSubSystem2,Error) && Error != ERROR_NO_ASSOCIATION)
+          dwSubSystem=dwSubSystem2;
+    }
+
+    if ( dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_GUI )
+      SeparateWindow = 2;
   }
-
-  if ( dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_GUI )
-    SeparateWindow = 2;
 
   ScrBuf.Flush ();
 
@@ -1950,23 +1959,23 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
 }
 
 // Проверить "Это батник?"
-BOOL IsBathExtType(const char *ExtPtr)
+BOOL IsBatchExtType(const char *ExtPtr)
 {
-  char *PtrBathType=Opt.ExecuteBathType;
-  while(*PtrBathType)
+  char *PtrBatchType=Opt.ExecuteBatchType;
+  while(*PtrBatchType)
   {
-    if(stricmp(ExtPtr,PtrBathType)==0)
+    if(stricmp(ExtPtr,PtrBatchType)==0)
       return TRUE;
-    PtrBathType+=strlen(PtrBathType)+1;
+    PtrBatchType+=strlen(PtrBatchType)+1;
   }
 
   return FALSE;
 }
 
 // батник существует? (и вернем полное имя - добавляется расширение)
-BOOL BathFileExist(const char *FileName,char *DestName,int SizeDestName)
+BOOL BatchFileExist(const char *FileName,char *DestName,int SizeDestName)
 {
-  char *PtrBathType=Opt.ExecuteBathType;
+  char *PtrBatchType=Opt.ExecuteBatchType;
   BOOL Result=FALSE;
 
   char *FullName=(char*)alloca(strlen(FileName)+64);
@@ -1975,9 +1984,9 @@ BOOL BathFileExist(const char *FileName,char *DestName,int SizeDestName)
     strcpy(FullName,FileName);
     char *FullNameExt=FullName+strlen(FullName);
 
-    while(*PtrBathType)
+    while(*PtrBatchType)
     {
-      strcat(FullNameExt,PtrBathType);
+      strcat(FullNameExt,PtrBatchType);
 
       if(GetFileAttributes(FullName)!=-1)
       {
@@ -1986,7 +1995,7 @@ BOOL BathFileExist(const char *FileName,char *DestName,int SizeDestName)
         break;
       }
 
-      PtrBathType+=strlen(PtrBathType)+1;
+      PtrBatchType+=strlen(PtrBatchType)+1;
     }
   }
 

@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.205 28.06.2006 $ */
+/* Revision: 1.206 29.06.2006 $ */
 
 /*
 Modify:
+  29.06.2006 SVS
+    ! Bath -> Batch
   28.06.2006 SVS
     + Opt.ExecuteBathType
   06.06.2006 WARP
@@ -642,7 +644,7 @@ const char NKeySavedDialogHistory[]="SavedDialogHistory";
 
 const char NParamHistoryCount[]="HistoryCount";
 
-const char constBathExt[]=".BAT;.CMD;";
+const char constBatchExt[]=".BAT;.CMD;";
 
 void SystemSettings()
 {
@@ -1731,7 +1733,7 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeySystemExecutor,"RestoreCP",&Opt.RestoreCPAfterExecute,1, 0},
   {0, REG_DWORD,  NKeySystemExecutor,"UseAppPath",&Opt.ExecuteUseAppPath,1, 0},
   {0, REG_DWORD,  NKeySystemExecutor,"ShowErrorMessage",&Opt.ExecuteShowErrorMessage,1, 0},
-  {0, REG_SZ,     NKeySystemExecutor,"BathType",Opt.ExecuteBathType,sizeof(Opt.ExecuteBathType)-2,constBathExt},
+  {0, REG_SZ,     NKeySystemExecutor,"BatchType",Opt.ExecuteBatchType,sizeof(Opt.ExecuteBatchType)-2,constBatchExt},
 
   {0, REG_DWORD,  NKeyPanelTree,"MinTreeCount",&Opt.Tree.MinTreeCount, 4, 0},
   {0, REG_DWORD,  NKeyPanelTree,"LocalDisk",&Opt.Tree.LocalDisk, 2, 0},
@@ -2038,14 +2040,14 @@ void ReadConfig()
   // для опций HKCU может только добавлять блокироку пунктов
   Opt.Policies.DisabledOptions|=OptPolicies_DisabledOptions;
 
-  char *PtrBathType=Opt.ExecuteBathType, *EndPtrBathType=PtrBathType+sizeof(Opt.ExecuteBathType)-1;
-  if(!*PtrBathType) // предохраняемся
-    strcpy(Opt.ExecuteBathType,constBathExt);
-  for(; *PtrBathType && PtrBathType < EndPtrBathType; ++PtrBathType)
-    if(*PtrBathType == ';')
-      *PtrBathType=0;
-  *PtrBathType++=0;
-  *PtrBathType++=0;
+  char *PtrBatchType=Opt.ExecuteBatchType, *EndPtrBatchType=PtrBatchType+sizeof(Opt.ExecuteBatchType)-1;
+  if(!*PtrBatchType) // предохраняемся
+    strcpy(Opt.ExecuteBatchType,constBatchExt);
+  for(; *PtrBatchType && PtrBatchType < EndPtrBatchType; ++PtrBatchType)
+    if(*PtrBatchType == ';')
+      *PtrBatchType=0;
+  *PtrBatchType++=0;
+  *PtrBatchType++=0;
 
   /* *************************************************** </ПОСТПРОЦЕССЫ> */
 }
