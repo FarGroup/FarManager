@@ -5,7 +5,7 @@ execute.cpp
 
 */
 
-/* Revision: 1.140 29.06.2006 $ */
+/* Revision: 1.141 30.06.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -816,7 +816,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
   HANDLE hProcess = NULL, hThread = NULL;
 
   if(FolderRun && SeparateWindow==2)
-    strNewCmdStr+=L"\\"; // НАДА, иначе ShellExecuteEx "возьмет" BAT/CMD/пр.ересь, но не каталог
+    AddEndSlashW(strNewCmdStr); // НАДА, иначе ShellExecuteEx "возьмет" BAT/CMD/пр.ересь, но не каталог
   else
   {
     PrepareExecuteModule(strNewCmdStr,strNewCmdStr,dwSubSystem);
