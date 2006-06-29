@@ -7,7 +7,7 @@ fn.hpp
 
 */
 
-/* Revision: 1.277 28.06.2006 $ */
+/* Revision: 1.278 29.06.2006 $ */
 
 #include "farconst.hpp"
 #include "global.hpp"
@@ -508,8 +508,7 @@ int CheckShortcutFolderW(string *pTestPath,int IsHostFile, BOOL Silent=FALSE);
 
 #if defined(__FARCONST_HPP__) && (defined(_INC_WINDOWS) || defined(_WINDOWS_) || defined(_WINDOWS_H))
 UDWORD NTTimeToDos(FILETIME *ft);
-int Execute(const wchar_t *CmdStr,int AlwaysWaitFinish,int SeparateWindow=FALSE,
-            int DirectRun=FALSE);
+int Execute(const wchar_t *CmdStr,int AlwaysWaitFinish,int SeparateWindow=FALSE,int DirectRun=FALSE,int FolderRun=FALSE);
 #endif
 
 class Panel;
@@ -1052,9 +1051,9 @@ int ESetFileTimeW(const wchar_t *Name,FILETIME *LastWriteTime,
 int ConvertWildcardsW (const wchar_t *SrcName,string &strDest, int SelectedFolderNameLength);
 
 const wchar_t* WINAPI PrepareOSIfExist(const wchar_t *CmdLine);
-BOOL IsBathExtTypeW(const wchar_t *ExtPtr);
+BOOL IsBatchExtTypeW(const wchar_t *ExtPtr);
 #ifdef ADD_GUI_CHECK
-BOOL BathFileExist(const char *FileName,char *DestName,int SizeDestName);
+BOOL BatchFileExist(const char *FileName,char *DestName,int SizeDestName);
 #endif
 
 int WINAPI GetSearchReplaceStringW (

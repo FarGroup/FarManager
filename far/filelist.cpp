@@ -5,7 +5,7 @@ filelist.cpp
 
 */
 
-/* Revision: 1.276 28.06.2006 $ */
+/* Revision: 1.277 29.06.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -1945,7 +1945,7 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
       }
       QuoteSpaceW(strFullPath);
 
-      Execute(strFullPath,FALSE,SeparateWindow?2:0,TRUE);
+      Execute(strFullPath,FALSE,SeparateWindow?2:0,TRUE,CurPtr->FileAttr&FA_DIREC);
     }
     else
     {
@@ -2005,7 +2005,7 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
     if (ExtPtr!=NULL)
     {
       ExeType=LocalStricmpW(ExtPtr,L".exe")==0 || LocalStricmpW(ExtPtr,L".com")==0;
-      BatType=IsBathExtTypeW(ExtPtr);
+      BatType=IsBatchExtTypeW(ExtPtr);
     }
     if (EnableExec && (ExeType || BatType))
     {

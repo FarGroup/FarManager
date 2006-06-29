@@ -5,7 +5,7 @@ execute.cpp
 
 */
 
-/* Revision: 1.139 28.06.2006 $ */
+/* Revision: 1.140 29.06.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -641,7 +641,7 @@ DWORD IsCommandExeGUI(const char *Command)
   */
   for(;;)
   {
-    if(BathFileExist(FileName,FullName,sizeof(FullName)-1))
+    if(BatchFileExist(FileName,FullName,sizeof(FullName)-1))
       break;
   /* skv$*/
 
@@ -728,7 +728,8 @@ void SetCurrentDirectoryForPassivePanel(string &strComspec,const wchar_t *CmdStr
 int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
             int AlwaysWaitFinish,  // Ждать завершение процесса?
             int SeparateWindow,    // Выполнить в отдельном окне? =2 для вызова ShellExecuteEx()
-            int DirectRun)         // Выполнять директом? (без CMD)
+            int DirectRun,         // Выполнять директом? (без CMD)
+            int FolderRun)         // Это фолдер?
 {
   int nResult = -1;
 
@@ -814,21 +815,26 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
 
   HANDLE hProcess = NULL, hThread = NULL;
 
-  PrepareExecuteModule(strNewCmdStr,strNewCmdStr,dwSubSystem);
-
-  if(/*!*NewCmdPar && */ dwSubSystem == IMAGE_SUBSYSTEM_UNKNOWN)
+  if(FolderRun && SeparateWindow==2)
+    strNewCmdStr+=L"\\"; // НАДА, иначе ShellExecuteEx "возьмет" BAT/CMD/пр.ересь, но не каталог
+  else
   {
-    DWORD Error=0, dwSubSystem2=0;
-    wchar_t *ExtPtr=wcsrchr(strNewCmdStr,L'.');
+    PrepareExecuteModule(strNewCmdStr,strNewCmdStr,dwSubSystem);
 
-    if(ExtPtr && !(LocalStricmpW(ExtPtr,L".exe")==0 || LocalStricmpW(ExtPtr,L".com")==0 ||
-       IsBathExtTypeW(ExtPtr)))
-      if(GetShellAction(strNewCmdStr,dwSubSystem2,Error) && Error != ERROR_NO_ASSOCIATION)
-        dwSubSystem=dwSubSystem2;
+    if(/*!*NewCmdPar && */ dwSubSystem == IMAGE_SUBSYSTEM_UNKNOWN)
+    {
+      DWORD Error=0, dwSubSystem2=0;
+      wchar_t *ExtPtr=wcsrchr(strNewCmdStr,L'.');
+
+      if(ExtPtr && !(LocalStricmpW(ExtPtr,L".exe")==0 || LocalStricmpW(ExtPtr,L".com")==0 ||
+         IsBatchExtTypeW(ExtPtr)))
+        if(GetShellAction(strNewCmdStr,dwSubSystem2,Error) && Error != ERROR_NO_ASSOCIATION)
+          dwSubSystem=dwSubSystem2;
+    }
+
+    if ( dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_GUI )
+      SeparateWindow = 2;
   }
-
-  if ( dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_GUI )
-    SeparateWindow = 2;
 
   ScrBuf.Flush ();
 
@@ -1598,14 +1604,14 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 }
 
 // Проверить "Это батник?"
-BOOL IsBathExtTypeW(const wchar_t *ExtPtr)
+BOOL IsBatchExtTypeW(const wchar_t *ExtPtr)
 {
-  const wchar_t *PtrBathType=Opt.strExecuteBathType;
-  while(*PtrBathType)
+  const wchar_t *PtrBatchType=Opt.strExecuteBatchType;
+  while(*PtrBatchType)
   {
-    if(LocalStricmpW(ExtPtr,PtrBathType)==0)
+    if(LocalStricmpW(ExtPtr,PtrBatchType)==0)
       return TRUE;
-    PtrBathType+=wcslen(PtrBathType)+1;
+    PtrBatchType+=wcslen(PtrBatchType)+1;
   }
 
   return FALSE;
@@ -1613,9 +1619,9 @@ BOOL IsBathExtTypeW(const wchar_t *ExtPtr)
 
 #ifdef ADD_GUI_CHECK
 // батник существует? (и вернем полное имя - добавляется расширение)
-BOOL BathFileExist(const char *FileName,char *DestName,int SizeDestName)
+BOOL BatchFileExist(const char *FileName,char *DestName,int SizeDestName)
 {
-  char *PtrBathType=Opt.ExecuteBathType;
+  char *PtrBatchType=Opt.ExecuteBatchType;
   BOOL Result=FALSE;
 
   char *FullName=(char*)alloca(strlen(FileName)+64);
@@ -1624,9 +1630,9 @@ BOOL BathFileExist(const char *FileName,char *DestName,int SizeDestName)
     strcpy(FullName,FileName);
     char *FullNameExt=FullName+strlen(FullName);
 
-    while(*PtrBathType)
+    while(*PtrBatchType)
     {
-      strcat(FullNameExt,PtrBathType);
+      strcat(FullNameExt,PtrBatchType);
 
       if(GetFileAttributes(FullName)!=-1)
       {
@@ -1635,7 +1641,7 @@ BOOL BathFileExist(const char *FileName,char *DestName,int SizeDestName)
         break;
       }
 
-      PtrBathType+=strlen(PtrBathType)+1;
+      PtrBatchType+=strlen(PtrBatchType)+1;
     }
   }
 
