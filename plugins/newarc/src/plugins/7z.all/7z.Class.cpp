@@ -339,7 +339,7 @@ bool __stdcall SevenZipArchive::pOpenArchive (
 
 		if ( SUCCEEDED (hr) )
   		{
-  			unsigned __int64 max = 0;
+  			unsigned __int64 max = 1 << 17;
 
 			CArchiveOpenCallback *pCallback = new CArchiveOpenCallback;
 
