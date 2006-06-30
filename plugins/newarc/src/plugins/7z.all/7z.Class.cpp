@@ -80,10 +80,10 @@ int FindFormats (const char *lpFileName, Collection <FormatPosition*> &formats)
 
 	if ( hFile != INVALID_HANDLE_VALUE )
 	{
-		unsigned char *buffer = (unsigned char*)malloc (32768);
+		unsigned char *buffer = (unsigned char*)malloc (1 << 17);
 		DWORD dwRead;
 
-		if ( ReadFile (hFile, buffer, 32768, &dwRead, NULL) )
+		if ( ReadFile (hFile, buffer, 1 << 17, &dwRead, NULL) )
 		{
 			for (int j = 0; j < sizeof (signs)/sizeof(signs[0]); j++)
 			{
@@ -103,6 +103,8 @@ int FindFormats (const char *lpFileName, Collection <FormatPosition*> &formats)
 				}
 			}
 		}
+
+		free (buffer);
 
 		CloseHandle (hFile);
 	}
