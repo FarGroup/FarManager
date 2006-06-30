@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.128 29.06.2006 $ */
+/* Revision: 1.129 30.06.2006 $ */
 
 /*
 Modify:
+  30.06.2006 SVS
+    ! Mantis#204 - небольшие недоделки.
   29.06.2006 SVS
     ! Bath -> Batch
     ! Execute + доп параметр (Mantis#204)
@@ -1146,7 +1148,7 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
   HANDLE hProcess = NULL, hThread = NULL;
 
   if(FolderRun && SeparateWindow==2)
-    strcat(NewCmdStr,"\\"); // НАДА, иначе ShellExecuteEx "возьмет" BAT/CMD/пр.ересь, но не каталог
+    AddEndSlash(NewCmdStr); // НАДА, иначе ShellExecuteEx "возьмет" BAT/CMD/пр.ересь, но не каталог
   else
   {
     PrepareExecuteModule(NewCmdStr,NewCmdStr,sizeof(NewCmdStr)-1,dwSubSystem);
