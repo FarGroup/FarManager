@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="newarc"
-	ProjectGUID="{C3256485-D1F9-40E0-BCA2-4E51921E14D6}"
+	Name="7z"
+	ProjectGUID="{26E284B8-6296-4CBA-9C61-967BC3EDE229}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -19,10 +19,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;NEWARC_EXPORTS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;RAR_EXPORTS"
 				MinimalRebuild="TRUE"
+				ExceptionHandling="FALSE"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="5"
+				RuntimeLibrary="4"
 				StructMemberAlignment="1"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -32,13 +33,13 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="G:\System Independent Files\Manager\Far\Plugins\newarc\newarc.dll"
+				OutputFile="&quot;G:\System Independent Files\Manager\Far\Plugins\NEWARC\plugins\7z_all\7z_all.module&quot; "
 				LinkIncremental="2"
-				ModuleDefinitionFile="newarc.def"
+				ModuleDefinitionFile="7z.def"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="$(OutDir)/newarc.pdb"
+				ProgramDatabaseFile="$(OutDir)/rar.pdb"
 				SubSystem="2"
-				ImportLibrary="$(OutDir)/newarc.lib"
+				ImportLibrary="$(OutDir)/rar.lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
@@ -69,14 +70,15 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
+				Optimization="1"
 				GlobalOptimizations="TRUE"
-				FavorSizeOrSpeed="1"
+				FavorSizeOrSpeed="2"
 				OmitFramePointers="TRUE"
-				AdditionalIncludeDirectories="lib.part\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;NEWARC_EXPORTS"
+				AdditionalIncludeDirectories="..\..\lib.part\include"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;RAR_EXPORTS"
 				StringPooling="TRUE"
 				ExceptionHandling="FALSE"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="4"
 				StructMemberAlignment="1"
 				BufferSecurityCheck="FALSE"
@@ -88,17 +90,17 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="G:\System Independent Files\Manager\Far\Plugins\newarc\newarc.dll"
+				AdditionalDependencies="rtllib.core.lib libc.lib"
+				OutputFile="&quot;G:\System Independent Files\Manager\Far\Plugins\NEWARC\plugins\7z_all\7z_all.module&quot; "
 				LinkIncremental="1"
-				IgnoreAllDefaultLibraries="FALSE"
-				ModuleDefinitionFile="newarc.def"
+				IgnoreAllDefaultLibraries="TRUE"
+				ModuleDefinitionFile="7z.def"
 				GenerateDebugInformation="FALSE"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				EntryPointSymbol=""
-				BaseAddress=""
-				ImportLibrary="$(OutDir)/newarc.lib"
+				OptimizeForWindows98="1"
+				ImportLibrary="$(OutDir)/rar.lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
@@ -130,43 +132,28 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
-				RelativePath=".\lib.part\Src\FarDialogs.cpp">
+				RelativePath=".\7z.Class.cpp">
 			</File>
 			<File
-				RelativePath=".\lib.part\Src\FarLNG.cpp">
+				RelativePath=".\7z.cpp">
 			</File>
 			<File
-				RelativePath=".\newarc.Archive.cpp">
+				RelativePath=".\7z.Helpers.cpp">
 			</File>
 			<File
-				RelativePath=".\newarc.ArchivePlugin.cpp">
+				RelativePath="..\..\lib.part\Src\FarDialogs.cpp">
 			</File>
 			<File
-				RelativePath=".\newarc.cpp">
+				RelativePath="..\..\lib.part\Src\Registry.cpp">
 			</File>
 			<File
-				RelativePath=".\newarc.Panel.cpp">
+				RelativePath="..\..\lib.part\Src\Rtl.Misc.cpp">
 			</File>
 			<File
-				RelativePath=".\lib.part\Src\Registry.cpp">
+				RelativePath="..\..\lib.part\Src\Rtl.Strings.cpp">
 			</File>
 			<File
-				RelativePath=".\lib.part\Src\Rtl.Hook.cpp">
-			</File>
-			<File
-				RelativePath=".\lib.part\Src\Rtl.Kernel.cpp">
-			</File>
-			<File
-				RelativePath=".\lib.part\Src\Rtl.Memory.cpp">
-			</File>
-			<File
-				RelativePath=".\lib.part\Src\Rtl.Misc.cpp">
-			</File>
-			<File
-				RelativePath=".\lib.part\Src\Rtl.Strings.cpp">
-			</File>
-			<File
-				RelativePath=".\lib.part\Src\Rtl.Thunks.cpp">
+				RelativePath="..\..\lib.part\Src\Rtl.Thunks.cpp">
 			</File>
 		</Filter>
 		<Filter
