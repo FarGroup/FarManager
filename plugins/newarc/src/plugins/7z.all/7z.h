@@ -15,6 +15,7 @@
 class CInFile;
 class COutFile;
 class CArchiveExtractCallback;
+class CArchiveOpenCallback;
 
 #include "7z.Class.h"
 #include "7z.Helpers.h"

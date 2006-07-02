@@ -15,6 +15,10 @@ AY - Alex Yaroslavsky
 WI - WARP ItSelf
 TS - Tim Sobolev
 
+[02/07/2006]
+
+[+] Добавлена возможность собрать 7z_all.module с помощью GCC. [AY]
+
 [30/06/2006]
 
 [+] Бонус-тайм! Плагин 7z_all.module. В отличие от 7z.module умеет грузить все

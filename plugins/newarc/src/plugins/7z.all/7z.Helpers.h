@@ -1,6 +1,6 @@
 #include "7z.h"
 
-class CInFile : //public IUnknown, 
+class CInFile : //public IUnknown,
 				public IInStream {
 
 private:
@@ -18,7 +18,7 @@ public:
 	virtual HRESULT __stdcall QueryInterface (REFIID iid, void ** ppvObject);
 	virtual ULONG __stdcall AddRef ();
 	virtual ULONG __stdcall Release ();
-	
+
 	virtual HRESULT __stdcall Read (void *data, unsigned int size, unsigned int *processedSize);
 	virtual HRESULT __stdcall Seek (__int64 offset, unsigned int seekOrigin, unsigned __int64 *newPosition);
 };
@@ -62,14 +62,14 @@ public:
 	virtual HRESULT __stdcall SetOperationResult (int resultEOperationResult);
 };
 
-class CArchiveOpenCallback : public IArchiveOpenCallback, 
-							 public IArchiveOpenVolumeCallback {
+class CArchiveOpenCallback : public IArchiveOpenCallback {
+
 private:
 	int m_nRefCount;
 
 public:
 
-	CArchiveOpenCallback ();	
+	CArchiveOpenCallback ();
 
 
 	virtual HRESULT __stdcall QueryInterface (const IID &iid, void ** ppvObject);
@@ -90,7 +90,7 @@ public:
 
 
 
-class COutFile : //public IUnknown, 
+class COutFile : //public IUnknown,
 				public ISequentialOutStream {
 
 private:
@@ -111,4 +111,3 @@ public:
 
 	virtual HRESULT __stdcall Write (const void *data, unsigned int size, unsigned int* processedSize);
 };
-

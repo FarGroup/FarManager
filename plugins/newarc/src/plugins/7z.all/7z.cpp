@@ -9,248 +9,248 @@ ArchiveFormatInfo *pFormatInfo = NULL;
 
 struct ArchiveModuleInformation {
 
-	int nTypes;
-	char *pTypeNames;
+  int nTypes;
+  char *pTypeNames;
 
-	int nConfigStringsNumber;
+  int nConfigStringsNumber;
 
-	char **pConfigStrings;
+  char **pConfigStrings;
 };
 
 
 int OnInitialize (PluginStartupInfo *pInfo)
 {
-	Info = *pInfo;
-	FSF = *pInfo->FSF;
+  Info = *pInfo;
+  FSF = *pInfo->FSF;
 
-	Formats.Create (5);
+  Formats.Create (5);
 
-	WIN32_FIND_DATA fdata;
-	char *lpMask = StrDuplicate (Info.ModuleName, 260);
+  WIN32_FIND_DATA fdata;
+  char *lpMask = StrDuplicate (Info.ModuleName, 260);
 
-	CutToSlash (lpMask);
-	strcat (lpMask, "Formats\\*.dll");
+  CutToSlash (lpMask);
+  strcat (lpMask, "Formats\\*.dll");
 
-	HANDLE hSearch = FindFirstFile (lpMask, &fdata);
+  HANDLE hSearch = FindFirstFile (lpMask, &fdata);
 
-	if ( hSearch != INVALID_HANDLE_VALUE )
-	{
-		do {
+  if ( hSearch != INVALID_HANDLE_VALUE )
+  {
+    do {
 
-			if ( !OptionIsOn (fdata.dwFileAttributes, FILE_ATTRIBUTE_DIRECTORY) )
-			{
-				SevenZipModule *pModule = new SevenZipModule;
+      if ( !OptionIsOn (fdata.dwFileAttributes, FILE_ATTRIBUTE_DIRECTORY) )
+      {
+        SevenZipModule *pModule = new SevenZipModule;
 
-				char *lpModuleName = StrDuplicate (Info.ModuleName, 260);
-				CutToSlash(lpModuleName);
+        char *lpModuleName = StrDuplicate (Info.ModuleName, 260);
+        CutToSlash(lpModuleName);
 
-				strcat (lpModuleName, "Formats\\");
-				strcat (lpModuleName, fdata.cFileName);
+        strcat (lpModuleName, "Formats\\");
+        strcat (lpModuleName, fdata.cFileName);
 
-				if ( pModule->Initialize (lpModuleName) )
-					Formats.Add (pModule);
-				else
-					delete pModule;
+        if ( pModule->Initialize (lpModuleName) )
+          Formats.Add (pModule);
+        else
+          delete pModule;
 
-				free (lpModuleName);
-			}
-		} while ( FindNextFile (hSearch, &fdata) );
+        free (lpModuleName);
+      }
+    } while ( FindNextFile (hSearch, &fdata) );
 
-		FindClose (hSearch);
-	}
+    FindClose (hSearch);
+  }
 
-	pFormatInfo = NULL; 
+  pFormatInfo = NULL;
 
-	return NAERROR_SUCCESS;
+  return NAERROR_SUCCESS;
 }
 
 int OnFinalize ()
 {
-	Formats.Free ();
-	free (pFormatInfo);
+  Formats.Free ();
+  free (pFormatInfo);
 
-	return NAERROR_SUCCESS;
+  return NAERROR_SUCCESS;
 }
 
 extern int FindFormats (const char *lpFileName, Collection <FormatPosition*> &formats);
 
 int __cdecl SortFormats (
-		FormatPosition *pos1,
-		FormatPosition *pos2,
-		void *pParam
-		)
-{	
-	if ( pos1->position > pos2->position )
-		return 1;
+    FormatPosition *pos1,
+    FormatPosition *pos2,
+    void *pParam
+    )
+{
+  if ( pos1->position > pos2->position )
+    return 1;
 
-	if ( pos1->position < pos2->position )
-		return -1;
+  if ( pos1->position < pos2->position )
+    return -1;
 
-	if ( pos1->position == pos2->position )
-		return 0;
+  if ( pos1->position == pos2->position )
+    return 0;
 }
 
 
 int OnQueryArchive (QueryArchiveStruct *pQAS)
 {
-	Collection <FormatPosition*> formats;
+  Collection <FormatPosition*> formats;
 
-	formats.Create (5);
+  formats.Create (5);
 
-	FindFormats (pQAS->lpFileName, formats);
+  FindFormats (pQAS->lpFileName, formats);
 
-	formats.Sort (SortFormats, NULL);
+  formats.Sort ((void *)SortFormats, NULL);
 
-	for (int j = 0; j < formats.GetCount(); j++)
-	{
-		FormatPosition *pos = formats[j];
+  for (int j = 0; j < formats.GetCount(); j++)
+  {
+    FormatPosition *pos = formats[j];
 
-		for (int i = 0; i < Formats.GetCount (); i++)
-		{
-			SevenZipModule *pModule = Formats[i];
+    for (int i = 0; i < Formats.GetCount (); i++)
+    {
+      SevenZipModule *pModule = Formats[i];
 
-			if ( pModule && IsEqualGUID (pModule->m_uid, *pos->puid) )
-			{
-				SevenZipArchive *pArchive = new SevenZipArchive (pModule, pQAS->lpFileName);
+      if ( pModule && IsEqualGUID (pModule->m_uid, *pos->puid) )
+      {
+        SevenZipArchive *pArchive = new SevenZipArchive (pModule, pQAS->lpFileName);
 
-				if ( pArchive->pOpenArchive (0, NULL, true) )
-				{
-					pArchive->pCloseArchive ();
+        if ( pArchive->pOpenArchive (0, NULL, true) )
+        {
+          pArchive->pCloseArchive ();
 
-					pQAS->hResult = (HANDLE)pArchive;
+          pQAS->hResult = (HANDLE)pArchive;
 
-					formats.Free ();
-					return NAERROR_SUCCESS;
-				}
+          formats.Free ();
+          return NAERROR_SUCCESS;
+        }
 
-				delete pArchive;
-			}
-		}
-	}
+        delete pArchive;
+      }
+    }
+  }
 
-	formats.Free ();
+  formats.Free ();
 
-	for (int j = 0; j < 2; j++)
-	{
-		for (int i = 0; i < Formats.GetCount (); i++)
-		{
-			SevenZipModule *pModule = Formats[i];
+  for (int j = 0; j < 2; j++)
+  {
+    for (int i = 0; i < Formats.GetCount (); i++)
+    {
+      SevenZipModule *pModule = Formats[i];
 
-			if ( pModule && !pModule->HasSignature () )
-			{
-				SevenZipArchive *pArchive = new SevenZipArchive (pModule, pQAS->lpFileName);
+      if ( pModule && !pModule->HasSignature () )
+      {
+        SevenZipArchive *pArchive = new SevenZipArchive (pModule, pQAS->lpFileName);
 
-				if ( pArchive->pOpenArchive (0, NULL, j > 0) )
-				{
-					pArchive->pCloseArchive ();
+        if ( pArchive->pOpenArchive (0, NULL, j > 0) )
+        {
+          pArchive->pCloseArchive ();
 
-					pQAS->hResult = (HANDLE)pArchive;
+          pQAS->hResult = (HANDLE)pArchive;
 
-					return NAERROR_SUCCESS;
-				}
+          return NAERROR_SUCCESS;
+        }
 
-				delete pArchive;
-			}
-		}
-	}
+        delete pArchive;
+      }
+    }
+  }
 
-	return NAERROR_INTERNAL;
+  return NAERROR_INTERNAL;
 }
 
 int OnOpenArchive (OpenArchiveStruct *pOAS)
 {
-	SevenZipArchive *pArchive = (SevenZipArchive*)pOAS->hArchive;
+  SevenZipArchive *pArchive = (SevenZipArchive*)pOAS->hArchive;
 
-	pOAS->bResult = pArchive->pOpenArchive (pOAS->nMode, pOAS->pfnCallback, true);
+  pOAS->bResult = pArchive->pOpenArchive (pOAS->nMode, pOAS->pfnCallback, true);
 
-	return NAERROR_SUCCESS;
+  return NAERROR_SUCCESS;
 }
 
 int OnCloseArchive (CloseArchiveStruct *pCAS)
 {
-	SevenZipArchive *pArchive = (SevenZipArchive*)pCAS->hArchive;
+  SevenZipArchive *pArchive = (SevenZipArchive*)pCAS->hArchive;
 
-	pArchive->pCloseArchive ();
+  pArchive->pCloseArchive ();
 
-	return NAERROR_SUCCESS;
+  return NAERROR_SUCCESS;
 }
 
 int OnFinalizeArchive (SevenZipArchive *pArchive)
 {
-	delete pArchive;
+  delete pArchive;
 
-	return NAERROR_SUCCESS;
+  return NAERROR_SUCCESS;
 }
 
 int OnGetArchivePluginInfo (
-		ArchivePluginInfo *ai
-		)
+    ArchivePluginInfo *ai
+    )
 {
-	int nCount = Formats.GetCount ();
+  int nCount = Formats.GetCount ();
 
-	pFormatInfo = (ArchiveFormatInfo*)realloc (pFormatInfo, nCount*sizeof (ArchiveFormatInfo));
+  pFormatInfo = (ArchiveFormatInfo*)realloc (pFormatInfo, nCount*sizeof (ArchiveFormatInfo));
 
-	for (int i = 0; i < nCount; i++)
-		Formats[i]->GetArchiveFormatInfo (&pFormatInfo[i]);
+  for (int i = 0; i < nCount; i++)
+    Formats[i]->GetArchiveFormatInfo (&pFormatInfo[i]);
 
-	ai->nFormats = nCount;
-	ai->pFormatInfo = pFormatInfo;
+  ai->nFormats = nCount;
+  ai->pFormatInfo = pFormatInfo;
 
-	return NAERROR_SUCCESS;
+  return NAERROR_SUCCESS;
 }
 
 int OnGetArchiveItem (GetArchiveItemStruct *pGAI)
 {
-	SevenZipArchive *pArchive = (SevenZipArchive *)pGAI->hArchive;
+  SevenZipArchive *pArchive = (SevenZipArchive *)pGAI->hArchive;
 
-	pGAI->nResult = pArchive->pGetArchiveItem (pGAI->pItem);
+  pGAI->nResult = pArchive->pGetArchiveItem (pGAI->pItem);
 
-	return NAERROR_SUCCESS;
+  return NAERROR_SUCCESS;
 }
 
 int OnGetArchiveFormat (GetArchiveFormatStruct *pGAF)
 {
-	SevenZipArchive *pArchive = (SevenZipArchive *)pGAF->hArchive;
+  SevenZipArchive *pArchive = (SevenZipArchive *)pGAF->hArchive;
 
-	SevenZipModule *pModule = pArchive->m_pModule;
+  SevenZipModule *pModule = pArchive->m_pModule;
 
-	for (int i = 0; i < Formats.GetCount(); i++)
-	{
-		if ( Formats[i] == pModule )
-		{
-			pGAF->nFormat = i;
-			break;
-		}
-	}
+  for (int i = 0; i < Formats.GetCount(); i++)
+  {
+    if ( Formats[i] == pModule )
+    {
+      pGAF->nFormat = i;
+      break;
+    }
+  }
 
-	return NAERROR_SUCCESS;
+  return NAERROR_SUCCESS;
 }
 
 int OnExtract (ExtractStruct *pES)
 {
-	SevenZipArchive *pArchive = (SevenZipArchive *)pES->hArchive;
+  SevenZipArchive *pArchive = (SevenZipArchive *)pES->hArchive;
 
-	pES->bResult = pArchive->pExtract (
-			pES->pItems,
-			pES->nItemsNumber,
-			pES->lpDestPath,
-			pES->lpCurrentPath
-			);
+  pES->bResult = pArchive->pExtract (
+      pES->pItems,
+      pES->nItemsNumber,
+      pES->lpDestPath,
+      pES->lpCurrentPath
+      );
 
-	return NAERROR_SUCCESS;
+  return NAERROR_SUCCESS;
 }
 
 
 int OnTest (TestStruct *pTS)
 {
-	SevenZipArchive *pArchive = (SevenZipArchive *)pTS->hArchive;
+  SevenZipArchive *pArchive = (SevenZipArchive *)pTS->hArchive;
 
-	pTS->bResult = pArchive->pTest (
-			pTS->pItems,
-			pTS->nItemsNumber
-			);
+  pTS->bResult = pArchive->pTest (
+      pTS->pItems,
+      pTS->nItemsNumber
+      );
 
-	return NAERROR_SUCCESS;
+  return NAERROR_SUCCESS;
 }
 
 int OnGetDefaultCommand (GetDefaultCommandStruct *pGDC)
@@ -270,73 +270,72 @@ int OnGetDefaultCommand (GetDefaultCommandStruct *pGDC)
     };
 
 
-	if ( pGDC->nFormat == 0 )
-	{
-		strcpy (pGDC->lpCommand, pCommands[pGDC->nCommand]);
-		pGDC->bResult = true;
-	}
-	else
-		pGDC->bResult = false;
+  if ( pGDC->nFormat == 0 )
+  {
+    strcpy (pGDC->lpCommand, pCommands[pGDC->nCommand]);
+    pGDC->bResult = true;
+  }
+  else
+    pGDC->bResult = false;
 
-	return NAERROR_SUCCESS;
+  return NAERROR_SUCCESS;
 }
 
 
 int __stdcall PluginEntry (
-		int nFunctionID,
-		void *pParams
-		)
+    int nFunctionID,
+    void *pParams
+    )
 {
-	switch ( nFunctionID ) {
+  switch ( nFunctionID ) {
 
-	case FID_INITIALIZE:
-		return OnInitialize ((PluginStartupInfo*)pParams);
+  case FID_INITIALIZE:
+    return OnInitialize ((PluginStartupInfo*)pParams);
 
-	case FID_FINALIZE:
-		return OnFinalize ();
+  case FID_FINALIZE:
+    return OnFinalize ();
 
-	case FID_QUERYARCHIVE:
-		return OnQueryArchive ((QueryArchiveStruct*)pParams);
+  case FID_QUERYARCHIVE:
+    return OnQueryArchive ((QueryArchiveStruct*)pParams);
 
-	case FID_OPENARCHIVE:
-		return OnOpenArchive ((OpenArchiveStruct*)pParams);
+  case FID_OPENARCHIVE:
+    return OnOpenArchive ((OpenArchiveStruct*)pParams);
 
-	case FID_CLOSEARCHIVE:
-		return OnCloseArchive ((CloseArchiveStruct*)pParams);
+  case FID_CLOSEARCHIVE:
+    return OnCloseArchive ((CloseArchiveStruct*)pParams);
 
-	case FID_FINALIZEARCHIVE:
-		return OnFinalizeArchive ((SevenZipArchive *)pParams);
+  case FID_FINALIZEARCHIVE:
+    return OnFinalizeArchive ((SevenZipArchive *)pParams);
 
-	case FID_GETARCHIVEPLUGININFO:
-		return OnGetArchivePluginInfo ((ArchivePluginInfo*)pParams);
+  case FID_GETARCHIVEPLUGININFO:
+    return OnGetArchivePluginInfo ((ArchivePluginInfo*)pParams);
 
-	case FID_GETARCHIVEITEM:
-		return OnGetArchiveItem ((GetArchiveItemStruct*)pParams);
+  case FID_GETARCHIVEITEM:
+    return OnGetArchiveItem ((GetArchiveItemStruct*)pParams);
 
-	case FID_GETARCHIVEFORMAT:
-		return OnGetArchiveFormat ((GetArchiveFormatStruct*)pParams);
+  case FID_GETARCHIVEFORMAT:
+    return OnGetArchiveFormat ((GetArchiveFormatStruct*)pParams);
 
-	case FID_EXTRACT:
-		return OnExtract ((ExtractStruct*)pParams);
+  case FID_EXTRACT:
+    return OnExtract ((ExtractStruct*)pParams);
 
-	case FID_TEST:
-		return OnTest ((TestStruct*)pParams);
+  case FID_TEST:
+    return OnTest ((TestStruct*)pParams);
 
-	case FID_GETDEFAULTCOMMAND:
-		return OnGetDefaultCommand ((GetDefaultCommandStruct*)pParams);
-	}
+  case FID_GETDEFAULTCOMMAND:
+    return OnGetDefaultCommand ((GetDefaultCommandStruct*)pParams);
+  }
 
-	return NAERROR_NOTIMPLEMENTED;
+  return NAERROR_NOTIMPLEMENTED;
 }
 
-
-
+/*
 BOOL __stdcall DllMain (
-		HINSTANCE hinstDLL,
-		DWORD fdwReason,
-		LPVOID lpvReserved
-		)
+    HINSTANCE hinstDLL,
+    DWORD fdwReason,
+    LPVOID lpvReserved
+    )
 {
-	return TRUE;
+  return TRUE;
 }
-
+*/

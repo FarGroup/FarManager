@@ -7,6 +7,7 @@ mkdir ..\o\plugins\rar
 mkdir ..\o\plugins\targz
 mkdir ..\o\plugins\zip
 mkdir ..\o\plugins\7z
+mkdir ..\o\plugins\7z.all
 mkdir ..\o\rtl
 mkdir ..\bin
 mkdir ..\bin\plugins

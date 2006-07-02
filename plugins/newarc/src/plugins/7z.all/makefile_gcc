@@ -1,9 +1,9 @@
-OBJDIR = ../../../o/plugins/7z
-REOBJDIR = \.\.\/\.\.\/\.\.\/o\/plugins\/7z\/
+OBJDIR = ../../../o/plugins/7z.all
+REOBJDIR = \.\.\/\.\.\/\.\.\/o\/plugins\/7z\.all\/
 DLLDIR = ../../../bin/plugins
-DLLNAME = 7z.module
+DLLNAME = 7z_all.module
 DLLFULLNAME = $(DLLDIR)/$(DLLNAME)
-SRCS = 7z.Class.cpp 7z.Helpers.cpp 7z.cpp
+SRCS = 7z.Helpers.cpp 7z.Class.cpp 7z.cpp
 DEF = 7z.gcc.def
 LIBS = -L ../../../o/RTL -lRTL -loleaut32
 
@@ -16,7 +16,7 @@ MV = mv -f
 MKDIR = mkdir -p
 CXXFLAGS = -I ../../lib.part/Include -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-rtti -fno-exceptions
 #LNKFLAGS = -s -nostartfiles $(LIBS) -luser32 -lkernel32 -ladvapi32 -lole32
-LNKFLAGS = -s -nostartfiles $(LIBS)
+LNKFLAGS = -s $(LIBS)
 #LNKFLAGS = -s -nostartfiles -nodefaultlibs $(LIBS) -luser32 -lkernel32 -ladvapi32 -lole32
 
 all: $(DLLFULLNAME)
