@@ -8,9 +8,9 @@
 #endif
 #include "../../module.hpp"
 
-#include "../../../../7z/7zip/Archive/IArchive.h"
-#include "../../../../7z/7zip/Common/FileStreams.h"
-#include "../../../../7z/Windows/PropVariant.h"
+#include "../7z.headers/7zip/Archive/IArchive.h"
+#include "../7z.headers/7zip/Common/FileStreams.h"
+#include "../7z.headers/Windows/PropVariant.h"
 
 class CInFile;
 class COutFile;

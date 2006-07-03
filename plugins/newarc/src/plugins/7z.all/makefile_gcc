@@ -1,6 +1,6 @@
 OBJDIR = ../../../o/plugins/7z.all
 REOBJDIR = \.\.\/\.\.\/\.\.\/o\/plugins\/7z\.all\/
-DLLDIR = ../../../bin/plugins
+DLLDIR = ../../../bin/plugins/7z.all
 DLLNAME = 7z_all.module
 DLLFULLNAME = $(DLLDIR)/$(DLLNAME)
 SRCS = 7z.Helpers.cpp 7z.Class.cpp 7z.cpp
