@@ -5,7 +5,7 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.128 22.05.2006 $ */
+/* Revision: 1.129 04.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -2380,9 +2380,9 @@ _SVS(if(KeyCode!=VK_MENU && KeyCode!=VK_SHIFT) SysLog("AltShift -> |%s|%s|",_VK_
         case VK_OEM_1:
           return(KEY_ALT+KEY_SHIFT+KEY_COLON);
         case VK_OEM_2:
-          if(WaitInFastFind)
-            return(KEY_ALT+KEY_SHIFT+'?');
-          else
+          //if(WaitInFastFind)
+          //  return(KEY_ALT+KEY_SHIFT+'?');
+          //else
             return(KEY_ALT+KEY_SHIFT+KEY_SLASH);
         case VK_OEM_PERIOD:
           return(KEY_ALT+KEY_SHIFT+KEY_DOT);
@@ -2555,9 +2555,9 @@ _SVS(if(KeyCode!=VK_MENU) SysLog("Alt -> |%s|%s|",_VK_KEY_ToName(KeyCode),_INPUT
         case VK_OEM_3:
           return(KEY_ALT+'~');
         case VK_OEM_MINUS:
-          if(WaitInFastFind)
-            return(KEY_ALT+KEY_SHIFT+'_');
-          else
+          //if(WaitInFastFind)
+          //  return(KEY_ALT+KEY_SHIFT+'_');
+          //else
             return(KEY_ALT+'-');
         case VK_OEM_PLUS:
           return(KEY_ALT+'=');

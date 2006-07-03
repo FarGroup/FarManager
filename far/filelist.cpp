@@ -5,7 +5,7 @@ filelist.cpp
 
 */
 
-/* Revision: 1.277 29.06.2006 $ */
+/* Revision: 1.278 04.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -3449,7 +3449,7 @@ void FileList::CopyNames(int FillPathName,int UNC)
   xf_free(CopyData);
 }
 
-string &FileList::CreateFullPathNameW(const wchar_t *Name, const wchar_t *ShortName,DWORD FileAttr, string &strDest, int UNC)
+string &FileList::CreateFullPathNameW(const wchar_t *Name, const wchar_t *ShortName,DWORD FileAttr, string &strDest, int UNC,int ShortNameAsIs)
 {
   wchar_t *NamePtr;
   wchar_t Chr=0;
@@ -3481,11 +3481,11 @@ string &FileList::CreateFullPathNameW(const wchar_t *Name, const wchar_t *ShortN
     else
       NamePtr=(wchar_t*)(const wchar_t*)strFileName;
 
-    strTemp += Name; //??? NamePtr??? BUGBUG
+    strTemp += NameLastSlash?NameLastSlash+1:Name; //??? NamePtr??? BUGBUG
     strFileName = strTemp;
   }
   /* IS $ */
-  if (ShowShortNames)
+  if (ShowShortNames && ShortNameAsIs)
     ConvertNameToShortW(strFileName,strFileName);
 
   /* $ 29.01.2001 VVM

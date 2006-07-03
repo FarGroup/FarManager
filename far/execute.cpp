@@ -5,7 +5,7 @@ execute.cpp
 
 */
 
-/* Revision: 1.141 30.06.2006 $ */
+/* Revision: 1.142 04.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -760,6 +760,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
       {
           ConvertNameToFullW(strNewCmdStr, strNewCmdStr);
           SeparateWindow=2;
+          FolderRun=TRUE;
       }
   }
 
@@ -861,14 +862,20 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
   }
   else
   {
-    string strFarTitle = strNewCmdStr;
-
-    if ( !strNewCmdPar.IsEmpty() )
+    string strFarTitle;
+    if(!Opt.ExecuteFullTitle)
     {
-      strFarTitle += L" ";
-      strFarTitle += strNewCmdPar;
+      strFarTitle=CmdStr;
     }
-
+    else
+    {
+      strFarTitle = strNewCmdStr;
+      if ( !strNewCmdPar.IsEmpty() )
+      {
+        strFarTitle += L" ";
+        strFarTitle += strNewCmdPar;
+      }
+    }
     SetConsoleTitleW(strFarTitle);
 
     if (SeparateWindow)

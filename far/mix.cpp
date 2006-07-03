@@ -5,7 +5,7 @@ mix.cpp
 
 */
 
-/* Revision: 1.201 06.06.2006 $ */
+/* Revision: 1.202 04.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -1616,7 +1616,7 @@ BOOL ProcessOSAliasesW(string &strStr)
 }
 
 
-int _MakePath1W(DWORD Key, string &strPathName, const wchar_t *Param2)
+int _MakePath1W(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNameAsIs)
 {
   int RetCode=FALSE;
   int NeedRealName=FALSE;
@@ -1684,11 +1684,11 @@ int _MakePath1W(DWORD Key, string &strPathName, const wchar_t *Param2)
 
             {
                 if(NeedRealName)
-                    SrcFilePanel->CreateFullPathNameW(strPathName, strPathName,FA_DIREC, strPathName,TRUE);
+                    SrcFilePanel->CreateFullPathNameW(strPathName, strPathName,FA_DIREC, strPathName,TRUE,ShortNameAsIs);
             }
 
 
-            if (SrcFilePanel->GetShowShortNamesMode())
+            if (SrcFilePanel->GetShowShortNamesMode() && ShortNameAsIs)
               ConvertNameToShortW(strPathName,strPathName);
           }
           else

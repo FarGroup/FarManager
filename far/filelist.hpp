@@ -7,7 +7,7 @@ filelist.hpp
 
 */
 
-/* Revision: 1.69 06.06.2006 $ */
+/* Revision: 1.70 04.07.2006 $ */
 
 #include "global.hpp"
 #include "panel.hpp"
@@ -285,7 +285,7 @@ class FileList:public Panel
     int PluginPanelHelp(HANDLE hPlugin);
     long GetFileCount() {return FileCount;}
 
-    string &CreateFullPathNameW(const wchar_t *Name,const wchar_t *ShortName,DWORD FileAttr, string &strDest,int UNC);
+    string &CreateFullPathNameW(const wchar_t *Name,const wchar_t *ShortName,DWORD FileAttr, string &strDest,int UNC,int ShortNameAsIs=TRUE);
 
 
     virtual BOOL GetItem(int Index,void *Dest);

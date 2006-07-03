@@ -5,13 +5,14 @@ fnparce.cpp
 
 */
 
-/* Revision: 1.30 21.05.2006 $ */
+/* Revision: 1.31 04.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 #include "fn.hpp"
 #include "panel.hpp"
+#include "keys.hpp"
 #include "ctrlobj.hpp"
 #include "flink.hpp"
 #include "cmdline.hpp"
@@ -297,16 +298,17 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
   // !/       Короткое имя текущего пути
   // Ниже идет совмещение кода для разбора как !\ так и !/
   //<Skeleton>
-  if (wcsncmp(CurStr,L"!\\",2)==0
+  if (wcsncmp(CurStr,L"!\\",2)==0 || wcsncmp(CurStr,L"!=\\",3)==0
      //<Skeleton 2003 10 26>
-     || (wcsncmp(CurStr,L"!/",2)==0))
+     || (wcsncmp(CurStr,L"!/",2)==0) || wcsncmp(CurStr,L"!=/",3)==0)
      //<Skeleton>
   {
     string strCurDir;
     //<Skeleton 2003 10 26>
     bool ShortN0 = FALSE;
+    int RealPath= CurStr[1]==L'='?1:0;
 
-    if (CurStr[1] == L'/')
+    if (CurStr[1] == L'/' || (RealPath && CurStr[2] == L'/'))
     {
       ShortN0 = TRUE;
     }
@@ -316,11 +318,20 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
     else
       strCurDir = PSubstData->strCmdDir;
 
+    if(RealPath)
+    {
+      _MakePath1W(PSubstData->PassivePanel?KEY_ALTSHIFTBACKBRACKET:KEY_ALTSHIFTBRACKET,strCurDir,L"",ShortN0);
+      UnquoteW(strCurDir);
+    }
+
     if (ShortN0)
         ConvertNameToShortW(strCurDir,strCurDir);
 
     AddEndSlashW(strCurDir);
-    CurStr+=2;
+    if(RealPath)
+      QuoteSpaceOnlyW(strCurDir);
+
+    CurStr+=2+RealPath;
 
 
     wchar_t *CurDir = strCurDir.GetBuffer ();

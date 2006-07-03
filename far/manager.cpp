@@ -5,7 +5,7 @@ manager.cpp
 
 */
 
-/* Revision: 1.101 05.04.2006 $ */
+/* Revision: 1.102 04.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -822,8 +822,8 @@ int  Manager::ProcessKey(DWORD Key)
                   int KeyBarVisible=CtrlObject->Cp()->MainKeyBar.IsVisible();
                   CtrlObject->CmdLine->ShowBackground();
 
-                  CtrlObject->Cp()->LeftPanel->Hide();
-                  CtrlObject->Cp()->RightPanel->Hide();
+                  CtrlObject->Cp()->LeftPanel->Hide0();
+                  CtrlObject->Cp()->RightPanel->Hide0();
                   switch(Opt.PanelCtrlAltShiftRule)
                   {
                     case 0:

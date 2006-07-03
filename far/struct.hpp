@@ -7,7 +7,7 @@ struct.hpp
 
 */
 
-/* Revision: 1.150 29.06.2006 $ */
+/* Revision: 1.151 04.07.2006 $ */
 
 #include "farconst.hpp"
 #include "UnicodeString.hpp"
@@ -552,6 +552,7 @@ struct Options
   int RestoreCPAfterExecute;
   int ExecuteShowErrorMessage;
   int ExecuteUseAppPath;
+  int ExecuteFullTitle;
   string strExecuteBatchType;
 
 #if defined(FAR_ANSI)

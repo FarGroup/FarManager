@@ -5,7 +5,7 @@ config.cpp
 
 */
 
-/* Revision: 1.219 29.06.2006 $ */
+/* Revision: 1.220 04.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -1142,6 +1142,7 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeySystemExecutorW,L"UseAppPath",&Opt.ExecuteUseAppPath,1, 0},
   {0, REG_DWORD,  NKeySystemExecutorW,L"ShowErrorMessage",&Opt.ExecuteShowErrorMessage,1, 0},
   {0, REG_SZ,     NKeySystemExecutorW,L"BatchType",&Opt.strExecuteBatchType,0,constBatchExtW},
+  {0, REG_DWORD,  NKeySystemExecutorW,L"FullTitle",&Opt.ExecuteFullTitle,0, 0},
 
   {0, REG_DWORD,  NKeyPanelTreeW,L"MinTreeCount",&Opt.Tree.MinTreeCount, 4, 0},
   {0, REG_DWORD,  NKeyPanelTreeW,L"LocalDisk",&Opt.Tree.LocalDisk, 2, 0},

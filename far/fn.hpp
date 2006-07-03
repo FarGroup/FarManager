@@ -7,7 +7,7 @@ fn.hpp
 
 */
 
-/* Revision: 1.278 29.06.2006 $ */
+/* Revision: 1.279 04.07.2006 $ */
 
 #include "farconst.hpp"
 #include "global.hpp"
@@ -1211,7 +1211,7 @@ const wchar_t *eStackAsString(int Pos=0);
 
 BOOL GetMacroParseError(string *strErrMessage1, string *strErrMessage2,string *strErrMessage3);
 
-int _MakePath1W(DWORD Key,string &strPathName, const wchar_t *Param2);
+int _MakePath1W(DWORD Key,string &strPathName, const wchar_t *Param2,int ShortNameAsIs=TRUE);
 
 DWORD apiGetEnvironmentVariable (const wchar_t *lpwszName, string &strBuffer);
 DWORD apiGetCurrentDirectory (string &strCurDir);
