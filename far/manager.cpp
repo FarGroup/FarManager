@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.98 23.05.2006 $ */
+/* Revision: 1.99 03.07.2006 $ */
 
 /*
 Modify:
+  03.07.2006 SVS
+    - CAS при пятом режиме панели... не гасит панель.
   23.05.2006 SVS
     - При ширине экрана поболее и имени файла > 128 - в окне Screen видны ошметки в конце строки + иногда ФАР вываливается
   31.03.2006 SVS
@@ -1111,8 +1113,9 @@ int  Manager::ProcessKey(DWORD Key)
                   int KeyBarVisible=CtrlObject->Cp()->MainKeyBar.IsVisible();
                   CtrlObject->CmdLine->ShowBackground();
 
-                  CtrlObject->Cp()->LeftPanel->Hide();
-                  CtrlObject->Cp()->RightPanel->Hide();
+                  CtrlObject->Cp()->LeftPanel->Hide0();
+                  CtrlObject->Cp()->RightPanel->Hide0();
+
                   switch(Opt.PanelCtrlAltShiftRule)
                   {
                     case 0:

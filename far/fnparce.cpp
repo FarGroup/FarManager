@@ -5,10 +5,12 @@ fnparce.cpp
 
 */
 
-/* Revision: 1.24 20.02.2006 $ */
+/* Revision: 1.25 03.07.2006 $ */
 
 /*
 Modify:
+  03.07.2006 SVS
+    + Добавлены метасимволы "!=\" и "!=/" для текущего пути с учетом смиволических связей.
   20.02.2006 SVS
     ! У ConvertNameToShort новый параметр - размер для Dest
   02.07.2005 AY
@@ -77,6 +79,7 @@ Modify:
 
 #include "fn.hpp"
 #include "panel.hpp"
+#include "keys.hpp"
 #include "ctrlobj.hpp"
 #include "flink.hpp"
 #include "cmdline.hpp"
@@ -453,16 +456,17 @@ static char *_SubstFileName(char *CurStr,struct TSubstData *PSubstData,char *Tmp
   // !/       Короткое имя текущего пути
   // Ниже идет совмещение кода для разбора как !\ так и !/
   //<Skeleton>
-  if (strncmp(CurStr,"!\\",2)==0
+  if (strncmp(CurStr,"!\\",2)==0 || strncmp(CurStr,"!=\\",3)==0
      //<Skeleton 2003 10 26>
-     || (strncmp(CurStr,"!/",2)==0))
+     || (strncmp(CurStr,"!/",2)==0 || strncmp(CurStr,"!=/",3)==0))
      //<Skeleton>
   {
-    char CurDir[NM];
+    char CurDir[2*NM];
     //<Skeleton 2003 10 26>
     bool ShortN0 = FALSE;
+    int RealPath= CurStr[1]=='='?1:0;
 
-    if (CurStr[1] == '/')
+    if (CurStr[1] == '/' || (RealPath && CurStr[2] == '/'))
     {
       ShortN0 = TRUE;
     }
@@ -472,10 +476,20 @@ static char *_SubstFileName(char *CurStr,struct TSubstData *PSubstData,char *Tmp
     else
       strcpy(CurDir,PSubstData->CmdDir);
 
+    if(RealPath)
+    {
+      _MakePath1(PSubstData->PassivePanel?KEY_ALTSHIFTBACKBRACKET:KEY_ALTSHIFTBRACKET,CurDir,sizeof(CurDir)-1,"",ShortN0);
+      Unquote(CurDir);
+    }
+
     if (ShortN0)
         ConvertNameToShort(CurDir,CurDir,sizeof(CurDir)-1);
+
     AddEndSlash(CurDir);
-    CurStr+=2;
+    if(RealPath)
+      QuoteSpaceOnly(CurDir);
+
+    CurStr+=2+RealPath;
     if (*CurStr=='!')
     {
 //      strcpy(TmpName,PSubstData->Name);

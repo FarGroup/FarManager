@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.245 29.06.2006 $ */
+/* Revision: 1.246 03.07.2006 $ */
 
 /*
 Modify:
+  03.07.2006 SVS
+    ! _MakePath1() доп параметр. TRUE - как на панели. FALSE - без учета вида панели (короткие имена или полные)
   29.06.2006 SVS
     ! Bath -> Batch
     ! Execute + доп параметр (Mantis#204)
@@ -1731,7 +1733,7 @@ const char *eStackAsString(int Pos=0);
 
 BOOL GetMacroParseError(char *ErrMessage1,char *ErrMessage2,char *ErrMessage3);
 
-int _MakePath1(DWORD Key,char *PathName,int PathNameSize, const char *Param2);
+int _MakePath1(DWORD Key,char *PathName,int PathNameSize, const char *Param2,int ShortNameAsIs=TRUE);
 
 const char *CurPath2ComputerName(const char *CurDir, char *ComputerName,int SizeName);
 

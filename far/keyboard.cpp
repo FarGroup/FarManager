@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.122 11.05.2006 $ */
+/* Revision: 1.123 03.07.2006 $ */
 
 /*
 Modify:
+  03.07.2006 SVS
+    - Mantis#0000141: Неправильный ввод макросов AltShift/ и Alt- (Alt_)
   11.05.2006 SVS
     - Modif+Space давал на выходе 0. Т.с. недолеченный вариант про Dead Keys
   20.04.2006 SVS
@@ -2893,7 +2895,8 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
         case VK_OEM_3:
           return(KEY_ALT+KEY_SHIFT+'~');
         case VK_OEM_MINUS:
-          return(KEY_ALT+KEY_SHIFT+'_');
+          //return(KEY_ALT+KEY_SHIFT+'_');
+          return(KEY_ALT+KEY_SHIFT+'-');
         case VK_OEM_PLUS:
           return(KEY_ALT+KEY_SHIFT+'=');
         case VK_OEM_5:
@@ -2907,9 +2910,9 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
         case VK_OEM_1:
           return(KEY_ALT+KEY_SHIFT+KEY_COLON);
         case VK_OEM_2:
-          if(WaitInFastFind)
-            return(KEY_ALT+KEY_SHIFT+'?');
-          else
+          //if(WaitInFastFind)
+          //  return(KEY_ALT+KEY_SHIFT+'?');
+          //else
             return(KEY_ALT+KEY_SHIFT+KEY_SLASH);
         case VK_OEM_PERIOD:
           return(KEY_ALT+KEY_SHIFT+KEY_DOT);
@@ -3082,9 +3085,9 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
         case VK_OEM_3:
           return(KEY_ALT+'~');
         case VK_OEM_MINUS:
-          if(WaitInFastFind)
-            return(KEY_ALT+KEY_SHIFT+'_');
-          else
+          //if(WaitInFastFind)
+          //  return(KEY_ALT+KEY_SHIFT+'_');
+          //else
             return(KEY_ALT+'-');
         case VK_OEM_PLUS:
           return(KEY_ALT+'=');

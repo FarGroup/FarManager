@@ -5,10 +5,13 @@ execute.cpp
 
 */
 
-/* Revision: 1.129 30.06.2006 $ */
+/* Revision: 1.130 03.07.2006 $ */
 
 /*
 Modify:
+  03.07.2006 SVS
+    - Mantis#0000204: Не всегда запускается проводник на папке по Shift-Enter
+     (теперь, . ShiftEnter)
   30.06.2006 SVS
     ! Mantis#204 - небольшие недоделки.
   29.06.2006 SVS
@@ -1092,6 +1095,7 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
       {
           ConvertNameToFull(NewCmdStr,NewCmdStr,sizeof(NewCmdStr));
           SeparateWindow=2;
+          FolderRun=TRUE;
       }
   }
 
@@ -1205,13 +1209,15 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
   }
   else
   {
-    char FarTitle[4096];
-    strcpy(FarTitle,NewCmdStr);
+    char FarTitle[2048];
+    xstrncpy(FarTitle,CmdStr,sizeof(FarTitle)-1);
+    xstrncpy(FarTitle,NewCmdStr,sizeof(FarTitle)-1);
     if (*NewCmdPar)
     {
-      strcat(FarTitle," ");
-      strcat(FarTitle,NewCmdPar);
+      strncat(FarTitle," ",sizeof(FarTitle)-1);
+      strncat(FarTitle,NewCmdPar,sizeof(FarTitle)-1);
     }
+
     if ( bIsNT )
       SetConsoleTitle(FarTitle);
     FAR_OemToChar(FarTitle,FarTitle);

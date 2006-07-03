@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.54 09.05.2006 $ */
+/* Revision: 1.55 03.07.2006 $ */
 
 /*
 Modify:
+  03.07.2006 SVS
+    ! CreateFullPathName() доп параметр. TRUE - как на панели. FALSE - без учета вида панели (короткие имена или полные)
   09.05.2006 SVS
     + GetTitle + доп параметр, на сколько усеч
   03.05.2006 SVS
@@ -411,7 +413,7 @@ class FileList:public Panel
     int PluginPanelHelp(HANDLE hPlugin);
     long GetFileCount() {return FileCount;}
     char *CreateFullPathName(char *Name,char *ShortName,DWORD FileAttr,
-                            char *Dest,int SizeDest,int UNC);
+                            char *Dest,int SizeDest,int UNC,int ShortNameAsIs=TRUE);
 
     virtual BOOL GetItem(int Index,void *Dest);
     /* $ 30.04.2001 DJ

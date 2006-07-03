@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.250 29.06.2006 $ */
+/* Revision: 1.251 03.07.2006 $ */
 
 /*
 Modify:
+  03.07.2006 SVS
+    ! CreateFullPathName() доп параметр. TRUE - как на панели. FALSE - без учета вида панели (короткие имена или полные)
   29.06.2006 SVS
     ! Bath -> Batch
     - Mantis#204
@@ -4056,7 +4058,7 @@ void FileList::CopyNames(int FillPathName,int UNC)
 }
 
 char *FileList::CreateFullPathName(char *Name, char *ShortName,DWORD FileAttr,
-                                   char *Dest,int SizeDest,int UNC)
+                                   char *Dest,int SizeDest,int UNC,int ShortNameAsIs)
 {
   char Temp[4906], FileName[4906];
   char *NamePtr, Chr=0;
@@ -4099,11 +4101,11 @@ char *FileList::CreateFullPathName(char *Name, char *ShortName,DWORD FileAttr,
     else
       NamePtr=FileName;
 
-    strcat(Temp, Name);
+    strcat(Temp, NameLastSlash?NameLastSlash+1:Name);
     strcpy(FileName, Temp);
   }
   /* IS $ */
-  if (ShowShortNames)
+  if (ShowShortNames && ShortNameAsIs)
     ConvertNameToShort(FileName,FileName,sizeof(FileName)-1);
 
   /* $ 29.01.2001 VVM

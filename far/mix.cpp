@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.181 28.04.2006 $ */
+/* Revision: 1.182 03.07.2006 $ */
 
 /*
 Modify:
+  03.07.2006 SVS
+    ! _MakePath1() доп параметр. TRUE - как на панели. FALSE - без учета вида панели (короткие имена или полные)
   28.04.2006 SVS
     - облажался, блин.
   28.04.2006 AY
@@ -2151,7 +2153,7 @@ BOOL ProcessOSAliases(char *Str,int SizeStr)
   Например, код для [A|P]Panel.UNCPath
   _MakePath1(CheckCode == MCODE_V_APANEL_UNCPATH?KEY_ALTSHIFTBRACKET:KEY_ALTSHIFTBACKBRACKET,FileName,sizeof(FileName)-1,"")
 */
-int _MakePath1(DWORD Key,char *PathName,int PathNameSize, const char *Param2)
+int _MakePath1(DWORD Key,char *PathName,int PathNameSize, const char *Param2,int ShortNameAsIs)
 {
   int RetCode=FALSE;
   int NeedRealName=FALSE;
@@ -2197,9 +2199,9 @@ int _MakePath1(DWORD Key,char *PathName,int PathNameSize, const char *Param2)
 
       if (SrcPanel!=NULL)
       {
+        char ShortFileName[NM];
         if(Key == KEY_SHIFTENTER || Key == KEY_CTRLSHIFTENTER)
         {
-          char ShortFileName[NM];
           SrcPanel->GetCurName(PathName,ShortFileName);
           if(SrcPanel->GetShowShortNamesMode()) // учтем короткость имен :-)
             strcpy(PathName,ShortFileName);
@@ -2216,8 +2218,8 @@ int _MakePath1(DWORD Key,char *PathName,int PathNameSize, const char *Param2)
             FileList *SrcFilePanel=(FileList *)SrcPanel;
             SrcFilePanel->GetCurDir(PathName);
             if(NeedRealName)
-              SrcFilePanel->CreateFullPathName(PathName,PathName,FA_DIREC,PathName,PathNameSize,TRUE);
-            if (SrcFilePanel->GetShowShortNamesMode())
+              SrcFilePanel->CreateFullPathName(PathName,ShortFileName,FA_DIREC,PathName,PathNameSize,TRUE,ShortNameAsIs);
+            if (SrcFilePanel->GetShowShortNamesMode() && ShortNameAsIs)
               ConvertNameToShort(PathName,PathName,PathNameSize-1);
           }
           else
