@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.75 29.05.2006 $ */
+/* Revision: 1.76 04.07.2006 $ */
 
 /*
 Modify:
+  04.07.2006 IS
+    - warnings
   29.05.2006 SVS
     + GetTitle()
   17.03.2006 SVS
@@ -505,10 +507,15 @@ int FileViewer::ProcessKey(int Key)
         SetTempViewName("");
         /* IS $ */
         SetExitCode(0);
-        long FilePos=View.GetFilePos();
+        __int64 FilePos=View.GetFilePos();
         /* $ 06.05.2001 DJ обработка F6 под NWZ */
+        /* $ 04.07.2006 IS
+           “ут кос€к, замеченный при чтении warnings - FilePos тер€ет информацию при преобразовании __int64 -> int
+           Ќадо бы поправить FileEditor на этот счет.
+        */
         FileEditor *ShellEditor = new FileEditor (ViewFileName, FALSE, GetCanLoseFocus(),
-          -2, FilePos, FALSE, NULL, SaveToSaveAs);
+          -2, static_cast<int>(FilePos), FALSE, NULL, SaveToSaveAs);
+        /* IS $ */
         ShellEditor->SetEnableF6 (TRUE);
         /* $ 07.05.2001 DJ сохран€ем NamesList */
         ShellEditor->SetNamesList (View.GetNamesList());

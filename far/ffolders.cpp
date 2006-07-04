@@ -5,10 +5,12 @@ Folder shortcuts
 
 */
 
-/* Revision: 1.15 19.06.2005 $ */
+/* Revision: 1.16 04.07.2006 $ */
 
 /*
 Modify:
+  04.07.2006 IS
+    - warnings
   19.06.2005 SVS
     + FIB_BUTTONS
   26.04.2005 SVS
@@ -191,7 +193,7 @@ static int ShowFolderShortcutMenu(int Pos)
 
     for (int I=0;I<10;I++)
     {
-      char ValueName[100],FolderName[NM];
+      char FolderName[NM];
       memset(&ListItem,0,sizeof(ListItem));
       ProcessShortcutRecord(PSCR_CMDGET,PSCR_RT_SHORTCUT,I,FolderName,sizeof(FolderName));
       TruncStr(FolderName,60);

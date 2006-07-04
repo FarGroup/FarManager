@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.141 25.07.2005 $ */
+/* Revision: 1.142 04.07.2006 $ */
 
 /*
 Modify:
+  04.07.2006 IS
+    - warnings
   24.07.2005 WARP
     ! see 02033.LockUnlock.txt
   15.07.2005 AY
@@ -2882,7 +2884,7 @@ int Edit::DeleteColor(int ColorPos)
 
 int Edit::GetColor(struct ColorItem *col,int Item)
 {
-  if ((DWORD)Item >= ColorCount)
+  if (Item >= ColorCount)
     return(FALSE);
   *col=ColorList[Item];
   return(TRUE);

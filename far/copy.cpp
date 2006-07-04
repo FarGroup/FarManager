@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.169 23.06.2006 $ */
+/* Revision: 1.170 04.07.2006 $ */
 
 /*
 Modify:
+  04.07.2006 IS
+    - warnings
   23.06.2006 thims
     - Неправильный заголовок консоли при Move (Mantis#0000178)
   01.03.2006 AY
@@ -828,7 +830,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
     // ставить опцию "Inherit access rights"?
     // CSO_MOVE_SETINHERITSECURITY - двухбитный флаг
-    if(Opt.CMOpt.CopySecurityOptions&CSO_MOVE_SETINHERITSECURITY == CSO_MOVE_SETINHERITSECURITY)
+    if((Opt.CMOpt.CopySecurityOptions&CSO_MOVE_SETINHERITSECURITY) == CSO_MOVE_SETINHERITSECURITY)
       CDP.CopySecurity=0;
     else if (Opt.CMOpt.CopySecurityOptions&CSO_MOVE_SETCOPYSECURITY)
       CDP.CopySecurity=1;
@@ -848,7 +850,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
     // ставить опцию "Inherit access rights"?
     // CSO_COPY_SETINHERITSECURITY - двухбитный флаг
-    if(Opt.CMOpt.CopySecurityOptions&CSO_COPY_SETINHERITSECURITY == CSO_COPY_SETINHERITSECURITY)
+    if((Opt.CMOpt.CopySecurityOptions&CSO_COPY_SETINHERITSECURITY) == CSO_COPY_SETINHERITSECURITY)
       CDP.CopySecurity=0;
     else if (Opt.CMOpt.CopySecurityOptions&CSO_COPY_SETCOPYSECURITY)
       CDP.CopySecurity=1;
@@ -4473,12 +4475,12 @@ int ShellCopy::SetSecurity(const char *FileName,const SECURITY_ATTRIBUTES &sa)
 
 BOOL ShellCopySecuryMsg(const char *Name)
 {
-  static clock_t PrepareSecuryStartTime;
+  static clock_t PrepareSecuryStartTime=0;
   static int Width=30;
   int WidthTemp;
   char OutFileName[NM];
 
-  if (Name == NULL || *Name == 0 || ((clock() - PrepareSecuryStartTime) > Opt.ShowTimeoutDACLFiles))
+  if (Name == NULL || *Name == 0 || (static_cast<DWORD>(clock() - PrepareSecuryStartTime) > Opt.ShowTimeoutDACLFiles))
   {
     if(Name && *Name)
     {

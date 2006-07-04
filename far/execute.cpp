@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.131 04.07.2006 $ */
+/* Revision: 1.132 04.07.2006 $ */
 
 /*
 Modify:
+  04.07.2006 IS
+    - warnings
   04.07.2006 SVS
     + Opt.ExecuteFullTitle
   03.07.2006 SVS
@@ -1335,7 +1337,7 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
             {
               int stop=0;
 
-              for(int i=0;i<rd;i++)
+              for(DWORD i=0;i<rd;i++)
               {
                 PINPUT_RECORD pir=&ir[i];
 

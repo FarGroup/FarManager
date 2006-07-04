@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.273 09.05.2006 $ */
+/* Revision: 1.274 04.07.2006 $ */
 
 /*
 Modify:
+  04.07.2006 IS
+    - warnings
   08.05.2006 AY
     ! Вызываем EE_READ тока в одном месте и в нужный момент. (mantis#147)
   06.05.2006 SVS
@@ -1309,7 +1311,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
       if (NumLine==Line-ScreenLine)
       {
         Lock ();
-        for (int I=0;I<ScreenLine;I++)
+        for (unsigned int I=0;I<ScreenLine;I++)
           ProcessKey(KEY_DOWN);
         CurLine->EditLine.SetTabCurPos(LinePos);
         Unlock ();
@@ -1393,14 +1395,14 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
             break;
         }
       }
-      if (ScreenLine>ObjHeight)//ScrY
+      if (ScreenLine>static_cast<DWORD>(ObjHeight))//ScrY
         ScreenLine=ObjHeight;//ScrY;
       if (Line>=ScreenLine)
       {
         Lock ();
         GoToLine(Line-ScreenLine);
         TopScreen=CurLine;
-        for (int I=0;I<ScreenLine;I++)
+        for (DWORD I=0;I<ScreenLine;I++)
           ProcessKey(KEY_DOWN);
         CurLine->EditLine.SetTabCurPos(LinePos);
         //_D(SysLog("Setleftpos 2 to %i",LeftPos));
@@ -3934,7 +3936,7 @@ void Editor::DeleteString(struct EditList *DelPtr,int DeleteLast,int UndoLine)
   }
 
   for (int I=0;I<sizeof(SavePos.Line)/sizeof(SavePos.Line[0]);I++)
-    if (SavePos.Line[I]!=0xffffffff && UndoLine<SavePos.Line[I])
+    if (SavePos.Line[I]!=0xffffffff && UndoLine<static_cast<int>(SavePos.Line[I]))
       SavePos.Line[I]--;
 
   NumLastLine--;
@@ -4047,7 +4049,7 @@ void Editor::InsertString()
 
   for (int I=0;I<sizeof(SavePos.Line)/sizeof(SavePos.Line[0]);I++)
     if (SavePos.Line[I]!=0xffffffff &&
-        (NumLine<SavePos.Line[I] || NumLine==SavePos.Line[I] && CurPos==0))
+        (NumLine<static_cast<int>(SavePos.Line[I]) || NumLine==SavePos.Line[I] && CurPos==0))
       SavePos.Line[I]++;
 
   int IndentPos=0;
@@ -5193,7 +5195,7 @@ void Editor::GetRowCol(char *argv,int *row,int *col)
   l=strcspn(argv,",:;. ");
   // если разделителя нету, то l=strlen(argv)
 
-  if(l < strlen(argv)) // Варианты: "row,col" или ",col"?
+  if(l < static_cast<int>(strlen(argv))) // Варианты: "row,col" или ",col"?
   {
     argv[l]='\0'; // Вместо разделителя впиндюлим "конец строки" :-)
     argvx=argv+l+1;
@@ -6594,7 +6596,7 @@ int Editor::GotoBookmark(DWORD Pos)
       CurLine->EditLine.SetCurPos(SavePos.Cursor[Pos]);
       CurLine->EditLine.SetLeftPos(SavePos.LeftPos[Pos]);
       TopScreen=CurLine;
-      for (int I=0;I<SavePos.ScreenLine[Pos] && TopScreen->Prev!=NULL;I++)
+      for (DWORD I=0;I<SavePos.ScreenLine[Pos] && TopScreen->Prev!=NULL;I++)
         TopScreen=TopScreen->Prev;
       if (!EdOpt.PersistentBlocks)
         UnmarkBlock();

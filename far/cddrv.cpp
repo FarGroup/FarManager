@@ -5,10 +5,12 @@ cddrv.cpp
 
 */
 
-/* Revision: 1.08 07.04.2006 $ */
+/* Revision: 1.09 04.07.2006 $ */
 
 /*
 Modify:
+  04.07.2006 IS
+    - warnings
   07.04.2006 AY
     ! GCC
   17.07.2005 SVS
@@ -610,7 +612,7 @@ static CDROM_DeviceCaps getCapsUsingDeviceProps(HANDLE hDevice)
             char productID[1024];
             int idx = 0;
 
-            for(int i = devDesc->ProductIdOffset; outBuf[i] && i < returnedLength; i++)
+            for(DWORD i = devDesc->ProductIdOffset; outBuf[i] && i < returnedLength; i++)
             {
                 productID[idx++] = outBuf[i];
             }

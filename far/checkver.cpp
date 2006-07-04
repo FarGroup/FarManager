@@ -5,10 +5,12 @@ checkver.cpp
 
 */
 
-/* Revision: 1.16 24.10.2005 $ */
+/* Revision: 1.17 04.07.2006 $ */
 
 /*
 Modify:
+  04.07.2006 IS
+    - warnings
   24.10.2005 SVS
     ! для нерегистринной версии выставим так же табы для вьювера.
   10.11.2004 SVS
@@ -180,7 +182,7 @@ void Register()
     return;
   }
   Dlg.Hide();
-  RegData[0]=clock();
+  RegData[0]=static_cast<char>(clock());
   RegData[1]=strlen(RegName);
   RegData[2]=strlen(RegCode);
   strcpy(RegData+3,RegName);
@@ -238,7 +240,7 @@ void __cdecl CheckReg(void *Param)
     RegVer=0;
   else
   {
-    int I;
+    DWORD I;
     for (I=1;I<Size;I++)
       RegData[I]^=RegData[0];
     for (I=0;I<Size;I++)

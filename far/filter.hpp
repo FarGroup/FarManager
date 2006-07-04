@@ -7,10 +7,12 @@ filter.hpp
 
 */
 
-/* Revision: 1.03 03.04.2002 $ */
+/* Revision: 1.04 04.07.2006 $ */
 
 /*
 Modify:
+  04.07.2006 IS
+    - warnings
   03.04.2002 SVS
     + ParseAndAddMasks() - выявлять и если надо добавлять очередную маску
     ! Немного красоты ;-)
@@ -38,9 +40,9 @@ class PanelFilter
     */
     CFileMask IncludeMask, ExcludeMask;
     char *IncludeMaskStr, *ExcludeMaskStr;
-    bool IncludeMaskIsOK, ExcludeMaskIsOK;
+    BOOL IncludeMaskIsOK, ExcludeMaskIsOK;
     /* IS $ */
-  
+
   private:
     void SaveFilterFile();
     int  SaveFilterData();

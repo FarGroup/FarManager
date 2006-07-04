@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.75 13.04.2006 $ */
+/* Revision: 1.76 04.07.2006 $ */
 
 /*
 Modify:
+  04.07.2006 IS
+    - warnings
   13.04.2006 SVS
     ! Изменен текст текст диалогов для уничтожения файлов (Alt-Del)
   22.12.2005 SVS
@@ -691,7 +693,7 @@ void ShellDeleteMsg(const char *Name,int Wipe)
   int WidthTemp;
   char OutFileName[NM];
 
-  if (Name == NULL || *Name == 0 || ((clock() - DeleteStartTime) > Opt.ShowTimeoutDelFiles))
+  if (Name == NULL || *Name == 0 || (static_cast<DWORD>(clock() - DeleteStartTime) > Opt.ShowTimeoutDelFiles))
   {
     if(Name && *Name)
     {
