@@ -652,6 +652,17 @@ the main help file, that is actual for the current FAR Manager version.
 
    By default the "BatchType" list is set to ".BAT;.CMD;".
 
+1.3.5.(TechInfo #74)
+~~~~~~~~~~~~~~~~~~~~
+   [HKEY_CURRENT_USER\Software\Far\System\Executor]
+   "FullTitle":REG_DWORD
+   Параметр  "System/Executor/FullTitle" с типом DWORD позволяет задавать вид
+   заголовка консоли при запуске файла на исполнение.
+   Может быть одним из следующих значений:
+     0 - в заголовке консоли отображается то, что вводил пользователь.
+     1 - в заголовке консоли отображается полный путь к исполняемому файлу.
+   По умолчанию значение = 0 (то, что вводил пользователь).
+
 
 ======================
   1.4. Policies.
