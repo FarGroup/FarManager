@@ -312,10 +312,15 @@ SevenZipArchive::SevenZipArchive (SevenZipModule *pModule, const char *lpFileNam
 
 	m_pModule = pModule;
 	m_lpFileName = StrDuplicate (lpFileName);
+
+	m_bPasswordDefined = false;
 }
 
 SevenZipArchive::~SevenZipArchive ()
 {
+	if ( m_bPasswordDefined )
+		free (m_lpPassword);
+
 	StrFree (m_lpFileName);
 }
 
@@ -341,7 +346,7 @@ bool __stdcall SevenZipArchive::pOpenArchive (
   		{
   			unsigned __int64 max = 1 << 17;
 
-			CArchiveOpenCallback *pCallback = new CArchiveOpenCallback;
+			CArchiveOpenCallback *pCallback = new CArchiveOpenCallback (this);
 
 			hr = m_pArchive->Open (m_pInFile, &max, pCallback);
 
@@ -602,4 +607,29 @@ bool __stdcall SevenZipArchive::pExtract (
 	free (items);
 
 	return bResult;
+}
+
+
+void SevenZipArchive::SetPassword (const char *lpPassword, int nLength)
+{
+	if ( m_bPasswordDefined )
+		free (m_lpPassword);
+
+	m_nPasswordLength = nLength;
+	m_lpPassword = (char *)malloc (nLength+1);
+
+	memcpy (m_lpPassword, lpPassword, nLength);
+
+	m_bPasswordDefined = true;
+}
+
+int SevenZipArchive::GetPasswordLength ()
+{
+	return m_bPasswordDefined?m_nPasswordLength:-1;
+}
+
+void SevenZipArchive::GetPassword (char *lpBuffer)
+{
+	if ( m_bPasswordDefined )
+		memcpy (lpBuffer, m_lpPassword, m_nPasswordLength);
 }

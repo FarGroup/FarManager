@@ -329,7 +329,7 @@ int __stdcall PluginEntry (
 	return NAERROR_NOTIMPLEMENTED;
 }
 
-/*
+
 BOOL __stdcall DllMain (
     HINSTANCE hinstDLL,
     DWORD fdwReason,
@@ -338,4 +338,4 @@ BOOL __stdcall DllMain (
 {
   return TRUE;
 }
-*/
+

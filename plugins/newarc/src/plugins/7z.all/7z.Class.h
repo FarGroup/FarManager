@@ -41,6 +41,10 @@ public:
 
 	DWORD m_nItemsNumber;
 
+	bool m_bPasswordDefined;
+	char *m_lpPassword;
+	int m_nPasswordLength;
+
 public:
 
 	SevenZipArchive (SevenZipModule *pModule, const char *lpFileName);
@@ -54,4 +58,8 @@ public:
 	virtual bool __stdcall pTest (PluginPanelItem *pItems, int nItemsNumber);
 
 	virtual int __stdcall pGetArchiveType () { return 0; }
+
+	void SetPassword (const char *lpPassword, int nLength);
+	int GetPasswordLength ();
+	void GetPassword (char *lpBuffer);
 };

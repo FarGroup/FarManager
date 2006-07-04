@@ -29,6 +29,26 @@ struct ArchiveItem {
 	PluginPanelItem *pItem;
 };
 
+class CCryptoGetTextPassword : public ICryptoGetTextPassword {
+private:
+
+	int m_nRefCount;
+	SevenZipArchive *m_pArchive;
+
+public:
+
+	CCryptoGetTextPassword (SevenZipArchive *pArchive);
+
+	virtual HRESULT __stdcall QueryInterface (const IID &iid, void ** ppvObject);
+	virtual ULONG __stdcall AddRef ();
+	virtual ULONG __stdcall Release ();
+
+	// ICryptoGetTextPassword
+
+	virtual HRESULT __stdcall CryptoGetTextPassword (BSTR *password);
+};
+
+
 class CArchiveExtractCallback : public IArchiveExtractCallback {
 
 public:
@@ -44,6 +64,8 @@ public:
 
 	unsigned __int64 m_nLastProcessed;
 
+	CCryptoGetTextPassword *m_pGetTextPassword;
+
 public:
 
 	CArchiveExtractCallback (SevenZipArchive *pArchive, ArchiveItem *pItems, int nItemsNumber, const char *lpDestPath, const char *lpCurrentFolder);
@@ -53,6 +75,7 @@ public:
 	virtual ULONG __stdcall AddRef ();
 	virtual ULONG __stdcall Release ();
 
+
 	virtual HRESULT __stdcall SetTotal (unsigned __int64 total);
 	virtual HRESULT __stdcall SetCompleted (const unsigned __int64* completeValue);
 
@@ -60,16 +83,22 @@ public:
   // GetStream OUT: S_OK - OK, S_FALSE - skeep this file
 	virtual HRESULT __stdcall PrepareOperation (int askExtractMode);
 	virtual HRESULT __stdcall SetOperationResult (int resultEOperationResult);
+
 };
 
-class CArchiveOpenCallback : public IArchiveOpenCallback {
+
+class CArchiveOpenCallback : public IArchiveOpenCallback/*, public IArchiveOpenVolumeCallback*/ {
 
 private:
 	int m_nRefCount;
 
+	CCryptoGetTextPassword *m_pGetTextPassword;
+	SevenZipArchive *m_pArchive;
+
 public:
 
-	CArchiveOpenCallback ();
+	CArchiveOpenCallback (SevenZipArchive *pArchive);
+	~CArchiveOpenCallback ();
 
 
 	virtual HRESULT __stdcall QueryInterface (const IID &iid, void ** ppvObject);
@@ -86,6 +115,7 @@ public:
 
 	virtual HRESULT __stdcall GetProperty (PROPID propID, PROPVARIANT *value);
 	virtual HRESULT __stdcall GetStream (const wchar_t *name, IInStream **inStream);
+
 };
 
 
