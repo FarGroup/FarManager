@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.130 03.07.2006 $ */
+/* Revision: 1.131 04.07.2006 $ */
 
 /*
 Modify:
+  04.07.2006 SVS
+    + Opt.ExecuteFullTitle
   03.07.2006 SVS
     - Mantis#0000204: Ќе всегда запускаетс€ проводник на папке по Shift-Enter
      (теперь, . ShiftEnter)
@@ -1210,12 +1212,16 @@ int Execute(const char *CmdStr,    //  ом.строка дл€ исполнени€
   else
   {
     char FarTitle[2048];
-    xstrncpy(FarTitle,CmdStr,sizeof(FarTitle)-1);
-    xstrncpy(FarTitle,NewCmdStr,sizeof(FarTitle)-1);
-    if (*NewCmdPar)
+    if(!Opt.ExecuteFullTitle)
+      xstrncpy(FarTitle,CmdStr,sizeof(FarTitle)-1);
+    else
     {
-      strncat(FarTitle," ",sizeof(FarTitle)-1);
-      strncat(FarTitle,NewCmdPar,sizeof(FarTitle)-1);
+      xstrncpy(FarTitle,NewCmdStr,sizeof(FarTitle)-1);
+      if (*NewCmdPar)
+      {
+        strncat(FarTitle," ",sizeof(FarTitle)-1);
+        strncat(FarTitle,NewCmdPar,sizeof(FarTitle)-1);
+      }
     }
 
     if ( bIsNT )
@@ -1911,6 +1917,9 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
         FindClose(hFile);
       }
     }
+
+    // \\?\UNC\<hostname>\<sharename>\<dirname> , а также cd \\.\<disk>:\<dirname>
+
     /* $ 15.11.2001 OT
       —начала провер€ем есть ли така€ "обычна€" директори€.
       если уж нет, то тогда начинаем думать, что это директори€ плагинна€

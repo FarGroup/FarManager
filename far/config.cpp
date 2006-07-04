@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.206 29.06.2006 $ */
+/* Revision: 1.207 04.07.2006 $ */
 
 /*
 Modify:
+  04.07.2006 SVS
+    + Opt.ExecuteFullTitle
   29.06.2006 SVS
     ! Bath -> Batch
   28.06.2006 SVS
@@ -1734,6 +1736,7 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeySystemExecutor,"UseAppPath",&Opt.ExecuteUseAppPath,1, 0},
   {0, REG_DWORD,  NKeySystemExecutor,"ShowErrorMessage",&Opt.ExecuteShowErrorMessage,1, 0},
   {0, REG_SZ,     NKeySystemExecutor,"BatchType",Opt.ExecuteBatchType,sizeof(Opt.ExecuteBatchType)-2,constBatchExt},
+  {0, REG_DWORD,  NKeySystemExecutor,"FullTitle",&Opt.ExecuteFullTitle,0, 0},
 
   {0, REG_DWORD,  NKeyPanelTree,"MinTreeCount",&Opt.Tree.MinTreeCount, 4, 0},
   {0, REG_DWORD,  NKeyPanelTree,"LocalDisk",&Opt.Tree.LocalDisk, 2, 0},

@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.144 29.06.2006 $ */
+/* Revision: 1.145 04.07.2006 $ */
 
 /*
 Modify:
+  04.07.2006 SVS
+    + Opt.ExecuteFullTitle
   29.06.2006 SVS
     ! Bath -> Batch
   28.06.2006 SVS
@@ -941,6 +943,7 @@ struct Options
   int RestoreCPAfterExecute;
   int ExecuteShowErrorMessage;
   int ExecuteUseAppPath;
+  int ExecuteFullTitle;
   char ExecuteBatchType[256];
 
 #if defined(FAR_ANSI)
