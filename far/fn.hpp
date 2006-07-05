@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.246 03.07.2006 $ */
+/* Revision: 1.247 05.07.2006 $ */
 
 /*
 Modify:
+  05.07.2006 IS
+    - warnings
   03.07.2006 SVS
     ! _MakePath1() доп параметр. TRUE - как на панели. FALSE - без учета вида панели (короткие имена или полные)
   29.06.2006 SVS
@@ -732,8 +734,9 @@ int GetTimeSeparator();
 char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error);
 void ScrollScreen(int Count);
 int ScreenSaver(int EnableExit);
-char* InsertCommas(unsigned long Number,char *Dest);
-char* InsertCommas(int64 li,char *Dest);
+char* InsertCommas(const unsigned long &Number,char *Dest);
+char* InsertCommas(const __int64 &li,char *Dest);
+inline char* InsertCommas(const int64 &li,char *Dest);
 void DeleteDirTree(const char *Dir);
 int GetClusterSize(char *Root);
 

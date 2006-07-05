@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.184 22.03.2006 $ */
+/* Revision: 1.185 05.07.2006 $ */
 
 /*
 Modify:
+  05.07.2006 IS
+    - warnings
   22.03.2006 AY
     - Хекс поиск файлов не переводил найденные файлы в темп панель.
   21.01.2006 AY
@@ -2967,7 +2969,7 @@ int FindFiles::LookForString(char *Name)
     {
       if (AlreadyRead+ReadSize>SearchInFirst)
       {
-        ReadSize=SearchInFirst-AlreadyRead;
+        ReadSize=static_cast<int>(SearchInFirst-AlreadyRead);
       }
 
       if (ReadSize<=0)

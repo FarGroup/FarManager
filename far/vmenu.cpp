@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.150 30.01.2006 $ */
+/* Revision: 1.151 05.07.2006 $ */
 
 /*
 Modify:
+  05.07.2006 IS
+    - warnings
   30.01.2006 SVS
     - Memory Ыхръ.
   07.12.2005 SVS
@@ -2825,8 +2827,8 @@ long WINAPI VMenu::SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,long Param2)
 char MenuItem::operator[](int Pos) const
 {
   if(Flags&MIF_USETEXTPTR)
-    return (!NamePtr || Pos > strlen(NamePtr))?0:NamePtr[Pos];
-  return (Pos > strlen(Name))?0:Name[Pos];
+    return (!NamePtr || static_cast<size_t>(Pos) > strlen(NamePtr))?0:NamePtr[Pos];
+  return (static_cast<size_t>(Pos) > strlen(Name))?0:Name[Pos];
 }
 
 char* MenuItem::PtrName()

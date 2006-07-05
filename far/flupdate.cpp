@@ -5,10 +5,12 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.55 20.02.2006 $ */
+/* Revision: 1.56 05.07.2006 $ */
 
 /*
 Modify:
+  05.07.2006 IS
+    - warnings
   20.02.2006 SVS
     ! У ConvertNameToShort новый параметр - размер для Dest
   07.12.2005 SVS
@@ -616,7 +618,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 int FileList::UpdateIfChanged(int UpdateMode)
 {
   //_SVS(SysLog("CurDir='%s' Opt.AutoUpdateLimit=%d <= FileCount=%d",CurDir,Opt.AutoUpdateLimit,FileCount));
-  if(!Opt.AutoUpdateLimit || FileCount <= Opt.AutoUpdateLimit)
+  if(!Opt.AutoUpdateLimit || static_cast<DWORD>(FileCount) <= Opt.AutoUpdateLimit)
   {
     /* $ 19.12.2001 VVM
       ! Сменим приоритеты. При Force обновление всегда! */

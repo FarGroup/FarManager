@@ -5,10 +5,12 @@ stddlg.cpp
 
 */
 
-/* Revision: 1.30 31.01.2005 $ */
+/* Revision: 1.31 05.07.2006 $ */
 
 /*
 Modify:
+  05.07.2006 IS
+    - warnings
   31.01.2005 SVS
     ! В GetMenuHotKey() новый параметр - "имя плагина"
   06.08.2004 SKV
@@ -525,9 +527,10 @@ int WINAPI GetString(const char *Title,const char *Prompt,
   if(DestLength > 511 && !(Flags&FIB_PASSWORD))
   {
     StrDlg[2].Flags|=DIF_VAREDIT;
-    StrDlg[2].Ptr.PtrTail[0]=StrDlg[2].Ptr.PtrFlags=0;
+    StrDlg[2].Ptr.PtrTail[0]=0;
+    StrDlg[2].Ptr.PtrFlags=0;
     if(SrcText)
-      memmove(DestText,SrcText,(strlen(SrcText)+1>DestLength?DestLength:strlen(SrcText)+1));
+      memmove(DestText,SrcText,(strlen(SrcText)+1>static_cast<size_t>(DestLength)?DestLength:strlen(SrcText)+1));
     StrDlg[2].Ptr.PtrData=DestText;
     StrDlg[2].Ptr.PtrLength=DestLength;
   }

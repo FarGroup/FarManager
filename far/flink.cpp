@@ -5,10 +5,12 @@ flink.cpp
 
 */
 
-/* Revision: 1.48 06.05.2005 $ */
+/* Revision: 1.49 05.07.2006 $ */
 
 /*
 Modify:
+  05.07.2006 IS
+    - warnings
   06.05.2005 SVS
     ! У GetSubstName() предпоследний параметр может быть равен NULL
   24.04.2005 AY
@@ -297,7 +299,6 @@ static PSETVOLUMEMOUNTPOINT pSetVolumeMountPoint=NULL;
 */
 int WINAPI CreateVolumeMountPoint(LPCTSTR SrcVolume,LPCTSTR LinkFolder)
 {
-   BOOL bFlag;
    char Buf[1024];            // temporary buffer for volume name
 
    if(!pGetVolumeNameForVolumeMountPoint)
@@ -898,7 +899,6 @@ void GetPathRootOne(const char *Path,char *Root)
     if(pGetVolumeNameForVolumeMountPoint && !strncmp(Path,"Volume{",7))
     {
       char Drive[] = "A:\\"; // \\?\Volume{...
-      BOOL Res;
       int I;
       for (I = 'A'; I <= 'Z';  I++ )
       {

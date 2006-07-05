@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.165 06.05.2006 $ */
+/* Revision: 1.166 05.07.2006 $ */
 
 /*
 Modify:
+  05.07.2006 IS
+    - warnings
   06.05.2006 SVS
     - В PluginsSet::ReadUserBackgound убран потенциальный баг.
     - Mantis#0000171: Вызов Viewer с флагом VF_IMMEDIATERETURN из GetFiles
@@ -2658,7 +2660,6 @@ void PluginsSet::Configure(int StartPos)
             if (PluginList.GetItemCount() > 0 && SelPos<MenuItemNumber && GetHotKeyRegKey(LOWORD(Data),HIWORD(Data),RegKey))
             {
               BlockExtKey blockExtKey;
-              struct PluginInfo Info;
               char Name00[NM];
 
               int nOffset = HotKeysPresent?3:0;

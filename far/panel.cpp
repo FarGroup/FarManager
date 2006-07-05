@@ -5,10 +5,12 @@ Parent class дл€ панелей
 
 */
 
-/* Revision: 1.153 29.05.2006 $ */
+/* Revision: 1.154 05.07.2006 $ */
 
 /*
 Modify:
+  05.07.2006 IS
+    - warnings
   29.05.2006 SVS
     - ¬ плагиновых панел€х в заголовке обрезаетс€ 2 символа
   25.05.2006 SVS
@@ -2443,7 +2445,7 @@ static int MessageRemoveConnection(char Letter, int &UpdateProfile)
 BOOL Panel::NeedUpdatePanel(Panel *AnotherPanel)
 {
   /* ќбновить, если обновление разрешено и пути совпадают */
-  if ((!Opt.AutoUpdateLimit || GetFileCount() <= Opt.AutoUpdateLimit) &&
+  if ((!Opt.AutoUpdateLimit || static_cast<DWORD>(GetFileCount()) <= Opt.AutoUpdateLimit) &&
       LocalStricmp(AnotherPanel->CurDir,CurDir)==0)
     return TRUE;
   return FALSE;

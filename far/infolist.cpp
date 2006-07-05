@@ -5,10 +5,12 @@ infolist.cpp
 
 */
 
-/* Revision: 1.51 09.05.2006 $ */
+/* Revision: 1.52 05.07.2006 $ */
 
 /*
 Modify:
+  05.07.2006 IS
+    - warnings
   09.05.2006 SVS
     + GetTitle + доп параметр, на сколько усеч
   03.05.2006 SVS
@@ -363,26 +365,26 @@ void InfoList::DisplayObject()
   MEMORYSTATUSEX ms;
   FAR_GlobalMemoryStatusEx(&ms);
   if (ms.dwMemoryLoad==0)
-    ms.dwMemoryLoad=100-ToPercent(ms.ullAvailPhys+ms.ullAvailPageFile,ms.ullTotalPhys+ms.ullTotalPageFile);
+    ms.dwMemoryLoad=100-ToPercent64(ms.ullAvailPhys+ms.ullAvailPageFile,ms.ullTotalPhys+ms.ullTotalPageFile);
   GotoXY(X1+2,Y1+9);
   PrintText(MInfoMemoryLoad);
   sprintf(OutStr,"%d%%",ms.dwMemoryLoad);
   PrintInfo(OutStr);
   GotoXY(X1+2,Y1+10);
   PrintText(MInfoMemoryTotal);
-  InsertCommas((__int64)ms.ullTotalPhys,OutStr);
+  InsertCommas(static_cast<__int64>(ms.ullTotalPhys),OutStr);
   PrintInfo(OutStr);
   GotoXY(X1+2,Y1+11);
   PrintText(MInfoMemoryFree);
-  InsertCommas((__int64)ms.ullAvailPhys,OutStr);
+  InsertCommas(static_cast<__int64>(ms.ullAvailPhys),OutStr);
   PrintInfo(OutStr);
   GotoXY(X1+2,Y1+12);
   PrintText(MInfoVirtualTotal);
-  InsertCommas((__int64)ms.ullTotalPageFile,OutStr);
+  InsertCommas(static_cast<__int64>(ms.ullTotalPageFile),OutStr);
   PrintInfo(OutStr);
   GotoXY(X1+2,Y1+13);
   PrintText(MInfoVirtualFree);
-  InsertCommas((__int64)ms.ullAvailPageFile,OutStr);
+  InsertCommas(static_cast<__int64>(ms.ullAvailPageFile),OutStr);
   PrintInfo(OutStr);
   ShowDirDescription();
   ShowPluginDescription();
@@ -473,8 +475,7 @@ int InfoList::ProcessKey(int Key)
     }
     if (Key == KEY_F7 || Key == KEY_SHIFTF7)
     {
-      __int64 Pos;
-      int Length;
+      __int64 Pos, Length;
       DWORD Flags;
       DizView->GetSelectedParam(Pos,Length,Flags);
 //      ShellUpdatePanels(NULL,FALSE);

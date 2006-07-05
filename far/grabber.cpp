@@ -5,10 +5,12 @@ Screen grabber
 
 */
 
-/* Revision: 1.26 26.10.2005 $ */
+/* Revision: 1.27 05.07.2006 $ */
 
 /*
 Modify:
+  05.07.2006 IS
+    - warnings
   26.10.2005 SVS
     - Mantis#40 - Выделение по Alt-Ins
   24.07.2005 WARP
@@ -223,7 +225,7 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
         }
       }
 
-      *PtrCopyBuf++=Chr;
+      *PtrCopyBuf++=static_cast<char>(Chr);
       *PtrCopyBuf=0;
     }
     for (int K=strlen(CopyBuf)-1;K>=0 && CopyBuf[K]==' ';K--)

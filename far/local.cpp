@@ -5,10 +5,12 @@ local.cpp
 
 */
 
-/* Revision: 1.23 19.06.2006 $ */
+/* Revision: 1.24 05.07.2006 $ */
 
 /*
 Modify:
+  05.07.2006 IS
+    - warnings
   19.06.2006 WARP
     - Ќеверна€ сортировка строк, различающихс€ только длиной при выборе режима "числова€ сортировка".
   06.08.2004 SKV
@@ -230,7 +232,7 @@ void InitKeysArray()
 #else
           FAR_CharToOem((char *)CvtStr,(char *)CvtStr);
 #endif
-          KeyToKey[CvtStr[0]]=AnsiKey;
+          KeyToKey[CvtStr[0]]=static_cast<unsigned char>(AnsiKey);
         }
       }
     }

@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.188 22.06.2006 $ */
+/* Revision: 1.189 05.07.2006 $ */
 
 /*
 Modify:
+  05.07.2006 IS
+    - warnings
   22.06.2006 thims
     - Исправление бага QuickView (MantisID: 0000197)
   06.06.2006 WARP
@@ -1146,7 +1148,7 @@ void Viewer::ShowPage (int nMode)
 
       if ( Strings[I]->bSelection )
       {
-        int SelX1;
+        __int64 SelX1;
 
         if ( LeftPos > Strings[I]->nSelStart )
           SelX1 = X1;
@@ -1167,7 +1169,7 @@ void Viewer::ShowPage (int nMode)
         {
           SetColor(COL_VIEWERSELECTEDTEXT);
 
-          GotoXY(X1+SelX1,Y);
+          GotoXY(static_cast<int>(X1+SelX1),Y);
 
           __int64 Length = Strings[I]->nSelEnd-Strings[I]->nSelStart;
 
@@ -1209,13 +1211,14 @@ void Viewer::DisplayObject()
 void Viewer::ShowHex()
 {
   char OutStr[MAX_VIEWLINE],TextStr[20];
-  int SelPos=0,SelSize,EndFile;
+  int SelPos=0,EndFile;
+  __int64 SelSize;
   int Ch,Ch1,X,Y,TextPos;
 
   int SelStart, SelEnd;
   bool bSelStartFound = false, bSelEndFound = false;
 
-  int HexLeftPos=((LeftPos>80-ObjWidth) ? Max(80-ObjWidth,0):LeftPos);
+  __int64 HexLeftPos=((LeftPos>80-ObjWidth) ? Max(80-ObjWidth,0):LeftPos);
 
   for (EndFile=0,Y=ViewY1;Y<=Y2;Y++)
   {
@@ -1283,7 +1286,8 @@ void Viewer::ShowHex()
           /* $ 28.06.2000 tran
              убираем показ пустой строки, если длина
              файла кратна 16 */
-          EndFile=LastPage=1;
+          EndFile=1;
+          LastPage=1;
           if ( X==0 )
           {
              strcpy(OutStr,"");
@@ -1355,7 +1359,8 @@ void Viewer::ShowHex()
           /* $ 28.06.2000 tran
              убираем показ пустой строки, если длина
              файла кратна 16 */
-          EndFile=LastPage=1;
+          EndFile=1;
+          LastPage=1;
           if ( X==0 )
           {
              strcpy(OutStr,"");
@@ -1705,9 +1710,13 @@ int Viewer::ProcessKey(int Key)
     case MCODE_C_BOF:
       return !FilePos || ViewFile==NULL;
     case MCODE_V_ITEMCOUNT:
-      return FileSize;
+      // для БОЛЬШИХ ФАЙЛОВ возвращается ерунда!
+      // SVS, ау?!
+      return static_cast<int>(FileSize);
     case MCODE_V_CURPOS:
-      return FilePos+1;
+      // для БОЛЬШИХ ФАЙЛОВ возвращается ерунда!
+      // SVS, ау?!
+      return static_cast<int>(FilePos+1);
     case MCODE_V_VIEWERSTATE:
     {
       DWORD MacroViewerState=0;
@@ -2081,7 +2090,7 @@ int Viewer::ProcessKey(int Key)
                т.к. они другие при изменении
                unicode<->однобайтовая кодировка
           */
-          bool oldIsUnicode=VM.Unicode;
+          int oldIsUnicode=VM.Unicode;
           if (VM.Unicode && !UseUnicode)
             FilePos*=2;
           if (!VM.Unicode && UseUnicode)
@@ -2375,7 +2384,7 @@ int Viewer::ProcessKey(int Key)
           Message(0,1,"End",Buf,"Ok");
         }
 */
-        for (I=0;I<max_counter;I++)
+        for (I=0;static_cast<unsigned int>(I)<max_counter;I++)
           Up();
         /* IS 15.08.2002 $ */
 /*
@@ -2984,7 +2993,7 @@ void Viewer::Search(int Next,int FirstChar)
 
     xstrncpy(MsgStr,(char *)SearchStr,sizeof(MsgStr)-1);
 
-    if(strlen(MsgStr)+18 > ObjWidth)
+    if(strlen(MsgStr)+18 > static_cast<size_t>(ObjWidth))
       TruncStrFromEnd(MsgStr, ObjWidth-18);
     InsertQuote(MsgStr);
 
@@ -3657,7 +3666,7 @@ void Viewer::SetFileSize()
 }
 
 
-void Viewer::GetSelectedParam(__int64& Pos,int& Length, DWORD& Flags)
+void Viewer::GetSelectedParam(__int64 &Pos, __int64 &Length, DWORD &Flags)
 {
   Pos=SelectPos;
   Length=SelectSize;
@@ -3669,7 +3678,7 @@ void Viewer::GetSelectedParam(__int64& Pos,int& Length, DWORD& Flags)
    Flags=0x01 - показывать (делать Show())
          0x02 - "обратный поиск" ?
 */
-void Viewer::SelectText(__int64 MatchPos,int SearchLength, DWORD Flags)
+void Viewer::SelectText(const __int64 &MatchPos,const __int64 &SearchLength, const DWORD Flags)
 {
   if(!ViewFile)
     return;

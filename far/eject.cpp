@@ -5,10 +5,12 @@ Eject съемных носителей
 
 */
 
-/* Revision: 1.17 09.06.2005 $ */
+/* Revision: 1.18 05.07.2006 $ */
 
 /*
 Modify:
+  05.07.2006 IS
+    - warnings
   09.06.2005 SVS
     ! FAR_CreateFile - обертка для CreateFile, просьба использовать именно
       ее вместо CreateFile
@@ -601,7 +603,7 @@ BOOL EjectVolume(char Letter,DWORD Flags)
       else if(!(Flags&EJECT_LOAD_MEDIA) && fRemoveSafely)
       {
         //printf("Media in Drive %c can be safely removed.\n",cDriveLetter);
-        if(Flags&EJECT_NOTIFY_AFTERREMOVE)
+        //if(Flags&EJECT_NOTIFY_AFTERREMOVE)
           ; // Message(0,1,MSG(MChangeUSBDisconnectDriveTitle),MSG(MChangeUSBSafelyRemoved),MSG(MOk));
       }
     } // END: while(Retry)

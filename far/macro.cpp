@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.165 29.05.2006 $ */
+/* Revision: 1.166 05.07.2006 $ */
 
 /*
 Modify:
+  05.07.2006 IS
+    - warnings
   29.05.2006 SVS
     ! немного уточнения в работате Title
   03.05.2006 SVS
@@ -1869,7 +1871,6 @@ static TVar fattrFunc(TVar *param)
     if(Pos >= 0)
     {
       int FileAttr;
-      char FileName[NM*2];
       ActivePanel->GetFileName(NULL,Pos,FileAttr);
       return TVar((__int64)FileAttr);
     }
@@ -1913,7 +1914,7 @@ static TVar dlggetvalueFunc(TVar *param)
         }
       }
     }
-    else if((DWORD)Index < DlgItemCount && DlgItem)
+    else if(Index < DlgItemCount && DlgItem)
     {
       const struct DialogItem *Item=DlgItem+Index;
       int ItemType=Item->Type;
@@ -2208,7 +2209,7 @@ static TVar panelsetposFunc(TVar *param)
   if(!SelPanel)
     return TVar(_i64(0));
 
-  long Ret=0;
+  __int64 Ret=0;
   int TypePanel=SelPanel->GetType(); //FILE_PANEL,TREE_PANEL,QVIEW_PANEL,INFO_PANEL
   if(TypePanel == FILE_PANEL || TypePanel ==TREE_PANEL)
   {
@@ -2878,7 +2879,7 @@ char *KeyMacro::MkRegKeyName(int IdxMacro,char *RegKeyName)
 */
 char *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize,const char *Src)
 {
-  int I,J, Key;
+  int J, Key;
   char MacroKeyText[50], *TextBuffer;
 
   // выделяем заведомо большой кусок
@@ -2920,7 +2921,7 @@ char *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize,const char *Src)
 void KeyMacro::SaveMacros(BOOL AllSaved)
 {
   _KEYMACRO(CleverSysLog Clev("KeyMacro::SaveMacros()"));
-  char *TextBuffer;
+  //char *TextBuffer;
   char RegKeyName[150];
 
   //WriteVarsConst(MACRO_VARS);
@@ -3334,10 +3335,11 @@ M1:
       char Buf[256];
       char BufKey[64];
       char RegKeyName[150];
+      MacroDlg->MkRegKeyName(Index,RegKeyName);
+
+#if 0
       char *TextBuffer;
 
-      MacroDlg->MkRegKeyName(Index,RegKeyName);
-#if 0
       // берем из памяти.
       if((TextBuffer=MacroDlg->MkTextSequence(Mac->Buffer,Mac->BufferSize)) != NULL)
       {
@@ -4426,7 +4428,7 @@ int KeyMacro::GetMacroKeyInfo(int Mode,int Pos,char *KeyName,char *Description,i
   if(Mode >= MACRO_OTHER && Mode < MACRO_LAST)
   {
     char UpKeyName[100];
-    char RegKeyName[150],KeyText[50];
+    char RegKeyName[150];
     sprintf(UpKeyName,"KeyMacros\\%s",GetSubKey(Mode));
 
     if (!EnumRegKey(UpKeyName,Pos,RegKeyName,sizeof(RegKeyName)))

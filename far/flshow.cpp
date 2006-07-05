@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.55 29.05.2006 $ */
+/* Revision: 1.56 05.07.2006 $ */
 
 /*
 Modify:
+  05.07.2006 IS
+    - warnings
   29.05.2006 SVS
     - В плагиновых панелях в заголовке обрезается 2 символа
   09.05.2006 SVS
@@ -1070,7 +1072,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                   else
                     PtrName=MSG(CurPtr->FileAttr&FILE_ATTRIBUTE_REPARSE_POINT?MListSymLink:MListFolder);
 
-                  if (strlen(PtrName) <= Width-2)
+                  if (strlen(PtrName) <= static_cast<size_t>(Width-2))
                     sprintf(Str,"<%.*s>",sizeof(Str)-3,PtrName);
                   else
                     xstrncpy(Str,PtrName,sizeof(Str)-1);

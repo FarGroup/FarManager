@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.64 09.04.2006 $ */
+/* Revision: 1.65 05.07.2006 $ */
 
 /*
 Modify:
+  05.07.2006 IS
+    - warnings
   06.04.2006 AY
     + Обработка новых флагов в FileSizeToStr() - COLUMN_MINSIZEINDEX, COLUMN_MINSIZEINDEX_MASK и COLUMN_SHOWBYTESINDEX
   12.03.2006 SVS
@@ -191,7 +193,7 @@ Modify:
 #include "lang.hpp"
 #include "int64.hpp"
 
-char *InsertCommas(unsigned long Number,char *Dest)
+char *InsertCommas(const unsigned long &Number,char *Dest)
 {
   ultoa(Number,Dest,10);
   for (int I=strlen(Dest)-4;I>=0;I-=3)
@@ -203,9 +205,9 @@ char *InsertCommas(unsigned long Number,char *Dest)
   return Dest;
 }
 
-
-char* InsertCommas(int64 li,char *Dest)
+char* InsertCommas(const __int64 &LI,char *Dest)
 {
+  int64 li(LI);
   if (li<1000000000)
     InsertCommas(li.PLow(),Dest);
   else
@@ -219,6 +221,11 @@ char* InsertCommas(int64 li,char *Dest)
       }
   }
   return Dest;
+}
+
+inline char* InsertCommas(const int64 &li,char *Dest)
+{
+  return InsertCommas(li.Number.i64, Dest);
 }
 
 char* WINAPI PointToName(char *Path)
@@ -320,7 +327,7 @@ char* WINAPI PointToNameUNC(char *Path)
 // IS: после CmpName_Body)
 int CmpName_Body(const char *pattern,const char *string)
 {
-  char stringc,patternc,rangec;
+  unsigned char stringc,patternc,rangec;
   int match;
 
   for (;; ++string)
@@ -1041,7 +1048,7 @@ char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size, int Width, 
   else
     sprintf(Str,"%I64d",Sz.Number.i64);
 
-  if ((!UseMinSizeIndex && strlen(Str)<=Width) || Width<5)
+  if ((!UseMinSizeIndex && strlen(Str)<=static_cast<size_t>(Width)) || Width<5)
   {
     if (ShowBytesIndex)
     {
@@ -1072,7 +1079,7 @@ char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size, int Width, 
         InsertCommas(Sz,Str);
       else
         sprintf(Str,"%I64d",Sz.Number.i64);
-    } while((UseMinSizeIndex && IndexB<MinSizeIndex) || (strlen(Str) > Width));
+    } while((UseMinSizeIndex && IndexB<MinSizeIndex) || (strlen(Str) > static_cast<size_t>(Width)));
 
     if (Economic)
       sprintf(DestStr,"%*.*s%1.1s",Width,Width,Str,KMGTbStr[IndexB][IndexDiv]);
@@ -1181,7 +1188,7 @@ char *WINAPI FarFormatText(const char *SrcText,     // источник
   if(!SrcText || !*SrcText)
     return NULL;
 
-  if(!strpbrk(SrcText,breakchar) && strlen(SrcText) <= Width)
+  if(!strpbrk(SrcText,breakchar) && strlen(SrcText) <= static_cast<size_t>(Width))
   {
     if(MaxLen > 0 && DestText)
       xstrncpy(DestText,SrcText,MaxLen-1);

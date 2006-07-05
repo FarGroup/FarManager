@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.182 03.07.2006 $ */
+/* Revision: 1.183 05.07.2006 $ */
 
 /*
 Modify:
+  05.07.2006 IS
+    - warnings
   03.07.2006 SVS
     ! _MakePath1() доп параметр. TRUE - как на панели. FALSE - без учета вида панели (короткие имена или полные)
   28.04.2006 SVS
@@ -2021,7 +2023,7 @@ void Transform(unsigned char *Buffer,int &BufLen,const char *ConvStr,char Transf
         xstrncpy(HexNum,&NewStr[I],2);
         HexNum[2]=0;
         unsigned long value=strtoul(HexNum,&stop,16);
-        Buffer[J]=value;
+        Buffer[J]=static_cast<unsigned char>(value);
         BufLen=J+1;
       }
       Buffer[J]=0;

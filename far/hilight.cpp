@@ -5,10 +5,12 @@ Files highlighting
 
 */
 
-/* Revision: 1.48 24.02.2006 $ */
+/* Revision: 1.49 05.07.2006 $ */
 
 /*
 Modify:
+  05.07.2006 IS
+    - warnings
   24.02.2006 AY
     - Опечатка
   09.02.2006 AY
@@ -737,12 +739,12 @@ void HighlightDlgUpdateUserControl(CHAR_INFO *VBufColorExample, struct Highlight
     for (int k=0; k<15; k++)
     {
       VBufColorExample[15*j+k].Char.AsciiChar=ptr[k];
-      VBufColorExample[15*j+k].Attributes=Color;
+      VBufColorExample[15*j+k].Attributes=static_cast<WORD>(Color);
     }
     if (Colors.MarkChar)
       VBufColorExample[15*j+1].Char.AsciiChar=Colors.MarkChar;
-    VBufColorExample[15*j].Attributes=(DWORD)Palette[COL_PANELBOX-COL_FIRSTPALETTECOLOR];
-    VBufColorExample[15*j+14].Attributes=(DWORD)Palette[COL_PANELBOX-COL_FIRSTPALETTECOLOR];
+    VBufColorExample[15*j].Attributes=Palette[COL_PANELBOX-COL_FIRSTPALETTECOLOR];
+    VBufColorExample[15*j+14].Attributes=Palette[COL_PANELBOX-COL_FIRSTPALETTECOLOR];
   }
 }
 

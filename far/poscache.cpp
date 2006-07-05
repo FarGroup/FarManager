@@ -5,10 +5,12 @@ poscache.cpp
 
 */
 
-/* Revision: 1.17 07.07.2005 $ */
+/* Revision: 1.18 05.07.2006 $ */
 
 /*
 Modify:
+  05.07.2006 IS
+    - warnings
   07.07.2005 SVS
     ! ¬ьюверные настройки собраны в одно место
   21.01.2003 SVS
@@ -278,7 +280,6 @@ BOOL FilePositionCache::Read(const char *Key)
       /* VVM $ */
       int J=0;
       const char *DataPtr;
-      char ArgData[2*NM];
 
       if(DataList.Set(DataStr))
       {

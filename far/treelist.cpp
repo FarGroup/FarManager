@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.74 09.05.2006 $ */
+/* Revision: 1.75 05.07.2006 $ */
 
 /*
 Modify:
+  05.07.2006 IS
+    - warnings
   09.05.2006 SVS
     + GetTitle + доп параметр, на сколько усеч
   03.05.2006 SVS
@@ -1583,7 +1585,6 @@ int TreeList::GetCurName(char *Name,char *ShortName)
 
 void TreeList::AddTreeName(char *Name)
 {
-  char *ListName,*NewPtr;
   char FullName[NM],Root[NM],*ChPtr;
   long CachePos;
 
@@ -1612,9 +1613,8 @@ void TreeList::AddTreeName(char *Name)
 
 void TreeList::DelTreeName(char *Name)
 {
-  char *ListName,*NewPtr;
   char FullName[NM],*DirName,Root[NM];
-  long CachePos,TreeCount;
+  long CachePos;
   int Length,DirLength;
   if (*Name==0)
     return;
@@ -1722,7 +1722,6 @@ void TreeList::ClearCache(int EnableFreeMem)
 void TreeList::ReadCache(char *TreeRoot)
 {
   char TreeName[NM],DirName[NM],*ChPtr;
-  char *ListName;
   FILE *TreeFile=NULL;
   if (strcmp(MkTreeFileName(TreeRoot,TreeName,sizeof(TreeName)-1),TreeCache.TreeName)==0)
     return;

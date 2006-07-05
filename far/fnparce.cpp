@@ -5,10 +5,12 @@ fnparce.cpp
 
 */
 
-/* Revision: 1.25 03.07.2006 $ */
+/* Revision: 1.26 05.07.2006 $ */
 
 /*
 Modify:
+  05.07.2006 IS
+    - warnings
   03.07.2006 SVS
     + ƒобавлены метасимволы "!=\" и "!=/" дл€ текущего пути с учетом смиволических св€зей.
   20.02.2006 SVS
@@ -272,7 +274,7 @@ static char *_SubstFileName(char *CurStr,struct TSubstData *PSubstData,char *Tmp
       /* $ 05.03.2002 DJ
          если в буфер больше не влезет - выйдем из цикла
       */
-      if (strlen (TmpStr) >= MaxTempStrSize-1)
+      if (strlen (TmpStr) >= static_cast<size_t>(MaxTempStrSize-1))
         break;
       /* DJ $ */
     }

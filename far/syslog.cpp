@@ -5,10 +5,12 @@ syslog.cpp
 
 */
 
-/* Revision: 1.56 09.09.2005 $ */
+/* Revision: 1.57 05.07.2006 $ */
 
 /*
 Modify:
+  05.07.2006 IS
+    - warnings
   09.09.2005 SVS
     ! добавки по всем VK.
   23.07.2005 SVS
@@ -206,8 +208,6 @@ static char *MakeSpace(void)
 FILE * OpenLogStream(char *file)
 {
 #if defined(SYSLOG)
-  time_t t;
-  struct tm *time_now;
   char RealLogName[NM*2];
   SYSTEMTIME st;
 
@@ -1480,8 +1480,6 @@ void INPUT_RECORD_DumpBuffer(FILE *fp)
       if(TmpRec)
       {
         DWORD ReadCount3;
-        INPUT_RECORD TmpRec2;
-        int I;
 
         #if defined(USE_WFUNC_IN)
         if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
@@ -1492,7 +1490,7 @@ void INPUT_RECORD_DumpBuffer(FILE *fp)
         PeekConsoleInput(hConInp,TmpRec,ReadCount2,&ReadCount3);
         #endif
 
-        for(I=0; I < ReadCount2; ++I)
+        for(DWORD I=0; I < ReadCount2; ++I)
         {
           fprintf(fp,"             %s%04d: %s\n",MakeSpace(),I,_INPUT_RECORD_Dump(TmpRec+I));
         }

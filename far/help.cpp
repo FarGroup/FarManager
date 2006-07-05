@@ -5,10 +5,12 @@ help.cpp
 
 */
 
-/* Revision: 1.90 25.07.2005 $ */
+/* Revision: 1.91 05.07.2006 $ */
 
 /*
 Modify:
+  05.07.2006 IS
+    - warnings
   24.07.2005 WARP
     ! see 02033.LockUnlock.txt
   16.05.2005 WARP & AY
@@ -815,7 +817,7 @@ void Help::AddLine(const char *Line)
 
   if ( StartPos != -1 )
   {
-    for (int i = 0; i < StartPos; i++)
+    for (DWORD i = 0; i < StartPos; i++)
       HelpStr[i] = ' ';
 
     xstrncpy(HelpStr+StartPos, (*Line == ' ')?Line+1:Line, MAX_HELP_STRING_LENGTH-1);
@@ -1037,7 +1039,7 @@ void Help::OutString(const char *Str)
           SetColor(CurColor);
       /* $ 24.09.2001 VVM
         ! ќбрежем длинные строки при показе. “акое будет только при длинных ссылках... */
-      if ((strlen(OutStr) + WhereX()) > X2)
+      if (static_cast<int>(strlen(OutStr) + WhereX()) > X2)
         OutStr[X2 - WhereX()] = 0;
       /* VVM $ */
       if (Locked())
@@ -1567,7 +1569,7 @@ int Help::JumpTopic(const char *JumpTopic)
     FullPath[Len+1]=0;
 
     strcat(FullPath,NewTopic+((*NewTopic=='\\' || *NewTopic=='/')?1:0));
-    bool addSlash=DeleteEndSlash(FullPath);
+    BOOL addSlash=DeleteEndSlash(FullPath);
     if(ConvertNameToFull(FullPath,NewTopic,sizeof(NewTopic))<sizeof(NewTopic))
     {
       sprintf(FullPath,addSlash?HelpFormatLink:HelpFormatLinkModule,
@@ -1926,7 +1928,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
   CtrlColorChar[0]=0;
 
   char *PtrTitle=0, *ContentsName=0;
-  char Path[NM],FullFileName[NM],*PtrPath,*Slash;
+  char Path[NM],FullFileName[NM],*Slash;
   char EntryName[512],HelpLine[512],SecondParam[512];
 
   switch(TypeIndex)
@@ -1962,7 +1964,6 @@ void Help::ReadDocumentsHelp(int TypeIndex)
         FILE *HelpFile=Language::OpenLangFile(Path,HelpFileMask,Opt.HelpLanguage,FullFileName);
         if (HelpFile!=NULL)
         {
-          char EntryName[512],HelpLine[512],SecondParam[512];
           if (Language::GetLangParam(HelpFile,ContentsName,EntryName,SecondParam))
           {
             if (*SecondParam)
@@ -2006,7 +2007,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
       // в документах.
       {
         WIN32_FIND_DATA FindData;
-        char FMask[NM];
+        char FMask[NM], *PtrPath;
         AddEndSlash(strcpy(Path,FarPath));
         strcat(Path,"Doc");
         ScanTree ScTree(FALSE,FALSE);

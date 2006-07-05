@@ -5,10 +5,12 @@ XLat - перекодировка
 
 */
 
-/* Revision: 1.07 25.04.2005 $ */
+/* Revision: 1.08 05.07.2006 $ */
 
 /*
 Modify:
+  05.07.2006 IS
+    - warnings
   24.04.2005 AY
     ! GCC
   14.04.2005 AY
@@ -45,7 +47,7 @@ char* WINAPI Xlat(
    DWORD Flags)                   // флаги (см. enum XLATMODE)
 {
   BYTE Chr,ChrOld;
-  int J,I,K;
+  int J,I;
   int PreLang=2,CurLang=2; // uncnown
   int LangCount[2]={0,0};
   int IsChange=0;
