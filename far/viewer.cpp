@@ -5,7 +5,7 @@ Internal viewer
 
 */
 
-/* Revision: 1.207 22.06.2006 $ */
+/* Revision: 1.208 06.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -1192,10 +1192,6 @@ int Viewer::ProcessKey(int Key)
       return LastPage || ViewFile==NULL;
     case MCODE_C_BOF:
       return !FilePos || ViewFile==NULL;
-    case MCODE_V_ITEMCOUNT:
-      return FileSize;
-    case MCODE_V_CURPOS:
-      return FilePos+1;
     case MCODE_V_VIEWERSTATE:
     {
       DWORD MacroViewerState=0;
@@ -2815,12 +2811,6 @@ void Viewer::SetTitle(const wchar_t *Title)
       strTitle = L"";
   else
       strTitle = Title;
-}
-
-
-__int64 Viewer::GetFilePos()
-{
-  return(FilePos);
 }
 
 

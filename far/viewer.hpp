@@ -7,7 +7,7 @@ Internal viewer
 
 */
 
-/* Revision: 1.39 06.06.2006 $ */
+/* Revision: 1.40 06.07.2006 $ */
 
 #include "scrobj.hpp"
 #include "namelist.hpp"
@@ -219,9 +219,12 @@ class Viewer:public ScreenObject
     /* IS $ */
     void SetTitle(const wchar_t *Title);
     void GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
-    __int64 GetFilePos();
-    /* $ 18.07.2000 tran - change 'long' to 'unsigned long' */
-    void SetFilePos(__int64 Pos);
+
+    void SetFilePos(__int64 Pos); // $ 18.07.2000 tran - change 'long' to 'unsigned long'
+    __int64 GetFilePos() const { return FilePos; };
+    __int64 GetViewFilePos() const { return FilePos; };
+    __int64 GetViewFileSize() const { return FileSize; };
+
     void SetPluginData(const wchar_t *PluginData);
     void SetNamesList(NamesList *List);
     /* $ 27.09.2000 SVS

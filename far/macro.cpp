@@ -5,7 +5,7 @@ macro.cpp
 
 */
 
-/* Revision: 1.184 06.06.2006 $ */
+/* Revision: 1.185 06.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -20,6 +20,7 @@ macro.cpp
 #include "lockscrn.hpp"
 #include "viewer.hpp"
 #include "fileedit.hpp"
+#include "fileview.hpp"
 #include "dialog.hpp"
 #include "ctrlobj.hpp"
 #include "filepanels.hpp"
@@ -1019,7 +1020,17 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
         {
           Frame *f=FrameManager->GetTopModal();
           if(f)
-            Cond=(__int64)f->ProcessKey(CheckCode);
+          {
+            if(f->GetType() == MODALTYPE_VIEWER)
+            {
+              if(CheckCode == MCODE_V_ITEMCOUNT)
+                Cond=(__int64)((FileViewer*)f)->GetViewFileSize();
+              else if(CheckCode == MCODE_V_CURPOS)
+                Cond=(__int64)((FileViewer*)f)->GetViewFilePos()+1;
+            }
+            else
+              Cond=(__int64)f->ProcessKey(CheckCode);
+          }
         }
         // *****************
 

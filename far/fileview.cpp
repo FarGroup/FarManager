@@ -5,7 +5,7 @@ fileview.cpp
 
 */
 
-/* Revision: 1.85 04.06.2006 $ */
+/* Revision: 1.86 06.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -484,4 +484,14 @@ int FileViewer::ViewerControl(int Command,void *Param)
 void FileViewer::GetTitle(string &Title,int LenTitle,int TruncSize)
 {
   View.GetTitle(Title,LenTitle,TruncSize);
+}
+
+__int64 FileViewer::GetViewFileSize() const
+{
+  return View.GetViewFileSize();
+}
+
+__int64 FileViewer::GetViewFilePos() const
+{
+  return View.GetViewFilePos();
 }
