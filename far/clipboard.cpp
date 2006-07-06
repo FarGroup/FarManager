@@ -5,7 +5,7 @@ clipboard.cpp
 
 */
 
-/* Revision: 1.14 25.05.2006 $ */
+/* Revision: 1.15 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -247,7 +247,7 @@ wchar_t* InternalPasteFromClipboardW(int AnsiMode) //AnsiMode - fake!!
 /*      if (Unicode)
       {
         if(AnsiMode)
-          UnicodeToAscii((LPCWSTR)ClipAddr,ClipText,BufferSize);
+          UnicodeToANSI((LPCWSTR)ClipAddr,ClipText,BufferSize);
         else
           UnicodeToOEM((LPCWSTR)ClipAddr,ClipText,BufferSize);
       }
@@ -321,7 +321,7 @@ wchar_t* InternalPasteFromClipboardExW(int max,int AnsiMode) //AnsiMode - fake
 
 /*      if (Unicode)
         if(AnsiMode)
-          UnicodeToAscii((LPCWSTR)ClipAddr,ClipText,BufferSize);
+          UnicodeToANSI((LPCWSTR)ClipAddr,ClipText,BufferSize);
         else
           UnicodeToOEM((LPCWSTR)ClipAddr,ClipText,BufferSize);
       else

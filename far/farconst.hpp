@@ -7,7 +7,7 @@ farconst.hpp
 
 */
 
-/* Revision: 1.101 17.04.2006 $ */
+/* Revision: 1.102 07.07.2006 $ */
 
 const wchar_t VerticalLine=0x2502;
 
@@ -332,9 +332,9 @@ enum {
 // Количество закладок в редакторе/вьювере на одну позицию
 #define BOOKMARK_COUNT   10
 
-#define UnicodeToAscii(src,dst,lendst)  WideCharToMultiByte(CP_ACP,0,(src),-1,(dst),(lendst),NULL,FALSE)
+#define UnicodeToANSI(src,dst,lendst)  WideCharToMultiByte(CP_ACP,0,(src),-1,(dst),(lendst),NULL,FALSE)
 #define UnicodeToOEM(src,dst,lendst)    WideCharToMultiByte(CP_OEMCP,0,(src),-1,(dst),(lendst),NULL,FALSE)
-#define AsciiToUnicode(src,dst,lendst)  MultiByteToWideChar(CP_ACP,0,(src),-1,(dst),(lendst))
+#define ANSIToUnicode(src,dst,lendst)  MultiByteToWideChar(CP_ACP,0,(src),-1,(dst),(lendst))
 #define OEMToUnicode(src,dst,lendst)    MultiByteToWideChar(CP_OEMCP,0,(src),-1,(dst),(lendst))
 
 typedef void (*PREREDRAWFUNC)(void);

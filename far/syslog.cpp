@@ -5,7 +5,7 @@ syslog.cpp
 
 */
 
-/* Revision: 1.57 22.04.2006 $ */
+/* Revision: 1.58 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -59,8 +59,6 @@ static char *MakeSpace(void)
 FILE * OpenLogStream(char *file)
 {
 #if defined(SYSLOG)
-  time_t t;
-  struct tm *time_now;
   char RealLogName[NM*2];
   SYSTEMTIME st;
 
@@ -235,10 +233,10 @@ void SysLogLastError(void)
   if(!IsLogON())
     return;
 
-  LPSTR lpMsgBuf;
+  char *lpMsgBuf;
 
   DWORD LastErr=GetLastError();
-  FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
+  FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
                 NULL,LastErr,MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT),
                 (LPTSTR) &lpMsgBuf,0,NULL);
 
@@ -246,7 +244,7 @@ void SysLogLastError(void)
   if (LogStream)
   {
     char timebuf[64];
-    RemoveUnprintableCharacters(lpMsgBuf);
+    // RemoveUnprintableCharactersW(lpMsgBuf);
     fprintf(LogStream,"%s %sGetLastError()=[%d/0x%X] \"%s\"\n",PrintTime(timebuf),MakeSpace(),LastErr,LastErr,lpMsgBuf);
     fflush(LogStream);
   }
@@ -1335,8 +1333,6 @@ void INPUT_RECORD_DumpBuffer(FILE *fp)
       if(TmpRec)
       {
         DWORD ReadCount3;
-        INPUT_RECORD TmpRec2;
-        int I;
 
         #if defined(USE_WFUNC_IN)
         if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
@@ -1347,7 +1343,7 @@ void INPUT_RECORD_DumpBuffer(FILE *fp)
         PeekConsoleInput(hConInp,TmpRec,ReadCount2,&ReadCount3);
         #endif
 
-        for(I=0; I < ReadCount2; ++I)
+        for(DWORD I=0; I < ReadCount2; ++I)
         {
           fprintf(fp,"             %s%04d: %s\n",MakeSpace(),I,_INPUT_RECORD_Dump(TmpRec+I));
         }
@@ -1609,8 +1605,6 @@ void WIN32_FIND_DATA_Dump(char *Title,const WIN32_FIND_DATA &wfd,FILE *fp)
 
   if (fp)
   {
-    static char D[16]="",T[16]="";
-
     fprintf(fp,"%*s %s  dwFileAttributes      =0x%08X\n",12,"",space,wfd.dwFileAttributes);
     if(wfd.dwFileAttributes&FILE_ATTRIBUTE_ARCHIVE)
       fprintf(fp,"%*s %s     FILE_ATTRIBUTE_ARCHIVE\n",12,"",space);
@@ -1638,12 +1632,13 @@ void WIN32_FIND_DATA_Dump(char *Title,const WIN32_FIND_DATA &wfd,FILE *fp)
     if(wfd.dwFileAttributes&FILE_ATTRIBUTE_TEMPORARY)
       fprintf(fp,"%*s %s     FILE_ATTRIBUTE_TEMPORARY\n",12,"",space);
 
-    ConvertDate(wfd.ftCreationTime,D,T,8,FALSE,FALSE,TRUE);
-    fprintf(fp,"%*s %s  ftCreationTime        =0x%08X 0x%08X (%s %s)\n",12,"",space,wfd.ftCreationTime.dwHighDateTime,wfd.ftCreationTime.dwLowDateTime,D,T);
-    ConvertDate(wfd.ftLastAccessTime,D,T,8,FALSE,FALSE,TRUE);
-    fprintf(fp,"%*s %s  ftLastAccessTime      =0x%08X 0x%08X (%s %s)\n",12,"",space,wfd.ftLastAccessTime.dwHighDateTime,wfd.ftLastAccessTime.dwLowDateTime,D,T);
-    ConvertDate(wfd.ftLastWriteTime,D,T,8,FALSE,FALSE,TRUE);
-    fprintf(fp,"%*s %s  ftLastWriteTime       =0x%08X 0x%08X (%s %s)\n",12,"",space,wfd.ftLastWriteTime.dwHighDateTime,wfd.ftLastWriteTime.dwLowDateTime,D,T);
+    string D="", T="";
+    ConvertDateW(wfd.ftCreationTime,D,T,8,FALSE,FALSE,TRUE);
+    fprintf(fp,"%*s %s  ftCreationTime        =0x%08X 0x%08X\n",12,"",space,wfd.ftCreationTime.dwHighDateTime,wfd.ftCreationTime.dwLowDateTime);
+    ConvertDateW(wfd.ftLastAccessTime,D,T,8,FALSE,FALSE,TRUE);
+    fprintf(fp,"%*s %s  ftLastAccessTime      =0x%08X 0x%08X\n",12,"",space,wfd.ftLastAccessTime.dwHighDateTime,wfd.ftLastAccessTime.dwLowDateTime);
+    ConvertDateW(wfd.ftLastWriteTime,D,T,8,FALSE,FALSE,TRUE);
+    fprintf(fp,"%*s %s  ftLastWriteTime       =0x%08X 0x%08X\n",12,"",space,wfd.ftLastWriteTime.dwHighDateTime,wfd.ftLastWriteTime.dwLowDateTime);
 
     FAR_INT64 Number;
     Number.Part.HighPart=wfd.nFileSizeHigh;

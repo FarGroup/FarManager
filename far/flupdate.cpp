@@ -5,7 +5,7 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.72 06.06.2006 $ */
+/* Revision: 1.73 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -490,7 +490,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 int FileList::UpdateIfChanged(int UpdateMode)
 {
   //_SVS(SysLog("CurDir='%s' Opt.AutoUpdateLimit=%d <= FileCount=%d",CurDir,Opt.AutoUpdateLimit,FileCount));
-  if(!Opt.AutoUpdateLimit || FileCount <= Opt.AutoUpdateLimit)
+  if(!Opt.AutoUpdateLimit || static_cast<DWORD>(FileCount) <= Opt.AutoUpdateLimit)
   {
     /* $ 19.12.2001 VVM
       ! Сменим приоритеты. При Force обновление всегда! */

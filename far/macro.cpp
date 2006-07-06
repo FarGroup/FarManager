@@ -5,7 +5,7 @@ macro.cpp
 
 */
 
-/* Revision: 1.185 06.07.2006 $ */
+/* Revision: 1.186 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -1392,7 +1392,7 @@ static TVar dlggetvalueFunc(TVar *param)
         }
       }
     }
-    else if((DWORD)Index < DlgItemCount && DlgItem)
+    else if(Index < DlgItemCount && DlgItem)
     {
       const struct DialogItemEx *Item=DlgItem[Index];
       int ItemType=Item->Type;
@@ -2345,7 +2345,7 @@ string &KeyMacro::MkRegKeyName(int IdxMacro, string &strRegKeyName)
 */
 wchar_t *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize,const wchar_t *Src)
 {
-  int I,J, Key;
+  int J, Key;
   string strMacroKeyText;
   wchar_t *TextBuffer;
 
@@ -2387,7 +2387,6 @@ wchar_t *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize,const wchar_t *Sr
 // Сохранение ВСЕХ макросов
 void KeyMacro::SaveMacros(BOOL AllSaved)
 {
-  wchar_t *TextBuffer;
   string strRegKeyName;
 
   //WriteVarsConst(MACRO_VARS);

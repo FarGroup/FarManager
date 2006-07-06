@@ -7,7 +7,7 @@ filter.hpp
 
 */
 
-/* Revision: 1.05 15.03.2006 $ */
+/* Revision: 1.06 07.07.2006 $ */
 
 #include "CFileMask.hpp"
 #include "UnicodeString.hpp"
@@ -24,7 +24,7 @@ class PanelFilter
     */
     CFileMaskW IncludeMask, ExcludeMask;
     wchar_t *IncludeMaskStr, *ExcludeMaskStr;
-    bool IncludeMaskIsOK, ExcludeMaskIsOK;
+    BOOL IncludeMaskIsOK, ExcludeMaskIsOK;
     /* IS $ */
 
   private:

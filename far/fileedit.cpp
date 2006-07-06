@@ -5,7 +5,7 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.196 06.06.2006 $ */
+/* Revision: 1.197 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -580,7 +580,6 @@ int FileEditor::ProcessKey(int Key)
 int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 {
   DWORD FNAttr;
-  char *Ptr, Chr;
 
   _KEYMACRO(CleverSysLog SL("FileEditor::ProcessKey()"));
   _KEYMACRO(SysLog("Key=%s Macro.IsExecuting()=%d",_FARKEY_ToName(Key),CtrlObject->Macro.IsExecuting()));

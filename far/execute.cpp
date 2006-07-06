@@ -5,7 +5,7 @@ execute.cpp
 
 */
 
-/* Revision: 1.142 04.07.2006 $ */
+/* Revision: 1.143 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -978,7 +978,7 @@ int Execute(const wchar_t *CmdStr,    // Ком.строка для исполнения
             {
               int stop=0;
 
-              for(int i=0;i<rd;i++)
+              for(DWORD i=0;i<rd;i++)
               {
                 PINPUT_RECORD pir=&ir[i];
 

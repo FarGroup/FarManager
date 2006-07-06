@@ -5,7 +5,7 @@ Tree panel
 
 */
 
-/* Revision: 1.92 06.06.2006 $ */
+/* Revision: 1.93 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -1485,8 +1485,6 @@ int TreeList::GetCurNameW(string &strName, string &strShortName)
 
 void TreeList::AddTreeName(const wchar_t *Name)
 {
-  char *ListName,*NewPtr;
-
   string strRoot;
 
   const wchar_t *ChPtr;
@@ -1525,14 +1523,12 @@ void TreeList::AddTreeName(const wchar_t *Name)
 
 void TreeList::DelTreeName(const wchar_t *Name)
 {
-  char *ListName,*NewPtr;
-
   string strFullName;
   string strRoot;
 
   const wchar_t *wszDirName;
 
-  long CachePos,TreeCount;
+  long CachePos;
   int Length,DirLength;
   if (*Name==0)
     return;
@@ -1659,7 +1655,6 @@ void TreeList::ReadCache(const wchar_t *TreeRoot)
   wchar_t DirName[NM]; //BUGBUG, to do better!!!
 
   wchar_t *ChPtr;
-  char *ListName;
   FILE *TreeFile=NULL;
 
   if (wcscmp(MkTreeFileName(TreeRoot,strTreeName),TreeCache.strTreeName)==0)

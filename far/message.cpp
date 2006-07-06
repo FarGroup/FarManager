@@ -5,7 +5,7 @@ message.cpp
 
 */
 
-/* Revision: 1.46 01.05.2006 $ */
+/* Revision: 1.47 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -87,7 +87,8 @@ int MessageW (
 {
   string strTempStr;
   int X1,Y1,X2,Y2;
-  int Length,MaxLength,BtnLength,I, J, StrCount;
+  int Length, BtnLength, J;
+  DWORD I, MaxLength, StrCount;
   BOOL ErrorSets=FALSE;
   const wchar_t **Str;
   wchar_t *PtrStr;
@@ -107,12 +108,12 @@ int MessageW (
   StrCount=ItemsNumber-Buttons;
 
   // предварительный обсчет максимального размера.
-  for (BtnLength=0,I=0;I<Buttons;I++) //??
+  for (BtnLength=0,I=0;I<static_cast<DWORD>(Buttons);I++) //??
     BtnLength+=HiStrlenW(Items[I+StrCount])+2;
 
   for (MaxLength=BtnLength,I=0;I<StrCount;I++)
   {
-    if ((Length=wcslen(Items[I]))>MaxLength)
+    if (static_cast<DWORD>(Length=wcslen(Items[I]))>MaxLength)
       MaxLength=Length;
   }
 
@@ -124,14 +125,14 @@ int MessageW (
       MaxLength=I;
   }
 
-  #define MAX_WIDTH_MESSAGE (ScrX-13)
+  #define MAX_WIDTH_MESSAGE static_cast<DWORD>(ScrX-13)
 
   // певая коррекция максимального размера
   if (MaxLength > MAX_WIDTH_MESSAGE)
     MaxLength=MAX_WIDTH_MESSAGE;
 
   // теперь обработаем MSG_ERRORTYPE
-  int CountErrorLine=0;
+  DWORD CountErrorLine=0;
 
   if ((Flags & MSG_ERRORTYPE) && ErrorSets)
   {
@@ -140,7 +141,7 @@ int MessageW (
     //InsertQuote(ErrStr); // оквочим
 
     // вычисление "красивого" размера
-    int LenErrStr=wcslen(strErrStr);
+    DWORD LenErrStr=wcslen(strErrStr);
     if(LenErrStr > MAX_WIDTH_MESSAGE)
     {
       // половина меньше?
@@ -214,7 +215,7 @@ int MessageW (
   if (Flags & MSG_DOWN)
   {
     int NewY=ScrY/2-4;
-    if (Y1+StrCount+3<ScrY && NewY>Y1+2)
+    if (static_cast<int>(Y1+StrCount+3)<ScrY && NewY>Y1+2)
       Y1=NewY;
     else
       Y1+=2;
@@ -231,7 +232,7 @@ int MessageW (
 
   if (Buttons>0)
   {
-    int ItemCount;
+    DWORD ItemCount;
     struct DialogItemEx *PtrMsgDlg;
     struct DialogItemEx *MsgDlg=(struct DialogItemEx *)xf_malloc((ItemCount=StrCount+Buttons+1)*sizeof(struct DialogItemEx));
 

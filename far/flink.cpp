@@ -5,7 +5,7 @@ flink.cpp
 
 */
 
-/* Revision: 1.60 23.05.2006 $ */
+/* Revision: 1.61 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -156,7 +156,6 @@ static PSETVOLUMEMOUNTPOINT pSetVolumeMountPoint=NULL;
 
 int WINAPI CreateVolumeMountPointW(const wchar_t *SrcVolume, const wchar_t *LinkFolder)
 {
-   BOOL bFlag;
    wchar_t Buf[50]; //MS says 50           // temporary buffer for volume name
 
    if(!pGetVolumeNameForVolumeMountPoint)
@@ -191,7 +190,6 @@ BOOL WINAPI CreateJunctionPointW(const wchar_t *SrcFolder, const wchar_t *LinkFo
      strDestDir = SrcFolder;
   else
   {
-    LPTSTR pFilePart;
     string strFullDir;
 
     strDestDir = L"\\??\\";
@@ -509,7 +507,7 @@ int WINAPI MkLinkW(const wchar_t *Src,const wchar_t *Dest)
               BOOL WINAPI EnumFileStreams(int Idx,WCHAR *StreamName,const WIN32_STREAM_ID *sid)
               {
                 char Buf[260];
-                UnicodeToAscii(StreamName,Buf,sizeof(Buf));
+                UnicodeToANSI(StreamName,Buf,sizeof(Buf));
                 printf("%2d) '%s' StreamId=%d",Idx,Buf,sid->dwStreamId);
                 switch(sid->dwStreamId)
                 {
@@ -712,7 +710,6 @@ void GetPathRootOneW(const wchar_t *Path,string &strRoot)
     if(pGetVolumeNameForVolumeMountPoint && !wcsncmp(Path,L"Volume{",7))
     {
       wchar_t Drive[] = L"A:\\"; // \\?\Volume{...
-      BOOL Res;
       int I;
       for (I = L'A'; I <= L'Z';  I++ )
       {

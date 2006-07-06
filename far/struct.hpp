@@ -7,7 +7,7 @@ struct.hpp
 
 */
 
-/* Revision: 1.151 04.07.2006 $ */
+/* Revision: 1.152 07.07.2006 $ */
 
 #include "farconst.hpp"
 #include "UnicodeString.hpp"
@@ -614,8 +614,8 @@ struct HighlightDataColor
   BYTE SelColor;
   BYTE CursorColor;
   BYTE CursorSelColor;
-  BYTE MarkChar;
-  BYTE Reserved[11];
+  wchar_t MarkChar;
+  BYTE Reserved[10];
 };
 
 struct PreRedrawParamStruct

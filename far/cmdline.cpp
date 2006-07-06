@@ -5,7 +5,7 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.94 25.05.2006 $ */
+/* Revision: 1.95 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -488,7 +488,7 @@ void CommandLine::GetPrompt(string &strDestStr)
     {
       if (*Format==L'$')
       {
-        char Chr=LocalUpperW(*++Format);
+        wchar_t Chr=LocalUpperW(*++Format);
         int I;
         for(I=0; I < sizeof(ChrFmt)/sizeof(ChrFmt[0]); ++I)
         {

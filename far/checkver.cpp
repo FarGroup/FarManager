@@ -5,7 +5,7 @@ checkver.cpp
 
 */
 
-/* Revision: 1.22 21.05.2006 $ */
+/* Revision: 1.23 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -150,7 +150,7 @@ void Register()
     return;
   }
   Dlg.Hide();
-  RegData[0]=clock();
+  RegData[0]=static_cast<char>(clock());
   RegData[1]=strlen(RegName);
   RegData[2]=strlen(RegCode);
   strcpy(RegData+3,RegName);
@@ -209,7 +209,7 @@ void __cdecl CheckReg(void *Param)
     RegVer=0;
   else
   {
-    int I;
+    DWORD I;
     for (I=1;I<Size;I++)
       RegData[I]^=RegData[0];
     for (I=0;I<Size;I++)

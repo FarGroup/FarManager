@@ -7,7 +7,7 @@ dizlist.hpp
 
 */
 
-/* Revision: 1.03 11.12.2005 $ */
+/* Revision: 1.04 07.07.2006 $ */
 
 #include "farconst.hpp"
 #include "UnicodeString.hpp"
@@ -41,7 +41,7 @@ class DizList
   public:
     void Read(const wchar_t *Path,const wchar_t *DizName=NULL);
     void Reset();
-    const wchar_t* GetDizTextAddr(const wchar_t *Name,const wchar_t *ShortName,DWORD FileSize);
+    const wchar_t* GetDizTextAddr(const wchar_t *Name,const wchar_t *ShortName, const __int64 &FileSize);
     int DeleteDiz(const wchar_t *Name,const wchar_t *ShortName);
     int Flush(const wchar_t *Path,const wchar_t *DizName=NULL);
     void AddDiz(const wchar_t *Name,const wchar_t *ShortName,const wchar_t *DizText);

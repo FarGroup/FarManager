@@ -5,7 +5,7 @@ delete.cpp
 
 */
 
-/* Revision: 1.85 06.06.2006 $ */
+/* Revision: 1.86 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -516,7 +516,7 @@ void ShellDeleteMsgW(const wchar_t *Name,int Wipe)
   int WidthTemp;
   string strOutFileName;
 
-  if (Name == NULL || *Name == 0 || ((clock() - DeleteStartTime) > Opt.ShowTimeoutDelFiles))
+  if (Name == NULL || *Name == 0 || (static_cast<DWORD>(clock() - DeleteStartTime) > Opt.ShowTimeoutDelFiles))
   {
     if(Name && *Name)
     {

@@ -5,7 +5,7 @@ fnparce.cpp
 
 */
 
-/* Revision: 1.31 04.07.2006 $ */
+/* Revision: 1.32 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -164,7 +164,7 @@ static wchar_t *_SubstFileName(wchar_t *CurStr,struct TSubstDataW *PSubstData,wc
       /* $ 05.03.2002 DJ
          если в буфер больше не влезет - выйдем из цикла
       */
-      if (wcslen (TmpStr) >= MaxTempStrSize-1)
+      if (wcslen (TmpStr) >= static_cast<size_t>(MaxTempStrSize-1))
         break;
       /* DJ $ */
     }

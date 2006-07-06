@@ -5,7 +5,7 @@ strmix.cpp
 
 */
 
-/* Revision: 1.90 23.05.2006 $ */
+/* Revision: 1.91 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -120,7 +120,7 @@ const wchar_t* __stdcall PointToFolderNameIfFolderW (const wchar_t *Path)
 // IS: после CmpName_Body)
 int CmpName_Body(const char *pattern,const char *string)
 {
-  char stringc,patternc,rangec;
+  unsigned char stringc,patternc,rangec;
   int match;
 
   for (;; ++string)
@@ -1239,7 +1239,7 @@ string & WINAPI FileSizeToStrW(string &strDestStr, unsigned __int64 Size, int Wi
   else
     strStr.Format (L"%I64u", Sz);
 
-  if ((!UseMinSizeIndex && strStr.GetLength()<=Width) || Width<5)
+  if ((!UseMinSizeIndex && strStr.GetLength()<=static_cast<size_t>(Width)) || Width<5)
   {
     if (ShowBytesIndex)
     {
@@ -1270,7 +1270,7 @@ string & WINAPI FileSizeToStrW(string &strDestStr, unsigned __int64 Size, int Wi
         InsertCommasW(Sz,strStr);
       else
         strStr.Format (L"%I64u",Sz);
-    } while((UseMinSizeIndex && IndexB<MinSizeIndex) || strStr.GetLength() > Width);
+    } while((UseMinSizeIndex && IndexB<MinSizeIndex) || strStr.GetLength() > static_cast<size_t>(Width));
 
     if (Economic)
       strDestStr.Format (L"%*.*s%1.1s",Width,Width,(const wchar_t*)strStr,KMGTbStrW[IndexB][IndexDiv]);
@@ -1415,7 +1415,7 @@ char *WINAPI FarFormatText(const char *SrcText,     // источник
   if(!SrcText || !*SrcText)
     return NULL;
 
-  if(!strpbrk(SrcText,breakchar) && strlen(SrcText) <= Width)
+  if(!strpbrk(SrcText,breakchar) && strlen(SrcText) <= static_cast<size_t>(Width))
   {
     if(MaxLen > 0 && DestText)
       xstrncpy(DestText,SrcText,MaxLen-1);
@@ -1591,7 +1591,7 @@ string& WINAPI FarFormatTextW(const wchar_t *SrcText,     // источник
 
   string strSrc = SrcText; //copy string in case of SrcText == strDestText
 
-  if(!wcspbrk(strSrc,breakchar) && strSrc.GetLength() <= Width)
+  if(!wcspbrk(strSrc,breakchar) && strSrc.GetLength() <= static_cast<size_t>(Width))
   {
     strDestText = strSrc;
     return strDestText;

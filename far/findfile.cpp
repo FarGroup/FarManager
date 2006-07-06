@@ -5,7 +5,7 @@ findfile.cpp
 
 */
 
-/* Revision: 1.204 06.06.2006 $ */
+/* Revision: 1.205 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -260,7 +260,6 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     {
       Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
       string strSearchFromRoot;
-      struct FarDialogItemData ItemData;
 
       /* $ 23.11.2001 KM
          - БЛИН! Правил глюк и глюк добавил :-(
@@ -2456,7 +2455,7 @@ int FindFiles::LookForString(const wchar_t *Name)
     {
       if (AlreadyRead+ReadSize>SearchInFirst)
       {
-        ReadSize=SearchInFirst-AlreadyRead;
+        ReadSize=static_cast<int>(SearchInFirst-AlreadyRead);
       }
 
       if (ReadSize<=0)
@@ -2908,7 +2907,6 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
 
 void _cdecl FindFiles::WriteDialogData(void *Param)
 {
-  FarDialogItemData ItemData;
   string strDataStr;
 
   WriteDataUsed=TRUE;
@@ -3079,7 +3077,7 @@ void FindFiles::ClearAllLists()
 
   if (FindList)
   {
-      for (int i = 0; i < FindListCount; i++)
+      for (unsigned int i = 0; i < FindListCount; i++)
           delete FindList[i];
 
     xf_free(FindList);
@@ -3089,7 +3087,7 @@ void FindFiles::ClearAllLists()
 
   if (ArcList)
   {
-      for (int i = 0; i < ArcListCount; i++)
+      for (unsigned int i = 0; i < ArcListCount; i++)
           delete ArcList[i];
 
     xf_free(ArcList);

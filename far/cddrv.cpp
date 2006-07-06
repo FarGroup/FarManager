@@ -5,7 +5,7 @@ cddrv.cpp
 
 */
 
-/* Revision: 1.11 15.04.2006 $ */
+/* Revision: 1.12 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -583,7 +583,7 @@ static CDROM_DeviceCaps getCapsUsingDeviceProps(HANDLE hDevice)
             char productID[1024];
             int idx = 0;
 
-            for(int i = devDesc->ProductIdOffset; outBuf[i] && i < returnedLength; i++)
+            for(DWORD i = devDesc->ProductIdOffset; outBuf[i] && i < returnedLength; i++)
             {
                 productID[idx++] = outBuf[i];
             }

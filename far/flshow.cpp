@@ -5,7 +5,7 @@ flshow.cpp
 
 */
 
-/* Revision: 1.69 04.06.2006 $ */
+/* Revision: 1.70 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -877,7 +877,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 {
                   if (RightAlign)
                     LeftBracket=TRUE;
-                  if (!RightAlign && wcslen(NamePtr)>Width)
+                  if (!RightAlign && wcslen(NamePtr)>static_cast<size_t>(Width))
                     RightBracket=TRUE;
                 }
 
@@ -944,7 +944,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                   else
                     PtrName=UMSG(CurPtr->FileAttr&FILE_ATTRIBUTE_REPARSE_POINT?MListSymLink:MListFolder);
 
-                  if (wcslen(PtrName) <= Width-2)
+                  if (wcslen(PtrName) <= static_cast<size_t>(Width-2))
                     strStr.Format (L"<%s>", PtrName);
                   else
                     strStr = PtrName;

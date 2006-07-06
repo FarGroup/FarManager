@@ -5,7 +5,7 @@ dizlist.cpp
 
 */
 
-/* Revision: 1.16 05.04.2006 $ */
+/* Revision: 1.17 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -141,7 +141,7 @@ void DizList::AddRecord(const wchar_t *DizText)
 }
 
 
-const wchar_t* DizList::GetDizTextAddr(const wchar_t *Name,const wchar_t *ShortName,DWORD FileSize)
+const wchar_t* DizList::GetDizTextAddr(const wchar_t *Name,const wchar_t *ShortName, const __int64 &FileSize)
 {
   int TextPos;
   int DizPos=GetDizPosEx(Name,ShortName,&TextPos);

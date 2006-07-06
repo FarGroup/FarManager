@@ -5,7 +5,7 @@ Eject סתולםûץ םמסטעוכוי
 
 */
 
-/* Revision: 1.20 05.04.2006 $ */
+/* Revision: 1.21 07.07.2006 $ */
 
 #define __USE_MCI    1
 
@@ -332,13 +332,15 @@ This code works on Windows 95 only.
 BOOL EjectVolume95 (wchar_t Letter,DWORD Flags)
 {
    HANDLE hVWin32;
-   WORD   bDrive;
+   wchar_t bDriveW;
+   char bDrive;
    BOOL   fDriveLocked;
    string strMsgText;
 
    // convert command line arg 1 from a drive letter to a DOS drive
    // number
-   bDrive = (LocalUpperW(Letter) - L'A') + 1;
+   bDriveW = (LocalUpperW(Letter) - L'A') + 1;
+   WideCharToMultiByte(CP_OEMCP, 0, &bDriveW, 1, &bDrive, 1, NULL, FALSE);
 
    // OpenVWin32
    /* Opens a handle to VWIN32 that can be used to issue low-level disk I/O
@@ -550,7 +552,7 @@ BOOL EjectVolume(wchar_t Letter,DWORD Flags)
       else if(!(Flags&EJECT_LOAD_MEDIA) && fRemoveSafely)
       {
         //printf("Media in Drive %c can be safely removed.\n",cDriveLetter);
-        if(Flags&EJECT_NOTIFY_AFTERREMOVE)
+        //if(Flags&EJECT_NOTIFY_AFTERREMOVE)
           ;
       }
     } // END: while(Retry)

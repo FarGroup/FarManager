@@ -5,7 +5,7 @@ infolist.cpp
 
 */
 
-/* Revision: 1.66 06.06.2006 $ */
+/* Revision: 1.67 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -258,7 +258,7 @@ void InfoList::DisplayObject()
   MEMORYSTATUSEX ms;
   FAR_GlobalMemoryStatusEx(&ms);
   if (ms.dwMemoryLoad==0)
-    ms.dwMemoryLoad=100-ToPercent(ms.ullAvailPhys+ms.ullAvailPageFile,ms.ullTotalPhys+ms.ullTotalPageFile);
+    ms.dwMemoryLoad=100-ToPercent64(ms.ullAvailPhys+ms.ullAvailPageFile,ms.ullTotalPhys+ms.ullTotalPageFile);
   GotoXY(X1+2,Y1+9);
   PrintTextW(MInfoMemoryLoad);
   strOutStr.Format (L"%d%%",ms.dwMemoryLoad);
@@ -371,8 +371,7 @@ int InfoList::ProcessKey(int Key)
     }
     if (Key == KEY_F7 || Key == KEY_SHIFTF7)
     {
-      __int64 Pos;
-      int Length;
+      __int64 Pos, Length;
       DWORD Flags;
       DizView->GetSelectedParam(Pos,Length,Flags);
 //      ShellUpdatePanels(NULL,FALSE);

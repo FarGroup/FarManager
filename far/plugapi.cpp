@@ -5,7 +5,7 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.209 06.06.2006 $ */
+/* Revision: 1.210 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -675,7 +675,7 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
 
   int ExitCode;
   {
-    VMenu FarMenu(Title,NULL,0,MaxHeight);
+    VMenu FarMenu(Title,NULL,0,true,MaxHeight);
     CtrlObject->Macro.SetMode(MACRO_MENU);
     FarMenu.SetPosition(X,Y,0,0);
     if (BreakCode!=NULL)

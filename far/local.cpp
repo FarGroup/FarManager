@@ -5,7 +5,7 @@ local.cpp
 
 */
 
-/* Revision: 1.29 20.06.2006 $ */
+/* Revision: 1.30 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -141,7 +141,7 @@ void InitKeysArray()
             continue;
           CvtStr[0]=I;
           FAR_CharToOem((char *)CvtStr,(char *)CvtStr);
-          KeyToKey[CvtStr[0]]=AnsiKey;
+          KeyToKey[CvtStr[0]]=static_cast<unsigned char>(AnsiKey);
         }
       }
     }

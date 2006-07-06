@@ -5,7 +5,7 @@ Files highlighting
 
 */
 
-/* Revision: 1.58 25.05.2006 $ */
+/* Revision: 1.59 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -101,7 +101,7 @@ void HighlightFiles::InitHighlightFiles()
       HData->Colors.SelColor=(BYTE)GetRegKeyW(strRegKey,HLS.SelectedColor,(DWORD)WorkColor.SelColor);
       HData->Colors.CursorColor=(BYTE)GetRegKeyW(strRegKey,HLS.CursorColor,(DWORD)WorkColor.CursorColor);
       HData->Colors.CursorSelColor=(BYTE)GetRegKeyW(strRegKey,HLS.SelectedCursorColor,(DWORD)WorkColor.CursorSelColor);
-      HData->Colors.MarkChar=(BYTE)GetRegKeyW(strRegKey,HLS.MarkChar,0);
+      HData->Colors.MarkChar=GetRegKeyW(strRegKey,HLS.MarkChar,0);
       HiData[HiDataCount] = HData;
       HiDataCount++;
     }
@@ -546,7 +546,7 @@ void HighlightFiles::SaveHiData()
     SetRegKeyW(strRegKey,HLS.SelectedColor,(DWORD)CurHiData->Colors.SelColor);
     SetRegKeyW(strRegKey,HLS.CursorColor,(DWORD)CurHiData->Colors.CursorColor);
     SetRegKeyW(strRegKey,HLS.SelectedCursorColor,(DWORD)CurHiData->Colors.CursorSelColor);
-    SetRegKeyW(strRegKey,HLS.MarkChar,(DWORD)CurHiData->Colors.MarkChar);
+    SetRegKeyW(strRegKey,HLS.MarkChar,CurHiData->Colors.MarkChar);
   }
   for (I=HiDataCount;I<StartHiDataCount;I++)
   {
@@ -623,12 +623,12 @@ void HighlightDlgUpdateUserControl(CHAR_INFO *VBufColorExample, struct Highlight
     for (int k=0; k<15; k++)
     {
       VBufColorExample[15*j+k].Char.UnicodeChar=ptr[k];
-      VBufColorExample[15*j+k].Attributes=Color;
+      VBufColorExample[15*j+k].Attributes=static_cast<WORD>(Color);
     }
     if (Colors.MarkChar)
       VBufColorExample[15*j+1].Char.UnicodeChar=Colors.MarkChar;
-    VBufColorExample[15*j].Attributes=(DWORD)Palette[COL_PANELBOX-COL_FIRSTPALETTECOLOR];
-    VBufColorExample[15*j+14].Attributes=(DWORD)Palette[COL_PANELBOX-COL_FIRSTPALETTECOLOR];
+    VBufColorExample[15*j].Attributes=Palette[COL_PANELBOX-COL_FIRSTPALETTECOLOR];
+    VBufColorExample[15*j+14].Attributes=Palette[COL_PANELBOX-COL_FIRSTPALETTECOLOR];
   }
 }
 

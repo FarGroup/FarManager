@@ -5,7 +5,7 @@ fileview.cpp
 
 */
 
-/* Revision: 1.86 06.07.2006 $ */
+/* Revision: 1.87 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -332,11 +332,16 @@ int FileViewer::ProcessKey(int Key)
         SetTempViewName(L"");
         /* IS $ */
         SetExitCode(0);
-        long FilePos=View.GetFilePos();
+        __int64 FilePos=View.GetFilePos();
         /* $ 06.05.2001 DJ обработка F6 под NWZ */
 
+        /* $ 07.07.2006 IS
+           “ут кос€к, замеченный при чтении warnings - FilePos тер€ет информацию при преобразовании __int64 -> int
+           Ќадо бы поправить FileEditor на этот счет.
+        */
         FileEditor *ShellEditor = new FileEditor (strViewFileName, FALSE, GetCanLoseFocus(),
-          -2, FilePos, FALSE, NULL, SaveToSaveAs);
+          -2, static_cast<int>(FilePos), FALSE, NULL, SaveToSaveAs);
+        /* IS $ */
         ShellEditor->SetEnableF6 (TRUE);
         /* $ 07.05.2001 DJ сохран€ем NamesList */
         ShellEditor->SetNamesList (View.GetNamesList());

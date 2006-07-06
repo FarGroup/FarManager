@@ -5,7 +5,7 @@ copy.cpp
 
 */
 
-/* Revision: 1.186 26.06.2006 $ */
+/* Revision: 1.187 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -3372,9 +3372,9 @@ int ShellCopy::ShowBar(unsigned __int64 WrittenSize,unsigned __int64 TotalSize,b
     Length=BarLength;
   else
     if (TotalSize<1000000)
-      Length=WrittenSize*BarLength/TotalSize;
+      Length=static_cast<int>(WrittenSize*BarLength/TotalSize);
     else
-      Length=(WrittenSize/100)*BarLength/(TotalSize/100);
+      Length=static_cast<int>((WrittenSize/100)*BarLength/(TotalSize/100));
   wchar_t ProgressBar[100];
 
   for (int i = 0; i < BarLength; i++)
@@ -3423,8 +3423,8 @@ int ShellCopy::ShowBar(unsigned __int64 WrittenSize,unsigned __int64 TotalSize,b
     {
       if (TotalBar)
         OldWrittenSize = OldWrittenSize - TotalSkippedSize;
-      int CPS = OldWrittenSize/WorkTime;
-      TimeLeft = (CPS)?SizeLeft/CPS:0;
+      int CPS = static_cast<int>(OldWrittenSize/WorkTime);
+      TimeLeft = static_cast<int>((CPS)?SizeLeft/CPS:0);
       c[0]=' ';
       if (CPS > 99999) {
         c[0]='K';
@@ -3708,7 +3708,7 @@ BOOL ShellCopySecuryMsgW(const wchar_t *Name)
 
   string strOutFileName;
 
-  if (Name == NULL || *Name == 0 || ((clock() - PrepareSecuryStartTime) > Opt.ShowTimeoutDACLFiles))
+  if (Name == NULL || *Name == 0 || (static_cast<DWORD>(clock() - PrepareSecuryStartTime) > Opt.ShowTimeoutDACLFiles))
   {
     if(Name && *Name)
     {

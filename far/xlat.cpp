@@ -5,7 +5,7 @@ XLat - перекодировка
 
 */
 
-/* Revision: 1.09 21.05.2006 $ */
+/* Revision: 1.10 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -26,7 +26,7 @@ char* WINAPI Xlat(
    DWORD Flags)                   // флаги (см. enum XLATMODE)
 {
   BYTE Chr,ChrOld;
-  int J,I,K;
+  int J,I;
   int PreLang=2,CurLang=2; // uncnown
   int LangCount[2]={0,0};
   int IsChange=0;

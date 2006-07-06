@@ -5,7 +5,7 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.172 06.06.2006 $ */
+/* Revision: 1.173 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -2125,7 +2125,7 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 BOOL Panel::NeedUpdatePanel(Panel *AnotherPanel)
 {
   /* Обновить, если обновление разрешено и пути совпадают */
-  if ((!Opt.AutoUpdateLimit || GetFileCount() <= Opt.AutoUpdateLimit) &&
+  if ((!Opt.AutoUpdateLimit || static_cast<DWORD>(GetFileCount()) <= Opt.AutoUpdateLimit) &&
       LocalStricmpW(AnotherPanel->strCurDir,strCurDir)==0)
     return TRUE;
   return FALSE;

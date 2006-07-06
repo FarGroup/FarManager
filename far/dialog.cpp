@@ -5,7 +5,7 @@ dialog.cpp
 
 */
 
-/* Revision: 1.364 25.05.2006 $ */
+/* Revision: 1.365 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -2521,7 +2521,6 @@ int Dialog::ProcessKey(int Key)
       if (IsEdit(Item[FocusPos]->Type))
       {
         DlgEdit *edt=(DlgEdit *)Item[FocusPos]->ObjPtr;
-        int SelStart, SelEnd;
 
         if(Key == KEY_CTRLL) // исключим смену режима RO для поля ввода с клавиатуры
         {
@@ -3710,8 +3709,6 @@ void Dialog::ConvertItemEx (
   if(!Item || !Data)
     return;
 
-  wchar_t *PtrData;
-  int PtrLength;
   DlgEdit *EditPtr;
 
   if(FromPlugin == CVTITEM_TOPLUGIN)
@@ -4086,7 +4083,7 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItemEx *CurItem,
   strRegKey.Format (fmtSavedDialogHistory,HistoryName);
   {
     // создание пустого вертикального меню
-    VMenu HistoryMenu(L"",NULL,0,Opt.Dialogs.CBoxMaxHeight,TRUE,VMENU_ALWAYSSCROLLBAR);
+    VMenu HistoryMenu(L"",NULL,0,TRUE,Opt.Dialogs.CBoxMaxHeight,VMENU_ALWAYSSCROLLBAR);
 
     EditLine->GetPosition(EditX1,EditY1,EditX2,EditY2);
     if (EditX2-EditX1<20)
@@ -5511,7 +5508,6 @@ long WINAPI Dialog::SendDlgMessageUnicode(HANDLE hDlg,int Msg,int Param1,long Pa
   int Type=0;
   const wchar_t *Ptr=NULL;
   int Len;
-  struct FarDialogItem PluginDialogItem;
   // предварительно проверим...
   /* $ 09.12.2001 DJ
      для DM_USER проверять _не_надо_!

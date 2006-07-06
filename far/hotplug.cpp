@@ -5,7 +5,7 @@ hotplug.cpp
 
 */
 
-/* Revision: 1.03 06.06.2006 $ */
+/* Revision: 1.04 07.07.2006 $ */
 
 #pragma once
 
@@ -195,7 +195,7 @@ void ShowHotplugDevice ()
   DeviceInfo *pInfo=NULL;
   int I;
 
-  VMenu HotPlugList(UMSG(MHotPlugListTitle),NULL,0,ScrY-4);
+  VMenu HotPlugList(UMSG(MHotPlugListTitle),NULL,0,true,ScrY-4);
   HotPlugList.SetFlags(VMENU_WRAPMODE);
   HotPlugList.SetPosition(-1,-1,0,0);
 

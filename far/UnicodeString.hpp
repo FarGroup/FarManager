@@ -7,7 +7,7 @@ Unicode строки
 
 */
 
-/* Revision: 1.07 23.05.2006 $ */
+/* Revision: 1.08 07.07.2006 $ */
 
 #define string UnicodeString
 
@@ -222,7 +222,7 @@ public:
     //_wcsupr (m_pData->GetData());
   }
 
-  void RShift (int nNewPos)
+  void RShift (unsigned int nNewPos)
   {
     if ( nNewPos > m_pData->GetLength () )
         nNewPos = m_pData->GetLength ();
@@ -231,7 +231,7 @@ public:
     memmove (m_pData->GetData()+nNewPos, m_pData->GetData(), (m_pData->GetLength()-nNewPos+1)*sizeof (wchar_t));
   }
 
-  void LShift (int nNewPos)
+  void LShift (unsigned int nNewPos)
   {
     if ( nNewPos > m_pData->GetLength () )
         nNewPos = m_pData->GetLength ();

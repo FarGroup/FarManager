@@ -5,7 +5,7 @@ help.cpp
 
 */
 
-/* Revision: 1.97 22.04.2006 $ */
+/* Revision: 1.98 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -89,7 +89,6 @@ static int RunURL(const wchar_t *Protocol, wchar_t *URLPath);
 
 wchar_t *ReadString (FILE *file, wchar_t *lpwszDest, int nDestLength, int nType)
 {
-    int nRead;
     char *lpDest = (char*)xf_malloc ((nDestLength+1)*3); //UTF-8, up to 3 bytes per char support
 
     memset (lpDest, 0, (nDestLength+1)*3);
@@ -108,7 +107,7 @@ wchar_t *ReadString (FILE *file, wchar_t *lpwszDest, int nDestLength, int nType)
             swab ((char*)lpwszDest, (char*)lpwszDest, nDestLength*sizeof (wchar_t));
 
             wchar_t *Ch = lpwszDest;
-            int nLength = min (wcslen (lpwszDest), nDestLength);
+            int nLength = min (static_cast<int>(wcslen (lpwszDest)), nDestLength);
 
             while ( *Ch )
             {
@@ -121,7 +120,7 @@ wchar_t *ReadString (FILE *file, wchar_t *lpwszDest, int nDestLength, int nType)
                 Ch++;
             }
 
-            int nNewLength = min (wcslen (lpwszDest), nDestLength);
+            int nNewLength = min (static_cast<int>(wcslen (lpwszDest)), nDestLength);
 
             fseek (file, (nNewLength-nLength)*sizeof (wchar_t), SEEK_CUR);
         }
@@ -657,9 +656,9 @@ void Help::AddLine(const wchar_t *Line)
 
   wmemset (HelpStr, 0, MAX_HELP_STRING_LENGTH);
 
-  if ( StartPos != -1 )
+  if ( StartPos != 0xFFFFFFFF )
   {
-    for (int i = 0; i < StartPos; i++)
+    for (DWORD i = 0; i < StartPos; i++)
       HelpStr[i] = L' ';
 
     xwcsncpy(HelpStr+StartPos, (*Line == L' ')?Line+1:Line, MAX_HELP_STRING_LENGTH-1);
@@ -885,7 +884,7 @@ void Help::OutString(const wchar_t *Str)
           SetColor(CurColor);
       /* $ 24.09.2001 VVM
         ! ќбрежем длинные строки при показе. “акое будет только при длинных ссылках... */
-      if ((wcslen(OutStr) + WhereX()) > X2)
+      if (static_cast<int>(wcslen(OutStr) + WhereX()) > X2)
         OutStr[X2 - WhereX()] = 0;
       /* VVM $ */
       if (Locked())
@@ -1427,7 +1426,7 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
     strFullPath.ReleaseBuffer();
 
     strFullPath += (const wchar_t*)strNewTopic+((strNewTopic.At(0)==L'\\' || strNewTopic.At(0)==L'/')?1:0);
-    bool addSlash=DeleteEndSlashW(strFullPath);
+    BOOL addSlash=DeleteEndSlashW(strFullPath);
 
     ConvertNameToFullW(strFullPath,strNewTopic);
 
@@ -1818,7 +1817,6 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 
   wchar_t *PtrTitle=0, *ContentsName=0;
   string strPath, strFullFileName;
-  wchar_t *PtrPath,*Slash;
   string strEntryName, strHelpLine, strSecondParam;
 
   switch(TypeIndex)

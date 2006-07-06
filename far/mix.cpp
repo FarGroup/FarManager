@@ -5,7 +5,7 @@ mix.cpp
 
 */
 
-/* Revision: 1.202 04.07.2006 $ */
+/* Revision: 1.203 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -1155,7 +1155,7 @@ DWORD WINAPI FarGetLogicalDrives(void)
 string &Add_PATHEXT(string &strDest)
 {
   string strBuf;
-  int curpos=strDest.GetLength()-1, l;
+  int curpos=strDest.GetLength()-1;
   UserDefinedListW MaskList(0,0,ULF_UNIQUE);
   if( apiGetEnvironmentVariable(L"PATHEXT",strBuf) && MaskList.Set(strBuf))
   {
@@ -1500,7 +1500,7 @@ void Transform(unsigned char *Buffer,int &BufLen,const char *ConvStr,char Transf
         xstrncpy(HexNum,&NewStr[I],2);
         HexNum[2]=0;
         unsigned long value=strtoul(HexNum,&stop,16);
-        Buffer[J]=value;
+        Buffer[J]=static_cast<unsigned char>(value);
         BufLen=J+1;
       }
       Buffer[J]=0;

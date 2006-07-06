@@ -5,7 +5,7 @@ filelist.cpp
 
 */
 
-/* Revision: 1.278 04.07.2006 $ */
+/* Revision: 1.279 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -3801,7 +3801,7 @@ void FileList::DescribeFiles()
   {
     string strDizText, strMsg, strTruncMsg, strQuotedName;
     const wchar_t *PrevText;
-    PrevText=Diz.GetDizTextAddr(strSelName,strSelShortName,(DWORD)GetLastSelectedSize());
+    PrevText=Diz.GetDizTextAddr(strSelName,strSelShortName,GetLastSelectedSize());
     strQuotedName = strSelName;
     QuoteSpaceOnlyW(strQuotedName);
     strMsg.Format (UMSG(MEnterDescription),(const wchar_t*)strQuotedName);

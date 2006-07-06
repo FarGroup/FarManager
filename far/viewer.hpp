@@ -7,7 +7,7 @@ Internal viewer
 
 */
 
-/* Revision: 1.40 06.07.2006 $ */
+/* Revision: 1.41 07.07.2006 $ */
 
 #include "scrobj.hpp"
 #include "namelist.hpp"
@@ -43,8 +43,8 @@ struct ViewerString {
     wchar_t *lpData /*[MAX_VIEWLINEB]*/;
     __int64 nFilePos;
     bool bSelection;
-    int nSelStart;
-    int nSelEnd;
+    __int64 nSelStart;
+    __int64 nSelEnd;
 };
 
 struct InternalViewerBookMark{
@@ -235,9 +235,9 @@ class Viewer:public ScreenObject
     /* SVS $ */
 
     void GoTo(int ShowDlg=TRUE,__int64 NewPos=0,DWORD Flags=0);
-    void GetSelectedParam(__int64& Pos,int& Length, DWORD& Flags);
+    void GetSelectedParam(__int64 &Pos, __int64 &Length, DWORD &Flags);
     // Функция выделения - как самостоятельная функция
-    void SelectText(__int64 MatchPos,int SearchLength, DWORD Flags=0x1);
+    void SelectText(const __int64 &MatchPos,const __int64 &SearchLength, const DWORD Flags=0x1);
     /* $ 29.03.2001 IS
          Манипуляции с ViewerOptions
     */

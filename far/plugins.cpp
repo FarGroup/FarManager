@@ -5,7 +5,7 @@ plugins.cpp
 
 */
 
-/* Revision: 1.184 06.06.2006 $ */
+/* Revision: 1.185 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -683,7 +683,6 @@ void PluginsSet::UnloadPlugin(PluginItem *CurPlugin,DWORD Exception)
 
 void PluginsSet::ShowMessageAboutIllegalPluginVersion(const wchar_t* plg,int required)
 {
-    char msg[2][512];
     string strMsg1, strMsg2;
     string strPlgName;
 
@@ -2222,7 +2221,6 @@ void PluginsSet::Configure(int StartPos)
             if (PluginList.GetItemCount() > 0 && SelPos<MenuItemNumber && GetHotKeyRegKey(LOWORD(Data),HIWORD(Data),strRegKey))
             {
               BlockExtKey blockExtKey;
-              struct PluginInfoW Info;
               string strName00;
 
               int nOffset = HotKeysPresent?3:0;
@@ -2398,7 +2396,6 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryNa
       while (!PluginList.Done())
       {
         int SelPos=PluginList.GetSelectPos();
-        char RegKey[512];
 
         Data=(DWORD)PluginList.GetUserData(NULL,0,SelPos);
         switch(PluginList.ReadInput())

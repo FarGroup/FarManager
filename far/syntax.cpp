@@ -5,7 +5,7 @@ syntax.cpp
 
 */
 
-/* Revision: 1.20 15.04.2006 $ */
+/* Revision: 1.21 07.07.2006 $ */
 
 //---------------------------------------------------------------
 // If this code works, it was written by Alexander Nazarenko.
@@ -912,9 +912,9 @@ static TToken getToken(void)
             case L'x':
               if ( iswxdigit(ch = getChar()) )
               {
-                char hBuf[3] = { (wchar_t)ch, 0, 0 };
+                wchar_t hBuf[3] = { static_cast<wchar_t>(ch), 0, 0 };
                 if ( iswxdigit(ch = getChar()) )
-                  hBuf[1] = (wchar_t)ch;
+                  hBuf[1] = static_cast<wchar_t>(ch);
                 else
                 {
                   hBuf[1] = hBuf[0];

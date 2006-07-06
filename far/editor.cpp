@@ -6,7 +6,7 @@ editor.cpp
 
 */
 
-/* Revision: 1.285 25.05.2006 $ */
+/* Revision: 1.286 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -552,7 +552,7 @@ int Editor::ReadFile(const wchar_t *Name,int &UserBreak)
       if (NumLine==Line-ScreenLine)
       {
         Lock ();
-        for (int I=0;I<ScreenLine;I++)
+        for (DWORD I=0;I<ScreenLine;I++)
           ProcessKey(KEY_DOWN);
         CurLine->EditLine.SetTabCurPos(LinePos);
         Unlock ();
@@ -641,14 +641,14 @@ int Editor::ReadFile(const wchar_t *Name,int &UserBreak)
             break;
         }
       }
-      if (ScreenLine>ObjHeight)//ScrY
+      if (ScreenLine>static_cast<DWORD>(ObjHeight))//ScrY
         ScreenLine=ObjHeight;//ScrY;
       if (Line>=ScreenLine)
       {
         Lock ();
         GoToLine(Line-ScreenLine);
         TopScreen=CurLine;
-        for (int I=0;I<ScreenLine;I++)
+        for (unsigned int I=0;I<ScreenLine;I++)
           ProcessKey(KEY_DOWN);
         CurLine->EditLine.SetTabCurPos(LinePos);
         //_D(SysLog("Setleftpos 2 to %i",LeftPos));
@@ -3186,7 +3186,7 @@ void Editor::DeleteString(struct EditList *DelPtr,int DeleteLast,int UndoLine)
   }
 
   for (int I=0;I<sizeof(SavePos.Line)/sizeof(SavePos.Line[0]);I++)
-    if (SavePos.Line[I]!=0xffffffff && UndoLine<SavePos.Line[I])
+    if (SavePos.Line[I]!=0xffffffff && UndoLine<static_cast<int>(SavePos.Line[I]))
       SavePos.Line[I]--;
 
   NumLastLine--;
@@ -3299,7 +3299,7 @@ void Editor::InsertString()
 
   for (int I=0;I<sizeof(SavePos.Line)/sizeof(SavePos.Line[0]);I++)
     if (SavePos.Line[I]!=0xffffffff &&
-        (NumLine<SavePos.Line[I] || NumLine==SavePos.Line[I] && CurPos==0))
+        (NumLine<static_cast<int>(SavePos.Line[I]) || NumLine==SavePos.Line[I] && CurPos==0))
       SavePos.Line[I]++;
 
   int IndentPos=0;
@@ -4440,7 +4440,8 @@ void Editor::GoToPosition()
    и вычисляет новые координаты */
 void Editor::GetRowCol(const wchar_t *_argv,int *row,int *col)
 {
-  int x=0xffff,y,l;
+  int x=0xffff,y;
+  size_t l;
   wchar_t *argvx=0;
   int LeftPos=CurLine->EditLine.GetTabCurPos() + 1;
 
@@ -5867,7 +5868,7 @@ int Editor::GotoBookmark(DWORD Pos)
       CurLine->EditLine.SetCurPos(SavePos.Cursor[Pos]);
       CurLine->EditLine.SetLeftPos(SavePos.LeftPos[Pos]);
       TopScreen=CurLine;
-      for (int I=0;I<SavePos.ScreenLine[Pos] && TopScreen->Prev!=NULL;I++)
+      for (DWORD I=0;I<SavePos.ScreenLine[Pos] && TopScreen->Prev!=NULL;I++)
         TopScreen=TopScreen->Prev;
       if (!EdOpt.PersistentBlocks)
         UnmarkBlock();

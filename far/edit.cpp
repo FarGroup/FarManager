@@ -5,7 +5,7 @@ edit.cpp
 
 */
 
-/* Revision: 1.150 25.05.2006 $ */
+/* Revision: 1.151 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -2498,7 +2498,7 @@ int Edit::DeleteColor(int ColorPos)
 
 int Edit::GetColor(struct ColorItem *col,int Item)
 {
-  if ((DWORD)Item >= ColorCount)
+  if (Item >= ColorCount)
     return(FALSE);
   *col=ColorList[Item];
   return(TRUE);
