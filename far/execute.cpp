@@ -5,7 +5,7 @@ execute.cpp
 
 */
 
-/* Revision: 1.143 07.07.2006 $ */
+/* Revision: 1.144 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -680,10 +680,10 @@ void SetCurrentDirectoryForPassivePanel(string &strComspec,const wchar_t *CmdStr
 
   if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS && PassivePanel->GetType()==FILE_PANEL)
   {
-    for (int I=0;CmdStr[I]!=0;I++)
-    {
-      if (LocalIsalphaW(CmdStr[I]) && CmdStr[I+1]==L':' && CmdStr[I+2]!=L'\\')
-      {
+    //for (int I=0;CmdStr[I]!=0;I++)
+    //{
+      //if (LocalIsalphaW(CmdStr[I]) && CmdStr[I+1]==L':' && CmdStr[I+2]!=L'\\')
+      //{
         string strSetPathCmd;
         string strSavePath;
         string strPanelPath;
@@ -716,9 +716,9 @@ void SetCurrentDirectoryForPassivePanel(string &strComspec,const wchar_t *CmdStr
         CloseHandle(pi.hThread);
         CloseHandle(pi.hProcess);
         FarChDirW(strSavePath);
-        break;
-      }
-    }
+        //break;
+      //}
+    //}
   }
 }
 
@@ -1504,7 +1504,8 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
   */
   if (!SeparateWindow &&  /* DJ $ */
       (LocalStrnicmpW(strCmdLine,L"CD",Length=2)==0 || LocalStrnicmpW(strCmdLine,L"CHDIR",Length=5)==0) &&
-      (IsSpaceW(strCmdLine.At(Length)) || strCmdLine.At(Length)==L'\\' || TestParentFolderNameW((const wchar_t*)strCmdLine+Length)))
+      (IsSpaceW(strCmdLine.At(Length)) || strCmdLine.At(Length)==L'\\' || strCmdLine.At(Length)==L'/' ||
+      TestParentFolderNameW((const wchar_t*)strCmdLine+Length)))
   {
     int ChDir=(Length==5);
 
@@ -1516,6 +1517,8 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine,int SeparateWindow)
 
     UnquoteW(strExpandedDir);
     apiExpandEnvironmentStrings(strExpandedDir,strExpandedDir);
+
+    ReplaceStringsW(strExpandedDir,L"/",L"\\",-1);
 
     // скорректируем букву диска на "подступах"
 //    if(ExpandedDir[1] == L':' && iswalpha(ExpandedDir[0])) //BUGBUG

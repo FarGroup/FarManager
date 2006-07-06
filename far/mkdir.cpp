@@ -5,7 +5,7 @@ mkdir.cpp
 
 */
 
-/* Revision: 1.24 31.03.2006 $ */
+/* Revision: 1.25 07.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -25,10 +25,6 @@ mkdir.cpp
 */
 void ShellMakeDir(Panel *SrcPanel)
 {
-  /* $ 02.06.2001 KM
-     + ћаленька€ модификаци€: добавлены кнопки [ OK ] и [ Cancel ]
-       в диалог создани€ каталога
-  */
   string strDirName;
   string strOriginalDirName;
   wchar_t *lpwszDirName;
@@ -69,7 +65,6 @@ void ShellMakeDir(Panel *SrcPanel)
                  UMSG(MIncorrectDirList), UMSG(MOk));
   }
   /* IS $ */
-  /* KM $ */
 
   const wchar_t *OneDir;
 
@@ -88,15 +83,11 @@ void ShellMakeDir(Panel *SrcPanel)
 
 
     lpwszDirName = strDirName.GetBuffer ();
-    /* $ 25.07.2000 IG
-       Bug 24 (не перечитывалась панель, после неудачного вложенного
-       создани€ директорий)
-    */
     while (Length>0 && lpwszDirName[Length-1]==' ')
       Length--;
     lpwszDirName[Length]=0;
 
-    char bSuccess = 0;
+    bool bSuccess = false;
     int Error=FALSE;
 
     if (Length>0 && (lpwszDirName[Length-1]==L'/' || lpwszDirName[Length-1]==L'\\'))
@@ -107,34 +98,54 @@ void ShellMakeDir(Panel *SrcPanel)
       {
         *ChPtr=0;
 
-        if (CreateDirectoryW(lpwszDirName,NULL))
+        if (*lpwszDirName && CreateDirectoryW(lpwszDirName,NULL))
         {
           TreeList::AddTreeName(lpwszDirName);
-          bSuccess = 1;
+          bSuccess = true;
         }
         *ChPtr=L'\\';
       }
 
     strDirName.ReleaseBuffer ();
 
-    while (!CreateDirectoryW(strDirName,NULL))
+    BOOL bSuccess2;
+    bool bSkip=false;
+    while (!(bSuccess2=CreateDirectoryW(strDirName,NULL)))
     {
       int LastError=GetLastError();
       if (LastError==ERROR_ALREADY_EXISTS || LastError==ERROR_BAD_PATHNAME ||
           LastError==ERROR_INVALID_NAME)
       {
-        MessageW(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MCannotCreateFolder),strOriginalDirName,UMSG(MOk));
-        if (bSuccess) break;
-          else return;
+        int ret;
+        if (DirList.IsEmpty())
+          ret=MessageW(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,UMSG(MError),UMSG(MCannotCreateFolder),strOriginalDirName,UMSG(MCancel));
+        else
+          ret=MessageW(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MError),UMSG(MCannotCreateFolder),strOriginalDirName,UMSG(MOk),UMSG(MSkip));
+        bSkip = ret==1;
+        if (bSuccess || bSkip) break;
+        else return;
       }
       else
-        if (MessageW(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MError),UMSG(MCannotCreateFolder),strOriginalDirName,UMSG(MRetry),UMSG(MCancel))!=0)
-          if (bSuccess) break;
-            else return;
+      {
+        int ret;
+        if (DirList.IsEmpty())
+          ret=MessageW(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,UMSG(MError),UMSG(MCannotCreateFolder),strOriginalDirName,UMSG(MRetry),UMSG(MCancel));
+        else
+        {
+          ret=MessageW(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,UMSG(MError),UMSG(MCannotCreateFolder),strOriginalDirName,UMSG(MRetry),UMSG(MSkip),UMSG(MCancel));
+          bSkip = ret==1;
+        }
+        if (ret!=0)
+        {
+          if (bSuccess || bSkip) break;
+          else return;
+        }
+      }
     }
-    /* IG $ */
-
-    TreeList::AddTreeName(strDirName);
+    if (bSuccess2)
+      TreeList::AddTreeName(strDirName);
+    else if (!bSkip)
+      break;
   }
 
   SrcPanel->Update(UPDATE_KEEP_SELECTION);

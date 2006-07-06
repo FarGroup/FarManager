@@ -1257,7 +1257,7 @@ following operations:
 
     - disconnect SUBST-disks from the Disks menu;
 
-    - отключение запоминающих устройство для USB из меню дисков;
+    - removal of USB storage devices from the Disks menu;
 
     - ~reloading~@EditorReload@ a file in the editor;
 
@@ -1590,14 +1590,14 @@ editor.
 
 @HotPlugList
 $ #Hotplug devices list#
-    Список подключенных устройств показывает платы PC Card и друге аналогичные
-устройства, установленные и работающие на компьютере.
+    Hotplug devices list displays PC Card boards and other analogue devices
+which are installed and work in the computer.
 
-    Для удаления устройства необходимо выбрать устройство в списке и нажать
-клавишу #Del#. После этого Windows выбрасывает устройство и выводит уведомление
-о возможности его извлечения, удаления или отсоединения.
+    To remove a device you need to select it in the list and press the #Del#
+key. After that Windows will prepare the device for safe removal and a
+notification will be displayed when it is safe to remove the device.
 
-    #Ctrl-R# позволяет обновить список подключенных устройств.
+    #Ctrl-R# allows to refresh the list of connected devices.
 
 
 @CompFolders
@@ -1653,6 +1653,8 @@ item title only.
 by default, is stored in the registry, but it is possible to store it in a
 file. If you create a local menu in the FAR folder, it will be used instead of
 the main menu saved in the registry.
+
+    To close the menu even if submenus are open use #Shift-F10#.
 
 
 @FileAssoc
@@ -1746,9 +1748,9 @@ $ #Special symbols#
              For remote folders - "\\\\server\\share"
     #!\\#       Current path
     #!/#       Short name of the current path
-    #!=\\#      Текущий путь с учетом ~символических~@HardSymLink@ связей.
-    #!=/#      Короткое имя текущего пути с учетом ~символических~@HardSymLink@
-             связей.
+    #!=\\#      Current path considering ~symbolic links~@HardSymLink@.
+    #!=/#      Short name of the current path considering
+             ~symbolic links~@HardSymLink@.
 
     #!?<title>?<init>!#
              This symbol is replaced by user input, when
@@ -2058,8 +2060,9 @@ $ #Settings dialog: settings#
   #in edit controls#        the cursor in dialog edit controls and
                           command line.
 
-  #Del removes blocks#      Клавиша Del удаляет выделенный блок
-  #in edit controls#        в строках ввода.
+  #Del removes blocks#      If a block is selected, pressing Del will
+  #in edit controls#        not remove the character under cursor, but
+                          this block.
 
   #AutoComplete#            Allows to use the AutoComplete function
   #in edit controls#        in edit controls that have a history list
@@ -2512,11 +2515,10 @@ is not a ~file panel~@FilePanel@, it will be changed to the file panel.
        requires administrative privileges.
        A CD-ROM can be closed by pressing #Ins#.
 
-    Комбинация #Shift-Del# используется для подготовки к безопасному
-извлечению запоминающих устройство для USB. Если диск, для которого
-применяется функция извлечения, является одной из flash-карт, вставленных
-в картридер с поддержкой нескольких flash-карт, то будет отключен сам
-картридер.
+    The #Shift-Del# hotkey is used to prepare a USB storage device for safe
+removal. If the disk, for which the removal function is used, is a flash-card
+inserted into a card-reader that supports several flash-cards then the
+card-reader itself will be stopped.
 
     #Ctrl-1# - #Ctrl-9# switch the display of different information:
 
