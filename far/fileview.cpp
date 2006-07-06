@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.76 04.07.2006 $ */
+/* Revision: 1.77 06.07.2006 $ */
 
 /*
 Modify:
+  06.07.2006 SVS
+    + GetViewFilePos(), GetViewFileSize()
   04.07.2006 IS
     - warnings
   29.05.2006 SVS
@@ -660,4 +662,14 @@ int FileViewer::ViewerControl(int Command,void *Param)
 void FileViewer::GetTitle(char *Title,int LenTitle,int TruncSize)
 {
   View.GetTitle(Title,LenTitle,TruncSize);
+}
+
+__int64 FileViewer::GetViewFileSize() const
+{
+  return View.GetViewFileSize();
+}
+
+__int64 FileViewer::GetViewFilePos() const
+{
+  return View.GetViewFilePos();
 }

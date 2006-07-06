@@ -5,10 +5,13 @@ Internal viewer
 
 */
 
-/* Revision: 1.189 05.07.2006 $ */
+/* Revision: 1.190 06.07.2006 $ */
 
 /*
 Modify:
+  06.07.2006 SVS
+    ! сделаем Viewer::GetFilePos() - online (в viewer.hpp)
+    ! обработка MCODE_V_CURPOS и MCODE_V_ITEMCOUNT вынесена в macro.cpp
   05.07.2006 IS
     - warnings
   22.06.2006 thims
@@ -1709,14 +1712,6 @@ int Viewer::ProcessKey(int Key)
       return LastPage || ViewFile==NULL;
     case MCODE_C_BOF:
       return !FilePos || ViewFile==NULL;
-    case MCODE_V_ITEMCOUNT:
-      // для БОЛЬШИХ ФАЙЛОВ возвращается ерунда!
-      // SVS, ау?!
-      return static_cast<int>(FileSize);
-    case MCODE_V_CURPOS:
-      // для БОЛЬШИХ ФАЙЛОВ возвращается ерунда!
-      // SVS, ау?!
-      return static_cast<int>(FilePos+1);
     case MCODE_V_VIEWERSTATE:
     {
       DWORD MacroViewerState=0;
@@ -3346,12 +3341,6 @@ void Viewer::SetTitle(const char *Title)
   */
     xstrncpy(Viewer::Title,Title,sizeof(Viewer::Title)-1);
   /* IS $ */
-}
-
-
-__int64 Viewer::GetFilePos()
-{
-  return(FilePos);
 }
 
 

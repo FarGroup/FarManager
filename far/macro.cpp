@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.166 05.07.2006 $ */
+/* Revision: 1.167 06.07.2006 $ */
 
 /*
 Modify:
+  06.07.2006 SVS
+    - MCODE_V_ITEMCOUNT & MCODE_V_CURPOS для макросов во вьювере возвращает ерунду, т.к. не __int64
   05.07.2006 IS
     - warnings
   29.05.2006 SVS
@@ -543,6 +545,7 @@ Modify:
 #include "lockscrn.hpp"
 #include "viewer.hpp"
 #include "fileedit.hpp"
+#include "fileview.hpp"
 #include "dialog.hpp"
 #include "ctrlobj.hpp"
 #include "filepanels.hpp"
@@ -1552,7 +1555,17 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
         {
           Frame *f=FrameManager->GetTopModal();
           if(f)
-            Cond=(__int64)f->ProcessKey(CheckCode);
+          {
+            if(f->GetType() == MODALTYPE_VIEWER)
+            {
+              if(CheckCode == MCODE_V_ITEMCOUNT)
+                Cond=(__int64)((FileViewer*)f)->GetViewFileSize();
+              else if(CheckCode == MCODE_V_CURPOS)
+                Cond=(__int64)((FileViewer*)f)->GetViewFilePos()+1;
+            }
+            else
+              Cond=(__int64)f->ProcessKey(CheckCode);
+          }
         }
         // *****************
 

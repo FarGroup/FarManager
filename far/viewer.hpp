@@ -7,10 +7,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.32 05.07.2006 $ */
+/* Revision: 1.33 06.07.2006 $ */
 
 /*
 Modify:
+  06.07.2006 SVS
+    + GetViewFilePos(), GetViewFileSize()
   05.07.2006 IS
     - warnings
   29.05.2006 SVS
@@ -168,17 +170,8 @@ class Viewer:public ScreenObject
 
     BitFlags SearchFlags;
 
-    /* $ 29.03.2001 IS
-         Часть локальных настроек переехала в ViewerOptions
-    */
-    struct ViewerOptions ViOpt;
-    /* IS $ */
-    /* $ 14.06.2000 SVS
-      + Переменная FirstWord - первое слово из файла
-      (для автоопределения Unicode)
-    */
-    WORD FirstWord;
-    /* SVS $ */
+    struct ViewerOptions ViOpt;  // $ 29.03.2001 IS - Часть локальных настроек переехала в ViewerOptions
+    WORD FirstWord;              // $ 14.06.2000 SVS - + Переменная FirstWord - первое слово из файла (для автоопределения Unicode)
 
     NamesList ViewNamesList;
     KeyBar *ViewKeyBar;
@@ -192,18 +185,12 @@ class Viewer:public ScreenObject
     WIN32_FIND_DATA ViewFindData;
 
     unsigned char LastSearchStr[SEARCHSTRINGBUFSIZE];
-    /* $ 30.07.2000 KM
-       Новая переменная для поиска
-    */
+
+    // $ 30.07.2000 KM - Новая переменная для поиска
     int LastSearchCase,LastSearchWholeWords,LastSearchReverse,LastSearchHex;
-    /* KM $ */
 
     struct CharTableSet TableSet;
-    /* $ 27.09.2000 SVS
-       Переменные "mode" вогнаны под одну крышу
-    */
-    struct ViewerMode VM;
-    /* SVS $ */
+    struct ViewerMode VM;        // $ 27.09.2000 SVS - Переменные "mode" вогнаны под одну крышу
 
     __int64 FilePos;
     __int64 SecondPos;
@@ -312,9 +299,12 @@ class Viewer:public ScreenObject
     /* IS $ */
     void SetTitle(const char *Title);
     void GetTitle(char *Title,int LenTitle,int TruncSize=0);
-    __int64 GetFilePos();
-    /* $ 18.07.2000 tran - change 'long' to 'unsigned long' */
-    void SetFilePos(__int64 Pos);
+
+    void SetFilePos(__int64 Pos); // $ 18.07.2000 tran - change 'long' to 'unsigned long'
+    __int64 GetFilePos() const { return FilePos; };
+    __int64 GetViewFilePos() const { return FilePos; };
+    __int64 GetViewFileSize() const { return FileSize; };
+
     void SetPluginData(char *PluginData);
     void SetNamesList(NamesList *List);
     /* $ 27.09.2000 SVS
