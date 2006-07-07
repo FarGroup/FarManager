@@ -115,6 +115,8 @@ int FindFormats (const char *lpFileName, Collection <FormatPosition*> &formats)
 
 bool SevenZipModule::Initialize (const char *lpFileName)
 {
+	bool bResult = false;
+
 	m_hModule = LoadLibraryEx (
 			lpFileName,
 			NULL,
@@ -124,35 +126,28 @@ bool SevenZipModule::Initialize (const char *lpFileName)
 	if ( m_hModule )
 	{
 		m_pfnCreateObject = (CREATEOBJECT)GetProcAddress (m_hModule, "CreateObject");
+		m_pfnGetHandlerProperty = (GETHANDLERPROPERTY)GetProcAddress (m_hModule, "GetHandlerProperty");
 
-		if ( m_pfnCreateObject )
+		if ( m_pfnCreateObject && 
+			 m_pfnGetHandlerProperty )
 		{
-			bool bFound = false;
+			PROPVARIANT value;
 
-			for (int i = 0; i < sizeof (FormatGUIDs)/sizeof (FormatGUIDs[0]); i++)
+			VariantInit ((VARIANTARG*)&value);
+
+			m_pfnGetHandlerProperty (NArchive::kClassID, &value);
+
+			if ( value.vt == VT_BSTR )
 			{
-				IInArchive *pArchive;
-
-				if ( SUCCEEDED (m_pfnCreateObject (
-						&FormatGUIDs[i],
-						&IID_IInArchive,
-						(void**)&pArchive
-						)) )
-				{
-					pArchive->Release ();
-					memcpy (&m_uid, &FormatGUIDs[i], sizeof (GUID));
-
-					bFound = true; 
-					break;
-				}
+				memcpy (&m_uid, value.bstrVal, sizeof (GUID));
+				bResult = true;
 			}
 
-			if ( bFound )
-				return true;
+			VariantClear ((VARIANTARG*)&value);
 		}
 	}			
 
-	return false;
+	return bResult;
 }
 
 
@@ -412,18 +407,18 @@ void __stdcall SevenZipArchive::pCloseArchive ()
 	}
 }
 
-unsigned __int64 VariantToInt64 (const PROPVARIANT &value)
+unsigned __int64 VariantToInt64 (PROPVARIANT *value)
 {
-	switch ( value.vt )
+	switch ( value->vt )
 	{
 		case VT_UI1:
-			return value.bVal;
+			return value->bVal;
 		case VT_UI2:
-			return value.uiVal;
+			return value->uiVal;
 		case VT_UI4:
-			return value.ulVal;
+			return value->ulVal;
 		case VT_UI8:
-			return (unsigned __int64)value.uhVal.QuadPart;
+			return (unsigned __int64)value->uhVal.QuadPart;
 		default:
 			return 0;
 	}
@@ -489,11 +484,46 @@ int __stdcall SevenZipArchive::pGetArchiveItem (
 				&value
 				)) )
 		{
-			unsigned __int64 size = VariantToInt64 (value);
+			unsigned __int64 size = VariantToInt64 (&value);
 
 			pItem->pi.FindData.nFileSizeLow = (DWORD)size;
 			pItem->pi.FindData.nFileSizeHigh = (DWORD)(size >> 32);
 		}
+
+		if ( SUCCEEDED (m_pArchive->GetProperty(
+				m_nItemsNumber,
+				kpidPackedSize,
+				&value
+				)) )
+		{
+			unsigned __int64 size = VariantToInt64 (&value);
+
+			pItem->pi.PackSize = (DWORD)size;
+			pItem->pi.PackSizeHigh = (DWORD)(size >> 32);
+		}
+
+
+		if ( SUCCEEDED (m_pArchive->GetProperty(
+				m_nItemsNumber,
+				kpidCreationTime,
+				&value
+				)) )
+			memcpy (&pItem->pi.FindData.ftCreationTime, &value.filetime, sizeof (FILETIME));
+
+		if ( SUCCEEDED (m_pArchive->GetProperty(
+				m_nItemsNumber,
+				kpidLastAccessTime,
+				&value
+				)) )
+			memcpy (&pItem->pi.FindData.ftLastAccessTime, &value.filetime, sizeof (FILETIME));
+
+		if ( SUCCEEDED (m_pArchive->GetProperty(
+				m_nItemsNumber,
+				kpidLastWriteTime,
+				&value
+				)) )
+			memcpy (&pItem->pi.FindData.ftLastWriteTime, &value.filetime, sizeof (FILETIME));
+
 
 		pItem->pi.UserData = m_nItemsNumber; 
 

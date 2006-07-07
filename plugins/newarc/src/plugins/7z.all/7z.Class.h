@@ -7,13 +7,17 @@ struct FormatPosition {
 
 
 typedef unsigned int (__stdcall *CREATEOBJECT) (const GUID *, const GUID *, void **);
+typedef HRESULT (__stdcall *GETHANDLERPROPERTY) (PROPID propID, PROPVARIANT *value);
 
 
 class SevenZipModule {
 
 public:
 	HMODULE m_hModule;
+
 	CREATEOBJECT m_pfnCreateObject;
+	GETHANDLERPROPERTY m_pfnGetHandlerProperty;
+
 	GUID m_uid;
 
 public:
