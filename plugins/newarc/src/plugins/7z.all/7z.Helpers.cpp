@@ -189,7 +189,8 @@ HRESULT CArchiveExtractCallback::SetCompleted (const unsigned __int64* completeV
 	{
 		unsigned __int64 diff = *completeValue-m_nLastProcessed;
 
-		m_pArchive->m_pfnCallback (AM_PROCESS_DATA, 0, (int)diff);
+		if ( !m_pArchive->m_pfnCallback (AM_PROCESS_DATA, 0, (int)diff) )
+			return E_ABORT;
 
 		m_nLastProcessed = *completeValue;
 	}
@@ -504,8 +505,12 @@ HRESULT __stdcall CArchiveOpenCallback::QueryInterface (const IID &iid, void ** 
 
 	if ( iid == IID_IArchiveOpenVolumeCallback )
 	{
-		*ppvObject = this;
-		AddRef ();
+		if ( !m_pArchiveOpenVolumeCallback )
+			m_pArchiveOpenVolumeCallback = new CArchiveOpenVolumeCallback (m_pArchive);
+
+		m_pArchiveOpenVolumeCallback->AddRef ();
+
+		*ppvObject = m_pArchiveOpenVolumeCallback; //????
 
 		return S_OK;
 	}
@@ -531,12 +536,17 @@ CArchiveOpenCallback::CArchiveOpenCallback (SevenZipArchive *pArchive)
 	m_nRefCount = 1;
 	m_pArchive = pArchive;
 	m_pGetTextPassword = NULL;
+
+	m_pArchiveOpenVolumeCallback = NULL;
 }
 
 CArchiveOpenCallback::~CArchiveOpenCallback ()
 {
 	if ( m_pGetTextPassword )
 		m_pGetTextPassword->Release ();
+
+	if ( m_pArchiveOpenVolumeCallback )
+		m_pArchiveOpenVolumeCallback->Release ();
 }
 
 HRESULT __stdcall CArchiveOpenCallback::SetTotal (const UInt64 *files, const UInt64 *bytes)
@@ -549,14 +559,81 @@ HRESULT __stdcall CArchiveOpenCallback::SetCompleted (const UInt64 *files, const
 	return S_OK;
 }
 
-
-HRESULT __stdcall CArchiveOpenCallback::GetProperty (PROPID propID, PROPVARIANT *value)
+CArchiveOpenVolumeCallback::CArchiveOpenVolumeCallback(SevenZipArchive *pArchive)
 {
+	m_nRefCount = 1;
+	m_pArchive = pArchive;
+}
+
+CArchiveOpenVolumeCallback::~CArchiveOpenVolumeCallback ()
+{
+}
+
+
+ULONG __stdcall CArchiveOpenVolumeCallback::AddRef ()
+{
+	return ++m_nRefCount;
+}
+
+ULONG __stdcall CArchiveOpenVolumeCallback::Release ()
+{
+	if ( --m_nRefCount == 0 )
+	{
+		delete this;
+		return 0;
+	}
+
+	return m_nRefCount;
+}
+
+
+HRESULT __stdcall CArchiveOpenVolumeCallback::QueryInterface (const IID &iid, void ** ppvObject)
+{
+	*ppvObject = NULL;
+
+	if ( iid == IID_IArchiveOpenVolumeCallback )
+	{
+		*ppvObject = this;
+		AddRef ();
+
+		return S_OK;
+	}
+
+	return E_NOINTERFACE;
+}
+
+
+HRESULT __stdcall CArchiveOpenVolumeCallback::GetProperty (PROPID propID, PROPVARIANT *value)
+{
+	if ( propID == kpidName )
+	{
+		wchar_t wszNameOnly[MAX_PATH];
+
+		MultiByteToWideChar (CP_OEMCP, 0, m_pArchive->m_lpFileName, -1, wszNameOnly, MAX_PATH);
+
+		wchar_t *p = wcsrchr (wszNameOnly, L'.');
+
+		if ( p )
+        	*p = 0;
+
+		value->vt = VT_BSTR;
+		value->bstrVal = SysAllocString(wszNameOnly); 
+	}
+
 	return S_OK;
 }
 
-HRESULT __stdcall CArchiveOpenCallback::GetStream (const wchar_t *name, IInStream **inStream)
+HRESULT __stdcall CArchiveOpenVolumeCallback::GetStream (const wchar_t *name, IInStream **inStream)
 {
+	char szFileName[MAX_PATH];
+	CInFile *file = new CInFile;
+
+	WideCharToMultiByte(CP_OEMCP, 0, name, -1, szFileName, MAX_PATH, NULL, NULL);
+
+	file->Open(szFileName);
+
+	*inStream = file;
+
 	return S_OK;
 }
 

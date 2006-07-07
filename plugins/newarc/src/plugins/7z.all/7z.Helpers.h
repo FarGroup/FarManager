@@ -29,6 +29,31 @@ struct ArchiveItem {
 	PluginPanelItem *pItem;
 };
 
+
+class CArchiveOpenVolumeCallback : public IArchiveOpenVolumeCallback {
+private:
+
+	int m_nRefCount;
+	SevenZipArchive *m_pArchive;
+
+public:
+
+	CArchiveOpenVolumeCallback (SevenZipArchive *pArchive);
+	~CArchiveOpenVolumeCallback();
+
+
+	virtual HRESULT __stdcall QueryInterface (const IID &iid, void ** ppvObject);
+	virtual ULONG __stdcall AddRef ();
+	virtual ULONG __stdcall Release ();
+
+	// IArchiveOpenVolumeCallback
+
+	virtual HRESULT __stdcall GetProperty (PROPID propID, PROPVARIANT *value);
+	virtual HRESULT __stdcall GetStream (const wchar_t *name, IInStream **inStream);
+
+};
+
+
 class CCryptoGetTextPassword : public ICryptoGetTextPassword {
 private:
 
@@ -93,6 +118,8 @@ private:
 	int m_nRefCount;
 
 	CCryptoGetTextPassword *m_pGetTextPassword;
+	CArchiveOpenVolumeCallback *m_pArchiveOpenVolumeCallback;
+
 	SevenZipArchive *m_pArchive;
 
 public:
@@ -111,10 +138,10 @@ public:
 	virtual HRESULT __stdcall SetCompleted (const UInt64 *files, const UInt64 *bytes);
 
 
-	// IArchiveOpenVolumeCallback
+/*	// IArchiveOpenVolumeCallback
 
 	virtual HRESULT __stdcall GetProperty (PROPID propID, PROPVARIANT *value);
-	virtual HRESULT __stdcall GetStream (const wchar_t *name, IInStream **inStream);
+	virtual HRESULT __stdcall GetStream (const wchar_t *name, IInStream **inStream);*/
 
 };
 
