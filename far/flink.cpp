@@ -5,10 +5,12 @@ flink.cpp
 
 */
 
-/* Revision: 1.49 05.07.2006 $ */
+/* Revision: 1.50 07.07.2006 $ */
 
 /*
 Modify:
+  07.07.2006 IS
+    ! косметика в коде
   05.07.2006 IS
     - warnings
   06.05.2005 SVS
@@ -702,7 +704,7 @@ int WINAPI MkLink(const char *Src,const char *Dest)
               BOOL WINAPI EnumFileStreams(int Idx,WCHAR *StreamName,const WIN32_STREAM_ID *sid)
               {
                 char Buf[260];
-                UnicodeToAscii(StreamName,Buf,sizeof(Buf));
+                UnicodeToANSI(StreamName,Buf,sizeof(Buf));
                 printf("%2d) '%s' StreamId=%d",Idx,Buf,sid->dwStreamId);
                 switch(sid->dwStreamId)
                 {

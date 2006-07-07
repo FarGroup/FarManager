@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.99 17.04.2006 $ */
+/* Revision: 1.100 07.07.2006 $ */
 
 /*
 Modify:
+  07.07.2006 IS
+    ! косметика в коде
   17.04.2006 SVS
     ! define -> enum (для отладчика ;-))
   06.04.2006 AY
@@ -83,7 +85,7 @@ Modify:
   15.07.2003 SVS
     + MFLAGS_INSIDEPLUGIN и MFLAGS_NOINSIDEPLUGIN
   15.06.2003 SVS
-    + До кучи добавлены макросы AsciiToUnicode и OEMToUnicode
+    + До кучи добавлены макросы ANSIToUnicode и OEMToUnicode
   03.01.2003 SVS
     + CHAR_WCHAR
   10.12.2002 SVS
@@ -117,7 +119,7 @@ Modify:
   21.10.2001 SVS
     ! PREREDRAWFUNC и PISDEBUGGERPRESENT переехали из global.hpp
   16.10.2001 SVS
-    + Макросы-преобразовалки: UnicodeToAscii() и UnicodeToOEM()
+    + Макросы-преобразовалки: UnicodeToANSI() и UnicodeToOEM()
   16.09.2001 SVS
     ! Отключаемые исключения
   07.09.2001 SVS
@@ -548,9 +550,9 @@ enum {
 // Количество закладок в редакторе/вьювере на одну позицию
 #define BOOKMARK_COUNT   10
 
-#define UnicodeToAscii(src,dst,lendst)  WideCharToMultiByte(CP_ACP,0,(src),-1,(dst),(lendst),NULL,FALSE)
+#define UnicodeToANSI(src,dst,lendst)  WideCharToMultiByte(CP_ACP,0,(src),-1,(dst),(lendst),NULL,FALSE)
 #define UnicodeToOEM(src,dst,lendst)    WideCharToMultiByte(CP_OEMCP,0,(src),-1,(dst),(lendst),NULL,FALSE)
-#define AsciiToUnicode(src,dst,lendst)  MultiByteToWideChar(CP_ACP,0,(src),-1,(dst),(lendst))
+#define ANSIToUnicode(src,dst,lendst)  MultiByteToWideChar(CP_ACP,0,(src),-1,(dst),(lendst))
 #define OEMToUnicode(src,dst,lendst)    MultiByteToWideChar(CP_OEMCP,0,(src),-1,(dst),(lendst))
 
 typedef void (*PREREDRAWFUNC)(void);

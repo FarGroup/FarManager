@@ -5,10 +5,12 @@ clipboard.cpp
 
 */
 
-/* Revision: 1.12 06.08.2004 $ */
+/* Revision: 1.13 07.07.2006 $ */
 
 /*
 Modify:
+  07.07.2006 IS
+    ! косметика в коде
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   01.03.2004 SVS
@@ -315,7 +317,7 @@ char* InternalPasteFromClipboard(int AnsiMode)
       if (Unicode)
       {
         if(AnsiMode)
-          UnicodeToAscii((LPCWSTR)ClipAddr,ClipText,BufferSize);
+          UnicodeToANSI((LPCWSTR)ClipAddr,ClipText,BufferSize);
         else
           UnicodeToOEM((LPCWSTR)ClipAddr,ClipText,BufferSize);
       }
@@ -383,7 +385,7 @@ char* InternalPasteFromClipboardEx(int max,int AnsiMode)
       memset(ClipText,0,BufferSize+2);
       if (Unicode)
         if(AnsiMode)
-          UnicodeToAscii((LPCWSTR)ClipAddr,ClipText,BufferSize);
+          UnicodeToANSI((LPCWSTR)ClipAddr,ClipText,BufferSize);
         else
           UnicodeToOEM((LPCWSTR)ClipAddr,ClipText,BufferSize);
       else
