@@ -1654,6 +1654,8 @@ by default, is stored in the registry, but it is possible to store it in a
 file. If you create a local menu in the FAR folder, it will be used instead of
 the main menu saved in the registry.
 
+    To close the menu even if submenus are open use #Shift-F10#.
+
 
 @FileAssoc
 $ #File associations #
@@ -1746,9 +1748,9 @@ $ #Special symbols#
              For remote folders - "\\\\server\\share"
     #!\\#       Current path
     #!/#       Short name of the current path
-    #!=\\#      Текущий путь с учетом ~символических~@HardSymLink@ связей.
-    #!=/#      Короткое имя текущего пути с учетом ~символических~@HardSymLink@
-             связей.
+    #!=\\#      Current path considering ~symbolic links~@HardSymLink@.
+    #!=/#      Short name of the current path considering
+             ~symbolic links~@HardSymLink@.
 
     #!?<title>?<init>!#
              This symbol is replaced by user input, when

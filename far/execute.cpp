@@ -5,10 +5,13 @@ execute.cpp
 
 */
 
-/* Revision: 1.132 04.07.2006 $ */
+/* Revision: 1.133 07.07.2006 $ */
 
 /*
 Modify:
+  07.07.2006 AY
+    - не работал CD когда в пути был /
+    - для запуска в Win9x всегда выставляем пути пасивной панели
   04.07.2006 IS
     - warnings
   04.07.2006 SVS
@@ -1035,10 +1038,10 @@ void SetCurrentDirectoryForPassivePanel(const char *Comspec,const char *CmdStr)
 
   if (PassivePanel->GetType()==FILE_PANEL)
   {
-    for (int I=0;CmdStr[I]!=0;I++)
-    {
-      if (isalpha(CmdStr[I]) && CmdStr[I+1]==':' && CmdStr[I+2]!='\\')
-      {
+    //for (int I=0;CmdStr[I]!=0;I++)
+    //{
+      //if (isalpha(CmdStr[I]) && CmdStr[I+1]==':' && CmdStr[I+2]!='\\')
+      //{
         char SavePath[NM],PanelPath[NM],SetPathCmd[NM*2];
         FarGetCurDir(sizeof(SavePath),SavePath);
         PassivePanel->GetCurDir(PanelPath);
@@ -1051,9 +1054,9 @@ void SetCurrentDirectoryForPassivePanel(const char *Comspec,const char *CmdStr)
         CloseHandle(pi.hThread);
         CloseHandle(pi.hProcess);
         FarChDir(SavePath);
-        break;
-      }
-    }
+        //break;
+      //}
+    //}
   }
 }
 
@@ -1881,7 +1884,7 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
   */
   if (!SeparateWindow &&  /* DJ $ */
       (strnicmp(CmdLine,"CD",Length=2)==0 || strnicmp(CmdLine,"CHDIR",Length=5)==0) &&
-      (IsSpace(CmdLine[Length]) || CmdLine[Length]=='\\' || TestParentFolderName(CmdLine+Length)))
+      (IsSpace(CmdLine[Length]) || CmdLine[Length]=='\\' || CmdLine[Length]=='/' || TestParentFolderName(CmdLine+Length)))
   {
     int ChDir=(Length==5);
 
@@ -1893,6 +1896,8 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
 
     Unquote(ExpandedDir);
     ExpandEnvironmentStr(ExpandedDir,ExpandedDir,sizeof(ExpandedDir));
+
+    ReplaceStrings(ExpandedDir,"/","\\",-1);
 
     // скорректируем букву диска на "подступах"
     if(ExpandedDir[1] == ':' && isalpha(ExpandedDir[0]))
