@@ -255,7 +255,7 @@ int OnTest (TestStruct *pTS)
 
 int OnGetDefaultCommand (GetDefaultCommandStruct *pGDC)
 {
-    if ( pGDC->nFormat < Formats.GetCount() )
+	if ( pGDC->nFormat < Formats.GetCount() )
 		pGDC->bResult = GetFormatCommand (Formats[pGDC->nFormat]->m_uid,
 										  pGDC->nCommand,
 										  pGDC->lpCommand);
