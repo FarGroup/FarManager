@@ -255,26 +255,10 @@ int OnTest (TestStruct *pTS)
 
 int OnGetDefaultCommand (GetDefaultCommandStruct *pGDC)
 {
-    static char *pCommands[]={
-    /*Extract               */"rar x {-p%%P} {-ap%%R} -y -c- -kb -- %%A @%%LNM",
-    /*Extract without paths */"rar e {-p%%P} -y -c- -kb -- %%A @%%LNM",
-    /*Test                  */"rar t -y {-p%%P} -- %%A",
-    /*Delete                */"rar d -y {-p%%P} {-w%%W} -- %%A @%%LNM",
-    /*Comment archive       */"rar c -y {-w%%W} -- %%A",
-    /*Comment files         */"rar cf -y {-w%%W} -- %%A @%%LNM",
-    /*Convert to SFX        */"rar s -y -- %%A",
-    /*Lock archive          */"rar k -y -- %%A",
-    /*Protect archive       */"rar rr -y -- %%A",
-    /*Recover archive       */"rar r -y -- %%A",
-    /*Add files             */"rar a -y {-p%%P} {-ap%%R} {-w%%W} {%%S} -- %%A @%%LNM"
-    };
-
-
-	if ( pGDC->nFormat == 0 )
-	{
-		strcpy (pGDC->lpCommand, pCommands[pGDC->nCommand]);
-		pGDC->bResult = true;
-	}
+    if ( pGDC->nFormat < Formats.GetCount() )
+		pGDC->bResult = GetFormatCommand (Formats[pGDC->nFormat]->m_uid,
+										  pGDC->nCommand,
+										  pGDC->lpCommand);
 	else
 		pGDC->bResult = false;
 
@@ -338,4 +322,3 @@ BOOL __stdcall DllMain (
 {
   return TRUE;
 }
-

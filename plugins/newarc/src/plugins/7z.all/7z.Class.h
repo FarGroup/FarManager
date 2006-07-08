@@ -9,6 +9,8 @@ struct FormatPosition {
 typedef unsigned int (__stdcall *CREATEOBJECT) (const GUID *, const GUID *, void **);
 typedef HRESULT (__stdcall *GETHANDLERPROPERTY) (PROPID propID, PROPVARIANT *value);
 
+bool GetFormatCommand(const GUID guid, int nCommand, char *lpCommand);
+
 
 class SevenZipModule {
 

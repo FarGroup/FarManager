@@ -201,24 +201,24 @@ HRESULT CArchiveExtractCallback::SetCompleted (const unsigned __int64* completeV
 
 void CreateDirectory(char *FullPath) //$ 16.05.2002 AA
 {
-//  if( !FileExists (FullPath) )
-  {
-      for (char *c = FullPath; *c; c++)
-    {
-      if(*c!=' ')
-      {
-        for(; *c; c++)
-          if(*c=='\\')
-          {
-            *c=0;
-            CreateDirectory(FullPath, NULL);
-            *c='\\';
-          }
-        CreateDirectory(FullPath, NULL);
-        break;
-      }
-    }
-    }
+//	if( !FileExists (FullPath) )
+	{
+		for (char *c = FullPath; *c; c++)
+		{
+			if(*c!=' ')
+			{
+				for(; *c; c++)
+					if(*c=='\\')
+						{
+							*c=0;
+							CreateDirectory(FullPath, NULL);
+							*c='\\';
+						}
+				CreateDirectory(FullPath, NULL);
+				break;
+			}
+		}
+	}
 }
 
 
@@ -636,4 +636,3 @@ HRESULT __stdcall CArchiveOpenVolumeCallback::GetStream (const wchar_t *name, II
 
 	return S_OK;
 }
-

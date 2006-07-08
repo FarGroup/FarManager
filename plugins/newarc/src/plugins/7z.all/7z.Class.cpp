@@ -1,23 +1,24 @@
 #include "7z.h"
 #include "Guid.h"
+#include "commands.h"
 #include <Collections.h>
 
 const GUID FormatGUIDs[] = {
 		CLSID_CFormat7z,
-		CLSID_CArjHandler, 
-		CLSID_CCabHandler, 
+		CLSID_CArjHandler,
+		CLSID_CCabHandler,
 		CLSID_CChmHandler,
-		CLSID_CDebHandler, 
-		CLSID_CIsoHandler, 
-		CLSID_CLzhHandler, 
-		CLSID_CNsisHandler, 
-		CLSID_CRarHandler, 
-		CLSID_CRpmHandler, 
-		CLSID_CSplitHandler, 
-		CLSID_CTarHandler, 
-		CLSID_CZipHandler, 
-		CLSID_CGZipHandler, 
-		CLSID_CZHandler, 
+		CLSID_CDebHandler,
+		CLSID_CIsoHandler,
+		CLSID_CLzhHandler,
+		CLSID_CNsisHandler,
+		CLSID_CRarHandler,
+		CLSID_CRpmHandler,
+		CLSID_CSplitHandler,
+		CLSID_CTarHandler,
+		CLSID_CZipHandler,
+		CLSID_CGZipHandler,
+		CLSID_CZHandler,
 		CLSID_CBZip2Handler,
 		CLSID_CCpioHandler,
 };
@@ -50,7 +51,49 @@ const FormatInfo signs[] = {
 //	{&CLSID_CZHandler, (const unsigned char *)&ZSig, 2},
 	};
 
+bool GetFormatCommand(const GUID guid, int nCommand, char *lpCommand)
+{
+	if ( IsEqualGUID(guid, CLSID_CFormat7z) )
+		strcpy (lpCommand, p7Z[nCommand]);
+	else if ( IsEqualGUID(guid, CLSID_CRarHandler) )
+		strcpy (lpCommand, pRAR[nCommand]);
+	else if ( IsEqualGUID(guid, CLSID_CZipHandler) )
+		strcpy (lpCommand, pZIP[nCommand]);
+	else if ( IsEqualGUID(guid, CLSID_CArjHandler) )
+		strcpy (lpCommand, pARJ[nCommand]);
+	else if ( IsEqualGUID(guid, CLSID_CTarHandler) )
+		strcpy (lpCommand, pTAR[nCommand]);
+	else if ( IsEqualGUID(guid, CLSID_CGZipHandler) )
+		strcpy (lpCommand, pGZIP[nCommand]);
+	else if ( IsEqualGUID(guid, CLSID_CBZip2Handler) )
+		strcpy (lpCommand, pBZIP[nCommand]);
+/*
+	else if ( IsEqualGUID(guid, CLSID_CZHandler) )
+		strcpy (lpCommand, "");
+	else if ( IsEqualGUID(guid, CLSID_CCabHandler) )
+		strcpy (lpCommand, "");
+	else if ( IsEqualGUID(guid, CLSID_CCpioHandler) )
+		strcpy (lpCommand, "");
+	else if ( IsEqualGUID(guid, CLSID_CChmHandler) )
+		strcpy (lpCommand, "");
+	else if ( IsEqualGUID(guid, CLSID_CSplitHandler) )
+		strcpy (lpCommand, "");
+	else if ( IsEqualGUID(guid, CLSID_CRpmHandler) )
+		strcpy (lpCommand, "");
+	else if ( IsEqualGUID(guid, CLSID_CNsisHandler) )
+		strcpy (lpCommand, "");
+	else if ( IsEqualGUID(guid, CLSID_CLzhHandler) )
+		strcpy (lpCommand, "");
+	else if ( IsEqualGUID(guid, CLSID_CDebHandler) )
+		strcpy (lpCommand, "");
+	else if ( IsEqualGUID(guid, CLSID_CIsoHandler) )
+		strcpy (lpCommand, "");
+*/
+	else
+		return false;
 
+	return true;
+}
 
 int FindFormats (const char *lpFileName, Collection <FormatPosition*> &formats)
 {
@@ -69,7 +112,7 @@ int FindFormats (const char *lpFileName, Collection <FormatPosition*> &formats)
 	const GUID *pResult = NULL;
 
 	HANDLE hFile = CreateFile (
-			lpFileName, 
+			lpFileName,
 			GENERIC_READ,
 			FILE_SHARE_READ,
 			0,
@@ -128,7 +171,7 @@ bool SevenZipModule::Initialize (const char *lpFileName)
 		m_pfnCreateObject = (CREATEOBJECT)GetProcAddress (m_hModule, "CreateObject");
 		m_pfnGetHandlerProperty = (GETHANDLERPROPERTY)GetProcAddress (m_hModule, "GetHandlerProperty");
 
-		if ( m_pfnCreateObject && 
+		if ( m_pfnCreateObject &&
 			 m_pfnGetHandlerProperty )
 		{
 			PROPVARIANT value;
@@ -145,7 +188,7 @@ bool SevenZipModule::Initialize (const char *lpFileName)
 
 			VariantClear ((VARIANTARG*)&value);
 		}
-	}			
+	}
 
 	return bResult;
 }
@@ -195,7 +238,7 @@ void SevenZipModule::GetArchiveFormatInfo (ArchiveFormatInfo *pInfo)
 
 	if ( IsEqualGUID (m_uid, CLSID_CFormat7z) )
 	{
-		pInfo->lpName = "7z archive [q]";
+		pInfo->lpName = "7z archive [7z]";
 		pInfo->lpDefaultExtention = "7z";
 	}
 	else
@@ -330,7 +373,7 @@ bool __stdcall SevenZipArchive::pOpenArchive (
   	m_pInFile = new CInFile;
 
   	if ( m_pInFile->Open (m_lpFileName) )
-  	{   
+  	{
 		HRESULT hr = m_pModule->m_pfnCreateObject (
   				&m_pModule->m_uid,
   				&IID_IInArchive,
@@ -354,9 +397,9 @@ bool __stdcall SevenZipArchive::pOpenArchive (
   				if ( (m_nItemsNumber == 1) && !bAllowModifier )
   				{
 					PROPVARIANT value;
-					
+
 					VariantInit ((VARIANTARG*)&value);
-					
+
 					if ( !SUCCEEDED (m_pArchive->GetProperty (
 							0,
 							kpidPath,
@@ -525,7 +568,7 @@ int __stdcall SevenZipArchive::pGetArchiveItem (
 			memcpy (&pItem->pi.FindData.ftLastWriteTime, &value.filetime, sizeof (FILETIME));
 
 
-		pItem->pi.UserData = m_nItemsNumber; 
+		pItem->pi.UserData = m_nItemsNumber;
 
 		nResult = E_SUCCESS;
 	}
