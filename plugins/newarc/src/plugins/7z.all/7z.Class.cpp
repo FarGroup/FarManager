@@ -1,6 +1,7 @@
 #include "7z.h"
 #include "Guid.h"
 #include "commands.h"
+#include "detectarchive.h"
 #include <Collections.h>
 
 const GUID FormatGUIDs[] = {
@@ -37,19 +38,23 @@ struct FormatInfo {
 	const GUID *puid;
 	const unsigned char *psig;
 	int size;
+	bool bPosZero;
+	DETECTARCHIVE pDetectArchive;
 };
 
 const FormatInfo signs[] = {
-	{&CLSID_CFormat7z, (const unsigned char *)&SevenZipSig, 6},
-	{&CLSID_CRarHandler, (const unsigned char *)&RarSig, 4},
-	{&CLSID_CZipHandler, (const unsigned char *)&ZipSig, 4},
-	{&CLSID_CRpmHandler, (const unsigned char *)&RpmSig, 4},
-	{&CLSID_CCabHandler, (const unsigned char *)&CabSig, 4},
-	{&CLSID_CBZip2Handler, (const unsigned char *)&BZipSig, 3},
-	{&CLSID_CArjHandler, (const unsigned char *)&ArjSig, 2},
-	{&CLSID_CGZipHandler, (const unsigned char *)&GZipSig, 2},
-	{&CLSID_CZHandler, (const unsigned char *)&ZSig, 2},
-	};
+	{&CLSID_CFormat7z,     (const unsigned char *)&SevenZipSig, 6, false, NULL},
+	{&CLSID_CRarHandler,   (const unsigned char *)&RarSig,      4, false, IsRarHeader},
+	{&CLSID_CZipHandler,   (const unsigned char *)&ZipSig,      4, false, IsZipHeader},
+	{&CLSID_CRpmHandler,   (const unsigned char *)&RpmSig,      4, true,  NULL},
+	{&CLSID_CCabHandler,   (const unsigned char *)&CabSig,      4, false, IsCabHeader},
+	{&CLSID_CBZip2Handler, (const unsigned char *)&BZipSig,     3, true,  NULL},
+	{&CLSID_CArjHandler,   (const unsigned char *)&ArjSig,      2, false, IsArjHeader},
+	{&CLSID_CTarHandler,   NULL,                                0, false, IsTarHeader},
+	{&CLSID_CGZipHandler,  (const unsigned char *)&GZipSig,     2, true,  NULL},
+	{&CLSID_CZHandler,     (const unsigned char *)&ZSig,        2, true,  NULL},
+	{&CLSID_CLzhHandler,   NULL,                                0, false, IsLzhHeader},
+};
 
 bool GetFormatCommand(const GUID guid, int nCommand, char *lpCommand)
 {
@@ -67,24 +72,24 @@ bool GetFormatCommand(const GUID guid, int nCommand, char *lpCommand)
 		strcpy (lpCommand, pGZIP[nCommand]);
 	else if ( IsEqualGUID(guid, CLSID_CBZip2Handler) )
 		strcpy (lpCommand, pBZIP[nCommand]);
-/*
 	else if ( IsEqualGUID(guid, CLSID_CZHandler) )
-		strcpy (lpCommand, "");
+		strcpy (lpCommand, pZ[nCommand]);
 	else if ( IsEqualGUID(guid, CLSID_CCabHandler) )
-		strcpy (lpCommand, "");
+		strcpy (lpCommand, pCAB[nCommand]);
+	else if ( IsEqualGUID(guid, CLSID_CLzhHandler) )
+		strcpy (lpCommand, pLZH[nCommand]);
 	else if ( IsEqualGUID(guid, CLSID_CCpioHandler) )
-		strcpy (lpCommand, "");
+		strcpy (lpCommand, pCPIO[nCommand]);
+	else if ( IsEqualGUID(guid, CLSID_CRpmHandler) )
+		strcpy (lpCommand, pRPM[nCommand]);
+	else if ( IsEqualGUID(guid, CLSID_CDebHandler) )
+		strcpy (lpCommand, pDEB[nCommand]);
+/*
 	else if ( IsEqualGUID(guid, CLSID_CChmHandler) )
 		strcpy (lpCommand, "");
 	else if ( IsEqualGUID(guid, CLSID_CSplitHandler) )
 		strcpy (lpCommand, "");
-	else if ( IsEqualGUID(guid, CLSID_CRpmHandler) )
-		strcpy (lpCommand, "");
 	else if ( IsEqualGUID(guid, CLSID_CNsisHandler) )
-		strcpy (lpCommand, "");
-	else if ( IsEqualGUID(guid, CLSID_CLzhHandler) )
-		strcpy (lpCommand, "");
-	else if ( IsEqualGUID(guid, CLSID_CDebHandler) )
 		strcpy (lpCommand, "");
 	else if ( IsEqualGUID(guid, CLSID_CIsoHandler) )
 		strcpy (lpCommand, "");
@@ -132,16 +137,35 @@ int FindFormats (const char *lpFileName, Collection <FormatPosition*> &formats)
 			{
 				const FormatInfo *info = &signs[j];
 
-				for (int i = 0; i < dwRead-info->size; i++)
+				if ( info->pDetectArchive)
 				{
-					if ( !memcmp (&buffer[i], info->psig, info->size) )
+					int position = info->pDetectArchive(buffer, dwRead);
+					if ( position != -1 )
 					{
 						FormatPosition *pos = new FormatPosition;
 
 						pos->puid = info->puid;
-						pos->position = i;
+						pos->position = position;
 
 						formats.Add (pos);
+					}
+				}
+				else
+				{
+					for (int i = 0; i < dwRead-info->size; i++)
+					{
+						if ( !memcmp (&buffer[i], info->psig, info->size) )
+						{
+							FormatPosition *pos = new FormatPosition;
+
+							pos->puid = info->puid;
+							pos->position = i;
+
+							formats.Add (pos);
+							break;
+						}
+						if (info->bPosZero)
+							break;
 					}
 				}
 			}

@@ -95,3 +95,87 @@ static const char *pBZIP[]={
 /*Recover archive       */"",
 /*Add files             */"7z a -r0 -tbzip2 {-w%%W} {%%S} -scsDOS -- %%A @%%LQMN",
 };
+
+static const char *pZ[]={
+/*Extract               */"7z x -r0 -y {-w%%W} -scsDOS -- %%A @%%LQMN",
+/*Extract without paths */"7z e -r0 -y {-w%%W} -scsDOS -- %%A @%%LQMN",
+/*Test                  */"7z t -r0 -scsDOS -- %%A @%%LQMN",
+/*Delete                */"",
+/*Comment archive       */"",
+/*Comment files         */"",
+/*Convert to SFX        */"",
+/*Lock archive          */"",
+/*Protect archive       */"",
+/*Recover archive       */"",
+/*Add files             */"",
+};
+
+static const char *pCPIO[]={
+/*Extract               */"7z x {-p%%P} -r0 -y -scsDOS -- %%A @%%LQMN",
+/*Extract without paths */"7z e {-p%%P} -r0 -y -scsDOS -- %%A @%%LQMN",
+/*Test                  */"7z t {-p%%P} -r0 -scsDOS -- %%A @%%LQMN",
+/*Delete                */"",
+/*Comment archive       */"",
+/*Comment files         */"",
+/*Convert to SFX        */"",
+/*Lock archive          */"",
+/*Protect archive       */"",
+/*Recover archive       */"",
+/*Add files             */"",
+};
+
+static const char *pDEB[]={
+/*Extract               */"7z x {-p%%P} -r0 -y -scsDOS -- %%A @%%LQMN",
+/*Extract without paths */"7z e {-p%%P} -r0 -y -scsDOS -- %%A @%%LQMN",
+/*Test                  */"7z t {-p%%P} -r0 -scsDOS -- %%A @%%LQMN",
+/*Delete                */"",
+/*Comment archive       */"",
+/*Comment files         */"",
+/*Convert to SFX        */"",
+/*Lock archive          */"",
+/*Protect archive       */"",
+/*Recover archive       */"",
+/*Add files             */"",
+};
+
+static const char *pRPM[]={
+/*Extract               */"7z x {-p%%P} -r0 -y -scsDOS -- %%A @%%LQMN",
+/*Extract without paths */"7z e {-p%%P} -r0 -y -scsDOS -- %%A @%%LQMN",
+/*Test                  */"7z t {-p%%P} -r0 -scsDOS -- %%A @%%LQMN",
+/*Delete                */"",
+/*Comment archive       */"",
+/*Comment files         */"",
+/*Convert to SFX        */"",
+/*Lock archive          */"",
+/*Protect archive       */"",
+/*Recover archive       */"",
+/*Add files             */"",
+};
+
+static const char *pCAB[]={
+/*Extract               */"MsCab -i0 -FAR {-ap%%R} {-p%%P} {%%S} x %%A @%%LMA",
+/*Extract without paths */"MsCab -i0 -FAR {-p%%P} {%%S} e %%A @%%LMA",
+/*Test                  */"MsCab -i0 {-p%%P} {%%S} t %%A",
+/*Delete                */"MsCab -i0 -FAR {-p%%P} {%%S} d %%A @%%LMA",
+/*Comment archive       */"",
+/*Comment files         */"",
+/*Convert to SFX        */"MsCab {%%S} s %%A",
+/*Lock archive          */"",
+/*Protect archive       */"",
+/*Recover archive       */"",
+/*Add files             */"MsCab -i0 -dirs {-ap%%R} {-p%%P} {%%S} a %%A @%%LNMA",
+};
+
+static const char *pLZH[]={
+/*Extract               */"lha x -a -c -d -m {-w%%W} %%a @%%lM",
+/*Extract without paths */"lha e -a -c -m {-w%%W} %%a @%%lM",
+/*Test                  */"lha t -r2 -a -m {-w%%W} %%a",
+/*Delete                */"lha d -r2 -a -m {-w%%W} %%a @%%lM",
+/*Comment archive       */"",
+/*Comment files         */"",
+/*Convert to SFX        */"lha s -x1 -a -m {-w%%W} %%a",
+/*Lock archive          */"",
+/*Protect archive       */"",
+/*Recover archive       */"",
+/*Add files             */"lha a -a -m {-w%%W} %%a @%%lM",
+};
