@@ -212,6 +212,7 @@ int WcxArchive::ConvertResult (int nResult)
 
 bool __stdcall WcxArchive::pOpenArchive ()
 {
+/*
 	tOpenArchiveData OpenArchiveData = {0};
 
 	OpenArchiveData.ArcName = m_lpFileName;
@@ -220,38 +221,62 @@ bool __stdcall WcxArchive::pOpenArchive ()
 	m_hArchive = m_pModule->m_pfnOpenArchive (&OpenArchiveData);
 
 	return m_hArchive!=NULL;
+*/
+	return true;
 }
 
 void __stdcall WcxArchive::pCloseArchive ()
 {
-	m_pModule->m_pfnCloseArchive (m_hArchive);
+	if (m_hArchive)
+	{
+		m_pModule->m_pfnCloseArchive (m_hArchive);
+		m_hArchive = NULL;
+	}
 }
 
 int __stdcall WcxArchive::pGetArchiveItem (ArchiveItemInfo *pItem)
 {
-	tHeaderData HeaderData;
-	memset (&HeaderData, 0, sizeof (HeaderData));
-	//strcpy (HeaderData.ArcName, m_lpFileName);
-
-	int nResult = m_pModule->m_pfnReadHeader (m_hArchive, &HeaderData);
-
-	if ( !nResult )
+	if (!m_hArchive)
 	{
-		m_pModule->m_pfnProcessFile (m_hArchive, PK_SKIP, NULL, HeaderData.FileName);
+		tOpenArchiveData OpenArchiveData = {0};
 
-	    CharToOem(HeaderData.FileName,pItem->pi.FindData.cFileName);
-	    pItem->pi.FindData.dwFileAttributes = HeaderData.FileAttr;
-	    pItem->pi.FindData.nFileSizeLow = HeaderData.UnpSize;
+		OpenArchiveData.ArcName = m_lpFileName;
+		OpenArchiveData.OpenMode = PK_OM_LIST;
 
-		FILETIME filetime;
-		DosDateTimeToFileTime ((WORD)((DWORD)HeaderData.FileTime >> 16), (WORD)HeaderData.FileTime, &filetime);
-		LocalFileTimeToFileTime (&filetime, &pItem->pi.FindData.ftLastWriteTime);
-	    pItem->pi.FindData.ftCreationTime = pItem->pi.FindData.ftLastAccessTime = pItem->pi.FindData.ftLastWriteTime;
+		m_hArchive = m_pModule->m_pfnOpenArchive (&OpenArchiveData);
+	}
 
-	    pItem->pi.PackSize = HeaderData.PackSize;
-	    pItem->pi.CRC32 = HeaderData.FileCRC;
+	int nResult = 0;
 
-		return E_SUCCESS;
+	if (m_hArchive)
+	{
+		tHeaderData HeaderData;
+		memset (&HeaderData, 0, sizeof (HeaderData));
+		//strcpy (HeaderData.ArcName, m_lpFileName);
+
+		nResult = m_pModule->m_pfnReadHeader (m_hArchive, &HeaderData);
+
+		if ( !nResult )
+		{
+			m_pModule->m_pfnProcessFile (m_hArchive, PK_SKIP, NULL, HeaderData.FileName);
+
+			CharToOem(HeaderData.FileName,pItem->pi.FindData.cFileName);
+			pItem->pi.FindData.dwFileAttributes = HeaderData.FileAttr;
+			pItem->pi.FindData.nFileSizeLow = HeaderData.UnpSize;
+
+			FILETIME filetime;
+			DosDateTimeToFileTime ((WORD)((DWORD)HeaderData.FileTime >> 16), (WORD)HeaderData.FileTime, &filetime);
+			LocalFileTimeToFileTime (&filetime, &pItem->pi.FindData.ftLastWriteTime);
+			pItem->pi.FindData.ftCreationTime = pItem->pi.FindData.ftLastAccessTime = pItem->pi.FindData.ftLastWriteTime;
+
+			pItem->pi.PackSize = HeaderData.PackSize;
+			pItem->pi.CRC32 = HeaderData.FileCRC;
+
+			return E_SUCCESS;
+		}
+
+		m_pModule->m_pfnCloseArchive (m_hArchive);
+		m_hArchive = NULL;
 	}
 
 	return ConvertResult (nResult);
@@ -260,4 +285,105 @@ int __stdcall WcxArchive::pGetArchiveItem (ArchiveItemInfo *pItem)
 int __stdcall WcxArchive::pGetArchiveType ()
 {
 	return (m_nModuleNum);
+}
+
+int __stdcall ProcessDataProc(char *FileName, int Size)
+{
+	return 1;
+}
+
+bool __stdcall WcxArchive::pExtract (
+		PluginPanelItem *pItems,
+		int nItemsNumber,
+		const char *lpDestPath,
+		const char *lpCurrentFolder
+		)
+{
+	int nProcessed = 0;
+	int nResult = 0;
+
+	bool bFound;
+
+	char *lpDestName = StrCreate (260);
+	char *lpTemp = StrCreate (260);
+
+	if (!m_hArchive)
+	{
+		tOpenArchiveData OpenArchiveData = {0};
+
+		OpenArchiveData.ArcName = m_lpFileName;
+		OpenArchiveData.OpenMode = PK_OM_EXTRACT;
+
+		m_hArchive = m_pModule->m_pfnOpenArchive (&OpenArchiveData);
+
+		if (m_hArchive && m_pModule->m_pfnSetProcessDataProc)
+			m_pModule->m_pfnSetProcessDataProc(m_hArchive, ProcessDataProc);
+	}
+
+	while ( m_hArchive && nResult == 0 )
+	{
+		tHeaderData HeaderData;
+		memset (&HeaderData, 0, sizeof (HeaderData));
+
+		nResult = m_pModule->m_pfnReadHeader (m_hArchive, &HeaderData);
+
+		if ( nResult == 0 )
+		{
+			CharToOem (HeaderData.FileName, lpTemp);
+
+			bFound = false;
+
+			for (int i = 0; i < nItemsNumber; i++)
+			{
+				if ( !strcmp (pItems[i].FindData.cFileName, lpTemp) )
+				{
+					OemToChar (lpDestPath, lpDestName);
+
+					FSF.AddEndSlash (lpDestName);
+
+					char *lpName = HeaderData.FileName;
+
+					if ( *lpCurrentFolder /*&& !strncmp (
+							lpName,
+							lpCurrentFolder,
+							strlen (lpCurrentFolder)
+							)*/ )
+						lpName += strlen (lpCurrentFolder);
+
+					if ( *lpName == '\\' )
+						lpName++;
+
+					strcat (lpDestName, lpName);
+
+					if ( !m_pModule->m_pfnProcessFile (m_hArchive, PK_EXTRACT, NULL, lpDestName) )
+						nProcessed++;
+
+					if ( /*m_bAborted ||*/ (nProcessed == nItemsNumber) )
+						goto l_1;
+
+					bFound = true;
+
+					break;
+				}
+			}
+
+			if ( !bFound )
+				m_pModule->m_pfnProcessFile (m_hArchive, PK_SKIP, NULL, HeaderData.FileName);
+		}
+	}
+
+l_1:
+
+	if (m_hArchive)
+	{
+		m_pModule->m_pfnCloseArchive (m_hArchive);
+		m_hArchive = NULL;
+	}
+
+	//m_bAborted = false;
+
+	StrFree (lpDestName);
+	StrFree (lpTemp);
+
+	return nProcessed!=0;
 }

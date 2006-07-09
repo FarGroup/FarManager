@@ -93,8 +93,7 @@ int OnGetArchiveFormat (GetArchiveFormatStruct *pGAF)
 
 int OnExtract (ExtractStruct *pES)
 {
-/*
-	SevenZipArchive *pArchive = (SevenZipArchive *)pES->hArchive;
+	WcxArchive *pArchive = (WcxArchive *)pES->hArchive;
 
 	pES->bResult = pArchive->pExtract (
 			pES->pItems,
@@ -102,7 +101,7 @@ int OnExtract (ExtractStruct *pES)
 			pES->lpDestPath,
 			pES->lpCurrentPath
 			);
-*/
+
 	return NAERROR_SUCCESS;
 }
 
@@ -110,7 +109,7 @@ int OnExtract (ExtractStruct *pES)
 int OnTest (TestStruct *pTS)
 {
 /*
-	SevenZipArchive *pArchive = (SevenZipArchive *)pTS->hArchive;
+	WcxArchive *pArchive = (WcxArchive *)pTS->hArchive;
 
 	pTS->bResult = pArchive->pTest (
 			pTS->pItems,

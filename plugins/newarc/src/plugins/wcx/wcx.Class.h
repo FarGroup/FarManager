@@ -22,9 +22,9 @@ typedef void   (__stdcall *PLUGINPACKSETDEFAULTPARAMS)( PackDefaultParamStruct* 
 
 class WcxModule {
 
-public:
-
 	HMODULE m_hModule;
+
+public:
 
 	PLUGINOPENARCHIVE m_pfnOpenArchive;
 	PLUGINCLOSEARCHIVE m_pfnCloseArchive;
@@ -38,8 +38,6 @@ public:
 	PLUGINGETPACKERCAPS m_pfnGetPackerCaps;
 	PLUGINCANYOUHANDLETHISFILE m_pfnCanYouHandleThisFile;
 	PLUGINPACKSETDEFAULTPARAMS m_pfnPackSetDefaultParams;
-
-public:
 
 	WcxModule (const char *lpFileName);
 	bool LoadedOK();
@@ -74,8 +72,6 @@ public:
 
 class WcxArchive {
 
-public:
-
 	WcxModule* m_pModule;
 
 	int m_nModuleNum;
@@ -93,6 +89,9 @@ public:
 
 	virtual bool __stdcall pOpenArchive ();
 	virtual void __stdcall pCloseArchive ();
+
+	virtual bool __stdcall pExtract (PluginPanelItem *pItems, int nItemsNumber, const char *lpDestPath, const char *lpCurrentFolder);
+	//virtual bool __stdcall pTest (PluginPanelItem *pItems, int nItemsNumber);
 
 	virtual int __stdcall pGetArchiveItem (ArchiveItemInfo *pItem);
 
