@@ -47,8 +47,8 @@ const FormatInfo signs[] = {
 	{&CLSID_CCabHandler, (const unsigned char *)&CabSig, 4},
 	{&CLSID_CBZip2Handler, (const unsigned char *)&BZipSig, 3},
 	{&CLSID_CArjHandler, (const unsigned char *)&ArjSig, 2},
-//	{&CLSID_CGZipHandler, (const unsigned char *)&GZipSig, 2},
-//	{&CLSID_CZHandler, (const unsigned char *)&ZSig, 2},
+	{&CLSID_CGZipHandler, (const unsigned char *)&GZipSig, 2},
+	{&CLSID_CZHandler, (const unsigned char *)&ZSig, 2},
 	};
 
 bool GetFormatCommand(const GUID guid, int nCommand, char *lpCommand)
@@ -222,11 +222,11 @@ bool SevenZipModule::HasSignature ()
     if ( IsEqualGUID (m_uid, CLSID_CArjHandler) )
     	return true;
 
-    /*if ( IsEqualGUID (m_uid, CLSID_CGZipHandler) )
+    if ( IsEqualGUID (m_uid, CLSID_CGZipHandler) )
     	return true;
 
     if ( IsEqualGUID (m_uid, CLSID_CZHandler) )
-    	return true;*/
+    	return true;
 
 	return false;
 }
@@ -272,13 +272,13 @@ void SevenZipModule::GetArchiveFormatInfo (ArchiveFormatInfo *pInfo)
 	if ( IsEqualGUID (m_uid, CLSID_CCpioHandler) )
 	{
 		pInfo->lpName = "Cpio archive [7z]";
-		pInfo->lpDefaultExtention = "???";
+		pInfo->lpDefaultExtention = "cpio";
 	}
 	else
 	if ( IsEqualGUID (m_uid, CLSID_CDebHandler) )
 	{
 		pInfo->lpName = "Debian archive [7z]";
-		pInfo->lpDefaultExtention = "???";
+		pInfo->lpDefaultExtention = "deb";
 	}
 	else
 	if ( IsEqualGUID (m_uid, CLSID_CGZipHandler) )
@@ -308,7 +308,7 @@ void SevenZipModule::GetArchiveFormatInfo (ArchiveFormatInfo *pInfo)
 	if ( IsEqualGUID (m_uid, CLSID_CRarHandler) )
 	{
 		pInfo->lpName = "RAR archive [7z]";
-		pInfo->lpDefaultExtention = "RAR";
+		pInfo->lpDefaultExtention = "rar";
 	}
 	else
 	if ( IsEqualGUID (m_uid, CLSID_CRpmHandler) )
@@ -320,7 +320,7 @@ void SevenZipModule::GetArchiveFormatInfo (ArchiveFormatInfo *pInfo)
 	if ( IsEqualGUID (m_uid, CLSID_CSplitHandler) )
 	{
 		pInfo->lpName = "Split archive [7z]";
-		pInfo->lpDefaultExtention = "???";
+		pInfo->lpDefaultExtention = "001";
 	}
 	else
 	if ( IsEqualGUID (m_uid, CLSID_CTarHandler) )
