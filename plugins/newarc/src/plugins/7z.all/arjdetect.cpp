@@ -1,6 +1,14 @@
 #include "7z.h"
 #include <limits.h>
 
+#if defined(__BORLANDC__)
+  #pragma option -a1
+#elif defined(__GNUC__) || (defined(__WATCOMC__) && (__WATCOMC__ < 1100)) || defined(__LCC__)
+  #pragma pack(1)
+#else
+  #pragma pack(push,1)
+#endif
+
 #ifndef FNAME_MAX
 #define FNAME_MAX           512
 #endif

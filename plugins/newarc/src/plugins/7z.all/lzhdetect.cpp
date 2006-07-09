@@ -1,5 +1,13 @@
 #include "7z.h"
 
+#if defined(__BORLANDC__)
+  #pragma option -a1
+#elif defined(__GNUC__) || (defined(__WATCOMC__) && (__WATCOMC__ < 1100)) || defined(__LCC__)
+  #pragma pack(1)
+#else
+  #pragma pack(push,1)
+#endif
+
 struct LZH_Level0 {
 /* 00 */ BYTE  HeadSize;      // Header Size in Bytes
 /* 01 */ BYTE  CheckSum;      // Header Checksum
