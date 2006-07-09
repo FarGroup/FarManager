@@ -1568,6 +1568,9 @@ int __stdcall ArchivePanel::pGetFiles (
 	bool bResult = TRUE;
 
 	char *lpResultDestPath = StrDuplicate (DestPath, 260);
+	char *lpCurrentDirectory = StrCreate (MAX_PATH);
+
+	GetCurrentDirectory (MAX_PATH, lpCurrentDirectory);
 
 	if ( ((OpMode & OPM_SILENT) == OPM_SILENT) || dlgGetArchiveFiles(DestPath, Move, lpResultDestPath) )
 	{
@@ -1631,7 +1634,10 @@ int __stdcall ArchivePanel::pGetFiles (
 		free (pItemsToProcess);
 	}
 
+	SetCurrentDirectory (lpCurrentDirectory);
+
 	StrFree (lpResultDestPath);
+	StrFree (lpCurrentDirectory);
 
 	return TRUE;
 }
