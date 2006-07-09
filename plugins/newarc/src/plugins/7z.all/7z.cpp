@@ -93,6 +93,27 @@ int __cdecl SortFormats (
 
 int OnQueryArchive (QueryArchiveStruct *pQAS)
 {
+   	for (int i = 0; i < Formats.GetCount (); i++)
+   	{
+   		SevenZipModule *pModule = Formats[i];
+
+   		if ( pModule && !pModule->HasSignature() )
+   		{
+   			SevenZipArchive *pArchive = new SevenZipArchive (pModule, pQAS->lpFileName);
+
+   			if ( pArchive->pOpenArchive (0, NULL) )
+   			{
+   				pArchive->pCloseArchive ();
+   				pQAS->hResult = (HANDLE)pArchive;
+
+   				return NAERROR_SUCCESS;
+   			}
+
+   			delete pArchive;
+   		}
+   	}
+
+
 	Collection <FormatPosition*> formats;
 
 	formats.Create (5);
@@ -109,11 +130,11 @@ int OnQueryArchive (QueryArchiveStruct *pQAS)
 		{
 			SevenZipModule *pModule = Formats[i];
 
-			if ( pModule && IsEqualGUID (pModule->m_uid, *pos->puid) )
+			if ( pModule && pModule->HasSignature() && IsEqualGUID (pModule->m_uid, *pos->puid) )
 			{
 				SevenZipArchive *pArchive = new SevenZipArchive (pModule, pQAS->lpFileName);
 
-				if ( pArchive->pOpenArchive (0, NULL, true) )
+				if ( pArchive->pOpenArchive (0, NULL) )
 				{
 					pArchive->pCloseArchive ();
 
@@ -130,30 +151,6 @@ int OnQueryArchive (QueryArchiveStruct *pQAS)
 
 	formats.Free ();
 
-	for (int j = 0; j < 2; j++)
-	{
-		for (int i = 0; i < Formats.GetCount (); i++)
-		{
-			SevenZipModule *pModule = Formats[i];
-
-			if ( pModule && !pModule->HasSignature () )
-			{
-				SevenZipArchive *pArchive = new SevenZipArchive (pModule, pQAS->lpFileName);
-
-				if ( pArchive->pOpenArchive (0, NULL, j > 0) )
-				{
-					pArchive->pCloseArchive ();
-
-					pQAS->hResult = (HANDLE)pArchive;
-
-					return NAERROR_SUCCESS;
-				}
-
-				delete pArchive;
-			}
-		}
-	}
-
 	return NAERROR_INTERNAL;
 }
 
@@ -161,7 +158,7 @@ int OnOpenArchive (OpenArchiveStruct *pOAS)
 {
 	SevenZipArchive *pArchive = (SevenZipArchive*)pOAS->hArchive;
 
-	pOAS->bResult = pArchive->pOpenArchive (pOAS->nMode, pOAS->pfnCallback, true);
+	pOAS->bResult = pArchive->pOpenArchive (pOAS->nMode, pOAS->pfnCallback);
 
 	return NAERROR_SUCCESS;
 }

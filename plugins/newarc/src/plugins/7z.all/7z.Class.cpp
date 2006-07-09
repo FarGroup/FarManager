@@ -246,10 +246,16 @@ bool SevenZipModule::HasSignature ()
     if ( IsEqualGUID (m_uid, CLSID_CArjHandler) )
     	return true;
 
+    if ( IsEqualGUID (m_uid, CLSID_CTarHandler) )
+    	return true;
+
     if ( IsEqualGUID (m_uid, CLSID_CGZipHandler) )
     	return true;
 
     if ( IsEqualGUID (m_uid, CLSID_CZHandler) )
+    	return true;
+
+    if ( IsEqualGUID (m_uid, CLSID_CLzhHandler) )
     	return true;
 
 	return false;
@@ -388,8 +394,7 @@ SevenZipArchive::~SevenZipArchive ()
 
 bool __stdcall SevenZipArchive::pOpenArchive (
 		int nOpMode,
-		ARCHIVECALLBACK pfnCallback,
-		bool bAllowModifier
+		ARCHIVECALLBACK pfnCallback
 		)
 {
 	m_pfnCallback = pfnCallback;
@@ -416,25 +421,7 @@ bool __stdcall SevenZipArchive::pOpenArchive (
   			{
   				m_pArchive->GetNumberOfItems((unsigned int*)&m_nItemsNumber);
 
-  				bool bSkip = false;
-
-  				if ( (m_nItemsNumber == 1) && !bAllowModifier )
-  				{
-					PROPVARIANT value;
-
-					VariantInit ((VARIANTARG*)&value);
-
-					if ( !SUCCEEDED (m_pArchive->GetProperty (
-							0,
-							kpidPath,
-							&value
-							)) || (value.vt != VT_BSTR) )
-						bSkip = true;
-
-					VariantClear ((VARIANTARG*)&value);
-  				}
-
-  				if ( m_nItemsNumber && !bSkip )
+  				if ( m_nItemsNumber )
   				{
   					m_nItemsNumber--;
 

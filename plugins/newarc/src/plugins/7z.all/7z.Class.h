@@ -56,7 +56,7 @@ public:
 	SevenZipArchive (SevenZipModule *pModule, const char *lpFileName);
 	virtual ~SevenZipArchive ();
 
-	virtual bool __stdcall pOpenArchive (int nOpMode, ARCHIVECALLBACK pfnCallback, bool bAllowModifier);
+	virtual bool __stdcall pOpenArchive (int nOpMode, ARCHIVECALLBACK pfnCallback);
 	virtual void __stdcall pCloseArchive ();
 
 	virtual int __stdcall pGetArchiveItem (ArchiveItemInfo *pItem);
