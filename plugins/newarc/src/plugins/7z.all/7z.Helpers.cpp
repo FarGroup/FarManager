@@ -89,7 +89,17 @@ ULONG __stdcall CInFile::Release ()
 
 HRESULT __stdcall CInFile::Read (void *data, unsigned int size, unsigned int *processedSize)
 {
-	return ReadFile (m_hFile, data, size, (LPDWORD)processedSize, NULL)?S_OK:E_FAIL;
+	DWORD dwRead;
+
+	if ( ReadFile (m_hFile, data, size, &dwRead, NULL) )
+	{
+		if ( processedSize )
+			*processedSize = dwRead;
+
+		return S_OK;
+	}
+
+	return E_FAIL;
 }
 
 HRESULT __stdcall CInFile::Seek (__int64 offset, unsigned int seekOrigin, unsigned __int64 *newPosition)
@@ -489,7 +499,17 @@ ULONG __stdcall COutFile::Release ()
 
 HRESULT __stdcall COutFile::Write (const void *data, unsigned int size, unsigned int *processedSize)
 {
-	return WriteFile (m_hFile, data, size, (LPDWORD)processedSize, NULL)?S_OK:E_FAIL;
+	DWORD dwWritten;
+
+	if ( WriteFile (m_hFile, data, size, &dwWritten, NULL) )
+	{
+		if ( processedSize )
+			*processedSize = dwWritten;
+
+		return S_OK;
+	}
+
+	return E_FAIL;
 }
 
 
