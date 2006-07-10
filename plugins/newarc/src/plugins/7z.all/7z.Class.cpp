@@ -25,14 +25,19 @@ const GUID FormatGUIDs[] = {
 };
 
 const unsigned char SevenZipSig[] = {'7' , 'z', 0xBC, 0xAF, 0x27, 0x1C};
-const unsigned char ZipSig[] = {0x50, 0x4B, 0x03, 0x04};
-const unsigned char BZipSig[] = {'B' , 'Z', 'h'};
-const unsigned char GZipSig[] = {0x1F, 0x8B};
-const unsigned char ArjSig[] = {0x60, 0xEA};
-const unsigned char ZSig[] = {0x1F, 0x9D};
-const unsigned char RarSig[] = {'R', 'a', 'r', '!'};
-const unsigned char CabSig[] = {'M', 'S', 'C', 'F'};
-const unsigned char RpmSig[] = {0xED, 0xAB, 0xEE, 0xDB};
+const unsigned char ZipSig[]      = {0x50, 0x4B, 0x03, 0x04};
+const unsigned char BZipSig[]     = {'B' , 'Z', 'h'};
+const unsigned char GZipSig[]     = {0x1F, 0x8B};
+const unsigned char ArjSig[]      = {0x60, 0xEA};
+const unsigned char ZSig[]        = {0x1F, 0x9D};
+const unsigned char RarSig[]      = {'R', 'a', 'r', '!'};
+const unsigned char CabSig[]      = {'M', 'S', 'C', 'F'};
+const unsigned char RpmSig[]      = {0xED, 0xAB, 0xEE, 0xDB};
+const unsigned char DebSig[]      = {'!', '<', 'a', 'r', 'c', 'h', '>', 0x0A, 'd', 'e', 'b', 'i', 'a', 'n', '-', 'b', 'i', 'n', 'a', 'r', 'y'};
+const unsigned char CpioSig[]     = {'0', '7', '0', '7', '0'}; //BUG BUG: вроде не совсем точно
+const unsigned char ChmSig[]      = {'I', 'T', 'S', 'F'};
+const unsigned char NsisSig[]     = {0xEF, 0xBE, 0xAD, 0xDE, 0x4E, 0x75, 0x6C, 0x6C, 0x73, 0x6F, 0x66, 0x74, 0x49, 0x6E, 0x73, 0x74};
+const unsigned char IsoSig[]      = {'C', 'D', '0', '0', '1', 0x1};
 
 struct FormatInfo {
 	const GUID *puid;
@@ -47,13 +52,18 @@ const FormatInfo signs[] = {
 	{&CLSID_CRarHandler,   (const unsigned char *)&RarSig,      4, false, IsRarHeader},
 	{&CLSID_CZipHandler,   (const unsigned char *)&ZipSig,      4, false, IsZipHeader},
 	{&CLSID_CRpmHandler,   (const unsigned char *)&RpmSig,      4, true,  NULL},
+	{&CLSID_CDebHandler,   (const unsigned char *)&DebSig,     21, true,  NULL},
 	{&CLSID_CCabHandler,   (const unsigned char *)&CabSig,      4, false, IsCabHeader},
 	{&CLSID_CBZip2Handler, (const unsigned char *)&BZipSig,     3, true,  NULL},
 	{&CLSID_CArjHandler,   (const unsigned char *)&ArjSig,      2, false, IsArjHeader},
-	{&CLSID_CTarHandler,   NULL,                                0, false, IsTarHeader},
+	{&CLSID_CTarHandler,   NULL,                                0, true,  IsTarHeader},
 	{&CLSID_CGZipHandler,  (const unsigned char *)&GZipSig,     2, true,  NULL},
 	{&CLSID_CZHandler,     (const unsigned char *)&ZSig,        2, true,  NULL},
 	{&CLSID_CLzhHandler,   NULL,                                0, false, IsLzhHeader},
+	{&CLSID_CCpioHandler,  (const unsigned char *)&CpioSig,     5, true,  NULL},
+	{&CLSID_CChmHandler,   (const unsigned char *)&ChmSig,      4, true,  NULL},
+	{&CLSID_CNsisHandler,  (const unsigned char *)&NsisSig,    16, false, NULL},
+	{&CLSID_CIsoHandler,   (const unsigned char *)&IsoSig,      6, false, NULL},
 };
 
 bool GetFormatCommand(const GUID guid, int nCommand, char *lpCommand)
@@ -133,7 +143,7 @@ int FindFormats (const char *lpFileName, Collection <FormatPosition*> &formats)
 
 		if ( ReadFile (hFile, buffer, 1 << 17, &dwRead, NULL) )
 		{
-			for (int j = 0; j < sizeof (signs)/sizeof(signs[0]); j++)
+			for (int j = 0; j < sizeof(signs)/sizeof(signs[0]); j++)
 			{
 				const FormatInfo *info = &signs[j];
 
@@ -225,38 +235,12 @@ SevenZipModule::~SevenZipModule ()
 
 bool SevenZipModule::HasSignature ()
 {
-    if ( IsEqualGUID (m_uid, CLSID_CFormat7z) )
-    	return true;
 
-    if ( IsEqualGUID (m_uid, CLSID_CRarHandler) )
-    	return true;
-
-    if ( IsEqualGUID (m_uid, CLSID_CZipHandler) )
-    	return true;
-
-    if ( IsEqualGUID (m_uid, CLSID_CRpmHandler) )
-    	return true;
-
-    if ( IsEqualGUID (m_uid, CLSID_CCabHandler) )
-    	return true;
-
-    if ( IsEqualGUID (m_uid, CLSID_CBZip2Handler) )
-    	return true;
-
-    if ( IsEqualGUID (m_uid, CLSID_CArjHandler) )
-    	return true;
-
-    if ( IsEqualGUID (m_uid, CLSID_CTarHandler) )
-    	return true;
-
-    if ( IsEqualGUID (m_uid, CLSID_CGZipHandler) )
-    	return true;
-
-    if ( IsEqualGUID (m_uid, CLSID_CZHandler) )
-    	return true;
-
-    if ( IsEqualGUID (m_uid, CLSID_CLzhHandler) )
-    	return true;
+	for (int i = 0; i < sizeof(signs)/sizeof(signs[0]); i++)
+	{
+    	if ( IsEqualGUID (m_uid, *(signs[i].puid)) )
+    		return true;
+	}
 
 	return false;
 }
