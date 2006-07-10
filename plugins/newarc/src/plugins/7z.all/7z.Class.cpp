@@ -180,15 +180,33 @@ int FindFormats (const char *lpFileName, Collection <FormatPosition*> &formats)
 				}
 			}
 
-			const char *p = strstr(lpFileName,".001");
-			if ( p && !*(p+4))
+			if ( strstr(lpFileName, ".") && strlen(lpFileName) > 2 )
 			{
-				FormatPosition *pos = new FormatPosition;
+				bool bMatch = false;
+				int len = strlen(lpFileName);
 
-				pos->puid = &CLSID_CSplitHandler;
-				pos->position = 0;
+				if ( lpFileName[len-2] == '0' && lpFileName[len-1] == '1' )
+				{
+					int i=len-3;
+					for (; i>0; i--)
+						if ( lpFileName[i] != '0' )
+							break;
+					if ( lpFileName[i] == '.' )
+						bMatch = true;
+				}
+				else if ( (lpFileName[len-1] == 'A' || lpFileName[len-1] == 'a') &&
+						  (lpFileName[len-2] == 'A' || lpFileName[len-2] == 'a') )
+					bMatch = true;
 
-				formats.Add (pos);
+				if ( bMatch )
+				{
+					FormatPosition *pos = new FormatPosition;
+
+					pos->puid = &CLSID_CSplitHandler;
+					pos->position = 0;
+
+					formats.Add (pos);
+				}
 			}
 		}
 
