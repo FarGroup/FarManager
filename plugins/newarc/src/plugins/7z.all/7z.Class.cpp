@@ -152,9 +152,9 @@ int FindFormats (const char *lpFileName, Collection <FormatPosition*> &formats)
 				{
 					if ( dwRead >= info->size )
 					{
-						for (int i = 0; i < dwRead-info->size; i++)
+						for (int i = 0; i <= dwRead-info->size; i++)
 						{
-							if ( !memcmp (&buffer[i], info->psig, info->size) )
+							if ( !memcmp (buffer+i, info->psig, info->size) )
 							{
 								FormatPosition *pos = new FormatPosition;
 

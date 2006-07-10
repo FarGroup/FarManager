@@ -624,7 +624,7 @@ HRESULT __stdcall CArchiveOpenVolumeCallback::GetProperty (PROPID propID, PROPVA
 		MultiByteToWideChar (CP_OEMCP, 0, FSF.PointToName (m_pArchive->m_lpFileName), -1, wszNameOnly, MAX_PATH);
 
 		value->vt = VT_BSTR;
-		value->bstrVal = SysAllocString(wszNameOnly); 
+		value->bstrVal = SysAllocString(wszNameOnly);
 	}
 
 	if ( propID == kpidSize )
