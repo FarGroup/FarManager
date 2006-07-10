@@ -179,6 +179,17 @@ int FindFormats (const char *lpFileName, Collection <FormatPosition*> &formats)
 					}
 				}
 			}
+
+			const char *p = strstr(lpFileName,".001");
+			if ( p && !*(p+4))
+			{
+				FormatPosition *pos = new FormatPosition;
+
+				pos->puid = &CLSID_CSplitHandler;
+				pos->position = 0;
+
+				formats.Add (pos);
+			}
 		}
 
 		free (buffer);
@@ -235,6 +246,8 @@ SevenZipModule::~SevenZipModule ()
 
 bool SevenZipModule::HasSignature ()
 {
+	if ( IsEqualGUID (m_uid, CLSID_CSplitHandler) )
+		return true;
 
 	for (int i = 0; i < sizeof(signs)/sizeof(signs[0]); i++)
 	{
