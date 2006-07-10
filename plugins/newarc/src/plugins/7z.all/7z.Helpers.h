@@ -7,15 +7,17 @@ private:
 
 	HANDLE m_hFile;
 	int m_nRefCount;
+	char *m_lpFileName; 
 
 public:
 
-	CInFile ();
+	CInFile (const char *lpFileName);
 	~CInFile ();
 
-	bool Open (const char *lpFileName);
+	bool Open ();
 
 	unsigned __int64 GetSize ();
+	const char *GetName ();
 
 	virtual HRESULT __stdcall QueryInterface (REFIID iid, void ** ppvObject);
 	virtual ULONG __stdcall AddRef ();
@@ -38,7 +40,7 @@ private:
 	int m_nRefCount;
 	SevenZipArchive *m_pArchive;
 
-	CInFile *m_pCurrentFile;
+	CInFile *m_pVolumeFile;
 
 public:
 

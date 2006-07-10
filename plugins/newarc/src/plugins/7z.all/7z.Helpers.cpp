@@ -1,10 +1,10 @@
 #include "7z.h"
 #include <objbase.h>
 
-bool CInFile::Open (const char *lpFileName)
+bool CInFile::Open ()
 {
 	HANDLE hFile = CreateFile (
-			lpFileName,
+			m_lpFileName,
 			GENERIC_READ,
 			FILE_SHARE_READ,
 			NULL,
@@ -22,16 +22,20 @@ bool CInFile::Open (const char *lpFileName)
 	return false;
 }
 
-CInFile::CInFile ()
+CInFile::CInFile (const char *lpFileName)
 {
 	m_nRefCount = 1;
 	m_hFile = INVALID_HANDLE_VALUE;
+
+	m_lpFileName = StrDuplicate (lpFileName);
 }
 
 CInFile::~CInFile ()
 {
 	if ( m_hFile != INVALID_HANDLE_VALUE )
 		CloseHandle (m_hFile);
+
+	StrFree (m_lpFileName);
 }
 
 unsigned __int64 CInFile::GetSize ()
@@ -42,6 +46,11 @@ unsigned __int64 CInFile::GetSize ()
 
 	return ((unsigned __int64)dwHiPart)*0x100000000ull+(unsigned __int64)dwLoPart;
 
+}
+
+const char *CInFile::GetName ()
+{
+	return m_lpFileName;
 }
 
 
@@ -573,7 +582,7 @@ CArchiveOpenVolumeCallback::CArchiveOpenVolumeCallback(SevenZipArchive *pArchive
 {
 	m_nRefCount = 1;
 	m_pArchive = pArchive;
-	m_pCurrentFile = NULL;
+	m_pVolumeFile = NULL;
 }
 
 CArchiveOpenVolumeCallback::~CArchiveOpenVolumeCallback ()
@@ -621,7 +630,11 @@ HRESULT __stdcall CArchiveOpenVolumeCallback::GetProperty (PROPID propID, PROPVA
 		wchar_t wszNameOnly[MAX_PATH];
 
 		//m_pCurrentFile!!! check here!!!
-		MultiByteToWideChar (CP_OEMCP, 0, FSF.PointToName (m_pArchive->m_lpFileName), -1, wszNameOnly, MAX_PATH);
+		if ( m_pVolumeFile )
+			MultiByteToWideChar (CP_OEMCP, 0, FSF.PointToName (m_pVolumeFile->GetName()), -1, wszNameOnly, MAX_PATH);
+		else
+			MultiByteToWideChar (CP_OEMCP, 0, FSF.PointToName (m_pArchive->m_pInFile->GetName()), -1, wszNameOnly, MAX_PATH);
+
 
 		value->vt = VT_BSTR;
 		value->bstrVal = SysAllocString(wszNameOnly);
@@ -631,8 +644,8 @@ HRESULT __stdcall CArchiveOpenVolumeCallback::GetProperty (PROPID propID, PROPVA
 	{
 		value->vt = VT_UI8;
 
-		if ( m_pCurrentFile )
-			value->uhVal.QuadPart = m_pCurrentFile->GetSize ();
+		if ( m_pVolumeFile )
+			value->uhVal.QuadPart = m_pVolumeFile->GetSize ();
 		else
 			value->uhVal.QuadPart = m_pArchive->m_pInFile->GetSize ();
 	}
@@ -651,12 +664,12 @@ HRESULT __stdcall CArchiveOpenVolumeCallback::GetStream (const wchar_t *name, II
 	CutTo (szFullName, '\\', false);
 	strcat (szFullName, szFileName);
 
-	CInFile *file = new CInFile;
+	CInFile *file = new CInFile (szFullName);
 
-	bool bResult = file->Open(szFullName);
+	bool bResult = file->Open();
 
 	*inStream = file;
-	m_pCurrentFile = file;
+	m_pVolumeFile = file;
 
 	return bResult?S_OK:S_FALSE;
 }

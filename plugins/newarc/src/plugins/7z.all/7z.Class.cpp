@@ -405,9 +405,9 @@ bool __stdcall SevenZipArchive::pOpenArchive (
 {
 	m_pfnCallback = pfnCallback;
 
-  	m_pInFile = new CInFile;
+  	m_pInFile = new CInFile (m_lpFileName);
 
-  	if ( m_pInFile->Open (m_lpFileName) )
+  	if ( m_pInFile->Open () )
   	{
 		HRESULT hr = m_pModule->m_pfnCreateObject (
   				&m_pModule->m_uid,
