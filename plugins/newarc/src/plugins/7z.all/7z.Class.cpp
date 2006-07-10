@@ -112,18 +112,6 @@ bool GetFormatCommand(const GUID guid, int nCommand, char *lpCommand)
 
 int FindFormats (const char *lpFileName, Collection <FormatPosition*> &formats)
 {
-
-	/*const FormatInfo *info = NULL;
-
-	for (int i = 0; i < sizeof (signs)/sizeof (signs[0]); i++)
-	{
-		if ( IsEqualGUID (uid, *signs[i].puid) )
-		{
-			info = &signs[i];
-			break;
-		}
-	}*/
-
 	const GUID *pResult = NULL;
 
 	HANDLE hFile = CreateFile (
@@ -162,20 +150,23 @@ int FindFormats (const char *lpFileName, Collection <FormatPosition*> &formats)
 				}
 				else
 				{
-					for (int i = 0; i < dwRead-info->size; i++)
+					if ( dwRead >= info->size )
 					{
-						if ( !memcmp (&buffer[i], info->psig, info->size) )
+						for (int i = 0; i < dwRead-info->size; i++)
 						{
-							FormatPosition *pos = new FormatPosition;
+							if ( !memcmp (&buffer[i], info->psig, info->size) )
+							{
+								FormatPosition *pos = new FormatPosition;
 
-							pos->puid = info->puid;
-							pos->position = i;
+								pos->puid = info->puid;
+								pos->position = i;
 
-							formats.Add (pos);
-							break;
+								formats.Add (pos);
+								break;
+							}
+							if (info->bPosZero)
+								break;
 						}
-						if (info->bPosZero)
-							break;
 					}
 				}
 			}

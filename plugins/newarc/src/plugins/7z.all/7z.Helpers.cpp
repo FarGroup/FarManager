@@ -40,7 +40,7 @@ unsigned __int64 CInFile::GetSize ()
 
 	dwLoPart = GetFileSize (m_hFile, &dwHiPart);
 
-	return ((unsigned __int64)dwHiPart)*0x100000000ul+(unsigned __int64)dwLoPart;
+	return ((unsigned __int64)dwHiPart)*0x100000000ull+(unsigned __int64)dwLoPart;
 
 }
 
@@ -97,7 +97,7 @@ HRESULT __stdcall CInFile::Seek (__int64 offset, unsigned int seekOrigin, unsign
 	else
 	{
 		if ( newPosition )
-			*newPosition = ((unsigned __int64)hi)*0x100000000ul+(unsigned __int64)lo;
+			*newPosition = ((unsigned __int64)hi)*0x100000000ull+(unsigned __int64)lo;
 		return S_OK;
 	}
 }
