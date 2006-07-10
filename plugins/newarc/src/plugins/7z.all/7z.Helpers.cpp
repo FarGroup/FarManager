@@ -227,7 +227,7 @@ HRESULT CArchiveExtractCallback::SetCompleted (const unsigned __int64* completeV
 }
 
 
-void CreateDirectory(char *FullPath) //$ 16.05.2002 AA
+void CreateDirectoryEx (char *FullPath) //$ 16.05.2002 AA
 {
 //	if( !FileExists (FullPath) )
 	{
@@ -256,7 +256,7 @@ void CreateDirs (const char *lpFileName)
 
 	CutToSlash (lpNameCopy);
 
-	CreateDirectory (lpNameCopy);
+	CreateDirectoryEx (lpNameCopy);
 
 	StrFree (lpNameCopy);
 }
@@ -324,13 +324,31 @@ HRESULT __stdcall CArchiveExtractCallback::GetStream (
 			if ( m_nLastProcessed == -1 )
 				m_nLastProcessed = 0;
 
-			CreateDirs (szFullName);
+			PROPVARIANT v;
+			bool bIsFolder = false;
 
-			COutFile *file = new COutFile;
-			file->Open (szFullName);
+			if ( SUCCEEDED(archive->GetProperty (
+					index,
+					kpidIsFolder,
+					&v
+					)) && (v.vt == VT_BOOL) )
+		        bIsFolder = (v.boolVal == VARIANT_TRUE);
 
-			*outStream = file;
-			VariantClear ((VARIANTARG*)&value);
+			if ( bIsFolder )
+			{
+				*outStream = NULL;
+				CreateDirectoryEx (szFullName);
+			}
+			else
+			{
+				CreateDirs (szFullName);
+
+				COutFile *file = new COutFile;
+				file->Open (szFullName);
+
+				*outStream = file;
+				VariantClear ((VARIANTARG*)&value);
+			}
 		}
 	}
 	else
