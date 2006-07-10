@@ -15,6 +15,8 @@ public:
 
 	bool Open (const char *lpFileName);
 
+	unsigned __int64 GetSize ();
+
 	virtual HRESULT __stdcall QueryInterface (REFIID iid, void ** ppvObject);
 	virtual ULONG __stdcall AddRef ();
 	virtual ULONG __stdcall Release ();
@@ -35,6 +37,8 @@ private:
 
 	int m_nRefCount;
 	SevenZipArchive *m_pArchive;
+
+	CInFile *m_pCurrentFile;
 
 public:
 

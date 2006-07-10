@@ -34,6 +34,15 @@ CInFile::~CInFile ()
 		CloseHandle (m_hFile);
 }
 
+unsigned __int64 CInFile::GetSize ()
+{
+	DWORD dwLoPart, dwHiPart;
+
+	dwLoPart = GetFileSize (m_hFile, &dwHiPart);
+
+	return ((unsigned __int64)dwHiPart)*0x100000000ul+(unsigned __int64)dwLoPart;
+
+}
 
 
 HRESULT __stdcall CInFile::QueryInterface (const IID &iid, void ** ppvObject)
@@ -88,7 +97,7 @@ HRESULT __stdcall CInFile::Seek (__int64 offset, unsigned int seekOrigin, unsign
 	else
 	{
 		if ( newPosition )
-			*newPosition = ((unsigned __int64)hi)*0x100000000ll+(unsigned __int64)lo;
+			*newPosition = ((unsigned __int64)hi)*0x100000000ul+(unsigned __int64)lo;
 		return S_OK;
 	}
 }
@@ -564,6 +573,7 @@ CArchiveOpenVolumeCallback::CArchiveOpenVolumeCallback(SevenZipArchive *pArchive
 {
 	m_nRefCount = 1;
 	m_pArchive = pArchive;
+	m_pCurrentFile = NULL;
 }
 
 CArchiveOpenVolumeCallback::~CArchiveOpenVolumeCallback ()
@@ -610,15 +620,21 @@ HRESULT __stdcall CArchiveOpenVolumeCallback::GetProperty (PROPID propID, PROPVA
 	{
 		wchar_t wszNameOnly[MAX_PATH];
 
-		MultiByteToWideChar (CP_OEMCP, 0, m_pArchive->m_lpFileName, -1, wszNameOnly, MAX_PATH);
-
-		wchar_t *p = wcsrchr (wszNameOnly, L'.');
-
-		if ( p )
-        	*p = 0;
+		//m_pCurrentFile!!! check here!!!
+		MultiByteToWideChar (CP_OEMCP, 0, FSF.PointToName (m_pArchive->m_lpFileName), -1, wszNameOnly, MAX_PATH);
 
 		value->vt = VT_BSTR;
 		value->bstrVal = SysAllocString(wszNameOnly); 
+	}
+
+	if ( propID == kpidSize )
+	{
+		value->vt = VT_UI8;
+
+		if ( m_pCurrentFile )
+			value->uhVal.QuadPart = m_pCurrentFile->GetSize ();
+		else
+			value->uhVal.QuadPart = m_pArchive->m_pInFile->GetSize ();
 	}
 
 	return S_OK;
@@ -626,14 +642,21 @@ HRESULT __stdcall CArchiveOpenVolumeCallback::GetProperty (PROPID propID, PROPVA
 
 HRESULT __stdcall CArchiveOpenVolumeCallback::GetStream (const wchar_t *name, IInStream **inStream)
 {
+	char szFullName[MAX_PATH];
 	char szFileName[MAX_PATH];
-	CInFile *file = new CInFile;
 
 	WideCharToMultiByte(CP_OEMCP, 0, name, -1, szFileName, MAX_PATH, NULL, NULL);
 
-	file->Open(szFileName);
+	strcpy (szFullName, m_pArchive->m_lpFileName);
+	CutTo (szFullName, '\\', false);
+	strcat (szFullName, szFileName);
+
+	CInFile *file = new CInFile;
+
+	bool bResult = file->Open(szFullName);
 
 	*inStream = file;
+	m_pCurrentFile = file;
 
-	return S_OK;
+	return bResult?S_OK:S_FALSE;
 }
