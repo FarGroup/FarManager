@@ -5,7 +5,8 @@ findfile.cpp
 
 */
 
-/* Revision: 1.205 07.07.2006 $ */
+/* Revision: 1.206 12.07.2006 $ */
+
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -1843,70 +1844,8 @@ void FindFiles::SetPluginDirectory(const wchar_t *DirName,HANDLE hPlugin,int Upd
 #if defined(__BORLANDC__)
 #pragma warn -par
 #endif
-void _cdecl FindFiles::PrepareFilesList(void *Param)
+void FindFiles::DoScanTree(string& strRoot, FAR_FIND_DATA_EX& FindData, string& strFullName)
 {
-  FAR_FIND_DATA_EX FindData;
-  string strFullName;
-  string strRoot;
-  wchar_t *PathEnv=NULL, *Ptr; //BUGBUG
-
-  TRY {
-
-    PrepareFilesListUsed++;
-    DWORD DiskMask=FarGetLogicalDrives();
-
-    string strRoot; //BUGBUG
-    CtrlObject->CmdLine->GetCurDirW(strRoot);
-
-    if(SearchMode==SEARCH_INPATH)
-    {
-      DWORD SizeStr=GetEnvironmentVariableW(L"PATH",NULL,0);
-      if((PathEnv=(wchar_t *)alloca((SizeStr+2)*sizeof (wchar_t))) != NULL)
-      {
-        GetEnvironmentVariableW(L"PATH",PathEnv,SizeStr+1);
-        PathEnv[wcslen(PathEnv)]=0;
-        Ptr=PathEnv;
-        while(*Ptr)
-        {
-          if(*Ptr==L';')
-            *Ptr=0;
-          ++Ptr;
-        }
-      }
-      Ptr=PathEnv;
-    }
-
-    for (int CurrentDisk=0;;CurrentDisk++,DiskMask>>=1)
-    {
-      if (SearchMode==SEARCH_ALL ||
-          SearchMode==SEARCH_ALL_BUTNETWORK)
-      {
-        if(DiskMask==0)
-          break;
-
-        if ((DiskMask & 1)==0)
-          continue;
-
-        strRoot.Format (L"%c:\\", L'A'+CurrentDisk);
-        int DriveType=FAR_GetDriveTypeW(strRoot);
-        if (DriveType==DRIVE_REMOVABLE || IsDriveTypeCDROM(DriveType) ||
-           (DriveType==DRIVE_REMOTE && SearchMode==SEARCH_ALL_BUTNETWORK))
-          if (DiskMask==1)
-            break;
-          else
-            continue;
-      }
-      else if (SearchMode==SEARCH_ROOT)
-        GetPathRootOneW(strRoot,strRoot);
-      else if(SearchMode==SEARCH_INPATH)
-      {
-        if(!*Ptr)
-          break;
-        strRoot = Ptr;
-        Ptr+=wcslen(Ptr)+1;
-      }
-
-
       {
         ScanTree ScTree(FALSE,!(SearchMode==SEARCH_CURRENT_ONLY||SearchMode==SEARCH_INPATH),SearchInSymLink);
 
@@ -1985,6 +1924,67 @@ void _cdecl FindFiles::PrepareFilesList(void *Param)
             break;
         }
       }
+}
+void _cdecl FindFiles::DoPrepareFileList(string& strRoot, FAR_FIND_DATA_EX& FindData, string& strFullName)
+{
+  TRY {
+    wchar_t *PathEnv=NULL, *Ptr; //BUGBUG
+      PrepareFilesListUsed++;
+    DWORD DiskMask=FarGetLogicalDrives();
+
+    //string strRoot; //BUGBUG
+    CtrlObject->CmdLine->GetCurDirW(strRoot);
+
+    if(SearchMode==SEARCH_INPATH)
+    {
+      DWORD SizeStr=GetEnvironmentVariableW(L"PATH",NULL,0);
+      if((PathEnv=(wchar_t *)alloca((SizeStr+2)*sizeof (wchar_t))) != NULL)
+      {
+        GetEnvironmentVariableW(L"PATH",PathEnv,SizeStr+1);
+        PathEnv[wcslen(PathEnv)]=0;
+        Ptr=PathEnv;
+        while(*Ptr)
+        {
+          if(*Ptr==L';')
+            *Ptr=0;
+          ++Ptr;
+        }
+      }
+      Ptr=PathEnv;
+    }
+
+    for (int CurrentDisk=0;;CurrentDisk++,DiskMask>>=1)
+    {
+      if (SearchMode==SEARCH_ALL ||
+          SearchMode==SEARCH_ALL_BUTNETWORK)
+      {
+        if(DiskMask==0)
+          break;
+
+        if ((DiskMask & 1)==0)
+          continue;
+
+        strRoot.Format (L"%c:\\", L'A'+CurrentDisk);
+        int DriveType=FAR_GetDriveTypeW(strRoot);
+        if (DriveType==DRIVE_REMOVABLE || IsDriveTypeCDROM(DriveType) ||
+           (DriveType==DRIVE_REMOTE && SearchMode==SEARCH_ALL_BUTNETWORK))
+          if (DiskMask==1)
+            break;
+          else
+            continue;
+      }
+      else if (SearchMode==SEARCH_ROOT)
+        GetPathRootOneW(strRoot,strRoot);
+      else if(SearchMode==SEARCH_INPATH)
+      {
+        if(!*Ptr)
+          break;
+        strRoot = Ptr;
+        Ptr+=wcslen(Ptr)+1;
+      }
+
+      DoScanTree(strRoot, FindData, strFullName);
+
       if (SearchMode!=SEARCH_ALL && SearchMode!=SEARCH_ALL_BUTNETWORK && SearchMode!=SEARCH_INPATH)
         break;
     }
@@ -2010,6 +2010,15 @@ void _cdecl FindFiles::PrepareFilesList(void *Param)
   {
     TerminateProcess( GetCurrentProcess(), 1);
   }
+}
+void _cdecl FindFiles::PrepareFilesList(void *Param)
+{
+  FAR_FIND_DATA_EX FindData;
+  string strFullName;
+  string strRoot;
+
+  DoPrepareFileList(strRoot, FindData, strFullName);
+
 }
 #if defined(__BORLANDC__)
 #pragma warn +par
@@ -2698,14 +2707,8 @@ int FindFiles::LookForString(const wchar_t *Name)
   return(FALSE);
 }
 
-
-#if defined(__BORLANDC__)
-#pragma warn -par
-#endif
-void _cdecl FindFiles::PreparePluginList(void *Param)
+void FindFiles::DoPreparePluginList(void* Param, string& strSaveDir)
 {
-  string strSaveDir;
-
   TRY {
 
     Sleep(200);
@@ -2750,6 +2753,15 @@ void _cdecl FindFiles::PreparePluginList(void *Param)
   {
     TerminateProcess( GetCurrentProcess(), 1);
   }
+}
+#if defined(__BORLANDC__)
+#pragma warn -par
+#endif
+void _cdecl FindFiles::PreparePluginList(void *Param)
+{
+  string strSaveDir;
+
+  DoPreparePluginList(Param, strSaveDir);
 }
 #if defined(__BORLANDC__)
 #pragma warn +par

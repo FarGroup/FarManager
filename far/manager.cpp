@@ -5,7 +5,7 @@ manager.cpp
 
 */
 
-/* Revision: 1.102 04.07.2006 $ */
+/* Revision: 1.103 12.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -689,7 +689,21 @@ int  Manager::ProcessKey(DWORD Key)
           *(int*)0 = 0;
           break;
         case 2:
-          return i / 0;
+          // „тобы компилеры на нас не ругались варнингами, воспользуемс€ асмом
+          #if defined(__BORLANDC__)
+            return i / 0; // под борландом пусть материтс€
+          #else
+          #ifdef __GNUC__
+            asm ("xor %eax,%eax\ndiv %eax");
+          #else
+            __asm
+            {
+                xor eax, eax
+                div eax
+            };
+          #endif
+          #endif
+          return 0;
         case 3:
           #if !defined(SYSLOG)
           // у компилера под дебаг крышу сносит от такой наглости :-)

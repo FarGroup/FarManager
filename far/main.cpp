@@ -5,7 +5,7 @@ main.cpp
 
 */
 
-/* Revision: 1.100 25.05.2006 $ */
+/* Revision: 1.101 12.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -320,7 +320,16 @@ int main()
     return wmain(nArgs, wstrCmdLineArgs);
 }
 #endif
-
+int wmain_sehed(string& strEditName,string& strViewName,string& DestName1,string& DestName2,int StartLine,int StartChar,int RegOpt)
+{
+  TRY{
+    return MainProcess(strEditName,strViewName,DestName1,DestName2,StartLine,StartChar,RegOpt);
+  }
+  EXCEPT(xfilter((int)INVALID_HANDLE_VALUE,GetExceptionInformation(),NULL,1)){
+     TerminateProcess( GetCurrentProcess(), 1);
+  }
+  return -1; // Никогда сюда не попадем
+}
 int _cdecl wmain(int Argc, wchar_t *Argv[])
 {
   _OT(SysLog("[[[[[[[[New Session of FAR]]]]]]]]]"));
@@ -617,12 +626,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
   int Result=0;
   if(Opt.ExceptRules)
   {
-    TRY{
-      Result=MainProcess(strEditName,strViewName,DestNames[0],DestNames[1],StartLine,StartChar,RegOpt);
-    }
-    EXCEPT(xfilter((int)INVALID_HANDLE_VALUE,GetExceptionInformation(),NULL,1)){
-       TerminateProcess( GetCurrentProcess(), 1);
-    }
+    Result=wmain_sehed(strEditName,strViewName,DestNames[0],DestNames[1],StartLine,StartChar,RegOpt);
   }
   else
     Result=MainProcess(strEditName,strViewName,DestNames[0],DestNames[1],StartLine,StartChar,RegOpt);

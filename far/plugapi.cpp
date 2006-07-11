@@ -5,7 +5,7 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.210 07.07.2006 $ */
+/* Revision: 1.211 12.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -901,6 +901,22 @@ static int Except_FarDialogEx(struct DialogItemEx *InternalItem)
   return EXCEPTION_CONTINUE_SEARCH; // продолжим исполнения цепочки исключений!
 }
 
+static int FarDialogExSehed(Dialog& FarDialog, struct FarDialogItem* Item, struct DialogItemEx* InternalItem, int ItemsNumber)
+{
+  TRY
+  {
+    FarDialog.Process();
+    Dialog::ConvertItemEx(CVTITEM_TOPLUGIN,Item,InternalItem,ItemsNumber);
+    int I;
+    for(I=0; I < ItemsNumber; ++I)
+      InternalItem[I].ID=I;
+    return FarDialog.GetExitCode();
+  }
+  EXCEPT (Except_FarDialogEx(InternalItem))
+  {
+    return -1;
+  }
+}
 
 int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
            const wchar_t *HelpTopic,struct FarDialogItem *Item,int ItemsNumber,
@@ -971,18 +987,7 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
     if(Opt.ExceptRules)
     {
       CtrlObject->Plugins.Flags.Clear(PSIF_DIALOG);
-      TRY
-      {
-        FarDialog.Process();
-        Dialog::ConvertItemEx(CVTITEM_TOPLUGIN,Item,InternalItem,ItemsNumber);
-        for(I=0; I < ItemsNumber; ++I)
-          InternalItem[I].ID=I;
-        ExitCode=FarDialog.GetExitCode();
-      }
-      EXCEPT (Except_FarDialogEx(InternalItem))
-      {
-        ;
-      }
+      ExitCode=FarDialogExSehed(FarDialog,Item,InternalItem,ItemsNumber);
     }
     else
     {
