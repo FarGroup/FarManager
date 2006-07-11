@@ -44,7 +44,7 @@ public:
 	ArchivePanel (Archive **pArchives, int nArchivesCount);
 	~ArchivePanel ();
 
-	bool __stdcall ReadArchive ();
+	bool __stdcall ReadArchive (bool bSilent);
 
 	int __stdcall pGetFindData (PluginPanelItem **pPanelItem, int *pItemsNumber, int OpMode);
 	void __stdcall pFreeFindData (PluginPanelItem *pPanelItem, int nItemsNumber);

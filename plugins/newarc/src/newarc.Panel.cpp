@@ -46,7 +46,7 @@ ArchivePanel::~ArchivePanel ()
 	StrFree (lpINIFileName);
 }
 
-bool ArchivePanel::ReadArchive ()
+bool ArchivePanel::ReadArchive (bool bSilent)
 {
 	if ( !m_pArchive->pOpenArchive (OM_LIST) )
 		return false;
@@ -59,7 +59,10 @@ bool ArchivePanel::ReadArchive ()
 	dword dwStartTime = GetTickCount ();
 	bool bProgressMessage = false;
 
-	HANDLE hScreen = Info.SaveScreen (0, 0, -1, -1);
+	HANDLE hScreen = NULL;
+	
+	if ( !bSilent )
+		hScreen = Info.SaveScreen (0, 0, -1, -1);
 
 	m_nArrayCount = 256;
 	m_nArchiveFilesCount = 0;
@@ -78,9 +81,9 @@ bool ArchivePanel::ReadArchive ()
 
 		if ( nResult == E_SUCCESS )
 		{
-			if ( (m_nArchiveFilesCount & 0x1f) == 0 )
+			if ( !bSilent && ((m_nArchiveFilesCount & 0x1f) == 0) )
 			{
-				if ( GetTickCount ()-dwStartTime > 1000 )
+				if ( GetTickCount ()-dwStartTime > 500 )
 				{
 					char szFileCount[100];
 					char *pMsgs[4];
@@ -129,7 +132,8 @@ bool ArchivePanel::ReadArchive ()
 
 	m_pArchive->pCloseArchive ();
 
-	Info.RestoreScreen (hScreen);
+	if ( hScreen )
+		Info.RestoreScreen (hScreen);
 
 	return true;
 }
@@ -192,7 +196,9 @@ int __stdcall ArchivePanel::pGetFindData(
 
 	if ( m_pArchive->WasUpdated () )
 	{
-		if ( !ReadArchive () )
+		bool bSilent = OpMode & (OPM_SILENT|OPM_FIND);
+
+		if ( !ReadArchive (bSilent) ) 
 			return FALSE;
 	}
 
