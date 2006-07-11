@@ -30,6 +30,7 @@
 #define AM_START_EXTRACT_FILE	2
 #define AM_PROCESS_DATA			4
 
+#define PASSWORD_RESET	0
 #define PASSWORD_LIST	1
 #define PASSWORD_FILE	2
 

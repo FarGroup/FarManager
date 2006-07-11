@@ -39,7 +39,7 @@ Archive::Archive (
 	m_hArchive = hArchive;
 	m_pPlugin = pPlugin;
 	m_lpFileName = StrDuplicate (lpFileName);
-	m_lpListPassword = NULL;
+//	m_lpListPassword = NULL;
 	m_lpLastUsedPassword = NULL;
 
 	m_nMode = 0;
@@ -66,7 +66,7 @@ bool Archive::WasUpdated ()
 
 Archive::~Archive ()
 {
-	StrFree (m_lpListPassword);
+//	StrFree (m_lpListPassword);
 	StrFree (m_lpLastUsedPassword);
 	StrFree (m_lpFileName);
 	free (m_pCallbackThunk);
@@ -209,60 +209,48 @@ int __stdcall Archive::ArchiveCallback (
 	{
 		ArchivePassword *pPassword = (ArchivePassword*)nParam2;
 
-		if ( nParam1 == PASSWORD_LIST )
+		if ( nParam1 == PASSWORD_RESET )
+		{
+			if ( m_lpLastUsedPassword )
+			{
+				free (m_lpLastUsedPassword);
+				m_lpLastUsedPassword = NULL;
+			}
+		}
+
+		if ( (nParam1 == PASSWORD_LIST) || (nParam1 == PASSWORD_FILE) )
 		{
 			bool bResult = true;
 
-			if ( !m_lpListPassword )
+			if ( !m_lpLastUsedPassword )
 			{
-				m_lpListPassword = StrCreate (512);
+				m_lpLastUsedPassword = StrCreate (512);
 
 				bResult = Info.InputBox (
-						"Информация об именах файлов защищена паролем",
+						(nParam1 == PASSWORD_LIST)?"Информация об именах файлов защищена паролем":"Содержимое файла защищено паролем",
 						"Введите пароль",
 						NULL,
 						NULL,
-						m_lpListPassword,
+						m_lpLastUsedPassword,
 						512,
 						NULL,
 						0
 						);
 
 				if ( !bResult )
-					StrFree (m_lpListPassword);
+				{
+					StrFree (m_lpLastUsedPassword);
+					m_lpLastUsedPassword = NULL;
+				}
 			}
 
-			if ( m_lpListPassword && bResult )
+			if ( m_lpLastUsedPassword && bResult )
 			{
-				strcpy (pPassword->lpBuffer, m_lpListPassword);
+				strcpy (pPassword->lpBuffer, m_lpLastUsedPassword);
 				return TRUE;
 			}
 
 			return FALSE;
-		}
-
-		if ( nParam1 == PASSWORD_FILE )
-		{
-			bool bResult = Info.InputBox (
-					"Содержимое файла защищено паролем",
-					"Введите пароль",
-					NULL,
-					NULL,
-					pPassword->lpBuffer,
-					pPassword->dwBufferSize,
-					NULL,
-					0
-					);
-
-			if ( bResult )
-			{
-				m_lpLastUsedPassword = StrReplace (
-						m_lpLastUsedPassword,
-						pPassword->lpBuffer
-						);
-
-				return TRUE;
-			}
 		}
 
 		return FALSE;

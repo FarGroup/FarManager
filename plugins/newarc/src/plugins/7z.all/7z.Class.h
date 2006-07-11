@@ -47,9 +47,7 @@ public:
 
 	DWORD m_nItemsNumber;
 
-	bool m_bPasswordDefined;
-	char *m_lpPassword;
-	int m_nPasswordLength;
+	bool m_bListPassword;
 
 public:
 
@@ -64,8 +62,4 @@ public:
 	virtual bool __stdcall pTest (PluginPanelItem *pItems, int nItemsNumber);
 
 	virtual int __stdcall pGetArchiveType () { return 0; }
-
-	void SetPassword (const char *lpPassword, int nLength);
-	int GetPasswordLength ();
-	void GetPassword (char *lpBuffer);
 };

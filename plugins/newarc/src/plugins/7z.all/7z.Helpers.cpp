@@ -191,7 +191,7 @@ HRESULT __stdcall CArchiveExtractCallback::QueryInterface (const IID &iid, void 
 	if ( iid == IID_ICryptoGetTextPassword )
 	{
 		if ( !m_pGetTextPassword )
-			m_pGetTextPassword = new CCryptoGetTextPassword (m_pArchive);
+			m_pGetTextPassword = new CCryptoGetTextPassword (m_pArchive, TYPE_FILE);
 
 		m_pGetTextPassword->AddRef ();
 
@@ -364,15 +364,25 @@ HRESULT __stdcall CArchiveExtractCallback::PrepareOperation (int askExtractMode)
 
 HRESULT __stdcall CArchiveExtractCallback::SetOperationResult (int resultEOperationResult)
 {
+	switch( resultEOperationResult )
+	{
+		case NArchive::NExtract::NOperationResult::kCRCError:
+			if ( m_pArchive->m_pfnCallback )
+				m_pArchive->m_pfnCallback (AM_NEED_PASSWORD, PASSWORD_RESET, NULL);
+
+			return E_FAIL;
+	}
+
 	return S_OK;
 }
 
 
 
-CCryptoGetTextPassword::CCryptoGetTextPassword(SevenZipArchive *pArchive)
+CCryptoGetTextPassword::CCryptoGetTextPassword(SevenZipArchive *pArchive, int nType)
 {
 	m_pArchive = pArchive;
 	m_nRefCount = 1;
+	m_nType = nType;
 }
 
 
@@ -412,37 +422,24 @@ HRESULT __stdcall CCryptoGetTextPassword::CryptoGetTextPassword (BSTR *password)
 {
 	ArchivePassword Password;
 
-	if ( m_pArchive->GetPasswordLength () == -1 ) //password not defined
+	if ( m_nType == TYPE_LISTING )
+		m_pArchive->m_bListPassword = true;
+
+	Password.lpBuffer = StrCreate (260);
+	Password.dwBufferSize = 260;
+
+	if ( m_pArchive->m_pfnCallback && 
+		 m_pArchive->m_pfnCallback (AM_NEED_PASSWORD, (m_nType == TYPE_FILE)?PASSWORD_FILE:PASSWORD_LIST, (int)&Password) );
 	{
-		Password.lpBuffer = StrCreate (260);
-		Password.dwBufferSize = 260;
-
-		if ( m_pArchive->m_pfnCallback && m_pArchive->m_pfnCallback (AM_NEED_PASSWORD, PASSWORD_FILE, (int)&Password) );
-		{
-			wchar_t wszPassword[MAX_PATH];
-
-			MultiByteToWideChar(CP_OEMCP, 0, Password.lpBuffer, -1, wszPassword, MAX_PATH);
-
-			m_pArchive->SetPassword (Password.lpBuffer, strlen (Password.lpBuffer)+1); //LAME!!!
-   			*password = SysAllocString (wszPassword);
-		}
-
-		StrFree (Password.lpBuffer);
-	}
-	else
-	{
-		char *lpPassword = (char*)malloc (m_pArchive->GetPasswordLength());
-
-		m_pArchive->GetPassword (lpPassword);
-
 		wchar_t wszPassword[MAX_PATH];
 
-		MultiByteToWideChar(CP_OEMCP, 0, lpPassword, -1, wszPassword, MAX_PATH);
+		MultiByteToWideChar(CP_OEMCP, 0, Password.lpBuffer, -1, wszPassword, MAX_PATH);
 
-   		*password = SysAllocString (wszPassword);
-
-   		free (lpPassword);
+		//m_pArchive->SetPassword (Password.lpBuffer, strlen (Password.lpBuffer)+1); //LAME!!!
+		*password = SysAllocString (wszPassword);
 	}
+
+	StrFree (Password.lpBuffer);
 
 	return S_OK;
 }
@@ -575,7 +572,7 @@ HRESULT __stdcall CArchiveOpenCallback::QueryInterface (const IID &iid, void ** 
 	if ( iid == IID_ICryptoGetTextPassword )
 	{
 		if ( !m_pGetTextPassword )
-			m_pGetTextPassword = new CCryptoGetTextPassword (m_pArchive);
+			m_pGetTextPassword = new CCryptoGetTextPassword (m_pArchive, TYPE_LISTING);
 
 		m_pGetTextPassword->AddRef ();
 

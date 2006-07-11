@@ -93,7 +93,7 @@ int __cdecl SortFormats (
 
 int OnQueryArchive (QueryArchiveStruct *pQAS)
 {
-   	for (int i = 0; i < Formats.GetCount (); i++)
+ /*  	for (int i = 0; i < Formats.GetCount (); i++)
    	{
    		SevenZipModule *pModule = Formats[i];
 
@@ -111,7 +111,7 @@ int OnQueryArchive (QueryArchiveStruct *pQAS)
 
    			delete pArchive;
    		}
-   	}
+   	}*/
 
 
 	Collection <FormatPosition*> formats;
@@ -130,21 +130,21 @@ int OnQueryArchive (QueryArchiveStruct *pQAS)
 		{
 			SevenZipModule *pModule = Formats[i];
 
-			if ( pModule && pModule->HasSignature() && IsEqualGUID (pModule->m_uid, *pos->puid) )
+			if ( pModule && /*pModule->HasSignature() &&*/ IsEqualGUID (pModule->m_uid, *pos->puid) )
 			{
 				SevenZipArchive *pArchive = new SevenZipArchive (pModule, pQAS->lpFileName);
 
-				if ( pArchive->pOpenArchive (0, NULL) )
+/*				if ( pArchive->pOpenArchive (0, NULL) )
 				{
-					pArchive->pCloseArchive ();
+					pArchive->pCloseArchive ();*/
 
 					pQAS->hResult = (HANDLE)pArchive;
 
 					formats.Free ();
 					return NAERROR_SUCCESS;
-				}
+/*				}
 
-				delete pArchive;
+				delete pArchive;*/
 			}
 		}
 	}
