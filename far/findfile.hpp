@@ -7,10 +7,12 @@ findfile.hpp
 
 */
 
-/* Revision: 1.17 22.07.2005 $ */
+/* Revision: 1.18 11.07.2006 $ */
 
 /*
 Modify:
+  11.07.2006 EL
+    + DoScanTree()
   22.07.2005 SVS
     + SEARCH_INPATH - искать по PATH`у
   24.04.2005 KM
@@ -106,6 +108,7 @@ class FindFiles
     static long WINAPI AdvancedDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
 
     static void SetPluginDirectory(char *DirName,HANDLE hPlugin,int UpdatePanel=FALSE);
+    static void _cdecl DoScanTree(char* Root, WIN32_FIND_DATA& FindData, char* FullName, size_t cbFullName);
     static void _cdecl PrepareFilesList(void *Param);
     static void _cdecl PreparePluginList(void *Param);
     static void _cdecl WriteDialogData(void *Param);

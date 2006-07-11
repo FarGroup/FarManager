@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.185 05.07.2006 $ */
+/* Revision: 1.186 11.07.2006 $ */
 
 /*
 Modify:
+  11.07.2006 EL
+    - Убрал варнинги
   05.07.2006 IS
     - warnings
   22.03.2006 AY
@@ -2396,6 +2398,87 @@ void FindFiles::SetPluginDirectory(char *DirName,HANDLE hPlugin,int UpdatePanel)
 #if defined(__BORLANDC__)
 #pragma warn -par
 #endif
+
+void _cdecl FindFiles::DoScanTree(char* Root, WIN32_FIND_DATA& FindData, char* FullName, size_t cbFullName)
+{
+        ScanTree ScTree(FALSE,!(SearchMode==SEARCH_CURRENT_ONLY||SearchMode==SEARCH_INPATH),SearchInSymLink);
+
+        char SelName[NM];
+        int FileAttr;
+        if (SearchMode==SEARCH_SELECTED)
+          CtrlObject->Cp()->ActivePanel->GetSelName(NULL,FileAttr);
+
+        while (1)
+        {
+          char CurRoot[2*NM];
+          if (SearchMode==SEARCH_SELECTED)
+          {
+            if (!CtrlObject->Cp()->ActivePanel->GetSelName(SelName,FileAttr))
+              break;
+            if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0 || TestParentFolderName(SelName) ||
+                strcmp(SelName,".")==0)
+              continue;
+            xstrncpy(CurRoot,Root,sizeof(CurRoot)-1);
+            AddEndSlash(CurRoot);
+            strcat(CurRoot,SelName);
+          }
+          else
+            xstrncpy(CurRoot,Root,sizeof(CurRoot)-1);
+
+          ScTree.SetFindPath(CurRoot,"*.*");
+
+          statusCS.Enter ();
+
+          xstrncpy(FindMessage,CurRoot,sizeof(FindMessage)-1);
+          FindMessage[sizeof(FindMessage)-1]=0;
+          FindMessageReady=TRUE;
+
+          statusCS.Leave ();
+
+          while (!StopSearch && ScTree.GetNextName(&FindData,FullName, cbFullName-1))
+          {
+            while (PauseSearch)
+              Sleep(10);
+
+            /* $ 30.09.2003 KM
+              Отфильтруем файлы не попадающие в действующий фильтр
+            */
+            int IsFile;
+            if (UseFilter)
+              IsFile=Filter->FileInFilter(&FindData);
+            else
+              IsFile=TRUE;
+
+            if (IsFile)
+            {
+              /* $ 14.06.2004 KM
+                Уточнение действия при обработке каталогов
+              */
+              if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+              {
+                statusCS.Enter();
+
+                xstrncpy(FindMessage,FullName,sizeof(FindMessage)-1);
+                FindMessage[sizeof(FindMessage)-1]=0;
+                FindMessageReady=TRUE;
+
+                statusCS.Leave();
+              }
+              /* KM $ */
+
+              if (IsFileIncluded(NULL,FullName,FindData.dwFileAttributes))
+                AddMenuRecord(FullName,&FindData);
+
+              if (SearchInArchives)
+                ArchiveSearch(FullName);
+            }
+            /* KM $ */
+          }
+          if (SearchMode!=SEARCH_SELECTED)
+            break;
+        }
+      }
+
 void _cdecl FindFiles::PrepareFilesList(void *Param)
 {
   WIN32_FIND_DATA FindData;
@@ -2455,85 +2538,8 @@ void _cdecl FindFiles::PrepareFilesList(void *Param)
         Ptr+=strlen(Ptr)+1;
       }
 
+      DoScanTree(Root, FindData, FullName, sizeof(FullName));
 
-      {
-        ScanTree ScTree(FALSE,!(SearchMode==SEARCH_CURRENT_ONLY||SearchMode==SEARCH_INPATH),SearchInSymLink);
-
-        char SelName[NM];
-        int FileAttr;
-        if (SearchMode==SEARCH_SELECTED)
-          CtrlObject->Cp()->ActivePanel->GetSelName(NULL,FileAttr);
-
-        while (1)
-        {
-          char CurRoot[2*NM];
-          if (SearchMode==SEARCH_SELECTED)
-          {
-            if (!CtrlObject->Cp()->ActivePanel->GetSelName(SelName,FileAttr))
-              break;
-            if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0 || TestParentFolderName(SelName) ||
-                strcmp(SelName,".")==0)
-              continue;
-            xstrncpy(CurRoot,Root,sizeof(CurRoot)-1);
-            AddEndSlash(CurRoot);
-            strcat(CurRoot,SelName);
-          }
-          else
-            xstrncpy(CurRoot,Root,sizeof(CurRoot)-1);
-
-          ScTree.SetFindPath(CurRoot,"*.*");
-
-          statusCS.Enter ();
-
-          xstrncpy(FindMessage,CurRoot,sizeof(FindMessage)-1);
-          FindMessage[sizeof(FindMessage)-1]=0;
-          FindMessageReady=TRUE;
-
-          statusCS.Leave ();
-
-          while (!StopSearch && ScTree.GetNextName(&FindData,FullName, sizeof (FullName)-1))
-          {
-            while (PauseSearch)
-              Sleep(10);
-
-            /* $ 30.09.2003 KM
-              Отфильтруем файлы не попадающие в действующий фильтр
-            */
-            int IsFile;
-            if (UseFilter)
-              IsFile=Filter->FileInFilter(&FindData);
-            else
-              IsFile=TRUE;
-
-            if (IsFile)
-            {
-              /* $ 14.06.2004 KM
-                Уточнение действия при обработке каталогов
-              */
-              if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-              {
-                statusCS.Enter();
-
-                xstrncpy(FindMessage,FullName,sizeof(FindMessage)-1);
-                FindMessage[sizeof(FindMessage)-1]=0;
-                FindMessageReady=TRUE;
-
-                statusCS.Leave();
-              }
-              /* KM $ */
-
-              if (IsFileIncluded(NULL,FullName,FindData.dwFileAttributes))
-                AddMenuRecord(FullName,&FindData);
-
-              if (SearchInArchives)
-                ArchiveSearch(FullName);
-            }
-            /* KM $ */
-          }
-          if (SearchMode!=SEARCH_SELECTED)
-            break;
-        }
-      }
       if (SearchMode!=SEARCH_ALL && SearchMode!=SEARCH_ALL_BUTNETWORK && SearchMode!=SEARCH_INPATH)
         break;
     } // END: for (...

@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.189 06.05.2006 $ */
+/* Revision: 1.190 11.07.2006 $ */
 
 /*
 Modify:
+  11.07.2006 EL
+    - Убрал варнинги
   06.05.2006 SVS
     - mantis#0000171: Вызов Viewer с флагом VF_IMMEDIATERETURN из GetFiles
   05.10.2005 AY
@@ -1392,6 +1394,23 @@ static int Except_FarDialogEx(struct DialogItem *InternalItem)
   return EXCEPTION_CONTINUE_SEARCH; // продолжим исполнения цепочки исключений!
 }
 
+static int FarDialogExSehed(Dialog& FarDialog, struct FarDialogItem* Item, struct DialogItem* InternalItem, int ItemsNumber)
+{
+  TRY
+  {
+    FarDialog.Process();
+    Dialog::ConvertItem(CVTITEM_TOPLUGIN,Item,InternalItem,ItemsNumber);
+    int I;
+    for(I=0; I < ItemsNumber; ++I)
+      InternalItem[I].ID=I;
+    return FarDialog.GetExitCode();
+  }
+  EXCEPT (Except_FarDialogEx(InternalItem))
+  {
+    return -1;
+  }
+}
+
 
 int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
            const char *HelpTopic,struct FarDialogItem *Item,int ItemsNumber,
@@ -1462,18 +1481,7 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
     if(Opt.ExceptRules)
     {
       CtrlObject->Plugins.Flags.Clear(PSIF_DIALOG);
-      TRY
-      {
-        FarDialog.Process();
-        Dialog::ConvertItem(CVTITEM_TOPLUGIN,Item,InternalItem,ItemsNumber);
-        for(I=0; I < ItemsNumber; ++I)
-          InternalItem[I].ID=I;
-        ExitCode=FarDialog.GetExitCode();
-      }
-      EXCEPT (Except_FarDialogEx(InternalItem))
-      {
-        ;
-      }
+      ExitCode = FarDialogExSehed(FarDialog,Item,InternalItem,ItemsNumber);
     }
     else
     {

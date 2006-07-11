@@ -5,10 +5,12 @@ main.cpp
 
 */
 
-/* Revision: 1.89 25.05.2006 $ */
+/* Revision: 1.90 11.07.2006 $ */
 
 /*
 Modify:
+  11.07.2006 EL
+    - Убрал варнинги
   25.05.2006 SVS
     ! HotPlug: инициализацию сделаем здесь
   23.05.2006 SVS
@@ -545,6 +547,16 @@ static int MainProcess(char *EditName,char *ViewName,char *DestName1,char *DestN
   return(0);
 }
 
+int main_sehed(char *EditName,char *ViewName,char *DestName1,char *DestName2,int StartLine,int StartChar,int RegOpt)
+{
+  TRY{
+    return MainProcess(EditName,ViewName,DestName1,DestName2,StartLine,StartChar,RegOpt);
+  }
+  EXCEPT(xfilter((int)INVALID_HANDLE_VALUE,GetExceptionInformation(),NULL,1)){
+    TerminateProcess( GetCurrentProcess(), 1);
+    return -1; // сюда никогда не дойдем
+  }
+}
 
 int _cdecl main(int Argc, char *Argv[])
 {
@@ -936,12 +948,7 @@ int _cdecl main(int Argc, char *Argv[])
   int Result=0;
   if(Opt.ExceptRules)
   {
-    TRY{
-      Result=MainProcess(EditName,ViewName,DestName[0],DestName[1],StartLine,StartChar,RegOpt);
-    }
-    EXCEPT(xfilter((int)INVALID_HANDLE_VALUE,GetExceptionInformation(),NULL,1)){
-       TerminateProcess( GetCurrentProcess(), 1);
-    }
+    Result=main_sehed(EditName,ViewName,DestName[0],DestName[1],StartLine,StartChar,RegOpt);
   }
   else
     Result=MainProcess(EditName,ViewName,DestName[0],DestName[1],StartLine,StartChar,RegOpt);

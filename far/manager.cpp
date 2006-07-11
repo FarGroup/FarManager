@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.99 03.07.2006 $ */
+/* Revision: 1.100 11.07.2006 $ */
 
 /*
 Modify:
+  11.07.2006 EL
+    - ”брал варнинги
   03.07.2006 SVS
     - CAS при п€том режиме панели... не гасит панель.
   23.05.2006 SVS
@@ -980,7 +982,21 @@ int  Manager::ProcessKey(DWORD Key)
           *(int*)0 = 0;
           break;
         case 2:
-          return i / 0;
+          // „тобы компилеры на нас не ругались варнингами, воспользуемс€ асмом
+          #if defined(__BORLANDC__)
+            return i / 0; // под борландом пусть материтс€
+          #else
+          #ifdef __GNUC__
+            asm ("xor %eax,%eax\ndiv %eax");
+          #else
+            __asm
+            {
+                xor eax, eax
+                div eax
+            };
+          #endif
+          #endif
+          return 0;
         case 3:
           #if !defined(SYSLOG)
           // у компилера под дебаг крышу сносит от такой наглости :-)
