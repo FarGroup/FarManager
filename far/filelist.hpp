@@ -7,7 +7,7 @@ filelist.hpp
 
 */
 
-/* Revision: 1.70 04.07.2006 $ */
+/* Revision: 1.71 12.07.2006 $ */
 
 #include "global.hpp"
 #include "panel.hpp"
@@ -59,6 +59,14 @@ struct PluginsStackItem
   int PrevSortOrder;
   int PrevNumericSort;
   struct PanelViewSettings PrevViewSettings;
+};
+
+struct PrevDataItem
+{
+  struct FileListItem **PrevListData;
+  long PrevFileCount;
+  string strPrevName;
+  long PrevTopFile;
 };
 
 enum {NAME_COLUMN=0,SIZE_COLUMN,PACKED_COLUMN,DATE_COLUMN,TIME_COLUMN,

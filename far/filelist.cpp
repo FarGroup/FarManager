@@ -5,7 +5,7 @@ filelist.cpp
 
 */
 
-/* Revision: 1.279 07.07.2006 $ */
+/* Revision: 1.280 12.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -44,17 +44,6 @@ int _cdecl SortSearchList(const void *el1,const void *el2);
 static int ListSortMode,ListSortOrder,ListSortGroups,ListSelectedFirst;
 static int ListPanelMode,ListCaseSensitive,ListNumericSort;
 static HANDLE hSortPlugin;
-
-/* $ 11.10.2001 VVM
-  + PrevTopFile - позиция верхнего файла при входе в плагин */
-struct PrevDataItem
-{
-  struct FileListItem **PrevListData;
-  long PrevFileCount;
-  string strPrevName;
-  long PrevTopFile;
-};
-/* VVM $ */
 
 enum SELECT_MODES {SELECT_INVERT,SELECT_INVERTALL,SELECT_ADD,SELECT_REMOVE,
     SELECT_ADDEXT,SELECT_REMOVEEXT,SELECT_ADDNAME,SELECT_REMOVENAME};

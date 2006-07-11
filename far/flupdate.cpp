@@ -5,7 +5,7 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.73 07.07.2006 $ */
+/* Revision: 1.74 12.07.2006 $ */
 
 #include "headers.hpp"
 #pragma hdrstop
@@ -642,6 +642,11 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
     DeleteListData(ListData,FileCount);
     PopPlugin(TRUE);
     Update(KeepSelection);
+
+    // WARP> явный хак, но очень способствует - восстанавливает позицию на панели при ошибке чтения архива.
+    if ( PrevDataStackSize )
+      GoToFileW (PrevDataStack[PrevDataStackSize-1]->strPrevName);
+
     return;
   }
 
