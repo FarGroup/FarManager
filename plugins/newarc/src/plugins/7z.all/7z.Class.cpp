@@ -429,8 +429,6 @@ bool __stdcall SevenZipArchive::pOpenArchive (
   			{
   				if ( SUCCEEDED (m_pArchive->GetNumberOfItems((unsigned int*)&m_nItemsNumber)) )
   				{
-
-  				//if ( m_nItemsNumber )
   					m_nItemsNumber--;
 
   					delete pCallback;

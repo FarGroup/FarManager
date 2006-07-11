@@ -169,31 +169,7 @@ void doEmptyDialog (
 }
 
 
-bool CheckForEsc()
-{
-	bool EC=false;
-	INPUT_RECORD rec;
-	DWORD ReadCount;
-	while (true)
-	{
-		PeekConsoleInput(GetStdHandle (STD_INPUT_HANDLE),&rec,1,&ReadCount);
-		if (ReadCount==0)
-			break;
-
-		ReadConsoleInput(GetStdHandle (STD_INPUT_HANDLE),&rec,1,&ReadCount);
-		if (rec.EventType==KEY_EVENT)
-		{
-			if ( (rec.Event.KeyEvent.wVirtualScanCode == VK_ESCAPE) &&
-				 rec.Event.KeyEvent.bKeyDown )
-			{
-				EC=true;
-			}
-		}
-	}
-	return(EC);
-}
-
-
+extern bool CheckForEsc();
 
 int __stdcall Archive::ArchiveCallback (
 		int nMsg,

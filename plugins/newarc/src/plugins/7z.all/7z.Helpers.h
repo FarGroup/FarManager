@@ -131,6 +131,9 @@ private:
 	CCryptoGetTextPassword *m_pGetTextPassword;
 	CArchiveOpenVolumeCallback *m_pArchiveOpenVolumeCallback;
 
+	bool m_bProgressMessage;
+	DWORD m_dwStartTime;
+
 	SevenZipArchive *m_pArchive;
 
 public:

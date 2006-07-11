@@ -592,6 +592,8 @@ CArchiveOpenCallback::CArchiveOpenCallback (SevenZipArchive *pArchive)
 	m_pGetTextPassword = NULL;
 
 	m_pArchiveOpenVolumeCallback = NULL;
+	m_bProgressMessage = false;
+	m_dwStartTime = GetTickCount ();
 }
 
 CArchiveOpenCallback::~CArchiveOpenCallback ()
@@ -608,8 +610,64 @@ HRESULT __stdcall CArchiveOpenCallback::SetTotal (const UInt64 *files, const UIn
 	return S_OK;
 }
 
+
+bool CheckForEsc ()
+{
+	bool EC = false;
+
+	INPUT_RECORD rec;
+	DWORD ReadCount;
+
+	while (true)
+	{
+		PeekConsoleInput (GetStdHandle (STD_INPUT_HANDLE),&rec,1,&ReadCount);
+
+		if ( ReadCount==0 ) 
+			break;
+
+		ReadConsoleInput (GetStdHandle (STD_INPUT_HANDLE),&rec,1,&ReadCount);
+
+		if ( rec.EventType==KEY_EVENT )
+		{
+			if ( (rec.Event.KeyEvent.wVirtualKeyCode == VK_ESCAPE) &&
+				 rec.Event.KeyEvent.bKeyDown ) 
+				EC = true;
+		}
+	}
+
+	return EC;
+}
+
+
 HRESULT __stdcall CArchiveOpenCallback::SetCompleted (const UInt64 *files, const UInt64 *bytes)
 {
+	if ( CheckForEsc() )
+		return E_FAIL;
+
+	if ( !(*files & 0x1f)  && (GetTickCount ()-m_dwStartTime > 500) )
+	{
+	   	char szFileCount[100];
+   		char *pMsgs[4];
+
+	   	pMsgs[0] = "Подождите";
+   		pMsgs[1] = "Чтение архива [7z.all]";
+	   	pMsgs[2] = m_pArchive->m_lpFileName;
+   		pMsgs[3] = (char*)&szFileCount;
+
+	   	FSF.sprintf ((char*)&szFileCount, "%I64u файлов", *files);
+
+   		Info.Message(
+   				Info.ModuleNumber,
+   				m_bProgressMessage?FMSG_KEEPBACKGROUND:0,
+	   			NULL,
+   				pMsgs,
+   				4,
+   				0
+	   		);
+		
+	   	m_bProgressMessage = true;
+	}  
+
 	return S_OK;
 }
 

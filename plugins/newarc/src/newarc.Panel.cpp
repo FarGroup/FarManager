@@ -46,6 +46,35 @@ ArchivePanel::~ArchivePanel ()
 	StrFree (lpINIFileName);
 }
 
+bool CheckForEsc ()
+{
+	bool EC = false;
+
+	INPUT_RECORD rec;
+	DWORD ReadCount;
+
+	while (true)
+	{
+		PeekConsoleInput (GetStdHandle (STD_INPUT_HANDLE),&rec,1,&ReadCount);
+
+		if ( ReadCount==0 ) 
+			break;
+
+		ReadConsoleInput (GetStdHandle (STD_INPUT_HANDLE),&rec,1,&ReadCount);
+
+		if ( rec.EventType==KEY_EVENT )
+		{
+			if ( (rec.Event.KeyEvent.wVirtualKeyCode == VK_ESCAPE) &&
+				 rec.Event.KeyEvent.bKeyDown ) 
+				EC = true;
+		}
+	}
+
+	return EC;
+}
+
+
+
 bool ArchivePanel::ReadArchive (bool bSilent)
 {
 	if ( !m_pArchive->pOpenArchive (OM_LIST) )
@@ -73,7 +102,7 @@ bool ArchivePanel::ReadArchive (bool bSilent)
 
 	int nResult = E_SUCCESS;
 
-	while ( nResult == E_SUCCESS )
+	while ( (nResult == E_SUCCESS) && !CheckForEsc() )
 	{
 		nResult = m_pArchive->pGetArchiveItem (
 				&m_pArchiveFiles[m_nArchiveFilesCount].ItemInfo
@@ -81,31 +110,29 @@ bool ArchivePanel::ReadArchive (bool bSilent)
 
 		if ( nResult == E_SUCCESS )
 		{
-			if ( !bSilent && ((m_nArchiveFilesCount & 0x1f) == 0) )
+			if ( !bSilent && 
+				 ((m_nArchiveFilesCount & 0x1f) == 0) && (GetTickCount ()-dwStartTime > 500) ) 
 			{
-				if ( GetTickCount ()-dwStartTime > 500 )
-				{
-					char szFileCount[100];
-					char *pMsgs[4];
+				char szFileCount[100];
+				char *pMsgs[4];
 
-					pMsgs[0] = "Подождите";
-					pMsgs[1] = "Чтение архива";
-					pMsgs[2] = m_pArchive->m_lpFileName;
-					pMsgs[3] = (char*)&szFileCount;
+				pMsgs[0] = "Подождите";
+				pMsgs[1] = "Чтение архива";
+				pMsgs[2] = m_pArchive->m_lpFileName;
+				pMsgs[3] = (char*)&szFileCount;
 
-					FSF.sprintf ((char*)&szFileCount, "%d файлов", m_nArchiveFilesCount);
+				FSF.sprintf ((char*)&szFileCount, "%d файлов", m_nArchiveFilesCount);
 
-					Info.Message(
-							Info.ModuleNumber,
-							bProgressMessage?FMSG_KEEPBACKGROUND:0,
-							NULL,
-							pMsgs,
-							4,
-							0
-							);
+				Info.Message(
+						Info.ModuleNumber,
+						bProgressMessage?FMSG_KEEPBACKGROUND:0,
+						NULL,
+						pMsgs,
+						4,
+						0
+					);
 
-					bProgressMessage = true;
-				}
+				bProgressMessage = true;
 			}
 
 			m_nArchiveFilesCount++;
