@@ -243,10 +243,10 @@ int __cdecl compare(const void *p1, const void *p2)
 	if ( i1 > i2 )
 		return 1;
 
-	if ( i1 == i2 )
-		return 0;
+	if ( i1 < i2 )
+		return -1;
 
-	return -1;
+	return 0;
 }
 
 
