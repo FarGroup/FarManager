@@ -252,7 +252,7 @@ int __stdcall Archive::ArchiveCallback (
 			}
 
 			m_bFirstFile = false;
-			m_nTotalSize2 = 0;
+			m_uTotalSize2 = 0;
 		}
 
 		if ( !OptionIsOn (m_nMode, OPM_SILENT) )
@@ -280,18 +280,18 @@ int __stdcall Archive::ArchiveCallback (
 			Info.Text (0, 0, 0, 0);
 		}
 
-		m_nTotalSize = 0;
+		m_uTotalSize = 0;
 	}
 
 	if ( nMsg == AM_PROCESS_DATA )
 	{
-		m_nTotalSize += nParam2;
-		m_nTotalSize2 += nParam2;
+		m_uTotalSize += nParam2;
+		m_uTotalSize2 += nParam2;
 
 		double div;
 
 		if (m_pCurrentItem->FindData.nFileSizeLow>0)
-			div = (double)m_nTotalSize/(double)m_pCurrentItem->FindData.nFileSizeLow;
+			div = (double)m_uTotalSize/(double)(m_pCurrentItem->FindData.nFileSizeHigh*0x100000000ull+m_pCurrentItem->FindData.nFileSizeLow);
 		else
 			div = 1;
 		if (div > 1)
@@ -301,8 +301,8 @@ int __stdcall Archive::ArchiveCallback (
 		if ( !OptionIsOn (m_nMode, OPM_SILENT) )
 			doIndicator (c.X+5, c.Y+6, dwPercent);
 
-		if (m_nFullSize>0)
-        	div = (double)m_nTotalSize2/(double)m_nFullSize;
+		if (m_uFullSize>0)
+        	div = (double)m_uTotalSize2/(double)m_uFullSize;
         else
         	div = 1;
 		if (div > 1)

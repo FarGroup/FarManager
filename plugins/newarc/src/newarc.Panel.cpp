@@ -77,6 +77,8 @@ bool CheckForEsc ()
 
 bool ArchivePanel::ReadArchive (bool bSilent)
 {
+	MessageBox (0, "read", "asd", MB_OK);
+
 	if ( !m_pArchive->pOpenArchive (OM_LIST) )
 		return false;
 
@@ -743,7 +745,7 @@ void GetArchiveItemsToProcess (
 					{
 						memcpy (&pResult[nCount++], pCurrentPanelItem, sizeof (PluginPanelItem));
 
-						pPanel->m_pArchive->m_nFullSize += pCurrentPanelItem->FindData.nFileSizeLow;
+						pPanel->m_pArchive->m_uFullSize += pCurrentPanelItem->FindData.nFileSizeHigh*0x100000000ull+pCurrentPanelItem->FindData.nFileSizeLow;
 
 						if ( nCount == nArrayCount )
 						{
@@ -790,7 +792,7 @@ void GetArchiveItemsToProcess (
 			StrFree (lpFullName);
 		}
 
-        pPanel->m_pArchive->m_nFullSize += pPanelItems[i].FindData.nFileSizeLow;
+        pPanel->m_pArchive->m_uFullSize += pPanelItems[i].FindData.nFileSizeHigh*0x100000000ull+pPanelItems[i].FindData.nFileSizeLow;
 
 		if ( nCount == nArrayCount )
 		{
@@ -1608,7 +1610,7 @@ int __stdcall ArchivePanel::pGetFiles (
 		PluginPanelItem *pItemsToProcess;
 		int nItemsToProcessNumber;
 
-		m_pArchive->m_nFullSize = 0;
+		m_pArchive->m_uFullSize = 0;
 
 		GetArchiveItemsToProcess (
 				this,

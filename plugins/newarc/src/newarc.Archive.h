@@ -18,9 +18,9 @@ public:
 
 	bool m_bFirstFile;
 
-	int m_nTotalSize;
-	int m_nTotalSize2;
-	int m_nFullSize;
+	unsigned __int64 m_uTotalSize;
+	unsigned __int64 m_uTotalSize2;
+	unsigned __int64 m_uFullSize;
 
 	PluginPanelItem *m_pCurrentItem;
 
