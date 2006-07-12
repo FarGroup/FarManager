@@ -30,11 +30,11 @@ static inline BOOL IsValidHeader (const unsigned char *Data)
 
 int IsNSISHeader(const unsigned char *Data,int DataSize)
 {
-	if ( DataSize < MIN_HEADER_LEN )
+	if ( (size_t)DataSize < MIN_HEADER_LEN )
 		return -1;
 
 	const unsigned char *MaxData=Data+DataSize-MIN_HEADER_LEN;
-	const unsigned char *DataEnd=Data+DataSize;
+	//const unsigned char *DataEnd=Data+DataSize;
 
 	for (const unsigned char *CurData=Data; CurData<MaxData; CurData++)
 	{

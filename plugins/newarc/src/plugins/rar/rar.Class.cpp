@@ -82,7 +82,7 @@ bool __stdcall RarArchive::pOpenArchive (
 
 	if ( arcData.OpenResult == 0 )
 	{
-		m_pModule->m_pfnSetCallback (m_hArchive, (UNRARCALLBACK)m_pfnRarCallback, NULL);
+		m_pModule->m_pfnSetCallback (m_hArchive, (UNRARCALLBACK)m_pfnRarCallback, 0);
 		return true;
 	}
 

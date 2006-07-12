@@ -70,7 +70,7 @@ int IsTarHeader (const unsigned char *Data, int DataSize)
   size_t I;
   struct posix_header *Header;
 
-  if (DataSize<sizeof(struct posix_header))
+  if ((size_t)DataSize<sizeof(struct posix_header))
     return -1;
 
   Header=(struct posix_header *)Data;

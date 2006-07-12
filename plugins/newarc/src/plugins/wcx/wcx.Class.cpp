@@ -1,5 +1,7 @@
 #include <FarPluginBase.h>
+#ifdef _DEBUG
 #include <debug.h>
+#endif
 #include "wcx.class.h"
 
 int __stdcall WcxArchive::ProcessDataProc (char *FileName, int Size)
