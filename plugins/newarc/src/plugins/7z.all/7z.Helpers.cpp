@@ -121,6 +121,101 @@ HRESULT __stdcall CInFile::Seek (__int64 offset, unsigned int seekOrigin, unsign
 	}
 }
 
+bool COutFile::Open ()
+{
+	HANDLE hFile = CreateFile (
+			m_lpFileName,
+			GENERIC_WRITE,
+			FILE_SHARE_READ|FILE_SHARE_WRITE,
+			NULL,
+			CREATE_ALWAYS,
+			FILE_FLAG_SEQUENTIAL_SCAN,
+			NULL
+			);
+
+	if ( hFile != INVALID_HANDLE_VALUE )
+	{
+		m_hFile = hFile;
+		return true;
+	}
+
+	return false;
+}
+
+bool COutFile::SetTime (const FILETIME* lpCreationTime, const FILETIME* lpLastAccessTime, const FILETIME* lpLastWriteTime)
+{
+	return (bool)SetFileTime (m_hFile, lpCreationTime, lpLastAccessTime, lpLastWriteTime);
+}
+
+bool COutFile::SetAttributes (DWORD dwFileAttributes)
+{
+	return (bool)SetFileAttributes (m_lpFileName, dwFileAttributes);
+}
+
+COutFile::COutFile (const char *lpFileName)
+{
+	m_nRefCount = 1;
+	m_hFile = INVALID_HANDLE_VALUE;
+	m_lpFileName = StrDuplicate (lpFileName);
+}
+
+COutFile::~COutFile ()
+{
+	StrFree (m_lpFileName);
+
+	if ( m_hFile != INVALID_HANDLE_VALUE )
+		CloseHandle (m_hFile);
+}
+
+
+HRESULT __stdcall COutFile::QueryInterface (const IID &iid, void ** ppvObject)
+{
+	*ppvObject = NULL;
+
+	if ( iid == IID_ISequentialOutStream )
+	{
+		*ppvObject = this;
+		AddRef ();
+
+		return S_OK;
+	}
+
+	return E_NOINTERFACE;
+}
+
+ULONG __stdcall COutFile::AddRef ()
+{
+	return ++m_nRefCount;
+}
+
+ULONG __stdcall COutFile::Release ()
+{
+	if ( --m_nRefCount == 0 )
+	{
+		delete this;
+		return 0;
+	}
+
+	return m_nRefCount;
+}
+
+
+HRESULT __stdcall COutFile::Write (const void *data, unsigned int size, unsigned int *processedSize)
+{
+	DWORD dwWritten;
+
+	if ( WriteFile (m_hFile, data, size, &dwWritten, NULL) )
+	{
+		if ( processedSize )
+			*processedSize = dwWritten;
+
+		return S_OK;
+	}
+
+	return E_FAIL;
+}
+
+
 
 CArchiveExtractCallback::CArchiveExtractCallback (
 		SevenZipArchive *pArchive,
@@ -282,14 +377,100 @@ HRESULT __stdcall CArchiveExtractCallback::GetStream (
 		)
 
 {
-	PROPVARIANT value;
+	//PROPVARIANT value;
+	CPropVariant value;
 
 	IInArchive *archive = m_pArchive->m_pArchive;
-	VariantInit ((VARIANTARG*)&value);
+	//VariantInit ((VARIANTARG*)&value);
 
 	if ( askExtractMode == 0 ) //extract
 	{
-		if ( SUCCEEDED (archive->GetProperty (
+		if ( archive->GetProperty (index, kpidPath, &value) != S_OK )
+			return S_OK; //!!! to return error
+
+  		char szArcFileName[NM];
+  		char szFullName[NM];
+
+  		if ( value.vt == VT_BSTR )
+  			WideCharToMultiByte (CP_OEMCP, 0, value.bstrVal, -1, szArcFileName, NM, NULL, NULL);
+  		else
+  		{
+  			strcpy (szArcFileName, FSF.PointToName (m_pArchive->m_lpFileName));
+  			CutTo (szArcFileName, '.', true);
+  		}
+
+  		strcpy (szFullName, m_lpDestPath);
+
+  		FSF.AddEndSlash (szFullName);
+
+  		if ( !FSF.LStrnicmp (szArcFileName, m_lpCurrentFolder, strlen (m_lpCurrentFolder)) )
+  			strcat (szFullName, szArcFileName+strlen (m_lpCurrentFolder));
+  		else
+  			strcat (szFullName, szArcFileName);
+
+  		int itemindex = GetItemIndex (this, index);
+  		PluginPanelItem *item = m_pItems[itemindex].pItem;
+
+  		if ( m_pArchive->m_pfnCallback )
+  			m_pArchive->m_pfnCallback (AM_START_EXTRACT_FILE, (int)item, (int)szFullName);
+
+  		if ( (int)m_nLastProcessed == -1 )
+  			m_nLastProcessed = 0;
+
+  		if ( archive->GetProperty (index, kpidIsFolder, &value)	&& (value.vt == VT_BOOL) )
+  		{
+			*outStream = NULL;
+			CreateDirectoryEx (szFullName);
+		}
+		else
+		{
+			CreateDirs (szFullName);
+
+			FILETIME ftCreationTime, ftLastAccessTime, ftLastWriteTime;
+			DWORD dwFileAttributes = 0;
+
+			memset (&ftCreationTime, 0, sizeof (FILETIME));
+			memset (&ftLastAccessTime, 0, sizeof (FILETIME));
+			memset (&ftLastWriteTime, 0, sizeof (FILETIME));
+
+    		if ( archive->GetProperty (index, kpidAttributes, &value) == S_OK )
+    		{
+    			if ( value.vt == VT_UI4 )
+    		        dwFileAttributes = value.ulVal;
+    		}
+
+    		if ( archive->GetProperty (index, kpidCreationTime, &value) == S_OK )
+    		{
+    			if ( value.vt == VT_FILETIME )			
+    				memcpy (&ftCreationTime, &value.filetime, sizeof (FILETIME));
+    		}
+
+    		if ( archive->GetProperty (index, kpidLastAccessTime, &value) == S_OK )
+    		{
+    			if ( value.vt == VT_FILETIME )
+    				memcpy (&ftLastAccessTime, &value.filetime, sizeof (FILETIME));
+    		}
+
+    		if ( archive->GetProperty (index, kpidLastWriteTime, &value) == S_OK )
+    		{
+    			if ( value.vt == VT_FILETIME )
+    				memcpy (&ftLastWriteTime, &value.filetime, sizeof (FILETIME));
+    		}
+
+			COutFile *file = new COutFile (szFullName);
+
+			if ( file->Open () )
+			{
+				file->SetAttributes (dwFileAttributes);
+				file->SetTime (&ftCreationTime, &ftLastAccessTime, &ftLastWriteTime);
+			}
+
+			*outStream = file;
+		} 
+
+
+
+	/*	if ( SUCCEEDED (archive->GetProperty (
 				index,
 				kpidPath,
 				&value
@@ -348,8 +529,8 @@ HRESULT __stdcall CArchiveExtractCallback::GetStream (
 
 				*outStream = file;
 				VariantClear ((VARIANTARG*)&value);
-			}
-		}
+			} 
+		}*/
 	}
 	else
 		*outStream = NULL;
@@ -446,86 +627,6 @@ HRESULT __stdcall CCryptoGetTextPassword::CryptoGetTextPassword (BSTR *password)
 
 
 
-bool COutFile::Open (const char *lpFileName)
-{
-	HANDLE hFile = CreateFile (
-			lpFileName,
-			GENERIC_WRITE,
-			FILE_SHARE_READ,
-			NULL,
-			CREATE_ALWAYS,
-			FILE_FLAG_SEQUENTIAL_SCAN,
-			NULL
-			);
-
-	if ( hFile != INVALID_HANDLE_VALUE )
-	{
-		m_hFile = hFile;
-		return true;
-	}
-
-	return false;
-}
-
-COutFile::COutFile ()
-{
-	m_nRefCount = 1;
-	m_hFile = INVALID_HANDLE_VALUE;
-}
-
-COutFile::~COutFile ()
-{
-	if ( m_hFile != INVALID_HANDLE_VALUE )
-		CloseHandle (m_hFile);
-}
-
-
-HRESULT __stdcall COutFile::QueryInterface (const IID &iid, void ** ppvObject)
-{
-	*ppvObject = NULL;
-
-	if ( iid == IID_ISequentialOutStream )
-	{
-		*ppvObject = this;
-		AddRef ();
-
-		return S_OK;
-	}
-
-	return E_NOINTERFACE;
-}
-
-ULONG __stdcall COutFile::AddRef ()
-{
-	return ++m_nRefCount;
-}
-
-ULONG __stdcall COutFile::Release ()
-{
-	if ( --m_nRefCount == 0 )
-	{
-		delete this;
-		return 0;
-	}
-
-	return m_nRefCount;
-}
-
-
-HRESULT __stdcall COutFile::Write (const void *data, unsigned int size, unsigned int *processedSize)
-{
-	DWORD dwWritten;
-
-	if ( WriteFile (m_hFile, data, size, &dwWritten, NULL) )
-	{
-		if ( processedSize )
-			*processedSize = dwWritten;
-
-		return S_OK;
-	}
-
-	return E_FAIL;
-}
 
 
 ULONG __stdcall CArchiveOpenCallback::AddRef ()

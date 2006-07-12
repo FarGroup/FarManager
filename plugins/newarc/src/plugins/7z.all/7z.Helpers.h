@@ -168,13 +168,16 @@ private:
 
 	HANDLE m_hFile;
 	int m_nRefCount;
+	char *m_lpFileName;
 
 public:
 
-	COutFile ();
+	COutFile (const char *lpFileName);
 	~COutFile ();
 
-	bool Open (const char *lpFileName);
+	bool Open ();
+	bool SetTime (const FILETIME* lpCreationTime, const FILETIME* lpLastAccessTime, const FILETIME* lpLastWriteTime);
+	bool SetAttributes (DWORD dwFileAttributes);
 
 	virtual HRESULT __stdcall QueryInterface (const IID &iid, void ** ppvObject);
 	virtual ULONG __stdcall AddRef ();

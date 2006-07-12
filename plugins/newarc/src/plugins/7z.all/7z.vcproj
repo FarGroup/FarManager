@@ -160,6 +160,9 @@
 				RelativePath=".\nsisdetect.cpp">
 			</File>
 			<File
+				RelativePath=".\PropVariant.cpp">
+			</File>
+			<File
 				RelativePath=".\rardetect.cpp">
 			</File>
 			<File
