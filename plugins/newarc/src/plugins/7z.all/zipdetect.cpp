@@ -43,7 +43,7 @@ int IsZipHeader(const unsigned char *Data,int DataSize)
 	{
 		return 0;
 	}
-	if (DataSize<MIN_HEADER_LEN)
+	if ((size_t)DataSize<MIN_HEADER_LEN)
 		return -1;
 	const unsigned char *MaxData=Data+DataSize-MIN_HEADER_LEN;
 	const unsigned char *DataEnd=Data+DataSize;
