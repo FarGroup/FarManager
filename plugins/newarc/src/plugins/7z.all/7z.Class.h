@@ -28,7 +28,8 @@ public:
 	~SevenZipModule ();
 
 	void GetArchiveFormatInfo (ArchiveFormatInfo *pInfo);
-	bool HasSignature ();
+//	bool HasSignature ();
+	bool IsSplitModule ();
 };
 
 class SevenZipArchive {

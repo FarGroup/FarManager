@@ -93,11 +93,21 @@ int __cdecl SortFormats (
 
 int OnQueryArchive (QueryArchiveStruct *pQAS)
 {
- /*  	for (int i = 0; i < Formats.GetCount (); i++)
+	SevenZipModule *pSplitModule = NULL;
+	bool bSplit;
+
+   	for (int i = 0; i < Formats.GetCount (); i++)
    	{
+   		bSplit = false;
    		SevenZipModule *pModule = Formats[i];
 
-   		if ( pModule && !pModule->HasSignature() )
+   		if ( pModule->IsSplitModule() )
+   		{
+   			pSplitModule = pModule;
+   			bSplit = true;
+		}
+
+   		if ( pModule && !bSplit )
    		{
    			SevenZipArchive *pArchive = new SevenZipArchive (pModule, pQAS->lpFileName);
 
@@ -111,9 +121,24 @@ int OnQueryArchive (QueryArchiveStruct *pQAS)
 
    			delete pArchive;
    		}
-   	}*/
+   	}
 
+   	if ( pSplitModule )
+   	{
+		SevenZipArchive *pArchive = new SevenZipArchive (pSplitModule, pQAS->lpFileName);
 
+		if ( pArchive->pOpenArchive (0, NULL) )
+		{
+			pArchive->pCloseArchive ();
+			pQAS->hResult = (HANDLE)pArchive;
+
+			return NAERROR_SUCCESS;
+		}
+
+		delete pArchive;
+   	}
+
+/*
 	Collection <FormatPosition*> formats;
 
 	formats.Create (5);
@@ -130,26 +155,21 @@ int OnQueryArchive (QueryArchiveStruct *pQAS)
 		{
 			SevenZipModule *pModule = Formats[i];
 
-			if ( pModule && /*pModule->HasSignature() &&*/ IsEqualGUID (pModule->m_uid, *pos->puid) )
+			if ( pModule &&  IsEqualGUID (pModule->m_uid, *pos->puid) )
 			{
 				SevenZipArchive *pArchive = new SevenZipArchive (pModule, pQAS->lpFileName);
 
-/*				if ( pArchive->pOpenArchive (0, NULL) )
-				{
-					pArchive->pCloseArchive ();*/
 
 					pQAS->hResult = (HANDLE)pArchive;
 
 					formats.Free ();
 					return NAERROR_SUCCESS;
-/*				}
-
-				delete pArchive;*/
 			}
 		}
 	}
 
 	formats.Free ();
+	*/
 
 	return NAERROR_INTERNAL;
 }

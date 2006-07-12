@@ -24,6 +24,7 @@ const GUID FormatGUIDs[] = {
 		CLSID_CCpioHandler,
 };
 
+/*
 const unsigned char SevenZipSig[] = {'7' , 'z', 0xBC, 0xAF, 0x27, 0x1C};
 const unsigned char ZipSig[]      = {0x50, 0x4B, 0x03, 0x04};
 const unsigned char BZipSig[]     = {'B' , 'Z', 'h'};
@@ -65,6 +66,8 @@ const FormatInfo signs[] = {
 	{&CLSID_CNsisHandler,  (const unsigned char *)&NsisSig,    16, false, NULL},
 	{&CLSID_CIsoHandler,   (const unsigned char *)&IsoSig,      6, false, NULL},
 };
+
+*/
 
 bool GetFormatCommand(const GUID guid, int nCommand, char *lpCommand)
 {
@@ -110,6 +113,7 @@ bool GetFormatCommand(const GUID guid, int nCommand, char *lpCommand)
 	return true;
 }
 
+/*
 int FindFormats (const char *lpFileName, Collection <FormatPosition*> &formats)
 {
 	HANDLE hFile = CreateFile (
@@ -206,6 +210,7 @@ int FindFormats (const char *lpFileName, Collection <FormatPosition*> &formats)
 
 	return formats.GetCount();
 }
+*/
 
 
 bool SevenZipModule::Initialize (const char *lpFileName)
@@ -251,6 +256,7 @@ SevenZipModule::~SevenZipModule ()
 	FreeLibrary (m_hModule);
 }
 
+/*
 bool SevenZipModule::HasSignature ()
 {
 	if ( IsEqualGUID (m_uid, CLSID_CSplitHandler) )
@@ -264,6 +270,16 @@ bool SevenZipModule::HasSignature ()
 
 	return false;
 }
+*/
+
+bool SevenZipModule::IsSplitModule ()
+{
+	if ( IsEqualGUID (m_uid, CLSID_CSplitHandler) )
+		return true;
+
+	return false;
+}
+
 
 
 void SevenZipModule::GetArchiveFormatInfo (ArchiveFormatInfo *pInfo)
@@ -413,7 +429,7 @@ bool __stdcall SevenZipArchive::pOpenArchive (
   				(void**)&m_pArchive
   				);
 
-		if ( SUCCEEDED (hr) )
+		if ( hr == S_OK )
   		{
   			unsigned __int64 max = 1 << 17;
 
@@ -423,9 +439,9 @@ bool __stdcall SevenZipArchive::pOpenArchive (
 
 			hr = m_pArchive->Open (m_pInFile, &max, pCallback);
 
-			if ( SUCCEEDED (hr) )
+			if ( hr == S_OK )
   			{
-  				if ( SUCCEEDED (m_pArchive->GetNumberOfItems((unsigned int*)&m_nItemsNumber)) )
+  				if ( m_pArchive->GetNumberOfItems((unsigned int*)&m_nItemsNumber) == S_OK )
   				{
   					m_nItemsNumber--;
 
