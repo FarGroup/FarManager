@@ -642,7 +642,7 @@ bool CheckForEsc ()
 HRESULT __stdcall CArchiveOpenCallback::SetCompleted (const UInt64 *files, const UInt64 *bytes)
 {
 	if ( CheckForEsc() )
-		return E_FAIL;
+		return E_ABORT;
 
 	if ( !(*files & 0x1f)  && (GetTickCount ()-m_dwStartTime > 500) )
 	{

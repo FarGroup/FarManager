@@ -23,7 +23,7 @@ const GUID FormatGUIDs[] = {
 		CLSID_CCpioHandler,
 };
 
-/*
+
 const unsigned char SevenZipSig[] = {'7' , 'z', 0xBC, 0xAF, 0x27, 0x1C};
 const unsigned char ZipSig[]      = {0x50, 0x4B, 0x03, 0x04};
 const unsigned char BZipSig[]     = {'B' , 'Z', 'h'};
@@ -48,9 +48,9 @@ struct FormatInfo {
 };
 
 const FormatInfo signs[] = {
-	{&CLSID_CFormat7z,     (const unsigned char *)&SevenZipSig, 6, false, NULL},
+	{&CLSID_CFormat7z,     (const unsigned char *)&SevenZipSig, 6, false, Is7zHeader},
 	{&CLSID_CRarHandler,   (const unsigned char *)&RarSig,      4, false, IsRarHeader},
-	{&CLSID_CZipHandler,   (const unsigned char *)&ZipSig,      4, false, IsZipHeader},
+	{&CLSID_CZipHandler,   (const unsigned char *)&ZipSig,      4, true, IsZipHeader},
 	{&CLSID_CRpmHandler,   (const unsigned char *)&RpmSig,      4, true,  NULL},
 	{&CLSID_CDebHandler,   (const unsigned char *)&DebSig,     21, true,  NULL},
 	{&CLSID_CCabHandler,   (const unsigned char *)&CabSig,      4, false, IsCabHeader},
@@ -66,7 +66,7 @@ const FormatInfo signs[] = {
 	{&CLSID_CIsoHandler,   (const unsigned char *)&IsoSig,      6, false, NULL},
 };
 
-*/
+
 
 bool GetFormatCommand(const GUID guid, int nCommand, char *lpCommand)
 {
@@ -112,7 +112,7 @@ bool GetFormatCommand(const GUID guid, int nCommand, char *lpCommand)
 	return true;
 }
 
-/*
+
 int FindFormats (const char *lpFileName, Collection <FormatPosition*> &formats)
 {
 	HANDLE hFile = CreateFile (
@@ -139,14 +139,18 @@ int FindFormats (const char *lpFileName, Collection <FormatPosition*> &formats)
 				if ( info->pDetectArchive)
 				{
 					int position = info->pDetectArchive(buffer, dwRead);
+
 					if ( position != -1 )
 					{
-						FormatPosition *pos = new FormatPosition;
+						if ( !info->bPosZero || (position == 0) )
+						{
+							FormatPosition *pos = new FormatPosition;
 
-						pos->puid = info->puid;
-						pos->position = position;
+							pos->puid = info->puid;
+							pos->position = position;
 
-						formats.Add (pos);
+							formats.Add (pos);
+						}
 					}
 				}
 				else
@@ -209,7 +213,7 @@ int FindFormats (const char *lpFileName, Collection <FormatPosition*> &formats)
 
 	return formats.GetCount();
 }
-*/
+
 
 
 bool SevenZipModule::Initialize (const char *lpFileName)

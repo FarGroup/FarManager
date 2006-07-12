@@ -100,6 +100,7 @@
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				OptimizeForWindows98="1"
+				EntryPointSymbol=""
 				ImportLibrary="$(OutDir)/rar.lib"
 				TargetMachine="1"/>
 			<Tool
@@ -141,6 +142,21 @@
 				RelativePath=".\7z.Helpers.cpp">
 			</File>
 			<File
+				RelativePath=".\7zdetect.cpp">
+			</File>
+			<File
+				RelativePath=".\arjdetect.cpp">
+			</File>
+			<File
+				RelativePath=".\cabdetect.cpp">
+			</File>
+			<File
+				RelativePath=".\lzhdetect.cpp">
+			</File>
+			<File
+				RelativePath=".\rardetect.cpp">
+			</File>
+			<File
 				RelativePath="..\..\lib.part\Src\Registry.cpp">
 			</File>
 			<File
@@ -151,6 +167,12 @@
 			</File>
 			<File
 				RelativePath="..\..\lib.part\Src\Rtl.Thunks.cpp">
+			</File>
+			<File
+				RelativePath=".\tardetect.cpp">
+			</File>
+			<File
+				RelativePath=".\zipdetect.cpp">
 			</File>
 		</Filter>
 		<Filter

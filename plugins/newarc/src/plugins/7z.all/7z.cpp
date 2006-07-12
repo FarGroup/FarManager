@@ -93,7 +93,7 @@ int __cdecl SortFormats (
 
 int OnQueryArchive (QueryArchiveStruct *pQAS)
 {
-	SevenZipModule *pSplitModule = NULL;
+/*	SevenZipModule *pSplitModule = NULL;
 	bool bSplit;
 
    	for (int i = 0; i < Formats.GetCount (); i++)
@@ -111,13 +111,22 @@ int OnQueryArchive (QueryArchiveStruct *pQAS)
    		{
    			SevenZipArchive *pArchive = new SevenZipArchive (pModule, pQAS->lpFileName);
 
-   			if ( pArchive->pOpenArchive (0, NULL) )
-   			{
-   				pArchive->pCloseArchive ();
-   				pQAS->hResult = (HANDLE)pArchive;
+   			pArchive->m_bIsArchive = false;
 
-   				return NAERROR_SUCCESS;
-   			}
+   			if ( pArchive->pOpenArchive (0, NULL) )
+   				pArchive->pCloseArchive ();
+
+   				if ( pArchive->m_bIsArchive )
+   				{
+   					ArchiveFormatInfo info;
+
+   					pModule->GetArchiveFormatInfo (&info);
+
+   					MessageBox (0, info.lpName, "asd", MB_OK);
+	   				pQAS->hResult = (HANDLE)pArchive;
+
+   					return NAERROR_SUCCESS;
+				}
 
    			delete pArchive;
    		}
@@ -127,18 +136,22 @@ int OnQueryArchive (QueryArchiveStruct *pQAS)
    	{
 		SevenZipArchive *pArchive = new SevenZipArchive (pSplitModule, pQAS->lpFileName);
 
-		if ( pArchive->pOpenArchive (0, NULL) )
-		{
-			pArchive->pCloseArchive ();
-			pQAS->hResult = (HANDLE)pArchive;
+		pArchive->m_bIsArchive = false;
 
-			return NAERROR_SUCCESS;
-		}
+		if ( pArchive->pOpenArchive (0, NULL) )
+			pArchive->pCloseArchive ();
+
+			if ( pArchive->m_bIsArchive )
+			{
+				pQAS->hResult = (HANDLE)pArchive;
+
+				return NAERROR_SUCCESS;
+			}
 
 		delete pArchive;
-   	}
+   	} */
 
-/*
+
 	Collection <FormatPosition*> formats;
 
 	formats.Create (5);
@@ -155,21 +168,25 @@ int OnQueryArchive (QueryArchiveStruct *pQAS)
 		{
 			SevenZipModule *pModule = Formats[i];
 
-			if ( pModule &&  IsEqualGUID (pModule->m_uid, *pos->puid) )
+			if ( pModule && IsEqualGUID (pModule->m_uid, *pos->puid) )
 			{
 				SevenZipArchive *pArchive = new SevenZipArchive (pModule, pQAS->lpFileName);
 
+				ArchiveFormatInfo info;
 
-					pQAS->hResult = (HANDLE)pArchive;
+				pModule->GetArchiveFormatInfo (&info);
 
-					formats.Free ();
-					return NAERROR_SUCCESS;
+				MessageBox (0, info.lpName, "asD", MB_OK);
+
+				pQAS->hResult = (HANDLE)pArchive;
+
+				formats.Free ();
+				return NAERROR_SUCCESS;
 			}
 		}
 	}
 
 	formats.Free ();
-	*/
 
 	return NAERROR_INTERNAL;
 }
