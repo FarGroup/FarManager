@@ -263,7 +263,7 @@ void __stdcall WcxArchive::pCloseArchive ()
 
 int __stdcall WcxArchive::pGetArchiveItem (ArchiveItemInfo *pItem)
 {
-	//int nResult = 0;
+	int nResult = 0;
 
 	//__debug ("%d", m_hArchive);
 
@@ -297,7 +297,7 @@ int __stdcall WcxArchive::pGetArchiveItem (ArchiveItemInfo *pItem)
 			memset (&HeaderData, 0, sizeof (HeaderData));
 			//strcpy (HeaderData.ArcName, m_lpFileName);
 
-			int nResult = m_pModule->m_pfnReadHeader (m_hArchive, &HeaderData);
+			nResult = m_pModule->m_pfnReadHeader (m_hArchive, &HeaderData);
 
 			m_pModule->m_pfnProcessFile (m_hArchive, PK_SKIP, NULL, NULL);
 
