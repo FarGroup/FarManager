@@ -137,7 +137,7 @@ void doIndicator (
 {
 	char *lpTemp = StrCreate (100);
 
-	memset (lpTemp, 177, 44);
+	memset (lpTemp, 177, 40);
 	memset (lpTemp, 219, dwPercent);
 
 	Info.Text (x, y, FarGetColor (COL_DIALOGTEXT), lpTemp);
@@ -165,7 +165,7 @@ void doEmptyDialog (
 		c.Y = SInfo.dwSize.Y/2-9;
 	}
 
-	doFrame (c.X, c.Y, 54, 10+Diff, " Распаковка ", true);
+	doFrame (c.X, c.Y, 55, 10+Diff, " Распаковка ", true);
 }
 
 
@@ -259,17 +259,17 @@ int __stdcall Archive::ArchiveCallback (
 		{
 			lpTemp = StrCreate (260);
 
-			memset (lpTemp, 32, 44);
+			memset (lpTemp, 32, 40);
 			Info.Text (c.X+5, c.Y+3, FarGetColor (COL_DIALOGTEXT), lpTemp);
 			Info.Text (c.X+5, c.Y+5, FarGetColor (COL_DIALOGTEXT), lpTemp);
 
 			strcpy (lpTemp, m_pCurrentItem->FindData.cFileName);
 
-			FSF.TruncPathStr (lpTemp, 44);
+			FSF.TruncPathStr (lpTemp, 40);
 			Info.Text (c.X+5, c.Y+3, FarGetColor (COL_DIALOGTEXT), lpTemp);
 
 			strcpy (lpTemp, (char*)nParam2);
-			FSF.TruncPathStr (lpTemp, 44);
+			FSF.TruncPathStr (lpTemp, 40);
 
 			Info.Text (c.X+5, c.Y+5, FarGetColor (COL_DIALOGTEXT), lpTemp);
 
@@ -289,6 +289,7 @@ int __stdcall Archive::ArchiveCallback (
 		m_uTotalSize2 += nParam2;
 
 		double div;
+		char szPercents[MAX_PATH];
 
 		if (m_pCurrentItem->FindData.nFileSizeLow>0)
 			div = (double)m_uTotalSize/(double)(m_pCurrentItem->FindData.nFileSizeHigh*0x100000000ull+m_pCurrentItem->FindData.nFileSizeLow);
@@ -296,10 +297,16 @@ int __stdcall Archive::ArchiveCallback (
 			div = 1;
 		if (div > 1)
 			div = 1;
-		dword dwPercent = (int)(div*44);
+		dword dwPercent = (int)(div*40);
+		dword dwRealPercent = (int)(div*100);
 
 		if ( !OptionIsOn (m_nMode, OPM_SILENT) )
+		{
 			doIndicator (c.X+5, c.Y+6, dwPercent);
+
+			wsprintf (szPercents, "%4u%%", dwRealPercent);
+			Info.Text (c.X+45, c.Y+6, FarGetColor (COL_DIALOGTEXT), szPercents);
+		}
 
 		if (m_uFullSize>0)
         	div = (double)m_uTotalSize2/(double)m_uFullSize;
@@ -307,11 +314,17 @@ int __stdcall Archive::ArchiveCallback (
         	div = 1;
 		if (div > 1)
 			div = 1;
-		dwPercent = (int)(div*44);
+
+		dwPercent = (int)(div*40);
+		dwRealPercent = (int)(div*100);
 
 		if ( !OptionIsOn (m_nMode, OPM_SILENT) )
 		{
 			doIndicator (c.X+5, c.Y+8, dwPercent);
+
+			wsprintf (szPercents, "%4u%%", dwRealPercent);
+			Info.Text (c.X+45, c.Y+8, FarGetColor (COL_DIALOGTEXT), szPercents);
+
 			Info.Text (0, 0, 0, 0);
 		}
 
