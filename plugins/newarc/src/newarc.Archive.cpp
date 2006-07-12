@@ -323,7 +323,7 @@ int __stdcall Archive::ArchiveCallback (
 
 		StrFree (lpTitle);
 
-		if ( !OptionIsOn (m_nMode, OPM_SILENT) )
+		if ( !OptionIsOn (m_nMode, OPM_SILENT) ) 
 		{
 			if ( CheckForEsc () )
 			{

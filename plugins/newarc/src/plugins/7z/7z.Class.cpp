@@ -276,12 +276,12 @@ bool __stdcall SevenZipArchive::pExtract (
 
 	CArchiveExtractCallback *pCallback = new CArchiveExtractCallback (this, items, nItemsNumber, lpDestPath, lpCurrentFolder);
 
-	if ( SUCCEEDED (m_pArchive->Extract(
+	if ( m_pArchive->Extract(
 			indices,
 			(unsigned int)nItemsNumber,
 			0,
 			pCallback
-			)) )
+			) == S_OK )
 		bResult = true;
 
 	delete pCallback;

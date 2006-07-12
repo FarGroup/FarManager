@@ -405,14 +405,11 @@ SevenZipArchive::SevenZipArchive (SevenZipModule *pModule, const char *lpFileNam
 	m_pModule = pModule;
 	m_lpFileName = StrDuplicate (lpFileName);
 
-//	m_bPasswordDefined = false;
+	m_bFirstTime = true;
 }
 
 SevenZipArchive::~SevenZipArchive ()
 {
-//	if ( m_bPasswordDefined )
-//		free (m_lpPassword);
-
 	StrFree (m_lpFileName);
 }
 
@@ -423,62 +420,76 @@ bool __stdcall SevenZipArchive::pOpenArchive (
 {
 	m_pfnCallback = pfnCallback;
 
-  	m_pInFile = new CInFile (m_lpFileName);
+	if ( m_bFirstTime )
+	{
+	  	m_pInFile = new CInFile (m_lpFileName);
 
-  	if ( m_pInFile->Open () )
-  	{
-		HRESULT hr = m_pModule->m_pfnCreateObject (
-  				&m_pModule->m_uid,
-  				&IID_IInArchive,
-  				(void**)&m_pArchive
-  				);
-
-		if ( hr == S_OK )
-  		{
-  			unsigned __int64 max = 1 << 17;
-
-			CArchiveOpenCallback *pCallback = new CArchiveOpenCallback (this);
-
-			m_bListPassword = false;
-
-			hr = m_pArchive->Open (m_pInFile, &max, pCallback);
+  		if ( m_pInFile->Open () )
+	  	{
+			HRESULT hr = m_pModule->m_pfnCreateObject (
+  					&m_pModule->m_uid,
+  					&IID_IInArchive,
+  					(void**)&m_pArchive
+	  				);
 
 			if ( hr == S_OK )
   			{
-  				if ( m_pArchive->GetNumberOfItems((unsigned int*)&m_nItemsNumber) == S_OK )
-  				{
-  					m_nItemsNumber--;
+  				unsigned __int64 max = 1 << 17;
 
-  					delete pCallback;
-  					return true;
+				CArchiveOpenCallback *pCallback = new CArchiveOpenCallback (this);
+
+				m_bListPassword = false;
+
+				hr = m_pArchive->Open (m_pInFile, &max, pCallback);
+
+				if ( hr == S_OK )
+	  			{
+  					if ( m_pArchive->GetNumberOfItems((unsigned int*)&m_nItemsNumber) == S_OK )
+  					{
+  						m_nItemsNumber--;
+  						m_bFirstTime = false;
+
+  						delete pCallback;
+  						return true;
+	  				}
+
+  					m_pArchive->Close();
   				}
+  				/*else
+	  			{
+		  			//HACK!!! цинично показываем пустую панель при неправильном пароле на
+	  				//листинге. а то Far неадекватно воспринимает FALSE из GetFindData
 
-  				m_pArchive->Close();
-  			}
-  			/*else
-  			{
-	  			//HACK!!! цинично показываем пустую панель при неправильном пароле на
-	  			//листинге. а то Far неадекватно воспринимает FALSE из GetFindData
+  					if ( m_bListPassword )
+  					{
+  						m_nItemsNumber = -1;
+	  					delete pCallback;
+  						return true;
+  					}
+				}*/
 
-  				if ( m_bListPassword )
-  				{
-  					m_nItemsNumber = -1;
-  					delete pCallback;
-  					return true;
-  				}
-			}*/
+				delete pCallback;
 
-			delete pCallback;
+  				//if we get here, there is an error
 
-  			//if we get here, there is an error
+  				m_pArchive->Release ();
+	  		}
 
-  			m_pArchive->Release ();
-  		}
+  			m_pInFile->Release ();
+	  	}
 
-  		m_pInFile->Release ();
-  	}
+		return false;
+	}
+	else
+	{
+		if ( m_pArchive->GetNumberOfItems((unsigned int*)&m_nItemsNumber) == S_OK )
+		{
+			m_nItemsNumber--;
+			return true;
+		}
 
-	return false;
+		return false;
+	}
 }
 
 void __stdcall SevenZipArchive::pCloseArchive ()
@@ -712,6 +723,7 @@ bool __stdcall SevenZipArchive::pExtract (
 	//m_pArchive->GetNumberOfItems((unsigned int*)&nItems);
 
 	CArchiveExtractCallback *pCallback = new CArchiveExtractCallback (this, items, nItemsNumber, lpDestPath, lpCurrentFolder);
+
 
 	if ( SUCCEEDED (m_pArchive->Extract(
 			indices,

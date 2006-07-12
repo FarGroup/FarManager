@@ -80,6 +80,11 @@ class WcxArchive {
 
 	char *m_lpFileName;
 
+	PBYTE m_pfnProcessDataProc;
+	PBYTE m_pfnSetChangeVolProc;
+
+	ARCHIVECALLBACK m_pfnCallback;
+
 public:
 
 	WcxArchive (WcxModule *pModule, int nModuleNum, const char *lpFileName);
@@ -87,7 +92,7 @@ public:
 
 	virtual int ConvertResult (int nResult);
 
-	virtual bool __stdcall pOpenArchive ();
+	virtual bool __stdcall pOpenArchive (int nOpMode, ARCHIVECALLBACK pfnCallback);
 	virtual void __stdcall pCloseArchive ();
 
 	virtual bool __stdcall pExtract (PluginPanelItem *pItems, int nItemsNumber, const char *lpDestPath, const char *lpCurrentFolder);
@@ -96,4 +101,7 @@ public:
 	virtual int __stdcall pGetArchiveItem (ArchiveItemInfo *pItem);
 
 	virtual int __stdcall pGetArchiveType ();
+
+	int __stdcall ProcessDataProc (char *FileName, int Size);
+	int __stdcall SetChangeVolProc (char *ArcName, int Mode);
 };

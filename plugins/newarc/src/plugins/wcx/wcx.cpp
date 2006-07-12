@@ -45,7 +45,7 @@ int OnOpenArchive (OpenArchiveStruct *pOAS)
 {
 	WcxArchive *pArchive = (WcxArchive*)pOAS->hArchive;
 
-	pOAS->bResult = pArchive->pOpenArchive ();
+	pOAS->bResult = pArchive->pOpenArchive (pOAS->nMode, pOAS->pfnCallback);
 
 	return NAERROR_SUCCESS;
 }

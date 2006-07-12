@@ -135,6 +135,9 @@
 				RelativePath="..\..\lib.part\Src\Rtl.Strings.cpp">
 			</File>
 			<File
+				RelativePath="..\..\lib.part\Src\Rtl.Thunks.cpp">
+			</File>
+			<File
 				RelativePath=".\wcx.Class.cpp">
 			</File>
 			<File

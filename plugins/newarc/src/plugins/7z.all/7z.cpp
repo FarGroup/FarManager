@@ -202,15 +202,16 @@ int OnOpenArchive (OpenArchiveStruct *pOAS)
 
 int OnCloseArchive (CloseArchiveStruct *pCAS)
 {
-	SevenZipArchive *pArchive = (SevenZipArchive*)pCAS->hArchive;
+/*	SevenZipArchive *pArchive = (SevenZipArchive*)pCAS->hArchive;
 
-	pArchive->pCloseArchive ();
+	pArchive->pCloseArchive ();*/
 
 	return NAERROR_SUCCESS;
 }
 
 int OnFinalizeArchive (SevenZipArchive *pArchive)
 {
+	pArchive->pCloseArchive ();
 	delete pArchive;
 
 	return NAERROR_SUCCESS;

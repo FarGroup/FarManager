@@ -49,6 +49,7 @@ public:
 	DWORD m_nItemsNumber;
 
 	bool m_bListPassword;
+	bool m_bFirstTime;
 
 public:
 

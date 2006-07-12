@@ -72,13 +72,11 @@ bool CheckForEsc ()
 
 	return EC;
 }
-
+    
 
 
 bool ArchivePanel::ReadArchive (bool bSilent)
 {
-	MessageBox (0, "read", "asd", MB_OK);
-
 	if ( !m_pArchive->pOpenArchive (OM_LIST) )
 		return false;
 
@@ -1634,16 +1632,17 @@ int __stdcall ArchivePanel::pGetFiles (
 					);
 		else
 		{
-			m_pArchive->pOpenArchive (OM_EXTRACT);
+			if ( m_pArchive->pOpenArchive (OM_EXTRACT) ) //to cache opened state!!!
+			{
+				/*bool bResult =*/ m_pArchive->pExtract (
+						pItemsToProcess,
+						nItemsToProcessNumber,
+						lpResultDestPath,
+						m_lpCurrentFolder
+						);
 
-			/*bool bResult =*/ m_pArchive->pExtract (
-					pItemsToProcess,
-					nItemsToProcessNumber,
-					lpResultDestPath,
-					m_lpCurrentFolder
-					);
-
-			m_pArchive->pCloseArchive ();
+				m_pArchive->pCloseArchive ();
+			}
 		}
 
 		if ( Move )

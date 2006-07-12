@@ -1,15 +1,16 @@
 #include <FarPluginBase.h>
-#ifdef _DEBUG
 #include <debug.h>
-#endif
 #include "wcx.class.h"
 
-int __stdcall ProcessDataProc (char *FileName, int Size)
+int __stdcall WcxArchive::ProcessDataProc (char *FileName, int Size)
 {
+	if ( m_pfnCallback )
+		return m_pfnCallback (AM_PROCESS_DATA, 0, (int)Size);
+
 	return 1;
 }
 
-int __stdcall SetChangeVolProc (char *ArcName, int Mode)
+int __stdcall WcxArchive::SetChangeVolProc (char *ArcName, int Mode)
 {
 	return 1;
 }
@@ -150,8 +151,6 @@ int WINAPI WcxModules::LoadWcxModules (const WIN32_FIND_DATA *pFindData,
 	if ( pFindData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY )
 		return TRUE;
 
-    MessageBox (0, lpFullName, lpFullName, MB_OK);
-
 	WcxModule *pModule = new WcxModule (lpFullName);
 
 	if ( !pModule )
@@ -198,11 +197,19 @@ WcxArchive::WcxArchive (WcxModule *pModule, int nModuleNum, const char *lpFileNa
 	m_nModuleNum = nModuleNum;
 
 	m_hArchive = NULL;
+
+	CreateClassThunk (WcxArchive, ProcessDataProc, m_pfnProcessDataProc);
+	CreateClassThunk (WcxArchive, SetChangeVolProc, m_pfnSetChangeVolProc);
+
+	m_pfnCallback = NULL;
 }
 
 WcxArchive::~WcxArchive ()
 {
 	StrFree (m_lpFileName);
+
+	free (m_pfnProcessDataProc);
+	free (m_pfnSetChangeVolProc);
 }
 
 int WcxArchive::ConvertResult (int nResult)
@@ -222,35 +229,43 @@ int WcxArchive::ConvertResult (int nResult)
 	return E_UNEXPECTED_EOF;
 }
 
-bool __stdcall WcxArchive::pOpenArchive ()
+bool __stdcall WcxArchive::pOpenArchive (int nOpMode, ARCHIVECALLBACK pfnCallback)
 {
-/*
+	m_pfnCallback = pfnCallback;
+
 	tOpenArchiveData OpenArchiveData = {0};
 
 	OpenArchiveData.ArcName = m_lpFileName;
-	OpenArchiveData.OpenMode = PK_OM_LIST;
+	OpenArchiveData.OpenMode = (nOpMode == OM_EXTRACT)?PK_OM_EXTRACT:PK_OM_LIST;
 
 	m_hArchive = m_pModule->m_pfnOpenArchive (&OpenArchiveData);
 
-	return m_hArchive!=NULL;
-*/
-	return true;
+	if ( m_hArchive )
+	{
+		if (m_pModule->m_pfnSetProcessDataProc)
+			m_pModule->m_pfnSetProcessDataProc (m_hArchive, (tProcessDataProc)m_pfnProcessDataProc);
+
+		if (m_pModule->m_pfnSetChangeVolProc)
+			m_pModule->m_pfnSetChangeVolProc (m_hArchive, (tChangeVolProc)m_pfnSetChangeVolProc);
+
+		return true;
+	}
+
+	return false;
 }
 
 void __stdcall WcxArchive::pCloseArchive ()
 {
-	if (m_hArchive)
-	{
-		m_pModule->m_pfnCloseArchive (m_hArchive);
-		m_hArchive = NULL;
-	}
+	m_pModule->m_pfnCloseArchive (m_hArchive);
 }
 
 int __stdcall WcxArchive::pGetArchiveItem (ArchiveItemInfo *pItem)
 {
 	int nResult = 0;
 
-	if (!m_hArchive)
+	//__debug ("%d", m_hArchive);
+
+/*	if (!m_hArchive)
 	{
 		tOpenArchiveData OpenArchiveData = {0};
 
@@ -267,12 +282,12 @@ int __stdcall WcxArchive::pGetArchiveItem (ArchiveItemInfo *pItem)
 				m_pModule->m_pfnSetChangeVolProc (m_hArchive, SetChangeVolProc);
 		}
 	}
-	else
-	{
-		nResult = m_pModule->m_pfnProcessFile (m_hArchive, PK_SKIP, NULL, NULL);
-	}
+	else        */
+	//{
+	nResult = m_pModule->m_pfnProcessFile (m_hArchive, PK_SKIP, NULL, NULL);
+	//}
 
-	if (m_hArchive)
+	//if (m_hArchive)
 	{
 		if (!nResult)
 		{
@@ -301,8 +316,8 @@ int __stdcall WcxArchive::pGetArchiveItem (ArchiveItemInfo *pItem)
 			}
 		}
 
-		m_pModule->m_pfnCloseArchive (m_hArchive);
-		m_hArchive = NULL;
+	//	m_pModule->m_pfnCloseArchive (m_hArchive);
+	//	m_hArchive = NULL;
 	}
 
 	return ConvertResult (nResult);
@@ -328,7 +343,7 @@ bool __stdcall WcxArchive::pExtract (
 	char *lpDestName = StrCreate (260);
 	char *lpTemp = StrCreate (260);
 
-	if (!m_hArchive)
+	/*if (!m_hArchive)
 	{
 		tOpenArchiveData OpenArchiveData = {0};
 
@@ -340,11 +355,11 @@ bool __stdcall WcxArchive::pExtract (
 		if (m_hArchive)
 		{
 			if (m_pModule->m_pfnSetProcessDataProc)
-				m_pModule->m_pfnSetProcessDataProc (m_hArchive, ProcessDataProc);
+				m_pModule->m_pfnSetProcessDataProc (m_hArchive, m_pfnProcessDataProc);
 			if (m_pModule->m_pfnSetChangeVolProc)
-				m_pModule->m_pfnSetChangeVolProc (m_hArchive, SetChangeVolProc);
+				m_pModule->m_pfnSetChangeVolProc (m_hArchive, m_pfnSetChangeVolProc);
 		}
-	}
+	}*/
 
 	while ( m_hArchive && nResult == 0 )
 	{
@@ -383,6 +398,9 @@ bool __stdcall WcxArchive::pExtract (
 
 					strcat (lpDestName, lpName);
 
+					if ( m_pfnCallback )
+						m_pfnCallback (AM_START_EXTRACT_FILE, (int)&pItems[i], (int)lpDestName);
+
 					int nProcessResult = m_pModule->m_pfnProcessFile (m_hArchive, PK_EXTRACT, NULL, lpDestName);
 
 					if ( !nProcessResult )
@@ -404,11 +422,11 @@ bool __stdcall WcxArchive::pExtract (
 
 l_1:
 
-	if (m_hArchive)
+/*	if (m_hArchive)
 	{
 		m_pModule->m_pfnCloseArchive (m_hArchive);
 		m_hArchive = NULL;
-	}
+	}*/
 
 	//m_bAborted = false;
 
