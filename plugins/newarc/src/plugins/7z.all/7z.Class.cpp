@@ -1,7 +1,6 @@
 #include "7z.h"
 #include "Guid.h"
 #include "commands.h"
-#include "detectarchive.h"
 #include <Collections.h>
 
 const GUID FormatGUIDs[] = {
