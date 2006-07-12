@@ -286,7 +286,7 @@ int __stdcall WcxArchive::pGetArchiveItem (ArchiveItemInfo *pItem)
 	}
 	else        */
 	//{
-	nResult = m_pModule->m_pfnProcessFile (m_hArchive, PK_SKIP, NULL, NULL);
+		//nResult = m_pModule->m_pfnProcessFile (m_hArchive, PK_SKIP, NULL, NULL);
 	//}
 
 	//if (m_hArchive)
@@ -298,6 +298,8 @@ int __stdcall WcxArchive::pGetArchiveItem (ArchiveItemInfo *pItem)
 			//strcpy (HeaderData.ArcName, m_lpFileName);
 
 			nResult = m_pModule->m_pfnReadHeader (m_hArchive, &HeaderData);
+
+			m_pModule->m_pfnProcessFile (m_hArchive, PK_SKIP, NULL, NULL);
 
 			if ( !nResult )
 			{
@@ -316,6 +318,7 @@ int __stdcall WcxArchive::pGetArchiveItem (ArchiveItemInfo *pItem)
 
 				return E_SUCCESS;
 			}
+
 		}
 
 	//	m_pModule->m_pfnCloseArchive (m_hArchive);
@@ -363,7 +366,7 @@ bool __stdcall WcxArchive::pExtract (
 		}
 	}*/
 
-	while ( m_hArchive && nResult == 0 )
+	while ( /*m_hArchive &&*/ nResult == 0 )
 	{
 		tHeaderData HeaderData;
 		memset (&HeaderData, 0, sizeof (HeaderData));
