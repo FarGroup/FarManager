@@ -8,7 +8,7 @@
   #pragma pack(push,1)
 #endif
 
-unsigned char signature[] = {'7' , 'z', 0xBC, 0xAF, 0x27, 0x1C};
+const unsigned char sevenzip_signature[] = {'7' , 'z', 0xBC, 0xAF, 0x27, 0x1C};
 
 struct SevenZipHeader {
 	char Signature[6];
@@ -52,7 +52,7 @@ unsigned long CRC32(
 }
 
 
-inline BOOL IsValidHeader (const unsigned char *Data)
+static inline BOOL IsValidHeader (const unsigned char *Data)
 {
 	SevenZipHeader *header = (SevenZipHeader*)Data;
 
@@ -60,7 +60,7 @@ inline BOOL IsValidHeader (const unsigned char *Data)
 	crc = CRC32 (crc, (const char*)&header->uNextHeaderSize, sizeof (header->uNextHeaderSize));
 	crc = CRC32 (crc, (const char*)&header->dwNextHeaderCRC, sizeof (header->dwNextHeaderCRC));
 
-	return !memcmp (&header->Signature, &signature, sizeof (signature)) && (crc == header->dwHeaderCRC);
+	return !memcmp (&header->Signature, &sevenzip_signature, sizeof (sevenzip_signature)) && (crc == header->dwHeaderCRC);
 }
 
 int Is7zHeader(const unsigned char *Data,int DataSize)

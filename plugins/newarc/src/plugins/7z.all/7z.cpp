@@ -172,11 +172,11 @@ int OnQueryArchive (QueryArchiveStruct *pQAS)
 			{
 				SevenZipArchive *pArchive = new SevenZipArchive (pModule, pQAS->lpFileName);
 
-				ArchiveFormatInfo info;
+				/*ArchiveFormatInfo info;
 
 				pModule->GetArchiveFormatInfo (&info);
 
-				MessageBox (0, info.lpName, "asD", MB_OK);
+				MessageBox (0, info.lpName, "asD", MB_OK);*/
 
 				pQAS->hResult = (HANDLE)pArchive;
 

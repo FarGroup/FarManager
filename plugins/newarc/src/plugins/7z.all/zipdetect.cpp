@@ -27,7 +27,7 @@ struct ZipHeader
 
 const size_t MIN_HEADER_LEN=sizeof(ZipHeader);
 
-inline BOOL IsValidHeader(const unsigned char *Data, const unsigned char *DataEnd)
+static inline BOOL IsValidHeader(const unsigned char *Data, const unsigned char *DataEnd)
 {
   ZipHeader* pHdr=(ZipHeader*)Data;
   //const WORD Zip64=45;

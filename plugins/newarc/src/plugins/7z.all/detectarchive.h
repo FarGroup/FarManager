@@ -7,3 +7,4 @@ int IsArjHeader (const unsigned char *Data, int DataSize);
 int IsCabHeader (const unsigned char *Data, int DataSize);
 int IsLzhHeader (const unsigned char *Data, int DataSize);
 int Is7zHeader  (const unsigned char *Data, int DataSize);
+int IsNSISHeader  (const unsigned char *Data, int DataSize);
