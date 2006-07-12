@@ -14,7 +14,7 @@ MV = mv -f
 MKDIR = mkdir -p
 AR = ar
 RANLIB = ranlib
-CXXFLAGS = -I ./Include -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-rtti -fno-exceptions
+CXXFLAGS = -Wall -I ./Include -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-rtti -fno-exceptions
 
 OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS)))
 DEPS = $(patsubst %.cpp,$(OBJDIR)/%.d,$(filter %.cpp,$(SRCS)))

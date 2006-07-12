@@ -42,7 +42,7 @@ const unsigned char IsoSig[]      = {'C', 'D', '0', '0', '1', 0x1};
 struct FormatInfo {
 	const GUID *puid;
 	const unsigned char *psig;
-	int size;
+	DWORD size;
 	bool bPosZero;
 	DETECTARCHIVE pDetectArchive;
 };
@@ -112,8 +112,6 @@ bool GetFormatCommand(const GUID guid, int nCommand, char *lpCommand)
 
 int FindFormats (const char *lpFileName, Collection <FormatPosition*> &formats)
 {
-	const GUID *pResult = NULL;
-
 	HANDLE hFile = CreateFile (
 			lpFileName,
 			GENERIC_READ,
@@ -131,7 +129,7 @@ int FindFormats (const char *lpFileName, Collection <FormatPosition*> &formats)
 
 		if ( ReadFile (hFile, buffer, 1 << 17, &dwRead, NULL) )
 		{
-			for (int j = 0; j < sizeof(signs)/sizeof(signs[0]); j++)
+			for (size_t j = 0; j < sizeof(signs)/sizeof(signs[0]); j++)
 			{
 				const FormatInfo *info = &signs[j];
 
@@ -152,7 +150,7 @@ int FindFormats (const char *lpFileName, Collection <FormatPosition*> &formats)
 				{
 					if ( dwRead >= info->size )
 					{
-						for (int i = 0; i <= dwRead-info->size; i++)
+						for (size_t i = 0; i <= dwRead-info->size; i++)
 						{
 							if ( !memcmp (buffer+i, info->psig, info->size) )
 							{
@@ -258,7 +256,7 @@ bool SevenZipModule::HasSignature ()
 	if ( IsEqualGUID (m_uid, CLSID_CSplitHandler) )
 		return true;
 
-	for (int i = 0; i < sizeof(signs)/sizeof(signs[0]); i++)
+	for (size_t i = 0; i < sizeof(signs)/sizeof(signs[0]); i++)
 	{
     	if ( IsEqualGUID (m_uid, *(signs[i].puid)) )
     		return true;
@@ -439,10 +437,10 @@ bool __stdcall SevenZipArchive::pOpenArchive (
   			}
   			else
   			{
-	  			//HACK!!! цинично показываем пустую панель при неправильном пароле на 
+	  			//HACK!!! цинично показываем пустую панель при неправильном пароле на
 	  			//листинге. а то Far неадекватно воспринимает FALSE из GetFindData
 
-  				if ( m_bListPassword ) 
+  				if ( m_bListPassword )
   				{
   					m_nItemsNumber = -1;
   					delete pCallback;
@@ -501,7 +499,7 @@ int __stdcall SevenZipArchive::pGetArchiveItem (
 		ArchiveItemInfo *pItem
 		)
 {
-	if ( m_nItemsNumber == -1)
+	if ( (int)m_nItemsNumber == -1)
 		return E_EOF;
 
 	int nResult = E_BROKEN;
@@ -663,10 +661,9 @@ int __cdecl compare(const void *p1, const void *p2)
 		return 1;
 
 	if ( i1 == i2 )
-		return 2;
+		return 0;
 
-	if ( i1 < i2 )
-		return -1;
+	return -1;
 }
 
 
@@ -710,5 +707,3 @@ bool __stdcall SevenZipArchive::pExtract (
 
 	return bResult;
 }
-
-

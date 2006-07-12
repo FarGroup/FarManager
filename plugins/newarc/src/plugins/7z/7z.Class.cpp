@@ -3,8 +3,6 @@
 
 SevenZipModule::SevenZipModule (const char *lpFileName)
 {
-	SevenZipModule *pModule = NULL;
-
 	char *lpModuleName = StrDuplicate(Info.ModuleName, 260);
 
 	CutToSlash(lpModuleName);
@@ -125,7 +123,7 @@ int __stdcall SevenZipArchive::pGetArchiveItem (
 		ArchiveItemInfo *pItem
 		)
 {
-	if ( m_nItemsNumber == -1)
+	if ( (int)m_nItemsNumber == -1)
 		return E_EOF;
 
 	int nResult = E_BROKEN;
@@ -180,7 +178,7 @@ int __stdcall SevenZipArchive::pGetArchiveItem (
 			pItem->pi.FindData.nFileSizeHigh = (DWORD)(size >> 32);
 		}
 
-		pItem->pi.UserData = m_nItemsNumber; 
+		pItem->pi.UserData = m_nItemsNumber;
 
 		nResult = E_SUCCESS;
 	}
@@ -246,10 +244,9 @@ int __cdecl compare(const void *p1, const void *p2)
 		return 1;
 
 	if ( i1 == i2 )
-		return 2;
+		return 0;
 
-	if ( i1 < i2 )
-		return -1;
+	return -1;
 }
 
 

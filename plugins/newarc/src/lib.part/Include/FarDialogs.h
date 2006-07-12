@@ -2,8 +2,10 @@
 #include <Rtl.Base.h>
 #include <Collections.h>
 
+#if defined(_MSC_VER)
 #pragma warning(disable:4800) // force value to bool
 #pragma warning(disable:4018) // signed/unsigned mismatch
+#endif
 
 
 #define CreateList(l, items, default) \

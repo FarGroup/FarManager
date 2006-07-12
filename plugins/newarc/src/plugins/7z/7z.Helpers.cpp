@@ -166,7 +166,7 @@ HRESULT __stdcall CArchiveExtractCallback::SetTotal (unsigned __int64 total)
 
 HRESULT CArchiveExtractCallback::SetCompleted (const unsigned __int64* completeValue)
 {
-	if ( m_nLastProcessed != -1 )
+	if ( (int)m_nLastProcessed != -1 )
 	{
 		unsigned __int64 diff = *completeValue-m_nLastProcessed;
 
@@ -218,7 +218,7 @@ int GetItemIndex (CArchiveExtractCallback *pcb, int index)
 {
 	for (int i = 0; i < pcb->m_nItemsNumber; i++)
 	{
-		if ( pcb->m_pItems[i].nIndex == index )
+		if ( (int)pcb->m_pItems[i].nIndex == index )
 			return i;
 	}
 
@@ -268,7 +268,7 @@ HRESULT __stdcall CArchiveExtractCallback::GetStream (
 
 				m_pArchive->m_pfnCallback (AM_START_EXTRACT_FILE, (int)item, (int)szFullName);
 
-				if ( m_nLastProcessed == -1 )
+				if ( (int)m_nLastProcessed == -1 )
 					m_nLastProcessed = 0;
 
 				CreateDirs (szFullName);

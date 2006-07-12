@@ -271,15 +271,15 @@ int MaArchive::ConvertResult (int nResult)
 {
 	switch (nResult)
 	{
-		GETARC_EOF:
+		case GETARC_EOF:
 			return E_EOF;
-		GETARC_SUCCESS:
+		case GETARC_SUCCESS:
 			return E_SUCCESS;
-		GETARC_BROKEN:
+		case GETARC_BROKEN:
 			return E_BROKEN;
-		GETARC_UNEXPEOF:
+		case GETARC_UNEXPEOF:
 			return E_UNEXPECTED_EOF;
-		GETARC_READERROR:
+		case GETARC_READERROR:
 			return E_READ_ERROR;
 	}
 

@@ -387,7 +387,7 @@ int OnGetArchiveItem (GetArchiveItemStruct *pGAI)
 
 int OnGetArchiveFormat (GetArchiveFormatStruct *pGAF)
 {
-	ArchiveBase *pArchive = (ArchiveBase*)pGAF->hArchive;
+	//ArchiveBase *pArchive = (ArchiveBase*)pGAF->hArchive;
 
 	pGAF->nFormat = ArcType;
 

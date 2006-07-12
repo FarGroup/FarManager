@@ -10,7 +10,6 @@ PROC RtlHookImportTable(
 	PROC pfnResult = NULL;
 
 	dword dwBase = (dword)hModule;
-	dword dwOP;
 
 	PIMAGE_DOS_HEADER pDosHeader;
 

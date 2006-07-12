@@ -57,7 +57,7 @@ bool CheckForEsc ()
 	{
 		PeekConsoleInput (GetStdHandle (STD_INPUT_HANDLE),&rec,1,&ReadCount);
 
-		if ( ReadCount==0 ) 
+		if ( ReadCount==0 )
 			break;
 
 		ReadConsoleInput (GetStdHandle (STD_INPUT_HANDLE),&rec,1,&ReadCount);
@@ -65,7 +65,7 @@ bool CheckForEsc ()
 		if ( rec.EventType==KEY_EVENT )
 		{
 			if ( (rec.Event.KeyEvent.wVirtualKeyCode == VK_ESCAPE) &&
-				 rec.Event.KeyEvent.bKeyDown ) 
+				 rec.Event.KeyEvent.bKeyDown )
 				EC = true;
 		}
 	}
@@ -89,7 +89,7 @@ bool ArchivePanel::ReadArchive (bool bSilent)
 	bool bProgressMessage = false;
 
 	HANDLE hScreen = NULL;
-	
+
 	if ( !bSilent )
 		hScreen = Info.SaveScreen (0, 0, -1, -1);
 
@@ -110,8 +110,8 @@ bool ArchivePanel::ReadArchive (bool bSilent)
 
 		if ( nResult == E_SUCCESS )
 		{
-			if ( !bSilent && 
-				 ((m_nArchiveFilesCount & 0x1f) == 0) && (GetTickCount ()-dwStartTime > 500) ) 
+			if ( !bSilent &&
+				 ((m_nArchiveFilesCount & 0x1f) == 0) && (GetTickCount ()-dwStartTime > 500) )
 			{
 				char szFileCount[100];
 				char *pMsgs[4];
@@ -225,7 +225,7 @@ int __stdcall ArchivePanel::pGetFindData(
 	{
 		bool bSilent = OpMode & (OPM_SILENT|OPM_FIND);
 
-		if ( !ReadArchive (bSilent) ) 
+		if ( !ReadArchive (bSilent) )
 			return FALSE;
 	}
 
@@ -429,7 +429,7 @@ void ProcessName (
 				strcpy (lpResult, FSF.PointToName (lpFileName));
 
 		if ( OptionIsOn (dwFlags, PF_FLAG_USE_BACKSLASH) )
-			for (int i = 0; i < strlen (lpResult); i++ )
+			for (size_t i = 0; i < strlen (lpResult); i++ )
 				if ( lpResult[i] == '\\' )
 					lpResult[i] = '/';
 
@@ -1017,8 +1017,6 @@ int __stdcall hndAddEditTemplate (
 		int nParam2
 		)
 {
-	FarListInfo lInfo;
-
 	int iPos, *pPos = (int*) D->m_Owner->m_Items[5].Data;
 
 	iPos = *pPos; *pPos = 0;
@@ -1238,8 +1236,6 @@ int __stdcall hndModifyCreateArchive (
 		int nParam2
 		)
 {
-	FarListInfo lInfo;
-
 	if ( nMsg == DN_INITDIALOG )
 	{
 		for (int i = 0; i < Plugins.GetCount(); i++)
@@ -1598,8 +1594,6 @@ int __stdcall ArchivePanel::pGetFiles (
 		int OpMode
 		)
 {
-	bool bResult = TRUE;
-
 	char *lpResultDestPath = StrDuplicate (DestPath, 260);
 	char *lpCurrentDirectory = StrCreate (MAX_PATH);
 
@@ -1640,7 +1634,7 @@ int __stdcall ArchivePanel::pGetFiles (
 		{
 			m_pArchive->pOpenArchive (OM_EXTRACT);
 
-			bool bResult = m_pArchive->pExtract (
+			/*bool bResult =*/ m_pArchive->pExtract (
 					pItemsToProcess,
 					nItemsToProcessNumber,
 					lpResultDestPath,

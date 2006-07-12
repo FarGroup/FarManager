@@ -132,7 +132,7 @@ void TranslateMessage (
 {
 	int j = 0;
 
-	for (int i = 0; i < strlen (lpMessage); i++)
+	for (size_t i = 0; i < strlen (lpMessage); i++)
 	{
 		if ( lpMessage[i] == '\\' )
 		{

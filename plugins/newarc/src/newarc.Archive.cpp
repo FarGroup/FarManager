@@ -355,8 +355,6 @@ char *Archive::pGetArchiveFormatName ()
 {
 	int nFormat = pGetArchiveFormatType ();
 
-	char szDebug[MAX_PATH];
-
 	if ( nFormat < m_pPlugin->m_ArchivePluginInfo.nFormats)
 		return m_pPlugin->m_ArchivePluginInfo.pFormatInfo[nFormat].lpName;
 

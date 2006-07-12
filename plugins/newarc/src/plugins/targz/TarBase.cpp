@@ -223,7 +223,7 @@ int CpioBase::Next(PluginPanelItem *data)
   }
   DWORD ReadSize;
   BOOL SkipItem=FALSE;
-  char *LongName=NULL;
+  //char *LongName=NULL;
   memset(&Item,0,sizeof(Item));
   do
   {
@@ -237,7 +237,7 @@ int CpioBase::Next(PluginPanelItem *data)
 
     {
       char buffer[9],*filename=NULL;
-      unsigned long namesize; bool abort=false;
+      unsigned long namesize;/* bool abort=false;*/
       if(!read(&buffer,6,&ReadSize)) return E_READ_ERROR;
       if(ReadSize==0) return E_EOF;
       buffer[6]=0;

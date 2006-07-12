@@ -213,7 +213,7 @@ HRESULT __stdcall CArchiveExtractCallback::SetTotal (unsigned __int64 total)
 
 HRESULT CArchiveExtractCallback::SetCompleted (const unsigned __int64* completeValue)
 {
-	if ( m_nLastProcessed != -1 )
+	if ( (int)m_nLastProcessed != -1 )
 	{
 		unsigned __int64 diff = *completeValue-m_nLastProcessed;
 
@@ -266,7 +266,7 @@ int GetItemIndex (CArchiveExtractCallback *pcb, int index)
 {
 	for (int i = 0; i < pcb->m_nItemsNumber; i++)
 	{
-		if ( pcb->m_pItems[i].nIndex == index )
+		if ( (int)pcb->m_pItems[i].nIndex == index )
 			return i;
 	}
 
@@ -321,7 +321,7 @@ HRESULT __stdcall CArchiveExtractCallback::GetStream (
 			if ( m_pArchive->m_pfnCallback )
 				m_pArchive->m_pfnCallback (AM_START_EXTRACT_FILE, (int)item, (int)szFullName);
 
-			if ( m_nLastProcessed == -1 )
+			if ( (int)m_nLastProcessed == -1 )
 				m_nLastProcessed = 0;
 
 			PROPVARIANT v;
@@ -368,7 +368,7 @@ HRESULT __stdcall CArchiveExtractCallback::SetOperationResult (int resultEOperat
 	{
 		case NArchive::NExtract::NOperationResult::kCRCError:
 			if ( m_pArchive->m_pfnCallback )
-				m_pArchive->m_pfnCallback (AM_NEED_PASSWORD, PASSWORD_RESET, NULL);
+				m_pArchive->m_pfnCallback (AM_NEED_PASSWORD, PASSWORD_RESET, 0);
 
 			return E_FAIL;
 	}
@@ -428,7 +428,7 @@ HRESULT __stdcall CCryptoGetTextPassword::CryptoGetTextPassword (BSTR *password)
 	Password.lpBuffer = StrCreate (260);
 	Password.dwBufferSize = 260;
 
-	if ( m_pArchive->m_pfnCallback && 
+	if ( m_pArchive->m_pfnCallback &&
 		 m_pArchive->m_pfnCallback (AM_NEED_PASSWORD, (m_nType == TYPE_FILE)?PASSWORD_FILE:PASSWORD_LIST, (int)&Password) );
 	{
 		wchar_t wszPassword[MAX_PATH];
@@ -622,7 +622,7 @@ bool CheckForEsc ()
 	{
 		PeekConsoleInput (GetStdHandle (STD_INPUT_HANDLE),&rec,1,&ReadCount);
 
-		if ( ReadCount==0 ) 
+		if ( ReadCount==0 )
 			break;
 
 		ReadConsoleInput (GetStdHandle (STD_INPUT_HANDLE),&rec,1,&ReadCount);
@@ -630,7 +630,7 @@ bool CheckForEsc ()
 		if ( rec.EventType==KEY_EVENT )
 		{
 			if ( (rec.Event.KeyEvent.wVirtualKeyCode == VK_ESCAPE) &&
-				 rec.Event.KeyEvent.bKeyDown ) 
+				 rec.Event.KeyEvent.bKeyDown )
 				EC = true;
 		}
 	}
@@ -664,9 +664,9 @@ HRESULT __stdcall CArchiveOpenCallback::SetCompleted (const UInt64 *files, const
    				4,
    				0
 	   		);
-		
+
 	   	m_bProgressMessage = true;
-	}  
+	}
 
 	return S_OK;
 }

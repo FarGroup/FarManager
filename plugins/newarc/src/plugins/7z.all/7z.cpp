@@ -86,8 +86,8 @@ int __cdecl SortFormats (
 	if ( pos1->position < pos2->position )
 		return -1;
 
-	if ( pos1->position == pos2->position )
-		return 0;
+	//if ( pos1->position == pos2->position )
+	return 0;
 }
 
 

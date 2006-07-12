@@ -1,7 +1,9 @@
 #pragma once
 
+#if defined(_MSC_VER)
 #pragma warning(disable:4800) // force value to bool
 #pragma warning(disable:4018) // signed/unsigned mismatch
+#endif
 
 #include <Rtl.Base.h>
 #include <Rtl.Memory.h>

@@ -5,8 +5,6 @@ bool ArchivePlugin::Initialize (
 		const char *lpLanguage
 		)
 {
-	int nResult;
-
 	m_hModule = LoadLibrary (lpModuleName);
 
 	m_pfnGetMsgThunk = NULL;

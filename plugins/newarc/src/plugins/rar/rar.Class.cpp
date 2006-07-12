@@ -227,7 +227,11 @@ bool __stdcall RarArchive::pTest (
 
 			m_pfnCallback (AM_START_EXTRACT_FILE, (dword)&Item, (dword)"123");
 
-        	int nError = m_pModule->m_pfnProcessFile (m_hArchive, RAR_TEST, NULL, NULL);
+        	#ifdef _DEBUG
+        	int nError =
+        	#endif
+
+        	m_pModule->m_pfnProcessFile (m_hArchive, RAR_TEST, NULL, NULL);
 
 			#ifdef _DEBUG
 			if ( nError )
