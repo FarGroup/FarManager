@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.251 03.07.2006 $ */
+/* Revision: 1.252 12.07.2006 $ */
 
 /*
 Modify:
+  12.07.2006 SVS
+    ! struct PrevDataItem унеслась из filelist.cpp в filelist.hpp
   03.07.2006 SVS
     ! CreateFullPathName() доп параметр. TRUE - как на панели. FALSE - без учета вида панели (короткие имена или полные)
   29.06.2006 SVS
@@ -715,17 +717,6 @@ int _cdecl SortSearchList(const void *el1,const void *el2);
 static int ListSortMode,ListSortOrder,ListSortGroups,ListSelectedFirst;
 static int ListPanelMode,ListCaseSensitive,ListNumericSort;
 static HANDLE hSortPlugin;
-
-/* $ 11.10.2001 VVM
-  + PrevTopFile - позиция верхнего файла при входе в плагин */
-struct PrevDataItem
-{
-  struct FileListItem *PrevListData;
-  long PrevFileCount;
-  char PrevName[NM];
-  long PrevTopFile;
-};
-/* VVM $ */
 
 enum SELECT_MODES {SELECT_INVERT,SELECT_INVERTALL,SELECT_ADD,SELECT_REMOVE,
     SELECT_ADDEXT,SELECT_REMOVEEXT,SELECT_ADDNAME,SELECT_REMOVENAME};
@@ -2574,12 +2565,12 @@ void FileList::Select(struct FileListItem *SelPtr,int Selection)
     if ((SelPtr->Selected=Selection)!=0)
     {
       SelFileCount++;
-      SelFileSize+=int64(SelPtr->UnpSizeHigh,SelPtr->UnpSize);
+      SelFileSize+=MKUINT64(SelPtr->UnpSizeHigh,SelPtr->UnpSize);
     }
     else
     {
        SelFileCount--;
-       SelFileSize-=int64(SelPtr->UnpSizeHigh,SelPtr->UnpSize);
+       SelFileSize-=MKUINT64(SelPtr->UnpSizeHigh,SelPtr->UnpSize);
     }
 }
 
@@ -3555,12 +3546,12 @@ void FileList::UngetSelName()
 }
 
 
-long FileList::GetLastSelectedSize(int64 *Size)
+long FileList::GetLastSelectedSize(__int64 *Size)
 {
   if (LastSelPosition>=0 && LastSelPosition<FileCount)
   {
     if (Size!=NULL)
-      Size->Set(ListData[LastSelPosition].UnpSizeHigh,ListData[LastSelPosition].UnpSize);
+      *Size=MKUINT64(ListData[LastSelPosition].UnpSizeHigh,ListData[LastSelPosition].UnpSize);
     return(ListData[LastSelPosition].UnpSize);
   }
   return(-1);
@@ -4472,7 +4463,7 @@ void FileList::ApplyCommand()
 void FileList::CountDirSize(DWORD PluginFlags)
 {
   unsigned long DirCount,DirFileCount,ClusterSize;;
-  int64 FileSize,CompressedFileSize,RealFileSize;
+  unsigned __int64 FileSize,CompressedFileSize,RealFileSize;
   unsigned long SelDirCount=0;
   struct FileListItem *CurPtr;
   int I;
@@ -4503,30 +4494,29 @@ void FileList::CountDirSize(DWORD PluginFlags)
     if (DoubleDotDir)
     {
       DoubleDotDir->ShowFolderSize=1;
-      DoubleDotDir->UnpSize     = 0;
-      DoubleDotDir->UnpSizeHigh = 0;
-      DoubleDotDir->PackSize    = 0;
-      DoubleDotDir->PackSizeHigh= 0;
+      unsigned __int64 UnpSize=0, PackSize=0;
+
       for (I=1, CurPtr=ListData+I; I < FileCount; I++, CurPtr++)
       {
         if (CurPtr->FileAttr & FA_DIREC)
         {
           if (GetPluginDirInfo(hPlugin,CurPtr->Name,DirCount,DirFileCount,FileSize,CompressedFileSize))
           {
-            DoubleDotDir->UnpSize+=FileSize.PLow();
-            DoubleDotDir->UnpSizeHigh+=FileSize.PHigh();
-            DoubleDotDir->PackSize+=CompressedFileSize.PLow();
-            DoubleDotDir->PackSizeHigh+=CompressedFileSize.PHigh();
+            UnpSize  += FileSize;
+            PackSize += CompressedFileSize;
           }
         }
         else
         {
-          DoubleDotDir->UnpSize     += CurPtr->UnpSize;
-          DoubleDotDir->UnpSizeHigh += CurPtr->UnpSizeHigh;
-          DoubleDotDir->PackSize    += CurPtr->PackSize;
-          DoubleDotDir->PackSizeHigh+= CurPtr->PackSizeHigh;
+          UnpSize  += MKUINT64(CurPtr->UnpSizeHigh,CurPtr->UnpSize);
+          PackSize += MKUINT64(CurPtr->PackSizeHigh,CurPtr->PackSize);
         }
       }
+
+      DoubleDotDir->UnpSize     = (DWORD)(UnpSize&0xFFFFFFFFi64);
+      DoubleDotDir->UnpSizeHigh = (DWORD)(UnpSize>>32);
+      DoubleDotDir->PackSize    = (DWORD)(PackSize&0xFFFFFFFFi64);
+      DoubleDotDir->PackSizeHigh= (DWORD)(PackSize>>32);
     }
   }
   /* OT $*/
@@ -4545,12 +4535,14 @@ void FileList::CountDirSize(DWORD PluginFlags)
                      DirCount,DirFileCount,FileSize,
                      CompressedFileSize,RealFileSize, ClusterSize,0,GETDIRINFO_DONTREDRAWFRAME|GETDIRINFO_USEDALTFOLDERNAME|GETDIRINFO_SCANSYMLINKDEF)==1)
       {
-        SelFileSize-=int64(CurPtr->UnpSizeHigh,CurPtr->UnpSize);
+        SelFileSize-=MKUINT64(CurPtr->UnpSizeHigh,CurPtr->UnpSize);
         SelFileSize+=FileSize;
-        CurPtr->UnpSize=FileSize.PLow();
-        CurPtr->UnpSizeHigh=FileSize.PHigh();
-        CurPtr->PackSize=CompressedFileSize.PLow();
-        CurPtr->PackSizeHigh=CompressedFileSize.PHigh();
+
+        CurPtr->UnpSize=(DWORD)(FileSize&0xFFFFFFFFi64);
+        CurPtr->UnpSizeHigh=(DWORD)(FileSize>>32);
+        CurPtr->PackSize=(DWORD)(CompressedFileSize&0xFFFFFFFFi64);
+        CurPtr->PackSizeHigh=(DWORD)(CompressedFileSize>>32);
+
         CurPtr->ShowFolderSize=1;
       }
       else
@@ -4573,10 +4565,10 @@ void FileList::CountDirSize(DWORD PluginFlags)
                    DirFileCount,FileSize,CompressedFileSize,RealFileSize,ClusterSize,0,
                    GETDIRINFO_DONTREDRAWFRAME|GETDIRINFO_USEDALTFOLDERNAME|GETDIRINFO_SCANSYMLINKDEF)==1)
     {
-      CurPtr->UnpSize=FileSize.PLow();
-      CurPtr->UnpSizeHigh=FileSize.PHigh();
-      CurPtr->PackSize=CompressedFileSize.PLow();
-      CurPtr->PackSizeHigh=CompressedFileSize.PHigh();
+      CurPtr->UnpSize=(DWORD)(FileSize&0xFFFFFFFFi64);
+      CurPtr->UnpSizeHigh=(DWORD)(FileSize>>32);
+      CurPtr->PackSize=(DWORD)(CompressedFileSize&0xFFFFFFFFi64);
+      CurPtr->PackSizeHigh=(DWORD)(CompressedFileSize>>32);
       CurPtr->ShowFolderSize=1;
     }
   }
@@ -4642,7 +4634,7 @@ HANDLE FileList::OpenFilePlugin(char *FileName,int PushPrev)
       PrevDataStack[PrevDataStackSize].PrevListData=ListData;
       PrevDataStack[PrevDataStackSize].PrevFileCount=FileCount;
       PrevDataStack[PrevDataStackSize].PrevTopFile = CurTopFile;
-      strcpy(PrevDataStack[PrevDataStackSize].PrevName,FileName);
+      strncpy(PrevDataStack[PrevDataStackSize].PrevName,FileName,sizeof(PrevDataStack[PrevDataStackSize].PrevName));
       PrevDataStackSize++;
       ListData=NULL;
       FileCount=0;

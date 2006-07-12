@@ -7,10 +7,12 @@ Quick view panel
 
 */
 
-/* Revision: 1.09 09.05.2006 $ */
+/* Revision: 1.10 12.07.2006 $ */
 
 /*
 Modify:
+  12.07.2006 SVS
+    ! kill class int64
   09.05.2006 SVS
     + GetTitle + доп параметр, на сколько усеч
   03.05.2006 SVS
@@ -50,7 +52,7 @@ class QuickView:public Panel
     int Directory;
     int PrevMacroMode;
     unsigned long DirCount,FileCount,ClusterSize;
-    int64 FileSize,CompressedFileSize,RealFileSize;
+    unsigned __int64 FileSize,CompressedFileSize,RealFileSize;
     int OldWrapMode;
     int OldWrapType;
     void SetMacroMode(int Restore = FALSE);

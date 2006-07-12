@@ -5,10 +5,12 @@ Quick view panel
 
 */
 
-/* Revision: 1.41 22.06.2006 $ */
+/* Revision: 1.42 12.07.2006 $ */
 
 /*
 Modify:
+  12.07.2006 SVS
+    ! kill class int64
   22.06.2006 thims
     - Исправление бага QuickView (MantisID: 0000197)
   09.05.2006 SVS
@@ -279,7 +281,7 @@ void QuickView::DisplayObject()
       GotoXY(X1+2,Y1+10);
       PrintText(MSG(MQuickViewRatio));
       SetColor(COL_PANELINFOTEXT);
-      sprintf(SlackMsg,"%d%%",ToPercent64(CompressedFileSize.Number.i64,FileSize.Number.i64));
+      sprintf(SlackMsg,"%d%%",ToPercent64(CompressedFileSize,FileSize));
       PrintText(SlackMsg);
 
       if (Directory!=4 && RealFileSize>=CompressedFileSize)
@@ -301,14 +303,9 @@ void QuickView::DisplayObject()
         PrintText(MSG(MQuickViewSlack));
         SetColor(COL_PANELINFOTEXT);
         InsertCommas(RealFileSize-CompressedFileSize,Msg);
-        int64 Size1=RealFileSize-CompressedFileSize;
-        int64 Size2=RealFileSize;
-        while (Size2.PHigh()!=0)
-        {
-          Size1=Size1>>1;
-          Size2=Size2>>1;
-        }
-        sprintf(SlackMsg,"%s (%d%%)",Msg,ToPercent(Size1.PLow(),Size2.PLow()));
+        __int64 Size1=RealFileSize-CompressedFileSize;
+        __int64 Size2=RealFileSize;
+        sprintf(SlackMsg,"%s (%d%%)",Msg,ToPercent64(Size1,Size2));
         PrintText(SlackMsg);
       }
     }

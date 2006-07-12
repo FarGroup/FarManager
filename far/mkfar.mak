@@ -154,7 +154,6 @@ FAROBJ=\
    $(OBJPATH)\hmenu.obj\
    $(OBJPATH)\hotplug.obj\
    $(OBJPATH)\infolist.obj\
-   $(OBJPATH)\int64.obj\
    $(OBJPATH)\interf.obj\
    $(OBJPATH)\iswind.obj\
    $(OBJPATH)\keybar.obj\

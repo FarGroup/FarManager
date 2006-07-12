@@ -5,10 +5,13 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.56 05.07.2006 $ */
+/* Revision: 1.57 12.07.2006 $ */
 
 /*
 Modify:
+  12.07.2006 SVS
+    ! kill class int64
+    ! "Грязный" хак имени WARP`а: явный хак, но очень способствует - восстанавливает позицию на панели при ошибке чтения архива.
   05.07.2006 IS
     - warnings
   20.02.2006 SVS
@@ -326,10 +329,10 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
   if (Opt.ShowPanelFree)
   {
-    int64 TotalSize,TotalFree;
+    unsigned __int64 TotalSize,TotalFree;
     char DriveRoot[NM];
     GetPathRoot(CurDir,DriveRoot);
-    if (!GetDiskSize(DriveRoot,&TotalSize,&TotalFree,&FreeDiskSize))
+    if (!GetDiskSize(DriveRoot,&TotalSize,&TotalFree,(unsigned __int64*)&FreeDiskSize))
       FreeDiskSize=0;
   }
 
@@ -424,7 +427,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
       if ((fdata.dwFileAttributes & FA_DIREC) == 0)
       {
-        TotalFileSize+=int64(fdata.nFileSizeHigh,fdata.nFileSizeLow);
+        TotalFileSize+=MKUINT64(fdata.nFileSizeHigh,fdata.nFileSizeLow);
         int Compressed=FALSE;
         if (ReadPacked && (fdata.dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED))
         {
@@ -557,7 +560,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
           WIN32_FIND_DATA &fdata=PtrPanelData->FindData;
           PluginToFileListItem(PtrPanelData,CurPtr);
           CurPtr->Position=FileCount;
-          TotalFileSize+=int64(fdata.nFileSizeHigh,fdata.nFileSizeLow);
+          TotalFileSize+=MKUINT64(fdata.nFileSizeHigh,fdata.nFileSizeLow);
           CurPtr->PrevSelected=CurPtr->Selected=0;
           CurPtr->ShowFolderSize=0;
           if ((CurPtr->FileAttr & FA_DIREC)==0)
@@ -761,10 +764,10 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 
   if (Opt.ShowPanelFree && (Info.Flags & OPIF_REALNAMES))
   {
-    int64 TotalSize,TotalFree;
+    unsigned __int64 TotalSize,TotalFree;
     char DriveRoot[NM];
     GetPathRoot(CurDir,DriveRoot);
-    if (!GetDiskSize(DriveRoot,&TotalSize,&TotalFree,&FreeDiskSize))
+    if (!GetDiskSize(DriveRoot,&TotalSize,&TotalFree,(unsigned __int64*)&FreeDiskSize))
       FreeDiskSize=0;
   }
 
@@ -776,6 +779,11 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
     DeleteListData(ListData,FileCount);
     PopPlugin(TRUE);
     Update(KeepSelection);
+
+    // WARP> явный хак, но очень способствует - восстанавливает позицию на панели при ошибке чтения архива.
+    if ( PrevDataStackSize )
+      GoToFile (PrevDataStack[PrevDataStackSize-1].PrevName);
+
     return;
   }
 
@@ -867,7 +875,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
     else
       if ((CurListData->FileAttr & FA_DIREC)==0)
         TotalFileCount++;
-    TotalFileSize+=int64(CurListData->UnpSizeHigh,CurListData->UnpSize);
+    TotalFileSize+=MKUINT64(CurListData->UnpSizeHigh,CurListData->UnpSize);
     FileListCount++;
   }
 

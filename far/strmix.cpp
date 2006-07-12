@@ -5,10 +5,13 @@ strmix.cpp
 
 */
 
-/* Revision: 1.65 05.07.2006 $ */
+/* Revision: 1.66 12.07.2006 $ */
 
 /*
 Modify:
+  12.07.2006 SVS
+    ! kill class int64
+    ! FileSizeToStr() вместо двух параметров DWORD`ов имеет один __int64
   05.07.2006 IS
     - warnings
   06.04.2006 AY
@@ -191,7 +194,6 @@ Modify:
 #include "global.hpp"
 #include "plugin.hpp"
 #include "lang.hpp"
-#include "int64.hpp"
 
 char *InsertCommas(const unsigned long &Number,char *Dest)
 {
@@ -205,27 +207,16 @@ char *InsertCommas(const unsigned long &Number,char *Dest)
   return Dest;
 }
 
-char* InsertCommas(const __int64 &LI,char *Dest)
+char* InsertCommas(const unsigned __int64  &LI,char *Dest)
 {
-  int64 li(LI);
-  if (li<1000000000)
-    InsertCommas(li.PLow(),Dest);
-  else
-  {
-    li.itoa(Dest);
-    for (int I=strlen(Dest)-4;I>=0;I-=3)
-      if (Dest[I])
-      {
-        memmove(Dest+I+2,Dest+I+1,strlen(Dest+I));
-        Dest[I+1]=',';
-      }
-  }
+  _i64toa(LI,Dest,10);
+  for (int I=strlen(Dest)-4;I>=0;I-=3)
+    if (Dest[I])
+    {
+      memmove(Dest+I+2,Dest+I+1,strlen(Dest+I));
+      Dest[I+1]=',';
+    }
   return Dest;
-}
-
-inline char* InsertCommas(const int64 &li,char *Dest)
-{
-  return InsertCommas(li.Number.i64, Dest);
 }
 
 char* WINAPI PointToName(char *Path)
@@ -972,7 +963,7 @@ void __PrepareKMGTbStr(void)
   }
 }
 
-char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size, int Width, int ViewFlags)
+char* WINAPI FileSizeToStr(char *DestStr,unsigned __int64 Size, int Width, int ViewFlags)
 {
   char Str[100];
   DWORD Divider;
@@ -1002,11 +993,11 @@ char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size, int Width, 
     IndexDiv=1;
   }
 
-  int64 Sz(SizeHigh,Size), Divider2(0,Divider/2),Divider64(0,Divider), OldSize;
+  unsigned __int64 Sz=Size, Divider2=Divider/2,Divider64=Divider, OldSize;
 
   if (FloatSize)
   {
-    int64 Divider64F(0,1), Divider64F_mul(0,1000), Divider64F2(0,1), Divider64F2_mul(0,Divider);
+    unsigned __int64 Divider64F=1, Divider64F_mul=1000, Divider64F2=1, Divider64F2_mul=Divider;
     //выравнивание идёт по 1000 но само деление происходит на Divider
     //например 999 bytes покажутся как 999 а вот 1000 bytes уже покажутся как 0.97 K
     for (IndexB=0; IndexB<4; IndexB++)
@@ -1018,14 +1009,14 @@ char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size, int Width, 
     }
     if (IndexB==0)
     {
-      sprintf(Str,"%d",Sz.Number.Part.LowPart);
+      sprintf(Str,"%d",(int)Sz);
     }
     else
     {
       Sz = (OldSize=Sz) / Divider64F2;
       OldSize = (OldSize % Divider64F2) / (Divider64F2 / Divider64F2_mul);
-      DWORD Decimal = (DWORD)((double)OldSize.Number.Part.LowPart/(double)Divider*100.0);
-      sprintf(Str,"%d.%02d",Sz.Number.Part.LowPart,Decimal);
+      DWORD Decimal = (DWORD)((double)(OldSize&0xFFFFFFFFi64)/(double)Divider*100.0);
+      sprintf(Str,"%d.%02d",(int)Sz,Decimal);
     }
     if (IndexB>0 || ShowBytesIndex)
     {
@@ -1046,7 +1037,7 @@ char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size, int Width, 
   if (Commas)
     InsertCommas(Sz,Str);
   else
-    sprintf(Str,"%I64d",Sz.Number.i64);
+    sprintf(Str,"%I64d",Sz);
 
   if ((!UseMinSizeIndex && strlen(Str)<=static_cast<size_t>(Width)) || Width<5)
   {
@@ -1078,7 +1069,7 @@ char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size, int Width, 
       if (Commas)
         InsertCommas(Sz,Str);
       else
-        sprintf(Str,"%I64d",Sz.Number.i64);
+        sprintf(Str,"%I64d",Sz);
     } while((UseMinSizeIndex && IndexB<MinSizeIndex) || (strlen(Str) > static_cast<size_t>(Width)));
 
     if (Economic)

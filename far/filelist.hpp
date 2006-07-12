@@ -7,10 +7,13 @@ filelist.hpp
 
 */
 
-/* Revision: 1.55 03.07.2006 $ */
+/* Revision: 1.56 12.07.2006 $ */
 
 /*
 Modify:
+  12.07.2006 SVS
+    ! kill class int64
+    ! struct PrevDataItem унеслась из filelist.cpp в filelist.hpp
   03.07.2006 SVS
     ! CreateFullPathName() доп параметр. TRUE - как на панели. FALSE - без учета вида панели (короткие имена или полные)
   09.05.2006 SVS
@@ -195,6 +198,14 @@ struct PluginsStackItem
   struct PanelViewSettings PrevViewSettings;
 };
 
+struct PrevDataItem
+{
+  struct FileListItem *PrevListData;
+  long PrevFileCount;
+  char PrevName[NM];
+  long PrevTopFile;
+};
+
 enum {NAME_COLUMN=0,SIZE_COLUMN,PACKED_COLUMN,DATE_COLUMN,TIME_COLUMN,
       MDATE_COLUMN,CDATE_COLUMN,ADATE_COLUMN,ATTR_COLUMN,DIZ_COLUMN,
       OWNER_COLUMN,NUMLINK_COLUMN,
@@ -228,9 +239,9 @@ class FileList:public Panel
     long SelFileCount;
     long GetSelPosition,LastSelPosition;
     long TotalFileCount;
-    int64 SelFileSize;
-    int64 TotalFileSize;
-    int64 FreeDiskSize;
+    __int64 SelFileSize;
+    __int64 TotalFileSize;
+    __int64 FreeDiskSize;
     clock_t LastUpdateTime;
     int Height,Columns;
 
@@ -299,7 +310,7 @@ class FileList:public Panel
     int GetSelName(char *Name,int &FileAttr,char *ShortName=NULL,WIN32_FIND_DATA *fd=NULL);
     void UngetSelName();
     void ClearLastGetSelection();
-    long GetLastSelectedSize(int64 *Size);
+    long GetLastSelectedSize(__int64 *Size);
     int GetLastSelectedItem(struct FileListItem *LastItem);
     int GetCurName(char *Name,char *ShortName);
     int GetCurBaseName(char *Name,char *ShortName);

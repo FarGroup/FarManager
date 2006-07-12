@@ -7,10 +7,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.38 09.05.2006 $ */
+/* Revision: 1.39 12.07.2006 $ */
 
 /*
 Modify:
+  12.07.2006 SVS
+    ! kill class int64
   09.05.2006 SVS
     + GetTitle + доп параметр, на сколько усеч
   03.05.2006 SVS
@@ -108,7 +110,6 @@ Modify:
 #include "scrobj.hpp"
 #include "farconst.hpp"
 #include "struct.hpp"
-#include "int64.hpp"
 
 class DizList;
 
@@ -215,7 +216,7 @@ class Panel:public ScreenObject
     virtual int GetSelName(char *Name,int &FileAttr,char *ShortName=NULL,WIN32_FIND_DATA *fd=NULL) {return(FALSE);};
     virtual void UngetSelName() {};
     virtual void ClearLastGetSelection() {};
-    virtual long GetLastSelectedSize(int64 *Size) {return(-1);};
+    virtual long GetLastSelectedSize(__int64 *Size) {return(-1);};
     virtual int GetLastSelectedItem(struct FileListItem *LastItem) {return(0);};
     virtual int GetCurName(char *Name,char *ShortName);
     virtual int GetCurBaseName(char *Name,char *ShortName);

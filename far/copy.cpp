@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.170 04.07.2006 $ */
+/* Revision: 1.171 12.07.2006 $ */
 
 /*
 Modify:
+  12.07.2006 SVS
+    ! kill class int64
   04.07.2006 IS
     - warnings
   23.06.2006 thims
@@ -579,10 +581,10 @@ static DWORD WINAPI CopyProgressRoutine(LARGE_INTEGER TotalFileSize,
 
 static int BarX,BarY,BarLength;
 
-static int64 TotalCopySize, TotalCopiedSize; // Общий индикатор копирования
-static int64 CurCopiedSize;                  // Текущий индикатор копирования
-static int64 TotalSkippedSize;               // Общий размер пропущенных файлов
-static int64 TotalCopiedSizeEx;
+static unsigned __int64 TotalCopySize, TotalCopiedSize; // Общий индикатор копирования
+static unsigned __int64 CurCopiedSize;                  // Текущий индикатор копирования
+static unsigned __int64 TotalSkippedSize;               // Общий размер пропущенных файлов
+static unsigned __int64 TotalCopiedSizeEx;
 static int   CountTarget;                    // всего целей.
 static int CopySecurityCopy=-1;
 static int CopySecurityMove=-1;
@@ -2028,7 +2030,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
         CopyStartTime = clock();
         /* $ 23.03.2002 VVM
           ! Уберем это, т.к. состояние SrcData неизвестно */
-  //      int64 SubSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
+  //      unsigned __int64 SubSize=MKUINT64(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
   //      TotalCopySize-=SubSize;
         /* VVM $ */
         _LOGCOPYR(SysLog("%d continue;",__LINE__));
@@ -2110,7 +2112,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
 
         if (CopyCode==COPY_NEXT)
         {
-          int64 CurSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
+          unsigned __int64 CurSize=MKUINT64(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
           TotalCopiedSize = TotalCopiedSize - CurCopiedSize + CurSize;
           TotalSkippedSize = TotalSkippedSize + CurSize - CurCopiedSize;
 //          TotalCopySize-=SubSize;
@@ -2137,7 +2139,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
 
       if (CopyCode!=COPY_SUCCESS)
       {
-        int64 CurSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
+        unsigned __int64 CurSize=MKUINT64(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
         TotalCopiedSize = TotalCopiedSize - CurCopiedSize + CurSize;
         if (CopyCode == COPY_NEXT)
           TotalSkippedSize = TotalSkippedSize + CurSize - CurCopiedSize;
@@ -2231,7 +2233,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
 
             case COPY_NEXT:
             {
-              int64 CurSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
+              unsigned __int64 CurSize=MKUINT64(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
               TotalCopiedSize = TotalCopiedSize - CurCopiedSize + CurSize;
               TotalSkippedSize = TotalSkippedSize + CurSize - CurCopiedSize;
               continue;
@@ -2246,7 +2248,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
             case COPY_SUCCESS:
               if(!NeedRename) // вариант при перемещении содержимого симлика с опцией "копировать содержимое сим..."
               {
-                int64 CurSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
+                unsigned __int64 CurSize=MKUINT64(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
                 TotalCopiedSize = TotalCopiedSize - CurCopiedSize + CurSize;
                 TotalSkippedSize = TotalSkippedSize + CurSize - CurCopiedSize;
                 FilesInDir++;
@@ -2275,7 +2277,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
 
         if (SubCopyCode==COPY_NEXT)
         {
-          int64 CurSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
+          unsigned __int64 CurSize=MKUINT64(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
           TotalCopiedSize = TotalCopiedSize - CurCopiedSize + CurSize;
           TotalSkippedSize = TotalSkippedSize + CurSize - CurCopiedSize;
         }
@@ -3040,8 +3042,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
   while (1)
   {
     int CopyCode=0;
-//    int64 SaveCopiedSize=CurCopiedSize;
-    int64 SaveTotalSize=TotalCopiedSize;
+//    unsigned __int64 SaveCopiedSize=CurCopiedSize;
+    unsigned __int64 SaveTotalSize=TotalCopiedSize;
     if (!(ShellCopy::Flags&FCOPY_COPYTONUL) && Rename)
     {
       int MoveCode=FALSE,AskDelete;
@@ -3119,7 +3121,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
 
         if (ShowTotalCopySize && MoveCode)
         {
-          int64 AddSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
+          unsigned __int64 AddSize=MKUINT64(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
           TotalCopiedSize+=AddSize;
           ShowBar(TotalCopiedSize,TotalCopySize,true);
           ShowTitle(FALSE);
@@ -3803,10 +3805,10 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
     }
   }
 
-//  int64 WrittenSize(0,0);
+//  unsigned __int64 WrittenSize=0;
   int   AbortOp = FALSE;
   UINT  OldErrMode=SetErrorMode(SEM_NOOPENFILEERRORBOX|SEM_NOGPFAULTERRORBOX|SEM_FAILCRITICALERRORS);
-  int64 FileSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
+  unsigned __int64 FileSize=MKUINT64(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
 
   while (1)
   {
@@ -4124,7 +4126,7 @@ static void GetTimeText(int Time, char *TimeText)
 
 /* $ 30.04.2003 VVM
   + Функция возвращает TRUE, если что-то нарисовала, иначе FALSE */
-int ShellCopy::ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar)
+int ShellCopy::ShowBar(unsigned __int64 WrittenSize,unsigned __int64 TotalSize,bool TotalBar)
 {
   // // _LOGCOPYR(CleverSysLog clv("ShellCopy::ShowBar"));
   // // _LOGCOPYR(SysLog("WrittenSize=%Ld ,TotalSize=%Ld, TotalBar=%d",WrittenSize,TotalSize,TotalBar));
@@ -4132,26 +4134,24 @@ int ShellCopy::ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar)
     LastShowTime = clock();
 /* $ 30.01.2001 VVM
     + Запомнить размеры */
-  int64 OldWrittenSize = WrittenSize;
-  int64 OldTotalSize = TotalSize;
+  unsigned __int64 OldWrittenSize = WrittenSize;
+  unsigned __int64 OldTotalSize = TotalSize;
 /* VVM $ */
-  WrittenSize=WrittenSize>>8;
-  TotalSize=TotalSize>>8;
+  //WrittenSize=WrittenSize>>8;
+  //TotalSize=TotalSize>>8;
 
   int Length;
-  if (WrittenSize.PLow()>TotalSize.PLow())
-    WrittenSize.PLow()=TotalSize.PLow();
-  if (TotalSize.PLow()==0)
+  if (WrittenSize>TotalSize)
+    WrittenSize=TotalSize;
+  if (!TotalSize)
     Length=BarLength;
   else
-    if (TotalSize.PLow()<1000000)
-      Length=WrittenSize.PLow()*BarLength/TotalSize.PLow();
-    else
-      Length=(WrittenSize.PLow()/100)*BarLength/(TotalSize.PLow()/100);
+    Length=(int)(WrittenSize*BarLength/TotalSize);
+
   char ProgressBar[100];
   memset(ProgressBar,0x0B0,BarLength);
   ProgressBar[BarLength]=0;
-  if (TotalSize.PLow()!=0)
+  if (TotalSize)
     memset(ProgressBar,0x0DB,Length);
   SetColor(COL_DIALOGTEXT);
   GotoXY(BarX,BarY+(TotalBar ? 2:0));
@@ -4159,9 +4159,8 @@ int ShellCopy::ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar)
 
   GotoXY(BarX+BarLength,BarY+(TotalBar ? 2:0));
 
-  char Percents[6];
-
-  sprintf (Percents, "%4d%%", ToPercent (WrittenSize.PLow(), TotalSize.PLow()));
+  char Percents[32];
+  sprintf (Percents, "%4d%%", ToPercent64 (WrittenSize, TotalSize));
 
   Text (Percents);
 
@@ -4172,12 +4171,12 @@ int ShellCopy::ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar)
   {
 //    CopyTime+= (clock() - CopyStartTime);
 //    CopyStartTime = clock();
-    int WorkTime = (CopyTime + (clock() - CopyStartTime))/1000;
-    int64 SizeLeft = OldTotalSize - OldWrittenSize;
+    long WorkTime = (CopyTime + (clock() - CopyStartTime))/1000;
+    unsigned __int64 SizeLeft = OldTotalSize - OldWrittenSize;
     if (SizeLeft < 0)
       SizeLeft = 0;
 
-    int TimeLeft;
+    long TimeLeft;
     char TimeStr[100];
     char c[2];
     c[1]=0;
@@ -4188,8 +4187,8 @@ int ShellCopy::ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar)
     {
       if (TotalBar)
         OldWrittenSize = OldWrittenSize - TotalSkippedSize;
-      int CPS = (OldWrittenSize/WorkTime).PLow();
-      TimeLeft = (CPS)?(SizeLeft/CPS).PLow():0;
+      long CPS = (long)(OldWrittenSize/WorkTime);
+      TimeLeft = static_cast<long>((CPS)?SizeLeft/CPS:0);
       c[0]=' ';
       if (CPS > 99999) {
         c[0]='K';
@@ -4199,16 +4198,12 @@ int ShellCopy::ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar)
         c[0]='M';
         CPS = CPS/1024;
       }
-      /* $ 06.03.2001 SVS
-         А у меня и такое есть :-)
-      */
       if (CPS > 99999) {
         c[0]='G';
         CPS = CPS/1024;
       }
-      /* SVS $ */
-      char WorkTimeStr[12];
-      char TimeLeftStr[12];
+      char WorkTimeStr[32];
+      char TimeLeftStr[32];
       GetTimeText(WorkTime, WorkTimeStr);
       GetTimeText(TimeLeft, TimeLeftStr);
       sprintf(TimeStr,MSG(MCopyTimeInfo), WorkTimeStr, TimeLeftStr, CPS, c);
@@ -4302,12 +4297,12 @@ int ShellCopy::AskOverwrite(const WIN32_FIND_DATA &SrcData,
       else
       {
         char SrcFileStr[512],DestFileStr[512];
-        int64 SrcSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
+        unsigned __int64 SrcSize=MKUINT64(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
         char SrcSizeText[20];
-        SrcSize.itoa(SrcSizeText);
-        int64 DestSize(DestData.nFileSizeHigh,DestData.nFileSizeLow);
+        _i64toa(SrcSize,SrcSizeText,10);
+        unsigned __int64 DestSize=MKUINT64(DestData.nFileSizeHigh,DestData.nFileSizeLow);
         char DestSizeText[20];
-        DestSize.itoa(DestSizeText);
+        _i64toa(DestSize,DestSizeText,10);
 
         char DateText[20],TimeText[20];
         ConvertDate(SrcData.ftLastWriteTime,DateText,TimeText,8,FALSE,FALSE,TRUE,TRUE);
@@ -4368,12 +4363,12 @@ int ShellCopy::AskOverwrite(const WIN32_FIND_DATA &SrcData,
         }
         char SrcFileStr[512],DestFileStr[512],DateText[20],TimeText[20];
 
-        int64 SrcSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
+        unsigned __int64 SrcSize=MKUINT64(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
         char SrcSizeText[20];
-        SrcSize.itoa(SrcSizeText);
-        int64 DestSize(DestData.nFileSizeHigh,DestData.nFileSizeLow);
+        _i64toa(SrcSize,SrcSizeText,10);
+        unsigned __int64 DestSize=MKUINT64(DestData.nFileSizeHigh,DestData.nFileSizeLow);
         char DestSizeText[20];
-        DestSize.itoa(DestSizeText);
+        _i64toa(DestSize,DestSizeText,10);
 
         ConvertDate(SrcData.ftLastWriteTime,DateText,TimeText,8,FALSE,FALSE,TRUE,TRUE);
         sprintf(SrcFileStr,"%-17s %11.11s %s %s",MSG(MCopySource),SrcSizeText,DateText,TimeText);
@@ -4611,7 +4606,7 @@ int ShellCopy::ShellSystemCopy(const char *SrcName,const char *DestName,const WI
   {
     if (ShowTotalCopySize)
     {
-      int64 AddSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
+      unsigned __int64 AddSize=MKUINT64(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
       TotalCopiedSize += AddSize;
       CurCopiedSize = AddSize;
       ShowBar(TotalCopiedSize,TotalCopySize,true);
@@ -4643,8 +4638,8 @@ DWORD WINAPI CopyProgressRoutine(LARGE_INTEGER TotalFileSize,
   // // _LOGCOPYR(CleverSysLog clv("CopyProgressRoutine"));
   // // _LOGCOPYR(SysLog("dwStreamNumber=%d",dwStreamNumber));
 
-  int64 TransferredSize(TotalBytesTransferred.u.HighPart,TotalBytesTransferred.u.LowPart);
-  int64 TotalSize(TotalFileSize.u.HighPart,TotalFileSize.u.LowPart);
+  unsigned __int64 TransferredSize=MKUINT64(TotalBytesTransferred.u.HighPart,TotalBytesTransferred.u.LowPart);
+  unsigned __int64 TotalSize=MKUINT64(TotalFileSize.u.HighPart,TotalFileSize.u.LowPart);
 
   int AbortOp = FALSE;
   BOOL IsChangeConsole=OrigScrX != ScrX || OrigScrY != ScrY;
@@ -4710,7 +4705,7 @@ bool ShellCopy::CalcTotalSize()
     {
       {
         unsigned long DirCount,FileCount,ClusterSize;
-        int64 FileSize,CompressedSize,RealFileSize;
+        unsigned __int64 FileSize,CompressedSize,RealFileSize;
         ShellCopyMsg(NULL,SelName,MSG_LEFTALIGN|MSG_KEEPBACKGROUND);
         if (!GetDirInfo("",SelName,DirCount,FileCount,FileSize,CompressedSize,
                         RealFileSize,ClusterSize,0xffffffff,
@@ -4736,8 +4731,8 @@ bool ShellCopy::CalcTotalSize()
       }
       /* KM $ */
 
-      int64 FileSize;
-      if (SrcPanel->GetLastSelectedSize(&FileSize)!=-1)
+      unsigned __int64 FileSize;
+      if (SrcPanel->GetLastSelectedSize((__int64*)&FileSize)!=-1)
       {
         TotalCopySize+=FileSize;
         TotalFilesToProcess++;
@@ -4756,8 +4751,7 @@ void ShellCopy::ShowTitle(int FirstTime)
 {
   if (ShowTotalCopySize && !FirstTime)
   {
-    int64 CopySize=TotalCopiedSize>>8,TotalSize=TotalCopySize>>8;
-    StaticCopyTitle->Set("{%d%%} %s",ToPercent(CopySize.PLow(),TotalSize.PLow()),StaticMove ? MSG(MCopyMovingTitle):MSG(MCopyCopyingTitle));
+    StaticCopyTitle->Set("{%d%%} %s",ToPercent64(TotalCopiedSize,TotalCopySize),StaticMove ? MSG(MCopyMovingTitle):MSG(MCopyCopyingTitle));
   }
 }
 

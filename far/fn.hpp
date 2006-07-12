@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.247 05.07.2006 $ */
+/* Revision: 1.248 12.07.2006 $ */
 
 /*
 Modify:
+  12.07.2006 SVS
+    ! kill class int64
+    ! FileSizeToStr() вместо двух параметров DWORD`ов имеет один __int64
   05.07.2006 IS
     - warnings
   03.07.2006 SVS
@@ -613,7 +616,6 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
 */
 
-#include "int64.hpp"
 #include "farconst.hpp"
 #include "global.hpp"
 
@@ -735,8 +737,7 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error);
 void ScrollScreen(int Count);
 int ScreenSaver(int EnableExit);
 char* InsertCommas(const unsigned long &Number,char *Dest);
-char* InsertCommas(const __int64 &li,char *Dest);
-inline char* InsertCommas(const int64 &li,char *Dest);
+char* InsertCommas(const unsigned __int64 &li,char *Dest);
 void DeleteDirTree(const char *Dir);
 int GetClusterSize(char *Root);
 
@@ -1044,17 +1045,15 @@ void PrintFiles(Panel *SrcPanel);
 void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir=FALSE);
 int  CheckUpdateAnotherPanel(Panel *SrcPanel,const char *SelName);
 
-#ifdef __FAR_INT64_HPP__
-BOOL GetDiskSize(char *Root,int64 *TotalSize,int64 *TotalFree,int64 *UserFree);
+BOOL GetDiskSize(char *Root,unsigned __int64 *TotalSize,unsigned __int64 *TotalFree,unsigned __int64 *UserFree);
 int GetDirInfo(char *Title,const char *DirName,unsigned long &DirCount,
-               unsigned long &FileCount,int64 &FileSize,
-               int64 &CompressedFileSize,int64 &RealSize,
+               unsigned long &FileCount,unsigned __int64 &FileSize,
+               unsigned __int64 &CompressedFileSize,unsigned __int64 &RealSize,
                unsigned long &ClusterSize,clock_t MsgWaitTime,
                DWORD Flags=GETDIRINFO_SCANSYMLINKDEF);
 int GetPluginDirInfo(HANDLE hPlugin,char *DirName,unsigned long &DirCount,
-               unsigned long &FileCount,int64 &FileSize,
-               int64 &CompressedFileSize);
-#endif
+               unsigned long &FileCount,unsigned __int64 &FileSize,
+               unsigned __int64 &CompressedFileSize);
 
 int DetectTable(FILE *SrcFile,struct CharTableSet *TableSet,int &TableNum);
 
@@ -1628,8 +1627,7 @@ int ConfirmAbortOp();
 // Получить из имени диска RemoteName
 char* DriveLocalToRemoteName(int DriveType,char Letter,char *Dest);
 void __PrepareKMGTbStr(void);
-char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size,
-                                int Width=-1, int ViewFlags=COLUMN_COMMAS);
+char* WINAPI FileSizeToStr(char *DestStr,unsigned __int64 Size, int Width=-1, int ViewFlags=COLUMN_COMMAS);
 
 DWORD WINAPI FarGetLogicalDrives(void);
 

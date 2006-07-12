@@ -7,10 +7,12 @@ class ShellCopy - Копирование файлов
 
 */
 
-/* Revision: 1.30 01.08.2005 $ */
+/* Revision: 1.31 12.07.2006 $ */
 
 /*
 Modify:
+  12.07.2006 SVS
+    ! kill class int64
   01.08.2005 SVS
     + FCOPY_USESYSTEMCOPY
   27.07.2005 SVS
@@ -97,7 +99,6 @@ Modify:
 */
 
 #include "dizlist.hpp"
-#include "int64.hpp"
 #include "udlist.hpp"
 
 class Panel;
@@ -228,7 +229,7 @@ class ShellCopy
     ~ShellCopy();
 
   public:
-    static int  ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar);
+    static int  ShowBar(unsigned __int64 WrittenSize,unsigned __int64 TotalSize,bool TotalBar);
     static void ShowTitle(int FirstTime);
     static long WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
     static int  MkSymLink(const char *SelName,const char *Dest,DWORD Flags);

@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.154 05.07.2006 $ */
+/* Revision: 1.155 12.07.2006 $ */
 
 /*
 Modify:
+  12.07.2006 SVS
+    ! kill class int64
   05.07.2006 IS
     - warnings
   29.05.2006 SVS
@@ -676,20 +678,20 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
         {
           char TotalText[NM],FreeText[NM];
           *TotalText=*FreeText=0;
-          int64 TotalSize,TotalFree,UserFree;
+          unsigned __int64 TotalSize,TotalFree,UserFree;
           if (ShowDisk && GetDiskSize(RootDir,&TotalSize,&TotalFree,&UserFree))
           {
             if (Opt.ChangeDriveMode & DRIVE_SHOW_SIZE)
             {
               //размер как минимум в мегабайтах
-              FileSizeToStr(TotalText,TotalSize.PHigh(),TotalSize.PLow(),8,COLUMN_MINSIZEINDEX|1);
-              FileSizeToStr(FreeText,UserFree.PHigh(),UserFree.PLow(),8,COLUMN_MINSIZEINDEX|1);
+              FileSizeToStr(TotalText,TotalSize,8,COLUMN_MINSIZEINDEX|1);
+              FileSizeToStr(FreeText,UserFree,8,COLUMN_MINSIZEINDEX|1);
             }
             else
             {
               //размер с точкой и для 0 добавляем букву размера (B)
-              FileSizeToStr(TotalText,TotalSize.PHigh(),TotalSize.PLow(),8,COLUMN_FLOATSIZE|COLUMN_SHOWBYTESINDEX);
-              FileSizeToStr(FreeText,UserFree.PHigh(),UserFree.PLow(),8,COLUMN_FLOATSIZE|COLUMN_SHOWBYTESINDEX);
+              FileSizeToStr(TotalText,TotalSize,8,COLUMN_FLOATSIZE|COLUMN_SHOWBYTESINDEX);
+              FileSizeToStr(FreeText,UserFree,8,COLUMN_FLOATSIZE|COLUMN_SHOWBYTESINDEX);
             }
           }
           sprintf(MenuText+strlen(MenuText),"%c%-8s%c%-8s",VerticalLine,TotalText,VerticalLine,FreeText);

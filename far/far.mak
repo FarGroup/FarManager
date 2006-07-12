@@ -121,7 +121,6 @@ LINK32_OBJS= \
 	"$(INTDIR)\history.obj" \
 	"$(INTDIR)\hmenu.obj" \
 	"$(INTDIR)\infolist.obj" \
-	"$(INTDIR)\int64.obj" \
 	"$(INTDIR)\interf.obj" \
 	"$(INTDIR)\iswind.obj" \
 	"$(INTDIR)\keybar.obj" \

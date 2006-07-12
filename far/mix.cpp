@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.183 05.07.2006 $ */
+/* Revision: 1.184 12.07.2006 $ */
 
 /*
 Modify:
+  12.07.2006 SVS
+    ! kill class int64
   05.07.2006 IS
     - warnings
   03.07.2006 SVS
@@ -969,9 +971,9 @@ int GetDirInfo(char *Title,
                const char *DirName,
                unsigned long &DirCount,
                unsigned long &FileCount,
-               int64 &FileSize,
-               int64 &CompressedFileSize,
-               int64 &RealSize,
+               unsigned __int64 &FileSize,
+               unsigned __int64 &CompressedFileSize,
+               unsigned __int64 &RealSize,
                unsigned long &ClusterSize,
                clock_t MsgWaitTime,
                DWORD Flags)
@@ -1115,20 +1117,20 @@ int GetDirInfo(char *Title,
       /* KM $ */
 
       FileCount++;
-      int64 CurSize(FindData.nFileSizeHigh,FindData.nFileSizeLow);
+      unsigned __int64 CurSize=MKUINT64(FindData.nFileSizeHigh,FindData.nFileSizeLow);
       FileSize+=CurSize;
       if (FindData.dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED)
       {
         DWORD CompressedSize,CompressedSizeHigh;
         CompressedSize=GetCompressedFileSize(FullName,&CompressedSizeHigh);
         if (CompressedSize!=0xFFFFFFFF || GetLastError()==NO_ERROR)
-          CurSize.Set(CompressedSizeHigh,CompressedSize);
+          CurSize=MKUINT64(CompressedSizeHigh,CompressedSize);
       }
       CompressedFileSize+=CurSize;
       if (ClusterSize>0)
       {
         RealSize+=CurSize;
-        int Slack=(CurSize%ClusterSize).PLow();
+        long Slack=(long)(CurSize%ClusterSize);
         if (Slack>0)
           RealSize+=ClusterSize-Slack;
       }
@@ -1141,8 +1143,9 @@ int GetDirInfo(char *Title,
 
 
 int GetPluginDirInfo(HANDLE hPlugin,char *DirName,unsigned long &DirCount,
-               unsigned long &FileCount,int64 &FileSize,
-               int64 &CompressedFileSize)
+               unsigned long &FileCount,
+               unsigned __int64 &FileSize,
+               unsigned __int64 &CompressedFileSize)
 {
   struct PluginPanelItem *PanelItem=NULL;
   int ItemsNumber,ExitCode;
@@ -1159,13 +1162,13 @@ int GetPluginDirInfo(HANDLE hPlugin,char *DirName,unsigned long &DirCount,
       else
       {
         FileCount++;
-        int64 CurSize(PanelItem[I].FindData.nFileSizeHigh,PanelItem[I].FindData.nFileSizeLow);
+        __int64 CurSize=MKUINT64(PanelItem[I].FindData.nFileSizeHigh,PanelItem[I].FindData.nFileSizeLow);
         FileSize+=CurSize;
         if (PanelItem[I].PackSize==0 && PanelItem[I].PackSizeHigh==0)
           CompressedFileSize+=CurSize;
         else
         {
-          int64 AddSize(PanelItem[I].PackSizeHigh,PanelItem[I].PackSize);
+          __int64 AddSize=MKUINT64(PanelItem[I].PackSizeHigh,PanelItem[I].PackSize);
           CompressedFileSize+=AddSize;
         }
       }
@@ -1270,7 +1273,7 @@ char* FarMSG(int MsgID)
 }
 
 
-BOOL GetDiskSize(char *Root,int64 *TotalSize,int64 *TotalFree,int64 *UserFree)
+BOOL GetDiskSize(char *Root,unsigned __int64 *TotalSize,unsigned __int64 *TotalFree,unsigned __int64 *UserFree)
 {
 typedef BOOL (WINAPI *GETDISKFREESPACEEX)(
     LPCTSTR lpDirectoryName,
@@ -1313,9 +1316,9 @@ typedef BOOL (WINAPI *GETDISKFREESPACEEX)(
     uiTotalFree.u.HighPart=0;
     uiUserFree.u=uiTotalFree.u;
   }
-  TotalSize->Set(uiTotalSize.u.HighPart,uiTotalSize.u.LowPart);
-  TotalFree->Set(uiTotalFree.u.HighPart,uiTotalFree.u.LowPart);
-  UserFree->Set(uiUserFree.u.HighPart,uiUserFree.u.LowPart);
+  *TotalSize=MKUINT64(uiTotalSize.u.HighPart,uiTotalSize.u.LowPart);
+  *TotalFree=MKUINT64(uiTotalFree.u.HighPart,uiTotalFree.u.LowPart);
+  *UserFree=MKUINT64(uiUserFree.u.HighPart,uiUserFree.u.LowPart);
   return(ExitCode);
 }
 
@@ -2322,8 +2325,8 @@ int CheckDisksProps(const char *SrcPath,const char *DestPath,int CheckedType)
     if (toupper(DestRoot[0])==toupper(SrcRoot[0]))
       return TRUE;
 
-    int64 SrcTotalSize,SrcTotalFree,SrcUserFree;
-    int64 DestTotalSize,DestTotalFree,DestUserFree;
+    unsigned __int64 SrcTotalSize,SrcTotalFree,SrcUserFree;
+    unsigned __int64 DestTotalSize,DestTotalFree,DestUserFree;
 
     if (!GetDiskSize(SrcRoot,&SrcTotalSize,&SrcTotalFree,&SrcUserFree))
       return FALSE;

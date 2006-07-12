@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.167 06.07.2006 $ */
+/* Revision: 1.168 12.07.2006 $ */
 
 /*
 Modify:
+  12.07.2006 SVS
+    ! kill class int64
   06.07.2006 SVS
     - MCODE_V_ITEMCOUNT & MCODE_V_CURPOS для макросов во вьювере возвращает ерунду, т.к. не __int64
   05.07.2006 IS
@@ -2296,13 +2298,13 @@ static TVar panelitemFunc(TVar *param)
         return TVar((const char*)Date);
       case 6:  // UnpSize
       {
-        int64 UnpSize(filelistItem.UnpSizeHigh,filelistItem.UnpSize);
-        return TVar(UnpSize.Number.i64);
+        __int64 UnpSize=MKUINT64(filelistItem.UnpSizeHigh,filelistItem.UnpSize);
+        return TVar(UnpSize);
       }
       case 7:  // PackSize
       {
-        int64 PackSize(filelistItem.PackSizeHigh,filelistItem.PackSize);
-        return TVar(PackSize.Number.i64);
+        __int64 PackSize=MKUINT64(filelistItem.PackSizeHigh,filelistItem.PackSize);
+        return TVar(PackSize);
       }
       case 8:  // Selected
         return TVar((__int64)((DWORD)filelistItem.Selected));

@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.100 07.07.2006 $ */
+/* Revision: 1.101 12.07.2006 $ */
 
 /*
 Modify:
+  12.07.2006 SVS
+    + MKUINT64()
   07.07.2006 IS
     ! косметика в коде
   17.04.2006 SVS
@@ -637,5 +639,7 @@ enum CHECKEDPROPS_TYPE{
   CHECKEDPROPS_ISSAMEDISK,
   CHECKEDPROPS_ISDST_ENCRYPTION,
 };
+
+#define MKUINT64(Hi,Lo) ((unsigned __int64)((unsigned __int64)(Hi)*0x100000000i64+(unsigned __int64)(Lo)))
 
 #endif // __FARCONST_HPP__

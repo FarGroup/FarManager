@@ -5,10 +5,12 @@ infolist.cpp
 
 */
 
-/* Revision: 1.52 05.07.2006 $ */
+/* Revision: 1.53 12.07.2006 $ */
 
 /*
 Modify:
+  12.07.2006 SVS
+    ! kill class int64
   05.07.2006 IS
     - warnings
   09.05.2006 SVS
@@ -337,7 +339,7 @@ void InfoList::DisplayObject()
     GotoXY(X1+(X2-X1+1-strlen(Title))/2,Y1+3);
     PrintText(Title);
 
-    int64 TotalSize,TotalFree,UserFree;
+    unsigned __int64 TotalSize,TotalFree,UserFree;
     if (GetDiskSize(DriveRoot,&TotalSize,&TotalFree,&UserFree))
     {
       GotoXY(X1+2,Y1+4);
@@ -372,19 +374,19 @@ void InfoList::DisplayObject()
   PrintInfo(OutStr);
   GotoXY(X1+2,Y1+10);
   PrintText(MInfoMemoryTotal);
-  InsertCommas(static_cast<__int64>(ms.ullTotalPhys),OutStr);
+  InsertCommas(static_cast<unsigned __int64>(ms.ullTotalPhys),OutStr);
   PrintInfo(OutStr);
   GotoXY(X1+2,Y1+11);
   PrintText(MInfoMemoryFree);
-  InsertCommas(static_cast<__int64>(ms.ullAvailPhys),OutStr);
+  InsertCommas(static_cast<unsigned __int64>(ms.ullAvailPhys),OutStr);
   PrintInfo(OutStr);
   GotoXY(X1+2,Y1+12);
   PrintText(MInfoVirtualTotal);
-  InsertCommas(static_cast<__int64>(ms.ullTotalPageFile),OutStr);
+  InsertCommas(static_cast<unsigned __int64>(ms.ullTotalPageFile),OutStr);
   PrintInfo(OutStr);
   GotoXY(X1+2,Y1+13);
   PrintText(MInfoVirtualFree);
-  InsertCommas(static_cast<__int64>(ms.ullAvailPageFile),OutStr);
+  InsertCommas(static_cast<unsigned __int64>(ms.ullAvailPageFile),OutStr);
   PrintInfo(OutStr);
   ShowDirDescription();
   ShowPluginDescription();

@@ -136,7 +136,6 @@ hilight.cpp
 history.cpp
 hmenu.cpp
 infolist.cpp
-int64.cpp
 interf.cpp
 iswind.cpp
 keybar.cpp
@@ -192,3 +191,4 @@ usermenu.cpp
 viewer.cpp
 vmenu.cpp
 xlat.cpp
+hotplug.cpp

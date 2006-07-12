@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.56 05.07.2006 $ */
+/* Revision: 1.57 12.07.2006 $ */
 
 /*
 Modify:
+  12.07.2006 SVS
+    ! kill class int64
   05.07.2006 IS
     - warnings
   29.05.2006 SVS
@@ -517,7 +519,7 @@ void FileList::ShowSelectedSize()
 
   if (SelFileCount)
   {
-    InsertCommas(SelFileSize,FormStr);
+    InsertCommas((unsigned __int64)SelFileSize,FormStr);
     sprintf(SelStr,MSG(__FormatEndSelectedPhrase(SelFileCount)),FormStr,SelFileCount);
 
     TruncStr(SelStr,X2-X1-1);
@@ -551,10 +553,10 @@ void FileList::ShowTotalSize(struct OpenPluginInfo &Info)
   char TotalStr[256],FormSize[20],FreeSize[20];
   int Length;
 
-  InsertCommas(TotalFileSize,FormSize);
+  InsertCommas((unsigned __int64)TotalFileSize,FormSize);
   *FreeSize=0;
   if (Opt.ShowPanelFree && (PanelMode!=PLUGIN_PANEL || (Info.Flags & OPIF_REALNAMES)))
-    InsertCommas(FreeDiskSize,FreeSize);
+    InsertCommas((unsigned __int64)FreeDiskSize,FreeSize);
   if (Opt.ShowPanelTotals)
   {
     if (!Opt.ShowPanelFree || *FreeSize==0)
@@ -566,8 +568,8 @@ void FileList::ShowTotalSize(struct OpenPluginInfo &Info)
       sprintf(TotalStr," %s (%d) %s %s ",FormSize,TotalFileCount,DHLine,FreeSize);
       if ((int) strlen(TotalStr)> X2-X1-1)
       {
-        InsertCommas(FreeDiskSize>>20,FreeSize);
-        InsertCommas(TotalFileSize>>20,FormSize);
+        InsertCommas(((unsigned __int64)FreeDiskSize)>>20,FreeSize);
+        InsertCommas(((unsigned __int64)TotalFileSize)>>20,FormSize);
         sprintf(TotalStr," %s %s (%d) %s %s %s ",FormSize,MSG(MListMb),TotalFileCount,DHLine,FreeSize,MSG(MListMb));
       }
     }
@@ -1085,8 +1087,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                   // подсократим - весь код по форматированию размера
                   //   в отдельную функцию - FileSizeToStr().
                   mprintf("%s",FileSizeToStr(OutStr,
-                           Packed?CurPtr->PackSizeHigh:CurPtr->UnpSizeHigh,
-                           Packed?CurPtr->PackSize:CurPtr->UnpSize,
+                           Packed?MKUINT64(CurPtr->PackSizeHigh,CurPtr->PackSize):MKUINT64(CurPtr->UnpSizeHigh,CurPtr->UnpSize),
                            Width,ColumnTypes[K]));
                 }
               }

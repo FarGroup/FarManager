@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.274 04.07.2006 $ */
+/* Revision: 1.275 12.07.2006 $ */
 
 /*
 Modify:
+  12.07.2006 SVS
+    ! kill class int64
   04.07.2006 IS
     - warnings
   08.05.2006 AY
@@ -1035,23 +1037,25 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
   */
   if(EdOpt.FileSizeLimitLo || EdOpt.FileSizeLimitHi)
   {
-    int64 RealSizeFile;
+    unsigned __int64 RealSizeFile;
     /* $ 07.01.2001 IS
         - без этого не правильно работала проверка на ошибку
     */
     SetLastError(NO_ERROR);
     /* IS $ */
-    RealSizeFile.PLow()=GetFileSize(hEdit,(DWORD*)&RealSizeFile.PHigh());
+    DWORD  RealSizeFileHi, RealSizeFileLo;
+    RealSizeFileLo=GetFileSize(hEdit,(DWORD*)&RealSizeFileHi);
+    RealSizeFile=MKUINT64(RealSizeFileHi,RealSizeFileLo);
     if (GetLastError() == NO_ERROR)
     {
-      int64 NeedSizeFile(EdOpt.FileSizeLimitHi,EdOpt.FileSizeLimitLo);
+      unsigned __int64 NeedSizeFile=MKUINT64(EdOpt.FileSizeLimitHi,EdOpt.FileSizeLimitLo);
       if(RealSizeFile > NeedSizeFile)
       {
         char TempBuf[2][128];
         char TempBuf2[2][64];
         // Ўирина = 8 - это будет... в Kb и выше...
-        FileSizeToStr(TempBuf2[0],RealSizeFile.PHigh(),RealSizeFile.PLow(),8);
-        FileSizeToStr(TempBuf2[1],NeedSizeFile.PHigh(),NeedSizeFile.PLow(),8);
+        FileSizeToStr(TempBuf2[0],RealSizeFile,8);
+        FileSizeToStr(TempBuf2[1],NeedSizeFile,8);
         sprintf(TempBuf[0],MSG(MEditFileLong),RemoveExternalSpaces(TempBuf2[0]));
         sprintf(TempBuf[1],MSG(MEditFileLong2),RemoveExternalSpaces(TempBuf2[1]));
         if(Message(MSG_WARNING,2,MSG(MEditTitle),
