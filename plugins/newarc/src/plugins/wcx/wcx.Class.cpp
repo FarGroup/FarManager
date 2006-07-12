@@ -150,6 +150,8 @@ int WINAPI WcxModules::LoadWcxModules (const WIN32_FIND_DATA *pFindData,
 	if ( pFindData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY )
 		return TRUE;
 
+    MessageBox (0, lpFullName, lpFullName, MB_OK);
+
 	WcxModule *pModule = new WcxModule (lpFullName);
 
 	if ( !pModule )

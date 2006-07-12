@@ -88,7 +88,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="c:\manager\far\plugins\newarc\plugins\tar\tar.module"
+				OutputFile="G:\System Independent Files\Manager\Far\Plugins\newarc\plugins\tar\tar.module"
 				LinkIncremental="1"
 				IgnoreAllDefaultLibraries="FALSE"
 				ModuleDefinitionFile="tar.def"

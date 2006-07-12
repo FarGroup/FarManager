@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="7z"
+	Name="7z.all"
 	ProjectGUID="{26E284B8-6296-4CBA-9C61-967BC3EDE229}"
 	Keyword="Win32Proj">
 	<Platforms>

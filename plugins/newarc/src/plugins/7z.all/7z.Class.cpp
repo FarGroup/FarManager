@@ -455,7 +455,7 @@ bool __stdcall SevenZipArchive::pOpenArchive (
 
   				m_pArchive->Close();
   			}
-  			else
+  			/*else
   			{
 	  			//HACK!!! цинично показываем пустую панель при неправильном пароле на
 	  			//листинге. а то Far неадекватно воспринимает FALSE из GetFindData
@@ -466,7 +466,7 @@ bool __stdcall SevenZipArchive::pOpenArchive (
   					delete pCallback;
   					return true;
   				}
-			}
+			}*/
 
 			delete pCallback;
 

@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="rar"
-	ProjectGUID="{26E284B8-6296-4CBA-9C61-967BC3EDE229}"
+	Name="wcx"
+	ProjectGUID="{25E705A3-FA09-403D-94B0-8D142453307B}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -19,7 +19,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;RAR_EXPORTS"
+				AdditionalIncludeDirectories="StdInclude, Include"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;ZIP_EXPORTS"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -31,12 +32,12 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/rar.dll"
+				OutputFile="$(OutDir)/wcx.dll"
 				LinkIncremental="2"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="$(OutDir)/rar.pdb"
+				ProgramDatabaseFile="$(OutDir)/wcx.pdb"
 				SubSystem="2"
-				ImportLibrary="$(OutDir)/rar.lib"
+				ImportLibrary="$(OutDir)/wcx.lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
@@ -69,13 +70,13 @@
 				Name="VCCLCompilerTool"
 				Optimization="1"
 				GlobalOptimizations="TRUE"
+				ImproveFloatingPointConsistency="FALSE"
 				FavorSizeOrSpeed="2"
 				OmitFramePointers="TRUE"
-				AdditionalIncludeDirectories="..\..\lib.part\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;RAR_EXPORTS"
+				AdditionalIncludeDirectories="StdInclude, Include, ../../lib.part/include"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;ZIP_EXPORTS"
 				StringPooling="TRUE"
 				ExceptionHandling="FALSE"
-				BasicRuntimeChecks="0"
 				RuntimeLibrary="4"
 				StructMemberAlignment="1"
 				BufferSecurityCheck="FALSE"
@@ -87,16 +88,16 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="G:\System Independent Files\Manager\Far\Plugins\newarc\plugins\rar\rar.module"
+				OutputFile="G:\System Independent Files\Manager\Far\Plugins\newarc\plugins\wcx\wcx.module"
 				LinkIncremental="1"
 				IgnoreAllDefaultLibraries="FALSE"
-				ModuleDefinitionFile="rar.def"
+				ModuleDefinitionFile="wcx.def"
 				GenerateDebugInformation="FALSE"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				OptimizeForWindows98="1"
-				ImportLibrary="$(OutDir)/rar.lib"
+				ImportLibrary="$(OutDir)/wcx.lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
@@ -128,34 +129,25 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
-				RelativePath="..\..\lib.part\Src\FarDialogs.cpp">
-			</File>
-			<File
-				RelativePath=".\rar.Class.cpp">
-			</File>
-			<File
-				RelativePath=".\rar.cpp">
-			</File>
-			<File
-				RelativePath="..\..\lib.part\Src\Registry.cpp">
-			</File>
-			<File
-				RelativePath="..\..\lib.part\Src\Rtl.Memory.cpp">
-			</File>
-			<File
 				RelativePath="..\..\lib.part\Src\Rtl.Misc.cpp">
 			</File>
 			<File
 				RelativePath="..\..\lib.part\Src\Rtl.Strings.cpp">
 			</File>
 			<File
-				RelativePath="..\..\lib.part\Src\Rtl.Thunks.cpp">
+				RelativePath=".\wcx.Class.cpp">
+			</File>
+			<File
+				RelativePath=".\wcx.cpp">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			<File
+				RelativePath=".\Include\wcx.Class.h">
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
