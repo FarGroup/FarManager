@@ -64,7 +64,7 @@ const FormatInfo signs[] = {
 	{&CLSID_CCpioHandler,  (const unsigned char *)&CpioSig,     5, true,  NULL},
 	{&CLSID_CChmHandler,   (const unsigned char *)&ChmSig,      4, true,  NULL},
 	{&CLSID_CNsisHandler,  (const unsigned char *)&NsisSig,    16, false, IsNSISHeader},
-	{&CLSID_CIsoHandler,   (const unsigned char *)&IsoSig,      6, false, NULL},
+	{&CLSID_CIsoHandler,   (const unsigned char *)&IsoSig,      6, true, IsIsoHeader},
 };
 
 

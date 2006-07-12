@@ -151,6 +151,9 @@
 				RelativePath=".\cabdetect.cpp">
 			</File>
 			<File
+				RelativePath=".\isodetect.cpp">
+			</File>
+			<File
 				RelativePath=".\lzhdetect.cpp">
 			</File>
 			<File
