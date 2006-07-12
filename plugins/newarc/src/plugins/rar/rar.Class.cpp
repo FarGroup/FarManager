@@ -9,14 +9,6 @@ RarModule::RarModule (
 		const char *lpFileName
 		)
 {
-	/*
-	m_hModule = LoadLibraryEx (
-			"unrar.dll",
-			NULL,
-			LOAD_WITH_ALTERED_SEARCH_PATH
-			);
-	*/
-
 	char *lpModuleName = StrDuplicate(Info.ModuleName, 260);
 
 	CutToSlash(lpModuleName);
@@ -56,8 +48,6 @@ RarArchive::RarArchive (RarModule *pModule, const char *lpFileName)
 	m_pModule = pModule;
 
 	CreateClassThunk (RarArchive, RarCallback, m_pfnRarCallback);
-	CreateClassThunk (RarArchive, RarProcessDataProc, m_pfnRarProcessDataProc);
-
 	m_lpFileName = StrDuplicate (lpFileName);
 
 	m_bAborted = false;
@@ -67,7 +57,6 @@ RarArchive::~RarArchive ()
 {
 	StrFree (m_lpFileName);
 	free (m_pfnRarCallback);
-	free (m_pfnRarProcessDataProc);
 }
 
 bool __stdcall RarArchive::pOpenArchive (
@@ -82,33 +71,18 @@ bool __stdcall RarArchive::pOpenArchive (
 	memset (&arcData, 0, sizeof (arcData));
 
 	if ( nOpMode == OM_LIST )
-		nOpMode = RAR_OM_LIST;
+		m_nOpMode = RAR_OM_LIST;
 	else
-		nOpMode = RAR_OM_EXTRACT;
+		m_nOpMode = RAR_OM_EXTRACT;
 
 	arcData.ArcName = m_lpFileName;
-	arcData.OpenMode = nOpMode;
+	arcData.OpenMode = m_nOpMode;
 
 	m_hArchive = m_pModule->m_pfnOpenArchiveEx (&arcData);
 
 	if ( arcData.OpenResult == 0 )
 	{
-		if ( (arcData.Flags & 0x0080) == 0x0080 )
-		{
-			ArchivePassword Password;
-
-			Password.lpBuffer = StrCreate (260);
-			Password.dwBufferSize = 260;
-
-			if ( m_pfnCallback (AM_NEED_PASSWORD, PASSWORD_LIST, (int)&Password) )
-				m_pModule->m_pfnSetPassword (m_hArchive, Password.lpBuffer);
-
-			StrFree (Password.lpBuffer);
-		}
-
-	//	m_pModule->m_pfnSetCallback (m_hArchive, (UNRARCALLBACK)m_pfnRarCallback, NULL);
-		m_pModule->m_pfnSetProcessDataProc (m_hArchive, (PROCESSDATAPROC)m_pfnRarProcessDataProc);
-
+		m_pModule->m_pfnSetCallback (m_hArchive, (UNRARCALLBACK)m_pfnRarCallback, NULL);
 		return true;
 	}
 
@@ -165,32 +139,33 @@ int __stdcall RarArchive::RarCallback (
 		int nParam2
 		)
 {
-/*	if ( nMsg == UCM_NEEDPASSWORD )
+	if ( nMsg == UCM_NEEDPASSWORD )
 	{
-		char *lpPassword = (char*)m_pfnCallback (AM_NEED_PASSWORD, 0, 0);
+		ArchivePassword Password;
 
-		if ( lpPassword )
-			m_pModule->m_pfnSetPassword (m_hArchive, lpPassword);
-	}*/
+		Password.lpBuffer = StrCreate (260);
+		Password.dwBufferSize = 260;
+
+		if ( m_pfnCallback && m_pfnCallback (AM_NEED_PASSWORD, (m_nOpMode == RAR_OM_LIST)?PASSWORD_LIST:PASSWORD_FILE, (int)&Password) );
+		{
+			lstrcpyn ((char*)nParam1, Password.lpBuffer, nParam2);
+		}
+
+		StrFree (Password.lpBuffer);
+	}
+
+	if ( nMsg == UCM_PROCESSDATA )
+	{
+		if ( m_pfnCallback && !m_pfnCallback (AM_PROCESS_DATA, (dword)nParam1, (dword)nParam2) )
+		{
+			m_bAborted = true; // а нужно ли...
+			return -1;
+		}
+	}
 
 	return 1;
 }
 
-int __stdcall RarArchive::RarProcessDataProc (
-		unsigned char *Addr,
-		int Size
-		)
-{
-	int nResult = m_pfnCallback (AM_PROCESS_DATA, (dword)Addr, (dword)Size);
-
-	if ( nResult == 0 )
-	{
-		m_bAborted = true;
-		//nResult = -1;
-	}
-
-	return nResult;
-}
 
 bool __stdcall RarArchive::pTest (
 		PluginPanelItem *pItems,
@@ -210,20 +185,6 @@ bool __stdcall RarArchive::pTest (
 			PluginPanelItem Item;
 
 			strcpy (Item.FindData.cFileName, fileHeader.FileName);
-
-			if ( (fileHeader.Flags & 0x04) == 0x04 )
-			{
-				ArchivePassword Password;
-
-				Password.lpBuffer = StrCreate (260);
-				Password.dwBufferSize = 260;
-
-				if ( m_pfnCallback (AM_NEED_PASSWORD, PASSWORD_FILE, (int)&Password) )
-					m_pModule->m_pfnSetPassword (m_hArchive, Password.lpBuffer);
-
-				StrFree (Password.lpBuffer);
-			}
-
 
 			m_pfnCallback (AM_START_EXTRACT_FILE, (dword)&Item, (dword)"123");
 
@@ -289,20 +250,6 @@ bool __stdcall RarArchive::pExtract (
 						lpName++;
 
 					strcat (lpDestName, lpName);
-
-					if ( (fileHeader.Flags & 0x04) == 0x04 )
-					{
-						ArchivePassword Password;
-
-						Password.lpBuffer = StrCreate (260);
-						Password.dwBufferSize = 260;
-
-						if ( m_pfnCallback (AM_NEED_PASSWORD, PASSWORD_FILE, (int)&Password) )
-							m_pModule->m_pfnSetPassword (m_hArchive, Password.lpBuffer);
-
-						StrFree (Password.lpBuffer);
-					}
-
 
 					m_pfnCallback (AM_START_EXTRACT_FILE, (dword)&pItems[i], (dword)lpDestName);
 

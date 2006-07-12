@@ -48,17 +48,12 @@ class RarArchive {
 public:
 
 	RarModule *m_pModule;
-
 	HANDLE m_hArchive;
-
 	ARCHIVECALLBACK m_pfnCallback;
-
 	PBYTE m_pfnRarCallback;
-	PBYTE m_pfnRarProcessDataProc;
-
 	bool m_bAborted;
-
 	char *m_lpFileName;
+	int m_nOpMode;
 
 public:
 
@@ -76,6 +71,5 @@ public:
 
 private:
 
-	int __stdcall RarProcessDataProc (unsigned char *Addr, int Size);
 	int __stdcall RarCallback (int nMsg, void *pParam, int nParam1, int nParam2);
 };
