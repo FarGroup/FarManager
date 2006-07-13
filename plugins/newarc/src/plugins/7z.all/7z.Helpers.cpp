@@ -322,11 +322,13 @@ HRESULT CArchiveExtractCallback::SetCompleted (const unsigned __int64* completeV
 }
 
 
-void CreateDirectoryEx (char *FullPath) //$ 16.05.2002 AA
+void CreateDirectoryEx (const char *lpFullPath) //$ 16.05.2002 AA
 {
+	char *lpFullPathCopy = StrDuplicate(lpFullPath);
+
 //	if( !FileExists (FullPath) )
 	{
-		for (char *c = FullPath; *c; c++)
+		for (char *c = lpFullPathCopy; *c; c++)
 		{
 			if(*c!=' ')
 			{
@@ -334,14 +336,16 @@ void CreateDirectoryEx (char *FullPath) //$ 16.05.2002 AA
 					if(*c=='\\')
 						{
 							*c=0;
-							CreateDirectory(FullPath, NULL);
+							CreateDirectory (lpFullPathCopy, NULL);
 							*c='\\';
 						}
-				CreateDirectory(FullPath, NULL);
+				CreateDirectory(lpFullPathCopy, NULL);
 				break;
 			}
 		}
 	}
+
+	free (lpFullPathCopy);
 }
 
 
@@ -377,11 +381,9 @@ HRESULT __stdcall CArchiveExtractCallback::GetStream (
 		)
 
 {
-	//PROPVARIANT value;
 	CPropVariant value;
 
 	IInArchive *archive = m_pArchive->m_pArchive;
-	//VariantInit ((VARIANTARG*)&value);
 
 	if ( askExtractMode == 0 ) //extract
 	{
@@ -417,8 +419,46 @@ HRESULT __stdcall CArchiveExtractCallback::GetStream (
 		if ( (int)m_nLastProcessed == -1 )
 			m_nLastProcessed = 0;
 
-		if ( item->FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY ) //HACK!!!
-		//if ( archive->GetProperty (index, kpidIsFolder, &value) && (value.vt == VT_BOOL) )
+   		FILETIME ftCreationTime, ftLastAccessTime, ftLastWriteTime;
+   		DWORD dwFileAttributes = 0;
+
+   		memset (&ftCreationTime, 0, sizeof (FILETIME));
+   		memset (&ftLastAccessTime, 0, sizeof (FILETIME));
+   		memset (&ftLastWriteTime, 0, sizeof (FILETIME));
+
+   		if ( archive->GetProperty (index, kpidAttributes, &value) == S_OK )
+   		{
+   			if ( value.vt == VT_UI4 )
+   				dwFileAttributes = value.ulVal;
+   		}
+
+   		if ( archive->GetProperty (index, kpidCreationTime, &value) == S_OK )
+   		{
+   			if ( value.vt == VT_FILETIME )
+   				memcpy (&ftCreationTime, &value.filetime, sizeof (FILETIME));
+   		}
+
+   		if ( archive->GetProperty (index, kpidLastAccessTime, &value) == S_OK )
+   		{
+   			if ( value.vt == VT_FILETIME )
+   				memcpy (&ftLastAccessTime, &value.filetime, sizeof (FILETIME));
+   		}
+
+   		if ( archive->GetProperty (index, kpidLastWriteTime, &value) == S_OK )
+   		{
+   			if ( value.vt == VT_FILETIME )
+   				memcpy (&ftLastWriteTime, &value.filetime, sizeof (FILETIME));
+   		}
+
+   		bool bIsFolder = false;
+
+   		if ( archive->GetProperty (index, kpidIsFolder, &value) )
+   		{
+   			if (value.vt == VT_BOOL) 
+   				bIsFolder = (value.boolVal == VARIANT_TRUE);
+		}
+
+		if ( bIsFolder || OptionIsOn (dwFileAttributes, FILE_ATTRIBUTE_DIRECTORY) )
 		{
 			*outStream = NULL;
 			CreateDirectoryEx (szFullName);
@@ -426,37 +466,6 @@ HRESULT __stdcall CArchiveExtractCallback::GetStream (
 		else
 		{
 			CreateDirs (szFullName);
-
-			FILETIME ftCreationTime, ftLastAccessTime, ftLastWriteTime;
-			DWORD dwFileAttributes = 0;
-
-			memset (&ftCreationTime, 0, sizeof (FILETIME));
-			memset (&ftLastAccessTime, 0, sizeof (FILETIME));
-			memset (&ftLastWriteTime, 0, sizeof (FILETIME));
-
-			if ( archive->GetProperty (index, kpidAttributes, &value) == S_OK )
-			{
-				if ( value.vt == VT_UI4 )
-					dwFileAttributes = value.ulVal;
-			}
-
-			if ( archive->GetProperty (index, kpidCreationTime, &value) == S_OK )
-			{
-				if ( value.vt == VT_FILETIME )
-					memcpy (&ftCreationTime, &value.filetime, sizeof (FILETIME));
-			}
-
-			if ( archive->GetProperty (index, kpidLastAccessTime, &value) == S_OK )
-			{
-				if ( value.vt == VT_FILETIME )
-					memcpy (&ftLastAccessTime, &value.filetime, sizeof (FILETIME));
-			}
-
-			if ( archive->GetProperty (index, kpidLastWriteTime, &value) == S_OK )
-			{
-				if ( value.vt == VT_FILETIME )
-					memcpy (&ftLastWriteTime, &value.filetime, sizeof (FILETIME));
-			}
 
 			COutFile *file = new COutFile (szFullName);
 
@@ -468,70 +477,6 @@ HRESULT __stdcall CArchiveExtractCallback::GetStream (
 
 			*outStream = file;
 		}
-
-
-
-	/*	if ( SUCCEEDED (archive->GetProperty (
-				index,
-				kpidPath,
-				&value
-				)) )
-		{
-			char szArcFileName[NM];
-			char szFullName[NM];
-
-			if ( value.vt == VT_BSTR )
-				WideCharToMultiByte (CP_OEMCP, 0, value.bstrVal, -1, szArcFileName, NM, NULL, NULL);
-			else
-			{
-				strcpy (szArcFileName, FSF.PointToName (m_pArchive->m_lpFileName));
-				CutTo (szArcFileName, '.', true);
-			}
-
-			strcpy (szFullName, m_lpDestPath);
-
-			FSF.AddEndSlash (szFullName);
-
-			if ( !FSF.LStrnicmp (szArcFileName, m_lpCurrentFolder, strlen (m_lpCurrentFolder)) )
-				strcat (szFullName, szArcFileName+strlen (m_lpCurrentFolder));
-			else
-				strcat (szFullName, szArcFileName);
-
-			int itemindex = GetItemIndex (this, index);
-			PluginPanelItem *item = m_pItems[itemindex].pItem;
-
-			if ( m_pArchive->m_pfnCallback )
-				m_pArchive->m_pfnCallback (AM_START_EXTRACT_FILE, (int)item, (int)szFullName);
-
-			if ( (int)m_nLastProcessed == -1 )
-				m_nLastProcessed = 0;
-
-			PROPVARIANT v;
-			bool bIsFolder = false;
-
-			if ( SUCCEEDED(archive->GetProperty (
-					index,
-					kpidIsFolder,
-					&v
-					)) && (v.vt == VT_BOOL) )
-		        bIsFolder = (v.boolVal == VARIANT_TRUE);
-
-			if ( bIsFolder )
-			{
-				*outStream = NULL;
-				CreateDirectoryEx (szFullName);
-			}
-			else
-			{
-				CreateDirs (szFullName);
-
-				COutFile *file = new COutFile;
-				file->Open (szFullName);
-
-				*outStream = file;
-				VariantClear ((VARIANTARG*)&value);
-			}
-		}*/
 	}
 	else
 		*outStream = NULL;
@@ -824,7 +769,6 @@ HRESULT __stdcall CArchiveOpenVolumeCallback::GetProperty (PROPID propID, PROPVA
 	{
 		wchar_t wszNameOnly[MAX_PATH];
 
-		//m_pCurrentFile!!! check here!!!
 		if ( m_pVolumeFile )
 			MultiByteToWideChar (CP_OEMCP, 0, FSF.PointToName (m_pVolumeFile->GetName()), -1, wszNameOnly, MAX_PATH);
 		else

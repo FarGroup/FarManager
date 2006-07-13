@@ -77,7 +77,6 @@ class WcxArchive {
 	int m_nModuleNum;
 
 	HANDLE m_hArchive;
-
 	char *m_lpFileName;
 
 	PBYTE m_pfnProcessDataProc;

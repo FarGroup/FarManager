@@ -1,7 +1,5 @@
 #include <FarPluginBase.h>
-#ifdef _DEBUG
 #include <debug.h>
-#endif
 #include "wcx.class.h"
 
 int __stdcall WcxArchive::ProcessDataProc (char *FileName, int Size)
@@ -235,10 +233,14 @@ bool __stdcall WcxArchive::pOpenArchive (int nOpMode, ARCHIVECALLBACK pfnCallbac
 {
 	m_pfnCallback = pfnCallback;
 
-	tOpenArchiveData OpenArchiveData = {0};
+	m_hArchive = NULL;
+
+	tOpenArchiveData OpenArchiveData;
+
+	memset (&OpenArchiveData, 0, sizeof (OpenArchiveData));
 
 	OpenArchiveData.ArcName = m_lpFileName;
-	OpenArchiveData.OpenMode = (nOpMode == OM_EXTRACT)?PK_OM_EXTRACT:PK_OM_LIST;
+	OpenArchiveData.OpenMode = (nOpMode == OM_LIST)?PK_OM_LIST:PK_OM_EXTRACT;
 
 	m_hArchive = m_pModule->m_pfnOpenArchive (&OpenArchiveData);
 
@@ -265,64 +267,29 @@ int __stdcall WcxArchive::pGetArchiveItem (ArchiveItemInfo *pItem)
 {
 	int nResult = 0;
 
-	//__debug ("%d", m_hArchive);
+	tHeaderData HeaderData;
+	memset (&HeaderData, 0, sizeof (HeaderData));
 
-/*	if (!m_hArchive)
+	nResult = m_pModule->m_pfnReadHeader (m_hArchive, &HeaderData);
+
+	if ( !nResult )
 	{
-		tOpenArchiveData OpenArchiveData = {0};
+		CharToOem(HeaderData.FileName,pItem->pi.FindData.cFileName);
 
-		OpenArchiveData.ArcName = m_lpFileName;
-		OpenArchiveData.OpenMode = PK_OM_LIST;
+		pItem->pi.FindData.dwFileAttributes = HeaderData.FileAttr;
+		pItem->pi.FindData.nFileSizeLow = HeaderData.UnpSize;
 
-		m_hArchive = m_pModule->m_pfnOpenArchive (&OpenArchiveData);
+		FILETIME filetime;
+		DosDateTimeToFileTime ((WORD)((DWORD)HeaderData.FileTime >> 16), (WORD)HeaderData.FileTime, &filetime);
+		LocalFileTimeToFileTime (&filetime, &pItem->pi.FindData.ftLastWriteTime);
+		pItem->pi.FindData.ftCreationTime = pItem->pi.FindData.ftLastAccessTime = pItem->pi.FindData.ftLastWriteTime;
 
-		if (m_hArchive)
-		{
-			if (m_pModule->m_pfnSetProcessDataProc)
-				m_pModule->m_pfnSetProcessDataProc (m_hArchive, ProcessDataProc);
-			if (m_pModule->m_pfnSetChangeVolProc)
-				m_pModule->m_pfnSetChangeVolProc (m_hArchive, SetChangeVolProc);
-		}
-	}
-	else        */
-	//{
-		//nResult = m_pModule->m_pfnProcessFile (m_hArchive, PK_SKIP, NULL, NULL);
-	//}
+		pItem->pi.PackSize = HeaderData.PackSize;
+		pItem->pi.CRC32 = HeaderData.FileCRC;
 
-	//if (m_hArchive)
-	{
-		//if (!nResult)
-		{
-			tHeaderData HeaderData;
-			memset (&HeaderData, 0, sizeof (HeaderData));
-			//strcpy (HeaderData.ArcName, m_lpFileName);
+		m_pModule->m_pfnProcessFile (m_hArchive, PK_SKIP, NULL, NULL);
 
-			nResult = m_pModule->m_pfnReadHeader (m_hArchive, &HeaderData);
-
-			if ( !nResult )
-			{
-				m_pModule->m_pfnProcessFile (m_hArchive, PK_SKIP, NULL, NULL);
-
-				CharToOem(HeaderData.FileName,pItem->pi.FindData.cFileName);
-
-				pItem->pi.FindData.dwFileAttributes = HeaderData.FileAttr;
-				pItem->pi.FindData.nFileSizeLow = HeaderData.UnpSize;
-
-				FILETIME filetime;
-				DosDateTimeToFileTime ((WORD)((DWORD)HeaderData.FileTime >> 16), (WORD)HeaderData.FileTime, &filetime);
-				LocalFileTimeToFileTime (&filetime, &pItem->pi.FindData.ftLastWriteTime);
-				pItem->pi.FindData.ftCreationTime = pItem->pi.FindData.ftLastAccessTime = pItem->pi.FindData.ftLastWriteTime;
-
-				pItem->pi.PackSize = HeaderData.PackSize;
-				pItem->pi.CRC32 = HeaderData.FileCRC;
-
-				return E_SUCCESS;
-			}
-
-		}
-
-	//	m_pModule->m_pfnCloseArchive (m_hArchive);
-	//	m_hArchive = NULL;
+		return E_SUCCESS;
 	}
 
 	return ConvertResult (nResult);
@@ -382,24 +349,6 @@ bool __stdcall WcxArchive::pExtract (
 
 	char *lpDestName = StrCreate (260);
 	char *lpTemp = StrCreate (260);
-
-	/*if (!m_hArchive)
-	{
-		tOpenArchiveData OpenArchiveData = {0};
-
-		OpenArchiveData.ArcName = m_lpFileName;
-		OpenArchiveData.OpenMode = PK_OM_EXTRACT;
-
-		m_hArchive = m_pModule->m_pfnOpenArchive (&OpenArchiveData);
-
-		if (m_hArchive)
-		{
-			if (m_pModule->m_pfnSetProcessDataProc)
-				m_pModule->m_pfnSetProcessDataProc (m_hArchive, m_pfnProcessDataProc);
-			if (m_pModule->m_pfnSetChangeVolProc)
-				m_pModule->m_pfnSetChangeVolProc (m_hArchive, m_pfnSetChangeVolProc);
-		}
-	}*/
 
 	while ( /*m_hArchive &&*/ nResult == 0 )
 	{
@@ -472,14 +421,6 @@ bool __stdcall WcxArchive::pExtract (
 	}
 
 l_1:
-
-/*	if (m_hArchive)
-	{
-		m_pModule->m_pfnCloseArchive (m_hArchive);
-		m_hArchive = NULL;
-	}*/
-
-	//m_bAborted = false;
 
 	StrFree (lpDestName);
 	StrFree (lpTemp);

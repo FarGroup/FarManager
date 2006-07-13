@@ -32,8 +32,9 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/wcx.dll"
+				OutputFile="G:\System Independent Files\Manager\Far\Plugins\newarc\plugins\wcx\wcx.module"
 				LinkIncremental="2"
+				ModuleDefinitionFile="wcx.def"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/wcx.pdb"
 				SubSystem="2"
@@ -78,7 +79,7 @@
 				StringPooling="TRUE"
 				ExceptionHandling="FALSE"
 				RuntimeLibrary="4"
-				StructMemberAlignment="1"
+				StructMemberAlignment="0"
 				BufferSecurityCheck="FALSE"
 				UsePrecompiledHeader="0"
 				WarningLevel="0"
@@ -128,6 +129,9 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
+			<File
+				RelativePath="..\..\lib.part\Src\debug.cpp">
+			</File>
 			<File
 				RelativePath="..\..\lib.part\Src\Rtl.Misc.cpp">
 			</File>

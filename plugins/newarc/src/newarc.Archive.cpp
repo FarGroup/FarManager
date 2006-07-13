@@ -288,53 +288,56 @@ int __stdcall Archive::ArchiveCallback (
 		m_uTotalSize += nParam2;
 		m_uTotalSize2 += nParam2;
 
-		double div;
-		char szPercents[MAX_PATH];
-
-		if (m_pCurrentItem->FindData.nFileSizeLow>0)
-			div = (double)m_uTotalSize/(double)(m_pCurrentItem->FindData.nFileSizeHigh*0x100000000ull+m_pCurrentItem->FindData.nFileSizeLow);
-		else
-			div = 1;
-		if (div > 1)
-			div = 1;
-		dword dwPercent = (int)(div*40);
-		dword dwRealPercent = (int)(div*100);
-
-		if ( !OptionIsOn (m_nMode, OPM_SILENT) )
+		if ( m_pCurrentItem )
 		{
-			doIndicator (c.X+5, c.Y+6, dwPercent);
+			double div;
+			char szPercents[MAX_PATH];
 
-			wsprintf (szPercents, "%4u%%", dwRealPercent);
-			Info.Text (c.X+45, c.Y+6, FarGetColor (COL_DIALOGTEXT), szPercents);
+			if (m_pCurrentItem->FindData.nFileSizeLow>0)
+				div = (double)m_uTotalSize/(double)(m_pCurrentItem->FindData.nFileSizeHigh*0x100000000ull+m_pCurrentItem->FindData.nFileSizeLow);
+			else
+				div = 1;
+			if (div > 1)
+				div = 1;
+			dword dwPercent = (int)(div*40);
+			dword dwRealPercent = (int)(div*100);
+
+			if ( !OptionIsOn (m_nMode, OPM_SILENT) )
+			{
+				doIndicator (c.X+5, c.Y+6, dwPercent);
+
+				wsprintf (szPercents, "%4u%%", dwRealPercent);
+				Info.Text (c.X+45, c.Y+6, FarGetColor (COL_DIALOGTEXT), szPercents);
+			}
+
+			if (m_uFullSize>0)
+        		div = (double)m_uTotalSize2/(double)m_uFullSize;
+	        else
+    	    	div = 1;
+			if (div > 1)
+				div = 1;
+
+			dwPercent = (int)(div*40);
+			dwRealPercent = (int)(div*100);
+
+			if ( !OptionIsOn (m_nMode, OPM_SILENT) )
+			{
+				doIndicator (c.X+5, c.Y+8, dwPercent);
+
+				wsprintf (szPercents, "%4u%%", dwRealPercent);
+				Info.Text (c.X+45, c.Y+8, FarGetColor (COL_DIALOGTEXT), szPercents);
+
+				Info.Text (0, 0, 0, 0);
+			}
+
+			char *lpTitle = StrCreate (260);
+
+			FSF.sprintf (lpTitle, "{%d%%} Распаковка - Far", (int)(div*100));
+
+			SetConsoleTitle (lpTitle);
+
+			StrFree (lpTitle);
 		}
-
-		if (m_uFullSize>0)
-        	div = (double)m_uTotalSize2/(double)m_uFullSize;
-        else
-        	div = 1;
-		if (div > 1)
-			div = 1;
-
-		dwPercent = (int)(div*40);
-		dwRealPercent = (int)(div*100);
-
-		if ( !OptionIsOn (m_nMode, OPM_SILENT) )
-		{
-			doIndicator (c.X+5, c.Y+8, dwPercent);
-
-			wsprintf (szPercents, "%4u%%", dwRealPercent);
-			Info.Text (c.X+45, c.Y+8, FarGetColor (COL_DIALOGTEXT), szPercents);
-
-			Info.Text (0, 0, 0, 0);
-		}
-
-		char *lpTitle = StrCreate (260);
-
-		FSF.sprintf (lpTitle, "{%d%%} Распаковка - Far", (int)(div*100));
-
-		SetConsoleTitle (lpTitle);
-
-		StrFree (lpTitle);
 
 		if ( !OptionIsOn (m_nMode, OPM_SILENT) ) 
 		{

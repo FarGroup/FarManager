@@ -7,6 +7,7 @@
 #include <FarLNG.h>
 #include <Registry.h>
 #include "newarc.Messages.h"
+#include "debug.h"
 
 #define _M(id) (char*)Info.GetMsg (Info.ModuleNumber, id)
 
