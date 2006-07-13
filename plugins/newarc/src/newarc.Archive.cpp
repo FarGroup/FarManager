@@ -399,6 +399,23 @@ bool Archive::pExtract (
 }
 
 
+bool Archive::pDelete (
+		PluginPanelItem *pItems,
+		int nItemsNumber
+		)
+{
+	DeleteStruct DS;
+	
+	DS.hArchive = m_hArchive;
+	DS.pItems = pItems;
+	DS.nItemsNumber = nItemsNumber;
+
+	if ( m_pPlugin->m_pfnPluginEntry (FID_DELETE, (void*)&DS) == NAERROR_SUCCESS )
+		return DS.bResult;
+
+	return false;
+}
+
 bool Archive::pOpenArchive (
 		int nMode
 		)

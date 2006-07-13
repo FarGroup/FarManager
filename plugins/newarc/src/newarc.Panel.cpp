@@ -1720,14 +1720,31 @@ int __stdcall ArchivePanel::pDeleteFiles (
 				&nItemsToProcessNumber
 				);
 
+		bool bExternal = !((m_pArchive->m_pPlugin->m_ArchivePluginInfo).pFormatInfo[m_pArchive->pGetArchiveFormatType()].dwFlags&AFF_SUPPORT_INTERNAL_DELETE);
 
-		pExecuteCommand (
-				COMMAND_DELETE,
-				NULL,
-				NULL,
-				pItemsToProcess,
-				nItemsToProcessNumber
-				);
+		if ( bExternal )
+		{
+			pExecuteCommand (
+					COMMAND_DELETE,
+					NULL,
+					NULL,
+					pItemsToProcess,
+					nItemsToProcessNumber
+					);
+		}
+		else
+		{
+		//	if ( m_pArchive->pOpenArchive (OM_EXTRACT) ) //to cache opened state!!!
+			//{
+				m_pArchive->pDelete (
+						pItemsToProcess,
+						nItemsToProcessNumber
+						);
+
+				//m_pArchive->pCloseArchive ();
+		//	}
+		}
+
 
 		free (pItemsToProcess);
 

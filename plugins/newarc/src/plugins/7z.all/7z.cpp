@@ -300,6 +300,18 @@ int OnGetDefaultCommand (GetDefaultCommandStruct *pGDC)
 	return NAERROR_SUCCESS;
 }
 
+int OnDelete (DeleteStruct *pDS)
+{
+	SevenZipArchive *pArchive = (SevenZipArchive *)pDS->hArchive;
+
+	pDS->bResult = pArchive->pDelete (
+			pDS->pItems,
+			pDS->nItemsNumber
+			);
+
+	return NAERROR_SUCCESS;
+}
+
 
 int __stdcall PluginEntry (
 		int nFunctionID,
@@ -343,6 +355,9 @@ int __stdcall PluginEntry (
 
 	case FID_GETDEFAULTCOMMAND:
 		return OnGetDefaultCommand ((GetDefaultCommandStruct*)pParams);
+
+	case FID_DELETE:
+		return OnDelete ((DeleteStruct*)pParams);
 	}
 
 	return NAERROR_NOTIMPLEMENTED;

@@ -50,6 +50,7 @@ public:
 	int pGetArchiveItem (ArchiveItemInfo *pItem);
 
 	bool pExtract (PluginPanelItem *pItems, int nItemsNumber, const char *lpDestPath, const char *lpCurrentPath);
+	bool pDelete (PluginPanelItem *pItems, int nItemsNumber);
 
 	bool pGetDefaultCommand (int nCommand, char *lpCommand);
 

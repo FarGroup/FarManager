@@ -52,6 +52,7 @@ struct ArchiveItemInfo {
 #define AFF_SUPPORT_INTERNAL_EXTRACT	1
 #define AFF_SUPPORT_INTERNAL_TEST		2
 #define AFF_SUPPORT_INTERNAL_ADD		4
+#define AFF_SUPPORT_INTERNAL_DELETE		5
 
 struct ArchiveFormatInfo {
 	DWORD dwFlags;
@@ -150,6 +151,15 @@ struct TestStruct {
 	bool bResult;
 };
 
+struct DeleteStruct {
+	DWORD dwStructSize;
+
+	HANDLE hArchive;
+	PluginPanelItem *pItems;
+	int nItemsNumber;
+	bool bResult;
+};
+
 #define FID_INITIALIZE			 1	//param - PluginStartupInfo
 #define FID_FINALIZE			 2	//param - NULL
 #define FID_QUERYARCHIVE    	 3	//param - QueryArchiveStruct
@@ -162,6 +172,7 @@ struct TestStruct {
 #define FID_GETARCHIVEITEM		10
 #define FID_TEST				11
 #define FID_GETARCHIVEPLUGININFO	12	//param - ArchivePluginInfo
+#define FID_DELETE				13 //param - DeleteStruct
 
 #ifdef __cplusplus
 extern "C" {

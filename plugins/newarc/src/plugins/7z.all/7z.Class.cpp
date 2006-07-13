@@ -288,7 +288,7 @@ bool SevenZipModule::IsSplitModule ()
 
 void SevenZipModule::GetArchiveFormatInfo (ArchiveFormatInfo *pInfo)
 {
-	pInfo->dwFlags = AFF_SUPPORT_INTERNAL_EXTRACT|AFF_SUPPORT_INTERNAL_TEST;
+	pInfo->dwFlags = AFF_SUPPORT_INTERNAL_EXTRACT|AFF_SUPPORT_INTERNAL_TEST|AFF_SUPPORT_INTERNAL_DELETE;
 
 	if ( IsEqualGUID (m_uid, CLSID_CFormat7z) )
 	{
@@ -622,6 +622,15 @@ bool __stdcall SevenZipArchive::pTest (
 {
 	return true;
 }
+
+bool __stdcall SevenZipArchive::pDelete (
+		PluginPanelItem *pItems,
+		int nItemsNumber
+		)
+{
+	return true;
+}
+
 
 /*
 int GetIndex (IInArchive *pArchive, const char *lpFileName)
