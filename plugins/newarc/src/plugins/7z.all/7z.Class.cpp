@@ -580,6 +580,11 @@ int __stdcall SevenZipArchive::pGetArchiveItem (
 			pItem->pi.PackSizeHigh = (DWORD)(size >> 32);
 		}
 
+		if ( m_pArchive->GetProperty (m_nItemsNumber, kpidCRC, &value) == S_OK )
+		{
+			if ( value.vt == VT_UI4 )
+				pItem->pi.CRC32 = value.ulVal;
+		}
 
 		if ( m_pArchive->GetProperty (m_nItemsNumber, kpidCreationTime, &value) == S_OK )
 		{
