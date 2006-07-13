@@ -1,7 +1,4 @@
 #include <FarPluginBase.h>
-#ifdef _DEBUG
-#include <debug.h>
-#endif
 #include "rar.class.h"
 #include "dll.hpp"
 

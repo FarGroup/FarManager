@@ -1,8 +1,5 @@
 #include <FarPluginBase.h>
 #include <stdio.h>
-#ifdef _DEBUG
-#include <debug.h>
-#endif
 #include "zip.class.h"
 
 PluginStartupInfo Info;

@@ -1,8 +1,5 @@
 #include <FarPluginBase.h>
 #include <Rtl.Base.h>
-#ifdef _DEBUG
-#include <debug.h>
-#endif
 #include "../../module.hpp"
 #include "dll.hpp"
 

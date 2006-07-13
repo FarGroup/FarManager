@@ -6,13 +6,15 @@
 #include <FarDialogs.h>
 #include <FarLNG.h>
 #include <Registry.h>
+#include <Collections.h>
+#include <debug.h>
+#include "module.hpp"
+#include "newarc.archive.h"
+#include "newarc.archiveplugin.h"
+#include "newarc.panel.h"
 #include "newarc.Messages.h"
-#include "debug.h"
 
 #define _M(id) (char*)Info.GetMsg (Info.ModuleNumber, id)
-
-class ArchivePlugin;
-class Archive;
 
 extern Collection<ArchivePlugin*> Plugins;
 
@@ -31,16 +33,6 @@ extern Collection<ArchivePlugin*> Plugins;
         };*/
 
 extern char *pCommandNames[11];
-
-
-#ifdef _DEBUG
-#include <debug.h>
-#endif
-#include <Collections.h>
-#include "module.hpp"
-#include "newarc.archiveplugin.h"
-#include "newarc.archive.h"
-#include "newarc.panel.h"
 
 #define FILE_ENCRYPTED 1
 

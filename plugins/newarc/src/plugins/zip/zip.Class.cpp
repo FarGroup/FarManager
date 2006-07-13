@@ -1,7 +1,4 @@
 #include <FarPluginBase.h>
-#ifdef _DEBUF
-#include <debug.h>
-#endif
 #include "zip.class.h"
 
 void ConvertSlashes (char *lpFileName)

@@ -3,9 +3,6 @@
 
 #include <FarPluginBase.h>
 #include <Rtl.Base.h>
-#ifdef _DEBUG
-#include <debug.h>
-#endif
 #include "../../module.hpp"
 
 #include "../7z.headers/7zip/Archive/IArchive.h"

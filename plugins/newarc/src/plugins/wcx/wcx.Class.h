@@ -1,9 +1,6 @@
 #include <FarPluginBase.h>
 #include <Rtl.Base.h>
 #include <Collections.h>
-#ifdef _DEBUG
-#include <debug.h>
-#endif
 #include "../../module.hpp"
 #include "wcxhead.h"
 

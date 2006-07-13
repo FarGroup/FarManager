@@ -1,10 +1,7 @@
 #include <FarPluginBase.h>
 #include <Rtl.Base.h>
-#ifdef _DEBUG
-#include <debug.h>
-#endif
 #include "unzip.h"
-#include "../../../module.hpp"
+#include "../../module.hpp"
 
 typedef unzFile (__stdcall *UNZOPEN) (const char*);
 typedef unzFile (__stdcall *UNZOPEN2) (const char *, zlib_filefunc_def*);

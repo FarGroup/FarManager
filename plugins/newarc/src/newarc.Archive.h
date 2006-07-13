@@ -1,6 +1,8 @@
 #pragma once
 #include "newarc.h"
 
+class ArchivePlugin;
+
 class Archive {
 
 public:

@@ -3,6 +3,8 @@
 
 typedef int (__stdcall *PLUGINENTRY) (int nFunctionID, void *pParams);
 
+class Archive;
+
 class ArchivePlugin {
 
 private:

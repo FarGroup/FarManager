@@ -1,7 +1,4 @@
 #include <FarPluginBase.h>
-#ifdef _DEBUG
-#include <debug.h>
-#endif
 #include "wcx.class.h"
 
 PluginStartupInfo Info;
